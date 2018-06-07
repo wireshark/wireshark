@@ -373,6 +373,7 @@ set(WIRESHARK_QT_SRC
 	lte_rlc_statistics_dialog.cpp
 	main_status_bar.cpp
 	welcome_page.cpp
+	main.cpp
 	main_window.cpp
 	main_window_preferences_frame.cpp
 	main_window_layout.cpp

@@ -50,7 +50,7 @@
     MSDN recommends setting our DPI awareness to PerMonitorV2 instead
     of PerMonitor. Unfortunately that causes layout issues with Qt
     5.6 and 5.9. For now enable PerMonitor DPI awareness by enabling
-    Qt::AA_EnableHighDpiScaling in wireshark-qt.cpp.
+    Qt::AA_EnableHighDpiScaling in ui/qt/main.cpp.
   -->
   <!--
   <application xmlns="urn:schemas-microsoft-com:asm.v3">

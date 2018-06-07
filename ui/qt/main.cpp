@@ -1,4 +1,4 @@
-/* wireshark-qt.cpp
+/* main.cpp
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

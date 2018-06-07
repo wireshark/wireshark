@@ -958,7 +958,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
     }
     wsApp->quit();
     // When the main loop is not yet running (i.e. when openCaptureFile is
-    // executing in wireshark-qt.cpp), the above quit action has no effect.
+    // executing in main.cpp), the above quit action has no effect.
     // Schedule a quit action for the next execution of the main loop.
     QMetaObject::invokeMethod(wsApp, "quit", Qt::QueuedConnection);
 }

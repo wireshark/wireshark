@@ -24,8 +24,8 @@ extern "C" {
  * @brief set_thread_per_monitor_v2_awareness
  *
  * Qt <= 5.9 supports setting old (Windows 8.1) per-monitor DPI awareness
- * via Qt:AA_EnableHighDpiScaling. We do this in wireshark-qt.cpp. In order
- * for native dialogs to be rendered correctly we need to to set per-monitor
+ * via Qt:AA_EnableHighDpiScaling. We do this in main.cpp. In order for
+ * native dialogs to be rendered correctly we need to to set per-monitor
  * *v2* awareness prior to creating the dialog, which we can do here.
  * Qt doesn't render correctly when per-monitor v2 awareness is enabled, so
  * we need to revert our thread context when we're done.

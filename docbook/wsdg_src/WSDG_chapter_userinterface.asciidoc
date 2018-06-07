@@ -88,7 +88,7 @@ prompt you to re-run CMake.
 
 ==== Source Code Overview
 
-Wireshark’s `main` entry point is in _wireshark-qt.cpp_. Command-line arguments
+Wireshark’s `main` entry point is in _ui/qt/main.cpp_. Command-line arguments
 are processed there and the main application class (`WiresharkApplication`)
 instance is created there along with the main window.
 
