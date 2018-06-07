@@ -26,7 +26,8 @@
  * - Find out meaning of prbseq
  * - Is there a (fixed) structure in the csp field?
  * - Validate the timestamp decoding: The seconds value is identical to
- *   Spirent's stcsig dissector, the ns value differs
+ *   Spirent's stcsig dissector, the ns value differs significantly
+ * - Find out what the TSLR really stands for - currently just a guess
  */
 
 #define NEW_PROTO_TREE_API
@@ -54,12 +55,7 @@ static header_field_info hfi_stcsig_rawdata STCSIG_HFI_INIT =
 
 static header_field_info hfi_stcsig_iv STCSIG_HFI_INIT =
 	  { "IV", "stcsig.iv", FT_UINT8, BASE_HEX, NULL, 0x0,
-	    "Deobfuscation Initialization Vector", HFILL };
-
-/* IV originally was:
-static header_field_info hfi_stcsig_seqbyte STCSIG_HFI_INIT =
-	  { "Complement of Sequence Byte", "stcsig.seqbyte", FT_UINT8, BASE_HEX, NULL, 0x0,
-	    NULL, HFILL }; */
+	    "Deobfuscation Initialization Vector and Complement of Sequence Low Byte", HFILL };
 
 static header_field_info hfi_stcsig_streamid STCSIG_HFI_INIT =
 	  { "StreamID", "stcsig.streamid", FT_INT32, BASE_DEC, NULL, 0x0,
@@ -68,6 +64,10 @@ static header_field_info hfi_stcsig_streamid STCSIG_HFI_INIT =
 static header_field_info hfi_stcsig_csp STCSIG_HFI_INIT =
 	  { "ChassisSlotPort", "stcsig.csp", FT_UINT16, BASE_DEC, NULL, 0x0,
 	    NULL, HFILL };
+
+static header_field_info hfi_stcsig_seqnum_complement STCSIG_HFI_INIT =
+	  { "Complement (EDM)", "stcsig.complement", FT_UINT16, BASE_DEC, NULL, 0x0,
+	    "Complement of high bytes of Sequence Number", HFILL };
 
 static header_field_info hfi_stcsig_seqnum_edm STCSIG_HFI_INIT =
 	  { "Sequence Number (EDM)", "stcsig.seqnum", FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -106,6 +106,7 @@ static header_field_info hfi_stcsig_unknown STCSIG_HFI_INIT =
 	    "Unknown Trailer (not obfuscated)", HFILL };
 
 static gint ett_stcsig = -1;
+static gint ett_stcsig_streamid = -1;
 
 /*
  * For the last 20 bytes of the data section to be a Spirent Signature
@@ -234,6 +235,7 @@ dissect_stcsig(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 	tvbuff_t   *stcsig_tvb;
 	proto_item *ti;
 	proto_tree *stcsig_tree;
+	proto_tree *stcsig_streamid_tree;
 	guint8     *real_stcsig;
 
 	guint64    timestamp_2_5_ns;
@@ -269,11 +271,15 @@ dissect_stcsig(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
 	proto_tree_add_item(stcsig_tree, &hfi_stcsig_rawdata, tvb, sig_offset, 20, ENC_NA);
 	proto_tree_add_item(stcsig_tree, &hfi_stcsig_iv, stcsig_tvb, 0, 1, ENC_NA);
-	proto_tree_add_item(stcsig_tree, &hfi_stcsig_streamtype, stcsig_tvb, 3, 1, ENC_NA);
-	proto_tree_add_item(stcsig_tree, &hfi_stcsig_streamid, stcsig_tvb, 1, 4, ENC_BIG_ENDIAN);
-	proto_tree_add_item(stcsig_tree, &hfi_stcsig_csp, stcsig_tvb, 1, 2, ENC_BIG_ENDIAN);
-	proto_tree_add_item(stcsig_tree, &hfi_stcsig_streamindex, stcsig_tvb, 3, 2, ENC_BIG_ENDIAN);
+	ti = proto_tree_add_item(stcsig_tree, &hfi_stcsig_streamid, stcsig_tvb, 1, 4, ENC_BIG_ENDIAN);
+	stcsig_streamid_tree = proto_item_add_subtree(ti, ett_stcsig_streamid);
+	/* This subtree is mostly an optical hierachy, auto expand it */
+	tree_expanded_set(ett_stcsig_streamid, TRUE);
+	proto_tree_add_item(stcsig_streamid_tree, &hfi_stcsig_csp, stcsig_tvb, 1, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(stcsig_streamid_tree, &hfi_stcsig_streamtype, stcsig_tvb, 3, 1, ENC_NA);
+	proto_tree_add_item(stcsig_streamid_tree, &hfi_stcsig_streamindex, stcsig_tvb, 3, 2, ENC_BIG_ENDIAN);
 	if (tvb_get_ntohs(stcsig_tvb, 5) + tvb_get_ntohs(stcsig_tvb, 7) == 0xffff) {
+		proto_tree_add_item(stcsig_tree, &hfi_stcsig_seqnum_complement, stcsig_tvb, 5, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(stcsig_tree, &hfi_stcsig_seqnum_edm, stcsig_tvb, 7, 4, ENC_BIG_ENDIAN);
 	} else {
 		proto_tree_add_item(stcsig_tree, &hfi_stcsig_seqnum_sm, stcsig_tvb, 5, 6, ENC_BIG_ENDIAN);
@@ -301,6 +307,7 @@ proto_register_stcsig(void)
 		&hfi_stcsig_streamtype,
 		&hfi_stcsig_streamid,
 		&hfi_stcsig_csp,
+		&hfi_stcsig_seqnum_complement,
 		&hfi_stcsig_seqnum_edm,
 		&hfi_stcsig_seqnum_sm,
 		&hfi_stcsig_streamindex,
@@ -312,7 +319,8 @@ proto_register_stcsig(void)
 #endif
 
 	static gint *ett[] = {
-		&ett_stcsig
+		&ett_stcsig,
+		&ett_stcsig_streamid
 	};
 
 	dissector_handle_t stcsig_handle;
