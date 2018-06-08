@@ -3133,7 +3133,7 @@ printf("RESTRICTED STRING dissect_ber_octet_string(%s) entered\n", name);
 #endif
 
     if (!implicit_tag) {
-    	identifier_offset = offset;
+   	identifier_offset = offset;
         offset  = get_ber_identifier(tvb, offset, &ber_class, &pc, &tag);
         identifier_len = offset - identifier_offset;
         offset  = get_ber_length(tvb, offset, &len, NULL);
