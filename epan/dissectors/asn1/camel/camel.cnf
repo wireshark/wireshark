@@ -666,7 +666,7 @@ proto_tree *subtree;
 
 #.END
 
-#.FN_BODY AdditionalCallingPartyNumber VAL_PTR = &parameter_tvb
+#.FN_BODY Digits VAL_PTR = &parameter_tvb
 /*
 * Digits {PARAMETERS-BOUND : bound} ::= OCTET STRING (SIZE(
 *	bound.&minDigitsLength .. bound.&maxDigitsLength))
@@ -680,18 +680,70 @@ proto_tree *subtree;
 *--
 *-- The following parameters shall use Generic Number:
 *--  - AdditionalCallingPartyNumber for InitialDP
-*
+*--  - AssistingSSPIPRoutingAddress for EstablishTemporaryConnection
+*--  - CorrelationID for AssistRequestInstructions
+*--  - CalledAddressValue for all occurrences, CallingAddressValue for all occurrences.
+*--
+*-- The following parameters shall use Generic Digits:
+*--  - CorrelationID in EstablishTemporaryConnection
+*--  - number in VariablePart
+*--  - digitsResponse in ReceivedInformationArg
+*--	- midCallEvents in oMidCallSpecificInfo and tMidCallSpecificInfo
+*--
+*-- In the digitsResponse and midCallevents, the digits may also include the '*', '#',
+*-- a, b, c and d digits by using the IA5 character encoding scheme. If the BCD even or
+*-- BCD odd encoding scheme is used, then the following encoding shall be applied for the
+*-- non-decimal characters: 1011 (*), 1100 (#).
+*--
+*-- AssistingSSPIPRoutingAddress in EstablishTemporaryConnection and CorrelationID in
+*-- AssistRequestInstructions may contain a Hex B digit as address signal. Refer to
+*-- Annex A.6 for the usage of the Hex B digit.
+*--
+*-- Note that when CorrelationID is transported in Generic Digits, then the digits shall
+*-- always be BCD encoded.
 */
  tvbuff_t	*parameter_tvb;
  proto_tree *subtree;
+ gint ett = -1;
+ gboolean digits = FALSE;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
 
   if (!parameter_tvb)
 	return offset;
-  subtree = proto_item_add_subtree(actx->created_item, ett_camel_additionalcallingpartynumber);
-  dissect_isup_generic_number_parameter(parameter_tvb, actx->pinfo, subtree, NULL);
+
+  if (hf_index == hf_camel_calledAddressValue) {
+	ett = ett_camel_calledAddressValue;
+  } else if (hf_index == hf_camel_callingAddressValue) {
+	ett = ett_camel_callingAddressValue;
+  } else if (hf_index == hf_camel_additionalCallingPartyNumber) {
+	ett = ett_camel_additionalcallingpartynumber;
+  } else if (hf_index == hf_camel_assistingSSPIPRoutingAddress) {
+	ett = ett_camel_assistingSSPIPRoutingAddress;
+  } else if (hf_index == hf_camel_correlationID) {
+	ett = ett_camel_correlationID;
+	digits = (opcode == opcode_establishTemporaryConnection) ? TRUE : FALSE;
+  } else if (hf_index == hf_camel_dTMFDigitsCompleted) {
+	ett = ett_camel_dTMFDigitsCompleted;
+	digits = TRUE;
+  } else if (hf_index == hf_camel_dTMFDigitsTimeOut) {
+	ett = ett_camel_dTMFDigitsTimeOut;
+	digits = TRUE;
+  } else if (hf_index == hf_camel_number) {
+	ett = ett_camel_number;
+	digits = TRUE;
+  } else if (hf_index == hf_camel_digitsResponse) {
+	ett = ett_camel_digitsResponse;
+	digits = TRUE;
+  }
+
+  subtree = proto_item_add_subtree(actx->created_item, ett);
+  if (digits) {
+	dissect_isup_generic_digits_parameter(parameter_tvb, subtree, NULL);
+  } else {
+	dissect_isup_generic_number_parameter(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
 
 # I don't know how to "access" the EstablishTemporaryConnectionArg-PDU which would have been cleaner.
 #.FN_BODY EstablishTemporaryConnectionArg

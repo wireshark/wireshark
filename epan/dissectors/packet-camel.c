@@ -631,6 +631,14 @@ static gint ett_camel_originalcalledpartyid = -1;
 static gint ett_camel_redirectingpartyid = -1;
 static gint ett_camel_locationnumber = -1;
 static gint ett_camel_additionalcallingpartynumber = -1;
+static gint ett_camel_calledAddressValue = -1;
+static gint ett_camel_callingAddressValue = -1;
+static gint ett_camel_assistingSSPIPRoutingAddress = -1;
+static gint ett_camel_correlationID = -1;
+static gint ett_camel_dTMFDigitsCompleted = -1;
+static gint ett_camel_dTMFDigitsTimeOut = -1;
+static gint ett_camel_number = -1;
+static gint ett_camel_digitsResponse = -1;
 
 
 /*--- Included file: packet-camel-ett.c ---*/
@@ -833,7 +841,7 @@ static gint ett_camel_T_problem = -1;
 static gint ett_camel_InvokeId = -1;
 
 /*--- End of included file: packet-camel-ett.c ---*/
-#line 137 "./asn1/camel/packet-camel-template.c"
+#line 145 "./asn1/camel/packet-camel-template.c"
 
 static expert_field ei_camel_unknown_invokeData = EI_INIT;
 static expert_field ei_camel_unknown_returnResultData = EI_INIT;
@@ -1180,7 +1188,7 @@ static const value_string camel_ectTreatmentIndicator_values[] = {
 #define noInvokeId                     NULL
 
 /*--- End of included file: packet-camel-val.h ---*/
-#line 299 "./asn1/camel/packet-camel-template.c"
+#line 307 "./asn1/camel/packet-camel-template.c"
 
 
 /*--- Included file: packet-camel-table.c ---*/
@@ -1270,7 +1278,7 @@ static const value_string camel_err_code_string_vals[] = {
 
 
 /*--- End of included file: packet-camel-table.c ---*/
-#line 301 "./asn1/camel/packet-camel-template.c"
+#line 309 "./asn1/camel/packet-camel-template.c"
 
 /*
  * DEBUG fonctions
@@ -1452,16 +1460,6 @@ dissect_camel_AChChargingAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_camel_Digits(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
-
-  return offset;
-}
-
-
-
-static int
-dissect_camel_AdditionalCallingPartyNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 /*
 * Digits {PARAMETERS-BOUND : bound} ::= OCTET STRING (SIZE(
 *	bound.&minDigitsLength .. bound.&maxDigitsLength))
@@ -1475,19 +1473,80 @@ dissect_camel_AdditionalCallingPartyNumber(gboolean implicit_tag _U_, tvbuff_t *
 *--
 *-- The following parameters shall use Generic Number:
 *--  - AdditionalCallingPartyNumber for InitialDP
-*
+*--  - AssistingSSPIPRoutingAddress for EstablishTemporaryConnection
+*--  - CorrelationID for AssistRequestInstructions
+*--  - CalledAddressValue for all occurrences, CallingAddressValue for all occurrences.
+*--
+*-- The following parameters shall use Generic Digits:
+*--  - CorrelationID in EstablishTemporaryConnection
+*--  - number in VariablePart
+*--  - digitsResponse in ReceivedInformationArg
+*--	- midCallEvents in oMidCallSpecificInfo and tMidCallSpecificInfo
+*--
+*-- In the digitsResponse and midCallevents, the digits may also include the '*', '#',
+*-- a, b, c and d digits by using the IA5 character encoding scheme. If the BCD even or
+*-- BCD odd encoding scheme is used, then the following encoding shall be applied for the
+*-- non-decimal characters: 1011 (*), 1100 (#).
+*--
+*-- AssistingSSPIPRoutingAddress in EstablishTemporaryConnection and CorrelationID in
+*-- AssistRequestInstructions may contain a Hex B digit as address signal. Refer to
+*-- Annex A.6 for the usage of the Hex B digit.
+*--
+*-- Note that when CorrelationID is transported in Generic Digits, then the digits shall
+*-- always be BCD encoded.
 */
  tvbuff_t	*parameter_tvb;
  proto_tree *subtree;
+ gint ett = -1;
+ gboolean digits = FALSE;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
 
   if (!parameter_tvb)
 	return offset;
-  subtree = proto_item_add_subtree(actx->created_item, ett_camel_additionalcallingpartynumber);
-  dissect_isup_generic_number_parameter(parameter_tvb, actx->pinfo, subtree, NULL);
 
+  if (hf_index == hf_camel_calledAddressValue) {
+	ett = ett_camel_calledAddressValue;
+  } else if (hf_index == hf_camel_callingAddressValue) {
+	ett = ett_camel_callingAddressValue;
+  } else if (hf_index == hf_camel_additionalCallingPartyNumber) {
+	ett = ett_camel_additionalcallingpartynumber;
+  } else if (hf_index == hf_camel_assistingSSPIPRoutingAddress) {
+	ett = ett_camel_assistingSSPIPRoutingAddress;
+  } else if (hf_index == hf_camel_correlationID) {
+	ett = ett_camel_correlationID;
+	digits = (opcode == opcode_establishTemporaryConnection) ? TRUE : FALSE;
+  } else if (hf_index == hf_camel_dTMFDigitsCompleted) {
+	ett = ett_camel_dTMFDigitsCompleted;
+	digits = TRUE;
+  } else if (hf_index == hf_camel_dTMFDigitsTimeOut) {
+	ett = ett_camel_dTMFDigitsTimeOut;
+	digits = TRUE;
+  } else if (hf_index == hf_camel_number) {
+	ett = ett_camel_number;
+	digits = TRUE;
+  } else if (hf_index == hf_camel_digitsResponse) {
+	ett = ett_camel_digitsResponse;
+	digits = TRUE;
+  }
+
+  subtree = proto_item_add_subtree(actx->created_item, ett);
+  if (digits) {
+	dissect_isup_generic_digits_parameter(parameter_tvb, subtree, NULL);
+  } else {
+	dissect_isup_generic_number_parameter(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
+
+  return offset;
+}
+
+
+
+static int
+dissect_camel_AdditionalCallingPartyNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_camel_Digits(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
 }
@@ -7158,7 +7217,7 @@ static int dissect_CAP_U_ABORT_REASON_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 
 
 /*--- End of included file: packet-camel-fn.c ---*/
-#line 402 "./asn1/camel/packet-camel-template.c"
+#line 410 "./asn1/camel/packet-camel-template.c"
 
 
 /*--- Included file: packet-camel-table2.c ---*/
@@ -7365,7 +7424,7 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
 
 
 /*--- End of included file: packet-camel-table2.c ---*/
-#line 404 "./asn1/camel/packet-camel-template.c"
+#line 412 "./asn1/camel/packet-camel-template.c"
 
 /*
  * Functions needed for Hash-Table
@@ -8278,7 +8337,7 @@ void proto_reg_handoff_camel(void) {
 
 
 /*--- End of included file: packet-camel-dis-tab.c ---*/
-#line 1309 "./asn1/camel/packet-camel-template.c"
+#line 1317 "./asn1/camel/packet-camel-template.c"
   } else {
     range_foreach(ssn_range, range_delete_callback, NULL);
     wmem_free(wmem_epan_scope(), ssn_range);
@@ -10400,7 +10459,7 @@ void proto_register_camel(void) {
         "InvokeId_present", HFILL }},
 
 /*--- End of included file: packet-camel-hfarr.c ---*/
-#line 1482 "./asn1/camel/packet-camel-template.c"
+#line 1490 "./asn1/camel/packet-camel-template.c"
   };
 
   /* List of subtrees */
@@ -10418,6 +10477,14 @@ void proto_register_camel(void) {
     &ett_camel_redirectingpartyid,
     &ett_camel_locationnumber,
     &ett_camel_additionalcallingpartynumber,
+    &ett_camel_calledAddressValue,
+    &ett_camel_callingAddressValue,
+    &ett_camel_assistingSSPIPRoutingAddress,
+    &ett_camel_correlationID,
+    &ett_camel_dTMFDigitsCompleted,
+    &ett_camel_dTMFDigitsTimeOut,
+    &ett_camel_number,
+    &ett_camel_digitsResponse,
 
 
 /*--- Included file: packet-camel-ettarr.c ---*/
@@ -10620,7 +10687,7 @@ void proto_register_camel(void) {
     &ett_camel_InvokeId,
 
 /*--- End of included file: packet-camel-ettarr.c ---*/
-#line 1501 "./asn1/camel/packet-camel-template.c"
+#line 1517 "./asn1/camel/packet-camel-template.c"
   };
 
   static ei_register_info ei[] = {

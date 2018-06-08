@@ -6588,7 +6588,7 @@ dissect_isup_generic_name_parameter(tvbuff_t *parameter_tvb, proto_tree *paramet
 /* ------------------------------------------------------------------
  Dissector Parameter Generic digits
  */
-static void
+void
 dissect_isup_generic_digits_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item _U_)
 { guint length = tvb_reported_length(parameter_tvb);
   proto_tree_add_item(parameter_tree, hf_isup_generic_digits, parameter_tvb, 0, length, ENC_NA);

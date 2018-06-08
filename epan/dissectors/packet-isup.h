@@ -174,6 +174,7 @@ void dissect_isup_redirecting_number_parameter(tvbuff_t *parameter_tvb, packet_i
 void dissect_isup_location_number_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, proto_item *parameter_item);
 
 void dissect_isup_generic_number_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, proto_item *parameter_item);
+void dissect_isup_generic_digits_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item _U_);
 
 void dissect_japan_isup_additonal_user_cat(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, proto_item *parameter_item);
 extern int dissect_codec_mode(proto_tree *tree, tvbuff_t *tvb, int offset, int len);

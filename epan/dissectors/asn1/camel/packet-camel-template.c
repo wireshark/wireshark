@@ -132,6 +132,14 @@ static gint ett_camel_originalcalledpartyid = -1;
 static gint ett_camel_redirectingpartyid = -1;
 static gint ett_camel_locationnumber = -1;
 static gint ett_camel_additionalcallingpartynumber = -1;
+static gint ett_camel_calledAddressValue = -1;
+static gint ett_camel_callingAddressValue = -1;
+static gint ett_camel_assistingSSPIPRoutingAddress = -1;
+static gint ett_camel_correlationID = -1;
+static gint ett_camel_dTMFDigitsCompleted = -1;
+static gint ett_camel_dTMFDigitsTimeOut = -1;
+static gint ett_camel_number = -1;
+static gint ett_camel_digitsResponse = -1;
 
 #include "packet-camel-ett.c"
 
@@ -1496,6 +1504,14 @@ void proto_register_camel(void) {
     &ett_camel_redirectingpartyid,
     &ett_camel_locationnumber,
     &ett_camel_additionalcallingpartynumber,
+    &ett_camel_calledAddressValue,
+    &ett_camel_callingAddressValue,
+    &ett_camel_assistingSSPIPRoutingAddress,
+    &ett_camel_correlationID,
+    &ett_camel_dTMFDigitsCompleted,
+    &ett_camel_dTMFDigitsTimeOut,
+    &ett_camel_number,
+    &ett_camel_digitsResponse,
 
 #include "packet-camel-ettarr.c"
   };
