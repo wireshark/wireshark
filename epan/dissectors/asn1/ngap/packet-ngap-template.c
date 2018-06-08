@@ -57,34 +57,6 @@ static int proto_ngap = -1;
 
 /* Initialize the subtree pointers */
 static int ett_ngap = -1;
-static int ett_ngap_TransportLayerAddress = -1;
-static int ett_ngap_ToTargetTransparentContainer = -1;
-static int ett_ngap_ToSourceTransparentContainer = -1;
-static int ett_ngap_RRCContainer = -1;
-static int ett_ngap_UERadioCapability = -1;
-static int ett_ngap_RIMInformation = -1;
-static int ett_ngap_Cdma2000PDU = -1;
-static int ett_ngap_Cdma2000SectorID = -1;
-static int ett_ngap_UERadioPagingInformation = -1;
-static int ett_ngap_UE_HistoryInformationFromTheUE = -1;
-static int ett_ngap_CELevel = -1;
-static int ett_ngap_UE_RLF_Report_Container = -1;
-static int ett_ngap_UE_RLF_Report_Container_for_extended_bands = -1;
-static int ett_ngap_NG_Message = -1;
-static int ett_ngap_E_UTRAN_Trace_ID = -1;
-static int ett_ngap_InterfacesToTrace = -1;
-static int ett_ngap_EncryptionAlgorithms = -1;
-static int ett_ngap_IntegrityProtectionAlgorithms = -1;
-static int ett_ngap_LastVisitedUTRANCellInformation = -1;
-static int ett_ngap_SerialNumber = -1;
-static int ett_ngap_WarningType = -1;
-static int ett_ngap_DataCodingScheme = -1;
-static int ett_ngap_WarningMessageContents = -1;
-static int ett_ngap_MSClassmark = -1;
-static int ett_ngap_MeasurementsToActivate = -1;
-static int ett_ngap_MDT_Location_Info = -1;
-static int ett_ngap_IMSI = -1;
-static int ett_ngap_NASSecurityParameters = -1;
 #include "packet-ngap-ett.c"
 
 static expert_field ei_ngap_number_pages_le15 = EI_INIT;
@@ -107,41 +79,13 @@ typedef struct _ngap_ctx_t {
     guint32 ProtocolExtensionID;
 } ngap_ctx_t;
 
-struct ngap_supported_ta {
-  guint16 tac;
-  wmem_array_t *plmn;
-};
-
-struct ngap_tai {
-  guint32 plmn;
-  guint16 tac;
-};
-
 struct ngap_private_data {
   struct ngap_conv_info *ngap_conv;
   guint32 procedure_code;
   guint32 protocol_ie_id;
   guint32 protocol_extension_id;
-  guint32 handover_type_value;
   guint32 message_type;
-  guint8 data_coding_scheme;
-  struct ngap_supported_ta *supported_ta;
-  const char *obj_id;
-  struct ngap_tai *tai;
-  guint16 gnb_ue_ngap_id;
-};
-
-enum {
-  NGAP_LTE_CONTAINER_AUTOMATIC,
-  NGAP_LTE_CONTAINER_LEGACY,
-  NGAP_LTE_CONTAINER_NBIOT
-};
-
-static const enum_val_t ngap_lte_container_vals[] = {
-  {"automatic", "Automatic", NGAP_LTE_CONTAINER_AUTOMATIC},
-  {"legacy", "Legacy LTE", NGAP_LTE_CONTAINER_LEGACY},
-  {"nb-iot","NB-IoT", NGAP_LTE_CONTAINER_NBIOT},
-  {NULL, NULL, -1}
+  guint32 handover_type_value;
 };
 
 /* Global variables */
@@ -177,11 +121,6 @@ static int dissect_SourceBSS_ToTargetBSS_TransparentContainer_PDU(tvbuff_t *tvb,
 static int dissect_TargetBSS_ToSourceBSS_TransparentContainer_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 #endif
 
-
-static const true_false_string ngap_tfs_interfacesToTrace = {
-  "Should be traced",
-  "Should not be traced"
-};
 
 const value_string ngap_serialNumber_gs_vals[] = {
   { 0, "Display mode iamfdiate, cell wide"},
@@ -229,11 +168,6 @@ dissect_ngap_warningMessageContents(tvbuff_t *warning_msg_tvb, proto_tree *tree,
   }
 }
 
-
-static const true_false_string ngap_tfs_activate_do_not_activate = {
-  "Activate",
-  "Do not activate"
-};
 
 static struct ngap_private_data*
 ngap_get_private_data(packet_info *pinfo)
@@ -387,34 +321,6 @@ void proto_register_ngap(void) {
   /* List of subtrees */
   static gint *ett[] = {
     &ett_ngap,
-    &ett_ngap_TransportLayerAddress,
-    &ett_ngap_ToTargetTransparentContainer,
-    &ett_ngap_ToSourceTransparentContainer,
-    &ett_ngap_RRCContainer,
-    &ett_ngap_UERadioCapability,
-    &ett_ngap_RIMInformation,
-    &ett_ngap_Cdma2000PDU,
-    &ett_ngap_Cdma2000SectorID,
-    &ett_ngap_UERadioPagingInformation,
-    &ett_ngap_UE_HistoryInformationFromTheUE,
-    &ett_ngap_CELevel,
-    &ett_ngap_UE_RLF_Report_Container,
-    &ett_ngap_UE_RLF_Report_Container_for_extended_bands,
-    &ett_ngap_NG_Message,
-    &ett_ngap_E_UTRAN_Trace_ID,
-    &ett_ngap_InterfacesToTrace,
-    &ett_ngap_EncryptionAlgorithms,
-    &ett_ngap_IntegrityProtectionAlgorithms,
-    &ett_ngap_LastVisitedUTRANCellInformation,
-    &ett_ngap_SerialNumber,
-    &ett_ngap_WarningType,
-    &ett_ngap_DataCodingScheme,
-    &ett_ngap_WarningMessageContents,
-    &ett_ngap_MSClassmark,
-    &ett_ngap_MeasurementsToActivate,
-    &ett_ngap_MDT_Location_Info,
-    &ett_ngap_IMSI,
-    &ett_ngap_NASSecurityParameters,
 #include "packet-ngap-ettarr.c"
   };
 
