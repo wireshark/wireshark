@@ -618,6 +618,7 @@ dissect_t30_partial_page_signal(tvbuff_t *tvb, int offset, packet_info *pinfo, i
 static void
 dissect_t30_partial_page_request(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, proto_tree *tree)
 {
+    int start_offset;
     int frame_count = 0;
     int frame;
 #define BUF_SIZE  (10*1 + 90*2 + 156*3 + 256*2 + 1) /* 0..9 + 10..99 + 100..255 + 256*', ' + \0 */
@@ -631,6 +632,7 @@ dissect_t30_partial_page_request(tvbuff_t *tvb, int offset, packet_info *pinfo, 
         return;
     }
 
+    start_offset = offset;
     for (frame=0; frame < 255; ) {
         guint8 octet = tvb_get_guint8(tvb, offset);
         guint8 bit = 1<<7;
@@ -649,7 +651,7 @@ dissect_t30_partial_page_request(tvbuff_t *tvb, int offset, packet_info *pinfo, 
     proto_tree_add_uint(tree, hf_t30_partial_page_request_frame_count, tvb, offset, 1, frame_count);
     if (buf_top > buf+1) {
         buf_top[-2] = '\0';
-        proto_tree_add_string_format_value(tree, hf_t30_partial_page_request_frames, tvb, offset, (gint)(buf_top-buf),
+        proto_tree_add_string_format_value(tree, hf_t30_partial_page_request_frames, tvb, start_offset, offset - start_offset,
                                      buf, "%s", buf);
     }
 
