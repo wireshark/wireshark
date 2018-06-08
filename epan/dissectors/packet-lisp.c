@@ -549,6 +549,7 @@ get_addr_str(tvbuff_t *tvb, gint offset, guint16 afi, guint16 *addr_len)
                 return wmem_strdup_printf(wmem_packet_scope(), "%s (ASN %d)", addr_str, asn);
             }
             return addr_str;
+        case AFNUM_802:
         case AFNUM_EUI48:
             *addr_len = EUI48_ADDRLEN;
             addr_str  = tvb_ether_to_str(tvb, offset);
@@ -793,6 +794,7 @@ dissect_lcaf_afi_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 offset = dissect_lcaf(tvb, pinfo, lisp_afi_list_tree, offset, tir);
                 remaining -= (offset - old_offset);
                 break;
+            case AFNUM_802:
             case AFNUM_EUI48:
                 proto_tree_add_item(lisp_afi_list_tree, hf_lisp_lcaf_afi_list_mac, tvb, offset, EUI48_ADDRLEN, ENC_NA);
                 proto_item_append_text(tir, " %d. MAC Address: %s", i, tvb_ether_to_str(tvb, offset));
@@ -866,6 +868,7 @@ dissect_lcaf_iid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offse
         case AFNUM_LCAF:
             offset = dissect_lcaf(tvb, pinfo, tree, offset, NULL);
             break;
+        case AFNUM_802:
         case AFNUM_EUI48:
             proto_tree_add_item(tree, hf_lisp_lcaf_iid_mac,
                     tvb, offset, EUI48_ADDRLEN, ENC_NA);
@@ -933,6 +936,7 @@ dissect_lcaf_asn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offse
         case AFNUM_LCAF:
             offset = dissect_lcaf(tvb, pinfo, tree, offset, NULL);
             break;
+        case AFNUM_802:
         case AFNUM_EUI48:
             proto_tree_add_item(tree, hf_lisp_lcaf_asn_mac,
                     tvb, offset, EUI48_ADDRLEN, ENC_NA);
@@ -1095,6 +1099,7 @@ dissect_lcaf_geo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offse
         case AFNUM_LCAF:
             offset = dissect_lcaf(tvb, pinfo, tree, offset, NULL);
             break;
+        case AFNUM_802:
         case AFNUM_EUI48:
             proto_tree_add_item(tree, hf_lisp_lcaf_geo_mac,
                     tvb, offset, EUI48_ADDRLEN, ENC_NA);
@@ -1237,6 +1242,7 @@ dissect_lcaf_nonce_loc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
         case AFNUM_LCAF:
             offset = dissect_lcaf(tvb, pinfo, tree, offset, NULL);
             break;
+        case AFNUM_802:
         case AFNUM_EUI48:
             proto_tree_add_item(tree, hf_lisp_lcaf_nonce_loc_mac,
                     tvb, offset, EUI48_ADDRLEN, ENC_NA);
@@ -1481,6 +1487,7 @@ dissect_lcaf_src_dst_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         case AFNUM_LCAF:
             offset = dissect_lcaf(tvb, pinfo, src_tree, offset, NULL);
             break;
+        case AFNUM_802:
         case AFNUM_EUI48:
             proto_tree_add_item(src_tree, hf_lisp_lcaf_srcdst_src_mac,
                     tvb, offset, EUI48_ADDRLEN, ENC_NA);
@@ -1519,6 +1526,7 @@ dissect_lcaf_src_dst_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         case AFNUM_LCAF:
             offset = dissect_lcaf(tvb, pinfo, dst_tree, offset, NULL);
             break;
+        case AFNUM_802:
         case AFNUM_EUI48:
             proto_tree_add_item(dst_tree, hf_lisp_lcaf_srcdst_dst_mac,
                     tvb, offset, EUI48_ADDRLEN, ENC_NA);
@@ -1628,6 +1636,7 @@ dissect_lcaf_kv_addr_pair(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         case AFNUM_LCAF:
             offset = dissect_lcaf(tvb, pinfo, key_tree, offset, NULL);
             break;
+        case AFNUM_802:
         case AFNUM_EUI48:
             proto_tree_add_item(key_tree, hf_lisp_lcaf_kv_key_mac,
                     tvb, offset, EUI48_ADDRLEN, ENC_NA);
@@ -1666,6 +1675,7 @@ dissect_lcaf_kv_addr_pair(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         case AFNUM_LCAF:
             offset = dissect_lcaf(tvb, pinfo, value_tree, offset, NULL);
             break;
+        case AFNUM_802:
         case AFNUM_EUI48:
             proto_tree_add_item(value_tree, hf_lisp_lcaf_kv_value_mac,
                     tvb, offset, EUI48_ADDRLEN, ENC_NA);
@@ -2040,6 +2050,7 @@ dissect_lisp_mapping(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree,
             dissect_lcaf(tvb, pinfo, lcaf_prefix_tree, offset, NULL);
             offset += addr_len;
             break;
+        case AFNUM_802:
         case AFNUM_EUI48:
             proto_tree_add_item(lisp_mapping_tree, hf_lisp_mapping_eid_mac, tvb, offset, EUI48_ADDRLEN, ENC_NA);
             offset += EUI48_ADDRLEN;
@@ -2183,6 +2194,7 @@ dissect_lisp_map_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tre
             dissect_lcaf(tvb, pinfo, lcaf_src_eid_tree, offset, NULL);
             offset += addr_len;
             break;
+        case AFNUM_802:
         case AFNUM_EUI48:
             proto_tree_add_item(lisp_tree,
                     hf_lisp_mreq_srceid_mac, tvb, offset, EUI48_ADDRLEN, ENC_NA);
@@ -2283,6 +2295,7 @@ dissect_lisp_map_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tre
                 dissect_lcaf(tvb, pinfo, lcaf_prefix_tree, offset, NULL);
                 offset += addr_len;
                 break;
+            case AFNUM_802:
             case AFNUM_EUI48:
                 proto_tree_add_item(lisp_record_tree, hf_lisp_mreq_record_prefix_mac, tvb, offset, EUI48_ADDRLEN, ENC_NA);
                 offset += EUI48_ADDRLEN;
