@@ -708,6 +708,7 @@
 		<enum name="DEREGISTRATION_TOO_MUCH_DATA" code="11"/>
 		<enum name="AAA_USER_DATA_REQUEST" code="12"/>
 		<enum name="PGW_UPDATE" code="13"/>
+		<enum name="RESTORATION" code="14"/>
 	</avp>
 	<avp name="Deregistration-Reason" code="615" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
 		<grouped>
