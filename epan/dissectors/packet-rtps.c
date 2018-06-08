@@ -468,6 +468,8 @@ static int hf_rtps_flag_plugin_participant_security_attribute_flag_is_valid     
 static int hf_rtps_param_plugin_participant_security_attributes_mask                              = -1;
 static int hf_rtps_sm_rti_crc_number                            = -1;
 static int hf_rtps_sm_rti_crc_result                            = -1;
+static int hf_rtps_data_tag_name                                = -1;
+static int hf_rtps_data_tag_value                               = -1;
 
 /* Subtree identifiers */
 static gint ett_rtps                            = -1;
@@ -540,6 +542,9 @@ static gint ett_rtps_topic_query_tree                           = -1;
 static gint ett_rtps_topic_query_selection_tree                 = -1;
 static gint ett_rtps_topic_query_filter_params_tree             = -1;
 static gint ett_rtps_data_member                                = -1;
+static gint ett_rtps_data_tag_seq                               = -1;
+static gint ett_rtps_data_tag_item                              = -1;
+
 
 static expert_field ei_rtps_sm_octets_to_next_header_error = EI_INIT;
 static expert_field ei_rtps_port_invalid = EI_INIT;
@@ -2186,6 +2191,48 @@ static void rtps_util_add_generic_guid_v1(proto_tree *tree, tvbuff_t *tvb, gint 
   proto_tree_add_item(entity_tree, hf_entity_key, tvb, offset+8, 3, ENC_BIG_ENDIAN);
   proto_tree_add_item(entity_tree, hf_entity_kind, tvb, offset+11, 1, ENC_BIG_ENDIAN);
 }
+
+static gint rtps_util_add_data_tags(proto_tree *rtps_parameter_tree, tvbuff_t *tvb,
+    gint offset, const guint encoding, int param_length) {
+
+    /* 0...2...........7...............15.............23...............31
+    * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    * | Sequence Size                                                 |
+    * +ITEM 0---------+---------------+---------------+---------------+
+    * | Name String Bytes                                             |
+    * +---------------+---------------+---------------+---------------+
+    * | Value String Bytes                                            |
+    * +---------------+---------------+---------------+---------------+
+    * ....
+    * +ITEM N---------+---------------+---------------+---------------+
+    * | Name String Bytes                                             |
+    * +---------------+---------------+---------------+---------------+
+    * | Value String Bytes                                            |
+    * +---------------+---------------+---------------+---------------+
+    */
+
+    proto_tree *tags_seq_tree = NULL;
+    proto_tree *tag_tree = NULL;
+    guint32 seq_sum_elements, i;
+
+    seq_sum_elements = tvb_get_guint32(tvb, offset, encoding);
+    offset += 4;
+
+    tags_seq_tree = proto_tree_add_subtree_format(rtps_parameter_tree, tvb, offset - 4, param_length,
+        ett_rtps_data_tag_seq, NULL, "Tags (size = %u)", seq_sum_elements);
+
+    for (i = 0; i < seq_sum_elements; ++i) {
+        guint32 initial_offset = offset;
+        tag_tree = proto_tree_add_subtree_format(tags_seq_tree, tvb, offset, -1, ett_rtps_data_tag_item,
+            NULL, "Tag [%u]", i);
+        offset = rtps_util_add_string(tag_tree, tvb, offset, hf_rtps_data_tag_name, encoding);
+        offset = rtps_util_add_string(tag_tree, tvb, offset, hf_rtps_data_tag_value, encoding);
+        proto_item_set_len(tag_tree, offset - initial_offset);
+    }
+    return offset;
+}
+
+
 
 /* ------------------------------------------------------------------------- */
  /* Interpret the next 16 octets as a generic GUID and insert it in the protocol
@@ -4201,7 +4248,13 @@ static gboolean dissect_parameter_sequence_rti_dds(proto_tree *rtps_parameter_tr
   const guint encoding, int param_length, guint16 parameter, gboolean is_inline_qos, guint vendor_id) {
 
   switch(parameter) {
-    case PID_SAMPLE_SIGNATURE:
+
+  case PID_DATA_TAGS:
+      ENSURE_LENGTH(4);
+      rtps_util_add_data_tags(rtps_parameter_tree, tvb, offset, encoding, param_length);
+      break;
+
+  case PID_SAMPLE_SIGNATURE:
       ENSURE_LENGTH(16);
       proto_tree_add_item(rtps_parameter_tree, hf_rtps_param_sample_signature_epoch, tvb,
                   offset, 8, encoding);
@@ -12038,6 +12091,14 @@ void proto_register_rtps(void) {
         FT_FRAMENUM, BASE_NONE, NULL, 0x0,
         "This is a submessage sent by the DataWriter described in the DCPSPublicationData found in this frame", HFILL }
     },
+    { &hf_rtps_data_tag_name,
+        { "Name", "rtps.param.data_tag.name",
+        FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+    },
+    { &hf_rtps_data_tag_value,
+        { "Value", "rtps.param.data_tag.value",
+        FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+    },
   };
 
   static gint *ett[] = {
@@ -12111,6 +12172,8 @@ void proto_register_rtps(void) {
     &ett_rtps_topic_query_selection_tree,
     &ett_rtps_topic_query_filter_params_tree,
     &ett_rtps_data_member,
+    &ett_rtps_data_tag_seq,
+    &ett_rtps_data_tag_item
   };
 
   static ei_register_info ei[] = {
