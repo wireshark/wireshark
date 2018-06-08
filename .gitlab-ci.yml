@@ -108,5 +108,16 @@ clang-7-nopcap:
     - ../tools/debian-setup.sh --install-optional ninja-build clang-7 -y
     - cmake -GNinja -DENABLE_PCAP=OFF -DCMAKE_C_COMPILER=clang-7 -DCMAKE_CXX_COMPILER=clang++-7 -DCMAKE_C_FLAGS=-Wframe-larger-than=20000 ..
     - ninja
+rpm-centos-7:
+  image: centos:7
+  script:
+    - yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+    - yum install -y which
+    - tools/rpm-setup.sh --install-optional -y
+    - mkdir build
+    - cd build
+    - cmake3 -GNinja ..
+    - ninja-build
+    - ninja-build rpm-package
 after_script:
   - if [ -f build/run/tshark ];then build/run/tshark --version; fi
