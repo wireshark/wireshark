@@ -48,8 +48,6 @@ plugins/codecs/*/plugin.c
 plugins/epan/mate/mate_parser.c
 version.h
 tools/lemon/lemon
-tools/make-dissectors
-tools/make-taps
 tshark-tap-register.c
 wiretap/ascend.c
 wiretap/ascend.h

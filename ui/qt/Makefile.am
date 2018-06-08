@@ -742,8 +742,8 @@ noinst_HEADERS = \
 	utils/variant_pointer.h
 
 
-wireshark-tap-register.c: $(WIRESHARK_QT_TAP_SRC) $(top_builddir)/tools/make-taps
-	$(AM_V_GEN)$(top_builddir)/tools/make-taps $@ $(filter %.cpp,$^)
+wireshark-tap-register.c: $(WIRESHARK_QT_TAP_SRC) $(top_srcdir)/tools/make-regs.py
+	$(AM_V_GEN)$(PYTHON) $(top_srcdir)/tools/make-regs.py taps $@ $(filter %.cpp,$^)
 
 libqtui_a_SOURCES = \
 	$(WIRESHARK_QT_SRC)		\

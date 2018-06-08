@@ -1957,10 +1957,10 @@ x11-dissector: $(top_srcdir)/tools/process-x11-fields.pl $(srcdir)/x11-fields $(
 # We pass the arguments to make-dissectors in a file to avoid limitations
 # with the number of arguments handled by main().
 #
-dissectors.c: $(top_builddir)/tools/make-dissectors $(ALL_DISSECTORS_SRC)
+dissectors.c: $(top_srcdir)/tools/make-regs.py $(ALL_DISSECTORS_SRC)
 	@echo Making dissectors.c
 	@echo $^ | tr ' ' '\n' | $(GREP) '\.c$$' > dissectors.in.txt && \
-	    $(top_builddir)/tools/make-dissectors $@ @dissectors.in.txt
+	    $(PYTHON) $(top_srcdir)/tools/make-regs.py dissectors $@ @dissectors.in.txt
 
 MOSTLYCLEANFILES = \
 	dissectors.in.txt
