@@ -1195,6 +1195,45 @@
 #define ZBEE_ZIGBEE_BEACON_NETWORK_DEPTH              0x78
 #define ZBEE_ZIGBEE_BEACON_END_DEVICE_CAPACITY        0x80
 
+/* ZigBee ZLL Device descriptions */
+#define ZBEE_ZLL_DEVICE_ON_OFF_LIGHT                    0x0000
+#define ZBEE_ZLL_DEVICE_ON_OFF_PLUG_IN_UNIT             0x0010
+#define ZBEE_ZLL_DEVICE_DIMMABLE_LIGHT                  0x0100
+#define ZBEE_ZLL_DEVICE_DIMMABLE_PLUG_IN_UNIT           0x0110
+#define ZBEE_ZLL_DEVICE_COLOR_LIGHT                     0x0200
+#define ZBEE_ZLL_DEVICE_EXTENDED_COLOR_LIGHT            0x0210
+#define ZBEE_ZLL_DEVICE_COLOR_TEMPERATURE_LIGHT         0x0220
+#define ZBEE_ZLL_DEVICE_COLOR_CONTROLLER                0x0800
+#define ZBEE_ZLL_DEVICE_COLOR_SCENE_CONTROLLER          0x0810
+#define ZBEE_ZLL_DEVICE_NON_COLOR_CONTROLLER            0x0820
+#define ZBEE_ZLL_DEVICE_NON_COLOR_SCENE_CONTROLLER      0x0830
+#define ZBEE_ZLL_DEVICE_CONTROL_BRIDGE                  0x0840
+#define ZBEE_ZLL_DEVICE_ON_OFF_SENSOR                   0x0850
+
+/* ZigBee HA Device descriptions */
+#define ZBEE_HA_DEVICE_ON_OFF_LIGHT                     0x0100
+#define ZBEE_HA_DEVICE_DIMMABLE_LIGHT                   0x0101
+#define ZBEE_HA_DEVICE_COLOR_DIMMABLE_LIGHT             0x0102
+#define ZBEE_HA_DEVICE_ON_OFF_LIGHT_SWITCH              0x0103
+#define ZBEE_HA_DEVICE_DIMMER_SWITCH                    0x0104
+#define ZBEE_HA_DEVICE_COLOR_DIMMER_SWITCH              0x0105
+#define ZBEE_HA_DEVICE_LIGHT_SENSOR                     0x0106
+#define ZBEE_HA_DEVICE_OCCUPANCY_SENSOR                 0x0107
+#define ZBEE_HA_DEVICE_ON_OFF_BALLAST                   0x0108
+#define ZBEE_HA_DEVICE_DIMMABLE_BALLAST                 0x0109
+#define ZBEE_HA_DEVICE_ON_OFF_PLUG_IN_UNIT              0x010A
+#define ZBEE_HA_DEVICE_DIMMABLE_PLUG_IN_UNIT            0x010B
+#define ZBEE_HA_DEVICE_COLOR_TEMPERATURE_LIGHT          0x010C
+#define ZBEE_HA_DEVICE_EXTENDED_COLOR_LIGHT             0x010D
+#define ZBEE_HA_DEVICE_LIGHT_LEVEL_SENSOR               0x010E
+#define ZBEE_HA_DEVICE_COLOR_CONTROLLER                 0x0800
+#define ZBEE_HA_DEVICE_COLOR_SCENE_CONTROLLER           0x0810
+#define ZBEE_HA_DEVICE_NON_COLOR_CONTROLLER             0x0820
+#define ZBEE_HA_DEVICE_NON_COLOR_SCENE_CONTROLLER       0x0830
+#define ZBEE_HA_DEVICE_CONTROL_BRIDGE                   0x0840
+#define ZBEE_HA_DEVICE_ON_OFF_SENSOR                    0x0850
+
+/* Helper Functions */
 /* Helper Functions */
 extern guint zbee_get_bit_field(guint input, guint mask);
 
