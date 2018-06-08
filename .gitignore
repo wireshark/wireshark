@@ -184,3 +184,4 @@ vgcore.*
 Wireshark.*
 .pytest_cache/
 test/*.log
+.history/
