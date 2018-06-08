@@ -119,5 +119,15 @@ rpm-centos-7:
     - cmake3 -GNinja ..
     - ninja-build
     - ninja-build rpm-package
+rpm-opensuse-42.3:
+  image: opensuse:42.3
+  script:
+    - zypper --non-interactive install which update-desktop-files
+    - tools/rpm-setup.sh --install-optional
+    - mkdir build
+    - cd build
+    - cmake ..
+    - make
+    - make rpm-package
 after_script:
   - if [ -f build/run/tshark ];then build/run/tshark --version; fi
