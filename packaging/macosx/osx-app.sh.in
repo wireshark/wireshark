@@ -225,9 +225,7 @@ rpathify_file () {
 	#
 	# OK, what type of file is this?
 	#
-	filetype=$( otool -hv "$1" | grep -E MH_MAGIC | awk '{print $5}' ; exit "${PIPESTATUS[0]}" )
-	RETVAL=$0
-	if [ "$RETVAL" -ne 0 ] ; then
+	if ! filetype=$( otool -hv "$1" | grep -E MH_MAGIC | awk '{print $5}' ; exit "${PIPESTATUS[0]}" ) ; then
 		echo "Unable to rpathify $1 in $( pwd ): file type failed."
 		exit 1
 	fi
@@ -359,11 +357,14 @@ rpathify_dir () {
 		#
 		# Make sure we *have* files to fix
 		#
-		files=$( ls "$2" 2>/dev/null )
+		# shellcheck disable=SC2086
+		files=$( ls $2 2>/dev/null )
 		if [ ! -z "$files" ]; then
 			for file in $files; do
 				rpathify_file "$file" "$( pwd )"
 			done
+		else
+			echo "no files found in $1"
 		fi
 		)
 		rf_ret=$?
