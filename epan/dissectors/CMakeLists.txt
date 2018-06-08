@@ -1908,8 +1908,8 @@ file(GENERATE
 )
 add_custom_command(
 	OUTPUT dissectors.c
-	COMMAND make-dissectors dissectors.c @dissectors.in.txt
-	DEPENDS make-dissectors ${ALL_DISSECTOR_SRC}
+	COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/make-regs.py dissectors dissectors.c @dissectors.in.txt
+	DEPENDS ${CMAKE_SOURCE_DIR}/tools/make-regs.py ${ALL_DISSECTOR_SRC}
 		"${CMAKE_CURRENT_BINARY_DIR}/dissectors.in.txt"
 	COMMENT "Making dissectors.c"
 )
