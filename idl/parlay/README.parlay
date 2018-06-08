@@ -1,6 +1,0 @@
-To generate the parlay dissector from the .idl documents do:
-
-idl2wrs Parlay.idl
-
-The Parlay.idl file includes all the other .idl files to create one
-dissector for Parlay.

@@ -1,3 +1,0 @@
-;Add your custom diameter dictionary here
-; Example:
-;File "${STAGING_DIR}\diameter\foo.xml"
