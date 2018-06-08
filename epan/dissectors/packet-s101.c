@@ -238,7 +238,7 @@ static int
 find_s101_packet_header(tvbuff_t *tvb, int* offset, guint8 *start, guint8 *slot, guint8 *message, guint8 *version, guint8 *dtd, guint8 *command,
                            guint8 *flags, guint8* app_bytes, guint64 *msgLength, guint16 *crc)
 {
-    guint8 app_bytes_len;
+    guint8 app_bytes_len = 0;
     int i;
 
     *start = tvb_get_guint8(tvb, *offset); // no CRC and no escaping on first bytes.
