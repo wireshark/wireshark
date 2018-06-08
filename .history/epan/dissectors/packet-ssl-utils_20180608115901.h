@@ -410,7 +410,6 @@ typedef struct {
 #define ENC_CHACHA20    0x3A
 #define ENC_NULL        0x3B
 
-#define DIG_SM3         0x3f
 #define DIG_MD5         0x40
 #define DIG_SHA         0x41
 #define DIG_SHA256      0x42

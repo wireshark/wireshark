@@ -3530,7 +3530,6 @@ void ssl_set_master_secret(guint32 frame_num, address *addr_srv, address *addr_c
         switch (version) {
         case SSLV3_VERSION:
         case TLSV1_VERSION:
-        case GMSSLV1_VERSION:
         case TLSV1DOT1_VERSION:
         case TLSV1DOT2_VERSION:
             ssl->session.version = version;
@@ -3715,7 +3714,6 @@ ssl_looks_like_sslv3(tvbuff_t *tvb, const guint32 offset)
     switch (version) {
     case SSLV3_VERSION:
     case TLSV1_VERSION:
-    case GMSSLV1_VERSION:
     case TLSV1DOT1_VERSION:
     case TLSV1DOT2_VERSION:
         return 1;

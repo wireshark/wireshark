@@ -2439,7 +2439,7 @@ ssl_find_cipher(int num)
 int
 ssl_get_cipher_algo(const SslCipherSuite *cipher_suite)
 {
-    return gcry_cipher_map_name(ciphers[cipher_suite->enc - ENC_START]);
+    return gcry_cipher_map_name(ciphers[cipher_suite->enc - 0x30]);
 }
 
 guint
@@ -2447,7 +2447,7 @@ ssl_get_cipher_blocksize(const SslCipherSuite *cipher_suite)
 {
     gint cipher_algo;
     if (cipher_suite->mode != MODE_CBC) return 0;
-    cipher_algo = ssl_get_cipher_by_name(ciphers[cipher_suite->enc - ENC_START]);
+    cipher_algo = ssl_get_cipher_by_name(ciphers[cipher_suite->enc - 0x30]);
     return (guint)gcry_cipher_get_algo_blklen(cipher_algo);
 }
 
@@ -3372,7 +3372,7 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
 
     /* Find the Libgcrypt cipher algorithm for the given SSL cipher suite ID */
     if (cipher_suite->enc != ENC_NULL) {
-        const char *cipher_name = ciphers[cipher_suite->enc - ENC_START];
+        const char *cipher_name = ciphers[cipher_suite->enc-0x30];
         ssl_debug_printf("%s CIPHER: %s\n", G_STRFUNC, cipher_name);
         cipher_algo = ssl_get_cipher_by_name(cipher_name);
         if (cipher_algo == 0) {
@@ -3609,7 +3609,7 @@ tls13_generate_keys(SslDecryptSession *ssl_session, const StringInfo *secret, gb
     }
 
     /* Find the Libgcrypt cipher algorithm for the given SSL cipher suite ID */
-    const char *cipher_name = ciphers[cipher_suite->enc - ENC_START];
+    const char *cipher_name = ciphers[cipher_suite->enc-0x30];
     ssl_debug_printf("%s CIPHER: %s\n", G_STRFUNC, cipher_name);
     cipher_algo = ssl_get_cipher_by_name(cipher_name);
     if (cipher_algo == 0) {

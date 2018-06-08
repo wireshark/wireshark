@@ -755,7 +755,6 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
         case SSLV3_VERSION:
         case TLSV1_VERSION:
-        case GMSSLV1_VERSION:
         case TLSV1DOT1_VERSION:
         case TLSV1DOT2_VERSION:
             /* SSLv3/TLS record headers need at least 1+2+2 = 5 bytes. */
@@ -894,7 +893,6 @@ is_sslv3_or_tls(tvbuff_t *tvb)
      */
     if (protocol_version != SSLV3_VERSION &&
         protocol_version != TLSV1_VERSION &&
-        protocol_version != GMSSLV1_VERSION &&
         protocol_version != TLSV1DOT1_VERSION &&
         protocol_version != TLSV1DOT2_VERSION) {
         return FALSE;
@@ -1750,7 +1748,6 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
 
     /* TLS 1.0/1.1 just ignores unknown records - RFC 2246 chapter 6. The TLS Record Protocol */
     if ((session->version==TLSV1_VERSION ||
-         session->version==GMSSLV1_VERSION ||
          session->version==TLSV1DOT1_VERSION ||
          session->version==TLSV1DOT2_VERSION) &&
         (available_bytes >=1 ) && !ssl_is_valid_content_type(tvb_get_guint8(tvb, offset))) {
@@ -3530,7 +3527,6 @@ void ssl_set_master_secret(guint32 frame_num, address *addr_srv, address *addr_c
         switch (version) {
         case SSLV3_VERSION:
         case TLSV1_VERSION:
-        case GMSSLV1_VERSION:
         case TLSV1DOT1_VERSION:
         case TLSV1DOT2_VERSION:
             ssl->session.version = version;
@@ -3715,7 +3711,6 @@ ssl_looks_like_sslv3(tvbuff_t *tvb, const guint32 offset)
     switch (version) {
     case SSLV3_VERSION:
     case TLSV1_VERSION:
-    case GMSSLV1_VERSION:
     case TLSV1DOT1_VERSION:
     case TLSV1DOT2_VERSION:
         return 1;

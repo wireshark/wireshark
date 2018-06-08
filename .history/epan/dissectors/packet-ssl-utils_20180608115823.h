@@ -393,10 +393,6 @@ typedef struct {
 
 
 /* Order is significant, must match "ciphers" array in packet-ssl-utils.c */
-
-#define ENC_START       0x28
-#define ENC_SM1         0x28
-#define ENC_SM4         0x29
 #define ENC_DES         0x30
 #define ENC_3DES        0x31
 #define ENC_RC4         0x32
@@ -410,7 +406,6 @@ typedef struct {
 #define ENC_CHACHA20    0x3A
 #define ENC_NULL        0x3B
 
-#define DIG_SM3         0x3f
 #define DIG_MD5         0x40
 #define DIG_SHA         0x41
 #define DIG_SHA256      0x42

@@ -2404,19 +2404,6 @@ static const SslCipherSuite cipher_suites[]={
     {0xCCAC,KEX_ECDHE_PSK,      ENC_CHACHA20,   DIG_SHA256, MODE_POLY1305 }, /* TLS_ECDHE_PSK_WITH_CHACHA20_POLY1305_SHA256 */
     {0xCCAD,KEX_DHE_PSK,        ENC_CHACHA20,   DIG_SHA256, MODE_POLY1305 }, /* TLS_DHE_PSK_WITH_CHACHA20_POLY1305_SHA256 */
     {0xCCAE,KEX_RSA_PSK,        ENC_CHACHA20,   DIG_SHA256, MODE_POLY1305 }, /* TLS_RSA_PSK_WITH_CHACHA20_POLY1305_SHA256 */
-    /* GM */
-    {0xCCAF,KEX_ECDHE_SM2,      ENC_SM1,        DIG_SM3,    MOD_CBC},        /* ECDHE_SM1_SM3 */
-    {0xCCB0,KEX_ECC_SM2,        ENC_SM1,        DIG_SM3,    MOD_CBC},        /* ECC_SM1_SM3 */
-    {0xCCB1,KEX_IBSDH_SM9,      ENC_SM1,        DIG_SM3,    MOD_CBC},        /* IBSDH_SM1_SM3 */
-    {0xCCB2,KEX_IBC_SM9,        ENC_SM1,        DIG_SM3,    MOD_CBC},        /* IBC_SM1_SM3 */
-    {0xCCB3,KEX_RSA,            ENC_SM1,        DIG_SM3,    MOD_CBC},        /* RSA_SM1_SM3 */
-    {0xCCB4,KEX_RSA,            ENC_SM1,        DIG_SHA,    MOD_CBC},        /* RSA_SM1_SHA1 */
-    {0xCCB5,KEX_ECDHE_SM2,      ENC_SM4,        DIG_SM3,    MOD_CBC},        /* ECDHE_SM4_SM3 */
-    {0xCCB6,KEX_ECC_SM2,        ENC_SM4,        DIG_SM3,    MOD_CBC},        /* ECC_SM4_SM3 */
-    {0xCCB7,KEX_IBSDH_SM9,      ENC_SM4,        DIG_SM3,    MOD_CBC},        /* IBSDH_SM4_SM3 */
-    {0xCCB8,KEX_IBC_SM9,        ENC_SM4,        DIG_SM3,    MOD_CBC},        /* IBC_SM4_SM3 */
-    {0xCCB9,KEX_RSA,            ENC_SM4,        DIG_SM3,    MOD_CBC},        /* RSA_SM4_SM3 */
-    {0xCCBA,KEX_RSA,            ENC_SM4,        DIG_SHA,    MOD_CBC},        /* RSA_SM4_SHA1 */
     {-1,    0,                  0,              0,          MODE_STREAM}
 };
 
@@ -2439,7 +2426,7 @@ ssl_find_cipher(int num)
 int
 ssl_get_cipher_algo(const SslCipherSuite *cipher_suite)
 {
-    return gcry_cipher_map_name(ciphers[cipher_suite->enc - ENC_START]);
+    return gcry_cipher_map_name(ciphers[cipher_suite->enc - 0x30]);
 }
 
 guint
@@ -2447,7 +2434,7 @@ ssl_get_cipher_blocksize(const SslCipherSuite *cipher_suite)
 {
     gint cipher_algo;
     if (cipher_suite->mode != MODE_CBC) return 0;
-    cipher_algo = ssl_get_cipher_by_name(ciphers[cipher_suite->enc - ENC_START]);
+    cipher_algo = ssl_get_cipher_by_name(ciphers[cipher_suite->enc - 0x30]);
     return (guint)gcry_cipher_get_algo_blklen(cipher_algo);
 }
 
@@ -3372,7 +3359,7 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
 
     /* Find the Libgcrypt cipher algorithm for the given SSL cipher suite ID */
     if (cipher_suite->enc != ENC_NULL) {
-        const char *cipher_name = ciphers[cipher_suite->enc - ENC_START];
+        const char *cipher_name = ciphers[cipher_suite->enc-0x30];
         ssl_debug_printf("%s CIPHER: %s\n", G_STRFUNC, cipher_name);
         cipher_algo = ssl_get_cipher_by_name(cipher_name);
         if (cipher_algo == 0) {
@@ -3609,7 +3596,7 @@ tls13_generate_keys(SslDecryptSession *ssl_session, const StringInfo *secret, gb
     }
 
     /* Find the Libgcrypt cipher algorithm for the given SSL cipher suite ID */
-    const char *cipher_name = ciphers[cipher_suite->enc - ENC_START];
+    const char *cipher_name = ciphers[cipher_suite->enc-0x30];
     ssl_debug_printf("%s CIPHER: %s\n", G_STRFUNC, cipher_name);
     cipher_algo = ssl_get_cipher_by_name(cipher_name);
     if (cipher_algo == 0) {
