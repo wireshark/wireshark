@@ -1535,16 +1535,20 @@ static const value_string pn_io_error_code2_pnio_63[] = {
 
 static const value_string pn_io_error_code2_pnio_64[] = {
     /* RMPM */
-    { 0, "ArgsLength invalid" },
-    { 1, "Unknown Blocks" },
-    { 2, "IOCR Missing" },
-    { 3, "Wrong AlarmCRBlock count" },
-    { 4, "Out of AR Resources" },
-    { 5, "AR UUID unknown" },
-    { 6, "State conflict" },
-    { 7, "Out of Provider, Consumer or Alarm Resources" },
-    { 8, "Out of Memory" },
-    { 0, NULL }
+    {  0, "ArgsLength invalid" },
+    {  1, "Unknown Blocks" },
+    {  2, "IOCR Missing" },
+    {  3, "Wrong AlarmCRBlock count" },
+    {  4, "Out of AR Resources" },
+    {  5, "AR UUID unknown" },
+    {  6, "State conflict" },
+    {  7, "Out of Provider, Consumer or Alarm Resources" },
+    {  8, "Out of Memory" },
+    {  9, "Pdev already owned" },
+    { 10, "ARset State conflict during connection establishment" },
+    { 11, "ARset Parameter conflict during connection establishment" },
+    { 12, "Pdev, port(s) without interface" },
+    {  0, NULL }
 };
 
 static const value_string pn_io_error_code2_pnio_65[] = {
