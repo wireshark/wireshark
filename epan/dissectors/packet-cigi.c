@@ -2729,7 +2729,7 @@ cigi_add_tree(tvbuff_t *tvb, proto_tree *cigi_tree)
         }
 
         /* Add the subtree for the packet */
-        tipacket = proto_tree_add_string_format(cigi_tree, hf_cigi_unknown, tvb, offset, packet_size, NULL, "Unknown (%i bytes)", packet_size);
+        tipacket = proto_tree_add_none_format(cigi_tree, hf_cigi_unknown, tvb, offset, packet_size, "Unknown (%i bytes)", packet_size);
 
         cigi_packet_tree = proto_item_add_subtree(tipacket, ett_cigi);
 
@@ -2894,10 +2894,10 @@ cigi2_add_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cigi_tree)
             hf_cigi2_packet = hf_cigi_unknown;
             packet_length = packet_size;
         }
-        tipacket = proto_tree_add_string_format(cigi_tree, hf_cigi2_packet, tvb, offset, packet_length, NULL,
-                                                "%s (%i bytes)",
-                                                val_to_str_ext_const(packet_id, &cigi2_packet_id_vals_ext, "Unknown"),
-                                                packet_length);
+        tipacket = proto_tree_add_none_format(cigi_tree, hf_cigi2_packet, tvb, offset, packet_length,
+                                              "%s (%i bytes)",
+                                              val_to_str_ext_const(packet_id, &cigi2_packet_id_vals_ext, "Unknown"),
+                                              packet_length);
 
         cigi_packet_tree = proto_item_add_subtree(tipacket, ett_cigi);
 
@@ -3237,10 +3237,10 @@ cigi3_add_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cigi_tree)
             hf_cigi3_packet = hf_cigi_unknown;
             packet_length = packet_size;
         }
-        tipacket = proto_tree_add_string_format(cigi_tree, hf_cigi3_packet, tvb, offset, packet_length, NULL,
-                                                "%s (%i bytes)",
-                                                val_to_str_ext_const(packet_id, &cigi3_packet_id_vals_ext, "Unknown"),
-                                                packet_length);
+        tipacket = proto_tree_add_none_format(cigi_tree, hf_cigi3_packet, tvb, offset, packet_length,
+                                              "%s (%i bytes)",
+                                              val_to_str_ext_const(packet_id, &cigi3_packet_id_vals_ext, "Unknown"),
+                                              packet_length);
 
         cigi_packet_tree = proto_item_add_subtree(tipacket, ett_cigi);
 
@@ -6463,7 +6463,7 @@ proto_register_cigi(void)
 
         { &hf_cigi_unknown,
             { "Unknown", "cigi.unknown",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Unknown Packet", HFILL }
         },
 
@@ -6489,7 +6489,7 @@ proto_register_cigi(void)
         /* CIGI2 IG Control */
         { &hf_cigi2_ig_control,
             { "IG Control", "cigi.ig_control",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "IG Control Packet", HFILL }
         },
         { &hf_cigi2_ig_control_db_number,
@@ -6526,7 +6526,7 @@ proto_register_cigi(void)
         /* CIGI3 IG Control */
         { &hf_cigi3_ig_control,
             { "IG Control", "cigi.ig_control",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "IG Control Packet", HFILL }
         },
         { &hf_cigi3_ig_control_db_number,
@@ -6558,7 +6558,7 @@ proto_register_cigi(void)
         /* CIGI3_2 IG Control */
         { &hf_cigi3_2_ig_control,
             { "IG Control", "cigi.ig_control",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "IG Control Packet", HFILL }
         },
         { &hf_cigi3_2_ig_control_db_number,
@@ -6600,7 +6600,7 @@ proto_register_cigi(void)
         /* CIGI3_3 IG Control */
         { &hf_cigi3_3_ig_control,
             { "IG Control", "cigi.ig_control",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "IG Control Packet", HFILL }
         },
         { &hf_cigi3_3_ig_control_db_number,
@@ -6649,7 +6649,7 @@ proto_register_cigi(void)
            /* CIGI2 Entity Control */
         { &hf_cigi2_entity_control,
             { "Entity Control", "cigi.entity_control",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Entity Control Packet", HFILL }
         },
         { &hf_cigi2_entity_control_entity_id,
@@ -6731,7 +6731,7 @@ proto_register_cigi(void)
         /* CIGI3 Entity Control */
         { &hf_cigi3_entity_control,
             { "Entity Control", "cigi.entity_control",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Entity Control Packet", HFILL }
         },
         { &hf_cigi3_entity_control_entity_id,
@@ -6829,7 +6829,7 @@ proto_register_cigi(void)
 #if 0
         { &hf_cigi3_3_entity_control,
             { "Entity Control", "cigi.entity_control",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Entity Control Packet", HFILL }
         },
 #endif
@@ -6932,7 +6932,7 @@ proto_register_cigi(void)
         /* CIGI3 Conformal Clamped Entity Control */
         { &hf_cigi3_conformal_clamped_entity_control,
             { "Conformal Clamped Entity Control", "cigi.conformal_clamped_entity_control",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Conformal Clamped Entity Control Packet", HFILL }
         },
         { &hf_cigi3_conformal_clamped_entity_control_entity_id,
@@ -6959,7 +6959,7 @@ proto_register_cigi(void)
         /* CIGI2 Component Control */
         { &hf_cigi2_component_control,
             { "Component Control", "cigi.component_control",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Component Control Packet", HFILL }
         },
         { &hf_cigi2_component_control_instance_id,
@@ -6996,7 +6996,7 @@ proto_register_cigi(void)
         /* CIGI3 Component Control */
         { &hf_cigi3_component_control,
             { "Component Control", "cigi.component_control",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Component Control Packet", HFILL }
         },
         { &hf_cigi3_component_control_component_id,
@@ -7054,7 +7054,7 @@ proto_register_cigi(void)
 #if 0
         { &hf_cigi3_3_component_control,
             { "Component Control", "cigi.component_control",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Component Control Packet", HFILL }
         },
 #endif
@@ -7112,7 +7112,7 @@ proto_register_cigi(void)
         /* CIGI3 Short Component Control */
         { &hf_cigi3_short_component_control,
             { "Short Component Control", "cigi.short_component_control",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Short Component Control Packet", HFILL }
         },
         { &hf_cigi3_short_component_control_component_id,
@@ -7150,7 +7150,7 @@ proto_register_cigi(void)
 #if 0
         { &hf_cigi3_3_short_component_control,
             { "Short Component Control", "cigi.short_component_control",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Short Component Control Packet", HFILL }
         },
 #endif
@@ -7188,7 +7188,7 @@ proto_register_cigi(void)
         /* CIGI2 Articulated Parts Control */
         { &hf_cigi2_articulated_parts_control,
             { "Articulated Parts Control", "cigi.art_part_control",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Articulated Parts Control Packet", HFILL }
         },
         { &hf_cigi2_articulated_parts_control_entity_id,
@@ -7270,7 +7270,7 @@ proto_register_cigi(void)
         /* CIGI3 Articulated Part Control */
         { &hf_cigi3_articulated_part_control,
             { "Articulated Part Control", "cigi.art_part_control",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Articulated Part Control Packet", HFILL }
         },
         { &hf_cigi3_articulated_part_control_entity_id,
@@ -7352,7 +7352,7 @@ proto_register_cigi(void)
         /* CIGI3 Short Articulated Part Control */
         { &hf_cigi3_short_articulated_part_control,
             { "Short Articulated Part Control", "cigi.short_art_part_control",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Short Articulated Part Control Packet", HFILL }
         },
         { &hf_cigi3_short_articulated_part_control_entity_id,
@@ -7404,7 +7404,7 @@ proto_register_cigi(void)
         /* CIGI2 Rate Control */
         { &hf_cigi2_rate_control,
             { "Rate Control", "cigi.rate_control",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Rate Control Packet", HFILL }
         },
         { &hf_cigi2_rate_control_entity_id,
@@ -7451,7 +7451,7 @@ proto_register_cigi(void)
         /* CIGI3 Rate Control */
         { &hf_cigi3_rate_control,
             { "Rate Control", "cigi.rate_control",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Rate Control Packet", HFILL }
         },
         { &hf_cigi3_rate_control_entity_id,
@@ -7503,7 +7503,7 @@ proto_register_cigi(void)
         /* CIGI3_2 Rate Control */
         { &hf_cigi3_2_rate_control,
             { "Rate Control", "cigi.rate_control",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Rate Control Packet", HFILL }
         },
         { &hf_cigi3_2_rate_control_entity_id,
@@ -7560,7 +7560,7 @@ proto_register_cigi(void)
         /* CIGI3 Celestial Sphere Control */
         { &hf_cigi3_celestial_sphere_control,
             { "Celestial Sphere Control", "cigi.celestial_sphere_control",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Celestial Sphere Control Packet", HFILL }
         },
         { &hf_cigi3_celestial_sphere_control_hour,
@@ -7612,7 +7612,7 @@ proto_register_cigi(void)
         /* CIGI3 Atmosphere Control */
         { &hf_cigi3_atmosphere_control,
             { "Atmosphere Control", "cigi.atmosphere_control",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Atmosphere Control Packet", HFILL }
         },
         { &hf_cigi3_atmosphere_control_atmospheric_model_enable,
@@ -7659,7 +7659,7 @@ proto_register_cigi(void)
         /* CIGI2 Environmental Control */
         { &hf_cigi2_environment_control,
             { "Environment Control", "cigi.env_control",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Environment Control Packet", HFILL }
         },
         { &hf_cigi2_environment_control_hour,
@@ -7726,7 +7726,7 @@ proto_register_cigi(void)
         /* CIGI3 Environmental Region Control */
         { &hf_cigi3_environmental_region_control,
             { "Environmental Region Control", "cigi.env_region_control",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Environmental Region Control Packet", HFILL }
         },
         { &hf_cigi3_environmental_region_control_region_id,
@@ -7798,7 +7798,7 @@ proto_register_cigi(void)
         /* CIGI2 Weather Control */
         { &hf_cigi2_weather_control,
             { "Weather Control", "cigi.weather_control",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Weather Control Packet", HFILL }
         },
         { &hf_cigi2_weather_control_entity_id,
@@ -7880,7 +7880,7 @@ proto_register_cigi(void)
         /* CIGI3 Weather Control */
         { &hf_cigi3_weather_control,
             { "Weather Control", "cigi.weather_control",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Weather Control Packet", HFILL }
         },
         { &hf_cigi3_weather_control_entity_region_id,
@@ -7997,7 +7997,7 @@ proto_register_cigi(void)
         /* CIGI3 Maritime Surface Conditions Control */
         { &hf_cigi3_maritime_surface_conditions_control,
             { "Maritime Surface Conditions Control", "cigi.maritime_surface_conditions_control",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Maritime Surface Conditions Control Packet", HFILL }
         },
         { &hf_cigi3_maritime_surface_conditions_control_entity_region_id,
@@ -8039,7 +8039,7 @@ proto_register_cigi(void)
         /* CIGI3 Wave Control */
         { &hf_cigi3_wave_control,
             { "Wave Control", "cigi.wave_control",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Wave Control Packet", HFILL }
         },
         { &hf_cigi3_wave_control_entity_region_id,
@@ -8101,7 +8101,7 @@ proto_register_cigi(void)
         /* Terrestrial Surface Conditions Control */
         { &hf_cigi3_terrestrial_surface_conditions_control,
             { "Terrestrial Surface Conditions Control", "cigi.terrestrial_surface_conditions_control",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Terrestrial Surface Conditions Control Packet", HFILL }
         },
         { &hf_cigi3_terrestrial_surface_conditions_control_entity_region_id,
@@ -8138,7 +8138,7 @@ proto_register_cigi(void)
         /* CIGI2 View Control */
         { &hf_cigi2_view_control,
             { "View Control", "cigi.view_control",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "View Control Packet", HFILL }
         },
         { &hf_cigi2_view_control_entity_id,
@@ -8220,7 +8220,7 @@ proto_register_cigi(void)
         /* CIGI3 View Control */
         { &hf_cigi3_view_control,
             { "View Control", "cigi.view_control",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "View Control Packet", HFILL }
         },
         { &hf_cigi3_view_control_view_id,
@@ -8302,7 +8302,7 @@ proto_register_cigi(void)
         /* CIGI2 Sensor Control */
         { &hf_cigi2_sensor_control,
             { "Sensor Control", "cigi.sensor_control",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Sensor Control Packet", HFILL }
         },
         { &hf_cigi2_sensor_control_view_id,
@@ -8369,7 +8369,7 @@ proto_register_cigi(void)
         /* CIGI3 Sensor Control */
         { &hf_cigi3_sensor_control,
             { "Sensor Control", "cigi.sensor_control",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Sensor Control Packet", HFILL }
         },
         { &hf_cigi3_sensor_control_view_id,
@@ -8441,7 +8441,7 @@ proto_register_cigi(void)
         /* Motion Tracker Control */
         { &hf_cigi3_motion_tracker_control,
             { "Motion Tracker Control", "cigi.motion_tracker_control",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Motion Tracker Control Packet", HFILL }
         },
         { &hf_cigi3_motion_tracker_control_view_group_id,
@@ -8503,7 +8503,7 @@ proto_register_cigi(void)
         /* CIGI3 Earth Reference Model Definition */
         { &hf_cigi3_earth_reference_model_definition,
             { "Earth Reference Model Definition", "cigi.earth_ref_model_def",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Earth Reference Model Definition Packet", HFILL }
         },
         { &hf_cigi3_earth_reference_model_definition_erm_enable,
@@ -8525,7 +8525,7 @@ proto_register_cigi(void)
         /* CIGI2 Trajectory Definition */
         { &hf_cigi2_trajectory_definition,
             { "Trajectory Definition", "cigi.trajectory_def",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Trajectory Definition Packet", HFILL }
         },
         { &hf_cigi2_trajectory_definition_entity_id,
@@ -8552,7 +8552,7 @@ proto_register_cigi(void)
         /* CIGI3 Trajectory Definition */
         { &hf_cigi3_trajectory_definition,
             { "Trajectory Definition", "cigi.trajectory_def",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Trajectory Definition Packet", HFILL }
         },
         { &hf_cigi3_trajectory_definition_entity_id,
@@ -8589,7 +8589,7 @@ proto_register_cigi(void)
         /* CIGI2 Special Effect Definition */
         { &hf_cigi2_special_effect_definition,
             { "Special Effect Definition", "cigi.special_effect_def",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Special Effect Definition Packet", HFILL }
         },
         { &hf_cigi2_special_effect_definition_entity_id,
@@ -8671,7 +8671,7 @@ proto_register_cigi(void)
         /* CIGI2 View Definition */
         { &hf_cigi2_view_definition,
             { "View Definition", "cigi.view_def",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "View Definition Packet", HFILL }
         },
         { &hf_cigi2_view_definition_view_id,
@@ -8768,7 +8768,7 @@ proto_register_cigi(void)
         /* CIGI3 View Definition */
         { &hf_cigi3_view_definition,
             { "View Definition", "cigi.view_def",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "View Definition Packet", HFILL }
         },
         { &hf_cigi3_view_definition_view_id,
@@ -8870,7 +8870,7 @@ proto_register_cigi(void)
         /* CIGI2 Collision Detection Segment Definition */
         { &hf_cigi2_collision_detection_segment_definition,
             { "Collision Detection Segment Definition", "cigi.coll_det_seg_def",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Collision Detection Segment Definition Packet", HFILL }
         },
         { &hf_cigi2_collision_detection_segment_definition_entity_id,
@@ -8927,7 +8927,7 @@ proto_register_cigi(void)
         /* CIGI3 Collision Detection Segment Definition */
         { &hf_cigi3_collision_detection_segment_definition,
             { "Collision Detection Segment Definition", "cigi.coll_det_seg_def",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Collision Detection Segment Definition Packet", HFILL }
         },
         { &hf_cigi3_collision_detection_segment_definition_entity_id,
@@ -8984,7 +8984,7 @@ proto_register_cigi(void)
         /* CIGI2 Collision Detection Volume Definition */
         { &hf_cigi2_collision_detection_volume_definition,
             { "Collision Detection Volume Definition", "cigi.coll_det_vol_def",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Collision Detection Volume Definition Packet", HFILL }
         },
         { &hf_cigi2_collision_detection_volume_definition_entity_id,
@@ -9036,7 +9036,7 @@ proto_register_cigi(void)
         /* CIGI3 Collision Detection Volume Definition */
         { &hf_cigi3_collision_detection_volume_definition,
             { "Collision Detection Volume Definition", "cigi.coll_det_vol_def",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Collision Detection Volume Definition Packet", HFILL }
         },
         { &hf_cigi3_collision_detection_volume_definition_entity_id,
@@ -9108,7 +9108,7 @@ proto_register_cigi(void)
         /* CIGI2 Height Above Terrain Request */
         { &hf_cigi2_height_above_terrain_request,
             { "Height Above Terrain Request", "cigi.hat_request",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Height Above Terrain Request Packet", HFILL }
         },
         { &hf_cigi2_height_above_terrain_request_hat_id,
@@ -9135,7 +9135,7 @@ proto_register_cigi(void)
         /* CIGI2 Line of Sight Occult Request */
         { &hf_cigi2_line_of_sight_occult_request,
             { "Line of Sight Occult Request", "cigi.los_occult_request",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Line of Sight Occult Request Packet", HFILL }
         },
         { &hf_cigi2_line_of_sight_occult_request_los_id,
@@ -9177,7 +9177,7 @@ proto_register_cigi(void)
         /* CIGI2 Line of Sight Range Request */
         { &hf_cigi2_line_of_sight_range_request,
             { "Line of Sight Range Request", "cigi.los_range_request",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Line of Sight Range Request Packet", HFILL }
         },
         { &hf_cigi2_line_of_sight_range_request_los_id,
@@ -9224,7 +9224,7 @@ proto_register_cigi(void)
         /* CIGI2 Height of Terrain Request */
         { &hf_cigi2_height_of_terrain_request,
             { "Height of Terrain Request", "cigi.hot_request",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Height of Terrain Request Packet", HFILL }
         },
         { &hf_cigi2_height_of_terrain_request_hot_id,
@@ -9246,7 +9246,7 @@ proto_register_cigi(void)
         /* CIGI3 HAT/HOT Request */
         { &hf_cigi3_hat_hot_request,
             { "HAT/HOT Request", "cigi.hat_hot_request",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "HAT/HOT Request Packet", HFILL }
         },
         { &hf_cigi3_hat_hot_request_hat_hot_id,
@@ -9288,7 +9288,7 @@ proto_register_cigi(void)
         /* CIGI3_2 HAT/HOT Request */
         { &hf_cigi3_2_hat_hot_request,
             { "HAT/HOT Request", "cigi.hat_hot_request",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "HAT/HOT Request Packet", HFILL }
         },
         { &hf_cigi3_2_hat_hot_request_hat_hot_id,
@@ -9335,7 +9335,7 @@ proto_register_cigi(void)
         /* CIGI3 Line of Sight Segment Request */
         { &hf_cigi3_line_of_sight_segment_request,
             { "Line of Sight Segment Request", "cigi.los_segment_request",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Line of Sight Segment Request Packet", HFILL }
         },
         { &hf_cigi3_line_of_sight_segment_request_los_id,
@@ -9412,7 +9412,7 @@ proto_register_cigi(void)
         /* CIGI3_2 Line of Sight Segment Request */
         { &hf_cigi3_2_line_of_sight_segment_request,
             { "Line of Sight Segment Request", "cigi.los_segment_request",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Line of Sight Segment Request Packet", HFILL }
         },
         { &hf_cigi3_2_line_of_sight_segment_request_los_id,
@@ -9504,7 +9504,7 @@ proto_register_cigi(void)
         /* CIGI3 Line of Sight Vector Request */
         { &hf_cigi3_line_of_sight_vector_request,
             { "Line of Sight Vector Request", "cigi.los_vector_request",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Line of Sight Vector Request Packet", HFILL }
         },
         { &hf_cigi3_line_of_sight_vector_request_los_id,
@@ -9581,7 +9581,7 @@ proto_register_cigi(void)
         /* CIGI3_2 Line of Sight Vector Request */
         { &hf_cigi3_2_line_of_sight_vector_request,
             { "Line of Sight Vector Request", "cigi.los_vector_request",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Line of Sight Vector Request Packet", HFILL }
         },
         { &hf_cigi3_2_line_of_sight_vector_request_los_id,
@@ -9663,7 +9663,7 @@ proto_register_cigi(void)
         /* CIGI3 Position Request */
         { &hf_cigi3_position_request,
             { "Position Request", "cigi.pos_request",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Position Request Packet", HFILL }
         },
         { &hf_cigi3_position_request_object_id,
@@ -9695,7 +9695,7 @@ proto_register_cigi(void)
         /* CIGI3 Environmental Conditions Request */
         { &hf_cigi3_environmental_conditions_request,
             { "Environmental Conditions Request", "cigi.env_cond_request",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Environmental Conditions Request Packet", HFILL }
         },
         { &hf_cigi3_environmental_conditions_request_type,
@@ -9727,7 +9727,7 @@ proto_register_cigi(void)
         /* CIGI3_3 Symbol Surface Definition */
         { &hf_cigi3_3_symbol_surface_definition,
             { "Symbol Surface Definition", "cigi.symbl_srfc_def",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Symbol Surface Definition Packet", HFILL }
         },
         { &hf_cigi3_3_symbol_surface_definition_surface_id,
@@ -9825,7 +9825,7 @@ proto_register_cigi(void)
 #if 0
         { &hf_cigi3_3_symbol_text_definition,
             { "Symbol Text Definition", "cigi.symbol_text_def",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Symbol Text Definition Packet", HFILL }
         },
 #endif
@@ -9864,7 +9864,7 @@ proto_register_cigi(void)
 #if 0
         { &hf_cigi3_3_symbol_circle_definition,
             { "Symbol Circle Definition", "cigi.symbol_circle_def",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Symbol Circle Definition Packet", HFILL }
         },
 #endif
@@ -10168,7 +10168,7 @@ proto_register_cigi(void)
 #if 0
         { &hf_cigi3_3_symbol_line_definition,
             { "Symbol Line Definition", "cigi.symbol_line_def",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Symbol Line Definition Packet", HFILL }
         },
 #endif
@@ -10492,7 +10492,7 @@ proto_register_cigi(void)
 #if 0
         { &hf_cigi3_3_symbol_clone,
             { "Symbol Surface Definition", "cigi.symbol_clone",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Symbol Clone Packet", HFILL }
         },
 #endif
@@ -10516,7 +10516,7 @@ proto_register_cigi(void)
 #if 0
         { &hf_cigi3_3_symbol_control,
             { "Symbol Control", "cigi.symbol_control",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Symbol Control Packet", HFILL }
         },
 #endif
@@ -10620,7 +10620,7 @@ proto_register_cigi(void)
 #if 0
         { &hf_cigi3_3_short_symbol_control,
             { "Short Symbol Control", "cigi.short_symbol_control",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Short Symbol Control Packet", HFILL }
         },
 #endif
@@ -10723,7 +10723,7 @@ proto_register_cigi(void)
         /* CIGI2 Start of Frame */
         { &hf_cigi2_start_of_frame,
             { "Start of Frame", "cigi.sof",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Start of Frame Packet", HFILL }
         },
         { &hf_cigi2_start_of_frame_db_number,
@@ -10755,7 +10755,7 @@ proto_register_cigi(void)
         /* CIGI3 Start of Frame */
         { &hf_cigi3_start_of_frame,
             { "Start of Frame", "cigi.sof",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Start of Frame Packet", HFILL }
         },
         { &hf_cigi3_start_of_frame_db_number,
@@ -10797,7 +10797,7 @@ proto_register_cigi(void)
         /* CIGI3_2 Start of Frame */
         { &hf_cigi3_2_start_of_frame,
             { "Start of Frame", "cigi.sof",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Start of Frame Packet", HFILL }
         },
         { &hf_cigi3_2_start_of_frame_db_number,
@@ -10849,7 +10849,7 @@ proto_register_cigi(void)
         /* CIGI2 Height Above Terrain Response */
         { &hf_cigi2_height_above_terrain_response,
             { "Height Above Terrain Response", "cigi.hat_response",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Height Above Terrain Response Packet", HFILL }
         },
         { &hf_cigi2_height_above_terrain_response_hat_id,
@@ -10876,7 +10876,7 @@ proto_register_cigi(void)
         /* CIGI3 HAT/HOT Response */
         { &hf_cigi3_hat_hot_response,
             { "HAT/HOT Response", "cigi.hat_hot_response",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "HAT/HOT Response Packet", HFILL }
         },
         { &hf_cigi3_hat_hot_response_hat_hot_id,
@@ -10903,7 +10903,7 @@ proto_register_cigi(void)
         /* CIGI3_2 HAT/HOT Response */
         { &hf_cigi3_2_hat_hot_response,
             { "HAT/HOT Response", "cigi.hat_hot_response",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "HAT/HOT Response Packet", HFILL }
         },
         { &hf_cigi3_2_hat_hot_response_hat_hot_id,
@@ -10935,7 +10935,7 @@ proto_register_cigi(void)
         /* CIGI3 HAT/HOT Extended Response */
         { &hf_cigi3_hat_hot_extended_response,
             { "HAT/HOT Extended Response", "cigi.hat_hot_ext_response",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "HAT/HOT Extended Response Packet", HFILL }
         },
         { &hf_cigi3_hat_hot_extended_response_hat_hot_id,
@@ -10977,7 +10977,7 @@ proto_register_cigi(void)
         /* CIGI3_2 HAT/HOT Extended Response */
         { &hf_cigi3_2_hat_hot_extended_response,
             { "HAT/HOT Extended Response", "cigi.hat_hot_ext_response",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "HAT/HOT Extended Response Packet", HFILL }
         },
         { &hf_cigi3_2_hat_hot_extended_response_hat_hot_id,
@@ -11024,7 +11024,7 @@ proto_register_cigi(void)
         /* CIGI2 Line of Sight Response */
         { &hf_cigi2_line_of_sight_response,
             { "Line of Sight Response", "cigi.los_response",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Line of Sight Response Packet", HFILL }
         },
         { &hf_cigi2_line_of_sight_response_los_id,
@@ -11071,7 +11071,7 @@ proto_register_cigi(void)
         /* CIGI3 Line of Sight Response */
         { &hf_cigi3_line_of_sight_response,
             { "Line of Sight Response", "cigi.los_response",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Line of Sight Response Packet", HFILL }
         },
         { &hf_cigi3_line_of_sight_response_los_id,
@@ -11113,7 +11113,7 @@ proto_register_cigi(void)
         /* CIGI3_2 Line of Sight Response */
         { &hf_cigi3_2_line_of_sight_response,
             { "Line of Sight Response", "cigi.los_response",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Line of Sight Response Packet", HFILL }
         },
         { &hf_cigi3_2_line_of_sight_response_los_id,
@@ -11160,7 +11160,7 @@ proto_register_cigi(void)
         /* CIGI3 Line of Sight Extended Response */
         { &hf_cigi3_line_of_sight_extended_response,
             { "Line of Sight Extended Response", "cigi.los_ext_response",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Line of Sight Extended Response Packet", HFILL }
         },
         { &hf_cigi3_line_of_sight_extended_response_los_id,
@@ -11262,7 +11262,7 @@ proto_register_cigi(void)
         /* CIGI3_2 Line of Sight Extended Response */
         { &hf_cigi3_2_line_of_sight_extended_response,
             { "Line of Sight Extended Response", "cigi.3_2_los_ext_response",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Line of Sight Extended Response Packet", HFILL }
         },
         { &hf_cigi3_2_line_of_sight_extended_response_los_id,
@@ -11364,7 +11364,7 @@ proto_register_cigi(void)
         /* CIGI2 Collision Detection Segment Response */
         { &hf_cigi2_collision_detection_segment_response,
             { "Collision Detection Segment Response", "cigi.coll_det_seg_response",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Collision Detection Segment Response Packet", HFILL }
         },
         { &hf_cigi2_collision_detection_segment_response_entity_id,
@@ -11411,7 +11411,7 @@ proto_register_cigi(void)
         /* CIGI2 Sensor Response */
         { &hf_cigi2_sensor_response,
             { "Sensor Response", "cigi.sensor_response",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Sensor Response Packet", HFILL }
         },
         { &hf_cigi2_sensor_response_view_id,
@@ -11453,7 +11453,7 @@ proto_register_cigi(void)
         /* CIGI3 Sensor Response */
         { &hf_cigi3_sensor_response,
             { "Sensor Response", "cigi.sensor_response",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Sensor Response Packet", HFILL }
         },
         { &hf_cigi3_sensor_response_view_id,
@@ -11500,7 +11500,7 @@ proto_register_cigi(void)
         /* CIGI3 Sensor Extended Response */
         { &hf_cigi3_sensor_extended_response,
             { "Sensor Extended Response", "cigi.sensor_ext_response",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Sensor Extended Response Packet", HFILL }
         },
         { &hf_cigi3_sensor_extended_response_view_id,
@@ -11572,7 +11572,7 @@ proto_register_cigi(void)
         /* CIGI2 Height of Terrain Response */
         { &hf_cigi2_height_of_terrain_response,
             { "Height of Terrain Response", "cigi.hot_response",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Height of Terrain Response Packet", HFILL }
         },
         { &hf_cigi2_height_of_terrain_response_hot_id,
@@ -11599,7 +11599,7 @@ proto_register_cigi(void)
         /* CIGI2 Collision Detection Volume Response */
         { &hf_cigi2_collision_detection_volume_response,
             { "Collision Detection Volume Response", "cigi.coll_det_vol_response",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Collision Detection Volume Response Packet", HFILL }
         },
         { &hf_cigi2_collision_detection_volume_response_entity_id,
@@ -11626,7 +11626,7 @@ proto_register_cigi(void)
         /* CIGI3 Position Response */
         { &hf_cigi3_position_response,
             { "Position Response", "cigi.pos_response",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Position Response Packet", HFILL }
         },
         { &hf_cigi3_position_response_object_id,
@@ -11683,7 +11683,7 @@ proto_register_cigi(void)
         /* CIGI3 Weather Conditions Response */
         { &hf_cigi3_weather_conditions_response,
             { "Weather Conditions Response", "cigi.wea_cond_response",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Weather Conditions Response Packet", HFILL }
         },
         { &hf_cigi3_weather_conditions_response_request_id,
@@ -11730,7 +11730,7 @@ proto_register_cigi(void)
         /* CIGI3 Aerosol Concentration Response */
         { &hf_cigi3_aerosol_concentration_response,
             { "Aerosol Concentration Response", "cigi.aerosol_concentration_response",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Aerosol Concentration Response Packet", HFILL }
         },
         { &hf_cigi3_aerosol_concentration_response_request_id,
@@ -11752,7 +11752,7 @@ proto_register_cigi(void)
         /* CIGI3 Maritime Surface Conditions Response */
         { &hf_cigi3_maritime_surface_conditions_response,
             { "Maritime Surface Conditions Response", "cigi.maritime_surface_conditions_response",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Maritime Surface Conditions Response Packet", HFILL }
         },
         { &hf_cigi3_maritime_surface_conditions_response_request_id,
@@ -11779,7 +11779,7 @@ proto_register_cigi(void)
         /* CIGI3 Terrestrial Surface Conditions Response */
         { &hf_cigi3_terrestrial_surface_conditions_response,
             { "Terrestrial Surface Conditions Response", "cigi.terr_surface_cond_response",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Terrestrial Surface Conditions Response Packet", HFILL }
         },
         { &hf_cigi3_terrestrial_surface_conditions_response_request_id,
@@ -11796,7 +11796,7 @@ proto_register_cigi(void)
         /* CIGI3 Collision Detection Segment Notification */
         { &hf_cigi3_collision_detection_segment_notification,
             { "Collision Detection Segment Notification", "cigi.coll_det_seg_notification",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Collision Detection Segment Notification Packet", HFILL }
         },
         { &hf_cigi3_collision_detection_segment_notification_entity_id,
@@ -11833,7 +11833,7 @@ proto_register_cigi(void)
         /* CIGI3 Collision Detection Volume Notification */
         { &hf_cigi3_collision_detection_volume_notification,
             { "Collision Detection Volume Notification", "cigi.coll_det_vol_notification",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Collision Detection Volume Notification Packet", HFILL }
         },
         { &hf_cigi3_collision_detection_volume_notification_entity_id,
@@ -11865,7 +11865,7 @@ proto_register_cigi(void)
         /* CIGI3 Animation Stop Notification */
         { &hf_cigi3_animation_stop_notification,
             { "Animation Stop Notification", "cigi.animation_stop_notification",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Animation Stop Notification Packet", HFILL }
         },
         { &hf_cigi3_animation_stop_notification_entity_id,
@@ -11877,7 +11877,7 @@ proto_register_cigi(void)
         /* CIGI3 Event Notification */
         { &hf_cigi3_event_notification,
             { "Event Notification", "cigi.event_notification",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Event Notification Packet", HFILL }
         },
         { &hf_cigi3_event_notification_event_id,
@@ -11904,7 +11904,7 @@ proto_register_cigi(void)
         /* CIGI2 Image Generator Message */
         { &hf_cigi2_image_generator_message,
             { "Image Generator Message", "cigi.image_generator_message",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Image Generator Message Packet", HFILL }
         },
         { &hf_cigi2_image_generator_message_id,
@@ -11921,7 +11921,7 @@ proto_register_cigi(void)
         /* CIGI3 Image Generator Message */
         { &hf_cigi3_image_generator_message,
             { "Image Generator Message", "cigi.image_generator_message",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "Image Generator Message Packet", HFILL }
         },
         { &hf_cigi3_image_generator_message_id,
@@ -11938,14 +11938,14 @@ proto_register_cigi(void)
         /* CIGI2 User Definable */
         { &hf_cigi2_user_definable,
             { "User Definable", "cigi.user_definable",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "User definable packet", HFILL }
         },
 
         /* CIGI3 User-Defined Packets */
         { &hf_cigi3_user_defined,
             { "User-Defined", "cigi.user_defined",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0,
+                FT_NONE, BASE_NONE, NULL, 0x0,
                 "User-Defined Packet", HFILL }
         },
     };
