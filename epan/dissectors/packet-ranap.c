@@ -1643,14 +1643,11 @@ static ranap_private_data_t* ranap_get_private_data(asn1_ctx_t *actx)
 {
   packet_info *pinfo = actx->pinfo;
   ranap_private_data_t *private_data = (ranap_private_data_t *)p_get_proto_data(pinfo->pool, pinfo, proto_ranap, 0);
-  if(private_data != NULL ) {
-     return private_data;
-  }
-  else {
+  if(private_data == NULL ) {
     private_data = wmem_new0(pinfo->pool, ranap_private_data_t);
     p_add_proto_data(pinfo->pool, pinfo, proto_ranap, 0, private_data);
-    return private_data;
   }
+  return private_data;
 }
 
 /* Helper function to reset the the private data struct */
@@ -14956,7 +14953,7 @@ static int dissect_RANAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 
 
 /*--- End of included file: packet-ranap-fn.c ---*/
-#line 198 "./asn1/ranap/packet-ranap-template.c"
+#line 195 "./asn1/ranap/packet-ranap-template.c"
 
 static int
 dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -18340,7 +18337,7 @@ void proto_register_ranap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ranap-hfarr.c ---*/
-#line 413 "./asn1/ranap/packet-ranap-template.c"
+#line 410 "./asn1/ranap/packet-ranap-template.c"
   };
 
   /* List of subtrees */
@@ -18704,7 +18701,7 @@ void proto_register_ranap(void) {
     &ett_ranap_Outcome,
 
 /*--- End of included file: packet-ranap-ettarr.c ---*/
-#line 421 "./asn1/ranap/packet-ranap-template.c"
+#line 418 "./asn1/ranap/packet-ranap-template.c"
   };
 
 
@@ -19131,7 +19128,7 @@ proto_reg_handoff_ranap(void)
 
 
 /*--- End of included file: packet-ranap-dis-tab.c ---*/
-#line 470 "./asn1/ranap/packet-ranap-template.c"
+#line 467 "./asn1/ranap/packet-ranap-template.c"
   } else {
     dissector_delete_uint("sccp.ssn", local_ranap_sccp_ssn, ranap_handle);
   }

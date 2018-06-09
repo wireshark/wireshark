@@ -91,14 +91,11 @@ static ranap_private_data_t* ranap_get_private_data(asn1_ctx_t *actx)
 {
   packet_info *pinfo = actx->pinfo;
   ranap_private_data_t *private_data = (ranap_private_data_t *)p_get_proto_data(pinfo->pool, pinfo, proto_ranap, 0);
-  if(private_data != NULL ) {
-     return private_data;
-  }
-  else {
+  if(private_data == NULL ) {
     private_data = wmem_new0(pinfo->pool, ranap_private_data_t);
     p_add_proto_data(pinfo->pool, pinfo, proto_ranap, 0, private_data);
-    return private_data;
   }
+  return private_data;
 }
 
 /* Helper function to reset the the private data struct */
