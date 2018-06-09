@@ -265,10 +265,7 @@ static nbap_private_data_t* nbap_get_private_data(packet_info *pinfo)
   * can't be passes to/from them.
   */
   nbap_private_data_t *private_data = (nbap_private_data_t *)p_get_proto_data(pinfo->pool, pinfo, proto_nbap, 0);
-  if(private_data != NULL ) {
-    return private_data;
-  }
-  else {
+  if(private_data == NULL ) {
     private_data = wmem_new0(pinfo->pool, nbap_private_data_t);
     p_add_proto_data(pinfo->pool, pinfo, proto_nbap, 0, private_data);
     /* Setting  default values */
@@ -280,8 +277,8 @@ static nbap_private_data_t* nbap_get_private_data(packet_info *pinfo)
     for (i = 0; i < maxNrOfMACdFlows; i++) {
         private_data->nbap_hsdsch_channel_info[i].entity = hs;
     }
-    return private_data;
   }
+  return private_data;
 }
 
 /* Helper function to reset the private data struct*/
