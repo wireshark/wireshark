@@ -4462,11 +4462,24 @@ add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *pinfo)
 
                     }
                 } else {
+                    /* Otherwise, non-textual values are invalid; parse them
+                     * enough to get the value length. */
+                    guint32 val_len_len; /* length of length field */
+
+                    val_len = 1; /* for the first octet */
+                    if (val_id <= 0x1E) {
+                        /* value is val_id octets long */
+                        val_len += val_id;
+                    } else if (val_id == 0x1F) {
+                        /* value is a uintvar following the val_id */
+                        val_len += tvb_get_guintvar(tvb, val_start + 1, &val_len_len, pinfo, &ei_wsp_oversized_uintvar);
+                        val_len += val_len_len; /* count the length itself */
+                    }
                     proto_tree_add_expert_format(wsp_headers, pinfo, &ei_wsp_text_field_invalid, tvb, hdr_start, hdr_len,
                                          "Invalid value for the textual '%s' header (should be a textual value)",
                                          hdr_str);
                 }
-                offset = tvb_len;
+                offset = val_start + val_len;
             }
             hidden_item = proto_tree_add_string(wsp_headers, hf_hdr_name_string,
                                                 tvb, hdr_start, offset - hdr_start, hdr_str);
