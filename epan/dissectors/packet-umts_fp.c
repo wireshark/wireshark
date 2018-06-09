@@ -1059,12 +1059,11 @@ dissect_common_timing_adjustment(packet_info *pinfo, proto_tree *tree, tvbuff_t 
                                  int offset, struct fp_info *p_fp_info)
 {
     if (p_fp_info->channel != CHANNEL_PCH) {
-        guint8 cfn;
+        guint32 cfn;
         gint16 toa;
 
         /* CFN control */
-        cfn = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(tree, hf_fp_cfn_control, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(tree, hf_fp_cfn_control, tvb, offset, 1, ENC_BIG_ENDIAN, &cfn);
         offset++;
 
         /* ToA */
@@ -1075,12 +1074,11 @@ dissect_common_timing_adjustment(packet_info *pinfo, proto_tree *tree, tvbuff_t 
         col_append_fstr(pinfo->cinfo, COL_INFO, "   CFN=%u, ToA=%d", cfn, toa);
     }
     else {
-        guint16 cfn;
+        guint32 cfn;
         gint32 toa;
 
         /* PCH CFN is 12 bits */
-        cfn = (tvb_get_ntohs(tvb, offset) >> 4);
-        proto_tree_add_item(tree, hf_fp_pch_cfn, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(tree, hf_fp_pch_cfn, tvb, offset, 2, ENC_BIG_ENDIAN, &cfn);
         offset += 2;
 
         /* 4 bits of padding follow... */
@@ -1145,18 +1143,16 @@ static int
 dissect_common_dl_synchronisation(packet_info *pinfo, proto_tree *tree,
                                   tvbuff_t *tvb, int offset, struct fp_info *p_fp_info)
 {
-    guint16 cfn;
+    guint32 cfn;
 
     if (p_fp_info->channel != CHANNEL_PCH) {
         /* CFN control */
-        cfn = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(tree, hf_fp_cfn_control, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(tree, hf_fp_cfn_control, tvb, offset, 1, ENC_BIG_ENDIAN, &cfn);
         offset++;
     }
     else {
         /* PCH CFN is 12 bits */
-        cfn = (tvb_get_ntohs(tvb, offset) >> 4);
-        proto_tree_add_item(tree, hf_fp_pch_cfn, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(tree, hf_fp_pch_cfn, tvb, offset, 2, ENC_BIG_ENDIAN, &cfn);
 
         /* 4 bits of padding follow... */
         offset += 2;
@@ -1177,12 +1173,11 @@ dissect_common_ul_synchronisation(packet_info *pinfo, proto_tree *tree,
 static int
 dissect_common_timing_advance(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-    guint8  cfn;
+    guint32 cfn;
     guint16 timing_advance;
 
     /* CFN control */
-    cfn = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_fp_cfn_control, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_fp_cfn_control, tvb, offset, 1, ENC_BIG_ENDIAN, &cfn);
     offset++;
 
     /* Timing Advance */
@@ -2182,13 +2177,12 @@ dissect_iur_dsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static int
 dissect_dch_timing_adjustment(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
 {
-    guint8      control_cfn;
+    guint32     cfn;
     gint16      toa;
     proto_item *toa_ti;
 
     /* CFN control */
-    control_cfn = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_fp_cfn_control, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_fp_cfn_control, tvb, offset, 1, ENC_BIG_ENDIAN, &cfn);
     offset++;
 
     /* ToA */
@@ -2199,7 +2193,7 @@ dissect_dch_timing_adjustment(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
     expert_add_info_format(pinfo, toa_ti, &ei_fp_timing_adjustmentment_reported, "Timing adjustmentment reported (%f ms)", (float)(toa / 8));
 
     col_append_fstr(pinfo->cinfo, COL_INFO,
-                    " CFN = %u, ToA = %d", control_cfn, toa);
+                    " CFN = %u, ToA = %d", cfn, toa);
 
     return offset;
 }
@@ -2307,9 +2301,10 @@ dissect_dch_rx_timing_deviation(packet_info *pinfo, proto_tree *tree,
 static int
 dissect_dch_dl_synchronisation(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
 {
+    guint32 cfn;
+
     /* CFN control */
-    guint cfn = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_fp_cfn_control, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_fp_cfn_control, tvb, offset, 1, ENC_BIG_ENDIAN, &cfn);
     offset++;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " CFN = %u", cfn);
@@ -2320,12 +2315,11 @@ dissect_dch_dl_synchronisation(proto_tree *tree, packet_info *pinfo, tvbuff_t *t
 static int
 dissect_dch_ul_synchronisation(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
 {
-    guint8 cfn;
+    guint32 cfn;
     gint16 toa;
 
     /* CFN control */
-    cfn = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_fp_cfn_control, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_fp_cfn_control, tvb, offset, 1, ENC_BIG_ENDIAN, &cfn);
     offset++;
 
     /* ToA */
@@ -2404,13 +2398,12 @@ static int
 dissect_dch_timing_advance(proto_tree *tree, packet_info *pinfo,
                            tvbuff_t *tvb, int offset, struct fp_info *p_fp_info)
 {
-    guint8      cfn;
+    guint32     cfn;
     guint16     timing_advance;
     proto_item *timing_advance_ti;
 
     /* CFN control */
-    cfn = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_fp_cfn_control, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_fp_cfn_control, tvb, offset, 1, ENC_BIG_ENDIAN, &cfn);
     offset++;
 
     /* Timing Advance */
@@ -5894,7 +5887,7 @@ void proto_register_fp(void)
             },
             { &hf_fp_cfn_control,
               { "CFN control",
-                "fp.cfn-control", FT_UINT8, BASE_DEC, NULL, 0x0,
+                "fp.cfn-control", FT_UINT8, BASE_DEC, NULL, 0xff,
                 "Connection Frame Number Control", HFILL
               }
             },
