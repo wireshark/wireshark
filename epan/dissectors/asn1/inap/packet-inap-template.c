@@ -70,6 +70,21 @@ static gint ett_inap_RedirectionInformation = -1;
 static gint ett_inap_HighLayerCompatibility = -1;
 static gint ett_inap_extension_data = -1;
 static gint ett_inap_cause = -1;
+static gint ett_inap_calledAddressValue = -1;
+static gint ett_inap_callingAddressValue = -1;
+static gint ett_inap_additionalCallingPartyNumber = -1;
+static gint ett_inap_assistingSSPIPRoutingAddress = -1;
+static gint ett_inap_correlationID = -1;
+static gint ett_inap_number = -1;
+static gint ett_inap_dialledNumber = -1;
+static gint ett_inap_callingLineID = -1;
+static gint ett_inap_iNServiceControlCode = -1;
+static gint ett_inap_iNServiceControlCodeLow = -1;
+static gint ett_inap_iNServiceControlCodeHigh = -1;
+static gint ett_inap_lineID = -1;
+static gint ett_inap_prefix = -1;
+static gint ett_inap_iPAddressValue = -1;
+static gint ett_inap_digitsResponse = -1;
 
 #include "packet-inap-ett.c"
 
@@ -211,6 +226,21 @@ void proto_register_inap(void) {
     &ett_inap_HighLayerCompatibility,
     &ett_inap_extension_data,
     &ett_inap_cause,
+    &ett_inap_calledAddressValue,
+    &ett_inap_callingAddressValue,
+    &ett_inap_additionalCallingPartyNumber,
+    &ett_inap_assistingSSPIPRoutingAddress,
+    &ett_inap_correlationID,
+    &ett_inap_number,
+    &ett_inap_dialledNumber,
+    &ett_inap_callingLineID,
+    &ett_inap_iNServiceControlCode,
+    &ett_inap_iNServiceControlCodeLow,
+    &ett_inap_iNServiceControlCodeHigh,
+    &ett_inap_lineID,
+    &ett_inap_prefix,
+    &ett_inap_iPAddressValue,
+    &ett_inap_digitsResponse,
 #include "packet-inap-ettarr.c"
   };
 
