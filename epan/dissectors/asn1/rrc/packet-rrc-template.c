@@ -82,14 +82,10 @@ typedef struct umts_rrc_private_data_t
 /* Helper function to get or create a struct that will be actx->private_data */
 static umts_rrc_private_data_t* umts_rrc_get_private_data(asn1_ctx_t *actx)
 {
-  if (actx->private_data != NULL) {
-    return (umts_rrc_private_data_t*)actx->private_data;
+  if (actx->private_data == NULL) {
+    actx->private_data = wmem_new0(wmem_packet_scope(), umts_rrc_private_data_t);
   }
-  else {
-    umts_rrc_private_data_t* new_struct = wmem_new0(wmem_packet_scope(), umts_rrc_private_data_t);
-    actx->private_data = new_struct;
-    return new_struct;
-  }
+  return (umts_rrc_private_data_t*)actx->private_data;
 }
 
 static guint32 private_data_get_s_rnc_id(asn1_ctx_t *actx)
