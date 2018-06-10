@@ -1561,70 +1561,70 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;指定した数のファイルを作成した後キャプチャを停止します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="186"/>
+        <location filename="capture_interfaces_dialog.cpp" line="192"/>
         <source>Capture Interfaces</source>
         <translation>キャプチャインターフェース</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="192"/>
+        <location filename="capture_interfaces_dialog.cpp" line="198"/>
         <source>Start</source>
         <translation>開始</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="217"/>
+        <location filename="capture_interfaces_dialog.cpp" line="223"/>
         <source>Leave blank to use a temporary file</source>
         <translation>一時ファイルを使うため空白にしておきます</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="323"/>
+        <location filename="capture_interfaces_dialog.cpp" line="329"/>
         <source>Specify a Capture File</source>
         <translation>キャプチャファイルを指定してください</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="615"/>
+        <location filename="capture_interfaces_dialog.cpp" line="621"/>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="615"/>
+        <location filename="capture_interfaces_dialog.cpp" line="621"/>
         <source>Addresses</source>
         <translation>アドレス</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="615"/>
+        <location filename="capture_interfaces_dialog.cpp" line="621"/>
         <source>Address</source>
         <translation>アドレス</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="625"/>
+        <location filename="capture_interfaces_dialog.cpp" line="631"/>
         <source>no addresses</source>
         <translation>アドレスがありません</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="803"/>
-        <location filename="capture_interfaces_dialog.cpp" line="811"/>
-        <location filename="capture_interfaces_dialog.cpp" line="822"/>
-        <location filename="capture_interfaces_dialog.cpp" line="826"/>
-        <location filename="capture_interfaces_dialog.cpp" line="839"/>
-        <location filename="capture_interfaces_dialog.cpp" line="847"/>
+        <location filename="capture_interfaces_dialog.cpp" line="809"/>
+        <location filename="capture_interfaces_dialog.cpp" line="817"/>
+        <location filename="capture_interfaces_dialog.cpp" line="828"/>
+        <location filename="capture_interfaces_dialog.cpp" line="832"/>
+        <location filename="capture_interfaces_dialog.cpp" line="845"/>
+        <location filename="capture_interfaces_dialog.cpp" line="853"/>
         <source>Error</source>
         <translation>エラー</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="804"/>
-        <location filename="capture_interfaces_dialog.cpp" line="812"/>
-        <location filename="capture_interfaces_dialog.cpp" line="840"/>
-        <location filename="capture_interfaces_dialog.cpp" line="848"/>
+        <location filename="capture_interfaces_dialog.cpp" line="810"/>
+        <location filename="capture_interfaces_dialog.cpp" line="818"/>
+        <location filename="capture_interfaces_dialog.cpp" line="846"/>
+        <location filename="capture_interfaces_dialog.cpp" line="854"/>
         <source>Multiple files: Requested filesize too large! The filesize cannot be greater than 2 GiB.</source>
         <translation>複数ファイル:要求したファイルサイズが大きすぎます! ファイルサイズは2GBより大きくできません</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="823"/>
+        <location filename="capture_interfaces_dialog.cpp" line="829"/>
         <source>Multiple files: No capture file name given! You must specify a filename if you want to use multiple files.</source>
         <translation>複数ファイル:キャプチャファイル名が指定されていません! 複数ファイルを利用したい場合にはファイル名を指定しなければなりません</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="827"/>
+        <location filename="capture_interfaces_dialog.cpp" line="833"/>
         <source>Multiple files: No file limit given! You must specify a file size or duration at which is switched to the next capture file
  if you want to use multiple files.</source>
         <translation>複数ファイル:ファイルの限界が指定されていません 次のキャプチャファイルへ切り替えるためのファイルサイズか間隔を指定する必要があります。</translation>
@@ -11115,7 +11115,7 @@ a:hover {
         <translation>デフォルト</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="120"/>
+        <location filename="capture_interfaces_dialog.cpp" line="126"/>
         <source>DLT %1</source>
         <translation>DLT %1</translation>
     </message>

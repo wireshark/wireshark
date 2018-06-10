@@ -1561,70 +1561,70 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Interrompi la cattura dopo che il numero di file specificato è stato creato.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="186"/>
+        <location filename="capture_interfaces_dialog.cpp" line="192"/>
         <source>Capture Interfaces</source>
         <translation>Interfacce di cattura</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="192"/>
+        <location filename="capture_interfaces_dialog.cpp" line="198"/>
         <source>Start</source>
         <translation>Avvia</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="217"/>
+        <location filename="capture_interfaces_dialog.cpp" line="223"/>
         <source>Leave blank to use a temporary file</source>
         <translation>Lascia vuoto per utilizzare un file temporaneo</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="323"/>
+        <location filename="capture_interfaces_dialog.cpp" line="329"/>
         <source>Specify a Capture File</source>
         <translation>Specifica un file di cattura</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="615"/>
+        <location filename="capture_interfaces_dialog.cpp" line="621"/>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="615"/>
+        <location filename="capture_interfaces_dialog.cpp" line="621"/>
         <source>Addresses</source>
         <translation>Indirizzi</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="615"/>
+        <location filename="capture_interfaces_dialog.cpp" line="621"/>
         <source>Address</source>
         <translation>Indirizzo</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="625"/>
+        <location filename="capture_interfaces_dialog.cpp" line="631"/>
         <source>no addresses</source>
         <translation>nessun indirizzo</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="803"/>
-        <location filename="capture_interfaces_dialog.cpp" line="811"/>
-        <location filename="capture_interfaces_dialog.cpp" line="822"/>
-        <location filename="capture_interfaces_dialog.cpp" line="826"/>
-        <location filename="capture_interfaces_dialog.cpp" line="839"/>
-        <location filename="capture_interfaces_dialog.cpp" line="847"/>
+        <location filename="capture_interfaces_dialog.cpp" line="809"/>
+        <location filename="capture_interfaces_dialog.cpp" line="817"/>
+        <location filename="capture_interfaces_dialog.cpp" line="828"/>
+        <location filename="capture_interfaces_dialog.cpp" line="832"/>
+        <location filename="capture_interfaces_dialog.cpp" line="845"/>
+        <location filename="capture_interfaces_dialog.cpp" line="853"/>
         <source>Error</source>
         <translation>Errore</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="804"/>
-        <location filename="capture_interfaces_dialog.cpp" line="812"/>
-        <location filename="capture_interfaces_dialog.cpp" line="840"/>
-        <location filename="capture_interfaces_dialog.cpp" line="848"/>
+        <location filename="capture_interfaces_dialog.cpp" line="810"/>
+        <location filename="capture_interfaces_dialog.cpp" line="818"/>
+        <location filename="capture_interfaces_dialog.cpp" line="846"/>
+        <location filename="capture_interfaces_dialog.cpp" line="854"/>
         <source>Multiple files: Requested filesize too large! The filesize cannot be greater than 2 GiB.</source>
         <translation>File multipli: la dimensione del file richiesta è troppo grande. La dimensione del file non può essere superiore a 2 GiB.</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="823"/>
+        <location filename="capture_interfaces_dialog.cpp" line="829"/>
         <source>Multiple files: No capture file name given! You must specify a filename if you want to use multiple files.</source>
         <translation>File multipli: non è stato fornito un nome del file di cattura! Devi specificare un nome del file se vuoi usare file multipli.</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="827"/>
+        <location filename="capture_interfaces_dialog.cpp" line="833"/>
         <source>Multiple files: No file limit given! You must specify a file size or duration at which is switched to the next capture file
  if you want to use multiple files.</source>
         <translation>File multipli: non è stato fornito alcun limite di file! Devi specificare una dimensione del file o la durata raggiunta la quale si passa al successivo file di cattura se vuoi usare file multipli.</translation>
@@ -11125,7 +11125,7 @@ a:hover {
         <translation>predefinito</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="120"/>
+        <location filename="capture_interfaces_dialog.cpp" line="126"/>
         <source>DLT %1</source>
         <translation>DLT %1</translation>
     </message>
