@@ -1607,72 +1607,72 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;指定した数のファイルを作成した後キャプチャを停止します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="190"/>
+        <location filename="capture_interfaces_dialog.cpp" line="196"/>
         <source>Capture Interfaces</source>
         <translation>キャプチャインターフェース</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="195"/>
+        <location filename="capture_interfaces_dialog.cpp" line="201"/>
         <source>Start</source>
         <translation>開始</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="217"/>
+        <location filename="capture_interfaces_dialog.cpp" line="223"/>
         <source>Leave blank to use a temporary file</source>
         <translation>一時ファイルを使うため空白にしておきます</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="390"/>
+        <location filename="capture_interfaces_dialog.cpp" line="396"/>
         <source>Specify a Capture File</source>
         <translation>キャプチャファイルを指定してください</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="682"/>
+        <location filename="capture_interfaces_dialog.cpp" line="688"/>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="682"/>
+        <location filename="capture_interfaces_dialog.cpp" line="688"/>
         <source>Addresses</source>
         <translation>アドレス</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="682"/>
+        <location filename="capture_interfaces_dialog.cpp" line="688"/>
         <source>Address</source>
         <translation>アドレス</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="692"/>
+        <location filename="capture_interfaces_dialog.cpp" line="698"/>
         <source>no addresses</source>
         <translation>アドレスがありません</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="872"/>
-        <location filename="capture_interfaces_dialog.cpp" line="880"/>
-        <location filename="capture_interfaces_dialog.cpp" line="891"/>
-        <location filename="capture_interfaces_dialog.cpp" line="895"/>
-        <location filename="capture_interfaces_dialog.cpp" line="908"/>
-        <location filename="capture_interfaces_dialog.cpp" line="916"/>
+        <location filename="capture_interfaces_dialog.cpp" line="878"/>
+        <location filename="capture_interfaces_dialog.cpp" line="886"/>
+        <location filename="capture_interfaces_dialog.cpp" line="897"/>
+        <location filename="capture_interfaces_dialog.cpp" line="901"/>
+        <location filename="capture_interfaces_dialog.cpp" line="914"/>
+        <location filename="capture_interfaces_dialog.cpp" line="922"/>
         <source>Error</source>
         <translation>エラー</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="873"/>
-        <location filename="capture_interfaces_dialog.cpp" line="881"/>
-        <location filename="capture_interfaces_dialog.cpp" line="909"/>
-        <location filename="capture_interfaces_dialog.cpp" line="917"/>
+        <location filename="capture_interfaces_dialog.cpp" line="879"/>
+        <location filename="capture_interfaces_dialog.cpp" line="887"/>
+        <location filename="capture_interfaces_dialog.cpp" line="915"/>
+        <location filename="capture_interfaces_dialog.cpp" line="923"/>
         <source>Multiple files: Requested filesize too large. The filesize cannot be greater than 2 GiB.</source>
         <oldsource>Multiple files: Requested filesize too large! The filesize cannot be greater than 2 GiB.</oldsource>
         <translation>複数ファイル: 要求したファイルサイズが大きすぎます。ファイルサイズは2GBより大きくすることはできません。</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="892"/>
+        <location filename="capture_interfaces_dialog.cpp" line="898"/>
         <source>Multiple files: No capture file name given. You must specify a filename if you want to use multiple files.</source>
         <oldsource>Multiple files: No capture file name given! You must specify a filename if you want to use multiple files.</oldsource>
         <translation>複数ファイル: キャプチャファイル名がありません。複数ファイルを利用するにはファイル名を指定しなければなりません。</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="896"/>
+        <location filename="capture_interfaces_dialog.cpp" line="902"/>
         <source>Multiple files: No file limit given. You must specify a file size or duration at which is switched to the next capture file
  if you want to use multiple files.</source>
         <oldsource>Multiple files: No file limit given! You must specify a file size or duration at which is switched to the next capture file
@@ -4769,87 +4769,87 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>インターフェースが見つかりません</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="265"/>
+        <location filename="interface_tree_model.cpp" line="273"/>
         <source>Show</source>
         <translation>表示</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="269"/>
+        <location filename="interface_tree_model.cpp" line="277"/>
         <source>Friendly Name</source>
         <translation>フレンドリ名</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="273"/>
+        <location filename="interface_tree_model.cpp" line="281"/>
         <source>Interface Name</source>
         <translation>インターフェース名</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="277"/>
+        <location filename="interface_tree_model.cpp" line="285"/>
         <source>Local Pipe Path</source>
         <translation>ローカルパイプパス</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="281"/>
+        <location filename="interface_tree_model.cpp" line="289"/>
         <source>Comment</source>
         <translation>コメント</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="285"/>
+        <location filename="interface_tree_model.cpp" line="293"/>
         <source>Link-Layer Header</source>
         <translation>データリンク層ヘッダ</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="289"/>
+        <location filename="interface_tree_model.cpp" line="297"/>
         <source>Promiscuous</source>
         <translation>プロミスキャス</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="293"/>
+        <location filename="interface_tree_model.cpp" line="301"/>
         <source>Snaplen (B)</source>
         <translation>キャプチャ長(バイト)</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="298"/>
+        <location filename="interface_tree_model.cpp" line="306"/>
         <source>Buffer (MB)</source>
         <translation>バッファ(メガバイト)</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="304"/>
+        <location filename="interface_tree_model.cpp" line="312"/>
         <source>Monitor Mode</source>
         <translation>モニターモード</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="309"/>
+        <location filename="interface_tree_model.cpp" line="317"/>
         <source>Capture Filter</source>
         <translation>キャプチャフィルタ</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="361"/>
+        <location filename="interface_tree_model.cpp" line="369"/>
         <source>Addresses</source>
         <translation>アドレス</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="361"/>
+        <location filename="interface_tree_model.cpp" line="369"/>
         <source>Address</source>
         <translation>アドレス</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="368"/>
+        <location filename="interface_tree_model.cpp" line="376"/>
         <source>Extcap interface: %1</source>
         <translation>Extcap インターフェース: %1</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="373"/>
+        <location filename="interface_tree_model.cpp" line="381"/>
         <source>No addresses</source>
         <translation>アドレスなし</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="380"/>
+        <location filename="interface_tree_model.cpp" line="388"/>
         <source>No capture filter</source>
         <translation>キャプチャフィルタなし</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="385"/>
+        <location filename="interface_tree_model.cpp" line="393"/>
         <source>Capture filter</source>
         <translation>キャプチャフィルタ</translation>
     </message>
@@ -11378,8 +11378,8 @@ a:hover {
         <translation>デフォルト</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="124"/>
-        <location filename="interface_tree_model.cpp" line="177"/>
+        <location filename="capture_interfaces_dialog.cpp" line="130"/>
+        <location filename="interface_tree_model.cpp" line="184"/>
         <source>DLT %1</source>
         <translation>DLT %1</translation>
     </message>

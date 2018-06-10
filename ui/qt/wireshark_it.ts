@@ -1610,72 +1610,72 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Interrompi la cattura dopo che il numero di file specificato è stato creato.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="190"/>
+        <location filename="capture_interfaces_dialog.cpp" line="196"/>
         <source>Capture Interfaces</source>
         <translation>Interfacce di cattura</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="195"/>
+        <location filename="capture_interfaces_dialog.cpp" line="201"/>
         <source>Start</source>
         <translation>Avvia</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="217"/>
+        <location filename="capture_interfaces_dialog.cpp" line="223"/>
         <source>Leave blank to use a temporary file</source>
         <translation>Lascia vuoto per utilizzare un file temporaneo</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="390"/>
+        <location filename="capture_interfaces_dialog.cpp" line="396"/>
         <source>Specify a Capture File</source>
         <translation>Specifica un file di cattura</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="682"/>
+        <location filename="capture_interfaces_dialog.cpp" line="688"/>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="682"/>
+        <location filename="capture_interfaces_dialog.cpp" line="688"/>
         <source>Addresses</source>
         <translation>Indirizzi</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="682"/>
+        <location filename="capture_interfaces_dialog.cpp" line="688"/>
         <source>Address</source>
         <translation>Indirizzo</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="692"/>
+        <location filename="capture_interfaces_dialog.cpp" line="698"/>
         <source>no addresses</source>
         <translation>nessun indirizzo</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="872"/>
-        <location filename="capture_interfaces_dialog.cpp" line="880"/>
-        <location filename="capture_interfaces_dialog.cpp" line="891"/>
-        <location filename="capture_interfaces_dialog.cpp" line="895"/>
-        <location filename="capture_interfaces_dialog.cpp" line="908"/>
-        <location filename="capture_interfaces_dialog.cpp" line="916"/>
+        <location filename="capture_interfaces_dialog.cpp" line="878"/>
+        <location filename="capture_interfaces_dialog.cpp" line="886"/>
+        <location filename="capture_interfaces_dialog.cpp" line="897"/>
+        <location filename="capture_interfaces_dialog.cpp" line="901"/>
+        <location filename="capture_interfaces_dialog.cpp" line="914"/>
+        <location filename="capture_interfaces_dialog.cpp" line="922"/>
         <source>Error</source>
         <translation>Errore</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="873"/>
-        <location filename="capture_interfaces_dialog.cpp" line="881"/>
-        <location filename="capture_interfaces_dialog.cpp" line="909"/>
-        <location filename="capture_interfaces_dialog.cpp" line="917"/>
+        <location filename="capture_interfaces_dialog.cpp" line="879"/>
+        <location filename="capture_interfaces_dialog.cpp" line="887"/>
+        <location filename="capture_interfaces_dialog.cpp" line="915"/>
+        <location filename="capture_interfaces_dialog.cpp" line="923"/>
         <source>Multiple files: Requested filesize too large. The filesize cannot be greater than 2 GiB.</source>
         <oldsource>Multiple files: Requested filesize too large! The filesize cannot be greater than 2 GiB.</oldsource>
         <translation>File multipli: la dimensione del file richiesta è troppo grande. La dimensione del file non può essere superiore a 2 GiB.</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="892"/>
+        <location filename="capture_interfaces_dialog.cpp" line="898"/>
         <source>Multiple files: No capture file name given. You must specify a filename if you want to use multiple files.</source>
         <oldsource>Multiple files: No capture file name given! You must specify a filename if you want to use multiple files.</oldsource>
         <translation>File multipli: non è stato fornito un nome del file di cattura! Devi specificare un nome del file se vuoi usare file multipli.</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="896"/>
+        <location filename="capture_interfaces_dialog.cpp" line="902"/>
         <source>Multiple files: No file limit given. You must specify a file size or duration at which is switched to the next capture file
  if you want to use multiple files.</source>
         <oldsource>Multiple files: No file limit given! You must specify a file size or duration at which is switched to the next capture file
@@ -4779,87 +4779,87 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>Nessuna interfaccia trovata.</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="265"/>
+        <location filename="interface_tree_model.cpp" line="273"/>
         <source>Show</source>
         <translation>Mostra</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="269"/>
+        <location filename="interface_tree_model.cpp" line="277"/>
         <source>Friendly Name</source>
         <translation>Nome intuitivo</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="273"/>
+        <location filename="interface_tree_model.cpp" line="281"/>
         <source>Interface Name</source>
         <translation>Nome interfaccia</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="277"/>
+        <location filename="interface_tree_model.cpp" line="285"/>
         <source>Local Pipe Path</source>
         <translation>Percorso pipe locale</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="281"/>
+        <location filename="interface_tree_model.cpp" line="289"/>
         <source>Comment</source>
         <translation>Commento</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="285"/>
+        <location filename="interface_tree_model.cpp" line="293"/>
         <source>Link-Layer Header</source>
         <translation>Intestazione livello di collegamento</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="289"/>
+        <location filename="interface_tree_model.cpp" line="297"/>
         <source>Promiscuous</source>
         <translation>Promiscua</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="293"/>
+        <location filename="interface_tree_model.cpp" line="301"/>
         <source>Snaplen (B)</source>
         <translation>Lunghezza di cattura (B)</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="298"/>
+        <location filename="interface_tree_model.cpp" line="306"/>
         <source>Buffer (MB)</source>
         <translation>Buffer (MB)</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="304"/>
+        <location filename="interface_tree_model.cpp" line="312"/>
         <source>Monitor Mode</source>
         <translation>Modalità di monitoraggio</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="309"/>
+        <location filename="interface_tree_model.cpp" line="317"/>
         <source>Capture Filter</source>
         <translation>Filtro di cattura</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="361"/>
+        <location filename="interface_tree_model.cpp" line="369"/>
         <source>Addresses</source>
         <translation>Indirizzi</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="361"/>
+        <location filename="interface_tree_model.cpp" line="369"/>
         <source>Address</source>
         <translation>Indirizzo</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="368"/>
+        <location filename="interface_tree_model.cpp" line="376"/>
         <source>Extcap interface: %1</source>
         <translation>Interfaccia Extcap: %1</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="373"/>
+        <location filename="interface_tree_model.cpp" line="381"/>
         <source>No addresses</source>
         <translation>Nessun indirizzo</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="380"/>
+        <location filename="interface_tree_model.cpp" line="388"/>
         <source>No capture filter</source>
         <translation>Nessun filtro di cattura</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="385"/>
+        <location filename="interface_tree_model.cpp" line="393"/>
         <source>Capture filter</source>
         <translation>Filtro di cattura</translation>
     </message>
@@ -11388,8 +11388,8 @@ a:hover {
         <translation>predefinito</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="124"/>
-        <location filename="interface_tree_model.cpp" line="177"/>
+        <location filename="capture_interfaces_dialog.cpp" line="130"/>
+        <location filename="interface_tree_model.cpp" line="184"/>
         <source>DLT %1</source>
         <translation>DLT %1</translation>
     </message>

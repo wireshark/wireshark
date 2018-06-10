@@ -8291,6 +8291,8 @@ hivestor         4884/tcp # HiveStor Distributed File System [Nicholas_Young] [N
 hivestor         4884/udp # HiveStor Distributed File System [Nicholas_Young] [Nicholas_Young] 2008-07-10
 abbs             4885/tcp # ABBS [Ryan_Rubley] [Ryan_Rubley]
 abbs             4885/udp # ABBS [Ryan_Rubley] [Ryan_Rubley]
+xcap-portal      4888/tcp # xcap code analysis portal public user access [_88solutions_Corporation] [Manfred_Koethe] 2018-06-06
+xcap-control     4889/tcp # xcap code analysis portal cluster control and administration [_88solutions_Corporation] [Manfred_Koethe] 2018-06-06
 lyskom           4894/tcp # LysKOM Protocol A [Per_Cederqvist] [Per_Cederqvist]
 lyskom           4894/udp # LysKOM Protocol A [Per_Cederqvist] [Per_Cederqvist]
 radmin-port      4899/tcp # RAdmin Port [Dmitri_Znosko] [Dmitri_Znosko] 2003-03
