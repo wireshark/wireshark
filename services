@@ -4193,6 +4193,8 @@ socp-c		4882/udp	# SOCP Control Protocol
 wmlserver	4883/tcp	# Meier-Phelps License Server
 hivestor	4884/tcp/udp	# HiveStor Distributed File System
 abbs		4885/tcp/udp	# ABBS
+xcap-portal	4888/tcp	# xcap code analysis portal public user access
+xcap-control	4889/tcp	# xcap code analysis portal cluster control and administration
 lyskom		4894/tcp/udp	# LysKOM Protocol A
 radmin-port	4899/tcp/udp	# RAdmin Port
 hfcs		4900/tcp/udp	# HFSQL Client/Server Database Engine
