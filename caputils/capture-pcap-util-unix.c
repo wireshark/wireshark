@@ -116,7 +116,7 @@ search_for_if_cb(gpointer data, gpointer user_data)
 }
 
 GList *
-get_interface_list(int *err, char **err_str)
+get_interface_list(cap_device_open_err *err, char **err_str)
 {
 	GList  *il = NULL;
 	gint    nonloopback_pos = 0;
@@ -418,12 +418,13 @@ have_high_resolution_timestamp(pcap_t *pcap_h)
 #endif /* HAVE_PCAP_SET_TSTAMP_PRECISION */
 
 if_capabilities_t *
-get_if_capabilities_local(interface_options *interface_opts, char **err_str)
+get_if_capabilities_local(interface_options *interface_opts,
+    cap_device_open_err *err, char **err_str)
 {
 #ifdef HAVE_PCAP_CREATE
-	return get_if_capabilities_pcap_create(interface_opts, err_str);
+	return get_if_capabilities_pcap_create(interface_opts, err, err_str);
 #else
-	return get_if_capabilities_pcap_open_live(interface_opts, err_str);
+	return get_if_capabilities_pcap_open_live(interface_opts, err, err_str);
 #endif
 }
 
@@ -434,7 +435,7 @@ open_capture_device_local(capture_options *capture_opts
 #endif
 	,
     interface_options *interface_opts, int timeout,
-    char (*open_err_str)[PCAP_ERRBUF_SIZE])
+    cap_device_open_err *open_err, char (*open_err_str)[PCAP_ERRBUF_SIZE])
 {
 	/*
 	 * We're not opening a remote device; use pcap_create() and
@@ -443,10 +444,10 @@ open_capture_device_local(capture_options *capture_opts
 	 */
 #ifdef HAVE_PCAP_CREATE
 	return open_capture_device_pcap_create(capture_opts,
-	    interface_opts, timeout, open_err_str);
+	    interface_opts, timeout, open_err, open_err_str);
 #else
 	return open_capture_device_pcap_open_live(interface_opts, timeout,
-	    open_err_str);
+	    open_err, open_err_str);
 #endif
 }
 

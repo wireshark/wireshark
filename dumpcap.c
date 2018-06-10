@@ -559,52 +559,52 @@ relinquish_all_capabilities(void)
 }
 #endif
 
-static void
-get_capture_device_open_failure_messages(const char *open_err_str,
-                                         const char *iface,
-                                         char *errmsg, size_t errmsg_len,
-                                         char *secondary_errmsg,
-                                         size_t secondary_errmsg_len)
-{
-#ifndef _WIN32
-    const char *libpcap_warn;
-    static const char ppamsg[] = "can't find PPA for ";
+/*
+ * Platform-dependent suggestions for fixing permissions.
+ */
+#if defined(__linux__)
+  #define PLATFORM_PERMISSIONS_SUGGESTION \
+    "\n\n" \
+    "On Debian and Debian derivatives such as Ubuntu, if you have " \
+    "installed Wireshark from a package, try running " \
+    "\"dpkg-reconfigure wireshark-common\"."
+#else
+  #define PLATFORM_PERMISSIONS_SUGGESTION
 #endif
 
-    g_snprintf(errmsg, (gulong) errmsg_len,
-               "The capture session could not be initiated on interface '%s' (%s).",
-               iface, open_err_str);
+static const char *
+get_pcap_failure_secondary_error_message(cap_device_open_err open_err,
+                                         const char *open_err_str
+#ifndef __hpux
+                                                                  _U_
+#endif
+                                         )
+{
 #ifdef _WIN32
+    /*
+     * On Windows, first make sure they *have* WinPcap installed.
+     */
     if (!has_wpcap) {
-      g_snprintf(secondary_errmsg, (gulong) secondary_errmsg_len,
-                 "\n"
-                 "In order to capture packets, WinPcap must be installed; see\n"
-                 "\n"
-                 "        https://www.winpcap.org/\n"
-                 "\n"
-                 "for a downloadable version of WinPcap and for instructions on how to install\n"
-                 "WinPcap.");
-    } else {
-      g_snprintf(secondary_errmsg, (gulong) secondary_errmsg_len,
-                 "\n"
-                 "Please check that \"%s\" is the proper interface.\n"
-                 "\n"
-                 "\n"
-                 "Help can be found on the following pages:\n"
-                 "\n"
-                 "       https://wiki.wireshark.org/WinPcap\n"
-                 "       https://wiki.wireshark.org/CaptureSetup\n",
-                 iface);
+        return
+            "In order to capture packets, WinPcap must be installed; see\n"
+            "\n"
+            "        https://www.winpcap.org/\n"
+            "\n"
+            "for a downloadable version of WinPcap and for instructions on how to install\n"
+            "WinPcap.";
     }
-#else
-    /* If we got a "can't find PPA for X" message, warn the user (who
-       is running dumpcap on HP-UX) that they don't have a version of
-       libpcap that properly handles HP-UX (libpcap 0.6.x and later
-       versions, which properly handle HP-UX, say "can't find /dev/dlpi
-       PPA for X" rather than "can't find PPA for X"). */
-    if (strncmp(open_err_str, ppamsg, sizeof ppamsg - 1) == 0)
-        libpcap_warn =
-            "\n\n"
+#endif
+
+    /*
+     * Now deal with ancient versions of libpcap that, on HP-UX, don't
+     * correctly figure out how to open a device given the device name.
+     */
+#ifdef __hpux
+    /* HP-UX-specific suggestion. */
+    static const char ppamsg[] = "can't find PPA for ";
+
+    if (strncmp(open_err_str, ppamsg, sizeof ppamsg - 1) == 0) {
+        return
             "You are running (T)Wireshark with a version of the libpcap library\n"
             "that doesn't handle HP-UX network devices well; this means that\n"
             "(T)Wireshark may not be able to capture packets.\n"
@@ -614,13 +614,54 @@ get_capture_device_open_failure_messages(const char *open_err_str,
             "packaged binary form from the Software Porting And Archive Centre\n"
             "for HP-UX; the Centre is at http://hpux.connect.org.uk/ - the page\n"
             "at the URL lists a number of mirror sites.";
-    else
-        libpcap_warn = "";
+    }
+#endif
 
-    g_snprintf(secondary_errmsg, (gulong) secondary_errmsg_len,
+    /*
+     * OK, now just return a largely platform-independent error that might
+     * have platform-specific suggestions at the end (for example, suggestions
+     * for how to get permission to capture).
+     */
+    if (open_err == CAP_DEVICE_OPEN_ERR_GENERIC) {
+        /*
+         * We don't know what kind of error it is, so throw all the
+         * suggestions at the user.
+         */
+        return
                "Please check to make sure you have sufficient permissions, and that you have "
-               "the proper interface or pipe specified.%s", libpcap_warn);
-#endif /* _WIN32 */
+               "the proper interface or pipe specified."
+               PLATFORM_PERMISSIONS_SUGGESTION;
+    } else if (open_err == CAP_DEVICE_OPEN_ERR_PERMISSIONS) {
+        /*
+         * This is a permissions error, so no need to specify any other
+         * warnings.
+         */
+        return
+               "Please check to make sure you have sufficient permissions."
+               PLATFORM_PERMISSIONS_SUGGESTION;
+    } else {
+        /*
+         * This is not a permissons error, so no need to suggest
+         * checking permissions.
+         */
+        return
+            "Please check that you have the proper interface or pipe specified.";
+    }
+}
+
+static void
+get_capture_device_open_failure_messages(cap_device_open_err open_err,
+                                         const char *open_err_str,
+                                         const char *iface,
+                                         char *errmsg, size_t errmsg_len,
+                                         char *secondary_errmsg,
+                                         size_t secondary_errmsg_len)
+{
+    g_snprintf(errmsg, (gulong) errmsg_len,
+               "The capture session could not be initiated on interface '%s' (%s).",
+               iface, open_err_str);
+    g_snprintf(secondary_errmsg, (gulong) secondary_errmsg_len, "%s",
+               get_pcap_failure_secondary_error_message(open_err, open_err_str));
 }
 
 static gboolean
@@ -663,6 +704,7 @@ show_filter_code(capture_options *capture_opts)
 {
     interface_options *interface_opts;
     pcap_t *pcap_h;
+    cap_device_open_err open_err;
     gchar open_err_str[PCAP_ERRBUF_SIZE];
     char errmsg[MSG_MAX_LENGTH+1];
     char secondary_errmsg[MSG_MAX_LENGTH+1];
@@ -674,10 +716,10 @@ show_filter_code(capture_options *capture_opts)
     for (j = 0; j < capture_opts->ifaces->len; j++) {
         interface_opts = &g_array_index(capture_opts->ifaces, interface_options, j);
         pcap_h = open_capture_device(capture_opts, interface_opts,
-            CAP_READ_TIMEOUT, &open_err_str);
+            CAP_READ_TIMEOUT, &open_err, &open_err_str);
         if (pcap_h == NULL) {
             /* Open failed; get messages */
-            get_capture_device_open_failure_messages(open_err_str,
+            get_capture_device_open_failure_messages(open_err, open_err_str,
                                                      interface_opts->name,
                                                      errmsg, sizeof errmsg,
                                                      secondary_errmsg,
@@ -2498,15 +2540,16 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
                         char *errmsg, size_t errmsg_len,
                         char *secondary_errmsg, size_t secondary_errmsg_len)
 {
-    gchar             open_err_str[PCAP_ERRBUF_SIZE];
-    gchar            *sync_msg_str;
-    interface_options *interface_opts;
-    capture_src      *pcap_src;
-    guint             i;
+    cap_device_open_err open_err;
+    gchar               open_err_str[PCAP_ERRBUF_SIZE];
+    gchar              *sync_msg_str;
+    interface_options  *interface_opts;
+    capture_src        *pcap_src;
+    guint               i;
 #ifdef _WIN32
-    int         err;
-    WORD        wVersionRequested;
-    WSADATA     wsaData;
+    int                 err;
+    WORD                wVersionRequested;
+    WSADATA             wsaData;
 #endif
 
 /* XXX - opening Winsock on tshark? */
@@ -2594,7 +2637,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_open_input : %s", interface_opts->name);
         pcap_src->pcap_h = open_capture_device(capture_opts, interface_opts,
-            CAP_READ_TIMEOUT, &open_err_str);
+            CAP_READ_TIMEOUT, &open_err, &open_err_str);
 
         if (pcap_src->pcap_h != NULL) {
             /* we've opened "iface" as a network device */
@@ -2660,7 +2703,8 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
                      * doesn't exist.  Report the error message for
                      * the interface.
                      */
-                    get_capture_device_open_failure_messages(open_err_str,
+                    get_capture_device_open_failure_messages(open_err,
+                                                             open_err_str,
                                                              interface_opts->name,
                                                              errmsg,
                                                              errmsg_len,
@@ -4993,6 +5037,7 @@ main(int argc, char *argv[])
     if (caps_queries) {
         /* Get the list of link-layer and/or timestamp types for the capture device. */
         if_capabilities_t *caps;
+        cap_device_open_err err;
         gchar *err_str;
         guint  ii;
 
@@ -5002,11 +5047,11 @@ main(int argc, char *argv[])
 
             interface_opts = &g_array_index(global_capture_opts.ifaces, interface_options, ii);
 
-            caps = get_if_capabilities(interface_opts, &err_str);
+            caps = get_if_capabilities(interface_opts, &err, &err_str);
             if (caps == NULL) {
                 cmdarg_err("The capabilities of the capture device \"%s\" could not be obtained (%s).\n"
-                           "Please check to make sure you have sufficient permissions, and that\n"
-                           "you have the proper interface or pipe specified.", interface_opts->name, err_str);
+                           "%s", interface_opts->name, err_str,
+                           get_pcap_failure_secondary_error_message(err, err_str));
                 g_free(err_str);
                 exit_main(2);
             }

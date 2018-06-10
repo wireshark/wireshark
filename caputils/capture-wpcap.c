@@ -976,7 +976,8 @@ cant_get_if_list_error_message(const char *err_str)
 }
 
 if_capabilities_t *
-get_if_capabilities_local(interface_options *interface_opts, char **err_str)
+get_if_capabilities_local(interface_options *interface_opts,
+    cap_device_open_err *err, char **err_str)
 {
 	/*
 	 * We're not getting capaibilities for a remote device; use
@@ -985,14 +986,15 @@ get_if_capabilities_local(interface_options *interface_opts, char **err_str)
 	 */
 #ifdef HAVE_PCAP_CREATE
 	if (p_pcap_create != NULL)
-		return get_if_capabilities_pcap_create(interface_opts, err_str);
+		return get_if_capabilities_pcap_create(interface_opts, err, err_str);
 #endif
-	return get_if_capabilities_pcap_open_live(interface_opts, err_str);
+	return get_if_capabilities_pcap_open_live(interface_opts, err, err_str);
 }
 
 pcap_t *
 open_capture_device_local(capture_options *capture_opts,
     interface_options *interface_opts, int timeout,
+    cap_device_open_err *open_err,
     char (*open_err_str)[PCAP_ERRBUF_SIZE])
 {
 	/*
@@ -1003,10 +1005,10 @@ open_capture_device_local(capture_options *capture_opts,
 #ifdef HAVE_PCAP_CREATE
 	if (p_pcap_create != NULL)
 		return open_capture_device_pcap_create(capture_opts,
-		    interface_opts, timeout, open_err_str);
+		    interface_opts, timeout, open_err, open_err_str);
 #endif
 	return open_capture_device_pcap_open_live(interface_opts, timeout,
-	    open_err_str);
+	    open_err, open_err_str);
 }
 
 /*
