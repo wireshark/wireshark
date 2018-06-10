@@ -3879,7 +3879,7 @@ proto_tree_add_string(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint		  item_length;
 
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
-	get_hfi_length(hfinfo, tvb, start, &length, &item_length, ENC_NA);
+	get_hfi_length(hfinfo, tvb, start, &length, &item_length);
 	/*
 	 * Special case - if the length is 0, skip the test, so that
 	 * we can have an empty string right after the end of the
@@ -3887,7 +3887,7 @@ proto_tree_add_string(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	 * has no value so the form ends right after the =.)
 	 */
 	if (item_length != 0)
-		test_length(hfinfo, tvb, start, item_length, ENC_NA);
+		test_length(hfinfo, tvb, start, item_length);
 
 	CHECK_FOR_NULL_TREE(tree);
 
