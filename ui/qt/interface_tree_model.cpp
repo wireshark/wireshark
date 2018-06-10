@@ -174,12 +174,20 @@ QVariant InterfaceTreeModel::data(const QModelIndex &index, int role) const
             }
             else if ( col == IFTREE_COL_DLT )
             {
-                QString linkname = QObject::tr("DLT %1").arg(device.active_dlt);
-                for (GList *list = device.links; list != NULL; list = g_list_next(list)) {
-                    link_row *linkr = (link_row*)(list->data);
-                    if (linkr->dlt != -1 && linkr->dlt == device.active_dlt) {
-                        linkname = linkr->name;
-                        break;
+                // XXX - this is duplicated in
+                // InterfaceTreeWidgetItem::updateInterfaceColumns;
+                // it should be done in common code somewhere.
+                QString linkname;
+                if (device.active_dlt == -1)
+                    linkname = "Unknown";
+                else {
+                    linkname = QObject::tr("DLT %1").arg(device.active_dlt);
+                    for (GList *list = device.links; list != NULL; list = g_list_next(list)) {
+                        link_row *linkr = (link_row*)(list->data);
+                        if (linkr->dlt == device.active_dlt) {
+                            linkname = linkr->name;
+                            break;
+                        }
                     }
                 }
 

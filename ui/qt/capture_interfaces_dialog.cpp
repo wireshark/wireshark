@@ -121,13 +121,19 @@ public:
 
         QString default_str = QObject::tr("default");
 
-        QString linkname = QObject::tr("DLT %1").arg(device->active_dlt);
-        for (GList *list = device->links; list != NULL; list = g_list_next(list)) {
-            link_row *linkr = (link_row*)(list->data);
-            // XXX ...and if they're both -1?
-            if (linkr->dlt == device->active_dlt) {
-                linkname = linkr->name;
-                break;
+        // XXX - this is duplicated in InterfaceTreeModel::data;
+        // it should be done in common code somewhere.
+        QString linkname;
+        if (device->active_dlt == -1)
+            linkname = "Unknown";
+        else {
+            linkname = QObject::tr("DLT %1").arg(device->active_dlt);
+            for (GList *list = device->links; list != NULL; list = g_list_next(list)) {
+                link_row *linkr = (link_row*)(list->data);
+                if (linkr->dlt == device->active_dlt) {
+                    linkname = linkr->name;
+                    break;
+                }
             }
         }
         setText(col_link_, linkname);
