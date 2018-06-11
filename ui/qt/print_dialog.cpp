@@ -11,6 +11,12 @@
 
 #include <wsutil/utf8_entities.h>
 
+#ifdef Q_OS_WIN
+#include <windows.h>
+#include "ui/packet_range.h"
+#include "ui/win32/file_dlg_win32.h"
+#endif
+
 #include <QPrintDialog>
 #include <QPageSetupDialog>
 #include <QPainter>
@@ -291,20 +297,35 @@ void PrintDialog::on_buttonBox_clicked(QAbstractButton *button)
 {
     QPrintDialog *print_dlg;
     QPageSetupDialog *ps_dlg;
+#ifdef Q_OS_WIN
+        HANDLE da_ctx;
+#endif
 
     switch (pd_ui_->buttonBox->buttonRole(button)) {
     case QDialogButtonBox::ActionRole:
         int result;
+#ifdef Q_OS_WIN
+        da_ctx = set_thread_per_monitor_v2_awareness();
+#endif
         print_dlg = new QPrintDialog(&printer_, this);
         result = print_dlg->exec();
+#ifdef Q_OS_WIN
+        revert_thread_per_monitor_v2_awareness(da_ctx);
+#endif
         if (result == QDialog::Accepted) {
             printPackets(&printer_, false);
             done(result);
         }
         break;
     case QDialogButtonBox::ResetRole:
+#ifdef Q_OS_WIN
+        da_ctx = set_thread_per_monitor_v2_awareness();
+#endif
         ps_dlg = new QPageSetupDialog(&printer_, this);
         ps_dlg->exec();
+#ifdef Q_OS_WIN
+        revert_thread_per_monitor_v2_awareness(da_ctx);
+#endif
         preview_->updatePreview();
         break;
     default: // Help, Cancel
