@@ -64,6 +64,7 @@ EXTRA_DIST = \
 	macos-setup-brew.sh				\
 	make-manuf					\
 	make-plugin-reg.py				\
+	make-regs.py					\
 	make-sminmpec.pl				\
 	make-services.py				\
 	make-usb.py					\
