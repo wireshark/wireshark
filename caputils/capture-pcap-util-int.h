@@ -35,19 +35,20 @@ extern void request_high_resolution_timestamp(pcap_t *pcap_h);
 extern if_capabilities_t *get_if_capabilities_local(interface_options *interface_opts,
     cap_device_open_err *err, char **err_str);
 extern pcap_t *open_capture_device_local(capture_options *capture_opts,
-    interface_options *interface_opts, int timeout, cap_device_open_err *err,
-    char (*open_err_str)[PCAP_ERRBUF_SIZE]);
+    interface_options *interface_opts, int timeout,
+    cap_device_open_err *open_err, char (*open_err_str)[PCAP_ERRBUF_SIZE]);
 #ifdef HAVE_PCAP_CREATE
 extern if_capabilities_t *get_if_capabilities_pcap_create(interface_options *interface_opts,
     cap_device_open_err *err, char **err_str);
 extern pcap_t *open_capture_device_pcap_create(capture_options *capture_opts,
-    interface_options *interface_opts, int timeout, cap_device_open_err *err,
+    interface_options *interface_opts, int timeout,
+    cap_device_open_err *open_err,
     char (*open_err_str)[PCAP_ERRBUF_SIZE]);
 #endif /* HAVE_PCAP_CREATE */
 extern if_capabilities_t *get_if_capabilities_pcap_open_live(interface_options *interface_opts,
     cap_device_open_err *err, char **err_str);
 extern pcap_t *open_capture_device_pcap_open_live(interface_options *interface_opts,
-    int timeout, cap_device_open_err *err,
+    int timeout, cap_device_open_err *open_err,
     char (*open_err_str)[PCAP_ERRBUF_SIZE]);
 
 /*
