@@ -16,6 +16,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/reassemble.h>
 
 #include "packet-docsis-tlv.h"
 
@@ -290,7 +291,7 @@ static int hf_docsis_tlv_tcc_refid = -1;
 static int hf_docsis_tlv_tcc_us_ch_action= -1;
 static int hf_docsis_tlv_tcc_us_ch_id= -1;
 static int hf_docsis_tlv_tcc_new_us_ch_id= -1;
-/* static int hf_docsis_tlv_tcc_ucd = -1; */
+static int hf_docsis_tlv_tcc_ucd = -1;
 static int hf_docsis_tlv_tcc_rng_sid= -1;
 static int hf_docsis_tlv_tcc_init_tech= -1;
 /* static int hf_docsis_tlv_tcc_rng_parms= -1; */
@@ -398,6 +399,22 @@ static int hf_docsis_cmts_mc_sess_enc_src = -1;
 
 static int hf_docsis_tlv_unknown = -1;
 
+
+static int hf_docsis_ucd_fragments = -1;
+static int hf_docsis_ucd_fragment = -1;
+static int hf_docsis_ucd_fragment_overlap = -1;
+static int hf_docsis_ucd_fragment_overlap_conflict = -1;
+static int hf_docsis_ucd_fragment_multiple_tails = -1;
+static int hf_docsis_ucd_fragment_too_long_fragment = -1;
+static int hf_docsis_ucd_fragment_error = -1;
+static int hf_docsis_ucd_fragment_count = -1;
+static int hf_docsis_ucd_reassembled_in = -1;
+static int hf_docsis_ucd_reassembled_length = -1;
+static int hf_docsis_ucd_reassembled_data = -1;
+
+static int hf_docsis_ucd_reassembled = -1;
+
+
 /* Initialize the subtree pointers */
 static gint ett_docsis_tlv = -1;
 static gint ett_docsis_tlv_cos = -1;
@@ -443,6 +460,10 @@ static gint ett_docsis_tlv_dsid_mc_addr = -1;
 static gint ett_docsis_tlv_sec_assoc = -1;
 static gint ett_docsis_tlv_ch_asgn = -1;
 static gint ett_docsis_cmts_mc_sess_enc = -1;
+static gint ett_docsis_ucd_fragments = -1;
+static gint ett_docsis_ucd_fragment = -1;
+static gint ett_docsis_ucd_reassembled = -1;
+
 
 static expert_field ei_docsis_tlv_tlvlen_bad = EI_INIT;
 
@@ -749,6 +770,27 @@ static const value_string fctype_fwd_vals[] = {
   {1, "Isolation Packet PDU Header (FC_Type of 10) is forwarded"},
   {0, NULL},
 };
+
+
+static reassembly_table ucd_reassembly_table;
+
+static const fragment_items ucd_frag_items = {
+  &ett_docsis_ucd_fragment,
+  &ett_docsis_ucd_fragments,
+  &hf_docsis_ucd_fragments,
+  &hf_docsis_ucd_fragment,
+  &hf_docsis_ucd_fragment_overlap,
+  &hf_docsis_ucd_fragment_overlap_conflict,
+  &hf_docsis_ucd_fragment_multiple_tails,
+  &hf_docsis_ucd_fragment_too_long_fragment,
+  &hf_docsis_ucd_fragment_error,
+  &hf_docsis_ucd_fragment_count,
+  &hf_docsis_ucd_reassembled_in,
+  &hf_docsis_ucd_reassembled_length,
+  &hf_docsis_ucd_reassembled_data,
+  "UCD fragments"
+};
+
 
 /* Dissection */
 static void
@@ -3251,13 +3293,15 @@ dissect_sid_cl(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, 
 
 static void
 dissect_tcc(tvbuff_t * tvb, packet_info * pinfo,
-            proto_tree *tree, int start, guint16 len)
+            proto_tree *tree, int start, guint16 len, gint* previous_channel_id)
 {
   guint8 type, length;
-  proto_tree *tcc_tree;
-  proto_item *tcc_item;
+  proto_tree *tcc_tree, *reassembled_ucd_tree;
+  proto_item *tcc_item, *reassembled_ucd_item;
   int pos = start;
-  tvbuff_t *ucd_tvb;
+  gint channel_id = -1;
+
+  fragment_head* reassembled_ucd = NULL;
 
   tcc_tree =
     proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_tcc, &tcc_item,
@@ -3296,9 +3340,15 @@ dissect_tcc(tvbuff_t * tvb, packet_info * pinfo,
           case TLV_TCC_US_CH_ID:
             if (length == 1)
               {
-                proto_tree_add_item (tcc_tree,
+                proto_tree_add_item_ret_uint (tcc_tree,
                                      hf_docsis_tlv_tcc_us_ch_id, tvb, pos,
-                                     length, ENC_BIG_ENDIAN);
+                                     length, ENC_BIG_ENDIAN, &channel_id);
+                /*Only perform reassembly on UCD if TLV is reassembled. fragment_end_seq_next added for the rare cases where UCD end is 254 long.*/
+                if(!pinfo->fragmented && *previous_channel_id != -1) {
+                  fragment_end_seq_next(&ucd_reassembly_table, pinfo, *previous_channel_id, NULL);
+                }
+                *previous_channel_id = channel_id;
+
               }
             else
               {
@@ -3318,8 +3368,33 @@ dissect_tcc(tvbuff_t * tvb, packet_info * pinfo,
               }
             break;
           case TLV_TCC_UCD:
-            ucd_tvb = tvb_new_subset_length (tvb, pos, length);
-            call_dissector (docsis_ucd_handle, ucd_tvb, pinfo, tcc_tree);
+            proto_tree_add_item (tcc_tree, hf_docsis_tlv_tcc_ucd, tvb, pos, length, ENC_NA);
+            if (channel_id == -1) {
+              channel_id = *previous_channel_id;
+            }
+
+            /*Only perform reassembly on UCD if TLV is reassembled*/
+            if(!pinfo->fragmented) {
+              reassembled_ucd_item = proto_tree_add_item(tcc_tree, hf_docsis_ucd_reassembled, tvb, 0, -1, ENC_NA);
+              reassembled_ucd_tree = proto_item_add_subtree (reassembled_ucd_item, ett_docsis_ucd_reassembled );
+
+              reassembled_ucd = fragment_add_seq_next(&ucd_reassembly_table,
+                                  tvb, pos, pinfo,
+                                  channel_id, NULL, /* ID for fragments belonging together */
+                                  length, /* fragment length - to the end */
+                                  (len == 254)); /* More fragments? */
+
+              if (reassembled_ucd) {
+                tvbuff_t *ucd_tvb = NULL;
+                ucd_tvb = process_reassembled_data(tvb, pos , pinfo, "Reassembled UCD", reassembled_ucd, &ucd_frag_items,
+                                                NULL, reassembled_ucd_tree);
+
+                if (ucd_tvb && tvb_reported_length(ucd_tvb) > 0) {
+                  call_dissector (docsis_ucd_handle, ucd_tvb, pinfo, reassembled_ucd_tree);
+                }
+              }
+            }
+
             break;
           case TLV_TCC_RNG_SID:
             if (length == 2)
@@ -4272,6 +4347,7 @@ dissect_docsis_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
   guint8 type, length;
   guint16 x;
   tvbuff_t *vsif_tvb;
+  gint previous_channel_id = -1;
 
   total_len = tvb_reported_length_remaining (tvb, 0);
 
@@ -4603,7 +4679,7 @@ dissect_docsis_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
               dissect_dut_filter(tvb, pinfo, tlv_tree, pos, length);
               break;
             case TLV_TCC:
-              dissect_tcc(tvb, pinfo, tlv_tree, pos, length);
+              dissect_tcc(tvb, pinfo, tlv_tree, pos, length, &previous_channel_id);
               break;
             case TLV_SID_CL:
               dissect_sid_cl(tvb, pinfo, tlv_tree, pos, length);
@@ -5883,13 +5959,11 @@ proto_register_docsis_tlv (void)
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "New Upstream Channel ID", HFILL}
     },
-#if 0
     {&hf_docsis_tlv_tcc_ucd,
-     {".5 Upstream Channel Decsriptor", "docsis_tlv.tcc.ucd",
+     {".5 Upstream Channel Descriptor", "docsis_tlv.tcc.ucd",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "Upstream Channel Descriptor", HFILL}
     },
-#endif
     {&hf_docsis_tlv_tcc_rng_sid,
      {".6 Ranging SID", "docsis_tlv.tcc.rngsid",
       FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -6425,6 +6499,67 @@ proto_register_docsis_tlv (void)
        FT_BYTES, BASE_NONE, NULL, 0x0,
        NULL, HFILL}
     },
+    { &hf_docsis_ucd_fragment_overlap,
+     { "Fragment overlap", "docsis_tlv.ucd.fragment.overlap",
+       FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+       "Fragment overlaps with other fragments", HFILL}
+    },
+    { &hf_docsis_ucd_fragment_overlap_conflict,
+     { "Conflicting data in fragment overlap", "docsis_tlv.ucd.fragment.overlap.conflict",
+       FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+       "Overlapping fragments contained conflicting data", HFILL}
+    },
+    { &hf_docsis_ucd_fragment_multiple_tails,
+     { "Multiple tail fragments found", "docsis_tlv.ucd.fragment.multipletails",
+       FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+       "Several tails were found when defragmenting the packet", HFILL}
+    },
+    { &hf_docsis_ucd_fragment_too_long_fragment,
+     { "Fragment too long", "docsis_tlv.ucd.fragment.toolongfragment",
+       FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+       "Fragment contained data past end of packet", HFILL}
+    },
+    { &hf_docsis_ucd_fragment_error,
+     { "Defragmentation error", "docsis_tlv.ucd.fragment.error",
+       FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+       "Defragmentation error due to illegal fragments", HFILL}
+    },
+    { &hf_docsis_ucd_fragment_count,
+     { "Fragment count", "docsis_tlv.ucd.fragment.count",
+       FT_UINT32, BASE_DEC, NULL, 0x0,
+       NULL, HFILL}
+    },
+    { &hf_docsis_ucd_fragment,
+     { "UCD Fragment", "docsis_tlv.ucd.fragment",
+       FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+       NULL, HFILL}
+    },
+    { &hf_docsis_ucd_fragments,
+     { "UCD Fragments", "docsis_tlv.ucd.fragments",
+       FT_BYTES, BASE_NONE, NULL, 0x0,
+       NULL, HFILL}
+    },
+    { &hf_docsis_ucd_reassembled_in,
+     { "Reassembled UCD in frame", "docsis_tlv.ucd.reassembled_in",
+       FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+       "This UCD packet is reassembled in this frame", HFILL}
+    },
+    { &hf_docsis_ucd_reassembled_length,
+     { "Reassembled UCD length", "docsis_tlv.ucd.reassembled.length",
+       FT_UINT32, BASE_DEC, NULL, 0x0,
+       "The total length of the reassembled payload", HFILL}
+    },
+    { &hf_docsis_ucd_reassembled_data,
+     { "Reassembled UCD data", "docsis_tlv.ucd.reassembled.data",
+       FT_BYTES, BASE_NONE, NULL, 0x0,
+       "The reassembled payload", HFILL}
+    },
+    { &hf_docsis_ucd_reassembled,
+     { "Reassembled UCD", "docsis_tlv.ucd.reassembled",
+       FT_BYTES, BASE_NONE, NULL, 0x0,
+       "The reassembled UCD", HFILL}
+    },
+
   };
 
   static gint *ett[] = {
@@ -6472,6 +6607,9 @@ proto_register_docsis_tlv (void)
     &ett_docsis_tlv_sec_assoc,
     &ett_docsis_tlv_ch_asgn,
     &ett_docsis_cmts_mc_sess_enc,
+    &ett_docsis_ucd_fragment,
+    &ett_docsis_ucd_fragments,
+    &ett_docsis_ucd_reassembled,
   };
 
   static ei_register_info ei[] = {
@@ -6502,6 +6640,11 @@ proto_reg_handoff_docsis_tlv (void)
 
   docsis_vsif_handle = find_dissector("docsis_vsif");
   docsis_ucd_handle = find_dissector("docsis_ucd");
+
+  reassembly_table_register(&ucd_reassembly_table,
+                        &addresses_reassembly_table_functions);
+
+
 }
 
 /*

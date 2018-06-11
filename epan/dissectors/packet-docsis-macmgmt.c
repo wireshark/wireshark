@@ -64,6 +64,7 @@
 #include <epan/expert.h>
 #include <wsutil/utf8_entities.h>
 #include "packet-docsis-tlv.h"
+#include <epan/reassemble.h>
 
 void proto_register_docsis_mgmt(void);
 void proto_reg_handoff_docsis_mgmt(void);
@@ -1045,6 +1046,20 @@ static int hf_docsis_mgt_type = -1;
 static int hf_docsis_mgt_rsvd = -1;
 
 
+static int hf_docsis_tlv_fragments = -1;
+static int hf_docsis_tlv_fragment = -1;
+static int hf_docsis_tlv_fragment_overlap = -1;
+static int hf_docsis_tlv_fragment_overlap_conflict = -1;
+static int hf_docsis_tlv_fragment_multiple_tails = -1;
+static int hf_docsis_tlv_fragment_too_long_fragment = -1;
+static int hf_docsis_tlv_fragment_error = -1;
+static int hf_docsis_tlv_fragment_count = -1;
+static int hf_docsis_tlv_reassembled_in = -1;
+static int hf_docsis_tlv_reassembled_length = -1;
+static int hf_docsis_tlv_reassembled_data = -1;
+
+static int hf_docsis_tlv_reassembled = -1;
+
 static gint ett_docsis_sync = -1;
 
 static gint ett_docsis_ucd = -1;
@@ -1163,6 +1178,10 @@ static gint ett_docsis_dpd_tlv_subcarrier_assignment_vector = -1;
 
 static gint ett_docsis_mgmt = -1;
 static gint ett_mgmt_pay = -1;
+
+static gint ett_docsis_tlv_fragments = -1;
+static gint ett_docsis_tlv_fragment = -1;
+static gint ett_docsis_tlv_reassembled = -1;
 
 static expert_field ei_docsis_mgmt_tlvlen_bad = EI_INIT;
 static expert_field ei_docsis_mgmt_tlvtype_unknown = EI_INIT;
@@ -2054,6 +2073,27 @@ subc_assign_range(char *buf, guint32 value)
 {
     g_snprintf(buf, ITEM_LABEL_LENGTH, "%u - %u", value >> 16, value &0xFFFF);
 }
+
+
+static reassembly_table docsis_tlv_reassembly_table;
+
+static const fragment_items docsis_tlv_frag_items = {
+  &ett_docsis_tlv_fragment,
+  &ett_docsis_tlv_fragments,
+  &hf_docsis_tlv_fragments,
+  &hf_docsis_tlv_fragment,
+  &hf_docsis_tlv_fragment_overlap,
+  &hf_docsis_tlv_fragment_overlap_conflict,
+  &hf_docsis_tlv_fragment_multiple_tails,
+  &hf_docsis_tlv_fragment_too_long_fragment,
+  &hf_docsis_tlv_fragment_error,
+  &hf_docsis_tlv_fragment_count,
+  &hf_docsis_tlv_reassembled_in,
+  &hf_docsis_tlv_reassembled_length,
+  &hf_docsis_tlv_reassembled_data,
+  "TLV fragments"
+};
+
 
 static int
 dissect_sync (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
@@ -4988,23 +5028,60 @@ dissect_type35ucd(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* 
 static int
 dissect_dbcreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
-  proto_item *dbcreq_item;
-  proto_tree *dbcreq_tree;
-  guint32 transid;
+  proto_item *dbcreq_item, *reassembled_item;
+  proto_tree *dbcreq_tree, *reassembled_tree;
+  guint32 transid, number_of_fragments, fragment_sequence_number;
   tvbuff_t *next_tvb;
 
   dbcreq_item = proto_tree_add_item(tree, proto_docsis_dbcreq, tvb, 0, -1, ENC_NA);
   dbcreq_tree = proto_item_add_subtree (dbcreq_item, ett_docsis_dbcreq);
   proto_tree_add_item_ret_uint(dbcreq_tree, hf_docsis_mgt_tranid, tvb, 0, 2, ENC_BIG_ENDIAN, &transid);
-  proto_tree_add_item( dbcreq_tree, hf_docsis_dbcreq_number_of_fragments, tvb, 2, 1, ENC_BIG_ENDIAN );
-  proto_tree_add_item( dbcreq_tree, hf_docsis_dbcreq_fragment_sequence_number, tvb, 3, 1, ENC_BIG_ENDIAN );
+  proto_tree_add_item_ret_uint( dbcreq_tree, hf_docsis_dbcreq_number_of_fragments, tvb, 2, 1, ENC_BIG_ENDIAN, &number_of_fragments);
+  proto_tree_add_item_ret_uint( dbcreq_tree, hf_docsis_dbcreq_fragment_sequence_number, tvb, 3, 1, ENC_BIG_ENDIAN, &fragment_sequence_number);
 
   col_add_fstr (pinfo->cinfo, COL_INFO,
                 "Dynamic Bonding Change Request: Tran-Id = %u", transid);
+  col_set_fence(pinfo->cinfo, COL_INFO);
+
+
+  if(number_of_fragments > 1) {
+     pinfo->fragmented = TRUE;
+  }
 
   /* Call Dissector for Appendix C TLV's */
   next_tvb = tvb_new_subset_remaining (tvb, 4);
   call_dissector (docsis_tlv_handle, next_tvb, pinfo, dbcreq_tree);
+
+
+  if(number_of_fragments > 1) {
+     pinfo->fragmented = TRUE;
+
+     fragment_head* reassembled_tlv = NULL;
+     reassembled_tlv = fragment_add_seq_check(&docsis_tlv_reassembly_table,
+                                  tvb, 4, pinfo,
+                                  transid, NULL, /* ID for fragments belonging together */
+                                  fragment_sequence_number -1, /*Sequence number starts at 0*/
+                                  tvb_reported_length_remaining(tvb, 4), /* fragment length - to the end */
+                                  (fragment_sequence_number != number_of_fragments)); /* More fragments? */
+
+     if (reassembled_tlv) {
+       tvbuff_t *tlv_tvb = NULL;
+
+       reassembled_item = proto_tree_add_item(dbcreq_tree, hf_docsis_tlv_reassembled, tvb, 0, -1, ENC_NA);
+       reassembled_tree = proto_item_add_subtree (reassembled_item, ett_docsis_tlv_reassembled );
+
+
+       tlv_tvb = process_reassembled_data(tvb, 4, pinfo, "Reassembled TLV", reassembled_tlv, &docsis_tlv_frag_items,
+                                                  NULL, reassembled_tree);
+
+       if (tlv_tvb && tvb_reported_length(tlv_tvb) > 0) {
+         call_dissector (docsis_tlv_handle, tlv_tvb, pinfo, reassembled_tree);
+       }
+     }
+
+  }
+
+
   return tvb_captured_length(tvb);
 }
 
@@ -5517,8 +5594,10 @@ dissect_regreqmp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* 
 static int
 dissect_regrspmp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
-  proto_item *it;
-  proto_tree *regrspmp_tree;
+  proto_item *it, *reassembled_item;
+  proto_tree *regrspmp_tree, *reassembled_tree;
+  guint sid, number_of_fragments, fragment_sequence_number;
+
   tvbuff_t *next_tvb;
 
   col_set_str(pinfo->cinfo, COL_INFO, "REG-RSP-MP Message:");
@@ -5528,14 +5607,49 @@ dissect_regrspmp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* 
   it = proto_tree_add_item(tree, proto_docsis_regrspmp, tvb, 0, -1, ENC_NA);
   regrspmp_tree = proto_item_add_subtree (it, ett_docsis_regrspmp);
 
-  proto_tree_add_item (regrspmp_tree, hf_docsis_regrspmp_sid, tvb, 0, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint (regrspmp_tree, hf_docsis_regrspmp_sid, tvb, 0, 2, ENC_BIG_ENDIAN, &sid);
   proto_tree_add_item (regrspmp_tree, hf_docsis_regrspmp_response, tvb, 2, 1, ENC_BIG_ENDIAN);
-  proto_tree_add_item (regrspmp_tree, hf_docsis_regrspmp_number_of_fragments, tvb, 3, 1, ENC_BIG_ENDIAN);
-  proto_tree_add_item (regrspmp_tree, hf_docsis_regrspmp_fragment_sequence_number, tvb, 4, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint (regrspmp_tree, hf_docsis_regrspmp_number_of_fragments, tvb, 3, 1, ENC_BIG_ENDIAN, &number_of_fragments);
+  proto_tree_add_item_ret_uint (regrspmp_tree, hf_docsis_regrspmp_fragment_sequence_number, tvb, 4, 1, ENC_BIG_ENDIAN, &fragment_sequence_number);
+
+  if(number_of_fragments > 1) {
+     pinfo->fragmented = TRUE;
+  }
 
   /* Call Dissector for Appendix C TLV's */
   next_tvb = tvb_new_subset_remaining (tvb, 5);
   call_dissector (docsis_tlv_handle, next_tvb, pinfo, regrspmp_tree);
+
+  if(number_of_fragments > 1) {
+     pinfo->fragmented = TRUE;
+
+     fragment_head* reassembled_tlv = NULL;
+     reassembled_tlv = fragment_add_seq_check(&docsis_tlv_reassembly_table,
+                                  tvb, 5, pinfo,
+                                  sid, NULL, /* ID for fragments belonging together */
+                                  fragment_sequence_number -1, /*Sequence number starts at 0*/
+                                  tvb_reported_length_remaining(tvb, 5), /* fragment length - to the end */
+                                  (fragment_sequence_number != number_of_fragments)); /* More fragments? */
+
+     if (reassembled_tlv) {
+       tvbuff_t *tlv_tvb = NULL;
+
+       reassembled_item = proto_tree_add_item(regrspmp_tree, hf_docsis_tlv_reassembled, tvb, 0, -1, ENC_NA);
+       reassembled_tree = proto_item_add_subtree (reassembled_item, ett_docsis_tlv_reassembled );
+
+
+       tlv_tvb = process_reassembled_data(tvb, 5, pinfo, "Reassembled TLV", reassembled_tlv, &docsis_tlv_frag_items,
+                                                  NULL, reassembled_tree);
+
+       if (tlv_tvb && tvb_reported_length(tlv_tvb) > 0) {
+         call_dissector (docsis_tlv_handle, tlv_tvb, pinfo, reassembled_tree);
+       }
+     }
+
+  }
+
+
+
   return tvb_captured_length(tvb);
 }
 
@@ -8379,6 +8493,66 @@ proto_register_docsis_mgmt (void)
       FT_UINT8, BASE_DEC, NULL, 0x0,
       NULL, HFILL}
     },
+    { &hf_docsis_tlv_fragment_overlap,
+     { "Fragment overlap", "docsis_mgmt.tlv.fragment.overlap",
+       FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+       "Fragment overlaps with other fragments", HFILL}
+    },
+    { &hf_docsis_tlv_fragment_overlap_conflict,
+     { "Conflicting data in fragment overlap", "docsis_mgmt.tlv.fragment.overlap.conflict",
+       FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+       "Overlapping fragments contained conflicting data", HFILL}
+    },
+    { &hf_docsis_tlv_fragment_multiple_tails,
+     { "Multiple tail fragments found", "docsis_mgmt.tlv.fragment.multipletails",
+       FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+       "Several tails were found when defragmenting the packet", HFILL}
+    },
+    { &hf_docsis_tlv_fragment_too_long_fragment,
+     { "Fragment too long", "docsis_mgmt.tlv.fragment.toolongfragment",
+       FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+       "Fragment contained data past end of packet", HFILL}
+    },
+    { &hf_docsis_tlv_fragment_error,
+     { "Defragmentation error", "docsis_mgmt.tlv.fragment.error",
+       FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+       "Defragmentation error due to illegal fragments", HFILL}
+    },
+    { &hf_docsis_tlv_fragment_count,
+     { "Fragment count", "docsis_mgmt.tlv.fragment.count",
+       FT_UINT32, BASE_DEC, NULL, 0x0,
+       NULL, HFILL}
+    },
+    { &hf_docsis_tlv_fragment,
+     { "TLV Fragment", "docsis_mgmt.tlv.fragment",
+       FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+       NULL, HFILL}
+    },
+    { &hf_docsis_tlv_fragments,
+     { "TLV Fragments", "docsis_mgmt.tlv.fragments",
+       FT_BYTES, BASE_NONE, NULL, 0x0,
+       NULL, HFILL}
+    },
+    { &hf_docsis_tlv_reassembled_in,
+     { "Reassembled TLV in frame", "docsis_mgmt.tlv.reassembled_in",
+       FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+       "This TLV packet is reassembled in this frame", HFILL}
+    },
+    { &hf_docsis_tlv_reassembled_length,
+     { "Reassembled TLV length", "docsis_mgmt.tlv.reassembled.length",
+       FT_UINT32, BASE_DEC, NULL, 0x0,
+       "The total length of the reassembled payload", HFILL}
+    },
+    { &hf_docsis_tlv_reassembled_data,
+     { "Reassembled TLV data", "docsis_mgmt.tlv.reassembled.data",
+       FT_BYTES, BASE_NONE, NULL, 0x0,
+       "The reassembled payload", HFILL}
+    },
+    { &hf_docsis_tlv_reassembled,
+     { "Reassembled TLV", "docsis_mgmt.tlv.reassembled",
+       FT_BYTES, BASE_NONE, NULL, 0x0,
+       NULL, HFILL}
+    },
   };
 
   static gint *ett[] = {
@@ -8474,6 +8648,9 @@ proto_register_docsis_mgmt (void)
     &ett_docsis_dpd_tlv_subcarrier_assignment_vector,
     &ett_docsis_mgmt,
     &ett_mgmt_pay,
+    &ett_docsis_tlv_fragment,
+    &ett_docsis_tlv_fragments,
+    &ett_docsis_tlv_reassembled
   };
 
   static ei_register_info ei[] = {
@@ -8593,6 +8770,9 @@ proto_reg_handoff_docsis_mgmt (void)
   dissector_add_uint ("docsis_mgmt", MGT_TYPE51UCD, create_dissector_handle( dissect_type51ucd, proto_docsis_type51ucd ));
 
   docsis_tlv_handle = find_dissector ("docsis_tlv");
+
+  reassembly_table_register(&docsis_tlv_reassembly_table, &addresses_reassembly_table_functions);
+
 }
 
 /*
