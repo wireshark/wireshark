@@ -2346,7 +2346,8 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
     else if ((strcmp(protocol_name, "nas_rrc_r8_lte") == 0) ||
              (strcmp(protocol_name, "nas_rrc_r9_lte") == 0) ||
-             (strcmp(protocol_name, "nas_rrc_r10_lte") == 0)) {
+             (strcmp(protocol_name, "nas_rrc_r10_lte") == 0) ||
+             (strcmp(protocol_name, "nas_rrc_r13_lte") == 0)) {
         gboolean nas_body_found = TRUE;
         guint8 opcode = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(tree, hf_catapult_dct2000_lte_nas_rrc_opcode,
