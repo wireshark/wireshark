@@ -571,8 +571,19 @@ relinquish_all_capabilities(void)
   #define PLATFORM_PERMISSIONS_SUGGESTION \
     "\n\n" \
     "On Debian and Debian derivatives such as Ubuntu, if you have " \
-    "installed Wireshark from a package, try running " \
-    "\"dpkg-reconfigure wireshark-common\"."
+    "installed Wireshark from a package, try running" \
+    "\n\n" \
+    "    sudo dpkg-reconfigure wireshark-common" \
+    "\n\n" \
+    "selecting \"<Yes>\" in response to the question" \
+    "\n\n" \
+    "    Should non-superusers be able to capture packets?" \
+    "\n\n" \
+    "adding yourself to the \"wireshark\" group by running" \
+    "\n\n" \
+    "    sudo usermod -a -G wireshark {your username}" \
+    "\n\n" \
+    "and then logging out and logging back in again."
 #elif defined(__APPLE__)
   #define PLATFORM_PERMISSIONS_SUGGESTION \
     "\n\n" \
