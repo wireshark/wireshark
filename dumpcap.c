@@ -573,6 +573,12 @@ relinquish_all_capabilities(void)
     "On Debian and Debian derivatives such as Ubuntu, if you have " \
     "installed Wireshark from a package, try running " \
     "\"dpkg-reconfigure wireshark-common\"."
+#elif defined(__APPLE__)
+  #define PLATFORM_PERMISSIONS_SUGGESTION \
+    "\n\n" \
+    "If you installed Wireshark using the package from wireshark.org, "\
+    "Try re-installing it and checking the box for the \"Set capture " \
+    "permissions on startup\" item."
 #else
   #define PLATFORM_PERMISSIONS_SUGGESTION
 #endif
