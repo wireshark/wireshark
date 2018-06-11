@@ -71,12 +71,20 @@ ADDITIONAL_LIST="libnl-3-dev \
 	doxygen \
 	xsltproc"
 
-# Adds package $2 to list variable $1 if the package is found
+# Adds package $2 to list variable $1 if the package is found.
+# If $3 is given, then this version requirement must be satisfied.
 add_package() {
-	local list="$1" pkgname="$2"
+	local list="$1" pkgname="$2" versionreq="$3" version
 
+	version=$(apt-cache show "$pkgname" 2>/dev/null |
+		awk '/^Version:/{ print $2; exit}')
 	# fail if the package is not known
-	[ -n "$(apt-cache show "$pkgname" 2>/dev/null)" ] || return 1
+	if [ -z "$version" ]; then
+		return 1
+	elif [ -n "$versionreq" ]; then
+		# Require minimum version or fail.
+		dpkg --compare-versions $version $versionreq || return 1
+	fi
 
 	# package is found, append it to list
 	eval "${list}=\"\${${list}} \${pkgname}\""
@@ -99,7 +107,7 @@ echo "libssh-gcrypt-dev and libssh-dev are unavailable" >&2
 
 # libgnutls-dev: Debian <= jessie, Ubuntu <= 16.04
 # libgnutls28-dev: Debian >= wheezy-backports, Ubuntu >= 12.04
-add_package ADDITIONAL_LIST libgnutls28-dev ||
+add_package ADDITIONAL_LIST libgnutls28-dev ">= 3.2.14-1" ||
 add_package ADDITIONAL_LIST libgnutls-dev ||
 echo "libgnutls28-dev and libgnutls-dev are unavailable" >&2
 
