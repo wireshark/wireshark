@@ -45,7 +45,7 @@
 #define	DOT11DECRYPT_MAC_LEN			   6
 #define	DOT11DECRYPT_RADIOTAP_HEADER_LEN	          24
 
-#define	DOT11DECRYPT_EAPOL_MAX_LEN			1024
+#define	DOT11DECRYPT_EAPOL_MAX_LEN			1024U
 
 #define DOT11DECRYPT_TK_LEN                           16
 
