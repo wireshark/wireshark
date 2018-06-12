@@ -1486,7 +1486,7 @@ Dot11DecryptRsna4WHandshake(
 
                     /* verify the MIC (compare the MIC in the packet included in this message with a MIC calculated with the PTK) */
                     eapol_len=pntoh16(data+offset-3)+4;
-                    if (tot_len-(guint)(offset-5) < (eapol_len<DOT11DECRYPT_EAPOL_MAX_LEN?eapol_len:DOT11DECRYPT_EAPOL_MAX_LEN)) {
+                    if (tot_len-((guint)(offset-5)) < (eapol_len<DOT11DECRYPT_EAPOL_MAX_LEN?eapol_len:DOT11DECRYPT_EAPOL_MAX_LEN)) {
                         DOT11DECRYPT_DEBUG_PRINT_LINE("Dot11DecryptRsna4WHandshake", "Too short to contain ANonce", DOT11DECRYPT_DEBUG_LEVEL_5);
                         return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
                     }
