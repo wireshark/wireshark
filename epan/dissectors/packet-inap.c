@@ -1767,7 +1767,6 @@ dissect_inap_Digits(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
     ett = ett_inap_iNServiceControlCode;
     digits = TRUE;
   } else if (hf_index == hf_inap_iNServiceControlCodeLow) {
-    digits = TRUE;
     ett = ett_inap_iNServiceControlCodeLow;
     digits = TRUE;
   } else if (hf_index == hf_inap_iNServiceControlCodeHigh) {

@@ -372,7 +372,6 @@ dissect_isup_called_party_number_parameter(parameter_tvb, actx->pinfo, tree, NUL
     ett = ett_inap_iNServiceControlCode;
     digits = TRUE;
   } else if (hf_index == hf_inap_iNServiceControlCodeLow) {
-    digits = TRUE;
     ett = ett_inap_iNServiceControlCodeLow;
     digits = TRUE;
   } else if (hf_index == hf_inap_iNServiceControlCodeHigh) {
