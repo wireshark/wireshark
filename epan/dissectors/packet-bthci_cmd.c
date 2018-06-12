@@ -2086,7 +2086,6 @@ static const value_string le_role_vals[] = {
     { 0x03, "Peripheral and Central Role supported, Central Role preferred for connection establishment" },
     { 0, NULL }
 };
-value_string_ext le_role_vals_ext = VALUE_STRING_EXT_INIT(le_role_vals);
 
 static const value_string tds_role_vals[] = {
     { 0x00, "Not Specified" },
@@ -8148,7 +8147,7 @@ proto_register_btcommon(void)
         },
         { &hf_btcommon_eir_ad_le_role,
             { "Type",                            "btcommon.eir_ad.entry.le_role",
-            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &le_role_vals_ext, 0x01,
+            FT_UINT8, BASE_HEX, VALS(le_role_vals), 0,
             NULL, HFILL }
         },
         { &hf_btcommon_eir_ad_did_vendor_id_source,
