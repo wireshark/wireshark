@@ -1436,7 +1436,7 @@ void proto_register_wisun(void)
 
         /* Wi-SUN Netricity */
         { &hf_wisun_netricity_nftie,
-          { "Unicast Timing IE", "wisun.netricity.nftie", FT_NONE, BASE_NONE, NULL, 0x0,
+          { "Netricity Frame Type IE", "wisun.netricity.nftie", FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
 
