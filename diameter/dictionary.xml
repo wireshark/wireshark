@@ -7115,6 +7115,16 @@
 			<enum name="BIND_TO_DEF_BEARER" 	code="0"/>
 			<enum name="BIND_TO_APPLICABLE_BEARER" 	code="1"/>
 		</avp>
+		<avp name="PRA-Install" code="2845" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Presence-Reporting-Area-Information"/>
+			</grouped>
+		</avp>
+		<avp name="PRA-Remove" code="2846" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Presence-Reporting-Area-Identifier"/>
+			</grouped>
+		</avp>
 		<avp name="3GPP-PS-Data-Off-Status-Gx" code="2847" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
 			<enum name="ACTIVE" 	code="0"/>
