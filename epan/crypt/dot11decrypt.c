@@ -494,6 +494,7 @@ static INT Dot11DecryptScanForKeys(
     DOT11DECRYPT_SEC_ASSOCIATION_ID id
 )
 {
+    guint tot_len_left;
     const UCHAR *addr;
     guint bodyLength;
     PDOT11DECRYPT_SEC_ASSOCIATION sta_sa;
@@ -531,19 +532,27 @@ static INT Dot11DecryptScanForKeys(
     DOT11DECRYPT_DEBUG_TRACE_START("Dot11DecryptScanForKeys");
 
     /* Callers provide these guarantees, so let's make them explicit. */
-    DISSECTOR_ASSERT(tot_len >= mac_header_len + DOT11DECRYPT_CRYPTED_DATA_MINLEN);
     DISSECTOR_ASSERT(tot_len <= DOT11DECRYPT_MAX_CAPLEN);
 
     /* cache offset in the packet data */
     offset = mac_header_len;
 
+    /* Amount of data following the MAC header */
+    tot_len_left = tot_len - mac_header_len;
+
     /* check if the packet has an LLC header and the packet is 802.1X authentication (IEEE 802.1X-2004, pg. 24) */
-    if (memcmp(data+offset, dot1x_header, 8) == 0 || memcmp(data+offset, bt_dot1x_header, 8) == 0) {
+    if (tot_len_left >= 8 && (memcmp(data+offset, dot1x_header, 8) == 0 || memcmp(data+offset, bt_dot1x_header, 8) == 0)) {
 
         DOT11DECRYPT_DEBUG_PRINT_LINE("Dot11DecryptScanForKeys", "Authentication: EAPOL packet", DOT11DECRYPT_DEBUG_LEVEL_3);
 
         /* skip LLC header */
         offset+=8;
+        tot_len_left-=8;
+
+        if (tot_len_left < 4) {
+            DOT11DECRYPT_DEBUG_PRINT_LINE("Dot11DecryptScanForKeys", "Not EAPOL-Key", DOT11DECRYPT_DEBUG_LEVEL_3);
+            return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
+        }
 
         /* check if the packet is a EAPOL-Key (0x03) (IEEE 802.1X-2004, pg. 25) */
         if (data[offset+1]!=3) {
@@ -553,16 +562,21 @@ static INT Dot11DecryptScanForKeys(
 
         /* get and check the body length (IEEE 802.1X-2004, pg. 25) */
         bodyLength=pntoh16(data+offset+2);
-        if (((tot_len-offset-4) < bodyLength) || (bodyLength < sizeof(EAPOL_RSN_KEY))) { /* Only check if frame is long enough for eapol header, ignore tailing garbage, see bug 9065 */
+        if (((tot_len_left-4) < bodyLength) || (bodyLength < sizeof(EAPOL_RSN_KEY))) { /* Only check if frame is long enough for eapol header, ignore tailing garbage, see bug 9065 */
             DOT11DECRYPT_DEBUG_PRINT_LINE("Dot11DecryptScanForKeys", "EAPOL body too short", DOT11DECRYPT_DEBUG_LEVEL_3);
             return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
         }
 
         /* skip EAPOL MPDU and go to the first byte of the body */
         offset+=4;
+        tot_len_left-=4;
 
         pEAPKey = (const EAPOL_RSN_KEY *) (data+offset);
 
+        if (tot_len_left < 1) {
+            DOT11DECRYPT_DEBUG_PRINT_LINE("Dot11DecryptScanForKeys", "Not EAPOL-Key", DOT11DECRYPT_DEBUG_LEVEL_3);
+            return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
+        }
         /* check if the key descriptor type is valid (IEEE 802.1X-2004, pg. 27) */
         if (/*pEAPKey->type!=0x1 &&*/ /* RC4 Key Descriptor Type (deprecated) */
             pEAPKey->type != DOT11DECRYPT_RSN_WPA2_KEY_DESCRIPTOR &&             /* IEEE 802.11 Key Descriptor Type  (WPA2) */
@@ -574,6 +588,7 @@ static INT Dot11DecryptScanForKeys(
 
         /* start with descriptor body */
         offset+=1;
+        tot_len_left-=1;
 
         /* search for a cached Security Association for current BSSID and AP */
         sa = Dot11DecryptGetSaPtr(ctx, &id);
@@ -632,7 +647,7 @@ static INT Dot11DecryptScanForKeys(
         /* Try to extract the group key and install it in the SA */
         return (Dot11DecryptDecryptWPABroadcastKey(pEAPKey, sta_sa->wpa.ptk+16, sa, tot_len-offset+1));
 
-    } else if (memcmp(data+offset, tdls_header, 10) == 0) {
+    } else if (tot_len_left >= 10 && memcmp(data+offset, tdls_header, 10) == 0) {
         const guint8 *initiator, *responder;
         guint8 action;
         guint status, offset_rsne = 0, offset_fte = 0, offset_link = 0, offset_timeout = 0;
@@ -642,16 +657,26 @@ static INT Dot11DecryptScanForKeys(
          * DOT11DECRYPT_CRYPTED_DATA_MINLEN-10 = 7 bytes in "data[offset]". That
          * TDLS payload contains a TDLS Action field (802.11-2016 9.6.13) */
         offset+=10;
+        tot_len_left-=10;
 
         /* check if the packet is a TDLS response or confirm */
+        if (tot_len_left < 1) {
+            DOT11DECRYPT_DEBUG_PRINT_LINE("Dot11DecryptScanForKeys", "Not EAPOL-Key", DOT11DECRYPT_DEBUG_LEVEL_3);
+            return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
+        }
         action = data[offset];
         if (action!=1 && action!=2) {
             DOT11DECRYPT_DEBUG_PRINT_LINE("Dot11DecryptScanForKeys", "Not Response nor confirm", DOT11DECRYPT_DEBUG_LEVEL_3);
             return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
         }
         offset++;
+        tot_len_left--;
 
         /* Check for SUCCESS (0) or SUCCESS_POWER_SAVE_MODE (85) Status Code */
+        if (tot_len_left < 5) {
+            DOT11DECRYPT_DEBUG_PRINT_LINE("Dot11DecryptScanForKeys", "Not EAPOL-Key", DOT11DECRYPT_DEBUG_LEVEL_3);
+            return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
+        }
         status=pntoh16(data+offset);
         if (status != 0 && status != 85) {
             DOT11DECRYPT_DEBUG_PRINT_LINE("Dot11DecryptScanForKeys", "TDLS setup not successfull", DOT11DECRYPT_DEBUG_LEVEL_3);
@@ -660,6 +685,7 @@ static INT Dot11DecryptScanForKeys(
 
         /* skip Token + capabilities */
         offset+=5;
+        tot_len_left-=5;
 
         /* search for RSN, Fast BSS Transition, Link Identifier and Timeout Interval IEs */
 
@@ -794,7 +820,7 @@ INT Dot11DecryptPacketProcess(
         return DOT11DECRYPT_RET_WRONG_DATA_SIZE;
     }
 
-    /* Assume that the decrypt_data field is at least this size. */
+    /* Assume that the decrypt_data field is no more than this size. */
     if (tot_len > DOT11DECRYPT_MAX_CAPLEN) {
         DOT11DECRYPT_DEBUG_PRINT_LINE("Dot11DecryptPacketProcess", "length too large", DOT11DECRYPT_DEBUG_LEVEL_3);
         return DOT11DECRYPT_RET_UNSUCCESS;
@@ -1106,7 +1132,7 @@ Dot11DecryptRsnaMng(
     UCHAR *try_data;
     guint try_data_len = *decrypt_len;
 
-    if (*decrypt_len > try_data_len) {
+    if (*decrypt_len == 0) {
         DOT11DECRYPT_DEBUG_PRINT_LINE("Dot11DecryptRsnaMng", "Invalid decryption length", DOT11DECRYPT_DEBUG_LEVEL_3);
         return DOT11DECRYPT_RET_UNSUCCESS;
     }
@@ -1131,6 +1157,17 @@ Dot11DecryptRsnaMng(
            DEBUG_DUMP("ptk", sa->wpa.ptk, 64);
            DEBUG_DUMP("ptk portion used", DOT11DECRYPT_GET_TK(sa->wpa.ptk), 16);
 
+           if (*decrypt_len < (guint)offset) {
+               DOT11DECRYPT_DEBUG_PRINT_LINE("Dot11DecryptRsnaMng", "Invalid decryption length", DOT11DECRYPT_DEBUG_LEVEL_3);
+               g_free(try_data);
+               return DOT11DECRYPT_RET_UNSUCCESS;
+           }
+           if (*decrypt_len < DOT11DECRYPT_RSNA_MICLEN+DOT11DECRYPT_WEP_ICV) {
+               DOT11DECRYPT_DEBUG_PRINT_LINE("Dot11DecryptRsnaMng", "Invalid decryption length", DOT11DECRYPT_DEBUG_LEVEL_3);
+               g_free(try_data);
+               return DOT11DECRYPT_RET_UNSUCCESS;
+           }
+
            ret_value=Dot11DecryptTkipDecrypt(try_data+offset, *decrypt_len-offset, try_data+DOT11DECRYPT_TA_OFFSET, DOT11DECRYPT_GET_TK(sa->wpa.ptk));
            if (ret_value){
                DOT11DECRYPT_DEBUG_PRINT_LINE("Dot11DecryptRsnaMng", "TKIP failed!", DOT11DECRYPT_DEBUG_LEVEL_3);
@@ -1138,20 +1175,26 @@ Dot11DecryptRsnaMng(
            }
 
            DOT11DECRYPT_DEBUG_PRINT_LINE("Dot11DecryptRsnaMng", "TKIP DECRYPTED!!!", DOT11DECRYPT_DEBUG_LEVEL_3);
-           /* remove MIC (8bytes) and ICV (4bytes) from the end of packet */
-           *decrypt_len-=12;
+           /* remove MIC and ICV from the end of packet */
+           *decrypt_len-=DOT11DECRYPT_RSNA_MICLEN+DOT11DECRYPT_WEP_ICV;
            break;
        } else {
            /* AES-CCMP -> HMAC-SHA1-128 is the EAPOL-Key MIC, AES wep_key wrap is the EAPOL-Key encryption algorithm */
            DOT11DECRYPT_DEBUG_PRINT_LINE("Dot11DecryptRsnaMng", "CCMP", DOT11DECRYPT_DEBUG_LEVEL_3);
+
+           if (*decrypt_len < DOT11DECRYPT_RSNA_MICLEN) {
+               DOT11DECRYPT_DEBUG_PRINT_LINE("Dot11DecryptRsnaMng", "Invalid decryption length", DOT11DECRYPT_DEBUG_LEVEL_3);
+               g_free(try_data);
+               return DOT11DECRYPT_RET_UNSUCCESS;
+           }
 
            ret_value=Dot11DecryptCcmpDecrypt(try_data, mac_header_len, (INT)*decrypt_len, DOT11DECRYPT_GET_TK(sa->wpa.ptk));
            if (ret_value)
               continue;
 
            DOT11DECRYPT_DEBUG_PRINT_LINE("Dot11DecryptRsnaMng", "CCMP DECRYPTED!!!", DOT11DECRYPT_DEBUG_LEVEL_3);
-           /* remove MIC (8bytes) from the end of packet */
-           *decrypt_len-=8;
+           /* remove MIC from the end of packet */
+           *decrypt_len-=DOT11DECRYPT_RSNA_MICLEN;
            break;
        }
     }
@@ -1321,6 +1364,11 @@ Dot11DecryptRsna4WHandshake(
     if (sa->key!=NULL)
         useCache=TRUE;
 
+    if (tot_len-offset < 2) {
+        DOT11DECRYPT_DEBUG_PRINT_LINE("Dot11DecryptRsna4WHandshake", "Too short to determine the message type", DOT11DECRYPT_DEBUG_LEVEL_5);
+        return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
+    }
+
     /* a 4-way handshake packet use a Pairwise key type (IEEE 802.11i-2004, pg. 79) */
     if (DOT11DECRYPT_EAP_KEY(data[offset+1])!=1) {
         DOT11DECRYPT_DEBUG_PRINT_LINE("Dot11DecryptRsna4WHandshake", "Group/STAKey message (not used)", DOT11DECRYPT_DEBUG_LEVEL_5);
@@ -1358,6 +1406,10 @@ Dot11DecryptRsna4WHandshake(
         }
 
         /* save ANonce (from authenticator) to derive the PTK with the SNonce (from the 2 message) */
+        if (tot_len-(offset+12) < 32) {
+            DOT11DECRYPT_DEBUG_PRINT_LINE("Dot11DecryptRsna4WHandshake", "Too short to contain ANonce", DOT11DECRYPT_DEBUG_LEVEL_5);
+            return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
+        }
         memcpy(sa->wpa.nonce, data+offset+12, 32);
 
         /* get the Key Descriptor Version (to select algorithm used in decryption -CCMP or TKIP-) */
@@ -1374,6 +1426,10 @@ Dot11DecryptRsna4WHandshake(
         DOT11DECRYPT_EAP_MIC(data[offset])==1)
     {
         /* Check key data length to differentiate between message 2 or 4, same as in epan/dissectors/packet-ieee80211.c */
+        if (tot_len-(offset+92) < 2) {
+            DOT11DECRYPT_DEBUG_PRINT_LINE("Dot11DecryptRsna4WHandshake", "Too short to have a key data length", DOT11DECRYPT_DEBUG_LEVEL_5);
+            return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
+        }
         if (pntoh16(data+offset+92)) {
             /* message 2 */
             DOT11DECRYPT_DEBUG_PRINT_LINE("Dot11DecryptRsna4WHandshake", "4-way handshake message 2", DOT11DECRYPT_DEBUG_LEVEL_3);
@@ -1430,6 +1486,10 @@ Dot11DecryptRsna4WHandshake(
 
                     /* verify the MIC (compare the MIC in the packet included in this message with a MIC calculated with the PTK) */
                     eapol_len=pntoh16(data+offset-3)+4;
+                    if (tot_len-(offset-5) < (eapol_len<DOT11DECRYPT_EAPOL_MAX_LEN?eapol_len:DOT11DECRYPT_EAPOL_MAX_LEN)) {
+                        DOT11DECRYPT_DEBUG_PRINT_LINE("Dot11DecryptRsna4WHandshake", "Too short to contain ANonce", DOT11DECRYPT_DEBUG_LEVEL_5);
+                        return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
+                    }
                     memcpy(eapol, &data[offset-5], (eapol_len<DOT11DECRYPT_EAPOL_MAX_LEN?eapol_len:DOT11DECRYPT_EAPOL_MAX_LEN));
                     ret_value=Dot11DecryptRsnaMicCheck(eapol,           /*      eapol frame (header also) */
                                                    eapol_len,       /*      eapol frame length        */
