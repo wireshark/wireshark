@@ -1500,7 +1500,7 @@ AirPDcapRsna4WHandshake(
 
                     /* verify the MIC (compare the MIC in the packet included in this message with a MIC calculated with the PTK) */
                     eapol_len=pntoh16(data+offset-3)+4;
-                    if (tot_len-(offset-5) < (eapol_len<AIRPDCAP_EAPOL_MAX_LEN?eapol_len:AIRPDCAP_EAPOL_MAX_LEN)) {
+                    if (tot_len-(guint)(offset-5) < (eapol_len<AIRPDCAP_EAPOL_MAX_LEN?eapol_len:AIRPDCAP_EAPOL_MAX_LEN)) {
                         AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsna4WHandshake", "Too short to contain ANonce", AIRPDCAP_DEBUG_LEVEL_5);
                         return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
                     }
