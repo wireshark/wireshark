@@ -2248,7 +2248,7 @@ ber_sequence_try_again:
         if (!seq->func) {
             /* it was not,  move to the next one and try again */
             offset = dissect_ber_identifier(actx->pinfo, tree, tvb, hoffset, NULL, NULL, NULL);
-            offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, NULL, NULL);
+            dissect_ber_length(actx->pinfo, tree, tvb, offset, NULL, NULL);
             cause = proto_tree_add_expert_format(
                 tree, actx->pinfo, &ei_ber_unknown_field_sequence,
                 tvb, hoffset, -1,
@@ -2286,7 +2286,7 @@ ber_sequence_try_again:
                 identifier_offset = hoffset;
                 offset = dissect_ber_identifier(actx->pinfo, tree, tvb, hoffset, NULL, NULL, NULL);
                 identifier_len = offset - identifier_offset;
-                offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, NULL, NULL);
+                dissect_ber_length(actx->pinfo, tree, tvb, offset, NULL, NULL);
                 if (seq->ber_class == BER_CLASS_UNI) {
                     cause = proto_tree_add_expert_format(
                         tree, actx->pinfo, &ei_ber_sequence_field_wrong,
@@ -2334,7 +2334,7 @@ ber_sequence_try_again:
                 identifier_offset = hoffset;
                 offset = dissect_ber_identifier(actx->pinfo, tree, tvb, hoffset, NULL, NULL, NULL);
                 identifier_len = offset - identifier_offset;
-                offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, NULL, NULL);
+                dissect_ber_length(actx->pinfo, tree, tvb, offset, NULL, NULL);
                 if ( seq->ber_class == BER_CLASS_UNI) {
                     cause = proto_tree_add_expert_format(
                         tree, actx->pinfo, &ei_ber_sequence_field_wrong,
