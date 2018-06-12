@@ -524,6 +524,7 @@ static INT AirPDcapScanForKeys(
     AIRPDCAP_SEC_ASSOCIATION_ID id
 )
 {
+    guint tot_len_left;
     const UCHAR *addr;
     guint bodyLength;
     PAIRPDCAP_SEC_ASSOCIATION sta_sa;
@@ -563,13 +564,22 @@ static INT AirPDcapScanForKeys(
     /* cache offset in the packet data */
     offset = mac_header_len;
 
+    /* Amount of data following the MAC header */
+    tot_len_left = tot_len - mac_header_len;
+
     /* check if the packet has an LLC header and the packet is 802.1X authentication (IEEE 802.1X-2004, pg. 24) */
-    if (memcmp(data+offset, dot1x_header, 8) == 0 || memcmp(data+offset, bt_dot1x_header, 8) == 0) {
+    if (tot_len_left >= 8 && (memcmp(data+offset, dot1x_header, 8) == 0 || memcmp(data+offset, bt_dot1x_header, 8) == 0)) {
 
         AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapScanForKeys", "Authentication: EAPOL packet", AIRPDCAP_DEBUG_LEVEL_3);
 
         /* skip LLC header */
         offset+=8;
+        tot_len_left-=8;
+
+        if (tot_len_left < 4) {
+            AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapDecryptScanForKeys", "Not EAPOL-Key", AIRPDCAP_DEBUG_LEVEL_3);
+            return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
+        }
 
         /* check if the packet is a EAPOL-Key (0x03) (IEEE 802.1X-2004, pg. 25) */
         if (data[offset+1]!=3) {
@@ -579,16 +589,21 @@ static INT AirPDcapScanForKeys(
 
         /* get and check the body length (IEEE 802.1X-2004, pg. 25) */
         bodyLength=pntoh16(data+offset+2);
-        if (((tot_len-offset-4) < bodyLength) || (bodyLength < sizeof(EAPOL_RSN_KEY))) { /* Only check if frame is long enough for eapol header, ignore tailing garbage, see bug 9065 */
+        if (((tot_len_left-4) < bodyLength) || (bodyLength < sizeof(EAPOL_RSN_KEY))) { /* Only check if frame is long enough for eapol header, ignore tailing garbage, see bug 9065 */
             AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapScanForKeys", "EAPOL body too short", AIRPDCAP_DEBUG_LEVEL_3);
             return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
         }
 
         /* skip EAPOL MPDU and go to the first byte of the body */
         offset+=4;
+        tot_len_left-=4;
 
         pEAPKey = (const EAPOL_RSN_KEY *) (data+offset);
 
+        if (tot_len_left < 1) {
+            AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapDecryptScanForKeys", "Not EAPOL-Key", AIRPDCAP_DEBUG_LEVEL_3);
+            return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
+        }
         /* check if the key descriptor type is valid (IEEE 802.1X-2004, pg. 27) */
         if (/*pEAPKey->type!=0x1 &&*/ /* RC4 Key Descriptor Type (deprecated) */
             pEAPKey->type != AIRPDCAP_RSN_WPA2_KEY_DESCRIPTOR &&             /* IEEE 802.11 Key Descriptor Type  (WPA2) */
@@ -600,6 +615,7 @@ static INT AirPDcapScanForKeys(
 
         /* start with descriptor body */
         offset+=1;
+        tot_len_left-=1;
 
         /* search for a cached Security Association for current BSSID and AP */
         sa = AirPDcapGetSaPtr(ctx, &id);
@@ -658,7 +674,7 @@ static INT AirPDcapScanForKeys(
         /* Try to extract the group key and install it in the SA */
         return (AirPDcapDecryptWPABroadcastKey(pEAPKey, sta_sa->wpa.ptk+16, sa, tot_len-offset+1));
 
-    } else if (memcmp(data+offset, tdls_header, 10) == 0) {
+    } else if (tot_len_left >= 10 && memcmp(data+offset, tdls_header, 10) == 0) {
         const guint8 *initiator, *responder;
         guint8 action;
         guint status, offset_rsne = 0, offset_fte = 0, offset_link = 0, offset_timeout = 0;
@@ -666,8 +682,13 @@ static INT AirPDcapScanForKeys(
 
         /* skip LLC header */
         offset+=10;
+        tot_len_left-=10;
 
         /* check if the packet is a TDLS response or confirm */
+        if (tot_len_left < 1) {
+            AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapDecryptScanForKeys", "Not EAPOL-Key", AIRPDCAP_DEBUG_LEVEL_3);
+            return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
+        }
         action = data[offset];
         if (action!=1 && action!=2) {
             AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapScanForKeys", "Not Response nor confirm", AIRPDCAP_DEBUG_LEVEL_3);
@@ -676,6 +697,13 @@ static INT AirPDcapScanForKeys(
 
         /* check status */
         offset++;
+        tot_len_left--;
+
+        /* Check for SUCCESS (0) or SUCCESS_POWER_SAVE_MODE (85) Status Code */
+        if (tot_len_left < 5) {
+            AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapDecryptScanForKeys", "Not EAPOL-Key", AIRPDCAP_DEBUG_LEVEL_3);
+            return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
+        }
         status=pntoh16(data+offset);
         if (status!=0) {
             AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapScanForKeys", "TDLS setup not successfull", AIRPDCAP_DEBUG_LEVEL_3);
@@ -684,6 +712,7 @@ static INT AirPDcapScanForKeys(
 
         /* skip Token + capabilities */
         offset+=5;
+        tot_len_left-=5;
 
         /* search for RSN, Fast BSS Transition, Link Identifier and Timeout Interval IEs */
 
@@ -805,7 +834,7 @@ INT AirPDcapPacketProcess(
         return AIRPDCAP_RET_WRONG_DATA_SIZE;
     }
 
-    /* Assume that the decrypt_data field is at least this size. */
+    /* Assume that the decrypt_data field is no more than this size. */
     if (tot_len > AIRPDCAP_MAX_CAPLEN) {
         AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "length too large", AIRPDCAP_DEBUG_LEVEL_3);
         return AIRPDCAP_RET_UNSUCCESS;
@@ -1117,7 +1146,7 @@ AirPDcapRsnaMng(
     UCHAR *try_data;
     guint try_data_len = *decrypt_len;
 
-    if (*decrypt_len > try_data_len) {
+    if (*decrypt_len == 0) {
         AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsnaMng", "Invalid decryption length", AIRPDCAP_DEBUG_LEVEL_3);
         return AIRPDCAP_RET_UNSUCCESS;
     }
@@ -1142,6 +1171,17 @@ AirPDcapRsnaMng(
            DEBUG_DUMP("ptk", sa->wpa.ptk, 64);
            DEBUG_DUMP("ptk portion used", AIRPDCAP_GET_TK(sa->wpa.ptk), 16);
 
+           if (*decrypt_len < (guint)offset) {
+               AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapDecryptRsnaMng", "Invalid decryption length", AIRPDCAP_DEBUG_LEVEL_3);
+               g_free(try_data);
+               return AIRPDCAP_RET_UNSUCCESS;
+           }
+           if (*decrypt_len < AIRPDCAP_RSNA_MICLEN+AIRPDCAP_WEP_ICV) {
+               AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapDecryptRsnaMng", "Invalid decryption length", AIRPDCAP_DEBUG_LEVEL_3);
+               g_free(try_data);
+               return AIRPDCAP_RET_UNSUCCESS;
+           }
+
            ret_value=AirPDcapTkipDecrypt(try_data+offset, *decrypt_len-offset, try_data+AIRPDCAP_TA_OFFSET, AIRPDCAP_GET_TK(sa->wpa.ptk));
            if (ret_value){
                AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsnaMng", "TKIP failed!", AIRPDCAP_DEBUG_LEVEL_3);
@@ -1149,20 +1189,26 @@ AirPDcapRsnaMng(
            }
 
            AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsnaMng", "TKIP DECRYPTED!!!", AIRPDCAP_DEBUG_LEVEL_3);
-           /* remove MIC (8bytes) and ICV (4bytes) from the end of packet */
-           *decrypt_len-=12;
+           /* remove MIC and ICV from the end of packet */
+           *decrypt_len-=AIRPDCAP_RSNA_MICLEN+AIRPDCAP_WEP_ICV;
            break;
        } else {
            /* AES-CCMP -> HMAC-SHA1-128 is the EAPOL-Key MIC, AES wep_key wrap is the EAPOL-Key encryption algorithm */
            AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsnaMng", "CCMP", AIRPDCAP_DEBUG_LEVEL_3);
+
+           if (*decrypt_len < AIRPDCAP_RSNA_MICLEN) {
+               AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsnaMng", "Invalid decryption length", AIRPDCAP_DEBUG_LEVEL_3);
+               g_free(try_data);
+               return AIRPDCAP_RET_UNSUCCESS;
+           }
 
            ret_value=AirPDcapCcmpDecrypt(try_data, mac_header_len, (INT)*decrypt_len, AIRPDCAP_GET_TK(sa->wpa.ptk));
            if (ret_value)
               continue;
 
            AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsnaMng", "CCMP DECRYPTED!!!", AIRPDCAP_DEBUG_LEVEL_3);
-           /* remove MIC (8bytes) from the end of packet */
-           *decrypt_len-=8;
+           /* remove MIC from the end of packet */
+           *decrypt_len-=AIRPDCAP_RSNA_MICLEN;
            break;
        }
     }
@@ -1332,6 +1378,11 @@ AirPDcapRsna4WHandshake(
     if (sa->key!=NULL)
         useCache=TRUE;
 
+    if (tot_len-offset < 2) {
+        AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapDecryptRsna4WHandshake", "Too short to determine the message type", AIRPDCAP_DEBUG_LEVEL_5);
+        return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
+    }
+
     /* a 4-way handshake packet use a Pairwise key type (IEEE 802.11i-2004, pg. 79) */
     if (AIRPDCAP_EAP_KEY(data[offset+1])!=1) {
         AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsna4WHandshake", "Group/STAKey message (not used)", AIRPDCAP_DEBUG_LEVEL_5);
@@ -1369,6 +1420,10 @@ AirPDcapRsna4WHandshake(
         }
 
         /* save ANonce (from authenticator) to derive the PTK with the SNonce (from the 2 message) */
+        if (tot_len-(offset+12) < 32) {
+            AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapDecryptRsna4WHandshake", "Too short to contain ANonce", AIRPDCAP_DEBUG_LEVEL_5);
+            return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
+        }
         memcpy(sa->wpa.nonce, data+offset+12, 32);
 
         /* get the Key Descriptor Version (to select algorithm used in decryption -CCMP or TKIP-) */
@@ -1385,6 +1440,10 @@ AirPDcapRsna4WHandshake(
         AIRPDCAP_EAP_MIC(data[offset])==1)
     {
         /* Check key data length to differentiate between message 2 or 4, same as in epan/dissectors/packet-ieee80211.c */
+        if (tot_len-(offset+92) < 2) {
+            AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapDecryptRsna4WHandshake", "Too short to have a key data length", AIRPDCAP_DEBUG_LEVEL_5);
+            return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
+        }
         if (pntoh16(data+offset+92)) {
             /* message 2 */
             AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsna4WHandshake", "4-way handshake message 2", AIRPDCAP_DEBUG_LEVEL_3);
@@ -1441,6 +1500,10 @@ AirPDcapRsna4WHandshake(
 
                     /* verify the MIC (compare the MIC in the packet included in this message with a MIC calculated with the PTK) */
                     eapol_len=pntoh16(data+offset-3)+4;
+                    if (tot_len-(offset-5) < (eapol_len<AIRPDCAP_EAPOL_MAX_LEN?eapol_len:AIRPDCAP_EAPOL_MAX_LEN)) {
+                        AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsna4WHandshake", "Too short to contain ANonce", AIRPDCAP_DEBUG_LEVEL_5);
+                        return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
+                    }
                     memcpy(eapol, &data[offset-5], (eapol_len<AIRPDCAP_EAPOL_MAX_LEN?eapol_len:AIRPDCAP_EAPOL_MAX_LEN));
                     ret_value=AirPDcapRsnaMicCheck(eapol,           /*      eapol frame (header also) */
                                                    eapol_len,       /*      eapol frame length        */
