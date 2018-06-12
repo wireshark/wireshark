@@ -9864,7 +9864,7 @@ void proto_register_gtpv2(void)
     ett_gtpv2_array[56] = &ett_gtpv2_ciot_support_ind;
     ett_gtpv2_array[57] = &ett_gtpv2_rohc_profile_flags;
     ett_gtpv2_array[58] = &ett_gtpv2_secondary_rat_usage_data_report;
-    ett_gtpv2_array[59] = &ett_gtpv2_pres_rep_area_info,
+    ett_gtpv2_array[59] = &ett_gtpv2_pres_rep_area_info;
     last_offset = GTPV2_NUM_INDIVIDUAL_ELEMS;
 
     for (i=0; i < NUM_GTPV2_IES; i++, last_offset++)
