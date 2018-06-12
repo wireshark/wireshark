@@ -605,6 +605,13 @@ void randpkt_loop(randpkt_example* example, guint64 produce_count)
 		}
 
 		len_this_pkt = example->sample_length + len_random;
+		if (len_this_pkt > WTAP_MAX_PACKET_SIZE_STANDARD) {
+			/*
+			 * Wiretap will fail when trying to read packets
+			 * bigger than WTAP_MAX_PACKET_SIZE_STANDARD.
+			 */
+			len_this_pkt = WTAP_MAX_PACKET_SIZE_STANDARD;
+		}
 
 		pkthdr->caplen = len_this_pkt;
 		pkthdr->len = len_this_pkt;
