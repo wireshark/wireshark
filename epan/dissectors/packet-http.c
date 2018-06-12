@@ -1274,7 +1274,6 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		/*
 		 * No.  Does it look like a header?
 		 */
-		linep = line;
 		colon_offset = offset;
 
 		linep = (const guchar *)memchr(line, ':', linelen);
