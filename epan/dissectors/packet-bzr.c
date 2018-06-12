@@ -125,15 +125,17 @@ dissect_prefixed_bencode(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
     plen = tvb_get_ntohl(tvb, offset);
 
-    ti = proto_tree_add_item(tree, hf_bzr_prefixed_bencode, tvb, offset, 4 +
-                             plen, ENC_NA);
+    ti = proto_tree_add_item(tree, hf_bzr_prefixed_bencode, tvb, offset, -1,
+                             ENC_NA);
     prefixed_bencode_tree = proto_item_add_subtree(ti, ett_prefixed_bencode);
 
     proto_tree_add_item(prefixed_bencode_tree, hf_bzr_prefixed_bencode_len,
-                            tvb, offset, 4, ENC_BIG_ENDIAN);
+                        tvb, offset, 4, ENC_BIG_ENDIAN);
 
     subtvb = tvb_new_subset_length(tvb, offset+4, plen);
     call_dissector(bencode_handle, subtvb, pinfo, prefixed_bencode_tree);
+
+    proto_item_set_len(ti, 4 + plen);
 
     return 4 + plen;
 }
@@ -148,18 +150,16 @@ dissect_prefixed_bytes(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 
     plen = tvb_get_ntohl(tvb, offset);
 
-    ti = proto_tree_add_item(tree, hf_bzr_bytes, tvb, offset, 4 +
-                             plen, ENC_NA);
+    ti = proto_tree_add_item(tree, hf_bzr_bytes, tvb, offset, -1, ENC_NA);
     prefixed_bytes_tree = proto_item_add_subtree(ti, ett_prefixed_bytes);
 
-    if (prefixed_bytes_tree)
-    {
-        proto_tree_add_item(prefixed_bytes_tree, hf_bzr_bytes_length,
-                            tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(prefixed_bytes_tree, hf_bzr_bytes_length,
+                        tvb, offset, 4, ENC_BIG_ENDIAN);
 
-        proto_tree_add_item(prefixed_bytes_tree, hf_bzr_bytes_data,
-                            tvb, offset+4, plen, ENC_NA);
-    }
+    proto_tree_add_item(prefixed_bytes_tree, hf_bzr_bytes_data,
+                        tvb, offset+4, plen, ENC_NA);
+
+    proto_item_set_len(ti, 4 + plen);
 
     return 4 + plen;
 }
@@ -261,7 +261,7 @@ proto_register_bzr(void)
             NULL, 0x0, NULL, HFILL },
         },
         { &hf_bzr_prefixed_bencode,
-          { "Bencode packet", "bzr.bencode", FT_BYTES, BASE_NONE, NULL, 0x0,
+          { "Bencode packet", "bzr.bencode", FT_NONE, BASE_NONE, NULL, 0x0,
             "Serialized structure of integers, dictionaries, strings and "
             "lists.", HFILL },
         },
@@ -270,7 +270,7 @@ proto_register_bzr(void)
             BASE_HEX, NULL, 0x0, NULL, HFILL },
         },
         { &hf_bzr_bytes,
-          { "Prefixed bytes", "bzr.bytes", FT_BYTES, BASE_NONE, NULL, 0x0,
+          { "Prefixed bytes", "bzr.bytes", FT_NONE, BASE_NONE, NULL, 0x0,
             "Bytes field with prefixed 32-bit length", HFILL },
         },
         { &hf_bzr_bytes_data,
