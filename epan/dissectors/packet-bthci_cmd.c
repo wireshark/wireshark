@@ -5893,12 +5893,12 @@ proto_register_btcommon(void)
         },
         { &hf_btcommon_eir_ad_le_bd_addr_reserved,
             { "Reserved",                        "btcommon.eir_ad.entry.le_bd_addr.reserved",
-            FT_BOOLEAN, 8, NULL, 0xFE,
+            FT_UINT8, BASE_HEX, NULL, 0xFE,
             NULL, HFILL }
         },
         { &hf_btcommon_eir_ad_le_bd_addr_type,
             { "Type",                            "btcommon.eir_ad.entry.le_bd_addr.type",
-            FT_BOOLEAN, 8, NULL, 0x01,
+            FT_UINT8, BASE_HEX, VALS(bluetooth_address_type_vals), 0x01,
             NULL, HFILL }
         },
         { &hf_btcommon_eir_ad_le_role,
