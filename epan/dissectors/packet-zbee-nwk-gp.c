@@ -1047,7 +1047,7 @@ dissect_zbee_nwk_gp_cmd_read_attributes(tvbuff_t *tvb, packet_info *pinfo _U_, p
 
     /* Get Options Field, build subtree and display the results. */
     cr_options = tvb_get_guint8(tvb, offset);
-    subtree = proto_tree_add_bitmask(tree, tvb, offset, hf_zbee_nwk_gp_cmd_read_att_opt, ett_zbee_nwk_cmd_options, options, ENC_NA);
+    proto_tree_add_bitmask(tree, tvb, offset, hf_zbee_nwk_gp_cmd_read_att_opt, ett_zbee_nwk_cmd_options, options, ENC_NA);
 
     offset += 1;
     /* Parse and display manufacturer ID value. */
@@ -1113,7 +1113,7 @@ dissect_zbee_nwk_gp_cmd_write_attributes(tvbuff_t *tvb, packet_info *pinfo _U_, 
 
     /* Get Options Field, build subtree and display the results. */
     cr_options = tvb_get_guint8(tvb, offset);
-    subtree = proto_tree_add_bitmask(tree, tvb, offset, hf_zbee_nwk_gp_cmd_read_att_opt, ett_zbee_nwk_cmd_options, options, ENC_NA);
+    proto_tree_add_bitmask(tree, tvb, offset, hf_zbee_nwk_gp_cmd_read_att_opt, ett_zbee_nwk_cmd_options, options, ENC_NA);
 
     offset += 1;
     /* Parse and display manufacturer ID value. */
@@ -1188,7 +1188,7 @@ dissect_zbee_nwk_gp_cmd_read_attributes_response(tvbuff_t *tvb, packet_info *pin
 
     /* Get Options Field, build subtree and display the results. */
     cr_options = tvb_get_guint8(tvb, offset);
-    subtree = proto_tree_add_bitmask(tree, tvb, offset, hf_zbee_nwk_gp_cmd_read_att_opt, ett_zbee_nwk_cmd_options, options, ENC_NA);
+    proto_tree_add_bitmask(tree, tvb, offset, hf_zbee_nwk_gp_cmd_read_att_opt, ett_zbee_nwk_cmd_options, options, ENC_NA);
     offset += 1;
 
     /* Parse and display manufacturer ID value. */
