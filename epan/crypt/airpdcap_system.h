@@ -71,7 +71,7 @@
 #define	AIRPDCAP_MAC_LEN			   6
 #define	AIRPDCAP_RADIOTAP_HEADER_LEN	          24
 
-#define	AIRPDCAP_EAPOL_MAX_LEN			1024
+#define	AIRPDCAP_EAPOL_MAX_LEN			1024U
 
 #define AIRPDCAP_TK_LEN                           16
 
