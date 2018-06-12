@@ -1187,6 +1187,15 @@ const char* get_gsm_a_msg_string(int pdu_type, int idx)
     case GMR1_IE_RR:
         msg_string = val_to_str_ext(idx, &gmr1_ie_rr_strings_ext, "GMR1_IE_RR (%u)");
         break;
+    case NAS_5GS_PDU_TYPE_COMMON:
+        msg_string = val_to_str_ext(idx, &nas_5gs_common_elem_strings_ext, "NAS_5GS_PDU_TYPE_COMMON (%u)");
+        break;
+    case NAS_5GS_PDU_TYPE_MM:
+        msg_string = val_to_str_ext(idx, &nas_5gs_mm_elem_strings_ext, "NAS_5GS_PDU_TYPE_MM (%u)");
+        break;
+    case NAS_5GS_PDU_TYPE_SM:
+        msg_string = val_to_str_ext(idx, &nas_5gs_sm_elem_strings_ext, "NAS_5GS_PDU_TYPE_SM (%u)");
+        break;
     default:
         DISSECTOR_ASSERT_NOT_REACHED();
     }

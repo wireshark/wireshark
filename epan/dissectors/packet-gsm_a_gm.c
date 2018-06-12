@@ -4665,7 +4665,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 				break;
 			case 0x001b:
 				if (link_dir == P2P_DIR_DL && e_len >= 4) {
-					de_nas_5gs_mm_s_nssai(tvb, pco_tree, pinfo, curr_offset, e_len - 3, NULL, 0);
+					de_nas_5gs_cmn_s_nssai(tvb, pco_tree, pinfo, curr_offset, e_len - 3, NULL, 0);
 					dissect_e212_mcc_mnc(tvb, pinfo, pco_tree, curr_offset + e_len - 3, E212_NONE, TRUE);
 				}
 				break;
