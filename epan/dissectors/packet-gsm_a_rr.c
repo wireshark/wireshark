@@ -10188,7 +10188,7 @@ dtap_rr_imm_ass_ext(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
     /* Page Mode                                                10.5.2.26       M V 1/2 */
     /* Feature Indicator                                        10.5.2.76       M V 1/2 */
     ELEM_MAND_VV_SHORT(GSM_A_PDU_TYPE_RR, DE_RR_PAGE_MODE,
-                       GSM_A_PDU_TYPE_COMMON, DE_RR_FEATURE_INDICATOR, ei_gsm_a_rr_missing_mandatory_element);
+                       GSM_A_PDU_TYPE_RR, DE_RR_FEATURE_INDICATOR, ei_gsm_a_rr_missing_mandatory_element);
     /* Channel Description 1    Channel Description             10.5.2.5        M V 3 */
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC, " - Channel Description 1", ei_gsm_a_rr_missing_mandatory_element);
     /* Request Reference 1      Request Reference               10.5.2.30       M V 3   */
@@ -10225,9 +10225,9 @@ dtap_rr_imm_ass_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
     curr_len = len;
 
     /* Page Mode                                        10.5.2.26       M V 1/2 */
-    /* Spare Half Octet         10.5.1.8        M V 1/2 */
+    /* Feature Indicator                                        10.5.2.76       M V 1/2 */
     ELEM_MAND_VV_SHORT(GSM_A_PDU_TYPE_RR, DE_RR_PAGE_MODE,
-                       GSM_A_PDU_TYPE_COMMON, DE_SPARE_NIBBLE, ei_gsm_a_rr_missing_mandatory_element);
+                       GSM_A_PDU_TYPE_RR, DE_RR_FEATURE_INDICATOR, ei_gsm_a_rr_missing_mandatory_element);
     /* Request Reference 1      Request Reference               10.5.2.30       M V 3   */
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_REQ_REF, " - Request Reference 1", ei_gsm_a_rr_missing_mandatory_element);
     /* Wait Indication 1        Wait Indication                 10.5.2.43       M V 1   */
