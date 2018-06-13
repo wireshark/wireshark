@@ -166,6 +166,7 @@ static int hf_diameter_3gpp_feature_list2_gx_flags_bit4 = -1;
 static int hf_diameter_3gpp_feature_list2_gx_flags_bit5 = -1;
 static int hf_diameter_3gpp_feature_list2_gx_flags_bit6 = -1;
 static int hf_diameter_3gpp_feature_list2_gx_flags_bit7 = -1;
+static int hf_diameter_3gpp_feature_list2_gx_flags_bit8 = -1;
 static int hf_diameter_3gpp_feature_list_sd_flags = -1;
 static int hf_diameter_3gpp_feature_list_sd_flags_bit0 = -1;
 static int hf_diameter_3gpp_feature_list_sd_flags_bit1 = -1;
@@ -1009,6 +1010,7 @@ dissect_diameter_3gpp_feature_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
         else if (feature_list_id == 2) {
             /* 3GPP TS 29.212 Table 5.4.1.2: Features of Feature-List-ID 2 used in Gx */
             const int *flags[] = {
+                &hf_diameter_3gpp_feature_list2_gx_flags_bit8,
                 &hf_diameter_3gpp_feature_list2_gx_flags_bit7,
                 &hf_diameter_3gpp_feature_list2_gx_flags_bit6,
                 &hf_diameter_3gpp_feature_list2_gx_flags_bit5,
@@ -3425,6 +3427,11 @@ proto_register_diameter_3gpp(void)
         { &hf_diameter_3gpp_feature_list2_gx_flags_bit7,
             { "Extended BW for NR", "diameter.3gpp.feature_list2_gx_flags_bit7",
             FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported),  0x00000080,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_feature_list2_gx_flags_bit8,
+            { "RAN-Support-Info", "diameter.3gpp.feature_list2_gx_flags_bit8",
+            FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported),  0x00000100,
             NULL, HFILL }
         },
         { &hf_diameter_3gpp_cms_spare_bits,
