@@ -4411,7 +4411,7 @@ dissect_pfcp_ies_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
      * this field shall contain the IANA - assigned "SMI Network Management Private Enterprise Codes"
      * value of the vendor defining the IE.
      */
-    /* Length: this field contains the length of the IE excluding the first four octets, which are common for all IEs */
+    /* Length: this field contains the length of the IE excluding the first four (six for Enterprise specific IE) octets, which are common for all IEs */
 
     /* Process the IEs*/
     while (offset < (gint)tvb_reported_length(tvb)) {
@@ -4434,10 +4434,22 @@ dissect_pfcp_ies_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
 
             /* Bit 8 of Octet 1 is set, this indicates that the IE is defined by a vendor and the Enterprise ID is present */
             proto_tree_add_item(ie_tree, hf_pfcp_enterprice_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
 
-            /* give the whole IE to the subdissector */
-            ie_tvb = tvb_new_subset_length(tvb, offset-4, length);
-            dissector_try_uint_new(pfcp_enterprise_ies_dissector_table, enterprise_id, ie_tvb, pinfo, ie_tree, FALSE, ti);
+            /*
+            * 5.6.3    Modifying the Rules of an Existing PFCP Session
+            *
+            * Updating the Rule including the IEs to be removed with a null length,
+            * e.g. by including the Update URR IE in the PFCP Session Modification Request
+            * with the IE(s) to be removed with a null length.
+            */
+            if( length == 0 ) {
+                proto_item_append_text(ti, "[IE to be removed]");
+            } else {
+                /* give the whole IE to the subdissector */
+                ie_tvb = tvb_new_subset_length(tvb, offset-6, length);
+                dissector_try_uint_new(pfcp_enterprise_ies_dissector_table, enterprise_id, ie_tvb, pinfo, ie_tree, FALSE, ti);
+            }
             offset += length;
         } else {
             int tmp_ett;
@@ -4453,19 +4465,30 @@ dissect_pfcp_ies_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
             offset += 2;
             proto_tree_add_item(ie_tree, hf_pfcp2_ie_len, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
-            if (type < (NUM_PFCP_IES -1)) {
-                ie_tvb = tvb_new_subset_length(tvb, offset, length);
-                if(pfcp_ies[type].decode){
-                    (*pfcp_ies[type].decode) (ie_tvb, pinfo, ie_tree, ti, length, message_type);
-                } else {
-                    /* NULL function pointer, we have no decoding function*/
-                    proto_tree_add_expert(ie_tree, pinfo, &ei_pfcp_ie_not_decoded_null, tvb, offset, length);
-                }
-            } else {
-                /* IE id outside of array, We have no decoding function for it */
-                proto_tree_add_expert(ie_tree, pinfo, &ei_pfcp_ie_not_decoded_to_large, tvb, offset, length);
-            }
 
+            /*
+            * 5.6.3    Modifying the Rules of an Existing PFCP Session
+            *
+            * Updating the Rule including the IEs to be removed with a null length,
+            * e.g. by including the Update URR IE in the PFCP Session Modification Request
+            * with the IE(s) to be removed with a null length.
+            */
+            if( length == 0 ) {
+                proto_item_append_text(ti, "[IE to be removed]");
+            } else {
+                if (type < (NUM_PFCP_IES -1)) {
+                    ie_tvb = tvb_new_subset_length(tvb, offset, length);
+                    if(pfcp_ies[type].decode){
+                        (*pfcp_ies[type].decode) (ie_tvb, pinfo, ie_tree, ti, length, message_type);
+                    } else {
+                        /* NULL function pointer, we have no decoding function*/
+                        proto_tree_add_expert(ie_tree, pinfo, &ei_pfcp_ie_not_decoded_null, tvb, offset, length);
+                    }
+                } else {
+                    /* IE id outside of array, We have no decoding function for it */
+                    proto_tree_add_expert(ie_tree, pinfo, &ei_pfcp_ie_not_decoded_to_large, tvb, offset, length);
+                }
+            }
             offset += length;
         }
     }
