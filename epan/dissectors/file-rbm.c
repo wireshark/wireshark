@@ -32,7 +32,7 @@ static int hf_rbm_type = -1;
 static int hf_rbm_integer = -1;
 static int hf_rbm_length = -1;
 static int hf_rbm_string = -1;
-static int hf_rbm_symbolic_link = -1;
+static int hf_rbm_link = -1;
 static int hf_rbm_double = -1;
 static int hf_rbm_struct = -1;
 static int hf_rbm_regex_param = -1;
@@ -65,7 +65,7 @@ static const value_string rbm_types[] = {
 	{ 'S', "Struct" },
 	{ '/', "Regexp" },
 	{ 'o', "Object" },
-	{ 'C', "Userclass" },
+	{ 'C', "UserClass" },
 	{ 'e', "Extended_object" },
 	{ ';', "Symbol link" },
 	{ '@', "Object link" },
@@ -76,7 +76,7 @@ static const value_string rbm_types[] = {
 
 #define BETWEEN(v, b1, b2) (((v) >= (b1)) && ((v) <= (b2)))
 
-static gchar* dissect_rbm_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset);
+static void dissect_rbm_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset, gchar** type, gchar** value);
 
 void rbm_set_info(packet_info* pinfo, const gchar* str)
 {
@@ -132,7 +132,7 @@ void get_rbm_integer(tvbuff_t* tvb, guint offset, gint32* value, guint* len)
 	}
 }
 
-static gchar* dissect_rbm_integer(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree _U_, guint* offset)
+static void dissect_rbm_integer(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree _U_, guint* offset, gchar** value_str)
 {
 	gint32 value = 0;
 	gint len = 0;
@@ -140,31 +140,33 @@ static gchar* dissect_rbm_integer(tvbuff_t* tvb, packet_info* pinfo, proto_tree*
 	get_rbm_integer(tvb, *offset, &value, &len);
 	proto_tree_add_int_format_value(tree, hf_rbm_integer, tvb, *offset, len, value, "%d", value);
 	*offset += len;
-	return wmem_strdup_printf(wmem_packet_scope(), "%d", value);
+	if (value_str)
+		*value_str = wmem_strdup_printf(wmem_packet_scope(), "%d", value);
 }
 
-static gchar* dissect_rbm_basic(tvbuff_t* tvb _U_, packet_info* pinfo, proto_tree* tree _U_, guint* offset _U_, const guint8 subtype)
+static void dissect_rbm_basic(tvbuff_t* tvb _U_, packet_info* pinfo, proto_tree* tree _U_, guint* offset _U_, const guint8 subtype,
+	gchar** type, gchar** value_str)
 {
-	gchar* label;
 	switch (subtype) {
 		case '0':
-			label = wmem_strdup(wmem_packet_scope(), "nil");
+			*type = "nil";
 			break;
 		case 'T':
-			label = wmem_strdup(wmem_packet_scope(), "true");
+			*type = "Boolean";
+			*value_str = "true";
 			break;
 		case 'F':
-			label = wmem_strdup(wmem_packet_scope(), "false");
+			*type = "Boolean";
+			*value_str = "false";
 			break;
 		default:
 			DISSECTOR_ASSERT_NOT_REACHED();
 	}
-	rbm_set_info(pinfo, label);
-	return label;
+	rbm_set_info(pinfo, *type);
 }
 
-static gchar* dissect_rbm_string_data_trailer(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset, const guint8* label,
-	const gchar* prefix, const gchar* trailer)
+static void dissect_rbm_string_data_trailer(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset, const guint8* label,
+	const gchar* prefix, const gchar* trailer, gchar** value_str)
 {
 	gint32 value = 0;
 	gint len = 0;
@@ -178,21 +180,23 @@ static gchar* dissect_rbm_string_data_trailer(tvbuff_t* tvb, packet_info* pinfo,
 	s = tvb_get_string_enc(wmem_packet_scope(), tvb, *offset, value, ENC_NA);
 	proto_tree_add_string_format_value(tree, hf_rbm_string, tvb, *offset, value, s, "%s%s%s", prefix, s, trailer);
 	*offset += value;
-	return wmem_strdup_printf(wmem_packet_scope(), "%s%s%s", prefix, s, trailer);
+	*value_str = wmem_strdup_printf(wmem_packet_scope(), "%s%s%s", prefix, s, trailer);
 }
 
-static gchar* dissect_rbm_string_data(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset, const guint8* label, const gchar* prefix)
+static void dissect_rbm_string_data(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset, const guint8* label,
+	const gchar* prefix, gchar** value_str)
 {
-	return dissect_rbm_string_data_trailer(tvb, pinfo, tree, offset, label, prefix, "");
+	dissect_rbm_string_data_trailer(tvb, pinfo, tree, offset, label, prefix, "", value_str);
 }
 
-static gchar* dissect_rbm_array(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset)
+static void dissect_rbm_array(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset, gchar** value_str)
 {
 	gint32 value;
 	guint len;
 	gint32 i;
 	proto_tree* array_tree = NULL;
 	proto_tree* array_obj_tree = NULL;
+	gint offset_start = *offset;
 
 	rbm_set_info(pinfo, "Array");
 	get_rbm_integer(tvb, *offset, &value, &len);
@@ -202,13 +206,16 @@ static gchar* dissect_rbm_array(tvbuff_t* tvb, packet_info* pinfo, proto_tree* t
 
 	for (i = 0; i < value; i++) {
 		array_obj_tree = proto_tree_add_subtree(array_tree, tvb, *offset, 0, ett_array_obj, NULL, "Object");
-		dissect_rbm_object(tvb, pinfo, array_obj_tree, offset);
+		dissect_rbm_object(tvb, pinfo, array_obj_tree, offset, NULL, NULL);
 	}
+	proto_item_append_text(array_tree, " (%d)", value);
+	proto_item_set_len(array_tree, *offset - offset_start);
 
-	return "[]";
+	if (value_str)
+		*value_str = wmem_strdup_printf(wmem_packet_scope(), "%d", value);
 }
 
-static gchar* dissect_rbm_hash(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset)
+static void dissect_rbm_hash(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset, gchar** value_str)
 {
 	gint32 value;
 	guint len;
@@ -217,6 +224,9 @@ static gchar* dissect_rbm_hash(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tr
 	proto_tree* hash_obj_tree = NULL;
 	proto_tree* hash_key_tree = NULL;
 	proto_tree* hash_value_tree = NULL;
+	gchar* hkey = NULL;
+	gchar* hval = NULL;
+	gint offset_start = *offset;
 
 	rbm_set_info(pinfo, "Hash");
 	get_rbm_integer(tvb, *offset, &value, &len);
@@ -225,28 +235,49 @@ static gchar* dissect_rbm_hash(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tr
 	*offset += len;
 
 	for (i = 0; i < value; i++) {
-		hash_obj_tree = proto_tree_add_subtree(hash_tree, tvb, *offset, 0, ett_hash_obj, NULL, "Object");
+		hash_obj_tree = proto_tree_add_subtree(hash_tree, tvb, *offset, 0, ett_hash_obj, NULL, "Entry");
 		hash_key_tree = proto_tree_add_subtree(hash_obj_tree, tvb, *offset, 0, ett_hash_obj, NULL, "Key");
-		dissect_rbm_object(tvb, pinfo, hash_key_tree, offset);
+		dissect_rbm_object(tvb, pinfo, hash_key_tree, offset, NULL, &hkey);
 		hash_value_tree = proto_tree_add_subtree(hash_obj_tree, tvb, *offset, 0, ett_hash_obj, NULL, "Value");
-		dissect_rbm_object(tvb, pinfo, hash_value_tree, offset);
+		dissect_rbm_object(tvb, pinfo, hash_value_tree, offset, NULL, &hval);
+		proto_item_append_text(hash_obj_tree, " %s => %s", hkey, hval);
 	}
+	proto_item_append_text(hash_tree, " (%d)", value);
+	proto_item_set_len(hash_tree, *offset - offset_start);
 
-	return "{}";
+	if (value_str)
+		*value_str = wmem_strdup_printf(wmem_packet_scope(), "%d", value);
 }
 
-static gchar* dissect_rbm_symbol_link(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset)
+static void dissect_rbm_link(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset, guint8 subtype,
+	gchar** type, gchar** value_str)
 {
 	gint32 value;
 	guint len;
-	rbm_set_info(pinfo, "Symbol Link");
+	gchar* label;
+
+	switch (subtype) {
+		case ';':
+			label = "Symbol";
+			break;
+		case '@':
+			label = "Object";
+			break;
+		default:
+			DISSECTOR_ASSERT_NOT_REACHED();
+	}
+
+	rbm_set_info(pinfo, wmem_strdup_printf(wmem_packet_scope(), "%s Link", label));
 	get_rbm_integer(tvb, *offset, &value, &len);
-	proto_tree_add_int_format_value(tree, hf_rbm_symbolic_link, tvb, *offset, len, value, "%d", value);
+	proto_tree_add_int_format_value(tree, hf_rbm_link, tvb, *offset, len, value, "%d", value);
 	*offset += len;
-	return "";
+	if (type)
+		*type = label;
+	if (value_str)
+		*value_str = wmem_strdup_printf(wmem_packet_scope(), "%d", value);
 }
 
-static gchar* dissect_rbm_double(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset)
+static void dissect_rbm_double(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset, gchar** value_str)
 {
 	gint32 value = 0;
 	gdouble valued;
@@ -262,88 +293,125 @@ static gchar* dissect_rbm_double(tvbuff_t* tvb, packet_info* pinfo, proto_tree* 
 	valued = g_ascii_strtod(s, NULL);
 	proto_tree_add_double(tree, hf_rbm_double, tvb, *offset, value, valued);
 	*offset += value;
-	return wmem_strdup_printf(wmem_packet_scope(), "%f", valued);
+	if (value_str)
+		*value_str = wmem_strdup_printf(wmem_packet_scope(), "%f", valued);
 }
 
-static gchar* dissect_rbm_struct_data(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset)
+static void dissect_rbm_struct_data(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset, gchar** value_str)
 {
 	gint32 value = 0;
 	gint len = 0;
 
 	if (tvb_get_guint8(tvb, *offset) != ':')
-		return "";
+		return;
 	*offset += 1;
 
 	rbm_set_info(pinfo, "Struct");
 	get_rbm_integer(tvb, *offset, &value, &len);
 	proto_tree_add_item(tree, hf_rbm_struct, tvb, *offset + 1, value, ENC_ASCII|ENC_NA);
 	*offset += 1 + value;
-	return "";
+	if (value_str)
+		*value_str = wmem_strdup_printf(wmem_packet_scope(), "%d", value);
 }
 
-static gchar* dissect_rbm_string(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset)
+static void dissect_rbm_string(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset, gchar** value)
 {
-	gchar* label;
-	label = dissect_rbm_string_data(tvb, pinfo, tree, offset, "String", "");
-	dissect_rbm_integer(tvb, pinfo, tree, offset);
-	dissect_rbm_object(tvb, pinfo, tree, offset);
-	dissect_rbm_object(tvb, pinfo, tree, offset);
-	return label;
+	dissect_rbm_string_data(tvb, pinfo, tree, offset, "String", "", value);
+	dissect_rbm_integer(tvb, pinfo, tree, offset, NULL);
+	dissect_rbm_object(tvb, pinfo, tree, offset, NULL, NULL);
+	dissect_rbm_object(tvb, pinfo, tree, offset, NULL, NULL);
 }
 
-static gchar* dissect_rbm_regex(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset)
+static void dissect_rbm_regex(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset, gchar** value)
 {
-	gchar* label;
-	label = dissect_rbm_string_data_trailer(tvb, pinfo, tree, offset, "Regexp", "/", "/");
+	dissect_rbm_string_data_trailer(tvb, pinfo, tree, offset, "Regexp", "/", "/", value);
 	proto_tree_add_item(tree, hf_rbm_regex_param, tvb, *offset, 1, ENC_NA);
 	*offset += 1;
-	dissect_rbm_integer(tvb, pinfo, tree, offset);
-	dissect_rbm_object(tvb, pinfo, tree, offset);
-	dissect_rbm_object(tvb, pinfo, tree, offset);
-	return label;
+	dissect_rbm_integer(tvb, pinfo, tree, offset, NULL);
+	dissect_rbm_object(tvb, pinfo, tree, offset, NULL, NULL);
+	dissect_rbm_object(tvb, pinfo, tree, offset, NULL, NULL);
 }
 
-static gchar* dissect_rbm_class(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset)
+static void dissect_rbm_class(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset, gchar** value_str)
 {
-	return dissect_rbm_string_data(tvb, pinfo, tree, offset, "Class", "");
+	dissect_rbm_string_data(tvb, pinfo, tree, offset, "Class", "", value_str);
 }
 
-static gchar* dissect_rbm_symbol(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset)
+static void dissect_rbm_userclass(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset, gchar** value)
 {
-	return dissect_rbm_string_data(tvb, pinfo, tree, offset, "Symbol", ":");
+	rbm_set_info(pinfo, "UserClass");
+	dissect_rbm_object(tvb, pinfo, tree, offset, NULL, value);
 }
 
-static gchar* dissect_rbm_variable(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset)
+static void dissect_rbm_symbol(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset, gchar** value_str)
 {
+	dissect_rbm_string_data(tvb, pinfo, tree, offset, "Symbol", ":", value_str);
+}
+
+static void dissect_rbm_variable(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset, gchar** value_str)
+{
+	gint offset_start = *offset;
 	proto_tree* variable_tree = proto_tree_add_subtree(tree, tvb, *offset, 0, ett_variable, NULL, "Variable");
-	return dissect_rbm_object(tvb, pinfo, variable_tree, offset);
+	dissect_rbm_object(tvb, pinfo, variable_tree, offset, NULL, value_str);
+	proto_item_set_len(variable_tree, *offset - offset_start);
 }
 
-static gchar* dissect_rbm_module(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset)
+static void dissect_rbm_module(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset, gchar** value_str)
 {
-	return dissect_rbm_string_data(tvb, pinfo, tree, offset, "Module", "");
+	dissect_rbm_string_data(tvb, pinfo, tree, offset, "Module", "", value_str);
 }
 
-static gchar* dissect_rbm_struct(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset)
+static void dissect_rbm_struct(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset, gchar** value)
 {
-	dissect_rbm_struct_data(tvb, pinfo, tree, offset);
-	dissect_rbm_hash(tvb, pinfo, tree, offset);
-	return "";
+	dissect_rbm_struct_data(tvb, pinfo, tree, offset, value);
+	dissect_rbm_hash(tvb, pinfo, tree, offset, NULL);
 }
 
-static gchar* dissect_rbm_drb(tvbuff_t* tvb _U_, packet_info* pinfo _U_, proto_tree* tree _U_, gint* offset _U_)
+static void dissect_rbm_drb(tvbuff_t* tvb _U_, packet_info* pinfo _U_, proto_tree* tree _U_, gint* offset _U_)
 {
+	gint offset_start = *offset;
 	proto_tree* drb_tree = proto_tree_add_subtree(tree, tvb, *offset, 0, ett_variable, NULL, "Objects");
-	dissect_rbm_object(tvb, pinfo, drb_tree, offset);
-	dissect_rbm_object(tvb, pinfo, drb_tree, offset);
-	return "";
+	dissect_rbm_object(tvb, pinfo, drb_tree, offset, NULL, NULL);
+	dissect_rbm_object(tvb, pinfo, drb_tree, offset, NULL, NULL);
+	proto_item_set_len(drb_tree, *offset - offset_start);
 }
 
-static gchar* dissect_rbm_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset)
+static void dissect_rbm_rubyobject(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset)
+{
+	gint offset_start = *offset;
+	proto_tree* obj_tree = proto_tree_add_subtree(tree, tvb, *offset, 0, ett_variable, NULL, "Ruby Object");
+
+	rbm_set_info(pinfo, "Ruby Object");
+
+	dissect_rbm_object(tvb, pinfo, obj_tree, offset, NULL, NULL);
+	dissect_rbm_hash(tvb, pinfo, obj_tree, offset, NULL);
+
+	while (tvb_captured_length_remaining(tvb, *offset)) {
+		dissect_rbm_object(tvb, pinfo, obj_tree, offset, NULL, NULL);
+	}
+
+	proto_item_set_len(obj_tree, *offset - offset_start);
+}
+
+static void dissect_rbm_extended(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset)
+{
+	gint offset_start = *offset;
+	proto_tree* ext_tree = proto_tree_add_subtree(tree, tvb, *offset, 0, ett_variable, NULL, "Extended");
+
+	rbm_set_info(pinfo, "Extended");
+	dissect_rbm_object(tvb, pinfo, ext_tree, offset, NULL, NULL);
+	proto_item_set_len(ext_tree, *offset - offset_start);
+}
+
+static void dissect_rbm_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ptree, gint* offset, gchar** type, gchar** value)
 {
 	guint8 subtype = tvb_get_guint8(tvb, *offset);
-	gchar* subtype_str = NULL;
-	gchar* label = "TBD";
+	proto_tree* tree;
+	gchar* type_local = NULL;
+	gchar* value_local = NULL;
+	gint offset_start = *offset;
+
+	tree = proto_tree_add_subtree(ptree, tvb, *offset, 0, ett_variable, NULL, "");
 
 	proto_tree_add_item(tree, hf_rbm_type, tvb, *offset, 1, ENC_NA);
 	*offset += 1;
@@ -352,72 +420,90 @@ static gchar* dissect_rbm_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree* 
 		case '0':
 		case 'T':
 		case 'F':
-			label = dissect_rbm_basic(tvb, pinfo, tree, offset, subtype);
+			dissect_rbm_basic(tvb, pinfo, tree, offset, subtype, &type_local, &value_local);
 			break;
 		case 'i':
-			label = dissect_rbm_integer(tvb, pinfo, tree, offset);
+			type_local = "Integer";
+			dissect_rbm_integer(tvb, pinfo, tree, offset, &value_local);
 			break;
 		case ':':
-			label = dissect_rbm_symbol(tvb, pinfo, tree, offset);
+			type_local = "Symbol";
+			dissect_rbm_symbol(tvb, pinfo, tree, offset, &value_local);
 			break;
 		case '"':
-			label = dissect_rbm_string(tvb, pinfo, tree, offset);
+			type_local = "String";
+			dissect_rbm_string(tvb, pinfo, tree, offset, &value_local);
 			break;
 		case 'I':
-			label = dissect_rbm_variable(tvb, pinfo, tree, offset);
+			type_local = "Instance Variable";
+			dissect_rbm_variable(tvb, pinfo, tree, offset, &value_local);
 			break;
 		case '[':
-			label = dissect_rbm_array(tvb, pinfo, tree, offset);
+			type_local = "Array";
+			dissect_rbm_array(tvb, pinfo, tree, offset, &value_local);
 			break;
 		case '{':
-			label = dissect_rbm_hash(tvb, pinfo, tree, offset);
+			type_local = "Hash";
+			dissect_rbm_hash(tvb, pinfo, tree, offset, &value_local);
 			break;
 		case ';':
-			label = dissect_rbm_symbol_link(tvb, pinfo, tree, offset);
+		case '@':
+			dissect_rbm_link(tvb, pinfo, tree, offset, subtype, &type_local, &value_local);
 			break;
 		case 'f':
-			label = dissect_rbm_double(tvb, pinfo, tree, offset);
+			type_local = "Double";
+			dissect_rbm_double(tvb, pinfo, tree, offset, &value_local);
 			break;
 		case 'c':
-			label = dissect_rbm_class(tvb, pinfo, tree, offset);
+			type_local = "Class";
+			dissect_rbm_class(tvb, pinfo, tree, offset, &value_local);
 			break;
 		case 'm':
-			label = dissect_rbm_module(tvb, pinfo, tree, offset);
+			type_local = "Module";
+			dissect_rbm_module(tvb, pinfo, tree, offset, &value_local);
 			break;
 		case 'S':
-			label = dissect_rbm_struct(tvb, pinfo, tree, offset);
+			type_local = "Struct";
+			dissect_rbm_struct(tvb, pinfo, tree, offset, &value_local);
 			break;
 		case '/':
-			label = dissect_rbm_regex(tvb, pinfo, tree, offset);
+			type_local = "Regex";
+			dissect_rbm_regex(tvb, pinfo, tree, offset, &value_local);
 			break;
 		case 'u':
-			label = dissect_rbm_drb(tvb, pinfo, tree, offset);
+			type_local = "DRb::DRbObject";
+			dissect_rbm_drb(tvb, pinfo, tree, offset);
 			break;
 		case ',':
-			label = dissect_rbm_inline(tvb, pinfo, tree, offset);
+			dissect_rbm_inline(tvb, pinfo, tree, offset, &type_local, &value_local);
 			break;
 		case 'o':
-			subtype_str = "Object";
+			dissect_rbm_rubyobject(tvb, pinfo, tree, offset);
+			type_local = "Ruby Object";
 			break;
 		case 'C':
-			subtype_str = "User Class";
+			type_local = "UserClass";
+			dissect_rbm_userclass(tvb, pinfo, tree, offset, &value_local);
 			break;
 		case 'e':
-			subtype_str = "Extended Object";
-			break;
-		case '@':
-			subtype_str = "Object Link";
+			type_local = "Extended Object";
+			dissect_rbm_extended(tvb, pinfo, tree, offset);
 			break;
 		default:
 			expert_add_info_format(pinfo, tree, &ei_rbm_invalid,
 				"Object type 0x%x is invalid", subtype);
 	}
 
-	if (subtype_str)
-		expert_add_info_format(pinfo, tree, &ei_rbm_unsupported,
-			"Object type 0x%x (%s) not supported yet", subtype, subtype_str);
+	proto_item_set_len(tree, *offset - offset_start);
 
-	return label;
+	proto_item_append_text(tree, "Type: %s", type_local);
+	if (value_local && strlen(value_local))
+		proto_item_append_text(tree, ", Value: %s", value_local);
+
+	if (type)
+		*type = type_local;
+	if (value)
+		*value = value_local;
 }
 
 static gboolean dissect_rbm_header(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, gint* offset)
@@ -441,11 +527,11 @@ static gboolean dissect_rbm_header(tvbuff_t* tvb, packet_info* pinfo _U_, proto_
 	return TRUE;
 }
 
-gchar* dissect_rbm_inline(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset)
+void dissect_rbm_inline(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset, gchar** type, gchar** value)
 {
 	if (!dissect_rbm_header(tvb, pinfo, tree, offset))
-		return "";
-	return dissect_rbm_object(tvb, pinfo, tree, offset);
+		return;
+	dissect_rbm_object(tvb, pinfo, tree, offset, type, value);
 }
 
 static int dissect_rbm(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
@@ -460,7 +546,7 @@ static int dissect_rbm(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
 	ti = proto_tree_add_item(tree, proto_rbm, tvb, 0, -1, ENC_NA);
 	rbm_tree = proto_item_add_subtree(ti, ett_rbm);
 
-	dissect_rbm_inline(tvb, pinfo, rbm_tree, &offset);
+	dissect_rbm_inline(tvb, pinfo, rbm_tree, &offset, NULL, NULL);
 	return offset;
 }
 
@@ -484,8 +570,8 @@ void proto_register_rbm(void)
 		{ &hf_rbm_string,
 			{ "Value", "rbm.string", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL }
 		},
-		{ &hf_rbm_symbolic_link,
-			{ "Symbol Link to object", "rbm.symbolic_link", FT_INT64, BASE_DEC, NULL, 0x00, NULL, HFILL }
+		{ &hf_rbm_link,
+			{ "Link to object", "rbm.link", FT_INT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
 		},
 		{ &hf_rbm_double,
 			{ "Value", "rbm.double", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL }

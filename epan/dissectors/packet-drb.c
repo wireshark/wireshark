@@ -26,14 +26,18 @@ static void dissect_drb_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tr
 {
 	guint32 len;
 	proto_tree* obj_tree;
+	gchar* type;
 	gchar* value;
 
 	len = tvb_get_guint32(tvb, *offset, ENC_BIG_ENDIAN);
 	obj_tree = proto_tree_add_subtree(tree, tvb, *offset, 4 + len, ett_ref, NULL, label);
 	proto_tree_add_item(obj_tree, hf_drb_len, tvb, *offset, 4, ENC_NA);
 	*offset += 4;
-	value = dissect_rbm_inline(tvb, pinfo, obj_tree, offset);
-	proto_item_append_text(obj_tree, ": %s", value);
+	dissect_rbm_inline(tvb, pinfo, obj_tree, offset, &type, &value);
+	if (type)
+		proto_item_append_text(obj_tree, "Type: %s", type);
+	if (value)
+		proto_item_append_text(obj_tree, "Value: %s", value);
 }
 
 static void dissect_drb_response(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset)
