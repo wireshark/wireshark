@@ -1706,7 +1706,7 @@ dissect_pfcp_dl_buffering_dur(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
             proto_item_append_text(item, "%u hours", value * 10);
             break;
         case 7:
-            proto_item_append_text(item, "%u Infinite", value);
+            proto_item_append_text(item, "Infinite (%u)", value);
             break;
             /* Value 5 and 6 */
         default:
