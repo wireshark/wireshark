@@ -1699,7 +1699,7 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset,
             wmem_list_append(header_stream_info->stream_header_list, headers);
         }
 
-    } else {
+    } else if (header_data->current) {
         headers = (wmem_array_t*)wmem_list_frame_data(header_data->current);
 
         header_data->current = wmem_list_frame_next(header_data->current);
@@ -1707,6 +1707,8 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset,
         if(!header_data->current) {
             header_data->current = wmem_list_head(header_list);
         }
+    } else {
+        return;
     }
 
     if(wmem_array_get_count(headers) == 0) {
