@@ -660,8 +660,8 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 	if (comment_table_size > 0) {
 		comment_table = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, netmonrec_comment_destroy);
 		if (comment_table == NULL) {
-				*err = ENOMEM;	/* we assume we're out of memory */
-				return WTAP_OPEN_ERROR;
+			*err = ENOMEM;	/* we assume we're out of memory */
+			return WTAP_OPEN_ERROR;
 		}
 
 		/* Make sure the file contains the full comment section */
