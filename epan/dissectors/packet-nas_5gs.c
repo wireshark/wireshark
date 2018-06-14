@@ -3408,13 +3408,6 @@ static const value_string nas_5gs_mm_message_type_vals[] = {
     { 0x58,    "Authentication reject"},
     { 0x59,    "Authentication failure"},
 
-    { 0x5a,    "Identity request" },
-    { 0x5b,    "Identity response" },
-    { 0x5c,    "Security mode command" },
-    { 0x5d,    "Security mode complete" },
-    { 0x5e,    "Security mode reject" },
-
-    { 0x5f,    "Not used in v 0.4.0" },
 #ifdef NAS_V_2_0_0
     { 0x5a,    "Authentication result"},
     { 0x5b,    "Identity request"},
@@ -3423,6 +3416,13 @@ static const value_string nas_5gs_mm_message_type_vals[] = {
     { 0x5e,    "Security mode complete"},
     { 0x5f,    "Security mode reject"},
 #else
+    { 0x5a,    "Identity request" },
+    { 0x5b,    "Identity response" },
+    { 0x5c,    "Security mode command" },
+    { 0x5d,    "Security mode complete" },
+    { 0x5e,    "Security mode reject" },
+
+    { 0x5f,    "Not used in v 0.4.0" },
     { 0x60,    "Not used in v 0.4.0" },
     { 0x61,    "Not used in v 0.4.0" },
     { 0x62,    "Not used in v 0.4.0" },
@@ -3439,7 +3439,7 @@ static const value_string nas_5gs_mm_message_type_vals[] = {
     { 0x66,    "DL NAS transport"},
     { 0x67,    "UL NAS transport"},
 #endif
-{ 0,    NULL }
+    { 0,    NULL }
 };
 
 static value_string_ext nas_5gs_mm_msg_strings_ext = VALUE_STRING_EXT_INIT(nas_5gs_mm_message_type_vals);
