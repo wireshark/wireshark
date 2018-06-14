@@ -259,7 +259,7 @@ void
 voip_calls_reset_all_taps(voip_calls_tapinfo_t *tapinfo)
 {
     voip_calls_info_t *callsinfo;
-    rtp_stream_info_t *strinfo;
+    rtpstream_info_t *strinfo;
     GList *list = NULL;
 
     /* VOIP_CALLS_DEBUG("reset packets: %d streams: %d", tapinfo->npackets, tapinfo->nrtp_streams); */
@@ -291,7 +291,7 @@ voip_calls_reset_all_taps(voip_calls_tapinfo_t *tapinfo)
     list = g_list_first(tapinfo->rtp_stream_list);
     while(list)
     {
-        strinfo = (rtp_stream_info_t *)list->data;
+        strinfo = (rtpstream_info_t *)list->data;
         wmem_free(NULL, strinfo->payload_type_name);
         wmem_free(NULL, strinfo->ed137_info);
         list = g_list_next(list);
@@ -580,8 +580,8 @@ static gboolean
 rtp_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, void const *rtp_info_ptr)
 {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_rtp_);
-    rtp_stream_info_t    *tmp_listinfo;
-    rtp_stream_info_t    *strinfo = NULL;
+    rtpstream_info_t    *tmp_listinfo;
+    rtpstream_info_t    *strinfo = NULL;
     GList                *list;
     struct _rtp_conversation_info *p_conv_data = NULL;
 
@@ -600,7 +600,7 @@ rtp_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, void c
     list = g_list_first(tapinfo->rtp_stream_list);
     while (list)
     {
-        tmp_listinfo=(rtp_stream_info_t *)list->data;
+        tmp_listinfo=(rtpstream_info_t *)list->data;
         if ( (tmp_listinfo->setup_frame_number == rtp_info->info_setup_frame_num)
                 && (tmp_listinfo->ssrc == rtp_info->info_sync_src) && (tmp_listinfo->end_stream == FALSE)) {
             /* if the payload type has changed, we mark the stream as finished to create a new one
@@ -616,7 +616,7 @@ rtp_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, void c
             /* if ed137_info has changed, create new stream */
                 tmp_listinfo->end_stream = TRUE;
             } else {
-                strinfo = (rtp_stream_info_t*)(list->data);
+                strinfo = (rtpstream_info_t*)(list->data);
                 break;
             }
         }
@@ -630,7 +630,7 @@ rtp_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, void c
 
     /* not in the list? then create a new entry */
     if (strinfo==NULL) {
-        strinfo = (rtp_stream_info_t *)g_malloc0(sizeof(rtp_stream_info_t));
+        strinfo = (rtpstream_info_t *)g_malloc0(sizeof(rtpstream_info_t));
         copy_address(&(strinfo->src_addr), &(pinfo->src));
         strinfo->src_port = pinfo->srcport;
         copy_address(&(strinfo->dest_addr), &(pinfo->dst));
@@ -688,7 +688,7 @@ rtp_draw(void *tap_offset_ptr)
 {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_rtp_);
     GList                *rtp_streams_list;
-    rtp_stream_info_t    *rtp_listinfo;
+    rtpstream_info_t    *rtp_listinfo;
     /* GList *voip_calls_graph_list; */
     seq_analysis_item_t  *gai     = NULL;
     seq_analysis_item_t  *new_gai;
@@ -700,7 +700,7 @@ rtp_draw(void *tap_offset_ptr)
     rtp_streams_list = g_list_first(tapinfo->rtp_stream_list);
     while (rtp_streams_list)
     {
-        rtp_listinfo = (rtp_stream_info_t *)rtp_streams_list->data;
+        rtp_listinfo = (rtpstream_info_t *)rtp_streams_list->data;
 
         /* using the setup frame number of the RTP stream, we get the call number that it belongs to*/
         /* voip_calls_graph_list = g_list_first(tapinfo->graph_analysis->list); */
@@ -761,7 +761,7 @@ rtp_packet_draw(void *tap_offset_ptr)
 {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_rtp_);
     GList                *rtp_streams_list;
-    rtp_stream_info_t    *rtp_listinfo;
+    rtpstream_info_t    *rtp_listinfo;
     GList                *voip_calls_graph_list;
     guint                 item;
     seq_analysis_item_t  *gai;

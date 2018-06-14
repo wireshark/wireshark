@@ -358,7 +358,7 @@ Iax2AnalysisDialog::Iax2AnalysisDialog(QWidget &parent, CaptureFile &cf) :
     tapinfo.tap_data = this;
     tapinfo.mode = TAP_ANALYSE;
 
-//    register_tap_listener_rtp_stream(&tapinfo, NULL);
+//    register_tap_listener_rtpstream(&tapinfo, NULL);
     /* Scan for RTP streams (redissect all packets) */
     rtpstream_scan(&tapinfo, cap_file_.capFile(), NULL);
 
@@ -411,7 +411,7 @@ Iax2AnalysisDialog::Iax2AnalysisDialog(QWidget &parent, CaptureFile &cf) :
 Iax2AnalysisDialog::~Iax2AnalysisDialog()
 {
     delete ui;
-//    remove_tap_listener_rtp_stream(&tapinfo);
+//    remove_tap_listener_rtpstream(&tapinfo);
     delete fwd_tempfile_;
     delete rev_tempfile_;
 }

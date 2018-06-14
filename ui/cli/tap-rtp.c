@@ -48,7 +48,7 @@ static void
 rtp_streams_stat_draw(void *arg _U_)
 {
     GList *list;
-    rtp_stream_info_t *strinfo;
+    rtpstream_info_t *strinfo;
     gchar *payload_type;
     guint32 expected;
     gint32 lost;
@@ -70,7 +70,7 @@ rtp_streams_stat_draw(void *arg _U_)
     list = g_list_first(list);
     while (list)
     {
-        strinfo = (rtp_stream_info_t*)(list->data);
+        strinfo = (rtpstream_info_t*)(list->data);
 
         /* payload type */
         if (strinfo->payload_type > 95) {
@@ -132,7 +132,7 @@ rtp_streams_stat_init(const char *opt_arg _U_, void *userdata _U_)
     err_p =
         register_tap_listener("rtp", &the_tapinfo_struct, NULL, 0,
             rtpstream_reset_cb,
-            rtpstream_packet,
+            rtpstream_packet_cb,
             rtp_streams_stat_draw);
 
     if (err_p != NULL)

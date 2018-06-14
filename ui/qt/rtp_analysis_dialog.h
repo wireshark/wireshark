@@ -17,6 +17,7 @@
 #include "epan/address.h"
 
 #include "ui/rtp_stream.h"
+#include "ui/tap-rtp-common.h"
 #include "ui/tap-rtp-analysis.h"
 
 #include <QAbstractButton>
@@ -32,19 +33,12 @@ class RtpAnalysisDialog;
 class QCPGraph;
 class QTemporaryFile;
 
-typedef enum {
-    TAP_RTP_NO_ERROR,
-    TAP_RTP_WRONG_LENGTH,
-    TAP_RTP_PADDING_ERROR,
-    TAP_RTP_FILE_IO_ERROR
-} rtp_error_type_t;
-
 class RtpAnalysisDialog : public WiresharkDialog
 {
     Q_OBJECT
 
 public:
-    explicit RtpAnalysisDialog(QWidget &parent, CaptureFile &cf, struct _rtp_stream_info *stream_fwd = 0, struct _rtp_stream_info *stream_rev = 0);
+    explicit RtpAnalysisDialog(QWidget &parent, CaptureFile &cf, rtpstream_info_t *stream_fwd = 0, rtpstream_info_t *stream_rev = 0);
     ~RtpAnalysisDialog();
 
 signals:
@@ -132,7 +126,7 @@ private:
 
     rtpstream_tapinfo_t tapinfo_;
     QString err_str_;
-    rtp_error_type_t save_payload_error_;
+    tap_rtp_error_type_t save_payload_error_;
 
     QMenu stream_ctx_menu_;
     QMenu graph_ctx_menu_;

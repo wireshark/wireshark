@@ -230,7 +230,7 @@ enum {
     num_graphs_
 };
 
-RtpAnalysisDialog::RtpAnalysisDialog(QWidget &parent, CaptureFile &cf, struct _rtp_stream_info *stream_fwd, struct _rtp_stream_info *stream_rev) :
+RtpAnalysisDialog::RtpAnalysisDialog(QWidget &parent, CaptureFile &cf, rtpstream_info_t *stream_fwd, rtpstream_info_t *stream_rev) :
     WiresharkDialog(parent, cf),
     ui(new Ui::RtpAnalysisDialog),
     port_src_fwd_(0),
@@ -408,7 +408,7 @@ RtpAnalysisDialog::RtpAnalysisDialog(QWidget &parent, CaptureFile &cf, struct _r
 RtpAnalysisDialog::~RtpAnalysisDialog()
 {
     delete ui;
-//    remove_tap_listener_rtp_stream(&tapinfo_);
+//    remove_tap_listener_rtpstream(&tapinfo_);
     delete fwd_tempfile_;
     delete rev_tempfile_;
 }
@@ -760,7 +760,7 @@ void RtpAnalysisDialog::addPacket(bool forward, packet_info *pinfo, const _rtp_i
 //    add_rtp_packet(rtpinfo, pinfo);
 
     if (forward) {
-        rtp_packet_analyse(&fwd_statinfo_, pinfo, rtpinfo);
+        rtppacket_analyse(&fwd_statinfo_, pinfo, rtpinfo);
         new RtpAnalysisTreeWidgetItem(ui->forwardTreeWidget, &fwd_statinfo_, pinfo, rtpinfo);
 
         fwd_time_vals_.append(fwd_statinfo_.time / 1000);
@@ -770,7 +770,7 @@ void RtpAnalysisDialog::addPacket(bool forward, packet_info *pinfo, const _rtp_i
 
         savePayload(fwd_tempfile_, &fwd_statinfo_, pinfo, rtpinfo);
     } else {
-        rtp_packet_analyse(&rev_statinfo_, pinfo, rtpinfo);
+        rtppacket_analyse(&rev_statinfo_, pinfo, rtpinfo);
         new RtpAnalysisTreeWidgetItem(ui->reverseTreeWidget, &rev_statinfo_, pinfo, rtpinfo);
 
         rev_time_vals_.append(rev_statinfo_.time / 1000);
@@ -854,7 +854,7 @@ void RtpAnalysisDialog::savePayload(QTemporaryFile *tmpfile, tap_rtp_stat_t *sta
         if (nchars != sizeof(save_data)) {
                 /* Write error or short write */
                 err_str_ = tr("Can't save in a file: File I/O problem.");
-                save_payload_error_ = TAP_RTP_FILE_IO_ERROR;
+                save_payload_error_ = TAP_RTP_FILE_WRITE_ERROR;
                 tmpfile->close();
                 return;
         }
@@ -863,7 +863,7 @@ void RtpAnalysisDialog::savePayload(QTemporaryFile *tmpfile, tap_rtp_stat_t *sta
             if (nchars != save_data.payload_len) {
                 /* Write error or short write */
                 err_str_ = tr("Can't save in a file: File I/O problem.");
-                save_payload_error_ = TAP_RTP_FILE_IO_ERROR;
+                save_payload_error_ = TAP_RTP_FILE_WRITE_ERROR;
                 tmpfile->close();
                 return;
             }
@@ -1037,7 +1037,7 @@ void RtpAnalysisDialog::showPlayer()
     if (num_streams_ < 1) return;
 
     RtpPlayerDialog rtp_player_dialog(*this, cap_file_);
-    rtp_stream_info_t stream_info;
+    rtpstream_info_t stream_info;
 
     // XXX We might want to create an "rtp_stream_id_t" struct with only
     // addresses, ports & SSRC.
@@ -1646,12 +1646,12 @@ void RtpAnalysisDialog::findStreams()
     tapinfo_.tap_data = this;
     tapinfo_.mode = TAP_ANALYSE;
 
-//    register_tap_listener_rtp_stream(&tapinfo_, NULL);
+//    register_tap_listener_rtpstream(&tapinfo_, NULL);
     /* Scan for RTP streams (redissect all packets) */
     rtpstream_scan(&tapinfo_, cap_file_.capFile(), NULL);
 
     for (GList *strinfo_list = g_list_first(tapinfo_.strinfo_list); strinfo_list; strinfo_list = g_list_next(strinfo_list)) {
-        rtp_stream_info_t * strinfo = (rtp_stream_info_t*)(strinfo_list->data);
+        rtpstream_info_t * strinfo = (rtpstream_info_t*)(strinfo_list->data);
         if (addresses_equal(&(strinfo->src_addr), &(src_fwd_))
             && (strinfo->src_port == port_src_fwd_)
             && (addresses_equal(&(strinfo->dest_addr), &(dst_fwd_)))

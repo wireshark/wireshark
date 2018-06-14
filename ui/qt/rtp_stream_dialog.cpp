@@ -73,14 +73,14 @@ enum { rtp_stream_type_ = 1000 };
 class RtpStreamTreeWidgetItem : public QTreeWidgetItem
 {
 public:
-    RtpStreamTreeWidgetItem(QTreeWidget *tree, rtp_stream_info_t *stream_info) :
+    RtpStreamTreeWidgetItem(QTreeWidget *tree, rtpstream_info_t *stream_info) :
         QTreeWidgetItem(tree, rtp_stream_type_),
         stream_info_(stream_info)
     {
         drawData();
     }
 
-    rtp_stream_info_t *streamInfo() const { return stream_info_; }
+    rtpstream_info_t *streamInfo() const { return stream_info_; }
 
     void drawData() {
         if (!stream_info_) {
@@ -199,7 +199,7 @@ public:
     }
 
 private:
-    rtp_stream_info_t *stream_info_;
+    rtpstream_info_t *stream_info_;
     guint32 lost_;
 };
 
@@ -258,7 +258,7 @@ RtpStreamDialog::RtpStreamDialog(QWidget &parent, CaptureFile &cf) :
     tapinfo_.tap_data = this;
     tapinfo_.mode = TAP_ANALYSE;
 
-    register_tap_listener_rtp_stream(&tapinfo_, NULL);
+    register_tap_listener_rtpstream(&tapinfo_, NULL);
     /* Scan for RTP streams (redissect all packets) */
     rtpstream_scan(&tapinfo_, cf.capFile(), NULL);
 
@@ -268,7 +268,7 @@ RtpStreamDialog::RtpStreamDialog(QWidget &parent, CaptureFile &cf) :
 RtpStreamDialog::~RtpStreamDialog()
 {
     delete ui;
-    remove_tap_listener_rtp_stream(&tapinfo_);
+    remove_tap_listener_rtpstream(&tapinfo_);
 }
 
 bool RtpStreamDialog::eventFilter(QObject *, QEvent *event)
@@ -336,7 +336,7 @@ void RtpStreamDialog::updateStreams()
 
     // Add any missing items
     while (cur_stream && cur_stream->data) {
-        rtp_stream_info_t *stream_info = (rtp_stream_info_t*) cur_stream->data;
+        rtpstream_info_t *stream_info = (rtpstream_info_t*) cur_stream->data;
         new RtpStreamTreeWidgetItem(ui->streamTreeWidget, stream_info);
         cur_stream = g_list_next(cur_stream);
     }
@@ -432,7 +432,7 @@ QList<QVariant> RtpStreamDialog::streamRowData(int row) const
 
 void RtpStreamDialog::captureFileClosing()
 {
-    remove_tap_listener_rtp_stream(&tapinfo_);
+    remove_tap_listener_rtpstream(&tapinfo_);
     WiresharkDialog::captureFileClosing();
 }
 
@@ -443,7 +443,7 @@ void RtpStreamDialog::showStreamMenu(QPoint pos)
 
 void RtpStreamDialog::on_actionAnalyze_triggered()
 {
-    rtp_stream_info_t *stream_a, *stream_b = NULL;
+    rtpstream_info_t *stream_a, *stream_b = NULL;
 
     QTreeWidgetItem *ti = ui->streamTreeWidget->selectedItems()[0];
     RtpStreamTreeWidgetItem *rsti = static_cast<RtpStreamTreeWidgetItem*>(ti);
@@ -502,7 +502,7 @@ void RtpStreamDialog::on_actionExportAsRtpDump_triggered()
     // XXX If the user selected multiple frames is this the one we actually want?
     QTreeWidgetItem *ti = ui->streamTreeWidget->selectedItems()[0];
     RtpStreamTreeWidgetItem *rsti = static_cast<RtpStreamTreeWidgetItem*>(ti);
-    rtp_stream_info_t *stream_info = rsti->streamInfo();
+    rtpstream_info_t *stream_info = rsti->streamInfo();
     if (stream_info) {
         QString file_name;
         QDir path(wsApp->lastOpenDir());
@@ -530,10 +530,10 @@ void RtpStreamDialog::on_actionFindReverse_triggered()
     if (ui->streamTreeWidget->selectedItems().count() < 1) return;
 
     // Gather up our selected streams...
-    QList<rtp_stream_info_t *> selected_streams;
+    QList<rtpstream_info_t *> selected_streams;
     foreach(QTreeWidgetItem *ti, ui->streamTreeWidget->selectedItems()) {
         RtpStreamTreeWidgetItem *rsti = static_cast<RtpStreamTreeWidgetItem*>(ti);
-        rtp_stream_info_t *stream_info = rsti->streamInfo();
+        rtpstream_info_t *stream_info = rsti->streamInfo();
         if (stream_info) {
             selected_streams << stream_info;
         }
@@ -543,10 +543,10 @@ void RtpStreamDialog::on_actionFindReverse_triggered()
     QTreeWidgetItemIterator iter(ui->streamTreeWidget, QTreeWidgetItemIterator::Unselected);
     while (*iter) {
         RtpStreamTreeWidgetItem *rsti = static_cast<RtpStreamTreeWidgetItem*>(*iter);
-        rtp_stream_info_t *stream_info = rsti->streamInfo();
+        rtpstream_info_t *stream_info = rsti->streamInfo();
         if (stream_info) {
-            foreach (rtp_stream_info_t *fwd_stream, selected_streams) {
-                if (rtp_stream_info_is_reverse(fwd_stream, stream_info)) {
+            foreach (rtpstream_info_t *fwd_stream, selected_streams) {
+                if (rtpstream_info_is_reverse(fwd_stream, stream_info)) {
                     (*iter)->setSelected(true);
                 }
             }
@@ -561,7 +561,7 @@ void RtpStreamDialog::on_actionGoToSetup_triggered()
     // XXX If the user selected multiple frames is this the one we actually want?
     QTreeWidgetItem *ti = ui->streamTreeWidget->selectedItems()[0];
     RtpStreamTreeWidgetItem *rsti = static_cast<RtpStreamTreeWidgetItem*>(ti);
-    rtp_stream_info_t *stream_info = rsti->streamInfo();
+    rtpstream_info_t *stream_info = rsti->streamInfo();
     if (stream_info) {
         emit goToPacket(stream_info->setup_frame_number);
     }
@@ -570,7 +570,7 @@ void RtpStreamDialog::on_actionGoToSetup_triggered()
 void RtpStreamDialog::on_actionMarkPackets_triggered()
 {
     if (ui->streamTreeWidget->selectedItems().count() < 1) return;
-    rtp_stream_info_t *stream_a, *stream_b = NULL;
+    rtpstream_info_t *stream_a, *stream_b = NULL;
 
     QTreeWidgetItem *ti = ui->streamTreeWidget->selectedItems()[0];
     RtpStreamTreeWidgetItem *rsti = static_cast<RtpStreamTreeWidgetItem*>(ti);
@@ -597,7 +597,7 @@ void RtpStreamDialog::on_actionPrepareFilter_triggered()
     QStringList stream_filters;
     foreach(QTreeWidgetItem *ti, ui->streamTreeWidget->selectedItems()) {
         RtpStreamTreeWidgetItem *rsti = static_cast<RtpStreamTreeWidgetItem*>(ti);
-        rtp_stream_info_t *stream_info = rsti->streamInfo();
+        rtpstream_info_t *stream_info = rsti->streamInfo();
         if (stream_info) {
             QString ip_proto = stream_info->src_addr.type == AT_IPv6 ? "ipv6" : "ip";
             stream_filters << QString("(%1.src==%2 && udp.srcport==%3 && %1.dst==%4 && udp.dstport==%5 && rtp.ssrc==0x%6)")
@@ -611,7 +611,7 @@ void RtpStreamDialog::on_actionPrepareFilter_triggered()
     }
     if (stream_filters.length() > 0) {
         QString filter = stream_filters.join(" || ");
-        remove_tap_listener_rtp_stream(&tapinfo_);
+        remove_tap_listener_rtpstream(&tapinfo_);
         emit updateFilter(filter);
     }
 }

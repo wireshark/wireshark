@@ -53,10 +53,10 @@ typedef struct _bw_history_item {
 #define BUFF_BW 300
 
 typedef struct _tap_rtp_stat_t {
-    gboolean        first_packet; /**< do not use in code that is called after rtp_packet_analyse */
+    gboolean        first_packet; /**< do not use in code that is called after rtppacket_analyse */
                                /* use (flags & STAT_FLAG_FIRST) instead */
     /* all of the following fields will be initialized after
-     * rtp_packet_analyse has been called
+     * rtppacket_analyse has been called
      */
     address         first_packet_mac_addr; /**< MAC address of first packet, used to determine duplicates due to mirroring */
     guint32         flags;      /* see STAT_FLAG-defines below */
@@ -122,7 +122,7 @@ typedef struct _tap_rtp_save_data_t {
 struct _rtp_info;
 
 /* function for analysing an RTP packet. Called from rtp_analysis and rtp_streams */
-extern void rtp_packet_analyse(tap_rtp_stat_t *statinfo,
+extern void rtppacket_analyse(tap_rtp_stat_t *statinfo,
                               packet_info *pinfo,
                               const struct _rtp_info *rtpinfo);
 

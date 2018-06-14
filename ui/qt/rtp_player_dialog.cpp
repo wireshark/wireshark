@@ -353,7 +353,7 @@ void RtpPlayerDialog::rescanPackets(bool rescale_axes)
     updateWidgets();
 }
 
-void RtpPlayerDialog::addRtpStream(struct _rtp_stream_info *rtp_stream)
+void RtpPlayerDialog::addRtpStream(rtpstream_info_t *rtp_stream)
 {
     if (!rtp_stream) return;
 
@@ -771,7 +771,7 @@ void RtpPlayerDialog::on_buttonBox_helpRequested()
 #if 0
 // This also serves as a title in RtpAudioFrame.
 static const QString stream_key_tmpl_ = "%1:%2 " UTF8_RIGHTWARDS_ARROW " %3:%4 0x%5";
-const QString RtpPlayerDialog::streamKey(const struct _rtp_stream_info *rtp_stream)
+const QString RtpPlayerDialog::streamKey(const rtpstream_info_t *rtp_stream)
 {
     const QString stream_key = QString(stream_key_tmpl_)
             .arg(address_to_display_qstring(&rtp_stream->src_addr))

@@ -33,7 +33,7 @@
 
 /****************************************************************************/
 /* redraw the output */
-static void rtpstream_draw(void *ti_ptr)
+static void rtpstream_draw_cb(void *ti_ptr)
 {
     rtpstream_tapinfo_t *tapinfo = (rtpstream_tapinfo_t *)ti_ptr;
 /* XXX: see rtpstream_on_update in rtp_streams_dlg.c for comments
@@ -59,20 +59,20 @@ void rtpstream_scan(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file, const 
 
     was_registered = tapinfo->is_registered;
     if (!tapinfo->is_registered)
-        register_tap_listener_rtp_stream(tapinfo, fstring);
+        register_tap_listener_rtpstream(tapinfo, fstring);
 
     /* RTP_STREAM_DEBUG("scanning %s, filter: %s", cap_file->filename, fstring); */
     tapinfo->mode = TAP_ANALYSE;
     cf_retap_packets(cap_file);
 
     if (!was_registered)
-        remove_tap_listener_rtp_stream(tapinfo);
+        remove_tap_listener_rtpstream(tapinfo);
 }
 
 
 /****************************************************************************/
 /* save rtp dump of stream_fwd */
-gboolean rtpstream_save(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file, rtp_stream_info_t* stream, const gchar *filename)
+gboolean rtpstream_save(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file, rtpstream_info_t* stream, const gchar *filename)
 {
     gboolean was_registered;
 
@@ -97,7 +97,7 @@ gboolean rtpstream_save(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file, rt
     }
 
     if (!tapinfo->is_registered)
-        register_tap_listener_rtp_stream(tapinfo, NULL);
+        register_tap_listener_rtpstream(tapinfo, NULL);
 
     tapinfo->mode = TAP_SAVE;
     tapinfo->filter_stream_fwd = stream;
@@ -105,7 +105,7 @@ gboolean rtpstream_save(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file, rt
     tapinfo->mode = TAP_ANALYSE;
 
     if (!was_registered)
-        remove_tap_listener_rtp_stream(tapinfo);
+        remove_tap_listener_rtpstream(tapinfo);
 
     if (ferror(tapinfo->save_file)) {
         write_failure_alert_box(filename, errno);
@@ -122,7 +122,7 @@ gboolean rtpstream_save(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file, rt
 
 /****************************************************************************/
 /* compare the endpoints of two RTP streams */
-gboolean rtp_stream_info_is_reverse(const rtp_stream_info_t *stream_a, rtp_stream_info_t *stream_b)
+gboolean rtpstream_info_is_reverse(const rtpstream_info_t *stream_a, rtpstream_info_t *stream_b)
 {
     if (stream_a == NULL || stream_b == NULL)
         return FALSE;
@@ -138,7 +138,7 @@ gboolean rtp_stream_info_is_reverse(const rtp_stream_info_t *stream_a, rtp_strea
 
 /****************************************************************************/
 /* mark packets in stream_fwd or stream_rev */
-void rtpstream_mark(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file, rtp_stream_info_t* stream_fwd, rtp_stream_info_t* stream_rev)
+void rtpstream_mark(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file, rtpstream_info_t* stream_fwd, rtpstream_info_t* stream_rev)
 {
     gboolean was_registered;
 
@@ -149,7 +149,7 @@ void rtpstream_mark(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file, rtp_st
     was_registered = tapinfo->is_registered;
 
     if (!tapinfo->is_registered)
-        register_tap_listener_rtp_stream(tapinfo, NULL);
+        register_tap_listener_rtpstream(tapinfo, NULL);
 
     tapinfo->mode = TAP_MARK;
     tapinfo->filter_stream_fwd = stream_fwd;
@@ -158,7 +158,7 @@ void rtpstream_mark(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file, rtp_st
     tapinfo->mode = TAP_ANALYSE;
 
     if (!was_registered)
-        remove_tap_listener_rtp_stream(tapinfo);
+        remove_tap_listener_rtpstream(tapinfo);
 }
 
 
@@ -168,7 +168,7 @@ void rtpstream_mark(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file, rtp_st
 
 /****************************************************************************/
 void
-remove_tap_listener_rtp_stream(rtpstream_tapinfo_t *tapinfo)
+remove_tap_listener_rtpstream(rtpstream_tapinfo_t *tapinfo)
 {
     if (tapinfo && tapinfo->is_registered) {
         remove_tap_listener(tapinfo);
@@ -179,7 +179,7 @@ remove_tap_listener_rtp_stream(rtpstream_tapinfo_t *tapinfo)
 
 /****************************************************************************/
 void
-register_tap_listener_rtp_stream(rtpstream_tapinfo_t *tapinfo, const char *fstring)
+register_tap_listener_rtpstream(rtpstream_tapinfo_t *tapinfo, const char *fstring)
 {
     GString *error_string;
 
@@ -189,8 +189,8 @@ register_tap_listener_rtp_stream(rtpstream_tapinfo_t *tapinfo, const char *fstri
 
     if (!tapinfo->is_registered) {
         error_string = register_tap_listener("rtp", tapinfo,
-            fstring, 0, rtpstream_reset_cb, rtpstream_packet,
-            rtpstream_draw);
+            fstring, 0, rtpstream_reset_cb, rtpstream_packet_cb,
+            rtpstream_draw_cb);
 
         if (error_string != NULL) {
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,

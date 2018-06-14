@@ -42,6 +42,7 @@ set(NONGENERATED_UI_SRC
 	summary.c
 	tap_export_pdu.c
 	tap-iax2-analysis.c
+	tap-rtp-analysis.c
 	tap-rtp-common.c
 	tap-sctp-analysis.c
 	tap-rlc-graph.c

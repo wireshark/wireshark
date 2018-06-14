@@ -50,6 +50,7 @@
 #include <ui/voip_calls.h>
 #include <ui/rtp_stream.h>
 #include <ui/tap-rtp-common.h>
+#include <ui/tap-rtp-analysis.h>
 #include <epan/to_str.h>
 
 #include <epan/addr_resolv.h>
@@ -1335,7 +1336,7 @@ sharkd_session_packet_tap_rtp_analyse_cb(void *tapdata, packet_info *pinfo, epan
 		tap_rtp_stat_t *statinfo = &(rtp_req->statinfo);
 		struct sharkd_analyse_rtp_items *item;
 
-		rtp_packet_analyse(statinfo, pinfo, rtpinfo);
+		rtppacket_analyse(statinfo, pinfo, rtpinfo);
 
 		item = (struct sharkd_analyse_rtp_items *) g_malloc(sizeof(struct sharkd_analyse_rtp_items));
 
@@ -2095,7 +2096,7 @@ sharkd_session_process_tap_rtp_cb(void *arg)
 	printf(",\"streams\":[");
 	for (listx = g_list_first(rtp_tapinfo->strinfo_list); listx; listx = listx->next)
 	{
-		rtp_stream_info_t *streaminfo = (rtp_stream_info_t *) listx->data;
+		rtpstream_info_t *streaminfo = (rtpstream_info_t *) listx->data;
 
 		char *src_addr, *dst_addr;
 		char *payload;
@@ -2432,7 +2433,7 @@ sharkd_session_process_tap(char *buf, const jsmntok_t *tokens, int count)
 		}
 		else if (!strcmp(tok_tap, "rtp-streams"))
 		{
-			tap_error = register_tap_listener("rtp", &rtp_tapinfo, tap_filter, 0, rtpstream_reset_cb, rtpstream_packet, sharkd_session_process_tap_rtp_cb);
+			tap_error = register_tap_listener("rtp", &rtp_tapinfo, tap_filter, 0, rtpstream_reset_cb, rtpstream_packet_cb, sharkd_session_process_tap_rtp_cb);
 
 			tap_data = &rtp_tapinfo;
 			tap_free = rtpstream_reset_cb;

@@ -38,7 +38,7 @@
 static spx_int16_t default_audio_sample_rate_ = 8000;
 static const spx_int16_t visual_sample_rate_ = 1000;
 
-RtpAudioStream::RtpAudioStream(QObject *parent, _rtp_stream_info *rtp_stream) :
+RtpAudioStream::RtpAudioStream(QObject *parent, rtpstream_info_t *rtp_stream) :
     QObject(parent),
     decoders_hash_(rtp_decoder_hash_table_new()),
     global_start_rel_time_(0.0),
@@ -84,7 +84,7 @@ RtpAudioStream::~RtpAudioStream()
     speex_resampler_destroy (visual_resampler_);
 }
 
-bool RtpAudioStream::isMatch(const _rtp_stream_info *rtp_stream) const
+bool RtpAudioStream::isMatch(const rtpstream_info_t *rtp_stream) const
 {
     if (rtp_stream
             && addresses_equal(&rtp_stream->src_addr, &src_addr_)
@@ -111,7 +111,7 @@ bool RtpAudioStream::isMatch(const _packet_info *pinfo, const _rtp_info *rtp_inf
 // XXX We add multiple RTP streams here because that's what the GTK+ UI does.
 // Should we make these distinct, with their own waveforms? It seems like
 // that would simplify a lot of things.
-void RtpAudioStream::addRtpStream(const _rtp_stream_info *rtp_stream)
+void RtpAudioStream::addRtpStream(const rtpstream_info_t *rtp_stream)
 {
     if (!rtp_stream) return;
 
@@ -296,7 +296,7 @@ void RtpAudioStream::decode()
                 silence_timestamps_.append(stop_rel_time_);
 
                 decoded_bytes_prev = 0;
-/* defined start_timestmp to avoid overflow in timestamp. TODO: handle the timestamp correctly */
+/* defined start_timestamp to avoid overflow in timestamp. TODO: handle the timestamp correctly */
 /* XXX: if timestamps (RTP) are missing/ignored try use packet arrive time only (see also "rtp_time") */
                 start_timestamp = rtp_packet->info->info_timestamp;
                 start_rtp_time = 0;

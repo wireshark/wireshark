@@ -41,10 +41,10 @@ typedef struct _iax2_bw_history_item {
 #define BUFF_BW 300
 
 typedef struct _tap_iax2_stat_t {
-    gboolean first_packet;     /* do not use in code that is called after rtp_packet_analyse */
+    gboolean first_packet;     /* do not use in code that is called after iax2_packet_analyse */
     /* use (flags & STAT_FLAG_FIRST) instead */
     /* all of the following fields will be initialized after
-       rtp_packet_analyse has been called */
+       iax2_packet_analyse has been called */
     guint32 flags;             /* see STAT_FLAG-defines below */
     guint16 seq_num;
     guint32 timestamp;

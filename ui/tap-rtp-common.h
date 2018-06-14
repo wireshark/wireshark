@@ -22,29 +22,30 @@
 extern "C" {
 #endif /* __cplusplus */
 
+#include "ui/rtp_stream.h"
+
 /* type of error when saving voice in a file didn't succeed */
 typedef enum {
+    TAP_RTP_NO_ERROR,
     TAP_RTP_WRONG_CODEC,
     TAP_RTP_WRONG_LENGTH,
     TAP_RTP_PADDING_ERROR,
     TAP_RTP_SHORT_FRAME,
     TAP_RTP_FILE_OPEN_ERROR,
     TAP_RTP_FILE_WRITE_ERROR,
-    TAP_RTP_NO_DATA
-} error_type_t;
+    TAP_RTP_NO_DATA,
+} tap_rtp_error_type_t;
 
 typedef struct _tap_rtp_save_info_t {
     FILE *fp;
     guint32 count;
-    error_type_t error_type;
+    tap_rtp_error_type_t error_type;
     gboolean saved;
 } tap_rtp_save_info_t;
 
-struct _rtp_stream_info;
-
 void rtpstream_reset_cb(void*);
-void rtp_write_header(struct _rtp_stream_info*, FILE*);
-int rtpstream_packet(void*, packet_info*, epan_dissect_t *, const void *);
+void rtp_write_header(rtpstream_info_t*, FILE*);
+int rtpstream_packet_cb(void*, packet_info*, epan_dissect_t *, const void *);
 
 #ifdef __cplusplus
 }
