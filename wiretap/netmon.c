@@ -9,6 +9,7 @@
 #include "config.h"
 #include <errno.h>
 #include <string.h>
+#include <wsutil/unicode-utils.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "atm.h"
@@ -130,7 +131,6 @@ union ip_address {
 };
 
 struct netmonrec_process_info {
-	guint32 pathSize;
 	guint8* path;				/* A Unicode string of length PathSize */
 	guint32 iconSize;
 	guint8* iconData;
@@ -163,6 +163,24 @@ typedef struct {
 	GHashTable* process_info_table;
 	guint current_frame;
 } netmon_t;
+
+/*
+ * Maximum pathname length supported in the process table; the length
+ * is in a 32-bit field, so we impose a limit to prevent attempts to
+ * allocate too much memory.
+ *
+ * See
+ *
+ *    https://msdn.microsoft.com/en-us/library/windows/desktop/aa365247%28v=vs.85%29.aspx?f=255&MSPPError=-2147217396#maxpath
+ *
+ * The NetMon 3.4 "Capture File Format" documentation says "PathSize must be
+ * greater than 0, and less than MAX_PATH (260 characters)", but, as per that
+ * link above, that limit has been raised in more recent systems.
+ *
+ * We pick a limit of 65536, as that should handle a path length of 32767
+ * UTF-16 octet pairs plus a trailing NUL octet pair.
+ */
+#define MATH_PROCINFO_PATH_SIZE		65536
 
 /*
  * XXX - at least in some NetMon 3.4 VPN captures, the per-packet
@@ -208,6 +226,156 @@ static void netmon_close(wtap *wth);
 static gboolean netmon_dump(wtap_dumper *wdh, const wtap_rec *rec,
     const guint8 *pd, int *err, gchar **err_info);
 static gboolean netmon_dump_finish(wtap_dumper *wdh, int *err);
+
+/*
+ * Convert a counted UTF-16 string, which is probably also null-terminated
+ * but is not guaranteed to be null-terminated (as it came from a file),
+ * to a null-terminated UTF-8 string.
+ */
+static guint8 *
+utf_16_to_utf_8(const guint8 *in, guint32 length)
+{
+	guint8 *result, *out;
+	gunichar2 uchar2, lead_surrogate;
+	gunichar uchar;
+	size_t n_bytes;
+	guint32 i;
+
+	/*
+	 * Get the length of the resulting UTF-8 string, and validate
+	 * the input string in the process.
+	 */
+	n_bytes = 0;
+	lead_surrogate = 0;
+	for (i = 0; i + 1 < length && (uchar2 = pletoh16(in + i)) != '\0';
+	    i += 2) {
+		if (IS_LEAD_SURROGATE(uchar2)) {
+			/*
+			 * Lead surrogate.  Must be followed by a trail
+			 * surrogate.
+			 */
+			i += 2;
+			if (i + 1 >= length) {
+				/*
+				 * Oops, string ends with a lead surrogate.
+				 * Ignore this for now.
+				 * XXX - insert "substitute" character?
+				 * Report the error in some other fashion?
+				 */
+				break;
+			}
+			lead_surrogate = uchar2;
+			uchar2 = pletoh16(in + i);
+			if (uchar2 == '\0') {
+				/*
+				 * Oops, string ends with a lead surrogate.
+				 * Ignore this for now.
+				 * XXX - insert "substitute" character?
+				 * Report the error in some other fashion?
+				 */
+				break;
+			}
+			if (IS_TRAIL_SURROGATE(uchar2)) {
+				/* Trail surrogate. */
+				uchar = SURROGATE_VALUE(lead_surrogate, uchar2);
+				n_bytes += g_unichar_to_utf8(uchar, NULL);
+			} else {
+				/*
+				 * Not a trail surrogate.
+				 * Ignore the entire pair.
+				 * XXX - insert "substitute" character?
+				 * Report the error in some other fashion?
+				 */
+				;
+			}
+		} else {
+			if (IS_TRAIL_SURROGATE(uchar2)) {
+				/*
+				 * Trail surrogate without a preceding
+				 * lead surrogate.  Ignore it.
+				 * XXX - insert "substitute" character?
+				 * Report the error in some other fashion?
+				 */
+				;
+			} else {
+				/*
+				 * Non-surrogate; just count it.
+				 */
+				n_bytes += g_unichar_to_utf8(uchar2, NULL);
+			}
+		}
+	}
+
+	/*
+	 * Now allocate a buffer big enough for the UTF-8 string plus a
+	 * trailing NUL, and generate the string.
+	 */
+	result = (guint8 *)g_malloc(n_bytes + 1);
+
+	lead_surrogate = 0;
+	out = result;
+	for (i = 0; i + 1 < length && (uchar2 = pletoh16(in + i)) != '\0';
+	    i += 2) {
+		if (IS_LEAD_SURROGATE(uchar2)) {
+			/*
+			 * Lead surrogate.  Must be followed by a trail
+			 * surrogate.
+			 */
+			i += 2;
+			if (i + 1 >= length) {
+				/*
+				 * Oops, string ends with a lead surrogate.
+				 * Ignore this for now.
+				 * XXX - insert "substitute" character?
+				 * Report the error in some other fashion?
+				 */
+				break;
+			}
+			lead_surrogate = uchar2;
+			uchar2 = pletoh16(in + i);
+			if (uchar2 == '\0') {
+				/*
+				 * Oops, string ends with a lead surrogate.
+				 * Ignore this for now.
+				 * XXX - insert "substitute" character?
+				 * Report the error in some other fashion?
+				 */
+				break;
+			}
+			if (IS_TRAIL_SURROGATE(uchar2)) {
+				/* Trail surrogate. */
+				uchar = SURROGATE_VALUE(lead_surrogate, uchar2);
+				out += g_unichar_to_utf8(uchar, out);
+			} else {
+				/*
+				 * Not a trail surrogate.
+				 * Ignore the entire pair.
+				 * XXX - insert "substitute" character?
+				 * Report the error in some other fashion?
+				 */
+				;
+			}
+		} else {
+			if (IS_TRAIL_SURROGATE(uchar2)) {
+				/*
+				 * Trail surrogate without a preceding
+				 * lead surrogate.  Ignore it.
+				 * XXX - insert "substitute" character?
+				 * Report the error in some other fashion?
+				 */
+				;
+			} else {
+				/*
+				 * Non-surrogate; just count it.
+				 */
+				out += g_unichar_to_utf8(uchar2, out);
+			}
+		}
+	}
+	*out = '\0';
+	return result;
+}
+
 
 static void netmonrec_comment_destroy(gpointer key) {
 	struct netmonrec_comment *comment = (struct netmonrec_comment*) key;
@@ -612,6 +780,8 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 			struct netmonrec_process_info* process_info;
 			guint32 tmp32;
 			guint16 tmp16;
+			guint32 path_size;
+			guint8 *utf16_str;
 
 			process_info = g_new0(struct netmonrec_process_info, 1);
 
@@ -622,22 +792,48 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 				return WTAP_OPEN_ERROR;
 			}
 
-			process_info->pathSize = pletoh32(&tmp32);
-			if (process_info->pathSize > 260) {
+			path_size = pletoh32(&tmp32);
+			if (path_size > MATH_PROCINFO_PATH_SIZE) {
 				*err = WTAP_ERR_BAD_FILE;
-				*err_info = g_strdup_printf("netmon: Path size for process info record is %u, which is larger than allowed max value (260)",
-							process_info->pathSize);
+				*err_info = g_strdup_printf("netmon: Path size for process info record is %u, which is larger than allowed max value (%u)",
+				    path_size, MATH_PROCINFO_PATH_SIZE);
 				g_free(process_info);
 				g_hash_table_destroy(process_info_table);
 				return WTAP_OPEN_ERROR;
 			}
 
-			process_info->path = (guint8*)g_malloc(process_info->pathSize);
-			if (!wtap_read_bytes(wth->fh, process_info->path, process_info->pathSize, err, err_info)) {
+			/*
+			 * This string is in UTF-16-encoded Unicode, and
+			 * the path size is a count of octets, not octet
+			 * pairs or Unicode characters, so it must be a
+			 * multiple of 2.
+			 */
+			if ((path_size % 2) != 0) {
+				*err = WTAP_ERR_BAD_FILE;
+				*err_info = g_strdup_printf("netmon: Path size for process info record is %u, which is not a multiple of 2",
+				    path_size);
 				g_free(process_info);
 				g_hash_table_destroy(process_info_table);
 				return WTAP_OPEN_ERROR;
 			}
+
+			/*
+			 * Read in the path string.
+			 */
+			utf16_str = (guint8*)g_malloc(path_size);
+			if (!wtap_read_bytes(wth->fh, utf16_str, path_size,
+			    err, err_info)) {
+				g_free(process_info);
+				g_hash_table_destroy(process_info_table);
+				return WTAP_OPEN_ERROR;
+			}
+
+			/*
+			 * Now convert it to UTF-8 for internal use.
+			 */
+			process_info->path = utf_16_to_utf_8(utf16_str,
+			    path_size);
+			g_free(utf16_str);
 
 			/* Read icon (currently not saved) */
 			if (!wtap_read_bytes(wth->fh, &tmp32, 4, err, err_info)) {
