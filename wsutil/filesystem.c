@@ -2017,28 +2017,11 @@ file_exists(const char *fname)
         return FALSE;
     }
 
-#if defined(_MSC_VER) && _MSC_VER < 1900
-
-    /*
-     * This is a bit tricky on win32. The st_ino field is documented as:
-     * "The inode, and therefore st_ino, has no meaning in the FAT, ..."
-     * but it *is* set to zero if stat() returns without an error,
-     * so this is working, but maybe not quite the way expected. ULFL
-     */
-    file_stat.st_ino = 1;   /* this will make things work if an error occurred */
-    ws_stat64(fname, &file_stat);
-    if (file_stat.st_ino == 0) {
-        return TRUE;
-    } else {
-        return FALSE;
-    }
-#else
     if (ws_stat64(fname, &file_stat) != 0 && errno == ENOENT) {
         return FALSE;
     } else {
         return TRUE;
     }
-#endif
 }
 
 /*
