@@ -123,7 +123,7 @@ void proto_report_dissector_bug(const char *format, ...)
 /** Macro used to provide a hint to static analysis tools.
  * (Currently only Visual C++.)
  */
-#if _MSC_VER >= 1400
+#ifdef _MSC_VER
 /* XXX - Is there a way to say "quit checking at this point"? */
 #define __DISSECTOR_ASSERT_STATIC_ANALYSIS_HINT(expression) \
   ; __analysis_assume(expression);

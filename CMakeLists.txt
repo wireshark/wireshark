@@ -295,17 +295,11 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 		#                                   resolution of symbols, add Psapi.lib to the TARGETLIBS macro and compile the program
 		#                                   with -DPSAPI_VERSION=1.To use run-time dynamic linking, load Psapi.dll.
 		#                                   http://msdn.microsoft.com/en-us/library/windows/desktop/ms683219(v=vs.85).aspx
-		# -DBUILD_WINDOWS                   Starting from VS2013, GetVersionEx is deprecated and we are recommended to use
-		#                                   VerifyVersionInfo instead
-		#                                   http://msdn.microsoft.com/en-us/library/windows/desktop/ms724429(v=vs.85).aspx
-		#                                   http://msdn.microsoft.com/en-us/library/windows/desktop/ms725491(v=vs.85).aspx
-		#                                   To continue to use GetVersionEx, we can define BUILD_WINDOWS
 		# -D_ALLOW_KEYWORD_MACROS           For VS2012 onwards the, C++ STL does not permit macro redefinitions of keywords
 		#                                   (see http://msdn.microsoft.com/en-us/library/bb531344(v=vs.110).aspx)
 		#                                   This definition prevents the complaint about the redefinition of inline by WinPCap
 		#                                   in pcap-stdinc.h when compiling C++ files, e.g. the Qt UI
 		/DPSAPI_VERSION=1
-		/DBUILD_WINDOWS
 		/D_ALLOW_KEYWORD_MACROS
 	)
 
