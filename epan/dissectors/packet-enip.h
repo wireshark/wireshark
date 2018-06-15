@@ -101,12 +101,16 @@ typedef struct enip_conn_val {
    guint32 close_frame;
    guint32 connid;
    cip_safety_epath_info_t safety;
-   gboolean motion;
    guint32 ClassID;
    guint32 ConnPoint;
 } enip_conn_val_t;
 
 enum enip_connid_type {ECIDT_UNKNOWN, ECIDT_O2T, ECIDT_T2O};
+
+typedef struct cip_io_data_input {
+   enip_conn_val_t* conn_info;
+   enum enip_connid_type connid_type;
+} cip_io_data_input;
 
 /* proto_data types */
 #define ENIP_REQUEST_INFO     0

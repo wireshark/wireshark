@@ -484,7 +484,6 @@ typedef struct cip_conn_info {
    cip_connID_info_t       T2O;
    guint8                  TransportClass_trigger;
    cip_safety_epath_info_t safety;
-   gboolean                motion;
    guint32                 ClassID;
    guint32                 ConnPoint;
 } cip_conn_info_t;
@@ -504,7 +503,7 @@ typedef struct cip_req_info {
 */
 
 /* Depending on if a Class or Symbol segment appears in Connection Path or
-   a Request Path, display '->' before or after the actual name. */
+   a Request Path, display '-' before or after the actual name. */
 #define NO_DISPLAY 0
 #define DISPLAY_CONNECTION_PATH 1
 #define DISPLAY_REQUEST_PATH 2

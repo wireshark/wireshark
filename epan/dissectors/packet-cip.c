@@ -3,8 +3,9 @@
  * CIP Home: www.odva.org
  *
  * This dissector includes items from:
- *    CIP Volume 1: Common Industrial Protocol
- *    CIP Volume 5: CIP Safety
+ *    CIP Volume 1: Common Industrial Protocol, Edition 3.24
+ *    CIP Volume 5: Integration of Modbus Devices into the CIP Architecture, Edition 2.17
+ *    CIP Volume 7: CIP Safety, Edition 1.9
  *
  * Copyright 2004
  * Magnus Hansson <mah@hms.se>
@@ -6383,7 +6384,6 @@ dissect_cip_cm_fwd_open_req(cip_req_info_t *preq_info, proto_tree *cmd_tree, tvb
          preq_info->connInfo->TransportClass_trigger = TransportClass_trigger;
          preq_info->connInfo->T2O.type = T2OType;
          preq_info->connInfo->O2T.type = O2TType;
-         preq_info->connInfo->motion = (connection_path.iClass == 0x42) ? TRUE : FALSE;
          preq_info->connInfo->safety = safety_fwdopen;
          preq_info->connInfo->ClassID = connection_path.iClass;
          preq_info->connInfo->ConnPoint = connection_path.iConnPoint;

@@ -2,6 +2,9 @@
  * Routines for CIP (Common Industrial Protocol) Motion dissection
  * CIP Motion Home: www.odva.org
  *
+ * This dissector includes items from:
+ *    CIP Volume 9: CIP Motion, Edition 1.2
+ *
  * Copyright 2006-2007
  * Benjamin M. Stocks <bmstocks@ra.rockwell.com>
  *
@@ -19,6 +22,7 @@
 #include "packet-cipmotion.h"
 
 #include "packet-cip.h"
+#include "packet-enip.h"
 
 void proto_register_cipmotion(void);
 /* The entry point to the actual dissection is: dissect_cipmotion */
@@ -1831,12 +1835,19 @@ dissect_var_devce_conn_header(tvbuff_t* tvb, proto_tree* tree, guint32* inst_cou
 static int
 dissect_cipmotion(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data)
 {
+   cip_io_data_input* io_data_input = (cip_io_data_input*)data;
+
    guint32     con_format;
    guint32     update_id;
    proto_item *proto_item_top;
    proto_tree *proto_tree_top;
    guint32     offset = 0;
-   guint32 ConnPoint = GPOINTER_TO_UINT(data);
+
+   guint8 ConnPoint = 2;
+   if (io_data_input && io_data_input->conn_info)
+   {
+      ConnPoint = io_data_input->conn_info->ConnPoint;
+   }
 
    /* Create display subtree for the protocol by creating an item and then
     * creating a subtree from the item, the subtree must have been registered
@@ -1940,8 +1951,13 @@ dissect_cipmotion(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* dat
 
 static int dissect_cipmotion3(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 {
-    guint32 ConnPoint = 3;
-    return dissect_cipmotion(tvb, pinfo, tree, GUINT_TO_POINTER(ConnPoint));
+   enip_conn_val_t conn_info;
+   conn_info.ConnPoint = 3;
+
+   cip_io_data_input io_data_input;
+   io_data_input.conn_info = &conn_info;
+
+   return dissect_cipmotion(tvb, pinfo, tree, &io_data_input);
 }
 
 /*
@@ -3030,8 +3046,10 @@ proto_register_cipmotion(void)
 
 void proto_reg_handoff_cipmotion(void)
 {
-   dissector_add_for_decode_as("enip.io", cipmotion_handle);
-   dissector_add_for_decode_as("enip.io", cipmotion3_handle);
+   dissector_add_for_decode_as("cip.io", cipmotion_handle);
+   dissector_add_for_decode_as("cip.io", cipmotion3_handle);
+
+   dissector_add_uint("cip.io.iface", 0x42, cipmotion_handle);
 }
 
 /*
