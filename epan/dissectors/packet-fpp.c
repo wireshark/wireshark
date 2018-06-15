@@ -30,8 +30,8 @@ static int proto_fpp = -1;
 static dissector_handle_t fpp_handle;
 
 static int hf_fpp_preamble = -1;
-static int hf_fpp_preamble_seventh = -1;
-static int hf_fpp_preamble_eight = -1;
+static int hf_fpp_preamble_smd = -1;
+static int hf_fpp_preamble_frag_count = -1;
 static int hf_fpp_mdata = -1;
 static int hf_fpp_crc32 = -1;
 static int hf_fpp_crc32_status = -1;
@@ -164,12 +164,14 @@ static const value_string frag_count_delim_desc[] = {
 static fpp_crc_t
 get_crc_stat(tvbuff_t *tvb, guint32 crc, guint32 mcrc) {
 	fpp_crc_t crc_val;
-	if (tvb_get_guint32(tvb, tvb_reported_length(tvb) - FPP_CRC_LENGTH, ENC_BIG_ENDIAN) == crc) {
-		crc_val = CRC_CRC;
-	} else if (tvb_get_guint32(tvb, tvb_reported_length(tvb) - FPP_CRC_LENGTH, ENC_BIG_ENDIAN) == mcrc) {
-		crc_val = CRC_mCRC;
+	guint32 received_crc = tvb_get_guint32(tvb, tvb_reported_length(tvb) - FPP_CRC_LENGTH, ENC_BIG_ENDIAN);
+
+	if (received_crc == crc) {
+	    crc_val = CRC_CRC;
+	} else if (received_crc == mcrc) {
+	    crc_val = CRC_mCRC;
 	} else {
-		crc_val = CRC_FALSE;
+	    crc_val = CRC_FALSE;
 	}
 	return crc_val;
 }
@@ -313,8 +315,11 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 
 	guint8 smd1 = tvb_get_guint8(tvb, 6);
 	guint8 smd2 = tvb_get_guint8(tvb, 7);
 
+	guint32 mcrc = crc ^ 0xffff0000;
+
 	guint crc_offset = tvb_reported_length(tvb) - FPP_CRC_LENGTH;
 	gint frag_size = tvb_reported_length(tvb) - FPP_PREAMBLE_LENGTH - FPP_CRC_LENGTH;
+
 	/* Reassembly parameters. */
 	tvbuff_t *new_tvb = NULL;
 	fragment_head *frag_data;
@@ -333,8 +338,16 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 
 	proto_tree_add_item(tree, hf_fpp_mdata, tvb, FPP_PREAMBLE_LENGTH, frag_size, ENC_NA);
 
 	proto_tree *fpp_preamble_tree = proto_item_add_subtree(ti_preamble, ett_fpp_preamble);
-	proto_tree_add_item(fpp_preamble_tree, hf_fpp_preamble_seventh, tvb, 6, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(fpp_preamble_tree, hf_fpp_preamble_eight, tvb, 7, 1, ENC_BIG_ENDIAN);
+
+	if(get_packet_type(tvb) == FPP_Packet_Cont)
+	{
+	    proto_tree_add_item(fpp_preamble_tree, hf_fpp_preamble_smd, tvb, 6, 1, ENC_BIG_ENDIAN);
+	    proto_tree_add_item(fpp_preamble_tree, hf_fpp_preamble_frag_count, tvb, 7, 1, ENC_BIG_ENDIAN);
+	}
+	else
+	{
+	    proto_tree_add_item(fpp_preamble_tree, hf_fpp_preamble_smd, tvb, 7, 1, ENC_BIG_ENDIAN);
+	}
 
 	pck_type = get_packet_type(tvb);
 	if (pck_type == FPP_Packet_Init) {
@@ -371,7 +384,7 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 
 			set_address_tvb(&pinfo->dl_src, AT_ETHER, 6, tvb, 14);
 			set_address_tvb(&pinfo->src, AT_ETHER, 6, tvb, 14);
 
-			proto_tree_add_checksum(tree, tvb, crc_offset, hf_fpp_mcrc32, hf_fpp_mcrc32_status, &ei_fpp_mcrc32, pinfo, (crc ^ 0xffff0000), ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
+			proto_tree_add_checksum(tree, tvb, crc_offset, hf_fpp_mcrc32, hf_fpp_mcrc32_status, &ei_fpp_mcrc32, pinfo, mcrc, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 		} else {
 			/* Invalid packet */
 			drop_fragments(pinfo);
@@ -380,7 +393,7 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 
 				drop_conversation(conv);
 			}
 
-			proto_tree_add_checksum(tree, tvb, crc_offset, hf_fpp_mcrc32, hf_fpp_mcrc32_status, &ei_fpp_mcrc32, pinfo, (crc ^ 0xffff0000), ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
+			proto_tree_add_checksum(tree, tvb, crc_offset, hf_fpp_mcrc32, hf_fpp_mcrc32_status, &ei_fpp_mcrc32, pinfo, mcrc, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 		}
 	} else if (pck_type == FPP_Packet_Cont) {
 		if (crc_val == CRC_mCRC) {
@@ -410,7 +423,7 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 
 				drop_fragments(pinfo);
 			}
 
-			proto_tree_add_checksum(tree, tvb, crc_offset, hf_fpp_mcrc32, hf_fpp_mcrc32_status, &ei_fpp_mcrc32, pinfo, (crc ^ 0xffff0000), ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
+			proto_tree_add_checksum(tree, tvb, crc_offset, hf_fpp_mcrc32, hf_fpp_mcrc32_status, &ei_fpp_mcrc32, pinfo, mcrc, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 		} else {
 			/* Suppose that the last fragment dissected
 				1. preemption is active
@@ -442,12 +455,12 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 
 				pinfo->fragmented = save_fragmented;
 			} else {
 				drop_fragments(pinfo);
-				proto_tree_add_checksum(tree, tvb, crc_offset, hf_fpp_mcrc32, hf_fpp_mcrc32_status, &ei_fpp_mcrc32, pinfo, (crc ^ 0xffff0000), ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
+				proto_tree_add_checksum(tree, tvb, crc_offset, hf_fpp_mcrc32, hf_fpp_mcrc32_status, &ei_fpp_mcrc32, pinfo, mcrc, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 			}
 
 			if (new_tvb) {
 				/* Reassembly was successful; return the completed datagram. */
-				guint32 reassembled_crc = crc32_ccitt_tvb_offset(new_tvb, 0, tvb_reported_length(new_tvb));
+				guint32 reassembled_crc = GUINT32_SWAP_LE_BE(crc32_ccitt_tvb_offset(new_tvb, 0, tvb_reported_length(new_tvb)));
 
 				/* Reassembly frame takes place regardless of whether the check sum was correct or not. */
 				proto_tree_add_checksum(tree, tvb, crc_offset, hf_fpp_crc32, -1, &ei_fpp_crc32, pinfo, reassembled_crc, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
@@ -461,9 +474,9 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 
 			}
 		}
 	} else if (pck_type == FPP_Packet_Verify) {
-		proto_tree_add_checksum(tree, tvb, crc_offset, hf_fpp_mcrc32, -1, &ei_fpp_mcrc32, pinfo, (crc ^ 0xffff0000), ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
+		proto_tree_add_checksum(tree, tvb, crc_offset, hf_fpp_mcrc32, -1, &ei_fpp_mcrc32, pinfo, mcrc, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 	} else if (pck_type == FPP_Packet_Response) {
-		proto_tree_add_checksum(tree, tvb, crc_offset, hf_fpp_mcrc32, hf_fpp_mcrc32_status, &ei_fpp_mcrc32, pinfo, (crc ^ 0xffff0000), ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
+		proto_tree_add_checksum(tree, tvb, crc_offset, hf_fpp_mcrc32, hf_fpp_mcrc32_status, &ei_fpp_mcrc32, pinfo, mcrc, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 	}
 
 	return NULL;
@@ -482,8 +495,7 @@ dissect_express(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 crc
 	proto_tree_add_item(tree, hf_fpp_mdata, tvb, offset, pdu_data_len, ENC_NA);
 
 	proto_tree *fpp_preamble_tree = proto_item_add_subtree(ti_preamble, ett_fpp_preamble);
-	proto_tree_add_item(fpp_preamble_tree, hf_fpp_preamble_seventh, tvb, 6, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(fpp_preamble_tree, hf_fpp_preamble_eight, tvb, 7, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(fpp_preamble_tree, hf_fpp_preamble_smd, tvb, 7, 1, ENC_BIG_ENDIAN);
 
 	proto_tree_add_checksum(tree, tvb, crc_offset, hf_fpp_crc32, hf_fpp_crc32_status, &ei_fpp_crc32, pinfo, crc, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 
@@ -504,7 +516,7 @@ dissect_fpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "FPP");
 	col_clear(pinfo->cinfo,COL_INFO);
 
-	crc = crc32_ccitt_tvb_offset(tvb, FPP_PREAMBLE_LENGTH, pdu_data_len);
+	crc = GUINT32_SWAP_LE_BE(crc32_ccitt_tvb_offset(tvb, FPP_PREAMBLE_LENGTH, pdu_data_len));
 	mcrc = crc ^ 0xffff0000;
 
 	// get crc type
@@ -550,14 +562,14 @@ proto_register_fpp(void)
 				NULL, 0x0,
 				NULL, HFILL }
 		},
-		{ &hf_fpp_preamble_seventh,
-			{ "Seventh", "fpp.preamble.seventh",
+		{ &hf_fpp_preamble_smd,
+			{ "SMD", "fpp.preamble.smd",
 				FT_UINT8, BASE_HEX,
 				NULL, 0x0,
 				NULL, HFILL }
 		},
-		{ &hf_fpp_preamble_eight,
-			{ "Eight", "fpp.preamble.eight",
+		{ &hf_fpp_preamble_frag_count,
+			{ "Fragment count", "fpp.preamble.frag_count",
 				FT_UINT8, BASE_HEX,
 				NULL, 0x0,
 				NULL, HFILL }
