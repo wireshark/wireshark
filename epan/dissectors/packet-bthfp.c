@@ -1075,7 +1075,7 @@ dissect_iphoneaccev_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     } else {
         value = get_uint_parameter(parameter_stream, parameter_length);
 
-        pitem = proto_tree_add_uint(tree, hf_iphoneaccev_value, tvb, offset,
+        proto_tree_add_uint(tree, hf_iphoneaccev_value, tvb, offset,
                 parameter_length, value);
     }
 
