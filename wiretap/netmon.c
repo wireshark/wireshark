@@ -694,16 +694,17 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 			comment_table_size -= 12;
 
 			/* Make sure comment size is sane */
-			if (pletoh32(&comment_header.titleLength) == 0) {
+			title_length = pletoh32(&comment_header.titleLength);
+			if (title_length == 0) {
 				*err = WTAP_ERR_BAD_FILE;
 				*err_info = g_strdup("netmon: comment title size can't be 0");
 				g_hash_table_destroy(comment_table);
 				return WTAP_OPEN_ERROR;
 			}
-			if (pletoh32(&comment_header.titleLength) > comment_table_size) {
+			if (title_length > comment_table_size) {
 				*err = WTAP_ERR_BAD_FILE;
 				*err_info = g_strdup_printf("netmon: comment title size is %u, which is larger than the amount remaining in the comment section (%u)",
-						pletoh32(&comment_header.titleLength), comment_table_size);
+						title_length, comment_table_size);
 				g_hash_table_destroy(comment_table);
 				return WTAP_OPEN_ERROR;
 			}
@@ -711,7 +712,6 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 			comment_rec = g_new0(struct netmonrec_comment, 1);
 			comment_rec->numFramePerComment = pletoh32(&comment_header.numFramePerComment);
 			comment_rec->frameOffset = pletoh32(&comment_header.frameOffset);
-			title_length = pletoh32(&comment_header.titleLength);
 
 			g_hash_table_insert(comment_table, GUINT_TO_POINTER(comment_rec->frameOffset), comment_rec);
 
