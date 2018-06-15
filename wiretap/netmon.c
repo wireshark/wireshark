@@ -373,6 +373,11 @@ utf_16_to_utf_8(const guint8 *in, guint32 length)
 		}
 	}
 	*out = '\0';
+
+	/*
+	 * XXX - if i < length, this means we were handed an odd
+	 * number of bytes, so it was not a valid UTF-16 string.
+	 */
 	return result;
 }
 
@@ -803,22 +808,11 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 			}
 
 			/*
-			 * This string is in UTF-16-encoded Unicode, and
-			 * the path size is a count of octets, not octet
-			 * pairs or Unicode characters, so it must be a
-			 * multiple of 2.
-			 */
-			if ((path_size % 2) != 0) {
-				*err = WTAP_ERR_BAD_FILE;
-				*err_info = g_strdup_printf("netmon: Path size for process info record is %u, which is not a multiple of 2",
-				    path_size);
-				g_free(process_info);
-				g_hash_table_destroy(process_info_table);
-				return WTAP_OPEN_ERROR;
-			}
-
-			/*
 			 * Read in the path string.
+			 *
+			 * It is in UTF-16-encoded Unicode, and the path
+			 * size is a count of octets, not octet pairs or
+			 * Unicode characters.
 			 */
 			utf16_str = (guint8*)g_malloc(path_size);
 			if (!wtap_read_bytes(wth->fh, utf16_str, path_size,
