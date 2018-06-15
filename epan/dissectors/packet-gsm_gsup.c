@@ -30,6 +30,8 @@
 #include "packet-e164.h"
 #include "packet-e212.h"
 #include "packet-dns.h"
+#include "packet-ber.h"
+#include "asn1.h"
 
 /* GSUP is a non-standard, Osmocom-specific protocol used between cellular
  * network core elements and the HLR.  It is a much simplified replacement
@@ -82,6 +84,9 @@ enum osmo_gsup_iei {
 	OSMO_GSUP_AUTS_IE			= 0x26,
 	OSMO_GSUP_RES_IE			= 0x27,
 	OSMO_GSUP_CN_DOMAIN_IE			= 0x28,
+	OSMO_GSUP_SESSION_ID_IE			= 0x30,
+	OSMO_GSUP_SESSION_STATE_IE		= 0x31,
+	OSMO_GSUP_SS_INFO_IE			= 0x35,
 };
 
 /*! GSUP message type */
@@ -111,6 +116,10 @@ enum osmo_gsup_message_type {
 	OSMO_GSUP_MSGT_LOCATION_CANCEL_REQUEST	= 0x1c,
 	OSMO_GSUP_MSGT_LOCATION_CANCEL_ERROR	= 0x1d,
 	OSMO_GSUP_MSGT_LOCATION_CANCEL_RESULT	= 0x1e,
+
+	OSMO_GSUP_MSGT_PROC_SS_REQUEST		= 0x20,
+	OSMO_GSUP_MSGT_PROC_SS_ERROR		= 0x21,
+	OSMO_GSUP_MSGT_PROC_SS_RESULT		= 0x22,
 };
 
 #define OSMO_GSUP_IS_MSGT_REQUEST(msgt) (((msgt) & 0b00000011) == 0b00)
@@ -127,6 +136,12 @@ enum osmo_gsup_cn_domain {
 	OSMO_GSUP_CN_DOMAIN_CS			= 2,
 };
 
+enum osmo_gsup_session_state {
+	OSMO_GSUP_SESSION_STATE_NONE		= 0x00,
+	OSMO_GSUP_SESSION_STATE_BEGIN		= 0x01,
+	OSMO_GSUP_SESSION_STATE_CONTINUE	= 0x02,
+	OSMO_GSUP_SESSION_STATE_END		= 0x03,
+};
 
 /***********************************************************************
  * Wireshark Dissector Implementation
@@ -157,9 +172,13 @@ static int hf_gsup_ck = -1;
 static int hf_gsup_autn = -1;
 static int hf_gsup_auts = -1;
 static int hf_gsup_res = -1;
+static int hf_gsup_session_id = -1;
+static int hf_gsup_session_state = -1;
 
 static gint ett_gsup = -1;
 static gint ett_gsup_ie = -1;
+
+static dissector_handle_t gsm_map_handle;
 
 static const value_string gsup_iei_types[] = {
 	{ OSMO_GSUP_IMSI_IE,		"IMSI" },
@@ -185,6 +204,9 @@ static const value_string gsup_iei_types[] = {
 	{ OSMO_GSUP_AUTS_IE,		"AUTS" },
 	{ OSMO_GSUP_RES_IE,		"RES" },
 	{ OSMO_GSUP_CN_DOMAIN_IE,	"CN Domain" },
+	{ OSMO_GSUP_SESSION_ID_IE,	"Session Id" },
+	{ OSMO_GSUP_SESSION_STATE_IE,	"Session State" },
+	{ OSMO_GSUP_SS_INFO_IE,		"Supplementary Service Info"},
 	{ 0, NULL }
 };
 
@@ -208,6 +230,9 @@ static const value_string gsup_msg_types[] = {
 	{ OSMO_GSUP_MSGT_LOCATION_CANCEL_REQUEST,	"LocationCancel Request" },
 	{ OSMO_GSUP_MSGT_LOCATION_CANCEL_ERROR,		"LocationCancel Error" },
 	{ OSMO_GSUP_MSGT_LOCATION_CANCEL_RESULT,	"LocationCancel Result" },
+	{ OSMO_GSUP_MSGT_PROC_SS_REQUEST,		"Supplementary Service Request" },
+	{ OSMO_GSUP_MSGT_PROC_SS_ERROR,			"Supplementary Service Error" },
+	{ OSMO_GSUP_MSGT_PROC_SS_RESULT,		"Supplementary Service Result" },
 	{ 0, NULL }
 };
 
@@ -222,6 +247,46 @@ static const value_string gsup_cndomain_types[] = {
 	{ OSMO_GSUP_CN_DOMAIN_CS,		"CS" },
 	{ 0, NULL }
 };
+
+static const value_string gsup_session_states[] = {
+	{ OSMO_GSUP_SESSION_STATE_NONE,		"NONE" },
+	{ OSMO_GSUP_SESSION_STATE_BEGIN,	"BEGIN" },
+	{ OSMO_GSUP_SESSION_STATE_CONTINUE,	"CONTINUE" },
+	{ OSMO_GSUP_SESSION_STATE_END,		"END" },
+	{ 0, NULL }
+};
+
+static void dissect_ss_info_ie(tvbuff_t *tvb, packet_info *pinfo, guint offset, guint len, proto_tree *tree)
+{
+	guint saved_offset;
+	gint8 appclass;
+	gboolean pc;
+	gboolean ind = FALSE;
+	guint32 component_len = 0;
+	guint32 header_end_offset;
+	guint32 header_len;
+	asn1_ctx_t asn1_ctx;
+	tvbuff_t *ss_tvb = NULL;
+	static gint comp_type_tag;
+
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+	saved_offset = offset;
+	col_append_str(pinfo->cinfo, COL_PROTOCOL, "/");
+	col_set_fence(pinfo->cinfo, COL_PROTOCOL);
+	while (len > (offset - saved_offset)) {
+		/* get the length of the component. there can be multiple components in one message */
+		header_end_offset = get_ber_identifier(tvb, offset, &appclass, &pc, &comp_type_tag);
+		header_end_offset = get_ber_length(tvb, header_end_offset, &component_len, &ind);
+		header_len = header_end_offset -offset;
+		component_len += header_len;
+
+		ss_tvb = tvb_new_subset_length(tvb, offset, component_len);
+		col_append_str(pinfo->cinfo, COL_INFO, "(GSM MAP) ");
+		col_set_fence(pinfo->cinfo, COL_INFO);
+		call_dissector(gsm_map_handle, ss_tvb, pinfo, tree);
+		offset += component_len;
+	}
+}
 
 static gint
 dissect_gsup_tlvs(tvbuff_t *tvb, int base_offs, int length, packet_info *pinfo, proto_tree *tree,
@@ -317,6 +382,15 @@ dissect_gsup_tlvs(tvbuff_t *tvb, int base_offs, int length, packet_info *pinfo, 
 			break;
 		case OSMO_GSUP_FREEZE_PTMSI_IE:
 			proto_tree_add_item(att_tree, hf_gsup_freeze_ptmsi, tvb, offset, len, ENC_NA);
+			break;
+		case OSMO_GSUP_SESSION_ID_IE:
+			proto_tree_add_item(att_tree, hf_gsup_session_id, tvb, offset, len, ENC_NA);
+			break;
+		case OSMO_GSUP_SESSION_STATE_IE:
+			proto_tree_add_item(att_tree, hf_gsup_session_state, tvb, offset, len, ENC_NA);
+			break;
+		case OSMO_GSUP_SS_INFO_IE:
+			dissect_ss_info_ie(tvb, pinfo, offset, len, att_tree);
 			break;
 		case OSMO_GSUP_HLR_NUMBER_IE:
 		case OSMO_GSUP_PDP_TYPE_IE:
@@ -415,6 +489,10 @@ proto_register_gsup(void)
 		  FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
 		{ &hf_gsup_cause, { "Cause", "gsup.cause",
 		  FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
+		{ &hf_gsup_session_id, { "Session ID", "gsup.session_id",
+		  FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL } },
+		{ &hf_gsup_session_state, { "Session State", "gsup.session_state",
+		  FT_UINT8, BASE_DEC, VALS(gsup_session_states), 0, NULL, HFILL } },
 	};
 	static gint *ett[] = {
 		&ett_gsup,
@@ -432,6 +510,7 @@ proto_reg_handoff_gsup(void)
 	dissector_handle_t gsup_handle;
 	gsup_handle = create_dissector_handle(dissect_gsup, proto_gsup);
 	dissector_add_uint_with_preference("ipa.osmo.protocol", IPAC_PROTO_EXT_GSUP, gsup_handle);
+	gsm_map_handle = find_dissector_add_dependency("gsm_map", proto_gsup);
 }
 
 /*
