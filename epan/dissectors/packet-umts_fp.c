@@ -1495,6 +1495,7 @@ dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     else {
         guint8      cfn;
+        guint32     encoded;
         guint32     propagation_delay                    = 0;
         proto_item *propagation_delay_ti                 = NULL;
         guint32     received_sync_ul_timing_deviation    = 0;
@@ -1517,9 +1518,11 @@ dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         if (p_fp_info->channel == CHANNEL_RACH_FDD) {
             /* Propagation delay */
-            propagation_delay = tvb_get_guint8(tvb, offset);
-            propagation_delay_ti = proto_tree_add_uint(tree, hf_fp_propagation_delay, tvb, offset, 1,
-                                                       propagation_delay*3);
+            encoded = tvb_get_guint8(tvb, offset);
+            propagation_delay = encoded * 3;
+            propagation_delay_ti = proto_tree_add_uint_format(tree, hf_fp_propagation_delay, tvb, offset, 1,
+                                               propagation_delay, "%u chips (%u)",
+                                               propagation_delay, encoded);
             offset++;
         }
 
@@ -2088,6 +2091,7 @@ dissect_cpch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     else {
         guint cfn;
+        guint32 encoded;
         guint header_length = 0;
         guint32 propagation_delay = 0;
 
@@ -2104,8 +2108,11 @@ dissect_cpch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset++;
 
         /* Propagation delay */
-        propagation_delay = tvb_get_guint8(tvb, offset) *3;
-        proto_tree_add_uint(tree, hf_fp_propagation_delay, tvb, offset, 1, propagation_delay);
+        encoded = tvb_get_guint8(tvb, offset);
+        propagation_delay = encoded * 3;
+        proto_tree_add_uint_format_value(tree, hf_fp_propagation_delay, tvb, offset, 1,
+                                               propagation_delay, "%u chips (%u)",
+                                               propagation_delay, encoded);
         offset++;
         header_length = offset; /* XXX this might be wrong */
         /* TB data */
@@ -2362,8 +2369,10 @@ dissect_dch_ul_node_synchronisation(proto_tree *tree, packet_info *pinfo, tvbuff
 static int
 dissect_dch_radio_interface_parameter_update(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
+    float tpc_po;
+    gint8 max_tx_pwr;
     int    n;
-    guint8 value;
+    guint8 encoded;
 
     /* Show defined flags in these 2 bytes */
     for (n=4; n >= 0; n--) {
@@ -2379,16 +2388,21 @@ dissect_dch_radio_interface_parameter_update(proto_tree *tree, packet_info *pinf
     proto_tree_add_item(tree, hf_fp_dpc_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* TPC PO */
-    proto_tree_add_item(tree, hf_fp_tpc_po, tvb, offset, 1, ENC_BIG_ENDIAN);
+    encoded = tvb_get_guint8(tvb, offset) & 0x1f;
+    tpc_po = (float)encoded * 0.25f;
+    proto_tree_add_float_format_value(tree, hf_fp_tpc_po, tvb, offset, 1, tpc_po,
+                                      "%.2f dB (%u)", tpc_po, encoded);
     offset++;
 
     /* Multiple RL sets indicator */
     proto_tree_add_item(tree, hf_fp_multiple_rl_set_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 2;
 
-    /* MAX_UE_TX_POW */
-    value = (tvb_get_guint8(tvb, offset) & 0x7f);
-    proto_tree_add_int(tree, hf_fp_max_ue_tx_pow, tvb, offset, 1, -55 + value);
+    /* Maximum UE TX Power */
+    encoded = tvb_get_guint8(tvb, offset) & 0x7f;
+    max_tx_pwr = -55 + encoded;
+    proto_tree_add_int_format(tree, hf_fp_max_ue_tx_pow, tvb, offset, 1, max_tx_pwr,
+                              "%d dBm (%u)", max_tx_pwr, encoded);
     offset++;
 
     return offset;
@@ -6648,7 +6662,7 @@ void proto_register_fp(void)
               }
             },
             { &hf_fp_radio_interface_parameter_update_flag[4],
-              { "MAX_UE_TX_POW valid",
+              { "Maximum UE TX Power valid",
                 "fp.radio-interface-param.max-ue-tx-pow-valid", FT_UINT16, BASE_DEC, 0, 0x0040,
                 "MAX UE TX POW valid", HFILL
               }
@@ -6660,7 +6674,7 @@ void proto_register_fp(void)
               }
             },
             { &hf_fp_tpc_po,
-              { "TPC PO",
+              { "TPC Power Offset",
                 "fp.tpc-po", FT_UINT8, BASE_DEC, NULL, 0x1f,
                 NULL, HFILL
               }
@@ -6672,7 +6686,7 @@ void proto_register_fp(void)
               }
             },
             { &hf_fp_max_ue_tx_pow,
-              { "MAX_UE_TX_POW",
+              { "Maximum UE TX Power",
                 "fp.max-ue-tx-pow", FT_INT8, BASE_DEC, NULL, 0x0,
                 "Max UE TX POW (dBm)", HFILL
               }
