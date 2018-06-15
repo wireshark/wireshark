@@ -44,15 +44,6 @@ macro(ADD_PLUGIN_LIBRARY _plugin _subfolder)
 		LIBRARY_OUTPUT_DIRECTORY ${PLUGIN_DIR}/${_subfolder}
 	)
 
-	# Try to force output to ${PLUGIN_DIR} without the configuration
-	# type appended. Needed on Windows.
-	foreach(_config_type ${CMAKE_CONFIGURATION_TYPES})
-		string(TOUPPER ${_config_type} _config_upper)
-		set_target_properties(${_plugin} PROPERTIES
-			LIBRARY_OUTPUT_DIRECTORY_${_config_upper} ${CMAKE_BINARY_DIR}/run/${_config_type}/${PLUGIN_VERSION_DIR}/${_subfolder}
-		)
-	endforeach()
-
 	add_dependencies(plugins ${_plugin})
 endmacro()
 

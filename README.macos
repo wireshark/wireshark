@@ -74,6 +74,22 @@ directory;
 	cmake ..
 	make
 
+It is also possible to use the Xcode IDE to build and debug Wireshark
+using cmake's Xcode generator. Create a separate build directory, as 
+described above and run cmake with the "-G Xcode" argument to create 
+a Xcode project file in the current directory.
+
+	cmake -G Xcode ..
+
+ 1. Double click Wireshark.xcodeproj 
+
+ 2. Choose to create schemes manually
+
+ 3. Create a scheme for the ALL_BUILD target
+
+ 4. Edit the scheme, go to the run configuration and select Wireshark.app 
+  as executable
+
 If you upgrade the major release of macOS on which you are building
 Wireshark, we advise that, before you do any builds after the upgrade,
 you remove the build directory and all its subdiretories, and repeat the
