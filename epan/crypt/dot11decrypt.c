@@ -588,7 +588,6 @@ static INT Dot11DecryptScanForKeys(
 
         /* start with descriptor body */
         offset+=1;
-        tot_len_left-=1;
 
         /* search for a cached Security Association for current BSSID and AP */
         sa = Dot11DecryptGetSaPtr(ctx, &id);
@@ -685,7 +684,6 @@ static INT Dot11DecryptScanForKeys(
 
         /* skip Token + capabilities */
         offset+=5;
-        tot_len_left-=5;
 
         /* search for RSN, Fast BSS Transition, Link Identifier and Timeout Interval IEs */
 
