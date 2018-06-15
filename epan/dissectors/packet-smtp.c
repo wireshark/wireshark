@@ -1122,8 +1122,8 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                     proto_tree_add_item(cmdresp_tree, hf_smtp_rsp_parameter, tvb,
                                       offset + 4, linelen - 4, ENC_ASCII|ENC_NA);
 
-                    col_append_fstr(pinfo->cinfo, COL_INFO, "%d %s", code,
-                                    tvb_format_text(tvb, offset + 4, linelen - 4));
+                    col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
+                                    tvb_format_text(tvb, offset, linelen));
                 }
             } else {
                col_append_str(pinfo->cinfo, COL_INFO,
