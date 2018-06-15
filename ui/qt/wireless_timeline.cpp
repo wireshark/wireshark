@@ -175,10 +175,8 @@ void WirelessTimeline::clip_tsf()
 }
 
 
-void WirelessTimeline::selectedFrameChanged(int frameNum)
+void WirelessTimeline::selectedFrameChanged(int)
 {
-    Q_UNUSED(frameNum);
-
     if (isHidden())
         return;
 

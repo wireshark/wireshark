@@ -277,12 +277,9 @@ void CaptureFile::captureFileEvent(int event, gpointer data)
     }
 }
 
+#ifdef HAVE_LIBPCAP
 void CaptureFile::captureSessionEvent(int event, capture_session *cap_session)
 {
-#ifndef HAVE_LIBPCAP
-    Q_UNUSED(event)
-    Q_UNUSED(cap_session)
-#else
     switch(event) {
     case(capture_cb_capture_prepared):
         emit captureEvent(CaptureEvent(CaptureEvent::Capture, CaptureEvent::Prepared, cap_session));
@@ -317,8 +314,8 @@ void CaptureFile::captureSessionEvent(int event, capture_session *cap_session)
     default:
         qWarning() << "main_capture_callback: event " << event << " unknown";
     }
-#endif // HAVE_LIBPCAP
 }
+#endif // HAVE_LIBPCAP
 
 /*
  * Editor modelines

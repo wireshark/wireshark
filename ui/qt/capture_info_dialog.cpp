@@ -169,16 +169,14 @@ void CaptureInfoModel::updateInfo()
     emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
 }
 
-int CaptureInfoModel::rowCount(const QModelIndex &parent) const
+int CaptureInfoModel::rowCount(const QModelIndex &) const
 {
-    Q_UNUSED(parent)
     if (!cap_info_) return 0;
     return points_.keys().size() + 1;
 }
 
-int CaptureInfoModel::columnCount(const QModelIndex &parent) const
+int CaptureInfoModel::columnCount(const QModelIndex &) const
 {
-    Q_UNUSED(parent)
     return 2;
 }
 

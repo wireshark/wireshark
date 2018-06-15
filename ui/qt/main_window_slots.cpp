@@ -486,8 +486,8 @@ void MainWindow::queuedFilterAction(QString action_filter, FilterAction::Action 
 
 // Capture callbacks
 
-void MainWindow::captureCapturePrepared(capture_session *) {
 #ifdef HAVE_LIBPCAP
+void MainWindow::captureCapturePrepared(capture_session *) {
     setTitlebarForCaptureInProgress();
 
     setWindowIcon(wsApp->captureIcon());
@@ -500,11 +500,9 @@ void MainWindow::captureCapturePrepared(capture_session *) {
 //    /* Don't set up main window for a capture file. */
 //    main_set_for_capture_file(FALSE);
     showCapture();
-#endif // HAVE_LIBPCAP
 }
 
 void MainWindow::captureCaptureUpdateStarted(capture_session *session) {
-#ifdef HAVE_LIBPCAP
 
     /* We've done this in "prepared" above, but it will be cleared while
        switching to the next multiple file. */
@@ -513,12 +511,9 @@ void MainWindow::captureCaptureUpdateStarted(capture_session *session) {
     setForCaptureInProgress(true, session->capture_opts->ifaces);
 
     setForCapturedPackets(true);
-#else
-    Q_UNUSED(session)
-#endif // HAVE_LIBPCAP
 }
+
 void MainWindow::captureCaptureUpdateFinished(capture_session *) {
-#ifdef HAVE_LIBPCAP
 
     /* The capture isn't stopping any more - it's stopped. */
     capture_stopping_ = false;
@@ -538,11 +533,9 @@ void MainWindow::captureCaptureUpdateFinished(capture_session *) {
         // Don't pop up a dialog to ask for unsaved files etc.
         exit(0);
     }
-#endif // HAVE_LIBPCAP
 }
 
 void MainWindow::captureCaptureFixedFinished(capture_session *) {
-#ifdef HAVE_LIBPCAP
 
     /* The capture isn't stopping any more - it's stopped. */
     capture_stopping_ = false;
@@ -562,11 +555,9 @@ void MainWindow::captureCaptureFixedFinished(capture_session *) {
         // Don't pop up a dialog to ask for unsaved files etc.
         exit(0);
     }
-#endif // HAVE_LIBPCAP
 }
 
 void MainWindow::captureCaptureFailed(capture_session *) {
-#ifdef HAVE_LIBPCAP
     /* Capture isn't stopping any more. */
     capture_stopping_ = false;
 
@@ -584,8 +575,8 @@ void MainWindow::captureCaptureFailed(capture_session *) {
         // Don't pop up a dialog to ask for unsaved files etc.
         exit(0);
     }
-#endif // HAVE_LIBPCAP
 }
+#endif // HAVE_LIBPCAP
 
 // Callbacks from cfile.c and file.c via CaptureFile::captureFileCallback
 

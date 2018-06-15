@@ -1322,9 +1322,9 @@ void InterfaceTreeDelegate::snapshotLengthChanged(int value)
     }
 }
 
+#ifdef SHOW_BUFFER_COLUMN
 void InterfaceTreeDelegate::bufferSizeChanged(int value)
 {
-#ifdef SHOW_BUFFER_COLUMN
     interface_t *device;
     QTreeWidgetItem *ti = tree_->currentItem();
     if (!ti) {
@@ -1336,10 +1336,8 @@ void InterfaceTreeDelegate::bufferSizeChanged(int value)
         return;
     }
     device->buffer = value;
-#else
-    Q_UNUSED(value)
-#endif
 }
+#endif
 
 #endif /* HAVE_LIBPCAP */
 

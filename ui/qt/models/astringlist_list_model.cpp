@@ -33,10 +33,8 @@ void AStringListListModel::appendRow(const QStringList & display_strings, const 
     emit endInsertRows();
 }
 
-int AStringListListModel::rowCount(const QModelIndex &parent) const
+int AStringListListModel::rowCount(const QModelIndex &) const
 {
-    Q_UNUSED(parent);
-
     return display_data_.count();
 }
 

@@ -313,11 +313,13 @@ public slots:
     void setTitlebarForCaptureFile();
     void setWSWindowTitle(QString title = QString());
 
+#ifdef HAVE_LIBPCAP
     void captureCapturePrepared(capture_session *);
     void captureCaptureUpdateStarted(capture_session *);
     void captureCaptureUpdateFinished(capture_session *);
     void captureCaptureFixedFinished(capture_session *cap_session);
     void captureCaptureFailed(capture_session *);
+#endif
 
     void captureFileOpened();
     void captureFileReadFinished();

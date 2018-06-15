@@ -28,9 +28,8 @@ QModelIndex FilesetEntryModel::index(int row, int column, const QModelIndex &) c
     return createIndex(row, column, const_cast<fileset_entry *>(entries_.at(row)));
 }
 
-int FilesetEntryModel::rowCount(const QModelIndex &parent) const
+int FilesetEntryModel::rowCount(const QModelIndex &) const
 {
-    Q_UNUSED(parent)
     return entries_.count();
 }
 

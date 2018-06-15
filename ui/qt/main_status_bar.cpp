@@ -429,9 +429,8 @@ void MainStatusBar::popProgressStatus()
     progress_frame_.hide();
 }
 
-void MainStatusBar::selectedFrameChanged(int frameNum)
+void MainStatusBar::selectedFrameChanged(int)
 {
-    Q_UNUSED(frameNum);
     showCaptureStatistics();
 }
 
