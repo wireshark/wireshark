@@ -701,7 +701,7 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 			}
 			if (pletoh32(&comment_header.titleLength) > comment_table_size) {
 				*err = WTAP_ERR_BAD_FILE;
-				*err_info = g_strdup_printf("netmon: comment title size is %u, which is larger than the entire comment section (%d)",
+				*err_info = g_strdup_printf("netmon: comment title size is %u, which is larger than the amount remaining in the comment section (%u)",
 						pletoh32(&comment_header.titleLength), comment_table_size);
 				g_hash_table_destroy(comment_table);
 				return WTAP_OPEN_ERROR;
@@ -740,7 +740,7 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 				/* Make sure comment size is sane */
 				if (comment_rec->descLength > comment_table_size) {
 					*err = WTAP_ERR_BAD_FILE;
-					*err_info = g_strdup_printf("netmon: comment description size is %u, which is larger than the entire comment section (%d)",
+					*err_info = g_strdup_printf("netmon: comment description size is %u, which is larger than the amount remaining in the comment section (%u)",
 								comment_rec->descLength, comment_table_size);
 					g_hash_table_destroy(comment_table);
 					return WTAP_OPEN_ERROR;
