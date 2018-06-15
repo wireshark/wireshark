@@ -1147,10 +1147,9 @@ struct logcat_phdr {
 /* Packet "pseudo-header" information for header data from NetMon files. */
 
 struct netmon_phdr {
-    guint32 titleLength;    /* Number of bytes in the comment title */
-    guint8* title;          /* Comment title */
+    guint8* title;          /* Comment title, as a null-terminated UTF-8 string */
     guint32 descLength;     /* Number of bytes in the comment description */
-    guint8* description;    /* Comment description */
+    guint8* description;    /* Comment description, in ASCII RTF */
     guint sub_encap;        /* "Real" encap value for the record that will be used once pseudo header data is display */
     union sub_wtap_pseudo_header {
         struct eth_phdr     eth;

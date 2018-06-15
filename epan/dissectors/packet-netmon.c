@@ -403,28 +403,19 @@ dissect_netmon_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 	proto_tree *header_tree;
 	union wtap_pseudo_header temp_header;
 	gchar *comment;
-	GIConv cd;
 
 	ti = proto_tree_add_item(tree, proto_netmon_header, tvb, 0, 0, ENC_NA);
 	header_tree = proto_item_add_subtree(ti, ett_netmon_header);
 
 	if (pinfo->pseudo_header->netmon.title != NULL) {
-		/* Title comment is UTF-16 */
-
-		if ((cd = g_iconv_open("UTF-8", "UTF-16")) != (GIConv) -1)
-		{
-			comment = g_convert_with_iconv(pinfo->pseudo_header->netmon.title, pinfo->pseudo_header->netmon.titleLength, cd, NULL, NULL, NULL);
-			g_iconv_close(cd);
-
-			ti = proto_tree_add_string(header_tree, hf_netmon_header_title_comment, tvb, 0, 0, comment);
-			PROTO_ITEM_SET_GENERATED(ti);
-			g_free(comment);
-		}
-
+		ti = proto_tree_add_string(header_tree, hf_netmon_header_title_comment, tvb, 0, 0, pinfo->pseudo_header->netmon.title);
+		PROTO_ITEM_SET_GENERATED(ti);
 	}
 
 	if (pinfo->pseudo_header->netmon.description != NULL) {
-		/* Description comment is only ASCII */
+		/* Description comment is only ASCII.  However, it's
+		 * RTF, not raw text.
+		 */
 
 		/* Ensure string termination */
 		comment = wmem_strndup(wmem_packet_scope(), pinfo->pseudo_header->netmon.description, pinfo->pseudo_header->netmon.descLength);

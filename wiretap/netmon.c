@@ -110,12 +110,11 @@ struct netmonrec_2_3_trlr {
 };
 
 struct netmonrec_comment {
-	guint32 numFramePerComment;		/* Currently, this is always set to 1. Each comment is attached to only one frame. */
-	guint32 frameOffset;	/* Offset in the capture file table that indicates the beginning of the frame.  Key used to match comment with frame */
-	guint32 titleLength;	/* Number of bytes in the comment title. Must be greater than zero. */
+	guint32 numFramePerComment;	/* Currently, this is always set to 1. Each comment is attached to only one frame. */
+	guint32 frameOffset;		/* Offset in the capture file table that indicates the beginning of the frame.  Key used to match comment with frame */
 	guint8* title;			/* Comment title */
 	guint32 descLength;		/* Number of bytes in the comment description. Must be at least zero. */
-	guint8* description;	/* Comment description */
+	guint8* description;		/* Comment description */
 };
 
 /* Just the first few fields of netmonrec_comment so it can be read sequentially from file */
@@ -683,7 +682,9 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 
 		while (comment_table_size > 16) {
 			struct netmonrec_comment_header comment_header;
+			guint32 title_length;
 			guint32 desc_length;
+			guint8 *utf16_str;
 
 			/* Read the first 12 bytes of the structure */
 			if (!wtap_read_bytes(wth->fh, &comment_header, 12, err, err_info)) {
@@ -710,17 +711,31 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 			comment_rec = g_new0(struct netmonrec_comment, 1);
 			comment_rec->numFramePerComment = pletoh32(&comment_header.numFramePerComment);
 			comment_rec->frameOffset = pletoh32(&comment_header.frameOffset);
-			comment_rec->titleLength = pletoh32(&comment_header.titleLength);
-			comment_rec->title = (guint8*)g_malloc(comment_rec->titleLength);
+			title_length = pletoh32(&comment_header.titleLength);
 
 			g_hash_table_insert(comment_table, GUINT_TO_POINTER(comment_rec->frameOffset), comment_rec);
 
-			/* Read the comment title */
-			if (!wtap_read_bytes(wth->fh, comment_rec->title, comment_rec->titleLength, err, err_info)) {
+			/*
+			 * Read in the comment title.
+			 *
+			 * It is in UTF-16-encoded Unicode, and the title
+			 * size is a count of octets, not octet pairs or
+			 * Unicode characters.
+			 */
+			utf16_str = (guint8*)g_malloc(title_length);
+			if (!wtap_read_bytes(wth->fh, utf16_str, title_length,
+			    err, err_info)) {
 				g_hash_table_destroy(comment_table);
 				return WTAP_OPEN_ERROR;
 			}
-			comment_table_size -= comment_rec->titleLength;
+			comment_table_size -= title_length;
+
+			/*
+			 * Now convert it to UTF-8 for internal use.
+			 */
+			comment_rec->title = utf_16_to_utf_8(utf16_str,
+			    title_length);
+			g_free(utf16_str);
 
 			if (comment_table_size < 4) {
 				*err = WTAP_ERR_BAD_FILE;
@@ -1387,7 +1402,6 @@ netmon_process_record(wtap *wth, FILE_T fh, wtap_rec *rec,
 		rec->rec_header.packet_header.pseudo_header.netmon.sub_encap = rec->rec_header.packet_header.pkt_encap;
 
 		/* Copy the comment data */
-		rec->rec_header.packet_header.pseudo_header.netmon.titleLength = comment_rec->titleLength;
 		rec->rec_header.packet_header.pseudo_header.netmon.title = comment_rec->title;
 		rec->rec_header.packet_header.pseudo_header.netmon.descLength = comment_rec->descLength;
 		rec->rec_header.packet_header.pseudo_header.netmon.description = comment_rec->description;
