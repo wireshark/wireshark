@@ -233,16 +233,6 @@ enum {
 RtpAnalysisDialog::RtpAnalysisDialog(QWidget &parent, CaptureFile &cf, rtpstream_info_t *stream_fwd, rtpstream_info_t *stream_rev) :
     WiresharkDialog(parent, cf),
     ui(new Ui::RtpAnalysisDialog),
-    port_src_fwd_(0),
-    port_dst_fwd_(0),
-    ssrc_fwd_(0),
-    packet_count_fwd_(0),
-    setup_frame_number_fwd_(0),
-    port_src_rev_(0),
-    port_dst_rev_(0),
-    ssrc_rev_(0),
-    packet_count_rev_(0),
-    setup_frame_number_rev_(0),
     num_streams_(0),
     save_payload_error_(TAP_RTP_NO_ERROR)
 {
@@ -295,12 +285,8 @@ RtpAnalysisDialog::RtpAnalysisDialog(QWidget &parent, CaptureFile &cf, rtpstream
     }
     ui->reverseTreeWidget->setHeaderLabels(header_labels);
 
-    memset(&src_fwd_, 0, sizeof(address));
-    memset(&dst_fwd_, 0, sizeof(address));
-    memset(&src_rev_, 0, sizeof(address));
-    memset(&dst_rev_, 0, sizeof(address));
-    nstime_set_zero(&start_rel_time_fwd_);
-    nstime_set_zero(&start_rel_time_rev_);
+    memset(&fwd_statinfo_, 0, sizeof(fwd_statinfo_));
+    memset(&rev_statinfo_, 0, sizeof(rev_statinfo_));
 
     QList<QCheckBox *> graph_cbs = QList<QCheckBox *>()
             << ui->fJitterCheckBox << ui->fDiffCheckBox << ui->fDeltaCheckBox
@@ -360,25 +346,11 @@ RtpAnalysisDialog::RtpAnalysisDialog(QWidget &parent, CaptureFile &cf, rtpstream
     ui->buttonBox->button(QDialogButtonBox::Save)->setMenu(save_menu);
 
     if (stream_fwd) { // XXX What if stream_fwd == 0 && stream_rev != 0?
-        copy_address(&src_fwd_, &(stream_fwd->src_addr));
-        port_src_fwd_ = stream_fwd->src_port;
-        copy_address(&dst_fwd_, &(stream_fwd->dest_addr));
-        port_dst_fwd_ = stream_fwd->dest_port;
-        ssrc_fwd_ = stream_fwd->ssrc;
-        packet_count_fwd_ = stream_fwd->packet_count;
-        setup_frame_number_fwd_ = stream_fwd->setup_frame_number;
-        nstime_copy(&start_rel_time_fwd_, &stream_fwd->start_rel_time);
-        num_streams_++;
+        fwd_statinfo_ = *stream_fwd;
+        num_streams_=1;
         if (stream_rev) {
-            copy_address(&src_rev_, &(stream_rev->src_addr));
-            port_src_rev_ = stream_rev->src_port;
-            copy_address(&dst_rev_, &(stream_rev->dest_addr));
-            port_dst_rev_ = stream_rev->dest_port;
-            ssrc_rev_ = stream_rev->ssrc;
-            packet_count_rev_ = stream_rev->packet_count;
-            setup_frame_number_rev_ = stream_rev->setup_frame_number;
-            nstime_copy(&start_rel_time_rev_, &stream_rev->start_rel_time);
-            num_streams_++;
+            rev_statinfo_ = *stream_rev;
+            num_streams_=2;
         }
     } else {
         findStreams();
@@ -409,6 +381,8 @@ RtpAnalysisDialog::~RtpAnalysisDialog()
 {
     delete ui;
 //    remove_tap_listener_rtpstream(&tapinfo_);
+    rtpstream_id_free(&(fwd_statinfo_.id));
+    rtpstream_id_free(&(rev_statinfo_.id));
     delete fwd_tempfile_;
     delete rev_tempfile_;
 }
@@ -448,8 +422,8 @@ void RtpAnalysisDialog::updateWidgets()
         hint.append(tr(" G: Go to packet, N: Next problem packet"));
     }
 
-    bool enable_save_fwd_audio = fwd_statinfo_.total_nr && (save_payload_error_ == TAP_RTP_NO_ERROR);
-    bool enable_save_rev_audio = rev_statinfo_.total_nr && (save_payload_error_ == TAP_RTP_NO_ERROR);
+    bool enable_save_fwd_audio = fwd_statinfo_.rtp_stats.total_nr && (save_payload_error_ == TAP_RTP_NO_ERROR);
+    bool enable_save_rev_audio = rev_statinfo_.rtp_stats.total_nr && (save_payload_error_ == TAP_RTP_NO_ERROR);
     ui->actionSaveAudioUnsync->setEnabled(enable_save_fwd_audio && enable_save_rev_audio);
     ui->actionSaveForwardAudioUnsync->setEnabled(enable_save_fwd_audio);
     ui->actionSaveReverseAudioUnsync->setEnabled(enable_save_rev_audio);
@@ -697,20 +671,12 @@ gboolean RtpAnalysisDialog::tapPacket(void *tapinfo_ptr, packet_info *pinfo, epa
     else if (rtpinfo->info_version != 2)
         return FALSE;
     /* is it the forward direction?  */
-    else if (rtp_analysis_dialog->ssrc_fwd_ == rtpinfo->info_sync_src
-         && (cmp_address(&(rtp_analysis_dialog->src_fwd_), &(pinfo->src)) == 0)
-         && (rtp_analysis_dialog->port_src_fwd_ == pinfo->srcport)
-         && (cmp_address(&(rtp_analysis_dialog->dst_fwd_), &(pinfo->dst)) == 0)
-         && (rtp_analysis_dialog->port_dst_fwd_ == pinfo->destport))  {
+    else if (rtpstream_id_equal_pinfo_rtp_info(&(rtp_analysis_dialog->fwd_statinfo_.id),pinfo,rtpinfo))  {
 
         rtp_analysis_dialog->addPacket(true, pinfo, rtpinfo);
     }
     /* is it the reversed direction? */
-    else if (rtp_analysis_dialog->ssrc_rev_ == rtpinfo->info_sync_src
-         && (cmp_address(&(rtp_analysis_dialog->src_rev_), &(pinfo->src)) == 0)
-         && (rtp_analysis_dialog->port_src_rev_ == pinfo->srcport)
-         && (cmp_address(&(rtp_analysis_dialog->dst_rev_), &(pinfo->dst)) == 0)
-         && (rtp_analysis_dialog->port_dst_rev_ == pinfo->destport))  {
+    else if (rtpstream_id_equal_pinfo_rtp_info(&(rtp_analysis_dialog->rev_statinfo_.id),pinfo,rtpinfo))  {
 
         rtp_analysis_dialog->addPacket(false, pinfo, rtpinfo);
     }
@@ -726,13 +692,13 @@ void RtpAnalysisDialog::tapDraw(void *tapinfo_ptr)
 
 void RtpAnalysisDialog::resetStatistics()
 {
-    memset(&fwd_statinfo_, 0, sizeof(tap_rtp_stat_t));
-    memset(&rev_statinfo_, 0, sizeof(tap_rtp_stat_t));
+    memset(&fwd_statinfo_.rtp_stats, 0, sizeof(fwd_statinfo_.rtp_stats));
+    memset(&rev_statinfo_.rtp_stats, 0, sizeof(rev_statinfo_.rtp_stats));
 
-    fwd_statinfo_.first_packet = TRUE;
-    rev_statinfo_.first_packet = TRUE;
-    fwd_statinfo_.reg_pt = PT_UNDEFINED;
-    rev_statinfo_.reg_pt = PT_UNDEFINED;
+    fwd_statinfo_.rtp_stats.first_packet = TRUE;
+    rev_statinfo_.rtp_stats.first_packet = TRUE;
+    fwd_statinfo_.rtp_stats.reg_pt = PT_UNDEFINED;
+    rev_statinfo_.rtp_stats.reg_pt = PT_UNDEFINED;
 
     ui->forwardTreeWidget->clear();
     ui->reverseTreeWidget->clear();
@@ -760,25 +726,25 @@ void RtpAnalysisDialog::addPacket(bool forward, packet_info *pinfo, const _rtp_i
 //    add_rtp_packet(rtpinfo, pinfo);
 
     if (forward) {
-        rtppacket_analyse(&fwd_statinfo_, pinfo, rtpinfo);
-        new RtpAnalysisTreeWidgetItem(ui->forwardTreeWidget, &fwd_statinfo_, pinfo, rtpinfo);
+        rtppacket_analyse(&fwd_statinfo_.rtp_stats, pinfo, rtpinfo);
+        new RtpAnalysisTreeWidgetItem(ui->forwardTreeWidget, &fwd_statinfo_.rtp_stats, pinfo, rtpinfo);
 
-        fwd_time_vals_.append(fwd_statinfo_.time / 1000);
-        fwd_jitter_vals_.append(fwd_statinfo_.jitter);
-        fwd_diff_vals_.append(fwd_statinfo_.diff);
-        fwd_delta_vals_.append(fwd_statinfo_.delta);
+        fwd_time_vals_.append(fwd_statinfo_.rtp_stats.time / 1000);
+        fwd_jitter_vals_.append(fwd_statinfo_.rtp_stats.jitter);
+        fwd_diff_vals_.append(fwd_statinfo_.rtp_stats.diff);
+        fwd_delta_vals_.append(fwd_statinfo_.rtp_stats.delta);
 
-        savePayload(fwd_tempfile_, &fwd_statinfo_, pinfo, rtpinfo);
+        savePayload(fwd_tempfile_, &fwd_statinfo_.rtp_stats, pinfo, rtpinfo);
     } else {
-        rtppacket_analyse(&rev_statinfo_, pinfo, rtpinfo);
-        new RtpAnalysisTreeWidgetItem(ui->reverseTreeWidget, &rev_statinfo_, pinfo, rtpinfo);
+        rtppacket_analyse(&rev_statinfo_.rtp_stats, pinfo, rtpinfo);
+        new RtpAnalysisTreeWidgetItem(ui->reverseTreeWidget, &rev_statinfo_.rtp_stats, pinfo, rtpinfo);
 
-        rev_time_vals_.append(rev_statinfo_.time / 1000);
-        rev_jitter_vals_.append(rev_statinfo_.jitter);
-        rev_diff_vals_.append(rev_statinfo_.diff);
-        rev_delta_vals_.append(rev_statinfo_.delta);
+        rev_time_vals_.append(rev_statinfo_.rtp_stats.time / 1000);
+        rev_jitter_vals_.append(rev_statinfo_.rtp_stats.jitter);
+        rev_diff_vals_.append(rev_statinfo_.rtp_stats.diff);
+        rev_delta_vals_.append(rev_statinfo_.rtp_stats.delta);
 
-        savePayload(rev_tempfile_, &rev_statinfo_, pinfo, rtpinfo);
+        savePayload(rev_tempfile_, &rev_statinfo_.rtp_stats, pinfo, rtpinfo);
     }
 
 }
@@ -875,29 +841,29 @@ void RtpAnalysisDialog::savePayload(QTemporaryFile *tmpfile, tap_rtp_stat_t *sta
 
 void RtpAnalysisDialog::updateStatistics()
 {
-    unsigned int f_clock_rate = fwd_statinfo_.clock_rate;
-    unsigned int r_clock_rate = rev_statinfo_.clock_rate;
-    unsigned int f_expected = (fwd_statinfo_.stop_seq_nr + fwd_statinfo_.cycles*65536)
-            - fwd_statinfo_.start_seq_nr + 1;
-    unsigned int r_expected = (rev_statinfo_.stop_seq_nr + rev_statinfo_.cycles*65536)
-            - rev_statinfo_.start_seq_nr + 1;
-    unsigned int f_total_nr = fwd_statinfo_.total_nr;
-    unsigned int r_total_nr = rev_statinfo_.total_nr;
+    unsigned int f_clock_rate = fwd_statinfo_.rtp_stats.clock_rate;
+    unsigned int r_clock_rate = rev_statinfo_.rtp_stats.clock_rate;
+    unsigned int f_expected = (fwd_statinfo_.rtp_stats.stop_seq_nr + fwd_statinfo_.rtp_stats.cycles*65536)
+            - fwd_statinfo_.rtp_stats.start_seq_nr + 1;
+    unsigned int r_expected = (rev_statinfo_.rtp_stats.stop_seq_nr + rev_statinfo_.rtp_stats.cycles*65536)
+            - rev_statinfo_.rtp_stats.start_seq_nr + 1;
+    unsigned int f_total_nr = fwd_statinfo_.rtp_stats.total_nr;
+    unsigned int r_total_nr = rev_statinfo_.rtp_stats.total_nr;
     int f_lost = f_expected - f_total_nr;
     int r_lost = r_expected - r_total_nr;
-    double f_sumt = fwd_statinfo_.sumt;
-    double f_sumTS = fwd_statinfo_.sumTS;
-    double f_sumt2 = fwd_statinfo_.sumt2;
-    double f_sumtTS = fwd_statinfo_.sumtTS;
-    double r_sumt = rev_statinfo_.sumt;
-    double r_sumTS = rev_statinfo_.sumTS;
-    double r_sumt2 = rev_statinfo_.sumt2;
-    double r_sumtTS = rev_statinfo_.sumtTS;
+    double f_sumt = fwd_statinfo_.rtp_stats.sumt;
+    double f_sumTS = fwd_statinfo_.rtp_stats.sumTS;
+    double f_sumt2 = fwd_statinfo_.rtp_stats.sumt2;
+    double f_sumtTS = fwd_statinfo_.rtp_stats.sumtTS;
+    double r_sumt = rev_statinfo_.rtp_stats.sumt;
+    double r_sumTS = rev_statinfo_.rtp_stats.sumTS;
+    double r_sumt2 = rev_statinfo_.rtp_stats.sumt2;
+    double r_sumtTS = rev_statinfo_.rtp_stats.sumtTS;
     double f_perc, r_perc;
     double f_clock_drift = 1.0;
     double r_clock_drift = 1.0;
-    double f_duration = fwd_statinfo_.time - fwd_statinfo_.start_time;
-    double r_duration = rev_statinfo_.time - rev_statinfo_.start_time;
+    double f_duration = fwd_statinfo_.rtp_stats.time - fwd_statinfo_.rtp_stats.start_time;
+    double r_duration = rev_statinfo_.rtp_stats.time - rev_statinfo_.rtp_stats.start_time;
 
     if (f_clock_rate == 0) {
         f_clock_rate = 1;
@@ -927,24 +893,24 @@ void RtpAnalysisDialog::updateStatistics()
 
     QString stats_tables = "<html><head><style>td{vertical-align:bottom;}</style></head><body>\n";
     stats_tables += QString("<p>%1:%2 " UTF8_LEFT_RIGHT_ARROW)
-            .arg(address_to_qstring(&src_fwd_, true))
-            .arg(port_src_fwd_);
+            .arg(address_to_qstring(&fwd_statinfo_.id.src_addr, true))
+            .arg(fwd_statinfo_.id.src_port);
     stats_tables += QString("<br>%1:%2</p>\n")
-            .arg(address_to_qstring(&dst_fwd_, true))
-            .arg(port_dst_fwd_);
+            .arg(address_to_qstring(&fwd_statinfo_.id.dst_addr, true))
+            .arg(fwd_statinfo_.id.dst_port);
     stats_tables += "<h4>Forward</h4>\n";
     stats_tables += "<p><table>\n";
     stats_tables += QString("<tr><th align=\"left\">SSRC</th><td>%1</td></tr>")
-            .arg(int_to_qstring(ssrc_fwd_, 8, 16));
+            .arg(int_to_qstring(fwd_statinfo_.id.ssrc, 8, 16));
     stats_tables += QString("<tr><th align=\"left\">Max Delta</th><td>%1 ms @ %2</td></tr>")
-            .arg(fwd_statinfo_.max_delta, 0, 'f', 2)
-            .arg(fwd_statinfo_.max_nr);
+            .arg(fwd_statinfo_.rtp_stats.max_delta, 0, 'f', 2)
+            .arg(fwd_statinfo_.rtp_stats.max_nr);
     stats_tables += QString("<tr><th align=\"left\">Max Jitter</th><td>%1 ms</td></tr>")
-            .arg(fwd_statinfo_.max_jitter, 0, 'f', 2);
+            .arg(fwd_statinfo_.rtp_stats.max_jitter, 0, 'f', 2);
     stats_tables += QString("<tr><th align=\"left\">Mean Jitter</th><td>%1 ms</td></tr>")
-            .arg(fwd_statinfo_.mean_jitter, 0, 'f', 2);
+            .arg(fwd_statinfo_.rtp_stats.mean_jitter, 0, 'f', 2);
     stats_tables += QString("<tr><th align=\"left\">Max Skew</th><td>%1 ms</td></tr>")
-            .arg(fwd_statinfo_.max_skew, 0, 'f', 2);
+            .arg(fwd_statinfo_.rtp_stats.max_skew, 0, 'f', 2);
     stats_tables += QString("<tr><th align=\"left\">RTP Packets</th><td>%1</td></tr>")
             .arg(f_total_nr);
     stats_tables += QString("<tr><th align=\"left\">Expected</th><td>%1</td></tr>")
@@ -952,10 +918,10 @@ void RtpAnalysisDialog::updateStatistics()
     stats_tables += QString("<tr><th align=\"left\">Lost</th><td>%1 (%2 %)</td></tr>")
             .arg(f_lost).arg(f_perc, 0, 'f', 2);
     stats_tables += QString("<tr><th align=\"left\">Seq Errs</th><td>%1</td></tr>")
-            .arg(fwd_statinfo_.sequence);
+            .arg(fwd_statinfo_.rtp_stats.sequence);
     stats_tables += QString("<tr><th align=\"left\">Start at</th><td>%1 s @ %2</td></tr>")
-            .arg(fwd_statinfo_.start_time / 1000.0, 0, 'f', 6)
-            .arg(fwd_statinfo_.first_packet_num);
+            .arg(fwd_statinfo_.rtp_stats.start_time / 1000.0, 0, 'f', 6)
+            .arg(fwd_statinfo_.rtp_stats.first_packet_num);
     stats_tables += QString("<tr><th align=\"left\">Duration</th><td>%1 s</td></tr>")
             .arg(f_duration / 1000.0, 0, 'f', 2);
     stats_tables += QString("<tr><th align=\"left\">Clock Drift</th><td>%1 ms</td></tr>")
@@ -967,16 +933,16 @@ void RtpAnalysisDialog::updateStatistics()
     stats_tables += "<h4>Reverse</h4>\n";
     stats_tables += "<p><table>\n";
     stats_tables += QString("<tr><th align=\"left\">SSRC</th><td>%1</td></tr>")
-            .arg(int_to_qstring(ssrc_rev_, 8, 16));
+            .arg(int_to_qstring(rev_statinfo_.id.ssrc, 8, 16));
     stats_tables += QString("<tr><th align=\"left\">Max Delta</th><td>%1 ms @ %2</td></tr>")
-            .arg(rev_statinfo_.max_delta, 0, 'f', 2)
-            .arg(rev_statinfo_.max_nr);
+            .arg(rev_statinfo_.rtp_stats.max_delta, 0, 'f', 2)
+            .arg(rev_statinfo_.rtp_stats.max_nr);
     stats_tables += QString("<tr><th align=\"left\">Max Jitter</th><td>%1 ms</td></tr>")
-            .arg(rev_statinfo_.max_jitter, 0, 'f', 2);
+            .arg(rev_statinfo_.rtp_stats.max_jitter, 0, 'f', 2);
     stats_tables += QString("<tr><th align=\"left\">Mean Jitter</th><td>%1 ms</td></tr>")
-            .arg(rev_statinfo_.mean_jitter, 0, 'f', 2);
+            .arg(rev_statinfo_.rtp_stats.mean_jitter, 0, 'f', 2);
     stats_tables += QString("<tr><th align=\"left\">Max Skew</th><td>%1 ms</td></tr>")
-            .arg(rev_statinfo_.max_skew, 0, 'f', 2);
+            .arg(rev_statinfo_.rtp_stats.max_skew, 0, 'f', 2);
     stats_tables += QString("<tr><th align=\"left\">RTP Packets</th><td>%1</td></tr>")
             .arg(r_total_nr);
     stats_tables += QString("<tr><th align=\"left\">Expected</th><td>%1</td></tr>")
@@ -984,10 +950,10 @@ void RtpAnalysisDialog::updateStatistics()
     stats_tables += QString("<tr><th align=\"left\">Lost</th><td>%1 (%2 %)</td></tr>")
             .arg(r_lost).arg(r_perc, 0, 'f', 2);
     stats_tables += QString("<tr><th align=\"left\">Seq Errs</th><td>%1</td></tr>")
-            .arg(rev_statinfo_.sequence);
+            .arg(rev_statinfo_.rtp_stats.sequence);
     stats_tables += QString("<tr><th align=\"left\">Start at</th><td>%1 s @ %2</td></tr>")
-            .arg(rev_statinfo_.start_time / 1000.0, 0, 'f', 6)
-            .arg(rev_statinfo_.first_packet_num);
+            .arg(rev_statinfo_.rtp_stats.start_time / 1000.0, 0, 'f', 6)
+            .arg(rev_statinfo_.rtp_stats.first_packet_num);
     stats_tables += QString("<tr><th align=\"left\">Duration</th><td>%1 s</td></tr>")
             .arg(r_duration / 1000.0, 0, 'f', 2);
     stats_tables += QString("<tr><th align=\"left\">Clock Drift</th><td>%1 ms</td></tr>")
@@ -995,10 +961,10 @@ void RtpAnalysisDialog::updateStatistics()
     stats_tables += QString("<tr><th align=\"left\">Freq Drift</th><td>%1 Hz (%2 %)</td></tr>") // XXX Terminology?
             .arg(r_clock_drift * r_clock_rate, 0, 'f', 0).arg(100.0 * (r_clock_drift - 1.0), 0, 'f', 2);
     stats_tables += "</table></p>";
-    if (rev_statinfo_.total_nr) {
+    if (rev_statinfo_.rtp_stats.total_nr) {
         stats_tables += QString("<h4>Forward to reverse<br/>start diff %1 s @ %2</h4>")
-            .arg((rev_statinfo_.start_time - fwd_statinfo_.start_time) / 1000.0, 0, 'f', 6)
-            .arg((gint64)rev_statinfo_.first_packet_num - (gint64)fwd_statinfo_.first_packet_num);
+            .arg((rev_statinfo_.rtp_stats.start_time - fwd_statinfo_.rtp_stats.start_time) / 1000.0, 0, 'f', 6)
+            .arg((gint64)rev_statinfo_.rtp_stats.first_packet_num - (gint64)fwd_statinfo_.rtp_stats.first_packet_num);
     }
     stats_tables += "</body></html>\n";
 
@@ -1042,26 +1008,19 @@ void RtpAnalysisDialog::showPlayer()
     // XXX We might want to create an "rtp_stream_id_t" struct with only
     // addresses, ports & SSRC.
     memset(&stream_info, 0, sizeof(stream_info));
-    copy_address(&(stream_info.src_addr), &src_fwd_);
-    stream_info.src_port = port_src_fwd_;
-    copy_address(&(stream_info.dest_addr), &dst_fwd_);
-    stream_info.dest_port = port_dst_fwd_;
-    stream_info.ssrc = ssrc_fwd_;
-    stream_info.packet_count = packet_count_fwd_;
-    stream_info.setup_frame_number = setup_frame_number_fwd_;
-    nstime_copy(&stream_info.start_rel_time, &start_rel_time_fwd_);
+    rtpstream_id_copy(&fwd_statinfo_.id, &stream_info.id);
+    stream_info.packet_count = fwd_statinfo_.packet_count;
+    stream_info.setup_frame_number = fwd_statinfo_.setup_frame_number;
+    nstime_copy(&stream_info.start_rel_time, &fwd_statinfo_.start_rel_time);
 
     rtp_player_dialog.addRtpStream(&stream_info);
     if (num_streams_ > 1) {
-        copy_address(&(stream_info.src_addr), &src_rev_);
-        stream_info.src_port = port_src_rev_;
-        copy_address(&(stream_info.dest_addr), &dst_rev_);
-        stream_info.dest_port = port_dst_rev_;
-        stream_info.ssrc = ssrc_rev_;
-        stream_info.packet_count = packet_count_rev_;
-        stream_info.setup_frame_number = setup_frame_number_rev_;
+        memset(&stream_info, 0, sizeof(stream_info));
+        rtpstream_id_copy(&rev_statinfo_.id, &stream_info.id);
+        stream_info.packet_count = rev_statinfo_.packet_count;
+        stream_info.setup_frame_number = rev_statinfo_.setup_frame_number;
+        nstime_copy(&stream_info.start_rel_time, &rev_statinfo_.start_rel_time);
         rtp_player_dialog.addRtpStream(&stream_info);
-        nstime_copy(&stream_info.start_rel_time, &start_rel_time_rev_);
     }
 
     connect(&rtp_player_dialog, SIGNAL(goToPacket(int)), this, SIGNAL(goToPacket(int)));
@@ -1244,10 +1203,10 @@ gboolean RtpAnalysisDialog::saveAudioAU(StreamDirection direction, QFile *save_f
 
     header_end=save_file->pos();
 
-    bool two_channels = rev_statinfo_.total_nr && (save_payload_error_ == TAP_RTP_NO_ERROR);
-    double t_min = MIN(fwd_statinfo_.start_time, rev_statinfo_.start_time);
-    double t_fwd_diff = fwd_statinfo_.start_time - t_min;
-    double t_rev_diff = rev_statinfo_.start_time - t_min;
+    bool two_channels = rev_statinfo_.rtp_stats.total_nr && (save_payload_error_ == TAP_RTP_NO_ERROR);
+    double t_min = MIN(fwd_statinfo_.rtp_stats.start_time, rev_statinfo_.rtp_stats.start_time);
+    double t_fwd_diff = fwd_statinfo_.rtp_stats.start_time - t_min;
+    double t_rev_diff = rev_statinfo_.rtp_stats.start_time - t_min;
     size_t fwd_samples_diff = 0;
     size_t rev_samples_diff = 0;
     size_t bidir_samples_diff = 0;
@@ -1292,12 +1251,12 @@ gboolean RtpAnalysisDialog::saveAudioAU(StreamDirection direction, QFile *save_f
     switch (direction) {
         /* Only forward direction */
         case dir_forward_: {
-            fwd_total_len = guint32_wraparound_diff(fwd_statinfo_.timestamp, fwd_statinfo_.first_timestamp) + fwd_statinfo_.last_payload_len;
+            fwd_total_len = guint32_wraparound_diff(fwd_statinfo_.rtp_stats.timestamp, fwd_statinfo_.rtp_stats.first_timestamp) + fwd_statinfo_.rtp_stats.last_payload_len;
             if (! saveAudioAUSilence(fwd_total_len + fwd_samples_diff + bidir_samples_diff, save_file, stop_flag))
             {
                 return FALSE;
             }
-            if (! saveAudioAUUnidir(fwd_statinfo_, fwd_tempfile_, save_file, header_end, stop_flag, FALSE, fwd_samples_diff + bidir_samples_diff))
+            if (! saveAudioAUUnidir(fwd_statinfo_.rtp_stats, fwd_tempfile_, save_file, header_end, stop_flag, FALSE, fwd_samples_diff + bidir_samples_diff))
             {
                 return FALSE;
             }
@@ -1305,12 +1264,12 @@ gboolean RtpAnalysisDialog::saveAudioAU(StreamDirection direction, QFile *save_f
         }
         /* Only reverse direction */
         case dir_reverse_: {
-            rev_total_len = guint32_wraparound_diff(rev_statinfo_.timestamp, rev_statinfo_.first_timestamp) + rev_statinfo_.last_payload_len;
+            rev_total_len = guint32_wraparound_diff(rev_statinfo_.rtp_stats.timestamp, rev_statinfo_.rtp_stats.first_timestamp) + rev_statinfo_.rtp_stats.last_payload_len;
             if (! saveAudioAUSilence(rev_total_len + rev_samples_diff + bidir_samples_diff, save_file, stop_flag))
             {
                 return FALSE;
             }
-            if (! saveAudioAUUnidir(rev_statinfo_, rev_tempfile_, save_file, header_end, stop_flag, FALSE, rev_samples_diff + bidir_samples_diff))
+            if (! saveAudioAUUnidir(rev_statinfo_.rtp_stats, rev_tempfile_, save_file, header_end, stop_flag, FALSE, rev_samples_diff + bidir_samples_diff))
             {
                 return FALSE;
             }
@@ -1318,14 +1277,14 @@ gboolean RtpAnalysisDialog::saveAudioAU(StreamDirection direction, QFile *save_f
         }
         /* Both directions */
         case dir_both_: {
-            fwd_total_len = guint32_wraparound_diff(fwd_statinfo_.timestamp, fwd_statinfo_.first_timestamp) + fwd_statinfo_.last_payload_len;
-            rev_total_len = guint32_wraparound_diff(rev_statinfo_.timestamp, rev_statinfo_.first_timestamp) + rev_statinfo_.last_payload_len;
+            fwd_total_len = guint32_wraparound_diff(fwd_statinfo_.rtp_stats.timestamp, fwd_statinfo_.rtp_stats.first_timestamp) + fwd_statinfo_.rtp_stats.last_payload_len;
+            rev_total_len = guint32_wraparound_diff(rev_statinfo_.rtp_stats.timestamp, rev_statinfo_.rtp_stats.first_timestamp) + rev_statinfo_.rtp_stats.last_payload_len;
             total_len = MAX(fwd_total_len + fwd_samples_diff, rev_total_len + rev_samples_diff);
             if (! saveAudioAUSilence((total_len + bidir_samples_diff) * 2, save_file, stop_flag))
             {
                 return FALSE;
             }
-            if (! saveAudioAUBidir(fwd_statinfo_, rev_statinfo_, fwd_tempfile_, rev_tempfile_, save_file, header_end, stop_flag, fwd_samples_diff + bidir_samples_diff, rev_samples_diff + bidir_samples_diff))
+            if (! saveAudioAUBidir(fwd_statinfo_.rtp_stats, rev_statinfo_.rtp_stats, fwd_tempfile_, rev_tempfile_, save_file, header_end, stop_flag, fwd_samples_diff + bidir_samples_diff, rev_samples_diff + bidir_samples_diff))
             {
                 return FALSE;
             }
@@ -1445,8 +1404,8 @@ void RtpAnalysisDialog::saveAudio(RtpAnalysisDialog::StreamDirection direction, 
     ui->progressFrame->showProgress(true, true, &stop_flag);
 
     if (save_format == save_audio_au_) { /* au format */
-        if ((fwd_statinfo_.clock_rate != 8000) ||
-            ((rev_statinfo_.clock_rate != 0) && (rev_statinfo_.clock_rate != 8000))
+        if ((fwd_statinfo_.rtp_stats.clock_rate != 8000) ||
+            ((rev_statinfo_.rtp_stats.clock_rate != 0) && (rev_statinfo_.rtp_stats.clock_rate != 8000))
            ) {
             QMessageBox::warning(this, tr("Warning"), tr("Can save audio with 8000 Hz clock rate only"));
         } else {
@@ -1619,16 +1578,10 @@ void RtpAnalysisDialog::findStreams()
     dfilter_free(sfcode);
 
     /* OK, it is an RTP frame. Let's get the IP and port values */
-    copy_address(&(src_fwd_), &(edt.pi.src));
-    copy_address(&(dst_fwd_), &(edt.pi.dst));
-    port_src_fwd_ = edt.pi.srcport;
-    port_dst_fwd_ = edt.pi.destport;
+    rtpstream_id_copy_pinfo(&(edt.pi),&(fwd_statinfo_.id),FALSE);
 
     /* assume the inverse ip/port combination for the reverse direction */
-    copy_address(&(src_rev_), &(edt.pi.dst));
-    copy_address(&(dst_rev_), &(edt.pi.src));
-    port_src_rev_ = edt.pi.destport;
-    port_dst_rev_ = edt.pi.srcport;
+    rtpstream_id_copy_pinfo(&(edt.pi),&(rev_statinfo_.id),TRUE);
 
     /* now we need the SSRC value of the current frame */
     GPtrArray *gp = proto_get_finfo_ptr_array(edt.tree, hfid_rtp_ssrc);
@@ -1639,7 +1592,7 @@ void RtpAnalysisDialog::findStreams()
         updateWidgets();
         return;
     }
-    ssrc_fwd_ = fvalue_get_uinteger(&((field_info *)gp->pdata[0])->value);
+    fwd_statinfo_.id.ssrc = fvalue_get_uinteger(&((field_info *)gp->pdata[0])->value);
 
     /* Register the tap listener */
     memset(&tapinfo_, 0, sizeof(rtpstream_tapinfo_t));
@@ -1652,28 +1605,22 @@ void RtpAnalysisDialog::findStreams()
 
     for (GList *strinfo_list = g_list_first(tapinfo_.strinfo_list); strinfo_list; strinfo_list = g_list_next(strinfo_list)) {
         rtpstream_info_t * strinfo = (rtpstream_info_t*)(strinfo_list->data);
-        if (addresses_equal(&(strinfo->src_addr), &(src_fwd_))
-            && (strinfo->src_port == port_src_fwd_)
-            && (addresses_equal(&(strinfo->dest_addr), &(dst_fwd_)))
-            && (strinfo->dest_port == port_dst_fwd_))
+        if (rtpstream_id_equal(&(strinfo->id), &(fwd_statinfo_.id),RTPSTREAM_ID_EQUAL_NONE))
         {
-            packet_count_fwd_ = strinfo->packet_count;
-            setup_frame_number_fwd_ = strinfo->setup_frame_number;
-            nstime_copy(&start_rel_time_fwd_, &strinfo->start_rel_time);
+            fwd_statinfo_.packet_count = strinfo->packet_count;
+            fwd_statinfo_.setup_frame_number = strinfo->setup_frame_number;
+            nstime_copy(&fwd_statinfo_.start_rel_time, &strinfo->start_rel_time);
             num_streams_++;
         }
 
-        if (addresses_equal(&(strinfo->src_addr), &(src_rev_))
-            && (strinfo->src_port == port_src_rev_)
-            && (addresses_equal(&(strinfo->dest_addr), &(dst_rev_)))
-            && (strinfo->dest_port == port_dst_rev_))
+        if (rtpstream_id_equal(&(strinfo->id), &(rev_statinfo_.id),RTPSTREAM_ID_EQUAL_NONE))
         {
-            packet_count_rev_ = strinfo->packet_count;
-            setup_frame_number_rev_ = strinfo->setup_frame_number;
-            nstime_copy(&start_rel_time_rev_, &strinfo->start_rel_time);
+            rev_statinfo_.packet_count = strinfo->packet_count;
+            rev_statinfo_.setup_frame_number = strinfo->setup_frame_number;
+            nstime_copy(&rev_statinfo_.start_rel_time, &strinfo->start_rel_time);
             num_streams_++;
-            if (ssrc_rev_ == 0) {
-                ssrc_rev_ = strinfo->ssrc;
+            if (rev_statinfo_.id.ssrc == 0) {
+                rev_statinfo_.id.ssrc = strinfo->id.ssrc;
             }
         }
     }

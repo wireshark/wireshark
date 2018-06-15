@@ -32,13 +32,11 @@ extern "C" {
 #include <epan/address.h>
 #include <epan/tap.h>
 
+#include "ui/rtp_stream_id.h"
+
 /** Defines an rtp stream */
 typedef struct _rtpstream_info {
-    address         src_addr;
-    guint32         src_port;
-    address         dest_addr;
-    guint32         dest_port;
-    guint32         ssrc;
+    rtpstream_id_t  id;
 
     guint8          payload_type; /**< Numeric payload type */
     gchar          *payload_type_name; /**< Payload type name */
@@ -84,14 +82,14 @@ struct _rtpstream_tapinfo {
     rtpstream_tap_reset_cb tap_reset;       /**< tap reset callback */
     rtpstream_tap_draw_cb tap_draw;         /**< tap draw callback */
     tap_mark_packet_cb tap_mark_packet;     /**< packet marking callback */
-    void *tap_data;                         /**< data for tap callbacks */
+    void              *tap_data;            /**< data for tap callbacks */
     int                nstreams; /**< number of streams in the list */
     GList             *strinfo_list; /**< list of rtp_stream_info_t* */
     int                npackets; /**< total number of rtp packets of all streams */
     /* used while tapping. user shouldn't modify these */
     tap_mode_t         mode;
-    rtpstream_info_t *filter_stream_fwd; /**< used as filter in some tap modes */
-    rtpstream_info_t *filter_stream_rev; /**< used as filter in some tap modes */
+    rtpstream_info_t  *filter_stream_fwd; /**< used as filter in some tap modes */
+    rtpstream_info_t  *filter_stream_rev; /**< used as filter in some tap modes */
     FILE              *save_file;
     gboolean           is_registered; /**< if the tap listener is currently registered or not */
 };
@@ -140,13 +138,6 @@ void rtpstream_scan(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file, const 
 * (redissects all packets)
 */
 gboolean rtpstream_save(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file, rtpstream_info_t* stream, const gchar *filename);
-
-/**
-* Compares the endpoints of two RTP streams.
-*
-* @return TRUE if the
-*/
-gboolean rtpstream_info_is_reverse(const rtpstream_info_t *stream_a, rtpstream_info_t *stream_b);
 
 /**
 * Marks all packets belonging to either of stream_fwd or stream_rev.

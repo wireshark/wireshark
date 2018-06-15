@@ -141,11 +141,7 @@ public slots:
 private:
     // Used to identify unique streams.
     // The GTK+ UI also uses the call number + current channel.
-    address src_addr_;
-    quint16 src_port_;
-    address dst_addr_;
-    quint16 dst_port_;
-    quint32 ssrc_;
+    rtpstream_id_t id_;
 
     QVector<struct _rtp_packet *>rtp_packets_;
     QTemporaryFile *tempfile_;

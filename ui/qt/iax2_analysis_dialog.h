@@ -22,6 +22,7 @@
 #include <epan/address.h>
 
 #include "ui/tap-iax2-analysis.h"
+#include "ui/rtp_stream_id.h"
 
 #include <QAbstractButton>
 #include <QMenu>
@@ -80,14 +81,8 @@ private:
     Ui::Iax2AnalysisDialog *ui;
     enum StreamDirection { dir_both_, dir_forward_, dir_reverse_ };
 
-    address src_fwd_;
-    guint32 port_src_fwd_;
-    address dst_fwd_;
-    guint32 port_dst_fwd_;
-    address src_rev_;
-    guint32 port_src_rev_;
-    address dst_rev_;
-    guint32 port_dst_rev_;
+    rtpstream_id_t fwd_id_;
+    rtpstream_id_t rev_id_;
 
     tap_iax2_stat_t fwd_statinfo_;
     tap_iax2_stat_t rev_statinfo_;

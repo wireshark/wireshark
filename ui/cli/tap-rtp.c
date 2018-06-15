@@ -94,14 +94,14 @@ rtp_streams_stat_draw(void *arg _U_)
             perc = 0;
         }
 
-        src_addr = address_to_display(NULL, &(strinfo->src_addr));
-        dst_addr = address_to_display(NULL, &(strinfo->dest_addr));
+        src_addr = address_to_display(NULL, &(strinfo->id.src_addr));
+        dst_addr = address_to_display(NULL, &(strinfo->id.dst_addr));
         printf("%15s %5u %15s %5u 0x%08X %16s %5u %5d (%.1f%%) %15.2f %15.2f %15.2f %s\n",
             src_addr,
-            strinfo->src_port,
+            strinfo->id.src_port,
             dst_addr,
-            strinfo->dest_port,
-            strinfo->ssrc,
+            strinfo->id.dst_port,
+            strinfo->id.ssrc,
             payload_type,
             strinfo->packet_count,
             lost, perc,

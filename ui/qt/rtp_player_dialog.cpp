@@ -376,11 +376,11 @@ void RtpPlayerDialog::addRtpStream(rtpstream_info_t *rtp_stream)
         audio_stream->setColor(ColorUtils::graphColor(tli_count));
 
         QTreeWidgetItem *ti = new QTreeWidgetItem(ui->streamTreeWidget);
-        ti->setText(src_addr_col_, address_to_qstring(&rtp_stream->src_addr));
-        ti->setText(src_port_col_, QString::number(rtp_stream->src_port));
-        ti->setText(dst_addr_col_, address_to_qstring(&rtp_stream->dest_addr));
-        ti->setText(dst_port_col_, QString::number(rtp_stream->dest_port));
-        ti->setText(ssrc_col_, int_to_qstring(rtp_stream->ssrc, 8, 16));
+        ti->setText(src_addr_col_, address_to_qstring(&rtp_stream->id.src_addr));
+        ti->setText(src_port_col_, QString::number(rtp_stream->id.src_port));
+        ti->setText(dst_addr_col_, address_to_qstring(&rtp_stream->id.dst_addr));
+        ti->setText(dst_port_col_, QString::number(rtp_stream->id.dst_port));
+        ti->setText(ssrc_col_, int_to_qstring(rtp_stream->id.ssrc, 8, 16));
         ti->setText(first_pkt_col_, QString::number(rtp_stream->setup_frame_number));
         ti->setText(num_pkts_col_, QString::number(rtp_stream->packet_count));
 
@@ -776,8 +776,8 @@ const QString RtpPlayerDialog::streamKey(const rtpstream_info_t *rtp_stream)
     const QString stream_key = QString(stream_key_tmpl_)
             .arg(address_to_display_qstring(&rtp_stream->src_addr))
             .arg(rtp_stream->src_port)
-            .arg(address_to_display_qstring(&rtp_stream->dest_addr))
-            .arg(rtp_stream->dest_port)
+            .arg(address_to_display_qstring(&rtp_stream->dst_addr))
+            .arg(rtp_stream->dst_port)
             .arg(rtp_stream->ssrc, 0, 16);
     return stream_key;
 }

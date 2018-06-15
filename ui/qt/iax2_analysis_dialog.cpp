@@ -194,10 +194,6 @@ enum {
 Iax2AnalysisDialog::Iax2AnalysisDialog(QWidget &parent, CaptureFile &cf) :
     WiresharkDialog(parent, cf),
     ui(new Ui::Iax2AnalysisDialog),
-    port_src_fwd_(0),
-    port_dst_fwd_(0),
-    port_src_rev_(0),
-    port_dst_rev_(0),
     save_payload_error_(TAP_IAX2_NO_ERROR)
 {
     ui->setupUi(this);
@@ -237,10 +233,8 @@ Iax2AnalysisDialog::Iax2AnalysisDialog(QWidget &parent, CaptureFile &cf) :
     }
     ui->reverseTreeWidget->setHeaderLabels(header_labels);
 
-    memset(&src_fwd_, 0, sizeof(address));
-    memset(&dst_fwd_, 0, sizeof(address));
-    memset(&src_rev_, 0, sizeof(address));
-    memset(&dst_rev_, 0, sizeof(address));
+    memset(&fwd_id_, 0, sizeof(fwd_id_));
+    memset(&rev_id_, 0, sizeof(rev_id_));
 
     QList<QCheckBox *> graph_cbs = QList<QCheckBox *>()
             << ui->fJitterCheckBox << ui->fDiffCheckBox
@@ -339,22 +333,16 @@ Iax2AnalysisDialog::Iax2AnalysisDialog(QWidget &parent, CaptureFile &cf) :
     dfilter_free(sfcode);
 
     /* ok, it is a IAX2 frame, so let's get the ip and port values */
-    copy_address(&(src_fwd_), &(edt.pi.src));
-    copy_address(&(dst_fwd_), &(edt.pi.dst));
-    port_src_fwd_ = edt.pi.srcport;
-    port_dst_fwd_ = edt.pi.destport;
+    rtpstream_id_copy_pinfo(&(edt.pi),&(fwd_id_),FALSE);
 
     /* assume the inverse ip/port combination for the reverse direction */
-    copy_address(&(src_rev_), &(edt.pi.dst));
-    copy_address(&(dst_rev_), &(edt.pi.src));
-    port_src_rev_ = edt.pi.destport;
-    port_dst_rev_ = edt.pi.srcport;
+    rtpstream_id_copy_pinfo(&(edt.pi),&(rev_id_),TRUE);
 
 #ifdef IAX2_RTP_STREAM_CHECK
-    rtpstream_tapinfot tapinfo;
+    rtpstream_tapinfo_t tapinfo;
 
     /* Register the tap listener */
-    memset(&tapinfo, 0, sizeof(rtpstream_tapinfot));
+    memset(&tapinfo, 0, sizeof(rtpstream_tapinfo_t));
     tapinfo.tap_data = this;
     tapinfo.mode = TAP_ANALYSE;
 
@@ -365,21 +353,14 @@ Iax2AnalysisDialog::Iax2AnalysisDialog(QWidget &parent, CaptureFile &cf) :
     int num_streams = 0;
     GList *filtered_list = NULL;
     for (GList *strinfo_list = g_list_first(tapinfo.strinfo_list); strinfo_list; strinfo_list = g_list_next(strinfo_list)) {
-        rtp_stream_info_t * strinfo = (rtp_stream_info_t*)(strinfo_list->data);
-                 << address_to_qstring(&strinfo->dest_addr) << address_to_qstring(&src_rev_) << address_to_qstring(&dst_rev_);
-        if (addresses_equal(&(strinfo->src_addr), &(src_fwd_))
-            && (strinfo->src_port == port_src_fwd_)
-            && (addresses_equal(&(strinfo->dest_addr), &(dst_fwd_)))
-            && (strinfo->dest_port == port_dst_fwd_))
+        rtpstream_info_t * strinfo = (rtpstream_info_t*)(strinfo_list->data);
+        if (rtpstream_id_equal(&(strinfo->id), &(fwd_id_),RTPSTREAM_ID_EQUAL_NONE))
         {
             ++num_streams;
             filtered_list = g_list_prepend(filtered_list, strinfo);
         }
 
-        if (addresses_equal(&(strinfo->src_addr), &(src_rev_))
-            && (strinfo->src_port == port_src_rev_)
-            && (addresses_equal(&(strinfo->dest_addr), &(dst_rev_)))
-            && (strinfo->dest_port == port_dst_rev_))
+        if (rtpstream_id_equal(&(strinfo->id), &(rev_id_),RTPSTREAM_ID_EQUAL_NONE))
         {
             ++num_streams;
             filtered_list = g_list_append(filtered_list, strinfo);
@@ -639,18 +620,18 @@ gboolean Iax2AnalysisDialog::tapPacket(void *tapinfoptr, packet_info *pinfo, str
         return FALSE;
 
     /* is it the forward direction?  */
-    else if ((cmp_address(&(iax2_analysis_dialog->src_fwd_), &(pinfo->src)) == 0)
-         && (iax2_analysis_dialog->port_src_fwd_ == pinfo->srcport)
-         && (cmp_address(&(iax2_analysis_dialog->dst_fwd_), &(pinfo->dst)) == 0)
-         && (iax2_analysis_dialog->port_dst_fwd_ == pinfo->destport))  {
+    else if ((cmp_address(&(iax2_analysis_dialog->fwd_id_.src_addr), &(pinfo->src)) == 0)
+         && (iax2_analysis_dialog->fwd_id_.src_port == pinfo->srcport)
+         && (cmp_address(&(iax2_analysis_dialog->fwd_id_.dst_addr), &(pinfo->dst)) == 0)
+         && (iax2_analysis_dialog->fwd_id_.dst_port == pinfo->destport))  {
 
         iax2_analysis_dialog->addPacket(true, pinfo, iax2info);
     }
     /* is it the reversed direction? */
-    else if ((cmp_address(&(iax2_analysis_dialog->src_rev_), &(pinfo->src)) == 0)
-         && (iax2_analysis_dialog->port_src_rev_ == pinfo->srcport)
-         && (cmp_address(&(iax2_analysis_dialog->dst_rev_), &(pinfo->dst)) == 0)
-         && (iax2_analysis_dialog->port_dst_rev_ == pinfo->destport))  {
+    else if ((cmp_address(&(iax2_analysis_dialog->rev_id_.src_addr), &(pinfo->src)) == 0)
+         && (iax2_analysis_dialog->rev_id_.src_port == pinfo->srcport)
+         && (cmp_address(&(iax2_analysis_dialog->rev_id_.dst_addr), &(pinfo->dst)) == 0)
+         && (iax2_analysis_dialog->rev_id_.dst_port == pinfo->destport))  {
 
         iax2_analysis_dialog->addPacket(false, pinfo, iax2info);
     }
@@ -790,11 +771,11 @@ void Iax2AnalysisDialog::updateStatistics()
 
     QString stats_tables = "<html><head></head><body>\n";
     stats_tables += QString("<p>%1:%2 " UTF8_LEFT_RIGHT_ARROW)
-            .arg(address_to_qstring(&src_fwd_, true))
-            .arg(port_src_fwd_);
+            .arg(address_to_qstring(&fwd_id_.src_addr, true))
+            .arg(fwd_id_.src_port);
     stats_tables += QString("<br>%1:%2</p>\n")
-            .arg(address_to_qstring(&dst_fwd_, true))
-            .arg(port_dst_fwd_);
+            .arg(address_to_qstring(&fwd_id_.dst_addr, true))
+            .arg(fwd_id_.dst_port);
     stats_tables += "<h4>Forward</h4>\n";
     stats_tables += "<p><table>\n";
     stats_tables += QString("<tr><th align=\"left\">Max Delta</th><td>%1 ms @ %2</td></tr>")

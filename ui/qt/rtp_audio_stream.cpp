@@ -53,11 +53,7 @@ RtpAudioStream::RtpAudioStream(QObject *parent, rtpstream_info_t *rtp_stream) :
     jitter_buffer_size_(50),
     timing_mode_(RtpAudioStream::JitterBuffer)
 {
-    copy_address(&src_addr_, &rtp_stream->src_addr);
-    src_port_ = rtp_stream->src_port;
-    copy_address(&dst_addr_, &rtp_stream->dest_addr);
-    dst_port_ = rtp_stream->dest_port;
-    ssrc_ = rtp_stream->ssrc;
+    rtpstream_id_copy(&rtp_stream->id, &id_);
 
     // We keep visual samples in memory. Make fewer of them.
     visual_resampler_ = speex_resampler_init(1, default_audio_sample_rate_,
@@ -82,16 +78,13 @@ RtpAudioStream::~RtpAudioStream()
     g_hash_table_destroy(decoders_hash_);
     if (audio_resampler_) speex_resampler_destroy (audio_resampler_);
     speex_resampler_destroy (visual_resampler_);
+    rtpstream_id_free(&id_);
 }
 
 bool RtpAudioStream::isMatch(const rtpstream_info_t *rtp_stream) const
 {
     if (rtp_stream
-            && addresses_equal(&rtp_stream->src_addr, &src_addr_)
-            && rtp_stream->src_port == src_port_
-            && addresses_equal(&rtp_stream->dest_addr, &dst_addr_)
-            && rtp_stream->dest_port == dst_port_
-            && rtp_stream->ssrc == ssrc_)
+        && rtpstream_id_equal(&id_, &(rtp_stream->id), RTPSTREAM_ID_EQUAL_SSRC))
         return true;
     return false;
 }
@@ -99,11 +92,7 @@ bool RtpAudioStream::isMatch(const rtpstream_info_t *rtp_stream) const
 bool RtpAudioStream::isMatch(const _packet_info *pinfo, const _rtp_info *rtp_info) const
 {
     if (pinfo && rtp_info
-            && addresses_equal(&pinfo->src, &src_addr_)
-            && pinfo->srcport == src_port_
-            && addresses_equal(&pinfo->dst, &dst_addr_)
-            && pinfo->destport == dst_port_
-            && rtp_info->info_sync_src == ssrc_)
+        && rtpstream_id_equal_pinfo_rtp_info(&id_, pinfo, rtp_info))
         return true;
     return false;
 }

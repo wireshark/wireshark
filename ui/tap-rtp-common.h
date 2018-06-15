@@ -43,6 +43,20 @@ typedef struct _tap_rtp_save_info_t {
     gboolean saved;
 } tap_rtp_save_info_t;
 
+/**
+ * Compares two RTP stream infos (GCompareFunc style comparison function)
+ *
+ * @return -1,0,1
+ */
+gint rtpstream_info_cmp(gconstpointer aa, gconstpointer bb);
+
+/**
+* Compares the endpoints of two RTP streams.
+*
+* @return TRUE if the
+*/
+gboolean rtpstream_info_is_reverse(const rtpstream_info_t *stream_a, rtpstream_info_t *stream_b);
+
 void rtpstream_reset_cb(void*);
 void rtp_write_header(rtpstream_info_t*, FILE*);
 int rtpstream_packet_cb(void*, packet_info*, epan_dissect_t *, const void *);

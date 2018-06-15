@@ -602,7 +602,7 @@ rtp_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, void c
     {
         tmp_listinfo=(rtpstream_info_t *)list->data;
         if ( (tmp_listinfo->setup_frame_number == rtp_info->info_setup_frame_num)
-                && (tmp_listinfo->ssrc == rtp_info->info_sync_src) && (tmp_listinfo->end_stream == FALSE)) {
+                && (tmp_listinfo->id.ssrc == rtp_info->info_sync_src) && (tmp_listinfo->end_stream == FALSE)) {
             /* if the payload type has changed, we mark the stream as finished to create a new one
                this is to show multiple payload changes in the Graph for example for DTMF RFC2833 */
             if ( tmp_listinfo->payload_type != rtp_info->info_payload_type ) {
@@ -631,11 +631,8 @@ rtp_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, void c
     /* not in the list? then create a new entry */
     if (strinfo==NULL) {
         strinfo = (rtpstream_info_t *)g_malloc0(sizeof(rtpstream_info_t));
-        copy_address(&(strinfo->src_addr), &(pinfo->src));
-        strinfo->src_port = pinfo->srcport;
-        copy_address(&(strinfo->dest_addr), &(pinfo->dst));
-        strinfo->dest_port = pinfo->destport;
-        strinfo->ssrc = rtp_info->info_sync_src;
+        rtpstream_id_copy_pinfo(pinfo,&(strinfo->id),FALSE);
+        strinfo->id.ssrc = rtp_info->info_sync_src;
         strinfo->payload_type = rtp_info->info_payload_type;
         strinfo->is_srtp = rtp_info->info_is_srtp;
         /* if it is dynamic payload, let use the conv data to see if it is defined */
@@ -718,14 +715,14 @@ rtp_draw(void *tap_offset_ptr)
                 g_free(gai->comment);
                 gai->comment = g_strdup_printf(comment_fmt,
                         (rtp_listinfo->is_srtp)?"SRTP":"RTP", rtp_listinfo->packet_count,
-                        duration/1000,(duration%1000), rtp_listinfo->ssrc);
+                        duration/1000,(duration%1000), rtp_listinfo->id.ssrc);
             } else {
                 new_gai = (seq_analysis_item_t *)g_malloc0(sizeof(seq_analysis_item_t));
                 new_gai->frame_number = rtp_listinfo->start_fd->num;
-                copy_address(&(new_gai->src_addr),&(rtp_listinfo->src_addr));
-                copy_address(&(new_gai->dst_addr),&(rtp_listinfo->dest_addr));
-                new_gai->port_src = rtp_listinfo->src_port;
-                new_gai->port_dst = rtp_listinfo->dest_port;
+                copy_address(&(new_gai->src_addr),&(rtp_listinfo->id.src_addr));
+                copy_address(&(new_gai->dst_addr),&(rtp_listinfo->id.dst_addr));
+                new_gai->port_src = rtp_listinfo->id.src_port;
+                new_gai->port_dst = rtp_listinfo->id.dst_port;
                 duration = (guint32)(nstime_to_msec(&rtp_listinfo->stop_rel_time) - nstime_to_msec(&rtp_listinfo->start_rel_time));
                 new_gai->frame_label = g_strdup_printf("%s (%s) %s%s%s",
                         (rtp_listinfo->is_srtp)?"SRTP":"RTP",
@@ -737,7 +734,7 @@ rtp_draw(void *tap_offset_ptr)
                 );
                 new_gai->comment = g_strdup_printf(comment_fmt,
                         (rtp_listinfo->is_srtp)?"SRTP":"RTP", rtp_listinfo->packet_count,
-                        duration/1000,(duration%1000), rtp_listinfo->ssrc);
+                        duration/1000,(duration%1000), rtp_listinfo->id.ssrc);
                 new_gai->conv_num = conv_num;
                 set_fd_time(tapinfo->session, rtp_listinfo->start_fd, time_str);
                 new_gai->time_str = g_strdup(time_str);
@@ -795,7 +792,7 @@ rtp_packet_draw(void *tap_offset_ptr)
                         g_free(gai->comment);
                         gai->comment = g_strdup_printf("%s Num packets:%u  Duration:%u.%03us SSRC:0x%X",
                                                        (rtp_listinfo->is_srtp)?"SRTP":"RTP", rtp_listinfo->npackets,
-                                                       duration/1000,(duration%1000), rtp_listinfo->ssrc);
+                                                       duration/1000,(duration%1000), rtp_listinfo->id.ssrc);
                         break;
                     }
 
@@ -808,9 +805,9 @@ rtp_packet_draw(void *tap_offset_ptr)
                         new_gai = g_malloc0(sizeof(seq_analysis_item_t));
                         new_gai->frame_number = rtp_listinfo->start_fd->num;
                         copy_address(&(new_gai->src_addr),&(rtp_listinfo->src_addr));
-                        copy_address(&(new_gai->dst_addr),&(rtp_listinfo->dest_addr));
-                        new_gai->port_src = rtp_listinfo->src_port;
-                        new_gai->port_dst = rtp_listinfo->dest_port;
+                        copy_address(&(new_gai->dst_addr),&(rtp_listinfo->dst_addr));
+                        new_gai->port_src = rtp_listinfo->id.src_port;
+                        new_gai->port_dst = rtp_listinfo->id.dst_port;
                         new_gai->protocol = g_strdup(port_type_to_str(pinfo->ptype));
                         duration = (guint32)(nstime_to_msec(&rtp_listinfo->stop_fd->rel_ts) - nstime_to_msec(&rtp_listinfo->start_fd->rel_ts));
                         new_gai->frame_label = g_strdup_printf("%s (%s) %s",
@@ -820,7 +817,7 @@ rtp_packet_draw(void *tap_offset_ptr)
                                                                "":val_to_str_ext_const(rtp_listinfo->rtp_event, &rtp_event_type_values_ext, "Unknown RTP Event"));
                         new_gai->comment = g_strdup_printf("%s Num packets:%u  Duration:%u.%03us SSRC:0x%X",
                                                            (rtp_listinfo->is_srtp)?"SRTP":"RTP", rtp_listinfo->npackets,
-                                                           duration/1000,(duration%1000), rtp_listinfo->ssrc);
+                                                           duration/1000,(duration%1000), rtp_listinfo->id.ssrc);
                         new_gai->conv_num = conv_num;
                         set_fd_time(cfile.epan, rtp_listinfo->start_fd, time_str);
                         new_gai->time_str = g_strdup(time_str);

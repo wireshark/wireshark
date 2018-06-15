@@ -45,7 +45,7 @@ typedef struct st_rtpdump_info {
 
 /****************************************************************************/
 /* GCompareFunc style comparison function for rtp_stream_info_t */
-static gint rtpstream_info_cmp(gconstpointer aa, gconstpointer bb)
+gint rtpstream_info_cmp(gconstpointer aa, gconstpointer bb)
 {
     const rtpstream_info_t* a = (const rtpstream_info_t*)aa;
     const rtpstream_info_t* b = (const rtpstream_info_t*)bb;
@@ -54,16 +54,27 @@ static gint rtpstream_info_cmp(gconstpointer aa, gconstpointer bb)
         return 0;
     if (a==NULL || b==NULL)
         return 1;
-    if (addresses_equal(&(a->src_addr), &(b->src_addr))
-            && (a->src_port == b->src_port)
-            && addresses_equal(&(a->dest_addr), &(b->dest_addr))
-            && (a->dest_port == b->dest_port)
-            && (a->ssrc == b->ssrc))
+    if (rtpstream_id_equal(&(a->id),&(b->id),RTPSTREAM_ID_EQUAL_SSRC))
         return 0;
     else
         return 1;
 }
 
+/****************************************************************************/
+/* compare the endpoints of two RTP streams */
+gboolean rtpstream_info_is_reverse(const rtpstream_info_t *stream_a, rtpstream_info_t *stream_b)
+{
+    if (stream_a == NULL || stream_b == NULL)
+        return FALSE;
+
+    if ((addresses_equal(&(stream_a->id.src_addr), &(stream_b->id.dst_addr)))
+        && (stream_a->id.src_port == stream_b->id.dst_port)
+        && (addresses_equal(&(stream_a->id.dst_addr), &(stream_b->id.src_addr)))
+        && (stream_a->id.dst_port == stream_b->id.src_port))
+        return TRUE;
+    else
+        return FALSE;
+}
 
 /****************************************************************************/
 /* when there is a [re]reading of packet's */
@@ -130,22 +141,22 @@ void rtp_write_header(rtpstream_info_t *strinfo, FILE *file)
     size_t sourcelen;
     guint16 port;          /* UDP port */
     guint16 padding;       /* 2 padding bytes */
-    char* addr_str = address_to_display(NULL, &(strinfo->dest_addr));
+    char* addr_str = address_to_display(NULL, &(strinfo->id.dst_addr));
 
     fprintf(file, "#!rtpplay%s %s/%u\n", RTPFILE_VERSION,
             addr_str,
-            strinfo->dest_port);
+            strinfo->id.dst_port);
     wmem_free(NULL, addr_str);
 
     start_sec = g_htonl(strinfo->start_fd->abs_ts.secs);
     start_usec = g_htonl(strinfo->start_fd->abs_ts.nsecs / 1000000);
     /* rtpdump only accepts guint32 as source, will be fake for IPv6 */
     memset(&source, 0, sizeof source);
-    sourcelen = strinfo->src_addr.len;
+    sourcelen = strinfo->id.src_addr.len;
     if (sourcelen > sizeof source)
         sourcelen = sizeof source;
-    memcpy(&source, strinfo->src_addr.data, sourcelen);
-    port = g_htons(strinfo->src_port);
+    memcpy(&source, strinfo->id.src_addr.data, sourcelen);
+    port = g_htons(strinfo->id.src_port);
     padding = 0;
 
     if (fwrite(&start_sec, 4, 1, file) == 0)
@@ -199,11 +210,8 @@ int rtpstream_packet_cb(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, 
     /* gather infos on the stream this packet is part of.
      * Addresses and strings are read-only and must be duplicated if copied. */
     memset(&new_stream_info, 0, sizeof(rtpstream_info_t));
-    copy_address_shallow(&(new_stream_info.src_addr), &(pinfo->src));
-    new_stream_info.src_port = pinfo->srcport;
-    copy_address_shallow(&(new_stream_info.dest_addr), &(pinfo->dst));
-    new_stream_info.dest_port = pinfo->destport;
-    new_stream_info.ssrc = rtpinfo->info_sync_src;
+    rtpstream_id_copy_pinfo(pinfo,&(new_stream_info.id),FALSE);
+    new_stream_info.id.ssrc = rtpinfo->info_sync_src;
     new_stream_info.payload_type = rtpinfo->info_payload_type;
     new_stream_info.payload_type_name = (char *)rtpinfo->info_payload_type_str;
 
@@ -238,8 +246,8 @@ int rtpstream_packet_cb(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, 
 
             stream_info = g_new(rtpstream_info_t,1);
             /* Deep clone of contents. */
-            copy_address(&(new_stream_info.src_addr), &(new_stream_info.src_addr));
-            copy_address(&(new_stream_info.dest_addr), &(new_stream_info.dest_addr));
+            copy_address(&(new_stream_info.id.src_addr), &(new_stream_info.id.src_addr));
+            copy_address(&(new_stream_info.id.dst_addr), &(new_stream_info.id.dst_addr));
             new_stream_info.payload_type_name = g_strdup(new_stream_info.payload_type_name);
             *stream_info = new_stream_info;  /* memberwise copy of struct */
             tapinfo->strinfo_list = g_list_prepend(tapinfo->strinfo_list, stream_info);

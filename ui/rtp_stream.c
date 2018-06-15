@@ -121,22 +121,6 @@ gboolean rtpstream_save(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file, rt
 }
 
 /****************************************************************************/
-/* compare the endpoints of two RTP streams */
-gboolean rtpstream_info_is_reverse(const rtpstream_info_t *stream_a, rtpstream_info_t *stream_b)
-{
-    if (stream_a == NULL || stream_b == NULL)
-        return FALSE;
-
-    if ((addresses_equal(&(stream_a->src_addr), &(stream_b->dest_addr)))
-        && (stream_a->src_port == stream_b->dest_port)
-        && (addresses_equal(&(stream_a->dest_addr), &(stream_b->src_addr)))
-        && (stream_a->dest_port == stream_b->src_port))
-        return TRUE;
-    else
-        return FALSE;
-}
-
-/****************************************************************************/
 /* mark packets in stream_fwd or stream_rev */
 void rtpstream_mark(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file, rtpstream_info_t* stream_fwd, rtpstream_info_t* stream_rev)
 {

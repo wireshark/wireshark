@@ -82,30 +82,10 @@ private:
     enum StreamDirection { dir_both_, dir_forward_, dir_reverse_ };
     enum SyncType { sync_unsync_, sync_sync_stream_, sync_sync_file_ };
 
-    // XXX These are copied to and from rtp_stream_info_t structs. Should
-    // we just have a pair of those instead?
-    address src_fwd_;
-    guint32 port_src_fwd_;
-    address dst_fwd_;
-    guint32 port_dst_fwd_;
-    guint32 ssrc_fwd_;
-    guint32 packet_count_fwd_;
-    guint32 setup_frame_number_fwd_;
-    nstime_t start_rel_time_fwd_;
-
-    address src_rev_;
-    guint32 port_src_rev_;
-    address dst_rev_;
-    guint32 port_dst_rev_;
-    guint32 ssrc_rev_;
-    guint32 packet_count_rev_;
-    guint32 setup_frame_number_rev_;
-    nstime_t start_rel_time_rev_;
-
     int num_streams_;
 
-    tap_rtp_stat_t fwd_statinfo_;
-    tap_rtp_stat_t rev_statinfo_;
+    rtpstream_info_t fwd_statinfo_;
+    rtpstream_info_t rev_statinfo_;
 
     QPushButton *player_button_;
 

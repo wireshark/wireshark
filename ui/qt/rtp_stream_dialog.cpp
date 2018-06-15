@@ -86,11 +86,11 @@ public:
         if (!stream_info_) {
             return;
         }
-        setText(src_addr_col_, address_to_display_qstring(&stream_info_->src_addr));
-        setText(src_port_col_, QString::number(stream_info_->src_port));
-        setText(dst_addr_col_, address_to_display_qstring(&stream_info_->dest_addr));
-        setText(dst_port_col_, QString::number(stream_info_->dest_port));
-        setText(ssrc_col_, QString("0x%1").arg(stream_info_->ssrc, 0, 16));
+        setText(src_addr_col_, address_to_display_qstring(&stream_info_->id.src_addr));
+        setText(src_port_col_, QString::number(stream_info_->id.src_port));
+        setText(dst_addr_col_, address_to_display_qstring(&stream_info_->id.dst_addr));
+        setText(dst_port_col_, QString::number(stream_info_->id.dst_port));
+        setText(ssrc_col_, QString("0x%1").arg(stream_info_->id.ssrc, 0, 16));
 
         if (stream_info_->payload_type_name != NULL) {
             setText(payload_col_, stream_info_->payload_type_name);
@@ -139,11 +139,11 @@ public:
         case payload_col_: // XXX Return numeric value?
             return text(col);
         case src_port_col_:
-            return stream_info_->src_port;
+            return stream_info_->id.src_port;
         case dst_port_col_:
-            return stream_info_->dest_port;
+            return stream_info_->id.dst_port;
         case ssrc_col_:
-            return stream_info_->ssrc;
+            return stream_info_->id.ssrc;
         case packets_col_:
             return stream_info_->packet_count;
         case lost_col_:
@@ -169,15 +169,15 @@ public:
 
         switch (treeWidget()->sortColumn()) {
         case src_addr_col_:
-            return cmp_address(&(stream_info_->src_addr), &(other_rstwi.stream_info_->src_addr)) < 0;
+            return cmp_address(&(stream_info_->id.src_addr), &(other_rstwi.stream_info_->id.src_addr)) < 0;
         case src_port_col_:
-            return stream_info_->src_port < other_rstwi.stream_info_->src_port;
+            return stream_info_->id.src_port < other_rstwi.stream_info_->id.src_port;
         case dst_addr_col_:
-            return cmp_address(&(stream_info_->dest_addr), &(other_rstwi.stream_info_->dest_addr)) < 0;
+            return cmp_address(&(stream_info_->id.dst_addr), &(other_rstwi.stream_info_->id.dst_addr)) < 0;
         case dst_port_col_:
-            return stream_info_->dest_port < other_rstwi.stream_info_->dest_port;
+            return stream_info_->id.dst_port < other_rstwi.stream_info_->id.dst_port;
         case ssrc_col_:
-            return stream_info_->ssrc < other_rstwi.stream_info_->ssrc;
+            return stream_info_->id.ssrc < other_rstwi.stream_info_->id.ssrc;
         case payload_col_:
             return stream_info_->payload_type < other_rstwi.stream_info_->payload_type; // XXX Compare payload_type_name instead?
         case packets_col_:
@@ -599,14 +599,14 @@ void RtpStreamDialog::on_actionPrepareFilter_triggered()
         RtpStreamTreeWidgetItem *rsti = static_cast<RtpStreamTreeWidgetItem*>(ti);
         rtpstream_info_t *stream_info = rsti->streamInfo();
         if (stream_info) {
-            QString ip_proto = stream_info->src_addr.type == AT_IPv6 ? "ipv6" : "ip";
+            QString ip_proto = stream_info->id.src_addr.type == AT_IPv6 ? "ipv6" : "ip";
             stream_filters << QString("(%1.src==%2 && udp.srcport==%3 && %1.dst==%4 && udp.dstport==%5 && rtp.ssrc==0x%6)")
                              .arg(ip_proto) // %1
-                             .arg(address_to_qstring(&stream_info->src_addr)) // %2
-                             .arg(stream_info->src_port) // %3
-                             .arg(address_to_qstring(&stream_info->dest_addr)) // %4
-                             .arg(stream_info->dest_port) // %5
-                             .arg(stream_info->ssrc, 0, 16);
+                             .arg(address_to_qstring(&stream_info->id.src_addr)) // %2
+                             .arg(stream_info->id.src_port) // %3
+                             .arg(address_to_qstring(&stream_info->id.dst_addr)) // %4
+                             .arg(stream_info->id.dst_port) // %5
+                             .arg(stream_info->id.ssrc, 0, 16);
         }
     }
     if (stream_filters.length() > 0) {
