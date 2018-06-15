@@ -1358,12 +1358,15 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         }
                         break;
                     case PADDING_LCID:
-                        /* The rest of the PDU is padding */
-                        proto_tree_add_item(subheader_tree, hf_mac_nr_padding, tvb, offset, -1, ENC_NA);
-                        write_pdu_label_and_info(pdu_ti, subheader_ti, pinfo, "(Padding %u bytes) ",
-                                                 tvb_reported_length_remaining(tvb, offset));
-                        /* Move to the end of the frame */
-                        offset = tvb_captured_length(tvb);
+                        {
+                            /* The rest of the PDU is padding */
+                            int pad_len = tvb_reported_length_remaining(tvb, offset);
+                            if (pad_len > 0)
+                                proto_tree_add_item(subheader_tree, hf_mac_nr_padding, tvb, offset, -1, ENC_NA);
+                            write_pdu_label_and_info(pdu_ti, subheader_ti, pinfo, "(Padding %u bytes) ", pad_len);
+                            /* Move to the end of the frame */
+                            offset = tvb_reported_length(tvb);
+                        }
                         break;
                 }
             }
@@ -1720,11 +1723,15 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         write_pdu_label_and_info_literal(pdu_ti, subheader_ti, pinfo, "(Contention Resolution) ");
                         break;
                     case PADDING_LCID:
-                        write_pdu_label_and_info_literal(pdu_ti, subheader_ti, pinfo, "(Padding) ");
-
-                        /* The rest of the PDU is padding */
-                        proto_tree_add_item(subheader_tree, hf_mac_nr_padding, tvb, offset, -1, ENC_NA);
-                        offset = tvb_captured_length(tvb);
+                        {
+                            /* The rest of the PDU is padding */
+                            int pad_len = tvb_reported_length_remaining(tvb, offset);
+                            if (pad_len > 0)
+                                proto_tree_add_item(subheader_tree, hf_mac_nr_padding, tvb, offset, -1, ENC_NA);
+                            write_pdu_label_and_info(pdu_ti, subheader_ti, pinfo, "(Padding %u bytes) ", pad_len);
+                            /* Move to the end of the frame */
+                            offset = tvb_reported_length(tvb);
+                        }
                         break;
                 }
             }
