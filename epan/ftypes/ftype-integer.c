@@ -48,7 +48,6 @@ get_sinteger(fvalue_t *fv)
 	return fv->value.sinteger;
 }
 
-
 static gboolean
 parse_charconst(const char *s, unsigned long *valuep, gchar **err_msg)
 {
@@ -176,13 +175,19 @@ parse_charconst(const char *s, unsigned long *valuep, gchar **err_msg)
 		}
 	} else {
 		value = *cp;
-		cp++;
 		if (!g_ascii_isprint(value)) {
 			if (err_msg != NULL)
 				*err_msg = g_strdup_printf("Non-printable character '\\x%02lx' in character constant.", value);
 			return FALSE;
 		}
 	}
+	cp++;
+	if ((*cp != '\'') || (*(cp + 1) != '\0')){
+		if (err_msg != NULL)
+			*err_msg = g_strdup_printf("\"%s\" is too long to be a valid character constant.", s);
+		return FALSE;
+	}
+
 	*valuep = value;
 	return TRUE;
 }
