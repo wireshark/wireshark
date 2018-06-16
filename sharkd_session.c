@@ -670,7 +670,7 @@ sharkd_session_process_analyse(void)
 
 	printf(",\"protocols\":[");
 	for (framenum = 1; framenum <= cfile.count; framenum++)
-		sharkd_dissect_request(framenum, (framenum != 1) ? 1 : 0, framenum - 1, &sharkd_session_process_analyse_cb, 0, 0, 0, &analyser);
+		sharkd_dissect_request(framenum, (framenum != 1) ? 1 : 0, framenum - 1, &sharkd_session_process_analyse_cb, SHARKD_DISSECT_FLAG_NULL, &analyser);
 	printf("]");
 
 	if (analyser.first_time)
@@ -2793,6 +2793,18 @@ sharkd_session_process_frame_cb(epan_dissect_t *edt, proto_tree *tree, struct ep
 		printf("]");
 	}
 
+	if (fdata->flags.ignored)
+		printf(",\"i\":true");
+
+	if (fdata->flags.marked)
+		printf(",\"m\":true");
+
+	if (fdata->color_filter)
+	{
+		printf(",\"bg\":\"%x\"", color_t_to_rgb(&fdata->color_filter->bg_color));
+		printf(",\"fg\":\"%x\"", color_t_to_rgb(&fdata->color_filter->fg_color));
+	}
+
 	if (data_src)
 	{
 		struct data_source *src = (struct data_source *) data_src->data;
@@ -3208,6 +3220,7 @@ sharkd_session_process_intervals(char *buf, const jsmntok_t *tokens, int count)
  *   (o) prev_frame - previously displayed frame number
  *   (o) proto - set if output frame tree
  *   (o) columns - set if output frame columns
+ *   (o) color - set if output color-filter bg/fg
  *   (o) bytes - set if output frame bytes
  *
  * Output object with attributes:
@@ -3233,6 +3246,10 @@ sharkd_session_process_intervals(char *buf, const jsmntok_t *tokens, int count)
  *   (o) fol   - array of follow filters:
  *                  [0] - protocol
  *                  [1] - filter string
+ *   (o) i   - if frame is ignored
+ *   (o) m   - if frame is marked
+ *   (o) bg  - color filter - background color in hex
+ *   (o) fg  - color filter - foreground color in hex
  */
 static void
 sharkd_session_process_frame(char *buf, const jsmntok_t *tokens, int count)
@@ -3240,11 +3257,16 @@ sharkd_session_process_frame(char *buf, const jsmntok_t *tokens, int count)
 	const char *tok_frame = json_find_attr(buf, tokens, count, "frame");
 	const char *tok_ref_frame = json_find_attr(buf, tokens, count, "ref_frame");
 	const char *tok_prev_frame = json_find_attr(buf, tokens, count, "prev_frame");
-	int tok_proto   = (json_find_attr(buf, tokens, count, "proto") != NULL);
-	int tok_bytes   = (json_find_attr(buf, tokens, count, "bytes") != NULL);
-	int tok_columns = (json_find_attr(buf, tokens, count, "columns") != NULL);
-
 	guint32 framenum, ref_frame_num, prev_dis_num;
+	guint32 dissect_flags = SHARKD_DISSECT_FLAG_NULL;
+	if (json_find_attr(buf, tokens, count, "proto") != NULL)
+		dissect_flags |=SHARKD_DISSECT_FLAG_PROTO_TREE;
+	if (json_find_attr(buf, tokens, count, "bytes") != NULL)
+		dissect_flags |=SHARKD_DISSECT_FLAG_BYTES;
+	if (json_find_attr(buf, tokens, count, "columns") != NULL)
+		dissect_flags |=SHARKD_DISSECT_FLAG_COLUMNS;
+	if (json_find_attr(buf, tokens, count, "color") != NULL)
+		dissect_flags |=SHARKD_DISSECT_FLAG_COLOR;
 
 	if (!tok_frame || !ws_strtou32(tok_frame, NULL, &framenum) || framenum == 0)
 		return;
@@ -3257,7 +3279,7 @@ sharkd_session_process_frame(char *buf, const jsmntok_t *tokens, int count)
 	if (tok_prev_frame && (!ws_strtou32(tok_prev_frame, NULL, &prev_dis_num) || prev_dis_num >= framenum))
 		return;
 
-	sharkd_dissect_request(framenum, ref_frame_num, prev_dis_num, &sharkd_session_process_frame_cb, tok_bytes, tok_columns, tok_proto, NULL);
+	sharkd_dissect_request(framenum, ref_frame_num, prev_dis_num, &sharkd_session_process_frame_cb, dissect_flags, NULL);
 }
 
 /**

@@ -526,10 +526,10 @@ sharkd_get_frame(guint32 framenum)
 }
 
 int
-sharkd_dissect_request(guint32 framenum, guint32 frame_ref_num, guint32 prev_dis_num, sharkd_dissect_func_t cb, int dissect_bytes, int dissect_columns, int dissect_tree, void *data)
+sharkd_dissect_request(guint32 framenum, guint32 frame_ref_num, guint32 prev_dis_num, sharkd_dissect_func_t cb, guint32 dissect_flags, void *data)
 {
   frame_data *fdata;
-  column_info *cinfo = (dissect_columns) ? &cfile.cinfo : NULL;
+  column_info *cinfo = (dissect_flags & SHARKD_DISSECT_FLAG_COLUMNS) ? &cfile.cinfo : NULL;
   epan_dissect_t edt;
   gboolean create_proto_tree;
   wtap_rec rec; /* Record metadata */
@@ -550,8 +550,15 @@ sharkd_dissect_request(guint32 framenum, guint32 frame_ref_num, guint32 prev_dis
     return -1; /* error reading the record */
   }
 
-  create_proto_tree = (dissect_tree) || (cinfo && have_custom_cols(cinfo));
-  epan_dissect_init(&edt, cfile.epan, create_proto_tree, dissect_tree);
+  create_proto_tree = ((dissect_flags & SHARKD_DISSECT_FLAG_PROTO_TREE) ||
+                      ((dissect_flags & SHARKD_DISSECT_FLAG_COLOR) && color_filters_used()) ||
+                      (cinfo && have_custom_cols(cinfo)));
+  epan_dissect_init(&edt, cfile.epan, create_proto_tree, (dissect_flags & SHARKD_DISSECT_FLAG_PROTO_TREE));
+
+  if (dissect_flags & SHARKD_DISSECT_FLAG_COLOR) {
+    color_filters_prime_edt(&edt);
+    fdata->flags.need_colorize = 1;
+  }
 
   if (cinfo)
     col_custom_prime_edt(&edt, cinfo);
@@ -572,7 +579,9 @@ sharkd_dissect_request(guint32 framenum, guint32 frame_ref_num, guint32 prev_dis
     epan_dissect_fill_in_columns(&edt, FALSE, TRUE/* fill_fd_columns */);
   }
 
-  cb(&edt, dissect_tree ? edt.tree : NULL, cinfo, dissect_bytes ? edt.pi.data_src : NULL, data);
+  cb(&edt, (dissect_flags & SHARKD_DISSECT_FLAG_PROTO_TREE) ? edt.tree : NULL,
+     cinfo, (dissect_flags & SHARKD_DISSECT_FLAG_BYTES) ? edt.pi.data_src : NULL,
+     data);
 
   epan_dissect_cleanup(&edt);
   wtap_rec_cleanup(&rec);
