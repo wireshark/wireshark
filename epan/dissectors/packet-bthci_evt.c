@@ -474,6 +474,11 @@ static int hf_bthci_evt_num_compl_ext_advertising_events = -1;
 static int hf_bthci_evt_channel_selection_algorithm = -1;
 static int hf_bthci_evt_advertiser_clock_accuracy = -1;
 static int hf_bthci_evt_advertiser_phy = -1;
+static int hf_bthci_evt_periodic_adv_list_size = -1;
+static int hf_bthci_evt_min_tx_power = -1;
+static int hf_bthci_evt_max_tx_power = -1;
+static int hf_bthci_evt_rf_tx_path_compensation = -1;
+static int hf_bthci_evt_rf_rx_path_compensation = -1;
 static int hf_bthci_evt_sync_handle = -1;
 static int hf_bthci_evt_data_status = -1;
 static int hf_bthci_evt_advertising_handle = -1;
@@ -4746,7 +4751,8 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
             proto_tree_add_item(tree, hf_bthci_evt_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
 
-            proto_tree_add_item(tree, hf_bthci_evt_authenticated_payload_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            item = proto_tree_add_item(tree, hf_bthci_evt_authenticated_payload_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(item, " (%g sec)", tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN) * 0.01);
             offset += 2;
 
             break;
@@ -4826,6 +4832,41 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
 
             break;
 
+        case 0x204A: /* LE Read Periodic Advertiser List Size */
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_NA);
+            send_hci_summary_status_tap(tvb_get_guint8(tvb, offset), pinfo, bluetooth_data);
+            offset += 1;
+
+            proto_tree_add_item(tree, hf_bthci_evt_periodic_adv_list_size, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            break;
+        case 0x204B: /* LE Read Transmit Power */
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_NA);
+            send_hci_summary_status_tap(tvb_get_guint8(tvb, offset), pinfo, bluetooth_data);
+            offset += 1;
+
+            proto_tree_add_item(tree, hf_bthci_evt_min_tx_power, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(tree, hf_bthci_evt_max_tx_power, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            break;
+        case 0x204C: /* LE Read RF Path Compensation */
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_NA);
+            send_hci_summary_status_tap(tvb_get_guint8(tvb, offset), pinfo, bluetooth_data);
+            offset += 1;
+
+            item = proto_tree_add_item(tree, hf_bthci_evt_rf_tx_path_compensation, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(item, " (%g dB)", tvb_get_letohis(tvb, offset)*0.1);
+            offset += 2;
+
+            item = proto_tree_add_item(tree, hf_bthci_evt_rf_rx_path_compensation, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(item, " (%g dB)", tvb_get_letohis(tvb, offset)*0.1);
+            offset += 2;
+
+            break;
         case 0x0401: /* Inquiry */
         case 0x0405: /* Create Connection */
         case 0x0406: /* Disconnect */
@@ -7614,7 +7655,7 @@ proto_register_bthci_evt(void)
         },
         { &hf_bthci_evt_le_max_tx_time,
           { "Max TX Time", "bthci_evt.max_tx_time",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_le_max_rx_octets,
@@ -7624,7 +7665,7 @@ proto_register_bthci_evt(void)
         },
         { &hf_bthci_evt_le_max_rx_time,
           { "Max RX Time", "bthci_evt.max_rx_time",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_encrypted_diversifier,
@@ -8299,7 +8340,7 @@ proto_register_bthci_evt(void)
         },
         { &hf_bthci_evt_suggested_max_tx_time,
           { "Suggested Max Tx Time",        "bthci_evt.suggested_max_tx_time",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_suggested_max_rx_octets,
@@ -8309,7 +8350,7 @@ proto_register_bthci_evt(void)
         },
         { &hf_bthci_evt_suggested_max_rx_time,
           { "Suggested Max Rx Time",        "bthci_evt.suggested_max_rx_time",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_resolving_list_size,
@@ -8410,6 +8451,31 @@ proto_register_bthci_evt(void)
         { &hf_bthci_evt_advertiser_phy,
           { "Advertiser PHY", "bthci_evt.adv_phy",
             FT_UINT8, BASE_HEX|BASE_EXT_STRING, &bthci_cmd_le_phy_vals_ext, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_periodic_adv_list_size,
+          { "Periodic Advertiser List Size",        "bthci_evt.le_periodic_adv_list_size",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_min_tx_power,
+          { "Minimum TX Power", "bthci_evt.min_tx_power",
+            FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_max_tx_power,
+          { "Maximum TX Power", "bthci_evt.max_tx_power",
+            FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_rf_tx_path_compensation,
+          { "RF Tx Path Compensation Value",   "bthci_evt.rf_tx_path_compensation_value",
+            FT_INT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_rf_rx_path_compensation,
+          { "RF Rx Path Compensation Value",   "bthci_evt.rf_rx_path_compensation_value",
+            FT_INT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
     };

@@ -324,6 +324,7 @@ static int hf_bthci_cmd_le_scan_window = -1;
 static int hf_bthci_cmd_le_scan_filter_policy = -1;
 static int hf_bthci_cmd_le_initiator_filter_policy = -1;
 static int hf_bthci_cmd_le_peer_address_type = -1;
+static int hf_bthci_cmd_le_peer_identity_address_type = -1;
 static int hf_bthci_cmd_le_con_interval_min = -1;
 static int hf_bthci_cmd_le_con_interval_max = -1;
 static int hf_bthci_cmd_le_con_latency = -1;
@@ -408,6 +409,12 @@ static int hf_bthci_cmd_le_phys_le_coded = -1;
 static int hf_bthci_cmd_le_phys_le_2m = -1;
 static int hf_bthci_cmd_le_phys_le_1m = -1;
 static int hf_bthci_cmd_le_init_phy_param = -1;
+static int hf_bthci_cmd_le_privacy_mode = -1;
+static int hf_bthci_cmd_sync_filter_policy = -1;
+static int hf_bthci_cmd_skip = -1;
+static int hf_bthci_cmd_rf_tx_path_compensation_value = -1;
+static int hf_bthci_cmd_rf_rx_path_compensation_value = -1;
+static int hf_bthci_cmd_sync_handle = -1;
 static int hf_bthci_cmd_triggered_clock_capture = -1;
 static int hf_bthci_cmd_lpo_allowed = -1;
 static int hf_bthci_cmd_number_of_clock_captures_to_filter = -1;
@@ -1784,6 +1791,12 @@ const value_string bthci_cmd_address_types_vals[] = {
     { 0, NULL }
 };
 
+const value_string bthci_cmd_identity_address_types_vals[] = {
+    { 0x00, "Public Identity Address" },
+    { 0x01, "Random (Static) Identity Address" },
+    { 0, NULL }
+};
+
 static const value_string cmd_role_vals[] = {
     {0x00, "Change own Role to Master for this BD_ADDR"},
     {0x01, "Change own Role to Slave for this BD_ADDR"},
@@ -2060,14 +2073,28 @@ static const value_string cmd_le_scan_types[] = {
 };
 
 static const value_string cmd_le_scan_filter_policy[] = {
-    { 0x00, "Accept all advertisements. Ignore directed advertisements not addressed to this device" },
-    { 0x01, "Ignore advertisements from devices not in the white list only. Ignore directed advertisements not addressed to this device" },
+    { 0x00, "Accept all advertisements, except directed advertisements not addressed to this device" },
+    { 0x01, "Accept only advertisments from devices in the White List. Ignore directed advertisements not addressed to this device" },
+    { 0x02, "Accept all advertisments, except directed advertisements not addressed to this device (but accept those with resolvable addresses that can not be resolved)" },
+    { 0x03, "Accept only advertisments from devices in the White List. Ignore directed advertisements not addressed to this device (but accept those with resolvable addresses that can not be resolved)" },
     { 0, NULL }
 };
 
 static const value_string cmd_init_filter_policy[] = {
     { 0x00, "Use Peer Address" },
     { 0x01, "Use White List. Ignore Peer Address" },
+    { 0, NULL }
+};
+
+static const value_string cmd_sync_filter_policy[] = {
+    { 0x00, "Use Peer Address" },
+    { 0x01, "Use Periodic Advertiser List. Ignore Peer Address" },
+    { 0, NULL }
+};
+
+static const value_string cmd_privacy_mode[] = {
+    { 0x00, "Use Network Privacy Mode" },
+    { 0x01, "Use Device Privacy Mode" },
     { 0, NULL }
 };
 
@@ -3853,7 +3880,8 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
             proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
 
-            proto_tree_add_item(tree, hf_bthci_cmd_authenticated_payload_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            item = proto_tree_add_item(tree, hf_bthci_cmd_authenticated_payload_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(item, " (%g sec)", tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN) * 0.01);
             offset += 2;
 
             break;
@@ -4277,8 +4305,7 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             offset+=2;
             proto_tree_add_item(tree, hf_bthci_cmd_le_tx_octets, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset+=2;
-            sub_item = proto_tree_add_item(tree, hf_bthci_cmd_le_tx_time, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            proto_item_append_text(sub_item, " (%d usec)",  tvb_get_letohs(tvb, offset));
+            proto_tree_add_item(tree, hf_bthci_cmd_le_tx_time, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset+=2;
             break;
 
@@ -4295,7 +4322,7 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             break;
 
         case 0x0027:  /* LE Add Device to Resolving List */
-            proto_tree_add_item(tree, hf_bthci_cmd_le_peer_address_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_bthci_cmd_le_peer_identity_address_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
             offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
             proto_tree_add_item(tree, hf_bthci_cmd_le_peer_irk, tvb, offset, 16, ENC_NA);
@@ -4305,19 +4332,19 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             break;
 
         case 0x0028: /*  LE Remove Device From Resolving List */
-            proto_tree_add_item(tree, hf_bthci_cmd_le_peer_address_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_bthci_cmd_le_peer_identity_address_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
             offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
             break;
 
         case 0x002B: /*   LE Read Peer Resolvable Address */
-            proto_tree_add_item(tree, hf_bthci_cmd_le_peer_address_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_bthci_cmd_le_peer_identity_address_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
             offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
             break;
 
         case 0x002C: /*      LE Read Local Resolvable Address" */
-            proto_tree_add_item(tree, hf_bthci_cmd_le_peer_address_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_bthci_cmd_le_peer_identity_address_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
             offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
             break;
@@ -4328,8 +4355,7 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             break;
 
         case 0x002E: /* LE Set Resolvable Private Address Timeout */
-            item = proto_tree_add_item(tree, hf_bthci_cmd_le_rpa_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            proto_item_append_text(item, " (%d sec)",  tvb_get_letohs(tvb, offset));
+            proto_tree_add_item(tree, hf_bthci_cmd_le_rpa_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset+=2;
             break;
 
@@ -4517,17 +4543,19 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
 
         case 0x0041: /* LE Set Extended Scan Parameters */
             {
+            guint8 scanning_phys, phy = 0;
             proto_tree_add_item(tree, hf_bthci_cmd_le_own_address_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
             proto_tree_add_item(tree, hf_bthci_cmd_le_scan_filter_policy, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
-            guint8 scanning_phys = tvb_get_guint8(tvb, offset);
+            scanning_phys = tvb_get_guint8(tvb, offset);
             proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_le_scan_phys, ett_scan_init_phy_param, hfx_btcmd_le_scan_phys, ENC_NA);
             offset += 1;
             for (int i = 1; i < 0x08; i <<=1) {
+                phy++;
                 if (scanning_phys & i) {
                     sub_item = proto_tree_add_none_format(tree, hf_bthci_cmd_le_scan_phy_param, tvb, offset, 5, "Scanning PHY: %s",
-                                                                                        val_to_str_const(i, cmd_le_phy_vals, "Unknown"));
+                                                                                        val_to_str_const(phy, cmd_le_phy_vals, "Unknown"));
                     sub_tree = proto_item_add_subtree(sub_item, ett_scan_init_phy_param);
                     proto_tree_add_item(sub_tree, hf_bthci_cmd_le_scan_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                     offset++;
@@ -4557,6 +4585,7 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
 
         case 0x0043: /* LE Extended Create Connection */
             {
+            guint8 initiating_phys, phy = 0;
             proto_tree_add_item(tree, hf_bthci_cmd_le_initiator_filter_policy, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
             proto_tree_add_item(tree, hf_bthci_cmd_le_own_address_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -4564,13 +4593,14 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             proto_tree_add_item(tree, hf_bthci_cmd_le_peer_address_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
             offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
-            guint8 initiating_phys = tvb_get_guint8(tvb, offset);
+            initiating_phys = tvb_get_guint8(tvb, offset);
             proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_le_init_phys, ett_scan_init_phy_param, hfx_btcmd_le_phys, ENC_NA);
             offset += 1;
             for (int i = 1; i < 0x08; i <<=1) {
+                phy++;
                 if (initiating_phys & i) {
                     sub_item = proto_tree_add_none_format(tree, hf_bthci_cmd_le_init_phy_param, tvb, offset, 16, "Initiating PHY: %s",
-                                                                                        val_to_str_const(i, cmd_le_phy_vals, "Unknown"));
+                                                                                        val_to_str_const(phy, cmd_le_phy_vals, "Unknown"));
                     sub_tree = proto_item_add_subtree(sub_item, ett_scan_init_phy_param);
                     item = proto_tree_add_item(sub_tree, hf_bthci_cmd_le_scan_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                     proto_item_append_text(item, " (%g msec)",  tvb_get_letohs(tvb, offset)*0.625);
@@ -4599,6 +4629,54 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
                 }
             }
             }
+            break;
+
+        case 0x0044: /* LE Periodic Advertising Create Sync */
+            proto_tree_add_item(tree, hf_bthci_cmd_sync_filter_policy, tvb, offset, 1, ENC_NA);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_cmd_advertising_sid, tvb, offset, 1, ENC_NA);
+            offset++;
+            proto_tree_add_item(tree, hf_bthci_cmd_le_peer_address_type, tvb, offset, 1, ENC_NA);
+            offset++;
+            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
+            proto_tree_add_item(tree, hf_bthci_cmd_skip, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            item = proto_tree_add_item(tree, hf_bthci_cmd_le_supervision_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(item, " (%g sec)",  tvb_get_letohs(tvb, offset)*0.01);
+            offset+=2;
+            /* 1 octet unused/RFU */
+            offset++;
+            break;
+
+        case 0x0046: /* LE Periodic Advertising Terminate Sync */
+            proto_tree_add_item(tree, hf_bthci_cmd_sync_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            break;
+
+        case 0x0047: /* LE Add Device To Periodic Advertiser List */
+        case 0x0048: /* LE Remove Device From Periodic Advertiser List */
+            proto_tree_add_item(tree, hf_bthci_cmd_le_peer_address_type, tvb, offset, 1, ENC_NA);
+            offset++;
+            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
+            proto_tree_add_item(tree, hf_bthci_cmd_advertising_sid, tvb, offset, 1, ENC_NA);
+            offset++;
+            break;
+
+        case 0x004D: /* LE Write RF Path Compensation */
+            item = proto_tree_add_item(tree, hf_bthci_cmd_rf_tx_path_compensation_value, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(item, " (%g dB)", tvb_get_letohis(tvb, offset)*0.1);
+            offset+=2;
+            item = proto_tree_add_item(tree, hf_bthci_cmd_rf_rx_path_compensation_value, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(item, " (%g dB)", tvb_get_letohis(tvb, offset)*0.1);
+            offset+=2;
+            break;
+
+        case 0x004E: /* LE Set Privacy Mode */
+            proto_tree_add_item(tree, hf_bthci_cmd_le_peer_identity_address_type, tvb, offset, 1, ENC_NA);
+            offset++;
+            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, NULL);
+            proto_tree_add_item(tree, hf_bthci_cmd_le_privacy_mode, tvb, offset, 1, ENC_NA);
+            offset++;
             break;
 
         case 0x002: /* LE Read Buffer Size */
@@ -6273,6 +6351,11 @@ proto_register_bthci_cmd(void)
             FT_UINT8, BASE_HEX, VALS(bthci_cmd_address_types_vals), 0x0,
             NULL, HFILL }
         },
+        { &hf_bthci_cmd_le_peer_identity_address_type,
+          { "Peer Identity Address Type", "bthci_cmd.le_peer_identity_address_type",
+            FT_UINT8, BASE_HEX, VALS(bthci_cmd_identity_address_types_vals), 0x0,
+            NULL, HFILL }
+        },
         { &hf_bthci_cmd_le_direct_address_type,
           { "Direct Address Type", "bthci_cmd.le_direct_address_type",
             FT_UINT8, BASE_HEX, VALS(bthci_cmd_address_types_vals), 0x0,
@@ -6405,12 +6488,12 @@ proto_register_bthci_cmd(void)
         },
         { &hf_bthci_cmd_rx_frequency,
           { "Rx Frequency", "bthci_cmd.rx_frequency",
-            FT_UINT8, BASE_HEX, NULL, 0x0,
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_tx_frequency,
           { "Tx Frequency", "bthci_cmd.tx_frequency",
-            FT_UINT8, BASE_HEX, NULL, 0x0,
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_test_data_length,
@@ -6450,22 +6533,22 @@ proto_register_bthci_cmd(void)
         },
         { &hf_bthci_cmd_le_tx_octets,
           { "TxOctets", "bthci_cmd.le_tx_octets",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_le_tx_time,
           { "TxTime", "bthci_cmd.le_tx_time",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_le_suggested_max_tx_octets,
           { "SuggestedMaxTxOctets", "bthci_cmd.le_suggested_max_tx_octets",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_le_suggested_max_tx_time,
           { "SuggestedMaxTxTime", "bthci_cmd.le_suggested_max_tx_time",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_le_remote_p_256_public_key,
@@ -6490,7 +6573,7 @@ proto_register_bthci_cmd(void)
         },
         { &hf_bthci_cmd_le_rpa_timeout,
           { "RPA Timeout", "bthci_cmd.le_rpa_timeout",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_second_seconds, 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_advertising_handle,
@@ -6570,7 +6653,7 @@ proto_register_bthci_cmd(void)
         },
         { &hf_bthci_cmd_sec_adv_max_skip,
           { "Secondary Advertising Max Skip", "bthci_cmd.secondary_advertising_max_skip",
-            FT_UINT8, BASE_HEX, NULL, 0x0,
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_secondary_advertising_phy,
@@ -6756,6 +6839,36 @@ proto_register_bthci_cmd(void)
         { &hf_bthci_cmd_le_init_phy_param,
           { "Initiating PHY", "bthci_cmd.le_init_phy_param",
             FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_le_privacy_mode,
+          { "Privacy Mode", "bthci_cmd.le_privacy_mode",
+            FT_UINT8, BASE_HEX, VALS(cmd_privacy_mode), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_sync_filter_policy,
+          { "Filter Policy", "bthci_cmd.le_sync_filter_policy",
+            FT_UINT8, BASE_HEX, VALS(cmd_sync_filter_policy), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_skip,
+          { "Skip", "bthci_cmd.skip",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_sync_handle,
+          { "Sync Handle",             "bthci_cmd.sync_handle",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_rf_tx_path_compensation_value,
+          { "RF Tx Path Compensation Value",   "bthci_cmd.rf_tx_path_compensation_value",
+            FT_INT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_rf_rx_path_compensation_value,
+          { "RF Rx Path Compensation Value",   "bthci_cmd.rf_rx_path_compensation_value",
+            FT_INT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_triggered_clock_capture,
