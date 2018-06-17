@@ -129,5 +129,15 @@ rpm-opensuse-42.3:
     - cmake ..
     - make
     - make rpm-package
+rpm-fedora-28:
+  image: fedora:28
+  script:
+    - yum install -y which
+    - tools/rpm-setup.sh --install-optional -y
+    - mkdir build
+    - cd build
+    - cmake3 -GNinja ..
+    - ninja-build
+    - ninja-build rpm-package
 after_script:
   - if [ -f build/run/tshark ];then build/run/tshark --version; fi
