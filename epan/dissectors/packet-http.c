@@ -859,7 +859,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * which is done by disabling body desegmentation.
 		 */
 		try_desegment_body = (http_desegment_body &&
-			(!(conv_data->request_method && g_str_equal(conv_data->request_method, "HEAD"))) &&
+			!(http_type == HTTP_RESPONSE && conv_data->request_method && g_str_equal(conv_data->request_method, "HEAD")) &&
 			!end_of_stream);
 		if (!req_resp_hdrs_do_reassembly(tvb, offset, pinfo,
 		    http_desegment_headers, try_desegment_body)) {
