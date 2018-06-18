@@ -50,7 +50,8 @@ def main():
     list_group = parser.add_mutually_exclusive_group()
     list_group.add_argument('-l', '--list', action='store_true', help='List tests. One of "all" or a full or partial test name.')
     list_group.add_argument('--list-suites', action='store_true', help='List all suites.')
-    list_group.add_argument('--list-cases', action='store_true', help='List all suites and cases.')
+    list_group.add_argument('--list-groups', action='store_true', help='List all suites and groups.')
+    list_group.add_argument('--list-cases', action='store_true', help='List all suites, groups, and cases.')
     parser.add_argument('-v', '--verbose', action='store_const', const=2, default=1, help='Verbose tests.')
     parser.add_argument('tests_to_run', nargs='*', metavar='test', default=['all'], help='Tests to run. One of "all" or a full or partial test name. Default is "all".')
     args = parser.parse_args()
@@ -94,8 +95,22 @@ def main():
     config.all_suites = list(all_suites)
     config.all_suites.sort()
 
+    all_groups = set()
+    for aid in all_ids:
+        aparts = aid.split('.')
+        if aparts[1].startswith('group_'):
+            all_groups |= {'.'.join(aparts[:2])}
+        else:
+            all_groups |= {aparts[0]}
+    config.all_groups = list(all_groups)
+    config.all_groups.sort()
+
     if args.list_suites:
         print('\n'.join(config.all_suites))
+        sys.exit(0)
+
+    if args.list_groups:
+        print('\n'.join(config.all_groups))
         sys.exit(0)
 
     if args.list_cases:

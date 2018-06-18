@@ -2914,13 +2914,28 @@ set_target_properties(test-programs PROPERTIES
 enable_testing()
 # We could try to build this list dynamically, but given that we tend to
 # go years between adding suites just run
-#     test/test.py --list-suites | sort
+#     test/test.py --list-groups | sort
 # and paste the output here.
-set(_test_suite_list
+set(_test_group_list
 	suite_capture
 	suite_clopts
 	suite_decryption
-	suite_dfilter
+	suite_dfilter.group_bytes_ether
+	suite_dfilter.group_bytes_ipv6
+	suite_dfilter.group_bytes_type
+	suite_dfilter.group_double
+	suite_dfilter.group_integer
+	suite_dfilter.group_integer_1byte
+	suite_dfilter.group_ipv4
+	suite_dfilter.group_membership
+	suite_dfilter.group_range_method
+	suite_dfilter.group_scanner
+	suite_dfilter.group_string_type
+	suite_dfilter.group_stringz
+	suite_dfilter.group_time_relative
+	suite_dfilter.group_time_type
+	suite_dfilter.group_tvb
+	suite_dfilter.group_uint64
 	suite_dissection
 	suite_fileformats
 	suite_io
@@ -2931,9 +2946,9 @@ set(_test_suite_list
 	suite_wslua
 )
 if(WIN32)
-	set(_test_suite_program_path ./run/$<CONFIG>)
+	set(_test_group_program_path ./run/$<CONFIG>)
 else()
-	set(_test_suite_program_path ./run)
+	set(_test_group_program_path ./run)
 endif()
 
 # We don't currently handle spaces in arguments. On Windows this
@@ -2942,17 +2957,17 @@ endif()
 set(TEST_EXTRA_ARGS "" CACHE STRING "Extra arguments to pass to test/test.py")
 separate_arguments(TEST_EXTRA_ARGS)
 
-foreach(_suite_name ${_test_suite_list})
+foreach(_group_name ${_test_group_list})
 	add_test(
-		NAME ${_suite_name}
+		NAME ${_group_name}
 		COMMAND ${CMAKE_COMMAND} -E env PYTHONIOENCODING=UTF-8
 			${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/test/test.py
 			--verbose
-			--program-path ${_test_suite_program_path}
+			--program-path ${_test_group_program_path}
 			${TEST_EXTRA_ARGS}
-			${_suite_name}
+			${_group_name}
 		)
-	set_tests_properties(${_suite_name} PROPERTIES TIMEOUT 600)
+	set_tests_properties(${_group_name} PROPERTIES TIMEOUT 600)
 endforeach()
 
 if (GIT_EXECUTABLE)

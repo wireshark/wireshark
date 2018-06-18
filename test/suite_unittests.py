@@ -55,21 +55,21 @@ class case_unittests(subprocesstest.SubprocessTestCase):
     def test_unit_ctest_coverage(self):
         '''Make sure CTest runs all of our tests.'''
         with open(os.path.join(config.this_dir, '..', 'CMakeLists.txt')) as cml_fd:
-            suite_re = re.compile('set *\( *_test_suite_list')
+            group_re = re.compile('set *\( *_test_group_list')
             in_list = False
-            cml_suites = []
+            cml_groups = []
             for cml_line in cml_fd:
-                if suite_re.search(cml_line):
+                if group_re.search(cml_line):
                     in_list = True
                     continue
                 if in_list:
                     if ')' in cml_line:
                         break
-                    cml_suites.append(cml_line.strip())
-        cml_suites.sort()
-        if not config.all_suites == cml_suites:
-            diff = '\n'.join(list(difflib.unified_diff(config.all_suites, cml_suites, 'all test suites', 'CMakeLists.txt test suites')))
-            self.fail("CMakeLists.txt doesn't test all available suites:\n" + diff)
+                    cml_groups.append(cml_line.strip())
+        cml_groups.sort()
+        if not config.all_groups == cml_groups:
+            diff = '\n'.join(list(difflib.unified_diff(config.all_groups, cml_groups, 'all test groups', 'CMakeLists.txt test groups')))
+            self.fail("CMakeLists.txt doesn't test all available groups:\n" + diff)
 
 
 class Proto:
