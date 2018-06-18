@@ -465,7 +465,8 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
   } else {
     if (eth_interpret_as_fw1_monitor) {
         if ((dst_addr[0] == 'i') || (dst_addr[0] == 'I') ||
-            (dst_addr[0] == 'o') || (dst_addr[0] == 'O')) {
+            (dst_addr[0] == 'o') || (dst_addr[0] == 'O') ||
+            (dst_addr[0] == 'e') || (dst_addr[0] == 'E')) {
             call_dissector(fw1_handle, tvb, pinfo, parent_tree);
             return fh_tree;
         }

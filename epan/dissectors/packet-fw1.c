@@ -1,10 +1,12 @@
 /* packet-fw1.c
  * Routines for Ethernet header disassembly of FW1 "monitor" files
  * Copyright 2002,2003, Alfred Koebler <ako@icon.de>
+ * Copyright 2018, Alfred Koebler <Alfred.Koebler2002ATgmx.de>
  *
  * Wireshark - Network traffic analyzer
  * By Alfred Koebler <ako@icon.de>
- * Copyright 2002,2003 Alfred Koebler
+ * By Alfred Koebler <Alfred.Koebler2002ATgmx.de>
+ * Copyright 2002,2003,2018 Alfred Koebler
  *
  * To use this dissector use the command line option
  * -o eth.interpret_as_fw1_monitor:TRUE
@@ -21,6 +23,8 @@
  *   I  incoming after the firewall
  *   o  outcoming before the firewall
  *   O  outcoming after the firewall
+ *   e  before VPN encryption
+ *   E  after VPN encryption
  * - the name of the interface
  *
  * What's the problem ?
@@ -66,6 +70,9 @@
  * NOTICE: First paket will have UUID == 0 !
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
+ *
+ * 30.5.2018
+ * added inspection points "e" and "E"
  */
 
 #include "config.h"
@@ -162,11 +169,11 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   for (i=0; i<interface_anzahl; i++) {
     if ( strcmp(p_interfaces[i], interface_name) == 0 ) {
       wmem_strbuf_append_printf(header, "  %c%c %s %c%c",
-                                direction == 'i' ? 'i' : (direction == 'O' ? 'O' : ' '),
-                                (direction == 'i' || direction == 'O') ? chain : ' ',
+                                direction == 'i' ? 'i' : (direction == 'O' ? 'O' : (direction == 'E' ? 'E' :  ' ') ),
+                                (direction == 'i' || direction == 'O' || direction == 'E') ? chain : ' ',
                                 p_interfaces[i],
-                                direction == 'I' ? 'I' : (direction == 'o' ? 'o' : ' '),
-                                (direction == 'I' || direction == 'o') ? chain : ' '
+                                direction == 'I' ? 'I' : (direction == 'o' ? 'o' : (direction == 'e' ? 'e' :  ' ') ),
+                                (direction == 'I' || direction == 'o' || direction == 'e') ? chain : ' '
         );
     } else {
       wmem_strbuf_append_printf(header, "    %s  ", p_interfaces[i]);
