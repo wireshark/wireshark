@@ -22,6 +22,7 @@ commands = (
     'dumpcap',
     'mergecap',
     'rawshark',
+    'sharkd',
     'text2pcap',
     'tshark',
     'wireshark',

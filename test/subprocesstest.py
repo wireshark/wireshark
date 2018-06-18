@@ -265,14 +265,14 @@ class SubprocessTestCase(unittest.TestCase):
             return False
         return True
 
-    def startProcess(self, proc_args, env=None, shell=False):
+    def startProcess(self, proc_args, stdin=None, env=None, shell=False):
         '''Start a process in the background. Returns a subprocess.Popen object.
 
         You typically wait for it using waitProcess() or assertWaitProcess().'''
         if env is None:
             # Avoid using the test user's real environment by default.
             env = config.test_env
-        proc = LoggingPopen(proc_args, env=env, shell=shell, log_fd=self.log_fd)
+        proc = LoggingPopen(proc_args, stdin=stdin, env=env, shell=shell, log_fd=self.log_fd)
         self.processes.append(proc)
         return proc
 
