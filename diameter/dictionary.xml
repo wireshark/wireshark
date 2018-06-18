@@ -7265,6 +7265,7 @@
 		<avp name="S6-Service-ID" code="3103" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
 			<enum name="DEVICE_TRIGGER" code="0"/>
+			<enum name="SMS_MO" code="1"/>
 		</avp>
 		<avp name="SCS-Identity" code="3104" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<type type-name="OctetString"/>
@@ -7272,6 +7273,7 @@
 		<avp name="Service-Parameters" code="3105" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<grouped>
 				<gavp name="T4-Parameters"/>
+				<gavp name="Application-Port-Identifier"/>
 			</grouped>
 		</avp>
 		<avp name="T4-Parameters" code="3106" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
@@ -7340,6 +7342,8 @@
 		</avp>
 		<avp name="Stationary-Indication" code="3119" mandatory="must" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
+			<enum name="STATIONARY_UE" code="0"/>
+			<enum name="MOBILE_UE" code="1"/>
 		</avp>
 		<avp name="AESE-Communication-Pattern-Config-Status" code="3120" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<grouped>
@@ -7367,6 +7371,7 @@
 				<gavp name="Location-Information-Configuration"/>
 				<gavp name="Association-Type"/>
 				<gavp name="DL-Buffering-Suggested-Packet-Count"/>
+				<gavp name="PLMN-ID-Requested"/>
 			</grouped>
 		</avp>
 		<!-- Monitoring-Event-Report supports T6a/T6b and S6t, but AVP formats are not the same -->
@@ -7387,6 +7392,7 @@
 				<gavp name="Idle-Status-Indication"/>
 				<gavp name="Communication-Failure-Information"/>
 				<gavp name="Number-Of-UE-Per-Location-Report"/>
+				<gavp name="Visited-PLMN-Id"/>
 			</grouped>
 		</avp>
 		<avp name="SCEF-Reference-ID" code="3124" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
@@ -7400,6 +7406,16 @@
 		</avp>
 		<avp name="Monitoring-Type" code="3127" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
+			<enum name="LOSS_OF_CONNECTIVITY" code="0"/>
+			<enum name="UE_REACHABILITY" code="1"/>
+			<enum name="LOCATION_REPORTING" code="2"/>
+			<enum name="CHANGE_OF_IMSI_IMEI(SV)_ASSOCIATION" code="3"/>
+			<enum name="ROAMING_STATUS" code="4"/>
+			<enum name="COMMUNICATION_FAILURE" code="5"/>
+			<enum name="AVAILABILITY_AFTER_DDN_FAILURE" code="6"/>
+			<enum name="NUMBER_OF_UES_PRESENT_IN_A_GEOGRAPHICAL_AREA" code="7"/>
+			<enum name="UE_REACHABILITY_AND_IDLE_STATUS_INDICATION" code="8"/>
+			<enum name="AVAILABILITY_AFTER_DDN_FAILURE_AND_IDLE_STATUS_INDICATION" code="9"/>
 		</avp>
 		<avp name="Maximum-Number-of-Reports" code="3128" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
@@ -7409,6 +7425,7 @@
 				<gavp name="Reachability-Type"/>
 				<gavp name="Maximum-Latency"/>
 				<gavp name="Maximum-Response-Time"/>
+				<gavp name="DL-Buffering-Suggested-Packet-Count"/>
 			</grouped>
 		</avp>
 		<avp name="Monitoring-Duration" code="3130" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
@@ -7430,22 +7447,36 @@
 			<grouped>
 				<gavp name="MONTE-Location-Type"/>
 				<gavp name="Accuracy"/>
+				<gavp name="Periodic-Time"/>
 			</grouped>
 		</avp>
 		<avp name="MONTE-Location-Type" code="3136" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
+			<enum name="CURRENT_LOCATION" code="0"/>
+			<enum name="LAST_KNOWN_LOCATION" code="1"/>
 		</avp>
 		<avp name="Accuracy" code="3137" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
+			<enum name="CGI-ECGI" code="0"/>
+			<enum name="eNB" code="1"/>
+			<enum name="LA-TA-RA" code="2"/>
+			<enum name="PRA" code="3"/>
+			<enum name="PLMN-ID" code="4"/>
 		</avp>
 		<avp name="Association-Type" code="3138" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
+      <enum name="IMEI-CHANGE" code="0"/>
+			<enum name="IMEISV-CHANGE" code="1"/>
 		</avp>
 		<avp name="Roaming-Information" code="3139" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
+			<enum name="SUBSCRIBER_ROAMING" code="0"/>
+			<enum name="SUBSCRIBER_NOT_ROAMING" code="1"/>
 		</avp>
 		<avp name="Reachability-Information" code="3140" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
+			<enum name="REACHABLE_FOR_SMS" code="0"/>
+			<enum name="REACHABLE_FOR_DATA" code="1"/>
 		</avp>
 		<avp name="IMEI-Change" code="3141" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
@@ -7483,6 +7514,9 @@
 		</avp>
 		<avp name="Event-Handling" code="3149" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
+			<enum name="SUSPEND" code="0"/>
+			<enum name="RESUME" code="1"/>
+			<enum name="CANCEL" code="2"/>
 		</avp>
 		<avp name="NIDD-Authorization-Request" code="3150" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<grouped>
@@ -7506,6 +7540,9 @@
 		</avp>
 		<avp name="Node-Type" code="3153" mandatory="must" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
+			<enum name="HSS" code="0"/>
+			<enum name="MME" code="1"/>
+			<enum name="SGSN" code="2"/>
 		</avp>
 		<avp name="S6t-HSS-Cause" code="3154" mandatory="must" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
@@ -7548,9 +7585,77 @@
 		</avp>
 		<avp name="Loss-Of-Connectivity-Reason" code="3162" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
+			<enum name="UE_DETACHED_MME" code="0"/>
+			<enum name="UE_DETACHED_SGSN" code="1"/>
+			<enum name="MAX_DETECTION_TIME_EXPIRED_MME" code="2"/>
+			<enum name="MAX_DETECTION_TIME_EXPIRED_SGSN" code="3"/>
+			<enum name="UE_PURGED_MME" code="4"/>
+			<enum name="UE_PURGED_SGSN" code="5"/>
+		</avp>
+		<avp name="Group-Reporting-Guard-Timer" code="3163" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="CIA-Flags" code="3164" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Group-Monitoring-Event-Report" code="3165" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+			<gavp name="SCEF-Reference-ID"/>
+			<gavp name="SCEF-ID"/>
+			<gavp name="Group-Monitoring-Event-Report-Item"/>
+			</grouped>
+		</avp>
+		<avp name="Group-Monitoring-Event-Report-Item" code="3166" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+			<gavp name="User-Identifier"/>
+				<gavp name="Visited-PLMN-Id"/>
+				<gavp name="Roaming-Information"/>
+				<gavp name="Reachability-Information"/>
+				<gavp name="Maximum-UE-Availability-Time"/>
+				<gavp name="EPS-Location-Information"/>
+				<gavp name="Monitoring-Type"/>
+				<gavp name="Service-Report"/>
+				<gavp name="S6t-HSS-Cause"/>
+			</grouped>
+		</avp>
+		<avp name="RIR-Flags" code="3167" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
 		</avp>
 		<avp name="Type-Of-External-Identifier" code="3168" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
+			<enum name="EXTERNAL-UE-IDENTIFIER-TYPE" code="0"/>
+			<enum name="EXTERNAL-GROUP-IDENTIFIER-TYPE" code="1"/>
+		</avp>
+		<avp name="APN-Validity-Time" code="3169" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+			<gavp name="Granted-Validity-Time"/>
+				<gavp name="Service-Selection"/>
+			</grouped>
+		</avp>
+		<avp name="Suggested-Network-Configuration" code="3170" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Subscribed-Periodic-RAU-TAU-Timer"/>
+				<gavp name="Active-Time"/>
+				<gavp name="DL-Buffering-Suggested-Packet-Count"/>
+			</grouped>
+		</avp>
+		<avp name="Monitoring-Event-Report-Status" code="3171" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="SCEF-Reference-ID"/>
+				<gavp name="SCEF-ID"/>
+				<gavp name="Result-Code"/>
+				<gavp name="Experimental-Result-Code"/>
+			</grouped>
+		</avp>
+		<avp name="PLMN-ID-Requested" code="3172" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="TRUE" code="0"/>
+			<enum name="FALSE" code="1"/>
+		</avp>
+		<avp name="AdditionalIdentifiers" code="3173" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="External-Identifier"/>
+			</grouped>
 		</avp>
 		<!--
 		Note: The AVP codes from 3163 to 3199 are reserved for TS 29.336
