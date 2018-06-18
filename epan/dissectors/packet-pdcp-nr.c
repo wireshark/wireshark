@@ -1288,7 +1288,7 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                 /* Not attempting to decode payload if ciphering is enabled
                   (and NULL ciphering is not being used) */
                 if (global_pdcp_dissect_user_plane_as_ip) {
-                    tvbuff_t *ip_payload_tvb = tvb_new_subset_remaining(payload_tvb, offset);
+                    tvbuff_t *ip_payload_tvb = tvb_new_subset_length(payload_tvb, offset, payload_length);
 
                     /* Don't update info column for ROHC unless configured to */
                     if (global_pdcp_nr_layer_to_show != ShowTrafficLayer) {
