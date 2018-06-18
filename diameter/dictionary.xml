@@ -7326,6 +7326,8 @@
 		</avp>
 		<avp name="Periodic-Communication-Indicator" code="3115" mandatory="must" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
+ 			<enum name="PERIODICALLY" code="0"/>
+ 			<enum name="ON_DEMAND" code="1"/>
 		</avp>
 		<avp name="Communication-Duration-Time" code="3116" mandatory="must" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
@@ -7379,6 +7381,7 @@
 			<grouped>
 				<gavp name="SCEF-Reference-ID"/>
 				<gavp name="SCEF-ID"/>
+                                <gavp name="SCEF-Reference-ID-for-Deletion"/> 
 				<gavp name="Visited-PLMN-Id"/>
 				<gavp name="Roaming-Information"/>
 				<gavp name="IMEI-Change"/>
@@ -7436,7 +7439,9 @@
 		</avp>
 		<avp name="Reachability-Type" code="3132" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
-		</avp>
+ 			<enum name="Reachability for SMS" code="1"/>
+ 			<enum name="Reachability for Data" code="2"/>
+                </avp>
 		<avp name="Maximum-Latency" code="3133" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
@@ -7465,7 +7470,7 @@
 		</avp>
 		<avp name="Association-Type" code="3138" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
-      <enum name="IMEI-CHANGE" code="0"/>
+                        <enum name="IMEI-CHANGE" code="0"/>
 			<enum name="IMEISV-CHANGE" code="1"/>
 		</avp>
 		<avp name="Roaming-Information" code="3139" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
@@ -7634,9 +7639,12 @@
 		</avp>
 		<avp name="Suggested-Network-Configuration" code="3170" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
-				<gavp name="Subscribed-Periodic-RAU-TAU-Timer"/>
+				<gavp name="SCEF-Reference-ID"/>
+                                <gavp name="SCEF-ID"/>
+                                <gavp name="Subscribed-Periodic-RAU-TAU-Timer"/>
 				<gavp name="Active-Time"/>
 				<gavp name="DL-Buffering-Suggested-Packet-Count"/>
+                                <gavp name="Group-Reporting-Guard-Timer"/>
 			</grouped>
 		</avp>
 		<avp name="Monitoring-Event-Report-Status" code="3171" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
@@ -7657,6 +7665,10 @@
 				<gavp name="External-Identifier"/>
 			</grouped>
 		</avp>
+                <avp name="NIR-Flags" code="3174" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+                        <type type-name="Unsigned32"/>
+                </avp>
+
 		<!--
 		Note: The AVP codes from 3163 to 3199 are reserved for TS 29.336
 		-->
