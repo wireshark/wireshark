@@ -615,7 +615,7 @@ check_function(dfwork_t *dfw, stnode_t *st_node)
 /* Convert a character constant to a 1-byte BYTE_STRING containing the
  * character. */
 static fvalue_t *
-charconst_to_bytes(dfwork_t *dfw, ftenum_t ftype, char *s, gboolean allow_partial_value)
+dfilter_fvalue_from_charconst_string(dfwork_t *dfw, ftenum_t ftype, char *s, gboolean allow_partial_value)
 {
 	fvalue_t *fvalue;
 
@@ -706,7 +706,7 @@ check_relation_LHS_FIELD(dfwork_t *dfw, const char *relation_string,
 				/* The RHS should be the same type as the LHS,
 				 * but a character is just a one-byte byte
 				 * string. */
-				fvalue = charconst_to_bytes(dfw, ftype1, s, allow_partial_value);
+				fvalue = dfilter_fvalue_from_charconst_string(dfw, ftype1, s, allow_partial_value);
 			} else
 				fvalue = dfilter_fvalue_from_unparsed(dfw, ftype1, s, allow_partial_value);
 
@@ -1127,7 +1127,7 @@ check_relation_LHS_RANGE(dfwork_t *dfw, const char *relation_string,
 		} else {
 			/* The RHS should be FT_BYTES, but a character is just a
 			 * one-byte byte string. */
-			fvalue = charconst_to_bytes(dfw, FT_BYTES, s, allow_partial_value);
+			fvalue = dfilter_fvalue_from_charconst_string(dfw, FT_BYTES, s, allow_partial_value);
 		}
 		if (!fvalue) {
 			DebugLog(("    5 check_relation_LHS_RANGE(type2 = STTYPE_UNPARSED): Could not convert from string!\n"));
