@@ -1,7 +1,7 @@
-= Wireshark Developer’s Guide
 //v1.0, February 2014: Finished conversion from DocBook to AsciiDoc
 :doctype: book
 include::attributes.asciidoc[]
+= Wireshark Developer’s Guide: Version {wireshark-version}
 
 // Convenience attribute.
 // XXX This should be surrounded by single quotes in the text. It’s

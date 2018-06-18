@@ -1,7 +1,7 @@
-= Wireshark User’s Guide
 //v1.0, February 2014: Finished conversion from DocBook to AsciiDoc
 :doctype: book
 include::attributes.asciidoc[]
+= Wireshark User’s Guide: Version {wireshark-version}
 
 [[Preface]]
 ["preface",id="Preface"]
