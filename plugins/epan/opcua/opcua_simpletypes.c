@@ -1274,7 +1274,7 @@ guint32 getExtensionObjectType(tvbuff_t *tvb, gint *pOffset)
         Numeric = tvb_get_letohs(tvb, iOffset);
         break;
     case 0x02: /* numeric, that does not fit into four bytes */
-        iOffset+=4;
+        iOffset+=2;
         Numeric = tvb_get_letohl(tvb, iOffset);
         break;
     case 0x03: /* string */
