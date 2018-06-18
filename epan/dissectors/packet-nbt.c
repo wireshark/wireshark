@@ -454,7 +454,7 @@ add_name_and_type(proto_tree *tree, tvbuff_t *tvb, int offset, int len,
     }
 }
 
-#define MAX_NAME_LEN (NETBIOS_NAME_LEN - 1)*4 + MAXDNAME + 64
+#define MAX_NAME_LEN (NETBIOS_NAME_LEN - 1)*4 + MAX_DNAME_LEN + 64
 
 static int
 dissect_nbns_query(tvbuff_t *tvb, int offset, int nbns_data_offset,

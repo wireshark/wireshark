@@ -617,6 +617,8 @@ typedef struct _dns_conv_info_t {
 #define O_PADDING       12              /* EDNS(0) Padding Option (RFC7830) */
 #define O_CHAIN         13              /* draft-ietf-dnsop-edns-chain-query */
 
+#define MIN_DNAME_LEN    2              /* minimum domain name length */
+
 static const true_false_string tfs_flags_response = {
   "Message is a response",
   "Message is a query"
@@ -1165,7 +1167,7 @@ expand_dns_name(tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
          * than the minimum length, we're looking at bad data and we're liable
          * to put the dissector into a loop.  Instead we throw an exception */
 
-  maxname=MAXDNAME;
+  maxname = MAX_DNAME_LEN;
   np=(guchar *)wmem_alloc(wmem_packet_scope(), maxname);
   *name=np;
   (*name_len) = 0;
@@ -1295,7 +1297,7 @@ expand_dns_name(tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
          * If we find a pointer to itself, it is a trivial loop. Otherwise if we
          * processed a large number of pointers, assume an indirect loop.
          */
-        if (indir_offset == offset + 2 || pointers_count > MAXDNAME/4) {
+        if (indir_offset == offset + 2 || pointers_count > MAX_DNAME_LEN) {
           *name="<Name contains a pointer that loops>";
           *name_len = (guint)strlen(*name);
           if (len < min_len) {
@@ -1326,18 +1328,17 @@ get_dns_name(tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
     const guchar **name, guint* name_len)
 {
   int len;
-  const int min_len = 2;
 
   len = expand_dns_name(tvb, offset, max_len, dns_data_offset, name, name_len);
 
   /* Zero-length name means "root server" */
-  if (**name == '\0' && len <= min_len) {
+  if (**name == '\0' && len <= MIN_DNAME_LEN) {
     *name="<Root>";
     *name_len = (guint)strlen(*name);
     return len;
   }
 
-  if ((len < min_len) || (len > min_len && *name_len == 0)) {
+  if ((len < MIN_DNAME_LEN) || (len > MIN_DNAME_LEN && *name_len == 0)) {
     THROW(ReportedBoundsError);
   }
 
