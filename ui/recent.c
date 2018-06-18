@@ -32,7 +32,6 @@
 #define RECENT_KEY_MAIN_TOOLBAR_SHOW          "gui.toolbar_main_show"
 #define RECENT_KEY_FILTER_TOOLBAR_SHOW        "gui.filter_toolbar_show"
 #define RECENT_KEY_WIRELESS_TOOLBAR_SHOW      "gui.wireless_toolbar_show"
-#define RECENT_KEY_DRIVER_CHECK_SHOW          "gui.airpcap_driver_check_show"
 #define RECENT_KEY_PACKET_LIST_SHOW           "gui.packet_list_show"
 #define RECENT_KEY_TREE_VIEW_SHOW             "gui.tree_view_show"
 #define RECENT_KEY_BYTE_VIEW_SHOW             "gui.byte_view_show"
@@ -787,12 +786,6 @@ write_profile_recent(void)
             RECENT_KEY_WIRELESS_TOOLBAR_SHOW,
             recent.wireless_toolbar_show);
 
-#ifdef HAVE_AIRPCAP
-    write_recent_boolean(rf, "Show (hide) old AirPcap driver warning dialog box",
-            RECENT_KEY_DRIVER_CHECK_SHOW,
-            recent.airpcap_driver_check_show);
-#endif
-
     write_recent_boolean(rf, "Packet list show (hide)",
             RECENT_KEY_PACKET_LIST_SHOW,
             recent.packet_list_show);
@@ -999,8 +992,6 @@ read_set_recent_pair_static(gchar *key, const gchar *value,
         /* check both the old and the new keyword */
     } else if (strcmp(key, RECENT_KEY_WIRELESS_TOOLBAR_SHOW) == 0 || (strcmp(key, "gui.airpcap_toolbar_show") == 0)) {
         parse_recent_boolean(value, &recent.wireless_toolbar_show);
-    } else if (strcmp(key, RECENT_KEY_DRIVER_CHECK_SHOW) == 0) {
-        parse_recent_boolean(value, &recent.airpcap_driver_check_show);
     } else if (strcmp(key, RECENT_KEY_PACKET_LIST_SHOW) == 0) {
         parse_recent_boolean(value, &recent.packet_list_show);
     } else if (strcmp(key, RECENT_KEY_TREE_VIEW_SHOW) == 0) {
@@ -1271,7 +1262,6 @@ recent_read_profile_static(char **rf_path_return, int *rf_errno_return)
     recent.main_toolbar_show         = TRUE;
     recent.filter_toolbar_show       = TRUE;
     recent.wireless_toolbar_show     = FALSE;
-    recent.airpcap_driver_check_show = TRUE;
     recent.packet_list_show          = TRUE;
     recent.tree_view_show            = TRUE;
     recent.byte_view_show            = TRUE;
