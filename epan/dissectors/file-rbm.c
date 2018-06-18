@@ -74,11 +74,14 @@ static const value_string rbm_types[] = {
 	{0, NULL}
 };
 
+void proto_register_rbm(void);
+void proto_reg_handoff_rbm(void);
+
 #define BETWEEN(v, b1, b2) (((v) >= (b1)) && ((v) <= (b2)))
 
 static void dissect_rbm_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset, gchar** type, gchar** value);
 
-void rbm_set_info(packet_info* pinfo, const gchar* str)
+static void rbm_set_info(packet_info* pinfo, const gchar* str)
 {
 	const gchar* col_str = col_get_text(pinfo->cinfo, COL_INFO);
 	if (!col_str || !strlen(col_str))
