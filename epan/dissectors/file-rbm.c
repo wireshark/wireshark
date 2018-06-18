@@ -44,7 +44,6 @@ static gint ett_hash = -1;
 static gint ett_hash_obj = -1;
 static gint ett_variable = -1;
 
-static expert_field ei_rbm_unsupported = EI_INIT;
 static expert_field ei_rbm_invalid = EI_INIT;
 static expert_field ei_rbm_version_unsupported = EI_INIT;
 
@@ -588,7 +587,6 @@ void proto_register_rbm(void)
 	};
 
     static ei_register_info ei[] = {
-        { &ei_rbm_unsupported, { "rbm.unsupported", PI_UNDECODED, PI_WARN, "Unsupported type", EXPFILL }},
         { &ei_rbm_invalid, { "rbm.invalid", PI_UNDECODED, PI_WARN, "Invalid type", EXPFILL }},
         { &ei_rbm_version_unsupported, { "rbm.version.unsupported", PI_UNDECODED, PI_WARN, "Unsupported version", EXPFILL }}
     };
