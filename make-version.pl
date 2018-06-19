@@ -375,7 +375,11 @@ sub read_repo_info {
 	# generate our strings.
 	if ($version_pref{"pkg_enable"}) {
 		$version_format =~ s/%#/$num_commits/;
-		$package_format =~ s/%#/$num_commits-$commit_id/;
+		if($commit_id){
+			$package_format =~ s/%#/$num_commits-$commit_id/;
+		}else{
+			$package_format =~ s/%#/$num_commits/;
+		}
 		$package_string = strftime($package_format, gmtime($last_change));
 	}
 
