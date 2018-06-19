@@ -121,7 +121,7 @@ wmem_itree_insert(wmem_itree_t *tree, const guint64 low, const guint64 high, voi
     node = wmem_tree_insert(tree, range, data, (compare_func)wmem_tree_compare_ranges);
 
     /* Even If no rotations, still a need to update max_edge */
-    update_max_edge(node);
+    update_max_edge(node->parent);
 }
 
 
