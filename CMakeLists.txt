@@ -251,10 +251,14 @@ if( NOT CMAKE_SYSTEM_NAME STREQUAL "Linux" AND
 endif()
 
 if(APPLE AND EXISTS /usr/local/opt/qt5)
-	# Homebrew installs Qt5 (up to at least 5.9.1) in
-	# /usr/local/qt5, ensure it can be found by CMake since
-	# it is not in the default /usr/local prefix.
-	list(APPEND CMAKE_PREFIX_PATH "/usr/local/opt/qt5")
+	# Homebrew installs Qt5 (up to at least 5.11.0) in
+	# /usr/local/qt5. Ensure that it can be found by CMake
+	# since it is not in the default /usr/local prefix.
+	# Add it to PATHS so that it doesn't override the
+	# CMAKE_PREFIX_PATH environment variable.
+	# QT_FIND_PACKAGE_OPTIONS should be passed to find_package,
+	# e.g. find_package(Qt5Core ${QT_FIND_PACKAGE_OPTIONS})
+	set (QT_FIND_PACKAGE_OPTIONS PATHS /usr/local/opt/qt5)
 endif()
 
 # Always enable position-independent code when compiling, even for
@@ -547,7 +551,7 @@ else() # ! MSVC
 	set(CXX_WARN_FLAGS
 	)
 
-	find_package(Qt5Core)  # Needed to check for Qt version
+	find_package(Qt5Core ${QT_FIND_PACKAGE_OPTIONS}) # Needed to check for Qt version
 	if (Qt5Core_VERSION VERSION_GREATER 5.8)
 		# The Qt headers in version 5.8 and older generate a ton of shortening
 		# errors on 64-bit systems so only enable this for version 5.9 and greater.
@@ -906,6 +910,7 @@ if(BUILD_wireshark)
 		set( QT5_BASE_PATH "$ENV{QT5_BASE_DIR}" )
 		set( CMAKE_PREFIX_PATH "${QT5_BASE_PATH}" )
 	endif()
+	list (INSERT QT_FIND_PACKAGE_OPTIONS 0 REQUIRED)
 	set(PACKAGELIST ${PACKAGELIST}
 		Qt5Core
 		Qt5LinguistTools
@@ -914,19 +919,19 @@ if(BUILD_wireshark)
 		Qt5Svg
 		Qt5Widgets
 	)
-	set(Qt5Core_OPTIONS REQUIRED)
-	set(Qt5LinguistTools_OPTIONS REQUIRED)
-	set(Qt5Multimedia_OPTIONS REQUIRED)
-	set(Qt5PrintSupport_OPTIONS REQUIRED)
-	set(Qt5Svg_OPTIONS REQUIRED)
-	set(Qt5Widgets_OPTIONS REQUIRED)
+	set(Qt5Core_OPTIONS ${QT_FIND_PACKAGE_OPTIONS})
+	set(Qt5LinguistTools_OPTIONS ${QT_FIND_PACKAGE_OPTIONS})
+	set(Qt5Multimedia_OPTIONS ${QT_FIND_PACKAGE_OPTIONS})
+	set(Qt5PrintSupport_OPTIONS ${QT_FIND_PACKAGE_OPTIONS})
+	set(Qt5Svg_OPTIONS ${QT_FIND_PACKAGE_OPTIONS})
+	set(Qt5Widgets_OPTIONS ${QT_FIND_PACKAGE_OPTIONS})
 	if (APPLE)
 		set(PACKAGELIST ${PACKAGELIST} Qt5MacExtras)
-		set(Qt5MacExtras_OPTIONS REQUIRED)
+		set(Qt5MacExtras_OPTIONS ${QT_FIND_PACKAGE_OPTIONS})
 	endif()
 	if( WIN32 )
 		set(PACKAGELIST ${PACKAGELIST} Qt5WinExtras)
-		set(Qt5WinExtras_OPTIONS REQUIRED)
+		set(Qt5WinExtras_OPTIONS ${QT_FIND_PACKAGE_OPTIONS})
 	endif()
 endif()
 
