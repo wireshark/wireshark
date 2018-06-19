@@ -89,7 +89,8 @@ On the _Choose Components_ page of the installer you can select from the followi
 
   - *Tree Statistics Plugins* - Extended statistics.
 
-  - *Mate - Meta Analysis and Tracing Engine* - User configurable extension(s) of the display filter engine, see {wireshark-wiki-url}Mate for details.
+  - *Mate - Meta Analysis and Tracing Engine* - User configurable extension(s)
+    of the display filter engine, see <<ChMate>> for details.
 
   - *SNMP MIBs* - SNMP MIBs for a more detailed SNMP dissection.
 
