@@ -186,6 +186,9 @@ static int ett_nas_5gs = -1;
 static int ett_nas_5gs_mm_nssai = -1;
 static int ett_nas_5gs_mm_pdu_ses_id = -1;
 static int ett_nas_5gs_sm_qos_rules = -1;
+static int ett_nas_5gs_plain = -1;
+static int ett_nas_5gs_sec = -1;
+
 static int hf_nas_5gs_mm_suci = -1;
 static int hf_nas_5gs_mm_imei = -1;
 static int hf_nas_5gs_mm_imeisv = -1;
@@ -3749,14 +3752,15 @@ const value_string nas_5gs_pdu_session_id_vals[] = {
 };
 
 static int
-dissect_nas_5gs_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_nas_5gs_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, void* data _U_)
 {
-    int offset = 0;
+    proto_tree *sub_tree;
     guint32 epd;
 
     /* Plain NAS 5GS Message */
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_nas_5gs_plain, NULL, "Plain NAS 5GS Message");
     /* Extended protocol discriminator  octet 1 */
-    proto_tree_add_item_ret_uint(tree, hf_nas_5gs_epd, tvb, offset, 1, ENC_BIG_ENDIAN, &epd);
+    proto_tree_add_item_ret_uint(sub_tree, hf_nas_5gs_epd, tvb, offset, 1, ENC_BIG_ENDIAN, &epd);
     offset++;
     /* Security header type associated with a spare half octet; or
      * PDU session identity octet 2
@@ -3767,18 +3771,18 @@ dissect_nas_5gs_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         * Bits 5 to 8 of the second octet of every 5GMM message contains the spare half octet
         * which is filled with spare bits set to zero.
         */
-        proto_tree_add_item(tree, hf_nas_5gs_spare_half_octet, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(tree, hf_nas_5gs_security_header_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_nas_5gs_spare_half_octet, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_nas_5gs_security_header_type, tvb, offset, 1, ENC_BIG_ENDIAN);
         break;
     case TGPP_PD_5GSM:
         /* 9.4  PDU session identity
         * Bits 1 to 8 of the second octet of every 5GSM message contain the PDU session identity IE.
         * The PDU session identity and its use to identify a message flow are defined in 3GPP TS 24.007
         */
-        proto_tree_add_item(tree, hf_nas_5gs_pdu_session_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_nas_5gs_pdu_session_id, tvb, offset, 1, ENC_BIG_ENDIAN);
         break;
     default:
-        proto_tree_add_expert_format(tree, pinfo, &ei_nas_5gs_unknown_pd, tvb, offset, -1, "Not a NAS 5GS PD %u (%s)",
+        proto_tree_add_expert_format(sub_tree, pinfo, &ei_nas_5gs_unknown_pd, tvb, offset, -1, "Not a NAS 5GS PD %u (%s)",
             epd, val_to_str_const(epd, nas_5gs_epd_vals, "Unknown"));
         return 0;
 
@@ -3790,17 +3794,17 @@ dissect_nas_5gs_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
      * The procedure transaction identity and its use are defined in 3GPP TS 24.007
      * XXX Only 5GSM ?
      */
-    proto_tree_add_item(tree, hf_nas_5gs_proc_trans_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_nas_5gs_proc_trans_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     switch (epd) {
     case TGPP_PD_5GMM:
         /* 5GS mobility management messages */
-        disect_nas_5gs_mm_msg(tvb, pinfo, tree, offset);
+        disect_nas_5gs_mm_msg(tvb, pinfo, sub_tree, offset);
         break;
     case TGPP_PD_5GSM:
         /* 5GS session management messages. */
-        dissect_nas_5gs_sm_msg(tvb, pinfo, tree, offset);
+        dissect_nas_5gs_sm_msg(tvb, pinfo, sub_tree, offset);
         break;
     default:
         DISSECTOR_ASSERT_NOT_REACHED();
@@ -3814,7 +3818,7 @@ static int
 dissect_nas_5gs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     proto_item *item;
-    proto_tree *nas_5gs_tree;
+    proto_tree *nas_5gs_tree, *sub_tree;
     int offset = 0;
     guint8 seq_hdr_type;
 
@@ -3830,26 +3834,27 @@ dissect_nas_5gs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     /* Determine if it's a plain 5GS NAS Message or not */
     seq_hdr_type = tvb_get_guint8(tvb, offset + 1);
     if (seq_hdr_type == NAS_5GS_PLAN_NAS_MSG) {
-        return dissect_nas_5gs_common(tvb, pinfo, nas_5gs_tree, data);
+        return dissect_nas_5gs_common(tvb, pinfo, nas_5gs_tree, offset, data);
     }
     /* Security protected NAS 5GS message*/
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, 7, ett_nas_5gs_sec, NULL, "Security protected NAS 5GS message");
 
     /* Extended protocol discriminator  octet 1 */
-    proto_tree_add_item(nas_5gs_tree, hf_nas_5gs_epd, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_nas_5gs_epd, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     /* Security header type associated with a spare half octet    octet 2 */
-    proto_tree_add_item(nas_5gs_tree, hf_nas_5gs_spare_half_octet, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(nas_5gs_tree, hf_nas_5gs_security_header_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_nas_5gs_spare_half_octet, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_nas_5gs_security_header_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     /* Message authentication code octet 3 - 6 */
-    proto_tree_add_item(nas_5gs_tree, hf_nas_5gs_msg_auth_code, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_nas_5gs_msg_auth_code, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
     /* Sequence number	octet 7 */
-    proto_tree_add_item(nas_5gs_tree, hf_nas_5gs_seq_no, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_nas_5gs_seq_no, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     /* Plain 5GS NAS message Octet 8 - n*/
-    return dissect_nas_5gs_common(tvb, pinfo, nas_5gs_tree, data);
+    return dissect_nas_5gs_common(tvb, pinfo, tree, offset, data);
 }
 
 void
@@ -4597,7 +4602,7 @@ proto_register_nas_5gs(void)
     guint     last_offset;
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS    4
+#define NUM_INDIVIDUAL_ELEMS    6
     gint *ett[NUM_INDIVIDUAL_ELEMS +
         NUM_NAS_5GS_COMMON_ELEM +
         NUM_NAS_5GS_MM_MSG + NUM_NAS_5GS_MM_ELEM +
@@ -4608,6 +4613,8 @@ proto_register_nas_5gs(void)
     ett[1] = &ett_nas_5gs_mm_nssai;
     ett[2] = &ett_nas_5gs_mm_pdu_ses_id;
     ett[3] = &ett_nas_5gs_sm_qos_rules;
+    ett[4] = &ett_nas_5gs_plain;
+    ett[5] = &ett_nas_5gs_sec;
 
     last_offset = NUM_INDIVIDUAL_ELEMS;
 
