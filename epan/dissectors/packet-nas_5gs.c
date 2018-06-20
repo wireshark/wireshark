@@ -3981,7 +3981,7 @@ proto_register_nas_5gs(void)
         },
         { &hf_nas_5gs_mm_nas_key_set_id,
         { "NAS key set identifier",   "nas_5gs.mm.nas_key_set_id",
-            FT_UINT8, BASE_DEC, NULL, 0x03,
+            FT_UINT8, BASE_DEC, NULL, 0x07,
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_5gmm_cause,
