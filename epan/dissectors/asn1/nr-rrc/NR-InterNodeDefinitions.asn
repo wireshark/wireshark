@@ -1,4 +1,4 @@
--- 3GPP TS 38.331 V15.1.0 (2018-03)
+-- 3GPP TS 38.331 V15.2.0 (2018-06)
 
 NR-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -10,10 +10,11 @@ IMPORTS
 	CSI-RS-Index,
 	GapConfig,
 	maxBandComb,
-	maxBasebandProcComb,
 	maxNrofSCells,
+	maxNrofServingCells-1,
 	maxNrofIndexesToReport,
 	MeasQuantityResults,
+	MeasResultList2NR,
 	MeasResultSCG-Failure,
 	MeasResultCellListSFTD,
 	P-Max,
@@ -21,7 +22,9 @@ IMPORTS
 	RadioBearerConfig,
 	RRCReconfiguration,
 	ServCellIndex,
+--	SetupRelease,
 	SSB-Index,
+	SSB-MTC,
 	ShortMAC-I,
 	UE-CapabilityRAT-ContainerList
 FROM NR-RRC-Definitions;
@@ -95,7 +98,7 @@ RRM-Config ::=				SEQUENCE {
 									hr8, hr10, hr13, hr16, hr20, day1, day1hr12, day2,
 									day2hr12, day3, day4, day5, day7, day10, day14, day19,
 									day24, day30, dayMoreThan30}		OPTIONAL ,
-	candidateCellInfoList		CandidateCellInfoList		OPTIONAL,
+	candidateCellInfoList		MeasResultList2NR		OPTIONAL,
 	...
 }
 
@@ -117,14 +120,15 @@ CG-Config-IEs ::=			SEQUENCE {
 	scg-RB-Config						OCTET STRING (CONTAINING RadioBearerConfig)		OPTIONAL,
 	configRestrictModReq				ConfigRestrictModReqSCG							OPTIONAL,
 	drx-InfoSCG							DRX-Info										OPTIONAL,
-	candidateCellInfoListSN				OCTET STRING (CONTAINING CandidateCellInfoList)	OPTIONAL,
+	candidateCellInfoListSN				OCTET STRING (CONTAINING MeasResultList2NR)	OPTIONAL,
 	measConfigSN						MeasConfigSN									OPTIONAL,
 	selectedBandCombinationNR			BandCombinationIndex							OPTIONAL,
+	fr-InfoListSCG						FR-InfoList										OPTIONAL,
 	nonCriticalExtension				SEQUENCE {}										OPTIONAL
 }
 
 MeasConfigSN ::= SEQUENCE {
-	measuredFrequenciesFR1				SEQUENCE (SIZE (1..maxMeasFreqsMN))	OF NR-FreqInfo	OPTIONAL,
+	measuredFrequenciesSN				SEQUENCE (SIZE (1.. maxMeasFreqsSN))	OF NR-FreqInfo	OPTIONAL,
 	...
 }
 
@@ -135,12 +139,18 @@ NR-FreqInfo ::= SEQUENCE {
 
 ConfigRestrictModReqSCG ::=			SEQUENCE {
 	requestedBC-MRDC					BandCombinationIndex							OPTIONAL,
-	requestedBPC-ListMRDC				BPC-IndexList									OPTIONAL,
 	requestedP-MaxFR1				P-Max												OPTIONAL,
 	...
 }
 
 BandCombinationIndex ::= INTEGER (1..maxBandComb)
+
+FR-InfoList ::=	SEQUENCE (SIZE (1..maxNrofServingCells-1)) OF FR-Info
+
+FR-Info ::=	SEQUENCE {
+	servCellIndex		ServCellIndex,
+	fr-Type				ENUMERATED {fr1, fr2}
+}
 
 -- TAG-CG-CONFIG-STOP
 -- TAG-CG-CONFIG-INFO-START
@@ -157,8 +167,8 @@ CG-ConfigInfo ::=				SEQUENCE {
 
 CG-ConfigInfo-IEs ::=		SEQUENCE {
 	ue-CapabilityInfo			OCTET STRING (CONTAINING UE-CapabilityRAT-ContainerList)		OPTIONAL,-- Cond SN-Addition
-	candidateCellInfoListMN			CandidateCellInfoList									OPTIONAL,
-	candidateCellInfoListSN			OCTET STRING (CONTAINING CandidateCellInfoList)			OPTIONAL,
+	candidateCellInfoListMN			MeasResultList2NR									OPTIONAL,
+	candidateCellInfoListSN			OCTET STRING (CONTAINING MeasResultList2NR)			OPTIONAL,
 	measResultCellListSFTD			MeasResultCellListSFTD									OPTIONAL,
 	scgFailureInfo					SEQUENCE {
 		failureType						ENUMERATED { t310-Expiry, randomAccessProblem,
@@ -178,7 +188,6 @@ CG-ConfigInfo-IEs ::=		SEQUENCE {
 
 ConfigRestrictInfoSCG ::=		SEQUENCE {
 	allowedBC-ListMRDC				BandCombinationIndexList								OPTIONAL,
-	allowedBPC-ListMRDC				BPC-IndexList											OPTIONAL,
 	powerCoordination-FR1				SEQUENCE {
 		p-maxNR							P-Max												OPTIONAL,
 		p-maxEUTRA						P-Max												OPTIONAL
@@ -187,14 +196,12 @@ ConfigRestrictInfoSCG ::=		SEQUENCE {
 		lowBound						ServCellIndex,
 		upBound							ServCellIndex
 	}																						OPTIONAL,   -- Cond SN-Addition
-	maxMeasFreqsSCG-NR					INTEGER(1..maxMeasFreqsMN)								OPTIONAL,
+	maxMeasFreqsSCG-NR					INTEGER(1..maxMeasFreqsMN)							OPTIONAL,
+	maxMeasIdentitiesSCG-NR				INTEGER(1..maxMeasIdentitiesMN)						OPTIONAL,
 	...
 }
 
 BandCombinationIndexList ::= SEQUENCE (SIZE (1..maxBandComb)) OF BandCombinationIndex
-
-BPC-IndexList ::= SEQUENCE (SIZE (1..maxBasebandProcComb)) OF BPC-Index
-BPC-Index ::= INTEGER (1..maxBasebandProcComb)
 
 DRX-Info ::=					SEQUENCE {
 	drx-LongCycleStartOffset		CHOICE {
@@ -230,7 +237,7 @@ DRX-Info ::=					SEQUENCE {
 
 MeasConfigMN ::= SEQUENCE {
 	measuredFrequenciesMN				SEQUENCE (SIZE (1..maxMeasFreqsMN))	OF NR-FreqInfo	OPTIONAL,
-	measGapConfigFR1					GapConfig											OPTIONAL,
+	measGapConfig					CHOICE { release NULL, setup GapConfig }							OPTIONAL,
 	gapPurpose							ENUMERATED {perUE, perFR1}							OPTIONAL,
 	...
 }
@@ -257,49 +264,20 @@ MeasurementTimingConfiguration-IEs ::=	SEQUENCE {
 MeasTimingList ::= SEQUENCE (SIZE (1..maxMeasFreqsMN)) OF MeasTiming
 
 MeasTiming ::= SEQUENCE {
-	carrierFreq								ARFCN-ValueNR							OPTIONAL,
-	ssb-MeasurementTimingConfiguration		ENUMERATED {ffsTypeAndValue}		OPTIONAL,
+	frequencyAndTiming						SEQUENCE {
+		carrierFreq								ARFCN-ValueNR,
+		ssb-MeasurementTimingConfiguration		SSB-MTC
+	}																				OPTIONAL,
 	...
 }
 
 -- TAG-MEASUREMENT-TIMING-CONFIGURATION-STOP
--- TAG-CANDIDATE-CELL-INFO-LIST-START
-
-CandidateCellInfoList ::=	SEQUENCE (SIZE (1.. maxNrofSCells)) OF CandidateCellInfo
-
-CandidateCellInfo ::=			SEQUENCE {
-	cellIdentification				SEQUENCE {
-		physCellId						PhysCellId,
-		dl-CarrierFreq					ARFCN-ValueNR
-	},
-	measResultCell					MeasQuantityResults											OPTIONAL,
-	candidateRS-IndexListSSB		CandidateRS-IndexInfoListSSB								OPTIONAL,
-	candidateRS-IndexListCSI-RS		CandidateRS-IndexInfoListCSI-RS								OPTIONAL,
-	...
-}
-
-CandidateRS-IndexInfoListSSB ::=	SEQUENCE (SIZE (1..maxNrofIndexesToReport)) OF CandidateRS-IndexInfoSSB
-
-CandidateRS-IndexInfoSSB ::=	SEQUENCE {
-	ssb-Index						SSB-Index,
-	measResultSSB					MeasQuantityResults											OPTIONAL,
-	...
-}
-
-CandidateRS-IndexInfoListCSI-RS ::=	SEQUENCE (SIZE (1..maxNrofIndexesToReport)) OF CandidateRS-IndexInfoCSI-RS
-
-CandidateRS-IndexInfoCSI-RS ::=		SEQUENCE {
-	csi-RS-Index							CSI-RS-Index,
-	measResultCSI-RS						MeasQuantityResults									OPTIONAL,
-	...
-}
-
--- TAG-CANDIDATE-CELL-INFO-LIST-STOP
 -- TAG_NR-MULTIPLICITY-AND-CONSTRAINTS-START
 
 maxMeasFreqsMN				INTEGER ::= 32	-- Maximum number of MN-configured measurement frequencies
--- WS modification: already defined in NR-RRC-Definitions
--- maxCellPrep					INTEGER ::= 32	 Maximum number of cells prepared for handover
+maxMeasFreqsSN				INTEGER ::= 32	-- Maximum number of SN-configured measurement frequencies
+maxMeasIdentitiesMN			INTEGER ::= 62	-- Maximum number of measurement identities that a UE can be configured with
+maxCellPrep					INTEGER ::= 32	-- Maximum number of cells prepared for handover
 
 -- TAG_NR-MULTIPLICITY-AND-CONSTRAINTS-STOP
 -- TAG_NR-INTER-NODE-DEFINITIONS-END-START

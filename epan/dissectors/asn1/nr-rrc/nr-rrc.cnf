@@ -9,15 +9,16 @@ UNALIGNED
 
 #.USE_VALS_EXT
 CA-BandwidthClassNR
-ConfiguredGrantConfig/configuredGrantTimer
 ConfiguredGrantConfig/periodicity
+CSI-RS-IM-ReceptionForFeedback/maxNumberPortsAcrossNZP-CSI-RS-PerCC
+CSI-RS-IM-ReceptionForFeedback/maxNumberSimultaneousCSI-RS-ActBWP-AllCC
+CSI-RS-IM-ReceptionForFeedback/totalNumberPortsSimultaneousCSI-RS-ActBWP-AllCC
 DRX-Config/drx-onDurationTimer/milliSeconds
 DRX-Config/drx-InactivityTimer
 DRX-Config/drx-RetransmissionTimerDL
 DRX-Config/drx-RetransmissionTimerUL
 DRX-Config/drx-LongCycleStartOffset
 DRX-Config/shortDRX/drx-ShortCycle
-DRX-Config/drx-SlotOffset
 DRX-Info/drx-LongCycleStartOffset
 DRX-Info/shortDRX/drx-ShortCycle
 PDCP-Config/t-Reordering
@@ -76,7 +77,8 @@ CellsTriggeredList
 CG-Config
 CG-Config-IEs
 ConfigRestrictModReqSCG
-GSCN-ValueNR
+FR-Info
+FR-InfoList
 HandoverCommand
 HandoverCommand-IEs
 HandoverPreparationInformation
