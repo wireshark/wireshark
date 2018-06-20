@@ -38,14 +38,17 @@
 #include "ui/tap-rtp-common.h"
 
 void register_tap_listener_rtp_streams(void);
+static void rtp_streams_stat_draw_cb(rtpstream_tapinfo_t *tapinfo);
 
 /* The one and only global rtpstream_tapinfo_t structure for tshark and wireshark.
  */
 static rtpstream_tapinfo_t the_tapinfo_struct =
-        {NULL, NULL, NULL, NULL, 0, NULL, 0, TAP_ANALYSE, NULL, NULL, NULL, FALSE};
+        { NULL, rtp_streams_stat_draw_cb, NULL,
+          NULL, 0, NULL, 0, TAP_ANALYSE, NULL, NULL, NULL, FALSE
+        };
 
 static void
-rtp_streams_stat_draw_cb(void *arg _U_)
+rtp_streams_stat_draw_cb(rtpstream_tapinfo_t *tapinfo _U_)
 {
     GList *list;
     rtpstream_info_t *strinfo;
@@ -99,20 +102,7 @@ rtp_streams_stat_draw_cb(void *arg _U_)
 static void
 rtp_streams_stat_init(const char *opt_arg _U_, void *userdata _U_)
 {
-    GString             *err_p;
-
-    err_p =
-        register_tap_listener("rtp", &the_tapinfo_struct, NULL, 0,
-            rtpstream_reset_cb,
-            rtpstream_packet_cb,
-            rtp_streams_stat_draw_cb);
-
-    if (err_p != NULL)
-    {
-        g_string_free(err_p, TRUE);
-
-        exit(1);
-    }
+    register_tap_listener_rtpstream(&the_tapinfo_struct, NULL, NULL);
 }
 
 static stat_tap_ui rtp_streams_stat_ui = {

@@ -75,6 +75,7 @@ typedef struct _rtpstream_tapinfo rtpstream_tapinfo_t;
 typedef void (*rtpstream_tap_reset_cb)(rtpstream_tapinfo_t *tapinfo);
 typedef void (*rtpstream_tap_draw_cb)(rtpstream_tapinfo_t *tapinfo);
 typedef void (*tap_mark_packet_cb)(rtpstream_tapinfo_t *tapinfo, frame_data *fd);
+typedef void (*rtpstream_tap_error_cb)(GString *error_string);
 
 /* structure that holds the information about all detected streams */
 /** struct holding all information of the tap */
@@ -107,25 +108,7 @@ struct _rtpstream_tapinfo {
 /****************************************************************************/
 /* INTERFACE */
 
-/**
-* Registers the rtp_streams tap listener (if not already done).
-* From that point on, the RTP streams list will be updated with every redissection.
-* This function is also the entry point for the initialization routine of the tap system.
-* So whenever rtp_stream.c is added to the list of WIRESHARK_TAP_SRCs, the tap will be registered on startup.
-* If not, it will be registered on demand by the rtp_streams and rtp_analysis functions that need it.
-*/
-void register_tap_listener_rtpstream(rtpstream_tapinfo_t *tapinfo, const char *fstring);
-
-/**
-* Removes the rtp_streams tap listener (if not already done)
-* From that point on, the RTP streams list won't be updated any more.
-*/
-void remove_tap_listener_rtpstream(rtpstream_tapinfo_t *tapinfo);
-
-/**
-* Cleans up memory of rtp streams tap.
-*/
-void rtpstream_reset(rtpstream_tapinfo_t *tapinfo);
+void show_tap_registration_error(GString *error_string);
 
 /**
 * Scans all packets for RTP streams and updates the RTP streams list.

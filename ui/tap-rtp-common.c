@@ -110,6 +110,64 @@ void rtpstream_reset_cb(void *arg)
     rtpstream_reset(ti);
 }
 
+/****************************************************************************/
+/* TAP INTERFACE */
+/****************************************************************************/
+
+/****************************************************************************/
+/* redraw the output */
+static void rtpstream_draw_cb(void *ti_ptr)
+{
+    rtpstream_tapinfo_t *tapinfo = (rtpstream_tapinfo_t *)ti_ptr;
+/* XXX: see rtpstream_on_update in rtp_streams_dlg.c for comments
+    g_signal_emit_by_name(top_level, "signal_rtpstream_update");
+*/
+    if (tapinfo && tapinfo->tap_draw) {
+        /* RTP_STREAM_DEBUG("streams: %d packets: %d", tapinfo->nstreams, tapinfo->npackets); */
+        tapinfo->tap_draw(tapinfo);
+    }
+    return;
+}
+
+
+
+/****************************************************************************/
+void
+remove_tap_listener_rtpstream(rtpstream_tapinfo_t *tapinfo)
+{
+    if (tapinfo && tapinfo->is_registered) {
+        remove_tap_listener(tapinfo);
+        tapinfo->is_registered = FALSE;
+    }
+}
+
+/****************************************************************************/
+void
+register_tap_listener_rtpstream(rtpstream_tapinfo_t *tapinfo, const char *fstring, rtpstream_tap_error_cb tap_error)
+{
+    GString *error_string;
+
+    if (!tapinfo) {
+        return;
+    }
+
+    if (!tapinfo->is_registered) {
+        error_string = register_tap_listener("rtp", tapinfo,
+            fstring, 0, rtpstream_reset_cb, rtpstream_packet_cb,
+            rtpstream_draw_cb);
+
+        if (error_string != NULL) {
+            if (tap_error) {
+                tap_error(error_string);
+            }
+            g_string_free(error_string, TRUE);
+            exit(1);
+        }
+
+        tapinfo->is_registered = TRUE;
+    }
+}
+
 /*
 * rtpdump file format
 *

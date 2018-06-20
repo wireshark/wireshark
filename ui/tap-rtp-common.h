@@ -84,6 +84,29 @@ gint rtpstream_info_cmp(gconstpointer aa, gconstpointer bb);
 */
 gboolean rtpstream_info_is_reverse(const rtpstream_info_t *stream_a, rtpstream_info_t *stream_b);
 
+/****************************************************************************/
+/* INTERFACE */
+
+/**
+* Registers the rtp_streams tap listener (if not already done).
+* From that point on, the RTP streams list will be updated with every redissection.
+* This function is also the entry point for the initialization routine of the tap system.
+* So whenever rtp_stream.c is added to the list of WIRESHARK_TAP_SRCs, the tap will be registered on startup.
+* If not, it will be registered on demand by the rtp_streams and rtp_analysis functions that need it.
+*/
+void register_tap_listener_rtpstream(rtpstream_tapinfo_t *tapinfo, const char *fstring, rtpstream_tap_error_cb tap_error);
+
+/**
+* Removes the rtp_streams tap listener (if not already done)
+* From that point on, the RTP streams list won't be updated any more.
+*/
+void remove_tap_listener_rtpstream(rtpstream_tapinfo_t *tapinfo);
+
+/**
+* Cleans up memory of rtp streams tap.
+*/
+void rtpstream_reset(rtpstream_tapinfo_t *tapinfo);
+
 void rtpstream_reset_cb(void*);
 void rtp_write_header(rtpstream_info_t*, FILE*);
 int rtpstream_packet_cb(void*, packet_info*, epan_dissect_t *, const void *);

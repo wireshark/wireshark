@@ -244,7 +244,7 @@ RtpStreamDialog::RtpStreamDialog(QWidget &parent, CaptureFile &cf) :
     tapinfo_.tap_data = this;
     tapinfo_.mode = TAP_ANALYSE;
 
-    register_tap_listener_rtpstream(&tapinfo_, NULL);
+    register_tap_listener_rtpstream(&tapinfo_, NULL, show_tap_registration_error);
     /* Scan for RTP streams (redissect all packets) */
     rtpstream_scan(&tapinfo_, cf.capFile(), NULL);
 

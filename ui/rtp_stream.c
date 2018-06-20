@@ -32,20 +32,13 @@
 
 
 /****************************************************************************/
-/* redraw the output */
-static void rtpstream_draw_cb(void *ti_ptr)
+/* scan for RTP streams */
+void
+show_tap_registration_error(GString *error_string)
 {
-    rtpstream_tapinfo_t *tapinfo = (rtpstream_tapinfo_t *)ti_ptr;
-/* XXX: see rtpstream_on_update in rtp_streams_dlg.c for comments
-    g_signal_emit_by_name(top_level, "signal_rtpstream_update");
-*/
-    if (tapinfo && tapinfo->tap_draw) {
-        /* RTP_STREAM_DEBUG("streams: %d packets: %d", tapinfo->nstreams, tapinfo->npackets); */
-        tapinfo->tap_draw(tapinfo);
-    }
-    return;
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+        "%s", error_string->str);
 }
-
 
 /****************************************************************************/
 /* scan for RTP streams */
@@ -59,7 +52,7 @@ void rtpstream_scan(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file, const 
 
     was_registered = tapinfo->is_registered;
     if (!tapinfo->is_registered)
-        register_tap_listener_rtpstream(tapinfo, fstring);
+        register_tap_listener_rtpstream(tapinfo, fstring, show_tap_registration_error);
 
     /* RTP_STREAM_DEBUG("scanning %s, filter: %s", cap_file->filename, fstring); */
     tapinfo->mode = TAP_ANALYSE;
@@ -97,7 +90,7 @@ gboolean rtpstream_save(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file, rt
     }
 
     if (!tapinfo->is_registered)
-        register_tap_listener_rtpstream(tapinfo, NULL);
+        register_tap_listener_rtpstream(tapinfo, NULL, show_tap_registration_error);
 
     tapinfo->mode = TAP_SAVE;
     tapinfo->filter_stream_fwd = stream;
@@ -133,7 +126,7 @@ void rtpstream_mark(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file, rtpstr
     was_registered = tapinfo->is_registered;
 
     if (!tapinfo->is_registered)
-        register_tap_listener_rtpstream(tapinfo, NULL);
+        register_tap_listener_rtpstream(tapinfo, NULL, show_tap_registration_error);
 
     tapinfo->mode = TAP_MARK;
     tapinfo->filter_stream_fwd = stream_fwd;
@@ -145,47 +138,6 @@ void rtpstream_mark(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file, rtpstr
         remove_tap_listener_rtpstream(tapinfo);
 }
 
-
-/****************************************************************************/
-/* TAP INTERFACE */
-/****************************************************************************/
-
-/****************************************************************************/
-void
-remove_tap_listener_rtpstream(rtpstream_tapinfo_t *tapinfo)
-{
-    if (tapinfo && tapinfo->is_registered) {
-        remove_tap_listener(tapinfo);
-        tapinfo->is_registered = FALSE;
-    }
-}
-
-
-/****************************************************************************/
-void
-register_tap_listener_rtpstream(rtpstream_tapinfo_t *tapinfo, const char *fstring)
-{
-    GString *error_string;
-
-    if (!tapinfo) {
-        return;
-    }
-
-    if (!tapinfo->is_registered) {
-        error_string = register_tap_listener("rtp", tapinfo,
-            fstring, 0, rtpstream_reset_cb, rtpstream_packet_cb,
-            rtpstream_draw_cb);
-
-        if (error_string != NULL) {
-            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                          "%s", error_string->str);
-            g_string_free(error_string, TRUE);
-            exit(1);
-        }
-
-        tapinfo->is_registered = TRUE;
-    }
-}
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
