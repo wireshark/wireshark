@@ -94,7 +94,6 @@ LogMeasInfoList2-r10
 RSRP-RangeSL3-r12
 SL-CBR-PPPP-TxPreconfigList-r14
 SL-CBR-PreconfigTxConfigList-r14
-SL-OffsetIndicatorSync-r14
 SL-PPPP-TxPreconfigIndex-r14
 SL-PreconfigCommPool-r12
 SL-PreconfigCommPoolList4-r12
@@ -2311,6 +2310,32 @@ WLAN-OffloadConfig-r12/thresholdWLAN-RSSI-r12/thresholdWLAN-RSSI-Low-r12 DISPLAY
 #.TYPE_ATTR
 WLAN-OffloadConfig-r12/thresholdWLAN-RSSI-r12/thresholdWLAN-RSSI-High-r12 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lte_rrc_thresholdWLAN_RSSI_fmt)
 
+#.FN_BODY MeasParameters-v1520/measGapPatterns-v1520 VAL_PTR = &meas_gap_pattern_tvb
+  tvbuff_t *meas_gap_pattern_tvb = NULL;
+  proto_tree *subtree;
+
+%(DEFAULT_BODY)s
+
+#.FN_BODY MeasParameters-v1520/measGapPatterns-v1520
+  if (meas_gap_pattern_tvb) {
+    static const int *lte_rrc_meas_gap_pattern_flags[] = {
+      &hf_lte_rrc_measGapPatterns_v1520_bit1,
+      &hf_lte_rrc_measGapPatterns_v1520_bit2,
+      &hf_lte_rrc_measGapPatterns_v1520_bit3,
+      &hf_lte_rrc_measGapPatterns_v1520_bit4,
+      &hf_lte_rrc_measGapPatterns_v1520_bit5,
+      &hf_lte_rrc_measGapPatterns_v1520_bit6,
+      &hf_lte_rrc_measGapPatterns_v1520_bit7,
+      &hf_lte_rrc_measGapPatterns_v1520_bit8,
+      NULL
+    };
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_measGapPatterns_v1520);
+    proto_tree_add_bitmask_list(subtree, meas_gap_pattern_tvb, 0, 1, lte_rrc_meas_gap_pattern_flags, ENC_NA);
+  }
+
+#.TYPE_ATTR
+MBMS-Parameters-v1470/mbms-MaxBW-r14/explicitValue DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lte_rrc_mbms_MaxBW_r14_fmt)
+
 #.FN_BODY WLAN-backhaulRate-r12
 %(DEFAULT_BODY)s
   proto_item_append_text(actx->created_item, "Kbps");
@@ -2710,3 +2735,9 @@ UplinkPowerControlDedicated-NB-r13/p0-UE-NPUSCH-r13 DISPLAY=BASE_DEC|BASE_UNIT_S
 
 #.TYPE_ATTR
 ReselectionThreshold-NB-v1360  DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_ReselectionThreshold_NB_vals_ext
+
+#.TYPE_ATTR
+NRSRP-Range-NB-r14 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lte_rrc_NRSRP_Range_NB_r14_fmt)
+
+#.TYPE_ATTR
+NRSRQ-Range-NB-r14 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lte_rrc_NRSRQ_Range_NB_r14_fmt)

@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V15.1.0 (2018-03)
+-- 3GPP TS 36.331 V15.2.0 (2018-06)
 --
 NBIOT-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -319,6 +319,11 @@ RRCConnectionReestablishmentComplete-NB ::= SEQUENCE {
 
 RRCConnectionReestablishmentComplete-NB-r13-IEs ::= SEQUENCE {
 	lateNonCriticalExtension			OCTET STRING					OPTIONAL,
+	nonCriticalExtension				RRCConnectionReestablishmentComplete-NB-v1470-IEs	OPTIONAL
+}
+
+RRCConnectionReestablishmentComplete-NB-v1470-IEs ::= SEQUENCE {
+	measResultServCell-r14				MeasResultServCell-NB-r14		OPTIONAL,
 	nonCriticalExtension				SEQUENCE {}						OPTIONAL
 }
 
@@ -338,13 +343,17 @@ RRCConnectionReestablishmentRequest-NB ::= SEQUENCE {
 RRCConnectionReestablishmentRequest-NB-r13-IEs ::= SEQUENCE {
 	ue-Identity-r13						ReestabUE-Identity,
 	reestablishmentCause-r13			ReestablishmentCause-NB-r13,
-	spare								BIT STRING (SIZE (25))
+	cqi-NPDCCH-r14						CQI-NPDCCH-NB-r14,
+	earlyContentionResolution-r14		BOOLEAN,
+	spare								BIT STRING (SIZE (20))
 }
 
 RRCConnectionReestablishmentRequest-NB-r14-IEs ::= SEQUENCE {
 	ue-Identity-r14						ReestabUE-Identity-CP-NB-r14,
 	reestablishmentCause-r14			ReestablishmentCause-NB-r13,
-	spare								BIT STRING (SIZE (4))
+	cqi-NPDCCH-r14						CQI-NPDCCH-Short-NB-r14,
+	earlyContentionResolution-r14		BOOLEAN,
+	spare								BIT STRING (SIZE (1))
 }
 
 ReestablishmentCause-NB-r13 ::=			ENUMERATED {
@@ -428,7 +437,9 @@ RRCConnectionRequest-NB-r13-IEs ::=		SEQUENCE {
 	establishmentCause-r13					EstablishmentCause-NB-r13,
 	multiToneSupport-r13					ENUMERATED {true}				OPTIONAL,
 	multiCarrierSupport-r13					ENUMERATED {true}				OPTIONAL,
-	spare									BIT STRING (SIZE (22))
+	cqi-NPDCCH-r14							CQI-NPDCCH-NB-r14,
+	earlyContentionResolution-r14			BOOLEAN,
+	spare									BIT STRING (SIZE (17))
 }
 
 
@@ -464,7 +475,12 @@ RRCConnectionResumeComplete-NB-r13-IEs ::= SEQUENCE {
 	selectedPLMN-Identity-r13					INTEGER (1..maxPLMN-r11)	OPTIONAL,
 	dedicatedInfoNAS-r13						DedicatedInfoNAS	OPTIONAL,
 	lateNonCriticalExtension					OCTET STRING					OPTIONAL,
-	nonCriticalExtension						SEQUENCE {}						OPTIONAL
+	nonCriticalExtension						RRCConnectionResumeComplete-NB-v1470-IEs	OPTIONAL
+}
+
+RRCConnectionResumeComplete-NB-v1470-IEs ::= SEQUENCE {
+	measResultServCell-r14						MeasResultServCell-NB-r14	OPTIONAL,
+	nonCriticalExtension						SEQUENCE {}					OPTIONAL
 }
 
 
@@ -477,9 +493,11 @@ RRCConnectionResumeRequest-NB ::=	SEQUENCE {
 
 RRCConnectionResumeRequest-NB-r13-IEs ::=	SEQUENCE {
 	resumeID-r13								ResumeIdentity-r13,
-	shortResumeMAC-I-r13							ShortMAC-I,
+	shortResumeMAC-I-r13						ShortMAC-I,
 	resumeCause-r13								EstablishmentCause-NB-r13,
-	spare										BIT STRING (SIZE (9))
+	cqi-NPDCCH-r14								CQI-NPDCCH-NB-r14,
+	earlyContentionResolution-r14				BOOLEAN,
+	spare										BIT STRING (SIZE (4))
 }
 
 
@@ -521,8 +539,13 @@ RRCConnectionSetupComplete-NB-r13-IEs ::= SEQUENCE {
 }
 
 RRCConnectionSetupComplete-NB-v1430-IEs ::= SEQUENCE {
-	gummei-Type-r14								ENUMERATED { mapped}	OPTIONAL,
-	dcn-ID-r14									INTEGER (0..65535)			OPTIONAL,
+	gummei-Type-r14							ENUMERATED { mapped}	OPTIONAL,
+	dcn-ID-r14								INTEGER (0..65535)			OPTIONAL,
+	nonCriticalExtension					RRCConnectionSetupComplete-NB-v1470-IEs	OPTIONAL
+}
+
+RRCConnectionSetupComplete-NB-v1470-IEs ::= SEQUENCE {
+	measResultServCell-r14						MeasResultServCell-NB-r14	OPTIONAL,
 	nonCriticalExtension						SEQUENCE {}					OPTIONAL
 }
 
@@ -715,6 +738,9 @@ SystemInformationBlockType2-NB-r13 ::=	SEQUENCE {
 	lateNonCriticalExtension				OCTET STRING					OPTIONAL,
 	...,
 	[[	cp-Reestablishment-r14				ENUMERATED {true}				OPTIONAL		-- Need OP
+	]],
+	[[	cqi-Reporting-r14					ENUMERATED {true} 				OPTIONAL,		-- Need OR
+		servingCellMeasInfo-r14				ENUMERATED {true} 				OPTIONAL		-- Need OR
 	]]
 }
 
@@ -1501,6 +1527,29 @@ ReselectionThreshold-NB-v1360 ::=			INTEGER (32..63)
 
 
 T-Reselection-NB-r13 ::=		ENUMERATED {s0, s3, s6, s9, s12, s15, s18, s21}
+
+
+CQI-NPDCCH-NB-r14 ::=	ENUMERATED {
+							noMeasurements, candidateRep-A, candidateRep-B, candidateRep-C, 
+							candidateRep-D, candidateRep-E, candidateRep-F, candidateRep-G, 
+							candidateRep-H, candidateRep-I, candidateRep-J, candidateRep-K, 
+							candidateRep-L}
+
+
+CQI-NPDCCH-Short-NB-r14 ::=	ENUMERATED {
+								noMeasurements, candidateRep-1, candidateRep-2, candidateRep-3}
+
+
+MeasResultServCell-NB-r14 ::=	SEQUENCE {
+	nrsrpResult-r14					NRSRP-Range-NB-r14,
+	nrsrqResult-r14					NRSRQ-Range-NB-r14
+}
+
+
+NRSRP-Range-NB-r14 ::=				INTEGER(0..113)
+
+
+NRSRQ-Range-NB-r14 ::=				INTEGER(-30..46)
 
 
 EstablishmentCause-NB-r13 ::=			ENUMERATED {
