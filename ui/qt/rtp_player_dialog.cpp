@@ -405,10 +405,9 @@ void RtpPlayerDialog::addRtpStream(rtpstream_info_t *rtp_stream)
     } else {
         start_rel_time_ = qMin(start_rel_time_, start_rel_time);
     }
-    RTP_STREAM_DEBUG("adding stream %d to layout, %u packets, %u in list, start %u",
+    RTP_STREAM_DEBUG("adding stream %d to layout, %u packets, start %u",
                      ui->streamTreeWidget->topLevelItemCount(),
                      rtp_stream->packet_count,
-                     g_list_length(rtp_stream->rtp_packet_list),
                      rtp_stream->start_fd ? rtp_stream->start_fd->num : 0);
 }
 
