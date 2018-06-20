@@ -359,13 +359,13 @@ static const value_string interface_role_str[] = {
 #define is_a_broadcast_addr(a)	((a) == 0xffffffffU)
 
 /*
- * XXX - should these be checking the address *type*, instead?
+ * XXX - will the destination address ever not be an IPv4 address?
  */
 #define ADDR_IS_MULTICAST(addr) \
-	(((addr)->len == 4) && is_a_multicast_addr(pntoh32((addr)->data)))
+	(((addr)->type == AT_IPv4) && is_a_multicast_addr(pntoh32((addr)->data)))
 
 #define ADDR_IS_BROADCAST(addr) \
-	(((addr)->len == 4) && is_a_broadcast_addr(pntoh32((addr)->data)))
+	(((addr)->type == AT_IPv4) && is_a_broadcast_addr(pntoh32((addr)->data)))
 
 #define ADDR_IS_NOT_UNICAST(addr) \
 	(ADDR_IS_MULTICAST(addr) || ADDR_IS_BROADCAST(addr))
