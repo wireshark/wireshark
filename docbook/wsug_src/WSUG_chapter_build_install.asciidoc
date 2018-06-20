@@ -258,36 +258,39 @@ Building Wireshark requires the proper build environment including a
 compiler and many supporting libraries. See the Developer’s Guide at
 {wireshark-developers-guide-url} for more information.
 
-Use the following general steps to build Wireshark from source under UNIX or Linux:
+Use the following general steps to build Wireshark from source under UNIX
+or Linux:
 
 . Unpack the source from its compressed `tar` file. If you are using Linux or
   your version of UNIX uses GNU `tar` you can use the following command:
 +
 --
 ----
-$ tar xaf wireshark-2.4.5.tar.xz
+$ tar xaf wireshark-2.9.0.tar.xz
 ----
 In other cases you will have to use the following commands:
 ----
-$ xz -d wireshark-2.4.5.tar.xz
-$ tar xf wireshark-2.4.5.tar
+$ xz -d wireshark-2.9.0.tar.xz
+$ tar xf wireshark-2.9.0.tar
 ----
 --
 
-. Change directory to the Wireshark source directory.
+. Create a directory to build Wireshark in and change to it.
 +
 ----
-$ cd wireshark-2.4.5
+$ mkdir build
+$ cd build
 ----
 
 . Configure your source so it will build correctly for your version of UNIX. You
   can do this with the following command:
 +
 ----
-$ ./configure
+$ cmake ../wireshark-2.9.0
 ----
 +
-If this step fails you will have to rectify the problems and rerun `configure`.
+If this step fails you will have to look into the logs and rectify the problems,
+then rerun `cmake`.
 Troubleshooting hints are provided in <<ChBuildInstallUnixTrouble>>.
 
 . Build the sources.
@@ -295,6 +298,9 @@ Troubleshooting hints are provided in <<ChBuildInstallUnixTrouble>>.
 ----
 $ make
 ----
++
+Once you have build Wireshark with `make` above, you should be able to run it
+by entering `run/wireshark`.
 
 . Install the software in its final destination.
 +
@@ -302,9 +308,7 @@ $ make
 $ make install
 ----
 
-// XXX To do: CMake
-
-Once you have installed Wireshark with _make install_ above, you should be able
+Once you have installed Wireshark with `make install` above, you should be able
 to run it by entering `wireshark`.
 
 [[ChBuildInstallUnixInstallBins]]
@@ -394,24 +398,25 @@ pkg_add should take care of all of the dependency issues for you.
 
 [[ChBuildInstallUnixTrouble]]
 
-=== Troubleshooting during the install on Unix
+=== Troubleshooting during the build and install on Unix
 
-A number of errors can occur during the installation process. Some hints on
-solving these are provided here.
+A number of errors can occur during the build and installation process.
+Some hints on solving these are provided here.
 
-If the `configure` stage fails you will need to find out why. You can check the
-file `config.log` in the source directory to find out what failed. The last few
-lines of this file should help in determining the problem.
+If the `cmake` stage fails you will need to find out why. You can check the
+file `CMakeOutput.log` and `CMakeError.log` in the build directory to find
+out what failed. The last few lines of this file should help in determining the
+problem.
 
 The standard problems are that you do not have a required development package on
 your system or that the development package isn’t new enough. Note that
 installing a library package isn’t enough. You need to install its development
-package as well. `configure` will also fail if you do not have libpcap (at least
+package as well. `cmake` will also fail if you do not have libpcap (at least
 the required include files) on your system.
 
 If you cannot determine what the problems are, send an email to the
 _wireshark-dev_ mailing list explaining your problem. Include the output from
-`config.log` and anything else you think is relevant such as a trace of the
+`cmake` and anything else you think is relevant such as a trace of the
 `make` stage.
 
 [[ChBuildInstallWinBuild]]
