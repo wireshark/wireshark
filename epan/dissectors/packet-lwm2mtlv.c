@@ -96,6 +96,11 @@ typedef struct
 	guint totalLength;
 } lwm2mElement_t;
 
+typedef struct _lwm2m_object_name_t {
+	guint   object_id;
+	char   *name;
+} lwm2m_object_name_t;
+
 typedef struct _lwm2m_resource_t {
 	guint   object_id;
 	guint   resource_id;
@@ -127,6 +132,18 @@ static const value_string data_types[] = {
 };
 
 /* LwM2M Objects defined by OMA (Normative) */
+static const value_string lwm2m_oma_objects[] = {
+	{ 0, "LwM2M Security"          },
+	{ 1, "LwM2M Server"            },
+	{ 2, "Access Control"          },
+	{ 3, "Device"                  },
+	{ 4, "Connectivity Monitoring" },
+	{ 5, "Firmware Update"         },
+	{ 6, "Location"                },
+	{ 7, "Connectivity Statistics" },
+	{ 0, NULL }
+};
+
 static lwm2m_resource_t lwm2m_oma_resources[] =
 {
 	/* LwM2M Security (0) */
@@ -232,12 +249,54 @@ static lwm2m_resource_t lwm2m_oma_resources[] =
 };
 
 /* LwM2M Objects defined by User */
+static lwm2m_object_name_t *lwm2m_uat_object_names;
+static guint num_lwm2m_uat_object_names;
 static lwm2m_resource_t *lwm2m_uat_resources;
 static guint num_lwm2m_uat_resources;
 
 static hf_register_info *dynamic_hf;
 static guint dynamic_hf_size;
 static hf_register_info *static_hf;
+
+static gboolean lwm2m_object_name_update_cb(void *record, char **error)
+{
+	lwm2m_object_name_t *rec = (lwm2m_object_name_t *)record;
+
+	if (rec->name == NULL) {
+		*error = g_strdup("Object Name can't be empty");
+		return FALSE;
+	}
+
+	g_strstrip(rec->name);
+	if (rec->name[0] == 0) {
+		*error = g_strdup("Object Name can't be empty");
+		return FALSE;
+	}
+
+	*error = NULL;
+	return TRUE;
+}
+
+static void *lwm2m_object_name_copy_cb(void *dest, const void *source, size_t len _U_)
+{
+	const lwm2m_object_name_t *s = (const lwm2m_object_name_t *)source;
+	lwm2m_object_name_t *d = (lwm2m_object_name_t *)dest;
+
+	d->object_id = s->object_id;
+	d->name = g_strdup(s->name);
+
+	return d;
+}
+
+static void lwm2m_object_name_free_cb(void *record)
+{
+	lwm2m_object_name_t *rec = (lwm2m_object_name_t *)record;
+
+	g_free(rec->name);
+}
+
+UAT_DEC_CB_DEF(object_name, object_id, lwm2m_object_name_t)
+UAT_CSTRING_CB_DEF(object_name, name, lwm2m_object_name_t)
 
 static gboolean lwm2m_resource_update_cb(void *record, char **error)
 {
@@ -717,6 +776,28 @@ dissect_lwm2mtlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *
 		lwm2mtlv_item = proto_tree_add_item(tree, proto_lwm2mtlv, tvb, 0, -1, ENC_NA);
 		lwm2mtlv_tree = proto_item_add_subtree(lwm2mtlv_item, ett_lwm2mtlv);
 
+		gchar **ids = wmem_strsplit(wmem_packet_scope(), uri_path, "/", 2);
+		if (ids && ids[0]) {
+			/* ids[0] = Object ID */
+			guint object_id = (guint)strtol(ids[0], NULL, 10);
+			const gchar *object_name = NULL;
+
+			for (guint i = 0; i < num_lwm2m_uat_object_names; i++) {
+				if (object_id == lwm2m_uat_object_names[i].object_id) {
+					object_name = lwm2m_uat_object_names[i].name;
+					break;
+				}
+			}
+
+			if (!object_name) {
+				object_name = val_to_str_const(object_id, lwm2m_oma_objects, "");
+			}
+
+			if (object_name && object_name[0]) {
+				proto_item_append_text(lwm2mtlv_item, ", %s", object_name);
+			}
+		}
+
 		parseArrayOfElements(tvb, lwm2mtlv_tree, uri_path);
 	}
 	return tvb_captured_length(tvb);
@@ -823,6 +904,12 @@ void proto_register_lwm2mtlv(void)
 		&ett_lwm2mtlv_objectInstance
 	};
 
+	static uat_field_t lwm2m_object_name_flds[] = {
+		UAT_FLD_DEC(object_name, object_id, "Object ID", "Object ID"),
+		UAT_FLD_CSTRING(object_name, name, "Object Name", "Object Name"),
+		UAT_END_FIELDS
+	};
+
 	static uat_field_t lwm2m_resource_flds[] = {
 		UAT_FLD_DEC(resource, object_id, "Object ID", "Object ID"),
 		UAT_FLD_DEC(resource, resource_id, "Resource ID", "Resource ID"),
@@ -830,6 +917,21 @@ void proto_register_lwm2mtlv(void)
 		UAT_FLD_VS(resource, data_type, "Data Type", data_types, "Data Type"),
 		UAT_END_FIELDS
 	};
+
+	uat_t *object_name_uat = uat_new("User Object Names",
+	                                 sizeof(lwm2m_object_name_t),
+	                                 "lwm2m_object_names",
+	                                 TRUE,
+	                                 &lwm2m_uat_object_names,
+	                                 &num_lwm2m_uat_object_names,
+	                                 UAT_AFFECTS_DISSECTION,
+	                                 "ChLwM2MResourceNames",
+	                                 lwm2m_object_name_copy_cb,
+	                                 lwm2m_object_name_update_cb,
+	                                 lwm2m_object_name_free_cb,
+	                                 NULL,
+	                                 NULL,
+	                                 lwm2m_object_name_flds);
 
 	uat_t *resource_uat = uat_new("User Resource Names",
 	                              sizeof(lwm2m_resource_t),
@@ -864,6 +966,11 @@ void proto_register_lwm2mtlv(void)
 	register_shutdown_routine(lwm2m_shutdown_routine);
 
 	lwm2mtlv_module = prefs_register_protocol(proto_lwm2mtlv, NULL);
+
+	prefs_register_uat_preference(lwm2mtlv_module, "object_table",
+	                              "Object Names",
+	                              "User Object Names",
+	                              object_name_uat);
 
 	prefs_register_uat_preference(lwm2mtlv_module, "resource_table",
 	                              "Resource Names",
