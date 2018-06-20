@@ -83,42 +83,26 @@ public:
     rtpstream_info_t *streamInfo() const { return stream_info_; }
 
     void drawData() {
+        rtpstream_info_calc_t calc;
+
         if (!stream_info_) {
             return;
         }
-        setText(src_addr_col_, address_to_display_qstring(&stream_info_->id.src_addr));
-        setText(src_port_col_, QString::number(stream_info_->id.src_port));
-        setText(dst_addr_col_, address_to_display_qstring(&stream_info_->id.dst_addr));
-        setText(dst_port_col_, QString::number(stream_info_->id.dst_port));
-        setText(ssrc_col_, QString("0x%1").arg(stream_info_->id.ssrc, 0, 16));
+        rtpstream_info_calculate(stream_info_, &calc);
 
-        if (stream_info_->payload_type_name != NULL) {
-            setText(payload_col_, stream_info_->payload_type_name);
-        } else {
-            setText(payload_col_, val_ext_to_qstring(stream_info_->payload_type,
-                                                 &rtp_payload_type_short_vals_ext,
-                                                 "Unknown (%u)"));
-        }
+        setText(src_addr_col_, calc.src_addr_str);
+        setText(src_port_col_, QString::number(calc.src_port));
+        setText(dst_addr_col_, calc.dst_addr_str);
+        setText(dst_port_col_, QString::number(calc.dst_port));
+        setText(ssrc_col_, QString("0x%1").arg(calc.ssrc, 0, 16));
+        setText(payload_col_, calc.payload_str);
+        setText(packets_col_, QString::number(calc.packet_count));
+        setText(lost_col_, QObject::tr("%1 (%L2%)").arg(calc.lost_num).arg(QString::number(calc.lost_perc, 'f', 1)));
+        setText(max_delta_col_, QString::number(calc.max_delta, 'f', 3)); // This is RTP. Do we need nanoseconds?
+        setText(max_jitter_col_, QString::number(calc.max_jitter, 'f', 3));
+        setText(mean_jitter_col_, QString::number(calc.mean_jitter, 'f', 3));
 
-        setText(packets_col_, QString::number(stream_info_->packet_count));
-
-        guint32 expected;
-        double pct_loss;
-        expected = (stream_info_->rtp_stats.stop_seq_nr + stream_info_->rtp_stats.cycles*65536)
-            - stream_info_->rtp_stats.start_seq_nr + 1;
-        lost_ = expected - stream_info_->rtp_stats.total_nr;
-        if (expected) {
-            pct_loss = (double)(lost_*100.0)/(double)expected;
-        } else {
-            pct_loss = 0;
-        }
-
-        setText(lost_col_, QObject::tr("%1 (%L2%)").arg(lost_).arg(QString::number(pct_loss, 'f', 1)));
-        setText(max_delta_col_, QString::number(stream_info_->rtp_stats.max_delta, 'f', 3)); // This is RTP. Do we need nanoseconds?
-        setText(max_jitter_col_, QString::number(stream_info_->rtp_stats.max_jitter, 'f', 3));
-        setText(mean_jitter_col_, QString::number(stream_info_->rtp_stats.mean_jitter, 'f', 3));
-
-        if (stream_info_->problem) {
+        if (calc.problem) {
             setText(status_col_, UTF8_BULLET);
             setTextAlignment(status_col_, Qt::AlignCenter);
             for (int i = 0; i < columnCount(); i++) {
@@ -126,6 +110,8 @@ public:
                 setTextColor(i, ws_css_warn_text);
             }
         }
+
+        rtpstream_info_calc_free(&calc);
     }
     // Return a QString, int, double, or invalid QVariant representing the raw column data.
     QVariant colData(int col) const {

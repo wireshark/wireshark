@@ -43,6 +43,33 @@ typedef struct _tap_rtp_save_info_t {
     gboolean saved;
 } tap_rtp_save_info_t;
 
+typedef struct _rtp_stream_info_calc {
+    gchar *src_addr_str;
+    guint16 src_port;
+    gchar *dst_addr_str;
+    guint16 dst_port;
+    guint32 ssrc;
+    gchar *payload_str; /* Name of coded derived from fixed or dynamic codec names */
+    guint32 packet_count;
+    guint32 total_nr;
+    guint32 packet_expected; /* Count of expected packets, derived from lenght of RTP stream */
+    gint32 lost_num;
+    double lost_perc;
+    double max_delta;
+    double max_jitter;
+    double max_skew;
+    double mean_jitter;
+    gboolean problem; /* Indication that RTP stream contains something unusual -GUI should indicate it somehow */
+    double clock_drift_ms;
+    double freq_drift_hz;
+    double freq_drift_perc;
+    double duration_ms;
+    guint32 sequence_err;
+    double start_time_ms; /**< Unit is ms */
+    guint32 first_packet_num;
+    guint32 last_packet_num;
+} rtpstream_info_calc_t;
+
 /**
  * Compares two RTP stream infos (GCompareFunc style comparison function)
  *
@@ -60,6 +87,16 @@ gboolean rtpstream_info_is_reverse(const rtpstream_info_t *stream_a, rtpstream_i
 void rtpstream_reset_cb(void*);
 void rtp_write_header(rtpstream_info_t*, FILE*);
 int rtpstream_packet_cb(void*, packet_info*, epan_dissect_t *, const void *);
+
+/**
+ * Evaluate rtp_stream_info_t calculations
+ */
+void rtpstream_info_calculate(const rtpstream_info_t *strinfo, rtpstream_info_calc_t *calc);
+
+/**
+ * Free rtpstream_info_calc_t structure (internal items)
+ */
+void rtpstream_info_calc_free(rtpstream_info_calc_t *calc);
 
 #ifdef __cplusplus
 }

@@ -45,16 +45,12 @@ static rtpstream_tapinfo_t the_tapinfo_struct =
         {NULL, NULL, NULL, NULL, 0, NULL, 0, TAP_ANALYSE, NULL, NULL, NULL, FALSE};
 
 static void
-rtp_streams_stat_draw(void *arg _U_)
+rtp_streams_stat_draw_cb(void *arg _U_)
 {
     GList *list;
     rtpstream_info_t *strinfo;
-    gchar *payload_type;
-    guint32 expected;
-    gint32 lost;
-    double perc;
+    rtpstream_info_calc_t calc;
     char *savelocale;
-    char *src_addr, *dst_addr;
 
     printf("========================= RTP Streams ========================\n");
     printf("%15s %5s %15s %5s %10s %16s %5s %12s %15s %15s %15s %s\n","Src IP addr", "Port",  "Dest IP addr", "Port", "SSRC", "Payload", "Pkts", "Lost", "Max Delta(ms)", "Max Jitter(ms)", "Mean Jitter(ms)", "Problems?");
@@ -71,50 +67,26 @@ rtp_streams_stat_draw(void *arg _U_)
     while (list)
     {
         strinfo = (rtpstream_info_t*)(list->data);
+        rtpstream_info_calculate(strinfo, &calc);
 
-        /* payload type */
-        if (strinfo->payload_type > 95) {
-        if (strinfo->payload_type_name != NULL) {
-            payload_type = wmem_strdup(NULL, strinfo->payload_type_name);
-        }else{
-            payload_type = wmem_strdup_printf(NULL, "Unknown(%u)", strinfo->payload_type);
-        }
-
-        }else{
-            payload_type = val_to_str_ext_wmem(NULL, strinfo->payload_type, &rtp_payload_type_vals_ext, "Unknown (%u)");
-        }
-
-        /* packet count, lost packets */
-        expected = (strinfo->rtp_stats.stop_seq_nr + strinfo->rtp_stats.cycles*65536)
-            - strinfo->rtp_stats.start_seq_nr + 1;
-        lost = expected - strinfo->rtp_stats.total_nr;
-        if (expected) {
-            perc = (double)(lost*100)/(double)expected;
-        } else {
-            perc = 0;
-        }
-
-        src_addr = address_to_display(NULL, &(strinfo->id.src_addr));
-        dst_addr = address_to_display(NULL, &(strinfo->id.dst_addr));
         printf("%15s %5u %15s %5u 0x%08X %16s %5u %5d (%.1f%%) %15.2f %15.2f %15.2f %s\n",
-            src_addr,
-            strinfo->id.src_port,
-            dst_addr,
-            strinfo->id.dst_port,
-            strinfo->id.ssrc,
-            payload_type,
-            strinfo->packet_count,
-            lost, perc,
-            strinfo->rtp_stats.max_delta,
-            strinfo->rtp_stats.max_jitter,
-            strinfo->rtp_stats.mean_jitter,
-            (strinfo->problem)?"X":"");
+            calc.src_addr_str,
+            calc.src_port,
+            calc.dst_addr_str,
+            calc.dst_port,
+            calc.ssrc,
+            calc.payload_str,
+            calc.packet_count,
+            calc.lost_num,
+            calc.lost_perc,
+            calc.max_delta,
+            calc.max_jitter,
+            calc.mean_jitter,
+            (calc.problem)?"X":"");
+
+        rtpstream_info_calc_free(&calc);
 
         list = g_list_next(list);
-
-        wmem_free(NULL, src_addr);
-        wmem_free(NULL, dst_addr);
-        wmem_free(NULL, payload_type);
     }
 
     printf("==============================================================\n");
@@ -133,7 +105,7 @@ rtp_streams_stat_init(const char *opt_arg _U_, void *userdata _U_)
         register_tap_listener("rtp", &the_tapinfo_struct, NULL, 0,
             rtpstream_reset_cb,
             rtpstream_packet_cb,
-            rtp_streams_stat_draw);
+            rtp_streams_stat_draw_cb);
 
     if (err_p != NULL)
     {

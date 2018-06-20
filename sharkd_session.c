@@ -2078,47 +2078,35 @@ sharkd_session_process_tap_rtp_cb(void *arg)
 	printf(",\"streams\":[");
 	for (listx = g_list_first(rtp_tapinfo->strinfo_list); listx; listx = listx->next)
 	{
+		rtpstream_info_calc_t calc;
 		rtpstream_info_t *streaminfo = (rtpstream_info_t *) listx->data;
 
-		char *src_addr, *dst_addr;
-		char *payload;
-		guint32 expected;
+		rtpstream_info_calculate(streaminfo, &calc);
 
-		src_addr = address_to_display(NULL, &(streaminfo->id.src_addr));
-		dst_addr = address_to_display(NULL, &(streaminfo->id.dst_addr));
+		printf("%s{\"ssrc\":%u", sepa, calc.ssrc);
+		printf(",\"payload\":\"%s\"", calc.payload_str);
 
-		if (streaminfo->payload_type_name != NULL)
-			payload = wmem_strdup(NULL, streaminfo->payload_type_name);
-		else
-			payload = val_to_str_ext_wmem(NULL, streaminfo->payload_type, &rtp_payload_type_short_vals_ext, "Unknown (%u)");
+		printf(",\"saddr\":\"%s\"", calc.src_addr_str);
+		printf(",\"sport\":%u", calc.src_port);
 
-		printf("%s{\"ssrc\":%u", sepa, streaminfo->id.ssrc);
-		printf(",\"payload\":\"%s\"", payload);
+		printf(",\"daddr\":\"%s\"", calc.dst_addr_str);
+		printf(",\"dport\":%u", calc.dst_port);
 
-		printf(",\"saddr\":\"%s\"", src_addr);
-		printf(",\"sport\":%u", streaminfo->id.src_port);
+		printf(",\"pkts\":%u", calc.packet_count);
 
-		printf(",\"daddr\":\"%s\"", dst_addr);
-		printf(",\"dport\":%u", streaminfo->id.dst_port);
+		printf(",\"max_delta\":%f",calc.max_delta);
+		printf(",\"max_jitter\":%f", calc.max_jitter);
+		printf(",\"mean_jitter\":%f", calc.mean_jitter);
 
-		printf(",\"pkts\":%u", streaminfo->packet_count);
+		printf(",\"expectednr\":%u", calc.packet_expected);
+		printf(",\"totalnr\":%u", calc.total_nr);
 
-		printf(",\"max_delta\":%f", streaminfo->rtp_stats.max_delta);
-		printf(",\"max_jitter\":%f", streaminfo->rtp_stats.max_jitter);
-		printf(",\"mean_jitter\":%f", streaminfo->rtp_stats.mean_jitter);
-
-		expected = (streaminfo->rtp_stats.stop_seq_nr + streaminfo->rtp_stats.cycles * 65536) - streaminfo->rtp_stats.start_seq_nr + 1;
-		printf(",\"expectednr\":%u", expected);
-		printf(",\"totalnr\":%u", streaminfo->rtp_stats.total_nr);
-
-		printf(",\"problem\":%s", streaminfo->problem ? "true" : "false");
+		printf(",\"problem\":%s", calc.problem? "true" : "false");
 
 		/* for filter */
 		printf(",\"ipver\":%d", (streaminfo->id.src_addr.type == AT_IPv6) ? 6 : 4);
 
-		wmem_free(NULL, src_addr);
-		wmem_free(NULL, dst_addr);
-		wmem_free(NULL, payload);
+		rtpstream_info_calc_free(&calc);
 
 		printf("}");
 		sepa = ",";

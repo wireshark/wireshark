@@ -88,7 +88,7 @@ void rtpstream_reset(rtpstream_tapinfo_t *tapinfo)
         while (list)
         {
             g_free(list->data);
-            /* TODO free src_addr, dest_addr and payload_type_name? */
+            /* TODO free src_addr, dst_addr and payload_type_name? */
             list = g_list_next(list);
         }
         g_list_free(tapinfo->strinfo_list);
@@ -288,6 +288,87 @@ int rtpstream_packet_cb(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, 
         }
     }
     return 0;
+}
+
+/****************************************************************************/
+/* evaluate rtp_stream_info_t calculations */
+/* - code is gathered from existing GTK/Qt/tui sources related to RTP statistics calculation
+ * - one place for calculations ensures that all wireshark tools shows same output for same input and avoids code duplication
+ */
+void rtpstream_info_calculate(const rtpstream_info_t *strinfo, rtpstream_info_calc_t *calc)
+{
+        double sumt;
+        double sumTS;
+        double sumt2;
+        double sumtTS;
+        double clock_drift_x;
+        guint32 clock_rate_x;
+        double duration_x;
+
+        calc->src_addr_str = address_to_display(NULL, &(strinfo->id.src_addr));
+        calc->src_port = strinfo->id.src_port;
+        calc->dst_addr_str = address_to_display(NULL, &(strinfo->id.dst_addr));
+        calc->dst_port = strinfo->id.dst_port;
+        calc->ssrc = strinfo->id.ssrc;
+
+        if (strinfo->payload_type > 95) {
+                if (strinfo->payload_type_name != NULL) {
+                        calc->payload_str = wmem_strdup(NULL, strinfo->payload_type_name);
+                } else {
+                        calc->payload_str = wmem_strdup_printf(NULL, "Unknown(%u)", strinfo->payload_type);
+                }
+        } else {
+                calc->payload_str = val_to_str_ext_wmem(NULL, strinfo->payload_type, &rtp_payload_type_vals_ext, "Unknown (%u)");
+        }
+
+        calc->packet_count = strinfo->packet_count;
+        /* packet count, lost packets */
+        calc->packet_expected = (strinfo->rtp_stats.stop_seq_nr + strinfo->rtp_stats.cycles*65536)
+            - strinfo->rtp_stats.start_seq_nr + 1;
+        calc->total_nr = strinfo->rtp_stats.total_nr;
+        calc->lost_num = calc->packet_expected - strinfo->rtp_stats.total_nr;
+        if (calc->packet_expected) {
+                calc->lost_perc = (double)(calc->lost_num*100)/(double)calc->packet_expected;
+        } else {
+                calc->lost_perc = 0;
+        }
+
+        calc->max_delta = strinfo->rtp_stats.max_delta;
+        calc->max_jitter = strinfo->rtp_stats.max_jitter;
+        calc->mean_jitter = strinfo->rtp_stats.mean_jitter;
+        calc->max_skew = strinfo->rtp_stats.max_skew;
+        calc->problem = strinfo->problem;
+        sumt = strinfo->rtp_stats.sumt;
+        sumTS = strinfo->rtp_stats.sumTS;
+        sumt2 = strinfo->rtp_stats.sumt2;
+        sumtTS = strinfo->rtp_stats.sumtTS;
+        duration_x = strinfo->rtp_stats.time - strinfo->rtp_stats.start_time;
+
+        if ((calc->packet_count >0) && (sumt2 > 0)) {
+                clock_drift_x = (calc->packet_count * sumtTS - sumt * sumTS) / (calc->packet_count * sumt2 - sumt * sumt);
+                calc->clock_drift_ms = duration_x * (clock_drift_x - 1.0);
+                clock_rate_x = strinfo->rtp_stats.clock_rate * clock_drift_x;
+                calc->freq_drift_hz = clock_drift_x * clock_rate_x;
+                calc->freq_drift_perc = 100.0 * (clock_drift_x - 1.0);
+        } else {
+                calc->clock_drift_ms = 0.0;
+                calc->freq_drift_hz = 0.0;
+                calc->freq_drift_perc = 0.0;
+        }
+        calc->duration_ms = duration_x / 1000.0;
+        calc->sequence_err = strinfo->rtp_stats.sequence;
+        calc->start_time_ms = strinfo->rtp_stats.start_time / 1000.0;
+        calc->first_packet_num = strinfo->rtp_stats.first_packet_num;
+        calc->last_packet_num = strinfo->rtp_stats.max_nr;
+}
+
+/****************************************************************************/
+/* free rtpstream_info_calc_t structure (internal items) */
+void rtpstream_info_calc_free(rtpstream_info_calc_t *calc)
+{
+        wmem_free(NULL, calc->src_addr_str);
+        wmem_free(NULL, calc->dst_addr_str);
+        wmem_free(NULL, calc->payload_str);
 }
 
 /*
