@@ -106,7 +106,7 @@ if [ ! -d "$bundle" ] ; then
 	exit 1
 fi
 
-qt_frameworks_dir=$( qmake -query QT_INSTALL_LIBS )
+qt_frameworks_dir=$( "@QT_QMAKE_EXECUTABLE@" -query QT_INSTALL_LIBS )
 if [ ! -d "$qt_frameworks_dir" ] ; then
 	echo "Can't find the Qt frameworks directory" >&2
 	exit 1
@@ -205,7 +205,7 @@ fi
 # This may not work on Qt 5.5.0 or 5.5.1:
 # https://bugreports.qt.io/browse/QTBUG-47868
 #
-macdeployqt "$bundle" -no-strip -verbose=2 || exit 1
+"@QT_MACDEPLOYQT_EXECUTABLE@" "$bundle" -no-strip -verbose=2 || exit 1
 
 #
 # The build process added to the Wireshark binary an rpath entry

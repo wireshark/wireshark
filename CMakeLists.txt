@@ -1211,6 +1211,30 @@ if (Qt5Widgets_FOUND)
 		# Squelch moc verbose "nothing to do" output
 		set(MOC_OPTIONS -nn)
 	endif()
+
+	# CMake uses qmake to find Qt4. It relies on Qt's CMake modules
+	# to find Qt5. This means that we can't assume that the qmake
+	# in our PATH is the correct one. We can fetch qmake's location
+	# from Qt5::qmake, which is is defined in Qt5CoreConfigExtras.cmake.
+	get_target_property(QT_QMAKE_EXECUTABLE Qt5::qmake IMPORTED_LOCATION)
+	get_filename_component(_qt_bin_path "${QT_QMAKE_EXECUTABLE}" DIRECTORY)
+	set(QT_BIN_PATH "${_qt_bin_path}" CACHE INTERNAL
+		"Path to qmake, macdeployqt, windeployqt, and other Qt utilities."
+	)
+	# Use qmake to find windeployqt and macdeployqt. Ideally one of
+	# the modules in ${QTDIR}/lib/cmake would do this for us.
+	if(WIN32)
+		find_program(QT_WINDEPLOYQT_EXECUTABLE windeployqt
+			HINTS "${QT_BIN_PATH}"
+			DOC "Path to the windeployqt utility."
+		)
+	elseif(APPLE)
+		find_program(QT_MACDEPLOYQT_EXECUTABLE macdeployqt
+			HINTS "${QT_BIN_PATH}"
+			DOC "Path to the macdeployqt utility."
+		)
+	endif()
+
 endif()
 
 if(ENABLE_CHECKHF_CONFLICT)
@@ -2171,41 +2195,23 @@ if(BUILD_wireshark AND QT_FOUND)
 		BUNDLE DESTINATION ${CMAKE_INSTALL_BINDIR}
 	)
 
-	if(WIN32 AND Qt5Core_FOUND)
-		# Use windeployqt to copy our required DLLs to the run path.
-		# Ideally one of the modules in ${QTDIR}/lib/cmake would expose
-		# the path to windeployqt. For that matter having a reliable
-		# path to qmake would be *amazingly convenient*. We don't have
-		# either of those so we try to discover the path via Qt5Core.
-		# http://stackoverflow.com/questions/24650936/qt5-with-cmake-how-to-find-qt-translations-dir
-
-		get_target_property(_qmake_location Qt5::qmake IMPORTED_LOCATION)
-		get_filename_component(_qt_bin_path "${_qmake_location}" DIRECTORY)
-		find_program(QT_WINDEPLOYQT_EXECUTABLE windeployqt
-			HINTS "${_qmake_location}"
-			DOC "Path to the windeployqt utility."
+	if(QT_WINDEPLOYQT_EXECUTABLE)
+		add_custom_target(copy_qt_dlls ALL)
+		set_target_properties(copy_qt_dlls PROPERTIES FOLDER "Copy Tasks")
+		# Will we ever need to use --debug? Windeployqt seems to
+		# be smart enough to copy debug DLLs when needed.
+		add_custom_command(TARGET copy_qt_dlls
+			POST_BUILD
+			COMMAND set "PATH=${QT_BIN_PATH};%PATH%"
+			COMMAND "${QT_WINDEPLOYQT_EXECUTABLE}"
+				$<$<CONFIG:Debug>:--debug>
+				$<$<NOT:$<CONFIG:Debug>>:--release>
+				--no-compiler-runtime
+				--verbose 10
+				"$<TARGET_FILE:wireshark>"
 		)
-		if(QT_WINDEPLOYQT_EXECUTABLE)
-			set(QT_BIN_PATH "${_qt_bin_path}" CACHE INTERNAL
-				"Path to qmake, windeployqt, and other Qt utilities."
-			)
-			add_custom_target(copy_qt_dlls ALL)
-			set_target_properties(copy_qt_dlls PROPERTIES FOLDER "Copy Tasks")
-			# Will we ever need to use --debug? Windeployqt seems to
-			# be smart enough to copy debug DLLs when needed.
-			add_custom_command(TARGET copy_qt_dlls
-				POST_BUILD
-				COMMAND set "PATH=${QT_BIN_PATH};%PATH%"
-				COMMAND "${QT_WINDEPLOYQT_EXECUTABLE}"
-					$<$<CONFIG:Debug>:--debug>
-					$<$<NOT:$<CONFIG:Debug>>:--release>
-					--no-compiler-runtime
-					--verbose 10
-					"$<TARGET_FILE:wireshark>"
-			)
-			add_dependencies(copy_qt_dlls wireshark)
-		endif()
-	endif(WIN32 AND Qt5Core_FOUND)
+		add_dependencies(copy_qt_dlls wireshark)
+	endif(QT_WINDEPLOYQT_EXECUTABLE)
 endif()
 
 # Common properties for CLI executables
