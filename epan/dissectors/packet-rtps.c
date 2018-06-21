@@ -8123,7 +8123,7 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
                         offset + 2, 2, encoding);
 
   /* Calculates the minimum length for this submessage */
-  min_len = 24;
+  min_len = 20;
   if (is_session) {
     min_len += 8;
   }
