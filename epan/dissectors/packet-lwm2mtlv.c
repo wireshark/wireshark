@@ -30,6 +30,7 @@ static void parseArrayOfElements(tvbuff_t *tvb, proto_tree *tlv_tree, const char
 
 static int proto_lwm2mtlv = -1;
 
+static int hf_lwm2mtlv_object_name               = -1;
 static int hf_lwm2mtlv_header                    = -1;
 static int hf_lwm2mtlv_type_type                 = -1;
 static int hf_lwm2mtlv_type_length_of_identifier = -1;
@@ -794,6 +795,8 @@ dissect_lwm2mtlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *
 			}
 
 			if (object_name && object_name[0]) {
+				proto_item *ti = proto_tree_add_string(lwm2mtlv_tree, hf_lwm2mtlv_object_name, tvb, 0, 0, object_name);
+				PROTO_ITEM_SET_GENERATED(ti);
 				proto_item_append_text(lwm2mtlv_item, ", %s", object_name);
 			}
 		}
@@ -818,6 +821,11 @@ static void lwm2m_shutdown_routine(void)
 void proto_register_lwm2mtlv(void)
 {
 	static hf_register_info hf[] = {
+		{ &hf_lwm2mtlv_object_name,
+			{ "Object Name", "lwm2mtlv.object_name",
+				FT_STRING, BASE_NONE, NULL, 0,
+				NULL, HFILL }
+		},
 		{ &hf_lwm2mtlv_header,
 			{ "TLV header", "lwm2mtlv.header",
 				FT_NONE, BASE_NONE, NULL, 0x0,
