@@ -219,7 +219,7 @@ topic_action_url(topic_action_e action)
         url = user_guide_url("ChCustProtocolDissectionSection.html");
         break;
     case(HELP_FOLLOW_STREAM_DIALOG):
-        url = user_guide_url("ChAdvFollowTCPSection.html");
+        url = user_guide_url("ChAdvFollowStreamSection.html");
         break;
     case(HELP_SHOW_PACKET_BYTES_DIALOG):
         url = user_guide_url("ChAdvShowPacketBytes.html");

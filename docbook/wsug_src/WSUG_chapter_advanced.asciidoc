@@ -10,18 +10,18 @@
 
 This chapter some of Wireshark’s advanced features.
 
-[[ChAdvFollowTCPSection]]
+// We switched from FollowTCP to FollowStream in June 2018.
+// This is apparently how you assign multiple anchors.
 
-=== Following TCP streams
+=== [[ChAdvFollowTCPSection]]Following Protocol Streams [[ChAdvFollowStreamSection]]
 
-If you are working with TCP based protocols it can be very helpful to see the
-data from a TCP stream in the way that the application layer sees it. Perhaps
-you are looking for passwords in a Telnet stream, or you are trying to make
-sense of a data stream. Maybe you just need a display filter to show only the
-packets of that TCP stream. If so, Wireshark’s ability to follow a TCP stream
-will be useful to you.
+It can be very helpful to see protocol in the way that the application
+layer sees it. Perhaps you are looking for passwords in a Telnet stream,
+or you are trying to make sense of a data stream. Maybe you just need a
+display filter to show only the packets in an SSL stream. If so,
+Wireshark’s ability to follow protocol streams will be useful to you.
 
-Simply select a TCP packet in the packet list of the stream/connection you are
+Simply select a TCP, UDP, SSL, or HTTP packet in the packet list of the stream/connection you are
 interested in and then select the Follow TCP Stream menu item from the Wireshark
 Tools menu (or use the context menu in the packet list). Wireshark will set an
 appropriate display filter and pop up a dialog box with all the data from the
@@ -29,13 +29,12 @@ TCP stream laid out in order, as shown in <<ChAdvFollowStream>>.
 
 [TIP]
 ====
-Opening the “Follow TCP Stream” applies a display filter which selects
-all the packets in the TCP stream you have selected. Some people open the
-“Follow TCP Stream” dialog and immediately close it as a quick way to
-isolate a particular stream.
+Following a protocol stream applies a display filter which selects all
+the packets in the current stream. Some people open the “Follow TCP
+Stream” dialog and immediately close it as a quick way to isolate a
+particular stream. Closing the dialog with the “Back” button will reset
+the display filter if this behavior is not desired.
 ====
-
-==== The “Follow TCP Stream” dialog box
 
 [[ChAdvFollowStream]]
 
@@ -45,7 +44,7 @@ image::wsug_graphics/ws-follow-stream.png[{screenshot-attrs}]
 The stream content is displayed in the same sequence as it appeared on the
 network. Traffic from A to B is marked in red, while traffic from B to A is
 marked in blue. If you like, you can change these colors in the
-“Colors” page if the “Preferences” dialog.
+“Font and Colors” page in the “Preferences” dialog.
 
 Non-printable characters will be replaced by dots.
 
@@ -56,35 +55,51 @@ latest content you’ll have to reopen the dialog.
 
 You can choose from the following actions:
 
-. __Save As__: Save the stream data in the currently selected format.
+btn:[Help]:: Show this help.
 
-. __Print__: Print the stream data in the currently selected format.
-
-. __Direction__: Choose the stream direction to be displayed (“Entire
-  conversation”, “data from A to B only” or “data from B to A only”).
-
-. __Filter out this stream__: Apply a display filter removing the current TCP
+btn:[Filter out this stream]:: Apply a display filter removing the current
   stream data from the display.
 
-. __Close__: Close this dialog box, leaving the current display filter in
+btn:[Print]:: Print the stream data in the currently selected format.
+
+btn:[Save as...]:: Save the stream data in the currently selected format.
+
+btn:[Back]:: Close this dialog box and restore the previous display filter.
+
+btn:[Close]:: Close this dialog box, leaving the current display filter in
   effect.
+
+By default data from both directions is displayed. You can select the
+menu:Entire conversation[] to switch between both, client to server, or
+server to client data.
 
 You can choose to view the data in one of the following formats:
 
-. __ASCII__: In this view you see the data from each direction in ASCII.
+menu:ASCII[]:: In this view you see the data from each direction in ASCII.
   Obviously best for ASCII based protocols, e.g. HTTP.
 
-. __EBCDIC__: For the big-iron freaks out there.
-
-. __HEX Dump__: This allows you to see all the data. This will require a lot of
-  screen space and is best used with binary protocols.
-
-. __C Arrays__: This allows you to import the stream data into your own C
+menu:C Arrays[]:: This allows you to import the stream data into your own C
   program.
 
-. __Raw__: This allows you to load the unaltered stream data into a different
+menu:EBCDIC[]:: For the big-iron freaks out there.
+
+menu:HEX Dump[]:: This allows you to see all the data. This will require a lot of
+  screen space and is best used with binary protocols.
+
+menu:UTF-8[]:: Like ASCII, but decode the data as UTF-8.
+
+menu:UTF-16[]:: Like ASCII, but decode the data as UTF-16.
+
+menu:YAML[]:: This allows you to load the stream as YAML.
+
+menu:Raw[]:: This allows you to load the unaltered stream data into a different
   program for further examination. The display will look the same as the ASCII
   setting, but “Save As” will result in a binary file.
+
+You can switch between streams using the “Stream” selector.
+
+You can search for text by entering it in the “Find” entry box and
+pressing btn:[Find Next].
 
 [[ChAdvShowPacketBytes]]
 
@@ -100,63 +115,63 @@ It’s also possible to select a subset of bytes setting the start byte and end 
 
 You can choose from the following actions:
 
-. __Find__: Search for the given text.  Matching text will be highlighted,
-  and the “Find Next” will search for more.  In the context menu for the
-  find text it’s possible to configure to use regular expression find.
+btn:[Help]:: Show this help.
 
-. __Print__: Print the bytes in the currently selected format.
+btn:[Print]:: Print the bytes in the currently selected format.
 
-. __Copy__: Copy the bytes to the clipboard in the currently selected format.
+btn:[Copy]:: Copy the bytes to the clipboard in the currently selected format.
 
-. __Save As__: Save the bytes in the currently selected format.
+btn:[Save As]:: Save the bytes in the currently selected format.
 
-. __Close__: Close this dialog box.
-
-==== Decode as
+btn:[Close]:: Close this dialog box.
 
 You can choose to decode the data from one of the following formats:
 
-. __None__: This is the default which does not decode anything.
+menu:None[]:: This is the default which does not decode anything.
 
-. __Base64__: This will decode from Base64.
+menu:Base64[]:: This will decode from Base64.
 
-. __Compressed__: This will decompress the buffer using zlib.
+menu:Compressed[]:: This will decompress the buffer using zlib.
 
-. __Quoted-Printable__: This will decode from a Quoted-Printable string.
+menu:Quoted-Printable[]:: This will decode from a Quoted-Printable string.
 
-==== Show as
+menu:ROT-13[]:: This will decode ROT-13 encoded text.
 
 You can choose to view the data in one of the following formats:
 
-[horizontal]
-*ASCII*:: In this view you see the bytes as ASCII.
+menu:ASCII[]:: In this view you see the bytes as ASCII.
   All control characters and non-ASCII bytes are replaced by dot.
 
-*ASCII & Control*:: In this view all control characters are shown using a
+menu:ASCII & Control[]:: In this view all control characters are shown using a
   UTF-8 symbol and all non-ASCII bytes are replaced by dot.
 
-*C Array*:: This allows you to import the field data into your own C program.
+menu:C Array[]:: This allows you to import the field data into your own C program.
 
-*EBCDIC*:: For the big-iron freaks out there.
+menu:EBCDIC[]:: For the big-iron freaks out there.
 
-*HEX Dump*:: This allows you to see all the data. This will require a lot of
+menu:Hex Dump[]:: This allows you to see all the data. This will require a lot of
   screen space and is best used with binary protocols.
 
-*HTML*:: This allows you to see all the data formatted as a HTML document.
+menu:HTML[]:: This allows you to see all the data formatted as a HTML document.
   The HTML supported is what’s supported by the Qt QTextEdit class.
 
-*Image*:: This will try to convert the bytes into an image.
-  Images supported are what’s supported by the Qt QImage class.
+menu:Image[]:: This will try to convert the bytes into an image.
+  Most popular formats are supported including PNG, JPEG, GIF, and BMP.
 
-*ISO 8859-1*:: In this view you see the bytes as ISO 8859-1.
+menu:ISO 8859-1[]:: In this view you see the bytes as ISO 8859-1.
 
-*Raw*:: This allows you to load the unaltered stream data into a different
+menu:Raw[]:: This allows you to load the unaltered stream data into a different
   program for further examination. The display will show HEX data, but
   “Save As” will result in a binary file.
 
-*UTF8*:: In this view you see the bytes as UTF-8.
+menu:UTF-8[]:: In this view you see the bytes as UTF-8.
 
-*YAML*:: This will show the bytes as a YAML binary dump.
+menu:UTF-16[]:: In this view you see the bytes as UTF-16.
+
+menu:YAML[]:: This will show the bytes as a YAML binary dump.
+
+You can search for text by entering it in the “Find” entry box and
+pressing btn:[Find Next].
 
 [[ChAdvExpert]]
 
