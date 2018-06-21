@@ -347,7 +347,7 @@ void rtpstream_info_calculate(const rtpstream_info_t *strinfo, rtpstream_info_ca
         if ((calc->packet_count >0) && (sumt2 > 0)) {
                 clock_drift_x = (calc->packet_count * sumtTS - sumt * sumTS) / (calc->packet_count * sumt2 - sumt * sumt);
                 calc->clock_drift_ms = duration_x * (clock_drift_x - 1.0);
-                clock_rate_x = strinfo->rtp_stats.clock_rate * clock_drift_x;
+                clock_rate_x = (guint32)(strinfo->rtp_stats.clock_rate * clock_drift_x);
                 calc->freq_drift_hz = clock_drift_x * clock_rate_x;
                 calc->freq_drift_perc = 100.0 * (clock_drift_x - 1.0);
         } else {
