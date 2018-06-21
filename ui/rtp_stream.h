@@ -85,7 +85,7 @@ struct _rtpstream_tapinfo {
     tap_mark_packet_cb tap_mark_packet;     /**< packet marking callback */
     void              *tap_data;            /**< data for tap callbacks */
     int                nstreams; /**< number of streams in the list */
-    GList             *strinfo_list; /**< list of rtp_stream_info_t* */
+    GList             *strinfo_list; /**< list of rtpstream_info_t* */
     int                npackets; /**< total number of rtp packets of all streams */
     /* used while tapping. user shouldn't modify these */
     tap_mode_t         mode;

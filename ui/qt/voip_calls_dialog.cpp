@@ -177,7 +177,7 @@ void VoipCallsDialog::tapDraw(void *tapinfo_ptr)
 
     GList *graph_item = g_queue_peek_nth_link(tapinfo->graph_analysis->items, 0);
     for (; graph_item; graph_item = g_list_next(graph_item)) {
-        for (GList *rsi_entry = g_list_first(tapinfo->rtp_stream_list); rsi_entry; rsi_entry = g_list_next(rsi_entry)) {
+        for (GList *rsi_entry = g_list_first(tapinfo->rtpstream_list); rsi_entry; rsi_entry = g_list_next(rsi_entry)) {
             seq_analysis_item_t * sai = (seq_analysis_item_t *)graph_item->data;
             rtpstream_info_t *rsi = (rtpstream_info_t *)rsi_entry->data;
 
@@ -391,7 +391,7 @@ void VoipCallsDialog::showPlayer()
         voip_calls_info_t *vci = VoipCallsInfoModel::indexToCallInfo(index);
         if (!vci) continue;
 
-        for (GList *rsi_entry = g_list_first(tapinfo_.rtp_stream_list); rsi_entry; rsi_entry = g_list_next(rsi_entry)) {
+        for (GList *rsi_entry = g_list_first(tapinfo_.rtpstream_list); rsi_entry; rsi_entry = g_list_next(rsi_entry)) {
             rtpstream_info_t *rsi = (rtpstream_info_t *)rsi_entry->data;
             if (!rsi) continue;
 

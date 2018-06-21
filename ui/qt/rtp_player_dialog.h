@@ -113,7 +113,7 @@ private:
     QCPItemStraightLine *cur_play_pos_;
     QString playback_error_;
 
-//    const QString streamKey(const rtp_stream_info_t *rtp_stream);
+//    const QString streamKey(const rtpstream_info_t *rtp_stream);
 //    const QString streamKey(const packet_info *pinfo, const struct _rtp_info *rtpinfo);
 
     // Tap callbacks

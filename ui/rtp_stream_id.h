@@ -38,7 +38,7 @@ typedef struct _rtpstream_id {
 } rtpstream_id_t;
 
 /**
- * Copy rtp_stream_id_t structure
+ * Copy rtpstream_id_t structure
  */
 void rtpstream_id_copy(const rtpstream_id_t *src, rtpstream_id_t *dest);
 

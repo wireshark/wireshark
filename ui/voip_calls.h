@@ -183,8 +183,8 @@ typedef struct _voip_calls_tapinfo {
     int                   rejected_calls;
     seq_analysis_info_t  *graph_analysis;
     epan_t               *session; /**< epan session */
-    int                   nrtp_streams; /**< number of rtp streams */
-    GList*                rtp_stream_list; /**< list of rtp_stream_info_t */
+    int                   nrtpstreams; /**< number of rtp streams */
+    GList*                rtpstream_list; /**< list of rtpstream_info_t */
     guint32               rtp_evt_frame_num;
     guint8                rtp_evt;
     gboolean              rtp_evt_end;

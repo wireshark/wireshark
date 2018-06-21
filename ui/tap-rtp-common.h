@@ -43,7 +43,7 @@ typedef struct _tap_rtp_save_info_t {
     gboolean saved;
 } tap_rtp_save_info_t;
 
-typedef struct _rtp_stream_info_calc {
+typedef struct _rtpstream_info_calc {
     gchar *src_addr_str;
     guint16 src_port;
     gchar *dst_addr_str;
@@ -112,7 +112,7 @@ void rtp_write_header(rtpstream_info_t*, FILE*);
 int rtpstream_packet_cb(void*, packet_info*, epan_dissect_t *, const void *);
 
 /**
- * Evaluate rtp_stream_info_t calculations
+ * Evaluate rtpstream_info_t calculations
  */
 void rtpstream_info_calculate(const rtpstream_info_t *strinfo, rtpstream_info_calc_t *calc);
 

@@ -37,18 +37,18 @@
 #include "ui/rtp_stream.h"
 #include "ui/tap-rtp-common.h"
 
-void register_tap_listener_rtp_streams(void);
-static void rtp_streams_stat_draw_cb(rtpstream_tapinfo_t *tapinfo);
+void register_tap_listener_rtpstreams(void);
+static void rtpstreams_stat_draw_cb(rtpstream_tapinfo_t *tapinfo);
 
 /* The one and only global rtpstream_tapinfo_t structure for tshark and wireshark.
  */
 static rtpstream_tapinfo_t the_tapinfo_struct =
-        { NULL, rtp_streams_stat_draw_cb, NULL,
+        { NULL, rtpstreams_stat_draw_cb, NULL,
           NULL, 0, NULL, 0, TAP_ANALYSE, NULL, NULL, NULL, FALSE
         };
 
 static void
-rtp_streams_stat_draw_cb(rtpstream_tapinfo_t *tapinfo _U_)
+rtpstreams_stat_draw_cb(rtpstream_tapinfo_t *tapinfo _U_)
 {
     GList *list;
     rtpstream_info_t *strinfo;
@@ -100,24 +100,24 @@ rtp_streams_stat_draw_cb(rtpstream_tapinfo_t *tapinfo _U_)
 
 
 static void
-rtp_streams_stat_init(const char *opt_arg _U_, void *userdata _U_)
+rtpstreams_stat_init(const char *opt_arg _U_, void *userdata _U_)
 {
     register_tap_listener_rtpstream(&the_tapinfo_struct, NULL, NULL);
 }
 
-static stat_tap_ui rtp_streams_stat_ui = {
+static stat_tap_ui rtpstreams_stat_ui = {
     REGISTER_STAT_GROUP_GENERIC,
     NULL,
     "rtp,streams",
-    rtp_streams_stat_init,
+    rtpstreams_stat_init,
     0,
     NULL
 };
 
 void
-register_tap_listener_rtp_streams(void)
+register_tap_listener_rtpstreams(void)
 {
-    register_stat_tap_ui(&rtp_streams_stat_ui, NULL);
+    register_stat_tap_ui(&rtpstreams_stat_ui, NULL);
 }
 
 /*

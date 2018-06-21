@@ -33,12 +33,12 @@
 #include <QVariant>
 
 // To do:
-// - Only allow one rtp_stream_info_t per RtpAudioStream?
+// - Only allow one rtpstream_info_t per RtpAudioStream?
 
 static spx_int16_t default_audio_sample_rate_ = 8000;
 static const spx_int16_t visual_sample_rate_ = 1000;
 
-RtpAudioStream::RtpAudioStream(QObject *parent, rtpstream_info_t *rtp_stream) :
+RtpAudioStream::RtpAudioStream(QObject *parent, rtpstream_info_t *rtpstream) :
     QObject(parent),
     decoders_hash_(rtp_decoder_hash_table_new()),
     global_start_rel_time_(0.0),
@@ -53,7 +53,7 @@ RtpAudioStream::RtpAudioStream(QObject *parent, rtpstream_info_t *rtp_stream) :
     jitter_buffer_size_(50),
     timing_mode_(RtpAudioStream::JitterBuffer)
 {
-    rtpstream_id_copy(&rtp_stream->id, &id_);
+    rtpstream_id_copy(&rtpstream->id, &id_);
 
     // We keep visual samples in memory. Make fewer of them.
     visual_resampler_ = speex_resampler_init(1, default_audio_sample_rate_,
@@ -81,10 +81,10 @@ RtpAudioStream::~RtpAudioStream()
     rtpstream_id_free(&id_);
 }
 
-bool RtpAudioStream::isMatch(const rtpstream_info_t *rtp_stream) const
+bool RtpAudioStream::isMatch(const rtpstream_info_t *rtpstream) const
 {
-    if (rtp_stream
-        && rtpstream_id_equal(&id_, &(rtp_stream->id), RTPSTREAM_ID_EQUAL_SSRC))
+    if (rtpstream
+        && rtpstream_id_equal(&id_, &(rtpstream->id), RTPSTREAM_ID_EQUAL_SSRC))
         return true;
     return false;
 }
@@ -100,12 +100,12 @@ bool RtpAudioStream::isMatch(const _packet_info *pinfo, const _rtp_info *rtp_inf
 // XXX We add multiple RTP streams here because that's what the GTK+ UI does.
 // Should we make these distinct, with their own waveforms? It seems like
 // that would simplify a lot of things.
-void RtpAudioStream::addRtpStream(const rtpstream_info_t *rtp_stream)
+void RtpAudioStream::addRtpStream(const rtpstream_info_t *rtpstream)
 {
-    if (!rtp_stream) return;
+    if (!rtpstream) return;
 
-    // RTP_STREAM_DEBUG("added %d:%u packets", g_list_length(rtp_stream->rtp_packet_list), rtp_stream->packet_count);
-    rtp_streams_ << rtp_stream;
+    // RTP_STREAM_DEBUG("added %d:%u packets", g_list_length(rtpstream->rtp_packet_list), rtpstream->packet_count);
+    rtpstreams_ << rtpstream;
 }
 
 void RtpAudioStream::addRtpPacket(const struct _packet_info *pinfo, const struct _rtp_info *rtp_info)

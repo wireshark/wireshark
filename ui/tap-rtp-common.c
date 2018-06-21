@@ -45,7 +45,7 @@ typedef struct st_rtpdump_info {
 } rtpdump_info_t;
 
 /****************************************************************************/
-/* GCompareFunc style comparison function for rtp_stream_info_t */
+/* GCompareFunc style comparison function for rtpstream_info_t */
 gint rtpstream_info_cmp(gconstpointer aa, gconstpointer bb)
 {
     const rtpstream_info_t* a = (const rtpstream_info_t*)aa;
@@ -350,7 +350,7 @@ int rtpstream_packet_cb(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, 
 }
 
 /****************************************************************************/
-/* evaluate rtp_stream_info_t calculations */
+/* evaluate rtpstream_info_t calculations */
 /* - code is gathered from existing GTK/Qt/tui sources related to RTP statistics calculation
  * - one place for calculations ensures that all wireshark tools shows same output for same input and avoids code duplication
  */
