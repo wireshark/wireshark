@@ -2482,14 +2482,14 @@ dissect_bootpopt_dhcp_authentication(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 				/* Discover has no Secret ID nor HMAC MD5 Hash */
 				break;
 			} else {
-				if (tvb_reported_length_remaining(tvb, offset) < 31) {
-					expert_add_info_format(pinfo, tree, &ei_bootp_bad_length, "length isn't >= 31");
+				if (tvb_reported_length_remaining(tvb, offset) < 20) {
+					expert_add_info_format(pinfo, tree, &ei_bootp_bad_length, "length isn't >= 20");
 					break;
 				}
 
 				proto_tree_add_item(tree, hf_bootp_option_dhcp_authentication_secret_id, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
-				proto_tree_add_item(tree, hf_bootp_option_dhcp_authentication_hmac_md5_hash, tvb, offset, 16, ENC_ASCII|ENC_NA);
+				proto_tree_add_item(tree, hf_bootp_option_dhcp_authentication_hmac_md5_hash, tvb, offset, 16, ENC_NA);
 				break;
 			}
 
@@ -8548,7 +8548,7 @@ proto_register_bootp(void)
 
 		{ &hf_bootp_option_dhcp_authentication_hmac_md5_hash,
 		  { "HMAC MD5 Hash", "bootp.option.dhcp_authentication.hmac_md5_hash",
-		    FT_STRINGZ, BASE_NONE, NULL, 0x0,
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
 		    "Option 90: HMAC MD5 Hash", HFILL }},
 
 		{ &hf_bootp_option_dhcp_authentication_information,
