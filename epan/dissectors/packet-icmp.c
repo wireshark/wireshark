@@ -359,7 +359,8 @@ static const value_string interface_role_str[] = {
 #define is_a_broadcast_addr(a)	((a) == 0xffffffffU)
 
 /*
- * XXX - will the destination address ever not be an IPv4 address?
+ * We check the address type in case some bogus IPv6 packet specifies ICMP
+ * rather than ICMP6 in the next header field.
  */
 #define ADDR_IS_MULTICAST(addr) \
 	(((addr)->type == AT_IPv4) && is_a_multicast_addr(pntoh32((addr)->data)))
