@@ -2237,7 +2237,7 @@ DEBUG_ENTRY("dissect_per_bit_string");
 	}
 
 	/* 15.11 */
-	if (max_len != NO_BOUND) {
+	if (max_len != NO_BOUND && max_len < 65536) {
 		offset=dissect_per_constrained_integer(tvb, offset, actx,
 			tree, hf_per_bit_string_length, min_len, max_len,
 			&length, FALSE);
