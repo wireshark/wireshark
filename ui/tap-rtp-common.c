@@ -45,11 +45,75 @@ typedef struct st_rtpdump_info {
 } rtpdump_info_t;
 
 /****************************************************************************/
+/* init rtpstream_info_t structure */
+void rtpstream_info_init(rtpstream_info_t *info)
+{
+    memset(info, 0, sizeof(rtpstream_info_t));
+}
+
+/****************************************************************************/
+/* malloc and init rtpstream_info_t structure */
+rtpstream_info_t *rtpstream_info_malloc_and_init(void)
+{
+    rtpstream_info_t *dest;
+
+    dest = (rtpstream_info_t *)g_malloc(sizeof(rtpstream_info_t));
+    rtpstream_info_init(dest);
+
+    return dest;
+}
+
+/****************************************************************************/
+/* deep copy of rtpstream_info_t */
+void rtpstream_info_copy_deep(rtpstream_info_t *dest, const rtpstream_info_t *src)
+{
+    /* Deep clone of contents */
+    *dest = *src;  /* memberwise copy of struct */
+    copy_address(&(dest->id.src_addr), &(src->id.src_addr));
+    copy_address(&(dest->id.dst_addr), &(src->id.dst_addr));
+    dest->payload_type_name = g_strdup(src->payload_type_name);
+    dest->ed137_info = g_strdup(src->ed137_info);
+}
+
+/****************************************************************************/
+/* malloc and deep copy rtpstream_info_t structure */
+rtpstream_info_t *rtpstream_info_malloc_and_copy_deep(const rtpstream_info_t *src)
+{
+    rtpstream_info_t *dest;
+
+    dest = (rtpstream_info_t *)g_malloc(sizeof(rtpstream_info_t));
+    rtpstream_info_copy_deep(dest, src);
+
+    return dest;
+}
+
+/****************************************************************************/
+/* free rtpstream_info_t referenced values */
+void rtpstream_info_free_data(rtpstream_info_t *info)
+{
+    if (info->ed137_info != NULL) {
+        g_free(info->ed137_info);
+    }
+    if (info->payload_type_name!= NULL) {
+        g_free(info->payload_type_name);
+    }
+    rtpstream_id_free(&info->id);
+}
+
+/****************************************************************************/
+/* free rtpstream_info_t referenced values and whole structure */
+void rtpstream_info_free_all(rtpstream_info_t *info)
+{
+    rtpstream_info_free_data(info);
+    g_free(info);
+}
+
+/****************************************************************************/
 /* GCompareFunc style comparison function for rtpstream_info_t */
 gint rtpstream_info_cmp(gconstpointer aa, gconstpointer bb)
 {
-    const rtpstream_info_t* a = (const rtpstream_info_t*)aa;
-    const rtpstream_info_t* b = (const rtpstream_info_t*)bb;
+    const rtpstream_info_t *a = (const rtpstream_info_t *)aa;
+    const rtpstream_info_t *b = (const rtpstream_info_t *)bb;
 
     if (a==b)
         return 0;
@@ -82,14 +146,16 @@ gboolean rtpstream_info_is_reverse(const rtpstream_info_t *stream_a, rtpstream_i
 void rtpstream_reset(rtpstream_tapinfo_t *tapinfo)
 {
     GList* list;
+    rtpstream_info_t *stream_info;
 
     if (tapinfo->mode == TAP_ANALYSE) {
         /* free the data items first */
         list = g_list_first(tapinfo->strinfo_list);
         while (list)
         {
+            stream_info = (rtpstream_info_t *)(list->data);
+            rtpstream_info_free_data(stream_info);
             g_free(list->data);
-            /* TODO free src_addr, dst_addr and payload_type_name? */
             list = g_list_next(list);
         }
         g_list_free(tapinfo->strinfo_list);
@@ -268,7 +334,7 @@ int rtpstream_packet_cb(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, 
 
     /* gather infos on the stream this packet is part of.
      * Addresses and strings are read-only and must be duplicated if copied. */
-    memset(&new_stream_info, 0, sizeof(rtpstream_info_t));
+    rtpstream_info_init(&new_stream_info);
     rtpstream_id_copy_pinfo(pinfo,&(new_stream_info.id),FALSE);
     new_stream_info.id.ssrc = rtpinfo->info_sync_src;
     new_stream_info.payload_type = rtpinfo->info_payload_type;
@@ -279,9 +345,9 @@ int rtpstream_packet_cb(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, 
         list = g_list_first(tapinfo->strinfo_list);
         while (list)
         {
-            if (rtpstream_info_cmp(&new_stream_info, (rtpstream_info_t*)(list->data))==0)
+            if (rtpstream_info_cmp(&new_stream_info, (rtpstream_info_t *)(list->data))==0)
             {
-                stream_info = (rtpstream_info_t*)(list->data);  /*found!*/
+                stream_info = (rtpstream_info_t *)(list->data);  /*found!*/
                 break;
             }
             list = g_list_next(list);
@@ -303,12 +369,8 @@ int rtpstream_packet_cb(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, 
             else
                 new_stream_info.setup_frame_number = 0xFFFFFFFF;
 
-            stream_info = g_new(rtpstream_info_t,1);
-            /* Deep clone of contents. */
-            copy_address(&(new_stream_info.id.src_addr), &(new_stream_info.id.src_addr));
-            copy_address(&(new_stream_info.id.dst_addr), &(new_stream_info.id.dst_addr));
-            new_stream_info.payload_type_name = g_strdup(new_stream_info.payload_type_name);
-            *stream_info = new_stream_info;  /* memberwise copy of struct */
+            stream_info = rtpstream_info_malloc_and_init();
+            rtpstream_info_copy_deep(stream_info, &new_stream_info);
             tapinfo->strinfo_list = g_list_prepend(tapinfo->strinfo_list, stream_info);
         }
 

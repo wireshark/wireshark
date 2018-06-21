@@ -50,6 +50,7 @@
 
 #include "ui/rtp_stream.h"
 #include "ui/simple_dialog.h"
+#include "ui/tap-rtp-common.h"
 #include "ui/ws_ui_util.h"
 #include "ui/voip_calls.h"
 
@@ -292,8 +293,7 @@ voip_calls_reset_all_taps(voip_calls_tapinfo_t *tapinfo)
     while(list)
     {
         strinfo = (rtpstream_info_t *)list->data;
-        wmem_free(NULL, strinfo->payload_type_name);
-        wmem_free(NULL, strinfo->ed137_info);
+        rtpstream_info_free_data(strinfo);
         list = g_list_next(list);
     }
     g_list_free(tapinfo->rtpstream_list);
@@ -555,11 +555,14 @@ rtp_reset(void *tap_offset_ptr)
 {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_rtp_);
     GList *list;
+    rtpstream_info_t *stream_info;
 
     /* free the data items first */
     list = g_list_first(tapinfo->rtpstream_list);
     while (list)
     {
+        stream_info = (rtpstream_info_t*)(list->data);
+        rtpstream_info_free_data(stream_info);
         g_free(list->data);
         list = g_list_next(list);
     }
@@ -630,7 +633,7 @@ rtp_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, void c
 
     /* not in the list? then create a new entry */
     if (strinfo==NULL) {
-        strinfo = (rtpstream_info_t *)g_malloc0(sizeof(rtpstream_info_t));
+        strinfo = rtpstream_info_malloc_and_init();
         rtpstream_id_copy_pinfo(pinfo,&(strinfo->id),FALSE);
         strinfo->id.ssrc = rtp_info->info_sync_src;
         strinfo->payload_type = rtp_info->info_payload_type;
@@ -685,7 +688,7 @@ rtp_draw(void *tap_offset_ptr)
 {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_rtp_);
     GList                *rtpstreams_list;
-    rtpstream_info_t    *rtp_listinfo;
+    rtpstream_info_t     *rtp_listinfo;
     /* GList *voip_calls_graph_list; */
     seq_analysis_item_t  *gai     = NULL;
     seq_analysis_item_t  *new_gai;
@@ -758,7 +761,7 @@ rtp_packet_draw(void *tap_offset_ptr)
 {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_rtp_);
     GList                *rtpstreams_list;
-    rtpstream_info_t    *rtp_listinfo;
+    rtpstream_info_t     *rtp_listinfo;
     GList                *voip_calls_graph_list;
     guint                 item;
     seq_analysis_item_t  *gai;

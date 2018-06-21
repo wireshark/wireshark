@@ -342,7 +342,8 @@ Iax2AnalysisDialog::Iax2AnalysisDialog(QWidget &parent, CaptureFile &cf) :
     rtpstream_tapinfo_t tapinfo;
 
     /* Register the tap listener */
-    memset(&tapinfo, 0, sizeof(rtpstream_tapinfo_t));
+    rtpstream_info_init(&tapinfo);
+
     tapinfo.tap_data = this;
     tapinfo.mode = TAP_ANALYSE;
 
@@ -351,21 +352,28 @@ Iax2AnalysisDialog::Iax2AnalysisDialog(QWidget &parent, CaptureFile &cf) :
     rtpstream_scan(&tapinfo, cap_file_.capFile(), NULL);
 
     int num_streams = 0;
-    GList *filtered_list = NULL;
+    // TODO: Not used
+    //GList *filtered_list = NULL;
     for (GList *strinfo_list = g_list_first(tapinfo.strinfo_list); strinfo_list; strinfo_list = g_list_next(strinfo_list)) {
         rtpstream_info_t * strinfo = (rtpstream_info_t*)(strinfo_list->data);
         if (rtpstream_id_equal(&(strinfo->id), &(fwd_id_),RTPSTREAM_ID_EQUAL_NONE))
         {
             ++num_streams;
-            filtered_list = g_list_prepend(filtered_list, strinfo);
+            // TODO: Not used
+            //filtered_list = g_list_prepend(filtered_list, strinfo);
         }
 
         if (rtpstream_id_equal(&(strinfo->id), &(rev_id_),RTPSTREAM_ID_EQUAL_NONE))
         {
             ++num_streams;
-            filtered_list = g_list_append(filtered_list, strinfo);
+            // TODO: Not used
+            //filtered_list = g_list_append(filtered_list, strinfo);
         }
+
+        rtpstream_info_free_data(strinfo);
+        g_free(list->data);
     }
+    g_list_free(tapinfo->strinfo_list);
 
     if (num_streams > 1) {
         // Open the RTP streams dialog.

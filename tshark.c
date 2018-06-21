@@ -2229,6 +2229,8 @@ main(int argc, char *argv[])
   }
 
   draw_tap_listeners(TRUE);
+  /* Memory cleanup */
+  reset_tap_listeners();
   funnel_dump_all_text_windows();
   epan_free(cfile.epan);
   epan_cleanup();

@@ -346,10 +346,10 @@ RtpAnalysisDialog::RtpAnalysisDialog(QWidget &parent, CaptureFile &cf, rtpstream
     ui->buttonBox->button(QDialogButtonBox::Save)->setMenu(save_menu);
 
     if (stream_fwd) { // XXX What if stream_fwd == 0 && stream_rev != 0?
-        fwd_statinfo_ = *stream_fwd;
+        rtpstream_info_copy_deep(&fwd_statinfo_, stream_fwd);
         num_streams_=1;
         if (stream_rev) {
-            rev_statinfo_ = *stream_rev;
+            rtpstream_info_copy_deep(&rev_statinfo_, stream_rev);
             num_streams_=2;
         }
     } else {
@@ -381,8 +381,8 @@ RtpAnalysisDialog::~RtpAnalysisDialog()
 {
     delete ui;
 //    remove_tap_listener_rtpstream(&tapinfo_);
-    rtpstream_id_free(&(fwd_statinfo_.id));
-    rtpstream_id_free(&(rev_statinfo_.id));
+    rtpstream_info_free_data(&fwd_statinfo_);
+    rtpstream_info_free_data(&rev_statinfo_);
     delete fwd_tempfile_;
     delete rev_tempfile_;
 }
@@ -1007,15 +1007,15 @@ void RtpAnalysisDialog::showPlayer()
 
     // XXX We might want to create an "rtp_stream_id_t" struct with only
     // addresses, ports & SSRC.
-    memset(&stream_info, 0, sizeof(stream_info));
+    rtpstream_info_init(&stream_info);
     rtpstream_id_copy(&fwd_statinfo_.id, &stream_info.id);
     stream_info.packet_count = fwd_statinfo_.packet_count;
     stream_info.setup_frame_number = fwd_statinfo_.setup_frame_number;
     nstime_copy(&stream_info.start_rel_time, &fwd_statinfo_.start_rel_time);
-
     rtp_player_dialog.addRtpStream(&stream_info);
+
     if (num_streams_ > 1) {
-        memset(&stream_info, 0, sizeof(stream_info));
+        rtpstream_info_init(&stream_info);
         rtpstream_id_copy(&rev_statinfo_.id, &stream_info.id);
         stream_info.packet_count = rev_statinfo_.packet_count;
         stream_info.setup_frame_number = rev_statinfo_.setup_frame_number;

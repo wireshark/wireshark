@@ -71,6 +71,16 @@ typedef struct _rtpstream_info_calc {
 } rtpstream_info_calc_t;
 
 /**
+ * Funcions for init and destroy of rtpstream_info_t and attached structures
+ */
+void rtpstream_info_init(rtpstream_info_t* info);
+rtpstream_info_t *rtpstream_info_malloc_and_init(void);
+void rtpstream_info_copy_deep(rtpstream_info_t *dest, const rtpstream_info_t *src);
+rtpstream_info_t *rtpstream_info_malloc_and_copy_deep(const rtpstream_info_t *src);
+void rtpstream_info_free_data(rtpstream_info_t* info);
+void rtpstream_info_free_all(rtpstream_info_t* info);
+
+/**
  * Compares two RTP stream infos (GCompareFunc style comparison function)
  *
  * @return -1,0,1

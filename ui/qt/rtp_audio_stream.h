@@ -43,7 +43,7 @@ public:
     ~RtpAudioStream();
     bool isMatch(const rtpstream_info_t *rtpstream) const;
     bool isMatch(const struct _packet_info *pinfo, const struct _rtp_info *rtp_info) const;
-    void addRtpStream(const rtpstream_info_t *rtpstream);
+    //void addRtpStream(const rtpstream_info_t *rtpstream);
     void addRtpPacket(const struct _packet_info *pinfo, const struct _rtp_info *rtp_info);
     void reset(double start_rel_time);
     void decode();
@@ -146,7 +146,8 @@ private:
     QVector<struct _rtp_packet *>rtp_packets_;
     QTemporaryFile *tempfile_;
     struct _GHashTable *decoders_hash_;
-    QList<const rtpstream_info_t *>rtpstreams_;
+    // TODO: It is not used
+    //QList<const rtpstream_info_t *>rtpstreams_;
     double global_start_rel_time_;
     double start_abs_offset_;
     double start_rel_time_;

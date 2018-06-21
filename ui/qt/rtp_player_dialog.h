@@ -58,9 +58,9 @@ public:
      * Requires src_addr, src_port, dest_addr, dest_port, ssrc, packet_count,
      * setup_frame_number, and start_rel_time.
      *
-     * @param rtp_stream struct with rtp_stream info
+     * @param rtpstream struct with rtpstream info
      */
-    void addRtpStream(rtpstream_info_t *rtp_stream);
+    void addRtpStream(rtpstream_info_t *rtpstream);
 
 public slots:
 
@@ -113,7 +113,7 @@ private:
     QCPItemStraightLine *cur_play_pos_;
     QString playback_error_;
 
-//    const QString streamKey(const rtpstream_info_t *rtp_stream);
+//    const QString streamKey(const rtpstream_info_t *rtpstream);
 //    const QString streamKey(const packet_info *pinfo, const struct _rtp_info *rtpinfo);
 
     // Tap callbacks

@@ -353,9 +353,9 @@ void RtpPlayerDialog::rescanPackets(bool rescale_axes)
     updateWidgets();
 }
 
-void RtpPlayerDialog::addRtpStream(rtpstream_info_t *rtp_stream)
+void RtpPlayerDialog::addRtpStream(rtpstream_info_t *rtpstream)
 {
-    if (!rtp_stream) return;
+    if (!rtpstream) return;
 
     // Find the RTP streams associated with this conversation.
     // gtk/rtp_player.c:mark_rtp_stream_to_play does this differently.
@@ -365,24 +365,24 @@ void RtpPlayerDialog::addRtpStream(rtpstream_info_t *rtp_stream)
     for (int row = 0; row < tli_count; row++) {
         QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(row);
         RtpAudioStream *row_stream = ti->data(stream_data_col_, Qt::UserRole).value<RtpAudioStream*>();
-        if (row_stream->isMatch(rtp_stream)) {
+        if (row_stream->isMatch(rtpstream)) {
             audio_stream = row_stream;
             break;
         }
     }
 
     if (!audio_stream) {
-        audio_stream = new RtpAudioStream(this, rtp_stream);
+        audio_stream = new RtpAudioStream(this, rtpstream);
         audio_stream->setColor(ColorUtils::graphColor(tli_count));
 
         QTreeWidgetItem *ti = new QTreeWidgetItem(ui->streamTreeWidget);
-        ti->setText(src_addr_col_, address_to_qstring(&rtp_stream->id.src_addr));
-        ti->setText(src_port_col_, QString::number(rtp_stream->id.src_port));
-        ti->setText(dst_addr_col_, address_to_qstring(&rtp_stream->id.dst_addr));
-        ti->setText(dst_port_col_, QString::number(rtp_stream->id.dst_port));
-        ti->setText(ssrc_col_, int_to_qstring(rtp_stream->id.ssrc, 8, 16));
-        ti->setText(first_pkt_col_, QString::number(rtp_stream->setup_frame_number));
-        ti->setText(num_pkts_col_, QString::number(rtp_stream->packet_count));
+        ti->setText(src_addr_col_, address_to_qstring(&rtpstream->id.src_addr));
+        ti->setText(src_port_col_, QString::number(rtpstream->id.src_port));
+        ti->setText(dst_addr_col_, address_to_qstring(&rtpstream->id.dst_addr));
+        ti->setText(dst_port_col_, QString::number(rtpstream->id.dst_port));
+        ti->setText(ssrc_col_, int_to_qstring(rtpstream->id.ssrc, 8, 16));
+        ti->setText(first_pkt_col_, QString::number(rtpstream->setup_frame_number));
+        ti->setText(num_pkts_col_, QString::number(rtpstream->packet_count));
 
         ti->setData(stream_data_col_, Qt::UserRole, QVariant::fromValue(audio_stream));
 
@@ -398,8 +398,9 @@ void RtpPlayerDialog::addRtpStream(rtpstream_info_t *rtp_stream)
         connect(audio_stream, SIGNAL(playbackError(QString)), this, SLOT(setPlaybackError(QString)));
         connect(audio_stream, SIGNAL(processedSecs(double)), this, SLOT(setPlayPosition(double)));
     }
-    audio_stream->addRtpStream(rtp_stream);
-    double start_rel_time = nstime_to_sec(&rtp_stream->start_rel_time);
+    // TODO: does not do anything
+    // audio_stream->addRtpStream(rtpstream);
+    double start_rel_time = nstime_to_sec(&rtpstream->start_rel_time);
     if (tli_count < 2) {
         start_rel_time_ = start_rel_time;
     } else {
@@ -407,8 +408,8 @@ void RtpPlayerDialog::addRtpStream(rtpstream_info_t *rtp_stream)
     }
     RTP_STREAM_DEBUG("adding stream %d to layout, %u packets, start %u",
                      ui->streamTreeWidget->topLevelItemCount(),
-                     rtp_stream->packet_count,
-                     rtp_stream->start_fd ? rtp_stream->start_fd->num : 0);
+                     rtpstream->packet_count,
+                     rtpstream->start_fd ? rtpstream->start_fd->num : 0);
 }
 
 void RtpPlayerDialog::showEvent(QShowEvent *)
@@ -770,14 +771,14 @@ void RtpPlayerDialog::on_buttonBox_helpRequested()
 #if 0
 // This also serves as a title in RtpAudioFrame.
 static const QString stream_key_tmpl_ = "%1:%2 " UTF8_RIGHTWARDS_ARROW " %3:%4 0x%5";
-const QString RtpPlayerDialog::streamKey(const rtpstream_info_t *rtp_stream)
+const QString RtpPlayerDialog::streamKey(const rtpstream_info_t *rtpstream)
 {
     const QString stream_key = QString(stream_key_tmpl_)
-            .arg(address_to_display_qstring(&rtp_stream->src_addr))
-            .arg(rtp_stream->src_port)
-            .arg(address_to_display_qstring(&rtp_stream->dst_addr))
-            .arg(rtp_stream->dst_port)
-            .arg(rtp_stream->ssrc, 0, 16);
+            .arg(address_to_display_qstring(&rtpstream->src_addr))
+            .arg(rtpstream->src_port)
+            .arg(address_to_display_qstring(&rtpstream->dst_addr))
+            .arg(rtpstream->dst_port)
+            .arg(rtpstream->ssrc, 0, 16);
     return stream_key;
 }
 

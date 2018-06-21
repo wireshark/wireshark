@@ -100,13 +100,17 @@ bool RtpAudioStream::isMatch(const _packet_info *pinfo, const _rtp_info *rtp_inf
 // XXX We add multiple RTP streams here because that's what the GTK+ UI does.
 // Should we make these distinct, with their own waveforms? It seems like
 // that would simplify a lot of things.
+// TODO: It is not used
+/*
 void RtpAudioStream::addRtpStream(const rtpstream_info_t *rtpstream)
 {
     if (!rtpstream) return;
 
     // RTP_STREAM_DEBUG("added %d:%u packets", g_list_length(rtpstream->rtp_packet_list), rtpstream->packet_count);
-    rtpstreams_ << rtpstream;
+    // TODO: It is not used
+    //rtpstreams_ << rtpstream;
 }
+*/
 
 void RtpAudioStream::addRtpPacket(const struct _packet_info *pinfo, const struct _rtp_info *rtp_info)
 {
