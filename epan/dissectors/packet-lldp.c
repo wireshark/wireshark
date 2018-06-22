@@ -386,6 +386,7 @@ static int hf_avaya_ipphone_mask = -1;
 static int hf_avaya_ipphone_gateway = -1;
 static int hf_unknown_subtype = -1;
 static int hf_unknown_subtype_content = -1;
+static int hf_subtype_content_remaining = -1;
 static int hf_iana_subtype = -1;
 static int hf_iana_mudurl = -1;
 
@@ -1818,9 +1819,10 @@ dissect_lldp_management_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 /* Dissect DCBX TLVs */
 static void
-dissect_dcbx_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
+dissect_dcbx_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint8 subType;
+	guint32 offset = 0;
 	guint8 priomaskByte, prioCounter, appCount = 0;
 	guint16 dataLen;
 	guint16 tempShort;
@@ -2026,9 +2028,10 @@ dissect_dcbx_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint3
 
 /* Dissect IEEE 802.1 TLVs */
 static int
-dissect_ieee_802_1_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
+dissect_ieee_802_1_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint8 subType;
+	guint32 offset = 0;
 	guint8 tempByte;
 	guint16 dcbApp, appCount;
 
@@ -2390,16 +2393,17 @@ dissect_ieee_802_1_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 
 /* Dissect IEEE 802.1Qbg TLVs */
 static void
-dissect_oui_default_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
+dissect_oui_default_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_unknown_subtype, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_unknown_subtype_content, tvb, (offset+1), -1, ENC_NA);
+	proto_tree_add_item(tree, hf_unknown_subtype, tvb, 0, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_unknown_subtype_content, tvb, 1, -1, ENC_NA);
 }
 
 static void
-dissect_ieee_802_1qbg_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
+dissect_ieee_802_1qbg_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint8 subType;
+	guint32 offset = 0;
 
 	proto_tree *evb_capabilities_subtree = NULL;
 
@@ -2454,9 +2458,10 @@ dissect_ieee_802_1qbg_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
 /* Dissect IEEE 802.3 TLVs */
 static int
-dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
+dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint8 subType;
+	guint32 offset = 0;
 	guint8 tempByte;
 	guint16 tlvLen = tvb_reported_length(tvb)-offset;
 
@@ -2678,10 +2683,11 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 
 /* Dissect Media TLVs */
 static void
-dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset)
+dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	guint16 tlvLen = tvb_reported_length(tvb)-offset;
+	guint16 tlvLen = tvb_reported_length(tvb);
 	guint8 subType;
+	guint32 offset = 0;
 	guint8 tempByte;
 	guint32 LCI_Length;
 
@@ -3147,9 +3153,10 @@ set_port_id_for_profinet_specialized_column_info
 
 /* Dissect PROFINET TLVs */
 static void
-dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, profinet_lldp_column_info *pn_lldp_column_info)
+dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, profinet_lldp_column_info *pn_lldp_column_info)
 {
 	guint8 subType;
+	guint32 offset = 0;
 	proto_item	*tf = NULL;
 	guint16 class2_PortStatus;
 	guint16 class3_PortStatus;
@@ -3283,9 +3290,11 @@ dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
 
 /* Dissect Cisco OUI TLVs */
 static void
-dissect_cisco_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
+dissect_cisco_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint8 subType;
+	guint32 offset = 0;
+	guint length = tvb_reported_length(tvb);
 
 	proto_tree *fourwire_data = NULL;
 	proto_item *tf = NULL;
@@ -3296,6 +3305,7 @@ dissect_cisco_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 	proto_tree_add_item(tree, hf_cisco_subtype, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	offset++;
+	length--;
 
 	switch (subType)
 	{
@@ -3306,16 +3316,25 @@ dissect_cisco_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 		proto_tree_add_item(fourwire_data, hf_cisco_four_wire_power_spare_pair_arch, tvb, offset, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(fourwire_data, hf_cisco_four_wire_power_req_spare_pair_poe, tvb, offset, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(fourwire_data, hf_cisco_four_wire_power_pse_spare_pair_poe, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset++;
+		length--;
 		break;
 	default:
-		proto_tree_add_item(tree, hf_unknown_subtype_content, tvb, offset, -1, ENC_NA);
+		if (length > 0) {
+			proto_tree_add_item(tree, hf_unknown_subtype_content, tvb, offset, length, ENC_NA);
+			offset += length;
+			length -= length;
+		}
 		break;
+	}
+	if (length > 0) {
+		proto_tree_add_item(tree, hf_subtype_content_remaining, tvb, offset, length, ENC_NA);
 	}
 }
 
 /* Dissect OUI HytecGer-TLV's */
 static void
-dissect_hytec_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
+dissect_hytec_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint8 subtype, group, identifier;
 	gint32 bit_offset, msg_len, expected_data_length, maximum_data_length, temp_gint32;
@@ -3323,6 +3342,7 @@ dissect_hytec_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 	proto_item *tf = NULL;
 	proto_item *group_proto_item, *identifier_proto_item;
 	float float_value = 0.0f;
+	guint32 offset = 0;
 
 	subtype = tvb_get_guint8(tvb, offset);
 	proto_tree_add_uint(tree, hf_hytec_tlv_subtype, tvb, offset, 1, subtype);
@@ -3611,9 +3631,10 @@ dissect_hytec_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 
 /* Dissect Avaya OUI TLVs */
 static void
-dissect_avaya_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
+dissect_avaya_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	guint8 subType;
+	guint8  subType;
+	guint32 offset = 0;
 
 	proto_tree *avaya_data = NULL;
 	proto_item *tf = NULL;
@@ -3669,10 +3690,11 @@ dissect_avaya_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 
 /* Dissect IANA OUI TLVs */
 static void
-dissect_iana_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
+dissect_iana_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint16 msg_len;
 	guint8  subType;
+	guint32 offset = 0;
 
 	/* Get subtype */
 	subType = tvb_get_guint8(tvb, offset);
@@ -3704,6 +3726,7 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	gint    tempTree;
 	guint32 oui, tLength = tvb_reported_length(tvb);
 	guint8 subType;
+	tvbuff_t *vendor_tvb;
 	const char *ouiStr;
 	const char *subTypeStr;
 
@@ -3867,43 +3890,46 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	}
 
 	/* Display organizational unique id */
-	proto_tree_add_uint(org_tlv_tree, hf_org_spc_oui, tvb, (offset + 2), 3, oui);
+	proto_tree_add_uint(org_tlv_tree, hf_org_spc_oui, tvb, offset + 2, 3, oui);
+
+	/* Try to make sure we don't overrun the sub-tlvs */
+	vendor_tvb = tvb_new_subset_length(tvb, offset + 5, dataLen - 3);
 
 	switch (oui)
 	{
 	case OUI_DCBX:
-		dissect_dcbx_tlv(tvb, pinfo, org_tlv_tree, (offset + 5));
+		dissect_dcbx_tlv(vendor_tvb, pinfo, org_tlv_tree);
 		break;
 	case OUI_IEEE_802_1:
-		dissect_ieee_802_1_tlv(tvb, pinfo, org_tlv_tree, (offset + 5));
+		dissect_ieee_802_1_tlv(vendor_tvb, pinfo, org_tlv_tree);
 		break;
 	case OUI_IEEE_802_3:
-		dissect_ieee_802_3_tlv(tvb, pinfo, org_tlv_tree, (offset + 5));
+		dissect_ieee_802_3_tlv(vendor_tvb, pinfo, org_tlv_tree);
 		break;
 	case OUI_MEDIA_ENDPOINT:
-		dissect_media_tlv(tvb, pinfo, org_tlv_tree, (offset + 5));
+		dissect_media_tlv(vendor_tvb, pinfo, org_tlv_tree);
 		break;
 	case OUI_PROFINET:
-		dissect_profinet_tlv(tvb, pinfo, org_tlv_tree, (offset + 5), pn_lldp_column_info);
+		dissect_profinet_tlv(vendor_tvb, pinfo, org_tlv_tree, pn_lldp_column_info);
 		break;
 	case OUI_CISCO_2:
-		dissect_cisco_tlv(tvb, pinfo, org_tlv_tree, (offset + 5));
+		dissect_cisco_tlv(vendor_tvb, pinfo, org_tlv_tree);
 		break;
 	case OUI_IEEE_802_1QBG:
-		dissect_ieee_802_1qbg_tlv(tvb, pinfo, org_tlv_tree, (offset + 5));
+		dissect_ieee_802_1qbg_tlv(vendor_tvb, pinfo, org_tlv_tree);
 		break;
 	case OUI_HYTEC_GER:
-		dissect_hytec_tlv(tvb, pinfo, org_tlv_tree, (offset + 5));
+		dissect_hytec_tlv(vendor_tvb, pinfo, org_tlv_tree);
 		break;
 	case OUI_AVAYA:
-		dissect_avaya_tlv(tvb, pinfo, org_tlv_tree, (offset + 5));
+		dissect_avaya_tlv(vendor_tvb, pinfo, org_tlv_tree);
 		break;
 	case OUI_IANA:
-		dissect_iana_tlv(tvb, pinfo, org_tlv_tree, (offset + 5));
+		dissect_iana_tlv(vendor_tvb, pinfo, org_tlv_tree);
 		break;
 
 	default:
-		dissect_oui_default_tlv(tvb, pinfo, org_tlv_tree, (offset + 5));
+		dissect_oui_default_tlv(vendor_tvb, pinfo, org_tlv_tree);
 	}
 
 	return offset + tvb_reported_length(tvb);
@@ -5399,6 +5425,10 @@ proto_register_lldp(void)
 		},
 		{ &hf_unknown_subtype_content,
 			{ "Unknown Subtype Content","lldp.unknown_subtype.content", FT_BYTES, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_subtype_content_remaining,
+			{ "Subtype Unknown Trailing Bytes","lldp.subtype.content_remaining", FT_BYTES, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }
 		},
 	};
