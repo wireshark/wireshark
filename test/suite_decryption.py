@@ -485,3 +485,56 @@ class case_decrypt_kerberos(subprocesstest.SubprocessTestCase):
             env=config.test_env)
         # keyvalue: ccda7d48219f73c3b28311c4ba7242b3
         self.assertTrue(self.grepOutput('cc:da:7d:48:21:9f:73:c3:b2:83:11:c4:ba:72:42:b3'))
+
+class case_decrypt_wireguard(subprocesstest.SubprocessTestCase):
+    key_Spriv_i = 'AKeZaHwBxjiKLFnkY2unvEdOTtg4AL+M9dQXfopFVFk='
+    key_Spub_i = 'Igge9KzRytKNwrgkzDE/8hrLu6Ly0OqVdvOPWhA5KR4='
+    key_Spriv_r = 'cFIxTUyBs1Qil414hBwEgvasEax8CKJ5IS5ZougplWs='
+    key_Spub_r = 'YDCttCs9e1J52/g9vEnwJJa+2x6RqaayAYMpSVQfGEY='
+    key_Epriv_i0 = 'sLGLJSOQfyz7JNJ5ZDzFf3Uz1rkiCMMjbWerNYcPFFU='
+    key_Epriv_r0 = 'QC4/FZKhFf0b/eXEcCecmZNt6V6PXmRa4EWG1PIYTU4='
+    key_Epriv_i1 = 'ULv83D+y3vA0t2mgmTmWz++lpVsrP7i4wNaUEK2oX0E='
+    key_Epriv_r1 = 'sBv1dhsm63cbvWMv/XML+bvynBp9PTdY9Vvptu3HQlg='
+
+    def runOne(self, args, pcap_file='wireguard-ping-tcp.pcap'):
+        if not config.have_libgcrypt17:
+            self.skipTest('Requires Gcrypt 1.7 or later')
+        capture_file = os.path.join(config.capture_dir, pcap_file)
+        proc = self.runProcess([config.cmd_tshark, '-r', capture_file] + args,
+                               env=config.test_env)
+        lines = proc.stdout_str.splitlines()
+        return lines
+
+    def test_mac1_public(self):
+        """Check that MAC1 identification using public keys work."""
+        lines = self.runOne([
+            '-ouat:wg_keys:"Public","%s"' % self.key_Spub_i,
+            '-ouat:wg_keys:"Public","%s"' % self.key_Spub_r,
+            '-Y', 'wg.receiver_pubkey',
+            '-Tfields',
+            '-e', 'frame.number',
+            '-e', 'wg.receiver_pubkey',
+            '-e', 'wg.receiver_pubkey.known_privkey',
+        ])
+        self.assertEqual(4, len(lines))
+        self.assertIn('1\t%s\t0' % self.key_Spub_r, lines)
+        self.assertIn('2\t%s\t0' % self.key_Spub_i, lines)
+        self.assertIn('13\t%s\t0' % self.key_Spub_r, lines)
+        self.assertIn('14\t%s\t0' % self.key_Spub_i, lines)
+
+    def test_mac1_private(self):
+        """Check that MAC1 identification using private keys work."""
+        lines = self.runOne([
+            '-ouat:wg_keys:"Private","%s"' % self.key_Spriv_i,
+            '-ouat:wg_keys:"Private","%s"' % self.key_Spriv_r,
+            '-Y', 'wg.receiver_pubkey',
+            '-Tfields',
+            '-e', 'frame.number',
+            '-e', 'wg.receiver_pubkey',
+            '-e', 'wg.receiver_pubkey.known_privkey',
+        ])
+        self.assertEqual(4, len(lines))
+        self.assertIn('1\t%s\t1' % self.key_Spub_r, lines)
+        self.assertIn('2\t%s\t1' % self.key_Spub_i, lines)
+        self.assertIn('13\t%s\t1' % self.key_Spub_r, lines)
+        self.assertIn('14\t%s\t1' % self.key_Spub_i, lines)

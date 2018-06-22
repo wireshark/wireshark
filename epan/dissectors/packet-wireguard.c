@@ -19,6 +19,14 @@
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/proto_data.h>
+#include <epan/uat.h>
+#include <wsutil/wsgcrypt.h>
+#include <wsutil/curve25519.h>
+
+#if GCRYPT_VERSION_NUMBER >= 0x010800 /* 1.8.0 */
+/* Decryption requires Curve25519, ChaCha20-Poly1305 (1.7) and Blake2s (1.8). */
+#define WG_DECRYPTION_SUPPORTED
+#endif
 
 void proto_reg_handoff_wg(void);
 void proto_register_wg(void);
@@ -41,8 +49,11 @@ static int hf_wg_encrypted_packet = -1;
 static int hf_wg_stream = -1;
 static int hf_wg_response_in = -1;
 static int hf_wg_response_to = -1;
+static int hf_wg_receiver_pubkey = -1;
+static int hf_wg_receiver_pubkey_known_privkey = -1;
 
 static gint ett_wg = -1;
+static gint ett_key_info = -1;
 
 static expert_field ei_wg_bad_packet_length = EI_INIT;
 static expert_field ei_wg_keepalive  = EI_INIT;
@@ -65,6 +76,50 @@ static const value_string wg_type_names[] = {
     { 0x04, "Transport Data" },
     { 0x00, NULL }
 };
+
+#ifdef WG_DECRYPTION_SUPPORTED
+/* Decryption types. {{{ */
+/*
+ * Most operations operate on 32 byte units (keys and hash output).
+ */
+typedef struct {
+#define WG_KEY_LEN  32
+    guchar data[WG_KEY_LEN];
+} wg_qqword;
+
+/*
+ * Static key with the MAC1 key pre-computed and an optional private key.
+ */
+typedef struct wg_skey {
+    wg_qqword   pub_key;
+    wg_qqword   mac1_key;
+    wg_qqword   priv_key;   /* Optional, set to all zeroes if missing. */
+} wg_skey_t;
+
+/*
+ * Set of (long-term) static keys (for guessing the peer based on MAC1).
+ * Maps the public key to the "wg_skey_t" structure.
+ * Keys are populated from the UAT and key log file.
+ */
+static GHashTable *wg_static_keys;
+
+/* UAT adapter for populating wg_static_keys. */
+enum { WG_KEY_UAT_PUBLIC, WG_KEY_UAT_PRIVATE };
+static const value_string wg_key_uat_type_vals[] = {
+    { WG_KEY_UAT_PUBLIC, "Public" },
+    { WG_KEY_UAT_PRIVATE, "Private" },
+    { 0, NULL }
+};
+
+typedef struct {
+    guint   key_type;   /* See "wg_key_uat_type_vals". */
+    char   *key;
+} wg_key_uat_record_t;
+
+static wg_key_uat_record_t *wg_key_records;
+static guint num_wg_key_records;
+/* Decryption types. }}} */
+#endif /* WG_DECRYPTION_SUPPORTED */
 
 /*
  * Information required to process and link messages as required on the first
@@ -100,6 +155,206 @@ typedef struct {
 /* Map from Sender/Receiver IDs to a list of session information. */
 static wmem_map_t *sessions;
 static guint32 wg_session_count;
+
+
+#ifdef WG_DECRYPTION_SUPPORTED
+/* Key conversion routines. {{{ */
+/* Import external random data as private key. */
+static void
+set_private_key(wg_qqword *privkey, const wg_qqword *inkey)
+{
+    // The 254th bit of a Curve25519 secret will always be set in calculations,
+    // use this property to recognize whether a private key is set.
+    *privkey = *inkey;
+    privkey->data[31] |= 64;
+}
+
+/* Whether a private key is initialized (see set_private_key). */
+static inline gboolean
+has_private_key(const wg_qqword *secret)
+{
+    return !!(secret->data[31] & 64);
+}
+
+/**
+ * Compute the Curve25519 public key from a private key.
+ */
+static void
+priv_to_pub(wg_qqword *pub, const wg_qqword *priv)
+{
+    int r = crypto_scalarmult_curve25519_base(pub->data, priv->data);
+    /* The computation should always be possible. */
+    DISSECTOR_ASSERT(r == 0);
+}
+
+/*
+ * Returns the string representation (base64) of a public key.
+ * The returned value is allocated with wmem_packet_scope.
+ */
+static const char *
+pubkey_to_string(const wg_qqword *pubkey)
+{
+    gchar *str = g_base64_encode(pubkey->data, WG_KEY_LEN);
+    gchar *ret = wmem_strdup(wmem_packet_scope(), str);
+    g_free(str);
+    return ret;
+}
+
+static gboolean
+decode_base64_key(wg_qqword *out, const char *str)
+{
+    gsize out_len;
+    gchar tmp[45];
+
+    if (strlen(str) + 1 != sizeof(tmp)) {
+        return FALSE;
+    }
+    memcpy(tmp, str, sizeof(tmp));
+    g_base64_decode_inplace(tmp, &out_len);
+    if (out_len != WG_KEY_LEN) {
+        return FALSE;
+    }
+    memcpy(out->data, tmp, WG_KEY_LEN);
+    return TRUE;
+}
+/* Key conversion routines. }}} */
+
+static gboolean
+wg_pubkey_equal(gconstpointer v1, gconstpointer v2)
+{
+    const wg_qqword *pubkey1 = (const wg_qqword *)v1;
+    const wg_qqword *pubkey2 = (const wg_qqword *)v2;
+    return !memcmp(pubkey1->data, pubkey2->data, WG_KEY_LEN);
+}
+
+
+/* Protocol-specific crypto routines. {{{ */
+/**
+ * Computes MAC1. Caller must ensure that GCRY_MD_BLAKE2S_256 is available.
+ */
+static void
+wg_mac1_key(const wg_qqword *static_public, wg_qqword *mac_key_out)
+{
+    gcry_md_hd_t hd;
+    if (gcry_md_open(&hd, GCRY_MD_BLAKE2S_256, 0) == 0) {
+        const char wg_label_mac1[] = "mac1----";
+        gcry_md_write(hd, wg_label_mac1, strlen(wg_label_mac1));
+        gcry_md_write(hd, static_public->data, sizeof(wg_qqword));
+        memcpy(mac_key_out->data, gcry_md_read(hd, 0), sizeof(wg_qqword));
+        gcry_md_close(hd);
+        return;
+    }
+    // caller should have checked this.
+    DISSECTOR_ASSERT_NOT_REACHED();
+}
+
+/*
+ * Verify that MAC(mac_key, data) matches "mac_output".
+ */
+static gboolean
+wg_mac_verify(const wg_qqword *mac_key,
+              const guchar *data, guint data_len, const guint8 mac_output[16])
+{
+    gboolean ok = FALSE;
+    gcry_md_hd_t hd;
+    if (gcry_md_open(&hd, GCRY_MD_BLAKE2S_128, 0) == 0) {
+        gcry_error_t r;
+        // not documented by Libgcrypt, but required for keyed blake2s
+        r = gcry_md_setkey(hd, mac_key->data, WG_KEY_LEN);
+        DISSECTOR_ASSERT(r == 0);
+        gcry_md_write(hd, data, data_len);
+        ok = memcmp(mac_output, gcry_md_read(hd, 0), 16) == 0;
+        gcry_md_close(hd);
+    } else {
+        // caller should have checked this.
+        DISSECTOR_ASSERT_NOT_REACHED();
+    }
+    return ok;
+}
+/* Protocol-specific crypto routines. }}} */
+
+/*
+ * Add a static public or private key to "wg_static_keys".
+ */
+static void
+wg_add_static_key(const wg_qqword *tmp_key, gboolean is_private)
+{
+    wg_skey_t *key = g_new0(wg_skey_t, 1);
+    if (is_private) {
+        set_private_key(&key->priv_key, tmp_key);
+        priv_to_pub(&key->pub_key, tmp_key);
+    } else {
+        key->pub_key = *tmp_key;
+    }
+
+    // If a previous pubkey exists, skip adding the new key. Do add the
+    // secret if it has become known in meantime.
+    wg_skey_t *oldkey = (wg_skey_t *)g_hash_table_lookup(wg_static_keys, &key->pub_key);
+    if (oldkey) {
+        if (!has_private_key(&oldkey->priv_key) && is_private) {
+            oldkey->priv_key = key->priv_key;
+        }
+        g_free(key);
+        return;
+    }
+
+    // New key, precompute the MAC1 label.
+    wg_mac1_key(&key->pub_key, &key->mac1_key);
+
+    g_hash_table_insert(wg_static_keys, &key->pub_key, key);
+}
+
+/* UAT and key configuration. {{{ */
+static gboolean
+wg_key_uat_record_update_cb(void *r, char **error)
+{
+    wg_key_uat_record_t *rec = (wg_key_uat_record_t *)r;
+    wg_qqword key;
+
+    /* Check for valid base64-encoding. */
+    if (!decode_base64_key(&key, rec->key)) {
+        *error = g_strdup("Invalid key");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+static void
+wg_key_uat_apply(void)
+{
+    if (!wg_static_keys) {
+        // The first field of "wg_skey_t" is the pubkey (and the table key),
+        // its initial four bytes should be good enough as key hash.
+        wg_static_keys = g_hash_table_new_full(g_int_hash, wg_pubkey_equal, NULL, g_free);
+    } else {
+        g_hash_table_remove_all(wg_static_keys);
+    }
+
+    /* Convert base64-encoded strings to wg_skey_t and derive pubkey. */
+    for (guint i = 0; i < num_wg_key_records; i++) {
+        wg_key_uat_record_t *rec = &wg_key_records[i];
+        wg_qqword tmp_key;  /* Either public or private, not sure yet. */
+
+        /* Populate public (and private) keys. */
+        gboolean decoded = decode_base64_key(&tmp_key, rec->key);
+        DISSECTOR_ASSERT(decoded);
+        wg_add_static_key(&tmp_key, rec->key_type == WG_KEY_UAT_PRIVATE);
+    }
+}
+
+static void
+wg_key_uat_reset(void)
+{
+    /* Erase keys when the UAT is unloaded. */
+    g_hash_table_destroy(wg_static_keys);
+    wg_static_keys = NULL;
+}
+
+UAT_VS_DEF(wg_key_uat, key_type, wg_key_uat_record_t, guint, WG_KEY_UAT_PUBLIC, "Public")
+UAT_CSTRING_CB_DEF(wg_key_uat, key, wg_key_uat_record_t)
+/* UAT and key configuration. }}} */
+#endif /* WG_DECRYPTION_SUPPORTED */
 
 
 static void
@@ -210,6 +465,39 @@ wg_sessions_lookup(packet_info *pinfo, guint32 receiver_id, gboolean *receiver_i
     return NULL;
 }
 
+#ifdef WG_DECRYPTION_SUPPORTED
+/*
+ * Finds the static public key for the receiver of this message based on the
+ * MAC1 value.
+ * TODO on PINFO_FD_VISITED, reuse previously discovered keys from session?
+ */
+static const wg_skey_t *
+wg_mac1_key_probe(tvbuff_t *tvb, gboolean is_initiation)
+{
+    const int mac1_offset = is_initiation ? 116 : 60;
+
+    // Shortcut: skip MAC1 validation if no pubkeys are configured.
+    if (g_hash_table_size(wg_static_keys) == 0) {
+        return NULL;
+    }
+
+    const guint8 *mac1_msgdata = tvb_get_ptr(tvb, 0, mac1_offset);
+    const guint8 *mac1_output = tvb_get_ptr(tvb, mac1_offset, 16);
+    // Find public key that matches the 16-byte MAC1 field.
+    GHashTableIter iter;
+    gpointer value;
+    g_hash_table_iter_init(&iter, wg_static_keys);
+    while (g_hash_table_iter_next(&iter, NULL, &value)) {
+        const wg_skey_t *skey = (wg_skey_t *)value;
+        if (wg_mac_verify(&skey->mac1_key, mac1_msgdata, (guint)mac1_offset, mac1_output)) {
+            return skey;
+        }
+    }
+
+    return NULL;
+}
+#endif /* WG_DECRYPTION_SUPPORTED */
+
 
 static void
 wg_dissect_pubkey(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean is_ephemeral)
@@ -223,11 +511,33 @@ wg_dissect_pubkey(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean is_ephem
     proto_tree_add_string(tree, hf_id, tvb, offset, 32, key_str);
 }
 
+#ifdef WG_DECRYPTION_SUPPORTED
+static void
+wg_dissect_mac1_pubkey(proto_tree *tree, tvbuff_t *tvb, const wg_skey_t *skey)
+{
+    proto_item *ti;
+
+    if (!skey) {
+        return;
+    }
+
+    ti = proto_tree_add_string(tree, hf_wg_receiver_pubkey, tvb, 0, 0, pubkey_to_string(&skey->pub_key));
+    PROTO_ITEM_SET_GENERATED(ti);
+    proto_tree *key_tree = proto_item_add_subtree(ti, ett_key_info);
+    ti = proto_tree_add_boolean(key_tree, hf_wg_receiver_pubkey_known_privkey, tvb, 0, 0, !!has_private_key(&skey->priv_key));
+    PROTO_ITEM_SET_GENERATED(ti);
+}
+#endif /* WG_DECRYPTION_SUPPORTED */
+
 static int
 wg_dissect_handshake_initiation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wg_tree, wg_packet_info_t *wg_pinfo)
 {
     guint32 sender_id;
     proto_item *ti;
+
+#ifdef WG_DECRYPTION_SUPPORTED
+    const wg_skey_t *skey_r = wg_mac1_key_probe(tvb, TRUE);
+#endif /* WG_DECRYPTION_SUPPORTED */
 
     proto_tree_add_item_ret_uint(wg_tree, hf_wg_sender, tvb, 4, 4, ENC_LITTLE_ENDIAN, &sender_id);
     col_append_fstr(pinfo->cinfo, COL_INFO, ", sender=0x%08X", sender_id);
@@ -235,6 +545,9 @@ wg_dissect_handshake_initiation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *w
     proto_tree_add_item(wg_tree, hf_wg_encrypted_static, tvb, 40, 32 + AUTH_TAG_LENGTH, ENC_NA);
     proto_tree_add_item(wg_tree, hf_wg_encrypted_timestamp, tvb, 88, 12 + AUTH_TAG_LENGTH, ENC_NA);
     proto_tree_add_item(wg_tree, hf_wg_mac1, tvb, 116, 16, ENC_NA);
+#ifdef WG_DECRYPTION_SUPPORTED
+    wg_dissect_mac1_pubkey(wg_tree, tvb, skey_r);
+#endif /* WG_DECRYPTION_SUPPORTED */
     proto_tree_add_item(wg_tree, hf_wg_mac2, tvb, 132, 16, ENC_NA);
 
     if (!PINFO_FD_VISITED(pinfo)) {
@@ -265,6 +578,10 @@ wg_dissect_handshake_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wg_
     guint32 sender_id, receiver_id;
     proto_item *ti;
 
+#ifdef WG_DECRYPTION_SUPPORTED
+    const wg_skey_t *skey_i = wg_mac1_key_probe(tvb, FALSE);
+#endif /* WG_DECRYPTION_SUPPORTED */
+
     proto_tree_add_item_ret_uint(wg_tree, hf_wg_sender, tvb, 4, 4, ENC_LITTLE_ENDIAN, &sender_id);
     col_append_fstr(pinfo->cinfo, COL_INFO, ", sender=0x%08X", sender_id);
     proto_tree_add_item_ret_uint(wg_tree, hf_wg_receiver, tvb, 8, 4, ENC_LITTLE_ENDIAN, &receiver_id);
@@ -272,6 +589,9 @@ wg_dissect_handshake_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wg_
     wg_dissect_pubkey(wg_tree, tvb, 12, TRUE);
     proto_tree_add_item(wg_tree, hf_wg_encrypted_empty, tvb, 44, 16, ENC_NA);
     proto_tree_add_item(wg_tree, hf_wg_mac1, tvb, 60, 16, ENC_NA);
+#ifdef WG_DECRYPTION_SUPPORTED
+    wg_dissect_mac1_pubkey(wg_tree, tvb, skey_i);
+#endif /* WG_DECRYPTION_SUPPORTED */
     proto_tree_add_item(wg_tree, hf_wg_mac2, tvb, 76, 16, ENC_NA);
 
     wg_session_t *session;
@@ -440,6 +760,9 @@ wg_init(void)
 void
 proto_register_wg(void)
 {
+#ifdef WG_DECRYPTION_SUPPORTED
+    module_t        *wg_module;
+#endif /* WG_DECRYPTION_SUPPORTED */
     expert_module_t *expert_wg;
 
     static hf_register_info hf[] = {
@@ -538,10 +861,23 @@ proto_register_wg(void)
             FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0,
             "This is a response to the initiation message in this frame", HFILL }
         },
+
+        /* Additional fields. */
+        { &hf_wg_receiver_pubkey,
+          { "Receiver Static Public Key", "wg.receiver_pubkey",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            "Public key of the receiver (matched based on MAC1)", HFILL }
+        },
+        { &hf_wg_receiver_pubkey_known_privkey,
+          { "Has Private Key", "wg.receiver_pubkey.known_privkey",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            "Whether the corresponding private key is known (configured via prefs)", HFILL }
+        },
     };
 
     static gint *ett[] = {
         &ett_wg,
+        &ett_key_info,
     };
 
     static ei_register_info ei[] = {
@@ -555,6 +891,15 @@ proto_register_wg(void)
         },
     };
 
+#ifdef WG_DECRYPTION_SUPPORTED
+    /* UAT for header fields */
+    static uat_field_t wg_key_uat_fields[] = {
+        UAT_FLD_VS(wg_key_uat, key_type, "Key type", wg_key_uat_type_vals, "Public or Private"),
+        UAT_FLD_CSTRING(wg_key_uat, key, "Key", "Base64-encoded key"),
+        UAT_END_FIELDS
+    };
+#endif /* WG_DECRYPTION_SUPPORTED */
+
     proto_wg = proto_register_protocol("WireGuard Protocol", "WireGuard", "wg");
 
     proto_register_field_array(proto_wg, hf, array_length(hf));
@@ -564,6 +909,30 @@ proto_register_wg(void)
     expert_register_field_array(expert_wg, ei, array_length(ei));
 
     register_dissector("wg", dissect_wg, proto_wg);
+
+#ifdef WG_DECRYPTION_SUPPORTED
+    wg_module = prefs_register_protocol(proto_wg, NULL);
+
+    uat_t *wg_keys_uat = uat_new("WireGuard static keys",
+            sizeof(wg_key_uat_record_t),
+            "wg_keys",                      /* filename */
+            TRUE,                           /* from_profile */
+            &wg_key_records,                /* data_ptr */
+            &num_wg_key_records,            /* numitems_ptr */
+            UAT_AFFECTS_DISSECTION,         /* affects dissection of packets, but not set of named fields */
+            NULL,                           /* Help section (currently a wiki page) */
+            NULL,                           /* copy_cb */
+            wg_key_uat_record_update_cb,    /* update_cb */
+            NULL,                           /* free_cb */
+            wg_key_uat_apply,               /* post_update_cb */
+            wg_key_uat_reset,               /* reset_cb */
+            wg_key_uat_fields);
+
+    prefs_register_uat_preference(wg_module, "keys",
+            "WireGuard static keys",
+            "A table of long-term static keys to enable WireGuard peer identification or partial decryption",
+            wg_keys_uat);
+#endif /* WG_DECRYPTION_SUPPORTED */
 
     register_init_routine(wg_init);
     sessions = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
