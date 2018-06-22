@@ -2400,7 +2400,7 @@ static void dissect_item_sockaddr_info(packet_info *pinfo, tvbuff_t* tvb, int of
 
 // offset - Starts at the Connection ID
 // Returns: connid_type, conn_info
-void dissect_item_sequenced_address(packet_info* pinfo, tvbuff_t* tvb, int offset,
+static void dissect_item_sequenced_address(packet_info* pinfo, tvbuff_t* tvb, int offset,
    proto_tree* item_tree, proto_tree* tree,
    enum enip_connid_type* connid_type, enip_conn_val_t** conn_info)
 {
@@ -2422,7 +2422,7 @@ void dissect_item_sequenced_address(packet_info* pinfo, tvbuff_t* tvb, int offse
 
 // offset - Starts at the Connection ID
 // Returns: conn_info
-void dissect_item_connected_address(packet_info* pinfo, tvbuff_t* tvb, int offset,
+static void dissect_item_connected_address(packet_info* pinfo, tvbuff_t* tvb, int offset,
    proto_tree* item_tree, proto_tree* tree, proto_item* enip_item,
    enip_request_key_t* request_key, enip_conn_val_t** conn_info)
 {
