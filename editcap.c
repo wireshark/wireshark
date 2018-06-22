@@ -382,7 +382,7 @@ set_time_adjustment(char *optarg_str_p)
             val = strtol(&(frac[1]), &end, 10);
         }
         if (*frac != '.' || end == NULL || end == frac || val < 0
-            || val > ONE_BILLION || val == LONG_MIN || val == LONG_MAX) {
+            || val >= ONE_BILLION || val == LONG_MIN || val == LONG_MAX) {
             fprintf(stderr, "editcap: \"%s\" isn't a valid time adjustment\n",
                     optarg_str_p);
             return FALSE;
@@ -456,7 +456,7 @@ set_strict_time_adj(char *optarg_str_p)
             val = strtol(&(frac[1]), &end, 10);
         }
         if (*frac != '.' || end == NULL || end == frac || val < 0
-            || val > ONE_BILLION || val == LONG_MIN || val == LONG_MAX) {
+            || val >= ONE_BILLION || val == LONG_MIN || val == LONG_MAX) {
             fprintf(stderr, "editcap: \"%s\" isn't a valid time adjustment\n",
                     optarg_str_p);
             return FALSE;
@@ -524,7 +524,7 @@ set_rel_time(char *optarg_str_p)
             val = strtol(&(frac[1]), &end, 10);
         }
         if (*frac != '.' || end == NULL || end == frac || val < 0
-            || val > ONE_BILLION || val == LONG_MIN || val == LONG_MAX) {
+            || val >= ONE_BILLION || val == LONG_MIN || val == LONG_MAX) {
             fprintf(stderr, "3: editcap: \"%s\" isn't a valid rel time value\n",
                     optarg_str_p);
             return FALSE;
