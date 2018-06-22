@@ -38,6 +38,7 @@
 #include "packet-cell_broadcast.h"
 #include "packet-gsm_a_common.h"
 #include "packet-ntp.h"
+#include "packet-ngap.h"
 
 #define PNAME  "S1 Application Protocol"
 #define PSNAME "S1AP"
@@ -105,7 +106,8 @@ static int hf_s1ap_NRintegrityProtectionAlgorithms_NIA1 = -1;
 static int hf_s1ap_NRintegrityProtectionAlgorithms_NIA2 = -1;
 static int hf_s1ap_NRintegrityProtectionAlgorithms_NIA3 = -1;
 static int hf_s1ap_NRintegrityProtectionAlgorithms_Reserved = -1;
-static int hf_s1ap_UE_Application_Layer_Measurement_Capability_QoE_Measurement = -1;
+static int hf_s1ap_UE_Application_Layer_Measurement_Capability_QoE_Measurement_for_streaming_service = -1;
+static int hf_s1ap_UE_Application_Layer_Measurement_Capability_QoE_Measurement_for_MTSI_service = -1;
 static int hf_s1ap_UE_Application_Layer_Measurement_Capability_Reserved = -1;
 #include "packet-s1ap-hf.c"
 
@@ -310,6 +312,12 @@ static const true_false_string s1ap_tfs_activate_do_not_activate = {
   "Activate",
   "Do not activate"
 };
+
+static void
+s1ap_Packet_LossRate_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1f %% (%u)", (float)v/10, v);
+}
 
 static struct s1ap_private_data*
 s1ap_get_private_data(packet_info *pinfo)
@@ -657,13 +665,17 @@ void proto_register_s1ap(void) {
       { "Reserved", "s1ap.NRintegrityProtectionAlgorithms.Reserved",
         FT_UINT16, BASE_HEX, NULL, 0x1fff,
         NULL, HFILL }},
-    { &hf_s1ap_UE_Application_Layer_Measurement_Capability_QoE_Measurement,
-      { "QoE Measurement", "s1ap.UE_Application_Layer_Measurement_Capability.QoE_Measurement",
+    { &hf_s1ap_UE_Application_Layer_Measurement_Capability_QoE_Measurement_for_streaming_service,
+      { "QoE Measurement for streaming service", "s1ap.UE_Application_Layer_Measurement_Capability.QoE_Measurement_for_streaming_service",
         FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
+        NULL, HFILL }},
+    { &hf_s1ap_UE_Application_Layer_Measurement_Capability_QoE_Measurement_for_MTSI_service,
+      { "QoE Measurement for MTSI service", "s1ap.UE_Application_Layer_Measurement_Capability.QoE_Measurement_for_MTSI_service",
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
         NULL, HFILL }},
     { &hf_s1ap_UE_Application_Layer_Measurement_Capability_Reserved,
       { "Reserved", "s1ap.UE_Application_Layer_Measurement_Capability.Reserved",
-        FT_UINT8, BASE_HEX, NULL, 0x7f,
+        FT_UINT8, BASE_HEX, NULL, 0x3f,
         NULL, HFILL }},
 #include "packet-s1ap-hfarr.c"
   };

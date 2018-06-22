@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V15.1.0 (2018-03)
+-- 3GPP TS 36.413 V15.2.0 (2018-06)
 -- 9.3.7	Container Definitions
 -- **************************************************************
 --
@@ -7,10 +7,10 @@
 -- **************************************************************
 
 S1AP-Containers {
-itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
 eps-Access (21) modules (3) s1ap (1) version1 (1) s1ap-Containers (5) }
 
-DEFINITIONS AUTOMATIC TAGS ::=
+DEFINITIONS AUTOMATIC TAGS ::= 
 
 BEGIN
 
@@ -119,11 +119,11 @@ WITH SYNTAX {
 --
 -- **************************************************************
 
-ProtocolIE-Container {S1AP-PROTOCOL-IES : IEsSetParam} ::=
+ProtocolIE-Container {S1AP-PROTOCOL-IES : IEsSetParam} ::= 
 	SEQUENCE (SIZE (0..maxProtocolIEs)) OF
 	ProtocolIE-Field {{IEsSetParam}}
 
-ProtocolIE-SingleContainer {S1AP-PROTOCOL-IES : IEsSetParam} ::=
+ProtocolIE-SingleContainer {S1AP-PROTOCOL-IES : IEsSetParam} ::= 
 	ProtocolIE-Field {{IEsSetParam}}
 
 ProtocolIE-Field {S1AP-PROTOCOL-IES : IEsSetParam} ::= SEQUENCE {
@@ -138,7 +138,7 @@ ProtocolIE-Field {S1AP-PROTOCOL-IES : IEsSetParam} ::= SEQUENCE {
 --
 -- **************************************************************
 
-ProtocolIE-ContainerPair {S1AP-PROTOCOL-IES-PAIR : IEsSetParam} ::=
+ProtocolIE-ContainerPair {S1AP-PROTOCOL-IES-PAIR : IEsSetParam} ::= 
 	SEQUENCE (SIZE (0..maxProtocolIEs)) OF
 	ProtocolIE-FieldPair {{IEsSetParam}}
 
@@ -170,7 +170,7 @@ ProtocolIE-ContainerPairList {INTEGER : lowerBound, INTEGER : upperBound, S1AP-P
 --
 -- **************************************************************
 
-ProtocolExtensionContainer {S1AP-PROTOCOL-EXTENSION : ExtensionSetParam} ::=
+ProtocolExtensionContainer {S1AP-PROTOCOL-EXTENSION : ExtensionSetParam} ::= 
 	SEQUENCE (SIZE (1..maxProtocolExtensions)) OF
 	ProtocolExtensionField {{ExtensionSetParam}}
 
@@ -186,7 +186,7 @@ ProtocolExtensionField {S1AP-PROTOCOL-EXTENSION : ExtensionSetParam} ::= SEQUENC
 --
 -- **************************************************************
 
-PrivateIE-Container {S1AP-PRIVATE-IES : IEsSetParam } ::=
+PrivateIE-Container {S1AP-PRIVATE-IES : IEsSetParam } ::= 
 	SEQUENCE (SIZE (1.. maxPrivateIEs)) OF
 	PrivateIE-Field {{IEsSetParam}}
 

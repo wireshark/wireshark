@@ -43,6 +43,7 @@ SONtransferCause
 UE-HistoryInformation
 
 #.MAKE_ENUM
+HandoverType
 ProcedureCode
 ProtocolIE-ID
 RAT-Type
@@ -53,6 +54,8 @@ SourceBSS-ToTargetBSS-TransparentContainer
 TargetBSS-ToSourceBSS-TransparentContainer
 SourceRNC-ToTargetRNC-TransparentContainer
 TargetRNC-ToSourceRNC-TransparentContainer
+SourceNgRanNode-ToTargetNgRanNode-TransparentContainer
+TargetNgRanNode-ToSourceNgRanNode-TransparentContainer
 ReportingCellList
 ReportingCellList-Item
 
@@ -356,19 +359,19 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
   struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
 %(DEFAULT_BODY)s
 
-#Zero the value before use
+#Undef the value before use
 #.FN_HDR HandoverRequired
   struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
-  s1ap_data->handover_type_value = 0;
+  s1ap_data->handover_type_value = 0xff;
 #.FN_HDR HandoverCommand
   struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
-  s1ap_data->handover_type_value = 0;
+  s1ap_data->handover_type_value = 0xff;
 #.FN_HDR HandoverRequest
   struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
-  s1ap_data->handover_type_value = 0;
+  s1ap_data->handover_type_value = 0xff;
 #.FN_HDR HandoverRequestAcknowledge
   struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
-  s1ap_data->handover_type_value = 0;
+  s1ap_data->handover_type_value = 0xff;
 
 #.FN_BODY Source-ToTarget-TransparentContainer VAL_PTR = &parameter_tvb
 # I think the message is "directly encoded" into the octet string(no "double encoding")
@@ -398,36 +401,44 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
       utrantolte,
       gerantolte,
       ...
+      ltetonr,
+      nrtolte
       } */
-      case 0:
+      case intralte:
       /* intralte
         Intra E-UTRAN handover Source eNB to Target eNB
         Transparent Container 36.413
       */
       dissect_SourceeNB_ToTargeteNB_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
       break;
-      case 1:
+      case ltetoutran:
       /* ltetoutran
         Source RNC to Target RNC
         Transparent Container 25.413
       */
       dissect_ranap_SourceRNC_ToTargetRNC_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
       break;
-      case 2:
+      case ltetogeran:
       /* ltetogeran
         Source BSS to Target BSS
         Transparent Container 48.018
       */
       de_bssgp_source_BSS_to_target_BSS_transp_cont(parameter_tvb, subtree, actx->pinfo, 0, tvb_reported_length(parameter_tvb), NULL, 0);
       break;
-      case 3:
+      case utrantolte:
       /* utrantolte */
       break;
-      case 4:
+      case gerantolte:
       /* gerantolte */
       break;
+      case ltetonr:
+      /* ltetonr */
+      dissect_ngap_SourceNGRANNode_ToTargetNGRANNode_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+      break;
+      case nrtolte:
+      /* nrtolte */
+      break;
       default:
-      DISSECTOR_ASSERT_NOT_REACHED();
       break;
     }
     /* Enable writing of the column again */
@@ -455,37 +466,44 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
       utrantolte,
       gerantolte,
       ...
+      ltetonr,
+      nrtolte
       } */
-      case 0:
+      case intralte:
       /* intralte
         Intra E-UTRAN handover Target eNB to Source eNB
         Transparent Container 36.413
       */
       dissect_TargeteNB_ToSourceeNB_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
       break;
-      case 1:
+      case ltetoutran:
       /* ltetoutran
         Target RNC to Source RNC
         Transparent Container 25.413
       */
       dissect_ranap_TargetRNC_ToSourceRNC_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
       break;
-      case 2:
+      case ltetogeran:
       /* ltetogeran
         Target BSS to Source BSS
         Transparent Container 48.018
       */
       de_bssgp_target_BSS_to_source_BSS_transp_cont(parameter_tvb, subtree, actx->pinfo, 0, tvb_reported_length(parameter_tvb), NULL, 0);
-
       break;
-      case 3:
+      case utrantolte:
       /* utrantolte */
       break;
-      case 4:
+      case gerantolte:
       /* gerantolte */
       break;
+      case ltetonr:
+      /* ltetonr */
+      dissect_ngap_TargetNGRANNode_ToSourceNGRANNode_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+      break;
+      case nrtolte:
+      /* nrtolte */
+      break;
       default:
-      DISSECTOR_ASSERT_NOT_REACHED();
       break;
     }
   }
@@ -1028,7 +1046,8 @@ ExtendedBitRate DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_bit_sec
 %(DEFAULT_BODY)s
   if(parameter_tvb){
     const gint *fields[] = {
-      &hf_s1ap_UE_Application_Layer_Measurement_Capability_QoE_Measurement,
+      &hf_s1ap_UE_Application_Layer_Measurement_Capability_QoE_Measurement_for_streaming_service,
+      &hf_s1ap_UE_Application_Layer_Measurement_Capability_QoE_Measurement_for_MTSI_service,
       &hf_s1ap_UE_Application_Layer_Measurement_Capability_Reserved,
       NULL
     };
@@ -1161,6 +1180,9 @@ M-TMSI TYPE = FT_UINT32 DISPLAY = BASE_DEC_HEX
       wmem_tree_insert32_array(s1ap_data->s1ap_conv->nbiot_enb_ue_s1ap_id, tree_key, id);
     }
   }
+
+#.TYPE_ATTR
+Packet-LossRate DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(s1ap_Packet_LossRate_fmt)
 
 #.ASSIGN_VALUE_TO_TYPE  # S1AP does not have constants assigned to types, they are pure INTEGER
 # ProcedureCode
@@ -1483,6 +1505,16 @@ id-SecondaryRATDataUsageRequest                     ProtocolIE-ID
 id-NRUESecurityCapabilities                         ProtocolIE-ID
 id-UnlicensedSpectrumRestriction                    ProtocolIE-ID
 id-CE-ModeBRestricted                               ProtocolIE-ID
+id-LTE-M-Indication                                 ProtocolIE-ID
+id-DownlinkPacketLossRate                           ProtocolIE-ID
+id-UplinkPacketLossRate	                            ProtocolIE-ID
+id-UECapabilityInfoRequest                          ProtocolIE-ID
+id-serviceType                                      ProtocolIE-ID
+id-AerialUEsubscriptionInformation                  ProtocolIE-ID
+id-EndIndication                                    ProtocolIE-ID
+id-EDT-Session                                      ProtocolIE-ID
+id-CNTypeRestrictions                               ProtocolIE-ID
+
 #.END
 
 #.REGISTER
@@ -1697,6 +1729,11 @@ UE-Application-Layer-Measurement-Capability     N s1ap.ies id-UE-Application-Lay
 HandoverFlag                                    N s1ap.ies id-HandoverFlag
 EmergencyAreaIDListForRestart                   N s1ap.ies id-EmergencyAreaIDListForRestart
 CE-ModeBRestricted                              N s1ap.ies id-CE-ModeBRestricted
+AerialUEsubscriptionInformation                 N s1ap.ies id-AerialUEsubscriptionInformation
+UECapabilityInfoRequest                         N s1ap.ies id-UECapabilityInfoRequest
+EndIndication                                   N s1ap.ies id-EndIndication
+EDT-Session                                     N s1ap.ies id-EDT-Session
+LTE-M-Indication                                N s1ap.ies id-LTE-M-Indication
 
 #S1AP-PROTOCOL-IES-PAIR
 #RAB-SetupOrModifyItemFirst             N s1ap.ies.pair.first id-RAB-SetupOrModifyItem
@@ -1747,6 +1784,10 @@ UEAppLayerMeasConfig                    N s1ap.extension id-UEAppLayerMeasConfig
 ExtendedBitRate                         N s1ap.extension id-extended-uEaggregateMaximumBitRateDL
 ExtendedBitRate                         N s1ap.extension id-extended-uEaggregateMaximumBitRateUL
 UnlicensedSpectrumRestriction           N s1ap.extension id-UnlicensedSpectrumRestriction
+CNTypeRestrictions                      N s1ap.extension id-CNTypeRestrictions
+Packet-LossRate                         N s1ap.extension id-DownlinkPacketLossRate
+Packet-LossRate                         N s1ap.extension id-UplinkPacketLossRate
+ServiceType                             N s1ap.extension id-serviceType
 
 #S1AP-ELEMENTARY-PROCEDURE
 HandoverRequired                        N s1ap.proc.imsg id-HandoverPreparation

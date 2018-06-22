@@ -23,6 +23,7 @@
 #include <epan/conversation.h>
 #include <epan/proto_data.h>
 
+#include "packet-ngap.h"
 #include "packet-ber.h"
 #include "packet-per.h"
 #include "packet-e212.h"

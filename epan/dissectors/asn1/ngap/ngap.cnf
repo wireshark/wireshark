@@ -13,9 +13,14 @@ ProtocolIE-ID
 #.EXPORTS ONLY_VALS WS_DLL
 
 #.EXPORTS
+SourceNGRANNode-ToTargetNGRANNode-TransparentContainer_PDU
+TargetNGRANNode-ToSourceNGRANNode-TransparentContainer_PDU
 
 #.PDU
 NGAP-PDU
+SourceNGRANNode-ToTargetNGRANNode-TransparentContainer
+TargetNGRANNode-ToSourceNGRANNode-TransparentContainer
+
 
 #.MAKE_ENUM
 ProcedureCode
@@ -31,22 +36,7 @@ ProtocolIE-ContainerPair
 ProtocolIE-ContainerPairList
 Presence
 ReferenceID
-SourceNGRANNode-ToTargetNGRANNode-TransparentContainer
-TargetNGRANNode-ToSourceNGRANNode-TransparentContainer
 AMFStatusIndication
-E-RABInformationList
-E-RABInformationItem
-PDUSessionResourceInformationList
-PDUSessionResourceInformationItem
-QosFlowInformationList
-QosFlowInformationItem
-DLForwarding
-DRBsToQosFlowsMappingList
-DRBsToQosFlowsMappingItem
-QosFlowMappingList
-QosFlowMappingItem
-
-RRCContainer
 
 #.END
 

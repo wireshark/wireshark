@@ -441,6 +441,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-netbios.h
 	packet-netlink.h
 	packet-nfs.h
+	packet-ngap.h
 	packet-nisplus.h
 	packet-nlm.h
 	packet-nr-rrc.h
