@@ -19,8 +19,8 @@ Build-Depends: lsb-release,
  cmake (>= 3.5) | cmake3, libsbc-dev, libnghttp2-dev, libssh-gcrypt-dev,
  liblz4-dev, libsnappy-dev, libspandsp-dev, libxml2-dev
 Build-Conflicts: libsnmp4.2-dev, libsnmp-dev
-Vcs-Svn: svn://svn.debian.org/svn/collab-maint/ext-maint/wireshark/trunk
-Vcs-Browser: http://svn.debian.org/wsvn/collab-maint/ext-maint/wireshark/trunk/
+Vcs-Git: https://salsa.debian.org/debian/wireshark -b debian/master
+Vcs-Browser: https://salsa.debian.org/debian/wireshark.git
 Homepage: https://www.wireshark.org/
 
 Package: wireshark-common
