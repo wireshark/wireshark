@@ -1539,7 +1539,7 @@ main(int argc, char *argv[])
                                     temp_rec = *rec;
                                     temp_rec.ts.secs = previous_time.secs + strict_time_adj.tv.secs;
                                     temp_rec.ts.nsecs = previous_time.nsecs;
-                                    if (temp_rec.ts.nsecs + strict_time_adj.tv.nsecs > ONE_BILLION) {
+                                    if (temp_rec.ts.nsecs + strict_time_adj.tv.nsecs >= ONE_BILLION) {
                                         /* carry */
                                         temp_rec.ts.secs++;
                                         temp_rec.ts.nsecs += strict_time_adj.tv.nsecs - ONE_BILLION;
@@ -1559,7 +1559,7 @@ main(int argc, char *argv[])
                                 temp_rec = *rec;
                                 temp_rec.ts.secs = previous_time.secs + strict_time_adj.tv.secs;
                                 temp_rec.ts.nsecs = previous_time.nsecs;
-                                if (temp_rec.ts.nsecs + strict_time_adj.tv.nsecs > ONE_BILLION) {
+                                if (temp_rec.ts.nsecs + strict_time_adj.tv.nsecs >= ONE_BILLION) {
                                     /* carry */
                                     temp_rec.ts.secs++;
                                     temp_rec.ts.nsecs += strict_time_adj.tv.nsecs - ONE_BILLION;
@@ -1592,7 +1592,7 @@ main(int argc, char *argv[])
                             }
                             temp_rec.ts.nsecs -= time_adj.tv.nsecs;
                         } else {                  /* add */
-                            if (temp_rec.ts.nsecs + time_adj.tv.nsecs > ONE_BILLION) {
+                            if (temp_rec.ts.nsecs + time_adj.tv.nsecs >= ONE_BILLION) {
                                 /* carry */
                                 temp_rec.ts.secs++;
                                 temp_rec.ts.nsecs += time_adj.tv.nsecs - ONE_BILLION;
