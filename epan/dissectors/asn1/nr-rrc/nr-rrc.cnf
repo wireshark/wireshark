@@ -65,8 +65,8 @@ RRCReconfiguration
 RRCReconfigurationComplete
 SIB1
 UE-CapabilityRAT-ContainerList
-UE-MRDC-Capability
-UE-NR-Capability
+UE-MRDC-Capability           @ue_mrdc_cap
+UE-NR-Capability             @ue_nr_cap
 UL-DCCH-Message              @ul.dcch
 #.END
 
