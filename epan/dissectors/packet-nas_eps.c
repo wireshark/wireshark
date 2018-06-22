@@ -2754,7 +2754,7 @@ de_emm_ciph_key_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
                                          "%s", abs_time_to_str(wmem_packet_scope(), &tv, ABSOLUTE_TIME_LOCAL, FALSE));
         curr_offset += 5;
         proto_tree_add_item(tree, hf_emm_ciph_key_data_validity_duration, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
-        curr_offset =+ 2;
+        curr_offset += 2;
         proto_tree_add_item_ret_uint(tree, hf_emm_ciph_key_data_tais_list_len, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &tai_len);
         curr_offset++;
         if (tai_len) {
