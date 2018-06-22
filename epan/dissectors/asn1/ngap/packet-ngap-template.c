@@ -53,11 +53,14 @@ static dissector_handle_t nas_5gs_handle;
 /* Initialize the protocol and registered fields */
 static int proto_ngap = -1;
 
-
+static int hf_ngap_WarningMessageContents_nb_pages = -1;
+static int hf_ngap_WarningMessageContents_decoded_page = -1;
 #include "packet-ngap-hf.c"
 
 /* Initialize the subtree pointers */
-static int ett_ngap = -1;
+static gint ett_ngap = -1;
+static gint ett_ngap_DataCodingScheme = -1;
+static gint ett_ngap_WarningMessageContents = -1;
 #include "packet-ngap-ett.c"
 
 static expert_field ei_ngap_number_pages_le15 = EI_INIT;
@@ -87,6 +90,7 @@ struct ngap_private_data {
   guint32 protocol_extension_id;
   guint32 message_type;
   guint32 handover_type_value;
+  guint8 data_coding_scheme;
 };
 
 /* Global variables */
@@ -140,7 +144,7 @@ const value_string ngap_warningType_vals[] = {
   { 0, NULL},
 };
 
-void
+static void
 dissect_ngap_warningMessageContents(tvbuff_t *warning_msg_tvb, proto_tree *tree, packet_info *pinfo, guint8 dcs, int hf_nb_pages, int hf_decoded_page)
 {
   guint32 offset;
@@ -315,13 +319,22 @@ void proto_register_ngap(void) {
   /* List of fields */
 
   static hf_register_info hf[] = {
-
+    { &hf_ngap_WarningMessageContents_nb_pages,
+      { "Number of Pages", "ngap.WarningMessageContents.nb_pages",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_ngap_WarningMessageContents_decoded_page,
+      { "Decoded Page", "ngap.WarningMessageContents.decoded_page",
+        FT_STRING, STR_UNICODE, NULL, 0,
+        NULL, HFILL }},
 #include "packet-ngap-hfarr.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
     &ett_ngap,
+    &ett_ngap_DataCodingScheme,
+    &ett_ngap_WarningMessageContents,
 #include "packet-ngap-ettarr.c"
   };
 
