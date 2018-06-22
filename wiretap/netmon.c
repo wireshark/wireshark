@@ -235,7 +235,7 @@ static guint8 *
 utf_16_to_utf_8(const guint8 *in, guint32 length)
 {
 	guint8 *result, *out;
-	gunichar2 uchar2, lead_surrogate;
+	gunichar2 uchar2;
 	gunichar uchar;
 	size_t n_bytes;
 	guint32 i;
@@ -245,7 +245,6 @@ utf_16_to_utf_8(const guint8 *in, guint32 length)
 	 * the input string in the process.
 	 */
 	n_bytes = 0;
-	lead_surrogate = 0;
 	for (i = 0; i + 1 < length && (uchar2 = pletoh16(in + i)) != '\0';
 	    i += 2) {
 		if (IS_LEAD_SURROGATE(uchar2)) {
@@ -253,6 +252,8 @@ utf_16_to_utf_8(const guint8 *in, guint32 length)
 			 * Lead surrogate.  Must be followed by a trail
 			 * surrogate.
 			 */
+			gunichar2 lead_surrogate;
+
 			i += 2;
 			if (i + 1 >= length) {
 				/*
@@ -311,7 +312,6 @@ utf_16_to_utf_8(const guint8 *in, guint32 length)
 	 */
 	result = (guint8 *)g_malloc(n_bytes + 1);
 
-	lead_surrogate = 0;
 	out = result;
 	for (i = 0; i + 1 < length && (uchar2 = pletoh16(in + i)) != '\0';
 	    i += 2) {
@@ -320,6 +320,8 @@ utf_16_to_utf_8(const guint8 *in, guint32 length)
 			 * Lead surrogate.  Must be followed by a trail
 			 * surrogate.
 			 */
+			gunichar2 lead_surrogate;
+
 			i += 2;
 			if (i + 1 >= length) {
 				/*
