@@ -22,6 +22,9 @@ static int hf_drb_len = -1;
 static gint ett_drb = -1;
 static gint ett_ref = -1;
 
+void proto_register_drb(void);
+void proto_reg_handoff_drb(void);
+
 static void dissect_drb_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset, const gchar* label)
 {
 	guint32 len;
