@@ -14,7 +14,7 @@ class CVEIdLinkInlineMacro < Extensions::InlineMacroProcessor
 
   named :cveidlink
 
-  def process parent, cvenum, attrs
+  def process(parent, cvenum, _attrs)
     cvename = "CVE-#{cvenum}"
     suffix = ''
     target = %(https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-#{cvenum})
