@@ -2281,18 +2281,20 @@ static int dissect_cip_io_generic(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
    proto_item* ti = proto_tree_add_item(tree, proto_enipio, tvb, 0, -1, ENC_NA);
    proto_tree* io_tree = proto_item_add_subtree(ti, ett_cip_io_generic);
 
-   if ((io_data_input->conn_info->TransportClass_trigger & CI_TRANSPORT_CLASS_MASK) == 1)
-   {
-      proto_tree_add_item(io_tree, hf_cip_sequence_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-      offset += 2;
-   }
+   if (io_data_input != NULL) {
+      if ((io_data_input->conn_info->TransportClass_trigger & CI_TRANSPORT_CLASS_MASK) == 1)
+      {
+         proto_tree_add_item(io_tree, hf_cip_sequence_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+         offset += 2;
+      }
 
-   if ((tvb_reported_length_remaining(tvb, offset) >= 4) &&
-      (((io_data_input->connid_type == ECIDT_O2T) && enip_OTrun_idle) ||
-      ((io_data_input->connid_type == ECIDT_T2O) && enip_TOrun_idle)))
-   {
-      dissect_cip_run_idle(tvb, offset, io_tree);
-      offset += 4;
+      if ((tvb_reported_length_remaining(tvb, offset) >= 4) &&
+         (((io_data_input->connid_type == ECIDT_O2T) && enip_OTrun_idle) ||
+         ((io_data_input->connid_type == ECIDT_T2O) && enip_TOrun_idle)))
+      {
+         dissect_cip_run_idle(tvb, offset, io_tree);
+         offset += 4;
+      }
    }
 
    proto_tree_add_item(io_tree, hf_cip_io_data, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
@@ -2352,11 +2354,7 @@ static void dissect_cip_class01_io(packet_info* pinfo, tvbuff_t* tvb, int offset
       // This handles the Decode As options
       if (!dissector_try_payload(subdissector_decode_as_io_table, next_tvb, pinfo, dissector_tree))
       {
-         enip_conn_val_t dummy_conn_info;
-         cip_io_data_input io_data_input;
-         io_data_input.conn_info = &dummy_conn_info;
-
-         call_dissector_with_data(cip_io_generic_handle, next_tvb, pinfo, dissector_tree, &io_data_input);
+         call_dissector_with_data(cip_io_generic_handle, next_tvb, pinfo, dissector_tree, NULL);
       }
    }
 }
