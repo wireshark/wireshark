@@ -15,6 +15,7 @@ include Asciidoctor
 #   --
 #
 class CommaizeBlock < Extensions::BlockProcessor
+  include WsUtils
   use_dsl
 
   named :commaize

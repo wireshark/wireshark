@@ -36,6 +36,7 @@ if(ASCIIDOCTOR_EXECUTABLE)
 
     set (_asciidoctor_common_args
         --attribute build_dir=${CMAKE_CURRENT_BINARY_DIR}
+        --require ${CMAKE_CURRENT_SOURCE_DIR}/asciidoctor-macros/ws_utils.rb
         --require ${CMAKE_CURRENT_SOURCE_DIR}/asciidoctor-macros/commaize-block.rb
         --require ${CMAKE_CURRENT_SOURCE_DIR}/asciidoctor-macros/cveidlink-inline-macro.rb
         --require ${CMAKE_CURRENT_SOURCE_DIR}/asciidoctor-macros/wsbuglink-inline-macro.rb

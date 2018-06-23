@@ -10,21 +10,14 @@ include ::Asciidoctor
 #   cveidlink:<cve-number>[]
 #
 class CVEIdLinkInlineMacro < Extensions::InlineMacroProcessor
+  include WsUtils
   use_dsl
 
   named :cveidlink
 
   def process(parent, cvenum, _attrs)
     cvename = "CVE-#{cvenum}"
-    suffix = ''
     target = %(https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-#{cvenum})
-    if parent.document.basebackend? 'html'
-      parent.document.register :links, target
-      %(#{(create_anchor parent, cvename, type: :link, target: target).render})
-    elsif parent.document.backend == 'manpage'
-      %(\\fB#{cvename})
-    else
-      %(#{cvename})
-    end
+    create_doc_links(parent, target, cvename)
   end
 end

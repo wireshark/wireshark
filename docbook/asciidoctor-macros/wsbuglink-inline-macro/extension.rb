@@ -11,6 +11,7 @@ include ::Asciidoctor
 #   Default bug text is "Bug".
 #
 class WSBugLinkInlineMacro < Extensions::InlineMacroProcessor
+  include WsUtils
   use_dsl
 
   named :wsbuglink
@@ -20,13 +21,6 @@ class WSBugLinkInlineMacro < Extensions::InlineMacroProcessor
   def process(parent, bugnum, attrs)
     bugtext = attrs['bugtext'] || %(Bug #{bugnum})
     target = %(https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=#{bugnum})
-    if parent.document.basebackend? 'html'
-      parent.document.register :links, target
-      %(#{(create_anchor parent, bugtext, type: :link, target: target).render})
-    elsif parent.document.backend == 'manpage'
-      %(\\fB#{bugtext})
-    else
-      %(#{bugtext})
-    end
+    create_doc_links(parent, target, bugtext)
   end
 end
