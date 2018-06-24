@@ -7686,7 +7686,7 @@ void proto_register_gtpv2(void)
         },
         {&hf_gtpv2_teid_c,
          {"Tunnel Endpoint Identifier for Control Plane(TEID-C)", "gtpv2.teid_c",
-          FT_UINT32, BASE_DEC, NULL, 0x0,
+          FT_UINT32, BASE_HEX_DEC, NULL, 0x0,
           NULL, HFILL}
         },
         {&hf_gtpv2_sv_sti,
@@ -8604,7 +8604,7 @@ void proto_register_gtpv2(void)
         },
         {&hf_gtpv2_f_teid_gre_key,
          {"TEID/GRE Key", "gtpv2.f_teid_gre_key",
-          FT_UINT32, BASE_HEX, NULL, 0x0,
+          FT_UINT32, BASE_HEX_DEC, NULL, 0x0,
           NULL , HFILL}
         },
         { &hf_gtpv2_f_teid_ipv4,
@@ -8654,7 +8654,7 @@ void proto_register_gtpv2(void)
         },
         { &hf_gtpv2_sgw_s1u_teid,
           {"Serving GW S1-U TEID", "gtpv2.sgw_s1u_teid",
-           FT_UINT32, BASE_HEX, NULL, 0x0,
+           FT_UINT32, BASE_HEX_DEC, NULL, 0x0,
            NULL, HFILL}
         },
         {&hf_gtpv2_delay_value,
@@ -9179,7 +9179,7 @@ void proto_register_gtpv2(void)
         },
         { &hf_gtpv2_cteid,
           {"Common Tunnel Endpoint Identifier", "gtpv2.cetid",
-           FT_UINT32, BASE_DEC, NULL, 0x0,
+           FT_UINT32, BASE_HEX_DEC, NULL, 0x0,
            NULL, HFILL}
         },
         { &hf_gtpv2_ip_addr_type,
