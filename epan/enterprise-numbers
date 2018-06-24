@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2018-06-17)
+(last updated 2018-06-23)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -1598,9 +1598,9 @@ Decimal
     Rob Spade
       ---none---
 396
-  Panasonic Electric Works Co., Ltd.
-    Tetsuya Shimomura
-      shimomura.tetsuya&panasonic-denko.co.jp
+  Panasonic Corporation Eco Solutions Company (formerly 'Panasonic Electric Works Co., Ltd.')
+    Hiroshige Nakatani
+      nakatani.hiroshige&jp.panasonic.com
 397
   MegaPAC
     Ian George
@@ -3006,7 +3006,7 @@ Decimal
     Ron Mackey
       rem&dsiinc.com
 748
-  Peter Radig EDP-Consulting
+  Peter Radig
     Peter Radig
       peter&radig.de
 749
@@ -39622,9 +39622,9 @@ Decimal
     Jozef Skvarcek
       jskvarcek&datek.com
 9917
-  Delos Payment Systems
+  Corecard Software
     Brian Beuning
-      bbeuning&delosps.com
+      bbeuning&corecard.com
 9918
   National Oceanic and Atmospheric Administration (NOAA)
     Jefferson Ogata
@@ -50486,9 +50486,9 @@ Decimal
     Marcelo Garbarino
       mgarbarino&voipgroup.com
 12733
-  WildPackets, Inc.
-    Mahboud Zabetian
-      mahboud&wildpackets.com
+  Savvius, a Live Action Company
+    Jay Botelho
+      jbotelho&savvius.com
 12734
   Northrop Grumman Information Systems
     Ron Smudz
@@ -54915,9 +54915,9 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
     Lance White
       lance.white&markitserv.com
 13840
-  Media Driver, LLC
+  HYTE Technologies, Inc (formerly 'Media Driver, LLC')
     Matthew Pavlovich
-      matt&mediadriver.com
+      matt&hyte.io
 13841
   MetiLinx
     Larry Ketchersid
@@ -154522,7 +154522,7 @@ Decentralization / Helenic Public Administra
 38735
   Stephen Timothy Perryman
     Stephen Timothy Perryman
-      steve&stephenperryman.com
+      sperryman0801&gmail.com
 38736
   Promise Regional Medical Center - Hutchinson
     Mickey Bowen
@@ -198110,7 +198110,7 @@ Decentralization / Helenic Public Administra
 49632
   BeeZeeLinx
     Renan Le Padellec
-      rlepadellec.bzl&gmail.com
+      admin&beezeelinx.com
 49633
   CESBIO
     ROBERT
@@ -200230,7 +200230,7 @@ Decentralization / Helenic Public Administra
 50162
   Sweet Hub
     Yanwen Sun
-      sunyanwen&steadysweet.com
+      sunyanwen&outlook.com
 50163
   Hartmut Eilers
     Hartmut Eilers
@@ -208335,6 +208335,162 @@ Decentralization / Helenic Public Administra
   Jakintek
     Sendoa Rojas
       compras&jakintek.com
+52189
+  Parker Data Networks Ltd
+    Adam Parker
+      adam&parkerdatanetworks.com
+52190
+  Flying Tiger Copenhagen
+    Thomas Marhauer
+      itoperationlicenses&flyingtiger.com
+52191
+  Jutel Oy
+    Jyrki Stranius
+      jyrki.stranius&jutel.fi
+52192
+  ITESOFT
+    Didier Charpentier
+      legal&itesoft.com
+52193
+  Thales Global Services
+    Patrick Camelin
+      patrick.camelin&thalesgroup.com
+52194
+  Foot Specialists of Greater Cincinnati
+    Anthony DeMaria / Angela DeMaria
+      footdoctor2865&gmail.com
+52195
+  Rahavard Karen
+    Hossein Bagherzade
+      hossein.bagherzade&gmail.com
+52196
+  ASPIT AS
+    Aasmund Rinde
+      aasmund&aspit.no
+52197
+  Toyota Motor North America
+    Neal Shen
+      chih.shen&toyota.com
+52198
+  ARCATrust SA
+    Yacine Felk
+      yacine&arcatrust.io
+52199
+  Syhard
+    Leo Snowareski Filho
+      leosfilho&gmail.com
+52200
+   Chuo System Corporation
+    Ryota Kawashima
+      kawashima_ryota&chuosystem.co.jp
+52201
+  kukjae telesys
+    JUN MIN PARK
+      jmpark&kukjaetelesys.com
+52202
+  Verschwörhaus
+    Albert Paka
+      al.paka&verschwoerhaus.de
+52203
+  SICK AG
+    Sebastian Fandrich
+      iana-oid&sick.de
+52204
+  Garrison Technology
+    David Bailey
+      opsadmin&garrison.com
+52205
+  Conselho da Justiça Federal - CJF
+    Adriana Jesus de Morais
+      sesser&cjf.jus.br
+52206
+  Ferrocarrils de la Generalitat Valenciana
+    Sergio Cano
+      cano_ser&gva.es
+52207
+  thePulse Inc.
+    Vito DeCarlo Jr.
+      vito.decarlo&thepulse.com
+52208
+  Guangdong UNIPOE IoT Technology Co., Ltd.
+    Bu Jindong
+      bonly&unipoe.com
+52209
+  Arçelik AŞ
+    Ovunc Doruk Izgen
+      doruk.izgen&arcelik.com
+52210
+  NNAISENSE SA
+    Tomas Horyl
+      iana.contact&nnaisense.com
+52211
+  EUCHNER GmbH + Co. KG
+    Kay Hildmann
+      hostmaster&euchner.de
+52212
+  Telefónica Móviles México
+    Roberto Maceda Peñaloza
+      roberto.maceda.ext&telefonica.com
+52213
+  GuavaSpace
+    Christoffer Müller Madsen
+      christoffer&guava.space
+52214
+  Universität Regensburg
+    Henri Stöcklein
+      Henri.Stoecklein&stud.uni-regensburg.de
+52215
+  Llama.pe SA
+    Alfonso Ronald Macedo Lopez
+      ronald&llama.pe
+52216
+  PrimosTI
+    Rodrigo Speller
+      rodrigo&primosti.com.br
+52217
+  Ambient System sp. z o.o.
+    Wlodzimierz Plewa
+      w.plewa&ambientsystem.pl
+52218
+  Castle Global
+    Justin Hao
+      jhao&thehive.ai
+52219
+  NOVOTEA
+    Jan Vanhercke
+      jan.vanhercke&novotea.com
+52220
+  Nianet A/S
+    Kristian Klinting
+      krk&nianet.dk
+52221
+  Landkreis Mansfeld-Südharz
+    David Herning
+      support&lkmsh.de
+52222
+  Support Logistic Services srl
+    Simone Freddio
+      s.freddio&slsitalia.it
+52223
+  Optimum Design Technology LLC
+    Sunil Shrestha
+      optimumdesign07&gmail.com
+52224
+  Eberle Design
+    Joseph F Dudich
+      JDUDICH&EDITRAFFIC.COM
+52225
+  Block Array Corporation
+    Sam Bacha
+      sam&blockarray.com
+52226
+  PEPE Invest s.r.o.
+    Peter Petrakovic
+      peter&petrakovic.com
+52227
+  Avanfort
+    Serg Kalashnikov
+      serg&niform.ru
 
 
 End of Document
