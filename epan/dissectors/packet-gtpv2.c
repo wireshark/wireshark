@@ -717,10 +717,16 @@ static expert_field ei_gtpv2_int_size_not_handled = EI_INIT;
 #define GTPV2_DELETE_BEARER_REQUEST      99
 #define GTPV2_DELETE_BEARER_RESPONSE    100
 #define GTPV2_IDENTIFICATION_RESPONSE   129
+#define GTPV2_CONTEXT_REQUEST           130
 #define GTPV2_CONTEXT_RESPONSE          131
 #define GTPV2_FORWARD_RELOCATION_REQ    133
 #define GTPV2_FORWARD_RELOCATION_RESP   134
+#define GTPV2_FORWARD_RELOCATION_COMPLETE_NOTIFICATION    135
+#define GTPV2_FORWARD_RELOCATION_COMPLETE_ACKNOWLEDGE     136
 #define GTPV2_FORWARD_CTX_NOTIFICATION  137
+#define GTPV2_FORWARD_CTX_ACKNOWLEDGE   138
+#define GTPV2_RELOCATION_CANCEL_REQUEST         139
+#define GTPV2_RELOCATION_CANCEL_RESPONSE        140
 #define GTPV2_RAN_INFORMATION_RELAY     152
 #define GTPV2_DL_DATA_NOTIF_ACK        177
 
@@ -7027,6 +7033,11 @@ gtpv2_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gin
     case GTPV2_SRVCC_PS_TO_CS_REQUEST:
     case GTPV2_SRVCC_PS_TO_CS_COMPLETE_NOTIFICATION:
     case GTPV2_SRVCC_PS_TO_CS_CANCEL_NOTIFICATION:
+    case GTPV2_CONTEXT_REQUEST:
+    case GTPV2_FORWARD_RELOCATION_REQ:
+    case GTPV2_RELOCATION_CANCEL_REQUEST:
+    case GTPV2_FORWARD_CTX_NOTIFICATION:
+    case GTPV2_FORWARD_RELOCATION_COMPLETE_NOTIFICATION:
         gcr.is_request = TRUE;
         gcr.req_frame = pinfo->num;
         gcr.rep_frame = 0;
@@ -7043,6 +7054,11 @@ gtpv2_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gin
     case GTPV2_SRVCC_PS_TO_CS_RESPONSE:
     case GTPV2_SRVCC_PS_TO_CS_COMPLETE_ACKNOWLEDGE:
     case GTPV2_SRVCC_PS_TO_CS_CANCEL_ACKNOWLEDGE:
+    case GTPV2_CONTEXT_RESPONSE:
+    case GTPV2_FORWARD_RELOCATION_RESP:
+    case GTPV2_RELOCATION_CANCEL_RESPONSE:
+    case GTPV2_FORWARD_CTX_ACKNOWLEDGE:
+    case GTPV2_FORWARD_RELOCATION_COMPLETE_ACKNOWLEDGE:
 
         gcr.is_request = FALSE;
         gcr.req_frame = 0;
@@ -7074,6 +7090,11 @@ gtpv2_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gin
         case GTPV2_SRVCC_PS_TO_CS_REQUEST:
         case GTPV2_SRVCC_PS_TO_CS_COMPLETE_NOTIFICATION:
         case GTPV2_SRVCC_PS_TO_CS_CANCEL_NOTIFICATION:
+        case GTPV2_CONTEXT_REQUEST:
+        case GTPV2_FORWARD_RELOCATION_REQ:
+        case GTPV2_RELOCATION_CANCEL_REQUEST:
+        case GTPV2_FORWARD_CTX_NOTIFICATION:
+        case GTPV2_FORWARD_RELOCATION_COMPLETE_NOTIFICATION:
 
             gcr.seq_nr = seq_nr;
 
@@ -7106,6 +7127,11 @@ gtpv2_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gin
         case GTPV2_SRVCC_PS_TO_CS_RESPONSE:
         case GTPV2_SRVCC_PS_TO_CS_COMPLETE_ACKNOWLEDGE:
         case GTPV2_SRVCC_PS_TO_CS_CANCEL_ACKNOWLEDGE:
+        case GTPV2_CONTEXT_RESPONSE:
+        case GTPV2_FORWARD_RELOCATION_RESP:
+        case GTPV2_RELOCATION_CANCEL_RESPONSE:
+        case GTPV2_FORWARD_CTX_ACKNOWLEDGE:
+        case GTPV2_FORWARD_RELOCATION_COMPLETE_ACKNOWLEDGE:
 
             gcr.seq_nr = seq_nr;
             gcrp = (gtpv2_msg_hash_t *)wmem_map_lookup(gtpv2_info->unmatched, &gcr);
