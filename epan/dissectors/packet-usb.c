@@ -1670,6 +1670,7 @@ get_usb_conv_info(conversation_t *conversation)
         usb_conv_info->deviceProduct     = DEV_PRODUCT_UNKNOWN;
         usb_conv_info->alt_settings      = wmem_array_new(wmem_file_scope(), sizeof(usb_alt_setting_t));
         usb_conv_info->transactions      = wmem_tree_new(wmem_file_scope());
+        usb_conv_info->descriptor_transfer_type = URB_UNKNOWN;
 
         conversation_add_proto_data(conversation, proto_usb, usb_conv_info);
     }
@@ -2385,6 +2386,7 @@ dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree,
     guint8            ep_type;
     guint8            len;
     usb_trans_info_t *usb_trans_info = NULL;
+    conversation_t   *conversation   = NULL;
 
     if (usb_conv_info)
         usb_trans_info = usb_conv_info->usb_trans_info;
@@ -2408,8 +2410,6 @@ dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree,
      * usb_conv_info structure.
      */
     if ((!pinfo->fd->flags.visited) && usb_trans_info && usb_trans_info->interface_info) {
-        conversation_t *conversation = NULL;
-
         if (pinfo->destport == NO_ENDPOINT) {
             address tmp_addr;
             usb_address_t *usb_addr = wmem_new0(wmem_packet_scope(), usb_address_t);
@@ -2443,6 +2443,30 @@ dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree,
         proto_tree_add_item(ep_attrib_tree, hf_usb_bEndpointAttributeBehaviour, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     }
     offset += 1;
+
+    if (conversation) {
+        usb_conv_info_t* endpoint_conv_info = get_usb_conv_info(conversation);
+        guint8 transfer_type;
+
+        switch(ep_type) {
+        case ENDPOINT_TYPE_CONTROL:
+            transfer_type = URB_CONTROL;
+            break;
+        case ENDPOINT_TYPE_ISOCHRONOUS:
+            transfer_type = URB_ISOCHRONOUS;
+            break;
+        case ENDPOINT_TYPE_BULK:
+            transfer_type = URB_BULK;
+            break;
+        case ENDPOINT_TYPE_INTERRUPT:
+            transfer_type = URB_INTERRUPT;
+            break;
+        default:
+            transfer_type = URB_UNKNOWN;
+            break;
+        }
+        endpoint_conv_info->descriptor_transfer_type = transfer_type;
+    }
 
     /* wMaxPacketSize */
     ep_pktsize_item = proto_tree_add_item(tree, hf_usb_wMaxPacketSize, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -3316,6 +3340,7 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
     /* if we select the next dissector based on a class,
        this is the (device or interface) class we're using */
     guint32                  usb_class;
+    guint8                   transfer_type;
 
     if (!usb_conv_info) {
         /*
@@ -3372,7 +3397,11 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
                     return tvb_captured_length(next_tvb);
     }
 
-    switch(usb_conv_info->transfer_type) {
+    transfer_type = usb_conv_info->transfer_type;
+    if (transfer_type == URB_UNKNOWN)
+        transfer_type = usb_conv_info->descriptor_transfer_type;
+
+    switch(transfer_type) {
         case URB_BULK:
             heur_subdissector_list = heur_bulk_subdissector_list;
             usb_dissector_table = usb_bulk_dissector_table;
