@@ -1172,7 +1172,6 @@ expand_dns_name(tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
   *name=np;
   (*name_len) = 0;
 
-  maxname--;   /* reserve space for the trailing '\0' */
   for (;;) {
     if (max_len && offset - start_offset > max_len - 1) {
       break;
@@ -1193,6 +1192,9 @@ expand_dns_name(tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
             (*name_len)++;
             maxname--;
           }
+        }
+        else {
+          maxname--;
         }
         while (component_len > 0) {
           if (max_len && offset - start_offset > max_len - 1) {
@@ -1311,7 +1313,15 @@ expand_dns_name(tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
     }
   }
 
-  *np = '\0';
+  // Do we have space for the terminating 0?
+  if (maxname > 0) {
+    *np = '\0';
+  }
+  else {
+    *name="<Name too long>";
+    *name_len = (guint)strlen(*name);
+  }
+
   /* If "len" is negative, we haven't seen a pointer, and thus haven't
      set the length, so set it. */
   if (len < 0) {
