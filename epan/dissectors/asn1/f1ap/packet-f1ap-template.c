@@ -8,7 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 38.473 V15.1.0 (2018-03)
+ * References: 3GPP TS 38.473 V15.2.0 (2018-06)
  */
 
 #include "config.h"
@@ -53,6 +53,11 @@ static gint ett_f1ap_CellGroupConfig = -1;
 static gint ett_f1ap_TransportLayerAddress = -1;
 static gint ett_f1ap_UE_CapabilityRAT_ContainerList = -1;
 static gint ett_f1ap_measurementTimingConfiguration = -1;
+static gint ett_f1ap_DUtoCURRCContainer = -1;
+static gint ett_f1ap_requestedP_MaxFR1 = -1;
+static gint ett_f1ap_HandoverPreparationInformation = -1;
+static gint ett_f1ap_MeasConfig = -1;
+static gint ett_f1ap_MeasGapConfig = -1;
 #include "packet-f1ap-ett.c"
 
 enum{
@@ -91,6 +96,12 @@ static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_in
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
+
+static void
+f1ap_MaxPacketLossRate_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1f %% (%u)", (float)v/10, v);
+}
 
 static f1ap_private_data_t*
 f1ap_get_private_data(packet_info *pinfo)
@@ -199,6 +210,11 @@ void proto_register_f1ap(void) {
     &ett_f1ap_TransportLayerAddress,
     &ett_f1ap_UE_CapabilityRAT_ContainerList,
     &ett_f1ap_measurementTimingConfiguration,
+    &ett_f1ap_DUtoCURRCContainer,
+    &ett_f1ap_requestedP_MaxFR1,
+    &ett_f1ap_HandoverPreparationInformation,
+    &ett_f1ap_MeasConfig,
+    &ett_f1ap_MeasGapConfig,
 #include "packet-f1ap-ettarr.c"
   };
 

@@ -38,9 +38,13 @@ CellGroupConfig_PDU
 CG-ConfigInfo_PDU
 ConfigRestrictInfoSCG_PDU
 FreqBandList_PDU
-MeasurementTimingConfiguration_PDU
+HandoverPreparationInformation_PDU
+MeasConfig_PDU
+MeasGapConfig_PDU
 MeasResults_PDU
+MeasurementTimingConfiguration_PDU
 MIB_PDU
+P-Max_PDU
 RadioBearerConfig_PDU
 RRCReconfiguration_PDU
 RRCReconfigurationComplete_PDU
@@ -57,9 +61,13 @@ CG-ConfigInfo
 ConfigRestrictInfoSCG
 DL-DCCH-Message              @dl.dcch
 FreqBandList
-MIB
-MeasurementTimingConfiguration
+HandoverPreparationInformation
+MeasConfig
+MeasGapConfig
 MeasResults
+MeasurementTimingConfiguration
+MIB
+P-Max
 RadioBearerConfig
 RRCReconfiguration
 RRCReconfigurationComplete
@@ -71,8 +79,6 @@ UL-DCCH-Message              @ul.dcch
 #.END
 
 #.OMIT_ASSIGNMENT
-AS-Context
-CellIdentity
 CellsTriggeredList
 CG-Config
 CG-Config-IEs
@@ -81,13 +87,7 @@ FR-Info
 FR-InfoList
 HandoverCommand
 HandoverCommand-IEs
-HandoverPreparationInformation
-HandoverPreparationInformation-IEs
 MeasConfigSN
-ReestabNCellInfo
-ReestabNCellInfoList
-RRM-Config
-ShortMAC-I
 VarMeasConfig
 VarMeasReportList
 VarMeasReport
