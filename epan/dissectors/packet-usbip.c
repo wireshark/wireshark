@@ -335,8 +335,8 @@ dissect_cmd_submit(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 {
     col_set_str(pinfo->cinfo, COL_INFO, "URB Submit");
 
-    proto_tree_add_item(tree, hf_usbip_transfer_flags, tvb, offset, 4,
-                        ENC_BIG_ENDIAN);
+    dissect_urb_transfer_flags(tvb, offset, tree, hf_usbip_transfer_flags,
+                               ENC_BIG_ENDIAN);
     offset += 4;
 
     proto_tree_add_item(tree, hf_usbip_transfer_buffer_length, tvb, offset, 4,

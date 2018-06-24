@@ -105,6 +105,44 @@ static int hf_usb_urb_interval = -1;
 static int hf_usb_urb_start_frame = -1;
 static int hf_usb_urb_copy_of_transfer_flags = -1;
 
+/* transfer_flags */
+static int hf_short_not_ok = -1;
+static int hf_iso_asap = -1;
+static int hf_no_transfer_dma_map = -1;
+static int hf_no_fsbr = -1;
+static int hf_zero_packet = -1;
+static int hf_no_interrupt = -1;
+static int hf_free_buffer = -1;
+static int hf_dir_in = -1;
+static int hf_dma_map_single = -1;
+static int hf_dma_map_page = -1;
+static int hf_dma_map_sg = -1;
+static int hf_map_local = -1;
+static int hf_setup_map_single = -1;
+static int hf_setup_map_local = -1;
+static int hf_dma_sg_combined = -1;
+static int hf_aligned_temp_buffer = -1;
+
+static const int *transfer_flags_fields[] = {
+    &hf_short_not_ok,
+    &hf_iso_asap,
+    &hf_no_transfer_dma_map,
+    &hf_no_fsbr,
+    &hf_zero_packet,
+    &hf_no_interrupt,
+    &hf_free_buffer,
+    &hf_dir_in,
+    &hf_dma_map_single,
+    &hf_dma_map_page,
+    &hf_dma_map_sg,
+    &hf_map_local,
+    &hf_setup_map_single,
+    &hf_setup_map_local,
+    &hf_dma_sg_combined,
+    &hf_aligned_temp_buffer,
+    NULL
+};
+
 /* Win32 USBPcap pseudoheader fields */
 static int hf_usb_win32_header_len = -1;
 static int hf_usb_irp_id = -1;
@@ -315,6 +353,7 @@ static gint ett_usbport_endpoint = -1;
 static gint ett_usbport_endpoint_desc = -1;
 static gint ett_usbport_urb = -1;
 static gint ett_usbport_keyword = -1;
+static gint ett_transfer_flags = -1;
 
 static expert_field ei_usb_bLength_even = EI_INIT;
 static expert_field ei_usb_bLength_too_short = EI_INIT;
@@ -3508,6 +3547,12 @@ dissect_usb_bmrequesttype(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
     return ++offset;
 }
 
+int
+dissect_urb_transfer_flags(tvbuff_t *tvb, int offset, proto_tree* tree, int hf, int endian)
+{
+    proto_tree_add_bitmask(tree, tvb, offset, hf, ett_transfer_flags, transfer_flags_fields, endian);
+    return 4;
+}
 
 static int
 dissect_linux_usb_pseudo_header_ext(tvbuff_t *tvb, int offset,
@@ -3518,7 +3563,7 @@ dissect_linux_usb_pseudo_header_ext(tvbuff_t *tvb, int offset,
     offset += 4;
     proto_tree_add_item(tree, hf_usb_urb_start_frame, tvb, offset, 4, ENC_HOST_ENDIAN);
     offset += 4;
-    proto_tree_add_item(tree, hf_usb_urb_copy_of_transfer_flags, tvb, offset, 4, ENC_HOST_ENDIAN);
+    dissect_urb_transfer_flags(tvb, offset, tree, hf_usb_urb_copy_of_transfer_flags, ENC_HOST_ENDIAN);
     offset += 4;
     proto_tree_add_item(tree, hf_usb_iso_numdesc, tvb, offset, 4, ENC_HOST_ENDIAN);
     offset += 4;
@@ -5379,6 +5424,74 @@ proto_register_usb(void)
             "usb.copy_of_transfer_flags", FT_UINT32, BASE_HEX,
             NULL, 0x0, NULL, HFILL }},
 
+        { &hf_short_not_ok,
+          { "Short not OK",
+            "usb.transfer_flags.short_not_ok", FT_BOOLEAN, 32,
+            NULL, URB_SHORT_NOT_OK, NULL, HFILL }},
+
+        { &hf_iso_asap,
+          { "ISO ASAP",
+            "usb.transfer_flags.iso_asap", FT_BOOLEAN, 32,
+            NULL, URB_ISO_ASAP, NULL, HFILL }},
+
+        { &hf_no_transfer_dma_map,
+          { "No transfer DMA map",
+            "usb.transfer_flags.no_transfer_dma_map", FT_BOOLEAN, 32,
+            NULL, URB_NO_TRANSFER_DMA_MAP, NULL, HFILL }},
+
+        { &hf_no_fsbr,
+          { "No FSBR",
+            "usb.transfer_flags.no_fsbr", FT_BOOLEAN, 32,
+            NULL, URB_NO_FSBR, NULL, HFILL }},
+
+        { &hf_zero_packet,
+          { "Zero Packet", "usb.transfer_flags.zero_packet", FT_BOOLEAN, 32,
+            NULL, URB_ZERO_PACKET, NULL, HFILL }},
+
+        { &hf_no_interrupt,
+          { "No Interrupt", "usb.transfer_flags.no_interrupt", FT_BOOLEAN, 32,
+            NULL, URB_NO_INTERRUPT, NULL, HFILL }},
+
+        { &hf_free_buffer,
+          { "Free Buffer", "usb.transfer_flags.free_buffer", FT_BOOLEAN, 32,
+            NULL, URB_FREE_BUFFER, NULL, HFILL }},
+
+        { &hf_dir_in,
+          { "Dir IN", "usb.transfer_flags.dir_in", FT_BOOLEAN, 32,
+            NULL, URB_DIR_IN, NULL, HFILL }},
+
+        { &hf_dma_map_single,
+          { "DMA Map Single", "usb.transfer_flags.dma_map_single", FT_BOOLEAN, 32,
+            NULL, URB_DMA_MAP_SINGLE, NULL, HFILL }},
+
+        { &hf_dma_map_page,
+          { "DMA Map Page", "usb.transfer_flags.dma_map_page", FT_BOOLEAN, 32,
+            NULL, URB_DMA_MAP_PAGE, NULL, HFILL }},
+
+        { &hf_dma_map_sg,
+          { "DMA Map SG", "usb.transfer_flags.dma_map_sg", FT_BOOLEAN, 32,
+            NULL, URB_DMA_MAP_SG, NULL, HFILL }},
+
+        { &hf_map_local,
+          { "Map Local", "usb.transfer_flags.map_local", FT_BOOLEAN, 32,
+            NULL, URB_MAP_LOCAL, NULL, HFILL }},
+
+        { &hf_setup_map_single,
+          { "Setup Map Single", "usb.transfer_flags.setup_map_single", FT_BOOLEAN, 32,
+            NULL, URB_SETUP_MAP_SINGLE, NULL, HFILL }},
+
+        { &hf_setup_map_local,
+          { "Setup Map Local", "usb.transfer_flags.setup_map_local", FT_BOOLEAN, 32,
+            NULL, URB_SETUP_MAP_LOCAL, NULL, HFILL }},
+
+        { &hf_dma_sg_combined,
+          { "DMA S-G Combined", "usb.transfer_flags.dma_sg_combined", FT_BOOLEAN, 32,
+            NULL, URB_DMA_SG_COMBINED, NULL, HFILL }},
+
+        { &hf_aligned_temp_buffer,
+          { "Aligned Temp Buffer", "usb.transfer_flags.aligned_temp_buffer", FT_BOOLEAN, 32,
+            NULL, URB_ALIGNED_TEMP_BUFFER, NULL, HFILL }},
+
         /* Win32 USBPcap pseudoheader */
         { &hf_usb_win32_header_len,
           { "USBPcap pseudoheader length", "usb.usbpcap_header_len",
@@ -6277,6 +6390,7 @@ proto_register_usb(void)
         &ett_configuration_bEndpointAddress,
         &ett_endpoint_bmAttributes,
         &ett_endpoint_wMaxPacketSize,
+        &ett_transfer_flags,
     };
 
     static gint *usbport_subtrees[] = {
