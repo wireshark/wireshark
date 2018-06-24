@@ -71,8 +71,7 @@ void rtpstream_info_copy_deep(rtpstream_info_t *dest, const rtpstream_info_t *sr
     *dest = *src;  /* memberwise copy of struct */
     copy_address(&(dest->id.src_addr), &(src->id.src_addr));
     copy_address(&(dest->id.dst_addr), &(src->id.dst_addr));
-    dest->payload_type_name = g_strdup(src->payload_type_name);
-    dest->ed137_info = g_strdup(src->ed137_info);
+    dest->all_payload_type_names = g_strdup(src->all_payload_type_names);
 }
 
 /****************************************************************************/
@@ -91,12 +90,10 @@ rtpstream_info_t *rtpstream_info_malloc_and_copy_deep(const rtpstream_info_t *sr
 /* free rtpstream_info_t referenced values */
 void rtpstream_info_free_data(rtpstream_info_t *info)
 {
-    if (info->ed137_info != NULL) {
-        g_free(info->ed137_info);
+    if (info->all_payload_type_names != NULL) {
+        g_free(info->all_payload_type_names);
     }
-    if (info->payload_type_name!= NULL) {
-        g_free(info->payload_type_name);
-    }
+
     rtpstream_id_free(&info->id);
 }
 
@@ -251,6 +248,43 @@ register_tap_listener_rtpstream(rtpstream_tapinfo_t *tapinfo, const char *fstrin
 * the RTP/RTCP header and (optionally) the actual payload.
 */
 
+static const gchar *PAYLOAD_UNKNOWN_STR = "Unknown";
+
+static void update_payload_names(rtpstream_info_t *stream_info, const struct _rtp_info *rtpinfo)
+{
+    GString *payload_type_names;
+    const gchar *new_payload_type_str;
+
+    /* Ensure that we have non empty payload_type_str */
+    if (rtpinfo->info_payload_type_str != NULL) {
+        new_payload_type_str = rtpinfo->info_payload_type_str;
+    }
+    else {
+        /* String is created from const strings only */
+        new_payload_type_str = val_to_str_ext_const(rtpinfo->info_payload_type,
+            &rtp_payload_type_short_vals_ext,
+            PAYLOAD_UNKNOWN_STR
+        );
+    }
+    stream_info->payload_type_names[rtpinfo->info_payload_type] = new_payload_type_str;
+
+    /* Join all existing payload names to one string */
+    payload_type_names = g_string_sized_new(40); /* Preallocate memory */
+    for(int i=0; i<256; i++) {
+        if (stream_info->payload_type_names[i] != NULL) {
+            if (payload_type_names->len > 0) {
+                g_string_append(payload_type_names, ", ");
+            }
+            g_string_append(payload_type_names, stream_info->payload_type_names[i]);
+        }
+    }
+    if (stream_info->all_payload_type_names != NULL) {
+        g_free(stream_info->all_payload_type_names);
+    }
+    stream_info->all_payload_type_names = payload_type_names->str;
+    g_string_free(payload_type_names, FALSE);
+}
+
 #define RTPFILE_VERSION "1.0"
 
 /*
@@ -337,8 +371,8 @@ int rtpstream_packet_cb(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, 
     rtpstream_info_init(&new_stream_info);
     rtpstream_id_copy_pinfo(pinfo,&(new_stream_info.id),FALSE);
     new_stream_info.id.ssrc = rtpinfo->info_sync_src;
-    new_stream_info.payload_type = rtpinfo->info_payload_type;
-    new_stream_info.payload_type_name = (char *)rtpinfo->info_payload_type_str;
+    new_stream_info.first_payload_type = rtpinfo->info_payload_type;
+    new_stream_info.first_payload_type_name = rtpinfo->info_payload_type_str;
 
     if (tapinfo->mode == TAP_ANALYSE) {
         /* check whether we already have a stream with these parameters in the list */
@@ -357,6 +391,8 @@ int rtpstream_packet_cb(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, 
         if (!stream_info) {
             new_stream_info.start_fd = pinfo->fd;
             new_stream_info.start_rel_time = pinfo->rel_ts;
+            new_stream_info.first_payload_type = rtpinfo->info_payload_type;
+            new_stream_info.first_payload_type_name = rtpinfo->info_payload_type_str;
 
             /* reset RTP stats */
             new_stream_info.rtp_stats.first_packet = TRUE;
@@ -376,6 +412,10 @@ int rtpstream_packet_cb(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, 
 
         /* get RTP stats for the packet */
         rtppacket_analyse(&(stream_info->rtp_stats), pinfo, rtpinfo);
+        if (stream_info->payload_type_names[rtpinfo->info_payload_type] == NULL ) {
+            update_payload_names(stream_info, rtpinfo);
+        }
+
         if (stream_info->rtp_stats.flags & STAT_FLAG_WRONG_TIMESTAMP
                 || stream_info->rtp_stats.flags & STAT_FLAG_WRONG_SEQ)
             stream_info->problem = TRUE;
@@ -432,15 +472,7 @@ void rtpstream_info_calculate(const rtpstream_info_t *strinfo, rtpstream_info_ca
         calc->dst_port = strinfo->id.dst_port;
         calc->ssrc = strinfo->id.ssrc;
 
-        if (strinfo->payload_type > 95) {
-                if (strinfo->payload_type_name != NULL) {
-                        calc->payload_str = wmem_strdup(NULL, strinfo->payload_type_name);
-                } else {
-                        calc->payload_str = wmem_strdup_printf(NULL, "Unknown(%u)", strinfo->payload_type);
-                }
-        } else {
-                calc->payload_str = val_to_str_ext_wmem(NULL, strinfo->payload_type, &rtp_payload_type_vals_ext, "Unknown (%u)");
-        }
+        calc->all_payload_type_names = wmem_strdup(NULL, strinfo->all_payload_type_names);
 
         calc->packet_count = strinfo->packet_count;
         /* packet count, lost packets */
@@ -489,7 +521,7 @@ void rtpstream_info_calc_free(rtpstream_info_calc_t *calc)
 {
         wmem_free(NULL, calc->src_addr_str);
         wmem_free(NULL, calc->dst_addr_str);
-        wmem_free(NULL, calc->payload_str);
+        wmem_free(NULL, calc->all_payload_type_names);
 }
 
 /*

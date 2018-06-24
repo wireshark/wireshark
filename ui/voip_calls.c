@@ -608,7 +608,7 @@ rtp_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, void c
                 && (tmp_listinfo->id.ssrc == rtp_info->info_sync_src) && (tmp_listinfo->end_stream == FALSE)) {
             /* if the payload type has changed, we mark the stream as finished to create a new one
                this is to show multiple payload changes in the Graph for example for DTMF RFC2833 */
-            if ( tmp_listinfo->payload_type != rtp_info->info_payload_type ) {
+            if ( tmp_listinfo->first_payload_type != rtp_info->info_payload_type ) {
                 tmp_listinfo->end_stream = TRUE;
             } else if ( ( ( tmp_listinfo->ed137_info == NULL ) && (rtp_info->info_ed137_info != NULL) ) ||
                         ( ( tmp_listinfo->ed137_info != NULL ) && (rtp_info->info_ed137_info == NULL) ) ||
@@ -636,27 +636,29 @@ rtp_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, void c
         strinfo = rtpstream_info_malloc_and_init();
         rtpstream_id_copy_pinfo(pinfo,&(strinfo->id),FALSE);
         strinfo->id.ssrc = rtp_info->info_sync_src;
-        strinfo->payload_type = rtp_info->info_payload_type;
+        strinfo->first_payload_type = rtp_info->info_payload_type;
         strinfo->is_srtp = rtp_info->info_is_srtp;
         /* if it is dynamic payload, let use the conv data to see if it is defined */
-        if ( (strinfo->payload_type >= PT_UNDF_96) && (strinfo->payload_type <= PT_UNDF_127) ) {
+        if ( (strinfo->first_payload_type >= PT_UNDF_96) && (strinfo->first_payload_type <= PT_UNDF_127) ) {
             /* Use existing packet info if available */
             p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_get_id_by_filter_name("rtp"), 0);
             if (p_conv_data && p_conv_data->rtp_dyn_payload) {
-                const gchar *encoding_name = rtp_dyn_payload_get_name(p_conv_data->rtp_dyn_payload, strinfo->payload_type);
+                const gchar *encoding_name = rtp_dyn_payload_get_name(p_conv_data->rtp_dyn_payload, strinfo->first_payload_type);
                 if (encoding_name) {
-                    strinfo->payload_type_name = wmem_strdup(NULL, encoding_name);
+                    strinfo->first_payload_type_name = encoding_name;
                 }
             }
         }
-        if (!strinfo->payload_type_name) strinfo->payload_type_name = (gchar*)val_to_str_ext_wmem(NULL, strinfo->payload_type, &rtp_payload_type_short_vals_ext, "%u");
+        if (!strinfo->first_payload_type_name) {
+            strinfo->first_payload_type_name = (gchar*)val_to_str_ext(strinfo->first_payload_type, &rtp_payload_type_short_vals_ext, "%u");
+        }
         strinfo->start_fd = pinfo->fd;
         strinfo->start_rel_time = pinfo->rel_ts;
         strinfo->setup_frame_number = rtp_info->info_setup_frame_num;
         strinfo->call_num = -1;
         strinfo->rtp_event = -1;
         if (rtp_info->info_ed137_info != NULL) {
-            strinfo->ed137_info = wmem_strdup(NULL, rtp_info->info_ed137_info);
+            strinfo->ed137_info = rtp_info->info_ed137_info;
         } else {
             strinfo->ed137_info = NULL;
         }
@@ -729,7 +731,7 @@ rtp_draw(void *tap_offset_ptr)
                 duration = (guint32)(nstime_to_msec(&rtp_listinfo->stop_rel_time) - nstime_to_msec(&rtp_listinfo->start_rel_time));
                 new_gai->frame_label = g_strdup_printf("%s (%s) %s%s%s",
                         (rtp_listinfo->is_srtp)?"SRTP":"RTP",
-                        rtp_listinfo->payload_type_name,
+                        rtp_listinfo->first_payload_type_name,
                         (rtp_listinfo->rtp_event == -1)?
                         "":val_to_str_ext_const(rtp_listinfo->rtp_event, &rtp_event_type_values_ext, "Unknown RTP Event"),
                         (rtp_listinfo->ed137_info!=NULL?" ":""),
@@ -815,7 +817,7 @@ rtp_packet_draw(void *tap_offset_ptr)
                         duration = (guint32)(nstime_to_msec(&rtp_listinfo->stop_fd->rel_ts) - nstime_to_msec(&rtp_listinfo->start_fd->rel_ts));
                         new_gai->frame_label = g_strdup_printf("%s (%s) %s",
                                                                (rtp_listinfo->is_srtp)?"SRTP":"RTP",
-                                                               rtp_listinfo->payload_type_str,
+                                                               rtp_listinfo->first_payload_type_str,
                                                                (rtp_listinfo->rtp_event == -1)?
                                                                "":val_to_str_ext_const(rtp_listinfo->rtp_event, &rtp_event_type_values_ext, "Unknown RTP Event"));
                         new_gai->comment = g_strdup_printf("%s Num packets:%u  Duration:%u.%03us SSRC:0x%X",

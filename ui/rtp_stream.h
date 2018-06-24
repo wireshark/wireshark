@@ -38,10 +38,12 @@ extern "C" {
 typedef struct _rtpstream_info {
     rtpstream_id_t  id;
 
-    guint8          payload_type; /**< Numeric payload type */
-    gchar          *payload_type_name; /**< Payload type name */
-    gboolean        is_srtp;
+    guint8          first_payload_type; /**< Numeric payload type */
+    const gchar    *first_payload_type_name; /**< Payload type name */
+    const gchar    *payload_type_names[256]; /**< Seen payload type names. Array index is payload type (byte), filled only during TAP_ANALYSE */
+    gchar          *all_payload_type_names; /**< All seen payload names for a stream in one string */
 
+    gboolean        is_srtp;
     guint32         packet_count;
     gboolean        end_stream; /**< Used to track streams across payload types */
     int             rtp_event;
@@ -59,7 +61,7 @@ typedef struct _rtpstream_info {
 
     tap_rtp_stat_t  rtp_stats;  /**< here goes the RTP statistics info */
     gboolean        problem;    /**< if the streams had wrong sequence numbers or wrong timestamps */
-    gchar          *ed137_info;
+    const gchar    *ed137_info; /** pointer to static text, no freeing is required */
 } rtpstream_info_t;
 
 /** tapping modes */

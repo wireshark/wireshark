@@ -2084,7 +2084,7 @@ sharkd_session_process_tap_rtp_cb(void *arg)
 		rtpstream_info_calculate(streaminfo, &calc);
 
 		printf("%s{\"ssrc\":%u", sepa, calc.ssrc);
-		printf(",\"payload\":\"%s\"", calc.payload_str);
+		printf(",\"payload\":\"%s\"", calc.all_payload_type_names);
 
 		printf(",\"saddr\":\"%s\"", calc.src_addr_str);
 		printf(",\"sport\":%u", calc.src_port);

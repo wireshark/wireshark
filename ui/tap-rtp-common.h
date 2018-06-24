@@ -49,7 +49,7 @@ typedef struct _rtpstream_info_calc {
     gchar *dst_addr_str;
     guint16 dst_port;
     guint32 ssrc;
-    gchar *payload_str; /* Name of coded derived from fixed or dynamic codec names */
+    gchar *all_payload_type_names; /* Name of codec derived from fixed or dynamic codec names */
     guint32 packet_count;
     guint32 total_nr;
     guint32 packet_expected; /* Count of expected packets, derived from lenght of RTP stream */

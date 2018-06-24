@@ -78,7 +78,7 @@ rtpstreams_stat_draw_cb(rtpstream_tapinfo_t *tapinfo _U_)
             calc.dst_addr_str,
             calc.dst_port,
             calc.ssrc,
-            calc.payload_str,
+            calc.all_payload_type_names,
             calc.packet_count,
             calc.lost_num,
             calc.lost_perc,

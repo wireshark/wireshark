@@ -43,7 +43,7 @@ struct _rtp_info {
 	const gchar   *info_payload_type_str;
 	gint          info_payload_rate;
 	gboolean      info_is_ed137;
-	const gchar   *info_ed137_info;
+	const gchar   *info_ed137_info;    /* pointer to static string, no freeing is required */
 	/*
 	* info_data: pointer to raw rtp data = header + payload incl. padding.
 	* That should be safe because the "epan_dissect_t" constructed for the packet

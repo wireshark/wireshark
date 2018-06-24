@@ -100,7 +100,7 @@ public:
         setText(dst_addr_col_, calc.dst_addr_str);
         setText(dst_port_col_, QString::number(calc.dst_port));
         setText(ssrc_col_, QString("0x%1").arg(calc.ssrc, 0, 16));
-        setText(payload_col_, calc.payload_str);
+        setText(payload_col_, calc.all_payload_type_names);
         setText(packets_col_, QString::number(calc.packet_count));
         setText(lost_col_, QObject::tr("%1 (%L2%)").arg(calc.lost_num).arg(QString::number(calc.lost_perc, 'f', 1)));
         setText(max_delta_col_, QString::number(calc.max_delta, 'f', 3)); // This is RTP. Do we need nanoseconds?
@@ -127,7 +127,7 @@ public:
         switch(col) {
         case src_addr_col_:
         case dst_addr_col_:
-        case payload_col_: // XXX Return numeric value?
+        case payload_col_:
             return text(col);
         case src_port_col_:
             return stream_info_->id.src_port;
@@ -170,7 +170,7 @@ public:
         case ssrc_col_:
             return stream_info_->id.ssrc < other_rstwi.stream_info_->id.ssrc;
         case payload_col_:
-            return stream_info_->payload_type < other_rstwi.stream_info_->payload_type; // XXX Compare payload_type_name instead?
+            return g_strcmp0(stream_info_->all_payload_type_names, other_rstwi.stream_info_->all_payload_type_names);
         case packets_col_:
             return stream_info_->packet_count < other_rstwi.stream_info_->packet_count;
         case lost_col_:
