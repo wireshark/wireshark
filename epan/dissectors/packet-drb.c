@@ -115,10 +115,10 @@ void proto_register_drb(void)
 
 void proto_reg_handoff_drb(void)
 {
-    dissector_handle_t drb_handle;
+	dissector_handle_t drb_handle;
 
-    drb_handle = create_dissector_handle(dissect_drb, proto_drb);
-    dissector_add_for_decode_as_with_preference("tcp.port", drb_handle);
+	drb_handle = create_dissector_handle(dissect_drb, proto_drb);
+	dissector_add_for_decode_as_with_preference("tcp.port", drb_handle);
 }
 
 /*

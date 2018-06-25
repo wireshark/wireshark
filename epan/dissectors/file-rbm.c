@@ -554,7 +554,7 @@ static int dissect_rbm(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
 
 void proto_register_rbm(void)
 {
-    expert_module_t* expert_rbm;
+	expert_module_t* expert_rbm;
 
 	static hf_register_info hf[] = {
 		{ &hf_rbm_version,
@@ -586,10 +586,10 @@ void proto_register_rbm(void)
 		}
 	};
 
-    static ei_register_info ei[] = {
-        { &ei_rbm_invalid, { "rbm.invalid", PI_UNDECODED, PI_WARN, "Invalid type", EXPFILL }},
-        { &ei_rbm_version_unsupported, { "rbm.version.unsupported", PI_UNDECODED, PI_WARN, "Unsupported version", EXPFILL }}
-    };
+	static ei_register_info ei[] = {
+		{ &ei_rbm_invalid, { "rbm.invalid", PI_UNDECODED, PI_WARN, "Invalid type", EXPFILL }},
+		{ &ei_rbm_version_unsupported, { "rbm.version.unsupported", PI_UNDECODED, PI_WARN, "Unsupported version", EXPFILL }}
+	};
 
 	/* Setup protocol subtree array */
 	static gint* ett[] = {
@@ -603,8 +603,8 @@ void proto_register_rbm(void)
 
 	proto_rbm = proto_register_protocol("Ruby Marshal Object", "Rbm", "rbm");
 
-    expert_rbm = expert_register_protocol(proto_rbm);
-    expert_register_field_array(expert_rbm, ei, array_length(ei));
+	expert_rbm = expert_register_protocol(proto_rbm);
+	expert_register_field_array(expert_rbm, ei, array_length(ei));
 
 	proto_register_field_array(proto_rbm, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
