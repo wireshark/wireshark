@@ -177,5 +177,14 @@ _gen_ChangeId() {
 	git hash-object -t commit --stdin
 }
 
+reject_long_message() {
+	read -r firstline < $MSG
+	if [ ${#firstline} -gt 80 ]
+	then
+		echo "\n\nERROR: First line in the commit message must not exceed 80 characters\n\n"
+		exit 1
+	fi
+}
 
 add_ChangeId
+reject_long_message
