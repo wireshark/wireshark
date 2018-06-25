@@ -565,6 +565,8 @@ extern void rtps_util_add_locator_t(proto_tree *tree, packet_info *pinfo, tvbuff
                              const guint encoding, const guint8 * label);
 extern int rtps_util_add_locator_list(proto_tree *tree, packet_info *pinfo, tvbuff_t * tvb,
                                 gint offset, const guint8* label, const guint encoding);
+extern int rtps_util_add_multichannel_locator_list(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
+    gint offset, const guint8 *label, const guint encoding);
 extern void rtps_util_add_ipv4_address_t(proto_tree *tree, packet_info *pinfo, tvbuff_t * tvb, gint offset,
                                          const guint encoding, int hf_item);
 extern void rtps_util_add_locator_udp_v4(proto_tree *tree, packet_info *pinfo, tvbuff_t * tvb,

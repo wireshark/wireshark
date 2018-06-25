@@ -1932,6 +1932,72 @@ int rtps_util_add_locator_list(proto_tree *tree, packet_info *pinfo, tvbuff_t *t
   return offset;
 }
 
+/* ------------------------------------------------------------------------- */
+/* Insert in the protocol tree the next bytes interpreted as a list of
+* multichannel Locators:
+*   - unsigned long numLocators
+*   - locator 1
+*   - locator 2
+*   - ...
+*   - locator n
+* Returns the new offset after parsing the locator list
+*/
+int rtps_util_add_multichannel_locator_list(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
+    gint offset, const guint8 *label, const guint encoding) {
+
+    proto_tree *locator_tree;
+    guint32 num_locators;
+
+    num_locators = tvb_get_guint32(tvb, offset, encoding);
+    locator_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4,
+        ett_rtps_locator_udp_v4, NULL, "%s: %d Locators", label, num_locators);
+
+    offset += 4;
+    if (num_locators > 0) {
+        guint32 i;
+        for (i = 0; i < num_locators; ++i) {
+            proto_tree *ti, *locator_item_tree;
+            guint32 kind;
+            gint32 port;
+            gchar *channel_address;
+            locator_item_tree = proto_tree_add_subtree(locator_tree, tvb, offset, 24, ett_rtps_locator,
+                NULL, label);
+            proto_tree_add_item_ret_uint(locator_item_tree, hf_rtps_locator_kind, tvb, offset, 4, encoding, &kind);
+            switch (kind) {
+            case LOCATOR_KIND_UDPV4:
+            case LOCATOR_KIND_TUDPV4: {
+                proto_tree_add_item(locator_item_tree, hf_rtps_locator_ipv4, tvb, offset + 16, 4,
+                    ENC_BIG_ENDIAN);
+                channel_address = tvb_ip_to_str(tvb, offset + 16);
+                break;
+            }
+            case LOCATOR_KIND_UDPV6: {
+                proto_tree_add_item(locator_tree, hf_rtps_locator_ipv6, tvb, offset + 4, 16, ENC_NA);
+                channel_address = tvb_ip6_to_str(tvb, offset + 4);
+                proto_item_append_text(tree, " (%s, %s)",
+                    val_to_str(kind, rtps_locator_kind_vals, "%02x"),
+                    tvb_ip6_to_str(tvb, offset + 4));
+                break;
+            }
+                                     /* Default case, Multichannel locators only should be present in UDPv4 and UDPv6 transports
+                                     * Unknown address format.
+                                     * */
+            default:
+                offset += 24;
+                continue;
+                break;
+            }
+            ti = proto_tree_add_item_ret_int(locator_item_tree, hf_rtps_locator_port, tvb, offset + 20, 4, encoding, &port);
+            if (port == 0)
+                expert_add_info(pinfo, ti, &ei_rtps_locator_port);
+            proto_item_append_text(tree, " (%s, %s:%d)",
+                val_to_str(kind, rtps_locator_kind_vals, "%02x"),
+                channel_address, port);
+            offset += 24;
+        }
+    }
+    return offset;
+}
 
 /* ------------------------------------------------------------------------- */
 /* Insert in the protocol tree the next 4 bytes interpreted as IPV4Address_t
@@ -4708,7 +4774,7 @@ static gboolean dissect_parameter_sequence_rti_dds(proto_tree *rtps_parameter_tr
         old_offset = off;
         channel_tree = proto_tree_add_subtree_format(rtps_parameter_tree, tvb, off, 0, ett_rtps_locator_filter_channel, &ti_channel, "Channel[%u]", ch);
 
-        off = rtps_util_add_locator_list(channel_tree, pinfo, tvb, off, temp_buff, encoding);
+        off = rtps_util_add_multichannel_locator_list(channel_tree, pinfo, tvb, off, temp_buff, encoding);
         /* Filter expression */
         off = rtps_util_add_string(rtps_parameter_tree, tvb, off, hf_rtps_locator_filter_list_filter_exp, encoding);
 
