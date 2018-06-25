@@ -342,14 +342,15 @@ static int hf_profinet_orange_period_begin_offset = -1;
 static int hf_profinet_green_period_begin_valid = -1;
 static int hf_profinet_green_period_begin_offset = -1;
 static int hf_cisco_subtype = -1;
-static int hf_cisco_four_wire_power = -1;
-static int hf_cisco_four_wire_power_poe = -1;
-static int hf_cisco_four_wire_power_spare_pair_arch = -1;
-static int hf_cisco_four_wire_power_req_spare_pair_poe = -1;
-static int hf_cisco_four_wire_power_pse_spare_pair_poe = -1;
+static int hf_cisco_upoe = -1;
+static int hf_cisco_upoe_supported = -1;
+static int hf_cisco_upoe_altb_detection = -1;
+static int hf_cisco_upoe_req_spare_pair = -1;
+static int hf_cisco_upoe_pse_spare_pair_oper = -1;
 static int hf_cisco_aci_unknownc9 = -1;
-static int hf_cisco_aci_unknownca = -1;
+static int hf_cisco_aci_noderole = -1;
 static int hf_cisco_aci_nodeid = -1;
+static int hf_cisco_aci_unknowncc = -1;
 static int hf_cisco_aci_pod = -1;
 static int hf_cisco_aci_fabricname = -1;
 static int hf_cisco_aci_apiclist = -1;
@@ -357,12 +358,15 @@ static int hf_cisco_aci_apicid = -1;
 static int hf_cisco_aci_apicip = -1;
 static int hf_cisco_aci_apicuuid = -1;
 static int hf_cisco_aci_nodeip = -1;
+static int hf_cisco_aci_unknownd1 = -1;
 static int hf_cisco_aci_version = -1;
 static int hf_cisco_aci_fabricvlan = -1;
 static int hf_cisco_aci_serialno = -1;
 static int hf_cisco_aci_model = -1;
 static int hf_cisco_aci_nodename = -1;
 static int hf_cisco_aci_unknownd8 = -1;
+static int hf_cisco_aci_unknownd9 = -1;
+static int hf_cisco_aci_unknownda = -1;
 static int hf_hytec_tlv_subtype = -1;
 static int hf_hytec_group = -1;
 static int hf_hytec_identifier = -1;
@@ -476,7 +480,7 @@ static gint ett_802_1qbg_capabilities_flags = -1;
 static gint ett_802_3br_capabilities_flags = -1;
 static gint ett_media_capabilities = -1;
 static gint ett_profinet_period = -1;
-static gint ett_cisco_fourwire_tlv = -1;
+static gint ett_cisco_upoe_tlv = -1;
 static gint ett_avaya_ipphone_tlv = -1;
 static gint ett_org_spc_hytec_subtype_transceiver = -1;
 static gint ett_org_spc_hytec_subtype_trace = -1;
@@ -685,20 +689,37 @@ static const value_string profinet_subtypes[] = {
 
 /* Cisco Subtypes */
 static const value_string cisco_subtypes[] = {
-	{ 0x01, "Four-wire Power-via-MDI" },
-	{ 0xc9, "ACI Unknown-C9 (Pod?)" },
-	{ 0xca, "ACI Unknown-CA" },
+	/* UPOE: https://www.cisco.com/c/dam/en/us/solutions/collateral/workforce-experience/digital-building/digital-building-partner-guide.pdf */
+	{ 0x01, "4-wire Power-via-MDI (UPOE)" },
+	/* ACI */
+	{ 0xc9, "ACI Unknown-C9" },
+	{ 0xca, "ACI NodeRole(?)" },
 	{ 0xcb, "ACI NodeID" },
+	{ 0xcc, "ACI Unknown-CC" },
 	{ 0xcd, "ACI Pod" },
 	{ 0xce, "ACI Fabricname" },
 	{ 0xcf, "ACI APIC-List" },
 	{ 0xd0, "ACI NodeIP" },
+	{ 0xd1, "ACI Unknown-D1" },
 	{ 0xd2, "ACI Version" },
 	{ 0xd3, "ACI Fabric VLAN" },
 	{ 0xd4, "ACI SerialNo" },
 	{ 0xd6, "ACI Model" },
 	{ 0xd7, "ACI Nodename" },
 	{ 0xd8, "ACI Unknown-D8" },
+	{ 0xd9, "ACI Unknown-D9" },
+	{ 0xda, "ACI Unknown-DA" },
+	{ 0, NULL }
+};
+
+static const true_false_string tfs_desired_not_desired = { "Desired", "Not Desired" };
+
+/* Guessing here, the output of apic show commands only has leaf and spine, and
+   those values are leaf=2, spine=3 (off by 1) */
+static const value_string cisco_noderole_vals[] = {
+	{ 0,	"APIC" },
+	{ 1,	"Leaf" },
+	{ 2,	"Spine" },
 	{ 0, NULL }
 };
 
@@ -3328,7 +3349,7 @@ dissect_cisco_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	field_info *fi;
 	gchar* value_str;
 
-	proto_tree *fourwire_data = NULL;
+	proto_tree *upoe_data = NULL;
 	proto_item *tf = NULL;
 	proto_item *parent_item = proto_tree_get_parent(tree);
 
@@ -3343,13 +3364,14 @@ dissect_cisco_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
 	switch (subType)
 	{
-	case 0x01: /* Four-Wire Power-via-MDI TLV */
-		tf = proto_tree_add_item(tree, hf_cisco_four_wire_power, tvb, offset, 1, ENC_BIG_ENDIAN);
-		fourwire_data = proto_item_add_subtree(tf, ett_cisco_fourwire_tlv);
-		proto_tree_add_item(fourwire_data, hf_cisco_four_wire_power_poe, tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(fourwire_data, hf_cisco_four_wire_power_spare_pair_arch, tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(fourwire_data, hf_cisco_four_wire_power_req_spare_pair_poe, tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(fourwire_data, hf_cisco_four_wire_power_pse_spare_pair_poe, tvb, offset, 1, ENC_BIG_ENDIAN);
+	/* UPOE */
+	case 0x01:
+		tf = proto_tree_add_item(tree, hf_cisco_upoe, tvb, offset, 1, ENC_BIG_ENDIAN);
+		upoe_data = proto_item_add_subtree(tf, ett_cisco_upoe_tlv);
+		proto_tree_add_item(upoe_data, hf_cisco_upoe_supported, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(upoe_data, hf_cisco_upoe_altb_detection, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(upoe_data, hf_cisco_upoe_req_spare_pair, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(upoe_data, hf_cisco_upoe_pse_spare_pair_oper, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 		length--;
 		break;
@@ -3363,7 +3385,7 @@ dissect_cisco_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		length -= length;
 		break;
 	case 0xca:
-		tf = proto_tree_add_item(tree, hf_cisco_aci_unknownca, tvb, offset, length, ENC_NA);
+		tf = proto_tree_add_item(tree, hf_cisco_aci_noderole, tvb, offset, length, ENC_NA);
 		fi = PITEM_FINFO(tf);
 		value_str = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, fi->hfinfo->display);
 		proto_item_append_text(parent_item, ": %s", value_str);
@@ -3377,6 +3399,14 @@ dissect_cisco_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		proto_item_append_text(parent_item, ": %s", value_str);
 		offset += 4;
 		length -= 4;
+		break;
+	case 0xcc:
+		tf = proto_tree_add_item(tree, hf_cisco_aci_unknowncc, tvb, offset, length, ENC_NA);
+		fi = PITEM_FINFO(tf);
+		value_str = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, fi->hfinfo->display);
+		proto_item_append_text(parent_item, ": %s", value_str);
+		offset += length;
+		length -= length;
 		break;
 	case 0xcd:
 		tf = proto_tree_add_item(tree, hf_cisco_aci_pod, tvb, offset, 2, ENC_NA);
@@ -3418,6 +3448,14 @@ dissect_cisco_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		proto_item_append_text(parent_item, ": %s", value_str);
 		offset += 4;
 		length -= 4;
+		break;
+	case 0xd1:
+		tf = proto_tree_add_item(tree, hf_cisco_aci_unknownd1, tvb, offset, length, ENC_NA);
+		fi = PITEM_FINFO(tf);
+		value_str = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, fi->hfinfo->display);
+		proto_item_append_text(parent_item, ": %s", value_str);
+		offset += length;
+		length -= length;
 		break;
 	case 0xd2:
 		tf = proto_tree_add_item(tree, hf_cisco_aci_version, tvb, offset, length, ENC_ASCII|ENC_NA);
@@ -3461,6 +3499,22 @@ dissect_cisco_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		break;
 	case 0xd8:
 		tf = proto_tree_add_item(tree, hf_cisco_aci_unknownd8, tvb, offset, length, ENC_NA);
+		fi = PITEM_FINFO(tf);
+		value_str = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, fi->hfinfo->display);
+		proto_item_append_text(parent_item, ": %s", value_str);
+		offset += length;
+		length -= length;
+		break;
+	case 0xd9:
+		tf = proto_tree_add_item(tree, hf_cisco_aci_unknownd9, tvb, offset, length, ENC_NA);
+		fi = PITEM_FINFO(tf);
+		value_str = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, fi->hfinfo->display);
+		proto_item_append_text(parent_item, ": %s", value_str);
+		offset += length;
+		length -= length;
+		break;
+	case 0xda:
+		tf = proto_tree_add_item(tree, hf_cisco_aci_unknownda, tvb, offset, length, ENC_NA);
 		fi = PITEM_FINFO(tf);
 		value_str = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, fi->hfinfo->display);
 		proto_item_append_text(parent_item, ": %s", value_str);
@@ -5391,36 +5445,40 @@ proto_register_lldp(void)
 			{ "Cisco Subtype",	"lldp.cisco.subtype", FT_UINT8, BASE_HEX,
 			VALS(cisco_subtypes), 0x0, NULL, HFILL }
 		},
-		{ &hf_cisco_four_wire_power,
-			{ "Four-Wire Power-via-MDI", "lldp.cisco.four_wire_power", FT_UINT8, BASE_HEX,
-			NULL, 0x0, NULL, HFILL }
+		{ &hf_cisco_upoe,
+			{ "UPOE Capabilities", "lldp.cisco.upoe", FT_UINT8, BASE_HEX,
+			NULL, 0x0, "PSE/PD Capabilities", HFILL }
 		},
-		{ &hf_cisco_four_wire_power_poe,
-			{ "PSE Four-Wire PoE", "lldp.cisco.four_wire_power.poe", FT_BOOLEAN, 8,
-			TFS(&tfs_supported_not_supported), 0x01, NULL, HFILL }
+		{ &hf_cisco_upoe_supported,
+			{ "UPOE Supported", "lldp.cisco.upoe.supported", FT_BOOLEAN, 8,
+			TFS(&tfs_yes_no), 0x01, "UPOE (4-pair POE) Supported", HFILL }
 		},
-		{ &hf_cisco_four_wire_power_spare_pair_arch,
-			{ "PD Spare Pair Architecture", "lldp.cisco.four_wire_power.spare_pair_arch", FT_BOOLEAN, 8,
-			TFS(&tfs_shared_independent), 0x02, NULL, HFILL }
+		{ &hf_cisco_upoe_altb_detection,
+			{ "ALT-B Detection required", "lldp.cisco.upoe.altb_detection_required", FT_BOOLEAN, 8,
+			TFS(&tfs_yes_no), 0x02, "ALT-B pair Detection/Classification Required", HFILL }
 		},
-		{ &hf_cisco_four_wire_power_req_spare_pair_poe,
-			{ "PD Request Spare Pair PoE", "lldp.cisco.four_wire_power.req_spare_pair_poe", FT_BOOLEAN, 8,
-			TFS(&tfs_on_off), 0x04, NULL, HFILL }
+		{ &hf_cisco_upoe_req_spare_pair,
+			{ "PD Request Spare Pair PoE", "lldp.cisco.upoe.pd_altb_desired", FT_BOOLEAN, 8,
+			TFS(&tfs_desired_not_desired), 0x04, "PD ALT-B Pair Desired", HFILL }
 		},
-		{ &hf_cisco_four_wire_power_pse_spare_pair_poe,
-			{ "PSE Spare Pair PoE", "lldp.cisco.four_wire_power.pse_spare_pair_poe", FT_BOOLEAN, 8,
-			TFS(&tfs_on_off), 0x08, NULL, HFILL }
+		{ &hf_cisco_upoe_pse_spare_pair_oper,
+			{ "PSE Spare Pair PoE", "lldp.cisco.upoe.pse_altb_oper", FT_BOOLEAN, 8,
+			TFS(&tfs_enabled_disabled), 0x08, "PSE ALT-B Pair Operational State", HFILL }
 		},
 		{ &hf_cisco_aci_unknownc9,
 			{ "Unknown 0xC9", "lldp.cisco.unknownc9", FT_BYTES, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }
 		},
-		{ &hf_cisco_aci_unknownca,
-			{ "Unknown 0xCA", "lldp.cisco.unknownca", FT_BYTES, BASE_NONE,
-			NULL, 0x0, NULL, HFILL }
+		{ &hf_cisco_aci_noderole,
+			{ "Node Role (?)", "lldp.cisco.noderole", FT_UINT8, BASE_DEC,
+			VALS(cisco_noderole_vals), 0x0, NULL, HFILL }
 		},
 		{ &hf_cisco_aci_nodeid,
 			{ "Node ID", "lldp.cisco.nodeid", FT_UINT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_cisco_aci_unknowncc,
+			{ "Unknown 0xCC", "lldp.cisco.unknowncc", FT_BYTES, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_cisco_aci_pod,
@@ -5444,11 +5502,16 @@ proto_register_lldp(void)
 			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_cisco_aci_apicuuid,
+			/* FIXME: Why can't I use FT_GUID here (malformed because len != 16)??? */
 			{ "APIC UUID", "lldp.cisco.apicuuid", FT_STRING, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_cisco_aci_nodeip,
 			{ "Node IP", "lldp.cisco.nodeip", FT_IPv4, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_cisco_aci_unknownd1,
+			{ "Unknown 0xD1", "lldp.cisco.unknownd1", FT_BYTES, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_cisco_aci_version,
@@ -5473,6 +5536,14 @@ proto_register_lldp(void)
 		},
 		{ &hf_cisco_aci_unknownd8,
 			{ "Unknown 0xD8", "lldp.cisco.unknownd8", FT_BYTES, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_cisco_aci_unknownd9,
+			{ "Unknown 0xD9", "lldp.cisco.unknownd9", FT_BYTES, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_cisco_aci_unknownda,
+			{ "Unknown 0xDA", "lldp.cisco.unknownda", FT_BYTES, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_hytec_tlv_subtype,
@@ -5713,7 +5784,7 @@ proto_register_lldp(void)
 		&ett_802_3br_capabilities_flags,
 		&ett_media_capabilities,
 		&ett_profinet_period,
-		&ett_cisco_fourwire_tlv,
+		&ett_cisco_upoe_tlv,
 		&ett_avaya_ipphone_tlv,
 		&ett_org_spc_hytec_subtype_transceiver,
 		&ett_org_spc_hytec_subtype_trace,
