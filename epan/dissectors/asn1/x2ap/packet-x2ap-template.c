@@ -12,7 +12,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Ref:
- * 3GPP TS 36.423 V15.1.0 (2018-03)
+ * 3GPP TS 36.423 V15.2.0 (2018-06)
  */
 
 #include "config.h"
@@ -224,6 +224,12 @@ static void
 x2ap_Threshold_RSRQ_fmt(gchar *s, guint32 v)
 {
   g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%u)", ((float)v/2)-20, v);
+}
+
+static void
+x2ap_Packet_LossRate_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1f %% (%u)", (float)v/10, v);
 }
 
 static struct x2ap_private_data*

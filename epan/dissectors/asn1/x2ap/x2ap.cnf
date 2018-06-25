@@ -268,7 +268,7 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
   subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_SgNBtoMeNBContainer);
   dissect_nr_rrc_CG_ConfigInfo_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
 
-#.FN_HDR MCGSplitSRB/rrcContainer
+#.FN_HDR SplitSRB/rrcContainer
   struct x2ap_private_data *x2ap_data = x2ap_get_private_data(actx->pinfo);
 
   x2ap_data->rrc_container_type = RRC_CONTAINER_TYPE_PDCP_C_PDU;
@@ -585,6 +585,18 @@ E-RABUsageReport-Item/usageCountDL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&un
     dissect_nr_rrc_MeasurementTimingConfiguration_PDU(param_tvb, actx->pinfo, subtree, NULL);
   }
 
+#.TYPE_ATTR
+Packet-LossRate DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(x2ap_Packet_LossRate_fmt)
+
+#.FN_FTR ProtectedEUTRAResourceIndication/mBSFNControlRegionLength
+  proto_item_append_text(actx->created_item, " REs");
+
+#.FN_FTR ProtectedEUTRAResourceIndication/pDCCHRegionLength
+  proto_item_append_text(actx->created_item, " REs");
+
+#.FN_FTR ReservedSubframePattern/mBSFNControlRegionLength
+  proto_item_append_text(actx->created_item, " REs");
+
 #.END
 
 #.FN_HDR HandoverRequest
@@ -749,6 +761,22 @@ E-RABUsageReport-Item/usageCountDL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&un
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ENDCCellActivationResponse");
 #.FN_HDR ENDCCellActivationFailure
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ENDCCellActivationFailure");
+#.FN_HDR ENDCPartialResetRequired
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ENDCPartialResetRequired");
+#.FN_HDR ENDCPartialResetConfirm
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ENDCPartialResetConfirm");
+#.FN_HDR EUTRANRCellResourceCoordinationRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "EUTRANRCellResourceCoordinationRequest");
+#.FN_HDR EUTRANRCellResourceCoordinationResponse
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "EUTRANRCellResourceCoordinationResponse");
+#.FN_HDR SgNBActivityNotification
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SgNBActivityNotification");
+#.FN_HDR ENDCX2RemovalRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ENDCX2RemovalRequest");
+#.FN_HDR ENDCX2RemovalResponse
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ENDCX2RemovalResponse");
+#.FN_HDR ENDCX2RemovalFailure
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ENDCX2RemovalFailure");
 
 #.ASSIGN_VALUE_TO_TYPE  # X2AP does not have constants assigned to types, they are pure INTEGER
 # ProcedureCode
@@ -793,6 +821,10 @@ id-endcX2Setup							ProcedureCode
 id-endcConfigurationUpdate					ProcedureCode
 id-secondaryRATDataUsageReport					ProcedureCode
 id-endcCellActivation						ProcedureCode
+id-endcPartialReset						ProcedureCode
+id-eUTRANRCellResourceCoordination				ProcedureCode
+id-SgNBActivityNotification					ProcedureCode
+id-endcX2Removal						ProcedureCode
 
 
 # ProtocolIE-ID
@@ -995,11 +1027,11 @@ id-SgNBUEAggregateMaximumBitRate				ProtocolIE-ID
 id-E-RABs-ToBeAdded-SgNBAddReqList				ProtocolIE-ID
 id-MeNBtoSgNBContainer						ProtocolIE-ID
 id-SgNB-UE-X2AP-ID						ProtocolIE-ID
-id-RequestedMCGSplitSRBs					ProtocolIE-ID
+id-RequestedSplitSRBs						ProtocolIE-ID
 id-E-RABs-ToBeAdded-SgNBAddReq-Item				ProtocolIE-ID
 id-E-RABs-Admitted-ToBeAdded-SgNBAddReqAckList			ProtocolIE-ID
 id-SgNBtoMeNBContainer						ProtocolIE-ID
-id-AdmittedMCGSplitSRBs						ProtocolIE-ID
+id-AdmittedSplitSRBs						ProtocolIE-ID
 id-E-RABs-Admitted-ToBeAdded-SgNBAddReqAck-Item			ProtocolIE-ID
 id-ResponseInformationSgNBReconfComp				ProtocolIE-ID
 id-UE-ContextInformation-SgNBModReq				ProtocolIE-ID
@@ -1029,7 +1061,7 @@ id-SRBType							ProtocolIE-ID
 id-Target-SgNB-ID						ProtocolIE-ID
 id-HandoverRestrictionList					ProtocolIE-ID
 id-SCGConfigurationQuery					ProtocolIE-ID
-id-MCGSplitSRB							ProtocolIE-ID
+id-SplitSRB							ProtocolIE-ID
 id-UENRMeasurement						ProtocolIE-ID
 id-InitiatingNodeType-EndcX2Setup				ProtocolIE-ID
 id-InitiatingNodeType-EndcConfigUpdate				ProtocolIE-ID
@@ -1057,6 +1089,36 @@ id-SecondaryRATUsageReport-Item					ProtocolIE-ID
 id-ServedNRCellsToActivate					ProtocolIE-ID
 id-ActivatedNRCellList						ProtocolIE-ID
 id-SelectedPLMN							ProtocolIE-ID
+id-UEs-ToBeReset						ProtocolIE-ID
+id-UEs-Admitted-ToBeReset					ProtocolIE-ID
+id-RRCConfigIndication						ProtocolIE-ID
+id-DownlinkPacketLossRate					ProtocolIE-ID
+id-UplinkPacketLossRate						ProtocolIE-ID
+id-SubscriberProfileIDforRFP					ProtocolIE-ID
+id-serviceType							ProtocolIE-ID
+id-AerialUEsubscriptionInformation				ProtocolIE-ID
+id-SGNB-Addition-Trigger-Ind					ProtocolIE-ID
+id-MeNBCell-ID							ProtocolIE-ID
+id-RequestedSplitSRBsrelease					ProtocolIE-ID
+id-AdmittedSplitSRBsrelease					ProtocolIE-ID
+id-NRS-NSSS-PowerOffset						ProtocolIE-ID
+id-NSSS-NumOccasionDifferentPrecoder				ProtocolIE-ID
+id-ProtectedEUTRAResourceIndication				ProtocolIE-ID
+id-InitiatingNodeType-EutranrCellResourceCoordination		ProtocolIE-ID
+id-RespondingNodeType-EutranrCellResourceCoordination		ProtocolIE-ID
+id-DataTrafficResourceIndication				ProtocolIE-ID
+id-SpectrumSharingGroupID					ProtocolIE-ID
+id-ListofEUTRACellsinEUTRACoordinationReq			ProtocolIE-ID
+id-ListofEUTRACellsinEUTRACoordinationResp			ProtocolIE-ID
+id-ListofEUTRACellsinNRCoordinationReq				ProtocolIE-ID
+id-ListofNRCellsinNRCoordinationReq				ProtocolIE-ID
+id-ListofNRCellsinNRCoordinationResp				ProtocolIE-ID
+id-E-RABs-AdmittedToBeModified-SgNBModConfList			ProtocolIE-ID
+id-E-RABs-AdmittedToBeModified-SgNBModConf-Item			ProtocolIE-ID
+id-UEContextLevelUserPlaneActivity				ProtocolIE-ID
+id-ERABActivityNotifyItemList					ProtocolIE-ID
+id-InitiatingNodeType-EndcX2Removal				ProtocolIE-ID
+id-RespondingNodeType-EndcX2Removal				ProtocolIE-ID
 
 #.REGISTER
 
@@ -1195,11 +1257,11 @@ UEAggregateMaximumBitRate					N x2ap.ies id-SgNBUEAggregateMaximumBitRate
 E-RABs-ToBeAdded-SgNBAddReqList					N x2ap.ies id-E-RABs-ToBeAdded-SgNBAddReqList
 MeNBtoSgNBContainer						N x2ap.ies id-MeNBtoSgNBContainer
 SgNB-UE-X2AP-ID							N x2ap.ies id-SgNB-UE-X2AP-ID
-MCGSplitSRBs							N x2ap.ies id-RequestedMCGSplitSRBs
+SplitSRBs							N x2ap.ies id-RequestedSplitSRBs
 E-RABs-ToBeAdded-SgNBAddReq-Item				N x2ap.ies id-E-RABs-ToBeAdded-SgNBAddReq-Item
 E-RABs-Admitted-ToBeAdded-SgNBAddReqAckList			N x2ap.ies id-E-RABs-Admitted-ToBeAdded-SgNBAddReqAckList
 SgNBtoMeNBContainer						N x2ap.ies id-SgNBtoMeNBContainer
-MCGSplitSRBs							N x2ap.ies id-AdmittedMCGSplitSRBs
+SplitSRBs							N x2ap.ies id-AdmittedSplitSRBs
 E-RABs-Admitted-ToBeAdded-SgNBAddReqAck-Item			N x2ap.ies id-E-RABs-Admitted-ToBeAdded-SgNBAddReqAck-Item
 ResponseInformationSgNBReconfComp				N x2ap.ies id-ResponseInformationSgNBReconfComp
 UE-ContextInformation-SgNBModReq				N x2ap.ies id-UE-ContextInformation-SgNBModReq
@@ -1227,7 +1289,7 @@ E-RABs-SubjectToSgNBCounterCheck-Item				N x2ap.ies id-E-RABs-SubjectToSgNBCount
 GNB-ID								N x2ap.ies id-Target-SgNB-ID
 HandoverRestrictionList						N x2ap.ies id-HandoverRestrictionList
 SCGConfigurationQuery						N x2ap.ies id-SCGConfigurationQuery
-MCGSplitSRB							N x2ap.ies id-MCGSplitSRB
+SplitSRB							N x2ap.ies id-SplitSRB
 UENRMeasurement							N x2ap.ies id-UENRMeasurement
 InitiatingNodeType-EndcX2Setup					N x2ap.ies id-InitiatingNodeType-EndcX2Setup
 InitiatingNodeType-EndcConfigUpdate				N x2ap.ies id-InitiatingNodeType-EndcConfigUpdate
@@ -1254,6 +1316,30 @@ SecondaryRATUsageReport-Item					N x2ap.ies id-SecondaryRATUsageReport-Item
 ServedNRCellsToActivate						N x2ap.ies id-ServedNRCellsToActivate
 ActivatedNRCellList						N x2ap.ies id-ActivatedNRCellList
 PLMN-Identity							N x2ap.ies id-SelectedPLMN
+UEsToBeResetList						N x2ap.ies id-UEs-ToBeReset
+UEsToBeResetList						N x2ap.ies id-UEs-Admitted-ToBeReset
+RRC-Config-Ind							N x2ap.ies id-RRCConfigIndication
+SubscriberProfileIDforRFP					N x2ap.ies id-SubscriberProfileIDforRFP
+AerialUEsubscriptionInformation					N x2ap.ies id-AerialUEsubscriptionInformation
+SGNB-Addition-Trigger-Ind					N x2ap.ies id-SGNB-Addition-Trigger-Ind
+ECGI								N x2ap.ies id-MeNBCell-ID
+SplitSRBs							N x2ap.ies id-RequestedSplitSRBsrelease
+SplitSRBs							N x2ap.ies id-AdmittedSplitSRBsrelease
+InitiatingNodeType-EutranrCellResourceCoordination		N x2ap.ies id-InitiatingNodeType-EutranrCellResourceCoordination
+RespondingNodeType-EutranrCellResourceCoordination		N x2ap.ies id-RespondingNodeType-EutranrCellResourceCoordination
+DataTrafficResourceIndication					N x2ap.ies id-DataTrafficResourceIndication
+SpectrumSharingGroupID						N x2ap.ies id-SpectrumSharingGroupID
+ListofEUTRACellsinEUTRACoordinationReq				N x2ap.ies id-ListofEUTRACellsinEUTRACoordinationReq
+ListofEUTRACellsinEUTRACoordinationResp				N x2ap.ies id-ListofEUTRACellsinEUTRACoordinationResp
+ListofEUTRACellsinNRCoordinationReq				N x2ap.ies id-ListofEUTRACellsinNRCoordinationReq
+ListofNRCellsinNRCoordinationReq				N x2ap.ies id-ListofNRCellsinNRCoordinationReq
+ListofNRCellsinNRCoordinationResp				N x2ap.ies id-ListofNRCellsinNRCoordinationResp
+E-RABs-AdmittedToBeModified-SgNBModConfList			N x2ap.ies id-E-RABs-AdmittedToBeModified-SgNBModConfList
+E-RABs-AdmittedToBeModified-SgNBModConf-Item			N x2ap.ies id-E-RABs-AdmittedToBeModified-SgNBModConf-Item
+UserPlaneTrafficActivityReport					N x2ap.ies id-UEContextLevelUserPlaneActivity
+ERABActivityNotifyItemList					N x2ap.ies id-ERABActivityNotifyItemList
+InitiatingNodeType-EndcX2Removal				N x2ap.ies id-InitiatingNodeType-EndcX2Removal
+RespondingNodeType-EndcX2Removal				N x2ap.ies id-RespondingNodeType-EndcX2Removal
 
 #X2AP-PROTOCOL-EXTENSION
 Number-of-Antennaports						N x2ap.extension id-Number-of-Antennaports
@@ -1320,6 +1406,13 @@ ExtendedBitRate							N x2ap.extension id-extended-e-RAB-GuaranteedBitrateUL
 ExtendedBitRate							N x2ap.extension id-extended-uEaggregateMaximumBitRateDownlink
 ExtendedBitRate							N x2ap.extension id-extended-uEaggregateMaximumBitRateUplink
 NRrestriction							N x2ap.extension id-NRrestriction
+Packet-LossRate							N x2ap.extension id-DownlinkPacketLossRate
+Packet-LossRate							N x2ap.extension id-UplinkPacketLossRate
+SubscriberProfileIDforRFP					N x2ap.extension id-SubscriberProfileIDforRFP
+ServiceType							N x2ap.extension id-serviceType
+NRS-NSSS-PowerOffset						N x2ap.extension id-NRS-NSSS-PowerOffset
+NSSS-NumOccasionDifferentPrecoder				N x2ap.extension id-NSSS-NumOccasionDifferentPrecoder
+ProtectedEUTRAResourceIndication				N x2ap.extension id-ProtectedEUTRAResourceIndication
 
 # X2AP-PDU-Descriptions.asn  Interface Elementary Procedures
 #X2AP-ELEMENTARY-PROCEDURE
@@ -1443,4 +1536,16 @@ SecondaryRATDataUsageReport			N x2ap.proc.imsg id-secondaryRATDataUsageReport
 ENDCCellActivationRequest			N x2ap.proc.imsg id-endcCellActivation
 ENDCCellActivationResponse			N x2ap.proc.sout id-endcCellActivation
 ENDCCellActivationFailure			N x2ap.proc.uout id-endcCellActivation
+
+ENDCPartialResetRequired			N x2ap.proc.imsg id-endcPartialReset
+ENDCPartialResetConfirm				N x2ap.proc.sout id-endcPartialReset
+
+EUTRANRCellResourceCoordinationRequest		N x2ap.proc.imsg id-eUTRANRCellResourceCoordination
+EUTRANRCellResourceCoordinationResponse		N x2ap.proc.sout id-eUTRANRCellResourceCoordination
+
+SgNBActivityNotification			N x2ap.proc.imsg id-SgNBActivityNotification
+
+ENDCX2RemovalRequest				N x2ap.proc.imsg id-endcX2Removal
+ENDCX2RemovalResponse				N x2ap.proc.sout id-endcX2Removal
+ENDCX2RemovalFailure				N x2ap.proc.uout id-endcX2Removal
 #.END

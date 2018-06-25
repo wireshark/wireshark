@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V15.1.0 (2018-03)
+-- 3GPP TS 36.423 V15.2.0 (2018-06)
 -- 9.3.3	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -7,10 +7,10 @@
 -- **************************************************************
 
 X2AP-PDU-Descriptions {
-itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
 eps-Access (21) modules (3) x2ap (2) version1 (1) x2ap-PDU-Descriptions (0) }
 
-DEFINITIONS AUTOMATIC TAGS ::=
+DEFINITIONS AUTOMATIC TAGS ::= 
 
 BEGIN
 
@@ -45,7 +45,7 @@ FROM X2AP-CommonDataTypes
 	ResourceStatusFailure,
 	ResourceStatusRequest,
 	ResourceStatusResponse,
-	ResourceStatusUpdate,
+	ResourceStatusUpdate, 
 	RLFIndication,
 	SNStatusTransfer,
 	UEContextRelease,
@@ -106,23 +106,32 @@ FROM X2AP-CommonDataTypes
 	SecondaryRATDataUsageReport,
 	ENDCCellActivationRequest,
 	ENDCCellActivationResponse,
-	ENDCCellActivationFailure
+	ENDCCellActivationFailure,
+	ENDCPartialResetRequired,
+	ENDCPartialResetConfirm,
+	EUTRANRCellResourceCoordinationRequest,
+	EUTRANRCellResourceCoordinationResponse,
+	SgNBActivityNotification,
+	ENDCX2RemovalRequest,
+	ENDCX2RemovalResponse,
+	ENDCX2RemovalFailure
+
 
 FROM X2AP-PDU-Contents
 
 	id-cellActivation,
 	id-eNBConfigurationUpdate,
 	id-errorIndication,
-	id-handoverCancel,
+	id-handoverCancel, 
 	id-handoverReport,
 	id-handoverPreparation,
-
+	
 	id-loadIndication,
 	id-privateMessage,
 	id-reset,
-
+	
 	id-resourceStatusReporting,
-	id-resourceStatusReportingInitiation,
+	id-resourceStatusReportingInitiation, 
 	id-rLFIndication,
 	id-snStatusTransfer,
 	id-uEContextRelease,
@@ -151,7 +160,12 @@ FROM X2AP-PDU-Contents
 	id-endcX2Setup,
 	id-endcConfigurationUpdate,
 	id-secondaryRATDataUsageReport,
-	id-endcCellActivation
+	id-endcCellActivation,
+	id-endcPartialReset,
+	id-eUTRANRCellResourceCoordination,
+	id-SgNBActivityNotification,
+	id-endcX2Removal
+
 
 FROM X2AP-Constants;
 
@@ -241,7 +255,10 @@ X2AP-ELEMENTARY-PROCEDURES-CLASS-1 X2AP-ELEMENTARY-PROCEDURE ::= {
 	sgNBChange												|
 	endcX2Setup												|
 	endcConfigurationUpdate									|
-	endcCellActivation										,
+	endcCellActivation										|
+	endcPartialReset											|
+	eUTRANRCellResourceCoordination							|
+	endcX2Removal											,
 	...
 }
 
@@ -263,7 +280,9 @@ X2AP-ELEMENTARY-PROCEDURES-CLASS-2 X2AP-ELEMENTARY-PROCEDURE ::= {
 	sgNBReconfigurationCompletion			|
 	sgNBCounterCheck							|
 	rRCTransfer								|
-	secondaryRATDataUsageReport				,
+	secondaryRATDataUsageReport				|
+	sgNBActivityNotification
+,
 	...
 
 }
@@ -488,7 +507,7 @@ sgNBinitiatedSgNBModification		X2AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		SgNBModificationRequired
 	SUCCESSFUL OUTCOME		SgNBModificationConfirm
 	UNSUCCESSFUL OUTCOME	SgNBModificationRefuse
-	PROCEDURE CODE			id-sgNBinitiatedSgNBModification
+	PROCEDURE CODE			id-sgNBinitiatedSgNBModification	
 	CRITICALITY				reject
 }
 
@@ -555,6 +574,35 @@ endcCellActivation	X2AP-ELEMENTARY-PROCEDURE ::= {
 	SUCCESSFUL OUTCOME		ENDCCellActivationResponse
 	UNSUCCESSFUL OUTCOME	ENDCCellActivationFailure
 	PROCEDURE CODE			id-endcCellActivation
+	CRITICALITY				reject
+}
+
+endcPartialReset	X2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		ENDCPartialResetRequired
+	SUCCESSFUL OUTCOME		ENDCPartialResetConfirm
+	PROCEDURE CODE			id-endcPartialReset
+	CRITICALITY				reject
+}
+
+eUTRANRCellResourceCoordination X2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		EUTRANRCellResourceCoordinationRequest
+	SUCCESSFUL OUTCOME		EUTRANRCellResourceCoordinationResponse
+	PROCEDURE CODE			id-eUTRANRCellResourceCoordination
+	CRITICALITY				reject
+}
+
+sgNBActivityNotification 	X2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		SgNBActivityNotification
+	PROCEDURE CODE			id-SgNBActivityNotification
+	CRITICALITY				reject
+}
+
+
+endcX2Removal	X2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		ENDCX2RemovalRequest
+	SUCCESSFUL OUTCOME		ENDCX2RemovalResponse
+	UNSUCCESSFUL OUTCOME	ENDCX2RemovalFailure
+	PROCEDURE CODE			id-endcX2Removal
 	CRITICALITY				reject
 }
 
