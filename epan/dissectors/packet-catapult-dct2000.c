@@ -304,6 +304,7 @@ static void attach_pdcp_lte_info(packet_info *pinfo, guint *outhdr_values,
 
 
 
+
 /* Return the number of bytes used to encode the length field
    (we're not interested in the length value itself) */
 static int skipASNLength(guint8 value)
@@ -834,7 +835,7 @@ static void dissect_rrc_lte_nr(tvbuff_t *tvb, gint offset,
                                packet_info *pinfo, proto_tree *tree,
                                enum LTE_or_NR lte_or_nr)
 {
-    guint8              tag;
+    guint8              opcode, tag;
     dissector_handle_t  protocol_handle = 0;
     gboolean            isUplink        = FALSE;
     LogicalChannelType  logicalChannelType;
@@ -843,15 +844,17 @@ static void dissect_rrc_lte_nr(tvbuff_t *tvb, gint offset,
     tvbuff_t           *rrc_tvb;
 
     /* Top-level opcode */
-    tag = tvb_get_guint8(tvb, offset++);
-    switch (tag) {
+    opcode = tvb_get_guint8(tvb, offset++);
+    switch (opcode) {
         case 0x00:    /* Data_Req_UE */
+        case 0x05:    /* Data_Req_UE_SM */
         case 0x04:    /* Data_Ind_eNodeB */
             isUplink = TRUE;
             break;
 
         case 0x02:    /* Data_Req_eNodeB */
         case 0x03:    /* Data_Ind_UE */
+        case 0x07:    /* Data_Ind_UE_SM */
             isUplink = FALSE;
             break;
 
@@ -964,7 +967,21 @@ static void dissect_rrc_lte_nr(tvbuff_t *tvb, gint offset,
             return;
     }
 
-    /* Data tag should follow */
+    if (opcode == 0x07) {
+        /* Data_Ind_UE_SM - 1 byte MAC */
+        offset++;
+    }
+    else if (opcode == 0x05) {
+        /* Data_Req_UE_SM - skip SecurityMode Params */
+        offset++;  /* tag */
+        guint8 len = tvb_get_guint8(tvb, offset); /* length */
+        offset += len;
+    }
+
+    /* Optional data tag may follow */
+    if (!tvb_reported_length_remaining(tvb, offset)) {
+        return;
+    }
     tag = tvb_get_guint8(tvb, offset++);
     if (tag != 0xaa) {
         return;
@@ -2342,7 +2359,6 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                                                   outhdr_values);
         attach_pdcp_lte_info(pinfo, outhdr_values, outhdr_values_found);
     }
-
 
     else if ((strcmp(protocol_name, "nas_rrc_r8_lte") == 0) ||
              (strcmp(protocol_name, "nas_rrc_r9_lte") == 0) ||
