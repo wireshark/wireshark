@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Setup development environment on Debian and derivatives such as Ubuntu
 #
 # Wireshark - Network traffic analyzer
@@ -13,16 +13,16 @@
 
 if [ "$1" = "--help" ]
 then
-	echo "\nUtility to setup a debian-based system for Wireshark Development.\n"
-	echo "The basic usage installs the needed software\n\n"
-	echo "Usage: $0 [--install-optional] [...other options...]\n"
-	echo "\t--install-optional: install optional software as well"
-	echo "\t[other]: other options are passed as-is to apt\n"
+	printf "\\nUtility to setup a debian-based system for Wireshark Development.\\n"
+	printf "The basic usage installs the needed software\\n\\n"
+	printf "Usage: %s [--install-optional] [...other options...]\\n" "$0"
+	printf "\\t--install-optional: install optional software as well"
+	printf "\\t[other]: other options are passed as-is to apt\\n"
 	exit 1
 fi
 
 # Check if the user is root
-if [ $(id -u) -ne 0 ]
+if [ "$(id -u)" -ne 0 ]
 then
 	echo "You must be root."
 	exit 1
@@ -83,6 +83,7 @@ add_package() {
 		return 1
 	elif [ -n "$versionreq" ]; then
 		# Require minimum version or fail.
+		# shellcheck disable=SC2086
 		dpkg --compare-versions $version $versionreq || return 1
 	fi
 
@@ -123,13 +124,10 @@ then
 	ACTUAL_LIST="$ACTUAL_LIST $ADDITIONAL_LIST"
 fi
 
-apt-get install $ACTUAL_LIST $OPTIONS
-if [ $? != 0 ]
-then
-	exit 2
-fi
+# shellcheck disable=SC2086
+apt-get install $ACTUAL_LIST $OPTIONS || exit 2
 
 if [ ! $ADDITIONAL ]
 then
-	echo "\n*** Optional packages not installed. Rerun with --install-optional to have them.\n"
+	printf "\\n*** Optional packages not installed. Rerun with --install-optional to have them.\\n"
 fi

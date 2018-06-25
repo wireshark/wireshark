@@ -3067,6 +3067,7 @@ if(SHELLCHECK_EXECUTABLE)
 			packaging/macosx/osx-app.sh.in
 			packaging/macosx/osx-dmg.sh.in
 			tools/compress-pngs.sh
+			tools/debian-setup.sh
 			tools/git-export-release.sh
 			tools/fuzz-test.sh
 			tools/gen-bugnote
