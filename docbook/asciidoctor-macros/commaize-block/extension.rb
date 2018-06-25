@@ -32,8 +32,6 @@ class CommaizeBlock < Extensions::BlockProcessor
 
     if lines.length < 2
       create_paragraph parent, lines, attrs
-    elsif lines.length == 2
-      create_paragraph parent, lines.join(" and "), attrs
     else
       commaized = lines[0..-2].join(", ")
       commaized << ", and " + lines[-1]
