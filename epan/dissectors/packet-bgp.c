@@ -4922,7 +4922,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
     proto_item          *disting_item;
     proto_tree          *disting_tree;
 
-    int                 total_length;       /* length of the entire item */
+    int                 total_length=0;     /* length of the entire item */
     int                 length;             /* length of the prefix address, in bytes */
     int                 tmp_length;
     guint               plen;               /* length of the prefix address, in bits */
@@ -4937,6 +4937,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
     guint16             rd_type;            /* Route Distinguisher type     */
     guint16             nlri_type;          /* NLRI Type                    */
     guint16             tmp16;
+    guint32             path_identifier=0;
     gint                end=0;              /* Message End                  */
 
     wmem_strbuf_t      *stack_strbuf;       /* label stack                  */
@@ -4950,12 +4951,31 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
             case SAFNUM_UNICAST:
             case SAFNUM_MULCAST:
             case SAFNUM_UNIMULC:
-                total_length = decode_prefix4(tree, pinfo, NULL,hf_addr4, tvb, offset, tag);
+                /* parse each prefix */
+
+                end = offset + tlen;
+
+                /* Heuristic to detect if IPv4 prefix are using Path Identifiers */
+                if( detect_add_path_prefix4(tvb, offset, end) ) {
+                    /* IPv4 prefixes with Path Id */
+                    total_length = decode_path_prefix4(tree, pinfo, hf_path_id, hf_addr4, tvb, offset, tag);
+                } else {
+                    total_length = decode_prefix4(tree, pinfo, NULL,hf_addr4, tvb, offset, tag);
+                }
                 if (total_length < 0)
                     return -1;
                 break;
 
             case SAFNUM_MPLS_LABEL:
+                end = offset + tlen;
+                /* Heuristic to detect if IPv4 prefix are using Path Identifiers */
+                if( detect_add_path_prefix46(tvb, offset, end, 255) ) {
+                    /* snarf path identifier */
+                    path_identifier = tvb_get_ntohl(tvb, offset);
+                    offset += 4;
+                    total_length += 4;
+                }
+                /* snarf length */
                 plen =  tvb_get_guint8(tvb, offset);
                 stack_strbuf = wmem_strbuf_new_label(wmem_packet_scope());
                 labnum = decode_MPLS_stack(tvb, offset + 1, stack_strbuf);
@@ -4977,19 +4997,30 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                 }
 
                 set_address(&addr, AT_IPv4, 4, ip4addr.addr_bytes);
-                prefix_tree = proto_tree_add_subtree_format(tree, tvb, start_offset,
+                if (total_length > 0) {
+                    prefix_tree = proto_tree_add_subtree_format(tree, tvb, start_offset,
                                          (offset + length) - start_offset,
                                          ett_bgp_prefix, NULL,
-                                         "Label Stack=%s IPv4=%s/%u",
+                                         "Label Stack=%s IPv4=%s/%u PathID %u",
                                          wmem_strbuf_get_str(stack_strbuf),
-                                         address_to_str(wmem_packet_scope(), &addr), plen);
+                                         address_to_str(wmem_packet_scope(), &addr), plen, path_identifier);
+                    proto_tree_add_item(prefix_tree, hf_path_id, tvb, start_offset, 4, ENC_BIG_ENDIAN);
+                    start_offset += 4;
+                } else {
+                    prefix_tree = proto_tree_add_subtree_format(tree, tvb, start_offset,
+                                        (offset + length) - start_offset,
+                                        ett_bgp_prefix, NULL,
+                                        "Label Stack=%s IPv4=%s/%u",
+                                        wmem_strbuf_get_str(stack_strbuf),
+                                        address_to_str(wmem_packet_scope(), &addr), plen);
+                }
                 proto_tree_add_uint_format(prefix_tree, hf_bgp_prefix_length, tvb, start_offset, 1, plen + labnum * 3 * 8,
-                                    "%s Prefix length: %u", tag, plen + labnum * 3 * 8);
+                                        "%s Prefix length: %u", tag, plen + labnum * 3 * 8);
                 proto_tree_add_string_format(prefix_tree, hf_bgp_label_stack, tvb, start_offset + 1, 3 * labnum, wmem_strbuf_get_str(stack_strbuf),
-                                    "%s Label Stack: %s", tag, wmem_strbuf_get_str(stack_strbuf));
+                                        "%s Label Stack: %s", tag, wmem_strbuf_get_str(stack_strbuf));
+                total_length += (1 + labnum*3) + length;
                 proto_tree_add_ipv4(prefix_tree, hf_addr4, tvb, offset,
                                         length, ip4addr.addr);
-                total_length = (1 + labnum*3) + length;
                 break;
             case SAFNUM_MCAST_VPN:
                 total_length = decode_mcast_vpn_nlri(tree, tvb, offset, afi);
@@ -5169,7 +5200,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
 
                 /* Heuristic to detect if IPv6 prefix are using Path Identifiers */
                 if( detect_add_path_prefix6(tvb, offset, end) ) {
-                    /* IPv4 prefixes with Path Id */
+                    /* IPv6 prefixes with Path Id */
                     total_length = decode_path_prefix6(tree, pinfo, hf_path_id, hf_addr6, tvb, offset, tag);
                 } else {
                     total_length = decode_prefix6(tree, pinfo, hf_addr6, tvb, offset, 0, tag);
@@ -5179,6 +5210,15 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                 break;
 
             case SAFNUM_MPLS_LABEL:
+                end = offset + tlen;
+                /* Heuristic to detect if IPv6 prefix are using Path Identifiers */
+                if( detect_add_path_prefix46(tvb, offset, end, 255) ) {
+                    /* snarf path identifier */
+                    path_identifier = tvb_get_ntohl(tvb, offset);
+                    offset += 4;
+                    total_length += 4;
+                }
+                /* snarf length */
                 plen =  tvb_get_guint8(tvb, offset);
                 stack_strbuf = wmem_strbuf_new_label(wmem_packet_scope());
                 labnum = decode_MPLS_stack(tvb, offset + 1, stack_strbuf);
@@ -5201,12 +5241,20 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
 
                 /* XXX - break off IPv6 into its own field */
                 set_address(&addr, AT_IPv6, 16, ip6addr.bytes);
-                proto_tree_add_string_format(tree, hf_bgp_label_stack, tvb, start_offset,
+                if (total_length > 0) {
+                    proto_tree_add_string_format(tree, hf_bgp_label_stack, tvb, start_offset,
+                                    (offset + length) - start_offset,
+                                    wmem_strbuf_get_str(stack_strbuf), "Label Stack=%s, IPv6=%s/%u PathId %u",
+                                    wmem_strbuf_get_str(stack_strbuf),
+                                    address_to_str(wmem_packet_scope(), &addr), plen, path_identifier);
+                } else {
+                    proto_tree_add_string_format(tree, hf_bgp_label_stack, tvb, start_offset,
                                     (offset + length) - start_offset,
                                     wmem_strbuf_get_str(stack_strbuf), "Label Stack=%s, IPv6=%s/%u",
                                     wmem_strbuf_get_str(stack_strbuf),
                                     address_to_str(wmem_packet_scope(), &addr), plen);
-                total_length = (1 + labnum * 3) + length;
+                }
+                total_length += (1 + labnum * 3) + length;
                 break;
             case SAFNUM_ENCAPSULATION:
                 plen =  tvb_get_guint8(tvb, offset);
