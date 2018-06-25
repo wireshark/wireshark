@@ -284,9 +284,9 @@ void FilterExpressionToolBar::filterClicked()
         return;
 
     QString filterText = dfb_action->data().toString();
-    prepare = (!(QApplication::keyboardModifiers() & Qt::ShiftModifier));
+    prepare = (QApplication::keyboardModifiers() & Qt::ShiftModifier);
 
-    emit filterSelected(filterText, false);
+    emit filterSelected(filterText, prepare);
 }
 
 /*
