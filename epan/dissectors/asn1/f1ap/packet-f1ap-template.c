@@ -58,6 +58,9 @@ static gint ett_f1ap_requestedP_MaxFR1 = -1;
 static gint ett_f1ap_HandoverPreparationInformation = -1;
 static gint ett_f1ap_MeasConfig = -1;
 static gint ett_f1ap_MeasGapConfig = -1;
+static gint ett_f1ap_EUTRA_NR_CellResourceCoordinationReq_Container = -1;
+static gint ett_f1ap_EUTRA_NR_CellResourceCoordinationReqAck_Container = -1;
+static gint ett_f1ap_ProtectedEUTRAResourceIndication = -1;
 #include "packet-f1ap-ett.c"
 
 enum{
@@ -215,6 +218,9 @@ void proto_register_f1ap(void) {
     &ett_f1ap_HandoverPreparationInformation,
     &ett_f1ap_MeasConfig,
     &ett_f1ap_MeasGapConfig,
+    &ett_f1ap_EUTRA_NR_CellResourceCoordinationReq_Container,
+    &ett_f1ap_EUTRA_NR_CellResourceCoordinationReqAck_Container,
+    &ett_f1ap_ProtectedEUTRAResourceIndication,
 #include "packet-f1ap-ettarr.c"
   };
 

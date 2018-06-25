@@ -27,11 +27,17 @@ ProcedureCode
 ProtocolIE-ID
 
 #.EXPORTS
+EUTRANRCellResourceCoordinationRequest_PDU
+EUTRANRCellResourceCoordinationResponse_PDU
 MeNBResourceCoordinationInformation_PDU
+ProtectedEUTRAResourceIndication_PDU
 SgNBResourceCoordinationInformation_PDU
 
 #.PDU
+EUTRANRCellResourceCoordinationRequest
+EUTRANRCellResourceCoordinationResponse
 MeNBResourceCoordinationInformation
+ProtectedEUTRAResourceIndication
 SgNBResourceCoordinationInformation
 
 #.TYPE_RENAME
