@@ -104,7 +104,6 @@
 #include "caputils/capture_ifinfo.h"
 #ifdef _WIN32
 #include "caputils/capture-wpcap.h"
-#include <wsutil/os_version_info.h>
 #include <wsutil/unicode-utils.h>
 #endif /* _WIN32 */
 #include <capchild/capture_session.h>
@@ -802,7 +801,7 @@ main(int argc, char *argv[])
   load_wpcap();
 
   /* Warn the user if npf.sys isn't loaded. */
-  if (!npf_sys_is_running() && get_windows_major_version() >= 6) {
+  if (!npf_sys_is_running()) {
     fprintf(stderr, "The NPF driver isn't running.  You may have trouble "
       "capturing or\nlisting interfaces.\n");
   }

@@ -22,13 +22,6 @@ extern "C" {
  */
 WS_DLL_PUBLIC void get_os_version_info(GString *str);
 
-#ifdef _WIN32
-/*
- * Get the Windows major OS version.
- */
-WS_DLL_PUBLIC guint32 get_windows_major_version(void);
-#endif
-
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

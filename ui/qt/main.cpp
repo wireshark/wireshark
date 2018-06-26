@@ -94,7 +94,6 @@
 #  include "caputils/capture_wpcap_packet.h"
 #  include <tchar.h> /* Needed for Unicode */
 #  include <wsutil/file_util.h>
-#  include <wsutil/os_version_info.h>
 #endif /* _WIN32 */
 
 #ifdef HAVE_AIRPCAP
@@ -306,7 +305,7 @@ check_and_warn_user_startup(const QString &cf_name)
 
 #ifdef _WIN32
     /* Warn the user if npf.sys isn't loaded. */
-    if (!get_stdin_capture() && cf_name.isEmpty() && !npf_sys_is_running() && recent.privs_warn_if_no_npf && get_windows_major_version() >= 6) {
+    if (!get_stdin_capture() && cf_name.isEmpty() && !npf_sys_is_running() && recent.privs_warn_if_no_npf) {
         simple_message_box(ESD_TYPE_WARN, &recent.privs_warn_if_no_npf, "%s",
         "The NPF driver isn't running. You may have trouble\n"
         "capturing or listing interfaces.");
