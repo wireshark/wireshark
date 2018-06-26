@@ -5389,7 +5389,6 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
     gchar    *dotp, *last_dotp;
     static gchar *filter_label = NULL;
     static gboolean filter_enabled = FALSE;
-    gchar    *filter_expr = NULL;
     module_t *module, *containing_module;
     pref_t   *pref;
     int type;
@@ -5397,15 +5396,18 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
     //The PRS_GUI field names are here for backwards compatibility
     //display filters have been converted to a UAT.
     if (strcmp(pref_name, PRS_GUI_FILTER_LABEL) == 0) {
+        /* Assume that PRS_GUI_FILTER_EXPR follows this preference. In case of
+         * malicious preference files, free the previous value to limit the size
+         * of leaked memory.  */
+        g_free(filter_label);
         filter_label = g_strdup(value);
     } else if (strcmp(pref_name, PRS_GUI_FILTER_ENABLED) == 0) {
         filter_enabled = (strcmp(value, "TRUE") == 0) ? TRUE : FALSE;
     } else if (strcmp(pref_name, PRS_GUI_FILTER_EXPR) == 0) {
-        filter_expr = g_strdup(value);
         /* Comments not supported for "old" preference style */
-        filter_expression_new(filter_label, filter_expr, "", filter_enabled);
+        filter_expression_new(filter_label, value, "", filter_enabled);
         g_free(filter_label);
-        g_free(filter_expr);
+        filter_label = NULL;
     } else if (strcmp(pref_name, "gui.version_in_start_page") == 0) {
         /* Convert deprecated value to closest current equivalent */
         if (g_ascii_strcasecmp(value, "true") == 0) {
