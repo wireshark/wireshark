@@ -75,6 +75,7 @@ S101 Lawo Emberplus transport frame
 GLOW Lawo Emberplus Data format
 STCSIG (Spirent Test Center Signature decoding for Ethernet and FibreChannel, disabled by default)
 Exablaze trailers
+Ubiquiti Discovery Protocol (UBDP)
 --
 
 === Updated Protocol Support
