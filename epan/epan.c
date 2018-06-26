@@ -405,7 +405,7 @@ epan_get_frame_ts(const epan_t *session, guint32 frame_num)
 {
 	const nstime_t *abs_ts = NULL;
 
-	if (session->funcs.get_frame_ts)
+	if (session && session->funcs.get_frame_ts)
 		abs_ts = session->funcs.get_frame_ts(session->prov, frame_num);
 
 	if (!abs_ts)
