@@ -184,6 +184,7 @@ typedef LONG (WINAPI * RtlGetVersionProc) (OSVERSIONINFOEX *);
 #ifndef STATUS_SUCCESS
 #define STATUS_SUCCESS 0
 #endif
+#include <stdlib.h>
 #endif // _WIN32
 
 /*
@@ -350,6 +351,8 @@ get_os_version_info(GString *str)
 
 		case 10: {
 			gboolean is_nt_workstation;
+                        TCHAR ReleaseId[10];
+                        DWORD ridSize = _countof(ReleaseId);
 
 			if (system_info.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64)
 				g_string_append(str, "64-bit ");
@@ -359,6 +362,10 @@ get_os_version_info(GString *str)
 			switch (win_version_info.dwMinorVersion) {
 			case 0:
 				g_string_append_printf(str, is_nt_workstation ? "Windows 10" : "Windows Server 2016");
+                                if (RegGetValue(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
+                                                L"ReleaseId", RRF_RT_REG_SZ, NULL, &ReleaseId, &ridSize) == ERROR_SUCCESS) {
+                                        g_string_append_printf(str, " (%s)", utf_16to8(ReleaseId));
+                                }
 				break;
 			default:
 				g_string_append_printf(str, "Windows NT, unknown version %lu.%lu",
