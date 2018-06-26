@@ -186,6 +186,7 @@ macro( ADD_NSIS_PACKAGE_TARGET )
 		DEPENDS
 			${NSIS_FILES}
 			copy_data_files
+			update_tools_help
 			user_guide_chm
 			${CMAKE_BINARY_DIR}/docbook/user-guide.chm
 			${DATAFILE_DIR}/uninstall.exe
