@@ -7633,6 +7633,7 @@ static const value_string names_nfs4_operation[] = {
 	{	NFS4_OP_READ_PLUS,             "READ_PLUS"  },
 	{	NFS4_OP_SEEK,                  "SEEK"  },
 	{	NFS4_OP_WRITE_SAME,            "WRITE_SAME"  },
+	{	NFS4_OP_CLONE,                 "CLONE"  },
 	{	NFS4_OP_GETXATTR,              "GETXATTR"  },
 	{	NFS4_OP_SETXATTR,              "SETXATTR"  },
 	{	NFS4_OP_LISTXATTRS,            "LISTXATTRS"  },
