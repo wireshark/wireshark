@@ -22781,13 +22781,13 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
           i += 1;
 
           proto_tree_add_item(subframe_tree, hf_ieee80211_addr_da, next_tvb, msdu_offset, 6, ENC_NA);
-          resolve_name = tvb_get_ether_name(tvb, msdu_offset);
-          hidden_item = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_da_resolved, tvb, msdu_offset, 6,
+          resolve_name = tvb_get_ether_name(next_tvb, msdu_offset);
+          hidden_item = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_da_resolved, next_tvb, msdu_offset, 6,
             resolve_name);
           PROTO_ITEM_SET_HIDDEN(hidden_item);
           proto_tree_add_item(subframe_tree, hf_ieee80211_addr_sa, next_tvb, msdu_offset+6, 6, ENC_NA);
-          resolve_name = tvb_get_ether_name(tvb, msdu_offset+6);
-          hidden_item = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_sa_resolved, tvb, msdu_offset+6, 6,
+          resolve_name = tvb_get_ether_name(next_tvb, msdu_offset+6);
+          hidden_item = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_sa_resolved, next_tvb, msdu_offset+6, 6,
             resolve_name);
           PROTO_ITEM_SET_HIDDEN(hidden_item);
           proto_tree_add_item(subframe_tree, hf_ieee80211_amsdu_length, next_tvb, msdu_offset+12, 2, ENC_BIG_ENDIAN);
