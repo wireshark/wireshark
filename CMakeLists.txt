@@ -1821,7 +1821,7 @@ if(WIN32)
 		DOC "Path to the 7z utility."
 	)
 	if(ZIP_EXECUTABLE)
-		add_custom_target(pdb_zip_package)
+		add_custom_target(pdb_zip_package COMMENT "This packages .PDBs but will not create them.")
 		set_target_properties(pdb_zip_package PROPERTIES FOLDER "Packaging")
 		set(_pdb_zip "${CMAKE_BINARY_DIR}/Wireshark-pdb-${WIRESHARK_TARGET_PLATFORM}-${VERSION}.zip")
 		file(TO_NATIVE_PATH "${_pdb_zip}" _pdb_zip_win)
@@ -1834,7 +1834,6 @@ if(WIN32)
 				${PLUGIN_VERSION_DIR}/wiretap/*.pdb
 			WORKING_DIRECTORY "${_dll_output_dir}"
 		)
-		add_dependencies(pdb_zip_package epan)
 	endif()
 endif(WIN32)
 
