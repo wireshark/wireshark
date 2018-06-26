@@ -589,7 +589,7 @@ Release notes text:: Asciidoctor → _HTML_ → html2text.py
 
 ==== Asciidoctor
 
-Asciidoctor[https://asciidoctor.org/] comes in several flavors: a Ruby
+https://asciidoctor.org/[Asciidoctor] comes in several flavors: a Ruby
 gem (Asciidoctor), a Java bundle (AsciidoctorJ), and transpiled
 JavaScript (Asciidoctor.js). Only the Asciidoctor and AsciidoctorJ
 flavors are supported for building the Wireshark documentation and
@@ -598,7 +598,7 @@ AsciidoctorJ is recommended.
 The guides and release notes were originally written in DocBook (hence
 the directory name). They were later converted to AsciiDoc and then
 migrated to Asciidoctor.
-`compat-mode`[https://asciidoctor.org/docs/migration/] is currently
+https://asciidoctor.org/docs/migration/[`compat-mode`] is currently
 enabled for the guides, but we are steadily migrating to Asciidoctor’s
 modern (>= 1.5.0) syntax.
 
