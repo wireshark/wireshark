@@ -1679,14 +1679,14 @@ dissect_lldp_system_name(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 										ett_system_name, NULL, "System Name = %s", strPtr);
 		if (column_info_selection == DEFAULT_COLUMN_INFO)
 		{
-			col_append_fstr(pinfo->cinfo, COL_INFO, "System Name = %s ", strPtr);
+			col_append_fstr(pinfo->cinfo, COL_INFO, "SysName = %s ", strPtr);
 		}
 	} else {
 		system_subtree = proto_tree_add_subtree_format(tree, tvb, offset, (dataLen + 2),
 										ett_system_desc, NULL, "System Description = %s", strPtr);
 		if (column_info_selection == DEFAULT_COLUMN_INFO)
 		{
-			col_append_fstr(pinfo->cinfo, COL_INFO, "System Description = %s ", strPtr);
+			col_append_fstr(pinfo->cinfo, COL_INFO, "SysDesc = %s ", strPtr);
 		}
 	}
 
