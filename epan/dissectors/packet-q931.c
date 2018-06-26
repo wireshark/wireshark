@@ -3047,7 +3047,9 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
         }
         codeset = locked_codeset;
     }
-    tap_queue_packet(q931_tap, pinfo, q931_pi);
+    if (q931_pi) {
+        tap_queue_packet(q931_tap, pinfo, q931_pi);
+    }
 }
 
 /*
