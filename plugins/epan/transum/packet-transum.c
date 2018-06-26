@@ -801,8 +801,6 @@ static void init_globals(void)
 
     wmem_map_insert(preferences.tcp_svc_ports, GUINT_TO_POINTER(445), GUINT_TO_POINTER(RTE_CALC_SMB2));
     wmem_map_insert(preferences.udp_svc_ports, GUINT_TO_POINTER(53), GUINT_TO_POINTER(RTE_CALC_DNS));
-
-    output_rrpd = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
 }
 
 /* Undo capture file-specific initializations. */
@@ -1335,6 +1333,8 @@ proto_register_transum(void)
     register_cleanup_routine(cleanup_globals);
 
     register_postdissector(transum_handle);
+
+    output_rrpd = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
 }
 
 void proto_reg_handoff_transum(void)
