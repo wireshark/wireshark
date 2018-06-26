@@ -1,4 +1,4 @@
--- 3GPP TS 25.331 V15.2.0 (2018-03)
+-- 3GPP TS 25.331 V15.3.0 (2018-06)
 --
 -- 11.3	Information element definitions
 --
@@ -800,7 +800,7 @@ AccessGroupIdentity ::=				INTEGER (0..15)
 AccessStratumReleaseIndicator ::=	ENUMERATED {
 										rel-4, rel-5, rel-6, rel-7, rel-8,
 										rel-9, rel-10, rel-11, rel-12,
-										rel-13, rel-14, spare5, spare4, spare3,
+										rel-13, rel-14, rel-15, spare4, spare3,
 										spare2, spare1 }
 
 -- TABULAR : for ActivationTime, value 'now' always appear as default, and is encoded
@@ -1218,6 +1218,10 @@ DL-PhysChCapabilityFDD-vd20ext ::=	SEQUENCE {
 
 DL-PhysChCapabilityFDD-ve30ext ::=	SEQUENCE {
 	supportofHS-SCCHDrxOperation			ENUMERATED { true }				OPTIONAL
+}
+
+DL-PhysChCapabilityFDD-vf10ext ::=	SEQUENCE {
+	supportofSimplifiedHS-SCCHType1Operation			     ENUMERATED { true }			OPTIONAL
 }
 
 DL-PhysChCapabilityTDD ::=		SEQUENCE {
@@ -1743,6 +1747,10 @@ MeasurementCapability-ve30ext ::=	SEQUENCE {
 	qoEMeasurementCollectionForStreamingServices	ENUMERATED { true }			OPTIONAL
 }
 
+MeasurementCapability-vf20ext ::=	SEQUENCE {
+	qoEMeasurementCollectionForMTSIServices		ENUMERATED { true }			OPTIONAL
+}
+
 MessageAuthenticationCode ::=		BIT STRING (SIZE (32))
 
 MinimumSF-DL ::=					ENUMERATED {
@@ -2082,6 +2090,12 @@ PhysicalChannelCapabilityInfo-v770ext ::= SEQUENCE {
 	tddPhysChCapability-128					SEQUENCE {
 		uplinkPhysChCapability					UL-PhysChCapabilityInfoTDD-128-v770ext
 	}		OPTIONAL
+}
+
+PhysicalChannelCapability-vf10ext ::=	SEQUENCE {
+	fddPhysChCapability						SEQUENCE {
+		downlinkPhysChCapability					DL-PhysChCapabilityFDD-vf10ext	OPTIONAL
+		}
 }
 
 -- PhysicalChannelCapability-LCR-r4 describes the 1.28Mcps TDD physical channel capability
@@ -3039,18 +3053,14 @@ UE-RadioAccessCapability-ve30ext-IEs ::=		SEQUENCE {
 
 UE-RadioAccessCapability-vf10ext-IEs ::=		SEQUENCE { 
 	physicalChannelCapability					PhysicalChannelCapability-vf10ext   OPTIONAL,
+	ue-RadioAccessCapability-vf20ext-IEs	        UE-RadioAccessCapability-vf20ext-IEs
+}
+
+UE-RadioAccessCapability-vf20ext-IEs ::=		SEQUENCE { 
+	measurementCapability						MeasurementCapability-vf20ext		OPTIONAL,
 	nonCriticalExtensions						SEQUENCE {}							OPTIONAL
-
-}
-PhysicalChannelCapability-vf10ext ::=	SEQUENCE {
-	fddPhysChCapability						SEQUENCE {
-		downlinkPhysChCapability					DL-PhysChCapabilityFDD-vf10ext	OPTIONAL
-		}
 }
 
-DL-PhysChCapabilityFDD-vf10ext ::=	SEQUENCE {
-	supportofSimplifiedHS-SCCHType1Operation			     ENUMERATED { true }			OPTIONAL
-}
 
 UE-ConnTimersAndConstants ::=		SEQUENCE {
 -- Optional is used also for parameters for which the default value is the last one read in SIB1
@@ -18826,6 +18836,16 @@ MeasurementCommand-r14 ::=			CHOICE {
 	releaseSome						MeasurementsToRelease
 }
 
+MeasurementCommand-r15 ::=			CHOICE {
+	setup								MeasurementType-r15,
+	modify								SEQUENCE {
+		measurementType						MeasurementType-r15				OPTIONAL
+	},
+	release								NULL,
+	releaseAll							NULL,
+	releaseSome						MeasurementsToRelease
+}
+
 MeasurementControlSysInfo ::=		SEQUENCE {
 	-- CHOICE cellSelectQualityMeasure represents PCCPCH-RSCP in TDD mode.
 	use-of-HCS							CHOICE {
@@ -19160,6 +19180,21 @@ MeasurementType-r14 ::=							CHOICE {
 	applicationLayerMeasurementConfiguration	ApplicationLayerMeasurementConfiguration
 }
 
+MeasurementType-r15 ::=							CHOICE {
+	intraFrequencyMeasurement						IntraFrequencyMeasurement-r11,
+	interFrequencyMeasurement						InterFrequencyMeasurement-r12,
+	interRATMeasurement							InterRATMeasurement-r12,
+	up-Measurement									UE-Positioning-Measurement-r13,
+	trafficVolumeMeasurement						TrafficVolumeMeasurement,
+	qualityMeasurement								QualityMeasurement,
+	ue-InternalMeasurement						UE-InternalMeasurement-r14,
+	csgProximityDetection							CSGProximityDetection,
+	eutraMeasurementForCELLFACH					EUTRA-MeasurementForCELLFACH-r12,
+	applicationLayerMeasurementConfiguration 	ApplicationLayerMeasurementConfiguration,
+	applicationLayerMeasurementConfiguration-r15 ApplicationLayerMeasurementConfiguration-r15
+}
+
+
 MeasurementType-Relocation-r14 ::=				CHOICE {
 	intraFrequencyMeasurement						IntraFrequencyMeasurement-r11,
 	interFrequencyMeasurement						InterFrequencyMeasurement-r12,
@@ -19171,6 +19206,21 @@ MeasurementType-Relocation-r14 ::=				CHOICE {
 	csgProximityDetection							CSGProximityDetection,
 	eutraMeasurementForCELLFACH					EUTRA-MeasurementForCELLFACH-r12,
 	applicationLayerMeasurement					NULL
+}
+
+MeasurementType-Relocation-r15 ::=				CHOICE {
+	intraFrequencyMeasurement						IntraFrequencyMeasurement-r11,
+	interFrequencyMeasurement						InterFrequencyMeasurement-r12,
+	interRATMeasurement							InterRATMeasurement-r12,
+	up-Measurement									UE-Positioning-Measurement-r13,
+	trafficVolumeMeasurement						TrafficVolumeMeasurement,
+	qualityMeasurement								QualityMeasurement,
+	ue-InternalMeasurement						UE-InternalMeasurement-r14,
+	csgProximityDetection							CSGProximityDetection,
+	eutraMeasurementForCELLFACH					EUTRA-MeasurementForCELLFACH-r12,
+	applicationLayerMeasurement					NULL,
+	applicationLayerMeasurement-r15				NULL
+	
 }
 
 MeasurementValidity ::=				SEQUENCE {
@@ -19885,8 +19935,18 @@ ApplicationLayerMeasurementConfiguration ::=		SEQUENCE {
 	containerForApplicationLayerMeasurementConfiguration	OCTET STRING ( SIZE (1..1000))
 }
 
+ApplicationLayerMeasurementConfiguration-r15 ::=	 SEQUENCE {
+	containerForApplicationLayerMeasurementConfiguration	 OCTET STRING ( SIZE (1..1000)),
+	serviceType										ENUMERATED { qoe, qoemtsi }
+}
+
 ApplicationLayerMeasurementReporting ::=		SEQUENCE {
 	containerForApplicationLayerMeasurementReporting		OCTET STRING ( SIZE (1..8000))
+}
+
+ApplicationLayerMeasurementReporting-r15 ::=		SEQUENCE {
+	containerForApplicationLayerMeasurementReporting		OCTET STRING ( SIZE (1..8000)),
+	serviceType										ENUMERATED { qoe, qoemtsi }		
 }
 
 ObservedTimeDifferenceToGSM ::=		INTEGER (0..4095)
