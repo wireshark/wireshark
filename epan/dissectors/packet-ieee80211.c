@@ -103,7 +103,7 @@ static gboolean wlan_subdissector = TRUE;
 static gboolean wlan_check_fcs = FALSE;
 
 /* Check the FCS checksum */
-static gboolean wlan_check_checksum = TRUE;
+static gboolean wlan_check_checksum = FALSE;
 
 /* Ignore vendor-specific HT elements */
 static gboolean wlan_ignore_draft_ht = FALSE;
