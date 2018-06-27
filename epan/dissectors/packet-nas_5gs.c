@@ -199,6 +199,13 @@ static int hf_nas_5gs_amf_set_id = -1;
 static int hf_nas_5gs_amf_pointer = -1;
 static int hf_nas_5gs_5g_tmsi = -1;
 
+static int hf_nas_5gs_nw_feat_sup_mpsi_b7 = -1;
+static int hf_nas_5gs_nw_feat_sup_ims_iwk_n26_b6 = -1;
+static int hf_nas_5gs_nw_feat_sup_ims_emf_b5b4 = -1;
+static int hf_nas_5gs_nw_feat_sup_ims_emc_b3b2 = -1;
+static int hf_nas_5gs_nw_feat_sup_ims_vops_b1b0 = -1;
+
+
 static expert_field ei_nas_5gs_extraneous_data = EI_INIT;
 static expert_field ei_nas_5gs_unknown_pd = EI_INIT;
 static expert_field ei_nas_5gs_mm_unknown_msg_type = EI_INIT;
@@ -427,11 +434,56 @@ de_nas_5gs_mm_5gs_mobile_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 /*
  * 9.10.3.5    5GS network feature support
  */
+
+
+static const value_string nas_5gs_nw_feat_sup_ims_vops_values[] = {
+    { 0x0, "MS voice over PS session not supported" },
+    { 0x1, "IMS voice over PS session supported over 3GPP access" },
+    { 0x2, "IMS voice over PS session supported over non - 3GPP access" },
+    { 0x3, "Reserved" },
+    { 0, NULL }
+};
+
+static const value_string nas_5gs_nw_feat_sup_emc_values[] = {
+    { 0x0, "Emergency services not supported" },
+    { 0x1, "Emergency services supported in NR connected to 5GCN only" },
+    { 0x2, "Emergency services supported in E-UTRA connected to 5GCN only" },
+    { 0x3, "Emergency services supported in NR connected to 5GCN and E-UTRA connected to 5GCN" },
+    { 0, NULL }
+};
+
+static const value_string nas_5gs_nw_feat_sup_emf_values[] = {
+    { 0x0, "Emergency services fallback not supported" },
+    { 0x1, "Emergency services fallback supported in NR connected to 5GCN only" },
+    { 0x2, "Emergency services fallback supported in E-UTRA connected to 5GCN only" },
+    { 0x3, "mergency services fallback supported in NR connected to 5GCN and E-UTRA connected to 5GCN" },
+    { 0, NULL }
+};
+
+static const true_false_string tfs_nas_5gs_nw_feat_sup_mpsi = {
+    "Access identity 1 valid in RPLMN or equivalent PLMN",
+    "Access identity 1 not valid in RPLMN or equivalent PLMN"
+};
+
 static guint16
 de_nas_5gs_mm_5gs_nw_feat_sup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     guint32 offset, guint len,
     gchar *add_string _U_, int string_len _U_)
 {
+
+    static const int * flags[] = {
+        &hf_nas_5gs_nw_feat_sup_mpsi_b7,
+        &hf_nas_5gs_nw_feat_sup_ims_iwk_n26_b6,
+        &hf_nas_5gs_nw_feat_sup_ims_emf_b5b4,
+        &hf_nas_5gs_nw_feat_sup_ims_emc_b3b2,
+        &hf_nas_5gs_nw_feat_sup_ims_vops_b1b0,
+        NULL
+    };
+
+
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags, ENC_BIG_ENDIAN);
+
+    /* MPSI    IWK N26    EMF    EMC    IMS VoPS    octet 3*/
     /* The definition of 5GS network feature support is FFS, but should include a dual-registration supported indication.*/
     proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
 
@@ -2271,7 +2323,7 @@ nas_5gs_mm_authentication_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
 /*
  * 8.2.3 Authentication result
  */
-
+#ifdef NAS_V_2_0_0
 static void
 nas_5gs_mm_authentication_result(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
@@ -2293,7 +2345,7 @@ nas_5gs_mm_authentication_result(tvbuff_t *tvb, proto_tree *tree, packet_info *p
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_5gs_extraneous_data);
 
 }
-
+#endif
 /*
  * 8.2.4 Authentication failure
  */
@@ -3481,17 +3533,8 @@ static void(*nas_5gs_mm_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info 
     nas_5gs_mm_authentication_req,              /* 0x56    Authentication request */
     nas_5gs_mm_authentication_resp,             /* 0x57    Authentication response */
     nas_5gs_mm_authentication_rej,              /* 0x58    Authentication reject */
-
     nas_5gs_mm_authentication_failure,          /* 0x59    Authentication failure */
-    nas_5gs_mm_id_req,                          /* 0x5a    Identity request */
-    nas_5gs_mm_id_resp,                         /* 0x5b    Identity response */
-    nas_5gs_mm_sec_mode_cmd,                    /* 0x5c    Security mode command */
-    nas_5gs_mm_sec_mode_comp,                   /* 0x5d    Security mode complete */
-    nas_5gs_mm_sec_mode_rej,                    /* 0x5e    Security mode reject */
-    nas_5gs_exp_not_dissected_yet,              /* 0x5f    Not used in v 0.4.0 */
-
 #ifdef NAS_V_2_0_0
-    nas_5gs_mm_authentication_failure,          /* 0x59    Authentication failure */
     nas_5gs_mm_authentication_result,           /* 0x5a    Authentication result */
     nas_5gs_mm_id_req,                          /* 0x5b    Identity request */
     nas_5gs_mm_id_resp,                         /* 0x5c    Identity response */
@@ -3499,11 +3542,18 @@ static void(*nas_5gs_mm_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info 
     nas_5gs_mm_sec_mode_comp,                   /* 0x5e    Security mode complete */
     nas_5gs_mm_sec_mode_rej,                    /* 0x5f    Security mode reject */
 #else
+    nas_5gs_mm_id_req,                          /* 0x5a    Identity request */
+    nas_5gs_mm_id_resp,                         /* 0x5b    Identity response */
+    nas_5gs_mm_sec_mode_cmd,                    /* 0x5c    Security mode command */
+    nas_5gs_mm_sec_mode_comp,                   /* 0x5d    Security mode complete */
+    nas_5gs_mm_sec_mode_rej,                    /* 0x5e    Security mode reject */
+    nas_5gs_exp_not_dissected_yet,              /* 0x5f    Not used in v 0.4.0 */
+#endif
     nas_5gs_exp_not_dissected_yet,              /* 0x60    Not used in v 0.4.0 */
     nas_5gs_exp_not_dissected_yet,              /* 0x61    Not used in v 0.4.0 */
     nas_5gs_exp_not_dissected_yet,              /* 0x62    Not used in v 0.4.0 */
     nas_5gs_exp_not_dissected_yet,              /* 0x63    Not used in v 0.4.0 */
-#endif
+
     nas_5gs_mm_5gmm_status,                     /* 0x64    5GMM status */
     nas_5gs_mm_notification,                    /* 0x65    Notification */
 #ifdef NAS_V_2_0_0
@@ -3849,7 +3899,7 @@ dissect_nas_5gs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     /* Message authentication code octet 3 - 6 */
     proto_tree_add_item(sub_tree, hf_nas_5gs_msg_auth_code, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    /* Sequence number	octet 7 */
+    /* Sequence number    octet 7 */
     proto_tree_add_item(sub_tree, hf_nas_5gs_seq_no, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
@@ -4594,6 +4644,31 @@ proto_register_nas_5gs(void)
         { &hf_nas_5gs_5g_tmsi,
         { "5G-TMSI",   "nas_5gs.5g_tmsi",
             FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_nw_feat_sup_ims_emf_b5b4,
+        { "Emergency service fallback indicator (EMF)",   "nas_5gs.nw_feat_sup.emf",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_nw_feat_sup_emf_values), 0x18,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_nw_feat_sup_ims_emc_b3b2,
+        { "Emergency service support indicator (EMC)",   "nas_5gs.nw_feat_sup.emc",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_nw_feat_sup_emc_values), 0x06,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_nw_feat_sup_ims_vops_b1b0,
+        { "IMS voice over PS session indicator (IMS VoPS)",   "nas_5gs.nw_feat_sup.vops",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_nw_feat_sup_ims_vops_values), 0x03,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_nw_feat_sup_ims_iwk_n26_b6,
+        { "Interworking without N26",   "nas_5gs.nw_feat_sup.iwk_n26",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_nw_feat_sup_mpsi_b7,
+        { "MPS indicator (MPSI)",   "nas_5gs.nw_feat_sup.mpsi",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_nw_feat_sup_mpsi), 0x80,
             NULL, HFILL }
         },
     };
