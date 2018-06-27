@@ -831,6 +831,12 @@ change, you can run git commit --no-verify to skip running the hooks. Warning: u
 --no-verify avoids the commit-msg hook, and thus will not automatically add the required
 Change-ID to your commit. In case you are not updating an existing patch you may generate
 a Change-ID by running git review -i (or git commit --amend if don't use git review).
++
+Additionally, if your system supports symbolic links (like Linux), you can use them
+instead of copying files. Running ln -s ./tools/pre-commit .git/hooks creates a symbolic
+link that will make the hook to be up-to-date with the current master. The same can
+be done for commit-msg script.
+
 
 * _Fuzz test your changes!_ Fuzz testing is a very
 effective way to automatically find a lot of dissector related bugs.
