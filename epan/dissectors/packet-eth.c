@@ -42,7 +42,7 @@ void proto_reg_handoff_eth(void);
 static gboolean eth_assume_padding = TRUE;
 static guint eth_trailer_length = 0;
 static gboolean eth_assume_fcs = FALSE;
-static gboolean eth_check_fcs = TRUE;
+static gboolean eth_check_fcs = FALSE;
 /* Interpret packets as FW1 monitor file packets if they look as if they are */
 static gboolean eth_interpret_as_fw1_monitor = FALSE;
 /* When capturing on a Cisco FEX some frames start with an extra destination mac */
