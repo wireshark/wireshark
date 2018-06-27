@@ -40,18 +40,18 @@ The following features are new (or have been significantly updated)
 since version 2.6.0:
 
 * The membership operator now supports ranges, allowing display filters such as
-  `tcp.port in {4430..4434}` to be expressed. See the User's Guide, chapter
+  `tcp.port in {4430..4434}` to be expressed. See the User’s Guide, chapter
   _Building display filter expressions_ for details.
-* The autotools build system has been removed. CMake is the one build system now.
-* tshark has now "-G elastic-mapping" option to generate an ElasticSearch mapping file.
+* TShark now supports the `-G elastic-mapping` option which generates an ElasticSearch mapping file.
 * The “Capture Information” dialog has been added back (wsbuglink:12004[]).
+* The Ethernet dissector no longer validates the frame check sequence (checksum) by default.
 
 === Removed Features and Support
 
 * The legacy (GTK+) user interface has been removed and is no longer supported.
 * Wireshark requires Qt 5.2 or later. Qt 4 is no longer supported.
 * Wireshark requires GLib 2.32 or later.
-* Building Wireshark using Autotools is no longer supported.
+* Building Wireshark requires CMake. Autotools is no longer supported.
 
 //=== Removed Dissectors
 
