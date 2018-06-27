@@ -33,6 +33,19 @@
 #include <epan/prefs.h>
 #include "wireshark_application.h"
 
+#if !defined(Q_OS_WIN)
+static const QStringList export_extensions = QStringList()
+    << ""
+    << "txt"
+    << ""
+    << "csv"
+    << "psml"
+    << "pdml"
+    << "c"
+    << "json";
+
+#endif
+
 ExportDissectionDialog::ExportDissectionDialog(QWidget *parent, capture_file *cap_file, export_type_e export_type):
     QFileDialog(parent),
     export_type_(export_type),
@@ -242,6 +255,7 @@ void ExportDissectionDialog::exportTypeChanged(QString name_filter)
     }
 
     checkValidity();
+    setDefaultSuffix(export_extensions[export_type_]);
 }
 
 void ExportDissectionDialog::checkValidity()

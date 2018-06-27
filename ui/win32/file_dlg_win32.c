@@ -60,6 +60,18 @@ typedef enum {
     _T("C Arrays (packet bytes) (*.c)\0")                _T("*.c\0")     \
     _T("JSON (*.json)\0")                                _T("*.json\0")
 
+static TCHAR *FILE_EXT_EXPORT[] =
+{
+    _T(""), /* export type starts at 1 */
+    _T("txt"),
+    _T("ps"),
+    _T("csv"),
+    _T("psml"),
+    _T("pdml"),
+    _T("c"),
+    _T("json")
+};
+
 #define FILE_TYPES_RAW \
     _T("Raw data (*.bin, *.dat, *.raw)\0")               _T("*.bin;*.dat;*.raw\0") \
     _T("All Files (") _T(ALL_FILES_WILDCARD) _T(")\0")   _T(ALL_FILES_WILDCARD) _T("\0")
@@ -645,7 +657,7 @@ win32_export_file(HWND h_wnd, capture_file *cf, export_type_e export_type) {
     ofn->Flags = OFN_ENABLESIZING  | OFN_ENABLETEMPLATE  | OFN_EXPLORER     |
                  OFN_NOCHANGEDIR   | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
                  OFN_PATHMUSTEXIST | OFN_ENABLEHOOK      | OFN_SHOWHELP;
-    ofn->lpstrDefExt = NULL;
+    ofn->lpstrDefExt = FILE_EXT_EXPORT[export_type];
     ofn->lCustData = (LPARAM) cf;
     ofn->lpfnHook = export_file_hook_proc;
     ofn->lpTemplateName = _T("WIRESHARK_EXPORTFILENAME_TEMPLATE");
