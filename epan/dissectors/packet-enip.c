@@ -376,15 +376,16 @@ static expert_field ei_mal_eip_security_trusted_auths = EI_INIT;
 static expert_field ei_mal_eip_cert_capability_flags = EI_INIT;
 
 static dissector_table_t   subdissector_srrd_table;
-static dissector_table_t   subdissector_sud_table;
 static dissector_table_t   subdissector_io_table;
 static dissector_table_t   subdissector_decode_as_io_table;
 static dissector_table_t   subdissector_class_table;
+static dissector_table_t   subdissector_cip_connection_table;
 
 static dissector_handle_t  arp_handle;
 static dissector_handle_t  cipsafety_handle;
 static dissector_handle_t  cip_io_generic_handle;
 static dissector_handle_t  cip_implicit_handle;
+static dissector_handle_t  cip_handle;
 static dissector_handle_t  enip_tcp_handle;
 static dissector_handle_t  enipio_handle;
 
@@ -2359,6 +2360,58 @@ static void dissect_cip_class01_io(packet_info* pinfo, tvbuff_t* tvb, int offset
    }
 }
 
+// Dissect CIP Class 2/3 data. This will determine the appropriate format and call the appropriate related dissector.
+// offset - Starts at the field after the Item Length field.
+static void dissect_cip_class23_data(packet_info* pinfo, tvbuff_t* tvb, int offset,
+   proto_tree* tree, proto_tree* item_tree, guint32 item_length,
+   enip_request_key_t* request_key, enip_conn_val_t* conn_info, proto_tree* dissector_tree)
+{
+   enip_request_info_t* request_info = NULL;
+
+   if (request_key)
+   {
+      request_key->type = EPDT_CONNECTED_TRANSPORT;
+      request_key->data.connected_transport.sequence = tvb_get_letohs(tvb, offset);
+      request_info = enip_match_request(pinfo, tree, request_key);
+   }
+
+   /* Save the connection info for the conversation filter */
+   if ((!pinfo->fd->flags.visited) && (conn_info != NULL))
+      p_add_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_CONNECTION_INFO, conn_info);
+
+   /* Add sequence count ( Transport Class 2,3 ) */
+   proto_tree_add_item(item_tree, hf_cip_sequence_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+
+   /* Call dissector for interface */
+   tvbuff_t* next_tvb = tvb_new_subset_length(tvb, offset + 2, item_length - 2);
+
+   p_add_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_REQUEST_INFO, request_info);
+
+   if (conn_info != NULL)
+   {
+      dissector_handle_t dissector = dissector_get_uint_handle(subdissector_cip_connection_table, conn_info->ClassID);
+      if (dissector)
+      {
+         call_dissector_with_data(dissector, next_tvb, pinfo, dissector_tree, GUINT_TO_POINTER(conn_info->ClassID));
+      }
+      else
+      {
+         call_dissector_with_data(cip_implicit_handle, next_tvb, pinfo, dissector_tree, GUINT_TO_POINTER(conn_info->ClassID));
+      }
+   }
+   else
+   {
+      // Default to Message Router format, since this is the most common. Since we don't have the connection
+      // info, at least ensure that the data can at least meet the minimum explicit message size.
+      if (tvb_reported_length(next_tvb) >= 2)
+      {
+         call_dissector(cip_handle, next_tvb, pinfo, dissector_tree);
+      }
+   }
+
+   p_remove_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_REQUEST_INFO);
+}
+
 // offset - Starts at the sin_family field.
 static void dissect_item_sockaddr_info(packet_info *pinfo, tvbuff_t* tvb, int offset, proto_tree* item_tree,
    guint32 item_type_id, gboolean is_fwd_open)
@@ -2611,59 +2664,14 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
             }
 
             case CONNECTION_TRANSPORT:  // 2nd item for: Connected messages (both Class 0/1 and Class 3)
-
-               if ( command == SEND_UNIT_DATA )
+               if (command == SEND_UNIT_DATA)  // Class 2/3 over TCP.
                {
-                  enip_request_info_t* request_info = NULL;
-
-                  if ( request_key )
-                  {
-                     request_key->type = EPDT_CONNECTED_TRANSPORT;
-                     request_key->data.connected_transport.sequence = tvb_get_letohs( tvb, offset );
-                     request_info = enip_match_request( pinfo, tree, request_key );
-                  }
-
-                  /* Save the connection info for the conversation filter */
-                  if ((!pinfo->fd->flags.visited) && (conn_info != NULL))
-                     p_add_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_CONNECTION_INFO, conn_info);
-
-                  /*
-                  ** If the encapsulation service is SendUnit Data, this is a
-                  ** encapsulated connected message
-                  */
-
-                  /* Add sequence count ( Transport Class 1,2,3 ) */
-                  proto_tree_add_item( item_tree, hf_cip_sequence_count, tvb, offset, 2, ENC_LITTLE_ENDIAN );
-
-                  /* Call dissector for interface */
-                  tvbuff_t* next_tvb = tvb_new_subset_length (tvb, offset+2, item_length-2);
-
-                  /* If we don't have the connection info, we can't be sure of the data format, so
-                  ensure that the data can at least meet the minimum explicit message size. */
-                  if ((conn_info == NULL) && tvb_reported_length(next_tvb) < 2)
-                  {
-                     break;
-                  }
-
-                  if ((conn_info == NULL) || (conn_info->ClassID == CI_CLS_MR))
-                  {
-                      p_add_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_REQUEST_INFO, request_info);
-                      if (!dissector_try_uint(subdissector_sud_table, ifacehndl, next_tvb, pinfo, dissector_tree) )
-                      {
-                         /* Show the undissected payload */
-                         call_data_dissector(next_tvb, pinfo, dissector_tree );
-                      }
-                      p_remove_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_REQUEST_INFO);
-                  }
-                  else
-                  {
-                      call_dissector_with_data( cip_implicit_handle, next_tvb, pinfo, dissector_tree, GUINT_TO_POINTER(conn_info->ClassID) );
-                  }
+                  dissect_cip_class23_data(pinfo, tvb, offset, tree, item_tree, item_length, request_key, conn_info, dissector_tree);
                }
-               else
+               else  // No command. Send as CPF items only over UDP.
                {
                   dissect_cip_class01_io(pinfo, tvb, offset, item_length, conn_info, connid_type, dissector_tree);
-               } /* End of if send unit data */
+               }
 
                break;
 
@@ -4534,14 +4542,14 @@ proto_register_enip(void)
 
    prefs_register_obsolete_preference(enip_module, "default_io_dissector");
 
-   subdissector_sud_table = register_dissector_table("enip.sud.iface",
-                                                     "ENIP SendUnitData.Interface Handle", proto_enip, FT_UINT32, BASE_HEX);
-
    subdissector_srrd_table = register_dissector_table("enip.srrd.iface",
                                                       "ENIP SendRequestReplyData.Interface Handle", proto_enip, FT_UINT32, BASE_HEX);
 
    subdissector_io_table = register_dissector_table("cip.io.iface",
       "CIP Class 0/1 Interface Handle", proto_enipio, FT_UINT32, BASE_HEX);
+
+   subdissector_cip_connection_table = register_dissector_table("cip.connection.class",
+      "CIP Class 2/3 Interface Handle", proto_enip, FT_UINT32, BASE_HEX);
 
    enip_request_hashtable = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), enip_request_hash, enip_request_equal);
    enip_conn_hashtable = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), enip_conn_hash, enip_conn_equal);
@@ -4587,7 +4595,9 @@ proto_reg_handoff_enip(void)
    cipsafety_handle = find_dissector("cipsafety");
 
    /* Implicit data dissector */
-   cip_implicit_handle = find_dissector_add_dependency("cip_implicit", proto_enipio);
+   cip_implicit_handle = find_dissector_add_dependency("cip_implicit", proto_enip);
+
+   cip_handle = find_dissector_add_dependency("cip", proto_enip);
 
    /* Register for EtherNet/IP Device Level Ring protocol */
    dlr_handle = create_dissector_handle(dissect_dlr, proto_dlr);

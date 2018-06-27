@@ -60,6 +60,7 @@ typedef struct mr_mult_req_info {
    cip_req_info_t *requests;
 } mr_mult_req_info_t;
 
+static dissector_handle_t cip_handle;
 static dissector_handle_t cip_class_generic_handle;
 static dissector_handle_t cip_class_cm_handle;
 static dissector_handle_t cip_class_pccc_handle;
@@ -8019,7 +8020,7 @@ dissect_cip_implicit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
    proto_item *ti;
    proto_item *conn_path_class_item;
    proto_tree *cip_tree;
-   proto_tree *cmd_data_tree;
+
    guint32 ClassID = GPOINTER_TO_UINT(data);
    int length = tvb_reported_length_remaining(tvb, 0);
 
@@ -8035,9 +8036,7 @@ dissect_cip_implicit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
    conn_path_class_item = proto_tree_add_uint(cip_tree, hf_conn_path_class, NULL, 0, 0, ClassID);
    PROTO_ITEM_SET_GENERATED(conn_path_class_item);
 
-   cmd_data_tree = proto_tree_add_subtree(cip_tree, tvb, 0, length,
-        ett_cmd_data, NULL, "Command Specific Data");
-   proto_tree_add_item(cmd_data_tree, hf_cip_data, tvb, 0, length, ENC_NA);
+   proto_tree_add_item(cip_tree, hf_cip_data, tvb, 0, length, ENC_NA);
 
    col_append_fstr(pinfo->cinfo, COL_INFO, "Implicit Data - %s",
         val_to_str(ClassID, cip_class_names_vals, "Class (0x%02x)"));
@@ -8663,6 +8662,8 @@ proto_register_cip(void)
    /* Register the protocol name and description */
    proto_cip = proto_register_protocol("Common Industrial Protocol",
        "CIP", "cip");
+   cip_handle = register_dissector("cip", dissect_cip, proto_cip);
+
    register_dissector("cip_implicit", dissect_cip_implicit, proto_cip);
 
    /* Required function calls to register the header fields and subtrees used */
@@ -8718,15 +8719,13 @@ proto_register_cip(void)
 void
 proto_reg_handoff_cip(void)
 {
-   dissector_handle_t cip_handle;
    dissector_handle_t cip_class_mb_handle;
 
    /* Create dissector handles */
    /* Register for UCMM CIP data, using EtherNet/IP SendRRData service*/
-   /* Register for Connected CIP data, using EtherNet/IP SendUnitData service*/
-   cip_handle = create_dissector_handle( dissect_cip, proto_cip );
    dissector_add_uint( "enip.srrd.iface", ENIP_CIP_INTERFACE, cip_handle );
-   dissector_add_uint( "enip.sud.iface", ENIP_CIP_INTERFACE, cip_handle );
+
+   dissector_add_uint("cip.connection.class", CI_CLS_MR, cip_handle);
 
    /* Create and register dissector handle for generic class */
    cip_class_generic_handle = create_dissector_handle( dissect_cip_class_generic, proto_cip_class_generic );
