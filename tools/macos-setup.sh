@@ -2193,9 +2193,9 @@ uninstall_all() {
         # Or should we remember it as installed only if this script
         # installed it?
         #
-	uninstall_asciidoctorpdf
+        uninstall_asciidoctorpdf
 
-	uninstall_asciidoctor
+        uninstall_asciidoctor
 
         uninstall_cmake
 
