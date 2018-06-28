@@ -2574,6 +2574,7 @@ nas_5gs_mm_ul_nas_transp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
     curr_offset = offset;
     curr_len = len;
 
+    /* Direction: network to UE*/
     /*Payload container type    Payload container type     9.10.3.31    M    V    1/2 */
     /*Spare half octet    Spare half octet    9.5    M    V    1/2*/
     proto_tree_add_item(tree, hf_nas_5gs_spare_half_octet, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
@@ -2913,7 +2914,6 @@ nas_5gs_mm_notification(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 /*
  * 8.2.24 Notification response
  */
-#ifdef NAS_V_2_0_0
 static void
 nas_5gs_mm_notification_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
@@ -2930,7 +2930,7 @@ nas_5gs_mm_notification_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_5gs_extraneous_data);
 
 }
-#endif
+
 /*
  * 8.2.25 Security mode command
  */
@@ -3479,24 +3479,19 @@ static const value_string nas_5gs_mm_message_type_vals[] = {
     { 0x5c,    "Security mode command" },
     { 0x5d,    "Security mode complete" },
     { 0x5e,    "Security mode reject" },
-
     { 0x5f,    "Not used in v 0.4.0" },
+#endif
     { 0x60,    "Not used in v 0.4.0" },
     { 0x61,    "Not used in v 0.4.0" },
     { 0x62,    "Not used in v 0.4.0" },
     { 0x63,    "Not used in v 0.4.0" },
-#endif
+
 
     { 0x64,    "5GMM status"},
     { 0x65,    "Notification"},
-#ifdef NAS_V_2_0_0
     { 0x66,    "Notification response" },
     { 0x67,    "DL NAS transport"},
     { 0x68,    "UL NAS transport"},
-#else
-    { 0x66,    "DL NAS transport"},
-    { 0x67,    "UL NAS transport"},
-#endif
     { 0,    NULL }
 };
 
@@ -3556,14 +3551,9 @@ static void(*nas_5gs_mm_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info 
 
     nas_5gs_mm_5gmm_status,                     /* 0x64    5GMM status */
     nas_5gs_mm_notification,                    /* 0x65    Notification */
-#ifdef NAS_V_2_0_0
     nas_5gs_mm_notification_resp,               /* 0x66    Notification */
     nas_5gs_mm_dl_nas_transp,                   /* 0x67    DL NAS transport */
     nas_5gs_mm_ul_nas_transp,                   /* 0x68    UL NAS transport */
-#else
-    nas_5gs_mm_dl_nas_transp,                   /* 0x66    DL NAS transport */
-    nas_5gs_mm_ul_nas_transp,                   /* 0x67    UL NAS transport */
-#endif
     NULL,   /* NONE */
 
 };
@@ -3830,6 +3820,13 @@ dissect_nas_5gs_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
         * The PDU session identity and its use to identify a message flow are defined in 3GPP TS 24.007
         */
         proto_tree_add_item(sub_tree, hf_nas_5gs_pdu_session_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+        /* 9.6  Procedure transaction identity
+        * Bits 1 to 8 of the third octet of every 5GSM message contain the procedure transaction identity.
+        * The procedure transaction identity and its use are defined in 3GPP TS 24.007
+        * XXX Only 5GSM ?
+        */
+        proto_tree_add_item(sub_tree, hf_nas_5gs_proc_trans_id, tvb, offset, 1, ENC_BIG_ENDIAN);
         break;
     default:
         proto_tree_add_expert_format(sub_tree, pinfo, &ei_nas_5gs_unknown_pd, tvb, offset, -1, "Not a NAS 5GS PD %u (%s)",
@@ -3837,14 +3834,6 @@ dissect_nas_5gs_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
         return 0;
 
     }
-    offset++;
-
-    /* 9.6  Procedure transaction identity
-     * Bits 1 to 8 of the third octet of every 5GSM message contain the procedure transaction identity.
-     * The procedure transaction identity and its use are defined in 3GPP TS 24.007
-     * XXX Only 5GSM ?
-     */
-    proto_tree_add_item(sub_tree, hf_nas_5gs_proc_trans_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     switch (epd) {
@@ -3870,7 +3859,7 @@ dissect_nas_5gs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     proto_item *item;
     proto_tree *nas_5gs_tree, *sub_tree;
     int offset = 0;
-    guint8 seq_hdr_type;
+    guint8 seq_hdr_type, ext_pd;
 
     /* make entry in the Protocol column on summary display */
     col_append_sep_str(pinfo->cinfo, COL_PROTOCOL, "/", "NAS-5GS");
@@ -3879,6 +3868,10 @@ dissect_nas_5gs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     nas_5gs_tree = proto_item_add_subtree(item, ett_nas_5gs);
 
     /* Extended protocol discriminator                              octet 1 */
+    ext_pd = tvb_get_guint8(tvb, offset);
+    if (ext_pd == TGPP_PD_5GSM) {
+        return dissect_nas_5gs_common(tvb, pinfo, nas_5gs_tree, offset, data);
+    }
     /* Security header type associated with a spare half octet; or
     * PDU session identity                                         octet 2 */
     /* Determine if it's a plain 5GS NAS Message or not */
@@ -4040,7 +4033,7 @@ proto_register_nas_5gs(void)
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_pld_cont_type,
-        { "5GMM cause",   "nas_5gs.mm.pld_cont_type",
+        { "Payload container type",   "nas_5gs.mm.pld_cont_type",
             FT_UINT8, BASE_DEC, VALS(nas_5gs_mm_pld_cont_type_vals), 0x0f,
             NULL, HFILL }
         },
