@@ -201,6 +201,7 @@ static int proto_nr_rrc = -1;
 
 /*--- Included file: packet-nr-rrc-hf.c ---*/
 #line 1 "./asn1/nr-rrc/packet-nr-rrc-hf.c"
+static int hf_nr_rrc_nr_rrc_HandoverCommand_PDU = -1;  /* HandoverCommand */
 static int hf_nr_rrc_nr_rrc_HandoverPreparationInformation_PDU = -1;  /* HandoverPreparationInformation */
 static int hf_nr_rrc_nr_rrc_CG_ConfigInfo_PDU = -1;  /* CG_ConfigInfo */
 static int hf_nr_rrc_nr_rrc_ConfigRestrictInfoSCG_PDU = -1;  /* ConfigRestrictInfoSCG */
@@ -226,16 +227,22 @@ static int hf_nr_rrc_MeasResultList2NR_PDU = -1;  /* MeasResultList2NR */
 static int hf_nr_rrc_MeasResultSCG_Failure_PDU = -1;  /* MeasResultSCG_Failure */
 static int hf_nr_rrc_criticalExtensions = -1;     /* T_criticalExtensions */
 static int hf_nr_rrc_c1 = -1;                     /* T_c1 */
-static int hf_nr_rrc_handoverPreparationInformation = -1;  /* HandoverPreparationInformation_IEs */
+static int hf_nr_rrc_handoverCommand = -1;        /* HandoverCommand_IEs */
 static int hf_nr_rrc_spare3 = -1;                 /* NULL */
 static int hf_nr_rrc_spare2 = -1;                 /* NULL */
 static int hf_nr_rrc_spare1 = -1;                 /* NULL */
 static int hf_nr_rrc_criticalExtensionsFuture = -1;  /* T_criticalExtensionsFuture */
+static int hf_nr_rrc_handoverCommandMessage = -1;  /* T_handoverCommandMessage */
+static int hf_nr_rrc_nonCriticalExtension = -1;   /* T_nonCriticalExtension */
+static int hf_nr_rrc_criticalExtensions_01 = -1;  /* T_criticalExtensions_01 */
+static int hf_nr_rrc_c1_01 = -1;                  /* T_c1_01 */
+static int hf_nr_rrc_handoverPreparationInformation = -1;  /* HandoverPreparationInformation_IEs */
+static int hf_nr_rrc_criticalExtensionsFuture_01 = -1;  /* T_criticalExtensionsFuture_01 */
 static int hf_nr_rrc_ue_CapabilityRAT_List = -1;  /* UE_CapabilityRAT_ContainerList */
 static int hf_nr_rrc_sourceConfig = -1;           /* T_sourceConfig */
 static int hf_nr_rrc_rrm_Config = -1;             /* RRM_Config */
 static int hf_nr_rrc_as_Context = -1;             /* AS_Context */
-static int hf_nr_rrc_nonCriticalExtension = -1;   /* T_nonCriticalExtension */
+static int hf_nr_rrc_nonCriticalExtension_01 = -1;  /* T_nonCriticalExtension_01 */
 static int hf_nr_rrc_reestablishmentInfo = -1;    /* T_reestablishmentInfo */
 static int hf_nr_rrc_sourcePhysCellId = -1;       /* PhysCellId */
 static int hf_nr_rrc_targetCellShortMAC_I = -1;   /* ShortMAC_I */
@@ -248,10 +255,10 @@ static int hf_nr_rrc_shortMAC_I = -1;             /* ShortMAC_I */
 static int hf_nr_rrc_ue_InactiveTime = -1;        /* T_ue_InactiveTime */
 static int hf_nr_rrc_candidateCellInfoList = -1;  /* MeasResultList2NR */
 static int hf_nr_rrc_measuredFrequency = -1;      /* ARFCN_ValueNR */
-static int hf_nr_rrc_criticalExtensions_01 = -1;  /* T_criticalExtensions_01 */
-static int hf_nr_rrc_c1_01 = -1;                  /* T_c1_01 */
+static int hf_nr_rrc_criticalExtensions_02 = -1;  /* T_criticalExtensions_02 */
+static int hf_nr_rrc_c1_02 = -1;                  /* T_c1_02 */
 static int hf_nr_rrc_cg_ConfigInfo = -1;          /* CG_ConfigInfo_IEs */
-static int hf_nr_rrc_criticalExtensionsFuture_01 = -1;  /* T_criticalExtensionsFuture_01 */
+static int hf_nr_rrc_criticalExtensionsFuture_02 = -1;  /* T_criticalExtensionsFuture_02 */
 static int hf_nr_rrc_ue_CapabilityInfo = -1;      /* T_ue_CapabilityInfo */
 static int hf_nr_rrc_candidateCellInfoListMN = -1;  /* MeasResultList2NR */
 static int hf_nr_rrc_candidateCellInfoListSN = -1;  /* T_candidateCellInfoListSN */
@@ -264,7 +271,7 @@ static int hf_nr_rrc_measConfigMN = -1;           /* MeasConfigMN */
 static int hf_nr_rrc_sourceConfigSCG = -1;        /* T_sourceConfigSCG */
 static int hf_nr_rrc_scg_RB_Config = -1;          /* T_scg_RB_Config */
 static int hf_nr_rrc_mcg_RB_Config = -1;          /* T_mcg_RB_Config */
-static int hf_nr_rrc_nonCriticalExtension_01 = -1;  /* T_nonCriticalExtension_01 */
+static int hf_nr_rrc_nonCriticalExtension_02 = -1;  /* T_nonCriticalExtension_02 */
 static int hf_nr_rrc_allowedBC_ListMRDC = -1;     /* BandCombinationIndexList */
 static int hf_nr_rrc_powerCoordination_FR1 = -1;  /* T_powerCoordination_FR1 */
 static int hf_nr_rrc_p_maxNR = -1;                /* P_Max */
@@ -305,12 +312,12 @@ static int hf_nr_rrc_measGapConfig = -1;          /* T_measGapConfig */
 static int hf_nr_rrc_release = -1;                /* NULL */
 static int hf_nr_rrc_setup = -1;                  /* GapConfig */
 static int hf_nr_rrc_gapPurpose = -1;             /* T_gapPurpose */
-static int hf_nr_rrc_criticalExtensions_02 = -1;  /* T_criticalExtensions_02 */
-static int hf_nr_rrc_c1_02 = -1;                  /* T_c1_02 */
+static int hf_nr_rrc_criticalExtensions_03 = -1;  /* T_criticalExtensions_03 */
+static int hf_nr_rrc_c1_03 = -1;                  /* T_c1_03 */
 static int hf_nr_rrc_measTimingConf = -1;         /* MeasurementTimingConfiguration_IEs */
-static int hf_nr_rrc_criticalExtensionsFuture_02 = -1;  /* T_criticalExtensionsFuture_02 */
+static int hf_nr_rrc_criticalExtensionsFuture_03 = -1;  /* T_criticalExtensionsFuture_03 */
 static int hf_nr_rrc_measTiming = -1;             /* MeasTimingList */
-static int hf_nr_rrc_nonCriticalExtension_02 = -1;  /* T_nonCriticalExtension_02 */
+static int hf_nr_rrc_nonCriticalExtension_03 = -1;  /* T_nonCriticalExtension_03 */
 static int hf_nr_rrc_MeasTimingList_item = -1;    /* MeasTiming */
 static int hf_nr_rrc_frequencyAndTiming = -1;     /* T_frequencyAndTiming */
 static int hf_nr_rrc_carrierFreq = -1;            /* ARFCN_ValueNR */
@@ -319,7 +326,7 @@ static int hf_nr_rrc_message = -1;                /* BCCH_BCH_MessageType */
 static int hf_nr_rrc_mib = -1;                    /* MIB */
 static int hf_nr_rrc_messageClassExtension = -1;  /* T_messageClassExtension */
 static int hf_nr_rrc_message_01 = -1;             /* DL_DCCH_MessageType */
-static int hf_nr_rrc_c1_03 = -1;                  /* T_c1_03 */
+static int hf_nr_rrc_c1_04 = -1;                  /* T_c1_04 */
 static int hf_nr_rrc_rrcReconfiguration = -1;     /* RRCReconfiguration */
 static int hf_nr_rrc_spare15 = -1;                /* NULL */
 static int hf_nr_rrc_spare14 = -1;                /* NULL */
@@ -335,7 +342,7 @@ static int hf_nr_rrc_spare5 = -1;                 /* NULL */
 static int hf_nr_rrc_spare4 = -1;                 /* NULL */
 static int hf_nr_rrc_messageClassExtension_01 = -1;  /* T_messageClassExtension_01 */
 static int hf_nr_rrc_message_02 = -1;             /* UL_DCCH_MessageType */
-static int hf_nr_rrc_c1_04 = -1;                  /* T_c1_04 */
+static int hf_nr_rrc_c1_05 = -1;                  /* T_c1_05 */
 static int hf_nr_rrc_measurementReport = -1;      /* MeasurementReport */
 static int hf_nr_rrc_rrcReconfigurationComplete = -1;  /* RRCReconfigurationComplete */
 static int hf_nr_rrc_messageClassExtension_02 = -1;  /* T_messageClassExtension_02 */
@@ -347,24 +354,24 @@ static int hf_nr_rrc_pdcch_ConfigSIB1 = -1;       /* INTEGER_0_255 */
 static int hf_nr_rrc_cellBarred = -1;             /* T_cellBarred */
 static int hf_nr_rrc_intraFreqReselection = -1;   /* T_intraFreqReselection */
 static int hf_nr_rrc_spare = -1;                  /* BIT_STRING_SIZE_1 */
-static int hf_nr_rrc_criticalExtensions_03 = -1;  /* T_criticalExtensions_03 */
+static int hf_nr_rrc_criticalExtensions_04 = -1;  /* T_criticalExtensions_04 */
 static int hf_nr_rrc_measurementReport_01 = -1;   /* MeasurementReport_IEs */
-static int hf_nr_rrc_criticalExtensionsFuture_03 = -1;  /* T_criticalExtensionsFuture_03 */
+static int hf_nr_rrc_criticalExtensionsFuture_04 = -1;  /* T_criticalExtensionsFuture_04 */
 static int hf_nr_rrc_measResults = -1;            /* MeasResults */
 static int hf_nr_rrc_lateNonCriticalExtension = -1;  /* OCTET_STRING */
-static int hf_nr_rrc_nonCriticalExtension_03 = -1;  /* T_nonCriticalExtension_03 */
+static int hf_nr_rrc_nonCriticalExtension_04 = -1;  /* T_nonCriticalExtension_04 */
 static int hf_nr_rrc_rrc_TransactionIdentifier = -1;  /* RRC_TransactionIdentifier */
-static int hf_nr_rrc_criticalExtensions_04 = -1;  /* T_criticalExtensions_04 */
+static int hf_nr_rrc_criticalExtensions_05 = -1;  /* T_criticalExtensions_05 */
 static int hf_nr_rrc_rrcReconfiguration_01 = -1;  /* RRCReconfiguration_IEs */
-static int hf_nr_rrc_criticalExtensionsFuture_04 = -1;  /* T_criticalExtensionsFuture_04 */
+static int hf_nr_rrc_criticalExtensionsFuture_05 = -1;  /* T_criticalExtensionsFuture_05 */
 static int hf_nr_rrc_radioBearerConfig = -1;      /* RadioBearerConfig */
 static int hf_nr_rrc_secondaryCellGroup = -1;     /* T_secondaryCellGroup */
 static int hf_nr_rrc_measConfig = -1;             /* MeasConfig */
-static int hf_nr_rrc_nonCriticalExtension_04 = -1;  /* T_nonCriticalExtension_04 */
-static int hf_nr_rrc_criticalExtensions_05 = -1;  /* T_criticalExtensions_05 */
-static int hf_nr_rrc_rrcReconfigurationComplete_01 = -1;  /* RRCReconfigurationComplete_IEs */
-static int hf_nr_rrc_criticalExtensionsFuture_05 = -1;  /* T_criticalExtensionsFuture_05 */
 static int hf_nr_rrc_nonCriticalExtension_05 = -1;  /* T_nonCriticalExtension_05 */
+static int hf_nr_rrc_criticalExtensions_06 = -1;  /* T_criticalExtensions_06 */
+static int hf_nr_rrc_rrcReconfigurationComplete_01 = -1;  /* RRCReconfigurationComplete_IEs */
+static int hf_nr_rrc_criticalExtensionsFuture_06 = -1;  /* T_criticalExtensionsFuture_06 */
+static int hf_nr_rrc_nonCriticalExtension_06 = -1;  /* T_nonCriticalExtension_06 */
 static int hf_nr_rrc_frequencyOffsetSSB = -1;     /* T_frequencyOffsetSSB */
 static int hf_nr_rrc_ssb_PositionsInBurst = -1;   /* T_ssb_PositionsInBurst */
 static int hf_nr_rrc_inOneGroup = -1;             /* BIT_STRING_SIZE_8 */
@@ -377,7 +384,7 @@ static int hf_nr_rrc_tdd_UL_DL_Configuration = -1;  /* TDD_UL_DL_ConfigCommon */
 static int hf_nr_rrc_tdd_UL_DL_configurationCommon2 = -1;  /* TDD_UL_DL_ConfigCommon */
 static int hf_nr_rrc_pdcch_ConfigCommon = -1;     /* PDCCH_ConfigCommon */
 static int hf_nr_rrc_pucch_ConfigCommon = -1;     /* PUCCH_ConfigCommon */
-static int hf_nr_rrc_nonCriticalExtension_06 = -1;  /* T_nonCriticalExtension_06 */
+static int hf_nr_rrc_nonCriticalExtension_07 = -1;  /* T_nonCriticalExtension_07 */
 static int hf_nr_rrc_locationAndBandwidth = -1;   /* INTEGER_0_37949 */
 static int hf_nr_rrc_subcarrierSpacing = -1;      /* SubcarrierSpacing */
 static int hf_nr_rrc_cyclicPrefix = -1;           /* T_cyclicPrefix */
@@ -1859,7 +1866,7 @@ static int hf_nr_rrc_fr1_Add_UE_MRDC_Capabilities = -1;  /* UE_MRDC_CapabilityAd
 static int hf_nr_rrc_fr2_Add_UE_MRDC_Capabilities = -1;  /* UE_MRDC_CapabilityAddFRX_Mode */
 static int hf_nr_rrc_featureSetCombinations = -1;  /* SEQUENCE_SIZE_1_maxFeatureSetCombinations_OF_FeatureSetCombination */
 static int hf_nr_rrc_featureSetCombinations_item = -1;  /* FeatureSetCombination */
-static int hf_nr_rrc_nonCriticalExtension_07 = -1;  /* T_nonCriticalExtension_07 */
+static int hf_nr_rrc_nonCriticalExtension_08 = -1;  /* T_nonCriticalExtension_08 */
 static int hf_nr_rrc_measParametersMRDC_XDD_Diff = -1;  /* MeasParametersMRDC_XDD_Diff */
 static int hf_nr_rrc_generalParametersMRDC_XDD_Diff = -1;  /* GeneralParametersMRDC_XDD_Diff */
 static int hf_nr_rrc_measParametersMRDC_FRX_Diff = -1;  /* MeasParametersMRDC_FRX_Diff */
@@ -1885,7 +1892,7 @@ static int hf_nr_rrc_tdd_Add_UE_NR_Capabilities = -1;  /* UE_NR_CapabilityAddXDD
 static int hf_nr_rrc_fr1_Add_UE_NR_Capabilities = -1;  /* UE_NR_CapabilityAddFRX_Mode */
 static int hf_nr_rrc_fr2_Add_UE_NR_Capabilities = -1;  /* UE_NR_CapabilityAddFRX_Mode */
 static int hf_nr_rrc_featureSets = -1;            /* FeatureSets */
-static int hf_nr_rrc_nonCriticalExtension_08 = -1;  /* T_nonCriticalExtension_08 */
+static int hf_nr_rrc_nonCriticalExtension_09 = -1;  /* T_nonCriticalExtension_09 */
 static int hf_nr_rrc_phy_ParametersXDD_Diff = -1;  /* Phy_ParametersXDD_Diff */
 static int hf_nr_rrc_mac_ParametersXDD_Diff = -1;  /* MAC_ParametersXDD_Diff */
 static int hf_nr_rrc_measParametersXDD_Diff = -1;  /* MeasParametersXDD_Diff */
@@ -2099,12 +2106,18 @@ static gint ett_nr_rrc = -1;
 
 /*--- Included file: packet-nr-rrc-ett.c ---*/
 #line 1 "./asn1/nr-rrc/packet-nr-rrc-ett.c"
-static gint ett_nr_rrc_HandoverPreparationInformation = -1;
+static gint ett_nr_rrc_HandoverCommand = -1;
 static gint ett_nr_rrc_T_criticalExtensions = -1;
 static gint ett_nr_rrc_T_c1 = -1;
 static gint ett_nr_rrc_T_criticalExtensionsFuture = -1;
-static gint ett_nr_rrc_HandoverPreparationInformation_IEs = -1;
+static gint ett_nr_rrc_HandoverCommand_IEs = -1;
 static gint ett_nr_rrc_T_nonCriticalExtension = -1;
+static gint ett_nr_rrc_HandoverPreparationInformation = -1;
+static gint ett_nr_rrc_T_criticalExtensions_01 = -1;
+static gint ett_nr_rrc_T_c1_01 = -1;
+static gint ett_nr_rrc_T_criticalExtensionsFuture_01 = -1;
+static gint ett_nr_rrc_HandoverPreparationInformation_IEs = -1;
+static gint ett_nr_rrc_T_nonCriticalExtension_01 = -1;
 static gint ett_nr_rrc_AS_Context = -1;
 static gint ett_nr_rrc_T_reestablishmentInfo = -1;
 static gint ett_nr_rrc_ReestabNCellInfoList = -1;
@@ -2112,12 +2125,12 @@ static gint ett_nr_rrc_ReestabNCellInfo = -1;
 static gint ett_nr_rrc_RRM_Config = -1;
 static gint ett_nr_rrc_NR_FreqInfo = -1;
 static gint ett_nr_rrc_CG_ConfigInfo = -1;
-static gint ett_nr_rrc_T_criticalExtensions_01 = -1;
-static gint ett_nr_rrc_T_c1_01 = -1;
-static gint ett_nr_rrc_T_criticalExtensionsFuture_01 = -1;
+static gint ett_nr_rrc_T_criticalExtensions_02 = -1;
+static gint ett_nr_rrc_T_c1_02 = -1;
+static gint ett_nr_rrc_T_criticalExtensionsFuture_02 = -1;
 static gint ett_nr_rrc_CG_ConfigInfo_IEs = -1;
 static gint ett_nr_rrc_T_scgFailureInfo = -1;
-static gint ett_nr_rrc_T_nonCriticalExtension_01 = -1;
+static gint ett_nr_rrc_T_nonCriticalExtension_02 = -1;
 static gint ett_nr_rrc_ConfigRestrictInfoSCG = -1;
 static gint ett_nr_rrc_T_powerCoordination_FR1 = -1;
 static gint ett_nr_rrc_T_servCellIndexRangeSCG = -1;
@@ -2129,11 +2142,11 @@ static gint ett_nr_rrc_MeasConfigMN = -1;
 static gint ett_nr_rrc_SEQUENCE_SIZE_1_maxMeasFreqsMN_OF_NR_FreqInfo = -1;
 static gint ett_nr_rrc_T_measGapConfig = -1;
 static gint ett_nr_rrc_MeasurementTimingConfiguration = -1;
-static gint ett_nr_rrc_T_criticalExtensions_02 = -1;
-static gint ett_nr_rrc_T_c1_02 = -1;
-static gint ett_nr_rrc_T_criticalExtensionsFuture_02 = -1;
+static gint ett_nr_rrc_T_criticalExtensions_03 = -1;
+static gint ett_nr_rrc_T_c1_03 = -1;
+static gint ett_nr_rrc_T_criticalExtensionsFuture_03 = -1;
 static gint ett_nr_rrc_MeasurementTimingConfiguration_IEs = -1;
-static gint ett_nr_rrc_T_nonCriticalExtension_02 = -1;
+static gint ett_nr_rrc_T_nonCriticalExtension_03 = -1;
 static gint ett_nr_rrc_MeasTimingList = -1;
 static gint ett_nr_rrc_MeasTiming = -1;
 static gint ett_nr_rrc_T_frequencyAndTiming = -1;
@@ -2142,32 +2155,32 @@ static gint ett_nr_rrc_BCCH_BCH_MessageType = -1;
 static gint ett_nr_rrc_T_messageClassExtension = -1;
 static gint ett_nr_rrc_DL_DCCH_Message = -1;
 static gint ett_nr_rrc_DL_DCCH_MessageType = -1;
-static gint ett_nr_rrc_T_c1_03 = -1;
+static gint ett_nr_rrc_T_c1_04 = -1;
 static gint ett_nr_rrc_T_messageClassExtension_01 = -1;
 static gint ett_nr_rrc_UL_DCCH_Message = -1;
 static gint ett_nr_rrc_UL_DCCH_MessageType = -1;
-static gint ett_nr_rrc_T_c1_04 = -1;
+static gint ett_nr_rrc_T_c1_05 = -1;
 static gint ett_nr_rrc_T_messageClassExtension_02 = -1;
 static gint ett_nr_rrc_MIB = -1;
 static gint ett_nr_rrc_MeasurementReport = -1;
-static gint ett_nr_rrc_T_criticalExtensions_03 = -1;
-static gint ett_nr_rrc_T_criticalExtensionsFuture_03 = -1;
-static gint ett_nr_rrc_MeasurementReport_IEs = -1;
-static gint ett_nr_rrc_T_nonCriticalExtension_03 = -1;
-static gint ett_nr_rrc_RRCReconfiguration = -1;
 static gint ett_nr_rrc_T_criticalExtensions_04 = -1;
 static gint ett_nr_rrc_T_criticalExtensionsFuture_04 = -1;
-static gint ett_nr_rrc_RRCReconfiguration_IEs = -1;
+static gint ett_nr_rrc_MeasurementReport_IEs = -1;
 static gint ett_nr_rrc_T_nonCriticalExtension_04 = -1;
-static gint ett_nr_rrc_RRCReconfigurationComplete = -1;
+static gint ett_nr_rrc_RRCReconfiguration = -1;
 static gint ett_nr_rrc_T_criticalExtensions_05 = -1;
 static gint ett_nr_rrc_T_criticalExtensionsFuture_05 = -1;
-static gint ett_nr_rrc_RRCReconfigurationComplete_IEs = -1;
+static gint ett_nr_rrc_RRCReconfiguration_IEs = -1;
 static gint ett_nr_rrc_T_nonCriticalExtension_05 = -1;
+static gint ett_nr_rrc_RRCReconfigurationComplete = -1;
+static gint ett_nr_rrc_T_criticalExtensions_06 = -1;
+static gint ett_nr_rrc_T_criticalExtensionsFuture_06 = -1;
+static gint ett_nr_rrc_RRCReconfigurationComplete_IEs = -1;
+static gint ett_nr_rrc_T_nonCriticalExtension_06 = -1;
 static gint ett_nr_rrc_SIB1 = -1;
 static gint ett_nr_rrc_T_ssb_PositionsInBurst = -1;
 static gint ett_nr_rrc_T_supplementaryUplink = -1;
-static gint ett_nr_rrc_T_nonCriticalExtension_06 = -1;
+static gint ett_nr_rrc_T_nonCriticalExtension_07 = -1;
 static gint ett_nr_rrc_BWP = -1;
 static gint ett_nr_rrc_BWP_Uplink = -1;
 static gint ett_nr_rrc_BWP_UplinkCommon = -1;
@@ -2744,7 +2757,7 @@ static gint ett_nr_rrc_UE_CapabilityRAT_ContainerList = -1;
 static gint ett_nr_rrc_UE_CapabilityRAT_Container = -1;
 static gint ett_nr_rrc_UE_MRDC_Capability = -1;
 static gint ett_nr_rrc_SEQUENCE_SIZE_1_maxFeatureSetCombinations_OF_FeatureSetCombination = -1;
-static gint ett_nr_rrc_T_nonCriticalExtension_07 = -1;
+static gint ett_nr_rrc_T_nonCriticalExtension_08 = -1;
 static gint ett_nr_rrc_UE_MRDC_CapabilityAddXDD_Mode = -1;
 static gint ett_nr_rrc_UE_MRDC_CapabilityAddFRX_Mode = -1;
 static gint ett_nr_rrc_GeneralParametersMRDC_XDD_Diff = -1;
@@ -2754,7 +2767,7 @@ static gint ett_nr_rrc_MeasParametersMRDC_Common = -1;
 static gint ett_nr_rrc_MeasParametersMRDC_XDD_Diff = -1;
 static gint ett_nr_rrc_MeasParametersMRDC_FRX_Diff = -1;
 static gint ett_nr_rrc_UE_NR_Capability = -1;
-static gint ett_nr_rrc_T_nonCriticalExtension_08 = -1;
+static gint ett_nr_rrc_T_nonCriticalExtension_09 = -1;
 static gint ett_nr_rrc_UE_NR_CapabilityAddXDD_Mode = -1;
 static gint ett_nr_rrc_UE_NR_CapabilityAddFRX_Mode = -1;
 static gint ett_nr_rrc_Phy_Parameters = -1;
@@ -2825,6 +2838,128 @@ static void private_data_set_rat_type(asn1_ctx_t *actx, guint8 rat_type)
 /*--- PDUs declarations ---*/
 static int dissect_MeasResultList2NR_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_MeasResultSCG_Failure_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+
+
+
+static int
+dissect_nr_rrc_T_handoverCommandMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
+                                                                NO_BOUND, NO_BOUND, FALSE, dissect_nr_rrc_RRCReconfiguration_PDU);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_nonCriticalExtension_sequence[] = {
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_T_nonCriticalExtension(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_T_nonCriticalExtension, T_nonCriticalExtension_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t HandoverCommand_IEs_sequence[] = {
+  { &hf_nr_rrc_handoverCommandMessage, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_handoverCommandMessage },
+  { &hf_nr_rrc_nonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_HandoverCommand_IEs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_HandoverCommand_IEs, HandoverCommand_IEs_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_nr_rrc_NULL(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_null(tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+static const value_string nr_rrc_T_c1_vals[] = {
+  {   0, "handoverCommand" },
+  {   1, "spare3" },
+  {   2, "spare2" },
+  {   3, "spare1" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_c1_choice[] = {
+  {   0, &hf_nr_rrc_handoverCommand, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_HandoverCommand_IEs },
+  {   1, &hf_nr_rrc_spare3       , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
+  {   2, &hf_nr_rrc_spare2       , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
+  {   3, &hf_nr_rrc_spare1       , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_T_c1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_nr_rrc_T_c1, T_c1_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_criticalExtensionsFuture_sequence[] = {
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_T_criticalExtensionsFuture(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_T_criticalExtensionsFuture, T_criticalExtensionsFuture_sequence);
+
+  return offset;
+}
+
+
+static const value_string nr_rrc_T_criticalExtensions_vals[] = {
+  {   0, "c1" },
+  {   1, "criticalExtensionsFuture" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_criticalExtensions_choice[] = {
+  {   0, &hf_nr_rrc_c1           , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_c1 },
+  {   1, &hf_nr_rrc_criticalExtensionsFuture, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_criticalExtensionsFuture },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_T_criticalExtensions(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_nr_rrc_T_criticalExtensions, T_criticalExtensions_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t HandoverCommand_sequence[] = {
+  { &hf_nr_rrc_criticalExtensions, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_criticalExtensions },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_HandoverCommand(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_HandoverCommand, HandoverCommand_sequence);
+
+  return offset;
+}
 
 
 static const value_string nr_rrc_RAT_Type_vals[] = {
@@ -3475,14 +3610,14 @@ dissect_nr_rrc_AS_Context(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 }
 
 
-static const per_sequence_t T_nonCriticalExtension_sequence[] = {
+static const per_sequence_t T_nonCriticalExtension_01_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_nonCriticalExtension(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_nonCriticalExtension_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_T_nonCriticalExtension, T_nonCriticalExtension_sequence);
+                                   ett_nr_rrc_T_nonCriticalExtension_01, T_nonCriticalExtension_01_sequence);
 
   return offset;
 }
@@ -3493,7 +3628,7 @@ static const per_sequence_t HandoverPreparationInformation_IEs_sequence[] = {
   { &hf_nr_rrc_sourceConfig , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_sourceConfig },
   { &hf_nr_rrc_rrm_Config   , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_RRM_Config },
   { &hf_nr_rrc_as_Context   , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_AS_Context },
-  { &hf_nr_rrc_nonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension },
+  { &hf_nr_rrc_nonCriticalExtension_01, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_01 },
   { NULL, 0, 0, NULL }
 };
 
@@ -3506,16 +3641,7 @@ dissect_nr_rrc_HandoverPreparationInformation_IEs(tvbuff_t *tvb _U_, int offset 
 }
 
 
-
-static int
-dissect_nr_rrc_NULL(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_null(tvb, offset, actx, tree, hf_index);
-
-  return offset;
-}
-
-
-static const value_string nr_rrc_T_c1_vals[] = {
+static const value_string nr_rrc_T_c1_01_vals[] = {
   {   0, "handoverPreparationInformation" },
   {   1, "spare3" },
   {   2, "spare2" },
@@ -3523,7 +3649,7 @@ static const value_string nr_rrc_T_c1_vals[] = {
   { 0, NULL }
 };
 
-static const per_choice_t T_c1_choice[] = {
+static const per_choice_t T_c1_01_choice[] = {
   {   0, &hf_nr_rrc_handoverPreparationInformation, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_HandoverPreparationInformation_IEs },
   {   1, &hf_nr_rrc_spare3       , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
   {   2, &hf_nr_rrc_spare2       , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
@@ -3532,44 +3658,44 @@ static const per_choice_t T_c1_choice[] = {
 };
 
 static int
-dissect_nr_rrc_T_c1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_c1_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_nr_rrc_T_c1, T_c1_choice,
+                                 ett_nr_rrc_T_c1_01, T_c1_01_choice,
                                  NULL);
 
   return offset;
 }
 
 
-static const per_sequence_t T_criticalExtensionsFuture_sequence[] = {
+static const per_sequence_t T_criticalExtensionsFuture_01_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_criticalExtensionsFuture(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_criticalExtensionsFuture_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_T_criticalExtensionsFuture, T_criticalExtensionsFuture_sequence);
+                                   ett_nr_rrc_T_criticalExtensionsFuture_01, T_criticalExtensionsFuture_01_sequence);
 
   return offset;
 }
 
 
-static const value_string nr_rrc_T_criticalExtensions_vals[] = {
+static const value_string nr_rrc_T_criticalExtensions_01_vals[] = {
   {   0, "c1" },
   {   1, "criticalExtensionsFuture" },
   { 0, NULL }
 };
 
-static const per_choice_t T_criticalExtensions_choice[] = {
-  {   0, &hf_nr_rrc_c1           , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_c1 },
-  {   1, &hf_nr_rrc_criticalExtensionsFuture, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_criticalExtensionsFuture },
+static const per_choice_t T_criticalExtensions_01_choice[] = {
+  {   0, &hf_nr_rrc_c1_01        , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_c1_01 },
+  {   1, &hf_nr_rrc_criticalExtensionsFuture_01, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_criticalExtensionsFuture_01 },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_criticalExtensions(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_criticalExtensions_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_nr_rrc_T_criticalExtensions, T_criticalExtensions_choice,
+                                 ett_nr_rrc_T_criticalExtensions_01, T_criticalExtensions_01_choice,
                                  NULL);
 
   return offset;
@@ -3577,7 +3703,7 @@ dissect_nr_rrc_T_criticalExtensions(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
 
 static const per_sequence_t HandoverPreparationInformation_sequence[] = {
-  { &hf_nr_rrc_criticalExtensions, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_criticalExtensions },
+  { &hf_nr_rrc_criticalExtensions_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_criticalExtensions_01 },
   { NULL, 0, 0, NULL }
 };
 
@@ -4228,14 +4354,14 @@ dissect_nr_rrc_T_mcg_RB_Config(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 }
 
 
-static const per_sequence_t T_nonCriticalExtension_01_sequence[] = {
+static const per_sequence_t T_nonCriticalExtension_02_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_nonCriticalExtension_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_nonCriticalExtension_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_T_nonCriticalExtension_01, T_nonCriticalExtension_01_sequence);
+                                   ett_nr_rrc_T_nonCriticalExtension_02, T_nonCriticalExtension_02_sequence);
 
   return offset;
 }
@@ -4253,7 +4379,7 @@ static const per_sequence_t CG_ConfigInfo_IEs_sequence[] = {
   { &hf_nr_rrc_sourceConfigSCG, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_sourceConfigSCG },
   { &hf_nr_rrc_scg_RB_Config, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_scg_RB_Config },
   { &hf_nr_rrc_mcg_RB_Config, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_mcg_RB_Config },
-  { &hf_nr_rrc_nonCriticalExtension_01, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_01 },
+  { &hf_nr_rrc_nonCriticalExtension_02, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_02 },
   { NULL, 0, 0, NULL }
 };
 
@@ -4266,7 +4392,7 @@ dissect_nr_rrc_CG_ConfigInfo_IEs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 }
 
 
-static const value_string nr_rrc_T_c1_01_vals[] = {
+static const value_string nr_rrc_T_c1_02_vals[] = {
   {   0, "cg-ConfigInfo" },
   {   1, "spare3" },
   {   2, "spare2" },
@@ -4274,7 +4400,7 @@ static const value_string nr_rrc_T_c1_01_vals[] = {
   { 0, NULL }
 };
 
-static const per_choice_t T_c1_01_choice[] = {
+static const per_choice_t T_c1_02_choice[] = {
   {   0, &hf_nr_rrc_cg_ConfigInfo, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_CG_ConfigInfo_IEs },
   {   1, &hf_nr_rrc_spare3       , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
   {   2, &hf_nr_rrc_spare2       , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
@@ -4283,44 +4409,44 @@ static const per_choice_t T_c1_01_choice[] = {
 };
 
 static int
-dissect_nr_rrc_T_c1_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_c1_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_nr_rrc_T_c1_01, T_c1_01_choice,
+                                 ett_nr_rrc_T_c1_02, T_c1_02_choice,
                                  NULL);
 
   return offset;
 }
 
 
-static const per_sequence_t T_criticalExtensionsFuture_01_sequence[] = {
+static const per_sequence_t T_criticalExtensionsFuture_02_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_criticalExtensionsFuture_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_criticalExtensionsFuture_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_T_criticalExtensionsFuture_01, T_criticalExtensionsFuture_01_sequence);
+                                   ett_nr_rrc_T_criticalExtensionsFuture_02, T_criticalExtensionsFuture_02_sequence);
 
   return offset;
 }
 
 
-static const value_string nr_rrc_T_criticalExtensions_01_vals[] = {
+static const value_string nr_rrc_T_criticalExtensions_02_vals[] = {
   {   0, "c1" },
   {   1, "criticalExtensionsFuture" },
   { 0, NULL }
 };
 
-static const per_choice_t T_criticalExtensions_01_choice[] = {
-  {   0, &hf_nr_rrc_c1_01        , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_c1_01 },
-  {   1, &hf_nr_rrc_criticalExtensionsFuture_01, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_criticalExtensionsFuture_01 },
+static const per_choice_t T_criticalExtensions_02_choice[] = {
+  {   0, &hf_nr_rrc_c1_02        , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_c1_02 },
+  {   1, &hf_nr_rrc_criticalExtensionsFuture_02, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_criticalExtensionsFuture_02 },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_criticalExtensions_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_criticalExtensions_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_nr_rrc_T_criticalExtensions_01, T_criticalExtensions_01_choice,
+                                 ett_nr_rrc_T_criticalExtensions_02, T_criticalExtensions_02_choice,
                                  NULL);
 
   return offset;
@@ -4328,7 +4454,7 @@ dissect_nr_rrc_T_criticalExtensions_01(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 
 static const per_sequence_t CG_ConfigInfo_sequence[] = {
-  { &hf_nr_rrc_criticalExtensions_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_criticalExtensions_01 },
+  { &hf_nr_rrc_criticalExtensions_02, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_criticalExtensions_02 },
   { NULL, 0, 0, NULL }
 };
 
@@ -4458,14 +4584,14 @@ dissect_nr_rrc_MeasTimingList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 }
 
 
-static const per_sequence_t T_nonCriticalExtension_02_sequence[] = {
+static const per_sequence_t T_nonCriticalExtension_03_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_nonCriticalExtension_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_nonCriticalExtension_03(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_T_nonCriticalExtension_02, T_nonCriticalExtension_02_sequence);
+                                   ett_nr_rrc_T_nonCriticalExtension_03, T_nonCriticalExtension_03_sequence);
 
   return offset;
 }
@@ -4473,7 +4599,7 @@ dissect_nr_rrc_T_nonCriticalExtension_02(tvbuff_t *tvb _U_, int offset _U_, asn1
 
 static const per_sequence_t MeasurementTimingConfiguration_IEs_sequence[] = {
   { &hf_nr_rrc_measTiming   , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_MeasTimingList },
-  { &hf_nr_rrc_nonCriticalExtension_02, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_02 },
+  { &hf_nr_rrc_nonCriticalExtension_03, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_03 },
   { NULL, 0, 0, NULL }
 };
 
@@ -4486,7 +4612,7 @@ dissect_nr_rrc_MeasurementTimingConfiguration_IEs(tvbuff_t *tvb _U_, int offset 
 }
 
 
-static const value_string nr_rrc_T_c1_02_vals[] = {
+static const value_string nr_rrc_T_c1_03_vals[] = {
   {   0, "measTimingConf" },
   {   1, "spare3" },
   {   2, "spare2" },
@@ -4494,7 +4620,7 @@ static const value_string nr_rrc_T_c1_02_vals[] = {
   { 0, NULL }
 };
 
-static const per_choice_t T_c1_02_choice[] = {
+static const per_choice_t T_c1_03_choice[] = {
   {   0, &hf_nr_rrc_measTimingConf, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_MeasurementTimingConfiguration_IEs },
   {   1, &hf_nr_rrc_spare3       , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
   {   2, &hf_nr_rrc_spare2       , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
@@ -4503,44 +4629,44 @@ static const per_choice_t T_c1_02_choice[] = {
 };
 
 static int
-dissect_nr_rrc_T_c1_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_c1_03(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_nr_rrc_T_c1_02, T_c1_02_choice,
+                                 ett_nr_rrc_T_c1_03, T_c1_03_choice,
                                  NULL);
 
   return offset;
 }
 
 
-static const per_sequence_t T_criticalExtensionsFuture_02_sequence[] = {
+static const per_sequence_t T_criticalExtensionsFuture_03_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_criticalExtensionsFuture_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_criticalExtensionsFuture_03(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_T_criticalExtensionsFuture_02, T_criticalExtensionsFuture_02_sequence);
+                                   ett_nr_rrc_T_criticalExtensionsFuture_03, T_criticalExtensionsFuture_03_sequence);
 
   return offset;
 }
 
 
-static const value_string nr_rrc_T_criticalExtensions_02_vals[] = {
+static const value_string nr_rrc_T_criticalExtensions_03_vals[] = {
   {   0, "c1" },
   {   1, "criticalExtensionsFuture" },
   { 0, NULL }
 };
 
-static const per_choice_t T_criticalExtensions_02_choice[] = {
-  {   0, &hf_nr_rrc_c1_02        , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_c1_02 },
-  {   1, &hf_nr_rrc_criticalExtensionsFuture_02, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_criticalExtensionsFuture_02 },
+static const per_choice_t T_criticalExtensions_03_choice[] = {
+  {   0, &hf_nr_rrc_c1_03        , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_c1_03 },
+  {   1, &hf_nr_rrc_criticalExtensionsFuture_03, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_criticalExtensionsFuture_03 },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_criticalExtensions_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_criticalExtensions_03(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_nr_rrc_T_criticalExtensions_02, T_criticalExtensions_02_choice,
+                                 ett_nr_rrc_T_criticalExtensions_03, T_criticalExtensions_03_choice,
                                  NULL);
 
   return offset;
@@ -4548,7 +4674,7 @@ dissect_nr_rrc_T_criticalExtensions_02(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 
 static const per_sequence_t MeasurementTimingConfiguration_sequence[] = {
-  { &hf_nr_rrc_criticalExtensions_02, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_criticalExtensions_02 },
+  { &hf_nr_rrc_criticalExtensions_03, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_criticalExtensions_03 },
   { NULL, 0, 0, NULL }
 };
 
@@ -7254,14 +7380,14 @@ dissect_nr_rrc_OCTET_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 }
 
 
-static const per_sequence_t T_nonCriticalExtension_04_sequence[] = {
+static const per_sequence_t T_nonCriticalExtension_05_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_nonCriticalExtension_04(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_nonCriticalExtension_05(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_T_nonCriticalExtension_04, T_nonCriticalExtension_04_sequence);
+                                   ett_nr_rrc_T_nonCriticalExtension_05, T_nonCriticalExtension_05_sequence);
 
   return offset;
 }
@@ -7272,7 +7398,7 @@ static const per_sequence_t RRCReconfiguration_IEs_sequence[] = {
   { &hf_nr_rrc_secondaryCellGroup, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_secondaryCellGroup },
   { &hf_nr_rrc_measConfig   , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_MeasConfig },
   { &hf_nr_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_OCTET_STRING },
-  { &hf_nr_rrc_nonCriticalExtension_04, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_04 },
+  { &hf_nr_rrc_nonCriticalExtension_05, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_05 },
   { NULL, 0, 0, NULL }
 };
 
@@ -7285,35 +7411,35 @@ dissect_nr_rrc_RRCReconfiguration_IEs(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 }
 
 
-static const per_sequence_t T_criticalExtensionsFuture_04_sequence[] = {
+static const per_sequence_t T_criticalExtensionsFuture_05_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_criticalExtensionsFuture_04(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_criticalExtensionsFuture_05(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_T_criticalExtensionsFuture_04, T_criticalExtensionsFuture_04_sequence);
+                                   ett_nr_rrc_T_criticalExtensionsFuture_05, T_criticalExtensionsFuture_05_sequence);
 
   return offset;
 }
 
 
-static const value_string nr_rrc_T_criticalExtensions_04_vals[] = {
+static const value_string nr_rrc_T_criticalExtensions_05_vals[] = {
   {   0, "rrcReconfiguration" },
   {   1, "criticalExtensionsFuture" },
   { 0, NULL }
 };
 
-static const per_choice_t T_criticalExtensions_04_choice[] = {
+static const per_choice_t T_criticalExtensions_05_choice[] = {
   {   0, &hf_nr_rrc_rrcReconfiguration_01, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_RRCReconfiguration_IEs },
-  {   1, &hf_nr_rrc_criticalExtensionsFuture_04, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_criticalExtensionsFuture_04 },
+  {   1, &hf_nr_rrc_criticalExtensionsFuture_05, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_criticalExtensionsFuture_05 },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_criticalExtensions_04(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_criticalExtensions_05(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_nr_rrc_T_criticalExtensions_04, T_criticalExtensions_04_choice,
+                                 ett_nr_rrc_T_criticalExtensions_05, T_criticalExtensions_05_choice,
                                  NULL);
 
   return offset;
@@ -7322,7 +7448,7 @@ dissect_nr_rrc_T_criticalExtensions_04(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 static const per_sequence_t RRCReconfiguration_sequence[] = {
   { &hf_nr_rrc_rrc_TransactionIdentifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_RRC_TransactionIdentifier },
-  { &hf_nr_rrc_criticalExtensions_04, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_criticalExtensions_04 },
+  { &hf_nr_rrc_criticalExtensions_05, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_criticalExtensions_05 },
   { NULL, 0, 0, NULL }
 };
 
@@ -7337,7 +7463,7 @@ dissect_nr_rrc_RRCReconfiguration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 }
 
 
-static const value_string nr_rrc_T_c1_03_vals[] = {
+static const value_string nr_rrc_T_c1_04_vals[] = {
   {   0, "rrcReconfiguration" },
   {   1, "spare15" },
   {   2, "spare14" },
@@ -7357,7 +7483,7 @@ static const value_string nr_rrc_T_c1_03_vals[] = {
   { 0, NULL }
 };
 
-static const per_choice_t T_c1_03_choice[] = {
+static const per_choice_t T_c1_04_choice[] = {
   {   0, &hf_nr_rrc_rrcReconfiguration, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_RRCReconfiguration },
   {   1, &hf_nr_rrc_spare15      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
   {   2, &hf_nr_rrc_spare14      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
@@ -7378,9 +7504,9 @@ static const per_choice_t T_c1_03_choice[] = {
 };
 
 static int
-dissect_nr_rrc_T_c1_03(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_c1_04(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_nr_rrc_T_c1_03, T_c1_03_choice,
+                                 ett_nr_rrc_T_c1_04, T_c1_04_choice,
                                  NULL);
 
   return offset;
@@ -7407,7 +7533,7 @@ static const value_string nr_rrc_DL_DCCH_MessageType_vals[] = {
 };
 
 static const per_choice_t DL_DCCH_MessageType_choice[] = {
-  {   0, &hf_nr_rrc_c1_03        , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_c1_03 },
+  {   0, &hf_nr_rrc_c1_04        , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_c1_04 },
   {   1, &hf_nr_rrc_messageClassExtension_01, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_messageClassExtension_01 },
   { 0, NULL, 0, NULL }
 };
@@ -7512,14 +7638,14 @@ dissect_nr_rrc_MeasResults(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 }
 
 
-static const per_sequence_t T_nonCriticalExtension_03_sequence[] = {
+static const per_sequence_t T_nonCriticalExtension_04_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_nonCriticalExtension_03(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_nonCriticalExtension_04(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_T_nonCriticalExtension_03, T_nonCriticalExtension_03_sequence);
+                                   ett_nr_rrc_T_nonCriticalExtension_04, T_nonCriticalExtension_04_sequence);
 
   return offset;
 }
@@ -7528,7 +7654,7 @@ dissect_nr_rrc_T_nonCriticalExtension_03(tvbuff_t *tvb _U_, int offset _U_, asn1
 static const per_sequence_t MeasurementReport_IEs_sequence[] = {
   { &hf_nr_rrc_measResults  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_MeasResults },
   { &hf_nr_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_OCTET_STRING },
-  { &hf_nr_rrc_nonCriticalExtension_03, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_03 },
+  { &hf_nr_rrc_nonCriticalExtension_04, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_04 },
   { NULL, 0, 0, NULL }
 };
 
@@ -7541,35 +7667,35 @@ dissect_nr_rrc_MeasurementReport_IEs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 }
 
 
-static const per_sequence_t T_criticalExtensionsFuture_03_sequence[] = {
+static const per_sequence_t T_criticalExtensionsFuture_04_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_criticalExtensionsFuture_03(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_criticalExtensionsFuture_04(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_T_criticalExtensionsFuture_03, T_criticalExtensionsFuture_03_sequence);
+                                   ett_nr_rrc_T_criticalExtensionsFuture_04, T_criticalExtensionsFuture_04_sequence);
 
   return offset;
 }
 
 
-static const value_string nr_rrc_T_criticalExtensions_03_vals[] = {
+static const value_string nr_rrc_T_criticalExtensions_04_vals[] = {
   {   0, "measurementReport" },
   {   1, "criticalExtensionsFuture" },
   { 0, NULL }
 };
 
-static const per_choice_t T_criticalExtensions_03_choice[] = {
+static const per_choice_t T_criticalExtensions_04_choice[] = {
   {   0, &hf_nr_rrc_measurementReport_01, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_MeasurementReport_IEs },
-  {   1, &hf_nr_rrc_criticalExtensionsFuture_03, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_criticalExtensionsFuture_03 },
+  {   1, &hf_nr_rrc_criticalExtensionsFuture_04, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_criticalExtensionsFuture_04 },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_criticalExtensions_03(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_criticalExtensions_04(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_nr_rrc_T_criticalExtensions_03, T_criticalExtensions_03_choice,
+                                 ett_nr_rrc_T_criticalExtensions_04, T_criticalExtensions_04_choice,
                                  NULL);
 
   return offset;
@@ -7577,7 +7703,7 @@ dissect_nr_rrc_T_criticalExtensions_03(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 
 static const per_sequence_t MeasurementReport_sequence[] = {
-  { &hf_nr_rrc_criticalExtensions_03, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_criticalExtensions_03 },
+  { &hf_nr_rrc_criticalExtensions_04, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_criticalExtensions_04 },
   { NULL, 0, 0, NULL }
 };
 
@@ -7592,14 +7718,14 @@ dissect_nr_rrc_MeasurementReport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 }
 
 
-static const per_sequence_t T_nonCriticalExtension_05_sequence[] = {
+static const per_sequence_t T_nonCriticalExtension_06_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_nonCriticalExtension_05(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_nonCriticalExtension_06(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_T_nonCriticalExtension_05, T_nonCriticalExtension_05_sequence);
+                                   ett_nr_rrc_T_nonCriticalExtension_06, T_nonCriticalExtension_06_sequence);
 
   return offset;
 }
@@ -7607,7 +7733,7 @@ dissect_nr_rrc_T_nonCriticalExtension_05(tvbuff_t *tvb _U_, int offset _U_, asn1
 
 static const per_sequence_t RRCReconfigurationComplete_IEs_sequence[] = {
   { &hf_nr_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_OCTET_STRING },
-  { &hf_nr_rrc_nonCriticalExtension_05, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_05 },
+  { &hf_nr_rrc_nonCriticalExtension_06, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_06 },
   { NULL, 0, 0, NULL }
 };
 
@@ -7620,35 +7746,35 @@ dissect_nr_rrc_RRCReconfigurationComplete_IEs(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 
-static const per_sequence_t T_criticalExtensionsFuture_05_sequence[] = {
+static const per_sequence_t T_criticalExtensionsFuture_06_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_criticalExtensionsFuture_05(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_criticalExtensionsFuture_06(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_T_criticalExtensionsFuture_05, T_criticalExtensionsFuture_05_sequence);
+                                   ett_nr_rrc_T_criticalExtensionsFuture_06, T_criticalExtensionsFuture_06_sequence);
 
   return offset;
 }
 
 
-static const value_string nr_rrc_T_criticalExtensions_05_vals[] = {
+static const value_string nr_rrc_T_criticalExtensions_06_vals[] = {
   {   0, "rrcReconfigurationComplete" },
   {   1, "criticalExtensionsFuture" },
   { 0, NULL }
 };
 
-static const per_choice_t T_criticalExtensions_05_choice[] = {
+static const per_choice_t T_criticalExtensions_06_choice[] = {
   {   0, &hf_nr_rrc_rrcReconfigurationComplete_01, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_RRCReconfigurationComplete_IEs },
-  {   1, &hf_nr_rrc_criticalExtensionsFuture_05, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_criticalExtensionsFuture_05 },
+  {   1, &hf_nr_rrc_criticalExtensionsFuture_06, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_criticalExtensionsFuture_06 },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_criticalExtensions_05(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_criticalExtensions_06(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_nr_rrc_T_criticalExtensions_05, T_criticalExtensions_05_choice,
+                                 ett_nr_rrc_T_criticalExtensions_06, T_criticalExtensions_06_choice,
                                  NULL);
 
   return offset;
@@ -7657,7 +7783,7 @@ dissect_nr_rrc_T_criticalExtensions_05(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 static const per_sequence_t RRCReconfigurationComplete_sequence[] = {
   { &hf_nr_rrc_rrc_TransactionIdentifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_RRC_TransactionIdentifier },
-  { &hf_nr_rrc_criticalExtensions_05, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_criticalExtensions_05 },
+  { &hf_nr_rrc_criticalExtensions_06, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_criticalExtensions_06 },
   { NULL, 0, 0, NULL }
 };
 
@@ -7672,7 +7798,7 @@ dissect_nr_rrc_RRCReconfigurationComplete(tvbuff_t *tvb _U_, int offset _U_, asn
 }
 
 
-static const value_string nr_rrc_T_c1_04_vals[] = {
+static const value_string nr_rrc_T_c1_05_vals[] = {
   {   0, "measurementReport" },
   {   1, "rrcReconfigurationComplete" },
   {   2, "spare14" },
@@ -7692,7 +7818,7 @@ static const value_string nr_rrc_T_c1_04_vals[] = {
   { 0, NULL }
 };
 
-static const per_choice_t T_c1_04_choice[] = {
+static const per_choice_t T_c1_05_choice[] = {
   {   0, &hf_nr_rrc_measurementReport, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_MeasurementReport },
   {   1, &hf_nr_rrc_rrcReconfigurationComplete, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_RRCReconfigurationComplete },
   {   2, &hf_nr_rrc_spare14      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
@@ -7713,9 +7839,9 @@ static const per_choice_t T_c1_04_choice[] = {
 };
 
 static int
-dissect_nr_rrc_T_c1_04(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_c1_05(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_nr_rrc_T_c1_04, T_c1_04_choice,
+                                 ett_nr_rrc_T_c1_05, T_c1_05_choice,
                                  NULL);
 
   return offset;
@@ -7742,7 +7868,7 @@ static const value_string nr_rrc_UL_DCCH_MessageType_vals[] = {
 };
 
 static const per_choice_t UL_DCCH_MessageType_choice[] = {
-  {   0, &hf_nr_rrc_c1_04        , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_c1_04 },
+  {   0, &hf_nr_rrc_c1_05        , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_c1_05 },
   {   1, &hf_nr_rrc_messageClassExtension_02, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_messageClassExtension_02 },
   { 0, NULL, 0, NULL }
 };
@@ -9638,14 +9764,14 @@ dissect_nr_rrc_PDCCH_ConfigCommon(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 }
 
 
-static const per_sequence_t T_nonCriticalExtension_06_sequence[] = {
+static const per_sequence_t T_nonCriticalExtension_07_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_nonCriticalExtension_06(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_nonCriticalExtension_07(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_T_nonCriticalExtension_06, T_nonCriticalExtension_06_sequence);
+                                   ett_nr_rrc_T_nonCriticalExtension_07, T_nonCriticalExtension_07_sequence);
 
   return offset;
 }
@@ -9663,7 +9789,7 @@ static const per_sequence_t SIB1_sequence[] = {
   { &hf_nr_rrc_pdcch_ConfigCommon, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_PDCCH_ConfigCommon },
   { &hf_nr_rrc_pucch_ConfigCommon, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_PUCCH_ConfigCommon },
   { &hf_nr_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_OCTET_STRING },
-  { &hf_nr_rrc_nonCriticalExtension_06, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_06 },
+  { &hf_nr_rrc_nonCriticalExtension_07, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_07 },
   { NULL, 0, 0, NULL }
 };
 
@@ -23415,14 +23541,14 @@ dissect_nr_rrc_SEQUENCE_SIZE_1_maxFeatureSetCombinations_OF_FeatureSetCombinatio
 }
 
 
-static const per_sequence_t T_nonCriticalExtension_07_sequence[] = {
+static const per_sequence_t T_nonCriticalExtension_08_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_nonCriticalExtension_07(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_nonCriticalExtension_08(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_T_nonCriticalExtension_07, T_nonCriticalExtension_07_sequence);
+                                   ett_nr_rrc_T_nonCriticalExtension_08, T_nonCriticalExtension_08_sequence);
 
   return offset;
 }
@@ -23438,7 +23564,7 @@ static const per_sequence_t UE_MRDC_Capability_sequence[] = {
   { &hf_nr_rrc_fr2_Add_UE_MRDC_Capabilities, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_UE_MRDC_CapabilityAddFRX_Mode },
   { &hf_nr_rrc_featureSetCombinations, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_SEQUENCE_SIZE_1_maxFeatureSetCombinations_OF_FeatureSetCombination },
   { &hf_nr_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_OCTET_STRING },
-  { &hf_nr_rrc_nonCriticalExtension_07, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_07 },
+  { &hf_nr_rrc_nonCriticalExtension_08, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_08 },
   { NULL, 0, 0, NULL }
 };
 
@@ -26246,14 +26372,14 @@ dissect_nr_rrc_UE_NR_CapabilityAddFRX_Mode(tvbuff_t *tvb _U_, int offset _U_, as
 }
 
 
-static const per_sequence_t T_nonCriticalExtension_08_sequence[] = {
+static const per_sequence_t T_nonCriticalExtension_09_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_nonCriticalExtension_08(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_nonCriticalExtension_09(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_T_nonCriticalExtension_08, T_nonCriticalExtension_08_sequence);
+                                   ett_nr_rrc_T_nonCriticalExtension_09, T_nonCriticalExtension_09_sequence);
 
   return offset;
 }
@@ -26274,7 +26400,7 @@ static const per_sequence_t UE_NR_Capability_sequence[] = {
   { &hf_nr_rrc_featureSets  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_FeatureSets },
   { &hf_nr_rrc_featureSetCombinations, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_SEQUENCE_SIZE_1_maxFeatureSetCombinations_OF_FeatureSetCombination },
   { &hf_nr_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_OCTET_STRING },
-  { &hf_nr_rrc_nonCriticalExtension_08, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_08 },
+  { &hf_nr_rrc_nonCriticalExtension_09, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_09 },
   { NULL, 0, 0, NULL }
 };
 
@@ -26288,6 +26414,14 @@ dissect_nr_rrc_UE_NR_Capability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 /*--- PDUs ---*/
 
+int dissect_nr_rrc_HandoverCommand_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
+  offset = dissect_nr_rrc_HandoverCommand(tvb, offset, &asn1_ctx, tree, hf_nr_rrc_nr_rrc_HandoverCommand_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 int dissect_nr_rrc_HandoverPreparationInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -26485,6 +26619,10 @@ void proto_register_nr_rrc(void) {
 
 /*--- Included file: packet-nr-rrc-hfarr.c ---*/
 #line 1 "./asn1/nr-rrc/packet-nr-rrc-hfarr.c"
+    { &hf_nr_rrc_nr_rrc_HandoverCommand_PDU,
+      { "HandoverCommand", "nr-rrc.HandoverCommand_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_nr_rrc_nr_rrc_HandoverPreparationInformation_PDU,
       { "HandoverPreparationInformation", "nr-rrc.HandoverPreparationInformation_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -26585,10 +26723,10 @@ void proto_register_nr_rrc(void) {
       { "c1", "nr-rrc.c1",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_c1_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_handoverPreparationInformation,
-      { "handoverPreparationInformation", "nr-rrc.handoverPreparationInformation_element",
+    { &hf_nr_rrc_handoverCommand,
+      { "handoverCommand", "nr-rrc.handoverCommand_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "HandoverPreparationInformation_IEs", HFILL }},
+        "HandoverCommand_IEs", HFILL }},
     { &hf_nr_rrc_spare3,
       { "spare3", "nr-rrc.spare3_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -26605,6 +26743,30 @@ void proto_register_nr_rrc(void) {
       { "criticalExtensionsFuture", "nr-rrc.criticalExtensionsFuture_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_nr_rrc_handoverCommandMessage,
+      { "handoverCommandMessage", "nr-rrc.handoverCommandMessage",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_nonCriticalExtension,
+      { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_criticalExtensions_01,
+      { "criticalExtensions", "nr-rrc.criticalExtensions",
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_criticalExtensions_01_vals), 0,
+        "T_criticalExtensions_01", HFILL }},
+    { &hf_nr_rrc_c1_01,
+      { "c1", "nr-rrc.c1",
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_c1_01_vals), 0,
+        "T_c1_01", HFILL }},
+    { &hf_nr_rrc_handoverPreparationInformation,
+      { "handoverPreparationInformation", "nr-rrc.handoverPreparationInformation_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "HandoverPreparationInformation_IEs", HFILL }},
+    { &hf_nr_rrc_criticalExtensionsFuture_01,
+      { "criticalExtensionsFuture", "nr-rrc.criticalExtensionsFuture_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "T_criticalExtensionsFuture_01", HFILL }},
     { &hf_nr_rrc_ue_CapabilityRAT_List,
       { "ue-CapabilityRAT-List", "nr-rrc.ue_CapabilityRAT_List",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -26621,10 +26783,10 @@ void proto_register_nr_rrc(void) {
       { "as-Context", "nr-rrc.as_Context_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension,
+    { &hf_nr_rrc_nonCriticalExtension_01,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
+        "T_nonCriticalExtension_01", HFILL }},
     { &hf_nr_rrc_reestablishmentInfo,
       { "reestablishmentInfo", "nr-rrc.reestablishmentInfo_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -26673,22 +26835,22 @@ void proto_register_nr_rrc(void) {
       { "measuredFrequency", "nr-rrc.measuredFrequency",
         FT_UINT32, BASE_DEC, NULL, 0,
         "ARFCN_ValueNR", HFILL }},
-    { &hf_nr_rrc_criticalExtensions_01,
+    { &hf_nr_rrc_criticalExtensions_02,
       { "criticalExtensions", "nr-rrc.criticalExtensions",
-        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_criticalExtensions_01_vals), 0,
-        "T_criticalExtensions_01", HFILL }},
-    { &hf_nr_rrc_c1_01,
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_criticalExtensions_02_vals), 0,
+        "T_criticalExtensions_02", HFILL }},
+    { &hf_nr_rrc_c1_02,
       { "c1", "nr-rrc.c1",
-        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_c1_01_vals), 0,
-        "T_c1_01", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_c1_02_vals), 0,
+        "T_c1_02", HFILL }},
     { &hf_nr_rrc_cg_ConfigInfo,
       { "cg-ConfigInfo", "nr-rrc.cg_ConfigInfo_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "CG_ConfigInfo_IEs", HFILL }},
-    { &hf_nr_rrc_criticalExtensionsFuture_01,
+    { &hf_nr_rrc_criticalExtensionsFuture_02,
       { "criticalExtensionsFuture", "nr-rrc.criticalExtensionsFuture_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_criticalExtensionsFuture_01", HFILL }},
+        "T_criticalExtensionsFuture_02", HFILL }},
     { &hf_nr_rrc_ue_CapabilityInfo,
       { "ue-CapabilityInfo", "nr-rrc.ue_CapabilityInfo",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -26737,10 +26899,10 @@ void proto_register_nr_rrc(void) {
       { "mcg-RB-Config", "nr-rrc.mcg_RB_Config",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_01,
+    { &hf_nr_rrc_nonCriticalExtension_02,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_nonCriticalExtension_01", HFILL }},
+        "T_nonCriticalExtension_02", HFILL }},
     { &hf_nr_rrc_allowedBC_ListMRDC,
       { "allowedBC-ListMRDC", "nr-rrc.allowedBC_ListMRDC",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -26901,30 +27063,30 @@ void proto_register_nr_rrc(void) {
       { "gapPurpose", "nr-rrc.gapPurpose",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_gapPurpose_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_criticalExtensions_02,
+    { &hf_nr_rrc_criticalExtensions_03,
       { "criticalExtensions", "nr-rrc.criticalExtensions",
-        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_criticalExtensions_02_vals), 0,
-        "T_criticalExtensions_02", HFILL }},
-    { &hf_nr_rrc_c1_02,
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_criticalExtensions_03_vals), 0,
+        "T_criticalExtensions_03", HFILL }},
+    { &hf_nr_rrc_c1_03,
       { "c1", "nr-rrc.c1",
-        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_c1_02_vals), 0,
-        "T_c1_02", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_c1_03_vals), 0,
+        "T_c1_03", HFILL }},
     { &hf_nr_rrc_measTimingConf,
       { "measTimingConf", "nr-rrc.measTimingConf_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "MeasurementTimingConfiguration_IEs", HFILL }},
-    { &hf_nr_rrc_criticalExtensionsFuture_02,
+    { &hf_nr_rrc_criticalExtensionsFuture_03,
       { "criticalExtensionsFuture", "nr-rrc.criticalExtensionsFuture_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_criticalExtensionsFuture_02", HFILL }},
+        "T_criticalExtensionsFuture_03", HFILL }},
     { &hf_nr_rrc_measTiming,
       { "measTiming", "nr-rrc.measTiming",
         FT_UINT32, BASE_DEC, NULL, 0,
         "MeasTimingList", HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_02,
+    { &hf_nr_rrc_nonCriticalExtension_03,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_nonCriticalExtension_02", HFILL }},
+        "T_nonCriticalExtension_03", HFILL }},
     { &hf_nr_rrc_MeasTimingList_item,
       { "MeasTiming", "nr-rrc.MeasTiming_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -26957,10 +27119,10 @@ void proto_register_nr_rrc(void) {
       { "message", "nr-rrc.message",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_DL_DCCH_MessageType_vals), 0,
         "DL_DCCH_MessageType", HFILL }},
-    { &hf_nr_rrc_c1_03,
+    { &hf_nr_rrc_c1_04,
       { "c1", "nr-rrc.c1",
-        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_c1_03_vals), 0,
-        "T_c1_03", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_c1_04_vals), 0,
+        "T_c1_04", HFILL }},
     { &hf_nr_rrc_rrcReconfiguration,
       { "rrcReconfiguration", "nr-rrc.rrcReconfiguration_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -27021,10 +27183,10 @@ void proto_register_nr_rrc(void) {
       { "message", "nr-rrc.message",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_UL_DCCH_MessageType_vals), 0,
         "UL_DCCH_MessageType", HFILL }},
-    { &hf_nr_rrc_c1_04,
+    { &hf_nr_rrc_c1_05,
       { "c1", "nr-rrc.c1",
-        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_c1_04_vals), 0,
-        "T_c1_04", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_c1_05_vals), 0,
+        "T_c1_05", HFILL }},
     { &hf_nr_rrc_measurementReport,
       { "measurementReport", "nr-rrc.measurementReport_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -27069,18 +27231,18 @@ void proto_register_nr_rrc(void) {
       { "spare", "nr-rrc.spare",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_1", HFILL }},
-    { &hf_nr_rrc_criticalExtensions_03,
+    { &hf_nr_rrc_criticalExtensions_04,
       { "criticalExtensions", "nr-rrc.criticalExtensions",
-        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_criticalExtensions_03_vals), 0,
-        "T_criticalExtensions_03", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_criticalExtensions_04_vals), 0,
+        "T_criticalExtensions_04", HFILL }},
     { &hf_nr_rrc_measurementReport_01,
       { "measurementReport", "nr-rrc.measurementReport_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "MeasurementReport_IEs", HFILL }},
-    { &hf_nr_rrc_criticalExtensionsFuture_03,
+    { &hf_nr_rrc_criticalExtensionsFuture_04,
       { "criticalExtensionsFuture", "nr-rrc.criticalExtensionsFuture_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_criticalExtensionsFuture_03", HFILL }},
+        "T_criticalExtensionsFuture_04", HFILL }},
     { &hf_nr_rrc_measResults,
       { "measResults", "nr-rrc.measResults_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -27089,26 +27251,26 @@ void proto_register_nr_rrc(void) {
       { "lateNonCriticalExtension", "nr-rrc.lateNonCriticalExtension",
         FT_BYTES, BASE_NONE, NULL, 0,
         "OCTET_STRING", HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_03,
+    { &hf_nr_rrc_nonCriticalExtension_04,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_nonCriticalExtension_03", HFILL }},
+        "T_nonCriticalExtension_04", HFILL }},
     { &hf_nr_rrc_rrc_TransactionIdentifier,
       { "rrc-TransactionIdentifier", "nr-rrc.rrc_TransactionIdentifier",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_criticalExtensions_04,
+    { &hf_nr_rrc_criticalExtensions_05,
       { "criticalExtensions", "nr-rrc.criticalExtensions",
-        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_criticalExtensions_04_vals), 0,
-        "T_criticalExtensions_04", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_criticalExtensions_05_vals), 0,
+        "T_criticalExtensions_05", HFILL }},
     { &hf_nr_rrc_rrcReconfiguration_01,
       { "rrcReconfiguration", "nr-rrc.rrcReconfiguration_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "RRCReconfiguration_IEs", HFILL }},
-    { &hf_nr_rrc_criticalExtensionsFuture_04,
+    { &hf_nr_rrc_criticalExtensionsFuture_05,
       { "criticalExtensionsFuture", "nr-rrc.criticalExtensionsFuture_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_criticalExtensionsFuture_04", HFILL }},
+        "T_criticalExtensionsFuture_05", HFILL }},
     { &hf_nr_rrc_radioBearerConfig,
       { "radioBearerConfig", "nr-rrc.radioBearerConfig_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -27121,26 +27283,26 @@ void proto_register_nr_rrc(void) {
       { "measConfig", "nr-rrc.measConfig_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_04,
-      { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "T_nonCriticalExtension_04", HFILL }},
-    { &hf_nr_rrc_criticalExtensions_05,
-      { "criticalExtensions", "nr-rrc.criticalExtensions",
-        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_criticalExtensions_05_vals), 0,
-        "T_criticalExtensions_05", HFILL }},
-    { &hf_nr_rrc_rrcReconfigurationComplete_01,
-      { "rrcReconfigurationComplete", "nr-rrc.rrcReconfigurationComplete_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "RRCReconfigurationComplete_IEs", HFILL }},
-    { &hf_nr_rrc_criticalExtensionsFuture_05,
-      { "criticalExtensionsFuture", "nr-rrc.criticalExtensionsFuture_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "T_criticalExtensionsFuture_05", HFILL }},
     { &hf_nr_rrc_nonCriticalExtension_05,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_05", HFILL }},
+    { &hf_nr_rrc_criticalExtensions_06,
+      { "criticalExtensions", "nr-rrc.criticalExtensions",
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_criticalExtensions_06_vals), 0,
+        "T_criticalExtensions_06", HFILL }},
+    { &hf_nr_rrc_rrcReconfigurationComplete_01,
+      { "rrcReconfigurationComplete", "nr-rrc.rrcReconfigurationComplete_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "RRCReconfigurationComplete_IEs", HFILL }},
+    { &hf_nr_rrc_criticalExtensionsFuture_06,
+      { "criticalExtensionsFuture", "nr-rrc.criticalExtensionsFuture_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "T_criticalExtensionsFuture_06", HFILL }},
+    { &hf_nr_rrc_nonCriticalExtension_06,
+      { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "T_nonCriticalExtension_06", HFILL }},
     { &hf_nr_rrc_frequencyOffsetSSB,
       { "frequencyOffsetSSB", "nr-rrc.frequencyOffsetSSB",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_frequencyOffsetSSB_vals), 0,
@@ -27189,10 +27351,10 @@ void proto_register_nr_rrc(void) {
       { "pucch-ConfigCommon", "nr-rrc.pucch_ConfigCommon_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_06,
+    { &hf_nr_rrc_nonCriticalExtension_07,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_nonCriticalExtension_06", HFILL }},
+        "T_nonCriticalExtension_07", HFILL }},
     { &hf_nr_rrc_locationAndBandwidth,
       { "locationAndBandwidth", "nr-rrc.locationAndBandwidth",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -33117,10 +33279,10 @@ void proto_register_nr_rrc(void) {
       { "FeatureSetCombination", "nr-rrc.FeatureSetCombination",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_07,
+    { &hf_nr_rrc_nonCriticalExtension_08,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_nonCriticalExtension_07", HFILL }},
+        "T_nonCriticalExtension_08", HFILL }},
     { &hf_nr_rrc_measParametersMRDC_XDD_Diff,
       { "measParametersMRDC-XDD-Diff", "nr-rrc.measParametersMRDC_XDD_Diff_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -33221,10 +33383,10 @@ void proto_register_nr_rrc(void) {
       { "featureSets", "nr-rrc.featureSets_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_08,
+    { &hf_nr_rrc_nonCriticalExtension_09,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_nonCriticalExtension_08", HFILL }},
+        "T_nonCriticalExtension_09", HFILL }},
     { &hf_nr_rrc_phy_ParametersXDD_Diff,
       { "phy-ParametersXDD-Diff", "nr-rrc.phy_ParametersXDD_Diff_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -34052,12 +34214,18 @@ void proto_register_nr_rrc(void) {
 
 /*--- Included file: packet-nr-rrc-ettarr.c ---*/
 #line 1 "./asn1/nr-rrc/packet-nr-rrc-ettarr.c"
-    &ett_nr_rrc_HandoverPreparationInformation,
+    &ett_nr_rrc_HandoverCommand,
     &ett_nr_rrc_T_criticalExtensions,
     &ett_nr_rrc_T_c1,
     &ett_nr_rrc_T_criticalExtensionsFuture,
-    &ett_nr_rrc_HandoverPreparationInformation_IEs,
+    &ett_nr_rrc_HandoverCommand_IEs,
     &ett_nr_rrc_T_nonCriticalExtension,
+    &ett_nr_rrc_HandoverPreparationInformation,
+    &ett_nr_rrc_T_criticalExtensions_01,
+    &ett_nr_rrc_T_c1_01,
+    &ett_nr_rrc_T_criticalExtensionsFuture_01,
+    &ett_nr_rrc_HandoverPreparationInformation_IEs,
+    &ett_nr_rrc_T_nonCriticalExtension_01,
     &ett_nr_rrc_AS_Context,
     &ett_nr_rrc_T_reestablishmentInfo,
     &ett_nr_rrc_ReestabNCellInfoList,
@@ -34065,12 +34233,12 @@ void proto_register_nr_rrc(void) {
     &ett_nr_rrc_RRM_Config,
     &ett_nr_rrc_NR_FreqInfo,
     &ett_nr_rrc_CG_ConfigInfo,
-    &ett_nr_rrc_T_criticalExtensions_01,
-    &ett_nr_rrc_T_c1_01,
-    &ett_nr_rrc_T_criticalExtensionsFuture_01,
+    &ett_nr_rrc_T_criticalExtensions_02,
+    &ett_nr_rrc_T_c1_02,
+    &ett_nr_rrc_T_criticalExtensionsFuture_02,
     &ett_nr_rrc_CG_ConfigInfo_IEs,
     &ett_nr_rrc_T_scgFailureInfo,
-    &ett_nr_rrc_T_nonCriticalExtension_01,
+    &ett_nr_rrc_T_nonCriticalExtension_02,
     &ett_nr_rrc_ConfigRestrictInfoSCG,
     &ett_nr_rrc_T_powerCoordination_FR1,
     &ett_nr_rrc_T_servCellIndexRangeSCG,
@@ -34082,11 +34250,11 @@ void proto_register_nr_rrc(void) {
     &ett_nr_rrc_SEQUENCE_SIZE_1_maxMeasFreqsMN_OF_NR_FreqInfo,
     &ett_nr_rrc_T_measGapConfig,
     &ett_nr_rrc_MeasurementTimingConfiguration,
-    &ett_nr_rrc_T_criticalExtensions_02,
-    &ett_nr_rrc_T_c1_02,
-    &ett_nr_rrc_T_criticalExtensionsFuture_02,
+    &ett_nr_rrc_T_criticalExtensions_03,
+    &ett_nr_rrc_T_c1_03,
+    &ett_nr_rrc_T_criticalExtensionsFuture_03,
     &ett_nr_rrc_MeasurementTimingConfiguration_IEs,
-    &ett_nr_rrc_T_nonCriticalExtension_02,
+    &ett_nr_rrc_T_nonCriticalExtension_03,
     &ett_nr_rrc_MeasTimingList,
     &ett_nr_rrc_MeasTiming,
     &ett_nr_rrc_T_frequencyAndTiming,
@@ -34095,32 +34263,32 @@ void proto_register_nr_rrc(void) {
     &ett_nr_rrc_T_messageClassExtension,
     &ett_nr_rrc_DL_DCCH_Message,
     &ett_nr_rrc_DL_DCCH_MessageType,
-    &ett_nr_rrc_T_c1_03,
+    &ett_nr_rrc_T_c1_04,
     &ett_nr_rrc_T_messageClassExtension_01,
     &ett_nr_rrc_UL_DCCH_Message,
     &ett_nr_rrc_UL_DCCH_MessageType,
-    &ett_nr_rrc_T_c1_04,
+    &ett_nr_rrc_T_c1_05,
     &ett_nr_rrc_T_messageClassExtension_02,
     &ett_nr_rrc_MIB,
     &ett_nr_rrc_MeasurementReport,
-    &ett_nr_rrc_T_criticalExtensions_03,
-    &ett_nr_rrc_T_criticalExtensionsFuture_03,
-    &ett_nr_rrc_MeasurementReport_IEs,
-    &ett_nr_rrc_T_nonCriticalExtension_03,
-    &ett_nr_rrc_RRCReconfiguration,
     &ett_nr_rrc_T_criticalExtensions_04,
     &ett_nr_rrc_T_criticalExtensionsFuture_04,
-    &ett_nr_rrc_RRCReconfiguration_IEs,
+    &ett_nr_rrc_MeasurementReport_IEs,
     &ett_nr_rrc_T_nonCriticalExtension_04,
-    &ett_nr_rrc_RRCReconfigurationComplete,
+    &ett_nr_rrc_RRCReconfiguration,
     &ett_nr_rrc_T_criticalExtensions_05,
     &ett_nr_rrc_T_criticalExtensionsFuture_05,
-    &ett_nr_rrc_RRCReconfigurationComplete_IEs,
+    &ett_nr_rrc_RRCReconfiguration_IEs,
     &ett_nr_rrc_T_nonCriticalExtension_05,
+    &ett_nr_rrc_RRCReconfigurationComplete,
+    &ett_nr_rrc_T_criticalExtensions_06,
+    &ett_nr_rrc_T_criticalExtensionsFuture_06,
+    &ett_nr_rrc_RRCReconfigurationComplete_IEs,
+    &ett_nr_rrc_T_nonCriticalExtension_06,
     &ett_nr_rrc_SIB1,
     &ett_nr_rrc_T_ssb_PositionsInBurst,
     &ett_nr_rrc_T_supplementaryUplink,
-    &ett_nr_rrc_T_nonCriticalExtension_06,
+    &ett_nr_rrc_T_nonCriticalExtension_07,
     &ett_nr_rrc_BWP,
     &ett_nr_rrc_BWP_Uplink,
     &ett_nr_rrc_BWP_UplinkCommon,
@@ -34697,7 +34865,7 @@ void proto_register_nr_rrc(void) {
     &ett_nr_rrc_UE_CapabilityRAT_Container,
     &ett_nr_rrc_UE_MRDC_Capability,
     &ett_nr_rrc_SEQUENCE_SIZE_1_maxFeatureSetCombinations_OF_FeatureSetCombination,
-    &ett_nr_rrc_T_nonCriticalExtension_07,
+    &ett_nr_rrc_T_nonCriticalExtension_08,
     &ett_nr_rrc_UE_MRDC_CapabilityAddXDD_Mode,
     &ett_nr_rrc_UE_MRDC_CapabilityAddFRX_Mode,
     &ett_nr_rrc_GeneralParametersMRDC_XDD_Diff,
@@ -34707,7 +34875,7 @@ void proto_register_nr_rrc(void) {
     &ett_nr_rrc_MeasParametersMRDC_XDD_Diff,
     &ett_nr_rrc_MeasParametersMRDC_FRX_Diff,
     &ett_nr_rrc_UE_NR_Capability,
-    &ett_nr_rrc_T_nonCriticalExtension_08,
+    &ett_nr_rrc_T_nonCriticalExtension_09,
     &ett_nr_rrc_UE_NR_CapabilityAddXDD_Mode,
     &ett_nr_rrc_UE_NR_CapabilityAddFRX_Mode,
     &ett_nr_rrc_Phy_Parameters,

@@ -1,0 +1,196 @@
+-- 3GPP TS 38.423 V15.0.0 (2018-06)
+-- 9.3.8	Container definitions
+-- **************************************************************
+--
+-- Container definitions
+--
+-- **************************************************************
+
+XnAP-Containers {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+ngran-access (22) modules (3) xnap (2) version1 (1) xnap-Containers (5) }
+
+DEFINITIONS AUTOMATIC TAGS ::= 
+
+BEGIN
+
+-- **************************************************************
+--
+-- IE parameter types from other modules.
+--
+-- **************************************************************
+
+IMPORTS
+	maxPrivateIEs,
+	maxProtocolExtensions,
+	maxProtocolIEs,
+	Criticality,
+	Presence,
+	PrivateIE-ID,
+	ProtocolIE-ID	
+FROM XnAP-CommonDataTypes;
+
+-- **************************************************************
+--
+-- Class Definition for Protocol IEs
+--
+-- **************************************************************
+
+XNAP-PROTOCOL-IES ::= CLASS {
+	&id				ProtocolIE-ID 			UNIQUE,
+	&criticality	Criticality,
+	&Value,
+	&presence		Presence
+}
+WITH SYNTAX {
+	ID				&id
+	CRITICALITY		&criticality
+	TYPE			&Value
+	PRESENCE		&presence
+}
+
+-- **************************************************************
+--
+-- Class Definition for Protocol IE pairs
+--
+-- **************************************************************
+
+XNAP-PROTOCOL-IES-PAIR ::= CLASS {
+	&id						ProtocolIE-ID 		UNIQUE,
+	&firstCriticality		Criticality,
+	&FirstValue,
+	&secondCriticality		Criticality,
+	&SecondValue,
+	&presence				Presence
+}
+WITH SYNTAX {
+	ID						&id
+	FIRST CRITICALITY 		&firstCriticality
+	FIRST TYPE				&FirstValue
+	SECOND CRITICALITY 		&secondCriticality
+	SECOND TYPE				&SecondValue
+	PRESENCE				&presence
+}
+
+-- **************************************************************
+--
+-- Class Definition for Protocol Extensions
+--
+-- **************************************************************
+
+XNAP-PROTOCOL-EXTENSION ::= CLASS {
+	&id					ProtocolIE-ID 		UNIQUE,
+	&criticality		Criticality,
+	&Extension,
+	&presence			Presence
+}
+WITH SYNTAX {
+	ID					&id
+	CRITICALITY			&criticality
+	EXTENSION			&Extension
+	PRESENCE			&presence
+}
+
+-- **************************************************************
+--
+-- Class Definition for Private IEs
+--
+-- **************************************************************
+
+XNAP-PRIVATE-IES ::= CLASS {
+	&id					PrivateIE-ID,
+	&criticality		Criticality,
+	&Value,
+	&presence			Presence
+}
+WITH SYNTAX {
+	ID					&id
+	CRITICALITY			&criticality
+	TYPE				&Value
+	PRESENCE			&presence
+}
+
+-- **************************************************************
+--
+-- Container for Protocol IEs
+--
+-- **************************************************************
+
+ProtocolIE-Container {XNAP-PROTOCOL-IES : IEsSetParam} ::= 
+	SEQUENCE (SIZE (0..maxProtocolIEs)) OF
+	ProtocolIE-Field {{IEsSetParam}}
+
+ProtocolIE-Single-Container {XNAP-PROTOCOL-IES : IEsSetParam} ::= 
+	ProtocolIE-Field {{IEsSetParam}}
+
+ProtocolIE-Field {XNAP-PROTOCOL-IES : IEsSetParam} ::= SEQUENCE {
+	id				XNAP-PROTOCOL-IES.&id					({IEsSetParam}),
+	criticality		XNAP-PROTOCOL-IES.&criticality			({IEsSetParam}{@id}),
+	value			XNAP-PROTOCOL-IES.&Value				({IEsSetParam}{@id})
+}
+
+-- **************************************************************
+--
+-- Container for Protocol IE Pairs
+--
+-- **************************************************************
+
+ProtocolIE-ContainerPair {XNAP-PROTOCOL-IES-PAIR : IEsSetParam} ::= 
+	SEQUENCE (SIZE (0..maxProtocolIEs)) OF
+	ProtocolIE-FieldPair {{IEsSetParam}}
+
+ProtocolIE-FieldPair {XNAP-PROTOCOL-IES-PAIR : IEsSetParam} ::= SEQUENCE {
+	id					XNAP-PROTOCOL-IES-PAIR.&id					({IEsSetParam}),
+	firstCriticality	XNAP-PROTOCOL-IES-PAIR.&firstCriticality	({IEsSetParam}{@id}),
+	firstValue			XNAP-PROTOCOL-IES-PAIR.&FirstValue			({IEsSetParam}{@id}),
+	secondCriticality	XNAP-PROTOCOL-IES-PAIR.&secondCriticality	({IEsSetParam}{@id}),
+	secondValue			XNAP-PROTOCOL-IES-PAIR.&SecondValue			({IEsSetParam}{@id})
+}
+
+-- **************************************************************
+--
+-- Container Lists for Protocol IE Containers
+--
+-- **************************************************************
+
+ProtocolIE-ContainerList {INTEGER : lowerBound, INTEGER : upperBound, XNAP-PROTOCOL-IES : IEsSetParam} ::=
+	SEQUENCE (SIZE (lowerBound..upperBound)) OF
+	ProtocolIE-Container {{IEsSetParam}}
+
+ProtocolIE-ContainerPairList {INTEGER : lowerBound, INTEGER : upperBound, XNAP-PROTOCOL-IES-PAIR : IEsSetParam} ::=
+	SEQUENCE (SIZE (lowerBound..upperBound)) OF
+	ProtocolIE-ContainerPair {{IEsSetParam}}
+
+-- **************************************************************
+--
+-- Container for Protocol Extensions
+--
+-- **************************************************************
+
+ProtocolExtensionContainer {XNAP-PROTOCOL-EXTENSION : ExtensionSetParam} ::= 
+	SEQUENCE (SIZE (1..maxProtocolExtensions)) OF
+	ProtocolExtensionField {{ExtensionSetParam}}
+
+ProtocolExtensionField {XNAP-PROTOCOL-EXTENSION : ExtensionSetParam} ::= SEQUENCE {
+	id					XNAP-PROTOCOL-EXTENSION.&id				({ExtensionSetParam}),
+	criticality			XNAP-PROTOCOL-EXTENSION.&criticality	({ExtensionSetParam}{@id}),
+	extensionValue		XNAP-PROTOCOL-EXTENSION.&Extension		({ExtensionSetParam}{@id})
+}
+
+-- **************************************************************
+--
+-- Container for Private IEs
+--
+-- **************************************************************
+
+PrivateIE-Container {XNAP-PRIVATE-IES : IEsSetParam} ::= 
+	SEQUENCE (SIZE (1..maxPrivateIEs)) OF
+	PrivateIE-Field {{IEsSetParam}}
+
+PrivateIE-Field {XNAP-PRIVATE-IES : IEsSetParam} ::= SEQUENCE {
+	id				XNAP-PRIVATE-IES.&id			({IEsSetParam}),
+	criticality		XNAP-PRIVATE-IES.&criticality	({IEsSetParam}{@id}),
+	value			XNAP-PRIVATE-IES.&Value			({IEsSetParam}{@id})
+}
+
+END

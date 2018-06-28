@@ -1,0 +1,390 @@
+-- 3GPP TS 38.423 V15.0.0 (2018-06)
+-- 9.3.3	Elementary Procedure Definitions
+-- **************************************************************
+--
+-- Elementary Procedure definitions
+--
+-- **************************************************************
+
+XnAP-PDU-Descriptions {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+ngran-access (22) modules (3) xnap (2) version1 (1) xnap-PDU-Descriptions (0) }
+
+DEFINITIONS AUTOMATIC TAGS ::= 
+
+BEGIN
+
+-- **************************************************************
+--
+-- IE parameter types from other modules.
+--
+-- **************************************************************
+
+IMPORTS
+	Criticality,
+	ProcedureCode
+
+FROM XnAP-CommonDataTypes
+
+	HandoverRequest,
+	HandoverRequestAcknowledge,
+	HandoverPreparationFailure,
+	SNStatusTransfer,
+	UEContextRelease,
+	HandoverCancel,
+	RANPaging,
+	RetrieveUEContextRequest,
+	RetrieveUEContextResponse,
+	RetrieveUEContextFailure,
+	DataForwardingAddressIndication,
+	SNodeAdditionRequest,
+	SNodeAdditionRequestAcknowledge,
+	SNodeAdditionRequestReject,
+	SNodeReconfigurationComplete,
+	SNodeModificationRequest,
+	SNodeModificationRequestAcknowledge,
+	SNodeModificationRequestReject,
+	SNodeModificationRequired,
+	SNodeModificationConfirm,
+	SNodeModificationRefuse,
+	SNodeReleaseRequest,
+	SNodeReleaseRequestAcknowledge,
+	SNodeReleaseReject,
+	SNodeReleaseRequired,
+	SNodeReleaseConfirm,
+	SNodeCounterCheckRequest,
+	SNodeChangeRequired,
+	SNodeChangeConfirm,
+	SNodeChangeRefuse,
+	RRCTransfer,
+	XnRemovalRequest,
+	XnRemovalResponse,
+	XnRemovalFailure,
+	XnSetupRequest,
+	XnSetupResponse,
+	XnSetupFailure,
+	NGRANNodeConfigurationUpdate,
+	NGRANNodeConfigurationUpdateAcknowledge,
+	NGRANNodeConfigurationUpdateFailure,
+	CellActivationRequest,
+	CellActivationResponse,
+	CellActivationFailure,
+	ResetRequest,
+	ResetResponse,
+	ErrorIndication,
+	PrivateMessage
+
+FROM XnAP-PDU-Contents
+
+	id-handoverPreparation,
+	id-sNStatusTransfer,
+	id-handoverCancel,
+	id-retrieveUEContext,
+	id-rANPaging,
+	id-dataForwardingAddressIndication,
+	id-uEContextRelease,
+	id-sNGRANnodeAdditionPreparation,
+	id-sNGRANnodeReconfigurationCompletion,
+	id-mNGRANnodeinitiatedSNGRANnodeModificationPreparation,
+	id-sNGRANnodeinitiatedSNGRANnodeModificationPreparation,
+	id-mNGRANnodeinitiatedSNGRANnodeRelease,
+	id-sNGRANnodeinitiatedSNGRANnodeRelease,
+	id-sNGRANnodeCounterCheck,
+	id-sNGRANnodeChange,
+	id-rRCTransfer,
+	id-xnRemoval,
+	id-xnSetup,
+	id-nGRANnodeConfigurationUpdate,
+	id-cellActivation,
+	id-reset,
+	id-errorIndication,
+	id-privateMessage
+
+FROM XnAP-Constants;
+
+-- **************************************************************
+--
+-- Interface Elementary Procedure Class
+--
+-- **************************************************************
+
+XNAP-ELEMENTARY-PROCEDURE ::= CLASS {
+	&InitiatingMessage				,
+	&SuccessfulOutcome				OPTIONAL,
+	&UnsuccessfulOutcome				OPTIONAL,
+	&procedureCode			ProcedureCode	UNIQUE,
+	&criticality			Criticality		DEFAULT ignore
+}
+WITH SYNTAX {
+	INITIATING MESSAGE		&InitiatingMessage
+	[SUCCESSFUL OUTCOME		&SuccessfulOutcome]
+	[UNSUCCESSFUL OUTCOME		&UnsuccessfulOutcome]
+	PROCEDURE CODE			&procedureCode
+	[CRITICALITY			&criticality]
+}
+
+-- **************************************************************
+--
+-- Interface PDU Definition
+--
+-- **************************************************************
+
+XnAP-PDU ::= CHOICE {
+	initiatingMessage	InitiatingMessage,
+	successfulOutcome	SuccessfulOutcome,
+	unsuccessfulOutcome	UnsuccessfulOutcome,
+	...
+}
+
+InitiatingMessage ::= SEQUENCE {
+	procedureCode	XNAP-ELEMENTARY-PROCEDURE.&procedureCode		({XNAP-ELEMENTARY-PROCEDURES}),
+	criticality		XNAP-ELEMENTARY-PROCEDURE.&criticality			({XNAP-ELEMENTARY-PROCEDURES}{@procedureCode}),
+	value			XNAP-ELEMENTARY-PROCEDURE.&InitiatingMessage	({XNAP-ELEMENTARY-PROCEDURES}{@procedureCode})
+}
+
+SuccessfulOutcome ::= SEQUENCE {
+	procedureCode	XNAP-ELEMENTARY-PROCEDURE.&procedureCode		({XNAP-ELEMENTARY-PROCEDURES}),
+	criticality		XNAP-ELEMENTARY-PROCEDURE.&criticality			({XNAP-ELEMENTARY-PROCEDURES}{@procedureCode}),
+	value			XNAP-ELEMENTARY-PROCEDURE.&SuccessfulOutcome	({XNAP-ELEMENTARY-PROCEDURES}{@procedureCode})
+}
+
+UnsuccessfulOutcome ::= SEQUENCE {
+	procedureCode	XNAP-ELEMENTARY-PROCEDURE.&procedureCode		({XNAP-ELEMENTARY-PROCEDURES}),
+	criticality		XNAP-ELEMENTARY-PROCEDURE.&criticality			({XNAP-ELEMENTARY-PROCEDURES}{@procedureCode}),
+	value			XNAP-ELEMENTARY-PROCEDURE.&UnsuccessfulOutcome	({XNAP-ELEMENTARY-PROCEDURES}{@procedureCode})
+}
+
+-- **************************************************************
+--
+-- Interface Elementary Procedure List
+--
+-- **************************************************************
+
+XNAP-ELEMENTARY-PROCEDURES XNAP-ELEMENTARY-PROCEDURE ::= {
+	XNAP-ELEMENTARY-PROCEDURES-CLASS-1			|
+	XNAP-ELEMENTARY-PROCEDURES-CLASS-2			,
+	...
+}
+
+XNAP-ELEMENTARY-PROCEDURES-CLASS-1 XNAP-ELEMENTARY-PROCEDURE ::= {
+	handoverPreparation										|
+	retrieveUEContext										|
+	sNGRANnodeAdditionPreparation							|
+	mNGRANnodeinitiatedSNGRANnodeModificationPreparation	|
+	sNGRANnodeinitiatedSNGRANnodeModificationPreparation	|
+	mNGRANnodeinitiatedSNGRANnodeRelease					|
+	sNGRANnodeinitiatedSNGRANnodeRelease					|
+	sNGRANnodeChange										|
+	xnRemoval												|
+	xnSetup													|
+	nGRANnodeConfigurationUpdate							|
+	cellActivation											|
+	reset													,
+	...
+}
+
+XNAP-ELEMENTARY-PROCEDURES-CLASS-2 XNAP-ELEMENTARY-PROCEDURE ::= {
+	sNStatusTransfer						|
+	handoverCancel							|
+	rANPaging								|
+	dataForwardingAddressIndication			|
+	uEContextRelease						|
+	sNGRANnodeReconfigurationCompletion		|
+	sNGRANnodeCounterCheck					|
+	rRCTransfer								|
+	errorIndication							|
+	privateMessage							,
+...
+
+}
+
+-- **************************************************************
+--
+-- Interface Elementary Procedures
+--
+-- **************************************************************
+
+handoverPreparation	XNAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		HandoverRequest
+	SUCCESSFUL OUTCOME		HandoverRequestAcknowledge
+	UNSUCCESSFUL OUTCOME	HandoverPreparationFailure
+	PROCEDURE CODE			id-handoverPreparation
+	CRITICALITY				reject
+}
+
+
+sNStatusTransfer	XNAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		SNStatusTransfer
+	PROCEDURE CODE			id-sNStatusTransfer
+	CRITICALITY				ignore
+}
+
+
+handoverCancel	XNAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		HandoverCancel
+	PROCEDURE CODE			id-handoverCancel
+	CRITICALITY				ignore
+}
+
+
+retrieveUEContext	XNAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		RetrieveUEContextRequest
+	SUCCESSFUL OUTCOME		RetrieveUEContextResponse
+	UNSUCCESSFUL OUTCOME	RetrieveUEContextFailure
+	PROCEDURE CODE			id-retrieveUEContext
+	CRITICALITY				reject
+}
+
+
+rANPaging	XNAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		RANPaging
+	PROCEDURE CODE			id-rANPaging
+	CRITICALITY				reject
+}
+
+
+dataForwardingAddressIndication	XNAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		DataForwardingAddressIndication
+	PROCEDURE CODE			id-dataForwardingAddressIndication
+	CRITICALITY				reject
+}
+
+
+uEContextRelease	XNAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		UEContextRelease
+	PROCEDURE CODE			id-uEContextRelease
+	CRITICALITY				reject
+}
+
+
+sNGRANnodeAdditionPreparation	XNAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		SNodeAdditionRequest
+	SUCCESSFUL OUTCOME		SNodeAdditionRequestAcknowledge
+	UNSUCCESSFUL OUTCOME	SNodeAdditionRequestReject
+	PROCEDURE CODE			id-sNGRANnodeAdditionPreparation
+	CRITICALITY				reject
+}
+
+
+sNGRANnodeReconfigurationCompletion	XNAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		SNodeReconfigurationComplete
+	PROCEDURE CODE			id-sNGRANnodeReconfigurationCompletion
+	CRITICALITY				reject
+}
+
+
+mNGRANnodeinitiatedSNGRANnodeModificationPreparation	XNAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		SNodeModificationRequest
+	SUCCESSFUL OUTCOME		SNodeModificationRequestAcknowledge
+	UNSUCCESSFUL OUTCOME	SNodeModificationRequestReject
+	PROCEDURE CODE			id-mNGRANnodeinitiatedSNGRANnodeModificationPreparation
+	CRITICALITY				reject
+}
+
+
+sNGRANnodeinitiatedSNGRANnodeModificationPreparation	XNAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		SNodeModificationRequired
+	SUCCESSFUL OUTCOME		SNodeModificationConfirm
+	UNSUCCESSFUL OUTCOME	SNodeModificationRefuse
+	PROCEDURE CODE			id-sNGRANnodeinitiatedSNGRANnodeModificationPreparation
+	CRITICALITY				reject
+}
+
+
+mNGRANnodeinitiatedSNGRANnodeRelease	XNAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		SNodeReleaseRequest
+	SUCCESSFUL OUTCOME		SNodeReleaseRequestAcknowledge
+	UNSUCCESSFUL OUTCOME	SNodeReleaseReject
+	PROCEDURE CODE			id-mNGRANnodeinitiatedSNGRANnodeRelease
+	CRITICALITY				reject
+}
+
+
+sNGRANnodeinitiatedSNGRANnodeRelease	XNAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		SNodeReleaseRequired
+	SUCCESSFUL OUTCOME		SNodeReleaseConfirm
+	PROCEDURE CODE			id-sNGRANnodeinitiatedSNGRANnodeRelease
+	CRITICALITY				reject
+}
+
+
+sNGRANnodeCounterCheck	XNAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		SNodeCounterCheckRequest
+	PROCEDURE CODE			id-sNGRANnodeCounterCheck
+	CRITICALITY				reject
+}
+
+
+sNGRANnodeChange		XNAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		SNodeChangeRequired
+	SUCCESSFUL OUTCOME		SNodeChangeConfirm
+	UNSUCCESSFUL OUTCOME	SNodeChangeRefuse
+	PROCEDURE CODE			id-sNGRANnodeChange
+	CRITICALITY				reject
+}
+
+
+rRCTransfer	XNAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		RRCTransfer
+	PROCEDURE CODE			id-rRCTransfer
+	CRITICALITY				ignore
+}
+
+
+xnRemoval	XNAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		XnRemovalRequest
+	SUCCESSFUL OUTCOME		XnRemovalResponse
+	UNSUCCESSFUL OUTCOME		XnRemovalFailure
+	PROCEDURE CODE			id-xnRemoval
+	CRITICALITY				reject
+}
+
+
+xnSetup	XNAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		XnSetupRequest
+	SUCCESSFUL OUTCOME		XnSetupResponse
+	UNSUCCESSFUL OUTCOME		XnSetupFailure
+	PROCEDURE CODE			id-xnSetup
+	CRITICALITY				reject
+}
+
+
+nGRANnodeConfigurationUpdate	XNAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		NGRANNodeConfigurationUpdate
+	SUCCESSFUL OUTCOME		NGRANNodeConfigurationUpdateAcknowledge
+	UNSUCCESSFUL OUTCOME	NGRANNodeConfigurationUpdateFailure
+	PROCEDURE CODE			id-nGRANnodeConfigurationUpdate
+	CRITICALITY				reject
+}
+
+
+cellActivation	XNAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		CellActivationRequest
+	SUCCESSFUL OUTCOME		CellActivationResponse
+	UNSUCCESSFUL OUTCOME	CellActivationFailure
+	PROCEDURE CODE			id-cellActivation
+	CRITICALITY				reject
+}
+
+
+reset	XNAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		ResetRequest
+	SUCCESSFUL OUTCOME		ResetResponse
+	PROCEDURE CODE			id-reset
+	CRITICALITY				reject
+}
+
+
+errorIndication	XNAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		ErrorIndication
+	PROCEDURE CODE			id-errorIndication
+	CRITICALITY				ignore
+}
+
+privateMessage			XNAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		PrivateMessage
+	PROCEDURE CODE			id-privateMessage
+	CRITICALITY				ignore
+}
+
+END

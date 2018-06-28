@@ -38,6 +38,7 @@ CellGroupConfig_PDU
 CG-ConfigInfo_PDU
 ConfigRestrictInfoSCG_PDU
 FreqBandList_PDU
+HandoverCommand_PDU
 HandoverPreparationInformation_PDU
 MeasConfig_PDU
 MeasGapConfig_PDU
@@ -61,6 +62,7 @@ CG-ConfigInfo
 ConfigRestrictInfoSCG
 DL-DCCH-Message              @dl.dcch
 FreqBandList
+HandoverCommand
 HandoverPreparationInformation
 MeasConfig
 MeasGapConfig
@@ -85,8 +87,6 @@ CG-Config-IEs
 ConfigRestrictModReqSCG
 FR-Info
 FR-InfoList
-HandoverCommand
-HandoverCommand-IEs
 MeasConfigSN
 VarMeasConfig
 VarMeasReportList

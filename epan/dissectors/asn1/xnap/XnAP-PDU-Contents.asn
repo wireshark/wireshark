@@ -1,0 +1,1086 @@
+-- 3GPP TS 38.423 V15.0.0 (2018-06)
+-- 9.3.4	PDU Definitions
+-- **************************************************************
+--
+-- PDU definitions for XnAP.
+--
+-- **************************************************************
+
+XnAP-PDU-Contents {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
+ngran-access (22) modules (3) xnap (2) version1 (1) xnap-PDU-Contents (1) }
+
+DEFINITIONS AUTOMATIC TAGS ::=
+
+BEGIN
+
+-- **************************************************************
+--
+-- IE parameter types from other modules.
+--
+-- **************************************************************
+
+IMPORTS
+
+	ActivationIDforCellActivation,
+	ActivationIDforCellActivation,
+	AMF-Pool-Information,
+	AMF-UE-NGAP-ID,
+	AS-SecurityInformation,
+	AssistanceDataForRANPaging,
+	Cause,
+	CellAssistanceInfo-NR,
+	CPTransportLayerInformation,
+	CriticalityDiagnostics,
+	DataforwardingInfoperPDUSession,
+	DRBsSubjectToStatusTransfer-List,
+	DRBToQoSFlowMapping-List,
+	E-UTRA-CGI,
+	GlobalNG-RANNode-ID,
+	GUAMI,
+	I-RNTI,
+	LocationReportingInformation,
+	ServedCells-E-UTRA,
+	ServedCells-NR,
+	ServedCellsToUpdate-E-UTRA,
+	ServedCellsToUpdate-NR,
+	MAC-I,
+	MaskedIMEISV,
+	MobilityRestrictionList,
+	NG-RAN-Cell-Identity,
+	NG-RANnodeUEXnAPID,
+	NR-CGI,
+	PagingDRX,
+	PDUSession-ID,
+	PDUSessionResourcesAdmitted-List,
+	PDUSessionResourcesNotAdmitted-List,
+	PDUSessionResourcesToBeSetup-List,
+	PDUSessionType,
+	QoSFlows-List,
+	RANPagingArea,
+	RANPagingPriority,
+	ResetRequestTypeInfo,
+	ResetResponseTypeInfo,
+	RFSP-Index,
+	SecurityIndication,
+	ServedCells-NR,
+	S-NSSAI,
+	TAISupport-List,
+	Target-CGI,
+	TraceActivation,
+	TraceActivation,
+	UEAggregateMaximumBitRate,
+	UEContextID,
+	UEContextInfoRetrUECtxtResp,
+	UEIdentityIndexValue,
+	UERANPagingIdentity,
+	UESecurityCapabilities,
+	UPTransportLayerInformation,
+	XnBenefitValue
+
+
+FROM XnAP-IEs
+
+	PrivateIE-Container{},
+	ProtocolExtensionContainer{},
+	ProtocolIE-Container{},
+	ProtocolIE-ContainerList{},
+	ProtocolIE-ContainerPair{},
+	ProtocolIE-ContainerPairList{},
+	ProtocolIE-Single-Container{},
+	XNAP-PRIVATE-IES,
+	XNAP-PROTOCOL-EXTENSION,
+	XNAP-PROTOCOL-IES,
+	XNAP-PROTOCOL-IES-PAIR
+FROM XnAP-Containers
+
+
+	id-ActivatedServedCells,
+	id-ActivationIDforCellActivation,
+	id-AMF-Pool-Information,
+	id-AssistanceDataForRANPaging,
+	id-Cause,
+	id-cellAssistanceInfo-NR,
+	id-ConfigurationUpdateInitiatingNodeChoice,
+	id-UEContextID,
+	id-CriticalityDiagnostics,
+	id-dataforwardingInfoperPDUSession,	id-DRBsSubjectToStatusTransfer-List,
+	id-GlobalNG-RAN-node-ID,
+	id-GUAMI,
+	id-List-of-served-cells-E-UTRA,
+	id-List-of-served-cells-NR,
+	id-LocationReportingInformation,
+	id-MAC-I,
+	id-MaskedIMEISV,
+	id-new-NG-RAN-Cell-Identity,
+	id-newNG-RANnodeUEXnAPID,
+	id-oldNG-RANnodeUEXnAPID,
+	id-PagingDRX,
+	id-PDUSessionResourcesAdmitted-List,
+	id-PDUSessionResourcesNotAdmitted-List,
+	id-RANPagingArea,
+	id-RANPagingPriority,
+	id-ResetRequestTypeInfo,
+	id-ResetResponseTypeInfo,
+	id-RespondingNodeTypeConfigUpdateAck,
+	id-ServedCellsToActivate,
+	id-servedCellsToUpdate-E-UTRA,
+	id-ServedCellsToUpdateInitiatingNodeChoice,
+	id-servedCellsToUpdate-NR,
+	id-sourceNG-RANnodeUEXnAPID,
+	id-TAISupport-list,
+	id-Target2SourceNG-RANnodeTranspContainer,
+	id-targetCellGlobalID,
+	id-targetNG-RANnodeUEXnAPID,
+	id-TraceActivation,
+	id-TraceActivation,
+	id-UEContextInfoHORequest,
+	id-UEContextInfoRetrUECtxtResp,
+	id-UEIdentityIndexValue,
+	id-UERANPagingIdentity,
+	id-XnRemovalThreshold,
+
+
+	maxnoofCellsinNGRANnode,
+	maxnoofPDUSessions
+FROM XnAP-Constants;
+
+-- **************************************************************
+--
+-- HANDOVER REQUEST
+--
+-- **************************************************************
+
+HandoverRequest ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{HandoverRequest-IEs}},
+	...
+}
+
+HandoverRequest-IEs XNAP-PROTOCOL-IES ::= {
+	{ ID id-sourceNG-RANnodeUEXnAPID			CRITICALITY reject	TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
+	{ ID id-Cause								CRITICALITY reject	TYPE Cause										PRESENCE mandatory}|
+	{ ID id-targetCellGlobalID					CRITICALITY reject	TYPE Target-CGI									PRESENCE mandatory}|
+	{ ID id-GUAMI								CRITICALITY reject	TYPE GUAMI										PRESENCE mandatory}|
+	{ ID id-UEContextInfoHORequest				CRITICALITY reject	TYPE UEContextInfoHORequest						PRESENCE mandatory}|
+	{ ID id-TraceActivation						CRITICALITY ignore	TYPE TraceActivation							PRESENCE optional }|
+	{ ID id-MaskedIMEISV						CRITICALITY ignore	TYPE MaskedIMEISV								PRESENCE optional },
+	...
+}
+
+UEContextInfoHORequest ::= SEQUENCE {
+	ng-c-UE-reference						AMF-UE-NGAP-ID,
+	cp-TNL-info-source						CPTransportLayerInformation,
+	ueSecurityCapabilities					UESecurityCapabilities,
+	securityInformation						AS-SecurityInformation,
+	indexToRatFrequencySelectionPriority	RFSP-Index															OPTIONAL,	ue-AMBR									UEAggregateMaximumBitRate,
+	pduSessionResourcesToBeSetup-List		PDUSessionResourcesToBeSetup-List,
+	rrc-Context								OCTET STRING,
+	locationReportingInformation			LocationReportingInformation										OPTIONAL,
+	hlr										MobilityRestrictionList												OPTIONAL,
+	iE-Extensions							ProtocolExtensionContainer { {UEContextInfoHORequest-ExtIEs} }	OPTIONAL,
+	...
+}
+
+UEContextInfoHORequest-ExtIEs XNAP-PROTOCOL-EXTENSION ::={
+	...
+}
+
+-- **************************************************************
+--
+-- HANDOVER REQUEST ACKNOWLEDGE
+--
+-- **************************************************************
+
+HandoverRequestAcknowledge ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{HandoverRequestAcknowledge-IEs}},
+	...
+}
+
+-- WS modification: defien a dedicated type
+Target2SourceNG-RANnodeTranspContainer ::= OCTET STRING
+
+HandoverRequestAcknowledge-IEs XNAP-PROTOCOL-IES ::= {
+	{ ID id-sourceNG-RANnodeUEXnAPID				CRITICALITY ignore	TYPE NG-RANnodeUEXnAPID								PRESENCE mandatory}|
+	{ ID id-targetNG-RANnodeUEXnAPID				CRITICALITY ignore	TYPE NG-RANnodeUEXnAPID								PRESENCE mandatory}|
+	{ ID id-PDUSessionResourcesAdmitted-List		CRITICALITY ignore	TYPE PDUSessionResourcesAdmitted-List			PRESENCE mandatory}|
+	{ ID id-PDUSessionResourcesNotAdmitted-List		CRITICALITY ignore	TYPE PDUSessionResourcesNotAdmitted-List		PRESENCE optional }|
+-- WS modification: define a dedicated type
+--	{ ID id-Target2SourceNG-RANnodeTranspContainer	CRITICALITY ignore	TYPE OCTET STRING									PRESENCE mandatory}|
+	{ ID id-Target2SourceNG-RANnodeTranspContainer	CRITICALITY ignore	TYPE Target2SourceNG-RANnodeTranspContainer									PRESENCE mandatory}|
+	{ ID id-CriticalityDiagnostics					CRITICALITY ignore	TYPE CriticalityDiagnostics						PRESENCE optional },
+	...
+}
+
+-- **************************************************************
+--
+-- HANDOVER PREPARATION FAILURE
+--
+-- **************************************************************
+
+HandoverPreparationFailure ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{HandoverPreparationFailure-IEs}},
+	...
+}
+
+HandoverPreparationFailure-IEs XNAP-PROTOCOL-IES ::= {
+	{ ID id-sourceNG-RANnodeUEXnAPID				CRITICALITY ignore	TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
+	{ ID id-Cause									CRITICALITY ignore	TYPE Cause										PRESENCE mandatory}|
+	{ ID id-CriticalityDiagnostics					CRITICALITY ignore	TYPE CriticalityDiagnostics					PRESENCE optional },
+	...
+}
+
+-- **************************************************************
+--
+-- SN STATUS TRANSFER
+--
+-- **************************************************************
+
+SNStatusTransfer ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{SNStatusTransfer-IEs}},
+	...
+}
+
+SNStatusTransfer-IEs XNAP-PROTOCOL-IES ::= {
+	{ ID id-sourceNG-RANnodeUEXnAPID				CRITICALITY reject		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
+	{ ID id-targetNG-RANnodeUEXnAPID				CRITICALITY reject		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
+	{ ID id-DRBsSubjectToStatusTransfer-List		CRITICALITY ignore		TYPE DRBsSubjectToStatusTransfer-List		PRESENCE mandatory},
+	...
+}
+
+-- **************************************************************
+--
+-- UE CONTEXT RELEASE
+--
+-- **************************************************************
+
+UEContextRelease ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{UEContextRelease-IEs}},
+	...
+}
+
+UEContextRelease-IEs XNAP-PROTOCOL-IES ::= {
+	{ ID id-sourceNG-RANnodeUEXnAPID					CRITICALITY reject		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
+	{ ID id-targetNG-RANnodeUEXnAPID					CRITICALITY reject		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory},
+	...
+}
+
+-- **************************************************************
+--
+-- HANDOVER CANCEL
+--
+-- **************************************************************
+
+HandoverCancel ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{HandoverCancel-IEs}},
+	...
+}
+
+HandoverCancel-IEs XNAP-PROTOCOL-IES ::= {
+	{ ID id-sourceNG-RANnodeUEXnAPID					CRITICALITY reject		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
+	{ ID id-targetNG-RANnodeUEXnAPID					CRITICALITY ignore		TYPE NG-RANnodeUEXnAPID							PRESENCE optional }|
+	{ ID id-Cause										CRITICALITY ignore		TYPE Cause											PRESENCE mandatory},
+	...
+}
+
+-- **************************************************************
+--
+-- RAN PAGING
+--
+-- **************************************************************
+
+RANPaging ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{RANPaging-IEs}},
+	...
+}
+
+RANPaging-IEs XNAP-PROTOCOL-IES ::= {
+	{ ID id-UEIdentityIndexValue				CRITICALITY reject		TYPE UEIdentityIndexValue							PRESENCE mandatory}|
+	{ ID id-UERANPagingIdentity					CRITICALITY ignore		TYPE UERANPagingIdentity							PRESENCE mandatory}|
+	{ ID id-PagingDRX							CRITICALITY ignore		TYPE PagingDRX										PRESENCE mandatory}|
+	{ ID id-RANPagingArea						CRITICALITY reject		TYPE RANPagingArea									PRESENCE mandatory}|
+	{ ID id-RANPagingPriority					CRITICALITY ignore		TYPE RANPagingPriority								PRESENCE optional }|
+	{ ID id-AssistanceDataForRANPaging			CRITICALITY ignore		TYPE AssistanceDataForRANPaging					PRESENCE optional },
+	...
+}
+
+-- **************************************************************
+--
+-- RETRIEVE UE CONTEXT REQUEST
+--
+-- **************************************************************
+
+RetrieveUEContextRequest ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{RetrieveUEContextRequest-IEs}},
+	...
+}
+
+RetrieveUEContextRequest-IEs XNAP-PROTOCOL-IES ::= {
+	{ ID id-newNG-RANnodeUEXnAPID					CRITICALITY reject		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
+	{ ID id-UEContextID								CRITICALITY reject		TYPE UEContextID									PRESENCE mandatory}|
+	{ ID id-MAC-I									CRITICALITY reject		TYPE MAC-I											PRESENCE mandatory}|
+	{ ID id-new-NG-RAN-Cell-Identity				CRITICALITY reject		TYPE NG-RAN-Cell-Identity						PRESENCE mandatory},
+	...
+}
+
+-- **************************************************************
+--
+-- RETRIEVE UE CONTEXT RESPONSE
+--
+-- **************************************************************
+
+RetrieveUEContextResponse ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ RetrieveUEContextResponse-IEs}},
+	...
+}
+
+RetrieveUEContextResponse-IEs XNAP-PROTOCOL-IES ::= {
+	{ ID id-newNG-RANnodeUEXnAPID					CRITICALITY ignore		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
+	{ ID id-oldNG-RANnodeUEXnAPID					CRITICALITY ignore		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
+	{ ID id-GUAMI									CRITICALITY reject		TYPE GUAMI											PRESENCE mandatory}|
+	{ ID id-UEContextInfoRetrUECtxtResp				CRITICALITY reject		TYPE UEContextInfoRetrUECtxtResp				PRESENCE mandatory}|
+	{ ID id-TraceActivation							CRITICALITY ignore		TYPE TraceActivation								PRESENCE optional }|
+	{ ID id-MaskedIMEISV							CRITICALITY ignore		TYPE MaskedIMEISV									PRESENCE optional }|
+	{ ID id-LocationReportingInformation			CRITICALITY ignore		TYPE LocationReportingInformation				PRESENCE optional }|
+	{ ID id-CriticalityDiagnostics					CRITICALITY ignore		TYPE CriticalityDiagnostics						PRESENCE optional },
+	...
+}
+
+-- **************************************************************
+--
+-- RETRIEVE UE CONTEXT FAILURE
+--
+-- **************************************************************
+
+RetrieveUEContextFailure ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ RetrieveUEContextFailure-IEs}},
+	...
+}
+
+RetrieveUEContextFailure-IEs XNAP-PROTOCOL-IES ::= {
+	{ ID id-newNG-RANnodeUEXnAPID					CRITICALITY ignore		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
+	{ ID id-Cause									CRITICALITY ignore		TYPE Cause											PRESENCE mandatory}|
+	{ ID id-CriticalityDiagnostics					CRITICALITY ignore		TYPE CriticalityDiagnostics						PRESENCE optional },
+	...
+}
+
+-- **************************************************************
+--
+-- DATA FORWARDING ADDRESS INDICATION
+--
+-- **************************************************************
+
+DataForwardingAddressIndication ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ DataForwardingAddressIndication-IEs}},
+	...
+}
+
+DataForwardingAddressIndication-IEs XNAP-PROTOCOL-IES ::= {
+	{ ID id-newNG-RANnodeUEXnAPID					CRITICALITY ignore		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
+	{ ID id-oldNG-RANnodeUEXnAPID					CRITICALITY ignore		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
+	{ ID id-dataforwardingInfoperPDUSession			CRITICALITY reject		TYPE DataforwardingInfoperPDUSession			PRESENCE mandatory},
+	...
+}
+
+-- **************************************************************
+--
+-- S-NODE ADDITION REQUEST
+--
+-- **************************************************************
+-- Editor’s Note: Dual Connectivity is not complete and is targeted for completion in December 2018.
+-- ASN.1 for this message is FFS.
+
+SNodeAdditionRequest ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ SNodeAdditionRequest-IEs}},
+	...
+}
+
+SNodeAdditionRequest-IEs XNAP-PROTOCOL-IES ::= {
+	...
+}
+
+-- **************************************************************
+--
+-- S-NODE ADDITION REQUEST ACKNOWLEDGE
+--
+-- **************************************************************
+-- Editor’s Note: Dual Connectivity is not complete and is targeted for completion in December 2018.
+-- ASN.1 for this message is FFS.
+
+SNodeAdditionRequestAcknowledge ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ SNodeAdditionRequestAcknowledge-IEs}},
+	...
+}
+
+SNodeAdditionRequestAcknowledge-IEs XNAP-PROTOCOL-IES ::= {
+	...
+}
+
+-- **************************************************************
+--
+-- S-NODE ADDITION REQUEST REJECT
+--
+-- **************************************************************
+-- Editor’s Note: Dual Connectivity is not complete and is targeted for completion in December 2018.
+-- ASN.1 for this message is FFS.
+
+SNodeAdditionRequestReject ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ SNodeAdditionRequestReject-IEs}},
+	...
+}
+
+SNodeAdditionRequestReject-IEs XNAP-PROTOCOL-IES ::= {
+	...
+}
+
+-- **************************************************************
+--
+-- S-NODE RECONFIGURATION COMPLETE
+--
+-- **************************************************************
+-- Editor’s Note: Dual Connectivity is not complete and is targeted for completion in December 2018.
+-- ASN.1 for this message is FFS.
+
+SNodeReconfigurationComplete ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ SNodeReconfigurationComplete-IEs}},
+	...
+}
+
+SNodeReconfigurationComplete-IEs XNAP-PROTOCOL-IES ::= {
+	...
+}
+
+-- **************************************************************
+--
+-- S-NODE MODIFICATION REQUEST
+--
+-- **************************************************************
+-- Editor’s Note: Dual Connectivity is not complete and is targeted for completion in December 2018.
+-- ASN.1 for this message is FFS.
+
+SNodeModificationRequest ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ SNodeModificationRequest-IEs}},
+	...
+}
+
+SNodeModificationRequest-IEs XNAP-PROTOCOL-IES ::= {
+	...
+}
+
+-- **************************************************************
+--
+-- S-NODE MODIFICATION REQUEST ACKNOWLEDGE
+--
+-- **************************************************************
+-- Editor’s Note: Dual Connectivity is not complete and is targeted for completion in December 2018.
+-- ASN.1 for this message is FFS.
+
+SNodeModificationRequestAcknowledge ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ SNodeModificationRequestAcknowledge-IEs}},
+	...
+}
+
+SNodeModificationRequestAcknowledge-IEs XNAP-PROTOCOL-IES ::= {
+	...
+}
+
+-- **************************************************************
+--
+-- S-NODE MODIFICATION REQUEST REJECT
+--
+-- **************************************************************
+-- Editor’s Note: Dual Connectivity is not complete and is targeted for completion in December 2018.
+-- ASN.1 for this message is FFS.
+
+SNodeModificationRequestReject ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ SNodeModificationRequestReject-IEs}},
+	...
+}
+
+SNodeModificationRequestReject-IEs XNAP-PROTOCOL-IES ::= {
+	...
+}
+
+-- **************************************************************
+--
+-- S-NODE MODIFICATION REQUIRED
+--
+-- **************************************************************
+-- Editor’s Note: Dual Connectivity is not complete and is targeted for completion in December 2018.
+-- ASN.1 for this message is FFS.
+
+SNodeModificationRequired ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ SNodeModificationRequired-IEs}},
+	...
+}
+
+SNodeModificationRequired-IEs XNAP-PROTOCOL-IES ::= {
+	...
+}
+
+-- **************************************************************
+--
+-- S-NODE MODIFICATION CONFIRM
+--
+-- **************************************************************
+-- Editor’s Note: Dual Connectivity is not complete and is targeted for completion in December 2018.
+-- ASN.1 for this message is FFS.
+
+SNodeModificationConfirm ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ SNodeModificationConfirm-IEs}},
+	...
+}
+
+SNodeModificationConfirm-IEs XNAP-PROTOCOL-IES ::= {
+	...
+}
+
+-- **************************************************************
+--
+-- S-NODE MODIFICATION REFUSE
+--
+-- **************************************************************
+-- Editor’s Note: Dual Connectivity is not complete and is targeted for completion in December 2018.
+-- ASN.1 for this message is FFS.
+
+SNodeModificationRefuse ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ SNodeModificationRefuse-IEs}},
+	...
+}
+
+SNodeModificationRefuse-IEs XNAP-PROTOCOL-IES ::= {
+	...
+}
+
+-- **************************************************************
+--
+-- S-NODE RELEASE REQUEST
+--
+-- **************************************************************
+-- Editor’s Note: Dual Connectivity is not complete and is targeted for completion in December 2018.
+-- ASN.1 for this message is FFS.
+
+SNodeReleaseRequest ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ SNodeReleaseRequest-IEs}},
+	...
+}
+
+SNodeReleaseRequest-IEs XNAP-PROTOCOL-IES ::= {
+	...
+}
+
+-- **************************************************************
+--
+-- S-NODE RELEASE REQUEST ACKNOWLEDGE
+--
+-- **************************************************************
+-- Editor’s Note: Dual Connectivity is not complete and is targeted for completion in December 2018.
+-- ASN.1 for this message is FFS.
+
+SNodeReleaseRequestAcknowledge ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ SNodeReleaseRequestAcknowledge-IEs}},
+	...
+}
+
+SNodeReleaseRequestAcknowledge-IEs XNAP-PROTOCOL-IES ::= {
+	...
+}
+
+-- **************************************************************
+--
+-- S-NODE RELEASE REJECT
+--
+-- **************************************************************
+-- Editor’s Note: Dual Connectivity is not complete and is targeted for completion in December 2018.
+-- ASN.1 for this message is FFS.
+
+SNodeReleaseReject ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ SNodeReleaseReject-IEs}},
+	...
+}
+
+SNodeReleaseReject-IEs XNAP-PROTOCOL-IES ::= {
+	...
+}
+
+-- **************************************************************
+--
+-- S-NODE RELEASE REQUIRED
+--
+-- **************************************************************
+-- Editor’s Note: Dual Connectivity is not complete and is targeted for completion in December 2018.
+-- ASN.1 for this message is FFS.
+
+SNodeReleaseRequired ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ SNodeReleaseRequired-IEs}},
+	...
+}
+
+SNodeReleaseRequired-IEs XNAP-PROTOCOL-IES ::= {
+	...
+}
+
+-- **************************************************************
+--
+-- S-NODE RELEASE CONFIRM
+--
+-- **************************************************************
+-- Editor’s Note: Dual Connectivity is not complete and is targeted for completion in December 2018.
+-- ASN.1 for this message is FFS.
+
+SNodeReleaseConfirm ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ SNodeReleaseConfirm-IEs}},
+	...
+}
+
+SNodeReleaseConfirm-IEs XNAP-PROTOCOL-IES ::= {
+	...
+}
+
+-- **************************************************************
+--
+-- S-NODE COUNTER CHECK REQUEST
+--
+-- **************************************************************
+
+-- Editor’s Note: Dual Connectivity is not complete and is targeted for completion in December 2018.
+-- ASN.1 for this message is FFS.
+
+SNodeCounterCheckRequest ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ SNodeCounterCheckRequest-IEs}},
+	...
+}
+
+SNodeCounterCheckRequest-IEs XNAP-PROTOCOL-IES ::= {
+	...
+}
+
+-- **************************************************************
+--
+-- S-NODE CHANGE REQUIRED
+--
+-- **************************************************************
+-- Editor’s Note: Dual Connectivity is not complete and is targeted for completion in December 2018.
+-- ASN.1 for this message is FFS.
+
+SNodeChangeRequired ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ SNodeChangeRequired-IEs}},
+	...
+}
+
+SNodeChangeRequired-IEs XNAP-PROTOCOL-IES ::= {
+	...
+}
+
+-- **************************************************************
+--
+-- S-NODE CHANGE CONFIRM
+--
+-- **************************************************************
+-- Editor’s Note: Dual Connectivity is not complete and is targeted for completion in December 2018.
+-- ASN.1 for this message is FFS.
+
+SNodeChangeConfirm ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ SNodeChangeConfirm-IEs}},
+	...
+}
+
+SNodeChangeConfirm-IEs XNAP-PROTOCOL-IES ::= {
+	...
+}
+
+-- **************************************************************
+--
+-- S-NODE CHANGE REFUSE
+--
+-- **************************************************************
+-- Editor’s Note: Dual Connectivity is not complete and is targeted for completion in December 2018.
+-- ASN.1 for this message is FFS.
+
+SNodeChangeRefuse ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ SNodeChangeRefuse-IEs}},
+	...
+}
+
+SNodeChangeRefuse-IEs XNAP-PROTOCOL-IES ::= {
+	...
+}
+
+-- **************************************************************
+--
+-- RRC TRANSFER
+--
+-- **************************************************************
+-- Editor’s Note: Dual Connectivity is not complete and is targeted for completion in December 2018.
+-- ASN.1 for this message is FFS.
+
+RRCTransfer ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ RRCTransfer-IEs}},
+	...
+}
+
+RRCTransfer-IEs XNAP-PROTOCOL-IES ::= {
+	...
+}
+
+-- **************************************************************
+--
+-- XN SETUP REQUEST
+--
+-- **************************************************************
+
+XnSetupRequest ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ XnSetupRequest-IEs}},
+	...
+}
+
+XnSetupRequest-IEs XNAP-PROTOCOL-IES ::= {
+	{ ID id-GlobalNG-RAN-node-ID		CRITICALITY reject	TYPE GlobalNG-RANNode-ID			PRESENCE mandatory}|
+	{ ID id-TAISupport-list				CRITICALITY reject	TYPE TAISupport-List				PRESENCE optional }|
+	{ ID id-AMF-Pool-Information		CRITICALITY reject	TYPE AMF-Pool-Information			PRESENCE mandatory}|
+	{ ID id-List-of-served-cells-NR		CRITICALITY reject	TYPE ServedCells-NR					PRESENCE optional }|
+	{ ID id-List-of-served-cells-E-UTRA	CRITICALITY reject	TYPE ServedCells-E-UTRA				PRESENCE optional },
+	...
+}
+
+-- **************************************************************
+--
+-- XN SETUP RESPONSE
+--
+-- **************************************************************
+
+XnSetupResponse ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ XnSetupResponse-IEs}},
+	...
+}
+
+XnSetupResponse-IEs XNAP-PROTOCOL-IES ::= {
+	{ ID id-GlobalNG-RAN-node-ID		CRITICALITY reject	TYPE GlobalNG-RANNode-ID			PRESENCE mandatory}|
+	{ ID id-TAISupport-list				CRITICALITY reject	TYPE TAISupport-List				PRESENCE optional }|
+	{ ID id-List-of-served-cells-NR		CRITICALITY reject	TYPE ServedCells-NR					PRESENCE optional }|
+	{ ID id-List-of-served-cells-E-UTRA	CRITICALITY reject	TYPE ServedCells-E-UTRA				PRESENCE optional }|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional },
+	...
+}
+
+-- **************************************************************
+--
+-- XN SETUP FAILURE
+--
+-- **************************************************************
+
+XnSetupFailure ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ XnSetupFailure-IEs}},
+	...
+}
+
+XnSetupFailure-IEs XNAP-PROTOCOL-IES ::= {
+	{ ID id-Cause						CRITICALITY ignore	TYPE Cause							PRESENCE mandatory}|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional },
+	...
+}
+
+-- **************************************************************
+--
+-- NG-RAN NODE CONFIGURATION UPDATE
+--
+-- **************************************************************
+
+NGRANNodeConfigurationUpdate ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ NGRANNodeConfigurationUpdate-IEs}},
+	...
+}
+
+NGRANNodeConfigurationUpdate-IEs XNAP-PROTOCOL-IES ::= {
+	{ ID id-TAISupport-list							CRITICALITY reject	TYPE TAISupport-List									PRESENCE optional }|
+	{ ID id-ConfigurationUpdateInitiatingNodeChoice	CRITICALITY ignore	TYPE ConfigurationUpdateInitiatingNodeChoice	PRESENCE mandatory},
+	...
+}
+
+ConfigurationUpdateInitiatingNodeChoice ::= CHOICE {
+	gNB									ProtocolIE-Container	{ {ConfigurationUpdate-gNB} },
+	ng-eNB								ProtocolIE-Container	{ {ConfigurationUpdate-ng-eNB} },
+	choice-extension					ProtocolExtensionContainer { {ServedCellsToUpdateInitiatingNodeChoice-ExtIEs} },
+																			-- This IE may need to be refined --	...
+}
+
+ServedCellsToUpdateInitiatingNodeChoice-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+ConfigurationUpdate-gNB XNAP-PROTOCOL-IES ::= {
+	{ ID id-servedCellsToUpdate-NR			CRITICALITY ignore TYPE	ServedCellsToUpdate-NR					PRESENCE optional }|
+	{ ID id-cellAssistanceInfo-NR			CRITICALITY ignore TYPE	CellAssistanceInfo-NR					PRESENCE optional },
+	...
+}
+
+
+ConfigurationUpdate-ng-eNB XNAP-PROTOCOL-IES ::= {
+	{ ID id-servedCellsToUpdate-E-UTRA	CRITICALITY ignore TYPE	ServedCellsToUpdate-E-UTRA				PRESENCE optional }|
+	{ ID id-cellAssistanceInfo-NR		CRITICALITY ignore TYPE	CellAssistanceInfo-NR			PRESENCE optional },
+		...
+}
+
+
+
+-- **************************************************************
+--
+-- NG-RAN NODE CONFIGURATION UPDATE ACKNOWLEDGE
+--
+-- **************************************************************
+
+NGRANNodeConfigurationUpdateAcknowledge ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ NGRANNodeConfigurationUpdateAcknowledge-IEs}},
+	...
+}
+
+NGRANNodeConfigurationUpdateAcknowledge-IEs XNAP-PROTOCOL-IES ::= {
+	{ ID id-RespondingNodeTypeConfigUpdateAck	CRITICALITY ignore	TYPE RespondingNodeTypeConfigUpdateAck		PRESENCE mandatory}|
+	{ ID id-CriticalityDiagnostics				CRITICALITY ignore	TYPE CriticalityDiagnostics						PRESENCE optional },
+	...
+}
+RespondingNodeTypeConfigUpdateAck ::= CHOICE {
+	ng-eNB					RespondingNodeTypeConfigUpdateAck-ng-eNB,
+	gNB						RespondingNodeTypeConfigUpdateAck-gNB,
+	choice-extension		ProtocolExtensionContainer { {RespondingNodeTypeConfigUpdateAck-ExtIEs} }, -- This IE may need to be refined --
+	...
+}
+
+RespondingNodeTypeConfigUpdateAck-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+RespondingNodeTypeConfigUpdateAck-ng-eNB ::= SEQUENCE {
+	iE-Extension		ProtocolExtensionContainer { {RespondingNodeTypeConfigUpdateAck-ng-eNB-ExtIEs} }	OPTIONAL,
+	...
+}
+
+RespondingNodeTypeConfigUpdateAck-ng-eNB-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+RespondingNodeTypeConfigUpdateAck-gNB ::= SEQUENCE {
+	served-NR-Cells		ServedCells-NR																OPTIONAL,
+	iE-Extension		ProtocolExtensionContainer { {RespondingNodeTypeConfigUpdateAck-gNB-ExtIEs} }	OPTIONAL,
+	...
+}
+
+RespondingNodeTypeConfigUpdateAck-gNB-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+-- **************************************************************
+--
+-- NG-RAN NODE CONFIGURATION UPDATE FAILURE
+--
+-- **************************************************************
+
+NGRANNodeConfigurationUpdateFailure ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ NGRANNodeConfigurationUpdateFailure-IEs}},
+	...
+}
+
+NGRANNodeConfigurationUpdateFailure-IEs XNAP-PROTOCOL-IES ::= {
+	{ ID id-Cause						CRITICALITY ignore	TYPE Cause							PRESENCE mandatory}|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional },
+	...
+}
+
+-- **************************************************************
+--
+-- XN REMOVAL REQUEST
+--
+-- **************************************************************
+
+XnRemovalRequest ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ XnRemovalRequest-IEs}},
+	...
+}
+
+XnRemovalRequest-IEs XNAP-PROTOCOL-IES ::= {
+	{ ID id-GlobalNG-RAN-node-ID		CRITICALITY reject	TYPE GlobalNG-RANNode-ID			PRESENCE mandatory}|
+	{ ID id-XnRemovalThreshold		CRITICALITY reject	TYPE XnBenefitValue			PRESENCE optional },
+	...
+}
+
+-- **************************************************************
+--
+-- XN REMOVAL RESPONSE
+--
+-- **************************************************************
+
+XnRemovalResponse ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ XnRemovalResponse-IEs}},
+	...
+}
+
+XnRemovalResponse-IEs XNAP-PROTOCOL-IES ::= {
+	{ ID id-GlobalNG-RAN-node-ID		CRITICALITY reject	TYPE GlobalNG-RANNode-ID			PRESENCE mandatory}|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional },
+	...
+}
+
+-- **************************************************************
+--
+-- XN REMOVAL FAILURE
+--
+-- **************************************************************
+
+XnRemovalFailure ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ XnRemovalFailure-IEs}},
+	...
+}
+
+XnRemovalFailure-IEs XNAP-PROTOCOL-IES ::= {
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional },
+	...
+}
+
+-- **************************************************************
+--
+-- CELL ACTIVATION REQUEST
+--
+-- **************************************************************
+
+CellActivationRequest ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ CellActivationRequest-IEs}},
+	...
+}
+
+CellActivationRequest-IEs XNAP-PROTOCOL-IES ::= {
+	{ ID id-ServedCellsToActivate					CRITICALITY reject		TYPE ServedCellsToActivate						PRESENCE mandatory}|
+	{ ID id-ActivationIDforCellActivation			CRITICALITY reject		TYPE ActivationIDforCellActivation			PRESENCE mandatory},
+	...
+}
+
+ServedCellsToActivate ::= CHOICE {
+	nr-cells							SEQUENCE (SIZE(1..maxnoofCellsinNGRANnode)) OF NR-CGI,
+	e-utra-cells						SEQUENCE (SIZE(1..maxnoofCellsinNGRANnode)) OF E-UTRA-CGI,
+	choice-extension					ProtocolExtensionContainer { {ServedCellsToActivate-ExtIEs} }, -- This IE may need to be refined --
+	...
+}
+
+ServedCellsToActivate-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+-- **************************************************************
+--
+-- CELL ACTIVATION RESPONSE
+--
+-- **************************************************************
+
+CellActivationResponse ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{CellActivationResponse-IEs}},
+	...
+}
+
+CellActivationResponse-IEs XNAP-PROTOCOL-IES ::= {
+	{ ID id-ActivatedServedCells					CRITICALITY reject		TYPE ActivatedServedCells						PRESENCE mandatory}|
+	{ ID id-ActivationIDforCellActivation			CRITICALITY reject		TYPE ActivationIDforCellActivation			PRESENCE mandatory}|
+	{ ID id-CriticalityDiagnostics					CRITICALITY ignore		TYPE CriticalityDiagnostics						PRESENCE optional },
+	...
+}
+
+ActivatedServedCells ::= CHOICE {
+	nr-cells							SEQUENCE (SIZE(1..maxnoofCellsinNGRANnode)) OF NR-CGI,
+	e-utra-cells						SEQUENCE (SIZE(1..maxnoofCellsinNGRANnode)) OF E-UTRA-CGI,
+	choice-extension					ProtocolExtensionContainer { {ActivatedServedCells-ExtIEs} },	-- This IE may need to be refined –
+	...
+}
+
+ActivatedServedCells-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+-- **************************************************************
+--
+-- CELL ACTIVATION FAILURE
+--
+-- **************************************************************
+
+CellActivationFailure ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{CellActivationFailure-IEs}},
+	...
+}
+
+CellActivationFailure-IEs XNAP-PROTOCOL-IES ::= {
+	{ ID id-ActivationIDforCellActivation			CRITICALITY reject		TYPE ActivationIDforCellActivation			PRESENCE mandatory}|
+	{ ID id-Cause									CRITICALITY ignore		TYPE Cause											PRESENCE mandatory}|
+	{ ID id-CriticalityDiagnostics					CRITICALITY ignore		TYPE CriticalityDiagnostics						PRESENCE optional },
+	...
+}
+
+-- **************************************************************
+--
+-- RESET REQUEST
+--
+-- **************************************************************
+
+ResetRequest ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ResetRequest-IEs}},
+	...
+}
+
+ResetRequest-IEs XNAP-PROTOCOL-IES ::= {
+	{ ID id-ResetRequestTypeInfo					CRITICALITY reject		TYPE ResetRequestTypeInfo						PRESENCE mandatory}|
+	{ ID id-Cause									CRITICALITY ignore		TYPE Cause											PRESENCE mandatory},
+	...
+}
+
+-- **************************************************************
+--
+-- RESET RESPONSE
+--
+-- **************************************************************
+
+ResetResponse ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ResetResponse-IEs}},
+	...
+}
+
+ResetResponse-IEs XNAP-PROTOCOL-IES ::= {
+	{ ID id-ResetResponseTypeInfo					CRITICALITY reject		TYPE ResetResponseTypeInfo						PRESENCE mandatory}|
+	{ ID id-CriticalityDiagnostics					CRITICALITY ignore		TYPE CriticalityDiagnostics						PRESENCE optional },
+	...
+}
+
+-- **************************************************************
+--
+-- ERROR INDICATION
+--
+-- **************************************************************
+
+ErrorIndication ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ErrorIndication-IEs}},
+	...
+}
+
+ErrorIndication-IEs XNAP-PROTOCOL-IES ::= {
+	{ ID id-oldNG-RANnodeUEXnAPID					CRITICALITY ignore		TYPE NG-RANnodeUEXnAPID							PRESENCE optional }|
+	{ ID id-newNG-RANnodeUEXnAPID					CRITICALITY ignore		TYPE NG-RANnodeUEXnAPID							PRESENCE optional }|
+	{ ID id-Cause									CRITICALITY ignore		TYPE Cause											PRESENCE optional }|
+	{ ID id-CriticalityDiagnostics					CRITICALITY ignore		TYPE CriticalityDiagnostics						PRESENCE optional },
+	...
+}
+
+-- **************************************************************
+--
+-- PRIVATE MESSAGE
+--
+-- **************************************************************
+
+PrivateMessage ::= SEQUENCE {
+	privateIEs		PrivateIE-Container	{{PrivateMessage-IEs}},
+	...
+}
+
+PrivateMessage-IEs XNAP-PRIVATE-IES ::= {
+	...
+}
+
+
+END
