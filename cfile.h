@@ -30,6 +30,13 @@ typedef enum {
   FILE_READ_DONE                /* Read completed */
 } file_state;
 
+/* Requested packets rescan action. */
+typedef enum {
+  RESCAN_NONE = 0,              /* No rescan requested */
+  RESCAN_SCAN,                  /* Request rescan without full redissection. */
+  RESCAN_REDISSECT              /* Request full redissection. */
+} rescan_type;
+
 /* Character set for text search. */
 typedef enum {
   SCS_NARROW_AND_WIDE,
@@ -84,6 +91,7 @@ typedef struct _capture_file {
   dfilter_t   *dfcode;               /* Compiled display filter program */
   gchar       *dfilter;              /* Display filter string */
   gboolean     redissecting;         /* TRUE if currently redissecting (cf_redissect_packets) */
+  rescan_type  redissection_queued;  /* Queued redissection type. */
   /* search */
   gchar       *sfilter;              /* Filter, hex value, or string being searched */
   gboolean     hex;                  /* TRUE if "Hex value" search was last selected */
