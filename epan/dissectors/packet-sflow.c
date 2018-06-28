@@ -2304,6 +2304,7 @@ dissect_sflow_245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     address                       addr_details;
     int                           sflow_addr_type;
     struct sflow_address_type     addr_type;
+    guint32                       uptime;
 
     guint32        numsamples;
     guint          offset = 0;
@@ -2374,7 +2375,9 @@ dissect_sflow_245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     col_append_fstr(pinfo->cinfo, COL_INFO, ", seq %u", seqnum);
     proto_tree_add_uint(sflow_245_tree, hf_sflow_245_seqnum, tvb, offset, 4, seqnum);
     offset += 4;
-    proto_tree_add_item(sflow_245_tree, hf_sflow_245_sysuptime, tvb, offset, 4, ENC_BIG_ENDIAN);
+    uptime = tvb_get_ntohl(tvb, offset);
+    proto_tree_add_uint_format_value(sflow_245_tree, hf_sflow_245_sysuptime, tvb, offset, 4, uptime, "%s (%us)",
+        unsigned_time_secs_to_str(wmem_packet_scope(), uptime), uptime);
     offset += 4;
     numsamples = tvb_get_ntohl(tvb, offset);
     col_append_fstr(pinfo->cinfo, COL_INFO, ", %u samples", numsamples);
