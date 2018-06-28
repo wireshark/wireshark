@@ -160,14 +160,14 @@ relative_val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_v
 {
 	const char    *curptr;
 	char *endptr;
-        gboolean negative = FALSE;
+	gboolean negative = FALSE;
 
 	curptr = s;
 
-        if(*curptr == '-') {
-            negative = TRUE;
-            curptr++;
-        }
+	if (*curptr == '-') {
+		negative = TRUE;
+		curptr++;
+	}
 
 	/*
 	 * If it doesn't begin with ".", it should contain a seconds
@@ -208,10 +208,10 @@ relative_val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_v
 		fv->value.time.nsecs = 0;
 	}
 
-        if(negative) {
-            fv->value.time.secs = -fv->value.time.secs;
-            fv->value.time.nsecs = -fv->value.time.nsecs;
-        }
+	if (negative) {
+		fv->value.time.secs = -fv->value.time.secs;
+		fv->value.time.nsecs = -fv->value.time.nsecs;
+	}
 	return TRUE;
 
 fail:
