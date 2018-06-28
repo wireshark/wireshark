@@ -363,6 +363,15 @@ LAC TYPE = FT_UINT16 DISPLAY = BASE_DEC_HEX
     actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
   }
 
+#.TYPE_ATTR
+FiveGS-TAC TYPE = FT_UINT24 DISPLAY = BASE_DEC_HEX
+#.FN_BODY FiveGS-TAC VAL_PTR = &parameter_tvb HF_INDEX = -1
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 3, ENC_BIG_ENDIAN);
+  }
+
 #.FN_BODY PLMN-Identity  VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb = NULL;
   proto_tree *subtree;
