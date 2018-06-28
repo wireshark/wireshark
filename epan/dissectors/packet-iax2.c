@@ -1670,32 +1670,32 @@ dissect_fullpacket(tvbuff_t *tvb, guint32 offset,
   iax2_populate_pinfo_from_packet_data(pinfo, iax_packet);
 
   if (iax2_tree) {
-      proto_item *packet_type_base;
+    proto_item *packet_type_base;
 
-      proto_tree_add_item(iax2_tree, hf_iax2_dcallno, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(iax2_tree, hf_iax2_dcallno, tvb, offset, 2, ENC_BIG_ENDIAN);
 
-      proto_tree_add_item(iax2_tree, hf_iax2_retransmission, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(iax2_tree, hf_iax2_retransmission, tvb, offset, 2, ENC_BIG_ENDIAN);
 
-      if (iax_call) {
-        proto_item *item =
-          proto_tree_add_uint(iax2_tree, hf_iax2_callno, tvb, 0, 4,
-                              iax_call->forward_circuit_ids[0]);
-        PROTO_ITEM_SET_GENERATED(item);
-      }
+    if (iax_call) {
+      proto_item *item =
+        proto_tree_add_uint(iax2_tree, hf_iax2_callno, tvb, 0, 4,
+                            iax_call->forward_circuit_ids[0]);
+      PROTO_ITEM_SET_GENERATED(item);
+    }
 
-      proto_tree_add_uint(iax2_tree, hf_iax2_ts, tvb, offset+2, 4, ts);
-      iax2_add_ts_fields(pinfo, iax2_tree, tvb, iax_packet, (guint16)ts);
+    proto_tree_add_uint(iax2_tree, hf_iax2_ts, tvb, offset+2, 4, ts);
+    iax2_add_ts_fields(pinfo, iax2_tree, tvb, iax_packet, (guint16)ts);
 
-      proto_tree_add_item(iax2_tree, hf_iax2_oseqno, tvb, offset+6, 1,
-                          ENC_BIG_ENDIAN);
+    proto_tree_add_item(iax2_tree, hf_iax2_oseqno, tvb, offset+6, 1,
+                        ENC_BIG_ENDIAN);
 
-      proto_tree_add_item(iax2_tree, hf_iax2_iseqno, tvb, offset+7, 1,
-                          ENC_BIG_ENDIAN);
-      packet_type_base = proto_tree_add_uint(iax2_tree, hf_iax2_type, tvb,
-                                             offset+8, 1, type);
+    proto_tree_add_item(iax2_tree, hf_iax2_iseqno, tvb, offset+7, 1,
+                        ENC_BIG_ENDIAN);
+    packet_type_base = proto_tree_add_uint(iax2_tree, hf_iax2_type, tvb,
+                                           offset+8, 1, type);
 
-      /* add the type-specific subtree */
-      packet_type_tree = proto_item_add_subtree(packet_type_base, ett_iax2_type);
+    /* add the type-specific subtree */
+    packet_type_tree = proto_item_add_subtree(packet_type_base, ett_iax2_type);
   } else {
     iax2_add_ts_fields(pinfo, iax2_tree, tvb, iax_packet, (guint16)ts);
   }
