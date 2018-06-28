@@ -61,6 +61,7 @@ static int hf_ngap_WarningMessageContents_decoded_page = -1;
 static gint ett_ngap = -1;
 static gint ett_ngap_DataCodingScheme = -1;
 static gint ett_ngap_WarningMessageContents = -1;
+static gint ett_ngap_PLMNIdentity = -1;
 #include "packet-ngap-ett.c"
 
 static expert_field ei_ngap_number_pages_le15 = EI_INIT;
@@ -335,6 +336,7 @@ void proto_register_ngap(void) {
     &ett_ngap,
     &ett_ngap_DataCodingScheme,
     &ett_ngap_WarningMessageContents,
+    &ett_ngap_PLMNIdentity,
 #include "packet-ngap-ettarr.c"
   };
 

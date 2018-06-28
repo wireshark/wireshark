@@ -305,6 +305,18 @@ TAC TYPE = FT_UINT24 DISPLAY = BASE_DEC_HEX
     actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 3, ENC_BIG_ENDIAN);
   }
 
+#.FN_BODY PLMNIdentity  VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+  proto_tree *subtree;
+
+%(DEFAULT_BODY)s
+
+  if (!parameter_tvb)
+    return offset;
+
+  subtree = proto_item_add_subtree(actx->created_item, ett_ngap_PLMNIdentity);
+  dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_NONE, FALSE);
+
 #.ASSIGN_VALUE_TO_TYPE  # NGAP does not have constants assigned to types, they are pure INTEGER
 # ProcedureCode
 
