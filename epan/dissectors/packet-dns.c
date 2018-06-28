@@ -3677,7 +3677,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   gboolean           retransmission = FALSE;
   const guchar      *name;
   int                name_len;
-  nstime_t           delta = { 0, 0 };
+  nstime_t           delta = NSTIME_INIT_ZERO;
 
   dns_data_offset = offset;
 

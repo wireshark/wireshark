@@ -245,7 +245,7 @@ merge_read_packet(int in_file_count, merge_in_file_t in_files[],
 {
     int i;
     int ei = -1;
-    nstime_t tv = { sizeof(time_t) > sizeof(int) ? LONG_MAX : INT_MAX, INT_MAX };
+    nstime_t tv = NSTIME_INIT_MAX;
     wtap_rec *rec;
 
     /*

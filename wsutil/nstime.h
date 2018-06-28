@@ -29,6 +29,26 @@ typedef struct {
 	int	nsecs;
 } nstime_t;
 
+/* Macros that expand to nstime_t initializers */
+
+/* Initialize to zero */
+#define NSTIME_INIT_ZERO {0, 0}
+
+/* Initialize to a specified number of seconds and nanoseconds */
+#define NSTIME_INIT_SECS_NSECS(secs, nsecs)	{secs, nsecs}
+
+/* Initialize to a specified number of seconds and microseconds */
+#define NSTIME_INIT_SECS_USECS(secs, usecs)	{secs, usecs*1000}
+
+/* Initialize to a specified number of seconds and milliseconds */
+#define NSTIME_INIT_SECS_MSECS(secs, msecs)	{secs, msecs*1000000}
+
+/* Initialize to a specified number of seconds */
+#define NSTIME_INIT_SECS(secs)			{secs, 0}
+
+/* Initialize to the maxximum possible value */
+#define NSTIME_INIT_MAX	{sizeof(time_t) > sizeof(int) ? LONG_MAX : INT_MAX, INT_MAX}
+
 /* functions */
 
 /** set the given nstime_t to zero */

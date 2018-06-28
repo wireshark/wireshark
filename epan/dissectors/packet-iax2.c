@@ -996,7 +996,7 @@ static iax_call_data *iax_new_call( packet_info *pinfo,
 {
   iax_call_data         *call;
   guint                  circuit_id;
-  static const nstime_t  millisecond = {0, 1000000};
+  static const nstime_t  millisecond = NSTIME_INIT_SECS_MSECS(0, 1);
 
 #ifdef DEBUG_HASHING
   g_debug("+ new_circuit: Handling NEW packet, frame %u", pinfo->num);

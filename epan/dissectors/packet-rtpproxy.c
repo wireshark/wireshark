@@ -269,7 +269,7 @@ static gboolean rtpproxy_establish_conversation = TRUE;
 /* See - https://www.opensips.org/html/docs/modules/1.10.x/rtpproxy.html#id293555 */
 /* See - http://www.kamailio.org/docs/modules/4.3.x/modules/rtpproxy.html#idp15794952 */
 static guint rtpproxy_timeout = 1000;
-static nstime_t rtpproxy_timeout_ns = {1, 0};
+static nstime_t rtpproxy_timeout_ns = NSTIME_INIT_ZERO;
 
 void proto_reg_handoff_rtpproxy(void);
 

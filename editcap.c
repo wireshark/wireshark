@@ -159,8 +159,8 @@ static int                    out_file_type_subtype     = WTAP_FILE_TYPE_SUBTYPE
 #endif
 static int                    out_frame_type            = -2; /* Leave frame type alone */
 static int                    verbose                   = 0;  /* Not so verbose         */
-static struct time_adjustment time_adj                  = {{0, 0}, 0}; /* no adjustment */
-static nstime_t               relative_time_window      = {0, 0}; /* de-dup time window */
+static struct time_adjustment time_adj                  = {NSTIME_INIT_ZERO, 0}; /* no adjustment */
+static nstime_t               relative_time_window      = NSTIME_INIT_ZERO; /* de-dup time window */
 static double                 err_prob                  = 0.0;
 static time_t                 starttime                 = 0;
 static time_t                 stoptime                  = 0;
@@ -170,8 +170,8 @@ static gboolean               dup_detect                = FALSE;
 static gboolean               dup_detect_by_time        = FALSE;
 
 static int                    do_strict_time_adjustment = FALSE;
-static struct time_adjustment strict_time_adj           = {{0, 0}, 0}; /* strict time adjustment */
-static nstime_t               previous_time             = {0, 0}; /* previous time */
+static struct time_adjustment strict_time_adj           = {NSTIME_INIT_ZERO, 0}; /* strict time adjustment */
+static nstime_t               previous_time             = NSTIME_INIT_ZERO; /* previous time */
 
 static int find_dct2000_real_data(guint8 *buf);
 static void handle_chopping(chop_t chop, wtap_packet_header *out_phdr,
