@@ -1089,6 +1089,15 @@ RAC TYPE = FT_UINT8 DISPLAY = BASE_DEC_HEX
   }
 
 #.TYPE_ATTR
+FiveGSTAC TYPE = FT_UINT24 DISPLAY = BASE_DEC_HEX
+#.FN_BODY FiveGSTAC VAL_PTR = &parameter_tvb HF_INDEX = -1
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 3, ENC_BIG_ENDIAN);
+  }
+
+#.TYPE_ATTR
 M-TMSI TYPE = FT_UINT32 DISPLAY = BASE_DEC_HEX
 #.FN_BODY M-TMSI VAL_PTR = &parameter_tvb HF_INDEX = -1
   tvbuff_t *parameter_tvb = NULL;
