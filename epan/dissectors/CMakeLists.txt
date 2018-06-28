@@ -413,6 +413,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-lcsap.h
 	packet-ldp.h
 	packet-link16.h
+	packet-lisp.h
 	packet-llc.h
 	packet-lnet.h
 	packet-logotypecertextn.h

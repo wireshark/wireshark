@@ -12,8 +12,8 @@
  */
 
 #include "config.h"
+#include "packet-lisp.h"
 
-#include <epan/packet.h>
 #include <epan/to_str.h>
 #include <epan/afn.h>
 #include <epan/expert.h>
@@ -22,10 +22,6 @@
 
 void proto_register_lisp(void);
 void proto_reg_handoff_lisp(void);
-
-#define INET_ADDRLEN        4
-#define INET6_ADDRLEN       16
-#define EUI48_ADDRLEN       6
 
 /*
  * See RFC 6830 "Locator/ID Separation Protocol (LISP)",
@@ -36,7 +32,6 @@ void proto_reg_handoff_lisp(void);
  */
 
 #define LCAF_DRAFT_VERSION  "05"
-#define LISP_CONTROL_PORT   4342
 
 /* LISP Control Message types */
 #define LISP_MAP_REQUEST    1
@@ -78,8 +73,6 @@ void proto_reg_handoff_lisp(void);
 
 #define LCAF_HEADER_LEN     6
 #define LISP_ECM_HEADER_LEN 4
-#define LISP_XTRID_LEN      16
-#define LISP_SITEID_LEN     8
 
 #define LISP_MAP_ACT        0xE000
 #define LISP_MAP_AUTH       0x1000
@@ -474,9 +467,6 @@ const value_string lon_typevals[] = {
 };
 
 static int
-dissect_lcaf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, proto_item *tip);
-
-static int
 get_lcaf_data(tvbuff_t *tvb, gint offset, guint8 *lcaf_type, guint16 *len)
 {
     /* Jump over Rsvd1 and Flags (16 bits) */
@@ -499,7 +489,7 @@ get_lcaf_data(tvbuff_t *tvb, gint offset, guint8 *lcaf_type, guint16 *len)
     return offset;
 }
 
-static const gchar *
+const gchar *
 get_addr_str(tvbuff_t *tvb, gint offset, guint16 afi, guint16 *addr_len)
 {
     const gchar       *notset_str = "not set";
@@ -1710,7 +1700,7 @@ dissect_lcaf_kv_addr_pair(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  *
  */
 
-static int
+int
 dissect_lcaf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, proto_item *tip)
 {
     guint8       lcaf_type;
@@ -1922,12 +1912,11 @@ dissect_lisp_locator(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_mapping
  *
  */
 
-static int
+int
 dissect_lisp_mapping(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree,
-        guint8 rec_cnt, int rec, gboolean referral)
+        guint8 rec_cnt, int rec, gboolean referral, gint offset, proto_item *tim)
 {
     int          i;
-    gint         offset        = 0;
     guint16      addr_len      = 0;
     guint8       prefix_mask, loc_cnt;
     guint16      flags;
@@ -1937,21 +1926,24 @@ dissect_lisp_mapping(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree,
     proto_item  *tir, *ti_lcaf_prefix;
     proto_tree  *lisp_mapping_tree, *lcaf_prefix_tree;
 
-    prefix_mask   = tvb_get_guint8(tvb, 5);
-    flags         = tvb_get_ntohs(tvb, 6);
-    prefix_afi    = tvb_get_ntohs(tvb, 10);
+    prefix_mask   = tvb_get_guint8(tvb, offset + 5);
+    flags         = tvb_get_ntohs(tvb, offset + 6);
+    prefix_afi    = tvb_get_ntohs(tvb, offset + 10);
 
     act = flags & LISP_MAP_ACT;
     act >>= 13;
 
-    prefix = get_addr_str(tvb, 12, prefix_afi, &addr_len);
+    prefix = get_addr_str(tvb, offset + 12, prefix_afi, &addr_len);
 
     if (prefix == NULL) {
         expert_add_info_format(pinfo, lisp_tree, &ei_lisp_unexpected_field,
                 "Unexpected EID prefix AFI (%d), cannot decode", prefix_afi);
         return offset;
     }
-    tir = proto_tree_add_item(lisp_tree, hf_lisp_mapping, tvb, 0, 12 + addr_len, ENC_NA);
+    tir = proto_tree_add_item(lisp_tree, hf_lisp_mapping, tvb, offset, 12 + addr_len, ENC_NA);
+    if (tim) {
+        proto_item_append_text(tim, " for %s/%d", prefix, prefix_mask);
+    }
 
     /* Update the INFO column if there is only one record */
     if (rec_cnt == 1)
@@ -2293,17 +2285,13 @@ dissect_lisp_map_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tre
 
     /* If M bit is set, we also have a Map-Reply */
     if (mrep) {
-        int len = 0;
-        tvbuff_t *rep_tvb;
         proto_item *tim;
         proto_tree *lisp_mr_tree;
 
         tim = proto_tree_add_item(lisp_tree, hf_lisp_mrep_record, tvb, offset, -1, ENC_NA);
         lisp_mr_tree = proto_item_add_subtree(tim, ett_lisp_mr);
 
-        rep_tvb = tvb_new_subset_remaining(tvb, offset);
-        len = dissect_lisp_mapping(rep_tvb, pinfo, lisp_mr_tree, 0, 1, FALSE);
-        offset += len;
+        offset = dissect_lisp_mapping(tvb, pinfo, lisp_mr_tree, 0, 1, FALSE, offset, NULL);
     }
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
@@ -2377,12 +2365,7 @@ dissect_lisp_map_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree)
 
     /* Reply records */
     for(i=0; i < rec_cnt; i++) {
-        tvbuff_t *rec_tvb;
-        int len = 0;
-
-        rec_tvb = tvb_new_subset_remaining(tvb, offset);
-        len = dissect_lisp_mapping(rec_tvb, pinfo, lisp_tree, rec_cnt, i+1, FALSE);
-        offset += len;
+        offset = dissect_lisp_mapping(tvb, pinfo, lisp_tree, rec_cnt, i+1, FALSE, offset, NULL);
     }
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
@@ -2423,11 +2406,11 @@ dissect_lisp_map_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree)
  *
  */
 
-static void
-dissect_lisp_map_register(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree)
+gint
+dissect_lisp_map_register(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree,
+        gint offset, proto_item *tim, gboolean keep_going)
 {
     int       i;
-    gint      offset  = 0;
     guint8    rec_cnt = 0;
     tvbuff_t *next_tvb;
     guint16   authlen = 0;
@@ -2483,12 +2466,7 @@ dissect_lisp_map_register(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tr
     offset += authlen;
 
     for(i=0; i < rec_cnt; i++) {
-        tvbuff_t *rec_tvb;
-        int len = 0;
-
-        rec_tvb = tvb_new_subset_remaining(tvb, offset);
-        len = dissect_lisp_mapping(rec_tvb, pinfo, lisp_tree, rec_cnt, i+1, FALSE);
-        offset += len;
+        offset = dissect_lisp_mapping(tvb, pinfo, lisp_tree, rec_cnt, i+1, FALSE, offset, tim);
     }
 
     /* If I bit is set, we have an xTR-ID and a site-ID field */
@@ -2498,8 +2476,14 @@ dissect_lisp_map_register(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tr
         offset += LISP_XTRID_LEN + LISP_SITEID_LEN;
     }
 
-    next_tvb = tvb_new_subset_remaining(tvb, offset);
-    call_data_dissector(next_tvb, pinfo, lisp_tree);
+    if (keep_going) {
+        next_tvb = tvb_new_subset_remaining(tvb, offset);
+        call_data_dissector(next_tvb, pinfo, lisp_tree);
+    } else {
+        return offset;
+    }
+
+    return 0;
 }
 
 
@@ -2587,12 +2571,7 @@ dissect_lisp_map_notify(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree
     offset += authlen;
 
     for(i=0; i < rec_cnt; i++) {
-        tvbuff_t *rec_tvb;
-        int len = 0;
-
-        rec_tvb = tvb_new_subset_remaining(tvb, offset);
-        len = dissect_lisp_mapping(rec_tvb, pinfo, lisp_tree, rec_cnt, i+1, FALSE);
-        offset += len;
+        offset = dissect_lisp_mapping(tvb, pinfo, lisp_tree, rec_cnt, i+1, FALSE, offset, NULL);
     }
 
     /* If I bit is set, we have an xTR-ID and a site-ID field */
@@ -2675,12 +2654,7 @@ dissect_lisp_map_referral(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tr
 
     /* Referral records */
     for(i=0; i < rec_cnt; i++) {
-        tvbuff_t *rec_tvb;
-        int len = 0;
-
-        rec_tvb = tvb_new_subset_remaining(tvb, offset);
-        len = dissect_lisp_mapping(rec_tvb, pinfo, lisp_tree, rec_cnt, i+1, TRUE);
-        offset += len;
+        offset = dissect_lisp_mapping(tvb, pinfo, lisp_tree, rec_cnt, i+1, TRUE, offset, NULL);
     }
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
@@ -2931,7 +2905,7 @@ dissect_lisp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         dissect_lisp_map_reply(tvb, pinfo, lisp_tree);
         break;
     case LISP_MAP_REGISTER:
-        dissect_lisp_map_register(tvb, pinfo, lisp_tree);
+        dissect_lisp_map_register(tvb, pinfo, lisp_tree, 0, NULL, TRUE);
         break;
     case LISP_MAP_NOTIFY:
         dissect_lisp_map_notify(tvb, pinfo, lisp_tree);
