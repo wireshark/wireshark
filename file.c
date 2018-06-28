@@ -687,7 +687,14 @@ cf_read(capture_file *cf, gboolean reloading)
      * cf_continue_tail). Clean up accordingly.
      */
     cf_close(cf);
+    cf->redissection_queued = RESCAN_NONE;
     return CF_READ_ABORTED;
+  }
+
+  if (cf->redissection_queued != RESCAN_NONE) {
+    /* Redissection was queued up. Clear the request and perform it now. */
+    gboolean redissect = cf->redissection_queued == RESCAN_REDISSECT;
+    rescan_packets(cf, "Reprocessing", "all packets", redissect);
   }
 
   if (cf->stop_flag) {
@@ -1186,7 +1193,9 @@ read_record(capture_file *cf, dfilter_t *dfcode, epan_dissect_t *edt,
       cf->packet_comment_count++;
     cf->f_datalen = offset + fdlocal.cap_len;
 
-    if (!cf->redissecting) {
+    /* When a redissection is in progress (or queued), do not process packets.
+     * This will be done once all (new) packets have been scanned. */
+    if (!cf->redissecting && cf->redissection_queued == RESCAN_NONE) {
       add_packet_to_packet_list(fdata, cf, edt, dfcode,
                                 cinfo, rec, buf, TRUE);
     }
@@ -1429,12 +1438,18 @@ cf_filter_packets(capture_file *cf, gchar *dftext, gboolean force)
 
 
   /* Now rescan the packet list, applying the new filter, but not
-     throwing away information constructed on a previous pass. */
-  if (cf->state != FILE_CLOSED) {
-    if (dftext == NULL) {
-      rescan_packets(cf, "Resetting", "Filter", FALSE);
-    } else {
-      rescan_packets(cf, "Filtering", dftext, FALSE);
+   * throwing away information constructed on a previous pass.
+   * If a dissection is already in progress, queue it.
+   */
+  if (cf->redissection_queued == RESCAN_NONE) {
+    if (cf->state == FILE_READ_IN_PROGRESS || cf->redissecting) {
+      cf->redissection_queued = RESCAN_SCAN;
+    } else if (cf->state != FILE_CLOSED) {
+      if (dftext == NULL) {
+        rescan_packets(cf, "Resetting", "Filter", FALSE);
+      } else {
+        rescan_packets(cf, "Filtering", dftext, FALSE);
+      }
     }
   }
 
@@ -1453,7 +1468,22 @@ cf_reftime_packets(capture_file *cf)
 void
 cf_redissect_packets(capture_file *cf)
 {
+  if (cf->state == FILE_READ_IN_PROGRESS || cf->redissecting ||
+      cf->redissection_queued == RESCAN_SCAN) {
+    /* Dissection in progress, signal redissection rather than rescanning. That
+     * would destroy the current (in-progress) dissection in "cf_read" which
+     * will cause issues when "cf_read" tries to add packets to the list.
+     * If a previous rescan was requested, "upgrade" it to a full redissection.
+     */
+    cf->redissection_queued = RESCAN_REDISSECT;
+  }
+  if (cf->redissection_queued != RESCAN_NONE) {
+    /* Redissection is (already) queued, wait for "cf_read" to finish. */
+    return;
+  }
+
   if (cf->state != FILE_CLOSED) {
+    /* Restart dissection in case no cf_read is pending. */
     rescan_packets(cf, "Reprocessing", "all packets", TRUE);
   }
 }
@@ -1513,6 +1543,10 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
   gboolean    add_to_packet_list = FALSE;
   gboolean    compiled;
   guint32     frames_count;
+  gboolean    queued_rescan_type = RESCAN_NONE;
+
+  /* Rescan in progress, clear pending actions. */
+  cf->redissection_queued = RESCAN_NONE;
 
   /* Compile the current display filter.
    * We assume this will not fail since cf->dfilter is only set in
@@ -1667,6 +1701,13 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
       }
 
       g_timer_start(prog_timer);
+    }
+
+    queued_rescan_type = cf->redissection_queued;
+    if (queued_rescan_type != RESCAN_NONE) {
+      /* A redissection was requested while an existing redissection was
+       * pending. */
+      break;
     }
 
     if (cf->stop_flag) {
@@ -1835,6 +1876,13 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
 
   /* Cleanup and release all dfilter resources */
   dfilter_free(dfcode);
+
+  /* If another rescan (due to dfilter change) or redissection (due to profile
+   * change) was requested, the rescan above is aborted and restarted here. */
+  if (queued_rescan_type != RESCAN_NONE) {
+    redissect = redissect || queued_rescan_type == RESCAN_REDISSECT;
+    rescan_packets(cf, "Reprocessing", "all packets", redissect);
+  }
 }
 
 
