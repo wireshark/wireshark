@@ -4621,11 +4621,13 @@ static int hf_ieee80211_vs_aruba_subtype = -1;
 static int hf_ieee80211_vs_aruba_apname = -1;
 static int hf_ieee80211_vs_aruba_data = -1;
 
-static int hf_ieee80211_vs_mikrotik_unknown = -1;
-static int hf_ieee80211_vs_mikrotik_subitem = -1;
-static int hf_ieee80211_vs_mikrotik_subtype = -1;
-static int hf_ieee80211_vs_mikrotik_sublength = -1;
-static int hf_ieee80211_vs_mikrotik_subdata = -1;
+static int hf_ieee80211_vs_routerboard_unknown = -1;
+static int hf_ieee80211_vs_routerboard_subitem = -1;
+static int hf_ieee80211_vs_routerboard_subtype = -1;
+static int hf_ieee80211_vs_routerboard_sublength = -1;
+static int hf_ieee80211_vs_routerboard_subdata = -1;
+static int hf_ieee80211_vs_routerboard_subtype1_prefix = -1;
+static int hf_ieee80211_vs_routerboard_subtype1_data = -1;
 
 static int hf_ieee80211_vs_meru_subitem = -1;
 static int hf_ieee80211_vs_meru_subtype = -1;
@@ -5652,7 +5654,7 @@ static gint ett_ssid_list = -1;
 
 static gint ett_nintendo = -1;
 
-static gint ett_mikrotik = -1;
+static gint ett_routerboard = -1;
 
 static gint ett_meru = -1;
 
@@ -5700,6 +5702,7 @@ static expert_field ei_ieee80211_vht_action = EI_INIT;
 static expert_field ei_ieee80211_mesh_peering_unexpected = EI_INIT;
 static expert_field ei_ieee80211_fcs = EI_INIT;
 static expert_field ei_ieee80211_mismatched_akm_suite = EI_INIT;
+static expert_field ei_ieee80211_vs_routerboard_unexpected_len = EI_INIT;
 
 /* 802.11ad trees */
 static gint ett_dynamic_alloc_tree = -1;
@@ -12727,8 +12730,8 @@ dissect_vendor_ie_aruba(proto_item *item, proto_tree *ietree,
 }
 
 static void
-dissect_vendor_ie_mikrotik(proto_item *item _U_, proto_tree *ietree,
-                          tvbuff_t *tvb, int offset, guint32 tag_len)
+dissect_vendor_ie_routerboard(proto_item *item _U_, proto_tree *ietree,
+                          tvbuff_t *tvb, int offset, guint32 tag_len, packet_info *pinfo)
 {
   guint8 type, length;
   proto_item *subitem;
@@ -12737,7 +12740,7 @@ dissect_vendor_ie_mikrotik(proto_item *item _U_, proto_tree *ietree,
   offset += 1; /* VS OUI Type */
   tag_len -= 1;
   /* FIXME: Make sure we have at least 2 bytes left */
-  proto_tree_add_item(ietree, hf_ieee80211_vs_mikrotik_unknown, tvb, offset, 2, ENC_NA);
+  proto_tree_add_item(ietree, hf_ieee80211_vs_routerboard_unknown, tvb, offset, 2, ENC_NA);
 
   offset += 2;
   tag_len -= 2;
@@ -12745,26 +12748,36 @@ dissect_vendor_ie_mikrotik(proto_item *item _U_, proto_tree *ietree,
   while (tag_len >= 2) {
     type = tvb_get_guint8(tvb, offset);
     length = tvb_get_guint8(tvb, offset+1);
-    subitem = proto_tree_add_item(ietree, hf_ieee80211_vs_mikrotik_subitem, tvb, offset, length+2, ENC_NA);
-    subtree = proto_item_add_subtree(subitem, ett_mikrotik);
+    subitem = proto_tree_add_item(ietree, hf_ieee80211_vs_routerboard_subitem, tvb, offset, length+2, ENC_NA);
+    subtree = proto_item_add_subtree(subitem, ett_routerboard);
     proto_item_set_text(subitem, "Sub IE (T/L: %d/%d)", type, length);
 
-    proto_tree_add_item(subtree, hf_ieee80211_vs_mikrotik_subtype, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_ieee80211_vs_routerboard_subtype, tvb, offset, 1, ENC_NA);
     offset += 1;
     tag_len -= 1;
 
-    proto_tree_add_item(subtree, hf_ieee80211_vs_mikrotik_sublength, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_ieee80211_vs_routerboard_sublength, tvb, offset, 1, ENC_NA);
     offset += 1;
     tag_len -= 1;
 
     if (tag_len < length)
-      /* FIXME: warn about this */
       length = tag_len;
     if (length == 0) {
+      expert_add_info(pinfo, subitem, &ei_ieee80211_vs_routerboard_unexpected_len);
       break;
     }
 
-    proto_tree_add_item(subtree, hf_ieee80211_vs_mikrotik_subdata, tvb, offset, length, ENC_NA);
+    proto_tree_add_item(subtree, hf_ieee80211_vs_routerboard_subdata, tvb, offset, length, ENC_NA);
+
+    if(type == 1){
+      if(length == 30){
+        proto_tree_add_item(subtree, hf_ieee80211_vs_routerboard_subtype1_prefix, tvb, offset, 10, ENC_NA);
+        proto_tree_add_item(subtree, hf_ieee80211_vs_routerboard_subtype1_data, tvb, offset + 10, length - 10, ENC_ASCII|ENC_NA);
+      }else{
+        expert_add_info(pinfo, subitem, &ei_ieee80211_vs_routerboard_unexpected_len);
+      }
+    }
+
     offset += length;
     tag_len -= length;
   }
@@ -18197,8 +18210,8 @@ ieee80211_tag_vendor_specific_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     case OUI_NINTENDO:
       dissect_vendor_ie_nintendo(field_data->item_tag, tree, tvb, offset, tag_vs_len);
       break;
-    case OUI_MIKROTIK:
-      dissect_vendor_ie_mikrotik(field_data->item_tag, tree, tvb, offset, tag_vs_len);
+    case OUI_ROUTERBOARD:
+      dissect_vendor_ie_routerboard(field_data->item_tag, tree, tvb, offset, tag_vs_len, pinfo);
       break;
     case OUI_MERU:
       dissect_vendor_ie_meru(field_data->item_tag, tree, tvb, offset, tag_vs_len, pinfo);
@@ -31096,29 +31109,40 @@ proto_register_ieee80211(void)
       FT_BYTES, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
-    {&hf_ieee80211_vs_mikrotik_unknown,
-     {"Unknown", "wlan.vs.mikrotik.unknown",
+    /* Vendor Specific : Routerboard */
+    {&hf_ieee80211_vs_routerboard_unknown,
+     {"Unknown", "wlan.vs.routerboard.unknown",
       FT_BYTES, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
-    {&hf_ieee80211_vs_mikrotik_subitem,
-     {"Sub IE", "wlan.vs.mikrotik.unknown",
+    {&hf_ieee80211_vs_routerboard_subitem,
+     {"Sub IE", "wlan.vs.routerboard.subitem",
       FT_BYTES, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
-    {&hf_ieee80211_vs_mikrotik_subtype,
-     {"Subtype", "wlan.vs.mikrotik.subtype",
+    {&hf_ieee80211_vs_routerboard_subtype,
+     {"Subtype", "wlan.vs.routerboard.subtype",
       FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
-    {&hf_ieee80211_vs_mikrotik_sublength,
-     {"Sublength", "wlan.vs.mikrotik.sublength",
+    {&hf_ieee80211_vs_routerboard_sublength,
+     {"Sublength", "wlan.vs.routerboard.sublength",
       FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
-    {&hf_ieee80211_vs_mikrotik_subdata,
-     {"Subdata", "wlan.vs.mikrotik.subdata",
+    {&hf_ieee80211_vs_routerboard_subdata,
+     {"Subdata", "wlan.vs.routerboard.subdata",
       FT_BYTES, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vs_routerboard_subtype1_prefix,
+     {"Subtype 1 Prefix", "wlan.vs.routerboard.subtype1_prefix",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vs_routerboard_subtype1_data,
+     {"Subtype 1 Data", "wlan.vs.routerboard.subtype1_data",
+      FT_STRING, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
     /* Vendor Specific : Meru (Fortinet) */
@@ -33883,7 +33907,7 @@ proto_register_ieee80211(void)
 
     &ett_nintendo,
 
-    &ett_mikrotik,
+    &ett_routerboard,
 
     &ett_meru,
 
@@ -34103,6 +34127,10 @@ proto_register_ieee80211(void)
     { &ei_ieee80211_mismatched_akm_suite,
       { "wlan.rsn.akms.mismatched", PI_PROTOCOL, PI_ERROR,
         "Mismatched AKMS", EXPFILL }},
+
+    { &ei_ieee80211_vs_routerboard_unexpected_len,
+      { "wlan.vs.routerboard.unexpected_len", PI_PROTOCOL, PI_WARN,
+        "Unexpected IE Length", EXPFILL }},
   };
 
   expert_module_t *expert_ieee80211;
