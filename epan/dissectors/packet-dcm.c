@@ -4703,7 +4703,7 @@ dissect_dcm_assoc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 
         offset += 32;                           /* 32 reserved bytes */
 
-        buf_desc = wmem_strdup_printf(wmem_packet_scope(), "A-ASSOCIATE request %s --> %s",
+        buf_desc = wmem_strdup_printf(pinfo->pool, "A-ASSOCIATE request %s --> %s",
             g_strstrip(assoc->ae_calling), g_strstrip(assoc->ae_called));
 
         offset = dissect_dcm_assoc_detail(tvb, pinfo, assoc_header_ptree, assoc, offset, pdu_len-offset);
@@ -4729,7 +4729,7 @@ dissect_dcm_assoc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 
         offset += 32;                           /* 32 reserved bytes */
 
-        buf_desc = wmem_strdup_printf(wmem_packet_scope(), "A-ASSOCIATE accept  %s <-- %s",
+        buf_desc = wmem_strdup_printf(pinfo->pool, "A-ASSOCIATE accept  %s <-- %s",
             g_strstrip(assoc->ae_calling_resp), g_strstrip(assoc->ae_called_resp));
 
         offset = dissect_dcm_assoc_detail(tvb, pinfo, assoc_header_ptree, assoc, offset, pdu_len-offset);
@@ -4787,7 +4787,7 @@ dissect_dcm_assoc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
         offset += 3;
 
         /* Provider aborted */
-        buf_desc = wmem_strdup_printf(wmem_packet_scope(), "A-ASSOCIATE reject  %s <-- %s (%s)",
+        buf_desc = wmem_strdup_printf(pinfo->pool, "A-ASSOCIATE reject  %s <-- %s (%s)",
             g_strstrip(assoc->ae_calling), g_strstrip(assoc->ae_called), reject_reason_desc);
 
         expert_add_info(pinfo, assoc_header_pitem, &ei_dcm_assoc_rejected);
@@ -4844,12 +4844,12 @@ dissect_dcm_assoc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 
         if (abort_source == 0) {
             /* User aborted */
-            buf_desc = wmem_strdup_printf(wmem_packet_scope(), "ABORT %s --> %s",
+            buf_desc = wmem_strdup_printf(pinfo->pool, "ABORT %s --> %s",
                 g_strstrip(assoc->ae_calling), g_strstrip(assoc->ae_called));
         }
         else {
             /* Provider aborted, slightly more information */
-            buf_desc = wmem_strdup_printf(wmem_packet_scope(), "ABORT %s <-- %s (%s)",
+            buf_desc = wmem_strdup_printf(pinfo->pool, "ABORT %s <-- %s (%s)",
                 g_strstrip(assoc->ae_calling), g_strstrip(assoc->ae_called), abort_reason_desc);
         }
 
