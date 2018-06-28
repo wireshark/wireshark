@@ -387,6 +387,8 @@ static int ett_nas_eps_cmn_add_info = -1;
 static int ett_nas_eps_remote_ue_context = -1;
 static int ett_nas_eps_esm_user_data_cont = -1;
 static int ett_nas_eps_replayed_nas_msg_cont = -1;
+static int ett_nas_eps_ext_emerg_num = -1;
+static int ett_nas_eps_ciph_data_set = -1;
 
 static expert_field ei_nas_eps_extraneous_data = EI_INIT;
 static expert_field ei_nas_eps_unknown_identity = EI_INIT;
@@ -2292,27 +2294,33 @@ static guint16
 de_emm_ext_emerg_num_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
                           guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    guint32 curr_offset = offset;
-    guint32 length;
+    guint32 saved_offset, curr_offset = offset;
+    guint32 length, i = 1;
+    proto_item *pi;
+    proto_tree *sub_tree;
 
     while ((curr_offset - offset) < len) {
-        proto_tree_add_item_ret_uint(tree, hf_eps_emm_ext_emerg_num_list_emerg_num_len,
+        saved_offset = curr_offset;
+        sub_tree = proto_tree_add_subtree_format(tree, tvb, curr_offset, -1, ett_nas_eps_ext_emerg_num,
+                                                 &pi, "Extended emergency number #%u", i++);
+        proto_tree_add_item_ret_uint(sub_tree, hf_eps_emm_ext_emerg_num_list_emerg_num_len,
                                      tvb, curr_offset, 1, ENC_NA, &length);
         curr_offset++;
         if (length > 0) {
             const char *digit_str = tvb_bcd_dig_to_wmem_packet_str(tvb, curr_offset, length, NULL, FALSE);
-            proto_tree_add_string(tree, hf_eps_emm_ext_emerg_num_list_emerg_num, tvb, curr_offset, length, digit_str);
+            proto_tree_add_string(sub_tree, hf_eps_emm_ext_emerg_num_list_emerg_num, tvb, curr_offset, length, digit_str);
             curr_offset += length;
         }
-        proto_tree_add_item_ret_uint(tree, hf_eps_emm_ext_emerg_num_list_sub_serv_field_len,
+        proto_tree_add_item_ret_uint(sub_tree, hf_eps_emm_ext_emerg_num_list_sub_serv_field_len,
                                      tvb, curr_offset, 1, ENC_NA, &length);
         curr_offset++;
         if (length > 0) {
             /* What is the exact encoding? For now, assume 7bits GSM */
-            proto_tree_add_ts_23_038_7bits_item(tree, hf_eps_emm_ext_emerg_num_list_sub_serv_field,
+            proto_tree_add_ts_23_038_7bits_item(sub_tree, hf_eps_emm_ext_emerg_num_list_sub_serv_field,
                                                 tvb, curr_offset<<3, (length<<3)/7);
             curr_offset += length;
         }
+        proto_item_set_len(pi, curr_offset - saved_offset);
     }
 
     return len;
@@ -2669,10 +2677,12 @@ static guint16
 de_emm_ciph_key_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset,
                      guint len, gchar *add_string _U_, int string_len _U_)
 {
-    guint32 curr_offset = offset, c0_len, tai_len;
+    guint32 saved_offset, curr_offset = offset, c0_len, tai_len, i = 1;
     guint8 oct;
     struct tm tm;
     nstime_t tv;
+    proto_item *pi;
+    proto_tree *sub_tree;
 
     while ((curr_offset - offset) < len) {
         static const int * flags1[] = {
@@ -2715,24 +2725,27 @@ de_emm_ciph_key_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
             &hf_emm_ciph_key_data_pos_sib_type_3_2,
             NULL
         };
-        proto_tree_add_item(tree, hf_emm_ciph_key_data_ciphering_set_id, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+        saved_offset = curr_offset;
+        sub_tree = proto_tree_add_subtree_format(tree, tvb, curr_offset, -1, ett_nas_eps_ciph_data_set,
+                                                 &pi, "Ciphering data set #%u", i++);
+        proto_tree_add_item(sub_tree, hf_emm_ciph_key_data_ciphering_set_id, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
         curr_offset += 2;
-        proto_tree_add_item(tree, hf_emm_ciph_key_data_ciphering_key, tvb, curr_offset, 16, ENC_NA);
+        proto_tree_add_item(sub_tree, hf_emm_ciph_key_data_ciphering_key, tvb, curr_offset, 16, ENC_NA);
         curr_offset += 16;
-        proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, offset<<3, 3, ENC_BIG_ENDIAN);
-        proto_tree_add_item_ret_uint(tree, hf_emm_ciph_key_data_c0_len, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &c0_len);
+        proto_tree_add_bits_item(sub_tree, hf_nas_eps_spare_bits, tvb, offset<<3, 3, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(sub_tree, hf_emm_ciph_key_data_c0_len, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &c0_len);
         curr_offset++;
         if (c0_len) {
-            proto_tree_add_item(tree, hf_emm_ciph_key_data_c0, tvb, curr_offset, c0_len, ENC_NA);
+            proto_tree_add_item(sub_tree, hf_emm_ciph_key_data_c0, tvb, curr_offset, c0_len, ENC_NA);
             curr_offset += c0_len;
         }
-        proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, flags1, ENC_NA);
+        proto_tree_add_bitmask_list(sub_tree, tvb, curr_offset, 1, flags1, ENC_NA);
         curr_offset++;
-        proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, flags2, ENC_NA);
+        proto_tree_add_bitmask_list(sub_tree, tvb, curr_offset, 1, flags2, ENC_NA);
         curr_offset++;
-        proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, flags3, ENC_NA);
+        proto_tree_add_bitmask_list(sub_tree, tvb, curr_offset, 1, flags3, ENC_NA);
         curr_offset++;
-        proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, flags4, ENC_NA);
+        proto_tree_add_bitmask_list(sub_tree, tvb, curr_offset, 1, flags4, ENC_NA);
         curr_offset++;
         tm.tm_wday = 0;
         tm.tm_yday = 0;
@@ -2750,17 +2763,18 @@ de_emm_ciph_key_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
         tm.tm_sec = 0;
         tv.secs = mktime(&tm);
         tv.nsecs = 0;
-        proto_tree_add_time_format_value(tree, hf_emm_ciph_key_data_validity_start_time, tvb, curr_offset, 5, &tv,
+        proto_tree_add_time_format_value(sub_tree, hf_emm_ciph_key_data_validity_start_time, tvb, curr_offset, 5, &tv,
                                          "%s", abs_time_to_str(wmem_packet_scope(), &tv, ABSOLUTE_TIME_LOCAL, FALSE));
         curr_offset += 5;
-        proto_tree_add_item(tree, hf_emm_ciph_key_data_validity_duration, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_emm_ciph_key_data_validity_duration, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
         curr_offset += 2;
-        proto_tree_add_item_ret_uint(tree, hf_emm_ciph_key_data_tais_list_len, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &tai_len);
+        proto_tree_add_item_ret_uint(sub_tree, hf_emm_ciph_key_data_tais_list_len, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &tai_len);
         curr_offset++;
         if (tai_len) {
-            de_emm_trac_area_id_lst(tvb, tree, pinfo, curr_offset, tai_len, NULL, 0);
+            de_emm_trac_area_id_lst(tvb, sub_tree, pinfo, curr_offset, tai_len, NULL, 0);
             curr_offset += tai_len;
         }
+        proto_item_set_len(pi, curr_offset - saved_offset);
     }
 
     return len;
@@ -8178,7 +8192,7 @@ proto_register_nas_eps(void)
     expert_module_t* expert_nas_eps;
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS    8
+#define NUM_INDIVIDUAL_ELEMS    10
     gint *ett[NUM_INDIVIDUAL_ELEMS +
           NUM_NAS_EPS_COMMON_ELEM +
           NUM_NAS_MSG_EMM + NUM_NAS_EMM_ELEM+
@@ -8192,6 +8206,8 @@ proto_register_nas_eps(void)
     ett[5] = &ett_nas_eps_remote_ue_context;
     ett[6] = &ett_nas_eps_esm_user_data_cont;
     ett[7] = &ett_nas_eps_replayed_nas_msg_cont;
+    ett[8] = &ett_nas_eps_ext_emerg_num;
+    ett[9] = &ett_nas_eps_ciph_data_set;
 
     last_offset = NUM_INDIVIDUAL_ELEMS;
 
