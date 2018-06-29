@@ -64,8 +64,22 @@ static gint ett_xnap_ng_ran_TraceID = -1;
 static gint ett_xnap_interfaces_to_trace = -1;
 #include "packet-xnap-ett.c"
 
+enum {
+  XNAP_NG_RAN_CONTAINER_AUTOMATIC,
+  XNAP_NG_RAN_CONTAINER_GNB,
+  XNAP_NG_RAN_CONTAINER_NG_ENB
+};
+
+static const enum_val_t xnap_target_ng_ran_container_vals[] = {
+  {"automatic", "automatic", XNAP_NG_RAN_CONTAINER_AUTOMATIC},
+  {"gnb", "gNB", XNAP_NG_RAN_CONTAINER_GNB},
+  {"ng-enb","ng-eNB", XNAP_NG_RAN_CONTAINER_NG_ENB},
+  {NULL, NULL, -1}
+};
+
 /* Global variables */
 static guint xnap_sctp_port = SCTP_PORT_XnAP;
+static gint xnap_dissect_target_ng_ran_container_as = XNAP_NG_RAN_CONTAINER_AUTOMATIC;
 
 /* Dissector tables */
 static dissector_table_t xnap_ies_dissector_table;
@@ -252,6 +266,10 @@ void proto_register_xnap(void) {
                                  "Set the SCTP port for XnAP messages",
                                  10,
                                  &xnap_sctp_port);
+  prefs_register_enum_preference(xnap_module, "dissect_target_ng_ran_container_as", "Dissect target NG-RAN container as",
+                                 "Select whether target NG-RAN container should be decoded automatically"
+                                 " (based on Xn Setup procedure) or manually",
+                                 &xnap_dissect_target_ng_ran_container_as, xnap_target_ng_ran_container_vals, FALSE);
 }
 
 
