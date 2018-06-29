@@ -45,11 +45,16 @@ static int hf_kafka_array_count = -1;
 static int hf_kafka_required_acks = -1;
 static int hf_kafka_timeout = -1;
 static int hf_kafka_topic_name = -1;
+static int hf_kafka_transactional_id = -1;
 static int hf_kafka_partition_id = -1;
 static int hf_kafka_replica = -1;
 static int hf_kafka_replication_factor = -1;
 static int hf_kafka_isr = -1;
 static int hf_kafka_partition_leader = -1;
+static int hf_kafka_last_stable_offset = -1;
+static int hf_kafka_log_start_offset = -1;
+static int hf_kafka_first_offset = -1;
+static int hf_kafka_producer_id = -1;
 static int hf_kafka_message_set_size = -1;
 static int hf_kafka_message_size = -1;
 static int hf_kafka_message_crc = -1;
@@ -83,6 +88,7 @@ static int hf_kafka_leader_id = -1;
 static int hf_kafka_group_leader_id = -1;
 static int hf_kafka_leader_epoch = -1;
 static int hf_kafka_is_internal = -1;
+static int hf_kafka_isolation_level = -1;
 static int hf_kafka_min_bytes = -1;
 static int hf_kafka_max_bytes = -1;
 static int hf_kafka_max_wait_time = -1;
@@ -178,9 +184,9 @@ typedef struct _kafka_api_info_t {
 #define KAFKA_DELETE_TOPICS      20
 static const kafka_api_info_t kafka_apis[] = {
     { KAFKA_PRODUCE,             "Produce",
-      0, 2 },
+      0, 5 },
     { KAFKA_FETCH,               "Fetch",
-      0, 3 },
+      0, 6 },
     { KAFKA_OFFSETS,             "Offsets",
       0, 1 },
     { KAFKA_METADATA,            "Metadata",
@@ -194,7 +200,7 @@ static const kafka_api_info_t kafka_apis[] = {
     { KAFKA_CONTROLLED_SHUTDOWN, "ControlledShutdown",
       1, 1 },
     { KAFKA_OFFSET_COMMIT,       "OffsetCommit",
-      0, 2 },
+      0, 3 },
     { KAFKA_OFFSET_FETCH,        "OffsetFetch",
       0, 1 },
     { KAFKA_GROUP_COORDINATOR,   "GroupCoordinator",
@@ -202,7 +208,7 @@ static const kafka_api_info_t kafka_apis[] = {
     { KAFKA_JOIN_GROUP,          "JoinGroup",
       0, 1 },
     { KAFKA_HEARTBEAT,           "Heartbeat",
-      0, 0 },
+      0, 1 },
     { KAFKA_LEAVE_GROUP,         "LeaveGroup",
       0, 0 },
     { KAFKA_SYNC_GROUP,          "SyncGroup",
@@ -1134,6 +1140,11 @@ static int
 dissect_kafka_offset_fetch_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
                                     kafka_api_version_t api_version)
 {
+    if (api_version >= 1) {
+        proto_tree_add_item(tree, hf_kafka_throttle_time, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+    }
+
     return dissect_kafka_array(tree, tvb, pinfo, offset, api_version,
                                &dissect_kafka_offset_fetch_response_topic);
 }
@@ -1626,6 +1637,11 @@ dissect_kafka_fetch_request_partition(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
     offset = dissect_kafka_offset_get_value(tvb, pinfo, subtree, offset, &packet_values);
 
+    if (api_version >= 5) {
+        proto_tree_add_item(subtree, hf_kafka_log_start_offset, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+    }
+
     proto_tree_add_item(subtree, hf_kafka_max_bytes, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
@@ -1676,8 +1692,33 @@ dissect_kafka_fetch_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 4;
     }
 
+    if (api_version >= 4) {
+        proto_tree_add_item(tree, hf_kafka_isolation_level, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+    }
+
     offset = dissect_kafka_array(tree, tvb, pinfo, offset, api_version, &dissect_kafka_fetch_request_topic);
 
+    return offset;
+}
+
+static int
+dissect_kafka_aborted_transaction(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                                  int start_offset, kafka_api_version_t api_version _U_)
+{
+    proto_item *ti;
+    proto_tree *subtree;
+    int         offset = start_offset;
+
+    subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_kafka_request_topic, &ti, "Fetch Response Aborted Transaction");
+
+    proto_tree_add_item(subtree, hf_kafka_producer_id, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+
+    proto_tree_add_item(subtree, hf_kafka_first_offset, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+
+    proto_item_set_len(ti, offset - start_offset);
     return offset;
 }
 
@@ -1698,6 +1739,18 @@ dissect_kafka_fetch_response_partition(tvbuff_t *tvb, packet_info *pinfo, proto_
     offset = dissect_kafka_error(tvb, pinfo, subtree, offset);
 
     offset = dissect_kafka_offset_get_value(tvb, pinfo, subtree, offset, &packet_values);
+
+    if (api_version >= 4) {
+        proto_tree_add_item(subtree, hf_kafka_last_stable_offset, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+
+        if (api_version >= 5) {
+            proto_tree_add_item(subtree, hf_kafka_log_start_offset, tvb, offset, 8, ENC_BIG_ENDIAN);
+            offset += 8;
+        }
+
+        offset = dissect_kafka_array(subtree, tvb, pinfo, offset, api_version, &dissect_kafka_aborted_transaction);
+    }
 
     offset = dissect_kafka_message_set(tvb, pinfo, subtree, offset, TRUE, KAFKA_MESSAGE_CODEC_NONE);
 
@@ -1789,6 +1842,10 @@ static int
 dissect_kafka_produce_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
                               kafka_api_version_t api_version)
 {
+    if (api_version >= 3) {
+        offset = dissect_kafka_string(tree, hf_kafka_transactional_id, tvb, pinfo, offset, NULL, NULL);
+    }
+
     proto_tree_add_item(tree, hf_kafka_required_acks, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
@@ -1820,6 +1877,11 @@ dissect_kafka_produce_response_partition(tvbuff_t *tvb, packet_info *pinfo, prot
 
     if (api_version >= 2) {
         offset = dissect_kafka_offset_time(tvb, pinfo, subtree, offset, api_version);
+    }
+
+    if (api_version >= 5) {
+        proto_tree_add_item(tree, hf_kafka_log_start_offset, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
     }
 
     proto_item_append_text(ti, " (Partition-ID=%u, Offset=%" G_GINT64_MODIFIER "u)",
@@ -2504,6 +2566,11 @@ static int
 dissect_kafka_offset_commit_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
                                      kafka_api_version_t api_version)
 {
+    if (api_version >= 1) {
+        proto_tree_add_item(tree, hf_kafka_throttle_time, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+    }
+
     /* [responses] */
     offset = dissect_kafka_array(tree, tvb, pinfo, offset, api_version,
                                  &dissect_kafka_offset_commit_response_response);
@@ -2754,6 +2821,11 @@ static int
 dissect_kafka_heartbeat_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
                                  kafka_api_version_t api_version _U_)
 {
+    if (api_version >= 1) {
+        proto_tree_add_item(tree, hf_kafka_throttle_time, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+    }
+
     /* error_code */
     offset = dissect_kafka_error(tvb, pinfo, tree, offset);
 
@@ -3670,6 +3742,21 @@ proto_register_kafka(void)
                FT_INT64, BASE_DEC, 0, 0,
                NULL, HFILL }
         },
+        { &hf_kafka_log_start_offset,
+            { "Log Start Offset", "kafka.log_start_offset",
+               FT_INT64, BASE_DEC, 0, 0,
+               NULL, HFILL }
+        },
+        { &hf_kafka_last_stable_offset,
+            { "Last Stable Offset", "kafka.last_stable_offset",
+               FT_INT64, BASE_DEC, 0, 0,
+               NULL, HFILL }
+        },
+        { &hf_kafka_first_offset,
+            { "First Offset", "kafka.first_offset",
+               FT_INT64, BASE_DEC, 0, 0,
+               NULL, HFILL }
+        },
         { &hf_kafka_max_offsets,
             { "Max Offsets", "kafka.max_offsets",
                FT_INT32, BASE_DEC, 0, 0,
@@ -3720,6 +3807,11 @@ proto_register_kafka(void)
                FT_STRING, BASE_NONE, 0, 0,
                NULL, HFILL }
         },
+        { &hf_kafka_transactional_id,
+            { "Transactional ID", "kafka.transactional_id",
+               FT_STRING, BASE_NONE, 0, 0,
+               NULL, HFILL }
+        },
         { &hf_kafka_string_len,
             { "String Length", "kafka.string_len",
                FT_INT16, BASE_DEC, 0, 0,
@@ -3748,6 +3840,11 @@ proto_register_kafka(void)
         { &hf_kafka_topic_name,
             { "Topic Name", "kafka.topic_name",
                FT_STRING, BASE_NONE, 0, 0,
+               NULL, HFILL }
+        },
+        { &hf_kafka_producer_id,
+            { "Producer ID", "kafka.producer_id",
+               FT_INT64, BASE_DEC, 0, 0,
                NULL, HFILL }
         },
         { &hf_kafka_partition_id,
@@ -3918,6 +4015,11 @@ proto_register_kafka(void)
                "The maximum bytes to include in the message set for this"
                    " partition. This helps bound the size of the response.",
                HFILL }
+        },
+        { &hf_kafka_isolation_level,
+            { "Isolation Level", "kafka.isolation_level",
+               FT_INT8, BASE_DEC, 0, 0,
+               NULL, HFILL }
         },
         { &hf_kafka_max_wait_time,
             { "Max Wait Time", "kafka.max_wait_time",
