@@ -67,7 +67,7 @@ override_dh_fixperms:
 
 # Adapted from https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=861988
 override_dh_auto_test:
-ifeq ($(filter $(DEB_BUILD_OPTIONS),nocheck),)
+ifneq ($(filter $(DEB_BUILD_OPTIONS),nocheck),)
 	# XXX Add -- --verbose?
 	dh_auto_test
 else
