@@ -49,6 +49,9 @@
 01-00-81-00-00-02	Nortel-Network-Management
 01-00-81-00-01-00	Nortel-autodiscovery
 01-00-81-00-01-01	Nortel-autodiscovery
+# Cisco Fabric Path
+01-0F-FF-C1-01-C0	FP-Flood-to-all-VLANs
+01-0F-FF-C1-02-C0	FP-Flood-to-all-Fabrics
 #
 # As per
 #
