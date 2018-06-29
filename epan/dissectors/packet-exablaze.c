@@ -75,7 +75,7 @@ dissect_exablaze(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         /* If the capture time and timestamp differ by more than a week,
          * then this is probably not a valid Exablaze trailer */
-        if (timestamp_sec > pinfo->abs_ts.secs) {
+        if (timestamp_sec > (guint)pinfo->abs_ts.secs) {
             if (timestamp_sec - pinfo->abs_ts.secs > 604800)
                 continue;
         } else {
