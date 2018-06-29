@@ -2287,6 +2287,7 @@ static const SslCipherSuite cipher_suites[]={
     {0xC00D,KEX_ECDH_RSA,       ENC_3DES,       DIG_SHA,    MODE_CBC   },   /* TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA */
     {0xC00E,KEX_ECDH_RSA,       ENC_AES,        DIG_SHA,    MODE_CBC   },   /* TLS_ECDH_RSA_WITH_AES_128_CBC_SHA */
     {0xC00F,KEX_ECDH_RSA,       ENC_AES256,     DIG_SHA,    MODE_CBC   },   /* TLS_ECDH_RSA_WITH_AES_256_CBC_SHA */
+    {0xC0FF,KEX_ECJPAKE,        ENC_AES,        DIG_NA,     MODE_CCM_8 },   /* TLS_ECJPAKE_WITH_AES_128_CCM_8 */
     {0xC010,KEX_ECDHE_RSA,      ENC_NULL,       DIG_SHA,    MODE_STREAM},   /* TLS_ECDHE_RSA_WITH_NULL_SHA */
     {0xC011,KEX_ECDHE_RSA,      ENC_RC4,        DIG_SHA,    MODE_STREAM},   /* TLS_ECDHE_RSA_WITH_RC4_128_SHA */
     {0xC012,KEX_ECDHE_RSA,      ENC_3DES,       DIG_SHA,    MODE_CBC   },   /* TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA */
@@ -8670,6 +8671,9 @@ ssl_dissect_hnd_cli_keyex(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     case KEX_SRP_SHA_RSA:
         /* XXX: implement support for SRP_SHA* */
         break;
+    case KEX_ECJPAKE: /* https://datatracker.ietf.org/doc/draft-cragie-tls-ecjpake/ used in Thread Commissioning */
+        /* XXX: implement support for ECJPAKE */
+        break;
     default:
         /* XXX: add info message for not supported KEX algo */
         break;
@@ -8722,6 +8726,9 @@ ssl_dissect_hnd_srv_keyex(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *
     case KEX_SRP_SHA_DSS:
     case KEX_SRP_SHA_RSA:
         /* XXX: implement support for SRP_SHA* */
+        break;
+    case KEX_ECJPAKE: /* https://datatracker.ietf.org/doc/draft-cragie-tls-ecjpake/ used in Thread Commissioning */
+        /* XXX: implement support for ECJPAKE */
         break;
     default:
         /* XXX: add info message for not supported KEX algo */

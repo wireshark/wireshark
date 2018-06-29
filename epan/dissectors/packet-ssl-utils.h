@@ -384,6 +384,7 @@ typedef struct {
 #define KEX_SRP_SHA_RSA 0x22
 #define KEX_IS_DH(n)    ((n) >= KEX_DHE_DSS && (n) <= KEX_ECDH_RSA)
 #define KEX_TLS13       0x23
+#define KEX_ECJPAKE     0x24
 
 /* Order is significant, must match "ciphers" array in packet-ssl-utils.c */
 #define ENC_DES         0x30
