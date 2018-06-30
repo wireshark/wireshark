@@ -33,6 +33,7 @@
 #define UB_PLATFORM_VERS 27
 
 void proto_register_ubdp(void);
+void proto_reg_handoff_ubdp(void);
 
 static int proto_ubdp = -1;
 
