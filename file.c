@@ -358,6 +358,7 @@ cf_close(capture_file *cf)
 
   /* Die if we're in the middle of reading a file. */
   g_assert(cf->state != FILE_READ_IN_PROGRESS);
+  g_assert(!cf->read_lock);
 
   cf_callback_invoke(cf_cb_file_closing, cf);
 
@@ -610,6 +611,12 @@ cf_read(capture_file *cf, gboolean reloading)
           packets_bar_update();
           g_timer_start(prog_timer);
         }
+        /*
+         * The previous GUI triggers should not have destroyed the running
+         * session. If that did happen, it could blow up when read_record tries
+         * to use the destroyed edt.session, so detect it right here.
+         */
+        g_assert(edt.session == cf->epan);
       }
 
       if (cf->state == FILE_READ_ABORTED) {
@@ -4294,6 +4301,12 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
   save_callback_args_t callback_args;
   gboolean needs_reload = FALSE;
 
+  /* XXX caller should avoid saving the file while a read is pending
+   * (e.g. by delaying the save action) */
+  if (cf->read_lock) {
+    g_warning("cf_save_records(\"%s\") while the file is being read, potential crash ahead", fname);
+  }
+
   cf_callback_invoke(cf_cb_file_save_started, (gpointer)fname);
 
   addr_lists = get_addrinfo_list();
@@ -4791,6 +4804,11 @@ cf_reload(capture_file *cf) {
   gchar    *filename;
   gboolean  is_tempfile;
   int       err;
+
+  if (cf->read_lock) {
+    g_warning("Failing cf_reload(\"%s\") since a read is in progress", cf->filename);
+    return;
+  }
 
   /* If the file could be opened, "cf_open()" calls "cf_close()"
      to get rid of state for the old capture file before filling in state
