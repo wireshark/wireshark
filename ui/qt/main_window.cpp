@@ -1711,6 +1711,17 @@ bool MainWindow::testCaptureFileClose(QString before_what, FileCloseContext cont
     if (!capture_file_.capFile() || capture_file_.capFile()->state == FILE_CLOSED)
         return true; /* Already closed, nothing to do */
 
+    if (capture_file_.capFile()->read_lock) {
+        /*
+         * If the file is being redissected, we cannot stop the capture since
+         * that would crash and burn "cf_read", so stop early. Ideally all
+         * callers should be modified to check this condition and act
+         * accordingly (ignore action or queue it up), so print a warning.
+         */
+        g_warning("Refusing to close \"%s\" which is being read.", capture_file_.capFile()->filename);
+        return false;
+    }
+
 #ifdef HAVE_LIBPCAP
     if (capture_file_.capFile()->state == FILE_READ_IN_PROGRESS) {
         /*
@@ -1888,6 +1899,7 @@ bool MainWindow::testCaptureFileClose(QString before_what, FileCloseContext cont
              * We cannot just invoke cf_close here since cf_read is up in the
              * call chain. (update_progress_dlg can end up processing the Quit
              * event from the user which then ends up here.)
+             * See also the above "read_lock" check.
              */
             capture_file_.capFile()->state = FILE_READ_ABORTED;
             return true;

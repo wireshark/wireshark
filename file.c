@@ -2036,6 +2036,12 @@ process_specified_records(capture_file *cf, packet_range_t *range,
   /* Progress so far. */
   progbar_val = 0.0f;
 
+  if (cf->read_lock) {
+    g_warning("Failing due to nested process_specified_records(\"%s\") call!", cf->filename);
+    return PSP_FAILED;
+  }
+  cf->read_lock = TRUE;
+
   cf->stop_flag = FALSE;
   g_get_current_time(&progbar_start_time);
 
@@ -2120,6 +2126,9 @@ process_specified_records(capture_file *cf, packet_range_t *range,
   if (progbar != NULL)
     destroy_progress_dlg(progbar);
   g_timer_destroy(prog_timer);
+
+  g_assert(cf->read_lock);
+  cf->read_lock = FALSE;
 
   wtap_rec_cleanup(&rec);
   ws_buffer_free(&buf);
