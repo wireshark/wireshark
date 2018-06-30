@@ -200,6 +200,10 @@ bool MainWindow::openCaptureFile(QString cf_path, QString read_filter, unsigned 
             }
         }
 
+        // TODO detect call from "cf_read" -> "update_progress_dlg"
+        // ("capture_file_.capFile()->read_lock"), possibly queue opening the
+        // file and return early to avoid the warning in testCaptureFileClose.
+
         QString before_what(tr(" before opening another file"));
         if (!testCaptureFileClose(before_what)) {
             ret = false;
@@ -1384,9 +1388,12 @@ void MainWindow::startInterfaceCapture(bool valid, const QString capture_filter)
 {
     capture_filter_valid_ = valid;
     welcome_page_->setCaptureFilter(capture_filter);
-    // The interface tree will update the selected interfaces via its timer
-    // so no need to do anything here.
-    startCapture();
+    QString before_what(tr(" before starting a new capture"));
+    if (testCaptureFileClose(before_what)) {
+        // The interface tree will update the selected interfaces via its timer
+        // so no need to do anything here.
+        startCapture();
+    }
 }
 
 void MainWindow::applyGlobalCommandLineOptions()
@@ -3716,7 +3723,10 @@ void MainWindow::gotoFrame(int packet_num)
 void MainWindow::extcap_options_finished(int result)
 {
     if (result == QDialog::Accepted) {
-        startCapture();
+        QString before_what(tr(" before starting a new capture"));
+        if (testCaptureFileClose(before_what)) {
+            startCapture();
+        }
     }
     this->welcome_page_->getInterfaceFrame()->interfaceListChanged();
 }
