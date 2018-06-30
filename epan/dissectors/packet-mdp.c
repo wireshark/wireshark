@@ -23,6 +23,7 @@
 #define MDP_TLV_END             255
 
 void proto_register_mdp(void);
+void proto_reg_handoff_mdp(void);
 
 static int proto_mdp = -1;
 static int hf_mdp_preamble_data = -1;
