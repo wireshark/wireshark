@@ -555,7 +555,7 @@ randpkt_example* randpkt_find_example(int type)
 	return NULL;
 }
 
-void randpkt_loop(randpkt_example* example, guint64 produce_count)
+void randpkt_loop(randpkt_example* example, guint64 produce_count, guint64 packet_delay_ms)
 {
 	guint i, j;
 	int err;
@@ -623,6 +623,10 @@ void randpkt_loop(randpkt_example* example, guint64 produce_count)
 			cfile_write_failure_message("randpkt", NULL,
 			    example->filename, err, err_info, 0,
 			    WTAP_FILE_TYPE_SUBTYPE_PCAP);
+		}
+		if (packet_delay_ms) {
+			g_usleep(1000 * (gulong)packet_delay_ms);
+			wtap_dump_flush(example->dump);
 		}
 	}
 

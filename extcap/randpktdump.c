@@ -29,6 +29,7 @@ enum {
 	OPT_VERSION,
 	OPT_MAXBYTES,
 	OPT_COUNT,
+	OPT_DELAY,
 	OPT_RANDOM_TYPE,
 	OPT_ALL_RANDOM,
 	OPT_TYPE
@@ -40,6 +41,7 @@ static struct option longopts[] = {
 	{ "version",				no_argument,		NULL, OPT_VERSION},
 	{ "maxbytes",				required_argument,	NULL, OPT_MAXBYTES},
 	{ "count",					required_argument,	NULL, OPT_COUNT},
+	{ "delay",					required_argument,	NULL, OPT_DELAY},
 	{ "random-type",			no_argument,		NULL, OPT_RANDOM_TYPE},
 	{ "all-random",				no_argument,		NULL, OPT_ALL_RANDOM},
 	{ "type",					required_argument,	NULL, OPT_TYPE},
@@ -89,6 +91,9 @@ static int list_config(char *interface)
 	printf("arg {number=%u}{call=--count}{display=Number of packets}"
 		"{type=long}{default=1000}{tooltip=Number of packets to generate (-1 for infinite)}\n",
 		inc++);
+	printf("arg {number=%u}{call=--delay}{display=Packet delay (ms)}"
+		"{type=long}{default=0}{tooltip=Milliseconds to wait after writing each packet}\n",
+		inc++);
 	printf("arg {number=%u}{call=--random-type}{display=Random type}"
 		"{type=boolflag}{default=false}{tooltip=The packets type is randomly chosen}\n",
 		inc++);
@@ -120,6 +125,7 @@ int main(int argc, char *argv[])
 	int result;
 	guint16 maxbytes = 5000;
 	guint64 count = 1000;
+	guint64 packet_delay_ms = 0;
 	int random_type = FALSE;
 	int all_random = FALSE;
 	char* type = NULL;
@@ -156,6 +162,7 @@ int main(int argc, char *argv[])
 	extcap_help_add_option(extcap_conf, "--version", "print the version");
 	extcap_help_add_option(extcap_conf, "--maxbytes <bytes>", "max bytes per pack");
 	extcap_help_add_option(extcap_conf, "--count <num>", "number of packets to generate");
+	extcap_help_add_option(extcap_conf, "--delay <ms>", "milliseconds to wait after writing each packet");
 	extcap_help_add_option(extcap_conf, "--random-type", "one random type is chosen for all packets");
 	extcap_help_add_option(extcap_conf, "--all-random", "a random type is chosen for each packet");
 	extcap_help_add_option(extcap_conf, "--type <type>", "the packet type");
@@ -192,6 +199,13 @@ int main(int argc, char *argv[])
 		case OPT_COUNT:
 			if (!ws_strtou64(optarg, NULL, &count)) {
 				g_warning("Invalid packet count: %s", optarg);
+				goto end;
+			}
+			break;
+
+		case OPT_DELAY:
+			if (!ws_strtou64(optarg, NULL, &packet_delay_ms)) {
+				g_warning("Invalid packet delay: %s", optarg);
 				goto end;
 			}
 			break;
@@ -275,7 +289,7 @@ int main(int argc, char *argv[])
 			g_debug("Generating packets: %s", example->abbrev);
 
 			randpkt_example_init(example, extcap_conf->fifo, maxbytes);
-			randpkt_loop(example, count);
+			randpkt_loop(example, count, packet_delay_ms);
 			randpkt_example_close(example);
 		} else {
 			produce_type = randpkt_parse_type(NULL);
@@ -285,7 +299,7 @@ int main(int argc, char *argv[])
 			randpkt_example_init(example, extcap_conf->fifo, maxbytes);
 
 			while (count-- > 0) {
-				randpkt_loop(example, 1);
+				randpkt_loop(example, 1, packet_delay_ms);
 				produce_type = randpkt_parse_type(NULL);
 
 				savedump = example->dump;

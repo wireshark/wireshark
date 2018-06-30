@@ -206,7 +206,7 @@ main(int argc, char **argv)
 		ret = randpkt_example_init(example, produce_filename, produce_max_bytes);
 		if (ret != EXIT_SUCCESS)
 			goto clean_exit;
-		randpkt_loop(example, produce_count);
+		randpkt_loop(example, produce_count, 0);
 	} else {
 		if (type) {
 			fprintf(stderr, "Can't set type in random mode\n");
@@ -225,7 +225,7 @@ main(int argc, char **argv)
 			goto clean_exit;
 
 		while (produce_count-- > 0) {
-			randpkt_loop(example, 1);
+			randpkt_loop(example, 1, 0);
 			produce_type = randpkt_parse_type(NULL);
 
 			savedump = example->dump;
