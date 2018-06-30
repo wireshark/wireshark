@@ -91,6 +91,7 @@ typedef struct _capture_file {
   dfilter_t   *dfcode;               /* Compiled display filter program */
   gchar       *dfilter;              /* Display filter string */
   gboolean     redissecting;         /* TRUE if currently redissecting (cf_redissect_packets) */
+  gboolean     read_lock;            /* TRUE if currently processing a file (cf_read) */
   rescan_type  redissection_queued;  /* Queued redissection type. */
   /* search */
   gchar       *sfilter;              /* Filter, hex value, or string being searched */

@@ -504,6 +504,18 @@ cf_read(capture_file *cf, gboolean reloading)
   gboolean             compiled;
   volatile gboolean    is_read_aborted = FALSE;
 
+  /* The update_progress_dlg call below might end up accepting a user request to
+   * trigger redissection/rescans which can modify/destroy the dissection
+   * context ("cf->epan"). That condition should be prevented by callers, but in
+   * case it occurs let's fail gracefully.
+   */
+  if (cf->read_lock) {
+    g_warning("Failing due to recursive cf_read(\"%s\", %d) call!",
+              cf->filename, reloading);
+    return CF_READ_ERROR;
+  }
+  cf->read_lock = TRUE;
+
   /* Compile the current display filter.
    * We assume this will not fail since cf->dfilter is only set in
    * cf_filter IFF the filter was valid.
@@ -684,6 +696,10 @@ cf_read(capture_file *cf, gboolean reloading)
   if (cf->first_displayed != 0) {
     packet_list_select_first_row();
   }
+
+  /* It is safe again to execute redissections. */
+  g_assert(cf->read_lock);
+  cf->read_lock = FALSE;
 
   if (is_read_aborted) {
     /*
@@ -1452,7 +1468,7 @@ cf_filter_packets(capture_file *cf, gchar *dftext, gboolean force)
    * If a dissection is already in progress, queue it.
    */
   if (cf->redissection_queued == RESCAN_NONE) {
-    if (cf->state == FILE_READ_IN_PROGRESS || cf->redissecting) {
+    if (cf->read_lock) {
       cf->redissection_queued = RESCAN_SCAN;
     } else if (cf->state != FILE_CLOSED) {
       if (dftext == NULL) {
@@ -1478,8 +1494,7 @@ cf_reftime_packets(capture_file *cf)
 void
 cf_redissect_packets(capture_file *cf)
 {
-  if (cf->state == FILE_READ_IN_PROGRESS || cf->redissecting ||
-      cf->redissection_queued == RESCAN_SCAN) {
+  if (cf->read_lock || cf->redissection_queued == RESCAN_SCAN) {
     /* Dissection in progress, signal redissection rather than rescanning. That
      * would destroy the current (in-progress) dissection in "cf_read" which
      * will cause issues when "cf_read" tries to add packets to the list.
@@ -1557,6 +1572,8 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
 
   /* Rescan in progress, clear pending actions. */
   cf->redissection_queued = RESCAN_NONE;
+  g_assert(!cf->read_lock);
+  cf->read_lock = TRUE;
 
   /* Compile the current display filter.
    * We assume this will not fail since cf->dfilter is only set in
@@ -1886,6 +1903,10 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
 
   /* Cleanup and release all dfilter resources */
   dfilter_free(dfcode);
+
+  /* It is safe again to execute redissections. */
+  g_assert(cf->read_lock);
+  cf->read_lock = FALSE;
 
   /* If another rescan (due to dfilter change) or redissection (due to profile
    * change) was requested, the rescan above is aborted and restarted here. */
