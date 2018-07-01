@@ -80,6 +80,7 @@ Cisco Meraki Discovery Protocol (MDP)
 XnAP (5G) protocol
 E1AP (5G) protocol
 MsgPack protocol
+DXL protocol
 --
 
 === Updated Protocol Support
