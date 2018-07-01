@@ -1,4 +1,4 @@
-Editcap (Wireshark) 2.5.0 (v2.5.0rc0-1171-g33c00a67)
+Editcap (Wireshark) 2.9.0 (v2.9.0rc0-1126-g9d1cea0c)
 Edit and/or translate the format of capture files.
 See https://www.wireshark.org for more information.
 
@@ -25,17 +25,6 @@ Duplicate packet removal:
                          LESS THAN <dup time window> prior to current packet.
                          A <dup time window> is specified in relative seconds
                          (e.g. 0.000001).
-  -a <framenum>:<comment> Add or replace comment for given frame number
-
-  -I <bytes to ignore>   ignore the specified number of bytes at the beginning
-                         of the frame during MD5 hash calculation, unless the
-                         frame is too short, then the full frame is used.
-                         Useful to remove duplicated packets taken on
-                         several routers (different mac addresses for
-                         example).
-                         e.g. -I 26 in case of Ether/IP will ignore
-                         ether(14) and IP header(20 - 4(src ip) - 4(dst ip)).
-
            NOTE: The use of the 'Duplicate packet removal' options with
            other editcap options except -v may not always work as expected.
            Specifically the -r, -t or -S options will very likely NOT have the
@@ -69,6 +58,15 @@ Packet manipulation:
   -o <change offset>     When used in conjunction with -E, skip some bytes from the
                          beginning of the packet. This allows one to preserve some
                          bytes, in order to have some headers untouched.
+  -I <bytes to ignore>   ignore the specified number of bytes at the beginning
+                         of the frame during MD5 hash calculation, unless the
+                         frame is too short, then the full frame is used.
+                         Useful to remove duplicated packets taken on
+                         several routers (different mac addresses for
+                         example).
+                         e.g. -I 26 in case of Ether/IP will ignore
+                         ether(14) and IP header(20 - 4(src ip) - 4(dst ip)).
+  -a <framenum>:<comment> Add or replace comment for given frame number
 
 Output File(s):
   -c <packets per file>  split the packet output to different files based on
