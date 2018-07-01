@@ -5239,22 +5239,30 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                     return -1;
                 }
 
-                /* XXX - break off IPv6 into its own field */
                 set_address(&addr, AT_IPv6, 16, ip6addr.bytes);
                 if (total_length > 0) {
-                    proto_tree_add_string_format(tree, hf_bgp_label_stack, tvb, start_offset,
+                    prefix_tree = proto_tree_add_subtree_format(tree, tvb, start_offset,
                                     (offset + length) - start_offset,
-                                    wmem_strbuf_get_str(stack_strbuf), "Label Stack=%s, IPv6=%s/%u PathId %u",
+                                    ett_bgp_prefix, NULL,
+                                    "Label Stack=%s, IPv6=%s/%u PathId %u",
                                     wmem_strbuf_get_str(stack_strbuf),
                                     address_to_str(wmem_packet_scope(), &addr), plen, path_identifier);
+                    proto_tree_add_item(prefix_tree, hf_path_id, tvb, start_offset, 4, ENC_BIG_ENDIAN);
+                    start_offset += 4;
                 } else {
-                    proto_tree_add_string_format(tree, hf_bgp_label_stack, tvb, start_offset,
+                    prefix_tree = proto_tree_add_subtree_format(tree, tvb, start_offset,
                                     (offset + length) - start_offset,
-                                    wmem_strbuf_get_str(stack_strbuf), "Label Stack=%s, IPv6=%s/%u",
+                                    ett_bgp_prefix, NULL,
+                                    "Label Stack=%s, IPv6=%s/%u",
                                     wmem_strbuf_get_str(stack_strbuf),
                                     address_to_str(wmem_packet_scope(), &addr), plen);
                 }
-                total_length += (1 + labnum * 3) + length;
+                proto_tree_add_uint_format(prefix_tree, hf_bgp_prefix_length, tvb, start_offset, 1, plen + labnum * 3 * 8,
+                                        "%s Prefix length: %u", tag, plen + labnum * 3 * 8);
+                proto_tree_add_string_format(prefix_tree, hf_bgp_label_stack, tvb, start_offset + 1, 3 * labnum, wmem_strbuf_get_str(stack_strbuf),
+                                        "%s Label Stack: %s", tag, wmem_strbuf_get_str(stack_strbuf));
+                total_length += (1 + labnum*3) + length;
+                proto_tree_add_ipv6(prefix_tree, hf_addr6, tvb, offset, length, &ip6addr);
                 break;
             case SAFNUM_ENCAPSULATION:
                 plen =  tvb_get_guint8(tvb, offset);
