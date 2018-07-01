@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 1.0.0 (2018-06-04)
+-- 3GPP TS 38.413 V15.0.0 (2018-06)
 -- 9.4.5	Information Element Definitions
 -- **************************************************************
 --
@@ -500,7 +500,7 @@ CriticalityDiagnostics-IE-List ::= SEQUENCE (SIZE(1..maxnoofErrors)) OF Critical
 CriticalityDiagnostics-IE-Item ::= SEQUENCE {
 	iECriticality		Criticality,
 	iE-ID				ProtocolIE-ID,
-	typeOfError 		TypeOfError,
+	typeOfError		TypeOfError,
 	iE-Extensions		ProtocolExtensionContainer {{CriticalityDiagnostics-IE-Item-ExtIEs}} OPTIONAL,
 	...
 }
@@ -575,7 +575,7 @@ Dynamic5QIDescriptor ::= SEQUENCE {
 	delayCritical				DelayCritical											OPTIONAL,
 	averagingWindow				AveragingWindow											OPTIONAL,
 	maximumDataBurstVolume		MaximumDataBurstVolume									OPTIONAL,
-	iE-Extensions		ProtocolExtensionContainer { {Dynamic5QIDescriptor-ExtIEs} } 	OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {Dynamic5QIDescriptor-ExtIEs} }	OPTIONAL,
 	...
 }
 
@@ -836,7 +836,7 @@ GUAMI-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 HandoverCommandTransfer ::= SEQUENCE {
 	dLForwardingUP-TNLInformation		UPTransportLayerInformation						OPTIONAL,
 	qosFlowToBeForwardedList			QosFlowToBeForwardedList,
-	dataForwardingResponseDRBList		DataForwardingResponseDRBList 					OPTIONAL,
+	dataForwardingResponseDRBList		DataForwardingResponseDRBList					OPTIONAL,
 	iE-Extensions		ProtocolExtensionContainer { {HandoverCommandTransfer-ExtIEs} } OPTIONAL,
 	...
 }
@@ -852,7 +852,7 @@ HandoverRequestAcknowledgeTransfer ::= SEQUENCE {
 	qosFlowSetupResponseList			QosFlowSetupResponseListHOReqAck,
 	qosFlowFailedToSetupList			QosFlowList														OPTIONAL,
 	dataForwardingResponseDRBList		DataForwardingResponseDRBList									OPTIONAL,
-	iE-Extensions		ProtocolExtensionContainer { {HandoverRequestAcknowledgeTransfer-ExtIEs} } 	OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {HandoverRequestAcknowledgeTransfer-ExtIEs} }	OPTIONAL,
 	...
 }
 
@@ -923,8 +923,8 @@ KamfChangeInd ::= ENUMERATED {
 LocationReportingReferenceID ::= INTEGER (1..64, ...)
 
 LocationReportingRequestType ::= SEQUENCE {
-	eventType 										EventType,
-	reportArea 										ReportArea,
+	eventType										EventType,
+	reportArea										ReportArea,
 	areaOfInterestList								AreaOfInterestList								OPTIONAL,
 	locationReportingReferenceIDToBeCancelled		LocationReportingReferenceID					OPTIONAL,
 	iE-Extensions		ProtocolExtensionContainer { {LocationReportingRequestType-ExtIEs} }		OPTIONAL,
@@ -977,7 +977,7 @@ NextPagingAreaScope ::= ENUMERATED {
 
 NgENB-ID ::= CHOICE {
 	macroNgENB-ID			BIT STRING (SIZE(20)),
-	shortMacroNgENB-ID 		BIT STRING (SIZE(18)),
+	shortMacroNgENB-ID		BIT STRING (SIZE(18)),
 	longMacroNgENB-ID		BIT STRING (SIZE(21)),
 	...
 }
@@ -1627,7 +1627,7 @@ SliceSupportItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 }
 
 S-NSSAI ::= SEQUENCE {
-	sST 				SST,
+	sST				SST,
 	sD					SD,
 	iE-Extensions		ProtocolExtensionContainer { { S-NSSAI-ExtIEs} }	OPTIONAL,
 	...
@@ -1782,6 +1782,7 @@ TAICancelledNR-Item-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+-- WS modification: comment duplicate definition
 -- TAIList ::= SEQUENCE (SIZE(1..maxnoofTAIs)) OF TAIItem
 
 --TAIItem ::= SEQUENCE {
@@ -2033,7 +2034,7 @@ UserLocationInformation ::= CHOICE {
 }
 
 UserLocationInformationEUTRA ::= SEQUENCE {
-	eUTRA-CGI 			EUTRA-CGI,
+	eUTRA-CGI			EUTRA-CGI,
 	tAI					TAI,
 	iE-Extensions		ProtocolExtensionContainer { { UserLocationInformationEUTRA-ExtIEs} }	OPTIONAL,
 	...
@@ -2044,7 +2045,7 @@ UserLocationInformationEUTRA-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 }
 
 UserLocationInformationN3IWF ::= SEQUENCE {
-	iPAddress 			TransportLayerAddress,
+	iPAddress			TransportLayerAddress,
 	portNumber			PortNumber,
 	iE-Extensions		ProtocolExtensionContainer { {UserLocationInformationN3IWF-ExtIEs} }	OPTIONAL,
 	...
@@ -2055,7 +2056,7 @@ UserLocationInformationN3IWF-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 }
 
 UserLocationInformationNR ::= SEQUENCE {
-	nR-CGI 				NR-CGI,
+	nR-CGI				NR-CGI,
 	tAI					TAI,
 	iE-Extensions		ProtocolExtensionContainer { {UserLocationInformationNR-ExtIEs} }	OPTIONAL,
 	...
@@ -2066,7 +2067,7 @@ UserLocationInformationNR-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 }
 
 UserPlaneSecurityInformation ::= SEQUENCE {
-	securityResult 			SecurityResult,
+	securityResult			SecurityResult,
 	securityIndication		SecurityIndication,
 	iE-Extensions		ProtocolExtensionContainer { {UserPlaneSecurityInformation-ExtIEs} }	OPTIONAL,
 	...
@@ -2127,3 +2128,4 @@ XnTNLConfigurationInfo-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 -- Z
 
 END
+

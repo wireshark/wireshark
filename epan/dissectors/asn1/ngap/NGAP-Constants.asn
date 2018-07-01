@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 1.0.0 (2018-06-04)
+-- 3GPP TS 38.413 V15.0.0 (2018-06)
 -- 9.4.7	Constant Definitions
 -- **************************************************************
 --
@@ -140,7 +140,7 @@ maxProtocolIEs							INTEGER ::= 65535
 -- **************************************************************
 
 	id-AllowedNSSAI											ProtocolIE-ID ::= 0
-	id-AMFName 												ProtocolIE-ID ::= 1
+	id-AMFName												ProtocolIE-ID ::= 1
 	id-AMFSetID												ProtocolIE-ID ::= 2
 	id-AMF-TNLAssociationFailedToSetupList					ProtocolIE-ID ::= 3
 	id-AMF-TNLAssociationSetupItem							ProtocolIE-ID ::= 4
@@ -172,7 +172,7 @@ maxProtocolIEs							INTEGER ::= 65535
 	id-HandoverType											ProtocolIE-ID ::= 30
 	id-IMSVoiceSupportIndicator								ProtocolIE-ID ::= 31
 	id-IndexToRFSP											ProtocolIE-ID ::= 32
-	id-InfoOnRecommendedCellsAndRANNodesForPaging 			ProtocolIE-ID ::= 33
+	id-InfoOnRecommendedCellsAndRANNodesForPaging			ProtocolIE-ID ::= 33
 	id-KamfChangeInd										ProtocolIE-ID ::= 34
 	id-LocationReportingRequestType							ProtocolIE-ID ::= 35
 	id-MaskedIMEISV											ProtocolIE-ID ::= 36
@@ -276,3 +276,4 @@ maxProtocolIEs							INTEGER ::= 65535
 	id-WarningType											ProtocolIE-ID ::= 134
 
 END
+

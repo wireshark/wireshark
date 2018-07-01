@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 1.0.0 (2018-06-04)
+-- 3GPP TS 38.413 V15.0.0 (2018-06)
 -- 9.4.3	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -164,8 +164,8 @@ NGAP-ELEMENTARY-PROCEDURE ::= CLASS {
 	&InitiatingMessage				,
 	&SuccessfulOutcome							OPTIONAL,
 	&UnsuccessfulOutcome						OPTIONAL,
-	&procedureCode				ProcedureCode 	UNIQUE,
-	&criticality				Criticality 	DEFAULT ignore
+	&procedureCode				ProcedureCode	UNIQUE,
+	&criticality				Criticality	DEFAULT ignore
 }
 
 WITH SYNTAX {
@@ -227,7 +227,7 @@ NGAP-ELEMENTARY-PROCEDURES-CLASS-1 NGAP-ELEMENTARY-PROCEDURE ::= {
 	initialContextSetup				|
 	nGReset							|
 	nGSetup							|
-	pathSwitchRequest 				|
+	pathSwitchRequest				|
 	pDUSessionResourceModify		|
 	pDUSessionResourceModifyIndication			|
 	pDUSessionResourceRelease		|
@@ -256,7 +256,7 @@ NGAP-ELEMENTARY-PROCEDURES-CLASS-2 NGAP-ELEMENTARY-PROCEDURE ::= {
 	locationReportingControl		|
 	locationReportingFailureIndication	|
 	nASNonDeliveryIndication		|
-	paging 							|
+	paging							|
 	pDUSessionResourceNotify		|
 	privateMessage					|
 	pWSFailureIndication						|
@@ -283,7 +283,7 @@ NGAP-ELEMENTARY-PROCEDURES-CLASS-2 NGAP-ELEMENTARY-PROCEDURE ::= {
 aMFConfigurationUpdate NGAP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		AMFConfigurationUpdate
 	SUCCESSFUL OUTCOME		AMFConfigurationUpdateAcknowledge
-	UNSUCCESSFUL OUTCOME 	AMFConfigurationUpdateFailure
+	UNSUCCESSFUL OUTCOME	AMFConfigurationUpdateFailure
 	PROCEDURE CODE			id-AMFConfigurationUpdate
 	CRITICALITY				reject
 }
@@ -374,7 +374,7 @@ handoverResourceAllocation NGAP-ELEMENTARY-PROCEDURE ::= {
 initialContextSetup NGAP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		InitialContextSetupRequest
 	SUCCESSFUL OUTCOME		InitialContextSetupResponse
-	UNSUCCESSFUL OUTCOME 	InitialContextSetupFailure
+	UNSUCCESSFUL OUTCOME	InitialContextSetupFailure
 	PROCEDURE CODE			id-InitialContextSetup
 	CRITICALITY				reject
 }
@@ -419,7 +419,7 @@ nGReset NGAP-ELEMENTARY-PROCEDURE ::= {
 nGSetup NGAP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		NGSetupRequest
 	SUCCESSFUL OUTCOME		NGSetupResponse
-	UNSUCCESSFUL OUTCOME 	NGSetupFailure
+	UNSUCCESSFUL OUTCOME	NGSetupFailure
 	PROCEDURE CODE			id-NGSetup
 	CRITICALITY				reject
 }
@@ -500,7 +500,7 @@ pWSRestartIndication NGAP-ELEMENTARY-PROCEDURE ::= {
 rANConfigurationUpdate NGAP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		RANConfigurationUpdate
 	SUCCESSFUL OUTCOME		RANConfigurationUpdateAcknowledge
-	UNSUCCESSFUL OUTCOME 	RANConfigurationUpdateFailure
+	UNSUCCESSFUL OUTCOME	RANConfigurationUpdateFailure
 	PROCEDURE CODE			id-RANConfigurationUpdate
 	CRITICALITY				reject
 }
@@ -532,7 +532,7 @@ uECapabilityInfoIndication NGAP-ELEMENTARY-PROCEDURE ::= {
 uEContextModification NGAP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		UEContextModificationRequest
 	SUCCESSFUL OUTCOME		UEContextModificationResponse
-	UNSUCCESSFUL OUTCOME 	UEContextModificationFailure
+	UNSUCCESSFUL OUTCOME	UEContextModificationFailure
 	PROCEDURE CODE			id-UEContextModification
 	CRITICALITY				reject
 }
@@ -601,3 +601,4 @@ writeReplaceWarning NGAP-ELEMENTARY-PROCEDURE ::= {
 }
 
 END
+

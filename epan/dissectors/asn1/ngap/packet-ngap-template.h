@@ -1,5 +1,5 @@
 /* packet-s1ap.h
- * Routines for E-UTRAN NG Application Protocol (NGAP) packet dissection
+ * Routines for NG-RAN NG Application Protocol (NGAP) packet dissection
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 6.0.0 Ericsson (2018-05)
+-- 3GPP TS 38.413 V15.0.0 (2018-06)
 -- 9.4.8	Container Definitions
 -- **************************************************************
 --
@@ -41,7 +41,7 @@ FROM NGAP-Constants;
 -- **************************************************************
 
 NGAP-PROTOCOL-IES ::= CLASS {
-	&id				ProtocolIE-ID 					UNIQUE,
+	&id				ProtocolIE-ID					UNIQUE,
 	&criticality	Criticality,
 	&Value,
 	&presence		Presence
@@ -60,7 +60,7 @@ WITH SYNTAX {
 -- **************************************************************
 
 NGAP-PROTOCOL-IES-PAIR ::= CLASS {
-	&id					ProtocolIE-ID 				UNIQUE,
+	&id					ProtocolIE-ID				UNIQUE,
 	&firstCriticality	Criticality,
 	&FirstValue,
 	&secondCriticality	Criticality,
@@ -198,3 +198,4 @@ PrivateIE-Field {NGAP-PRIVATE-IES : IesSetParam} ::= SEQUENCE {
 }
 
 END
+

@@ -23,23 +23,25 @@ Cause
 ENB-StatusTransfer-TransparentContainer_PDU
 Global-ENB-ID_PDU
 Global-ENB-ID
+SourceeNB-ToTargeteNB-TransparentContainer_PDU
 SONtransferApplicationIdentity_PDU
 SONtransferRequestContainer_PDU
 SONtransferRequestContainer
 SONtransferResponseContainer_PDU
 SONtransferResponseContainer
 SONtransferCause_PDU
+TargeteNB-ToSourceeNB-TransparentContainer_PDU
 UE-HistoryInformation_PDU
 
 #.PDU
+ENB-StatusTransfer-TransparentContainer
 S1AP-PDU
 SourceeNB-ToTargeteNB-TransparentContainer
-TargeteNB-ToSourceeNB-TransparentContainer
-ENB-StatusTransfer-TransparentContainer
 SONtransferApplicationIdentity
 SONtransferRequestContainer
 SONtransferResponseContainer
 SONtransferCause
+TargeteNB-ToSourceeNB-TransparentContainer
 UE-HistoryInformation
 
 #.MAKE_ENUM
@@ -409,7 +411,7 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
         Intra E-UTRAN handover Source eNB to Target eNB
         Transparent Container 36.413
       */
-      dissect_SourceeNB_ToTargeteNB_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+      dissect_s1ap_SourceeNB_ToTargeteNB_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
       break;
       case ltetoutran:
       /* ltetoutran
@@ -474,7 +476,7 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
         Intra E-UTRAN handover Target eNB to Source eNB
         Transparent Container 36.413
       */
-      dissect_TargeteNB_ToSourceeNB_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+      dissect_s1ap_TargeteNB_ToSourceeNB_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
       break;
       case ltetoutran:
       /* ltetoutran

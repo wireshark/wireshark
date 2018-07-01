@@ -1,5 +1,5 @@
 /* packet-ngap.c
- * Routines for E-UTRAN NG Application Protocol (NGAP) packet dissection
+ * Routines for NG-RAN NG Application Protocol (NGAP) packet dissection
  * Copyright 2018, Anders Broman <anders.broman@ericsson.com>
  *
  * Wireshark - Network traffic analyzer
@@ -8,7 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 38.413
+ * References: 3GPP TS 38.413 v15.0.0 (2018-06)
  */
 
 #include "config.h"
@@ -20,21 +20,18 @@
 #include <epan/prefs.h>
 #include <epan/sctpppids.h>
 #include <epan/expert.h>
-#include <epan/conversation.h>
 #include <epan/proto_data.h>
+#include <epan/conversation.h>
 
 #include "packet-ngap.h"
-#include "packet-ber.h"
 #include "packet-per.h"
 #include "packet-e212.h"
-#include "packet-sccp.h"
+#include "packet-s1ap.h"
 #include "packet-lte-rrc.h"
-#include "packet-ranap.h"
-#include "packet-bssgp.h"
-#include "packet-a21.h"
+#include "packet-nr-rrc.h"
 #include "packet-gsm_map.h"
 #include "packet-cell_broadcast.h"
-#include "packet-gsm_a_common.h"
+#include "packet-ntp.h"
 
 #define PNAME  "NG Application Protocol"
 #define PSNAME "NGAP"
@@ -46,22 +43,63 @@
 void proto_register_ngap(void);
 void proto_reg_handoff_ngap(void);
 
+static dissector_handle_t ngap_handle;
 static dissector_handle_t nas_5gs_handle;
 
 #include "packet-ngap-val.h"
 
 /* Initialize the protocol and registered fields */
 static int proto_ngap = -1;
-
+static int hf_ngap_transportLayerAddressIPv4 = -1;
+static int hf_ngap_transportLayerAddressIPv6 = -1;
 static int hf_ngap_WarningMessageContents_nb_pages = -1;
 static int hf_ngap_WarningMessageContents_decoded_page = -1;
+static int hf_ngap_NGRANTraceID_TraceID = -1;
+static int hf_ngap_NGRANTraceID_TraceRecordingSessionReference = -1;
+static int hf_ngap_InterfacesToTrace_NG_C = -1;
+static int hf_ngap_InterfacesToTrace_Xn_C = -1;
+static int hf_ngap_InterfacesToTrace_Uu = -1;
+static int hf_ngap_InterfacesToTrace_F1_C = -1;
+static int hf_ngap_InterfacesToTrace_E1 = -1;
+static int hf_ngap_InterfacesToTrace_reserved = -1;
+static int hf_ngap_RATRestrictionInformation_e_UTRA = -1;
+static int hf_ngap_RATRestrictionInformation_nR = -1;
+static int hf_ngap_RATRestrictionInformation_reserved = -1;
+static int hf_ngap_NrencyptionAlgorithms_nea1 = -1;
+static int hf_ngap_NrencyptionAlgorithms_nea2 = -1;
+static int hf_ngap_NrencyptionAlgorithms_nea3 = -1;
+static int hf_ngap_NrencyptionAlgorithms_reserved = -1;
+static int hf_ngap_NrintegrityProtectionAlgorithms_nia1 = -1;
+static int hf_ngap_NrintegrityProtectionAlgorithms_nia2 = -1;
+static int hf_ngap_NrintegrityProtectionAlgorithms_nia3 = -1;
+static int hf_ngap_NrintegrityProtectionAlgorithms_reserved = -1;
+static int hf_ngap_EUTRAencryptionAlgorithms_eea1 = -1;
+static int hf_ngap_EUTRAencryptionAlgorithms_eea2 = -1;
+static int hf_ngap_EUTRAencryptionAlgorithms_eea3 = -1;
+static int hf_ngap_EUTRAencryptionAlgorithms_reserved = -1;
+static int hf_ngap_EUTRAintegrityProtectionAlgorithms_eia1 = -1;
+static int hf_ngap_EUTRAintegrityProtectionAlgorithms_eia2 = -1;
+static int hf_ngap_EUTRAintegrityProtectionAlgorithms_eia3 = -1;
+static int hf_ngap_EUTRAintegrityProtectionAlgorithms_reserved = -1;
 #include "packet-ngap-hf.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ngap = -1;
+static gint ett_ngap_TransportLayerAddress = -1;
 static gint ett_ngap_DataCodingScheme = -1;
 static gint ett_ngap_WarningMessageContents = -1;
 static gint ett_ngap_PLMNIdentity = -1;
+static gint ett_ngap_NGAP_Message = -1;
+static gint ett_ngap_NGRANTraceID = -1;
+static gint ett_ngap_InterfacesToTrace = -1;
+static gint ett_ngap_SourceToTarget_TransparentContainer = -1;
+static gint ett_ngap_TargetToSource_TransparentContainer = -1;
+static gint ett_ngap_RRCContainer = -1;
+static gint ett_ngap_RATRestrictionInformation = -1;
+static gint ett_ngap_NrencryptionAlgorithms = -1;
+static gint ett_ngap_NrintegrityProtectionAlgorithms = -1;
+static gint ett_ngap_EUTRAencryptionAlgorithms = -1;
+static gint ett_ngap_EUTRAintegrityProtectionAlgorithms = -1;
 #include "packet-ngap-ett.c"
 
 static expert_field ei_ngap_number_pages_le15 = EI_INIT;
@@ -72,17 +110,24 @@ enum{
   UNSUCCESSFUL_OUTCOME
 };
 
-struct ngap_conv_info {
-  wmem_map_t *nbiot_ta;
-  wmem_tree_t *nbiot_gnb_ue_ngap_id;
-};
-
 typedef struct _ngap_ctx_t {
     guint32 message_type;
     guint32 ProcedureCode;
     guint32 ProtocolIE_ID;
     guint32 ProtocolExtensionID;
 } ngap_ctx_t;
+
+struct ngap_conv_info {
+  address addr_a;
+  GlobalRANNodeID_enum ranmode_id_a;
+  address addr_b;
+  GlobalRANNodeID_enum ranmode_id_b;
+};
+
+enum {
+  SOURCE_TO_TARGET_TRANSPARENT_CONTAINER = 1,
+  TARGET_TO_SOURCE_TRANSPARENT_CONTAINER
+};
 
 struct ngap_private_data {
   struct ngap_conv_info *ngap_conv;
@@ -92,13 +137,26 @@ struct ngap_private_data {
   guint32 message_type;
   guint32 handover_type_value;
   guint8 data_coding_scheme;
+  guint8 transparent_container_type;
+};
+
+enum {
+  NGAP_NG_RAN_CONTAINER_AUTOMATIC,
+  NGAP_NG_RAN_CONTAINER_GNB,
+  NGAP_NG_RAN_CONTAINER_NG_ENB
+};
+
+static const enum_val_t ngap_target_ng_ran_container_vals[] = {
+  {"automatic", "automatic", NGAP_NG_RAN_CONTAINER_AUTOMATIC},
+  {"gnb", "gNB", NGAP_NG_RAN_CONTAINER_GNB},
+  {"ng-enb","ng-eNB", NGAP_NG_RAN_CONTAINER_NG_ENB},
+  {NULL, NULL, -1}
 };
 
 /* Global variables */
-static guint gbl_ngapSctpPort=SCTP_PORT_NGAP;
-
-static dissector_handle_t gcsna_handle = NULL;
-static dissector_handle_t ngap_handle;
+static guint gbl_ngapSctpPort = SCTP_PORT_NGAP;
+static gboolean ngap_dissect_container = TRUE;
+static gint ngap_dissect_target_ng_ran_container_as = NGAP_NG_RAN_CONTAINER_AUTOMATIC;
 
 /* Dissector tables */
 static dissector_table_t ngap_ies_dissector_table;
@@ -120,13 +178,6 @@ static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, pro
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 
 static int dissect_InitialUEMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data);
-#if 0
-static int dissect_SourceRNC_ToTargetRNC_TransparentContainer_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-static int dissect_TargetRNC_ToSourceRNC_TransparentContainer_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-static int dissect_SourceBSS_ToTargetBSS_TransparentContainer_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-static int dissect_TargetBSS_ToSourceBSS_TransparentContainer_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-#endif
-
 
 const value_string ngap_serialNumber_gs_vals[] = {
   { 0, "Display mode iamfdiate, cell wide"},
@@ -174,6 +225,12 @@ dissect_ngap_warningMessageContents(tvbuff_t *warning_msg_tvb, proto_tree *tree,
   }
 }
 
+static void
+ngap_PacketLossRate_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1f %% (%u)", (float)v/10, v);
+}
+
 
 static struct ngap_private_data*
 ngap_get_private_data(packet_info *pinfo)
@@ -181,6 +238,7 @@ ngap_get_private_data(packet_info *pinfo)
   struct ngap_private_data *ngap_data = (struct ngap_private_data*)p_get_proto_data(pinfo->pool, pinfo, proto_ngap, 0);
   if (!ngap_data) {
     ngap_data = wmem_new0(pinfo->pool, struct ngap_private_data);
+    ngap_data->handover_type_value = -1;
     p_add_proto_data(pinfo->pool, pinfo, proto_ngap, 0, ngap_data);
   }
   return ngap_data;
@@ -258,7 +316,7 @@ dissect_ngap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   proto_item *ngap_item = NULL;
   proto_tree *ngap_tree = NULL;
   conversation_t *conversation;
-  struct ngap_private_data* ngap_data;
+  struct ngap_private_data *ngap_data;
   wmem_list_frame_t *prev_layer;
 
   /* make entry in the Protocol column on summary display */
@@ -277,14 +335,15 @@ dissect_ngap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   conversation = find_or_create_conversation(pinfo);
   ngap_data->ngap_conv = (struct ngap_conv_info *)conversation_get_proto_data(conversation, proto_ngap);
   if (!ngap_data->ngap_conv) {
-    ngap_data->ngap_conv = wmem_new(wmem_file_scope(), struct ngap_conv_info);
-    ngap_data->ngap_conv->nbiot_ta = wmem_map_new(wmem_file_scope(), wmem_int64_hash, g_int64_equal);
-    ngap_data->ngap_conv->nbiot_gnb_ue_ngap_id = wmem_tree_new(wmem_file_scope());
+    ngap_data->ngap_conv = wmem_new0(wmem_file_scope(), struct ngap_conv_info);
+    copy_address_wmem(wmem_packet_scope(), &ngap_data->ngap_conv->addr_a, &pinfo->src);
+    ngap_data->ngap_conv->ranmode_id_a = (GlobalRANNodeID_enum)-1;
+    copy_address_wmem(wmem_packet_scope(), &ngap_data->ngap_conv->addr_b, &pinfo->dst);
+    ngap_data->ngap_conv->ranmode_id_b = (GlobalRANNodeID_enum)-1;
     conversation_add_proto_data(conversation, proto_ngap, ngap_data->ngap_conv);
   }
 
-  dissect_NGAP_PDU_PDU(tvb, pinfo, ngap_tree, NULL);
-  return tvb_captured_length(tvb);
+  return dissect_NGAP_PDU_PDU(tvb, pinfo, ngap_tree, NULL);
 }
 
 /*--- proto_reg_handoff_ngap ---------------------------------------*/
@@ -293,8 +352,6 @@ proto_reg_handoff_ngap(void)
 {
   static gboolean Initialized=FALSE;
   static guint SctpPort;
-
-  gcsna_handle = find_dissector_add_dependency("gcsna", proto_ngap);
 
   if (!Initialized) {
     nas_5gs_handle = find_dissector_add_dependency("nas-5gs", proto_ngap);
@@ -320,6 +377,14 @@ void proto_register_ngap(void) {
   /* List of fields */
 
   static hf_register_info hf[] = {
+    { &hf_ngap_transportLayerAddressIPv4,
+      { "TransportLayerAddress (IPv4)", "ngap.TransportLayerAddressIPv4",
+        FT_IPv4, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_ngap_transportLayerAddressIPv6,
+      { "TransportLayerAddress (IPv6)", "ngap.TransportLayerAddressIPv6",
+        FT_IPv6, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_ngap_WarningMessageContents_nb_pages,
       { "Number of Pages", "ngap.WarningMessageContents.nb_pages",
         FT_UINT8, BASE_DEC, NULL, 0,
@@ -328,15 +393,134 @@ void proto_register_ngap(void) {
       { "Decoded Page", "ngap.WarningMessageContents.decoded_page",
         FT_STRING, STR_UNICODE, NULL, 0,
         NULL, HFILL }},
+    { &hf_ngap_NGRANTraceID_TraceID,
+      { "TraceID", "ngap.NGRANTraceID.TraceID",
+        FT_UINT24, BASE_HEX, NULL, 0,
+        NULL, HFILL }},
+    { &hf_ngap_NGRANTraceID_TraceRecordingSessionReference,
+      { "TraceRecordingSessionReference", "ngap.NGRANTraceID.TraceRecordingSessionReference",
+        FT_UINT16, BASE_HEX, NULL, 0,
+        NULL, HFILL }},
+    { &hf_ngap_InterfacesToTrace_NG_C,
+      { "NG-C", "ngap.InterfacesToTrace.NG_C",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }},
+    { &hf_ngap_InterfacesToTrace_Xn_C,
+      { "Xn-C", "ngap.InterfacesToTrace.Xn_C",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        NULL, HFILL }},
+    { &hf_ngap_InterfacesToTrace_Uu,
+      { "Uu", "ngap.InterfacesToTrace.Uu",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        NULL, HFILL }},
+    { &hf_ngap_InterfacesToTrace_F1_C,
+      { "F1-C", "ngap.InterfacesToTrace.F1_C",
+        FT_BOOLEAN, 8, NULL, 0x10,
+        NULL, HFILL }},
+    { &hf_ngap_InterfacesToTrace_E1,
+      { "E1", "ngap.InterfacesToTrace.E1",
+        FT_BOOLEAN, 8, NULL, 0x08,
+        NULL, HFILL }},
+    { &hf_ngap_InterfacesToTrace_reserved,
+      { "Reserved", "ngap.InterfacesToTrace.reserved",
+        FT_UINT8, BASE_HEX, NULL, 0x07,
+        NULL, HFILL }},
+    { &hf_ngap_RATRestrictionInformation_e_UTRA,
+      { "e-UTRA", "ngap.RATRestrictionInformation.e_UTRA",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x80,
+        NULL, HFILL }},
+    { &hf_ngap_RATRestrictionInformation_nR,
+      { "nR", "ngap.RATRestrictionInformation.nR",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x40,
+        NULL, HFILL }},
+    { &hf_ngap_RATRestrictionInformation_reserved,
+      { "reserved", "ngap.RATRestrictionInformation.reserved",
+        FT_UINT8, BASE_HEX, NULL, 0x3f,
+        NULL, HFILL }},
+    { &hf_ngap_NrencyptionAlgorithms_nea1,
+      { "128-NEA1", "ngap.NrencyptionAlgorithms.nea1",
+        FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x8000,
+        NULL, HFILL }},
+    { &hf_ngap_NrencyptionAlgorithms_nea2,
+      { "128-NEA2", "ngap.NrencyptionAlgorithms.nea2",
+        FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x4000,
+        NULL, HFILL }},
+    { &hf_ngap_NrencyptionAlgorithms_nea3,
+      { "128-NEA3", "ngap.NrencyptionAlgorithms.nea3",
+        FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x2000,
+        NULL, HFILL }},
+    { &hf_ngap_NrencyptionAlgorithms_reserved,
+      { "Reserved", "ngap.NrencyptionAlgorithms.reserved",
+        FT_UINT16, BASE_HEX, NULL, 0x1fff,
+        NULL, HFILL }},
+    { &hf_ngap_NrintegrityProtectionAlgorithms_nia1,
+      { "128-NIA1", "ngap.NrintegrityProtectionAlgorithms.nia1",
+        FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x8000,
+        NULL, HFILL }},
+    { &hf_ngap_NrintegrityProtectionAlgorithms_nia2,
+      { "128-NIA2", "ngap.NrintegrityProtectionAlgorithms.nia2",
+        FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x4000,
+        NULL, HFILL }},
+    { &hf_ngap_NrintegrityProtectionAlgorithms_nia3,
+      { "128-NIA3", "ngap.NrintegrityProtectionAlgorithms.nia3",
+        FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x2000,
+        NULL, HFILL }},
+    { &hf_ngap_NrintegrityProtectionAlgorithms_reserved,
+      { "Reserved", "ngap.NrintegrityProtectionAlgorithms.reserved",
+        FT_UINT16, BASE_HEX, NULL, 0x1fff,
+        NULL, HFILL }},
+    { &hf_ngap_EUTRAencryptionAlgorithms_eea1,
+      { "128-EEA1", "ngap.EUTRAencryptionAlgorithms.eea1",
+        FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x8000,
+        NULL, HFILL }},
+    { &hf_ngap_EUTRAencryptionAlgorithms_eea2,
+      { "128-EEA2", "ngap.EUTRAencryptionAlgorithms.eea2",
+        FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x4000,
+        NULL, HFILL }},
+    { &hf_ngap_EUTRAencryptionAlgorithms_eea3,
+      { "128-EEA3", "ngap.EUTRAencryptionAlgorithms.eea3",
+        FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x2000,
+        NULL, HFILL }},
+    { &hf_ngap_EUTRAencryptionAlgorithms_reserved,
+      { "Reserved", "ngap.EUTRAencryptionAlgorithms.reserved",
+        FT_UINT16, BASE_HEX, NULL, 0x1fff,
+        NULL, HFILL }},
+    { &hf_ngap_EUTRAintegrityProtectionAlgorithms_eia1,
+      { "128-EIA1", "ngap.EUTRAintegrityProtectionAlgorithms.eia1",
+        FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x8000,
+        NULL, HFILL }},
+    { &hf_ngap_EUTRAintegrityProtectionAlgorithms_eia2,
+      { "128-EIA2", "ngap.EUTRAintegrityProtectionAlgorithms.eia2",
+        FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x4000,
+        NULL, HFILL }},
+    { &hf_ngap_EUTRAintegrityProtectionAlgorithms_eia3,
+      { "128-EIA3", "ngap.EUTRAintegrityProtectionAlgorithms.eia3",
+        FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x2000,
+        NULL, HFILL }},
+    { &hf_ngap_EUTRAintegrityProtectionAlgorithms_reserved,
+      { "Reserved", "ngap.EUTRAintegrityProtectionAlgorithms.reserved",
+        FT_UINT16, BASE_HEX, NULL, 0x1fff,
+        NULL, HFILL }},
 #include "packet-ngap-hfarr.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
     &ett_ngap,
+    &ett_ngap_TransportLayerAddress,
     &ett_ngap_DataCodingScheme,
     &ett_ngap_WarningMessageContents,
     &ett_ngap_PLMNIdentity,
+    &ett_ngap_NGAP_Message,
+    &ett_ngap_NGRANTraceID,
+    &ett_ngap_InterfacesToTrace,
+    &ett_ngap_SourceToTarget_TransparentContainer,
+    &ett_ngap_RRCContainer,
+    &ett_ngap_RATRestrictionInformation,
+    &ett_ngap_NrencryptionAlgorithms,
+    &ett_ngap_NrintegrityProtectionAlgorithms,
+    &ett_ngap_EUTRAencryptionAlgorithms,
+    &ett_ngap_EUTRAintegrityProtectionAlgorithms,
 #include "packet-ngap-ettarr.c"
   };
 
@@ -375,6 +559,15 @@ void proto_register_ngap(void) {
                                  "Set the SCTP port for NGAP messages",
                                  10,
                                  &gbl_ngapSctpPort);
+  prefs_register_bool_preference(ngap_module, "dissect_container",
+                                 "Dissect TransparentContainer",
+                                 "Dissect TransparentContainers that are opaque to NGAP",
+                                 &ngap_dissect_container);
+  prefs_register_enum_preference(ngap_module, "dissect_target_ng_ran_container_as",
+                                 "Dissect target NG-RAN container as",
+                                 "Select whether target NG-RAN container should be decoded automatically"
+                                 " (based on NG Setup procedure) or manually",
+                                 &ngap_dissect_target_ng_ran_container_as, ngap_target_ng_ran_container_vals, FALSE);
 }
 
 /*
