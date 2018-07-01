@@ -760,8 +760,7 @@ static conversation_t *iax2_new_circuit_for_call(packet_info *pinfo, proto_item 
   }
 
   conv = conversation_new_by_id(framenum, ENDPOINT_IAX2,
-                    circuit_id,
-                    framenum);
+                    circuit_id, 0);
 
   conversation_add_proto_data(conv, proto_iax2, iax_call);
 
