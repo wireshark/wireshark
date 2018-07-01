@@ -620,9 +620,93 @@ conversation_new(const guint32 setup_frame, const address *addr1, const address 
 	conversation_t *conversation=NULL;
 	conversation_key_t new_key;
 
-	DPRINT(("creating conversation for frame #%d: %s:%d -> %s:%d (etype=%d)",
-		    setup_frame, address_to_str(wmem_packet_scope(), addr1), port1,
-		    address_to_str(wmem_packet_scope(), addr2), port2, etype));
+#ifdef DEBUG_CONVERSATION
+	if (addr1 == NULL) {
+		/*
+		 * No address 1.
+		 */
+		if (options & NO_ADDR2) {
+			/*
+			 * Neither address 1 nor address 2.
+			 */
+			if (options & NO_PORT2) {
+				/*
+				 * Port 1 but not port 2.
+				 */
+				DPRINT(("creating conversation for frame #%u: ID %u (etype=%d)",
+					    setup_frame, port1, etype));
+			} else {
+				/*
+				 * Ports 1 and 2.
+				 */
+				DPRINT(("creating conversation for frame #%d: %u -> %u (etype=%d)",
+					    setup_frame, port1, port2, etype));
+			}
+		} else {
+			/*
+			 * Address 2 but not address 1.
+			 */
+			if (options & NO_PORT2) {
+				/*
+				 * Port 1 but not port 2.
+				 */
+				DPRINT(("creating conversation for frame #%d: ID %u, address %s (etype=%d)",
+					    setup_frame, port1,
+					    address_to_str(wmem_packet_scope(), addr2), etype));
+			} else {
+				/*
+				 * Ports 1 and 2.
+				 */
+				DPRINT(("creating conversation for frame #%d: %u -> %s:%u (etype=%d)",
+					    setup_frame, port1,
+					    address_to_str(wmem_packet_scope(), addr2), port2, etype));
+			}
+		}
+	} else {
+		/*
+		 * Address 1.
+		 */
+		if (options & NO_ADDR2) {
+			/*
+			 * Address 1 but no address 2.
+			 */
+			if (options & NO_PORT2) {
+				/*
+				 * Port 1 but not port 2.
+				 */
+				DPRINT(("creating conversation for frame #%d: %s:%u (etype=%d)",
+					    setup_frame, address_to_str(wmem_packet_scope(), addr1), port1,
+					    etype));
+			} else {
+				/*
+				 * Ports 1 and 2.
+				 */
+				DPRINT(("creating conversation for frame #%d: %s:%u -> %u (etype=%d)",
+					    setup_frame, address_to_str(wmem_packet_scope(), addr1), port1,
+					    port2, etype));
+			}
+		} else {
+			/*
+			 * Addresses 1 and 2.
+			 */
+			if (options & NO_PORT2) {
+				/*
+				 * Port 1 but not port 2.
+				 */
+				DPRINT(("creating conversation for frame #%d: %s:%u -> %s (etype=%d)",
+					    setup_frame, address_to_str(wmem_packet_scope(), addr1), port1,
+					    address_to_str(wmem_packet_scope(), addr2), etype));
+			} else {
+				/*
+				 * Ports 1 and 2.
+				 */
+				DPRINT(("creating conversation for frame #%d: %s:%u -> %s:%u (etype=%d)",
+					    setup_frame, address_to_str(wmem_packet_scope(), addr1), port1,
+					    address_to_str(wmem_packet_scope(), addr2), port2, etype));
+			}
+		}
+	}
+#endif
 
 	if (options & NO_ADDR2) {
 		if (options & (NO_PORT2|NO_PORT2_FORCE)) {
