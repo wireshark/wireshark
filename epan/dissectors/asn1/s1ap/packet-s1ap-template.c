@@ -50,6 +50,7 @@
 void proto_register_s1ap(void);
 void proto_reg_handoff_s1ap(void);
 
+static dissector_handle_t gcsna_handle;
 static dissector_handle_t nas_eps_handle;
 static dissector_handle_t lppa_handle;
 static dissector_handle_t bssgp_handle;
@@ -201,7 +202,6 @@ static guint gbl_s1apSctpPort=SCTP_PORT_S1AP;
 static gboolean g_s1ap_dissect_container = TRUE;
 static gint g_s1ap_dissect_lte_container_as = S1AP_LTE_CONTAINER_AUTOMATIC;
 
-static dissector_handle_t gcsna_handle = NULL;
 static dissector_handle_t s1ap_handle;
 
 /* Dissector tables */
@@ -461,9 +461,8 @@ proto_reg_handoff_s1ap(void)
   static gboolean Initialized=FALSE;
   static guint SctpPort;
 
-  gcsna_handle = find_dissector_add_dependency("gcsna", proto_s1ap);
-
   if (!Initialized) {
+    gcsna_handle = find_dissector_add_dependency("gcsna", proto_s1ap);
     nas_eps_handle = find_dissector_add_dependency("nas-eps", proto_s1ap);
     lppa_handle = find_dissector_add_dependency("lppa", proto_s1ap);
     bssgp_handle = find_dissector_add_dependency("bssgp", proto_s1ap);
