@@ -7379,11 +7379,11 @@ void proto_register_xnap(void) {
 
   static hf_register_info hf[] = {
     { &hf_xnap_transportLayerAddressIPv4,
-      { "transportLayerAddress (IPv4)", "xnap.transportLayerAddressIPv4",
+      { "TransportLayerAddress (IPv4)", "xnap.TransportLayerAddressIPv4",
         FT_IPv4, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_xnap_transportLayerAddressIPv6,
-      { "transportLayerAddress (IPv6)", "xnap.transportLayerAddressIPv6",
+      { "TransportLayerAddress (IPv6)", "xnap.TransportLayerAddressIPv6",
         FT_IPv6, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_xnap_ng_ran_TraceID_TraceID,
