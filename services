@@ -1103,8 +1103,8 @@ qmqp              628/udp # QMQP [D_J_Bernstein] [D_J_Bernstein] 2018-04-05
 3com-amp3         629/udp # 3Com AMP3 [Prakash_Banthia] [Prakash_Banthia]
 rda               630/tcp # RDA [John_Hadjioannou] [John_Hadjioannou]
 rda               630/udp # RDA [John_Hadjioannou] [John_Hadjioannou]
-ipp               631/tcp # IPP (Internet Printing Protocol) [Carl_Uno_Manros] [Carl_Uno_Manros] Defined TXT keys: See BonjourPrinting.pdf.
-ipp               631/udp # IPP (Internet Printing Protocol) [Carl_Uno_Manros] [Carl_Uno_Manros] Defined TXT keys: See BonjourPrinting.pdf.
+ipp               631/tcp # IPP (Internet Printing Protocol) [IESG] [IESG] 2018-06-29 Defined TXT keys: See BonjourPrinting.pdf.
+ipp               631/udp # IPP (Internet Printing Protocol) [IESG] [IESG] 2018-06-29 Defined TXT keys: See BonjourPrinting.pdf.
 bmpp              632/tcp # bmpp [Troy_Rollo] [Troy_Rollo]
 bmpp              632/udp # bmpp [Troy_Rollo] [Troy_Rollo]
 servstat          633/tcp # Service Status update (Sterling Software) [Greg_Rose] [Greg_Rose]
