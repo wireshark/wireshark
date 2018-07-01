@@ -92,9 +92,7 @@ static int dissect_egd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     tvbuff_t *next_tvb = NULL;
     gint offset, data_length;
     guint32 sectime;
-    nstime_t egd_time;
 
-    memset(&egd_time, 0, sizeof(nstime_t));
     offset = 0;
 
     ti = proto_tree_add_item(tree, proto_egd, tvb, 0, -1, ENC_NA);
@@ -119,9 +117,7 @@ static int dissect_egd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     }
     else
     {
-      egd_time.secs  = tvb_get_letohl(tvb, offset);
-      egd_time.nsecs = tvb_get_letohl(tvb, offset+4);
-      proto_tree_add_time(egd_tree, hf_egd_time, tvb, offset, 8, &egd_time);
+      proto_tree_add_item(egd_tree, hf_egd_time, tvb, offset, 8, ENC_LITTLE_ENDIAN);
     }
     offset += 8;
 
