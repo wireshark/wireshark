@@ -1329,8 +1329,6 @@ netlogon_dissect_AUTHENTICATOR(tvbuff_t *tvb, int offset,
                                packet_info *pinfo, proto_tree *tree,
                                dcerpc_info *di, guint8 *drep)
 {
-    nstime_t ts;
-
     if(di->conformant_run){
         /*just a run to handle conformant arrays, nothing to dissect */
         return offset;
@@ -1347,9 +1345,7 @@ netlogon_dissect_AUTHENTICATOR(tvbuff_t *tvb, int offset,
      * AUTHENTICATORs.
      */
     ALIGN_TO_4_BYTES;
-    ts.secs = tvb_get_letohl(tvb, offset);
-    ts.nsecs = 0;
-    proto_tree_add_time(tree, hf_netlogon_timestamp, tvb, offset, 4, &ts);
+    proto_tree_add_item(tree, hf_netlogon_timestamp, tvb, offset, 4, ENC_TIME_SECS|ENC_LITTLE_ENDIAN);
     offset+= 4;
 
     return offset;
