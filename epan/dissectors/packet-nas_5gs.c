@@ -59,6 +59,7 @@ static int hf_nas_5gs_spare_half_octet = -1;
 static int hf_nas_5gs_pdu_session_id = -1;
 static int hf_nas_5gs_msg_elems = -1;
 static int hf_nas_5gs_mm_for = -1;
+static int hf_nas_5gs_mm_sms_over_nas = -1;
 static int hf_nas_5gs_mm_5gs_reg_type = -1;
 static int hf_nas_5gs_mm_tsc = -1;
 static int hf_nas_5gs_mm_nas_key_set_id = -1;
@@ -204,6 +205,8 @@ static int hf_nas_5gs_nw_feat_sup_ims_iwk_n26_b6 = -1;
 static int hf_nas_5gs_nw_feat_sup_ims_emf_b5b4 = -1;
 static int hf_nas_5gs_nw_feat_sup_ims_emc_b3b2 = -1;
 static int hf_nas_5gs_nw_feat_sup_ims_vops_b1b0 = -1;
+
+static int hf_nas_5gs_mm_tai_tac = -1;
 
 
 static expert_field ei_nas_5gs_extraneous_data = EI_INIT;
@@ -466,7 +469,7 @@ static const true_false_string tfs_nas_5gs_nw_feat_sup_mpsi = {
 };
 
 static guint16
-de_nas_5gs_mm_5gs_nw_feat_sup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
+de_nas_5gs_mm_5gs_nw_feat_sup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     guint32 offset, guint len,
     gchar *add_string _U_, int string_len _U_)
 {
@@ -481,11 +484,9 @@ de_nas_5gs_mm_5gs_nw_feat_sup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
     };
 
 
+    /* MPSI    IWK N26    EMF    EMC    IMS VoPS    octet 3*/
     proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags, ENC_BIG_ENDIAN);
 
-    /* MPSI    IWK N26    EMF    EMC    IMS VoPS    octet 3*/
-    /* The definition of 5GS network feature support is FFS, but should include a dual-registration supported indication.*/
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
 
     return len;
 }
@@ -522,9 +523,7 @@ static const value_string nas_5gs_registration_type_values[] = {
     { 0x1, "initial registration" },
     { 0x2, "mobility registration updating" },
     { 0x3, "periodic registration updating" },
-    { 0x4, "unused(initial registration)" },
-    { 0x5, "unused(initial registration)" },
-    { 0x6, "5GS emergency registration" },
+    { 0x4, "emergency registration" },
     { 0x7, "reserved" },
     { 0, NULL }
  };
@@ -543,6 +542,17 @@ de_nas_5gs_mm_5gs_reg_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     proto_tree_add_item(tree, hf_nas_5gs_mm_for, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_nas_5gs_mm_5gs_reg_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 
+    static const int * flags[] = {
+        &hf_nas_5gs_mm_for,
+        &hf_nas_5gs_mm_sms_over_nas,
+        &hf_nas_5gs_mm_5gs_reg_type,
+        NULL
+    };
+
+
+    /* FOR    SMS requested    5GS registration type value    octet 3*/
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags, ENC_BIG_ENDIAN);
+
     return 1;
 }
 
@@ -551,12 +561,22 @@ de_nas_5gs_mm_5gs_reg_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
  */
 static guint16
 de_nas_5gs_mm_5gs_ta_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
-    guint32 offset, guint len,
+    guint32 offset, guint len _U_,
     gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+    /* MCC digit 2    MCC digit 1 Octet 2*/
+    /* MNC digit 3    MCC digit 3 Octet 3*/
+    /* MNC digit 2    MNC digit 1 Octet 4*/
+    /* TAC Octet 5 - 7 */
+    guint32 curr_offset;
 
-    return len;
+    curr_offset = offset;
+
+    curr_offset = dissect_e212_mcc_mnc(tvb, pinfo, tree, curr_offset, E212_TAI, TRUE);
+    proto_tree_add_item(tree, hf_nas_5gs_mm_tai_tac, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
+    curr_offset += 3;
+
+    return(curr_offset - offset);
 }
 
 /*
@@ -4009,7 +4029,12 @@ proto_register_nas_5gs(void)
         },
         { &hf_nas_5gs_mm_for,
         { "Follow-On Request bit (FOR)",   "nas_5gs.mm.for",
-            FT_BOOLEAN, 8, TFS(&nas_5gs_for_tfs), 0x08,
+            FT_BOOLEAN, 8, TFS(&nas_5gs_for_tfs), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_sms_over_nas,
+        { "SMS over NAS",   "nas_5gs.mm.sms_over_nas",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_5gs_reg_type,
@@ -4662,6 +4687,11 @@ proto_register_nas_5gs(void)
         { &hf_nas_5gs_nw_feat_sup_mpsi_b7,
         { "MPS indicator (MPSI)",   "nas_5gs.nw_feat_sup.mpsi",
             FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_nw_feat_sup_mpsi), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_tai_tac,
+        { "TAC",   "nas_5gs.mm.tai.tac",
+            FT_UINT24, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
     };
