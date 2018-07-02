@@ -126,7 +126,7 @@ private:
 
     void showPlayer();
 
-    size_t convert_payload_to_samples(unsigned int payload_type, QTemporaryFile *tempfile, gchar *pd_out, size_t expected_nchars);
+    size_t convert_payload_to_samples(unsigned int payload_type, QTemporaryFile *tempfile, guint8 *pd_out, size_t expected_nchars);
     gboolean saveAudioAUSilence(size_t total_len, QFile *save_file, gboolean *stop_flag);
     gboolean saveAudioAUUnidir(tap_rtp_stat_t &statinfo, QTemporaryFile *tempfile, QFile *save_file, size_t header_end, gboolean *stop_flag, gboolean interleave, size_t prefix_silence);
     gboolean saveAudioAUBidir(tap_rtp_stat_t &fwd_statinfo, tap_rtp_stat_t &rev_statinfo, QTemporaryFile *fwd_tempfile, QTemporaryFile *rev_tempfile, QFile *save_file, size_t header_end, gboolean *stop_flag, size_t prefix_silence_fwd, size_t prefix_silence_rev);

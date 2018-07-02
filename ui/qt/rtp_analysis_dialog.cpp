@@ -1031,12 +1031,12 @@ void RtpAnalysisDialog::showPlayer()
 
 /* Convert one packet payload to samples in row */
 /* It supports G.711 now, but can be extended to any other codecs */
-size_t RtpAnalysisDialog::convert_payload_to_samples(unsigned int payload_type, QTemporaryFile *tempfile, gchar *pd_out, size_t payload_len)
+size_t RtpAnalysisDialog::convert_payload_to_samples(unsigned int payload_type, QTemporaryFile *tempfile, guint8 *pd_out, size_t payload_len)
 {
     size_t sample_count;
     char f_rawvalue;
     gint16 sample;
-    gchar pd[4];
+    guint8 pd[4];
 
     if (payload_type == PT_PCMU) {
         /* Output sample count is same as input sample count for G.711 */
@@ -1072,9 +1072,9 @@ size_t RtpAnalysisDialog::convert_payload_to_samples(unsigned int payload_type, 
 gboolean RtpAnalysisDialog::saveAudioAUSilence(size_t total_len, QFile *save_file, gboolean *stop_flag)
 {
     size_t nchars;
-    gchar pd_out[2*4000];
+    guint8 pd_out[2*4000];
     gint16 silence;
-    gchar pd[4];
+    guint8 pd[4];
 
     silence = 0x0000;
     phton16(pd, silence);
@@ -1097,8 +1097,8 @@ gboolean RtpAnalysisDialog::saveAudioAUSilence(size_t total_len, QFile *save_fil
 gboolean RtpAnalysisDialog::saveAudioAUUnidir(tap_rtp_stat_t &statinfo, QTemporaryFile *tempfile, QFile *save_file, size_t header_end, gboolean *stop_flag, gboolean interleave, size_t prefix_silence)
 {
     size_t nchars;
-    gchar pd_out[2*4000];
-    gchar pd[4];
+    guint8 pd_out[2*4000];
+    guint8 pd[4];
     tap_rtp_save_data_t save_data;
 
     while (sizeof(save_data) == tempfile->read((char *)&save_data,sizeof(save_data))) {
@@ -1149,14 +1149,19 @@ gboolean RtpAnalysisDialog::saveAudioAUBidir(tap_rtp_stat_t &fwd_statinfo, tap_r
 
 gboolean RtpAnalysisDialog::saveAudioAU(StreamDirection direction, QFile *save_file, gboolean *stop_flag, RtpAnalysisDialog::SyncType sync)
 {
-    gchar pd[4];
+    guint8 pd[4];
     size_t nchars;
     size_t header_end;
     size_t fwd_total_len;
     size_t rev_total_len;
     size_t total_len;
 
-    /* First we write the .au header. XXX Hope this is endian independent */
+    /* http://pubs.opengroup.org/external/auformat.html */
+    /* First we write the .au header.  All values in the header are
+     * 4-byte big-endian values, so we use pntoh32() to copy them
+     * to a 4-byte buffer, in big-endian order, and then write out
+     * the buffer. */
+
     /* the magic word 0x2e736e64 == .snd */
     phton32(pd, 0x2e736e64);
     nchars = save_file->write((const char *)pd, 4);
