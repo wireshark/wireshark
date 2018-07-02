@@ -1210,7 +1210,6 @@ static int dissect_9P_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 	proto_item         *ti, *msg_item;
 	proto_tree         *ninep_tree;
 	struct _9p_taginfo *taginfo;
-	nstime_t            tv;
 	int                 _9p_version;
 
 	_9p_version = conv_get_version(pinfo);
@@ -1565,14 +1564,10 @@ static int dissect_9P_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		dissect_9P_dm(tvb, ti, offset, 0);
 		offset += 4;
 
-		tv.secs = tvb_get_letohl(tvb, offset);
-		tv.nsecs = 0;
-		proto_tree_add_time(ninep_tree, hf_9P_atime, tvb, offset, 4, &tv);
+		proto_tree_add_item(ninep_tree, hf_9P_atime, tvb, offset, 4, ENC_TIME_SECS|ENC_LITTLE_ENDIAN);
 		offset += 4;
 
-		tv.secs = tvb_get_letohl(tvb, offset);
-		tv.nsecs = 0;
-		proto_tree_add_time(ninep_tree, hf_9P_mtime, tvb, offset, 4, &tv);
+		proto_tree_add_item(ninep_tree, hf_9P_mtime, tvb, offset, 4, ENC_TIME_SECS|ENC_LITTLE_ENDIAN);
 		offset += 4;
 
 		proto_tree_add_item(ninep_tree, hf_9P_length, tvb, offset, 8, ENC_LITTLE_ENDIAN);
@@ -1611,14 +1606,10 @@ static int dissect_9P_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		dissect_9P_dm(tvb, ti, offset, 0);
 		offset += 4;
 
-		tv.secs = tvb_get_letohl(tvb, offset);
-		tv.nsecs = 0;
-		proto_tree_add_time(ninep_tree, hf_9P_atime, tvb, offset, 4, &tv);
+		proto_tree_add_item(ninep_tree, hf_9P_atime, tvb, offset, 4, ENC_TIME_SECS|ENC_LITTLE_ENDIAN);
 		offset += 4;
 
-		tv.secs = tvb_get_letohl(tvb, offset);
-		tv.nsecs = 0;
-		proto_tree_add_time(ninep_tree, hf_9P_mtime, tvb, offset, 4, &tv);
+		proto_tree_add_item(ninep_tree, hf_9P_mtime, tvb, offset, 4, ENC_TIME_SECS|ENC_LITTLE_ENDIAN);
 		offset += 4;
 
 		proto_tree_add_item(ninep_tree, hf_9P_length, tvb, offset, 8, ENC_LITTLE_ENDIAN);
@@ -1678,24 +1669,16 @@ static int dissect_9P_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		proto_tree_add_item(ninep_tree, hf_9P_blocks, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 		offset += 8;
 
-		tv.secs = (time_t)tvb_get_letoh64(tvb, offset);
-		tv.nsecs = (guint32)tvb_get_letoh64(tvb, offset+8);
-		proto_tree_add_time(ninep_tree, hf_9P_atime, tvb, offset, 16, &tv);
+		proto_tree_add_item(ninep_tree, hf_9P_atime, tvb, offset, 16, ENC_TIME_TIMESPEC|ENC_LITTLE_ENDIAN);
 		offset += 16;
 
-		tv.secs = (time_t)tvb_get_letoh64(tvb, offset);
-		tv.nsecs = (guint32)tvb_get_letoh64(tvb, offset+8);
-		proto_tree_add_time(ninep_tree, hf_9P_mtime, tvb, offset, 16, &tv);
+		proto_tree_add_item(ninep_tree, hf_9P_mtime, tvb, offset, 16, ENC_TIME_TIMESPEC|ENC_LITTLE_ENDIAN);
 		offset += 16;
 
-		tv.secs = (time_t)tvb_get_letoh64(tvb, offset);
-		tv.nsecs = (guint32)tvb_get_letoh64(tvb, offset+8);
-		proto_tree_add_time(ninep_tree, hf_9P_ctime, tvb, offset, 16, &tv);
+		proto_tree_add_item(ninep_tree, hf_9P_ctime, tvb, offset, 16, ENC_TIME_TIMESPEC|ENC_LITTLE_ENDIAN);
 		offset += 16;
 
-		tv.secs = (time_t)tvb_get_letoh64(tvb, offset);
-		tv.nsecs = (guint32)tvb_get_letoh64(tvb, offset+8);
-		proto_tree_add_time(ninep_tree, hf_9P_btime, tvb, offset, 16, &tv);
+		proto_tree_add_item(ninep_tree, hf_9P_btime, tvb, offset, 16, ENC_TIME_TIMESPEC|ENC_LITTLE_ENDIAN);
 		offset += 16;
 
 		proto_tree_add_item(ninep_tree, hf_9P_gen, tvb, offset, 8, ENC_LITTLE_ENDIAN);
@@ -1730,14 +1713,10 @@ static int dissect_9P_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		proto_tree_add_item(ninep_tree, hf_9P_size, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 		offset += 8;
 
-		tv.secs = (time_t)tvb_get_letoh64(tvb, offset);
-		tv.nsecs = (guint32)tvb_get_letoh64(tvb, offset+8);
-		proto_tree_add_time(ninep_tree, hf_9P_atime, tvb, offset, 16, &tv);
+		proto_tree_add_item(ninep_tree, hf_9P_atime, tvb, offset, 16, ENC_TIME_TIMESPEC|ENC_LITTLE_ENDIAN);
 		offset += 16;
 
-		tv.secs = (time_t)tvb_get_letoh64(tvb, offset);
-		tv.nsecs = (guint32)tvb_get_letoh64(tvb, offset+8);
-		proto_tree_add_time(ninep_tree, hf_9P_mtime, tvb, offset, 16, &tv);
+		proto_tree_add_item(ninep_tree, hf_9P_mtime, tvb, offset, 16, ENC_TIME_TIMESPEC|ENC_LITTLE_ENDIAN);
 		offset += 16;
 
 		conv_set_tag(pinfo, tag, ninemsg, _9P_NOFID, NULL);
