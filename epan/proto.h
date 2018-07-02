@@ -404,7 +404,7 @@ void proto_report_dissector_bug(const char *format, ...)
 #define ENC_TIME_RTPS          0x00000008
 #define ENC_TIME_NTP_BASE_ZERO 0x00000008 /* for backwards source compatibility */
 #define ENC_TIME_SECS_USECS    0x00000010
-#define ENC_TIME_TIMEVAL       0x00000010 /* for backwards source compatibility */ 
+#define ENC_TIME_TIMEVAL       0x00000010 /* for backwards source compatibility */
 #define ENC_TIME_SECS          0x00000012
 #define ENC_TIME_MSECS         0x00000014
 #define ENC_TIME_SECS_NTP      0x00000018
