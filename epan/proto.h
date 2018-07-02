@@ -348,10 +348,14 @@ void proto_report_dissector_bug(const char *format, ...)
  *
  * We now support:
  *
- *  ENC_TIME_TIMESPEC - 8 bytes; the first 4 bytes are seconds and the
- *  next 4 bytes are nanoseconds.  If the time is absolute, the seconds
- *  are seconds since the UN*X epoch (1970-01-01 00:00:00 UTC).  (I.e.,
- *  a UN*X struct timespec with a 4-byte time_t.)
+ *  ENC_TIME_TIMESPEC - 8, 12, or 16 bytes.  For 8 bytes, the first 4 bytes
+ *  are seconds and the next 4 bytes are nanoseconds; for 12 bytes, the
+ *  first 8 bytes are seconds and the next 4 bytes are nanoseconds; for
+ *  16 bytes, the first 8 bytes are seconds and the next 8 bytes are
+ *  nanoseconds.  If the time is absolute, the seconds are seconds since
+ *  the UN*X epoch (1970-01-01 00:00:00 UTC).  (I.e., a UN*X struct
+ *  timespec with a 4-byte or 8-byte time_t or a structure with an
+ *  8-byte time_t and an 8-byte nanoseconds field.)
  *
  *  ENC_TIME_NTP - 8 bytes; the first 4 bytes are seconds since the NTP
  *  epoch (1901-01-01 00:00:00 GMT) and the next 4 bytes are 1/2^32's of
