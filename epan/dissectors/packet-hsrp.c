@@ -482,7 +482,7 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                 proto_tree *group_state_tlv;
 
                                 if (tree) {
-                                        ti = proto_tree_add_uint_format_value(hsrp_tree, hf_hsrp2_group_state_tlv, tvb, offset, 2, type,
+                                        ti = proto_tree_add_uint_format_value(hsrp_tree, hf_hsrp2_group_state_tlv, tvb, offset, 2+len, type,
                                         "Type=%d Len=%d", type, len);
                                 }
                                 offset+=2;
@@ -551,7 +551,7 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                 if (tree) {
                                         proto_tree *interface_state_tlv;
                                         ti = proto_tree_add_uint_format_value(hsrp_tree, hf_hsrp2_interface_state_tlv, tvb, offset, 1, type,
-                                        "Type=%d Len=%d", type, len);
+                                        "Type=%d Len=%d", type, 2+len);
                                         offset+=2;
 
                                         /* Making Interface State TLV subtree */
@@ -563,11 +563,14 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                 }
                         } else if (type == 3 && len == 8) {
                                 /* Text Authentication TLV */
+                                /* FIXME: Is the length of the authentication string really restricted to 8 bytes
+                                 *        or is it maybe padded to multiples of 4 or 8 bytes?
+                                 */
                                 if (tree) {
                                         proto_tree *text_auth_tlv;
                                         gchar auth_buf[8 + 1];
 
-                                        ti = proto_tree_add_uint_format_value(hsrp_tree, hf_hsrp2_text_auth_tlv, tvb, offset, 1, type,
+                                        ti = proto_tree_add_uint_format_value(hsrp_tree, hf_hsrp2_text_auth_tlv, tvb, offset, 2+len, type,
                                         "Type=%d Len=%d", type, len);
                                         offset+=2;
 
