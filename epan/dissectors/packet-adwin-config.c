@@ -313,9 +313,6 @@ dissect_TCPFlashUpdate(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, voi
 	proto_item *ti;
 	gint length, offset;
 	guint8 *filename;
-	nstime_t tmp_time;
-
-	tmp_time.nsecs = 0;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ADwin Config");
 	col_set_str(pinfo->cinfo, COL_INFO, "TCPFlashUpdate");
@@ -342,11 +339,9 @@ dissect_TCPFlashUpdate(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, voi
 	offset += length;
 	proto_tree_add_item(adwin_tree, hf_adwin_config_filesize, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
-	tmp_time.secs = tvb_get_ntohl(tvb, offset);
-	proto_tree_add_time(adwin_tree, hf_adwin_config_filetime, tvb, offset, 4, &tmp_time);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_filetime, tvb, offset, 4, ENC_TIME_SECS|ENC_BIG_ENDIAN);
 	offset += 4;
-	tmp_time.secs = tvb_get_ntohl(tvb, offset);
-	proto_tree_add_time(adwin_tree, hf_adwin_config_updatetime, tvb, offset, 4, &tmp_time);
+	proto_tree_add_item(adwin_tree, hf_adwin_config_updatetime, tvb, offset, 4, ENC_TIME_SECS|ENC_BIG_ENDIAN);
 	offset += 4;
 	proto_tree_add_item(adwin_tree, hf_adwin_config_unused, tvb, offset, 128, ENC_NA);
 	offset += 128;
