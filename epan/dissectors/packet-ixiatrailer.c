@@ -187,7 +187,7 @@ dissect_ixiatrailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, voi
           break;
         }
         /* Timestamp */
-        ti = proto_tree_add_item(ixiatrailer_tree, hf_ixiatrailer_timestamp, tvb, offset, field_length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
+        ti = proto_tree_add_item(ixiatrailer_tree, hf_ixiatrailer_timestamp, tvb, offset, field_length, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
         proto_item_append_text(ti, "; Source: %s", val_to_str_const(field_type, ixiatrailer_ftype_timestamp, "Unknown"));
       break;
       default:

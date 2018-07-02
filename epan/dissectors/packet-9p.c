@@ -1669,16 +1669,16 @@ static int dissect_9P_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		proto_tree_add_item(ninep_tree, hf_9P_blocks, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 		offset += 8;
 
-		proto_tree_add_item(ninep_tree, hf_9P_atime, tvb, offset, 16, ENC_TIME_TIMESPEC|ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(ninep_tree, hf_9P_atime, tvb, offset, 16, ENC_TIME_SECS_NSECS|ENC_LITTLE_ENDIAN);
 		offset += 16;
 
-		proto_tree_add_item(ninep_tree, hf_9P_mtime, tvb, offset, 16, ENC_TIME_TIMESPEC|ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(ninep_tree, hf_9P_mtime, tvb, offset, 16, ENC_TIME_SECS_NSECS|ENC_LITTLE_ENDIAN);
 		offset += 16;
 
-		proto_tree_add_item(ninep_tree, hf_9P_ctime, tvb, offset, 16, ENC_TIME_TIMESPEC|ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(ninep_tree, hf_9P_ctime, tvb, offset, 16, ENC_TIME_SECS_NSECS|ENC_LITTLE_ENDIAN);
 		offset += 16;
 
-		proto_tree_add_item(ninep_tree, hf_9P_btime, tvb, offset, 16, ENC_TIME_TIMESPEC|ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(ninep_tree, hf_9P_btime, tvb, offset, 16, ENC_TIME_SECS_NSECS|ENC_LITTLE_ENDIAN);
 		offset += 16;
 
 		proto_tree_add_item(ninep_tree, hf_9P_gen, tvb, offset, 8, ENC_LITTLE_ENDIAN);
@@ -1713,10 +1713,10 @@ static int dissect_9P_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		proto_tree_add_item(ninep_tree, hf_9P_size, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 		offset += 8;
 
-		proto_tree_add_item(ninep_tree, hf_9P_atime, tvb, offset, 16, ENC_TIME_TIMESPEC|ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(ninep_tree, hf_9P_atime, tvb, offset, 16, ENC_TIME_SECS_NSECS|ENC_LITTLE_ENDIAN);
 		offset += 16;
 
-		proto_tree_add_item(ninep_tree, hf_9P_mtime, tvb, offset, 16, ENC_TIME_TIMESPEC|ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(ninep_tree, hf_9P_mtime, tvb, offset, 16, ENC_TIME_SECS_NSECS|ENC_LITTLE_ENDIAN);
 		offset += 16;
 
 		conv_set_tag(pinfo, tag, ninemsg, _9P_NOFID, NULL);

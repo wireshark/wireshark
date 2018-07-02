@@ -264,7 +264,7 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
                     if (value_len == 16) {
                         /* XXX - add an "expert info" warning if the nanoseconds are >= 10^9? */
                         proto_tree_add_item(tlv_tree, &hfi_nflog_tlv_timestamp,
-                                    tvb, offset + 4, value_len, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
+                                    tvb, offset + 4, value_len, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
                         handled = TRUE;
                     }
                     break;

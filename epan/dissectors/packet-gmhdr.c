@@ -173,7 +173,7 @@ dissect_gmtlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gmhdr_tree, guint o
           expert_add_info_format(pinfo, gmhdr_tree, &ei_gmhdr_field_length_invalid, "Field length %u invalid", fl);
           break;
         }
-        ti = proto_tree_add_item(gmhdr_tree, hf_gmhdr_timestamp, tvb, offset, fl, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
+        ti = proto_tree_add_item(gmhdr_tree, hf_gmhdr_timestamp, tvb, offset, fl, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
         proto_item_append_text(ti, "; Source: %s", val_to_str_const(tl>>8, gmhdr_ftype_timestamp, "Unknown"));
         break;
       case GMHDR_FTYPE_FCS: {
@@ -328,7 +328,7 @@ dissect_gmtimestamp_trailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
     gmtrailer_tree = proto_item_add_subtree(ti, ett_gmtrailer);
     proto_tree_add_item(gmtrailer_tree, hf_gmtrailer_origcrc, tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(gmtrailer_tree, hf_gmtrailer_portid, tvb, offset+4, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(gmtrailer_tree, hf_gmtrailer_timestamp, tvb, offset+6, 8, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
+    proto_tree_add_item(gmtrailer_tree, hf_gmtrailer_timestamp, tvb, offset+6, 8, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
   }
 
   return 14;

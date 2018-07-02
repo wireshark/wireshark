@@ -1670,7 +1670,7 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 
 	switch (encoding) {
 
-		case ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN:
+		case ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN:
 			/*
 			 * If the length is 16, 8-byte seconds, followed
 			 * by 8-byte fractional time in nanoseconds,
@@ -1699,7 +1699,7 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 			} else if (length == 4) {
 				/*
 				 * Backwards compatibility.
-				 * ENC_TIME_TIMESPEC is 0; using
+				 * ENC_TIME_SECS_NSECS is 0; using
 				 * ENC_BIG_ENDIAN by itself with a 4-byte
 				 * time-in-seconds value was done in the
 				 * past.
@@ -1710,7 +1710,7 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 				report_type_length_mismatch(tree, "a timespec", length, (length < 4));
 			break;
 
-		case ENC_TIME_TIMESPEC|ENC_LITTLE_ENDIAN:
+		case ENC_TIME_SECS_NSECS|ENC_LITTLE_ENDIAN:
 			/*
 			 * If the length is 16, 8-byte seconds, followed
 			 * by 8-byte fractional time in nanoseconds,
@@ -1739,7 +1739,7 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 			} else if (length == 4) {
 				/*
 				 * Backwards compatibility.
-				 * ENC_TIME_TIMESPEC is 0; using
+				 * ENC_TIME_SECS_NSECS is 0; using
 				 * ENC_LITTLE_ENDIAN by itself with a 4-byte
 				 * time-in-seconds value was done in the
 				 * past.
@@ -1897,7 +1897,7 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 				report_type_length_mismatch(tree, "an RTPS time stamp", length, (length < 4));
 			break;
 
-		case ENC_TIME_TIMEVAL|ENC_BIG_ENDIAN:
+		case ENC_TIME_SECS_USECS|ENC_BIG_ENDIAN:
 			/*
 			 * 4-byte seconds, followed by 4-byte fractional
 			 * time in microseconds, both big-endian.
@@ -1911,7 +1911,7 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 				report_type_length_mismatch(tree, "a timeval", length, (length < 4));
 			break;
 
-		case ENC_TIME_TIMEVAL|ENC_LITTLE_ENDIAN:
+		case ENC_TIME_SECS_USECS|ENC_LITTLE_ENDIAN:
 			/*
 			 * 4-byte seconds, followed by 4-byte fractional
 			 * time in microseconds, both little-endian.
@@ -2547,7 +2547,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			 * so that passing TRUE is interpreted as that.
 			 */
 			if (encoding == TRUE)
-				encoding = ENC_TIME_TIMESPEC|ENC_LITTLE_ENDIAN;
+				encoding = ENC_TIME_SECS_NSECS|ENC_LITTLE_ENDIAN;
 
 			get_time_value(tree, tvb, start, length, encoding, &time_stamp, FALSE);
 
@@ -2569,7 +2569,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			 * so that passing TRUE is interpreted as that.
 			 */
 			if (encoding == TRUE)
-				encoding = ENC_TIME_TIMESPEC|ENC_LITTLE_ENDIAN;
+				encoding = ENC_TIME_SECS_NSECS|ENC_LITTLE_ENDIAN;
 
 			get_time_value(tree, tvb, start, length, encoding, &time_stamp, TRUE);
 

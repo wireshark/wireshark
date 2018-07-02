@@ -1696,7 +1696,7 @@ static const struct epl_datatype {
 	{ "Time_of_Day",    &hf_epl_od_time,    ENC_NA },
 	{ "Time_Diff",      &hf_epl_od_time_difference, ENC_NA  },
 #endif
-	{ "NETTIME",        &hf_epl_od_time, ENC_TIME_TIMESPEC, 8 },
+	{ "NETTIME",        &hf_epl_od_time, ENC_TIME_SECS_NSECS, 8 },
 
 	{ 0, 0, 0, 0 }
 };
@@ -2766,10 +2766,10 @@ dissect_epl_soc(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint of
 				((EPL_SOC_MC_MASK & flags) >> 7), ((EPL_SOC_PS_MASK & flags) >> 6));
 	}
 
-	proto_tree_add_item(epl_tree, hf_epl_soc_nettime, tvb, offset, 8, ENC_TIME_TIMESPEC|ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(epl_tree, hf_epl_soc_nettime, tvb, offset, 8, ENC_TIME_SECS_NSECS|ENC_LITTLE_ENDIAN);
 	offset += 8;
 
-	proto_tree_add_item(epl_tree, hf_epl_soc_relativetime, tvb, offset, 8, ENC_TIME_TIMESPEC|ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(epl_tree, hf_epl_soc_relativetime, tvb, offset, 8, ENC_TIME_SECS_NSECS|ENC_LITTLE_ENDIAN);
 	offset += 8;
 
 	return offset;

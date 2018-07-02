@@ -6966,7 +6966,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
         case 37013: /* timestamp_interval */
             /* XXX - what format is this in? */
             ti = proto_tree_add_item(pdutree, hf_cflow_timestamp_interval,
-                                     tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
+                                     tvb, offset, length, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
             break;
         case 37014: /* transport_packets_expected */
             ti = proto_tree_add_item(pdutree, hf_cflow_transport_packets_expected,
@@ -7553,49 +7553,49 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
         case (NTOP_BASE + 134):           /* SIP_INVITE_TIME */
         case ((VENDOR_NTOP << 16) | 134): /* SIP_INVITE_TIME */
             ti = proto_tree_add_item(pdutree, hf_pie_ntop_sip_invite_time,
-                                     tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
+                                     tvb, offset, length, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
             break;
 
         case (NTOP_BASE + 135):           /* SIP_TRYING_TIME */
         case ((VENDOR_NTOP << 16) | 135): /* SIP_TRYING_TIME */
             ti = proto_tree_add_item(pdutree, hf_pie_ntop_sip_trying_time,
-                                     tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
+                                     tvb, offset, length, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
             break;
 
         case (NTOP_BASE + 136):           /* SIP_RINGING_TIME */
         case ((VENDOR_NTOP << 16) | 136): /* SIP_RINGING_TIME */
             ti = proto_tree_add_item(pdutree, hf_pie_ntop_sip_ringing_time,
-                                     tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
+                                     tvb, offset, length, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
             break;
 
         case (NTOP_BASE + 137):           /* SIP_INVITE_OK_TIME */
         case ((VENDOR_NTOP << 16) | 137): /* SIP_INVITE_OK_TIME */
             ti = proto_tree_add_item(pdutree, hf_pie_ntop_sip_invite_ok_time,
-                                     tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
+                                     tvb, offset, length, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
             break;
 
         case (NTOP_BASE + 138):           /* SIP_INVITE_FAILURE_TIME */
         case ((VENDOR_NTOP << 16) | 138): /* SIP_INVITE_FAILURE_TIME */
             ti = proto_tree_add_item(pdutree, hf_pie_ntop_sip_invite_failure_time,
-                                     tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
+                                     tvb, offset, length, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
             break;
 
         case (NTOP_BASE + 139):           /* SIP_BYE_TIME */
         case ((VENDOR_NTOP << 16) | 139): /* SIP_BYE_TIME */
             ti = proto_tree_add_item(pdutree, hf_pie_ntop_sip_bye_time,
-                                     tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
+                                     tvb, offset, length, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
             break;
 
         case (NTOP_BASE + 140):           /* SIP_BYE_OK_TIME */
         case ((VENDOR_NTOP << 16) | 140): /* SIP_BYE_OK_TIME */
             ti = proto_tree_add_item(pdutree, hf_pie_ntop_sip_bye_ok_time,
-                                     tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
+                                     tvb, offset, length, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
             break;
 
         case (NTOP_BASE + 141):           /* SIP_CANCEL_TIME */
         case ((VENDOR_NTOP << 16) | 141): /* SIP_CANCEL_TIME */
             ti = proto_tree_add_item(pdutree, hf_pie_ntop_sip_cancel_time,
-                                     tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
+                                     tvb, offset, length, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
             break;
 
         case (NTOP_BASE + 142):           /* SIP_CANCEL_OK_TIME */
@@ -9233,7 +9233,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
         case ((VENDOR_PLIXER << 16) | 111):    /* origination_time */
             /* XXX - what format is this? */
             ti = proto_tree_add_item(pdutree, hf_pie_plixer_origination_time,
-                                     tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
+                                     tvb, offset, length, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
             break;
         case ((VENDOR_PLIXER << 16) | 112):    /* encryption */
             ti = proto_tree_add_item(pdutree, hf_pie_plixer_encryption,
@@ -9262,7 +9262,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
         case ((VENDOR_PLIXER << 16) | 117):    /* date_time */
             /* XXX - what format is this? */
             ti = proto_tree_add_item(pdutree, hf_pie_plixer_date_time,
-                                     tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
+                                     tvb, offset, length, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
             break;
             /* END Plixer International */
 
@@ -9723,7 +9723,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
              * i.e. should it be ENC_TIME_SECS?
              */
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icasessionupdatebeginsec,
-                                     tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
+                                     tvb, offset, length, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
             break;
         case ((VENDOR_NETSCALER << 16) | 224):
             /*
@@ -9731,7 +9731,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
              * i.e. should it be ENC_TIME_SECS?
              */
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icasessionupdateendsec,
-                                     tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
+                                     tvb, offset, length, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
             break;
         case ((VENDOR_NETSCALER << 16) | 225):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icachannelid1,
@@ -9792,7 +9792,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
         case ((VENDOR_NETSCALER << 16) | 239):
             /* XXX - what format is this? */
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_applicationstartuptime,
-                                     tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
+                                     tvb, offset, length, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
             break;
         case ((VENDOR_NETSCALER << 16) | 240):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icaapplicationterminationtype,
@@ -9853,12 +9853,12 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
         case ((VENDOR_NETSCALER << 16) | 254):
             /* XXX - what format is this? */
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icanetworkupdatestarttime,
-                                     tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
+                                     tvb, offset, length, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
             break;
         case ((VENDOR_NETSCALER << 16) | 255):
             /* XXX - what format is this? */
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icanetworkupdateendtime,
-                                     tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
+                                     tvb, offset, length, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
             break;
         case ((VENDOR_NETSCALER << 16) | 256):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icaclientsidesrtt,

@@ -133,7 +133,7 @@ dissect_rtacser_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Time-stamp is stored as 2 x 32-bit unsigned integers, the left and right-hand side of the decimal point respectively */
     /* The format mirrors the timeval struct - absolute Epoch time (seconds since 1/1/1970) with an added microsecond component */
-    proto_tree_add_item(rtacser_tree, hf_rtacser_timestamp, tvb, offset, 8, ENC_TIME_TIMEVAL|ENC_BIG_ENDIAN);
+    proto_tree_add_item(rtacser_tree, hf_rtacser_timestamp, tvb, offset, 8, ENC_TIME_SECS_USECS|ENC_BIG_ENDIAN);
     offset += 8;
 
     /* Set INFO column with RTAC Serial Event Type */

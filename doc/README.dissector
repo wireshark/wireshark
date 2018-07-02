@@ -1629,10 +1629,14 @@ For FT_ABSOLUTE_TIME fields, the encoding specifies the form in which
 the time stamp is specified, as well as its byte order.  The time stamp
 encodings that are currently supported are:
 
-    ENC_TIME_TIMESPEC - 8 bytes; the first 4 bytes are seconds since
-        the UN*X epoch (1970-01-01 00:00:00 UTC) and the next 4 bytes
-        are nanoseconds since that second.  (I.e., a UN*X struct
-        timespec with a 4-byte time_t.)
+    ENC_TIME_SECS_NSECS - 8, 12, or 16 bytes.  For 8 bytes, the first 4
+        bytes are seconds and the next 4 bytes are nanoseconds; for 12
+        bytes, the first 8 bytes are seconds and the next 4 bytes are
+        nanoseconds; for 16 bytes, the first 8 bytes are seconds and
+        the next 8 bytes are nanoseconds.  The seconds are seconds
+        since the UN*X epoch (1970-01-01 00:00:00 UTC).  (I.e., a UN*X
+        struct timespec with a 4-byte or 8-byte time_t or a structure
+        with an 8-byte time_t and an 8-byte nanoseconds field.)
 
     ENC_TIME_NTP - 8 bytes; the first 4 bytes are seconds since the NTP
         epoch (1900-01-01 00:00:00 GMT) and the next 4 bytes are 1/2^32's of
@@ -1649,7 +1653,7 @@ encodings that are currently supported are:
         NTP time.)  It's used by the Object Management Group's Real-Time
         Publish-Subscribe Wire Protocol for the Data Distribution Service.
 
-    ENC_TIME_TIMEVAL - 8 bytes; the first 4 bytes are seconds since the
+    ENC_TIME_SECS_USECS - 8 bytes; the first 4 bytes are seconds since the
         UN*X epoch and the next 4 bytes are microseconds since that
         second.  (I.e., a UN*X struct timeval with a 4-byte time_t.)
 
@@ -1673,10 +1677,13 @@ For FT_RELATIVE_TIME fields, the encoding specifies the form in which
 the time stamp is specified, as well as its byte order.  The time stamp
 encodings that are currently supported are:
 
-    ENC_TIME_TIMESPEC - 8 bytes; the first 4 bytes are seconds and the
-        next 4 bytes are nanoseconds.
+    ENC_TIME_SECS_NSECS - 8, 12, or 16 bytes.  For 8 bytes, the first 4
+        bytes are seconds and the next 4 bytes are nanoseconds; for 12
+        bytes, the first 8 bytes are seconds and the next 4 bytes are
+        nanoseconds; for 16 bytes, the first 8 bytes are seconds and
+        the next 8 bytes are nanoseconds.
 
-    ENC_TIME_TIMEVAL - 8 bytes; the first 4 bytes are seconds and the
+    ENC_TIME_SECS_USECS - 8 bytes; the first 4 bytes are seconds and the
         next 4 bytes are microseconds.
 
     ENC_TIME_SECS - 4 to 8 bytes, representing a value in seconds.

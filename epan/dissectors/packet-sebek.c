@@ -161,7 +161,7 @@ dissect_sebek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 				proto_tree_add_item(sebek_tree, hf_sebek_counter, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 
-				proto_tree_add_item(sebek_tree, hf_sebek_time, tvb, offset, 8, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
+				proto_tree_add_item(sebek_tree, hf_sebek_time, tvb, offset, 8, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
 				offset += 8;
 
 				proto_tree_add_item(sebek_tree, hf_sebek_pid, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -196,7 +196,7 @@ dissect_sebek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 				proto_tree_add_item(sebek_tree, hf_sebek_counter, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 
-				proto_tree_add_item(sebek_tree, hf_sebek_time, tvb, offset, 8, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
+				proto_tree_add_item(sebek_tree, hf_sebek_time, tvb, offset, 8, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
 				offset += 8;
 
 				proto_tree_add_item(sebek_tree, hf_sebek_ppid, tvb, offset, 4, ENC_BIG_ENDIAN);

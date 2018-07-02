@@ -5105,7 +5105,7 @@ guint c_dissect_msg_osd_op(proto_tree *root,
 	off = c_dissect_osd_flags(tree, tvb, off, data);
 
 	proto_tree_add_item(tree, hf_msg_osd_op_mtime,
-			    tvb, off, 8, ENC_TIME_TIMESPEC|ENC_LITTLE_ENDIAN);
+			    tvb, off, 8, ENC_TIME_SECS_NSECS|ENC_LITTLE_ENDIAN);
 	off += 8;
 
 	off = c_dissect_eversion(tree, hf_msg_osd_op_reassert_version,

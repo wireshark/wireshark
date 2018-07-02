@@ -285,17 +285,17 @@ glusterfs_rpc_dissect_gf_iatt(proto_tree *tree, tvbuff_t *tvb, int hfindex,
 
 	if (tree)
 		proto_tree_add_item(iatt_tree, hf_glusterfs_ia_atime, tvb,
-							offset, 8, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
+							offset, 8, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
 	offset += 8;
 
 	if (tree)
 		proto_tree_add_item(iatt_tree, hf_glusterfs_ia_mtime, tvb,
-							offset, 8, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
+							offset, 8, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
 	offset += 8;
 
 	if (tree)
 		proto_tree_add_item(iatt_tree, hf_glusterfs_ia_ctime, tvb,
-							offset, 8, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
+							offset, 8, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
 	offset += 8;
 
 	proto_item_set_len (iatt_item, offset - start_offset);
