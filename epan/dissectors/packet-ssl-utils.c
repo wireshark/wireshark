@@ -1049,6 +1049,8 @@ static const value_string ssl_31_ciphersuite[] = {
     { 0xC0AD, "TLS_ECDHE_ECDSA_WITH_AES_256_CCM" },
     { 0xC0AE, "TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8" },
     { 0xC0AF, "TLS_ECDHE_ECDSA_WITH_AES_256_CCM_8" },
+    /* https://www.ietf.org/archive/id/draft-cragie-tls-ecjpake-01.txt */
+    { 0xC0FF, "TLS_ECJPAKE_WITH_AES_128_CCM_8" },
     /* https://tools.ietf.org/html/draft-ietf-tls-grease */
     { 0xCACA, "Reserved (GREASE)" },
 /*
@@ -1774,6 +1776,8 @@ gint ssl_get_keyex_alg(gint cipher)
     case 0xc01e:
     case 0xc021:
         return KEX_SRP_SHA_RSA;
+    case 0xc0ff:
+        return KEX_ECJPAKE;
     default:
         break;
     }
