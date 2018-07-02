@@ -26,6 +26,7 @@
  * we can do is parse the security header and give up.
  */
 #include <wsutil/wsgcrypt.h>
+#include <wsutil/pint.h>
 
 #include "packet-ieee802154.h"
 #include "packet-zbee.h"
@@ -825,19 +826,11 @@ static void
 zbee_sec_make_nonce(zbee_security_packet *packet, guint8 *nonce)
 {
     /* First 8 bytes are the extended source address (little endian). */
-    *(nonce++) = (guint8)((packet->src64)>>0 & 0xff);
-    *(nonce++) = (guint8)((packet->src64)>>8 & 0xff);
-    *(nonce++) = (guint8)((packet->src64)>>16 & 0xff);
-    *(nonce++) = (guint8)((packet->src64)>>24 & 0xff);
-    *(nonce++) = (guint8)((packet->src64)>>32 & 0xff);
-    *(nonce++) = (guint8)((packet->src64)>>40 & 0xff);
-    *(nonce++) = (guint8)((packet->src64)>>48 & 0xff);
-    *(nonce++) = (guint8)((packet->src64)>>56 & 0xff);
+    phtole64(nonce, packet->src64);
+    nonce += 8;
     /* Next 4 bytes are the frame counter (little endian). */
-    *(nonce++) = (guint8)((packet->counter)>>0 & 0xff);
-    *(nonce++) = (guint8)((packet->counter)>>8 & 0xff);
-    *(nonce++) = (guint8)((packet->counter)>>16 & 0xff);
-    *(nonce++) = (guint8)((packet->counter)>>24 & 0xff);
+    phtole32(nonce, packet->counter);
+    nonce += 4;
     /* Next byte is the security control field. */
     *(nonce) = packet->control;
 } /* zbee_sec_make_nonce */

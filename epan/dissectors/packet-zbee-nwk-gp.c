@@ -21,6 +21,7 @@
 #include <epan/prefs.h>
 #include <epan/uat.h>
 #include <wsutil/bits_ctz.h>
+#include <wsutil/pint.h>
 #include "packet-zbee.h"
 #include "packet-zbee-nwk.h"
 #include "packet-zbee-security.h"
@@ -1564,19 +1565,11 @@ zbee_gp_make_nonce(zbee_nwk_green_power_packet *packet, gchar *nonce)
 {
     memset(nonce, 0, ZBEE_SEC_CONST_NONCE_LEN);
     if (packet->direction == ZBEE_NWK_GP_FC_EXT_DIRECTION_FROM_ZGPD) {
-        nonce[0] = (guint8)((packet->source_id) & 0xff);
-        nonce[1] = (guint8)((packet->source_id) >> 8 & 0xff);
-        nonce[2] = (guint8)((packet->source_id) >> 16 & 0xff);
-        nonce[3] = (guint8)((packet->source_id) >> 24 & 0xff);
+        phtole32(nonce, packet->source_id);
     }
-    nonce[4]  = (guint8)((packet->source_id) & 0xff);
-    nonce[5]  = (guint8)((packet->source_id) >> 8 & 0xff);
-    nonce[6]  = (guint8)((packet->source_id) >> 16 & 0xff);
-    nonce[7]  = (guint8)((packet->source_id) >> 24 & 0xff);
-    nonce[8]  = (guint8)((packet->security_frame_counter) & 0xff);
-    nonce[9]  = (guint8)((packet->security_frame_counter) >> 8 & 0xff);
-    nonce[10] = (guint8)((packet->security_frame_counter) >> 16 & 0xff);
-    nonce[11] = (guint8)((packet->security_frame_counter) >> 24 & 0xff);
+    phtole32(nonce+4, packet->source_id);
+    phtole32(nonce+8, packet->security_frame_counter);
+
     if ((packet->application_id == ZBEE_NWK_GP_APP_ID_ZGP) && (packet->direction !=
         ZBEE_NWK_GP_FC_EXT_DIRECTION_FROM_ZGPD)) {
         nonce[12] = (gchar)0xa3;
