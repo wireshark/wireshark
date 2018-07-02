@@ -458,15 +458,11 @@ decode_value_string_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static void
 decode_time_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, int* hfValue, int offset, int length)
 {
-	nstime_t ns;
-
 	if (length < 8) {
 		expert_add_info(pinfo, item, &ei_opsi_short_attribute);
 		return;
 	}
-	ns.secs  = tvb_get_ntohl(tvb, offset+4);
-	ns.nsecs = 0;
-	proto_tree_add_time(tree, *hfValue, tvb, offset+4, 4, &ns);
+	proto_tree_add_item(tree, *hfValue, tvb, offset+4, 4, ENC_TIME_SECS|ENC_BIG_ENDIAN);
 }
 
 /****************************************************************************/

@@ -2827,11 +2827,8 @@ dissect_hie_time_correction(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *i
 static int
 dissect_hie_global_time(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    nstime_t ts;
     proto_tree *subtree = ieee802154_create_hie_tree(tvb, tree, hf_ieee802154_hie_global_time, ett_ieee802154_hie_global_time);
-    ts.secs = tvb_get_letohl(tvb, 2);
-    ts.nsecs = 0;
-    proto_tree_add_time(subtree, hf_ieee802154_hie_global_time_value, tvb, 2, 4, &ts);
+    proto_tree_add_item(subtree, hf_ieee802154_hie_global_time_value, tvb, 2, 4, ENC_TIME_SECS|ENC_LITTLE_ENDIAN);
     return 2 + 4;
 }
 

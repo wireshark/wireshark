@@ -6710,7 +6710,6 @@ ssl_dissect_hnd_hello_common(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                              SslSession *session, SslDecryptSession *ssl,
                              gboolean from_server, gboolean is_hrr)
 {
-    nstime_t     gmt_unix_time;
     guint8       sessid_length;
     proto_tree  *rnd_tree;
     proto_tree  *ti_rnd;
@@ -6743,10 +6742,8 @@ ssl_dissect_hnd_hello_common(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 
         rnd_tree = proto_item_add_subtree(ti_rnd, hf->ett.hs_random);
         /* show the time */
-        gmt_unix_time.secs  = tvb_get_ntohl(tvb, offset);
-        gmt_unix_time.nsecs = 0;
-        proto_tree_add_time(rnd_tree, hf->hf.hs_random_time,
-                tvb, offset, 4, &gmt_unix_time);
+        proto_tree_add_item(rnd_tree, hf->hf.hs_random_time,
+                tvb, offset, 4, ENC_TIME_SECS|ENC_BIG_ENDIAN);
         offset += 4;
 
         /* show the random bytes */

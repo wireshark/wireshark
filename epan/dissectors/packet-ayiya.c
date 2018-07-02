@@ -94,7 +94,6 @@ dissect_ayiya(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
     if (tree) {
         proto_item *ti;
-        nstime_t tv;
         ti = proto_tree_add_protocol_format( tree, proto_ayiya, tvb,
                                              offset, ayiya_len, "AYIYA" );
         ayiya_tree = proto_item_add_subtree(ti, ett_ayiya);
@@ -109,9 +108,7 @@ dissect_ayiya(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
                                    3, 1, next_header,
                                    "%s (0x%02x)",
                                    ipprotostr(next_header), next_header);
-        tv.secs = tvb_get_ntohl(tvb, 4);
-        tv.nsecs = 0;
-        proto_tree_add_time(ayiya_tree, hf_epoch, tvb, 4, 4, &tv);
+        proto_tree_add_item(ayiya_tree, hf_epoch, tvb, 4, 4, ENC_TIME_SECS|ENC_BIG_ENDIAN);
         proto_tree_add_item(ayiya_tree, hf_identity, tvb, 8, idlen, ENC_NA);
         proto_tree_add_item(ayiya_tree, hf_signature, tvb, 8+idlen, siglen, ENC_NA);
     }

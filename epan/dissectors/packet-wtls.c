@@ -461,7 +461,6 @@ static void
 dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint count)
 {
 	char pdu_msg_type;
-	nstime_t timeValue;
 	int client_size = 0;
 	guint value = 0;
 	int size = 0;
@@ -496,10 +495,8 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 			proto_tree_add_item (wtls_msg_type_item_tree, hf_wtls_hands_cli_hello_version,
 					tvb,offset,1,ENC_BIG_ENDIAN);
 			offset++;
-			timeValue.secs = tvb_get_ntohl (tvb, offset);
-			timeValue.nsecs = 0;
-			proto_tree_add_time (wtls_msg_type_item_tree, hf_wtls_hands_cli_hello_gmt, tvb,
-					offset, 4, &timeValue);
+			proto_tree_add_item (wtls_msg_type_item_tree, hf_wtls_hands_cli_hello_gmt, tvb,
+					offset, 4, ENC_TIME_SECS|ENC_BIG_ENDIAN);
 			offset+=4;
 			proto_tree_add_item (wtls_msg_type_item_tree, hf_wtls_hands_cli_hello_random,
 					tvb,offset,12,ENC_NA);
@@ -839,10 +836,8 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 			proto_tree_add_item (wtls_msg_type_item_tree, hf_wtls_hands_serv_hello_version,
 					tvb,offset,1,ENC_BIG_ENDIAN);
 			offset++;
-			timeValue.secs = tvb_get_ntohl (tvb, offset);
-			timeValue.nsecs = 0;
-			proto_tree_add_time (wtls_msg_type_item_tree, hf_wtls_hands_serv_hello_gmt, tvb,
-					offset, 4, &timeValue);
+			proto_tree_add_item (wtls_msg_type_item_tree, hf_wtls_hands_serv_hello_gmt, tvb,
+					offset, 4, ENC_TIME_SECS|ENC_BIG_ENDIAN);
 			offset+=4;
 			proto_tree_add_item (wtls_msg_type_item_tree, hf_wtls_hands_serv_hello_random,
 					tvb,offset,12,ENC_NA);
@@ -941,18 +936,14 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 							case IDENTIFIER_X509 :
 								break;
 						}
-						timeValue.secs = tvb_get_ntohl (tvb, offset);
-						timeValue.nsecs = 0;
-						proto_tree_add_time (wtls_msg_type_item_sub_tree,
+						proto_tree_add_item (wtls_msg_type_item_sub_tree,
 								hf_wtls_hands_certificate_wtls_valid_not_before,
-								tvb, offset, 4, &timeValue);
+								tvb, offset, 4, ENC_TIME_SECS|ENC_BIG_ENDIAN);
 						offset+=4;
 						client_size+=4;
-						timeValue.secs = tvb_get_ntohl (tvb, offset);
-						timeValue.nsecs = 0;
-						proto_tree_add_time (wtls_msg_type_item_sub_tree,
+						proto_tree_add_item (wtls_msg_type_item_sub_tree,
 								hf_wtls_hands_certificate_wtls_valid_not_after,
-								tvb, offset, 4, &timeValue);
+								tvb, offset, 4, ENC_TIME_SECS|ENC_BIG_ENDIAN);
 						offset+=4;
 						client_size+=4;
 						value =  tvb_get_guint8 (tvb, offset);

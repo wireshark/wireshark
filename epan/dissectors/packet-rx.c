@@ -131,15 +131,8 @@ dissect_rx_response_encrypted(tvbuff_t *tvb, proto_tree *parent_tree, int offset
 	tree = proto_item_add_subtree(item, ett_rx_encrypted);
 
 	/* epoch : 4 bytes */
-	{
-		nstime_t ts;
-		ts.secs = tvb_get_ntohl(tvb, offset);
-		ts.nsecs = 0;
-
-		proto_tree_add_time(tree, hf_rx_epoch, tvb,
-			offset, 4, &ts);
-		offset += 4;
-	}
+	proto_tree_add_item(tree, hf_rx_epoch, tvb, offset, 4, ENC_TIME_SECS|ENC_BIG_ENDIAN);
+	offset += 4;
 
 	/* cid : 4 bytes */
 	proto_tree_add_item(tree, hf_rx_cid, tvb, offset, 4, ENC_BIG_ENDIAN);

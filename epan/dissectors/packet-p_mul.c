@@ -776,7 +776,6 @@ static int dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   gint           i, tot_no_missing = 0, no_missing = 0, offset = 0;
   address        src, dst;
   wmem_strbuf_t *message_id_list = NULL;
-  nstime_t       ts;
   gboolean       fletcher = FALSE;
 
   col_set_str (pinfo->cinfo, COL_PROTOCOL, "P_MUL");
@@ -962,9 +961,7 @@ static int dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
       pdu_type == Extra_Address_PDU || pdu_type == FEC_Address_PDU ||
       pdu_type == Extra_FEC_Address_PDU) {
     /* Expiry Time */
-    ts.secs = tvb_get_ntohl (tvb, offset);
-    ts.nsecs = 0;
-    proto_tree_add_time (p_mul_tree, hf_expiry_time, tvb, offset, 4, &ts);
+    proto_tree_add_item (p_mul_tree, hf_expiry_time, tvb, offset, 4, ENC_TIME_SECS|ENC_BIG_ENDIAN);
     offset += 4;
   }
 

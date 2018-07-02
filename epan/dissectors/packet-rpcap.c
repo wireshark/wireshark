@@ -820,7 +820,6 @@ dissect_rpcap_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
 {
   proto_tree *tree;
   proto_item *ti;
-  nstime_t ts;
   tvbuff_t *new_tvb;
   guint caplen, len, frame_no;
   gint reported_length_remaining;
@@ -828,9 +827,7 @@ dissect_rpcap_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
   ti = proto_tree_add_item (parent_tree, hf_packet, tvb, offset, 20, ENC_NA);
   tree = proto_item_add_subtree (ti, ett_packet);
 
-  ts.secs = tvb_get_ntohl (tvb, offset);
-  ts.nsecs = tvb_get_ntohl (tvb, offset + 4) * 1000;
-  proto_tree_add_time(tree, hf_timestamp, tvb, offset, 8, &ts);
+  proto_tree_add_item(tree, hf_timestamp, tvb, offset, 8, ENC_TIME_TIMEVAL|ENC_BIG_ENDIAN);
   offset += 8;
 
   caplen = tvb_get_ntohl (tvb, offset);

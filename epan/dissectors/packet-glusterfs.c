@@ -254,7 +254,6 @@ glusterfs_rpc_dissect_gf_iatt(proto_tree *tree, tvbuff_t *tvb, int hfindex,
 {
 	proto_item *iatt_item;
 	proto_tree *iatt_tree;
-	nstime_t timestamp;
 	int start_offset = offset;
 
 	iatt_item = proto_tree_add_item(tree, hfindex, tvb, offset, -1,
@@ -284,25 +283,19 @@ glusterfs_rpc_dissect_gf_iatt(proto_tree *tree, tvbuff_t *tvb, int hfindex,
 	offset = dissect_rpc_uint64(tvb, iatt_tree, hf_glusterfs_ia_blocks,
 								offset);
 
-	timestamp.secs = tvb_get_ntohl(tvb, offset);
-	timestamp.nsecs = tvb_get_ntohl(tvb, offset + 4);
 	if (tree)
-		proto_tree_add_time(iatt_tree, hf_glusterfs_ia_atime, tvb,
-							offset, 8, &timestamp);
+		proto_tree_add_item(iatt_tree, hf_glusterfs_ia_atime, tvb,
+							offset, 8, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
 	offset += 8;
 
-	timestamp.secs = tvb_get_ntohl(tvb, offset);
-	timestamp.nsecs = tvb_get_ntohl(tvb, offset + 4);
 	if (tree)
-		proto_tree_add_time(iatt_tree, hf_glusterfs_ia_mtime, tvb,
-							offset, 8, &timestamp);
+		proto_tree_add_item(iatt_tree, hf_glusterfs_ia_mtime, tvb,
+							offset, 8, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
 	offset += 8;
 
-	timestamp.secs = tvb_get_ntohl(tvb, offset);
-	timestamp.nsecs = tvb_get_ntohl(tvb, offset + 4);
 	if (tree)
-		proto_tree_add_time(iatt_tree, hf_glusterfs_ia_ctime, tvb,
-							offset, 8, &timestamp);
+		proto_tree_add_item(iatt_tree, hf_glusterfs_ia_ctime, tvb,
+							offset, 8, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
 	offset += 8;
 
 	proto_item_set_len (iatt_item, offset - start_offset);

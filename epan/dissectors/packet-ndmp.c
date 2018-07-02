@@ -2382,7 +2382,6 @@ dissect_file_stats(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *pa
 	proto_item* item;
 	proto_tree* tree;
 	int old_offset=offset;
-	nstime_t ns;
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1,
 				ett_ndmp_file_stats, &item, "Stats:");
@@ -2399,21 +2398,15 @@ dissect_file_stats(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *pa
 	offset += 4;
 
 	/* mtime */
-	ns.secs=tvb_get_ntohl(tvb, offset);
-	ns.nsecs=0;
-	proto_tree_add_time(tree, hf_ndmp_file_mtime, tvb, offset, 4, &ns);
+	proto_tree_add_item(tree, hf_ndmp_file_mtime, tvb, offset, 4, ENC_TIME_SECS|ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* atime */
-	ns.secs=tvb_get_ntohl(tvb, offset);
-	ns.nsecs=0;
-	proto_tree_add_time(tree, hf_ndmp_file_atime, tvb, offset, 4, &ns);
+	proto_tree_add_item(tree, hf_ndmp_file_atime, tvb, offset, 4, ENC_TIME_SECS|ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* ctime */
-	ns.secs=tvb_get_ntohl(tvb, offset);
-	ns.nsecs=0;
-	proto_tree_add_time(tree, hf_ndmp_file_ctime, tvb, offset, 4, &ns);
+	proto_tree_add_item(tree, hf_ndmp_file_ctime, tvb, offset, 4, ENC_TIME_SECS|ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* owner */
@@ -2700,8 +2693,6 @@ static int
 dissect_data_get_state_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		proto_tree *tree, guint32 seq)
 {
-	nstime_t ns;
-
 	/* invalids */
 	offset = dissect_state_invalids(tvb, offset, pinfo, tree);
 
@@ -2729,9 +2720,7 @@ dissect_data_get_state_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			offset);
 
 	/* est time remain */
-	ns.secs=tvb_get_ntohl(tvb, offset);
-	ns.nsecs=0;
-	proto_tree_add_time(tree, hf_ndmp_data_est_time_remain, tvb, offset, 4, &ns);
+	proto_tree_add_item(tree, hf_ndmp_data_est_time_remain, tvb, offset, 4, ENC_TIME_SECS|ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* ndmp addr */

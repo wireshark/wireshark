@@ -262,13 +262,9 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
                 case WS_NFULA_TIMESTAMP:
                     if (value_len == 16) {
-                        nstime_t ts;
-
-                        ts.secs  = (time_t)tvb_get_ntoh64(tvb, offset + 4);
-                        /* XXX - add an "expert info" warning if this is >= 10^9? */
-                        ts.nsecs = (int)tvb_get_ntoh64(tvb, offset + 12);
-                        proto_tree_add_time(tlv_tree, &hfi_nflog_tlv_timestamp,
-                                    tvb, offset + 4, value_len, &ts);
+                        /* XXX - add an "expert info" warning if the nanoseconds are >= 10^9? */
+                        proto_tree_add_item(tlv_tree, &hfi_nflog_tlv_timestamp,
+                                    tvb, offset + 4, value_len, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
                         handled = TRUE;
                     }
                     break;

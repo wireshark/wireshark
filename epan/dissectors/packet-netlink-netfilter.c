@@ -1307,11 +1307,7 @@ dissect_nfq_attrs(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, int
 
 		case WS_NFQA_TIMESTAMP:
 			if (len == 16) {
-				nstime_t ts;
-
-				ts.secs = (time_t)tvb_get_ntoh64(tvb, offset);
-				ts.nsecs = (int)tvb_get_ntoh64(tvb, offset + 8) * 1000;
-				proto_tree_add_time(tree, &hfi_nfq_timestamp, tvb, offset, 16, &ts);
+				proto_tree_add_item(tree, &hfi_nfq_timestamp, tvb, offset, 16, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
 				offset += 16;
 			}
 			break;

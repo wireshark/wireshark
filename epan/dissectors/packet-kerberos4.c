@@ -101,7 +101,6 @@ dissect_krb4_string(packet_info *pinfo _U_, int hf_index, proto_tree *tree, tvbu
 static int
 dissect_krb4_kdc_request(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, const guint encoding, int version)
 {
-	nstime_t time_sec;
 	guint8   lifetime;
 
 	if(version==TRANSARC_SPECIAL_VERSION){
@@ -119,9 +118,7 @@ dissect_krb4_kdc_request(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, in
 	offset=dissect_krb4_string(pinfo, hf_krb4_realm, tree, tvb, offset);
 
 	/* Time sec */
-	time_sec.secs=tvb_get_guint32(tvb, offset, encoding);
-	time_sec.nsecs=0;
-	proto_tree_add_time(tree, hf_krb4_time_sec, tvb, offset, 4, &time_sec);
+	proto_tree_add_item(tree, hf_krb4_time_sec, tvb, offset, 4, ENC_TIME_SECS|encoding);
 	offset+=4;
 
 	/* lifetime */
@@ -142,7 +139,6 @@ dissect_krb4_kdc_request(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, in
 static int
 dissect_krb4_kdc_reply(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, const guint encoding)
 {
-	nstime_t time_sec;
 	guint32  length;
 
 	/* Name */
@@ -155,18 +151,14 @@ dissect_krb4_kdc_reply(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int 
 	offset=dissect_krb4_string(pinfo, hf_krb4_realm, tree, tvb, offset);
 
 	/* Time sec */
-	time_sec.secs=tvb_get_guint32(tvb, offset, encoding);
-	time_sec.nsecs=0;
-	proto_tree_add_time(tree, hf_krb4_time_sec, tvb, offset, 4, &time_sec);
+	proto_tree_add_item(tree, hf_krb4_time_sec, tvb, offset, 4, ENC_TIME_SECS|encoding);
 	offset+=4;
 
 	/*XXX unknown byte here */
 	offset++;
 
 	/* exp date */
-	time_sec.secs=tvb_get_guint32(tvb, offset, encoding);
-	time_sec.nsecs=0;
-	proto_tree_add_time(tree, hf_krb4_exp_date, tvb, offset, 4, &time_sec);
+	proto_tree_add_item(tree, hf_krb4_exp_date, tvb, offset, 4, ENC_TIME_SECS|encoding);
 	offset+=4;
 
 	/* kvno */
@@ -189,7 +181,6 @@ static int
 dissect_krb4_appl_request(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, const guint encoding)
 {
 	guint8   tlen, rlen;
-	nstime_t time_sec;
 	guint8   lifetime;
 
 	/* kvno */
@@ -218,9 +209,7 @@ dissect_krb4_appl_request(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 	offset+=rlen;
 
 	/* request time */
-	time_sec.secs=tvb_get_guint32(tvb, offset, encoding);
-	time_sec.nsecs=0;
-	proto_tree_add_time(tree, hf_krb4_req_date, tvb, offset, 4, &time_sec);
+	proto_tree_add_item(tree, hf_krb4_req_date, tvb, offset, 4, ENC_TIME_SECS|encoding);
 	offset+=4;
 
 	/* lifetime */

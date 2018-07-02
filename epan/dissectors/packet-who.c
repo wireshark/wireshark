@@ -79,13 +79,10 @@ dissect_who(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	proto_item	*who_ti;
 	guint8		*server_name;
 	double		loadav_5 = 0.0, loadav_10 = 0.0, loadav_15 = 0.0;
-	nstime_t	ts;
 
 	/* Summary information */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "WHO");
 	col_clear(pinfo->cinfo, COL_INFO);
-
-	ts.nsecs = 0;
 
 	who_ti = proto_tree_add_item(tree, proto_who, tvb, offset, -1, ENC_NA);
 	who_tree = proto_item_add_subtree(who_ti, ett_who);
@@ -100,16 +97,14 @@ dissect_who(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	offset += 2;
 
 	if (tree) {
-		ts.secs = tvb_get_ntohl(tvb, offset);
-		proto_tree_add_time(who_tree, hf_who_sendtime, tvb, offset, 4,
-		    &ts);
+		proto_tree_add_item(who_tree, hf_who_sendtime, tvb, offset, 4,
+		    ENC_TIME_SECS|ENC_BIG_ENDIAN);
 	}
 	offset += 4;
 
 	if (tree) {
-		ts.secs = tvb_get_ntohl(tvb, offset);
-		proto_tree_add_time(who_tree, hf_who_recvtime, tvb, offset, 4,
-		    &ts);
+		proto_tree_add_item(who_tree, hf_who_recvtime, tvb, offset, 4,
+		    ENC_TIME_SECS|ENC_BIG_ENDIAN);
 	}
 	offset += 4;
 
@@ -137,9 +132,8 @@ dissect_who(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 				server_name, loadav_5, loadav_10, loadav_15);
 
 	if (tree) {
-		ts.secs = tvb_get_ntohl(tvb, offset);
-		proto_tree_add_time(who_tree, hf_who_boottime, tvb, offset, 4,
-		    &ts);
+		proto_tree_add_item(who_tree, hf_who_boottime, tvb, offset, 4,
+		    ENC_TIME_SECS|ENC_BIG_ENDIAN);
 		offset += 4;
 
 		dissect_whoent(tvb, offset, who_tree);
@@ -161,11 +155,8 @@ dissect_whoent(tvbuff_t *tvb, int offset, proto_tree *tree)
 	int		line_offset = offset;
 	guint8		*out_line;
 	guint8		*out_name;
-	nstime_t	ts;
 	int		whoent_num = 0;
 	guint32		idle_secs; /* say that out loud... */
-
-	ts.nsecs = 0;
 
 	while (tvb_reported_length_remaining(tvb, line_offset) > 0
 	    && whoent_num < MAX_NUM_WHOENTS) {
@@ -183,9 +174,8 @@ dissect_whoent(tvbuff_t *tvb, int offset, proto_tree *tree)
 		    8, out_name);
 		line_offset += 8;
 
-		ts.secs = tvb_get_ntohl(tvb, line_offset);
-		proto_tree_add_time(whoent_tree, hf_who_timeon, tvb,
-		    line_offset, 4, &ts);
+		proto_tree_add_item(whoent_tree, hf_who_timeon, tvb,
+		    line_offset, 4, ENC_TIME_SECS|ENC_BIG_ENDIAN);
 		line_offset += 4;
 
 		idle_secs = tvb_get_ntohl(tvb, line_offset);

@@ -152,11 +152,7 @@ static dissector_table_t aruba_erm_subdissector_table;
 static int
 dissect_aruba_erm_pcap(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *aruba_erm_tree, gint offset)
 {
-    nstime_t ts;
-
-    ts.secs = tvb_get_ntohl(tvb, 0);
-    ts.nsecs = tvb_get_ntohl(tvb,4)*1000;
-    proto_tree_add_time(aruba_erm_tree, hf_aruba_erm_time, tvb, offset, 8,&ts);
+    proto_tree_add_item(aruba_erm_tree, hf_aruba_erm_time, tvb, offset, 8, ENC_TIME_TIMEVAL|ENC_BIG_ENDIAN);
     offset +=8;
 
     proto_tree_add_item(aruba_erm_tree, hf_aruba_erm_incl_len, tvb, 8, 4, ENC_BIG_ENDIAN);

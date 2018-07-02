@@ -2746,7 +2746,6 @@ dissect_epl_payload(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gin
 static gint
 dissect_epl_soc(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset)
 {
-	nstime_t nettime;
 	guint8  flags;
 	static const int * soc_flags[] = {
 		&hf_epl_soc_mc,
@@ -2767,12 +2766,11 @@ dissect_epl_soc(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint of
 				((EPL_SOC_MC_MASK & flags) >> 7), ((EPL_SOC_PS_MASK & flags) >> 6));
 	}
 
-	nettime.secs  = tvb_get_letohl(tvb, offset);
-	nettime.nsecs = tvb_get_letohl(tvb, offset+4);
-	proto_tree_add_time(epl_tree, hf_epl_soc_nettime, tvb, offset, 8, &nettime);
+	proto_tree_add_item(epl_tree, hf_epl_soc_nettime, tvb, offset, 8, ENC_TIME_TIMESPEC|ENC_LITTLE_ENDIAN);
+	offset += 8;
 
-	proto_tree_add_item(epl_tree, hf_epl_soc_relativetime, tvb, offset+8, 8, ENC_LITTLE_ENDIAN);
-	offset += 16;
+	proto_tree_add_item(epl_tree, hf_epl_soc_relativetime, tvb, offset, 8, ENC_TIME_TIMESPEC|ENC_LITTLE_ENDIAN);
+	offset += 8;
 
 	return offset;
 }
