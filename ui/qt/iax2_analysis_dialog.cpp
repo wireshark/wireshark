@@ -903,7 +903,7 @@ void Iax2AnalysisDialog::saveAudio(Iax2AnalysisDialog::StreamDirection direction
 
     QFile      save_file(file_path);
     gint16     sample;
-    gchar      pd[4];
+    guint8     pd[4];
     gboolean   stop_flag = FALSE;
     size_t     nchars;
 
@@ -919,8 +919,12 @@ void Iax2AnalysisDialog::saveAudio(Iax2AnalysisDialog::StreamDirection direction
     ui->hintLabel->setText(tr("Saving %1" UTF8_HORIZONTAL_ELLIPSIS).arg(save_file.fileName()));
     ui->progressFrame->showProgress(true, true, &stop_flag);
 
-    if	(save_format == save_audio_au_) { /* au format */
-        /* First we write the .au header. XXX Hope this is endian independent */
+    if	(save_format == save_audio_au_) { /* au format; http://pubs.opengroup.org/external/auformat.html */
+        /* First we write the .au header.  All values in the header are
+         * 4-byte big-endian values, so we use pntoh32() to copy them
+         * to a 4-byte buffer, in big-endian order, and then write out
+         * the buffer. */
+
         /* the magic word 0x2e736e64 == .snd */
         phton32(pd, 0x2e736e64);
         nchars = save_file.write((const char *)pd, 4);
