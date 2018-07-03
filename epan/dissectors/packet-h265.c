@@ -560,7 +560,6 @@ static const value_string h265_type_summary_values[] = {
 static const value_string h265_profile_idc_values[] = {
 	{ 1,  "Main profile" },
 	{ 2,  "Main 10" },
-	{ 2,  "Main 10 Still" },
 	{ 3,  "Main Still Picture profile" },
 	{ 4,  "Format range extensions profiles" },
 	{ 5,  "High throughput profiles" },
@@ -568,7 +567,10 @@ static const value_string h265_profile_idc_values[] = {
 	{ 0, NULL }
 };
 
+#if 0
 /* Table A.7-Tier and level limits for the video profiles */
+/* XXX - this looks as if the values are 10 times the level value
+ * in Table A.7. */
 static const value_string h265_level_bitrate_values[] = {
 	{ 10,   "128 kb/s" },
 	{ 20,   "1.5 Mb/s" },
@@ -585,6 +587,7 @@ static const value_string h265_level_bitrate_values[] = {
 	{ 62,   "240 Mb/s" },
 	{ 0, NULL }
 };
+#endif
 
 /* Table 7-7 - Name association to slice_type */
 static const value_string h265_slice_type_vals[] = {
@@ -1605,7 +1608,7 @@ dissect_h265_profile_tier_level(proto_tree* tree, tvbuff_t* tvb, packet_info* pi
 	gboolean general_profile_compatibility_flag[32] = { 0 };
 	gboolean sub_layer_profile_present_flag[32] = { 0 };
 	gboolean sub_layer_level_present_flag[32] = { 0 };
-	gboolean sub_layer_profile_compatibility_flag[32][32] = { 0 };
+	gboolean sub_layer_profile_compatibility_flag[32][32] = { { 0 } };
 
 	if (profilePresentFlag) {
 		proto_tree_add_item(tree, hf_h265_general_profile_space, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1883,7 +1886,7 @@ dissect_h265_slice_segment_layer_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_in
 static int
 dissect_h265_scaling_list_data(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo _U_, gint bit_offset)
 {
-	gboolean scaling_list_pred_mode_flag[4][6] = { 0 };
+	gboolean scaling_list_pred_mode_flag[4][6] = { { 0 } };
 	/*gint32 ScalingList[4][6][64] = { 0 };*/
 	gint sizeId, matrixId, nextCoef, coefNum, i;
 	gint32 scaling_list_dc_coef_minus8, scaling_list_delta_coef;
@@ -3030,7 +3033,7 @@ proto_register_h265(void)
 		},
 		{ &hf_h265_general_profile_idc,
 		{ "general_profile_idc", "h265.general_profile_idc",
-		FT_UINT8, BASE_DEC, NULL, 0x1F,
+		FT_UINT8, BASE_DEC, VALS(h265_profile_idc_values), 0x1F,
 		NULL, HFILL }
 		},
 		{ &hf_h265_general_progressive_source_flag,
