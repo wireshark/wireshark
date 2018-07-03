@@ -14,9 +14,12 @@
 
 #include <glib.h>
 
-/* Pointer versions of g_ntohs and g_ntohl.  Given a pointer to a member of a
- * byte array, returns the value of the two or four bytes at the pointer.
- * The pletohXX versions return the little-endian representation.
+/* Routines that take a possibly-unaligned pointer to a 16-bit, 24-bit,
+ * 32-bit, 40-bit, ... 64-bit integral quantity, in a particular byte
+ * order, and fetch the value and return it in host byte order.
+ *
+ * The pntohN() routines fetch big-endian values; the pletohN() routines
+ * fetch little-endian values.
  */
 
 static inline guint16 pntoh16(const void *p)
