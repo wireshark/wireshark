@@ -465,7 +465,6 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 	proto_item	*ti;
 	struct nstr_phdr *pnstr = &(pinfo->pseudo_header->nstr);
 	tvbuff_t	*next_tvb_eth_client;
-	guint8		offset;
 	guint8		src_vmname_len = 0, dst_vmname_len = 0;
 	guint8		variable_ns_len = 0;
 	guint32		vlan;
@@ -603,8 +602,7 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
 	if(pnstr->rec_type != NSPR_HEADER_VERSION350){
 		/* Dissect as Ethernet */
-		offset = pnstr->eth_offset;
-		next_tvb_eth_client = tvb_new_subset_remaining(tvb, offset);
+		next_tvb_eth_client = tvb_new_subset_remaining(tvb, pnstr->eth_offset);
 		call_dissector(eth_withoutfcs_handle, next_tvb_eth_client, pinfo, tree);
 	}
 

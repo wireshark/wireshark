@@ -1112,7 +1112,7 @@ struct nstr_phdr {
     guint8 nicno_len;
     guint8 dir_offset;
     guint8 dir_len;
-    guint8 eth_offset;
+    guint16 eth_offset;
     guint8 pcb_offset;
     guint8 l_pcb_offset;
     guint8 rec_type;
