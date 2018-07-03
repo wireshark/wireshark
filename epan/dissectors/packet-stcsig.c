@@ -242,7 +242,15 @@ dissect_stcsig(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 	nstime_t   timestamp;
 
 	length = tvb_captured_length(tvb);
-	if (length >= 20 && is_signature(tvb, length - 20)) {
+	if (length >= 21 && tvb_get_guint8(tvb, length - 21) == 0 && is_signature(tvb, length - 20)) {
+		bytes = 20;
+	} else if (length >= 25 && tvb_get_guint8(tvb, length - 25) == 0 && is_signature(tvb, length - 24)) {
+		/* Sigsize + 4 bytes FCS */
+		bytes = 24;
+	} else if (length >= 29 && tvb_get_guint8(tvb, length - 29) == 0 && is_signature(tvb, length - 28)) {
+		/* Sigsize + 8 bytes FCS, i.e. FibreChannel */
+		bytes = 28;
+	} else if (length >= 20 && is_signature(tvb, length - 20)) {
 		bytes = 20;
 	} else if (length >= 24 && is_signature(tvb, length - 24)) {
 		/* Sigsize + 4 bytes FCS */
