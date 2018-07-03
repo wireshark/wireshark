@@ -402,7 +402,7 @@ set( ASCIIDOC_CONF_FILES
 	# XXX Add macros
 )
 
-if(ASCIIDOCTOR_EXECUTABLE)
+if(ASCIIDOCTOR_FOUND)
 	# Generate the DocBook sources of user and developer guides
 
 	ASCIIDOCTOR2DOCBOOK(user-guide.asciidoc ${ASCIIDOC_CONF_FILES} ${WSUG_SOURCE} ${WSUG_BUILT_DEPS})
@@ -426,7 +426,7 @@ if(ASCIIDOCTOR_EXECUTABLE)
 endif()
 
 # User's Guide chain.
-if(ASCIIDOCTOR_EXECUTABLE AND XSLTPROC_EXECUTABLE)
+if(ASCIIDOCTOR_FOUND AND XSLTPROC_EXECUTABLE)
 	XML2HTML(
 		user_guide
 		wsug
@@ -453,7 +453,7 @@ if(ASCIIDOCTOR_EXECUTABLE AND XSLTPROC_EXECUTABLE)
 	list(APPEND GUIDE_INSTALL_DIRS ${CMAKE_CURRENT_BINARY_DIR}/wsug_html_chunked)
 endif()
 
-if(ASCIIDOCTOR_PDF_EXECUTABLE)
+if(ASCIIDOCTOR_FOUND AND ASCIIDOCTOR_PDF_EXECUTABLE)
 	ASCIIDOCTOR2PDF(user-guide.asciidoc ${WSUG_SOURCE} ${WSUG_BUILT_DEPS})
 
 	add_custom_target(
@@ -465,7 +465,7 @@ if(ASCIIDOCTOR_PDF_EXECUTABLE)
 	add_dependencies(user_guides user_guide_pdf)
 endif()
 
-if(WIN32 AND ASCIIDOCTOR_EXECUTABLE)
+if(WIN32 AND ASCIIDOCTOR_FOUND)
 	XML2HHP(user_guide wsug user-guide.xml)
 	HHP2CHM(user-guide.hhp)
 	add_custom_target(
@@ -478,7 +478,7 @@ if(WIN32 AND ASCIIDOCTOR_EXECUTABLE)
 endif()
 
 # Developer's Guide chain.
-if(ASCIIDOCTOR_EXECUTABLE AND XSLTPROC_EXECUTABLE)
+if(ASCIIDOCTOR_FOUND AND XSLTPROC_EXECUTABLE)
 	XML2HTML(
 		developer_guide
 		wsdg
@@ -505,7 +505,7 @@ if(ASCIIDOCTOR_EXECUTABLE AND XSLTPROC_EXECUTABLE)
 	list(APPEND GUIDE_INSTALL_DIRS ${CMAKE_CURRENT_BINARY_DIR}/wsdg_html_chunked)
 endif()
 
-if(ASCIIDOCTOR_PDF_EXECUTABLE)
+if(ASCIIDOCTOR_FOUND AND ASCIIDOCTOR_PDF_EXECUTABLE)
 	ASCIIDOCTOR2PDF(developer-guide.asciidoc ${WSDG_SOURCE} ${WSDG_BUILT_DEPS})
 
 	add_custom_target(
@@ -517,7 +517,7 @@ if(ASCIIDOCTOR_PDF_EXECUTABLE)
 	add_dependencies(developer_guides developer_guide_pdf)
 endif()
 
-if(WIN32 AND ASCIIDOCTOR_EXECUTABLE)
+if(WIN32 AND ASCIIDOCTOR_FOUND)
 	XML2HHP(developer_guide	wsdg developer-guide.xml)
 	HHP2CHM(developer-guide.hhp)
 	add_custom_target(
