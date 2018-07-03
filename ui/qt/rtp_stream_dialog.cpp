@@ -518,7 +518,7 @@ void RtpStreamDialog::on_actionExportAsRtpDump_triggered()
     if (stream_info) {
         QString file_name;
         QDir path(wsApp->lastOpenDir());
-        QString save_file = path.canonicalPath() + "/" + cap_file_.fileTitle();
+        QString save_file = path.canonicalPath() + "/" + cap_file_.fileName();
         QString extension;
         file_name = QFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save RTPDump As" UTF8_HORIZONTAL_ELLIPSIS)),
                                                  save_file, "RTPDump Format (*.rtpdump)", &extension);
