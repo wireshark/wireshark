@@ -114,11 +114,43 @@ int CaptureFile::currentRow()
     return -1;
 }
 
+const QString CaptureFile::fileTitle()
+{
+    if (isValid() && cap_file_->is_tempfile) {
+        //
+        // For a temporary file, put the source of the data
+        // in the window title, not whatever random pile
+        // of characters is the last component of the path
+        // name.
+        //
+        return cf_get_tempfile_source(cap_file_) + file_state_;
+    } else {
+        return fileName() + file_state_;
+    }
+}
+
 const QString CaptureFile::fileName()
 {
     if (isValid()) {
-        QFileInfo cfi(QString::fromUtf8(cap_file_->filename));
-        file_name_ = cfi.fileName();
+        //
+        // Sadly, some UN*Xes don't necessarily use UTF-8
+        // for their file names, so we have to map the
+        // file path to UTF-8.  If that fails, we're somewhat
+        // stuck.
+        //
+        char *utf8_filename = g_filename_to_utf8(cap_file_->filename,
+                                                 -1,
+                                                 NULL,
+                                                 NULL,
+                                                 NULL);
+        if (utf8_filename) {
+            QFileInfo cfi(QString::fromUtf8(utf8_filename));
+            file_name_ = cfi.fileName();
+            g_free(utf8_filename);
+        } else {
+            // So what the heck else can we do here?
+            file_name_ = tr("(File name can't be mapped to UTF-8)");
+        }
     }
 
     return file_name_;

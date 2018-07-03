@@ -42,12 +42,26 @@ public:
      */
     int currentRow();
 
-    /** Return a filename suitable for use in a window title.
+    /** Return a string representing the file suitable for use in a
+     *  window title.
      *
-     * @return One of: the basename of the capture file without an extension,
-     *  the basename followed by "[closing]", "[closed]", or "[no capture file]".
+     * @return One of:
+     *
+     *    the devices on which the capture was done, if the file is a
+     *    temporary file for a capture;
+     *
+     *    the last component of the capture file's name, if it's a
+     *    permanent file and isn't being closed;
+     *
+     *    the last component of the capture file's name, followed
+     *    by [closing], if it's a permanent file and is being closed;
+     *
+     *    the last component of the capture file's name, followed
+     *    by [closed], if it's a permanent file and has been closed;
+     *
+     *    [no capture file], if there is no capture file.
      */
-    const QString fileTitle() { return fileName() + file_state_; }
+    const QString fileTitle();
 
     /** Return the plain filename.
      *
