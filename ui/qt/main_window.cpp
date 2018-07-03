@@ -2146,43 +2146,7 @@ void MainWindow::initExportObjectsMenus()
 void MainWindow::setTitlebarForCaptureFile()
 {
     if (capture_file_.capFile() && capture_file_.capFile()->filename) {
-        if (capture_file_.capFile()->is_tempfile) {
-            //
-            // For a temporary file, put the source of the data
-            // in the window title, not whatever random pile
-            // of characters is the last component of the path
-            // name.
-            //
-            // XXX - on non-Mac platforms, put in the application
-            // name?
-            //
-            setWSWindowTitle(QString("[*]%1").arg(cf_get_tempfile_source(capture_file_.capFile())));
-        } else {
-            //
-            // For a user file, set the full path; that way,
-            // for macOS, it'll set the "proxy icon".  Qt
-            // handles extracting the last component.
-            //
-            // Sadly, some UN*Xes don't necessarily use UTF-8
-            // for their file names, so we have to map the
-            // file path to UTF-8.  If that fails, we're somewhat
-            // stuck.
-            //
-            char *utf8_filename = g_filename_to_utf8(capture_file_.capFile()->filename,
-                                                     -1,
-                                                     NULL,
-                                                     NULL,
-                                                     NULL);
-            if (utf8_filename) {
-                QFileInfo fi(utf8_filename);
-                setWSWindowTitle(QString("[*]%1").arg(fi.fileName()));
-                setWindowFilePath(utf8_filename);
-                g_free(utf8_filename);
-            } else {
-                // So what the heck else can we do here?
-                setWSWindowTitle(tr("(File name can't be mapped to UTF-8)"));
-            }
-        }
+        setWSWindowTitle(QString("[*]%1").arg(capture_file_.fileTitle()));
         setWindowModified(cf_has_unsaved_data(capture_file_.capFile()));
     } else {
         /* We have no capture file. */
