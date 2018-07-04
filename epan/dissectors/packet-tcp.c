@@ -1061,6 +1061,7 @@ follow_tcp_tap_listener(void *tapdata, packet_info *pinfo,
     follow_record_t *follow_record, *frag_follow_record;
     follow_info_t *follow_info = (follow_info_t *)tapdata;
     const tcp_follow_tap_data_t *follow_data = (const tcp_follow_tap_data_t *)data;
+    gboolean is_server;
     guint32 sequence = follow_data->tcph->th_seq;
     guint32 length = follow_data->tcph->th_seglen;
     guint32 data_length = tvb_captured_length(follow_data->tvb);
@@ -1081,19 +1082,17 @@ follow_tcp_tap_listener(void *tapdata, packet_info *pinfo,
         copy_address(&follow_info->server_ip, &pinfo->dst);
     }
 
-    if (addresses_equal(&follow_info->client_ip, &pinfo->src) && follow_info->client_port == pinfo->srcport)
-        follow_record->is_server = FALSE;
-    else
-        follow_record->is_server = TRUE;
+    is_server = !(addresses_equal(&follow_info->client_ip, &pinfo->src) && follow_info->client_port == pinfo->srcport);
+    follow_record->is_server = is_server;
 
     /* update stream counter */
 
-    if (follow_info->bytes_written[follow_record->is_server] == 0) {
-        follow_info->seq[follow_record->is_server] = sequence + length;
+    if (follow_info->bytes_written[is_server] == 0) {
+        follow_info->seq[is_server] = sequence + length;
         if (follow_data->tcph->th_flags & TH_SYN)
-            follow_info->seq[follow_record->is_server]++;
+            follow_info->seq[is_server]++;
 
-        follow_info->bytes_written[follow_record->is_server] += follow_record->data->len;
+        follow_info->bytes_written[is_server] += follow_record->data->len;
         follow_info->payload = g_list_prepend(follow_info->payload, follow_record);
         return FALSE;
     }
@@ -1103,24 +1102,24 @@ follow_tcp_tap_listener(void *tapdata, packet_info *pinfo,
     * not in the capture file, but were actually seen by the
     * receiving host (Fixes bug 592).
     */
-    if (follow_info->fragments[follow_record->is_server] != NULL)
+    if (follow_info->fragments[is_server] != NULL)
     {
-        while(check_follow_fragments(follow_info, follow_record->is_server, follow_data->tcph->th_ack, pinfo->fd->num));
+        while(check_follow_fragments(follow_info, is_server, follow_data->tcph->th_ack, pinfo->fd->num));
     }
 
     /* if we are here, we have already seen this src, let's
         try and figure out if this packet is in the right place */
-    if( LT_SEQ(sequence, follow_info->seq[follow_record->is_server]) ) {
+    if( LT_SEQ(sequence, follow_info->seq[is_server]) ) {
         /* this sequence number seems dated, but
            check the end to make sure it has no more
            info than we have already seen */
         newseq = sequence + length;
-        if( GT_SEQ(newseq, follow_info->seq[follow_record->is_server])) {
+        if( GT_SEQ(newseq, follow_info->seq[is_server])) {
             guint32 new_len;
 
             /* this one has more than we have seen. let's get the
                payload that we have not seen. */
-            new_len = follow_info->seq[follow_record->is_server] - sequence;
+            new_len = follow_info->seq[is_server] - sequence;
 
             if ( data_length <= new_len ) {
                 data_length = 0;
@@ -1128,38 +1127,38 @@ follow_tcp_tap_listener(void *tapdata, packet_info *pinfo,
                 data_length -= new_len;
             }
 
-            sequence = follow_info->seq[follow_record->is_server];
-            length = newseq - follow_info->seq[follow_record->is_server];
+            sequence = follow_info->seq[is_server];
+            length = newseq - follow_info->seq[is_server];
 
             /* this will now appear to be right on time :) */
         }
     }
-    if ( EQ_SEQ(sequence, follow_info->seq[follow_record->is_server]) ) {
+    if ( EQ_SEQ(sequence, follow_info->seq[is_server]) ) {
         /* right on time */
-        follow_info->seq[follow_record->is_server] += length;
+        follow_info->seq[is_server] += length;
         if (follow_data->tcph->th_flags & TH_SYN)
-            follow_info->seq[follow_record->is_server]++;
+            follow_info->seq[is_server]++;
         if (data_length > 0) {
-            follow_info->bytes_written[follow_record->is_server] += follow_record->data->len;
+            follow_info->bytes_written[is_server] += follow_record->data->len;
             follow_info->payload = g_list_prepend(follow_info->payload, follow_record);
             added_follow_record = TRUE;
         }
 
         /* done with the packet, see if it caused a fragment to fit */
-        while(check_follow_fragments(follow_info, follow_record->is_server, 0, pinfo->fd->num));
+        while(check_follow_fragments(follow_info, is_server, 0, pinfo->fd->num));
     } else {
         /* out of order packet */
-        if(data_length > 0 && GT_SEQ(sequence, follow_info->seq[follow_record->is_server]) ) {
+        if(data_length > 0 && GT_SEQ(sequence, follow_info->seq[is_server]) ) {
             frag_follow_record = g_new0(follow_record_t,1);
 
             frag_follow_record->data = g_byte_array_append(g_byte_array_new(),
                                                       tvb_get_ptr(follow_data->tvb, 0 /* POTENTIAL OFFSET COMPUTED */, -1),
                                                       data_length);
             frag_follow_record->packet_num = pinfo->fd->num;
-            frag_follow_record->is_server = follow_record->is_server;
+            frag_follow_record->is_server = is_server;
             frag_follow_record->seq = sequence;
 
-            follow_info->fragments[follow_record->is_server] = g_list_append(follow_info->fragments[follow_record->is_server], frag_follow_record);
+            follow_info->fragments[is_server] = g_list_append(follow_info->fragments[is_server], frag_follow_record);
         }
     }
     if (!added_follow_record) {
