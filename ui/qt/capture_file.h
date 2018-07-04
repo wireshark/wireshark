@@ -75,7 +75,7 @@ public:
      *
      *    [no capture file], if there is no capture file.
      */
-    const QString fileTitle();
+    const QString fileDisplayName();
 
     /** Return the current packet information.
      *

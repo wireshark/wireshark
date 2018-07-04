@@ -2146,7 +2146,7 @@ void MainWindow::initExportObjectsMenus()
 void MainWindow::setTitlebarForCaptureFile()
 {
     if (capture_file_.capFile() && capture_file_.capFile()->filename) {
-        setWSWindowTitle(QString("[*]%1").arg(capture_file_.fileTitle()));
+        setWSWindowTitle(QString("[*]%1").arg(capture_file_.fileDisplayName()));
         //
         // XXX - on non-Mac platforms, put in the application
         // name?  Or do so only for temporary files?
