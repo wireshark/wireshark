@@ -820,8 +820,11 @@ dissect_kafka_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int s
                 }
                 offset += tvb_captured_length(raw);
             }
-            break;
+#else
+            decrypt_item = proto_tree_add_item(subtree, hf_kafka_message_value, raw, 0, -1, ENC_NA);
+            expert_add_info_format(pinfo, decrypt_item, &ei_kafka_message_decompress, "Wireshark not compiled with snappy support");
 #endif
+            break;
         case KAFKA_MESSAGE_CODEC_LZ4:
 #ifdef HAVE_LZ4FRAME_H
             raw = kafka_get_bytes(subtree, tvb, pinfo, offset);
@@ -912,8 +915,11 @@ dissect_kafka_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int s
                 }
                 offset += compressed_size;
             }
-            break;
+#else
+            decrypt_item = proto_tree_add_item(subtree, hf_kafka_message_value, raw, 0, -1, ENC_NA);
+            expert_add_info_format(pinfo, decrypt_item, &ei_kafka_message_decompress, "Wireshark not compiled with LZ4 support");
 #endif /* HAVE_LZ4FRAME_H */
+            break;
 
         case KAFKA_MESSAGE_CODEC_NONE:
         default:
