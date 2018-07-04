@@ -142,7 +142,7 @@ follow_info_free(follow_info_t* follow_info)
     GList *cur;
     follow_record_t *follow_record;
 
-    for(cur = follow_info->payload; cur; cur = g_list_next(cur)) {
+    for (cur = follow_info->payload; cur; cur = g_list_next(cur)) {
         if(cur->data) {
             follow_record = (follow_record_t *)cur->data;
             if(follow_record->data)
@@ -206,7 +206,7 @@ follow_tvb_tap_listener(void *tapdata, packet_info *pinfo,
     /* update stream counter */
     follow_info->bytes_written[follow_record->is_server] += follow_record->data->len;
 
-    follow_info->payload = g_list_append(follow_info->payload, follow_record);
+    follow_info->payload = g_list_prepend(follow_info->payload, follow_record);
     return FALSE;
 }
 

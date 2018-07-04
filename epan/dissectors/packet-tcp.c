@@ -1001,7 +1001,7 @@ check_follow_fragments(follow_info_t *follow_info, gboolean is_server, guint32 a
                                                               fragment->data->data + new_pos,
                                                               new_frag_size);
 
-                    follow_info->payload = g_list_append(follow_info->payload, follow_record);
+                    follow_info->payload = g_list_prepend(follow_info->payload, follow_record);
                 }
 
                 follow_info->seq[is_server] += (fragment->data->len - new_pos);
@@ -1019,7 +1019,7 @@ check_follow_fragments(follow_info_t *follow_info, gboolean is_server, guint32 a
         if( EQ_SEQ(fragment->seq, follow_info->seq[is_server]) ) {
             /* this fragment fits the stream */
             if( fragment->data->len > 0 ) {
-                follow_info->payload = g_list_append(follow_info->payload, fragment);
+                follow_info->payload = g_list_prepend(follow_info->payload, fragment);
             }
 
             follow_info->seq[is_server] += fragment->data->len;
@@ -1047,7 +1047,7 @@ check_follow_fragments(follow_info_t *follow_info, gboolean is_server, guint32 a
         follow_record->seq = lowest_seq;
 
         follow_info->seq[is_server] = lowest_seq;
-        follow_info->payload = g_list_append(follow_info->payload, follow_record);
+        follow_info->payload = g_list_prepend(follow_info->payload, follow_record);
         return TRUE;
     }
 
@@ -1094,7 +1094,7 @@ follow_tcp_tap_listener(void *tapdata, packet_info *pinfo,
             follow_info->seq[follow_record->is_server]++;
 
         follow_info->bytes_written[follow_record->is_server] += follow_record->data->len;
-        follow_info->payload = g_list_append(follow_info->payload, follow_record);
+        follow_info->payload = g_list_prepend(follow_info->payload, follow_record);
         return FALSE;
     }
 
@@ -1141,7 +1141,7 @@ follow_tcp_tap_listener(void *tapdata, packet_info *pinfo,
             follow_info->seq[follow_record->is_server]++;
         if (data_length > 0) {
             follow_info->bytes_written[follow_record->is_server] += follow_record->data->len;
-            follow_info->payload = g_list_append(follow_info->payload, follow_record);
+            follow_info->payload = g_list_prepend(follow_info->payload, follow_record);
             added_follow_record = TRUE;
         }
 
