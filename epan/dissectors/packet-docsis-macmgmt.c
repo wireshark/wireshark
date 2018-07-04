@@ -120,6 +120,15 @@ void proto_reg_handoff_docsis_mgmt(void);
 #define MGT_OCD 49
 #define MGT_DPD 50
 #define MGT_TYPE51UCD 51
+#define MGT_ODS_REQ 52
+#define MGT_ODS_RSP 53
+#define MGT_OPT_REQ 54
+#define MGT_OPT_RSP 55
+#define MGT_OPT_ACK 56
+#define MGT_DPT_REQ 57
+#define MGT_DPT_RSP 58
+#define MGT_DPT_ACK 59
+#define MGT_DPT_INFO 60
 
 #define UCD_SYMBOL_RATE 1
 #define UCD_FREQUENCY 2
@@ -524,6 +533,13 @@ void proto_reg_handoff_docsis_mgmt(void);
 #define SUBCARRIER_ASSIGNMENT_RANGE_SKIPBY1 1
 #define SUBCARRIER_ASSIGNMENT_LIST 2
 
+#define OPT_REQ_REQ_STAT 1
+#define OPT_REQ_RXMER_THRESH_PARAMS 2
+#define OPT_REQ_RXMER_THRESH_PARAMS_MODULATION_ORDER 1
+
+#define OPT_RSP_RXMER_AND_SNR_MARGIN_DATA 1
+#define OPT_RSP_RXMER_PER_SUBCARRIER 1
+#define OPT_RSP_SNR_MARGIN 4
 
 static int proto_docsis_mgmt = -1;
 static int proto_docsis_sync = -1;
@@ -569,6 +585,9 @@ static int proto_docsis_regrspmp = -1;
 static int proto_docsis_ocd = -1;
 static int proto_docsis_dpd = -1;
 static int proto_docsis_type51ucd = -1;
+static int proto_docsis_optreq = -1;
+static int proto_docsis_optrsp = -1;
+static int proto_docsis_optack = -1;
 
 static int hf_docsis_sync_cmts_timestamp = -1;
 
@@ -1032,6 +1051,42 @@ static int hf_docsis_dpd_tlv_data = -1;
 static int hf_docsis_dpd_type = -1;
 static int hf_docsis_dpd_length = -1;
 
+static int hf_docsis_optreq_tlv_unknown = -1;
+static int hf_docsis_optreq_prof_id = -1;
+static int hf_docsis_optreq_opcode = -1;
+static int hf_docsis_optreq_reserved = -1;
+static int hf_docsis_optreq_tlv_data = -1;
+static int hf_docsis_optreq_type = -1;
+static int hf_docsis_optreq_length = -1;
+static int hf_docsis_optreq_reqstat_rxmer_stat_subc = -1;
+static int hf_docsis_optreq_reqstat_rxmer_subc_threshold_comp = -1;
+static int hf_docsis_optreq_reqstat_snr_marg_cand_prof = -1;
+static int hf_docsis_optreq_reqstat_codew_stat_cand_prof = -1;
+static int hf_docsis_optreq_reqstat_codew_thresh_comp_cand_prof = -1;
+static int hf_docsis_optreq_reqstat_ncp_field_stat = -1;
+static int hf_docsis_optreq_reqstat_ncp_crc_thresh_comp = -1;
+static int hf_docsis_optreq_reqstat_reserved = -1;
+static int hf_docsis_optreq_tlv_xrmer_thresh_data = -1;
+static int hf_docsis_optreq_xmer_thresh_params_type = -1;
+static int hf_docsis_optreq_xmer_thresh_params_length = -1;
+static int hf_docsis_optreq_tlv_xrmer_thresh_data_mod_order = -1;
+
+static int hf_docsis_optrsp_tlv_unknown = -1;
+static int hf_docsis_optrsp_prof_id = -1;
+static int hf_docsis_optrsp_reserved = -1;
+static int hf_docsis_optrsp_status = -1;
+static int hf_docsis_optrsp_tlv_data = -1;
+static int hf_docsis_optrsp_type = -1;
+static int hf_docsis_optrsp_length = -1;
+static int hf_docsis_optrsp_tlv_xrmer_snr_margin_data = -1;
+static int hf_docsis_optrsp_xmer_snr_margin_type = -1;
+static int hf_docsis_optrsp_xmer_snr_margin_length = -1;
+static int hf_docsis_optrsp_tlv_xrmer_snr_margin_data_rxmer_subc = -1;
+static int hf_docsis_optrsp_tlv_rxmer_snr_margin_data_snr_margin = -1;
+
+static int hf_docsis_optack_prof_id = -1;
+static int hf_docsis_optack_reserved = -1;
+
 static int hf_docsis_mgt_upstream_chid = -1;
 static int hf_docsis_mgt_down_chid = -1;
 static int hf_docsis_mgt_tranid = -1;
@@ -1176,6 +1231,20 @@ static gint ett_docsis_dpd_tlvtlv = -1;
 static gint ett_docsis_dpd_tlv_subcarrier_assignment = -1;
 static gint ett_docsis_dpd_tlv_subcarrier_assignment_vector = -1;
 
+static gint ett_docsis_optreq = -1;
+static gint ett_docsis_optreq_tlv = -1;
+static gint ett_docsis_optreq_tlvtlv = -1;
+static gint ett_docsis_optreq_tlv_rxmer_thresh_params = -1;
+static gint ett_docsis_optreq_tlv_rxmer_thresh_params_tlv = -1;
+
+static gint ett_docsis_optrsp = -1;
+static gint ett_docsis_optrsp_tlv = -1;
+static gint ett_docsis_optrsp_tlvtlv = -1;
+static gint ett_docsis_optrsp_tlv_rxmer_snr_margin_data = -1;
+static gint ett_docsis_optrsp_tlv_rxmer_snr_margin_tlv =-1;
+
+static gint ett_docsis_optack = -1;
+
 static gint ett_docsis_mgmt = -1;
 static gint ett_mgmt_pay = -1;
 
@@ -1306,6 +1375,16 @@ static const value_string mgmt_type_vals[] = {
   {MGT_OCD,            "OFDM Channel Descriptor"},
   {MGT_DPD,            "Downstream Profile Descriptor"},
   {MGT_TYPE51UCD,      "Upstream Channel Descriptor Type 51"},
+  {MGT_ODS_REQ,        "ODS-REQ"},
+  {MGT_ODS_RSP,        "ODS-RSP"},
+  {MGT_OPT_REQ,        "OFDM Downstream Profile Test Request"},
+  {MGT_OPT_RSP,        "OFDM Downstream Profile Test Response"},
+  {MGT_OPT_ACK,        "OFDM Downstream Profile Test Acknowledge"},
+  {MGT_OPT_ACK,        "OFDM Downstream Profile Test Acknowledge"},
+  {MGT_DPT_REQ,        "DOCSIS Time Protocol Request"},
+  {MGT_DPT_RSP,        "DOCSIS Time Protocol Response"},
+  {MGT_DPT_ACK,        "DOCSIS Time Protocol Acknowledge"},
+  {MGT_DPT_INFO,       "DOCSIS Time Protocol Information"},
   {0, NULL}
 };
 
@@ -2039,6 +2118,87 @@ static const value_string ofdma_prof_mod_order[] = {
   {0, NULL}
 };
 
+static const value_string profile_id_vals[] = {
+  {0, "Profile A"},
+  {1, "Profile B"},
+  {2, "Profile C"},
+  {3, "Profile D"},
+  {4, "Profile E"},
+  {5, "Profile F"},
+  {6, "Profile G"},
+  {7, "Profile H"},
+  {8, "Profile I"},
+  {9, "Profile J"},
+  {10, "Profile K"},
+  {11, "Profile L"},
+  {12, "Profile M"},
+  {13, "Profile N"},
+  {14, "Profile O"},
+  {15, "Profile P"},
+  {254, "Profile for RxMER statistics only"},
+  {255, "NCP Profile"},
+  {0, NULL}
+};
+
+static const value_string opt_opcode_vals[] = {
+  {1, "Start"},
+  {2, "Abort"},
+  {0, NULL}
+};
+
+static const value_string opt_status_vals[] = {
+  {1, "Testing"},
+  {2, "Profile already testing from another request"},
+  {3, "No free profile resource on CM"},
+  {4, "Maximum duration expired"},
+  {5, "Aborted"},
+  {6, "Complete"},
+  {7, "Profile already assigned to the CM"},
+  {0, NULL}
+};
+
+static const value_string optreq_tlv_vals[] = {
+  {OPT_REQ_REQ_STAT, "Requested Statistics"},
+  {OPT_REQ_RXMER_THRESH_PARAMS, "RxMER Thresholding Parameters"},
+  {0, NULL}
+};
+
+static const value_string optreq_tlv_rxmer_thresh_params_vals[] = {
+  {OPT_REQ_RXMER_THRESH_PARAMS_MODULATION_ORDER, "Modulation Order"},
+  {0, NULL}
+};
+
+static const value_string opreq_tlv_rxmer_thresh_params_mod_order[] = {
+  {0, "reserved"},
+  {1, "reserved"},
+  {2, "QPSK"},
+  {3, "reserved"},
+  {4, "16-QAM"},
+  {5, "reserved"},
+  {6, "64-QAM"},
+  {7, "128-QAM"},
+  {8, "256-QAM"},
+  {9, "512-QAM"},
+  {10, "1024-QAM"},
+  {11, "2048-QAM"},
+  {12, "4096-QAM"},
+  {13, "8192-QAM"},
+  {14, "16384-QAM"},
+  {15, "reserved"},
+  {0, NULL}
+};
+
+static const value_string optrsp_tlv_vals [] = {
+  {OPT_RSP_RXMER_AND_SNR_MARGIN_DATA, "RxMER and SNR Margin Data"},
+  {0, NULL}
+};
+
+static const value_string optrsp_tlv_rxmer_snr_margin_vals [] = {
+  {OPT_RSP_RXMER_PER_SUBCARRIER, "RxMER per Subcarrier"},
+  {0, NULL}
+};
+
+
 /* Windows does not allow data copy between dlls */
 static const true_false_string mdd_tfs_on_off = { "On", "Off" };
 static const true_false_string mdd_tfs_en_dis = { "Enabled", "Disabled" };
@@ -2048,6 +2208,8 @@ static const true_false_string tfs_ucd_change_ind_vals = {"Changes", "No changes
 static const true_false_string tfs_allow_inhibit = { "Inhibit Initial Ranging", "Ranging Allowed" };
 const true_false_string type35ucd_tfs_present_not_present = { "UCD35 is present for this UCID",
                                                               "UCD35 is not present for this UCID" };
+
+static const true_false_string req_not_req_tfs = {"Requested", "Not Requested"};
 
 static const value_string unique_unlimited[] = {
   { 0, "Unlimited" },
@@ -2069,6 +2231,12 @@ ofdma_ir_pow_ctrl_step_size(char *buf, guint32 value)
 }
 
 static void
+mer_fourth_db(char *buf, guint32 value)
+{
+    g_snprintf(buf, ITEM_LABEL_LENGTH, "%f dB", value/4.0);
+}
+
+static void
 subc_assign_range(char *buf, guint32 value)
 {
     g_snprintf(buf, ITEM_LABEL_LENGTH, "%u - %u", value >> 16, value &0xFFFF);
@@ -2076,6 +2244,7 @@ subc_assign_range(char *buf, guint32 value)
 
 
 static reassembly_table docsis_tlv_reassembly_table;
+static reassembly_table docsis_opt_tlv_reassembly_table;
 
 static const fragment_items docsis_tlv_frag_items = {
   &ett_docsis_tlv_fragment,
@@ -5962,6 +6131,360 @@ dissect_type51ucd(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* 
   return dissect_any_ucd(tvb, pinfo, tree, proto_docsis_type51ucd, MGT_TYPE51UCD);
 }
 
+static void
+dissect_optreq_tlv_rxmer_thresholding_parameters (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+{
+  proto_item *it, *tlv_item, *tlv_len_item;
+  proto_tree *tlv_tree;
+  guint pos = 0;
+  guint length;
+  guint8 type;
+
+  it = proto_tree_add_item(tree, hf_docsis_optreq_tlv_xrmer_thresh_data, tvb, 0, tvb_reported_length(tvb), ENC_NA);
+  tlv_tree = proto_item_add_subtree (it, ett_docsis_optreq_tlv_rxmer_thresh_params);
+
+  while (tvb_reported_length_remaining(tvb, pos) > 0)
+  {
+    type = tvb_get_guint8 (tvb, pos);
+    tlv_tree = proto_tree_add_subtree(tlv_tree, tvb, pos, -1,
+                                            ett_docsis_optreq_tlv_rxmer_thresh_params_tlv, &tlv_item,
+                                            val_to_str(type, optreq_tlv_rxmer_thresh_params_vals,
+                                                       "Unknown TLV (%u)"));
+    proto_tree_add_uint (tlv_tree, hf_docsis_optreq_xmer_thresh_params_type, tvb, pos, 1, type);
+    pos++;
+    tlv_len_item = proto_tree_add_item_ret_uint (tlv_tree, hf_docsis_optreq_xmer_thresh_params_length, tvb, pos, 1, ENC_NA, &length);
+    pos++;
+
+
+    switch (type)
+    {
+    case OPT_REQ_RXMER_THRESH_PARAMS_MODULATION_ORDER:
+      if (length == 1)
+      {
+        proto_tree_add_item(tree, hf_docsis_optreq_tlv_xrmer_thresh_data_mod_order, tvb, pos, length, ENC_NA);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    default:
+      proto_tree_add_item (tlv_tree, hf_docsis_optreq_tlv_unknown, tvb, pos - 2, length+2, ENC_NA);
+      expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvtype_unknown, "Unknown TLV: %u", type);
+      break;
+    } /* switch */
+    pos += length;
+  } /* while */
+}
+
+static void
+dissect_optreq_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+{
+  proto_item *it, *tlv_item, *tlv_len_item;
+  proto_tree *tlv_tree;
+  guint pos = 0;
+  guint length;
+  guint8 type;
+  tvbuff_t *next_tvb;
+
+  it = proto_tree_add_item(tree, hf_docsis_optreq_tlv_data, tvb, 0, tvb_reported_length(tvb), ENC_NA);
+  tlv_tree = proto_item_add_subtree (it, ett_docsis_optreq_tlv);
+
+  while (tvb_reported_length_remaining(tvb, pos) > 0)
+  {
+    type = tvb_get_guint8 (tvb, pos);
+    tlv_tree = proto_tree_add_subtree(tlv_tree, tvb, pos, -1,
+                                            ett_docsis_optreq_tlvtlv, &tlv_item,
+                                            val_to_str(type, optreq_tlv_vals,
+                                                       "Unknown TLV (%u)"));
+    proto_tree_add_uint (tlv_tree, hf_docsis_optreq_type, tvb, pos, 1, type);
+    pos++;
+    tlv_len_item = proto_tree_add_item_ret_uint (tlv_tree, hf_docsis_optreq_length, tvb, pos, 1, ENC_NA, &length);
+    pos++;
+
+
+    switch (type)
+    {
+    case OPT_REQ_REQ_STAT:
+      if (length == 1)
+      {
+
+         static const int * req_stat[] = {
+           &hf_docsis_optreq_reqstat_rxmer_stat_subc,
+           &hf_docsis_optreq_reqstat_rxmer_subc_threshold_comp,
+           &hf_docsis_optreq_reqstat_snr_marg_cand_prof,
+           &hf_docsis_optreq_reqstat_codew_stat_cand_prof,
+           &hf_docsis_optreq_reqstat_codew_thresh_comp_cand_prof,
+           &hf_docsis_optreq_reqstat_ncp_field_stat,
+           &hf_docsis_optreq_reqstat_ncp_crc_thresh_comp,
+           &hf_docsis_optreq_reqstat_reserved,
+           NULL
+         };
+
+         proto_tree_add_bitmask_list(tlv_tree, tvb, pos, length, req_stat, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case OPT_REQ_RXMER_THRESH_PARAMS:
+      next_tvb = tvb_new_subset_length(tvb, pos, length);
+      dissect_optreq_tlv_rxmer_thresholding_parameters(next_tvb, pinfo, tlv_tree);
+      break;
+    default:
+      proto_tree_add_item (tlv_tree, hf_docsis_optreq_tlv_unknown, tvb, pos - 2, length+2, ENC_NA);
+      expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvtype_unknown, "Unknown TLV: %u", type);
+      break;
+    } /* switch */
+    pos += length;
+  } /* while */
+}
+
+static int
+dissect_optreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data  _U_)
+{
+  proto_item *it;
+  proto_tree *opt_tree;
+  tvbuff_t *next_tvb;
+
+  guint32 downstream_channel_id, profile_identifier, opcode;
+
+  it = proto_tree_add_item(tree, proto_docsis_optreq, tvb, 0, -1, ENC_NA);
+  opt_tree = proto_item_add_subtree (it, ett_docsis_optreq);
+  proto_tree_add_item (opt_tree, hf_docsis_optreq_reserved, tvb, 0, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint (opt_tree, hf_docsis_mgt_down_chid, tvb, 2, 1, ENC_BIG_ENDIAN, &downstream_channel_id);
+  proto_tree_add_item_ret_uint (opt_tree, hf_docsis_optreq_prof_id, tvb, 3, 1, ENC_BIG_ENDIAN, &profile_identifier);
+  proto_tree_add_item_ret_uint (opt_tree, hf_docsis_optreq_opcode, tvb, 4, 1, ENC_BIG_ENDIAN, &opcode);
+
+  col_add_fstr (pinfo->cinfo, COL_INFO, "OPT-REQ: DS CH ID: %u, Profile ID: %s (%u), Opcode: %s (%u)", downstream_channel_id,
+                              val_to_str(profile_identifier, profile_id_vals, "Unknown Profile ID (%u)"), profile_identifier,
+                              val_to_str(opcode, opt_opcode_vals, "Unknown Opcode (%u)"), opcode);
+
+  /* Call Dissector TLV's */
+  if(tvb_reported_length_remaining(tvb, 5) > 0 )
+  {
+    next_tvb = tvb_new_subset_remaining(tvb, 5);
+    dissect_optreq_tlv(next_tvb, pinfo, opt_tree);
+  }
+
+  return tvb_reported_length(tvb);
+}
+
+static void
+dissect_optrsp_tlv_rxmer_and_snr_margin_data (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+{
+  proto_item *it, *tlv_item, *tlv_len_item;
+  proto_tree *tlv_tree;
+  guint pos = 0;
+  guint length;
+  guint8 type;
+  guint number_of_subcarriers = 0;
+  guint i;
+
+  it = proto_tree_add_item(tree, hf_docsis_optrsp_tlv_xrmer_snr_margin_data, tvb, 0, tvb_reported_length(tvb), ENC_NA);
+  tlv_tree = proto_item_add_subtree (it, ett_docsis_optrsp_tlv_rxmer_snr_margin_data);
+
+  while (tvb_reported_length_remaining(tvb, pos) > 0)
+  {
+    type = tvb_get_guint8 (tvb, pos);
+    tlv_tree = proto_tree_add_subtree(tlv_tree, tvb, pos, -1,
+                                            ett_docsis_optrsp_tlv_rxmer_snr_margin_tlv, &tlv_item,
+                                            val_to_str(type, optrsp_tlv_rxmer_snr_margin_vals,
+                                                       "Unknown TLV (%u)"));
+    proto_tree_add_uint (tlv_tree, hf_docsis_optrsp_xmer_snr_margin_type, tvb, pos, 1, type);
+    pos++;
+    tlv_len_item = proto_tree_add_item_ret_uint (tlv_tree, hf_docsis_optrsp_xmer_snr_margin_length, tvb, pos, 2, ENC_NA, &length);
+    pos+=2;
+
+
+    switch (type)
+    {
+    case OPT_RSP_RXMER_PER_SUBCARRIER:
+      if ((guint) tvb_reported_length_remaining(tvb, pos) < length)
+      {
+        number_of_subcarriers = tvb_reported_length_remaining(tvb,pos);
+      } else {
+        number_of_subcarriers = length;
+      }
+      for(i=0; i < number_of_subcarriers;++i)
+      {
+        proto_tree_add_item(tlv_tree, hf_docsis_optrsp_tlv_xrmer_snr_margin_data_rxmer_subc, tvb, pos+i, 1, ENC_NA);
+      }
+      break;
+    case OPT_RSP_SNR_MARGIN:
+      if (length == 1)
+      {
+        proto_tree_add_item(tree, hf_docsis_optrsp_tlv_rxmer_snr_margin_data_snr_margin, tvb, pos, length, ENC_NA);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    default:
+      proto_tree_add_item (tlv_tree, hf_docsis_optrsp_tlv_unknown, tvb, pos - 2, length+2, ENC_NA);
+      expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvtype_unknown, "Unknown TLV: %u", type);
+      break;
+    } /* switch */
+    pos += length;
+  } /* while */
+}
+
+static void
+dissect_optrsp_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+{
+  proto_item *it, *tlv_item;
+  proto_tree *tlv_tree;
+  guint pos = 0;
+  guint length;
+  guint8 type;
+  tvbuff_t *next_tvb;
+
+
+  it = proto_tree_add_item(tree, hf_docsis_optrsp_tlv_data, tvb, 0, tvb_reported_length(tvb), ENC_NA);
+  tlv_tree = proto_item_add_subtree (it, ett_docsis_optrsp_tlv);
+
+  while (tvb_reported_length_remaining(tvb, pos) > 0)
+  {
+    type = tvb_get_guint8 (tvb, pos);
+    tlv_tree = proto_tree_add_subtree(tlv_tree, tvb, pos, -1,
+                                            ett_docsis_optrsp_tlvtlv, &tlv_item,
+                                            val_to_str(type, optrsp_tlv_vals,
+                                                       "Unknown TLV (%u)"));
+    proto_tree_add_uint (tlv_tree, hf_docsis_optrsp_type, tvb, pos, 1, type);
+    pos++;
+    proto_tree_add_item_ret_uint (tlv_tree, hf_docsis_optrsp_length, tvb, pos, 2, ENC_NA, &length);
+    pos+=2;
+
+    switch (type)
+    {
+    case OPT_RSP_RXMER_AND_SNR_MARGIN_DATA:
+      if ((guint) tvb_reported_length_remaining(tvb, pos) < length) {
+        next_tvb = tvb_new_subset_remaining(tvb, pos);
+      } else {
+        next_tvb = tvb_new_subset_length(tvb, pos, length);
+      }
+      dissect_optrsp_tlv_rxmer_and_snr_margin_data(next_tvb, pinfo, tlv_tree);
+      break;
+    default:
+      proto_tree_add_item (tlv_tree, hf_docsis_dpd_tlv_unknown, tvb, pos - 2, length+2, ENC_NA);
+      expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvtype_unknown, "Unknown TLV: %u", type);
+      break;
+    } /* switch */
+    pos += length;
+  } /* while */
+}
+
+static int
+dissect_optrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data  _U_)
+{
+  proto_item *it;
+  proto_tree *opt_tree;
+  address save_src, save_dst;
+
+  guint32 downstream_channel_id, profile_identifier, status;
+
+  it = proto_tree_add_item(tree, proto_docsis_optrsp, tvb, 0, -1, ENC_NA);
+  opt_tree = proto_item_add_subtree (it, ett_docsis_optrsp);
+  proto_tree_add_item (opt_tree, hf_docsis_optrsp_reserved, tvb, 0, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint (opt_tree, hf_docsis_mgt_down_chid, tvb, 2, 1, ENC_BIG_ENDIAN, &downstream_channel_id);
+  proto_tree_add_item_ret_uint (opt_tree, hf_docsis_optrsp_prof_id, tvb, 3, 1, ENC_BIG_ENDIAN, &profile_identifier);
+  proto_tree_add_item_ret_uint (opt_tree, hf_docsis_optrsp_status, tvb, 4, 1, ENC_BIG_ENDIAN, &status);
+
+  col_add_fstr (pinfo->cinfo, COL_INFO, "OPT-RSP: DS CH ID: %u, Profile ID: %s (%u), Status: %s (%u)", downstream_channel_id,
+                              val_to_str(profile_identifier, profile_id_vals, "Unknown Profile ID (%u)"), profile_identifier,
+                              val_to_str(status, opt_status_vals, "Unknown status (%u)"), status);
+
+
+  /* Reassemble TLV's */
+  if (tvb_reported_length_remaining(tvb, 5) > 0) {
+    /*DOCSIS mac management messages do not have network (ip)  address. Use link (mac)  address instead. Same workflow as in wimax.*/
+    /* Save address pointers. */
+    copy_address_shallow(&save_src, &pinfo->src);
+    copy_address_shallow(&save_dst, &pinfo->dst);
+    /* Use dl_src and dl_dst in defragmentation. */
+    copy_address_shallow(&pinfo->src, &pinfo->dl_src);
+    copy_address_shallow(&pinfo->dst, &pinfo->dl_dst);
+
+    fragment_head* fh = fragment_add_seq_next(&docsis_opt_tlv_reassembly_table, tvb, 5, pinfo, downstream_channel_id, NULL, tvb_reported_length_remaining(tvb, 5) , TRUE);
+
+    /* Restore address pointers. */
+    copy_address_shallow(&pinfo->src, &save_src);
+    copy_address_shallow(&pinfo->dst, &save_dst);
+
+
+    /*Check if complete: if top level tlvs are completely within packet, we assume the packet is complete*/
+    fragment_head *tmp_fh = fragment_get(&docsis_opt_tlv_reassembly_table, pinfo, downstream_channel_id, NULL);
+
+    /*Calculating offset*/
+    guint offset =0;
+    guint tlv_length = 0;
+    if (tmp_fh) {
+      tmp_fh = tmp_fh->next;
+      tlv_length  = 256*tvb_get_guint8(tmp_fh->tvb_data,1) + tvb_get_guint8(tmp_fh->tvb_data,2);
+
+      while(tmp_fh) {
+        offset += tmp_fh->len;
+        if (offset > tlv_length + 3) {
+          /*Updating tlv_length with next top TLV*/
+          tlv_length += 256*tvb_get_guint8(tmp_fh->tvb_data,offset-tlv_length - 3) + tvb_get_guint8(tmp_fh->tvb_data,offset-tlv_length - 3);
+        }
+        tmp_fh = tmp_fh->next;
+      }
+    }
+
+    if (offset == tlv_length +3) {
+      /* Save address pointers. */
+      copy_address_shallow(&save_src, &pinfo->src);
+      copy_address_shallow(&save_dst, &pinfo->dst);
+      /* Use dl_src and dl_dst in defragmentation. */
+      copy_address_shallow(&pinfo->src, &pinfo->dl_src);
+      copy_address_shallow(&pinfo->dst, &pinfo->dl_dst);
+
+      fh = fragment_end_seq_next(&docsis_opt_tlv_reassembly_table, pinfo, downstream_channel_id, NULL);
+
+      /* Restore address pointers. */
+      copy_address_shallow(&pinfo->src, &save_src);
+      copy_address_shallow(&pinfo->dst, &save_dst);
+
+    }
+
+    if (fh) {
+      tvbuff_t *tlv_tvb = NULL;
+
+      tlv_tvb = process_reassembled_data(tvb, 5, pinfo, "Reassembled OPT TLV", fh, &docsis_tlv_frag_items,
+                                                  NULL, opt_tree);
+
+      if (tlv_tvb && tvb_reported_length(tlv_tvb) > 0) {
+        dissect_optrsp_tlv(tlv_tvb, pinfo, opt_tree);
+      }
+    }
+  }
+
+  return tvb_reported_length(tvb);
+}
+
+static int
+dissect_optack (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data  _U_)
+{
+  proto_item *it;
+  proto_tree *opt_tree;
+
+  guint32 downstream_channel_id, profile_identifier;
+
+  it = proto_tree_add_item(tree, proto_docsis_optack, tvb, 0, -1, ENC_NA);
+  opt_tree = proto_item_add_subtree (it, ett_docsis_optack);
+  proto_tree_add_item (opt_tree, hf_docsis_optack_reserved, tvb, 0, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint (opt_tree, hf_docsis_mgt_down_chid, tvb, 2, 1, ENC_BIG_ENDIAN, &downstream_channel_id);
+  proto_tree_add_item_ret_uint (opt_tree, hf_docsis_optack_prof_id, tvb, 3, 1, ENC_BIG_ENDIAN, &profile_identifier);
+
+  col_add_fstr (pinfo->cinfo, COL_INFO, "OPT-ACK: DS CH ID: %u, Profile ID: %s (%u)", downstream_channel_id,
+                              val_to_str(profile_identifier, profile_id_vals, "Unknown Profile ID (%u)"), profile_identifier);
+
+  return tvb_captured_length(tvb);
+}
+
 static int
 dissect_macmgmt (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
@@ -8432,6 +8955,110 @@ proto_register_docsis_mgmt (void)
     {&hf_docsis_dpd_length,
      {"Length", "docsis_dpd.length",FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
+    /* OPT-REQ */
+    {&hf_docsis_optreq_tlv_unknown,
+     {"Unknown TLV", "docsis_optreq.unknown_tlv", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_optreq_reserved,
+     {"Reserved", "docsis_optreq.reserved", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_optreq_prof_id,
+     {"Profile Identifier", "docsis_optreq.prof_id", FT_UINT8, BASE_DEC, VALS(profile_id_vals), 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_optreq_opcode,
+     {"Opcode", "docsis_optreq.opcode", FT_UINT8, BASE_DEC, VALS(opt_opcode_vals), 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_optreq_tlv_data,
+     {"TLV Data", "docsis_optreq.tlv_data", FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_optreq_type,
+     {"Type", "docsis_optreq.type",FT_UINT8, BASE_DEC, VALS(optreq_tlv_vals), 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_optreq_length,
+     {"Length", "docsis_optreq.length",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_optreq_reqstat_rxmer_stat_subc,
+     {"RxMER Statistics per subcarrier", "docsis_optreq.reqstat.rxmer_stat_per_subcarrier", FT_BOOLEAN, 32, TFS(&req_not_req_tfs), 0x1, NULL, HFILL}
+    },
+    {&hf_docsis_optreq_reqstat_rxmer_subc_threshold_comp,
+     {"RxMER per Subcarrier Threshold Comparision for Candidate Profile", "docsis_optreq.reqstat.rxmer_per_subcarrrier_thresh_comp", FT_BOOLEAN, 32, TFS(&req_not_req_tfs), 0x2, NULL, HFILL}
+    },
+    {&hf_docsis_optreq_reqstat_snr_marg_cand_prof,
+     {"SNR Margin for Candidate Profile", "docsis_optreq.reqstat.snr_marg_cand_prof", FT_BOOLEAN, 32, TFS(&req_not_req_tfs), 0x4, NULL, HFILL}
+    },
+    {&hf_docsis_optreq_reqstat_codew_stat_cand_prof,
+     {"Codeword Statistics for Candidate Profile", "docsis_optreq.reqstat.codew_stat_cand_prof", FT_BOOLEAN, 32, TFS(&req_not_req_tfs), 0x8, NULL, HFILL}
+    },
+    {&hf_docsis_optreq_reqstat_codew_thresh_comp_cand_prof,
+     {"Codeword Threshold Comparision for Candidate Profile", "docsis_optreq.reqstat.codew_thresh_comp_cand_prof", FT_BOOLEAN, 32, TFS(&req_not_req_tfs), 0x10, NULL, HFILL}
+    },
+    {&hf_docsis_optreq_reqstat_ncp_field_stat,
+     {"NCP Field Statistics", "docsis_optreq.reqstat.ncp_field_stats", FT_BOOLEAN, 32, TFS(&req_not_req_tfs), 0x20, NULL, HFILL}
+    },
+    {&hf_docsis_optreq_reqstat_ncp_crc_thresh_comp,
+     {"NCP CRC Threshold Comparision", "docsis_optreq.reqstat.ncp_crc_thresh_comp", FT_BOOLEAN, 32, TFS(&req_not_req_tfs), 0x40, NULL, HFILL}
+    },
+    {&hf_docsis_optreq_reqstat_reserved,
+     {"Reserved", "docsis_optreq.reqstat.reserved", FT_BOOLEAN, 32, TFS(&req_not_req_tfs), 0x80, NULL, HFILL}
+    },
+    {&hf_docsis_optreq_tlv_xrmer_thresh_data,
+     {"TLV Data", "docsis_optreq.rxmer_thresh_params.tlv_data", FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_optreq_xmer_thresh_params_type,
+     {"Type", "docsis_optreq.rxmer_thres_params.type",FT_UINT8, BASE_DEC, VALS(optreq_tlv_rxmer_thresh_params_vals), 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_optreq_xmer_thresh_params_length,
+     {"Length", "docsis_optreq.rxmer_thres_params.length",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_optreq_tlv_xrmer_thresh_data_mod_order,
+     {"Modulation Order", "docsis_optreq.rxmer_thres_params.mod_order", FT_UINT8, BASE_DEC, VALS(opreq_tlv_rxmer_thresh_params_mod_order), 0x0, NULL, HFILL}
+    },
+    /* OPT-RSP */
+    {&hf_docsis_optrsp_tlv_unknown,
+     {"Unknown TLV", "docsis_optrsp.unknown_tlv", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_optrsp_reserved,
+     {"Reserved", "docsis_optrsp.reserved", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_optrsp_prof_id,
+     {"Profile Identifier", "docsis_optrsp.prof_id", FT_UINT8, BASE_DEC, VALS(profile_id_vals), 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_optrsp_status,
+     {"Status", "docsis_optrsp.status", FT_UINT8, BASE_DEC, VALS(opt_status_vals), 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_optrsp_tlv_data,
+     {"TLV Data", "docsis_optrsp.tlv_data", FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_optrsp_type,
+     {"Type", "docsis_optrsp.type",FT_UINT8, BASE_DEC, VALS(optreq_tlv_vals), 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_optrsp_length,
+     {"Length", "docsis_optrsp.length",FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_optrsp_tlv_xrmer_snr_margin_data,
+     {"TLV Data", "docsis_optrsp.rxmer_snr_margin.tlv_data", FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_optrsp_xmer_snr_margin_type,
+     {"Type", "docsis_optrsp.xmer_snr_margin.type",FT_UINT8, BASE_DEC, VALS(optrsp_tlv_rxmer_snr_margin_vals), 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_optrsp_xmer_snr_margin_length,
+     {"Length", "docsis_optrsp.rxmer_snr_margin.length",FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_optrsp_tlv_xrmer_snr_margin_data_rxmer_subc,
+     {"RxMER", "docsis_optrsp.rxmer_snr_margin.rxmer_per_subc", FT_UINT8, BASE_CUSTOM, CF_FUNC(mer_fourth_db), 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_optrsp_tlv_rxmer_snr_margin_data_snr_margin,
+     {"SNR Margin", "docsis_optrsp.rxmer_snr_margin.snr_margin", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    },
+    /* OPT-ACK */
+    {&hf_docsis_optack_prof_id,
+     {"Profile Identifier", "docsis_optack.prof_id", FT_UINT8, BASE_DEC, VALS(profile_id_vals), 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_optack_reserved,
+     {"Reserved", "docsis_optack.reserved", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    },
+
+
     /* MAC Management */
     {&hf_docsis_mgt_upstream_chid,
      {"Upstream Channel ID", "docsis_mgmt.upchid",
@@ -8646,6 +9273,17 @@ proto_register_docsis_mgmt (void)
     &ett_docsis_dpd_tlvtlv,
     &ett_docsis_dpd_tlv_subcarrier_assignment,
     &ett_docsis_dpd_tlv_subcarrier_assignment_vector,
+    &ett_docsis_optreq,
+    &ett_docsis_optreq_tlv,
+    &ett_docsis_optreq_tlvtlv,
+    &ett_docsis_optreq_tlv_rxmer_thresh_params,
+    &ett_docsis_optreq_tlv_rxmer_thresh_params_tlv,
+    &ett_docsis_optrsp,
+    &ett_docsis_optrsp_tlv,
+    &ett_docsis_optrsp_tlvtlv,
+    &ett_docsis_optrsp_tlv_rxmer_snr_margin_data,
+    &ett_docsis_optrsp_tlv_rxmer_snr_margin_tlv,
+    &ett_docsis_optack,
     &ett_docsis_mgmt,
     &ett_mgmt_pay,
     &ett_docsis_tlv_fragment,
@@ -8716,6 +9354,9 @@ proto_register_docsis_mgmt (void)
   proto_docsis_ocd = proto_register_protocol_in_name_only("DOCSIS OFDM Channel Descriptor", "DOCSIS OCD", "docsis_ocd", proto_docsis_mgmt, FT_BYTES);
   proto_docsis_dpd = proto_register_protocol_in_name_only("DOCSIS Downstream Profile Descriptor", "DOCSIS DPD", "docsis_dpd", proto_docsis_mgmt, FT_BYTES);
   proto_docsis_type51ucd = proto_register_protocol_in_name_only("DOCSIS Upstream Channel Descriptor Type 51", "DOCSIS type51ucd", "docsis_type51ucd", proto_docsis_mgmt, FT_BYTES);
+  proto_docsis_optreq = proto_register_protocol_in_name_only("OFDM Downstream Profile Test Request", "DOCSIS OPT-REQ", "docsis_optreq", proto_docsis_mgmt, FT_BYTES);
+  proto_docsis_optrsp = proto_register_protocol_in_name_only("OFDM Downstream Profile Test Response", "DOCSIS OPT-RSP", "docsis_optrsp", proto_docsis_mgmt, FT_BYTES);
+  proto_docsis_optack = proto_register_protocol_in_name_only("OFDM Downstream Profile Test Acknowledge", "DOCSIS OPT-ACK", "docsis_optack", proto_docsis_mgmt, FT_BYTES);
 
   register_dissector ("docsis_mgmt", dissect_macmgmt, proto_docsis_mgmt);
   docsis_ucd_handle = register_dissector ("docsis_ucd", dissect_ucd, proto_docsis_ucd);
@@ -8768,10 +9409,14 @@ proto_reg_handoff_docsis_mgmt (void)
   dissector_add_uint ("docsis_mgmt", MGT_OCD, create_dissector_handle( dissect_ocd, proto_docsis_ocd ));
   dissector_add_uint ("docsis_mgmt", MGT_DPD, create_dissector_handle( dissect_dpd, proto_docsis_dpd ));
   dissector_add_uint ("docsis_mgmt", MGT_TYPE51UCD, create_dissector_handle( dissect_type51ucd, proto_docsis_type51ucd ));
+  dissector_add_uint ("docsis_mgmt", MGT_OPT_REQ, create_dissector_handle( dissect_optreq, proto_docsis_optreq ));
+  dissector_add_uint ("docsis_mgmt", MGT_OPT_RSP, create_dissector_handle( dissect_optrsp, proto_docsis_optrsp ));
+  dissector_add_uint ("docsis_mgmt", MGT_OPT_ACK, create_dissector_handle( dissect_optack, proto_docsis_optack ));
 
   docsis_tlv_handle = find_dissector ("docsis_tlv");
 
   reassembly_table_register(&docsis_tlv_reassembly_table, &addresses_reassembly_table_functions);
+  reassembly_table_register(&docsis_opt_tlv_reassembly_table, &addresses_reassembly_table_functions);
 
 }
 
