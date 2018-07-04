@@ -135,7 +135,7 @@ const QString CaptureFile::filePath()
             g_free(utf8_filename);
         } else {
             // So what the heck else can we do here?
-            path = tr("(File name can't be mapped to UTF-8)");
+            path = QString();
         }
     } else {
         path = QString();
@@ -145,10 +145,11 @@ const QString CaptureFile::filePath()
 
 const QString CaptureFile::fileName()
 {
-    QString name;
+    QString path, name;
 
-    if (isValid()) {
-        QFileInfo cfi(filePath());
+    path = filePath();
+    if (!path.isEmpty()) {
+        QFileInfo cfi(path);
         name = cfi.fileName();
     } else {
         name = QString();
@@ -159,12 +160,24 @@ const QString CaptureFile::fileName()
 
 const QString CaptureFile::fileDisplayName()
 {
-    QString title;
+    QString displayName;
 
     if (isValid()) {
         char *display_name = cf_get_display_name(cap_file_);
-        title = display_name + file_state_;
+        displayName = display_name;
         g_free(display_name);
+    } else {
+        displayName = QString();
+    }
+    return displayName;
+}
+
+const QString CaptureFile::fileTitle()
+{
+    QString title;
+
+    if (isValid()) {
+        title = fileDisplayName() + file_state_;
     } else {
         title = no_capture_file_;
     }

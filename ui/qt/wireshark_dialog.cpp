@@ -75,7 +75,7 @@ void WiresharkDialog::setWindowSubtitle(const QString &subtitle)
 
 void WiresharkDialog::setWindowTitleFromSubtitle()
 {
-    QString title = wsApp->windowTitleString(QStringList() << subtitle_ << cap_file_.fileDisplayName());
+    QString title = wsApp->windowTitleString(QStringList() << subtitle_ << cap_file_.fileTitle());
     QDialog::setWindowTitle(title);
 }
 
