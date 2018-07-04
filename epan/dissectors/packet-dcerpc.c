@@ -6346,18 +6346,18 @@ dissect_dcerpc_dg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     if (hdr.ptype > 19)
         return FALSE;
 
-    /* flags1 has bit 1 and 8 as reserved so if any of them are set, it is
-       probably not a DCE/RPC packet
+    /* flags1 has bit 1 and 8 as reserved for implementations, with no
+       indication that they must be set to 0, so we don't check them.
     */
     hdr.flags1 = tvb_get_guint8(tvb, offset++);
-    if (hdr.flags1&0x81)
-        return FALSE;
 
-    /* flags2 has all bits except bit 2 as reserved so if any of them are set
+    /* flags2 has bit 1 reserved for implementations, bit 2 used,
+       and the other bits reserved for future use and specified
+       as "must be set to 0", so if any of the other bits are set
        it is probably not DCE/RPC.
     */
     hdr.flags2 = tvb_get_guint8(tvb, offset++);
-    if (hdr.flags2&0xfd)
+    if (hdr.flags2&0xfc)
         return FALSE;
 
 
@@ -6757,7 +6757,7 @@ proto_register_dcerpc(void)
         { &hf_dcerpc_dg_flags1,
           { "Flags1", "dcerpc.dg_flags1", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_dcerpc_dg_flags1_rsrvd_01,
-          { "Reserved", "dcerpc.dg_flags1_rsrvd_01", FT_BOOLEAN, 8, TFS(&tfs_set_notset), PFCL1_RESERVED_01, NULL, HFILL }},
+          { "Reserved for implementation", "dcerpc.dg_flags1_rsrvd_01", FT_BOOLEAN, 8, TFS(&tfs_set_notset), PFCL1_RESERVED_01, NULL, HFILL }},
         { &hf_dcerpc_dg_flags1_last_frag,
           { "Last Fragment", "dcerpc.dg_flags1_last_frag", FT_BOOLEAN, 8, TFS(&tfs_set_notset), PFCL1_LASTFRAG, NULL, HFILL }},
         { &hf_dcerpc_dg_flags1_frag,
@@ -6771,25 +6771,25 @@ proto_register_dcerpc(void)
         { &hf_dcerpc_dg_flags1_broadcast,
           { "Broadcast", "dcerpc.dg_flags1_broadcast", FT_BOOLEAN, 8, TFS(&tfs_set_notset), PFCL1_BROADCAST, NULL, HFILL }},
         { &hf_dcerpc_dg_flags1_rsrvd_80,
-          { "Reserved", "dcerpc.dg_flags1_rsrvd_80", FT_BOOLEAN, 8, TFS(&tfs_set_notset), PFCL1_RESERVED_80, NULL, HFILL }},
+          { "Reserved for implementation", "dcerpc.dg_flags1_rsrvd_80", FT_BOOLEAN, 8, TFS(&tfs_set_notset), PFCL1_RESERVED_80, NULL, HFILL }},
         { &hf_dcerpc_dg_flags2,
           { "Flags2", "dcerpc.dg_flags2", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_dcerpc_dg_flags2_rsrvd_01,
-          { "Reserved", "dcerpc.dg_flags2_rsrvd_01", FT_BOOLEAN, 8, TFS(&tfs_set_notset), PFCL2_RESERVED_01, NULL, HFILL }},
+          { "Reserved for implementation", "dcerpc.dg_flags2_rsrvd_01", FT_BOOLEAN, 8, TFS(&tfs_set_notset), PFCL2_RESERVED_01, NULL, HFILL }},
         { &hf_dcerpc_dg_flags2_cancel_pending,
           { "Cancel Pending", "dcerpc.dg_flags2_cancel_pending", FT_BOOLEAN, 8, TFS(&tfs_set_notset), PFCL2_CANCEL_PENDING, NULL, HFILL }},
         { &hf_dcerpc_dg_flags2_rsrvd_04,
-          { "Reserved", "dcerpc.dg_flags2_rsrvd_04", FT_BOOLEAN, 8, TFS(&tfs_set_notset), PFCL2_RESERVED_04, NULL, HFILL }},
+          { "Reserved for future use (MBZ)", "dcerpc.dg_flags2_rsrvd_04", FT_BOOLEAN, 8, TFS(&tfs_set_notset), PFCL2_RESERVED_04, NULL, HFILL }},
         { &hf_dcerpc_dg_flags2_rsrvd_08,
-          { "Reserved", "dcerpc.dg_flags2_rsrvd_08", FT_BOOLEAN, 8, TFS(&tfs_set_notset), PFCL2_RESERVED_08, NULL, HFILL }},
+          { "Reserved for future use (MBZ)", "dcerpc.dg_flags2_rsrvd_08", FT_BOOLEAN, 8, TFS(&tfs_set_notset), PFCL2_RESERVED_08, NULL, HFILL }},
         { &hf_dcerpc_dg_flags2_rsrvd_10,
-          { "Reserved", "dcerpc.dg_flags2_rsrvd_10", FT_BOOLEAN, 8, TFS(&tfs_set_notset), PFCL2_RESERVED_10, NULL, HFILL }},
+          { "Reserved for future use (MBZ)", "dcerpc.dg_flags2_rsrvd_10", FT_BOOLEAN, 8, TFS(&tfs_set_notset), PFCL2_RESERVED_10, NULL, HFILL }},
         { &hf_dcerpc_dg_flags2_rsrvd_20,
-          { "Reserved", "dcerpc.dg_flags2_rsrvd_20", FT_BOOLEAN, 8, TFS(&tfs_set_notset), PFCL2_RESERVED_20, NULL, HFILL }},
+          { "Reserved for future use (MBZ)", "dcerpc.dg_flags2_rsrvd_20", FT_BOOLEAN, 8, TFS(&tfs_set_notset), PFCL2_RESERVED_20, NULL, HFILL }},
         { &hf_dcerpc_dg_flags2_rsrvd_40,
-          { "Reserved", "dcerpc.dg_flags2_rsrvd_40", FT_BOOLEAN, 8, TFS(&tfs_set_notset), PFCL2_RESERVED_40, NULL, HFILL }},
+          { "Reserved for future use (MBZ)", "dcerpc.dg_flags2_rsrvd_40", FT_BOOLEAN, 8, TFS(&tfs_set_notset), PFCL2_RESERVED_40, NULL, HFILL }},
         { &hf_dcerpc_dg_flags2_rsrvd_80,
-          { "Reserved", "dcerpc.dg_flags2_rsrvd_80", FT_BOOLEAN, 8, TFS(&tfs_set_notset), PFCL2_RESERVED_80, NULL, HFILL }},
+          { "Reserved for future use (MBZ)", "dcerpc.dg_flags2_rsrvd_80", FT_BOOLEAN, 8, TFS(&tfs_set_notset), PFCL2_RESERVED_80, NULL, HFILL }},
         { &hf_dcerpc_dg_serial_lo,
           { "Serial Low", "dcerpc.dg_serial_lo", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_dcerpc_dg_serial_hi,
