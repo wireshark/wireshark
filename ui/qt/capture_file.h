@@ -43,6 +43,19 @@ public:
      */
     int currentRow();
 
+    /** Return the full pathname.
+     *
+     * @return The entire pathname.
+     */
+    const QString filePath();
+
+    /** Return the plain filename.
+     *
+     * @return The last component of the pathname; this includes the
+     * extension.
+     */
+    const QString fileName();
+
     /** Return a string representing the file suitable for use in a
      *  window title.
      *
@@ -63,12 +76,6 @@ public:
      *    [no capture file], if there is no capture file.
      */
     const QString fileTitle();
-
-    /** Return the plain filename.
-     *
-     * @return The basename of the capture file without an extension.
-     */
-    const QString fileName();
 
     /** Return the current packet information.
      *
@@ -130,7 +137,6 @@ private:
     static QString no_capture_file_;
 
     capture_file *cap_file_;
-    QString file_name_;
     QString file_state_;
 };
 

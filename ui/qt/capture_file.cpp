@@ -86,7 +86,6 @@ QString CaptureFile::no_capture_file_ = QObject::tr("[no capture file]");
 CaptureFile::CaptureFile(QObject *parent, capture_file *cap_file) :
     QObject(parent),
     cap_file_(cap_file),
-    file_name_(no_capture_file_),
     file_state_(QString())
 {
 #ifdef HAVE_LIBPCAP
@@ -115,23 +114,10 @@ int CaptureFile::currentRow()
     return -1;
 }
 
-const QString CaptureFile::fileTitle()
+const QString CaptureFile::filePath()
 {
-    if (isValid() && cap_file_->is_tempfile) {
-        //
-        // For a temporary file, put the source of the data
-        // in the window title, not whatever random pile
-        // of characters is the last component of the path
-        // name.
-        //
-        return cf_get_tempfile_source(cap_file_) + file_state_;
-    } else {
-        return fileName() + file_state_;
-    }
-}
+    QString path;
 
-const QString CaptureFile::fileName()
-{
     if (isValid()) {
         //
         // Sadly, some UN*Xes don't necessarily use UTF-8
@@ -145,16 +131,49 @@ const QString CaptureFile::fileName()
                                                  NULL,
                                                  NULL);
         if (utf8_filename) {
-            QFileInfo cfi(QString::fromUtf8(utf8_filename));
-            file_name_ = cfi.fileName();
+            path = QString::fromUtf8(utf8_filename);
             g_free(utf8_filename);
         } else {
             // So what the heck else can we do here?
-            file_name_ = tr("(File name can't be mapped to UTF-8)");
+            path = tr("(File name can't be mapped to UTF-8)");
         }
+    } else {
+        path = QString();
+    }
+    return path;
+}
+
+const QString CaptureFile::fileName()
+{
+    QString name;
+
+    if (isValid()) {
+        QFileInfo cfi(filePath());
+        name = cfi.fileName();
+    } else {
+        name = QString();
     }
 
-    return file_name_;
+    return name;
+}
+
+const QString CaptureFile::fileTitle()
+{
+    if (isValid()) {
+        if (cap_file_->is_tempfile) {
+            //
+            // For a temporary file, put the source of the data
+            // in the window title, not whatever random pile
+            // of characters is the last component of the path
+            // name.
+            //
+            return cf_get_tempfile_source(cap_file_) + file_state_;
+        } else {
+            return fileName() + file_state_;
+        }
+    } else {
+        return no_capture_file_;
+    }
 }
 
 struct _packet_info *CaptureFile::packetInfo()
@@ -246,7 +265,6 @@ void CaptureFile::captureFileEvent(int event, gpointer data)
         file_state_ = tr(" [closed]");
         emit captureEvent(CaptureEvent(CaptureEvent::File, CaptureEvent::Closed));
         cap_file_ = NULL;
-        file_name_ = no_capture_file_;
         file_state_ = QString();
         break;
     case(cf_cb_file_read_started):
