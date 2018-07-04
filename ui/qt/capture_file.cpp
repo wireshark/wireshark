@@ -158,21 +158,16 @@ const QString CaptureFile::fileName()
 
 const QString CaptureFile::fileTitle()
 {
+    QString title;
+
     if (isValid()) {
-        if (cap_file_->is_tempfile) {
-            //
-            // For a temporary file, put the source of the data
-            // in the window title, not whatever random pile
-            // of characters is the last component of the path
-            // name.
-            //
-            return cf_get_tempfile_source(cap_file_) + file_state_;
-        } else {
-            return fileName() + file_state_;
-        }
+        char *display_name = cf_get_display_name(cap_file_);
+        title = display_name + file_state_;
+        g_free(display_name);
     } else {
-        return no_capture_file_;
+        title = no_capture_file_;
     }
+    return title;
 }
 
 struct _packet_info *CaptureFile::packetInfo()
