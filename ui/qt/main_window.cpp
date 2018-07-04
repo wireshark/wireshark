@@ -2175,6 +2175,17 @@ void MainWindow::setTitlebarForCaptureFile()
 {
     if (capture_file_.capFile() && capture_file_.capFile()->filename) {
         setWSWindowTitle(QString("[*]%1").arg(capture_file_.fileTitle()));
+        //
+        // XXX - on non-Mac platforms, put in the application
+        // name?  Or do so only for temporary files?
+        //
+        if (!capture_file_.capFile()->is_tempfile) {
+            //
+            // Set the file path; that way, for macOS, it'll set the
+            // "proxy icon".
+            //
+            setWindowFilePath(capture_file_.filePath());
+	}
         setWindowModified(cf_has_unsaved_data(capture_file_.capFile()));
     } else {
         /* We have no capture file. */
