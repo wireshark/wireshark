@@ -1,4 +1,4 @@
--- 3GPP TS 36.455 V14.4.0 (2017-12)
+-- 3GPP TS 36.455 V15.0.0 (2018-06)
 --
 
 -- **************************************************************
@@ -8,15 +8,15 @@
 -- **************************************************************
 
 LPPA-IEs {
-itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
 eps-Access (21) modules (3) lppa (6) version1 (1) lppa-IEs (2) }
 
-DEFINITIONS AUTOMATIC TAGS ::=
+DEFINITIONS AUTOMATIC TAGS ::= 
 
 BEGIN
 
-IMPORTS
-
+IMPORTS	
+	
 	id-MeasurementQuantities-Item,
 	maxCellineNB,
 	maxCellReport,
@@ -31,7 +31,11 @@ IMPORTS
 	maxCellineNB-ext,
 	maxWLANchannels,
 	maxMBSFN-Allocations,
-	maxnoFreqHoppingBandsMinusOne
+	maxnoFreqHoppingBandsMinusOne,
+	maxNrOfPosSImessage,
+	maxnoAssistInfoFailureListItems,
+	maxNrOfSegments,
+	maxNrOfPosSIBs
 
 FROM LPPA-Constants
 
@@ -45,7 +49,7 @@ FROM LPPA-CommonDataTypes
 
 	ProtocolExtensionContainer{},
 	ProtocolIE-Single-Container{},
-
+	
 	LPPA-PROTOCOL-EXTENSION,
 	LPPA-PROTOCOL-IES
 FROM LPPA-Containers;
@@ -64,6 +68,39 @@ Add-OTDOACells-ExtIEs LPPA-PROTOCOL-EXTENSION ::= {
 
 Add-OTDOACell-Information ::= SEQUENCE (SIZE (1..maxnoOTDOAtypes)) OF OTDOACell-Information-Item
 
+Assistance-Information ::= SEQUENCE {
+	systemInformation				SystemInformation,
+	iE-Extensions					ProtocolExtensionContainer { { Assistance-Information-ExtIEs} } OPTIONAL,
+	...
+}
+
+Assistance-Information-ExtIEs LPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+AssistanceInformationFailureList ::= SEQUENCE (SIZE (1..maxnoAssistInfoFailureListItems)) OF SEQUENCE {
+	posSIB-Type						PosSIB-Type,
+	outcome							Outcome,
+	iE-Extensions					ProtocolExtensionContainer { {AssistanceInformationFailureList-ExtIEs} }	OPTIONAL,
+	...
+}
+
+AssistanceInformationFailureList-ExtIEs LPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+AssistanceInformationMetaData ::= SEQUENCE {
+	encrypted			ENUMERATED {true, ...}	OPTIONAL,
+	gNSSID				ENUMERATED {gps, sbas, gzss, galileo, glonass, bds, ...}	OPTIONAL,
+	sBASID				ENUMERATED {waas, egnos, msas, gagan, ...}				OPTIONAL,
+	iE-Extensions						ProtocolExtensionContainer { { AssistanceInformationMetaData-ExtIEs} }	OPTIONAL,
+	...
+}
+
+AssistanceInformationMetaData-ExtIEs LPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 -- B
 
 BCCH ::= INTEGER (0..1023, ...)
@@ -71,6 +108,24 @@ BCCH ::= INTEGER (0..1023, ...)
 BitmapsforNPRS	::= CHOICE {
 	ten			BIT STRING(SIZE (10)),
 	forty		BIT STRING(SIZE (40)),
+	...,
+	ten-tdd		BIT STRING(SIZE (8)),
+	forty-tdd	BIT STRING(SIZE (32))}
+
+Broadcast ::= ENUMERATED {
+	start,
+	stop,
+	...
+}
+
+BroadcastPeriodicity ::= ENUMERATED {
+	ms80,
+	ms160,
+	ms320,
+	ms640,
+	ms1280,
+	ms2560,
+	ms5120,
 	...
 }
 
@@ -288,7 +343,7 @@ MeasurementQuantitiesValue ::= ENUMERATED {
 MeasuredResults ::= SEQUENCE (SIZE (1.. maxNoMeas)) OF MeasuredResultsValue
 
 
-MeasuredResultsValue ::= CHOICE {
+MeasuredResultsValue ::= CHOICE { 
 	valueAngleOfArrival				INTEGER (0..719),
 	valueTimingAdvanceType1			INTEGER (0..7690),
 	valueTimingAdvanceType2			INTEGER (0..7690),
@@ -331,8 +386,8 @@ NPRSSubframePartA ::=			SEQUENCE {
 }
 
 NPRSSubframePartB ::=			SEQUENCE {
-	numberofNPRSOneOccasion		ENUMERATED {sf10, sf20, sf40, sf80, sf160, sf320, sf640, sf1280, ...},
-	periodicityofNPRS			ENUMERATED {sf160, sf320, sf640, sf1280, ...},
+	numberofNPRSOneOccasion		ENUMERATED {sf10, sf20, sf40, sf80, sf160, sf320, sf640, sf1280, ..., sf2560},
+	periodicityofNPRS			ENUMERATED {sf160, sf320, sf640, sf1280, ..., sf2560},
 	startingsubframeoffset		ENUMERATED {zero, one-Eighth, two-Eighths, three-Eighths, four-Eighths, five-Eighths, six-Eighths, seven-Eighths, ...},
 	nPRSMutingConfiguration		NPRSMutingConfiguration 		OPTIONAL,
 	...
@@ -415,7 +470,7 @@ OTDOACell-Information-Item ::= CHOICE {
 	tAC							TAC,
 	eARFCN						EARFCN,
 	pRS-Bandwidth				PRS-Bandwidth,
-	pRS-ConfigurationIndex		PRS-Configuration-Index,
+	pRS-ConfigurationIndex		PRS-Configuration-Index, 
 	cPLength					CPLength,
 	numberOfDlFrames			NumberOfDlFrames,
 	numberOfAntennaPorts		NumberOfAntennaPorts,
@@ -432,12 +487,13 @@ OTDOACell-Information-Item ::= CHOICE {
 	nPRSConfiguration			NPRSConfiguration,
 	offsetNBChanneltoEARFCN		OffsetNBChanneltoEARFCN,
 	operationModeInfo			OperationModeInfo,
-	nPRS-ID						INTEGER (0..4095, ...),
+	nPRS-ID						INTEGER (0..4095, ...), 
 	dL-Bandwidth				DL-Bandwidth,
 	pRSOccasionGroup			PRSOccasionGroup,
 	pRSFreqHoppingConfig		PRSFrequencyHoppingConfiguration,
 	repetitionNumberofSIB1-NB	RepetitionNumberofSIB1-NB,
 	nPRSSequenceInfo			NPRSSequenceInfo
+
 }
 
 OTDOA-Information-Item ::= ENUMERATED {
@@ -462,13 +518,18 @@ OTDOA-Information-Item ::= ENUMERATED {
 		nPRSConfiguration,
 		offsetNBChannelNumbertoEARFCN,
 		operationModeInfo,
-		nPRS-ID,
-		dlBandwidth,
+		nPRS-ID, 
+		dlBandwidth, 
 		multipleprsConfigurationsperCell,
 		prsOccasionGroup,
 		prsFrequencyHoppingConfiguration,
 		repetitionNumberofSIB1-NB,
 		nPRSSequenceInfo
+}
+
+Outcome ::= ENUMERATED {
+		failed,
+		...
 }
 
 -- P
@@ -482,6 +543,61 @@ PhysCellIDUTRA-FDD ::= INTEGER (0..511, ...)
 PhysCellIDUTRA-TDD ::= INTEGER (0..127, ...)
 
 PLMN-Identity ::= OCTET STRING (SIZE(3))
+
+PosSIBs ::= SEQUENCE (SIZE (1.. maxNrOfPosSIBs)) OF SEQUENCE {
+	posSIB-Type						PosSIB-Type,
+	posSIB-Segments					PosSIB-Segments,
+	assistanceInformationMetaData	AssistanceInformationMetaData		OPTIONAL,
+	broadcastPriority				INTEGER (1..16,...)				OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { { PosSIBs-ExtIEs} }	OPTIONAL,
+	...
+}
+
+PosSIBs-ExtIEs LPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+PosSIB-Segments ::= SEQUENCE (SIZE (1.. maxNrOfSegments)) OF SEQUENCE {
+	assistanceDataSIBelement			OCTET STRING,
+	iE-Extensions						ProtocolExtensionContainer { { PosSIB-Segments-ExtIEs} }	OPTIONAL,
+	...
+}
+
+PosSIB-Segments-ExtIEs LPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+PosSIB-Type ::= ENUMERATED {
+	posSibType1-1, 
+	posSibType1-2, 
+	posSibType1-3, 
+	posSibType1-4, 
+	posSibType1-5,
+	posSibType1-6, 
+	posSibType1-7, 
+	posSibType2-1, 
+	posSibType2-2, 
+	posSibType2-3,
+	posSibType2-4, 
+	posSibType2-5, 
+	posSibType2-6, 
+	posSibType2-7, 
+	posSibType2-8,
+	posSibType2-9, 
+	posSibType2-10, 
+	posSibType2-11, 
+	posSibType2-12, 
+	posSibType2-13, 
+	posSibType2-14, 
+	posSibType2-15, 
+	posSibType2-16,
+	posSibType2-17, 
+	posSibType2-18, 
+	posSibType2-19,
+	posSibType3-1,
+	...
+}
 
 PRS-Bandwidth ::= ENUMERATED {
 		bw6,
@@ -654,6 +770,17 @@ Subframeallocation ::= CHOICE {
 
 SSID ::= OCTET STRING (SIZE(1..32))
 
+SystemInformation ::= SEQUENCE (SIZE (1.. maxNrOfPosSImessage)) OF SEQUENCE {
+	broadcastPeriodicity				BroadcastPeriodicity,
+	posSIBs								PosSIBs,
+	iE-Extensions						ProtocolExtensionContainer { { SystemInformation-ExtIEs} }	OPTIONAL,
+	...
+}
+
+SystemInformation-ExtIEs LPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 -- T
 
 TAC ::= OCTET STRING (SIZE(2))
@@ -675,7 +802,7 @@ TypeOfError ::= ENUMERATED {
 ULConfiguration ::= SEQUENCE {
 	pci							PCI,
 	ul-earfcn					EARFCN,
-	timingAdvanceType1			INTEGER (0..7690)           OPTIONAL,
+	timingAdvanceType1			INTEGER (0..7690) 			OPTIONAL,
 	timingAdvanceType2			INTEGER (0..7690)			OPTIONAL,
 	numberOfTransmissions		INTEGER (0..500,...),
 	srsConfiguration			SRSConfigurationForAllCells,

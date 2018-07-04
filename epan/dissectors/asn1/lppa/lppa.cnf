@@ -78,6 +78,8 @@ id-e-CIDMeasurementTermination       ProcedureCode
 id-oTDOAInformationExchange          ProcedureCode
 id-uTDOAInformationExchange          ProcedureCode
 id-uTDOAInformationUpdate            ProcedureCode
+id-assistanceInformationControl      ProcedureCode
+id-assistanceInformationFeedback     ProcedureCode
 
 # ProtocolIE-ID
 id-Cause                                   ProtocolIE-ID
@@ -102,8 +104,11 @@ id-AddOTDOACells                           ProtocolIE-ID
 id-WLANMeasurementQuantities               ProtocolIE-ID
 id-WLANMeasurementQuantities-Item          ProtocolIE-ID
 id-WLANMeasurementResult                   ProtocolIE-ID
-#.REGISTER
+id-Assistance-Information                  ProtocolIE-ID
+id-Broadcast                               ProtocolIE-ID
+id-AssistanceInformationFailureList        ProtocolIE-ID
 
+#.REGISTER
 #LPPA-PROTOCOL-IES
 MeasurementQuantities-Item              N lppa.ies id-MeasurementQuantities-Item
 ReportCharacteristics                   N lppa.ies id-ReportCharacteristics
@@ -127,6 +132,9 @@ WLANMeasurementQuantities               N lppa.ies id-WLANMeasurementQuantities
 WLANMeasurementResult                   N lppa.ies id-WLANMeasurementResult
 Add-OTDOACells                          N lppa.ies id-AddOTDOACells
 WLANMeasurementQuantities-Item          N lppa.ies id-WLANMeasurementQuantities-Item
+Assistance-Information                  N lppa.ies id-Assistance-Information
+Broadcast                               N lppa.ies id-Broadcast
+AssistanceInformationFailureList        N lppa.ies id-AssistanceInformationFailureList
 
 #LPPA-ELEMENTARY-PROCEDURE
 E-CIDMeasurementInitiationRequest  N lppa.proc.imsg id-e-CIDMeasurementInitiation
@@ -144,3 +152,5 @@ UTDOAInformationRequest            N lppa.proc.imsg id-uTDOAInformationExchange
 UTDOAInformationResponse           N lppa.proc.sout id-uTDOAInformationExchange
 UTDOAInformationFailure            N lppa.proc.uout id-uTDOAInformationExchange
 UTDOAInformationUpdate             N lppa.proc.imsg id-uTDOAInformationUpdate
+AssistanceInformationControl       N lppa.proc.imsg id-assistanceInformationControl
+AssistanceInformationFeedback      N lppa.proc.imsg id-assistanceInformationFeedback

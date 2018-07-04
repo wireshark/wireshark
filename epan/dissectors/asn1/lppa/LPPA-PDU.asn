@@ -1,4 +1,4 @@
--- 3GPP TS 36.455 V14.4.0 (2017-12)
+-- 3GPP TS 36.455 V15.0.0 (2018-06)
 --
 
 -- **************************************************************
@@ -8,10 +8,10 @@
 -- **************************************************************
 
 LPPA-PDU-Contents {
-itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
 eps-Access (21) modules (3) lppa (6) version1 (1) lppa-PDU-Contents (1) }
 
-DEFINITIONS AUTOMATIC TAGS ::=
+DEFINITIONS AUTOMATIC TAGS ::= 
 
 BEGIN
 
@@ -22,7 +22,7 @@ BEGIN
 -- **************************************************************
 
 IMPORTS
-
+	
 	Cause,
 	CriticalityDiagnostics,
 	E-CID-MeasurementResult,
@@ -39,8 +39,11 @@ IMPORTS
 	InterRATMeasurementResult,
 	Add-OTDOACells,
 	WLANMeasurementQuantities,
-	WLANMeasurementResult
-
+	WLANMeasurementResult,
+	Assistance-Information,
+	Broadcast,
+	AssistanceInformationFailureList
+	
 FROM LPPA-IEs
 
 	PrivateIE-Container{},
@@ -55,8 +58,6 @@ FROM LPPA-IEs
 	LPPA-PROTOCOL-IES,
 	LPPA-PROTOCOL-IES-PAIR
 FROM LPPA-Containers
-
-
 	maxnoOTDOAtypes,
 	id-Cause,
 	id-CriticalityDiagnostics,
@@ -76,9 +77,11 @@ FROM LPPA-Containers
 	id-InterRATMeasurementResult,
 	id-AddOTDOACells,
 	id-WLANMeasurementQuantities,
-	id-WLANMeasurementResult
-
-
+	id-WLANMeasurementResult,
+	id-Assistance-Information,
+	id-Broadcast,
+	id-AssistanceInformationFailureList
+	
 FROM LPPA-Constants;
 
 -- **************************************************************
@@ -96,7 +99,7 @@ E-CIDMeasurementInitiationRequest-IEs LPPA-PROTOCOL-IES ::= {
 	{ ID id-E-SMLC-UE-Measurement-ID		CRITICALITY reject	TYPE Measurement-ID						PRESENCE mandatory}|
 	{ ID id-ReportCharacteristics			CRITICALITY reject	TYPE ReportCharacteristics				PRESENCE mandatory}|
 	{ ID id-MeasurementPeriodicity			CRITICALITY reject	TYPE MeasurementPeriodicity				PRESENCE conditional}|
--- The IE shall be present if the Report Characteritics IE is set to "periodic" --
+-- The IE shall be present if the Report Characteritics IE is set to “periodic” --
 	{ ID id-MeasurementQuantities			CRITICALITY reject	TYPE MeasurementQuantities				PRESENCE mandatory}|
 	{ ID id-InterRATMeasurementQuantities	CRITICALITY ignore	TYPE InterRATMeasurementQuantities	PRESENCE optional}|
 	{ ID id-WLANMeasurementQuantities		CRITICALITY ignore	TYPE WLANMeasurementQuantities			PRESENCE optional},
@@ -189,7 +192,7 @@ E-CIDMeasurementReport-IEs LPPA-PROTOCOL-IES ::= {
 
 -- **************************************************************
 --
--- E-CID MEASUREMENT TERMINATION
+-- E-CID MEASUREMENT TERMINATION 
 --
 -- **************************************************************
 
@@ -344,6 +347,40 @@ UTDOAInformationUpdate-IEs LPPA-PROTOCOL-IES ::= {
 
 -- **************************************************************
 --
+-- ASSISTANCE INFORMATION CONTROL
+--
+-- **************************************************************
+
+AssistanceInformationControl ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container	{{AssistanceInformationControl-IEs}},
+	...
+}
+
+AssistanceInformationControl-IEs LPPA-PROTOCOL-IES ::= {
+	{ ID id-Assistance-Information	CRITICALITY reject	TYPE Assistance-Information		PRESENCE optional}|
+	{ ID id-Broadcast				CRITICALITY reject	TYPE Broadcast					PRESENCE optional},
+	...
+}
+
+-- **************************************************************
+--
+-- ASSISTANCE INFORMATION FEEDBACK
+--
+-- **************************************************************
+
+AssistanceInformationFeedback ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container	{{AssistanceInformationFeedback-IEs}},
+	...
+}
+
+AssistanceInformationFeedback-IEs LPPA-PROTOCOL-IES ::= {
+	{ ID id-AssistanceInformationFailureList	CRITICALITY reject	TYPE AssistanceInformationFailureList	PRESENCE optional}|
+	{ ID id-CriticalityDiagnostics				CRITICALITY ignore	TYPE CriticalityDiagnostics					PRESENCE optional},
+	...
+}
+
+-- **************************************************************
+--
 -- ERROR INDICATION
 --
 -- **************************************************************
@@ -354,7 +391,7 @@ ErrorIndication ::= SEQUENCE {
 }
 
 ErrorIndication-IEs LPPA-PROTOCOL-IES ::= {
-
+	
 	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE optional}|
 	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional},
 	...
