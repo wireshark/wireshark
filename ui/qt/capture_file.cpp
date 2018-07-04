@@ -156,7 +156,7 @@ const QString CaptureFile::fileName()
     return name;
 }
 
-const QString CaptureFile::fileTitle()
+const QString CaptureFile::fileDisplayName()
 {
     QString title;
 
