@@ -33,7 +33,7 @@ typedef enum {
     TAP_RTP_SHORT_FRAME,
     TAP_RTP_FILE_OPEN_ERROR,
     TAP_RTP_FILE_WRITE_ERROR,
-    TAP_RTP_NO_DATA,
+    TAP_RTP_NO_DATA
 } tap_rtp_error_type_t;
 
 typedef struct _tap_rtp_save_info_t {
