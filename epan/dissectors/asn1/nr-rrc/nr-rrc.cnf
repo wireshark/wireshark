@@ -35,6 +35,7 @@ UL-DataSplitThreshold
 
 #.EXPORTS
 CellGroupConfig_PDU
+CG-Config_PDU
 CG-ConfigInfo_PDU
 ConfigRestrictInfoSCG_PDU
 FreqBandList_PDU
@@ -58,6 +59,7 @@ UL-DCCH-Message_PDU
 #.PDU
 BCCH-BCH-Message             @bcch.bch
 CellGroupConfig
+CG-Config
 CG-ConfigInfo
 ConfigRestrictInfoSCG
 DL-DCCH-Message              @dl.dcch
@@ -82,12 +84,6 @@ UL-DCCH-Message              @ul.dcch
 
 #.OMIT_ASSIGNMENT
 CellsTriggeredList
-CG-Config
-CG-Config-IEs
-ConfigRestrictModReqSCG
-FR-Info
-FR-InfoList
-MeasConfigSN
 VarMeasConfig
 VarMeasReportList
 VarMeasReport
