@@ -29,6 +29,8 @@ public:
     bool detailsEnabled();
     bool bytesEnabled();
 
+    bool includeColumnHeadingsEnabled();
+
     bool allCollapsedEnabled();
     bool asDisplayedEnabled();
     bool allExpandedEnabled();

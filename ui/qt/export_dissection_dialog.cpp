@@ -174,6 +174,7 @@ int ExportDissectionDialog::exec()
         print_args_.to_file             = TRUE;
         print_args_.cmd                 = NULL;
         print_args_.print_summary       = TRUE;
+        print_args_.print_col_headings  = TRUE;
         print_args_.print_dissections   = print_dissections_as_displayed;
         print_args_.print_hex           = FALSE;
         print_args_.print_formfeed      = FALSE;
@@ -181,6 +182,7 @@ int ExportDissectionDialog::exec()
         switch (export_type_) {
         case export_type_text:      /* Text */
             print_args_.print_summary = packet_format_group_box_.summaryEnabled();
+            print_args_.print_col_headings = packet_format_group_box_.includeColumnHeadingsEnabled();
             print_args_.print_dissections = print_dissections_none;
             if (packet_format_group_box_.detailsEnabled()) {
                 if (packet_format_group_box_.allCollapsedEnabled())

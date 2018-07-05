@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>178</height>
+    <height>199</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -24,6 +24,16 @@
      </property>
      <property name="text">
       <string>Summary line</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="includeColumnHeadingsCheckBox">
+     <property name="text">
+      <string>Include column headings</string>
      </property>
      <property name="checked">
       <bool>true</bool>
