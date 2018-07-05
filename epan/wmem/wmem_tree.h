@@ -217,7 +217,9 @@ typedef gboolean (*wmem_foreach_func)(const void *key, void *value, void *userda
 typedef void (*wmem_printer_func)(const void *data);
 
 
-/** Traverse the tree and call callback(value, userdata) for each value found.
+/** Inorder traversal (left/parent/right) of the tree and call
+ * callback(value, userdata) for each value found.
+ *
  * Returns TRUE if the traversal was ended prematurely by the callback.
  */
 WS_DLL_PUBLIC

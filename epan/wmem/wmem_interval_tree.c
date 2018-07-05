@@ -45,7 +45,7 @@ update_max_edge(wmem_tree_node_t *node)
     wmem_range_t *range;
     wmem_range_t *range_l;
     wmem_range_t *range_r;
-    guint64 maxEdge  = 0;
+    guint64 maxEdge = 0;
 
     if(!node) {
         return ;
@@ -56,7 +56,7 @@ update_max_edge(wmem_tree_node_t *node)
     range_l = (node->left) ? (wmem_range_t *) (node->left->key) : NULL;
     range_r = (node->right) ? (wmem_range_t *) (node->right->key) : NULL;
 
-    maxEdge = range->max_edge;
+    maxEdge = range->high;
 
     if(range_r) {
         maxEdge = MAX(maxEdge, range_r->max_edge) ;
@@ -65,7 +65,7 @@ update_max_edge(wmem_tree_node_t *node)
         maxEdge = MAX(maxEdge, range_l->max_edge) ;
     }
 
-    /* a change was made, update the parent nodes */
+    /* update the parent nodes only if a change happened (optimization) */
     if(range->max_edge != maxEdge) {
         range->max_edge = maxEdge;
         update_max_edge(node->parent);
@@ -124,11 +124,11 @@ wmem_itree_insert(wmem_itree_t *tree, const guint64 low, const guint64 high, voi
     g_assert(low <= high);
     range->low = low;
     range->high = high;
-    range->max_edge = high;
+    range->max_edge = 0;
 
     node = wmem_tree_insert(tree, range, data, (compare_func)wmem_tree_compare_ranges);
 
-    /* If no rotations, still need to update max_edge */
+    /* in absence of rotation, we still need to update max_edge */
     update_max_edge(node);
 }
 
