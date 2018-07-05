@@ -16,7 +16,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 38.473 V15.2.0 (2018-06)
+ * References: 3GPP TS 38.473 V15.2.1 (2018-07)
  */
 
 #include "config.h"
@@ -2942,7 +2942,7 @@ static const value_string f1ap_QoSInformation_vals[] = {
 static const per_choice_t QoSInformation_choice[] = {
   {   0, &hf_f1ap_eUTRANQoS      , ASN1_EXTENSION_ROOT    , dissect_f1ap_EUTRANQoS },
   {   1, &hf_f1ap_choice_extension, ASN1_EXTENSION_ROOT    , dissect_f1ap_ProtocolExtensionContainer },
-  {   2, &hf_f1ap_dRB_Information, ASN1_EXTENSION_ROOT    , dissect_f1ap_DRB_Information },
+  {   2, &hf_f1ap_dRB_Information, ASN1_NOT_EXTENSION_ROOT, dissect_f1ap_DRB_Information },
   { 0, NULL, 0, NULL }
 };
 
@@ -3079,6 +3079,7 @@ static const per_sequence_t DRBs_ToBeSetupMod_Item_sequence[] = {
   { &hf_f1ap_uLUPTNLInformation_ToBeSetup_List, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_f1ap_ULUPTNLInformation_ToBeSetup_List },
   { &hf_f1ap_rLCMode        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_f1ap_RLCMode },
   { &hf_f1ap_uLConfiguration, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_ULConfiguration },
+  { &hf_f1ap_duplicationActivation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_DuplicationActivation },
   { &hf_f1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_f1ap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };

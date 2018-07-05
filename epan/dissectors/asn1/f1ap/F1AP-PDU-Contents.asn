@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V15.2.0 (2018-06)
+-- 3GPP TS 38.473 V15.2.1 (2018-07)
 -- 9.4.4	PDU Definitions
 -- **************************************************************
 --
@@ -6,11 +6,11 @@
 --
 -- **************************************************************
 
-F1AP-PDU-Contents { 
-itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+F1AP-PDU-Contents {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
 ngran-access (22) modules (3) f1ap (3) version1 (1) f1ap-PDU-Contents (1) }
 
-DEFINITIONS AUTOMATIC TAGS ::= 
+DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
 
@@ -26,11 +26,11 @@ IMPORTS
 	Cause,
 	Cells-Failed-to-be-Activated-List-Item,
 	Cells-to-be-Activated-List-Item,
-	Cells-to-be-Deactivated-List-Item, 
+	Cells-to-be-Deactivated-List-Item,
 	CellULConfigured,
-	CriticalityDiagnostics, 
+	CriticalityDiagnostics,
 	C-RNTI,
-	CUtoDURRCInformation, 
+	CUtoDURRCInformation,
 	DRB-Activity-Item,
 	DRBID,
 	DRBs-FailedToBeModified-Item,
@@ -56,7 +56,7 @@ IMPORTS
 	GNB-DU-UE-F1AP-ID,
 	GNB-DU-ID,
 	GNB-DU-Served-Cells-Item,
-	GNB-DU-System-Information, 
+	GNB-DU-System-Information,
 	GNB-CU-Name,
 	GNB-DU-Name,
 	InactivityMonitoringRequest,
@@ -74,7 +74,7 @@ IMPORTS
 	SCell-ToBeSetup-Item,
 	SCell-ToBeSetupMod-Item,
 	SCell-FailedtoSetup-Item,
-	SCell-FailedtoSetupMod-Item, 
+	SCell-FailedtoSetupMod-Item,
 	ServCellIndex,
 	Served-Cell-Information,
 	Served-Cells-To-Add-Item,
@@ -92,7 +92,7 @@ IMPORTS
 	TransmissionStopIndicator,
 	UE-associatedLogicalF1-ConnectionItem,
 	DUtoCURRCContainer,
-	PagingCell-Item, 
+	PagingCell-Item,
 	SIBtype-List,
 	UEIdentityIndexValue,
 	GNB-CU-TNL-Association-Setup-Item,
@@ -190,7 +190,7 @@ FROM F1AP-Containers
 	id-gNB-DU-UE-F1AP-ID,
 	id-gNB-DU-ID,
 	id-GNB-DU-Served-Cells-Item,
-	id-gNB-DU-Served-Cells-List, 
+	id-gNB-DU-Served-Cells-List,
 	id-gNB-CU-Name,
 	id-gNB-DU-Name,
 	id-InactivityMonitoringRequest,
@@ -230,7 +230,7 @@ FROM F1AP-Containers
 	id-SRBs-Required-ToBeReleased-Item,
 	id-SRBs-Required-ToBeReleased-List,
 	id-SRBs-ToBeReleased-Item,
-	id-SRBs-ToBeReleased-List, 
+	id-SRBs-ToBeReleased-List,
 	id-SRBs-ToBeSetup-Item,
 	id-SRBs-ToBeSetup-List,
 	id-SRBs-ToBeSetupMod-Item,
@@ -316,7 +316,7 @@ Reset ::= SEQUENCE {
 	...
 }
 
-ResetIEs F1AP-PROTOCOL-IES ::= { 
+ResetIEs F1AP-PROTOCOL-IES ::= {
 	{ ID id-TransactionID				CRITICALITY reject	TYPE TransactionID				PRESENCE mandatory	}|
 	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE mandatory	}|
 	{ ID id-ResetType					CRITICALITY reject	TYPE ResetType					PRESENCE mandatory	},
@@ -417,7 +417,7 @@ F1SetupRequestIEs F1AP-PROTOCOL-IES ::= {
 	{ ID id-gNB-DU-Name						CRITICALITY ignore	TYPE GNB-DU-Name				PRESENCE optional	}|
 	{ ID id-gNB-DU-Served-Cells-List		CRITICALITY reject	TYPE GNB-DU-Served-Cells-List	PRESENCE mandatory	},
 	...
-} 
+}
 
 
 GNB-DU-Served-Cells-List 	::= SEQUENCE (SIZE(1.. maxCellingNBDU)) OF ProtocolIE-SingleContainer { { GNB-DU-Served-Cells-ItemIEs } }
@@ -501,7 +501,7 @@ GNBDUConfigurationUpdateIEs F1AP-PROTOCOL-IES ::= {
 	{ ID id-Served-Cells-To-Delete-List		CRITICALITY reject	TYPE Served-Cells-To-Delete-List					PRESENCE optional	}|
 	{ ID id-Active-Cells-List				CRITICALITY reject	TYPE	 Active-Cells-List							PRESENCE optional	},
 	...
-} 
+}
 Served-Cells-To-Add-List		::= SEQUENCE (SIZE(1.. maxCellingNBDU))	OF ProtocolIE-SingleContainer { { Served-Cells-To-Add-ItemIEs } }
 Served-Cells-To-Modify-List	::= SEQUENCE (SIZE(1.. maxCellingNBDU))	OF ProtocolIE-SingleContainer { { Served-Cells-To-Modify-ItemIEs } }
 Served-Cells-To-Delete-List	::= SEQUENCE (SIZE(1.. maxCellingNBDU))	OF ProtocolIE-SingleContainer { { Served-Cells-To-Delete-ItemIEs } }
@@ -593,7 +593,7 @@ GNBCUConfigurationUpdateIEs F1AP-PROTOCOL-IES ::= {
 	{ ID id-Cells-to-be-Barred-List			CRITICALITY ignore	TYPE	 Cells-to-be-Barred-List											PRESENCE optional	}|
 	{ ID id-Protected-EUTRA-Resources-List	CRITICALITY reject	TYPE	 Protected-EUTRA-Resources-List			PRESENCE optional	},
 	...
-} 
+}
 
 Cells-to-be-Deactivated-List	::= SEQUENCE (SIZE(1.. maxCellingNBDU))	OF ProtocolIE-SingleContainer { { Cells-to-be-Deactivated-List-ItemIEs } }
 GNB-CU-TNL-Association-To-Add-List		::= SEQUENCE (SIZE(1.. maxnoofTNLAssociations))	OF ProtocolIE-SingleContainer { { GNB-CU-TNL-Association-To-Add-ItemIEs } }
@@ -692,7 +692,7 @@ GNBCUConfigurationUpdateFailureIEs F1AP-PROTOCOL-IES ::= {
 
 -- **************************************************************
 --
--- GNB-DU RESOURCE COORDINATION REQUEST 
+-- GNB-DU RESOURCE COORDINATION REQUEST
 --
 -- **************************************************************
 
@@ -711,7 +711,7 @@ GNBDUResourceCoordinationRequest-IEs F1AP-PROTOCOL-IES ::= {
 
 -- **************************************************************
 --
--- GNB-DU RESOURCE COORDINATION RESPONSE 
+-- GNB-DU RESOURCE COORDINATION RESPONSE
 --
 -- **************************************************************
 
@@ -761,7 +761,7 @@ UEContextSetupRequestIEs F1AP-PROTOCOL-IES ::= {
 	{ ID id-RRCContainer							CRITICALITY ignore	TYPE RRCContainer									PRESENCE optional	}|
 	{ ID id-MaskedIMEISV							CRITICALITY ignore	TYPE MaskedIMEISV									PRESENCE optional	},
 	...
-} 
+}
 
 Candidate-SpCell-List::= SEQUENCE (SIZE(1..maxnoofCandidateSpCells)) OF ProtocolIE-SingleContainer { { Candidate-SpCell-ItemIEs} }
 SCell-ToBeSetup-List::= SEQUENCE (SIZE(1..maxnoofSCells)) OF ProtocolIE-SingleContainer { { SCell-ToBeSetup-ItemIEs} }
@@ -906,7 +906,7 @@ UEContextReleaseRequestIEs F1AP-PROTOCOL-IES ::= {
 
 -- **************************************************************
 --
--- UE CONTEXT RELEASE COMMAND 
+-- UE CONTEXT RELEASE COMMAND
 --
 -- **************************************************************
 
@@ -921,7 +921,7 @@ UEContextReleaseCommandIEs F1AP-PROTOCOL-IES ::= {
 	{ ID id-Cause							CRITICALITY ignore	TYPE Cause							PRESENCE mandatory	}|
 	{ ID id-RRCContainer						CRITICALITY ignore	TYPE RRCContainer					PRESENCE optional	},
 	...
-} 
+}
 
 -- **************************************************************
 --
@@ -977,10 +977,10 @@ UEContextModificationRequestIEs F1AP-PROTOCOL-IES ::= {
 	{ ID id-DRBs-ToBeModified-List					CRITICALITY reject	TYPE DRBs-ToBeModified-List						PRESENCE optional	}|
 	{ ID id-SRBs-ToBeReleased-List					CRITICALITY reject	TYPE SRBs-ToBeReleased-List						PRESENCE optional	}|
 	{ ID id-DRBs-ToBeReleased-List					CRITICALITY reject	TYPE DRBs-ToBeReleased-List						PRESENCE optional	}|
-	{ ID id-InactivityMonitoringRequest				CRITICALITY reject	TYPE InactivityMonitoringRequest				PRESENCE optional	}|	
+	{ ID id-InactivityMonitoringRequest				CRITICALITY reject	TYPE InactivityMonitoringRequest				PRESENCE optional	}|
 	{ ID id-RAT-FrequencyPriorityInformation		CRITICALITY reject	TYPE RAT-FrequencyPriorityInformation				PRESENCE optional	},
 	...
-} 
+}
 
 SCell-ToBeSetupMod-List::= SEQUENCE (SIZE(1..maxnoofSCells)) OF ProtocolIE-SingleContainer { { SCell-ToBeSetupMod-ItemIEs} }
 SCell-ToBeRemoved-List::= SEQUENCE (SIZE(1..maxnoofSCells)) OF ProtocolIE-SingleContainer { { SCell-ToBeRemoved-ItemIEs} }
@@ -1146,7 +1146,7 @@ UEContextModificationRequiredIEs F1AP-PROTOCOL-IES ::= {
 	{ ID id-DRBs-Required-ToBeReleased-List				CRITICALITY reject	TYPE DRBs-Required-ToBeReleased-List				PRESENCE optional}|
 	{ ID id-Cause										CRITICALITY ignore	TYPE Cause												PRESENCE mandatory	},
 	...
-} 
+}
 
 DRBs-Required-ToBeModified-List::= SEQUENCE (SIZE(1..maxnoofDRBs)) OF ProtocolIE-SingleContainer { { DRBs-Required-ToBeModified-ItemIEs } }
 DRBs-Required-ToBeReleased-List::= SEQUENCE (SIZE(1..maxnoofDRBs)) OF ProtocolIE-SingleContainer { { DRBs-Required-ToBeReleased-ItemIEs } }
@@ -1199,30 +1199,30 @@ DRBs-ModifiedConf-ItemIEs F1AP-PROTOCOL-IES ::= {
 
 
 
--- ************************************************************** 
--- 
--- WRITE-REPLACE WARNING ELEMENTARY PROCEDURE 
--- 
--- ************************************************************** 
+-- **************************************************************
+--
+-- WRITE-REPLACE WARNING ELEMENTARY PROCEDURE
+--
+-- **************************************************************
 
--- ************************************************************** 
--- 
--- Write-Replace Warning Request 
--- 
--- ************************************************************** 
+-- **************************************************************
+--
+-- Write-Replace Warning Request
+--
+-- **************************************************************
 
-WriteReplaceWarningRequest ::= SEQUENCE { 
-protocolIEs ProtocolIE-Container { {WriteReplaceWarningRequestIEs} }, 
-... 
-} 
-WriteReplaceWarningRequestIEs F1AP-PROTOCOL-IES ::= { 
+WriteReplaceWarningRequest ::= SEQUENCE {
+protocolIEs ProtocolIE-Container { {WriteReplaceWarningRequestIEs} },
+...
+}
+WriteReplaceWarningRequestIEs F1AP-PROTOCOL-IES ::= {
 { ID id-TransactionID						CRITICALITY reject	TYPE TransactionID								PRESENCE mandatory	}|
-{ ID id-PWSSystemInformation 				CRITICALITY reject	TYPE PWSSystemInformation 						PRESENCE mandatory }| 
-{ ID id-RepetitionPeriod 					CRITICALITY reject	TYPE RepetitionPeriod 							PRESENCE mandatory }| 
-{ ID id-NumberofBroadcastRequest 			CRITICALITY reject	TYPE NumberofBroadcastRequest 					PRESENCE mandatory }| 
-{ ID id-ConcurrentWarningMessageIndicator 	CRITICALITY reject	TYPE ConcurrentWarningMessageIndicator 		PRESENCE optional }| 
+{ ID id-PWSSystemInformation 				CRITICALITY reject	TYPE PWSSystemInformation 						PRESENCE mandatory }|
+{ ID id-RepetitionPeriod 					CRITICALITY reject	TYPE RepetitionPeriod 							PRESENCE mandatory }|
+{ ID id-NumberofBroadcastRequest 			CRITICALITY reject	TYPE NumberofBroadcastRequest 					PRESENCE mandatory }|
+{ ID id-ConcurrentWarningMessageIndicator 	CRITICALITY reject	TYPE ConcurrentWarningMessageIndicator 		PRESENCE optional }|
 { ID id-Cells-To-Be-Broadcast-List			CRITICALITY reject	TYPE Cells-To-Be-Broadcast-List					PRESENCE optional	},
-... 
+...
 }
 Cells-To-Be-Broadcast-List		::= SEQUENCE (SIZE(1.. maxCellingNBDU))	OF ProtocolIE-SingleContainer { { Cells-To-Be-Broadcast-List-ItemIEs } }
 
@@ -1231,21 +1231,21 @@ Cells-To-Be-Broadcast-List-ItemIEs F1AP-PROTOCOL-IES	::= {
 	...
 }
 
--- ************************************************************** 
--- 
--- Write-Replace Warning Response 
--- 
--- ************************************************************** 
+-- **************************************************************
+--
+-- Write-Replace Warning Response
+--
+-- **************************************************************
 
-WriteReplaceWarningResponse ::= SEQUENCE { 
-protocolIEs ProtocolIE-Container { {WriteReplaceWarningResponseIEs} }, 
-... 
-} 
-WriteReplaceWarningResponseIEs F1AP-PROTOCOL-IES ::= { 
+WriteReplaceWarningResponse ::= SEQUENCE {
+protocolIEs ProtocolIE-Container { {WriteReplaceWarningResponseIEs} },
+...
+}
+WriteReplaceWarningResponseIEs F1AP-PROTOCOL-IES ::= {
 { ID id-TransactionID						CRITICALITY reject	TYPE TransactionID							PRESENCE mandatory	}|
 { ID id-Cells-Broadcast-Completed-List		CRITICALITY reject	TYPE Cells-Broadcast-Completed-List		PRESENCE optional	}|
 { ID id-CriticalityDiagnostics						CRITICALITY ignore	TYPE CriticalityDiagnostics							PRESENCE optional	},
-... 
+...
 }
 Cells-Broadcast-Completed-List		::= SEQUENCE (SIZE(1.. maxCellingNBDU))	OF ProtocolIE-SingleContainer { { Cells-Broadcast-Completed-List-ItemIEs } }
 
@@ -1255,29 +1255,29 @@ Cells-Broadcast-Completed-List-ItemIEs F1AP-PROTOCOL-IES	::= {
 }
 
 
--- ************************************************************** 
--- 
--- PWS CANCEL ELEMENTARY PROCEDURE 
--- 
--- ************************************************************** 
+-- **************************************************************
+--
+-- PWS CANCEL ELEMENTARY PROCEDURE
+--
+-- **************************************************************
 
--- ************************************************************** 
--- 
--- PWS Cancel Request 
--- 
--- ************************************************************** 
+-- **************************************************************
+--
+-- PWS Cancel Request
+--
+-- **************************************************************
 
-PWSCancelRequest ::= SEQUENCE { 
-protocolIEs ProtocolIE-Container { {PWSCancelRequestIEs} }, 
-... 
-} 
-PWSCancelRequestIEs F1AP-PROTOCOL-IES ::= { 
+PWSCancelRequest ::= SEQUENCE {
+protocolIEs ProtocolIE-Container { {PWSCancelRequestIEs} },
+...
+}
+PWSCancelRequestIEs F1AP-PROTOCOL-IES ::= {
 { ID id-TransactionID					CRITICALITY reject TYPE TransactionID					PRESENCE mandatory	}|
-{ ID id-NumberofBroadcastRequest 		CRITICALITY reject TYPE NumberofBroadcastRequest 		PRESENCE mandatory }| 
+{ ID id-NumberofBroadcastRequest 		CRITICALITY reject TYPE NumberofBroadcastRequest 		PRESENCE mandatory }|
 { ID id-Broadcast-To-Be-Cancelled-List	CRITICALITY reject TYPE Broadcast-To-Be-Cancelled-List	PRESENCE optional	}|
 { ID id-Cancel-all-Warning-Messages-Indicator	CRITICALITY reject TYPE Cancel-all-Warning-Messages-Indicator	PRESENCE optional	}
 ,
-... 
+...
 }
 Broadcast-To-Be-Cancelled-List		::= SEQUENCE (SIZE(1.. maxCellingNBDU))	OF ProtocolIE-SingleContainer { { Broadcast-To-Be-Cancelled-List-ItemIEs } }
 
@@ -1286,22 +1286,22 @@ Broadcast-To-Be-Cancelled-List-ItemIEs F1AP-PROTOCOL-IES	::= {
 	...
 }
 
--- ************************************************************** 
--- 
--- PWS Cancel Response 
--- 
--- ************************************************************** 
+-- **************************************************************
+--
+-- PWS Cancel Response
+--
+-- **************************************************************
 
-PWSCancelResponse ::= SEQUENCE { 
-	protocolIEs ProtocolIE-Container { {PWSCancelResponseIEs} }, 
-... 
-} 
+PWSCancelResponse ::= SEQUENCE {
+	protocolIEs ProtocolIE-Container { {PWSCancelResponseIEs} },
+...
+}
 
-PWSCancelResponseIEs F1AP-PROTOCOL-IES ::= { 
+PWSCancelResponseIEs F1AP-PROTOCOL-IES ::= {
 { ID id-TransactionID					CRITICALITY reject	TYPE TransactionID					PRESENCE mandatory	}|
 { ID id-Cells-Broadcast-Cancelled-List	CRITICALITY reject	TYPE Cells-Broadcast-Cancelled-List	PRESENCE optional	}|
 { ID id-CriticalityDiagnostics						CRITICALITY ignore	TYPE CriticalityDiagnostics							PRESENCE optional	},
-... 
+...
 }
 Cells-Broadcast-Cancelled-List		::= SEQUENCE (SIZE(1.. maxCellingNBDU))	OF ProtocolIE-SingleContainer { { Cells-Broadcast-Cancelled-List-ItemIEs } }
 
@@ -1523,25 +1523,25 @@ DRB-Notify-ItemIEs F1AP-PROTOCOL-IES ::= {
 
 
 
--- ************************************************************** 
--- 
--- PWS RESTART INDICATION ELEMENTARY PROCEDURE 
--- 
--- ************************************************************** 
+-- **************************************************************
+--
+-- PWS RESTART INDICATION ELEMENTARY PROCEDURE
+--
+-- **************************************************************
 
--- ************************************************************** 
--- 
--- PWS Restart Indication 
--- 
--- ************************************************************** 
+-- **************************************************************
+--
+-- PWS Restart Indication
+--
+-- **************************************************************
 
-PWSRestartIndication ::= SEQUENCE { 
-protocolIEs ProtocolIE-Container { { PWSRestartIndicationIEs} }, 
-... 
-} 
-PWSRestartIndicationIEs F1AP-PROTOCOL-IES ::= { 
+PWSRestartIndication ::= SEQUENCE {
+protocolIEs ProtocolIE-Container { { PWSRestartIndicationIEs} },
+...
+}
+PWSRestartIndicationIEs F1AP-PROTOCOL-IES ::= {
 { ID id-NR-CGI-List-For-Restart-List	CRITICALITY reject	TYPE	 NR-CGI-List-For-Restart-List	PRESENCE optional	},
-... 
+...
 }
 NR-CGI-List-For-Restart-List		::= SEQUENCE (SIZE(1.. maxCellingNBDU))	OF ProtocolIE-SingleContainer { { NR-CGI-List-For-Restart-List-ItemIEs } }
 
@@ -1550,25 +1550,25 @@ NR-CGI-List-For-Restart-List-ItemIEs F1AP-PROTOCOL-IES	::= {
 	...
 }
 
--- ************************************************************** 
--- 
--- PWS FAILURE INDICATION ELEMENTARY PROCEDURE 
--- 
--- ************************************************************** 
+-- **************************************************************
+--
+-- PWS FAILURE INDICATION ELEMENTARY PROCEDURE
+--
+-- **************************************************************
 
--- ************************************************************** 
--- 
--- PWS Failure Indication 
--- 
--- ************************************************************** 
+-- **************************************************************
+--
+-- PWS Failure Indication
+--
+-- **************************************************************
 
-PWSFailureIndication ::= SEQUENCE { 
-protocolIEs ProtocolIE-Container { { PWSFailureIndicationIEs} }, 
-... 
-} 
-PWSFailureIndicationIEs F1AP-PROTOCOL-IES ::= { 
+PWSFailureIndication ::= SEQUENCE {
+protocolIEs ProtocolIE-Container { { PWSFailureIndicationIEs} },
+...
+}
+PWSFailureIndicationIEs F1AP-PROTOCOL-IES ::= {
 { ID id-PWS-Failed-NR-CGI-List	CRITICALITY reject	TYPE	 PWS-Failed-NR-CGI-List	PRESENCE optional	},
-... 
+...
 }
 PWS-Failed-NR-CGI-List		::= SEQUENCE (SIZE(1.. maxCellingNBDU))	OF ProtocolIE-SingleContainer { { PWS-Failed-NR-CGI-List-ItemIEs } }
 
