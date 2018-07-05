@@ -1080,6 +1080,10 @@ follow_tcp_tap_listener(void *tapdata, packet_info *pinfo,
     guint32 data_offset = 0;
     guint32 data_length = tvb_captured_length(follow_data->tvb);
 
+    if (follow_data->tcph->th_flags & TH_SYN) {
+        sequence++;
+    }
+
     if (follow_info->client_port == 0) {
         follow_info->client_port = pinfo->srcport;
         copy_address(&follow_info->client_ip, &pinfo->src);
@@ -1098,24 +1102,11 @@ follow_tcp_tap_listener(void *tapdata, packet_info *pinfo,
     }
 
     /*
-     * If there are no previous fragments, then
-     * create a stream starting at the new segment.
+     * If this is the first segment of this stream, initialize the next expected
+     * sequence number. If there is any data, it will be added below.
      */
-    if (follow_info->bytes_written[is_server] == 0) {
-        follow_info->seq[is_server] = sequence + length;
-        if (follow_data->tcph->th_flags & TH_SYN)
-            follow_info->seq[is_server]++;
-
-        follow_record = g_new0(follow_record_t, 1);
-        follow_record->is_server = is_server;
-        follow_record->packet_num = pinfo->fd->num;
-        follow_record->data = g_byte_array_append(g_byte_array_new(),
-                                                  tvb_get_ptr(follow_data->tvb, data_offset, data_length),
-                                                  data_length);
-
-        follow_info->bytes_written[is_server] += follow_record->data->len;
-        follow_info->payload = g_list_prepend(follow_info->payload, follow_record);
-        return FALSE;
+    if (follow_info->bytes_written[is_server] == 0 && follow_info->seq[is_server] == 0) {
+        follow_info->seq[is_server] = sequence;
     }
 
     /* We have already seen this src (and received some segments), let's figure
@@ -1157,9 +1148,6 @@ follow_tcp_tap_listener(void *tapdata, packet_info *pinfo,
     if (EQ_SEQ(sequence, follow_info->seq[is_server])) {
         /* The segment overlaps or extends the previous end of stream. */
         follow_info->seq[is_server] += length;
-        if (follow_data->tcph->th_flags & TH_SYN)
-            follow_info->seq[is_server]++;
-
         follow_info->bytes_written[is_server] += follow_record->data->len;
         follow_info->payload = g_list_prepend(follow_info->payload, follow_record);
 
