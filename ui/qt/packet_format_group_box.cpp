@@ -21,7 +21,26 @@ PacketFormatGroupBox::PacketFormatGroupBox(QWidget *parent) :
 
     QStyleOption style_opt;
     int cb_label_offset =  pf_ui_->detailsCheckBox->style()->subElementRect(QStyle::SE_CheckBoxContents, &style_opt).left();
-    setStyleSheet(QString(
+
+    // Indent the checkbox under the "Packet summary" checkbox
+    pf_ui_->includeColumnHeadingsCheckBox->setStyleSheet(QString(
+                      "QCheckBox {"
+                      "  padding-left: %1px;"
+                      "}"
+                      ).arg(cb_label_offset));
+
+    // Indent the radio buttons under the "Packet details" checkbox
+    pf_ui_->allCollapsedButton->setStyleSheet(QString(
+                      "QRadioButton {"
+                      "  padding-left: %1px;"
+                      "}"
+                      ).arg(cb_label_offset));
+    pf_ui_->asDisplayedButton->setStyleSheet(QString(
+                      "QRadioButton {"
+                      "  padding-left: %1px;"
+                      "}"
+                      ).arg(cb_label_offset));
+    pf_ui_->allExpandedButton->setStyleSheet(QString(
                       "QRadioButton {"
                       "  padding-left: %1px;"
                       "}"
@@ -36,6 +55,11 @@ PacketFormatGroupBox::~PacketFormatGroupBox()
 bool PacketFormatGroupBox::summaryEnabled()
 {
     return pf_ui_->summaryCheckBox->isChecked();
+}
+
+bool PacketFormatGroupBox::includeColumnHeadingsEnabled()
+{
+    return pf_ui_->includeColumnHeadingsCheckBox->isChecked();
 }
 
 bool PacketFormatGroupBox::detailsEnabled()
@@ -63,8 +87,9 @@ bool PacketFormatGroupBox::allExpandedEnabled()
     return pf_ui_->allExpandedButton->isChecked();
 }
 
-void PacketFormatGroupBox::on_summaryCheckBox_toggled(bool)
+void PacketFormatGroupBox::on_summaryCheckBox_toggled(bool checked)
 {
+    pf_ui_->includeColumnHeadingsCheckBox->setEnabled(checked);
     emit formatChanged();
 }
 

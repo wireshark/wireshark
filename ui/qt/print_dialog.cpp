@@ -234,6 +234,7 @@ void PrintDialog::printPackets(QPrinter *printer, bool in_preview)
 
     print_args_.format              = PR_FMT_TEXT;
     print_args_.print_summary       = pd_ui_->formatGroupBox->summaryEnabled();
+    print_args_.print_col_headings  = pd_ui_->formatGroupBox->includeColumnHeadingsEnabled();
     print_args_.print_hex           = pd_ui_->formatGroupBox->bytesEnabled();
     print_args_.print_formfeed      = pd_ui_->formFeedCheckBox->isChecked();
 
