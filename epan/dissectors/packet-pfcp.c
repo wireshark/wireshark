@@ -46,6 +46,7 @@ static int hf_pfcp2_ie = -1;
 static int hf_pfcp2_ie_len = -1;
 static int hf_pfcp2_enterprise_ie = -1;
 static int hf_pfcp_enterprice_id = -1;
+static int hf_pfcp_enterprice_data = -1;
 
 static int hf_pfcp_spare_b2 = -1;
 static int hf_pfcp_spare_b3 = -1;
@@ -353,6 +354,7 @@ static int hf_pfcp_upiri_flags = -1;
 static int hf_pfcp_upiri_flags_b0_v4 = -1;
 static int hf_pfcp_upiri_flags_b1_v6 = -1;
 static int hf_pfcp_upiri_flg_b5_assoni = -1;
+static int hf_pfcp_upiri_flg_b2b4_teidri = -1;
 static int hf_pfcp_upiri_teidri = -1;
 static int hf_pfcp_upiri_teid_range = -1;
 static int hf_pfcp_upiri_ipv4 = -1;
@@ -899,13 +901,13 @@ decode_pfcp_network_instance(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
     int      name_len;
 
-    name_len = tvb_get_guint8(tvb, offset);
-    if (name_len < 0x41) {
-        /* APN */
-        guint8 *apn = NULL;
-        int     tmp;
+    if (length > 0) {
+        name_len = tvb_get_guint8(tvb, offset);
+        if (name_len < 0x41) {
+            /* APN */
+            guint8 *apn = NULL;
+            int     tmp;
 
-        if (length > 0) {
             name_len = tvb_get_guint8(tvb, offset);
 
             if (name_len < 0x20) {
@@ -3445,6 +3447,7 @@ dissect_pfcp_user_plane_ip_resource_infomation(tvbuff_t *tvb, packet_info *pinfo
     static const int * pfcp_upiri_flags[] = {
         &hf_pfcp_spare_b7_b6,
         &hf_pfcp_upiri_flg_b5_assoni,
+        &hf_pfcp_upiri_flg_b2b4_teidri,
         &hf_pfcp_upiri_flags_b1_v6,
         &hf_pfcp_upiri_flags_b0_v4,
         NULL
@@ -3488,9 +3491,9 @@ dissect_pfcp_user_plane_ip_resource_infomation(tvbuff_t *tvb, packet_info *pinfo
         proto_tree_add_item(tree, hf_pfcp_upiri_ipv6, tvb, offset, 16, ENC_NA);
         offset += 16;
     }
-    if ((upiri_flags_val & 0x20) == 32) {
+    if ((upiri_flags_val & 0x20) == 0x20) {
         /* k to (l)   Network Instance */
-        offset = decode_pfcp_network_instance(tvb, pinfo, tree, item, offset, length);
+        offset = decode_pfcp_network_instance(tvb, pinfo, tree, item, offset, length - offset);
     }
 
     if (offset < length) {
@@ -4443,12 +4446,14 @@ dissect_pfcp_ies_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
             * e.g. by including the Update URR IE in the PFCP Session Modification Request
             * with the IE(s) to be removed with a null length.
             */
-            if( length == 0 ) {
+            if (length == 0) {
                 proto_item_append_text(ti, "[IE to be removed]");
             } else {
                 /* give the whole IE to the subdissector */
-                ie_tvb = tvb_new_subset_length(tvb, offset-6, length);
-                dissector_try_uint_new(pfcp_enterprise_ies_dissector_table, enterprise_id, ie_tvb, pinfo, ie_tree, FALSE, ti);
+                ie_tvb = tvb_new_subset_length(tvb, offset - 6, length+4);
+                if (!dissector_try_uint_new(pfcp_enterprise_ies_dissector_table, enterprise_id, ie_tvb, pinfo, ie_tree, FALSE, ti)) {
+                    proto_tree_add_item(ie_tree, hf_pfcp_enterprice_data, ie_tvb, 6, -1, ENC_NA);
+                }
             }
             offset += length;
         } else {
@@ -4742,6 +4747,11 @@ proto_register_pfcp(void)
         { "Enterprise ID",    "pfcp.enterprice_id",
         FT_UINT16, BASE_ENTERPRISES, STRINGS_ENTERPRISES,
         0x0, NULL, HFILL } },
+        { &hf_pfcp_enterprice_data,
+        { "Enterprise IE Data",    "pfcp.enterprice_ie_data",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
         { &hf_pfcp2_ie,
         { "IE Type", "pfcp.ie_type",
         FT_UINT16, BASE_DEC | BASE_EXT_STRING, &pfcp_ie_type_ext, 0x0,
@@ -6029,6 +6039,11 @@ proto_register_pfcp(void)
         { &hf_pfcp_upiri_flg_b5_assoni,
         { "ASSONI (Associated Network Instance)", "pfcp.upiri_flags.assoni",
             FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_upiri_flg_b2b4_teidri,
+        { "TEIDRI (TEID Range Indication)", "pfcp.upiri_flags.teidri",
+            FT_UINT8, BASE_HEX, NULL, 0x1c,
             NULL, HFILL }
         },
         { &hf_pfcp_upiri_flags_b1_v6,
