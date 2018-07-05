@@ -559,7 +559,7 @@ static const value_string h265_type_summary_values[] = {
 /* A.3 Profiles */
 static const value_string h265_profile_idc_values[] = {
 	{ 1,  "Main profile" },
-	{ 2,  "Main 10" },
+	{ 2,  "Main 10 and Main 10 Still Picture profiles" },
 	{ 3,  "Main Still Picture profile" },
 	{ 4,  "Format range extensions profiles" },
 	{ 5,  "High throughput profiles" },
@@ -567,11 +567,10 @@ static const value_string h265_profile_idc_values[] = {
 	{ 0, NULL }
 };
 
-#if 0
 /* Table A.7-Tier and level limits for the video profiles */
 /* XXX - this looks as if the values are 10 times the level value
  * in Table A.7. */
-static const value_string h265_level_bitrate_values[] = {
+static const value_string h265_level_main_tier_bitrate_values[] = {
 	{ 10,   "128 kb/s" },
 	{ 20,   "1.5 Mb/s" },
 	{ 21,   "3 Mb/s" },
@@ -587,7 +586,18 @@ static const value_string h265_level_bitrate_values[] = {
 	{ 62,   "240 Mb/s" },
 	{ 0, NULL }
 };
-#endif
+/*High tier*/
+static const value_string h265_level_high_tier_bitrate_values[] = {
+	{ 40,   "30 Mb/s" },
+	{ 41,   "50 Mb/s" },
+	{ 50,   "100 Mb/s" },
+	{ 51,   "160 Mb/s" },
+	{ 52,   "240 Mb/s" },
+	{ 60,   "240 Mb/s" },
+	{ 61,   "480 Mb/s" },
+	{ 62,   "800 Mb/s" },
+	{ 0, NULL }
+};
 
 /* Table 7-7 - Name association to slice_type */
 static const value_string h265_slice_type_vals[] = {
@@ -1346,7 +1356,7 @@ dissect_h265_seq_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info
 		proto_tree_add_bits_item(tree, hf_h265_sps_scc_extension_flag, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 		bit_offset++;
 
-		sps_scc_extension_flag = tvb_get_bits8(tvb, bit_offset, 1);
+		sps_extension_4bits = tvb_get_bits8(tvb, bit_offset, 4);
 		proto_tree_add_bits_item(tree, hf_h265_sps_extension_4bits, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 		bit_offset = bit_offset + 4;
 	}
@@ -1602,9 +1612,10 @@ dissect_h265_filler_data_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
 static int
 dissect_h265_profile_tier_level(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo _U_, gint offset, gboolean profilePresentFlag, gint vps_max_sub_layers_minus1)
 {
-	proto_item *general_profile_idc_item;
-	guint32     general_profile_idc;
+	proto_item *general_level_idc_item;
+	guint32     general_profile_idc, general_level_idc;
 	guint32		sub_layer_profile_idc[32] = { 0 };
+	gboolean general_tier_flag = 0;
 	gboolean general_profile_compatibility_flag[32] = { 0 };
 	gboolean sub_layer_profile_present_flag[32] = { 0 };
 	gboolean sub_layer_level_present_flag[32] = { 0 };
@@ -1612,10 +1623,8 @@ dissect_h265_profile_tier_level(proto_tree* tree, tvbuff_t* tvb, packet_info* pi
 
 	if (profilePresentFlag) {
 		proto_tree_add_item(tree, hf_h265_general_profile_space, tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(tree, hf_h265_general_tier_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
-		general_profile_idc = tvb_get_bits8(tvb, offset + 3, 5);
-		general_profile_idc_item = proto_tree_add_item(tree, hf_h265_general_profile_idc, tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_item_append_text(general_profile_idc_item, "[temp text]");
+		proto_tree_add_item_ret_boolean(tree, hf_h265_general_tier_flag, tvb, offset, 1, ENC_BIG_ENDIAN, &general_tier_flag);
+		proto_tree_add_item_ret_uint(tree, hf_h265_general_profile_idc, tvb, offset, 1, ENC_BIG_ENDIAN, &general_profile_idc);
 		offset++;
 
 		for (int j = 0; j < 32; j++)
@@ -1698,7 +1707,13 @@ dissect_h265_profile_tier_level(proto_tree* tree, tvbuff_t* tvb, packet_info* pi
 		}
 		bit_offset++;
 
-		proto_tree_add_item(tree, hf_h265_general_level_idc, tvb, bit_offset >> 3, 1, ENC_BIG_ENDIAN);
+		general_level_idc_item = proto_tree_add_item_ret_uint(tree, hf_h265_general_level_idc, tvb, bit_offset >> 3, 1, ENC_BIG_ENDIAN, &general_level_idc);
+		if (general_tier_flag) {
+			proto_item_append_text(general_level_idc_item, " [Level %.1f %s]", ((double)general_level_idc / 30), val_to_str_const(general_level_idc / 3, h265_level_high_tier_bitrate_values, "Unknown"));
+		}
+		else {
+			proto_item_append_text(general_level_idc_item, " [Level %.1f %s]", ((double)general_level_idc / 30), val_to_str_const(general_level_idc / 3, h265_level_main_tier_bitrate_values, "Unknown"));
+		}
 		bit_offset += 8;
 
 		for (int i = 0; i < vps_max_sub_layers_minus1; i++) {
@@ -1877,7 +1892,7 @@ dissect_h265_slice_segment_layer_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_in
 	bit_offset = offset << 3;
 
 	/* slice_segment_header( ) */
-	bit_offset = dissect_h265_slice_segment_header(tree, tvb, pinfo, bit_offset, nal_unit_type);
+	dissect_h265_slice_segment_header(tree, tvb, pinfo, bit_offset, nal_unit_type);
 	/* slice_segment_data( ) */
 	/* rbsp_slice_segment_trailing_bits( ) */
 }
@@ -2437,11 +2452,11 @@ dissect_h265_vui_parameters(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
 
 	if (vui_timing_info_present_flag) {
 		/* vui_num_units_in_tick u(32) */
-		proto_tree_add_bits_item(tree, hf_h265_vui_num_units_in_tick, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_bits_item(tree, hf_h265_vui_num_units_in_tick, tvb, bit_offset, 32, ENC_BIG_ENDIAN);
 		bit_offset = bit_offset + 32;
 
 		/* vui_time_scale u(32) */
-		proto_tree_add_bits_item(tree, hf_h265_vui_time_scale, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_bits_item(tree, hf_h265_vui_time_scale, tvb, bit_offset, 32, ENC_BIG_ENDIAN);
 		bit_offset = bit_offset + 32;
 
 		/* vui_poc_proportional_to_timing_flag u(1) */
@@ -3455,7 +3470,7 @@ proto_register_h265(void)
 		},
 		{ &hf_h265_elemental_duration_in_tc_minus1/*[i]*/,
 		{ "elemental_duration_in_tc_minus1", "h265.elemental_duration_in_tc_minus1",
-			FT_UINT8, BASE_DEC, NULL, 0x0,
+			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_h265_low_delay_hrd_flag/*[i]*/,
@@ -3465,7 +3480,7 @@ proto_register_h265(void)
 		},
 		{ &hf_h265_cpb_cnt_minus1/*[i]*/,
 		{ "cpb_cnt_minus1", "h265.cpb_cnt_minus1",
-			FT_UINT8, BASE_DEC, NULL, 0x0,
+			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
 			/*sub_layer_hrd_parameters*/
