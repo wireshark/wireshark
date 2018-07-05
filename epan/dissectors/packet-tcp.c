@@ -964,10 +964,12 @@ check_follow_fragments(follow_info_t *follow_info, gboolean is_server, guint32 a
     if (fragment_entry == NULL)
         return FALSE;
 
+    fragment = (follow_record_t*)fragment_entry->data;
+    lowest_seq = fragment->seq;
+
     for (; fragment_entry != NULL; fragment_entry = g_list_next(fragment_entry))
     {
         fragment = (follow_record_t*)fragment_entry->data;
-        lowest_seq = fragment->seq;
 
         if( GT_SEQ(lowest_seq, fragment->seq) ) {
             lowest_seq = fragment->seq;
@@ -1085,6 +1087,14 @@ follow_tcp_tap_listener(void *tapdata, packet_info *pinfo,
     is_server = !(addresses_equal(&follow_info->client_ip, &pinfo->src) && follow_info->client_port == pinfo->srcport);
     follow_record->is_server = is_server;
 
+   /* Check whether this frame ACKs fragments in flow from the other direction.
+    * This happens when frames are not in the capture file, but were actually
+    * seen by the receiving host (Fixes bug 592).
+    */
+    if (follow_info->fragments[!is_server] != NULL) {
+        while (check_follow_fragments(follow_info, !is_server, follow_data->tcph->th_ack, pinfo->fd->num));
+    }
+
     /* update stream counter */
 
     if (follow_info->bytes_written[is_server] == 0) {
@@ -1095,16 +1105,6 @@ follow_tcp_tap_listener(void *tapdata, packet_info *pinfo,
         follow_info->bytes_written[is_server] += follow_record->data->len;
         follow_info->payload = g_list_prepend(follow_info->payload, follow_record);
         return FALSE;
-    }
-
-   /* Before adding data for this flow, check whether this frame acks
-    * fragments that were already seen. This happens when frames are
-    * not in the capture file, but were actually seen by the
-    * receiving host (Fixes bug 592).
-    */
-    if (follow_info->fragments[is_server] != NULL)
-    {
-        while(check_follow_fragments(follow_info, is_server, follow_data->tcph->th_ack, pinfo->fd->num));
     }
 
     /* if we are here, we have already seen this src, let's
