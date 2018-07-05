@@ -2964,6 +2964,7 @@ set(_test_group_list
 	suite_dfilter.group_uint64
 	suite_dissection
 	suite_fileformats
+	suite_follow
 	suite_io
 	suite_mergecap
 	suite_nameres
