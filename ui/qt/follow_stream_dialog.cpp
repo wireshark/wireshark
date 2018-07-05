@@ -439,8 +439,10 @@ FollowStreamDialog::readStream()
 {
 
     // Only clear the display if we're going to refill it
-    if (save_as_ == false)
+    if (save_as_ == false) {
         ui->teStreamContent->clear();
+        text_pos_to_packet_.clear();
+    }
 
     truncated_ = false;
     frs_return_t ret;
