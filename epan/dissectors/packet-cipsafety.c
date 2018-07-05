@@ -2132,8 +2132,8 @@ proto_register_cipsafety(void)
       },
 
       { &hf_cipsafety_data,
-        { "Data", "enip.connection_transport_data",
-          FT_BYTES, BASE_NONE, NULL, 0, "Connection Transport Data", HFILL }
+        { "Data", "cipsafety.data",
+          FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
       },
       { &hf_cipsafety_mode_byte,
         { "Mode Byte", "cipsafety.mode_byte",
@@ -2285,7 +2285,7 @@ proto_register_cipsafety(void)
       },
       { &hf_cipsafety_complement_data,
         { "Complement Data", "cipsafety.complement_data",
-          FT_BYTES, BASE_NONE, NULL, 0, "Connection Transport Data", HFILL }
+          FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
       },
 
       { &hf_cip_sercosiii_link_snn,

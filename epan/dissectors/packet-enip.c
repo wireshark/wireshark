@@ -88,7 +88,8 @@ void proto_reg_handoff_enip(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_enip = -1;
-static int proto_enipio = -1;
+static int proto_cipio = -1;
+static int proto_cip_class1 = -1;
 
 static int hf_enip_command = -1;
 static int hf_enip_length = -1;
@@ -387,7 +388,8 @@ static dissector_handle_t  cip_io_generic_handle;
 static dissector_handle_t  cip_implicit_handle;
 static dissector_handle_t  cip_handle;
 static dissector_handle_t  enip_tcp_handle;
-static dissector_handle_t  enipio_handle;
+static dissector_handle_t  cipio_handle;
+static dissector_handle_t  cip_class1_handle;
 
 static gboolean enip_desegment  = TRUE;
 static gboolean enip_OTrun_idle = TRUE;
@@ -999,6 +1001,27 @@ enip_exp_conv_filter(packet_info *pinfo)
            conn->O2TConnID, conn->T2OConnID,
            conn->triad.ConnSerialNumber, conn->triad.VendorID, conn->triad.DeviceSerialNumber);
    }
+   return buf;
+}
+
+static gboolean cip_connection_conv_valid(packet_info *pinfo)
+{
+   return enip_io_conv_valid(pinfo) || enip_exp_conv_valid(pinfo);
+}
+
+static gchar* cip_connection_conv_filter(packet_info *pinfo)
+{
+   char* buf = NULL;
+
+   if (enip_io_conv_valid(pinfo))
+   {
+      buf = enip_io_conv_filter(pinfo);
+   }
+   else if (enip_exp_conv_valid(pinfo))
+   {
+      buf = enip_exp_conv_filter(pinfo);
+   }
+
    return buf;
 }
 
@@ -2279,7 +2302,7 @@ static int dissect_cip_io_generic(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 
    int offset = 0;
 
-   proto_item* ti = proto_tree_add_item(tree, proto_enipio, tvb, 0, -1, ENC_NA);
+   proto_item* ti = proto_tree_add_item(tree, proto_cipio, tvb, 0, -1, ENC_NA);
    proto_tree* io_tree = proto_item_add_subtree(ti, ett_cip_io_generic);
 
    if (io_data_input != NULL) {
@@ -2967,7 +2990,7 @@ dissect_enip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
 /* Code to actually dissect the io packets*/
 static int
-dissect_enipio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_cipio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
    /* Set up structures needed to add the protocol subtree and manage it */
    proto_item *ti;
@@ -3127,6 +3150,17 @@ dissect_dlr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
 } /* end of dissect_dlr() */
 
+static int dissect_cip_class1(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
+{
+   enip_conn_val_t conn_info;
+   conn_info.TransportClass_trigger = 1;
+
+   cip_io_data_input io_data_input;
+   io_data_input.conn_info = &conn_info;
+   io_data_input.connid_type = ECIDT_UNKNOWN;
+
+   return dissect_cip_io_generic(tvb, pinfo, tree, &io_data_input);
+}
 
 /* Register the protocol with Wireshark */
 
@@ -4510,12 +4544,19 @@ proto_register_enip(void)
 
    /* Register the protocol name and description */
    proto_enip = proto_register_protocol("EtherNet/IP (Industrial Protocol)", "ENIP", "enip");
-   proto_enipio = proto_register_protocol("Common Industrial Protocol, I/O", "CIP I/O", "cipio");
+   proto_cipio = proto_register_protocol("Common Industrial Protocol, I/O", "CIP I/O", "cipio");
+   proto_cip_class1 = proto_register_protocol_in_name_only(
+      "Common Industrial Protocol, I/O Class 1",
+      "CIP Class 1",
+      "cipio1",
+      proto_cipio,
+      FT_PROTOCOL);
 
    enip_tcp_handle = register_dissector("enip", dissect_enip_tcp, proto_enip);
-   enipio_handle = register_dissector("cipio", dissect_enipio, proto_enipio);
+   cipio_handle = register_dissector("cipio", dissect_cipio, proto_cipio);
+   cip_class1_handle = register_dissector("cipio_class1", dissect_cip_class1, proto_cip_class1);
 
-   cip_io_generic_handle = register_dissector("cipgenericio", dissect_cip_io_generic, proto_enipio);
+   cip_io_generic_handle = register_dissector("cipgenericio", dissect_cip_io_generic, proto_cipio);
 
    /* Required function calls to register the header fields and subtrees used */
    proto_register_field_array(proto_enip, hf, array_length(hf));
@@ -4546,7 +4587,7 @@ proto_register_enip(void)
                                                       "ENIP SendRequestReplyData.Interface Handle", proto_enip, FT_UINT32, BASE_HEX);
 
    subdissector_io_table = register_dissector_table("cip.io.iface",
-      "CIP Class 0/1 Interface Handle", proto_enipio, FT_UINT32, BASE_HEX);
+      "CIP Class 0/1 Interface Handle", proto_cipio, FT_UINT32, BASE_HEX);
 
    subdissector_cip_connection_table = register_dissector_table("cip.connection.class",
       "CIP Class 2/3 Interface Handle", proto_enip, FT_UINT32, BASE_HEX);
@@ -4561,8 +4602,7 @@ proto_register_enip(void)
    proto_register_field_array(proto_dlr, hfdlr, array_length(hfdlr));
    proto_register_subtree_array(ettdlr, array_length(ettdlr));
 
-   register_conversation_filter("enip", "CIP Class 0/1 Connection", enip_io_conv_valid, enip_io_conv_filter);
-   register_conversation_filter("enip", "CIP Class 2/3 Connection", enip_exp_conv_valid, enip_exp_conv_filter);
+   register_conversation_filter("enip", "CIP Connection", cip_connection_conv_valid, cip_connection_conv_filter);
 
    subdissector_decode_as_io_table = register_decode_as_next_proto(proto_enip, "CIP I/O", "cip.io", "CIP I/O Payload", enip_prompt);
 } /* end of proto_register_enip() */
@@ -4582,11 +4622,11 @@ proto_reg_handoff_enip(void)
    dissector_add_uint_with_preference("udp.port", ENIP_ENCAP_PORT, enip_udp_handle);
 
    /* Register for EtherNet/IP IO data (UDP) */
-   dissector_add_uint_with_preference("udp.port", ENIP_IO_PORT, enipio_handle);
+   dissector_add_uint_with_preference("udp.port", ENIP_IO_PORT, cipio_handle);
 
    /* Register for EtherNet/IP TLS */
    ssl_dissector_add(ENIP_SECURE_PORT, enip_tcp_handle);
-   dtls_dissector_add(ENIP_SECURE_PORT, enipio_handle);
+   dtls_dissector_add(ENIP_SECURE_PORT, cipio_handle);
 
    /* Find ARP dissector for TCP/IP object */
    arp_handle = find_dissector_add_dependency("arp", proto_enip);
@@ -4605,6 +4645,7 @@ proto_reg_handoff_enip(void)
 
    subdissector_class_table = find_dissector_table("cip.class.iface");
 
+   dissector_add_for_decode_as("cip.io", cip_class1_handle);
 } /* end of proto_reg_handoff_enip() */
 
 /*
