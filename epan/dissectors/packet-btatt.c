@@ -5413,7 +5413,6 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             break;
 
         proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_battery_power_state, ett_btatt_value, hfx_btatt_battery_power_state, ENC_NA);
-        flags = tvb_get_guint8(tvb, offset);
         offset += 1;
 
         break;
@@ -5429,7 +5428,6 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
 
         if (tvb_reported_length_remaining(tvb, offset) >= 1) { /* optional field */
             proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_battery_power_state, ett_btatt_value, hfx_btatt_battery_power_state, ENC_NA);
-            flags = tvb_get_guint8(tvb, offset);
             offset += 1;
         }
 
