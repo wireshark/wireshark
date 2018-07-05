@@ -130,7 +130,6 @@ static int hf_wisun_panie_cost = -1;
 static int hf_wisun_panie_flags = -1;
 static int hf_wisun_panie_flag_parent_bsie = -1;
 static int hf_wisun_panie_flag_routing_method = -1;
-static int hf_wisun_panie_flag_eapol_ready = -1;
 static int hf_wisun_panie_flag_version = -1;
 static int hf_wisun_netnameie = -1;
 static int hf_wisun_netnameie_name = -1;
@@ -767,10 +766,10 @@ dissect_wisun_panie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, voi
     proto_item *item;
     proto_tree *subtree;
     guint offset = 0;
+    guint32 routingCost;
     static const int * fields_panie_flags[] = {
         &hf_wisun_panie_flag_parent_bsie,
         &hf_wisun_panie_flag_routing_method,
-        &hf_wisun_panie_flag_eapol_ready,
         &hf_wisun_panie_flag_version,
         NULL
     };
@@ -782,11 +781,14 @@ dissect_wisun_panie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, voi
     offset += 2;
     proto_tree_add_item(subtree, hf_wisun_panie_size, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
-    proto_tree_add_item(subtree, hf_wisun_panie_cost, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint(subtree, hf_wisun_panie_cost, tvb, offset, 2, ENC_LITTLE_ENDIAN, &routingCost);
     offset += 2;
     proto_tree_add_bitmask_with_flags(subtree, tvb, offset, hf_wisun_panie_flags, ett_wisun_panie_flags,
                             fields_panie_flags, ENC_LITTLE_ENDIAN, BMT_NO_FLAGS);
     offset++;
+
+    col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "Routing Cost: %d", routingCost);
+
     return offset;
 }
 
@@ -1347,11 +1349,6 @@ void proto_register_wisun(void)
 
         { &hf_wisun_panie_flag_routing_method,
           { "Routing Method", "wisun.panie.flags.routing_method", FT_UINT8, BASE_HEX, VALS(wisun_routing_methods), 0x02,
-            NULL, HFILL }
-        },
-
-        { &hf_wisun_panie_flag_eapol_ready,
-          { "EAPOL Ready", "wisun.panie.flags.eapol", FT_BOOLEAN, 8, NULL, 0x04,
             NULL, HFILL }
         },
 
