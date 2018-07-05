@@ -78,11 +78,19 @@ wmem_itree_range_overlap(const wmem_range_t *r1, const wmem_range_t *r2)
     return (r1->low <= r2->high && r2->low <= r1->high);
 }
 
+
+/* after a rotation, some of the children nodes might (dis)appear, thus we need
+ * to refresh children max_edge. Changes will propagate to parents */
+void update_edges_after_rotation(wmem_tree_node_t *node) {
+    if(node->left)  update_max_edge(node->left);
+    if(node->right)  update_max_edge(node->right);
+}
+
 wmem_itree_t *
 wmem_itree_new(wmem_allocator_t *allocator)
 {
     wmem_itree_t *tree      = wmem_tree_new(allocator);
-    tree->post_rotation_cb  = &update_max_edge;
+    tree->post_rotation_cb  = &update_edges_after_rotation;
     return tree;
 }
 
@@ -120,8 +128,8 @@ wmem_itree_insert(wmem_itree_t *tree, const guint64 low, const guint64 high, voi
 
     node = wmem_tree_insert(tree, range, data, (compare_func)wmem_tree_compare_ranges);
 
-    /* Even If no rotations, still a need to update max_edge */
-    update_max_edge(node->parent);
+    /* If no rotations, still need to update max_edge */
+    update_max_edge(node);
 }
 
 
