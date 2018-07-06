@@ -183,9 +183,9 @@ static void follow_draw(void *contextp)
   else
     printf("Node 1: %s:%u\n", buf, follow_info->server_port);
 
-  for (cur = follow_info->payload, chunk = 1;
+  for (cur = g_list_last(follow_info->payload), chunk = 1;
        cur != NULL;
-       cur = g_list_next(cur), chunk++)
+       cur = g_list_previous(cur), chunk++)
   {
     follow_record = (follow_record_t *)cur->data;
     if (!follow_record->is_server) {

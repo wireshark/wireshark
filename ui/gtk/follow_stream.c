@@ -119,7 +119,7 @@ follow_common_read_stream(follow_info_t *follow_info,
     GByteArray *buffer = g_byte_array_new();
 
 
-    for (cur = follow_info->payload; cur; cur = g_list_next(cur)) {
+    for (cur = g_list_last(follow_info->payload); cur; cur = g_list_previous(cur)) {
         follow_record = (follow_record_t *)cur->data;
         skip = FALSE;
         if (!follow_record->is_server) {

@@ -514,8 +514,8 @@ ssl_follow_tap_listener(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _
                                               appl_data->plain_data,
                                               appl_data->data_len);
 
-        /* Append the record to the follow_info structure. */
-        follow_info->payload = g_list_append(follow_info->payload, follow_record);
+        /* Add the record to the follow_info structure. */
+        follow_info->payload = g_list_prepend(follow_info->payload, follow_record);
         follow_info->bytes_written[from] += appl_data->data_len;
     }
 

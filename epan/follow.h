@@ -84,7 +84,7 @@ typedef struct {
 typedef struct _follow_info {
     show_stream_t   show_stream;
     char            *filter_out_filter;
-    GList           *payload;
+    GList           *payload;   /* "follow_record_t" entries, in reverse order. */
     guint           bytes_written[2]; /* Index with FROM_CLIENT or FROM_SERVER for readability. */
     guint32         seq[2]; /* TCP only */
     GList           *fragments[2]; /* TCP only */

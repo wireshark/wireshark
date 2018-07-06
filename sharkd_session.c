@@ -2591,7 +2591,7 @@ sharkd_session_process_follow(char *buf, const jsmntok_t *tokens, int count)
 
 		printf(",\"payloads\":[");
 
-		for (cur = follow_info->payload; cur; cur = g_list_next(cur))
+		for (cur = g_list_last(follow_info->payload); cur; cur = g_list_previous(cur))
 		{
 			follow_record = (follow_record_t *) cur->data;
 

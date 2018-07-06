@@ -1001,7 +1001,7 @@ FollowStreamDialog::readFollowStream()
 
     elapsed_timer.start();
 
-    for (cur = follow_info_.payload; cur; cur = g_list_next(cur)) {
+    for (cur = g_list_last(follow_info_.payload); cur; cur = g_list_previous(cur)) {
         if (dialogClosed()) break;
 
         follow_record = (follow_record_t *)cur->data;
