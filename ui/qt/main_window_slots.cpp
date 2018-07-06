@@ -843,7 +843,7 @@ void MainWindow::captureEventHandler(CaptureEvent ev)
         {
             QFileInfo file_info(ev.filePath());
             main_ui_->statusBar->popFileStatus();
-            main_ui_->statusBar->pushFileStatus(tr("Saving %1" UTF8_HORIZONTAL_ELLIPSIS).arg(file_info.baseName()));
+            main_ui_->statusBar->pushFileStatus(tr("Saving %1" UTF8_HORIZONTAL_ELLIPSIS).arg(file_info.fileName()));
             break;
         }
         default:
