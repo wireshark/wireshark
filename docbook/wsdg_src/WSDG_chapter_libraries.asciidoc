@@ -137,18 +137,16 @@ The 2.x versions require all mentioned libs.
 
 ==== Unix
 
-The GLib/GTK+ libraries are available for many unix-like platforms and
-Cygwin.
-
-If these libraries aren't already installed and also aren't available as a
-package for your platform, you can get them at
-http://www.gtk.org/download.html[].
+The GLib/GTK+ libraries are available for most Linux distributions and
+UNIX flavors. If these libraries aren't already installed and also
+aren't available as a package for your platform, you can get them at
+http://www.gtk.org[].
 
 [[ChLibsWin32GTK]]
 
 ==== Win32 MSVC
 
-You can get the latest version at http://www.gtk.org/download.html[].
+You can get the latest version at http://www.gtk.org[].
 
 [[ChLibsSMI]]
 
