@@ -58,6 +58,14 @@ public:
      */
     const QString fileName();
 
+    /** Return the plain filename without an extension.
+     *
+     * @return The last component of the pathname, without the extension,
+     * converted from the native OS's encoding to Unicode if necessary, or
+     * a null string if the conversion can't be done.
+     */
+    const QString fileBaseName();
+
     /** Return a string representing the file suitable for use for
      *  display in the UI in places such as a main window title.
      *
