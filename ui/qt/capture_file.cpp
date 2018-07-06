@@ -158,6 +158,21 @@ const QString CaptureFile::fileName()
     return name;
 }
 
+const QString CaptureFile::fileBaseName()
+{
+    QString path, baseName;
+
+    path = filePath();
+    if (!path.isEmpty()) {
+        QFileInfo cfi(path);
+        baseName = cfi.baseName();
+    } else {
+        baseName = QString();
+    }
+
+    return baseName;
+}
+
 const QString CaptureFile::fileDisplayName()
 {
     QString displayName;
