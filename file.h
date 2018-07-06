@@ -276,6 +276,17 @@ cf_write_status_t cf_export_specified_packets(capture_file *cf,
 gchar *cf_get_display_name(capture_file *cf);
 
 /**
+ * Get a name that can be used to generate a file name from the
+ * capture file name.  It's based on the displayable name, so it's
+ * UTF-8; if it ends with a suffix that's used by a file type libwiretap
+ * can read, we strip that suffix off.
+ *
+ * @param cf the capture file
+ * @return the base name (must be g_free'd)
+ */
+gchar *cf_get_basename(capture_file *cf);
+
+/**
  * Set the source of the capture data for temporary files, e.g.
  * "Interface eth0" or "Pipe from Pong"
  *

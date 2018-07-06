@@ -2004,6 +2004,8 @@ const char *wtap_default_file_extension(int filetype);
 WS_DLL_PUBLIC
 GSList *wtap_get_file_extensions_list(int filetype, gboolean include_compressed);
 WS_DLL_PUBLIC
+GSList *wtap_get_all_file_extensions_list(void);
+WS_DLL_PUBLIC
 void wtap_free_extensions_list(GSList *extensions);
 
 WS_DLL_PUBLIC

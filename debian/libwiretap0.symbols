@@ -97,6 +97,7 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_free_idb_info@Base 1.99.9
  wtap_fstat@Base 1.9.1
  wtap_get_all_capture_file_extensions_list@Base 2.3.0
+ wtap_get_all_file_extensions_list@Base 2.6.2
  wtap_get_buf_ptr@Base 2.5.1
  wtap_get_bytes_dumped@Base 1.9.1
  wtap_get_debug_if_descr@Base 1.99.9

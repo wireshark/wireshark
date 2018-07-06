@@ -1635,7 +1635,7 @@ static const struct file_type_subtype_info* dump_open_table = dump_open_table_ba
  * to the number of elements in the static table, but, if we have to
  * allocate the GArray, it's changed to have the size of the GArray.
  */
-gint wtap_num_file_types_subtypes = sizeof(dump_open_table_base) / sizeof(struct file_type_subtype_info);
+static gint wtap_num_file_types_subtypes = sizeof(dump_open_table_base) / sizeof(struct file_type_subtype_info);
 
 /*
  * Pointer to the GArray; NULL until it's needed.
@@ -2025,11 +2025,13 @@ add_extensions_for_file_type_subtype(int file_type_subtype, GSList *extensions,
 
 	/*
 	 * Add the default extension, and all compressed variants of
-	 * it.
+	 * it, if there is a default extension.
 	 */
-	extensions = add_extensions(extensions,
-	    dump_open_table[file_type_subtype].default_file_extension,
-	    compressed_file_extensions);
+	if (dump_open_table[file_type_subtype].default_file_extension != NULL) {
+		extensions = add_extensions(extensions,
+		    dump_open_table[file_type_subtype].default_file_extension,
+		    compressed_file_extensions);
+	}
 
 	if (dump_open_table[file_type_subtype].additional_file_extensions != NULL) {
 		/*
@@ -2095,10 +2097,37 @@ wtap_get_file_extensions_list(int file_type_subtype, gboolean include_compressed
 	return extensions;
 }
 
+/* Return a list of all extensions that are used by all file types that
+   we can read, including compressed extensions, e.g. not just "pcap" but
+   also "pcap.gz" if we can read gzipped files.
+
+   "File type" means "include file types that correspond to collections
+   of network packets, as well as file types that store data that just
+   happens to be transported over protocols such as HTTP but that aren't
+   collections of network packets, and plain text files".
+
+   All strings in the list are allocated with g_malloc() and must be freed
+   with g_free(). */
+GSList *
+wtap_get_all_file_extensions_list(void)
+{
+	GSList *extensions;
+	int i;
+
+	extensions = NULL;	/* empty list, to start with */
+
+	for (i = 0; i < WTAP_NUM_FILE_TYPES_SUBTYPES; i++) {
+		extensions = add_extensions_for_file_type_subtype(i, extensions,
+		    compressed_file_extension_table);
+	}
+
+	return extensions;
+}
+
 /*
  * Free a list returned by wtap_get_file_extension_type_extensions(),
- * wtap_get_all_capture_file_extensions_list, or
- * wtap_get_file_extensions_list().
+ * wtap_get_all_capture_file_extensions_list, wtap_get_file_extensions_list(),
+ * or wtap_get_all_file_extensions_list().
  */
 void
 wtap_free_extensions_list(GSList *extensions)

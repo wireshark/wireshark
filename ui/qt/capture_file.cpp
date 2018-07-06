@@ -160,16 +160,15 @@ const QString CaptureFile::fileName()
 
 const QString CaptureFile::fileBaseName()
 {
-    QString path, baseName;
+    QString baseName;
 
-    path = filePath();
-    if (!path.isEmpty()) {
-        QFileInfo cfi(path);
-        baseName = cfi.baseName();
+    if (isValid()) {
+        char *basename = cf_get_basename(cap_file_);
+        baseName = basename;
+        g_free(basename);
     } else {
         baseName = QString();
     }
-
     return baseName;
 }
 
