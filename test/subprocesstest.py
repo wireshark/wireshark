@@ -146,6 +146,17 @@ class SubprocessTestCase(unittest.TestCase):
             except:
                 pass
 
+    def _error_count(self, result):
+        if not result:
+            return 0
+        if hasattr(result, 'failures'):
+            # Python standard unittest runner
+            return len(result.failures) + len(result.errors)
+        if hasattr(result, '_excinfo'):
+            # pytest test runner
+            return len(result._excinfo or [])
+        self.fail("Unexpected test result %r" % result)
+
     def run(self, result=None):
         # Subclass run() so that we can do the following:
         # - Open our log file and add it to the cleanup list.
@@ -162,9 +173,7 @@ class SubprocessTestCase(unittest.TestCase):
         # to handle line endings in the future.
         self.log_fd = io.open(self.log_fname, 'w', encoding='UTF-8', newline='\n')
         self.cleanup_files.append(self.log_fname)
-        pre_run_problem_count = 0
-        if result:
-            pre_run_problem_count = len(result.failures) + len(result.errors)
+        pre_run_problem_count = self._error_count(result)
         try:
             super(SubprocessTestCase, self).run(result=result)
         except KeyboardInterrupt:
@@ -176,7 +185,7 @@ class SubprocessTestCase(unittest.TestCase):
         self.kill_processes()
         self.log_fd.close()
         if result:
-            post_run_problem_count = len(result.failures) + len(result.errors)
+            post_run_problem_count = self._error_count(result)
             if pre_run_problem_count != post_run_problem_count:
                 self.dump_files.append(self.log_fname)
                 # Leave some evidence behind.
