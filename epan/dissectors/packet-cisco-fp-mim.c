@@ -288,11 +288,11 @@ dissect_fp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_ 
         break;
     case ETHERTYPE_IEEE_802_1AD:
         proto_tree_add_item(fp_tree, hf_fp_1ad_etype, tvb, offset, 2, ENC_BIG_ENDIAN);
-	offset += 2;
+        offset += 2;
         proto_tree_add_item(fp_tree, hf_fp_1ad_priority, tvb, offset, 2, ENC_NA);
         proto_tree_add_item(fp_tree, hf_fp_1ad_cfi, tvb, offset, 2, ENC_NA);
         proto_tree_add_item(fp_tree, hf_fp_1ad_svid, tvb, offset, 2, ENC_BIG_ENDIAN);
-	offset += 2;
+        offset += 2;
         proto_tree_add_item(fp_tree, hf_fp_etype, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
         break;
