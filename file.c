@@ -1050,9 +1050,10 @@ cf_get_basename(capture_file *cf)
           strcmp(&displayname[displayname_len - extension_len], extension) == 0) {
             /* Yes.  Strip the extension off, and return the result. */
             displayname[displayname_len - extension_len - 1] = '\0';
-            return displayname;
+            break;
         }
       }
+      wtap_free_extensions_list(extensions);
     } else {
       displayname=g_strdup("");
     }
