@@ -78,6 +78,7 @@ Exablaze trailers
 Ubiquiti Discovery Protocol (UBDP)
 Cisco Meraki Discovery Protocol (MDP)
 XnAP (5G) protocol
+E1AP (5G) protocol
 --
 
 === Updated Protocol Support

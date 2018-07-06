@@ -1,0 +1,102 @@
+-- 3GPP TS 38.463 V15.0.0 (2018-06)
+-- **************************************************************
+--
+-- Constant definitions
+--
+-- **************************************************************
+
+
+E1AP-Constants {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
+ngran-access (22) modules (3) e1ap (5) version1 (1) e1ap-Constants (4) }
+
+DEFINITIONS AUTOMATIC TAGS ::=
+
+BEGIN
+
+IMPORTS
+
+	ProcedureCode,
+	ProtocolIE-ID
+
+FROM E1AP-CommonDataTypes;
+
+-- **************************************************************
+--
+-- Elementary Procedures
+--
+-- **************************************************************
+
+id-reset														ProcedureCode ::= 0
+id-errorIndication												ProcedureCode ::= 1
+id-privateMessage												ProcedureCode ::= 2
+id-gNB-CU-UP-E1Setup											ProcedureCode ::= 3
+id-gNB-CU-CP-E1Setup											ProcedureCode ::= 4
+id-gNB-CU-UP-ConfigurationUpdate								ProcedureCode ::= 5
+id-gNB-CU-CP-ConfigurationUpdate								ProcedureCode ::= 6
+id-e1Release													ProcedureCode ::= 7
+id-bearerContextSetup											ProcedureCode ::= 8
+id-bearerContextModification									ProcedureCode ::= 9
+id-bearerContextModificationRequired							ProcedureCode ::= 10
+id-bearerContextRelease										ProcedureCode ::= 11
+id-bearerContextReleaseRequest								ProcedureCode ::= 12
+id-bearerContextInactivityNotification						ProcedureCode ::= 13
+id-dLDataNotification											ProcedureCode ::= 14
+id-dataUsageReport												ProcedureCode ::= 15
+
+-- **************************************************************
+--
+-- Lists
+--
+-- **************************************************************
+
+maxnoofErrors								INTEGER ::= 256
+maxnoofSPLMNs								INTEGER ::= 6
+maxnoofSliceItems							INTEGER ::= 1024
+maxnoofIndividualE1ConnectionsToReset		INTEGER ::= 65536
+maxnoofEUTRANQOSParameters					INTEGER ::= 256
+maxnoofNGRANQOSParameters					INTEGER ::= 256
+maxnoofDRBs									INTEGER	::= 32
+maxnoofNRCGI								INTEGER	::= 512
+maxnoofPDUSessionResource					INTEGER	::= 256
+maxnoofQoSFlows								INTEGER	::= 64
+maxnoofUPParameters							INTEGER	::= 4
+maxnoofCellGroups							INTEGER	::= 4
+maxnooftimeperiods							INTEGER	::= 2
+
+-- **************************************************************
+--
+-- IEs
+--
+-- **************************************************************
+
+id-Cause														ProtocolIE-ID ::= 0
+id-CriticalityDiagnostics										ProtocolIE-ID ::= 1
+id-gNB-CU-CP-UE-E1AP-ID 										ProtocolIE-ID ::= 2
+id-gNB-CU-UP-UE-E1AP-ID											ProtocolIE-ID ::= 3
+id-ResetType													ProtocolIE-ID ::= 4
+id-UE-associatedLogicalE1-ConnectionItem						ProtocolIE-ID ::= 5
+id-UE-associatedLogicalE1-ConnectionListResAck					ProtocolIE-ID ::= 6
+id-gNB-CU-UP-ID													ProtocolIE-ID ::= 7
+id-gNB-CU-UP-Name												ProtocolIE-ID ::= 8
+id-gNB-CU-CP-Name												ProtocolIE-ID ::= 9
+id-CNSupport													ProtocolIE-ID ::= 10
+id-SupportedPLMNs												ProtocolIE-ID ::= 11
+id-SupportedPLMNs-Item											ProtocolIE-ID ::= 12
+id-TimeToWait													ProtocolIE-ID ::= 13
+id-SecurityInformation											ProtocolIE-ID ::= 14
+id-UEDLAggregateMaximumBitRate									ProtocolIE-ID ::= 15
+id-System-BearerContextSetupRequest								ProtocolIE-ID ::= 16
+id-System-BearerContextSetupResponse							ProtocolIE-ID ::= 17
+id-BearerContextStatusChange									ProtocolIE-ID ::= 18
+id-System-BearerContextModificationRequest						ProtocolIE-ID ::= 19
+id-System-BearerContextModificationResponse						ProtocolIE-ID ::= 20
+id-System-BearerContextModificationConfirm						ProtocolIE-ID ::= 21
+id-System-BearerContextModificationRequired						ProtocolIE-ID ::= 22
+id-DRB-Status-List												ProtocolIE-ID ::= 23
+id-DRB-Status-Item												ProtocolIE-ID ::= 24
+id-DRB-Activity-List											ProtocolIE-ID ::= 25
+id-DRB-Activity-Item											ProtocolIE-ID ::= 26
+id-Data-Usage-Report-List										ProtocolIE-ID ::= 27
+
+END

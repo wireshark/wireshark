@@ -31,6 +31,7 @@ set(ASN1_SRC_DIRS
 	disp
 	dop
 	dsp
+	e1ap
 	ess
 	f1ap
 	ftam

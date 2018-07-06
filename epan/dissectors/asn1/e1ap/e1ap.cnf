@@ -1,0 +1,389 @@
+# e1ap.cnf
+# e1ap conformation file
+
+#.OPT
+PER
+ALIGNED
+#.END
+
+#.USE_VALS_EXT
+ProcedureCode
+ProtocolIE-ID
+
+#.EXPORTS
+
+#.PDU
+E1AP-PDU
+
+#.MAKE_ENUM
+ProcedureCode
+ProtocolIE-ID
+
+#.NO_EMIT
+
+#.OMIT_ASSIGNMENT
+# Get rid of unused code warnings
+CP-TNL-Information
+Presence
+ProtocolIE-ContainerList
+ProtocolExtensionID
+#.END
+
+
+#.TYPE_RENAME
+InitiatingMessage/value InitiatingMessage_value
+SuccessfulOutcome/value SuccessfulOutcome_value
+UnsuccessfulOutcome/value UnsuccessfulOutcome_value
+
+#.FIELD_RENAME
+InitiatingMessage/value initiatingMessagevalue
+UnsuccessfulOutcome/value unsuccessfulOutcome_value
+SuccessfulOutcome/value successfulOutcome_value
+PrivateIE-Field/id private_id
+ProtocolExtensionField/id ext_id
+#PrivateIE-Field/value private_value
+ProtocolIE-Field/value ie_field_value
+
+#--- Parameterization is not supported in asn2wrs ---
+
+#ProtocolIE-ContainerList {INTEGER : lowerBound, INTEGER : upperBound, E1AP-PROTOCOL-IES : IEsSetParam} ::=
+# SEQUENCE (SIZE (lowerBound..upperBound)) OF
+# ProtocolIE-Container {{IEsSetParam}}
+
+# #.FN_PARS ProtocolIE-ContainerList
+# MIN_VAL = asn1_param_get_integer(%(ACTX)s,"lowerBound")
+# MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
+# #.FN_HDR ProtocolIE-ContainerList
+#   static const asn1_par_def_t ProtocolIE_ContainerList_pars[] = {
+#     { "lowerBound", ASN1_PAR_INTEGER },
+#     { "upperBound", ASN1_PAR_INTEGER },
+#     { NULL, (asn1_par_type)0 }
+#   };
+#   asn1_stack_frame_check(actx, "ProtocolIE-ContainerList", ProtocolIE_ContainerList_pars);
+# #.END
+
+#.FN_BODY ProtocolIE-ID VAL_PTR=&e1ap_data->protocol_ie_id
+  e1ap_private_data_t *e1ap_data = e1ap_get_private_data(actx->pinfo);
+%(DEFAULT_BODY)s
+
+#.FN_FTR ProtocolIE-ID
+  if (tree) {
+    proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s",
+                           val_to_str_ext(e1ap_data->protocol_ie_id, &e1ap_ProtocolIE_ID_vals_ext, "unknown (%d)"));
+  }
+
+#.FN_PARS ProtocolIE-Field/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldValue
+
+# #.FN_BODY ProtocolExtensionID  VAL_PTR=&e1ap_data->protocol_extension_id
+#   e1ap_private_data_t *e1ap_data = e1ap_get_private_data(actx->pinfo);
+# %(DEFAULT_BODY)s
+#
+# #.FN_PARS ProtocolExtensionField/extensionValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolExtensionFieldExtensionValue
+
+#.FN_BODY ProcedureCode  VAL_PTR = &e1ap_data->procedure_code
+  e1ap_private_data_t *e1ap_data = e1ap_get_private_data(actx->pinfo);
+%(DEFAULT_BODY)s
+#.END
+
+#.FN_PARS InitiatingMessage/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_InitiatingMessageValue
+#.FN_HDR InitiatingMessage/value
+  e1ap_private_data_t *e1ap_data = e1ap_get_private_data(actx->pinfo);
+  e1ap_data->message_type = INITIATING_MESSAGE;
+#.FN_PARS SuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_SuccessfulOutcomeValue
+#.FN_HDR SuccessfulOutcome/value
+  e1ap_private_data_t *e1ap_data = e1ap_get_private_data(actx->pinfo);
+  e1ap_data->message_type = SUCCESSFUL_OUTCOME;
+#.FN_PARS UnsuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_UnsuccessfulOutcomeValue
+#.FN_HDR UnsuccessfulOutcome/value
+  e1ap_private_data_t *e1ap_data = e1ap_get_private_data(actx->pinfo);
+  e1ap_data->message_type = UNSUCCESSFUL_OUTCOME;
+#.END
+
+#.FN_HDR PrivateIE-ID
+  e1ap_private_data_t *e1ap_data = e1ap_get_private_data(actx->pinfo);
+  e1ap_data->obj_id = NULL;
+
+#.FN_BODY PrivateIE-ID/global  FN_VARIANT = _str  VAL_PTR = &e1ap_data->obj_id
+  e1ap_private_data_t *e1ap_data = e1ap_get_private_data(actx->pinfo);
+%(DEFAULT_BODY)s
+
+#.FN_BODY PrivateIE-Field/value
+  e1ap_private_data_t *e1ap_data = e1ap_get_private_data(actx->pinfo);
+  if (e1ap_data->obj_id) {
+    offset = call_per_oid_callback(e1ap_data->obj_id, tvb, actx->pinfo, tree, offset, actx, hf_index);
+  } else {
+%(DEFAULT_BODY)s
+  }
+
+#.ASSIGN_VALUE_TO_TYPE  # E1AP does not have constants assigned to types, they are pure INTEGER
+# ProcedureCode
+id-reset                               ProcedureCode
+id-errorIndication                     ProcedureCode
+id-privateMessage                      ProcedureCode
+id-gNB-CU-UP-E1Setup                   ProcedureCode
+id-gNB-CU-CP-E1Setup                   ProcedureCode
+id-gNB-CU-UP-ConfigurationUpdate       ProcedureCode
+id-gNB-CU-CP-ConfigurationUpdate       ProcedureCode
+id-e1Release                           ProcedureCode
+id-bearerContextSetup                  ProcedureCode
+id-bearerContextModification           ProcedureCode
+id-bearerContextModificationRequired   ProcedureCode
+id-bearerContextRelease                ProcedureCode
+id-bearerContextReleaseRequest         ProcedureCode
+id-bearerContextInactivityNotification ProcedureCode
+id-dLDataNotification                  ProcedureCode
+id-dataUsageReport                     ProcedureCode
+
+# ProtocolIE-ID
+id-Cause                                       ProtocolIE-ID
+id-CriticalityDiagnostics                      ProtocolIE-ID
+id-gNB-CU-CP-UE-E1AP-ID                        ProtocolIE-ID
+id-gNB-CU-UP-UE-E1AP-ID                        ProtocolIE-ID
+id-ResetType                                   ProtocolIE-ID
+id-UE-associatedLogicalE1-ConnectionItem       ProtocolIE-ID
+id-UE-associatedLogicalE1-ConnectionListResAck ProtocolIE-ID
+id-gNB-CU-UP-ID                                ProtocolIE-ID
+id-gNB-CU-UP-Name                              ProtocolIE-ID
+id-gNB-CU-CP-Name                              ProtocolIE-ID
+id-CNSupport                                   ProtocolIE-ID
+id-SupportedPLMNs                              ProtocolIE-ID
+id-SupportedPLMNs-Item                         ProtocolIE-ID
+id-TimeToWait                                  ProtocolIE-ID
+id-SecurityInformation                         ProtocolIE-ID
+id-UEDLAggregateMaximumBitRate                 ProtocolIE-ID
+id-System-BearerContextSetupRequest            ProtocolIE-ID
+id-System-BearerContextSetupResponse           ProtocolIE-ID
+id-BearerContextStatusChange                   ProtocolIE-ID
+id-System-BearerContextModificationRequest     ProtocolIE-ID
+id-System-BearerContextModificationResponse    ProtocolIE-ID
+id-System-BearerContextModificationConfirm     ProtocolIE-ID
+id-System-BearerContextModificationRequired    ProtocolIE-ID
+id-DRB-Status-List                             ProtocolIE-ID
+id-DRB-Status-Item                             ProtocolIE-ID
+id-DRB-Activity-List                           ProtocolIE-ID
+id-DRB-Activity-Item                           ProtocolIE-ID
+id-Data-Usage-Report-List                      ProtocolIE-ID
+#.END
+
+#.REGISTER
+
+#E1AP-PROTOCOL-IES
+Cause                                       N e1ap.ies id-Cause
+CriticalityDiagnostics                      N e1ap.ies id-CriticalityDiagnostics
+GNB-CU-CP-UE-E1AP-ID                        N e1ap.ies id-gNB-CU-CP-UE-E1AP-ID
+GNB-CU-UP-UE-E1AP-ID                        N e1ap.ies id-gNB-CU-UP-UE-E1AP-ID
+ResetType                                   N e1ap.ies id-ResetType
+UE-associatedLogicalE1-ConnectionItem       N e1ap.ies id-UE-associatedLogicalE1-ConnectionItem
+UE-associatedLogicalE1-ConnectionListResAck N e1ap.ies id-UE-associatedLogicalE1-ConnectionListResAck
+GNB-CU-UP-ID                                N e1ap.ies id-gNB-CU-UP-ID
+GNB-CU-UP-Name                              N e1ap.ies id-gNB-CU-UP-Name
+GNB-CU-CP-Name                              N e1ap.ies id-gNB-CU-CP-Name
+CNSupport                                   N e1ap.ies id-CNSupport
+SupportedPLMNs-List                         N e1ap.ies id-SupportedPLMNs
+SupportedPLMNs-Item                         N e1ap.ies id-SupportedPLMNs-Item
+TimeToWait                                  N e1ap.ies id-TimeToWait
+SecurityInformation                         N e1ap.ies id-SecurityInformation
+BitRate                                     N e1ap.ies id-UEDLAggregateMaximumBitRate
+System-BearerContextSetupRequest            N e1ap.ies id-System-BearerContextSetupRequest
+System-BearerContextSetupResponse           N e1ap.ies id-System-BearerContextSetupResponse
+BearerContextStatusChange                   N e1ap.ies id-BearerContextStatusChange
+System-BearerContextModificationRequest     N e1ap.ies id-System-BearerContextModificationRequest
+System-BearerContextModificationResponse    N e1ap.ies id-System-BearerContextModificationResponse
+System-BearerContextModificationConfirm     N e1ap.ies id-System-BearerContextModificationConfirm
+System-BearerContextModificationRequired    N e1ap.ies id-System-BearerContextModificationRequired
+DRB-Status-List                             N e1ap.ies id-DRB-Status-List
+DRB-Status-Item                             N e1ap.ies id-DRB-Status-Item
+DRB-Activity-List                           N e1ap.ies id-DRB-Activity-List
+DRB-Activity-Item                           N e1ap.ies id-DRB-Activity-Item
+Data-Usage-Report-List                      N e1ap.ies id-Data-Usage-Report-List
+
+#E1AP-PROTOCOL-EXTENSION
+
+#E1AP-ELEMENTARY-PROCEDURE
+Reset                                    N e1ap.proc.imsg id-reset
+ResetAcknowledge                         N e1ap.proc.sout id-reset
+
+ErrorIndication                          N e1ap.proc.imsg id-errorIndication
+
+GNB-CU-UP-E1SetupRequest                 N e1ap.proc.imsg id-gNB-CU-UP-E1Setup
+GNB-CU-UP-E1SetupResponse                N e1ap.proc.sout id-gNB-CU-UP-E1Setup
+GNB-CU-UP-E1SetupFailure                 N e1ap.proc.uout id-gNB-CU-UP-E1Setup
+
+GNB-CU-CP-E1SetupRequest                 N e1ap.proc.imsg id-gNB-CU-CP-E1Setup
+GNB-CU-CP-E1SetupResponse                N e1ap.proc.sout id-gNB-CU-CP-E1Setup
+GNB-CU-CP-E1SetupFailure                 N e1ap.proc.uout id-gNB-CU-CP-E1Setup
+
+GNB-CU-UP-ConfigurationUpdate            N e1ap.proc.imsg id-gNB-CU-UP-ConfigurationUpdate
+GNB-CU-UP-ConfigurationUpdateAcknowledge N e1ap.proc.sout id-gNB-CU-UP-ConfigurationUpdate
+GNB-CU-UP-ConfigurationUpdateFailure     N e1ap.proc.uout id-gNB-CU-UP-ConfigurationUpdate
+
+GNB-CU-CP-ConfigurationUpdate            N e1ap.proc.imsg id-gNB-CU-CP-ConfigurationUpdate
+GNB-CU-CP-ConfigurationUpdateAcknowledge N e1ap.proc.sout id-gNB-CU-CP-ConfigurationUpdate
+GNB-CU-CP-ConfigurationUpdateFailure     N e1ap.proc.uout id-gNB-CU-CP-ConfigurationUpdate
+
+E1ReleaseRequest                         N e1ap.proc.imsg id-e1Release
+E1ReleaseResponse                        N e1ap.proc.sout id-e1Release
+
+BearerContextSetupRequest                N e1ap.proc.imsg id-bearerContextSetup
+BearerContextSetupResponse               N e1ap.proc.sout id-bearerContextSetup
+BearerContextSetupFailure                N e1ap.proc.uout id-bearerContextSetup
+
+BearerContextModificationRequest         N e1ap.proc.imsg id-bearerContextModification
+BearerContextModificationResponse        N e1ap.proc.sout id-bearerContextModification
+BearerContextModificationFailure         N e1ap.proc.uout id-bearerContextModification
+
+BearerContextModificationRequired        N e1ap.proc.imsg id-bearerContextModificationRequired
+BearerContextModificationConfirm         N e1ap.proc.sout id-bearerContextModificationRequired
+
+BearerContextReleaseCommand              N e1ap.proc.imsg id-bearerContextRelease
+BearerContextReleaseComplete             N e1ap.proc.sout id-bearerContextRelease
+
+BearerContextReleaseRequest              N e1ap.proc.imsg id-bearerContextReleaseRequest
+
+BearerContextInactivityNotification      N e1ap.proc.imsg id-bearerContextInactivityNotification
+
+DLDataNotification                       N e1ap.proc.imsg id-dLDataNotification
+
+DataUsageReport                          N e1ap.proc.imsg id-dataUsageReport
+
+PrivateMessage                           N e1ap.proc.imsg id-privateMessage
+
+#.FN_BODY PLMN-Identity  VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_e1ap_PLMN_Identity);
+    dissect_e212_mcc_mnc(param_tvb, actx->pinfo, subtree, 0, E212_NONE, FALSE);
+  }
+
+#.TYPE_ATTR
+BitRate DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_bit_sec
+
+#.FN_BODY DRB-Usage-Report-Item/startTimeStamp VAL_PTR = &timestamp_tvb
+  tvbuff_t *timestamp_tvb = NULL;
+%(DEFAULT_BODY)s
+
+#.FN_FTR DRB-Usage-Report-Item/startTimeStamp
+  if (timestamp_tvb) {
+    proto_item_append_text(actx->created_item, " (%s)", tvb_ntp_fmt_ts_sec(timestamp_tvb, 0));
+  }
+
+#.FN_BODY DRB-Usage-Report-Item/endTimeStamp VAL_PTR = &timestamp_tvb
+  tvbuff_t *timestamp_tvb = NULL;
+%(DEFAULT_BODY)s
+
+#.FN_FTR DRB-Usage-Report-Item/endTimeStamp
+  if (timestamp_tvb) {
+    proto_item_append_text(actx->created_item, " (%s)", tvb_ntp_fmt_ts_sec(timestamp_tvb, 0));
+  }
+
+#.TYPE_ATTR
+DRB-Usage-Report-Item/usageCountUL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_octet_octets
+
+#.TYPE_ATTR
+DRB-Usage-Report-Item/usageCountDL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_octet_octets
+
+#.TYPE_ATTR
+MaxPacketLossRate DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(e1ap_MaxPacketLossRate_fmt)
+
+#.FN_BODY TransportLayerAddress VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree;
+    gint tvb_len;
+
+    tvb_len = tvb_reported_length(param_tvb);
+    subtree = proto_item_add_subtree(actx->created_item, ett_e1ap_TransportLayerAddress);
+    if (tvb_len == 4) {
+      /* IPv4 */
+       proto_tree_add_item(subtree, hf_e1ap_transportLayerAddressIPv4, param_tvb, 0, 4, ENC_BIG_ENDIAN);
+    } else if (tvb_len == 16) {
+      /* IPv6 */
+       proto_tree_add_item(subtree, hf_e1ap_transportLayerAddressIPv6, param_tvb, 0, 16, ENC_NA);
+    } else if (tvb_len == 20) {
+      /* IPv4 */
+       proto_tree_add_item(subtree, hf_e1ap_transportLayerAddressIPv4, param_tvb, 0, 4, ENC_BIG_ENDIAN);
+      /* IPv6 */
+       proto_tree_add_item(subtree, hf_e1ap_transportLayerAddressIPv6, param_tvb, 4, 16, ENC_NA);
+    }
+  }
+
+#.FN_HDR Reset
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Reset");
+#.FN_HDR ResetAcknowledge
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ResetAcknowledge");
+#.FN_HDR ErrorIndication
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ErrorIndication");
+#.FN_HDR GNB-CU-UP-E1SetupRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNB-CU-UP-E1SetupRequest");
+#.FN_HDR GNB-CU-UP-E1SetupResponse
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNB-CU-UP-E1SetupResponse");
+#.FN_HDR GNB-CU-UP-E1SetupFailure
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNB-CU-UP-E1SetupFailure");
+#.FN_HDR GNB-CU-CP-E1SetupRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNB-CU-CP-E1SetupRequest");
+#.FN_HDR GNB-CU-CP-E1SetupResponse
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNB-CU-CP-E1SetupResponse");
+#.FN_HDR GNB-CU-CP-E1SetupFailure
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNB-CU-CP-E1SetupFailure");
+#.FN_HDR GNB-CU-UP-ConfigurationUpdate
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNB-CU-UP-ConfigurationUpdate");
+#.FN_HDR GNB-CU-UP-ConfigurationUpdateAcknowledge
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNB-CU-UP-ConfigurationUpdateAcknowledge");
+#.FN_HDR GNB-CU-UP-ConfigurationUpdateFailure
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNB-CU-UP-ConfigurationUpdateFailure");
+#.FN_HDR GNB-CU-CP-ConfigurationUpdate
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNB-CU-CP-ConfigurationUpdate");
+#.FN_HDR GNB-CU-CP-ConfigurationUpdateAcknowledge
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNB-CU-CP-ConfigurationUpdateAcknowledge");
+#.FN_HDR GNB-CU-CP-ConfigurationUpdateFailure
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNB-CU-CP-ConfigurationUpdateFailure");
+#.FN_HDR E1ReleaseRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E1ReleaseRequest");
+#.FN_HDR E1ReleaseResponse
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E1ReleaseResponse");
+#.FN_HDR BearerContextSetupRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "BearerContextSetupRequest");
+#.FN_HDR BearerContextSetupResponse
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "BearerContextSetupResponse");
+#.FN_HDR BearerContextSetupFailure
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "BearerContextSetupFailure");
+#.FN_HDR BearerContextModificationRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "BearerContextModificationRequest");
+#.FN_HDR BearerContextModificationResponse
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "BearerContextModificationResponse");
+#.FN_HDR BearerContextModificationFailure
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "BearerContextModificationFailure");
+#.FN_HDR BearerContextModificationRequired
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "BearerContextModificationRequired");
+#.FN_HDR BearerContextModificationConfirm
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "BearerContextModificationConfirm");
+#.FN_HDR BearerContextReleaseCommand
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "BearerContextReleaseCommand");
+#.FN_HDR BearerContextReleaseComplete
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "BearerContextReleaseComplete");
+#.FN_HDR BearerContextReleaseRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "BearerContextReleaseRequest");
+#.FN_HDR BearerContextInactivityNotification
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "BearerContextInactivityNotification");
+#.FN_HDR DLDataNotification
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DLDataNotification");
+#.FN_HDR DataUsageReport
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DataUsageReport");
+#.FN_HDR PrivateMessage
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PrivateMessage");
+#.END
+
+#
+# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+#
+# Local variables:
+# c-basic-offset: 2
+# tab-width: 8
+# indent-tabs-mode: nil
+# End:
+#
+# vi: set shiftwidth=2 tabstop=8 expandtab:
+# :indentSize=2:tabSize=8:noTabs=true:
+#

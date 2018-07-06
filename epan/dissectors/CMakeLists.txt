@@ -92,7 +92,7 @@ set(CLEAN_ASN1_DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-disp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dop.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dsp.c
-	${CMAKE_CURRENT_SOURCE_DIR}/packet-ecp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-e1ap.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ess.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-f1ap.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ftam.c
@@ -938,6 +938,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-eapol.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-echo.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ecmp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-ecp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ecp-oui.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-edonkey.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-egd.c
