@@ -1033,6 +1033,52 @@ cf_get_display_name(capture_file *cf)
   return displayname;
 }
 
+gchar *
+cf_get_basename(capture_file *cf)
+{
+  gchar *displayname;
+
+  /* Return a name to use in the GUI for the basename for files to
+     which we save statistics */
+  if (!cf->is_tempfile) {
+    /* Get the last component of the file name, and use that. */
+    if (cf->filename) {
+      displayname = g_filename_display_basename(cf->filename);
+
+      /* If the file name ends with any extension that corresponds
+         to a file type we support - including compressed versions
+         of those files - strip it off. */
+      size_t displayname_len = strlen(displayname);
+      GSList *extensions = wtap_get_all_file_extensions_list();
+      GSList *suffix;
+      for (suffix = extensions; suffix != NULL; suffix = g_slist_next(suffix)) {
+        /* Does the file name end with that extension? */
+        const char *extension = (char *)suffix->data;
+        size_t extension_len = strlen(extension);
+        if (displayname_len > extension_len &&
+          displayname[displayname_len - extension_len - 1] == '.' &&
+          strcmp(&displayname[displayname_len - extension_len], extension) == 0) {
+            /* Yes.  Strip the extension off, and return the result. */
+            displayname[displayname_len - extension_len - 1] = '\0';
+            return displayname;
+        }
+      }
+    } else {
+      displayname=g_strdup("");
+    }
+  } else {
+    /* The file we read is a temporary file from a live capture or
+       a merge operation; we don't mention its name, but, if it's
+       from a capture, give the source of the capture. */
+    if (cf->source) {
+      displayname = g_strdup(cf->source);
+    } else {
+      displayname = g_strdup("");
+    }
+  }
+  return displayname;
+}
+
 void cf_set_tempfile_source(capture_file *cf, gchar *source) {
   if (cf->source) {
     g_free(cf->source);
