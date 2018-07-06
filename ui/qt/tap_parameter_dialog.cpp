@@ -270,7 +270,7 @@ QByteArray TapParameterDialog::getTreeAsString(st_format_type format)
         QByteArray top_separator;
         top_separator.fill('=', plain_header.length());
         top_separator.append('\n');
-        QString file_header = QString("%1 - %2:\n").arg(windowSubtitle(), cap_file_.fileName());
+        QString file_header = QString("%1 - %2:\n").arg(windowSubtitle(), cap_file_.fileDisplayName());
         footer.fill('-', plain_header.length());
         footer.append('\n');
         plain_header.append('\n');
@@ -315,7 +315,7 @@ QByteArray TapParameterDialog::getTreeAsString(st_format_type format)
     {
         QString yaml_header;
         ba.append("---\n");
-        yaml_header = QString("Description: \"%1\"\nFile: \"%2\"\nItems:\n").arg(windowSubtitle()).arg(cap_file_.fileName());
+        yaml_header = QString("Description: \"%1\"\nFile: \"%2\"\nItems:\n").arg(windowSubtitle()).arg(cap_file_.fileDisplayName());
         ba.append(yaml_header.toUtf8());
         break;
     }
