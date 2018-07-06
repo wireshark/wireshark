@@ -57,11 +57,6 @@ bool PacketFormatGroupBox::summaryEnabled()
     return pf_ui_->summaryCheckBox->isChecked();
 }
 
-bool PacketFormatGroupBox::includeColumnHeadingsEnabled()
-{
-    return pf_ui_->includeColumnHeadingsCheckBox->isChecked();
-}
-
 bool PacketFormatGroupBox::detailsEnabled()
 {
     return pf_ui_->detailsCheckBox->isChecked();
@@ -70,6 +65,11 @@ bool PacketFormatGroupBox::detailsEnabled()
 bool PacketFormatGroupBox::bytesEnabled()
 {
     return pf_ui_->bytesCheckBox->isChecked();
+}
+
+bool PacketFormatGroupBox::includeColumnHeadingsEnabled()
+{
+    return pf_ui_->includeColumnHeadingsCheckBox->isChecked();
 }
 
 bool PacketFormatGroupBox::allCollapsedEnabled()
@@ -102,6 +102,11 @@ void PacketFormatGroupBox::on_detailsCheckBox_toggled(bool checked)
 }
 
 void PacketFormatGroupBox::on_bytesCheckBox_toggled(bool)
+{
+    emit formatChanged();
+}
+
+void PacketFormatGroupBox::on_includeColumnHeadingsCheckBox_toggled(bool)
 {
     emit formatChanged();
 }

@@ -38,9 +38,12 @@ signals:
     void formatChanged();
 
 private slots:
-    void on_detailsCheckBox_toggled(bool checked);
     void on_summaryCheckBox_toggled(bool checked);
+    void on_detailsCheckBox_toggled(bool checked);
     void on_bytesCheckBox_toggled(bool checked);
+
+    void on_includeColumnHeadingsCheckBox_toggled(bool checked);
+
     void on_allCollapsedButton_toggled(bool checked);
     void on_asDisplayedButton_toggled(bool checked);
     void on_allExpandedButton_toggled(bool checked);
