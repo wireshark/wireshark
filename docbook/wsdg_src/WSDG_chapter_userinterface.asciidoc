@@ -18,15 +18,6 @@ development team:
 
 * TShark, console based
 
-There are other Wireshark frontends which are not developed nor maintained by
-the Wireshark development team:
-
-* Packetyzer. Native Windows interface, written in Delphi and released
-under the GPL. Not actively maintained. https://sourceforge.net/projects/packetyzer/[]
-
-* hethereal Web interface. Not actively maintained and not
-finished.
-
 This chapter is focused on the Wireshark frontend, and especially on
 the Qt interface.
 

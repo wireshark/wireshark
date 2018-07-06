@@ -123,13 +123,13 @@ and its dependencies.
 
 The GLib library is available for most Linux distributions and UNIX
 flavors. If it isn't already installed and isn't available as a package
-for your platform, you can get it at http://www.gtk.org/download.html[].
+for your platform, you can get it at http://www.gtk.org[].
 
 [[ChLibsWin32GLib]]
 
 ==== Win32 MSVC
 
-You can get the latest version at http://www.gtk.org/download.html[].
+You can get the latest version at http://www.gtk.org[].
 
 [[ChLibsSMI]]
 

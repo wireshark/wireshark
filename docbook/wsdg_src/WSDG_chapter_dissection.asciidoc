@@ -440,7 +440,7 @@ flags structure. For this we need to add some more data to the table though.
 .Adding Flags to the protocol.
 ====
 ----
-#define FOO_START_FLAG 0x01
+#define FOO_START_FLAG      0x01
 #define FOO_END_FLAG        0x02
 #define FOO_PRIORITY_FLAG   0x04
 
@@ -453,10 +453,13 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     ...
         ...
-        proto_tree_add_item(foo_tree, hf_foo_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(foo_tree, hf_foo_startflag, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(foo_tree, hf_foo_endflag, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(foo_tree, hf_foo_priorityflag, tvb, offset, 1, ENC_BIG_ENDIAN);
+        static const int* bits[] = {
+            &hf_foo_startflag,
+            &hf_foo_endflag,
+            &hf_foo_priorityflag
+        };
+
+        proto_tree_add_bitmask(foo_tree, tvb, offset, hf_foo_flags, ett_foo, bits, ENC_BIG_ENDIAN);
         offset += 1;
         ...
     ...
@@ -497,7 +500,7 @@ the type `FT_BOOLEAN`, as the flag is either on or off. Second, we include the f
 mask in the 7th field of the data, which allows the system to mask the relevant bit.
 We've also changed the 5th field to 8, to indicate that we are looking at an 8 bit
 quantity when the flags are extracted. Then finally we add the extra constructs
-to the dissection routine. Note we keep the same offset for each of the flags.
+to the dissection routine.
 
 This is starting to look fairly full featured now, but there are a couple of
 other things we can do to make things look even more pretty. At the moment our
