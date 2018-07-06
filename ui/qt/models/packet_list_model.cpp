@@ -369,7 +369,39 @@ void PacketListModel::sort(int column, Qt::SortOrder order)
 
 bool PacketListModel::isNumericColumn(int column)
 {
-    if (column < 0 || sort_cap_file_->cinfo.columns[column].col_fmt != COL_CUSTOM) {
+    if (column < 0) {
+        return false;
+    }
+    switch (sort_cap_file_->cinfo.columns[column].col_fmt) {
+    case COL_8021Q_VLAN_ID:  /**< 0) 802.1Q vlan ID */
+    case COL_CUMULATIVE_BYTES: /**< 5) Cumulative number of bytes */
+    case COL_DELTA_TIME:     /**< 8) Delta time */
+    case COL_DELTA_TIME_DIS: /**< 9) Delta time displayed*/
+    case COL_UNRES_DST_PORT: /**< 13) Unresolved dest port */
+    case COL_FREQ_CHAN:      /**< 18) IEEE 802.11 (and WiMax?) - Channel */
+    case COL_RSSI:           /**< 25) IEEE 802.11 - received signal strength */
+    case COL_TX_RATE:        /**< 26) IEEE 802.11 - TX rate in Mbps */
+    case COL_NUMBER:         /**< 35) Packet list item number */
+    case COL_PACKET_LENGTH:  /**< 36) Packet length in bytes */
+    case COL_UNRES_SRC_PORT: /**< 44) Unresolved source port */
+    case COL_TEI:            /**< 45) Q.921 TEI */
+        return true;
+
+    /*
+     * Try to sort port numbers as number, if the numeric comparison fails (due
+     * to name resolution), it will fallback to string comparison.
+     * */
+    case COL_RES_DST_PORT:   /**< 12) Resolved dest port */
+    case COL_DEF_DST_PORT:   /**< 15) Destination port */
+    case COL_DEF_SRC_PORT:   /**< 40) Source port */
+    case COL_RES_SRC_PORT:   /**< 43) Resolved source port */
+        return true;
+
+    case COL_CUSTOM:
+        /* handle custom columns below. */
+        break;
+
+    default:
         return false;
     }
 
@@ -425,26 +457,22 @@ bool PacketListModel::recordLessThan(PacketListRecord *r1, PacketListRecord *r2)
     } else  {
         if (r1->columnString(sort_cap_file_, sort_column_).constData() == r2->columnString(sort_cap_file_, sort_column_).constData()) {
             cmp_val = 0;
-        } else if (sort_cap_file_->cinfo.columns[sort_column_].col_fmt == COL_CUSTOM) {
-            // Column comes from custom data
-            if (sort_column_is_numeric_) {
-                // Attempt to convert to numbers.
-                // XXX This is slow. Can we avoid doing this?
-                bool ok_r1, ok_r2;
-                double num_r1 = parseNumericColumn(r1->columnString(sort_cap_file_, sort_column_), &ok_r1);
-                double num_r2 = parseNumericColumn(r2->columnString(sort_cap_file_, sort_column_), &ok_r2);
+        } else if (sort_column_is_numeric_) {
+            // Custom column with numeric data (or something like a port number).
+            // Attempt to convert to numbers.
+            // XXX This is slow. Can we avoid doing this?
+            bool ok_r1, ok_r2;
+            double num_r1 = parseNumericColumn(r1->columnString(sort_cap_file_, sort_column_), &ok_r1);
+            double num_r2 = parseNumericColumn(r2->columnString(sort_cap_file_, sort_column_), &ok_r2);
 
-                if (!ok_r1 && !ok_r2) {
-                    cmp_val = 0;
-                } else if (!ok_r1 || (ok_r2 && num_r1 < num_r2)) {
-                    // either r1 is invalid (and sort it before others) or both
-                    // r1 and r2 are valid (sort normally)
-                    cmp_val = -1;
-                } else if (!ok_r2 || (ok_r1 && num_r1 > num_r2)) {
-                    cmp_val = 1;
-                }
-            } else {
-                cmp_val = strcmp(r1->columnString(sort_cap_file_, sort_column_).constData(), r2->columnString(sort_cap_file_, sort_column_).constData());
+            if (!ok_r1 && !ok_r2) {
+                cmp_val = 0;
+            } else if (!ok_r1 || (ok_r2 && num_r1 < num_r2)) {
+                // either r1 is invalid (and sort it before others) or both
+                // r1 and r2 are valid (sort normally)
+                cmp_val = -1;
+            } else if (!ok_r2 || (ok_r1 && num_r1 > num_r2)) {
+                cmp_val = 1;
             }
         } else {
             cmp_val = strcmp(r1->columnString(sort_cap_file_, sort_column_).constData(), r2->columnString(sort_cap_file_, sort_column_).constData());
