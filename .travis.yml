@@ -30,7 +30,7 @@ before_install:
   # macos
   - if [ "$TRAVIS_OS_NAME" == "osx" ]; then ./tools/macos-setup-brew.sh; fi
   # linux
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then if [ "$CXX" = "g++" ]; then export CXX="g++-8" CC="gcc-8"; fi ; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then if [ "$CXX" == "g++" ]; then export CXX="g++-8" CC="gcc-8"; fi ; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo ./tools/debian-setup.sh --install-optional -qq; fi
   - $CC --version
 before_script:
