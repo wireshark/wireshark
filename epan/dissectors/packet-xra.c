@@ -52,6 +52,9 @@ static gint hf_xra_tlv = -1;
  * XRA TLV
  */
 static gint hf_xra_tlv_ds_channel_id = -1;
+static gint hf_xra_tlv_ds_channel_frequency = -1;
+static gint hf_xra_tlv_modulation = -1;
+static gint hf_xra_tlv_annex = -1;
 static gint hf_xra_tlv_us_channel_id = -1;
 static gint hf_xra_tlv_profile_id = -1;
 static gint hf_xra_tlv_sid = -1;
@@ -73,6 +76,8 @@ static gint hf_xra_tlv_ranging_stop_minislot_id_rel = -1;
 static gint hf_xra_tlv_ranging_number_ofdma_frames = -1;
 static gint hf_xra_tlv_ranging_mer = -1;
 static gint hf_xra_tlv_ranging_timing_adjust = -1;
+static gint hf_xra_tlv_ranging_power_level = -1;
+static gint hf_xra_tlv_subslot_id =-1;
 
 static gint hf_xra_unknown = -1;
 
@@ -259,6 +264,19 @@ static const value_string packettype[] = {
   {0, NULL}
 };
 
+static const value_string annex_vals[] = {
+  {0, "Annex A"},
+  {1, "Annex B"},
+  {0, NULL}
+};
+
+static const value_string modulation_vals[] = {
+  {0, "QAM64"},
+  {1, "QAM256"},
+  {0, NULL}
+};
+
+
 static const value_string profile_id[] = {
   {0, "Profile A"},
   {1, "Profile B"},
@@ -330,6 +348,12 @@ mer_fourth_db(char *buf, guint32 value)
     g_snprintf(buf, ITEM_LABEL_LENGTH, "%f dB", value/4.0);
 }
 
+static void
+mer_tenth_db_signed(char *buf, guint32 value)
+{
+    g_snprintf(buf, ITEM_LABEL_LENGTH, "%f dB", ((gint32) value)/10.0);
+}
+
 static int
 dissect_xra(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_) {
   proto_item *it;
@@ -366,6 +390,7 @@ dissect_xra(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _
   }
   /*Dissecting contents*/
   switch(packet_type) {
+    case XRA_PACKETTYPE_DS_SCQAM_DOCSIS_MACFRAME:
     case XRA_PACKETTYPE_OFDM_DOCSIS:
       /*Calling docsis dissector*/
       docsis_tvb = tvb_new_subset_length(tvb, xra_length, tvb_captured_length_remaining(tvb, xra_length));
@@ -379,6 +404,7 @@ dissect_xra(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _
     case XRA_PACKETTYPE_OFDM_NCP:
       ncp_tvb = tvb_new_subset_length(tvb, xra_length, tvb_captured_length_remaining(tvb, xra_length));
       return dissect_ncp(ncp_tvb, tree, data);
+    case XRA_PACKETTYPE_TDMA_BURST:
     case XRA_PACKETTYPE_OFDMA_DATA_BURST:
       if(segment_header_present) {
         col_append_str(pinfo->cinfo, COL_INFO, ": Segment");
@@ -386,6 +412,7 @@ dissect_xra(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _
         return dissect_ofdma_segment(segment_tvb, pinfo, tree, data);
       }
       break;
+    case XRA_PACKETTYPE_OFDMA_REQ:
     case XRA_PACKETTYPE_US_DOCSIS_MACFRAME:
       /*Calling docsis dissector*/
       docsis_tvb = tvb_new_subset_length(tvb, xra_length, tvb_captured_length_remaining(tvb, xra_length));
@@ -553,6 +580,15 @@ dissect_xra_tlv(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
       case XRA_DS_CHANNEL_ID:
         proto_tree_add_item (xra_tlv_tree, hf_xra_tlv_ds_channel_id, tvb, tlv_index, length, ENC_BIG_ENDIAN);
         break;
+      case XRA_DS_FREQUENCY:
+        proto_tree_add_item (xra_tlv_tree, hf_xra_tlv_ds_channel_frequency, tvb, tlv_index, length, ENC_BIG_ENDIAN);
+        break;
+      case XRA_MODULATION:
+        proto_tree_add_item (xra_tlv_tree, hf_xra_tlv_modulation, tvb, tlv_index, length, ENC_BIG_ENDIAN);
+        break;
+      case XRA_ANNEX:
+        proto_tree_add_item (xra_tlv_tree, hf_xra_tlv_annex, tvb, tlv_index, length, ENC_BIG_ENDIAN);
+        break;
       case XRA_PROFILE_ID:
         proto_tree_add_item (xra_tlv_tree, hf_xra_tlv_profile_id, tvb, tlv_index, length, ENC_BIG_ENDIAN);
         break;
@@ -604,6 +640,12 @@ dissect_xra_tlv(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
         break;
       case XRA_ESTIMATED_TIMING_ADJUST:
         proto_tree_add_item (xra_tlv_tree, hf_xra_tlv_ranging_timing_adjust, tvb, tlv_index, length, ENC_BIG_ENDIAN);
+        break;
+      case XRA_ESTIMATED_POWER_LEVEL:
+        proto_tree_add_item (xra_tlv_tree, hf_xra_tlv_ranging_power_level, tvb, tlv_index, length, ENC_BIG_ENDIAN);
+        break;
+      case XRA_SUBSLOT_ID:
+        proto_tree_add_item (xra_tlv_tree, hf_xra_tlv_subslot_id, tvb, tlv_index, length, ENC_BIG_ENDIAN);
         break;
       default:
         proto_tree_add_item (xra_tlv_tree, hf_xra_unknown, tvb, tlv_index, length, ENC_NA);
@@ -864,6 +906,21 @@ proto_register_xra (void)
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL}
     },
+    {&hf_xra_tlv_ds_channel_frequency,
+      {"DS Channel Frequency", "xra.tlv.ds_channel_frequency",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL}
+    },
+    {&hf_xra_tlv_modulation,
+      {"Modulation", "xra.tlv.modulation",
+        FT_UINT8, BASE_DEC, VALS(modulation_vals), 0x0,
+        NULL, HFILL}
+    },
+    {&hf_xra_tlv_annex,
+      {"Annex", "xra.tlv.annex",
+        FT_UINT8, BASE_DEC, VALS(annex_vals), 0x0,
+        NULL, HFILL}
+    },
     {&hf_xra_tlv_us_channel_id,
       {"US Channel ID", "xra.tlv.us_channel_id",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -950,6 +1007,17 @@ proto_register_xra (void)
         FT_INT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL}
     },
+    {&hf_xra_tlv_ranging_power_level,
+      {"Estimated Power Level (0.10 dB units, signed)", "xra.tlv.ranging.power_level",
+        FT_INT16, BASE_CUSTOM, CF_FUNC(mer_tenth_db_signed), 0x0,
+        NULL, HFILL}
+    },
+    {&hf_xra_tlv_subslot_id,
+      {"Subslot ID", "xra.tlv.subslot_id",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL}
+    },
+
     /*Codeword Info DS*/
     {&hf_xra_tlv_cw_info,
       {"Codeword Info", "xra.tlv.cw_info",
