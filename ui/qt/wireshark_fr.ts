@@ -9908,51 +9908,56 @@ a:hover {
     </message>
     <message>
         <location filename="packet_format_group_box.ui" line="36"/>
+        <source>Include column headings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="packet_format_group_box.ui" line="46"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Packet details similar to the protocol tree&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Détails des paquets similaire à l&apos;arbre de protocole&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="packet_format_group_box.ui" line="39"/>
+        <location filename="packet_format_group_box.ui" line="49"/>
         <source>Details:</source>
         <translation>Détails:</translation>
     </message>
     <message>
-        <location filename="packet_format_group_box.ui" line="55"/>
+        <location filename="packet_format_group_box.ui" line="65"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export only top-level packet detail items&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Exporter seulement le détails des paquets de haut niveau&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="packet_format_group_box.ui" line="58"/>
+        <location filename="packet_format_group_box.ui" line="68"/>
         <source>All co&amp;llapsed</source>
         <translation>Tout &amp;Reduire</translation>
     </message>
     <message>
-        <location filename="packet_format_group_box.ui" line="71"/>
+        <location filename="packet_format_group_box.ui" line="81"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Expand and collapse packet details as they are currently displayed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Etendre ou reduire les détails des paquets actuellements affichés.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="packet_format_group_box.ui" line="74"/>
+        <location filename="packet_format_group_box.ui" line="84"/>
         <source>As displa&amp;yed</source>
         <translation>Comme &amp;Affichés</translation>
     </message>
     <message>
-        <location filename="packet_format_group_box.ui" line="90"/>
+        <location filename="packet_format_group_box.ui" line="100"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export all packet detail items&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Exporter tous les détails des paquets&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="packet_format_group_box.ui" line="93"/>
+        <location filename="packet_format_group_box.ui" line="103"/>
         <source>All e&amp;xpanded</source>
         <translation>Tout E&amp;tendre</translation>
     </message>
     <message>
-        <location filename="packet_format_group_box.ui" line="100"/>
+        <location filename="packet_format_group_box.ui" line="110"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export a hexdump of the packet data similar to the packet bytes view&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Exporter en hexdump les données des paquets simailaire au paquets affichées&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="packet_format_group_box.ui" line="103"/>
+        <location filename="packet_format_group_box.ui" line="113"/>
         <source>Bytes</source>
         <translation>Octets</translation>
     </message>
@@ -10254,12 +10259,12 @@ a:hover {
         <translation>%1 %2 paques totales, %3 affichés</translation>
     </message>
     <message>
-        <location filename="print_dialog.cpp" line="261"/>
+        <location filename="print_dialog.cpp" line="262"/>
         <source>Print Error</source>
         <translation>Erreur d&apos;impression</translation>
     </message>
     <message>
-        <location filename="print_dialog.cpp" line="262"/>
+        <location filename="print_dialog.cpp" line="263"/>
         <source>Unable to print to %1.</source>
         <translation>Impossible d&apos;imprimer sur %1.</translation>
     </message>
