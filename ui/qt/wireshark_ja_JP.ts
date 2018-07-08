@@ -10208,51 +10208,56 @@ a:hover {
     </message>
     <message>
         <location filename="packet_format_group_box.ui" line="36"/>
+        <source>Include column headings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="packet_format_group_box.ui" line="46"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Packet details similar to the protocol tree&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;プロトコルツリーのようなパケット詳細&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="packet_format_group_box.ui" line="39"/>
+        <location filename="packet_format_group_box.ui" line="49"/>
         <source>Details:</source>
         <translation>詳細:</translation>
     </message>
     <message>
-        <location filename="packet_format_group_box.ui" line="55"/>
+        <location filename="packet_format_group_box.ui" line="65"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export only top-level packet detail items&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;最上位のパケット詳細の項目のみエクスポート&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="packet_format_group_box.ui" line="58"/>
+        <location filename="packet_format_group_box.ui" line="68"/>
         <source>All co&amp;llapsed</source>
         <translation>すべて閉じる(&amp;l)</translation>
     </message>
     <message>
-        <location filename="packet_format_group_box.ui" line="71"/>
+        <location filename="packet_format_group_box.ui" line="81"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Expand and collapse packet details as they are currently displayed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;現在表示されてるようにパケット詳細画面を開いたり閉じたりします&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="packet_format_group_box.ui" line="74"/>
+        <location filename="packet_format_group_box.ui" line="84"/>
         <source>As displa&amp;yed</source>
         <translation>表示された通り(&amp;y)</translation>
     </message>
     <message>
-        <location filename="packet_format_group_box.ui" line="90"/>
+        <location filename="packet_format_group_box.ui" line="100"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export all packet detail items&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;すべてのパケット項目をエクスポート&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="packet_format_group_box.ui" line="93"/>
+        <location filename="packet_format_group_box.ui" line="103"/>
         <source>All e&amp;xpanded</source>
         <translation>すべて展開(&amp;x)</translation>
     </message>
     <message>
-        <location filename="packet_format_group_box.ui" line="100"/>
+        <location filename="packet_format_group_box.ui" line="110"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export a hexdump of the packet data similar to the packet bytes view&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;パケットバイト列表示のようなパケットデータの16進数ダンプをエクスポート&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="packet_format_group_box.ui" line="103"/>
+        <location filename="packet_format_group_box.ui" line="113"/>
         <source>Bytes</source>
         <translation>バイト列</translation>
     </message>
@@ -10559,12 +10564,12 @@ a:hover {
         <translation>%1 %2 全パケット, %3 表示</translation>
     </message>
     <message>
-        <location filename="print_dialog.cpp" line="261"/>
+        <location filename="print_dialog.cpp" line="262"/>
         <source>Print Error</source>
         <translation>印刷エラー</translation>
     </message>
     <message>
-        <location filename="print_dialog.cpp" line="262"/>
+        <location filename="print_dialog.cpp" line="263"/>
         <source>Unable to print to %1.</source>
         <translation>%1 に印刷することができません</translation>
     </message>

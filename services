@@ -203,8 +203,8 @@ uucp-path         117/tcp # UUCP Path Service
 uucp-path         117/udp # UUCP Path Service
 sqlserv           118/tcp # SQL Services [Larry_Barnes] [Larry_Barnes]
 sqlserv           118/udp # SQL Services [Larry_Barnes] [Larry_Barnes]
-nntp              119/tcp # Network News Transfer Protocol [IESG] [IESG] 2017-02-03 [RFC3977]
-nntp              119/udp # Network News Transfer Protocol [IESG] [IESG] 2017-02-03 [RFC3977]
+nntp              119/tcp # Network News Transfer Protocol [IESG] [IETF_Chair] 2018-07-06 [RFC3977]
+nntp              119/udp # Network News Transfer Protocol [IESG] [IETF_Chair] 2018-07-06 [RFC3977]
 cfdptkt           120/tcp # CFDPTKT [John_Ioannidis] [John_Ioannidis]
 cfdptkt           120/udp # CFDPTKT [John_Ioannidis] [John_Ioannidis]
 erpc              121/tcp # Encore Expedited Remote Pro.Call [Jack_ONeil] [Jack_ONeil]
@@ -702,8 +702,8 @@ utmpcd            431/tcp # UTMPCD
 utmpcd            431/udp # UTMPCD
 iasd              432/tcp # IASD [Nir_Baroz] [Nir_Baroz]
 iasd              432/udp # IASD [Nir_Baroz] [Nir_Baroz]
-nnsp              433/tcp # NNTP for transit servers (NNSP) [IESG] [IESG] 2017-02-03 [RFC3977]
-nnsp              433/udp # NNTP for transit servers (NNSP) [IESG] [IESG] 2017-02-03 [RFC3977]
+nnsp              433/tcp # NNTP for transit servers (NNSP) [IESG] [IETF_Chair] 2018-07-06 [RFC3977]
+nnsp              433/udp # NNTP for transit servers (NNSP) [IESG] [IETF_Chair] 2018-07-06 [RFC3977]
 mobileip-agent    434/tcp # MobileIP-Agent
 mobileip-agent    434/udp # MobileIP-Agent
 mobilip-mn        435/tcp # MobilIP-MN [Kannan_Alagappan_2] [Kannan_Alagappan_2]
@@ -724,8 +724,8 @@ cvc-hostd         442/tcp # cvc_hostdIANA assigned this well-formed service name
 cvc_hostd         442/tcp # cvc_hostd [Bill_Davidson] [Bill_Davidson] This entry is an alias to "cvc-hostd".This entry is now historic, not usable for use with manycommon service discovery mechanisms.
 cvc-hostd         442/udp # cvc_hostdIANA assigned this well-formed service name as a replacement for "cvc_hostd". [Bill_Davidson] [Bill_Davidson]
 cvc_hostd         442/udp # cvc_hostd [Bill_Davidson] [Bill_Davidson] This entry is an alias to "cvc-hostd".This entry is now historic, not usable for use with manycommon service discovery mechanisms.
-https             443/tcp # http protocol over TLS/SSL [IESG] [IESG] 2017-07-26
-https             443/udp # http protocol over TLS/SSL [IESG] [IESG] 2017-07-26
+https             443/tcp # http protocol over TLS/SSL [IESG] [IETF_Chair] 2018-07-06
+https             443/udp # http protocol over TLS/SSL [IESG] [IETF_Chair] 2018-07-06
 https             443/sctp # HTTPS [Randall_Stewart] [Randall_Stewart] [RFC4960]
 snpp              444/tcp # Simple Network Paging Protocol [RFC1568]
 snpp              444/udp # Simple Network Paging Protocol [RFC1568]
@@ -967,8 +967,8 @@ monitor           561/tcp #
 monitor           561/udp # 
 chshell           562/tcp # chcmd
 chshell           562/udp # chcmd
-nntps             563/tcp # nntp protocol over TLS/SSL (was snntp) [IESG] [IESG] 2017-02-03 [RFC4642]
-nntps             563/udp # nntp protocol over TLS/SSL (was snntp) [IESG] [IESG] 2017-02-03 [RFC4642]
+nntps             563/tcp # nntp protocol over TLS/SSL (was snntp) [IESG] [IETF_Chair] 2018-07-06 [RFC4642]
+nntps             563/udp # nntp protocol over TLS/SSL (was snntp) [IESG] [IETF_Chair] 2018-07-06 [RFC4642]
 9pfs              564/tcp # plan 9 file service
 9pfs              564/udp # plan 9 file service
 whoami            565/tcp # whoami
@@ -1103,8 +1103,9 @@ qmqp              628/udp # QMQP [D_J_Bernstein] [D_J_Bernstein] 2018-04-05
 3com-amp3         629/udp # 3Com AMP3 [Prakash_Banthia] [Prakash_Banthia]
 rda               630/tcp # RDA [John_Hadjioannou] [John_Hadjioannou]
 rda               630/udp # RDA [John_Hadjioannou] [John_Hadjioannou]
-ipp               631/tcp # IPP (Internet Printing Protocol) [IESG] [IESG] 2018-06-29 Defined TXT keys: See BonjourPrinting.pdf.
-ipp               631/udp # IPP (Internet Printing Protocol) [IESG] [IESG] 2018-06-29 Defined TXT keys: See BonjourPrinting.pdf.
+ipp               631/tcp # IPP (Internet Printing Protocol) [IESG] [IETF_Chair] 2018-07-06 [RFC8011] Defined TXT keys: See BonjourPrinting.pdf.
+ipp               631/udp # IPP (Internet Printing Protocol) [IESG] [IETF_Chair] 2018-07-06 [RFC8011] Defined TXT keys: See BonjourPrinting.pdf.
+ipps              631/tcp # Internet Printing Protocol over HTTPS [IESG] [IETF_Chair] 2018-07-06 [RFC8011]
 bmpp              632/tcp # bmpp [Troy_Rollo] [Troy_Rollo]
 bmpp              632/udp # bmpp [Troy_Rollo] [Troy_Rollo]
 servstat          633/tcp # Service Status update (Sterling Software) [Greg_Rose] [Greg_Rose]
@@ -9946,6 +9947,8 @@ intu-ec-client   8021/tcp # Intuit Entitlement Client [Daniel_C_McGloin] [Daniel
 intu-ec-client   8021/udp # Intuit Entitlement Client [Daniel_C_McGloin] [Daniel_C_McGloin] 2005-05
 oa-system        8022/tcp # oa-system [Marie_France_Dubreui] [Marie_France_Dubreui]
 oa-system        8022/udp # oa-system [Marie_France_Dubreui] [Marie_France_Dubreui]
+arca-api         8023/tcp # ARCATrust vault API [ARCATrust_SA] [Yacince_Felk] 2018-07-05
+arca-api         8023/udp # ARCATrust vault API [ARCATrust_SA] [Yacince_Felk] 2018-07-05
 ca-audit-da      8025/tcp # CA Audit Distribution Agent [Henning_Smith] [Henning_Smith] 2006-07
 ca-audit-da      8025/udp # CA Audit Distribution Agent [Henning_Smith] [Henning_Smith] 2006-07
 ca-audit-ds      8026/tcp # CA Audit Distribution Server [Henning_Smith] [Henning_Smith] 2006-07
