@@ -336,9 +336,9 @@ dissect_ngap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   ngap_data->ngap_conv = (struct ngap_conv_info *)conversation_get_proto_data(conversation, proto_ngap);
   if (!ngap_data->ngap_conv) {
     ngap_data->ngap_conv = wmem_new0(wmem_file_scope(), struct ngap_conv_info);
-    copy_address_wmem(wmem_packet_scope(), &ngap_data->ngap_conv->addr_a, &pinfo->src);
+    copy_address_wmem(wmem_file_scope(), &ngap_data->ngap_conv->addr_a, &pinfo->src);
     ngap_data->ngap_conv->ranmode_id_a = (GlobalRANNodeID_enum)-1;
-    copy_address_wmem(wmem_packet_scope(), &ngap_data->ngap_conv->addr_b, &pinfo->dst);
+    copy_address_wmem(wmem_file_scope(), &ngap_data->ngap_conv->addr_b, &pinfo->dst);
     ngap_data->ngap_conv->ranmode_id_b = (GlobalRANNodeID_enum)-1;
     conversation_add_proto_data(conversation, proto_ngap, ngap_data->ngap_conv);
   }
