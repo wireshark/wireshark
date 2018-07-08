@@ -7479,10 +7479,6 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>(File name can&apos;t be mapped to UTF-8)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>The Wireshark Network Analyzer</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8043,6 +8039,10 @@ a:hover {
     </message>
     <message>
         <source>Summary line</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Include column headings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

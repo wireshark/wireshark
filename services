@@ -5149,6 +5149,7 @@ qbdb		8019/tcp/udp	# QB DB Dynamic Port
 intu-ec-svcdisc	8020/tcp/udp	# Intuit Entitlement Service and Discovery
 intu-ec-client	8021/tcp/udp	# Intuit Entitlement Client
 oa-system	8022/tcp/udp
+arca-api	8023/tcp/udp	# ARCATrust vault API
 ca-audit-da	8025/tcp/udp	# CA Audit Distribution Agent
 ca-audit-ds	8026/tcp/udp	# CA Audit Distribution Server
 pro-ed		8032/tcp/udp	# ProEd

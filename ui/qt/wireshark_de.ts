@@ -7569,7 +7569,7 @@ text-decoration: underline;
     </message>
     <message>
         <source>(File name can&apos;t be mapped to UTF-8)</source>
-        <translation>(Dateiname kann nicht auf UTF-8 angewendet werden)</translation>
+        <translation type="vanished">(Dateiname kann nicht auf UTF-8 angewendet werden)</translation>
     </message>
     <message>
         <source>The Wireshark Network Analyzer</source>
@@ -8133,6 +8133,10 @@ text-decoration: underline;
     <message>
         <source>Summary line</source>
         <translation>Übersichtszeile</translation>
+    </message>
+    <message>
+        <source>Include column headings</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Packet details similar to the protocol tree&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
