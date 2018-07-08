@@ -194,9 +194,9 @@ dissect_xnap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
   xnap_data->xnap_conv = (struct xnap_conv_info *)conversation_get_proto_data(conversation, proto_xnap);
   if (!xnap_data->xnap_conv) {
     xnap_data->xnap_conv = wmem_new0(wmem_file_scope(), struct xnap_conv_info);
-    copy_address_wmem(wmem_packet_scope(), &xnap_data->xnap_conv->addr_a, &pinfo->src);
+    copy_address_wmem(wmem_file_scope(), &xnap_data->xnap_conv->addr_a, &pinfo->src);
     xnap_data->xnap_conv->ranmode_id_a = (GlobalNG_RANNode_ID_enum)-1;
-    copy_address_wmem(wmem_packet_scope(), &xnap_data->xnap_conv->addr_b, &pinfo->dst);
+    copy_address_wmem(wmem_file_scope(), &xnap_data->xnap_conv->addr_b, &pinfo->dst);
     xnap_data->xnap_conv->ranmode_id_b = (GlobalNG_RANNode_ID_enum)-1;
     conversation_add_proto_data(conversation, proto_xnap, xnap_data->xnap_conv);
   }
