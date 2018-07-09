@@ -53,6 +53,8 @@
 // - Instead of calling QMessageBox, display the error message in the text
 //   box and disable the appropriate controls.
 // - Add a progress bar and connect captureCaptureUpdateContinue to it
+// - User's Guide documents the "Raw" type as "same as ASCII, but saving binary
+//   data". However it currently displays hex-encoded data.
 
 // Matches SplashOverlay.
 static int info_update_freq_ = 100;
@@ -72,7 +74,6 @@ FollowStreamDialog::FollowStreamDialog(QWidget &parent, CaptureFile &cf, follow_
     last_packet_(0),
     last_from_server_(0),
     turns_(0),
-    save_as_(false),
     use_regex_find_(false),
     terminating_(false)
 {
@@ -267,28 +268,26 @@ void FollowStreamDialog::findText(bool go_back)
 void FollowStreamDialog::saveAs()
 {
     QString file_name = WiresharkFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save Stream Content As" UTF8_HORIZONTAL_ELLIPSIS)));
-    if (!file_name.isEmpty()) {
-        QTextStream out(&file_);
-
-        file_.setFileName(file_name);
-        if (!file_.open(QIODevice::WriteOnly)) {
-            open_failure_alert_box(file_name.toUtf8().constData(), errno, TRUE);
-            return;
-        }
-
-        save_as_ = true;
-
-        readStream();
-
-        if ((show_type_ != SHOW_RAW) && (show_type_ != SHOW_UTF8))
-        {
-            out << ui->teStreamContent->toPlainText();
-        }
-
-        save_as_ = false;
-
-        file_.close();
+    if (file_name.isEmpty()) {
+        return;
     }
+
+    QFile file(file_name);
+    if (!file.open(QIODevice::WriteOnly)) {
+        open_failure_alert_box(file_name.toUtf8().constData(), errno, TRUE);
+        return;
+    }
+
+    // Unconditionally save data as UTF-8 (even if data is decoded as UTF-16).
+    QByteArray bytes = ui->teStreamContent->toPlainText().toUtf8();
+    if (show_type_ == SHOW_RAW) {
+        // The "Raw" format is currently displayed as hex data and needs to be
+        // converted to binary data.
+        bytes = QByteArray::fromHex(bytes);
+    }
+
+    QDataStream out(&file);
+    out.writeRawData(bytes.constData(), bytes.size());
 }
 
 void FollowStreamDialog::helpButton()
@@ -438,11 +437,8 @@ frs_return_t
 FollowStreamDialog::readStream()
 {
 
-    // Only clear the display if we're going to refill it
-    if (save_as_ == false) {
-        ui->teStreamContent->clear();
-        text_pos_to_packet_.clear();
-    }
+    ui->teStreamContent->clear();
+    text_pos_to_packet_.clear();
 
     truncated_ = false;
     frs_return_t ret;
@@ -469,8 +465,7 @@ FollowStreamDialog::readStream()
         break;
     }
 
-    if (save_as_ == false)
-        ui->teStreamContent->moveCursor(QTextCursor::Start);
+    ui->teStreamContent->moveCursor(QTextCursor::Start);
 
     return ret;
 }
@@ -484,29 +479,6 @@ FollowStreamDialog::followStream()
 const int FollowStreamDialog::max_document_length_ = 500 * 1000 * 1000; // Just a guess
 void FollowStreamDialog::addText(QString text, gboolean is_from_server, guint32 packet_num)
 {
-    if (save_as_ == true)
-    {
-        size_t nwritten;
-        int FileDescriptor = file_.handle();
-        int fd_new = ws_dup(FileDescriptor);
-        if (fd_new == -1)
-            return;
-        FILE* fh = ws_fdopen(fd_new, "wb");
-        if (show_type_ == SHOW_RAW) {
-            QByteArray binstream = QByteArray::fromHex(text.toUtf8());
-            nwritten = fwrite(binstream.constData(), binstream.length(), 1, fh);
-        } else {
-            nwritten = fwrite(text.toUtf8().constData(), text.length(), 1, fh);
-        }
-        fclose(fh);
-        if ((int)nwritten != text.length()) {
-#if 0
-            report_an_error_maybe();
-#endif
-        }
-        return;
-    }
-
     if (truncated_) {
         return;
     }

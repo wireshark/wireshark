@@ -119,9 +119,7 @@ private:
     int                     turns_;
     QMap<int,guint32>       text_pos_to_packet_;
 
-    bool                    save_as_;
     bool                    use_regex_find_;
-    QFile                   file_;
 
     bool                    terminating_;
 };
