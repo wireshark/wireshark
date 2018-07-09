@@ -617,13 +617,13 @@ static int dissect_node_status(packet_info *pinfo _U_, proto_tree *tree, proto_i
 }
 
 attribute_info_t cip_motion_attribute_vals[] = {
-   { 0x42, CIP_ATTR_CLASS, 14, -1, "Node Control", cip_dissector_func, NULL, dissect_node_control },
-   { 0x42, CIP_ATTR_CLASS, 15, -1, "Node Status", cip_dissector_func, NULL, dissect_node_status },
-   { 0x42, CIP_ATTR_INSTANCE, 40, -1, "Control Mode", cip_usint, &hf_cip_motor_cntrl, NULL },
-   { 0x42, CIP_ATTR_INSTANCE, 60, -1, "Event Checking Control", cip_dissector_func, NULL, dissect_event_checking_control },
-   { 0x42, CIP_ATTR_INSTANCE, 61, -1, "Event Checking Status", cip_dissector_func, NULL, dissect_event_checking_status },
-   { 0x42, CIP_ATTR_INSTANCE, 92, -1, "Command Control", cip_dissector_func, NULL, dissect_command_control },
-   { 0x42, CIP_ATTR_INSTANCE, 651, -1, "Axis Status", cip_dissector_func, NULL, dissect_axis_status },
+   { CI_CLS_MOTION, CIP_ATTR_CLASS, 14, -1, "Node Control", cip_dissector_func, NULL, dissect_node_control },
+   { CI_CLS_MOTION, CIP_ATTR_CLASS, 15, -1, "Node Status", cip_dissector_func, NULL, dissect_node_status },
+   { CI_CLS_MOTION, CIP_ATTR_INSTANCE, 40, -1, "Control Mode", cip_usint, &hf_cip_motor_cntrl, NULL },
+   { CI_CLS_MOTION, CIP_ATTR_INSTANCE, 60, -1, "Event Checking Control", cip_dissector_func, NULL, dissect_event_checking_control },
+   { CI_CLS_MOTION, CIP_ATTR_INSTANCE, 61, -1, "Event Checking Status", cip_dissector_func, NULL, dissect_event_checking_status },
+   { CI_CLS_MOTION, CIP_ATTR_INSTANCE, 92, -1, "Command Control", cip_dissector_func, NULL, dissect_command_control },
+   { CI_CLS_MOTION, CIP_ATTR_INSTANCE, 651, -1, "Axis Status", cip_dissector_func, NULL, dissect_axis_status },
 };
 
 /*
@@ -1205,7 +1205,7 @@ dissect_devce_event(tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 siz
  * Returns: None
  */
 static void
-dissect_get_axis_attr_list_request (tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 size)
+dissect_get_axis_attr_list_request(tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 size, guint32 instance_id)
 {
    proto_item *attr_item;
    proto_tree *header_tree, *attr_tree;
@@ -1234,7 +1234,8 @@ dissect_get_axis_attr_list_request (tvbuff_t* tvb, proto_tree* tree, guint32 off
       dimension       = tvb_get_guint8(tvb, local_offset + 2);
 
       /* Create the tree for this attribute within the request */
-      attr_item = proto_tree_add_item(header_tree, hf_get_axis_attr_list_attribute_id, tvb, local_offset, 2, ENC_LITTLE_ENDIAN);
+      guint32 attribute_id;
+      attr_item = proto_tree_add_item_ret_uint(header_tree, hf_get_axis_attr_list_attribute_id, tvb, local_offset, 2, ENC_LITTLE_ENDIAN, &attribute_id);
       attr_tree = proto_item_add_subtree(attr_item, ett_get_axis_attr_list);
 
       proto_tree_add_item(attr_tree, hf_get_axis_attr_list_dimension, tvb, local_offset + 2, 1, ENC_LITTLE_ENDIAN);
@@ -1242,7 +1243,7 @@ dissect_get_axis_attr_list_request (tvbuff_t* tvb, proto_tree* tree, guint32 off
 
       if (dimension == 1)
       {
-         /* Display the start index and start index from the request if this is an array request */
+         /* Display the start index and start index from the request */
          proto_tree_add_item(attr_tree, hf_get_axis_attr_list_start_index, tvb, local_offset + 4, 2, ENC_LITTLE_ENDIAN);
          proto_tree_add_item(attr_tree, hf_get_axis_attr_list_data_elements, tvb, local_offset + 6, 2, ENC_LITTLE_ENDIAN);
 
@@ -1250,9 +1251,35 @@ dissect_get_axis_attr_list_request (tvbuff_t* tvb, proto_tree* tree, guint32 off
          increment_size += 4;
       }
 
+      attribute_info_t* pattribute = cip_get_attribute(CI_CLS_MOTION, instance_id, attribute_id);
+      if (pattribute != NULL)
+      {
+         proto_item_append_text(attr_item, " (%s)", pattribute->text);
+      }
+
       /* Move the local offset to the next attribute */
       local_offset += increment_size;
    }
+}
+
+static int dissect_motion_attribute(packet_info *pinfo, tvbuff_t* tvb, int offset, guint32 attribute_id,
+   guint32 instance_id, proto_item* attr_item, proto_tree* attr_tree, guint8 dimension, guint32 attribute_size)
+{
+   attribute_info_t* pattribute = cip_get_attribute(CI_CLS_MOTION, instance_id, attribute_id);
+   int parsed_len = 0;
+
+   if (pattribute != NULL)
+   {
+      proto_item_append_text(attr_item, " (%s)", pattribute->text);
+
+      // TODO: Handle more dimensions. Unsure about the format when there is more than 1 item.
+      if (dimension <= 1)
+      {
+         parsed_len = dissect_cip_attribute(pinfo, attr_tree, attr_item, tvb, pattribute, offset, attribute_size);
+      }
+   }
+
+   return parsed_len;
 }
 
 /*
@@ -1263,7 +1290,7 @@ dissect_get_axis_attr_list_request (tvbuff_t* tvb, proto_tree* tree, guint32 off
  * Returns: None
  */
 static void
-dissect_set_axis_attr_list_request (tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 size)
+dissect_set_axis_attr_list_request(packet_info *pinfo, tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 size, guint32 instance_id)
 {
    proto_item *attr_item;
    proto_tree *header_tree, *attr_tree;
@@ -1307,7 +1334,8 @@ dissect_set_axis_attr_list_request (tvbuff_t* tvb, proto_tree* tree, guint32 off
       }
 
       /* Create the tree for this attribute in the get axis attribute list request */
-      attr_item = proto_tree_add_item(header_tree, hf_set_axis_attr_list_attribute_id, tvb, local_offset, 2, ENC_LITTLE_ENDIAN);
+      guint32 attribute_id;
+      attr_item = proto_tree_add_item_ret_uint(header_tree, hf_set_axis_attr_list_attribute_id, tvb, local_offset, 2, ENC_LITTLE_ENDIAN, &attribute_id);
       attr_tree = proto_item_add_subtree(attr_item, ett_set_axis_attr_list);
 
       proto_tree_add_item(attr_tree, hf_set_axis_attr_list_dimension, tvb, local_offset + 2, 1, ENC_LITTLE_ENDIAN);
@@ -1320,8 +1348,14 @@ dissect_set_axis_attr_list_request (tvbuff_t* tvb, proto_tree* tree, guint32 off
          proto_tree_add_item(attr_tree, hf_set_axis_attr_list_data_elements, tvb, local_offset + 6, 2, ENC_LITTLE_ENDIAN);
       }
 
-      /* Display the value of this attribute */
-      proto_tree_add_item(attr_tree, hf_cip_attribute_data, tvb, local_offset + attribute_start, attribute_size, ENC_NA);
+      int parsed_len = dissect_motion_attribute(pinfo, tvb, local_offset + attribute_start, attribute_id,
+         instance_id, attr_item, attr_tree, dimension, attribute_size);
+
+      // Display any remaining unparsed attribute data.
+      if ((attribute_size - parsed_len) > 0)
+      {
+         proto_tree_add_item(attr_tree, hf_cip_attribute_data, tvb, local_offset + attribute_start + parsed_len, attribute_size - parsed_len, ENC_NA);
+      }
 
       /* Round the attribute size up so the next attribute lines up on a 32-bit boundary */
       if (attribute_size % 4 != 0)
@@ -1363,7 +1397,7 @@ dissect_group_sync_request (tvbuff_t* tvb, proto_tree* tree, guint32 offset, gui
  * as their starting offset
  */
 static guint32
-dissect_cntr_service(tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 size)
+dissect_cntr_service(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint32 offset, guint32 size, guint32 instance_id)
 {
    proto_tree *header_tree;
    guint32      service;
@@ -1383,10 +1417,10 @@ dissect_cntr_service(tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 si
        switch (service)
        {
        case SC_GET_AXIS_ATTRIBUTE_LIST:
-           dissect_get_axis_attr_list_request(tvb, header_tree, offset + 4, size - 4);
+           dissect_get_axis_attr_list_request(tvb, header_tree, offset + 4, size - 4, instance_id);
            break;
        case SC_SET_AXIS_ATTRIBUTE_LIST:
-           dissect_set_axis_attr_list_request(tvb, header_tree, offset + 4, size - 4);
+           dissect_set_axis_attr_list_request(pinfo, tvb, header_tree, offset + 4, size - 4, instance_id);
            break;
        case SC_GROUP_SYNC:
            dissect_group_sync_request(tvb, header_tree, offset + 4, size - 4);
@@ -1408,7 +1442,7 @@ dissect_cntr_service(tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 si
  * Returns: None
  */
 static void
-dissect_set_axis_attr_list_response (tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 size)
+dissect_set_axis_attr_list_response(tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 size, guint32 instance_id)
 {
    proto_item *attr_item;
    proto_tree *header_tree, *attr_tree;
@@ -1429,11 +1463,18 @@ dissect_set_axis_attr_list_response (tvbuff_t* tvb, proto_tree* tree, guint32 of
    for (attribute = 0; attribute < attribute_cnt; attribute++)
    {
       /* Create the tree for the current attribute in the set axis attribute list response */
-      attr_item = proto_tree_add_item(header_tree, hf_set_axis_attr_list_attribute_id, tvb, local_offset, 2, ENC_LITTLE_ENDIAN);
+      guint32 attribute_id;
+      attr_item = proto_tree_add_item_ret_uint(header_tree, hf_set_axis_attr_list_attribute_id, tvb, local_offset, 2, ENC_LITTLE_ENDIAN, &attribute_id);
       attr_tree = proto_item_add_subtree(attr_item, ett_get_axis_attr_list);
 
       /* Add the response status to the tree */
       proto_tree_add_item(attr_tree, hf_cip_svc_set_axis_attr_sts, tvb, local_offset + 2, 1, ENC_LITTLE_ENDIAN);
+
+      attribute_info_t* pattribute = cip_get_attribute(CI_CLS_MOTION, instance_id, attribute_id);
+      if (pattribute != NULL)
+      {
+         proto_item_append_text(attr_item, " (%s)", pattribute->text);
+      }
 
       /* Move the local offset to the next attribute */
       local_offset += 4;
@@ -1448,7 +1489,7 @@ dissect_set_axis_attr_list_response (tvbuff_t* tvb, proto_tree* tree, guint32 of
  * Returns: None
  */
 static void
-dissect_get_axis_attr_list_response (tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 size)
+dissect_get_axis_attr_list_response(packet_info* pinfo, tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 size, guint32 instance_id)
 {
    proto_item *attr_item;
    proto_tree *header_tree, *attr_tree;
@@ -1473,7 +1514,7 @@ dissect_get_axis_attr_list_response (tvbuff_t* tvb, proto_tree* tree, guint32 of
       /* At a minimum the local offset needs to be incremented by 4 bytes to reach the next attribute */
       increment_size = 4;
 
-      /* Pull the fields for this attribute from the payload, all fields are need to make some calculations before
+      /* Pull the fields for this attribute from the payload, all fields are needed to make some calculations before
       * properly displaying of the attribute is possible */
       dimension       = tvb_get_guint8(tvb, local_offset + 2);
       attribute_size  = tvb_get_guint8(tvb, local_offset + 3);
@@ -1492,7 +1533,8 @@ dissect_get_axis_attr_list_response (tvbuff_t* tvb, proto_tree* tree, guint32 of
       }
 
       /* Display the fields associated with the get axis attribute list response */
-      attr_item = proto_tree_add_item(header_tree, hf_get_axis_attr_list_attribute_id, tvb, local_offset, 2, ENC_LITTLE_ENDIAN);
+      guint32 attribute_id;
+      attr_item = proto_tree_add_item_ret_uint(header_tree, hf_get_axis_attr_list_attribute_id, tvb, local_offset, 2, ENC_LITTLE_ENDIAN, &attribute_id);
       attr_tree = proto_item_add_subtree(attr_item, ett_get_axis_attr_list);
 
       if (dimension == 0xFF)
@@ -1510,13 +1552,19 @@ dissect_get_axis_attr_list_response (tvbuff_t* tvb, proto_tree* tree, guint32 of
 
          if (dimension == 1)
          {
-            /* Display the start index and start indexfrom the request */
+            /* Display the start index and start index from the request */
             proto_tree_add_item(attr_tree, hf_get_axis_attr_list_start_index, tvb, local_offset + 4, 2, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(attr_tree, hf_get_axis_attr_list_data_elements, tvb, local_offset + 6, 2, ENC_LITTLE_ENDIAN);
          }
 
+         int parsed_len = dissect_motion_attribute(pinfo, tvb, local_offset + attribute_start, attribute_id,
+            instance_id, attr_item, attr_tree, dimension, attribute_size);
+
          /* Display the remainder of the service channel data */
-         proto_tree_add_item(attr_tree, hf_cip_attribute_data, tvb, offset + attribute_start, attribute_size, ENC_NA);
+         if ((attribute_size - parsed_len) > 0)
+         {
+            proto_tree_add_item(attr_tree, hf_cip_attribute_data, tvb, local_offset + attribute_start + parsed_len, attribute_size - parsed_len, ENC_NA);
+         }
 
          /* Round the attribute size up so the next attribute lines up on a 32-bit boundary */
          if (attribute_size % 4 != 0)
@@ -1552,7 +1600,7 @@ dissect_group_sync_response (tvbuff_t* tvb, proto_tree* tree, guint32 offset, gu
  * as their starting offset
  */
 static guint32
-dissect_devce_service(tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 size)
+dissect_devce_service(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint32 offset, guint32 size, guint32 instance_id)
 {
    proto_tree *header_tree;
 
@@ -1578,10 +1626,10 @@ dissect_devce_service(tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 s
        switch (service_code)
        {
        case SC_GET_AXIS_ATTRIBUTE_LIST:
-           dissect_get_axis_attr_list_response(tvb, header_tree, offset + 4, size - 4);
+           dissect_get_axis_attr_list_response(pinfo, tvb, header_tree, offset + 4, size - 4, instance_id);
            break;
        case SC_SET_AXIS_ATTRIBUTE_LIST:
-           dissect_set_axis_attr_list_response(tvb, header_tree, offset + 4, size - 4);
+           dissect_set_axis_attr_list_response(tvb, header_tree, offset + 4, size - 4, instance_id);
            break;
        case SC_GROUP_SYNC:
            dissect_group_sync_response(tvb, header_tree, offset + 4, size - 4);
@@ -1589,6 +1637,7 @@ dissect_devce_service(tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 s
        default:
            /* Display the remainder of the service channel data */
            proto_tree_add_item(header_tree, hf_cip_svc_data, tvb, offset + 4, size - 4, ENC_NA);
+           break;
        }
    }
 
@@ -1922,7 +1971,7 @@ dissect_cipmotion(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* dat
             if ( evnt_size > 0 )
                offset = dissect_cntr_event(tvb, proto_tree_top, offset, evnt_size);
             if ( servc_size > 0 )
-               offset = dissect_cntr_service(tvb, proto_tree_top, offset, servc_size);
+               offset = dissect_cntr_service(tvb, pinfo, proto_tree_top, offset, servc_size, instance);
             break;
          case FORMAT_VAR_DEVICE_TO_CONTROL:
             if ( cyc_size > 0 )
@@ -1932,7 +1981,7 @@ dissect_cipmotion(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* dat
             if ( evnt_size > 0 )
                offset = dissect_devce_event(tvb, proto_tree_top, offset, evnt_size);
             if ( servc_size > 0 )
-               offset = dissect_devce_service(tvb, proto_tree_top, offset, servc_size);
+               offset = dissect_devce_service(tvb, pinfo, proto_tree_top, offset, servc_size, instance);
             break;
          }
 
@@ -3049,7 +3098,7 @@ void proto_reg_handoff_cipmotion(void)
    dissector_add_for_decode_as("cip.io", cipmotion_handle);
    dissector_add_for_decode_as("cip.io", cipmotion3_handle);
 
-   dissector_add_uint("cip.io.iface", 0x42, cipmotion_handle);
+   dissector_add_uint("cip.io.iface", CI_CLS_MOTION, cipmotion_handle);
 }
 
 /*

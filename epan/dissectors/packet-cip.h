@@ -51,11 +51,12 @@
 #define CIP_SC_RESPONSE_MASK     0x80
 
 /* Classes that have class-specific dissectors */
-#define CI_CLS_MR   0x02    /* Message Router */
-#define CI_CLS_CM   0x06    /* Connection Manager */
-#define CI_CLS_PCCC 0x67    /* PCCC Class */
-#define CI_CLS_MB   0x44    /* Modbus Object */
-#define CI_CLS_CCO  0xF3    /* Connection Configuration Object */
+#define CI_CLS_MR     0x02  /* Message Router */
+#define CI_CLS_CM     0x06  /* Connection Manager */
+#define CI_CLS_PCCC   0x67  /* PCCC Class */
+#define CI_CLS_MOTION 0x42  /* Motion Device Axis Object */
+#define CI_CLS_MB     0x44  /* Modbus Object */
+#define CI_CLS_CCO    0xF3  /* Connection Configuration Object */
 
 /* Class specific services */
 /* Connection Manager */
@@ -518,20 +519,52 @@ enum cip_elem_data_types {
     CIP_SHORT_STRING_TYPE = 0xDA,
     CIP_STRING2_TYPE = 0xD5
 };
-extern int dissect_cip_string_type(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, int offset, int hf_type, int string_type);
 
-extern void dissect_cip_date_and_time(proto_tree *tree, tvbuff_t *tvb, int offset, int hf_datetime);
+extern void add_cip_service_to_info_column(packet_info *pinfo, guint8 service, const value_string* service_vals);
 extern attribute_info_t* cip_get_attribute(guint class_id, guint instance, guint attribute);
-extern int dissect_cip_get_attribute_all_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+
+extern int  dissect_cip_attribute(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, attribute_info_t* attr, int offset, int total_len);
+extern void dissect_cip_data(proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info *pinfo, cip_req_info_t *preq_info, proto_item* msp_item, gboolean is_msp_item);
+extern void dissect_cip_date_and_time(proto_tree *tree, tvbuff_t *tvb, int offset, int hf_datetime);
+extern int  dissect_cip_get_attribute_list_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item * item,
+   int offset, cip_simple_request_info_t* req_data);
+extern int  dissect_cip_multiple_service_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item * item, int offset, gboolean request);
+extern int  dissect_cip_response_status(proto_tree* tree, tvbuff_t* tvb, int offset, int hf_general_status, gboolean have_additional_status);
+extern void dissect_cip_run_idle(tvbuff_t* tvb, int offset, proto_tree* item_tree);
+extern int  dissect_cip_segment_single(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *path_tree, proto_item *epath_item,
+   gboolean generate, gboolean packed, cip_simple_request_info_t* req_data, cip_safety_epath_info_t* safety,
+   int display_type, proto_item *msp_item,
+   gboolean is_msp_item);
+extern int  dissect_cip_string_type(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, int offset, int hf_type, int string_type);
+extern int  dissect_cip_get_attribute_all_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int offset, cip_simple_request_info_t* req_data);
+extern int  dissect_cip_set_attribute_list_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item * item,
+   int offset, cip_simple_request_info_t* req_data);
+extern int  dissect_cip_set_attribute_list_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item * item,
+   int offset, cip_simple_request_info_t* req_data);
+extern void dissect_deviceid(tvbuff_t *tvb, int offset, proto_tree *tree,
+   int hf_vendor, int hf_devtype, int hf_prodcode,
+   int hf_compatibility, int hf_comp_bit, int hf_majrev, int hf_minrev);
+extern int  dissect_optional_attr_list(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+   int offset, int total_len);
+extern int  dissect_optional_service_list(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+   int offset, int total_len);
+extern int  dissect_padded_epath_len_usint(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+   int offset, int total_len);
+extern int  dissect_padded_epath_len_uint(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+   int offset, int total_len);
+
 extern void load_cip_request_data(packet_info *pinfo, cip_simple_request_info_t *req_data);
-void dissect_cip_run_idle(tvbuff_t* tvb, int offset, proto_tree* item_tree);
+extern gboolean should_dissect_cip_response(tvbuff_t *tvb, int offset, guint8 gen_status);
+
 
 /*
 ** Exported variables
 */
 extern const value_string cip_sc_rr[];
 extern const value_string cip_reset_type_vals[];
+extern const value_string cip_class_names_vals[];
+extern const value_string cip_port_number_vals[];
 extern value_string_ext cip_gs_vals_ext;
 extern value_string_ext cip_cm_ext_st_vals_ext;
 extern value_string_ext cip_vendor_vals_ext;
@@ -556,17 +589,6 @@ extern int hf_attr_class_num_inst_attr;
 #define CLASS_ATTRIBUTE_5_NAME  "Optional Service List"
 #define CLASS_ATTRIBUTE_6_NAME  "Maximum ID Number Class Attributes"
 #define CLASS_ATTRIBUTE_7_NAME  "Maximum ID Number Instance Attributes"
-
-extern void add_cip_service_to_info_column(packet_info *pinfo, guint8 service, const value_string* service_vals);
-
-extern int dissect_optional_attr_list(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
-   int offset, int total_len);
-extern int dissect_optional_service_list(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
-   int offset, int total_len);
-extern int dissect_padded_epath_len_usint(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
-   int offset, int total_len);
-extern int dissect_padded_epath_len_uint(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
-   int offset, int total_len);
 
 /*
  * Editor modelines

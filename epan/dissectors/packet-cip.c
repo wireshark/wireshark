@@ -45,12 +45,6 @@
 #include "packet-cipsafety.h"
 #include "packet-mbtcp.h"
 
-static void dissect_cip_data(proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
-    cip_req_info_t *preq_info, proto_item* msp_item, gboolean is_msp_item);
-static int dissect_cip_segment_single(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *path_tree, proto_item *epath_item,
-    gboolean generate, gboolean packed, cip_simple_request_info_t* req_data, cip_safety_epath_info_t* safety, int display_type, proto_item *msp_item,
-    gboolean is_msp_item);
-
 void proto_register_cip(void);
 void proto_reg_handoff_cip(void);
 
@@ -2790,7 +2784,7 @@ static const value_string cip_devtype_vals[] = {
 value_string_ext cip_devtype_vals_ext = VALUE_STRING_EXT_INIT(cip_devtype_vals);
 
 /* Translate class names */
-static const value_string cip_class_names_vals[] = {
+const value_string cip_class_names_vals[] = {
    { 0x01,     "Identity"                       },
    { 0x02,     "Message Router"                 },
    { 0x03,     "DeviceNet"                      },
@@ -4077,7 +4071,7 @@ dissect_cia(tvbuff_t *tvb, int offset, unsigned char segment_type,
 }
 
 /* Dissect Device ID structure */
-static void
+void
 dissect_deviceid(tvbuff_t *tvb, int offset, proto_tree *tree,
                  int hf_vendor, int hf_devtype, int hf_prodcode,
                  int hf_compatibility, int hf_comp_bit, int hf_majrev, int hf_minrev)
@@ -4958,7 +4952,7 @@ static int dissect_segment_logical_service_id(packet_info* pinfo, tvbuff_t* tvb,
    return segment_len;
 }
 
-static int dissect_cip_segment_single(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *path_tree, proto_item *epath_item,
+int dissect_cip_segment_single(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *path_tree, proto_item *epath_item,
                     gboolean generate, gboolean packed, cip_simple_request_info_t* req_data, cip_safety_epath_info_t* safety,
                     int display_type, proto_item *msp_item,
                     gboolean is_msp_item)
@@ -5347,7 +5341,7 @@ static int dissect_cip_stringi(packet_info *pinfo, proto_tree *tree, proto_item 
     return parsed_len;
 }
 
-static int dissect_cip_attribute(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+int dissect_cip_attribute(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                          attribute_info_t* attr, int offset, int total_len)
 {
    int i, temp_data, temp_time, hour, min, sec, ms,
@@ -5541,7 +5535,7 @@ dissect_cip_set_attribute_single_req(tvbuff_t *tvb, packet_info *pinfo, proto_tr
    return parsed_len;
 }
 
-static int dissect_cip_get_attribute_list_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item * item,
+int dissect_cip_get_attribute_list_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item * item,
                                   int offset, cip_simple_request_info_t* req_data)
 {
    int i, att_count, att_value;
@@ -5583,7 +5577,7 @@ static int dissect_cip_get_attribute_list_req(tvbuff_t *tvb, packet_info *pinfo,
    return 2 + att_count * 2;
 }
 
-static int
+int
 dissect_cip_set_attribute_list_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item * item,
                                   int offset, cip_simple_request_info_t* req_data)
 {
@@ -5643,8 +5637,7 @@ dissect_cip_set_attribute_list_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree
    return 2 + (offset - start_offset);
 }
 
-static int
-dissect_cip_multiple_service_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item * item, int offset, gboolean request)
+int dissect_cip_multiple_service_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item * item, int offset, gboolean request)
 {
    proto_tree *mult_serv_tree, *offset_tree;
    int i, num_services, serv_offset, prev_offset = 0;
@@ -6028,7 +6021,7 @@ dissect_cip_get_attribute_list_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree
    return 2 + (offset - start_offset);
 }
 
-static int
+int
 dissect_cip_set_attribute_list_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item * item,
                                   int offset, cip_simple_request_info_t* req_data)
 {
@@ -6145,7 +6138,7 @@ void load_cip_request_data(packet_info *pinfo, cip_simple_request_info_t *req_da
     }
 }
 
-static gboolean should_dissect_cip_response(tvbuff_t *tvb, int offset, guint8 gen_status)
+gboolean should_dissect_cip_response(tvbuff_t *tvb, int offset, guint8 gen_status)
 {
     // Only parse the response if there is data left or it has a response status that allows additional data
     //   to be returned.
@@ -7773,8 +7766,7 @@ dissect_class_cco_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
  *
  ************************************************/
 
-static void
-dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info *pinfo, cip_req_info_t* preq_info, proto_item* msp_item, gboolean is_msp_item )
+void dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info *pinfo, cip_req_info_t* preq_info, proto_item* msp_item, gboolean is_msp_item )
 {
    proto_item *ti;
    proto_tree *cip_tree, *epath_tree;
