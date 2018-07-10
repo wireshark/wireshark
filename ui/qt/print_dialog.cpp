@@ -181,6 +181,10 @@ gboolean PrintDialog::printLine(int indent, const char *line)
     out_rect = cur_painter_->boundingRect(cur_printer_->pageRect(), Qt::TextWordWrap, out_line);
 
     if (cur_printer_->pageRect().height() < page_pos_ + out_rect.height()) {
+        //
+        // We're past the end of the page, so this line will be on
+        // the next page.
+        //
         if (in_preview_) {
             // When generating a preview, only generate the first page;
             // if we're past the first page, stop the printing process.
