@@ -6769,6 +6769,7 @@ dissect_gtpv2_counter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, p
  */
 static const value_string gtpv2_secondary_rat_type_vals[] = {
     { 0, "NR" },
+    { 1, "Unlicensed Spectrum"},
     { 0, NULL }
 };
 
