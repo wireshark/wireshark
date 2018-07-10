@@ -4394,7 +4394,7 @@ dissect_pfcp_ies_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
     proto_tree *ie_tree;
     proto_item *ti;
     tvbuff_t   *ie_tvb;
-    guint16 type, length, enterprise_type;
+    guint16 type, length;
     guint16 enterprise_id;
 
     /* 8.1.1    Information Element Format */
@@ -4414,7 +4414,7 @@ dissect_pfcp_ies_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
      * this field shall contain the IANA - assigned "SMI Network Management Private Enterprise Codes"
      * value of the vendor defining the IE.
      */
-    /* Length: this field contains the length of the IE excluding the first four (six for Enterprise specific IE) octets, which are common for all IEs */
+    /* Length: this field contains the length of the IE excluding the first four octets, which are common for all IEs */
 
     /* Process the IEs*/
     while (offset < (gint)tvb_reported_length(tvb)) {
@@ -4424,10 +4424,9 @@ dissect_pfcp_ies_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
 
         if ((type & 0x8000) == 0x8000 ) {
             enterprise_id = tvb_get_ntohs(tvb, offset + 4);
-            enterprise_type = (type & 0x8000);
             ie_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4 + length, ett_pfcp_ie, &ti, "Enterprise %s specific IE: %u",
                 try_enterprises_lookup(enterprise_id),
-                enterprise_type);
+                type);
 
             proto_tree_add_item(ie_tree, hf_pfcp2_enterprise_ie, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
@@ -4437,7 +4436,6 @@ dissect_pfcp_ies_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
 
             /* Bit 8 of Octet 1 is set, this indicates that the IE is defined by a vendor and the Enterprise ID is present */
             proto_tree_add_item(ie_tree, hf_pfcp_enterprice_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset += 2;
 
             /*
             * 5.6.3    Modifying the Rules of an Existing PFCP Session
@@ -4448,9 +4446,13 @@ dissect_pfcp_ies_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
             */
             if (length == 0) {
                 proto_item_append_text(ti, "[IE to be removed]");
+
+                /* Adding offset for EnterpriseID as Bit 8 of Octet 1 is set, the Enterprise ID is present */
+                offset += 2;
+
             } else {
                 /* give the whole IE to the subdissector */
-                ie_tvb = tvb_new_subset_length(tvb, offset - 6, length+4);
+                ie_tvb = tvb_new_subset_length(tvb, offset - 4, length+4);
                 if (!dissector_try_uint_new(pfcp_enterprise_ies_dissector_table, enterprise_id, ie_tvb, pinfo, ie_tree, FALSE, ti)) {
                     proto_tree_add_item(ie_tree, hf_pfcp_enterprice_data, ie_tvb, 6, -1, ENC_NA);
                 }
@@ -4759,7 +4761,7 @@ proto_register_pfcp(void)
         },
         { &hf_pfcp2_enterprise_ie,
         { "Enterprise specific IE Type", "pfcp.enterprise_ie",
-        FT_UINT16, BASE_DEC, NULL, 0x7fff,
+        FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
         },
         { &hf_pfcp2_ie_len,
