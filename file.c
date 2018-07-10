@@ -2324,6 +2324,13 @@ print_packet(capture_file *cf, frame_data *fdata, wtap_rec *rec,
   if (args->print_formfeed) {
     if (!new_page(args->print_args->stream))
       goto fail;
+
+    /*
+     * Print another header line if we print a packet summary on the
+     * new page.
+     */
+    if (args->print_args->print_col_headings)
+        args->print_header_line = TRUE;
   } else {
       if (args->print_separator) {
         if (!print_line(args->print_args->stream, 0, ""))
