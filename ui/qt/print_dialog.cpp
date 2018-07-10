@@ -184,7 +184,10 @@ gboolean PrintDialog::printLine(int indent, const char *line)
             // if we're past the first page, stop the printing process.
             return FALSE;
         }
-        if (*line == '\0') { // Separator
+        if (*line == '\0') {
+            // This is an empty line, so it's a separator; no need to
+            // waste space printing it at the top of a page, as the
+            // page break suffices as a separator.
             return TRUE;
         }
         printHeader();
