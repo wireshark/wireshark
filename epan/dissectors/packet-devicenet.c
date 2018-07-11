@@ -1,5 +1,9 @@
 /* packet-devicenet.c
  * Routines for dissection of DeviceNet
+ * DeviceNet Home: www.odva.org
+ *
+ * This dissector includes items from:
+ *    CIP Volume 3: DeviceNet Adaptation of CIP, Edition 1.14
  *
  * Michael Mann
  * Erik Ivarsson <eriki@student.chalmers.se>
