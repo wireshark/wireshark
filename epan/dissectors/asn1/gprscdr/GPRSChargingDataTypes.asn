@@ -1,5 +1,5 @@
 --
--- 3GPP TS 32.298 v15.1.0 (2018-01-04)
+-- 3GPP TS 32.298 v15.3.0 (2018-06-18)
 --
 GPRSChargingDataTypes {itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) charging (5) gprsChargingDataTypes (2) asn1Module (0) version1 (0)}
 DEFINITIONS IMPLICIT TAGS	::=
@@ -14,7 +14,8 @@ IMPORTS
 CallDuration,
 CallingNumber,
 CauseForRecClosing,
-CellId,
+CellId, 
+CivicAddressInformation,
 Diagnostics, 
 DiameterIdentity, 
 EnhancedDiagnostics,
@@ -172,7 +173,8 @@ SGWRecord 	::= SET
 	uNIPDUCPOnlyFlag			[60] UNIPDUCPOnlyFlag OPTIONAL, 
 	servingPLMNRateControl		[61] ServingPLMNRateControl OPTIONAL,
 	pDPPDNTypeExtension			[62] PDPPDNTypeExtension OPTIONAL,
-	mOExceptionDataCounter		[63] MOExceptionDataCounter OPTIONAL
+	mOExceptionDataCounter		[63] MOExceptionDataCounter OPTIONAL,
+	listOfRANSecondaryRATUsageReports [64] SEQUENCE OF RANSecondaryRATUsageReport OPTIONAL
 }
 
 PGWRecord 	::= SET
@@ -249,7 +251,8 @@ PGWRecord 	::= SET
 	mOExceptionDataCounter				[69] MOExceptionDataCounter OPTIONAL,
 	chargingPerIPCANSessionIndicator    [70] ChargingPerIPCANSessionIndicator OPTIONAL,
 	threeGPPPSDataOffStatus				[71] ThreeGPPPSDataOffStatus OPTIONAL,
-	sCSASAddress						[72] SCSASAddress OPTIONAL
+	sCSASAddress						[72] SCSASAddress OPTIONAL,
+	listOfRANSecondaryRATUsageReports	[73] SEQUENCE OF RANSecondaryRATUsageReport OPTIONAL
 }
 
 TDFRecord 	::= SET
@@ -381,7 +384,8 @@ EPDGRecord 	::= SET
 	retransmission				[51] NULL OPTIONAL,
 	enhancedDiagnostics			[52] EnhancedDiagnostics OPTIONAL,
 	uWANUserLocationInformation	[53] UWANUserLocationInfo OPTIONAL,
-	userLocationInfoTime		[54] TimeStamp OPTIONAL
+	userLocationInfoTime		[54] TimeStamp OPTIONAL,
+	iMSIunauthenticatedFlag 	[55] NULL OPTIONAL
 }
 
 TWAGRecord 	::= SET
@@ -421,7 +425,8 @@ TWAGRecord 	::= SET
 	p-GWiPv6AddressUsed			[50] GSNAddress OPTIONAL,
 	retransmission				[51] NULL OPTIONAL,
 	enhancedDiagnostics			[52] EnhancedDiagnostics OPTIONAL,
-	tWANUserLocationInformation	[53] TWANUserLocationInfo OPTIONAL
+	tWANUserLocationInformation	[53] TWANUserLocationInfo OPTIONAL,
+	iMSIunauthenticatedFlag 	[54] NULL OPTIONAL
 }
 
 SGSNMMRecord	::= SET
@@ -884,7 +889,7 @@ ChangeCondition	::= ENUMERATED
 	indirectChangeCondition			(17),	-- NBIFOM "Indirect Change Condition"
 	userPlaneToUEChange				(18),	-- bearer modification. "Change of user plane to UE"	
 	servingPLMNRateControlChange	(19) , 	
--- bearer modification “Serving PLMN Rate Control Change"
+-- bearer modification "Serving PLMN Rate Control Change"
 	threeGPPPSDataOffStatusChange	(20)   -- "Change of 3GPP PS DataO ff Status"
 
 }
@@ -975,8 +980,8 @@ ChangeOfServiceCondition	::= SEQUENCE
 	aPNRateControl						[36] APNRateControl OPTIONAL, 
 	threeGPPPSDataOffStatus             [37] ThreeGPPPSDataOffStatus OPTIONAL,
 	trafficSteeringPolicyIDDownlink     [38] TrafficSteeringPolicyIDDownlink OPTIONAL,
-trafficSteeringPolicyIDUplink       [39] TrafficSteeringPolicyIDUplink OPTIONAL
-
+trafficSteeringPolicyIDUplink       [39] TrafficSteeringPolicyIDUplink OPTIONAL,
+	tWANUserLocationInformation			[40] TWANUserLocationInfo OPTIONAL
 }
 
 ChangeLocation	::= SEQUENCE
@@ -1227,6 +1232,17 @@ QoSInformation	::= OCTET STRING (SIZE (4..255))
 -- Service" information element specified in TS 29.274 [223].
 --
 
+RANSecondaryRATUsageReport	::= SEQUENCE
+--
+{
+	dataVolumeUplink				[1] DataVolumeGPRS,
+	dataVolumeDownlink				[2] DataVolumeGPRS,
+	rANStartTime					[3] TimeStamp,
+	rANEndTime						[4] TimeStamp,
+	secondaryRATType				[5] SecondaryRATType OPTIONAL
+}
+
+
 RateControlTimeUnit ::= INTEGER
 {	unrestricted	(0),
 	minute			(1),
@@ -1273,6 +1289,12 @@ ResultCode		::= INTEGER
 -- charging protocol return value, range of 4 byte (0... 4294967295)
 -- see Result-Code AVP as used in 32.299 [40]
 --
+
+SecondaryRATType	::= INTEGER
+{	
+	reserved		(0),
+	nR				(1)		-- New Radio 5G
+}
 
 ServiceConditionChange	::= BIT STRING
 {
@@ -1404,8 +1426,11 @@ TrafficSteeringPolicyIDUplink	::= OCTET STRING
 
 TWANUserLocationInfo		::= SEQUENCE
 {
-	sSID		[0] OCTET STRING,					-- see format in IEEE Std 802.11-2012 [408]
-	bSSID		[1] OCTET STRING OPTIONAL			-- see format in IEEE Std 802.11-2012 [408]
+	sSID					 [0] OCTET STRING,			-- see format in IEEE Std 802.11-2012 [408]
+	bSSID					 [1] OCTET STRING OPTIONAL, 	-- see format in IEEE Std 802.11-2012 [408]
+	civicAddressInformation	[2] CivicAddressInformation OPTIONAL,
+	wLANOperatorId			[3] WLANOperatorId OPTIONAL,
+	logicalAccessID			[4] OCTET STRING OPTIONAL
 }
 
 UNIPDUCPOnlyFlag	::= BOOLEAN
@@ -1420,10 +1445,21 @@ UserCSGInformation		::= SEQUENCE
 
 UWANUserLocationInfo		::= SEQUENCE
 {
-	uELocalIPAddress	[0] IPAddress,
-	uDPSourcePort		[1] OCTET STRING (SIZE(2)) OPTIONAL,
-	sSID				[2] OCTET STRING OPTIONAL,	-- see format in IEEE Std 802.11-2012 [408]
-	bSSID				[3] OCTET STRING OPTIONAL	-- see format in IEEE Std 802.11-2012 [408]
+	uELocalIPAddress		 [0] IPAddress,
+	uDPSourcePort			 [1] OCTET STRING (SIZE(2)) OPTIONAL,
+	sSID					 [2] OCTET STRING OPTIONAL,	-- see format in IEEE Std 802.11-2012 [408]
+	bSSID					 [3] OCTET STRING OPTIONAL,	-- see format in IEEE Std 802.11-2012 [408]
+	tCPSourcePort			[4] OCTET STRING (SIZE(2)) OPTIONAL,
+	civicAddressInformation	[5] CivicAddressInformation OPTIONAL,
+	wLANOperatorId			[6] WLANOperatorId OPTIONAL,
+	logicalAccessID			[7] OCTET STRING OPTIONAL
 }
+
+WLANOperatorId ::= SEQUENCE 
+{
+	wLANOperatorName	[0] OCTET STRING,
+	wLANPLMNId			[1] PLMN-Id
+}
+
 
 END

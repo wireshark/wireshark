@@ -1,4 +1,4 @@
--- 3GPP TS 32.298 v15.1.0 (2018-01-04)
+-- 3GPP TS 32.298 v15.3.0 (2018-06-18)
 GenericChargingDataTypes {itu-t (0) identified-organization (4) etsi(0) mobileDomain (0) charging (5) genericChargingDataTypes (0) asn1Module (0) version1 (0)}  
 
 DEFINITIONS IMPLICIT TAGS	::=
@@ -264,6 +264,11 @@ CauseForTerm			::= INTEGER
 	positionMethodFailure				(54),
 	unknownOrUnreachableLCSClient		(58)
 }
+
+CivicAddressInformation		::= OCTET STRING
+--
+-- as defined in subclause 3.1 of IETF RFC 4776 [409] excluding the first 3 octets.
+--
 
 CNIPMulticastDistribution		::= ENUMERATED
 {
@@ -651,7 +656,13 @@ aTCFRecord			(91),
 --	32.274 [34]
 --
 	sCDVTT4Record			(110),
-	sCSMOT4Record			(111)
+	sCSMOT4Record			(111) ,
+--  
+--  Record values120 are Exposure Function API specific. The contents are defined in TS 
+--	32.254 [14]
+--
+	eASCERecord			(120)
+--
 
 
 }
@@ -697,6 +708,9 @@ SmsTpDestinationNumber ::= OCTET STRING
 --
 
 SubscriberEquipmentNumber	::= SET
+--
+-- If SubscriberEquipmentType is set to IMEISV and IMEI is received, the number of digits is 15.
+--
 {
 	subscriberEquipmentNumberType	[0]	SubscriberEquipmentType,
 	subscriberEquipmentNumberData	[1]	OCTET STRING
