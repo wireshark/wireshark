@@ -370,7 +370,7 @@ static const value_string table_cops_reason_subcode_delete[] =
     { 0x3,  "Authorization revoked" },
     { 0x4,  "Unexpected Gate-Open" },
     { 0x5,  "Local Gate-Close failure" },
-    { 0x127,"Unspecified error" },
+    { 0x7f,"Unspecified error" },
     { 0, NULL },
 };
 
@@ -385,7 +385,7 @@ static const value_string table_cops_reason_subcode_close[] =
     { 0x5,  "Timer T1 expiration; no Commit received from MTA" },
     { 0x6,  "Timer T7 expiration; Service Flow reservation timeout" },
     { 0x7,  "Timer T8 expiration; Service Flow inactivity in the upstream direction" },
-    { 0x127,"Unspecified error" },
+    { 0x7f,"Unspecified error" },
     { 0, NULL },
 };
 
@@ -399,7 +399,7 @@ static const value_string table_cops_packetcable_error[] =
     { 0x5,  "Gate already set" },
     { 0x6,  "Missing Required Object" },
     { 0x7,  "Invalid Object" },
-    { 0x127,"Unspecified error" },
+    { 0x7f,"Unspecified error" },
     { 0, NULL },
 };
 
