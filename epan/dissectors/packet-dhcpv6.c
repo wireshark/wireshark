@@ -1196,8 +1196,6 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
                 /* ToDo: review latest CL docs for updates */
                 opt_len = tlv_len;
 
-                if (device_type == NULL)
-                    break;
 
                 tlv5_counter = 0;
                 tlv5_cap_index = sub_off;
@@ -1205,8 +1203,8 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
                 subtree = proto_item_add_subtree(ti, ett_dhcpv6_tlv5_type);
 
                 while (tlv5_counter < tlv_len) {
-
-                    if (!g_ascii_strncasecmp(device_type, "ecm", 3)) {
+                    /*Device type is not mandatory for CM (see par 10.2.5.2.3 "Obtain IPv6 Management Address and Other Configuration Parameters" in  CM-SP-MULPIv3.1-114-180130*/
+                    if (device_type == NULL || !g_ascii_strncasecmp(device_type, "ecm", 3)) {
                         ti2 = proto_tree_add_item(subtree, hf_modem_capabilities_encoding_type, tvb, tlv5_cap_index, 1, ENC_BIG_ENDIAN);
                     } else if (!g_ascii_strncasecmp(device_type, "edva", 3)) {
                         ti2 = proto_tree_add_item(subtree, hf_eue_capabilities_encoding_type, tvb, tlv5_cap_index, 1, ENC_BIG_ENDIAN);
