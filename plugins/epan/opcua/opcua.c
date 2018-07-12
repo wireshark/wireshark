@@ -38,7 +38,7 @@ void proto_reg_handoff_opcua(void);
 /* declare parse function pointer */
 typedef int (*FctParse)(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset);
 
-static int proto_opcua = -1;
+int proto_opcua = -1;
 static dissector_handle_t opcua_handle;
 /** Official IANA registered port for OPC UA Binary Protocol. */
 #define OPCUA_PORT_RANGE "4840"
