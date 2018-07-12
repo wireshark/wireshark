@@ -14,7 +14,7 @@
  * applications with a powerful stream processing language.
  *
  * Protobuf structures layout:
- * https://github.com/aphyr/riemann-java-client/blob/master/src/main/proto/riemann/proto.proto
+ * https://github.com/riemann/riemann-java-client/blob/master/riemann-java-client/src/main/proto/riemann/proto.proto
  *
  *   message State {
  *     optional int64 time = 1;
