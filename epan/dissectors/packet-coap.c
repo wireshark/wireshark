@@ -845,11 +845,12 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	coap_transaction *coap_trans = NULL;
 
 	/* Allocate information for upper layers */
-	if (!PINFO_FD_VISITED(pinfo)) {
+	coinfo = (coap_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_coap, 0);
+
+	if (coinfo == NULL)
+	{
 		coinfo = wmem_new0(wmem_file_scope(), coap_info);
 		p_add_proto_data(wmem_file_scope(), pinfo, proto_coap, 0, coinfo);
-	} else {
-		coinfo = (coap_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_coap, 0);
 	}
 
 	/* initialize the CoAP length and the content-Format */
