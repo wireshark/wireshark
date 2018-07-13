@@ -193,6 +193,8 @@ static int hf_rpc_auth_lk_owner = -1;
 static int hf_rpc_auth_pid = -1;
 static int hf_rpc_auth_uid = -1;
 static int hf_rpc_auth_gid = -1;
+static int hf_rpc_auth_flags = -1;
+static int hf_rpc_auth_ctime = -1;
 static int hf_rpc_authgss_v = -1;
 static int hf_rpc_authgss_proc = -1;
 static int hf_rpc_authgss_seq = -1;
@@ -1215,6 +1217,35 @@ dissect_rpc_authglusterfs_v2_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
 }
 
 static int
+dissect_rpc_authglusterfs_v3_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
+{
+	int len;
+	nstime_t timestamp;
+
+	offset = dissect_rpc_uint32(tvb, tree, hf_rpc_auth_pid, offset);
+	offset = dissect_rpc_uint32(tvb, tree, hf_rpc_auth_uid, offset);
+	offset = dissect_rpc_uint32(tvb, tree, hf_rpc_auth_gid, offset);
+	offset = dissect_rpc_uint32(tvb, tree, hf_rpc_auth_flags, offset);
+	timestamp.secs = tvb_get_ntohl(tvb, offset);
+	timestamp.nsecs = tvb_get_ntohl(tvb, offset + 4);
+	if (tree)
+		proto_tree_add_time(tree, hf_rpc_auth_ctime, tvb,
+					offset, 8, &timestamp);
+	offset += 8;
+
+	offset = dissect_rpc_authunix_groups(tvb, tree, offset);
+
+	len = tvb_get_ntohl(tvb, offset);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_rpc_auth_lk_owner, tvb, offset,
+			    len, ENC_NA);
+	offset += len;
+
+	return offset;
+}
+
+static int
 dissect_rpc_authgssapi_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
 {
 	proto_tree_add_item(tree, hf_rpc_authgssapi_v, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1274,6 +1305,10 @@ dissect_rpc_cred(tvbuff_t* tvb, proto_tree* tree, int offset,
 
 		case AUTH_GLUSTERFS:
 			dissect_rpc_authglusterfs_v2_cred(tvb, ctree, offset+8);
+			break;
+
+		case AUTH_GLUSTERFS_V3:
+			dissect_rpc_authglusterfs_v3_cred(tvb, ctree, offset+8);
 			break;
 
 		case AUTH_GSSAPI:
@@ -4084,6 +4119,12 @@ proto_register_rpc(void)
 		{ &hf_rpc_auth_gid, {
 			"GID", "rpc.auth.gid", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
+		{ &hf_rpc_auth_flags, {
+			"FLAGS", "rpc.auth.flags", FT_UINT32, BASE_HEX,
+			NULL, 0, NULL, HFILL }},
+		{ &hf_rpc_auth_ctime, {
+			"CTIME", "rpc.auth.ctime", FT_ABSOLUTE_TIME,
+			ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }},
 		{ &hf_rpc_authgss_v, {
 			"GSS Version", "rpc.authgss.version", FT_UINT32,
 			BASE_DEC, NULL, 0, NULL, HFILL }},
