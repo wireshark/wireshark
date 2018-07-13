@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V15.2.0 (2018-06)
+-- 3GPP TS 36.331 V15.2.2 (2018-06)
 --
 NBIOT-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -829,7 +829,8 @@ InterFreqCarrierFreqInfo-NB-r13 ::=	SEQUENCE {
 	...,
 	[[	delta-RxLevMin-v1350			INTEGER (-8..-1)		OPTIONAL	-- Cond Qrxlevmin
 	]],
-	[[	powerClass14dBm-Offset-r14		ENUMERATED {dB-6, dB-3, dB3, dB6, dB9, dB12} OPTIONAL,	--	Need OP
+	[[	powerClass14dBm-Offset-r14		ENUMERATED {dB-6, dB-3, dB3, dB6, dB9, dB12}
+OPTIONAL,	--	Need OP
 		ce-AuthorisationOffset-r14		ENUMERATED {dB5, dB10, dB15, dB20, dB25, dB30, dB35}	OPTIONAL	-- Need OP
 	]]
 }
@@ -1074,7 +1075,7 @@ CarrierFreq-NB-r13 ::=		SEQUENCE {
 	carrierFreq-r13				ARFCN-ValueEUTRA-r9,
 	carrierFreqOffset-r13		ENUMERATED {
 									v-10, v-9, v-8,	v-7, v-6, v-5, v-4, v-3, v-2, v-1, v-0dot5,
-									 v0,  v1,	v2,	v3,  v4,  v5,	v6,  v7,  v8,  v9
+									 v0, v1, v2, v3, v4, v5, v6, v7, v8, v9
 									}	OPTIONAL	-- Need ON
 }
 
@@ -1338,7 +1339,7 @@ RACH-Info-NB-r13	::=		SEQUENCE {
 											pp1, pp2, pp3, pp4, pp8, pp16, pp32, pp64}
 }
 
-PowerRampingParameters-NB-v1450  ::=		SEQUENCE {
+PowerRampingParameters-NB-v1450 ::=		SEQUENCE {
 	preambleInitialReceivedTargetPower-v1450		ENUMERATED {
 													dBm-130, dBm-128, dBm-126, dBm-124, dBm-122,
 													dBm-88, dBm-86, dBm-84,dBm-82, dBm-80}

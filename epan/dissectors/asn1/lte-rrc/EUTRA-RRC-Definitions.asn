@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V15.2.0 (2018-06)
+-- 3GPP TS 36.331 V15.2.2 (2018-06)
 --
 EUTRA-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -3067,11 +3067,10 @@ SystemInformationBlockType5 ::=		SEQUENCE {
 	[[	interFreqCarrierFreqListExt-v1360	InterFreqCarrierFreqListExt-v1360	OPTIONAL	-- Need OR
 	]],
 	[[	scptm-FreqOffset-r14				INTEGER (1..8)					OPTIONAL	-- Need OP
-	]],
-	[[	interFreqCarrierFreqList-v13a0	InterFreqCarrierFreqList-v13a0	OPTIONAL	-- Need OR
 	]]
 }
 
+-- Late non critical extensions
 SystemInformationBlockType5-v8h0-IEs ::=	SEQUENCE {
 	interFreqCarrierFreqList-v8h0 SEQUENCE (SIZE (1..maxFreq)) OF InterFreqCarrierFreqInfo-v8h0				OPTIONAL,	-- Need OP
 	nonCriticalExtension			SystemInformationBlockType5-v9e0-IEs							OPTIONAL
@@ -3084,11 +3083,19 @@ SystemInformationBlockType5-v9e0-IEs ::=	SEQUENCE {
 
 SystemInformationBlockType5-v10j0-IEs ::=	SEQUENCE {
 	interFreqCarrierFreqList-v10j0	SEQUENCE (SIZE (1..maxFreq)) OF InterFreqCarrierFreqInfo-v10j0				OPTIONAL,	-- Need OR
-	nonCriticalExtension			SystemInformationBlockType5-v10l0-IEs						OPTIONAL
+	nonCriticalExtension			SystemInformationBlockType5-v10l0-IEs		OPTIONAL
 }
 
 SystemInformationBlockType5-v10l0-IEs ::=	SEQUENCE {
 	interFreqCarrierFreqList-v10l0	SEQUENCE (SIZE (1..maxFreq)) OF InterFreqCarrierFreqInfo-v10l0				OPTIONAL,	-- Need OR
+	nonCriticalExtension			SystemInformationBlockType5-v13a0-IEs			OPTIONAL
+}
+
+SystemInformationBlockType5-v13a0-IEs ::=	SEQUENCE {
+	-- Late non critical extensions from REL-10 upto REL-12
+	lateNonCriticalExtension		OCTET STRING					OPTIONAL,	-- Need OR
+	interFreqCarrierFreqList-v13a0	InterFreqCarrierFreqList-v13a0	OPTIONAL,	-- Need OR
+	-- Late non critical extensions from REL-13
 	nonCriticalExtension			SEQUENCE {}						OPTIONAL
 }
 
@@ -5339,7 +5346,7 @@ PhysicalConfigDedicatedSCell-r10 ::=		SEQUENCE {
 		soundingRS-UL-PeriodicConfigDedicatedList-r14					SEQUENCE (SIZE (1..2)) OF SoundingRS-UL-ConfigDedicated						OPTIONAL,		-- Cond PeriodicSRS
 		soundingRS-UL-PeriodicConfigDedicatedUpPTsExtList-r14					SEQUENCE (SIZE (1..4)) OF SoundingRS-UL-ConfigDedicatedUpPTsExt-r13						OPTIONAL,		-- Cond PeriodicSRSExt		
 		soundingRS-UL-AperiodicConfigDedicatedList-r14					SEQUENCE (SIZE (1..2)) OF SoundingRS-AperiodicSet-r14						OPTIONAL,		-- Cond AperiodicSRS
-		soundingRS-UL-ConfigDedicatedApUpPTsExtList-r14					SEQUENCE (SIZE (1..4)) OF SoundingRS-AperiodicSetUpPTsExt-r14  			OPTIONAL,		-- Cond AperiodicSRSExt
+		soundingRS-UL-ConfigDedicatedApUpPTsExtList-r14					SEQUENCE (SIZE (1..4)) OF SoundingRS-AperiodicSetUpPTsExt-r14 			OPTIONAL,		-- Cond AperiodicSRSExt
 		must-Config-r14						CHOICE{
 			release								NULL,
 			setup								SEQUENCE {
@@ -6088,7 +6095,7 @@ RadioResourceConfigCommonSCell-r10 ::=	SEQUENCE {
 		uplinkPowerControlCommonPUSCH-LessCell-v1430												UplinkPowerControlCommonPUSCH-LessCell-v1430	OPTIONAL	-- Need OR
 }																	OPTIONAL,	-- Cond ULSRS
 	harq-ReferenceConfig-r14					ENUMERATED {sa2,sa4,sa5}	OPTIONAL,		-- Need OR
-	soundingRS-FlexibleTiming-r14   			ENUMERATED {true}			OPTIONAL		-- Need OR
+	soundingRS-FlexibleTiming-r14 			ENUMERATED {true}			OPTIONAL		-- Need OR
 	]],
 	[[	mbsfn-SubframeConfigList-v1430		MBSFN-SubframeConfigList-v1430		OPTIONAL-- Need ON
 	]]
@@ -6853,8 +6860,7 @@ SRS-TPC-PDCCH-Config-r14 ::=					CHOICE {
 	release								NULL,
 	setup								SEQUENCE {
 		srs-TPC-RNTI-r14									BIT STRING (SIZE (16)),
-	startingBitOfFormat3B-r14							INTEGER (0..31),
-				fieldTypeFormat3B-r14								INTEGER (1..4),
+	startingBitOfFormat3B-r14							INTEGER (0..31),				fieldTypeFormat3B-r14								INTEGER (1..4),
 		srs-CC-SetIndexlist-r14									SEQUENCE (SIZE(1..4)) OF SRS-CC-SetIndex-r14	OPTIONAL	-- Cond SRS-Trigger-TypeA		
 
 	}
@@ -9903,7 +9909,7 @@ BandCombinationParameters-v1450 ::= SEQUENCE {
 BandCombinationParameters-v1470 ::= SEQUENCE {
 	bandParameterList-v1470			SEQUENCE (SIZE (1..maxSimultaneousBands-r10)) OF
 			BandParameters-v1470		OPTIONAL,
-	srs-MaxSimultaneousCCs-r14      INTEGER (1..31)				OPTIONAL
+	srs-MaxSimultaneousCCs-r14	INTEGER (1..31)				OPTIONAL
 }
 
 -- If an additional band combination parameter is defined, which are supported for EN-DC, it shall be defined in the IE CA-ParametersEUTRA in TS 38.331 [82].
@@ -11647,7 +11653,7 @@ SL-V2X-ConfigDedicated-r14 ::=				SEQUENCE	{
 
 SL-TxPoolToAddModListV2X-r14 ::=		SEQUENCE (SIZE (1.. maxSL-V2X-TxPool-r14)) OF SL-TxPoolToAddMod-r14
 
-SL-TxPoolToAddMod-r14 ::=   SEQUENCE	{
+SL-TxPoolToAddMod-r14 ::=		SEQUENCE	{
 	poolIdentity-r14					SL-V2X-TxPoolIdentity-r14,
 	pool-r14							SL-CommResourcePoolV2X-r14
 }
@@ -11696,23 +11702,23 @@ minCSI-IM-r13				INTEGER ::= 5	-- Minimum number of CSI IM configurations from w
 maxCSI-IM-r13				INTEGER ::= 24	-- Maximum number of CSI-IM configurations
 											-- (per carrier frequency)
 maxCSI-IM-v1310				INTEGER ::= 20	-- Maximum number of additional CSI-IM configurations
-											--  (per carrier frequency)
+											-- (per carrier frequency)
 maxCSI-Proc-r11				INTEGER ::= 4	-- Maximum number of CSI processes (per carrier
-											--  frequency)
+											-- frequency)
 maxCSI-RS-NZP-r11			INTEGER ::= 3	-- Maximum number of CSI RS resource
-											--  configurations using non-zero Tx power
-											--  (per carrier frequency)
+											-- configurations using non-zero Tx power
+											-- (per carrier frequency)
 minCSI-RS-NZP-r13			INTEGER ::= 4	-- Minimum number of CSI RS resource from which
 											-- REL-13 extension is used
 maxCSI-RS-NZP-r13			INTEGER ::= 24	-- Maximum number of CSI RS resource
-											--  configurations using non-zero Tx power
-											--  (per carrier frequency)
+											-- configurations using non-zero Tx power
+											-- (per carrier frequency)
 maxCSI-RS-NZP-v1310			INTEGER ::= 21	-- Maximum number of additional CSI RS resource
-											--  configurations using non-zero Tx power
-											--  (per carrier frequency)
+											-- configurations using non-zero Tx power
+											-- (per carrier frequency)
 maxCSI-RS-ZP-r11			INTEGER ::= 4	-- Maximum number of CSI RS resource
-											--  configurations using zero Tx power(per carrier
-											--  frequency)
+											-- configurations using zero Tx power(per carrier
+											-- frequency)
 maxCQI-ProcExt-r11			INTEGER ::= 3	-- Maximum number of additional periodic CQI
 											-- configurations (per carrier frequency)
 maxFreqUTRA-TDD-r10			INTEGER ::=	6	-- Maximum number of UTRA TDD carrier frequencies for
@@ -11752,8 +11758,8 @@ maxFreqIDC-r11				INTEGER ::= 32	-- Maximum number of carrier frequencies that a
 maxFreqMBMS-r11				INTEGER ::= 5	-- Maximum number of carrier frequencies for which an
 											-- MBMS capable UE may indicate an interest
 maxFreqNR-r15				INTEGER ::= 5	-- Maximum number of NR carrier frequencies for
-											--  which a UE may provide measurement results upon
-											--  SCG failure
+											-- which a UE may provide measurement results upon
+											-- SCG failure
 maxFreqV2X-r14				INTEGER ::= 8	-- Maximum number of carrier frequencies for which V2X
 											-- sidelink communication can be configured
 maxFreqV2X-1-r14				INTEGER ::= 7	-- Highest index of frequencies
@@ -11762,7 +11768,7 @@ maxGERAN-SI					INTEGER ::= 10	-- Maximum number of GERAN SI blocks that can be
 maxGNFG						INTEGER ::= 16	-- Maximum number of GERAN neighbour freq groups
 maxLCG-r13					INTEGER ::= 4	-- Maximum number of logical channel groups
 maxLogMeasReport-r10		INTEGER ::= 520	-- Maximum number of logged measurement entries
-											--  that can be reported by the UE in one message
+											-- that can be reported by the UE in one message
 maxMBSFN-Allocations		INTEGER ::= 8	-- Maximum number of MBSFN frame allocations with
 											-- different offset
 maxMBSFN-Area				INTEGER ::= 8
@@ -11795,13 +11801,13 @@ maxQuantSetsNR-r15			INTEGER ::= 2	-- Maximum number of NR quantity configuratio
 maxQCI-r13					INTEGER ::= 6	-- Maximum number of QCIs
 maxRAT-Capabilities			INTEGER ::= 8	-- Maximum number of interworking RATs (incl EUTRA)
 maxRE-MapQCL-r11			INTEGER ::= 4	-- Maximum number of PDSCH RE Mapping configurations
-											--  (per carrier frequency)
+											-- (per carrier frequency)
 maxReportConfigId			INTEGER ::= 32
 maxReservationPeriod-r14	INTEGER ::= 16	-- Maximum number of resource reservation periodicities
-											--  for sidelink V2X communication
+											-- for sidelink V2X communication
 maxRS-Index-r15				INTEGER ::= 64	-- Maximum number of RS indices
 maxRS-Index-1-r15				INTEGER ::= 63	-- Highest value of RS index as used to identify
-											--  RS index in RRM reports.
+											-- RS index in RRM reports.
 maxRS-IndexCellQual-r15	INTEGER ::= 16	-- Maximum number of RS indices averaged to derive
 											-- cell quality for RRM.
 maxRS-IndexReport-r15		INTEGER ::= 32	-- Maximum number of RS indices for RRM.
@@ -11843,7 +11849,7 @@ maxSL-Prio-r13			INTEGER ::= 8	-- Maximum number of entries in sidelink priority
 maxSL-RxPool-r12			INTEGER ::= 16	-- Maximum number of individual sidelink Rx resource pools
 maxSL-SyncConfig-r12		INTEGER ::= 16	-- Maximum number of sidelink Sync configurations
 maxSL-TF-IndexPair-r12	INTEGER ::= 64	-- Maximum number of sidelink Time Freq resource index
-											--  pairs
+											-- pairs
 maxSL-TxPool-r12			INTEGER ::= 4	-- Maximum number of individual sidelink Tx resource pools
 maxSL-V2X-RxPool-r14		INTEGER ::= 16	-- Maximum number of RX resource pools for
 												-- V2X sidelink communication
@@ -11875,7 +11881,7 @@ maxSTAG-r11					INTEGER ::= 3	-- Maximum number of STAGs
 maxServCell-r10				INTEGER ::= 5	-- Maximum number of Serving cells
 maxServCell-r13				INTEGER ::= 32	-- Highest value of extended number range of Serving cells
 maxServiceCount			INTEGER ::= 16	-- Maximum number of MBMS services that can be included
-											--  in an MBMS counting request and response
+											-- in an MBMS counting request and response
 maxServiceCount-1			INTEGER ::= 15
 maxSessionPerPMCH			INTEGER ::= 29
 maxSessionPerPMCH-1			INTEGER ::= 28
