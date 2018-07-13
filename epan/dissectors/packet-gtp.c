@@ -127,7 +127,6 @@ static int hf_gtp_ext_hdr_spare_bits = -1;
 static int hf_gtp_ext_hdr_spare_bytes = -1;
 static int hf_gtp_ext_hdr_long_pdcp_sn = -1;
 static int hf_gtp_ext_hdr_xw_ran_cont = -1;
-static int hf_gtp_ext_hdr_nr_ran_cont = -1;
 static int hf_gtp_ext_hdr_pdu_session_cont = -1;
 static int hf_gtp_ext_hdr_pdcpsn = -1;
 static int hf_gtp_ext_hdr_udp_port = -1;
@@ -310,7 +309,36 @@ static int hf_gtp_ext_enb_type = -1;
 static int hf_gtp_macro_enodeb_id = -1;
 static int hf_gtp_home_enodeb_id = -1;
 static int hf_gtp_dummy_octets = -1;
-
+/*NR-U RAN Container */
+static int hf_gtp_ext_hdr_nr_ran_cont_pdu_type = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_spr_bit_extnd_flag = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_dl_discrd_blks = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_dl_flush = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_rpt_poll = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_retransmission_flag = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_nr_u_seq_num = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_dl_disc_nr_pdcp_pdu_sn = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_dl_disc_num_blks = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_dl_disc_nr_pdcp_pdu_sn_start = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_dl_disc_blk_sz = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_high_tx_nr_pdcp_sn_ind = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_high_delivered_nr_pdcp_sn_ind = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_final_frame_ind = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_lost_pkt_rpt = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_high_retx_nr_pdcp_sn_ind = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_high_delivered_retx_nr_pdcp_sn_ind = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_cause_rpt = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_desrd_buff_sz_data_radio_bearer = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_min_desrd_buff_sz_ue = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_num_lost_nru_seq_num = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_start_lost_nru_seq_num = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_end_lost_nru_seq_num = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_high_success_delivered_nr_pdcp_sn = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_high_tx_nr_pdcp_sn = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_cause_val = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_high_success_delivered_retx_nr_pdcp_sn = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_high_retx_nr_pdcp_sn = -1;
+static int hf_pdcp_cont = -1;
 /* Generated from convert_proto_tree_add_text.pl */
 static int hf_gtp_rfsp_index = -1;
 static int hf_gtp_quintuplet_ciphering_key = -1;
@@ -400,6 +428,7 @@ static gint ett_gtp_cdr_ver = -1;
 static gint ett_gtp_cdr_dr = -1;
 static gint ett_gtp_mm_cntxt = -1;
 static gint ett_gtp_utran_cont = -1;
+static gint ett_gtp_nr_ran_cont = -1;
 
 static expert_field ei_gtp_ext_hdr_pdcpsn = EI_INIT;
 static expert_field ei_gtp_ext_length_mal = EI_INIT;
@@ -528,6 +557,12 @@ static const value_string next_extension_header_fieldvals[] = {
 #define GTPv1_EXT_RP_NSAPI_MASK         0xF0
 #define GTPv1_EXT_RP_SPARE_MASK         0x08
 #define GTPv1_EXT_RP_MASK               0x07
+
+static const value_string nr_pdu_type_cnst[] = {
+    {0, "DUD"},
+    {1, "DDDS"},
+    {0, NULL}
+};
 
 static const value_string gtp_message_type[] = {
     {GTP_MSG_UNKNOWN,             "For future use"},
@@ -8496,11 +8531,135 @@ track_gtp_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtp_hd
 }
 
 static int
+addRANContParameter(tvbuff_t *tvb, proto_tree *ran_cont_tree, gint offset)
+{
+    guint32 pdu_type;
+    gboolean dl_disc_blk;
+    gboolean dl_flush;
+    guint32 dl_disc_num_blks;
+
+    proto_tree_add_item_ret_uint(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_pdu_type,tvb, offset,1,ENC_BIG_ENDIAN, &pdu_type);
+
+    if(pdu_type == 0){
+       proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_spr_bit_extnd_flag,tvb, offset,1, ENC_BIG_ENDIAN);
+
+       proto_tree_add_item_ret_boolean(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_dl_discrd_blks,tvb, offset,1, ENC_BIG_ENDIAN,&dl_disc_blk);
+
+       proto_tree_add_item_ret_boolean(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_dl_flush,tvb, offset,1, ENC_BIG_ENDIAN, &dl_flush);
+
+       proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_rpt_poll,tvb, offset,1, ENC_BIG_ENDIAN);
+       offset++;
+
+       proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_retransmission_flag,tvb, offset,1, ENC_BIG_ENDIAN);
+       offset++;
+
+       proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_nr_u_seq_num,tvb, offset,3, ENC_BIG_ENDIAN);
+       offset+=3;
+
+       if(dl_flush == TRUE){
+          proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_dl_disc_nr_pdcp_pdu_sn,tvb, offset,3, ENC_BIG_ENDIAN);
+          offset+=3;
+       }
+       if(dl_disc_blk == TRUE){
+          proto_tree_add_item_ret_uint(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_dl_disc_num_blks,tvb, offset,1,ENC_BIG_ENDIAN, &dl_disc_num_blks);
+          offset++;
+          while(dl_disc_num_blks){
+             proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_dl_disc_nr_pdcp_pdu_sn_start,tvb, offset,3, ENC_BIG_ENDIAN);
+             offset+=3;
+
+             proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_dl_disc_blk_sz,tvb, offset,3, ENC_BIG_ENDIAN);
+             offset++;
+             dl_disc_num_blks--;
+          }
+       }
+   }
+   else if(pdu_type==1){
+       gboolean high_tx_nr_pdcp_sn_ind;
+       gboolean high_del_nr_pdcp_sn_ind;
+       gboolean lost_packet_report;
+       gboolean high_retx_nr_pdcp_sn_ind;
+       gboolean high_del_retx_nr_pdcp_sn_ind;
+       gboolean cause_rpt;
+       guint32 lost_NR_U_SN_range;
+
+       proto_tree_add_item_ret_boolean(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_high_tx_nr_pdcp_sn_ind ,tvb, offset,1,ENC_BIG_ENDIAN, &high_tx_nr_pdcp_sn_ind );
+
+       proto_tree_add_item_ret_boolean(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_high_delivered_nr_pdcp_sn_ind ,tvb, offset,1,ENC_BIG_ENDIAN, &high_del_nr_pdcp_sn_ind );
+
+       proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_final_frame_ind,tvb, offset,3, ENC_BIG_ENDIAN);
+
+       proto_tree_add_item_ret_boolean(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_lost_pkt_rpt,tvb, offset,1,ENC_BIG_ENDIAN, &lost_packet_report);
+       offset++;
+
+       proto_tree_add_item_ret_boolean(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_high_retx_nr_pdcp_sn_ind,tvb, offset,1, ENC_BIG_ENDIAN, &high_retx_nr_pdcp_sn_ind);
+
+       proto_tree_add_item_ret_boolean(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_high_delivered_retx_nr_pdcp_sn_ind,tvb, offset,1,ENC_BIG_ENDIAN, &high_del_retx_nr_pdcp_sn_ind);
+
+       proto_tree_add_item_ret_boolean(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_cause_rpt,tvb, offset,1,ENC_BIG_ENDIAN, &cause_rpt);
+       offset++;
+
+       proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_desrd_buff_sz_data_radio_bearer,tvb, offset,4, ENC_BIG_ENDIAN);
+       offset += 4;
+
+       proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_min_desrd_buff_sz_ue,tvb, offset,4, ENC_BIG_ENDIAN);
+       offset += 4;
+
+       if(lost_packet_report == TRUE){
+          proto_tree_add_item_ret_uint(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_num_lost_nru_seq_num,tvb, offset,1,ENC_BIG_ENDIAN, &lost_NR_U_SN_range);
+          offset+=1;
+
+          while(lost_NR_U_SN_range)
+          {
+             proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_start_lost_nru_seq_num,tvb, offset,3, ENC_BIG_ENDIAN);
+             offset += 3;
+
+             proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_end_lost_nru_seq_num,tvb, offset,3, ENC_BIG_ENDIAN);
+             offset += 3;
+             lost_NR_U_SN_range--;
+          }
+       }
+
+       if(high_del_nr_pdcp_sn_ind == TRUE)
+       {
+             proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_high_success_delivered_nr_pdcp_sn,tvb, offset,3, ENC_BIG_ENDIAN);
+             offset += 3;
+       }
+
+       if(high_tx_nr_pdcp_sn_ind == TRUE)
+       {
+             proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_high_tx_nr_pdcp_sn,tvb, offset,3, ENC_BIG_ENDIAN);
+             offset += 3;
+       }
+
+       if(cause_rpt == TRUE)
+       {
+             proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_cause_val,tvb, offset,1, ENC_BIG_ENDIAN);
+             offset ++;
+       }
+
+       if(high_del_retx_nr_pdcp_sn_ind == TRUE)
+       {
+             proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_high_success_delivered_retx_nr_pdcp_sn,tvb, offset,3, ENC_BIG_ENDIAN);
+             offset += 3;
+       }
+
+       if(high_retx_nr_pdcp_sn_ind == TRUE)
+       {
+             proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_high_retx_nr_pdcp_sn,tvb, offset,3, ENC_BIG_ENDIAN);
+             offset += 3;
+       }
+   }
+   return pdu_type;
+}
+
+
+static int
 dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-    guint8           octet;
+    guint8           octet,nr_pdu_type;
     gtp_hdr_t       *gtp_hdr = NULL;
     proto_tree      *gtp_tree = NULL, *ext_tree;
+    proto_tree      *ran_cont_tree = NULL;
     proto_item      *ti = NULL, *tf, *ext_hdr_len_item, *message_item;
     int              i, offset = 0, checked_field, mandatory;
     gboolean         gtp_prime, has_SN;
@@ -8766,6 +8925,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                     proto_tree_add_uint(gtp_tree, hf_gtp_ext_hdr_next, tvb, offset, 1, next_hdr);
                     offset++;
                     while (next_hdr != 0) {
+                        nr_pdu_type = -1;
                         ext_hdr_length = tvb_get_guint8(tvb, offset);
                         tf = proto_tree_add_item(gtp_tree, hf_gtp_ext_hdr, tvb, offset, ext_hdr_length*4, ENC_NA);
                         ext_tree = proto_item_add_subtree(tf, ett_gtp_ext_hdr);
@@ -8863,7 +9023,8 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                              * 38.425 [30]. A G-PDU message with this extension
                              * header may be sent without a T-PDU.
                              */
-                            proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_nr_ran_cont, tvb, offset, (4*ext_hdr_length)-1, ENC_NA);
+                            ran_cont_tree = proto_tree_add_subtree(ext_tree, tvb, offset, (ext_hdr_length*4)-1, ett_gtp_nr_ran_cont, NULL,"NR RAN Container");
+                            nr_pdu_type= addRANContParameter(tvb,ran_cont_tree,offset);
                             break;
 
                         case GTP_EXT_HDR_PDU_SESSION_CONT:
@@ -8928,6 +9089,14 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                         next_hdr = tvb_get_guint8(tvb, offset);
                         proto_tree_add_uint(ext_tree, hf_gtp_ext_hdr_next, tvb, offset, 1, next_hdr);
                         offset++;
+                        if((nr_pdu_type == 0) || (nr_pdu_type == 1)){
+                           /*NR-U DUD or DDDS PDU
+                            * This is NR-U DUD/DDDS PDU. It contains PDCP
+                            * payload as per 3GPP TS 38.323*/
+                           proto_tree_add_item(tree, hf_pdcp_cont, tvb, offset, -1, ENC_NA);
+                           return tvb_reported_length(tvb);
+                        }
+
                     }
                 } else
                     offset++;
@@ -9261,8 +9430,148 @@ proto_register_gtp(void)
            FT_BYTES, BASE_NONE, NULL, 0,
            NULL, HFILL}
         },
-        {&hf_gtp_ext_hdr_nr_ran_cont,
-         { "NR RAN Container", "gtp.ext_hdr.nr_ran_cont",
+        {&hf_gtp_ext_hdr_nr_ran_cont_pdu_type,
+         { "PDU Type", "gtp.ext_hdr.nr_ran_cont.pdu_type",
+           FT_UINT8, BASE_DEC, VALS(nr_pdu_type_cnst), 0xf0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_spr_bit_extnd_flag,
+         { "Spare bit extended flag", "gtp.ext_hdr.nr_ran_cont.spr_bit",
+           FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x08,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_dl_discrd_blks,
+         { "DL Discard Blocks", "gtp.ext_hdr.nr_ran_cont.dl_disc_blks",
+           FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x04,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_dl_flush,
+         { "DL Flush", "gtp.ext_hdr.nr_ran_cont.dl_flush",
+           FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_rpt_poll,
+         { "Report Polling", "gtp.ext_hdr.nr_ran_cont.report_polling",
+           FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_retransmission_flag,
+         { "Retransmission Flag", "gtp.ext_hdr.nr_ran_cont.retransmission_flag",
+           FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_nr_u_seq_num,
+         { "NR-U Sequence Number", "gtp.ext_hdr.nr_ran_cont.seq_num",
+           FT_UINT24, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_dl_disc_nr_pdcp_pdu_sn,
+         { "DL discard NR PDCP PDU SN", "gtp.ext_hdr.nr_ran_cont.dl_disc_nr_pdcp_pdu_sn",
+           FT_UINT24, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_dl_disc_num_blks,
+         { "DL discard Number of blocks", "gtp.ext_hdr.nr_ran_cont.dl_disc_num_blks",
+           FT_UINT8, BASE_DEC, NULL, 0xff,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_dl_disc_nr_pdcp_pdu_sn_start,
+         { "DL discard NR PDCP PDU SN Start", "gtp.ext_hdr.nr_ran_cont.dl_disc_nr_pdcp_pdu_sn_start",
+           FT_UINT24, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_dl_disc_blk_sz,
+         { "Discarded block size", "gtp.ext_hdr.nr_ran_cont.disc_blk_sz",
+           FT_UINT8, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_high_tx_nr_pdcp_sn_ind,
+         { "Highest Transmitted NR PDCP SN Ind", "gtp.ext_hdr.nr_ran_cont.high_tx_nr_pdcp_sn_ind",
+           FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x08,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_high_delivered_nr_pdcp_sn_ind,
+         { "Highest Delivered NR PDCP SN Ind", "gtp.ext_hdr.nr_ran_cont.high_delivered_nr_pdcp_sn_ind",
+           FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x04,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_final_frame_ind,
+         { "Final Frame Ind", "gtp.ext_hdr.nr_ran_cont.final_frame_ind",
+           FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_lost_pkt_rpt,
+         { "Lost Packet Report", "gtp.ext_hdr.nr_ran_cont.lost_pkt_rpt",
+           FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_high_retx_nr_pdcp_sn_ind,
+         { "Highest Retransmitted NR PDCP SN Ind", "gtp.ext_hdr.nr_ran_cont.high_retx_nr_pdcp_sn_ind",
+           FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x04,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_cause_rpt,
+         { "Cause Report", "gtp.ext_hdr.nr_ran_cont.cause_rpt",
+           FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_desrd_buff_sz_data_radio_bearer,
+         { "Desired buffer size for the data radio bearer", "gtp.ext_hdr.nr_ran_cont.desrd_buff_sz_data_radio_bearer",
+           FT_UINT32, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_high_delivered_retx_nr_pdcp_sn_ind,
+         { "Highest Delivered Retransmitted NR PDCP SN Ind", "gtp.ext_hdr.nr_ran_cont.high_delivered_retx_nr_pdcp_sn_ind",
+           FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_min_desrd_buff_sz_ue,
+         { "Minimum Desired buffer size for the UE", "gtp.ext_hdr.nr_ran_cont.min_desrd_buff_sz_ue",
+           FT_UINT32, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_num_lost_nru_seq_num,
+         { "Number of lost NR-U Sequence Number ranges reported", "gtp.ext_hdr.nr_ran_cont.num_lost_nru_seq_num",
+           FT_UINT8, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_start_lost_nru_seq_num,
+         { "Start of lost NR-U Sequence Number range", "gtp.ext_hdr.nr_ran_cont.start_num_lost_nru_seq_num",
+           FT_UINT24, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_end_lost_nru_seq_num,
+         { "End of lost NR-U Sequence Number range", "gtp.ext_hdr.nr_ran_cont.end_num_lost_nru_seq_num",
+           FT_UINT24, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_high_success_delivered_nr_pdcp_sn,
+         { "Highest Successfully Delivered NR PDCP SN", "gtp.ext_hdr.nr_ran_cont.high_success_delivered_nr_pdcp_sn",
+           FT_UINT24, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_high_tx_nr_pdcp_sn,
+         { "Highest Transmitted NR PdCP SN Ind", "gtp.ext_hdr.nr_ran_cont.high_tx_nr_pdcp_sn",
+           FT_UINT24, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_cause_val ,
+         { "Cause Value", "gtp.ext_hdr.nr_ran_cont.cause_val",
+           FT_UINT8, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_high_success_delivered_retx_nr_pdcp_sn,
+         { "Highest Successfully Delivered Retransmitted NR PDCP SN", "gtp.ext_hdr.nr_ran_cont.high_success_delivered_retx_nr_pdcp_sn",
+           FT_UINT24, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_high_retx_nr_pdcp_sn,
+         { "Highest Retransmitted NR PDCP SN Ind", "gtp.ext_hdr.nr_ran_cont.high_retx_nr_pdcp_sn",
+           FT_UINT24, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_pdcp_cont,
+         { "PDCP Protocol", "gtp.pdcp",
            FT_BYTES, BASE_NONE, NULL, 0,
            NULL, HFILL}
         },
@@ -10254,7 +10563,7 @@ proto_register_gtp(void)
     };
 
     /* Setup protocol subtree array */
-#define GTP_NUM_INDIVIDUAL_ELEMS    27
+#define GTP_NUM_INDIVIDUAL_ELEMS    28
     static gint *ett_gtp_array[GTP_NUM_INDIVIDUAL_ELEMS + NUM_GTP_IES];
 
     ett_gtp_array[0] = &ett_gtp;
@@ -10284,6 +10593,7 @@ proto_register_gtp(void)
     ett_gtp_array[24] = &ett_gtp_node_addr;
     ett_gtp_array[25] = &ett_gtp_mm_cntxt;
     ett_gtp_array[26] = &ett_gtp_utran_cont;
+    ett_gtp_array[27] = &ett_gtp_nr_ran_cont;
 
     last_offset = GTP_NUM_INDIVIDUAL_ELEMS;
 
