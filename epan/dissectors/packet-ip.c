@@ -931,7 +931,7 @@ dissect_ipopt_cipso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
   guint      tagtype, taglen;
   gint       offset = 2,
              optlen = tvb_reported_length(tvb);
-  int        offset_max = offset + optlen;
+  int        offset_max = optlen;
 
   field_tree = ip_var_option_header(tree, pinfo, tvb, proto_ip_option_cipso, ett_ip_option_cipso, &tf, optlen);
 
