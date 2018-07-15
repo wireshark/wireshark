@@ -10219,7 +10219,7 @@ text-decoration: underline;
     <message>
         <location filename="packet_format_group_box.ui" line="36"/>
         <source>Include column headings</source>
-        <translation type="unfinished"></translation>
+        <translation>Spaltenüberschrift inkludieren</translation>
     </message>
     <message>
         <location filename="packet_format_group_box.ui" line="46"/>
@@ -10574,12 +10574,12 @@ text-decoration: underline;
         <translation>%1 %2 Pakete insgesamt, %3 angezeigt</translation>
     </message>
     <message>
-        <location filename="print_dialog.cpp" line="262"/>
+        <location filename="print_dialog.cpp" line="269"/>
         <source>Print Error</source>
         <translation>Fehler beim Drucken</translation>
     </message>
     <message>
-        <location filename="print_dialog.cpp" line="263"/>
+        <location filename="print_dialog.cpp" line="270"/>
         <source>Unable to print to %1.</source>
         <translation>Drucken nach %1 nicht möglich.</translation>
     </message>
