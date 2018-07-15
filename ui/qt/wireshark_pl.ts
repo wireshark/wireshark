@@ -10298,12 +10298,12 @@ text-decoration: underline;
         <translation>%1 %2 wszystkich pakietów, %3 wyświetlanych</translation>
     </message>
     <message>
-        <location filename="print_dialog.cpp" line="262"/>
+        <location filename="print_dialog.cpp" line="269"/>
         <source>Print Error</source>
         <translation>Błąd drukowania</translation>
     </message>
     <message>
-        <location filename="print_dialog.cpp" line="263"/>
+        <location filename="print_dialog.cpp" line="270"/>
         <source>Unable to print to %1.</source>
         <translation>Nie można drukować do %1.</translation>
     </message>

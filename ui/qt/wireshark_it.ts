@@ -9947,7 +9947,7 @@ a:hover {
     <message>
         <location filename="packet_format_group_box.ui" line="36"/>
         <source>Include column headings</source>
-        <translation type="unfinished"></translation>
+        <translation>Includi le intestazioni di colonna</translation>
     </message>
     <message>
         <location filename="packet_format_group_box.ui" line="46"/>
@@ -10297,12 +10297,12 @@ a:hover {
         <translation>%1 %2 pacchetti totali, %3 mostrati</translation>
     </message>
     <message>
-        <location filename="print_dialog.cpp" line="262"/>
+        <location filename="print_dialog.cpp" line="269"/>
         <source>Print Error</source>
         <translation>Errore di stampa</translation>
     </message>
     <message>
-        <location filename="print_dialog.cpp" line="263"/>
+        <location filename="print_dialog.cpp" line="270"/>
         <source>Unable to print to %1.</source>
         <translation>Impossibile stampare su %1.</translation>
     </message>

@@ -10285,12 +10285,12 @@ text-decoration: underline;
         <translation>%1 %2 总分组数,%3 已显示</translation>
     </message>
     <message>
-        <location filename="print_dialog.cpp" line="262"/>
+        <location filename="print_dialog.cpp" line="269"/>
         <source>Print Error</source>
         <translation>打印错误</translation>
     </message>
     <message>
-        <location filename="print_dialog.cpp" line="263"/>
+        <location filename="print_dialog.cpp" line="270"/>
         <source>Unable to print to %1.</source>
         <translation>无法打印至 %1。</translation>
     </message>

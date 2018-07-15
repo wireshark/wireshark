@@ -10259,12 +10259,12 @@ a:hover {
         <translation>%1 %2 paques totales, %3 affichés</translation>
     </message>
     <message>
-        <location filename="print_dialog.cpp" line="262"/>
+        <location filename="print_dialog.cpp" line="269"/>
         <source>Print Error</source>
         <translation>Erreur d&apos;impression</translation>
     </message>
     <message>
-        <location filename="print_dialog.cpp" line="263"/>
+        <location filename="print_dialog.cpp" line="270"/>
         <source>Unable to print to %1.</source>
         <translation>Impossible d&apos;imprimer sur %1.</translation>
     </message>

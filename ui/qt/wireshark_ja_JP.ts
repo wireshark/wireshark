@@ -10287,12 +10287,12 @@ a:hover {
         <translation>%1 %2 全パケット, %3 表示</translation>
     </message>
     <message>
-        <location filename="print_dialog.cpp" line="262"/>
+        <location filename="print_dialog.cpp" line="269"/>
         <source>Print Error</source>
         <translation>印刷エラー</translation>
     </message>
     <message>
-        <location filename="print_dialog.cpp" line="263"/>
+        <location filename="print_dialog.cpp" line="270"/>
         <source>Unable to print to %1.</source>
         <translation>%1 に印刷することができません</translation>
     </message>
