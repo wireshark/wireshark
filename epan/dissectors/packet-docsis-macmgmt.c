@@ -6418,23 +6418,19 @@ dissect_optrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
     fragment_head *tmp_fh = fragment_get(&docsis_opt_tlv_reassembly_table, pinfo, downstream_channel_id, NULL);
 
     /*Calculating offset*/
-    guint offset =0;
-    guint tlv_length = 0;
-    if (tmp_fh) {
-      tmp_fh = tmp_fh->next;
-      tlv_length  = 256*tvb_get_guint8(tmp_fh->tvb_data,1) + tvb_get_guint8(tmp_fh->tvb_data,2);
-
-      while(tmp_fh) {
-        offset += tmp_fh->len;
-        if (offset > tlv_length + 3) {
-          /*Updating tlv_length with next top TLV*/
-          tlv_length += 256*tvb_get_guint8(tmp_fh->tvb_data,offset-tlv_length - 3) + tvb_get_guint8(tmp_fh->tvb_data,offset-tlv_length - 3);
-        }
-        tmp_fh = tmp_fh->next;
+    guint offset = 0;
+    guint tlvs_length = 0;
+    while (tmp_fh) {
+      offset += tmp_fh->len;
+      while (tlvs_length < offset) {
+        /* Assumes that the Type and Lengths fields are always present in a
+         * single buffer (the value can still be fragmented). */
+        tlvs_length += 3 + tvb_get_ntohs(tmp_fh->tvb_data, tlvs_length + 1);
       }
+      tmp_fh = tmp_fh->next;
     }
 
-    if (offset == tlv_length +3) {
+    if (offset == tlvs_length) {
       /* Save address pointers. */
       copy_address_shallow(&save_src, &pinfo->src);
       copy_address_shallow(&save_dst, &pinfo->dst);
