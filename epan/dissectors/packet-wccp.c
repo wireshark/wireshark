@@ -276,14 +276,13 @@ static expert_field ei_wccp_a_zero_not_c = EI_INIT;
  *
  * At
  *
- *      http://tools.ietf.org/id/draft-wilson-wrec-wccp-v2-01.txt
+ *      https://tools.ietf.org/html/draft-wilson-wrec-wccp-v2-01
  *
  * is an Internet-Draft for WCCP 2.0.
  *
- * http://tools.ietf.org/html/draft-mclaggan-wccp-v2rev1
+ *      https://tools.ietf.org/html/draft-param-wccp-v2rev1-01
  *
- * is the current draft for WCCP 2.01
- *
+ * is the current draft for WCCP 2.01.
  */
 
 /* This is NOT IANA assigned */
