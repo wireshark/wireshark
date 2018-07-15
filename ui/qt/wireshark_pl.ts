@@ -7531,10 +7531,6 @@ text-decoration: underline;
         <translation>Zatrzymaj i kontynuuj bez zapisy&amp;wania</translation>
     </message>
     <message>
-        <source>(File name can&apos;t be mapped to UTF-8)</source>
-        <translation type="vanished">(Nazwa pliku nie może być przekonwertowana do formatu UTF-8)</translation>
-    </message>
-    <message>
         <source>The Wireshark Network Analyzer</source>
         <translation>Analizator Wireshark</translation>
     </message>

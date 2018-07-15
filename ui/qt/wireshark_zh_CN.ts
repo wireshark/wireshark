@@ -7517,10 +7517,6 @@ text-decoration: underline;
         <translation>停止并继续，不保存(&amp;W)</translation>
     </message>
     <message>
-        <source>(File name can&apos;t be mapped to UTF-8)</source>
-        <translation type="vanished">文件名不能映射到UTF-8</translation>
-    </message>
-    <message>
         <source>The Wireshark Network Analyzer</source>
         <translation>Wireshark 网络分析器</translation>
     </message>

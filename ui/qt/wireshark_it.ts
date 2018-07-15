@@ -7568,10 +7568,6 @@ a:hover {
         <translation>Ferma e continua senza sal&amp;vare</translation>
     </message>
     <message>
-        <source>(File name can&apos;t be mapped to UTF-8)</source>
-        <translation type="vanished">(Il nome del file non può essere associato in UTF-8)</translation>
-    </message>
-    <message>
         <source>The Wireshark Network Analyzer</source>
         <translation>Wireshark l&apos;analizzatore di rete</translation>
     </message>
@@ -8136,7 +8132,7 @@ a:hover {
     </message>
     <message>
         <source>Include column headings</source>
-        <translation type="unfinished"></translation>
+        <translation>Includi le intestazioni di colonna</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Packet details similar to the protocol tree&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>

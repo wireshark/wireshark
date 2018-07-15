@@ -7556,10 +7556,6 @@ a:hover {
         <translation>保存せずに停止して続ける</translation>
     </message>
     <message>
-        <source>(File name can&apos;t be mapped to UTF-8)</source>
-        <translation type="vanished">ファイル名をUTF-8形式に割り当てできません</translation>
-    </message>
-    <message>
         <source>The Wireshark Network Analyzer</source>
         <translation>ワイヤーシャークネットワークアナライザ</translation>
     </message>

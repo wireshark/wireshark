@@ -7501,10 +7501,6 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>(File name can&apos;t be mapped to UTF-8)</source>
-        <translation type="vanished">(Nom du fichier ne peut pas être mappé à l&apos;UTF-8)</translation>
-    </message>
-    <message>
         <source>The Wireshark Network Analyzer</source>
         <translation>L&apos;analyseur de réseau Wireshark</translation>
     </message>
