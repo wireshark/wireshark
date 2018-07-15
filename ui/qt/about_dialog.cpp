@@ -59,6 +59,7 @@
 
 #include "qt_ui_utils.h"
 
+#include <QAction>
 #include <QFontMetrics>
 #include <QKeySequence>
 #include <QTextStream>
