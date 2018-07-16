@@ -41,6 +41,7 @@
 #include "packet-sprt.h"
 #include "packet-h245.h"
 #include "packet-h264.h"
+#include "packet-h265.h"
 #include "packet-mp4ves.h"
 
 void proto_register_sdp(void);
@@ -51,6 +52,7 @@ static dissector_handle_t rtcp_handle;
 static dissector_handle_t sprt_handle;
 static dissector_handle_t msrp_handle;
 static dissector_handle_t h264_handle;
+static dissector_handle_t h265_handle;
 static dissector_handle_t mp4ves_config_handle;
 
 static int sdp_tap = -1;
@@ -1415,6 +1417,24 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
                     add_new_data_source(pinfo, data_tvb, "h264 prop-parameter-sets 2");
                     dissect_h264_nal_unit(data_tvb, pinfo, tree);
                 }
+            }
+        }
+    }
+
+    /* Dissect the H265
+    * RFC 7798:
+    */
+    else if ((mime_type != NULL) && (g_ascii_strcasecmp(mime_type, "H265") == 0)) {
+        if (strcmp(field_name, "sprop-vps") == 0 || strcmp(field_name, "sprop-sps") == 0 || strcmp(field_name, "sprop-pps") == 0) {
+
+            /* Move past '=' */
+            offset++;
+            tokenlen = end_offset - offset;
+            format_specific_parameter = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_UTF_8 | ENC_NA);
+            data_tvb = base64_to_tvb(tvb, format_specific_parameter);
+            add_new_data_source(pinfo, data_tvb, field_name);
+            if (h265_handle && data_tvb) {
+                dissect_h265_format_specific_parameter(tree, data_tvb, pinfo);
             }
         }
     }
@@ -3332,6 +3352,7 @@ proto_reg_handoff_sdp(void)
     msrp_handle   = find_dissector_add_dependency("msrp", proto_sdp);
     sprt_handle   = find_dissector_add_dependency("sprt", proto_sdp);
     h264_handle   = find_dissector_add_dependency("h264", proto_sdp);
+    h265_handle   = find_dissector_add_dependency("h265", proto_sdp);
     mp4ves_config_handle = find_dissector_add_dependency("mp4ves_config", proto_sdp);
 
     proto_sprt    = dissector_handle_get_protocol_index(find_dissector("sprt"));

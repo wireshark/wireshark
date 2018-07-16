@@ -21,6 +21,7 @@
 #include <epan/asn1.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
+#include "packet-h265.h"
 #include "math.h"
 
 void proto_register_h265(void);
@@ -37,6 +38,11 @@ static int hf_h265_start_bit = -1;
 static int hf_h265_end_bit = -1;
 static int hf_h265_rbsp_stop_bit = -1;
 static int hf_h265_rbsp_trailing_bits = -1;
+
+/* SDP */
+static int hf_h265_sdp_parameter_sprop_vps = -1;
+static int hf_h265_sdp_parameter_sprop_sps = -1;
+static int hf_h265_sdp_parameter_sprop_pps = -1;
 
 /*vps*/
 static int hf_h265_vps_video_parameter_set_id = -1;
@@ -377,8 +383,10 @@ static int ett_h265_end_of_bitstream_rbsp = -1;
 static int ett_h265_profile_tier_level = -1;
 static int ett_h265_vui_parameters = -1;
 static int ett_h265_hrd_parameters = -1;
+static int ett_h265_sprop_parameters = -1;
 
 static expert_field ei_h265_undecoded = EI_INIT;
+static expert_field ei_h265_format_specific_parameter = EI_INIT;
 
 /* The dynamic payload type range which will be dissected as H.265 */
 
@@ -2790,6 +2798,41 @@ dissect_h265_unescap_nal_unit(tvbuff_t *tvb, packet_info *pinfo, int offset)
 	return tvb_rbsp;
 }
 
+void
+dissect_h265_format_specific_parameter(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
+{
+	int         offset = 0;
+	proto_item *item;
+	proto_tree *h265_nal_tree;
+	guint8     type;
+	tvbuff_t   *rbsp_tvb;
+
+	type = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN) >> 9 & 0x3F;
+
+	/* Unescape NAL unit */
+	rbsp_tvb = dissect_h265_unescap_nal_unit(tvb, pinfo, offset + 2);
+
+	switch (type) {
+	case 32: /* VPS_NUT - Video parameter set */
+		item = proto_tree_add_item(tree, hf_h265_sdp_parameter_sprop_vps, tvb, offset, -1, ENC_NA);
+		h265_nal_tree = proto_item_add_subtree(item, ett_h265_sprop_parameters);
+		dissect_h265_video_parameter_set_rbsp(h265_nal_tree, rbsp_tvb, pinfo, 0);
+		break;
+	case 33: /* SPS_NUT - Sequence parameter set*/
+		item = proto_tree_add_item(tree, hf_h265_sdp_parameter_sprop_sps, tvb, offset, -1, ENC_NA);
+		h265_nal_tree = proto_item_add_subtree(item, ett_h265_sprop_parameters);
+		dissect_h265_seq_parameter_set_rbsp(h265_nal_tree, rbsp_tvb, pinfo, 0);
+		break;
+	case 34: /* PPS_NUT - Picture parameter set */
+		item = proto_tree_add_item(tree, hf_h265_sdp_parameter_sprop_pps, tvb, offset, -1, ENC_NA);
+		h265_nal_tree = proto_item_add_subtree(item, ett_h265_sprop_parameters);
+		dissect_h265_pic_parameter_set_rbsp(h265_nal_tree, rbsp_tvb, pinfo, 0);
+		break;
+	default:
+		proto_tree_add_expert(tree, pinfo, &ei_h265_format_specific_parameter, tvb, offset, -1);
+		break;
+	}
+}
 
 /* Code to actually dissect the packets */
 static int
@@ -4492,6 +4535,22 @@ proto_register_h265(void)
 			FT_UINT32, BASE_DEC, VALS(h265_sei_payload_vals), 0x0,
 			NULL, HFILL }
 		},
+			/* SDP parameters*/
+		{ &hf_h265_sdp_parameter_sprop_vps,
+		{ "sprop-vps", "h265.sdp.sprop_vps",
+			FT_BYTES, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_h265_sdp_parameter_sprop_sps,
+		{ "sprop-sps", "h265.sdp.sprop_sps",
+			FT_BYTES, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_h265_sdp_parameter_sprop_pps,
+		{ "sprop-pps", "h265.sdp.sprop_pps",
+			FT_BYTES, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
+		},
 
 		};
 
@@ -4513,11 +4572,13 @@ proto_register_h265(void)
 		&ett_h265_end_of_bitstream_rbsp,
 		&ett_h265_profile_tier_level,
 		&ett_h265_vui_parameters,
-		&ett_h265_hrd_parameters
+		&ett_h265_hrd_parameters,
+		&ett_h265_sprop_parameters
 	};
 
 	static ei_register_info ei[] = {
 		{ &ei_h265_undecoded,{ "h265.undecoded", PI_UNDECODED, PI_WARN, "[Not decoded yet]", EXPFILL } },
+		{ &ei_h265_format_specific_parameter,{ "h265.format_specific_parameter", PI_UNDECODED, PI_WARN, "[Unspecified media format specific parameter]", EXPFILL } },
 	};
 
 	/* Register the protocol name and description */
