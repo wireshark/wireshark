@@ -272,7 +272,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     main_ui_(new Ui::MainWindow),
     cur_layout_(QVector<unsigned>()),
-    df_combo_box_(NULL),
+    df_combo_box_(new DisplayFilterCombo),
     packet_list_(NULL),
     proto_tree_(NULL),
     previous_focus_(NULL),
@@ -366,12 +366,6 @@ MainWindow::MainWindow(QWidget *parent) :
         Qt::BlockingQueuedConnection);
 #endif
 
-    // We set the minimum width of df_combo_box_ in resizeEvent so that it won't shrink
-    // down too much if we have a lot of filter buttons. Unfortunately that can break
-    // Aero snapping if our window is large or maximized. Set a minimum width here in
-    // order to counteract that.
-    setMinimumWidth(350); // Arbitrary
-    df_combo_box_ = new DisplayFilterCombo();
     const DisplayFilterEdit *df_edit = qobject_cast<DisplayFilterEdit *>(df_combo_box_->lineEdit());
     connect(df_edit, SIGNAL(pushFilterSyntaxStatus(const QString&)),
             main_ui_->statusBar, SLOT(pushFilterStatus(const QString&)));
@@ -714,6 +708,12 @@ MainWindow::MainWindow(QWidget *parent) :
     // QThread::isInterruptionRequested() in interface_toolbar_reader.cpp
     iface_toolbar_register_cb(mainwindow_add_toolbar, mainwindow_remove_toolbar);
 #endif
+
+    // We set the minimum width of df_combo_box_ in resizeEvent so that it won't shrink
+    // down too much if we have a lot of filter buttons. Unfortunately that can break
+    // Aero snapping if our window is large or maximized. Set a minimum width here in
+    // order to counteract that.
+    setMinimumWidth(350); // Arbitrary
 
     main_ui_->mainStack->setCurrentWidget(main_welcome_);
 }
