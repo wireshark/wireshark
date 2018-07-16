@@ -1,7 +1,7 @@
 /***************************************************************************
 **                                                                        **
 **  QCustomPlot, an easy to use, modern plotting widget for Qt            **
-**  Copyright (C) 2011, 2012, 2013, 2014 Emanuel Eichhammer               **
+**  Copyright (C) 2011-2015 Emanuel Eichhammer                            **
 **                                                                        **
 **  This program is free software: you can redistribute it and/or modify  **
 **  it under the terms of the GNU General Public License as published by  **
@@ -21,8 +21,8 @@
 **  Website/Contact: http://www.qcustomplot.com/                          **
 ** Emanuel Eichhammer has granted Wireshark permission to use QCustomPlot **
 ** under the terms of the GNU General Public License version 2.           **
-**             Date: 27.12.14                                             **
-**          Version: 1.3.0                                                **
+**             Date: 22.12.15                                             **
+**          Version: 1.3.2                                                **
 ****************************************************************************/
 
 #ifndef QCUSTOMPLOT_H
@@ -53,7 +53,7 @@
 #  include <QPrintEngine>
 #else
 #  include <QtNumeric>
-#  include <QtPrintSupport>
+#  include <QtPrintSupport/QtPrintSupport>
 #endif
 
 class QCPPainter;
@@ -3101,7 +3101,7 @@ protected:
   bool mTightBoundary;
   QPointer<QCPColorScale> mColorScale;
   // non-property members:
-  QImage mMapImage;
+  QImage mMapImage, mUndersampledMapImage;
   QPixmap mLegendIcon;
   bool mMapImageInvalidated;
 
@@ -3617,6 +3617,7 @@ protected:
   QPixmap mPixmap;
   QPixmap mScaledPixmap;
   bool mScaled;
+  bool mScaledPixmapInvalidated;
   Qt::AspectRatioMode mAspectRatioMode;
   Qt::TransformationMode mTransformationMode;
   QPen mPen, mSelectedPen;
