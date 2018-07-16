@@ -1706,8 +1706,11 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 				 */
 				time_stamp->secs  = (time_t)tvb_get_ntohl(tvb, start);
 				time_stamp->nsecs = 0;
-			} else
+			} else {
+				time_stamp->secs  = 0;
+				time_stamp->nsecs = 0;
 				report_type_length_mismatch(tree, "a timespec", length, (length < 4));
+			}
 			break;
 
 		case ENC_TIME_SECS_NSECS|ENC_LITTLE_ENDIAN:
@@ -1746,8 +1749,11 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 				 */
 				time_stamp->secs  = (time_t)tvb_get_letohl(tvb, start);
 				time_stamp->nsecs = 0;
-			} else
+			} else {
+				time_stamp->secs  = 0;
+				time_stamp->nsecs = 0;
 				report_type_length_mismatch(tree, "a timespec", length, (length < 4));
+			}
 			break;
 
 		case ENC_TIME_NTP|ENC_BIG_ENDIAN:
@@ -1782,8 +1788,11 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 				 * Backwards compatibility.
 				 */
 				time_stamp->nsecs = 0;
-			} else
+			} else {
+				time_stamp->secs  = 0;
+				time_stamp->nsecs = 0;
 				report_type_length_mismatch(tree, "an NTP time stamp", length, (length < 4));
+			}
 			break;
 
 		case ENC_TIME_NTP|ENC_LITTLE_ENDIAN:
@@ -1818,8 +1827,11 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 				 * Backwards compatibility.
 				 */
 				time_stamp->nsecs = 0;
-			} else
+			} else {
+				time_stamp->secs  = 0;
+				time_stamp->nsecs = 0;
 				report_type_length_mismatch(tree, "an NTP time stamp", length, (length < 4));
+			}
 			break;
 
 		case ENC_TIME_TOD|ENC_BIG_ENDIAN:
@@ -1835,8 +1847,11 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 				todsecs  = tvb_get_ntoh64(tvb, start) >> 12;
 				time_stamp->secs = (time_t)((todsecs  / 1000000) - TOD_BASETIME);
 				time_stamp->nsecs = (int)((todsecs  % 1000000) * 1000);
-			} else
+			} else {
+				time_stamp->secs  = 0;
+				time_stamp->nsecs = 0;
 				report_type_length_mismatch(tree, "a TOD clock time stamp", length, (length < 4));
+			}
 			break;
 
 		case ENC_TIME_TOD|ENC_LITTLE_ENDIAN:
@@ -1851,8 +1866,11 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 				todsecs  = tvb_get_letoh64(tvb, start) >> 12 ;
 				time_stamp->secs = (time_t)((todsecs  / 1000000) - TOD_BASETIME);
 				time_stamp->nsecs = (int)((todsecs  % 1000000) * 1000);
-			} else
+			} else {
+				time_stamp->secs  = 0;
+				time_stamp->nsecs = 0;
 				report_type_length_mismatch(tree, "a TOD clock time stamp", length, (length < 4));
+			}
 			break;
 
 		case ENC_TIME_RTPS|ENC_BIG_ENDIAN:
@@ -1872,8 +1890,11 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 				 * Convert 1/2^32s of a second to nanoseconds.
 				 */
 				time_stamp->nsecs = (int)(1000000000*(tvb_get_ntohl(tvb, start+4)/4294967296.0));
-			} else
+			} else {
+				time_stamp->secs  = 0;
+				time_stamp->nsecs = 0;
 				report_type_length_mismatch(tree, "an RTPS time stamp", length, (length < 4));
+			}
 			break;
 
 		case ENC_TIME_RTPS|ENC_LITTLE_ENDIAN:
@@ -1893,8 +1914,11 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 				 * Convert 1/2^32s of a second to nanoseconds.
 				 */
 				time_stamp->nsecs = (int)(1000000000*(tvb_get_letohl(tvb, start+4)/4294967296.0));
-			} else
+			} else {
+				time_stamp->secs  = 0;
+				time_stamp->nsecs = 0;
 				report_type_length_mismatch(tree, "an RTPS time stamp", length, (length < 4));
+			}
 			break;
 
 		case ENC_TIME_SECS_USECS|ENC_BIG_ENDIAN:
@@ -1907,8 +1931,11 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 			if (length == 8) {
 				time_stamp->secs  = (time_t)tvb_get_ntohl(tvb, start);
 				time_stamp->nsecs = tvb_get_ntohl(tvb, start+4)*1000;
-			} else
+			} else {
+				time_stamp->secs  = 0;
+				time_stamp->nsecs = 0;
 				report_type_length_mismatch(tree, "a timeval", length, (length < 4));
+			}
 			break;
 
 		case ENC_TIME_SECS_USECS|ENC_LITTLE_ENDIAN:
@@ -1921,8 +1948,11 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 			if (length == 8) {
 				time_stamp->secs  = (time_t)tvb_get_letohl(tvb, start);
 				time_stamp->nsecs = tvb_get_letohl(tvb, start+4)*1000;
-			} else
+			} else {
+				time_stamp->secs  = 0;
+				time_stamp->nsecs = 0;
 				report_type_length_mismatch(tree, "a timeval", length, (length < 4));
+			}
 			break;
 
 		case ENC_TIME_SECS|ENC_BIG_ENDIAN:
@@ -1935,8 +1965,11 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 			if (length >= 1 && length <= 8) {
 				time_stamp->secs  = (time_t)get_uint64_value(tree, tvb, start, length, encoding);
 				time_stamp->nsecs = 0;
-			} else
+			} else {
+				time_stamp->secs  = 0;
+				time_stamp->nsecs = 0;
 				report_type_length_mismatch(tree, "a time-in-seconds time stamp", length, (length < 4));
+			}
 			break;
 
 		case ENC_TIME_MSECS|ENC_BIG_ENDIAN:
@@ -1951,8 +1984,11 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 				msecs = get_uint64_value(tree, tvb, start, length, encoding);
 				time_stamp->secs  = (time_t)(msecs / 1000);
 				time_stamp->nsecs = (int)(msecs % 1000)*1000000;
-			} else
+			} else {
+				time_stamp->secs  = 0;
+				time_stamp->nsecs = 0;
 				report_type_length_mismatch(tree, "a time-in-milliseconds time stamp", length, (length < 4));
+			}
 			break;
 
 		case ENC_TIME_RFC_3971|ENC_BIG_ENDIAN:
@@ -1978,8 +2014,11 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 				 * precision than you actually get.
 				 */
 				time_stamp->nsecs = (int)(1000000000*(tvb_get_ntohs(tvb, start+6)/65536.0));
-			} else
+			} else {
+				time_stamp->secs  = 0;
+				time_stamp->nsecs = 0;
 				report_type_length_mismatch(tree, "an RFC 3971-style time stamp", length, (length < 4));
+			}
 			break;
 
 		case ENC_TIME_RFC_3971|ENC_LITTLE_ENDIAN:
@@ -2013,8 +2052,11 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 				 * precision than you actually get.
 				 */
 				time_stamp->nsecs = (int)(1000000000*(tvb_get_letohs(tvb, start)/65536.0));
-			} else
+			} else {
+				time_stamp->secs  = 0;
+				time_stamp->nsecs = 0;
 				report_type_length_mismatch(tree, "an RFC 3971-style time stamp", length, (length < 4));
+			}
 			break;
 
 		case ENC_TIME_SECS_NTP|ENC_BIG_ENDIAN:
@@ -2042,8 +2084,11 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 				else
 					time_stamp->secs = (time_t)((gint64)tmpsecs + NTP_TIMEDIFF1970TO2036SEC);
 				time_stamp->nsecs = 0;
-			} else
+			} else {
+				time_stamp->secs  = 0;
+				time_stamp->nsecs = 0;
 				report_type_length_mismatch(tree, "an NTP seconds-only time stamp", length, (length < 4));
+			}
 			break;
 
 		case ENC_TIME_SECS_NTP|ENC_LITTLE_ENDIAN:
@@ -2071,8 +2116,11 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 				else
 					time_stamp->secs = (time_t)((gint64)tmpsecs + NTP_TIMEDIFF1970TO2036SEC);
 				time_stamp->nsecs = 0;
-			} else
+			} else {
+				time_stamp->secs  = 0;
+				time_stamp->nsecs = 0;
 				report_type_length_mismatch(tree, "an NTP seconds-only time stamp", length, (length < 4));
+			}
 			break;
 		case ENC_TIME_MSEC_NTP | ENC_BIG_ENDIAN:
 			/*
@@ -2097,8 +2145,11 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 					time_stamp->secs = (time_t)((gint64)tmpsecs + NTP_TIMEDIFF1970TO2036SEC);
 				time_stamp->nsecs = (int)(msecs % 1000)*1000000;
 			}
-			else
+			else {
+				time_stamp->secs  = 0;
+				time_stamp->nsecs = 0;
 				report_type_length_mismatch(tree, "a time-in-milliseconds NTP time stamp", length, (length < 4));
+			}
 			break;
 		default:
 			DISSECTOR_ASSERT_NOT_REACHED();
