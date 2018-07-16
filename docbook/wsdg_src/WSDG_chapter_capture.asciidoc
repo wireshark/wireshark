@@ -478,7 +478,7 @@ The protocol used to communicate over the control pipes has a fixed size header 
   Payload length + 2 bytes for control number and command.
 
 .Control Number:
-   Unique number to identify the control. This number also gives the order of the controls in the interface toolbar.
+  Unique number to identify the control. This number also gives the order of the controls in the interface toolbar.
 
 .Commands and application for controls
 [cols="1,2,3"]
@@ -497,15 +497,15 @@ The protocol used to communicate over the control pipes has a fixed size header 
 |9 |Error message         |none
 |===
 
- Payload Length:
-   The length of the following payload.  Maximum length is 65535 bytes.
+.Payload Length:
+  The length of the following payload. Maximum length is 65535 bytes.
 
-The Initialized command will be sent from the GUI to the extcap utility when all
+The `Initialized` command will be sent from the GUI to the extcap utility when all
 user changed control values are sent after starting a capture. This is an indication
 that the GUI is ready to receive control values.
 
-The GUI will only send Initialized and Set commands.  The extcap utility shall not
-send the Initialized command.
+The GUI will only send `Initialized` and `Set` commands. The extcap utility shall not
+send the `Initialized` command.
 
 Messages with unknown control number or command will be silently ignored.
 
