@@ -503,7 +503,7 @@ MainWindow::MainWindow(QWidget *parent) :
             main_ui_->statusBar, SLOT(highlightedFieldChanged(FieldInformation *)));
     connect(wsApp, SIGNAL(captureActive(int)), this, SIGNAL(captureActive(int)));
 
-    createByteViewDialog();
+    byte_view_tab_ = new ByteViewTab(&master_split_);
 
     // Packet list and proto tree must exist before these are called.
     setMenusForSelectedPacket();
@@ -2786,11 +2786,6 @@ void MainWindow::setMwFileName(QString fileName)
 {
     mwFileName_ = fileName;
     return;
-}
-
-void MainWindow::createByteViewDialog()
-{
-    byte_view_tab_ = new ByteViewTab(&master_split_);
 }
 
 /*
