@@ -253,71 +253,52 @@ gchar **
 wmem_strsplit(wmem_allocator_t *allocator, const gchar *src,
         const gchar *delimiter, int max_tokens)
 {
-    gchar* splitted;
-    gchar* s;
+    gchar *splitted;
+    gchar *s;
     guint tokens;
-    guint str_len;
     guint sep_len;
     guint i;
-    gchar** vec;
-    enum { AT_START, IN_PAD, IN_TOKEN } state;
-    guint curr_tok = 0;
+    gchar **vec;
 
-    if (    ! src
-            || ! delimiter
-            || ! delimiter[0])
+    if (!src || !delimiter || !delimiter[0])
         return NULL;
 
-    s = splitted = wmem_strdup(allocator, src);
-    str_len = (guint) strlen(splitted);
-    sep_len = (guint) strlen(delimiter);
+    /* An empty string results in an empty vector. */
+    if (!src[0]) {
+        vec = wmem_new0(allocator, gchar *);
+        return vec;
+    }
 
-    if (max_tokens < 1) max_tokens = INT_MAX;
+    splitted = wmem_strdup(allocator, src);
+    sep_len = (guint)strlen(delimiter);
 
+    if (max_tokens < 1)
+        max_tokens = INT_MAX;
+
+    /* Calculate the number of fields. */
+    s = splitted;
     tokens = 1;
+    while (tokens < (guint)max_tokens && (s = strstr(s, delimiter))) {
+        s += sep_len;
+        tokens++;
+    }
 
+    vec = wmem_alloc_array(allocator, gchar *, tokens + 1);
 
-    while (tokens <= (guint)max_tokens && ( s = strstr(s,delimiter) )) {
+    /* Populate the array of string tokens. */
+    s = splitted;
+    vec[0] = s;
+    tokens = 1;
+    while (tokens < (guint)max_tokens && (s = strstr(s, delimiter))) {
+        for (i = 0; i < sep_len; i++)
+            s[i] = '\0';
+        s += sep_len;
+        vec[tokens] = s;
         tokens++;
 
-        for(i=0; i < sep_len; i++ )
-            s[i] = '\0';
-
-        s += sep_len;
-
     }
 
-    vec = wmem_alloc_array(allocator, gchar*,tokens+1);
-    state = AT_START;
-
-    for (i=0; i< str_len; i++) {
-        switch(state) {
-            case AT_START:
-                if (splitted[i] == '\0') {
-                    state = IN_PAD;
-                }
-                else {
-                    vec[curr_tok] = &(splitted[i]);
-                    curr_tok++;
-                    state = IN_TOKEN;
-                }
-                break;
-            case IN_TOKEN:
-                if (splitted[i] == '\0') {
-                    state = IN_PAD;
-                }
-                break;
-            case IN_PAD:
-                if (splitted[i] != '\0') {
-                    vec[curr_tok] = &(splitted[i]);
-                    curr_tok++;
-                    state = IN_TOKEN;
-                }
-                break;
-        }
-    }
-
-    vec[curr_tok] = NULL;
+    vec[tokens] = NULL;
 
     return vec;
 }

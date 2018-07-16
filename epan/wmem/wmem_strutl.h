@@ -69,7 +69,10 @@ G_GNUC_MALLOC;
 /**
  * Splits a string into a maximum of max_tokens pieces, using the given
  * delimiter. If max_tokens is reached, the remainder of string is appended
- * to the last token. Consecutive delimiters are treated as a single delimiter.
+ * to the last token. Successive tokens are not folded and will instead result
+ * in an empty string as element.
+ *
+ * Do not use with a NULL allocator, use g_strsplit instead.
  */
 WS_DLL_PUBLIC
 gchar **
