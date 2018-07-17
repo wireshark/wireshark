@@ -413,6 +413,10 @@ static int hf_icmpv6_rpl_opt_metric_nsa_object_reserved = -1;
 static int hf_icmpv6_rpl_opt_metric_nsa_object_flags = -1;
 static int hf_icmpv6_rpl_opt_metric_nsa_object_flag_a = -1;
 static int hf_icmpv6_rpl_opt_metric_nsa_object_flag_o = -1;
+static int hf_icmpv6_rpl_opt_metric_nsa_object_opttlv_object = -1;
+static int hf_icmpv6_rpl_opt_metric_nsa_object_opttlv_object_type = -1;
+static int hf_icmpv6_rpl_opt_metric_nsa_object_opttlv_object_length = -1;
+static int hf_icmpv6_rpl_opt_metric_nsa_object_opttlv_object_data = -1;
 static int hf_icmpv6_rpl_opt_metric_ne_object = -1;
 static int hf_icmpv6_rpl_opt_metric_ne_object_flags = -1;
 static int hf_icmpv6_rpl_opt_metric_ne_object_flag_i = -1;
@@ -553,6 +557,7 @@ static gint ett_icmpv6_rpl_opt = -1;
 static gint ett_icmpv6_rpl_metric_type = -1;
 static gint ett_icmpv6_rpl_metric_flags = -1;
 static gint ett_icmpv6_rpl_metric_nsa_object = -1;
+static gint ett_icmpv6_rpl_metric_nsa_object_tlv_type = -1;
 static gint ett_icmpv6_rpl_metric_ne_object = -1;
 static gint ett_icmpv6_rpl_metric_hp_object = -1;
 static gint ett_icmpv6_rpl_metric_lql_object = -1;
@@ -2572,6 +2577,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
                     /* Metric length */
                     metric_len = tvb_get_guint8(tvb, opt_offset);
                     proto_tree_add_item(metric_constraint_tree, hf_icmpv6_rpl_opt_metric_len, tvb, opt_offset, 1, ENC_BIG_ENDIAN);
+                    proto_item_set_len(ti_metric_constraint, metric_len + 4);
                     opt_offset += 1;
 
                     /* Metric/Constraint Type */
@@ -2586,9 +2592,36 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
                                 NULL
                             };
 
-                            proto_tree_add_bitmask(metric_constraint_tree, tvb, opt_offset, hf_icmpv6_rpl_opt_metric_nsa_object,
+                            proto_item *ti_metric_nsa_object =  proto_tree_add_bitmask(metric_constraint_tree, tvb, opt_offset, hf_icmpv6_rpl_opt_metric_nsa_object,
                                                     ett_icmpv6_rpl_metric_nsa_object, metric_nsa_flags, ENC_BIG_ENDIAN);
+                            proto_item_set_len(ti_metric_nsa_object, 2);
                             opt_offset += 2;
+                            metric_len -= 2;
+
+
+                            while(metric_len > 0){
+                              /* TLV */
+                              tvb_get_guint8(tvb, opt_offset);
+                              proto_item *ti_metric_nsa_tlv = proto_tree_add_item(metric_constraint_tree, hf_icmpv6_rpl_opt_metric_nsa_object_opttlv_object, tvb, opt_offset, 1, ENC_BIG_ENDIAN);
+                              proto_tree * metric_nsa_tlv_tree = proto_item_add_subtree(ti_metric_nsa_tlv, ett_icmpv6_rpl_metric_nsa_object_tlv_type);
+
+                              /* TLV type */
+                              proto_tree_add_item(metric_nsa_tlv_tree, hf_icmpv6_rpl_opt_metric_nsa_object_opttlv_object_type, tvb, opt_offset, 1, ENC_BIG_ENDIAN);
+                              opt_offset += 1;
+                              metric_len -= 1;
+
+                              /* TLV length */
+                              gint nsa_tlv_len = tvb_get_guint8(tvb, opt_offset);
+                              proto_tree_add_item(metric_nsa_tlv_tree, hf_icmpv6_rpl_opt_metric_nsa_object_opttlv_object_length, tvb, opt_offset, 1, ENC_BIG_ENDIAN);
+                              proto_item_set_len(ti_metric_nsa_tlv, nsa_tlv_len + 2);
+                              opt_offset += 1;
+                              metric_len -= 1;
+
+                              /* TLV data */
+                              proto_tree_add_item(metric_nsa_tlv_tree, hf_icmpv6_rpl_opt_metric_nsa_object_opttlv_object_data, tvb, opt_offset, nsa_tlv_len, ENC_NA);
+                              opt_offset += nsa_tlv_len;
+                              metric_len -= nsa_tlv_len;
+                            }
                             break;
                             }
                         case RPL_METRIC_NE: /* Node Energy */
@@ -5476,7 +5509,7 @@ proto_register_icmpv6(void)
           { "Metric Length", "icmpv6.rpl.opt.metric.length", FT_UINT8, BASE_DEC, NULL, 0x0,
             "The length of the object body, expressed in bytes.", HFILL }},
         { &hf_icmpv6_rpl_opt_metric_nsa_object,
-          { "Node Sate and Attribute Object","icmpv6.rpl.opt.metric.nsa.object", FT_UINT16, BASE_HEX, NULL, 0x0,
+          { "Node State and Attribute Object","icmpv6.rpl.opt.metric.nsa.object", FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
         { &hf_icmpv6_rpl_opt_metric_nsa_object_reserved,
           { "Reserved field","icmpv6.rpl.opt.metric.nsa.object.reserved", FT_UINT16, BASE_HEX, NULL, RPL_METRIC_NSA_OBJECT_RESERVED,
@@ -5490,6 +5523,18 @@ proto_register_icmpv6(void)
         { &hf_icmpv6_rpl_opt_metric_nsa_object_flag_o,
           { "Flag O", "icmpv6.rpl.opt.metric.nsa.object.flag.o", FT_BOOLEAN, 16, TFS(&tfs_set_notset), RPL_METRIC_NSA_OBJECT_FLAG_O,
             "When set, this indicates that the node is overloaded and may not be able to process traffic.", HFILL }},
+        { &hf_icmpv6_rpl_opt_metric_nsa_object_opttlv_object,
+          { "Node State and Attribute Optional TLV", "icmpv6.rpl.opt.metric.nsa.object.opttlv.object", FT_UINT8, BASE_DEC, NULL, 0x0,
+            "Optional TLV.", HFILL }},
+        { &hf_icmpv6_rpl_opt_metric_nsa_object_opttlv_object_type,
+          { "Node State and Attribute Optional TLV Type", "icmpv6.rpl.opt.metric.nsa.object.opttlv.object.type", FT_UINT8, BASE_DEC, NULL, 0x0,
+            "Optional TLV type.", HFILL }},
+        { &hf_icmpv6_rpl_opt_metric_nsa_object_opttlv_object_length,
+          { "Node State and Attribute Optional TLV Length", "icmpv6.rpl.opt.metric.nsa.object.opttlv.object.length", FT_UINT8, BASE_DEC, NULL, 0x0,
+            "The length of the option in octets excluding the Type and Length fields", HFILL }},
+        { &hf_icmpv6_rpl_opt_metric_nsa_object_opttlv_object_data,
+          { "Raw Data", "icmpv6.rpl.opt.metric.nsa.object.opttlv.object.data", FT_BYTES, BASE_NONE, NULL, 0x0,
+            "The raw data in the TLV", HFILL }},
         { &hf_icmpv6_rpl_opt_metric_ne_object,
           { "Node Energy Object","icmpv6.rpl.opt.metric.ne.object", FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
@@ -5847,6 +5892,7 @@ proto_register_icmpv6(void)
         &ett_icmpv6_rpl_metric_type,
         &ett_icmpv6_rpl_metric_flags,
         &ett_icmpv6_rpl_metric_nsa_object,
+        &ett_icmpv6_rpl_metric_nsa_object_tlv_type,
         &ett_icmpv6_rpl_metric_ne_object,
         &ett_icmpv6_rpl_metric_hp_object,
         &ett_icmpv6_rpl_metric_lql_object,
