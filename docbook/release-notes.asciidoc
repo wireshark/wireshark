@@ -153,7 +153,6 @@ The following bugs have been fixed:
 
 * CMake is unable to find LUA libraries. (wsbuglink:14983[])
 
-
 === New and Updated Features
 
 There are no new features in this release.
