@@ -117,6 +117,9 @@ EPDU-ID STRINGS=VALS(lpp_ePDU_ID_vals)
     if (len >= 4) {
       proto_tree_add_item(subtree, hf_lpp_T_accessTypes_nb_iot, accessTypes_tvb, 0, 1, ENC_BIG_ENDIAN);
     }
+    if (len >= 5) {
+      proto_tree_add_item(subtree, hf_lpp_T_accessTypes_nr, accessTypes_tvb, 0, 1, ENC_BIG_ENDIAN);
+    }
   }
 
 #.TYPE_ATTR
@@ -322,6 +325,12 @@ VerticalAccuracy/accuracy DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_uncertainty_fm
 VerticalAccuracy/confidence DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_confidence_fmt)
 
 #.TYPE_ATTR
+HorizontalAccuracyExt-r15/confidence-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_confidence_fmt)
+
+#.TYPE_ATTR
+VerticalAccuracyExt-r15/confidence-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_confidence_fmt)
+
+#.TYPE_ATTR
 ResponseTime/time DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 
 #.TYPE_ATTR
@@ -356,6 +365,9 @@ MessageSizeLimitNB-r14/measurementLimit-r14 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(
     }
     if (len >= 5) {
       proto_tree_add_item(subtree, hf_lpp_LocationSource_r13_sensor, locSource_tvb, 0, 1, ENC_BIG_ENDIAN);
+    }
+    if (len >= 6) {
+      proto_tree_add_item(subtree, hf_lpp_LocationSource_r13_ha_gnss_v15xy, locSource_tvb, 0, 1, ENC_BIG_ENDIAN);
     }
   }
 
@@ -442,6 +454,9 @@ AdditionalPath-r14/relativeTimeDifference-r14 DISPLAY=BASE_CUSTOM STRINGS=CF_FUN
     }
     if (len >= 2) {
       proto_tree_add_item(subtree, hf_lpp_T_otdoa_Mode_ue_assisted_NB_r14, otdoa_Mode_tvb, 0, 1, ENC_BIG_ENDIAN);
+    }
+    if (len >= 3) {
+      proto_tree_add_item(subtree, hf_lpp_T_otdoa_Mode_ue_assisted_NB_TDD_r15, otdoa_Mode_tvb, 0, 1, ENC_BIG_ENDIAN);
     }
   }
 
@@ -536,6 +551,83 @@ GNSS-EarthOrientationParameters/deltaUT1 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp
 
 #.TYPE_ATTR
 GNSS-EarthOrientationParameters/deltaUT1dot DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_deltaUT1dot_fmt)
+
+#.TYPE_ATTR
+GNSS-RTK-ReferenceStationInfo-r15/antenna-reference-point-ECEF-X-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_1_1000m_64_fmt)
+
+#.TYPE_ATTR
+GNSS-RTK-ReferenceStationInfo-r15/antenna-reference-point-ECEF-Y-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_1_1000m_64_fmt)
+
+#.TYPE_ATTR
+GNSS-RTK-ReferenceStationInfo-r15/antenna-reference-point-ECEF-Z-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_1_1000m_64_fmt)
+
+#.TYPE_ATTR
+GNSS-RTK-ReferenceStationInfo-r15/antennaHeight-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_1_1000m_32_fmt)
+
+#.TYPE_ATTR
+AntennaReferencePointUnc-r15/confidence-X-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_confidence_fmt)
+
+#.TYPE_ATTR
+AntennaReferencePointUnc-r15/confidence-Y-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_confidence_fmt)
+
+#.TYPE_ATTR
+AntennaReferencePointUnc-r15/confidence-Z-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_confidence_fmt)
+
+#.TYPE_ATTR
+PhysicalReferenceStationInfo-r15/physical-ARP-ECEF-X-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_1_1000m_64_fmt)
+
+#.TYPE_ATTR
+PhysicalReferenceStationInfo-r15/physical-ARP-ECEF-Y-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_1_1000m_64_fmt)
+
+#.TYPE_ATTR
+PhysicalReferenceStationInfo-r15/physical-ARP-ECEF-Z-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_1_1000m_64_fmt)
+
+#.TYPE_ATTR
+GNSS-RTK-CommonObservationInfo-r15/clockSteeringIndicator-r15 TYPE=FT_UINT8 DISPLAY=BASE_DEC STRINGS=VALS(lpp_clockSteeringIndicator_vals)
+
+#.TYPE_ATTR
+GNSS-RTK-CommonObservationInfo-r15/externalClockIndicator-r15 TYPE=FT_UINT8 DISPLAY=BASE_DEC STRINGS=VALS(lpp_externalClockIndicator_vals)
+
+#.TYPE_ATTR
+GNSS-RTK-CommonObservationInfo-r15/smoothingIndicator-r15 TYPE=FT_UINT8 DISPLAY=BASE_DEC STRINGS=VALS(lpp_smoothingIndicator_r15_vals)
+
+#.FN_BODY GNSS-RTK-CommonObservationInfo-r15/smoothingIndicator-r15 VAL_PTR = &param_tvb HF_INDEX=-1
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+
+#.FN_FTR GNSS-RTK-CommonObservationInfo-r15/smoothingIndicator-r15
+  if (param_tvb) {
+    guint bitvalue = tvb_get_bits8(param_tvb, 0, 1);
+    actx->created_item = proto_tree_add_uint(tree, hf_index, param_tvb, 0, 1, bitvalue);
+  }
+
+#.TYPE_ATTR
+GNSS-RTK-CommonObservationInfo-r15/smoothingInterval-r15 TYPE=FT_UINT8 DISPLAY=BASE_DEC STRINGS=VALS(lpp_smoothingInterval_r15_vals)
+
+#.FN_BODY GNSS-RTK-CommonObservationInfo-r15/smoothingInterval-r15 VAL_PTR = &param_tvb HF_INDEX=-1
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+
+#.FN_FTR GNSS-RTK-CommonObservationInfo-r15/smoothingInterval-r15
+  if (param_tvb) {
+    guint bitvalue = tvb_get_bits8(param_tvb, 0, 3);
+    actx->created_item = proto_tree_add_uint(tree, hf_index, param_tvb, 0, 1, bitvalue);
+  }
+
+#.TYPE_ATTR
+AuxiliaryStationElement-r15/aux-master-delta-latitude-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_aux_master_delta_fmt)
+
+#.TYPE_ATTR
+AuxiliaryStationElement-r15/aux-master-delta-longitude-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_aux_master_delta_fmt)
+
+#.TYPE_ATTR
+AuxiliaryStationElement-r15/aux-master-delta-height-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_1_1000m_32_fmt)
+
+#.TYPE_ATTR
+Aux-ARP-Unc-r15/horizontalConfidence-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_confidence_fmt)
+
+#.TYPE_ATTR
+Aux-ARP-Unc-r15/verticalConfidence-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_confidence_fmt)
 
 #.TYPE_ATTR
 GNSS-TimeModelElement/gnss-TimeModelRefTime DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_gnss_TimeModelRefTime_fmt)
@@ -1020,7 +1112,7 @@ GNSS-DataBitAssistance/gnss-TOD DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units
 GNSS-DataBitAssistance/gnss-TODfrac DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_milliseconds
 
 #.TYPE_ATTR
-GNSS-AcquisitionAssistance/confidence-r10 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_percent
+GNSS-AcquisitionAssistance/confidence-r10 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_confidence_fmt)
 
 #.TYPE_ATTR
 GNSS-AcquisitionAssistElement/doppler0 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_doppler0_fmt)
@@ -1434,6 +1526,111 @@ GridIonElement-r12/dt-r12 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_bds_GridIonEle
 #.TYPE_ATTR
 GridIonElement-r12/givei-r12 TYPE=FT_UINT8 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lpp_bds_givei_vals_ext
 
+#.TYPE_ATTR
+GNSS-RTK-SatelliteDataElement-r15/integer-ms-r15 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_milliseconds
+
+#.TYPE_ATTR
+GNSS-RTK-SatelliteDataElement-r15/rough-range-r15 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_milliseconds
+
+#.TYPE_ATTR
+GNSS-RTK-SatelliteDataElement-r15/rough-phase-range-rate-r15 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_meter_sec
+
+#.TYPE_ATTR
+GNSS-RTK-SatelliteSignalDataElement-r15/fine-PseudoRange-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_fine_PseudoRange_r15_fmt)
+
+#.TYPE_ATTR
+GNSS-RTK-SatelliteSignalDataElement-r15/fine-PhaseRange-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_fine_PhaseRange_r15_fmt)
+
+#.TYPE_ATTR
+GNSS-RTK-SatelliteSignalDataElement-r15/carrier-to-noise-ratio-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_carrier_to_noise_ratio_r15_fmt)
+
+#.TYPE_ATTR
+GNSS-RTK-SatelliteSignalDataElement-r15/fine-PhaseRangeRate-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_fine_PhaseRangeRate_r15_fmt)
+
+#.TYPE_ATTR
+GLO-RTK-BiasInformation-r15/l1-ca-cpBias-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_cpBias_r15_fmt)
+
+#.TYPE_ATTR
+GLO-RTK-BiasInformation-r15/l1-p-cpBias-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_cpBias_r15_fmt)
+
+#.TYPE_ATTR
+GLO-RTK-BiasInformation-r15/l2-ca-cpBias-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_cpBias_r15_fmt)
+
+#.TYPE_ATTR
+GLO-RTK-BiasInformation-r15/l2-p-cpBias-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_cpBias_r15_fmt)
+
+#.TYPE_ATTR
+Geometric-Ionospheric-Corrections-Differences-Element-r15/ambiguityStatusFlag-r15 TYPE=FT_UINT8 DISPLAY=BASE_DEC STRINGS=VALS(lpp_ambiguityStatusFlag_r15_vals)
+
+#.TYPE_ATTR
+Geometric-Ionospheric-Corrections-Differences-Element-r15/geometricCarrierPhaseCorrectionDifference-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_1_2000m_fmt)
+
+#.TYPE_ATTR
+Geometric-Ionospheric-Corrections-Differences-Element-r15/ionosphericCarrierPhaseCorrectionDifference-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_1_2000m_fmt)
+
+#.TYPE_ATTR
+RTK-Residuals-Element-r15/s-oc-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_1_2000m_fmt)
+
+#.TYPE_ATTR
+RTK-Residuals-Element-r15/s-od-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_1_100ppm_fmt)
+
+#.TYPE_ATTR
+RTK-Residuals-Element-r15/s-oh-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_1_10ppm_fmt)
+
+#.TYPE_ATTR
+RTK-Residuals-Element-r15/s-lc-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_1_2000m_fmt)
+
+#.TYPE_ATTR
+FKP-Gradients-Element-r15/north-geometric-gradient-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_1_100ppm_fmt)
+
+#.TYPE_ATTR
+FKP-Gradients-Element-r15/east-geometric-gradient-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_1_100ppm_fmt)
+
+#.TYPE_ATTR
+FKP-Gradients-Element-r15/north-ionospheric-gradient-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_1_100ppm_fmt)
+
+#.TYPE_ATTR
+FKP-Gradients-Element-r15/east-ionospheric-gradient-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_1_100ppm_fmt)
+
+#.TYPE_ATTR
+GNSS-SSR-OrbitCorrections-r15/ssrUpdateInterval-r15 TYPE=FT_UINT8 DISPLAY=BASE_DEC STRINGS=VALS(lpp_ssrUpdateInterval_r15_vals)
+
+#.TYPE_ATTR
+SSR-OrbitCorrectionSatelliteElement-r15/delta-radial-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_1_10000m_fmt)
+
+#.TYPE_ATTR
+SSR-OrbitCorrectionSatelliteElement-r15/delta-AlongTrack-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_4_10000m_fmt)
+
+#.TYPE_ATTR
+SSR-OrbitCorrectionSatelliteElement-r15/delta-CrossTrack-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_4_10000m_fmt)
+
+#.TYPE_ATTR
+SSR-OrbitCorrectionSatelliteElement-r15/dot-delta-radial-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_1_1000000m_s_fmt)
+
+#.TYPE_ATTR
+SSR-OrbitCorrectionSatelliteElement-r15/dot-delta-AlongTrack-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_4_1000000m_s_fmt)
+
+#.TYPE_ATTR
+SSR-OrbitCorrectionSatelliteElement-r15/dot-delta-CrossTrack-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_4_1000000m_s_fmt)
+
+#.TYPE_ATTR
+GNSS-SSR-ClockCorrections-r15/ssrUpdateInterval-r15 TYPE=FT_UINT8 DISPLAY=BASE_DEC STRINGS=VALS(lpp_ssrUpdateInterval_r15_vals)
+
+#.TYPE_ATTR
+SSR-ClockCorrectionSatelliteElement-r15/delta-Clock-C0-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_1_10000m_fmt)
+
+#.TYPE_ATTR
+SSR-ClockCorrectionSatelliteElement-r15/delta-Clock-C1-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_1_1000000m_s_fmt)
+
+#.TYPE_ATTR
+SSR-ClockCorrectionSatelliteElement-r15/delta-Clock-C2-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_2_100000000m_s2_fmt)
+
+#.TYPE_ATTR
+GNSS-SSR-CodeBias-r15/ssrUpdateInterval-r15 TYPE=FT_UINT8 DISPLAY=BASE_DEC STRINGS=VALS(lpp_ssrUpdateInterval_r15_vals)
+
+#.TYPE_ATTR
+SSR-CodeBiasSignalElement-r15/codeBias-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_1_100000m_fmt)
+
 #.FN_FTR StoredNavListInfo/gnss-WeekOrDay
   proto_item_append_text(actx->created_item, " (days for glonass, weeks otherwise)");
 
@@ -1487,6 +1684,32 @@ GNSS-SatMeasElement/doppler DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_doppler_fmt)
 
 #.TYPE_ATTR
 GNSS-SatMeasElement/adr DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_adr_fmt)
+
+#.TYPE_ATTR
+GNSS-SatMeasElement/eag_1/adrMSB-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_adrMSB_r15_fmt)
+
+#.TYPE_ATTR
+GNSS-SatMeasElement/eag_1/adrRMSerror-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_adr_fmt)
+
+#.TYPE_ATTR
+GNSS-SatMeasElement/eag_1/delta-codePhase-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_GNSS_SatMeas_delta_codePhase_r15_fmt)
+
+#.FN_BODY A-GNSS-ProvideCapabilities/eag_2/periodicAssistanceData-r15 VAL_PTR = &periodicAssistanceData_tvb LEN_PTR = &len
+  tvbuff_t *periodicAssistanceData_tvb = NULL;
+  int len;
+
+%(DEFAULT_BODY)s
+  if(periodicAssistanceData_tvb){
+    proto_tree *subtree;
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_lpp_bitmap);
+    if (len >= 1) {
+      proto_tree_add_item(subtree, hf_lpp_T_periodicAssistanceData_r15_solicited, periodicAssistanceData_tvb, 0, 1, ENC_BIG_ENDIAN);
+    }
+    if (len >= 2) {
+      proto_tree_add_item(subtree, hf_lpp_T_periodicAssistanceData_r15_unsolicited, periodicAssistanceData_tvb, 0, 1, ENC_BIG_ENDIAN);
+    }
+  }
 
 #.FN_BODY GNSS-IonosphericModelSupport/ionoModel VAL_PTR = &ionoModel_tvb LEN_PTR = &len
   tvbuff_t *ionoModel_tvb = NULL;
@@ -1655,6 +1878,12 @@ GNSS-SatMeasElement/adr DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_adr_fmt)
     }
   }
 
+#.TYPE_ATTR
+GNSS-PeriodicControlParam-r15/deliveryAmount-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_deliveryAmount_r15_fmt)
+
+#.TYPE_ATTR
+GNSS-PeriodicControlParam-r15/deliveryInterval-r15 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+
 #.FN_BODY SBAS-IDs/sbas-IDs VAL_PTR = &sbas_IDs_tvb LEN_PTR = &len
   tvbuff_t *sbas_IDs_tvb = NULL;
   int len;
@@ -1819,6 +2048,27 @@ Sensor-MeasurementInformation-r13/eag_1/uncertainty-r14/range-r14 DISPLAY=BASE_D
 
 #.TYPE_ATTR
 Sensor-MeasurementInformation-r13/eag_1/uncertainty-r14/confidence-r14 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_confidence_fmt)
+
+#.TYPE_ATTR
+Displacement-r15/bearing-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_1_10_degrees_fmt)
+
+#.TYPE_ATTR
+Displacement-r15/bearingUncConfidence-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_confidence_fmt)
+
+#.TYPE_ATTR
+Displacement-r15/horizontalDistance-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_1_100_m_fmt)
+
+#.TYPE_ATTR
+Displacement-r15/horizontalUncConfidence-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_confidence_fmt)
+
+#.TYPE_ATTR
+Displacement-r15/verticalDistance-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_1_100_m_fmt)
+
+#.TYPE_ATTR
+Displacement-r15/verticalUncConfidence-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_confidence_fmt)
+
+#.TYPE_ATTR
+UTC-Time-r15/utcTime-ms-r15 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_milliseconds
 
 #.FN_BODY MBS-AlmanacAssistance-r14/transmitterLatitude-r14 VAL_PTR = &transmitterLatitude_tvb HF_INDEX=-1
   tvbuff_t *transmitterLatitude_tvb = NULL;
