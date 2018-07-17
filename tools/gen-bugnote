@@ -10,7 +10,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 
-bz_url_pfx="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id="
+bz_url_pfx="https://bugs.wireshark.org/bugzilla/show_bug.cgi"
 bug_id="$1"
 
 recode_cmd="cat"
@@ -33,12 +33,12 @@ case "$OSTYPE" in
 esac
 
 if [ -z "$bug_id" ] ; then
-    echo "Usage: " `basename $0` " <bug id>"
+    echo "Usage: $( basename "$0" ) <bug id>"
     exit 1
 fi
 
 bug_title=$(
-    curl -s -o - "https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=$bug_id" \
+    curl -s -o - "${bz_url_pfx}?id=$bug_id" \
     | grep -i '<title>' \
     | sed \
         -e 's/{/\\{/' \
@@ -48,7 +48,7 @@ bug_title=$(
         -e 's/\\/{backslash}/' \
     )
 
-echo -e "* $bug_title (wsbuglink:$bug_id[])\n" \
+echo -e "* $bug_title wsbuglink:${bug_id}[].\\n" \
         | $recode_cmd \
         | $clipboard_cmd
 

@@ -19,13 +19,103 @@ The following vulnerabilities have been fixed:
 
 * wssalink:2018-34[]
 +
-A dissector went awry.
-(wsbuglink:xxxx[])
-// cveidlink:2018-xxxx[]
-// Fixed in master: xxxx
-// Fixed in master-2.6: xxxx
-// Fixed in master-2.4: xxxx
-// Fixed in master-2.2: xxxx
+BGP dissector large loop.
+wsbuglink:13741[].
+cveidlink:2018-14342[].
+// Fixed in master: 6e88943d0e
+// Fixed in master-2.6: c280333ba6
+// Fixed in master-2.4: 5eb6f114a0
+// Fixed in master-2.2: 36af43dbb7
+
+* wssalink:2018-35[]
++
+ISMP dissector crash.
+wsbuglink:14672[].
+cveidlink:2018-14344[].
+// Fixed in master: e67283ddca
+// Fixed in master-2.6: 320a890cd7
+// Fixed in master-2.4: 2e0827cfb7
+// Fixed in master-2.2: 4f7153685b
+
+* wssalink:2018-36[]
++
+Multiple dissectors could crash.
+wsbuglink:14675[].
+cveidlink:2018-14340[].
+// Fixed in master: 9ee790e99c
+// Fixed in master-2.6: ff72047c3d
+// Fixed in master-2.4: f6e92b212f
+// Fixed in master-2.2: 672d882a53
+
+* wssalink:2018-37[]
++
+ASN.1 BER dissector crash.
+wsbuglink:14682[].
+cveidlink:2018-14343[].
+// Fixed in master: 67c6420473
+// Fixed in master-2.6: 8c23abe395
+// Fixed in master-2.4: ed9ecccaa4
+// Fixed in master-2.2: 9402f2f80c
+
+* wssalink:2018-38[]
++
+MMSE dissector infinite loop.
+wsbuglink:14738[].
+cveidlink:2018-14339[].
+// Fixed in master: many
+// Fixed in master-2.6: many
+// Fixed in master-2.4: many
+// Fixed in master-2.2: many
+
+* wssalink:2018-39[]
++
+DICOM dissector crash.
+wsbuglink:14742[].
+cveidlink:2018-14341[].
+// Fixed in master: 25118898a9
+// Fixed in master-2.6: fa315d638e
+// Fixed in master-2.4: c1afa79ccc
+// Fixed in master-2.2: 2e716c32be
+
+* wssalink:2018-40[]
++
+Bazaar dissector infinite loop.
+wsbuglink:14841[].
+// cveidlink:2018-xxxx[].
+// Fixed in master: a03eacc7aa
+// Fixed in master-2.6: 470d59e651
+// Fixed in master-2.4: 8d626dc546
+// Fixed in master-2.2: 6c44312f46
+
+* wssalink:2018-41[]
++
+HTTP2 dissector crash.
+wsbuglink:14869[].
+// cveidlink:2018-xxxx[].
+// Fixed in master: e281ca6f83
+// Fixed in master-2.6: 9169aef3f1
+// Fixed in master-2.4: 169d271f1f
+// Fixed in master-2.2: 038cd225bf
+
+* wssalink:2018-42[]
++
+CoAP dissector crash.
+wsbuglink:14966[].
+// cveidlink:2018-xxxx[].
+// Fixed in master: b9c18a4188
+// Fixed in master-2.6: e8c61fb24c
+// Fixed in master-2.4: 81ce5fcb3e
+// Fixed in master-2.2: N/A
+
+* wssalink:2018-43[]
++
+IEEE 802.11 dissector crash.
+wsbuglink:14686[].
+// cveidlink:2018-xxxx[].
+// Fixed in master: f440561b8c
+// Fixed in master-2.6: 1b52f99292
+// Fixed in master-2.4: b1446124ee
+// Fixed in master-2.2: Not backported
 
 The following bugs have been fixed:
 
@@ -33,8 +123,87 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark convinced you to switch seats on the plane while neglecting to tell you that its seat was noticeably moist.
-// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.6.2rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do ./tools/gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.6.3rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do ./tools/gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
+* ISMP.EDP "Tuples" dissected incorrectly. wsbuglink:4943[].
+
+* Wireshark - Race issue when switching between files using Wireshark's "Files in Set" dialog. wsbuglink:10870[].
+
+* Sorting on "Source port" or "Destination port" column sorts alphabetically, not numerically. wsbuglink:11460[].
+
+* Wireshark crashes when changing profiles. wsbuglink:11648[].
+
+* Crash when starting capture while saving capture file or rescanning file after display filter change. wsbuglink:13594[].
+
+* Crash when switching to TRANSUM enabled profile. wsbuglink:13697[].
+
+* TCP retransmission with additional payload leads to incorrect bytes and length in stream. wsbuglink:13700[].
+
+* Wireshark crashes with single quote string display filter. wsbuglink:14084[].
+
+* randpkt can write packets that libwiretap can't read. wsbuglink:14107[].
+
+* Wireshark crashes when loading new file before previous load has finished. wsbuglink:14351[].
+
+* Valid packet produces Malformed Packet: OpcUa. wsbuglink:14465[].
+
+* Error received from dissect_wccp2_hash_assignment_info(). wsbuglink:14573[].
+
+* CRC checker wrong for FPP. wsbuglink:14610[].
+
+* Cross-build broken due to make-dissectors and make-taps. wsbuglink:14622[].
+
+* Extraction of SMB file results in wrong size. wsbuglink:14662[].
+
+* 6LoWPAN dissector merges fragments from different sources. wsbuglink:14700[].
+
+* IP address to name resolution doesn't work in TShark. wsbuglink:14711[].
+
+* "Decode as" Modbus RTU over USB doesn't work with 2.6.0 but with 2.4.6. wsbuglink:14717[].
+
+* proto_tree_add_protocol_format might leak memory. wsbuglink:14719[].
+
+* tostring for NSTime objects in lua gives wrong results. wsbuglink:14720[].
+
+* Media type "application/octet-stream" registered for both Thread and UASIP. wsbuglink:14729[].
+
+* Crash related to SCTP tap. wsbuglink:14733[].
+
+* Formatting of OSI area addresses/address prefixes goes past the end of the area address/address prefix. wsbuglink:14744[].
+
+* ICMPv6 Router Renumbering - Packet Dissector - malformed. wsbuglink:14755[].
+
+* WiMAX HARQ MAP decoder segfaults when length is too short. wsbuglink:14780[].
+
+* HTTP PUT request following a HEAD request is not correctly decoded. wsbuglink:14793[].
+
+* SYNC PDU type 3 miss the last PDU length. wsbuglink:14823[].
+
+* Reversed 128 bits service UUIDs when Bluetooth Low Energy advertisement data are dissected. wsbuglink:14843[].
+
+* Issues with Wireshark when the user doesn't have permission to capture. wsbuglink:14847[].
+
+* Wrong description when LE Bluetooth Device Address type is dissected. wsbuglink:14866[].
+
+* LE Role advertisement type (0x1c) is not dissected properly according to the Bluetooth specification. wsbuglink:14868[].
+
+* Regression: Wireshark 2.6.0 and 2.6.1 are unable to read NetMon files which were readable by previous versions. wsbuglink:14876[].
+
+* Wireshark doesn't properly display (deliberately) invalid 220 responses from Postfix. wsbuglink:14878[].
+
+* Follow TCP Stream and click reassembled content moves you to incorrect current packet. wsbuglink:14898[].
+
+* Crash when changing profiles while loading a capture file. wsbuglink:14918[].
+
+* Duplicate PDU during C Arrays Output Export. wsbuglink:14933[].
+
+* DCE/RPC not dissected when "reserved for use by implementations" flag bits set. wsbuglink:14942[].
+
+* Follow TCP Stream truncates output on missing (but ACKed) segments. wsbuglink:14944[].
+
+* There's no option to include column headings when printing packets or exporting packet dissections with Qt Wireshark. wsbuglink:14945[].
+
+* CMake is unable to find LUA libraries. wsbuglink:14983[].
 
 
 === New and Updated Features
@@ -54,6 +223,55 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
+6LoWPAN
+ASN.1 BER
+Bazaar
+BGP
+Bluetooth
+Bluetooth HCI_CMD
+CIGI
+Cisco ttag
+CoAP
+Data
+DCERPC
+DICOM
+Diameter 3GPP
+DOCSIS
+FPP
+GSM A GM
+GTPv2
+HTTP
+HTTP2
+IAX2
+ICMPv6
+IEEE 1722
+IEEE 802.11
+IPv4
+ISMP
+LISP
+MMSE
+MTP3
+MySQL
+NFS
+OpcUa
+PPI GPS
+Q.931
+RNSAP
+RPCoRDMA
+S1AP
+SCTP
+SMB
+SMTP
+STUN
+SYNC
+T.30
+TCP
+TRANSUM
+WAP
+WCCP
+WiMax HARQ Map Message
+Wi-SUN
+WSP
 --
 
 === New and Updated Capture File Support
@@ -62,6 +280,8 @@ There are no new protocols in this release.
 // Add one file type per line between the -- delimiters.
 [commaize]
 --
+Alcatel-Lucent Ascend
+Microsoft Network Monitor
 --
 
 === New and Updated Capture Interfaces support
@@ -96,21 +316,21 @@ locations on your system.
 == Known Problems
 
 The BER dissector might infinitely loop.
-(wsbuglink:1516[])
+wsbuglink:1516[].
 
 Capture filters aren't applied when capturing from named pipes.
-(wsbuglink:1814[])
+wsbuglink:1814[].
 
 Filtering tshark captures with read filters (`-R`) no longer works.
-(wsbuglink:2234[])
+wsbuglink:2234[].
 
 Application crash when changing real-time option.
-(wsbuglink:4035[])
+wsbuglink:4035[].
 
 Wireshark and TShark will display incorrect delta times in some cases.
-(wsbuglink:4985[])
+wsbuglink:4985[].
 
-Wireshark should let you work with multiple capture files. (wsbuglink:10488[])
+Wireshark should let you work with multiple capture files. wsbuglink:10488[].
 
 == Getting Help
 
