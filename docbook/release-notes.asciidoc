@@ -78,7 +78,7 @@ cveidlink:2018-14341[].
 +
 Bazaar dissector infinite loop.
 wsbuglink:14841[].
-// cveidlink:2018-xxxx[].
+cveidlink:2018-14368[].
 // Fixed in master: a03eacc7aa
 // Fixed in master-2.6: 470d59e651
 // Fixed in master-2.4: 8d626dc546
@@ -88,7 +88,7 @@ wsbuglink:14841[].
 +
 HTTP2 dissector crash.
 wsbuglink:14869[].
-// cveidlink:2018-xxxx[].
+cveidlink:2018-14369[].
 // Fixed in master: e281ca6f83
 // Fixed in master-2.6: 9169aef3f1
 // Fixed in master-2.4: 169d271f1f
@@ -98,13 +98,11 @@ wsbuglink:14869[].
 +
 CoAP dissector crash.
 wsbuglink:14966[].
-// cveidlink:2018-xxxx[].
+cveidlink:2018-14367[].
 // Fixed in master: b9c18a4188
 // Fixed in master-2.6: e8c61fb24c
 // Fixed in master-2.4: 81ce5fcb3e
 // Fixed in master-2.2: N/A
-
-* [oss-fuzz] ASAN: heap-buffer-overflow epan/crypt/dot11decrypt.c:2187:9 in Dot11DecryptTDLSDeriveKey. (wsbuglink:14686[])
 
 * wssalink:2018-43[]
 +
@@ -175,8 +173,6 @@ The following bugs have been fixed:
 * There's no option to include column headings when printing packets or exporting packet dissections with Qt Wireshark. (wsbuglink:14945[])
 
 * CMake is unable to find LUA libraries. (wsbuglink:14983[])
-
-
 
 === New and Updated Features
 
