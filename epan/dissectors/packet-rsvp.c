@@ -77,6 +77,13 @@
  * Jul 20, 2013: add support for Exclude Routes (XRO) (see RFC 4874)
  * (FF) <francesco.fondelli[AT]gmail.com>
  *
+ * Added support for "Ethernet line" LSP encoding (RFC 6004)
+ * Added support for flexi-grid label (RFC 7699)
+ * Added support for codepoint for network-assigned label (RFC 8359)
+ * Added support for clean-up and bug fixes on ERO/RRO/XRO
+ * Added support for full support of RFC 8001, including error code
+ *   - (c) 2018 Julien Meuric <julien.meuric@orange.com>
+ *   - (c) 2018 Khalifa Ndiaye <khalifa.ndiaye@orange.com>
  */
 
 
@@ -171,10 +178,15 @@ static int hf_rsvp_lsp_attr_preplanned = -1;
 static int hf_rsvp_lsp_attr_nophp = -1;
 static int hf_rsvp_lsp_attr_oobmap = -1;
 static int hf_rsvp_lsp_attr_entropy = -1;
+static int hf_rsvp_lsp_attr_oammep = -1;
+static int hf_rsvp_lsp_attr_oammip = -1;
+static int hf_rsvp_lsp_attr_loopback = -1;
+static int hf_rsvp_lsp_attr_p2mp = -1;
+static int hf_rsvp_lsp_attr_rtm = -1;
+static int hf_rsvp_lsp_attr_lsi = -1;
+static int hf_rsvp_lsp_attr_lsids2e = -1;
+static int hf_rsvp_lsp_attr_telinklabel = -1;
 static int hf_rsvp_lsp_attr_srlgcollect = -1;
-static int hf_rsvp_lsp_attr_costcollect = -1;
-static int hf_rsvp_lsp_attr_latcollect = -1;
-static int hf_rsvp_lsp_attr_latvarcollect = -1;
 static int hf_rsvp_gen_uni_direction = -1;
 static int hf_rsvp_protection_info_flags_secondary_lsp = -1;
 static int hf_rsvp_pi_link_flags_extra_traffic = -1;
@@ -256,13 +268,11 @@ static int hf_rsvp_3gpp_qos_attribute_reserved = -1;
 static int hf_rsvp_3gpp_r_qos_blob = -1;
 static int hf_rsvp_3gpp_qos_result = -1;
 static int hf_rsvp_xro_sobj_lbit = -1;
-static int hf_rsvp_xro_sobj_type = -1;
+static int hf_rsvp_rro_sobj_dbit = -1;
 static int hf_rsvp_xro_sobj_len = -1;
 static int hf_rsvp_xro_sobj_ipv4_addr = -1;
 static int hf_rsvp_xro_sobj_ipv4_prefix = -1;
 static int hf_rsvp_xro_sobj_ipv4_attr = -1;
-static int hf_rsvp_xro_sobj_ipv6_addr = -1;
-static int hf_rsvp_xro_sobj_ipv6_prefix = -1;
 static int hf_rsvp_xro_sobj_ipv6_attr = -1;
 static int hf_rsvp_xro_sobj_srlg_id = -1;
 static int hf_rsvp_xro_sobj_srlg_res = -1;
@@ -520,6 +530,7 @@ static int hf_rsvp_label_request_data = -1;
 static int hf_rsvp_restart_cap_data = -1;
 static int hf_rsvp_lsp_attributes_tlv = -1;
 static int hf_rsvp_flowspec_mtu = -1;
+static int hf_rsvp_flowspec_m = -1;
 static int hf_rsvp_tspec_service_header = -1;
 static int hf_rsvp_eth_tspec_cbs = -1;
 static int hf_rsvp_call_id_national_segment = -1;
@@ -580,8 +591,12 @@ static int hf_rsvp_adspec_uint = -1;
 static int hf_rsvp_adspec_float = -1;
 static int hf_rsvp_adspec_bytes = -1;
 static int hf_rsvp_wavelength_grid = -1;
+static int hf_rsvp_wavelength_cs1 = -1;
+static int hf_rsvp_wavelength_cs2 = -1;
+static int hf_rsvp_wavelength_cs3 = -1;
 static int hf_rsvp_wavelength_channel_spacing = -1;
 static int hf_rsvp_wavelength_n = -1;
+static int hf_rsvp_wavelength_m = -1;
 static int hf_rsvp_wavelength_freq = -1;
 static int hf_rsvp_wavelength_wavelength = -1;
 static int hf_rsvp_sonet_s = -1;
@@ -826,7 +841,7 @@ static const enum_val_t rsvp_generalized_label_options[] = {
     /* see RFC 4606 Section 3 */
     { "SUKLM", "SONET/SDH (\"S, U, K, L, M\" scheme)", 2 },
     /* see I-D draft-ietf-ccamp-gmpls-g-694-lambda-labels-05 */
-    { "G694", "Wavelength Label (G.694 frequency grid)", 3 },
+    { "G694", "Wavelength Label (fixed or flexi grid)", 3 },
     /* see RFC 4328 Section 4.1 */
     { "G709", "ODUk Label", 4 },
     { NULL, NULL, 0 }
@@ -945,7 +960,7 @@ enum rsvp_classes {
     RSVP_CLASS_CHALLENGE,
     RSVP_CLASS_DIFFSERV,
     RSVP_CLASS_CLASSTYPE, /* FF: RFC4124 */
-    RSVP_CLASS_LSP_REQUIRED_ATTRIBUTES,
+    RSVP_CLASS_LSP_REQUIRED_ATTRIBUTES = 67,
 
     /* 68-123  Unassigned */
 
@@ -1068,9 +1083,9 @@ static const value_string rsvp_class_vals[] = {
 */
     { RSVP_CLASS_DIFFSERV,              "DIFFSERV object"},
     { RSVP_CLASS_CLASSTYPE,             "CLASSTYPE object"},
-/*
-    RSVP_CLASS_LSP_REQUIRED_ATTRIBUTES,
-*/
+
+    { RSVP_CLASS_LSP_REQUIRED_ATTRIBUTES, "LSP REQUIRED ATTRIBUTES object"},
+
 
     { RSVP_CLASS_VENDOR_PRIVATE_1,      "VENDOR PRIVATE object (0bbbbbbb: "
                                         "reject if unknown)"},
@@ -1251,6 +1266,7 @@ static const value_string rsvp_policy_control_error_vals[] = {
     {  18, "Reservation Style was rejected"},
     {  19, "FlowSpec was rejected (too large)"},
     {  20, "Hard Pre-empted"},
+    {  21, "SRLG Recording Rejected"},
     { 100, "Unauthorized sender"},
     { 101, "Unauthorized receiver"},
     { 102, "ERR_PARTIAL_PREEMPT"},
@@ -1539,7 +1555,8 @@ const range_string gmpls_lsp_enc_rvals[] = {
     {  11,  11, "FiberChannel" },
     {  12,  12, "G.709 ODUk (Digital Path)" },
     {  13,  13, "G.709 Optical Channel" },
-    {  14, 239, "Unassigned" },
+    {  14,  14, "Ethernet Line (EPL Type 2)" },
+    {  15, 239, "Unassigned" },
     { 240, 255, "Experimental Usage/temporarily" },
     {   0,   0, NULL }
 };
@@ -1566,7 +1583,9 @@ const range_string gmpls_switching_type_rvals[] = {
     { 125, 125, "Data Channel Switching Capable (DCSC)" },
     { 126, 149, "Unassigned" },
     { 150, 150, "Lambda-Switch Capable (LSC)" },
-    { 151, 169, "Unassigned" },
+    { 151, 151, "WSON-LSC"},
+    { 152, 152, "Flexi-Grid-LSC"},
+    { 153, 169, "Unassigned" },
     { 200, 200, "Fiber-Switch Capable (FSC)" },
     { 201, 255, "Unassigned" },
     {   0,   0, NULL }
@@ -1709,6 +1728,13 @@ static const range_string gmpls_g709_signal_type_rvals[] = {
 static const value_string rsvp_xro_sobj_lbit_vals[] = {
     { 1, "Should be avoided" },
     { 0, "Must be excluded" },
+    { 0, NULL }
+};
+
+/* RRO related */
+static const value_string rsvp_rro_sobj_dbit_vals[] = {
+    { 1, "Upstream direction" },
+    { 0, "Downstream direction" },
     { 0, NULL }
 };
 
@@ -3850,6 +3876,7 @@ dissect_rsvp_tspec(proto_item *ti, packet_info* pinfo, proto_tree *rsvp_object_t
     int         mylen;
     proto_tree *tspec_tree, *ti2 = NULL;
     guint8      signal_type;
+    guint16     m;
     proto_item *hidden_item;
 
     hidden_item = proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype, tvb, offset+3, 1, ENC_BIG_ENDIAN);
@@ -4028,7 +4055,7 @@ dissect_rsvp_tspec(proto_item *ti, packet_info* pinfo, proto_tree *rsvp_object_t
                                tvb_get_ntohs(tvb, offset2 + 6));
         break;
 
-    case 6:   /* Ethernet TSPEC (RFC6003)  */
+    case 6: /* Ethernet TSPEC (RFC6003)  */
         proto_item_set_text(ti, "SENDER TSPEC: Ethernet, ");
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype_tspec, tvb, offset+3, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_switching_granularity, tvb, offset2, 2, ENC_BIG_ENDIAN);
@@ -4036,6 +4063,16 @@ dissect_rsvp_tspec(proto_item *ti, packet_info* pinfo, proto_tree *rsvp_object_t
 
         dissect_rsvp_eth_tspec_tlv(ti, pinfo, rsvp_object_tree, tvb, offset+8, obj_length-8,
                                    TREE(TT_TSPEC_SUBTREE));
+        break;
+
+    case 8: /* SSON FOWSPEC (RFC7762)*/
+        m = tvb_get_ntohs(tvb, offset2);
+        proto_item_set_text(ti, "SENDER TSPEC: SSON, ");
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype_flowspec, tvb, offset+3, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_flowspec_m, tvb, offset2, 2, ENC_BIG_ENDIAN);
+        proto_item_append_text(ti, "slot width (m) = %f (%d)",
+                               m*12.5,
+                               tvb_get_ntohs(tvb, offset2));
         break;
 
     default: /* Unknown TSpec */
@@ -4059,6 +4096,7 @@ dissect_rsvp_flowspec(proto_item *ti, packet_info* pinfo, proto_tree *rsvp_objec
     int         mylen, signal_type;
     proto_tree *flowspec_tree, *ti2 = NULL;
     proto_item *hidden_item;
+    guint16 m;
 
     hidden_item = proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype, tvb, offset+3, 1, ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
@@ -4253,7 +4291,7 @@ dissect_rsvp_flowspec(proto_item *ti, packet_info* pinfo, proto_tree *rsvp_objec
                                tvb_get_ntohs(tvb, offset2 + 6));
         break;
 
-    case 6:   /* Ethernet FLOWSPEC (RFC6003)  */
+    case 6: /* Ethernet FLOWSPEC (RFC6003)  */
         proto_item_set_text(ti, "FLOWSPEC: Ethernet, ");
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype_flowspec, tvb, offset+3, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_switching_granularity, tvb, offset2, 2, ENC_BIG_ENDIAN);
@@ -4261,6 +4299,15 @@ dissect_rsvp_flowspec(proto_item *ti, packet_info* pinfo, proto_tree *rsvp_objec
 
         dissect_rsvp_eth_tspec_tlv(ti, pinfo, rsvp_object_tree, tvb, offset+8, obj_length-8,
                                    TREE(TT_FLOWSPEC_SUBTREE));
+        break;
+    case 8: /* SSON FOWSPEC (RFC7762)*/
+        m = tvb_get_ntohs(tvb, offset2);
+        proto_item_set_text(ti, "FLOWSPEC: SSON, ");
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype_flowspec, tvb, offset+3, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_flowspec_m, tvb, offset2, 2, ENC_BIG_ENDIAN);
+        proto_item_append_text(ti, "slot width (m) = %f (%d)",
+                               m*12.5,
+                               tvb_get_ntohs(tvb, offset2));
         break;
 
     default:
@@ -4522,6 +4569,23 @@ dissect_rsvp_label_request(proto_item *ti, proto_tree *rsvp_object_tree,
 static const value_string lambda_grid_vals[] = {
     {   1, "DWDM"},
     {   2, "CWDM"},
+    {   3, "Flexi"},
+    {   0, NULL }
+};
+
+static const value_string grid1_cs_vals[] = {
+    {   1, "100GHz"},
+    {   2, "50GHz"},
+    {   3, "25GHz"},
+    {   4, "12.5GHz"},
+    {   0, NULL }
+};
+static const value_string grid2_cs_vals[] = {
+    {   1, "20nm"},
+    {   0, NULL }
+};
+static const value_string grid3_cs_vals[] = {
+    {   5, "6.25GHz"},
     {   0, NULL }
 };
 
@@ -4530,65 +4594,60 @@ dissect_glabel_lambda(proto_tree *ti, proto_tree *rsvp_object_tree,
                       tvbuff_t *tvb,
                       int offset)
 {
-    float   freq       = 0.0f;
+    float freq = 0.0f;
+    float slot_width = 0.0f;
     guint32 wavelength = 0;
-    float   cs_thz     = 0.0f;
-    proto_tree* wavelength_tree;
+    float cs_thz = 0.0f;
+    proto_tree *wavelength_tree;
     guint8 grid, cs;
-    gint16 n;
-    static const value_string grid1_cs_vals[] = {
-        {   1, "100GHz"},
-        {   2, "50GHz"},
-        {   3, "25GHz"},
-        {   4, "12.5GHz"},
-        {   0, NULL }
-    };
-    static const value_string grid2_cs_vals[] = {
-        {   1, "20nm"},
-        {   0, NULL }
-    };
+    gint16 n, m;
+
+
+
+    grid = ((tvb_get_guint8(tvb, offset) & 0xE0) >> 5);
+    cs = ((tvb_get_guint8(tvb, offset) & 0x1E) >> 1);
+    n = tvb_get_ntohs(tvb, offset + 2);
 
     wavelength_tree = proto_tree_add_subtree(rsvp_object_tree, tvb, offset, 4, TREE(TT_WAVELENGTH), NULL, "Wavelength Label");
     proto_tree_add_item(wavelength_tree, hf_rsvp_wavelength_grid, tvb, offset, 1, ENC_NA);
 
-    grid = ((tvb_get_guint8(tvb, offset) & 0xE0) >> 5);
-    cs   = ((tvb_get_guint8(tvb, offset) & 0x1E) >> 1);
-    n    = tvb_get_ntohs(tvb, offset + 2);
 
     switch(grid) {
-    case 1:
-        /* DWDM grid: Frequency (THz) = 193.1 THz + n * channel spacing (THz) */
+    case 1: /* DWDM grid: Frequency (THz) = 193.1 THz + n * channel spacing (THz) */
         cs_thz =
-            cs == 1 ? 0.1f :
-            cs == 2 ? 0.05f :
-            cs == 3 ? 0.025f :
-            cs == 4 ? 0.0125f :
+        cs == 1 ? 0.1f :
+        cs == 2 ? 0.05f :
+        cs == 3 ? 0.025f :
+        cs == 4 ? 0.0125f :
         0.0f;
         freq = 193.1f + (n * cs_thz);
-        proto_tree_add_uint_format_value(wavelength_tree, hf_rsvp_wavelength_channel_spacing, tvb, offset, 1, tvb_get_guint8(tvb, offset),
-                                            "%s", val_to_str_const(cs, grid1_cs_vals, "Unknown"));
-        proto_tree_add_item(wavelength_tree, hf_rsvp_wavelength_n, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(wavelength_tree, hf_rsvp_wavelength_cs1, tvb, offset, 1, ENC_NA);
+        proto_tree_add_uint_format_value(wavelength_tree, hf_rsvp_wavelength_n, tvb, offset+2, 2, n, "%d", n);
         proto_tree_add_float_format_value(wavelength_tree, hf_rsvp_wavelength_freq, tvb, offset, 4, freq, "%.2fTHz", freq);
-
-        proto_item_append_text(ti, ": Wavelength: grid=DWDM, channel spacing=%s, n=%d, freq=%.2fTHz",
+        proto_item_append_text(ti, ": Wavelength: grid=DWDM, channel spacing=%s, central frequency=%d, freq=%.2fTHz",
                                val_to_str_const(cs, grid1_cs_vals, "Unknown"), n, freq);
         break;
-    case 2:
-        /* CWDM grid: Wavelength (nm) = 1471 nm + n * 20 nm  */
+    case 2: /* CWDM grid: Wavelength (nm) = 1471 nm + n * 20 nm  */
         wavelength = 1471 + (n * 20);
-        proto_tree_add_uint_format_value(wavelength_tree, hf_rsvp_wavelength_channel_spacing, tvb, offset, 1, tvb_get_guint8(tvb, offset),
-                                            "%s", val_to_str_const(cs, grid2_cs_vals, "Unknown"));
+        proto_tree_add_item(wavelength_tree, hf_rsvp_wavelength_cs2, tvb, offset, 1, ENC_NA);
         proto_tree_add_item(wavelength_tree, hf_rsvp_wavelength_n, tvb, offset+2, 2, ENC_BIG_ENDIAN);
         proto_tree_add_uint_format_value(wavelength_tree, hf_rsvp_wavelength_wavelength, tvb, offset, 4, wavelength, "%unm", wavelength);
-
-        proto_item_append_text(ti, ": Wavelength: grid=CWDM, channel spacing=%s, n=%d, wavelength=%unm",
-                               val_to_str_const(cs, grid2_cs_vals, "Unknown"), n, wavelength);
+        proto_item_append_text(ti, ": Wavelength: grid=CWDM, channel spacing=%s, central frequenc=%d, wavelength=%unm",
+                           val_to_str_const(cs, grid2_cs_vals, "Unknown"), n, wavelength);
         break;
-    default:
-        /* unknown grid: */
+    case 3: /* flexi grid: Slot width (Ghz) = 12.5 Ghz * m, see RFC 7699  */
+        m = tvb_get_ntohs(tvb, offset + 4);
+        slot_width = 12.5f  * m;
+        proto_tree_add_item(wavelength_tree, hf_rsvp_wavelength_cs3, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(wavelength_tree, hf_rsvp_wavelength_n, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_float_format_value(wavelength_tree, hf_rsvp_wavelength_m, tvb, offset, 4, slot_width, "%.2fGHz", slot_width);
+        proto_item_append_text(ti, ": Wavelength: grid=flexi, channel spacing=%s, central frequenc=%d, Channel Width=%.2fGhz",
+                           val_to_str_const(cs, grid3_cs_vals, "Unknown"), n, slot_width);
+    break;
+    default: /* unknown grid: */
         proto_tree_add_item(wavelength_tree, hf_rsvp_wavelength_channel_spacing, tvb, offset, 1, ENC_NA);
         proto_tree_add_item(wavelength_tree, hf_rsvp_wavelength_n, tvb, offset+2, 2, ENC_BIG_ENDIAN);
-        proto_item_append_text(ti, ": Wavelength: grid=%u, channel spacing=%u, n=%d", grid, cs, n);
+        proto_item_append_text(ti, ": Wavelength: grid=%u, channel spacing=%u, central frequenc=%d", grid, cs, n);
         break;
     }
 }
@@ -4694,6 +4753,7 @@ dissect_rsvp_label(proto_tree *ti, proto_tree *rsvp_object_tree,
     int         mylen, i;
     const char *name;
     proto_item *hidden_item;
+    guint32 unassigned_upstream_label;
 
     hidden_item = proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype, tvb, offset+3, 1, ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
@@ -4712,28 +4772,32 @@ dissect_rsvp_label(proto_tree *ti, proto_tree *rsvp_object_tree,
         break;
 
     case 2:
-        proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype_label, tvb, offset+3, 1, ENC_BIG_ENDIAN);
-        if (rsvp_generalized_label_option == 1) {
-            /* FF: no generalized label interpretation */
-            proto_item_set_text(ti, "%s: Generalized: ", name);
-            for (i = 0; i < mylen; i += 4) {
-                proto_tree_add_item(rsvp_object_tree, hf_rsvp_label_generalized_label, tvb, offset2+i, 4, ENC_BIG_ENDIAN);
-                if (i < 16) {
-                    proto_item_append_text(ti, "0x%x%s",
-                                           tvb_get_ntohl(tvb, offset2+i),
-                                           i+4<mylen?", ":"");
-                } else if (i == 16) {
-                    proto_item_append_text(ti, "...");
+        unassigned_upstream_label = tvb_get_ntoh24(tvb, offset2);
+        if(unassigned_upstream_label == 0xffffffff){ /* Unassigned upstream label, see RFC 8359 */
+            proto_item_append_text(ti, ":  Unassigned upstream label ( 0x%x )",unassigned_upstream_label);
+        }
+        else if(unassigned_upstream_label != 0xffffffff){
+            proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype_label, tvb, offset+3, 1, ENC_BIG_ENDIAN);
+            if (rsvp_generalized_label_option == 1) { /* FF: no generalized label interpretation */
+                proto_item_set_text(ti, "%s: Generalized: ", name);
+                for (i = 0; i < mylen; i += 4) {
+                    proto_tree_add_item(rsvp_object_tree, hf_rsvp_label_generalized_label, tvb, offset2+i, 4, ENC_BIG_ENDIAN);
+                    if (i < 16) {
+                        proto_item_append_text(ti, "0x%x%s", tvb_get_ntohl(tvb, offset2+i), i+4<mylen?", ":"");
+                    }
+                    else if (i == 16) {
+                        proto_item_append_text(ti, "...");
+                    }
                 }
+            } else if (rsvp_generalized_label_option == 2) {
+                dissect_glabel_sdh(ti, rsvp_object_tree, tvb, offset2);
+            } else if (rsvp_generalized_label_option == 4) {
+               dissect_glabel_g709(ti, rsvp_object_tree, tvb, offset2);
+            } else if (rsvp_generalized_label_option == 3) {
+               dissect_glabel_lambda(ti, rsvp_object_tree, tvb, offset2);
+            } else if (rsvp_generalized_label_option == 5) {
+               dissect_glabel_evpl(ti, rsvp_object_tree, tvb, offset2);
             }
-        } else if (rsvp_generalized_label_option == 2) {
-            dissect_glabel_sdh(ti, rsvp_object_tree, tvb, offset2);
-        } else if (rsvp_generalized_label_option == 4) {
-            dissect_glabel_g709(ti, rsvp_object_tree, tvb, offset2);
-        } else if (rsvp_generalized_label_option == 3) {
-            dissect_glabel_lambda(ti, rsvp_object_tree, tvb, offset2);
-        } else if (rsvp_generalized_label_option == 5) {
-            dissect_glabel_evpl(ti, rsvp_object_tree, tvb, offset2);
         }
         break;
 
@@ -4853,7 +4917,6 @@ dissect_rsvp_session_attribute(proto_item *ti, proto_tree *rsvp_object_tree,
         name_len = tvb_get_guint8(tvb, offset2+3);
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_session_attribute_name_length, tvb, offset2+3, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_session_attribute_name, tvb, offset2+4, name_len, ENC_NA|ENC_ASCII);
-
         proto_item_set_text(ti, "SESSION ATTRIBUTE: SetupPrio %d, HoldPrio %d, %s%s%s%s%s [%s]",
                             tvb_get_guint8(tvb, offset2),
                             tvb_get_guint8(tvb, offset2+1),
@@ -4877,11 +4940,11 @@ dissect_rsvp_session_attribute(proto_item *ti, proto_tree *rsvp_object_tree,
  * RFC 3209, RFC 3473, RFC 5420, RFC 4873, RFC 5553
  *------------------------------------------------------------------------------*/
 static void
-dissect_rsvp_ero_rro_subobjects(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_object_tree,
+dissect_rsvp_ro_subobjects(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_object_tree,
                                 tvbuff_t *tvb,
                                 int offset, int obj_length, int rsvp_class)
 {
-    int         i, j, k, l, flags;
+    int         i, type, lbit, dbit, path_key, l, flags;
     proto_tree *ti2 = NULL, *rsvp_ro_subtree, *rsvp_rro_flags_subtree;
     int         tree_type;
 
@@ -4892,35 +4955,51 @@ dissect_rsvp_ero_rro_subobjects(proto_tree *ti, packet_info* pinfo, proto_tree *
     case RSVP_CLASS_RECORD_ROUTE:
         tree_type = TREE(TT_RECORD_ROUTE_SUBOBJ);
         break;
+    case RSVP_CLASS_EXCLUDE_ROUTE:
+        tree_type = TREE(TT_EXCLUDE_ROUTE_SUBOBJ);
+        break;
     default:
         /* Bail out */
         return;
     }
+    /*  0                   1                   2                   3    */
+    /*  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1  */
+    /* +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ */
+    /* |L|    Type     |     Length    |           Value...            | */
+    /* +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ */
 
     for (i=1, l = 0; l < obj_length - 4; i++) {
-        j = tvb_get_guint8(tvb, offset+l);
-        if (rsvp_class == RSVP_CLASS_EXPLICIT_ROUTE) j &= 0x7f;
-        switch(j) {
+        type = tvb_get_guint8(tvb, offset + l) & 0x7f;
+        lbit = tvb_get_guint8(tvb, offset + l) & 0x80;
+        dbit = tvb_get_guint8(tvb, offset + l + 2) & 0x80;
+        switch(type) {
         case 1: /* IPv4 */
-            k = tvb_get_guint8(tvb, offset+l) & 0x80;
             rsvp_ro_subtree = proto_tree_add_subtree_format(rsvp_object_tree, tvb,
                                       offset+l, 8,
                                       tree_type, &ti2, "IPv4 Subobject - %s%s",
                                       tvb_ip_to_str(tvb, offset+l+2),
                                       rsvp_class == RSVP_CLASS_EXPLICIT_ROUTE ?
-                                      (k ? ", Loose" : ", Strict") : "");
+                                      (lbit ? ", Loose" : ", Strict") : "");
+
             if (rsvp_class == RSVP_CLASS_EXPLICIT_ROUTE)
                 proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_loose_hop, tvb, offset+l, 1, ENC_NA);
-
-            proto_tree_add_uint_format_value(rsvp_ro_subtree, hf_rsvp_type, tvb, offset+l, 1,
-                                j, "1 (IPv4)");
-            proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_ero_rro_subobjects_length, tvb, offset+l+1, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_ero_rro_subobjects_ipv4_hop, tvb, offset+l+2, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_ero_rro_subobjects_prefix_length, tvb, offset+l+6, 1, ENC_BIG_ENDIAN);
+            if (rsvp_class == RSVP_CLASS_EXCLUDE_ROUTE)
+                proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_xro_sobj_lbit, tvb, offset+l, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_uint_format_value(rsvp_ro_subtree, hf_rsvp_type, tvb, offset+l, 1, type, "1 (IPv4)");
+                proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_ero_rro_subobjects_length, tvb, offset+l+1, 1, ENC_BIG_ENDIAN);
+            if(rsvp_class == RSVP_CLASS_EXPLICIT_ROUTE || rsvp_class == RSVP_CLASS_RECORD_ROUTE){
+                proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_ero_rro_subobjects_ipv4_hop, tvb, offset+l+2, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_ero_rro_subobjects_prefix_length, tvb, offset+l+6, 1, ENC_BIG_ENDIAN);
+            }
+            if(rsvp_class == RSVP_CLASS_EXCLUDE_ROUTE){
+                proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_xro_sobj_ipv4_addr, tvb, offset + l + 2, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_xro_sobj_ipv4_prefix, tvb, offset + l + 6, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_xro_sobj_ipv4_attr, tvb, offset + l + 7, 1, ENC_BIG_ENDIAN);
+            }
             if (i < 4) {
                 proto_item_append_text(ti, "IPv4 %s%s",
                                        tvb_ip_to_str(tvb, offset+l+2),
-                                       k ? " [L]" : "");
+                                       lbit ? " [L]" : "");
             }
             if (rsvp_class == RSVP_CLASS_RECORD_ROUTE) {
                 flags = tvb_get_guint8(tvb, offset+l+7);
@@ -4953,17 +5032,25 @@ dissect_rsvp_ero_rro_subobjects(proto_tree *ti, packet_info* pinfo, proto_tree *
             rsvp_ro_subtree = proto_tree_add_subtree(rsvp_object_tree, tvb,
                                       offset+l, 20, tree_type, &ti2,
                                       "IPv6 Subobject");
-            k = tvb_get_guint8(tvb, offset+l) & 0x80;
             if (rsvp_class == RSVP_CLASS_EXPLICIT_ROUTE)
                 proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_loose_hop, tvb, offset+l, 1, ENC_NA);
 
-            proto_tree_add_uint_format_value(rsvp_ro_subtree, hf_rsvp_type, tvb, offset+l, 1,
-                                j, "2 (IPv6)");
-            proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_ero_rro_subobjects_length, tvb, offset+l+1, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_ero_rro_subobjects_ipv6_hop, tvb, offset+l+2, 16, ENC_NA);
-            proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_ero_rro_subobjects_prefix_length, tvb, offset+l+18, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_xro_sobj_lbit,
+                                tvb, offset + l, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_uint_format_value(rsvp_ro_subtree, hf_rsvp_type,
+                                                tvb, offset+l, 1, type, "2 (IPv6)");
+                proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_ero_rro_subobjects_length,
+                                                tvb, offset+l+1, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_ero_rro_subobjects_ipv6_hop,
+                                                tvb, offset+l+2, 16, ENC_NA);
+                proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_ero_rro_subobjects_prefix_length,
+                                                tvb, offset+l+18, 1, ENC_BIG_ENDIAN);
+                if(rsvp_class == RSVP_CLASS_EXCLUDE_ROUTE){
+                    proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_xro_sobj_ipv6_attr,
+                                                    tvb, offset + l + 19, 1, ENC_BIG_ENDIAN);
+               }
             if (i < 4) {
-                proto_item_append_text(ti, "IPv6 [...]%s", k ? " [L]":"");
+                proto_item_append_text(ti, "IPv6 [...]%s", lbit ? " [L]":"");
             }
             if (rsvp_class == RSVP_CLASS_RECORD_ROUTE) {
                 flags = tvb_get_guint8(tvb, offset+l+19);
@@ -4995,18 +5082,17 @@ dissect_rsvp_ero_rro_subobjects(proto_tree *ti, packet_info* pinfo, proto_tree *
             break;
 
         case 3: /* Label RFC 3477 */
-            k = tvb_get_guint8(tvb, offset+l) & 0x80;
             rsvp_ro_subtree = proto_tree_add_subtree_format(rsvp_object_tree, tvb,
                                       offset+l, 8,
                                       tree_type, &ti2, "Label Subobject - %d, %s",
                                       tvb_get_ntohl(tvb, offset+l+4),
                                       rsvp_class == RSVP_CLASS_EXPLICIT_ROUTE ?
-                                      (k ? "Loose" : "Strict") : "");
+                                      (lbit ? "Loose" : "Strict") : "");
             if (rsvp_class == RSVP_CLASS_EXPLICIT_ROUTE)
                 proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_loose_hop, tvb, offset+l, 1, ENC_NA);
 
             proto_tree_add_uint_format_value(rsvp_ro_subtree, hf_rsvp_type, tvb, offset+l, 1,
-                                j, "3 (Label)");
+                                type, "3 (Label)");
             proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_ero_rro_subobjects_length, tvb, offset+l+1, 1, ENC_BIG_ENDIAN);
             if (rsvp_class == RSVP_CLASS_RECORD_ROUTE) {
                 flags = tvb_get_guint8(tvb, offset+l+2);
@@ -5023,24 +5109,23 @@ dissect_rsvp_ero_rro_subobjects(proto_tree *ti, packet_info* pinfo, proto_tree *
             if (i < 4) {
                 proto_item_append_text(ti, "Label %d%s",
                                        tvb_get_ntohl(tvb, offset+l+4),
-                                       k ? " [L]":"");
+                                       lbit ? " [L]":"");
             }
             break;
 
         case 4: /* Unnumbered Interface-ID RFC 3477, RFC 6107*/
-            k = tvb_get_guint8(tvb, offset+l) & 0x80;
             rsvp_ro_subtree = proto_tree_add_subtree_format(rsvp_object_tree, tvb,
                                       offset+l, 8, tree_type, &ti2,
                                       "Unnumbered Interface-ID - %s, %d, %s",
                                       tvb_ip_to_str(tvb, offset+l+4),
                                       tvb_get_ntohl(tvb, offset+l+8),
                                       rsvp_class == RSVP_CLASS_EXPLICIT_ROUTE ?
-                                      (k ? "Loose" : "Strict") : "");
+                                      (lbit ? "Loose" : "Strict") : "");
             if (rsvp_class == RSVP_CLASS_EXPLICIT_ROUTE)
                 proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_loose_hop, tvb, offset+l, 1, ENC_NA);
 
             proto_tree_add_uint_format_value(rsvp_ro_subtree, hf_rsvp_type, tvb, offset+l, 1,
-                                j, "4 (Unnumbered Interface-ID)");
+                                type, "4 (Unnumbered Interface-ID)");
             proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_ero_rro_subobjects_length, tvb, offset+l+1, 1, ENC_BIG_ENDIAN);
             if (rsvp_class == RSVP_CLASS_RECORD_ROUTE) {
                 flags = tvb_get_guint8(tvb, offset+l+2);
@@ -5060,19 +5145,21 @@ dissect_rsvp_ero_rro_subobjects(proto_tree *ti, packet_info* pinfo, proto_tree *
                 proto_item_append_text(ti, "Unnum %s/%d%s",
                                        tvb_ip_to_str(tvb, offset+l+4),
                                        tvb_get_ntohl(tvb, offset+l+8),
-                                       k ? " [L]":"");
+                                       lbit ? " [L]":"");
             }
             break;
 
+        case 21:
+
         case 32: /* AS */
-            if (rsvp_class == RSVP_CLASS_RECORD_ROUTE) goto defaultsub;
-            k = tvb_get_ntohs(tvb, offset+l+2);
+            if (rsvp_class == RSVP_CLASS_RECORD_ROUTE || rsvp_class == RSVP_CLASS_EXCLUDE_ROUTE) goto defaultsub;
+            lbit = tvb_get_ntohs(tvb, offset+l+2);
             rsvp_ro_subtree = proto_tree_add_subtree_format(rsvp_object_tree, tvb,
                                       offset+l, 4, tree_type, &ti2,
                                       "Autonomous System %u",
-                                      k);
+                                      lbit);
             proto_tree_add_uint_format_value(rsvp_ro_subtree, hf_rsvp_type, tvb, offset+l, 1,
-                                j, "32 (Autonomous System Number)");
+                                type, "32 (Autonomous System Number)");
             proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_ero_rro_subobjects_length, tvb, offset+l+1, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_ero_rro_autonomous_system, tvb, offset+l+2, 2, ENC_BIG_ENDIAN);
             if (i < 4) {
@@ -5081,39 +5168,88 @@ dissect_rsvp_ero_rro_subobjects(proto_tree *ti, packet_info* pinfo, proto_tree *
             }
             break;
 
+
+        case 34: /* SRLG subobject RFC 4874 */
+            if (rsvp_class == RSVP_CLASS_EXPLICIT_ROUTE) goto defaultsub;
+            if (rsvp_class == RSVP_CLASS_RECORD_ROUTE){
+                rsvp_ro_subtree = proto_tree_add_subtree_format(rsvp_object_tree, tvb,
+                                              offset + l, 8, tree_type, NULL,
+                                              "SRLG Subobject - %u",
+                                              tvb_get_ntohl(tvb, offset + l + 4));
+
+                proto_tree_add_uint_format_value(rsvp_ro_subtree, hf_rsvp_type,
+                                        tvb, offset+l, 1,type, "34 (SRLG sub-object)");
+                proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_xro_sobj_len,
+                                        tvb, offset + l + 1, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_rro_sobj_dbit,
+                                        tvb, offset + l+2, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_xro_sobj_srlg_res,
+                                        tvb, offset + l + 2, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_xro_sobj_srlg_id,
+                                        tvb, offset + l + 4, 4, ENC_BIG_ENDIAN);
+
+                if (i < 4) {
+                    proto_item_append_text(ti, "SRLG %u%s",
+                                               tvb_get_ntohl(tvb, offset + l + 4),
+                                               dbit ? " [D]" : "");
+                }
+            }
+            else{
+                rsvp_ro_subtree = proto_tree_add_subtree_format(rsvp_object_tree, tvb,
+                                                  offset + l, 8, tree_type, NULL,
+                                                  "SRLG Subobject - %u",
+                                                  tvb_get_ntohl(tvb, offset + l + 2));
+                proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_xro_sobj_lbit,
+                                                  tvb, offset + l, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_uint_format_value(rsvp_ro_subtree, hf_rsvp_type,
+                                                  tvb, offset+l, 1,type, "34 (SRLG sub-object)");
+                proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_xro_sobj_len,
+                                                  tvb, offset + l + 1, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_xro_sobj_srlg_id,
+                                                  tvb, offset + l + 2, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_xro_sobj_srlg_res,
+                                                  tvb, offset + l + 6, 2, ENC_BIG_ENDIAN);
+                if (i < 4) {
+                    proto_item_append_text(ti, "SRLG %u%s",
+                                                tvb_get_ntohl(tvb, offset + l + 2),
+                                                lbit ? " [L]" : "");
+                }
+            }
+            break;
+
         case 64: /* PKSv4 - RFC5520 */
-            if (rsvp_class == RSVP_CLASS_RECORD_ROUTE) goto defaultsub;
-            k = tvb_get_ntohs(tvb, offset+l+2);
+            if (rsvp_class == RSVP_CLASS_RECORD_ROUTE || rsvp_class == RSVP_CLASS_EXCLUDE_ROUTE) goto defaultsub;
+            path_key = tvb_get_ntohs(tvb, offset+l+2);
             rsvp_ro_subtree = proto_tree_add_subtree_format(rsvp_object_tree, tvb,
                                       offset+l, 8, tree_type, &ti2,
                                       "Path Key subobject - %s, %u",
                                       tvb_ip_to_str(tvb, offset+l+4),
-                                      k);
+                                      path_key);
             proto_tree_add_uint_format_value(rsvp_ro_subtree, hf_rsvp_type, tvb, offset+l, 1,
-                                j, "64 (Path Key with IPv4 PCE-ID)");
+                                type, "64 (Path Key with IPv4 PCE-ID)");
             proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_ero_rro_subobjects_length, tvb, offset+l+1, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_ero_rro_subobjects_path_key, tvb, offset+l+2, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_ero_rro_subobjects_pce_id_ipv4, tvb, offset+l+4, 4, ENC_BIG_ENDIAN);
             if (i < 4) {
-                proto_item_append_text(ti, "Path Key %d", k);
+                proto_item_append_text(ti, "Path Key %d", path_key);
             }
             break;
 
         case 65: /* PKSv6 - RFC5520 */
-            if (rsvp_class == RSVP_CLASS_RECORD_ROUTE) goto defaultsub;
-            k = tvb_get_ntohs(tvb, offset+l+2);
+            if (rsvp_class == RSVP_CLASS_RECORD_ROUTE || rsvp_class == RSVP_CLASS_EXCLUDE_ROUTE) goto defaultsub;
+            path_key = tvb_get_ntohs(tvb, offset+l+2);
             rsvp_ro_subtree = proto_tree_add_subtree_format(rsvp_object_tree, tvb,
                                       offset+l, 8, tree_type, &ti2,
                                       "Path Key subobject - %s, %u",
                                       tvb_ip6_to_str(tvb, offset+l+4),
-                                      k);
+                                      path_key);
             proto_tree_add_uint_format_value(rsvp_ro_subtree, hf_rsvp_type, tvb, offset+l, 1,
-                                j, "65 (Path Key with IPv6 PCE-ID)");
+                                type, "65 (Path Key with IPv6 PCE-ID)");
             proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_ero_rro_subobjects_length, tvb, offset+l+1, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_ero_rro_subobjects_path_key, tvb, offset+l+2, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_ero_rro_subobjects_pce_id_ipv6, tvb, offset+l+4, 16, ENC_NA);
             if (i < 4) {
-                proto_item_append_text(ti, "Path Key %d", k);
+                proto_item_append_text(ti, "Path Key %d", path_key);
             }
             break;
 
@@ -5158,10 +5294,10 @@ dissect_rsvp_ero_rro_subobjects(proto_tree *ti, packet_info* pinfo, proto_tree *
                 guint8 private_so_len = tvb_get_guint8(tvb, offset+l+1);
                 rsvp_ro_subtree = proto_tree_add_subtree_format(rsvp_object_tree, tvb, offset+l,
                                           tvb_get_guint8(tvb, offset+l+1),
-                                          tree_type, &ti2, "Private Subobject: %d", j);
+                                          tree_type, &ti2, "Private Subobject: %d", type);
                 proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_loose_hop, tvb, offset+l, 1, ENC_NA);
                 proto_tree_add_uint_format_value(rsvp_ro_subtree, hf_rsvp_type, tvb, offset+l, 1,
-                                    j, "%u (Private)", j);
+                                    type, "%u (Private)", type);
                 proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_ero_rro_subobjects_private_length, tvb, offset+l+1, 1, ENC_BIG_ENDIAN);
 
                 proto_tree_add_item(rsvp_ro_subtree,
@@ -5179,11 +5315,11 @@ dissect_rsvp_ero_rro_subobjects(proto_tree *ti, packet_info* pinfo, proto_tree *
             rsvp_ro_subtree = proto_tree_add_subtree_format(rsvp_object_tree, tvb,
                                       offset+l,
                                       tvb_get_guint8(tvb, offset+l+1),
-                                      tree_type, &ti2, "Unknown subobject: %d", j);
+                                      tree_type, &ti2, "Unknown subobject: %d", type);
             proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_loose_hop, tvb, offset+l, 1, ENC_NA);
 
             proto_tree_add_uint_format_value(rsvp_ro_subtree, hf_rsvp_type, tvb, offset+l, 1,
-                                j, "%u (Unknown)", j);
+                                type, "%u (Unknown)", type);
             proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_ero_rro_subobjects_length, tvb, offset+l+1, 1, ENC_BIG_ENDIAN);
             break;
         }
@@ -5203,141 +5339,7 @@ dissect_rsvp_ero_rro_subobjects(proto_tree *ti, packet_info* pinfo, proto_tree *
     }
 }
 
-/*------------------------------------------------------------------------------
- * FF: EXCLUDE ROUTE SUBOBJECTS (they do not share ERO/RRO code points, they may
- * share ERO/RRO subobjects layout).
- * RFC 4874
- *------------------------------------------------------------------------------*/
-static void
-dissect_rsvp_xro_subobjects(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_object_tree,
-                            tvbuff_t *tvb, int offset, int obj_length,
-                            int rsvp_class)
-{
-    int i, lbit, type, l;
-    proto_tree *rsvp_xro_subtree;
-    int tree_type;
 
-    switch (rsvp_class) {
-    case RSVP_CLASS_EXCLUDE_ROUTE:
-        tree_type = TREE(TT_EXCLUDE_ROUTE_SUBOBJ);
-        break;
-    default:
-        /* Bail out */
-        return;
-    }
-
-    /*  0                   1                   2                   3    */
-    /*  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1  */
-    /* +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ */
-    /* |L|    Type     |     Length    |           Value...            | */
-    /* +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ */
-
-    for (i = 1, l = 0; l < obj_length - 4; i++) {
-        lbit = tvb_get_guint8(tvb, offset + l) & 0x80;
-        type = tvb_get_guint8(tvb, offset + l) & 0x7f;
-        switch (type) {
-        case 1: /* IPv4 */
-            rsvp_xro_subtree = proto_tree_add_subtree_format(rsvp_object_tree, tvb,
-                                      offset + l, 8, tree_type, NULL,
-                                      "IPv4 Subobject - %s",
-                                      tvb_ip_to_str(tvb, offset + l + 2));
-
-            proto_tree_add_item(rsvp_xro_subtree, hf_rsvp_xro_sobj_lbit,
-                                tvb, offset + l, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(rsvp_xro_subtree, hf_rsvp_xro_sobj_type,
-                                tvb, offset + l, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(rsvp_xro_subtree, hf_rsvp_xro_sobj_len,
-                                tvb, offset + l + 1, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(rsvp_xro_subtree, hf_rsvp_xro_sobj_ipv4_addr,
-                                tvb, offset + l + 2, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_item(rsvp_xro_subtree, hf_rsvp_xro_sobj_ipv4_prefix,
-                                tvb, offset + l + 6, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(rsvp_xro_subtree, hf_rsvp_xro_sobj_ipv4_attr,
-                                tvb, offset + l + 7, 1, ENC_BIG_ENDIAN);
-            if (i < 4) {
-                proto_item_append_text(ti, "IPv4 %s%s",
-                                       tvb_ip_to_str(tvb, offset + l + 2),
-                                       lbit ? " [L]" : "");
-            }
-            break;
-
-        case 2: /* IPv6 */
-            rsvp_xro_subtree = proto_tree_add_subtree_format(rsvp_object_tree, tvb,
-                                      offset + l, 20, tree_type, NULL,
-                                      "IPv6 Subobject - %s",
-                                      tvb_ip6_to_str(tvb, offset + l + 2));
-
-            proto_tree_add_item(rsvp_xro_subtree, hf_rsvp_xro_sobj_lbit,
-                                tvb, offset + l, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(rsvp_xro_subtree, hf_rsvp_xro_sobj_type,
-                                tvb, offset + l, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(rsvp_xro_subtree, hf_rsvp_xro_sobj_len,
-                                tvb, offset + l + 1, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(rsvp_xro_subtree, hf_rsvp_xro_sobj_ipv6_addr,
-                                tvb, offset + l + 2, 16, ENC_NA);
-            proto_tree_add_item(rsvp_xro_subtree, hf_rsvp_xro_sobj_ipv6_prefix,
-                                tvb, offset + l + 18, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(rsvp_xro_subtree, hf_rsvp_xro_sobj_ipv6_attr,
-                                tvb, offset + l + 19, 1, ENC_BIG_ENDIAN);
-            if (i < 4) {
-                proto_item_append_text(ti, "IPv6 [...]%s", lbit ? " [L]" : "");
-            }
-            break;
-
-        case 34: /* SRLG */
-            rsvp_xro_subtree = proto_tree_add_subtree_format(rsvp_object_tree, tvb,
-                                      offset + l, 8, tree_type, NULL,
-                                      "SRLG Subobject - %u",
-                                      tvb_get_ntohl(tvb, offset + l + 2));
-
-            proto_tree_add_item(rsvp_xro_subtree, hf_rsvp_xro_sobj_lbit,
-                                tvb, offset + l, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(rsvp_xro_subtree, hf_rsvp_xro_sobj_type,
-                                tvb, offset + l, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(rsvp_xro_subtree, hf_rsvp_xro_sobj_len,
-                                tvb, offset + l + 1, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(rsvp_xro_subtree, hf_rsvp_xro_sobj_srlg_id,
-                                tvb, offset + l + 2, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_item(rsvp_xro_subtree, hf_rsvp_xro_sobj_srlg_res,
-                                tvb, offset + l + 6, 2, ENC_BIG_ENDIAN);
-            if (i < 4) {
-                proto_item_append_text(ti, "SRLG %u%s",
-                                       tvb_get_ntohl(tvb, offset + l + 2),
-                                       lbit ? " [L]" : "");
-            }
-            break;
-        default: /* Unknown subobject */
-            rsvp_xro_subtree = proto_tree_add_subtree_format(rsvp_object_tree, tvb,
-                                      offset + l,
-                                      tvb_get_guint8(tvb, offset + l + 1),
-                                      tree_type, NULL, "Unknown subobject: %d", type);
-
-            proto_tree_add_item(rsvp_xro_subtree, hf_rsvp_xro_sobj_lbit,
-                                tvb, offset + l, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(rsvp_xro_subtree, hf_rsvp_xro_sobj_type,
-                                tvb, offset + l, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(rsvp_xro_subtree, hf_rsvp_xro_sobj_len,
-                                tvb, offset + l + 1, 1, ENC_BIG_ENDIAN);
-            break;
-        }
-
-        if (tvb_get_guint8(tvb, offset + l + 1) < 1) {
-            proto_tree_add_expert_format(rsvp_xro_subtree, pinfo, &ei_rsvp_invalid_length, tvb, offset + l + 1, 1,
-                                "Invalid Length: %u",
-                                tvb_get_guint8(tvb, offset + l + 1));
-            return;
-        }
-
-        l += tvb_get_guint8(tvb, offset + l + 1);
-
-        if (l < obj_length - 4) {
-            if (i < 4)
-                proto_item_append_text(ti, ", ");
-            else if (i == 4)
-                proto_item_append_text(ti, "...");
-        }
-    }
-}
 
 /*------------------------------------------------------------------------------
  * EXPLICIT ROUTE OBJECT
@@ -5358,7 +5360,7 @@ dissect_rsvp_explicit_route(proto_item *ti, packet_info* pinfo, proto_tree *rsvp
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype_explicit_route, tvb, offset+3, 1, ENC_BIG_ENDIAN);
         proto_item_set_text(ti, "EXPLICIT ROUTE: ");
 
-        dissect_rsvp_ero_rro_subobjects(ti, pinfo, rsvp_object_tree, tvb,
+        dissect_rsvp_ro_subobjects(ti, pinfo, rsvp_object_tree, tvb,
                                         offset + 4, obj_length, rsvp_class);
         break;
 
@@ -5388,7 +5390,7 @@ dissect_rsvp_record_route(proto_item *ti, packet_info* pinfo, proto_tree *rsvp_o
     case 1:
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype_record_route, tvb, offset+3, 1, ENC_BIG_ENDIAN);
 
-        dissect_rsvp_ero_rro_subobjects(ti, pinfo, rsvp_object_tree, tvb,
+        dissect_rsvp_ro_subobjects(ti, pinfo, rsvp_object_tree, tvb,
                                         offset + 4, obj_length, rsvp_class);
         break;
 
@@ -5416,9 +5418,8 @@ dissect_rsvp_exclude_route(proto_item *ti, packet_info* pinfo, proto_tree *rsvp_
     switch (ctype) {
     case 1:
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype_exclude_route, tvb, offset + 3, 1, ENC_BIG_ENDIAN);
-        dissect_rsvp_xro_subobjects(ti, pinfo, rsvp_object_tree, tvb,
-                                    offset + 4, obj_length,
-                                    rsvp_class);
+        dissect_rsvp_ro_subobjects(ti, pinfo, rsvp_object_tree, tvb,
+                                   offset + 4, obj_length, rsvp_class);
         break;
 
     default:
@@ -5675,10 +5676,15 @@ dissect_rsvp_lsp_attributes(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp
         &hf_rsvp_lsp_attr_nophp,
         &hf_rsvp_lsp_attr_oobmap,
         &hf_rsvp_lsp_attr_entropy,
+        &hf_rsvp_lsp_attr_oammep,
+        &hf_rsvp_lsp_attr_oammip,
         &hf_rsvp_lsp_attr_srlgcollect,
-        &hf_rsvp_lsp_attr_costcollect,
-        &hf_rsvp_lsp_attr_latcollect,
-        &hf_rsvp_lsp_attr_latvarcollect,
+        &hf_rsvp_lsp_attr_loopback,
+        &hf_rsvp_lsp_attr_p2mp,
+        &hf_rsvp_lsp_attr_rtm,
+        &hf_rsvp_lsp_attr_telinklabel,
+        &hf_rsvp_lsp_attr_lsi,
+        &hf_rsvp_lsp_attr_lsids2e,
         NULL
     };
     proto_item *hidden_item;
@@ -5708,7 +5714,7 @@ dissect_rsvp_lsp_attributes(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp
                 ti2 = proto_tree_add_item(rsvp_object_tree, hf_rsvp_lsp_attributes_tlv, tvb, offset+tlv_off, 4, ENC_BIG_ENDIAN);
                 rsvp_lsp_attr_subtree = proto_item_add_subtree(ti2, TREE(TT_LSP_ATTRIBUTES_FLAGS));
                 proto_tree_add_bitmask(rsvp_lsp_attr_subtree, tvb, offset+tlv_off+4, hf_rsvp_lsp_attr, ett_treelist[TT_RSVP_LSP_ATTR], rsvp_lsp_attr_flags, ENC_NA);
-                proto_item_append_text(ti, "LSP Attribute:%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+                proto_item_append_text(ti, "LSP Attribute:%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
                                        (attributes & 0x80000000) ? " End-to-end re-routing" : "",
                                        (attributes & 0x40000000) ? " Boundary re-routing" : "",
                                        (attributes & 0x20000000) ? " Segment-based re-routing" : "",
@@ -5719,10 +5725,16 @@ dissect_rsvp_lsp_attributes(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp
                                        (attributes & 0x01000000) ? " Non-PHP behavior flag" : "",
                                        (attributes & 0x00800000) ? " OOB mapping flag" : "",
                                        (attributes & 0x00400000) ? " Entropy Label Capability" : "",
-                                       (attributes & 0x00200000) ? " SRLG Collection Flag" : "",
-                                       (attributes & 0x00100000) ? " Cost Collection Flag" : "",
-                                       (attributes & 0x00080000) ? " Latency Collection Flag" : "",
-                                       (attributes & 0x00040000) ? " Latency Variation Flag" : "");
+                                       (attributes & 0x00200000) ? " OAM MEP entities desired" : "",
+                                       (attributes & 0x00100000) ? " OAM MIP entities desired" : "",
+                                       (attributes & 0x00080000) ? " SRLG Collection Flag" : "",
+                                       (attributes & 0x00040000) ? " Loopback" : "",
+                                       (attributes & 0x00020000) ? " P2MP-TE Tree Re-evaluation Request" : "",
+                                       (attributes & 0x00010000) ? " RTM_SET" : "",
+                                       (attributes & 0x00008000) ? " TE Link Label" : "",
+                                       (attributes & 0x00004000) ? " LSI-D" : "",
+                                       (attributes & 0x00002000) ? " LSI-D-S2E" : "");
+
                 break;
 
             default:
@@ -6877,7 +6889,7 @@ dissect_rsvp_link_cap(proto_item *ti, packet_info* pinfo, proto_tree *rsvp_objec
     case 1:
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype_link_cap, tvb, offset+3, 1, type);
 
-        dissect_rsvp_ero_rro_subobjects(ti, pinfo, rsvp_object_tree, tvb,
+        dissect_rsvp_ro_subobjects(ti, pinfo, rsvp_object_tree, tvb,
                                         offset + 4, obj_length, rsvp_class);
         break;
 
@@ -9148,33 +9160,64 @@ proto_register_rsvp(void)
            FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x00800000, /* 8 */
            NULL, HFILL }
         },
+
         {&hf_rsvp_lsp_attr_entropy,
          { "Entropy Label Capability", "rsvp.lsp_attr.entropy",
            FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x00400000, /* 9 */
            NULL, HFILL }
         },
 
-        {&hf_rsvp_lsp_attr_srlgcollect,
-         { "SRLG Collection Flag", "rsvp.lsp_attr.srlgcollect",
+        {&hf_rsvp_lsp_attr_oammep,
+         { "OAM MEP entities desired", "rsvp.lsp_attr.oammep",
            FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x00200000, /* 10 */
            NULL, HFILL }
         },
 
-        {&hf_rsvp_lsp_attr_costcollect,
-         { "Cost Collection Flag", "rsvp.lsp_attr.costcollect",
+        {&hf_rsvp_lsp_attr_oammip,
+         { "OAM MIP entities desired", "rsvp.lsp_attr.oammip",
            FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x00100000, /* 11 */
            NULL, HFILL }
         },
 
-        {&hf_rsvp_lsp_attr_latcollect,
-         { "Latency Collection Flag", "rsvp.lsp_attr.latcollect",
+        {&hf_rsvp_lsp_attr_srlgcollect,
+         { "SRLG Collection Flag", "rsvp.lsp_attr.srlgcollect",
            FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x00080000, /* 12 */
            NULL, HFILL }
         },
 
-        {&hf_rsvp_lsp_attr_latvarcollect,
-         { "Latency Variation Flag", "rsvp.lsp_attr.latvarcollect",
+        {&hf_rsvp_lsp_attr_loopback,
+         { "Loopback", "rsvp.lsp_attr.Loopback",
            FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x00040000, /* 13 */
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_lsp_attr_p2mp,
+         { "P2MP-TE Tree Re-evaluation Request", "rsvp.lsp_attr.p2mp",
+           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x00020000, /* 14 */
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_lsp_attr_rtm,
+         { "RTM_SET", "rsvp.lsp_attr.rtm",
+           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x00010000, /* 15 */
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_lsp_attr_telinklabel,
+         { "TE Link Label", "rsvp.lsp_attr.telinklabel",
+           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x00008000, /* 16 */
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_lsp_attr_lsi,
+         { "LSI-D", "rsvp.lsp_attr.lsi",
+           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x00004000, /* 17 */
+           NULL, HFILL }
+        },
+
+        {&hf_rsvp_lsp_attr_lsids2e,
+         { "LSI-D-S2E", "rsvp.lsp_attr.lsids2e",
+           FT_BOOLEAN, 32, TFS(&tfs_desired_not_desired), 0x00002000, /* 18 */
            NULL, HFILL }
         },
 
@@ -9609,14 +9652,13 @@ proto_register_rsvp(void)
 
         { &hf_rsvp_xro_sobj_lbit,
           { "L(oose) bit", "rsvp.xro.sobj.lbit",
-            FT_UINT8, BASE_DEC, VALS(rsvp_xro_sobj_lbit_vals), 0x80,
+            FT_UINT8, BASE_DEC,VALS(rsvp_xro_sobj_lbit_vals), 0x80,
             NULL, HFILL
           }
         },
-
-        { &hf_rsvp_xro_sobj_type,
-          { "Type", "rsvp.xro.sobj.type",
-            FT_UINT8, BASE_DEC, VALS(rsvp_xro_sobj_type_vals), 0,
+        { &hf_rsvp_rro_sobj_dbit,
+          { "D(irection) bit", "rsvp.rro.sobj.dbit",
+            FT_UINT8, BASE_DEC,VALS(rsvp_rro_sobj_dbit_vals), 0x80,
             NULL, HFILL
           }
         },
@@ -9645,20 +9687,6 @@ proto_register_rsvp(void)
         { &hf_rsvp_xro_sobj_ipv4_attr,
          { "Attribute", "rsvp.xro.sobj.ipv4.attr",
            FT_UINT8, BASE_DEC, VALS(rsvp_xro_sobj_ip_attr_vals), 0,
-           NULL, HFILL
-         }
-        },
-
-        { &hf_rsvp_xro_sobj_ipv6_addr,
-         { "IPv6 prefix", "rsvp.xro.sobj.ipv6.addr",
-           FT_IPv6, BASE_NONE, NULL, 0,
-           NULL, HFILL
-         }
-        },
-
-        { &hf_rsvp_xro_sobj_ipv6_prefix,
-         { "Prefix Length", "rsvp.xro.sobj.ipv6.prefix",
-           FT_UINT8, BASE_DEC, NULL, 0,
            NULL, HFILL
          }
         },
@@ -9920,6 +9948,7 @@ proto_register_rsvp(void)
       { &hf_rsvp_flowspec_signal_type_g709, { "Signal Type", "rsvp.flowspec.signal_type", FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(gmpls_g709_signal_type_rvals), 0x0, NULL, HFILL }},
       { &hf_rsvp_flowspec_number_of_multiplexed_components, { "Number of Multiplexed Components (NMC)", "rsvp.flowspec.number_of_multiplexed_components", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_flowspec_mtu, { "MTU", "rsvp.flowspec.mtu", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsvp_flowspec_m, { "m", "rsvp.flowspec.m", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_ctype_adspec, { "C-Type", "rsvp.ctype.adspec", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_adspec_message_format_version, { "Message format version", "rsvp.adspec.message_format_version", FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL }},
       { &hf_rsvp_adspec_service_header, { "Service header", "rsvp.adspec.service_header", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &intsrv_services_str_ext, 0x0, NULL, HFILL }},
@@ -10087,8 +10116,12 @@ proto_register_rsvp(void)
       { &hf_rsvp_adspec_bytes, { "Adspec bytes", "rsvp.adspec.bytes", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_wavelength_freq, { "Freq", "rsvp.wavelength.freq", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_wavelength_grid, { "Grid", "rsvp.wavelength.grid", FT_UINT8, BASE_DEC, VALS(lambda_grid_vals), 0xE0, NULL, HFILL }},
+      { &hf_rsvp_wavelength_cs1, { "Channel Spacing", "rsvp.wavelength.cs1", FT_UINT8, BASE_DEC, VALS(grid1_cs_vals), 0x1E, NULL, HFILL }},
+      { &hf_rsvp_wavelength_cs2, { "Channel Spacing", "rsvp.wavelength.cs2", FT_UINT8, BASE_DEC, VALS(grid2_cs_vals), 0x1E, NULL, HFILL }},
+      { &hf_rsvp_wavelength_cs3, { "Channel Spacing", "rsvp.wavelength.cs3", FT_UINT8, BASE_DEC, VALS(grid3_cs_vals), 0x1E, NULL, HFILL }},
       { &hf_rsvp_wavelength_channel_spacing, { "Channel Spacing", "rsvp.wavelength.channel_spacing", FT_UINT8, BASE_DEC, NULL, 0x1E, NULL, HFILL }},
-      { &hf_rsvp_wavelength_n, { "n", "rsvp.wavelength.n", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsvp_wavelength_n, { "Central Frequency", "rsvp.wavelength.n", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_rsvp_wavelength_m, { "Channel Width (m)", "rsvp.wavelength.m", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_wavelength_wavelength, { "Wavelength", "rsvp.wavelength.wavelength", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_nanometers, 0x0, NULL, HFILL }},
       { &hf_rsvp_sonet_s, { "S", "rsvp.sonet.s", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_rsvp_sonet_u, { "U", "rsvp.sonet.u", FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL }},
