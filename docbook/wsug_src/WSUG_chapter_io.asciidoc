@@ -762,46 +762,44 @@ image::wsug_graphics/ws-export-selected.png[{screenshot-attrs}]
 
 ==== The “Export Objects” dialog box
 
-This feature scans through HTTP streams in the currently open capture file or
-running capture and takes reassembled objects such as HTML documents, image
-files, executables and anything else that can be transferred over HTTP and lets
-you save them to disk. If you have a capture running, this list is automatically
+This feature scans through the selected protocol's streams in the currently
+open capture file or running capture and allows the user to export reassembled
+objects to the disk. For example, if you select HTTP, you can export HTML
+documents, images, executables, and any other files transferred over HTTP
+to the disk. If you have a capture running, this list is automatically
 updated every few seconds with any new objects seen. The saved objects can then
-be opened with the proper viewer or executed in the case of executables (if it
-is for the same platform you are running Wireshark on) without any further work
-on your part.
+be opened or examined independently of Wireshark.
 
 .The “Export Objects” dialog box
 image::wsug_graphics/ws-export-objects.png[{screenshot-attrs}]
 
-*  _Packet num:_ The packet number in which this object was found. In some
+Columns:
+
+*  _Packet:_ The packet number in which this object was found. In some
    cases, there can be multiple objects in the same packet.
 
-*  _Hostname:_ The hostname of the server that sent the object as a response to
-   an HTTP request.
+*  _Hostname:_ The hostname of the server that sent this object.
 
-*  _Content Type:_ The HTTP content type of this object.
+*  _Content Type:_ The content type of this object.
 
-*  _Bytes:_ The size of this object in bytes.
+*  _Size:_ The size of this object in bytes.
 
-*  _Filename:_ The final part of the URI (after the last slash). This is
-   typically a filename, but may be a long complex looking string, which
-   typically indicates that the file was received in response to a HTTP POST
-   request.
+*  _Filename:_ The filename for this object. Each protocol generates
+   the filename differently. For example, HTTP uses the
+   final part of the URI and IMF uses the subject of the email.
 
-*  _Help:_ Opens this section in the user’s guide.
+Buttons:
 
-*  _Close:_ Closes this dialog.
-
-*  _Save As:_ Saves the currently selected object as a filename you specify. The
-   default filename to save as is taken from the filename column of the objects
-   list.
+*  _Help:_ Opens the “Export Objects” section in the user’s guide.
 
 *  _Save All:_ Saves all objects in the list using the filename from the
    filename column. You will be asked what directory / folder to save them in.
-   If the filename is invalid for the operating system / file system you are
-   running Wireshark on, then an error will appear and that object will not be
-   saved (but all of the others will be).
+
+*  _Close:_ Closes the “Export Objects” dialog.
+
+*  _Save:_ Saves the currently selected object as a filename you specify. The
+   default filename to save as is taken from the filename column of the objects
+   list.
 
 [[ChIOPrintSection]]
 

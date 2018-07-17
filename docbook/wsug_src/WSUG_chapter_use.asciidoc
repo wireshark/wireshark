@@ -270,9 +270,9 @@ bytes pane to a text file file in a number of formats including plain, CSV,
 and XML. It is discussed further in <<ChIOExportSelectedDialog>>.
 
 |menu:Export Objects[]           ||
-These menu items allow you to export captured DICOM, HTTP, SMB, or TFTP objects
-into local files. It pops up a corresponding object list (which is discussed
-further in <<ChIOExportObjectsDialog>>)
+These menu items allow you to export captured DICOM, HTTP, IMF, SMB, or
+TFTP objects into local files. It pops up a corresponding object list
+(which is discussed further in <<ChIOExportObjectsDialog>>)
 
 |menu:Print...[]                      |kbd:[Ctrl+P]|
 This menu item allows you to print all (or some) of the packets in the capture
