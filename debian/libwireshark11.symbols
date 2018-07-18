@@ -1429,6 +1429,7 @@ libwireshark.so.11 libwireshark11 #MINVER#
  set_mac_lte_proto_data@Base 1.9.1
  set_mac_nr_proto_data@Base 2.5.2
  set_postdissector_wanted_hfids@Base 2.3.0
+ set_resolution_synchrony@Base 2.6.2
  set_srt_table_param_data@Base 1.99.8
  set_tap_dfilter@Base 1.9.1
  show_exception@Base 1.9.1
