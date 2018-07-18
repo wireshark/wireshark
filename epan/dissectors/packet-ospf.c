@@ -47,6 +47,11 @@
  *
  * Added support for Authentication Trailer for OSPFv3 (RFC6506)
  *   - (c) 2014 Alexis La Goutte (See AUTHORS)
+ *
+ * Added support for optical spectrum occupation for fixed grid WDM links (RFC 7688)
+ * Added support for optical spectrum occupation for flexi grid WDM links (RFC 8363)
+ *   - (c) 2018 Julien Meuric <julien.meuric@orange.com>
+ *   - (c) 2018 Khalifa Ndiaye <khalifa.ndiaye@orange.com>
  */
 
 #include "config.h"
@@ -542,9 +547,13 @@ static gint ett_ospf_v3_as_external_flags = -1;
 static gint ett_ospf_v3_prefix_options = -1;
 static gint ett_ospf_v3_router_interface = -1;
 static gint ett_ospf_v3_router_interface_entry = -1;
+static gint ett_ospf_mpls_pri = -1;
+static gint ett_ospf_mpls_bitmap = -1;
 
 /* Trees for opaque LSAs */
 static gint ett_ospf_lsa_mpls = -1;
+static gint ett_ospf_lsa_mpls_bandwidth_sstlv = -1;
+static gint ett_ospf_lsa_mpls_base_label = -1;
 static gint ett_ospf_lsa_mpls_router = -1;
 static gint ett_ospf_lsa_mpls_link = -1;
 static gint ett_ospf_lsa_mpls_link_stlv = -1;
@@ -903,6 +912,7 @@ static int hf_ospf_lls_checksum = -1;
 static int hf_ospf_v3_lsa_attached_router = -1;
 static int hf_ospf_v3_lsa_referenced_ls_type = -1;
 static int hf_ospf_mpls_encoding = -1;
+static int hf_ospf_mpls_num_labels = -1;
 static int hf_ospf_lsa_external_type = -1;
 static int hf_ospf_lsa_tos = -1;
 static int hf_ospf_lsa_external_tos = -1;
@@ -911,8 +921,20 @@ static int hf_ospf_metric = -1;
 static int hf_ospf_prefix_length = -1;
 static int hf_ospf_ls_mpls_pri = -1;
 static int hf_ospf_ls_mpls_bc = -1;
+static int hf_ospf_mpls_action = -1;
+static int hf_ospf_mpls_bandwidth_type = -1;
+static int hf_ospf_mpls_bitmap = -1;
+static int hf_ospf_mpls_grid = -1;
+static int hf_ospf_mpls_cs2 = -1;
+static int hf_ospf_mpls_n = -1;
+static int hf_ospf_mpls_cs = -1;
+static int hf_ospf_mpls_length = -1;
 static int hf_ospf_mpls_minimum_lsp_bandwidth = -1;
+static int hf_ospf_mpls_pri = -1;
 static int hf_ospf_mpls_sonet_sdh = -1;
+static int hf_ospf_mpls_starting = -1;
+static int hf_ospf_mpls_no_effective_bits = -1;
+static int hf_ospf_mpls_type = -1;
 static int hf_ospf_oif_signal_type = -1;
 static int hf_ospf_tlv_value = -1;
 static int hf_ospf_oif_node_id = -1;
@@ -1870,6 +1892,10 @@ enum {
     MPLS_LINK_BANDWIDTH_CONSTRAINT = 17 /* RFC 4124, OSPF-DSTE */
 };
 
+enum {
+    MPLS_BANDWIDTH_AVAILABLE       = 1,           /* RFC 3630, OSPF-TE   */
+    MPLS_BANDWIDTH_SHARED          = 2
+};
 
 /* OIF TLV types */
 enum {
@@ -1900,6 +1926,12 @@ static const value_string mpls_link_stlv_str[] = {
     {OIF_LOCAL_NODE_ID, "Local Node ID"},
     {OIF_REMOTE_NODE_ID, "Remote Node ID"},
     {OIF_SONET_SDH_SWITCHING_CAPABILITY, "Sonet/SDH Interface Switching Capability"},
+    {0, NULL},
+};
+
+static const value_string mpls_bandwidth_sstlv_str[] = {
+    {MPLS_BANDWIDTH_AVAILABLE, "Available Label"},
+    {MPLS_BANDWIDTH_SHARED, "Shared Backup Label"},
     {0, NULL},
 };
 
@@ -1942,9 +1974,10 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree 
                       guint32 length)
 {
     proto_item *ti, *hidden_item;
-    proto_tree *mpls_tree;
+    proto_tree *mpls_tree, *cs_tree, *label_tree, *grid_tree;
     proto_tree *tlv_tree;
     proto_tree *stlv_tree;
+    proto_tree *sstlv_tree;
     proto_tree *stlv_admingrp_tree = NULL;
 
     int tlv_type;
@@ -1952,11 +1985,40 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree 
     int tlv_end_offset;
 
     int stlv_type, stlv_len, stlv_offset;
+    int sstlv_type, sstlv_len, sstlv_offset;
+    int bitmap_length, no_eff_bits, nb_octets;
+    int bitmap_offset, bitmap_end_offset;
+    guint8 grid;
     const char *stlv_name;
+    const char *sstlv_name;
     guint32 stlv_admingrp, mask;
     int i;
     guint8 switch_cap;
+    guint8 action;
     float tmp_float;
+
+    static const value_string lambda_grid_vals[] = {
+        {   1, "DWDM"},
+        {   2, "CWDM"},
+        {   3, "Flexi"},
+        {   0, NULL }
+    };
+
+    static const value_string grid1_cs_vals[] = {
+        {   1, "100GHz"},
+        {   2, "50GHz"},
+        {   3, "25GHz"},
+        {   4, "12.5GHz"},
+        {   0, NULL }
+    };
+    static const value_string grid2_cs_vals[] = {
+        {   1, "20nm"},
+        {   0, NULL }
+    };
+    static const value_string grid3_cs_vals[] = {
+        {   5, "6.25GHz"},
+        {   0, NULL }
+    };
 
     const guint8 allzero[] = { 0x00, 0x00, 0x00 };
     guint num_bcs = 0;
@@ -2193,8 +2255,8 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree 
                     proto_tree_add_uint_format_value(stlv_tree, hf_ospf_tlv_type, tvb, stlv_offset, 2,
                                         stlv_type, "%u: %s", stlv_type, stlv_name);
                     proto_tree_add_item(stlv_tree, hf_ospf_tlv_length, tvb, stlv_offset+2, 2, ENC_BIG_ENDIAN);
-                    switch_cap = tvb_get_guint8 (tvb, stlv_offset+4);
-                    proto_tree_add_item(stlv_tree, hf_ospf_mpls_switching_type, tvb, stlv_offset+4, 1, ENC_BIG_ENDIAN);
+                    switch_cap = tvb_get_guint8 (tvb, stlv_offset + 4);
+                    proto_tree_add_item(stlv_tree, hf_ospf_mpls_switching_type, tvb, stlv_offset + 4, 1, ENC_BIG_ENDIAN);
                     proto_tree_add_item(stlv_tree, hf_ospf_mpls_encoding, tvb, stlv_offset+5, 1, ENC_BIG_ENDIAN);
                     for (i = 0; i < 8; i++) {
                         tmp_float = tvb_get_ntohieee_float(tvb, stlv_offset + 8 + i*4);
@@ -2216,6 +2278,107 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree 
                                             tmp_float, "%.10g bytes/s (%.0f bits/s)",
                                             tmp_float, tmp_float * 8.0);
                         proto_tree_add_item(stlv_tree, hf_ospf_mpls_sonet_sdh, tvb, stlv_offset+44, 1, ENC_NA);
+                    }
+                    if (switch_cap == 150) {
+                        if(tvb_get_ntohs(tvb, stlv_offset+2) > 36){
+                            sstlv_offset = stlv_offset + 40;
+                            sstlv_type = tvb_get_ntohs(tvb, sstlv_offset);
+                            sstlv_len = tvb_get_ntohs(tvb, sstlv_offset + 2);
+                            sstlv_name = val_to_str_const(sstlv_type, mpls_bandwidth_sstlv_str, "Unknown sub-TLV");
+
+                            sstlv_tree = proto_tree_add_subtree(stlv_tree, tvb, sstlv_offset, sstlv_len,ett_ospf_lsa_mpls_bandwidth_sstlv, NULL, sstlv_name);
+                            proto_tree_add_item(sstlv_tree, hf_ospf_mpls_bandwidth_type, tvb, sstlv_offset, 2, ENC_NA);
+                            proto_tree_add_item(sstlv_tree, hf_ospf_mpls_length, tvb, sstlv_offset + 2, 2, ENC_NA);
+                            proto_tree_add_item(sstlv_tree, hf_ospf_mpls_pri, tvb, sstlv_offset + 4, 1, ENC_NA);
+                            action = ((tvb_get_guint8(tvb, sstlv_offset + 8) & 0xF0 )  >> 4);
+                            proto_tree_add_item(sstlv_tree, hf_ospf_mpls_action, tvb, sstlv_offset + 8, 1, ENC_NA);
+                            proto_tree_add_item(sstlv_tree, hf_ospf_mpls_num_labels, tvb, sstlv_offset + 8, 2, ENC_NA);
+                            proto_tree_add_item(sstlv_tree, hf_ospf_mpls_length, tvb, sstlv_offset + 10, 2, ENC_NA);
+                            bitmap_length = tvb_get_ntohs(tvb, sstlv_offset + 10);
+                            if(action == 4){
+                                bitmap_offset = sstlv_offset + 16;
+                                bitmap_end_offset = sstlv_offset + 8 + bitmap_length;
+                                label_tree = proto_tree_add_subtree(sstlv_tree, tvb, sstlv_offset + 12, 4,ett_ospf_lsa_mpls_bandwidth_sstlv, NULL, "Base label");
+                                proto_tree_add_item(label_tree, hf_ospf_mpls_grid, tvb, sstlv_offset + 12, 1, ENC_NA);
+                                proto_tree_add_item(label_tree, hf_ospf_mpls_cs2, tvb, sstlv_offset + 12, 1, ENC_NA);
+                                proto_tree_add_item(label_tree, hf_ospf_mpls_n, tvb, sstlv_offset + 14, 2, ENC_NA);
+                                while(bitmap_offset < bitmap_end_offset){
+                                    proto_tree_add_item(sstlv_tree, hf_ospf_mpls_bitmap, tvb, bitmap_offset, 4, ENC_NA);
+                                    bitmap_offset += 4;
+                                }
+                            }
+                        }
+                    }
+
+                    /*   WSON_LSC, see RFC 7579 */
+                    if (switch_cap == 151) {
+                        sstlv_offset = stlv_offset + 40;
+                        sstlv_type = tvb_get_ntohs(tvb, sstlv_offset);
+                        sstlv_len = tvb_get_ntohs(tvb, sstlv_offset + 2);
+                        sstlv_name = val_to_str_const(sstlv_type, mpls_bandwidth_sstlv_str, "Unknown sub-TLV");
+                        sstlv_tree = proto_tree_add_subtree(stlv_tree, tvb, sstlv_offset, sstlv_len,ett_ospf_lsa_mpls_bandwidth_sstlv, NULL, sstlv_name);
+                        proto_tree_add_item(sstlv_tree, hf_ospf_mpls_bandwidth_type, tvb, sstlv_offset, 2, ENC_NA);
+                        proto_tree_add_item(sstlv_tree, hf_ospf_mpls_length, tvb, sstlv_offset + 2, 2, ENC_NA);
+                        proto_tree_add_item(sstlv_tree, hf_ospf_mpls_pri, tvb, sstlv_offset + 4, 1, ENC_NA);
+                        action = ((tvb_get_guint8(tvb, sstlv_offset + 8) & 0xF0 )  >> 4);
+                        proto_tree_add_item(sstlv_tree, hf_ospf_mpls_action, tvb, sstlv_offset + 8, 1, ENC_NA);
+                        proto_tree_add_item(sstlv_tree, hf_ospf_mpls_num_labels, tvb, sstlv_offset+8, 2, ENC_NA);
+                        proto_tree_add_item(sstlv_tree, hf_ospf_mpls_length, tvb, sstlv_offset + 10, 2, ENC_NA);
+                        bitmap_length = tvb_get_ntohs(tvb, sstlv_offset + 10);
+                        if(action == 4){
+                            bitmap_offset = sstlv_offset + 16;
+                            bitmap_end_offset = sstlv_offset + 8 + bitmap_length;
+                            grid =((tvb_get_guint8(tvb, sstlv_offset + 12) & 0xE0) >> 5);
+                            label_tree = proto_tree_add_subtree(sstlv_tree, tvb, sstlv_offset + 12, 4,ett_ospf_lsa_mpls_bandwidth_sstlv, NULL, "Base label");
+                            grid_tree = proto_tree_add_item(label_tree, hf_ospf_mpls_grid, tvb, sstlv_offset + 12, 1, ENC_NA);
+                            proto_item_set_text(grid_tree, "Grid: %s (%u)",val_to_str_const(grid, lambda_grid_vals, "Unknown"),
+                                                (grid ));
+                            switch(grid){
+                            case 1:
+                                cs_tree = proto_tree_add_item(label_tree, hf_ospf_mpls_cs2, tvb, stlv_offset + 12, 1, ENC_NA);
+                                proto_item_set_text(cs_tree, "Channel Spacing: %s (%d)",val_to_str_const((tvb_get_guint8(tvb, stlv_offset + 12) & 0x1E) >> 1, grid1_cs_vals, "Unknown"),
+                                         (tvb_get_guint8(tvb, stlv_offset + 12) & 0x1E) >> 1 );
+                                break;
+                            case 2:
+                                cs_tree = proto_tree_add_item(label_tree, hf_ospf_mpls_cs2, tvb, stlv_offset + 12, 1, ENC_NA);
+                                proto_item_set_text(cs_tree, "Channel Spacing: %s (%d)",val_to_str_const((tvb_get_guint8(tvb, stlv_offset + 12) & 0x1E) >> 1, grid2_cs_vals, "Unknown"),
+                                         (tvb_get_guint8(tvb, stlv_offset + 12) & 0x1E) >> 1 );
+                                break;
+                            default:
+                                proto_tree_add_item(label_tree, hf_ospf_mpls_cs2, tvb, sstlv_offset + 12, 1, ENC_NA);
+                                break;
+                            }
+                            proto_tree_add_item(label_tree, hf_ospf_mpls_n, tvb, sstlv_offset + 14, 2, ENC_NA);
+                            while(bitmap_offset < bitmap_end_offset){
+                                proto_tree_add_item(sstlv_tree, hf_ospf_mpls_bitmap, tvb, bitmap_offset, 4, ENC_NA);
+                                bitmap_offset += 4;
+                            }
+                        }
+                    }
+                    /*   flexi-grid_lsc, see RFC 8363 */
+                    if (switch_cap == 152){
+                        bitmap_length = tvb_get_ntohs(tvb, stlv_offset + 42);
+                        bitmap_offset = stlv_offset + 40 + 16;
+                        no_eff_bits = tvb_get_ntohs(tvb, stlv_offset + 54) & 0x0FFF;
+                        if(no_eff_bits % 32 == 0){
+                            nb_octets = (( no_eff_bits / 32 ) * 4);
+                        }
+                        else{
+                            nb_octets = ((( no_eff_bits / 32 ) + 1 ) * 4);
+                        }
+                        bitmap_end_offset = bitmap_offset + nb_octets;
+                        proto_tree_add_item(stlv_tree, hf_ospf_mpls_type, tvb, stlv_offset + 40, 2, ENC_NA);
+                        proto_tree_add_item(stlv_tree, hf_ospf_mpls_length, tvb, stlv_offset + 42, 2, ENC_NA);
+                        proto_tree_add_item(stlv_tree, hf_ospf_mpls_pri, tvb, stlv_offset + 44, 1, ENC_NA);
+                        cs_tree = proto_tree_add_item(stlv_tree, hf_ospf_mpls_cs, tvb, stlv_offset + 52, 1, ENC_NA);
+                        proto_item_set_text(cs_tree, "Channel Spacing: %s (%d)",val_to_str_const((tvb_get_guint8(tvb, stlv_offset + 52) & 0xF0) >> 4, grid3_cs_vals, "Unknown"),
+                                         (tvb_get_guint8(tvb, stlv_offset + 52) & 0xF0) >> 4 );
+                        proto_tree_add_item(stlv_tree, hf_ospf_mpls_starting, tvb, stlv_offset + 52, 4, ENC_NA);
+                        proto_tree_add_item(stlv_tree, hf_ospf_mpls_no_effective_bits, tvb, stlv_offset + 54, 2, ENC_NA);
+                        while(bitmap_offset < bitmap_end_offset){
+                            proto_tree_add_item(stlv_tree, hf_ospf_mpls_bitmap, tvb, bitmap_offset, 4, ENC_NA);
+                            bitmap_offset += 4;
+                        }
                     }
                     break;
                 case MPLS_LINK_PROTECTION:
@@ -4322,11 +4485,24 @@ proto_register_ospf(void)
       { &hf_ospf_db_dd_sequence, { "DD Sequence", "ospf.db.dd_sequence", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_ospf_link_state_id, { "Link State ID", "ospf.link_state_id", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_ospf_ls_number_of_lsas, { "Number of LSAs", "ospf.ls.number_of_lsas", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_ospf_mpls_action, { "Action", "ospf.mpls.action", FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL }},
+      { &hf_ospf_mpls_bandwidth_type, { "Bandwidth Type", "ospf.mpls.bandwidth.type", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_ospf_mpls_cs, { "Channel Spacing", "ospf.mpls.cs", FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL }},
       { &hf_ospf_mpls_switching_type, { "Switching Type", "ospf.mpls.switching_type", FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(gmpls_switching_type_rvals), 0x0, NULL, HFILL }},
       { &hf_ospf_mpls_encoding, { "Encoding", "ospf.mpls.encoding", FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(gmpls_lsp_enc_rvals), 0x0, NULL, HFILL }},
+      { &hf_ospf_mpls_num_labels, { "Num Labels", "ospf.mpls.num.labels", FT_UINT16, BASE_DEC, NULL, 0x0FFF, NULL, HFILL }},
       { &hf_ospf_mpls_interface_mtu, { "Interface MTU", "ospf.mpls.interface_mtu", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_ospf_mpls_length, { "Length", "ospf.mpls.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_ospf_mpls_pri, { "Priority", "ospf.mpls.pri", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_ospf_mpls_protection_capability, { "Protection Capability", "ospf.mpls.protection_capability", FT_UINT8, BASE_HEX, VALS(gmpls_protection_cap_str), 0x0, NULL, HFILL }},
       { &hf_ospf_mpls_shared_risk_link_group, { "Shared Risk Link Group", "ospf.mpls.shared_risk_link_group", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_ospf_mpls_starting, { "Starting n", "ospf.mpls.starting", FT_UINT32, BASE_DEC, NULL, 0x0FFFF000, NULL, HFILL }},
+      { &hf_ospf_mpls_no_effective_bits, { "No. of effective. Bits", "ospf.mpls.effective", FT_UINT16, BASE_DEC, NULL, 0x0FFF, NULL, HFILL }},
+      { &hf_ospf_mpls_bitmap, { "Bitmap", "ospf.mpls.bitmap", FT_UINT32, BASE_HEX, NULL, 0xFFFFFFFF, NULL, HFILL }},
+      { &hf_ospf_mpls_grid, { "Grid", "ospf.mpls.grid", FT_UINT8, BASE_DEC, NULL, 0xE0, NULL, HFILL }},
+      { &hf_ospf_mpls_cs2, { "Channel Spacing", "ospf.mpls.cs", FT_UINT8, BASE_DEC, NULL, 0x1E, NULL, HFILL }},
+      { &hf_ospf_mpls_n, { "Starting n", "ospf.mpls.n", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_ospf_mpls_type, { "Type", "ospf.mpls.type", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_ospf_oif_switching_cap, { "Switching Cap", "ospf.oif.switching_cap", FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(gmpls_switching_type_rvals), 0x0, NULL, HFILL }},
       { &hf_ospf_oif_encoding, { "Encoding", "ospf.oif.encoding", FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(gmpls_lsp_enc_rvals), 0x0, NULL, HFILL }},
       { &hf_ospf_oif_tna_addr_length, { "Addr Length", "ospf.oif.tna_addr_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -4382,6 +4558,8 @@ proto_register_ospf(void)
         &ett_ospf_lsa_router_link,
         &ett_ospf_lsa_upd,
         &ett_ospf_lsa_mpls,
+        &ett_ospf_lsa_mpls_bandwidth_sstlv,
+        &ett_ospf_lsa_mpls_base_label,
         &ett_ospf_lsa_mpls_router,
         &ett_ospf_lsa_mpls_link,
         &ett_ospf_lsa_mpls_link_stlv,
@@ -4433,7 +4611,9 @@ proto_register_ospf(void)
         &ett_ospf_v2_router_lsa_flags,
         &ett_ospf_v3_router_lsa_flags,
         &ett_ospf_v3_as_external_flags,
-        &ett_ospf_v3_prefix_options
+        &ett_ospf_v3_prefix_options,
+        &ett_ospf_mpls_pri,
+        &ett_ospf_mpls_bitmap
     };
 
     static ei_register_info ei[] = {
