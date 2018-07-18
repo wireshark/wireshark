@@ -5031,8 +5031,9 @@ dissect_config_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
         for (i = 0; i < value_len / 8; i++)
         {
           proto_tree_add_item(attr_tree, hf_isakmp_cfg_attr_internal_ip4_subnet_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
+          offset += 4;
           proto_tree_add_item(attr_tree, hf_isakmp_cfg_attr_internal_ip4_subnet_netmask, tvb, offset, 4, ENC_BIG_ENDIAN);
-          offset += 8;
+          offset += 4;
         }
       }
       break;
