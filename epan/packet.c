@@ -134,12 +134,18 @@ static GArray *postdissectors = NULL;
 #define POSTDISSECTORS(i)	g_array_index(postdissectors, postdissector, i)
 
 static void
+free_slist_element(gpointer elem, gpointer data _U_)
+{
+    g_free(elem);
+}
+
+static void
 destroy_depend_dissector_list(void *data)
 {
 	depend_dissector_list_t dissector_list = (depend_dissector_list_t)data;
 	GSList **list = &(dissector_list->dissectors);
 
-	g_slist_foreach(*list, (GFunc)g_free, NULL);
+	g_slist_foreach(*list, free_slist_element, NULL);
 	g_slist_free(*list);
 	g_slice_free(struct depend_dissector_list, dissector_list);
 }
