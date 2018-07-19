@@ -15,6 +15,106 @@ These statistics range from specific signaling protocols, to analysis of
 signaling and media flows. If encoded in a compatible encoding the media flow
 can even be played.
 
+The protocol specific statistics windows display detailed information of
+specific protocols and might be described in a later version of this document.
+
+Some of these statistics are described at the
+{wireshark-wiki-url}Statistics pages.
+
+[[ChTelVoipCalls]]
+
+=== VoIP Calls
+
+The VoIP Calls window shows a list of all detected VoIP calls in the captured
+traffic. It finds calls by their signaling.
+
+More details can be found on the {wireshark-wiki-url}VoIP_calls page.
+
+
+[[ChTelANSI]]
+
+=== ANSI
+
+{missing}
+
+[[ChTelGSM]]
+
+=== GSM
+
+{missing}
+
+[[ChTelIAX2Analysis]]
+
+=== IAX2 Stream Analysis
+
+The “IAX2 Stream Analysis” dialog shows statistics for the forward and reverse
+streams of a selected IAX2 call along with a graph.
+
+[[ChTelISUPMessages]]
+
+=== ISUP Messages
+
+{missing}
+
+[[ChTelLTE]]
+
+=== LTE
+
+[[ChTelLTEMACTraffic]]
+
+==== LTE MAC Traffic Statistics
+
+Statistics of the captured LTE MAC traffic. This window will summarize the LTE
+MAC traffic found in the capture.
+
+.The “LTE MAC Traffic Statistics” window
+image::wsug_graphics/ws-stats-lte-mac-traffic.png[{screenshot-attrs}]
+
+The top pane shows statistics for common channels. Each row in the middle pane
+shows statistical highlights for exactly one UE/C-RNTI. In the lower pane, you
+can see the for the currently selected UE/C-RNTI the traffic broken down by
+individual channel.
+
+[[ChTelLTERLCGraph]]
+
+==== LTE RLC Graph
+
+{missing}
+
+[[ChTelLTERLCTraffic]]
+
+==== LTE RLC Traffic Statistics
+
+Statistics of the captured LTE RLC traffic. This window will summarize the LTE
+RLC traffic found in the capture.
+
+.The “LTE RLC Traffic Statistics” window
+image::wsug_graphics/ws-stats-lte-rlc-traffic.png[{screenshot-attrs}]
+
+At the top, the check-box allows this window to include RLC PDUs found within
+MAC PDUs or not. This will affect both the PDUs counted as well as the display
+filters generated (see below).
+
+The upper list shows summaries of each active UE. Each row in the lower list
+shows statistical highlights for individual channels within the selected UE.
+
+The lower part of the windows allows display filters to be generated and set for
+the selected channel. Note that in the case of Acknowledged Mode channels, if a
+single direction is chosen, the generated filter will show data in that
+direction and control PDUs in the opposite direction.
+
+[[ChTelMTP3]]
+
+=== MTP3
+
+{missing}
+
+[[ChTelOsmux]]
+
+=== Osmux
+
+{missing}
+
 [[ChTelRTPAnalysis]]
 
 === RTP Analysis
@@ -36,22 +136,6 @@ The RTP Stream Analysis window further provides the option to save the RTP
 payload (as raw data or, if in a PCM encoding, in an Audio file). Other options
 a to export and plot various statistics on the RTP streams.
 
-[[ChTelIAX2Analysis]]
-
-=== IAX2 Analysis
-
-The “IAX2 Analysis” dialog shows statistics for the forward and reverse
-streams of a selected IAX2 call along with a graph.
-
-[[ChTelVoipCalls]]
-
-=== VoIP Calls
-
-The VoIP Calls window shows a list of all detected VoIP calls in the captured
-traffic. It finds calls by their signaling.
-
-More details can be found on the {wireshark-wiki-url}VoIP_calls page.
-
 [[ChTelRtpPlayer]]
 
 The RTP Player window lets you play back RTP audio data. In order to use
@@ -61,51 +145,53 @@ used by each RTP stream.
 More details can be found on the
 {wireshark-wiki-url}VoIP_calls page.
 
-[[ChTelLTEMACTraffic]]
+[[ChTelRTSP]]
 
-=== LTE MAC Traffic Statistics
+=== RTSP
 
-Statistics of the captured LTE MAC traffic. This window will summarize the LTE
-MAC traffic found in the capture.
+{missing}
 
-.The “LTE MAC Traffic Statistics” window
-image::wsug_graphics/ws-stats-lte-mac-traffic.png[{screenshot-attrs}]
+[[ChTelSCTP]]
 
-The top pane shows statistics for common channels. Each row in the middle pane
-shows statistical highlights for exactly one UE/C-RNTI. In the lower pane, you
-can see the for the currently selected UE/C-RNTI the traffic broken down by
-individual channel.
+=== SCTP
 
-[[ChTelLTERLCTraffic]]
+{missing}
 
-=== LTE RLC Traffic Statistics
+[[ChTelSMPPOperations]]
 
-Statistics of the captured LTE RLC traffic. This window will summarize the LTE
-RLC traffic found in the capture.
+=== SMPP Operations
 
-.The “LTE RLC Traffic Statistics” window
-image::wsug_graphics/ws-stats-lte-rlc-traffic.png[{screenshot-attrs}]
+{missing}
 
-At the top, the check-box allows this window to include RLC PDUs found within
-MAC PDUs or not. This will affect both the PDUs counted as well as the display
-filters generated (see below).
+[[ChTelUCPMessages]]
 
-The upper list shows summaries of each active UE. Each row in the lower list
-shows statistical highlights for individual channels within the selected UE.
+=== UCP Messages
 
-The lower part of the windows allows display filters to be generated and set for
-the selected channel. Note that in the case of Acknowledged Mode channels, if a
-single direction is chosen, the generated filter will show data in that
-direction and control PDUs in the opposite direction.
+{missing}
 
-[[ChTelXXX]]
+[[ChTelH225]]
 
-=== The protocol specific statistics windows
+=== H.225
 
-The protocol specific statistics windows display detailed information of
-specific protocols and might be described in a later version of this document.
+{missing}
 
-Some of these statistics are described at the
-{wireshark-wiki-url}Statistics pages.
+[[ChTelSIPFlows]]
+
+=== SIP Flows
+
+{missing}
+
+[[ChTelSIPStatistics]]
+
+=== SIP Statistics
+
+{missing}
+
+[[ChTelWAPWSPPacketCounter]]
+
+=== WAP-WSP Packet Counter
+
+{missing}
+
 
 // End of WSUG Chapter Telephony

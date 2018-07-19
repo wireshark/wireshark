@@ -10,6 +10,23 @@
 
 The Wireless menu provides access to statistics related to wireless traffic.
 
+[[ChWirelessBluetoothATTServerAttributes]]
+
+=== Bluetooth ATT Server Attributes
+
+{missing}
+
+[[ChWirelessBluetoothDevices]]
+
+=== Bluetooth Devices
+
+{missing}
+
+[[ChWirelessBluetoothHCISummary]]
+
+=== Bluetooth HCI Summary
+
+{missing}
 
 [[ChWirelessWLANTraffic]]
 

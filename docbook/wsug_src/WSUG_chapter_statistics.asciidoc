@@ -40,6 +40,13 @@ protocol. Unless you are familiar with that protocol, statistics about it will
 be pretty hard to understand.
 ====
 
+Wireshark has many other statistics windows that display detailed
+information about specific protocols and might be described in a later
+version of this document.
+
+Some of these statistics are described at
+{wireshark-wiki-url}Statistics.
+
 [[ChStatSummary]]
 
 === The “Capture File Properties” Window
@@ -67,6 +74,12 @@ image::wsug_graphics/ws-stats-summary.png[{screenshot-attrs}]
   in the _Displayed_ column will reflect the values corresponding to the
   packets shown in the display. The values in the _Marked_ column will
   reflect the values corresponding to the marked packages.
+
+[[ChStatResolvedAddresses]]
+
+=== Resolved Addresses
+
+{missing}
 
 [[ChStatHierarchy]]
 
@@ -278,9 +291,16 @@ it before (or while) you are doing a live capture.
 // Removed:
 // [[ChStatEndpointListWindow]]
 
+
+[[ChStatPacketLengths]]
+
+=== Packet Lengths
+
+{missing}
+
 [[ChStatIOGraphs]]
 
-=== The “IO Graphs” Window
+=== The “I/O Graph” Window
 
 User configurable graph of the captured network packets.
 
@@ -430,6 +450,66 @@ selected in the main window.
 ====
 ////
 
+[[ChStatDHCPBOOTP]]
+
+=== DHCP (BOOTP) Statistics
+
+{missing}
+
+[[ChStatONCRPC]]
+
+=== ONC-RPC Programs
+
+{missing}
+
+[[ChStat29West]]
+
+=== 29West
+
+{missing}
+
+[[ChStatANCP]]
+
+=== ANCP
+
+{missing}
+
+[[ChStatBACnet]]
+
+=== BACnet
+
+{missing}
+
+[[ChStatCollectd]]
+
+=== Collectd
+
+{missing}
+
+[[ChStatDNS]]
+
+=== DNS
+
+{missing}
+
+[[ChStatFlowGraph]]
+
+=== Flow Graph
+
+{missing}
+
+[[ChStatHARTIP]]
+
+=== HART-IP
+
+{missing}
+
+[[ChStatHPFEEDS]]
+
+=== HPFEEDS
+
+{missing}
+
 [[ChStatHTTP]]
 
 === HTTP Statistics
@@ -463,6 +543,19 @@ request leads to the next.
 .The “HTTP Request Sequences” window
 image::wsug_graphics/ws-stats-http-requestsequences.png[{screenshot-attrs}]
 
+
+[[ChStatHTTP2]]
+
+=== HTTP2
+
+{missing}
+
+[[ChStatSametime]]
+
+=== Sametime
+
+{missing}
+
 [[ChStatTCPStreamGraphs]]
 
 === TCP Stream Graphs
@@ -486,15 +579,28 @@ segment.
 
 _Window Scaling_:: Window size and outstanding bytes.
 
-[[ChStatOtherProtocols]]
+[[ChStatUDPMulticastGraphs]]
 
-=== Other Protocol-specific Statistics Windows
+=== UDP Multicast Graphs
 
-Wireshark has many other statistics windows that display detailed
-information about specific protocols and might be described in a later
-version of this document.
+{missing}
 
-Some of these statistics are described at
-{wireshark-wiki-url}Statistics.
+[[ChStatF5]]
+
+=== F5
+
+{missing}
+
+[[ChStatIPv4]]
+
+=== IPv4 Statistics
+
+{missing}
+
+[[ChStatIPv6]]
+
+=== IPv6 Statistics
+
+{missing}
 
 // End of WSUG Chapter Statistics
