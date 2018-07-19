@@ -172,7 +172,7 @@ static int setup_dumpfile(const char* fifo, FILE** fp)
 		return EXIT_SUCCESS;
 	}
 
-	*fp = fopen(fifo, "w");
+	*fp = fopen(fifo, "wb");
 	if (!(*fp)) {
 		g_warning("Error creating output file: %s", g_strerror(errno));
 		return EXIT_FAILURE;

@@ -418,7 +418,7 @@ static int ssh_open_remote_connection(const char* hostname, const unsigned int p
 
 	if (g_strcmp0(fifo, "-")) {
 		/* Open or create the output file */
-		fp = fopen(fifo, "w");
+		fp = fopen(fifo, "wb");
 		if (!fp) {
 			g_warning("Error creating output file: %s", g_strerror(errno));
 			return EXIT_FAILURE;
