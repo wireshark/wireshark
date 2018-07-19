@@ -20,21 +20,23 @@ the Department of Computer Science.
 In Wireshark Lua can be used to write dissectors, taps, and capture file readers
 and writers.
 
-Wireshark’s Lua interpreter starts by loading `init.lua` that is located in the
-global configuration directory of Wireshark. Lua is enabled by default. To
-disable Lua the line variable _$$disable_lua$$_ should be set to _true_ in
-`init.lua`.
+Wireshark’s Lua interpreter starts by loading a file named `init.lua` in
+Wireshark's global configuration directory. It is enabled by default. To
+disable Lua the line variable _$$enable_lua$$_ should be set to _false_
+in _init.lua_. Wireshark 2.6 and earlier enabled and disabled Lua using
+the variable _$$disable_lua$$_. It is still supported, but is deprecated
+and support may be removed in a future release. _$$enable_lua$$_ takes
+precedence over _$$disable_lua$$_.
 
-After loading _init.lua_ from the data directory if Lua is enabled Wireshark
-will try to load a file named `init.lua` in the user’s directory.
-
-Wireshark will also load all files with `.lua` suffix from both the global and
-the personal plugins directory.
+If Lua is enabled Wireshark will then try to load a file named _init.lua_
+in the user’s personal configuration directory. Wireshark will also load
+all files with a _.lua_ suffix from both the global and the personal
+plugins directory.
 
 The command line option _$$-X lua_script:$$++file.lua++_ can be used to load
 Lua scripts as well.
 
-The Lua code will be executed once after all the protocol dissectors have being
+The Lua code will be executed once after all the protocol dissectors have been
 initialized and before reading any file.
 
 [[wslua_dissector_example]]

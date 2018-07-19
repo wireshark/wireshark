@@ -767,6 +767,7 @@ wslua_allocf(void *ud _U_, void *ptr, size_t osize _U_, size_t nsize)
 void wslua_init(register_cb cb, gpointer client_data) {
     gchar* filename;
     const funnel_ops_t* ops = funnel_get_funnel_ops();
+    gboolean enable_lua = TRUE;
     gboolean run_anyway = FALSE;
     expert_module_t* expert_lua;
     int file_count = 1;
@@ -923,16 +924,25 @@ void wslua_init(register_cb cb, gpointer client_data) {
     filename = NULL;
 
     /* check if lua is to be disabled */
-    lua_getglobal(L,"disable_lua");
+    lua_getglobal(L, "disable_lua"); // 2.6 and earlier, deprecated
+    if (lua_isboolean(L,-1)) {
+        enable_lua = ! lua_toboolean(L,-1);
+    }
+    lua_pop(L,1);  /* pop the getglobal result */
 
-    if (lua_isboolean(L,-1) && lua_toboolean(L,-1)) {
+    lua_getglobal(L, "enable_lua"); // 3.0 and later
+    if (lua_isboolean(L,-1)) {
+        enable_lua = lua_toboolean(L,-1);
+    }
+    lua_pop(L,1);  /* pop the getglobal result */
+
+    if (!enable_lua) {
         /* disable lua */
         lua_close(L);
         L = NULL;
         first_time = FALSE;
         return;
     }
-    lua_pop(L,1);  /* pop the getglobal result */
 
     /* load global scripts */
     lua_load_global_plugins(cb, client_data, FALSE);

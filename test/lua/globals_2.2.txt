@@ -720,8 +720,8 @@
     ["datafile_path"] = '<function 33>',
     ["debug"] = '<function 381>',
     ["deregister_filehandler"] = '<function 382>',
-    ["disable_lua"] = false,
     ["dofile"] = '<function 383>',
+    ["enable_lua"] = true,
     ["error"] = '<function 384>',
     ["expert"] = {
         ["group"] = {

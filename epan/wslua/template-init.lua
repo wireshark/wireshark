@@ -11,10 +11,10 @@
 --
 -- SPDX-License-Identifier: GPL-2.0-or-later
 
--- Set disable_lua to true to disable Lua support.
-disable_lua = false
+-- Set enable_lua to false to disable Lua support.
+enable_lua = true
 
-if disable_lua then
+if not enable_lua then
     return
 end
 
