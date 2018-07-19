@@ -552,27 +552,27 @@ All menu items will bring up a new window showing specific statistical informati
 [options="header",cols="3,2,5"]
 |===============
 |Menu Item|Accelerator|Description
-|menu:Summary[]|| Show information about the data captured, see <<ChStatSummary>>.
+|menu:Capture File Properties[]|| Show information about the capture file, see <<ChStatSummary>>.
 |menu:Protocol Hierarchy[]|| Display a hierarchical tree of protocol statistics, see <<ChStatHierarchy>>.
 |menu:Conversations[]|| Display a list of conversations (traffic between two endpoints), see <<ChStatConversationsWindow>>.
 |menu:Endpoints[]|| Display a list of endpoints (traffic to/from an address), see <<ChStatEndpointsWindow>>.
 |menu:Packet Lengths...[]||See <<ChStatOtherProtocols>>
 |menu:IO Graphs[]|| Display user specified graphs (e.g. the number of packets in the course of time), see <<ChStatIOGraphs>>.
 |menu:Service Response Time[]|| Display the time between a request and the corresponding response, see <<ChStatSRT>>.
+|menu:ONC-RPC Programs[]||See <<ChStatOtherProtocols>>
+|menu:DHCP (BOOTP)[]||See <<ChStatOtherProtocols>>
 |menu:ANCP[]||See <<ChStatOtherProtocols>>
 |menu:Colledtd...[]||See <<ChStatOtherProtocols>>
-|menu:Compare...[]||See <<ChStatOtherProtocols>>
+//|menu:Compare...[]||See <<ChStatOtherProtocols>>
 |menu:Flow Graph...[]||See <<ChStatOtherProtocols>>
 |menu:HTTP[]||HTTP request/response statistics, see <<ChStatOtherProtocols>>
+|menu:Sametime[]||See <<ChStatOtherProtocols>>
+|menu:TCP Stream Graphs[]||See <<ChStatTCPStreamGraphs>>
+|menu:UDP Multicast Streams[]||See <<ChStatOtherProtocols>>
 |menu:IP Addresses...[]||See <<ChStatOtherProtocols>>
 |menu:IP Destinations...[]||See <<ChStatOtherProtocols>>
 |menu:IP Protocol Types...[]||See <<ChStatOtherProtocols>>
-|menu:ONC-RPC Programs[]||See <<ChStatOtherProtocols>>
-|menu:Sametime[]||See <<ChStatOtherProtocols>>
-|menu:TCP Stream Graph[]||See <<ChStatTCPStreamGraphs>>
-|menu:UDP Multicast Streams[]||See <<ChStatOtherProtocols>>
-|menu:WLAN Traffic[]||See <<ChStatWLANTraffic>>
-|menu:BOOTP-DHCP[]||See <<ChStatOtherProtocols>>
+
 
 |===============
 

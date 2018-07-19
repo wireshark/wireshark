@@ -17,7 +17,7 @@ These statistics range from general information about the loaded capture file
 
 * General statistics:
 
-  - *Summary* about the capture file.
+  - *Capture File Properties* about the capture file.
 
   - *Protocol Hierarchy* of the captured packets.
 
@@ -42,11 +42,11 @@ be pretty hard to understand.
 
 [[ChStatSummary]]
 
-=== The “Summary” Window
+=== The “Capture File Properties” Window
 
 General statistics about the current capture file.
 
-.The “Summary” window
+.The “Capture File Properties” window
 image::wsug_graphics/ws-stats-summary.png[{screenshot-attrs}]
 
 * __File__: general information about the capture file.
@@ -58,15 +58,15 @@ image::wsug_graphics/ws-stats-summary.png[{screenshot-attrs}]
   available if the packet data was captured from the network and not loaded from
   a file).
 
-* __Display__: some display related information.
+* __Interface__: information about the capture interface.
 
-* __Traffic__: some statistics of the network traffic seen. If a display filter
-  is set, you will see values in the Captured column, and if any packages are
-  marked, you will see values in the Marked column. The values in the _Captured_
-  column will remain the same as before, while the values in the _Displayed_
-  column will reflect the values corresponding to the packets shown in the
-  display. The values in the _Marked_ column will reflect the values
-  corresponding to the marked packages.
+* __Statistics__: some statistics of the network traffic seen. If a display
+  filter is set, you will see values in the Captured column, and if any
+  packages are marked, you will see values in the Marked column. The values
+  in the _Captured_ column will remain the same as before, while the values
+  in the _Displayed_ column will reflect the values corresponding to the
+  packets shown in the display. The values in the _Marked_ column will
+  reflect the values corresponding to the marked packages.
 
 [[ChStatHierarchy]]
 
@@ -381,6 +381,8 @@ Each row corresponds to a method of the interface selected (so the EPM interface
 in version 3 has 7 methods). For each method the number of calls, and the
 statistics of the SRT time is calculated.
 
+////
+// COMMENTED OUT, not yet implemented in QT UI
 [[ChStatCompareCaptureFiles]]
 
 === Compare Two Capture Files
@@ -426,6 +428,40 @@ The color filtering differentiate the two files from each other. A
 If you click on an item in the error list its corresponding packet will be
 selected in the main window.
 ====
+////
+
+[[ChStatHTTP]]
+
+=== HTTP Statistics
+
+[[ChStatHTTPPacketCounter]]
+
+==== HTTP Packet Counter
+
+Statistics for HTTP request types and response codes.
+
+[[ChStatHTTPRequests]]
+
+==== HTTP Requests
+
+HTTP statistics based on the host and URI.
+
+[[ChStatHTTPLoadDistribution]]
+
+==== HTTP Load Distribution
+
+HTTP request and response statistics based on the server address and host.
+
+[[ChStatHTTPRequestSequences]]
+
+==== HTTP Request Sequences
+
+HTTP Request Sequences uses HTTP's Referer and Location headers to sequence a
+capture's HTTP requests as a tree. This enables analysts to see how one HTTP
+request leads to the next.
+
+.The “HTTP Request Sequences” window
+image::wsug_graphics/ws-stats-http-requestsequences.png[{screenshot-attrs}]
 
 [[ChStatTCPStreamGraphs]]
 
@@ -449,37 +485,6 @@ based on the acknowledgement timestamp corresponding to a particular
 segment.
 
 _Window Scaling_:: Window size and outstanding bytes.
-
-[[ChStatWLANTraffic]]
-
-=== WLAN Traffic Statistics
-
-Statistics about captured WLAN traffic. This can be found under the
-menu:Wireless[] menu and summarizes the wireless network traffic found
-in the capture. Probe requests will be merged into an existing network
-if the SSID matches.
-
-.The “WLAN Traffic Statistics” window
-image::wsug_graphics/ws-stats-wlan-traffic.png[{screenshot-attrs}]
-
-Each row in the list shows the statistical values for exactly one wireless
-network.
-
-_Name resolution_ will be done if selected in the window and if it is active for
-the MAC layer.
-
-_Only show existing networks_ will exclude probe requests with a SSID not
-matching any network from the list.
-
-The btn:[Copy] button will copy the list values to the clipboard in CSV (Comma
-Separated Values) format.
-
-
-[TIP]
-====
-This window will be updated frequently, so it will be useful, even if you open
-it before (or while) you are doing a live capture.
-====
 
 [[ChStatOtherProtocols]]
 
