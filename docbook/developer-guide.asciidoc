@@ -18,6 +18,7 @@ include::common_src/typographic_conventions.asciidoc[]
 
 [[PartEnvironment]]
 = Wireshark Build Environment
+
 [partintro]
 .Wireshark Build Environment
 --
@@ -37,6 +38,7 @@ include::wsdg_src/WSDG_chapter_libraries.asciidoc[]
 
 [[PartDevelopment]]
 = Wireshark Development
+
 [partintro]
 .Wireshark Development
 --
