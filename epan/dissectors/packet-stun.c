@@ -1669,11 +1669,11 @@ proto_register_stun(void)
             BASE_HEX, NULL, 0x7FFFFFFF, NULL, HFILL}
          },
         { &hf_stun_att_address_rp_masb,
-          { "Maximum Send Bandwidth", "stun.att.adress_rp.masb", FT_UINT32,
+          { "Maximum Send Bandwidth", "stun.att.address_rp.masb", FT_UINT32,
             BASE_DEC, NULL, 0x0, "In kilobits per second", HFILL}
          },
         { &hf_stun_att_address_rp_marb,
-          { "Maximum Receive Bandwidth", "stun.att.adress_rp.marb", FT_UINT32,
+          { "Maximum Receive Bandwidth", "stun.att.address_rp.marb", FT_UINT32,
             BASE_DEC, NULL, 0x0, "In kilobits per second", HFILL}
          },
         { &hf_stun_att_sip_dialog_id,
