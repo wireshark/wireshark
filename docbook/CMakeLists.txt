@@ -63,14 +63,19 @@ set(COMMON_GRAPHICS
 
 set(WSUG_TOOLS_HELP_COMMANDS
 	capinfos
-	dumpcap
 	editcap
 	mergecap
-	rawshark
 	reordercap
 	text2pcap
 	tshark
 )
+
+if (PCAP_FOUND)
+	list(APPEND WSUG_TOOLS_HELP_COMMANDS
+		dumpcap
+		rawshark
+	)
+endif(PCAP_FOUND)
 
 # We want the wsug_* targets to depend on the tools help files.
 # We want update_tools_help to be an independent target.
@@ -80,6 +85,11 @@ set(WSUG_TOOLS_HELP_FILES)
 set(GUIDE_INSTALL_DIRS)
 
 # General help output
+# XXX We should probably do this conditionally, e.g. based on
+#   if (TARGET ${th_command}) ...
+# However, if we do so we'll have to make sure this is processed after
+# our targets are created.
+
 foreach(th_command ${WSUG_TOOLS_HELP_COMMANDS})
 	set(th_file ${CMAKE_CURRENT_SOURCE_DIR}/wsug_src/${th_command}-h.txt)
 	list(APPEND WSUG_TOOLS_HELP_FILES ${th_file})
