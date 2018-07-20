@@ -98,9 +98,6 @@ PATH_SPECIFIC_WHITELISTED_LICENSES = {
     'cmake/TestFileOffsetBits.c': [
         'UNKNOWN',
     ],
-    'cmake/TestWindowsFSeek.c': [
-        'UNKNOWN',
-    ],
     # Generated header files by lex/yacc/whatever
     'epan/dtd_grammar.h': [
         'UNKNOWN',

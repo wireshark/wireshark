@@ -67,17 +67,11 @@ MACRO(GMX_TEST_LARGE_FILES VARIABLE)
             endif(FILE64_OK)
         endif(NOT FILE64_OK)
 
-        if(NOT FILE64_OK)
-            # now check for Windows stuff
+        if(NOT FILE64_OK AND WIN32)
+            # Visual C++ has supported fseeki64 since Visual Studio 2005 / MSVCR80.
             MESSAGE(STATUS "64-bit off_t is not present")
-            MESSAGE(STATUS "Checking for _fseeki64")
-
-            TRY_COMPILE(FILE64_OK "${CMAKE_BINARY_DIR}"
-                        "${CMAKE_SOURCE_DIR}/cmake/TestWindowsFSeek.c")
-            if(FILE64_OK)
-                MESSAGE(STATUS "_fseeki64 is present")
-                set(HAVE__FSEEKI64 1 CACHE INTERNAL "64-bit file offsets require _fseeki64")
-            endif(FILE64_OK)
+            MESSAGE(STATUS "_fseeki64 is present")
+            set(HAVE__FSEEKI64 1 CACHE INTERNAL "64-bit file offsets require _fseeki64")
         endif(NOT FILE64_OK)
 
         if(NOT FILE64_OK)
