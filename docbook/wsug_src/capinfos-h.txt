@@ -1,4 +1,4 @@
-Capinfos (Wireshark) 2.5.0 (v2.5.0rc0-1220-g23e2b1f9)
+Capinfos (Wireshark) 2.9.0 (v2.9.0rc0-1249-ga108e49d)
 Print various information (infos) about capture files.
 See https://www.wireshark.org for more information.
 

@@ -1,4 +1,4 @@
-TShark (Wireshark) 2.5.0 (v2.5.0rc0-2358-gae199f2e)
+TShark (Wireshark) 2.9.0 (v2.9.0rc0-1249-ga108e49d)
 Dump and analyze network traffic.
 See https://www.wireshark.org for more information.
 
@@ -105,6 +105,9 @@ Output:
   --no-duplicate-keys      If -T json is specified, merge duplicate keys in an object
                            into a single key with as value a json array containing all
                            values
+  --elastic-mapping-filter <protocols> If -G elastic-mapping is specified, put only the
+                           specified protocols within the mapping file
+
 Miscellaneous:
   -h                       display this help and exit
   -v                       display version info and exit
