@@ -62,6 +62,9 @@
 /* Define to 1 if you have the <ifaddrs.h> header file. */
 #cmakedefine HAVE_IFADDRS_H 1
 
+/* Define to 1 if yu have the `fseeko` function. */
+#cmakedefine HAVE_FSEEKO 1
+
 /* Define to 1 if you have the `getexecname' function. */
 #cmakedefine HAVE_GETEXECNAME 1
 

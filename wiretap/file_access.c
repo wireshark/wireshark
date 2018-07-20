@@ -2763,7 +2763,7 @@ wtap_dump_file_seek(wtap_dumper *wdh, gint64 offset, int whence, int *err)
 	} else
 #endif
 	{
-		if (-1 == fseek((FILE *)wdh->fh, (long)offset, whence)) {
+		if (-1 == ws_fseek64((FILE *)wdh->fh, offset, whence)) {
 			*err = errno;
 			return -1;
 		} else
@@ -2784,7 +2784,7 @@ wtap_dump_file_tell(wtap_dumper *wdh, int *err)
 	} else
 #endif
 	{
-		if (-1 == (rval = ftell((FILE *)wdh->fh))) {
+		if (-1 == (rval = ws_ftell64((FILE *)wdh->fh))) {
 			*err = errno;
 			return -1;
 		} else

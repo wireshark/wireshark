@@ -11,6 +11,8 @@
 #ifndef __FILE_UTIL_H__
 #define __FILE_UTIL_H__
 
+#include "config.h"
+
 #include "ws_symbol_export.h"
 
 #ifdef __cplusplus
@@ -104,7 +106,9 @@ WS_DLL_PUBLIC FILE * ws_stdio_freopen (const gchar *filename, const gchar *mode,
 #define ws_write   _write
 #define ws_close   _close
 #define ws_dup     _dup
+#define ws_fseek64 _fseeki64	/* use _fseeki64 for 64-bit offset support */
 #define ws_fstat64 _fstati64	/* use _fstati64 for 64-bit size support */
+#define ws_ftell64 _ftelli64	/* use _ftelli64 for 64-bit offset support */
 #define ws_lseek64 _lseeki64	/* use _lseeki64 for 64-bit offset support */
 #define ws_fdopen  _fdopen
 #define ws_fileno  _fileno
@@ -186,6 +190,13 @@ WS_DLL_PUBLIC void close_app_running_mutex();
 #define ws_close   close
 #endif
 #define ws_dup     dup
+#ifdef HAVE_FSEEKO
+#define ws_fseek64 fseeko	/* AC_SYS_LARGEFILE should make off_t 64-bit */
+#define ws_ftell64 ftello	/* AC_SYS_LARGEFILE should make off_t 64-bit */
+#else
+#define ws_fseek64(fh,offset,whence)	fseek(fh,(long)(offset),whence)
+#define ws_ftell64 ftell
+#endif
 #define ws_fstat64 fstat	/* AC_SYS_LARGEFILE should make off_t 64-bit */
 #define ws_lseek64 lseek	/* AC_SYS_LARGEFILE should make off_t 64-bit */
 #define ws_fdopen  fdopen
