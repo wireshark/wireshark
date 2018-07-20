@@ -324,7 +324,7 @@ k12_copy_cb(void* dest, const void* orig, size_t len _U_)
 {
 	k12_handles_t* d = (k12_handles_t *)dest;
 	const k12_handles_t* o = (const k12_handles_t *)orig;
-	gchar** protos = wmem_strsplit(NULL,d->protos,":",0);
+	gchar** protos = g_strsplit(d->protos,":",0);
 	guint num_protos;
 
 	for (num_protos = 0; protos[num_protos]; num_protos++)
@@ -334,7 +334,7 @@ k12_copy_cb(void* dest, const void* orig, size_t len _U_)
 	d->protos  = g_strdup(o->protos);
 	d->handles = (dissector_handle_t *)g_memdup(o->handles,(guint)(sizeof(dissector_handle_t)*(num_protos+1)));
 
-	wmem_free(NULL, protos);
+	g_strfreev(protos);
 
 	return dest;
 }
@@ -360,7 +360,7 @@ protos_chk_cb(void* r _U_, const char* p, guint len, const void* u1 _U_, const v
 	g_strstrip(line);
 	ascii_strdown_inplace(line);
 
-	protos = wmem_strsplit(NULL,line,":",0);
+	protos = g_strsplit(line,":",0);
 
 	for (num_protos = 0; protos[num_protos]; num_protos++)
 		g_strstrip(protos[num_protos]);
@@ -368,7 +368,7 @@ protos_chk_cb(void* r _U_, const char* p, guint len, const void* u1 _U_, const v
 	if (!num_protos) {
 		*err = g_strdup("No protocols given");
 		wmem_free(NULL, line);
-		wmem_free(NULL, protos);
+		g_strfreev(protos);
 		return FALSE;
 	}
 
@@ -376,13 +376,13 @@ protos_chk_cb(void* r _U_, const char* p, guint len, const void* u1 _U_, const v
 		if (!find_dissector(protos[i])) {
 			*err = g_strdup_printf("Could not find dissector for: '%s'",protos[i]);
 			wmem_free(NULL, line);
-			wmem_free(NULL, protos);
+			g_strfreev(protos);
 			return FALSE;
 		}
 	}
 
 	wmem_free(NULL, line);
-	wmem_free(NULL, protos);
+	g_strfreev(protos);
 	return TRUE;
 }
 
