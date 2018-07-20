@@ -77,19 +77,16 @@ set(WSUG_TOOLS_HELP_COMMANDS
 # We don't necessarily want to depend on building our executables before
 # being able to build our documentation.
 set(WSUG_TOOLS_HELP_FILES)
-set(WSUG_TOOLS_PHONY_DEPS)
 set(GUIDE_INSTALL_DIRS)
 
 # General help output
 foreach(th_command ${WSUG_TOOLS_HELP_COMMANDS})
 	set(th_file ${CMAKE_CURRENT_SOURCE_DIR}/wsug_src/${th_command}-h.txt)
-	set(th_phony ${th_command}_h_tools_help)
 	list(APPEND WSUG_TOOLS_HELP_FILES ${th_file})
-	list(APPEND WSUG_TOOLS_PHONY_DEPS ${th_phony})
 	add_custom_command(
-		OUTPUT ${th_phony}
-		COMMAND ${th_command} -h > ${th_file}
-		DEPENDS ${th_command}
+		OUTPUT ${th_file}
+		COMMAND $<TARGET_FILE:${th_command}> -h > ${th_file}
+		DEPENDS $<TARGET_FILE:${th_command}>
 	)
 endforeach()
 
@@ -97,26 +94,22 @@ endforeach()
 # Note that these won't work on Windows unless we make -F and -T write
 # to stdout and return 0 or wrap the commands similar to hhc.exe.
 set(th_file ${CMAKE_CURRENT_SOURCE_DIR}/wsug_src/editcap-F.txt)
-set(th_phony editcap_F_tools_help)
 list(APPEND WSUG_TOOLS_HELP_FILES ${th_file})
-list(APPEND WSUG_TOOLS_PHONY_DEPS ${th_phony})
 add_custom_command(
-	OUTPUT ${th_phony}
-	COMMAND editcap -F > ${th_file}
-	DEPENDS editcap
+	OUTPUT ${th_file}
+	COMMAND $<TARGET_FILE:editcap> -F > ${th_file}
+	DEPENDS $<TARGET_FILE:editcap>
 )
 set(th_file ${CMAKE_CURRENT_SOURCE_DIR}/wsug_src/editcap-T.txt)
-set(th_phony editcap_T_tools_help)
 list(APPEND WSUG_TOOLS_HELP_FILES ${th_file})
-list(APPEND WSUG_TOOLS_PHONY_DEPS ${th_phony})
 add_custom_command(
-	OUTPUT ${th_phony}
-	COMMAND editcap -T > ${th_file}
-	DEPENDS editcap
+	OUTPUT ${th_file}
+	COMMAND $<TARGET_FILE:editcap> -T > ${th_file}
+	DEPENDS $<TARGET_FILE:editcap>
 )
 
 add_custom_target(update_tools_help
-	DEPENDS ${WSUG_TOOLS_PHONY_DEPS}
+	DEPENDS ${WSUG_TOOLS_HELP_FILES}
 )
 set_docbook_target_properties(update_tools_help)
 
