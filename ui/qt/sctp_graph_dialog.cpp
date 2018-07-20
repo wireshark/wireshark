@@ -332,6 +332,22 @@ void SCTPGraphDialog::drawGraph()
         minTSN = selected_assoc->min_tsn2;
     }
     ui->sctpPlot->clearGraphs();
+    xt.clear();
+    yt.clear();
+    xs.clear();
+    ys.clear();
+    xg.clear();
+    yg.clear();
+    xd.clear();
+    yd.clear();
+    xn.clear();
+    yn.clear();
+    ft.clear();
+    fs.clear();
+    fg.clear();
+    fd.clear();
+    fn.clear();
+    typeStrings.clear();
     switch (type) {
     case 1: drawSACKGraph();
         drawNRSACKGraph();
