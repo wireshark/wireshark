@@ -72,6 +72,8 @@ void SCTPGraphArwndDialog::drawArwndGraph()
         listSACK = g_list_last(selected_assoc->sack2);
         startArwnd = selected_assoc->arwnd1;
     }
+    bool detect_max_arwnd = (startArwnd == 0) ? true : false;
+
     while (listSACK) {
         tsn = (tsn_t*) (listSACK->data);
         tlist = g_list_first(tsn->tsns);
@@ -83,6 +85,9 @@ void SCTPGraphArwndDialog::drawArwndGraph()
             } else if (type == SCTP_NR_SACK_CHUNK_ID) {
                 nr_sack_header =(struct nr_sack_chunk_header *)tlist->data;
                 arwnd = g_ntohl(nr_sack_header->a_rwnd);
+            }
+            if (detect_max_arwnd && startArwnd < arwnd) {
+                startArwnd = arwnd;
             }
             ya.append(arwnd);
             xa.append(tsn->secs + tsn->usecs/1000000.0);

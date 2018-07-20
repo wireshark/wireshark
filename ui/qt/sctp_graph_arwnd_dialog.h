@@ -49,7 +49,7 @@ private:
     capture_file *cap_file_;
     int frame_num;
     int direction;
-    int startArwnd;
+    guint32 startArwnd;
     QVector<double> xa, ya;
     QVector<guint32> fa;
  //   QVector<QString> typeStrings;
