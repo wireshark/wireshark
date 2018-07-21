@@ -366,6 +366,7 @@ register_tap_listener_qt_mtp3_summary(void)
     register_tap_listener("mtp3", &mtp3_stat, NULL, 0,
         mtp3_summary_reset,
         mtp3_summary_packet,
+        NULL,
         NULL);
 
     if (err_p != NULL)

@@ -329,7 +329,7 @@ register_tap_listener_mcast_stream(mcaststream_tapinfo_t *tapinfo)
     if (!tapinfo->is_registered) {
         error_string = register_tap_listener("udp", tapinfo,
             NULL, 0, mcaststream_reset_cb, mcaststream_packet,
-            mcaststream_draw);
+            mcaststream_draw, NULL);
 
         if (error_string != NULL) {
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,

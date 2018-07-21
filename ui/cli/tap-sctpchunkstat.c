@@ -199,7 +199,7 @@ sctpstat_init(const char *opt_arg, void *userdata _U_)
 
 	sctpstat_reset(hs);
 
-	error_string = register_tap_listener("sctp", hs, hs->filter, 0, NULL, sctpstat_packet, sctpstat_draw);
+	error_string = register_tap_listener("sctp", hs, hs->filter, 0, NULL, sctpstat_packet, sctpstat_draw, NULL);
 	if (error_string) {
 		/* error, we failed to attach to the tap. clean up */
 		g_free(hs->filter);

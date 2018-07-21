@@ -293,7 +293,7 @@ sid_name_snooping=FALSE;
 	error_string=register_tap_listener("dcerpc",
 	    &lsa_policy_information_tap_installed,
 	    "lsa.policy_information and ( lsa.info.level or lsa.domain or nt.domain_sid )",
-	    TL_REQUIRES_PROTO_TREE, NULL, lsa_policy_information, NULL);
+	    TL_REQUIRES_PROTO_TREE, NULL, lsa_policy_information, NULL, NULL);
 	if(error_string){
 		/* error, we failed to attach to the tap. clean up */
 
@@ -307,7 +307,7 @@ sid_name_snooping=FALSE;
 	error_string=register_tap_listener("dcerpc",
 	    &samr_query_dispinfo_tap_installed,
 	    "samr and samr.opnum==40 and ( samr.handle or samr.rid or samr.acct_name or samr.level )",
-	    TL_REQUIRES_PROTO_TREE, NULL, samr_query_dispinfo, NULL);
+	    TL_REQUIRES_PROTO_TREE, NULL, samr_query_dispinfo, NULL, NULL);
 	if(error_string){
 		/* error, we failed to attach to the tap. clean up */
 

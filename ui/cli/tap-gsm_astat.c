@@ -318,7 +318,8 @@ gsm_a_stat_init(const char *opt_arg _U_, void *userdata _U_)
         register_tap_listener("gsm_a", stat_p, NULL, 0,
             NULL,
             gsm_a_stat_packet,
-            gsm_a_stat_draw);
+            gsm_a_stat_draw,
+            NULL);
 
     if (err_p != NULL)
     {

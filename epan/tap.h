@@ -25,6 +25,7 @@ extern "C" {
 typedef void (*tap_reset_cb)(void *tapdata);
 typedef gboolean (*tap_packet_cb)(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data);
 typedef void (*tap_draw_cb)(void *tapdata);
+typedef void (*tap_finish_cb)(void *tapdata);
 
 /**
  * Flags to indicate what a tap listener's packet routine requires.
@@ -208,7 +209,8 @@ WS_DLL_PUBLIC void draw_tap_listeners(gboolean draw_all);
 
 WS_DLL_PUBLIC GString *register_tap_listener(const char *tapname, void *tapdata,
     const char *fstring, guint flags, tap_reset_cb tap_reset,
-    tap_packet_cb tap_packet, tap_draw_cb tap_draw) G_GNUC_WARN_UNUSED_RESULT;
+    tap_packet_cb tap_packet, tap_draw_cb tap_draw,
+    tap_finish_cb tap_finish) G_GNUC_WARN_UNUSED_RESULT;
 
 /** This function sets a new dfilter to a tap listener */
 WS_DLL_PUBLIC GString *set_tap_dfilter(void *tapdata, const char *fstring);

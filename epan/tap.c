@@ -89,6 +89,7 @@ typedef struct _tap_listener_t {
 	tap_reset_cb reset;
 	tap_packet_cb packet;
 	tap_draw_cb draw;
+	tap_finish_cb finish;
 } tap_listener_t;
 static volatile tap_listener_t *tap_listener_queue=NULL;
 
@@ -465,7 +466,8 @@ DIAG_ON(cast-qual)
  */
 GString *
 register_tap_listener(const char *tapname, void *tapdata, const char *fstring,
-		      guint flags, tap_reset_cb reset, tap_packet_cb packet, tap_draw_cb draw)
+		      guint flags, tap_reset_cb reset, tap_packet_cb packet,
+		      tap_draw_cb draw, tap_finish_cb finish)
 {
 	volatile tap_listener_t *tl;
 	int tap_id;
@@ -502,6 +504,7 @@ register_tap_listener(const char *tapname, void *tapdata, const char *fstring,
 	tl->reset=reset;
 	tl->packet=packet;
 	tl->draw=draw;
+	tl->finish=finish;
 	tl->next=tap_listener_queue;
 
 	tap_listener_queue=tl;
@@ -613,6 +616,8 @@ remove_tap_listener(void *tapdata)
 
 		}
 	}
+	if(tl->finish)
+		tl->finish(tapdata);
 	free_tap_listener(tl);
 }
 

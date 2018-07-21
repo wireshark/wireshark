@@ -206,7 +206,7 @@ rpcprogs_init(const char *opt_arg _U_, void *userdata _U_)
 	}
 	already_enabled = 1;
 
-	error_string = register_tap_listener("rpc", NULL, NULL, 0, NULL, rpcprogs_packet, rpcprogs_draw);
+	error_string = register_tap_listener("rpc", NULL, NULL, 0, NULL, rpcprogs_packet, rpcprogs_draw, NULL);
 	if (error_string) {
 		fprintf(stderr, "tshark: Couldn't register rpc,programs tap: %s\n",
 			error_string->str);

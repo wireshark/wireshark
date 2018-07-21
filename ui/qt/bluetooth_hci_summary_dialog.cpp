@@ -73,6 +73,7 @@ bluetooth_hci_summary_tap_init(void *data)
             0,
             bluetooth_hci_summary_tap_reset,
             bluetooth_hci_summary_tap_packet,
+            NULL,
             NULL
             );
 
@@ -889,6 +890,7 @@ void BluetoothHciSummaryDialog::displayFilterLineEditAccepted()
             0,
             bluetooth_hci_summary_tap_reset,
             bluetooth_hci_summary_tap_packet,
+            NULL,
             NULL
             );
 

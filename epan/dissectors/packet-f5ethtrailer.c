@@ -2204,17 +2204,17 @@ static void proto_init_f5ethtrailer(void)
 	if(pref_perform_analysis) {
 		GString *error_string;
 
-		error_string = register_tap_listener("ip", &tap_ip_enabled, NULL, TL_REQUIRES_NOTHING, NULL, ip_tap_pkt, NULL);
+		error_string = register_tap_listener("ip", &tap_ip_enabled, NULL, TL_REQUIRES_NOTHING, NULL, ip_tap_pkt, NULL, NULL);
 		if (error_string) {
 			ws_g_warning("Unable to register tap \"ip\" for f5ethtrailer: %s", error_string->str);
 			g_string_free(error_string, TRUE);
 		}
-		error_string = register_tap_listener("ipv6", &tap_ipv6_enabled, NULL, TL_REQUIRES_NOTHING, NULL, ipv6_tap_pkt, NULL);
+		error_string = register_tap_listener("ipv6", &tap_ipv6_enabled, NULL, TL_REQUIRES_NOTHING, NULL, ipv6_tap_pkt, NULL, NULL);
 		if (error_string) {
 			ws_g_warning("Unable to register tap \"ipv6\" for f5ethtrailer: %s", error_string->str);
 			g_string_free(error_string, TRUE);
 		}
-		error_string = register_tap_listener("tcp", &tap_tcp_enabled, NULL, TL_REQUIRES_NOTHING, NULL, tcp_tap_pkt, NULL);
+		error_string = register_tap_listener("tcp", &tap_tcp_enabled, NULL, TL_REQUIRES_NOTHING, NULL, tcp_tap_pkt, NULL, NULL);
 		if (error_string) {
 			ws_g_warning("Unable to register tap \"tcp\" for f5ethtrailer: %s", error_string->str);
 			g_string_free(error_string, TRUE);

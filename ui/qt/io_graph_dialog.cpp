@@ -1506,7 +1506,8 @@ IOGraph::IOGraph(QCustomPlot *parent) :
                           TL_REQUIRES_PROTO_TREE,
                           tapReset,
                           tapPacket,
-                          tapDraw);
+                          tapDraw,
+                          NULL);
     if (error_string) {
 //        QMessageBox::critical(this, tr("%1 failed to register tap listener").arg(name_),
 //                             error_string->str);

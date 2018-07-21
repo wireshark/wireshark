@@ -101,7 +101,7 @@ init_stat_table(stat_tap_table_ui *stat_tap, const char *filter)
 
 	stat_tap->stat_tap_init_cb(stat_tap);
 
-	error_string = register_tap_listener(stat_tap->tap_name, &ui->stats, filter, 0, NULL, stat_tap->packet_func, simple_draw);
+	error_string = register_tap_listener(stat_tap->tap_name, &ui->stats, filter, 0, NULL, stat_tap->packet_func, simple_draw, NULL);
 	if (error_string) {
 /*		free_rtd_table(&ui->rtd.stat_table); */
 		fprintf(stderr, "tshark: Couldn't register tap: %s\n", error_string->str);

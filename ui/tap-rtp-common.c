@@ -218,7 +218,7 @@ register_tap_listener_rtpstream(rtpstream_tapinfo_t *tapinfo, const char *fstrin
     if (!tapinfo->is_registered) {
         error_string = register_tap_listener("rtp", tapinfo,
             fstring, 0, rtpstream_reset_cb, rtpstream_packet_cb,
-            rtpstream_draw_cb);
+            rtpstream_draw_cb, NULL);
 
         if (error_string != NULL) {
             if (tap_error) {

@@ -246,7 +246,8 @@ wspstat_init(const char *opt_arg, void *userdata _U_)
 			0,
 			wspstat_reset,
 			wspstat_packet,
-			wspstat_draw);
+			wspstat_draw,
+			NULL);
 	if (error_string) {
 		/* error, we failed to attach to the tap. clean up */
 		g_free(sp->pdu_stats);

@@ -214,7 +214,8 @@ static void camelsrt_init(const char *opt_arg, void *userdata _U_)
                                      0,
                                      NULL,
                                      camelsrt_packet,
-                                     camelsrt_draw);
+                                     camelsrt_draw,
+                                     NULL);
 
   if (error_string) {
     /* error, we failed to attach to the tap. clean up */

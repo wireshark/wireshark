@@ -94,7 +94,7 @@ flow_init(const char *opt_argp, void *userdata)
     sequence_analysis_list_free(flow_info);
 
     errp = register_tap_listener(sequence_analysis_get_tap_listener_name(analysis), flow_info, filter, sequence_analysis_get_tap_flags(analysis),
-                                NULL, sequence_analysis_get_packet_func(analysis), flow_draw);
+                                NULL, sequence_analysis_get_packet_func(analysis), flow_draw, NULL);
 
     if (errp != NULL)
     {

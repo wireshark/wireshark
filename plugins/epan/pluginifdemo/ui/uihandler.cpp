@@ -35,7 +35,7 @@ reset_dialog(void *data _U_)
 void pluginifdemo_ui_main(ext_menubar_gui_type gui_type, gpointer gui_data)
 {
     /* ensures, that the dialog is closing, if scm udid is set or a filter is applied */
-    register_tap_listener("frame", NULL, NULL, 0, reset_dialog, NULL, NULL );
+    register_tap_listener("frame", NULL, NULL, 0, reset_dialog, NULL, NULL, NULL);
 
     GuiHandler::getInstance()->showMainDialog(gui_type, gui_data);
 }

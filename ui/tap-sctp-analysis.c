@@ -1266,7 +1266,7 @@ register_tap_listener_sctp_stat(void)
 
     if (!sctp_tapinfo_struct.is_registered)
     {
-        if ((error_string = register_tap_listener("sctp", &sctp_tapinfo_struct, NULL, 0, reset, packet, NULL))) {
+        if ((error_string = register_tap_listener("sctp", &sctp_tapinfo_struct, NULL, 0, reset, packet, NULL, NULL))) {
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
             g_string_free(error_string, TRUE);
             return;

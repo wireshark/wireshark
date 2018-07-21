@@ -174,7 +174,7 @@ protohierstat_init(const char *opt_arg, void *userdata _U_)
 	rs = new_phs_t(NULL);
 	rs->filter = g_strdup(filter);
 
-	error_string = register_tap_listener("frame", rs, filter, TL_REQUIRES_PROTO_TREE, NULL, protohierstat_packet, protohierstat_draw);
+	error_string = register_tap_listener("frame", rs, filter, TL_REQUIRES_PROTO_TREE, NULL, protohierstat_packet, protohierstat_draw, NULL);
 	if (error_string) {
 		/* error, we failed to attach to the tap. clean up */
 		g_free(rs->filter);

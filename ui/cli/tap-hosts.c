@@ -113,7 +113,7 @@ hosts_init(const char *opt_arg, void *userdata _U_)
 	}
 
 	error_string = register_tap_listener("frame", NULL, NULL, TL_REQUIRES_PROTO_TREE,
-					   NULL, NULL, hosts_draw);
+					   NULL, NULL, hosts_draw, NULL);
 	if (error_string) {
 		/* error, we failed to attach to the tap. clean up */
 		fprintf(stderr, "tshark: Couldn't register " TAP_NAME " tap: %s\n",

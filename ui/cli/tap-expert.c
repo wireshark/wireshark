@@ -241,7 +241,8 @@ static void expert_stat_init(const char *opt_arg, void *userdata _U_)
                                          filter, 0,
                                          expert_stat_reset,
                                          expert_stat_packet,
-                                         expert_stat_draw);
+                                         expert_stat_draw,
+                                         NULL);
     if (error_string) {
         printf("Expert tap error (%s)!\n", error_string->str);
         g_string_free(error_string, TRUE);

@@ -284,7 +284,8 @@ icmpstat_init(const char *opt_arg, void *userdata _U_)
  */
 
     error_string = register_tap_listener("icmp", icmpstat, icmpstat->filter,
-        TL_REQUIRES_NOTHING, icmpstat_reset, icmpstat_packet, icmpstat_draw);
+        TL_REQUIRES_NOTHING, icmpstat_reset, icmpstat_packet, icmpstat_draw,
+        NULL);
     if (error_string) {
         /* error, we failed to attach to the tap. clean up */
         g_free(icmpstat->filter);

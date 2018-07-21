@@ -53,6 +53,7 @@ svstat_init(const char *opt_arg _U_, void *userdata _U_)
 		0,
 		NULL,
 		sv_packet,
+		NULL,
 		NULL);
 	if (error_string) {
 		/* error, we failed to attach to the tap. clean up */

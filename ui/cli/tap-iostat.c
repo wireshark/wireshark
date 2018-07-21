@@ -1372,7 +1372,7 @@ register_io_tap(io_stat_t *io, int i, const char *filter)
     g_free(field);
 
     error_string = register_tap_listener("frame", &io->items[i], flt, TL_REQUIRES_PROTO_TREE, NULL,
-                                       iostat_packet, i ? NULL : iostat_draw);
+                                       iostat_packet, i ? NULL : iostat_draw, NULL);
     if (error_string) {
         g_free(io->items);
         g_free(io);

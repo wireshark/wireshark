@@ -235,7 +235,7 @@ exportobject_handler(gpointer key, gpointer value _U_, gpointer user_data _U_)
 
     /* Data will be gathered via a tap callback */
     error_msg = register_tap_listener(get_eo_tap_listener_name(eo), tap_data, NULL, 0,
-                      NULL, get_eo_packet_func(eo), eo_draw);
+                      NULL, get_eo_packet_func(eo), eo_draw, NULL);
 
     if (error_msg) {
         fprintf(stderr, "tshark: Can't register %s tap: %s\n", (const char*)key, error_msg->str);

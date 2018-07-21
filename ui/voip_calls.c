@@ -526,6 +526,7 @@ rtp_event_init_tap(voip_calls_tapinfo_t *tap_id_base)
             0,
             NULL,
             rtp_event_packet,
+            NULL,
             NULL
             );
 
@@ -852,7 +853,8 @@ rtp_init_tap(voip_calls_tapinfo_t *tap_id_base)
             0,
             rtp_reset,
             rtp_packet,
-            rtp_draw
+            rtp_draw,
+            NULL
             );
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
@@ -1047,7 +1049,8 @@ t38_init_tap(voip_calls_tapinfo_t *tap_id_base)
             0,
             NULL,
             t38_packet,
-            t38_draw
+            t38_draw,
+            NULL
             );
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
@@ -1277,7 +1280,8 @@ sip_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
             0,
             NULL,
             sip_calls_packet,
-            sip_calls_draw
+            sip_calls_draw,
+            NULL
             );
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
@@ -1476,7 +1480,8 @@ isup_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
             0,
             NULL,
             isup_calls_packet,
-            isup_calls_draw
+            isup_calls_draw,
+            NULL
             );
 
     if (error_string != NULL) {
@@ -1545,6 +1550,7 @@ mtp3_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
             0,
             NULL,
             mtp3_calls_packet,
+            NULL,
             NULL
             );
 
@@ -1559,6 +1565,7 @@ mtp3_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
             0,
             NULL,
             m3ua_calls_packet,
+            NULL,
             NULL
             );
 
@@ -1872,7 +1879,8 @@ q931_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
             0,
             NULL,
             q931_calls_packet,
-            q931_calls_draw
+            q931_calls_draw,
+            NULL
             );
 
     if (error_string != NULL) {
@@ -2163,7 +2171,8 @@ h225_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
             0,
             NULL,
             h225_calls_packet,
-            h225_calls_draw
+            h225_calls_draw,
+            NULL
             );
 
     if (error_string != NULL) {
@@ -2327,7 +2336,8 @@ h245dg_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
             0,
             NULL,
             h245dg_calls_packet,
-            h245dg_calls_draw
+            h245dg_calls_draw,
+            NULL
             );
 
     if (error_string != NULL) {
@@ -2397,7 +2407,8 @@ sdp_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
             0,
             NULL,
             sdp_calls_packet,
-            sdp_calls_draw
+            sdp_calls_draw,
+            NULL
             );
 
     if (error_string != NULL) {
@@ -2782,7 +2793,8 @@ mgcp_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
             TL_REQUIRES_PROTO_TREE,
             NULL,
             mgcp_calls_packet,
-            mgcp_calls_draw
+            mgcp_calls_draw,
+            NULL
             );
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
@@ -2906,7 +2918,8 @@ actrace_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
             0,
             NULL,
             actrace_calls_packet,
-            actrace_calls_draw
+            actrace_calls_draw,
+            NULL
             );
 
     if (error_string != NULL) {
@@ -3076,7 +3089,8 @@ h248_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
             0,
             NULL,
             megaco_calls_packet,
-            megaco_calls_draw);
+            megaco_calls_draw,
+            NULL);
 
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
@@ -3089,7 +3103,8 @@ h248_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
             0,
             NULL,
             h248_calls_packet,
-            h248_calls_draw);
+            h248_calls_draw,
+            NULL);
 
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
@@ -3268,7 +3283,8 @@ void sccp_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
             0,
             NULL,
             sccp_calls_packet,
-            sccp_calls_draw);
+            sccp_calls_draw,
+            NULL);
 
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
@@ -3281,7 +3297,8 @@ void sccp_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
             0,
             NULL,
             sua_calls_packet,
-            sua_calls_draw);
+            sua_calls_draw,
+            NULL);
 
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
@@ -3789,7 +3806,8 @@ unistim_calls_init_tap(voip_calls_tapinfo_t *tap_id_base) {
             0,
             NULL,
             unistim_calls_packet,
-            unistim_calls_draw
+            unistim_calls_draw,
+            NULL
             );
 
     if (error_string != NULL) {
@@ -3956,7 +3974,8 @@ skinny_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
             TL_REQUIRES_PROTO_TREE,
             NULL,
             skinny_calls_packet,
-            skinny_calls_draw
+            skinny_calls_draw,
+            NULL
             );
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
@@ -4097,7 +4116,8 @@ iax2_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
             TL_REQUIRES_PROTO_TREE,
             NULL,
             iax2_calls_packet,
-            iax2_calls_draw
+            iax2_calls_draw,
+            NULL
             );
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s",
@@ -4209,7 +4229,8 @@ voip_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
             0,
             NULL,
             voip_calls_packet,
-            voip_calls_draw
+            voip_calls_draw,
+            NULL
             );
 
     if (error_string != NULL) {
@@ -4273,7 +4294,8 @@ prot_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
                                          0,
                                          NULL,
                                          prot_calls_packet,
-                                         prot_calls_draw
+                                         prot_calls_draw,
+                                         NULL
         );
 
     if (error_string != NULL) {

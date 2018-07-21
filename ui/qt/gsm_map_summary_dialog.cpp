@@ -367,6 +367,7 @@ register_tap_listener_qt_gsm_map_summary(void)
     register_tap_listener("gsm_map", &gsm_map_stat, NULL, 0,
         gsm_map_summary_reset,
         gsm_map_summary_packet,
+        NULL,
         NULL);
 
     if (err_p != NULL)

@@ -181,6 +181,7 @@ exp_pdu_pre_open(const char *tap_name, const char *filter, exp_pdu_t *exp_pdu_ta
                                          TL_REQUIRES_PROTO_TREE,  /* flags for the tap listener */
                                          NULL,
                                          export_pdu_packet,
+                                         NULL,
                                          NULL);
     if (error_string != NULL)
         return g_string_free(error_string, FALSE);

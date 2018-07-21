@@ -378,7 +378,8 @@ static void rlc_lte_stat_init(const char *opt_arg, void *userdata _U_)
                                          filter, 0,
                                          rlc_lte_stat_reset,
                                          rlc_lte_stat_packet,
-                                         rlc_lte_stat_draw);
+                                         rlc_lte_stat_draw,
+                                         NULL);
     if (error_string) {
         g_string_free(error_string, TRUE);
         g_free(hs);

@@ -101,7 +101,7 @@ init_rtd_tables(register_rtd_t* rtd, const char *filter)
 
 	rtd_table_dissector_init(rtd, &ui->rtd.stat_table, NULL, NULL);
 
-	error_string = register_tap_listener(get_rtd_tap_listener_name(rtd), &ui->rtd, filter, 0, NULL, get_rtd_packet_func(rtd), rtd_draw);
+	error_string = register_tap_listener(get_rtd_tap_listener_name(rtd), &ui->rtd, filter, 0, NULL, get_rtd_packet_func(rtd), rtd_draw, NULL);
 	if (error_string) {
 		free_rtd_table(&ui->rtd.stat_table);
 		fprintf(stderr, "tshark: Couldn't register srt tap: %s\n", error_string->str);

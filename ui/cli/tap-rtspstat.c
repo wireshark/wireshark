@@ -241,7 +241,8 @@ rtspstat_init(const char *opt_arg, void *userdata _U_)
 			0,
 			rtspstat_reset,
 			rtspstat_packet,
-			rtspstat_draw);
+			rtspstat_draw,
+			NULL);
 	if (error_string) {
 		/* error, we failed to attach to the tap. clean up */
 		g_free(sp->filter);

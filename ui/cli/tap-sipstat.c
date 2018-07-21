@@ -421,7 +421,8 @@ sipstat_init(const char *opt_arg, void *userdata _U_)
 			0,
 			sipstat_reset,
 			sipstat_packet,
-			sipstat_draw);
+			sipstat_draw,
+			NULL);
 	if (error_string) {
 		/* error, we failed to attach to the tap. clean up */
 		g_free(sp->filter);

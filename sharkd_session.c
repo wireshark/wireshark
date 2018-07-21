@@ -2181,7 +2181,7 @@ sharkd_session_process_tap(char *buf, const jsmntok_t *tokens, int count)
 
 			st = stats_tree_new(cfg, NULL, tap_filter);
 
-			tap_error = register_tap_listener(st->cfg->tapname, st, st->filter, st->cfg->flags, stats_tree_reset, stats_tree_packet, sharkd_session_process_tap_stats_cb);
+			tap_error = register_tap_listener(st->cfg->tapname, st, st->filter, st->cfg->flags, stats_tree_reset, stats_tree_packet, sharkd_session_process_tap_stats_cb, NULL);
 
 			if (!tap_error && cfg->init)
 				cfg->init(st);
@@ -2196,7 +2196,7 @@ sharkd_session_process_tap(char *buf, const jsmntok_t *tokens, int count)
 			expert_tap = g_new0(struct sharkd_expert_tap, 1);
 			expert_tap->text = g_string_chunk_new(100);
 
-			tap_error = register_tap_listener("expert", expert_tap, NULL, 0, NULL, sharkd_session_packet_tap_expert_cb, sharkd_session_process_tap_expert_cb);
+			tap_error = register_tap_listener("expert", expert_tap, NULL, 0, NULL, sharkd_session_packet_tap_expert_cb, sharkd_session_process_tap_expert_cb, NULL);
 
 			tap_data = expert_tap;
 			tap_free = sharkd_session_free_tap_expert_cb;
@@ -2225,7 +2225,7 @@ sharkd_session_process_tap(char *buf, const jsmntok_t *tokens, int count)
 			tap_flags = sequence_analysis_get_tap_flags(analysis);
 			tap_func  = sequence_analysis_get_packet_func(analysis);
 
-			tap_error = register_tap_listener(tap_name, graph_analysis, NULL, tap_flags, NULL, tap_func, sharkd_session_process_tap_flow_cb);
+			tap_error = register_tap_listener(tap_name, graph_analysis, NULL, tap_flags, NULL, tap_func, sharkd_session_process_tap_flow_cb, NULL);
 
 			tap_data = graph_analysis;
 			tap_free = sharkd_session_free_tap_flow_cb;
@@ -2273,7 +2273,7 @@ sharkd_session_process_tap(char *buf, const jsmntok_t *tokens, int count)
 			ct_data->resolve_name = TRUE;
 			ct_data->resolve_port = TRUE;
 
-			tap_error = register_tap_listener(ct_tapname, &ct_data->hash, tap_filter, 0, NULL, tap_func, sharkd_session_process_tap_conv_cb);
+			tap_error = register_tap_listener(ct_tapname, &ct_data->hash, tap_filter, 0, NULL, tap_func, sharkd_session_process_tap_conv_cb, NULL);
 
 			tap_data = &ct_data->hash;
 			tap_free = sharkd_session_free_tap_conv_cb;
@@ -2295,7 +2295,7 @@ sharkd_session_process_tap(char *buf, const jsmntok_t *tokens, int count)
 			stat_data->stat_tap_data = stat_tap;
 			stat_data->user_data = NULL;
 
-			tap_error = register_tap_listener(stat_tap->tap_name, stat_data, tap_filter, 0, NULL, stat_tap->packet_func, sharkd_session_process_tap_nstat_cb);
+			tap_error = register_tap_listener(stat_tap->tap_name, stat_data, tap_filter, 0, NULL, stat_tap->packet_func, sharkd_session_process_tap_nstat_cb, NULL);
 
 			tap_data = stat_data;
 			tap_free = sharkd_session_free_tap_nstat_cb;
@@ -2324,7 +2324,7 @@ sharkd_session_process_tap(char *buf, const jsmntok_t *tokens, int count)
 			rtd_data->user_data = rtd;
 			rtd_table_dissector_init(rtd, &rtd_data->stat_table, NULL, NULL);
 
-			tap_error = register_tap_listener(get_rtd_tap_listener_name(rtd), rtd_data, tap_filter, 0, NULL, get_rtd_packet_func(rtd), sharkd_session_process_tap_rtd_cb);
+			tap_error = register_tap_listener(get_rtd_tap_listener_name(rtd), rtd_data, tap_filter, 0, NULL, get_rtd_packet_func(rtd), sharkd_session_process_tap_rtd_cb, NULL);
 
 			tap_data = rtd_data;
 			tap_free = sharkd_session_free_tap_rtd_cb;
@@ -2354,7 +2354,7 @@ sharkd_session_process_tap(char *buf, const jsmntok_t *tokens, int count)
 			srt_data->user_data = srt;
 			srt_table_dissector_init(srt, srt_data->srt_array);
 
-			tap_error = register_tap_listener(get_srt_tap_listener_name(srt), srt_data, tap_filter, 0, NULL, get_srt_packet_func(srt), sharkd_session_process_tap_srt_cb);
+			tap_error = register_tap_listener(get_srt_tap_listener_name(srt), srt_data, tap_filter, 0, NULL, get_srt_packet_func(srt), sharkd_session_process_tap_srt_cb, NULL);
 
 			tap_data = srt_data;
 			tap_free = sharkd_session_free_tap_srt_cb;
@@ -2396,14 +2396,14 @@ sharkd_session_process_tap(char *buf, const jsmntok_t *tokens, int count)
 			eo_object->get_entry = sharkd_eo_object_list_get_entry;
 			eo_object->gui_data = (void *) object_list;
 
-			tap_error = register_tap_listener(get_eo_tap_listener_name(eo), eo_object, NULL, 0, NULL, get_eo_packet_func(eo), sharkd_session_process_tap_eo_cb);
+			tap_error = register_tap_listener(get_eo_tap_listener_name(eo), eo_object, NULL, 0, NULL, get_eo_packet_func(eo), sharkd_session_process_tap_eo_cb, NULL);
 
 			tap_data = eo_object;
 			tap_free = g_free; /* need to free only eo_object, object_list need to be kept for potential download */
 		}
 		else if (!strcmp(tok_tap, "rtp-streams"))
 		{
-			tap_error = register_tap_listener("rtp", &rtp_tapinfo, tap_filter, 0, rtpstream_reset_cb, rtpstream_packet_cb, sharkd_session_process_tap_rtp_cb);
+			tap_error = register_tap_listener("rtp", &rtp_tapinfo, tap_filter, 0, rtpstream_reset_cb, rtpstream_packet_cb, sharkd_session_process_tap_rtp_cb, NULL);
 
 			tap_data = &rtp_tapinfo;
 			tap_free = rtpstream_reset_cb;
@@ -2424,7 +2424,7 @@ sharkd_session_process_tap(char *buf, const jsmntok_t *tokens, int count)
 			rtp_req->statinfo.first_packet = TRUE;
 			rtp_req->statinfo.reg_pt = PT_UNDEFINED;
 
-			tap_error = register_tap_listener("rtp", rtp_req, tap_filter, 0, NULL, sharkd_session_packet_tap_rtp_analyse_cb, sharkd_session_process_tap_rtp_analyse_cb);
+			tap_error = register_tap_listener("rtp", rtp_req, tap_filter, 0, NULL, sharkd_session_packet_tap_rtp_analyse_cb, sharkd_session_process_tap_rtp_analyse_cb, NULL);
 
 			tap_data = rtp_req;
 			tap_free = sharkd_session_process_tap_rtp_free_cb;
@@ -2517,7 +2517,7 @@ sharkd_session_process_follow(char *buf, const jsmntok_t *tokens, int count)
 	follow_info = g_new0(follow_info_t, 1);
 	/* gui_data, filter_out_filter not set, but not used by dissector */
 
-	tap_error = register_tap_listener(get_follow_tap_string(follower), follow_info, tok_filter, 0, NULL, get_follow_tap_handler(follower), NULL);
+	tap_error = register_tap_listener(get_follow_tap_string(follower), follow_info, tok_filter, 0, NULL, get_follow_tap_handler(follower), NULL, NULL);
 	if (tap_error)
 	{
 		fprintf(stderr, "sharkd_session_process_follow() name=%s error=%s", tok_follow, tap_error->str);
@@ -3013,7 +3013,7 @@ sharkd_session_process_iograph(char *buf, const jsmntok_t *tokens, int count)
 		graph->items = NULL;
 
 		if (!graph->error)
-			graph->error = register_tap_listener("frame", graph, tok_filter, TL_REQUIRES_PROTO_TREE, NULL, sharkd_iograph_packet, NULL);
+			graph->error = register_tap_listener("frame", graph, tok_filter, TL_REQUIRES_PROTO_TREE, NULL, sharkd_iograph_packet, NULL, NULL);
 
 		graph_count++;
 
@@ -4030,7 +4030,7 @@ sharkd_session_process_download(char *buf, const jsmntok_t *tokens, int count)
 			return;
 		}
 
-		tap_error = register_tap_listener("rtp", &rtp_req, NULL, 0, NULL, sharkd_session_packet_download_tap_rtp_cb, NULL);
+		tap_error = register_tap_listener("rtp", &rtp_req, NULL, 0, NULL, sharkd_session_packet_download_tap_rtp_cb, NULL, NULL);
 		if (tap_error)
 		{
 			fprintf(stderr, "sharkd_session_process_download() rtp error=%s", tap_error->str);

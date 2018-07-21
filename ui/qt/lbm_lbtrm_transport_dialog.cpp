@@ -1293,7 +1293,8 @@ void LBMLBTRMTransportDialog::fillTree(void)
         TL_REQUIRES_COLUMNS,
         resetTap,
         tapPacket,
-        drawTreeItems);
+        drawTreeItems,
+        NULL);
     if (error_string)
     {
         QMessageBox::critical(this, tr("LBT-RM Statistics failed to attach to tap"),

@@ -104,7 +104,7 @@ protocolinfo_init(const char *opt_arg, void *userdata _U_)
 		rs->filter = NULL;
 	}
 
-	error_string = register_tap_listener("frame", rs, rs->filter, TL_REQUIRES_PROTO_TREE, NULL, protocolinfo_packet, NULL);
+	error_string = register_tap_listener("frame", rs, rs->filter, TL_REQUIRES_PROTO_TREE, NULL, protocolinfo_packet, NULL, NULL);
 	if (error_string) {
 		/* error, we failed to attach to the tap. complain and clean up */
 		fprintf(stderr, "tshark: Couldn't register proto,colinfo tap: %s\n",

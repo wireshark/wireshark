@@ -285,7 +285,7 @@ icmpv6stat_init(const char *opt_arg, void *userdata _U_)
  */
 
     error_string = register_tap_listener("icmpv6", icmpv6stat, icmpv6stat->filter,
-        TL_REQUIRES_NOTHING, icmpv6stat_reset, icmpv6stat_packet, icmpv6stat_draw);
+        TL_REQUIRES_NOTHING, icmpv6stat_reset, icmpv6stat_packet, icmpv6stat_draw, NULL);
     if (error_string) {
         /* error, we failed to attach to the tap. clean up */
         g_free(icmpv6stat->filter);

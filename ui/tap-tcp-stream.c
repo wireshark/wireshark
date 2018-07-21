@@ -139,7 +139,7 @@ graph_segment_list_get(capture_file *cf, struct tcp_graph *tg, gboolean stream_k
     ts.current = &current;
     ts.tg      = tg;
     ts.last    = NULL;
-    error_string = register_tap_listener("tcp", &ts, "tcp", 0, NULL, tapall_tcpip_packet, NULL);
+    error_string = register_tap_listener("tcp", &ts, "tcp", 0, NULL, tapall_tcpip_packet, NULL, NULL);
     if (error_string) {
         fprintf(stderr, "wireshark: Couldn't register tcp_graph tap: %s\n",
                 error_string->str);
@@ -298,7 +298,7 @@ select_tcpip_session(capture_file *cf, struct segment *hdrs)
     }
 
 
-    error_string = register_tap_listener("tcp", &th, NULL, 0, NULL, tap_tcpip_packet, NULL);
+    error_string = register_tap_listener("tcp", &th, NULL, 0, NULL, tap_tcpip_packet, NULL, NULL);
     if (error_string) {
         fprintf(stderr, "wireshark: Couldn't register tcp_graph tap: %s\n",
                 error_string->str);

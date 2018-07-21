@@ -312,7 +312,8 @@ httpstat_init(const char *opt_arg, void *userdata _U_)
 			0,
 			httpstat_reset,
 			httpstat_packet,
-			httpstat_draw);
+			httpstat_draw,
+			NULL);
 	if (error_string) {
 		/* error, we failed to attach to the tap. clean up */
 		g_free(sp->filter);

@@ -86,6 +86,7 @@ bluetooth_devices_tap(void *data)
             0,
             bluetooth_device_tap_reset,
             bluetooth_device_tap_packet,
+            NULL,
             NULL
             );
 

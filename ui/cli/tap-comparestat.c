@@ -561,7 +561,7 @@ comparestat_init(const char *opt_arg, void *userdata _U_)
 	/* create a Hash to count the packets with the same ip.id */
 	cs->packet_set = g_hash_table_new_full(NULL, NULL, NULL, frame_info_free);
 
-	error_string = register_tap_listener("ip", cs, filter, 0, comparestat_reset, comparestat_packet, comparestat_draw);
+	error_string = register_tap_listener("ip", cs, filter, 0, comparestat_reset, comparestat_packet, comparestat_draw, NULL);
 	if (error_string) {
 		/* error, we failed to attach to the tap. clean up */
 		g_free(cs->filter);
