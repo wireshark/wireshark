@@ -5335,8 +5335,12 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
                 tfi = tvb_get_bits8(tvb, 3+offset*8, 5);
 
                 /* Figure out the number of TBs and size */
-                num_tbs = (fpi->is_uplink) ? p_conv_data->fp_dch_channel_info[chan].ul_chan_num_tbs[tfi] : p_conv_data->fp_dch_channel_info[chan].dl_chan_num_tbs[tfi];
-                tb_size = (fpi->is_uplink) ? p_conv_data->fp_dch_channel_info[i].ul_chan_tf_size[tfi] :    p_conv_data->fp_dch_channel_info[i].dl_chan_tf_size[tfi];
+                num_tbs = (fpi->is_uplink) ?
+                    p_conv_data->fp_dch_channel_info[chan].ul_chan_num_tbs[tfi] :
+                    p_conv_data->fp_dch_channel_info[chan].dl_chan_num_tbs[tfi];
+                tb_size = (fpi->is_uplink) ?
+                    p_conv_data->fp_dch_channel_info[chan].ul_chan_tf_size[tfi] :
+                    p_conv_data->fp_dch_channel_info[chan].dl_chan_tf_size[tfi];
 
                 tb_bit_off = (2+p_conv_data->num_dch_in_flow)*8; /*Point to the C/T of first TB*/
                 /* Iterate over the Transport Blocks */
