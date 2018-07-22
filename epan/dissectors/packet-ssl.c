@@ -434,9 +434,9 @@ ssl_parse_old_keys(void)
 
     /* Import old-style keys */
     if (ssldecrypt_uat && ssl_keys_list && ssl_keys_list[0]) {
-        old_keys = wmem_strsplit(NULL, ssl_keys_list, ";", 0);
+        old_keys = g_strsplit(ssl_keys_list, ";", 0);
         for (i = 0; old_keys[i] != NULL; i++) {
-            parts = wmem_strsplit(NULL, old_keys[i], ",", 5);
+            parts = g_strsplit(old_keys[i], ",", 5);
             if (parts[0] && parts[1] && parts[2] && parts[3]) {
                 gchar *path = uat_esc(parts[3], (guint)strlen(parts[3]));
                 const gchar *password = parts[4] ? parts[4] : "";
@@ -450,9 +450,9 @@ ssl_parse_old_keys(void)
                 }
                 wmem_free(NULL, uat_entry);
             }
-            wmem_free(NULL, parts);
+            g_strfreev(parts);
         }
-        wmem_free(NULL, old_keys);
+        g_strfreev(old_keys);
     }
 }
 
