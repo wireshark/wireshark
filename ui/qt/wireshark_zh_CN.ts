@@ -15092,22 +15092,22 @@ text-decoration: underline;
         <translation>撤销所有平移</translation>
     </message>
     <message>
-        <location filename="time_shift_dialog.cpp" line="38"/>
+        <location filename="time_shift_dialog.cpp" line="39"/>
         <source>Time Shift</source>
         <translation>时间平移</translation>
     </message>
     <message>
-        <location filename="time_shift_dialog.cpp" line="140"/>
+        <location filename="time_shift_dialog.cpp" line="141"/>
         <source>Frame numbers must be between 1 and %1.</source>
         <translation>帧序号必须介于 1 与 %1。</translation>
     </message>
     <message>
-        <location filename="time_shift_dialog.cpp" line="142"/>
+        <location filename="time_shift_dialog.cpp" line="143"/>
         <source>Invalid frame number.</source>
         <translation>帧序号无效。</translation>
     </message>
     <message>
-        <location filename="time_shift_dialog.cpp" line="245"/>
+        <location filename="time_shift_dialog.cpp" line="246"/>
         <source>Time shifting is not available capturing packets.</source>
         <translation>时间平移在捕获分组过程中不可用。</translation>
     </message>
@@ -15417,23 +15417,23 @@ text-decoration: underline;
         <translation>802.11 首选项</translation>
     </message>
     <message>
-        <location filename="wireless_frame.cpp" line="69"/>
+        <location filename="wireless_frame.cpp" line="70"/>
         <source>AirPcap Control Panel</source>
         <translation>AirPcap 控制面板</translation>
     </message>
     <message>
-        <location filename="wireless_frame.cpp" line="70"/>
+        <location filename="wireless_frame.cpp" line="71"/>
         <source>Open the AirPcap Control Panel</source>
         <translation>打开 AirPcap 控制面板</translation>
     </message>
     <message>
-        <location filename="wireless_frame.cpp" line="298"/>
-        <location filename="wireless_frame.cpp" line="307"/>
+        <location filename="wireless_frame.cpp" line="299"/>
+        <location filename="wireless_frame.cpp" line="308"/>
         <source>Unable to set channel or offset.</source>
         <translation>无法设置信道或偏移。</translation>
     </message>
     <message>
-        <location filename="wireless_frame.cpp" line="314"/>
+        <location filename="wireless_frame.cpp" line="315"/>
         <source>Unable to set FCS validation behavior.</source>
         <translation>无法设置 FCS 验证行为。</translation>
     </message>

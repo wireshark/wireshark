@@ -15096,22 +15096,22 @@ a:hover {
         <translation>すべての調整を元に戻す</translation>
     </message>
     <message>
-        <location filename="time_shift_dialog.cpp" line="38"/>
+        <location filename="time_shift_dialog.cpp" line="39"/>
         <source>Time Shift</source>
         <translation>時間調整</translation>
     </message>
     <message>
-        <location filename="time_shift_dialog.cpp" line="140"/>
+        <location filename="time_shift_dialog.cpp" line="141"/>
         <source>Frame numbers must be between 1 and %1.</source>
         <translation>フレーム番号は 1 から %1 の間でないといけません</translation>
     </message>
     <message>
-        <location filename="time_shift_dialog.cpp" line="142"/>
+        <location filename="time_shift_dialog.cpp" line="143"/>
         <source>Invalid frame number.</source>
         <translation>フレーム番号が無効です</translation>
     </message>
     <message>
-        <location filename="time_shift_dialog.cpp" line="245"/>
+        <location filename="time_shift_dialog.cpp" line="246"/>
         <source>Time shifting is not available capturing packets.</source>
         <translation>時間調整はパケットキャプチャ中に利用できません</translation>
     </message>
@@ -15421,23 +15421,23 @@ a:hover {
         <translation>802.11設定</translation>
     </message>
     <message>
-        <location filename="wireless_frame.cpp" line="69"/>
+        <location filename="wireless_frame.cpp" line="70"/>
         <source>AirPcap Control Panel</source>
         <translation>AirPcapコントロールパネル</translation>
     </message>
     <message>
-        <location filename="wireless_frame.cpp" line="70"/>
+        <location filename="wireless_frame.cpp" line="71"/>
         <source>Open the AirPcap Control Panel</source>
         <translation>AirPcapコントロールパネルを開く</translation>
     </message>
     <message>
-        <location filename="wireless_frame.cpp" line="298"/>
-        <location filename="wireless_frame.cpp" line="307"/>
+        <location filename="wireless_frame.cpp" line="299"/>
+        <location filename="wireless_frame.cpp" line="308"/>
         <source>Unable to set channel or offset.</source>
         <translation>チャンネルもしくはオフセットを設定できません</translation>
     </message>
     <message>
-        <location filename="wireless_frame.cpp" line="314"/>
+        <location filename="wireless_frame.cpp" line="315"/>
         <source>Unable to set FCS validation behavior.</source>
         <translation>FCSの確認動作を設定できません</translation>
     </message>

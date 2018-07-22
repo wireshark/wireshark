@@ -15105,22 +15105,22 @@ a:hover {
         <translation>Annulla tutte le modifiche</translation>
     </message>
     <message>
-        <location filename="time_shift_dialog.cpp" line="38"/>
+        <location filename="time_shift_dialog.cpp" line="39"/>
         <source>Time Shift</source>
         <translation>Spostamento temporale</translation>
     </message>
     <message>
-        <location filename="time_shift_dialog.cpp" line="140"/>
+        <location filename="time_shift_dialog.cpp" line="141"/>
         <source>Frame numbers must be between 1 and %1.</source>
         <translation>I numeri dei frame devono essere tra 1 e %1.</translation>
     </message>
     <message>
-        <location filename="time_shift_dialog.cpp" line="142"/>
+        <location filename="time_shift_dialog.cpp" line="143"/>
         <source>Invalid frame number.</source>
         <translation>Numero di frame non valido.</translation>
     </message>
     <message>
-        <location filename="time_shift_dialog.cpp" line="245"/>
+        <location filename="time_shift_dialog.cpp" line="246"/>
         <source>Time shifting is not available capturing packets.</source>
         <translation>Lo spostamento temporale non è disponibile durante la cattura.</translation>
     </message>
@@ -15430,23 +15430,23 @@ a:hover {
         <translation>Preferenze 802.11</translation>
     </message>
     <message>
-        <location filename="wireless_frame.cpp" line="69"/>
+        <location filename="wireless_frame.cpp" line="70"/>
         <source>AirPcap Control Panel</source>
         <translation>Pannello di controllo AirPcap</translation>
     </message>
     <message>
-        <location filename="wireless_frame.cpp" line="70"/>
+        <location filename="wireless_frame.cpp" line="71"/>
         <source>Open the AirPcap Control Panel</source>
         <translation>Apri il pannello di controllo AirPcap</translation>
     </message>
     <message>
-        <location filename="wireless_frame.cpp" line="298"/>
-        <location filename="wireless_frame.cpp" line="307"/>
+        <location filename="wireless_frame.cpp" line="299"/>
+        <location filename="wireless_frame.cpp" line="308"/>
         <source>Unable to set channel or offset.</source>
         <translation>Impossibile impostare il canale o l&apos;offset.</translation>
     </message>
     <message>
-        <location filename="wireless_frame.cpp" line="314"/>
+        <location filename="wireless_frame.cpp" line="315"/>
         <source>Unable to set FCS validation behavior.</source>
         <translation>Impossibile impostare il comportamento di convalida FCS.</translation>
     </message>
