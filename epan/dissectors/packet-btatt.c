@@ -5296,13 +5296,13 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-        btatt_call_dissector_by_dissector_name_with_data("btgatt.uuid0x2A0C", tvb_new_subset_length_caplen(tvb, offset, 9, 9), pinfo, tree, att_data);
+        btatt_call_dissector_by_dissector_name_with_data("btgatt.uuid0x2a0c", tvb_new_subset_length_caplen(tvb, offset, 9, 9), pinfo, tree, att_data);
         offset += 9;
 
-        btatt_call_dissector_by_dissector_name_with_data("btgatt.uuid0x2A0F", tvb_new_subset_length_caplen(tvb, offset, 2, 2), pinfo, tree, att_data);
+        btatt_call_dissector_by_dissector_name_with_data("btgatt.uuid0x2a0f", tvb_new_subset_length_caplen(tvb, offset, 2, 2), pinfo, tree, att_data);
         offset += 2;
 
-        btatt_call_dissector_by_dissector_name_with_data("btgatt.uuid0x2A14", tvb_new_subset_length_caplen(tvb, offset, 4, 4), pinfo, tree, att_data);
+        btatt_call_dissector_by_dissector_name_with_data("btgatt.uuid0x2a14", tvb_new_subset_length_caplen(tvb, offset, 4, 4), pinfo, tree, att_data);
         offset += 4;
 
         break;
