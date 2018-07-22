@@ -1064,7 +1064,7 @@ dissect_zbee_nwk_gp_cmd_MS_attr_reporting(tvbuff_t *tvb, packet_info *pinfo _U_,
 */
 static guint
 dissect_zbee_nwk_gp_cmd_commissioning_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-    zbee_nwk_green_power_packet *packet _U_, guint offset)
+    zbee_nwk_green_power_packet *packet, guint offset)
 {
     guint8 cr_options;
     guint8 cr_sec_level;
