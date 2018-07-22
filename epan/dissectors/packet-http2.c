@@ -2270,7 +2270,6 @@ dissect_http2_headers(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_t
     offset = dissect_frame_padding(tvb, &padding, http2_tree, offset, flags);
     offset = dissect_frame_prio(tvb, http2_tree, offset, flags);
 
-    
     headlen = tvb_reported_length_remaining(tvb, offset);
     if (headlen < padding) {
         /* XXX - what error *should* be reported here? */
