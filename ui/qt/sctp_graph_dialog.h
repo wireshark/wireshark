@@ -108,8 +108,6 @@ private:
     QVector<double> xt, yt, xs, ys, xg, yg, xd, yd, xn, yn;
     QVector<guint32> ft, fs, fg, fd, fn;
     QVector<QString> typeStrings;
-    bool gIsSackChunkPresent;
-    bool gIsNRSackChunkPresent;
     bool relative;
     int type;
 

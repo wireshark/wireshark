@@ -34,8 +34,6 @@ SCTPGraphDialog::SCTPGraphDialog(QWidget *parent, sctp_assoc_info_t *assoc, capt
     cap_file_(cf),
     frame_num(0),
     direction(dir),
-    gIsSackChunkPresent(false),
-    gIsNRSackChunkPresent(false),
     relative(false),
     type(1)
 {
@@ -92,7 +90,6 @@ void SCTPGraphDialog::drawNRSACKGraph()
         while (tlist) {
             type = ((struct chunk_header *)tlist->data)->type;
             if (type == SCTP_NR_SACK_CHUNK_ID) {
-                gIsNRSackChunkPresent = 1;
                 nr_sack_header =(struct nr_sack_chunk_header *)tlist->data;
                 numberOf_nr_gaps=g_ntohs(nr_sack_header->nr_of_nr_gaps);
                 numberOf_gaps=g_ntohs(nr_sack_header->nr_of_gaps);
@@ -161,7 +158,6 @@ void SCTPGraphDialog::drawSACKGraph()
         while (tlist) {
             type = ((struct chunk_header *)tlist->data)->type;
             if (type == SCTP_SACK_CHUNK_ID) {
-                gIsSackChunkPresent = 1;
                 sack_header =(struct sack_chunk_header *)tlist->data;
                 nr=g_ntohs(sack_header->nr_of_gaps);
                 tsnumber = g_ntohl(sack_header->cum_tsn_ack);
@@ -320,9 +316,6 @@ void SCTPGraphDialog::drawTSNGraph()
 void SCTPGraphDialog::drawGraph()
 {
     guint32 maxTSN, minTSN;
-
-    gIsSackChunkPresent = false;
-    gIsNRSackChunkPresent = false;
 
     if (direction == 1) {
         maxTSN = selected_assoc->max_tsn1;
