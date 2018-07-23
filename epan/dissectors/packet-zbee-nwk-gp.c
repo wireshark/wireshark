@@ -730,8 +730,8 @@ zbee_gp_decrypt_payload(zbee_nwk_green_power_packet *packet, const gchar *enc_bu
  *@return payload processed offset.
 */
 static guint
-dissect_zbee_nwk_gp_cmd_commissioning(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-    zbee_nwk_green_power_packet *packet _U_, guint offset)
+dissect_zbee_nwk_gp_cmd_commissioning(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    zbee_nwk_green_power_packet *packet, guint offset)
 {
     guint8 comm_options;
     guint8 comm_ext_options = 0;
@@ -811,30 +811,33 @@ dissect_zbee_nwk_gp_cmd_commissioning(tvbuff_t *tvb, packet_info *pinfo _U_, pro
                 proto_tree_add_item(tree, hf_zbee_nwk_gp_cmd_comm_gpd_sec_key_mic, tvb, offset, 4, ENC_LITTLE_ENDIAN);
                 offset += 4;
 
-                /* Decrypt the security key */
-                dec_buffer = (guint8 *)wmem_alloc(pinfo->pool, ZBEE_SEC_CONST_KEYSIZE);
-                enc_buffer_withA = (guint8 *)wmem_alloc(pinfo->pool, 4 + ZBEE_SEC_CONST_KEYSIZE + 4); /* CCM* a (this is SrcID) + encKey + MIC */
-                enc_buffer = tvb_memdup(wmem_packet_scope(), tvb, offset - ZBEE_SEC_CONST_KEYSIZE - 4, ZBEE_SEC_CONST_KEYSIZE + 4);
-                phtole32(enc_buffer_withA, packet->source_id);
-                memcpy(enc_buffer_withA+4, enc_buffer, ZBEE_SEC_CONST_KEYSIZE + 4);
-                gp_decrypted = FALSE;
+                if (packet != NULL)
+                {
+                    /* Decrypt the security key */
+                    dec_buffer = (guint8 *)wmem_alloc(pinfo->pool, ZBEE_SEC_CONST_KEYSIZE);
+                    enc_buffer_withA = (guint8 *)wmem_alloc(pinfo->pool, 4 + ZBEE_SEC_CONST_KEYSIZE + 4); /* CCM* a (this is SrcID) + encKey + MIC */
+                    enc_buffer = tvb_memdup(wmem_packet_scope(), tvb, offset - ZBEE_SEC_CONST_KEYSIZE - 4, ZBEE_SEC_CONST_KEYSIZE + 4);
+                    phtole32(enc_buffer_withA, packet->source_id);
+                    memcpy(enc_buffer_withA+4, enc_buffer, ZBEE_SEC_CONST_KEYSIZE + 4);
+                    gp_decrypted = FALSE;
 
-                for (GSList_i = zbee_gp_keyring; GSList_i && !gp_decrypted; GSList_i = g_slist_next(GSList_i)) {
-                    packet->security_frame_counter = packet->source_id; /* for Nonce creation*/
-                    gp_decrypted = zbee_gp_decrypt_payload(packet, enc_buffer_withA, 4
-                        , dec_buffer, ZBEE_SEC_CONST_KEYSIZE, 4, ((key_record_t *)(GSList_i->data))->key);
-                }
+                    for (GSList_i = zbee_gp_keyring; GSList_i && !gp_decrypted; GSList_i = g_slist_next(GSList_i)) {
+                        packet->security_frame_counter = packet->source_id; /* for Nonce creation*/
+                        gp_decrypted = zbee_gp_decrypt_payload(packet, enc_buffer_withA, 4
+                            , dec_buffer, ZBEE_SEC_CONST_KEYSIZE, 4, ((key_record_t *)(GSList_i->data))->key);
+                    }
 
-                if (gp_decrypted) {
-                    key_record_t key_record;
+                    if (gp_decrypted) {
+                        key_record_t key_record;
 
-                    key_record.frame_num = 0;
-                    key_record.label = NULL;
-                    memcpy(key_record.key, dec_buffer, ZBEE_SEC_CONST_KEYSIZE);
-                    zbee_gp_keyring = g_slist_prepend(zbee_gp_keyring, g_memdup(&key_record, sizeof(key_record_t)));
+                        key_record.frame_num = 0;
+                        key_record.label = NULL;
+                        memcpy(key_record.key, dec_buffer, ZBEE_SEC_CONST_KEYSIZE);
+                        zbee_gp_keyring = g_slist_prepend(zbee_gp_keyring, g_memdup(&key_record, sizeof(key_record_t)));
 
-                    payload_tvb = tvb_new_child_real_data(tvb, dec_buffer, ZBEE_SEC_CONST_KEYSIZE, ZBEE_SEC_CONST_KEYSIZE);
-                    add_new_data_source(pinfo, payload_tvb, "Decrypted security key");
+                        payload_tvb = tvb_new_child_real_data(tvb, dec_buffer, ZBEE_SEC_CONST_KEYSIZE, ZBEE_SEC_CONST_KEYSIZE);
+                        add_new_data_source(pinfo, payload_tvb, "Decrypted security key");
+                    }
                 }
             }
             else
@@ -1063,7 +1066,7 @@ dissect_zbee_nwk_gp_cmd_MS_attr_reporting(tvbuff_t *tvb, packet_info *pinfo _U_,
  *@return payload processed offset.
 */
 static guint
-dissect_zbee_nwk_gp_cmd_commissioning_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_zbee_nwk_gp_cmd_commissioning_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     zbee_nwk_green_power_packet *packet, guint offset)
 {
     guint8 cr_options;
@@ -1128,34 +1131,37 @@ dissect_zbee_nwk_gp_cmd_commissioning_reply(tvbuff_t *tvb, packet_info *pinfo _U
         (cr_options & ZBEE_NWK_GP_CMD_COMMISSIONING_REP_OPT_SEC_KEY_PRESENT) &&
         ((cr_sec_level == ZBEE_NWK_GP_SECURITY_LEVEL_FULL) ||
         (cr_sec_level == ZBEE_NWK_GP_SECURITY_LEVEL_FULLENCR))) {
-        if(offset + 4 <= tvb_captured_length(tvb)){
+        if (offset + 4 <= tvb_captured_length(tvb)){
             proto_tree_add_item(tree, hf_zbee_nwk_gp_cmd_comm_rep_frame_counter, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
 
-            /* decrypt the security key*/
-            dec_buffer = (guint8 *)wmem_alloc(pinfo->pool, ZBEE_SEC_CONST_KEYSIZE);
-            enc_buffer_withA = (guint8 *)wmem_alloc(pinfo->pool, 4 + ZBEE_SEC_CONST_KEYSIZE + 4); /* CCM* a (this is SrcID) + encKey + MIC */
-            enc_buffer = tvb_memdup(wmem_packet_scope(), tvb, offset - ZBEE_SEC_CONST_KEYSIZE - 4 - 4, ZBEE_SEC_CONST_KEYSIZE + 4);
-            phtole32(enc_buffer_withA, packet->source_id); /* enc_buffer_withA = CCM* a (srcID) | enc_buffer */
-            memcpy(enc_buffer_withA+4, enc_buffer, ZBEE_SEC_CONST_KEYSIZE + 4);
-            gp_decrypted = FALSE;
+            if (packet != NULL)
+            {
+                /* decrypt the security key*/
+                dec_buffer = (guint8 *)wmem_alloc(pinfo->pool, ZBEE_SEC_CONST_KEYSIZE);
+                enc_buffer_withA = (guint8 *)wmem_alloc(pinfo->pool, 4 + ZBEE_SEC_CONST_KEYSIZE + 4); /* CCM* a (this is SrcID) + encKey + MIC */
+                enc_buffer = tvb_memdup(wmem_packet_scope(), tvb, offset - ZBEE_SEC_CONST_KEYSIZE - 4 - 4, ZBEE_SEC_CONST_KEYSIZE + 4);
+                phtole32(enc_buffer_withA, packet->source_id); /* enc_buffer_withA = CCM* a (srcID) | enc_buffer */
+                memcpy(enc_buffer_withA+4, enc_buffer, ZBEE_SEC_CONST_KEYSIZE + 4);
+                gp_decrypted = FALSE;
 
-            for (GSList_i = zbee_gp_keyring; GSList_i && !gp_decrypted; GSList_i = g_slist_next(GSList_i)) {
-                packet->security_frame_counter = tvb_get_guint32(tvb, offset - 4, ENC_LITTLE_ENDIAN); /*for Nonce creation */
-                gp_decrypted = zbee_gp_decrypt_payload(packet, enc_buffer_withA, 4
-                    , dec_buffer, ZBEE_SEC_CONST_KEYSIZE, 4, ((key_record_t *)(GSList_i->data))->key);
-            }
+                for (GSList_i = zbee_gp_keyring; GSList_i && !gp_decrypted; GSList_i = g_slist_next(GSList_i)) {
+                    packet->security_frame_counter = tvb_get_guint32(tvb, offset - 4, ENC_LITTLE_ENDIAN); /*for Nonce creation */
+                    gp_decrypted = zbee_gp_decrypt_payload(packet, enc_buffer_withA, 4
+                        , dec_buffer, ZBEE_SEC_CONST_KEYSIZE, 4, ((key_record_t *)(GSList_i->data))->key);
+                }
 
-            if (gp_decrypted) {
-                key_record_t key_record;
+                if (gp_decrypted) {
+                    key_record_t key_record;
 
-                key_record.frame_num = 0;
-                key_record.label = NULL;
-                memcpy(key_record.key, dec_buffer, ZBEE_SEC_CONST_KEYSIZE);
-                zbee_gp_keyring = g_slist_prepend(zbee_gp_keyring, g_memdup(&key_record, sizeof(key_record_t)));
+                    key_record.frame_num = 0;
+                    key_record.label = NULL;
+                    memcpy(key_record.key, dec_buffer, ZBEE_SEC_CONST_KEYSIZE);
+                    zbee_gp_keyring = g_slist_prepend(zbee_gp_keyring, g_memdup(&key_record, sizeof(key_record_t)));
 
-                payload_tvb = tvb_new_child_real_data(tvb, dec_buffer, ZBEE_SEC_CONST_KEYSIZE, ZBEE_SEC_CONST_KEYSIZE);
-                add_new_data_source(pinfo, payload_tvb, "Decrypted security key");
+                    payload_tvb = tvb_new_child_real_data(tvb, dec_buffer, ZBEE_SEC_CONST_KEYSIZE, ZBEE_SEC_CONST_KEYSIZE);
+                    add_new_data_source(pinfo, payload_tvb, "Decrypted security key");
+                }
             }
         }
         else{
@@ -1374,7 +1380,7 @@ dissect_zbee_nwk_gp_cmd_read_attributes_response(tvbuff_t *tvb, packet_info *pin
             dissect_zcl_attr_id(tvb, att_tree, &offset, cluster_id, mfr_code, ZBEE_ZCL_FCF_TO_CLIENT);
 
             /* Dissect the status and optionally the data type and value */
-            if(dissect_zcl_attr_uint8(tvb, att_tree, &offset, &hf_zbee_nwk_gp_zcl_attr_status)
+            if (dissect_zcl_attr_uint8(tvb, att_tree, &offset, &hf_zbee_nwk_gp_zcl_attr_status)
                 == ZBEE_ZCL_STAT_SUCCESS)
             {
                 /* Dissect the attribute data type and data */
