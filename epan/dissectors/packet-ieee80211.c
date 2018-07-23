@@ -1140,6 +1140,7 @@ static value_string_ext aruba_mgt_typevals_ext = VALUE_STRING_EXT_INIT(aruba_mgt
 #define CAT_ROBUST_AV_STREAMING   19
 #define CAT_UNPROTECTED_DMG       20
 #define CAT_VHT                   21
+#define CAT_S1G                   22
 #define CAT_HE                    30
 #define CAT_PROTECTED_HE          31
 #define CAT_VENDOR_SPECIFIC_PROTECTED 126
@@ -2009,6 +2010,7 @@ static const value_string category_codes[] = {
   {CAT_ROBUST_AV_STREAMING,              "Robust AV Streaming"},
   {CAT_UNPROTECTED_DMG,                  "Unprotected DMG"},
   {CAT_VHT,                              "VHT"},
+  {CAT_S1G,                              "S1G"},
   {CAT_HE,                               "HE"},
   {CAT_PROTECTED_HE,                     "Protected HE"},
   {CAT_VENDOR_SPECIFIC_PROTECTED,        "Vendor-specific Protected"},
@@ -2940,6 +2942,43 @@ static const value_string ff_vht_mimo_cntrl_feedback_vals[] = {
   {0x00, "SU"},
   {0x01, "MU"},
   {0, NULL}
+};
+
+#define S1G_ACT_AID_SWITCH_REQUEST   0
+#define S1G_ACT_AID_SWITCH_RESPONSE  1
+#define S1G_ACT_SYNC_CONTROL         2
+#define S1G_ACT_STA_INFO_ANNOUNCE    3
+#define S1G_ACT_EDCA_PARAM_SET       4
+#define S1G_ACT_EL_OPERATION         5
+#define S1G_ACT_TWT_SETUP            6
+#define S1G_ACT_TWT_TEARDOWN         7
+#define S1G_ACT_SECT_GROUP_ID_LIST   8
+#define S1G_ACT_SECT_ID_FEEDBACK     9
+#define S1G_ACT_RESERVED             10
+#define S1G_ACT_TWT_INFORMATION      11
+
+static const value_string s1g_action_vals[] = {
+  {S1G_ACT_AID_SWITCH_REQUEST, "AID Switch Request"},
+  {S1G_ACT_AID_SWITCH_RESPONSE, "AID Switch Response"},
+  {S1G_ACT_SYNC_CONTROL, "Sync Control"},
+  {S1G_ACT_STA_INFO_ANNOUNCE, "STA Information Announcement"},
+  {S1G_ACT_EDCA_PARAM_SET, "EDCA Paramater Set"},
+  {S1G_ACT_EL_OPERATION, "EL Operation"},
+  {S1G_ACT_TWT_SETUP, "TWT Setup"},
+  {S1G_ACT_TWT_TEARDOWN, "TWT Teardown"},
+  {S1G_ACT_SECT_GROUP_ID_LIST, "Sectorized Group ID List"},
+  {S1G_ACT_SECT_ID_FEEDBACK, "Sector ID Feedback"},
+  {S1G_ACT_RESERVED, "Reserved"},
+  {S1G_ACT_TWT_INFORMATION, "TWT Information"},
+  {0,   NULL},
+};
+
+static const value_string twt_neg_type[] = {
+  {0x0, "Individual TWT"},
+  {0x1, "Wake TBTT"},
+  {0x2, "Broadcast TWT"},
+  {0x3, "Broadcast TWT"},
+  {0,   NULL},
 };
 
 static int proto_wlan = -1;
@@ -5440,6 +5479,13 @@ static int hf_he_uora_eocwmin = -1;
 static int hf_he_uora_owcwmax = -1;
 static int hf_he_uora_reserved = -1;
 
+static int hf_ieee80211_ff_s1g_action = -1;
+static int hf_ieee80211_twt_bcast_flow = -1;
+static int hf_ieee80211_twt_individual_flow = -1;
+static int hf_ieee80211_twt_individual_flow_id = -1;
+static int hf_ieee80211_twt_bcast_id = -1;
+static int hf_ieee80211_twt_neg_type = -1;
+
 /* ************************************************************************* */
 /*                               Protocol trees                              */
 /* ************************************************************************* */
@@ -5703,6 +5749,7 @@ static expert_field ei_ieee80211_mesh_peering_unexpected = EI_INIT;
 static expert_field ei_ieee80211_fcs = EI_INIT;
 static expert_field ei_ieee80211_mismatched_akm_suite = EI_INIT;
 static expert_field ei_ieee80211_vs_routerboard_unexpected_len = EI_INIT;
+static expert_field ei_ieee80211_twt_tear_down_bad_neg_type = EI_INIT;
 
 /* 802.11ad trees */
 static gint ett_dynamic_alloc_tree = -1;
@@ -5720,6 +5767,9 @@ static gint ett_allocation_tree = -1;
 static gint ett_sta_info = -1;
 
 static gint ett_ieee80211_esp = -1;
+
+/* 802.11ah trees */
+static gint ett_twt_tear_down_tree = -1;
 
 /* 802.11ax trees */
 static gint ett_he_mac_capabilities = -1;
@@ -9619,6 +9669,14 @@ add_ff_vht_action(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int o
 }
 
 static guint
+add_ff_s1g_action(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
+{
+  proto_tree_add_item(tree, hf_ieee80211_ff_s1g_action, tvb, offset, 1,
+                      ENC_LITTLE_ENDIAN);
+  return 1;
+}
+
+static guint
 get_ff_auth_sae_len(tvbuff_t *tvb)
 {
   guint alg, seq, status_code;
@@ -11235,6 +11293,102 @@ add_ff_action_vht(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
   return offset - start;
 }
 
+static guint
+add_ff_s1g_twt_teardown(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
+{
+  guint8 twt_flow_id = tvb_get_guint8(tvb, offset);
+  static const int *ieee80211_twt_individual_flow[] = {
+    &hf_ieee80211_twt_individual_flow_id,
+    &hf_ieee80211_twt_neg_type,
+    NULL,
+  };
+  static const int *ieee80211_twt_bcast_flow[] = {
+    &hf_ieee80211_twt_bcast_id,
+    &hf_ieee80211_twt_neg_type,
+    NULL,
+  };
+
+  // Bits 5 and 6 are the negotiation type - See ieee80211.ax/D3.0 9.6.25.9
+  switch ((twt_flow_id & 0x60) >> 5) {
+    case 3:
+      // According to 11ax, first 5 bits are the BCAST TWT flow ID
+      proto_tree_add_bitmask_with_flags(tree, tvb, offset,
+                                        hf_ieee80211_twt_bcast_flow,
+                                        ett_twt_tear_down_tree, ieee80211_twt_bcast_flow,
+                                        ENC_LITTLE_ENDIAN, BMT_NO_FLAGS);
+    break;
+    case 0:
+    case 1:
+      // According to 11ah / 11ax, first 3 bits are the UCAST TWT flow ID
+      proto_tree_add_bitmask_with_flags(tree, tvb, offset,
+                                        hf_ieee80211_twt_individual_flow,
+                                        ett_twt_tear_down_tree, ieee80211_twt_individual_flow,
+                                        ENC_LITTLE_ENDIAN, BMT_NO_FLAGS);
+      break;
+    default:
+      proto_tree_add_expert(tree, pinfo, &ei_ieee80211_twt_tear_down_bad_neg_type,
+                            tvb, offset, tvb_reported_length_remaining(tvb, offset));
+  }
+
+  // The TWT Flow ID size
+  return 1;
+}
+
+static guint
+add_ff_action_s1g(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
+{
+  guint start = offset;
+  guint8 s1g_action;
+
+  offset += add_ff_category_code(tree, tvb, pinfo, offset);
+
+  s1g_action = tvb_get_guint8(tvb, offset);
+  offset += add_ff_s1g_action(tree, tvb, pinfo, offset);
+
+  switch(s1g_action) {
+    case S1G_ACT_AID_SWITCH_REQUEST:
+      // TODO
+    break;
+    case S1G_ACT_AID_SWITCH_RESPONSE:
+      // TODO
+    break;
+    case S1G_ACT_SYNC_CONTROL:
+      // TODO
+    break;
+    case S1G_ACT_STA_INFO_ANNOUNCE:
+      // TODO
+    break;
+    case S1G_ACT_EDCA_PARAM_SET:
+      // TODO
+    break;
+    case S1G_ACT_EL_OPERATION:
+      // TODO
+    break;
+    case S1G_ACT_TWT_SETUP:
+      // TODO
+    break;
+    case S1G_ACT_TWT_TEARDOWN:
+      offset += add_ff_s1g_twt_teardown(tree, tvb, pinfo, offset);
+    break;
+    case S1G_ACT_SECT_GROUP_ID_LIST:
+      // TODO
+    break;
+    case S1G_ACT_SECT_ID_FEEDBACK:
+      // TODO
+    break;
+    case S1G_ACT_RESERVED:
+      // TODO
+    break;
+    case S1G_ACT_TWT_INFORMATION:
+      // TODO
+    break;
+    default:
+    break;
+  }
+
+  return offset - start;
+}
+
 #define HE_COMPRESSED_BEAMFORMING_AND_CQI 0
 #define HE_QUIET_TIME_PERIOD              1
 
@@ -11495,6 +11649,8 @@ add_ff_action(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
     return add_ff_action_unprotected_dmg(tree, tvb, pinfo, offset);
   case CAT_VHT: /* 21 */
     return add_ff_action_vht(tree, tvb, pinfo, offset);
+  case CAT_S1G: /* 22 */
+    return add_ff_action_s1g(tree, tvb, pinfo, offset);
   case CAT_HE:
     return add_ff_action_he(tree, tvb, pinfo, offset);
 /*  case CAT_VENDOR_SPECIFIC_PROTECTED:   Vendor Specific Protected Category - 126 */
@@ -33671,6 +33827,31 @@ proto_register_ieee80211(void)
     {&hf_he_uora_reserved,
      {"Reserved", "wlan.ext_tag.uora_parameter_set.reserved",
       FT_UINT8, BASE_DEC, NULL, 0xC0, NULL, HFILL }},
+
+    {&hf_ieee80211_ff_s1g_action,
+      {"S1G Action", "wlan.s1g.action",
+       FT_UINT8, BASE_DEC, VALS(s1g_action_vals), 0, NULL, HFILL }},
+
+    {&hf_ieee80211_twt_bcast_flow,
+      {"TWT Flow", "wlan.twt.bcast_flow",
+       FT_UINT8, BASE_HEX, NULL, 0x7f, NULL, HFILL }},
+
+    {&hf_ieee80211_twt_individual_flow,
+      {"TWT Flow", "wlan.twt.individual_flow",
+       FT_UINT8, BASE_HEX, NULL, 0x67, NULL, HFILL }},
+
+    {&hf_ieee80211_twt_individual_flow_id,
+      {"Individual TWT Flow Id", "wlan.twt.individual_flow_id",
+       FT_UINT8, BASE_DEC, NULL, 0x7, NULL, HFILL }},
+
+    {&hf_ieee80211_twt_bcast_id,
+      {"Broadcast TWT Id", "wlan.twt.bcast_flow_id",
+       FT_UINT8, BASE_DEC, NULL, 0x1f, NULL, HFILL }},
+
+    {&hf_ieee80211_twt_neg_type,
+      {"TWT Negotiation type", "wlan.twt.neg_type",
+       FT_UINT8, BASE_DEC, VALS(twt_neg_type), 0x60,
+       NULL, HFILL }},
   };
 
   static hf_register_info aggregate_fields[] = {
@@ -33934,6 +34115,9 @@ proto_register_ieee80211(void)
     &ett_gas_resp_fragment,
     &ett_gas_resp_fragments,
 
+    /* 802.11 ah trees */
+    &ett_twt_tear_down_tree,
+
     /* 802.11ax trees */
     &ett_he_mac_capabilities,
     &ett_he_phy_capabilities,
@@ -34131,6 +34315,10 @@ proto_register_ieee80211(void)
     { &ei_ieee80211_vs_routerboard_unexpected_len,
       { "wlan.vs.routerboard.unexpected_len", PI_PROTOCOL, PI_WARN,
         "Unexpected IE Length", EXPFILL }},
+
+    { &ei_ieee80211_twt_tear_down_bad_neg_type,
+      { "wlan.twt.tear_down_bad_neg_type", PI_PROTOCOL, PI_ERROR,
+        "Bad Negotiation type for S1G TWT Flow field in TWT teardown", EXPFILL }},
   };
 
   expert_module_t *expert_ieee80211;
