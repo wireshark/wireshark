@@ -4057,7 +4057,7 @@ btatt_call_dissector_by_dissector_name_with_data(const char *dissector_name,
 	if (handle != NULL)
 		return call_dissector_with_data(handle, tvb, pinfo, tree, data);
 	else
-		REPORT_DISSECTOR_BUG("Dissector %s not registered", dissector_name);
+		REPORT_DISSECTOR_BUG("Dissector not registered");
 }
 
 static gint
