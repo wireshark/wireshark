@@ -67,14 +67,14 @@ static int failure = 0;
 #define ASSERT_EQ_POINTER(exp,act)  \
     if ((exp)!=(act)) {     \
         failure = 1;        \
-        printf("Assertion failed at line %i: %s==%s (%p==%p)\n", __LINE__, #exp, #act, exp, act);  \
+        printf("Assertion failed at line %i: %s==%s (%p==%p)\n", __LINE__, #exp, #act, (void *)exp, (void *)act);  \
         exit(1);            \
     }
 
 #define ASSERT_NE_POINTER(exp,act)  \
     if ((exp)==(act)) {     \
         failure = 1;        \
-        printf("Assertion failed at line %i: %s!=%s (%p!=%p)\n", __LINE__, #exp, #act, exp, act);  \
+        printf("Assertion failed at line %i: %s!=%s (%p!=%p)\n", __LINE__, #exp, #act, (void *)exp, (void *)act);  \
         exit(1);            \
     }
 
