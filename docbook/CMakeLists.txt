@@ -77,10 +77,16 @@ if (PCAP_FOUND)
 	)
 endif(PCAP_FOUND)
 
-# We want the wsug_* targets to depend on the tools help files.
-# We want update_tools_help to be an independent target.
-# We don't necessarily want to depend on building our executables before
-# being able to build our documentation.
+# We want the wsug_* targets to depend on our tools help files. However,
+# each WSUG_TOOLS_HELP_COMMANDS target depends on its corresponding
+# binary. Due to this and the following issues update_tools_help should
+# be as independent as possible:
+# - Aside from the first line (which contains the git commit ID) each
+#   command's `-h` output might change every few months or years.
+# - It changes files in the source directory, which usually gives you
+#   git changes that you probably don't want or at least don't care about.
+# - Having our documentation depend on our executables increases the
+#   likelihood of unwanted rebuilds, particularly on the Buildbot.
 set(WSUG_TOOLS_HELP_FILES)
 set(GUIDE_INSTALL_DIRS)
 
@@ -100,8 +106,8 @@ foreach(th_command ${WSUG_TOOLS_HELP_COMMANDS})
 	list(APPEND WSUG_TOOLS_HELP_FILES ${th_file})
 	add_custom_command(
 		OUTPUT ${th_file}
-		COMMAND $<TARGET_FILE:${th_command}> -h > ${th_file}
-		DEPENDS $<TARGET_FILE:${th_command}>
+		COMMAND ${th_command} -h > ${th_file}
+		DEPENDS ${th_command}
 	)
 endforeach()
 
@@ -113,15 +119,15 @@ if(BUILD_editcap)
 	list(APPEND WSUG_TOOLS_HELP_FILES ${th_file})
 	add_custom_command(
 		OUTPUT ${th_file}
-		COMMAND $<TARGET_FILE:editcap> -F > ${th_file}
-		DEPENDS $<TARGET_FILE:editcap>
+		COMMAND editcap -F > ${th_file}
+		DEPENDS editcap
 	)
 	set(th_file ${CMAKE_CURRENT_SOURCE_DIR}/wsug_src/editcap-T.txt)
 	list(APPEND WSUG_TOOLS_HELP_FILES ${th_file})
 	add_custom_command(
 		OUTPUT ${th_file}
-		COMMAND $<TARGET_FILE:editcap> -T > ${th_file}
-		DEPENDS $<TARGET_FILE:editcap>
+		COMMAND editcap -T > ${th_file}
+		DEPENDS editcap
 	)
 else()
 	message(STATUS "WSUG: will not update editcap output")
