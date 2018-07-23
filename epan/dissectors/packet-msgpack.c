@@ -112,7 +112,7 @@ static void dissect_msgpack_integer(tvbuff_t* tvb, proto_tree* tree, guint8 type
 		case 0xcf:
 			uint64 = tvb_get_ntoh64(tvb, *offset + 1);
 			proto_tree_add_uint64(tree, hf_msgpack_uint_64, tvb, *offset, 9, uint64);
-			*value = wmem_strdup_printf(wmem_packet_scope(), "%lu", uint64);
+			*value = wmem_strdup_printf(wmem_packet_scope(), "%" G_GINT64_MODIFIER "u", uint64);
 			*offset += 9;
 			break;
 		case 0xd0:
@@ -136,7 +136,7 @@ static void dissect_msgpack_integer(tvbuff_t* tvb, proto_tree* tree, guint8 type
 		case 0xd3:
 			int64 = tvb_get_ntoh64(tvb, *offset + 1);
 			proto_tree_add_int64(tree, hf_msgpack_int_64, tvb, *offset, 9, int64);
-			*value = wmem_strdup_printf(wmem_packet_scope(), "%ld", int64);
+			*value = wmem_strdup_printf(wmem_packet_scope(), "%" G_GINT64_MODIFIER "d", int64);
 			*offset += 9;
 			break;
 		default:
