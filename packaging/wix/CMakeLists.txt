@@ -271,9 +271,7 @@ macro( ADD_WIX_PACKAGE_TARGET )
 		DEPENDS
 			${WIX_FILES}
 			copy_data_files
-			update_tools_help
-			user_guides
-			${CMAKE_BINARY_DIR}/docbook/user-guide.chm
+			user_guide_chm
 	)
 	set_target_properties(wix_package_prep PROPERTIES FOLDER "Packaging")
 

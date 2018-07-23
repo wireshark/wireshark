@@ -355,7 +355,7 @@ if(NOT CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
 	)
 endif()
 
-set( WSUG_BUILT_DEPS ws.css ${WSUG_TOOLS_HELP_FILES})
+set( WSUG_BUILT_DEPS ws.css update_tools_help)
 
 set(WSDG_SOURCE
 	${WSDG_FILES}
