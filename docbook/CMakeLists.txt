@@ -85,12 +85,17 @@ set(WSUG_TOOLS_HELP_FILES)
 set(GUIDE_INSTALL_DIRS)
 
 # General help output
-# XXX We should probably do this conditionally, e.g. based on
-#   if (TARGET ${th_command}) ...
-# However, if we do so we'll have to make sure this is processed after
-# our targets are created.
 
 foreach(th_command ${WSUG_TOOLS_HELP_COMMANDS})
+	if(NOT DEFINED BUILD_${th_command})
+		# Catch typos, these commands must exist in CMakeOptions.txt
+		message(WARNING "BUILD_${th_command} is an unknown option")
+	endif()
+	if(NOT BUILD_${th_command})
+		message(STATUS "WSUG: will not update ${th_command} output")
+		continue()
+	endif()
+
 	set(th_file ${CMAKE_CURRENT_SOURCE_DIR}/wsug_src/${th_command}-h.txt)
 	list(APPEND WSUG_TOOLS_HELP_FILES ${th_file})
 	add_custom_command(
@@ -103,20 +108,24 @@ endforeach()
 # Extra command output
 # Note that these won't work on Windows unless we make -F and -T write
 # to stdout and return 0 or wrap the commands similar to hhc.exe.
-set(th_file ${CMAKE_CURRENT_SOURCE_DIR}/wsug_src/editcap-F.txt)
-list(APPEND WSUG_TOOLS_HELP_FILES ${th_file})
-add_custom_command(
-	OUTPUT ${th_file}
-	COMMAND $<TARGET_FILE:editcap> -F > ${th_file}
-	DEPENDS $<TARGET_FILE:editcap>
-)
-set(th_file ${CMAKE_CURRENT_SOURCE_DIR}/wsug_src/editcap-T.txt)
-list(APPEND WSUG_TOOLS_HELP_FILES ${th_file})
-add_custom_command(
-	OUTPUT ${th_file}
-	COMMAND $<TARGET_FILE:editcap> -T > ${th_file}
-	DEPENDS $<TARGET_FILE:editcap>
-)
+if(BUILD_editcap)
+	set(th_file ${CMAKE_CURRENT_SOURCE_DIR}/wsug_src/editcap-F.txt)
+	list(APPEND WSUG_TOOLS_HELP_FILES ${th_file})
+	add_custom_command(
+		OUTPUT ${th_file}
+		COMMAND $<TARGET_FILE:editcap> -F > ${th_file}
+		DEPENDS $<TARGET_FILE:editcap>
+	)
+	set(th_file ${CMAKE_CURRENT_SOURCE_DIR}/wsug_src/editcap-T.txt)
+	list(APPEND WSUG_TOOLS_HELP_FILES ${th_file})
+	add_custom_command(
+		OUTPUT ${th_file}
+		COMMAND $<TARGET_FILE:editcap> -T > ${th_file}
+		DEPENDS $<TARGET_FILE:editcap>
+	)
+else()
+	message(STATUS "WSUG: will not update editcap output")
+endif()
 
 add_custom_target(update_tools_help
 	DEPENDS ${WSUG_TOOLS_HELP_FILES}
