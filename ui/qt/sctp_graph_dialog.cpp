@@ -363,12 +363,11 @@ void SCTPGraphDialog::drawGraph()
     connect(ui->sctpPlot, SIGNAL(plottableClick(QCPAbstractPlottable*,QMouseEvent*)), this, SLOT(graphClicked(QCPAbstractPlottable*, QMouseEvent*)));
     // set axes ranges, so we see all data:
     QCPRange myXRange(selected_assoc->min_secs, (selected_assoc->max_secs+1));
-    QCPRange myYRange;
     if (relative) {
-        QCPRange myYRange(0, maxTSN - minTSN);
+        QCPRange myYRange(0, maxTSN - minTSN + 1);
         ui->sctpPlot->yAxis->setRange(myYRange);
     } else {
-        QCPRange myYRange(minTSN, maxTSN);
+        QCPRange myYRange(minTSN, maxTSN + 1);
         ui->sctpPlot->yAxis->setRange(myYRange);
     }
     ui->sctpPlot->xAxis->setRange(myXRange);
