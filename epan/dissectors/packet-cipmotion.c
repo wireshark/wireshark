@@ -844,7 +844,7 @@ dissect_status_data_set(guint32 status_data_set, proto_tree* tree, tvbuff_t* tvb
  * as their starting offset
  */
 static guint32
-dissect_cntr_cyclic(guint32 con_format _U_, tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 size, guint32 instance _U_)
+dissect_cntr_cyclic(tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 size)
 {
    proto_item *temp_proto_item;
    proto_tree *header_tree, *temp_proto_tree;
@@ -907,7 +907,7 @@ dissect_cntr_cyclic(guint32 con_format _U_, tvbuff_t* tvb, proto_tree* tree, gui
  * as their starting offset
  */
 static guint32
-dissect_device_cyclic(guint32 con_format _U_, tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 size, guint32 instance _U_)
+dissect_device_cyclic(tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 size)
 {
    proto_item *temp_proto_item;
    proto_tree *header_tree, *temp_proto_tree;
@@ -1145,36 +1145,31 @@ dissect_get_axis_attr_list_request(tvbuff_t* tvb, proto_tree* tree, guint32 offs
 {
    proto_item *attr_item;
    proto_tree *header_tree, *attr_tree;
-   guint16     attribute, attribute_cnt;
    guint32     local_offset;
-   guint8      increment_size, dimension;
 
    /* Create the tree for the get axis attribute list request */
    header_tree = proto_tree_add_subtree(tree, tvb, offset, size, ett_get_axis_attribute, NULL, "Get Axis Attribute List Request");
 
    /* Read the number of attributes that are contained within the request */
-   attribute_cnt = tvb_get_letohs(tvb, offset);
-   proto_tree_add_item(header_tree, hf_get_axis_attr_list_attribute_cnt, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+   guint32 attribute_cnt;
+   proto_tree_add_item_ret_uint(header_tree, hf_get_axis_attr_list_attribute_cnt, tvb, offset, 2, ENC_LITTLE_ENDIAN, &attribute_cnt);
 
    /* Start the attribute loop at the beginning of the first attribute in the list */
    local_offset = offset + 4;
 
    /* For each attribute display the associated fields */
-   for (attribute = 0; attribute < attribute_cnt; attribute++)
+   for (guint32 attribute = 0; attribute < attribute_cnt; attribute++)
    {
       /* At a minimum the local offset needs will need to be incremented by 4 bytes to reach the next attribute */
-      increment_size = 4;
-
-      /* Pull the fields for this attribute from the payload, all fields are needed to make some calculations before
-      * properly displaying of the attribute is possible */
-      dimension       = tvb_get_guint8(tvb, local_offset + 2);
+      guint8 increment_size = 4;
 
       /* Create the tree for this attribute within the request */
       guint32 attribute_id;
       attr_item = proto_tree_add_item_ret_uint(header_tree, hf_get_axis_attr_list_attribute_id, tvb, local_offset, 2, ENC_LITTLE_ENDIAN, &attribute_id);
       attr_tree = proto_item_add_subtree(attr_item, ett_get_axis_attr_list);
 
-      proto_tree_add_item(attr_tree, hf_get_axis_attr_list_dimension, tvb, local_offset + 2, 1, ENC_LITTLE_ENDIAN);
+      guint32 dimension;
+      proto_tree_add_item_ret_uint(attr_tree, hf_get_axis_attr_list_dimension, tvb, local_offset + 2, 1, ENC_LITTLE_ENDIAN, &dimension);
       proto_tree_add_item(attr_tree, hf_get_axis_attr_list_element_size, tvb, local_offset + 3, 1, ENC_LITTLE_ENDIAN);
 
       if (dimension == 1)
@@ -1230,36 +1225,46 @@ dissect_set_axis_attr_list_request(packet_info *pinfo, tvbuff_t* tvb, proto_tree
 {
    proto_item *attr_item;
    proto_tree *header_tree, *attr_tree;
-   guint16     attribute, attribute_cnt, data_elements;
    guint32     local_offset;
-   guint32     attribute_size;
-   guint8      dimension, attribute_start, increment_size;
 
    /* Create the tree for the set axis attribute list request */
    header_tree = proto_tree_add_subtree(tree, tvb, offset, size, ett_set_axis_attribute, NULL, "Set Axis Attribute List Request");
 
    /* Read the number of attributes that are contained within the request */
-   attribute_cnt = tvb_get_letohs(tvb, offset);
-   proto_tree_add_item(header_tree, hf_set_axis_attr_list_attribute_cnt, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+   guint32 attribute_cnt;
+   proto_tree_add_item_ret_uint(header_tree, hf_set_axis_attr_list_attribute_cnt, tvb, offset, 2, ENC_LITTLE_ENDIAN, &attribute_cnt);
 
    /* Start the attribute loop at the beginning of the first attribute in the list */
    local_offset = offset + 4;
 
    /* For each attribute display the associated fields */
-   for (attribute = 0; attribute < attribute_cnt; attribute++)
+   for (guint32 attribute = 0; attribute < attribute_cnt; attribute++)
    {
       /* At a minimum the local offset needs to be incremented by 4 bytes to reach the next attribute */
-      increment_size = 4;
+      guint8 increment_size = 4;
 
       /* Pull the fields for this attribute from the payload, all fields are needed to make some calculations before
-      * properly displaying of the attribute is possible */
-      dimension       = tvb_get_guint8(tvb, local_offset + 2);
-      attribute_size  = tvb_get_guint8(tvb, local_offset + 3);
-      attribute_start = 4;
+      *  properly displaying of the attribute is possible */
+      guint8 attribute_start = 4;
+
+      /* Create the tree for this attribute in the get axis attribute list request */
+      guint32 attribute_id;
+      attr_item = proto_tree_add_item_ret_uint(header_tree, hf_set_axis_attr_list_attribute_id, tvb, local_offset, 2, ENC_LITTLE_ENDIAN, &attribute_id);
+      attr_tree = proto_item_add_subtree(attr_item, ett_set_axis_attr_list);
+
+      guint32 dimension;
+      proto_tree_add_item_ret_uint(attr_tree, hf_set_axis_attr_list_dimension, tvb, local_offset + 2, 1, ENC_LITTLE_ENDIAN, &dimension);
+
+      guint32 attribute_size;
+      proto_tree_add_item_ret_uint(attr_tree, hf_set_axis_attr_list_element_size, tvb, local_offset + 3, 1, ENC_LITTLE_ENDIAN, &attribute_size);
 
       if (dimension == 1)
       {
-         data_elements   = tvb_get_letohs(tvb, local_offset + 6);
+         guint32 data_elements;
+
+         /* Display the start index and start index from the request if the request is an array */
+         proto_tree_add_item(attr_tree, hf_set_axis_attr_list_start_index, tvb, local_offset + 4, 2, ENC_LITTLE_ENDIAN);
+         proto_tree_add_item_ret_uint(attr_tree, hf_set_axis_attr_list_data_elements, tvb, local_offset + 6, 2, ENC_LITTLE_ENDIAN, &data_elements);
 
          /* Modify the size of the attribute data by the number of elements if the request is an array request */
          attribute_size *= data_elements;
@@ -1267,21 +1272,6 @@ dissect_set_axis_attr_list_request(packet_info *pinfo, tvbuff_t* tvb, proto_tree
          /* Modify the amount to update the local offset by and the start of the data to include the index and elements field */
          increment_size  += 4;
          attribute_start += 4;
-      }
-
-      /* Create the tree for this attribute in the get axis attribute list request */
-      guint32 attribute_id;
-      attr_item = proto_tree_add_item_ret_uint(header_tree, hf_set_axis_attr_list_attribute_id, tvb, local_offset, 2, ENC_LITTLE_ENDIAN, &attribute_id);
-      attr_tree = proto_item_add_subtree(attr_item, ett_set_axis_attr_list);
-
-      proto_tree_add_item(attr_tree, hf_set_axis_attr_list_dimension, tvb, local_offset + 2, 1, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(attr_tree, hf_set_axis_attr_list_element_size, tvb, local_offset + 3, 1, ENC_LITTLE_ENDIAN);
-
-      if (dimension == 1)
-      {
-         /* Display the start index and start index from the request if the request is an array */
-         proto_tree_add_item(attr_tree, hf_set_axis_attr_list_start_index, tvb, local_offset + 4, 2, ENC_LITTLE_ENDIAN);
-         proto_tree_add_item(attr_tree, hf_set_axis_attr_list_data_elements, tvb, local_offset + 6, 2, ENC_LITTLE_ENDIAN);
       }
 
       int parsed_len = dissect_motion_attribute(pinfo, tvb, local_offset + attribute_start, attribute_id,
@@ -1382,21 +1372,20 @@ dissect_set_axis_attr_list_response(tvbuff_t* tvb, proto_tree* tree, guint32 off
 {
    proto_item *attr_item;
    proto_tree *header_tree, *attr_tree;
-   guint16     attribute, attribute_cnt;
    guint32     local_offset;
 
    /* Create the tree for the set axis attribute list response */
    header_tree = proto_tree_add_subtree(tree, tvb, offset, size, ett_get_axis_attribute, NULL, "Set Axis Attribute List Response");
 
    /* Read the number of attributes that are contained within the response */
-   attribute_cnt = tvb_get_letohs(tvb, offset);
-   proto_tree_add_item(header_tree, hf_set_axis_attr_list_attribute_cnt, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+   guint32 attribute_cnt;
+   proto_tree_add_item_ret_uint(header_tree, hf_set_axis_attr_list_attribute_cnt, tvb, offset, 2, ENC_LITTLE_ENDIAN, &attribute_cnt);
 
    /* Start the attribute loop at the beginning of the first attribute in the list */
    local_offset = offset + 4;
 
    /* For each attribute display the associated fields */
-   for (attribute = 0; attribute < attribute_cnt; attribute++)
+   for (guint32 attribute = 0; attribute < attribute_cnt; attribute++)
    {
       /* Create the tree for the current attribute in the set axis attribute list response */
       guint32 attribute_id;
@@ -1429,36 +1418,33 @@ dissect_get_axis_attr_list_response(packet_info* pinfo, tvbuff_t* tvb, proto_tre
 {
    proto_item *attr_item;
    proto_tree *header_tree, *attr_tree;
-   guint16     attribute, attribute_cnt, data_elements;
-   guint32     attribute_size;
-   guint8      dimension, attribute_start, increment_size;
    guint32     local_offset;
 
    /* Create the tree for the get axis attribute list response */
    header_tree = proto_tree_add_subtree(tree, tvb, offset, size, ett_get_axis_attribute, NULL, "Get Axis Attribute List Response");
 
    /* Read the number of attributes that are contained within the request */
-   attribute_cnt = tvb_get_letohs(tvb, offset);
-   proto_tree_add_item(header_tree, hf_get_axis_attr_list_attribute_cnt, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+   guint32 attribute_cnt;
+   proto_tree_add_item_ret_uint(header_tree, hf_get_axis_attr_list_attribute_cnt, tvb, offset, 2, ENC_LITTLE_ENDIAN, &attribute_cnt);
 
    /* Start the attribute loop at the beginning of the first attribute in the list */
    local_offset = offset + 4;
 
    /* For each attribute display the associated fields */
-   for (attribute = 0; attribute < attribute_cnt; attribute++)
+   for (guint32 attribute = 0; attribute < attribute_cnt; attribute++)
    {
       /* At a minimum the local offset needs to be incremented by 4 bytes to reach the next attribute */
-      increment_size = 4;
+      guint8 increment_size = 4;
 
       /* Pull the fields for this attribute from the payload, all fields are needed to make some calculations before
       * properly displaying of the attribute is possible */
-      dimension       = tvb_get_guint8(tvb, local_offset + 2);
-      attribute_size  = tvb_get_guint8(tvb, local_offset + 3);
-      attribute_start = 4;
+      guint8 dimension = tvb_get_guint8(tvb, local_offset + 2);
+      guint32 attribute_size = tvb_get_guint8(tvb, local_offset + 3);
+      guint8 attribute_start = 4;
 
       if (dimension == 1)
       {
-         data_elements   = tvb_get_letohs(tvb, local_offset + 6);
+         guint16 data_elements = tvb_get_letohs(tvb, local_offset + 6);
 
          /* Modify the size of the attribute data by the number of elements if the request is an array request */
          attribute_size *= data_elements;
@@ -1522,7 +1508,7 @@ dissect_get_axis_attr_list_response(packet_info* pinfo, tvbuff_t* tvb, proto_tre
  * Returns: None
  */
 static void
-dissect_group_sync_response (tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 size _U_)
+dissect_group_sync_response (tvbuff_t* tvb, proto_tree* tree, guint32 offset)
 {
    proto_tree_add_item(tree, hf_cip_group_sync, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 }
@@ -1568,7 +1554,7 @@ dissect_devce_service(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint
            dissect_set_axis_attr_list_response(tvb, header_tree, offset + 4, size - 4, instance_id);
            break;
        case SC_GROUP_SYNC:
-           dissect_group_sync_response(tvb, header_tree, offset + 4, size - 4);
+           dissect_group_sync_response(tvb, header_tree, offset + 4);
            break;
        default:
            /* Display the remainder of the service channel data */
@@ -1901,7 +1887,7 @@ dissect_cipmotion(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* dat
          {
          case FORMAT_VAR_CONTROL_TO_DEVICE:
             if ( cyc_size > 0 )
-               offset = dissect_cntr_cyclic( con_format, tvb, proto_tree_top, offset, cyc_size, instance );
+               offset = dissect_cntr_cyclic(tvb, proto_tree_top, offset, cyc_size);
             if ( cyc_blk_size > 0 )
                offset = dissect_cyclic_wt(tvb, proto_tree_top, offset, cyc_blk_size);
             if ( evnt_size > 0 )
@@ -1911,7 +1897,7 @@ dissect_cipmotion(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* dat
             break;
          case FORMAT_VAR_DEVICE_TO_CONTROL:
             if ( cyc_size > 0 )
-               offset = dissect_device_cyclic( con_format, tvb, proto_tree_top, offset, cyc_size, instance );
+               offset = dissect_device_cyclic(tvb, proto_tree_top, offset, cyc_size);
             if ( cyc_blk_size > 0 )
                offset = dissect_cyclic_rd( tvb, proto_tree_top, offset, cyc_blk_size );
             if ( evnt_size > 0 )
