@@ -46,6 +46,7 @@
 #include <wiretap/wtap.h>
 
 #include "epan/etypes.h"
+#include "epan/dissectors/packet-ieee80211-radiotap-defs.h"
 
 #ifndef HAVE_GETOPT_LONG
 #include "wsutil/wsgetopt.h"
@@ -168,6 +169,7 @@ static gboolean               check_startstop           = FALSE;
 static gboolean               rem_vlan                  = FALSE;
 static gboolean               dup_detect                = FALSE;
 static gboolean               dup_detect_by_time        = FALSE;
+static gboolean               skip_radiotap             = FALSE;
 
 static int                    do_strict_time_adjustment = FALSE;
 static struct time_adjustment strict_time_adj           = {NSTIME_INIT_ZERO, 0}; /* strict time adjustment */
@@ -576,6 +578,7 @@ remove_vlan_info(const wtap_packet_header *phdr, guint8* fd, guint32* len) {
 static gboolean
 is_duplicate(guint8* fd, guint32 len) {
     int i;
+    const struct ieee80211_radiotap_header* tap_header;
 
     /*Hint to ignore some bytes at the start of the frame for the digest calculation(-I option) */
     guint32 offset = ignored_bytes;
@@ -584,6 +587,14 @@ is_duplicate(guint8* fd, guint32 len) {
 
     if (len <= ignored_bytes) {
         offset = 0;
+    }
+
+    /* Get the size of radiotap header and use that as offset (-p option) */
+    if (skip_radiotap == TRUE) {
+        tap_header = (const struct ieee80211_radiotap_header*)fd;
+        offset = pletoh16(&tap_header->it_len);
+        if (offset >= len)
+            offset = 0;
     }
 
     new_fd  = &fd[offset];
@@ -756,6 +767,9 @@ print_usage(FILE *output)
     fprintf(output, "           other editcap options except -v may not always work as expected.\n");
     fprintf(output, "           Specifically the -r, -t or -S options will very likely NOT have the\n");
     fprintf(output, "           desired effect if combined with the -d, -D or -w.\n");
+    fprintf(output, "  --skip-radiotap-header skip radiotap header when checking for packet duplicates.\n");
+    fprintf(output, "                         Useful when processing packets captured by multiple radios\n");
+    fprintf(output, "                         on the same channel in the vicinity of each other.\n");
     fprintf(output, "\n");
     fprintf(output, "Packet manipulation:\n");
     fprintf(output, "  -s <snaplen>           truncate each packet to max. <snaplen> bytes of data.\n");
@@ -950,6 +964,7 @@ main(int argc, char *argv[])
     int           opt;
     static const struct option long_options[] = {
         {"novlan", no_argument, NULL, 0x8100},
+        {"skip-radiotap-header", no_argument, NULL, 0x8101},
         {"help", no_argument, NULL, 'h'},
         {"version", no_argument, NULL, 'V'},
         {0, 0, 0, 0 }
@@ -1038,6 +1053,12 @@ main(int argc, char *argv[])
         case 0x8100:
         {
             rem_vlan = TRUE;
+            break;
+        }
+
+        case 0x8101:
+        {
+            skip_radiotap = TRUE;
             break;
         }
 
@@ -1338,6 +1359,22 @@ main(int argc, char *argv[])
     if (verbose) {
         fprintf(stderr, "File %s is a %s capture file.\n", argv[optind],
                 wtap_file_type_subtype_string(wtap_file_type_subtype(wth)));
+    }
+
+    if (ignored_bytes != 0 && skip_radiotap == TRUE) {
+        fprintf(stderr, "editcap: can't skip radiotap headers and %d byte(s)\n", ignored_bytes);
+        fprintf(stderr, "editcap: at the start of packet at the same time\n");
+        ret = INVALID_OPTION;
+        goto clean_exit;
+    }
+
+    if (skip_radiotap == TRUE && wtap_file_encap(wth) != WTAP_ENCAP_IEEE_802_11_RADIOTAP) {
+        fprintf(stderr, "editcap: can't skip radiotap header because input file is incorrect\n");
+        fprintf(stderr, "editcap: expected '%s', input is '%s'\n",
+                wtap_encap_string(WTAP_ENCAP_IEEE_802_11_RADIOTAP),
+                wtap_encap_string(wtap_file_type_subtype(wth)));
+        ret = INVALID_OPTION;
+        goto clean_exit;
     }
 
     shb_hdrs = wtap_file_get_shb_for_new_file(wth);

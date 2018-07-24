@@ -33,6 +33,7 @@ S< B<-D> E<lt>dup windowE<gt> > |
 S< B<-w> E<lt>dup time windowE<gt> >
 S<[ B<-v> ]>
 S<[ B<-I> E<lt>bytes to ignoreE<gt> ]>
+S<[ B<--skip-radiotap-header> ]>
 I<infile>
 I<outfile>
 
@@ -218,6 +219,12 @@ appear to reject Ethernet packets larger than the standard Ethernet MTU,
 making them incapable of handling gigabit Ethernet captures if jumbo
 packets were used).
 
+=item --skip-radiotap-header
+
+Skip the readiotap header of each frame when checking for packet duplicates. This is useful
+when processing a caputure created by combining outputs of multiple capture devices on the same
+channel in the vicinity of each other.
+
 =item -S  E<lt>strict time adjustmentE<gt>
 
 Time adjust selected packets to ensure strict chronological order.
@@ -357,6 +364,10 @@ To select just packets 1, 5, 10 to 20 and 30 to 40 for the new file use:
 To remove duplicate packets seen within the prior four frames use:
 
     editcap -d capture.pcap dedup.pcap
+
+To remove duplicate packets seen within the prior four frames while skipping radiotap headers use:
+
+    editcap -d --skip-radiotap-header capture.pcap dedup.pcap
 
 To remove duplicate packets seen within the prior 100 frames use:
 
