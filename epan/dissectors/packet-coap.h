@@ -275,7 +275,7 @@ coap_common_dissect_t name = {							\
 	    NULL, HFILL }							\
 	},									\
 	{ & name .hf.opt_object_security_kid_present,				\
-	  { "Key ID Present",  prefix ".opt.object_security_kid",		\
+	  { "Key ID Present",  prefix ".opt.object_security_kid_present",	\
 	    FT_BOOLEAN, 8, NULL, COAP_OBJECT_SECURITY_KID_MASK,			\
 	    NULL, HFILL }							\
 	},									\
