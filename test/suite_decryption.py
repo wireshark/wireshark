@@ -538,3 +538,19 @@ class case_decrypt_wireguard(subprocesstest.SubprocessTestCase):
         self.assertIn('2\t%s\t1' % self.key_Spub_i, lines)
         self.assertIn('13\t%s\t1' % self.key_Spub_r, lines)
         self.assertIn('14\t%s\t1' % self.key_Spub_i, lines)
+
+    def test_decrypt_initiation_sprivr(self):
+        """Check for partial decryption using Spriv_r."""
+        lines = self.runOne([
+            '-ouat:wg_keys:"Private","%s"' % self.key_Spriv_r,
+            '-Y', 'wg.type==1',
+            '-Tfields',
+            '-e', 'frame.number',
+            '-e', 'wg.static',
+            '-e', 'wg.static.known_pubkey',
+            '-e', 'wg.static.known_privkey',
+            '-e', 'wg.timestamp.nanoseconds',
+        ])
+        # static pubkey is unknown because Spub_i is not added to wg_keys.
+        self.assertIn('1\t%s\t0\t0\t%s' % (self.key_Spub_i, '356537872'), lines)
+        self.assertIn('13\t%s\t0\t0\t%s' % (self.key_Spub_i, '490514356'), lines)

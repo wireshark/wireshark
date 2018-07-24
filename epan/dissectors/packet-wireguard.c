@@ -20,6 +20,7 @@
 #include <epan/prefs.h>
 #include <epan/proto_data.h>
 #include <epan/uat.h>
+#include <wsutil/ws_printf.h> /* ws_g_warning */
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/curve25519.h>
 
@@ -37,7 +38,11 @@ static int hf_wg_reserved = -1;
 static int hf_wg_sender = -1;
 static int hf_wg_ephemeral = -1;
 static int hf_wg_encrypted_static = -1;
+static int hf_wg_static = -1;
 static int hf_wg_encrypted_timestamp = -1;
+static int hf_wg_timestamp_tai64_label = -1;
+static int hf_wg_timestamp_nanoseconds = -1;
+static int hf_wg_timestamp_value = -1;
 static int hf_wg_mac1 = -1;
 static int hf_wg_mac2 = -1;
 static int hf_wg_receiver = -1;
@@ -51,8 +56,12 @@ static int hf_wg_response_in = -1;
 static int hf_wg_response_to = -1;
 static int hf_wg_receiver_pubkey = -1;
 static int hf_wg_receiver_pubkey_known_privkey = -1;
+static int hf_wg_ephemeral_known_privkey = -1;
+static int hf_wg_static_known_pubkey = -1;
+static int hf_wg_static_known_privkey = -1;
 
 static gint ett_wg = -1;
+static gint ett_timestamp = -1;
 static gint ett_key_info = -1;
 
 static expert_field ei_wg_bad_packet_length = EI_INIT;
@@ -97,11 +106,26 @@ typedef struct wg_skey {
 } wg_skey_t;
 
 /*
+ * Ephemeral key.
+ */
+typedef struct wg_ekey {
+    wg_qqword   pub_key;
+    wg_qqword   priv_key;   /* Optional, set to all zeroes if missing. */
+} wg_ekey_t;
+
+/*
  * Set of (long-term) static keys (for guessing the peer based on MAC1).
  * Maps the public key to the "wg_skey_t" structure.
  * Keys are populated from the UAT and key log file.
  */
 static GHashTable *wg_static_keys;
+
+/*
+ * Set of ephemeral keys (for decryption). Maps the public key to the
+ * "wg_ekey_t" structure. The private key MUST be available.
+ * Keys are populated from the key log file and wmem_file_scope allocated.
+ */
+static wmem_map_t *wg_ephemeral_keys;
 
 /* UAT adapter for populating wg_static_keys. */
 enum { WG_KEY_UAT_PUBLIC, WG_KEY_UAT_PRIVATE };
@@ -118,6 +142,32 @@ typedef struct {
 
 static wg_key_uat_record_t *wg_key_records;
 static guint num_wg_key_records;
+
+/*
+ * Input keying material for key derivation/decryption during the handshake.
+ * For the Initiation message, Spub_r and either Spriv_r or Epriv_i must be set.
+ * For the Response message, Epriv_r + Spriv_r or Epriv_r + Epub_i.
+ *
+ * The static and ephemeral keys are reset upon UAT changes or are invalidated
+ * when the capture file closes.
+ */
+typedef struct {
+    const wg_skey_t    *initiator_skey;     /* Spub_i based on Initiation.static (decrypted, null if decryption failed) */
+    const wg_skey_t    *responder_skey;     /* Spub_r based on Initiation.MAC1 (+Spriv_r if available) */
+    guint8              timestamp[12];      /* Initiation.timestamp (decrypted) */
+    gboolean            timestamp_ok : 1;   /* Whether the timestamp was successfully decrypted */
+
+    /* The following fields are only valid on the initial pass. */
+    const wg_ekey_t    *initiator_ekey;     /* Epub_i matching Initiation.Ephemeral (+Epriv_i if available) */
+    const wg_ekey_t    *responder_ekey;     /* Epub_r matching Response.Ephemeral (+Epriv_r if available) */
+    wg_qqword           handshake_hash;     /* Handshake hash H_i */
+    wg_qqword           chaining_key;       /* Chaining key C_i */
+} wg_handshake_state_t;
+
+/** Hash(CONSTRUCTION), initialized by wg_decrypt_init. */
+static wg_qqword hash_of_construction;
+/** Hash(Hash(CONSTRUCTION) || IDENTIFIER), initialized by wg_decrypt_init. */
+static wg_qqword hash_of_c_identifier;
 /* Decryption types. }}} */
 #endif /* WG_DECRYPTION_SUPPORTED */
 
@@ -145,6 +195,9 @@ typedef struct {
     guint32     initiator_frame;
     guint32     response_frame;     /* Responder or Cookie Reply message. */
     wg_initial_info_t initial;      /* Valid only on the first pass. */
+#ifdef WG_DECRYPTION_SUPPORTED
+    wg_handshake_state_t *hs;       /* Handshake state to enable decryption. */
+#endif /* WG_DECRYPTION_SUPPORTED */
 } wg_session_t;
 
 /* Per-packet state. */
@@ -185,6 +238,17 @@ priv_to_pub(wg_qqword *pub, const wg_qqword *priv)
     int r = crypto_scalarmult_curve25519_base(pub->data, priv->data);
     /* The computation should always be possible. */
     DISSECTOR_ASSERT(r == 0);
+}
+
+static void
+dh_x25519(wg_qqword *shared_secret, const wg_qqword *priv, const wg_qqword *pub)
+{
+    /*
+     * If the point ("pub") is of small order, of if the result is all zeros, -1
+     * could be returned with Sodium. We are just interpreting the trace, so
+     * just ignore the condition for now.
+     */
+    (void)crypto_scalarmult_curve25519(shared_secret->data, priv->data, pub->data);
 }
 
 /*
@@ -271,6 +335,108 @@ wg_mac_verify(const wg_qqword *mac_key,
     }
     return ok;
 }
+
+/**
+ * Update the new chained hash value: h = Hash(h || data).
+ */
+static void
+wg_mix_hash(wg_qqword *h, const void *data, size_t data_len)
+{
+    gcry_md_hd_t hd;
+    if (gcry_md_open(&hd, GCRY_MD_BLAKE2S_256, 0)) {
+        DISSECTOR_ASSERT_NOT_REACHED();
+    }
+    gcry_md_write(hd, h->data, sizeof(wg_qqword));
+    gcry_md_write(hd, data, data_len);
+    memcpy(h, gcry_md_read(hd, 0), sizeof(wg_qqword));
+    gcry_md_close(hd);
+}
+
+/**
+ * Computes KDF_n(key, input) where n is the number of derived keys.
+ */
+static void
+wg_kdf(const wg_qqword *key, const guint8 *input, guint input_len, guint n, wg_qqword *out)
+{
+    guint8          prk[32];    /* Blake2s_256 hash output. */
+    gcry_error_t    err;
+    err = hkdf_extract(GCRY_MD_BLAKE2S_256, key->data, sizeof(wg_qqword), input, input_len, prk);
+    DISSECTOR_ASSERT(err == 0);
+    err = hkdf_expand(GCRY_MD_BLAKE2S_256, prk, sizeof(prk), NULL, 0, out->data, 32 * n);
+    DISSECTOR_ASSERT(err == 0);
+}
+
+/*
+ * Must be called before attempting decryption.
+ */
+static gboolean
+wg_decrypt_init(void)
+{
+    if (gcry_md_test_algo(GCRY_MD_BLAKE2S_128) != 0 ||
+        gcry_md_test_algo(GCRY_MD_BLAKE2S_256) != 0 ||
+        gcry_cipher_test_algo(GCRY_CIPHER_CHACHA20) != 0) {
+        return FALSE;
+    }
+    static const char construction[] = "Noise_IKpsk2_25519_ChaChaPoly_BLAKE2s";
+    gcry_md_hash_buffer(GCRY_MD_BLAKE2S_256, hash_of_construction.data, construction, strlen(construction));
+
+    static const char wg_identifier[] = "WireGuard v1 zx2c4 Jason@zx2c4.com";
+    memcpy(&hash_of_c_identifier, hash_of_construction.data, sizeof(wg_qqword));
+    wg_mix_hash(&hash_of_c_identifier, wg_identifier, strlen(wg_identifier));
+    return TRUE;
+}
+
+static gcry_cipher_hd_t
+wg_create_cipher(const wg_qqword *key)
+{
+    gcry_cipher_hd_t    hd;
+    if (gcry_cipher_open(&hd, GCRY_CIPHER_CHACHA20, GCRY_CIPHER_MODE_POLY1305, 0)) {
+        return NULL;
+    }
+
+    if (gcry_cipher_setkey(hd, key->data, sizeof(*key))) {
+        gcry_cipher_close(hd);
+        hd = NULL;
+    }
+    return hd;
+}
+
+/*
+ * Decrypt ciphertext using the ChaCha20-Poly1305 cipher. The auth tag must be
+ * included with the ciphertext.
+ */
+static gboolean
+wg_aead_decrypt(gcry_cipher_hd_t hd, guint64 counter, const guchar *ctext, guint ctext_len, const guchar *aad, guint aad_len, guchar *out, guint out_len)
+{
+    DISSECTOR_ASSERT(ctext_len >= AUTH_TAG_LENGTH);
+    ctext_len -= AUTH_TAG_LENGTH;
+    const guchar *auth_tag = ctext + ctext_len;
+
+    counter = GUINT64_TO_LE(counter);
+    guchar nonce[12] = { 0 };
+    memcpy(nonce + 4, &counter, 8);
+
+    return gcry_cipher_setiv(hd, nonce, sizeof(nonce)) == 0 &&
+        gcry_cipher_authenticate(hd, aad, aad_len) == 0 &&
+        gcry_cipher_decrypt(hd, out, out_len, ctext, ctext_len) == 0 &&
+        gcry_cipher_checktag(hd, auth_tag, AUTH_TAG_LENGTH) == 0;
+}
+
+/**
+ * Decrypt ciphertext using the ChaCha20-Poly1305 cipher. The auth tag must be
+ * included with the ciphertext.
+ */
+static gboolean
+aead_decrypt(const wg_qqword *key, guint64 counter, const guchar *ctext, guint ctext_len, const guchar *aad, guint aad_len, guchar *out, guint out_len)
+{
+    DISSECTOR_ASSERT(ctext_len >= AUTH_TAG_LENGTH);
+
+    gcry_cipher_hd_t hd = wg_create_cipher(key);
+    DISSECTOR_ASSERT(hd);
+    gboolean ok = wg_aead_decrypt(hd, counter, ctext, ctext_len, aad, aad_len, out, out_len);
+    gcry_cipher_close(hd);
+    return ok;
+}
 /* Protocol-specific crypto routines. }}} */
 
 /*
@@ -354,6 +520,96 @@ wg_key_uat_reset(void)
 UAT_VS_DEF(wg_key_uat, key_type, wg_key_uat_record_t, guint, WG_KEY_UAT_PUBLIC, "Public")
 UAT_CSTRING_CB_DEF(wg_key_uat, key, wg_key_uat_record_t)
 /* UAT and key configuration. }}} */
+
+/**
+ * Tries to decrypt the initiation message.
+ * Assumes responder_skey and initiator_ekey to be set.
+ */
+static void
+wg_process_initiation(tvbuff_t *tvb, wg_handshake_state_t *hs)
+{
+    DISSECTOR_ASSERT(hs->responder_skey);
+    DISSECTOR_ASSERT(hs->initiator_ekey);
+    DISSECTOR_ASSERT(hs->initiator_skey == NULL);
+
+    wg_qqword decrypted_static = {{ 0 }};
+    const gboolean has_Spriv_r = has_private_key(&hs->responder_skey->priv_key);
+    const gboolean has_Epriv_i = has_private_key(&hs->initiator_ekey->priv_key);
+
+    // Either Spriv_r or Epriv_i + Spriv_i are needed. If the first two are not
+    // available, fail early. Spriv_i will be looked up later.
+    if (!has_Spriv_r && !has_Epriv_i) {
+        return;
+    }
+
+    const wg_qqword *ephemeral = (const wg_qqword *)tvb_get_ptr(tvb, 8, WG_KEY_LEN);
+#define WG_ENCRYPTED_STATIC_LENGTH      (32 + AUTH_TAG_LENGTH)
+    const guint8 *encrypted_static = (const guint8 *)tvb_get_ptr(tvb, 40, WG_ENCRYPTED_STATIC_LENGTH);
+#define WG_ENCRYPTED_TIMESTAMP_LENGTH   (12 + AUTH_TAG_LENGTH)
+    const guint8 *encrypted_timestamp = (const guint8 *)tvb_get_ptr(tvb, 88, WG_ENCRYPTED_TIMESTAMP_LENGTH);
+
+    wg_qqword c_and_k[2], h;
+    wg_qqword *c = &c_and_k[0], *k = &c_and_k[1];
+    // c = Hash(CONSTRUCTION)
+    memcpy(c->data, hash_of_construction.data, sizeof(wg_qqword));
+    // h = Hash(c || IDENTIFIER)
+    memcpy(h.data, hash_of_c_identifier.data, sizeof(wg_qqword));
+    // h = Hash(h || Spub_r)
+    wg_mix_hash(&h, hs->responder_skey->pub_key.data, sizeof(wg_qqword));
+    // c = KDF1(c, msg.ephemeral)
+    wg_kdf(c, ephemeral->data, WG_KEY_LEN, 1, c);
+    // h = Hash(h || msg.ephemeral)
+    wg_mix_hash(&h, ephemeral, WG_KEY_LEN);
+    //  dh1 = DH(Spriv_r, msg.ephemeral)    if kType = R
+    //  dh1 = DH(Epriv_i, Spub_r)           if kType = I
+    wg_qqword dh1 = {{ 0 }};
+    if (has_Spriv_r) {
+        dh_x25519(&dh1, &hs->responder_skey->priv_key, ephemeral);
+    } else {
+        dh_x25519(&dh1, &hs->initiator_ekey->priv_key, &hs->responder_skey->pub_key);
+    }
+    // (c, k) = KDF2(c, dh1)
+    wg_kdf(c, dh1.data, sizeof(dh1), 2, c_and_k);
+    // Spub_i = AEAD-Decrypt(k, 0, msg.static, h)
+    if (!aead_decrypt(k, 0, encrypted_static, WG_ENCRYPTED_STATIC_LENGTH, h.data, sizeof(wg_qqword), decrypted_static.data, sizeof(decrypted_static))) {
+        return;
+    }
+    // Save static public key to the context and lookup private key if possible.
+    wg_skey_t *skey_i = (wg_skey_t *)g_hash_table_lookup(wg_static_keys, &decrypted_static);
+    if (!skey_i) {
+        skey_i = wmem_new0(wmem_file_scope(), wg_skey_t);
+        skey_i->pub_key = decrypted_static;
+    }
+    hs->initiator_skey = skey_i;
+    // If Spriv_r is not available, then Epriv_i + Spriv_i must be available.
+    if (!has_Spriv_r && !has_private_key(&hs->initiator_skey->priv_key)) {
+        return;
+    }
+
+    // h = Hash(h || msg.static)
+    wg_mix_hash(&h, encrypted_static, WG_ENCRYPTED_STATIC_LENGTH);
+    //  dh2 = DH(Spriv_r, Spub_i)           if kType = R
+    //  dh2 = DH(Spriv_i, Spub_r)           if kType = I
+    wg_qqword dh2 = {{ 0 }};
+    if (has_Spriv_r) {
+        dh_x25519(&dh2, &hs->responder_skey->priv_key, &hs->initiator_skey->pub_key);
+    } else {
+        dh_x25519(&dh2, &hs->initiator_skey->priv_key, &hs->responder_skey->pub_key);
+    }
+    // (c, k) = KDF2(c, dh2)
+    wg_kdf(c, dh2.data, sizeof(wg_qqword), 2, c_and_k);
+    // timestamp = AEAD-Decrypt(k, 0, msg.timestamp, h)
+    if (!aead_decrypt(k, 0, encrypted_timestamp, WG_ENCRYPTED_TIMESTAMP_LENGTH, h.data, sizeof(wg_qqword), hs->timestamp, sizeof(hs->timestamp))) {
+        return;
+    }
+    hs->timestamp_ok = TRUE;
+    // h = Hash(h || msg.timestamp)
+    wg_mix_hash(&h, encrypted_timestamp, WG_ENCRYPTED_TIMESTAMP_LENGTH);
+
+    // save (h, k) context for responder message processing
+    hs->handshake_hash = h;
+    hs->chaining_key = *c;
+}
 #endif /* WG_DECRYPTION_SUPPORTED */
 
 
@@ -496,6 +752,72 @@ wg_mac1_key_probe(tvbuff_t *tvb, gboolean is_initiation)
 
     return NULL;
 }
+
+/*
+ * Builds the handshake decryption state when sufficient keying material is
+ * available from the initiation message.
+ */
+static wg_handshake_state_t *
+wg_prepare_handshake_keys(const wg_skey_t *skey_r, tvbuff_t *tvb)
+{
+    wg_handshake_state_t *hs;
+    gboolean has_r_keys = skey_r && has_private_key(&skey_r->priv_key);
+    wg_ekey_t *ekey_i = (wg_ekey_t *)wmem_map_lookup(wg_ephemeral_keys, tvb_get_ptr(tvb, 8, WG_KEY_LEN));
+
+    // If neither private keys are available, do not create a session.
+    if (!has_r_keys && !ekey_i) {
+        return NULL;
+    }
+
+    // Even if Spriv_r is available, store Epub_i for Response decryption.
+    if (!ekey_i) {
+        ekey_i = wmem_new0(wmem_file_scope(), wg_ekey_t);
+        tvb_memcpy(tvb, ekey_i->pub_key.data, 8, WG_KEY_LEN);
+    }
+
+    hs = wmem_new0(wmem_file_scope(), wg_handshake_state_t);
+    hs->responder_skey = skey_r;
+    hs->initiator_ekey = ekey_i;
+    return hs;
+}
+
+/* Converts a TAI64 label to the seconds since the Unix epoch.
+ * See https://cr.yp.to/libtai/tai64.html */
+static gboolean tai64n_to_unix(guint64 tai64_label, guint32 nanoseconds, nstime_t *nstime)
+{
+    const guint64 pow2_62 = 1ULL << 62;
+    if (tai64_label < pow2_62 || tai64_label >= (1ULL << 63) || nanoseconds > 999999999) {
+        // Seconds before 1970 and values larger than 2^63 (reserved) cannot
+        // be represented. Nanoseconds must also be valid.
+        return FALSE;
+    }
+
+    // TODO this can result in loss of precision
+    nstime->secs = (time_t)(tai64_label - pow2_62);
+    nstime->nsecs = (int)nanoseconds;
+    return TRUE;
+}
+
+static void
+wg_dissect_key_extra(proto_tree *tree, tvbuff_t *tvb, const wg_qqword *pubkey, gboolean is_ephemeral)
+{
+    guint32 has_private = FALSE;
+    proto_item *ti;
+
+    if (is_ephemeral) {
+        wg_ekey_t *ekey = (wg_ekey_t *)wmem_map_lookup(wg_ephemeral_keys, pubkey->data);
+        has_private = ekey && has_private_key(&ekey->priv_key);
+    } else {
+        wg_skey_t *skey = (wg_skey_t *)g_hash_table_lookup(wg_static_keys, pubkey->data);
+        has_private = skey && has_private_key(&skey->priv_key);
+        ti = proto_tree_add_boolean(tree, hf_wg_static_known_pubkey, tvb, 0, 0, !!skey);
+        PROTO_ITEM_SET_GENERATED(ti);
+    }
+
+    int hf_known_privkey = is_ephemeral ? hf_wg_ephemeral_known_privkey : hf_wg_static_known_privkey;
+    ti = proto_tree_add_boolean(tree, hf_known_privkey, tvb, 0, 0, has_private);
+    PROTO_ITEM_SET_GENERATED(ti);
+}
 #endif /* WG_DECRYPTION_SUPPORTED */
 
 
@@ -507,11 +829,57 @@ wg_dissect_pubkey(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean is_ephem
     gchar *key_str = wmem_strdup(wmem_packet_scope(), str);
     g_free(str);
 
-    int hf_id = is_ephemeral ? hf_wg_ephemeral : -1; // TODO extend for static keys
+    int hf_id = is_ephemeral ? hf_wg_ephemeral : hf_wg_static;
+#ifdef WG_DECRYPTION_SUPPORTED
+    proto_item *ti = proto_tree_add_string(tree, hf_id, tvb, offset, 32, key_str);
+    proto_tree *key_tree = proto_item_add_subtree(ti, ett_key_info);
+    wg_dissect_key_extra(key_tree, tvb, (const wg_qqword *)pubkey, is_ephemeral);
+#else
     proto_tree_add_string(tree, hf_id, tvb, offset, 32, key_str);
+#endif
 }
 
 #ifdef WG_DECRYPTION_SUPPORTED
+static void
+wg_dissect_decrypted_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wg_tree, wg_handshake_state_t *hs)
+{
+    tvbuff_t   *new_tvb;
+
+    if (!hs || !hs->initiator_skey) {
+        return;
+    }
+
+    new_tvb = tvb_new_child_real_data(tvb, hs->initiator_skey->pub_key.data, WG_KEY_LEN, WG_KEY_LEN);
+    add_new_data_source(pinfo, new_tvb, "Decrypted Static");
+    wg_dissect_pubkey(wg_tree, new_tvb, 0, FALSE);
+}
+
+static void
+wg_dissect_decrypted_timestamp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, wg_handshake_state_t *hs)
+{
+    guint64     tai64_label;
+    guint32     nanoseconds;
+    nstime_t    nstime;
+    proto_item *ti;
+    tvbuff_t   *new_tvb;
+
+    if (!hs || !hs->timestamp_ok) {
+        return;
+    }
+
+    new_tvb = tvb_new_child_real_data(tvb, hs->timestamp, sizeof(hs->timestamp), sizeof(hs->timestamp));
+    add_new_data_source(pinfo, new_tvb, "Decrypted Timestamp");
+
+    tai64_label = tvb_get_guint64(new_tvb, 0, ENC_BIG_ENDIAN);
+    nanoseconds = tvb_get_guint32(new_tvb, 8, ENC_BIG_ENDIAN);
+    if (tai64n_to_unix(tai64_label, nanoseconds, &nstime)) {
+        ti = proto_tree_add_time(tree, hf_wg_timestamp_value, new_tvb, 0, 12, &nstime);
+        tree = proto_item_add_subtree(ti, ett_timestamp);
+    }
+    proto_tree_add_item(tree, hf_wg_timestamp_tai64_label, new_tvb, 0, 8, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_wg_timestamp_nanoseconds, new_tvb, 8, 4, ENC_BIG_ENDIAN);
+}
+
 static void
 wg_dissect_mac1_pubkey(proto_tree *tree, tvbuff_t *tvb, const wg_skey_t *skey)
 {
@@ -537,13 +905,31 @@ wg_dissect_handshake_initiation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *w
 
 #ifdef WG_DECRYPTION_SUPPORTED
     const wg_skey_t *skey_r = wg_mac1_key_probe(tvb, TRUE);
+    wg_handshake_state_t *hs = NULL;
+
+    if (!PINFO_FD_VISITED(pinfo)) {
+        if (skey_r) {
+            hs = wg_prepare_handshake_keys(skey_r, tvb);
+            if (hs) {
+                wg_process_initiation(tvb, hs);
+            }
+        }
+    } else {
+        hs = wg_pinfo->session->hs;
+    }
 #endif /* WG_DECRYPTION_SUPPORTED */
 
     proto_tree_add_item_ret_uint(wg_tree, hf_wg_sender, tvb, 4, 4, ENC_LITTLE_ENDIAN, &sender_id);
     col_append_fstr(pinfo->cinfo, COL_INFO, ", sender=0x%08X", sender_id);
     wg_dissect_pubkey(wg_tree, tvb, 8, TRUE);
     proto_tree_add_item(wg_tree, hf_wg_encrypted_static, tvb, 40, 32 + AUTH_TAG_LENGTH, ENC_NA);
+#ifdef WG_DECRYPTION_SUPPORTED
+    wg_dissect_decrypted_static(tvb, pinfo, wg_tree, hs);
+#endif /* WG_DECRYPTION_SUPPORTED */
     proto_tree_add_item(wg_tree, hf_wg_encrypted_timestamp, tvb, 88, 12 + AUTH_TAG_LENGTH, ENC_NA);
+#ifdef WG_DECRYPTION_SUPPORTED
+    wg_dissect_decrypted_timestamp(tvb, pinfo, wg_tree, hs);
+#endif /* WG_DECRYPTION_SUPPORTED */
     proto_tree_add_item(wg_tree, hf_wg_mac1, tvb, 116, 16, ENC_NA);
 #ifdef WG_DECRYPTION_SUPPORTED
     wg_dissect_mac1_pubkey(wg_tree, tvb, skey_r);
@@ -556,6 +942,9 @@ wg_dissect_handshake_initiation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *w
         wg_session_t *session = wg_session_new();
         session->initiator_frame = pinfo->num;
         wg_session_update_address(session, pinfo, TRUE);
+#ifdef WG_DECRYPTION_SUPPORTED
+        session->hs = hs;
+#endif /* WG_DECRYPTION_SUPPORTED */
         wg_sessions_insert(sender_id, session);
         wg_pinfo->session = session;
     }
@@ -792,9 +1181,29 @@ proto_register_wg(void)
             FT_NONE, BASE_NONE, NULL, 0x0,
             "Encrypted long-term static public key of sender", HFILL }
         },
+        { &hf_wg_static,
+          { "Static Public Key", "wg.static",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            "Long-term static public key of sender", HFILL }
+        },
         { &hf_wg_encrypted_timestamp,
           { "Encrypted Timestamp", "wg.encrypted_timestamp",
             FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_wg_timestamp_tai64_label,
+          { "TAI64 Label", "wg.timestamp.tai64_label",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_wg_timestamp_nanoseconds,
+          { "Nanoseconds", "wg.timestamp.nanoseconds",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_wg_timestamp_value,
+          { "Timestamp", "wg.timestamp.value",
+            FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_wg_mac1,
@@ -873,10 +1282,26 @@ proto_register_wg(void)
             FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             "Whether the corresponding private key is known (configured via prefs)", HFILL }
         },
+        { &hf_wg_ephemeral_known_privkey,
+          { "Has Private Key", "wg.ephemeral.known_privkey",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            "Whether the corresponding private key is known (configured via prefs)", HFILL }
+        },
+        { &hf_wg_static_known_pubkey,
+          { "Known Public Key", "wg.static.known_pubkey",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            "Whether this public key is known (configured via prefs)", HFILL }
+        },
+        { &hf_wg_static_known_privkey,
+          { "Has Private Key", "wg.static.known_privkey",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            "Whether the corresponding private key is known (configured via prefs)", HFILL }
+        },
     };
 
     static gint *ett[] = {
         &ett_wg,
+        &ett_timestamp,
         &ett_key_info,
     };
 
@@ -932,6 +1357,12 @@ proto_register_wg(void)
             "WireGuard static keys",
             "A table of long-term static keys to enable WireGuard peer identification or partial decryption",
             wg_keys_uat);
+
+    if (!wg_decrypt_init()) {
+        ws_g_warning("%s: decryption will not be possible due to lack of algorithms support", G_STRFUNC);
+    }
+
+    wg_ephemeral_keys = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_int_hash, wg_pubkey_equal);
 #endif /* WG_DECRYPTION_SUPPORTED */
 
     register_init_routine(wg_init);
