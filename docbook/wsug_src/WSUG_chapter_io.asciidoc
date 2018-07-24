@@ -788,11 +788,13 @@ Columns:
    the filename differently. For example, HTTP uses the
    final part of the URI and IMF uses the subject of the email.
 
-Buttons:
+Inputs:
+
+*  _Text Filter:_ Only displays objects containing the specified text string.
 
 *  _Help:_ Opens the “Export Objects” section in the user’s guide.
 
-*  _Save All:_ Saves all objects in the list using the filename from the
+*  _Save All:_ Saves all objects (including those not displayed) using the filename from the
    filename column. You will be asked what directory / folder to save them in.
 
 *  _Close:_ Closes the “Export Objects” dialog.

@@ -37,6 +37,10 @@ ExportObjectDialog::ExportObjectDialog(QWidget &parent, CaptureFile &cf, registe
     proxyModel_.setSourceModel(&model_);
     eo_ui_->objectTree->setModel(&proxyModel_);
 
+    proxyModel_.setFilterFixedString("");
+    proxyModel_.setFilterCaseSensitivity(Qt::CaseInsensitive);
+    proxyModel_.setFilterKeyColumn(-1);
+
 #if defined(Q_OS_MAC)
     eo_ui_->progressLabel->setAttribute(Qt::WA_MacSmallSize, true);
     eo_ui_->progressBar->setAttribute(Qt::WA_MacSmallSize, true);
@@ -45,6 +49,9 @@ ExportObjectDialog::ExportObjectDialog(QWidget &parent, CaptureFile &cf, registe
     connect(&model_, SIGNAL(rowsInserted(QModelIndex,int,int)),
             this, SLOT(modelDataChanged(QModelIndex)));
     connect(&model_, SIGNAL(modelReset()), this, SLOT(modelRowsReset()));
+    connect(eo_ui_->filterLine, &QLineEdit::textChanged,
+            &proxyModel_, &QSortFilterProxyModel::setFilterFixedString);
+
 
     save_bt_ = eo_ui_->buttonBox->button(QDialogButtonBox::Save);
     save_all_bt_ = eo_ui_->buttonBox->button(QDialogButtonBox::SaveAll);

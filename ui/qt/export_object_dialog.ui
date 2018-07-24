@@ -97,6 +97,24 @@
     </widget>
    </item>
    <item>
+    <layout class="QHBoxLayout" name="filterLayout" stretch="0,0,0">
+     <item alignment="Qt::AlignLeft">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Text Filter:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="filterLine">
+       <property name="toolTip">
+        <string>Only display entries containing this string</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
