@@ -928,11 +928,11 @@ static header_field_info hfi_netlink_route_ifa_flags32 NETLINK_ROUTE_HFI_INIT =
 	  CF_FUNC(hfi_netlink_route_ifa_flags_label), 0x00, NULL, HFILL };
 
 static header_field_info hfi_netlink_route_ifa_addr6 NETLINK_ROUTE_HFI_INIT =
-	{ "Address", "netlink-route.ifa_address", FT_IPv6, BASE_NONE,
+	{ "Address", "netlink-route.ifa_address.ipv6", FT_IPv6, BASE_NONE,
 	  NULL, 0x00, NULL, HFILL };
 
 static header_field_info hfi_netlink_route_ifa_addr4 NETLINK_ROUTE_HFI_INIT =
-	{ "Address", "netlink-route.ifa_address", FT_IPv4, BASE_NONE,
+	{ "Address", "netlink-route.ifa_address.ipv4", FT_IPv4, BASE_NONE,
 	  NULL, 0x00, NULL, HFILL };
 
 static int
