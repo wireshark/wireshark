@@ -8977,7 +8977,7 @@ proto_register_docsis_mgmt (void)
      {"RxMER Statistics per subcarrier", "docsis_optreq.reqstat.rxmer_stat_per_subcarrier", FT_BOOLEAN, 32, TFS(&req_not_req_tfs), 0x1, NULL, HFILL}
     },
     {&hf_docsis_optreq_reqstat_rxmer_subc_threshold_comp,
-     {"RxMER per Subcarrier Threshold Comparision for Candidate Profile", "docsis_optreq.reqstat.rxmer_per_subcarrrier_thresh_comp", FT_BOOLEAN, 32, TFS(&req_not_req_tfs), 0x2, NULL, HFILL}
+     {"RxMER per Subcarrier Threshold Comparison for Candidate Profile", "docsis_optreq.reqstat.rxmer_per_subcarrrier_thresh_comp", FT_BOOLEAN, 32, TFS(&req_not_req_tfs), 0x2, NULL, HFILL}
     },
     {&hf_docsis_optreq_reqstat_snr_marg_cand_prof,
      {"SNR Margin for Candidate Profile", "docsis_optreq.reqstat.snr_marg_cand_prof", FT_BOOLEAN, 32, TFS(&req_not_req_tfs), 0x4, NULL, HFILL}
@@ -8986,7 +8986,7 @@ proto_register_docsis_mgmt (void)
      {"Codeword Statistics for Candidate Profile", "docsis_optreq.reqstat.codew_stat_cand_prof", FT_BOOLEAN, 32, TFS(&req_not_req_tfs), 0x8, NULL, HFILL}
     },
     {&hf_docsis_optreq_reqstat_codew_thresh_comp_cand_prof,
-     {"Codeword Threshold Comparision for Candidate Profile", "docsis_optreq.reqstat.codew_thresh_comp_cand_prof", FT_BOOLEAN, 32, TFS(&req_not_req_tfs), 0x10, NULL, HFILL}
+     {"Codeword Threshold Comparison for Candidate Profile", "docsis_optreq.reqstat.codew_thresh_comp_cand_prof", FT_BOOLEAN, 32, TFS(&req_not_req_tfs), 0x10, NULL, HFILL}
     },
     {&hf_docsis_optreq_reqstat_ncp_field_stat,
      {"NCP Field Statistics", "docsis_optreq.reqstat.ncp_field_stats", FT_BOOLEAN, 32, TFS(&req_not_req_tfs), 0x20, NULL, HFILL}
