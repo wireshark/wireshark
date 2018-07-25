@@ -501,6 +501,7 @@ typedef struct mimo_control
 #define TAG_VHT_TX_PWR_ENVELOPE      195  /* IEEE Std 802.11ac/D5.0 */
 #define TAG_CHANNEL_SWITCH_WRAPPER   196  /* IEEE Std 802.11ac */
 #define TAG_OPERATING_MODE_NOTIFICATION 199  /* IEEE Std 802.11ac */
+#define TAG_TWT                      216  /* IEEE Std 802.11ah */
 #define TAG_VENDOR_SPECIFIC_IE       221
 #define TAG_ELEMENT_ID_EXTENSION     255  /* IEEE Std 802.11ai */
 
@@ -669,6 +670,7 @@ static const value_string tag_num_vals[] = {
   { TAG_VHT_TX_PWR_ENVELOPE,                  "VHT Tx Power Envelope" },
   { TAG_CHANNEL_SWITCH_WRAPPER,               "Channel Switch Wrapper" },
   { TAG_OPERATING_MODE_NOTIFICATION,          "Operating Mode Notification" },
+  { TAG_TWT,                                  "Target Wake Time" },
   { TAG_VENDOR_SPECIFIC_IE,                   "Vendor Specific" },
   { TAG_ELEMENT_ID_EXTENSION,                 "Element ID Extension" },
   { 0, NULL }
@@ -2973,12 +2975,58 @@ static const value_string s1g_action_vals[] = {
   {0,   NULL},
 };
 
-static const value_string twt_neg_type[] = {
+static const value_string twt_neg_type_vals[] = {
   {0x0, "Individual TWT"},
   {0x1, "Wake TBTT"},
   {0x2, "Broadcast TWT"},
   {0x3, "Broadcast TWT"},
   {0,   NULL},
+};
+
+static const true_false_string twt_responder_pm_mode_tfs = {
+  "AP may doze outside the TWT",
+  "AP is always awake",
+};
+
+static const true_false_string twt_requester_tfs = {
+  "This STA is a TWT Requesting STA",
+  "This STA is a TWT Responding STA or a TWT scheduling AP",
+};
+
+#define REQUEST_TWT   0
+#define SUGGEST_TWT   1
+#define DEMAND_TWT    2
+#define TWT_GROUPING  3
+#define ACCEPT_TWT    4
+#define ALTERNATE_TWT 5
+#define DICTATE_TWT   6
+#define REJECT_TWT    7
+
+static const value_string twt_setup_cmd[] = {
+  {REQUEST_TWT,   "Request TWT"},
+  {SUGGEST_TWT,   "Suggest TWT"},
+  {DEMAND_TWT,    "Demand TWT"},
+  {TWT_GROUPING,  "TWT Grouping"},
+  {ACCEPT_TWT,    "Accept TWT"},
+  {ALTERNATE_TWT, "Alternate TWT"},
+  {DICTATE_TWT,   "Dictate TWT"},
+  {REJECT_TWT,    "Reject TWT"},
+  {0,   NULL},
+};
+
+static const true_false_string twt_trigger = {
+  "TWT SP includes trigger frames",
+  "TWT SP does not include trigger frames",
+};
+
+static const true_false_string twt_implicit = {
+  "TWT is implicit",
+  "TWT is explicit",
+};
+
+static const true_false_string twt_flow_type = {
+  "TWT is unannounced, the TWT responding STA can send frames at any time",
+  "TWT is announced, the TWT Requesting STA will send trigger frames",
 };
 
 static int proto_wlan = -1;
@@ -5485,6 +5533,27 @@ static int hf_ieee80211_twt_individual_flow = -1;
 static int hf_ieee80211_twt_individual_flow_id = -1;
 static int hf_ieee80211_twt_bcast_id = -1;
 static int hf_ieee80211_twt_neg_type = -1;
+static int hf_ieee80211_tag_twt_control_field = -1;
+static int hf_ieee80211_tag_twt_ndp_paging_indicator = -1;
+static int hf_ieee80211_tag_twt_responder_pm_mode = -1;
+static int hf_ieee80211_tag_twt_neg_type = -1;
+static int hf_ieee80211_tag_twt_ctrl_field_reserved = -1;
+
+static int hf_ieee80211_tag_twt_req_type_field = -1;
+static int hf_ieee80211_tag_twt_req_type_req = -1;
+static int hf_ieee80211_tag_twt_req_type_setup_cmd = -1;
+static int hf_ieee80211_tag_twt_req_type_trigger = -1;
+static int hf_ieee80211_tag_twt_req_type_implicit = -1;
+static int hf_ieee80211_tag_twt_req_type_flow_type = -1;
+static int hf_ieee80211_tag_twt_req_type_flow_id = -1;
+static int hf_ieee80211_tag_twt_req_type_wake_int_exp = -1;
+static int hf_ieee80211_tag_twt_req_type_prot = -1;
+
+static int hf_ieee80211_tag_twt_target_wake_time = -1;
+static int hf_ieee80211_tag_twt_nom_min_twt_wake_dur = -1;
+static int hf_ieee80211_tag_twt_wake_interval_mantissa = -1;
+static int hf_ieee80211_tag_twt_channel = -1;
+
 
 /* ************************************************************************* */
 /*                               Protocol trees                              */
@@ -5750,6 +5819,8 @@ static expert_field ei_ieee80211_fcs = EI_INIT;
 static expert_field ei_ieee80211_mismatched_akm_suite = EI_INIT;
 static expert_field ei_ieee80211_vs_routerboard_unexpected_len = EI_INIT;
 static expert_field ei_ieee80211_twt_tear_down_bad_neg_type = EI_INIT;
+static expert_field ei_ieee80211_twt_setup_not_supported_neg_type = EI_INIT;
+static expert_field ei_ieee80211_twt_setup_bad_command = EI_INIT;
 
 /* 802.11ad trees */
 static gint ett_dynamic_alloc_tree = -1;
@@ -5770,6 +5841,8 @@ static gint ett_ieee80211_esp = -1;
 
 /* 802.11ah trees */
 static gint ett_twt_tear_down_tree = -1;
+static int ett_twt_control_field_tree = -1;
+static int ett_twt_req_type_tree = -1;
 
 /* 802.11ax trees */
 static gint ett_he_mac_capabilities = -1;
@@ -11294,6 +11367,18 @@ add_ff_action_vht(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
 }
 
 static guint
+add_ff_s1g_twt_setup(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
+{
+  const guint8 ids[] = { TAG_TWT };
+  guint start = offset;
+
+  offset += add_ff_dialog_token(tree, tvb, pinfo, offset);
+  offset += add_tagged_field(pinfo, tree, tvb, offset, 0, ids, G_N_ELEMENTS(ids), NULL);
+
+  return offset - start;
+}
+
+static guint
 add_ff_s1g_twt_teardown(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
 {
   guint8 twt_flow_id = tvb_get_guint8(tvb, offset);
@@ -11365,7 +11450,7 @@ add_ff_action_s1g(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
       // TODO
     break;
     case S1G_ACT_TWT_SETUP:
-      // TODO
+      offset += add_ff_s1g_twt_setup(tree, tvb, pinfo, offset);
     break;
     case S1G_ACT_TWT_TEARDOWN:
       offset += add_ff_s1g_twt_teardown(tree, tvb, pinfo, offset);
@@ -19154,6 +19239,129 @@ dissect_future_channel_guidance(tvbuff_t *tvb, packet_info *pinfo _U_,
   }
 
   return offset;
+}
+
+static int
+ieee80211_tag_twt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+  int tag_len = tvb_reported_length(tvb);
+  ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
+  int offset = 0;
+  proto_item *item;
+
+  static const int *ieee80211_twt_ctrl_field[] = {
+    &hf_ieee80211_tag_twt_ndp_paging_indicator,
+    &hf_ieee80211_tag_twt_responder_pm_mode,
+    &hf_ieee80211_tag_twt_neg_type,
+    &hf_ieee80211_tag_twt_ctrl_field_reserved,
+    NULL,
+  };
+
+  static const int *ieee80211_twt_req_type_field[] = {
+    &hf_ieee80211_tag_twt_req_type_req,
+    &hf_ieee80211_tag_twt_req_type_setup_cmd,
+    &hf_ieee80211_tag_twt_req_type_trigger,
+    &hf_ieee80211_tag_twt_req_type_implicit,
+    &hf_ieee80211_tag_twt_req_type_flow_type,
+    &hf_ieee80211_tag_twt_req_type_flow_id,
+    &hf_ieee80211_tag_twt_req_type_wake_int_exp,
+    &hf_ieee80211_tag_twt_req_type_prot,
+    NULL,
+  };
+
+  gboolean twt_requester;
+  guint8 setup_command;
+  guint8 ctrl_field;
+  guint16 req_type;
+  guint8 neg_type;
+
+  // 1 byte  - control
+  // 2 bytes - request type
+  // 8 bytes - target wake time
+  // 1 byte  - nominal minimum interval TWT wake duration
+  // 2 bytes - TWT wake interval mantissa
+  // 1 byte  - channel
+  // total: 15 bytes.
+  // TODO: support other configurations that have a different size
+  if (tag_len < 15) {
+    expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length,
+                           "Tag Length %u wrong, must be >= 15", tag_len);
+    return tvb_captured_length(tvb);
+  }
+
+  ctrl_field = tvb_get_guint8(tvb, offset);
+  proto_tree_add_bitmask_with_flags(tree, tvb, offset,
+                                    hf_ieee80211_tag_twt_control_field,
+                                    ett_twt_control_field_tree, ieee80211_twt_ctrl_field,
+                                    ENC_LITTLE_ENDIAN, BMT_NO_FALSE);
+  offset += 1;
+  neg_type = (ctrl_field & 0xc) >> 2;
+
+  if (neg_type != 0) {
+    // This is a broadcast TWT, or uses TWT information frames and this is not supported yet
+    proto_tree_add_expert(tree, pinfo, &ei_ieee80211_twt_setup_not_supported_neg_type,
+                          tvb, offset, tvb_reported_length_remaining(tvb, offset));
+    return tvb_captured_length(tvb);
+  }
+
+  req_type = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+  item = proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_tag_twt_req_type_field,
+                                           ett_twt_req_type_tree, ieee80211_twt_req_type_field,
+                                           ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+  twt_requester = req_type & 0x1;
+  setup_command = (req_type & 0xe) >> 1;
+
+  switch (setup_command) {
+    case REQUEST_TWT:
+    case SUGGEST_TWT:
+    case DEMAND_TWT:
+      // we must be TWT requester
+      if (!twt_requester) {
+        expert_add_info_format(pinfo, item, &ei_ieee80211_twt_setup_bad_command,
+                               "Command %d is not allowed if TWT Request is not set",
+                               setup_command);
+        return tvb_captured_length(tvb);
+      }
+      break;
+    case TWT_GROUPING:
+      // TODO: There are more tests needed here
+      //       Fall through since we can't be requester here as well.
+    case ACCEPT_TWT:
+    case ALTERNATE_TWT:
+      // we can't be TWT requester
+      if (twt_requester) {
+        expert_add_info_format(pinfo, item, &ei_ieee80211_twt_setup_bad_command,
+                               "Command %d is not allowed if TWT Request is set",
+                               setup_command);
+        return tvb_captured_length(tvb);
+      }
+      break;
+    case DICTATE_TWT:
+    case REJECT_TWT:
+      // TODO: Unclear what to do here. Looks like we can't be Requester, OTOH
+      //       the spec doesn't say anything
+      break;
+    default:
+      break;
+  }
+
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_twt_target_wake_time, tvb, offset, 8,
+                      ENC_LITTLE_ENDIAN);
+  offset += 8;
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_twt_nom_min_twt_wake_dur, tvb, offset, 1,
+                      ENC_NA);
+  offset += 1;
+
+  item = proto_tree_add_item(tree, hf_ieee80211_tag_twt_wake_interval_mantissa, tvb, offset, 2,
+                             ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_twt_channel, tvb, offset, 1, ENC_NA);
+
+  return tvb_captured_length(tvb);
 }
 
 static int
@@ -33850,8 +34058,80 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_twt_neg_type,
       {"TWT Negotiation type", "wlan.twt.neg_type",
-       FT_UINT8, BASE_DEC, VALS(twt_neg_type), 0x60,
+       FT_UINT8, BASE_DEC, VALS(twt_neg_type_vals), 0x60,
        NULL, HFILL }},
+
+    {&hf_ieee80211_tag_twt_control_field,
+      {"Control Field", "wlan.twt.control_field",
+       FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_twt_ndp_paging_indicator,
+     {"NDP Paging Indicator", "wlan.twt.ndp_paging_indicator",
+      FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x1, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_twt_responder_pm_mode,
+     {"Responder PM Mode", "wlan.twt.resp_pm",
+      FT_BOOLEAN, 8, TFS(&twt_responder_pm_mode_tfs), 0x2, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_twt_neg_type,
+      {"Negotiation type", "wlan.twt.neg_type",
+       FT_UINT8, BASE_HEX, VALS(twt_neg_type_vals), 0xc, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_twt_ctrl_field_reserved,
+      {"Reserved", "wlan.twt.control_field_reserved",
+       FT_UINT8, BASE_HEX, NULL, 0xf0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_twt_req_type_field,
+      {"Request Type", "wlan.twt.request_type",
+       FT_UINT16, BASE_HEX, NULL, 0, NULL,  HFILL }},
+
+    {&hf_ieee80211_tag_twt_req_type_req,
+      {"Requester", "wlan.twt.requester",
+       FT_BOOLEAN, 16, TFS(&twt_requester_tfs), 0x0001, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_twt_req_type_setup_cmd,
+      {"Setup Command", "wlan.twt.setup_cmd",
+       FT_UINT16, BASE_DEC, VALS(twt_setup_cmd), 0x000e, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_twt_req_type_trigger,
+      {"Trigger", "wlan.twt.trigger",
+       FT_BOOLEAN, 16, TFS(&twt_trigger), 0x0010, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_twt_req_type_implicit,
+      {"Implicit", "wlan.twt.implicit",
+       FT_BOOLEAN, 16, TFS(&twt_implicit), 0x0020, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_twt_req_type_flow_type,
+      {"Flow type", "wlan.twt.flow_type",
+       FT_BOOLEAN, 16, TFS(&twt_flow_type), 0x0040, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_twt_req_type_flow_id,
+      {"Flow ID", "wlan.twt.flow_id",
+       FT_UINT16, BASE_DEC, NULL, 0x0380, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_twt_req_type_wake_int_exp,
+      {"Wake Interval Exponent", "wlan.twt.wake_interval_exp",
+       FT_UINT16, BASE_DEC, NULL, 0x7c00, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_twt_req_type_prot,
+      {"Protection", "wlan.twt.prot",
+       FT_BOOLEAN, 16, NULL, 0x8000, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_twt_target_wake_time,
+      {"Target Wake Time", "wlan.twt.target_wake_time",
+       FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_twt_nom_min_twt_wake_dur,
+      {"Nominal Minimum TWT Wake duration", "wlan.twt.nom_min_twt_wake_duration",
+       FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_twt_wake_interval_mantissa,
+      {"TWT Wake Interval Mantissa", "wlan.twt.wake_interval_mantissa",
+       FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_twt_channel,
+      {"TWT Channel", "wlan.twt.channel",
+       FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
   };
 
   static hf_register_info aggregate_fields[] = {
@@ -34117,6 +34397,8 @@ proto_register_ieee80211(void)
 
     /* 802.11 ah trees */
     &ett_twt_tear_down_tree,
+    &ett_twt_control_field_tree,
+    &ett_twt_req_type_tree,
 
     /* 802.11ax trees */
     &ett_he_mac_capabilities,
@@ -34319,6 +34601,14 @@ proto_register_ieee80211(void)
     { &ei_ieee80211_twt_tear_down_bad_neg_type,
       { "wlan.twt.tear_down_bad_neg_type", PI_PROTOCOL, PI_ERROR,
         "Bad Negotiation type for S1G TWT Flow field in TWT teardown", EXPFILL }},
+
+    { &ei_ieee80211_twt_setup_not_supported_neg_type,
+      { "wlan.twt.setup_unsup_neg_type", PI_UNDECODED, PI_WARN,
+        "Undecoded TWT setup tag because the Negotiation Type is not supported", EXPFILL }},
+
+    { &ei_ieee80211_twt_setup_bad_command,
+      { "wlan.twt.setup_bad_command", PI_PROTOCOL, PI_ERROR,
+        "This TWT Setup Command is not allowed, check the TWT Request field", EXPFILL }},
   };
 
   expert_module_t *expert_ieee80211;
@@ -34769,6 +35059,7 @@ proto_reg_handoff_ieee80211(void)
   dissector_add_uint("wlan.tag.number", TAG_DMG_LINK_ADAPTION_ACK, create_dissector_handle(ieee80211_tag_dmg_link_adaption_ack, -1));
   dissector_add_uint("wlan.tag.number", TAG_SWITCHING_STREAM, create_dissector_handle(ieee80211_tag_switching_stream, -1));
   dissector_add_uint("wlan.tag.number", TAG_ELEMENT_ID_EXTENSION, create_dissector_handle(ieee80211_tag_element_id_extension, -1));
+  dissector_add_uint("wlan.tag.number", TAG_TWT, create_dissector_handle(ieee80211_tag_twt, -1));
 
   /* Vendor specific actions */
   dissector_add_uint("wlan.action.vendor_specific", OUI_MARVELL, create_dissector_handle(dissect_vendor_action_marvell, -1));
