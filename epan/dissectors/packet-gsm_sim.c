@@ -1105,7 +1105,7 @@ static const gchar *get_sw_string(guint16 sw)
 	case 0x9e:
 		return "Length of the response data given / SIM data download error";
 	case 0x9f:
-		return "Length of the response data";
+		return wmem_strdup_printf(wmem_packet_scope(), "Length of the response data, Length is %u", sw2);
 	case 0x92:
 		if ((sw & 0xf0) == 0x00)
 			return "Command successful but after internal retry routine";
