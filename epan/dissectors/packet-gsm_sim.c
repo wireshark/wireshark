@@ -1113,7 +1113,10 @@ static const gchar *get_sw_string(guint16 sw)
 	case 0x61:
 		return wmem_strdup_printf(wmem_packet_scope(), "Response ready, Response length is %u", sw2);
 	case 0x67:
-		return "Incorrect parameter P3";
+		if (sw2 == 0x00)
+			return "Wrong length"; /* TS 102.221 / Section 10.2.1.5 */
+		else
+			return "Incorrect parameter P3"; /* TS 51.011 / Section 9.4.6 */
 	case 0x6c:
 		return wmem_strdup_printf(wmem_packet_scope(), "Terminal should repeat command, Length for repeated command is %u", sw2);
 	case 0x6d:
