@@ -449,8 +449,6 @@ find_tap_id(const char *name)
 static void
 free_tap_listener(volatile tap_listener_t *tl)
 {
-	if(!tl)
-		return;
 	dfilter_free(tl->code);
 	g_free(tl->fstring);
 DIAG_OFF(cast-qual)
@@ -614,6 +612,10 @@ remove_tap_listener(void *tapdata)
 				break;
 			}
 
+		}
+		if(!tl) {
+			ws_g_warning("remove_tap_listener(): no listener found with that tap data");
+			return;
 		}
 	}
 	if(tl->finish)
