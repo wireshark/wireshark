@@ -78,14 +78,16 @@ static void dissect_msgpack_integer(tvbuff_t* tvb, proto_tree* tree, guint8 type
 
 	if (type >> 7 == 0) {
 		proto_tree_add_uint_format(tree, hf_msgpack_uint_8, tvb, *offset, 1, type, "%s: %u", label, type);
-		*value = wmem_strdup_printf(wmem_packet_scope(), "%u", type);
+		if (value)
+			*value = wmem_strdup_printf(wmem_packet_scope(), "%u", type);
 		*offset += 1;
 		return;
 	}
 
 	if (type >> 5 == 7) {
 		proto_tree_add_int_format(tree, hf_msgpack_int_8, tvb, *offset, 1, type, "%s: %u", label, type);
-		*value = wmem_strdup_printf(wmem_packet_scope(), "%d", type);
+		if (value)
+			*value = wmem_strdup_printf(wmem_packet_scope(), "%d", type);
 		*offset += 1;
 		return;
 	}
@@ -94,49 +96,57 @@ static void dissect_msgpack_integer(tvbuff_t* tvb, proto_tree* tree, guint8 type
 		case 0xcc:
 			uint8 = tvb_get_guint8(tvb, *offset + 1);
 			proto_tree_add_uint_format(tree, hf_msgpack_uint_8, tvb, *offset, 2, uint8, "%s: %u", label, uint8);
-			*value = wmem_strdup_printf(wmem_packet_scope(), "%u", uint8);
+			if (value)
+				*value = wmem_strdup_printf(wmem_packet_scope(), "%u", uint8);
 			*offset += 2;
 			break;
 		case 0xcd:
 			uint16 = tvb_get_ntohs(tvb, *offset + 1);
 			proto_tree_add_uint(tree, hf_msgpack_uint_16, tvb, *offset, 3, uint16);
-			*value = wmem_strdup_printf(wmem_packet_scope(), "%u", uint16);
+			if (value)
+				*value = wmem_strdup_printf(wmem_packet_scope(), "%u", uint16);
 			*offset += 3;
 			break;
 		case 0xce:
 			uint32 = tvb_get_ntohl(tvb, *offset + 1);
 			proto_tree_add_uint(tree, hf_msgpack_uint_32, tvb, *offset, 5, uint32);
-			*value = wmem_strdup_printf(wmem_packet_scope(), "%u", uint32);
+			if (value)
+				*value = wmem_strdup_printf(wmem_packet_scope(), "%u", uint32);
 			*offset += 5;
 			break;
 		case 0xcf:
 			uint64 = tvb_get_ntoh64(tvb, *offset + 1);
 			proto_tree_add_uint64(tree, hf_msgpack_uint_64, tvb, *offset, 9, uint64);
-			*value = wmem_strdup_printf(wmem_packet_scope(), "%" G_GINT64_MODIFIER "u", uint64);
+			if (value)
+				*value = wmem_strdup_printf(wmem_packet_scope(), "%" G_GINT64_MODIFIER "u", uint64);
 			*offset += 9;
 			break;
 		case 0xd0:
 			int8 = tvb_get_gint8(tvb, *offset + 1);
 			proto_tree_add_int(tree, hf_msgpack_int_8, tvb, *offset, 2, int8);
-			*value = wmem_strdup_printf(wmem_packet_scope(), "%d", int8);
+			if (value)
+				*value = wmem_strdup_printf(wmem_packet_scope(), "%d", int8);
 			*offset += 2;
 			break;
 		case 0xd1:
 			int16 = tvb_get_ntohs(tvb, *offset + 1);
 			proto_tree_add_int(tree, hf_msgpack_int_16, tvb, *offset, 3, int16);
-			*value = wmem_strdup_printf(wmem_packet_scope(), "%d", int16);
+			if (value)
+				*value = wmem_strdup_printf(wmem_packet_scope(), "%d", int16);
 			*offset += 3;
 			break;
 		case 0xd2:
 			int32 = tvb_get_ntohl(tvb, *offset + 1);
 			proto_tree_add_int(tree, hf_msgpack_int_32, tvb, *offset, 5, int32);
-			*value = wmem_strdup_printf(wmem_packet_scope(), "%d", int32);
+			if (value)
+				*value = wmem_strdup_printf(wmem_packet_scope(), "%d", int32);
 			*offset += 5;
 			break;
 		case 0xd3:
 			int64 = tvb_get_ntoh64(tvb, *offset + 1);
 			proto_tree_add_int64(tree, hf_msgpack_int_64, tvb, *offset, 9, int64);
-			*value = wmem_strdup_printf(wmem_packet_scope(), "%" G_GINT64_MODIFIER "d", int64);
+			if (value)
+				*value = wmem_strdup_printf(wmem_packet_scope(), "%" G_GINT64_MODIFIER "d", int64);
 			*offset += 9;
 			break;
 		default:
@@ -163,9 +173,11 @@ static void dissect_msgpack_map(tvbuff_t* tvb, packet_info* pinfo, proto_tree* t
 	for (i = 0; i < len; i++) {
 		map_subtree = proto_tree_add_subtree(subtree, tvb, *offset, 0, ett_msgpack_map_elem, NULL, "");
 		dissect_msgpack_object(tvb, pinfo, map_subtree, "Key", offset, value);
-		proto_item_append_text(map_subtree, " %s:", *value);
+		if (value)
+			proto_item_append_text(map_subtree, " %s:", *value);
 		dissect_msgpack_object(tvb, pinfo, map_subtree, "Value", offset, value);
-		proto_item_append_text(map_subtree, " %s", *value);
+		if (value)
+			proto_item_append_text(map_subtree, " %s", *value);
 	}
 
 	if (value)
@@ -202,6 +214,7 @@ static void dissect_msgpack_string(tvbuff_t* tvb, proto_tree* tree, int type, vo
 	char* label;
 	proto_item* ti;
 	proto_tree* subtree;
+	char* lvalue;
 
 	if (type >> 5 == 0x5) {
 		len = type & 0x1F;
@@ -220,10 +233,10 @@ static void dissect_msgpack_string(tvbuff_t* tvb, proto_tree* tree, int type, vo
 		lensize = 4;
 	}
 
-	*value = tvb_get_string_enc(wmem_packet_scope(), tvb, *offset + 1 + lensize, len, ENC_NA);
+	lvalue = tvb_get_string_enc(wmem_packet_scope(), tvb, *offset + 1 + lensize, len, ENC_NA);
 	label = (data ? (char*)data : "MsgPack String");
 
-	ti = proto_tree_add_string_format(tree, hf_msgpack_string, tvb, *offset, 1 + lensize + len, *value, "%s: %s", label, *value);
+	ti = proto_tree_add_string_format(tree, hf_msgpack_string, tvb, *offset, 1 + lensize + len, lvalue, "%s: %s", label, lvalue);
 
 	subtree = proto_item_add_subtree(ti, ett_msgpack_string);
 	if (lensize == 0) {
@@ -236,11 +249,15 @@ static void dissect_msgpack_string(tvbuff_t* tvb, proto_tree* tree, int type, vo
 		proto_tree_add_item(subtree, hf_msgpack_string, tvb, *offset + 1 + lensize, len, ENC_ASCII|ENC_NA);
 	}
 	*offset += 1 + lensize + len;
+
+	if (value)
+		*value = lvalue;
 }
 
 static void dissect_msgpack_float(tvbuff_t* tvb, proto_tree* tree, int type, void* data, int* offset, char** value)
 {
 	char* label;
+	char* lvalue;
 
 	label = (data ? (char*)data : "Float");
 
@@ -248,13 +265,17 @@ static void dissect_msgpack_float(tvbuff_t* tvb, proto_tree* tree, int type, voi
 
 	if (type == 0xca) {
 		float f = tvb_get_ntohieee_float(tvb, *offset);
-		*value = wmem_strdup_printf(wmem_packet_scope(), "%f", f);
-		proto_tree_add_string_format(tree, hf_msgpack_float, tvb, *offset, 4, *value, "%s: %f", label, f);
+		lvalue = wmem_strdup_printf(wmem_packet_scope(), "%f", f);
+		proto_tree_add_string_format(tree, hf_msgpack_float, tvb, *offset, 4, lvalue, "%s: %f", label, f);
+		if (value)
+			*value = lvalue;
 		*offset += 4;
 	} else {
 		double d = tvb_get_ntohieee_double(tvb, *offset);
-		*value = wmem_strdup_printf(wmem_packet_scope(), "%f", d);
-		proto_tree_add_string_format(tree, hf_msgpack_float, tvb, *offset, 8, *value, "%s: %f", label, d);
+		lvalue = wmem_strdup_printf(wmem_packet_scope(), "%f", d);
+		proto_tree_add_string_format(tree, hf_msgpack_float, tvb, *offset, 8, lvalue, "%s: %f", label, d);
+		if (value)
+			*value = lvalue;
 		*offset += 8;
 	}
 }
@@ -280,7 +301,8 @@ static void dissect_msgpack_ext(tvbuff_t* tvb, proto_tree* tree, int type, void*
 		bytes = 1 << (type - 0xd4);
 		start = tvb_get_ptr(tvb, *offset, bytes);
 		proto_tree_add_bytes(ext_tree, hf_msgpack_ext_bytes, tvb, *offset, bytes, start);
-		*value = bytes_to_hexstr(*value, start, bytes);
+		if (value)
+			*value = bytes_to_hexstr(*value, start, bytes);
 		*offset += bytes;
 	}
 
@@ -295,8 +317,9 @@ static void dissect_msgpack_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree
 
 	// Nil
 	if (type == 0xc0) {
-		*value = wmem_strdup_printf(wmem_packet_scope(), "nil");
-		proto_tree_add_string_format(tree, hf_msgpack_string, tvb, *offset, 1, *value, "%s", *value);
+		proto_tree_add_string_format(tree, hf_msgpack_string, tvb, *offset, 1, "nil", "nil");
+		if (value)
+			*value = "nil";
 		*offset += 1;
 		return;
 	}
@@ -304,7 +327,8 @@ static void dissect_msgpack_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree
 	// True/False
 	if (type == 0xc2 || type == 0xc3) {
 		proto_tree_add_boolean(tree, hf_msgpack_bool, tvb, *offset, 1, type - 0xc2);
-		*value = (type - 0xc2 ? "True" : "False");
+		if (value)
+			*value = (type - 0xc2 ? "True" : "False");
 		*offset += 1;
 		return;
 	}
@@ -353,8 +377,7 @@ static void dissect_msgpack_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree
 static int dissect_msgpack(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data)
 {
 	int offset = 0;
-	char* value;
-	dissect_msgpack_object(tvb, pinfo, tree, data, &offset, &value);
+	dissect_msgpack_object(tvb, pinfo, tree, data, &offset, NULL);
 	return offset;
 }
 
