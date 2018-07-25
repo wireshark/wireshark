@@ -2616,6 +2616,29 @@ gboolean dissect_mac_lte_context_fields(struct mac_lte_info  *p_mac_lte_info, tv
                     }
                 }
                 break;
+                case MAC_LTE_SR_TAG:
+                    {
+                        int n;
+                        // Read number of entries.
+                        guint16 no_entries = tvb_get_ntohs(tvb, offset);
+                        offset += 2;
+                        if ((no_entries == 0) || (no_entries > MAX_SRs)) {
+                            return FALSE;
+                        }
+                        else {
+                            p_mac_lte_info->oob_event = ltemac_send_sr;
+                            p_mac_lte_info->number_of_srs = no_entries;
+                        }
+
+                        // Read each entry.
+                        for (n=0; n < no_entries; n++) {
+                            p_mac_lte_info->oob_ueid[n] = tvb_get_ntohs(tvb, offset);
+                            offset += 2;
+                            p_mac_lte_info->oob_rnti[n] = tvb_get_ntohs(tvb, offset);
+                            offset += 2;
+                        }
+                    }
+                    break;
 
             case MAC_LTE_PAYLOAD_TAG:
                 /* Have reached data, so set payload length and get out of loop */

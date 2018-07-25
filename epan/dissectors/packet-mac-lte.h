@@ -295,6 +295,10 @@ int is_mac_lte_frame_retx(packet_info *pinfo, guint8 direction);
 #define MAC_LTE_N_UL_RB_TAG         0x10
 /* 1 byte containing the number of UL resource blocks: 6, 15, 25, 50, 75 or 100 */
 
+#define MAC_LTE_SR_TAG              0x11
+/* 2 bytes for the number of items, followed by that number of ueid, rnti (2 bytes each) */
+
+
 /* MAC PDU. Following this tag comes the actual MAC PDU (there is no length, the PDU
    continues until the end of the frame) */
 #define MAC_LTE_PAYLOAD_TAG 0x01
