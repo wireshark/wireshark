@@ -273,7 +273,7 @@ static void dissect_msgpack_ext(tvbuff_t* tvb, proto_tree* tree, int type, void*
 	if (type >= 0xd4 && type <= 0xd8) {
 		proto_tree_add_item(ext_tree, hf_msgpack_ext_type, tvb, *offset, 1, ENC_NA);
 		*offset += 1;
-		bytes = (int)pow(2, type - 0xd4);
+		bytes = 1 << (type - 0xd4);
 		start = tvb_get_ptr(tvb, *offset, bytes);
 		proto_tree_add_bytes(ext_tree, hf_msgpack_ext_bytes, tvb, *offset, bytes, start);
 		*value = bytes_to_hexstr(*value, start, bytes);
