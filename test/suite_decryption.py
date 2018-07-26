@@ -487,19 +487,29 @@ class case_decrypt_kerberos(subprocesstest.SubprocessTestCase):
         self.assertTrue(self.grepOutput('cc:da:7d:48:21:9f:73:c3:b2:83:11:c4:ba:72:42:b3'))
 
 class case_decrypt_wireguard(subprocesstest.SubprocessTestCase):
+    # The "foo_alt" keys are similar as "foo" except that some bits are changed.
+    # The crypto library should be able to handle this and internally the
+    # dissector uses MSB to recognize whether a private key is set.
     key_Spriv_i = 'AKeZaHwBxjiKLFnkY2unvEdOTtg4AL+M9dQXfopFVFk='
+    key_Spriv_i_alt = 'B6eZaHwBxjiKLFnkY2unvEdOTtg4AL+M9dQXfopFVJk='
     key_Spub_i = 'Igge9KzRytKNwrgkzDE/8hrLu6Ly0OqVdvOPWhA5KR4='
     key_Spriv_r = 'cFIxTUyBs1Qil414hBwEgvasEax8CKJ5IS5ZougplWs='
     key_Spub_r = 'YDCttCs9e1J52/g9vEnwJJa+2x6RqaayAYMpSVQfGEY='
     key_Epriv_i0 = 'sLGLJSOQfyz7JNJ5ZDzFf3Uz1rkiCMMjbWerNYcPFFU='
+    key_Epriv_i0_alt = 't7GLJSOQfyz7JNJ5ZDzFf3Uz1rkiCMMjbWerNYcPFJU='
     key_Epriv_r0 = 'QC4/FZKhFf0b/eXEcCecmZNt6V6PXmRa4EWG1PIYTU4='
     key_Epriv_i1 = 'ULv83D+y3vA0t2mgmTmWz++lpVsrP7i4wNaUEK2oX0E='
     key_Epriv_r1 = 'sBv1dhsm63cbvWMv/XML+bvynBp9PTdY9Vvptu3HQlg='
 
-    def runOne(self, args, pcap_file='wireguard-ping-tcp.pcap'):
+    def runOne(self, args, keylog=None, pcap_file='wireguard-ping-tcp.pcap'):
         if not config.have_libgcrypt17:
             self.skipTest('Requires Gcrypt 1.7 or later')
         capture_file = os.path.join(config.capture_dir, pcap_file)
+        if keylog:
+            keylog_file = self.filename_from_id('wireguard.keys')
+            args += ['-owg.keylog_file:%s' % keylog_file]
+            with open(keylog_file, 'w') as f:
+                f.write("\n".join(keylog))
         proc = self.runProcess([config.cmd_tshark, '-r', capture_file] + args,
                                env=config.test_env)
         lines = proc.stdout_str.splitlines()
@@ -554,3 +564,42 @@ class case_decrypt_wireguard(subprocesstest.SubprocessTestCase):
         # static pubkey is unknown because Spub_i is not added to wg_keys.
         self.assertIn('1\t%s\t0\t0\t%s' % (self.key_Spub_i, '356537872'), lines)
         self.assertIn('13\t%s\t0\t0\t%s' % (self.key_Spub_i, '490514356'), lines)
+
+    def test_decrypt_initiation_ephemeral_only(self):
+        """Check for partial decryption using Epriv_i."""
+        lines = self.runOne([
+            '-ouat:wg_keys:"Public","%s"' % self.key_Spub_r,
+            '-Y', 'wg.type==1',
+            '-Tfields',
+            '-e', 'frame.number',
+            '-e', 'wg.ephemeral.known_privkey',
+            '-e', 'wg.static',
+            '-e', 'wg.timestamp.nanoseconds',
+        ], keylog=[
+            'LOCAL_EPHEMERAL_PRIVATE_KEY=%s' % self.key_Epriv_i0,
+            'LOCAL_EPHEMERAL_PRIVATE_KEY=%s' % self.key_Epriv_i1,
+        ])
+        # The current implementation tries to write as much decrypted data as
+        # possible, even if the full handshake cannot be derived.
+        self.assertIn('1\t1\t%s\t%s' % (self.key_Spub_i, ''), lines)
+        self.assertIn('13\t1\t%s\t%s' % (self.key_Spub_i, ''), lines)
+
+    def test_decrypt_initiation_static_ephemeral(self):
+        """
+        Check for full initiation decryption using Spriv_r + Epriv_i.
+        The public key Spub_r is provided via the key log as well.
+        """
+        lines = self.runOne([
+            '-Tfields',
+            '-e', 'frame.number',
+            '-e', 'wg.ephemeral.known_privkey',
+            '-e', 'wg.static',
+            '-e', 'wg.timestamp.nanoseconds',
+        ], keylog=[
+            '  REMOTE_STATIC_PUBLIC_KEY = %s' % self.key_Spub_r,
+            '  LOCAL_STATIC_PRIVATE_KEY = %s' % self.key_Spriv_i_alt,
+            '  LOCAL_EPHEMERAL_PRIVATE_KEY = %s' % self.key_Epriv_i0_alt,
+            '  LOCAL_EPHEMERAL_PRIVATE_KEY = %s' % self.key_Epriv_i1,
+        ])
+        self.assertIn('1\t1\t%s\t%s' % (self.key_Spub_i, '356537872'), lines)
+        self.assertIn('13\t1\t%s\t%s' % (self.key_Spub_i, '490514356'), lines)

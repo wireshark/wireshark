@@ -15,11 +15,17 @@
 
 #include <config.h>
 
+#include <errno.h>
+
+/* Start with G_MESSAGES_DEBUG=packet-wireguard to see messages. */
+#define G_LOG_DOMAIN "packet-wireguard"
+
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/proto_data.h>
 #include <epan/uat.h>
+#include <wsutil/file_util.h>
 #include <wsutil/ws_printf.h> /* ws_g_warning */
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/curve25519.h>
@@ -66,6 +72,10 @@ static gint ett_key_info = -1;
 
 static expert_field ei_wg_bad_packet_length = EI_INIT;
 static expert_field ei_wg_keepalive  = EI_INIT;
+
+#ifdef WG_DECRYPTION_SUPPORTED
+static const char  *pref_keylog_file;
+#endif /* WG_DECRYPTION_SUPPORTED */
 
 
 // Length of AEAD authentication tag
@@ -126,6 +136,12 @@ static GHashTable *wg_static_keys;
  * Keys are populated from the key log file and wmem_file_scope allocated.
  */
 static wmem_map_t *wg_ephemeral_keys;
+
+/*
+ * Key log file handle. Opened on demand (when keys are actually looked up),
+ * closed when the capture file closes.
+ */
+static FILE *wg_keylog_file;
 
 /* UAT adapter for populating wg_static_keys. */
 enum { WG_KEY_UAT_PUBLIC, WG_KEY_UAT_PRIVATE };
@@ -470,7 +486,156 @@ wg_add_static_key(const wg_qqword *tmp_key, gboolean is_private)
     g_hash_table_insert(wg_static_keys, &key->pub_key, key);
 }
 
+/**
+ * Stores the given ephemeral private key.
+ */
+static wg_ekey_t *
+wg_add_ephemeral_privkey(const wg_qqword *priv_key)
+{
+    wg_qqword pub_key;
+    priv_to_pub(&pub_key, priv_key);
+    wg_ekey_t *key = (wg_ekey_t *)wmem_map_lookup(wg_ephemeral_keys, &pub_key);
+    if (!key) {
+        key = wmem_new0(wmem_file_scope(), wg_ekey_t);
+        key->pub_key = pub_key;
+        set_private_key(&key->priv_key, priv_key);
+        wmem_map_insert(wg_ephemeral_keys, &key->pub_key, key);
+    }
+    return key;
+}
+
 /* UAT and key configuration. {{{ */
+/* XXX this is copied verbatim from packet-ssl-utils.c - create new common API
+ * for retrieval of runtime secrets? */
+static gboolean
+file_needs_reopen(FILE *fp, const char *filename)
+{
+    ws_statb64 open_stat, current_stat;
+
+    /* consider a file deleted when stat fails for either file,
+     * or when the residing device / inode has changed. */
+    if (0 != ws_fstat64(ws_fileno(fp), &open_stat))
+        return TRUE;
+    if (0 != ws_stat64(filename, &current_stat))
+        return TRUE;
+
+    /* Note: on Windows, ino may be 0. Existing files cannot be deleted on
+     * Windows, but hopefully the size is a good indicator when a file got
+     * removed and recreated */
+    return  open_stat.st_dev != current_stat.st_dev ||
+            open_stat.st_ino != current_stat.st_ino ||
+            open_stat.st_size > current_stat.st_size;
+}
+
+static void
+wg_keylog_reset(void)
+{
+    if (wg_keylog_file) {
+        fclose(wg_keylog_file);
+        wg_keylog_file = NULL;
+    }
+}
+
+static void
+wg_keylog_read(void)
+{
+    if (!pref_keylog_file || !*pref_keylog_file) {
+        return;
+    }
+
+    // Reopen file if it got deleted.
+    if (wg_keylog_file && file_needs_reopen(wg_keylog_file, pref_keylog_file)) {
+        g_debug("Key log file got changed or deleted, trying to re-open.");
+        wg_keylog_reset();
+    }
+
+    if (!wg_keylog_file) {
+        wg_keylog_file = ws_fopen(pref_keylog_file, "r");
+        if (!wg_keylog_file) {
+            g_debug("Failed to open key log file %s: %s", pref_keylog_file, g_strerror(errno));
+            return;
+        }
+        g_debug("Opened key log file %s", pref_keylog_file);
+    }
+
+    /* File format: each line follows the format "<type>=<key>" (leading spaces
+     * and spaces around '=' as produced by extract-handshakes.sh are ignored).
+     * For available <type>s, see below. <key> is the base64-encoded key (44
+     * characters).
+     *
+     * Example:
+     *  LOCAL_STATIC_PRIVATE_KEY = AKeZaHwBxjiKLFnkY2unvEdOTtg4AL+M9dQXfopFVFk=
+     *  REMOTE_STATIC_PUBLIC_KEY = YDCttCs9e1J52/g9vEnwJJa+2x6RqaayAYMpSVQfGEY=
+     *  LOCAL_EPHEMERAL_PRIVATE_KEY = sLGLJSOQfyz7JNJ5ZDzFf3Uz1rkiCMMjbWerNYcPFFU=
+     *  PRESHARED_KEY = AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+     */
+
+    for (;;) {
+        char buf[512];
+        if (!fgets(buf, sizeof(buf), wg_keylog_file)) {
+            if (feof(wg_keylog_file)) {
+                clearerr(wg_keylog_file);
+            } else if (ferror(wg_keylog_file)) {
+                g_debug("Error while reading %s, closing it.", pref_keylog_file);
+                wg_keylog_reset();
+            }
+            break;
+        }
+
+        gsize bytes_read = strlen(buf);
+        /* fgets includes the \n at the end of the line. */
+        if (bytes_read > 0 && buf[bytes_read - 1] == '\n') {
+            buf[bytes_read - 1] = 0;
+            bytes_read--;
+        }
+        if (bytes_read > 0 && buf[bytes_read - 1] == '\r') {
+            buf[bytes_read - 1] = 0;
+            bytes_read--;
+        }
+
+        g_debug("Read key log line: %s", buf);
+
+        /* Strip leading spaces. */
+        char *p = buf;
+        while (*p == ' ') {
+            ++p;
+        }
+        const char *key_type = p;
+        const char *key_value = NULL;
+        p = strchr(p, '=');
+        if (p && key_type != p) {
+            key_value = p + 1;
+            /* Strip '=' and spaces before it (after key type). */
+            do {
+                *p = '\0';
+                --p;
+            } while (*p == ' ');
+            /* Strip spaces after '=' (before key value) */
+            while (*key_value == ' ') {
+                ++key_value;
+            }
+        }
+
+        wg_qqword key;
+        if (!key_value || !decode_base64_key(&key, key_value)) {
+            g_debug("Unrecognized key log line: %s", buf);
+            continue;
+        }
+
+        if (!strcmp(key_type, "LOCAL_STATIC_PRIVATE_KEY")) {
+            wg_add_static_key(&key, TRUE);
+        } else if (!strcmp(key_type, "REMOTE_STATIC_PUBLIC_KEY")) {
+            wg_add_static_key(&key, FALSE);
+        } else if (!strcmp(key_type, "LOCAL_EPHEMERAL_PRIVATE_KEY")) {
+            wg_add_ephemeral_privkey(&key);
+        } else if (!strcmp(key_type, "PRESHARED_KEY")) {
+            // TODO
+        } else {
+            g_debug("Unrecognized key log line: %s", buf);
+        }
+    }
+}
+
 static gboolean
 wg_key_uat_record_update_cb(void *r, char **error)
 {
@@ -496,6 +661,10 @@ wg_key_uat_apply(void)
     } else {
         g_hash_table_remove_all(wg_static_keys);
     }
+
+    // As static keys from the key log file also end up in "wg_static_keys",
+    // reset the file pointer such that it will be fully read later.
+    wg_keylog_reset();
 
     /* Convert base64-encoded strings to wg_skey_t and derive pubkey. */
     for (guint i = 0; i < num_wg_key_records; i++) {
@@ -904,6 +1073,7 @@ wg_dissect_handshake_initiation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *w
     proto_item *ti;
 
 #ifdef WG_DECRYPTION_SUPPORTED
+    wg_keylog_read();
     const wg_skey_t *skey_r = wg_mac1_key_probe(tvb, TRUE);
     wg_handshake_state_t *hs = NULL;
 
@@ -968,6 +1138,7 @@ wg_dissect_handshake_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wg_
     proto_item *ti;
 
 #ifdef WG_DECRYPTION_SUPPORTED
+    wg_keylog_read();
     const wg_skey_t *skey_i = wg_mac1_key_probe(tvb, FALSE);
 #endif /* WG_DECRYPTION_SUPPORTED */
 
@@ -1358,6 +1529,13 @@ proto_register_wg(void)
             "A table of long-term static keys to enable WireGuard peer identification or partial decryption",
             wg_keys_uat);
 
+    prefs_register_filename_preference(wg_module, "keylog_file", "Key log filename",
+            "The path to the file which contains a list of secrets in the following format:\n"
+            "\"<key-type> = <base64-encoded-key>\" (without quotes, leading spaces and spaces around '=' are ignored).\n"
+            "<key-type> is one of: LOCAL_STATIC_PRIVATE_KEY, REMOTE_STATIC_PUBLIC_KEY, "
+            "LOCAL_EPHEMERAL_PRIVATE_KEY or PRESHARED_KEY.",
+            &pref_keylog_file, FALSE);
+
     if (!wg_decrypt_init()) {
         ws_g_warning("%s: decryption will not be possible due to lack of algorithms support", G_STRFUNC);
     }
@@ -1366,6 +1544,9 @@ proto_register_wg(void)
 #endif /* WG_DECRYPTION_SUPPORTED */
 
     register_init_routine(wg_init);
+#ifdef WG_DECRYPTION_SUPPORTED
+    register_cleanup_routine(wg_keylog_reset);
+#endif /* WG_DECRYPTION_SUPPORTED */
     sessions = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
 }
 
