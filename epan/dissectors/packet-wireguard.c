@@ -73,9 +73,13 @@ static gint ett_key_info = -1;
 
 static expert_field ei_wg_bad_packet_length = EI_INIT;
 static expert_field ei_wg_keepalive  = EI_INIT;
+static expert_field ei_wg_decryption_error = EI_INIT;
 
 #ifdef WG_DECRYPTION_SUPPORTED
+static gboolean     pref_dissect_packet = TRUE;
 static const char  *pref_keylog_file;
+
+static dissector_handle_t ip_handle;
 #endif /* WG_DECRYPTION_SUPPORTED */
 
 
@@ -180,6 +184,10 @@ typedef struct {
     const wg_ekey_t    *responder_ekey;     /* Epub_r matching Response.Ephemeral (+Epriv_r if available) */
     wg_qqword           handshake_hash;     /* Handshake hash H_i */
     wg_qqword           chaining_key;       /* Chaining key C_i */
+
+    /* Transport ciphers. */
+    gcry_cipher_hd_t    initiator_recv_cipher;
+    gcry_cipher_hd_t    responder_recv_cipher;
 } wg_handshake_state_t;
 
 /** Hash(CONSTRUCTION), initialized by wg_decrypt_init. */
@@ -221,6 +229,7 @@ typedef struct {
 /* Per-packet state. */
 typedef struct {
     wg_session_t   *session;
+    gboolean        receiver_is_initiator;  /* Whether this transport data packet is sent to an Initiator. */
 } wg_packet_info_t;
 
 /* Map from Sender/Receiver IDs to a list of session information. */
@@ -417,6 +426,22 @@ wg_create_cipher(const wg_qqword *key)
         hd = NULL;
     }
     return hd;
+}
+
+static gboolean
+wg_handshake_state_destroy_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_, void *user_data)
+{
+    wg_handshake_state_t *hs = (wg_handshake_state_t *)user_data;
+
+    if (hs->initiator_recv_cipher) {
+        gcry_cipher_close(hs->initiator_recv_cipher);
+        hs->initiator_recv_cipher = NULL;
+    }
+    if (hs->responder_recv_cipher) {
+        gcry_cipher_close(hs->responder_recv_cipher);
+        hs->responder_recv_cipher = NULL;
+    }
+    return FALSE;
 }
 
 /*
@@ -789,6 +814,14 @@ wg_process_response(tvbuff_t *tvb, wg_handshake_state_t *hs)
     DISSECTOR_ASSERT(hs->initiator_skey);
     DISSECTOR_ASSERT(hs->responder_ekey);
     DISSECTOR_ASSERT(hs->responder_skey);
+    // XXX when multiple responses are linkable to a single handshake state,
+    // they should probably fork into a new state or be discarded when equal.
+    if (hs->initiator_recv_cipher || hs->responder_recv_cipher) {
+        ws_g_warning("%s FIXME multiple responses linked to a single session", G_STRFUNC);
+        return;
+    }
+    DISSECTOR_ASSERT(!hs->initiator_recv_cipher);
+    DISSECTOR_ASSERT(!hs->responder_recv_cipher);
 
     const gboolean has_Epriv_i = has_private_key(&hs->initiator_ekey->priv_key);
     const gboolean has_Spriv_i = has_private_key(&hs->initiator_skey->priv_key);
@@ -844,6 +877,14 @@ wg_process_response(tvbuff_t *tvb, wg_handshake_state_t *hs)
     hs->empty_ok = TRUE;
     // h = Hash(h || msg.empty)
     wg_mix_hash(&h, encrypted_empty, AUTH_TAG_LENGTH);
+
+    // Calculate transport keys and create ciphers.
+    // (Tsend_i = Trecv_r, Trecv_i = Tsend_r) = KDF2(C, "")
+    wg_qqword transport_keys[2];
+    wg_kdf(c, NULL, 0, 2, transport_keys);
+
+    hs->initiator_recv_cipher = wg_create_cipher(&transport_keys[1]);
+    hs->responder_recv_cipher = wg_create_cipher(&transport_keys[0]);
 }
 #endif /* WG_DECRYPTION_SUPPORTED */
 
@@ -1013,6 +1054,7 @@ wg_prepare_handshake_keys(const wg_skey_t *skey_r, tvbuff_t *tvb)
     hs = wmem_new0(wmem_file_scope(), wg_handshake_state_t);
     hs->responder_skey = skey_r;
     hs->initiator_ekey = ekey_i;
+    wmem_register_callback(wmem_file_scope(), wg_handshake_state_destroy_cb, hs);
     return hs;
 }
 
@@ -1130,6 +1172,39 @@ wg_dissect_decrypted_timestamp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     }
     proto_tree_add_item(tree, hf_wg_timestamp_tai64_label, new_tvb, 0, 8, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_wg_timestamp_nanoseconds, new_tvb, 8, 4, ENC_BIG_ENDIAN);
+}
+
+static void
+wg_dissect_decrypted_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wg_tree, wg_packet_info_t *wg_pinfo, guint64 counter, gint plain_length)
+{
+    wg_handshake_state_t *hs = wg_pinfo->session->hs;
+    gcry_cipher_hd_t cipher = wg_pinfo->receiver_is_initiator ? hs->initiator_recv_cipher : hs->responder_recv_cipher;
+    if (!cipher) {
+        return;
+    }
+
+    DISSECTOR_ASSERT(plain_length >= 0);
+    const gint ctext_len = plain_length + AUTH_TAG_LENGTH;
+    const guchar *ctext = tvb_get_ptr(tvb, 16, ctext_len);
+    guchar *plain = (guchar *)wmem_alloc0(pinfo->pool, (guint)plain_length);
+    if (!wg_aead_decrypt(cipher, counter, ctext, (guint)ctext_len, NULL, 0, plain, (guint)plain_length)) {
+        proto_tree_add_expert(wg_tree, pinfo, &ei_wg_decryption_error, tvb, 16, ctext_len);
+        return;
+    }
+    if (plain_length == 0) {
+        return;
+    }
+
+    tvbuff_t *new_tvb = tvb_new_child_real_data(tvb, plain, (guint)plain_length, plain_length);
+    add_new_data_source(pinfo, new_tvb, "Decrypted Packet");
+
+    proto_tree *tree = proto_item_get_parent(wg_tree);
+    if (!pref_dissect_packet) {
+        // (IP packet not shown, preference "Dissect transport data" is disabled)
+        call_data_dissector(new_tvb, pinfo, tree);
+    } else {
+        call_dissector(ip_handle, new_tvb, pinfo, tree);
+    }
 }
 
 static void
@@ -1345,6 +1420,7 @@ wg_dissect_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wg_tree, wg_packe
         if (session) {
             wg_session_update_address(session, pinfo, !receiver_is_initiator);
             wg_pinfo->session = session;
+            wg_pinfo->receiver_is_initiator = receiver_is_initiator;
         }
     } else {
         session = wg_pinfo->session;
@@ -1353,6 +1429,12 @@ wg_dissect_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wg_tree, wg_packe
         ti = proto_tree_add_uint(wg_tree, hf_wg_stream, tvb, 0, 0, session->stream);
         PROTO_ITEM_SET_GENERATED(ti);
     }
+
+#ifdef WG_DECRYPTION_SUPPORTED
+    if (session && session->hs) {
+        wg_dissect_decrypted_packet(tvb, pinfo, wg_tree, wg_pinfo, counter, packet_length - AUTH_TAG_LENGTH);
+    }
+#endif /* WG_DECRYPTION_SUPPORTED */
 
     return 16 + packet_length;
 }
@@ -1589,6 +1671,10 @@ proto_register_wg(void)
           { "wg.keepalive", PI_SEQUENCE, PI_CHAT,
             "This is a Keepalive message", EXPFILL }
         },
+        { &ei_wg_decryption_error,
+          { "wg.decryption_error", PI_DECRYPTION, PI_WARN,
+            "Packet data decryption failed", EXPFILL }
+        },
     };
 
 #ifdef WG_DECRYPTION_SUPPORTED
@@ -1633,6 +1719,11 @@ proto_register_wg(void)
             "A table of long-term static keys to enable WireGuard peer identification or partial decryption",
             wg_keys_uat);
 
+    prefs_register_bool_preference(wg_module, "dissect_packet",
+            "Dissect transport data",
+            "Whether the IP dissector should dissect decrypted transport data.",
+            &pref_dissect_packet);
+
     prefs_register_filename_preference(wg_module, "keylog_file", "Key log filename",
             "The path to the file which contains a list of secrets in the following format:\n"
             "\"<key-type> = <base64-encoded-key>\" (without quotes, leading spaces and spaces around '=' are ignored).\n"
@@ -1658,6 +1749,10 @@ void
 proto_reg_handoff_wg(void)
 {
     heur_dissector_add("udp", dissect_wg, "WireGuard", "wg", proto_wg, HEURISTIC_ENABLE);
+
+#ifdef WG_DECRYPTION_SUPPORTED
+    ip_handle = find_dissector("ip");
+#endif /* WG_DECRYPTION_SUPPORTED */
 }
 
 /*

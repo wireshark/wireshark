@@ -596,16 +596,22 @@ class case_decrypt_wireguard(subprocesstest.SubprocessTestCase):
             '-e', 'wg.static',
             '-e', 'wg.timestamp.nanoseconds',
             '-e', 'wg.handshake_ok',
+            '-e', 'icmp.type',
+            '-e', 'tcp.dstport',
         ], keylog=[
             '  REMOTE_STATIC_PUBLIC_KEY = %s' % self.key_Spub_r,
             '  LOCAL_STATIC_PRIVATE_KEY = %s' % self.key_Spriv_i_alt,
             '  LOCAL_EPHEMERAL_PRIVATE_KEY = %s' % self.key_Epriv_i0_alt,
             '  LOCAL_EPHEMERAL_PRIVATE_KEY = %s' % self.key_Epriv_i1,
         ])
-        self.assertIn('1\t1\t%s\t%s\t' % (self.key_Spub_i, '356537872'), lines)
-        self.assertIn('2\t0\t\t\t1', lines)
-        self.assertIn('13\t1\t%s\t%s\t' % (self.key_Spub_i, '490514356'), lines)
-        self.assertIn('14\t0\t\t\t1', lines)
+        self.assertIn('1\t1\t%s\t%s\t\t\t' % (self.key_Spub_i, '356537872'), lines)
+        self.assertIn('2\t0\t\t\t1\t\t', lines)
+        self.assertIn('3\t\t\t\t\t8\t', lines)
+        self.assertIn('4\t\t\t\t\t0\t', lines)
+        self.assertIn('13\t1\t%s\t%s\t\t\t' % (self.key_Spub_i, '490514356'), lines)
+        self.assertIn('14\t0\t\t\t1\t\t', lines)
+        self.assertIn('17\t\t\t\t\t\t443', lines)
+        self.assertIn('18\t\t\t\t\t\t49472', lines)
 
     def test_decrypt_full_responder(self):
         """Check for full handshake decryption using responder secrets."""
@@ -616,13 +622,19 @@ class case_decrypt_wireguard(subprocesstest.SubprocessTestCase):
             '-e', 'wg.static',
             '-e', 'wg.timestamp.nanoseconds',
             '-e', 'wg.handshake_ok',
+            '-e', 'icmp.type',
+            '-e', 'tcp.dstport',
         ], keylog=[
             'REMOTE_STATIC_PUBLIC_KEY=%s' % self.key_Spub_i,
             'LOCAL_STATIC_PRIVATE_KEY=%s' % self.key_Spriv_r,
             'LOCAL_EPHEMERAL_PRIVATE_KEY=%s' % self.key_Epriv_r0,
             'LOCAL_EPHEMERAL_PRIVATE_KEY=%s' % self.key_Epriv_r1,
         ])
-        self.assertIn('1\t0\t%s\t%s\t' % (self.key_Spub_i, '356537872'), lines)
-        self.assertIn('2\t1\t\t\t1', lines)
-        self.assertIn('13\t0\t%s\t%s\t' % (self.key_Spub_i, '490514356'), lines)
-        self.assertIn('14\t1\t\t\t1', lines)
+        self.assertIn('1\t0\t%s\t%s\t\t\t' % (self.key_Spub_i, '356537872'), lines)
+        self.assertIn('2\t1\t\t\t1\t\t', lines)
+        self.assertIn('3\t\t\t\t\t8\t', lines)
+        self.assertIn('4\t\t\t\t\t0\t', lines)
+        self.assertIn('13\t0\t%s\t%s\t\t\t' % (self.key_Spub_i, '490514356'), lines)
+        self.assertIn('14\t1\t\t\t1\t\t', lines)
+        self.assertIn('17\t\t\t\t\t\t443', lines)
+        self.assertIn('18\t\t\t\t\t\t49472', lines)
