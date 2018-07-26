@@ -368,6 +368,7 @@ static int hf_bootp_option_streettalk_da_server = -1;			/* 76 */
 static int hf_bootp_option77_user_class = -1;				/* 77 User Class instance */
 static int hf_bootp_option77_user_class_length = -1;			/* 77 length of User Class instance */
 static int hf_bootp_option77_user_class_data = -1;			/* 77 data of User Class instance */
+static int hf_bootp_option77_user_class_text = -1;			/* 77 User class text */
 static int hf_bootp_option_slp_directory_agent_value = -1;		/* 78 */
 static int hf_bootp_option_slp_directory_agent_slpda_address = -1;	/* 78 */
 static int hf_bootp_option_slp_service_scope_value = -1;		/* 79 */
@@ -2258,19 +2259,28 @@ dissect_bootpopt_user_class_information(tvbuff_t *tvb, packet_info *pinfo, proto
 				tvb, offset, 1, user_class_instance_index, "[%d]", user_class_instance_index);
 		o77_v_tree = proto_item_add_subtree(vtix, ett_bootp_option77_instance);
 
-		/* Add length for instance of User Class. */
-		len_item = proto_tree_add_item_ret_uint(o77_v_tree, hf_bootp_option77_user_class_length,
-				tvb, offset, 1, ENC_BIG_ENDIAN, &class_length);
-		proto_item_set_len(vtix, class_length+1);
-		offset += 1;
-
-		if (class_length == 0) {
-			expert_add_info_format(pinfo, len_item, &ei_bootp_bad_length, "UC_Len_%u isn't >= 1 (UC_Len_%u = 0)", user_class_instance_index, user_class_instance_index);
-			break;
+		if (!tvb_strneql(tvb, offset, "RRAS.Microsoft", 14)) {
+			/* MS have this non-conformant option https://msdn.microsoft.com/en-us/library/dd358019.aspx?f=255&MSPPError=-2147217396 */
+			class_length = 14;
+			proto_item *expert_ti = proto_tree_add_item(o77_v_tree, hf_bootp_option77_user_class_text, tvb, offset, class_length, ENC_ASCII|ENC_NA);
+			expert_add_info(pinfo, expert_ti, &ei_bootp_nonstd_option_data);
+			proto_item_set_len(vtix, class_length);
 		}
+		else {
+			/* Add length for instance of User Class. */
+			len_item = proto_tree_add_item_ret_uint(o77_v_tree, hf_bootp_option77_user_class_length,
+					tvb, offset, 1, ENC_BIG_ENDIAN, &class_length);
+			proto_item_set_len(vtix, class_length+1);
+			offset += 1;
 
-		/* Add data for instance of User Class. */
-		proto_tree_add_item(o77_v_tree, hf_bootp_option77_user_class_data, tvb, offset, class_length, ENC_NA);
+			if (class_length == 0) {
+				expert_add_info_format(pinfo, len_item, &ei_bootp_bad_length, "UC_Len_%u isn't >= 1 (UC_Len_%u = 0)", user_class_instance_index, user_class_instance_index);
+				break;
+			}
+
+			/* Add data for instance of User Class. */
+			proto_tree_add_item(o77_v_tree, hf_bootp_option77_user_class_data, tvb, offset, class_length, ENC_NA);
+		}
 		offset += class_length;
 		user_class_instance_index++;
 	}
@@ -8059,6 +8069,11 @@ proto_register_bootp(void)
 		  { "User Class Data", "bootp.option.user_class.data",
 		    FT_BYTES, BASE_NONE, NULL, 0x0,
 		    "Data of User Class Instance", HFILL }},
+
+		{ &hf_bootp_option77_user_class_text,
+		  { "User Class Data (Text)", "bootp.option.user_class.text",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    "Text of User Class Instance", HFILL }},
 
 		{ &hf_bootp_option_slp_directory_agent_value,
 		  { "Value", "bootp.option.slp_directory_agent.value",
