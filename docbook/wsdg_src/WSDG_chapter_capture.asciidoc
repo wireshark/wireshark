@@ -126,14 +126,14 @@ This call must print the existing interfaces for this extcap and must return 0.
 The output must conform to the grammar specified for extcap, and it is specified
 in the doc/extcap.4 generated man page (in the build dir).
 
-Since Wireshark 2.9 this call is extended with `--extcap-version x.x`, which will
+Since Wireshark 2.9 this call is extended with `--extcap-version=x.x`, which will
 allways represent the calling Wireshark's version information. This can be used
 to change behavior depending on the Wireshark version in question.
 
 .Example call for interface query
 [source,bash]
 ----
-$ extcap_examply.py --extcap-interfaces --extcap-version 3.0
+$ extcap_examply.py --extcap-interfaces --extcap-version=3.0
 extcap {version=1.0}{help=Some help url}
 interface {value=example1}{display=Example interface 1 for extcap}
 interface {value=example2}{display=Example interface 2 for extcap}
