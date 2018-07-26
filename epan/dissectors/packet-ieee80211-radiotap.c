@@ -365,6 +365,17 @@ static int radiotap_tap = -1;
 static gboolean radiotap_bit14_fcs = FALSE;
 static gboolean radiotap_interpret_high_rates_as_mcs = FALSE;
 
+#define USE_FCS_BIT        0
+#define ASSUME_FCS_PRESENT 1
+#define ASSUME_FCS_ABSENT  2
+static const enum_val_t fcs_handling[] = {
+    { "use_fcs_bit", "Use the FCS bit", USE_FCS_BIT },
+    { "assume_fcs_present",  "Assume all packets have an FCS at the end", ASSUME_FCS_PRESENT },
+    { "assume_fcs_absent",  "Assume all packets don't have an FCS at the end", ASSUME_FCS_ABSENT },
+    { NULL, NULL, 0 }
+};
+static int radiotap_fcs_handling = USE_FCS_BIT;
+
 struct _radiotap_info {
 	guint radiotap_length;
 	guint32 rate;
@@ -1326,11 +1337,23 @@ dissect_radiotap_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	*rflags = tvb_get_guint8(tvb, offset);
 	if (*rflags & IEEE80211_RADIOTAP_F_DATAPAD)
 		phdr->datapad = TRUE;
-	if (*rflags & IEEE80211_RADIOTAP_F_FCS)
-		phdr->fcs_len = 4;
-	else
-		phdr->fcs_len = 0;
+	switch (radiotap_fcs_handling) {
 
+	case USE_FCS_BIT:
+		if (*rflags & IEEE80211_RADIOTAP_F_FCS)
+			phdr->fcs_len = 4;
+		else
+			phdr->fcs_len = 0;
+		break;
+
+	case ASSUME_FCS_PRESENT:
+		phdr->fcs_len = 4;
+		break;
+
+	case ASSUME_FCS_ABSENT:
+		phdr->fcs_len = 0;
+		break;
+	}
 	ft = proto_tree_add_item(tree, hf_radiotap_flags, tvb, offset,
 				1, ENC_LITTLE_ENDIAN);
 	flags_tree = proto_item_add_subtree(ft, ett_radiotap_flags);
@@ -4224,6 +4247,13 @@ void proto_register_radiotap(void)
 				       "Some generators use rates with bit 7 set to indicate an MCS, e.g. BSD. "
 					   "others (Linux, AirPcap) do not.",
 				       &radiotap_interpret_high_rates_as_mcs);
+
+	prefs_register_enum_preference(radiotap_module, "fcs_handling",
+				       "Whether and how to override the FCS bit",
+				       "Whether to use the FCS bit, assume the FCS is always present, "
+					   "or assume the FCS is never present.",
+				       &radiotap_fcs_handling,
+				       fcs_handling, FALSE);
 }
 
 void proto_reg_handoff_radiotap(void)
