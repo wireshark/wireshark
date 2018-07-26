@@ -1355,11 +1355,8 @@ GPtrArray *extcap_prepare_arguments(interface_options *interface_opts)
                     else
                     {
                         if (stored && strlen(stored) > 0) {
-                            char *argstring;
-
-                            argstring = g_strdup_printf("%s=%s", arg_iter->call, stored);
-                            add_arg(argstring);
-                            g_free(argstring);
+                            add_arg(arg_iter->call);
+                            add_arg(stored);
                         }
                     }
 
