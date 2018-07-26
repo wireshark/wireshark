@@ -2074,9 +2074,9 @@ static const value_string cmd_le_scan_types[] = {
 
 static const value_string cmd_le_scan_filter_policy[] = {
     { 0x00, "Accept all advertisements, except directed advertisements not addressed to this device" },
-    { 0x01, "Accept only advertisments from devices in the White List. Ignore directed advertisements not addressed to this device" },
-    { 0x02, "Accept all advertisments, except directed advertisements not addressed to this device (but accept those with resolvable addresses that can not be resolved)" },
-    { 0x03, "Accept only advertisments from devices in the White List. Ignore directed advertisements not addressed to this device (but accept those with resolvable addresses that can not be resolved)" },
+    { 0x01, "Accept only advertisements from devices in the White List. Ignore directed advertisements not addressed to this device" },
+    { 0x02, "Accept all advertisements, except directed advertisements not addressed to this device (but accept those with resolvable addresses that can not be resolved)" },
+    { 0x03, "Accept only advertisements from devices in the White List. Ignore directed advertisements not addressed to this device (but accept those with resolvable addresses that can not be resolved)" },
     { 0, NULL }
 };
 
