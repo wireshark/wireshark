@@ -53,6 +53,7 @@ static int hf_wg_mac1 = -1;
 static int hf_wg_mac2 = -1;
 static int hf_wg_receiver = -1;
 static int hf_wg_encrypted_empty = -1;
+static int hf_wg_handshake_ok = -1;
 static int hf_wg_nonce = -1;
 static int hf_wg_encrypted_cookie = -1;
 static int hf_wg_counter = -1;
@@ -172,6 +173,7 @@ typedef struct {
     const wg_skey_t    *responder_skey;     /* Spub_r based on Initiation.MAC1 (+Spriv_r if available) */
     guint8              timestamp[12];      /* Initiation.timestamp (decrypted) */
     gboolean            timestamp_ok : 1;   /* Whether the timestamp was successfully decrypted */
+    gboolean            empty_ok : 1;       /* Whether the empty field was successfully decrypted */
 
     /* The following fields are only valid on the initial pass. */
     const wg_ekey_t    *initiator_ekey;     /* Epub_i matching Initiation.Ephemeral (+Epriv_i if available) */
@@ -779,6 +781,70 @@ wg_process_initiation(tvbuff_t *tvb, wg_handshake_state_t *hs)
     hs->handshake_hash = h;
     hs->chaining_key = *c;
 }
+
+static void
+wg_process_response(tvbuff_t *tvb, wg_handshake_state_t *hs)
+{
+    DISSECTOR_ASSERT(hs->initiator_ekey);
+    DISSECTOR_ASSERT(hs->initiator_skey);
+    DISSECTOR_ASSERT(hs->responder_ekey);
+    DISSECTOR_ASSERT(hs->responder_skey);
+
+    const gboolean has_Epriv_i = has_private_key(&hs->initiator_ekey->priv_key);
+    const gboolean has_Spriv_i = has_private_key(&hs->initiator_skey->priv_key);
+    const gboolean has_Epriv_r = has_private_key(&hs->responder_ekey->priv_key);
+
+    // Either Epriv_i + Spriv_i or Epriv_r + Epub_i + Spub_i are required.
+    if (!(has_Epriv_i && has_Spriv_i) && !has_Epriv_r) {
+        return;
+    }
+
+    const wg_qqword *ephemeral = (const wg_qqword *)tvb_get_ptr(tvb, 12, WG_KEY_LEN);
+    const guint8 *encrypted_empty = (const guint8 *)tvb_get_ptr(tvb, 44, AUTH_TAG_LENGTH);
+
+    wg_qqword ctk[3], h;
+    wg_qqword *c = &ctk[0], *t = &ctk[1], *k = &ctk[2];
+    h = hs->handshake_hash;
+    *c = hs->chaining_key;
+
+    // c = KDF1(c, msg.ephemeral)
+    wg_kdf(c, ephemeral->data, WG_KEY_LEN, 1, c);
+    // h = Hash(h || msg.ephemeral)
+    wg_mix_hash(&h, ephemeral, WG_KEY_LEN);
+    //  dh1 = DH(Epriv_i, msg.ephemeral)    if kType == I
+    //  dh1 = DH(Epriv_r, Epub_i)           if kType == R
+    wg_qqword dh1;
+    if (has_Epriv_i && has_Spriv_i) {
+        dh_x25519(&dh1, &hs->initiator_ekey->priv_key, ephemeral);
+    } else {
+        dh_x25519(&dh1, &hs->responder_ekey->priv_key, &hs->initiator_ekey->pub_key);
+    }
+    // c = KDF1(c, dh1)
+    wg_kdf(c, dh1.data, sizeof(dh1), 1, c);
+    //  dh2 = DH(Spriv_i, msg.ephemeral)    if kType == I
+    //  dh2 = DH(Epriv_r, Spub_i)           if kType == R
+    wg_qqword dh2;
+    if (has_Epriv_i && has_Spriv_i) {
+        dh_x25519(&dh2, &hs->initiator_skey->priv_key, ephemeral);
+    } else {
+        dh_x25519(&dh2, &hs->responder_ekey->priv_key, &hs->initiator_skey->pub_key);
+    }
+    // c = KDF1(c, dh2)
+    wg_kdf(c, dh2.data, sizeof(dh2), 1, c);
+    // c, t, k = KDF3(c, PSK)
+    // TODO apply PSK from keylog file
+    wg_qqword psk = {{ 0 }};
+    wg_kdf(c, psk.data, WG_KEY_LEN, 3, ctk);
+    // h = Hash(h || t)
+    wg_mix_hash(&h, t, sizeof(wg_qqword));
+    // empty = AEAD-Decrypt(k, 0, msg.empty, h)
+    if (!aead_decrypt(k, 0, encrypted_empty, AUTH_TAG_LENGTH, h.data, sizeof(wg_qqword), NULL, 0)) {
+        return;
+    }
+    hs->empty_ok = TRUE;
+    // h = Hash(h || msg.empty)
+    wg_mix_hash(&h, encrypted_empty, AUTH_TAG_LENGTH);
+}
 #endif /* WG_DECRYPTION_SUPPORTED */
 
 
@@ -948,6 +1014,23 @@ wg_prepare_handshake_keys(const wg_skey_t *skey_r, tvbuff_t *tvb)
     hs->responder_skey = skey_r;
     hs->initiator_ekey = ekey_i;
     return hs;
+}
+
+/*
+ * Processes a Response message, storing additional keys in the state.
+ */
+static void
+wg_prepare_handshake_responder_keys(wg_handshake_state_t *hs, tvbuff_t *tvb)
+{
+    wg_ekey_t *ekey_r = (wg_ekey_t *)wmem_map_lookup(wg_ephemeral_keys, tvb_get_ptr(tvb, 12, WG_KEY_LEN));
+
+    // Response decryption needs Epriv_r (or Epub_r + additional secrets).
+    if (!ekey_r) {
+        ekey_r = wmem_new0(wmem_file_scope(), wg_ekey_t);
+        tvb_memcpy(tvb, ekey_r->pub_key.data, 12, WG_KEY_LEN);
+    }
+
+    hs->responder_ekey = ekey_r;
 }
 
 /* Converts a TAI64 label to the seconds since the Unix epoch.
@@ -1136,6 +1219,7 @@ wg_dissect_handshake_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wg_
 {
     guint32 sender_id, receiver_id;
     proto_item *ti;
+    wg_session_t *session;
 
 #ifdef WG_DECRYPTION_SUPPORTED
     wg_keylog_read();
@@ -1146,17 +1230,34 @@ wg_dissect_handshake_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wg_
     col_append_fstr(pinfo->cinfo, COL_INFO, ", sender=0x%08X", sender_id);
     proto_tree_add_item_ret_uint(wg_tree, hf_wg_receiver, tvb, 8, 4, ENC_LITTLE_ENDIAN, &receiver_id);
     col_append_fstr(pinfo->cinfo, COL_INFO, ", receiver=0x%08X", receiver_id);
+
+    if (!PINFO_FD_VISITED(pinfo)) {
+        session = wg_sessions_lookup_initiation(pinfo, receiver_id);
+#ifdef WG_DECRYPTION_SUPPORTED
+        if (session && session->hs) {
+            wg_prepare_handshake_responder_keys(session->hs, tvb);
+            wg_process_response(tvb, session->hs);
+        }
+#endif /* WG_DECRYPTION_SUPPORTED */
+    } else {
+        session = wg_pinfo->session;
+    }
+
     wg_dissect_pubkey(wg_tree, tvb, 12, TRUE);
     proto_tree_add_item(wg_tree, hf_wg_encrypted_empty, tvb, 44, 16, ENC_NA);
+#ifdef WG_DECRYPTION_SUPPORTED
+    if (session && session->hs) {
+        ti = proto_tree_add_boolean(wg_tree, hf_wg_handshake_ok, tvb, 0, 0, !!session->hs->empty_ok);
+        PROTO_ITEM_SET_GENERATED(ti);
+    }
+#endif /* WG_DECRYPTION_SUPPORTED */
     proto_tree_add_item(wg_tree, hf_wg_mac1, tvb, 60, 16, ENC_NA);
 #ifdef WG_DECRYPTION_SUPPORTED
     wg_dissect_mac1_pubkey(wg_tree, tvb, skey_i);
 #endif /* WG_DECRYPTION_SUPPORTED */
     proto_tree_add_item(wg_tree, hf_wg_mac2, tvb, 76, 16, ENC_NA);
 
-    wg_session_t *session;
     if (!PINFO_FD_VISITED(pinfo)) {
-        session = wg_sessions_lookup_initiation(pinfo, receiver_id);
         /* XXX should probably check whether decryption succeeds before linking
          * and somehow mark that this response is related but not correct. */
         if (session) {
@@ -1165,8 +1266,6 @@ wg_dissect_handshake_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wg_
             wg_sessions_insert(sender_id, session);
             wg_pinfo->session = session;
         }
-    } else {
-        session = wg_pinfo->session;
     }
     if (session) {
         ti = proto_tree_add_uint(wg_tree, hf_wg_stream, tvb, 0, 0, session->stream);
@@ -1398,6 +1497,11 @@ proto_register_wg(void)
           { "Encrypted Empty", "wg.encrypted_empty",
             FT_NONE, BASE_NONE, NULL, 0x0,
             "Authenticated encryption of an empty string", HFILL }
+        },
+        { &hf_wg_handshake_ok,
+          { "Handshake decryption successful", "wg.handshake_ok",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            "Whether decryption keys were successfully derived", HFILL }
         },
 
         /* Cookie message */

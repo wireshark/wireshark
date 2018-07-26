@@ -584,9 +584,9 @@ class case_decrypt_wireguard(subprocesstest.SubprocessTestCase):
         self.assertIn('1\t1\t%s\t%s' % (self.key_Spub_i, ''), lines)
         self.assertIn('13\t1\t%s\t%s' % (self.key_Spub_i, ''), lines)
 
-    def test_decrypt_initiation_static_ephemeral(self):
+    def test_decrypt_full_initiator(self):
         """
-        Check for full initiation decryption using Spriv_r + Epriv_i.
+        Check for full handshake decryption using Spriv_r + Epriv_i.
         The public key Spub_r is provided via the key log as well.
         """
         lines = self.runOne([
@@ -595,11 +595,34 @@ class case_decrypt_wireguard(subprocesstest.SubprocessTestCase):
             '-e', 'wg.ephemeral.known_privkey',
             '-e', 'wg.static',
             '-e', 'wg.timestamp.nanoseconds',
+            '-e', 'wg.handshake_ok',
         ], keylog=[
             '  REMOTE_STATIC_PUBLIC_KEY = %s' % self.key_Spub_r,
             '  LOCAL_STATIC_PRIVATE_KEY = %s' % self.key_Spriv_i_alt,
             '  LOCAL_EPHEMERAL_PRIVATE_KEY = %s' % self.key_Epriv_i0_alt,
             '  LOCAL_EPHEMERAL_PRIVATE_KEY = %s' % self.key_Epriv_i1,
         ])
-        self.assertIn('1\t1\t%s\t%s' % (self.key_Spub_i, '356537872'), lines)
-        self.assertIn('13\t1\t%s\t%s' % (self.key_Spub_i, '490514356'), lines)
+        self.assertIn('1\t1\t%s\t%s\t' % (self.key_Spub_i, '356537872'), lines)
+        self.assertIn('2\t0\t\t\t1', lines)
+        self.assertIn('13\t1\t%s\t%s\t' % (self.key_Spub_i, '490514356'), lines)
+        self.assertIn('14\t0\t\t\t1', lines)
+
+    def test_decrypt_full_responder(self):
+        """Check for full handshake decryption using responder secrets."""
+        lines = self.runOne([
+            '-Tfields',
+            '-e', 'frame.number',
+            '-e', 'wg.ephemeral.known_privkey',
+            '-e', 'wg.static',
+            '-e', 'wg.timestamp.nanoseconds',
+            '-e', 'wg.handshake_ok',
+        ], keylog=[
+            'REMOTE_STATIC_PUBLIC_KEY=%s' % self.key_Spub_i,
+            'LOCAL_STATIC_PRIVATE_KEY=%s' % self.key_Spriv_r,
+            'LOCAL_EPHEMERAL_PRIVATE_KEY=%s' % self.key_Epriv_r0,
+            'LOCAL_EPHEMERAL_PRIVATE_KEY=%s' % self.key_Epriv_r1,
+        ])
+        self.assertIn('1\t0\t%s\t%s\t' % (self.key_Spub_i, '356537872'), lines)
+        self.assertIn('2\t1\t\t\t1', lines)
+        self.assertIn('13\t0\t%s\t%s\t' % (self.key_Spub_i, '490514356'), lines)
+        self.assertIn('14\t1\t\t\t1', lines)
