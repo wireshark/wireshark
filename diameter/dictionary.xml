@@ -4745,6 +4745,10 @@
 				<gavp name="V2X-Subscription-Data"/>
 				<gavp name="eDRX-Cycle-Length"/>
 				<gavp name="External-Identifier"/>
+				<gavp name="Active-Time"/>
+				<gavp name="Service-Gap-Time"/>
+				<gavp name="Broadcast-Location-Assistance-Data-Types"/>
+				<gavp name="Aerial-UE-Subscription-Information"/>
 			</grouped>
 		</avp>
 		<avp name="Terminal-Information" code="1401" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
@@ -4911,6 +4915,7 @@
 				<gavp name="SCEF-Realm"/>
 				<gavp name="Preferred-Data-Mode"/>
 				<gavp name="PDN-Connection-Continuity"/>
+				<gavp name="RDS-Indicator"/>
 			</grouped>
 		</avp>
 		<avp name="EPS-Subscribed-QoS-Profile" code="1431" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
@@ -5903,9 +5908,20 @@
 		<avp name="Carrier-Frequency" code="1696" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
-		<!--
-		Note: The AVP codes from 1697 to 1699 are reserved for TS 29.272.
-		-->
+		<avp name="RDS-Indicator" code="1697" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="DISABLED" code="0"/>
+			<enum name="ENABLED" code="1"/>
+		</avp>
+		<avp name="Service-Gap-Time" code="1698" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Aerial-UE-Subscription-Information" code="1699" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Broadcast-Location-Assistance-Data-Types" code="1700" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned64"/>
+		</avp>
 
 		<avp name="SMS-Information" code="2000" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
