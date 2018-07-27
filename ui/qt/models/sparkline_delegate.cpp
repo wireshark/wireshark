@@ -19,6 +19,9 @@ void SparkLineDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
 {
     QList<int> points = qvariant_cast<QList<int> >(index.data(Qt::UserRole));
     int max = 1;
+    // We typically draw a sparkline alongside some text. Size our
+    // drawing area based on an Em width. and a bit of eyballing on
+    // Linux, macOS, and Windows.
     int em_w = option.fontMetrics.height();
     int content_w = option.rect.width() - (em_w / 4);
     int content_h = option.fontMetrics.ascent() - 1;
@@ -72,12 +75,19 @@ void SparkLineDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
         painter->setPen(option_vi.palette.color(cg, QPalette::Text));
     }
 
+    // As a general rule, aliased painting renders to pixels and
+    // antialiased painting renders to mathematical coordinates:
+    // http://doc.qt.io/qt-5/coordsys.html
+    // Shift our coordinates by 0.5 pixels, otherwise our lines end
+    // up blurry.
     painter->setRenderHint(QPainter::Antialiasing, true);
     painter->translate(
                 option.rect.x() + (em_w / 8) + 0.5,
                 option.rect.y() + ((option.rect.height() - option.fontMetrics.height()) / 2) + 1 + 0.5);
     painter->drawPolyline(QPolygonF(fpoints));
 
+    // Some sparklines are decorated with dots at the beginning and end.
+    // Ours look better without in my (gcc) opinion.
 //    painter->setPen(Qt::NoPen);
 //    painter->setBrush(option.palette.foreground());
 //    painter->drawEllipse(fpoints.first(), 2, 2);
