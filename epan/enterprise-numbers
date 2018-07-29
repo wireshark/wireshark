@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2018-07-20)
+(last updated 2018-07-28)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -36384,7 +36384,7 @@ Decimal
 9107
   Ferguson Enterprises, Inc.
     Jediah Logiodice
-      it.iana-pen.admin&wolseley.com
+      it.iana-pen.admin&ferguson.com
 9108
   Random Walk Computing, Inc.
     Joel Scotkin
@@ -66836,7 +66836,7 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
       wenbin&shenou.com
 16821
   Institute for Advanced Study
-    Thomas Uphill
+    Kevin Kelly
       sys-admins&math.ias.edu
 16822
   Scott L. H. Yuan
@@ -85546,7 +85546,7 @@ Information Security of Pr
 21497
   Tuxeo sprl
     Philippe Frycia
-      iana&tuxeo.com
+      pfrycia&tuxeo.com
 21498
   Daemonspace Inc.
     LI Dong
@@ -87228,9 +87228,9 @@ Information Security of Pr
     Joachim Woelk
       joachim.woelk&bs1-bt.de
 21918
-  Ideas to Interconnect B.V.
+  Tesorion NL
     R.B. Gloudemans
-      r.gloudemans&i-to-i.nl
+      roel.gloudemans&tesorion.nl
 21919
   Clearwire, Inc.
     Katherine Beal
@@ -93593,8 +93593,8 @@ Electrónica y Computación
       jef&pleiades.ca
 23507
   salesforce.com
-    Kristopher Wehner
-      kwehner&salesforce.com
+    Alejandro Bolivar
+      abolivar&salesforce.com
 23508
   EVI
     eric vernichon
@@ -186060,9 +186060,9 @@ Decentralization / Helenic Public Administra
     Roland Kuffer
       downloads&chem.lu
 46620
-  Wolseley plc
+  Ferguson PLC
     Jediah Logiodice
-      it.iana-pen.admin&wolseley.com
+      it.iana-pen.admin&ferguson.com
 46621
   Thales Services France Toulouse
     Antoine Tran
@@ -192320,7 +192320,7 @@ Decentralization / Helenic Public Administra
     gecheng wang
       bitgothic&163.com
 48185
-  NeuLion, Inc.
+  NeuLion, LLC
     Frank Schoenberger
       frank.schoenberger&neulion.com
 48186
@@ -208876,9 +208876,9 @@ Decentralization / Helenic Public Administra
     Yavorsky Mykola
       amcmail&ukr.net
 52324
-  N.R.B.
-    Jean-Yves Corbisier
-      jean-yves.corbisier&nrb.be
+  Unassigned
+    Returned 2018-07-24
+      ---none---
 52325
   Edinburgh Hacklab Ltd
     Tim Hawes
@@ -209107,6 +209107,110 @@ Decentralization / Helenic Public Administra
   XIRIUS Informatique
     Patrick LEGAND
       sf048&xirius-informatique.fr
+52382
+  DoD Ophthalmology
+    Boonkit Purt, MD
+      boonkitp&gmail.com
+52383
+  Vrinda Nano Technologies Pvt Ltd
+    Mr. Brij Almadi
+      brij&vnt.in
+52384
+  Mount Sinai Health System
+    Luis Lewis
+      messaging&mountsinai.org
+52385
+  Weldtech
+    David Hsu
+      david.xu&weldtech.cn
+52386
+  Numatic International Ltd
+    IS Support
+      is.support&numatic.co.uk
+52387
+  INODESIGN
+    Mickael CORONADO
+      mickael&inodesign.fr
+52388
+  Housing Authority New Haven
+    James Pekar
+      jpekar&newhavenhousing.org
+52389
+  Wolfined
+    Christiaan de Die le Clercq
+      christiaan&wolfined.com
+52390
+  Unc Inc B.V.
+    Christiaan de Die le Clercq
+      christiaan&uncinc.nl
+52391
+  CCX Technologies
+    Charles Eidsness
+      charles&ccxtechnologies.com
+52392
+  Myriad Mobile
+    Myriad Systems
+      systems&myriadmobile.com
+52393
+  T.D. Video Engineering
+    Tobias Dieterich
+      tobias.dieterich&tdvideo.de
+52394
+  Sussex Partnership NHS Foundation Trust
+    Greg Roberts
+      greg.roberts&sussexpartnership.nhs.uk
+52395
+  OMICRON electronics GmbH
+    Stephan Amann
+      oid.master&omicronenergy.com
+52396
+  Bootstrap di Giuseppe La Rocca
+    Salvatore La Rocca
+      mail&boot.it
+52397
+  Matthias Lösch
+    Matthias Lösch
+      matthias&loesch.hamburg
+52398
+  Raubex Pty Ltd
+    Adriaan Ferreira
+      it-notify.dc&raubex.com
+52399
+  Cellum Global Zrt.
+    Attila Jankó
+      attila.janko&cellum.com
+52400
+  Wimark Systems 
+    Pavel Gonchukov
+      info&wimark.com
+52401
+  The Source
+    Dan Barger
+      dan.barger&thesource2000.com
+52402
+  Stromnetz Graz GmbH & Co KG 
+    Harald Gruber
+      ha.gruber&stromnetz-graz.at
+52403
+  Howlyte
+    Anthony Magnini
+      anthony.magnini&howlyte.fr
+52404
+  Kent ISD
+    Chris Lillis
+      itsec&kentisd.org
+52405
+  Tractor Supply Company
+    Justin Rockwood
+      mon_jrockwood&tractorsupply.com
+52406
+  Centro de Cáncer de la Montaña, CSP
+    William Sierr
+      wsierra&ccmcsp.com
+52407
+  Xinhua News Agency
+    Yanbin Ma
+      mayanbin&xinhua.org
 
 
 End of Document
