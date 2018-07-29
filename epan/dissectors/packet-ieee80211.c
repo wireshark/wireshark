@@ -29334,12 +29334,12 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_csa_channel_switch_mode,
      {"Channel Switch Mode", "wlan.csa.channel_switch_mode",
-      FT_UINT8, BASE_HEX, NULL, 0,
+      FT_UINT8, BASE_DEC, NULL, 0,
       "Indicates any restrictions on transmission until a channel switch", HFILL }},
 
     {&hf_ieee80211_csa_new_channel_number,
      {"New Channel Number", "wlan.csa.new_channel_number",
-      FT_UINT8, BASE_HEX, NULL, 0,
+      FT_UINT8, BASE_DEC, NULL, 0,
       "Set to the number of the channel to which the STA is moving", HFILL }},
 
     {&hf_ieee80211_csa_channel_switch_count,
