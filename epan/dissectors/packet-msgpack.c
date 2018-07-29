@@ -168,7 +168,8 @@ static void dissect_msgpack_map(tvbuff_t* tvb, packet_info* pinfo, proto_tree* t
 		proto_item_append_text(map_subtree, " %s", *value);
 	}
 
-	*value = "";
+	if (value)
+		*value = label;
 }
 
 static void dissect_msgpack_array(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint8 type, void* data, int* offset, char** value)
@@ -189,6 +190,9 @@ static void dissect_msgpack_array(tvbuff_t* tvb, packet_info* pinfo, proto_tree*
 	for (i = 0; i < len; i++) {
 		dissect_msgpack_object(tvb, pinfo, subtree, data, offset, value);
 	}
+
+	if (value)
+		*value = label;
 }
 
 static void dissect_msgpack_string(tvbuff_t* tvb, proto_tree* tree, int type, void* data, int* offset, char** value)
