@@ -1704,7 +1704,7 @@ dissect_sccp_dlr_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
   sccp_info->dlr = tvb_get_letoh24(tvb, 0);
   proto_tree_add_uint(tree, hf_sccp_dlr, tvb, 0, length, sccp_info->dlr);
   lr_item = proto_tree_add_uint(tree, hf_sccp_lr, tvb, 0, length, sccp_info->dlr);
-  PROTO_ITEM_SET_HIDDEN(lr_item);
+  PROTO_ITEM_SET_GENERATED(lr_item);
 
   if (show_key_params)
     col_append_fstr(pinfo->cinfo, COL_INFO, "DLR=%d ", sccp_info->dlr);
@@ -1724,7 +1724,7 @@ dissect_sccp_slr_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
   sccp_info->slr = tvb_get_letoh24(tvb, 0);
   proto_tree_add_uint(tree, hf_sccp_slr, tvb, 0, length, sccp_info->slr);
   lr_item = proto_tree_add_uint(tree, hf_sccp_lr, tvb, 0, length, sccp_info->slr);
-  PROTO_ITEM_SET_HIDDEN(lr_item);
+  PROTO_ITEM_SET_GENERATED(lr_item);
 
   if (show_key_params)
     col_append_fstr(pinfo->cinfo, COL_INFO, "SLR=%d ", sccp_info->slr);
