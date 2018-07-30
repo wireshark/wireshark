@@ -312,7 +312,7 @@ dissect_ranap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
   return tvb_reported_length(tvb);
 }
 
-#define RANAP_MSG_MIN_LENGTH 8
+#define RANAP_MSG_MIN_LENGTH 7
 static gboolean
 dissect_sccp_ranap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
