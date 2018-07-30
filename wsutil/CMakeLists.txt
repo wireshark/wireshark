@@ -35,6 +35,7 @@ set(WSUTIL_PUBLIC_HEADERS
 	crc16.h
 	crc16-plain.h
 	crc32.h
+	curve25519.h
 	eax.h
 	filesystem.h
 	frequency-utils.h
@@ -92,6 +93,7 @@ set(WSUTIL_COMMON_FILES
 	crc7.c
 	crc8.c
 	crc11.c
+	curve25519.c
 	dot11decrypt_wep.c
 	eax.c
 	filesystem.c
