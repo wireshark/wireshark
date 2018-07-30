@@ -450,8 +450,8 @@ extern wtap_open_return_val erf_open(wtap *wth, int *err, gchar **err_info)
       }
     }
 
-    /* Check to see if timestamp increment is > 1 week */
-    if ( (valid_prev) && (ts > prevts) && (((ts-prevts)>>32) > 3600*24*7) ) {
+    /* Check to see if timestamp increment is > 1 year */
+    if ( (valid_prev) && (ts > prevts) && (((ts-prevts)>>32) > 3600*24*365) ) {
       return WTAP_OPEN_NOT_MINE;
     }
 
