@@ -917,6 +917,9 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_DPAUXMON */
 	{ "DisplayPort AUX channel with Unigraf pseudo-header", "dpauxmon" },
+
+	/* WTAP_ENCAP_RUBY_MARSHAL */
+	{ "Ruby marshal object", "ruby_marshal" },
 };
 
 WS_DLL_LOCAL
