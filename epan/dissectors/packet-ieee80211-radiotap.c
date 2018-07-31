@@ -1218,7 +1218,7 @@ static const int *flags2_headers[] = {
 static void
 he_sig_b_symbols_custom(gchar *result, guint32 value)
 {
-  g_snprintf(result, ITEM_LABEL_LENGTH, "%d", value+1);
+	g_snprintf(result, ITEM_LABEL_LENGTH, "%d", value+1);
 }
 
 static void
@@ -1277,7 +1277,7 @@ dissect_radiotap_he_mu_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	if (flags2 & IEEE80211_RADIOTAP_HE_MU_BW_FROM_BW_IN_SIG_A_KNOWN)
 		bw_from_bw_sig_a_known = TRUE;
 	if (flags2 & IEEE80211_RADIOTAP_HE_MU_PREAMBLE_PUNCTURING_KNOWN)
-                mu_preamble_puncturing_known = TRUE;
+		mu_preamble_puncturing_known = TRUE;
 
 	if (!bw_from_bw_sig_a_known)
 		flags2_headers[0] = &hf_radiotap_he_mu_bw_from_bw_in_sig_a_unknown;
