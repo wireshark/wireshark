@@ -188,6 +188,12 @@ WS_DLL_PUBLIC conversation_t *find_conversation_pinfo(packet_info *pinfo, const 
  */
 WS_DLL_PUBLIC conversation_t *find_or_create_conversation(packet_info *pinfo);
 
+/**  A helper function that calls find_conversation_by_id() and, if a
+ *  conversation is not found, calls conversation_new_by_id().
+ *  The frame number is taken from pinfo.
+ */
+WS_DLL_PUBLIC conversation_t *find_or_create_conversation_by_id(packet_info *pinfo, const endpoint_type etype, const guint32 id);
+
 WS_DLL_PUBLIC void conversation_add_proto_data(conversation_t *conv, const int proto,
     void *proto_data);
 WS_DLL_PUBLIC void *conversation_get_proto_data(const conversation_t *conv, const int proto);

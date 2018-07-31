@@ -630,6 +630,7 @@ libwireshark.so.11 libwireshark11 #MINVER#
  find_heur_dissector_by_unique_short_name@Base 1.99.8
  find_heur_dissector_list@Base 1.99.2
  find_or_create_conversation@Base 1.9.1
+ find_or_create_conversation_by_id@Base 2.6.3
  find_protocol_by_id@Base 1.9.1
  find_sid_name@Base 1.9.1
  find_stream_circ@Base 1.9.1
