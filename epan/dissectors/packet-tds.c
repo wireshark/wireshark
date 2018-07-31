@@ -2650,7 +2650,7 @@ dissect_tds5_curclose_token(tvbuff_t *tvb, packet_info *pinfo, guint offset,
     cur += 4;
 
     if (cursorid == 0) {
-        guint cursorname_len = 0;
+        guint cursorname_len;
         const guint8 *cursorname;
         proto_item *cursor_name_pi;
 
