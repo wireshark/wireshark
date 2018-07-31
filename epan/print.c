@@ -622,6 +622,7 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
                         case FT_INT32:
                             fprintf(pdata->fh, "%X", (guint) fvalue_get_sinteger(&fi->value));
                             break;
+                        case FT_CHAR:
                         case FT_UINT8:
                         case FT_UINT16:
                         case FT_UINT24:
@@ -785,6 +786,7 @@ proto_tree_write_node_json(proto_node *node, gpointer data)
                     case FT_INT32:
                         fprintf(pdata->fh, "%X", (guint) fvalue_get_sinteger(&fi->value));
                         break;
+                    case FT_CHAR:
                     case FT_UINT8:
                     case FT_UINT16:
                     case FT_UINT24:
@@ -1040,6 +1042,7 @@ proto_tree_write_node_ek(proto_node *node, gpointer data)
                     case FT_INT32:
                         fprintf(pdata->fh, "%X", (guint) fvalue_get_sinteger(&fi->value));
                         break;
+                    case FT_CHAR:
                     case FT_UINT8:
                     case FT_UINT16:
                     case FT_UINT24:
