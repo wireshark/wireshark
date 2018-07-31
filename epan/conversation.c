@@ -676,7 +676,7 @@ conversation_new(const guint32 setup_frame, const address *addr1, const address 
 	conversation_t *conversation=NULL;
 	conversation_key *new_key;
 
-	DPRINT(("creating conversation for frame #%d: %s:%d -> %s:%d (ptype=%d)",
+	DPRINT(("creating conversation for frame #%u: %s:%d -> %s:%d (ptype=%d)",
 		    setup_frame, address_to_str(wmem_packet_scope(), addr1), port1,
 		    address_to_str(wmem_packet_scope(), addr2), port2, ptype));
 
@@ -1345,7 +1345,7 @@ find_or_create_conversation(packet_info *pinfo)
 {
 	conversation_t *conv=NULL;
 
-	DPRINT(("called for frame #%d: %s:%d -> %s:%d (ptype=%d)",
+	DPRINT(("called for frame #%u: %s:%d -> %s:%d (ptype=%d)",
 		pinfo->num, address_to_str(wmem_packet_scope(), &pinfo->src), pinfo->srcport,
 		address_to_str(wmem_packet_scope(), &pinfo->dst), pinfo->destport, pinfo->ptype));
 	DINDENT();
@@ -1361,7 +1361,7 @@ find_or_create_conversation(packet_info *pinfo)
 		}
 	} else {
 		/* No, this is a new conversation. */
-		DPRINT(("did not find previous conversation for frame #%d",
+		DPRINT(("did not find previous conversation for frame #%u",
 				pinfo->num));
 		DINDENT();
 		conv = conversation_new(pinfo->num, &pinfo->src,
