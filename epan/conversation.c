@@ -765,6 +765,28 @@ conversation_t *conversation_new_by_id(const guint32 setup_frame, const endpoint
 	return conversation_new(setup_frame, NULL, NULL, etype, id, 0, options | NO_ADDR2 | NO_PORT2);
 }
 
+conversation_t *
+conversation_new_pinfo(packet_info *pinfo)
+{
+	if (pinfo->use_endpoint) {
+		return conversation_new(pinfo->num,
+					&pinfo->conv_endpoint->addr1,
+					&pinfo->conv_endpoint->addr2,
+					pinfo->conv_endpoint->etype,
+					pinfo->conv_endpoint->port1,
+					pinfo->conv_endpoint->port2,
+					pinfo->conv_endpoint->options);
+	} else {
+		return conversation_new(pinfo->num,
+					&pinfo->src,
+					&pinfo->dst,
+					conversation_pt_to_endpoint_type(pinfo->ptype),
+					pinfo->srcport,
+					pinfo->destport,
+					0);
+	}
+}
+
 /*
  * Set the port 2 value in a key.  Remove the original from table,
  * update the options and port values, insert the updated key.
@@ -1497,29 +1519,7 @@ find_or_create_conversation(packet_info *pinfo)
 		DPRINT(("did not find previous conversation for frame #%u",
 				pinfo->num));
 		DINDENT();
-		conv = conversation_new(pinfo->num, &pinfo->src,
-					&pinfo->dst, conversation_pt_to_endpoint_type(pinfo->ptype),
-					pinfo->srcport, pinfo->destport, 0);
-		DENDENT();
-	}
-
-	DENDENT();
-
-	return conv;
-}
-
-conversation_t *
-find_or_create_conversation_by_id(packet_info *pinfo, const endpoint_type etype, const guint32 id)
-{
-	conversation_t *conv=NULL;
-
-	/* Have we seen this conversation before? */
-	if ((conv = find_conversation_by_id(pinfo->num, etype, id, 0)) == NULL) {
-		/* No, this is a new conversation. */
-		DPRINT(("did not find previous conversation for frame #%u",
-				pinfo->num));
-		DINDENT();
-		conv = conversation_new_by_id(pinfo->num, etype, id, 0);
+		conv = conversation_new_pinfo(pinfo);
 		DENDENT();
 	}
 

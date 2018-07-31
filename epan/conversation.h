@@ -134,6 +134,9 @@ WS_DLL_PUBLIC conversation_t *conversation_new(const guint32 setup_frame, const 
 
 WS_DLL_PUBLIC conversation_t *conversation_new_by_id(const guint32 setup_frame, const endpoint_type etype, const guint32 id, const guint options);
 
+WS_DLL_PUBLIC
+conversation_t *conversation_new_pinfo(packet_info *pinfo);
+
 /**
  * Given two address/port pairs for a packet, search for a conversation
  * containing packets between those address/port pairs.  Returns NULL if
@@ -187,12 +190,6 @@ WS_DLL_PUBLIC conversation_t *find_conversation_pinfo(packet_info *pinfo, const 
  *  parameter.
  */
 WS_DLL_PUBLIC conversation_t *find_or_create_conversation(packet_info *pinfo);
-
-/**  A helper function that calls find_conversation_by_id() and, if a
- *  conversation is not found, calls conversation_new_by_id().
- *  The frame number is taken from pinfo.
- */
-WS_DLL_PUBLIC conversation_t *find_or_create_conversation_by_id(packet_info *pinfo, const endpoint_type etype, const guint32 id);
 
 WS_DLL_PUBLIC void conversation_add_proto_data(conversation_t *conv, const int proto,
     void *proto_data);
