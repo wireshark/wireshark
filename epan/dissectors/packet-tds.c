@@ -462,16 +462,20 @@
 
 /* Encodings */
 
-#define TDS_INT2_BIG_ENDIAN    2
-#define TDS_INT2_LITTLE_ENDIAN 3
-#define TDS_INT4_BIG_ENDIAN    0
-#define TDS_INT4_LITTLE_ENDIAN 1
-#define TDS_FLT8_BIG_ENDIAN    4
-#define TDS_FLT8_VAX_D         5
-#define TDS_FLT8_LITTLE_ENDIAN 10
-#define TDS_FLT8_ND5000        11
-#define TDS_CHAR_ASCII         6
-#define TDS_CHAR_EBCDIC        7
+#define TDS_INT2_BIG_ENDIAN     2
+#define TDS_INT2_LITTLE_ENDIAN  3
+#define TDS_INT4_BIG_ENDIAN     0
+#define TDS_INT4_LITTLE_ENDIAN  1
+#define TDS_FLT8_BIG_ENDIAN     4
+#define TDS_FLT8_VAX_D          5
+#define TDS_FLT8_LITTLE_ENDIAN  10
+#define TDS_FLT8_ND5000         11
+#define TDS_CHAR_ASCII          6
+#define TDS_CHAR_EBCDIC         7
+#define TDS_DATE4_TIME_FIRST    16
+#define TDS_DATE4_DATE_FIRST    17
+#define TDS_DATE8_TIME_FIRST    8
+#define TDS_DATE8_DATE_FIRST    9
 /* Artificial, for TDS 7 */
 #define TDS_CHAR_UTF16         120
 
@@ -1336,6 +1340,8 @@ typedef struct {
     guint tds_encoding_int2;
     guint tds_encoding_int4;
     guint tds_encoding_char;
+    guint tds_encoding_date8;
+    guint tds_encoding_date4;
     gboolean tds_packets_in_order;
 } tds_conv_info_t;
 
@@ -1604,16 +1610,16 @@ static const value_string login_options[] = {
     {TDS_FLT8_VAX_D, "VAX D"},
     {TDS_CHAR_ASCII, "ASCII"},
     {TDS_CHAR_EBCDIC, "EBCDIC"},
-    {8, "High integer first"},
-    {9, "Low integer first"},
+    {TDS_DATE8_TIME_FIRST, "Time first"},
+    {TDS_DATE8_DATE_FIRST, "Date first"},
     {TDS_FLT8_LITTLE_ENDIAN, "IEEE Little-endian"},
     {TDS_FLT8_ND5000, "ND5000"},
     {12, "IEEE Big-endian"},
     {13, "IEEE Little-endian"},
     {14, "VAX F"},
     {15, "ND5000 4"},
-    {16, "High integer first"},
-    {17, "Low integer first"},
+    {TDS_DATE4_TIME_FIRST, "Time first"},
+    {TDS_DATE4_DATE_FIRST, "Date first"},
     {0, NULL}
 };
 
@@ -1994,13 +2000,87 @@ dissect_tds_all_headers(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto_
 }
 
 static void
+handle_tds_sql_datetime(tvbuff_t *tvb, guint offset, proto_tree *sub_tree, tds_conv_info_t *tds_info)
+{
+    /* SQL datetime */
+    nstime_t tv = NSTIME_INIT_ZERO;
+    gint64 days; /* Note that days is signed, allowing dates back to 1753. */
+    guint64 threehndths;
+
+    if (tds_info->tds_encoding_date8 == TDS_DATE8_DATE_FIRST) {
+        days = tvb_get_gint32(tvb, offset, tds_get_int4_encoding(tds_info));
+        threehndths = tvb_get_guint32(tvb, offset + 4, tds_get_int4_encoding(tds_info));
+    }
+    else if (tds_info->tds_encoding_date8 == TDS_DATE8_TIME_FIRST) {
+        threehndths = tvb_get_guint32(tvb, offset, tds_get_int4_encoding(tds_info));
+        days = tvb_get_gint32(tvb, offset + 4, tds_get_int4_encoding(tds_info));
+    }
+    else {
+        /* TODO Check these values in the login packet and offer expert information.
+         * Here just make sure they're initialized.
+         */
+        days = threehndths = 0;
+    }
+
+    tv.secs = (time_t)((days * G_GUINT64_CONSTANT(86400)) + (threehndths/300) - G_GUINT64_CONSTANT(2208988800)); /* 2208988800 - seconds between Jan 1, 1900 and Jan 1, 1970 */
+    tv.nsecs = (threehndths%300) * 10000000 / 3;
+    proto_tree_add_time(sub_tree, hf_tds_type_varbyte_data_absdatetime, tvb, offset, 8, &tv);
+}
+
+static void
+handle_tds_sql_smalldatetime(tvbuff_t *tvb, guint offset, proto_tree *sub_tree, tds_conv_info_t *tds_info)
+{
+    /* SQL smalldatetime */
+    nstime_t tv = NSTIME_INIT_ZERO;
+    guint64 days, minutes;
+
+    if (tds_info->tds_encoding_date4 == TDS_DATE4_DATE_FIRST) {
+        days = tvb_get_guint16(tvb, offset, tds_get_int2_encoding(tds_info));
+        minutes = tvb_get_guint16(tvb, offset + 2, tds_get_int2_encoding(tds_info));
+    }
+    else if (tds_info->tds_encoding_date4 == TDS_DATE4_TIME_FIRST) {
+        minutes = tvb_get_guint16(tvb, offset, tds_get_int2_encoding(tds_info));
+        days = tvb_get_guint16(tvb, offset + 2, tds_get_int2_encoding(tds_info));
+    }
+    else {
+        /* TODO Check these values in the login packet and offer expert information.
+         * Here just make sure they're initialized.
+         */
+        days = minutes = 0;
+    }
+
+
+    tv.secs = (time_t)((days * G_GUINT64_CONSTANT(86400)) + (minutes * 60) - G_GUINT64_CONSTANT(2208988800)); /* 2208988800 - seconds between Jan 1, 1900 and Jan 1, 1970 */
+    tv.nsecs = 0;
+    proto_tree_add_time(sub_tree, hf_tds_type_varbyte_data_absdatetime, tvb, offset, 8, &tv);
+}
+
+static void
+handle_tds_sql_smallmoney(tvbuff_t *tvb, guint offset, proto_tree *sub_tree, tds_conv_info_t *tds_info)
+{
+    gdouble dblvalue = (gfloat)tvb_get_guint32(tvb, offset, tds_get_int4_encoding(tds_info));
+    proto_tree_add_double_format_value(sub_tree, hf_tds_type_varbyte_data_double,
+        tvb, offset, 4, dblvalue, "%.4f", dblvalue/10000);
+}
+
+static void
+handle_tds_sql_money(tvbuff_t *tvb, guint offset, proto_tree *sub_tree, tds_conv_info_t *tds_info)
+{
+    guint64 moneyval = tvb_get_guint32(tvb, offset, tds_get_int4_encoding(tds_info));
+    gdouble dblvalue = (gdouble)((moneyval << 32) + tvb_get_guint32(tvb, offset + 4,
+                            tds_get_int4_encoding(tds_info)));
+
+    proto_tree_add_double_format_value(sub_tree, hf_tds_type_varbyte_data_double,
+        tvb, offset, 8, dblvalue, "%.4f", dblvalue/10000);
+}
+
+static void
 dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto_tree *tree, int hf, tds_conv_info_t *tds_info,
                          guint8 data_type, guint8 scale, gboolean plp, gint fieldnum, const guint8 *name)
 {
     guint length, textptrlen;
     proto_tree *sub_tree = NULL;
     proto_item *item = NULL, *length_item = NULL;
-    int encoding = tds_little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN;
 
     item = proto_tree_add_item(tree, hf, tvb, *offset, 0, ENC_NA);
     sub_tree = proto_item_add_subtree(item, ett_tds_type_varbyte);
@@ -2086,14 +2166,20 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
             proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_double, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
             *offset += 8;
             break;
-        case TDS_DATA_TYPE_MONEY4:          /* SmallMoney (4 byte data representation) */
         case TDS_DATA_TYPE_DATETIME4:       /* SmallDateTime (4 byte data representation) */
-            /*TODO*/
+            handle_tds_sql_smalldatetime(tvb, *offset, sub_tree, tds_info);
             *offset += 4;
             break;
-        case TDS_DATA_TYPE_MONEY:           /* Money (8 byte data representation) */
+        case TDS_DATA_TYPE_MONEY4:          /* SmallMoney (4 byte data representation) */
+            handle_tds_sql_smallmoney(tvb, *offset, sub_tree, tds_info);
+            *offset += 4;
+            break;
         case TDS_DATA_TYPE_DATETIME:        /* DateTime (8 byte data representation) */
-            /*TODO*/
+            handle_tds_sql_datetime(tvb, *offset, sub_tree, tds_info);
+            *offset += 8;
+            break;
+        case TDS_DATA_TYPE_MONEY:           /* Money (8 byte data representation) */
+            handle_tds_sql_money(tvb, *offset, sub_tree, tds_info);
             *offset += 8;
             break;
 
@@ -2182,17 +2268,11 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
             if(length > 0) {
                 if(length == 4)
                 {
-                    gdouble dblvalue = (gfloat)tvb_get_guint32(tvb, *offset, encoding);
-                    proto_tree_add_double_format_value(sub_tree, hf_tds_type_varbyte_data_double, tvb, *offset, 4, dblvalue, "%.4f", dblvalue/10000);
+                    handle_tds_sql_smallmoney(tvb, *offset, sub_tree, tds_info);
                 }
                 if(length == 8)
                 {
-                    gdouble dblvalue;
-                    guint64 moneyval;
-
-                    moneyval = tvb_get_guint32(tvb, *offset, encoding);
-                    dblvalue = (gdouble)((moneyval << 32) + tvb_get_guint32(tvb, *offset + 4, encoding));
-                    proto_tree_add_double_format_value(sub_tree, hf_tds_type_varbyte_data_double, tvb, *offset, 8, dblvalue, "%.4f", dblvalue/10000);
+                    handle_tds_sql_money(tvb, *offset, sub_tree, tds_info);
                 }
                 *offset += length;
             }
@@ -2257,25 +2337,11 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
             if(length > 0) {
                 if(length == 4)
                 {
-                    /* SQL smalldatetime */
-                    nstime_t tv;
-                    guint days = tvb_get_guint16(tvb, *offset, encoding);
-                    guint minutes = tvb_get_guint16(tvb, *offset + 2, encoding);
-
-                    tv.secs = (time_t)((days * G_GUINT64_CONSTANT(86400)) + (minutes * 60) - G_GUINT64_CONSTANT(2208988800)); /* 2208988800 - seconds between Jan 1, 1900 and Jan 1, 1970 */
-                    tv.nsecs = 0;
-                    proto_tree_add_time(sub_tree, hf_tds_type_varbyte_data_absdatetime, tvb, *offset, length, &tv);
+                    handle_tds_sql_smalldatetime(tvb, *offset, sub_tree, tds_info);
                 }
-                if(length == 8)
+                else if(length == 8)
                 {
-                    /* SQL datetime */
-                    nstime_t tv;
-                    guint days = tvb_get_guint32(tvb, *offset, encoding);
-                    guint threehndths = tvb_get_guint32(tvb, *offset + 4, encoding);
-
-                    tv.secs = (time_t)((days * G_GUINT64_CONSTANT(86400)) + (threehndths/300) - G_GUINT64_CONSTANT(2208988800)); /* 2208988800 - seconds between Jan 1, 1900 and Jan 1, 1970 */
-                    tv.nsecs = (threehndths%300) * 10000000 / 3;
-                    proto_tree_add_time(sub_tree, hf_tds_type_varbyte_data_absdatetime, tvb, *offset, length, &tv);
+                    handle_tds_sql_datetime(tvb, *offset, sub_tree, tds_info);
                 }
                 *offset += length;
             }
@@ -3995,7 +4061,8 @@ dissect_tds45_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_con
     offset++;
     proto_tree_add_item(login_options_tree, hf_tdslogin_option_float, tvb, offset, 1, ENC_NA);
     offset++;
-    proto_tree_add_item(login_options_tree, hf_tdslogin_option_date8, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint(login_options_tree, hf_tdslogin_option_date8, tvb,
+        offset, 1, ENC_NA, &tds_info->tds_encoding_date8);
     offset++;
     proto_tree_add_item(login_options_tree, hf_tdslogin_option_usedb, tvb, offset, 1, ENC_NA);
     offset++;
@@ -4042,7 +4109,8 @@ dissect_tds45_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_con
     offset++;
     proto_tree_add_item(login_options2_tree, hf_tdslogin_option2_flt4, tvb, offset, 1, ENC_NA );
     offset++;
-    proto_tree_add_item(login_options2_tree, hf_tdslogin_option2_date4, tvb, offset, 1, ENC_NA );
+    proto_tree_add_item_ret_uint(login_options2_tree, hf_tdslogin_option2_date4,
+        tvb, offset, 1, ENC_NA, &tds_info->tds_encoding_date4);
     offset++;
 
     offset = dissect_tds45_login_name(tvb, pinfo, login_tree,
@@ -6430,9 +6498,11 @@ fill_tds_info_defaults(tds_conv_info_t *tds_info)
         case TDS_PROTOCOL_7_4:
         case TDS_PROTOCOL_NOT_SPECIFIED:
         default:
-            tds_info->tds_encoding_int4 = TDS_INT4_LITTLE_ENDIAN;
-            tds_info->tds_encoding_int2 = TDS_INT2_LITTLE_ENDIAN;
-            tds_info->tds_encoding_char = TDS_CHAR_UTF16;
+            tds_info->tds_encoding_int4  = TDS_INT4_LITTLE_ENDIAN;
+            tds_info->tds_encoding_int2  = TDS_INT2_LITTLE_ENDIAN;
+            tds_info->tds_encoding_char  = TDS_CHAR_UTF16;
+            tds_info->tds_encoding_date8 = TDS_DATE8_DATE_FIRST ;
+            tds_info->tds_encoding_date4 = TDS_DATE4_DATE_FIRST ;
             break;
     }
 }
