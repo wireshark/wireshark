@@ -227,19 +227,21 @@ WS_DLL_PUBLIC guint32 conversation_get_endpoint_by_id(struct _packet_info *pinfo
  * Our caller is responsible to call the data dissector explicitly in case
  * this function returns FALSE.
  */
-extern gboolean
+WS_DLL_PUBLIC gboolean
 try_conversation_dissector(const address *addr_a, const address *addr_b, const endpoint_type etype,
     const guint32 port_a, const guint32 port_b, tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree, void* data, const guint options);
 
-extern gboolean
+WS_DLL_PUBLIC gboolean
 try_conversation_dissector_by_id(const endpoint_type etype, const guint32 id, tvbuff_t *tvb,
     packet_info *pinfo, proto_tree *tree, void* data);
 
 /* These routines are used to set undefined values for a conversation */
 
-extern void conversation_set_port2(conversation_t *conv, const guint32 port);
-extern void conversation_set_addr2(conversation_t *conv, const address *addr);
+WS_DLL_PUBLIC
+void conversation_set_port2(conversation_t *conv, const guint32 port);
+WS_DLL_PUBLIC
+void conversation_set_addr2(conversation_t *conv, const address *addr);
 
 WS_DLL_PUBLIC
 wmem_map_t *get_conversation_hashtable_exact(void);

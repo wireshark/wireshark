@@ -167,6 +167,8 @@ libwireshark.so.0 libwireshark0 #MINVER#
  conversation_pt_to_endpoint_type@Base 2.5.0
  conversation_set_dissector@Base 1.9.1
  conversation_set_dissector_from_frame_number@Base 2.0.0
+ conversation_set_port2@Base 2.6.3
+ conversation_set_addr2@Base 2.6.3
  conversation_table_get_num@Base 1.99.0
  conversation_table_iterate_tables@Base 1.99.0
  conversation_table_set_gui_info@Base 1.99.0
@@ -1612,6 +1614,8 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tree_expanded@Base 1.12.0~rc1
  tree_expanded_set@Base 1.12.0~rc1
  try_capture_dissector@Base 2.1.0
+ try_conversation_dissector@Base 2.6.3
+ try_conversation_dissector_by_id@Base 2.6.3
  try_bytesprefix_to_str@Base 2.3.0
  try_bytesval_to_str@Base 2.3.0
  try_enterprises_lookup@Base 2.5.0
