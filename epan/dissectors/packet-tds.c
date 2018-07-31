@@ -2656,7 +2656,7 @@ dissect_tds5_curclose_token(tvbuff_t *tvb, packet_info *pinfo, guint offset,
 
         cursor_name_pi = proto_tree_add_item_ret_string_and_length(tree,
             hf_tds_curclose_cursor_name,
-            tvb, cur + 1, cursorname_len, tds_get_char_encoding(tds_info)|ENC_NA,
+            tvb, cur, 1, tds_get_char_encoding(tds_info)|ENC_NA,
             wmem_packet_scope(), &cursorname, &cursorname_len);
         cur += cursorname_len;
         tds5_check_cursor_name(pinfo, cursor_name_pi, packet_cursor, cursorname);
