@@ -942,14 +942,18 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 		 * Neither search address B nor search port B are wildcarded,
 		 * start out with an exact match.
 		 */
-		DPRINT(("trying exact match"));
+		DPRINT(("trying exact match: %s:%d -> %s:%d",
+		    address_to_str(wmem_packet_scope(), addr_a), port_a,
+		    address_to_str(wmem_packet_scope(), addr_b), port_b));
 		conversation =
 		    conversation_lookup_hashtable(conversation_hashtable_exact,
 			frame_num, addr_a, addr_b, etype,
 			port_a, port_b);
 		/* Didn't work, try the other direction */
 		if (conversation == NULL) {
-			DPRINT(("trying opposite direction"));
+			DPRINT(("trying exact match: %s:%d -> %s:%d",
+			    address_to_str(wmem_packet_scope(), addr_b), port_b,
+			    address_to_str(wmem_packet_scope(), addr_a), port_a));
 			conversation =
 			    conversation_lookup_hashtable(conversation_hashtable_exact,
 				frame_num, addr_b, addr_a, etype,
@@ -959,6 +963,9 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 			/* In Fibre channel, OXID & RXID are never swapped as
 			 * TCP/UDP ports are in TCP/IP.
 			 */
+			DPRINT(("trying exact match: %s:%d -> %s:%d",
+			    address_to_str(wmem_packet_scope(), addr_b), port_a,
+			    address_to_str(wmem_packet_scope(), addr_a), port_b));
 			conversation =
 			    conversation_lookup_hashtable(conversation_hashtable_exact,
 				frame_num, addr_b, addr_a, etype,
@@ -983,7 +990,9 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 		 * address and port.
 		 * ("addr_b" doesn't take part in this lookup.)
 		 */
-		DPRINT(("trying wildcarded dest address"));
+		DPRINT(("trying wildcarded match: %s:%d -> *:%d",
+		    address_to_str(wmem_packet_scope(), addr_a), port_a,
+		    port_b));
 		conversation =
 		    conversation_lookup_hashtable(conversation_hashtable_no_addr2,
 			frame_num, addr_a, addr_b, etype, port_a, port_b);
@@ -991,6 +1000,9 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 			/* In Fibre channel, OXID & RXID are never swapped as
 			 * TCP/UDP ports are in TCP/IP.
 			 */
+			DPRINT(("trying wildcarded match: %s:%d -> *:%d",
+			    address_to_str(wmem_packet_scope(), addr_b), port_a,
+			    port_b));
 			conversation =
 			    conversation_lookup_hashtable(conversation_hashtable_no_addr2,
 				frame_num, addr_b, addr_a, etype,
@@ -1035,7 +1047,9 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 		 * ("addr_a" doesn't take part in this lookup.)
 		 */
 		if (!(options & NO_ADDR_B)) {
-			DPRINT(("trying dest addr:port as source addr:port with wildcarded dest addr"));
+			DPRINT(("trying wildcarded match: %s:%d -> *:%d",
+			    address_to_str(wmem_packet_scope(), addr_b), port_b,
+			    port_a));
 			conversation =
 			    conversation_lookup_hashtable(conversation_hashtable_no_addr2,
 				frame_num, addr_b, addr_a, etype, port_b, port_a);
@@ -1079,7 +1093,9 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 		 * address and port.
 		 * ("port_b" doesn't take part in this lookup.)
 		 */
-		DPRINT(("trying wildcarded dest port"));
+		DPRINT(("trying wildcarded match: %s:%d -> %s:*",
+		    address_to_str(wmem_packet_scope(), addr_a), port_a,
+		    address_to_str(wmem_packet_scope(), addr_b)));
 		conversation =
 		    conversation_lookup_hashtable(conversation_hashtable_no_port2,
 			frame_num, addr_a, addr_b, etype, port_a, port_b);
@@ -1087,6 +1103,9 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 			/* In Fibre channel, OXID & RXID are never swapped as
 			 * TCP/UDP ports are in TCP/IP
 			 */
+			DPRINT(("trying wildcarded match: %s:%d -> %s:*",
+			    address_to_str(wmem_packet_scope(), addr_b), port_a,
+			    address_to_str(wmem_packet_scope(), addr_a)));
 			conversation =
 			    conversation_lookup_hashtable(conversation_hashtable_no_port2,
 				frame_num, addr_b, addr_a, etype, port_a, port_b);
@@ -1130,7 +1149,9 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 		 * ("port_a" doesn't take part in this lookup.)
 		 */
 		if (!(options & NO_PORT_B)) {
-			DPRINT(("trying dest addr:port as source addr:port and wildcarded dest port"));
+			DPRINT(("trying wildcarded match: %s:%d -> %s:*",
+			    address_to_str(wmem_packet_scope(), addr_b), port_b,
+			    address_to_str(wmem_packet_scope(), addr_a)));
 			conversation =
 			    conversation_lookup_hashtable(conversation_hashtable_no_port2,
 				frame_num, addr_b, addr_a, etype, port_b, port_a);
@@ -1169,7 +1190,8 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 	 * and port A as the first address and port.
 	 * (Neither "addr_b" nor "port_b" take part in this lookup.)
 	 */
-	DPRINT(("trying wildcarding dest addr:port"));
+	DPRINT(("trying wildcarded match: %s:%d -> *:*",
+	    address_to_str(wmem_packet_scope(), addr_a), port_a));
 	conversation =
 	    conversation_lookup_hashtable(conversation_hashtable_no_addr2_or_port2,
 		frame_num, addr_a, addr_b, etype, port_a, port_b);
@@ -1222,15 +1244,19 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 		 * first packet in the conversation).
 		 * (Neither "addr_a" nor "port_a" take part in this lookup.)
 		 */
-		DPRINT(("trying dest addr:port as source addr:port and wildcarding dest addr:port"));
-		if ((addr_a != NULL) && (addr_a->type == AT_FC))
+		if ((addr_a != NULL) && (addr_a->type == AT_FC)) {
+			DPRINT(("trying wildcarded match: %s:%d -> *:*",
+			    address_to_str(wmem_packet_scope(), addr_b), port_a));
 			conversation =
 			    conversation_lookup_hashtable(conversation_hashtable_no_addr2_or_port2,
 				frame_num, addr_b, addr_a, etype, port_a, port_b);
-		else
+		} else {
+			DPRINT(("trying wildcarded match: %s:%d -> *:*",
+			    address_to_str(wmem_packet_scope(), addr_b), port_b));
 			conversation =
 			    conversation_lookup_hashtable(conversation_hashtable_no_addr2_or_port2,
 				frame_num, addr_b, addr_a, etype, port_b, port_a);
+		}
 		if (conversation != NULL) {
 			/*
 			 * If this is for a connection-oriented protocol, set the
