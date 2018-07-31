@@ -197,6 +197,8 @@ enum ieee80211_radiotap_type {
 	IEEE80211_RADIOTAP_TIMESTAMP = 22,
 	IEEE80211_RADIOTAP_HE = 23,
 	IEEE80211_RADIOTAP_HE_MU = 24,
+	IEEE80211_RAFIOTAP_HE_MU_USER = 25,
+	IEEE80211_RADIOTAP_0_LENGTH_PSDU = 26,
 
 	/* valid in every it_present bitmap, even vendor namespaces */
 	IEEE80211_RADIOTAP_RADIOTAP_NAMESPACE = 29,
@@ -205,8 +207,8 @@ enum ieee80211_radiotap_type {
 };
 
 /* not (yet) defined Radiotap present flag */
-/* Bit 24 to 28 are not defined (in binary : 0001 1111 0000 0000 0000 0000 0000 0000 */
-#define IEEE80211_RADIOTAP_NOTDEFINED 0x1E000000
+/* Bit 25, 27, 28 are not defined (in binary : 0001 1010 0000 0000 0000 0000 0000 0000 */
+#define IEEE80211_RADIOTAP_NOTDEFINED 0x1A000000
 
 /* Channel flags. */
 /* 0x00000001 through 0x00000008 undefined (reserved?) */

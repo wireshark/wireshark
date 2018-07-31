@@ -179,6 +179,7 @@ static int hf_radiotap_present_vht = -1;
 static int hf_radiotap_present_timestamp = -1;
 static int hf_radiotap_present_he = -1;
 static int hf_radiotap_present_he_mu = -1;
+static int hf_radiotap_present_0_length_psdu = -1;
 static int hf_radiotap_present_reserved = -1;
 static int hf_radiotap_present_rtap_ns = -1;
 static int hf_radiotap_present_vendor_ns = -1;
@@ -320,6 +321,9 @@ static int hf_radiotap_he_mu_ru_2_unknown = -1;
 static int hf_radiotap_he_mu_ru_3 = -1;
 static int hf_radiotap_he_mu_ru_3_unknown = -1;
 
+/* 0-length-psdu */
+static int hf_radiotap_0_length_psdu_type = -1;
+
 static gint ett_radiotap = -1;
 static gint ett_radiotap_present = -1;
 static gint ett_radiotap_present_word = -1;
@@ -347,6 +351,7 @@ static gint ett_radiotap_he_info_data_6 = -1;
 static gint ett_radiotap_he_mu_info = -1;
 static gint ett_radiotap_he_mu_info_flags_1 = -1;
 static gint ett_radiotap_he_mu_info_flags_2 = -1;
+static gint ett_radiotap_0_length_psdu = -1;
 
 static expert_field ei_radiotap_data_past_header = EI_INIT;
 static expert_field ei_radiotap_present_reserved = EI_INIT;
@@ -1315,6 +1320,26 @@ dissect_radiotap_he_mu_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 			tvb, offset, 1, ENC_NA);
 }
 
+static const range_string zero_length_psdu_rsvals[] = {
+	{ 0, 0, "sounding PPDU" },
+	{ 1, 254, "reserved" },
+	{ 255, 255, "vendor-specific" },
+	{ 0, 0, NULL }
+};
+
+static void
+dissect_radiotap_0_length_psdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+	int offset)
+{
+	proto_tree *zero_len_tree = NULL;
+
+	zero_len_tree = proto_tree_add_subtree(tree, tvb, offset, 1,
+		ett_radiotap_0_length_psdu, NULL, "0-length PSDU");
+
+	proto_tree_add_item(zero_len_tree, hf_radiotap_0_length_psdu_type,
+		tvb, offset, 1, ENC_NA);
+}
+
 static void
 dissect_radiotap_tsft(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	int offset, struct _radiotap_info *radiotap_info,
@@ -1840,6 +1865,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 	static struct _radiotap_info        rtp_info_arr;
 	struct ieee80211_radiotap_iterator  iter;
 	struct ieee_802_11_phdr phdr;
+	gboolean    zero_length_psdu = FALSE;
 
 	/* our non-standard overrides */
 	static struct radiotap_override overrides[] = {
@@ -2032,6 +2058,9 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 			proto_tree_add_item(present_word_tree,
 					    hf_radiotap_present_he_mu, tvb,
 					    offset + 4, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(present_word_tree,
+					    hf_radiotap_present_0_length_psdu,
+					    tvb, offset + 4, 4, ENC_LITTLE_ENDIAN);
 
 			ti = proto_tree_add_item(present_word_tree,
 					    hf_radiotap_present_reserved, tvb,
@@ -2627,6 +2656,10 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 		case IEEE80211_RADIOTAP_HE_MU:
 			dissect_radiotap_he_mu_info(tvb, pinfo, radiotap_tree, offset);
 			break;
+		case IEEE80211_RADIOTAP_0_LENGTH_PSDU:
+			dissect_radiotap_0_length_psdu(tvb, pinfo, radiotap_tree, offset);
+			zero_length_psdu = TRUE;
+			break;
 		}
 	}
 
@@ -2635,6 +2668,13 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 		    &ei_radiotap_data_past_header);
  malformed:
 		proto_item_append_text(ti, " (malformed)");
+	}
+
+	/*
+	 * Is there anything there? A 0-length-psdu has no frame data.
+	 */
+	if (zero_length_psdu) {
+		return tvb_captured_length(tvb);
 	}
 
  hand_off_to_80211:
@@ -2835,6 +2875,11 @@ void proto_register_radiotap(void)
 		 {"HE-MU information", "radiotap.present.he_mu",
 		  FT_BOOLEAN, 32, TFS(&tfs_present_absent), RADIOTAP_MASK(HE_MU),
 		  "Specifies if the HE field is present", HFILL}},
+
+		{&hf_radiotap_present_0_length_psdu,
+		 {"0 Length PSDU", "radiotap.present.0_length.psdu",
+		   FT_BOOLEAN, 32, TFS(&tfs_present_absent), RADIOTAP_MASK(0_LENGTH_PSDU),
+		   "Specifies whether or not the 0-Length PSDU field is present", HFILL}},
 
 		{&hf_radiotap_present_reserved,
 		 {"Reserved", "radiotap.present.reserved",
@@ -4183,6 +4228,10 @@ void proto_register_radiotap(void)
 		  "radiotap.he_mu.ru_3_index_unknown",
 		  FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
+		{&hf_radiotap_0_length_psdu_type,
+		 {"Type", "radiotap.0_len_psdu.type",
+		  FT_UINT8, BASE_HEX|BASE_RANGE_STRING,
+		  RVALS(zero_length_psdu_rsvals), 0x0, NULL, HFILL}},
 	};
 	static gint *ett[] = {
 		&ett_radiotap,
