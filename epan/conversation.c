@@ -1508,6 +1508,26 @@ find_or_create_conversation(packet_info *pinfo)
 	return conv;
 }
 
+conversation_t *
+find_or_create_conversation_by_id(packet_info *pinfo, const endpoint_type etype, const guint32 id)
+{
+	conversation_t *conv=NULL;
+
+	/* Have we seen this conversation before? */
+	if ((conv = find_conversation_by_id(pinfo->num, etype, id, 0)) == NULL) {
+		/* No, this is a new conversation. */
+		DPRINT(("did not find previous conversation for frame #%u",
+				pinfo->num));
+		DINDENT();
+		conv = conversation_new_by_id(pinfo->num, etype, id, 0);
+		DENDENT();
+	}
+
+	DENDENT();
+
+	return conv;
+}
+
 void conversation_create_endpoint(struct _packet_info *pinfo, address* addr1, address* addr2,
     endpoint_type etype, guint32 port1, guint32	port2, const guint options)
 {
