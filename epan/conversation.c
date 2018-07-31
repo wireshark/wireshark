@@ -639,7 +639,7 @@ conversation_new(const guint32 setup_frame, const address *addr1, const address 
 				/*
 				 * Ports 1 and 2.
 				 */
-				DPRINT(("creating conversation for frame #%d: %u -> %u (etype=%d)",
+				DPRINT(("creating conversation for frame #%u: %u -> %u (etype=%d)",
 					    setup_frame, port1, port2, etype));
 			}
 		} else {
@@ -650,14 +650,14 @@ conversation_new(const guint32 setup_frame, const address *addr1, const address 
 				/*
 				 * Port 1 but not port 2.
 				 */
-				DPRINT(("creating conversation for frame #%d: ID %u, address %s (etype=%d)",
+				DPRINT(("creating conversation for frame #%u: ID %u, address %s (etype=%d)",
 					    setup_frame, port1,
 					    address_to_str(wmem_packet_scope(), addr2), etype));
 			} else {
 				/*
 				 * Ports 1 and 2.
 				 */
-				DPRINT(("creating conversation for frame #%d: %u -> %s:%u (etype=%d)",
+				DPRINT(("creating conversation for frame #%u: %u -> %s:%u (etype=%d)",
 					    setup_frame, port1,
 					    address_to_str(wmem_packet_scope(), addr2), port2, etype));
 			}
@@ -674,14 +674,14 @@ conversation_new(const guint32 setup_frame, const address *addr1, const address 
 				/*
 				 * Port 1 but not port 2.
 				 */
-				DPRINT(("creating conversation for frame #%d: %s:%u (etype=%d)",
+				DPRINT(("creating conversation for frame #%u: %s:%u (etype=%d)",
 					    setup_frame, address_to_str(wmem_packet_scope(), addr1), port1,
 					    etype));
 			} else {
 				/*
 				 * Ports 1 and 2.
 				 */
-				DPRINT(("creating conversation for frame #%d: %s:%u -> %u (etype=%d)",
+				DPRINT(("creating conversation for frame #%u: %s:%u -> %u (etype=%d)",
 					    setup_frame, address_to_str(wmem_packet_scope(), addr1), port1,
 					    port2, etype));
 			}
@@ -693,14 +693,14 @@ conversation_new(const guint32 setup_frame, const address *addr1, const address 
 				/*
 				 * Port 1 but not port 2.
 				 */
-				DPRINT(("creating conversation for frame #%d: %s:%u -> %s (etype=%d)",
+				DPRINT(("creating conversation for frame #%u: %s:%u -> %s (etype=%d)",
 					    setup_frame, address_to_str(wmem_packet_scope(), addr1), port1,
 					    address_to_str(wmem_packet_scope(), addr2), etype));
 			} else {
 				/*
 				 * Ports 1 and 2.
 				 */
-				DPRINT(("creating conversation for frame #%d: %s:%u -> %s:%u (etype=%d)",
+				DPRINT(("creating conversation for frame #%u: %s:%u -> %s:%u (etype=%d)",
 					    setup_frame, address_to_str(wmem_packet_scope(), addr1), port1,
 					    address_to_str(wmem_packet_scope(), addr2), port2, etype));
 			}
@@ -1422,7 +1422,7 @@ find_conversation_pinfo(packet_info *pinfo, const guint options)
 {
 	conversation_t *conv=NULL;
 
-	DPRINT(("called for frame #%d: %s:%d -> %s:%d (ptype=%d)",
+	DPRINT(("called for frame #%u: %s:%d -> %s:%d (ptype=%d)",
 		pinfo->num, address_to_str(wmem_packet_scope(), &pinfo->src), pinfo->srcport,
 		address_to_str(wmem_packet_scope(), &pinfo->dst), pinfo->destport, pinfo->ptype));
 	DINDENT();
@@ -1433,7 +1433,7 @@ find_conversation_pinfo(packet_info *pinfo, const guint options)
 		if ((conv = find_conversation(pinfo->num, &pinfo->conv_endpoint->addr1, &pinfo->conv_endpoint->addr2,
 					      pinfo->conv_endpoint->etype, pinfo->conv_endpoint->port1,
 					      pinfo->conv_endpoint->port2, pinfo->conv_endpoint->options)) != NULL) {
-			DPRINT(("found previous conversation for frame #%d (last_frame=%d)",
+			DPRINT(("found previous conversation for frame #%u (last_frame=%d)",
 					pinfo->num, conv->last_frame));
 			if (pinfo->num > conv->last_frame) {
 				conv->last_frame = pinfo->num;
@@ -1443,7 +1443,7 @@ find_conversation_pinfo(packet_info *pinfo, const guint options)
 		if ((conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
 					      conversation_pt_to_endpoint_type(pinfo->ptype), pinfo->srcport,
 					      pinfo->destport, options)) != NULL) {
-			DPRINT(("found previous conversation for frame #%d (last_frame=%d)",
+			DPRINT(("found previous conversation for frame #%u (last_frame=%d)",
 					pinfo->num, conv->last_frame));
 			if (pinfo->num > conv->last_frame) {
 				conv->last_frame = pinfo->num;
@@ -1468,7 +1468,7 @@ find_or_create_conversation(packet_info *pinfo)
 	/* Have we seen this conversation before? */
 	if ((conv = find_conversation_pinfo(pinfo, 0)) == NULL) {
 		/* No, this is a new conversation. */
-		DPRINT(("did not find previous conversation for frame #%d",
+		DPRINT(("did not find previous conversation for frame #%u",
 				pinfo->num));
 		DINDENT();
 		conv = conversation_new(pinfo->num, &pinfo->src,
