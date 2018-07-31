@@ -81,7 +81,7 @@ wmem_itree_range_overlap(const wmem_range_t *r1, const wmem_range_t *r2)
 
 /* after a rotation, some of the children nodes might (dis)appear, thus we need
  * to refresh children max_edge. Changes will propagate to parents */
-void update_edges_after_rotation(wmem_tree_node_t *node) {
+static void update_edges_after_rotation(wmem_tree_node_t *node) {
     if(node->left)  update_max_edge(node->left);
     if(node->right)  update_max_edge(node->right);
 }
