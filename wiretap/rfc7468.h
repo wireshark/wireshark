@@ -1,4 +1,4 @@
-/* pem.h
+/* rfc7468.h
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -9,7 +9,7 @@
 #include <glib.h>
 #include "wtap.h"
 
-wtap_open_return_val pem_open(wtap *wth, int *err, gchar **err_info);
+wtap_open_return_val rfc7468_open(wtap *wth, int *err, gchar **err_info);
 
 #endif
 

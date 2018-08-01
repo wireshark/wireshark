@@ -1,4 +1,4 @@
-/* pem.c
+/* rfc7468.c
  *
  * Implements loading of files in the format specified by RFC 7468.
  *
@@ -7,7 +7,7 @@
 
 #include "config.h"
 
-#include "pem.h"
+#include "rfc7468.h"
 
 #include "file_wrappers.h"
 #include "wtap-int.h"
@@ -18,8 +18,8 @@
 
 #include <string.h>
 
-static gboolean pem_read_file(wtap *wth, FILE_T fh, wtap_rec *rec,
-                              Buffer *buf, int *err, gchar **err_info)
+static gboolean rfc7468_read_file(wtap *wth, FILE_T fh, wtap_rec *rec,
+                                  Buffer *buf, int *err, gchar **err_info)
 {
     gint64 file_size;
     int packet_size;
@@ -33,7 +33,7 @@ static gboolean pem_read_file(wtap *wth, FILE_T fh, wtap_rec *rec,
          * to allocate space for an immensely-large packet.
          */
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("pem: File has %" G_GINT64_MODIFIER "d-byte packet, bigger than maximum of %u",
+        *err_info = g_strdup_printf("rfc7468: File has %" G_GINT64_MODIFIER "d-byte packet, bigger than maximum of %u",
                                     file_size, G_MAXINT);
         return FALSE;
     }
@@ -81,7 +81,7 @@ static char *read_complete_text_line(char line[MAX_LINE_LENGTH], FILE_T fh, int 
     return line_end;
 }
 
-static gboolean pem_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
+static gboolean rfc7468_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
     gint64 offset;
 
@@ -95,10 +95,10 @@ static gboolean pem_read(wtap *wth, int *err, gchar **err_info, gint64 *data_off
 
     *data_offset = offset;
 
-    return pem_read_file(wth, wth->fh, &wth->rec, wth->rec_data, err, err_info);
+    return rfc7468_read_file(wth, wth->fh, &wth->rec, wth->rec_data, err, err_info);
 }
 
-static gboolean pem_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec,
+static gboolean rfc7468_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec,
                               Buffer *buf, int *err, gchar **err_info)
 {
     /* there is only one packet */
@@ -110,16 +110,16 @@ static gboolean pem_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec,
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
         return FALSE;
 
-    return pem_read_file(wth, wth->random_fh, rec, buf, err, err_info);
+    return rfc7468_read_file(wth, wth->random_fh, rec, buf, err, err_info);
 }
 
 //
-// Arbitrary value - we don't want to read all of a huge non-PEM file
+// Arbitrary value - we don't want to read all of a huge non-RFC 7468 file
 // only to find no pre-encapsulation boundary.
 //
 #define MAX_EXPLANATORY_TEXT_LINES	20
 
-wtap_open_return_val pem_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val rfc7468_open(wtap *wth, int *err, gchar **err_info)
 {
     gboolean found_preeb;
     static const char preeb_begin[] = "-----BEGIN ";
@@ -150,14 +150,14 @@ wtap_open_return_val pem_open(wtap *wth, int *err, gchar **err_info)
     if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
         return WTAP_OPEN_ERROR;
 
-    wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_PEM;
+    wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_RFC7468;
     wth->file_encap = WTAP_ENCAP_RFC7468;
 
     wth->snapshot_length = 0;
     wth->file_tsprec = WTAP_TSPREC_SEC;
 
-    wth->subtype_read = pem_read;
-    wth->subtype_seek_read = pem_seek_read;
+    wth->subtype_read = rfc7468_read;
+    wth->subtype_seek_read = rfc7468_seek_read;
 
     return WTAP_OPEN_MINE;
 }

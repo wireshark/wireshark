@@ -68,7 +68,7 @@ set(WIRETAP_NONGENERATED_FILES
 	pcapng.c
 	peekclassic.c
 	peektagged.c
-	pem.c
+	rfc7468.c
 	pppdump.c
 	radcom.c
 	ruby_marshal.c
