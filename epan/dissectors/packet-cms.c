@@ -3346,5 +3346,5 @@ void proto_reg_handoff_cms(void) {
   content_info_handle = create_dissector_handle (dissect_ContentInfo_PDU, proto_cms);
   dissector_add_string("media_type", "application/pkcs7-mime", content_info_handle);
   dissector_add_string("media_type", "application/pkcs7-signature", content_info_handle);
+  dissector_add_string("rfc7468.preeb_label", "CMS", content_info_handle);
 }
-

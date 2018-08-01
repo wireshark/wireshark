@@ -1441,5 +1441,9 @@ void proto_reg_handoff_x509af(void) {
 	dissector_add_string("ldap.name", "arl", create_dissector_handle(dissect_CertificateList_PDU, proto_x509af));
 
 	dissector_add_string("ldap.name", "crossCertificatePair", create_dissector_handle(dissect_CertificatePair_PDU, proto_x509af));
-}
 
+	/* RFC 7468 files */
+	dissector_add_string("rfc7468.preeb_label", "CERTIFICATE", create_dissector_handle(dissect_x509af_Certificate_PDU, proto_x509af));
+	dissector_add_string("rfc7468.preeb_label", "X509 CRL", create_dissector_handle(dissect_CertificateList_PDU, proto_x509af));
+	dissector_add_string("rfc7468.preeb_label", "ATTRIBUTE CERTIFICATE", create_dissector_handle(dissect_AttributeCertificate_PDU, proto_x509af));
+}

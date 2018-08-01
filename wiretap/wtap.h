@@ -282,6 +282,7 @@ extern "C" {
 #define WTAP_ENCAP_DOCSIS31_XRA31               199
 #define WTAP_ENCAP_DPAUXMON                     200
 #define WTAP_ENCAP_RUBY_MARSHAL                 201
+#define WTAP_ENCAP_RFC7468                      202
 
 /* After adding new item here, please also add new item to encap_table_base array */
 

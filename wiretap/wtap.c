@@ -920,6 +920,9 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_RUBY_MARSHAL */
 	{ "Ruby marshal object", "ruby_marshal" },
+
+	/* WTAP_ENCAP_RFC7468 */
+	{ "RFC 7468 file", "rfc7468" },
 };
 
 WS_DLL_LOCAL
