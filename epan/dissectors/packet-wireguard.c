@@ -121,11 +121,26 @@ typedef struct wg_skey {
 } wg_skey_t;
 
 /*
+ * Pre-shared key, needed while processing the handshake response message. At
+ * that point, ephemeral keys (from either the initiator or responder) should be
+ * known. Thus link the PSK to such ephemeral keys.
+ *
+ * Usually a "wg_ekey_t" contains an empty list (if there is no PSK, i.e. an
+ * all-zeroes PSK) or one item (if a PSK is configured). In the unlikely event
+ * that an ephemeral key is reused, support more than one PSK.
+ */
+typedef struct wg_psk {
+    wg_qqword psk_data;
+    struct wg_psk *next;
+} wg_psk_t;
+
+/*
  * Ephemeral key.
  */
 typedef struct wg_ekey {
     wg_qqword   pub_key;
     wg_qqword   priv_key;   /* Optional, set to all zeroes if missing. */
+    wg_psk_t   *psk_list;   /* Optional, possible PSKs to try. */
 } wg_ekey_t;
 
 /*
@@ -147,6 +162,29 @@ static wmem_map_t *wg_ephemeral_keys;
  * closed when the capture file closes.
  */
 static FILE *wg_keylog_file;
+
+/*
+ * The most recently parsed ephemeral key. If a PSK is configured, the key log
+ * file must have a PSK line after other keys. If not, then it is assumed that
+ * the session does not use a PSK.
+ *
+ * This pointer is cleared when the key log file is reset (i.e. when the capture
+ * file closes).
+ */
+static wg_ekey_t *wg_keylog_last_ekey;
+
+enum wg_psk_iter_state {
+    WG_PSK_ITER_STATE_ENTER = 0,
+    WG_PSK_ITER_STATE_INITIATOR,
+    WG_PSK_ITER_STATE_RESPONDER,
+    WG_PSK_ITER_STATE_EXIT
+};
+
+/* See wg_psk_iter_next. */
+typedef struct {
+    enum wg_psk_iter_state state;
+    wg_psk_t               *next_psk;
+} wg_psk_iter_context;
 
 /* UAT adapter for populating wg_static_keys. */
 enum { WG_KEY_UAT_PUBLIC, WG_KEY_UAT_PRIVATE };
@@ -531,6 +569,54 @@ wg_add_ephemeral_privkey(const wg_qqword *priv_key)
     return key;
 }
 
+/* PSK handling. {{{ */
+static void
+wg_add_psk(wg_ekey_t *ekey, const wg_qqword *psk)
+{
+    wg_psk_t *psk_entry = wmem_new0(wmem_file_scope(), wg_psk_t);
+    psk_entry->psk_data = *psk;
+    psk_entry->next = ekey->psk_list;
+    ekey->psk_list = psk_entry;
+}
+
+/*
+ * Retrieves the next PSK to try and returns TRUE if one is found or FALSE if
+ * there are no more to try.
+ */
+static gboolean
+wg_psk_iter_next(wg_psk_iter_context *psk_iter, const wg_handshake_state_t *hs,
+                 wg_qqword *psk_out)
+{
+    wg_psk_t *psk = psk_iter->next_psk;
+    while (!psk) {
+        /*
+         * Yield PSKs based on Epub_i, then those based on Epub_r, then yield an
+         * all-zeroes key and finally fail in the terminating state.
+         */
+        switch (psk_iter->state) {
+            case WG_PSK_ITER_STATE_ENTER:
+                psk = hs->initiator_ekey->psk_list;
+                psk_iter->state = WG_PSK_ITER_STATE_INITIATOR;
+                break;
+            case WG_PSK_ITER_STATE_INITIATOR:
+                psk = hs->responder_ekey->psk_list;
+                psk_iter->state = WG_PSK_ITER_STATE_RESPONDER;
+                break;
+            case WG_PSK_ITER_STATE_RESPONDER:
+                memset(psk_out->data, 0, WG_KEY_LEN);
+                psk_iter->state = WG_PSK_ITER_STATE_EXIT;
+                return TRUE;
+            case WG_PSK_ITER_STATE_EXIT:
+                return FALSE;
+        }
+    }
+
+    *psk_out = psk->psk_data;
+    psk_iter->next_psk = psk->next;
+    return TRUE;
+}
+/* PSK handling. }}} */
+
 /* UAT and key configuration. {{{ */
 /* XXX this is copied verbatim from packet-ssl-utils.c - create new common API
  * for retrieval of runtime secrets? */
@@ -560,6 +646,7 @@ wg_keylog_reset(void)
     if (wg_keylog_file) {
         fclose(wg_keylog_file);
         wg_keylog_file = NULL;
+        wg_keylog_last_ekey = NULL;
     }
 }
 
@@ -654,9 +741,15 @@ wg_keylog_read(void)
         } else if (!strcmp(key_type, "REMOTE_STATIC_PUBLIC_KEY")) {
             wg_add_static_key(&key, FALSE);
         } else if (!strcmp(key_type, "LOCAL_EPHEMERAL_PRIVATE_KEY")) {
-            wg_add_ephemeral_privkey(&key);
+            wg_keylog_last_ekey = wg_add_ephemeral_privkey(&key);
         } else if (!strcmp(key_type, "PRESHARED_KEY")) {
-            // TODO
+            /* Link the PSK to the last ephemeral key. */
+            if (wg_keylog_last_ekey) {
+                wg_add_psk(wg_keylog_last_ekey, &key);
+                wg_keylog_last_ekey = NULL;
+            } else {
+                g_debug("Ignored PSK as no new ephemeral key was found");
+            }
         } else {
             g_debug("Unrecognized key log line: %s", buf);
         }
@@ -864,17 +957,26 @@ wg_process_response(tvbuff_t *tvb, wg_handshake_state_t *hs)
     }
     // c = KDF1(c, dh2)
     wg_kdf(c, dh2.data, sizeof(dh2), 1, c);
-    // c, t, k = KDF3(c, PSK)
-    // TODO apply PSK from keylog file
-    wg_qqword psk = {{ 0 }};
-    wg_kdf(c, psk.data, WG_KEY_LEN, 3, ctk);
-    // h = Hash(h || t)
-    wg_mix_hash(&h, t, sizeof(wg_qqword));
-    // empty = AEAD-Decrypt(k, 0, msg.empty, h)
-    if (!aead_decrypt(k, 0, encrypted_empty, AUTH_TAG_LENGTH, h.data, sizeof(wg_qqword), NULL, 0)) {
+    wg_qqword h_before_psk = h, c_before_psk = *c, psk;
+    wg_psk_iter_context psk_iter = { WG_PSK_ITER_STATE_ENTER, NULL };
+    while (wg_psk_iter_next(&psk_iter, hs, &psk)) {
+        // c, t, k = KDF3(c, PSK)
+        wg_kdf(c, psk.data, WG_KEY_LEN, 3, ctk);
+        // h = Hash(h || t)
+        wg_mix_hash(&h, t, sizeof(wg_qqword));
+        // empty = AEAD-Decrypt(k, 0, msg.empty, h)
+        if (!aead_decrypt(k, 0, encrypted_empty, AUTH_TAG_LENGTH, h.data, sizeof(wg_qqword), NULL, 0)) {
+            /* Possibly bad PSK, reset and try another. */
+            h = h_before_psk;
+            *c = c_before_psk;
+            continue;
+        }
+        hs->empty_ok = TRUE;
+        break;
+    }
+    if (!hs->empty_ok) {
         return;
     }
-    hs->empty_ok = TRUE;
     // h = Hash(h || msg.empty)
     wg_mix_hash(&h, encrypted_empty, AUTH_TAG_LENGTH);
 

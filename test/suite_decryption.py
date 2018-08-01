@@ -500,6 +500,15 @@ class case_decrypt_wireguard(subprocesstest.SubprocessTestCase):
     key_Epriv_r0 = 'QC4/FZKhFf0b/eXEcCecmZNt6V6PXmRa4EWG1PIYTU4='
     key_Epriv_i1 = 'ULv83D+y3vA0t2mgmTmWz++lpVsrP7i4wNaUEK2oX0E='
     key_Epriv_r1 = 'sBv1dhsm63cbvWMv/XML+bvynBp9PTdY9Vvptu3HQlg='
+    # Ephemeral keys and PSK for wireguard-psk.pcap
+    key_Epriv_i2 = 'iCv2VTi/BC/q0egU931KXrrQ4TSwXaezMgrhh7uCbXs='
+    key_Epriv_r2 = '8G1N3LnEqYC7+NW/b6mqceVUIGBMAZSm+IpwG1U0j0w='
+    key_psk2 = '//////////////////////////////////////////8='
+    key_Epriv_i3 = '+MHo9sfkjPsjCx7lbVhRLDvMxYvTirOQFDSdzAW6kUQ='
+    key_Epriv_r3 = '0G6t5j1B/We65MXVEBIGuRGYadwB2ITdvJovtAuATmc='
+    key_psk3 = 'iIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIg='
+    # dummy key that should not work with anything.
+    key_dummy = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx='
 
     def runOne(self, args, keylog=None, pcap_file='wireguard-ping-tcp.pcap'):
         if not config.have_libgcrypt17:
@@ -638,3 +647,62 @@ class case_decrypt_wireguard(subprocesstest.SubprocessTestCase):
         self.assertIn('14\t1\t\t\t1\t\t', lines)
         self.assertIn('17\t\t\t\t\t\t443', lines)
         self.assertIn('18\t\t\t\t\t\t49472', lines)
+
+    def test_decrypt_psk_initiator(self):
+        """Check whether PSKs enable decryption for initiation keys."""
+        lines = self.runOne([
+            '-Tfields',
+            '-e', 'frame.number',
+            '-e', 'wg.handshake_ok',
+        ], keylog=[
+            'REMOTE_STATIC_PUBLIC_KEY = %s' % self.key_Spub_r,
+            'LOCAL_STATIC_PRIVATE_KEY = %s' % self.key_Spriv_i,
+            'LOCAL_EPHEMERAL_PRIVATE_KEY=%s' % self.key_Epriv_i2,
+            'PRESHARED_KEY=%s' % self.key_psk2,
+            'LOCAL_EPHEMERAL_PRIVATE_KEY=%s' % self.key_Epriv_r3,
+            'PRESHARED_KEY=%s' % self.key_psk3,
+        ], pcap_file='wireguard-psk.pcap')
+        self.assertIn('2\t1', lines)
+        self.assertIn('4\t1', lines)
+
+    def test_decrypt_psk_responder(self):
+        """Check whether PSKs enable decryption for responder keys."""
+        lines = self.runOne([
+            '-Tfields',
+            '-e', 'frame.number',
+            '-e', 'wg.handshake_ok',
+        ], keylog=[
+            'REMOTE_STATIC_PUBLIC_KEY=%s' % self.key_Spub_i,
+            'LOCAL_STATIC_PRIVATE_KEY=%s' % self.key_Spriv_r,
+            # Epriv_r2 needs psk2. This tests handling of duplicate ephemeral
+            # keys with multiple PSKs. It should not have adverse effects.
+            'LOCAL_EPHEMERAL_PRIVATE_KEY=%s' % self.key_Epriv_r2,
+            'PRESHARED_KEY=%s' % self.key_dummy,
+            'LOCAL_EPHEMERAL_PRIVATE_KEY=%s' % self.key_Epriv_r2,
+            'PRESHARED_KEY=%s' % self.key_psk2,
+            'LOCAL_EPHEMERAL_PRIVATE_KEY=%s' % self.key_Epriv_i3,
+            'PRESHARED_KEY=%s' % self.key_psk3,
+            # Epriv_i3 needs psk3, this tests that additional keys again have no
+            # bad side-effects.
+            'LOCAL_EPHEMERAL_PRIVATE_KEY=%s' % self.key_Epriv_i3,
+            'PRESHARED_KEY=%s' % self.key_dummy,
+        ], pcap_file='wireguard-psk.pcap')
+        self.assertIn('2\t1', lines)
+        self.assertIn('4\t1', lines)
+
+    def test_decrypt_psk_wrong_orderl(self):
+        """Check that the wrong order of lines indeed fail decryption."""
+        lines = self.runOne([
+            '-Tfields',
+            '-e', 'frame.number',
+            '-e', 'wg.handshake_ok',
+        ], keylog=[
+            'REMOTE_STATIC_PUBLIC_KEY=%s' % self.key_Spub_i,
+            'LOCAL_STATIC_PRIVATE_KEY=%s' % self.key_Spriv_r,
+            'LOCAL_EPHEMERAL_PRIVATE_KEY=%s' % self.key_Epriv_r2,
+            'LOCAL_EPHEMERAL_PRIVATE_KEY=%s' % self.key_Epriv_i3,
+            'PRESHARED_KEY=%s' % self.key_psk2, # note: swapped with previous line
+            'PRESHARED_KEY=%s' % self.key_psk3,
+        ], pcap_file='wireguard-psk.pcap')
+        self.assertIn('2\t0', lines)
+        self.assertIn('4\t0', lines)
