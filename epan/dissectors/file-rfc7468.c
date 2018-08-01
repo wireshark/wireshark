@@ -293,7 +293,7 @@ dissect_rfc7468(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
          * First, grow the buffer as needed.
          */
         databufsize += (linelen / 4) * 3 + 3;
-        databuf = g_realloc(databuf, databufsize);
+        databuf = (guint8 *)g_realloc(databuf, databufsize);
 
         /*
          * Now decode into it.
