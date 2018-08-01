@@ -31,9 +31,6 @@ void proto_register_tipc(void);
 
 static int proto_tipc = -1;
 
-/* dissector handles */
-static dissector_handle_t ip_handle;
-
 static int hf_tipc_msg_fragments = -1;
 static int hf_tipc_msg_fragment = -1;
 static int hf_tipc_msg_fragment_overlap = -1;
@@ -3124,7 +3121,6 @@ proto_reg_handoff_tipc(void)
 	dissector_handle_t tipc_tcp_handle;
 
 	tipc_tcp_handle = create_dissector_handle(dissect_tipc_tcp, proto_tipc);
-	ip_handle = find_dissector("ip");
 
 	dissector_add_uint("ethertype", ETHERTYPE_TIPC, tipc_handle);
 	dissector_add_for_decode_as_with_preference("tcp.port", tipc_tcp_handle);
