@@ -225,6 +225,9 @@ struct ieee80211_radiotap_tlv {
 #define IEEE80211_RADIOTAP_TLV_S1G        32
 #define IEEE80211_RADIOTAP_TLV_U_SIG      33
 #define IEEE80211_RADIOTAP_TLV_EHT        34
+/* not (yet) defined Radiotap present flag */
+/* Bit 25 is not defined (in binary : 0000 0010 0000 0000 0000 0000 0000 0000 */
+#define IEEE80211_RADIOTAP_NOTDEFINED 0x02000000
 
 /* Channel flags. */
 /* 0x00000008 undefined (reserved?) */
@@ -518,6 +521,13 @@ struct ieee80211_radiotap_tlv {
 #define IEEE80211_RADIOTAP_TLV_S1G_UPLINK_INDICATION                   0x0008
 #define IEEE80211_RADIOTAP_TLV_S1G_RESERVED_3                          0x00F0
 #define IEEE80211_RADIOTAP_TLV_S1G_RSSI                                0xFF00
+
+/* For IEEE80211_RADIOTAP_L_SIG */
+#define IEEE80211_RADIOTAP_L_SIG_RATE_KNOWN			0x0001
+#define IEEE80211_RADIOTAP_L_SIG_LENGTH_KNOWN			0x0002
+#define IEEE80211_RADIOTAP_L_SIG_RESERVED_MASK			0xFFFC
+#define IEEE80211_RADIOTAP_L_SIG_RATE_MASK			0x000F
+#define IEEE80211_RADIOTAP_L_SIG_LENGTH_MASK			0xFFF0
 
 #define IEEE80211_RADIOTAP_TS_FLG_32BIT		0x01
 #define IEEE80211_RADIOTAP_TS_FLG_ACCURACY	0x02

@@ -202,6 +202,7 @@ static int hf_radiotap_present_he_mu = -1;
 static int hf_radiotap_present_0_length_psdu = -1;
 static int hf_radiotap_present_l_sig = -1;
 static int hf_radiotap_present_tlv = -1;
+static int hf_radiotap_present_reserved = -1;
 static int hf_radiotap_present_rtap_ns = -1;
 static int hf_radiotap_present_vendor_ns = -1;
 static int hf_radiotap_present_ext = -1;
@@ -367,6 +368,42 @@ static int hf_radiotap_l_sig_data_2 = -1;
 static int hf_radiotap_l_sig_rate = -1;
 static int hf_radiotap_l_sig_length = -1;
 
+/* U-SIG */
+static int hf_radiotap_u_sig_common = -1;
+static int hf_radiotap_usig_phy_version_identifier_known = -1;
+static int hf_radiotap_usig_bw_known = -1;
+static int hf_radiotap_usig_ul_dl_known = -1;
+static int hf_radiotap_usig_bss_color_known = -1;
+static int hf_radiotap_usig_txop_known = -1;
+static int hf_radiotap_usig_bad_u_sig_crc = -1;
+static int hf_radiotap_usig_reserved = -1;
+static int hf_radiotap_usig_phy_version_id = -1;
+static int hf_radiotap_usig_bw = -1;
+static int hf_radiotap_usig_ul_dl = -1;
+static int hf_radiotap_usig_bss_color = -1;
+static int hf_radiotap_usig_txop = -1;
+static int hf_radiotap_usig_value_mu_ppdu = -1;
+static int hf_radiotap_usig_eht_mu_b20_b24 = -1;
+static int hf_radiotap_usig_eht_mu_b25 = -1;
+static int hf_radiotap_usig_ppdu_type_and_comp_mode = -1;
+static int hf_radiotap_usig_validate1 = -1;
+static int hf_radiotap_usig_punctured_channel_info = -1;
+static int hf_radiotap_usig_validate2 = -1;
+static int hf_radiotap_usig_eht_sig_mcs = -1;
+static int hf_radiotap_usig_number_eht_sig_symbols = -1;
+static int hf_radiotap_usig_crc = -1;
+static int hf_radiotap_usig_tail = -1;
+static int hf_radiotap_u_sig_mask = -1;
+static int hf_radiotap_usig_value_tb_ppdu = -1;
+static int hf_radiotap_usig_eht_tb_b20_b25 = -1;
+static int hf_radiotap_usig_eht_tb_ppdu_type_and_comp_mode = -1;
+static int hf_radiotap_usig_eht_tb_validate1 = -1;
+static int hf_radiotap_usig_eht_tb_spatial_reuse_1 = -1;
+static int hf_radiotap_usig_eht_tb_spatial_reuse_2 = -1;
+static int hf_radiotap_usig_eht_tb_disregard = -1;
+static int hf_radiotap_usig_eht_tb_crc = -1;
+static int hf_radiotap_usig_eht_tb_tail = -1;
+
 /* S1G */
 static int hf_radiotap_s1g_known = -1;
 static int hf_radiotap_s1g_s1g_ppdu_format_known = -1;
@@ -516,6 +553,12 @@ static gint ett_radiotap_l_sig = -1;
 static gint ett_radiotap_l_sig_data_1 = -1;
 static gint ett_radiotap_l_sig_data_2 = -1;
 static gint ett_radiotap_unknown_tlv = -1;
+
+/* U-SIG */
+static gint ett_radiotap_u_sig = -1;
+static gint ett_radiotap_u_sig_common = -1;
+static gint ett_radiotap_u_sig_value = -1;
+
 /* S1G */
 static gint ett_radiotap_s1g = -1;
 static gint ett_radiotap_s1g_known = -1;
@@ -2216,6 +2259,113 @@ dissect_s1g_ndp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
   return tvb_captured_length(tvb);
 }
 
+static int * const usig_common_headers[] = {
+        &hf_radiotap_usig_phy_version_identifier_known,
+        &hf_radiotap_usig_bw_known,
+        &hf_radiotap_usig_ul_dl_known,
+        &hf_radiotap_usig_bss_color_known,
+        &hf_radiotap_usig_txop_known,
+        &hf_radiotap_usig_bad_u_sig_crc,
+        &hf_radiotap_usig_reserved,
+        &hf_radiotap_usig_phy_version_id,
+        &hf_radiotap_usig_bw,
+        &hf_radiotap_usig_ul_dl,
+        &hf_radiotap_usig_bss_color,
+        &hf_radiotap_usig_txop,
+        NULL
+};
+
+static const value_string eht_u_sig_bw_vals[] = {
+  { 0, "20 MHz" },
+  { 1, "40 MHz" },
+  { 2, "80 MHz" },
+  { 3, "160 MHz" },
+  { 4, "320 MHz-1" },
+  { 5, "320 MHz-2" },
+  { 6, "Reserved" },
+  { 7, "Reserved" },
+  { 0, NULL }
+};
+
+static int * const usig_eht_mu_ppdu_headers[] = {
+        &hf_radiotap_usig_eht_mu_b20_b24,
+        &hf_radiotap_usig_eht_mu_b25,
+        &hf_radiotap_usig_ppdu_type_and_comp_mode,
+        &hf_radiotap_usig_validate1,
+        &hf_radiotap_usig_punctured_channel_info,
+        &hf_radiotap_usig_validate2,
+        &hf_radiotap_usig_eht_sig_mcs,
+        &hf_radiotap_usig_number_eht_sig_symbols,
+        &hf_radiotap_usig_crc,
+        &hf_radiotap_usig_tail,
+        NULL
+};
+
+static int * const usig_eht_tb_ppdu_headers[] = {
+        &hf_radiotap_usig_eht_tb_b20_b25,
+        &hf_radiotap_usig_eht_tb_ppdu_type_and_comp_mode,
+        &hf_radiotap_usig_eht_tb_validate1,
+        &hf_radiotap_usig_eht_tb_spatial_reuse_1,
+        &hf_radiotap_usig_eht_tb_spatial_reuse_2,
+        &hf_radiotap_usig_eht_tb_disregard,
+        &hf_radiotap_usig_eht_tb_crc,
+        &hf_radiotap_usig_eht_tb_tail,
+        NULL
+};
+
+/*
+ * Will never be called via old style bits
+ */
+static void
+dissect_radiotap_u_sig(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                       int offset, struct ieee_802_11_phdr *phdr _U_,
+                       gboolean is_tlv _U_)
+{
+        proto_tree *u_sig_tree = NULL;
+        guint8 ul_dl = 0;
+        guint8 type_and_comp = 0;
+
+        phdr->phy = PHDR_802_11_PHY_11BE;
+
+        u_sig_tree = proto_tree_add_subtree(tree, tvb, offset, 12,
+                                            ett_radiotap_u_sig, NULL,
+                                            "U-SIG");
+
+        add_tlv_items(u_sig_tree, tvb, offset);
+
+        ul_dl = (tvb_get_guint8(tvb, offset + 2) & 0x04) >> 2;
+        proto_tree_add_bitmask(u_sig_tree, tvb, offset,
+                               hf_radiotap_u_sig_common,
+                               ett_radiotap_u_sig_common,
+                               usig_common_headers, ENC_LITTLE_ENDIAN);
+        offset += 4;
+
+        /*
+         * Now handle the Value and Mask ...
+         */
+        type_and_comp = (tvb_get_guint8(tvb, offset) & 0xc0) >> 2;
+
+        if ((ul_dl == 0 && (type_and_comp == 0 || type_and_comp == 1 ||
+                           type_and_comp == 2)) ||
+            (ul_dl == 1 && type_and_comp == 1)) {
+                proto_tree_add_bitmask(u_sig_tree, tvb, offset,
+                                       hf_radiotap_usig_value_mu_ppdu,
+                                       ett_radiotap_u_sig_value,
+                                       usig_eht_mu_ppdu_headers,
+                                       ENC_LITTLE_ENDIAN);
+        } else {
+                proto_tree_add_bitmask(u_sig_tree, tvb, offset,
+                                       hf_radiotap_usig_value_tb_ppdu,
+                                       ett_radiotap_u_sig_value,
+                                       usig_eht_tb_ppdu_headers,
+                                       ENC_LITTLE_ENDIAN);
+        }
+        offset += 4;
+
+        proto_tree_add_item(u_sig_tree, hf_radiotap_u_sig_mask, tvb, offset, 4,
+                            ENC_LITTLE_ENDIAN);
+}
+
 static int * const s1g_known_headers[] = {
 	&hf_radiotap_s1g_s1g_ppdu_format_known,
 	&hf_radiotap_s1g_response_indication_known,
@@ -3016,6 +3166,10 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 			proto_tree_add_item(present_word_tree,
 					    hf_radiotap_present_l_sig, tvb,
 					    offset + 4, 4, ENC_LITTLE_ENDIAN);
+
+			ti = proto_tree_add_item(present_word_tree,
+					    hf_radiotap_present_reserved, tvb,
+					    offset + 4, 4, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(present_word_tree,
 					    hf_radiotap_present_tlv, tvb,
 					    offset + 4, 4, ENC_LITTLE_ENDIAN);
@@ -3647,6 +3801,10 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 			dissect_radiotap_s1g(tvb, pinfo, item_tree, offset,
 					     &phdr, iter.tlv_mode);
 			break;
+                case IEEE80211_RADIOTAP_TLV_U_SIG:
+                        dissect_radiotap_u_sig(tvb, pinfo, item_tree, offset,
+                                               &phdr, iter.tlv_mode);
+                        break;
 		default:
 			if (iter.tlv_mode) {
 				proto_tree *unknown_tlv;
@@ -4071,6 +4229,11 @@ void proto_register_radiotap(void)
 		 {"TLVs", "radiotap.present.tlv",
 		  FT_BOOLEAN, 32, TFS(&tfs_present_absent), RADIOTAP_MASK(TLVS),
 		  "Specifies switch to TLV fields", HFILL}},
+
+		{&hf_radiotap_present_reserved,
+		 {"Reserved", "radiotap.present.reserved",
+		  FT_UINT32, BASE_HEX, NULL, IEEE80211_RADIOTAP_NOTDEFINED,
+		  "Not (yet) defined present flags (Must be zero)", HFILL}},
 
 		{&hf_radiotap_present_rtap_ns,
 		 {"Radiotap NS next", "radiotap.present.rtap_ns",
@@ -5581,6 +5744,152 @@ void proto_register_radiotap(void)
 		  FT_UINT16, BASE_DEC, NULL,
 		  IEEE80211_RADIOTAP_L_SIG_LENGTH_MASK, NULL, HFILL}},
 
+                {&hf_radiotap_u_sig_common,
+                 {"U-SIG common", "radiotap.eht.common",
+                  FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+                {&hf_radiotap_usig_phy_version_identifier_known,
+                 {"PHY version identifier known",
+                  "radiotap.eht.common.phy_version_identifier_known",
+                  FT_BOOLEAN, 32, NULL, 0x00000001, NULL, HFILL }},
+
+                {&hf_radiotap_usig_bw_known,
+                 {"BW known", "radiotap.eht.common.bw_known",
+                  FT_BOOLEAN, 32, NULL, 0x00000002, NULL, HFILL }},
+
+                {&hf_radiotap_usig_ul_dl_known,
+                 {"UL/DL known", "radiotap.eht.common.ul_dl_known",
+                  FT_BOOLEAN, 32, NULL, 0x00000004, NULL, HFILL }},
+
+                {&hf_radiotap_usig_bss_color_known,
+                 {"BSS Color known", "radiotap.eht.common.bss_color_known",
+                  FT_BOOLEAN, 32, NULL, 0x00000008, NULL, HFILL }},
+
+                {&hf_radiotap_usig_txop_known,
+                 {"TXOP known", "radiotap.eht.common.txop_known",
+                  FT_BOOLEAN, 32, NULL, 0x00000010, NULL, HFILL }},
+
+                {&hf_radiotap_usig_bad_u_sig_crc,
+                 {"Bad U-SIG CRC", "radiotap.eht.common.bad_u_sig_crc",
+                  FT_BOOLEAN, 32, NULL, 0x00000020, NULL, HFILL }},
+
+                {&hf_radiotap_usig_reserved,
+                 {"Reserved", "radiotap.eht.common.reserved",
+                  FT_UINT32, BASE_HEX, NULL, 0x00000fc0, NULL, HFILL }},
+
+                {&hf_radiotap_usig_phy_version_id,
+                 {"Phy version identifier",
+                  "radiotap.eht.common.phy_version_identifier",
+                  FT_UINT32, BASE_DEC, NULL, 0x00007000, NULL, HFILL }},
+
+                {&hf_radiotap_usig_bw,
+                 {"BW", "radiotap.eht.common.bw",
+                  FT_UINT32, BASE_HEX, VALS(eht_u_sig_bw_vals), 0x00038000,
+                  NULL, HFILL }},
+
+                {&hf_radiotap_usig_ul_dl,
+                 {"UL/DL", "radiotap.eht.common.ul_dl",
+                  FT_BOOLEAN, 32, NULL, 0x00040000, NULL, HFILL }},
+
+                {&hf_radiotap_usig_bss_color,
+                 {"BSS Color", "radiotap.eht.common.bss_color",
+                  FT_UINT32, BASE_DEC, NULL, 0x01f80000, NULL, HFILL }},
+
+		{&hf_radiotap_usig_txop,
+                 {"TXOP", "radiotap.eht.common.txop",
+                  FT_UINT32, BASE_DEC, NULL, 0xfe000000, NULL, HFILL }},
+
+                {&hf_radiotap_u_sig_mask,
+                 {"mask", "radiotap.eht.mask",
+                  FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+                {&hf_radiotap_usig_value_mu_ppdu,
+                 {"EHT MU PPDU", "radiotap.eht.value.mu_ppdu",
+                  FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+                {&hf_radiotap_usig_eht_mu_b20_b24,
+                 {"U-SIG-1 B20-B24",
+                  "radiotap.eht.value.mu_ppdu.u_sig_1_b20_b24",
+                  FT_UINT32, BASE_HEX, NULL, 0x0000001f, NULL, HFILL }},
+
+                {&hf_radiotap_usig_eht_mu_b25,
+                 {"U-SIG-1 B25", "radiotap.eht.value.mu_ppdu.u_sig_1.b25",
+                  FT_UINT32, BASE_HEX, NULL, 0x00000020, NULL, HFILL }},
+
+                {&hf_radiotap_usig_ppdu_type_and_comp_mode,
+                 {"PPDU Type and Compression Mode",
+                  "radiotap.eht.value.mu_ppdu.ppdu_type_and_compression_mode",
+                  FT_UINT32, BASE_HEX, NULL, 0x000000c0, NULL, HFILL }},
+
+                {&hf_radiotap_usig_validate1,
+                 {"Validate", "radiotap.eht.value.mu_ppdu.validate1",
+                  FT_UINT32, BASE_HEX, NULL, 0x00000100, NULL, HFILL }},
+
+                {&hf_radiotap_usig_punctured_channel_info,
+                 {"Punctured Channel Information",
+                  "radiotap.eht.value.mu_ppdu.punctured_channel_information",
+                  FT_UINT32, BASE_HEX, NULL, 0x00003e00, NULL, HFILL }},
+
+                {&hf_radiotap_usig_validate2,
+                 {"Validate", "radiotap.eht.value.mu_ppdu.validate2",
+                  FT_UINT32, BASE_HEX, NULL, 0x00004000, NULL, HFILL }},
+
+                {&hf_radiotap_usig_eht_sig_mcs,
+                 {"EHT-SIG MCS", "radiotap.eht.value.mu_ppdu.eht_sig_mcs",
+                  FT_UINT32, BASE_HEX, NULL, 0x00018000, NULL, HFILL }},
+
+                {&hf_radiotap_usig_number_eht_sig_symbols,
+                 {"Number of EHT-SIG Symbols",
+                  "radiotap.eht.value.mu_ppdu.number_of_eht_sig_symbols",
+                  FT_UINT32, BASE_HEX, NULL, 0x003e0000, NULL, HFILL }},
+
+                {&hf_radiotap_usig_crc,
+                 {"CRC", "radiotap.eht.value.mu_ppdu.crc",
+                  FT_UINT32, BASE_HEX, NULL, 0x03c00000, NULL, HFILL }},
+
+                {&hf_radiotap_usig_tail,
+                 {"Tail", "radiotap.eht.value.mu_ppdu.tail",
+                  FT_UINT32, BASE_HEX, NULL, 0xfc000000, NULL, HFILL }},
+
+                {&hf_radiotap_usig_value_tb_ppdu,
+                 {"EHT TB PPDU", "radiotap.eht.value.tb_ppdu",
+                  FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+                {&hf_radiotap_usig_eht_tb_b20_b25,
+                 {"Disregard", "radiotap.eht.value.tb_ppdu.disregard",
+                  FT_UINT32, BASE_HEX, NULL, 0x3f, NULL, HFILL }},
+
+                {&hf_radiotap_usig_eht_tb_ppdu_type_and_comp_mode,
+                 {"PPDU Type and Compression Mode",
+                  "radiotap.eht.value.tb_ppdu.ppdu_type_and_compression_mode",
+                  FT_UINT32, BASE_HEX, NULL, 0x000000c0, NULL, HFILL }},
+
+                {&hf_radiotap_usig_eht_tb_validate1,
+                 {"Validate", "radiotap.eht.value.tb_ppdu.validate1",
+                  FT_UINT32, BASE_HEX, NULL, 0x00000100, NULL, HFILL }},
+
+                {&hf_radiotap_usig_eht_tb_spatial_reuse_1,
+                 {"Spatial Reuse 1",
+                  "radiotap.eht.value.tb_ppdu.spatial_reuse_1",
+                  FT_UINT32, BASE_HEX, NULL, 0x00001e00, NULL, HFILL }},
+
+                {&hf_radiotap_usig_eht_tb_spatial_reuse_2,
+                 {"Spatial Reuse 2",
+                  "radiotap.eht.value.tb_ppdu.spatial_reuse_2",
+                  FT_UINT32, BASE_HEX, NULL, 0x0001e000, NULL, HFILL }},
+
+                {&hf_radiotap_usig_eht_tb_disregard,
+                 {"Disregard", "radiotap.eht.value.tb_ppdu.disregard",
+                  FT_UINT32, BASE_HEX, NULL, 0x003e0000, NULL, HFILL }},
+
+                {&hf_radiotap_usig_eht_tb_crc,
+                 {"CRC", "radiotap.eht.value.tb_ppdu.crc",
+                  FT_UINT32, BASE_HEX, NULL, 0x03c00000, NULL, HFILL }},
+
+                {&hf_radiotap_usig_eht_tb_tail,
+                 {"Tail", "radiotap.eht.value.tb_ppdu.tail",
+                  FT_UINT32, BASE_HEX, NULL, 0xfc000000, NULL, HFILL }},
+
 		{&hf_radiotap_s1g_known,
 		 {"Known", "radiotap.s1g.known",
 		  FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL}},
@@ -6044,7 +6353,6 @@ void proto_register_radiotap(void)
 		{&hf_radiotap_s1g_ndp_bw,
 		 {"NDP BW", "radiotap.s1g.ndp.bw",
 		  FT_UINT40, BASE_HEX, NULL, 0xC000000000, NULL, HFILL }},
-
 	};
 	static gint *ett[] = {
 		&ett_radiotap,
@@ -6081,6 +6389,9 @@ void proto_register_radiotap(void)
 		&ett_radiotap_l_sig,
 		&ett_radiotap_l_sig_data_1,
 		&ett_radiotap_l_sig_data_2,
+		&ett_radiotap_u_sig,
+		&ett_radiotap_u_sig_common,
+		&ett_radiotap_u_sig_value,
 		&ett_radiotap_s1g,
 		&ett_radiotap_s1g_known,
 		&ett_radiotap_s1g_data_1,
