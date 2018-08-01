@@ -1977,11 +1977,16 @@ main(int argc, char *argv[])
           goto clean_exit;
       }
 
-      exp_fd = ws_open(exp_pdu_filename, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644);
-      if (exp_fd == -1) {
+      if (strcmp(exp_pdu_filename, "-") == 0) {
+        /* Write to the standard output. */
+        exp_fd = 1;
+      } else {
+        exp_fd = ws_open(exp_pdu_filename, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644);
+        if (exp_fd == -1) {
           cmdarg_err("%s: %s", exp_pdu_filename, file_open_error_message(errno, TRUE));
           exit_status = INVALID_FILE;
           goto clean_exit;
+        }
       }
 
       /* Activate the export PDU tap */
