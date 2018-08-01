@@ -23,7 +23,7 @@ static gint ett_rfc7468_data = -1;
 static gint ett_rfc7468_posteb = -1;
 
 static int hf_rfc7468_preeb_label = -1;
-static int hf_rfc7468_data = -1;
+static int hf_rfc7468_ber_data = -1;
 static int hf_rfc7468_posteb_label = -1;
 
 static dissector_handle_t ber_handle = NULL;
@@ -316,21 +316,22 @@ dissect_rfc7468(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
      */
     if (datasize != 0) {
         tvbuff_t *data_tvb;
-        proto_tree *data_tree;
 
         data_tvb = tvb_new_child_real_data(tvb, databuf, datasize, datasize);
         add_new_data_source(pinfo, data_tvb, "Base64-encoded data");
-        ti = proto_tree_add_item(rfc7468_tree, hf_rfc7468_data, data_tvb, 0, -1, ENC_NA);
-        data_tree = proto_item_add_subtree(ti, ett_rfc7468_data);
 
         /*
          * Try to decode it based on the label.
          */
         if (dissector_try_string(rfc7468_label_table, label, data_tvb, pinfo,
-                                 data_tree, NULL) == 0) {
+                                 rfc7468_tree, NULL) == 0) {
+            proto_tree *data_tree;
+
             /*
              * No known dissector; decode it as BER.
              */
+            ti = proto_tree_add_item(rfc7468_tree, hf_rfc7468_ber_data, data_tvb, 0, -1, ENC_NA);
+            data_tree = proto_item_add_subtree(ti, ett_rfc7468_data);
             call_dissector(ber_handle, data_tvb, pinfo, data_tree);
         }
     }
@@ -433,8 +434,8 @@ proto_register_rfc7468(void)
         { &hf_rfc7468_preeb_label,
             { "Pre-encapsulation boundary label", "rfc7468.preeb_label", FT_STRING, BASE_NONE,
                 NULL, 0, NULL, HFILL } },
-        { &hf_rfc7468_data,
-            { "Data", "rfc7468.data", FT_NONE, BASE_NONE,
+        { &hf_rfc7468_ber_data,
+            { "BER data", "rfc7468.ber_data", FT_NONE, BASE_NONE,
                 NULL, 0, NULL, HFILL } },
         { &hf_rfc7468_posteb_label,
             { "Post-encapsulation boundary label", "rfc7468.posteb_label", FT_STRING, BASE_NONE,
