@@ -753,10 +753,10 @@ dissect_kafka_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int s
             }
             break;
         case KAFKA_MESSAGE_CODEC_SNAPPY:
-#ifdef HAVE_SNAPPY
             raw = kafka_get_bytes(subtree, tvb, pinfo, offset);
             offset += 4;
             if (raw) {
+#ifdef HAVE_SNAPPY
                 guint compressed_size = tvb_reported_length(raw);
                 guint8 *data = (guint8*)tvb_memdup(wmem_packet_scope(), raw, 0, compressed_size);
                 size_t uncompressed_size;
@@ -819,17 +819,17 @@ dissect_kafka_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int s
                     expert_add_info(pinfo, decrypt_item, &ei_kafka_message_decompress);
                 }
                 offset += tvb_captured_length(raw);
-            }
 #else
-            decrypt_item = proto_tree_add_item(subtree, hf_kafka_message_value, raw, 0, -1, ENC_NA);
-            expert_add_info_format(pinfo, decrypt_item, &ei_kafka_message_decompress, "Wireshark not compiled with snappy support");
+                decrypt_item = proto_tree_add_item(subtree, hf_kafka_message_value, raw, 0, -1, ENC_NA);
+                expert_add_info_format(pinfo, decrypt_item, &ei_kafka_message_decompress, "Wireshark not compiled with Snappy support");
 #endif
+            }
             break;
         case KAFKA_MESSAGE_CODEC_LZ4:
-#ifdef HAVE_LZ4FRAME_H
             raw = kafka_get_bytes(subtree, tvb, pinfo, offset);
             offset += 4;
             if (raw) {
+#ifdef HAVE_LZ4FRAME_H
                 LZ4F_decompressionContext_t lz4_ctxt;
                 LZ4F_frameInfo_t lz4_info;
                 LZ4F_errorCode_t ret;
@@ -914,11 +914,11 @@ dissect_kafka_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int s
                     expert_add_info(pinfo, decrypt_item, &ei_kafka_message_decompress);
                 }
                 offset += compressed_size;
-            }
 #else
-            decrypt_item = proto_tree_add_item(subtree, hf_kafka_message_value, raw, 0, -1, ENC_NA);
-            expert_add_info_format(pinfo, decrypt_item, &ei_kafka_message_decompress, "Wireshark not compiled with LZ4 support");
+                decrypt_item = proto_tree_add_item(subtree, hf_kafka_message_value, raw, 0, -1, ENC_NA);
+                expert_add_info_format(pinfo, decrypt_item, &ei_kafka_message_decompress, "Wireshark not compiled with LZ4 support");
 #endif /* HAVE_LZ4FRAME_H */
+            }
             break;
 
         case KAFKA_MESSAGE_CODEC_NONE:
