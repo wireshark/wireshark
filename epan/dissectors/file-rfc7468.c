@@ -144,6 +144,8 @@ dissect_rfc7468(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     rfc7468_item = proto_tree_add_item(tree, proto_rfc7468, tvb, offset, -1, ENC_NA);
     rfc7468_tree = proto_item_add_subtree(rfc7468_item, ett_rfc7468);
 
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "rfc7468");
+
     /*
      * First, process the text lines prior to the pre-encapsulation
      * boundary; they're explanatory text lines.
@@ -199,6 +201,8 @@ dissect_rfc7468(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     label = wmem_strndup(wmem_packet_scope(), labelp, labellen);
     proto_tree_add_item(preeb_tree, hf_rfc7468_preeb_label, tvb,
                         offset + preeb_prefix_len, labellen,  ENC_ASCII|ENC_NA);
+
+    col_add_fstr(pinfo->cinfo, COL_INFO, "Label: %s", label);
 
     /*
      * Step to the next line.
@@ -324,13 +328,13 @@ dissect_rfc7468(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
          * Try to decode it based on the label.
          */
         if (dissector_try_string(rfc7468_label_table, label, data_tvb, pinfo,
-                                 rfc7468_tree, NULL) == 0) {
+                                 tree, NULL) == 0) {
             proto_tree *data_tree;
 
             /*
              * No known dissector; decode it as BER.
              */
-            ti = proto_tree_add_item(rfc7468_tree, hf_rfc7468_ber_data, data_tvb, 0, -1, ENC_NA);
+            ti = proto_tree_add_item(tree, hf_rfc7468_ber_data, data_tvb, 0, -1, ENC_NA);
             data_tree = proto_item_add_subtree(ti, ett_rfc7468_data);
             call_dissector(ber_handle, data_tvb, pinfo, data_tree);
         }
