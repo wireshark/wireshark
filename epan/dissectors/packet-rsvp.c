@@ -1738,6 +1738,7 @@ static const value_string rsvp_rro_sobj_dbit_vals[] = {
     { 0, NULL }
 };
 
+#if 0
 static const value_string rsvp_xro_sobj_type_vals[] = {
     {  1, "IPv4 prefix" },
     {  2, "IPv6 prefix" },
@@ -1747,6 +1748,7 @@ static const value_string rsvp_xro_sobj_type_vals[] = {
     { 34, "SRLG" },
     {  0, NULL }
 };
+#endif
 
 static const value_string rsvp_xro_sobj_ip_attr_vals[] = {
     {  0, "Interface" },
