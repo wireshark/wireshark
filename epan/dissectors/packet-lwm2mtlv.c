@@ -648,16 +648,16 @@ addTlvElement(tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *element, cons
 	proto_tree *element_tree = NULL;
 	const lwm2m_resource_t *resource = NULL;
 
-	gchar **ids = wmem_strsplit(wmem_packet_scope(), uri_path, "/", 4);
-	if (ids && ids[0] && ids[1] && ids[2]) {
+	gchar **ids = wmem_strsplit(wmem_packet_scope(), uri_path, "/", 5);
+	if (ids && ids[0] && ids[1] && ids[2] && ids[3]) {
 		/* URI path is defined as:
-		 *  ids[0] = Object ID
-		 *  ids[1] = Object Instance
-		 *  ids[2] = Resource ID
-		 *  ids[3] = Resource Instance
+		 *  ids[1] = Object ID
+		 *  ids[2] = Object Instance
+		 *  ids[3] = Resource ID
+		 *  ids[4] = Resource Instance
 		 */
-		guint object_id = (guint)strtol(ids[0], NULL, 10);
-		guint resource_id = (guint)strtol(ids[2], NULL, 10);
+		guint object_id = (guint)strtol(ids[1], NULL, 10);
+		guint resource_id = (guint)strtol(ids[3], NULL, 10);
 
 		/* First search OMA objects */
 		for (guint i = 0; i < array_length(lwm2m_oma_resources); i++) {
@@ -777,10 +777,10 @@ dissect_lwm2mtlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *
 		lwm2mtlv_item = proto_tree_add_item(tree, proto_lwm2mtlv, tvb, 0, -1, ENC_NA);
 		lwm2mtlv_tree = proto_item_add_subtree(lwm2mtlv_item, ett_lwm2mtlv);
 
-		gchar **ids = wmem_strsplit(wmem_packet_scope(), uri_path, "/", 2);
-		if (ids && ids[0]) {
-			/* ids[0] = Object ID */
-			guint object_id = (guint)strtol(ids[0], NULL, 10);
+		gchar **ids = wmem_strsplit(wmem_packet_scope(), uri_path, "/", 3);
+		if (ids && ids[0] && ids[1]) {
+			/* ids[1] = Object ID */
+			guint object_id = (guint)strtol(ids[1], NULL, 10);
 			const gchar *object_name = NULL;
 
 			for (guint i = 0; i < num_lwm2m_uat_object_names; i++) {
