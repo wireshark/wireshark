@@ -4985,10 +4985,11 @@ dissect_rsvp_ro_subobjects(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_
 
             if (rsvp_class == RSVP_CLASS_EXPLICIT_ROUTE)
                 proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_loose_hop, tvb, offset+l, 1, ENC_NA);
-            if (rsvp_class == RSVP_CLASS_EXCLUDE_ROUTE)
+            if (rsvp_class == RSVP_CLASS_EXCLUDE_ROUTE){
                 proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_xro_sobj_lbit, tvb, offset+l, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_uint_format_value(rsvp_ro_subtree, hf_rsvp_type, tvb, offset+l, 1, type, "1 (IPv4)");
-                proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_ero_rro_subobjects_length, tvb, offset+l+1, 1, ENC_BIG_ENDIAN);
+            }
+            proto_tree_add_uint_format_value(rsvp_ro_subtree, hf_rsvp_type, tvb, offset+l, 1, type, "1 (IPv4)");
+            proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_ero_rro_subobjects_length, tvb, offset+l+1, 1, ENC_BIG_ENDIAN);
             if(rsvp_class == RSVP_CLASS_EXPLICIT_ROUTE || rsvp_class == RSVP_CLASS_RECORD_ROUTE){
                 proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_ero_rro_subobjects_ipv4_hop, tvb, offset+l+2, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_ero_rro_subobjects_prefix_length, tvb, offset+l+6, 1, ENC_BIG_ENDIAN);
@@ -5034,8 +5035,9 @@ dissect_rsvp_ro_subobjects(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_
             rsvp_ro_subtree = proto_tree_add_subtree(rsvp_object_tree, tvb,
                                       offset+l, 20, tree_type, &ti2,
                                       "IPv6 Subobject");
-            if (rsvp_class == RSVP_CLASS_EXPLICIT_ROUTE)
-                proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_loose_hop, tvb, offset+l, 1, ENC_NA);
+            if (rsvp_class == RSVP_CLASS_EXPLICIT_ROUTE){
+                    proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_loose_hop, tvb, offset+l, 1, ENC_NA);
+                }
 
                 proto_tree_add_item(rsvp_ro_subtree, hf_rsvp_xro_sobj_lbit,
                                 tvb, offset + l, 1, ENC_BIG_ENDIAN);
