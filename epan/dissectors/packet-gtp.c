@@ -8646,7 +8646,6 @@ addRANContParameter(tvbuff_t *tvb, proto_tree *ran_cont_tree, gint offset)
        if(high_retx_nr_pdcp_sn_ind == TRUE)
        {
              proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_high_retx_nr_pdcp_sn,tvb, offset,3, ENC_BIG_ENDIAN);
-             offset += 3;
        }
    }
    return pdu_type;
