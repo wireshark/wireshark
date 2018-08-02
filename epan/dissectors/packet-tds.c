@@ -2943,7 +2943,6 @@ dissect_tds5_curinfo_token(tvbuff_t *tvb, packet_info *pinfo, guint offset,
             conv_cursor_info->tds_conv_cursor_current = cursor_current;
         }
         p_add_proto_data(wmem_file_scope(), pinfo, proto_tds, 0, cursor_current);
-        packet_cursor = cursor_current;
         if (cursorid != 0) {
             if (!(cursor_current->tds_cursor_flags & TDS_CURSOR_ID_VALID)) {
                 cursor_current->tds_cursor_id = cursorid;
