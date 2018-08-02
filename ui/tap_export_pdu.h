@@ -18,6 +18,8 @@ extern "C" {
 typedef struct _exp_pdu_t {
     int          pkt_encap;
     wtap_dumper* wdh;
+    GArray* shb_hdrs;
+    wtapng_iface_descriptions_t* idb_inf;
 } exp_pdu_t;
 
 /**
