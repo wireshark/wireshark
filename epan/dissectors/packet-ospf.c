@@ -2357,7 +2357,6 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree 
                     }
                     /*   flexi-grid_lsc, see RFC 8363 */
                     if (switch_cap == 152){
-                        bitmap_length = tvb_get_ntohs(tvb, stlv_offset + 42);
                         bitmap_offset = stlv_offset + 40 + 16;
                         no_eff_bits = tvb_get_ntohs(tvb, stlv_offset + 54) & 0x0FFF;
                         if(no_eff_bits % 32 == 0){
