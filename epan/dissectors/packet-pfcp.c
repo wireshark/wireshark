@@ -1557,7 +1557,6 @@ dissect_pfcp_dl_buffering_dur(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     proto_tree_add_item_ret_uint(tree, hf_pfcp_timer_value, tvb, offset, 1, ENC_BIG_ENDIAN, &value);
     offset++;
 
-    unit = unit >> 5;
     if ((unit == 0) && (value == 0)) {
         proto_item_append_text(item, " Stopped");
     } else {
