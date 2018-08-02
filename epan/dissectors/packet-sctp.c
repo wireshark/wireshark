@@ -3205,8 +3205,37 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment *fragment,
   return new_tvb;
 }
 
-static void
-export_sctp_data_chunk(packet_info *pinfo, tvbuff_t *tvb, const gchar *proto_name)
+static exp_pdu_data_t*
+create_exp_pdu_table(packet_info *pinfo, tvbuff_t *tvb, const char *table_name, guint32 table_value)
+{
+  exp_pdu_data_item_t exp_pdu_data_table_value = {
+    exp_pdu_data_dissector_table_num_value_size,
+    exp_pdu_data_dissector_table_num_value_populate_data,
+    GUINT_TO_POINTER(table_value)
+  };
+
+  const exp_pdu_data_item_t *sctp_exp_pdu_items[] = {
+    &exp_pdu_data_src_ip,
+    &exp_pdu_data_dst_ip,
+    &exp_pdu_data_port_type,
+    &exp_pdu_data_src_port,
+    &exp_pdu_data_dst_port,
+    &exp_pdu_data_orig_frame_num,
+    &exp_pdu_data_table_value,
+    NULL
+  };
+
+  exp_pdu_data_t *exp_pdu_data = export_pdu_create_tags(pinfo, table_name, EXP_PDU_TAG_DISSECTOR_TABLE_NAME, sctp_exp_pdu_items);
+
+  exp_pdu_data->tvb_captured_length = tvb_captured_length(tvb);
+  exp_pdu_data->tvb_reported_length = tvb_reported_length(tvb);
+  exp_pdu_data->pdu_tvb = tvb;
+
+  return exp_pdu_data;
+}
+
+static exp_pdu_data_t*
+create_exp_pdu_proto_name(packet_info *pinfo, tvbuff_t *tvb, const gchar *proto_name)
 {
   exp_pdu_data_t *exp_pdu_data = export_pdu_create_common_tags(pinfo, proto_name, EXP_PDU_TAG_PROTO_NAME);
 
@@ -3214,8 +3243,41 @@ export_sctp_data_chunk(packet_info *pinfo, tvbuff_t *tvb, const gchar *proto_nam
   exp_pdu_data->tvb_reported_length = tvb_reported_length(tvb);
   exp_pdu_data->pdu_tvb = tvb;
 
-  tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);
+  return exp_pdu_data;
+}
 
+static void
+export_sctp_data_chunk(packet_info *pinfo, tvbuff_t *tvb, guint32 payload_proto_id,
+                       const wmem_list_frame_t *frame)
+{
+  const gchar *proto_name = NULL;
+  exp_pdu_data_t *exp_pdu_data = NULL;
+
+  if (!have_tap_listener(exported_pdu_tap)) {
+    /* Do nothing when there is no export pdu tap listener */
+    return;
+  }
+
+  if (enable_ulp_dissection && frame) {
+    /* get the proto_name of the next frame */
+    proto_name = proto_get_protocol_filter_name(GPOINTER_TO_UINT(wmem_list_frame_data(frame)));
+  }
+
+  if (proto_name && (strcmp(proto_name, "data") != 0)) {
+    /* when we have proto_name and it is not "data" export using the proto_name */
+    exp_pdu_data = create_exp_pdu_proto_name(pinfo, tvb, proto_name);
+  } else if (payload_proto_id != 0) {
+    exp_pdu_data = create_exp_pdu_table(pinfo, tvb, "sctp.ppi", payload_proto_id);
+  } else if (pinfo->destport != 0) {
+    exp_pdu_data = create_exp_pdu_table(pinfo, tvb, "sctp.port", pinfo->destport);
+  } else if (pinfo->srcport != 0) {
+    exp_pdu_data = create_exp_pdu_table(pinfo, tvb, "sctp.port", pinfo->srcport);
+  } else {
+    /* do not export anything when none of the above fileds are available */
+    return;
+  }
+
+  tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);
 }
 
 static gboolean
@@ -3241,25 +3303,11 @@ dissect_fragmented_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree
 
   /* pass reassembled data to next dissector, if possible */
   if (new_tvb){
-    wmem_list_frame_t *cur;
-    guint proto_id;
-    const gchar *proto_name;
     gboolean retval;
-    void *tmp;
+    wmem_list_frame_t *cur = wmem_list_tail(pinfo->layers);
 
-    cur = wmem_list_tail(pinfo->layers);
     retval = dissect_payload(new_tvb, pinfo, tree, ppi);
-    cur = wmem_list_frame_next(cur);
-    if (cur) {
-      tmp = wmem_list_frame_data(cur);
-      proto_id = GPOINTER_TO_UINT(tmp);
-      proto_name = proto_get_protocol_filter_name(proto_id);
-      if(strcmp(proto_name, "data") != 0){
-        if (have_tap_listener(exported_pdu_tap)){
-          export_sctp_data_chunk(pinfo, new_tvb, proto_name);
-        }
-      }
-    }
+    export_sctp_data_chunk(pinfo, new_tvb, ppi, wmem_list_frame_next(cur));
     return retval;
   }
 
@@ -3440,26 +3488,10 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
     /* This isn't a fragment or reassembly is off and it's the first fragment */
 
     volatile gboolean retval = FALSE;
+    wmem_list_frame_t *cur = wmem_list_tail(pinfo->layers);
 
     TRY {
-      wmem_list_frame_t *cur;
-      guint proto_id;
-      const gchar *proto_name;
-      void *tmp;
-
-      cur = wmem_list_tail(pinfo->layers);
       retval = dissect_payload(payload_tvb, pinfo, tree, payload_proto_id);
-      cur = wmem_list_frame_next(cur);
-      if (cur) {
-        tmp = wmem_list_frame_data(cur);
-        proto_id = GPOINTER_TO_UINT(tmp);
-        proto_name = proto_get_protocol_filter_name(proto_id);
-        if (strcmp(proto_name, "data") != 0){
-          if (have_tap_listener(exported_pdu_tap)){
-            export_sctp_data_chunk(pinfo,payload_tvb, proto_name);
-          }
-        }
-      }
     }
     CATCH_NONFATAL_ERRORS {
       /*
@@ -3474,6 +3506,7 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
     }
     ENDTRY;
 
+    export_sctp_data_chunk(pinfo, payload_tvb, payload_proto_id, wmem_list_frame_next(cur));
     return retval;
 
   } else if (is_retransmission) {
