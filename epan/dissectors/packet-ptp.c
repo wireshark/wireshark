@@ -1021,11 +1021,11 @@ static gint ett_ptp_time2 = -1;
 /**********************************************************/
 #define PTP_V2_SYNC_MESSAGE                     0x00
 #define PTP_V2_DELAY_REQ_MESSAGE                0x01
-#define PTP_V2_PATH_DELAY_REQ_MESSAGE           0x02
-#define PTP_V2_PATH_DELAY_RESP_MESSAGE          0x03
+#define PTP_V2_PEER_DELAY_REQ_MESSAGE           0x02
+#define PTP_V2_PEER_DELAY_RESP_MESSAGE          0x03
 #define PTP_V2_FOLLOWUP_MESSAGE                 0x08
 #define PTP_V2_DELAY_RESP_MESSAGE               0x09
-#define PTP_V2_PATH_DELAY_FOLLOWUP_MESSAGE      0x0A
+#define PTP_V2_PEER_DELAY_FOLLOWUP_MESSAGE      0x0A
 #define PTP_V2_ANNOUNCE_MESSAGE                 0x0B
 #define PTP_V2_SIGNALLING_MESSAGE               0x0C
 #define PTP_V2_MANAGEMENT_MESSAGE               0x0D
@@ -1185,11 +1185,11 @@ value_string_ext ptp_v2_networkProtocol_vals_ext =
 static const value_string ptp_v2_messageid_vals[] = {
     {PTP_V2_SYNC_MESSAGE,               "Sync Message"},
     {PTP_V2_DELAY_REQ_MESSAGE,          "Delay_Req Message"},
-    {PTP_V2_PATH_DELAY_REQ_MESSAGE,     "Path_Delay_Req Message"},
-    {PTP_V2_PATH_DELAY_RESP_MESSAGE,    "Path_Delay_Resp Message"},
+    {PTP_V2_PEER_DELAY_REQ_MESSAGE,     "Peer_Delay_Req Message"},
+    {PTP_V2_PEER_DELAY_RESP_MESSAGE,    "Peer_Delay_Resp Message"},
     {PTP_V2_FOLLOWUP_MESSAGE,           "Follow_Up Message"},
     {PTP_V2_DELAY_RESP_MESSAGE,         "Delay_Resp Message"},
-    {PTP_V2_PATH_DELAY_FOLLOWUP_MESSAGE,"Path_Delay_Resp_Follow_Up Message"},
+    {PTP_V2_PEER_DELAY_FOLLOWUP_MESSAGE,"Peer_Delay_Resp_Follow_Up Message"},
     {PTP_V2_ANNOUNCE_MESSAGE,           "Announce Message"},
     {PTP_V2_SIGNALLING_MESSAGE,         "Signalling Message"},
     {PTP_V2_MANAGEMENT_MESSAGE,         "Management Message"},
@@ -3130,7 +3130,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                 break;
             }
 
-            case PTP_V2_PATH_DELAY_REQ_MESSAGE:{
+            case PTP_V2_PEER_DELAY_REQ_MESSAGE:{
                 /* In 802.1AS there is no origin timestamp in a Pdelay_Req Message */
                 if(!is_802_1as){
 
@@ -3144,7 +3144,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                 break;
             }
 
-            case PTP_V2_PATH_DELAY_RESP_MESSAGE:{
+            case PTP_V2_PEER_DELAY_RESP_MESSAGE:{
 
                 proto_tree_add_item(ptp_tree, hf_ptp_v2_pdrs_requestreceipttimestamp_seconds, tvb,
                     PTP_V2_PDRS_REQUESTRECEIPTTIMESTAMPSECONDS_OFFSET, 6, ENC_BIG_ENDIAN);
@@ -3161,7 +3161,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                 break;
             }
 
-            case PTP_V2_PATH_DELAY_FOLLOWUP_MESSAGE:{
+            case PTP_V2_PEER_DELAY_FOLLOWUP_MESSAGE:{
 
                 proto_tree_add_item(ptp_tree, hf_ptp_v2_pdfu_responseorigintimestamp_seconds, tvb,
                     PTP_V2_PDFU_RESPONSEORIGINTIMESTAMPSECONDS_OFFSET, 6, ENC_BIG_ENDIAN);
