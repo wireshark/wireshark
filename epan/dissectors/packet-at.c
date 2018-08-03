@@ -18,6 +18,8 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 
+#include "packet-e212.h"
+
 void proto_register_at_command(void);
 void proto_reg_handoff_at_command(void);
 
@@ -408,6 +410,13 @@ static gboolean check_chup(gint role, guint16 type) {
     return FALSE;
 }
 
+static gboolean check_cimi(gint role, guint16 type) {
+    if (role == ROLE_DTE && (type == TYPE_ACTION_SIMPLY || type == TYPE_TEST)) return TRUE;
+    if (role == ROLE_DCE && type == TYPE_RESPONSE) return TRUE;
+
+    return FALSE;
+}
+
 static gboolean check_clcc(gint role, guint16 type) {
     if (role == ROLE_DTE && (type == TYPE_ACTION_SIMPLY || type == TYPE_TEST)) return TRUE;
     if (role == ROLE_DCE && type == TYPE_RESPONSE) return TRUE;
@@ -530,6 +539,27 @@ dissect_chld_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             parameter_length, ENC_NA | ENC_ASCII);
 
     return TRUE;
+}
+
+static gint
+dissect_cimi_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+        gint offset, gint role, guint16 type, guint8 *parameter_stream _U_,
+        guint parameter_number, gint parameter_length, void **data _U_)
+{
+     proto_item  *pitem;
+
+     if (!check_cimi(role, type)) return FALSE;
+
+     if (role == ROLE_DTE) return FALSE;
+     if (parameter_number > 0) return FALSE;
+
+     /* Only parameter is found in the response from DCE - the IMSI */
+     pitem = proto_tree_add_item(tree, hf_cimi_imsi, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+     /* Hiding the AT IMSI item because we are showing the detailed E.212 item */
+     PROTO_ITEM_SET_HIDDEN(pitem);
+     dissect_e212_utf8_imsi(tvb, pinfo, tree, offset, parameter_length);
+
+     return TRUE;
 }
 
 static gint
@@ -1040,29 +1070,30 @@ dissect_no_parameter(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree
          Some commands can use TYPE_TEST respose to properly dissect parameters,
          for example: AT+CIND=?, AT+CIND? */
 static const at_cmd_t at_cmds[] = {
-    { "+CCWA",      "Call Waiting Notification",                  check_ccwa, dissect_ccwa_parameter },
-    { "+CGMM",      "Request model identification",               check_cgmm, dissect_cgmm_parameter },
-    { "+CHLD",      "Call Hold and Multiparty Handling",          check_chld, dissect_chld_parameter },
-    { "+CHUP",      "Call Hang-up",                               check_chup, dissect_no_parameter   },
-    { "+CIND",      "Phone Indicators",                           check_cind, dissect_cind_parameter },
-    { "+CLCC",      "Current Calls",                              check_clcc, dissect_clcc_parameter },
-    { "+COPS",      "Reading Network Operator",                   check_cops, dissect_cops_parameter },
-    { "+CMEE",      "Mobile Equipment Error",                     check_cmee, dissect_cmee_parameter },
-    { "+CME ERROR", "Mobile Termination Error Result Code",       check_cme,  dissect_cme_error_parameter },
-    { "+CLIP",      "Calling Line Identification Notification",   check_clip, dissect_clip_parameter },
-    { "+CMER",      "Event Reporting Activation/Deactivation",    check_cmer, dissect_cmer_parameter },
-    { "+CIEV",      "Indicator Events Reporting",                 check_ciev, dissect_ciev_parameter },
-    { "+VTS",       "DTMF and tone generation",                   check_vts,  dissect_vts_parameter  },
-    { "+CNUM",      "Subscriber Number Information",              check_cnum, dissect_cnum_parameter },
-    { "ERROR",      "ERROR",                                      check_only_dce_role, dissect_no_parameter },
-    { "RING",       "Incoming Call Indication",                   check_only_dce_role, dissect_no_parameter },
-    { "OK",         "OK",                                         check_only_dce_role, dissect_no_parameter },
-    { "D",          "Dial",                                       check_only_dte_role, NULL },
-    { "A",          "Call Answer",                                check_only_dte_role, dissect_no_parameter },
-    { "E0",         "Disable Echo",                               check_only_dte_role, dissect_no_parameter },
-    { "E1",         "Enable Echo",                                check_only_dte_role, dissect_no_parameter },
-    { "I",          "Product Identification Information",         check_only_dte_role, dissect_no_parameter },
+    { "+CCWA",      "Call Waiting Notification",                               check_ccwa, dissect_ccwa_parameter },
+    { "+CGMM",      "Request model identification",                            check_cgmm, dissect_cgmm_parameter },
+    { "+CHLD",      "Call Hold and Multiparty Handling",                       check_chld, dissect_chld_parameter },
+    { "+CHUP",      "Call Hang-up",                                            check_chup, dissect_no_parameter   },
+    { "+CIMI",      "Request International Mobile Subsciber Identity (IMSI)",  check_cimi, dissect_cimi_parameter },
+    { "+CIND",      "Phone Indicators",                                        check_cind, dissect_cind_parameter },
+    { "+CLCC",      "Current Calls",                                           check_clcc, dissect_clcc_parameter },
+    { "+COPS",      "Reading Network Operator",                                check_cops, dissect_cops_parameter },
     { "+CSIM",      "Generic SIM access",                                      check_csim, dissect_csim_parameter },
+    { "+CMEE",      "Mobile Equipment Error",                                  check_cmee, dissect_cmee_parameter },
+    { "+CME ERROR", "Mobile Termination Error Result Code",                    check_cme,  dissect_cme_error_parameter },
+    { "+CLIP",      "Calling Line Identification Notification",                check_clip, dissect_clip_parameter },
+    { "+CMER",      "Event Reporting Activation/Deactivation",                 check_cmer, dissect_cmer_parameter },
+    { "+CIEV",      "Indicator Events Reporting",                              check_ciev, dissect_ciev_parameter },
+    { "+VTS",       "DTMF and tone generation",                                check_vts,  dissect_vts_parameter  },
+    { "+CNUM",      "Subscriber Number Information",                           check_cnum, dissect_cnum_parameter },
+    { "ERROR",      "ERROR",                                                   check_only_dce_role, dissect_no_parameter },
+    { "RING",       "Incoming Call Indication",                                check_only_dce_role, dissect_no_parameter },
+    { "OK",         "OK",                                                      check_only_dce_role, dissect_no_parameter },
+    { "D",          "Dial",                                                    check_only_dte_role, NULL },
+    { "A",          "Call Answer",                                             check_only_dte_role, dissect_no_parameter },
+    { "E0",         "Disable Echo",                                            check_only_dte_role, dissect_no_parameter },
+    { "E1",         "Enable Echo",                                             check_only_dte_role, dissect_no_parameter },
+    { "I",          "Product Identification Information",                      check_only_dte_role, dissect_no_parameter },
     { NULL, NULL, NULL, NULL }
 };
 
