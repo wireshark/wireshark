@@ -177,6 +177,7 @@ if [ "$SPANDSP_VERSION" ]; then
     LIBTIFF_VERSION=3.8.1
 fi
 BCG729_VERSION=1.0.2
+JSON_GLIB_VERSION=1.2.6
 
 #
 # GNU autotools; they're provided with releases up to Snow Leopard, but
@@ -1663,11 +1664,58 @@ uninstall_bcg729() {
     fi
 }
 
+install_json_glib() {
+    if [ "$JSON_GLIB_VERSION" -a ! -f json_glib-$JSON_GLIB_VERSION-done ] ; then
+        echo "Downloading, building, and installing json-glib:"
+        [ -f json-glib-$JSON_GLIB_VERSION.tar.xz ] || curl -L -O https://ftp.gnome.org/pub/GNOME/sources/json-glib/1.2/json-glib-$JSON_GLIB_VERSION.tar.xz || exit 1
+        $no_build && echo "Skipping installation" && return
+        xzcat json-glib-$JSON_GLIB_VERSION.tar.xz | tar xf - || exit 1
+        cd json-glib-$JSON_GLIB_VERSION
+        ./configure || exit 1
+        make $MAKE_BUILD_OPTS || exit 1
+        $DO_MAKE_INSTALL || exit 1
+        cd ..
+        touch json_glib-$JSON_GLIB_VERSION-done
+    fi
+}
+
+uninstall_json_glib() {
+    if [ ! -z "$installed_json_glib_version" ] ; then
+        echo "Uninstalling json-glib:"
+        cd json_glib-$installed_json_glib_version
+        $DO_MAKE_UNINSTALL || exit 1
+        make distclean || exit 1
+        cd ..
+        rm json_glib-$installed_json_glib_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf json_glib-$installed_json_glib_version
+            rm -rf json_glib-$installed_json_glib_version.tar.xz
+        fi
+
+        installed_json_glib_version=""
+    fi
+}
+
 install_all() {
     #
     # Check whether the versions we have installed are the versions
     # requested; if not, uninstall the installed versions.
     #
+    if [ ! -z "$installed_json_glib_version" -a \
+              "$installed_json_glib_version" != "$JSON_GLIB_VERSION" ] ; then
+        echo "Installed json-glib version is $installed_json_glib_version"
+        if [ -z "$JSON_GLIB_VERSION" ] ; then
+            echo "json-glib is not requested"
+        else
+            echo "Requested json-glib version is $JSON_GLIB_VERSION"
+        fi
+        uninstall_json_glib -r
+    fi
+
     if [ ! -z "$installed_bcg729_version" -a \
               "$installed_bcg729_version" != "$BCG729_VERSION" ] ; then
         echo "Installed SpanDSP version is $installed_bcg729_version"
@@ -2127,6 +2175,8 @@ install_all() {
     install_spandsp
 
     install_bcg729
+
+    install_json_glib
 }
 
 uninstall_all() {
@@ -2143,6 +2193,8 @@ uninstall_all() {
         # We also do a "make distclean", so that we don't have leftovers from
         # old configurations.
         #
+        uninstall_json_glib
+
         uninstall_bcg729
 
         uninstall_spandsp
