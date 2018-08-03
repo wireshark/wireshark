@@ -350,7 +350,6 @@ dissect_rfc7468(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     /*
      * Extract the label, and put it in that subtree.
      */
-    label = wmem_strndup(wmem_packet_scope(), labelp, labellen);
     proto_tree_add_item(posteb_tree, hf_rfc7468_posteb_label, tvb,
                         offset + posteb_prefix_len, labellen,  ENC_ASCII|ENC_NA);
 
