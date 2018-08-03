@@ -77,8 +77,8 @@ Param(
 # trouble instead of trying to catch exceptions everywhere.
 $ErrorActionPreference = "Stop"
 
-$Win64CurrentTag = "2018-05-02"
-$Win32CurrentTag = "2018-05-02"
+$Win64CurrentTag = "2018-08-04"
+$Win32CurrentTag = "2018-08-04"
 
 # Archive file / subdir.
 $Win64Archives = @{
@@ -89,7 +89,7 @@ $Win64Archives = @{
     "glib2-2.52.2-1.31-win64ws.zip" = "";
     "json-glib-1.0.2-4.31-win64ws.zip" = "";
     "kfw-3-2-2-x64-ws.zip" = "";
-    "libgcrypt-1.7.6-win64ws.zip" = "";
+    "libgcrypt-1.8.3-win64ws.zip" = "";
     "libsmi-svn-40773-win64ws.zip" = "";
     "libssh-0.7.3-1-win64ws.zip" = "";
     "libxml2-2.9.4-win64ws.zip" = "";
@@ -113,7 +113,7 @@ $Win32Archives = @{
     "glib2-2.52.2-1.34-win32ws.zip" = "";
     "json-glib-1.0.2-4.37-win32ws.zip" = "";
     "kfw-3-2-2-i386-ws-vc6.zip" = "";
-    "libgcrypt-1.7.6-win32ws.zip" = "";
+    "libgcrypt-1.8.3-win32ws.zip" = "";
     "libsmi-svn-40773-win32ws.zip" = "";
     "libssh-0.7.3-1-win32ws.zip" = "";
     "libxml2-2.9.4-win32ws.zip" = "";
@@ -165,7 +165,7 @@ $CleanupItems = @(
     "kfw-3-2-2-final"
     "kfw-3-2-2-i386-ws-vc6"
     "kfw-3-2-2-x64-ws"
-    "libgcrypt-1.7.6-win??ws"
+    "libgcrypt-*-win??ws"
     "libsmi-0.4.8"
     "libsmi-svn-40773-win??ws"
     "libssh-0.7.?-win??ws"
