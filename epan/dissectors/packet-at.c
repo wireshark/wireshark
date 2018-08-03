@@ -841,7 +841,7 @@ dissect_cnum_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     switch (parameter_number) {
     case 0:
-        pitem = proto_tree_add_item(tree, hf_at_alpha, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+        proto_tree_add_item(tree, hf_at_alpha, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
         break;
     case 1:
         proto_tree_add_item(tree, hf_at_number, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
@@ -854,7 +854,7 @@ dissect_cnum_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         break;
     case 3:
         value = get_uint_parameter(parameter_stream, parameter_length);
-        pitem = proto_tree_add_uint(tree, hf_cnum_speed, tvb, offset, parameter_length, value);
+        proto_tree_add_uint(tree, hf_cnum_speed, tvb, offset, parameter_length, value);
         break;
     case 4:
         value = get_uint_parameter(parameter_stream, parameter_length);
