@@ -10891,8 +10891,14 @@ dtap_rr_app_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
     curr_offset = offset;
     curr_len    = len;
 
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_APDU_ID, NULL, ei_gsm_a_rr_missing_mandatory_element);
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_APDU_FLAGS, NULL, ei_gsm_a_rr_missing_mandatory_element);
+    /*
+     * APDU ID IE (10.5.2.48) M V 1/2
+     * APDU Flags (10.5.2.49) M V 1/2
+     */
+    ELEM_MAND_VV_SHORT(GSM_A_PDU_TYPE_RR, DE_RR_APDU_ID,
+                       GSM_A_PDU_TYPE_RR, DE_RR_APDU_FLAGS,
+                       ei_gsm_a_rr_missing_mandatory_element);
+
     ELEM_MAND_LV(GSM_A_PDU_TYPE_RR, DE_RR_APDU_DATA, NULL, ei_gsm_a_rr_missing_mandatory_element);
 }
 
