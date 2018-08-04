@@ -1015,13 +1015,13 @@ de_nas_5gs_mm_pld_cont_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo 
  *   9.10.3.37    PDU session identity 2
  */
 static guint16
-de_nas_5gs_mm_pdu_ses_id_2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
-    guint32 offset, guint len,
+de_nas_5gs_mm_pdu_ses_id_2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+    guint32 offset, guint len _U_,
     gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+    proto_tree_add_item(tree, hf_nas_5gs_pdu_session_id, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-    return len;
+    return 1;
 }
 
 /*
@@ -2135,7 +2135,7 @@ static const value_string nas_5gs_mm_elem_strings[] = {
     { DE_NAS_5GS_MM_PDU_SES_STATUS,             "PDU session status" },                 /* 9.10.3.40    PDU session status*/
     { DE_NAS_5GS_MM_PLMN_LIST,                  "PLMN list" },                          /* 9.10.3.41    PLMN list*/
     { DE_NAS_5GS_MM_REJ_NSSAI,                  "Rejected NSSAI" },                     /* 9.10.3.42    Rejected NSSAI*/
-    { DE_NAS_5GS_MM_PLMN_LIST,                  "PLMN list" },                          /* 9.10.3.41    PLMN list*/
+    { DE_NAS_5GS_MM_REQ_TYPE,                   "Request type" },                       /* 9.10.3.43    Request type*/
     { DE_NAS_5GS_MM_S1_UE_NW_CAP,               "S1 UE network capability" },           /* 9.10.3.44    S1 UE network capability*/
     { DE_NAS_5GS_MM_SAL,                        "Service area list" },                  /* 9.10.3.45    Service area list*/
     { DE_NAS_5GS_MM_SERV_TYPE,                  "Service type" },                       /* 9.10.3.46    Service type*/
@@ -2490,8 +2490,8 @@ nas_5gs_mm_registration_accept(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
     curr_offset = offset;
     curr_len = len;
 
-    /*      5GS registration result    5GS registration result     9.10.3.5    M    V    TBD*/
-    ELEM_MAND_V(NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_5GS_REG_RES, NULL, ei_nas_5gs_missing_mandatory_elemen);
+    /*      5GS registration result    5GS registration result     9.10.3.5    M    LV    2*/
+    ELEM_MAND_LV(NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_5GS_REG_RES, NULL, ei_nas_5gs_missing_mandatory_elemen);
 
     /*2C    5G-GUTI    5GS mobile identity     9.10.3.4    O    TLV    TBD*/
     ELEM_OPT_TLV(0x2c, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_5GS_MOBILE_ID, " - 5G-GUTI");
@@ -3510,8 +3510,8 @@ static const value_string nas_5gs_mm_message_type_vals[] = {
     { 0x64,    "5GMM status"},
     { 0x65,    "Notification"},
     { 0x66,    "Notification response" },
-    { 0x67,    "DL NAS transport"},
-    { 0x68,    "UL NAS transport"},
+    { 0x67,    "UL NAS transport"},
+    { 0x68,    "DL NAS transport"},
     { 0,    NULL }
 };
 
@@ -3572,8 +3572,8 @@ static void(*nas_5gs_mm_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info 
     nas_5gs_mm_5gmm_status,                     /* 0x64    5GMM status */
     nas_5gs_mm_notification,                    /* 0x65    Notification */
     nas_5gs_mm_notification_resp,               /* 0x66    Notification */
-    nas_5gs_mm_dl_nas_transp,                   /* 0x67    DL NAS transport */
-    nas_5gs_mm_ul_nas_transp,                   /* 0x68    UL NAS transport */
+    nas_5gs_mm_ul_nas_transp,                   /* 0x67    UL NAS transport */
+    nas_5gs_mm_dl_nas_transp,                   /* 0x68    DL NAS transport */
     NULL,   /* NONE */
 
 };
