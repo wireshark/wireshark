@@ -12,6 +12,8 @@
  */
 
 #include "config.h"
+#include <stdio.h>
+
 
 #include <epan/packet.h>
 #include <epan/expert.h>
@@ -20,6 +22,8 @@ void proto_register_at_command(void);
 void proto_reg_handoff_at_command(void);
 
 static int proto_at = -1;
+
+static dissector_handle_t gsm_sim_handle;
 
 static int hf_command                                                      = -1;
 static int hf_parameters                                                   = -1;
@@ -35,6 +39,7 @@ static int hf_chld_mode                                                    = -1;
 static int hf_chld_mode_1x                                                 = -1;
 static int hf_chld_mode_2x                                                 = -1;
 static int hf_chld_supported_modes                                         = -1;
+static int hf_cimi_imsi                                                    = -1;
 static int hf_cmer_mode                                                    = -1;
 static int hf_cmer_keyp                                                    = -1;
 static int hf_cmer_disp                                                    = -1;
@@ -53,6 +58,9 @@ static int hf_cops_mode                                                    = -1;
 static int hf_cops_format                                                  = -1;
 static int hf_cops_operator                                                = -1;
 static int hf_cops_act                                                     = -1;
+static int hf_csim_command                                                 = -1;
+static int hf_csim_length                                                  = -1;
+static int hf_csim_response                                                = -1;
 static int hf_at_number                                                    = -1;
 static int hf_at_type                                                      = -1;
 static int hf_at_subaddress                                                = -1;
@@ -87,6 +95,10 @@ static expert_field ei_vts_dtmf                                       = EI_INIT;
 static expert_field ei_at_type                                        = EI_INIT;
 static expert_field ei_cnum_service                                   = EI_INIT;
 static expert_field ei_cnum_itc                                       = EI_INIT;
+static expert_field ei_csim_empty_hex                                 = EI_INIT;
+static expert_field ei_csim_invalid_hex                               = EI_INIT;
+static expert_field ei_csim_odd_len                                   = EI_INIT;
+
 
 /* Subtree handles: set by register_subtree_array */
 static gint ett_at = -1;
@@ -444,6 +456,13 @@ static gboolean check_clip(gint role, guint16 type) {
 }
 
 static gboolean check_ciev(gint role, guint16 type) {
+    if (role == ROLE_DCE && type == TYPE_RESPONSE) return TRUE;
+
+    return FALSE;
+}
+
+static gboolean check_csim(gint role, guint16 type) {
+    if (role == ROLE_DTE && (type == TYPE_ACTION || type == TYPE_TEST)) return TRUE;
     if (role == ROLE_DCE && type == TYPE_RESPONSE) return TRUE;
 
     return FALSE;
@@ -945,6 +964,73 @@ dissect_ciev_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static gint
+dissect_csim_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+        gint offset, gint role, guint16 type, guint8 *parameter_stream,
+        guint parameter_number, gint parameter_length, void **data)
+{
+    proto_item  *pitem;
+    guint32   value;
+    gint      hex_length;
+    gint      bytes_count;
+    gint      i;
+    guint8   *final_arr;
+    tvbuff_t *final_tvb=NULL;
+
+    if (!((role == ROLE_DTE && type == TYPE_ACTION) ||
+            (role == ROLE_DCE && type == TYPE_RESPONSE))) {
+        return FALSE;
+    }
+
+    if (parameter_number > 1) return TRUE;
+
+    switch (parameter_number) {
+        case 0:
+            value = get_uint_parameter(parameter_stream, parameter_length);
+            proto_tree_add_uint(tree, hf_csim_length, tvb, offset, parameter_length, value);
+            break;
+        case 1:
+            if(role == ROLE_DTE) {
+                pitem = proto_tree_add_item(tree, hf_csim_command, tvb, offset,
+                                            parameter_length, ENC_NA | ENC_ASCII);
+            }
+            else {
+                pitem = proto_tree_add_item(tree, hf_csim_response, tvb, offset,
+                                            parameter_length, ENC_NA | ENC_ASCII);
+            }
+            hex_length = (parameter_length - 2); /* ignoring leading and trailing quotes */
+            if (hex_length % 2 == 1) {
+                expert_add_info(pinfo, pitem, &ei_csim_odd_len);
+                return TRUE;
+            }
+            if(hex_length < 1) {
+                expert_add_info(pinfo, pitem, &ei_csim_empty_hex);
+                return TRUE;
+            }
+            bytes_count = hex_length / 2;
+            final_arr = wmem_alloc0_array(pinfo->pool,guint8,bytes_count);
+            /* Try to parse the hex string into a byte array */
+            guint8 *pos = parameter_stream;
+            pos++; /* skipping first quotes */
+            for (i = 0; i < bytes_count; i++) {
+                if (!g_ascii_isxdigit(*pos) || !g_ascii_isxdigit(*(pos + 1))) {
+                    /* Either current or next char isn't a hex character */
+                    expert_add_info(pinfo, pitem, &ei_csim_invalid_hex);
+                    return TRUE;
+                }
+                sscanf(pos, "%2hhx", &(final_arr[i]));
+                pos += 2;
+            }
+            final_tvb = tvb_new_child_real_data(tvb, final_arr, bytes_count, bytes_count);
+            add_new_data_source(pinfo, final_tvb, "GSM SIM payload");
+            /* Call GSM SIM dissector*/
+            call_dissector_with_data(gsm_sim_handle, final_tvb, pinfo, tree, data);
+            break;
+    }
+
+    return TRUE;
+}
+
+static gint
 dissect_no_parameter(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_,
         gint offset _U_, gint role _U_, guint16 type _U_, guint8 *parameter_stream _U_,
         guint parameter_number _U_, gint parameter_length _U_, void **data _U_)
@@ -979,6 +1065,7 @@ static const at_cmd_t at_cmds[] = {
     { "E0",         "Disable Echo",                               check_only_dte_role, dissect_no_parameter },
     { "E1",         "Enable Echo",                                check_only_dte_role, dissect_no_parameter },
     { "I",          "Product Identification Information",         check_only_dte_role, dissect_no_parameter },
+    { "+CSIM",      "Generic SIM access",                                      check_csim, dissect_csim_parameter },
     { NULL, NULL, NULL, NULL }
 };
 
@@ -1509,6 +1596,11 @@ proto_register_at_command(void)
            FT_STRING, BASE_NONE, NULL, 0,
            NULL, HFILL}
         },
+        { &hf_cimi_imsi,
+           { "IMSI",  "at.cimi.imsi",
+           FT_STRING, BASE_NONE, NULL, 0,
+           NULL, HFILL}
+        },
         { &hf_ciev_indicator_index,
            { "Indicator Index",                  "at.ciev.indicator_index",
            FT_UINT8, BASE_DEC, NULL, 0,
@@ -1542,6 +1634,21 @@ proto_register_at_command(void)
         { &hf_cops_act,
            { "AcT",                              "at.cops.act",
            FT_UINT8, BASE_DEC, VALS(cops_act_vals), 0,
+           NULL, HFILL}
+        },
+        { &hf_csim_command,
+           { "Command",                          "at.csim.command",
+           FT_STRING, BASE_NONE, NULL, 0,
+           NULL, HFILL}
+        },
+        { &hf_csim_length,
+           { "Length",                           "at.csim.length",
+           FT_UINT32, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        { &hf_csim_response,
+           { "Response",                         "at.csim.response",
+           FT_STRING, BASE_NONE, NULL, 0,
            NULL, HFILL}
         },
         { &hf_clip_mode,
@@ -1766,6 +1873,9 @@ proto_register_at_command(void)
         { &ei_at_type,                 { "at.expert.at.type", PI_PROTOCOL, PI_WARN, "Unknown type value", EXPFILL }},
         { &ei_cnum_service,            { "at.expert.cnum.service", PI_PROTOCOL, PI_WARN, "Only 0-5 are valid", EXPFILL }},
         { &ei_cnum_itc,                { "at.expert.cnum.itc", PI_PROTOCOL, PI_WARN, "Only 0-1 are valid", EXPFILL }},
+        { &ei_csim_empty_hex,          { "at.expert.csim.empty_hex", PI_PROTOCOL, PI_WARN, "Hex string is empty", EXPFILL }},
+        { &ei_csim_invalid_hex,        { "at.expert.csim.invalid_hex", PI_PROTOCOL, PI_WARN, "Non hex character found in hex string", EXPFILL }},
+        { &ei_csim_odd_len,            { "at.expert.csim.odd_len", PI_PROTOCOL, PI_WARN, "Odd hex string length", EXPFILL }},
     };
 
     static gint *ett[] = {
@@ -1794,6 +1904,8 @@ proto_register_at_command(void)
 void
 proto_reg_handoff_at_command(void)
 {
+    gsm_sim_handle       = find_dissector_add_dependency("gsm_sim.part", proto_at);
+
     heur_dissector_add("usb.bulk", heur_dissect_at, "AT Command USB bulk endpoint", "at_usb_bulk", proto_at, HEURISTIC_ENABLE);
     heur_dissector_add("usb.control", heur_dissect_at, "AT Command USB control endpoint", "at_usb_control", proto_at, HEURISTIC_ENABLE);
 }
