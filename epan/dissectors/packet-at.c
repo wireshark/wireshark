@@ -377,7 +377,7 @@ static gboolean check_ccwa(gint role, guint16 type) {
 }
 
 static gboolean check_cgmm(gint role, guint16 type) {
-    if (role == ROLE_DTE && type == TYPE_ACTION_SIMPLY) return TRUE;
+    if (role == ROLE_DTE && (type == TYPE_ACTION_SIMPLY || type == TYPE_TEST)) return TRUE;
     if (role == ROLE_DCE && type == TYPE_RESPONSE) return TRUE;
 
     return FALSE;
