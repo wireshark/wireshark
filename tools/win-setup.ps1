@@ -196,6 +196,7 @@ $CleanupItems = @(
 
 [Uri] $DownloadPrefix = "https://anonsvn.wireshark.org/wireshark-$($Platform)-libs/tags/$($CurrentTag)/packages"
 $Global:SevenZip = "7-zip-not-found"
+$proxy = $null
 
 # Functions
 
@@ -209,12 +210,14 @@ function DownloadFile($fileName, [Uri] $fileUrl = $null) {
         return
     }
 
-    $proxy = [System.Net.WebRequest]::GetSystemWebProxy()
-    $proxy.Credentials = [System.Net.CredentialCache]::DefaultCredentials
+    if (-not ($Script:proxy)) {
+        $Script:proxy = [System.Net.WebRequest]::GetSystemWebProxy()
+        $Script:proxy.Credentials = [System.Net.CredentialCache]::DefaultCredentials
+    }
 
     Write-Output "Downloading $fileUrl into $Destination"
     $webClient = New-Object System.Net.WebClient
-    $webClient.proxy = $proxy
+    $webClient.proxy = $Script:proxy
     $webClient.DownloadFile($fileUrl, "$Destination\$destinationFile")
 }
 
