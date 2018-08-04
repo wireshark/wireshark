@@ -553,7 +553,9 @@ static int hf_gsm_a_rr_dl_egprs2 = -1;
 static int hf_gsm_a_rr_emst_ms_cap = -1;
 static int hf_gsm_a_rr_suspension_cause = -1;
 static int hf_gsm_a_rr_apdu_id = -1;
-static int hf_gsm_a_rr_apdu_flags = -1;
+static int hf_gsm_a_rr_apdu_flags_cr = -1;
+static int hf_gsm_a_rr_apdu_flags_fs = -1;
+static int hf_gsm_a_rr_apdu_flags_ls = -1;
 static int hf_gsm_a_rr_set_of_amr_codec_modes_v1_b8 = -1;
 static int hf_gsm_a_rr_set_of_amr_codec_modes_v1_b7 = -1;
 static int hf_gsm_a_rr_set_of_amr_codec_modes_v1_b6 = -1;
@@ -8784,16 +8786,27 @@ de_rr_apdu_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
 
 /*
  * [3] 10.5.2.49 APDU Flags
+ * Please note that value 1 means "not".
  */
-static const value_string gsm_a_rr_apdu_flags_vals[] = {
-    { 1, "Last or only segment" },
-    { 2, "First or only segment" },
-    { 0, NULL },
+static const true_false_string gsm_a_rr_apdu_flags_cr_value = {
+    "Not Command or Final Response",
+    "Command or Final Response",
 };
+static const true_false_string gsm_a_rr_apdu_flags_fs_value = {
+    "Not first or only segment",
+    "First or only segment",
+};
+static const true_false_string gsm_a_rr_apdu_flags_ls_value = {
+    "Not last or only segment",
+    "Last or only segment",
+};
+
 static guint16
 de_rr_apdu_flags(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree_add_item(tree, hf_gsm_a_rr_apdu_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gsm_a_rr_apdu_flags_cr, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gsm_a_rr_apdu_flags_fs, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gsm_a_rr_apdu_flags_ls, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     return 1;
 }
@@ -12632,9 +12645,19 @@ proto_register_gsm_a_rr(void)
                 FT_UINT8,BASE_HEX,  VALS(gsm_a_rr_apdu_id_vals), 0x0f,
                 NULL, HFILL }
             },
-            { &hf_gsm_a_rr_apdu_flags,
-              { "APDU Flags","gsm_a.rr.apdu_flags",
-                FT_UINT8,BASE_HEX,  VALS(gsm_a_rr_apdu_flags_vals), 0xf0,
+            { &hf_gsm_a_rr_apdu_flags_cr,
+              { "C/R", "gsm_a.rr.apdu_flags_cr",
+                FT_BOOLEAN, 8, TFS(&gsm_a_rr_apdu_flags_cr_value), 0x10,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_apdu_flags_fs,
+              { "First Segment", "gsm_a.rr.apdu_flags_fs",
+                FT_BOOLEAN, 8, TFS(&gsm_a_rr_apdu_flags_fs_value), 0x20,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_apdu_flags_ls,
+              { "Last Segment", "gsm_a.rr.apdu_flags_ls",
+                FT_BOOLEAN, 8, TFS(&gsm_a_rr_apdu_flags_ls_value), 0x40,
                 NULL, HFILL }
             },
             { &hf_gsm_a_rr_set_of_amr_codec_modes_v1_b8,
