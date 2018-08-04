@@ -799,12 +799,6 @@ main(int argc, char *argv[])
 #ifdef HAVE_LIBPCAP
   /* Load wpcap if possible. Do this before collecting the run-time version information */
   load_wpcap();
-
-  /* Warn the user if npf.sys isn't loaded. */
-  if (!npf_sys_is_running()) {
-    fprintf(stderr, "The NPF driver isn't running.  You may have trouble "
-      "capturing or\nlisting interfaces.\n");
-  }
 #endif /* HAVE_LIBPCAP */
 #endif /* _WIN32 */
 
@@ -2091,6 +2085,14 @@ main(int argc, char *argv[])
        or get a list of link-layer types for a live capture device;
        do we have support for live captures? */
 #ifdef HAVE_LIBPCAP
+#ifdef _WIN32
+    /* Warn the user if npf.sys isn't loaded. */
+    if (!npf_sys_is_running()) {
+      fprintf(stderr, "The NPF driver isn't running.  You may have trouble "
+          "capturing or\nlisting interfaces.\n");
+    }
+#endif /* _WIN32 */
+
     /* if no interface was specified, pick a default */
     exit_status = capture_opts_default_iface_if_necessary(&global_capture_opts,
         ((prefs_p->capture_device) && (*prefs_p->capture_device != '\0')) ? get_if_name(prefs_p->capture_device) : NULL);
