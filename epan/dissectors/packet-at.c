@@ -965,7 +965,7 @@ static const at_cmd_t at_cmds[] = {
     { "+CLCC",      "Current Calls",                              check_clcc, dissect_clcc_parameter },
     { "+COPS",      "Reading Network Operator",                   check_cops, dissect_cops_parameter },
     { "+CMEE",      "Mobile Equipment Error",                     check_cmee, dissect_cmee_parameter },
-    { "+CME ERROR", "Extended Audio Gateway Error Result Code",   check_cme,  dissect_cme_error_parameter },
+    { "+CME ERROR", "Mobile Termination Error Result Code",       check_cme,  dissect_cme_error_parameter },
     { "+CLIP",      "Calling Line Identification Notification",   check_clip, dissect_clip_parameter },
     { "+CMER",      "Event Reporting Activation/Deactivation",    check_cmer, dissect_cmer_parameter },
     { "+CIEV",      "Indicator Events Reporting",                 check_ciev, dissect_ciev_parameter },
