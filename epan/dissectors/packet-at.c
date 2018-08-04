@@ -836,7 +836,6 @@ dissect_cme_error_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 {
     guint32      value;
     gint         i;
-    guint8      *next_char;
 
     if (!(role == ROLE_DCE && type == TYPE_RESPONSE)) {
         return FALSE;
@@ -845,14 +844,12 @@ dissect_cme_error_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
     if (parameter_number > 0) return FALSE;
 
     /* CME Error might work in 2 modes: Numeric error codes or Verbose error messages */
-    /* if the parameter stream contains any letters, assume verbose */
-    next_char = parameter_stream;
+    /* if the parameter stream contains non-digits, assume verbose */
     for (i = 0; i < parameter_length; i++) {
-        if (g_ascii_isalpha(next_char)) {
+        if (!g_ascii_isdigit(parameter_stream[i])) {
             proto_tree_add_item(tree, hf_cme_error_verbose, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
             return TRUE;
         }
-        next_char++;
     }
     /* Assume numeric error code*/
     value = get_uint_parameter(parameter_stream, parameter_length);
