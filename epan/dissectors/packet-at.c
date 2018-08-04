@@ -42,6 +42,7 @@ static int hf_cmer_ind                                                     = -1;
 static int hf_cmer_bfr                                                     = -1;
 static int hf_cmee                                                         = -1;
 static int hf_cme_error                                                    = -1;
+static int hf_cme_error_verbose                                            = -1;
 static int hf_cnum_speed                                                   = -1;
 static int hf_cnum_service                                                 = -1;
 static int hf_cnum_itc                                                     = -1;
@@ -815,6 +816,8 @@ dissect_cme_error_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
         guint parameter_number, gint parameter_length, void **data _U_)
 {
     guint32      value;
+    gint         i;
+    guint8      *next_char;
 
     if (!(role == ROLE_DCE && type == TYPE_RESPONSE)) {
         return FALSE;
@@ -822,6 +825,17 @@ dissect_cme_error_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 
     if (parameter_number > 0) return FALSE;
 
+    /* CME Error might work in 2 modes: Numeric error codes or Verbose error messages */
+    /* if the parameter stream contains any letters, assume verbose */
+    next_char = parameter_stream;
+    for (i = 0; i < parameter_length; i++) {
+        if (g_ascii_isalpha(next_char)) {
+            proto_tree_add_item(tree, hf_cme_error_verbose, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+            return TRUE;
+        }
+        next_char++;
+    }
+    /* Assume numeric error code*/
     value = get_uint_parameter(parameter_stream, parameter_length);
     proto_tree_add_uint(tree, hf_cme_error, tvb, offset, parameter_length, value);
 
@@ -1461,8 +1475,13 @@ proto_register_at_command(void)
            NULL, HFILL}
         },
         { &hf_cme_error,
-           { "CME Error",                        "at.cme_error",
+           { "CME Error (Numeric)",              "at.cme_error",
            FT_UINT8, BASE_DEC, VALS(cme_error_vals), 0,
+           NULL, HFILL}
+        },
+        { &hf_cme_error_verbose,
+           { "CME Error (Verbose)",              "at.cme_error_verbose",
+           FT_STRING, BASE_NONE, NULL, 0,
            NULL, HFILL}
         },
         { &hf_cmee,
