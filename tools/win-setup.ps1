@@ -38,13 +38,9 @@ contain the pattern "wireshark-*-libs".
 .PARAMETER Platform
 Target platform. One of "win64" or "win32".
 
-.PARAMETER Force
-Download each library even if exists on the local system.
-
 .INPUTS
 -Destination Destination directory.
 -Platform Target platform.
--Force Force fresh downloads.
 
 .OUTPUTS
 A set of libraries required to compile Wireshark on Windows, along with
@@ -64,11 +60,7 @@ Param(
     [Parameter(Mandatory=$true, Position=1)]
     [ValidateSet("win32", "win64")]
     [String]
-    $Platform,
-
-    [Parameter(Mandatory=$false)]
-    [Switch]
-    $Force
+    $Platform
 )
 
 # Variables
@@ -80,66 +72,73 @@ $ErrorActionPreference = "Stop"
 $Win64CurrentTag = "2018-12-28"
 $Win32CurrentTag = "2018-12-28"
 
-# Archive file / subdir.
+# Archive file / SHA256
 $Win64Archives = @{
-    "AirPcap_Devpack_4_1_0_1622.zip" = "AirPcap_Devpack_4_1_0_1622";
-    "bcg729-1.0.4-win64ws.zip" = "";
-    "c-ares-1.14.0-win64ws.zip" = "";
-    "gnutls-3.4.11-1.35-win64ws.zip" = "";
-    "gtk+-bundle_2.24.23-3.39-2_win64ws.zip" = "gtk2";
-    "kfw-3-2-2-x64-ws.zip" = "";
-    "libgcrypt-1.7.6-win64ws.zip" = "";
-    "libsmi-svn-40773-win64ws.zip" = "";
-    "libssh-0.7.3-1-win64ws.zip" = "";
-    "libxml2-2.9.4-win64ws.zip" = "";
-    "lua-5.2.4-unicode-win64-vc14.zip" = "";
-    "lz4-1.7.5-win64ws.zip" = "";
-    "MaxMindDB-1.3.2-win64ws.zip" = "";
-    "nghttp2-1.14.0-1-win64ws.zip" = "";
-    "portaudio_v19_2.zip" = "";
-    "sbc-1.3-1-win64ws.zip" = "";
-    "snappy-1.1.3-1-win64ws.zip" = "";
-    "spandsp-0.0.6-1-win64ws.zip" = "";
-    "WinSparkle-0.5.7.zip" = "";
-    "WpdPack_4_1_2.zip" = "";
-    "zlib-1.2.11-2-ws.zip" = "";
+    "AirPcap_Devpack_4_1_0_1622.zip" = "09d637f28a79b1d2ecb09f35436271a90c0f69bd0a1ee82b803abaaf63c18a69";
+    "bcg729-1.0.4-win64ws.zip" = "9a095fda4c39860d96f0c568830faa6651cd17635f68e27aa6de46c689aa0ee2";
+    "c-ares-1.14.0-win64ws.zip" = "91b1e1460bda513375910977a3410afd024575eebc528adecf3abea7814c0ef1";
+    "gnutls-3.4.11-1.35-win64ws.zip" = "defc04f430f88e0c1217b98157e38b0e9fc8b4e7ad744c6dd0c24dd17648f9f4";
+    "gtk+-bundle_2.24.23-3.39-2_win64ws.zip" = "850ee924375837245293f20e941f0158202177f9e238125e9f4eecd37fb7efdc";
+    "kfw-3-2-2-x64-ws.zip" = "91654ffe0b6d418b369c95bc060414a90f91627e55c19a3e753803c9deb2fe9a";
+    "libgcrypt-1.7.6-win64ws.zip" = "df4b88d71829ea4bbc6b1e0a1bff924e4aee7e47a5c842a0ed1ab544f08d613a";
+    "libsmi-svn-40773-win64ws.zip" = "571fcee71d741bf847c3247d4c2e1c42388ca6a9feebe08fc0d4ce053571d15d";
+    "libssh-0.7.3-1-win64ws.zip" = "3a81b9f4a914a46f15243bbb13b6919ef1c20d4bf502c47646caeccff2cbd75c";
+    "libxml2-2.9.4-win64ws.zip" = "bb1892f5506f281d8f2b6c8be4fa8e83a9a3fb94c9160466fa59afdc5110d52e";
+    "lua-5.2.4-unicode-win64-vc14.zip" = "fdf24928931a55d1f0bdb909820d5389cbc0ba510528a16e499e33c034ca508d";
+    "lz4-1.7.5-win64ws.zip" = "dc946b68238c25cbc216901332d608d7f4b084be2d401210f74ce68b9b93207f";
+    "MaxMindDB-1.3.2-win64ws.zip" = "9025c43e9b21ff0bfbaf206b8ed96e2920ef1434107f789e4c7c0c1d8b508952";
+    "nghttp2-1.14.0-1-win64ws.zip" = "a4f15854f30b4fbb65cbf150011612e4580683dc9bbb339c632c37e414c938cb";
+    "portaudio_v19_2.zip" = "70e3ef7d0e59e2b434f2462125ff0aa8490862707a3e4f42c69e084044cf424a";
+    "sbc-1.3-1-win64ws.zip" = "08cef6898c421277a6582ef3225d8820f74a037cbd5b6e673a4d8f4593ce80a1";
+    "snappy-1.1.3-1-win64ws.zip" = "692a15e70f2cdeca621988a46e936d3651e7feb5176981f2656a5e913c394bcc";
+    "spandsp-0.0.6-1-win64ws.zip" = "0e46c61a5a8dca562c36e88a8962a50c1ec1a9fcf89dd05996dac5a79e454527";
+    "WinSparkle-0.5.7.zip" = "56d396ef0c4e8b0589ea74134e484376ca6459d972cd1ab1da6b9624d82e6d04";
+    "WpdPack_4_1_2.zip" = "ea799cf2f26e4afb1892938070fd2b1ca37ce5cf75fec4349247df12b784edbd";
+    "zlib-1.2.11-2-ws.zip" = "82764f71649cdc1e5467686289936ca7f632966186e2fce35df94037e4ecb596";
 }
 
 $Win32Archives = @{
+    "AirPcap_Devpack_4_1_0_1622.zip" = "09d637f28a79b1d2ecb09f35436271a90c0f69bd0a1ee82b803abaaf63c18a69";
+    "bcg729-1.0.4-win32ws.zip" = "b785ec78dec6bca8252130eb884bfa28c1140001dd7369a535579176de9e4271";
+    "c-ares-1.14.0-win32ws.zip" = "7355f3ad6d6ec05541c59e5b398b8dbd9a41bf6776b26d9656d8d54ecd58178e";
+    "gnutls-3.4.11-1.36-win32ws.zip" = "10cd21d25b22cfba2566c8d6f5afbbd23d0f8faceb5bc167ccbb8fbb97d6873f";
+    "gtk+-bundle_2.24.23-1.1-1_win32ws.zip" = "71e5da61ef10590ecc4974ba2f3abb23fc11b2c0a12d8d4eaf19effd75bb76c4";
+    "kfw-3-2-2-i386-ws-vc6.zip" = "527deb2cf1c3ba0cf743f2b9b8011a22096b54f7ce62fc7ba31b520bbac0e802";
+    "libgcrypt-1.7.6-win32ws.zip" = "6cf7b99a2372913771f452952bf573e3e260fd0340839efda4c2de112da6812e";
+    "libsmi-svn-40773-win32ws.zip" = "44bc81edfeb8948322ca365fc632e419383907c305cc922e6b74fdbb13827958";
+    "libssh-0.7.3-1-win32ws.zip" = "b02f0d318175194ac538a24c9c9fc280a0ecad69fb3afd4945c106b4b7c4fa6f";
+    "libxml2-2.9.4-win32ws.zip" = "147e521abacdd96913f7f94d1da44d59ee138e510922f3c1e03e485c8c9d8d1c";
+    "lua-5.2.4-unicode-win32-vc14.zip" = "609337fb9db817f94c7813ebceb44226a8d71a41896656ff5e8308ecd52968b5";
+    "lz4-1.7.5-win32ws.zip" = "1b2e4b509163bc5039c0694369b9e40ba27cdbf4c4c88fcd454ba6a34c79b41b";
+    "MaxMindDB-1.3.2-win32ws.zip" = "5c8b4bf3092da8fad6edb005a5283c6a74b7e115a50da010953eed77d33c11b7";
+    "nghttp2-1.14.0-1-win32ws.zip" = "939ec18c81fed2e44270dc924fad8beffe90a74300cc98360442300fb0a5c292";
+    "portaudio_v19_2.zip" = "70e3ef7d0e59e2b434f2462125ff0aa8490862707a3e4f42c69e084044cf424a";
+    "sbc-1.3-1-win32ws.zip" = "ad37825e9ace4b849a5442c08f1ed7e30634e6b774bba4307fb86f35f82e71ba";
+    "snappy-1.1.3-1-win32ws.zip" = "2508ef7c5d27655c356d7b86a00ac887fc178eab5df63595b8793953dae5c379";
+    "spandsp-0.0.6-1-win32ws.zip" = "3c25f2f4d641d4257ec9922f6db77346a8eed2e360e7d0e27b828ade19c4705b";
+    "WinSparkle-0.5.7.zip" = "56d396ef0c4e8b0589ea74134e484376ca6459d972cd1ab1da6b9624d82e6d04";
+    "WpdPack_4_1_2.zip" = "ea799cf2f26e4afb1892938070fd2b1ca37ce5cf75fec4349247df12b784edbd";
+    "zlib-1.2.11-2-ws.zip" = "82764f71649cdc1e5467686289936ca7f632966186e2fce35df94037e4ecb596";
+}
+
+# Subdirectory to extract an archive to
+$ArchivesSubDirectory = @{
     "AirPcap_Devpack_4_1_0_1622.zip" = "AirPcap_Devpack_4_1_0_1622";
-    "bcg729-1.0.4-win32ws.zip" = "";
-    "c-ares-1.14.0-win32ws.zip" = "";
-    "gnutls-3.4.11-1.36-win32ws.zip" = "";
+    "gtk+-bundle_2.24.23-3.39-2_win64ws.zip" = "gtk2";
     "gtk+-bundle_2.24.23-1.1-1_win32ws.zip" = "gtk2";
-    "kfw-3-2-2-i386-ws-vc6.zip" = "";
-    "libgcrypt-1.7.6-win32ws.zip" = "";
-    "libsmi-svn-40773-win32ws.zip" = "";
-    "libssh-0.7.3-1-win32ws.zip" = "";
-    "libxml2-2.9.4-win32ws.zip" = "";
-    "lua-5.2.4-unicode-win32-vc14.zip" = "";
-    "lz4-1.7.5-win32ws.zip" = "";
-    "MaxMindDB-1.3.2-win32ws.zip" = "";
-    "nghttp2-1.14.0-1-win32ws.zip" = "";
-    "portaudio_v19_2.zip" = "";
-    "sbc-1.3-1-win32ws.zip" = "";
-    "snappy-1.1.3-1-win32ws.zip" = "";
-    "spandsp-0.0.6-1-win32ws.zip" = "";
-    "WinSparkle-0.5.7.zip" = "";
-    "WpdPack_4_1_2.zip" = "";
-    "zlib-1.2.11-2-ws.zip" = "";
 }
 
 # Plain file downloads
 
-$Win32Files = @(
-    "WinPcap_4_1_3.exe";
-    "USBPcapSetup-1.2.0.4.exe";
-)
+$Win32Files = @{
+    "WinPcap_4_1_3.exe" = "fc4623b113a1f603c0d9ad5f83130bd6de1c62b973be9892305132389c8588de";
+    "USBPcapSetup-1.2.0.4.exe" = "0a5ac30b0264e058f262e9c28e5865af7b836620ca5d68bb4bb42c9a808f7a43";
+}
 
-$Win64Files = @(
-    "WinPcap_4_1_3.exe";
-    "USBPcapSetup-1.2.0.4.exe";
-)
+$Win64Files = @{
+    "WinPcap_4_1_3.exe" = "fc4623b113a1f603c0d9ad5f83130bd6de1c62b973be9892305132389c8588de";
+    "USBPcapSetup-1.2.0.4.exe" = "0a5ac30b0264e058f262e9c28e5865af7b836620ca5d68bb4bb42c9a808f7a43";
+}
 
 $Archives = $Win64Archives;
 $Files = $Win64Files;
@@ -199,14 +198,49 @@ $proxy = $null
 
 # Functions
 
-function DownloadFile($fileName, [Uri] $fileUrl = $null) {
+# Verifies the contents of a file against a SHA256 checksum.
+# Returns success (0) if the file exists and verifies.
+# Returns error (1) if the file does not exist.
+# Returns error (2) if the integrity check fails (an error is also printed).
+function VerifyIntegrity($filename, $hash) {
+    # Use absolute path because PS and .NET may have different working directories.
+    $filepath = Convert-Path -Path $filename -ErrorAction SilentlyContinue
+    if (-not ($filepath)) {
+        return 1
+    }
+    # may throw due to permission error, I/O error, etc.
+    try { $stream = [IO.File]::OpenRead($filepath) } catch { throw }
+
+    try {
+        $sha256 = New-Object Security.Cryptography.SHA256Managed
+        $binaryHash = $sha256.ComputeHash([IO.Stream]$stream)
+        $hexHash = ([System.BitConverter]::ToString($binaryHash) -Replace "-").ToLower()
+        $hash = $hash.ToLower()
+        if ($hexHash -ne $hash) {
+            Write-Warning "$($filename): computed checksum $hexHash did NOT match $hash"
+            return 2
+        }
+        return 0
+    } finally {
+        $stream.Close()
+    }
+}
+
+# Downloads a file and checks its integrity. If a corrupt file already exists,
+# it is removed and re-downloaded. Succeeds only if the SHA256 checksum matches.
+function DownloadFile($fileName, $checksum, [Uri] $fileUrl = $null) {
     if ([string]::IsNullOrEmpty($fileUrl)) {
         $fileUrl = "$DownloadPrefix/$fileName"
     }
-    $destinationFile = "$fileName"
-    if ((Test-Path $destinationFile -PathType 'Leaf') -and -not ($Force)) {
-        Write-Output "$destinationFile already there; not retrieving."
-        return
+    $destinationFile = "$Destination\$fileName"
+    if (Test-Path $destinationFile -PathType 'Leaf') {
+        if ((VerifyIntegrity $destinationFile $checksum) -ne 0) {
+            Write-Output "$fileName is corrupt, removing and retrying download."
+            Remove-Item $destinationFile
+        } else {
+            Write-Output "$fileName already there; not retrieving."
+            return
+        }
     }
 
     if (-not ($Script:proxy)) {
@@ -217,7 +251,12 @@ function DownloadFile($fileName, [Uri] $fileUrl = $null) {
     Write-Output "Downloading $fileUrl into $Destination"
     $webClient = New-Object System.Net.WebClient
     $webClient.proxy = $Script:proxy
-    $webClient.DownloadFile($fileUrl, "$Destination\$destinationFile")
+    $webClient.DownloadFile($fileUrl, "$destinationFile")
+    Write-Output "Verifying $destinationFile"
+    if ((VerifyIntegrity $destinationFile $checksum) -ne 0) {
+        Write-Output "Download is corrupted, aborting!"
+        exit 1
+    }
 }
 
 # Find 7-Zip, downloading it if necessary.
@@ -265,13 +304,14 @@ function Bootstrap7Zip() {
 
     Write-Output "Unable to find 7-zip, retrieving from anonsvn into $binDir\7za.exe"
     [Uri] $bbUrl = "https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/bin/7za.exe"
-    DownloadFile "bin\7za.exe" "$bbUrl"
+    $checksum = "77613cca716edf68b9d5bab951463ed7fade5bc0ec465b36190a76299c50f117"
+    DownloadFile "bin\7za.exe" "$checksum" "$bbUrl"
 
     $Global:SevenZip = "$binDir\7za.exe"
 }
 
-function DownloadArchive($fileName, $subDir) {
-    DownloadFile $fileName
+function DownloadArchive($fileName, $checksum, $subDir) {
+    DownloadFile $fileName $checksum
     # $shell = New-Object -com shell.application
     $archiveFile = "$Destination\$fileName"
     $archiveDir = "$Destination\$subDir"
@@ -326,13 +366,14 @@ if ($destinationTag -ne $CurrentTag) {
 }
 
 # Download files
-foreach ($item in $Files) {
-    DownloadFile $item
+foreach ($item in $Files.GetEnumerator() | Sort-Object -property key) {
+    DownloadFile $item.Name $item.Value
 }
 
 # Download and extract archives
 foreach ($item in $Archives.GetEnumerator() | Sort-Object -property key) {
-    DownloadArchive $item.Name $item.Value
+    $subDir = $ArchivesSubDirectory[$item.Name]
+    DownloadArchive $item.Name $item.Value $subDir
 }
 
 # Save our last known state
