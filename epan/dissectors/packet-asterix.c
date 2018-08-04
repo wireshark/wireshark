@@ -6718,7 +6718,7 @@ static const value_string valstr_062_135_QNH[] = {
     { 0, NULL }
 };
 static const FieldPart I062_135_QNH = { 1, 1.0, FIELD_PART_UINT, &hf_062_135_QNH, NULL };
-static const FieldPart I062_135_ALT = { 15, 25.0, FIELD_PART_FLOAT, &hf_062_135_ALT, NULL };
+static const FieldPart I062_135_ALT = { 15, 1.0/4.0, FIELD_PART_FLOAT, &hf_062_135_ALT, NULL };
 static const FieldPart *I062_135_PARTS[] = { &I062_135_QNH, &I062_135_ALT, NULL };
 
 /* Measured Flight Level */
