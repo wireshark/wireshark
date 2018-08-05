@@ -78,6 +78,7 @@
 #define CODEC_ATRAC           0x04
 #define CODEC_APT_X           0xFF01
 #define CODEC_APT_X_HD        0xFF24
+#define CODEC_LDAC            0xFFAA
 
 #define CODECID_APT_X         0x0001
 #define CODECID_APT_X_HD      0x0024
@@ -252,6 +253,17 @@ static int hf_btavdtp_vendor_specific_aptxhd_channel_mode_dual_channel     = -1;
 static int hf_btavdtp_vendor_specific_aptxhd_channel_mode_stereo           = -1;
 static int hf_btavdtp_vendor_specific_aptxhd_channel_mode_joint_stereo     = -1;
 static int hf_btavdtp_vendor_specific_aptxhd_rfa                           = -1;
+static int hf_btavdtp_vendor_specific_ldac_rfa1                            = -1;
+static int hf_btavdtp_vendor_specific_ldac_sampling_frequency_44100        = -1;
+static int hf_btavdtp_vendor_specific_ldac_sampling_frequency_48000        = -1;
+static int hf_btavdtp_vendor_specific_ldac_sampling_frequency_88200        = -1;
+static int hf_btavdtp_vendor_specific_ldac_sampling_frequency_96000        = -1;
+static int hf_btavdtp_vendor_specific_ldac_sampling_frequency_176400       = -1;
+static int hf_btavdtp_vendor_specific_ldac_sampling_frequency_192000       = -1;
+static int hf_btavdtp_vendor_specific_ldac_rfa2                            = -1;
+static int hf_btavdtp_vendor_specific_ldac_channel_mode_mono               = -1;
+static int hf_btavdtp_vendor_specific_ldac_channel_mode_dual_channel       = -1;
+static int hf_btavdtp_vendor_specific_ldac_channel_mode_stereo             = -1;
 static int hf_btavdtp_h263_level_10                                        = -1;
 static int hf_btavdtp_h263_level_20                                        = -1;
 static int hf_btavdtp_h263_level_30                                        = -1;
@@ -323,6 +335,7 @@ static const enum_val_t pref_a2dp_codec[] = {
 /* XXX: Not supported in Wireshark yet  { "atrac",      "ATRAC",                                  CODEC_ATRAC },*/
     { "aptx",        "aptX",         CODEC_APT_X },
     { "aptx-hd",     "aptX HD",      CODEC_APT_X_HD },
+/* XXX: Not supported in Wireshark yet  { "ldac",        "LDAC",         CODEC_LDAC },*/
     { NULL, NULL, 0 }
 };
 
@@ -543,6 +556,7 @@ static const value_string content_protection_type_vals[] = {
 static const value_string vendor_apt_codec_vals[] = {
     { CODECID_APT_X,     "aptX" },
     { CODECID_APT_X_HD,  "aptX HD" },
+    { 0x00AA,  "LDAC" },
     { 0, NULL }
 };
 
@@ -989,6 +1003,62 @@ dissect_codec(tvbuff_t *tvb, packet_info *pinfo, proto_item *service_item, proto
                                         (value & 0x02) ? " Stereo" : "",
                                         (value & 0x01) ? " JointStereo" : "",
                                         (value & 0x0F) ? "" : "not set ");
+                                } else {
+                                    col_append_fstr(pinfo->cinfo, COL_INFO, " none)");
+                                    proto_item_append_text(service_item, " none)");
+                                }
+                            } else {
+                                proto_tree_add_item(tree, hf_btavdtp_vendor_specific_value, tvb, offset + 6, losc - 6, ENC_NA);
+                            }
+                            break;
+                        case 0x012D: /* Sony Corporation */
+                            proto_tree_add_item(tree, hf_btavdtp_vendor_specific_apt_codec_id, tvb, offset + 4, 2, ENC_LITTLE_ENDIAN);
+                            value = tvb_get_letohs(tvb, offset + 4);
+                            if (value == 0x00AA) { /* LDAC Codec */
+                                proto_tree_add_item(tree, hf_btavdtp_vendor_specific_ldac_rfa1, tvb, offset + 6, 1, ENC_NA);
+                                proto_tree_add_item(tree, hf_btavdtp_vendor_specific_ldac_sampling_frequency_44100, tvb, offset + 6, 1, ENC_NA);
+                                proto_tree_add_item(tree, hf_btavdtp_vendor_specific_ldac_sampling_frequency_48000, tvb, offset + 6, 1, ENC_NA);
+                                proto_tree_add_item(tree, hf_btavdtp_vendor_specific_ldac_sampling_frequency_88200, tvb, offset + 6, 1, ENC_NA);
+                                proto_tree_add_item(tree, hf_btavdtp_vendor_specific_ldac_sampling_frequency_96000, tvb, offset + 6, 1, ENC_NA);
+                                proto_tree_add_item(tree, hf_btavdtp_vendor_specific_ldac_sampling_frequency_176400, tvb, offset + 6, 1, ENC_NA);
+                                proto_tree_add_item(tree, hf_btavdtp_vendor_specific_ldac_sampling_frequency_192000, tvb, offset + 6, 1, ENC_NA);
+                                proto_tree_add_item(tree, hf_btavdtp_vendor_specific_ldac_rfa2, tvb, offset + 7, 1, ENC_NA);
+                                proto_tree_add_item(tree, hf_btavdtp_vendor_specific_ldac_channel_mode_mono, tvb, offset + 7, 1, ENC_NA);
+                                proto_tree_add_item(tree, hf_btavdtp_vendor_specific_ldac_channel_mode_dual_channel, tvb, offset + 7, 1, ENC_NA);
+                                proto_tree_add_item(tree, hf_btavdtp_vendor_specific_ldac_channel_mode_stereo, tvb, offset + 7, 1, ENC_NA);
+
+                                col_append_fstr(pinfo->cinfo, COL_INFO, " (%s -",
+                                    val_to_str_const(value, vendor_apt_codec_vals, "unknown codec"));
+                                proto_item_append_text(service_item, " (%s -",
+                                    val_to_str_const(value, vendor_apt_codec_vals, "unknown codec"));
+
+                                value = tvb_get_letohs(tvb, offset + 6);
+                                if (value) {
+                                    col_append_fstr(pinfo->cinfo, COL_INFO, "%s%s%s%s%s%s%s,%s%s%s%s)",
+                                        (value & 0x0020) ? " 44100" : "",
+                                        (value & 0x0010) ? " 48000" : "",
+                                        (value & 0x0008) ? " 88200" : "",
+                                        (value & 0x0004) ? " 96000" : "",
+                                        (value & 0x0002) ? " 176400" : "",
+                                        (value & 0x0001) ? " 192000" : "",
+                                        (value & 0x003F) ? "" : "not set ",
+                                        (value & 0x0400) ? " Mono" : "",
+                                        (value & 0x0200) ? " DualChannel" : "",
+                                        (value & 0x0100) ? " Stereo" : "",
+                                        (value & 0x0700) ? "" : "not set ");
+
+                                    proto_item_append_text(service_item, "%s%s%s%s%s%s%s,%s%s%s%s)",
+                                        (value & 0x0020) ? " 44100" : "",
+                                        (value & 0x0010) ? " 48000" : "",
+                                        (value & 0x0008) ? " 88200" : "",
+                                        (value & 0x0004) ? " 96000" : "",
+                                        (value & 0x0002) ? " 176400" : "",
+                                        (value & 0x0001) ? " 192000" : "",
+                                        (value & 0x003F) ? "" : "not set ",
+                                        (value & 0x0400) ? " Mono" : "",
+                                        (value & 0x0200) ? " DualChannel" : "",
+                                        (value & 0x0100) ? " Stereo" : "",
+                                        (value & 0x0700) ? "" : "not set ");
                                 } else {
                                     col_append_fstr(pinfo->cinfo, COL_INFO, " none)");
                                     proto_item_append_text(service_item, " none)");
@@ -2750,6 +2820,61 @@ proto_register_btavdtp(void)
         { &hf_btavdtp_vendor_specific_aptxhd_rfa,
             { "RFA",                            "btavdtp.codec.aptxhd.rfa",
             FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btavdtp_vendor_specific_ldac_rfa1,
+            { "RFA1",                           "btavdtp.codec.ldac.rfa1",
+            FT_UINT8, BASE_HEX, NULL, 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btavdtp_vendor_specific_ldac_sampling_frequency_44100,
+            { "Sampling Frequency 44100 Hz",    "btavdtp.codec.ldac.sampling_frequency.44100",
+            FT_BOOLEAN, 8, NULL, 0x20,
+            NULL, HFILL }
+        },
+        { &hf_btavdtp_vendor_specific_ldac_sampling_frequency_48000,
+            { "Sampling Frequency 48000 Hz",    "btavdtp.codec.ldac.sampling_frequency.48000",
+            FT_BOOLEAN, 8, NULL, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_btavdtp_vendor_specific_ldac_sampling_frequency_88200,
+            { "Sampling Frequency 88200 Hz",    "btavdtp.codec.ldac.sampling_frequency.88200",
+            FT_BOOLEAN, 8, NULL, 0x08,
+            NULL, HFILL }
+        },
+        { &hf_btavdtp_vendor_specific_ldac_sampling_frequency_96000,
+            { "Sampling Frequency 96000 Hz",    "btavdtp.codec.ldac.sampling_frequency.96000",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_btavdtp_vendor_specific_ldac_sampling_frequency_176400,
+            { "Sampling Frequency 176400 Hz",    "btavdtp.codec.ldac.sampling_frequency.176400",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_btavdtp_vendor_specific_ldac_sampling_frequency_192000,
+            { "Sampling Frequency 192000 Hz",    "btavdtp.codec.ldac.sampling_frequency.192000",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_btavdtp_vendor_specific_ldac_rfa2,
+            { "RFA2",                           "btavdtp.codec.ldac.rfa2",
+            FT_UINT8, BASE_HEX, NULL, 0xF8,
+            NULL, HFILL }
+        },
+        { &hf_btavdtp_vendor_specific_ldac_channel_mode_mono,
+            { "Channel Mode Mono",              "btavdtp.codec.ldac.channel_mode.mono",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_btavdtp_vendor_specific_ldac_channel_mode_dual_channel,
+            { "Channel Mode Dual Channel",      "btavdtp.codec.ldac.channel_mode.dual_channel",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_btavdtp_vendor_specific_ldac_channel_mode_stereo,
+            { "Channel Mode Stereo",            "btavdtp.codec.ldac.channel_mode.stereo",
+            FT_BOOLEAN, 8, NULL, 0x01,
             NULL, HFILL }
         },
         { &hf_btavdtp_capabilities,
