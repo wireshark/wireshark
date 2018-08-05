@@ -77,8 +77,11 @@
 #define CODEC_MPEG24_AAC      0x02
 #define CODEC_ATRAC           0x04
 #define CODEC_APT_X           0xFF01
+#define CODEC_APT_X_HD        0xFF24
 
 #define CODECID_APT_X         0x0001
+#define CODECID_APT_X_HD      0x0024
+
 #define CODEC_H263_BASELINE   0x01
 #define CODEC_MPEG4_VSP       0x02
 #define CODEC_H263_PROFILE_3  0x03
@@ -240,6 +243,15 @@ static int hf_btavdtp_vendor_specific_aptx_channel_mode_mono               = -1;
 static int hf_btavdtp_vendor_specific_aptx_channel_mode_dual_channel       = -1;
 static int hf_btavdtp_vendor_specific_aptx_channel_mode_stereo             = -1;
 static int hf_btavdtp_vendor_specific_aptx_channel_mode_joint_stereo       = -1;
+static int hf_btavdtp_vendor_specific_aptxhd_sampling_frequency_16000      = -1;
+static int hf_btavdtp_vendor_specific_aptxhd_sampling_frequency_32000      = -1;
+static int hf_btavdtp_vendor_specific_aptxhd_sampling_frequency_44100      = -1;
+static int hf_btavdtp_vendor_specific_aptxhd_sampling_frequency_48000      = -1;
+static int hf_btavdtp_vendor_specific_aptxhd_channel_mode_mono             = -1;
+static int hf_btavdtp_vendor_specific_aptxhd_channel_mode_dual_channel     = -1;
+static int hf_btavdtp_vendor_specific_aptxhd_channel_mode_stereo           = -1;
+static int hf_btavdtp_vendor_specific_aptxhd_channel_mode_joint_stereo     = -1;
+static int hf_btavdtp_vendor_specific_aptxhd_rfa                           = -1;
 static int hf_btavdtp_h263_level_10                                        = -1;
 static int hf_btavdtp_h263_level_20                                        = -1;
 static int hf_btavdtp_h263_level_30                                        = -1;
@@ -310,6 +322,7 @@ static const enum_val_t pref_a2dp_codec[] = {
     { "mpeg-audio",  "MPEG24 AAC",   CODEC_MPEG24_AAC },
 /* XXX: Not supported in Wireshark yet  { "atrac",      "ATRAC",                                  CODEC_ATRAC },*/
     { "aptx",        "aptX",         CODEC_APT_X },
+    { "aptx-hd",     "aptX HD",      CODEC_APT_X_HD },
     { NULL, NULL, 0 }
 };
 
@@ -529,6 +542,7 @@ static const value_string content_protection_type_vals[] = {
 
 static const value_string vendor_apt_codec_vals[] = {
     { CODECID_APT_X,     "aptX" },
+    { CODECID_APT_X_HD,  "aptX HD" },
     { 0, NULL }
 };
 
@@ -919,18 +933,31 @@ dissect_codec(tvbuff_t *tvb, packet_info *pinfo, proto_item *service_item, proto
 
                     switch (tvb_get_letohl(tvb, offset)) {
                         case 0x004F: /* APT Licensing Ltd. */
+                        case 0x00D7: /* Qualcomm technologies, Inc. */
                             proto_tree_add_item(tree, hf_btavdtp_vendor_specific_apt_codec_id, tvb, offset + 4, 2, ENC_LITTLE_ENDIAN);
                             value = tvb_get_letohs(tvb, offset + 4);
 
-                            if (value == CODECID_APT_X) { /* APT-X or APT-X HD Codec */
-                                proto_tree_add_item(tree, hf_btavdtp_vendor_specific_aptx_sampling_frequency_16000, tvb, offset + 6, 1, ENC_NA);
-                                proto_tree_add_item(tree, hf_btavdtp_vendor_specific_aptx_sampling_frequency_32000, tvb, offset + 6, 1, ENC_NA);
-                                proto_tree_add_item(tree, hf_btavdtp_vendor_specific_aptx_sampling_frequency_44100, tvb, offset + 6, 1, ENC_NA);
-                                proto_tree_add_item(tree, hf_btavdtp_vendor_specific_aptx_sampling_frequency_48000, tvb, offset + 6, 1, ENC_NA);
-                                proto_tree_add_item(tree, hf_btavdtp_vendor_specific_aptx_channel_mode_mono, tvb, offset + 6, 1, ENC_NA);
-                                proto_tree_add_item(tree, hf_btavdtp_vendor_specific_aptx_channel_mode_dual_channel, tvb, offset + 6, 1, ENC_NA);
-                                proto_tree_add_item(tree, hf_btavdtp_vendor_specific_aptx_channel_mode_stereo, tvb, offset + 6, 1, ENC_NA);
-                                proto_tree_add_item(tree, hf_btavdtp_vendor_specific_aptx_channel_mode_joint_stereo, tvb, offset + 6, 1, ENC_NA);
+                            if (value == CODECID_APT_X || value == CODECID_APT_X_HD) { /* APT-X or APT-X HD Codec */
+                                if (value == CODECID_APT_X) {
+                                    proto_tree_add_item(tree, hf_btavdtp_vendor_specific_aptx_sampling_frequency_16000, tvb, offset + 6, 1, ENC_NA);
+                                    proto_tree_add_item(tree, hf_btavdtp_vendor_specific_aptx_sampling_frequency_32000, tvb, offset + 6, 1, ENC_NA);
+                                    proto_tree_add_item(tree, hf_btavdtp_vendor_specific_aptx_sampling_frequency_44100, tvb, offset + 6, 1, ENC_NA);
+                                    proto_tree_add_item(tree, hf_btavdtp_vendor_specific_aptx_sampling_frequency_48000, tvb, offset + 6, 1, ENC_NA);
+                                    proto_tree_add_item(tree, hf_btavdtp_vendor_specific_aptx_channel_mode_mono, tvb, offset + 6, 1, ENC_NA);
+                                    proto_tree_add_item(tree, hf_btavdtp_vendor_specific_aptx_channel_mode_dual_channel, tvb, offset + 6, 1, ENC_NA);
+                                    proto_tree_add_item(tree, hf_btavdtp_vendor_specific_aptx_channel_mode_stereo, tvb, offset + 6, 1, ENC_NA);
+                                    proto_tree_add_item(tree, hf_btavdtp_vendor_specific_aptx_channel_mode_joint_stereo, tvb, offset + 6, 1, ENC_NA);
+                                } else {
+                                    proto_tree_add_item(tree, hf_btavdtp_vendor_specific_aptxhd_sampling_frequency_16000, tvb, offset + 6, 1, ENC_NA);
+                                    proto_tree_add_item(tree, hf_btavdtp_vendor_specific_aptxhd_sampling_frequency_32000, tvb, offset + 6, 1, ENC_NA);
+                                    proto_tree_add_item(tree, hf_btavdtp_vendor_specific_aptxhd_sampling_frequency_44100, tvb, offset + 6, 1, ENC_NA);
+                                    proto_tree_add_item(tree, hf_btavdtp_vendor_specific_aptxhd_sampling_frequency_48000, tvb, offset + 6, 1, ENC_NA);
+                                    proto_tree_add_item(tree, hf_btavdtp_vendor_specific_aptxhd_channel_mode_mono, tvb, offset + 6, 1, ENC_NA);
+                                    proto_tree_add_item(tree, hf_btavdtp_vendor_specific_aptxhd_channel_mode_dual_channel, tvb, offset + 6, 1, ENC_NA);
+                                    proto_tree_add_item(tree, hf_btavdtp_vendor_specific_aptxhd_channel_mode_stereo, tvb, offset + 6, 1, ENC_NA);
+                                    proto_tree_add_item(tree, hf_btavdtp_vendor_specific_aptxhd_channel_mode_joint_stereo, tvb, offset + 6, 1, ENC_NA);
+                                    proto_tree_add_item(tree, hf_btavdtp_vendor_specific_aptxhd_rfa, tvb, offset + 7, 4, ENC_NA);
+                                }
 
                                 col_append_fstr(pinfo->cinfo, COL_INFO, " (%s -",
                                     val_to_str_const(value, vendor_apt_codec_vals, "unknown codec"));
@@ -2680,6 +2707,51 @@ proto_register_btavdtp(void)
             FT_BOOLEAN, 8, NULL, 0x01,
             NULL, HFILL }
         },
+        { &hf_btavdtp_vendor_specific_aptxhd_sampling_frequency_16000,
+            { "Sampling Frequency 16000 Hz",    "btavdtp.codec.aptxhd.sampling_frequency.16000",
+            FT_BOOLEAN, 8, NULL, 0x80,
+            NULL, HFILL }
+        },
+        { &hf_btavdtp_vendor_specific_aptxhd_sampling_frequency_32000,
+            { "Sampling Frequency 32000 Hz",    "btavdtp.codec.aptxhd.sampling_frequency.32000",
+            FT_BOOLEAN, 8, NULL, 0x40,
+            NULL, HFILL }
+        },
+        { &hf_btavdtp_vendor_specific_aptxhd_sampling_frequency_44100,
+            { "Sampling Frequency 44100 Hz",    "btavdtp.codec.aptxhd.sampling_frequency.44100",
+            FT_BOOLEAN, 8, NULL, 0x20,
+            NULL, HFILL }
+        },
+        { &hf_btavdtp_vendor_specific_aptxhd_sampling_frequency_48000,
+            { "Sampling Frequency 48000 Hz",    "btavdtp.codec.aptxhd.sampling_frequency.48000",
+            FT_BOOLEAN, 8, NULL, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_btavdtp_vendor_specific_aptxhd_channel_mode_mono,
+            { "Channel Mode Mono",              "btavdtp.codec.aptxhd.channel_mode.mono",
+            FT_BOOLEAN, 8, NULL, 0x08,
+            NULL, HFILL }
+        },
+        { &hf_btavdtp_vendor_specific_aptxhd_channel_mode_dual_channel,
+            { "Channel Mode Dual Channel",      "btavdtp.codec.aptxhd.channel_mode.dual_channel",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_btavdtp_vendor_specific_aptxhd_channel_mode_stereo,
+            { "Channel Mode Stereo",            "btavdtp.codec.aptxhd.channel_mode.stereo",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_btavdtp_vendor_specific_aptxhd_channel_mode_joint_stereo,
+            { "Channel Mode Joint Stereo",      "btavdtp.codec.aptxhd.channel_mode.joint_stereo",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_btavdtp_vendor_specific_aptxhd_rfa,
+            { "RFA",                            "btavdtp.codec.aptxhd.rfa",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_btavdtp_capabilities,
             { "Capabilities",                   "btavdtp.capabilities",
             FT_NONE, BASE_NONE, NULL, 0x0,
@@ -3004,7 +3076,8 @@ dissect_bta2dp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         pitem = proto_tree_add_uint(bta2dp_tree, hf_bta2dp_vendor_codec_id, tvb, 0, 0, sep_data.vendor_codec);
         PROTO_ITEM_SET_GENERATED(pitem);
 
-        if (sep_data.vendor_id == 0x004F && sep_data.vendor_codec == CODECID_APT_X)
+        if ((sep_data.vendor_id == 0x004F && sep_data.vendor_codec == CODECID_APT_X) ||
+                (sep_data.vendor_id == 0x00D7 && sep_data.vendor_codec == CODECID_APT_X_HD))
             codec_dissector = aptx_handle;
     }
 
@@ -3040,6 +3113,7 @@ dissect_bta2dp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             codec_dissector = atrac_handle;
             break;
         case CODEC_APT_X:
+        case CODEC_APT_X_HD:
             codec_dissector = aptx_handle;
             break;
     }
