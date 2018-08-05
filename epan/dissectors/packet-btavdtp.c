@@ -2407,22 +2407,22 @@ proto_register_btavdtp(void)
             NULL, HFILL }
         },
         { &hf_btavdtp_mpeg24_object_type_mpeg2_aac_lc,
-            { "MPEG2 ACC LC",                   "btavdtp.codec.mpeg24.object_type.mpeg2_aac_lc",
+            { "MPEG2 AAC LC",                   "btavdtp.codec.mpeg24.object_type.mpeg2_aac_lc",
             FT_BOOLEAN, 8, NULL, 0x80,
             NULL, HFILL }
         },
         { &hf_btavdtp_mpeg24_object_type_mpeg4_aac_lc,
-            { "MPEG4 ACC LC",                   "btavdtp.codec.mpeg24.object_type.mpeg4_aac_lc",
+            { "MPEG4 AAC LC",                   "btavdtp.codec.mpeg24.object_type.mpeg4_aac_lc",
             FT_BOOLEAN, 8, NULL, 0x40,
             NULL, HFILL }
         },
         { &hf_btavdtp_mpeg24_object_type_mpeg4_aac_ltp,
-            { "MPEG4 ACC LTP",                  "btavdtp.codec.mpeg24.object_type.mpeg4_aac_ltp",
+            { "MPEG4 AAC LTP",                  "btavdtp.codec.mpeg24.object_type.mpeg4_aac_ltp",
             FT_BOOLEAN, 8, NULL, 0x20,
             NULL, HFILL }
         },
         { &hf_btavdtp_mpeg24_object_type_mpeg4_aac_scalable,
-            { "MPEG4 ACC Scalable",             "btavdtp.codec.mpeg24.object_type.mpeg4_aac_scalable",
+            { "MPEG4 AAC Scalable",             "btavdtp.codec.mpeg24.object_type.mpeg4_aac_scalable",
             FT_BOOLEAN, 8, NULL, 0x10,
             NULL, HFILL }
         },
