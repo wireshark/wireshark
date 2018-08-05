@@ -10341,6 +10341,8 @@ xadmin           9105/udp # Xadmin Control Service [Ari√´n Huisken <xadmin&hu
 astergate        9106/tcp # Astergate Control Service [Ari_Huisken] [Ari_Huisken] 2010-01-04
 astergate-disc   9106/udp # Astergate Discovery Service [Ari_Huisken] [Ari_Huisken] 2010-01-04
 astergatefax     9107/tcp # AstergateFax Control Service [Gijs_Middelkamp] [Gijs_Middelkamp] 2010-02-03
+hexxorecore      9111/tcp # Multiple Purpose, Distributed Message Bus [Hexxore] [Patrick_Roozeboom] 2018-07-31
+hexxorecore      9111/udp # Multiple Purpose, Distributed Message Bus [Hexxore] [Patrick_Roozeboom] 2018-07-31
 mxit             9119/tcp # MXit Instant Messaging [Marnus_Freeman] [Marnus_Freeman] 2006-02
 mxit             9119/udp # MXit Instant Messaging [Marnus_Freeman] [Marnus_Freeman] 2006-02
 grcmp            9122/tcp # Global Relay compliant mobile instant messaging protocol [Global_Relay] [Mike_Sample] 2012-11-28
@@ -11399,7 +11401,7 @@ speedtrace      33334/tcp # SpeedTrace TraceAgent [Holger_Heinrich] [Holger_Hein
 speedtrace-disc 33334/udp # SpeedTrace TraceAgent Discovery [Holger_Heinrich] [Holger_Heinrich] 2012-02-01
 traceroute      33434/tcp # traceroute use [IANA] [IANA]
 traceroute      33434/udp # traceroute use [IANA] [IANA]
-mtrace          33435/udp # IP Multicast Traceroute [Hitoshi_Asaeda] [Hitoshi_Asaeda] 2017-12-13 [draft-ietf-mboned-mtrace-v2]
+mtrace          33435/udp # IP Multicast Traceroute [IESG] [IETF_Chair] 2017-12-13 2018-07-31 [RFC-ietf-mboned-mtrace-v2-26]
 snip-slave      33656/tcp # SNIP Slave [Dr_Chris_Tucker] [Dr_Chris_Tucker] 2005-08
 snip-slave      33656/udp # SNIP Slave [Dr_Chris_Tucker] [Dr_Chris_Tucker] 2005-08
 turbonote-2     34249/tcp # TurboNote Relay Server Default Port [Peter_Hyde] [Peter_Hyde]
