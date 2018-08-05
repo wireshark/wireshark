@@ -78,6 +78,7 @@
 #define CODEC_ATRAC           0x04
 #define CODEC_APT_X           0xFF01
 
+#define CODECID_APT_X         0x0001
 #define CODEC_H263_BASELINE   0x01
 #define CODEC_MPEG4_VSP       0x02
 #define CODEC_H263_PROFILE_3  0x03
@@ -308,7 +309,7 @@ static const enum_val_t pref_a2dp_codec[] = {
     { "mp2t",        "MPEG12 AUDIO", CODEC_MPEG12_AUDIO },
     { "mpeg-audio",  "MPEG24 AAC",   CODEC_MPEG24_AAC },
 /* XXX: Not supported in Wireshark yet  { "atrac",      "ATRAC",                                  CODEC_ATRAC },*/
-    { "aptx",        "APT-X",        CODEC_APT_X },
+    { "aptx",        "aptX",         CODEC_APT_X },
     { NULL, NULL, 0 }
 };
 
@@ -527,7 +528,7 @@ static const value_string content_protection_type_vals[] = {
 };
 
 static const value_string vendor_apt_codec_vals[] = {
-    { 0x0001,  "APT-X" },
+    { CODECID_APT_X,     "aptX" },
     { 0, NULL }
 };
 
@@ -921,7 +922,7 @@ dissect_codec(tvbuff_t *tvb, packet_info *pinfo, proto_item *service_item, proto
                             proto_tree_add_item(tree, hf_btavdtp_vendor_specific_apt_codec_id, tvb, offset + 4, 2, ENC_LITTLE_ENDIAN);
                             value = tvb_get_letohs(tvb, offset + 4);
 
-                            if (value == 0x0001) { /* APT-X Codec */
+                            if (value == CODECID_APT_X) { /* APT-X or APT-X HD Codec */
                                 proto_tree_add_item(tree, hf_btavdtp_vendor_specific_aptx_sampling_frequency_16000, tvb, offset + 6, 1, ENC_NA);
                                 proto_tree_add_item(tree, hf_btavdtp_vendor_specific_aptx_sampling_frequency_32000, tvb, offset + 6, 1, ENC_NA);
                                 proto_tree_add_item(tree, hf_btavdtp_vendor_specific_aptx_sampling_frequency_44100, tvb, offset + 6, 1, ENC_NA);
@@ -2750,7 +2751,7 @@ dissect_aptx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     info = (bta2dp_codec_info_t *) data;
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "APT-X");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "aptX");
 
     switch (pinfo->p2p_dir) {
 
@@ -2772,7 +2773,7 @@ dissect_aptx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         break;
     }
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "APT-X");
+    col_append_fstr(pinfo->cinfo, COL_INFO, "aptX");
 
     aptx_item = proto_tree_add_item(tree, proto_aptx, tvb, 0, -1, ENC_NA);
     aptx_tree = proto_item_add_subtree(aptx_item, ett_aptx);
@@ -2907,7 +2908,7 @@ proto_register_aptx(void)
         &ett_aptx
     };
 
-    proto_aptx = proto_register_protocol("APT-X Codec", "APT-X", "aptx");
+    proto_aptx = proto_register_protocol("aptX Codec", "aptX", "aptx");
     proto_register_field_array(proto_aptx, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
@@ -3003,7 +3004,7 @@ dissect_bta2dp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         pitem = proto_tree_add_uint(bta2dp_tree, hf_bta2dp_vendor_codec_id, tvb, 0, 0, sep_data.vendor_codec);
         PROTO_ITEM_SET_GENERATED(pitem);
 
-        if (sep_data.vendor_id == 0x004F && sep_data.vendor_codec == 0x0001)
+        if (sep_data.vendor_id == 0x004F && sep_data.vendor_codec == CODECID_APT_X)
             codec_dissector = aptx_handle;
     }
 
