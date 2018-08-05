@@ -15,6 +15,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/conversation.h>
 #include <epan/etypes.h>
 #include <epan/expert.h>
 #include <epan/sminmpec.h>
@@ -47,6 +48,10 @@ static int hf_pfcp2_ie_len = -1;
 static int hf_pfcp2_enterprise_ie = -1;
 static int hf_pfcp_enterprice_id = -1;
 static int hf_pfcp_enterprice_data = -1;
+
+static int hf_pfcp_response_in = -1;
+static int hf_pfcp_response_to = -1;
+static int hf_pfcp_response_time = -1;
 
 static int hf_pfcp_spare_b2 = -1;
 static int hf_pfcp_spare_b3 = -1;
@@ -558,7 +563,31 @@ static const true_false_string pfcp_id_predef_dynamic_tfs = {
     "Dynamic by CP",
 };
 
-#define PFCP_MSG_RESERVED_0    0
+#define PFCP_MSG_RESERVED_0                             0
+
+#define PFCP_HEARTBEAT_REQUEST                          1
+#define PFCP_HEARTBEAT_RESPONSE                         2
+#define PFCP_PFD_MANAGEMENT_REQUEST                     3
+#define PFCP_PFD_MANAGEMENT_RESPONSE                    4
+#define PFCP_ASSOCIATION_SETUP_REQUEST                  5
+#define PFCP_ASSOCIATION_SETUP_RESPONSE                 6
+#define PFCP_ASSOCIATION_UPDATE_REQUEST                 7
+#define PFCP_ASSOCIATION_UPDATE_RESPONSE                8
+#define PFCP_ASSOCIATION_RELEASE_REQUEST                9
+#define PFCP_ASSOCIATION_RELEASE_RESPONSE               10
+#define PFCP_VERSION_NOT_SUPPORTED_RESPONSE             11
+#define PFCP_NODE_REPORT_REQEUST                        12
+#define PFCP_NODE_REPORT_RERESPONSE                     13
+#define PFCP_SESSION_SET_DELETION_REQUEST               14
+#define PFCP_SESSION_SET_DELETION_RESPONSE              15
+#define PFCP_SESSION_ESTABLISHMENT_REQUEST              50
+#define PFCP_SESSION_ESTABLISHMENT_RESPONSE             51
+#define PFCP_SESSION_MODIFICATION_REQUEST               52
+#define PFCP_SESSION_MODIFICATION_RESPONSE              53
+#define PFCP_SESSION_DELETION_REQUEST                   54
+#define PFCP_SESSION_DELETION_RESPONSE                  55
+#define PFCP_SESSION_REPORT_REQUEST                     56
+#define PFCP_SESSION_REPORT_RESPONSE                    57
 
 static const value_string pfcp_message_type[] = {
     {PFCP_MSG_RESERVED_0,             "Reserved"},
@@ -795,6 +824,58 @@ static const value_string pfcp_ie_type[] = {
 };
 
 static value_string_ext pfcp_ie_type_ext = VALUE_STRING_EXT_INIT(pfcp_ie_type);
+
+/* Data structure attached to a conversation,
+*  to keep track of request/response-pairs
+*/
+typedef struct pfcp_conv_info_t {
+    wmem_map_t             *unmatched;
+    wmem_map_t             *matched;
+} pfcp_conv_info_t;
+
+/* structure used to track responses to requests using sequence number */
+typedef struct pfcp_msg_hash_entry {
+    gboolean is_request;    /* TRUE/FALSE */
+    guint32 req_frame;      /* frame with request */
+    nstime_t req_time;      /* req time */
+    guint32 rep_frame;      /* frame with reply */
+    gint seq_nr;            /* sequence number */
+    guint msgtype;          /* messagetype */
+} pfcp_msg_hash_t;
+
+static guint
+pfcp_sn_hash(gconstpointer k)
+{
+    const pfcp_msg_hash_t *key = (const pfcp_msg_hash_t *)k;
+
+    return key->seq_nr;
+}
+
+static gboolean
+pfcp_sn_equal_matched(gconstpointer k1, gconstpointer k2)
+{
+    const pfcp_msg_hash_t *key1 = (const pfcp_msg_hash_t *)k1;
+    const pfcp_msg_hash_t *key2 = (const pfcp_msg_hash_t *)k2;
+
+    if (key1->req_frame && key2->req_frame && (key1->req_frame != key2->req_frame)) {
+        return 0;
+    }
+
+    if (key1->rep_frame && key2->rep_frame && (key1->rep_frame != key2->rep_frame)) {
+        return 0;
+    }
+
+    return key1->seq_nr == key2->seq_nr;
+}
+
+static gboolean
+pfcp_sn_equal_unmatched(gconstpointer k1, gconstpointer k2)
+{
+    const pfcp_msg_hash_t *key1 = (const pfcp_msg_hash_t *)k1;
+    const pfcp_msg_hash_t *key2 = (const pfcp_msg_hash_t *)k2;
+
+    return key1->seq_nr == key2->seq_nr;
+}
 
 static void
 dissect_pfcp_reserved(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
@@ -4369,6 +4450,140 @@ static const pfcp_ie_t pfcp_ies[] = {
 /* Set up the array to hold "etts" for each IE*/
 gint ett_pfcp_elem[NUM_PFCP_IES-1];
 
+static pfcp_msg_hash_t *
+pfcp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint seq_nr, guint msgtype, pfcp_conv_info_t *pfcp_info)
+{
+    pfcp_msg_hash_t   pcr, *pcrp = NULL;
+
+    pcr.seq_nr = seq_nr;
+    pcr.req_time = pinfo->abs_ts;
+
+    switch (msgtype) {
+    case PFCP_HEARTBEAT_REQUEST:
+    case PFCP_PFD_MANAGEMENT_REQUEST:
+    case PFCP_ASSOCIATION_SETUP_REQUEST:
+    case PFCP_ASSOCIATION_UPDATE_REQUEST:
+    case PFCP_ASSOCIATION_RELEASE_REQUEST:
+    case PFCP_NODE_REPORT_REQEUST:
+    case PFCP_SESSION_SET_DELETION_REQUEST:
+    case PFCP_SESSION_ESTABLISHMENT_REQUEST:
+    case PFCP_SESSION_MODIFICATION_REQUEST:
+    case PFCP_SESSION_DELETION_REQUEST:
+    case PFCP_SESSION_REPORT_REQUEST:
+        pcr.is_request = TRUE;
+        pcr.req_frame = pinfo->num;
+        pcr.rep_frame = 0;
+        break;
+    case PFCP_HEARTBEAT_RESPONSE:
+    case PFCP_PFD_MANAGEMENT_RESPONSE:
+    case PFCP_ASSOCIATION_SETUP_RESPONSE:
+    case PFCP_ASSOCIATION_UPDATE_RESPONSE:
+    case PFCP_ASSOCIATION_RELEASE_RESPONSE:
+    case PFCP_VERSION_NOT_SUPPORTED_RESPONSE:
+    case PFCP_NODE_REPORT_RERESPONSE:
+    case PFCP_SESSION_SET_DELETION_RESPONSE:
+    case PFCP_SESSION_ESTABLISHMENT_RESPONSE:
+    case PFCP_SESSION_MODIFICATION_RESPONSE:
+    case PFCP_SESSION_DELETION_RESPONSE:
+    case PFCP_SESSION_REPORT_RESPONSE:
+
+        pcr.is_request = FALSE;
+        pcr.req_frame = 0;
+        pcr.rep_frame = pinfo->num;
+        break;
+    default:
+        pcr.is_request = FALSE;
+        pcr.req_frame = 0;
+        pcr.rep_frame = 0;
+        break;
+    }
+
+    pcrp = (pfcp_msg_hash_t *)wmem_map_lookup(pfcp_info->matched, &pcr);
+
+    if (pcrp) {
+        pcrp->is_request = pcr.is_request;
+    } else {
+        /* no match, let's try to make one */
+        switch (msgtype) {
+        case PFCP_HEARTBEAT_REQUEST:
+        case PFCP_PFD_MANAGEMENT_REQUEST:
+        case PFCP_ASSOCIATION_SETUP_REQUEST:
+        case PFCP_ASSOCIATION_UPDATE_REQUEST:
+        case PFCP_ASSOCIATION_RELEASE_REQUEST:
+        case PFCP_NODE_REPORT_REQEUST:
+        case PFCP_SESSION_SET_DELETION_REQUEST:
+        case PFCP_SESSION_ESTABLISHMENT_REQUEST:
+        case PFCP_SESSION_MODIFICATION_REQUEST:
+        case PFCP_SESSION_DELETION_REQUEST:
+        case PFCP_SESSION_REPORT_REQUEST:
+
+            pcr.seq_nr = seq_nr;
+
+            pcrp = (pfcp_msg_hash_t *)wmem_map_remove(pfcp_info->unmatched, &pcr);
+
+            /* if we can't reuse the old one, grab a new chunk */
+            if (!pcrp) {
+                pcrp = wmem_new(wmem_file_scope(), pfcp_msg_hash_t);
+            }
+            pcrp->seq_nr = seq_nr;
+            pcrp->req_frame = pinfo->num;
+            pcrp->req_time = pinfo->abs_ts;
+            pcrp->rep_frame = 0;
+            pcrp->msgtype = msgtype;
+            pcrp->is_request = TRUE;
+            wmem_map_insert(pfcp_info->unmatched, pcrp, pcrp);
+            return NULL;
+            break;
+        case PFCP_HEARTBEAT_RESPONSE:
+        case PFCP_PFD_MANAGEMENT_RESPONSE:
+        case PFCP_ASSOCIATION_SETUP_RESPONSE:
+        case PFCP_ASSOCIATION_UPDATE_RESPONSE:
+        case PFCP_ASSOCIATION_RELEASE_RESPONSE:
+        case PFCP_VERSION_NOT_SUPPORTED_RESPONSE:
+        case PFCP_NODE_REPORT_RERESPONSE:
+        case PFCP_SESSION_SET_DELETION_RESPONSE:
+        case PFCP_SESSION_ESTABLISHMENT_RESPONSE:
+        case PFCP_SESSION_MODIFICATION_RESPONSE:
+        case PFCP_SESSION_DELETION_RESPONSE:
+        case PFCP_SESSION_REPORT_RESPONSE:
+
+            pcr.seq_nr = seq_nr;
+            pcrp = (pfcp_msg_hash_t *)wmem_map_lookup(pfcp_info->unmatched, &pcr);
+
+            if (pcrp) {
+                if (!pcrp->rep_frame) {
+                    wmem_map_remove(pfcp_info->unmatched, pcrp);
+                    pcrp->rep_frame = pinfo->num;
+                    pcrp->is_request = FALSE;
+                    wmem_map_insert(pfcp_info->matched, pcrp, pcrp);
+                }
+            }
+            break;
+        default:
+            break;
+        }
+    }
+
+    /* we have found a match */
+    if (pcrp) {
+        proto_item *it;
+
+        if (pcrp->is_request) {
+            it = proto_tree_add_uint(tree, hf_pfcp_response_in, tvb, 0, 0, pcrp->rep_frame);
+            PROTO_ITEM_SET_GENERATED(it);
+        } else {
+            nstime_t ns;
+
+            it = proto_tree_add_uint(tree, hf_pfcp_response_to, tvb, 0, 0, pcrp->req_frame);
+            PROTO_ITEM_SET_GENERATED(it);
+            nstime_delta(&ns, &pinfo->abs_ts, &pcrp->req_time);
+            it = proto_tree_add_time(tree, hf_pfcp_response_time, tvb, 0, 0, &ns);
+            PROTO_ITEM_SET_GENERATED(it);
+        }
+    }
+    return pcrp;
+}
+
 /* 7.2.3.3  Grouped Information Elements */
 
 static void
@@ -4756,6 +4971,9 @@ dissect_pfcp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *data 
     guint8               message_type;
     guint32              length;
     guint32              length_remaining;
+    int                  seq_no = 0;
+    conversation_t      *conversation;
+    pfcp_conv_info_t    *pfcp_info;
 
     static const int * pfcp_hdr_flags[] = {
         &hf_pfcp_version,
@@ -4772,6 +4990,23 @@ dissect_pfcp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *data 
 
     message_type = tvb_get_guint8(tvb, 1);
     col_set_str(pinfo->cinfo, COL_INFO, val_to_str_ext_const(message_type, &pfcp_message_type_ext, "Unknown"));
+
+    /* Do we have a conversation for this connection? */
+    conversation = find_or_create_conversation(pinfo);
+
+    /* Do we already know this conversation? */
+    pfcp_info = (pfcp_conv_info_t *)conversation_get_proto_data(conversation, proto_pfcp);
+    if (pfcp_info == NULL) {
+        /* No. Attach that information to the conversation,
+        * and add it to the list of information structures.
+        */
+        pfcp_info = wmem_new(wmem_file_scope(), pfcp_conv_info_t);
+        /* Request/response matching tables */
+        pfcp_info->matched = wmem_map_new(wmem_file_scope(), pfcp_sn_hash, pfcp_sn_equal_matched);
+        pfcp_info->unmatched = wmem_map_new(wmem_file_scope(), pfcp_sn_hash, pfcp_sn_equal_unmatched);
+
+        conversation_add_proto_data(conversation, proto_pfcp, pfcp_info);
+    }
 
     item = proto_tree_add_item(tree, proto_pfcp, tvb, 0, -1, ENC_NA);
     sub_tree = proto_item_add_subtree(item, ett_pfcp);
@@ -4830,8 +5065,12 @@ dissect_pfcp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *data 
           7    |        Sequence Number (3st Octet)             |
           8    |             Spare                              |
           */
-    proto_tree_add_item(sub_tree, hf_pfcp_seqno, tvb, offset, 3, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(sub_tree, hf_pfcp_seqno, tvb, offset, 3, ENC_BIG_ENDIAN, &seq_no);
     offset += 3;
+
+    /* Use sequence number to track Req/Resp pairs */
+    pfcp_match_response(tvb, pinfo, sub_tree, seq_no, message_type, pfcp_info);
+
     if ((pfcp_flags & 0x2) == 0x2) {
         /* If the "MP" flag is set to "1", then bits 8 to 5 of octet 16 shall indicate the message priority.*/
         proto_tree_add_item(sub_tree, hf_pfcp_mp, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -4984,6 +5223,21 @@ proto_register_pfcp(void)
         { "Sequence Number", "pfcp.seqno",
         FT_UINT24, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
+        },
+        { &hf_pfcp_response_in,
+        { "Response In", "pfcp.response_in",
+        FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0,
+        "The response to this PFCP request is in this frame", HFILL }
+        },
+        { &hf_pfcp_response_to,
+        { "Response To", "pfcp.response_to",
+        FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0,
+        "This is a response to the PFCP request in this frame", HFILL }
+        },
+        { &hf_pfcp_response_time,
+        { "Response Time", "pfcp.response_time",
+        FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+        "The time between the Request and the Response", HFILL }
         },
         { &hf_pfcp_mp,
         { "Message Priority", "pfcp.mp",
