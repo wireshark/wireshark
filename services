@@ -5391,6 +5391,7 @@ xadmin		9105/tcp/udp	# Xadmin Control Service
 astergate	9106/tcp	# Astergate Control Service
 astergate-disc	9106/udp	# Astergate Discovery Service
 astergatefax	9107/tcp	# AstergateFax Control Service
+hexxorecore	9111/tcp/udp	# Multiple Purpose, Distributed Message Bus
 mxit		9119/tcp/udp	# MXit Instant Messaging
 grcmp		9122/tcp	# Global Relay compliant mobile instant messaging protocol
 grcp		9123/tcp	# Global Relay compliant instant messaging protocol

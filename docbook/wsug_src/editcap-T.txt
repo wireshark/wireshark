@@ -151,7 +151,9 @@ editcap: The available encapsulation types for the "-T" flag are:
     rawip4 - Raw IPv4
     rawip6 - Raw IPv6
     redback - Redback SmartEdge
+    rfc7468 - RFC 7468 file
     rtac-serial - RTAC serial-line
+    ruby_marshal - Ruby marshal object
     s4607 - STANAG 4607
     s5066-dpdu - STANAG 5066 Data Transfer Sublayer PDUs(D_PDU)
     sccp - SS7 SCCP
