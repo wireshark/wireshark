@@ -80,28 +80,45 @@ endif()
 # - %VCINSTALLDIR%
 # - %VCINSTALLDIR%/redist/1033 (<= Visual Studio 2015)
 # - %VCINSTALLDIR%/Redist/MSVC/* (>= Visual Studio 2017)
-# MSVC_VERSION
-# 1200 = VS  6.0
-# 1300 = VS  7.0
-# 1310 = VS  7.1
-# 1400 = VS  8.0
-# 1500 = VS  9.0
-# 1600 = VS 10.0
-# 1700 = VS 11.0
-# 1800 = VS 12.0
-# 1900 = VS 14.0
-# 1910 = VS 15.0
+# MSVC_VERSION (_MSC_VER) = Visual Studio Version / MSVC Toolset Version
+# 1900 = VS2015 14.0        / 14.00
+# 1910 = VS2017 15.1, 15.2  / 14.10
+# 1911 = VS2017 15.3, 15.4  / 14.11
+# 1912 = VS2017 15.5        / 14.12
+# 1913 = VS2017 15.6        / 14.13
+# 1914 = VS2017 15.7        / 14.14
 set(_vcredist_name "vcredist_${TARGET_MACHINE}.exe")
 if(MSVC_VERSION GREATER_EQUAL 1910)
 	set(_ws_vcredist_subdir "vcredist_MSVC2017")
-	set(_ms_vcredist_subdir "Redist/MSVC/14.10.25008")
+	set(_msvs_version 15.0)
 elseif(MSVC_VERSION GREATER_EQUAL 1900)
 	set(_ws_vcredist_subdir "vcredist_MSVC2015")
 	set(_ms_vcredist_subdir "redist/1033")
+	set(_msvs_version 14.0)
+endif()
+
+# Try to find the Redist folder in VCINSTALLDIR which is set by vcvarsall.bat.
+# If it is not set, query it within the registry. VS2015 looks for the "VC7" key
+# in two locations (four if you count HKCU instead of HKLM). However, VS2017
+# does not use "VC7" (it sets a directory relative to vsdevcmd_start.bat). As
+# both versions do set "VS7", use that instead.
+find_path(VCINSTALLDIR Redist PATHS
+	"$ENV{VCINSTALLDIR}"
+	"[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VS7;${_msvs_version}]\\VC"
+	"[HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\Microsoft\\VisualStudio\\SxS\\VS7;${_msvs_version}]\\VC"
+	NO_DEFAULT_PATH
+)
+message(STATUS "Using VCINSTALLDIR: ${VCINSTALLDIR}")
+
+# Visual Studio Community 2017 version 15.7.5 uses VCRT 14.14.26405, but an
+# earlier version used 14.10.25008. Let's just glob for the right value.
+if(MSVC_VERSION GREATER_EQUAL 1910 AND VCINSTALLDIR)
+	file(GLOB _ms_vcredist_subdir RELATIVE "${VCINSTALLDIR}"
+		"${VCINSTALLDIR}/Redist/MSVC/14.*.*")
 endif()
 
 find_program(VCREDIST_EXE "${_vcredist_name}"
-	PATHS "${_PROJECT_LIB_DIR}" $ENV{VCToolsRedistDir} $ENV{VCINSTALLDIR}
+	PATHS "${_PROJECT_LIB_DIR}" $ENV{VCToolsRedistDir} "${VCINSTALLDIR}"
 	PATH_SUFFIXES ${_ws_vcredist_subdir} ${_ms_vcredist_subdir}
 	NO_DEFAULT_PATH
 )
