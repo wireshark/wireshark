@@ -5315,8 +5315,17 @@ ssl_load_keyfile(const gchar *ssl_keylog_filename, FILE **keylog_file,
         GMatchInfo *mi;
 
         line = fgets(buf, sizeof(buf), *keylog_file);
-        if (!line)
+        if (!line) {
+            if (feof(*keylog_file)) {
+                /* Ensure that newly appended keys can be read in the future. */
+                clearerr(*keylog_file);
+            } else if (ferror(*keylog_file)) {
+                ssl_debug_printf("%s Error while reading key log file, closing it!\n", G_STRFUNC);
+                fclose(*keylog_file);
+                *keylog_file = NULL;
+            }
             break;
+        }
 
         bytes_read = strlen(line);
         /* fgets includes the \n at the end of the line. */
