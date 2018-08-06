@@ -7,7 +7,7 @@
 #
 
 # 64-bit bit field
-ATTRIBUTE	MIP6-Feature-Vector			124	octets
+ATTRIBUTE	MIP6-Feature-Vector			124	integer64
 
 #
 #  Encoded as one octet prefix, followed by 16 octets of address information.
