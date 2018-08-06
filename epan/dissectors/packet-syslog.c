@@ -148,8 +148,15 @@ static gint hf_syslog_level = -1;
 static gint hf_syslog_facility = -1;
 static gint hf_syslog_msg = -1;
 static gint hf_syslog_msu_present = -1;
+static gint hf_syslog_version = -1;
+static gint hf_syslog_timestamp = -1;
+static gint hf_syslog_hostname = -1;
+static gint hf_syslog_appname = -1;
+static gint hf_syslog_procid = -1;
+static gint hf_syslog_msgid = -1;
 
 static gint ett_syslog = -1;
+static gint ett_syslog_msg = -1;
 
 static dissector_handle_t syslog_handle;
 
@@ -211,6 +218,41 @@ mtp3_msu_present(tvbuff_t *tvb, packet_info *pinfo, gint fac, gint level, const 
   return(mtp3_tvb);
 }
 
+static gboolean dissect_syslog_info(proto_tree* tree, tvbuff_t* tvb, guint* offset, gint hfindex)
+{
+  gint end_offset = tvb_find_guint8(tvb, *offset, -1, ' ');
+  if (end_offset == -1)
+    return FALSE;
+  proto_tree_add_item(tree, hfindex, tvb, *offset, end_offset - *offset, ENC_NA);
+  *offset = end_offset + 1;
+  return TRUE;
+}
+
+static void
+dissect_syslog_message(proto_tree* tree, tvbuff_t* tvb, guint offset)
+{
+  gint end_offset;
+
+  if (!dissect_syslog_info(tree, tvb, &offset, hf_syslog_version))
+    return;
+
+  end_offset = tvb_find_guint8(tvb, offset, -1, ' ');
+  if (end_offset == -1)
+    return;
+  proto_tree_add_time_item(tree, hf_syslog_timestamp, tvb, offset, end_offset - offset, ENC_ISO_8601_DATE_TIME,
+    NULL, NULL, NULL);
+  offset = end_offset + 1;
+
+  if (!dissect_syslog_info(tree, tvb, &offset, hf_syslog_hostname))
+    return;
+  if (!dissect_syslog_info(tree, tvb, &offset, hf_syslog_appname))
+    return;
+  if (!dissect_syslog_info(tree, tvb, &offset, hf_syslog_procid))
+    return;
+  if (!dissect_syslog_info(tree, tvb, &offset, hf_syslog_msgid))
+    return;
+}
+
 /* The message format is defined in RFC 3164 */
 static int
 dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -219,6 +261,7 @@ dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
   gint msg_off = 0, msg_len, reported_msg_len;
   proto_item *ti;
   proto_tree *syslog_tree;
+  proto_tree *syslog_message_tree;
   const char *msg_str;
   tvbuff_t *mtp3_tvb;
 
@@ -274,8 +317,10 @@ dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
       proto_tree_add_uint(syslog_tree, hf_syslog_level, tvb, 0,
         msg_off, pri);
     }
-    proto_tree_add_item(syslog_tree, hf_syslog_msg, tvb, msg_off,
+    ti = proto_tree_add_item(syslog_tree, hf_syslog_msg, tvb, msg_off,
       msg_len, ENC_ASCII|ENC_NA);
+    syslog_message_tree = proto_item_add_subtree(ti, ett_syslog_msg);
+    dissect_syslog_message(syslog_message_tree, tvb, msg_off);
 
     if (mtp3_tvb) {
       proto_item *mtp3_item;
@@ -319,12 +364,49 @@ void proto_register_syslog(void)
         FT_BOOLEAN, BASE_NONE, NULL, 0x0,
         "True if an SS7 MSU was detected in the syslog message",
         HFILL }
+    },
+    { &hf_syslog_version,
+      { "Syslog version", "syslog.version",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL,
+        HFILL }
+    },
+    { &hf_syslog_timestamp,
+      { "Syslog timestamp", "syslog.timestamp",
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
+        NULL,
+        HFILL }
+    },
+    { &hf_syslog_hostname,
+      { "Syslog hostname", "syslog.hostname",
+        FT_STRING, ENC_ASCII, NULL, 0x0,
+        NULL,
+        HFILL }
+    },
+    { &hf_syslog_appname,
+      { "Syslog app name", "syslog.appname",
+        FT_STRING, ENC_ASCII, NULL, 0x0,
+        "The name of the app that generated this message",
+        HFILL }
+    },
+    { &hf_syslog_procid,
+      { "Syslog process id", "syslog.procid",
+        FT_STRING, ENC_ASCII, NULL, 0x0,
+        NULL,
+        HFILL }
+    },
+    { &hf_syslog_msgid,
+      { "Syslog message id", "syslog.msgid",
+        FT_STRING, ENC_ASCII, NULL, 0x0,
+        NULL,
+        HFILL }
     }
   };
 
   /* Setup protocol subtree array */
   static gint *ett[] = {
     &ett_syslog,
+    &ett_syslog_msg
   };
 
   /* Register the protocol name and description */
