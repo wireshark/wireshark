@@ -446,7 +446,9 @@ static gboolean check_cops(gint role, guint16 type) {
 }
 
 static gboolean check_cmee(gint role, guint16 type) {
-    if (role == ROLE_DTE && type == TYPE_ACTION) return TRUE;
+    if (role == ROLE_DTE && (type == TYPE_ACTION || type == TYPE_ACTION_SIMPLY ||
+                             type == TYPE_TEST   || type == TYPE_READ)) return TRUE;
+    if (role == ROLE_DCE && type == TYPE_RESPONSE) return TRUE;
 
     return FALSE;
 }
@@ -754,7 +756,8 @@ dissect_cmee_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 {
     guint32      value;
 
-    if (!(role == ROLE_DTE && type == TYPE_ACTION)) {
+    if (!(role == ROLE_DTE && type == TYPE_ACTION) &&
+        !(role == ROLE_DCE && type == TYPE_RESPONSE)) {
         return FALSE;
     }
 
