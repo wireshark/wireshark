@@ -543,10 +543,6 @@ de_nas_5gs_mm_5gs_reg_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     guint32 offset, guint len _U_,
     gchar *add_string _U_, int string_len _U_)
 {
-
-    proto_tree_add_item(tree, hf_nas_5gs_mm_for, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_nas_5gs_mm_5gs_reg_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-
     static const int * flags[] = {
         &hf_nas_5gs_mm_for,
         &hf_nas_5gs_mm_sms_over_nas,
@@ -2511,8 +2507,13 @@ nas_5gs_mm_registration_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo 
     curr_offset = offset;
     curr_len = len;
 
-    /*    5GS registration type    5GS registration type 9.10.3.6    M    V    1*/
+#ifdef NAS_V_2_0_0
+    /*    5GS registration type    5GS registration type 9.10.3.7    M    LV    2*/
+    ELEM_MAND_LV(NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_5GS_REG_TYPE, NULL, ei_nas_5gs_missing_mandatory_elemen);
+#else
+    /*    5GS registration type    5GS registration type 9.10.3.7    M    V    1*/
     ELEM_MAND_V(NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_5GS_REG_TYPE, NULL, ei_nas_5gs_missing_mandatory_elemen);
+#endif
 
     /*    ngKSI    NAS key set identifier 9.10.3.22    M    V    1*/
     ELEM_MAND_V(NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_NAS_KEY_SET_ID, " - ngKSI", ei_nas_5gs_missing_mandatory_elemen);
@@ -2520,8 +2521,13 @@ nas_5gs_mm_registration_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo 
     /*    Mobile identity    5GS mobile identity 9.10.3.4    M    LV    TBD*/
     ELEM_MAND_LV(NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_5GS_MOBILE_ID, NULL, ei_nas_5gs_missing_mandatory_elemen);
 
+#ifdef NAS_V_2_0_0
+    /*C-    Non-current native NAS KSI    NAS key set identifier 9.10.3.29    O    TV    1*/
+    ELEM_OPT_TV_SHORT(0xc0, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_NAS_KEY_SET_ID, " - native KSI");
+#else
     /*55    NonceUE    Nonce 9.10.3.27    O    TV    5*/
     ELEM_OPT_TV(0x55, NAS_PDU_TYPE_EMM, DE_EMM_NONCE, " - NonceUE");
+#endif
 
     /*10    5GMM capability    5GMM capability 9.10.3.1    O    TLV    4-15*/
     ELEM_OPT_TLV(0x10, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_5GMM_CAP, NULL);
@@ -2535,13 +2541,18 @@ nas_5gs_mm_registration_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo 
     /*52    Last visited registered TAI    Tracking area identity 9.10.3.44    O    TV    6*/
     ELEM_OPT_TV(0x52, NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID, " - Last visited registered TAI");
 
-    /*30    S1 UE network capability    S1 UE network capability 9.10.3.36    O    TV    6-13*/
+#ifdef NAS_V_2_0_0
+    /*65    S1 UE network capability    S1 UE network capability 9.10.3.44    O    TLV    4-15 */
+    ELEM_OPT_TLV(0x65, NAS_PDU_TYPE_EMM, DE_EMM_UE_NET_CAP, NULL);
+#else
+    /*30    S1 UE network capability    S1 UE network capability 9.10.3.46    O    TLV    4-15 */
     ELEM_OPT_TLV(0x30, NAS_PDU_TYPE_EMM, DE_EMM_UE_NET_CAP, NULL);
+#endif
 
-    /*40    Uplink data status    Uplink data status 9.10.2.3    O    TLV    4*/
+    /*40    Uplink data status    Uplink data status 9.10.2.3    O    TLV    4 */
     ELEM_OPT_TLV(0x40, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_UL_DATA_STATUS, NULL);
 
-    /*50    PDU session status    PDU session status 9.10.2.2    O    TLV    4*/
+    /*50    PDU session status    PDU session status 9.10.2.2    O    TLV    4 */
     ELEM_OPT_TLV(0x50, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_PDU_SES_STATUS, NULL);
 
     /*B-    MICO indication    MICO indication 9.10.3.21    O    TV    1*/
@@ -4311,42 +4322,42 @@ proto_register_nas_5gs(void)
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_5g_ia0,
-        { "EIA0","nas_5gs.mm.ia0",
+        { "5G-IA0","nas_5gs.mm.ia0",
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_5g_128_ia1,
-        { "128-EIA1","nas_5gs.mm.5g_128_ia1",
+        { "128-5G-IA1","nas_5gs.mm.5g_128_ia1",
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_5g_128_ia2,
-        { "128-EIA2","nas_5gs.mm.5g_128_ia2",
+        { "128-5G-IA2","nas_5gs.mm.5g_128_ia2",
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_5g_128_ia3,
-        { "128-EIA3","nas_5gs.mm.5g_128_ia4",
+        { "128-5G-IA3","nas_5gs.mm.5g_128_ia4",
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_5g_ia4,
-        { "EIA4","nas_5gs.mm.5g_128_ia4",
+        { "5G-IA4","nas_5gs.mm.5g_128_ia4",
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_5g_ia5,
-        { "EIA5","nas_5gs.mm.5g_ia5",
+        { "5G-IA5","nas_5gs.mm.5g_ia5",
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_5g_ia6,
-        { "EIA6","nas_5gs.mm.5g_ia6",
+        { "5G-IA6","nas_5gs.mm.5g_ia6",
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_5g_ia7,
-        { "EIA7","nas_5gs.mm.5g_ia7",
+        { "5G-IA7","nas_5gs.mm.5g_ia7",
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
             NULL, HFILL }
         },
