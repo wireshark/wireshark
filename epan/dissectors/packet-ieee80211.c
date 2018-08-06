@@ -165,19 +165,19 @@ uat_wep_key_record_update_cb(void* r, char** err)
       case DOT11DECRYPT_KEY_TYPE_WEP_40:
       case DOT11DECRYPT_KEY_TYPE_WEP_104:
         if (rec->key != DOT11DECRYPT_KEY_TYPE_WEP) {
-          *err = g_strdup("Invalid key format");
+          *err = g_strdup("Invalid WEP key format");
           return FALSE;
         }
         break;
       case DOT11DECRYPT_KEY_TYPE_WPA_PWD:
         if (rec->key != DOT11DECRYPT_KEY_TYPE_WPA_PWD) {
-          *err = g_strdup("Invalid key format");
+          *err = g_strdup("Invalid WPA_PWD key format");
           return FALSE;
         }
         break;
       case DOT11DECRYPT_KEY_TYPE_WPA_PSK:
         if (rec->key != DOT11DECRYPT_KEY_TYPE_WPA_PSK) {
-          *err = g_strdup("Invalid key format");
+          *err = g_strdup("Invalid WPA_PSK key format");
           return FALSE;
         }
         break;
