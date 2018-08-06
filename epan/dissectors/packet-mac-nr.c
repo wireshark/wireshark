@@ -1689,7 +1689,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                 tvb, offset, 1, ENC_NA);
                             offset++;
                             if (ad) {
-                                guint length = c ? SDU_length / 2 : SDU_length;
+                                guint length = c ? (SDU_length-2) / 2 + 2: SDU_length;
                                 while (offset - start_offset < length) {
                                     proto_tree_add_item(subheader_tree, hf_mac_nr_control_sp_srs_act_deact_f,
                                                         tvb, offset, 1, ENC_NA);
