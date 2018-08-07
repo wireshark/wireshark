@@ -363,9 +363,16 @@ dissect_gsup_tlvs(tvbuff_t *tvb, int base_offs, int length, packet_info *pinfo, 
 			proto_item_append_text(gsup_ti, ", MSISDN: %s", str);
 			break;
 		case OSMO_GSUP_ACCESS_POINT_NAME_IE:
-			get_dns_name(tvb, offset, len, 0, &apn, &apn_len);
-			proto_tree_add_string(att_tree, hf_gsup_apn, tvb, offset, len, apn);
-			proto_item_append_text(ti, ", %s", apn);
+			if (len == 1) {
+				guint8 ch = tvb_get_guint8(tvb, offset);
+				proto_tree_add_item(att_tree, hf_gsup_ie_payload, tvb, offset, len, ENC_NA);
+				if (ch == '*')
+					proto_item_append_text(ti, ", '*' (Wildcard)");
+			} else {
+				get_dns_name(tvb, offset, len, 0, &apn, &apn_len);
+				proto_tree_add_string(att_tree, hf_gsup_apn, tvb, offset, len, apn);
+				proto_item_append_text(ti, ", %s", apn);
+			}
 			break;
 		case OSMO_GSUP_PDP_CONTEXT_ID_IE:
 			proto_tree_add_item(att_tree, hf_gsup_pdp_context_id, tvb, offset, len, ENC_NA);
