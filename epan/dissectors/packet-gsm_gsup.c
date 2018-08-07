@@ -403,9 +403,7 @@ dissect_gsup_tlvs(tvbuff_t *tvb, int base_offs, int length, packet_info *pinfo, 
 		case OSMO_GSUP_PDP_TYPE_IE:
 		case OSMO_GSUP_PDP_QOS_IE:
 		default:
-			/* Unknown/unsupported IE: Print IEI, Length and Payload */
-			proto_tree_add_item(att_tree, hf_gsup_iei, tvb, offset-2, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_uint(att_tree, hf_gsup_ie_len, tvb, offset-1, 1, len);
+			/* Unknown/unsupported IE: Print raw payload in addition to IEI + Length printed above */
 			proto_tree_add_item(att_tree, hf_gsup_ie_payload, tvb, offset, len, ENC_NA);
 			break;
 		}
