@@ -543,6 +543,7 @@ de_nas_5gs_mm_5gs_reg_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     guint32 offset, guint len _U_,
     gchar *add_string _U_, int string_len _U_)
 {
+
     static const int * flags[] = {
         &hf_nas_5gs_mm_for,
         &hf_nas_5gs_mm_sms_over_nas,
@@ -1260,6 +1261,7 @@ de_nas_5gs_mm_sal(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
  *     9.10.3.46    Service type
  */
 
+/* Used inline as H1 (Upper nibble)*/
 static const value_string nas_5gs_mm_serv_type_vals[] = {
     { 0x00, "Signalling" },
     { 0x01, "Data" },
@@ -1267,7 +1269,7 @@ static const value_string nas_5gs_mm_serv_type_vals[] = {
     { 0x03, "Reserved" },
     { 0x04, "Emergency services fallback" },
     {    0, NULL } };
-
+#if 0
 static guint16
 de_nas_5gs_mm_serv_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     guint32 offset, guint len _U_,
@@ -1284,7 +1286,7 @@ de_nas_5gs_mm_serv_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 
     return 1;
 }
-
+#endif
 
 /*
  *     9.10.3.47    Time zone
@@ -1491,6 +1493,7 @@ de_nas_5gs_mm_ul_data_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
     curr_offset++;
 
     proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, psi_8_15_flags, ENC_BIG_ENDIAN);
+    curr_offset++;
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_nas_5gs_extraneous_data);
 
@@ -2170,7 +2173,7 @@ typedef enum
     DE_NAS_5GS_MM_REQ_TYPE,                  /* 9.10.3.43    Request type */
     DE_NAS_5GS_MM_S1_UE_NW_CAP,              /* 9.10.3.44    S1 UE network capability*/
     DE_NAS_5GS_MM_SAL,                       /* 9.10.3.45    Service area list*/
-    DE_NAS_5GS_MM_SERV_TYPE,                 /* 9.10.3.46    Service type*/
+    NULL,                                    /* 9.10.3.46    Service type,*/ /* Used inline Half octet IE*/
     DE_NAS_5GS_MM_TZ,                        /* 9.10.3.47    Time zone*/
     DE_NAS_5GS_MM_TZ_AND_T,                  /* 9.10.3.48    Time zone and time*/
     DE_NAS_5GS_MM_TRANSP_CONT,               /* 9.10.3.49    Transparent container */
@@ -2296,7 +2299,7 @@ guint16(*nas_5gs_mm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
         de_nas_5gs_mm_req_type,                  /* 9.10.3.43    Request type*/
         NULL,                                    /* 9.10.3.44    S1 UE network capability*/
         de_nas_5gs_mm_sal,                       /* 9.10.3.45    Service area list*/
-        de_nas_5gs_mm_serv_type,                 /* 9.10.3.46    Service type*/
+        NULL,                                    /* 9.10.3.46    Service type*/ /* Used Inline Half octet IE */
         NULL,                                    /* 9.10.3.47    Time zone*/
         NULL,                                    /* 9.10.3.48    Time zone and time*/
         de_nas_5gs_mm_transp_cont,               /* 9.10.3.49    Transparent container*/
@@ -2514,7 +2517,6 @@ nas_5gs_mm_registration_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo 
     /*    5GS registration type    5GS registration type 9.10.3.7    M    V    1*/
     ELEM_MAND_V(NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_5GS_REG_TYPE, NULL, ei_nas_5gs_missing_mandatory_elemen);
 #endif
-
     /*    ngKSI    NAS key set identifier 9.10.3.22    M    V    1*/
     ELEM_MAND_V(NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_NAS_KEY_SET_ID, " - ngKSI", ei_nas_5gs_missing_mandatory_elemen);
 
@@ -2528,7 +2530,6 @@ nas_5gs_mm_registration_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo 
     /*55    NonceUE    Nonce 9.10.3.27    O    TV    5*/
     ELEM_OPT_TV(0x55, NAS_PDU_TYPE_EMM, DE_EMM_NONCE, " - NonceUE");
 #endif
-
     /*10    5GMM capability    5GMM capability 9.10.3.1    O    TLV    4-15*/
     ELEM_OPT_TLV(0x10, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_5GMM_CAP, NULL);
 
@@ -2548,11 +2549,10 @@ nas_5gs_mm_registration_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo 
     /*30    S1 UE network capability    S1 UE network capability 9.10.3.46    O    TLV    4-15 */
     ELEM_OPT_TLV(0x30, NAS_PDU_TYPE_EMM, DE_EMM_UE_NET_CAP, NULL);
 #endif
-
-    /*40    Uplink data status    Uplink data status 9.10.2.3    O    TLV    4 */
+    /*40    Uplink data status    Uplink data status 9.10.2.3    O    TLV    4*/
     ELEM_OPT_TLV(0x40, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_UL_DATA_STATUS, NULL);
 
-    /*50    PDU session status    PDU session status 9.10.2.2    O    TLV    4 */
+    /*50    PDU session status    PDU session status 9.10.2.2    O    TLV    4*/
     ELEM_OPT_TLV(0x50, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_PDU_SES_STATUS, NULL);
 
     /*B-    MICO indication    MICO indication 9.10.3.21    O    TV    1*/
@@ -2713,9 +2713,12 @@ nas_5gs_mm_ul_nas_transp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
     /*Payload container    Payload container    9.10.3.30    M    LV-E    3-65537*/
     ELEM_MAND_LV_E(NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_PLD_CONT, NULL, ei_nas_5gs_missing_mandatory_elemen);
 
+#ifdef NAS_V_2_0_0
     /*70    PDU session ID    PDU session identity 2 9.10.3.37    C    TV    2 */
     ELEM_OPT_TV(0x70, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_PDU_SES_ID_2, " - PDU session ID");
-
+#else
+    ELEM_MAND_V(NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_PDU_SES_ID_2, " - PDU session ID", ei_nas_5gs_missing_mandatory_elemen);
+#endif
     /*61    Old PDU session ID    PDU session identity 2 9.10.3.37    O    TV    2 */
     ELEM_OPT_TV(0x61, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_PDU_SES_ID_2, " - Old PDU session ID");
     /*8-    Request type    Request type    9.10.3.42    O    TV    1 */
@@ -2754,8 +2757,12 @@ nas_5gs_mm_dl_nas_transp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
 
     /*Payload container    Payload container    9.10.3.30    M    LV-E    3-65537*/
     ELEM_MAND_LV_E(NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_PLD_CONT, NULL, ei_nas_5gs_missing_mandatory_elemen);
+#ifdef NAS_V_2_0_0
     /*70    PDU session ID    PDU session identity 2 9.10.3.37    C    TV    2 */
     ELEM_OPT_TV(0x70, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_PDU_SES_ID_2, " - PDU session ID");
+#else
+    ELEM_MAND_V(NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_PDU_SES_ID_2, " - PDU session ID", ei_nas_5gs_missing_mandatory_elemen);
+#endif
     /*24    Additional information    Additional information    9.10.2.1    O    TLV    3-n*/
     ELEM_OPT_TLV(0x24, NAS_5GS_PDU_TYPE_COMMON, DE_NAS_5GS_CMN_ADD_INF, NULL);
     /*58    5GMM cause    5GMM cause 9.10.3.2    O    TV    2 */
@@ -2814,9 +2821,12 @@ nas_5gs_mm_de_registration_req_ue_term(tvbuff_t *tvb, proto_tree *tree, packet_i
     /* De-registration type    De-registration type 9.10.3.12   M   V   1 */
     ELEM_MAND_V(NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_DE_REG_TYPE, NULL, ei_nas_5gs_missing_mandatory_elemen);
 
+#ifdef NAS_V_2_0_0
     /* 58 5GMM cause   5GMM cause     9.10.3.2  O   TV   2 */
     ELEM_OPT_TV(0x58, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_5GMM_CAUSE, NULL);
-
+#else
+    ELEM_OPT_TV(0x72, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_5GMM_CAUSE, NULL);
+#endif
     /* 5F  T3346 value GPRS timer 2     9.10.3.16   O   TLV 3 */
     ELEM_OPT_TLV(0x5F, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3346 value");
 
@@ -2843,9 +2853,13 @@ nas_5gs_mm_service_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
     curr_offset = offset;
     curr_len = len;
 
+    /* ngKSI     NAS key set identifier 9.10.3.29    M    V    1/2 */
     /* Service type    Service type 9.10.3.46    M    V    1/2 */
+    proto_tree_add_item(tree, hf_nas_5gs_mm_serv_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     ELEM_MAND_V(NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_NAS_KEY_SET_ID, " - ngKSI", ei_nas_5gs_missing_mandatory_elemen);
 
+    /* 5G-S-TMSI    5GS mobile identity 9.10.3.4    M    LV    6 */
+    ELEM_MAND_LV(NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_5GS_MOBILE_ID, NULL, ei_nas_5gs_missing_mandatory_elemen);
     /*40    Uplink data status    Uplink data status         9.10.3.53    O    TLV    4 - 34*/
     ELEM_OPT_TLV(0x40, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_UL_DATA_STATUS, NULL);
     /*50    PDU session status    PDU session status         9.10.3.40    O    TLV    4 - 34*/
@@ -3221,7 +3235,8 @@ nas_5gs_sm_pdu_ses_est_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     /* DNN    DNN 9.10.3.13    M    LV    2-TBD*/
     ELEM_OPT_TLV(0x25, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_DNN, NULL);
 
-    /*Authorized QoS rules    QoS rules 9.10.4.6    M    LV-E    2-65537*/
+    /*Authorized QoS rules    QoS rules 9.10.4.6    M    LV-E    2-65537 DE_NAS_5GS_SM_QOS_RULES*/
+    ELEM_MAND_LV_E(NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_QOS_RULES, " - Authorized QoS rules", ei_nas_5gs_missing_mandatory_elemen);
     /*Session AMBR    Session-AMBR 9.10.4.7    M    LV    TBD*/
     /*73    5GSM cause    5GSM cause 9.10.4.1    O    TV    2*/
     ELEM_OPT_TV(0x73, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_5GSM_CAUSE, NULL);
@@ -3335,8 +3350,9 @@ nas_5gs_sm_pdu_ses_mod_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     ELEM_OPT_TLV_E(0x7B, NAS_PDU_TYPE_ESM, DE_ESM_EXT_PCO, NULL);
 
     /*7A    Requested QoS rules    QoS rules 9.10.4.6    O    TLV-E    3-65538 */
-
+    ELEM_OPT_TLV_E(0x7A, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_QOS_RULES, " - Requested QoS rules");
     /* 28    5GSM capability    5GSM capability 9.10.4.10    O    TLV    3-15 */
+    ELEM_OPT_TLV(0x28, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_5GSM_CAP, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_5gs_extraneous_data);
 
@@ -4278,7 +4294,7 @@ proto_register_nas_5gs(void)
         },
         { &hf_nas_5gs_mm_serv_type,
         { "Service type",   "nas_5gs.mm.serv_type",
-            FT_UINT8, BASE_DEC, VALS(nas_5gs_mm_serv_type_vals), 0x07,
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_mm_serv_type_vals), 0x70,
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_5g_ea0,
