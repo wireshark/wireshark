@@ -60,6 +60,15 @@ static int hf_cops_mode                                                    = -1;
 static int hf_cops_format                                                  = -1;
 static int hf_cops_operator                                                = -1;
 static int hf_cops_act                                                     = -1;
+static int hf_cpms_mem1                                                    = -1;
+static int hf_cpms_mem2                                                    = -1;
+static int hf_cpms_mem3                                                    = -1;
+static int hf_cpms_used1                                                   = -1;
+static int hf_cpms_used2                                                   = -1;
+static int hf_cpms_used3                                                   = -1;
+static int hf_cpms_total1                                                  = -1;
+static int hf_cpms_total2                                                  = -1;
+static int hf_cpms_total3                                                  = -1;
 static int hf_csim_command                                                 = -1;
 static int hf_csim_length                                                  = -1;
 static int hf_csim_response                                                = -1;
@@ -467,6 +476,13 @@ static gboolean check_clip(gint role, guint16 type) {
 }
 
 static gboolean check_ciev(gint role, guint16 type) {
+    if (role == ROLE_DCE && type == TYPE_RESPONSE) return TRUE;
+
+    return FALSE;
+}
+
+static gboolean check_cpms(gint role, guint16 type) {
+    if (role == ROLE_DTE && (type == TYPE_ACTION || type == TYPE_READ || type == TYPE_TEST)) return TRUE;
     if (role == ROLE_DCE && type == TYPE_RESPONSE) return TRUE;
 
     return FALSE;
@@ -996,6 +1012,63 @@ dissect_ciev_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static gint
+dissect_cpms_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+        gint offset, gint role, guint16 type, guint8 *parameter_stream,
+        guint parameter_number, gint parameter_length, void **data _U_)
+{
+    guint32      value;
+    if (!((role == ROLE_DTE && type == TYPE_ACTION) ||
+          (role == ROLE_DCE && type == TYPE_RESPONSE))) {
+        return FALSE;
+    }
+
+    if (type == TYPE_ACTION) {
+        switch (parameter_number) {
+            case 0:
+                proto_tree_add_item(tree, hf_cpms_mem1, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+                break;
+            case 1:
+                proto_tree_add_item(tree, hf_cpms_mem2, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+                break;
+            case 2:
+                proto_tree_add_item(tree, hf_cpms_mem3, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+                break;
+            default:
+                return FALSE;
+        }
+        return TRUE;
+    }
+    else {
+        // TODO: Assuming response is for ACTION command, need to support
+        // responses for READ and QUERY
+        value = get_uint_parameter(parameter_stream, parameter_length);
+        switch (parameter_number) {
+            case 0:
+                proto_tree_add_uint(tree, hf_cpms_used1, tvb, offset, parameter_length, value);
+                break;
+            case 1:
+                proto_tree_add_uint(tree, hf_cpms_total1, tvb, offset, parameter_length, value);
+                break;
+            case 2:
+                proto_tree_add_uint(tree, hf_cpms_used2, tvb, offset, parameter_length, value);
+                break;
+            case 3:
+                proto_tree_add_uint(tree, hf_cpms_total2, tvb, offset, parameter_length, value);
+                break;
+            case 4:
+                proto_tree_add_uint(tree, hf_cpms_used3, tvb, offset, parameter_length, value);
+                break;
+            case 5:
+                proto_tree_add_uint(tree, hf_cpms_total3, tvb, offset, parameter_length, value);
+                break;
+            default:
+                return FALSE;
+        }
+        return TRUE;
+    }
+}
+
+static gint
 dissect_csim_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         gint offset, gint role, guint16 type, guint8 *parameter_stream,
         guint parameter_number, gint parameter_length, void **data)
@@ -1084,6 +1157,7 @@ static const at_cmd_t at_cmds[] = {
     { "+CIND",      "Phone Indicators",                                        check_cind, dissect_cind_parameter },
     { "+CLCC",      "Current Calls",                                           check_clcc, dissect_clcc_parameter },
     { "+COPS",      "Reading Network Operator",                                check_cops, dissect_cops_parameter },
+    { "+CPMS",      "Preferred Message Storage",                               check_cpms, dissect_cpms_parameter },
     { "+CSIM",      "Generic SIM access",                                      check_csim, dissect_csim_parameter },
     { "+CMEE",      "Mobile Equipment Error",                                  check_cmee, dissect_cmee_parameter },
     { "+CME ERROR", "Mobile Termination Error Result Code",                    check_cme,  dissect_cme_error_parameter },
@@ -1669,6 +1743,60 @@ proto_register_at_command(void)
            { "AcT",                              "at.cops.act",
            FT_UINT8, BASE_DEC, VALS(cops_act_vals), 0,
            NULL, HFILL}
+        },
+        { &hf_cpms_mem1,
+           { "Read Memory Storage",              "at.cpms.mem1",
+           FT_STRING, BASE_NONE, NULL, 0,
+           "Memory from which SMS messages are read and deleted",
+           HFILL}
+        },
+        { &hf_cpms_mem2,
+           { "Write Memory Storage",             "at.cpms.mem2",
+           FT_STRING, BASE_NONE, NULL, 0,
+           "Memory to which writing and sending operations are made",
+           HFILL}
+        },
+        { &hf_cpms_mem3,
+           { "Receive Memory Storage",           "at.cpms.mem3",
+           FT_STRING, BASE_NONE, NULL, 0,
+           "Memory to which received SMS is preferred to be stored",
+           HFILL}
+        },
+        { &hf_cpms_total1,
+           { "Read Storage Capacity",            "at.cpms.total1",
+           FT_UINT32, BASE_DEC, NULL, 0,
+           "Total number of messages that the read/delete memory storage can contain",
+           HFILL}
+        },
+        { &hf_cpms_total2,
+           { "Write Storage Capacity",           "at.cpms.total2",
+           FT_UINT32, BASE_DEC, NULL, 0,
+           "Total number of messages that the write/send memory storage can contain",
+           HFILL}
+        },
+        { &hf_cpms_total3,
+           { "Receive Storage Capacity",         "at.cpms.total3",
+           FT_UINT32, BASE_DEC, NULL, 0,
+           "Total number of messages that the receive memory storage can contain",
+           HFILL}
+        },
+        { &hf_cpms_used1,
+           { "Read Storage Messages Count",      "at.cpms.used1",
+           FT_UINT32, BASE_DEC, NULL, 0,
+           "Amount of messages in the read/delete memory storage",
+           HFILL}
+        },
+        { &hf_cpms_used2,
+           { "Write Storage Messages Count",     "at.cpms.used2",
+           FT_UINT32, BASE_DEC, NULL, 0,
+           "Amount of messages in the write/send memory storage",
+           HFILL}
+        },
+        { &hf_cpms_used3,
+           { "Receive Storage Messages Count",   "at.cpms.used3",
+           FT_UINT32, BASE_DEC, NULL, 0,
+           "Amount of messages in the receive memory storage",
+           HFILL}
         },
         { &hf_csim_command,
            { "Command",                          "at.csim.command",
