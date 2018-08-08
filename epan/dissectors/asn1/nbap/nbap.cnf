@@ -593,7 +593,27 @@ actx->pinfo->link_dir=P2P_DIR_UL;
   guint32 byte_off = 0;
   guint32 bit_off = 0x80;
   guint32 sources_count;
+  guint8* data;
+  guint32 per_length;
+  guint32 first_off;
   nbap_private_data_t* nbap_private_data = nbap_get_private_data(actx->pinfo);
+
+  /* compute aligned PER length*/
+  first_off = offset; /* Saving initial offset for the default body */
+  offset = ((offset+7)/8)*8; /* Round to nearest byte */
+  per_length = tvb_get_bits8(tvb, offset, 8);
+  offset += 8;
+  if ((per_length & 0x80) == 0x80) {
+    if ((per_length & 0xc0) == 0x80) {
+      per_length &= 0x3f;
+      per_length <<= 8;
+      per_length += tvb_get_bits8(tvb, offset, 8);
+      offset += 8;
+    } else {
+      per_length = 0;
+    }
+  }
+  offset = first_off;
 
 %(DEFAULT_BODY)s
 
@@ -602,18 +622,34 @@ actx->pinfo->link_dir=P2P_DIR_UL;
   segment_type = nbap_private_data->segment_type;
   switch(segment_type) {
     case 5: /*complete-SIB */
-      final_tvb = tvb_new_subset_length(parameter_tvb,0,tvb_captured_length (parameter_tvb)-1);
+      final_tvb = tvb_new_subset_length(parameter_tvb,0,tvb_captured_length(parameter_tvb));
       break;
     case 6: /*complete-SIB-short */
-      /* Simply skipping the first byte (containing the length) */
-      final_tvb = tvb_new_subset_length(parameter_tvb,1,tvb_captured_length (parameter_tvb)-1);
+      if(preferences_ib_sg_data_encoding == IB_SG_DATA_ENC_VAR_1) {
+        /* Simply skipping the first byte (containing the length) */
+        final_tvb = tvb_new_subset_length(parameter_tvb, 1, tvb_captured_length(parameter_tvb)-1);
+      }
+      else { /* This is IB_SG_DATA_ENC_VAR_2 */
+        /* No length in tvb, just take everything as is*/
+        final_tvb = tvb_new_subset_length(parameter_tvb, 0, tvb_captured_length(parameter_tvb));
+      }
       break;
     default: /* First, subsequent or last */
-      is_short = ( segment_type == 1 || segment_type == 4 ); /* first-short or last-short */
-      nbap_ib_segment = nbap_parse_ib_segment_t(parameter_tvb, is_short);
-      if (nbap_ib_segment == NULL ) { /* failed to parse */
-        return offset;
+      if(preferences_ib_sg_data_encoding == IB_SG_DATA_ENC_VAR_1) {
+          is_short = ( segment_type == 1 || segment_type == 4 ); /* first-short or last-short */
+          nbap_ib_segment = nbap_parse_ib_sg_data_var1(parameter_tvb, is_short);
+          if (nbap_ib_segment == NULL ) { /* failed to parse */
+            return offset;
+          }
       }
+      else { /* This is IB_SG_DATA_ENC_VAR_2 */
+        /* Using the per encoded length */
+        data = (guint8*)tvb_memdup(wmem_packet_scope(), parameter_tvb, 0, (per_length + 7)/8);
+        nbap_ib_segment = wmem_new(wmem_packet_scope(), nbap_ib_segment_t);
+        nbap_ib_segment->bit_length = per_length;
+        nbap_ib_segment->data = data;
+      }
+
       list = nbap_private_data->ib_segments;
       if (!list) {
         if ( segment_type == 0 || segment_type == 1 ) { /* first or first-short */

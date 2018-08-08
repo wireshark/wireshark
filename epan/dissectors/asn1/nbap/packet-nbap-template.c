@@ -184,7 +184,7 @@ typedef struct nbap_ib_segment_t {
   guint8* data;
 } nbap_ib_segment_t;
 
-static nbap_ib_segment_t* nbap_parse_ib_segment_t(tvbuff_t *tvb,gboolean is_short)
+static nbap_ib_segment_t* nbap_parse_ib_sg_data_var1(tvbuff_t *tvb,gboolean is_short)
 {
   guint8 bit_length;
   guint8* data;
@@ -395,6 +395,21 @@ static const preference_strings ch_strings[] = {
   {"lch14_content", "Logical Channel 14 Content", "foo"},
   {"lch15_content", "Logical Channel 15 Content", "foo"},
   {"lch16_content", "Logical Channel 16 Content", "foo"}};
+
+enum ib_sg_enc_type {
+  IB_SG_DATA_ENC_VAR_1,
+  IB_SG_DATA_ENC_VAR_2
+};
+
+static const enum_val_t ib_sg_enc_vals[] = {
+  {"Encoding Variant 1 (TS 25.433 Annex D.2)",
+   "Encoding Variant 1 (TS 25.433 Annex D.2)", IB_SG_DATA_ENC_VAR_1},
+  {"Encoding Variant 2 (TS 25.433 Annex D.3)",
+   "Encoding Variant 2 (TS 25.433 Annex D.3)", IB_SG_DATA_ENC_VAR_2},
+  {NULL, NULL, -1}
+};
+
+static gint preferences_ib_sg_data_encoding = IB_SG_DATA_ENC_VAR_1;
 
 /* Dissector tables */
 static dissector_table_t nbap_ies_dissector_table;
@@ -765,6 +780,10 @@ void proto_register_nbap(void)
   for (i = 0; i < 16; i++) {
     prefs_register_enum_preference(nbap_module, ch_strings[i].name, ch_strings[i].title, ch_strings[i].description, &lch_contents[i], content_types, FALSE);
   }
+  prefs_register_enum_preference(nbap_module, "ib_sg_data_encoding",
+    "IB_SG_DATA encoding",
+    "Encoding used for the IB-SG-DATA element carrying segments of information blocks",
+    &preferences_ib_sg_data_encoding, ib_sg_enc_vals, FALSE);
 
   /* Register dissector tables */
   nbap_ies_dissector_table = register_dissector_table("nbap.ies", "NBAP-PROTOCOL-IES", proto_nbap, FT_UINT32, BASE_DEC);
