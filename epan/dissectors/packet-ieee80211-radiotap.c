@@ -215,6 +215,7 @@ static gint ett_radiotap_vht = -1;
 static gint ett_radiotap_vht_known = -1;
 static gint ett_radiotap_vht_user = -1;
 
+static expert_field ei_radiotap_invalid_header_length = EI_INIT;
 static expert_field ei_radiotap_data_past_header = EI_INIT;
 static expert_field ei_radiotap_present_reserved = EI_INIT;
 static expert_field ei_radiotap_present = EI_INIT;
@@ -638,6 +639,7 @@ static int
 dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* unused_data _U_)
 {
 	proto_tree *radiotap_tree     = NULL;
+	proto_item *length_item       = NULL;
 	proto_item *present_item      = NULL;
 	proto_tree *present_tree      = NULL;
 	proto_item *present_word_item = NULL;
@@ -712,8 +714,19 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 				    tvb, 0, 1, version);
 		proto_tree_add_item(radiotap_tree, hf_radiotap_pad,
 				    tvb, 1, 1, ENC_LITTLE_ENDIAN);
-		proto_tree_add_uint(radiotap_tree, hf_radiotap_length,
-				    tvb, 2, 2, length);
+		length_item = proto_tree_add_uint(radiotap_tree, hf_radiotap_length,
+						  tvb, 2, 2, length);
+	}
+
+	/*
+	 * The length is the length of the entire radiotap header, so it
+	 * must be at least 8, for the version, padding, length, and first
+	 * presence flags word.
+	 */
+	if (length < 8) {
+		expert_add_info(pinfo, length_item,
+		    &ei_radiotap_invalid_header_length);
+		return tvb_captured_length(tvb);
 	}
 
 	data = tvb_memdup(wmem_packet_scope(), tvb, 0, length);
@@ -2746,6 +2759,7 @@ void proto_register_radiotap(void)
 		&ett_radiotap_vht_user
 	};
 	static ei_register_info ei[] = {
+		{ &ei_radiotap_invalid_header_length, { "radiotap.length.invalid", PI_MALFORMED, PI_ERROR, "The radiotap header length is less than 8 bytes", EXPFILL }},
 		{ &ei_radiotap_present, { "radiotap.present.radiotap_and_vendor", PI_MALFORMED, PI_ERROR, "Both radiotap and vendor namespace specified in bitmask word", EXPFILL }},
 		{ &ei_radiotap_present_reserved, { "radiotap.present.reserved.unknown", PI_UNDECODED, PI_NOTE, "Unknown Radiotap fields, code not implemented, Please check radiotap documentation, Contact Wireshark developers if you want this supported", EXPFILL }},
 		{ &ei_radiotap_data_past_header, { "radiotap.data_past_header", PI_MALFORMED, PI_ERROR, "Radiotap data goes past the end of the radiotap header", EXPFILL }},
