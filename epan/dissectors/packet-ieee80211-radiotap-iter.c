@@ -146,6 +146,7 @@ int ieee80211_radiotap_iterator_init(
 	iterator->_bitmap_shifter = get_unaligned_le32(&radiotap_header->it_present);
 	iterator->_arg = (guint8 *)radiotap_header + sizeof(*radiotap_header);
 	iterator->_reset_on_ext = 0;
+	iterator->_next_ns_data = NULL;
 	iterator->_next_bitmap = &radiotap_header->it_present;
 	iterator->_next_bitmap++;
 	iterator->_vns = vns;
@@ -302,9 +303,14 @@ int ieee80211_radiotap_iterator_next(
 			}
 			if (!align) {
 				/* skip all subsequent data */
+				if (!iterator->_next_ns_data)
+					return -EINVAL;
 				iterator->_arg = iterator->_next_ns_data;
 				/* give up on this namespace */
 				iterator->current_namespace = NULL;
+				iterator->_next_ns_data = NULL;
+				if (!ITERATOR_VALID(iterator, 0))
+					return -EINVAL;
 				goto next_entry;
 			}
 			break;
