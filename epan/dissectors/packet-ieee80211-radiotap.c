@@ -4261,6 +4261,7 @@ void proto_register_radiotap(void)
 		&ett_radiotap_he_mu_info,
 		&ett_radiotap_he_mu_info_flags_1,
 		&ett_radiotap_he_mu_info_flags_2,
+		&ett_radiotap_0_length_psdu
 	};
 	static ei_register_info ei[] = {
 		{ &ei_radiotap_present, { "radiotap.present.radiotap_and_vendor", PI_MALFORMED, PI_ERROR, "Both radiotap and vendor namespace specified in bitmask word", EXPFILL }},
