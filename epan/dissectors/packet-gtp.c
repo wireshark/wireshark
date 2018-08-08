@@ -316,6 +316,8 @@ static int hf_gtp_ext_hdr_nr_ran_cont_dl_discrd_blks = -1;
 static int hf_gtp_ext_hdr_nr_ran_cont_dl_flush = -1;
 static int hf_gtp_ext_hdr_nr_ran_cont_rpt_poll = -1;
 static int hf_gtp_ext_hdr_nr_ran_cont_retransmission_flag = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_ass_inf_rep_poll_flg = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_spare = -1;
 static int hf_gtp_ext_hdr_nr_ran_cont_nr_u_seq_num = -1;
 static int hf_gtp_ext_hdr_nr_ran_cont_dl_disc_nr_pdcp_pdu_sn = -1;
 static int hf_gtp_ext_hdr_nr_ran_cont_dl_disc_num_blks = -1;
@@ -8530,6 +8532,7 @@ track_gtp_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtp_hd
     }
 }
 
+/* TS 38.425 15.2.0*/
 static int
 addRANContParameter(tvbuff_t *tvb, proto_tree *ran_cont_tree, gint offset)
 {
@@ -8540,39 +8543,42 @@ addRANContParameter(tvbuff_t *tvb, proto_tree *ran_cont_tree, gint offset)
 
     proto_tree_add_item_ret_uint(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_pdu_type,tvb, offset,1,ENC_BIG_ENDIAN, &pdu_type);
 
-    if(pdu_type == 0){
-       proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_spr_bit_extnd_flag,tvb, offset,1, ENC_BIG_ENDIAN);
+    if (pdu_type == 0) {
+        /* PDU Type (=0) Spare DL Discard Blocks DL Flush Report polling Octet 1*/
+        proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_spr_bit_extnd_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-       proto_tree_add_item_ret_boolean(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_dl_discrd_blks,tvb, offset,1, ENC_BIG_ENDIAN,&dl_disc_blk);
+        proto_tree_add_item_ret_boolean(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_dl_discrd_blks, tvb, offset, 1, ENC_BIG_ENDIAN, &dl_disc_blk);
 
-       proto_tree_add_item_ret_boolean(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_dl_flush,tvb, offset,1, ENC_BIG_ENDIAN, &dl_flush);
+        proto_tree_add_item_ret_boolean(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_dl_flush, tvb, offset, 1, ENC_BIG_ENDIAN, &dl_flush);
 
-       proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_rpt_poll,tvb, offset,1, ENC_BIG_ENDIAN);
-       offset++;
+        proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_rpt_poll, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+        /* Spare    Assistance Info. Report Polling Flag    Retransmission flag*/
+        proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_spare, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_ass_inf_rep_poll_flg, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_retransmission_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
 
-       proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_retransmission_flag,tvb, offset,1, ENC_BIG_ENDIAN);
-       offset++;
+        proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_nr_u_seq_num, tvb, offset, 3, ENC_BIG_ENDIAN);
+        offset += 3;
 
-       proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_nr_u_seq_num,tvb, offset,3, ENC_BIG_ENDIAN);
-       offset+=3;
+        if (dl_flush == TRUE) {
+            proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_dl_disc_nr_pdcp_pdu_sn, tvb, offset, 3, ENC_BIG_ENDIAN);
+            offset += 3;
+        }
+        if (dl_disc_blk == TRUE) {
+            proto_tree_add_item_ret_uint(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_dl_disc_num_blks, tvb, offset, 1, ENC_BIG_ENDIAN, &dl_disc_num_blks);
+            offset++;
+            while (dl_disc_num_blks) {
+                proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_dl_disc_nr_pdcp_pdu_sn_start, tvb, offset, 3, ENC_BIG_ENDIAN);
+                offset += 3;
 
-       if(dl_flush == TRUE){
-          proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_dl_disc_nr_pdcp_pdu_sn,tvb, offset,3, ENC_BIG_ENDIAN);
-          offset+=3;
-       }
-       if(dl_disc_blk == TRUE){
-          proto_tree_add_item_ret_uint(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_dl_disc_num_blks,tvb, offset,1,ENC_BIG_ENDIAN, &dl_disc_num_blks);
-          offset++;
-          while(dl_disc_num_blks){
-             proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_dl_disc_nr_pdcp_pdu_sn_start,tvb, offset,3, ENC_BIG_ENDIAN);
-             offset+=3;
-
-             proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_dl_disc_blk_sz,tvb, offset,3, ENC_BIG_ENDIAN);
-             offset++;
-             dl_disc_num_blks--;
-          }
-       }
-   }
+                proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_dl_disc_blk_sz, tvb, offset, 3, ENC_BIG_ENDIAN);
+                offset++;
+                dl_disc_num_blks--;
+            }
+        }
+    }
    else if(pdu_type==1){
        gboolean high_tx_nr_pdcp_sn_ind;
        gboolean high_del_nr_pdcp_sn_ind;
@@ -9024,6 +9030,22 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                              */
                             ran_cont_tree = proto_tree_add_subtree(ext_tree, tvb, offset, (ext_hdr_length*4)-1, ett_gtp_nr_ran_cont, NULL,"NR RAN Container");
                             nr_pdu_type= addRANContParameter(tvb,ran_cont_tree,offset);
+
+                            offset += ext_hdr_length * 4 - 2;
+
+                            next_hdr = tvb_get_guint8(tvb, offset);
+                            proto_tree_add_uint(ext_tree, hf_gtp_ext_hdr_next, tvb, offset, 1, next_hdr);
+                            offset++;
+                            if (tvb_reported_length_remaining(tvb, offset) > 0) {
+                                if ((nr_pdu_type == 0) || (nr_pdu_type == 1)) {
+                                    /*NR-U DUD or DDDS PDU
+                                    * This is NR-U DUD/DDDS PDU. It contains PDCP
+                                    * payload as per 3GPP TS 38.323*/
+                                    proto_tree_add_item(tree, hf_pdcp_cont, tvb, offset, -1, ENC_NA);
+                                    return tvb_reported_length(tvb);
+                                }
+                            }
+
                             break;
 
                         case GTP_EXT_HDR_PDU_SESSION_CONT:
@@ -9088,14 +9110,6 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                         next_hdr = tvb_get_guint8(tvb, offset);
                         proto_tree_add_uint(ext_tree, hf_gtp_ext_hdr_next, tvb, offset, 1, next_hdr);
                         offset++;
-                        if((nr_pdu_type == 0) || (nr_pdu_type == 1)){
-                           /*NR-U DUD or DDDS PDU
-                            * This is NR-U DUD/DDDS PDU. It contains PDCP
-                            * payload as per 3GPP TS 38.323*/
-                           proto_tree_add_item(tree, hf_pdcp_cont, tvb, offset, -1, ENC_NA);
-                           return tvb_reported_length(tvb);
-                        }
-
                     }
                 } else
                     offset++;
@@ -9458,6 +9472,16 @@ proto_register_gtp(void)
          { "Retransmission Flag", "gtp.ext_hdr.nr_ran_cont.retransmission_flag",
            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01,
            NULL, HFILL}
+        },
+        { &hf_gtp_ext_hdr_nr_ran_cont_ass_inf_rep_poll_flg,
+        { "Assistance Info. Report Polling Flag", "gtp.ext_hdr.nr_ran_cont.ass_inf_rep_poll_flg",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_gtp_ext_hdr_nr_ran_cont_spare,
+        { "Spare", "gtp.ext_hdr.nr_ran_cont.spare",
+            FT_UINT8, BASE_DEC, NULL, 0xfc,
+            NULL, HFILL }
         },
         {&hf_gtp_ext_hdr_nr_ran_cont_nr_u_seq_num,
          { "NR-U Sequence Number", "gtp.ext_hdr.nr_ran_cont.seq_num",
