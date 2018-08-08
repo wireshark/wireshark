@@ -4216,15 +4216,27 @@ reset_pref(pref_t *pref)
 }
 
 static void
-reset_pref_cb(gpointer data, gpointer user_data _U_)
+reset_pref_cb(gpointer data, gpointer user_data)
 {
     pref_t *pref = (pref_t *) data;
+    module_t *module = (module_t *)user_data;
+
+    if (pref && (pref->type == PREF_RANGE || pref->type == PREF_DECODE_AS_RANGE)) {
+        /*
+         * Some dissectors expect the range (returned via prefs_get_range_value)
+         * to remain valid if it has not changed. If it did change, then we
+         * should set "prefs_changed_flags" to ensure that the preference apply
+         * callback is invoked. That callback will notify dissectors that it
+         * should no longer assume the range to be valid.
+         */
+        if (ranges_are_equal(*pref->varp.range, pref->default_val.range)) {
+            /* Optimization: do not invoke apply callback if nothing changed. */
+            return;
+        }
+        module->prefs_changed_flags |= prefs_get_effect_flags(pref);
+    }
     reset_pref(pref);
 }
-
-typedef struct {
-    module_t *module;
-} reset_pref_arg_t;
 
 /*
  * Reset all preferences for a module.
@@ -4232,10 +4244,8 @@ typedef struct {
 static gboolean
 reset_module_prefs(const void *key _U_, void *value, void *data _U_)
 {
-    reset_pref_arg_t arg;
-
-    arg.module = (module_t *)value;
-    g_list_foreach(arg.module->prefs, reset_pref_cb, &arg);
+    module_t *module = (module_t *)value;
+    g_list_foreach(module->prefs, reset_pref_cb, module);
     return FALSE;
 }
 
