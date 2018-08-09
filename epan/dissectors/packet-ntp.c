@@ -674,11 +674,11 @@ static tvbparse_wanted_t *want_ignore;
 const char *
 tvb_mip6_fmt_ts(tvbuff_t *tvb, gint offset)
 {
-	guint64		 tempstmp;
-	guint32		 tempfrac;
-	time_t		 temptime;
-	struct tm	*bd;
-	double		 fractime;
+	guint64 tempstmp;
+	guint32 tempfrac;
+	time_t temptime;
+	struct tm *bd;
+	double fractime;
 
 	tempstmp = tvb_get_ntoh48(tvb, offset);
 	tempfrac = tvb_get_ntohs(tvb, offset+6);
@@ -710,11 +710,11 @@ tvb_mip6_fmt_ts(tvbuff_t *tvb, gint offset)
 const char *
 tvb_ntp_fmt_ts(tvbuff_t *tvb, gint offset)
 {
-	guint32		 tempstmp, tempfrac;
-	time_t		 temptime;
-	struct tm	*bd;
-	double		 fractime;
-	char		*buff;
+	guint32 tempstmp, tempfrac;
+	time_t temptime;
+	struct tm *bd;
+	double fractime;
+	char *buff;
 
 	tempstmp = tvb_get_ntohl(tvb, offset);
 	tempfrac = tvb_get_ntohl(tvb, offset+4);
@@ -753,10 +753,10 @@ tvb_ntp_fmt_ts(tvbuff_t *tvb, gint offset)
 const char *
 tvb_ntp_fmt_ts_sec(tvbuff_t *tvb, gint offset)
 {
-	guint32		 tempstmp;
-	time_t		 temptime;
-	struct tm	*bd;
-	char		*buff;
+	guint32 tempstmp;
+	time_t temptime;
+	struct tm *bd;
+	char *buff;
 
 	tempstmp = tvb_get_ntohl(tvb, offset);
 	if (tempstmp == 0){
@@ -788,7 +788,7 @@ tvb_ntp_fmt_ts_sec(tvbuff_t *tvb, gint offset)
 void
 ntp_to_nstime(tvbuff_t *tvb, gint offset, nstime_t *nstime)
 {
-	guint32		 tempstmp;
+	guint32 tempstmp;
 
 	/* We need a temporary variable here so the unsigned math
 	 * works correctly (for years > 2036 according to RFC 2030
@@ -807,16 +807,15 @@ ntp_to_nstime(tvbuff_t *tvb, gint offset, nstime_t *nstime)
 static int
 dissect_ntp_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, int offset)
 {
-	proto_tree      *ext_tree, *flags_tree;
-	proto_item	*tf, *ext_item;
-	guint16		 extlen;
-	int		 endoffset;
-	guint8		 flags;
-	guint32		 vallen, vallen_round, siglen;
+	proto_tree *ext_tree, *flags_tree;
+	proto_item *tf, *ext_item;
+	guint16 extlen;
+	int endoffset;
+	guint8 flags;
+	guint32 vallen, vallen_round, siglen;
 
 	extlen = tvb_get_ntohs(tvb, offset+2);
-	tf = proto_tree_add_item(ntp_tree, hf_ntp_ext, tvb, offset, extlen,
-	    ENC_NA);
+	tf = proto_tree_add_item(ntp_tree, hf_ntp_ext, tvb, offset, extlen, ENC_NA);
 	ext_tree = proto_item_add_subtree(tf, ett_ntp_ext);
 
 	if (extlen < 8) {
@@ -833,21 +832,17 @@ dissect_ntp_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, int off
 		 * to the end of the tvbuff, so we stop dissecting.
 		 */
 		expert_add_info_format(pinfo, tf, &ei_ntp_ext, "Extension length %u isn't a multiple of 4",
-				    extlen);
+				extlen);
 		return tvb_reported_length(tvb);
 	}
 	endoffset = offset + extlen;
 
 	flags = tvb_get_guint8(tvb, offset);
-	tf = proto_tree_add_uint(ext_tree, hf_ntp_ext_flags, tvb, offset, 1,
-				 flags);
+	tf = proto_tree_add_uint(ext_tree, hf_ntp_ext_flags, tvb, offset, 1, flags);
 	flags_tree = proto_item_add_subtree(tf, ett_ntp_ext_flags);
-	proto_tree_add_uint(flags_tree, hf_ntp_ext_flags_r, tvb, offset, 1,
-			    flags);
-	proto_tree_add_uint(flags_tree, hf_ntp_ext_flags_error, tvb, offset, 1,
-			    flags);
-	proto_tree_add_uint(flags_tree, hf_ntp_ext_flags_vn, tvb, offset, 1,
-			    flags);
+	proto_tree_add_uint(flags_tree, hf_ntp_ext_flags_r, tvb, offset, 1, flags);
+	proto_tree_add_uint(flags_tree, hf_ntp_ext_flags_error, tvb, offset, 1, flags);
+	proto_tree_add_uint(flags_tree, hf_ntp_ext_flags_vn, tvb, offset, 1, flags);
 	offset += 1;
 
 	proto_tree_add_item(ext_tree, hf_ntp_ext_op, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -861,8 +856,7 @@ dissect_ntp_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, int off
 		return endoffset;
 	}
 
-	proto_tree_add_item(ext_tree, hf_ntp_ext_associd, tvb, offset, 4,
-			    ENC_BIG_ENDIAN);
+	proto_tree_add_item(ext_tree, hf_ntp_ext_associd, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* check whether everything up to "vallen" is present */
@@ -871,17 +865,14 @@ dissect_ntp_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, int off
 		return endoffset;
 	}
 
-	proto_tree_add_item(ext_tree, hf_ntp_ext_tstamp, tvb, offset, 4,
-			    ENC_BIG_ENDIAN);
+	proto_tree_add_item(ext_tree, hf_ntp_ext_tstamp, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
-	proto_tree_add_item(ext_tree, hf_ntp_ext_fstamp, tvb, offset, 4,
-			    ENC_BIG_ENDIAN);
+	proto_tree_add_item(ext_tree, hf_ntp_ext_fstamp, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 	/* XXX fstamp can be server flags */
 
 	vallen = tvb_get_ntohl(tvb, offset);
-	ext_item = proto_tree_add_uint(ext_tree, hf_ntp_ext_vallen, tvb, offset, 4,
-			    vallen);
+	ext_item = proto_tree_add_uint(ext_tree, hf_ntp_ext_vallen, tvb, offset, 4, vallen);
 	offset += 4;
 	vallen_round = (vallen + 3) & (-4);
 	if (vallen != 0) {
@@ -891,17 +882,15 @@ dissect_ntp_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, int off
 			 * field.
 			 */
 			expert_add_info_format(pinfo, ext_item, &ei_ntp_ext,
-					    "Value length makes value go past the end of the extension field");
+					"Value length makes value go past the end of the extension field");
 			return endoffset;
 		}
-		proto_tree_add_item(ext_tree, hf_ntp_ext_val, tvb, offset,
-				    vallen, ENC_NA);
+		proto_tree_add_item(ext_tree, hf_ntp_ext_val, tvb, offset, vallen, ENC_NA);
 	}
 	offset += vallen_round;
 
 	siglen = tvb_get_ntohl(tvb, offset);
-	ext_item = proto_tree_add_uint(ext_tree, hf_ntp_ext_siglen, tvb, offset, 4,
-			    siglen);
+	ext_item = proto_tree_add_uint(ext_tree, hf_ntp_ext_siglen, tvb, offset, 4, siglen);
 	offset += 4;
 	if (siglen != 0) {
 		if (offset + (int)siglen > endoffset) {
@@ -910,11 +899,10 @@ dissect_ntp_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, int off
 			 * field.
 			 */
 			expert_add_info_format(pinfo, ext_item, &ei_ntp_ext,
-					    "Signature length makes value go past the end of the extension field");
+						"Signature length makes value go past the end of the extension field");
 			return endoffset;
 		}
-		proto_tree_add_item(ext_tree, hf_ntp_ext_sig, tvb,
-			offset, siglen, ENC_NA);
+		proto_tree_add_item(ext_tree, hf_ntp_ext_sig, tvb, offset, siglen, ENC_NA);
 	}
 	return endoffset;
 }
@@ -922,16 +910,16 @@ dissect_ntp_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, int off
 static void
 dissect_ntp_std(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree)
 {
-	guint8		 stratum;
-	guint8		 ppoll;
-	gint8		 precision;
-	double		 rootdelay;
-	double		 rootdispersion;
-	guint32		 refid_addr;
-	gchar           *buff;
-	int		 i;
-	int		 macofs;
-	gint		 maclen;
+	guint8 stratum;
+	guint8 ppoll;
+	gint8 precision;
+	double rootdelay;
+	double rootdispersion;
+	guint32 refid_addr;
+	gchar *buff;
+	int i;
+	int macofs;
+	gint maclen;
 
 	proto_tree_add_bitmask(ntp_tree, tvb, 0, hf_ntp_flags, ett_ntp_flags, ntp_header_fields, ENC_NA);
 
@@ -947,15 +935,10 @@ dissect_ntp_std(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree)
 	ppoll = tvb_get_guint8(tvb, 2);
 	if ((ppoll >= 4) && (ppoll <= 17)) {
 		proto_tree_add_uint_format_value(ntp_tree, hf_ntp_ppoll, tvb, 2, 1,
-				   ppoll,
-				   "%u (%u seconds)",
-				   ppoll,
-				   1 << ppoll);
+			ppoll, "%u (%u seconds)", ppoll, 1 << ppoll);
 	} else {
 		proto_tree_add_uint_format_value(ntp_tree, hf_ntp_ppoll, tvb, 2, 1,
-				   ppoll,
-				   "invalid (%u)",
-				   ppoll);
+			ppoll, "invalid (%u)", ppoll);
 	}
 
 	/* Precision, 1 byte field indicating the precision of the
@@ -963,9 +946,7 @@ dissect_ntp_std(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree)
 	 */
 	precision = tvb_get_guint8(tvb, 3);
 	proto_tree_add_int_format_value(ntp_tree, hf_ntp_precision, tvb, 3, 1,
-				   precision,
-				   "%8.6f seconds",
-				   pow(2, precision));
+		precision, "%8.6f seconds", pow(2, precision));
 
 	/* Root Delay is a 32-bit signed fixed-point number indicating
 	 * the total roundtrip delay to the primary reference source,
@@ -1050,28 +1031,26 @@ dissect_ntp_std(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree)
 	 * Appendix C of RFC-1305. Will print this as hex code for now.
 	 */
 	if (tvb_reported_length_remaining(tvb, macofs) >= 4)
-		proto_tree_add_item(ntp_tree, hf_ntp_keyid, tvb, macofs, 4,
-				    ENC_NA);
+		proto_tree_add_item(ntp_tree, hf_ntp_keyid, tvb, macofs, 4, ENC_NA);
 	macofs += 4;
 	maclen = tvb_reported_length_remaining(tvb, macofs);
 	if (maclen > 0)
-		proto_tree_add_item(ntp_tree, hf_ntp_mac, tvb, macofs,
-				    maclen, ENC_NA);
+		proto_tree_add_item(ntp_tree, hf_ntp_mac, tvb, macofs, maclen, ENC_NA);
 }
 
 static void
 dissect_ntp_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree)
 {
-	guint8		 flags2;
-	proto_tree	*data_tree, *item_tree, *auth_tree;
-	proto_item	*td, *ti;
-	guint16		 associd;
-	guint16		 datalen;
-	guint16		 data_offset;
-	gint		 length_remaining;
-	gboolean	 auth_diss = FALSE;
+	guint8 flags2;
+	proto_tree *data_tree, *item_tree, *auth_tree;
+	proto_item *td, *ti;
+	guint16 associd;
+	guint16 datalen;
+	guint16 data_offset;
+	gint length_remaining;
+	gboolean auth_diss = FALSE;
 
-	tvbparse_t	*tt;
+	tvbparse_t *tt;
 	tvbparse_elem_t *element;
 
 	static const int *ntpctrl_flags[] = {
@@ -1325,7 +1304,7 @@ init_parser(void)
 static void
 dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree)
 {
-	guint8	impl, reqcode;
+	guint8 impl, reqcode;
 	static const int *priv_flags[] = {
 		&hf_ntppriv_flags_r,
 		&hf_ntppriv_flags_more,
@@ -1351,15 +1330,15 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree)
 
 	if (impl == XNTPD && reqcode == MON_GETLIST_1) {
 
-		guint16		numitems;
-		guint16		itemsize;
-		guint16		offset;
-		guint		i;
+		guint16 numitems;
+		guint16 itemsize;
+		guint16 offset;
+		guint i;
 
-		guint32		v6_flag = 0;
+		guint32 v6_flag = 0;
 
-		proto_item*     monlist_item;
-		proto_tree*     monlist_item_tree;
+		proto_item* monlist_item;
+		proto_tree* monlist_item_tree;
 
 		proto_tree_add_bits_item(ntp_tree, hf_ntppriv_errcode, tvb, 32, 4, ENC_BIG_ENDIAN);
 		proto_tree_add_bits_item(ntp_tree, hf_ntppriv_numitems, tvb, 36, 12, ENC_BIG_ENDIAN);
@@ -1406,9 +1385,9 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree)
 static int
 dissect_ntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	proto_tree      *ntp_tree;
-	proto_item      *ti = NULL;
-	guint8		 flags;
+	proto_tree *ntp_tree;
+	proto_item *ti = NULL;
+	guint8 flags;
 	void (*dissector)(tvbuff_t *, packet_info *, proto_tree *);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NTP");
@@ -1434,14 +1413,12 @@ dissect_ntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
 	/* Show version and mode in info column and NTP root */
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s, %s",
-		val_to_str_const((flags & NTP_VN_MASK) >> 3, ver_nums,
-				 "Unknown version"),
+		val_to_str_const((flags & NTP_VN_MASK) >> 3, ver_nums, "Unknown version"),
 		val_to_str_const(flags & NTP_MODE_MASK, info_mode_types, "Unknown"));
 
 	proto_item_append_text(ti, " (%s, %s)",
-	                       val_to_str_const((flags & NTP_VN_MASK) >> 3, ver_nums,
-						"Unknown version"),
-	                       val_to_str_const(flags & NTP_MODE_MASK, info_mode_types, "Unknown"));
+		val_to_str_const((flags & NTP_VN_MASK) >> 3, ver_nums, "Unknown version"),
+		val_to_str_const(flags & NTP_MODE_MASK, info_mode_types, "Unknown"));
 
 	/* Dissect according to mode */
 	(*dissector)(tvb, pinfo, ntp_tree);
@@ -1685,7 +1662,7 @@ proto_register_ntp(void)
 			NULL, 0, NULL, HFILL }},
 		{ &hf_monlist_item, {
 			"Monlist item", "ntp.priv.monlist.item",
-		         FT_STRINGZ, BASE_NONE, NULL, 0x00, NULL, HFILL }},
+			FT_STRINGZ, BASE_NONE, NULL, 0x00, NULL, HFILL }},
 		{ &hf_ntppriv_itemsize, {
 			"Size of data item", "ntp.priv.monlist.itemsize", FT_UINT16, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
@@ -1749,8 +1726,7 @@ proto_register_ntp(void)
 
 	expert_module_t* expert_ntp;
 
-	proto_ntp = proto_register_protocol("Network Time Protocol", "NTP",
-	    "ntp");
+	proto_ntp = proto_register_protocol("Network Time Protocol", "NTP", "ntp");
 	proto_register_field_array(proto_ntp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_ntp = expert_register_protocol(proto_ntp);
