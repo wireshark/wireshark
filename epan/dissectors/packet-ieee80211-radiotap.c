@@ -1868,6 +1868,13 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 	struct ieee80211_radiotap_iterator  iter;
 	struct ieee_802_11_phdr phdr;
 	gboolean    zero_length_psdu = FALSE;
+	guchar	 *bmap_start;
+	guint	  n_bitmaps;
+	guint	  i;
+	gboolean  rtap_ns;
+	gboolean  rtap_ns_next;
+	guint	  rtap_ns_offset;
+	guint	  rtap_ns_offset_next;
 
 	/* our non-standard overrides */
 	static struct radiotap_override overrides[] = {
@@ -1939,65 +1946,64 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 	iter.overrides = overrides;
 	iter.n_overrides = n_overrides;
 
-	/* Add the "present flags" bitmaps. */
-	if (tree) {
-		guchar	 *bmap_start	      = (guchar *)data + 4;
-		guint	  n_bitmaps	      = (guint)(iter.this_arg - bmap_start) / 4;
-		guint	  i;
-		gboolean  rtap_ns;
-		gboolean  rtap_ns_next	      = TRUE;
-		guint	  rtap_ns_offset;
-		guint	  rtap_ns_offset_next = 0;
+	/*
+	 * Check the "present flags" bitmaps, and add them if we're
+	 * building a tree.
+	 */
+	bmap_start = (guchar *)data + 4;
+	n_bitmaps = (guint)(iter.this_arg - bmap_start) / 4;
+	rtap_ns_next = TRUE;
+	rtap_ns_offset_next = 0;
+	present_item = proto_tree_add_item(radiotap_tree,
+	    hf_radiotap_present, tvb, 4, n_bitmaps * 4, ENC_NA);
+	present_tree = proto_item_add_subtree(present_item,
+	    ett_radiotap_present);
 
-		present_item = proto_tree_add_item(radiotap_tree,
-		    hf_radiotap_present, tvb, 4, n_bitmaps * 4, ENC_NA);
-		present_tree = proto_item_add_subtree(present_item,
-		    ett_radiotap_present);
+	for (i = 0; i < n_bitmaps; i++) {
+		guint32 bmap = pletoh32(bmap_start + 4 * i);
 
-		for (i = 0; i < n_bitmaps; i++) {
-			guint32 bmap = pletoh32(bmap_start + 4 * i);
+		rtap_ns_offset = rtap_ns_offset_next;
+		rtap_ns_offset_next += 32;
 
-			rtap_ns_offset = rtap_ns_offset_next;
-			rtap_ns_offset_next += 32;
+		offset = 4 * i;
 
-			offset = 4 * i;
+		present_word_item =
+		    proto_tree_add_item(present_tree,
+		      hf_radiotap_present_word,
+		      tvb, offset + 4, 4, ENC_LITTLE_ENDIAN);
 
-			present_word_item =
-			    proto_tree_add_item(present_tree,
-			      hf_radiotap_present_word,
-			      tvb, offset + 4, 4, ENC_LITTLE_ENDIAN);
+		present_word_tree =
+		    proto_item_add_subtree(present_word_item,
+		      ett_radiotap_present_word);
 
-			present_word_tree =
-			    proto_item_add_subtree(present_word_item,
-			      ett_radiotap_present_word);
+		rtap_ns = rtap_ns_next;
 
-			rtap_ns = rtap_ns_next;
+		/* Evaluate what kind of namespaces will come next */
+		if (bmap & BIT(IEEE80211_RADIOTAP_RADIOTAP_NAMESPACE)) {
+			rtap_ns_next = TRUE;
+			rtap_ns_offset_next = 0;
+		}
+		if (bmap & BIT(IEEE80211_RADIOTAP_VENDOR_NAMESPACE))
+			rtap_ns_next = FALSE;
+		if ((bmap & (BIT(IEEE80211_RADIOTAP_RADIOTAP_NAMESPACE) |
+			     BIT(IEEE80211_RADIOTAP_VENDOR_NAMESPACE)))
+			== (BIT(IEEE80211_RADIOTAP_RADIOTAP_NAMESPACE) |
+			    BIT(IEEE80211_RADIOTAP_VENDOR_NAMESPACE))) {
+			expert_add_info_format(pinfo, present_word_item,
+			    &ei_radiotap_present,
+			    "Both radiotap and vendor namespace specified in bitmask word %u",
+			    i);
+			goto malformed;
+		}
 
-			/* Evaluate what kind of namespaces will come next */
-			if (bmap & BIT(IEEE80211_RADIOTAP_RADIOTAP_NAMESPACE)) {
-				rtap_ns_next = TRUE;
-				rtap_ns_offset_next = 0;
-			}
-			if (bmap & BIT(IEEE80211_RADIOTAP_VENDOR_NAMESPACE))
-				rtap_ns_next = FALSE;
-			if ((bmap & (BIT(IEEE80211_RADIOTAP_RADIOTAP_NAMESPACE) |
-				     BIT(IEEE80211_RADIOTAP_VENDOR_NAMESPACE)))
-				== (BIT(IEEE80211_RADIOTAP_RADIOTAP_NAMESPACE) |
-				    BIT(IEEE80211_RADIOTAP_VENDOR_NAMESPACE))) {
-				expert_add_info_format(pinfo, present_word_item,
-				    &ei_radiotap_present,
-				    "Both radiotap and vendor namespace specified in bitmask word %u",
-				    i);
-				goto malformed;
-			}
+		if (!rtap_ns)
+			goto always_bits;
 
-			if (!rtap_ns)
-				goto always_bits;
+		/* Currently, we don't know anything about bits >= 32 */
+		if (rtap_ns_offset)
+			goto always_bits;
 
-			/* Currently, we don't know anything about bits >= 32 */
-			if (rtap_ns_offset)
-				goto always_bits;
-
+		if (tree) {
 			proto_tree_add_item(present_word_tree,
 					    hf_radiotap_present_tsft, tvb,
 					    offset + 4, 4, ENC_LITTLE_ENDIAN);
@@ -2078,13 +2084,15 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 			ti = proto_tree_add_item(present_word_tree,
 					    hf_radiotap_present_reserved, tvb,
 					    offset + 4, 4, ENC_LITTLE_ENDIAN);
-			/* Check if Reserved/Not Defined is not "zero" */
-			if(bmap & IEEE80211_RADIOTAP_NOTDEFINED)
-			{
-				expert_add_info(pinfo, present_word_item,
-				    &ei_radiotap_present_reserved);
-			}
+		}
+		/* Check if Reserved/Not Defined is not "zero" */
+		if(bmap & IEEE80211_RADIOTAP_NOTDEFINED)
+		{
+			expert_add_info(pinfo, present_word_item,
+			    &ei_radiotap_present_reserved);
+		}
  always_bits:
+		if (tree) {
 			proto_tree_add_item(present_word_tree,
 					    hf_radiotap_present_rtap_ns, tvb,
 					    offset + 4, 4, ENC_LITTLE_ENDIAN);
@@ -2448,7 +2456,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 			guint	    nss		 = 0;
 			guint	    mcs		 = 0;
 			gboolean    can_calculate_rate;
-			guint	    i;
+			guint	    user;
 
 			/*
 			 * Start out assuming that we can calculate the rate;
@@ -2571,12 +2579,12 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 			phdr.phy_info.info_11ac.has_fec = TRUE;
 			phdr.phy_info.info_11ac.fec = tvb_get_guint8(tvb, offset + 8);
 
-			for(i=0; i<4; i++) {
-				mcs_nss = tvb_get_guint8(tvb, offset + 4 + i);
+			for (user = 0; user < 4; user++) {
+				mcs_nss = tvb_get_guint8(tvb, offset + 4 + user);
 				nss = (mcs_nss & IEEE80211_RADIOTAP_VHT_NSS);
 				mcs = (mcs_nss & IEEE80211_RADIOTAP_VHT_MCS) >> 4;
-				phdr.phy_info.info_11ac.mcs[i] = mcs;
-				phdr.phy_info.info_11ac.nss[i] = nss;
+				phdr.phy_info.info_11ac.mcs[user] = mcs;
+				phdr.phy_info.info_11ac.nss[user] = nss;
 
 				if (nss) {
 					/*
@@ -2590,11 +2598,11 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 					if (vht_tree) {
 						it = proto_tree_add_item(vht_tree, hf_radiotap_vht_user,
 							tvb, offset + 4, 5, ENC_NA);
-						proto_item_append_text(it, " %d: MCS %u", i, mcs);
+						proto_item_append_text(it, " %d: MCS %u", user, mcs);
 						user_tree = proto_item_add_subtree(it, ett_radiotap_vht_user);
 
-						it = proto_tree_add_item(user_tree, hf_radiotap_vht_mcs[i],
-							tvb, offset + 4 + i, 1,
+						it = proto_tree_add_item(user_tree, hf_radiotap_vht_mcs[user],
+							tvb, offset + 4 + user, 1,
 							ENC_LITTLE_ENDIAN);
 						if (mcs > MAX_MCS_VHT_INDEX) {
 							proto_item_append_text(it, " (invalid)");
@@ -2604,8 +2612,8 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 								ieee80211_vhtinfo[mcs].coding_rate);
 						}
 
-						proto_tree_add_item(user_tree, hf_radiotap_vht_nss[i],
-							tvb, offset + 4 + i, 1, ENC_LITTLE_ENDIAN);
+						proto_tree_add_item(user_tree, hf_radiotap_vht_nss[user],
+							tvb, offset + 4 + user, 1, ENC_LITTLE_ENDIAN);
 						if (known & IEEE80211_RADIOTAP_VHT_HAVE_STBC) {
 							guint nsts;
 							proto_item *nsts_ti;
@@ -2614,11 +2622,11 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 								nsts = 2 * nss;
 							else
 								nsts = nss;
-							nsts_ti = proto_tree_add_uint(user_tree, hf_radiotap_vht_nsts[i],
-								tvb, offset + 4 + i, 1, nsts);
+							nsts_ti = proto_tree_add_uint(user_tree, hf_radiotap_vht_nsts[user],
+								tvb, offset + 4 + user, 1, nsts);
 							PROTO_ITEM_SET_GENERATED(nsts_ti);
 						}
-						proto_tree_add_item(user_tree, hf_radiotap_vht_coding[i],
+						proto_tree_add_item(user_tree, hf_radiotap_vht_coding[user],
 							tvb, offset + 8, 1,ENC_LITTLE_ENDIAN);
 					}
 
@@ -2627,7 +2635,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 						float rate = ieee80211_vhtinfo[mcs].rates[bandwidth][gi_length] * nss;
 						if (rate != 0.0f ) {
 							rate_ti = proto_tree_add_float_format(user_tree,
-									hf_radiotap_vht_datarate[i],
+									hf_radiotap_vht_datarate[user],
 									tvb, offset, 12, rate,
 									"Data Rate: %.1f Mb/s", rate);
 							PROTO_ITEM_SET_GENERATED(rate_ti);
