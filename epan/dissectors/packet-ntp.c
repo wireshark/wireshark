@@ -948,7 +948,7 @@ dissect_ntp_std(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree)
 	if ((ppoll >= 4) && (ppoll <= 17)) {
 		proto_tree_add_uint_format_value(ntp_tree, hf_ntp_ppoll, tvb, 2, 1,
 				   ppoll,
-				   "%u (%u sec)",
+				   "%u (%u seconds)",
 				   ppoll,
 				   1 << ppoll);
 	} else {
@@ -964,7 +964,7 @@ dissect_ntp_std(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree)
 	precision = tvb_get_guint8(tvb, 3);
 	proto_tree_add_int_format_value(ntp_tree, hf_ntp_precision, tvb, 3, 1,
 				   precision,
-				   "%8.6f sec",
+				   "%8.6f seconds",
 				   pow(2, precision));
 
 	/* Root Delay is a 32-bit signed fixed-point number indicating
