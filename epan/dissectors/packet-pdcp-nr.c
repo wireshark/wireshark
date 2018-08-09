@@ -951,7 +951,7 @@ static gboolean dissect_pdcp_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
 
 /******************************/
 /* Main dissection function.  */
-static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     const char           *mode;
     proto_tree           *pdcp_tree          = NULL;
@@ -970,7 +970,10 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     p_pdcp_info = (struct pdcp_nr_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_pdcp_nr, 0);
     /* Can't dissect anything without it... */
     if (p_pdcp_info == NULL) {
-        return 0;
+        if (!data) {
+            return 0;
+        }
+        p_pdcp_info = (struct pdcp_nr_info *)data;
     }
 
     /* Don't want to overwrite the RLC Info column if configured not to */

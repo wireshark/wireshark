@@ -52,6 +52,8 @@
 #include <epan/tap.h>
 #include <epan/srt_table.h>
 #include <epan/to_str.h>
+#include <epan/uat.h>
+
 #include "packet-ppp.h"
 #include "packet-radius.h"
 #include "packet-gsm_a_common.h"
@@ -61,6 +63,8 @@
 #include "packet-e212.h"
 #include "packet-gtp.h"
 #include "packet-ranap.h"
+#include "packet-pdcp-nr.h"
+#include "packet-rohc.h"
 
 void proto_register_gtp(void);
 void proto_reg_handoff_gtp(void);
@@ -445,6 +449,144 @@ static expert_field ei_gtp_max_bit_rate_value = EI_INIT;
 static expert_field ei_gtp_ext_geo_loc_type = EI_INIT;
 static expert_field ei_gtp_iei = EI_INIT;
 static expert_field ei_gtp_unknown_extention_header = EI_INIT;
+
+/* --- PDCP NR DECODE ADDITIONS --- */
+
+/* Struct for saving PDCP information about specific TEID */
+typedef struct {
+    guint teid;
+    guint direction;
+    /* PDCP_NR_(U|D)L_sdap_hdr_PRESENT bitmask */
+    guint sdap_header_present;
+    guint mac_i_presence;
+    enum pdcp_nr_plane plane;
+    guint pdcp_sn_length;
+    guint rohc_compression;
+    //guint rohc_mode;
+    guint rohc_profile;
+} uat_pdcp_nr_keys_record_t;
+
+/* N.B. this is an array/table of the struct above, where ueid is the key */
+static uat_pdcp_nr_keys_record_t *uat_pdcp_keys_records = NULL;
+
+#define PDCP_NR_DIRECTION_UPLINK_STR "UL"
+static const value_string vs_direction[] = {
+    { PDCP_NR_DIRECTION_UPLINK, PDCP_NR_DIRECTION_UPLINK_STR },
+    { PDCP_NR_DIRECTION_DOWNLINK, "DL" },
+    { 0, NULL }
+};
+
+/* Value sets for each drop-down list in the GUI */
+#define PDCP_NR_SDAP_HEADER_PRESENT_STR "SDAP header NOT present"
+#define PDCP_NR_SDAP_HEADER_NOT_PRESENT 0
+#define PDCP_NR_SDAP_HEADER_PRESENT 1
+static const value_string vs_sdap_header_present[] = {
+    { 0, PDCP_NR_SDAP_HEADER_PRESENT_STR },
+    { 1, "SDAP header present" },
+    { 0, NULL }
+};
+
+
+#define MAC_I_PRESENCE_FALSE_STR "FALSE"
+static const value_string vs_mac_i_presence[] = {
+    { FALSE, MAC_I_PRESENCE_FALSE_STR },
+    { TRUE, "TRUE" },
+    { 0, NULL }
+};
+
+#define USER_PLANE_STR "USER PLANE"
+static const value_string vs_pdcp_plane[] = {
+    { NR_SIGNALING_PLANE, "SIGNALING PLANE" },
+    { NR_USER_PLANE, USER_PLANE_STR },
+    { 0, NULL }
+};
+
+#define PDCP_SN_LENGTH_12_BITS_STR "12 BITS"
+static const value_string vs_pdcp_sn_length[] = {
+    { PDCP_NR_SN_LENGTH_12_BITS, PDCP_SN_LENGTH_12_BITS_STR },
+    { PDCP_NR_SN_LENGTH_18_BITS, "18 BITS" },
+    { 0, NULL }
+};
+
+#define ROHC_COMPRESSION_TRUE_STR "TRUE"
+static const value_string vs_rohc_compression[] = {
+    { FALSE, "FALSE" },
+    { TRUE, ROHC_COMPRESSION_TRUE_STR },
+    { 0, NULL }
+};
+
+#define ROHC_MODE_NOT_SET_STR "MODE NOT SET"
+static const value_string vs_rohc_mode[] = {
+    { MODE_NOT_SET, ROHC_MODE_NOT_SET_STR },
+    { UNIDIRECTIONAL, "UNIDIRECTIONAL" },
+    { OPTIMISTIC_BIDIRECTIONAL, "OPTIMISTIC BIDIRECTIONAL" },
+    { RELIABLE_BIDIRECTIONAL, "RELIABLE BIDIRECTIONAL" },
+    { 0, NULL }
+};
+
+#define ROHC_PROFILE_RTP_STR "RTP"
+#define ROHC_PROFILE_UNCOMPRESSED_STR "UNCOMPRESSED"
+static const value_string vs_rohc_profile[] = {
+    { ROHC_PROFILE_UNCOMPRESSED, ROHC_PROFILE_UNCOMPRESSED_STR },
+    { ROHC_PROFILE_RTP, ROHC_PROFILE_RTP_STR },
+    { ROHC_PROFILE_UDP, "UDP" },
+    { ROHC_PROFILE_IP, "IP" },
+    { ROHC_PROFILE_UNKNOWN, "UNKNOWN" },
+    { 0, NULL }
+};
+
+/* Entries added by UAT */
+static uat_t * pdcp_keys_uat = NULL;
+static guint num_pdcp_keys_uat = 0;
+
+/* Default values for a TEID entry */
+UAT_DEC_CB_DEF(uat_pdcp_keys_records, teid, uat_pdcp_nr_keys_record_t)
+UAT_VS_DEF(pdcp_users, direction, uat_pdcp_nr_keys_record_t, guint, PDCP_NR_DIRECTION_UPLINK, PDCP_NR_DIRECTION_UPLINK_STR)
+UAT_VS_DEF(pdcp_users, sdap_header_present, uat_pdcp_nr_keys_record_t, guint, PDCP_NR_SDAP_HEADER_PRESENT, PDCP_NR_SDAP_HEADER_PRESENT_STR)
+UAT_VS_DEF(pdcp_users, mac_i_presence, uat_pdcp_nr_keys_record_t, guint, FALSE, MAC_I_PRESENCE_FALSE_STR)
+UAT_VS_DEF(pdcp_users, plane, uat_pdcp_nr_keys_record_t, enum pdcp_nr_plane, NR_USER_PLANE, USER_PLANE_STR)
+UAT_VS_DEF(pdcp_users, pdcp_sn_length, uat_pdcp_nr_keys_record_t, guint, PDCP_NR_SN_LENGTH_12_BITS, PDCP_SN_LENGTH_12_BITS_STR)
+UAT_VS_DEF(pdcp_users, rohc_compression, uat_pdcp_nr_keys_record_t, guint, TRUE, ROHC_COMPRESSION_TRUE_STR)
+//UAT_VS_DEF(pdcp_users, rohc_mode, uat_pdcp_nr_keys_record_t, guint, MODE_NOT_SET, ROHC_MODE_NOT_SET_STR)
+UAT_VS_DEF(pdcp_users, rohc_profile, uat_pdcp_nr_keys_record_t, guint, ROHC_PROFILE_UNCOMPRESSED, ROHC_PROFILE_UNCOMPRESSED_STR)
+
+/* Table from ueid -> uat_pdcp_nr_keys_record_t* */
+static wmem_map_t *pdcp_security_key_hash = NULL;
+
+static uat_pdcp_nr_keys_record_t* look_up_keys_record(guint32 teidn)
+{
+    unsigned int record_id;
+
+    /* Try hash table first (among entries added by set_pdcp_lte_xxx_key() functions) */
+    uat_pdcp_nr_keys_record_t* key_record = (uat_pdcp_nr_keys_record_t*)wmem_map_lookup(pdcp_security_key_hash, GUINT_TO_POINTER((guint)teidn));
+
+    if (key_record != NULL) {
+        return key_record;
+    }
+
+    /* Else look up UAT entries. N.B. linear search... */
+    for (record_id = 0; record_id < num_pdcp_keys_uat; record_id++) {
+        if (uat_pdcp_keys_records[record_id].teid == teidn) {
+            return &uat_pdcp_keys_records[record_id];
+        }
+    }
+
+    /* No match at all - return NULL */
+    return NULL;
+}
+
+/* Hash table for security state for a UE
+Maps UEId -> pdcp_security_info_t*  */
+static gint pdcp_lte_ueid_hash_equal(gconstpointer v, gconstpointer v2)
+{
+    return (v == v2);
+}
+static guint pdcp_lte_ueid_hash_func(gconstpointer v)
+{
+    return GPOINTER_TO_UINT(v);
+}
+
+/* --- END PDCP NR DECODE ADDITIONS --- */
 
 static gboolean g_gtp_etsi_order = FALSE;
 
@@ -1916,6 +2058,7 @@ static dissector_handle_t gtpcdr_handle;
 static dissector_handle_t sndcpxid_handle;
 static dissector_handle_t gtpv2_handle;
 static dissector_handle_t bssgp_handle;
+static dissector_handle_t pdcp_nr_handle;
 static dissector_table_t bssap_pdu_type_table;
 guint32 gtp_session_count;
 
@@ -8573,7 +8716,7 @@ addRANContParameter(tvbuff_t *tvb, proto_tree *ran_cont_tree, gint offset)
                 proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_dl_disc_nr_pdcp_pdu_sn_start, tvb, offset, 3, ENC_BIG_ENDIAN);
                 offset += 3;
 
-                proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_dl_disc_blk_sz, tvb, offset, 3, ENC_BIG_ENDIAN);
+                proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_dl_disc_blk_sz, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset++;
                 dl_disc_num_blks--;
             }
@@ -9040,8 +9183,68 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                                 if ((nr_pdu_type == 0) || (nr_pdu_type == 1)) {
                                     /*NR-U DUD or DDDS PDU
                                     * This is NR-U DUD/DDDS PDU. It contains PDCP
-                                    * payload as per 3GPP TS 38.323*/
-                                    proto_tree_add_item(tree, hf_pdcp_cont, tvb, offset, -1, ENC_NA);
+                                    * payload as per 3GPP TS 38.323
+                                    */
+                                    /* Check if we have info to call the PDCP dissector */
+                                    uat_pdcp_nr_keys_record_t* found_record;
+
+                                    if ((found_record = look_up_keys_record((guint32)gtp_hdr->teid))) {
+                                        tvbuff_t *pdcp_tvb;
+                                        struct pdcp_nr_info temp_data;
+
+                                        /* Set the ROHC data */
+                                        temp_data.rohc.rohc_compression = found_record->rohc_compression;
+                                        temp_data.rohc.rohc_ip_version = 4; /* For now set it explicitly */
+                                        temp_data.rohc.cid_inclusion_info = FALSE;
+                                        temp_data.rohc.large_cid_present = FALSE;
+                                        temp_data.rohc.mode = MODE_NOT_SET;
+                                        temp_data.rohc.rnd = FALSE;
+                                        temp_data.rohc.udp_checksum_present = FALSE;
+                                        temp_data.rohc.profile = found_record->rohc_profile;
+
+
+                                        pdcp_tvb = tvb_new_subset_remaining(tvb, offset);
+                                        /* Fill in pdcp_nr_info */
+
+                                        temp_data.direction = found_record->direction;
+                                        /*temp_data.ueid*/
+                                        /*temp_data.bearerType;*/
+                                        /*temp_data.bearerId;*/
+
+                                        /* Details of PDCP header */
+                                        temp_data.plane = found_record->plane;
+                                        temp_data.seqnum_length = found_record->pdcp_sn_length;
+                                        /* PDCP_NR_(U|D)L_sdap_hdr_PRESENT bitmask */
+                                        if (found_record->sdap_header_present == PDCP_NR_SDAP_HEADER_PRESENT) {
+                                            if (temp_data.direction == PDCP_NR_DIRECTION_UPLINK) {
+                                                temp_data.sdap_header = PDCP_NR_UL_SDAP_HEADER_PRESENT;
+                                            } else {
+                                                temp_data.sdap_header = PDCP_NR_DL_SDAP_HEADER_PRESENT;
+                                            }
+                                        } else {
+                                            temp_data.sdap_header = 0;
+                                        }
+                                        temp_data.maci_present = found_record->mac_i_presence;
+
+                                        /* RoHC settings */
+                                        temp_data.rohc.rohc_compression = found_record->rohc_compression;
+                                        temp_data.rohc.rohc_ip_version = 4; /* For now set it explicitly */
+                                        temp_data.rohc.cid_inclusion_info = FALSE;
+                                        temp_data.rohc.large_cid_present = FALSE;
+                                        temp_data.rohc.mode = MODE_NOT_SET;
+                                        temp_data.rohc.rnd = FALSE;
+                                        temp_data.rohc.udp_checksum_present = FALSE;
+                                        temp_data.rohc.profile = found_record->rohc_profile;
+
+                                        temp_data.is_retx = 0;
+
+                                        /* Used by heuristic dissector only */
+                                        temp_data.pdu_length = 0;
+
+                                        call_dissector_with_data(pdcp_nr_handle, pdcp_tvb, pinfo, tree, &temp_data);
+                                    } else {
+                                        proto_tree_add_item(tree, hf_pdcp_cont, tvb, offset, -1, ENC_NA);
+                                    }
                                     return tvb_reported_length(tvb);
                                 }
                             }
@@ -10664,6 +10867,46 @@ proto_register_gtp(void)
     prefs_register_bool_preference(gtp_module, "dissect_gtp_over_tcp", "Dissect GTP over TCP", "Dissect GTP over TCP", &g_gtp_over_tcp);
     prefs_register_bool_preference(gtp_module, "track_gtp_session", "Track GTP session", "Track GTP session", &g_gtp_session);
 
+    /* --- PDCP NR DECODE ADDITIONS --- */
+
+    static uat_field_t pdcp_keys_uat_flds[] = {
+        UAT_FLD_HEX(uat_pdcp_keys_records, teid, "TEID", "Tunnel Endpoint Identifier"),
+        UAT_FLD_VS(pdcp_users, direction, "Direction", vs_direction, "Direction"),
+        UAT_FLD_VS(pdcp_users, sdap_header_present, "SDAP header present flag", vs_sdap_header_present, "SDAP header present flag"),
+        UAT_FLD_VS(pdcp_users, mac_i_presence, "MAC-I presence flag", vs_mac_i_presence, "MAC-I presence flag"),
+        UAT_FLD_VS(pdcp_users, plane, "PLANE", vs_pdcp_plane, "Signaling or user plane"),
+        UAT_FLD_VS(pdcp_users, pdcp_sn_length, "PDCP SN LENGTH", vs_pdcp_sn_length, "Length of PDCP sequence number"),
+        UAT_FLD_VS(pdcp_users, rohc_compression, "ROHC compression", vs_rohc_compression, "Header compression"),
+        //UAT_FLD_VS(pdcp_users, rohc_mode, "ROHC mode", vs_rohc_mode, "ROHC mode"),
+        UAT_FLD_VS(pdcp_users, rohc_profile, "ROHC profile", vs_rohc_profile, "ROHC profile"),
+        UAT_END_FIELDS
+    };
+
+    pdcp_keys_uat = uat_new("PDCP NR Keys",
+        sizeof(uat_pdcp_nr_keys_record_t), /* record size */
+        "gtp_nr_ran_cont_pdcp_keys",    /* filename */
+        TRUE,                           /* from_profile */
+        &uat_pdcp_keys_records,         /* data_ptr */
+        &num_pdcp_keys_uat,             /* numitems_ptr */
+        UAT_AFFECTS_DISSECTION,         /* affects dissection of packets, but not set of named fields */
+        NULL,                           /* help */
+        NULL,                           /* copy callback */
+        NULL,                           /* update callback */
+        NULL,                           /* free callback */
+        NULL,                           /* post update callback */
+        NULL,                           /* reset callback */
+        pdcp_keys_uat_flds);            /* UAT field definitions */
+
+    prefs_register_uat_preference(gtp_module,
+        "nr_ran_cont_pdcp_table",
+        "GTP NR RAN container PDCP Keys",
+        "Preconfigured NR RAN container PDCP Keys",
+        pdcp_keys_uat);
+
+    pdcp_security_key_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), pdcp_lte_ueid_hash_func, pdcp_lte_ueid_hash_equal);
+
+    /* --- END PDCP NR DECODE ADDITIONS ---*/
+
     gtp_handle = register_dissector("gtp", dissect_gtp, proto_gtp);
     gtp_prime_handle = register_dissector("gtpprime", dissect_gtpprime, proto_gtpprime);
 
@@ -10714,6 +10957,7 @@ proto_reg_handoff_gtp(void)
         sndcpxid_handle      = find_dissector_add_dependency("sndcpxid", proto_gtp);
         gtpv2_handle         = find_dissector_add_dependency("gtpv2", proto_gtp);
         bssgp_handle         = find_dissector_add_dependency("bssgp", proto_gtp);
+        pdcp_nr_handle       = find_dissector_add_dependency("pdcp-nr", proto_gtp);
         bssap_pdu_type_table = find_dissector_table("bssap.pdu_type");
         /* AVP Code: 5 3GPP-GPRS Negotiated QoS profile */
         dissector_add_uint("diameter.3gpp", 5, create_dissector_handle(dissect_diameter_3gpp_qosprofile, proto_gtp));
