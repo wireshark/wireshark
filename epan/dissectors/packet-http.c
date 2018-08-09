@@ -3507,8 +3507,11 @@ dissect_http_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 	   conv_data->request_method &&
 	   strncmp(conv_data->request_method, "CONNECT", 7) == 0 &&
 	   conv_data->request_uri) {
-		if(conv_data->startframe == 0 && !pinfo->fd->flags.visited)
+		if (conv_data->startframe == 0 && !PINFO_FD_VISITED(pinfo)) {
 			conv_data->startframe = pinfo->num;
+			copy_address_wmem(wmem_file_scope(), &conv_data->server_addr, &pinfo->src);
+			conv_data->server_port = pinfo->srcport;
+		}
 		http_payload_subdissector(tvb, tree, pinfo, conv_data, data);
 
 		return tvb_captured_length(tvb);
