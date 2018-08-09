@@ -162,9 +162,10 @@ static int hf_gtpv2_mmbr_ul = -1;
 static int hf_gtpv2_mmbr_dl = -1;
 
 static int hf_gtpv2_rat_type = -1;
-static int hf_gtpv2_uli_spare = -1;
-static int hf_gtpv2_uli_ecgi_flg = -1;
+static int hf_gtpv2_uli_ext_macro_enb_id_flg = -1;
+static int hf_gtpv2_uli_macro_enb_id_flg = -1;
 static int hf_gtpv2_uli_lai_flg = -1;
+static int hf_gtpv2_uli_ecgi_flg = -1;
 static int hf_gtpv2_uli_tai_flg = -1;
 static int hf_gtpv2_uli_rai_flg = -1;
 static int hf_gtpv2_uli_sai_flg = -1;
@@ -326,6 +327,8 @@ static int hf_gtpv2_CauseProtocol = -1;
 static int hf_gtpv2_CauseMisc = -1;
 static int hf_gtpv2_target_type = -1;
 static int hf_gtpv2_macro_enodeb_id = -1;
+static int hf_gtpv2_smenb = -1;
+static int hf_gtpv2_ext_macro_enodeb_id = -1;
 static int hf_gtpv2_enodebid = -1;
 static int hf_gtpv2_cellid = -1;
 
@@ -394,6 +397,7 @@ static int hf_gtpv2_rai_lac= -1;
 static int hf_gtpv2_rai_rac= -1;
 static int hf_gtpv2_tai_tac= -1;
 static int hf_gtpv2_ecgi_eci= -1;
+static int hf_gtpv2_ncgi_nrci= -1;
 static int hf_gtpv2_uli_lai_lac = -1;
 static int hf_gtpv2_ecgi_eci_spare= -1;
 static int hf_gtpv2_nsapi = -1;
@@ -683,12 +687,14 @@ static expert_field ei_gtpv2_ie = EI_INIT;
 static expert_field ei_gtpv2_int_size_not_handled = EI_INIT;
 
 /* Definition of User Location Info (AVP 22) masks */
-#define GTPv2_ULI_CGI_MASK          0x01
-#define GTPv2_ULI_SAI_MASK          0x02
-#define GTPv2_ULI_RAI_MASK          0x04
-#define GTPv2_ULI_TAI_MASK          0x08
-#define GTPv2_ULI_ECGI_MASK         0x10
-#define GTPv2_ULI_LAI_MASK          0x20
+#define GTPv2_ULI_CGI_MASK              0x01
+#define GTPv2_ULI_SAI_MASK              0x02
+#define GTPv2_ULI_RAI_MASK              0x04
+#define GTPv2_ULI_TAI_MASK              0x08
+#define GTPv2_ULI_ECGI_MASK             0x10
+#define GTPv2_ULI_LAI_MASK              0x20
+#define GTPv2_ULI_MACRO_eNB_ID_MASK     0x40
+#define GTPv2_ULI_EXT_MACRO_eNB_ID_MASK 0x80
 
 #define GTPV2_PPI_VAL_MASK          0x3F
 
@@ -2566,6 +2572,55 @@ dissect_gtpv2_cgi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offs
 }
 
 static gchar*
+dissect_gtpv2_macro_enodeb_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset)
+{
+    gchar      *str = NULL;
+    gchar      *mcc_mnc_str;
+    guint32     macro_enodeb_id;
+
+    mcc_mnc_str = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, *offset, E212_NONE, TRUE);
+    *offset += 3;
+    /* The Macro eNodeB ID consists of 20 bits.
+     * Bit 4 of Octet 4 is the most significant bit and bit 1 of Octet 6 is the least significant bit.
+     */
+    proto_tree_add_item_ret_uint(tree, hf_gtpv2_macro_enodeb_id, tvb, *offset, 3, ENC_BIG_ENDIAN, &macro_enodeb_id);
+    *offset += 3;
+
+    str = wmem_strdup_printf(wmem_packet_scope(), "%s, Macro eNodeB ID 0x%x",
+        mcc_mnc_str,
+        macro_enodeb_id);
+
+    return str;
+}
+
+static const true_false_string gtpv2_smenb = {
+    "Short Macro eNodeB ID",
+    "Long Macro eNodeB ID",
+};
+
+static gchar*
+dissect_gtpv2_ext_macro_enodeb_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset)
+{
+    gchar      *str = NULL;
+    gchar      *mcc_mnc_str;
+    guint32     ext_macro_enodeb_id;
+
+    mcc_mnc_str = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, *offset, E212_NONE, TRUE);
+    *offset += 3;
+    /* The Extended Macro eNodeB ID consists of 21 bits. */
+    proto_tree_add_item(tree, hf_gtpv2_smenb, tvb, *offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_gtpv2_ext_macro_enodeb_id, tvb, *offset, 3, ENC_BIG_ENDIAN, &ext_macro_enodeb_id);
+    *offset += 3;
+
+    str = wmem_strdup_printf(wmem_packet_scope(), "%s, Extended Macro eNodeB ID 0x%x",
+        mcc_mnc_str,
+        ext_macro_enodeb_id);
+
+    return str;
+}
+
+
+static gchar*
 decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 instance _U_, guint flags)
 {
     int         offset = 1;     /* flags are already dissected */
@@ -2657,6 +2712,31 @@ decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item
             lac);
 
     }
+    /* 8.21.7  Macro eNodeB ID field */
+    if (flags & GTPv2_ULI_MACRO_eNB_ID_MASK)
+    {
+        proto_item_append_text(item, "Macro eNodeB ID ");
+        part_tree = proto_tree_add_subtree(tree, tvb, offset, 7,
+            ett_gtpv2_uli_field, NULL, "Macro eNodeB ID");
+
+        str = dissect_gtpv2_macro_enodeb_id(tvb, pinfo, part_tree, &offset);
+
+        if (offset == length)
+            return str;
+    }
+
+    /* 8.21.8  Macro eNodeB ID field */
+    if (flags & GTPv2_ULI_MACRO_eNB_ID_MASK)
+    {
+        proto_item_append_text(item, "Ext Macro eNodeB ID ");
+        part_tree = proto_tree_add_subtree(tree, tvb, offset, 7,
+            ett_gtpv2_uli_field, NULL, "Extended Macro eNodeB ID");
+
+        str = dissect_gtpv2_ext_macro_enodeb_id(tvb, pinfo, part_tree, &offset);
+
+        if (offset == length)
+            return str;
+    }
 
     return str;
 
@@ -2669,7 +2749,8 @@ dissect_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_ite
     guint       flags;
 
     static const int * gtpv2_uli_flags[] = {
-        &hf_gtpv2_uli_spare,
+        &hf_gtpv2_uli_ext_macro_enb_id_flg,
+        &hf_gtpv2_uli_macro_enb_id_flg,
         &hf_gtpv2_uli_lai_flg,
         &hf_gtpv2_uli_ecgi_flg,
         &hf_gtpv2_uli_tai_flg,
@@ -2729,11 +2810,11 @@ dissect_diameter_3gpp_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     int   offset = 0;
     guint length;
     guint flags;
-    guint flags_3gpp;
+    guint32 flags_3gpp;
     length       = tvb_reported_length(tvb);
-    flags_3gpp   = tvb_get_guint8(tvb, offset);
 
-    proto_tree_add_item(tree, hf_gtpv2_glt, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_gtpv2_glt, tvb, offset, 1, ENC_BIG_ENDIAN, &flags_3gpp);
+    offset++;
 
     switch (flags_3gpp)
     {
@@ -2761,8 +2842,61 @@ dissect_diameter_3gpp_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         /* TAI and ECGI */
         flags = GTPv2_ULI_TAI_MASK + GTPv2_ULI_ECGI_MASK;
         break;
+    case 131:
+        /* eNodeB ID */
+        flags = GTPv2_ULI_MACRO_eNB_ID_MASK;
+        break;
+    case 132:
+        /* TAI and eNodeB ID */
+        flags = GTPv2_ULI_TAI_MASK + GTPv2_ULI_MACRO_eNB_ID_MASK;
+        break;
+    case 133:
+        /* extended eNodeB ID */
+        flags = GTPv2_ULI_EXT_MACRO_eNB_ID_MASK;
+        break;
+    case 134:
+        /* TAI and extended eNodeB ID */
+        flags = GTPv2_ULI_TAI_MASK + GTPv2_ULI_EXT_MACRO_eNB_ID_MASK;
+        break;
+    case 135:
+        /* NCGI */
+        {
+            gchar *mcc_mnc_str;
+            guint64 nr_cell_id;
+            proto_tree *subtree;
+
+            subtree = proto_tree_add_subtree(tree, tvb, offset, 8, ett_gtpv2_uli_field, NULL,
+                                             "NR Cell Global Identifier (NCGI)");
+            mcc_mnc_str = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, subtree, offset, E212_NRCGI, TRUE);
+            offset += 3;
+            proto_tree_add_item_ret_uint64(subtree, hf_gtpv2_ncgi_nrci, tvb, offset, 5, ENC_BIG_ENDIAN, &nr_cell_id);
+            diam_sub_dis->avp_str = wmem_strdup_printf(wmem_packet_scope(),
+                                                       "%s, NR Cell Id 0x%" G_GINT64_MODIFIER "x",
+                                                       mcc_mnc_str, nr_cell_id);
+        }
+        return length;
+    case 136:
+        /* TAI and NCGI */
+        {
+            gchar *mcc_mnc_str;
+            guint64 nr_cell_id;
+            proto_tree *subtree;
+
+            subtree = proto_tree_add_subtree(tree, tvb, offset, 5, ett_gtpv2_uli_field, NULL,
+                                             "Tracking Area Identity (TAI)");
+            diam_sub_dis->avp_str = dissect_gtpv2_tai(tvb, pinfo, subtree, &offset);
+            subtree = proto_tree_add_subtree(tree, tvb, offset, 8, ett_gtpv2_uli_field, NULL,
+                                             "NR Cell Global Identifier (NCGI)");
+            mcc_mnc_str = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, subtree, offset, E212_NRCGI, TRUE);
+            offset += 3;
+            proto_tree_add_item_ret_uint64(subtree, hf_gtpv2_ncgi_nrci, tvb, offset, 5, ENC_BIG_ENDIAN, &nr_cell_id);
+            diam_sub_dis->avp_str = wmem_strdup_printf(wmem_packet_scope(),
+                                                       "%s, %s, NR Cell Id 0x%" G_GINT64_MODIFIER "x",
+                                                       diam_sub_dis->avp_str, mcc_mnc_str, nr_cell_id);
+        }
+        return length;
     default:
-        proto_tree_add_item(tree, hf_gtpv2_geographic_location, tvb, 1, -1, ENC_NA);
+        proto_tree_add_item(tree, hf_gtpv2_geographic_location, tvb, offset, -1, ENC_NA);
         return length;
     }
 
@@ -4792,29 +4926,6 @@ static const value_string gtpv2_target_type_vals[] = {
     {0, NULL}
 };
 static value_string_ext gtpv2_target_type_vals_ext = VALUE_STRING_EXT_INIT(gtpv2_target_type_vals);
-
-static gchar*
-dissect_gtpv2_macro_enodeb_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset)
-{
-    gchar      *str = NULL;
-    gchar      *mcc_mnc_str;
-    guint32     macro_enodeb_id;
-
-    mcc_mnc_str = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, *offset, E212_NONE, TRUE);
-    *offset += 3;
-    /* The Macro eNodeB ID consists of 20 bits.
-     * Bit 4 of Octet 4 is the most significant bit and bit 1 of Octet 6 is the least significant bit.
-     */
-    macro_enodeb_id = tvb_get_ntoh24(tvb, *offset) & 0x0fffff;
-    proto_tree_add_item(tree, hf_gtpv2_macro_enodeb_id, tvb, *offset, 3, ENC_BIG_ENDIAN);
-    *offset += 3;
-
-    str = wmem_strdup_printf(wmem_packet_scope(), "%s, Macro eNodeB ID 0x%x",
-        mcc_mnc_str,
-        macro_enodeb_id);
-
-    return str;
-}
 
 static gchar*
 dissect_gtpv2_home_enodeb_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset)
@@ -8530,10 +8641,15 @@ void proto_register_gtpv2(void)
            FT_BOOLEAN, 8, NULL, GTPv2_ULI_ECGI_MASK,
            NULL, HFILL}
         },
-        { &hf_gtpv2_uli_spare,
-        { "Spare", "gtpv2.uli_spare_flg",
-            FT_UINT8, BASE_HEX, NULL, 0xc0,
-            NULL, HFILL }
+        { &hf_gtpv2_uli_ext_macro_enb_id_flg,
+          {"Extended Macro eNodeB ID Present", "gtpv2.uli_ext_macro_enb_id_flg",
+           FT_BOOLEAN, 8, NULL, GTPv2_ULI_EXT_MACRO_eNB_ID_MASK,
+           NULL, HFILL}
+        },
+        { &hf_gtpv2_uli_macro_enb_id_flg,
+          {"Macro eNodeB ID Present", "gtpv2.uli_macro_enb_id_flg",
+           FT_BOOLEAN, 8, NULL, GTPv2_ULI_MACRO_eNB_ID_MASK,
+           NULL, HFILL}
         },
         { &hf_gtpv2_uli_lai_flg,
           {"LAI Present", "gtpv2.uli_lai_flg",
@@ -8603,6 +8719,11 @@ void proto_register_gtpv2(void)
         {&hf_gtpv2_ecgi_eci,
          {"ECI (E-UTRAN Cell Identifier)", "gtpv2.ecgi_eci",
           FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_gtpv2_ncgi_nrci,
+         {"NR Cell Identifier", "gtpv2.ncgi_nrci",
+          FT_UINT40, BASE_HEX, NULL, 0xfffffffff0,
           NULL, HFILL}
         },
         {&hf_gtpv2_uli_lai_lac,
@@ -9073,6 +9194,16 @@ void proto_register_gtpv2(void)
         {&hf_gtpv2_macro_enodeb_id,
          {"Macro eNodeB ID", "gtpv2.macro_enodeb_id",
           FT_UINT32, BASE_HEX, NULL, 0x0fffff,
+          NULL, HFILL}
+        },
+        {&hf_gtpv2_smenb,
+         {"SMeNB", "gtpv2.smenb",
+          FT_BOOLEAN, 24, TFS(&gtpv2_smenb), 0x800000,
+          NULL, HFILL}
+        },
+        {&hf_gtpv2_ext_macro_enodeb_id,
+         {"Extended Macro eNodeB ID", "gtpv2.ext_macro_enodeb_id",
+          FT_UINT32, BASE_HEX, NULL, 0x1fffff,
           NULL, HFILL}
         },
         {&hf_gtpv2_cellid,
