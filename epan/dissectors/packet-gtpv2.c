@@ -2713,6 +2713,12 @@ static const value_string geographic_location_type_vals[] = {
     {128, "TAI"},
     {129, "ECGI"},
     {130, "TAI and ECGI"},
+    {131, "eNodeB ID"},
+    {132, "TAI and eNodeB ID"},
+    {133, "extended eNodeB ID"},
+    {134, "TAI and extended eNodeB ID"},
+    {135, "NCGI"},
+    {136, "TAI and NCGI"},
     {0, NULL}
 };
 
