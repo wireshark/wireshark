@@ -45,6 +45,7 @@ since version 2.6.0:
 * The TCP dissector gained a new “Reassemble out-of-order segments” preference
   to fix dissection and decryption issues in case TCP segments are received
   out-of-order. See the User’s Guide, chapter _TCP Reassembly_ for details.
+* Decryption support for the new WireGuard dissector (wsbuglink:15011[], requires Libgcrypt 1.8).
 * The BOOTP dissector has been renamed to DHCP. With the exception of
   “bootp.dhcp”, the old “bootp.*” display filter fields are still supported
   but may be removed in a future release.
@@ -87,6 +88,7 @@ systemd Journal Export
 TPM 2.0 protocol
 Ubiquiti Discovery Protocol (UBDP)
 XnAP (5G) protocol
+WireGuard protocol
 --
 
 === Updated Protocol Support
@@ -135,31 +137,18 @@ files, plugins, SNMP MIBS, and RADIUS dictionaries. These locations vary
 from platform to platform. You can use About→Folders to find the default
 locations on your system.
 
-== Known Problems
-
-The BER dissector might infinitely loop.
-(wsbuglink:1516[])
-
-Capture filters aren't applied when capturing from named pipes.
-(wsbuglink:1814[])
-
-Filtering tshark captures with read filters (-R) no longer works.
-(wsbuglink:2234[])
-
-Application crash when changing real-time option.
-(wsbuglink:4035[])
-
-Wireshark and TShark will display incorrect delta times in some cases.
-(wsbuglink:4985[])
-
-Wireshark should let you work with multiple capture files. (wsbuglink:10488[])
-
 == Getting Help
+
+The User’s Guide, manual pages and various other documentation can be
+found at https://www.wireshark.org/docs/
 
 Community support is available on https://ask.wireshark.org/[Wireshark’s
 Q&A site] and on the wireshark-users mailing list. Subscription
 information and archives for all of Wireshark’s mailing lists can be
 found on https://www.wireshark.org/lists/[the web site].
+
+Bugs and feature requests can be reported on
+https://bugs.wireshark.org/[the bug tracker].
 
 Official Wireshark training and certification are available from
 http://www.wiresharktraining.com/[Wireshark University].
