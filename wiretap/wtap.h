@@ -797,10 +797,10 @@ union ieee_802_11_phy_info {
 };
 
 struct ieee_802_11_phdr {
-    gint     fcs_len;        /* Number of bytes of FCS - -1 means "unknown" */
-    gboolean decrypted;      /* TRUE if frame is decrypted even if "protected" bit is set */
-    gboolean datapad;        /* TRUE if frame has padding between 802.11 header and payload */
-    guint    phy;            /* PHY type */
+    gint     fcs_len;          /* Number of bytes of FCS - -1 means "unknown" */
+    gboolean decrypted;        /* TRUE if frame is decrypted even if "protected" bit is set */
+    gboolean datapad;          /* TRUE if frame has padding between 802.11 header and payload */
+    guint    phy;              /* PHY type */
     union ieee_802_11_phy_info phy_info;
 
     /* Which of this information is present? */
@@ -812,18 +812,20 @@ struct ieee_802_11_phdr {
     guint    has_signal_dbm:1;
     guint    has_noise_dbm:1;
     guint    has_tsf_timestamp:1;
-    guint    has_aggregate_info:1;    /* aggregate flags and ID */
+    guint    has_aggregate_info:1;        /* aggregate flags and ID */
+    guint    has_zero_length_psdu_type:1; /* zero-length PSDU type */
 
-    guint16  channel;        /* Channel number */
-    guint32  frequency;      /* Channel center frequency */
-    guint16  data_rate;      /* Data rate, in .5 Mb/s units */
-    guint8   signal_percent; /* Signal level, as a percentage */
-    guint8   noise_percent;  /* Noise level, as a percentage */
-    gint8    signal_dbm;     /* Signal level, in dBm */
-    gint8    noise_dbm;      /* Noise level, in dBm */
+    guint16  channel;                     /* Channel number */
+    guint32  frequency;                   /* Channel center frequency */
+    guint16  data_rate;                   /* Data rate, in .5 Mb/s units */
+    guint8   signal_percent;              /* Signal level, as a percentage */
+    guint8   noise_percent;               /* Noise level, as a percentage */
+    gint8    signal_dbm;                  /* Signal level, in dBm */
+    gint8    noise_dbm;                   /* Noise level, in dBm */
     guint64  tsf_timestamp;
-    guint32  aggregate_flags; /* A-MPDU flags */
-    guint32  aggregate_id;    /* ID for A-MPDU reassembly */
+    guint32  aggregate_flags;             /* A-MPDU flags */
+    guint32  aggregate_id;                /* ID for A-MPDU reassembly */
+    guint8   zero_length_psdu_type;       /* type of zero-length PSDU */
 };
 
 /*
@@ -831,6 +833,13 @@ struct ieee_802_11_phdr {
  */
 #define PHDR_802_11_LAST_PART_OF_A_MPDU    0x00000001 /* this is the last part of an A-MPDU */
 #define PHDR_802_11_A_MPDU_DELIM_CRC_ERROR 0x00000002 /* delimiter CRC error after this part */
+
+/*
+ * Zero-length PSDU types.
+ */
+#define PHDR_802_11_SOUNDING_PSDU                 0 /* sounding PPDU */
+#define PHDR_802_11_DATA_NOT_CAPTURED             1 /* data not captured, (e.g. multi-user PPDU) */
+#define PHDR_802_11_0_LENGTH_PSDU_VENDOR_SPECIFIC 0xff
 
 /* Packet "pseudo-header" for the output from CoSine L2 debug output. */
 

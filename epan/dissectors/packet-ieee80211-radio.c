@@ -86,7 +86,7 @@ static int hf_wlan_radio_aggregate_duration = -1;
 static int hf_wlan_radio_ifs = -1;
 static int hf_wlan_radio_start_tsf = -1;
 static int hf_wlan_radio_end_tsf = -1;
-
+static int hf_wlan_zero_length_psdu_type = -1;
 
 static expert_field ei_wlan_radio_assumed_short_preamble = EI_INIT;
 static expert_field ei_wlan_radio_assumed_non_greenfield = EI_INIT;
@@ -170,6 +170,12 @@ static const value_string fec_vals[] = {
     { 0, NULL }
 };
 
+static const value_string zero_length_psdu_vals[] = {
+	{ 0, "sounding PPDU" },
+	{ 1, "data not captured" },
+	{ 255, "vendor-specific" },
+	{ 0, NULL }
+};
 /*
  * Lookup for the MCS index (0-76)
  * returning the number of data bits per symbol
@@ -439,9 +445,8 @@ static void adjust_agg_tsf(gpointer data, gpointer user_data)
  * Dissect 802.11 pseudo-header containing radio information.
  */
 static void
-dissect_wlan_radio_phdr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *data)
+dissect_wlan_radio_phdr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, struct ieee_802_11_phdr *phdr)
 {
-  struct ieee_802_11_phdr *phdr = (struct ieee_802_11_phdr *)data;
   proto_item *ti;
   proto_tree *radio_tree;
   float data_rate = 0.0f;
@@ -1189,6 +1194,8 @@ dissect_wlan_radio_phdr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
       }
     }
   } /* if (have_data_rate) */
+  if (phdr->has_zero_length_psdu_type)
+    proto_tree_add_uint(radio_tree, hf_wlan_zero_length_psdu_type, tvb, 0, 0, phdr->zero_length_psdu_type);
 
   if (wlan_radio_timeline_enabled) {
     tap_queue_packet(wlan_radio_timeline_tap, pinfo, wlan_radio_info);
@@ -1206,7 +1213,13 @@ dissect_wlan_radio_phdr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 static int
 dissect_wlan_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *data)
 {
-  dissect_wlan_radio_phdr (tvb, pinfo, tree, data);
+  struct ieee_802_11_phdr *phdr = (struct ieee_802_11_phdr *)data;
+
+  dissect_wlan_radio_phdr(tvb, pinfo, tree, phdr);
+
+  /* Is there anything there? A 0-length-psdu has no frame data. */
+  if (phdr->has_zero_length_psdu_type)
+    return tvb_captured_length(tvb);
 
   /* dissect the 802.11 packet next */
   return call_dissector_with_data(ieee80211_handle, tvb, pinfo, tree, data);
@@ -1219,7 +1232,13 @@ dissect_wlan_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
 static int
 dissect_wlan_noqos_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *data)
 {
-  dissect_wlan_radio_phdr (tvb, pinfo, tree, data);
+  struct ieee_802_11_phdr *phdr = (struct ieee_802_11_phdr *)data;
+
+  dissect_wlan_radio_phdr(tvb, pinfo, tree, phdr);
+
+  /* Is there anything there? A 0-length-psdu has no frame data. */
+  if (phdr->has_zero_length_psdu_type)
+    return tvb_captured_length(tvb);
 
   /* dissect the 802.11 packet next */
   return call_dissector_with_data(ieee80211_noqos_handle, tvb, pinfo, tree, data);
@@ -1436,6 +1455,9 @@ void proto_register_ieee80211_radio(void)
       "Total duration of the aggregate in microseconds, including any preamble or plcp header. "
       "Calculated from the total subframe lengths, modulation and other phy data.", HFILL }},
 
+    {&hf_wlan_zero_length_psdu_type,
+     {"Zero-length PSDU Type", "wlan_radio.zero_len_psdu.type", FT_UINT8, BASE_HEX, VALS(zero_length_psdu_vals), 0x0,
+       "Type of zero-length PSDU", HFILL}},
   };
 
   static gint *ett[] = {

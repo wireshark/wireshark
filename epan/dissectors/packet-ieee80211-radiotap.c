@@ -1330,15 +1330,33 @@ static const range_string zero_length_psdu_rsvals[] = {
 
 static void
 dissect_radiotap_0_length_psdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-	int offset)
+	int offset, struct ieee_802_11_phdr *phdr)
 {
 	proto_tree *zero_len_tree = NULL;
+	guint32 psdu_type;
 
 	zero_len_tree = proto_tree_add_subtree(tree, tvb, offset, 1,
 		ett_radiotap_0_length_psdu, NULL, "0-length PSDU");
 
-	proto_tree_add_item(zero_len_tree, hf_radiotap_0_length_psdu_type,
-		tvb, offset, 1, ENC_NA);
+	proto_tree_add_item_ret_uint(zero_len_tree, hf_radiotap_0_length_psdu_type,
+		tvb, offset, 1, ENC_NA, &psdu_type);
+	switch (psdu_type) {
+
+	case 0:
+		phdr->has_zero_length_psdu_type = TRUE;
+		phdr->zero_length_psdu_type = PHDR_802_11_SOUNDING_PSDU;
+		break;
+
+	case 1:
+		phdr->has_zero_length_psdu_type = TRUE;
+		phdr->zero_length_psdu_type = PHDR_802_11_DATA_NOT_CAPTURED;
+		break;
+
+	case 0xff:
+		phdr->has_zero_length_psdu_type = TRUE;
+		phdr->zero_length_psdu_type = PHDR_802_11_0_LENGTH_PSDU_VENDOR_SPECIFIC;
+		break;
+	}
 }
 
 static void
@@ -1867,7 +1885,6 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 	static struct _radiotap_info        rtp_info_arr;
 	struct ieee80211_radiotap_iterator  iter;
 	struct ieee_802_11_phdr phdr;
-	gboolean    zero_length_psdu = FALSE;
 	guchar	 *bmap_start;
 	guint	  n_bitmaps;
 	guint	  i;
@@ -2678,8 +2695,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 			dissect_radiotap_he_mu_info(tvb, pinfo, radiotap_tree, offset);
 			break;
 		case IEEE80211_RADIOTAP_0_LENGTH_PSDU:
-			dissect_radiotap_0_length_psdu(tvb, pinfo, radiotap_tree, offset);
-			zero_length_psdu = TRUE;
+			dissect_radiotap_0_length_psdu(tvb, pinfo, radiotap_tree, offset, &phdr);
 			break;
 		}
 	}
@@ -2689,13 +2705,6 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 		    &ei_radiotap_data_past_header);
  malformed:
 		proto_item_append_text(ti, " (malformed)");
-	}
-
-	/*
-	 * Is there anything there? A 0-length-psdu has no frame data.
-	 */
-	if (zero_length_psdu) {
-		return tvb_captured_length(tvb);
 	}
 
  hand_off_to_80211:
