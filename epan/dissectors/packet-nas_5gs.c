@@ -1681,6 +1681,12 @@ de_nas_5gs_sm_pdu_address(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         /* IPv6 */
         proto_tree_add_item(tree, hf_nas_5gs_sm_pdu_addr_inf_ipv6, tvb, offset, 16, ENC_NA);
         break;
+    case 3:
+        /* IPv4v6 */
+        proto_tree_add_item(tree, hf_nas_5gs_sm_pdu_addr_inf_ipv6, tvb, offset, 16, ENC_NA);
+        offset += 16;
+        proto_tree_add_item(tree, hf_nas_5gs_sm_pdu_addr_inf_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
+        break;
     default:
         expert_add_info(pinfo, ti, &ei_nas_5gs_unknown_value);
         break;
