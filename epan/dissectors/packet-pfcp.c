@@ -563,61 +563,61 @@ static const true_false_string pfcp_id_predef_dynamic_tfs = {
     "Dynamic by CP",
 };
 
-#define PFCP_MSG_RESERVED_0                             0
+#define PFCP_MSG_RESERVED_0                                 0
 
-#define PFCP_HEARTBEAT_REQUEST                          1
-#define PFCP_HEARTBEAT_RESPONSE                         2
-#define PFCP_PFD_MANAGEMENT_REQUEST                     3
-#define PFCP_PFD_MANAGEMENT_RESPONSE                    4
-#define PFCP_ASSOCIATION_SETUP_REQUEST                  5
-#define PFCP_ASSOCIATION_SETUP_RESPONSE                 6
-#define PFCP_ASSOCIATION_UPDATE_REQUEST                 7
-#define PFCP_ASSOCIATION_UPDATE_RESPONSE                8
-#define PFCP_ASSOCIATION_RELEASE_REQUEST                9
-#define PFCP_ASSOCIATION_RELEASE_RESPONSE               10
-#define PFCP_VERSION_NOT_SUPPORTED_RESPONSE             11
-#define PFCP_NODE_REPORT_REQEUST                        12
-#define PFCP_NODE_REPORT_RERESPONSE                     13
-#define PFCP_SESSION_SET_DELETION_REQUEST               14
-#define PFCP_SESSION_SET_DELETION_RESPONSE              15
-#define PFCP_SESSION_ESTABLISHMENT_REQUEST              50
-#define PFCP_SESSION_ESTABLISHMENT_RESPONSE             51
-#define PFCP_SESSION_MODIFICATION_REQUEST               52
-#define PFCP_SESSION_MODIFICATION_RESPONSE              53
-#define PFCP_SESSION_DELETION_REQUEST                   54
-#define PFCP_SESSION_DELETION_RESPONSE                  55
-#define PFCP_SESSION_REPORT_REQUEST                     56
-#define PFCP_SESSION_REPORT_RESPONSE                    57
+#define PFCP_MSG_HEARTBEAT_REQUEST                          1
+#define PFCP_MSG_HEARTBEAT_RESPONSE                         2
+#define PFCP_MSG_PFD_MANAGEMENT_REQUEST                     3
+#define PFCP_MSG_PFD_MANAGEMENT_RESPONSE                    4
+#define PFCP_MSG_ASSOCIATION_SETUP_REQUEST                  5
+#define PFCP_MSG_ASSOCIATION_SETUP_RESPONSE                 6
+#define PFCP_MSG_ASSOCIATION_UPDATE_REQUEST                 7
+#define PFCP_MSG_ASSOCIATION_UPDATE_RESPONSE                8
+#define PFCP_MSG_ASSOCIATION_RELEASE_REQUEST                9
+#define PFCP_MSG_ASSOCIATION_RELEASE_RESPONSE               10
+#define PFCP_MSG_VERSION_NOT_SUPPORTED_RESPONSE             11
+#define PFCP_MSG_NODE_REPORT_REQEUST                        12
+#define PFCP_MSG_NODE_REPORT_RERESPONSE                     13
+#define PFCP_MSG_SESSION_SET_DELETION_REQUEST               14
+#define PFCP_MSG_SESSION_SET_DELETION_RESPONSE              15
+#define PFCP_MSG_SESSION_ESTABLISHMENT_REQUEST              50
+#define PFCP_MSG_SESSION_ESTABLISHMENT_RESPONSE             51
+#define PFCP_MSG_SESSION_MODIFICATION_REQUEST               52
+#define PFCP_MSG_SESSION_MODIFICATION_RESPONSE              53
+#define PFCP_MSG_SESSION_DELETION_REQUEST                   54
+#define PFCP_MSG_SESSION_DELETION_RESPONSE                  55
+#define PFCP_MSG_SESSION_REPORT_REQUEST                     56
+#define PFCP_MSG_SESSION_REPORT_RESPONSE                    57
 
 static const value_string pfcp_message_type[] = {
     {PFCP_MSG_RESERVED_0,             "Reserved"},
     /* PFCP Node related messages */
 
-    { 1, "PFCP Heartbeat Request"},
-    { 2, "PFCP Heartbeat Response"},
-    { 3, "PFCP PFD Management Request"},
-    { 4, "PFCP PFD Management Response"},
-    { 5, "PFCP Association Setup Request"},
-    { 6, "PFCP Association Setup Response"},
-    { 7, "PFCP Association Update Request"},
-    { 8, "PFCP Association Update Response"},
-    { 9, "PFCP Association Release Request"},
-    { 10, "PFCP Association Release Response"},
-    { 11, "PFCP Version Not Supported Response"},
-    { 12, "PFCP Node Report Request"},
-    { 13, "PFCP Node Report Response"},
-    { 14, "PFCP Session Set Deletion Request"},
-    { 15, "PFCP Session Set Deletion Response"},
+    { PFCP_MSG_HEARTBEAT_REQUEST, "PFCP Heartbeat Request"},
+    { PFCP_MSG_HEARTBEAT_RESPONSE, "PFCP Heartbeat Response"},
+    { PFCP_MSG_PFD_MANAGEMENT_REQUEST, "PFCP PFD Management Request"},
+    { PFCP_MSG_PFD_MANAGEMENT_RESPONSE, "PFCP PFD Management Response"},
+    { PFCP_MSG_ASSOCIATION_SETUP_REQUEST, "PFCP Association Setup Request"},
+    { PFCP_MSG_ASSOCIATION_SETUP_RESPONSE, "PFCP Association Setup Response"},
+    { PFCP_MSG_ASSOCIATION_UPDATE_REQUEST, "PFCP Association Update Request"},
+    { PFCP_MSG_ASSOCIATION_UPDATE_RESPONSE, "PFCP Association Update Response"},
+    { PFCP_MSG_ASSOCIATION_RELEASE_REQUEST, "PFCP Association Release Request"},
+    { PFCP_MSG_ASSOCIATION_RELEASE_RESPONSE, "PFCP Association Release Response"},
+    { PFCP_MSG_VERSION_NOT_SUPPORTED_RESPONSE, "PFCP Version Not Supported Response"},
+    { PFCP_MSG_NODE_REPORT_REQEUST, "PFCP Node Report Request"},
+    { PFCP_MSG_NODE_REPORT_RERESPONSE, "PFCP Node Report Response"},
+    { PFCP_MSG_SESSION_SET_DELETION_REQUEST, "PFCP Session Set Deletion Request"},
+    { PFCP_MSG_SESSION_SET_DELETION_RESPONSE, "PFCP Session Set Deletion Response"},
     //16 to 49    For future use
     //PFCP Session related messages
-    { 50, "PFCP Session Establishment Request"},
-    { 51, "PFCP Session Establishment Response"},
-    { 52, "PFCP Session Modification Request"},
-    { 53, "PFCP Session Modification Response"},
-    { 54, "PFCP Session Deletion Request"},
-    { 55, "PFCP Session Deletion Response"},
-    { 56, "PFCP Session Report Request"},
-    { 57, "PFCP Session Report Response"},
+    { PFCP_MSG_SESSION_ESTABLISHMENT_REQUEST, "PFCP Session Establishment Request"},
+    { PFCP_MSG_SESSION_ESTABLISHMENT_RESPONSE, "PFCP Session Establishment Response"},
+    { PFCP_MSG_SESSION_MODIFICATION_REQUEST, "PFCP Session Modification Request"},
+    { PFCP_MSG_SESSION_MODIFICATION_RESPONSE, "PFCP Session Modification Response"},
+    { PFCP_MSG_SESSION_DELETION_REQUEST, "PFCP Session Deletion Request"},
+    { PFCP_MSG_SESSION_DELETION_RESPONSE, "PFCP Session Deletion Response"},
+    { PFCP_MSG_SESSION_REPORT_REQUEST, "PFCP Session Report Request"},
+    { PFCP_MSG_SESSION_REPORT_RESPONSE, "PFCP Session Report Response"},
     //58 to 99    For future use
     //Other messages
     //100 to 255     For future use
@@ -645,29 +645,29 @@ static value_string_ext pfcp_message_type_ext = VALUE_STRING_EXT_INIT(pfcp_messa
 #define PFCP_IE_REMOVE_URR                     17
 #define PFCP_IE_REMOVE_QER                     18
 
-#define PFCP_LOAD_CONTROL_INFORMATION          51
-#define PFCP_OVERLOAD_CONTROL_INFORMATION      54
-#define PFCP_APPLICATION_IDS_PFDS              58
-#define PFCP_PFD_CONTEXT                       59
-#define PFCP_APPLICATION_DETECTION_INF         68
-#define PFCP_QUERY_URR                         77
-#define PFCP_USAGE_REPORT_SMR                  78
-#define PFCP_USAGE_REPORT_SDR                  79
-#define PFCP_USAGE_REPORT_SRR                  80
-#define PFCP_DOWNLINK_DATA_REPORT              83
-#define PFCP_CREATE_BAR                        85
-#define PFCP_UPDATE_BAR_SMR                    86
-#define PFCP_REMOVE_BAR                        87
-#define PFCP_ERROR_INDICATION_REPORT           99
-#define PFCP_USER_PLANE_PATH_FAILURE_REPORT   102
-#define PFCP_UPDATE_DUPLICATING_PARAMETERS    105
-#define PFCP_AGGREGATED_URRS                  118
-#define PFCP_CREATE_TRAFFIC_ENDPOINT          127
-#define PFCP_CREATED_TRAFFIC_ENDPOINT         128
-#define PFCP_UPDATE_TRAFFIC_ENDPOINT          129
-#define PFCP_REMOVE_TRAFFIC_ENDPOINT          130
-#define PFCP_ETHERNET_PACKET_FILTER           132
-#define PFCP_ETHERNET_TRAFFIC_INFORMATION     143
+#define PFCP_IE_LOAD_CONTROL_INFORMATION          51
+#define PFCP_IE_OVERLOAD_CONTROL_INFORMATION      54
+#define PFCP_IE_APPLICATION_IDS_PFDS              58
+#define PFCP_IE_PFD_CONTEXT                       59
+#define PFCP_IE_APPLICATION_DETECTION_INF         68
+#define PFCP_IE_QUERY_URR                         77
+#define PFCP_IE_USAGE_REPORT_SMR                  78
+#define PFCP_IE_USAGE_REPORT_SDR                  79
+#define PFCP_IE_USAGE_REPORT_SRR                  80
+#define PFCP_IE_DOWNLINK_DATA_REPORT              83
+#define PFCP_IE_CREATE_BAR                        85
+#define PFCP_IE_UPDATE_BAR_SMR                    86
+#define PFCP_IE_REMOVE_BAR                        87
+#define PFCP_IE_ERROR_INDICATION_REPORT           99
+#define PFCP_IE_USER_PLANE_PATH_FAILURE_REPORT   102
+#define PFCP_IE_UPDATE_DUPLICATING_PARAMETERS    105
+#define PFCP_IE_AGGREGATED_URRS                  118
+#define PFCP_IE_CREATE_TRAFFIC_ENDPOINT          127
+#define PFCP_IE_CREATED_TRAFFIC_ENDPOINT         128
+#define PFCP_IE_UPDATE_TRAFFIC_ENDPOINT          129
+#define PFCP_IE_REMOVE_TRAFFIC_ENDPOINT          130
+#define PFCP_IE_ETHERNET_PACKET_FILTER           132
+#define PFCP_IE_ETHERNET_TRAFFIC_INFORMATION     143
 
 static const value_string pfcp_ie_type[] = {
 
@@ -1972,7 +1972,6 @@ dissect_pfcp_timer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, prot
     proto_tree_add_item_ret_uint(tree, hf_pfcp_timer_value, tvb, offset, 1, ENC_BIG_ENDIAN, &value);
     offset++;
 
-    unit = unit >> 5;
     if ((unit == 0) && (value == 0)) {
         proto_item_append_text(item, " Stopped");
     } else {
@@ -3855,22 +3854,22 @@ dissect_pfcp_additional_usage_reports_information(tvbuff_t *tvb, packet_info *pi
      *    6    |    Number of Additional Usage Reports value     |
      *
      *  The Number of Additional Usage Reports value shall be encoded as
-         *  an unsigned binary integer value on 15 bits.
-         *  Bit 7 of Octet 5 is the most significant bit and bit 1 of Octet 6 is the least significant bit.
-         *  The bit 8 of octet 5 shall encode the AURI (Additional Usage Reports Indication) flag{...}.
-         */
-        static const int * pfcp_additional_usage_reports_information_flags[] = {
-            &hf_pfcp_additional_usage_reports_information_b15_auri,
-            &hf_pfcp_additional_usage_reports_information_b14_b0_number_value,
-            NULL
-        };
-        proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_pfcp_additional_usage_reports_information,
-                ett_pfcp_additional_usage_reports_information, pfcp_additional_usage_reports_information_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT);
-        offset += 2;
+     *  an unsigned binary integer value on 15 bits.
+     *  Bit 7 of Octet 5 is the most significant bit and bit 1 of Octet 6 is the least significant bit.
+     *  The bit 8 of octet 5 shall encode the AURI (Additional Usage Reports Indication) flag{...}.
+    */
+    static const int * pfcp_additional_usage_reports_information_flags[] = {
+        &hf_pfcp_additional_usage_reports_information_b15_auri,
+        &hf_pfcp_additional_usage_reports_information_b14_b0_number_value,
+        NULL
+    };
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_pfcp_additional_usage_reports_information,
+            ett_pfcp_additional_usage_reports_information, pfcp_additional_usage_reports_information_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT);
+    offset += 2;
 
-        if (offset < length) {
-            proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
-        }
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
 }
 
 /*
@@ -4459,33 +4458,33 @@ pfcp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint
     pcr.req_time = pinfo->abs_ts;
 
     switch (msgtype) {
-    case PFCP_HEARTBEAT_REQUEST:
-    case PFCP_PFD_MANAGEMENT_REQUEST:
-    case PFCP_ASSOCIATION_SETUP_REQUEST:
-    case PFCP_ASSOCIATION_UPDATE_REQUEST:
-    case PFCP_ASSOCIATION_RELEASE_REQUEST:
-    case PFCP_NODE_REPORT_REQEUST:
-    case PFCP_SESSION_SET_DELETION_REQUEST:
-    case PFCP_SESSION_ESTABLISHMENT_REQUEST:
-    case PFCP_SESSION_MODIFICATION_REQUEST:
-    case PFCP_SESSION_DELETION_REQUEST:
-    case PFCP_SESSION_REPORT_REQUEST:
+    case PFCP_MSG_HEARTBEAT_REQUEST:
+    case PFCP_MSG_PFD_MANAGEMENT_REQUEST:
+    case PFCP_MSG_ASSOCIATION_SETUP_REQUEST:
+    case PFCP_MSG_ASSOCIATION_UPDATE_REQUEST:
+    case PFCP_MSG_ASSOCIATION_RELEASE_REQUEST:
+    case PFCP_MSG_NODE_REPORT_REQEUST:
+    case PFCP_MSG_SESSION_SET_DELETION_REQUEST:
+    case PFCP_MSG_SESSION_ESTABLISHMENT_REQUEST:
+    case PFCP_MSG_SESSION_MODIFICATION_REQUEST:
+    case PFCP_MSG_SESSION_DELETION_REQUEST:
+    case PFCP_MSG_SESSION_REPORT_REQUEST:
         pcr.is_request = TRUE;
         pcr.req_frame = pinfo->num;
         pcr.rep_frame = 0;
         break;
-    case PFCP_HEARTBEAT_RESPONSE:
-    case PFCP_PFD_MANAGEMENT_RESPONSE:
-    case PFCP_ASSOCIATION_SETUP_RESPONSE:
-    case PFCP_ASSOCIATION_UPDATE_RESPONSE:
-    case PFCP_ASSOCIATION_RELEASE_RESPONSE:
-    case PFCP_VERSION_NOT_SUPPORTED_RESPONSE:
-    case PFCP_NODE_REPORT_RERESPONSE:
-    case PFCP_SESSION_SET_DELETION_RESPONSE:
-    case PFCP_SESSION_ESTABLISHMENT_RESPONSE:
-    case PFCP_SESSION_MODIFICATION_RESPONSE:
-    case PFCP_SESSION_DELETION_RESPONSE:
-    case PFCP_SESSION_REPORT_RESPONSE:
+    case PFCP_MSG_HEARTBEAT_RESPONSE:
+    case PFCP_MSG_PFD_MANAGEMENT_RESPONSE:
+    case PFCP_MSG_ASSOCIATION_SETUP_RESPONSE:
+    case PFCP_MSG_ASSOCIATION_UPDATE_RESPONSE:
+    case PFCP_MSG_ASSOCIATION_RELEASE_RESPONSE:
+    case PFCP_MSG_VERSION_NOT_SUPPORTED_RESPONSE:
+    case PFCP_MSG_NODE_REPORT_RERESPONSE:
+    case PFCP_MSG_SESSION_SET_DELETION_RESPONSE:
+    case PFCP_MSG_SESSION_ESTABLISHMENT_RESPONSE:
+    case PFCP_MSG_SESSION_MODIFICATION_RESPONSE:
+    case PFCP_MSG_SESSION_DELETION_RESPONSE:
+    case PFCP_MSG_SESSION_REPORT_RESPONSE:
 
         pcr.is_request = FALSE;
         pcr.req_frame = 0;
@@ -4505,17 +4504,17 @@ pfcp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint
     } else {
         /* no match, let's try to make one */
         switch (msgtype) {
-        case PFCP_HEARTBEAT_REQUEST:
-        case PFCP_PFD_MANAGEMENT_REQUEST:
-        case PFCP_ASSOCIATION_SETUP_REQUEST:
-        case PFCP_ASSOCIATION_UPDATE_REQUEST:
-        case PFCP_ASSOCIATION_RELEASE_REQUEST:
-        case PFCP_NODE_REPORT_REQEUST:
-        case PFCP_SESSION_SET_DELETION_REQUEST:
-        case PFCP_SESSION_ESTABLISHMENT_REQUEST:
-        case PFCP_SESSION_MODIFICATION_REQUEST:
-        case PFCP_SESSION_DELETION_REQUEST:
-        case PFCP_SESSION_REPORT_REQUEST:
+        case PFCP_MSG_HEARTBEAT_REQUEST:
+        case PFCP_MSG_PFD_MANAGEMENT_REQUEST:
+        case PFCP_MSG_ASSOCIATION_SETUP_REQUEST:
+        case PFCP_MSG_ASSOCIATION_UPDATE_REQUEST:
+        case PFCP_MSG_ASSOCIATION_RELEASE_REQUEST:
+        case PFCP_MSG_NODE_REPORT_REQEUST:
+        case PFCP_MSG_SESSION_SET_DELETION_REQUEST:
+        case PFCP_MSG_SESSION_ESTABLISHMENT_REQUEST:
+        case PFCP_MSG_SESSION_MODIFICATION_REQUEST:
+        case PFCP_MSG_SESSION_DELETION_REQUEST:
+        case PFCP_MSG_SESSION_REPORT_REQUEST:
 
             pcr.seq_nr = seq_nr;
 
@@ -4534,18 +4533,18 @@ pfcp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint
             wmem_map_insert(pfcp_info->unmatched, pcrp, pcrp);
             return NULL;
             break;
-        case PFCP_HEARTBEAT_RESPONSE:
-        case PFCP_PFD_MANAGEMENT_RESPONSE:
-        case PFCP_ASSOCIATION_SETUP_RESPONSE:
-        case PFCP_ASSOCIATION_UPDATE_RESPONSE:
-        case PFCP_ASSOCIATION_RELEASE_RESPONSE:
-        case PFCP_VERSION_NOT_SUPPORTED_RESPONSE:
-        case PFCP_NODE_REPORT_RERESPONSE:
-        case PFCP_SESSION_SET_DELETION_RESPONSE:
-        case PFCP_SESSION_ESTABLISHMENT_RESPONSE:
-        case PFCP_SESSION_MODIFICATION_RESPONSE:
-        case PFCP_SESSION_DELETION_RESPONSE:
-        case PFCP_SESSION_REPORT_RESPONSE:
+        case PFCP_MSG_HEARTBEAT_RESPONSE:
+        case PFCP_MSG_PFD_MANAGEMENT_RESPONSE:
+        case PFCP_MSG_ASSOCIATION_SETUP_RESPONSE:
+        case PFCP_MSG_ASSOCIATION_UPDATE_RESPONSE:
+        case PFCP_MSG_ASSOCIATION_RELEASE_RESPONSE:
+        case PFCP_MSG_VERSION_NOT_SUPPORTED_RESPONSE:
+        case PFCP_MSG_NODE_REPORT_RERESPONSE:
+        case PFCP_MSG_SESSION_SET_DELETION_RESPONSE:
+        case PFCP_MSG_SESSION_ESTABLISHMENT_RESPONSE:
+        case PFCP_MSG_SESSION_MODIFICATION_RESPONSE:
+        case PFCP_MSG_SESSION_DELETION_RESPONSE:
+        case PFCP_MSG_SESSION_REPORT_RESPONSE:
 
             pcr.seq_nr = seq_nr;
             pcrp = (pfcp_msg_hash_t *)wmem_map_lookup(pfcp_info->unmatched, &pcr);
@@ -4712,140 +4711,140 @@ dissect_pfcp_remove_qer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 static void
 dissect_pfcp_load_control_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_LOAD_CONTROL_INFORMATION]);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_LOAD_CONTROL_INFORMATION]);
 }
 
 static void
 dissect_pfcp_overload_control_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_OVERLOAD_CONTROL_INFORMATION]);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_OVERLOAD_CONTROL_INFORMATION]);
 }
 
 static void
 dissect_pfcp_application_ids_pfds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_APPLICATION_IDS_PFDS]);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_APPLICATION_IDS_PFDS]);
 }
 
 static void
 dissect_pfcp_pfd_context(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_PFD_CONTEXT]);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_PFD_CONTEXT]);
 }
 
 
 static void
 dissect_pfcp_application_detection_inf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_APPLICATION_DETECTION_INF]);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_APPLICATION_DETECTION_INF]);
 }
 
 static void
 dissect_pfcp_pfcp_query_urr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_QUERY_URR]);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_QUERY_URR]);
 }
 
 static void
 dissect_pfcp_usage_report_smr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_USAGE_REPORT_SMR]);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_USAGE_REPORT_SMR]);
 }
 
 static void
 dissect_pfcp_usage_report_sdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_USAGE_REPORT_SDR]);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_USAGE_REPORT_SDR]);
 }
 
 static void
 dissect_pfcp_usage_report_srr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_USAGE_REPORT_SRR]);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_USAGE_REPORT_SRR]);
 }
 
 static void
 dissect_pfcp_downlink_data_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_DOWNLINK_DATA_REPORT]);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_DOWNLINK_DATA_REPORT]);
 }
 
 static void
 dissect_pfcp_create_bar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_CREATE_BAR]);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_CREATE_BAR]);
 }
 
 static void
 dissect_pfcp_update_bar_smr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_UPDATE_BAR_SMR]);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_UPDATE_BAR_SMR]);
 }
 
 static void
 dissect_pfcp_remove_bar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_REMOVE_BAR]);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_REMOVE_BAR]);
 }
 
 static void
 dissect_pfcp_error_indication_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_ERROR_INDICATION_REPORT]);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_ERROR_INDICATION_REPORT]);
 }
 
 static void
 dissect_pfcp_user_plane_path_failure_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_USER_PLANE_PATH_FAILURE_REPORT]);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_USER_PLANE_PATH_FAILURE_REPORT]);
 }
 
 static void
 dissect_pfcp_update_duplicating_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_UPDATE_DUPLICATING_PARAMETERS]);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_UPDATE_DUPLICATING_PARAMETERS]);
 }
 
 static void
 dissect_pfcp_aggregated_urrs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_AGGREGATED_URRS]);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_AGGREGATED_URRS]);
 }
 
 static void
 dissect_pfcp_create_traffic_endpoint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_CREATE_TRAFFIC_ENDPOINT]);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_CREATE_TRAFFIC_ENDPOINT]);
 }
 
 static void
 dissect_pfcp_created_traffic_endpoint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_CREATED_TRAFFIC_ENDPOINT]);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_CREATED_TRAFFIC_ENDPOINT]);
 }
 
 static void
 dissect_pfcp_update_traffic_endpoint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_UPDATE_TRAFFIC_ENDPOINT]);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_UPDATE_TRAFFIC_ENDPOINT]);
 }
 
 static void
 dissect_pfcp_remove_traffic_endpoint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_REMOVE_TRAFFIC_ENDPOINT]);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_REMOVE_TRAFFIC_ENDPOINT]);
 }
 
 static void
 dissect_pfcp_ethernet_packet_filter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_ETHERNET_PACKET_FILTER]);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_ETHERNET_PACKET_FILTER]);
 }
 
 static void
 dissect_pfcp_ethernet_traffic_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type)
 {
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_ETHERNET_TRAFFIC_INFORMATION]);
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_ETHERNET_TRAFFIC_INFORMATION]);
 }
 
 static void
