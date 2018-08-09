@@ -1344,7 +1344,7 @@ wg_dissect_handshake_initiation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *w
                 wg_process_initiation(tvb, hs);
             }
         }
-    } else {
+    } else if (wg_pinfo->session) {
         hs = wg_pinfo->session->hs;
     }
 #endif /* WG_DECRYPTION_SUPPORTED */
