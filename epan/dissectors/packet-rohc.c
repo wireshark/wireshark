@@ -223,13 +223,6 @@ typedef struct _rohc_cid_context_t
 
 } rohc_cid_context_t;
 
-/* ROHC Profiles */
-#define ROHC_PROFILE_UNCOMPRESSED   0
-#define ROHC_PROFILE_RTP            1
-#define ROHC_PROFILE_UDP            2
-#define ROHC_PROFILE_IP             4
-#define ROHC_PROFILE_UNKNOWN        0xFFFF
-
 static const value_string rohc_profile_vals[] =
 {
     { 0x0000,    "Uncompressed" },           /*RFC 5795*/
