@@ -67,14 +67,12 @@ static char *read_complete_text_line(char line[MAX_LINE_LENGTH], FILE_T fh, int 
     }
 
     if (strlen(line) != (size_t)(line_end - line)) {
-        *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup("unexpected NUL inside a line");
+        *err = 0;
         return NULL;
     }
 
     if (line_end[-1] != '\n' && !file_eof(fh)) {
-        *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup("overlong line");
+        *err = 0;
         return NULL;
     }
 
@@ -132,7 +130,7 @@ wtap_open_return_val rfc7468_open(wtap *wth, int *err, gchar **err_info)
     found_preeb = FALSE;
     for (unsigned int i = 0; i < MAX_EXPLANATORY_TEXT_LINES; i++) {
         if (!read_complete_text_line(line, wth->fh, err, err_info)) {
-            if (*err == WTAP_ERR_SHORT_READ)
+            if (*err == 0 || *err == WTAP_ERR_SHORT_READ)
                 return WTAP_OPEN_NOT_MINE;
             return WTAP_OPEN_ERROR;
         }
