@@ -140,6 +140,7 @@ capture_opts_cleanup(capture_options *capture_opts)
         g_array_free(capture_opts->all_ifaces, TRUE);
         capture_opts->all_ifaces = NULL;
     }
+    g_free(capture_opts->save_file);
 }
 
 /* log content of capture_opts */

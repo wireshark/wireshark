@@ -728,7 +728,7 @@ main(int argc, char *argv[])
   int                  log_flags;
   gchar               *output_only = NULL;
   gchar               *volatile pdu_export_arg = NULL;
-  const char          *volatile exp_pdu_filename = NULL;
+  char                *volatile exp_pdu_filename = NULL;
   exp_pdu_t            exp_pdu_tap_data;
 #ifdef HAVE_JSONGLIB
   const gchar*         elastic_mapping_filter = NULL;
@@ -1113,7 +1113,7 @@ main(int argc, char *argv[])
          * Output file name, if we're reading a file and writing to another
          * file.
          */
-        output_file_name = optarg;
+        output_file_name = g_strdup(optarg);
       } else {
         capture_option_specified = TRUE;
         arg_error = TRUE;
@@ -2078,6 +2078,7 @@ main(int argc, char *argv[])
             exit_status = 2;
         }
         g_free(pdu_export_arg);
+        g_free(exp_pdu_filename);
     }
   } else {
     tshark_debug("tshark: no capture file specified");
@@ -2249,6 +2250,8 @@ clean_exit:
   destroy_print_stream(print_stream);
 #ifdef HAVE_LIBPCAP
   capture_opts_cleanup(&global_capture_opts);
+#else
+  g_free(output_file_name);
 #endif
   col_cleanup(&cfile.cinfo);
   free_filter_lists();
