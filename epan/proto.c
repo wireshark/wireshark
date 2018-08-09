@@ -3023,8 +3023,14 @@ proto_tree_add_item_ret_uint64(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
 
-	if (hfinfo->type != FT_UINT64) {
-		REPORT_DISSECTOR_BUG("field %s is not of type FT_UINT64",
+	switch (hfinfo->type) {
+	case FT_UINT40:
+	case FT_UINT48:
+	case FT_UINT56:
+	case FT_UINT64:
+		break;
+	default:
+		REPORT_DISSECTOR_BUG("field %s is not of type FT_UINT40, FT_UINT48, FT_UINT56, or FT_UINT64",
 		    hfinfo->abbrev);
 	}
 
