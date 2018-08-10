@@ -2761,7 +2761,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Get capabilities */
 		if (tlvLen < 2)
 		{
-			proto_tree_add_expert(tree, pinfo, &ei_lldp_bad_length , tvb, offset, tlvLen);
+			proto_tree_add_expert(tree, pinfo, &ei_lldp_bad_length, tvb, offset, tlvLen);
 			return;
 		}
 
@@ -2780,7 +2780,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Get Class type */
 		if (tlvLen < 1)
 		{
-			proto_tree_add_expert(tree, pinfo, &ei_lldp_bad_length , tvb, offset, tlvLen);
+			proto_tree_add_expert(tree, pinfo, &ei_lldp_bad_length, tvb, offset, tlvLen);
 			return;
 		}
 
@@ -2796,7 +2796,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Get application type */
 		if (tlvLen < 1)
 		{
-			proto_tree_add_expert(tree, pinfo, &ei_lldp_bad_length , tvb, offset, tlvLen);
+			proto_tree_add_expert(tree, pinfo, &ei_lldp_bad_length, tvb, offset, tlvLen);
 			return;
 		}
 
@@ -2808,7 +2808,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Get flags */
 		if (tlvLen < 3)
 		{
-			proto_tree_add_expert(tree, pinfo, &ei_lldp_bad_length , tvb, offset, tlvLen);
+			proto_tree_add_expert(tree, pinfo, &ei_lldp_bad_length, tvb, offset, tlvLen);
 			return;
 		}
 
@@ -2833,7 +2833,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Get location data format */
 		if (tlvLen < 1)
 		{
-			proto_tree_add_expert(tree, pinfo, &ei_lldp_bad_length , tvb, offset, tlvLen);
+			proto_tree_add_expert(tree, pinfo, &ei_lldp_bad_length, tvb, offset, tlvLen);
 			return;
 		}
 
@@ -2854,7 +2854,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 */
 			if (tlvLen < 16)
 			{
-				proto_tree_add_expert(tree, pinfo, &ei_lldp_bad_length , tvb, offset, tlvLen);
+				proto_tree_add_expert(tree, pinfo, &ei_lldp_bad_length, tvb, offset, tlvLen);
 				return;
 			}
 
@@ -2903,7 +2903,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 */
 			if (tlvLen < 1)
 			{
-				proto_tree_add_expert(tree, pinfo, &ei_lldp_bad_length , tvb, offset, tlvLen);
+				proto_tree_add_expert(tree, pinfo, &ei_lldp_bad_length, tvb, offset, tlvLen);
 				return;
 			}
 
@@ -2926,7 +2926,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* Get what value */
 			if (LCI_Length < 1)
 			{
-				proto_tree_add_expert(tree, pinfo, &ei_lldp_bad_length , tvb, offset, tlvLen);
+				proto_tree_add_expert(tree, pinfo, &ei_lldp_bad_length, tvb, offset, tlvLen);
 				return;
 			}
 
@@ -2938,7 +2938,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* Get country code */
 			if (LCI_Length < 2)
 			{
-				proto_tree_add_expert(tree, pinfo, &ei_lldp_bad_length , tvb, offset, tlvLen);
+				proto_tree_add_expert(tree, pinfo, &ei_lldp_bad_length, tvb, offset, tlvLen);
 				return;
 			}
 
@@ -2958,7 +2958,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				/* Get CA Length */
 				if (LCI_Length < 1)
 				{
-					proto_tree_add_expert(tree, pinfo, &ei_lldp_bad_length , tvb, offset, tlvLen);
+					proto_tree_add_expert(tree, pinfo, &ei_lldp_bad_length, tvb, offset, tlvLen);
 					return;
 				}
 				tempByte = tvb_get_guint8(tvb, offset);
