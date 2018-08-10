@@ -2665,6 +2665,7 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		proto_tree_add_item(tree, hf_ieee_802_3_mdi_allocated_power, tvb, offset, 2, ENC_BIG_ENDIAN);
 
 		offset+=2;
+
 		break;
 	}
 	case 0x03:	/* Link Aggregation */
@@ -2724,10 +2725,14 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
 		/* Get Additional Ethernet Capabilities */
 		proto_tree_add_bitmask(tree, tvb, offset, hf_ieee_802_3br_aec, ett_802_3br_capabilities_flags, preemption_capabilities, ENC_BIG_ENDIAN);
+		offset+=2;
 		break;
 	}
 	}
 
+	if(tvb_reported_length_remaining(tvb, offset)) {
+		proto_tree_add_expert(tree, pinfo, &ei_lldp_bad_length_excess, tvb, offset, -1);
+	}
 	return offset;
 }
 
