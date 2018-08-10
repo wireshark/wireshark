@@ -857,4 +857,8 @@ TeletexDomainDefinedAttribute ::= SEQUENCE {
 -- such a value.  As a minimum, 16 octets, or twice the specified upper
 -- bound, whichever is the larger, should be allowed.
 
+
+-- X.509v3 TLS Feature extension (RFC 7633)
+Features ::= SEQUENCE OF INTEGER
+
 END

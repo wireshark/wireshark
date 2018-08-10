@@ -23,6 +23,9 @@
 #include "packet-x509if.h"
 #include "packet-x509ce.h"
 
+/* from packet-ssl-utils.h */
+extern const value_string tls_hello_extension_types[];
+
 #define PNAME  "PKIX1Explicit"
 #define PSNAME "PKIX1EXPLICIT"
 #define PFNAME "pkix1explicit"
