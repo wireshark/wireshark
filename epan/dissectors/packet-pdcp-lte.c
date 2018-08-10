@@ -398,11 +398,17 @@ static const value_string rohc_profile_vals[] = {
     { 0x0002,   "ROHC UDP" },               /* [RFC3095] */
     { 0x0003,   "ROHC ESP" },               /* [RFC3095] */
     { 0x0004,   "ROHC IP" },                /* [RFC3843] */
+    { 0x0005,   "ROHC LLA" },               /* [RFC4362] */
     { 0x0006,   "ROHC TCP" },               /* [RFC4996] */
+    { 0x0007,   "ROHC RTP/UDP-Lite" },      /* [RFC4019] */
+    { 0x0008,   "ROHC UDP-Lite" },          /* [RFC4019] */
     { 0x0101,   "ROHCv2 RTP" },             /* [RFC5225] */
     { 0x0102,   "ROHCv2 UDP" },             /* [RFC5225] */
     { 0x0103,   "ROHCv2 ESP" },             /* [RFC5225] */
     { 0x0104,   "ROHCv2 IP" },              /* [RFC5225] */
+    { 0x0105,   "ROHC LLA with R-mode" },   /* [RFC3408] */
+    { 0x0107,   "ROHCv2 RTP/UDP-Lite" },    /* [RFC5225] */
+    { 0x0108,   "ROHCv2 UDP-Lite" },        /* [RFC5225] */
     { 0,   NULL }
 };
 
