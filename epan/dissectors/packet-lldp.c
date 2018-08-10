@@ -242,6 +242,21 @@ static int hf_ieee_802_3_mdi_power_source = -1;
 static int hf_ieee_802_3_mdi_power_priority = -1;
 static int hf_ieee_802_3_mdi_requested_power = -1;
 static int hf_ieee_802_3_mdi_allocated_power = -1;
+
+static int hf_ieee_802_3_bt_ds_pd_requested_power_value_mode_a = -1;
+static int hf_ieee_802_3_bt_ds_pd_requested_power_value_mode_b = -1;
+static int hf_ieee_802_3_bt_ds_pse_allocated_power_value_alt_a = -1;
+static int hf_ieee_802_3_bt_ds_pse_allocated_power_value_alt_b = -1;
+static int hf_ieee_802_3_bt_power_status = -1;
+static int hf_ieee_802_3_bt_pse_powering_status = -1;
+static int hf_ieee_802_3_bt_pd_powered_status = -1;
+static int hf_ieee_802_3_bt_pse_power_pairs_ext = -1;
+static int hf_ieee_802_3_bt_ds_pwr_class_ext_a = -1;
+static int hf_ieee_802_3_bt_ds_pwr_class_ext_b = -1;
+static int hf_ieee_802_3_bt_pwr_class_ext = -1;
+static int hf_ieee_802_3_bt_system_setup = -1;
+static int hf_ieee_802_3_bt_power_type_ext = -1;
+static int hf_ieee_802_3_bt_pse_maximum_available_power_value = -1;
 static int hf_ieee_802_3_aggregation_status = -1;
 static int hf_ieee_802_3_aggregation_status_cap = -1;
 static int hf_ieee_802_3_aggregation_status_enabled = -1;
@@ -474,6 +489,8 @@ static gint ett_port_vlan_flags = -1;
 static gint ett_802_3_flags = -1;
 static gint ett_802_3_autoneg_advertised = -1;
 static gint ett_802_3_power = -1;
+static gint ett_802_3_bt_power = -1;
+static gint ett_802_3_bt_system_setup = -1;
 static gint ett_802_3_aggregation = -1;
 static gint ett_802_1_aggregation = -1;
 static gint ett_802_1qbg_capabilities_flags = -1;
@@ -2666,6 +2683,39 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
 		offset+=2;
 
+		if (tlvLen == 26) { /* 802.3BT TLV Extensions */
+			proto_tree_add_item(tree, hf_ieee_802_3_bt_ds_pd_requested_power_value_mode_a, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset+=2;
+
+			proto_tree_add_item(tree, hf_ieee_802_3_bt_ds_pd_requested_power_value_mode_b, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset+=2;
+
+			proto_tree_add_item(tree, hf_ieee_802_3_bt_ds_pse_allocated_power_value_alt_a, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset+=2;
+
+			proto_tree_add_item(tree, hf_ieee_802_3_bt_ds_pse_allocated_power_value_alt_b, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset+=2;
+
+			tf = proto_tree_add_item(tree, hf_ieee_802_3_bt_power_status, tvb, offset, 2, ENC_BIG_ENDIAN);
+			mac_phy_flags = proto_item_add_subtree(tf, ett_802_3_bt_power);
+
+			proto_tree_add_item(mac_phy_flags, hf_ieee_802_3_bt_pse_powering_status, tvb, offset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(mac_phy_flags, hf_ieee_802_3_bt_pd_powered_status, tvb, offset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(mac_phy_flags, hf_ieee_802_3_bt_pse_power_pairs_ext, tvb, offset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(mac_phy_flags, hf_ieee_802_3_bt_ds_pwr_class_ext_a, tvb, offset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(mac_phy_flags, hf_ieee_802_3_bt_ds_pwr_class_ext_b, tvb, offset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(mac_phy_flags, hf_ieee_802_3_bt_pwr_class_ext, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset+=2;
+
+			tf = proto_tree_add_item(tree, hf_ieee_802_3_bt_system_setup, tvb, offset, 1, ENC_BIG_ENDIAN);
+			mac_phy_flags = proto_item_add_subtree(tf, ett_802_3_bt_system_setup);
+
+			proto_tree_add_item(mac_phy_flags, hf_ieee_802_3_bt_power_type_ext, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset+=1;
+
+			proto_tree_add_item(tree, hf_ieee_802_3_bt_pse_maximum_available_power_value, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset+=2;
+		}
 		break;
 	}
 	case 0x03:	/* Link Aggregation */
@@ -5049,6 +5099,62 @@ proto_register_lldp(void)
 			{ "PSE Allocated Power Value", "lldp.ieee.802_3.mdi_pse_allocated", FT_UINT16, BASE_CUSTOM,
 			CF_FUNC(mdi_power_base), 0, NULL, HFILL }
 		},
+		{ &hf_ieee_802_3_bt_ds_pd_requested_power_value_mode_a,
+			{ "DS PD Requested Power Value Mode A", "lldp.ieee.802_3.bt_ds_pd_requested_power_value_mode_a", FT_UINT16, BASE_DEC,
+			NULL, 0, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_bt_ds_pd_requested_power_value_mode_b,
+			{ "DS PD Requested Power Value Mode B", "lldp.ieee.802_3.bt_ds_pd_requested_power_value_mode_b", FT_UINT16, BASE_DEC,
+			NULL, 0, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_bt_ds_pse_allocated_power_value_alt_a,
+			{ "DS PSE Allocated Power Value Alt A", "lldp.ieee.802_3.bt_ds_pse_allocated_power_value_alt_a", FT_UINT16, BASE_DEC,
+			NULL, 0, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_bt_ds_pse_allocated_power_value_alt_b,
+			{ "DS PSE Allocated Power Value Alt B", "lldp.ieee.802_3.bt_ds_pse_allocated_power_value_alt_b", FT_UINT16, BASE_DEC,
+			NULL, 0, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_bt_power_status,
+			{ "Power Status", "lldp.ieee.802_3.bt_power_status", FT_UINT16, BASE_HEX,
+			NULL, 0, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_bt_pse_powering_status,
+			{ "PSE Powering Status", "lldp.ieee.802_3.bt_pse_powering_status", FT_UINT16, BASE_DEC,
+			NULL, 0xC000, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_bt_pd_powered_status,
+			{ "PD Powered Status", "lldp.ieee.802_3.bt_pd_powered_status", FT_UINT16, BASE_DEC,
+			NULL, 0x3000, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_bt_pse_power_pairs_ext,
+			{ "PSE Power Paris ext", "lldp.ieee.802_3.bt_pse_power_pairs_ext", FT_UINT16, BASE_DEC,
+			NULL, 0x0C00, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_bt_ds_pwr_class_ext_a,
+			{ "DS Pwr Class Ext A", "lldp.ieee.802_3.bt_ds_pwr_class_ext_a", FT_UINT16, BASE_DEC,
+			NULL, 0x0380, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_bt_ds_pwr_class_ext_b,
+			{ "DS Pwr Class Ext B", "lldp.ieee.802_3.bt_ds_pwr_class_ext_b", FT_UINT16, BASE_DEC,
+			NULL, 0x0070, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_bt_pwr_class_ext,
+			{ "Pwr Class Ext", "lldp.ieee.802_3.bt_pwr_class_ext_", FT_UINT16, BASE_DEC,
+			NULL, 0x000F, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_bt_system_setup,
+			{ "System Setup", "lldp.ieee.802_3.bt_system_setup", FT_UINT8, BASE_HEX,
+			NULL, 0, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_bt_power_type_ext,
+			{ "Power Type Ext", "lldp.ieee.802_3.bt_power_type_ext", FT_UINT8, BASE_DEC,
+			NULL, 0x0E, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_bt_pse_maximum_available_power_value,
+			{ "PSE Maximum Available Power Value", "lldp.ieee.802_3.bt_pse_maximum_available_power_value", FT_UINT16, BASE_DEC,
+			NULL, 0, NULL, HFILL }
+		},
 		{ &hf_ieee_802_3_aggregation_status,
 			{ "Aggregation Status", "lldp.ieee.802_3.aggregation_status", FT_UINT8, BASE_HEX,
 			NULL, 0x0, NULL, HFILL }
@@ -5783,6 +5889,8 @@ proto_register_lldp(void)
 		&ett_802_3_flags,
 		&ett_802_3_autoneg_advertised,
 		&ett_802_3_power,
+		&ett_802_3_bt_power,
+		&ett_802_3_bt_system_setup,
 		&ett_802_3_aggregation,
 		&ett_802_1_aggregation,
 		&ett_802_1qbg_capabilities_flags,
