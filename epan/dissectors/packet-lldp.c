@@ -257,6 +257,14 @@ static int hf_ieee_802_3_bt_pwr_class_ext = -1;
 static int hf_ieee_802_3_bt_system_setup = -1;
 static int hf_ieee_802_3_bt_power_type_ext = -1;
 static int hf_ieee_802_3_bt_pse_maximum_available_power_value = -1;
+static int hf_ieee_802_3_bt_autoclass = -1;
+static int hf_ieee_802_3_bt_pse_autoclass_support = -1;
+static int hf_ieee_802_3_bt_autoclass_supported = -1;
+static int hf_ieee_802_3_bt_autoclass_request = -1;
+static int hf_ieee_802_3_bt_autoclass_reserved = -1;
+static int hf_ieee_802_3_bt_power_down = -1;
+static int hf_ieee_802_3_bt_power_down_request = -1;
+static int hf_ieee_802_3_bt_power_down_time = -1;
 static int hf_ieee_802_3_aggregation_status = -1;
 static int hf_ieee_802_3_aggregation_status_cap = -1;
 static int hf_ieee_802_3_aggregation_status_enabled = -1;
@@ -491,6 +499,8 @@ static gint ett_802_3_autoneg_advertised = -1;
 static gint ett_802_3_power = -1;
 static gint ett_802_3_bt_power = -1;
 static gint ett_802_3_bt_system_setup = -1;
+static gint ett_802_3_bt_autoclass = -1;
+static gint ett_802_3_bt_power_down = -1;
 static gint ett_802_3_aggregation = -1;
 static gint ett_802_1_aggregation = -1;
 static gint ett_802_1qbg_capabilities_flags = -1;
@@ -2715,6 +2725,22 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
 			proto_tree_add_item(tree, hf_ieee_802_3_bt_pse_maximum_available_power_value, tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset+=2;
+
+			tf = proto_tree_add_item(tree, hf_ieee_802_3_bt_autoclass, tvb, offset, 1, ENC_BIG_ENDIAN);
+			mac_phy_flags = proto_item_add_subtree(tf, ett_802_3_bt_autoclass);
+
+			proto_tree_add_item(mac_phy_flags, hf_ieee_802_3_bt_pse_autoclass_support, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(mac_phy_flags, hf_ieee_802_3_bt_autoclass_supported, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(mac_phy_flags, hf_ieee_802_3_bt_autoclass_request, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(mac_phy_flags, hf_ieee_802_3_bt_autoclass_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset+=1;
+
+			tf = proto_tree_add_item(tree, hf_ieee_802_3_bt_power_down, tvb, offset, 3, ENC_BIG_ENDIAN);
+			mac_phy_flags = proto_item_add_subtree(tf, ett_802_3_bt_power_down);
+
+			proto_tree_add_item(mac_phy_flags, hf_ieee_802_3_bt_power_down_request, tvb, offset, 3, ENC_BIG_ENDIAN);
+			proto_tree_add_item(mac_phy_flags, hf_ieee_802_3_bt_power_down_time, tvb, offset, 3, ENC_BIG_ENDIAN);
+			offset+=3;
 		}
 		break;
 	}
@@ -5155,6 +5181,38 @@ proto_register_lldp(void)
 			{ "PSE Maximum Available Power Value", "lldp.ieee.802_3.bt_pse_maximum_available_power_value", FT_UINT16, BASE_DEC,
 			NULL, 0, NULL, HFILL }
 		},
+		{ &hf_ieee_802_3_bt_autoclass,
+			{ "Autoclass", "lldp.ieee.802_3.bt_autoclass", FT_UINT8, BASE_HEX,
+			NULL, 0, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_bt_pse_autoclass_support,
+			{ "PSE Autoclass support", "lldp.ieee.802_3.bt_pse_autoclass_support", FT_UINT8, BASE_DEC,
+			NULL, 0x04, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_bt_autoclass_supported,
+			{ "Autoclass supported", "lldp.ieee.802_3.bt_autoclass_supported", FT_UINT8, BASE_DEC,
+			NULL, 0x02, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_bt_autoclass_request,
+			{ "Autoclass request", "lldp.ieee.802_3.bt_autoclass_request", FT_UINT8, BASE_DEC,
+			NULL, 0x01, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_bt_autoclass_reserved,
+			{ "Autoclass Reserved", "lldp.ieee.802_3.bt_autoclass_reserved", FT_UINT8, BASE_HEX,
+			NULL, 0xF8, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_bt_power_down,
+			{ "Power down", "lldp.ieee.802_3.bt_power_down", FT_UINT24, BASE_HEX,
+			NULL, 0, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_bt_power_down_request,
+			{ "Power down request", "lldp.ieee.802_3.bt_power_down_request", FT_UINT24, BASE_DEC,
+			NULL, 0xFC0000, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_bt_power_down_time,
+			{ "Power down time", "lldp.ieee.802_3.bt_power_down_time", FT_UINT24, BASE_DEC,
+			NULL, 0x03FFFF, NULL, HFILL }
+		},
 		{ &hf_ieee_802_3_aggregation_status,
 			{ "Aggregation Status", "lldp.ieee.802_3.aggregation_status", FT_UINT8, BASE_HEX,
 			NULL, 0x0, NULL, HFILL }
@@ -5891,6 +5949,8 @@ proto_register_lldp(void)
 		&ett_802_3_power,
 		&ett_802_3_bt_power,
 		&ett_802_3_bt_system_setup,
+		&ett_802_3_bt_autoclass,
+		&ett_802_3_bt_power_down,
 		&ett_802_3_aggregation,
 		&ett_802_1_aggregation,
 		&ett_802_1qbg_capabilities_flags,
