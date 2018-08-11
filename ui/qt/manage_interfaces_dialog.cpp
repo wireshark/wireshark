@@ -100,9 +100,6 @@ ManageInterfacesDialog::ManageInterfacesDialog(QWidget *parent) :
     int one_em = fontMetrics().height();
 
     ui->localList->setColumnWidth(col_l_show_, one_em * 3);
-#ifndef Q_OS_WIN
-    ui->localList->setColumnHidden(col_l_friendly_name_, true);
-#endif
     ui->localList->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     ui->pipeList->setItemDelegateForColumn(col_p_pipe_, &new_pipe_item_delegate_);
@@ -334,9 +331,7 @@ void ManageInterfacesDialog::showLocalInterfaces()
                 item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
                 item->setCheckState(col_l_show_, device.hidden ? Qt::Unchecked : Qt::Checked);
             }
-#ifdef _WIN32
             item->setText(col_l_friendly_name_, device.friendly_name);
-#endif
             item->setText(col_l_local_name_, device.name);
 
             comment = capture_dev_user_descr_find(device.name);
