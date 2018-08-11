@@ -50,6 +50,8 @@ cap_file_get_interface_name(void *data, guint32 interface_id)
       return interface_name;
     if (wtap_block_get_string_option_value(wtapng_if_descr, OPT_IDB_DESCR, &interface_name) == WTAP_OPTTYPE_SUCCESS)
       return interface_name;
+    if (wtap_block_get_string_option_value(wtapng_if_descr, OPT_IDB_HARDWARE, &interface_name) == WTAP_OPTTYPE_SUCCESS)
+      return interface_name;
   }
   return "unknown";
 }
