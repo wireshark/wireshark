@@ -296,8 +296,8 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
     }
 
     for (guint i = 0; i < summary.ifaces->len; i++) {
-        iface_options iface;
-        iface = g_array_index(summary.ifaces, iface_options, i);
+        iface_summary_info iface;
+        iface = g_array_index(summary.ifaces, iface_summary_info, i);
 
         /* interface */
         QString interface_name(unknown);

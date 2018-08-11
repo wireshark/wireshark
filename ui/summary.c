@@ -91,7 +91,7 @@ summary_fill_in(capture_file *cf, summary_tally *st)
 {
   frame_data    *first_frame, *cur_frame;
   guint32        framenum;
-  iface_options iface;
+  iface_summary_info iface;
   guint i;
   wtapng_iface_descriptions_t* idb_info;
   wtap_block_t wtapng_if_descr;
@@ -143,7 +143,7 @@ summary_fill_in(capture_file *cf, summary_tally *st)
   st->drops = cf->drops;
   st->dfilter = cf->dfilter;
 
-  st->ifaces  = g_array_new(FALSE, FALSE, sizeof(iface_options));
+  st->ifaces  = g_array_new(FALSE, FALSE, sizeof(iface_summary_info));
   idb_info = wtap_file_get_idb_info(cf->provider.wth);
   for (i = 0; i < idb_info->interface_data->len; i++) {
     wtapng_if_descr = g_array_index(idb_info->interface_data, wtap_block_t, i);
@@ -190,7 +190,7 @@ summary_fill_in(capture_file *cf, summary_tally *st)
 void
 summary_fill_in_capture(capture_file *cf,capture_options *capture_opts, summary_tally *st)
 {
-  iface_options iface;
+  iface_summary_info iface;
   interface_t *device;
   guint i;
 

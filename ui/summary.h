@@ -19,7 +19,7 @@
 extern "C" {
 #endif /* __cplusplus */
 
-typedef struct iface_options_tag {
+typedef struct iface_summary_info_tag {
   char     *name;
   char     *descr;
   char     *cfilter;
@@ -28,7 +28,7 @@ typedef struct iface_options_tag {
   gboolean  drops_known;           /**< TRUE if number of packet drops is known */
   int       snap;                  /**< Maximum captured packet length; 0 if not known */
   int       encap_type;            /**< wiretap encapsulation type */
-} iface_options;
+} iface_summary_info;
 
 typedef struct _summary_tally {
   guint64      bytes;              /**< total bytes */
