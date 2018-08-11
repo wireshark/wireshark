@@ -939,6 +939,17 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
                     pcapng_debug("pcapng_read_if_descr_block: if_fcslen length %u not 1 as expected", oh.option_length);
                 }
                 break;
+            case(OPT_IDB_HARDWARE): /* if_hardware */
+                if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
+                    tmp_content = g_strndup((char *)option_content, oh.option_length);
+                    /* Fails with multiple options; we silently ignore the failure */
+                    wtap_block_add_string_option(wblock->block, oh.option_code, option_content, oh.option_length);
+                    pcapng_debug("pcapng_read_if_descr_block: if_hardware %s", tmp_content);
+                    g_free(tmp_content);
+                } else {
+                    pcapng_debug("pcapng_read_if_descr_block: if_description length %u seems strange", oh.option_length);
+                }
+                break;
 
             /* TODO: process these! */
             case(OPT_IDB_IP4ADDR):
@@ -3844,6 +3855,7 @@ static void compute_idb_option_size(wtap_block_t block _U_, guint option_id, wta
     case OPT_IDB_NAME:
     case OPT_IDB_DESCR:
     case OPT_IDB_OS:
+    case OPT_IDB_HARDWARE:
         size = pcapng_compute_option_string_size(optval->stringval);
         break;
     case OPT_IDB_SPEED:
@@ -3900,6 +3912,7 @@ static void write_wtap_idb_option(wtap_block_t block _U_, guint option_id, wtap_
     case OPT_IDB_NAME:
     case OPT_IDB_DESCR:
     case OPT_IDB_OS:
+    case OPT_IDB_HARDWARE:
         if (!pcapng_write_option_string(write_block->wdh, option_id, optval->stringval, write_block->err)) {
             write_block->success = FALSE;
             return;

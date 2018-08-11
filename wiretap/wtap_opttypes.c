@@ -1073,6 +1073,14 @@ void wtap_opttypes_initialize(void)
         NULL,
         NULL
     };
+    static wtap_opttype_t if_hardware = {
+        "hardware",
+        "IDB Hardware",
+        WTAP_OPTTYPE_STRING,
+        0,
+        NULL,
+        NULL
+    };
 
     static wtap_blocktype_t nrb_block = {
         WTAP_BLOCK_NG_NRB,       /* block_type */
@@ -1198,6 +1206,7 @@ void wtap_opttypes_initialize(void)
     wtap_opttype_option_register(&idb_block, OPT_IDB_FILTER, &if_filter);
     wtap_opttype_option_register(&idb_block, OPT_IDB_OS, &if_os);
     wtap_opttype_option_register(&idb_block, OPT_IDB_FCSLEN, &if_fcslen);
+    wtap_opttype_option_register(&idb_block, OPT_IDB_HARDWARE, &if_hardware);
 
     /*
      * Register the NRB and the options that can appear in it.
