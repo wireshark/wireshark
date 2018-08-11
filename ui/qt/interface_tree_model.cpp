@@ -272,11 +272,11 @@ QVariant InterfaceTreeModel::headerData(int section, Qt::Orientation orientation
             {
                 return tr("Show");
             }
-            else if ( section == IFTREE_COL_INTERFACE_NAME )
+            else if ( section == IFTREE_COL_NAME )
             {
                 return tr("Friendly Name");
             }
-            else if ( section == IFTREE_COL_NAME )
+            else if ( section == IFTREE_COL_INTERFACE_NAME )
             {
                 return tr("Interface Name");
             }
