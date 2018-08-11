@@ -155,8 +155,8 @@ typedef enum {
 #define SSL_HND_HELLO_EXT_QUIC_TRANSPORT_PARAMETERS     26 /* Not yet assigned by IANA (QUIC-TLS Draft04) */
 /* 26-34  Unassigned*/
 #define SSL_HND_HELLO_EXT_SESSION_TICKET_TLS            35
-/* TLS 1.3 draft */
-#define SSL_HND_HELLO_EXT_KEY_SHARE_OLD                 40
+/* RFC 8446 (TLS 1.3) */
+#define SSL_HND_HELLO_EXT_KEY_SHARE_OLD                 40 /* draft-ietf-tls-tls13-22 (removed in -23) */
 #define SSL_HND_HELLO_EXT_PRE_SHARED_KEY                41
 #define SSL_HND_HELLO_EXT_EARLY_DATA                    42
 #define SSL_HND_HELLO_EXT_SUPPORTED_VERSIONS            43
@@ -188,7 +188,6 @@ typedef enum {
 #define SSL_HND_HELLO_EXT_GREASE_EAEA                   60138
 #define SSL_HND_HELLO_EXT_GREASE_FAFA                   64250
 #define SSL_HND_HELLO_EXT_RENEGOTIATION_INFO            65281 /* 0xFF01 */
-#define SSL_HND_HELLO_EXT_DRAFT_VERSION_TLS13           65282 /* 0xFF02 */
 
 #define SSL_HND_CERT_URL_TYPE_INDIVIDUAL_CERT       1
 #define SSL_HND_CERT_URL_TYPE_PKIPATH               2
@@ -862,7 +861,6 @@ typedef struct ssl_common_dissect {
         gint hs_client_cert_vrfy_sig;
 
         /* TLS 1.3 */
-        gint hs_ext_draft_version_tls13;
         gint hs_ext_psk_ke_modes_length;
         gint hs_ext_psk_ke_mode;
         gint hs_certificate_request_context_length;
@@ -1114,7 +1112,7 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,     \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,         \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
@@ -1739,11 +1737,6 @@ ssl_common_dissect_t name = {   \
       { "Signature", prefix ".handshake.client_cert_vrfy.sig",          \
         FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
         "CertificateVerify's signature", HFILL }                        \
-    },                                                                  \
-    { & name .hf.hs_ext_draft_version_tls13,                            \
-      { "Draft version of TLS 1.3", prefix ".extension.draft_version_tls13", \
-        FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
-        "Indicate the version of draft supported by client", HFILL }    \
     },                                                                  \
     { & name .hf.hs_ext_psk_ke_modes_length,                            \
       { "PSK Key Exchange Modes Length", prefix ".extension.psk_ke_modes_length", \

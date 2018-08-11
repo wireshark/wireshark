@@ -2333,7 +2333,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 break;
 
             case SSL_HND_END_OF_EARLY_DATA:
-                /* https://tools.ietf.org/html/draft-ietf-tls-tls13-19#section-4.5 */
+                /* RFC 8446 Section 4.5 */
                 if (!is_from_server && ssl) {
                     ssl_load_keyfile(ssl_options.keylog_filename, &ssl_keylog_file, &ssl_master_key_map);
                     tls13_change_key(ssl, &ssl_master_key_map, FALSE, TLS_SECRET_HANDSHAKE);
@@ -3917,8 +3917,7 @@ tls_get_cipher_info(packet_info *pinfo, int *cipher_algo, int *cipher_mode, int 
 /* TLS Exporters {{{ */
 #if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
 /**
- * Computes the TLS 1.3 Exporter value
- * (https://tools.ietf.org/html/draft-ietf-tls-tls13-27#section-7.5).
+ * Computes the TLS 1.3 Exporter value (RFC 8446 Section 7.5).
  *
  * "secret" is the [early_]exporter_master_secret. On success, TRUE is returned
  * and the key is returned via "out" (free with "wmem_free(NULL, out)").
