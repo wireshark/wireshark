@@ -144,15 +144,6 @@ void free_capture_combo_list(GList *combo_list);
  */
 const char *get_if_name(const char *if_text);
 
-/** Return the interface description (after setting it if not already set)
- *
- * @param capture_opts The capture_options structure that contains the used interface
- * @param i The index of the interface
- *
- * @return A pointer to interface_opts->descr
- */
-const char *get_iface_description_for_interface(capture_options *capture_opts, guint i);
-
 /** Set the active DLT for a device appropriately.
  *
  * @param device the device on which to set the active DLT
