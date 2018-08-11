@@ -142,9 +142,7 @@ ManageInterfacesDialog::ManageInterfacesDialog(QWidget *parent) :
     QList<InterfaceTreeColumns> columns;
     columns.append(IFTREE_COL_HIDDEN);
     columns.append(IFTREE_COL_INTERFACE_NAME);
-#ifdef Q_OS_WIN
     columns.append(IFTREE_COL_NAME);
-#endif
     columns.append(IFTREE_COL_INTERFACE_COMMENT);
     proxyModel->setColumns(columns);
     proxyModel->setSourceModel(sourceModel);
