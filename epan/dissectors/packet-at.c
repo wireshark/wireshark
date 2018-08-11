@@ -1080,6 +1080,7 @@ static const at_cmd_t at_cmds[] = {
     { "+CHLD",      "Call Hold and Multiparty Handling",                       check_chld, dissect_chld_parameter },
     { "+CHUP",      "Call Hang-up",                                            check_chup, dissect_no_parameter   },
     { "+CIMI",      "Request International Mobile Subsciber Identity (IMSI)",  check_cimi, dissect_cimi_parameter },
+    { "^CIMI",      "Request International Mobile Subsciber Identity (IMSI)",  check_cimi, dissect_cimi_parameter },
     { "+CIND",      "Phone Indicators",                                        check_cind, dissect_cind_parameter },
     { "+CLCC",      "Current Calls",                                           check_clcc, dissect_clcc_parameter },
     { "+COPS",      "Reading Network Operator",                                check_cops, dissect_cops_parameter },
