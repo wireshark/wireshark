@@ -481,7 +481,7 @@ get_if_name(const char *if_text)
  *  This is necessary because capture_opts.c can't set descr (at least
  *  not without adding significant dependencies there).
  */
-const char *
+static const char *
 get_iface_description_for_interface(capture_options *capture_opts, guint i)
 {
   interface_options interface_opts;
