@@ -446,8 +446,11 @@ is_duplicate_idb(const wtap_block_t idb1, const wtap_block_t idb2)
     guint64 idb1_if_speed, idb2_if_speed;
     guint8 idb1_if_tsresol, idb2_if_tsresol;
     guint8 idb1_if_fcslen, idb2_if_fcslen;
-    char *idb1_opt_comment, *idb2_opt_comment, *idb1_if_name, *idb2_if_name,
-         *idb1_if_description, *idb2_if_description, *idb1_if_os, *idb2_if_os;
+    char *idb1_opt_comment, *idb2_opt_comment;
+    char *idb1_if_name, *idb2_if_name;
+    char *idb1_if_description, *idb2_if_description;
+    char *idb1_if_hardware, *idb2_if_hardware;
+    char *idb1_if_os, *idb2_if_os;
 
     g_assert(idb1 && idb2);
     idb1_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(idb1);
@@ -565,6 +568,18 @@ is_duplicate_idb(const wtap_block_t idb1, const wtap_block_t idb2)
         merge_debug("g_strcmp0(idb1_if_description, idb2_if_description) == 0: %s",
                      (g_strcmp0(idb1_if_description, idb2_if_description) == 0) ? "TRUE":"FALSE");
         if (g_strcmp0(idb1_if_description, idb2_if_description) != 0) {
+            merge_debug("merge::is_duplicate_idb() returning FALSE");
+            return FALSE;
+        }
+    }
+
+    /* XXX - what do to if we have only one value? */
+    have_idb1_value = (wtap_block_get_string_option_value(idb1, OPT_IDB_HARDWARE, &idb1_if_hardware) == WTAP_OPTTYPE_SUCCESS);
+    have_idb2_value = (wtap_block_get_string_option_value(idb2, OPT_IDB_HARDWARE, &idb2_if_hardware) == WTAP_OPTTYPE_SUCCESS);
+    if (have_idb1_value && have_idb2_value) {
+        merge_debug("g_strcmp0(idb1_if_hardware, idb2_if_hardware) == 0: %s",
+                     (g_strcmp0(idb1_if_hardware, idb2_if_hardware) == 0) ? "TRUE":"FALSE");
+        if (g_strcmp0(idb1_if_hardware, idb2_if_hardware) != 0) {
             merge_debug("merge::is_duplicate_idb() returning FALSE");
             return FALSE;
         }
