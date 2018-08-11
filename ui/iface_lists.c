@@ -26,23 +26,6 @@
 #include "../log.h"
 
 /*
- * Used when sorting an interface list into alphabetical order by
- * their friendly names.
- */
-gint
-if_list_comparator_alph(const void *first_arg, const void *second_arg)
-{
-    const if_info_t *first = (const if_info_t *)first_arg, *second = (const if_info_t *)second_arg;
-
-    if (first != NULL && first->friendly_name != NULL &&
-        second != NULL && second->friendly_name != NULL) {
-        return g_ascii_strcasecmp(first->friendly_name, second->friendly_name);
-    } else {
-        return 0;
-    }
-}
-
-/*
  * Try to populate the given device with options (like capture filter) from
  * the capture options that are in use for an existing capture interface.
  * Returns TRUE if the interface is selected for capture and FALSE otherwise.
