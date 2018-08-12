@@ -4779,12 +4779,13 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>Nessuna interfaccia trovata.</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="273"/>
+        <location filename="interface_tree_model.cpp" line="277"/>
         <source>Show</source>
         <translation>Mostra</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="277"/>
+        <location filename="interface_tree_model.cpp" line="285"/>
+        <location filename="interface_tree_model.cpp" line="289"/>
         <source>Friendly Name</source>
         <translation>Nome intuitivo</translation>
     </message>
@@ -4794,72 +4795,72 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>Nome interfaccia</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="285"/>
+        <location filename="interface_tree_model.cpp" line="293"/>
         <source>Local Pipe Path</source>
         <translation>Percorso pipe locale</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="289"/>
+        <location filename="interface_tree_model.cpp" line="297"/>
         <source>Comment</source>
         <translation>Commento</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="293"/>
+        <location filename="interface_tree_model.cpp" line="301"/>
         <source>Link-Layer Header</source>
         <translation>Intestazione livello di collegamento</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="297"/>
+        <location filename="interface_tree_model.cpp" line="305"/>
         <source>Promiscuous</source>
         <translation>Promiscua</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="301"/>
+        <location filename="interface_tree_model.cpp" line="309"/>
         <source>Snaplen (B)</source>
         <translation>Lunghezza di cattura (B)</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="306"/>
+        <location filename="interface_tree_model.cpp" line="314"/>
         <source>Buffer (MB)</source>
         <translation>Buffer (MB)</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="312"/>
+        <location filename="interface_tree_model.cpp" line="320"/>
         <source>Monitor Mode</source>
         <translation>Modalità di monitoraggio</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="317"/>
+        <location filename="interface_tree_model.cpp" line="325"/>
         <source>Capture Filter</source>
         <translation>Filtro di cattura</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="369"/>
+        <location filename="interface_tree_model.cpp" line="377"/>
         <source>Addresses</source>
         <translation>Indirizzi</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="369"/>
+        <location filename="interface_tree_model.cpp" line="377"/>
         <source>Address</source>
         <translation>Indirizzo</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="376"/>
+        <location filename="interface_tree_model.cpp" line="384"/>
         <source>Extcap interface: %1</source>
         <translation>Interfaccia Extcap: %1</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="381"/>
+        <location filename="interface_tree_model.cpp" line="389"/>
         <source>No addresses</source>
         <translation>Nessun indirizzo</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="388"/>
+        <location filename="interface_tree_model.cpp" line="396"/>
         <source>No capture filter</source>
         <translation>Nessun filtro di cattura</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="393"/>
+        <location filename="interface_tree_model.cpp" line="401"/>
         <source>Capture filter</source>
         <translation>Filtro di cattura</translation>
     </message>
@@ -9881,22 +9882,22 @@ a:hover {
         <translation>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="249"/>
+        <location filename="manage_interfaces_dialog.cpp" line="247"/>
         <source>This version of Wireshark does not save pipe settings.</source>
         <translation>Questa versione di Wireshark non può salvare le impostazioni della pipe.</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="253"/>
+        <location filename="manage_interfaces_dialog.cpp" line="251"/>
         <source>This version of Wireshark does not save remote settings.</source>
         <translation>Questa versione di Wireshark non può salvare le impostazioni remote.</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="255"/>
+        <location filename="manage_interfaces_dialog.cpp" line="253"/>
         <source>This version of Wireshark does not support remote interfaces.</source>
         <translation>Questa versione di Wireshark non supporta le interfacce remote.</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="283"/>
+        <location filename="manage_interfaces_dialog.cpp" line="281"/>
         <source>New Pipe</source>
         <translation>Nuova pipe</translation>
     </message>
@@ -11394,7 +11395,7 @@ a:hover {
     </message>
     <message>
         <location filename="capture_interfaces_dialog.cpp" line="130"/>
-        <location filename="interface_tree_model.cpp" line="184"/>
+        <location filename="interface_tree_model.cpp" line="188"/>
         <source>DLT %1</source>
         <translation>DLT %1</translation>
     </message>

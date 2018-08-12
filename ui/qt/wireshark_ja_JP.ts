@@ -4769,12 +4769,13 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>インターフェースが見つかりません</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="273"/>
+        <location filename="interface_tree_model.cpp" line="277"/>
         <source>Show</source>
         <translation>表示</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="277"/>
+        <location filename="interface_tree_model.cpp" line="285"/>
+        <location filename="interface_tree_model.cpp" line="289"/>
         <source>Friendly Name</source>
         <translation>フレンドリ名</translation>
     </message>
@@ -4784,72 +4785,72 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>インターフェース名</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="285"/>
+        <location filename="interface_tree_model.cpp" line="293"/>
         <source>Local Pipe Path</source>
         <translation>ローカルパイプパス</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="289"/>
+        <location filename="interface_tree_model.cpp" line="297"/>
         <source>Comment</source>
         <translation>コメント</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="293"/>
+        <location filename="interface_tree_model.cpp" line="301"/>
         <source>Link-Layer Header</source>
         <translation>データリンク層ヘッダ</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="297"/>
+        <location filename="interface_tree_model.cpp" line="305"/>
         <source>Promiscuous</source>
         <translation>プロミスキャス</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="301"/>
+        <location filename="interface_tree_model.cpp" line="309"/>
         <source>Snaplen (B)</source>
         <translation>キャプチャ長(バイト)</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="306"/>
+        <location filename="interface_tree_model.cpp" line="314"/>
         <source>Buffer (MB)</source>
         <translation>バッファ(メガバイト)</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="312"/>
+        <location filename="interface_tree_model.cpp" line="320"/>
         <source>Monitor Mode</source>
         <translation>モニターモード</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="317"/>
+        <location filename="interface_tree_model.cpp" line="325"/>
         <source>Capture Filter</source>
         <translation>キャプチャフィルタ</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="369"/>
+        <location filename="interface_tree_model.cpp" line="377"/>
         <source>Addresses</source>
         <translation>アドレス</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="369"/>
+        <location filename="interface_tree_model.cpp" line="377"/>
         <source>Address</source>
         <translation>アドレス</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="376"/>
+        <location filename="interface_tree_model.cpp" line="384"/>
         <source>Extcap interface: %1</source>
         <translation>Extcap インターフェース: %1</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="381"/>
+        <location filename="interface_tree_model.cpp" line="389"/>
         <source>No addresses</source>
         <translation>アドレスなし</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="388"/>
+        <location filename="interface_tree_model.cpp" line="396"/>
         <source>No capture filter</source>
         <translation>キャプチャフィルタなし</translation>
     </message>
     <message>
-        <location filename="interface_tree_model.cpp" line="393"/>
+        <location filename="interface_tree_model.cpp" line="401"/>
         <source>Capture filter</source>
         <translation>キャプチャフィルタ</translation>
     </message>
@@ -9871,22 +9872,22 @@ a:hover {
         <translation>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="249"/>
+        <location filename="manage_interfaces_dialog.cpp" line="247"/>
         <source>This version of Wireshark does not save pipe settings.</source>
         <translation>このバージョンの Wireshark はパイプの設定を保存しません</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="253"/>
+        <location filename="manage_interfaces_dialog.cpp" line="251"/>
         <source>This version of Wireshark does not save remote settings.</source>
         <translation>このバージョンの Wireshark はリモートの設定を保存しません</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="255"/>
+        <location filename="manage_interfaces_dialog.cpp" line="253"/>
         <source>This version of Wireshark does not support remote interfaces.</source>
         <translation>このバージョンの Wireshark はリモートインターフェイスをサポートしていません</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="283"/>
+        <location filename="manage_interfaces_dialog.cpp" line="281"/>
         <source>New Pipe</source>
         <translation>新規パイプ</translation>
     </message>
@@ -11384,7 +11385,7 @@ a:hover {
     </message>
     <message>
         <location filename="capture_interfaces_dialog.cpp" line="130"/>
-        <location filename="interface_tree_model.cpp" line="184"/>
+        <location filename="interface_tree_model.cpp" line="188"/>
         <source>DLT %1</source>
         <translation>DLT %1</translation>
     </message>
