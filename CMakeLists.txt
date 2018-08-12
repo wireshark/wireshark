@@ -2773,6 +2773,7 @@ if(RPMBUILD_EXECUTABLE)
 endif()
 
 set(CLEAN_C_FILES
+	${dumpcap_FILES}
 	${wireshark_FILES}
 	${tshark_FILES}
 	${rawshark_FILES}
