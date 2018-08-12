@@ -54,14 +54,17 @@ typedef struct _http_req_res_t {
 /** Conversation data of a HTTP connection. */
 typedef struct _http_conv_t {
 	guint    response_code;
-	guint32	 startframe;	/* First frame of proxied connection */
+	guint32  req_res_num;	/**< The number of requests in the conversation. */
 	gchar   *http_host;
 	gchar   *request_method;
 	gchar   *request_uri;
 	gchar   *full_uri;
-	/** the number of requests on the conversation. */
-	guint32  req_res_num;
+
+	/* Fields related to proxied/tunneled/Upgraded connections. */
+	guint32	 startframe;	/* First frame of proxied connection */
+	int    	 startoffset;	/* Offset within the frame where the new protocol begins. */
 	guint8   upgrade;
+
 	gchar   *websocket_protocol;	/* Negotiated WebSocket protocol */
 	gchar   *websocket_extensions;	/* Negotiated WebSocket extensions */
 	/* Server address and port, known after first server response */

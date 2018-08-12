@@ -1866,16 +1866,32 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		offset += datalen;
 	}
 
-	if (http_type == HTTP_RESPONSE && conv_data->upgrade == UPGRADE_SSTP) {
-		conv_data->startframe = pinfo->num + 1;
-		headers.upgrade = conv_data->upgrade;
-	}
+	/* Detect protocol changes after receiving full response headers. */
+	if (http_type == HTTP_RESPONSE && pinfo->desegment_offset <= 0 && pinfo->desegment_len <= 0) {
+		gboolean server_acked = FALSE;
+		/*
+		 * SSTP uses a special request method (instead of the Upgrade
+		 * header) and expects a 200 response to set up the session.
+		 */
+		if (conv_data->upgrade == UPGRADE_SSTP && conv_data->response_code == 200) {
+			server_acked = TRUE;
+		}
 
-	if (http_type == HTTP_RESPONSE && headers.upgrade && pinfo->desegment_offset<=0 && pinfo->desegment_len<=0) {
-		conv_data->upgrade = headers.upgrade;
-		conv_data->startframe = pinfo->num + 1;
-		copy_address_wmem(wmem_file_scope(), &conv_data->server_addr, &pinfo->src);
-		conv_data->server_port = pinfo->srcport;
+		/*
+		 * An HTTP/1.1 upgrade only proceeds if the server responds
+		 * with 101 Switching Protocols. See RFC 7230 Section 6.7.
+		 */
+		if (headers.upgrade && conv_data->response_code == 101) {
+			conv_data->upgrade = headers.upgrade;
+			server_acked = TRUE;
+		}
+
+		if (server_acked) {
+			conv_data->startframe = pinfo->num;
+			conv_data->startoffset = offset;
+			copy_address_wmem(wmem_file_scope(), &conv_data->server_addr, &pinfo->src);
+			conv_data->server_port = pinfo->srcport;
+		}
 	}
 
 	tap_queue_packet(http_tap, pinfo, stat_info);
@@ -3443,17 +3459,22 @@ dissect_http_on_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	dissector_handle_t next_handle = NULL;
 
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
-		if (conv_data->upgrade == UPGRADE_WEBSOCKET && pinfo->num >= conv_data->startframe) {
-			next_handle = websocket_handle;
-		}
-		if (conv_data->upgrade == UPGRADE_HTTP2 && pinfo->num >= conv_data->startframe) {
-			next_handle = http2_handle;
-		}
-		if (conv_data->upgrade == UPGRADE_SSTP && conv_data->response_code == 200 && pinfo->num >= conv_data->startframe) {
-			next_handle = sstp_handle;
-		}
-		if (conv_data->upgrade == UPGRADE_SPDY && pinfo->num >= conv_data->startframe) {
-			next_handle = spdy_handle;
+		/* Switch protocol if the data starts after response headers. */
+		if (conv_data->startframe &&
+				(pinfo->num > conv_data->startframe ||
+				(pinfo->num == conv_data->startframe && offset >= conv_data->startoffset))) {
+			if (conv_data->upgrade == UPGRADE_WEBSOCKET) {
+				next_handle = websocket_handle;
+			}
+			if (conv_data->upgrade == UPGRADE_HTTP2) {
+				next_handle = http2_handle;
+			}
+			if (conv_data->upgrade == UPGRADE_SSTP) {
+				next_handle = sstp_handle;
+			}
+			if (conv_data->upgrade == UPGRADE_SPDY) {
+				next_handle = spdy_handle;
+			}
 		}
 		if (next_handle) {
 			/* Increase pinfo->can_desegment because we are traversing
@@ -3509,6 +3530,7 @@ dissect_http_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 	   conv_data->request_uri) {
 		if (conv_data->startframe == 0 && !PINFO_FD_VISITED(pinfo)) {
 			conv_data->startframe = pinfo->num;
+			conv_data->startoffset = 0;
 			copy_address_wmem(wmem_file_scope(), &conv_data->server_addr, &pinfo->dst);
 			conv_data->server_port = pinfo->destport;
 		}
