@@ -3303,6 +3303,10 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
     } else {
         /* Choose a random name for the temporary capture buffer */
         if (global_capture_opts.ifaces->len > 1) {
+            /*
+             * More than one interface; just use the number of interfaces
+             * to generate the temporary file name.
+             */
             prefix = g_strdup_printf("wireshark_%d_interfaces", global_capture_opts.ifaces->len);
         } else {
             gchar *basename;
@@ -3319,10 +3323,15 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
                 g_string_free(iface, TRUE);
             }
 #endif
-            /* generate the temp file name prefix and suffix */
+            /*
+             * One interface; use its description, if it has one, to generate
+             * the temporary file name prefix, otherwise use its name.
+             */
             prefix = g_strconcat("wireshark_", basename, NULL);
             g_free(basename);
         }
+
+        /* Generate the appropriate suffix. */
         if (capture_opts->use_pcapng) {
             suffix = ".pcapng";
         } else {
