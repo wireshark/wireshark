@@ -89,7 +89,7 @@ InterfaceFrame::InterfaceFrame(QWidget * parent)
 #ifdef HAVE_EXTCAP
     columns.append(IFTREE_COL_EXTCAP);
 #endif
-    columns.append(IFTREE_COL_NAME);
+    columns.append(IFTREE_COL_DISPLAY_NAME);
     columns.append(IFTREE_COL_STATS);
     proxyModel->setColumns(columns);
     proxyModel->setStoreOnChange(true);
@@ -269,7 +269,7 @@ void InterfaceFrame::resetInterfaceTreeDisplay()
 #ifdef HAVE_EXTCAP
         ui->interfaceTree->resizeColumnToContents(proxyModel->mapSourceToColumn(IFTREE_COL_EXTCAP));
 #endif
-        ui->interfaceTree->resizeColumnToContents(proxyModel->mapSourceToColumn(IFTREE_COL_NAME));
+        ui->interfaceTree->resizeColumnToContents(proxyModel->mapSourceToColumn(IFTREE_COL_DISPLAY_NAME));
         ui->interfaceTree->resizeColumnToContents(proxyModel->mapSourceToColumn(IFTREE_COL_STATS));
     }
 }
@@ -313,7 +313,7 @@ void InterfaceFrame::on_interfaceTree_doubleClicked(const QModelIndex &index)
 
 #if defined(HAVE_EXTCAP) && defined(HAVE_LIBPCAP)
 
-    QString device_name = sourceModel->getColumnContent(realIndex.row(), IFTREE_COL_INTERFACE_NAME).toString();
+    QString device_name = sourceModel->getColumnContent(realIndex.row(), IFTREE_COL_NAME).toString();
     QString extcap_string = sourceModel->getColumnContent(realIndex.row(), IFTREE_COL_EXTCAP_PATH).toString();
 
     /* We trust the string here. If this interface is really extcap, the string is
@@ -341,7 +341,7 @@ void InterfaceFrame::on_interfaceTree_clicked(const QModelIndex &index)
         if ( ! realIndex.isValid() )
             return;
 
-        QString device_name = sourceModel->getColumnContent(realIndex.row(), IFTREE_COL_INTERFACE_NAME).toString();
+        QString device_name = sourceModel->getColumnContent(realIndex.row(), IFTREE_COL_NAME).toString();
         QString extcap_string = sourceModel->getColumnContent(realIndex.row(), IFTREE_COL_EXTCAP_PATH).toString();
 
         /* We trust the string here. If this interface is really extcap, the string is

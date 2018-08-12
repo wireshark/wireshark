@@ -129,11 +129,15 @@ QVariant InterfaceTreeModel::data(const QModelIndex &index, int role) const
             /* Only the name is being displayed */
             if ( col == IFTREE_COL_NAME )
             {
+                return QString(device.name);
+            }
+            else if ( col == IFTREE_COL_DESCRIPTION )
+            {
                 return QString(device.friendly_name);
             }
-            else if ( col == IFTREE_COL_INTERFACE_NAME )
+            else if ( col == IFTREE_COL_DISPLAY_NAME )
             {
-                return QString(device.name);
+                return QString(device.display_name);
             }
             else if ( col == IFTREE_COL_PIPE_PATH )
             {
@@ -164,7 +168,7 @@ QVariant InterfaceTreeModel::data(const QModelIndex &index, int role) const
             {
                 return QVariant::fromValue((int)device.if_info.type);
             }
-            else if ( col == IFTREE_COL_INTERFACE_COMMENT )
+            else if ( col == IFTREE_COL_COMMENT )
             {
                 QString comment = gchar_free_to_qstring(capture_dev_user_descr_find(device.name));
                 if ( comment.length() > 0 )
@@ -274,17 +278,21 @@ QVariant InterfaceTreeModel::headerData(int section, Qt::Orientation orientation
             }
             else if ( section == IFTREE_COL_NAME )
             {
+                return tr("Interface Name");
+            }
+            else if ( section == IFTREE_COL_DESCRIPTION )
+            {
                 return tr("Friendly Name");
             }
-            else if ( section == IFTREE_COL_INTERFACE_NAME )
+            else if ( section == IFTREE_COL_DISPLAY_NAME )
             {
-                return tr("Interface Name");
+                return tr("Friendly Name");
             }
             else if ( section == IFTREE_COL_PIPE_PATH )
             {
                 return tr("Local Pipe Path");
             }
-            else if ( section == IFTREE_COL_INTERFACE_COMMENT )
+            else if ( section == IFTREE_COL_COMMENT )
             {
                 return tr("Comment");
             }

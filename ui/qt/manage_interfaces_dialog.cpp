@@ -156,9 +156,9 @@ ManageInterfacesDialog::ManageInterfacesDialog(QWidget *parent) :
     proxyModel = new InterfaceSortFilterModel(this);
     QList<InterfaceTreeColumns> columns;
     columns.append(IFTREE_COL_HIDDEN);
-    columns.append(IFTREE_COL_INTERFACE_NAME);
+    columns.append(IFTREE_COL_DESCRIPTION);
     columns.append(IFTREE_COL_NAME);
-    columns.append(IFTREE_COL_INTERFACE_COMMENT);
+    columns.append(IFTREE_COL_COMMENT);
     proxyModel->setColumns(columns);
     proxyModel->setSourceModel(sourceModel);
     proxyModel->setFilterHidden(false);
@@ -166,7 +166,7 @@ ManageInterfacesDialog::ManageInterfacesDialog(QWidget *parent) :
 
     ui->localView->setModel(proxyModel);
     ui->localView->resizeColumnToContents(proxyModel->mapSourceToColumn(IFTREE_COL_HIDDEN));
-    ui->localView->resizeColumnToContents(proxyModel->mapSourceToColumn(IFTREE_COL_INTERFACE_NAME));
+    ui->localView->resizeColumnToContents(proxyModel->mapSourceToColumn(IFTREE_COL_NAME));
 
     pipeProxyModel = new InterfaceSortFilterModel(this);
     columns.clear();
