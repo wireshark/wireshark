@@ -9601,27 +9601,27 @@ text-decoration: underline;
         <translation>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="172"/>
+        <location filename="manage_interfaces_dialog.cpp" line="169"/>
         <source>This version of Wireshark does not save pipe settings.</source>
         <translation>Ta wersja Wiresharka nie obsługuje ustawień rur.</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="176"/>
+        <location filename="manage_interfaces_dialog.cpp" line="173"/>
         <source>This version of Wireshark does not save remote settings.</source>
         <translation>Ta wersja Wiresharka nie obsługuje zdalnych ustawień.</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="178"/>
+        <location filename="manage_interfaces_dialog.cpp" line="175"/>
         <source>This version of Wireshark does not support remote interfaces.</source>
         <translation>Ta wersja Wiresharka nie obsługuje zdalnych interfejsów.</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="425"/>
+        <location filename="manage_interfaces_dialog.cpp" line="420"/>
         <source>Error</source>
         <translation>Błąd</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="426"/>
+        <location filename="manage_interfaces_dialog.cpp" line="421"/>
         <source>Default interface cannot be hidden.</source>
         <translation>Domyślny interfejs nie może bć ukryty.</translation>
     </message>
@@ -10148,12 +10148,12 @@ text-decoration: underline;
 <context>
     <name>PathChooserDelegate</name>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="814"/>
+        <location filename="manage_interfaces_dialog.cpp" line="809"/>
         <source>Browse</source>
         <translation>Przeglądaj</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="867"/>
+        <location filename="manage_interfaces_dialog.cpp" line="862"/>
         <source>Open Pipe</source>
         <translation>Otwórz rurę</translation>
     </message>
@@ -10790,7 +10790,7 @@ text-decoration: underline;
         <translation>Nie pokazuj więcej tego komunikatu.</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="222"/>
+        <location filename="manage_interfaces_dialog.cpp" line="219"/>
         <source>New Pipe</source>
         <translation>Nowa rura</translation>
     </message>
@@ -11197,27 +11197,27 @@ text-decoration: underline;
         <translation>Hasło:</translation>
     </message>
     <message>
-        <location filename="remote_capture_dialog.cpp" line="62"/>
-        <location filename="remote_capture_dialog.cpp" line="92"/>
-        <location filename="remote_capture_dialog.cpp" line="145"/>
+        <location filename="remote_capture_dialog.cpp" line="60"/>
+        <location filename="remote_capture_dialog.cpp" line="90"/>
+        <location filename="remote_capture_dialog.cpp" line="143"/>
         <source>Clear list</source>
         <translation>Wyczyść listę</translation>
     </message>
     <message>
+        <location filename="remote_capture_dialog.cpp" line="130"/>
         <location filename="remote_capture_dialog.cpp" line="132"/>
         <location filename="remote_capture_dialog.cpp" line="134"/>
         <location filename="remote_capture_dialog.cpp" line="136"/>
-        <location filename="remote_capture_dialog.cpp" line="138"/>
         <source>Error</source>
         <translation>Błąd</translation>
     </message>
     <message>
-        <location filename="remote_capture_dialog.cpp" line="132"/>
+        <location filename="remote_capture_dialog.cpp" line="130"/>
         <source>No remote interfaces found.</source>
         <translation>Nie znaleziono zdalnych interfejsów.</translation>
     </message>
     <message>
-        <location filename="remote_capture_dialog.cpp" line="136"/>
+        <location filename="remote_capture_dialog.cpp" line="134"/>
         <source>PCAP not found</source>
         <translation>PCAP nie znaleziony</translation>
     </message>

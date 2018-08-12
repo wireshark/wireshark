@@ -9589,27 +9589,27 @@ a:hover {
         <translation>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="172"/>
+        <location filename="manage_interfaces_dialog.cpp" line="169"/>
         <source>This version of Wireshark does not save pipe settings.</source>
         <translation>このバージョンの Wireshark はパイプの設定を保存しません</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="176"/>
+        <location filename="manage_interfaces_dialog.cpp" line="173"/>
         <source>This version of Wireshark does not save remote settings.</source>
         <translation>このバージョンの Wireshark はリモートの設定を保存しません</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="178"/>
+        <location filename="manage_interfaces_dialog.cpp" line="175"/>
         <source>This version of Wireshark does not support remote interfaces.</source>
         <translation>このバージョンの Wireshark はリモートインターフェイスをサポートしていません</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="425"/>
+        <location filename="manage_interfaces_dialog.cpp" line="420"/>
         <source>Error</source>
         <translation>エラー</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="426"/>
+        <location filename="manage_interfaces_dialog.cpp" line="421"/>
         <source>Default interface cannot be hidden.</source>
         <translation>デフォルトのインターフェースは非表示にできません</translation>
     </message>
@@ -10137,12 +10137,12 @@ a:hover {
 <context>
     <name>PathChooserDelegate</name>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="814"/>
+        <location filename="manage_interfaces_dialog.cpp" line="809"/>
         <source>Browse</source>
         <translation>参照</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="867"/>
+        <location filename="manage_interfaces_dialog.cpp" line="862"/>
         <source>Open Pipe</source>
         <translation>パイプを開く</translation>
     </message>
@@ -10779,7 +10779,7 @@ a:hover {
         <translation>このメッセージは再度表示されません</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="222"/>
+        <location filename="manage_interfaces_dialog.cpp" line="219"/>
         <source>New Pipe</source>
         <translation>新規パイプ</translation>
     </message>
@@ -11186,27 +11186,27 @@ a:hover {
         <translation>パスワード:</translation>
     </message>
     <message>
-        <location filename="remote_capture_dialog.cpp" line="62"/>
-        <location filename="remote_capture_dialog.cpp" line="92"/>
-        <location filename="remote_capture_dialog.cpp" line="145"/>
+        <location filename="remote_capture_dialog.cpp" line="60"/>
+        <location filename="remote_capture_dialog.cpp" line="90"/>
+        <location filename="remote_capture_dialog.cpp" line="143"/>
         <source>Clear list</source>
         <translation>一覧消去</translation>
     </message>
     <message>
+        <location filename="remote_capture_dialog.cpp" line="130"/>
         <location filename="remote_capture_dialog.cpp" line="132"/>
         <location filename="remote_capture_dialog.cpp" line="134"/>
         <location filename="remote_capture_dialog.cpp" line="136"/>
-        <location filename="remote_capture_dialog.cpp" line="138"/>
         <source>Error</source>
         <translation>エラー</translation>
     </message>
     <message>
-        <location filename="remote_capture_dialog.cpp" line="132"/>
+        <location filename="remote_capture_dialog.cpp" line="130"/>
         <source>No remote interfaces found.</source>
         <translation>リモートインターフェースは見つかりませんでした</translation>
     </message>
     <message>
-        <location filename="remote_capture_dialog.cpp" line="136"/>
+        <location filename="remote_capture_dialog.cpp" line="134"/>
         <source>PCAP not found</source>
         <translation>PCAPは見つかりません</translation>
     </message>

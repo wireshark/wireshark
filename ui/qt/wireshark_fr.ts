@@ -9561,27 +9561,27 @@ a:hover {
         <translation>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="172"/>
+        <location filename="manage_interfaces_dialog.cpp" line="169"/>
         <source>This version of Wireshark does not save pipe settings.</source>
         <translation>Cette version de Wireshark ne sauvegarde pas les paramètres de pipe.</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="176"/>
+        <location filename="manage_interfaces_dialog.cpp" line="173"/>
         <source>This version of Wireshark does not save remote settings.</source>
         <translation>Cette version de Wireshark ne sauvegarde pas les paramètres distants.</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="178"/>
+        <location filename="manage_interfaces_dialog.cpp" line="175"/>
         <source>This version of Wireshark does not support remote interfaces.</source>
         <translation>Cette version de Wireshark ne supporte pas les interfaces distantes.</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="425"/>
+        <location filename="manage_interfaces_dialog.cpp" line="420"/>
         <source>Error</source>
         <translation>Erreur</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="426"/>
+        <location filename="manage_interfaces_dialog.cpp" line="421"/>
         <source>Default interface cannot be hidden.</source>
         <translation>L&apos;interface par défaut ne peut pas être masquée.</translation>
     </message>
@@ -10109,12 +10109,12 @@ a:hover {
 <context>
     <name>PathChooserDelegate</name>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="814"/>
+        <location filename="manage_interfaces_dialog.cpp" line="809"/>
         <source>Browse</source>
         <translation>Parcourir</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="867"/>
+        <location filename="manage_interfaces_dialog.cpp" line="862"/>
         <source>Open Pipe</source>
         <translation>Ouvrir Pipe</translation>
     </message>
@@ -10751,7 +10751,7 @@ a:hover {
         <translation>Ne plus afficher ce message.</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="222"/>
+        <location filename="manage_interfaces_dialog.cpp" line="219"/>
         <source>New Pipe</source>
         <translation>Nouvelle Pipe</translation>
     </message>
@@ -11158,27 +11158,27 @@ a:hover {
         <translation>Mot de passe:</translation>
     </message>
     <message>
-        <location filename="remote_capture_dialog.cpp" line="62"/>
-        <location filename="remote_capture_dialog.cpp" line="92"/>
-        <location filename="remote_capture_dialog.cpp" line="145"/>
+        <location filename="remote_capture_dialog.cpp" line="60"/>
+        <location filename="remote_capture_dialog.cpp" line="90"/>
+        <location filename="remote_capture_dialog.cpp" line="143"/>
         <source>Clear list</source>
         <translation>Effacer liste</translation>
     </message>
     <message>
+        <location filename="remote_capture_dialog.cpp" line="130"/>
         <location filename="remote_capture_dialog.cpp" line="132"/>
         <location filename="remote_capture_dialog.cpp" line="134"/>
         <location filename="remote_capture_dialog.cpp" line="136"/>
-        <location filename="remote_capture_dialog.cpp" line="138"/>
         <source>Error</source>
         <translation>Erreur</translation>
     </message>
     <message>
-        <location filename="remote_capture_dialog.cpp" line="132"/>
+        <location filename="remote_capture_dialog.cpp" line="130"/>
         <source>No remote interfaces found.</source>
         <translation>Aucune interface distante trouvée.</translation>
     </message>
     <message>
-        <location filename="remote_capture_dialog.cpp" line="136"/>
+        <location filename="remote_capture_dialog.cpp" line="134"/>
         <source>PCAP not found</source>
         <translation>PCAP non trouvé</translation>
     </message>
