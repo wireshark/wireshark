@@ -63,7 +63,7 @@ typedef struct _http_conv_t {
 	/* Fields related to proxied/tunneled/Upgraded connections. */
 	guint32	 startframe;	/* First frame of proxied connection */
 	int    	 startoffset;	/* Offset within the frame where the new protocol begins. */
-	guint8   upgrade;
+	dissector_handle_t next_handle;	/* New protocol */
 
 	gchar   *websocket_protocol;	/* Negotiated WebSocket protocol */
 	gchar   *websocket_extensions;	/* Negotiated WebSocket extensions */
