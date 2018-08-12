@@ -17,6 +17,7 @@
 
 #include <epan/packet.h>
 #include <epan/strutil.h>
+#include <wsutil/strtoi.h>
 
 #include <epan/req_resp_hdrs.h>
 
@@ -149,11 +150,11 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 				 */
 				line = tvb_get_string_enc(wmem_packet_scope(), tvb, next_offset_sav, linelen, ENC_UTF_8|ENC_NA);
 				if (g_ascii_strncasecmp(line, "Content-Length:", 15) == 0) {
-					/* XXX - what if it doesn't fit in an int?
-					   (Do not "fix" that by making this
-					   a "long"; make it a gint64 or a
-					   guint64.) */
-					if (sscanf(line+15,"%i", &content_length) == 1)
+					/* SSTP sets 2^64 as length, but does not really have such a
+					 * large payload. Since the current tvb APIs are limited to
+					 * 2^31-1 bytes, ignore large values we cannot handle. */
+					header_val = g_strstrip(line + 15);
+					if (ws_strtoi32(header_val, NULL, &content_length) && content_length >= 0)
 						content_length_found = TRUE;
 				} else if (g_ascii_strncasecmp(line, "Content-Type:", 13) == 0) {
 					content_type_found = TRUE;
