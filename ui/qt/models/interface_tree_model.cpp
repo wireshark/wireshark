@@ -115,7 +115,7 @@ QVariant InterfaceTreeModel::data(const QModelIndex &index, int role) const
             /* Only the name is being displayed */
             if ( col == IFTREE_COL_NAME )
             {
-                return QString(device->display_name);
+                return QString(device->friendly_name);
             }
             else if ( col == IFTREE_COL_INTERFACE_NAME )
             {
