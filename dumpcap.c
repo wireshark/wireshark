@@ -2807,10 +2807,14 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
         if (global_capture_opts.ifaces->len > 1) {
             /*
              * More than one interface; just use the number of interfaces
-             * to generate the temporary file name.
+             * to generate the temporary file name prefix.
              */
             prefix = g_strdup_printf("wireshark_%d_interfaces", global_capture_opts.ifaces->len);
         } else {
+            /*
+             * One interface; use its name to generate the temporary file
+             * name prefix.
+             */
             gchar *basename;
             basename = g_path_get_basename(g_array_index(global_capture_opts.ifaces, interface_options, 0).console_display_name);
 #ifdef _WIN32
@@ -2825,10 +2829,6 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
                 g_string_free(iface, TRUE);
             }
 #endif
-            /*
-             * One interface; use its description, if it has one, to generate
-             * the temporary file name prefix, otherwise use its name.
-             */
             prefix = g_strconcat("wireshark_", basename, NULL);
             g_free(basename);
         }
