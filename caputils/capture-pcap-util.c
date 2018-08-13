@@ -261,6 +261,150 @@ add_unix_interface_ifinfo(if_info_t *if_info, const char *name _U_,
 #endif
 
 if_info_t *
+if_info_get(const char *name)
+{
+	char *description = NULL;
+	if_info_t *if_info;
+#ifdef SIOCGIFDESCR
+	/*
+	 * Try to fetch the description of this interface.
+	 * XXX - this is only here because libpcap has no API to
+	 * get the description of a *single* interface; it really
+	 * needs both an API to get pcapng-IDB-style attributes
+	 * for a single interface and to get a list of interfaces
+	 * with pcapng-IDB-style attributes for each interface.
+	 */
+	int s;
+	struct ifreq ifrdesc;
+#ifndef IFDESCRSIZE
+	size_t descrlen = 64;
+#else
+	size_t descrlen = IFDESCRSIZE;
+#endif /* IFDESCRSIZE */
+
+	/*
+	 * Get the description for the interface.
+	 */
+	memset(&ifrdesc, 0, sizeof ifrdesc);
+	g_strlcpy(ifrdesc.ifr_name, name, sizeof ifrdesc.ifr_name);
+	s = socket(AF_INET, SOCK_DGRAM, 0);
+	if (s >= 0) {
+#ifdef __FreeBSD__
+		/*
+		 * On FreeBSD, if the buffer isn't big enough for the
+		 * description, the ioctl succeeds, but the description
+		 * isn't copied, ifr_buffer.length is set to the description
+		 * length, and ifr_buffer.buffer is set to NULL.
+		 */
+		for (;;) {
+			g_free(description);
+			if ((description = g_malloc(descrlen)) != NULL) {
+				ifrdesc.ifr_buffer.buffer = description;
+				ifrdesc.ifr_buffer.length = descrlen;
+				if (ioctl(s, SIOCGIFDESCR, &ifrdesc) == 0) {
+					if (ifrdesc.ifr_buffer.buffer ==
+					    description)
+						break;
+					else
+						descrlen = ifrdesc.ifr_buffer.length;
+				} else {
+					/*
+					 * Failed to get interface description.
+					 */
+					g_free(description);
+					description = NULL;
+					break;
+				}
+			} else
+				break;
+		}
+#else /* __FreeBSD__ */
+		/*
+		 * The only other OS that currently supports
+		 * SIOCGIFDESCR is OpenBSD, and it has no way
+		 * to get the description length - it's clamped
+		 * to a maximum of IFDESCRSIZE.
+		 */
+		if ((description = g_malloc(descrlen)) != NULL) {
+			ifrdesc.ifr_data = (caddr_t)description;
+			if (ioctl(s, SIOCGIFDESCR, &ifrdesc) != 0) {
+				/*
+				 * Failed to get interface description.
+				 */
+				g_free(description);
+				description = NULL;
+			}
+		}
+#endif /* __FreeBSD__ */
+		close(s);
+		if (description != NULL && strlen(description) == 0) {
+			/*
+			 * Description is empty, so discard it.
+			 */
+			g_free(description);
+			description = NULL;
+		}
+	}
+
+#ifdef __FreeBSD__
+	/*
+	 * For FreeBSD, if we didn't get a description, and this is
+	 * a device with a name of the form usbusN, label it as a USB
+	 * bus.
+	 */
+	if (description == NULL) {
+		if (strncmp(name, "usbus", 5) == 0) {
+			/*
+			 * OK, it begins with "usbus".
+			 */
+			long busnum;
+			char *p;
+
+			errno = 0;
+			busnum = strtol(name + 5, &p, 10);
+			if (errno == 0 && p != name + 5 && *p == '\0' &&
+			    busnum >= 0 && busnum <= INT_MAX) {
+				/*
+				 * OK, it's a valid number that's not
+				 * bigger than INT_MAX.  Construct
+				 * a description from it.
+				 */
+				static const char descr_prefix[] = "USB bus number ";
+				size_t descr_size;
+
+				/*
+				 * Allow enough room for a 32-bit bus number.
+				 * sizeof (descr_prefix) includes the
+				 * terminating NUL.
+				 */
+				descr_size = sizeof (descr_prefix) + 10;
+				description = g_malloc(descr_size);
+				if (description != NULL) {
+					pcap_snprintf(description, descr_size,
+					    "%s%ld", descr_prefix, busnum);
+				}
+			}
+		}
+	}
+#endif /* __FreeBSD__ */
+#endif /* SIOCGIFDESCR */
+	if_info = if_info_new(name, description, FALSE);
+	g_free(description);
+	return if_info;
+}
+
+void
+if_info_free(if_info_t *if_info)
+{
+	g_free(if_info->name);
+	g_free(if_info->friendly_name);
+	g_free(if_info->vendor_description);
+	g_free(if_info->extcap);
+	g_slist_free_full(if_info->addrs, g_free);
+	g_free(if_info);
+}
+
+if_info_t *
 if_info_new(const char *name, const char *description, gboolean loopback)
 {
 	if_info_t *if_info;
@@ -528,14 +672,7 @@ get_interface_list_findalldevs(int *err, char **err_str)
 static void
 free_if_cb(gpointer data, gpointer user_data _U_)
 {
-	if_info_t *if_info = (if_info_t *)data;
-
-	g_free(if_info->name);
-	g_free(if_info->friendly_name);
-	g_free(if_info->vendor_description);
-	g_free(if_info->extcap);
-	g_slist_free_full(if_info->addrs, g_free);
-	g_free(if_info);
+	if_info_free((if_info_t *)data);
 }
 
 void

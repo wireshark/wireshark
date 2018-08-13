@@ -197,9 +197,9 @@ typedef struct link_row_tag {
 } link_row;
 
 typedef struct interface_options_tag {
-    gchar            *name;                 /* the name of the interface provided to winpcap/libpcap to specify the interface */
-    gchar            *descr;
-    gchar            *console_display_name; /* the name displayed in the console, also the basis for autonamed pcap filenames */
+    gchar            *name;                 /* the name of the interface supplied to libpcap/WinPcap/Npcap to specify the interface */
+    gchar            *descr;                /* a more user-friendly description of the interface; may be NULL if none */
+    gchar            *display_name;         /* the name displayed in the console and title bar */
     gchar            *cfilter;
     gboolean          has_snaplen;
     int               snaplen;

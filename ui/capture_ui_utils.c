@@ -468,23 +468,27 @@ get_if_name(const char *if_text)
     return if_name;
 }
 
-/*  Return interface_opts->descr (after setting it if it is not set)
- *  This is necessary because capture_opts.c can't set descr (at least
- *  not without adding significant dependencies there).
+/*  Return a display name for the interface.
  */
 static const char *
-get_iface_description_for_interface(capture_options *capture_opts, guint i)
+get_display_name_for_interface(capture_options *capture_opts, guint i)
 {
     interface_options *interface_opts;
 
     if (i < capture_opts->ifaces->len) {
         interface_opts = &g_array_index(capture_opts->ifaces, interface_options, i);
-        if (!interface_opts->descr && interface_opts->name) {
-            interface_opts->descr = get_interface_descriptive_name(interface_opts->name);
+        if (interface_opts->display_name) {
+            return interface_opts->display_name;
         }
-        return (interface_opts->descr);
+        if (!interface_opts->display_name) {
+            if (interface_opts->descr && interface_opts->name) {
+                interface_opts->descr = get_interface_descriptive_name(interface_opts->name);
+            }
+            interface_opts->display_name = g_strdup(interface_opts->descr);
+        }
+        return interface_opts->display_name;
     } else {
-        return (NULL);
+        return NULL;
     }
 }
 
@@ -569,7 +573,7 @@ get_iface_list_string(capture_options *capture_opts, guint32 style)
                 }
                 if (style & IFLIST_QUOTE_IF_DESCRIPTION)
                     g_string_append_printf(iface_list_string, "'");
-                g_string_append_printf(iface_list_string, "%s", get_iface_description_for_interface(capture_opts, i));
+                g_string_append_printf(iface_list_string, "%s", get_display_name_for_interface(capture_opts, i));
                 if (style & IFLIST_QUOTE_IF_DESCRIPTION)
                     g_string_append_printf(iface_list_string, "'");
                 if (style & IFLIST_SHOW_FILTER) {

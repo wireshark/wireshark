@@ -75,6 +75,17 @@ extern GList *capture_interface_list(int *err, char **err_str, void (*update_cb)
 
 void free_interface_list(GList *if_list);
 
+/**
+ * Get an if_info_t for a particular interface.
+ * (May require privilege, so should only be used by dumpcap.)
+ */
+extern if_info_t *if_info_get(const char *name);
+
+/**
+ * Free an if_info_t.
+ */
+void if_info_free(if_info_t *if_info);
+
 /*
  * "get_if_capabilities()" and "capture_if_capabilities()" return a pointer
  * to an allocated instance of this structure.  "free_if_capabilities()"

@@ -3310,23 +3310,57 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
             prefix = g_strdup_printf("wireshark_%d_interfaces", global_capture_opts.ifaces->len);
         } else {
             /*
-             * One interface; use its name to generate the temporary file
-             * name prefix.
+             * One interface; use its description, if it has one, to generate
+             * the temporary file name, otherwise use its name.
              */
             gchar *basename;
-            basename = g_path_get_basename((&g_array_index(global_capture_opts.ifaces, interface_options, 0))->console_display_name);
+            const interface_options *interface_opts;
+
+            interface_opts = &g_array_index(global_capture_opts.ifaces, interface_options, 0);
+
+            /*
+             * Do we have a description?
+             */
+            if (interface_opts->descr) {
+                /*
+                 * Yes - use it.
+                 *
+                 * Strip off any stuff we shouldn't use in the file name,
+                 * by getting the last component of what would be a file
+                 * name.
+                 */
+                basename = g_path_get_basename(interface_opts->descr);
+            } else {
+                /*
+                 * No - use the name.
+                 *
+                 * Strip off any stuff we shouldn't use in the file name,
+                 * by getting the last component of what would be a file
+                 * name.
+                 */
+                basename = g_path_get_basename(interface_opts->name);
 #ifdef _WIN32
-            /* use the generic portion of the interface guid to form the basis of the filename */
-            if (strncmp("NPF_{", basename, 5)==0)
-            {
-                /* we have a windows guid style device name, extract the guid digits as the basis of the filename */
-                GString *iface;
-                iface = isolate_uuid(basename);
-                g_free(basename);
-                basename = g_strdup(iface->str);
-                g_string_free(iface, TRUE);
-            }
+                /*
+                 * This is Windows, where we might have an ugly GUID-based
+                 * interface name.
+                 *
+                 * If it's an ugly GUID-based name, use the generic portion
+                 * of the interface GUID to form the basis of the filename.
+                 */
+                if (strncmp("NPF_{", basename, 5) == 0) {
+                    /*
+                     * We have a GUID-based name; extract the GUID digits
+                     * as the basis of the filename.
+                     */
+                    GString *iface;
+                    iface = isolate_uuid(basename);
+                    g_free(basename);
+                    basename = g_strdup(iface->str);
+                    g_string_free(iface, TRUE);
+                }
 #endif
+            }
+            /* generate the temp file name prefix */
             prefix = g_strconcat("wireshark_", basename, NULL);
             g_free(basename);
         }
@@ -3990,7 +4024,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
                 report_capture_error(errmsg, please_report);
             }
         }
-        report_packet_drops(received, pcap_dropped, pcap_src->dropped, pcap_src->flushed, stats->ps_ifdrop, interface_opts->console_display_name);
+        report_packet_drops(received, pcap_dropped, pcap_src->dropped, pcap_src->flushed, stats->ps_ifdrop, interface_opts->display_name);
     }
 
     /* close the input file (pcap or capture pipe) */
@@ -5141,7 +5175,7 @@ main(int argc, char *argv[])
                         g_string_append_printf(str, "and ");
                     }
                 }
-                g_string_append_printf(str, "'%s'", interface_opts->console_display_name);
+                g_string_append_printf(str, "'%s'", interface_opts->display_name);
             }
         } else {
             g_string_append_printf(str, "%u interfaces", global_capture_opts.ifaces->len);
