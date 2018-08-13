@@ -20,6 +20,7 @@
 #include <epan/expert.h>
 
 void proto_register_dxl(void);
+void proto_reg_handoff_dxl(void);
 
 static int proto_dxl = -1;
 
@@ -106,6 +107,11 @@ static int dissect_dxl(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
 	return offset;
 }
 
+void proto_reg_handoff_dxl(void)
+{
+	msgpack_handle = find_dissector("msgpack");
+}
+
 void proto_register_dxl(void)
 {
 	expert_module_t* expert_dxl;
@@ -135,8 +141,6 @@ void proto_register_dxl(void)
 
 	expert_dxl = expert_register_protocol(proto_dxl);
 	expert_register_field_array(expert_dxl, ei, array_length(ei));
-
-	msgpack_handle = find_dissector("msgpack");
 }
 
 /*
