@@ -61,7 +61,6 @@
 
 /* Lookup tables {{{ */
 const value_string ssl_version_short_names[] = {
-    { SSL_VER_UNKNOWN,      "SSL" },
     { SSLV2_VERSION,        "SSLv2" },
     { SSLV3_VERSION,        "SSLv3" },
     { TLSV1_VERSION,        "TLSv1" },
