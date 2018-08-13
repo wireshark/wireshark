@@ -76,6 +76,62 @@ fill_from_ifaces (interface_t *device)
     return FALSE;
 }
 
+static gchar *
+get_iface_display_name(const gchar *description, const if_info_t *if_info)
+{
+    /* Do we have a user-supplied description? */
+    if (description && description[0]) {
+        /*
+         * Yes - show both the user-supplied description and a name for the
+         * interface.
+         */
+#ifdef _WIN32
+        /*
+         * On Windows, if we have a friendly name, just show it
+         * rather than the name, as the name is a string made out
+         * of the device GUID, and not at all friendly.
+         */
+        gchar *if_string = if_info->friendly_name ? if_info->friendly_name : if_info->name;
+        return g_strdup_printf("%s: %s", description, if_string);
+#else
+        /*
+         * On UN*X, show the interface name; it's short and somewhat
+         * friendly, and many UN*X users are used to interface names,
+         * so we should show it.
+         */
+        return g_strdup_printf("%s: %s", description, if_info->name);
+#endif
+    }
+
+    if (if_info->friendly_name) {
+        /* We have a friendly name from the OS. */
+#ifdef _WIN32
+        /*
+         * On Windows, if we have a friendly name, just show it,
+         * don't show the name, as that's a string made out of
+         * the device GUID, and not at all friendly.
+         */
+        return g_strdup_printf("%s", if_info->friendly_name);
+#else
+        /*
+         * On UN*X, if we have a friendly name, show it along
+         * with the interface name; the interface name is short
+         * and somewhat friendly, and many UN*X users are used
+         * to interface names, so we should show it.
+         */
+        return g_strdup_printf("%s: %s", if_info->friendly_name, if_info->name);
+#endif
+    }
+
+    if (if_info->vendor_description) {
+        /* We have a device description from libpcap. */
+        return g_strdup_printf("%s: %s", if_info->vendor_description, if_info->name);
+    }
+
+    /* No additional descriptions found. */
+    return g_strdup(if_info->name);
+}
+
 /*
  * Fetch the list of local interfaces with capture_interface_list()
  * and set the list of "all interfaces" in *capture_opts to include
