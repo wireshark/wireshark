@@ -615,6 +615,9 @@ static int hf_gtpv2_secondary_rat_usage_data_report_start_timestamp = -1;
 static int hf_gtpv2_secondary_rat_usage_data_report_end_timestamp = -1;
 static int hf_gtpv2_secondary_rat_usage_data_report_usage_data_dl = -1;
 static int hf_gtpv2_secondary_rat_usage_data_report_usage_data_ul = -1;
+static int hf_gtpv2_csg_info_rep_action_b0 = -1;
+static int hf_gtpv2_csg_info_rep_action_b1 = -1;
+static int hf_gtpv2_csg_info_rep_action_b2 = -1;
 
 static gint ett_gtpv2 = -1;
 static gint ett_gtpv2_flags = -1;
@@ -864,7 +867,7 @@ static const value_string gtpv2_message_type_vals[] = {
     {235, "MBMS Session Stop Request"},
     {236, "MBMS Session Stop Response"},
     /* 237 to 239 For future use */
-    /* Reserved for Sv interface (see also types 25 to 31)	TS 29.280 */
+    /* Reserved for Sv interface (see also types 25 to 31)    TS 29.280 */
     {240, "SRVCC CS to PS Response"},               /* 5.2.9  3GPP TS 29.280 V11.5.0 (2013-09) */
     {241, "SRVCC CS to PS Complete Notification"},  /* 5.2.10 3GPP TS 29.280 V11.5.0 (2013-09) */
     {242, "SRVCC CS to PS Complete Acknowledge"},   /* 5.2.11 3GPP TS 29.280 V11.5.0 (2013-09) */
@@ -1017,29 +1020,29 @@ static gint ett_gtpv2_ies[NUM_GTPV2_IES];
 #define GTPV2_IE_INTEGER_NUMBER         187
 #define GTPV2_IE_MILLISECOND_TS         188
 /*
-189	Monitoring Event Information
-190	ECGI List
-191	Remote UE Context
-192	Remote User ID
-193	Remote UE IP information
+189    Monitoring Event Information
+190    ECGI List
+191    Remote UE Context
+192    Remote User ID
+193    Remote UE IP information
 */
 #define GTPV2_IE_CIOT_OPT_SUPPORT_IND   194
 /*
-195	SCEF PDN Connection
+195    SCEF PDN Connection
 */
 #define GTPV2_IE_HEADER_COMP_CONF           196
 #define GTPV2_IE_EXTENDED_PCO               197
 #define GTPV2_IE_SERV_PLMN_RATE_CONTROL     198
 #define GTPV2_IE_COUNTER                    199
 
-/* 200	Mapped UE Usage Type */
+/* 200    Mapped UE Usage Type */
 #define GTPV2_IE_SECONDARY_RAT_USAGE_DATA_REPORT     201
 #define GTPV2_IE_UP_FUNC_SEL_INDI_FLG       202
 /*
-203 to 253	Spare. For future use.
-254	Special IE type for IE Type Extension
-255	Private Extension
-256 to 65535	Spare. For future use.
+203 to 253    Spare. For future use.
+254    Special IE type for IE Type Extension
+255    Private Extension
+256 to 65535    Spare. For future use.
 
 */
 /* 169 to 254 reserved for future use */
@@ -5674,9 +5677,20 @@ dissect_gtpv2_uci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_ite
 
 /* 8.76 CSG Information Reporting Action */
 static void
-dissect_gtpv2_csg_info_rep_action(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
+dissect_gtpv2_csg_info_rep_action(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+    int offset = 0;
+
+    static const int * flags[] = {
+        &hf_gtpv2_csg_info_rep_action_b2,
+        &hf_gtpv2_csg_info_rep_action_b1,
+        &hf_gtpv2_csg_info_rep_action_b0,
+        NULL
+    };
+    /* Spare    UCIUHC    UCISHC    UCICSG */
+
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags, ENC_BIG_ENDIAN);
+
 }
 
 /* 8.77 RFSP Index */
@@ -9961,6 +9975,21 @@ void proto_register_gtpv2(void)
       { &hf_gtpv2_secondary_rat_usage_data_report_usage_data_ul,
       { "Usage Data UL", "gtpv2.secondary_rat_usage_data_report.usage_data_ul",
           FT_UINT64, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_csg_info_rep_action_b0,
+      { "UCICSG", "gtpv2.csg_info_rep_action.ucicsg",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_csg_info_rep_action_b1,
+      { "UCISHC", "gtpv2.csg_info_rep_action.ucishc",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_csg_info_rep_action_b2,
+      { "UCIUHC", "gtpv2.csg_info_rep_action.uciuhc",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04,
           NULL, HFILL }
       },
     };
