@@ -324,7 +324,7 @@ static const value_string nas_5gs_mm_cause_vals[] = {
     { 0x0a, "Implicitly deregistered" },
     { 0x0b, "PLMN not allowed" },
     { 0x0c, "Tracking area not allowed" },
-    { 0x0e, "Roaming not allowed in this tracking area" },
+    { 0x0d, "Roaming not allowed in this tracking area" },
     { 0x15, "Synch failure" },
     { 0x1b, "N1 mode not allowed" },
     { 0x1c, "Restricted service area" },
@@ -463,7 +463,7 @@ de_nas_5gs_mm_5gs_mobile_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 
 
 static const value_string nas_5gs_nw_feat_sup_ims_vops_values[] = {
-    { 0x0, "MS voice over PS session not supported" },
+    { 0x0, "IMS voice over PS session not supported" },
     { 0x1, "IMS voice over PS session supported over 3GPP access" },
     { 0x2, "IMS voice over PS session supported over non - 3GPP access" },
     { 0x3, "Reserved" },
@@ -1028,6 +1028,10 @@ static const value_string nas_5gs_mm_pld_cont_type_vals[] = {
     { 0x01, "N1 SM information" },
     { 0x02, "SMS" },
     { 0x03, "LTE Positioning Protocol (LPP) message container" },
+    { 0x04, "Transparent container" },
+#ifdef NAS_V_2_0_0
+    { 0x05, "UE policy container" },
+#endif
     {    0, NULL } };
 
 static guint16
@@ -1189,10 +1193,10 @@ static true_false_string tfs_nas_5gs_sal_al_t = {
 };
 
 static const value_string nas_5gs_mm_sal_t_li_values[] = {
-    { 0x01, "list of TACs belonging to one PLMN, with non-consecutive TAC values" },
-    { 0x02, "list of TACs belonging to one PLMN, with consecutive TAC values" },
-    { 0x03, "list of TAIs belonging to different PLMNs" },
-    { 0x04, "All TAIs belonging to the PLMN are in the allowed area" },
+    { 0x00, "list of TACs belonging to one PLMN, with non-consecutive TAC values" },
+    { 0x01, "list of TACs belonging to one PLMN, with consecutive TAC values" },
+    { 0x02, "list of TAIs belonging to different PLMNs" },
+    { 0x03, "All TAIs belonging to the PLMN are in the allowed area" },
     { 0, NULL } };
 
 
@@ -1294,9 +1298,10 @@ de_nas_5gs_mm_sal(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 static const value_string nas_5gs_mm_serv_type_vals[] = {
     { 0x00, "Signalling" },
     { 0x01, "Data" },
-    { 0x02, "Paging response" },
-    { 0x03, "Reserved" },
+    { 0x02, "Mobile terminated services" },
+    { 0x03, "Emergency services" },
     { 0x04, "Emergency services fallback" },
+    { 0x05, "High priority access" },
     {    0, NULL } };
 
 /*
@@ -1741,6 +1746,7 @@ static const value_string nas_5gs_rule_operation_code_values[] = {
  };
 
 static const value_string nas_5gs_sm_pf_type_values[] = {
+    { 0x01, "Match-all type" },
     { 0x10, "IPv4 remote address type" },
     { 0x11, "IPv4 local address type" },
     { 0x21, "IPv6 remote address/prefix length type" },
@@ -2658,7 +2664,7 @@ nas_5gs_mm_registration_accept(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
     /*27    Service area list    Service area list     9.10.3.47    O    TLV    6-194*/
     ELEM_OPT_TLV(0x27, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_SAL, NULL);
     /*5E    T3512 value    GPRS timer 3     9.10.3.21    O    TLV    3*/
-    ELEM_OPT_TLV(0x5E, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3412 value");
+    ELEM_OPT_TLV(0x5E, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3512 value");
     /*5D    Non-3GPP de-registration timer value    GPRS timer 2     9.10.3.20    O    TLV    3*/
     ELEM_OPT_TLV(0x5D, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - Non-3GPP de-registration timer value");
     /*16    T3502 value    GPRS timer 2     9.10.2.4     O    TLV    3*/
@@ -4897,12 +4903,12 @@ proto_register_nas_5gs(void)
         },
         { &hf_nas_5gs_nw_feat_sup_ims_emf_b5b4,
         { "Emergency service fallback indicator (EMF)",   "nas_5gs.nw_feat_sup.emf",
-            FT_UINT8, BASE_DEC, VALS(nas_5gs_nw_feat_sup_emf_values), 0x18,
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_nw_feat_sup_emf_values), 0x30,
             NULL, HFILL }
         },
         { &hf_nas_5gs_nw_feat_sup_ims_emc_b3b2,
         { "Emergency service support indicator (EMC)",   "nas_5gs.nw_feat_sup.emc",
-            FT_UINT8, BASE_DEC, VALS(nas_5gs_nw_feat_sup_emc_values), 0x06,
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_nw_feat_sup_emc_values), 0x0c,
             NULL, HFILL }
         },
         { &hf_nas_5gs_nw_feat_sup_ims_vops_b1b0,
@@ -4912,7 +4918,7 @@ proto_register_nas_5gs(void)
         },
         { &hf_nas_5gs_nw_feat_sup_ims_iwk_n26_b6,
         { "Interworking without N26",   "nas_5gs.nw_feat_sup.iwk_n26",
-            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
             NULL, HFILL }
         },
         { &hf_nas_5gs_nw_feat_sup_mpsi_b7,
