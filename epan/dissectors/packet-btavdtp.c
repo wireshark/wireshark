@@ -731,13 +731,11 @@ dissect_sep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
             key[6].length = 0;
             key[6].key    = NULL;
 
-            sep_data = wmem_new(wmem_file_scope(), sep_entry_t);
+            sep_data = wmem_new0(wmem_file_scope(), sep_entry_t);
             sep_data->seid = seid;
             sep_data->type = type;
             sep_data->media_type = media_type;
-            sep_data->int_seid = 0;
             sep_data->codec = -1;
-            sep_data->content_protection_type = 0;
             if (in_use) {
                 sep_data->state = SEP_STATE_IN_USE;
             } else {
