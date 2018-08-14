@@ -5318,12 +5318,11 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         offset += 1;
 
         if (flags & 0x01) {
-            proto_tree_add_item(tree, hf_btatt_temperature_measurement_value_celsius, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-            offset += 4;
-        } else {
             proto_tree_add_item(tree, hf_btatt_temperature_measurement_value_fahrenheit, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-            offset += 4;
+        } else {
+            proto_tree_add_item(tree, hf_btatt_temperature_measurement_value_celsius, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         }
+        offset += 4;
 
         if (flags & 0x02) {
             sub_item = proto_tree_add_item(tree, hf_btatt_temperature_measurement_timestamp, tvb, offset, 7, ENC_NA);
