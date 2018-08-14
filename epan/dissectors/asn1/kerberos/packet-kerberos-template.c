@@ -346,12 +346,21 @@ read_keytab_file(const char *filename)
 			new_key->keylength=key.key.length;
 			new_key->keyvalue=(char *)g_memdup(key.key.contents, key.key.length);
 			enc_key_list=new_key;
+			ret = krb5_free_keytab_entry_contents(krb5_ctx, &key);
+			if (ret) {
+				fprintf(stderr, "KERBEROS ERROR: Could not release the entry: %d", ret);
+				ret = 0; /* try to continue with the next entry */
+			}
 		}
 	}while(ret==0);
 
 	ret = krb5_kt_end_seq_get(krb5_ctx, keytab, &cursor);
 	if(ret){
-		krb5_kt_close(krb5_ctx, keytab);
+		fprintf(stderr, "KERBEROS ERROR: Could not release the keytab cursor: %d", ret);
+	}
+	ret = krb5_kt_close(krb5_ctx, keytab);
+	if(ret){
+		fprintf(stderr, "KERBEROS ERROR: Could not close the key table handle: %d", ret);
 	}
 }
 
@@ -484,12 +493,21 @@ read_keytab_file(const char *filename)
 			new_key->keylength=(int)key.keyblock.keyvalue.length;
 			new_key->keyvalue = (guint8 *)g_memdup(key.keyblock.keyvalue.data, (guint)key.keyblock.keyvalue.length);
 			enc_key_list=new_key;
+			ret = krb5_kt_free_entry(krb5_ctx, &key);
+			if (ret) {
+				fprintf(stderr, "KERBEROS ERROR: Could not release the entry: %d", ret);
+				ret = 0; /* try to continue with the next entry */
+			}
 		}
 	}while(ret==0);
 
 	ret = krb5_kt_end_seq_get(krb5_ctx, keytab, &cursor);
 	if(ret){
-		krb5_kt_close(krb5_ctx, keytab);
+		fprintf(stderr, "KERBEROS ERROR: Could not release the keytab cursor: %d", ret);
+	}
+	ret = krb5_kt_close(krb5_ctx, keytab);
+	if(ret){
+		fprintf(stderr, "KERBEROS ERROR: Could not close the key table handle: %d", ret);
 	}
 
 }

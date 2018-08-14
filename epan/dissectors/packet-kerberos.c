@@ -640,12 +640,21 @@ read_keytab_file(const char *filename)
 			new_key->keylength=key.key.length;
 			new_key->keyvalue=(char *)g_memdup(key.key.contents, key.key.length);
 			enc_key_list=new_key;
+			ret = krb5_free_keytab_entry_contents(krb5_ctx, &key);
+			if (ret) {
+				fprintf(stderr, "KERBEROS ERROR: Could not release the entry: %d", ret);
+				ret = 0; /* try to continue with the next entry */
+			}
 		}
 	}while(ret==0);
 
 	ret = krb5_kt_end_seq_get(krb5_ctx, keytab, &cursor);
 	if(ret){
-		krb5_kt_close(krb5_ctx, keytab);
+		fprintf(stderr, "KERBEROS ERROR: Could not release the keytab cursor: %d", ret);
+	}
+	ret = krb5_kt_close(krb5_ctx, keytab);
+	if(ret){
+		fprintf(stderr, "KERBEROS ERROR: Could not close the key table handle: %d", ret);
 	}
 }
 
@@ -778,12 +787,21 @@ read_keytab_file(const char *filename)
 			new_key->keylength=(int)key.keyblock.keyvalue.length;
 			new_key->keyvalue = (guint8 *)g_memdup(key.keyblock.keyvalue.data, (guint)key.keyblock.keyvalue.length);
 			enc_key_list=new_key;
+			ret = krb5_kt_free_entry(krb5_ctx, &key);
+			if (ret) {
+				fprintf(stderr, "KERBEROS ERROR: Could not release the entry: %d", ret);
+				ret = 0; /* try to continue with the next entry */
+			}
 		}
 	}while(ret==0);
 
 	ret = krb5_kt_end_seq_get(krb5_ctx, keytab, &cursor);
 	if(ret){
-		krb5_kt_close(krb5_ctx, keytab);
+		fprintf(stderr, "KERBEROS ERROR: Could not release the keytab cursor: %d", ret);
+	}
+	ret = krb5_kt_close(krb5_ctx, keytab);
+	if(ret){
+		fprintf(stderr, "KERBEROS ERROR: Could not close the key table handle: %d", ret);
 	}
 
 }
@@ -4459,7 +4477,7 @@ dissect_kerberos_EncryptedChallenge(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 
 /*--- End of included file: packet-kerberos-fn.c ---*/
-#line 1867 "./asn1/kerberos/packet-kerberos-template.c"
+#line 1885 "./asn1/kerberos/packet-kerberos-template.c"
 
 /* Make wrappers around exported functions for now */
 int
@@ -5621,7 +5639,7 @@ void proto_register_kerberos(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-kerberos-hfarr.c ---*/
-#line 2248 "./asn1/kerberos/packet-kerberos-template.c"
+#line 2266 "./asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	/* List of subtrees */
@@ -5707,7 +5725,7 @@ void proto_register_kerberos(void) {
     &ett_kerberos_KrbFastArmoredRep,
 
 /*--- End of included file: packet-kerberos-ettarr.c ---*/
-#line 2264 "./asn1/kerberos/packet-kerberos-template.c"
+#line 2282 "./asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	static ei_register_info ei[] = {
