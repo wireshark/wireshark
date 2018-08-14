@@ -540,7 +540,7 @@ static uat_t * pdcp_keys_uat = NULL;
 static guint num_pdcp_keys_uat = 0;
 
 /* Default values for a TEID entry */
-UAT_DEC_CB_DEF(uat_pdcp_keys_records, teid, uat_pdcp_nr_keys_record_t)
+UAT_HEX_CB_DEF(uat_pdcp_keys_records, teid, uat_pdcp_nr_keys_record_t)
 UAT_VS_DEF(pdcp_users, direction, uat_pdcp_nr_keys_record_t, guint, PDCP_NR_DIRECTION_UPLINK, PDCP_NR_DIRECTION_UPLINK_STR)
 UAT_VS_DEF(pdcp_users, sdap_header_present, uat_pdcp_nr_keys_record_t, guint, PDCP_NR_SDAP_HEADER_PRESENT, PDCP_NR_SDAP_HEADER_PRESENT_STR)
 UAT_VS_DEF(pdcp_users, mac_i_presence, uat_pdcp_nr_keys_record_t, guint, FALSE, MAC_I_PRESENCE_FALSE_STR)
