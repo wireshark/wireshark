@@ -1838,8 +1838,6 @@ dissect_h265_profile_tier_level(proto_tree* tree, tvbuff_t* tvb, packet_info* pi
 		offset = bit_offset >> 3;
 	}
 
-
-
 	return offset;
 }
 
@@ -3216,7 +3214,7 @@ proto_register_h265(void)
 		},
 		{ &hf_h265_reserved_zero_2bits/*[i]*/,
 		{ "reserved_zero_2bits", "h265.reserved_zero_2bits",
-			FT_UINT8, BASE_DEC, NULL, 0x03,
+			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_h265_sub_layer_profile_space/*[i]*/,
