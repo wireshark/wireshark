@@ -515,14 +515,14 @@ static const value_string vs_rohc_compression[] = {
     { 0, NULL }
 };
 
-#define ROHC_MODE_NOT_SET_STR "MODE NOT SET"
-static const value_string vs_rohc_mode[] = {
-    { MODE_NOT_SET, ROHC_MODE_NOT_SET_STR },
-    { UNIDIRECTIONAL, "UNIDIRECTIONAL" },
-    { OPTIMISTIC_BIDIRECTIONAL, "OPTIMISTIC BIDIRECTIONAL" },
-    { RELIABLE_BIDIRECTIONAL, "RELIABLE BIDIRECTIONAL" },
-    { 0, NULL }
-};
+//#define ROHC_MODE_NOT_SET_STR "MODE NOT SET"
+//static const value_string vs_rohc_mode[] = {
+//    { MODE_NOT_SET, ROHC_MODE_NOT_SET_STR },
+//    { UNIDIRECTIONAL, "UNIDIRECTIONAL" },
+//    { OPTIMISTIC_BIDIRECTIONAL, "OPTIMISTIC BIDIRECTIONAL" },
+//    { RELIABLE_BIDIRECTIONAL, "RELIABLE BIDIRECTIONAL" },
+//    { 0, NULL }
+//};
 
 #define ROHC_PROFILE_RTP_STR "RTP"
 #define ROHC_PROFILE_UNCOMPRESSED_STR "UNCOMPRESSED"
