@@ -400,7 +400,9 @@ void proto_reg_handoff_pkix1implicit(void) {
 
 /*--- Included file: packet-pkix1implicit-dis-tab.c ---*/
 #line 1 "./asn1/pkix1implicit/packet-pkix1implicit-dis-tab.c"
-  register_ber_oid_dissector("1.3.6.1.5.5.7.1.1", dissect_AuthorityInfoAccessSyntax_PDU, proto_pkix1implicit, "id-pe-authorityInfoAccessSyntax");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.1.1", dissect_AuthorityInfoAccessSyntax_PDU, proto_pkix1implicit, "id-pe-authorityInfoAccess");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.48.1", dissect_Dummy_PDU, proto_pkix1implicit, "id-ad-ocsp");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.48.2", dissect_Dummy_PDU, proto_pkix1implicit, "id-ad-caIssuers");
   register_ber_oid_dissector("1.3.6.1.5.5.7.3.1", dissect_Dummy_PDU, proto_pkix1implicit, "id-kp-serverAuth");
   register_ber_oid_dissector("1.3.6.1.5.5.7.3.2", dissect_Dummy_PDU, proto_pkix1implicit, "id-kp-clientAuth");
   register_ber_oid_dissector("1.3.6.1.5.5.7.3.3", dissect_Dummy_PDU, proto_pkix1implicit, "id-kp-codeSigning");
