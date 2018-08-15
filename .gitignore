@@ -155,6 +155,7 @@ doc/ws.css
 packaging/nsis/all-manifest.nsh
 /packaging/portableapps/WiresharkPortable/
 /zlib/
+wireshark-win??-libs*/
 
 # Misc #
 ########
