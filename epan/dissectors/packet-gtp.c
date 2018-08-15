@@ -72,6 +72,7 @@ void proto_reg_handoff_gtp(void);
 static dissector_table_t ppp_subdissector_table;
 static dissector_table_t gtp_priv_ext_dissector_table;
 static dissector_table_t gtp_cdr_fmt_dissector_table;
+static dissector_table_t gtp_hdr_ext_dissector_table;
 static dissector_handle_t gtp_handle, gtp_prime_handle;
 
 #define GTPv0_PORT  3386
@@ -9306,7 +9307,25 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                             break;
 
                         default:
-                            break;
+                            {
+                                tvbuff_t * ext_hdr_tvb;
+                                int toffset, rem_len;
+
+                                /* NOTE Type end lenght included in the call*/
+                                ext_hdr_tvb = tvb_new_subset_remaining(tvb, offset - 2);
+                                if ((toffset = dissector_try_uint(gtp_hdr_ext_dissector_table, next_hdr, ext_hdr_tvb, pinfo, ext_tree))) {
+                                    /* Dissector found*/
+                                    rem_len = tvb_reported_length(ext_hdr_tvb);
+                                    if (rem_len == toffset) {
+                                        /* All bytes consumed */
+                                        offset += ext_hdr_length * 4 - 2;
+
+                                        proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_next, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                        return tvb_reported_length(tvb);
+                                    }
+                                }
+                                break;
+                            }
                         }
                         offset += ext_hdr_length*4 - 2;
 
@@ -10912,6 +10931,7 @@ proto_register_gtp(void)
 
     gtp_priv_ext_dissector_table = register_dissector_table("gtp.priv_ext", "GTP Private Extension", proto_gtp, FT_UINT16, BASE_DEC);
     gtp_cdr_fmt_dissector_table = register_dissector_table("gtp.cdr_fmt", "GTP Data Record Type", proto_gtp, FT_UINT16, BASE_DEC);
+    gtp_hdr_ext_dissector_table = register_dissector_table("gtp.hdr_ext", "GTP Header Extension", proto_gtp, FT_UINT16, BASE_DEC);
 
     register_init_routine(gtp_init);
     register_cleanup_routine(gtp_cleanup);
