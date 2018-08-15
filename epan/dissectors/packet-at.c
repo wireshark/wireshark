@@ -89,6 +89,8 @@ static int hf_clcc_mpty                                                    = -1;
 static int hf_ccwa_show_result_code                                        = -1;
 static int hf_ccwa_mode                                                    = -1;
 static int hf_ccwa_class                                                   = -1;
+static int hf_cfun_fun                                                     = -1;
+static int hf_cfun_rst                                                     = -1;
 static int hf_cgmm_model_id                                                = -1;
 static int hf_indicator[20] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
 
@@ -102,6 +104,9 @@ static expert_field ei_cmer_ind                                       = EI_INIT;
 static expert_field ei_cmer_bfr                                       = EI_INIT;
 static expert_field ei_chld_mode                                      = EI_INIT;
 static expert_field ei_ciev_indicator                                 = EI_INIT;
+static expert_field ei_cfun_res_fun                                   = EI_INIT;
+static expert_field ei_cfun_range_fun                                 = EI_INIT;
+static expert_field ei_cfun_rst                                       = EI_INIT;
 static expert_field ei_vts_dtmf                                       = EI_INIT;
 static expert_field ei_at_type                                        = EI_INIT;
 static expert_field ei_cnum_service                                   = EI_INIT;
@@ -151,6 +156,21 @@ static const value_string at_cmd_type_vals[] = {
     { 0x3f,   "Read Command" },
     { 0x0d0a, "Response" },
     { 0x3d3f, "Test Command" },
+    { 0, NULL }
+};
+
+static const value_string cfun_fun_vals[] = {
+    { 0,   "Minimum functionality" },
+    { 1,   "Full functionality" },
+    { 2,   "Disable phone transmit RF circuits only" },
+    { 3,   "Disable phone receive RF circuits only" },
+    { 4,   "Disable phone both transmit and receive RF circuits" },
+    { 0, NULL }
+};
+
+static const value_string cfun_rst_vals[] = {
+    { 0,   "Do not reset the MT before setting it to the requsted power level" },
+    { 1,   "Reset the MT before setting it to the requsted power level" },
     { 0, NULL }
 };
 
@@ -399,6 +419,13 @@ static gboolean check_ccwa(gint role, guint16 type) {
     return FALSE;
 }
 
+static gboolean check_cfun(gint role, guint16 type) {
+    if (role == ROLE_DTE && (type == TYPE_ACTION || type == TYPE_READ || type == TYPE_TEST)) return TRUE;
+    if (role == ROLE_DCE && type == TYPE_RESPONSE) return TRUE;
+
+    return FALSE;
+}
+
 static gboolean check_cgmm(gint role, guint16 type) {
     if (role == ROLE_DTE && (type == TYPE_ACTION_SIMPLY || type == TYPE_TEST)) return TRUE;
     if (role == ROLE_DCE && type == TYPE_RESPONSE) return TRUE;
@@ -640,6 +667,57 @@ dissect_ccwa_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         case 7:
             value = get_uint_parameter(parameter_stream, parameter_length);
             proto_tree_add_uint(tree, hf_at_priority, tvb, offset, parameter_length, value);
+            break;
+    }
+
+    return TRUE;
+}
+
+static gint
+dissect_cfun_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+        gint offset, gint role, guint16 type, guint8 *parameter_stream,
+        guint parameter_number, gint parameter_length, void **data _U_)
+{
+    proto_item  *pitem;
+    guint32      value;
+
+    if (!check_cfun(role, type)) return FALSE;
+
+    if (parameter_number > 1) return FALSE;
+
+    if (role == ROLE_DTE) switch (parameter_number) {
+        case 0:
+            value = get_uint_parameter(parameter_stream, parameter_length);
+            pitem = proto_tree_add_uint(tree, hf_cfun_fun, tvb, offset, parameter_length, value);
+            if (value > 4 && value < 128)
+                expert_add_info(pinfo, pitem, &ei_cfun_res_fun);
+            else if (value >= 128)
+                expert_add_info(pinfo, pitem, &ei_cfun_range_fun);
+            break;
+        case 1:
+            value = get_uint_parameter(parameter_stream, parameter_length);
+            pitem = proto_tree_add_uint(tree, hf_cfun_rst, tvb, offset, parameter_length, value);
+            if (value > 1)
+                expert_add_info(pinfo, pitem, &ei_cfun_rst);
+            break;
+    }
+
+    /* TODO: Currently assuming response is for READ command, add support for
+     * TEST commands response */
+    if (role == ROLE_DCE) switch (parameter_number) {
+        case 0:
+            value = get_uint_parameter(parameter_stream, parameter_length);
+            pitem = proto_tree_add_uint(tree, hf_cfun_fun, tvb, offset, parameter_length, value);
+            if (value > 4 && value < 128)
+                expert_add_info(pinfo, pitem, &ei_cfun_res_fun);
+            else if (value >= 128)
+                expert_add_info(pinfo, pitem, &ei_cfun_range_fun);
+            break;
+        case 1:
+            value = get_uint_parameter(parameter_stream, parameter_length);
+            pitem = proto_tree_add_uint(tree, hf_cfun_rst, tvb, offset, parameter_length, value);
+            if (value > 1)
+                expert_add_info(pinfo, pitem, &ei_cfun_rst);
             break;
     }
 
@@ -1149,6 +1227,7 @@ dissect_no_parameter(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree
          for example: AT+CIND=?, AT+CIND? */
 static const at_cmd_t at_cmds[] = {
     { "+CCWA",      "Call Waiting Notification",                               check_ccwa, dissect_ccwa_parameter },
+    { "+CFUN",      "Set Phone Functionality",                                 check_cfun, dissect_cfun_parameter },
     { "+CGMM",      "Request model identification",                            check_cgmm, dissect_cgmm_parameter },
     { "+CHLD",      "Call Hold and Multiparty Handling",                       check_chld, dissect_chld_parameter },
     { "+CHUP",      "Call Hang-up",                                            check_chup, dissect_no_parameter   },
@@ -1913,6 +1992,16 @@ proto_register_at_command(void)
            FT_UINT32, BASE_DEC, VALS(ccwa_class_vals), 0,
            NULL, HFILL}
         },
+        { &hf_cfun_fun,
+           { "Functionality",                     "at.cfun.fun",
+           FT_UINT8, BASE_DEC, VALS(cfun_fun_vals), 0,
+           NULL, HFILL}
+        },
+        { &hf_cfun_rst,
+           { "Reset",                             "at.cfun.rst",
+           FT_UINT8, BASE_DEC, VALS(cfun_rst_vals), 0,
+           NULL, HFILL}
+        },
         { &hf_cgmm_model_id,
            { "Model Identification",              "at.cgmm.model_id",
            FT_STRING, BASE_NONE, NULL, 0,
@@ -2031,6 +2120,9 @@ proto_register_at_command(void)
         { &ei_cmer_bfr,                { "at.expert.cmer.bfr", PI_PROTOCOL, PI_WARN, "Only 0-1 are valid", EXPFILL }},
         { &ei_chld_mode,               { "at.expert.chld.mode", PI_PROTOCOL, PI_WARN, "Invalid value", EXPFILL }},
         { &ei_ciev_indicator,          { "at.expert.ciev.indicator", PI_PROTOCOL, PI_WARN, "Unknown indicator", EXPFILL }},
+        { &ei_cfun_res_fun,            { "at.expert.cfun.reserved_fun", PI_PROTOCOL, PI_NOTE, "Manufacturer specific value for an intermediate states between full and minimum functionality", EXPFILL }},
+        { &ei_cfun_range_fun,          { "at.expert.cfun.invalid_fun", PI_PROTOCOL, PI_WARN, "Only 0-127 are valid", EXPFILL }},
+        { &ei_cfun_rst,                { "at.expert.cfun.rst", PI_PROTOCOL, PI_WARN, "Only 0-1 are valid", EXPFILL }},
         { &ei_vts_dtmf,                { "at.expert.vts.dtmf", PI_PROTOCOL, PI_WARN, "DTMF should be single character", EXPFILL }},
         { &ei_at_type,                 { "at.expert.at.type", PI_PROTOCOL, PI_WARN, "Unknown type value", EXPFILL }},
         { &ei_cnum_service,            { "at.expert.cnum.service", PI_PROTOCOL, PI_WARN, "Only 0-5 are valid", EXPFILL }},
