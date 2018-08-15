@@ -614,14 +614,13 @@ static const int *pf_flds_mtchopt[] =
 
 static int hf_mq_lpoo_StructID = -1;
 static int hf_mq_lpoo_version = -1;
-static int hf_mq_lpoo_options = -1;
+static int hf_mq_lpoo_lpivers = -1;
 static int hf_mq_lpoo_lpiopts = -1;
 static int hf_mq_lpoo_defpersist = -1;
 static int hf_mq_lpoo_defputresptype = -1;
 static int hf_mq_lpoo_defreadahead = -1;
 static int hf_mq_lpoo_propertyctl = -1;
 static int hf_mq_lpoo_qprotect = -1;
-static int hf_mq_lpoo_unknown6 = -1;
 static int hf_mq_lpoo_xtradata = -1;
 
 static int hf_mq_lpoo_lpiopts_SAVE_IDENTITY_CTXT = -1;
@@ -993,7 +992,6 @@ static gint ett_mq_rfh_ValueName = -1;
 static gint ett_mq_msgreq_RqstFlags = -1;
 
 static gint ett_mq_lpoo = -1;
-static gint ett_mq_lpoo_options = -1;
 static gint ett_mq_lpoo_lpiopts = -1;
 
 static gint ett_mq_head = -1; /* Factorisation of common Header structure items (DH, MDE, CIH, IIH, RFH, RMH, WIH, TM, TMC2 */
@@ -2958,7 +2956,7 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         guint iXtraData = 0;
                         gint  iSize = 32;
                         iVersion = tvb_get_guint32(tvb, offset + 4, p_mq_parm->mq_int_enc);
-                        if (iVersion >= 3)
+                        if (iVersion >= 1)
                         {
                             iSize += 56;
                             iXtraData = tvb_get_guint32(tvb, offset + 84, p_mq_parm->mq_int_enc);
@@ -2970,18 +2968,18 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                             proto_tree_add_item(mq_tree, hf_mq_lpoo_StructID, tvb, offset, 4, p_mq_parm->mq_str_enc);
                             proto_tree_add_item(mq_tree, hf_mq_lpoo_version, tvb, offset + 4, 4, p_mq_parm->mq_int_enc);
-
-                            dissect_mq_MQOO(tvb, mq_tree, offset + 8, ett_mq_lpoo_options, hf_mq_lpoo_options, p_mq_parm);
-
+                            proto_tree_add_item(mq_tree, hf_mq_lpoo_lpivers, tvb, offset + 8, 4, p_mq_parm->mq_int_enc);
                             dissect_mq_LPOO_LPIOPTS(tvb, mq_tree, offset + 12, ett_mq_lpoo_lpiopts, p_mq_parm);
+
                             proto_tree_add_item(mq_tree, hf_mq_lpoo_defpersist, tvb, offset + 16, 4, p_mq_parm->mq_int_enc);
                             proto_tree_add_item(mq_tree, hf_mq_lpoo_defputresptype, tvb, offset + 20, 4, p_mq_parm->mq_int_enc);
                             proto_tree_add_item(mq_tree, hf_mq_lpoo_defreadahead, tvb, offset + 24, 4, p_mq_parm->mq_int_enc);
                             proto_tree_add_item(mq_tree, hf_mq_lpoo_propertyctl, tvb, offset + 28, 4, p_mq_parm->mq_int_enc);
-                            if (iVersion >= 3)
+
+                            if (iVersion >= 1)
                             {
                                 proto_tree_add_item(mq_tree, hf_mq_lpoo_qprotect, tvb, offset + 32, 48, p_mq_parm->mq_int_enc);
-                                proto_tree_add_item(mq_tree, hf_mq_lpoo_unknown6, tvb, offset + 80, 4, p_mq_parm->mq_int_enc);
+                                dissect_mq_MQOO(tvb, mq_tree, offset + 80, ett_mq_open_option, hf_mq_open_options, p_mq_parm);
                                 proto_tree_add_item(mq_tree, hf_mq_lpoo_xtradata, tvb, offset + 84, 4, p_mq_parm->mq_int_enc);
                             }
                             offset += iSize;
@@ -4216,7 +4214,7 @@ void proto_register_mq(void)
 
         { &hf_mq_lpoo_StructID      , {"StructID......", "mq.lpoo.structid", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_mq_lpoo_version       , {"Version.......", "mq.lpoo.version", FT_UINT32, BASE_DEC, NULL, 0x0, "LPOO version", HFILL }},
-        { &hf_mq_lpoo_options       , {"Options.......", "mq.lpoo.options", FT_UINT32, BASE_HEX, NULL, 0x0, "LPOO options", HFILL }},
+        { &hf_mq_lpoo_lpivers       , {"LpiVersion....", "mq.lpoo.lpivers", FT_UINT32, BASE_HEX, NULL, 0x0, "LPOO Lpi Version", HFILL }},
         { &hf_mq_lpoo_lpiopts       , {"LpiOpts.......", "mq.lpoo.lpioopts", FT_UINT32, BASE_HEX, NULL, 0x0, "LPOO Lpi Options", HFILL }},
 
         { &hf_mq_lpoo_lpiopts_SAVE_USER_CTXT    , {"SAVE_USER_CTXT", "mq.lpoo.opts.SAVE_USER_CTXT", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_LPOO_SAVE_USER_CTXT, "LPOO options SAVE_USER_CTXT", HFILL }},
@@ -4228,7 +4226,6 @@ void proto_register_mq(void)
         { &hf_mq_lpoo_defreadahead  , {"DefReadAHead..", "mq.lpoo.defreadahead", FT_INT32, BASE_DEC, VALS(GET_VALSV(MQREADA)), 0x0, "LPOO Default Read AHead", HFILL }},
         { &hf_mq_lpoo_propertyctl   , {"PropertyCtl...", "mq.lpoo.propertyctl", FT_INT32, BASE_DEC, NULL, 0x0, "LPOO Property Control", HFILL}},
         { &hf_mq_lpoo_qprotect      , {"qprotect......", "mq.lpoo.qprotect", FT_STRINGZ, BASE_NONE, NULL, 0x0, "LPOO queue protection", HFILL }},
-        { &hf_mq_lpoo_unknown6      , {"Unknown6......", "mq.lpoo.unknown6", FT_UINT32, BASE_HEX, NULL, 0x0, "LPOO unknown6", HFILL }},
         { &hf_mq_lpoo_xtradata      , {"ExtraData.....", "mq.lpoo.extradata", FT_INT32, BASE_DEC, NULL, 0x0, "LPOO Extra Data", HFILL }},
 
         { &hf_mq_pmo_StructID    , {"StructID...", "mq.pmo.structid", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -4478,7 +4475,6 @@ void proto_register_mq(void)
         &ett_mq_fcno,
         &ett_mq_fopa,
         &ett_mq_lpoo,
-        &ett_mq_lpoo_options,
         &ett_mq_lpoo_lpiopts,
         &ett_mq_head,
         &ett_mq_head_flags,
