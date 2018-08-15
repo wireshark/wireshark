@@ -23,8 +23,6 @@
 #include <wsutil/filesystem.h>
 #include "wireshark_application.h"
 
-#include "ui/tap-sctp-analysis.h"
-
 #include <QTableWidgetItem>
 #include <QDialog>
 #include <QMenu>
@@ -34,12 +32,14 @@ namespace Ui {
 class SCTPChunkStatisticsDialog;
 }
 
+struct _sctp_assoc_info;
+
 class SCTPChunkStatisticsDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit SCTPChunkStatisticsDialog(QWidget *parent = 0, sctp_assoc_info_t *assoc = NULL, capture_file *cf = NULL);
+    explicit SCTPChunkStatisticsDialog(QWidget *parent = 0, const _sctp_assoc_info *assoc = NULL, capture_file *cf = NULL);
     ~SCTPChunkStatisticsDialog();
 
 public slots:
@@ -61,7 +61,7 @@ signals:
 
 private:
     Ui::SCTPChunkStatisticsDialog *ui;
-    sctp_assoc_info_t     *selected_assoc;
+    guint16 selected_assoc_id;
     capture_file *cap_file_;
     QMenu ctx_menu_;
     QPoint selected_point;
@@ -76,7 +76,7 @@ private:
     QMap<int, struct chunkTypes> chunks, tempChunks;
 
     void initializeChunkMap();
-    void fillTable(bool all = false);
+    void fillTable(bool all = false, const _sctp_assoc_info *selected_assoc = NULL);
 };
 
 #endif // SCTP_CHUNK_STATISTICS_DIALOG_H

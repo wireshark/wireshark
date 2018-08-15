@@ -21,32 +21,33 @@
 #include <ui/qt/widgets/qcustomplot.h>
 #include "sctp_graph_dialog.h"
 
-SCTPGraphArwndDialog::SCTPGraphArwndDialog(QWidget *parent, sctp_assoc_info_t *assoc, _capture_file *cf, int dir) :
+SCTPGraphArwndDialog::SCTPGraphArwndDialog(QWidget *parent, const sctp_assoc_info_t *assoc,
+        _capture_file *cf, int dir) :
     QDialog(parent),
     ui(new Ui::SCTPGraphArwndDialog),
-    selected_assoc(assoc),
     cap_file_(cf),
     frame_num(0),
     direction(dir),
     startArwnd(0)
 {
+    Q_ASSERT(assoc);
+    selected_assoc_id = assoc->assoc_id;
+
     ui->setupUi(this);
-    if (!selected_assoc) {
-        selected_assoc = SCTPAssocAnalyseDialog::findAssocForPacket(cap_file_);
-    }
     Qt::WindowFlags flags = Qt::Window | Qt::WindowSystemMenuHint
             | Qt::WindowMinimizeButtonHint
             | Qt::WindowMaximizeButtonHint
             | Qt::WindowCloseButtonHint;
     this->setWindowFlags(flags);
-    this->setWindowTitle(QString(tr("SCTP Data and Adv. Rec. Window over Time: %1 Port1 %2 Port2 %3")).arg(gchar_free_to_qstring(cf_get_display_name(cap_file_))).arg(selected_assoc->port1).arg(selected_assoc->port2));
-    if ((direction == 1 && selected_assoc->n_array_tsn1 == 0) || (direction == 2 && selected_assoc->n_array_tsn2 == 0)) {
+    this->setWindowTitle(QString(tr("SCTP Data and Adv. Rec. Window over Time: %1 Port1 %2 Port2 %3"))
+            .arg(gchar_free_to_qstring(cf_get_display_name(cap_file_))).arg(assoc->port1).arg(assoc->port2));
+    if ((direction == 1 && assoc->n_array_tsn1 == 0) || (direction == 2 && assoc->n_array_tsn2 == 0)) {
         QMessageBox msgBox;
         msgBox.setText(tr("No Data Chunks sent"));
         msgBox.exec();
         return;
     } else {
-        drawGraph();
+        drawGraph(assoc);
     }
 }
 
@@ -55,7 +56,7 @@ SCTPGraphArwndDialog::~SCTPGraphArwndDialog()
     delete ui;
 }
 
-void SCTPGraphArwndDialog::drawArwndGraph()
+void SCTPGraphArwndDialog::drawArwndGraph(const sctp_assoc_info_t *selected_assoc)
 {
     GList *listSACK = NULL, *tlist;
     struct sack_chunk_header *sack_header;
@@ -120,10 +121,10 @@ void SCTPGraphArwndDialog::drawArwndGraph()
 }
 
 
-void SCTPGraphArwndDialog::drawGraph()
+void SCTPGraphArwndDialog::drawGraph(const sctp_assoc_info_t *selected_assoc)
 {
     ui->sctpPlot->clearGraphs();
-    drawArwndGraph();
+    drawArwndGraph(selected_assoc);
     ui->sctpPlot->setInteractions(QCP::iRangeZoom | QCP::iRangeDrag | QCP::iSelectPlottables);
     ui->sctpPlot->axisRect(0)->setRangeZoomAxes(ui->sctpPlot->xAxis, ui->sctpPlot->yAxis);
     ui->sctpPlot->axisRect(0)->setRangeZoom(Qt::Horizontal);
@@ -134,6 +135,9 @@ void SCTPGraphArwndDialog::drawGraph()
 
 void SCTPGraphArwndDialog::on_pushButton_4_clicked()
 {
+    const sctp_assoc_info_t* selected_assoc = SCTPAssocAnalyseDialog::findAssoc(this, selected_assoc_id);
+    if (!selected_assoc) return;
+
     ui->sctpPlot->xAxis->setRange(selected_assoc->min_secs+selected_assoc->min_usecs/1000000.0, selected_assoc->max_secs+selected_assoc->max_usecs/1000000.0);
     ui->sctpPlot->yAxis->setRange(0, startArwnd);
     ui->sctpPlot->replot();
