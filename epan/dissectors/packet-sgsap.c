@@ -1354,7 +1354,21 @@ sgsap_release_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 /*
  * 8.24 SGsAP-SERVICE-ABORT-REQUEST message
  */
-/* No IE's */
+static void
+sgsap_service_abort_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+{
+    guint32 curr_offset;
+    guint32 consumed;
+    guint   curr_len;
+
+    curr_offset = offset;
+    curr_len    = len;
+
+    /* IMSI IMSI 9.4.6  M   TLV 6-10 */
+    ELEM_MAND_TLV(0x01, GSM_A_PDU_TYPE_BSSMAP, BE_IMSI, NULL, ei_sgsap_missing_mandatory_element);
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_sgsap_extraneous_data);
+}
 
 /*
  * 8.25 SGsAP-MO-CSFB-INDICATION message
@@ -1382,8 +1396,8 @@ sgsap_mo_csfb_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
  * 9.2  Message type
  */
 static const value_string sgsap_msg_strings[] = {
-    { 0x01, "SGsAP-PAGING-REQUEST"},        /*  8.14 */
-    { 0x02, "SGsAP-PAGING-REJECT"},         /*  8.13 */
+    { 0x01, "SGsAP-PAGING-REQUEST"},                /*  8.14 */
+    { 0x02, "SGsAP-PAGING-REJECT"},                 /*  8.13 */
 /*
  * 0 0 0 0 0 0 1 1
  * to
@@ -1426,11 +1440,11 @@ static const value_string sgsap_msg_strings[] = {
 /*
  * 0 0 0 1 1 1 0 0  Unassigned: treated as an unknown Message type  7
  */
-    { 0x1c, "Unassigned"},          /* 8.12 */
+    { 0x1c, "Unassigned"},                          /* 7 */
 
-    { 0x1d, "SGsAP-STATUS"},            /* 8.18 */
-    { 0x1e, "Unassigned"},
-    { 0x1f, "SGsAP-UE-UNREACHABLE"},            /* 8.21 */
+    { 0x1d, "SGsAP-STATUS"},                        /* 8.18 */
+    { 0x1e, "Unassigned"},                          /* 7 */
+    { 0x1f, "SGsAP-UE-UNREACHABLE"},                /* 8.21 */
     { 0,    NULL }
 };
 static value_string_ext sgsap_msg_strings_ext = VALUE_STRING_EXT_INIT(sgsap_msg_strings);
@@ -1467,7 +1481,7 @@ static void (*sgsap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
     sgsap_imsi_det_ack,             /* 0x14,    "SGsAP-IMSI-DETACH-ACK" 8.7 */
     sgsap_reset_ind,                /* 0x15,    "SGsAP-RESET-INDICATION" 8.16 */
     sgsap_reset_ack,                /* 0x16,    "SGsAP-RESET-ACK" 8.15 */
-    NULL,/* No IE's */              /* 0x17,    "SGsAP-SERVICE-ABORT-REQUEST" 8.24 */
+    sgsap_service_abort_req,        /* 0x17,    "SGsAP-SERVICE-ABORT-REQUEST" 8.24 */
     sgsap_mo_csfb_ind,              /* 0x18,    "SGsAP-MO-CSFB-INDICATION" 8.25 */
 /*
  * 0 0 0 1 1 0 0 1
