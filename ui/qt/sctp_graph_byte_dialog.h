@@ -30,7 +30,8 @@ class SCTPGraphByteDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit SCTPGraphByteDialog(QWidget *parent = 0, struct _sctp_assoc_info *assoc = NULL, capture_file *cf = NULL, int dir = 0);
+    explicit SCTPGraphByteDialog(QWidget *parent = 0, const _sctp_assoc_info *assoc = NULL,
+            capture_file *cf = NULL, int dir = 0);
     ~SCTPGraphByteDialog();
 
 public slots:
@@ -45,7 +46,7 @@ private slots:
 
 private:
     Ui::SCTPGraphByteDialog *ui;
-    struct _sctp_assoc_info *selected_assoc;
+    guint16 selected_assoc_id;
     capture_file *cap_file_;
     int frame_num;
     int direction;
@@ -53,7 +54,7 @@ private:
     QVector<guint32> fb;
 
     void drawGraph();
-    void drawBytesGraph();
+    void drawBytesGraph(const _sctp_assoc_info *selected_assoc);
 };
 
 #endif // SCTP_GRAPH_DIALOG_H

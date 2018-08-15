@@ -8,19 +8,24 @@
  */
 
 #include "sctp_chunk_statistics_dialog.h"
+#include "sctp_assoc_analyse_dialog.h"
 #include <ui_sctp_chunk_statistics_dialog.h>
 #include "uat_dialog.h"
 
 #include <wsutil/strtoi.h>
 
+#include "ui/tap-sctp-analysis.h"
 #include <ui/qt/utils/qt_ui_utils.h>
 
-SCTPChunkStatisticsDialog::SCTPChunkStatisticsDialog(QWidget *parent, sctp_assoc_info_t *assoc, capture_file *cf) :
+SCTPChunkStatisticsDialog::SCTPChunkStatisticsDialog(QWidget *parent, const sctp_assoc_info_t *assoc,
+        capture_file *cf) :
     QDialog(parent),
     ui(new Ui::SCTPChunkStatisticsDialog),
-    selected_assoc(assoc),
     cap_file_(cf)
 {
+    Q_ASSERT(assoc);
+    selected_assoc_id = assoc->assoc_id;
+
     ui->setupUi(this);
     Qt::WindowFlags flags = Qt::Window | Qt::WindowSystemMenuHint
             | Qt::WindowMinimizeButtonHint
@@ -36,14 +41,16 @@ SCTPChunkStatisticsDialog::SCTPChunkStatisticsDialog(QWidget *parent, sctp_assoc
 
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
-    this->setWindowTitle(QString(tr("SCTP Chunk Statistics: %1 Port1 %2 Port2 %3")).arg(gchar_free_to_qstring(cf_get_display_name(cap_file_))).arg(selected_assoc->port1).arg(selected_assoc->port2));
+    this->setWindowTitle(QString(tr("SCTP Chunk Statistics: %1 Port1 %2 Port2 %3"))
+            .arg(gchar_free_to_qstring(cf_get_display_name(cap_file_)))
+            .arg(assoc->port1).arg(assoc->port2));
  //   connect(ui->tableWidget->verticalHeader(), SIGNAL(sectionMoved(int,int,int)), this, SLOT(on_sectionMoved(int, int, int)));
 
     ctx_menu_.addAction(ui->actionHideChunkType);
     ctx_menu_.addAction(ui->actionChunkTypePreferences);
     ctx_menu_.addAction(ui->actionShowAllChunkTypes);
     initializeChunkMap();
-    fillTable();
+    fillTable(false, assoc);
 }
 
 SCTPChunkStatisticsDialog::~SCTPChunkStatisticsDialog()
@@ -71,8 +78,13 @@ void SCTPChunkStatisticsDialog::initializeChunkMap()
     }
 }
 
-void SCTPChunkStatisticsDialog::fillTable(bool all)
+void SCTPChunkStatisticsDialog::fillTable(bool all, const sctp_assoc_info_t *selected_assoc)
 {
+    if (!selected_assoc) {
+        selected_assoc = SCTPAssocAnalyseDialog::findAssoc(this, selected_assoc_id);
+        if (!selected_assoc) return;
+    }
+
     FILE* fp = NULL;
 
     pref_t *pref = prefs_find_preference(prefs_find_module("sctp"),"statistics_chunk_types");

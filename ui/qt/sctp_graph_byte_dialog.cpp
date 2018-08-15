@@ -22,25 +22,26 @@
 #include "sctp_graph_dialog.h"
 #include "sctp_assoc_analyse_dialog.h"
 
-SCTPGraphByteDialog::SCTPGraphByteDialog(QWidget *parent, sctp_assoc_info_t *assoc, capture_file *cf, int dir) :
+SCTPGraphByteDialog::SCTPGraphByteDialog(QWidget *parent, const sctp_assoc_info_t *assoc,
+        capture_file *cf, int dir) :
     QDialog(parent),
     ui(new Ui::SCTPGraphByteDialog),
-    selected_assoc(assoc),
     cap_file_(cf),
     frame_num(0),
     direction(dir)
 {
+    Q_ASSERT(assoc);
+    selected_assoc_id = assoc->assoc_id;
+
     ui->setupUi(this);
-    if (!selected_assoc) {
-        selected_assoc = SCTPAssocAnalyseDialog::findAssocForPacket(cap_file_);
-    }
     Qt::WindowFlags flags = Qt::Window | Qt::WindowSystemMenuHint
             | Qt::WindowMinimizeButtonHint
             | Qt::WindowMaximizeButtonHint
             | Qt::WindowCloseButtonHint;
     this->setWindowFlags(flags);
-    this->setWindowTitle(QString(tr("SCTP Data and Adv. Rec. Window over Time: %1 Port1 %2 Port2 %3")).arg(gchar_free_to_qstring(cf_get_display_name(cap_file_))).arg(selected_assoc->port1).arg(selected_assoc->port2));
-    if ((direction == 1 && selected_assoc->n_array_tsn1 == 0) || (direction == 2 && selected_assoc->n_array_tsn2 == 0)) {
+    this->setWindowTitle(QString(tr("SCTP Data and Adv. Rec. Window over Time: %1 Port1 %2 Port2 %3"))
+            .arg(gchar_free_to_qstring(cf_get_display_name(cap_file_))).arg(assoc->port1).arg(assoc->port2));
+    if ((direction == 1 && assoc->n_array_tsn1 == 0) || (direction == 2 && assoc->n_array_tsn2 == 0)) {
         QMessageBox msgBox;
         msgBox.setText(tr("No Data Chunks sent"));
         msgBox.exec();
@@ -56,7 +57,7 @@ SCTPGraphByteDialog::~SCTPGraphByteDialog()
 }
 
 
-void SCTPGraphByteDialog::drawBytesGraph()
+void SCTPGraphByteDialog::drawBytesGraph(const sctp_assoc_info_t *selected_assoc)
 {
     GList *listTSN = NULL,*tlist;
     tsn_t *tsn;
@@ -126,8 +127,11 @@ void SCTPGraphByteDialog::drawBytesGraph()
 
 void SCTPGraphByteDialog::drawGraph()
 {
+    const sctp_assoc_info_t* selected_assoc = SCTPAssocAnalyseDialog::findAssoc(this, selected_assoc_id);
+    if (!selected_assoc) return;
+
     ui->sctpPlot->clearGraphs();
-    drawBytesGraph();
+    drawBytesGraph(selected_assoc);
     ui->sctpPlot->setInteractions(QCP::iRangeZoom | QCP::iRangeDrag | QCP::iSelectPlottables);
     connect(ui->sctpPlot, SIGNAL(plottableClick(QCPAbstractPlottable*,QMouseEvent*)), this, SLOT(graphClicked(QCPAbstractPlottable*, QMouseEvent*)));
     ui->sctpPlot->replot();
@@ -136,6 +140,9 @@ void SCTPGraphByteDialog::drawGraph()
 
 void SCTPGraphByteDialog::on_pushButton_4_clicked()
 {
+    const sctp_assoc_info_t* selected_assoc = SCTPAssocAnalyseDialog::findAssoc(this, selected_assoc_id);
+    if (!selected_assoc) return;
+
     ui->sctpPlot->xAxis->setRange(selected_assoc->min_secs+selected_assoc->min_usecs/1000000.0, selected_assoc->max_secs+selected_assoc->max_usecs/1000000.0);
     if (direction == 1) {
         ui->sctpPlot->yAxis->setRange(0, selected_assoc->n_data_bytes_ep1);

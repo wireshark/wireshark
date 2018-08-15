@@ -295,7 +295,7 @@ void sctp_stat_scan(void);
 
 void remove_tap_listener_sctp_stat(void);
 
-
+const sctp_assoc_info_t* get_sctp_assoc_info(guint16 assoc_id);
 const sctp_assoc_info_t* get_selected_assoc(void);
 
 #ifdef __cplusplus

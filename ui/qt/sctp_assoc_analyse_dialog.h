@@ -18,7 +18,6 @@
 
 #include <epan/dissectors/packet-sctp.h>
 
-#include "ui/tap-sctp-analysis.h"
 #include "sctp_all_assocs_dialog.h"
 
 #include <QDialog>
@@ -32,16 +31,20 @@ namespace Ui {
 class SCTPAssocAnalyseDialog;
 }
 
+struct _sctp_assoc_info;
+
 class SCTPAssocAnalyseDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit SCTPAssocAnalyseDialog(QWidget *parent = 0, sctp_assoc_info_t *assoc = NULL, capture_file *cf = NULL, SCTPAllAssocsDialog *caller = NULL);
+    explicit SCTPAssocAnalyseDialog(QWidget *parent = 0, const _sctp_assoc_info *assoc = NULL,
+            capture_file *cf = NULL);
     ~SCTPAssocAnalyseDialog();
 
-    void fillTabs();
-    static sctp_assoc_info_t* findAssocForPacket(capture_file* cf);
+    void fillTabs(const _sctp_assoc_info* selected_assoc);
+    static const _sctp_assoc_info* findAssocForPacket(capture_file* cf);
+    static const _sctp_assoc_info* findAssoc(QWidget *parent, guint16 assoc_id);
 
 public slots:
     void setCaptureFile(capture_file *cf) { cap_file_ = cf; }
@@ -60,9 +63,8 @@ private slots:
 
 private:
     Ui::SCTPAssocAnalyseDialog *ui;
-    sctp_assoc_info_t     *selected_assoc;
+    guint16 selected_assoc_id;
     capture_file *cap_file_;
-    SCTPAllAssocsDialog *caller_;
     void openGraphDialog(int direction);
     void openGraphByteDialog(int direction);
     void openGraphArwndDialog(int direction);

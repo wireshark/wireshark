@@ -27,33 +27,34 @@
 #include "ui/qt/widgets/wireshark_file_dialog.h"
 #include "wireshark_application.h"
 
-SCTPGraphDialog::SCTPGraphDialog(QWidget *parent, sctp_assoc_info_t *assoc, capture_file *cf, int dir) :
+SCTPGraphDialog::SCTPGraphDialog(QWidget *parent, const sctp_assoc_info_t *assoc,
+        capture_file *cf, int dir) :
     QDialog(parent),
     ui(new Ui::SCTPGraphDialog),
-    selected_assoc(assoc),
     cap_file_(cf),
     frame_num(0),
     direction(dir),
     relative(false),
     type(1)
 {
+    Q_ASSERT(assoc);
+    selected_assoc_id = assoc->assoc_id;
+
     ui->setupUi(this);
-    if (!selected_assoc) {
-        selected_assoc = SCTPAssocAnalyseDialog::findAssocForPacket(cap_file_);
-    }
     Qt::WindowFlags flags = Qt::Window | Qt::WindowSystemMenuHint
             | Qt::WindowMinimizeButtonHint
             | Qt::WindowMaximizeButtonHint
             | Qt::WindowCloseButtonHint;
     this->setWindowFlags(flags);
-    this->setWindowTitle(QString(tr("SCTP TSNs and SACKs over Time: %1 Port1 %2 Port2 %3")).arg(gchar_free_to_qstring(cf_get_display_name(cap_file_))).arg(selected_assoc->port1).arg(selected_assoc->port2));
-    if ((direction == 1 && selected_assoc->n_array_tsn1 == 0) || (direction == 2 && selected_assoc->n_array_tsn2 == 0)) {
+    this->setWindowTitle(QString(tr("SCTP TSNs and SACKs over Time: %1 Port1 %2 Port2 %3"))
+            .arg(gchar_free_to_qstring(cf_get_display_name(cap_file_))).arg(assoc->port1).arg(assoc->port2));
+    if ((direction == 1 && assoc->n_array_tsn1 == 0) || (direction == 2 && assoc->n_array_tsn2 == 0)) {
         QMessageBox msgBox;
         msgBox.setText(tr("No Data Chunks sent"));
         msgBox.exec();
         return;
     } else {
-        drawGraph();
+        drawGraph(assoc);
     }
 }
 
@@ -62,7 +63,7 @@ SCTPGraphDialog::~SCTPGraphDialog()
     delete ui;
 }
 
-void SCTPGraphDialog::drawNRSACKGraph()
+void SCTPGraphDialog::drawNRSACKGraph(const sctp_assoc_info_t* selected_assoc)
 {
     tsn_t *sack;
     GList *list=NULL, *tlist;
@@ -129,7 +130,7 @@ void SCTPGraphDialog::drawNRSACKGraph()
     }
 }
 
-void SCTPGraphDialog::drawSACKGraph()
+void SCTPGraphDialog::drawSACKGraph(const sctp_assoc_info_t* selected_assoc)
 {
     GList *listSACK = NULL, *tlist;
     guint16 gap_start=0, gap_end=0, nr, dup_nr;
@@ -257,7 +258,7 @@ void SCTPGraphDialog::drawSACKGraph()
     }
 }
 
-void SCTPGraphDialog::drawTSNGraph()
+void SCTPGraphDialog::drawTSNGraph(const sctp_assoc_info_t* selected_assoc)
 {
     GList *listTSN = NULL,*tlist;
     tsn_t *tsn;
@@ -313,8 +314,13 @@ void SCTPGraphDialog::drawTSNGraph()
     }
 }
 
-void SCTPGraphDialog::drawGraph()
+void SCTPGraphDialog::drawGraph(const sctp_assoc_info_t* selected_assoc)
 {
+    if (!selected_assoc) {
+        selected_assoc = SCTPAssocAnalyseDialog::findAssoc(this, selected_assoc_id);
+        if (!selected_assoc) return;
+    }
+
     guint32 maxTSN, minTSN;
 
     if (direction == 1) {
@@ -342,18 +348,23 @@ void SCTPGraphDialog::drawGraph()
     fn.clear();
     typeStrings.clear();
     switch (type) {
-    case 1: drawSACKGraph();
-        drawNRSACKGraph();
+    case 1:
+        drawSACKGraph(selected_assoc);
+        drawNRSACKGraph(selected_assoc);
         break;
-    case 2: drawTSNGraph();
+    case 2:
+        drawTSNGraph(selected_assoc);
         break;
-    case 3: drawTSNGraph();
-        drawSACKGraph();
-        drawNRSACKGraph();
+    case 3:
+        drawTSNGraph(selected_assoc);
+        drawSACKGraph(selected_assoc);
+        drawNRSACKGraph(selected_assoc);
         break;
-    default: drawTSNGraph();
-        drawSACKGraph();
-        drawNRSACKGraph();
+    default:
+        drawTSNGraph(selected_assoc);
+        drawSACKGraph(selected_assoc);
+        drawNRSACKGraph(selected_assoc);
+        break;
     }
 
     // give the axes some labels:
@@ -394,6 +405,9 @@ void SCTPGraphDialog::on_pushButton_3_clicked()
 
 void SCTPGraphDialog::on_pushButton_4_clicked()
 {
+    const sctp_assoc_info_t* selected_assoc = SCTPAssocAnalyseDialog::findAssoc(this, selected_assoc_id);
+    if (!selected_assoc) return;
+
     ui->sctpPlot->xAxis->setRange(selected_assoc->min_secs, selected_assoc->max_secs+1);
     if (relative) {
         if (direction == 1) {

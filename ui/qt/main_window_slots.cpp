@@ -2815,7 +2815,11 @@ void MainWindow::on_actionSCTPShowAllAssociations_triggered()
 
 void MainWindow::on_actionSCTPAnalyseThisAssociation_triggered()
 {
-    SCTPAssocAnalyseDialog *sctp_analyse = new SCTPAssocAnalyseDialog(this, NULL, capture_file_.capFile());
+    const sctp_assoc_info_t* assoc = SCTPAssocAnalyseDialog::findAssocForPacket(capture_file_.capFile());
+    if (!assoc) {
+        return;
+    }
+    SCTPAssocAnalyseDialog *sctp_analyse = new SCTPAssocAnalyseDialog(this, assoc, capture_file_.capFile());
     connect(sctp_analyse, SIGNAL(filterPackets(QString,bool)),
             this, SLOT(filterPackets(QString,bool)));
 
@@ -2834,7 +2838,7 @@ void MainWindow::on_actionSCTPAnalyseThisAssociation_triggered()
 
 void MainWindow::on_actionSCTPFilterThisAssociation_triggered()
 {
-    sctp_assoc_info_t* assoc = SCTPAssocAnalyseDialog::findAssocForPacket(capture_file_.capFile());
+    const sctp_assoc_info_t* assoc = SCTPAssocAnalyseDialog::findAssocForPacket(capture_file_.capFile());
     if (assoc) {
         QString newFilter = QString("sctp.assoc_index==%1").arg(assoc->assoc_id);
         assoc = NULL;

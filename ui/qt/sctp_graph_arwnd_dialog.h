@@ -30,7 +30,8 @@ class SCTPGraphArwndDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit SCTPGraphArwndDialog(QWidget *parent = 0, struct _sctp_assoc_info *assoc = NULL, capture_file *cf = NULL, int dir = 0);
+    explicit SCTPGraphArwndDialog(QWidget *parent = 0, const _sctp_assoc_info *assoc = NULL,
+            capture_file *cf = NULL, int dir = 0);
     ~SCTPGraphArwndDialog();
 
 public slots:
@@ -45,7 +46,7 @@ private slots:
 
 private:
     Ui::SCTPGraphArwndDialog *ui;
-    struct _sctp_assoc_info *selected_assoc;
+    guint16 selected_assoc_id;
     capture_file *cap_file_;
     int frame_num;
     int direction;
@@ -54,8 +55,8 @@ private:
     QVector<guint32> fa;
  //   QVector<QString> typeStrings;
 
-    void drawGraph();
-    void drawArwndGraph();
+    void drawGraph(const _sctp_assoc_info *selected_assoc);
+    void drawArwndGraph(const _sctp_assoc_info *selected_assoc);
 };
 
 #endif // SCTP_GRAPH_DIALOG_H

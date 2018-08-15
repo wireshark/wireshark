@@ -18,29 +18,25 @@
 #include "sctp_graph_byte_dialog.h"
 #include "sctp_chunk_statistics_dialog.h"
 
-SCTPAssocAnalyseDialog::SCTPAssocAnalyseDialog(QWidget *parent, sctp_assoc_info_t *assoc, capture_file *cf, SCTPAllAssocsDialog* caller) :
+SCTPAssocAnalyseDialog::SCTPAssocAnalyseDialog(QWidget *parent, const sctp_assoc_info_t *assoc,
+        capture_file *cf) :
     QDialog(parent),
     ui(new Ui::SCTPAssocAnalyseDialog),
-    selected_assoc(assoc),
-    cap_file_(cf),
-    caller_(caller)
+    cap_file_(cf)
 {
+    Q_ASSERT(assoc);
+    selected_assoc_id = assoc->assoc_id;
+
     ui->setupUi(this);
     ui->SCTPAssocAnalyseTab->setCurrentWidget(ui->Statistics);
-    if (!selected_assoc) {
-        if (sctp_stat_get_info()->is_registered == FALSE) {
-            register_tap_listener_sctp_stat();
-        }
-        /*  (redissect all packets) */
-        cf_retap_packets(cap_file_);
-        selected_assoc = findAssocForPacket(cap_file_);
-    }
     Qt::WindowFlags flags = Qt::Window | Qt::WindowSystemMenuHint
             | Qt::WindowMinimizeButtonHint
             | Qt::WindowCloseButtonHint;
     this->setWindowFlags(flags);
-    this->setWindowTitle(QString(tr("SCTP Analyse Association: %1 Port1 %2 Port2 %3")).arg(gchar_free_to_qstring(cf_get_display_name(cap_file_))).arg(selected_assoc->port1).arg(selected_assoc->port2));
-    fillTabs();
+
+    this->setWindowTitle(QString(tr("SCTP Analyse Association: %1 Port1 %2 Port2 %3"))
+            .arg(gchar_free_to_qstring(cf_get_display_name(cap_file_))).arg(assoc->port1).arg(assoc->port2));
+    fillTabs(assoc);
 }
 
 SCTPAssocAnalyseDialog::~SCTPAssocAnalyseDialog()
@@ -48,11 +44,11 @@ SCTPAssocAnalyseDialog::~SCTPAssocAnalyseDialog()
     delete ui;
 }
 
-sctp_assoc_info_t* SCTPAssocAnalyseDialog::findAssocForPacket(capture_file* cf)
+const sctp_assoc_info_t* SCTPAssocAnalyseDialog::findAssocForPacket(capture_file* cf)
 {
     frame_data     *fdata;
     GList          *list, *framelist;
-    sctp_assoc_info_t *assoc;
+    const sctp_assoc_info_t *assoc;
     bool           frame_found = false;
 
     fdata = cf->current_frame;
@@ -64,7 +60,7 @@ sctp_assoc_info_t* SCTPAssocAnalyseDialog::findAssocForPacket(capture_file* cf)
     list = g_list_first(sctp_stat_get_info()->assoc_info_list);
 
     while (list) {
-        assoc = (sctp_assoc_info_t*)(list->data);
+        assoc = (const sctp_assoc_info_t*)(list->data);
 
         framelist = g_list_first(assoc->frame_numbers);
         guint32 fn;
@@ -91,8 +87,20 @@ sctp_assoc_info_t* SCTPAssocAnalyseDialog::findAssocForPacket(capture_file* cf)
     return NULL;
 }
 
-void SCTPAssocAnalyseDialog::fillTabs()
+const _sctp_assoc_info* SCTPAssocAnalyseDialog::findAssoc(QWidget *parent, guint16 assoc_id)
 {
+    const sctp_assoc_info_t* result = get_sctp_assoc_info(assoc_id);
+    if (result) return result;
+
+    QMessageBox::warning(parent, tr("Warning"), tr("Could not find SCTP Association with id: %1")
+            .arg(assoc_id));
+    return NULL;
+}
+
+void SCTPAssocAnalyseDialog::fillTabs(const sctp_assoc_info_t* selected_assoc)
+{
+    Q_ASSERT(selected_assoc);
+
     /* Statistics Tab */
 
     ui->checksumLabel->setText(selected_assoc->checksum_type);
@@ -209,6 +217,9 @@ void SCTPAssocAnalyseDialog::fillTabs()
 
 void SCTPAssocAnalyseDialog::openGraphDialog(int direction)
 {
+    const sctp_assoc_info_t* selected_assoc = SCTPAssocAnalyseDialog::findAssoc(this, selected_assoc_id);
+    if (!selected_assoc) return;
+
     SCTPGraphDialog *sctp_dialog = new SCTPGraphDialog(this, selected_assoc, cap_file_, direction);
 
     if (sctp_dialog->isMinimized() == true) {
@@ -235,11 +246,9 @@ void SCTPAssocAnalyseDialog::on_GraphTSN_1_clicked()
 
 void SCTPAssocAnalyseDialog::on_chunkStatisticsButton_clicked()
 {
-    if (caller_ && !selected_assoc) {
-        selected_assoc = caller_->findSelectedAssoc();
-    } else if (!caller_ && !selected_assoc) {
-        selected_assoc = findAssocForPacket(cap_file_);
-    }
+    const sctp_assoc_info_t* selected_assoc = SCTPAssocAnalyseDialog::findAssoc(this, selected_assoc_id);
+    if (!selected_assoc) return;
+
     SCTPChunkStatisticsDialog *sctp_dialog = new SCTPChunkStatisticsDialog(this, selected_assoc, cap_file_);
 
     if (sctp_dialog->isMinimized() == true) {
@@ -254,13 +263,15 @@ void SCTPAssocAnalyseDialog::on_chunkStatisticsButton_clicked()
 
 void SCTPAssocAnalyseDialog::on_setFilterButton_clicked()
 {
-    QString newFilter = QString("sctp.assoc_index==%1").arg(selected_assoc->assoc_id);
-    selected_assoc = NULL;
+    QString newFilter = QString("sctp.assoc_index==%1").arg(selected_assoc_id);
     emit filterPackets(newFilter, false);
 }
 
 void SCTPAssocAnalyseDialog::openGraphByteDialog(int direction)
 {
+    const sctp_assoc_info_t* selected_assoc = SCTPAssocAnalyseDialog::findAssoc(this, selected_assoc_id);
+    if (!selected_assoc) return;
+
     SCTPGraphByteDialog *sctp_dialog = new SCTPGraphByteDialog(this, selected_assoc, cap_file_, direction);
 
     if (sctp_dialog->isMinimized() == true) {
@@ -285,6 +296,9 @@ void SCTPAssocAnalyseDialog::on_GraphBytes_2_clicked()
 
 void SCTPAssocAnalyseDialog::openGraphArwndDialog(int direction)
 {
+    const sctp_assoc_info_t* selected_assoc = SCTPAssocAnalyseDialog::findAssoc(this, selected_assoc_id);
+    if (!selected_assoc) return;
+
     SCTPGraphArwndDialog *sctp_dialog = new SCTPGraphArwndDialog(this, selected_assoc, cap_file_, direction);
 
     if (sctp_dialog->isMinimized() == true) {
