@@ -523,9 +523,34 @@ capture_opts_generate_display_name(const char *friendly_name,
 }
 #endif
 
+static void
+fill_in_interface_opts_from_ifinfo(interface_options *interface_opts,
+                                   const if_info_t *if_info)
+{
+    interface_opts->name = g_strdup(if_info->name);
+
+    if (if_info->friendly_name != NULL) {
+        /*
+         * We have a friendly name; remember it as the
+         * description...
+         */
+        interface_opts->descr = g_strdup(if_info->friendly_name);
+        /*
+         * ...and use it in the console display name.
+         */
+        interface_opts->display_name = capture_opts_generate_display_name(if_info->friendly_name, if_info->name);
+    } else {
+        /* fallback to the interface name */
+        interface_opts->descr = NULL;
+        interface_opts->display_name = g_strdup(if_info->name);
+    }
+    interface_opts->if_type = if_info->type;
+    interface_opts->extcap = g_strdup(if_info->extcap);
+}
+
 static gboolean
-capture_opts_search_for_interface(interface_options *interface_opts,
-                                  const char *name)
+fill_in_interface_opts_from_ifinfo_by_name(interface_options *interface_opts,
+                                           const char *name)
 {
     gboolean    matched;
     GList       *if_list;
@@ -537,7 +562,11 @@ capture_opts_search_for_interface(interface_options *interface_opts,
     matched = FALSE;
     if_list = capture_interface_list(&err, NULL, NULL);
     if (if_list != NULL) {
-        /* try and do an exact match (case insensitive) */
+        /*
+         * Try and do an exact match (case insensitive) on  the
+         * interface name, the interface description, and the
+         * hardware description.
+         */
         for (if_entry = g_list_first(if_list); if_entry != NULL;
              if_entry = g_list_next(if_entry))
         {
@@ -598,25 +627,7 @@ capture_opts_search_for_interface(interface_options *interface_opts,
         /*
          * We found an interface that matches.
          */
-        interface_opts->name = g_strdup(if_info->name);
-
-        if (if_info->friendly_name != NULL) {
-            /*
-             * We have a friendly name; remember it as the
-             * description...
-             */
-            interface_opts->descr = g_strdup(if_info->friendly_name);
-            /*
-             * ...and use it in the console display name.
-             */
-            interface_opts->display_name = capture_opts_generate_display_name(if_info->friendly_name, if_info->name);
-        } else {
-            /* fallback to the interface name */
-            interface_opts->descr = NULL;
-            interface_opts->display_name = g_strdup(if_info->name);
-        }
-        interface_opts->if_type = if_info->type;
-        interface_opts->extcap = g_strdup(if_info->extcap);
+        fill_in_interface_opts_from_ifinfo(interface_opts, if_info);
     }
     free_interface_list(if_list);
     return matched;
@@ -671,21 +682,7 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
             cmdarg_err("There is no interface with that adapter index");
             return 1;
         }
-        interface_opts.name = g_strdup(if_info->name);
-        if (if_info->friendly_name != NULL) {
-            /*
-             * We have a friendly name for the interface, so remember that
-             * as the description.
-             */
-            interface_opts.descr = g_strdup(if_info->friendly_name);
-            interface_opts.display_name = capture_opts_generate_display_name(if_info->friendly_name, if_info->name);
-        } else {
-            /* fallback to the interface name */
-            interface_opts.descr = NULL;
-            interface_opts.display_name = g_strdup(if_info->name);
-        }
-        interface_opts.if_type = if_info->type;
-        interface_opts.extcap = g_strdup(if_info->extcap);
+        fill_in_interface_opts_from_ifinfo(&interface_opts, if_info);
         free_interface_list(if_list);
     } else if (capture_opts->capture_child) {
         /*
@@ -693,31 +690,15 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
          * is supplied, and we don't need to look it up.
          */
 	if_info = if_info_get(optarg_str_p);
-        interface_opts.name = g_strdup(if_info->name);
-        if (if_info->friendly_name != NULL) {
-            /*
-             * We have a friendly name for the interface, so display that
-             * instead of the interface name/guid.
-             *
-             * XXX - on UN*X, the interface name is not quite so ugly,
-             * and might be more familiar to users; display them both?
-             */
-            interface_opts.descr = g_strdup(if_info->friendly_name);
-            interface_opts.display_name = g_strdup(if_info->friendly_name);
-        } else {
-            interface_opts.descr = NULL;
-            /* fallback to the interface name */
-            interface_opts.display_name = g_strdup(if_info->name);
-        }
-        interface_opts.if_type = if_info->type;
-        interface_opts.extcap = g_strdup(if_info->extcap);
+	fill_in_interface_opts_from_ifinfo(&interface_opts, if_info);
         if_info_free(if_info);
     } else {
         /*
          * Search for that name in the interface list and, if we found
          * it, fill in fields in the interface_opts structure.
          */
-        if (!capture_opts_search_for_interface(&interface_opts, optarg_str_p)) {
+        if (!fill_in_interface_opts_from_ifinfo_by_name(&interface_opts,
+                                                        optarg_str_p)) {
             /*
              * We didn't find the interface in the list; just use
              * the specified name, so that, for example, if an
@@ -1026,7 +1007,7 @@ capture_opts_print_interfaces(GList *if_list)
         printf("%d. %s", i++, if_info->name);
 
         /* Print the interface friendly name, if it exists;
-          if not fall back to vendor description, if it exists. */
+          if not, fall back to the vendor description, if it exists. */
         if (if_info->friendly_name != NULL){
             printf(" (%s)", if_info->friendly_name);
         } else {
