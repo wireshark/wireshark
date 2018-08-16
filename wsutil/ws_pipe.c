@@ -121,7 +121,6 @@ gboolean ws_pipe_spawn_sync(gchar *dirname, gchar *command, gint argc, gchar **a
     if (win32_create_process(NULL, winargs->str, NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &info, &processInfo))
     {
         gchar* buffer = (gchar*)g_malloc(BUFFER_SIZE);
-        HANDLE handles[] = {processInfo.hProcess, child_stdout_rd, child_stderr_rd};
         DWORD dw;
         DWORD bytes_read;
         DWORD bytes_avail;
@@ -129,46 +128,39 @@ gboolean ws_pipe_spawn_sync(gchar *dirname, gchar *command, gint argc, gchar **a
 
         for (;;)
         {
-            dw = WaitForMultipleObjects(G_N_ELEMENTS(handles), handles, FALSE, INFINITE);
-            int idx = dw - WAIT_OBJECT_0;
-            if ((idx >= 0) && (idx < G_N_ELEMENTS(handles)))
+            /* Keep peeking at pipes every 100 ms. */
+            dw = WaitForSingleObject(processInfo.hProcess, 100000);
+            if (dw == WAIT_OBJECT_0)
             {
-                if (handles[idx] == processInfo.hProcess)
+                /* Process finished. Nothing left to do here. */
+                break;
+            }
+            else if (dw != WAIT_TIMEOUT)
+            {
+                g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "WaitForSingleObject returned 0x%08X. Error %d", dw, GetLastError());
+                break;
+            }
+
+            if (PeekNamedPipe(child_stdout_rd, NULL, 0, NULL, &bytes_avail, NULL))
+            {
+                if (bytes_avail > 0)
                 {
-                    /* Process finished. Nothing left to do here. */
-                    break;
-                }
-                else if (handles[idx] == child_stdout_rd)
-                {
-                    if (PeekNamedPipe(child_stdout_rd, NULL, 0, NULL, &bytes_avail, NULL))
+                    bytes_avail = min(bytes_avail, BUFFER_SIZE);
+                    if (ReadFile(child_stdout_rd, &buffer[0], bytes_avail, &bytes_read, NULL))
                     {
-                        if (bytes_avail > 0)
-                        {
-                            bytes_avail = min(bytes_avail, BUFFER_SIZE);
-                            if (ReadFile(child_stdout_rd, &buffer[0], bytes_avail, &bytes_read, NULL))
-                            {
-                                g_string_append_len(output_string, buffer, bytes_read);
-                            }
-                        }
-                    }
-                }
-                else if (handles[idx] == child_stderr_rd)
-                {
-                    /* Discard the stderr data just like non-windows version of this function does. */
-                    if (PeekNamedPipe(child_stderr_rd, NULL, 0, NULL, &bytes_avail, NULL))
-                    {
-                        if (bytes_avail > 0)
-                        {
-                            bytes_avail = min(bytes_avail, BUFFER_SIZE);
-                            ReadFile(child_stderr_rd, &buffer[0], bytes_avail, &bytes_read, NULL);
-                        }
+                        g_string_append_len(output_string, buffer, bytes_read);
                     }
                 }
             }
-            else
+
+            /* Discard the stderr data just like non-windows version of this function does. */
+            if (PeekNamedPipe(child_stderr_rd, NULL, 0, NULL, &bytes_avail, NULL))
             {
-                g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "WaitForMultipleObjects returned 0x%08X. Error %d", dw, GetLastError());
-                break;
+                if (bytes_avail > 0)
+                {
+                    bytes_avail = min(bytes_avail, BUFFER_SIZE);
+                    ReadFile(child_stderr_rd, &buffer[0], bytes_avail, &bytes_read, NULL);
+                }
             }
         }
 
