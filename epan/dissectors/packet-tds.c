@@ -365,6 +365,7 @@
 #define TDS_DATA_TYPE_UDT             0xF0  /* 240 = CLR-UDT (introduced in TDS 7.2) */
 #define TDS_DATA_TYPE_TEXT            0x23  /* 35 = Text */
 #define TDS_DATA_TYPE_IMAGE           0x22  /* 34 = Image */
+#define TDS_DATA_TYPE_LONGBINARY      0xE1  /* 225 = Long Binary (TDS 5.0) */
 #define TDS_DATA_TYPE_NTEXT           0x63  /* 99 = NText */
 #define TDS_DATA_TYPE_SSVARIANT       0x62  /* 98 = Sql_Variant (introduced in TDS 7.2) */
 /* no official data type, used only as error indication */
@@ -524,6 +525,7 @@ static const value_string tds_data_type_names[] = {
     {TDS_DATA_TYPE_UDT,             "UDTTYPE - CLR-UDT (introduced in TDS 7.2)"},
     {TDS_DATA_TYPE_TEXT,            "TEXTTYPE - Text"},
     {TDS_DATA_TYPE_IMAGE,           "IMAGETYPE - Image"},
+    {TDS_DATA_TYPE_LONGBINARY,      "LONGBINARY - Binary"},
     {TDS_DATA_TYPE_NTEXT,           "NTEXTTYPE - NText"},
     {TDS_DATA_TYPE_SSVARIANT,       "SSVARIANTTYPE - Sql_Variant (introduced in TDS 7.2)"},
     {0, NULL }
@@ -1056,6 +1058,12 @@ static int hf_tds_loginack_progname = -1;
 /* LOGOUT token (TDS5_LOGOUT_TOKEN) */
 static int hf_tds_logout = -1;
 static int hf_tds_logout_options = -1;
+
+/* MSG token (TDS5_MSG_TOKEN) */
+static int hf_tds_msg = -1;
+static int hf_tds_msg_length = -1;
+static int hf_tds_msg_status = -1;
+static int hf_tds_msg_msgid = -1;
 
 /* NBCROW token (TDS_NBCROW_TOKEN) */
 static int hf_tds_nbcrow = -1;
@@ -2548,6 +2556,24 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
             break;
 
         /* LONGLEN_TYPE - types prefixed with 4-byte length */
+        /* SYBLONGCHAR would be here, but there is an ambiguity with TDS 7.x.
+         * It is handled under TDS_DATA_TYPE_BIGCHAR. */
+        case TDS_DATA_TYPE_LONGBINARY:      /* Long Binary (TDS 5.0) */
+            length_item = proto_tree_add_item_ret_uint(sub_tree, hf_tds_type_varbyte_length, tvb, *offset, 4,
+                                                       tds_get_int4_encoding(tds_info), &length);
+            *offset += 4;
+            switch(data_type) {
+                case TDS_DATA_TYPE_LONGBINARY: /* Long Binary (TDS 5.0) */
+                    proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_bytes, tvb, *offset, length, ENC_NA);
+                    break;
+                default: /*TODO Just in case, for future related types. */
+                    proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_bytes, tvb, *offset, length, ENC_NA);
+                    break;
+            }
+            *offset += length;
+            break;
+
+        /* LONGLEN_TYPE - types prefixed with 4-byte length using a text pointer*/
         case TDS_DATA_TYPE_NTEXT:           /* NText */
         case TDS_DATA_TYPE_TEXT:            /* Text */
         case TDS_DATA_TYPE_IMAGE:           /* Image */
@@ -3412,6 +3438,20 @@ dissect_tds5_logout_token(proto_tree *tree, tvbuff_t *tvb, guint offset, tds_con
     return cur - offset;
 }
 
+static guint
+dissect_tds5_msg_token(proto_tree *tree, tvbuff_t *tvb, guint offset, tds_conv_info_t *tds_info)
+{
+    guint cur = offset;
+    proto_tree_add_item(tree, hf_tds_msg_length, tvb, cur, 1, ENC_NA);
+    cur += 1;
+    proto_tree_add_item(tree, hf_tds_msg_status, tvb, cur, 1, ENC_NA);
+    cur += 1;
+    proto_tree_add_item(tree, hf_tds_msg_msgid, tvb, cur, 2, tds_get_int2_encoding(tds_info));
+    cur += 2;
+
+    return cur - offset;
+}
+
 /*
  * Process TDS 5 "PARAMFMT" token and store relevant information in the
  * _netlib_data structure for later use (see tds_get_row_size)
@@ -3465,9 +3505,17 @@ dissect_tds_paramfmt_token(proto_tree *tree, tvbuff_t *tvb, guint offset, tds_co
         cur++;
 
         if (!is_fixedlen_type_tds(nl_data->columns[col]->ctype)) {
-            nl_data->columns[col]->csize = tvb_get_guint8(tvb,cur);
-            proto_tree_add_item(tree, hf_tds_paramfmt_csize, tvb, cur, 1, ENC_NA);
-            cur ++;
+            if (is_longlen_type_sybase(nl_data->columns[col]->ctype)) {
+                proto_tree_add_item_ret_uint(tree, hf_tds_paramfmt_csize, tvb, cur, 4,
+                    tds_get_int4_encoding(tds_info),
+                    &nl_data->columns[col]->csize);
+                cur += 4;
+            }
+            else {
+                nl_data->columns[col]->csize = tvb_get_guint8(tvb,cur);
+                proto_tree_add_item(tree, hf_tds_paramfmt_csize, tvb, cur, 1, ENC_NA);
+                cur ++;
+            }
         } else {
             nl_data->columns[col]->csize =
                 get_size_by_coltype(nl_data->columns[col]->ctype);
@@ -3538,9 +3586,17 @@ dissect_tds_paramfmt2_token(proto_tree *tree, tvbuff_t *tvb, guint offset, tds_c
         cur++;
 
         if (!is_fixedlen_type_tds(nl_data->columns[col]->ctype)) {
-            nl_data->columns[col]->csize = tvb_get_guint8(tvb,cur);
-            proto_tree_add_item(tree, hf_tds_paramfmt2_csize, tvb, cur, 1, ENC_NA);
-            cur ++;
+            if (is_longlen_type_sybase(nl_data->columns[col]->ctype)) {
+                proto_tree_add_item_ret_uint(tree, hf_tds_paramfmt2_csize, tvb, cur, 4,
+                    tds_get_int4_encoding(tds_info),
+                    &nl_data->columns[col]->csize);
+                cur += 4;
+            }
+            else {
+                nl_data->columns[col]->csize = tvb_get_guint8(tvb,cur);
+                proto_tree_add_item(tree, hf_tds_paramfmt2_csize, tvb, cur, 1, ENC_NA);
+                cur ++;
+            }
         } else {
             nl_data->columns[col]->csize =
                 get_size_by_coltype(nl_data->columns[col]->ctype);
@@ -3614,6 +3670,7 @@ tds45_token_to_idx(guint8 token)
         case TDS_INFO_TOKEN: return hf_tds_info;
         case TDS_LOGIN_ACK_TOKEN: return hf_tds_loginack;
         case TDS5_LOGOUT_TOKEN: return hf_tds_logout;
+        case TDS5_MSG_TOKEN: return hf_tds_msg;
         case TDS_OFFSET_TOKEN: return hf_tds_offset;
         case TDS_ORDER_TOKEN: return hf_tds_order;
         case TDS5_PARAMFMT_TOKEN: return hf_tds_paramfmt;
@@ -6364,8 +6421,21 @@ dissect_tds_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv_i
                 case TDS_LOGIN_ACK_TOKEN:
                     token_sz = dissect_tds_login_ack_token(tvb, pos + 1, token_tree, tds_info) + 1;
                     break;
+                case TDS5_MSG_TOKEN:
+                    token_sz = dissect_tds5_msg_token(token_tree, tvb, pos + 1, tds_info) + 1;
+                    break;
                 case TDS_ORDER_TOKEN:
                     token_sz = dissect_tds_order_token(tvb, pos + 1, token_tree, tds_info) + 1;
+                    break;
+                case TDS5_PARAMFMT_TOKEN:
+                    token_sz = dissect_tds_paramfmt_token(token_tree, tvb, pos + 1, tds_info, &nl_data) + 1;
+                    break;
+                case TDS5_PARAMFMT2_TOKEN:
+                    token_sz = dissect_tds_paramfmt2_token(token_tree, tvb, pos + 1, tds_info, &nl_data) + 1;
+                    break;
+                case TDS5_PARAMS_TOKEN:
+                    token_sz = dissect_tds5_params_token(tvb, pinfo, &nl_data, pos + 1,
+                                                         token_tree, token_item, tds_info) + 1;
                     break;
                 case TDS_PROCID_TOKEN:
                     token_sz = dissect_tds_procid_token(tvb, pos + 1, token_tree, tds_info) + 1;
@@ -8651,6 +8721,28 @@ proto_register_tds(void)
             NULL, HFILL }
         },
 
+        /* MSG token (TDS5_MSG_TOKEN) */
+        { &hf_tds_msg,
+          { "Token - Msg", "tds.msg",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_msg_length,
+          { "Token length - Msg", "tds.msg.length",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_msg_status,
+          { "Status", "tds.msg.status",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_msg_msgid,
+          { "Message Id", "tds.msg.msgid",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
         /* NBCROW token (TDS_NBCROW_TOKEN) */
         { &hf_tds_nbcrow,
           { "Token - NBCRow", "tds.nbcrow",
@@ -8730,7 +8822,7 @@ proto_register_tds(void)
         },
         { &hf_tds_paramfmt_csize,
           { "Parameter size", "tds.paramfmt.csize",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+            FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_tds_paramfmt_locale_info,
@@ -8777,7 +8869,7 @@ proto_register_tds(void)
         },
         { &hf_tds_paramfmt2_csize,
           { "Parameter size", "tds.paramfmt2.csize",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+            FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_tds_paramfmt2_locale_info,
