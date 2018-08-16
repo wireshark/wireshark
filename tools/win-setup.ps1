@@ -101,8 +101,8 @@ Param(
 # trouble instead of trying to catch exceptions everywhere.
 $ErrorActionPreference = "Stop"
 
-$Win64CurrentTag = "2018-05-02-2.2"
-$Win32CurrentTag = "2018-05-02-2.2"
+$Win64CurrentTag = "2018-08-15-2.2"
+$Win32CurrentTag = "2018-08-15-2.2"
 
 # Archive file / subdir.
 $Win64Archives = @{
@@ -116,7 +116,6 @@ $Win64Archives = @{
     "libssh-0.7.3-win64ws.zip" = "";
     "nasm-2.09.08-win32.zip" = "";
     "portaudio_v19_2.zip" = "";
-    "upx303w.zip" = "";
     "WinSparkle-0.5.7.zip" = "";
     "WpdPack_4_1_2.zip" = "";
     "zlib-1.2.8-ws.zip" = "";
@@ -133,7 +132,6 @@ $Win32Archives = @{
     "libssh-0.7.3-win32ws.zip" = "";
     "nasm-2.09.08-win32.zip" = "";
     "portaudio_v19_2.zip" = "";
-    "upx303w.zip" = "";
     "WinSparkle-0.5.7.zip" = "";
     "WpdPack_4_1_2.zip" = "";
     "zlib-1.2.8-ws.zip" = "";
@@ -151,12 +149,12 @@ if ( @("14", "12", "11", "10") -contains $VSVersion ) {
 
 $Win32Files = @(
     "WinPcap_4_1_3.exe";
-    "USBPcapSetup-1.1.0.0-g794bf26-5.exe";
+    "USBPcapSetup-1.2.0.4.exe";
 )
 
 $Win64Files = @(
     "WinPcap_4_1_3.exe";
-    "USBPcapSetup-1.1.0.0-g794bf26-5.exe";
+    "USBPcapSetup-1.2.0.4.exe";
 )
 
 $Archives = $Win64Archives;
