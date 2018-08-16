@@ -259,6 +259,58 @@ class case_decrypt_tls(subprocesstest.SubprocessTestCase):
             env=config.test_env)
         self.assertTrue(self.grepOutput('TLS13-CHACHA20-POLY1305-SHA256'))
 
+    def test_tls13_rfc8446(self):
+        '''TLS 1.3 (normal session, then early data followed by normal data).'''
+        if not config.have_libgcrypt16:
+            self.skipTest('Requires GCrypt 1.6 or later.')
+        capture_file = os.path.join(config.capture_dir, 'tls13-rfc8446.pcap')
+        key_file = os.path.join(config.key_dir, 'tls13-rfc8446.keys')
+        proc = self.runProcess((config.cmd_tshark,
+                '-r', capture_file,
+                '-ossl.keylog_file:{}'.format(key_file),
+                '-Y', 'http',
+                '-Tfields',
+                '-e', 'frame.number',
+                '-e', 'http.request.uri',
+                '-e', 'http.file_data',
+                '-E', 'separator=|',
+            ),
+            env=config.test_env)
+        self.assertEqual([
+            r'5|/first|',
+            r'6||Request for /first, version TLSv1.3, Early data: no\n',
+            r'8|/early|',
+            r'10||Request for /early, version TLSv1.3, Early data: yes\n',
+            r'12|/second|',
+            r'13||Request for /second, version TLSv1.3, Early data: yes\n',
+        ], proc.stdout_str.splitlines())
+
+    def test_tls13_rfc8446_noearly(self):
+        '''TLS 1.3 (with undecryptable early data).'''
+        if not config.have_libgcrypt16:
+            self.skipTest('Requires GCrypt 1.6 or later.')
+        capture_file = os.path.join(config.capture_dir, 'tls13-rfc8446.pcap')
+        key_file = os.path.join(config.key_dir, 'tls13-rfc8446-noearly.keys')
+        proc = self.runProcess((config.cmd_tshark,
+                '-r', capture_file,
+                '-ossl.keylog_file:{}'.format(key_file),
+                '-Y', 'http',
+                '-Tfields',
+                '-e', 'frame.number',
+                '-e', 'http.request.uri',
+                '-e', 'http.file_data',
+                '-E', 'separator=|',
+            ),
+            env=config.test_env)
+        self.assertEqual([
+            r'5|/first|',
+            r'6||Request for /first, version TLSv1.3, Early data: no\n',
+            r'10||Request for /early, version TLSv1.3, Early data: yes\n',
+            r'12|/second|',
+            r'13||Request for /second, version TLSv1.3, Early data: yes\n',
+        ], proc.stdout_str.splitlines())
+
+
 class case_decrypt_zigbee(subprocesstest.SubprocessTestCase):
     def test_zigbee(self):
         '''ZigBee'''
