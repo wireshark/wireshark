@@ -120,16 +120,82 @@ gboolean ws_pipe_spawn_sync(gchar *dirname, gchar *command, gint argc, gchar **a
 
     if (win32_create_process(NULL, winargs->str, NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &info, &processInfo))
     {
-        gchar* buffer;
+        gchar* buffer = (gchar*)g_malloc(BUFFER_SIZE);
+        HANDLE handles[] = {processInfo.hProcess, child_stdout_rd, child_stderr_rd};
+        DWORD dw;
+        DWORD bytes_read;
+        DWORD bytes_avail;
+        GString *output_string = g_string_new(NULL);
 
-        WaitForSingleObject(processInfo.hProcess, INFINITE);
-        buffer = (gchar*)g_malloc(BUFFER_SIZE);
-        status = ws_read_string_from_pipe(child_stdout_rd, buffer, BUFFER_SIZE);
-        if (status)
+        for (;;)
         {
-            local_output = g_strdup_printf("%s", buffer);
+            dw = WaitForMultipleObjects(G_N_ELEMENTS(handles), handles, FALSE, INFINITE);
+            int idx = dw - WAIT_OBJECT_0;
+            if ((idx >= 0) && (idx < G_N_ELEMENTS(handles)))
+            {
+                if (handles[idx] == processInfo.hProcess)
+                {
+                    /* Process finished. Nothing left to do here. */
+                    break;
+                }
+                else if (handles[idx] == child_stdout_rd)
+                {
+                    if (PeekNamedPipe(child_stdout_rd, NULL, 0, NULL, &bytes_avail, NULL))
+                    {
+                        if (bytes_avail > 0)
+                        {
+                            bytes_avail = min(bytes_avail, BUFFER_SIZE);
+                            if (ReadFile(child_stdout_rd, &buffer[0], bytes_avail, &bytes_read, NULL))
+                            {
+                                g_string_append_len(output_string, buffer, bytes_read);
+                            }
+                        }
+                    }
+                }
+                else if (handles[idx] == child_stderr_rd)
+                {
+                    /* Discard the stderr data just like non-windows version of this function does. */
+                    if (PeekNamedPipe(child_stderr_rd, NULL, 0, NULL, &bytes_avail, NULL))
+                    {
+                        if (bytes_avail > 0)
+                        {
+                            bytes_avail = min(bytes_avail, BUFFER_SIZE);
+                            ReadFile(child_stderr_rd, &buffer[0], bytes_avail, &bytes_read, NULL);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "WaitForMultipleObjects returned 0x%08X. Error %d", dw, GetLastError());
+                break;
+            }
         }
+
+        /* At this point the process is finished but there might still be unread data in the pipe. */
+        while (PeekNamedPipe(child_stdout_rd, NULL, 0, NULL, &bytes_avail, NULL))
+        {
+            if (bytes_avail == 0)
+            {
+                /* Pipe is drained. */
+                break;
+            }
+            bytes_avail = min(bytes_avail, BUFFER_SIZE);
+            if (ReadFile(child_stdout_rd, &buffer[0], BUFFER_SIZE, &bytes_read, NULL))
+            {
+                g_string_append_len(output_string, buffer, bytes_read);
+            }
+        }
+
         g_free(buffer);
+
+        status = GetExitCodeProcess(processInfo.hProcess, &dw);
+        if (status && dw != 0)
+        {
+            status = FALSE;
+        }
+
+        local_output = g_string_free(output_string, FALSE);
 
         CloseHandle(child_stdout_rd);
         CloseHandle(child_stdout_wr);
