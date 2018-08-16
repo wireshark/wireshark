@@ -3992,10 +3992,6 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
         /* Sequence number is left-padded with zeroes and XORed with write_iv */
         phton64(nonce + nonce_len - 8, pntoh64(nonce + nonce_len - 8) ^ decoder->seq);
         ssl_debug_printf("%s seq %" G_GUINT64_FORMAT "\n", G_STRFUNC, decoder->seq);
-        /* sequence number for TLS 1.2 is incremented when calculating AAD. */
-        if (!is_v12) {
-            decoder->seq++;         /* Implicit sequence number for TLS 1.3. */
-        }
     }
 
     /* Set nonce and additional authentication data */
@@ -4018,9 +4014,7 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
     if (is_v12) {
         guchar aad[13];
         phton64(aad, decoder->seq);         /* record sequence number */
-        if (version == TLSV1DOT2_VERSION) {
-            decoder->seq++;                 /* Implicit sequence number for TLS 1.2. */
-        } else {
+        if (version == DTLSV1DOT2_VERSION) {
             phton16(aad, decoder->epoch);   /* DTLS 1.2 includes epoch. */
         }
         aad[8] = ct;                        /* TLSCompressed.type */
@@ -4081,6 +4075,15 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
 #else
     ssl_debug_printf("Libgcrypt is older than 1.6, unable to verify auth tag!\n");
 #endif
+
+    /*
+     * Increment the (implicit) sequence number for TLS 1.2/1.3. This is done
+     * after successful authentication to ensure that early data is skipped when
+     * CLIENT_EARLY_TRAFFIC_SECRET keys are unavailable.
+     */
+    if (version == TLSV1DOT2_VERSION || version == TLSV1DOT3_VERSION) {
+        decoder->seq++;
+    }
 
     ssl_print_data("Plaintext", out_str->data, ciphertext_len);
     *outl = ciphertext_len;
