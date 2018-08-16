@@ -405,6 +405,8 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-juniper.h
 	packet-jxta.h
 	packet-kerberos.h
+	packet-knxip.h
+	packet-knxip_decrypt.h
 	packet-l2tp.h
 	packet-lapdm.h
 	packet-lbm.h
@@ -762,6 +764,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ccsds.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cdp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cell_broadcast.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-cemi.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ceph.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cfdp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cfm.c
@@ -1243,7 +1246,8 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-kismet.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-klm.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-knet.c
-	${CMAKE_CURRENT_SOURCE_DIR}/packet-knxnetip.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-knxip.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-knxip_decrypt.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-kpasswd.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-kt.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-l1-events.c

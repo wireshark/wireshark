@@ -760,3 +760,118 @@ class case_decrypt_wireguard(subprocesstest.SubprocessTestCase):
         ], pcap_file='wireguard-psk.pcap')
         self.assertIn('2\t0', lines)
         self.assertIn('4\t0', lines)
+
+class case_decrypt_knxip(subprocesstest.SubprocessTestCase):
+    # Capture files for these tests contain single telegrams.
+    # For realistic (live captured) KNX/IP telegram sequences, see:
+    # https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14825
+
+    def test_knxip_data_security_decryption_ok(self):
+        '''KNX/IP: Data Security decryption OK'''
+        # capture_file contains KNX/IP ConfigReq DataSec PropExtValueWriteCon telegram
+        capture_file = os.path.join(config.capture_dir, 'knxip_DataSec.pcap')
+        self.runProcess((config.cmd_tshark,
+                '-r', capture_file,
+                '-o', 'kip.key_1:00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F',
+            ),
+            env=config.test_env)
+        self.assertTrue(self.grepOutput(' DataSec '))
+        self.assertTrue(self.grepOutput(' PropExtValueWriteCon '))
+
+    def test_knxip_data_security_decryption_fails(self):
+        '''KNX/IP: Data Security decryption fails'''
+        # capture_file contains KNX/IP ConfigReq DataSec PropExtValueWriteCon telegram
+        capture_file = os.path.join(config.capture_dir, 'knxip_DataSec.pcap')
+        self.runProcess((config.cmd_tshark,
+                '-r', capture_file,
+                '-o', 'kip.key_1:""', # "" is really necessary, otherwise test fails
+            ),
+            env=config.test_env)
+        self.assertTrue(self.grepOutput(' DataSec '))
+        self.assertFalse(self.grepOutput(' PropExtValueWriteCon '))
+
+    def test_knxip_secure_wrapper_decryption_ok(self):
+        '''KNX/IP: SecureWrapper decryption OK'''
+        # capture_file contains KNX/IP SecureWrapper RoutingInd telegram
+        capture_file = os.path.join(config.capture_dir, 'knxip_SecureWrapper.pcap')
+        self.runProcess((config.cmd_tshark,
+                '-r', capture_file,
+                '-o', 'kip.key_1:00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F',
+            ),
+            env=config.test_env)
+        self.assertTrue(self.grepOutput(' SecureWrapper '))
+        self.assertTrue(self.grepOutput(' RoutingInd '))
+
+    def test_knxip_secure_wrapper_decryption_fails(self):
+        '''KNX/IP: SecureWrapper decryption fails'''
+        # capture_file contains KNX/IP SecureWrapper RoutingInd telegram
+        capture_file = os.path.join(config.capture_dir, 'knxip_SecureWrapper.pcap')
+        self.runProcess((config.cmd_tshark,
+                '-r', capture_file,
+                '-o', 'kip.key_1:""', # "" is really necessary, otherwise test fails
+            ),
+            env=config.test_env)
+        self.assertTrue(self.grepOutput(' SecureWrapper '))
+        self.assertFalse(self.grepOutput(' RoutingInd '))
+
+    def test_knxip_timer_notify_authentication_ok(self):
+        '''KNX/IP: TimerNotify authentication OK'''
+        # capture_file contains KNX/IP TimerNotify telegram
+        capture_file = os.path.join(config.capture_dir, 'knxip_TimerNotify.pcap')
+        self.runProcess((config.cmd_tshark,
+                '-r', capture_file,
+                '-o', 'kip.key_1:00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F',
+            ),
+            env=config.test_env)
+        self.assertTrue(self.grepOutput(' TimerNotify '))
+        self.assertTrue(self.grepOutput(' OK$'))
+
+    def test_knxip_timer_notify_authentication_fails(self):
+        '''KNX/IP: TimerNotify authentication fails'''
+        # capture_file contains KNX/IP TimerNotify telegram
+        capture_file = os.path.join(config.capture_dir, 'knxip_TimerNotify.pcap')
+        self.runProcess((config.cmd_tshark,
+                '-r', capture_file,
+                '-o', 'kip.key_1:""', # "" is really necessary, otherwise test fails
+            ),
+            env=config.test_env)
+        self.assertTrue(self.grepOutput(' TimerNotify '))
+        self.assertFalse(self.grepOutput(' OK$'))
+
+    def test_knxip_keyring_xml_import(self):
+        '''KNX/IP: keyring.xml import'''
+        # key_file "keyring.xml" contains KNX decryption keys
+        key_file = os.path.join(config.key_dir, 'knx_keyring.xml')
+        # capture_file is empty
+        capture_file = os.path.join(config.capture_dir, 'empty.pcap')
+        # Write extracted key info to stdout
+        self.runProcess((config.cmd_tshark,
+                '-o', 'kip.key_file:' + key_file,
+                '-o', 'kip.key_info_file:-',
+                '-r', capture_file,
+            ),
+            env=config.test_env)
+        self.assertTrue(self.grepOutput('^MCA 224[.]0[.]23[.]12 key A0 A1 A2 A3 A4 A5 A6 A7 A8 A9 AA AB AC AD AE AF$'))
+        self.assertTrue(self.grepOutput('^GA 1/7/131 sender 1[.]1[.]1$'))
+        self.assertTrue(self.grepOutput('^GA 1/7/131 sender 1[.]1[.]3$'))
+        self.assertTrue(self.grepOutput('^GA 1/7/131 sender 1[.]1[.]4$'))
+        self.assertTrue(self.grepOutput('^GA 1/7/132 sender 1[.]1[.]2$'))
+        self.assertTrue(self.grepOutput('^GA 1/7/132 sender 1[.]1[.]4$'))
+        self.assertTrue(self.grepOutput('^GA 6/7/191 sender 1[.]1[.]1$'))
+        self.assertTrue(self.grepOutput('^GA 0/1/0 sender 1[.]1[.]1$'))
+        self.assertTrue(self.grepOutput('^GA 0/1/0 sender 1[.]1[.]3$'))
+        self.assertTrue(self.grepOutput('^GA 0/1/0 sender 1[.]1[.]4$'))
+        self.assertTrue(self.grepOutput('^GA 0/1/0 key A0 A1 A2 A3 A4 A5 A6 A7 A8 A9 AA AB AC AD AE AF$'))
+        self.assertTrue(self.grepOutput('^GA 1/7/131 key A0 A1 A2 A3 A4 A5 A6 A7 A8 A9 AA AB AC AD AE AF$'))
+        self.assertTrue(self.grepOutput('^GA 1/7/132 key A0 A1 A2 A3 A4 A5 A6 A7 A8 A9 AA AB AC AD AE AF$'))
+        self.assertTrue(self.grepOutput('^GA 6/7/191 key A0 A1 A2 A3 A4 A5 A6 A7 A8 A9 AA AB AC AD AE AF$'))
+        self.assertTrue(self.grepOutput('^IA 1[.]1[.]1 key B0 B1 B2 B3 B4 B5 B6 B7 B8 B9 BA BB BC BD BE BF$'))
+        self.assertTrue(self.grepOutput('^IA 1[.]1[.]1 SeqNr 45678$'))
+        self.assertTrue(self.grepOutput('^IA 1[.]1[.]2 key B0 B1 B2 B3 B4 B5 B6 B7 B8 B9 BA BB BC BD BE BF$'))
+        self.assertTrue(self.grepOutput('^IA 1[.]1[.]2 SeqNr 34567$'))
+        self.assertTrue(self.grepOutput('^IA 1[.]1[.]3 key B0 B1 B2 B3 B4 B5 B6 B7 B8 B9 BA BB BC BD BE BF$'))
+        self.assertTrue(self.grepOutput('^IA 1[.]1[.]3 SeqNr 23456$'))
+        self.assertTrue(self.grepOutput('^IA 1[.]1[.]4 key B0 B1 B2 B3 B4 B5 B6 B7 B8 B9 BA BB BC BD BE BF$'))
+        self.assertTrue(self.grepOutput('^IA 1[.]1[.]4 SeqNr 12345$'))
+        self.assertTrue(self.grepOutput('^IA 2[.]1[.]0 key B0 B1 B2 B3 B4 B5 B6 B7 B8 B9 BA BB BC BD BE BF$'))
+        self.assertTrue(self.grepOutput('^IA 2[.]1[.]0 SeqNr 1234$'))
