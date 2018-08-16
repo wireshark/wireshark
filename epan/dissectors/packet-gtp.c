@@ -69,7 +69,6 @@
 void proto_register_gtp(void);
 void proto_reg_handoff_gtp(void);
 
-static dissector_table_t ppp_subdissector_table;
 static dissector_table_t gtp_priv_ext_dissector_table;
 static dissector_table_t gtp_cdr_fmt_dissector_table;
 static dissector_table_t gtp_hdr_ext_dissector_table;
@@ -89,7 +88,7 @@ static dissector_handle_t gtp_handle, gtp_prime_handle;
 #define GTP_CONDITIONAL 4
 
 #define GTP_TPDU_AS_NONE -1
-#define GTP_TPDU_AS_TPDU 0
+#define GTP_TPDU_AS_TPDU_HEUR 0
 #define GTP_TPDU_AS_SYNC 2
 
 static gboolean g_gtp_over_tcp = TRUE;
@@ -591,10 +590,10 @@ static guint pdcp_lte_ueid_hash_func(gconstpointer v)
 
 static gboolean g_gtp_etsi_order = FALSE;
 
-static gint dissect_tpdu_as = GTP_TPDU_AS_TPDU;
+static gint dissect_tpdu_as = GTP_TPDU_AS_TPDU_HEUR;
 static const enum_val_t gtp_decode_tpdu_as[] = {
     {"none", "None",   GTP_TPDU_AS_NONE},
-    {"tpdu", "TPDU",   GTP_TPDU_AS_TPDU},
+    {"tpdu heuristic", "TPDU Heuristic",   GTP_TPDU_AS_TPDU_HEUR},
     {"sync", "SYNC",   GTP_TPDU_AS_SYNC},
     {NULL, NULL, 0}
 };
@@ -640,6 +639,8 @@ static const value_string pt_types[] = {
 #define GTP_EXT_HDR_NO_MORE_EXT_HDRS         0x00
 #define GTP_EXT_HDR_MBMS_SUPPORT_IND         0x01
 #define GTP_EXT_HDR_MS_INFO_CHG_REP_SUPP_IND 0x02
+#define GTP_EXT_HDR_LONG_PDCP_PDU_NUMBER     0x03 /* TS 29.281 (GTPv1-U)*/
+#define GTP_EXT_HDR_SERVICE_CLASS_INDICATOR  0x20 /* TS 29.281 (GTPv1-U)*/
 #define GTP_EXT_HDR_UDP_PORT                 0x40
 #define GTP_EXT_HDR_RAN_CONT                 0x81
 #define GTP_EXT_HDR_LONG_PDCP_PDU            0x82
@@ -654,6 +655,8 @@ static const value_string next_extension_header_fieldvals[] = {
     {GTP_EXT_HDR_NO_MORE_EXT_HDRS, "No more extension headers"},
     {GTP_EXT_HDR_MBMS_SUPPORT_IND, "MBMS support indication"},
     {GTP_EXT_HDR_MS_INFO_CHG_REP_SUPP_IND, "MS Info Change Reporting support indication"},
+    {GTP_EXT_HDR_LONG_PDCP_PDU_NUMBER, "Long PDCP PDU Number"},
+    {GTP_EXT_HDR_SERVICE_CLASS_INDICATOR, "Service Class Indicator"},
     {GTP_EXT_HDR_UDP_PORT, "UDP Port number"},
     {GTP_EXT_HDR_RAN_CONT,"RAN container"},
     {GTP_EXT_HDR_LONG_PDCP_PDU,"Long PDCP PDU number"},
@@ -9070,8 +9073,9 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                 offset++;
 
                 if (gtp_hdr->flags & GTP_E_MASK) {
+                    proto_item* hdr_ext_item;
                     next_hdr = tvb_get_guint8(tvb, offset);
-                    proto_tree_add_uint(gtp_tree, hf_gtp_ext_hdr_next, tvb, offset, 1, next_hdr);
+                    hdr_ext_item = proto_tree_add_uint(gtp_tree, hf_gtp_ext_hdr_next, tvb, offset, 1, next_hdr);
                     offset++;
                     while (next_hdr != 0) {
                         ext_hdr_length = tvb_get_guint8(tvb, offset);
@@ -9309,10 +9313,13 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                             {
                                 tvbuff_t * ext_hdr_tvb;
                                 int toffset, rem_len;
+                                gtp_hdr_ext_info_t gtp_hdr_ext_info;
 
+                                gtp_hdr_ext_info.hdr_ext_item = hdr_ext_item;
                                 /* NOTE Type end lenght included in the call*/
                                 ext_hdr_tvb = tvb_new_subset_remaining(tvb, offset - 2);
-                                if ((toffset = dissector_try_uint(gtp_hdr_ext_dissector_table, next_hdr, ext_hdr_tvb, pinfo, ext_tree))) {
+                                if ((toffset = dissector_try_uint_new(gtp_hdr_ext_dissector_table, next_hdr, ext_hdr_tvb, pinfo,
+                                    ext_tree, FALSE,&gtp_hdr_ext_info))) {
                                     /* Dissector found*/
                                     rem_len = tvb_reported_length(ext_hdr_tvb);
                                     if (rem_len == toffset) {
@@ -9393,7 +9400,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     }
     proto_item_set_end(ti, tvb, offset);
 
-    if ((gtp_hdr->message == GTP_MSG_TPDU) && dissect_tpdu_as == GTP_TPDU_AS_TPDU) {
+    if ((gtp_hdr->message == GTP_MSG_TPDU) && dissect_tpdu_as == GTP_TPDU_AS_TPDU_HEUR) {
         if(tvb_reported_length_remaining(tvb, offset) > 0){
             proto_tree_add_item(gtp_tree, hf_gtp_tpdu_data, tvb, offset, -1, ENC_NA);
 
@@ -9436,6 +9443,8 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         call_dissector(sync_handle, next_tvb, pinfo, tree);
         col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "GTP <");
         col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
+    } else {
+        proto_tree_add_item(tree, hf_gtp_tpdu_data, tvb, offset, -1, ENC_NA);
     }
 
     tap_queue_packet(gtpv1_tap,pinfo, gtp_hdr);
@@ -10960,7 +10969,6 @@ proto_reg_handoff_gtp(void)
     static guint              gtpv1u_port;
 
     if (!Initialized) {
-        ppp_subdissector_table = find_dissector_table("ppp.protocol");
 
         radius_register_avp_dissector(VENDOR_THE3GPP, 5, dissect_radius_qos_umts);
         radius_register_avp_dissector(VENDOR_THE3GPP, 12, dissect_radius_selection_mode);
