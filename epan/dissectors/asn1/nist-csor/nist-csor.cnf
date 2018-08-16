@@ -1,0 +1,48 @@
+# nist-csor.cnf
+# NIST CSOR conformation file
+
+#.IMPORT ../x509af/x509af-exp.cnf
+#.IMPORT ../x509ce/x509ce-exp.cnf
+#.IMPORT ../x509if/x509if-exp.cnf
+#.IMPORT ../x509sat/x509sat-exp.cnf
+
+#.OMIT_ASSIGNMENT
+AESAlgorithmIdentifier
+#.END
+
+#.EXPORTS
+CFBParameters
+AES-IV
+NumberOfBits
+ShakeOutputLen
+
+#.REGISTER
+
+# 128-bit AES information OIDs
+AES-IV               B "2.16.840.1.101.3.4.1.2"     "id-aes128-CBC"
+AES-IV               B "2.16.840.1.101.3.4.1.3"     "id-aes128-OFB"
+CFBParameters        B "2.16.840.1.101.3.4.1.4"     "id-aes128-CFB"
+
+# 192-bit AES information OIDs
+AES-IV               B "2.16.840.1.101.3.4.1.22"     "id-aes192-CBC"
+AES-IV               B "2.16.840.1.101.3.4.1.23"     "id-aes192-OFB"
+CFBParameters        B "2.16.840.1.101.3.4.1.24"     "id-aes192-CFB"
+
+# 256-bit AES information OIDs
+AES-IV               B "2.16.840.1.101.3.4.1.42"     "id-aes256-CBC"
+AES-IV               B "2.16.840.1.101.3.4.1.43"     "id-aes256-OFB"
+CFBParameters        B "2.16.840.1.101.3.4.1.44"     "id-aes256-CFB"
+
+# SHA-3 family
+ShakeOutputLen       B "2.16.840.1.101.3.4.2.17"     "id-shake128-len"
+ShakeOutputLen       B "2.16.840.1.101.3.4.2.18"     "id-shake256-len"
+
+#.NO_EMIT
+
+#.TYPE_RENAME
+
+#.FIELD_RENAME
+
+#.END
+
+

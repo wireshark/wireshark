@@ -1,0 +1,148 @@
+--
+-- AES OIDs obtained from
+-- https://csrc.nist.gov/projects/computer-security-objects-register/algorithm-registration
+-- on 2018-08-16, and polished for asn2wrs
+--
+-- injected SHA-3 family parameter near the bottom
+
+NIST-AES { joint-iso-ccitt(2) country(16) us(840) organization(1) gov(101) csor(3)
+nistalgorithm(4) modules (0) aes (1) } DEFINITIONS IMPLICIT TAGS ::= BEGIN
+
+-- IMPORTS None --
+
+-- EXPORTS All --
+
+
+AESAlgorithmIdentifier ::= AlgorithmIdentifier {{ AES-Algorithms }}
+
+
+-- Algorithm information objects --
+
+AES-Algorithms ALGORITHM ::= {
+   AES-128-Algorithms  |
+   AES-192-Algorithms  |
+   AES-256-Algorithms,
+   ...
+}
+
+AES-128-Algorithms ALGORITHM ::= {
+   aes-128-ECB  |
+   aes-128-CBC  |
+   aes-128-OFB  |
+   aes-128-CFB
+}
+
+-- aes-128-ECB ALGORITHM ::= { OID id-aes128-ECB }
+-- aes-128-CBC ALGORITHM ::= { OID id-aes128-CBC PARMS AES-IV }
+-- aes-128-OFB ALGORITHM ::= { OID id-aes128-OFB PARMS AES-IV }
+-- aes-128-CFB ALGORITHM ::= { OID id-aes128-CFB PARMS CFBParameters }
+
+AES-192-Algorithms ALGORITHM ::= {
+   aes-192-ECB  |
+   aes-192-CBC  |
+   aes-192-OFB  |
+   aes-192-CFB
+}
+
+-- aes-192-ECB ALGORITHM ::= { OID id-aes192-ECB }
+-- aes-192-CBC ALGORITHM ::= { OID id-aes192-CBC PARMS AES-IV }
+-- aes-192-OFB ALGORITHM ::= { OID id-aes192-OFB PARMS AES-IV }
+-- aes-192-CFB ALGORITHM ::= { OID id-aes192-CFB PARMS CFBParameters }
+
+AES-256-Algorithms ALGORITHM ::= {
+   aes-256-ECB  |
+   aes-256-CBC  |
+   aes-256-OFB  |
+   aes-256-CFB
+}
+
+-- aes-256-ECB ALGORITHM ::= { OID id-aes256-ECB }
+-- aes-256-CBC ALGORITHM ::= { OID id-aes256-CBC PARMS AES-IV }
+-- aes-256-OFB ALGORITHM ::= { OID id-aes256-OFB PARMS AES-IV }
+-- aes-256-CFB ALGORITHM ::= { OID id-aes256-CFB PARMS CFBParameters }
+
+
+-- Parameter definitions --
+
+CFBParameters ::= SEQUENCE {
+   aes-IV        AES-IV,
+   numberOfBits	 NumberOfBits
+}
+
+AES-IV ::= OCTET STRING (SIZE(16))
+
+NumberOfBits ::= INTEGER(1..128)
+
+
+-- AES information object identifiers -- 
+
+csor OBJECT IDENTIFIER ::= { 
+   joint-iso-itu-t(2) country(16) us(840) organization(1) gov(101) 3 }
+
+nistAlgorithms OBJECT IDENTIFIER ::= { csor nistAlgorithm(4) } 
+
+aes OBJECT IDENTIFIER ::= { nistAlgorithms  1 }
+
+-- 128 bit AES information object identifiers -- 
+
+id-aes128-ECB OBJECT IDENTIFIER ::= { aes 1 }
+id-aes128-CBC OBJECT IDENTIFIER ::= { aes 2 }
+id-aes128-OFB OBJECT IDENTIFIER ::= { aes 3 }
+id-aes128-CFB OBJECT IDENTIFIER ::= { aes 4 }
+id-aes128-wrap OBJECT IDENTIFIER ::= { aes 5 }
+id-aes128-GCM OBJECT IDENTIFIER ::= { aes 6 }
+id-aes128-CCM OBJECT IDENTIFIER ::= { aes 7 }
+id-aes128-wrap-pad OBJECT IDENTIFIER ::= { aes 8 }
+
+-- 192 bit AES information object identifiers -- 
+
+id-aes192-ECB OBJECT IDENTIFIER ::= { aes 21 }
+id-aes192-CBC OBJECT IDENTIFIER ::= { aes 22 }
+id-aes192-OFB OBJECT IDENTIFIER ::= { aes 23 }
+id-aes192-CFB OBJECT IDENTIFIER ::= { aes 24 }
+id-aes192-wrap OBJECT IDENTIFIER ::= { aes 25 }
+id-aes192-GCM OBJECT IDENTIFIER ::= { aes 26 }
+id-aes192-CCM OBJECT IDENTIFIER ::= { aes 27 }
+id-aes192-wrap-pad OBJECT IDENTIFIER ::= { aes 28 }
+
+-- 256 bit AES information object identifiers -- 
+
+id-aes256-ECB OBJECT IDENTIFIER ::= { aes 41 } 
+id-aes256-CBC OBJECT IDENTIFIER ::= { aes 42 }  
+id-aes256-OFB OBJECT IDENTIFIER ::= { aes 43 } 
+id-aes256-CFB OBJECT IDENTIFIER ::= { aes 44 }
+id-aes256-wrap OBJECT IDENTIFIER ::= { aes 45 }
+id-aes256-GCM OBJECT IDENTIFIER ::= { aes 46 }
+id-aes256-CCM OBJECT IDENTIFIER ::= { aes 47 }
+id-aes256-wrap-pad OBJECT IDENTIFIER ::= { aes 48 }
+
+-- Supporting definitions --
+
+-- AlgorithmIdentifier { ALGORITHM:IOSet } ::= SEQUENCE {
+--   algorithm   ALGORITHM.&id({IOSet}),
+--   parameters  ALGORITHM.&Type({IOSet}{@algorithm})  OPTIONAL
+-- }
+
+-- ALGORITHM ::= CLASS {
+--    &id    OBJECT IDENTIFIER  UNIQUE,
+--    &Type  OPTIONAL
+-- }
+--   WITH SYNTAX { OID &id [PARMS &Type] }
+
+-- SHA-3 family parameter obtained from
+-- https://csrc.nist.gov/projects/computer-security-objects-register/algorithm-registration
+-- on 2018-08-16
+ShakeOutputLen ::= INTEGER -- Output length in bits
+
+END  -- NIST-AES --
+
+--
+-- Last update: Wednesday, March 11, 2009
+--
+-- Tim Polk, NIST
+-- syntax not verified!
+--
+
+
+
+

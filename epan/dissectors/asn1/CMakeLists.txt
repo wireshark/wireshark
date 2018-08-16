@@ -71,6 +71,7 @@ set(ASN1_SRC_DIRS
 	mudurl
 	nbap
 	ngap
+	nist-csor
 	nr-rrc
 	ns_cert_exts
 	novell_pkis
