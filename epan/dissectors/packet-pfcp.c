@@ -6064,7 +6064,7 @@ proto_register_pfcp(void)
         },
         { &hf_pfcp_linked_urr_id,
         { "Linked URR ID", "pfcp.linked_urr_id",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+            FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pfcp_outer_hdr_desc,
