@@ -1,12 +1,12 @@
 
 
-Original Author
--------- ------
+= Original Author =
+
 Gerald Combs            <gerald[AT]wireshark.org>
 
 
-Contributors
-------------
+= Contributors =
+
 Gilbert Ramirez         <gram[AT]alumni.rice.edu> {
 	Wiretap
 	Printing
@@ -3533,7 +3533,7 @@ Subramanian Ramachandran <sramach6[AT]ncsu.edu> {
 	Support for BFD for MPLS LSP's as per RFC 5884
 }
 
-Manuel Hofer		<manuel[At]mnlhfr.at> {
+Manuel Hofer		<manuel[AT]mnlhfr.at> {
 	OpenVPN dissector
 	SSTP Dissection
 }
@@ -3961,8 +3961,8 @@ João Valverde		<joao.valverde[AT]tecnico.ulisboa.pt>
 Benoît Canet		<benoit[AT]scylladb.com>
 Håkon Øye Amundsen      <haakon.amundsen[AT]nordicsemi.no>
 
-Acknowledgements
-------------
+= Acknowledgements =
+
 Dan Lasley <dlasley[AT]promus.com> gave permission for his
 dumpit() hex-dump routine to be used.
 

@@ -1,12 +1,12 @@
 
 
-Original Author
--------- ------
+= Original Author =
+
 Gerald Combs            <gerald[AT]wireshark.org>
 
 
-Contributors
-------------
+= Contributors =
+
 Gilbert Ramirez         <gram[AT]alumni.rice.edu> {
 	Wiretap
 	Printing
@@ -3533,7 +3533,7 @@ Subramanian Ramachandran <sramach6[AT]ncsu.edu> {
 	Support for BFD for MPLS LSP's as per RFC 5884
 }
 
-Manuel Hofer		<manuel[At]mnlhfr.at> {
+Manuel Hofer		<manuel[AT]mnlhfr.at> {
 	OpenVPN dissector
 	SSTP Dissection
 }
@@ -3962,8 +3962,8 @@ Benoît Canet		<benoit[AT]scylladb.com>
 Håkon Øye Amundsen      <haakon.amundsen[AT]nordicsemi.no>
 
 
-From git log
----------------
+= From git log =
+
 Adam Goldman		<adam.goldman[AT]intel.com>
 Adam Mitz		<mitza[AT]ociweb.com>
 Adam Pridgen		<adam.pridgen[AT]thecoverofnight.com>
@@ -4327,6 +4327,7 @@ Merlin Chlosta		<merlin.chlosta+gnuradio[AT]ruhr-uni-bochum.de>
 Micha Reiser		<michafamreiser.ch>
 Michael Adam		<obnox[AT]samba.org>
 Michael Cistera		<michael.cistera[AT]netscout.com>
+Michael Honsel		<lesnoh[AT]gmx.de>
 Michael McConville	<mmcco[AT]mykolab.com>
 Michael Oed		<michael.oed[AT]gmail.com>
 Michael Pergament	<mpergament[AT]googlemail.com>
@@ -4417,8 +4418,10 @@ Prerit Jain		<prerit.jain[AT]samsung.com>
 Priyanka Mondal		<priyanka02010[AT]gmail.com>
 Radhashyam Behera	<radhashyambehera[AT]gmail.com>
 Rado Radoulov		<rad0x6f[AT]gmail.com>
+Ralf Nasilowski		<Ralf.Nasilowski[AT]ise.de>
 Ray Gomez		<rayvincent.gomez[AT]gmail.com>
 Remi Gacogne		<remi.gacogne[AT]powerdns.com>
+Remous-Aris Koutsiamanis <aris[AT]ariskou.com>
 Ricardo Cristian Ramirez <r.cristian.ramirez[AT]gmail.com>
 Rich Coe		<richcoe2[AT]gmail.com>
 Richard Kuemmel		<kuemmel.ric[AT]googlemail.com>
@@ -4565,8 +4568,8 @@ shqking			<shqking[AT]gmail.com>
 Дмитрий Цветцих		<dmitrycvet[AT]gmail.com>
 
 
-Acknowledgements
-------------
+= Acknowledgements =
+
 Dan Lasley <dlasley[AT]promus.com> gave permission for his
 dumpit() hex-dump routine to be used.
 

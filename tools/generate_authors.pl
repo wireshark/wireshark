@@ -26,8 +26,8 @@ my $is_contributing = 0;
 
 my $header = "
 
-Original Author
--------- ------
+= Original Author =
+
 Gerald Combs            <gerald[AT]wireshark.org>
 
 
@@ -35,8 +35,8 @@ Gerald Combs            <gerald[AT]wireshark.org>
 
 my $trailer = "
 
-Acknowledgements
-------------
+= Acknowledgements =
+
 Dan Lasley <dlasley[AT]promus.com> gave permission for his
 dumpit() hex-dump routine to be used.
 
@@ -71,8 +71,8 @@ to use QCustomPlot.
 ";
 
 my $git_log_text = "
-From git log
----------------
+= From git log =
+
 ";
 
 # Perl trim function to remove whitespace from the start and end of the string
