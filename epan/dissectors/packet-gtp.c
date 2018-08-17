@@ -9074,7 +9074,6 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                     proto_tree_add_uint(gtp_tree, hf_gtp_ext_hdr_next, tvb, offset, 1, next_hdr);
                     offset++;
                     while (next_hdr != 0) {
-                        nr_pdu_type = -1;
                         ext_hdr_length = tvb_get_guint8(tvb, offset);
                         tf = proto_tree_add_item(gtp_tree, hf_gtp_ext_hdr, tvb, offset, ext_hdr_length*4, ENC_NA);
                         ext_tree = proto_item_add_subtree(tf, ett_gtp_ext_hdr);
