@@ -6337,6 +6337,47 @@ dissect_gtpv2_node_identifier(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     int   offset = 0;
     guint32 name_len;
 
+    /*
+    RFC 6733
+    DiameterIdentity
+
+    The DiameterIdentity format is derived from the OctetString Basic
+    AVP Format....In this document, note that DiameterIdentity is
+      in ASCII form.
+
+    TS 29.274
+
+    If the Node Identifier contains a SGSN Identifier then:
+    - the Node Name shall be coded as the Diameter identity of the SGSN as defined in subclause 6.4.13 of 3GPP TS 29.173 [57] and;
+    - the Node Realm shall be coded as the Diameter realm identity of the SGSN and as defined in subclause 6.4.14 of 3GPP TS 29.173 [57] and;
+    - Both the Node Name and the Node Realm shall be present and neither the Length of Node Name nor the Length of Node Realm shall be zero.
+        6.4.13  SGSN-Name
+        The SGSN-Name AVP is of type DiameterIdentity...see IETF RFC 6733
+        6.4.14    SGSN-Realm
+        The SGSN-Realm AVP is of type DiameterIdentity...see IETF RFC 6733
+
+    If the Node Identifier contains a MME Identifier then:
+    - the Node Name shall be coded as the Diameter identity of the MME as defined in subclause 6.4.4 of 3GPP TS 29.173 [57] and;
+    - the Node Realm shall be coded as the Diameter realm identity of the MME as defined in subclause 6.4.12 of 3GPP TS 29.173 [57] and;
+    -  Both the Node Name and the Node Realm shall be present and neither the Length of Node Name nor the Length of Node Realm shall be zero.
+        6.4.4    MME-Name
+        The MME-Name AVP is of type DiameterIdentity...see IETF RFC 6733
+        6.4.12 MME-Realm
+        The MME-Realm AVP is of type DiameterIdentity...see IETF RFC 6733
+
+    If the Node Identifer contains a 3GPP AAA Server Identifier then:
+    - the Node Name shall be coded as the 3GPP-AAA-Server-Name as defined in subclause 8.2.3.24 of 3GPP TS 29.273 [68] and;
+        8.2.3.24    3GPP-AAA-Server-Name
+        The 3GPP-AAA-Server-Name AVP is of type DiameterIdentity
+
+    - the Node Realm shall be coded as the Diameter realm of the 3GPP AAA server in the format of a Diameter identity as defined in IETF RFC 3588 [39].
+    If the Node Identifier contains an SCEF information, then:
+    - the Node Name shall be coded as the SCEF-ID as defined in subclause 8.4.5 of 3GPP TS 29.336 [69] and;
+        8.4.5 SCEF-ID
+        The SCEF- ID AVP is of type DiameterIdentity
+    - the Node Realm shall be coded as the Diameter realm of the SCEF as defined in subclause 7.3.207 of 3GPP TS 29.272 [70].
+
+    */
     /* Octet 5 Length of Node Name */
     proto_tree_add_item_ret_uint(tree, hf_gtpv2_length_of_node_name, tvb, offset, 1, ENC_BIG_ENDIAN, &name_len);
     offset++;
