@@ -2962,7 +2962,7 @@ static const value_string s1g_action_vals[] = {
   {S1G_ACT_AID_SWITCH_RESPONSE, "AID Switch Response"},
   {S1G_ACT_SYNC_CONTROL, "Sync Control"},
   {S1G_ACT_STA_INFO_ANNOUNCE, "STA Information Announcement"},
-  {S1G_ACT_EDCA_PARAM_SET, "EDCA Paramater Set"},
+  {S1G_ACT_EDCA_PARAM_SET, "EDCA Parameter Set"},
   {S1G_ACT_EL_OPERATION, "EL Operation"},
   {S1G_ACT_TWT_SETUP, "TWT Setup"},
   {S1G_ACT_TWT_TEARDOWN, "TWT Teardown"},
