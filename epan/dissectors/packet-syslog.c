@@ -239,8 +239,11 @@ dissect_syslog_message(proto_tree* tree, tvbuff_t* tvb, guint offset)
   end_offset = tvb_find_guint8(tvb, offset, -1, ' ');
   if (end_offset == -1)
     return;
-  proto_tree_add_time_item(tree, hf_syslog_timestamp, tvb, offset, end_offset - offset, ENC_ISO_8601_DATE_TIME,
-    NULL, NULL, NULL);
+  if ((guint)end_offset != offset) {
+    /* do not call proto_tree_add_time_item with a length of 0 */
+    proto_tree_add_time_item(tree, hf_syslog_timestamp, tvb, offset, end_offset - offset, ENC_ISO_8601_DATE_TIME,
+      NULL, NULL, NULL);
+  }
   offset = end_offset + 1;
 
   if (!dissect_syslog_info(tree, tvb, &offset, hf_syslog_hostname))
