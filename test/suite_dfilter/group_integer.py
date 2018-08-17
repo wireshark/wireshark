@@ -87,51 +87,51 @@ class case_integer(dfiltertest.DFTestCase):
         self.assertDFilterCount(dfilter, 1)
 
     def test_s_gt_1(self):
-        dfilter = "ntp.precision > -12"
+        dfilter = "ntp.precision > 244"
         self.assertDFilterCount(dfilter, 1)
 
     def test_s_gt_2(self):
-        dfilter = "ntp.precision > -11"
+        dfilter = "ntp.precision > 245"
         self.assertDFilterCount(dfilter, 0)
 
     def test_s_gt_3(self):
-        dfilter = "ntp.precision > -10"
+        dfilter = "ntp.precision > 246"
         self.assertDFilterCount(dfilter, 0)
 
     def test_s_ge_1(self):
-        dfilter = "ntp.precision >= -12"
+        dfilter = "ntp.precision >= 244"
         self.assertDFilterCount(dfilter, 1)
 
     def test_s_ge_2(self):
-        dfilter = "ntp.precision >= -11"
+        dfilter = "ntp.precision >= 245"
         self.assertDFilterCount(dfilter, 1)
 
     def test_s_ge_3(self):
-        dfilter = "ntp.precision >= -10"
+        dfilter = "ntp.precision >= 246"
         self.assertDFilterCount(dfilter, 0)
 
     def test_s_lt_1(self):
-        dfilter = "ntp.precision < -12"
+        dfilter = "ntp.precision < 244"
         self.assertDFilterCount(dfilter, 0)
 
     def test_s_lt_2(self):
-        dfilter = "ntp.precision < -11"
+        dfilter = "ntp.precision < 245"
         self.assertDFilterCount(dfilter, 0)
 
     def test_s_lt_3(self):
-        dfilter = "ntp.precision < -10"
+        dfilter = "ntp.precision < 246"
         self.assertDFilterCount(dfilter, 1)
 
     def test_s_le_1(self):
-        dfilter = "ntp.precision <= -12"
+        dfilter = "ntp.precision <= 244"
         self.assertDFilterCount(dfilter, 0)
 
     def test_s_le_2(self):
-        dfilter = "ntp.precision <= -11"
+        dfilter = "ntp.precision <= 245"
         self.assertDFilterCount(dfilter, 1)
 
     def test_s_le_3(self):
-        dfilter = "ntp.precision <= -10"
+        dfilter = "ntp.precision <= 246"
         self.assertDFilterCount(dfilter, 1)
 
     def test_bool_eq_1(self):

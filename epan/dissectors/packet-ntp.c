@@ -945,8 +945,8 @@ dissect_ntp_std(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree)
 	 * local clock, in seconds to the nearest power of two.
 	 */
 	precision = tvb_get_guint8(tvb, 3);
-	proto_tree_add_int_format_value(ntp_tree, hf_ntp_precision, tvb, 3, 1,
-		precision, "%8.6f seconds", pow(2, precision));
+	proto_tree_add_uint_format_value(ntp_tree, hf_ntp_precision, tvb, 3, 1,
+		(guint8)precision, "%8.6f seconds", pow(2, precision));
 
 	/* Root Delay is a 32-bit signed fixed-point number indicating
 	 * the total roundtrip delay to the primary reference source,
@@ -1448,7 +1448,7 @@ proto_register_ntp(void)
 			"Peer Polling Interval", "ntp.ppoll", FT_UINT8, BASE_DEC,
 			NULL, 0, "Maximum interval between successive messages", HFILL }},
 		{ &hf_ntp_precision, {
-			"Peer Clock Precision", "ntp.precision", FT_INT8, BASE_DEC,
+			"Peer Clock Precision", "ntp.precision", FT_UINT8, BASE_DEC,
 			NULL, 0, "The precision of the system clock", HFILL }},
 		{ &hf_ntp_rootdelay, {
 			"Root Delay", "ntp.rootdelay", FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING,
