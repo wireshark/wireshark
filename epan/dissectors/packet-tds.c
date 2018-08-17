@@ -2559,8 +2559,8 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
         /* SYBLONGCHAR would be here, but there is an ambiguity with TDS 7.x.
          * It is handled under TDS_DATA_TYPE_BIGCHAR. */
         case TDS_DATA_TYPE_LONGBINARY:      /* Long Binary (TDS 5.0) */
-            length_item = proto_tree_add_item_ret_uint(sub_tree, hf_tds_type_varbyte_length, tvb, *offset, 4,
-                                                       tds_get_int4_encoding(tds_info), &length);
+            proto_tree_add_item_ret_uint(sub_tree, hf_tds_type_varbyte_length, tvb, *offset, 4,
+                                         tds_get_int4_encoding(tds_info), &length);
             *offset += 4;
             switch(data_type) {
                 case TDS_DATA_TYPE_LONGBINARY: /* Long Binary (TDS 5.0) */
