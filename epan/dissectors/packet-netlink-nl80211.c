@@ -2,6 +2,7 @@
  * Dissector for nl80211 (over Netlink).
  *
  * Copyright (c) 2017, Peter Wu <peter@lekensteyn.nl>
+ * Copyright (c) 2018, Mikael Kanstrup <mikael.kanstrup@sony.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -15,12 +16,15 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include "packet-ieee80211.h"
 #include "packet-netlink.h"
 
 void proto_register_netlink_nl80211(void);
 void proto_reg_handoff_netlink_nl80211(void);
 
-/* Extracted using tools/make-nl80211-fields.py */
+#define NETLINK_NL80211_HFI_INIT HFI_INIT(proto_netlink_generic)
+
+/* Extracted using tools/generate-nl80211-fields.py */
 /* Definitions from linux/nl80211.h {{{ */
 enum ws_nl80211_commands {
     WS_NL80211_CMD_UNSPEC,
@@ -781,6 +785,17 @@ static const value_string ws_nl80211_attrs_vals[] = {
     { 0, NULL }
 };
 static value_string_ext ws_nl80211_attrs_vals_ext = VALUE_STRING_EXT_INIT(ws_nl80211_attrs_vals);
+
+static header_field_info hfi_nl80211_commands NETLINK_NL80211_HFI_INIT =
+    { "Command", "nl80211.cmd", FT_UINT8, BASE_DEC | BASE_EXT_STRING,
+      VALS(&ws_nl80211_commands_vals_ext), 0x00, "Generic Netlink Command", HFILL };
+
+static header_field_info hfi_nl80211_attrs NETLINK_NL80211_HFI_INIT =
+    { "Attribute Type", "nl80211.attr_type", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
+      VALS(&ws_nl80211_attrs_vals_ext), 0x00, NULL, HFILL };
+
+static gint ett_nl80211_commands = -1;
+static gint ett_nl80211_attrs = -1;
 /* }}} */
 
 
@@ -790,14 +805,7 @@ static dissector_handle_t netlink_nl80211_handle;
 
 static header_field_info *hfi_netlink_nl80211 = NULL;
 
-#define NETLINK_NL80211_HFI_INIT HFI_INIT(proto_netlink_generic)
-
 static gint ett_nl80211 = -1;
-static gint ett_nl80211_attr = -1;
-
-static header_field_info hfi_nl80211_attr_type NETLINK_NL80211_HFI_INIT =
-    { "Attribute Type", "nl80211.attr_type", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
-      VALS(&ws_nl80211_attrs_vals_ext), 0x00, NULL, HFILL };
 
 static header_field_info hfi_nl80211_attr_value NETLINK_NL80211_HFI_INIT =
     { "Attribute Value", "nl80211.attr_value", FT_BYTES, BASE_NONE,
@@ -812,39 +820,330 @@ static header_field_info hfi_nl80211_attr_value32 NETLINK_NL80211_HFI_INIT =
       NULL, 0x00, NULL, HFILL };
 
 static int
-dissect_nl80211_attrs(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, int offset, int len)
+dissect_nl80211_generic(tvbuff_t *tvb, void *data, proto_tree *tree, _U_ int nla_type, int offset, int len)
 {
-    enum ws_nl80211_commands type = (enum ws_nl80211_commands) nla_type;
     genl_info_t *genl_info = (genl_info_t *)data;
-
-    switch (type) {
-    /* TODO add more fields here? */
-    default:
-        /*
-         * No specific dissection available, apply arbitrary heuristics to
-         * determine whether we have an u16 or u32 field and treat others as
-         * opaque bytes.
-         */
-        if (len) {
-            if (len == 2) {
-                proto_tree_add_item(tree, &hfi_nl80211_attr_value16, tvb, offset, len, genl_info->encoding);
-            } else if (len == 4) {
-                proto_tree_add_item(tree, &hfi_nl80211_attr_value32, tvb, offset, len, genl_info->encoding);
-            } else {
-                proto_tree_add_item(tree, &hfi_nl80211_attr_value, tvb, offset, len, genl_info->encoding);
-            }
-            offset += len;
+    /*
+     * No specific dissection available, apply arbitrary heuristics to
+     * determine whether we have an u16 or u32 field and treat others as
+     * opaque bytes.
+     */
+    if (len) {
+        if (len == 2) {
+            proto_tree_add_item(tree, &hfi_nl80211_attr_value16, tvb, offset, len, genl_info->encoding);
+        } else if (len == 4) {
+            proto_tree_add_item(tree, &hfi_nl80211_attr_value32, tvb, offset, len, genl_info->encoding);
+        } else {
+            proto_tree_add_item(tree, &hfi_nl80211_attr_value, tvb, offset, len, genl_info->encoding);
         }
+        offset += len;
+    }
+    return offset;
+}
+
+struct attr_lookup {
+    unsigned int attr_type;
+    header_field_info* hfi;
+    gint* ett;
+    int (*func)(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, int offset, int len);
+};
+
+static int
+dissect_nested_attr(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, int offset, int len, const struct attr_lookup *nested)
+{
+    genl_info_t *genl_info = (genl_info_t *)data;
+    for (int i = 0; nested[i].hfi; i++) {
+        if (nested[i].attr_type != (nla_type & NLA_TYPE_MASK)) {
+            continue;
+        }
+        offset = dissect_netlink_attributes(tvb, nested[i].hfi, *nested[i].ett, genl_info,
+                                            genl_info->data, tree, offset, len,
+                                            nested[i].func ? nested[i].func : dissect_nl80211_generic);
         break;
     }
+    return offset;
+}
 
+static int
+dissect_nested_attr_array(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, int offset, int len, const struct attr_lookup *nested_arr)
+{
+    genl_info_t *genl_info = (genl_info_t *)data;
+    for (int i = 0; nested_arr[i].hfi; i++) {
+        if (nested_arr[i].attr_type != (nla_type & NLA_TYPE_MASK)) {
+            continue;
+        }
+        offset = dissect_netlink_attributes_array(tvb, nested_arr[i].hfi, *nested_arr[i].ett,
+                                                  *nested_arr[i].ett, genl_info,
+                                                  genl_info->data, tree, offset, len,
+                                                  nested_arr[i].func ?
+                                                   nested_arr[i].func : dissect_nl80211_generic);
+       break;
+    }
+    return offset;
+}
+
+static int
+dissect_value(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, int offset, int len, const struct attr_lookup *values)
+{
+    genl_info_t *genl_info = (genl_info_t *)data;
+    for (int i = 0; values[i].hfi; i++) {
+        if (values[i].attr_type != (nla_type & NLA_TYPE_MASK)) {
+            continue;
+        }
+        proto_tree_add_item(tree, values[i].hfi, tvb, offset, len, genl_info->encoding);
+        return offset + len;
+    }
+    return offset;
+}
+
+static packet_info *m_pinfo = NULL; /* TODO find a better way to pass pinfo to functions */
+
+static int
+dissect_information_elements(tvbuff_t *tvb, proto_tree *tree, int offset, int len)
+{
+    int offset_end = offset + len;
+    while (offset < offset_end) {
+        int tlen = add_tagged_field(m_pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
+        if (tlen == 0) {
+            break;
+        }
+        offset += tlen;
+    }
+    return offset;
+}
+
+static int
+dissect_nl80211_frequency_attr(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, int offset, int len)
+{
+    static const struct attr_lookup nested[] = {
+        { WS_NL80211_FREQUENCY_ATTR_DFS_STATE, &hfi_nl80211_dfs_state, &ett_nl80211_dfs_state, NULL},
+        { WS_NL80211_FREQUENCY_ATTR_WMM, &hfi_nl80211_wmm_rule, &ett_nl80211_wmm_rule, NULL},
+        { 0, NULL, NULL, NULL }
+    };
+    enum ws_nl80211_frequency_attr type = (enum ws_nl80211_frequency_attr) nla_type & NLA_TYPE_MASK;
+    int offset_end = offset + len;
+
+    if (offset < offset_end) {
+        offset = dissect_nested_attr(tvb, data, tree, nla_type, offset, len, nested);
+    }
+    if (offset < offset_end) {
+        switch (type) {
+        default:
+            offset = dissect_nl80211_generic(tvb, data, tree, nla_type, offset, len);
+            break;
+        }
+    }
+    return offset;
+}
+
+static int
+dissect_nl80211_band_attr(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, int offset, int len)
+{
+    static const struct attr_lookup nested_arr[] = {
+        { WS_NL80211_BAND_ATTR_FREQS, &hfi_nl80211_frequency_attr, &ett_nl80211_frequency_attr, dissect_nl80211_frequency_attr },
+        { WS_NL80211_BAND_ATTR_RATES, &hfi_nl80211_bitrate_attr, &ett_nl80211_bitrate_attr, NULL },
+        { WS_NL80211_BAND_ATTR_IFTYPE_DATA, &hfi_nl80211_band_iftype_attr, &ett_nl80211_band_iftype_attr, NULL },
+        { 0, NULL, NULL, NULL }
+    };
+    enum ws_nl80211_band_attr type = (enum ws_nl80211_band_attr) nla_type & NLA_TYPE_MASK;
+    int offset_end = offset + len;
+
+    if (offset < offset_end) {
+        offset = dissect_nested_attr_array(tvb, data, tree, nla_type, offset, len, nested_arr);
+    }
+    if (offset < offset_end) {
+        switch (type) {
+        /* TODO add more fields here? */
+        default:
+            offset = dissect_nl80211_generic(tvb, data, tree, nla_type, offset, len);
+            break;
+        }
+    }
+    return offset;
+}
+
+static int
+dissect_nl80211_bss(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, int offset, int len)
+{
+    static const struct attr_lookup values[] = {
+        { WS_NL80211_BSS_STATUS, &hfi_nl80211_bss_status, NULL, NULL },
+        { WS_NL80211_BSS_CHAN_WIDTH, &hfi_nl80211_bss_scan_width, NULL, NULL },
+        { 0, NULL, NULL, NULL }
+    };
+    enum ws_nl80211_bss type = (enum ws_nl80211_bss) nla_type & NLA_TYPE_MASK;
+    int offset_end = offset + len;
+
+    if (offset < offset_end) {
+        offset = dissect_value(tvb, data, tree, nla_type, offset, len, values);
+    }
+    if (offset < offset_end) {
+        switch (type) {
+        case WS_NL80211_BSS_INFORMATION_ELEMENTS:
+        case WS_NL80211_BSS_BEACON_IES:
+            offset = dissect_information_elements(tvb, tree, offset, len);
+            break;
+        default:
+            offset = dissect_nl80211_generic(tvb, data, tree, nla_type, offset, len);
+            break;
+        }
+    }
+    return offset;
+}
+
+static int
+dissect_nl80211_tid_stats(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, int offset, int len)
+{
+    static const struct attr_lookup nested[] = {
+        { WS_NL80211_TID_STATS_TXQ_STATS, &hfi_nl80211_txq_stats, &ett_nl80211_txq_stats, NULL},
+        { 0, NULL, NULL, NULL }
+    };
+
+    enum ws_nl80211_tid_stats type = (enum ws_nl80211_tid_stats) nla_type & NLA_TYPE_MASK;
+    int offset_end = offset + len;
+    if (offset < offset_end) {
+        offset = dissect_nested_attr(tvb, data, tree, nla_type, offset, len, nested);
+    }
+    if (offset < offset_end) {
+        switch (type) {
+        default:
+            offset = dissect_nl80211_generic(tvb, data, tree, nla_type, offset, len);
+            break;
+        }
+    }
+    return offset;
+}
+
+static int
+dissect_nl80211_sta_info(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, int offset, int len)
+{
+    static const struct attr_lookup nested[] = {
+        { WS_NL80211_STA_INFO_TX_BITRATE, &hfi_nl80211_rate_info, &ett_nl80211_rate_info, NULL},
+        { WS_NL80211_STA_INFO_RX_BITRATE, &hfi_nl80211_rate_info, &ett_nl80211_rate_info, NULL},
+        { WS_NL80211_STA_INFO_BSS_PARAM, &hfi_nl80211_sta_bss_param, &ett_nl80211_sta_bss_param, NULL },
+        { 0, NULL, NULL, NULL }
+    };
+    static const struct attr_lookup nested_arr[] = {
+        { WS_NL80211_STA_INFO_TID_STATS, &hfi_nl80211_tid_stats, &ett_nl80211_tid_stats, dissect_nl80211_tid_stats},
+        { 0, NULL, NULL, NULL }
+    };
+
+    enum ws_nl80211_sta_info type = (enum ws_nl80211_sta_info) nla_type & NLA_TYPE_MASK;
+    int offset_end = offset + len;
+    if (offset < offset_end) {
+        offset = dissect_nested_attr(tvb, data, tree, nla_type, offset, len, nested);
+    }
+    if (offset < offset_end) {
+        offset = dissect_nested_attr_array(tvb, data, tree, nla_type, offset, len, nested_arr);
+    }
+    if (offset < offset_end) {
+        switch (type) {
+        default:
+            offset = dissect_nl80211_generic(tvb, data, tree, nla_type, offset, len);
+            break;
+        }
+    }
     return offset;
 }
 
 
-static header_field_info hfi_nl80211_cmd NETLINK_NL80211_HFI_INIT =
-    { "Command", "nl80211.cmd", FT_UINT8, BASE_DEC | BASE_EXT_STRING,
-      &ws_nl80211_commands_vals_ext, 0x00, "Generic Netlink command", HFILL };
+static int
+dissect_nl80211_attrs(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, int offset, int len)
+{
+    static const struct attr_lookup nested[] = {
+        { WS_NL80211_ATTR_SUPPORTED_IFTYPES, &hfi_nl80211_iftype, &ett_nl80211_iftype, NULL },
+        { WS_NL80211_ATTR_STA_FLAGS, &hfi_nl80211_sta_flags, &ett_nl80211_sta_flags, NULL },
+        { WS_NL80211_ATTR_STA_INFO, &hfi_nl80211_sta_info, &ett_nl80211_sta_info, dissect_nl80211_sta_info },
+        { WS_NL80211_ATTR_MPATH_INFO, &hfi_nl80211_mpath_info, &ett_nl80211_mpath_info, NULL },
+        { WS_NL80211_ATTR_MNTR_FLAGS, &hfi_nl80211_mntr_flags, &ett_nl80211_mntr_flags, NULL },
+        { WS_NL80211_ATTR_BSS, &hfi_nl80211_bss, &ett_nl80211_bss, dissect_nl80211_bss },
+        { WS_NL80211_ATTR_KEY, &hfi_nl80211_key_attributes, &ett_nl80211_key_attributes, NULL },
+        { WS_NL80211_ATTR_SURVEY_INFO, &hfi_nl80211_survey_info, &ett_nl80211_survey_info, NULL },
+        { WS_NL80211_ATTR_FREQ_BEFORE, &hfi_nl80211_frequency_attr, &ett_nl80211_frequency_attr, NULL },
+        { WS_NL80211_ATTR_FREQ_AFTER, &hfi_nl80211_frequency_attr, &ett_nl80211_frequency_attr, NULL },
+        { WS_NL80211_ATTR_TX_RATES, &hfi_nl80211_tx_rate_attributes, &ett_nl80211_tx_rate_attributes, NULL },
+        { WS_NL80211_ATTR_CQM, &hfi_nl80211_attr_cqm, &ett_nl80211_attr_cqm, NULL },
+        { WS_NL80211_ATTR_KEY_DEFAULT_TYPES, &hfi_nl80211_key_default_types, &ett_nl80211_key_default_types, NULL },
+        { WS_NL80211_ATTR_MESH_SETUP, &hfi_nl80211_mesh_setup_params, &ett_nl80211_mesh_setup_params, NULL },
+        { WS_NL80211_ATTR_MESH_CONFIG, &hfi_nl80211_meshconf_params, &ett_nl80211_meshconf_params, NULL },
+        { WS_NL80211_ATTR_SCHED_SCAN_MATCH, &hfi_nl80211_sched_scan_match_attr, &ett_nl80211_sched_scan_match_attr, NULL },
+        { WS_NL80211_ATTR_INTERFACE_COMBINATIONS, &hfi_nl80211_if_combination_attrs, &ett_nl80211_if_combination_attrs, NULL },
+        { WS_NL80211_ATTR_REKEY_DATA, &hfi_nl80211_rekey_data, &ett_nl80211_rekey_data, NULL },
+        { WS_NL80211_ATTR_STA_WME, &hfi_nl80211_sta_wme_attr, &ett_nl80211_sta_wme_attr, NULL },
+        { WS_NL80211_ATTR_PMKSA_CANDIDATE, &hfi_nl80211_pmksa_candidate_attr, &ett_nl80211_pmksa_candidate_attr, NULL },
+        { WS_NL80211_ATTR_SCHED_SCAN_PLANS, &hfi_nl80211_sched_scan_plan, &ett_nl80211_sched_scan_plan, NULL },
+        { WS_NL80211_ATTR_BSS_SELECT, &hfi_nl80211_bss_select_attr, &ett_nl80211_bss_select_attr, NULL },
+        { WS_NL80211_ATTR_IFTYPE_EXT_CAPA, &hfi_nl80211_attrs, &ett_nl80211_attrs, dissect_nl80211_attrs },
+        { WS_NL80211_ATTR_NAN_FUNC, &hfi_nl80211_nan_func_attributes, &ett_nl80211_nan_func_attributes, NULL },
+        { WS_NL80211_ATTR_NAN_MATCH, &hfi_nl80211_nan_match_attributes, &ett_nl80211_nan_match_attributes, NULL },
+        { WS_NL80211_ATTR_TXQ_STATS, &hfi_nl80211_txq_stats, &ett_nl80211_txq_stats, NULL },
+        { 0, NULL, NULL, NULL }
+    };
+    static const struct attr_lookup nested_arr[] = {
+        { WS_NL80211_ATTR_WIPHY_TXQ_PARAMS, &hfi_nl80211_txq_attr, &ett_nl80211_txq_attr, NULL },
+        { WS_NL80211_ATTR_WIPHY_BANDS, &hfi_nl80211_band_attr, &ett_nl80211_band_attr, dissect_nl80211_band_attr },
+        { WS_NL80211_ATTR_REG_RULES, &hfi_nl80211_reg_rule_attr, &ett_nl80211_reg_rule_attr, NULL },
+        { 0, NULL, NULL, NULL }
+    };
+    static const struct attr_lookup values[] = {
+        { WS_NL80211_ATTR_CHANNEL_WIDTH, &hfi_nl80211_chan_width, NULL, NULL },
+        { WS_NL80211_ATTR_WIPHY_CHANNEL_TYPE, &hfi_nl80211_channel_type, NULL, NULL },
+        { WS_NL80211_ATTR_IFTYPE, &hfi_nl80211_iftype, NULL, NULL },
+        { WS_NL80211_ATTR_STA_PLINK_ACTION, &hfi_plink_actions, NULL, NULL },
+        { WS_NL80211_ATTR_MPATH_INFO, &hfi_nl80211_mpath_info, NULL, NULL },
+        { WS_NL80211_ATTR_REG_INITIATOR, &hfi_nl80211_reg_initiator, NULL, NULL },
+        { WS_NL80211_ATTR_REG_TYPE, &hfi_nl80211_reg_type, NULL, NULL },
+        { WS_NL80211_ATTR_AUTH_TYPE, &hfi_nl80211_auth_type, NULL, NULL },
+        { WS_NL80211_ATTR_KEY_TYPE, &hfi_nl80211_key_type, NULL, NULL },
+        { WS_NL80211_ATTR_USE_MFP, &hfi_nl80211_mfp, NULL, NULL },
+        { WS_NL80211_ATTR_PS_STATE, &hfi_nl80211_ps_state, NULL, NULL },
+        { WS_NL80211_ATTR_WIPHY_TX_POWER_SETTING, &hfi_nl80211_tx_power_setting, NULL, NULL },
+        { WS_NL80211_ATTR_STA_PLINK_STATE, &hfi_nl80211_plink_state, NULL, NULL },
+        { WS_NL80211_ATTR_TDLS_OPERATION, &hfi_nl80211_tdls_operation, NULL, NULL },
+        { WS_NL80211_ATTR_DFS_REGION, &hfi_nl80211_dfs_regions, NULL, NULL },
+        { WS_NL80211_ATTR_USER_REG_HINT_TYPE, &hfi_nl80211_user_reg_hint_type, NULL, NULL },
+        { WS_NL80211_ATTR_CONN_FAILED_REASON, &hfi_nl80211_connect_failed_reason, NULL, NULL },
+        { WS_NL80211_ATTR_LOCAL_MESH_POWER_MODE, &hfi_nl80211_mesh_power_mode, NULL, NULL },
+        { WS_NL80211_ATTR_ACL_POLICY, &hfi_nl80211_acl_policy, NULL, NULL },
+        { WS_NL80211_ATTR_RADAR_EVENT, &hfi_nl80211_radar_event, NULL, NULL },
+        { WS_NL80211_ATTR_CRIT_PROT_ID, &hfi_nl80211_crit_proto_id, NULL, NULL },
+        { WS_NL80211_ATTR_SMPS_MODE, &hfi_nl80211_smps_mode, NULL, NULL },
+        { WS_NL80211_ATTR_STA_SUPPORT_P2P_PS, &hfi_nl80211_sta_p2p_ps_status, NULL, NULL },
+        { WS_NL80211_ATTR_TIMEOUT_REASON, &hfi_nl80211_timeout_reason, NULL, NULL },
+        { WS_NL80211_ATTR_EXTERNAL_AUTH_ACTION, &hfi_nl80211_external_auth_action, NULL, NULL },
+        { 0, NULL, NULL, NULL }
+    };
+    enum ws_nl80211_attrs type = (enum ws_nl80211_attrs) nla_type & NLA_TYPE_MASK;
+    int offset_end = offset + len;
+    if (offset < offset_end) {
+        offset = dissect_nested_attr(tvb, data, tree, nla_type, offset, len, nested);
+    }
+    if (offset < offset_end) {
+        offset = dissect_nested_attr_array(tvb, data, tree, nla_type, offset, len, nested_arr);
+    }
+    if (offset < offset_end) {
+        offset = dissect_value(tvb, data, tree, nla_type, offset, len, values);
+    }
+    if (offset < offset_end) {
+        switch (type) {
+        case WS_NL80211_ATTR_HT_CAPABILITY:
+        case WS_NL80211_ATTR_IE:
+        case WS_NL80211_ATTR_REQ_IE:
+        case WS_NL80211_ATTR_RESP_IE:
+        case WS_NL80211_ATTR_IE_PROBE_RESP:
+        case WS_NL80211_ATTR_IE_ASSOC_RESP:
+        case WS_NL80211_ATTR_VHT_CAPABILITY:
+        case WS_NL80211_ATTR_CSA_IES:
+        case WS_NL80211_ATTR_HE_CAPABILITY:
+            offset = dissect_information_elements(tvb, tree, offset, len);
+            break;
+        /* TODO add more fields here? */
+        default:
+            offset = dissect_nl80211_generic(tvb, data, tree, nla_type, offset, len);
+            break;
+        }
+    }
+    return offset;
+}
 
 static int
 dissect_netlink_nl80211(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
@@ -858,13 +1157,14 @@ dissect_netlink_nl80211(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "nl80211");
     col_clear(pinfo->cinfo, COL_INFO);
+    m_pinfo = pinfo;
 
-    offset = dissect_genl_header(tvb, genl_info, &hfi_nl80211_cmd);
+    offset = dissect_genl_header(tvb, genl_info, &hfi_nl80211_commands);
 
     pi = proto_tree_add_item(tree, proto_registrar_get_nth(proto_netlink_nl80211), tvb, offset, -1, ENC_NA);
     nlmsg_tree = proto_item_add_subtree(pi, ett_nl80211);
 
-    offset = dissect_netlink_attributes(tvb, &hfi_nl80211_attr_type, ett_nl80211_attr, genl_info, genl_info->data, nlmsg_tree, offset, -1, dissect_nl80211_attrs);
+    offset = dissect_netlink_attributes(tvb, &hfi_nl80211_attrs, ett_nl80211_attrs, genl_info, genl_info->data, nlmsg_tree, offset, -1, dissect_nl80211_attrs);
 
     return offset;
 }
@@ -874,17 +1174,24 @@ proto_register_netlink_nl80211(void)
 {
 #ifndef HAVE_HFI_SECTION_INIT
     static header_field_info *hfi[] = {
-        &hfi_nl80211_cmd,
-        &hfi_nl80211_attr_type,
         &hfi_nl80211_attr_value,
         &hfi_nl80211_attr_value16,
         &hfi_nl80211_attr_value32,
+/* Extracted using tools/generate-nl80211-fields.py */
+/* Definitions from linux/nl80211.h {{{ */
+        &hfi_nl80211_commands,
+        &hfi_nl80211_attrs,
+/* }}} */
     };
 #endif
 
     static gint *ett[] = {
         &ett_nl80211,
-        &ett_nl80211_attr,
+/* Extracted using tools/generate-nl80211-fields.py */
+/* Definitions from linux/nl80211.h {{{ */
+        &ett_nl80211_commands,
+        &ett_nl80211_attrs,
+/* }}} */
     };
 
     proto_netlink_nl80211 = proto_register_protocol("Linux 802.11 Netlink", "nl80211", "nl80211");

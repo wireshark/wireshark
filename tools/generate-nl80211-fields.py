@@ -3,6 +3,7 @@
 # (value_string) for packet-netlink-nl80211.c
 #
 # Copyright (c) 2017, Peter Wu <peter@lekensteyn.nl>
+# Copyright (c) 2018, Mikael Kanstrup <mikael.kanstrup@sony.com>
 #
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
@@ -25,20 +26,90 @@ import sys
 HEADER = "/* Definitions from linux/nl80211.h {{{ */\n"
 FOOTER = "/* }}} */\n"
 # Enums to extract from the header file
-EXPORT_ENUMS = ("nl80211_commands", "nl80211_attrs")
+EXPORT_ENUMS = {
+    # 'enum_name': ('field_name', field_type', 'field_blurb')
+    'nl80211_commands': ('Command', 'FT_UINT8', '"Generic Netlink Command"'),
+    'nl80211_attrs': (None, None, None),
+    'nl80211_iftype': (None, None, None),
+    'nl80211_sta_flags': (None, None, None),
+    'nl80211_rate_info': (None, None, None),
+    'nl80211_sta_bss_param': (None, None, None),
+    'nl80211_sta_info': (None, None, None),
+    'nl80211_tid_stats': (None, None, None),
+    'nl80211_mpath_info': (None, None, None),
+    'nl80211_mntr_flags': (None, None, None),
+    'nl80211_bss': (None, None, None),
+    'nl80211_key_attributes': (None, None, None),
+    'nl80211_survey_info': (None, None, None),
+    'nl80211_frequency_attr': (None, None, None),
+    'nl80211_tx_rate_attributes': (None, None, None),
+    'nl80211_attr_cqm': (None, None, None),
+    'nl80211_key_default_types': (None, None, None),
+    'nl80211_mesh_setup_params': (None, None, None),
+    'nl80211_meshconf_params': (None, None, None),
+    'nl80211_if_combination_attrs': (None, None, None),
+    'nl80211_rekey_data': (None, None, None),
+    'nl80211_sta_wme_attr': (None, None, None),
+    'nl80211_pmksa_candidate_attr': (None, None, None),
+    'nl80211_sched_scan_plan': (None, None, None),
+    'nl80211_bss_select_attr': (None, None, None),
+    'nl80211_nan_func_attributes': (None, None, None),
+    'nl80211_nan_match_attributes': (None, None, None),
+    'nl80211_txq_stats': (None, None, None),
+    'nl80211_band_attr': (None, None, None),
+    'nl80211_bitrate_attr': (None, None, None),
+    'nl80211_reg_rule_attr': (None, None, None),
+    'nl80211_txq_attr': (None, None, None),
+    'nl80211_band_iftype_attr': (None, None, None),
+    'nl80211_dfs_state': (None, None, None),
+    'nl80211_wmm_rule': (None, None, None),
+    'nl80211_txq_stats': (None, None, None),
+    'nl80211_sched_scan_match_attr': (None, None, None),
+    'nl80211_chan_width': ('Attribute Value', 'FT_UINT32', None),
+    'nl80211_channel_type': ('Attribute Value', 'FT_UINT32', None),
+    'plink_actions': ('Attribute Value', 'FT_UINT8', None),
+    'nl80211_reg_initiator': ('Attribute Value', 'FT_UINT8', None),
+    'nl80211_reg_type': ('Attribute Value', 'FT_UINT8', None),
+    'nl80211_auth_type': ('Attribute Value', 'FT_UINT32', None),
+    'nl80211_key_type': ('Attribute Value', 'FT_UINT32', None),
+    'nl80211_bss_status': ('Attribute Value', 'FT_UINT32', None),
+    'nl80211_bss_scan_width': ('Attribute Value', 'FT_UINT32', None),
+    'nl80211_mfp': ('Attribute Value', 'FT_UINT32', None),
+    'nl80211_ps_state': ('Attribute Value', 'FT_UINT32', None),
+    'nl80211_tx_power_setting': ('Attribute Value', 'FT_UINT32', None),
+    'nl80211_plink_state': ('Attribute Value', 'FT_UINT8', None),
+    'nl80211_tdls_operation': ('Attribute Value', 'FT_UINT8', None),
+    'nl80211_user_reg_hint_type': ('Attribute Value', 'FT_UINT32', None),
+    'nl80211_connect_failed_reason': ('Attribute Value', 'FT_UINT32', None),
+    'nl80211_mesh_power_mode': ('Attribute Value', 'FT_UINT32', None),
+    'nl80211_acl_policy': ('Attribute Value', 'FT_UINT32', None),
+    'nl80211_radar_event': ('Attribute Value', 'FT_UINT32', None),
+    'nl80211_crit_proto_id': ('Attribute Value', 'FT_UINT16', None),
+    'nl80211_smps_mode': ('Attribute Value', 'FT_UINT8', None),
+    'nl80211_sta_p2p_ps_status': ('Attribute Value', 'FT_UINT8', None),
+    'nl80211_timeout_reason': ('Attribute Value', 'FT_UINT32', None),
+    'nl80211_external_auth_action': ('Attribute Value', 'FT_UINT32', None),
+    'nl80211_dfs_regions': ('Attribute Value', 'FT_UINT8', None),
+}
 # File to be patched
 SOURCE_FILE = "epan/dissectors/packet-netlink-nl80211.c"
 # URL where the latest version can be found
 URL = "https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/plain/include/uapi/linux/nl80211.h"
 
-def make_enum(name, values, indent):
+def make_enum(name, values, expressions, indent):
     code = 'enum ws_%s {\n' % name
-    for value in values:
-        code += '%sWS_%s,\n' % (indent, value)
+    for value, expression in zip(values, expressions):
+        if expression and 'NL80211' in expression:
+            expression = 'WS_%s' % expression
+        if expression:
+            code += '%sWS_%s = %s,\n' % (indent, value, expression)
+        else:
+            code += '%sWS_%s,\n' % (indent, value)
+
     code += '};\n'
     return code
 
-def make_value_string(name, values, indent):
+def make_value_string(name, values, indent,):
     code = 'static const value_string ws_%s_vals[] = {\n' % name
     align = 40
     for value in values:
@@ -50,56 +121,94 @@ def make_value_string(name, values, indent):
     code += ' VALUE_STRING_EXT_INIT(ws_%s_vals);\n' % name
     return code
 
+def make_hfi(name, indent):
+    (field_name, field_type, field_blurb) = EXPORT_ENUMS.get(name)
+    field_abbrev = name
+
+    # Fill in default values
+    if not field_name:
+        field_name = 'Attribute Type'
+    if not field_type:
+        field_type = 'FT_UINT16'
+    if not field_blurb:
+        field_blurb = 'NULL'
+
+    # Special treatment of already existing field names
+    rename_fields = {
+        'nl80211_attrs': 'nl80211_attr_type',
+        'nl80211_commands': 'nl80211_cmd'
+    }
+    if rename_fields.get(name):
+        field_abbrev = rename_fields[name]
+    field_abbrev = field_abbrev.lstrip('nl80211_')
+
+    code = 'static header_field_info hfi_%s NETLINK_NL80211_HFI_INIT =\n' % name
+    code += indent + '{ "%s", "nl80211.%s", %s, BASE_DEC | BASE_EXT_STRING,\n' % \
+        (field_name, field_abbrev, field_type)
+    code += indent + '  VALS(&ws_%s_vals_ext), 0x00, %s, HFILL };\n' % (name, field_blurb)
+    return code
+
+def make_ett_defs(name, indent):
+    code = 'static gint ett_%s = -1;' % name
+    return code
+
+def make_hfi_init(name, indent):
+    code = indent + indent + '&hfi_%s,' % name
+    return code
+
+def make_ett(name, indent):
+    code = indent + indent + '&ett_%s,' % name
+    return code
+
 class EnumStore(object):
-    def __init__(self, name):
+    __RE_ENUM_VALUE = re.compile(
+        r'\s+?(?P<value>\w+)(?:\ /\*.*?\*\/)?(?:\s*=\s*(?P<expression>.*?))?(?:\s*,|$)',
+        re.MULTILINE | re.DOTALL)
+
+    def __init__(self, name, values):
         self.name = name
         self.values = []
+        self.expressions = []
         self.active = True
+        self.parse_values(values)
 
-    def update(self, line):
-        if not self.active:
-            return
 
-        # Skip comments and remove trailing comma
-        line = re.sub(r'\s*/\*.*?\*/\s*', '', line).rstrip(",")
-        if not line:
-            return
-
-        # Try to match a name. Allow aliases only for the previous item.
-        m = re.match(r'^(?P<name>\w+)(?: *= *(?P<alias_of>\w+))?$', line)
-        assert m, "Failed to find match in %r" % line
-        name, alias_of = m.groups()
-        if alias_of:
-            # Alias must match previous item, skip it otherwise.
-            assert alias_of == self.values[-1]
-        elif name.startswith("__"):
-            # Skip after hitting "__NL80211_CMD_AFTER_LAST"
-            self.active = False
-        else:
-            self.values.append(name)
+    def parse_values(self, values):
+        for m in self.__RE_ENUM_VALUE.finditer(values):
+            value, expression = m.groups()
+            if value.startswith('NUM_'):
+                break
+            if value.endswith('_AFTER_LAST'):
+                break
+            if value.endswith('_LAST'):
+                break
+            if value.startswith('__') and value.endswith('_NUM'):
+                break
+            if expression and expression in self.values:
+                # Skip aliases
+                continue
+            self.values.append(value)
+            self.expressions.append(expression)
 
     def finish(self):
-        assert not self.active
-        assert self.values
-        return self.name, self.values
+        return self.name, self.values, self.expressions
 
-def parse_header(f):
-    enum_store = None
+RE_ENUM = re.compile(
+    r'enum\s+?(?P<enum>\w+)\s+?\{(?P<values>.*?)\}\;',
+    re.MULTILINE | re.DOTALL)
+RE_COMMENT = re.compile(r'/\*.*?\*/', re.MULTILINE | re.DOTALL)
+
+def parse_header(content):
+    # Strip comments
+    content = re.sub(RE_COMMENT, '', content)
+
     enums = []
-    for line in f:
-        line = line.strip()
-        if line.startswith("enum "):
-            assert not enum_store
-            enum_keyword, enum_name, trailer = line.split()
-            assert trailer == "{"
-            if enum_name in EXPORT_ENUMS:
-                enum_store = EnumStore(enum_name)
-        elif enum_store:
-            if line == "};":
-                enums.append(enum_store.finish())
-                enum_store = None
-            elif line:
-                enum_store.update(line)
+    for m in RE_ENUM.finditer(content):
+        enum = m.group('enum')
+        values = m.group('values')
+        if enum in EXPORT_ENUMS:
+            enums.append(EnumStore(enum, values).finish())
+
     return enums
 
 def parse_source():
@@ -108,6 +217,7 @@ def parse_source():
     after the block.
     """
     begin, block, end = '', '', ''
+    parts = []
     # Stages: 1 (before block), 2 (in block, skip), 3 (after block)
     stage = 1
     with open(SOURCE_FILE) as f:
@@ -116,15 +226,21 @@ def parse_source():
                 stage = 3   # End of block
             if stage == 1:
                 begin += line
-                if line == HEADER:
-                    stage = 2   # Begin of block
             elif stage == 2:
                 block += line
             elif stage == 3:
                 end += line
-    if stage != 3:
-        raise RuntimeError("Could not parse file (in stage %d)" % stage)
-    return begin, block, end
+            if line == HEADER and stage == 1:
+                stage = 2   # Begin of block
+            if line == HEADER and stage == 3:
+                stage = 2   # Begin of next code block
+                parts.append((begin, block, end))
+                begin, block, end = '', '', ''
+
+    parts.append((begin, block, end))
+    if stage != 3 or len(parts) != 3:
+        raise RuntimeError("Could not parse file (in stage %d) (parts %d)" % (stage, len(parts)))
+    return parts
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--update", action="store_true",
@@ -143,37 +259,53 @@ def main():
     if any(args.header_file.startswith(proto) for proto in ('http:', 'https')):
         r = requests.get(args.header_file)
         r.raise_for_status()
-        enums = parse_header(r.text.splitlines())
+        enums = parse_header(r.text)
     elif args.header_file == "-":
-        enums = parse_header(sys.stdin)
+        enums = parse_header(sys.stdin.read())
     else:
         with open(args.header_file) as f:
-            enums = parse_header(f)
+            enums = parse_header(f.read())
 
     assert len(enums) == len(EXPORT_ENUMS), \
             "Could not parse data, found %d/%d results" % \
             (len(enums), len(EXPORT_ENUMS))
 
-    code_enums, code_vals = '', ''
-    for enum_name, enum_values in enums:
-        code_enums += make_enum(enum_name, enum_values, indent) + '\n'
+    code_enums, code_vals, code_hfi, code_ett_defs, code_hfi_init, code_ett = '', '', '', '', '', ''
+    for enum_name, enum_values, expressions in enums:
+        code_enums += make_enum(enum_name, enum_values, expressions, indent) + '\n'
         code_vals += make_value_string(enum_name, enum_values, indent) + '\n'
+        code_hfi += make_hfi(enum_name, indent) + '\n'
+        code_ett_defs += make_ett_defs(enum_name, indent) + '\n'
+        code_hfi_init += make_hfi_init(enum_name, indent) + '\n'
+        code_ett += make_ett(enum_name, indent) + '\n'
 
-    code = code_enums + code_vals
-    code = code.rstrip("\n") + "\n"
+    code_top = code_enums + code_vals + code_hfi + code_ett_defs
+    code_top = code_top.rstrip("\n") + "\n"
 
+    code = [code_top, code_hfi_init, code_ett]
+
+    update = False
     if args.update:
-        begin, block, end = parse_source()
-        if block == code:
+        parts = parse_source()
+
+        # Check if file needs update
+        for (begin, old_code, end), new_code in zip(parts, code):
+            if old_code != new_code:
+                update = True
+                break
+        if not update:
             print("File is up-to-date")
-        else:
-            with open(SOURCE_FILE, "w") as f:
+            return
+        # Update file
+        with open(SOURCE_FILE, "w") as f:
+            for (begin, old_code, end), new_code in zip(parts, code):
                 f.write(begin)
-                f.write(code)
+                f.write(new_code)
                 f.write(end)
-            print("Updated %s" % SOURCE_FILE)
+        print("Updated %s" % SOURCE_FILE)
     else:
-        print(code)
+        for new_code in code:
+            print(new_code)
 
 if __name__ == '__main__':
     main()
