@@ -446,14 +446,13 @@ static gboolean check_chup(gint role, guint16 type) {
     return FALSE;
 }
 
-static gboolean check_cimi(gint role, guint16 type) {
-    if (role == ROLE_DTE && (type == TYPE_ACTION_SIMPLY || type == TYPE_TEST)) return TRUE;
+static gboolean check_ciev(gint role, guint16 type) {
     if (role == ROLE_DCE && type == TYPE_RESPONSE) return TRUE;
 
     return FALSE;
 }
 
-static gboolean check_clcc(gint role, guint16 type) {
+static gboolean check_cimi(gint role, guint16 type) {
     if (role == ROLE_DTE && (type == TYPE_ACTION_SIMPLY || type == TYPE_TEST)) return TRUE;
     if (role == ROLE_DCE && type == TYPE_RESPONSE) return TRUE;
 
@@ -467,15 +466,21 @@ static gboolean check_cind(gint role, guint16 type) {
     return FALSE;
 }
 
-static gboolean check_cmer(gint role, guint16 type) {
+static gboolean check_clcc(gint role, guint16 type) {
+    if (role == ROLE_DTE && (type == TYPE_ACTION_SIMPLY || type == TYPE_TEST)) return TRUE;
+    if (role == ROLE_DCE && type == TYPE_RESPONSE) return TRUE;
+
+    return FALSE;
+}
+
+static gboolean check_clip(gint role, guint16 type) {
     if (role == ROLE_DTE && (type == TYPE_ACTION || type == TYPE_READ || type == TYPE_TEST)) return TRUE;
     if (role == ROLE_DCE && type == TYPE_RESPONSE) return TRUE;
 
     return FALSE;
 }
 
-static gboolean check_cops(gint role, guint16 type) {
-    if (role == ROLE_DTE && (type == TYPE_ACTION || type == TYPE_READ)) return TRUE;
+static gboolean check_cme(gint role, guint16 type) {
     if (role == ROLE_DCE && type == TYPE_RESPONSE) return TRUE;
 
     return FALSE;
@@ -489,20 +494,22 @@ static gboolean check_cmee(gint role, guint16 type) {
     return FALSE;
 }
 
-static gboolean check_cme(gint role, guint16 type) {
-    if (role == ROLE_DCE && type == TYPE_RESPONSE) return TRUE;
-
-    return FALSE;
-}
-
-static gboolean check_clip(gint role, guint16 type) {
+static gboolean check_cmer(gint role, guint16 type) {
     if (role == ROLE_DTE && (type == TYPE_ACTION || type == TYPE_READ || type == TYPE_TEST)) return TRUE;
     if (role == ROLE_DCE && type == TYPE_RESPONSE) return TRUE;
 
     return FALSE;
 }
 
-static gboolean check_ciev(gint role, guint16 type) {
+static gboolean check_cnum(gint role, guint16 type) {
+    if (role == ROLE_DTE && type == TYPE_ACTION_SIMPLY) return TRUE;
+    if (role == ROLE_DCE && type == TYPE_RESPONSE) return TRUE;
+
+    return FALSE;
+}
+
+static gboolean check_cops(gint role, guint16 type) {
+    if (role == ROLE_DTE && (type == TYPE_ACTION || type == TYPE_READ)) return TRUE;
     if (role == ROLE_DCE && type == TYPE_RESPONSE) return TRUE;
 
     return FALSE;
@@ -527,84 +534,6 @@ static gboolean check_vts(gint role, guint16 type) {
     if (role == ROLE_DCE && type == TYPE_RESPONSE) return TRUE;
 
     return FALSE;
-}
-
-static gboolean check_cnum(gint role, guint16 type) {
-    if (role == ROLE_DTE && type == TYPE_ACTION_SIMPLY) return TRUE;
-    if (role == ROLE_DCE && type == TYPE_RESPONSE) return TRUE;
-
-    return FALSE;
-}
-
-static gint
-dissect_cind_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-        gint offset, gint role, guint16 type, guint8 *parameter_stream _U_,
-        guint parameter_number, gint parameter_length, void **data _U_)
-{
-    if (!check_cind(role, type)) return FALSE;
-    if (parameter_number > 19) return FALSE;
-
-    proto_tree_add_item(tree, hf_indicator[parameter_number], tvb, offset,
-            parameter_length, ENC_NA | ENC_ASCII);
-
-    return TRUE;
-}
-
-static gint
-dissect_chld_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        gint offset, gint role, guint16 type, guint8 *parameter_stream,
-        guint parameter_number, gint parameter_length, void **data _U_)
-{
-    guint32      value;
-
-    if (!check_chld(role, type)) return FALSE;
-
-    if (role == ROLE_DTE && type == TYPE_ACTION && parameter_number == 0) {
-        value = get_uint_parameter(parameter_stream, 1);
-
-        if (parameter_length >= 2) {
-            if (tvb_get_guint8(tvb, offset + 1) == 'x') {
-                if (value == 1)
-                    proto_tree_add_item(tree, hf_chld_mode_1x, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
-                else if (value == 2)
-                    proto_tree_add_item(tree, hf_chld_mode_2x, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
-            }
-
-            if (tvb_get_guint8(tvb, offset + 1) != 'x' || value > 4) {
-                proto_tree_add_expert(tree, pinfo, &ei_chld_mode, tvb, offset, parameter_length);
-            }
-        }
-
-        proto_tree_add_uint(tree, hf_chld_mode, tvb, offset, parameter_length, value);
-        return TRUE;
-    }
-
-    /* Type == Test  */
-    proto_tree_add_item(tree, hf_chld_supported_modes, tvb, offset,
-            parameter_length, ENC_NA | ENC_ASCII);
-
-    return TRUE;
-}
-
-static gint
-dissect_cimi_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        gint offset, gint role, guint16 type, guint8 *parameter_stream _U_,
-        guint parameter_number, gint parameter_length, void **data _U_)
-{
-     proto_item  *pitem;
-
-     if (!check_cimi(role, type)) return FALSE;
-
-     if (role == ROLE_DTE) return FALSE;
-     if (parameter_number > 0) return FALSE;
-
-     /* Only parameter is found in the response from DCE - the IMSI */
-     pitem = proto_tree_add_item(tree, hf_cimi_imsi, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
-     /* Hiding the AT IMSI item because we are showing the detailed E.212 item */
-     PROTO_ITEM_SET_HIDDEN(pitem);
-     dissect_e212_utf8_imsi(tvb, pinfo, tree, offset, parameter_length);
-
-     return TRUE;
 }
 
 static gint
@@ -741,47 +670,159 @@ dissect_cgmm_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 static gint
-dissect_cmer_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+dissect_chld_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+        gint offset, gint role, guint16 type, guint8 *parameter_stream,
+        guint parameter_number, gint parameter_length, void **data _U_)
+{
+    guint32      value;
+
+    if (!check_chld(role, type)) return FALSE;
+
+    if (role == ROLE_DTE && type == TYPE_ACTION && parameter_number == 0) {
+        value = get_uint_parameter(parameter_stream, 1);
+
+        if (parameter_length >= 2) {
+            if (tvb_get_guint8(tvb, offset + 1) == 'x') {
+                if (value == 1)
+                    proto_tree_add_item(tree, hf_chld_mode_1x, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+                else if (value == 2)
+                    proto_tree_add_item(tree, hf_chld_mode_2x, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+            }
+
+            if (tvb_get_guint8(tvb, offset + 1) != 'x' || value > 4) {
+                proto_tree_add_expert(tree, pinfo, &ei_chld_mode, tvb, offset, parameter_length);
+            }
+        }
+
+        proto_tree_add_uint(tree, hf_chld_mode, tvb, offset, parameter_length, value);
+        return TRUE;
+    }
+
+    /* Type == Test  */
+    proto_tree_add_item(tree, hf_chld_supported_modes, tvb, offset,
+            parameter_length, ENC_NA | ENC_ASCII);
+
+    return TRUE;
+}
+
+static gint
+dissect_ciev_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+        gint offset, gint role, guint16 type, guint8 *parameter_stream,
+        guint parameter_number, gint parameter_length, void **data)
+{
+    guint32      value;
+    guint        indicator_index;
+
+    if (!(role == ROLE_DCE && type == TYPE_RESPONSE)) return TRUE;
+    if (parameter_number > 1) return FALSE;
+
+    switch (parameter_number) {
+    case 0:
+        value = get_uint_parameter(parameter_stream, parameter_length);
+        proto_tree_add_uint(tree, hf_ciev_indicator_index, tvb, offset, parameter_length, value);
+        *data = wmem_alloc(wmem_packet_scope(), sizeof(guint));
+        *((guint *) *data) = value;
+        break;
+    case 1:
+        indicator_index = *((guint *) *data) - 1;
+        if (indicator_index > 19) {
+            proto_tree_add_expert(tree, pinfo, &ei_ciev_indicator, tvb, offset, parameter_length);
+        } else {
+            proto_tree_add_item(tree, hf_indicator[indicator_index], tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+        }
+        break;
+    }
+
+    return TRUE;
+}
+
+static gint
+dissect_cimi_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+        gint offset, gint role, guint16 type, guint8 *parameter_stream _U_,
+        guint parameter_number, gint parameter_length, void **data _U_)
+{
+     proto_item  *pitem;
+
+     if (!check_cimi(role, type)) return FALSE;
+
+     if (role == ROLE_DTE) return FALSE;
+     if (parameter_number > 0) return FALSE;
+
+     /* Only parameter is found in the response from DCE - the IMSI */
+     pitem = proto_tree_add_item(tree, hf_cimi_imsi, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+     /* Hiding the AT IMSI item because we are showing the detailed E.212 item */
+     PROTO_ITEM_SET_HIDDEN(pitem);
+     dissect_e212_utf8_imsi(tvb, pinfo, tree, offset, parameter_length);
+
+     return TRUE;
+}
+
+static gint
+dissect_cind_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+        gint offset, gint role, guint16 type, guint8 *parameter_stream _U_,
+        guint parameter_number, gint parameter_length, void **data _U_)
+{
+    if (!check_cind(role, type)) return FALSE;
+    if (parameter_number > 19) return FALSE;
+
+    proto_tree_add_item(tree, hf_indicator[parameter_number], tvb, offset,
+            parameter_length, ENC_NA | ENC_ASCII);
+
+    return TRUE;
+}
+
+static gint
+dissect_clcc_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         gint offset, gint role, guint16 type, guint8 *parameter_stream,
         guint parameter_number, gint parameter_length, void **data _U_)
 {
     proto_item  *pitem;
     guint32      value;
 
-    if (!((role == ROLE_DTE && type == TYPE_ACTION))) {
+    if (!((role == ROLE_DTE && type == TYPE_ACTION_SIMPLY) ||
+            (role == ROLE_DCE && type == TYPE_RESPONSE))) {
         return FALSE;
     }
 
-    if (parameter_number > 4) return FALSE;
-
-    value = get_uint_parameter(parameter_stream, parameter_length);
+    if (parameter_number > 8) return FALSE;
 
     switch (parameter_number) {
-        case 0:
-            pitem = proto_tree_add_uint(tree, hf_cmer_mode, tvb, offset, parameter_length, value);
-            if (value > 3)
-                expert_add_info(pinfo, pitem, &ei_cmer_mode);
-            break;
-        case 1:
-            pitem = proto_tree_add_uint(tree, hf_cmer_keyp, tvb, offset, parameter_length, value);
-            if (value > 2)
-                expert_add_info(pinfo, pitem, &ei_cmer_keyp);
-            break;
-        case 2:
-            pitem = proto_tree_add_uint(tree, hf_cmer_disp, tvb, offset, parameter_length, value);
-            if (value > 2)
-                expert_add_info(pinfo, pitem, &ei_cmer_disp);
-            break;
-        case 3:
-            pitem = proto_tree_add_uint(tree, hf_cmer_ind, tvb, offset, parameter_length, value);
-            if (value > 2)
-                expert_add_info(pinfo, pitem, &ei_cmer_ind);
-            break;
-        case 4:
-            pitem = proto_tree_add_uint(tree, hf_cmer_bfr, tvb, offset, parameter_length, value);
-            if (value > 1)
-                expert_add_info(pinfo, pitem, &ei_cmer_bfr);
-            break;
+    case 0:
+        value = get_uint_parameter(parameter_stream, parameter_length);
+        proto_tree_add_uint(tree, hf_clcc_id, tvb, offset, parameter_length, value);
+        break;
+    case 1:
+        value = get_uint_parameter(parameter_stream, parameter_length);
+        proto_tree_add_uint(tree, hf_clcc_dir, tvb, offset, parameter_length, value);
+        break;
+    case 2:
+        value = get_uint_parameter(parameter_stream, parameter_length);
+        proto_tree_add_uint(tree, hf_clcc_stat, tvb, offset, parameter_length, value);
+        break;
+    case 3:
+        value = get_uint_parameter(parameter_stream, parameter_length);
+        proto_tree_add_uint(tree, hf_clcc_mode, tvb, offset, parameter_length, value);
+        break;
+    case 4:
+        value = get_uint_parameter(parameter_stream, parameter_length);
+        proto_tree_add_uint(tree, hf_clcc_mpty, tvb, offset, parameter_length, value);
+        break;
+    case 5:
+        proto_tree_add_item(tree, hf_at_number, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+        break;
+    case 6:
+        value = get_uint_parameter(parameter_stream, parameter_length);
+        pitem = proto_tree_add_uint(tree, hf_at_type, tvb, offset, parameter_length, value);
+        if (value < 128 || value > 175)
+            expert_add_info(pinfo, pitem, &ei_at_type);
+        break;
+    case 7:
+        proto_tree_add_item(tree, hf_at_alpha, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+        break;
+    case 8:
+        value = get_uint_parameter(parameter_stream, parameter_length);
+        proto_tree_add_uint(tree, hf_at_priority, tvb, offset, parameter_length, value);
+        break;
     }
 
     return TRUE;
@@ -844,119 +885,6 @@ dissect_clip_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static gint
-dissect_cmee_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-        gint offset, gint role, guint16 type, guint8 *parameter_stream,
-        guint parameter_number, gint parameter_length, void **data _U_)
-{
-    guint32      value;
-
-    if (!(role == ROLE_DTE && type == TYPE_ACTION) &&
-        !(role == ROLE_DCE && type == TYPE_RESPONSE)) {
-        return FALSE;
-    }
-
-    if (parameter_number > 0) return FALSE;
-
-    value = get_uint_parameter(parameter_stream, parameter_length);
-    proto_tree_add_uint(tree, hf_cmee, tvb, offset, parameter_length, value);
-
-    return TRUE;
-}
-
-static gint
-dissect_cops_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-        gint offset, gint role, guint16 type, guint8 *parameter_stream,
-        guint parameter_number, gint parameter_length, void **data _U_)
-{
-    guint32      value;
-
-    if (!((role == ROLE_DTE && (type == TYPE_ACTION || type == TYPE_READ)) ||
-            (role == ROLE_DCE && type == TYPE_RESPONSE))) {
-        return FALSE;
-    }
-
-    if (parameter_number > 3) return FALSE;
-
-    switch (parameter_number) {
-    case 0:
-        value = get_uint_parameter(parameter_stream, parameter_length);
-        proto_tree_add_uint(tree, hf_cops_mode, tvb, offset, parameter_length, value);
-        break;
-    case 1:
-        value = get_uint_parameter(parameter_stream, parameter_length);
-        proto_tree_add_uint(tree, hf_cops_format, tvb, offset, parameter_length, value);
-        break;
-    case 2:
-        proto_tree_add_item(tree, hf_cops_operator, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
-        break;
-    case 3:
-        value = get_uint_parameter(parameter_stream, parameter_length);
-        proto_tree_add_uint(tree, hf_cops_act, tvb, offset, parameter_length, value);
-        break;
-    }
-
-    return TRUE;
-}
-
-static gint
-dissect_clcc_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        gint offset, gint role, guint16 type, guint8 *parameter_stream,
-        guint parameter_number, gint parameter_length, void **data _U_)
-{
-    proto_item  *pitem;
-    guint32      value;
-
-    if (!((role == ROLE_DTE && type == TYPE_ACTION_SIMPLY) ||
-            (role == ROLE_DCE && type == TYPE_RESPONSE))) {
-        return FALSE;
-    }
-
-    if (parameter_number > 8) return FALSE;
-
-    switch (parameter_number) {
-    case 0:
-        value = get_uint_parameter(parameter_stream, parameter_length);
-        proto_tree_add_uint(tree, hf_clcc_id, tvb, offset, parameter_length, value);
-        break;
-    case 1:
-        value = get_uint_parameter(parameter_stream, parameter_length);
-        proto_tree_add_uint(tree, hf_clcc_dir, tvb, offset, parameter_length, value);
-        break;
-    case 2:
-        value = get_uint_parameter(parameter_stream, parameter_length);
-        proto_tree_add_uint(tree, hf_clcc_stat, tvb, offset, parameter_length, value);
-        break;
-    case 3:
-        value = get_uint_parameter(parameter_stream, parameter_length);
-        proto_tree_add_uint(tree, hf_clcc_mode, tvb, offset, parameter_length, value);
-        break;
-    case 4:
-        value = get_uint_parameter(parameter_stream, parameter_length);
-        proto_tree_add_uint(tree, hf_clcc_mpty, tvb, offset, parameter_length, value);
-        break;
-    case 5:
-        proto_tree_add_item(tree, hf_at_number, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
-        break;
-    case 6:
-        value = get_uint_parameter(parameter_stream, parameter_length);
-        pitem = proto_tree_add_uint(tree, hf_at_type, tvb, offset, parameter_length, value);
-        if (value < 128 || value > 175)
-            expert_add_info(pinfo, pitem, &ei_at_type);
-        break;
-    case 7:
-        proto_tree_add_item(tree, hf_at_alpha, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
-        break;
-    case 8:
-        value = get_uint_parameter(parameter_stream, parameter_length);
-        proto_tree_add_uint(tree, hf_at_priority, tvb, offset, parameter_length, value);
-        break;
-    }
-
-    return TRUE;
-}
-
-
-static gint
 dissect_cme_error_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         gint offset, gint role, guint16 type, guint8 *parameter_stream,
         guint parameter_number, gint parameter_length, void **data _U_)
@@ -983,6 +911,73 @@ dissect_cme_error_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
     /* Assume numeric error code*/
     value = get_uint_parameter(parameter_stream, parameter_length);
     proto_tree_add_uint(tree, hf_cme_error, tvb, offset, parameter_length, value);
+
+    return TRUE;
+}
+
+static gint
+dissect_cmee_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+        gint offset, gint role, guint16 type, guint8 *parameter_stream,
+        guint parameter_number, gint parameter_length, void **data _U_)
+{
+    guint32      value;
+
+    if (!(role == ROLE_DTE && type == TYPE_ACTION) &&
+        !(role == ROLE_DCE && type == TYPE_RESPONSE)) {
+        return FALSE;
+    }
+
+    if (parameter_number > 0) return FALSE;
+
+    value = get_uint_parameter(parameter_stream, parameter_length);
+    proto_tree_add_uint(tree, hf_cmee, tvb, offset, parameter_length, value);
+
+    return TRUE;
+}
+
+static gint
+dissect_cmer_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+        gint offset, gint role, guint16 type, guint8 *parameter_stream,
+        guint parameter_number, gint parameter_length, void **data _U_)
+{
+    proto_item  *pitem;
+    guint32      value;
+
+    if (!((role == ROLE_DTE && type == TYPE_ACTION))) {
+        return FALSE;
+    }
+
+    if (parameter_number > 4) return FALSE;
+
+    value = get_uint_parameter(parameter_stream, parameter_length);
+
+    switch (parameter_number) {
+        case 0:
+            pitem = proto_tree_add_uint(tree, hf_cmer_mode, tvb, offset, parameter_length, value);
+            if (value > 3)
+                expert_add_info(pinfo, pitem, &ei_cmer_mode);
+            break;
+        case 1:
+            pitem = proto_tree_add_uint(tree, hf_cmer_keyp, tvb, offset, parameter_length, value);
+            if (value > 2)
+                expert_add_info(pinfo, pitem, &ei_cmer_keyp);
+            break;
+        case 2:
+            pitem = proto_tree_add_uint(tree, hf_cmer_disp, tvb, offset, parameter_length, value);
+            if (value > 2)
+                expert_add_info(pinfo, pitem, &ei_cmer_disp);
+            break;
+        case 3:
+            pitem = proto_tree_add_uint(tree, hf_cmer_ind, tvb, offset, parameter_length, value);
+            if (value > 2)
+                expert_add_info(pinfo, pitem, &ei_cmer_ind);
+            break;
+        case 4:
+            pitem = proto_tree_add_uint(tree, hf_cmer_bfr, tvb, offset, parameter_length, value);
+            if (value > 1)
+                expert_add_info(pinfo, pitem, &ei_cmer_bfr);
+            break;
+    }
 
     return TRUE;
 }
@@ -1033,56 +1028,34 @@ dissect_cnum_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static gint
-dissect_vts_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+dissect_cops_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         gint offset, gint role, guint16 type, guint8 *parameter_stream,
         guint parameter_number, gint parameter_length, void **data _U_)
 {
-    proto_item  *pitem;
     guint32      value;
 
-    if (!(role == ROLE_DTE && type == TYPE_ACTION)) return TRUE;
-    if (parameter_number > 1) return FALSE;
-
-    switch (parameter_number) {
-    case 0:
-        pitem = proto_tree_add_item(tree, hf_vts_dtmf, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
-        if (parameter_length != 1)
-            expert_add_info(pinfo, pitem, &ei_vts_dtmf);
-        break;
-    case 1:
-        value = get_uint_parameter(parameter_stream, parameter_length);
-        proto_tree_add_uint(tree, hf_vts_duration, tvb, offset, parameter_length, value);
-        break;
+    if (!((role == ROLE_DTE && (type == TYPE_ACTION || type == TYPE_READ)) ||
+            (role == ROLE_DCE && type == TYPE_RESPONSE))) {
+        return FALSE;
     }
 
-    return TRUE;
-}
-
-static gint
-dissect_ciev_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        gint offset, gint role, guint16 type, guint8 *parameter_stream,
-        guint parameter_number, gint parameter_length, void **data)
-{
-    guint32      value;
-    guint        indicator_index;
-
-    if (!(role == ROLE_DCE && type == TYPE_RESPONSE)) return TRUE;
-    if (parameter_number > 1) return FALSE;
+    if (parameter_number > 3) return FALSE;
 
     switch (parameter_number) {
     case 0:
         value = get_uint_parameter(parameter_stream, parameter_length);
-        proto_tree_add_uint(tree, hf_ciev_indicator_index, tvb, offset, parameter_length, value);
-        *data = wmem_alloc(wmem_packet_scope(), sizeof(guint));
-        *((guint *) *data) = value;
+        proto_tree_add_uint(tree, hf_cops_mode, tvb, offset, parameter_length, value);
         break;
     case 1:
-        indicator_index = *((guint *) *data) - 1;
-        if (indicator_index > 19) {
-            proto_tree_add_expert(tree, pinfo, &ei_ciev_indicator, tvb, offset, parameter_length);
-        } else {
-            proto_tree_add_item(tree, hf_indicator[indicator_index], tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
-        }
+        value = get_uint_parameter(parameter_stream, parameter_length);
+        proto_tree_add_uint(tree, hf_cops_format, tvb, offset, parameter_length, value);
+        break;
+    case 2:
+        proto_tree_add_item(tree, hf_cops_operator, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+        break;
+    case 3:
+        value = get_uint_parameter(parameter_stream, parameter_length);
+        proto_tree_add_uint(tree, hf_cops_act, tvb, offset, parameter_length, value);
         break;
     }
 
@@ -1208,6 +1181,32 @@ dissect_csim_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             /* Call GSM SIM dissector*/
             call_dissector_with_data(gsm_sim_handle, final_tvb, pinfo, tree, data);
             break;
+    }
+
+    return TRUE;
+}
+
+static gint
+dissect_vts_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+        gint offset, gint role, guint16 type, guint8 *parameter_stream,
+        guint parameter_number, gint parameter_length, void **data _U_)
+{
+    proto_item  *pitem;
+    guint32      value;
+
+    if (!(role == ROLE_DTE && type == TYPE_ACTION)) return TRUE;
+    if (parameter_number > 1) return FALSE;
+
+    switch (parameter_number) {
+    case 0:
+        pitem = proto_tree_add_item(tree, hf_vts_dtmf, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+        if (parameter_length != 1)
+            expert_add_info(pinfo, pitem, &ei_vts_dtmf);
+        break;
+    case 1:
+        value = get_uint_parameter(parameter_stream, parameter_length);
+        proto_tree_add_uint(tree, hf_vts_duration, tvb, offset, parameter_length, value);
+        break;
     }
 
     return TRUE;
