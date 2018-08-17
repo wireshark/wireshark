@@ -8992,7 +8992,7 @@ proto_register_docsis_mgmt (void)
      {"NCP Field Statistics", "docsis_optreq.reqstat.ncp_field_stats", FT_BOOLEAN, 32, TFS(&req_not_req_tfs), 0x20, NULL, HFILL}
     },
     {&hf_docsis_optreq_reqstat_ncp_crc_thresh_comp,
-     {"NCP CRC Threshold Comparision", "docsis_optreq.reqstat.ncp_crc_thresh_comp", FT_BOOLEAN, 32, TFS(&req_not_req_tfs), 0x40, NULL, HFILL}
+     {"NCP CRC Threshold Comparison", "docsis_optreq.reqstat.ncp_crc_thresh_comp", FT_BOOLEAN, 32, TFS(&req_not_req_tfs), 0x40, NULL, HFILL}
     },
     {&hf_docsis_optreq_reqstat_reserved,
      {"Reserved", "docsis_optreq.reqstat.reserved", FT_BOOLEAN, 32, TFS(&req_not_req_tfs), 0x80, NULL, HFILL}
