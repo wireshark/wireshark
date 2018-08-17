@@ -437,9 +437,9 @@ static const value_string lpp_smoothingInterval_r15_vals[] = {
   { 1, "< 30 s"},
   { 2, "30-60 s"},
   { 3, "1-2 min"},
-  { 3, "2-4 min"},
-  { 3, "4-8 min"},
-  { 3, "> 8 min"},
+  { 4, "2-4 min"},
+  { 5, "4-8 min"},
+  { 6, "> 8 min"},
   { 7, "Unlimited smoothing interval"},
   { 0, NULL}
 };
