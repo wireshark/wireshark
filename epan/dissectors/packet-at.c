@@ -433,6 +433,12 @@ static gboolean check_cgmm(gint role, guint16 type) {
     return FALSE;
 }
 
+static gboolean check_cgsn(gint role, guint16 type) {
+    if (role == ROLE_DTE && (type == TYPE_ACTION_SIMPLY || type == TYPE_TEST)) return TRUE;
+
+    return FALSE;
+}
+
 static gboolean check_chld(gint role, guint16 type) {
     if (role == ROLE_DTE && (type == TYPE_ACTION || type == TYPE_TEST)) return TRUE;
     if (role == ROLE_DCE && type == TYPE_RESPONSE) return TRUE;
@@ -525,6 +531,12 @@ static gboolean check_cpms(gint role, guint16 type) {
 static gboolean check_csim(gint role, guint16 type) {
     if (role == ROLE_DTE && (type == TYPE_ACTION || type == TYPE_TEST)) return TRUE;
     if (role == ROLE_DCE && type == TYPE_RESPONSE) return TRUE;
+
+    return FALSE;
+}
+
+static gboolean check_gsn(gint role, guint16 type) {
+    if (role == ROLE_DTE && (type == TYPE_ACTION_SIMPLY || type == TYPE_TEST)) return TRUE;
 
     return FALSE;
 }
@@ -1228,6 +1240,7 @@ static const at_cmd_t at_cmds[] = {
     { "+CCWA",      "Call Waiting Notification",                               check_ccwa, dissect_ccwa_parameter },
     { "+CFUN",      "Set Phone Functionality",                                 check_cfun, dissect_cfun_parameter },
     { "+CGMM",      "Request model identification",                            check_cgmm, dissect_cgmm_parameter },
+    { "+CGSN",      "Request Product Serial Number Identification (ESN/IMEI)", check_cgsn, dissect_no_parameter },
     { "+CHLD",      "Call Hold and Multiparty Handling",                       check_chld, dissect_chld_parameter },
     { "+CHUP",      "Call Hang-up",                                            check_chup, dissect_no_parameter   },
     { "+CIEV",      "Indicator Events Reporting",                              check_ciev, dissect_ciev_parameter },
@@ -1243,6 +1256,7 @@ static const at_cmd_t at_cmds[] = {
     { "+COPS",      "Reading Network Operator",                                check_cops, dissect_cops_parameter },
     { "+CPMS",      "Preferred Message Storage",                               check_cpms, dissect_cpms_parameter },
     { "+CSIM",      "Generic SIM access",                                      check_csim, dissect_csim_parameter },
+    { "+GSN",       "Request Product Serial Number Identification (ESN/IMEI)", check_gsn,  dissect_no_parameter },
     { "+VTS",       "DTMF and tone generation",                                check_vts,  dissect_vts_parameter  },
     { "ERROR",      "ERROR",                                                   check_only_dce_role, dissect_no_parameter },
     { "RING",       "Incoming Call Indication",                                check_only_dce_role, dissect_no_parameter },
