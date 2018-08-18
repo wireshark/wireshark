@@ -1023,7 +1023,7 @@ pfcp_fill_map(wmem_list_t *seid_list, wmem_list_t *ip_list, guint32 frame) {
     }
 }
 
-gboolean
+static gboolean
 pfcp_is_cause_accepted(guint8 cause) {
     return cause == 1;
 }
