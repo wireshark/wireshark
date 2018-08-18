@@ -55,6 +55,7 @@ since version 2.6.0:
 * Wireshark requires Qt 5.2 or later. Qt 4 is no longer supported.
 * Wireshark requires GLib 2.32 or later.
 * Building Wireshark requires CMake. Autotools is no longer supported.
+* The tshark -z compare option was removed.
 
 //=== Removed Dissectors
 

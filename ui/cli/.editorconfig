@@ -7,10 +7,6 @@
 [tap-camelsrt.[ch]]
 indent_size = 2
 
-[tap-comparestat.[ch]]
-indent_style = tab
-indent_size = tab
-
 [tap-diameter-avp.[ch]]
 indent_style = tab
 indent_size = tab

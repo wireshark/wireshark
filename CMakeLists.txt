@@ -1507,7 +1507,6 @@ set(SHARK_COMMON_SRC
 
 set(TSHARK_TAP_SRC
 	${CMAKE_SOURCE_DIR}/ui/cli/tap-camelsrt.c
-	${CMAKE_SOURCE_DIR}/ui/cli/tap-comparestat.c
 	${CMAKE_SOURCE_DIR}/ui/cli/tap-diameter-avp.c
 	${CMAKE_SOURCE_DIR}/ui/cli/tap-expert.c
 	${CMAKE_SOURCE_DIR}/ui/cli/tap-exportobject.c

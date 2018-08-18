@@ -1037,11 +1037,6 @@ Show Apple Filing Protocol service response time statistics.
 
 =item B<-z> camel,srt
 
-=item B<-z> compare,I<start>,I<stop>,I<ttl[0|1]>,I<order[0|1]>,I<variance>[,I<filter>]
-
-If the optional I<filter> is specified, only those packets that match the
-filter will be used in the calculations.
-
 =item B<-z> conv,I<type>[,I<filter>]
 
 Create a table that lists all conversations that could be seen in the

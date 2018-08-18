@@ -401,55 +401,6 @@ Each row corresponds to a method of the interface selected (so the EPM interface
 in version 3 has 7 methods). For each method the number of calls, and the
 statistics of the SRT time is calculated.
 
-////
-// COMMENTED OUT, not yet implemented in QT UI
-[[ChStatCompareCaptureFiles]]
-
-=== Compare Two Capture Files
-
-Compare two capture files.
-
-This feature works best when you have merged two capture files chronologically,
-one from each side of a client/server connection.
-
-The merged capture data is checked for missing packets. If a matching connection
-is found it is checked for:
-
-* IP header checksums
-
-* Excessive delay (defined by the “Time variance” setting)
-
-* Packet order
-
-.The “Compare” window
-image::wsug_graphics/ws-stats-compare.png[{screenshot-attrs}]
-
-You can configure the following:
-
-* _Start compare:_ Start comparing when this many IP IDs are matched. A zero value starts comparing immediately.
-
-* _Stop compare:_ Stop comparing when we can no longer match this many IP IDs. Zero always compares.
-
-* _Endpoint distinction:_ Use MAC addresses or IP time-to-live values to determine connection endpoints.
-
-* _Check order:_ Check for the same IP ID in the previous packet at each end.
-
-* _Time variance:_ Trigger an error if the packet arrives this many milliseconds after the average delay.
-
-* _Filter:_ Limit comparison to packets that match this display filter.
-
-The info column contains new numbering so the same packets are parallel.
-
-The color filtering differentiate the two files from each other. A
-“zebra” effect is create if the Info column is sorted.
-
-[TIP]
-====
-If you click on an item in the error list its corresponding packet will be
-selected in the main window.
-====
-////
-
 [[ChStatDHCPBOOTP]]
 
 === DHCP (BOOTP) Statistics
