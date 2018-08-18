@@ -472,6 +472,12 @@ static gboolean check_cind(gint role, guint16 type) {
     return FALSE;
 }
 
+static gboolean check_clac(gint role, guint16 type) {
+    if (role == ROLE_DTE && (type == TYPE_ACTION_SIMPLY || type == TYPE_TEST)) return TRUE;
+
+    return FALSE;
+}
+
 static gboolean check_clcc(gint role, guint16 type) {
     if (role == ROLE_DTE && (type == TYPE_ACTION_SIMPLY || type == TYPE_TEST)) return TRUE;
     if (role == ROLE_DCE && type == TYPE_RESPONSE) return TRUE;
@@ -1247,6 +1253,7 @@ static const at_cmd_t at_cmds[] = {
     { "+CIMI",      "Request International Mobile Subsciber Identity (IMSI)",  check_cimi, dissect_cimi_parameter },
     { "^CIMI",      "Request International Mobile Subsciber Identity (IMSI)",  check_cimi, dissect_cimi_parameter },
     { "+CIND",      "Phone Indicators",                                        check_cind, dissect_cind_parameter },
+    { "+CLAC",      "List All Available AT Commands",                          check_clac, dissect_clcc_parameter },
     { "+CLCC",      "Current Calls",                                           check_clcc, dissect_clcc_parameter },
     { "+CLIP",      "Calling Line Identification Notification",                check_clip, dissect_clip_parameter },
     { "+CME ERROR", "Mobile Termination Error Result Code",                    check_cme,  dissect_cme_error_parameter },
