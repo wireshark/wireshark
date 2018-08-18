@@ -153,8 +153,8 @@ dissect_rfc7468(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     for (;;) {
         linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
         if (linelen == -1) {
-            /* No complete line was found.  Not an RFC 7468 file */
-            break;
+            /* No complete line was found.  Nothing more to do. */
+            return tvb_captured_length(tvb);
         }
 
         /*
@@ -261,8 +261,7 @@ dissect_rfc7468(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
         linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
         if (linelen == -1) {
             /*
-             * XXX - should we just attempt to dissect what we've
-             * gotten so far?
+             * No complete line was found.  Nothing more to do.
              */
             return tvb_captured_length(tvb);
         }
