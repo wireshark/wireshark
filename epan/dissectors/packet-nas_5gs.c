@@ -1228,7 +1228,7 @@ de_nas_5gs_mm_sal(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         /* Allowed type    Type of list    Number of elements    octet 1 */
         sal_head = tvb_get_guint8(tvb, curr_offset);
         sal_t_li = (sal_head & 0x60) >> 5;
-        sal_num_e = sal_head & 0x1f;
+        sal_num_e = (sal_head & 0x1f) + 1;
         proto_tree_add_bitmask_list(sub_tree, tvb, curr_offset, 1, flags_sal, ENC_BIG_ENDIAN);
         curr_offset++;
         switch (sal_t_li) {
