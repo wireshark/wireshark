@@ -11209,6 +11209,7 @@ vista-4gl       24249/udp # Vista 4GL [Mark_Itzcovitz] [Mark_Itzcovitz]
 ild             24321/tcp # Isolv Local Directory [Mitchell_Bass] [Mitchell_Bass] 2005-08
 ild             24321/udp # Isolv Local Directory [Mitchell_Bass] [Mitchell_Bass] 2005-08
 hid             24322/udp # Transport of Human Interface Device data streams [Freebox_SAS] [Nicolas_Pouillon] 2012-12-14
+vrmg-ip         24323/tcp # Verimag mobile class protocol over TCP [Verimag_OOO] [Denis_Ionov] 2018-08-15
 intel-rci       24386/tcp # Intel RCIIANA assigned this well-formed service name as a replacement for "intel_rci". [Mark_Lewis_2] [Mark_Lewis_2]
 intel_rci       24386/tcp # Intel RCI [Mark_Lewis_2] [Mark_Lewis_2] This entry is an alias to "intel-rci".This entry is now historic, not usable for use with manycommon service discovery mechanisms.
 intel-rci       24386/udp # Intel RCIIANA assigned this well-formed service name as a replacement for "intel_rci". [Mark_Lewis_2] [Mark_Lewis_2]
