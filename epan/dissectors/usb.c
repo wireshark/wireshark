@@ -9753,6 +9753,7 @@ static const value_string usb_products_vals[] = {
     { 0x056e0072, "M-LS6UL Mouse" },
     { 0x056e0073, "M-LS7UL Mouse" },
     { 0x056e0074, "M-FW1UL Mouse" },
+    { 0x056e0075, "M-FW2DL Mouse" },
     { 0x056e200c, "LD-USB/TX" },
     { 0x056e4002, "Laneed 100Mbps Ethernet LD-USB/TX [pegasus]" },
     { 0x056e4005, "LD-USBL/TX" },

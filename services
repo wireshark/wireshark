@@ -5899,6 +5899,7 @@ filesphere	24242/tcp/udp	# fileSphere
 vista-4gl	24249/tcp/udp	# Vista 4GL
 ild		24321/tcp/udp	# Isolv Local Directory
 hid		24322/udp	# Transport of Human Interface Device data streams
+vrmg-ip		24323/tcp	# Verimag mobile class protocol over TCP
 intel-rci	24386/tcp/udp	# Intel RCI
 tonidods	24465/tcp/udp	# Tonido Domain Server
 binkp		24554/tcp/udp	# BINKP
