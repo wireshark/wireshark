@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2018-08-10)
+(last updated 2018-08-18)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -30291,8 +30291,8 @@ Decimal
       tlegg&the-eleven.com
 7584
   Intertrust Technologies Corporation
-    Knox Carey
-      knox&intertrust.com
+    Seacert Operations
+      operations&seacert.com
 7585
   Genius Software Ltda
     Jose Roberto Fernandes
@@ -47007,8 +47007,8 @@ Decimal
       alan&columbia.edu
 11863
   TP-Link Technology Co.,Ltd
-    Dai Hailong
-      daihailong&tp-link.com.cn
+    Lucien Chen
+      lucien.chen&tp-link.com
 11864
   Böke and Walterfang Electronic Systems Ltd
     Kevin Cordery
@@ -59983,9 +59983,9 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
     Chih-Peng Yang
       cpyang&siraya.com
 15108
-  Macao Post eSignTrust Certification Authority
-    Carlos A. Roldão Lopes
-      macpost&macau.ctm.net
+  Macao Post and Telecommunications Bureau - eSignTrust (formerly 'Macao Post eSignTrust Certification Authority')
+    Director of CTT
+      cttgeral&ctt.gov.mo
 15109
   Psytechnics
     Xiaoyi Gu
@@ -65681,7 +65681,7 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
 16532
   Sparda-Datenverarbeitung eG
     Markus Volk
-      markus.volk&spb.de
+      markus.volk&sdv-it.de
 16533
   Consejo General de la Abogacia Española
     Maximiliano Gonzalez-Fierro
@@ -94473,8 +94473,8 @@ Electrónica y Computación
       antonio.nogueira&vpar.com.br
 23727
   Marlin Trust Management Organization L.L.C
-    Jim Rudd
-      jrudd&marlin-tmo.com
+    MTMO Operations
+      operations&marlin-trust.com
 23728
   Versio SARL
     Bernard BAILLY
@@ -106651,8 +106651,8 @@ Institute
       roberto.cremasco&comune.rimini.it
 26769
   United Technologies Corporation
-    chris.leigh&utc.com
-      chris.leigh&utc.com
+    Rand Parent
+      rand.parent&utc.com
 26770
   Virtutility Ltd
     Philip Hart
@@ -110134,9 +110134,9 @@ Decentralization / Helenic Public Administra
     James Delahanty
       ianainfo&gie.com
 27639
-  Nashua Mobile (Pty) Ltd
-    Richard Mayhew
-      richardm&nashuamobile.com
+  Electronic Communications Network (Pty) Ltd
+    ECN Systems
+      systems&ecn.co.za
 27640
   Telefonica Moviles España, S.A.
     Marc Mollà Roselló
@@ -169408,9 +169408,9 @@ Decentralization / Helenic Public Administra
     Justin Good
       justin&vmfarms.com
 42457
-  Palluc TIC SL
-    Joan Vicent Carbonell Blasco
-      joan&palluc.com
+  IDIEIKON
+    Alejandro Echevarria
+      aecheverria&idieikon.com
 42458
   TigerLead Solutions
     Andrew Kerr
@@ -187328,7 +187328,7 @@ Decentralization / Helenic Public Administra
     Peter Eggimann
       office&i-buero.ch
 46937
-  judoatlas.net
+  Judo Atlas
     Jean-Luc Duprat
       jld&acm.org
 46938
@@ -207626,7 +207626,7 @@ Decentralization / Helenic Public Administra
 52011
   Stolon
     Lacoste Damien
-      damien&lacoste.io
+      bureau&stolon.fr
 52012
   Rodmyre Technology
     Brian Rodmyre
@@ -208786,7 +208786,7 @@ Decentralization / Helenic Public Administra
 52301
   GfK SE
     Igor Brkic
-      igor.brkic&gfk.com
+      pki&gfk.com
 52302
   ROSATOM
     Eugene Semerikov
@@ -209467,6 +209467,170 @@ Decentralization / Helenic Public Administra
   Systema Datentechnik GmbH
     Norbert Fehlauer
       pen&systema-online.de
+52472
+  Medical Oncology and Hematology Associates
+    Jane Osterson
+      josterson&cancercenterofiowa.com
+52473
+  CEMA AG
+    Frank Breier
+      servicedesk&cema.de
+52474
+  McAfee, LLC
+    Michael Melnyk
+      mykhaylo_melnyk&mcafee.com
+52475
+  PriSec Limited
+    Edwin SO
+      edwin.so&prisec.co
+52476
+  ginoclement.com
+    Gino Clement
+      ginoclement&gmail.com
+52477
+  Werner Enterpises
+    David Elfering
+      delfering&werner.com
+52478
+  Holger Rauch
+    Holger Rauch
+      holger.rauch&posteo.de
+52479
+  Fedor Radostev
+    Fedor Radostev
+      radostev.fedor&gmail.com
+52480
+  City of Canon City
+    Chase Weber
+      caweber&canoncity.org
+52481
+  北京圣博润高新技术股份有限公司 (Beijing SBR High-tech Co., Ltd.)
+    张海俊 (Zhang Haijun)
+      zhanghaijun&sbr-info.com
+52482
+  FUJIYAMA POWER SYSTEMS PRIVATE LIMITED
+    RAKESH GARG
+      RAKESH&UTLUPS.COM
+52483
+  EGDN
+    Eugene Semerikov
+      evgen&egd.net.ru
+52484
+  Nexway co.,ltd
+    yudai matsusaka
+      matsusaka_yudai&nexway.co.jp
+52485
+  Mensa in Deutschland e. V.
+    Martin H. Sluka
+      root&mensa.de
+52486
+  Kazcangi
+    Sébastien Ignaczak
+      sebastien&ignaczak.fr
+52487
+  ENERTECH COMNET
+    A V RAMANA RAJU
+      enertechcomnet&yahoo.com
+52488
+  BEC
+    Niels Joergen Hansen
+      njh&bec.dk
+52489
+  Landesamt für Zentrale Polizeiliche Dienste
+    Frank Dreher
+      frank.dreher&polizei.nrw.de
+52490
+  Gardners Lane & Oakwood Federation
+    IT Services
+      itservices&cheltcc.org.uk
+52491
+  LES-TV
+    Vladimir Kuzemko
+      ku&les.ru
+52492
+  TIBCO Software Inc.
+    Tibco Mashery Operations
+      rpielock&tibco.com
+52493
+  BACnet Interoperability Testing Services, Inc.
+    Edward Hague
+      edward&bac-test.com
+52494
+  The NetWorker
+    Greg Johnson
+      gregj2010&yahoo.com
+52495
+  ISE Informatikgesellschaft für Software-Entwicklung mbH
+    Hendrik Heimers
+      hendrik.heimers&ise-online.com
+52496
+  Panoptiqon
+    Mert Cingöz
+      mert.cingoz&panoptiqon.com
+52497
+  Aloha Group LLC
+    Mark Joseph
+      sysadmin&alohagroupllc.com
+52498
+  Etat de Vaud
+    Ignacio Arsuaga
+      ignacio.arsuaga&vd.ch
+52499
+  APLEONA GmbH
+    Sebastian Gawlik
+      sebastian.gawlik&apleona.com
+52500
+  Santander Bank Polska SA
+    Paulina Smolińska
+      certificates&santander.pl
+52501
+  DIANET INFRASTRUCTURE MONITORING
+    Emmanuell Scolimoski
+      suprimentos&dianet.net.br
+52502
+  Nureva
+    Jing Feng
+      jingfeng&nureva.com
+52503
+  Eaton Lighting
+    Altan Stalker
+      altanjstalker&eaton.com
+52504
+  Renal Hypertension Clinic
+    Jennifer Kirk
+      renalhc&comcast.net
+52505
+  SoftNI Corporation
+    Jose M. Salgado
+      jmsalgado&softni.com
+52506
+  Åströms markentreprenad AB
+    Johan Söderholm
+      Johan.soderholm&cgi.com
+52507
+  ProPotsdam GmbH
+    Olaf Janke
+      sys.systema&propotsdam.de
+52508
+  Bank of Albania
+    Andri Iljazi
+      ailjazi&bankofalbania.org
+52509
+  EMQX
+    ChongYuan Yin
+      yinchy&emqx.io
+52510
+  Sentry View Systems, Inc.
+    Chuck Baenen
+      cbaenen&sentryviewsystems.com
+52511
+  hSenid Mobile Solutions
+    Brayan Perera
+      brayan&hsenidmobile.com
+52512
+  Quirem Medical B.V.
+    Gerrit van de Maat
+      info&quirem.com
 
 
 End of Document
