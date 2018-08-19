@@ -1291,6 +1291,7 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     gint             i_char = 0;
     guint            i_char_fix = 0;
     gint             length;
+    gint             leftover_length;
     const at_cmd_t  *i_at_cmd;
     gint             parameter_length;
     guint            parameter_number = 0;
@@ -1426,18 +1427,19 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         offset += i_char;
 
+        leftover_length = length - i_char;
         if (i_at_cmd && g_strcmp0(i_at_cmd->name, "D")) {
-            if (length >= 2 && at_command[i_char] == '=' && at_command[i_char + 1] == '?') {
+            if (leftover_length >= 2 && at_command[i_char] == '=' && at_command[i_char + 1] == '?') {
                 type = at_command[i_char] << 8 | at_command[i_char + 1];
                 proto_tree_add_uint(command_tree, hf_at_cmd_type, tvb, offset, 2, type);
                 offset += 2;
                 i_char += 2;
-            } else if (role == ROLE_DCE && length >= 2 && at_command[i_char] == '\r' && at_command[i_char + 1] == '\n') {
+            } else if (role == ROLE_DCE && leftover_length >= 2 && at_command[i_char] == '\r' && at_command[i_char + 1] == '\n') {
                 type = at_command[i_char] << 8 | at_command[i_char + 1];
                 proto_tree_add_uint(command_tree, hf_at_cmd_type, tvb, offset, 2, type);
                 offset += 2;
                 i_char += 2;
-            } else if (length >= 1 && (at_command[i_char] == '=' ||
+            } else if (leftover_length >= 1 && (at_command[i_char] == '=' ||
                         at_command[i_char] == '\r' ||
                         at_command[i_char] == ':' ||
                         at_command[i_char] == '?')) {
@@ -1445,6 +1447,12 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 proto_tree_add_uint(command_tree, hf_at_cmd_type, tvb, offset, 1, type);
                 offset += 1;
                 i_char += 1;
+            }
+            else if (leftover_length == 0) {
+                /* No suffix, assume line break (which translates to 'ACTION_SIMPLY') */
+                type = TYPE_ACTION_SIMPLY;
+                pitem = proto_tree_add_uint(command_tree, hf_at_cmd_type, tvb, offset, 0, type);
+                PROTO_ITEM_SET_GENERATED(pitem);
             }
         }
 
