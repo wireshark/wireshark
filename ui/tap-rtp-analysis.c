@@ -383,6 +383,10 @@ rtppacket_analyse(tap_rtp_stat_t *statinfo,
         statinfo->sumTS  += 1.0 * nominaltime;
         statinfo->sumt2  += 1.0 * current_time * current_time;
         statinfo->sumtTS += 1.0 * current_time * nominaltime;
+    } else {
+        if (!statinfo->first_packet) {
+            statinfo->delta = current_time-(statinfo->time);
+        }
     }
 
     /* Calculate the BW in Kbps adding the IP+UDP header to the RTP -> 20bytes(IP) + 8bytes(UDP) */
