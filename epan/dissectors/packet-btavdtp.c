@@ -807,7 +807,7 @@ dissect_codec(tvbuff_t *tvb, packet_info *pinfo, proto_item *service_item, proto
                             (value8[1] & 0x0C) ? "" : "not set ",
                             (value8[1] & 0x02) ? "SNR " : "",
                             (value8[1] & 0x01) ? "Loudness " : "",
-                            (value8[0] & 0x03) ? "" : "not set ",
+                            (value8[1] & 0x03) ? "" : "not set ",
                             value8[2],
                             value8[3]);
 
@@ -832,7 +832,7 @@ dissect_codec(tvbuff_t *tvb, packet_info *pinfo, proto_item *service_item, proto
                             (value8[1] & 0x0C) ? "" : "not set ",
                             (value8[1] & 0x02) ? "SNR " : "",
                             (value8[1] & 0x01) ? "Loudness " : "",
-                            (value8[0] & 0x03) ? "" : "not set ",
+                            (value8[1] & 0x03) ? "" : "not set ",
                             value8[2],
                             value8[3]);
                     } else {
