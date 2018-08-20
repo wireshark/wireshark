@@ -8825,7 +8825,6 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     tvbuff_t        *next_tvb;
     guint8           sub_proto;
     guint8           acfield_len      = 0;
-    guint8           control_field;
     gtp_msg_hash_t  *gcrp             = NULL;
     conversation_t  *conversation;
     gtp_conv_info_t *gtp_info;
@@ -9420,9 +9419,12 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                 next_tvb = tvb_new_subset_remaining(tvb, offset);
                 call_dissector(ipv6_handle, next_tvb, pinfo, tree);
             } else {
+#if 0
+                /* This turns out not to be true, remove the code and try to improve it if we get bug reports */
                 /* this seems to be a PPP packet */
 
                 if (sub_proto == 0xff) {
+                    guint8           control_field;
                     /* this might be an address field, even it shouldn't be here */
                     control_field = tvb_get_guint8(tvb, offset + 1);
                     if (control_field == 0x03)
@@ -9432,6 +9434,8 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
                 next_tvb = tvb_new_subset_remaining(tvb, offset + acfield_len);
                 call_dissector(ppp_handle, next_tvb, pinfo, tree);
+#endif
+                proto_tree_add_item(tree, hf_gtp_tpdu_data, tvb, offset, -1, ENC_NA);
             }
         }
 
