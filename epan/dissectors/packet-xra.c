@@ -78,6 +78,7 @@ static gint hf_xra_tlv_ranging_mer = -1;
 static gint hf_xra_tlv_ranging_timing_adjust = -1;
 static gint hf_xra_tlv_ranging_power_level = -1;
 static gint hf_xra_tlv_subslot_id =-1;
+static gint hf_xra_tlv_control_word = -1;
 
 static gint hf_xra_unknown = -1;
 
@@ -93,6 +94,8 @@ static gint hf_xra_tlv_cw_info_ldpc_nr_of_code_bits = -1;
 static gint hf_xra_tlv_cw_info_ldpc_decoding_successful = -1;
 static gint hf_xra_tlv_cw_info_ldpc_number_of_corrected_bits = -1;
 static gint hf_xra_tlv_cw_info_ldpc_number_of_iterations = -1;
+static gint hf_xra_tlv_cw_info_rs_decoding_successful = -1;
+static gint hf_xra_tlv_cw_info_rs_number_of_corrected_symbols = -1;
 
 /*
  * Burst Info TLV
@@ -209,6 +212,7 @@ static int dissect_ofdma_segment(tvbuff_t * tvb, packet_info* pinfo, proto_tree 
 #define XRA_ESTIMATED_TIMING_ADJUST 20
 #define XRA_ESTIMATED_POWER_LEVEL 21
 #define XRA_SUBSLOT_ID 22
+#define XRA_CONTROL_WORD 23
 
 #define XRA_CONFIGURATION_INFO 254
 #define XRA_EXTENSION_TYPE 255
@@ -223,6 +227,8 @@ static int dissect_ofdma_segment(tvbuff_t * tvb, packet_info* pinfo, proto_tree 
 #define XRA_TLV_CW_INFO_LDPC_DECODING_SUCCESSFUL 6
 #define XRA_TLV_CW_INFO_LDPC_NUMBER_OF_CORRECTED_BITS 7
 #define XRA_TLV_CW_INFO_LDPC_NUMBER_OF_ITERATIONS 8
+#define XRA_TLV_CW_INFO_RS_DECODING_SUCCESFUL 9
+#define XRA_TLV_CW_INFO_RS_NUMBER_OF_CORRECTED_SYMBOLS 10
 
 /*Burst Info Sub-Tlv*/
 #define XRA_BURST_INFO_BURST_ID_REFERENCE 1
@@ -271,8 +277,8 @@ static const value_string annex_vals[] = {
 };
 
 static const value_string modulation_vals[] = {
-  {0, "QAM64"},
-  {1, "QAM256"},
+  {0, "64-QAM"},
+  {1, "256-QAM"},
   {0, NULL}
 };
 
@@ -339,6 +345,26 @@ static const true_false_string codeword_tagging = {
 static const value_string local_proto_checksum_vals[] = {
   { PROTO_CHECKSUM_E_BAD, "Bad"},
   { PROTO_CHECKSUM_E_GOOD, "Good"},
+  { 0, NULL}
+};
+
+static const value_string control_word_vals[] = {
+  { 0, "I=128, J=1"},
+  { 1, "I=128, J=1"},
+  { 2, "I=128, J=2"},
+  { 3, "I=64, J=2"},
+  { 4, "I=128, J=3"},
+  { 5, "I=32, J=4"},
+  { 6, "I=128, J=4"},
+  { 7, "I=16, J=8"},
+  { 8, "I=128, J=5"},
+  { 9, "I=8, J=16"},
+  { 10, "I=128, J=6"},
+  { 11, "Reserved"},
+  { 12, "I=128, J=7"},
+  { 13, "Reserved"},
+  { 14, "I=128, J=8"},
+  { 15, "Reserved"},
   { 0, NULL}
 };
 
@@ -476,6 +502,12 @@ dissect_xra_tlv_cw_info(tvbuff_t * tvb, proto_tree * tree, void* data _U_, guint
         break;
       case XRA_TLV_CW_INFO_LDPC_NUMBER_OF_ITERATIONS:
         proto_tree_add_item (xra_tlv_cw_info_tree, hf_xra_tlv_cw_info_ldpc_number_of_iterations, tvb, tlv_index, length, ENC_BIG_ENDIAN);
+        break;
+      case XRA_TLV_CW_INFO_RS_DECODING_SUCCESFUL:
+        proto_tree_add_item(xra_tlv_cw_info_tree, hf_xra_tlv_cw_info_rs_decoding_successful, tvb, tlv_index, length, ENC_BIG_ENDIAN);
+        break;
+      case XRA_TLV_CW_INFO_RS_NUMBER_OF_CORRECTED_SYMBOLS:
+        proto_tree_add_item(xra_tlv_cw_info_tree, hf_xra_tlv_cw_info_rs_number_of_corrected_symbols, tvb, tlv_index, length, ENC_BIG_ENDIAN);
         break;
       default:
         proto_tree_add_item (xra_tlv_cw_info_tree, hf_xra_unknown, tvb, tlv_index, length, ENC_NA);
@@ -646,6 +678,9 @@ dissect_xra_tlv(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
         break;
       case XRA_SUBSLOT_ID:
         proto_tree_add_item (xra_tlv_tree, hf_xra_tlv_subslot_id, tvb, tlv_index, length, ENC_BIG_ENDIAN);
+        break;
+      case XRA_CONTROL_WORD:
+         proto_tree_add_item (xra_tlv_tree, hf_xra_tlv_control_word, tvb, tlv_index, length, ENC_BIG_ENDIAN);
         break;
       default:
         proto_tree_add_item (xra_tlv_tree, hf_xra_unknown, tvb, tlv_index, length, ENC_NA);
@@ -1017,6 +1052,11 @@ proto_register_xra (void)
         FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL}
     },
+    {&hf_xra_tlv_control_word,
+      {"Control Word", "xra.tlv.control_word",
+        FT_UINT8, BASE_DEC, VALS(control_word_vals), 0x0,
+        NULL, HFILL}
+    },
 
     /*Codeword Info DS*/
     {&hf_xra_tlv_cw_info,
@@ -1062,6 +1102,16 @@ proto_register_xra (void)
     {&hf_xra_tlv_cw_info_ldpc_number_of_corrected_bits,
       {"LDPC Number of corrected info bits", "xra.tlv.cw_info.ldpc_number_of_corrected_bits",
         FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL}
+    },
+    {&hf_xra_tlv_cw_info_rs_decoding_successful,
+      {"Reed-Solomon Decoding Successful", "xra.tlv.cw_info.rs_decoding_successful",
+        FT_BOOLEAN, 8, NULL, 0x0,
+        NULL, HFILL}
+    },
+    {&hf_xra_tlv_cw_info_rs_number_of_corrected_symbols,
+      {"Reed-Solomon Number of Corrected Symbols", "xra.tlv.cw_info.rs_number_of_corrected_symbols",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL}
     },
     {&hf_xra_unknown,
