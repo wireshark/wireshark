@@ -697,8 +697,6 @@ main(int argc, char *argv[])
             case 'v':        /* Show version and exit */
             {
                 show_version("Rawshark (Wireshark)", comp_info_str, runtime_info_str);
-                g_string_free(comp_info_str, TRUE);
-                g_string_free(runtime_info_str, TRUE);
                 goto clean_exit;
             }
             default:
@@ -825,6 +823,9 @@ main(int argc, char *argv[])
     }
 
 clean_exit:
+    g_free(pipe_name);
+    g_string_free(comp_info_str, TRUE);
+    g_string_free(runtime_info_str, TRUE);
     epan_free(cfile.epan);
     epan_cleanup();
     extcap_cleanup();
