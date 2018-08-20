@@ -91,12 +91,12 @@ if [ $VALGRIND -eq 1 ]; then
     declare -a RUNNER_ARGS=("" "-T")
     # Valgrind requires more resources, so permit 1.5x memory and 3x time
     # (1.5x time is too small for a few large captures in the menagerie)
-    MAX_CPU_TIME=`expr 3 \* $MAX_CPU_TIME`
-    MAX_VMEM=`expr 3 \* $MAX_VMEM / 2`
-    # Valgrind is slow. Trim captures to the first 100k packets so that
+    MAX_CPU_TIME=$(( 3 * MAX_CPU_TIME ))
+    MAX_VMEM=$(( 3 * MAX_VMEM / 2 ))
+    # Valgrind is slow. Trim captures to the first 10k packets so that
     # we don't time out.
     KEEP=-r
-    PACKET_RANGE=1-100000
+    PACKET_RANGE=1-10000
 else
     # Not using valgrind, use regular tshark.
     # TShark arguments (you won't have to change these)
