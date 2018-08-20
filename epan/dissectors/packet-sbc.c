@@ -19,6 +19,7 @@
 #include "packet-btavdtp.h"
 
 #define CHANNELS_MONO          0x00
+#define CHANNELS_DUAL_CHANNEL  0x01
 #define CHANNELS_JOINT_STEREO  0x03
 
 #define FREQUENCY_16000        0x00
@@ -176,7 +177,7 @@ dissect_sbc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         sbc_blocks = 4 * (blocks + 1);
 
         frame_length = (4 * sbc_subbands * sbc_channels) / 8;
-        if (sbc_channels == 1)
+        if (sbc_channels == 1 || channels == CHANNELS_DUAL_CHANNEL)
             val = sbc_blocks * sbc_channels * bitpool;
         else
             val = (((channels == CHANNELS_JOINT_STEREO) ? 1 : 0) * sbc_subbands + sbc_blocks * bitpool);
