@@ -195,6 +195,10 @@ static int hf_isis_lsp_spb_short_mac_address = -1;
 static int hf_isis_lsp_sl_binding_flags = -1;
 static int hf_isis_lsp_sl_binding_flags_f = -1;
 static int hf_isis_lsp_sl_binding_flags_m = -1;
+static int hf_isis_lsp_sl_binding_flags_s = -1;
+static int hf_isis_lsp_sl_binding_flags_d = -1;
+static int hf_isis_lsp_sl_binding_flags_a = -1;
+static int hf_isis_lsp_sl_binding_flags_rsv = -1;
 static int hf_isis_lsp_sl_binding_weight = -1;
 static int hf_isis_lsp_sl_binding_range = -1;
 static int hf_isis_lsp_sl_binding_prefix_length = -1;
@@ -1991,6 +1995,10 @@ dissect_isis_lsp_clv_sid_label_binding(tvbuff_t *tvb, packet_info* pinfo, proto_
     static const int *lsp_sl_flags[] = {
         &hf_isis_lsp_sl_binding_flags_f,
         &hf_isis_lsp_sl_binding_flags_m,
+        &hf_isis_lsp_sl_binding_flags_s,
+        &hf_isis_lsp_sl_binding_flags_d,
+        &hf_isis_lsp_sl_binding_flags_a,
+        &hf_isis_lsp_sl_binding_flags_rsv,
         NULL
     };
 
@@ -3902,13 +3910,33 @@ proto_register_isis_lsp(void)
               NULL, HFILL }
         },
         { &hf_isis_lsp_sl_binding_flags_f,
-            { "Flag F", "isis.lsp.sl_binding.flags_f",
+            { "Flag F: Address Family", "isis.lsp.sl_binding.flags_f",
               FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x80,
               NULL, HFILL}
         },
         { &hf_isis_lsp_sl_binding_flags_m,
-            { "Flag M", "isis.lsp.sl_binding.flags_m",
+            { "Flag M: Mirror Context", "isis.lsp.sl_binding.flags_m",
               FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x40,
+              NULL, HFILL}
+        },
+        { &hf_isis_lsp_sl_binding_flags_s,
+            { "Flag S", "isis.lsp.sl_binding.flags_s",
+              FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x20,
+              "If set, the SID/Label Binding TLV SHOULD be flooded across the entire routing domain", HFILL}
+        },
+        { &hf_isis_lsp_sl_binding_flags_d,
+            { "Flag D", "isis.lsp.sl_binding.flags_d",
+              FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x10,
+              "when the SID/Label Binding TLV is leaked from level-2 to level-1", HFILL}
+        },
+        { &hf_isis_lsp_sl_binding_flags_a,
+            { "Flag A: Attached", "isis.lsp.sl_binding.flags_a",
+              FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x08,
+              NULL, HFILL}
+        },
+        { &hf_isis_lsp_sl_binding_flags_rsv,
+            { "Flag reserved", "isis.lsp.sl_binding.flags_rsv",
+              FT_UINT8, BASE_HEX, NULL, 0x07,
               NULL, HFILL}
         },
         { &hf_isis_lsp_sl_binding_weight,
