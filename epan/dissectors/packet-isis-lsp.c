@@ -99,7 +99,10 @@
 #define GRP_IPV6_ADDRESS 3
 
 /* sub-TLV's under SID/Label binding TLV */
-#define ISIS_LSP_SL_SUB_SID_LAB     1
+#define ISIS_LSP_SL_SUB_SID_LABEL   1
+#define ISIS_LSP_SL_SUB_PREFIX_SID  3
+#define ISIS_LSP_SL_SUB_ADJ_SID     31
+#define ISIS_LSP_SL_SUB_LAN_ADJ_SID 32
 
 /* Segment Routing Sub-TLV */
 #define ISIS_SR_SID_LABEL           1
@@ -200,6 +203,15 @@ static int hf_isis_lsp_sl_sub_tlv_type = -1;
 static int hf_isis_lsp_sl_sub_tlv_length = -1;
 static int hf_isis_lsp_sl_sub_tlv_label_20 = -1;
 static int hf_isis_lsp_sl_sub_tlv_label_32 = -1;
+static int hf_isis_lsp_sl_sub_tlv_flags = -1;
+static int hf_isis_lsp_sl_sub_tlv_flags_r = -1;
+static int hf_isis_lsp_sl_sub_tlv_flags_n = -1;
+static int hf_isis_lsp_sl_sub_tlv_flags_p = -1;
+static int hf_isis_lsp_sl_sub_tlv_flags_e = -1;
+static int hf_isis_lsp_sl_sub_tlv_flags_v = -1;
+static int hf_isis_lsp_sl_sub_tlv_flags_l = -1;
+static int hf_isis_lsp_sl_sub_tlv_flags_rsv = -1;
+static int hf_isis_lsp_sl_sub_tlv_algorithm = -1;
 /* Generated from convert_proto_tree_add_text.pl */
 static int hf_isis_lsp_grp_macaddr_length = -1;
 static int hf_isis_lsp_grp_ipv4addr_length = -1;
@@ -433,6 +445,7 @@ static gint ett_isis_lsp_clv_grp_ipv6addr = -1;
 static gint ett_isis_lsp_clv_originating_buff_size = -1; /* CLV 14 */
 static gint ett_isis_lsp_sl_flags = -1;
 static gint ett_isis_lsp_sl_sub_tlv = -1;
+static gint ett_isis_lsp_sl_sub_tlv_flags = -1;
 
 static expert_field ie_isis_lsp_checksum_bad = EI_INIT;
 static expert_field ei_isis_lsp_short_packet = EI_INIT;
@@ -452,7 +465,10 @@ static const value_string isis_lsp_istype_vals[] = {
     { 0, NULL } };
 
 static const value_string isis_lsp_sl_sub_tlv_vals[] = {
-    { ISIS_LSP_SL_SUB_SID_LAB,    "SID/Label sub tlv"},
+    { ISIS_LSP_SL_SUB_SID_LABEL,  "SID/Label"},
+    { ISIS_LSP_SL_SUB_PREFIX_SID, "Prefix SID"},
+    { ISIS_LSP_SL_SUB_ADJ_SID,    "Adjacency SID"},
+    { ISIS_LSP_SL_SUB_LAN_ADJ_SID,"LAN-Adjacency SID"},
     { 0, NULL } };
 
 static const int * adj_sid_flags[] = {
@@ -1974,6 +1990,17 @@ dissect_isis_lsp_clv_sid_label_binding(tvbuff_t *tvb, packet_info* pinfo, proto_
         NULL
     };
 
+    static const int *lsp_sl_sub_tlv_flags[] = {
+        &hf_isis_lsp_sl_sub_tlv_flags_r,
+        &hf_isis_lsp_sl_sub_tlv_flags_n,
+        &hf_isis_lsp_sl_sub_tlv_flags_p,
+        &hf_isis_lsp_sl_sub_tlv_flags_e,
+        &hf_isis_lsp_sl_sub_tlv_flags_v,
+        &hf_isis_lsp_sl_sub_tlv_flags_l,
+        &hf_isis_lsp_sl_sub_tlv_flags_rsv,
+        NULL
+    };
+
     if ( length <= 0 ) {
         return;
     }
@@ -2013,7 +2040,7 @@ dissect_isis_lsp_clv_sid_label_binding(tvbuff_t *tvb, packet_info* pinfo, proto_
         proto_tree_add_item(subtree, hf_isis_lsp_sl_sub_tlv_type, tvb, i+tlv_offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(subtree, hf_isis_lsp_sl_sub_tlv_length, tvb, i+1+tlv_offset, 1, ENC_BIG_ENDIAN);
         switch (clv_code) {
-            case ISIS_LSP_SL_SUB_SID_LAB :
+            case ISIS_LSP_SL_SUB_SID_LABEL:
                 switch (clv_len) {
                     case 3 :
                         proto_tree_add_item(subtree, hf_isis_lsp_sl_sub_tlv_label_20,
@@ -2022,11 +2049,32 @@ dissect_isis_lsp_clv_sid_label_binding(tvbuff_t *tvb, packet_info* pinfo, proto_
                     case 4 :
                         proto_tree_add_item(subtree, hf_isis_lsp_sl_sub_tlv_label_32,
                                             tvb, i+2+tlv_offset, clv_len, ENC_BIG_ENDIAN);
-                      break;
+                        break;
                     default :
                         proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_malformed_subtlv, tvb, i+2+tlv_offset, -1,
                                                 "Label badly formatted");
+                    break;
+                }
+                break;
+            case ISIS_LSP_SL_SUB_PREFIX_SID: {
+                proto_tree_add_bitmask(subtree, tvb, i+2+tlv_offset, hf_isis_lsp_sl_sub_tlv_flags,
+                                       ett_isis_lsp_sl_sub_tlv_flags, lsp_sl_sub_tlv_flags, ENC_NA);
+                proto_tree_add_item(subtree, hf_isis_lsp_sl_sub_tlv_algorithm,
+                                    tvb, i+2+tlv_offset+1, 1, ENC_BIG_ENDIAN);
+                switch (clv_len-2) {
+                    case 3 :
+                        proto_tree_add_item(subtree, hf_isis_lsp_sl_sub_tlv_label_20,
+                                            tvb, i+2+tlv_offset+2, clv_len-2, ENC_BIG_ENDIAN);
                         break;
+                    case 4 :
+                        proto_tree_add_item(subtree, hf_isis_lsp_sl_sub_tlv_label_32,
+                                            tvb, i+2+tlv_offset+2, clv_len-2, ENC_BIG_ENDIAN);
+                        break;
+                    default :
+                        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_malformed_subtlv, tvb, i+2+tlv_offset+2, -1,
+                                                "Label badly formatted");
+                        break;
+                    }
                 }
                 break;
             default:
@@ -3902,6 +3950,52 @@ proto_register_isis_lsp(void)
               FT_UINT32, BASE_DEC, NULL, 0x0,
               NULL, HFILL}
         },
+        { &hf_isis_lsp_sl_sub_tlv_flags,
+            { "sub-TLV Flags", "isis.lsp.sl_sub_tlv.flags",
+              FT_UINT8, BASE_HEX, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_sl_sub_tlv_flags_r,
+            { "Flag R: Re-advertisement", "isis.lsp.sl_sub_tlv.flags_r",
+              FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x80,
+              NULL, HFILL}
+        },
+        { &hf_isis_lsp_sl_sub_tlv_flags_n,
+            { "Flag N: Node-SID", "isis.lsp.sl_sub_tlv.flags_n",
+              FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x40,
+              NULL, HFILL}
+        },
+        { &hf_isis_lsp_sl_sub_tlv_flags_p,
+            { "Flag P: no-PHP", "isis.lsp.sl_sub_tlv.flags_p",
+              FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x20,
+              NULL, HFILL}
+        },
+        { &hf_isis_lsp_sl_sub_tlv_flags_e,
+            { "Flag E: Explicit-Null", "isis.lsp.sl_sub_tlv.flags_e",
+              FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x10,
+              NULL, HFILL}
+        },
+        { &hf_isis_lsp_sl_sub_tlv_flags_v,
+            { "Flag V: Value", "isis.lsp.sl_sub_tlv.flags_v",
+              FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x08,
+              NULL, HFILL}
+        },
+        { &hf_isis_lsp_sl_sub_tlv_flags_l,
+            { "Flag L: Local", "isis.lsp.sl_sub_tlv.flags_v",
+              FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04,
+              NULL, HFILL}
+        },
+        { &hf_isis_lsp_sl_sub_tlv_flags_rsv,
+            { "Flag reserved", "isis.lsp.sl_sub_tlv.flags_rsv",
+              FT_UINT8, BASE_HEX, NULL, 0x03,
+              NULL, HFILL}
+        },
+        { &hf_isis_lsp_sl_sub_tlv_algorithm,
+            { "Algorithm", "isis.lsp.sl_sub_tlv.algorithm",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL}
+        },
+
         /* Generated from convert_proto_tree_add_text.pl */
         { &hf_isis_lsp_mt_id_reserved,
             { "Reserved", "isis.lsp.reserved",
@@ -4811,7 +4905,8 @@ proto_register_isis_lsp(void)
         &ett_isis_lsp_clv_sr_sid_label,
         &ett_isis_lsp_clv_sr_alg,
         &ett_isis_lsp_sl_flags,
-        &ett_isis_lsp_sl_sub_tlv
+        &ett_isis_lsp_sl_sub_tlv,
+        &ett_isis_lsp_sl_sub_tlv_flags
     };
 
     static ei_register_info ei[] = {
