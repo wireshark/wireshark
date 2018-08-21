@@ -25,6 +25,10 @@
 #include <sys/socket.h>
 #endif
 
+#ifdef HAVE_SYS_SOCKIO_H
+#include <sys/sockio.h>
+#endif
+
 #include "ws_attributes.h"
 
 /*
