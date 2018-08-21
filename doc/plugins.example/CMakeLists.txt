@@ -17,9 +17,8 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(WIRESHARK REQUIRED wireshark>=2.5)
 ### CMake Bug: Use PKG_CONFIG_PATH instead of CMAKE_PREFIX_PATH
 # https://gitlab.kitware.com/cmake/cmake/issues/15805
-### CMake Bug: If you run into problems please use the "Unix Makefiles" generator.
-### Ninja just wipes the pkg-config variables.
-# https://gitlab.kitware.com/cmake/cmake/issues/17531 (and probably others)
+# Note: If using PKG_CONFIG_PATH the variable needs to be set as exported
+# in the execution environment.
 pkg_get_variable(WIRESHARK_PLUGIN_DIR wireshark plugindir)
 
 set(PLUGIN_INSTALL_LIBDIR "${WIRESHARK_PLUGIN_DIR}/epan")
