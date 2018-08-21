@@ -1,4 +1,4 @@
-#!/usr/pkg/bin/bash
+#!/usr/bin/env bash
 # Setup development environment on BSD-like platforms.
 #
 # Tested on: FreeBSD, OpenBSD, NetBSD.
