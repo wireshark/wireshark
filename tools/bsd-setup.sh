@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # Setup development environment on BSD-like platforms.
 #
 # Tested on: FreeBSD, OpenBSD, NetBSD.
@@ -96,9 +96,9 @@ add_package() {
 		# an *exact* search fails, as that requires that
 		# the package name include the version number.
 		#
-		$PM_SEARCH -g "$pkgname*" >& /dev/null || return 1
+		$PM_SEARCH -g "$pkgname*" > /dev/null 2>&1 || return 1
 	else
-		$PM_SEARCH "$pkgname" >& /dev/null || return 1
+		$PM_SEARCH "$pkgname" > /dev/null 2>&1 || return 1
 	fi
 
 	# package is found, append it to list
