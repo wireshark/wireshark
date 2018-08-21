@@ -5,4 +5,4 @@ tools/make-plugin-reg.py usr/share/pyshared
 tools/wireshark_be.py usr/share/pyshared
 tools/wireshark_gen.py usr/share/pyshared
 tools/asn2wrs.py usr/share/pyshared
-usr/lib/*/wireshark/*.cmake
+usr/lib/*/wireshark/cmake/*.cmake
