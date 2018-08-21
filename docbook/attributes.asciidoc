@@ -25,7 +25,7 @@
 
 // Wireshark secondary URLs (pages)
 :wireshark-authors-url: {wireshark-main-url}about.html#authors
-:wireshark-buildbot-url: https://buildbot.wireshark.org/trunk/waterfall
+:wireshark-buildbot-url: https://buildbot.wireshark.org/wireshark-master/waterfall
 :wireshark-code-browse-url: {wireshark-code-review-url}/gitweb?p=wireshark.git
 :wireshark-developers-guide-url: {wireshark-main-url}docs/
 :wireshark-display-filter-reference-url: {wireshark-main-url}docs/dfref/

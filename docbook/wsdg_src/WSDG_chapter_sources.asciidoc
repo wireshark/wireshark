@@ -413,7 +413,7 @@ After the build process has successfully finished, you should find a
 
 
 [TIP]
-.Tip!
+.Beware of multiple Wiresharks
 ====
 An already installed Wireshark may interfere with your newly generated
 version in various ways. If you have any problems getting your Wireshark
@@ -466,7 +466,7 @@ launching the Wireshark.exe executable.
 
 ==== Unix/Linux
 
-You can debug using command-line debuggers such as gdb, dbx, or lldb. 
+You can debug using command-line debuggers such as gdb, dbx, or lldb.
 If you prefer a graphic debugger, you can use the Data Display Debugger
 (ddd).
 
@@ -478,7 +478,7 @@ Additional traps can be set on GLib by setting the `G_DEBUG` environment variabl
 $ G_DEBUG=fatal_criticals ddd wireshark
 ----
 
-See http://library.gnome.org/devel/glib/stable/glib-running.html[]
+See https://developer.gnome.org/glib/stable/glib-running.html[]
 
 [[ChSrcWin32Debug]]
 

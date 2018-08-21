@@ -240,7 +240,7 @@ files) these days.
 You should use the released sources if you want to build Wireshark from
 source on your platform for productive use. However, if you going to
 develop changes to the Wireshark sources, it might be better to use the
-latest GIT sources. For details about the different ways to get the
+latest Git sources. For details about the different ways to get the
 Wireshark source code see <<ChSrcObtain>>.
 
 Before building Wireshark from a source distribution, make sure you have
@@ -391,6 +391,17 @@ APIs available to the dissector developer, etc.
 
 * The different mailing lists. See <<ChIntroMailingLists>>
 
+[[ChIntroQA]]
+
+==== Q&amp;A Site
+
+The Wireshark Q&amp;A site at {wireshark-qa-url} offers a resource where
+questions and answers come together. You have the option to search what
+questions were asked before and what answers were given by people who
+knew about the issue. Answers are graded, so you can pick out the best
+ones easily. If your issue isn't discussed before you can post one
+yourself.
+
 [[ChIntroMailingLists]]
 
 ==== Mailing Lists
@@ -414,10 +425,10 @@ If you want to be notified about all the changes to the bug
 database, join this list. Details about the bug database can be
 found in <<ChIntroBugDatabase>>.
 
-wireshark-commits:: This list is for Wireshark developers. Every time a change to the GIT
+wireshark-commits:: This list is for Wireshark developers. Every time a change to the Git
 repository is checked in, a mail to this mailing list is generated.
-If you want to be notified about all the changes to the GIT
-repository, join this list. Details about the GIT repository can be
+If you want to be notified about all the changes to the Git
+repository, join this list. Details about the Git repository can be
 found in <<ChSrcGitRepository>>.
 
 You can subscribe to each of these lists from the Wireshark web site:
@@ -442,17 +453,6 @@ The Wireshark community collects bug reports in a Bugzilla database at
 {wireshark-bugs-url}. This database is filled with manually filed bug
 reports, usually after some discussion on wireshark-dev, and automatic
 bug reports from the Buildbot tools.
-
-[[ChIntroQA]]
-
-==== Q&amp;A Site
-
-The Wireshark Q&amp;A site at {wireshark-qa-url} offers a resource where
-questions and answers come together. You have the option to search what
-questions were asked before and what answers were given by people who
-knew about the issue. Answers are graded, so you can pick out the best
-ones easily. If your issue isn't discussed before you can post one
-yourself.
 
 [[ChIntroReportProblems]]
 
