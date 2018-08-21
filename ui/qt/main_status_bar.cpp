@@ -195,6 +195,7 @@ void MainStatusBar::showExpert() {
 void MainStatusBar::captureFileClosing() {
     expert_button_->hide();
     progress_frame_.captureFileClosing();
+    popFieldStatus();
 }
 
 void MainStatusBar::expertUpdate() {
