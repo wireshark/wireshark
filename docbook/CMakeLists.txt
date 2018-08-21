@@ -281,39 +281,33 @@ set(WSUG_GRAPHICS
 	wsug_graphics/ws-time-reference.png
 	wsug_graphics/ws-tools-menu.png
 	wsug_graphics/ws-view-menu.png
-	wsug_graphics/toolbar/autoscroll_24.png
-	wsug_graphics/toolbar/capture_filter_24.png
-	wsug_graphics/toolbar/capture_interfaces_24.png
-	wsug_graphics/toolbar/capture_options_24.png
-	wsug_graphics/toolbar/capture_restart_24.png
-	wsug_graphics/toolbar/capture_start_24.png
-	wsug_graphics/toolbar/capture_stop_24.png
-	wsug_graphics/toolbar/colorize_24.png
-	wsug_graphics/toolbar/display_filter_24.png
-	wsug_graphics/toolbar/resize_columns_24.png
-	wsug_graphics/toolbar/stock_add_24.png
+	wsug_graphics/toolbar/document-open.png
+	wsug_graphics/toolbar/edit-find.png
+	wsug_graphics/toolbar/filter-toolbar-add.png
+	wsug_graphics/toolbar/filter-toolbar-apply.png
+	wsug_graphics/toolbar/filter-toolbar-bookmark.png
+	wsug_graphics/toolbar/filter-toolbar-clear.png
+	wsug_graphics/toolbar/filter-toolbar-input.png
+	wsug_graphics/toolbar/filter-toolbar-recent.png
+	wsug_graphics/toolbar/go-first.png
+	wsug_graphics/toolbar/go-jump.png
+	wsug_graphics/toolbar/go-last.png
+	wsug_graphics/toolbar/go-next.png
+	wsug_graphics/toolbar/go-previous.png
 	wsug_graphics/toolbar/stock_apply_20.png
-	wsug_graphics/toolbar/stock_bottom_24.png
-	wsug_graphics/toolbar/stock_clear_24.png
-	wsug_graphics/toolbar/stock_close_24.png
-	wsug_graphics/toolbar/stock_colorselector_24.png
-	wsug_graphics/toolbar/stock_help_24.png
-	wsug_graphics/toolbar/stock_jump_to_24.png
-	wsug_graphics/toolbar/stock_left_arrow_24.png
-	wsug_graphics/toolbar/stock_open_24.png
-	wsug_graphics/toolbar/stock_preferences_24.png
-	wsug_graphics/toolbar/stock_print_24.png
-	wsug_graphics/toolbar/stock_properties_24.png
-	wsug_graphics/toolbar/stock_refresh_24.png
-	wsug_graphics/toolbar/stock_right_arrow_24.png
-	wsug_graphics/toolbar/stock_save_24.png
-	wsug_graphics/toolbar/stock_save_as_24.png
-	wsug_graphics/toolbar/stock_search_24.png
-	wsug_graphics/toolbar/stock_stop_24.png
-	wsug_graphics/toolbar/stock_top_24.png
-	wsug_graphics/toolbar/stock_zoom_1_24.png
-	wsug_graphics/toolbar/stock_zoom_in_24.png
-	wsug_graphics/toolbar/stock_zoom_out_24.png
+	wsug_graphics/toolbar/x-capture-file-close.png
+	wsug_graphics/toolbar/x-capture-file-reload.png
+	wsug_graphics/toolbar/x-capture-file-save.png
+	wsug_graphics/toolbar/x-capture-options.png
+	wsug_graphics/toolbar/x-capture-restart.png
+	wsug_graphics/toolbar/x-capture-start.png
+	wsug_graphics/toolbar/x-capture-stop.png
+	wsug_graphics/toolbar/x-colorize-packets.png
+	wsug_graphics/toolbar/x-resize-columns.png
+	wsug_graphics/toolbar/x-stay-last.png
+	wsug_graphics/toolbar/zoom-in.png
+	wsug_graphics/toolbar/zoom-original.png
+	wsug_graphics/toolbar/zoom-out.png
 	${COMMON_GRAPHICS}
 )
 
