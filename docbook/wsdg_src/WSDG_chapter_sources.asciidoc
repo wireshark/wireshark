@@ -413,7 +413,7 @@ After the build process has successfully finished, you should find a
 
 
 [TIP]
-.Tip!
+.Beware of multiple Wiresharks
 ====
 An already installed Wireshark may interfere with your newly generated
 version in various ways. If you have any problems getting your Wireshark
@@ -472,8 +472,18 @@ executable.
 
 ==== Unix/Linux
 
-When you want to investigate a problem with Wireshark you want to load
-the program into your debugger. But loading wireshark into debugger fails
+You can debug using command-line debuggers such as gdb, dbx, or lldb.
+If you prefer a graphic debugger, you can use the Data Display Debugger
+(ddd).
+
+When building using autotools rather than CMake, you cannot load
+programs such as wireshark into the debugger with a command such as
+
+[source,sh]
+----
+$ gdb wireshark
+----
+
 because of the libtool build environment. You'll have to wrap loading
 wireshark into a libtool command:
 
@@ -493,7 +503,7 @@ Additional traps can be set on GLib by setting the `G_DEBUG` environment variabl
 $ G_DEBUG=fatal_criticals libtool --mode=execute ddd wireshark
 ----
 
-See http://library.gnome.org/devel/glib/stable/glib-running.html[]
+See https://developer.gnome.org/glib/stable/glib-running.html[]
 
 [[ChSrcWin32Debug]]
 
