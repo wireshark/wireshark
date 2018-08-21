@@ -234,7 +234,7 @@ void proto_reg_handoff_nist_csor(void) {
 /* Secure Hash Algorithms */
   oid_add_from_string("hashAlgs","2.16.840.1.101.3.4.2");
 
-/* SHA-3 family */
+/* SHA-2 family */
   oid_add_from_string("id-sha256","2.16.840.1.101.3.4.2.1");
   oid_add_from_string("id-sha384","2.16.840.1.101.3.4.2.2");
   oid_add_from_string("id-sha512","2.16.840.1.101.3.4.2.3");

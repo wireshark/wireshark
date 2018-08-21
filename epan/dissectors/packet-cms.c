@@ -3399,7 +3399,7 @@ void proto_reg_handoff_cms(void) {
 #line 141 "./asn1/cms/packet-cms-template.c"
 
   /* RFC 3370 [CMS-ASN} section 4.3.1 */
-	register_ber_oid_dissector("1.2.840.113549.1.9.16.3.6", dissect_ber_oid_NULL_callback, proto_cms, "id-alg-CMS3DESwrap");
+  register_ber_oid_dissector("1.2.840.113549.1.9.16.3.6", dissect_ber_oid_NULL_callback, proto_cms, "id-alg-CMS3DESwrap");
 
   oid_add_from_string("id-data","1.2.840.113549.1.7.1");
   oid_add_from_string("id-alg-des-cbc","1.3.14.3.2.7");
