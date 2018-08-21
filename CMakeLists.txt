@@ -2750,7 +2750,6 @@ if(RPMBUILD_EXECUTABLE)
 
 	# XXX Replace with the "dist" target?
 	set(_export_tarball "${CPACK_PACKAGE_NAME}-${_git_description}.tar.xz")
-	MESSAGE(STATUS "set(_export_tarball: ${_export_tarball}")
 	add_custom_command(
 		OUTPUT "${CMAKE_BINARY_DIR}/packaging/rpm/SOURCES/${_export_tarball}"
 		COMMAND ./tools/git-export-release.sh
