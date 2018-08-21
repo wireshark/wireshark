@@ -7482,6 +7482,7 @@ dissect_smb2_read_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	/* the read channel info blob itself */
 	switch (channel) {
 	case SMB2_CHANNEL_RDMA_V1:
+	case SMB2_CHANNEL_RDMA_V1_INVALIDATE:
 		dissect_smb2_olb_buffer(pinfo, tree, tvb, &c_olb, si, dissect_smb2_rdma_v1_blob);
 		break;
 	case SMB2_CHANNEL_NONE:
