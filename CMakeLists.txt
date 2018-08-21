@@ -1278,9 +1278,9 @@ include( UseCheckAPI )
 # Windows: $DESTDIR/extcap
 # macOS app bundle: Wireshark.app/Contents/Resources/share/wireshark/extcap
 if (WIN32)
-	set(EXTCAP_DIR "extcap" CACHE INTERNAL "The extcap dir")
+	set(EXTCAP_INSTALL_LIBDIR "extcap" CACHE INTERNAL "The extcap dir")
 else ()
-	set(EXTCAP_DIR "${CMAKE_INSTALL_FULL_LIBDIR}/${CPACK_PACKAGE_NAME}/extcap" CACHE INTERNAL "The extcap dir")
+	set(EXTCAP_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}/${CPACK_PACKAGE_NAME}/extcap" CACHE INTERNAL "The extcap dir")
 endif()
 
 add_subdirectory( capchild )
@@ -1331,12 +1331,10 @@ endif()
 
 # Directory where plugins and Lua dissectors can be found.
 set(PLUGIN_VERSION_DIR "plugins/${PROJECT_RELEASE_VERSION}")
-set(PLUGIN_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}/${CPACK_PACKAGE_NAME}/${PLUGIN_VERSION_DIR}")
-# Used by the WiresharkConfig.cmake.in module
-if (WIN32)
-	set(PLUGIN_INSTALL_DIR "${PLUGIN_VERSION_DIR}")
-else ()
-	set(PLUGIN_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/${PLUGIN_INSTALL_LIBDIR}")
+if(WIN32)
+	set(PLUGIN_INSTALL_LIBDIR "${PLUGIN_VERSION_DIR}")
+else()
+	set(PLUGIN_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}/${CPACK_PACKAGE_NAME}/${PLUGIN_VERSION_DIR}")
 endif()
 
 # Location of our plugins. PLUGIN_DIR should allow running
