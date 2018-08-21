@@ -450,9 +450,21 @@ Resizing may take a significant amount of time, especially if a large capture fi
 |menu:Colorize Conversation[Reset coloring]         |                   |This menu item clears all temporary coloring rules.
 |menu:Colorize Conversation[New Coloring Rule...]   |                   |This menu item opens a dialog window in which a new permanent coloring rule can be created based on the currently selected conversation.
 |menu:Coloring Rules...[]                           |                   |This menu item brings up a dialog box that allows you to color packets in the packet list pane according to filter expressions you choose. It can be very useful for spotting certain types of packets, see <<ChCustColorizationSection>>.
+|menu:Internals[]                                   |                   |Information about various internal data structures. See <<ChUseInternals>> below for more information.
 |menu:Show Packet in New Window[]                   |                   |This menu item brings up the selected packet in a separate window. The separate window shows only the tree view and byte view panes.
 |menu:Reload[]                                      |kbd:[Ctrl+R]       |This menu item allows you to reload the current capture file.
 |===============
+
+[[ChUseInternals]]
+.Internals menu items
+[options="header",cols="3,5"]
+|===============
+|Menu Item|Description
+|menu:Conversation Hash Tables[]| Shows the tuples (address and port combinations) used to identify each conversation.
+|menu:Dissector Tables[]| Shows tables of subdissector relationships.
+|menu:Supported Protocols[]| Displays supported protocols and protocol fields.
+|===============
+
 
 [[ChUseGoMenuSection]]
 
@@ -601,22 +613,22 @@ All menu items will bring up a new window showing specific telephony related sta
 |===============
 |Menu Item|Accelerator|Description
 |menu:VoIP Calls...[]||See <<ChTelVoipCalls>>
-|menu:[ANSI]||See <<ChTelANSI>>
-|menu:[GSM]||See <<ChTelGSM>>
-|menu:[IAX2 Stream Analysis]||See <<ChTelIAX2Analysis>>
-|menu:[ISUP Messages]||See <<ChTelISUPMessages>>
-|menu:[LTE]||See <<ChTelLTE>>
-|menu:[MTP3]||See <<ChTelMTP3>>
-|menu:[Osmux]||See <<ChTelOsmux>>
-|menu:[RTP]||See <<ChTelRTPAnalysis>>
-|menu:[RTSP]||See <<ChTelRTSP>>
-|menu:[SCTP]||See <<ChTelSCTP>>
-|menu:[SMPP Operations]||See <<ChTelSMPPOperations>>
-|menu:[UCP Messages]||See <<ChTelUCPMessages>>
-|menu:[H.225]||See <<ChTelH225>>
-|menu:[SIP Flows]||See <<ChTelSIPFlows>>
-|menu:[SIP Statistics]||See <<ChTelSIPStatistics>>
-|menu:[WAP-WSP Packet Counter]||See <<ChTelWAPWSPPacketCounter>>
+|menu:ANSI[]||See <<ChTelANSI>>
+|menu:GSM[]||See <<ChTelGSM>>
+|menu:IAX2 Stream Analysis[]||See <<ChTelIAX2Analysis>>
+|menu:ISUP Messages[]||See <<ChTelISUPMessages>>
+|menu:LTE[]||See <<ChTelLTE>>
+|menu:MTP3[]||See <<ChTelMTP3>>
+|menu:Osmux[]||See <<ChTelOsmux>>
+|menu:RTP[]||See <<ChTelRTPAnalysis>>
+|menu:RTSP[]||See <<ChTelRTSP>>
+|menu:SCTP[]||See <<ChTelSCTP>>
+|menu:SMPP Operations[]||See <<ChTelSMPPOperations>>
+|menu:UCP Messages[]||See <<ChTelUCPMessages>>
+|menu:H.225[]||See <<ChTelH225>>
+|menu:SIP Flows[]||See <<ChTelSIPFlows>>
+|menu:SIP Statistics[]||See <<ChTelSIPStatistics>>
+|menu:WAP-WSP Packet Counter[]||See <<ChTelWAPWSPPacketCounter>>
 
 |===============
 
@@ -640,25 +652,6 @@ image::wsug_graphics/ws-tools-menu.png[{screenshot-attrs}]
 It is assumed that the rules will be applied to an outside interface.
 
 |menu:Lua[]|| These options allow you to work with the Lua interpreter optionally build into Wireshark. See the “Lua Support in Wireshark” in the Wireshark Developer’s Guide.
-|===============
-
-[[ChUseInternalsMenuSection]]
-
-=== The “Internals” Menu
-
-The Wireshark Internals menu contains the fields shown in <<ChUseInternals>>.
-
-[[ChUseWiresharkInternalsMenu]]
-.The “Internals” Menu
-image::wsug_graphics/ws-internals-menu.png[{screenshot-attrs}]
-
-[[ChUseInternals]]
-.Internals menu items
-[options="header",cols="3,2,5"]
-|===============
-|Menu Item|Accelerator|Description
-|menu:Dissector tables[]|| This menu item brings up a dialog box showing the tables with subdissector relationships.
-|menu:Supported Protocols (slow!)[]|| This menu item brings up a dialog box showing the supported protocols and protocol fields.
 |===============
 
 [[ChUseHelpMenuSection]]
