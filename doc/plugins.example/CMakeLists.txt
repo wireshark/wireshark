@@ -20,7 +20,6 @@ pkg_check_modules(WIRESHARK REQUIRED wireshark>=2.5)
 ### CMake Bug: If you run into problems please use the "Unix Makefiles" generator.
 ### Ninja just wipes the pkg-config variables.
 # https://gitlab.kitware.com/cmake/cmake/issues/17531 (and probably others)
-pkg_get_variable(WIRESHARK_VERSION_RELEASE wireshark VERSION_RELEASE)
 pkg_get_variable(WIRESHARK_PLUGIN_DIR wireshark plugindir)
 
 set(PLUGIN_INSTALL_LIBDIR "${WIRESHARK_PLUGIN_DIR}/epan")
@@ -41,7 +40,7 @@ if (CMAKE_COMPILER_IS_GNUCC)
     set(CMAKE_C_FLAGS  "-Wall -Wextra ${CMAKE_C_FLAGS}")
 endif()
 
-add_definitions(-DHAVE_PLUGINS -DVERSION=\"${PROJECT_VERSION}\" -DVERSION_RELEASE=\"${WIRESHARK_VERSION_RELEASE}\")
+add_definitions(-DHAVE_PLUGINS -DVERSION=\"${PROJECT_VERSION}\")
 
 add_library(hello MODULE hello.c)
 set_target_properties(hello PROPERTIES PREFIX "" DEFINE_SYMBOL "")

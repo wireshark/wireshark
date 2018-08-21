@@ -96,6 +96,33 @@ compare_plugins(gconstpointer a, gconstpointer b)
     return g_strcmp0((*(plugin *const *)a)->name, (*(plugin *const *)b)->name);
 }
 
+static gboolean
+pass_plugin_version_compatibility(GModule *handle, const char *name)
+{
+    gpointer symb;
+    int major, minor;
+
+    if(!g_module_symbol(handle, "plugin_want_major", &symb)) {
+        report_failure("The plugin '%s' has no \"plugin_want_major\" symbol", name);
+        return FALSE;
+    }
+    major = *(int *)symb;
+
+    if(!g_module_symbol(handle, "plugin_want_minor", &symb)) {
+        report_failure("The plugin '%s' has no \"plugin_want_minor\" symbol", name);
+        return FALSE;
+    }
+    minor = *(int *)symb;
+
+    if (major != VERSION_MAJOR || minor != VERSION_MINOR) {
+        report_failure("The plugin '%s' was compiled for Wireshark version %d.%d",
+                            name, major, minor);
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
 static void
 scan_plugins_dir(GHashTable *plugins_module, const char *dirpath, plugin_type_e type, gboolean append_type)
 {
@@ -105,7 +132,7 @@ scan_plugins_dir(GHashTable *plugins_module, const char *dirpath, plugin_type_e 
     gchar         *plugin_file;     /* current file full path */
     GModule       *handle;          /* handle returned by g_module_open */
     gpointer       symbol;
-    const char    *plug_version, *plug_release;
+    const char    *plug_version;
     plugin        *new_plug;
 
     if (append_type)
@@ -152,15 +179,7 @@ scan_plugins_dir(GHashTable *plugins_module, const char *dirpath, plugin_type_e 
         }
         plug_version = (const char *)symbol;
 
-        if (!g_module_symbol(handle, "plugin_release", &symbol))
-        {
-            report_failure("The plugin '%s' has no \"plugin_release\" symbol", name);
-            g_module_close(handle);
-            continue;
-        }
-        plug_release = (const char *)symbol;
-        if (strcmp(plug_release, VERSION_RELEASE) != 0) {
-            report_failure("The plugin '%s' was compiled for Wireshark version %s", name, plug_release);
+        if (!pass_plugin_version_compatibility(handle, name)) {
             g_module_close(handle);
             continue;
         }

@@ -14,6 +14,7 @@
 #include <epan/packet.h>
 #include <epan/proto.h>
 #include <ws_attributes.h>
+#include <ws_version.h>
 
 #ifndef VERSION
 #define VERSION "0.0.0"
@@ -22,7 +23,8 @@
 #define DLL_PUBLIC __attribute__((__visibility__("default")))
 
 DLL_PUBLIC const gchar plugin_version[] = VERSION;
-DLL_PUBLIC const gchar plugin_release[] = VERSION_RELEASE;
+DLL_PUBLIC const int plugin_want_major = WIRESHARK_VERSION_MAJOR;
+DLL_PUBLIC const int plugin_want_minor = WIRESHARK_VERSION_MINOR;
 
 DLL_PUBLIC void plugin_register(void);
 
