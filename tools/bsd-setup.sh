@@ -83,7 +83,7 @@ add_package() {
 	local list="$1" pkgname="$2"
 
 	# fail if the package is not known
-	if [[ "$PM_MUST_GLOB" == yes ]]
+	if [ "$PM_MUST_GLOB" = yes ]
 	then
 		#
 		# We need to do a glob search, with a "*" at the
