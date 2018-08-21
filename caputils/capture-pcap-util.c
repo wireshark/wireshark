@@ -18,16 +18,11 @@
 #include <stdio.h>
 #include <limits.h>
 #include <string.h>
-#include <errno.h>
 
 #include <sys/types.h>
 
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
-#endif
-
-#ifdef HAVE_SYS_SOCKIO_H
-#include <sys/sockio.h>
 #endif
 
 #include "ws_attributes.h"
@@ -79,6 +74,15 @@
 
 #ifdef _WIN32
 #include "caputils/capture_win_ifnames.h" /* windows friendly interface names */
+#endif
+
+#if defined(__FreeBSD__) || defined(__OpenBSD__)
+/*
+ * Needed for the code to get a device description.
+ */
+#include <errno.h>
+#include <net/if.h>
+#include <sys/sockio.h>
 #endif
 
 /*
