@@ -604,7 +604,7 @@ proto_register_nordic_ble(void)
         },
         { &hf_nordic_ble_le_phy,
             { "PHY", "nordic_ble.phy",
-                FT_UINT8, BASE_NONE, VALS(le_phys), 0x70,
+                FT_UINT8, BASE_DEC, VALS(le_phys), 0x70,
                 "Physical Layer", HFILL }
         },
         { &hf_nordic_ble_rfu,
