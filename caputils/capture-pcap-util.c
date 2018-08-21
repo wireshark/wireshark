@@ -384,7 +384,7 @@ if_info_get(const char *name)
 				descr_size = sizeof (descr_prefix) + 10;
 				description = g_malloc(descr_size);
 				if (description != NULL) {
-					pcap_snprintf(description, descr_size,
+					g_snprintf(description, descr_size,
 					    "%s%ld", descr_prefix, busnum);
 				}
 			}
