@@ -122,8 +122,6 @@ const range_string mtid_strings[] = {
   {    0,    0, NULL }
 } ;
 
-static const true_false_string tfs_isis_tlv_sl_sub_tlv_f = { "Loose", "Strict" };
-
 void proto_register_isis_lsp(void);
 void proto_reg_handoff_isis_lsp(void);
 
