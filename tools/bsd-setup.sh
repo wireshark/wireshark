@@ -61,14 +61,17 @@ case $PM in
 	*/pkgin)
 		PM_OPTIONS="install"
 		PM_SEARCH="pkgin search"
+		PM_MUST_GLOB=no
 		;;
 	*/pkg)
 		PM_OPTIONS="install"
 		PM_SEARCH="pkg search"
+		PM_MUST_GLOB=yes
 		;;
 	*/pkg_add)
 		PM_OPTIONS=""
 		PM_SEARCH="pkg_info"
+		PM_MUST_GLOB=no
 		;;
 esac
 
@@ -80,14 +83,32 @@ add_package() {
 	local list="$1" pkgname="$2"
 
 	# fail if the package is not known
-	$PM_SEARCH "$pkgname" >& /dev/null || return 1
+	if [[ "$PM_MUST_GLOB" == yes ]]
+	then
+		#
+		# We need to do a glob search, with a "*" at the
+		# end, so we only find packages that *begin* with
+		# the name; otherwise, searching for pkg-config
+		# could find packages that *don't* begin with
+		# pkg-config, but have it later in the name
+		# (FreeBSD 11 has one such package), so when
+		# we then try to install it, that fails.  Doing
+		# an *exact* search fails, as that requires that
+		# the package name include the version number.
+		#
+		$PM_SEARCH -g "$pkgname*" >& /dev/null || return 1
+	else
+		$PM_SEARCH "$pkgname" >& /dev/null || return 1
+	fi
 
 	# package is found, append it to list
 	eval "${list}=\"\${${list}} \${pkgname}\""
 }
 
 # pkg-config: NetBSD
+# pkgconf: FreeBSD
 add_package BASIC_LIST pkg-config ||
+add_package BASIC_LIST pkgconf ||
 echo "pkg-config is unavailable"
 
 # c-ares: FreeBSD
