@@ -643,7 +643,23 @@ gboolean uat_fld_chk_num_dec(void* u1 _U_, const char* strptr, guint len, const 
 }
 
 gboolean uat_fld_chk_num_hex(void* u1 _U_, const char* strptr, guint len, const void* u2 _U_, const void* u3 _U_, char** err) {
-    return uat_fld_chk_num(16, strptr, len, err);
+    if (len > 0) {
+        char* str = g_strndup(strptr, len);
+        gboolean result;
+        guint32 value;
+
+        errno = 0;
+        result = ws_hexstrtou32(str, NULL, &value);
+        if (errno != 0) {
+            *err = g_strdup(g_strerror(errno));
+        }
+        g_free(str);
+
+        return result;
+    }
+
+    *err = NULL;
+    return TRUE;
 }
 
 gboolean uat_fld_chk_bool(void* u1 _U_, const char* strptr, guint len, const void* u2 _U_, const void* u3 _U_, char** err)
