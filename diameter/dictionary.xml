@@ -7034,6 +7034,7 @@
 			<type type-name="Enumerated"/>
 			<enum name="In area" code="0"/>
 			<enum name="Out of area" code="1"/>
+			<enum name="Inactive" code="2"/>
 		</avp>
 		<avp name="NetLoc-Access-Support" code="2824" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
 			<type type-name="Enumerated"/>
