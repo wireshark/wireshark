@@ -2442,6 +2442,8 @@ gboolean dissect_mac_lte_context_fields(struct mac_lte_info  *p_mac_lte_info, tv
 
     p_mac_lte_info->rntiType = tvb_get_guint8(tvb, offset++);
 
+    p_mac_lte_info->sfnSfInfoPresent = FALSE; /* Set this to true later if the relative tag is read */
+
     /* Initialize RNTI with a default value in case optional field is not present */
     switch (p_mac_lte_info->rntiType) {
         case SC_RNTI:
@@ -2482,6 +2484,7 @@ gboolean dissect_mac_lte_context_fields(struct mac_lte_info  *p_mac_lte_info, tv
                 break;
             case MAC_LTE_FRAME_SUBFRAME_TAG:
                 {
+                    p_mac_lte_info->sfnSfInfoPresent = TRUE;
                     guint16 sfn_sf = tvb_get_ntohs(tvb, offset);
                     p_mac_lte_info->sysframeNumber = (sfn_sf >> 4) & 0x03ff;
                     p_mac_lte_info->subframeNumber = sfn_sf & 0x000f;
@@ -6962,6 +6965,34 @@ int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         PROTO_ITEM_SET_GENERATED(ti);
     }
 
+    if(p_mac_lte_info->sfnSfInfoPresent) {
+        ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_sysframe_number,
+                                 tvb, 0, 0, p_mac_lte_info->sysframeNumber);
+        PROTO_ITEM_SET_GENERATED(ti);
+        if (p_mac_lte_info->sysframeNumber > 1023) {
+            expert_add_info_format(pinfo, ti, &ei_mac_lte_context_sysframe_number,
+                                   "Sysframe number (%u) out of range - valid range is 0-1023",
+                                   p_mac_lte_info->sysframeNumber);
+        }
+
+        ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_subframe_number,
+                                 tvb, 0, 0, p_mac_lte_info->subframeNumber);
+        PROTO_ITEM_SET_GENERATED(ti);
+        if (p_mac_lte_info->subframeNumber > 9) {
+            /* N.B. if we set it to valid value, it won't trigger when we rescan
+               (at least with DCT2000 files where the context struct isn't re-read). */
+            expert_add_info_format(pinfo, ti, &ei_mac_lte_context_sysframe_number,
+                                   "Subframe number (%u) out of range - valid range is 0-9",
+                                   p_mac_lte_info->subframeNumber);
+        }
+
+        if (p_mac_lte_info->subframeNumberOfGrantPresent) {
+            ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_grant_subframe_number,
+                                     tvb, 0, 0, p_mac_lte_info->subframeNumberOfGrant);
+            PROTO_ITEM_SET_GENERATED(ti);
+        }
+    }
+
     /* There are several out-of-band MAC events that may be indicated in the context info. */
     /* Handle them here */
     if (p_mac_lte_info->length == 0) {
@@ -7035,12 +7066,25 @@ int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
                                            p_mac_lte_info->oob_rnti[n]);
 
                     /* Info column */
-                    if (n == 0) {
-                        write_pdu_label_and_info(pdu_ti, NULL, pinfo,
-                                                "Scheduling Requests (%u) sent: (UE=%u C-RNTI=%u)",
-                                                p_mac_lte_info->number_of_srs,
-                                                p_mac_lte_info->oob_ueid[n],
-                                                p_mac_lte_info->oob_rnti[n]);
+
+                    if(n == 0) {
+                        if (p_mac_lte_info->sfnSfInfoPresent) {
+                            write_pdu_label_and_info(pdu_ti, NULL, pinfo,
+                                                    "Scheduling Requests (%u) sent (SFN=%-4u, SF=%u): (UE=%u C-RNTI=%u)",
+                                                    p_mac_lte_info->number_of_srs,
+                                                    p_mac_lte_info->sysframeNumber,
+                                                    p_mac_lte_info->subframeNumber,
+                                                    p_mac_lte_info->oob_ueid[n],
+                                                    p_mac_lte_info->oob_rnti[n]
+                                                    );
+                        }
+                        else {
+                            write_pdu_label_and_info(pdu_ti, NULL, pinfo,
+                                                    "Scheduling Requests (%u) sent: (UE=%u C-RNTI=%u)",
+                                                    p_mac_lte_info->number_of_srs,
+                                                    p_mac_lte_info->oob_ueid[n],
+                                                    p_mac_lte_info->oob_rnti[n]);
+                        }
                     }
                     else {
                         write_pdu_label_and_info(pdu_ti, NULL, pinfo,
@@ -7084,32 +7128,6 @@ int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     }
 
     /* Show remaining meta information */
-    ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_sysframe_number,
-                             tvb, 0, 0, p_mac_lte_info->sysframeNumber);
-    PROTO_ITEM_SET_GENERATED(ti);
-    if (p_mac_lte_info->sysframeNumber > 1023) {
-        expert_add_info_format(pinfo, ti, &ei_mac_lte_context_sysframe_number,
-                               "Sysframe number (%u) out of range - valid range is 0-1023",
-                               p_mac_lte_info->sysframeNumber);
-    }
-
-    ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_subframe_number,
-                             tvb, 0, 0, p_mac_lte_info->subframeNumber);
-    PROTO_ITEM_SET_GENERATED(ti);
-    if (p_mac_lte_info->subframeNumber > 9) {
-        /* N.B. if we set it to valid value, it won't trigger when we rescan
-           (at least with DCT2000 files where the context struct isn't re-read). */
-        expert_add_info_format(pinfo, ti, &ei_mac_lte_context_sysframe_number,
-                               "Subframe number (%u) out of range - valid range is 0-9",
-                               p_mac_lte_info->subframeNumber);
-    }
-
-    if (p_mac_lte_info->subframeNumberOfGrantPresent) {
-        ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_grant_subframe_number,
-                                 tvb, 0, 0, p_mac_lte_info->subframeNumberOfGrant);
-        PROTO_ITEM_SET_GENERATED(ti);
-    }
-
     if (p_mac_lte_info->rntiType != NO_RNTI) {
         ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_rnti,
                                  tvb, 0, 0, p_mac_lte_info->rnti);

@@ -98,6 +98,7 @@ typedef struct mac_lte_info
     /* Timing info */
     guint16         sysframeNumber;
     guint16         subframeNumber;
+    gboolean        sfnSfInfoPresent;
 
     /* Optional field. More interesting for TDD (FDD is always -4 subframeNumber) */
     gboolean        subframeNumberOfGrantPresent;
