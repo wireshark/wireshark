@@ -162,7 +162,7 @@ static int                    out_frame_type            = -2; /* Leave frame typ
 static int                    verbose                   = 0;  /* Not so verbose         */
 static struct time_adjustment time_adj                  = {NSTIME_INIT_ZERO, 0}; /* no adjustment */
 static nstime_t               relative_time_window      = NSTIME_INIT_ZERO; /* de-dup time window */
-static double                 err_prob                  = 0.0;
+static double                 err_prob                  = -1.0;
 static time_t                 starttime                 = 0;
 static time_t                 stoptime                  = 0;
 static gboolean               check_startstop           = FALSE;
@@ -799,6 +799,9 @@ print_usage(FILE *output)
     fprintf(output, "  -o <change offset>     When used in conjunction with -E, skip some bytes from the\n");
     fprintf(output, "                         beginning of the packet. This allows one to preserve some\n");
     fprintf(output, "                         bytes, in order to have some headers untouched.\n");
+    fprintf(output, "  --seed <seed>          When used in conjunction with -E, set the seed to use for\n");
+    fprintf(output, "                         the pseudo-random number generator. This allows one to\n");
+    fprintf(output, "                         repeat a particular sequence of errors.\n");
     fprintf(output, "  -I <bytes to ignore>   ignore the specified number of bytes at the beginning\n");
     fprintf(output, "                         of the frame during MD5 hash calculation, unless the\n");
     fprintf(output, "                         frame is too short, then the full frame is used.\n");
@@ -965,6 +968,7 @@ main(int argc, char *argv[])
     static const struct option long_options[] = {
         {"novlan", no_argument, NULL, 0x8100},
         {"skip-radiotap-header", no_argument, NULL, 0x8101},
+        {"seed", required_argument, NULL, 0x8102},
         {"help", no_argument, NULL, 'h'},
         {"version", no_argument, NULL, 'V'},
         {0, 0, 0, 0 }
@@ -1001,6 +1005,8 @@ main(int argc, char *argv[])
     gboolean                     do_mutation;
     guint32                      caplen;
     int                          ret = EXIT_SUCCESS;
+    gboolean                     valid_seed = FALSE;
+    unsigned int                 seed = 0;
 
     cmdarg_err_init(failure_warning_message, failure_message_cont);
 
@@ -1059,6 +1065,18 @@ main(int argc, char *argv[])
         case 0x8101:
         {
             skip_radiotap = TRUE;
+            break;
+        }
+
+        case 0x8102:
+        {
+            if (sscanf(optarg, "%u", &seed) != 1) {
+                fprintf(stderr, "editcap: \"%s\" isn't a valid seed\n\n",
+                        optarg);
+                ret = INVALID_OPTION;
+                goto clean_exit;
+            }
+            valid_seed = TRUE;
             break;
         }
 
@@ -1189,7 +1207,6 @@ main(int argc, char *argv[])
                 ret = INVALID_OPTION;
                 goto clean_exit;
             }
-            srand( (unsigned int) (time(NULL) + ws_getpid()) );
             break;
 
         case 'F':
@@ -1317,6 +1334,17 @@ main(int argc, char *argv[])
         print_usage(stderr);
         ret = INVALID_OPTION;
         goto clean_exit;
+
+    }
+
+    if (err_prob >= 0.0) {
+        if (!valid_seed) {
+            seed = (unsigned int) (time(NULL) + ws_getpid());
+        }
+        if (verbose) {
+            fprintf(stderr, "Using seed %u\n", seed);
+        }
+        srand(seed);
     }
 
     if (check_startstop && !stoptime) {

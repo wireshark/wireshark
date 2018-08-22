@@ -224,6 +224,11 @@ appear to reject Ethernet packets larger than the standard Ethernet MTU,
 making them incapable of handling gigabit Ethernet captures if jumbo
 packets were used).
 
+=item --seed  E<lt>seedE<gt>
+
+When used in conjunction with -E, set the seed for the pseudo-random number generator.
+This is useful for recreating a particular sequence of errors.
+
 =item --skip-radiotap-header
 
 Skip the readiotap header of each frame when checking for packet duplicates. This is useful
