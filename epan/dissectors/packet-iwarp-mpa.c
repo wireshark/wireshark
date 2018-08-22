@@ -690,9 +690,11 @@ dissect_mpa_fpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * always either with a Marker or the ULPDU_LENGTH header field.
 		 */
 		pad_length = fpdu_pad_length(ulpdu_length);
-		exp_ulpdu_length = expected_ulpdu_length(state, tcpinfo, endpoint);
-		if (!exp_ulpdu_length || exp_ulpdu_length != (ulpdu_length + pad_length)) {
-			return 0;
+		if (num_of_m > 0) {
+			exp_ulpdu_length = expected_ulpdu_length(state, tcpinfo, endpoint);
+			if (!exp_ulpdu_length || exp_ulpdu_length != (ulpdu_length + pad_length)) {
+				return 0;
+			}
 		}
 
 		mpa_packetlist(pinfo, MPA_FPDU);
@@ -712,7 +714,7 @@ dissect_mpa_fpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				MPA_ULPDU_LENGTH_LEN, ulpdu_length);
 
 		/* Markers are present in this FPDU */
-		if (state->minfo[endpoint].valid && num_of_m > 0) {
+		if (num_of_m > 0) {
 
 			total_length = fpdu_total_length(tcpinfo);
 
