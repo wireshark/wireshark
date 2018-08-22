@@ -427,11 +427,12 @@ static const char* ipv6_conv_get_filter_type(conv_item_t* conv, conv_filter_type
 static ct_dissector_info_t ipv6_ct_dissector_info = {&ipv6_conv_get_filter_type};
 
 static int
-ipv6_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip _U_)
+ipv6_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
     conv_hash_t *hash = (conv_hash_t*) pct;
+    const ipv6_tap_info_t *ip6 = (const ipv6_tap_info_t *)vip;
 
-    add_conversation_table_data(hash, &pinfo->src, &pinfo->dst, 0, 0, 1,
+    add_conversation_table_data(hash, &ip6->ip6_src, &ip6->ip6_dst, 0, 0, 1,
             pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts,
             &ipv6_ct_dissector_info, ENDPOINT_NONE);
 
@@ -449,13 +450,14 @@ static const char* ipv6_host_get_filter_type(hostlist_talker_t* host, conv_filte
 static hostlist_dissector_info_t ipv6_host_dissector_info = {&ipv6_host_get_filter_type};
 
 static int
-ipv6_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip _U_)
+ipv6_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
     conv_hash_t *hash = (conv_hash_t*) pit;
+    const ipv6_tap_info_t *ip6 = (const ipv6_tap_info_t *)vip;
 
-    add_hostlist_table_data(hash, &pinfo->src, 0, TRUE, 1,
+    add_hostlist_table_data(hash, &ip6->ip6_src, 0, TRUE, 1,
                 pinfo->fd->pkt_len, &ipv6_host_dissector_info, ENDPOINT_NONE);
-    add_hostlist_table_data(hash, &pinfo->dst, 0, FALSE, 1,
+    add_hostlist_table_data(hash, &ip6->ip6_dst, 0, FALSE, 1,
                 pinfo->fd->pkt_len, &ipv6_host_dissector_info, ENDPOINT_NONE);
 
     return 1;
