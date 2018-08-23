@@ -680,6 +680,7 @@ static gint ett_gtpv2_ciot_support_ind = -1;
 static gint ett_gtpv2_rohc_profile_flags = -1;
 static gint ett_gtpv2_secondary_rat_usage_data_report = -1;
 static gint ett_gtpv2_pres_rep_area_info = -1;
+static gint ett_gtpv2_preaa_ext_menbs = -1;
 
 static expert_field ei_gtpv2_ie_data_not_dissected = EI_INIT;
 static expert_field ei_gtpv2_ie_len_invalid = EI_INIT;
@@ -6528,7 +6529,7 @@ dissect_diameter_3gpp_presence_reporting_area_elements_list(tvbuff_t *tvb, packe
      */
     i = 1;
     while (no_ext_mENB > 0){
-        sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 6, ett_gtpv2_preaa_menbs, &item, "Macro eNB ID %u",i);
+        sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 6, ett_gtpv2_preaa_ext_menbs, &item, "Extended Macro eNB ID %u",i);
         append_str = dissect_gtpv2_ext_macro_enodeb_id(tvb, pinfo, sub_tree, &offset);
         proto_item_append_text(item, " %s",append_str);
         i++;
@@ -10037,7 +10038,7 @@ void proto_register_gtpv2(void)
     };
 
     /* Setup protocol subtree array */
-#define GTPV2_NUM_INDIVIDUAL_ELEMS    60
+#define GTPV2_NUM_INDIVIDUAL_ELEMS    61
     static gint *ett_gtpv2_array[GTPV2_NUM_INDIVIDUAL_ELEMS + NUM_GTPV2_IES];
 
     ett_gtpv2_array[0] = &ett_gtpv2;
@@ -10100,6 +10101,7 @@ void proto_register_gtpv2(void)
     ett_gtpv2_array[57] = &ett_gtpv2_rohc_profile_flags;
     ett_gtpv2_array[58] = &ett_gtpv2_secondary_rat_usage_data_report;
     ett_gtpv2_array[59] = &ett_gtpv2_pres_rep_area_info;
+    ett_gtpv2_array[60] = &ett_gtpv2_preaa_ext_menbs;
     last_offset = GTPV2_NUM_INDIVIDUAL_ELEMS;
 
     for (i=0; i < NUM_GTPV2_IES; i++, last_offset++)
