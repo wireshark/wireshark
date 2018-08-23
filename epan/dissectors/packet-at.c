@@ -72,6 +72,8 @@ static int hf_cpms_total3                                                  = -1;
 static int hf_csim_command                                                 = -1;
 static int hf_csim_length                                                  = -1;
 static int hf_csim_response                                                = -1;
+static int hf_csq_ber                                                      = -1;
+static int hf_csq_rssi                                                     = -1;
 static int hf_at_number                                                    = -1;
 static int hf_at_type                                                      = -1;
 static int hf_at_subaddress                                                = -1;
@@ -114,6 +116,8 @@ static expert_field ei_cnum_itc                                       = EI_INIT;
 static expert_field ei_csim_empty_hex                                 = EI_INIT;
 static expert_field ei_csim_invalid_hex                               = EI_INIT;
 static expert_field ei_csim_odd_len                                   = EI_INIT;
+static expert_field ei_csq_ber                                        = EI_INIT;
+static expert_field ei_csq_rssi                                        = EI_INIT;
 
 
 /* Subtree handles: set by register_subtree_array */
@@ -373,6 +377,56 @@ static const value_string ccwa_class_vals[] = {
     { 0, NULL }
 };
 
+static const value_string csq_ber_vals[] = {
+    {   0,   "Less than 0.2 %" },
+    {   1,   "Between 0.2 % and 0.4 %" },
+    {   2,   "Between 0.4 % and 0.8 %" },
+    {   3,   "Between 0.8 % and 1.6 %" },
+    {   4,   "Between 1.6 % and 3.2 %" },
+    {   5,   "Between 3.2 % and 6.4 %" },
+    {   6,   "Between 6.4 % and 12.8 %" },
+    {   7,   "Greater than 12.8 %" },
+    {  99,   "Not known or not detectable" },
+    {   0, NULL }
+};
+
+static const value_string csq_rssi_vals[] = {
+    {   0,   "-113 dBm or less" },
+    {   1,   "-111 dBm" },
+    {   2,   "-109 dBm" },
+    {   3,   "-107 dBm" },
+    {   4,   "-105 dBm" },
+    {   5,   "-103 dBm" },
+    {   6,   "-101 dBm" },
+    {   7,   "-99 dBm" },
+    {   8,   "-97 dBm" },
+    {   9,   "-95 dBm" },
+    {  10,   "-93 dBm" },
+    {  11,   "-91 dBm" },
+    {  12,   "-89 dBm" },
+    {  13,   "-87 dBm" },
+    {  14,   "-85 dBm" },
+    {  15,   "-83 dBm" },
+    {  16,   "-81 dBm" },
+    {  17,   "-79 dBm" },
+    {  18,   "-77 dBm" },
+    {  19,   "-75 dBm" },
+    {  20,   "-73 dBm" },
+    {  21,   "-71 dBm" },
+    {  22,   "-69 dBm" },
+    {  23,   "-67 dBm" },
+    {  24,   "-65 dBm" },
+    {  25,   "-63 dBm" },
+    {  26,   "-61 dBm" },
+    {  27,   "-59 dBm" },
+    {  28,   "-57 dBm" },
+    {  29,   "-55 dBm" },
+    {  30,   "-53 dBm" },
+    {  31,   "-51 dBm or greater" },
+    {  99,   "Not known or not detectable" },
+    {   0, NULL }
+};
+
 extern value_string_ext csd_data_rate_vals_ext;
 
 typedef struct _at_cmd_t {
@@ -535,6 +589,13 @@ static gboolean check_cpms(gint role, guint16 type) {
 }
 
 static gboolean check_csim(gint role, guint16 type) {
+    if (role == ROLE_DTE && (type == TYPE_ACTION || type == TYPE_TEST)) return TRUE;
+    if (role == ROLE_DCE && type == TYPE_RESPONSE) return TRUE;
+
+    return FALSE;
+}
+
+static gboolean check_csq(gint role, guint16 type) {
     if (role == ROLE_DTE && (type == TYPE_ACTION || type == TYPE_TEST)) return TRUE;
     if (role == ROLE_DCE && type == TYPE_RESPONSE) return TRUE;
 
@@ -1205,6 +1266,36 @@ dissect_csim_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static gint
+dissect_csq_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+        gint offset, gint role, guint16 type, guint8 *parameter_stream,
+        guint parameter_number, gint parameter_length, void **data _U_)
+{
+    proto_item  *pitem;
+    guint32      value;
+
+    if (!(role == ROLE_DCE && type == TYPE_RESPONSE)) return FALSE;
+
+    if (parameter_number > 1) return FALSE;
+
+    switch (parameter_number) {
+        case 0:
+            value = get_uint_parameter(parameter_stream, parameter_length);
+            pitem = proto_tree_add_uint(tree, hf_csq_rssi, tvb, offset, parameter_length, value);
+            if (value > 31 && value != 99)
+                expert_add_info(pinfo, pitem, &ei_csq_rssi);
+            break;
+        case 1:
+            value = get_uint_parameter(parameter_stream, parameter_length);
+            pitem = proto_tree_add_uint(tree, hf_csq_ber, tvb, offset, parameter_length, value);
+            if (value > 7 && value != 99)
+                expert_add_info(pinfo, pitem, &ei_csq_ber);
+            break;
+    }
+
+    return TRUE;
+}
+
+static gint
 dissect_vts_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         gint offset, gint role, guint16 type, guint8 *parameter_stream,
         guint parameter_number, gint parameter_length, void **data _U_)
@@ -1263,6 +1354,7 @@ static const at_cmd_t at_cmds[] = {
     { "+COPS",      "Reading Network Operator",                                check_cops, dissect_cops_parameter },
     { "+CPMS",      "Preferred Message Storage",                               check_cpms, dissect_cpms_parameter },
     { "+CSIM",      "Generic SIM access",                                      check_csim, dissect_csim_parameter },
+    { "+CSQ",       "Signal Quality",                                          check_csq,  dissect_csq_parameter },
     { "+GSN",       "Request Product Serial Number Identification (ESN/IMEI)", check_gsn,  dissect_no_parameter },
     { "+VTS",       "DTMF and tone generation",                                check_vts,  dissect_vts_parameter  },
     { "ERROR",      "ERROR",                                                   check_only_dce_role, dissect_no_parameter },
@@ -1920,6 +2012,18 @@ proto_register_at_command(void)
            FT_STRING, BASE_NONE, NULL, 0,
            NULL, HFILL}
         },
+        { &hf_csq_ber,
+           { "BER",                              "at.csq.ber",
+           FT_UINT8, BASE_DEC, VALS(csq_ber_vals), 0,
+           "Bit Error Rate",
+           HFILL}
+        },
+        { &hf_csq_rssi,
+           { "RSSI",                             "at.csq.rssi",
+           FT_UINT8, BASE_DEC, VALS(csq_rssi_vals), 0,
+           "Received Signal Strength Indication",
+           HFILL}
+        },
         { &hf_clip_mode,
            { "Mode",                             "at.clip.mode",
            FT_UINT8, BASE_DEC, VALS(clip_mode_vals), 0,
@@ -2158,6 +2262,8 @@ proto_register_at_command(void)
         { &ei_csim_empty_hex,          { "at.expert.csim.empty_hex", PI_PROTOCOL, PI_WARN, "Hex string is empty", EXPFILL }},
         { &ei_csim_invalid_hex,        { "at.expert.csim.invalid_hex", PI_PROTOCOL, PI_WARN, "Non hex character found in hex string", EXPFILL }},
         { &ei_csim_odd_len,            { "at.expert.csim.odd_len", PI_PROTOCOL, PI_WARN, "Odd hex string length", EXPFILL }},
+        { &ei_csq_ber,                 { "at.expert.csq.ber", PI_PROTOCOL, PI_WARN, "Only 0-7 and 99 are valid", EXPFILL }},
+        { &ei_csq_rssi,                { "at.expert.csq.rssi", PI_PROTOCOL, PI_WARN, "Only 0-31 and 99 are valid", EXPFILL }},
     };
 
     static gint *ett[] = {
