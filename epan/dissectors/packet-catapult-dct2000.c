@@ -1799,6 +1799,7 @@ static void attach_mac_lte_info(packet_info *pinfo, guint *outhdr_values, guint 
         p_mac_lte_info->detailed_phy_info.dl_info.present = FALSE;
     }
 
+    p_mac_lte_info->sfnSfInfoPresent = TRUE;
     p_mac_lte_info->subframeNumber = outhdr_values[i++];       // 4
     p_mac_lte_info->isPredefinedData = outhdr_values[i++];     // 5
     p_mac_lte_info->rnti = outhdr_values[i++];                 // 6
@@ -2139,6 +2140,7 @@ static void check_for_oob_mac_lte_events(packet_info *pinfo, tvbuff_t *tvb, prot
     }
 
     p_mac_lte_info->radioType = FDD_RADIO; /* TODO: will be the same as rest of log... */
+    p_mac_lte_info->sfnSfInfoPresent = FALSE;  /* We don't have this */
     p_mac_lte_info->oob_event = oob_event;
 
     /* Store info in packet */
