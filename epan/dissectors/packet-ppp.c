@@ -4865,14 +4865,13 @@ dissect_vsnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 {
     proto_item *vsnp_item;
     proto_tree *vsnp_tree;
-    guint32     offset    = 0;
     tvbuff_t *next_tvb;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "VSNP");
 
     vsnp_item = proto_tree_add_item(tree, proto_vsnp, tvb, 0, -1, ENC_NA);
     vsnp_tree = proto_item_add_subtree(vsnp_item, ett_vsnp);
-    proto_tree_add_item(vsnp_tree, hf_vsnp_pdnid, tvb, offset, 1,
+    proto_tree_add_item(vsnp_tree, hf_vsnp_pdnid, tvb, 0, 1,
             ENC_BIG_ENDIAN);
 
     next_tvb = tvb_new_subset_remaining(tvb, 1);
