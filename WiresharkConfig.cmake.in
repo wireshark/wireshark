@@ -1,0 +1,19 @@
+set(Wireshark_MAJOR_VERSION @PROJECT_MAJOR_VERSION@)
+set(Wireshark_MINOR_VERSION @PROJECT_MINOR_VERSION@)
+set(Wireshark_PATCH_VERSION @PROJECT_PATCH_VERSION@)
+set(Wireshark_VERSION "@PROJECT_VERSION@")
+
+set(Wireshark_PLUGINS_ENABLED @HAVE_PLUGINS@)
+
+@PACKAGE_INIT@
+
+set_and_check(Wireshark_LIB_DIR            "@PACKAGE_CMAKE_INSTALL_LIBDIR@")
+set_and_check(Wireshark_INCLUDE_DIR        "@PACKAGE_CMAKE_INSTALL_INCLUDEDIR@/wireshark")
+if(Wireshark_PLUGINS_ENABLED)
+    set_and_check(Wireshark_PLUGIN_INSTALL_DIR "@PACKAGE_PLUGIN_INSTALL_VERSION_LIBDIR@")
+endif()
+set_and_check(Wireshark_EXTCAP_INSTALL_DIR "@PACKAGE_EXTCAP_INSTALL_LIBDIR@")
+
+include("${CMAKE_CURRENT_LIST_DIR}/WiresharkTargets.cmake")
+
+check_required_components(Wireshark)

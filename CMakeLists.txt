@@ -2140,6 +2140,7 @@ if(BUILD_wireshark AND QT_FOUND)
 		ui
 		capchild
 		caputils
+		wiretap
 		${QT_LIBRARIES}
 		${GTHREAD2_LIBRARIES}
 		wscodecs
@@ -2261,6 +2262,7 @@ if(BUILD_tshark)
 		ui
 		capchild
 		caputils
+		wiretap
 		${LIBEPAN_LIBS}
 		${APPLE_CORE_FOUNDATION_LIBRARY}
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
@@ -2284,6 +2286,7 @@ endif()
 if(BUILD_tfshark)
 	set(tfshark_LIBS
 		ui
+		wiretap
 		${LIBEPAN_LIBS}
 		${APPLE_CORE_FOUNDATION_LIBRARY}
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
@@ -2305,6 +2308,7 @@ if(BUILD_rawshark AND PCAP_FOUND)
 	set(rawshark_LIBS
 		caputils
 		ui
+		wiretap
 		${LIBEPAN_LIBS}
 		${APPLE_CORE_FOUNDATION_LIBRARY}
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
@@ -2325,6 +2329,7 @@ if(BUILD_sharkd)
 	set(sharkd_LIBS
 		ui
 		wscodecs
+		wiretap
 		${LIBEPAN_LIBS}
 		${APPLE_CORE_FOUNDATION_LIBRARY}
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
@@ -2345,6 +2350,7 @@ endif()
 if(BUILD_dftest)
 	set(dftest_LIBS
 		ui
+		wiretap
 		${LIBEPAN_LIBS}
 	)
 	set(dftest_FILES
@@ -2380,6 +2386,7 @@ endif()
 
 if(BUILD_fuzzshark)
 	set(fuzzshark_LIBS
+		wiretap
 		${LIBEPAN_LIBS}
 	)
 	set(fuzzshark_FILES
@@ -2893,21 +2900,49 @@ install(
 )
 
 set(CMAKE_INSTALL_MODULES_DIR "${CMAKE_INSTALL_LIBDIR}/${CPACK_PACKAGE_NAME}/cmake")
-configure_file("${CMAKE_MODULE_PATH}/WiresharkConfig.cmake.in" "${CMAKE_BINARY_DIR}/WiresharkConfig.cmake" @ONLY)
-configure_file("${CMAKE_MODULE_PATH}/WiresharkConfigVersion.cmake.in" "${CMAKE_BINARY_DIR}/WiresharkConfigVersion.cmake" @ONLY)
 install(
 	FILES
 		${CMAKE_MODULE_PATH}/FindGLIB2.cmake
-		${CMAKE_MODULE_PATH}/FindWireshark.cmake
 		${CMAKE_MODULE_PATH}/FindWSWinLibs.cmake
 		${CMAKE_MODULE_PATH}/UseAsn2Wrs.cmake
 		${CMAKE_MODULE_PATH}/LocatePythonModule.cmake
 		${CMAKE_MODULE_PATH}/UseMakePluginReg.cmake
-		${CMAKE_BINARY_DIR}/WiresharkConfig.cmake
-		${CMAKE_BINARY_DIR}/WiresharkConfigVersion.cmake
 	DESTINATION
 		${CMAKE_INSTALL_MODULES_DIR}
 )
+
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(WiresharkConfig.cmake.in
+	${CMAKE_BINARY_DIR}/WiresharkConfig.cmake
+	INSTALL_DESTINATION ${CMAKE_INSTALL_MODULES_DIR}
+	PATH_VARS
+		CMAKE_INSTALL_LIBDIR
+		CMAKE_INSTALL_INCLUDEDIR
+		PLUGIN_INSTALL_VERSION_LIBDIR
+		EXTCAP_INSTALL_LIBDIR
+)
+
+write_basic_package_version_file(
+	${CMAKE_BINARY_DIR}/WiresharkConfigVersion.cmake
+	COMPATIBILITY AnyNewerVersion
+)
+
+# XXX On Windows wsutil depends on a CMake zlib target for which there are no
+# exports.
+if(NOT WIN32)
+	install(
+		FILES
+			${CMAKE_BINARY_DIR}/WiresharkConfig.cmake
+			${CMAKE_BINARY_DIR}/WiresharkConfigVersion.cmake
+		DESTINATION
+			${CMAKE_INSTALL_MODULES_DIR}
+	)
+
+	install(EXPORT WiresharkTargets
+		DESTINATION ${CMAKE_INSTALL_MODULES_DIR}
+	)
+endif()
 
 if (DOXYGEN_EXECUTABLE)
 	# API reference

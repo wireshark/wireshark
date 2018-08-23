@@ -296,6 +296,7 @@ add_custom_command(OUTPUT libwsutil.abi.tar.gz
 target_link_libraries(wsutil ${wsutil_LIBS})
 
 install(TARGETS wsutil
+	EXPORT WiresharkTargets
 	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 	RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
 	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}

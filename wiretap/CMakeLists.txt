@@ -154,6 +154,7 @@ add_custom_command(OUTPUT libwiretap.abi.tar.gz
 target_link_libraries(wiretap ${wiretap_LIBS})
 
 install(TARGETS wiretap
+	EXPORT WiresharkTargets
 	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 	RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
 	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
