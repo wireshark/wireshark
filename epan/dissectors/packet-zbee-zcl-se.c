@@ -2349,7 +2349,7 @@ dissect_zcl_price_publish_block_period(tvbuff_t *tvb, proto_tree *tree, guint *o
 
     /* Block Period Duration */
     proto_tree_add_item(tree, hf_zbee_zcl_price_block_period_duration, tvb, *offset, 3, ENC_LITTLE_ENDIAN);
-    *offset += 1;
+    *offset += 3;
 
     /* Block Period Control */
     proto_tree_add_item(tree, hf_zbee_zcl_price_block_period_control, tvb, *offset, 1, ENC_NA);
@@ -3277,15 +3277,15 @@ proto_register_zbee_zcl_price(void)
 
         /* start Block Period Duration Type fields */
         { &hf_zbee_zcl_price_block_period_duration_type,
-            { "Block Period Duration Type", "zbee_zcl_se.price.block_period.duration.type", FT_UINT8, BASE_DEC, NULL,
+            { "Block Period Duration Type", "zbee_zcl_se.price.block_period.duration.type", FT_UINT8, BASE_HEX, NULL,
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_price_block_period_duration_timebase,
-            { "Block Period Duration Timebase", "zbee_zcl_se.price.block_period.duration.timebase", FT_UINT8, BASE_DEC, NULL,
+            { "Duration Timebase", "zbee_zcl_se.price.block_period.duration.timebase", FT_UINT8, BASE_HEX, NULL,
             ZBEE_ZCL_PRICE_BLOCK_PERIOD_DURATION_TIMEBASE, NULL, HFILL } },
 
         { &hf_zbee_zcl_price_block_period_duration_control,
-            { "Block Period Duration Control", "zbee_zcl_se.price.block_period.duration.control", FT_UINT8, BASE_DEC, NULL,
+            { "Duration Control", "zbee_zcl_se.price.block_period.duration.control", FT_UINT8, BASE_HEX, NULL,
             ZBEE_ZCL_PRICE_BLOCK_PERIOD_DURATION_CONTROL, NULL, HFILL } },
         /* end Block Period Duration Type fields */
 
@@ -3465,7 +3465,7 @@ proto_register_zbee_zcl_price(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_price_billing_period_duration_time_base,
-            { "Time Base", "zbee_zcl_se.price.billing_period.duration.time_base", FT_UINT8, BASE_HEX, NULL,
+            { "Duration Timebase", "zbee_zcl_se.price.billing_period.duration.time_base", FT_UINT8, BASE_HEX, NULL,
             ZBEE_ZCL_PRICE_BILLING_PERIOD_DURATION_TIME_BASE, NULL, HFILL } },
 
         { &hf_zbee_zcl_price_billing_period_duration_control,
