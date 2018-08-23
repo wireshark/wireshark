@@ -1130,6 +1130,7 @@ de_nas_5gs_mm_pdu_ses_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
     curr_offset++;
 
     proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, psi_8_15_flags, ENC_BIG_ENDIAN);
+    curr_offset++;
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_nas_5gs_extraneous_data);
 
