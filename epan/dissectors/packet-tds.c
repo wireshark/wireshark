@@ -2556,20 +2556,11 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
             break;
 
         /* LONGLEN_TYPE - types prefixed with 4-byte length */
-        /* SYBLONGCHAR would be here, but there is an ambiguity with TDS 7.x.
-         * It is handled under TDS_DATA_TYPE_BIGCHAR. */
+        /* SYBLONGCHAR would be similar, but there is an ambiguity with TDS 7.x.
+         * It is handled under TDS_DATA_TYPE_BIGCHAR above. */
         case TDS_DATA_TYPE_LONGBINARY:      /* Long Binary (TDS 5.0) */
-            proto_tree_add_item_ret_uint(sub_tree, hf_tds_type_varbyte_length, tvb, *offset, 4,
+            proto_tree_add_item_ret_length(sub_tree, hf_tds_type_varbyte_data_uint_bytes, tvb, *offset, 4,
                                          tds_get_int4_encoding(tds_info), &length);
-            *offset += 4;
-            switch(data_type) {
-                case TDS_DATA_TYPE_LONGBINARY: /* Long Binary (TDS 5.0) */
-                    proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_bytes, tvb, *offset, length, ENC_NA);
-                    break;
-                default: /*TODO Just in case, for future related types. */
-                    proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_bytes, tvb, *offset, length, ENC_NA);
-                    break;
-            }
             *offset += length;
             break;
 
@@ -9812,7 +9803,7 @@ proto_register_tds(void)
         },
         { &hf_tds_type_varbyte_data_uint_bytes,
           { "Data", "tds.type_varbyte.data.uint_bytes",
-            FT_UINT_BYTES, BASE_NONE, NULL, 0x0,
+            FT_UINT_BYTES, BASE_NONE|BASE_ALLOW_ZERO, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_tds_type_varbyte_data_guid,
