@@ -137,7 +137,7 @@ static gint at_role = ROLE_UNKNOWN;
 
 static const value_string role_vals[] = {
     { ROLE_UNKNOWN,   "Unknown" },
-    { ROLE_DCE,        "DCE - Data Circuit terminating Equipment" },
+    { ROLE_DCE,        "DCE - Data Circuit terminating Equipment (Modem)" },
     { ROLE_DTE,        "DTE - Data Terminal Equipment (PC)" },
     { 0, NULL }
 };
@@ -2175,8 +2175,8 @@ proto_register_at_command(void)
 
     module = prefs_register_protocol(proto_at, NULL);
     prefs_register_enum_preference(module, "role",
-        "Force treat packets as DTE (PC) or DCE role",
-        "Force treat packets as DTE (PC) or DCE role",
+        "Force treat packets as DTE (PC) or DCE (Modem) role",
+        "Force treat packets as DTE (PC) or DCE (Modem) role",
         &at_role, pref_at_role, TRUE);
 
     register_dissector("at", dissect_at, proto_at);
