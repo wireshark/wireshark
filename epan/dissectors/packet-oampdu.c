@@ -944,6 +944,7 @@ static gint ett_oampdu_event_ose = -1;
 static gint ett_oampdu_lpbk_ctrl = -1;
 
 static expert_field ei_oampdu_event_length_bad = EI_INIT;
+static expert_field ei_oampdu_mvl_length_zero = EI_INIT;
 
 static void
 dissect_oampdu_information(tvbuff_t *tvb, proto_tree *tree);
@@ -961,7 +962,7 @@ static void
 dissect_oampdu_loopback_control(tvbuff_t *tvb, proto_tree *tree);
 
 static void
-dissect_oampdu_vendor_specific(tvbuff_t *tvb, proto_tree *tree);
+dissect_oampdu_vendor_specific(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 /*
  * Name: dissect_oampdu
@@ -1048,7 +1049,7 @@ dissect_oampdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
             dissect_oampdu_loopback_control(tvb, oampdu_tree);
             break;
         case OAMPDU_VENDOR_SPECIFIC:
-            dissect_oampdu_vendor_specific(tvb, oampdu_tree);
+            dissect_oampdu_vendor_specific(tvb, pinfo, oampdu_tree);
         default:
             break;
     }
@@ -1649,7 +1650,7 @@ static const int *s1_autoneg_mode_bits[] = {
  *      + add support for CableLabs DPoE OAM Extensions Specification
  */
 static void
-dissect_oampdu_vendor_specific(tvbuff_t *tvb, proto_tree *tree)
+dissect_oampdu_vendor_specific(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint32   offset;
     guint16   bytes;
@@ -1663,6 +1664,7 @@ dissect_oampdu_vendor_specific(tvbuff_t *tvb, proto_tree *tree)
     const guint8 oui_cl[] = {OUI_CL_0, OUI_CL_1, OUI_CL_2};
 
     proto_item *oui_item;
+    proto_item *event_item;
     proto_tree *oampdu_vendor_specific_tree;
     proto_tree *dpoe_opcode_tree;
     proto_item *dpoe_opcode_item;
@@ -1777,9 +1779,13 @@ dissect_oampdu_vendor_specific(tvbuff_t *tvb, proto_tree *tree)
                                         proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_clause_msbm, tvb, offset+3, 1, ENC_BIG_ENDIAN);
                                         proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_clause_lsbm, tvb, offset+4, 1, ENC_BIG_ENDIAN);
                                         proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_clause_operator, tvb, offset+5, 1, ENC_BIG_ENDIAN);
-                                        proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_clause_mvl, tvb, offset+6, 1, ENC_BIG_ENDIAN);
+                                        event_item = proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_clause_mvl, tvb, offset+6, 1, ENC_BIG_ENDIAN);
                                         pir_mvl = tvb_get_guint8(tvb, offset+6);
-                                        proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_clause_mv, tvb, offset+7, pir_mvl, ENC_BIG_ENDIAN);
+
+                                        if (pir_mvl > 0) {
+                                            proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_clause_mv, tvb, offset+7, pir_mvl, ENC_NA);
+                                        } else expert_add_info_format(pinfo, event_item, &ei_oampdu_mvl_length_zero, "Match Value Field Length is Zero, Match Value Field not Decoded");
+
                                         break;
                                         /* Result */
                                     case 3:
@@ -2388,7 +2394,7 @@ proto_register_oampdu(void)
 
         { &hf_oam_dpoe_user_port_object_clause_mv,
             { "Match Value", "oampdu.user.port.object.clause.mv",
-                FT_UINT8, BASE_HEX, NULL, 0x0,
+                FT_BYTES, SEP_SPACE, NULL, 0x0,
                 NULL, HFILL } },
 
         { &hf_oam_dpoe_user_port_object_result_rr,
@@ -2491,6 +2497,7 @@ proto_register_oampdu(void)
 
     static ei_register_info ei[] = {
         { &ei_oampdu_event_length_bad, { "oampdu.event.length.bad", PI_MALFORMED, PI_ERROR, "Event length should be at least 2", EXPFILL }},
+        { &ei_oampdu_mvl_length_zero, { "oampdu.event.mvl.zero", PI_UNDECODED, PI_CHAT, "Match Value Field Length is Zero, Match Value Field not Decoded", EXPFILL }},
     };
 
     expert_module_t* expert_oampdu;
