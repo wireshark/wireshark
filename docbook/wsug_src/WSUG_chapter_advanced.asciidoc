@@ -8,7 +8,7 @@
 
 === Introduction
 
-This chapter some of Wireshark’s advanced features.
+This chapter will describe some of Wireshark’s advanced features.
 
 // We switched from FollowTCP to FollowStream in June 2018.
 // This is apparently how you assign multiple anchors.
