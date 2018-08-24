@@ -31,12 +31,12 @@ indent_size = 4
 
 # WiX. The `xmllint --format` default is two spaces.
 [*.wx?]
-indent_style = spaces
+indent_style = space
 indent_size = 2
 
 # NSIS
 [*.ns[ih]]
-indent_style = spaces
+indent_style = space
 indent_size = 2
 
 # C/C++
