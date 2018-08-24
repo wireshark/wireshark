@@ -2143,7 +2143,7 @@ static dissector_handle_t pdcp_nr_handle;
 static dissector_handle_t pdcp_lte_handle;
 static dissector_table_t bssap_pdu_type_table;
 
-static int proto_pdcp_lte = -1;;
+static int proto_pdcp_lte = -1;
 
 guint32 gtp_session_count;
 
