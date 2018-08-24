@@ -1983,11 +1983,9 @@ dissect_pfcp_up_function_features(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     };
     /* Octet 5  TREU    HEEU    PFDM    FTUP    TRST    DLBD    DDND    BUCP */
     /* Octet 6  Spare   Spare   Spare   Spare   QUOAC   UDBC    PDIU    EMPU */
-    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_pfcp_up_function_features,
-        ett_pfcp_up_function_features, pfcp_up_function_features_o5_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT);
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_up_function_features_o5_flags, ENC_BIG_ENDIAN);
     offset++;
-    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_pfcp_up_function_features,
-        ett_pfcp_up_function_features, pfcp_up_function_features_o6_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT);
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_up_function_features_o6_flags, ENC_BIG_ENDIAN);
     offset++;
 
     if (offset < length) {
