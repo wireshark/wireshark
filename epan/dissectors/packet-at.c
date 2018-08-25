@@ -60,6 +60,9 @@ static int hf_cops_mode                                                    = -1;
 static int hf_cops_format                                                  = -1;
 static int hf_cops_operator                                                = -1;
 static int hf_cops_act                                                     = -1;
+static int hf_cpin_code                                                    = -1;
+static int hf_cpin_newpin                                                  = -1;
+static int hf_cpin_pin                                                     = -1;
 static int hf_cpms_mem1                                                    = -1;
 static int hf_cpms_mem2                                                    = -1;
 static int hf_cpms_mem3                                                    = -1;
@@ -441,6 +444,11 @@ typedef struct _at_cmd_t {
 } at_cmd_t;
 
 
+static gchar* get_string_parameter(guint8 *parameter_stream, gint parameter_length)
+{
+    return wmem_strndup(wmem_packet_scope(), parameter_stream, parameter_length);
+}
+
 static guint32 get_uint_parameter(guint8 *parameter_stream, gint parameter_length)
 {
     guint32      value;
@@ -576,6 +584,13 @@ static gboolean check_cnum(gint role, guint16 type) {
 
 static gboolean check_cops(gint role, guint16 type) {
     if (role == ROLE_DTE && (type == TYPE_ACTION || type == TYPE_READ)) return TRUE;
+    if (role == ROLE_DCE && type == TYPE_RESPONSE) return TRUE;
+
+    return FALSE;
+}
+
+static gboolean check_cpin(gint role, guint16 type) {
+    if (role == ROLE_DTE && (type == TYPE_ACTION || type == TYPE_READ || type == TYPE_TEST)) return TRUE;
     if (role == ROLE_DCE && type == TYPE_RESPONSE) return TRUE;
 
     return FALSE;
@@ -1142,6 +1157,49 @@ dissect_cops_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 static gint
+dissect_cpin_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+        gint offset, gint role, guint16 type, guint8 *parameter_stream,
+        guint parameter_number, gint parameter_length, void **data _U_)
+{
+    proto_item  *pitem;
+    gboolean     is_ready;
+    gchar       *pin_type;
+    if (!((role == ROLE_DTE && type == TYPE_ACTION) ||
+          (role == ROLE_DCE && type == TYPE_RESPONSE))) {
+        return FALSE;
+    }
+
+    if (type == TYPE_ACTION) {
+        switch (parameter_number) {
+            case 0:
+                proto_tree_add_item(tree, hf_cpin_pin, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+                break;
+            case 1:
+                proto_tree_add_item(tree, hf_cpin_newpin, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+                break;
+            default:
+                return FALSE;
+        }
+        return TRUE;
+    }
+
+    /* type is TYPE_RESPONSE */
+    if (parameter_number == 0) {
+        pitem = proto_tree_add_item(tree, hf_cpin_code, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+        is_ready = g_ascii_strncasecmp("READY", (gchar*)parameter_stream, parameter_length) == 0;
+        if (is_ready) {
+            proto_item_append_text(pitem, " (MT is not pending for any password)");
+        }
+        else {
+            pin_type = get_string_parameter(parameter_stream, parameter_length);
+            proto_item_append_text(pitem, " (MT is waiting %s to be given)", pin_type);
+        }
+        return TRUE;
+    }
+    return FALSE;
+}
+
+static gint
 dissect_cpms_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         gint offset, gint role, guint16 type, guint8 *parameter_stream,
         guint parameter_number, gint parameter_length, void **data _U_)
@@ -1352,6 +1410,7 @@ static const at_cmd_t at_cmds[] = {
     { "+CMER",      "Event Reporting Activation/Deactivation",                 check_cmer, dissect_cmer_parameter },
     { "+CNUM",      "Subscriber Number Information",                           check_cnum, dissect_cnum_parameter },
     { "+COPS",      "Reading Network Operator",                                check_cops, dissect_cops_parameter },
+    { "+CPIN",      "Enter SIM PIN",                                           check_cpin, dissect_cpin_parameter },
     { "+CPMS",      "Preferred Message Storage",                               check_cpms, dissect_cpms_parameter },
     { "+CSIM",      "Generic SIM access",                                      check_csim, dissect_csim_parameter },
     { "+CSQ",       "Signal Quality",                                          check_csq,  dissect_csq_parameter },
@@ -1941,6 +2000,21 @@ proto_register_at_command(void)
         { &hf_cops_act,
            { "AcT",                              "at.cops.act",
            FT_UINT8, BASE_DEC, VALS(cops_act_vals), 0,
+           NULL, HFILL}
+        },
+        { &hf_cpin_code,
+           { "Code",                              "at.cpin.code",
+           FT_STRING, BASE_NONE, NULL, 0,
+           NULL, HFILL}
+        },
+        { &hf_cpin_pin,
+           { "PIN",                              "at.cpin.pin",
+           FT_STRING, BASE_NONE, NULL, 0,
+           NULL, HFILL}
+        },
+        { &hf_cpin_newpin,
+           { "New PIN",                          "at.cpin.newpin",
+           FT_STRING, BASE_NONE, NULL, 0,
            NULL, HFILL}
         },
         { &hf_cpms_mem1,
