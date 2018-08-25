@@ -2549,6 +2549,10 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 				OWNER_READ OWNER_WRITE OWNER_EXECUTE
 				GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
 	)
+	if(ENABLE_DUMPCAP_GROUP)
+		install(CODE "execute_process(COMMAND chgrp ${DUMPCAP_INSTALL_GROUP} ${CMAKE_INSTALL_FULL_BINDIR}/dumpcap)")
+		install(CODE "execute_process(COMMAND chmod o-x ${CMAKE_INSTALL_FULL_BINDIR}/dumpcap)")
+	endif()
 	if(DUMPCAP_INSTALL_OPTION STREQUAL "capabilities")
 		install( CODE "execute_process(
 			COMMAND
