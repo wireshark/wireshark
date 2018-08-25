@@ -1344,7 +1344,7 @@ static const at_cmd_t at_cmds[] = {
     { "+CIMI",      "Request International Mobile Subsciber Identity (IMSI)",  check_cimi, dissect_cimi_parameter },
     { "^CIMI",      "Request International Mobile Subsciber Identity (IMSI)",  check_cimi, dissect_cimi_parameter },
     { "+CIND",      "Phone Indicators",                                        check_cind, dissect_cind_parameter },
-    { "+CLAC",      "List All Available AT Commands",                          check_clac, dissect_clcc_parameter },
+    { "+CLAC",      "List All Available AT Commands",                          check_clac, dissect_no_parameter },
     { "+CLCC",      "Current Calls",                                           check_clcc, dissect_clcc_parameter },
     { "+CLIP",      "Calling Line Identification Notification",                check_clip, dissect_clip_parameter },
     { "+CME ERROR", "Mobile Termination Error Result Code",                    check_cme,  dissect_cme_error_parameter },
