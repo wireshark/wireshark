@@ -561,13 +561,13 @@ static const value_string vs_rohc_compression[] = {
 //    { 0, NULL }
 //};
 
-#define ROHC_PROFILE_RTP_STR "RTP"
-#define ROHC_PROFILE_UNCOMPRESSED_STR "UNCOMPRESSED"
+#define ROHC_PROFILE_RTP_STR "RTP(1)"
+#define ROHC_PROFILE_UNCOMPRESSED_STR "UNCOMPRESSED(0)"
 static const value_string vs_rohc_profile[] = {
     { ROHC_PROFILE_UNCOMPRESSED, ROHC_PROFILE_UNCOMPRESSED_STR },
     { ROHC_PROFILE_RTP, ROHC_PROFILE_RTP_STR },
-    { ROHC_PROFILE_UDP, "UDP" },
-    { ROHC_PROFILE_IP, "IP" },
+    { ROHC_PROFILE_UDP, "UDP(2)" },
+    { ROHC_PROFILE_IP, "IP(4)" },
     { ROHC_PROFILE_UNKNOWN, "UNKNOWN" },
     { 0, NULL }
 };
@@ -9316,24 +9316,12 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                         default:
                             {
                                 tvbuff_t * ext_hdr_tvb;
-                                int toffset, rem_len;
                                 gtp_hdr_ext_info_t gtp_hdr_ext_info;
 
                                 gtp_hdr_ext_info.hdr_ext_item = hdr_ext_item;
-                                /* NOTE Type end lenght included in the call*/
+                                /* NOTE Type and lenght included in the call*/
                                 ext_hdr_tvb = tvb_new_subset_remaining(tvb, offset - 2);
-                                if ((toffset = dissector_try_uint_new(gtp_hdr_ext_dissector_table, next_hdr, ext_hdr_tvb, pinfo,
-                                    ext_tree, FALSE,&gtp_hdr_ext_info))) {
-                                    /* Dissector found*/
-                                    rem_len = tvb_reported_length(ext_hdr_tvb);
-                                    if (rem_len == toffset) {
-                                        /* All bytes consumed */
-                                        offset += ext_hdr_length * 4 - 2;
-
-                                        proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_next, tvb, offset, 1, ENC_BIG_ENDIAN);
-                                        return tvb_reported_length(tvb);
-                                    }
-                                }
+                                dissector_try_uint_new(gtp_hdr_ext_dissector_table, next_hdr, ext_hdr_tvb, pinfo, ext_tree, FALSE, &gtp_hdr_ext_info);
                                 break;
                             }
                         }
