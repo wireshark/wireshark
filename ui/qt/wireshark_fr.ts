@@ -10562,6 +10562,14 @@ a:hover {
         <translation>Aucune association trouvé pour ce paquet.</translation>
     </message>
     <message>
+        <source>Warning</source>
+        <translation type="unfinished">Avertissement</translation>
+    </message>
+    <message>
+        <source>Could not find SCTP Association with id: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Complete list of IP-Addresses as provided in the INIT-Chunk</source>
         <translation>Liste complète des adresses IP prévu dans le bloc INIT Chunk</translation>
     </message>

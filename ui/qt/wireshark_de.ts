@@ -10633,6 +10633,14 @@ text-decoration: underline;
         <translation>Keine Association für dieses Paket gefunden.</translation>
     </message>
     <message>
+        <source>Warning</source>
+        <translation type="unfinished">Warnungen</translation>
+    </message>
+    <message>
+        <source>Could not find SCTP Association with id: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Complete list of IP-Addresses as provided in the INIT-Chunk</source>
         <translation>Komplette Liste aller IP Adressen aus dem INIT-Chunk</translation>
     </message>

@@ -10620,6 +10620,14 @@ a:hover {
         <translation>このパケットに対するアソシエーションは見つかりませんでした</translation>
     </message>
     <message>
+        <source>Warning</source>
+        <translation type="unfinished">警告</translation>
+    </message>
+    <message>
+        <source>Could not find SCTP Association with id: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Complete list of IP-Addresses as provided in the INIT-Chunk</source>
         <translation>INITチャンクで提供されたIPアドレスの完全な一覧</translation>
     </message>

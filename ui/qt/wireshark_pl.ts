@@ -10596,6 +10596,14 @@ text-decoration: underline;
         <translation>Brak asocjacji dla tego pakietu.</translation>
     </message>
     <message>
+        <source>Warning</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Could not find SCTP Association with id: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Complete list of IP-Addresses as provided in the INIT-Chunk</source>
         <translation>Kompletna lista adresów IP dostarczonych w kawałku INIT</translation>
     </message>

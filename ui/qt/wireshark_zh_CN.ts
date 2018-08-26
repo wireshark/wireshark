@@ -10580,6 +10580,14 @@ text-decoration: underline;
         <translation>没找到该分组的助手。</translation>
     </message>
     <message>
+        <source>Warning</source>
+        <translation type="unfinished">警告</translation>
+    </message>
+    <message>
+        <source>Could not find SCTP Association with id: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Complete list of IP-Addresses as provided in the INIT-Chunk</source>
         <translation>在INIT块中的IP地址完整列表</translation>
     </message>
