@@ -1716,6 +1716,7 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 			break;
 
 		case RESPONSE_TABULAR:
+		case REQUEST: /* That shouldn't be the case; maybe two requests in a row (s. bug 15074) */
 			offset = mysql_dissect_result_header(tvb, pinfo, offset, tree, conn_data);
 			break;
 
