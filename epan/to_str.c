@@ -21,6 +21,7 @@
 #include "to_str-int.h"
 #include "strutil.h"
 #include <wsutil/pint.h>
+#include <wsutil/utf8_entities.h>
 
 /*
  * If a user _does_ pass in a too-small buffer, this is probably
@@ -206,7 +207,7 @@ bytestring_to_str(wmem_allocator_t *scope, const guint8 *ad, const guint32 len, 
 
 	if (truncated) {
 		*buf_ptr++ = punct;			/* 1 byte */
-		buf_ptr    = g_stpcpy(buf_ptr, "...");	/* 3 bytes */
+		buf_ptr    = g_stpcpy(buf_ptr, UTF8_HORIZONTAL_ELLIPSIS);	/* 3 bytes */
 	}
 
 	*buf_ptr = '\0';
@@ -234,7 +235,7 @@ bytes_to_str(wmem_allocator_t *scope, const guint8 *bd, int bd_len)
 	cur_ptr = bytes_to_hexstr(cur, bd, bd_len);	/* max MAX_BYTE_STR_LEN bytes */
 
 	if (truncated)
-		cur_ptr = g_stpcpy(cur_ptr, "...");	/* 3 bytes */
+		cur_ptr = g_stpcpy(cur_ptr, UTF8_HORIZONTAL_ELLIPSIS);	/* 3 bytes */
 
 	*cur_ptr = '\0';				/* 1 byte */
 	return cur;
