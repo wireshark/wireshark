@@ -449,6 +449,15 @@ find_tap_id(const char *name)
 static void
 free_tap_listener(tap_listener_t *tl)
 {
+	/* The free_tap_listener is called in the error path of
+	 * register_tap_listener (when the dfilter fails to be registered)
+	 * and the finish callback is set after that.
+	 * If this is changed make sure the finish callback is not called
+	 * twice to prevent double-free errors.
+	 */
+	if (tl->finish) {
+		tl->finish(tl->tapdata);
+	}
 	dfilter_free(tl->code);
 	g_free(tl->fstring);
 	g_free(tl);
@@ -616,8 +625,6 @@ remove_tap_listener(void *tapdata)
 			return;
 		}
 	}
-	if(tl->finish)
-		tl->finish(tapdata);
 	free_tap_listener(tl);
 }
 

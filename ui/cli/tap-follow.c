@@ -472,7 +472,7 @@ static void follow_stream(const char *opt_argp, void *userdata)
   }
 
   errp = register_tap_listener(get_follow_tap_string(follower), follow_info, follow_info->filter_out_filter, 0,
-                               NULL, get_follow_tap_handler(follower), follow_draw, NULL);
+                               NULL, get_follow_tap_handler(follower), follow_draw, (tap_finish_cb)follow_free);
 
   if (errp != NULL)
   {

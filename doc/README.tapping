@@ -57,7 +57,7 @@ TAP LISTENER
 ============
 (see tap-rpcstat.c as an example)
 Interfacing your application is not that much harder either.
-Only 3 callbacks and two functions.
+Only 4 callbacks and two functions.
 
 
 The two functions to start or stop tapping are
@@ -66,7 +66,8 @@ register_tap_listener(const char *tapname, void *tapdata, const char *fstring,
 	guint flags,
 	void (*reset)(void *tapdata),
         gboolean (*packet)(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data),
-	void (*draw)(void *tapdata));
+	void (*draw)(void *tapdata),
+	void (*finish)(void *tapdata));
 
 remove_tap_listener(void *tapdata);
 
@@ -156,12 +157,15 @@ from a separate thread up to once every 2-3 seconds.
 On other ports it might only be called once when the capture is finished
 or the file has been [re]read completely.
 
+void (*finish)(void *tapdata)
+This callback is called when your listener is removed.
 
 
-So, create three callbacks:
+So, create four callbacks:
 1, reset   to reset the state variables in the structure passed to it.
 2, packet  to update these state variables.
 3, draw    to take these state variables and draw them on the screen.
+4, finish  to free all state variables.
 
 then just make Wireshark call register_tap_listener() when you want to tap
 and call remove_tap_listener() when you are finished.
@@ -209,7 +213,7 @@ TIPS
 ====
 Of course, there is nothing that forces you to make (*draw) draw stuff
 on the screen.
-You can hand register_tap_listener() NULL for both (*draw) and (*reset)
+You can hand register_tap_listener() NULL for (*draw), (*reset) and (*finish)
 (well also for (*packet) but that would be a very boring extension).
 
 Perhaps you want an extension that will execute a certain command
@@ -221,7 +225,7 @@ Well, try this :
 		return FALSE;
 	}
 
-	register_tap_listener("tcp", struct, "tcp.port==57", NULL, packet, NULL);
+	register_tap_listener("tcp", struct, "tcp.port==57", NULL, packet, NULL, NULL);
 
 	Let struct contain an email address?
 	Then you have something simple that will make Wireshark send an email
