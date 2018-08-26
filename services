@@ -11289,6 +11289,7 @@ exoconfig       26487/tcp # EXOconfig [Urban_Fosseus] [Urban_Fosseus] 2008-12-24
 exoconfig       26487/udp # EXOconfig [Urban_Fosseus] [Urban_Fosseus] 2008-12-24
 exonet          26489/tcp # EXOnet [Urban_Fosseus] [Urban_Fosseus] 2008-12-24
 exonet          26489/udp # EXOnet [Urban_Fosseus] [Urban_Fosseus] 2008-12-24
+flex-lmadmin    27010/tcp # A protocol for managing license services [Flexera] [Paul_Bland] 2018-08-22
 imagepump       27345/tcp # ImagePump [Richard_Minner] [Richard_Minner]
 imagepump       27345/udp # ImagePump [Richard_Minner] [Richard_Minner]
 jesmsjc         27442/tcp # Job controller service [Chris_Newman] [Chris_Newman] 2010-10-15
