@@ -586,6 +586,7 @@ steamdiscover_dissect_body_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
             case STEAMDISCOVER_FN_STATUS_TIMESTAMP:
                 STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_VARINT);
                 timestamp.secs = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
+                timestamp.nsecs = 0;
                 proto_tree_add_time(tree, hf_steam_ihs_discovery_body_status_timestamp, pb.tvb,
                         pb.offset, len, &timestamp);
                 break;
