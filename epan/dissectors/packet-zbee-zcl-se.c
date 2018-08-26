@@ -4981,7 +4981,7 @@ static int hf_zbee_zcl_met_change_supply_request_date_time = -1;
 static int hf_zbee_zcl_met_change_supply_implementation_date_time = -1;
 static int hf_zbee_zcl_met_change_supply_proposed_supply_status = -1;
 static int hf_zbee_zcl_met_change_supply_supply_control_bits = -1;
-static int hf_zbee_zcl_met_local_change_supply_supply_status = -1;
+static int hf_zbee_zcl_met_local_change_supply_proposed_supply_status = -1;
 static int hf_zbee_zcl_met_set_supply_status_issuer_event_id = -1;
 static int hf_zbee_zcl_met_set_supply_status_supply_tamper_state = -1;
 static int hf_zbee_zcl_met_set_supply_status_supply_depletion_state = -1;
@@ -5699,7 +5699,7 @@ static void
 dissect_zcl_met_local_change_supply(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
     /* Proposed Supply Status */
-    proto_tree_add_item(tree, hf_zbee_zcl_met_local_change_supply_supply_status, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_zbee_zcl_met_local_change_supply_proposed_supply_status, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
     *offset += 1;
 } /*dissect_zcl_met_local_change_supply*/
 
@@ -6429,8 +6429,8 @@ proto_register_zbee_zcl_met(void)
             { "Supply Control bits", "zbee_zcl_se.met.change_supply.supply_control_bits", FT_UINT8, BASE_HEX, NULL,
             0x00, NULL, HFILL } },
 
-        { &hf_zbee_zcl_met_local_change_supply_supply_status,
-            { "Proposed Supply Status", "zbee_zcl_se.met.local_change_supply.supply_status", FT_UINT8, BASE_DEC, NULL,
+        { &hf_zbee_zcl_met_local_change_supply_proposed_supply_status,
+            { "Proposed Supply Status", "zbee_zcl_se.met.local_change_supply.proposed_supply_status", FT_UINT8, BASE_DEC, NULL,
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_met_set_supply_status_issuer_event_id,
