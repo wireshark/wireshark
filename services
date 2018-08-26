@@ -5945,6 +5945,7 @@ exoline-tcp	26486/tcp	# EXOline-TCP
 exoline-udp	26486/udp	# EXOline-UDP
 exoconfig	26487/tcp/udp	# EXOconfig
 exonet		26489/tcp/udp	# EXOnet
+flex-lmadmin	27010/tcp	# A protocol for managing license services
 imagepump	27345/tcp/udp	# ImagePump
 jesmsjc		27442/tcp/udp	# Job controller service
 kopek-httphead	27504/tcp/udp	# Kopek HTTP Head Port
