@@ -729,7 +729,7 @@ get_full_ipv6_addr(char* ipv6_addr_expanded, char *ipv6_addr)
   }
 
   if(suffix_len < IPSEC_STRLEN_IPV6)
-    return (prefix_len - prefix_remaining);
+    return (int) strlen(ipv6_addr) - suffix_cpt - prefix_remaining;
   else
     return (int) strlen(ipv6_addr) - suffix_cpt;
 }
