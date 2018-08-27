@@ -198,6 +198,7 @@ static int ett_nas_5gs_sm_qos_rules = -1;
 static int ett_nas_5gs_plain = -1;
 static int ett_nas_5gs_sec = -1;
 static int ett_nas_5gs_mm_part_sal = -1;
+static int ett_nas_5gs_mm_part_tal = -1;
 
 static int hf_nas_5gs_mm_suci = -1;
 static int hf_nas_5gs_mm_imei = -1;
@@ -217,6 +218,8 @@ static int hf_nas_5gs_nw_feat_sup_ims_vops_b1b0 = -1;
 
 static int hf_nas_5gs_tac = -1;
 
+static int hf_nas_5gs_mm_tal_t_li = -1;
+static int hf_nas_5gs_mm_tal_num_e = -1;
 
 static expert_field ei_nas_5gs_extraneous_data = EI_INIT;
 static expert_field ei_nas_5gs_unknown_pd = EI_INIT;
@@ -602,12 +605,94 @@ de_nas_5gs_mm_5gs_ta_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 /*
  * 9.10.3.9     5GS tracking area identity list
  */
+static const value_string nas_5gs_mm_tal_t_li_values[] = {
+    { 0x00, "list of TACs belonging to one PLMN, with non-consecutive TAC values" },
+    { 0x01, "list of TACs belonging to one PLMN, with consecutive TAC values" },
+    { 0x02, "list of TAIs belonging to different PLMNs" },
+    { 0, NULL } };
+
 static guint16
 de_nas_5gs_mm_5gs_ta_id_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     guint32 offset, guint len,
     gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+    proto_tree *sub_tree;
+    proto_item *item;
+
+    static const int * flags[] = {
+        &hf_nas_5gs_mm_tal_t_li,
+        &hf_nas_5gs_mm_tal_num_e,
+        NULL
+    };
+
+    guint num_par_tal = 1;
+    guint32 curr_offset = offset;
+    guint32 start_offset;
+    guint8 tal_head, tal_t_li, tal_num_e;
+
+    /*Partial tracking area list*/
+    while ((curr_offset - offset) < len) {
+        start_offset = curr_offset;
+        sub_tree = proto_tree_add_subtree_format(tree, tvb, curr_offset, -1, ett_nas_5gs_mm_part_tal, &item, "Partial tracking area list  %u", num_par_tal);
+        /*Head of Partial tracking area list*/
+        /* Type of list    Number of elements    octet 1 */
+        tal_head = tvb_get_guint8(tvb, curr_offset);
+        tal_t_li = (tal_head & 0x60) >> 5;
+        tal_num_e = (tal_head & 0x1f) + 1;
+        proto_tree_add_bitmask_list(sub_tree, tvb, curr_offset, 1, flags, ENC_BIG_ENDIAN);
+        curr_offset++;
+        switch (tal_t_li) {
+        case 0:
+            /*octet 2  MCC digit2  MCC digit1*/
+            /*octet 3  MNC digit3  MCC digit3*/
+            /*octet 4  MNC digit2  MNC digit1*/
+            dissect_e212_mcc_mnc(tvb, pinfo, sub_tree, curr_offset, E212_NONE, FALSE);
+            curr_offset += 3;
+            while (tal_num_e > 0) {
+                proto_tree_add_item(sub_tree, hf_nas_5gs_tac, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
+                curr_offset += 3;
+                tal_num_e--;
+            }
+            break;
+        case 1:
+            /*octet 2  MCC digit2  MCC digit1*/
+            /*octet 3  MNC digit3  MCC digit3*/
+            /*octet 4  MNC digit2  MNC digit1*/
+            dissect_e212_mcc_mnc(tvb, pinfo, sub_tree, curr_offset, E212_NONE, FALSE);
+            curr_offset += 3;
+
+            /*octet 5  TAC 1*/
+            proto_tree_add_item(sub_tree, hf_nas_5gs_tac, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
+            curr_offset+=3;
+            break;
+        case 2:
+            while (tal_num_e > 0) {
+                /*octet 2  MCC digit2  MCC digit1*/
+                /*octet 3  MNC digit3  MCC digit3*/
+                /*octet 4  MNC digit2  MNC digit1*/
+                dissect_e212_mcc_mnc(tvb, pinfo, sub_tree, curr_offset, E212_NONE, FALSE);
+                curr_offset += 3;
+
+                /*octet 5  TAC 1*/
+                proto_tree_add_item(sub_tree, hf_nas_5gs_tac, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
+                curr_offset += 3;
+
+                tal_num_e--;
+            }
+            break;
+        case 3:
+            dissect_e212_mcc_mnc(tvb, pinfo, sub_tree, curr_offset, E212_NONE, FALSE);
+            curr_offset += 3;
+            break;
+        default:
+            proto_tree_add_expert(sub_tree, pinfo, &ei_nas_5gs_unknown_value, tvb, curr_offset, len - 1);
+        }
+
+        /*calculate the length of IE?*/
+        proto_item_set_len(item, curr_offset - start_offset);
+        /*calculate the number of Partial tracking area list*/
+        num_par_tal++;
+    }
 
     return len;
 }
@@ -2642,8 +2727,12 @@ nas_5gs_mm_registration_accept(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
 
     /*4A    Equivalent PLMNs    PLMN list     9.10.3.33    O    TLV    5-47*/
     ELEM_OPT_TLV(0x4a, GSM_A_PDU_TYPE_COMMON, DE_PLMN_LIST, " - Equivalent PLMNs");
-    /*54    TAI list    Tracking area identity list     9.10.3.45    O    TLV    8-98*/
+    /*54    TAI list    Tracking area identity list     9.10.3.9    O    TLV    8-98*/
+#ifdef NAS_V_2_0_0
+    ELEM_OPT_TLV(0x54, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_5GS_TA_ID_LIST, NULL);
+#else
     ELEM_OPT_TLV(0x54, NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID_LST, NULL);
+#endif
     /*70    Allowed NSSAI    NSSAI     9.10.3.28    O    TLV    4-74*/
     ELEM_OPT_TLV(0x70, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_NSSAI, " - Allowed NSSAI");
     /*11    Rejected NSSAI    Rejected NSSAI     9.10.3.35    O    TLV    4-42*/
@@ -2994,7 +3083,11 @@ nas_5gs_mm_conf_upd_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     ELEM_OPT_TLV(0x2C, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_5GS_MOBILE_ID, NULL);
 
     /*54    TAI list    Tracking area identity list     9.10.3.45    O    TLV    8-98*/
+#ifdef NAS_V_2_0_0
+    ELEM_OPT_TLV(0x54, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_5GS_TA_ID_LIST, NULL);
+#else
     ELEM_OPT_TLV(0x54, NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID_LST, NULL);
+#endif
 
     /*70    Allowed NSSAI    NSSAI     9.10.3.28    O    TLV    4-74*/
     ELEM_OPT_TLV(0x70, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_NSSAI, " - Allowed NSSAI");
@@ -4935,13 +5028,23 @@ proto_register_nas_5gs(void)
             FT_UINT24, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_nas_5gs_mm_tal_t_li,
+        { "Type of list",   "nas_5gs.mm.tal_t_li",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_mm_tal_t_li_values), 0x60,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_tal_num_e,
+        { "Number of elements",   "nas_5gs.mm.tal_num_e",
+            FT_UINT8, BASE_DEC, NULL, 0x1f,
+            NULL, HFILL }
+        },
     };
 
     guint     i;
     guint     last_offset;
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS    7
+#define NUM_INDIVIDUAL_ELEMS    8
     gint *ett[NUM_INDIVIDUAL_ELEMS +
         NUM_NAS_5GS_COMMON_ELEM +
         NUM_NAS_5GS_MM_MSG + NUM_NAS_5GS_MM_ELEM +
@@ -4955,6 +5058,7 @@ proto_register_nas_5gs(void)
     ett[4] = &ett_nas_5gs_plain;
     ett[5] = &ett_nas_5gs_sec;
     ett[6] = &ett_nas_5gs_mm_part_sal;
+    ett[7] = &ett_nas_5gs_mm_part_tal;
 
     last_offset = NUM_INDIVIDUAL_ELEMS;
 
