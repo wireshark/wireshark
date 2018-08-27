@@ -2253,9 +2253,9 @@ dissect_ssl3_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
 
     /* now set the text in the record layer line */
     if (type && decrypted) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "Heartbeat %s", type);
+        col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Heartbeat %s", type);
     } else {
-        col_append_str(pinfo->cinfo, COL_INFO, "Encrypted Heartbeat");
+        col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Encrypted Heartbeat");
     }
 
     if (type && decrypted) {
