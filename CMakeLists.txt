@@ -2657,9 +2657,6 @@ if(ENABLE_APPLICATION_BUNDLE)
 					${CMAKE_SOURCE_DIR}/packaging/macosx/ChmodBPF
 					${CMAKE_BINARY_DIR}/run/ChmodBPF
 		COMMAND ${CMAKE_COMMAND} -E copy_directory
-					${CMAKE_SOURCE_DIR}/packaging/macosx/Resources
-					${CMAKE_BINARY_DIR}/run/Resources
-		COMMAND ${CMAKE_COMMAND} -E copy_directory
 					${CMAKE_SOURCE_DIR}/packaging/macosx/Scripts
 					${CMAKE_BINARY_DIR}/run/Scripts
 		COMMAND ${CMAKE_COMMAND} -E copy_directory
