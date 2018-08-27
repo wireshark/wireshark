@@ -74,6 +74,7 @@ set(WIRETAP_NONGENERATED_FILES
 	ruby_marshal.c
 	snoop.c
 	stanag4607.c
+	systemd_journal.c
 	tnef.c
 	toshiba.c
 	visual.c

@@ -170,6 +170,7 @@ set(CLEAN_ASN1_DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-snmp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-spnego.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-sv.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-systemd-journal.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-t124.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-t125.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-t38.c
@@ -554,6 +555,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-stat.h
 	packet-stat-notify.h
 	packet-sv.h
+	packet-syslog.h
 	packet-t124.h
 	packet-t30.h
 	packet-t38.h

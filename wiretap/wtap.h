@@ -283,6 +283,7 @@ extern "C" {
 #define WTAP_ENCAP_DPAUXMON                     200
 #define WTAP_ENCAP_RUBY_MARSHAL                 201
 #define WTAP_ENCAP_RFC7468                      202
+#define WTAP_ENCAP_SYSTEMD_JOURNAL              203
 
 /* After adding new item here, please also add new item to encap_table_base array */
 
@@ -377,6 +378,7 @@ extern "C" {
 #define WTAP_FILE_TYPE_SUBTYPE_DPA400                        81
 #define WTAP_FILE_TYPE_SUBTYPE_RFC7468                       82
 #define WTAP_FILE_TYPE_SUBTYPE_RUBY_MARSHAL                  83
+#define WTAP_FILE_TYPE_SUBTYPE_SYSTEMD_JOURNAL               84
 
 #define WTAP_NUM_FILE_TYPES_SUBTYPES  wtap_get_num_file_types_subtypes()
 

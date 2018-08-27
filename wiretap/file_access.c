@@ -75,6 +75,7 @@
 #include "dpa400.h"
 #include "rfc7468.h"
 #include "ruby_marshal.h"
+#include "systemd_journal.h"
 
 /*
  * Add an extension, and all compressed versions thereof, to a GSList
@@ -405,7 +406,8 @@ static const struct open_info open_info_base[] = {
 	{ "Ixia IxVeriWave .vwr Raw Capture",       OPEN_INFO_HEURISTIC, vwr_open,                 "vwr",      NULL, NULL },
 	{ "CAM Inspector file",                     OPEN_INFO_HEURISTIC, camins_open,              "camins",   NULL, NULL },
 	{ "JavaScript Object Notation",             OPEN_INFO_HEURISTIC, json_open,                "json",     NULL, NULL },
-	{ "Ruby Marshal Object",                    OPEN_INFO_HEURISTIC, ruby_marshal_open,        "",      NULL, NULL }
+	{ "Ruby Marshal Object",                    OPEN_INFO_HEURISTIC, ruby_marshal_open,        "",  NULL, NULL },
+	{ "Systemd Journal",                        OPEN_INFO_HEURISTIC, systemd_journal_open,        "log;jnl;journal",      NULL, NULL }
 };
 
 /* this is only used to build the dynamic array on load, do NOT use this

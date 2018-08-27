@@ -62,25 +62,26 @@ since version 2.6.0:
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
+Cisco Meraki Discovery Protocol (MDP)
 DoIP (ISO 13400-2 Diagnostic communication over Internet Protocol)
+DXL protocol
+E1AP (5G) protocol
+Exablaze trailers
+GLOW Lawo Emberplus Data format
+GSM-R protocol (User-to-User Information Element usage)
 GSUP (Osmocom Generic Subscriber Update Protocol)
+MsgPack protocol
 NGAP (5G) protocol
 NR (5G) PDCP protocol
-TPM 2.0 protocol
 PROXY (v2) protocol
-Ruby Marshal format
 Ruby Distributed protocol
-GSM-R protocol (User-to-User Information Element usage)
+Ruby Marshal format
 S101 Lawo Emberplus transport frame
-GLOW Lawo Emberplus Data format
 STCSIG (Spirent Test Center Signature decoding for Ethernet and FibreChannel, disabled by default)
-Exablaze trailers
+systemd Journal Export
+TPM 2.0 protocol
 Ubiquiti Discovery Protocol (UBDP)
-Cisco Meraki Discovery Protocol (MDP)
 XnAP (5G) protocol
-E1AP (5G) protocol
-MsgPack protocol
-DXL protocol
 --
 
 === Updated Protocol Support
@@ -92,6 +93,9 @@ Too many protocols have been updated to list here.
 //_Non-empty section placeholder._
 // Add one file type per line between the --sort-and-group-- delimiters.
 [commaize]
+--
+systemd Journal Export
+--
 
 === New and Updated Capture Interfaces support
 
