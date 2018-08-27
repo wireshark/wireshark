@@ -79,3 +79,14 @@ class case_dissect_tcp(subprocesstest.SubprocessTestCase):
         self.assertTrue(self.grepOutput(r'^\s*11\s.*PUT /3 HTTP/1.1'))
         self.assertTrue(self.grepOutput(r'^\s*11\s.*PUT /4 HTTP/1.1'))
         self.assertTrue(self.grepOutput(r'^\s*15\s.*PUT /5 HTTP/1.1'))
+
+    def test_tcp_out_of_order_data_after_syn(self):
+        '''Test when the first non-empty segment is OoO.'''
+        capture_file = os.path.join(config.capture_dir, 'dns-ooo.pcap')
+        proc = self.runProcess((config.cmd_tshark,
+                '-r', capture_file,
+                '-otcp.reassemble_out_of_order:TRUE',
+                '-Y', 'dns', '-Tfields', '-edns.qry.name',
+            ),
+            env=config.test_env)
+        self.assertEqual(proc.stdout_str.strip(), 'example.com')

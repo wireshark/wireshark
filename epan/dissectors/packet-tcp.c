@@ -3179,8 +3179,8 @@ again:
              * the MSP is not complete yet. */
         }
         if (tcpd->fwd->maxnextseq == 0 || LT_SEQ(tcpd->fwd->maxnextseq, nxtseq)) {
-            /* Update the maximum expected seqno if unknown or if the new
-             * segment succeeds previous segments. */
+            /* Update the maximum expected seqno if no SYN packet was seen
+             * before, or if the new segment succeeds previous segments. */
             tcpd->fwd->maxnextseq = nxtseq;
         }
     }
@@ -6307,6 +6307,12 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
            /* Save the server port to help determine dissector used */
            tcpd->server_port = tcph->th_dport;
            tcpd->ts_mru_syn = pinfo->abs_ts;
+        }
+        /* Remember where the next segment will start. */
+        if (tcp_desegment && tcp_reassemble_out_of_order && tcpd && !PINFO_FD_VISITED(pinfo)) {
+            if (tcpd->fwd->maxnextseq == 0) {
+                tcpd->fwd->maxnextseq = tcph->th_seq + 1;
+            }
         }
     }
     if(tcph->th_flags & TH_FIN) {
