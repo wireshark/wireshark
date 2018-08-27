@@ -258,8 +258,9 @@ dissect_proxy_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static gboolean
 dissect_proxy_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    guint length = tvb_reported_length(tvb);
-    if (length >= 16 && tvb_memeql(tvb, 0, proxy_v2_magic, sizeof(proxy_v2_magic)) == 0) {
+    if (tvb_reported_length(tvb) >= 16 &&
+        tvb_captured_length(tvb) >= sizeof(proxy_v2_magic) &&
+        tvb_memeql(tvb, 0, proxy_v2_magic, sizeof(proxy_v2_magic)) == 0) {
         // TODO maybe check for "(hdr.v2.ver_cmd & 0xF0) == 0x20" as done in "9. Sample code" from
         // https://www.haproxy.org/download/1.8/doc/proxy-protocol.txt?
         dissect_proxy_v2(tvb, pinfo, tree, data);
