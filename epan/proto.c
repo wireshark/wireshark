@@ -305,6 +305,11 @@ static expert_field ei_number_string_decoding_failed_error = EI_INIT;
 static expert_field ei_number_string_decoding_erange_error = EI_INIT;
 static void register_number_string_decoding_error(void);
 
+/* Handle string errors expert info */
+static int proto_string_errors = -1;
+static expert_field ei_string_trailing_characters = EI_INIT;
+static void register_string_errors(void);
+
 static int proto_register_field_init(header_field_info *hfinfo, const int parent);
 
 /* special-case header field used within proto.c */
@@ -482,6 +487,7 @@ proto_init(GSList *register_all_plugin_protocols_list,
 	register_show_exception();
 	register_type_length_mismatch();
 	register_number_string_decoding_error();
+	register_string_errors();
 
 	/* Have each built-in dissector register its protocols, fields,
 	   dissector tables, and dissectors to be called through a
@@ -2212,6 +2218,23 @@ test_length(header_field_info *hfinfo, tvbuff_t *tvb,
 	tvb_ensure_bytes_exist(tvb, start, size);
 }
 
+static void
+detect_trailing_stray_characters(const char *string, gint length, proto_item *pi)
+{
+	gboolean found_stray_character = FALSE;
+
+	for (gint i = (gint)strlen(string); i < length; i++) {
+		if (string[i] != '\0') {
+			found_stray_character = TRUE;
+			break;
+		}
+	}
+
+	if (found_stray_character) {
+		expert_add_info(NULL, pi, &ei_string_trailing_characters);
+	}
+}
+
 /* Add an item to a proto_tree, using the text label registered to that item;
    the item is extracted from the tvbuff handed to it. */
 static proto_item *
@@ -2224,7 +2247,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 	guint64	    value64;
 	float	    floatval;
 	double	    doubleval;
-	const char *stringval;
+	const char *stringval = NULL;
 	nstime_t    time_stamp;
 	gboolean    length_error;
 
@@ -2660,6 +2683,11 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 	/* XXX. wouldn't be better to add this item to tree, with some special flag (FI_EXCEPTION?)
 	 *      to know which item caused exception? */
 	pi = proto_tree_add_node(tree, new_fi);
+
+	if (stringval) {
+		/* Detect trailing stray characters */
+		detect_trailing_stray_characters(stringval, length, pi);
+	}
 
 	return pi;
 }
@@ -3193,6 +3221,7 @@ proto_tree_add_item_ret_string_and_length(proto_tree *tree, int hfindex,
                                           const guint8 **retval,
                                           gint *lenretval)
 {
+	proto_item *pi;
 	header_field_info *hfinfo = proto_registrar_get_nth(hfindex);
 	field_info	  *new_fi;
 	const guint8	  *value;
@@ -3230,7 +3259,14 @@ proto_tree_add_item_ret_string_and_length(proto_tree *tree, int hfindex,
 
 	new_fi->flags |= (encoding & ENC_LITTLE_ENDIAN) ? FI_LITTLE_ENDIAN : FI_BIG_ENDIAN;
 
-	return proto_tree_add_node(tree, new_fi);
+	pi = proto_tree_add_node(tree, new_fi);
+
+	if (value) {
+		/* Detect trailing stray characters */
+		detect_trailing_stray_characters(value, length, pi);
+	}
+
+	return pi;
 }
 
 proto_item *
@@ -7980,6 +8016,27 @@ register_number_string_decoding_error(void)
 	/* "Number-String Decoding Error" isn't really a protocol, it's an error indication;
 	   disabling them makes no sense. */
 	proto_set_cant_toggle(proto_number_string_decoding_error);
+}
+
+static void
+register_string_errors(void)
+{
+	static ei_register_info ei[] = {
+		{ &ei_string_trailing_characters,
+			{ "_ws.string.trailing_stray_characters", PI_UNDECODED, PI_WARN, "Trailing stray characters", EXPFILL }
+		},
+	};
+
+	expert_module_t* expert_string_errors;
+
+	proto_string_errors = proto_register_protocol("String Errors", "String errors", "_ws.string");
+
+	expert_string_errors = expert_register_protocol(proto_string_errors);
+	expert_register_field_array(expert_string_errors, ei, array_length(ei));
+
+	/* "String Errors" isn't really a protocol, it's an error indication;
+	   disabling them makes no sense. */
+	proto_set_cant_toggle(proto_string_errors);
 }
 
 #define PROTO_PRE_ALLOC_HF_FIELDS_MEM (201000+PRE_ALLOC_EXPERT_FIELDS_MEM)
