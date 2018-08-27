@@ -359,7 +359,6 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   proto_item        *ti;
   proto_tree        *dtls_tree;
   guint32            offset;
-  gboolean           first_record_in_frame;
   SslDecryptSession *ssl_session;
   SslSession        *session;
   gint               is_from_server;
@@ -368,7 +367,6 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   ti                    = NULL;
   dtls_tree             = NULL;
   offset                = 0;
-  first_record_in_frame = TRUE;
   ssl_session           = NULL;
   top_tree              = tree;
 
@@ -413,14 +411,6 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   /* iterate through the records in this tvbuff */
   while (tvb_reported_length_remaining(tvb, offset) != 0)
     {
-      /* on second and subsequent records per frame
-       * add a delimiter on info column
-       */
-      if (!first_record_in_frame)
-        {
-          col_append_str(pinfo->cinfo, COL_INFO, ", ");
-        }
-
       /* first try to dispatch off the cached version
        * known to be associated with the conversation
        */
@@ -450,17 +440,14 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
              * continuation data
              */
             offset = tvb_reported_length(tvb);
-            col_append_str(pinfo->cinfo, COL_INFO,
-                             "Continuation Data");
+            col_append_sep_str(pinfo->cinfo, COL_INFO,
+                               NULL, "Continuation Data");
 
             /* Set the protocol column */
             col_set_str(pinfo->cinfo, COL_PROTOCOL, "DTLS");
           }
         break;
       }
-
-      /* set up for next record in frame, if any */
-      first_record_in_frame = FALSE;
     }
 
   // XXX there is no Follow DTLS Stream, is this tap needed?
@@ -719,7 +706,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
     /* if we don't have a valid content_type, there's no sense
      * continuing any further
      */
-    col_append_str(pinfo->cinfo, COL_INFO, "Continuation Data");
+    col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Continuation Data");
 
     /* Set the protocol column */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DTLS");
@@ -789,7 +776,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
 
   switch ((ContentType) content_type) {
   case SSL_ID_CHG_CIPHER_SPEC:
-    col_append_str(pinfo->cinfo, COL_INFO, "Change Cipher Spec");
+    col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Change Cipher Spec");
     ssl_dissect_change_cipher_spec(&dissect_dtls_hf, tvb, pinfo,
                                    dtls_record_tree, offset, session,
                                    is_from_server, ssl);
@@ -833,7 +820,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
     }
   case SSL_ID_APP_DATA:
     /* show on info column what we are decoding */
-    col_append_str(pinfo->cinfo, COL_INFO, "Application Data");
+    col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Application Data");
 
     /* app_handle discovery is done here instead of dissect_dtls_payload()
      * because the protocol name needs to be displayed below. */
@@ -951,13 +938,13 @@ dissect_dtls_alert(tvbuff_t *tvb, packet_info *pinfo,
   /* now set the text in the record layer line */
   if (level && desc)
     {
-       col_append_fstr(pinfo->cinfo, COL_INFO,
-             "Alert (Level: %s, Description: %s)",
+       col_append_sep_fstr(pinfo->cinfo, COL_INFO,
+             NULL, "Alert (Level: %s, Description: %s)",
              level, desc);
     }
   else
     {
-      col_append_str(pinfo->cinfo, COL_INFO, "Encrypted Alert");
+      col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Encrypted Alert");
     }
 
   if (tree)
@@ -1074,23 +1061,17 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
           return;
         }
 
-      /* on second and later iterations, add comma to info col */
-      if (!first_iteration)
-        {
-          col_append_str(pinfo->cinfo, COL_INFO, ", ");
-        }
-
       /*
        * Update our info string
        */
       if (msg_type_str)
         {
-          col_append_str(pinfo->cinfo, COL_INFO, msg_type_str);
+          col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, msg_type_str);
         }
       else
         {
           /* if we don't have a valid handshake type, just quit dissecting */
-          col_append_str(pinfo->cinfo, COL_INFO, "Encrypted Handshake Message");
+          col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Encrypted Handshake Message");
           return;
         }
 
@@ -1419,9 +1400,9 @@ dissect_dtls_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
 
   /* now set the text in the record layer line */
   if (type && (payload_length <= record_length - 16 - 3)) {
-    col_append_fstr(pinfo->cinfo, COL_INFO, "Heartbeat %s", type);
+    col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Heartbeat %s", type);
   } else {
-    col_append_str(pinfo->cinfo, COL_INFO, "Encrypted Heartbeat");
+    col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Encrypted Heartbeat");
   }
 
   if (tree) {
