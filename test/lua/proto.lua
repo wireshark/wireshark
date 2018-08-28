@@ -45,7 +45,7 @@ end
 
 -- expected number of runs per type
 -- note ip only runs 3 times because it gets removed
--- and bootp only runs twice because the filter makes it run
+-- and dhcp only runs twice because the filter makes it run
 -- once and then it gets replaced with a different one for the second time
 local taptests = { [FRAME]=4, [OTHER]=48 }
 local function getResults()

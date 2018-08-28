@@ -384,6 +384,10 @@ static gpa_hfinfo_t gpa_hfinfo;
 /* Hash table of abbreviations and IDs */
 static GHashTable *gpa_name_map = NULL;
 static header_field_info *same_name_hfinfo;
+
+/* Hash table protocol aliases. const char * -> const char * */
+static GHashTable *gpa_protocol_aliases = NULL;
+
 /*
  * We're called repeatedly with the same field name when sorting a column.
  * Cache our last gpa_name_map hit for faster lookups.
@@ -469,6 +473,7 @@ proto_init(GSList *register_all_plugin_protocols_list,
 	gpa_hfinfo.allocated_len = 0;
 	gpa_hfinfo.hfi           = NULL;
 	gpa_name_map             = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, save_same_name_hfinfo);
+	gpa_protocol_aliases     = g_hash_table_new(g_str_hash, g_str_equal);
 	deregistered_fields      = g_ptr_array_new();
 	deregistered_data        = g_ptr_array_new();
 
@@ -543,6 +548,10 @@ proto_cleanup_base(void)
 	if (gpa_name_map) {
 		g_hash_table_destroy(gpa_name_map);
 		gpa_name_map = NULL;
+	}
+	if (gpa_protocol_aliases) {
+		g_hash_table_destroy(gpa_protocol_aliases);
+		gpa_protocol_aliases = NULL;
 	}
 	g_free(last_field_name);
 	last_field_name = NULL;
@@ -950,6 +959,37 @@ proto_registrar_get_byname(const char *field_name)
 		last_field_name = g_strdup(field_name);
 		last_hfinfo = hfinfo;
 	}
+	return hfinfo;
+}
+
+header_field_info*
+proto_registrar_get_byalias(const char *alias_name)
+{
+	if (!alias_name) {
+		return NULL;
+	}
+
+	/* Find our aliased protocol. */
+	char *an_copy = g_strdup(alias_name);
+	char *dot = strchr(an_copy, '.');
+	if (dot) {
+		*dot = '\0';
+	}
+	const char *proto_pfx = (const char *) g_hash_table_lookup(gpa_protocol_aliases, an_copy);
+	if (!proto_pfx) {
+		g_free(an_copy);
+		return NULL;
+	}
+
+	/* Construct our aliased field and look it up. */
+	GString *filter_name = g_string_new(proto_pfx);
+	if (dot) {
+		g_string_append_printf(filter_name, ".%s", dot+1);
+	}
+	header_field_info *hfinfo = proto_registrar_get_byname(filter_name->str);
+	g_free(an_copy);
+	g_string_free(filter_name, TRUE);
+
 	return hfinfo;
 }
 
@@ -6806,6 +6846,17 @@ proto_deregister_protocol(const char *short_name)
 	last_field_name = NULL;
 
 	return TRUE;
+}
+
+void
+proto_register_alias(const int proto_id, const char *alias_name)
+{
+	protocol_t *protocol;
+
+	protocol = find_protocol_by_id(proto_id);
+	if (alias_name && protocol) {
+		g_hash_table_insert(gpa_protocol_aliases, (gpointer) alias_name, (gpointer)protocol->filter_name);
+	}
 }
 
 /*

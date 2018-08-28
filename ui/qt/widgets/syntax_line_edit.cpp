@@ -165,7 +165,7 @@ void SyntaxLineEdit::checkDisplayFilter(QString filter)
              * We're being lazy and only printing the first "problem" token.
              * Would it be better to print all of them?
              */
-            syntax_error_message_ = tr("\"%1\" may have unexpected results (see the User's Guide)")
+            syntax_error_message_ = tr("\"%1\" is deprecated or may have unexpected results. See the User's Guide.")
                     .arg((const char *) g_ptr_array_index(depr, 0));
         } else {
             setSyntaxState(SyntaxLineEdit::Valid);

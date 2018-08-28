@@ -2194,6 +2194,13 @@ proto_register_protocol_in_name_only(const char *name, const char *short_name, c
 gboolean
 proto_deregister_protocol(const char *short_name);
 
+/** Register a protocol alias.
+ This is for dissectors whose original name has changed, e.g. BOOTP to DHCP.
+ @param proto_id protocol id returned by proto_register_protocol (0-indexed)
+ @param alias_name alias for the protocol's filter name */
+WS_DLL_PUBLIC void
+proto_register_alias(const int proto_id, const char *alias_name);
+
 /** This type of function can be registered to get called whenever
     a given field was not found but a its prefix is matched;
     It can be used to procrastinate the hf array registration.
@@ -2263,6 +2270,11 @@ WS_DLL_PUBLIC header_field_info* proto_registrar_get_nth(guint hfindex);
  @param field_name the field name to search for
  @return the registered item */
 WS_DLL_PUBLIC header_field_info* proto_registrar_get_byname(const char *field_name);
+
+/** Get the header_field information based upon a field alias.
+ @param alias_name the aliased field name to search for
+ @return the registered item */
+WS_DLL_PUBLIC header_field_info* proto_registrar_get_byalias(const char *alias_name);
 
 /** Get the header_field id based upon a field name.
  @param field_name the field name to search for

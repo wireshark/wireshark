@@ -1393,7 +1393,7 @@ static dissector_handle_t look_for_dissector(const char *protocol_name)
         }
         else
         if (strcmp(protocol_name, "dhcpv4") == 0) {
-            return find_dissector("bootp");
+            return find_dissector("dhcp");
         }
         else
         if (strcmp(protocol_name, "wimax") == 0) {

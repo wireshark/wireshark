@@ -488,8 +488,10 @@ These packets can be found with `count(ip.addr) > 2`.
 
 ==== A Common Mistake
 
-Using the != operator on combined expressions like eth.addr, ip.addr, tcp.port,
-and udp.port will probably not work as expected.
+Using the != operator on combined expressions like eth.addr, ip.addr,
+tcp.port, and udp.port will probably not work as expected. Wireshark
+will show the warning “"!=" is deprecated or may have unexpected
+results” when you use it.
 
 Often people use a filter string to display something like `ip.addr == 1.2.3.4`
 which will display all packets containing the IP address 1.2.3.4.
@@ -511,8 +513,27 @@ exists with a value of 1.2.3.4”, or in other words, “filter out all packets
 for which there are no occurrences of a field named ip.addr with the value
 1.2.3.4”.
 
-[[ChWorkFilterAddExpressionSection]]
+[[ChWorkBuildDisplayFilterTransitional]]
 
+==== Sometimes Fields Change Names
+
+As protocols evolve they sometimes change names or are superseded by
+newer standards. For example, DHCP extends and has largely replaced
+BOOTP and TLS has replaced SSL. If a protocol dissector originally used
+the older names and fields for a protocol the Wireshark development team
+might update it to use the newer names and fields. In such cases they
+will add an alias from the old protocol name to the new one in order to
+make the transition easier.
+
+For example, the DHCP dissector was originally developed for the BOOTP
+protocol but as of Wireshark 3.0 all of the “bootp” display filter
+fields have been renamed to their “dhcp” equivalents. You can still use
+the old filter names for the time being, e.g. “bootp.type” is equivalent
+to “dhcp.type” but Wireshark will show the warning “"bootp.type" is
+deprecated or may have unexpected results” when you use it. Support for
+the deprecated fields may be removed in the future.
+
+[[ChWorkFilterAddExpressionSection]]
 
 === The “Filter Expression” dialog box
 

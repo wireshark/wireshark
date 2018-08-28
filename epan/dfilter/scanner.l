@@ -370,18 +370,23 @@ static void mark_lval_deprecated(const char *s);
 		/* Yes, it's a field name */
 		return set_lval(TOKEN_FIELD, hfinfo);
 	}
-	else {
-		/* Is it a function name? */
-		df_func_def = df_func_lookup(yytext);
-		if (df_func_def) {
-		    /* yes, it's a dfilter function */
-		    return set_lval(TOKEN_FUNCTION, df_func_def);
-		}
-		else {
-		    /* No, so treat it as an unparsed string */
-		    return set_lval(TOKEN_UNPARSED, yytext);
-		}
+
+	hfinfo = proto_registrar_get_byalias(yytext);
+	if (hfinfo) {
+		/* Yes, it's an aliased field name */
+		/* XXX Do we need to make a copy of yytext? dfilter_compile
+		 * will dup this later on. */
+		mark_lval_deprecated(yytext);
+		return set_lval(TOKEN_FIELD, hfinfo);
 	}
+
+	df_func_def = df_func_lookup(yytext);
+	if (df_func_def) {
+		/* Yes, it's a dfilter function */
+		return set_lval(TOKEN_FUNCTION, df_func_def);
+	}
+	/* No match, so treat it as an unparsed string */
+	return set_lval(TOKEN_UNPARSED, yytext);
 }
 
 . {

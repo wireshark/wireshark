@@ -45,6 +45,9 @@ since version 2.6.0:
 * The TCP dissector gained a new “Reassemble out-of-order segments” preference
   to fix dissection and decryption issues in case TCP segments are received
   out-of-order. See the User’s Guide, chapter _TCP Reassembly_ for details.
+* The BOOTP dissector has been renamed to DHCP. With the exception of
+  “bootp.dhcp”, the old “bootp.*” display filter fields are still supported
+  but may be removed in a future release.
 
 === Removed Features and Support
 

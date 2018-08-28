@@ -8,7 +8,7 @@
 # While doing so might find some bugs, but it's likely to be the problem for too big corpus in oss-fuzzer
 # (see: https://github.com/google/oss-fuzz/issues/1087).
 # + udplite - it's sharing most of code with UDP.
-DISSECTOR_LIST='"ip", "udp", "udplite", "ospf", "bgp", "bootp", "json"'
+DISSECTOR_LIST='"ip", "udp", "udplite", "ospf", "bgp", "dhcp", "json"'
 
 FUZZ_DISSECTORS="ip"
 
@@ -18,7 +18,7 @@ FUZZ_TCP_PORT_DISSECTORS="bgp"
 # FUZZ_TCP_PORT_DISSECTORS="$FUZZ_TCP_PORT_DISSECTORS bzr"   # disabled, cause of known problem.
 # FUZZ_TCP_PORT_DISSECTORS="$FUZZ_TCP_PORT_DISSECTORS echo"  # disabled, too simple.
 
-FUZZ_UDP_PORT_DISSECTORS="dns bootp"
+FUZZ_UDP_PORT_DISSECTORS="dns dhcp"
 # FUZZ_UDP_PORT_DISSECTORS="$FUZZ_UDP_PORT_DISSECTORS bfd"   # disabled, too simple.
 
 FUZZ_MEDIA_TYPE_DISSECTORS="json"
