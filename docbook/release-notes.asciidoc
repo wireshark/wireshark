@@ -19,13 +19,34 @@ The following vulnerabilities have been fixed:
 
 * wssalink:2018-44[]
 +
-.
-wsbuglink:xxx[].
+Bluetooth AVDTP dissector crash.
+wsbuglink:14884[].
 // cveidlink:2018-xxx[].
-// Fixed in master: xxx
-// Fixed in master-2.6: xxx
-// Fixed in master-2.4: xxx
-// Fixed in master-2.2: xxx
+// Fixed in master: c48d6a6d60
+// Fixed in master-2.6: 24200230a4
+// Fixed in master-2.4: 590b9d95fc
+// Fixed in master-2.2: c88cc3da31
+
+* wssalink:2018-45[]
++
+Bluetooth Attribute Protocol dissector crash.
+wsbuglink:14994[].
+// cveidlink:2018-xxx[].
+// Fixed in master: f98fbce64c
+// Fixed in master-2.6: 10db757c35
+// Fixed in master-2.4: 4be24806b2
+// Fixed in master-2.2: e5f6e70687
+
+* wssalink:2018-46[]
++
+Radiotap dissector crash.
+wsbuglink:15022[].
+// cveidlink:2018-xxx[].
+// Fixed in master: 739eebd3d2
+// Fixed in master-2.6: 1576ae10e7
+// Fixed in master-2.4: bbf46eb46a
+// Fixed in master-2.2: af9fc0e15e
+
 
 The following bugs have been fixed:
 
@@ -33,8 +54,31 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark convinced you to switch seats on the plane while neglecting to tell you that its seat was noticeably moist.
-// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.6.3rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do ./tools/gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.6.4rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do ./tools/gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
+* Wireshark Hangs on startup initializing external capture plugins. wsbuglink:14657[].
+
+* Qt: SCTP Analyse Association Dialog: Segmentation fault when clicking twice the Filter Association button. wsbuglink:14970[].
+
+* Incorrect presentation of dissected data item (NETMASK) in ISAKMP dissector. wsbuglink:14987[].
+
+* Decode NFAPI: CONFIG.request  Error. wsbuglink:14988[].
+
+* udpdump frame too long error. wsbuglink:14989[].
+
+* ISDN - LAPD dissector broken since version 2.5.0. wsbuglink:15018[].
+
+* ASTERIX Category 062 / 135 Altitude has wrong value. wsbuglink:15030[].
+
+* Wireshark cannot decrypt SSL/TLS session if it was proxied over HTTP tunnel. wsbuglink:15042[].
+
+* TLS records in a HTTP tunnel are displayed as "Encrypted Handshake Message". wsbuglink:15043[].
+
+* BTATT Dissector: Temperature Measurement: Celsius and Fahrenheit swapped. wsbuglink:15058[].
+
+* Diameter AVP User Location Info, Mobile Network Code decoded not correctly. wsbuglink:15068[].
+
+* Heartbeat message "Info" displayed without comma separator. wsbuglink:15079[].
 
 === New and Updated Features
 
@@ -53,6 +97,28 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
+ASTERIX
+Bluetooth
+Bluetooth AVDTP
+Bluetooth ATT
+E.212
+DHCP
+DTLS
+FP
+GSM A RR
+HTTP
+HTTP2
+IEEE 802.11
+ISAKMP
+ISDN
+K12
+NFAPI
+Nordic BLE
+PFCP
+Radiotap
+SSL
+Steam IHS Discovery
+TLS 1.3
 --
 
 === New and Updated Capture File Support
@@ -61,14 +127,16 @@ There are no new protocols in this release.
 // Add one file type per line between the -- delimiters.
 [commaize]
 --
+pcapng
 --
 
 === New and Updated Capture Interfaces support
 
-There is no new or updated capture file support in this release.
-// [commaize]
-// --
-// --
+//There is no new or updated capture file support in this release.
+[commaize]
+--
+ciscodump, udpdump
+--
 
 //=== Major API Changes
 
