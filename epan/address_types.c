@@ -480,6 +480,33 @@ static int ax25_len(void)
 }
 
 /******************************************************************************
+ * AT_VINES
+ ******************************************************************************/
+
+static int vines_addr_to_str(const address* addr, gchar *buf, int buf_len _U_)
+{
+	const guint8 *addr_data = (const guint8 *)addr->data;
+	gchar *bufp = buf;
+
+	bufp = dword_to_hex(bufp, pntoh32(&addr_data[0])); /* 8 bytes */
+	*bufp++ = '.'; /* 1 byte */
+	bufp = word_to_hex(bufp, pntoh16(&addr_data[4])); /* 4 bytes */
+	*bufp++ = '\0'; /* NULL terminate */
+
+	return (int)(bufp - buf);
+}
+
+static int vines_addr_str_len(const address* addr _U_)
+{
+	return 14;
+}
+
+static int vines_len(void)
+{
+	return VINES_ADDR_LEN;
+}
+
+/******************************************************************************
  * END OF PROVIDED ADDRESS TYPES
  ******************************************************************************/
 
@@ -630,6 +657,18 @@ void address_types_initialize(void)
         NULL,              /* addr_name_res_str */
         NULL,              /* addr_name_res_len */
     };
+    static address_type_t vines_address = {
+        AT_VINES,          /* addr_type */
+        "AT_VINES",        /* name */
+        "Banyan Vines Address",  /* pretty_name */
+        vines_addr_to_str, /* addr_to_str */
+        vines_addr_str_len,/* addr_str_len */
+        NULL,             /* addr_to_byte */
+        NULL,              /* addr_col_filter */
+        vines_len,         /* addr_fixed_len */
+        NULL,              /* addr_name_res_str */
+        NULL,              /* addr_name_res_len */
+    };
 
     num_dissector_addr_type = 0;
 
@@ -648,6 +687,7 @@ void address_types_initialize(void)
     address_type_register(AT_EUI64, &eui64_address );
     address_type_register(AT_IB, &ib_address );
     address_type_register(AT_AX25, &ax25_address );
+    address_type_register(AT_VINES, &vines_address );
 }
 
 /* Given an address type id, return an address_type_t* */
