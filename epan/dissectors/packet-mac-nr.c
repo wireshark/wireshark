@@ -17,8 +17,10 @@
 #include <epan/expert.h>
 #include <epan/proto_data.h>
 #include <epan/tfs.h>
+#include <epan/uat.h>
 
 #include "packet-mac-nr.h"
+#include "packet-rlc-nr.h"
 
 void proto_register_mac_nr(void);
 void proto_reg_handoff_mac_nr(void);
@@ -29,6 +31,8 @@ void proto_reg_handoff_mac_nr(void);
 
 /* Initialize the protocol and registered fields. */
 int proto_mac_nr = -1;
+
+static dissector_handle_t rlc_nr_handle;
 
 /* Decoding context */
 static int hf_mac_nr_context = -1;
@@ -321,8 +325,104 @@ static expert_field ei_mac_nr_ul_sch_control_subheader_before_data_subheader = E
 
 static dissector_handle_t nr_rrc_bcch_bch_handle;
 
+
+/**************************************************************************/
+/* Preferences state                                                      */
+/**************************************************************************/
+
 /* By default try to decode transparent data (BCCH, PCCH and CCCH) data using NR RRC dissector */
 static gboolean global_mac_nr_attempt_rrc_decode = TRUE;
+
+/* Which layer info to show in the info column */
+enum layer_to_show {
+    ShowPHYLayer, ShowMACLayer, ShowRLCLayer
+};
+
+/* Which layer's details to show in Info column */
+static gint     global_mac_nr_layer_to_show = (gint)ShowRLCLayer;
+
+
+/***********************************************************************/
+/* How to dissect lcid 3-32 (presume drb logical channels)             */
+
+static const value_string drb_lcid_vals[] = {
+    { 3,  "LCID 3"},
+    { 4,  "LCID 4"},
+    { 5,  "LCID 5"},
+    { 6,  "LCID 6"},
+    { 7,  "LCID 7"},
+    { 8,  "LCID 8"},
+    { 9,  "LCID 9"},
+    { 10, "LCID 10"},
+    { 11, "LCID 11"},
+    { 12, "LCID 12"},
+    { 13, "LCID 13"},
+    { 14, "LCID 14"},
+    { 15, "LCID 15"},
+    { 16, "LCID 16"},
+    { 17, "LCID 17"},
+    { 18, "LCID 18"},
+    { 19, "LCID 19"},
+    { 20, "LCID 20"},
+    { 21, "LCID 21"},
+    { 22, "LCID 22"},
+    { 23, "LCID 23"},
+    { 24, "LCID 24"},
+    { 25, "LCID 25"},
+    { 26, "LCID 26"},
+    { 27, "LCID 27"},
+    { 28, "LCID 28"},
+    { 29, "LCID 29"},
+    { 30, "LCID 30"},
+    { 31, "LCID 31"},
+    { 32, "LCID 32"},
+    { 0, NULL }
+};
+
+/* N.B. for now, only doing static config, and assume channel has same SN length in both directions */
+typedef enum rlc_bearer_type_t {
+    rlcRaw,
+    rlcTM,
+    rlcUM6,
+    rlcUM12,
+    rlcAM12,
+    rlcAM18
+} rlc_bearer_type_t;
+
+static const value_string rlc_bearer_type_vals[] = {
+    { rlcTM                , "TM"},
+    { rlcUM6               , "UM, SN Len=6"},
+    { rlcUM12              , "UM, SN Len=12"},
+    { rlcAM12              , "AM, SN Len=12"},
+    { rlcAM18              , "AM, SN Len=18"},
+    { 0, NULL }
+};
+
+
+/* Mapping type */
+typedef struct lcid_drb_mapping_t {
+    guint8            lcid;
+    guint8            drbid;
+    rlc_bearer_type_t bearer_type;
+} lcid_drb_mapping_t;
+
+/* Mapping entity */
+static lcid_drb_mapping_t *lcid_drb_mappings = NULL;
+static guint num_lcid_drb_mappings = 0;
+
+UAT_VS_DEF(lcid_drb_mappings, lcid, lcid_drb_mapping_t, guint8, 3, "LCID 3")
+UAT_DEC_CB_DEF(lcid_drb_mappings, drbid, lcid_drb_mapping_t)
+UAT_VS_DEF(lcid_drb_mappings, bearer_type, lcid_drb_mapping_t, rlc_bearer_type_t, rlcAM12, "AM")
+
+/* UAT object */
+static uat_t* lcid_drb_mappings_uat;
+
+/* When showing RLC info, count PDUs so can append info column properly */
+static guint8   s_number_of_rlc_pdus_shown = 0;
+
+
+extern int proto_rlc_nr;
+
 
 /* Constants and value strings */
 
@@ -1236,6 +1336,119 @@ static proto_item* dissect_me_phr_ph(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 }
 
 
+static void set_rlc_seqnum_length(rlc_bearer_type_t rlc_bearer_type,
+                                  guint8 direction _U_,
+                                  guint8 *seqnum_length)
+{
+    switch (rlc_bearer_type) {
+        case rlcUM6:
+            *seqnum_length = 6;
+            break;
+        case rlcUM12:
+            *seqnum_length = 12;
+            break;
+
+        case rlcAM12:
+            *seqnum_length = 12;
+            break;
+        case rlcAM18:
+            *seqnum_length = 18;
+            break;
+
+        default:
+            break;
+    }
+}
+
+
+
+/* Lookup channel details for lcid */
+static void lookup_rlc_channel_from_lcid(guint16 ueid _U_,
+                                         guint8 lcid,
+                                         guint8 direction,
+                                         rlc_bearer_type_t *rlc_bearer_type,
+                                         guint8 *seqnum_length,
+                                         gint *drb_id)
+{
+    /* Zero params (in case no match is found) */
+    *rlc_bearer_type = rlcRaw;
+    *seqnum_length    = 0;
+    *drb_id           = 0;
+
+    /* Look up in static (UAT) table */
+    guint m;
+    for (m=0; m < num_lcid_drb_mappings; m++) {
+        if (lcid == lcid_drb_mappings[m].lcid) {
+
+            *rlc_bearer_type = lcid_drb_mappings[m].bearer_type;
+
+            /* Set seqnum_length and rlc_ext_li_field */
+            set_rlc_seqnum_length(*rlc_bearer_type, direction, seqnum_length);
+
+            /* Set drb_id */
+            *drb_id = lcid_drb_mappings[m].drbid;
+            break;
+        }
+    }
+}
+
+
+/* Helper function to call RLC dissector for SDUs (where channel params are known) */
+static void call_rlc_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                               proto_item *pdu_ti,
+                               int offset, guint16 data_length,
+                               guint8 mode, guint8 direction, guint16 ueid,
+                               guint8 bearerType, guint8 bearerId,
+                               guint8 sequenceNumberLength,
+                               guint8 priority _U_)
+{
+    tvbuff_t            *rb_tvb = tvb_new_subset_length(tvb, offset, data_length);
+    struct rlc_nr_info *p_rlc_nr_info;
+
+    /* Resuse or create RLC info */
+    p_rlc_nr_info = (rlc_nr_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rlc_nr, 0);
+    if (p_rlc_nr_info == NULL) {
+        p_rlc_nr_info = wmem_new0(wmem_file_scope(), struct rlc_nr_info);
+    }
+
+    /* Fill in details for channel */
+    p_rlc_nr_info->rlcMode = mode;
+    p_rlc_nr_info->direction = direction;
+    /* p_rlc_nr_info->priority = priority; */
+    p_rlc_nr_info->ueid = ueid;
+    p_rlc_nr_info->bearerType = bearerType;
+    p_rlc_nr_info->bearerId = bearerId;
+    p_rlc_nr_info->pduLength = data_length;
+    p_rlc_nr_info->sequenceNumberLength = sequenceNumberLength;
+
+    /* Store info in packet */
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_rlc_nr, 0, p_rlc_nr_info);
+
+    if (global_mac_nr_layer_to_show != ShowRLCLayer) {
+        /* Don't want these columns replaced */
+        col_set_writable(pinfo->cinfo, -1, FALSE);
+    }
+    else {
+        /* Clear info column before first RLC PDU */
+        if (s_number_of_rlc_pdus_shown == 0) {
+            col_clear(pinfo->cinfo, COL_INFO);
+        }
+        else {
+            /* Add a separator and protect column contents here */
+            write_pdu_label_and_info_literal(pdu_ti, NULL, pinfo, "   ||   ");
+            col_set_fence(pinfo->cinfo, COL_INFO);
+        }
+    }
+    s_number_of_rlc_pdus_shown++;
+
+    /* Call it (catch exceptions so that stats will be updated) */
+    call_with_catch_all(rlc_nr_handle, rb_tvb, pinfo, tree);
+
+    /* Let columns be written to again */
+    col_set_writable(pinfo->cinfo, -1, TRUE);
+}
+
+
 /* UL-SCH and DL-SCH formats have much in common, so handle them in a common
    function */
 static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
@@ -1297,8 +1510,9 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
             /* Add SDU, for now just as hex data */
             if (p_mac_nr_info->direction == DIRECTION_UPLINK) {
-                if (lcid == CCCH_48_BITS_LCID)
+                if (lcid == CCCH_48_BITS_LCID) {
                     SDU_length = 6;
+                }
                 proto_tree_add_item(subheader_tree, hf_mac_nr_ulsch_sdu,
                                     tvb, offset, SDU_length, ENC_NA);
             }
@@ -1308,7 +1522,53 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             }
             write_pdu_label_and_info(pdu_ti, subheader_ti, pinfo,
                                      "(LCID:%u %u bytes) ", lcid, SDU_length);
+
+            /* Call RLC if configured to do so for this SDU */
+            if ((lcid >= 3) && (lcid <= 32)) {
+                /* Look for mapping for this LCID to drb channel set by UAT table */
+                rlc_bearer_type_t rlc_bearer_type;
+                guint8 seqnum_length;
+                gint drb_id;
+
+                // TODO: priority not set.
+                guint8 priority = 0;
+                lookup_rlc_channel_from_lcid(p_mac_nr_info->ueid,
+                                             lcid,
+                                             p_mac_nr_info->direction,
+                                             &rlc_bearer_type,
+                                             &seqnum_length,
+                                             &drb_id);
+
+                /* Dissect according to channel type */
+                switch (rlc_bearer_type) {
+                    case rlcUM6:
+                    case rlcUM12:
+                        call_rlc_dissector(tvb, pinfo, tree, pdu_ti, offset, SDU_length,
+                                           RLC_UM_MODE, p_mac_nr_info->direction, p_mac_nr_info->ueid,
+                                           BEARER_TYPE_DRB, drb_id, seqnum_length,
+                                           priority);
+                        break;
+                    case rlcAM12:
+                    case rlcAM18:
+                        call_rlc_dissector(tvb, pinfo, tree, pdu_ti, offset, SDU_length,
+                                           RLC_AM_MODE, p_mac_nr_info->direction, p_mac_nr_info->ueid,
+                                           BEARER_TYPE_DRB, drb_id, seqnum_length,
+                                           priority);
+                        break;
+                    case rlcTM:
+                        call_rlc_dissector(tvb, pinfo, tree, pdu_ti, offset, SDU_length,
+                                           RLC_TM_MODE, p_mac_nr_info->direction, p_mac_nr_info->ueid,
+                                           BEARER_TYPE_DRB, drb_id, 0,
+                                           priority);
+                        break;
+                    case rlcRaw:
+                        /* Nothing to do! */
+                        break;
+                }
+            }
+
             offset += SDU_length;
+
 
             if (p_mac_nr_info->direction == DIRECTION_UPLINK) {
                 if (ces_seen) {
@@ -2217,6 +2477,21 @@ static gboolean dissect_mac_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
     dissect_mac_nr(mac_tvb, pinfo, tree, NULL);
 
     return TRUE;
+}
+
+
+/* Callback used as part of configuring a channel mapping using UAT */
+static void* lcid_drb_mapping_copy_cb(void* dest, const void* orig, size_t len _U_)
+{
+    const lcid_drb_mapping_t *o = (const lcid_drb_mapping_t *)orig;
+    lcid_drb_mapping_t       *d = (lcid_drb_mapping_t *)dest;
+
+    /* Copy all items over */
+    d->lcid  = o->lcid;
+    d->drbid = o->drbid;
+    d->bearer_type = o->bearer_type;
+
+    return d;
 }
 
 /* Function to be called from outside this module (e.g. in a plugin) to get per-packet data */
@@ -3860,6 +4135,13 @@ void proto_register_mac_nr(void)
     module_t *mac_nr_module;
     expert_module_t* expert_mac_nr;
 
+    static uat_field_t lcid_drb_mapping_flds[] = {
+        UAT_FLD_VS(lcid_drb_mappings, lcid, "LCID (3-32)", drb_lcid_vals, "The MAC LCID"),
+        UAT_FLD_DEC(lcid_drb_mappings, drbid,"DRBID id (1-32)", "Identifier of logical data channel"),
+        UAT_FLD_VS(lcid_drb_mappings, bearer_type, "RLC Channel Type", rlc_bearer_type_vals, "The MAC LCID"),
+        UAT_END_FIELDS
+    };
+
     /* Register protocol. */
     proto_mac_nr = proto_register_protocol("MAC-NR", "MAC-NR", "mac-nr");
     proto_register_field_array(proto_mac_nr, hf, array_length(hf));
@@ -3878,6 +4160,26 @@ void proto_register_mac_nr(void)
         "Attempt to decode BCCH, PCCH and CCCH data using NR RRC dissector",
         &global_mac_nr_attempt_rrc_decode);
 
+    lcid_drb_mappings_uat = uat_new("Static LCID -> drb Table",
+                                    sizeof(lcid_drb_mapping_t),
+                                    "drb_bearerconfig",
+                                    TRUE,
+                                    &lcid_drb_mappings,
+                                    &num_lcid_drb_mappings,
+                                    UAT_AFFECTS_DISSECTION, /* affects dissection of packets, but not set of named fields */
+                                    "",  /* TODO: is this ref to help manual? */
+                                    lcid_drb_mapping_copy_cb,
+                                    NULL,
+                                    NULL,
+                                    NULL,
+                                    NULL,
+                                    lcid_drb_mapping_flds);
+
+    prefs_register_uat_preference(mac_nr_module,
+                                  "drb_table",
+                                  "LCID -> DRB Mappings Table",
+                                  "A table that maps from configurable lcids -> RLC bearer configs",
+                                  lcid_drb_mappings_uat);
 }
 
 void proto_reg_handoff_mac_nr(void)
@@ -3885,6 +4187,7 @@ void proto_reg_handoff_mac_nr(void)
     /* Add as a heuristic UDP dissector */
     heur_dissector_add("udp", dissect_mac_nr_heur, "MAC-NR over UDP", "mac_nr_udp", proto_mac_nr, HEURISTIC_DISABLE);
 
+    rlc_nr_handle = find_dissector_add_dependency("rlc-nr", proto_mac_nr);
     nr_rrc_bcch_bch_handle = find_dissector_add_dependency("nr-rrc.bcch.bch", proto_mac_nr);
 }
 
