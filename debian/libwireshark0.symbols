@@ -1296,8 +1296,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  reassembly_table_init@Base 1.9.1
  reassembly_table_register@Base 2.3.0
  register_all_plugin_tap_listeners@Base 2.5.0
- register_all_protocol_handoffs@Base 1.9.1
- register_all_protocols@Base 1.9.1
  register_ber_oid_dissector@Base 2.1.0
  register_ber_oid_dissector_handle@Base 1.9.1
  register_ber_oid_syntax@Base 1.9.1
@@ -1307,7 +1305,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  register_cleanup_routine@Base 1.99.8
  register_conversation_filter@Base 2.0.0
  register_conversation_table@Base 2.5.0
- register_count@Base 1.9.1
  register_custom_dissector_table@Base 1.99.8
  register_custom_dissector_table@Base 1.99.8
  register_decode_as@Base 1.12.0~rc1

@@ -49,7 +49,6 @@
 #include "ui/filter_files.h"
 #include "ui/tap_export_pdu.h"
 #include "ui/failure_message.h"
-#include "epan/register.h"
 #include <epan/epan_dissect.h>
 #include <epan/tap.h>
 #include <epan/uat-int.h>
@@ -168,8 +167,7 @@ main(int argc, char *argv[])
      "-G" flag, as the "-G" flag dumps information registered by the
      dissectors, and we must do it before we read the preferences, in
      case any dissectors register preferences. */
-  if (!epan_init(register_all_protocols, register_all_protocol_handoffs, NULL,
-                 NULL)) {
+  if (!epan_init(NULL, NULL)) {
     ret = EPAN_INIT_FAIL;
     goto clean_exit;
   }

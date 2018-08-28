@@ -907,8 +907,9 @@ WS_DLL_PUBLIC void proto_register_plugin(const proto_plugin *plugin);
 #endif
 
 /** Sets up memory used by proto routines. Called at program startup */
-void proto_init(GSList *register_all_protocols_list, GSList *register_all_handoffs_list,
-		       register_cb cb, void *client_data);
+void proto_init(GSList *register_all_plugin_protocols_list,
+			GSList *register_all_plugin_handoffs_list,
+			register_cb cb, void *client_data);
 
 
 /** Frees memory used by proto routines. Called at program shutdown */

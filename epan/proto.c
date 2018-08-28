@@ -42,6 +42,7 @@
 #include "expert.h"
 #include "show_exception.h"
 #include "in_cksum.h"
+#include "register-int.h"
 
 #include <wsutil/ws_printf.h> /* ws_debug_printf/ws_g_warning */
 #include <wsutil/crash_info.h>
@@ -448,8 +449,8 @@ call_plugin_register_handoff(gpointer data, gpointer user_data _U_)
 
 /* initialize data structures and register protocols and fields */
 void
-proto_init(GSList *register_all_protocols_list,
-	   GSList *register_all_handoffs_list,
+proto_init(GSList *register_all_plugin_protocols_list,
+	   GSList *register_all_plugin_handoffs_list,
 	   register_cb cb,
 	   gpointer client_data)
 {
@@ -486,13 +487,15 @@ proto_init(GSList *register_all_protocols_list,
 	   dissector tables, and dissectors to be called through a
 	   handle, and do whatever one-time initialization it needs to
 	   do. */
-	for (GSList *l = register_all_protocols_list; l != NULL; l = l->next) {
+	register_all_protocols(cb, client_data);
+
+	/* Now call the registration routines for all epan plugins. */
+	for (GSList *l = register_all_plugin_protocols_list; l != NULL; l = l->next) {
 		((void (*)(register_cb, gpointer))l->data)(cb, client_data);
 	}
 
 #ifdef HAVE_PLUGINS
-	/* Now call the registration routines for all disssector
-	   plugins. */
+	/* Now call the registration routines for all dissector plugins. */
 	if (cb)
 		(*cb)(RA_PLUGIN_REGISTER, NULL, client_data);
 	g_slist_foreach(dissector_plugins, call_plugin_register_protoinfo, NULL);
@@ -502,12 +505,15 @@ proto_init(GSList *register_all_protocols_list,
 	   dissectors; those routines register the dissector in other
 	   dissectors' handoff tables, and fetch any dissector handles
 	   they need. */
-	for (GSList *l = register_all_handoffs_list; l != NULL; l = l->next) {
+	register_all_protocol_handoffs(cb, client_data);
+
+	/* Now do the same with epan plugins. */
+	for (GSList *l = register_all_plugin_handoffs_list; l != NULL; l = l->next) {
 		((void (*)(register_cb, gpointer))l->data)(cb, client_data);
 	}
 
 #ifdef HAVE_PLUGINS
-	/* Now do the same with plugins. */
+	/* Now do the same with dissector plugins. */
 	if (cb)
 		(*cb)(RA_PLUGIN_HANDOFF, NULL, client_data);
 	g_slist_foreach(dissector_plugins, call_plugin_register_handoff, NULL);

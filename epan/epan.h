@@ -19,7 +19,7 @@ extern "C" {
 #include <epan/prefs.h>
 #include <epan/frame_data.h>
 #include <wsutil/plugins.h>
-#include "register.h"
+#include <epan/register.h>
 #include "ws_symbol_export.h"
 
 typedef struct epan_dissect epan_dissect_t;
@@ -100,9 +100,7 @@ Ref2 for further edits - delete when done
  * Returns TRUE on success, FALSE on failure.
  */
 WS_DLL_PUBLIC
-gboolean epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_data),
-	           void (*register_all_handoffs_func)(register_cb cb, gpointer client_data),
-	           register_cb cb, void *client_data);
+gboolean epan_init(register_cb cb, void *client_data);
 
 /**
  * Load all settings, from the current profile, that affect epan.

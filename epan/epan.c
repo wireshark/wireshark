@@ -88,8 +88,8 @@
 #include <signal.h>
 #endif
 
-static GSList *epan_register_all_procotols = NULL;
-static GSList *epan_register_all_handoffs = NULL;
+static GSList *epan_plugin_register_all_procotols = NULL;
+static GSList *epan_plugin_register_all_handoffs = NULL;
 
 static wmem_allocator_t *pinfo_pool_cache = NULL;
 
@@ -169,17 +169,14 @@ void epan_register_plugin(const epan_plugin *plug)
 {
 	epan_plugins = g_slist_prepend(epan_plugins, (epan_plugin *)plug);
 	if (plug->register_all_protocols)
-		epan_register_all_procotols = g_slist_prepend(epan_register_all_procotols, plug->register_all_protocols);
+		epan_plugin_register_all_procotols = g_slist_prepend(epan_plugin_register_all_procotols, plug->register_all_protocols);
 	if (plug->register_all_handoffs)
-		epan_register_all_handoffs = g_slist_prepend(epan_register_all_handoffs, plug->register_all_handoffs);
+		epan_plugin_register_all_handoffs = g_slist_prepend(epan_plugin_register_all_handoffs, plug->register_all_handoffs);
 }
 #endif
 
 gboolean
-epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_data),
-	  void (*register_all_handoffs_func)(register_cb cb, gpointer client_data),
-	  register_cb cb,
-	  gpointer client_data)
+epan_init(register_cb cb, gpointer client_data)
 {
 	volatile gboolean status = TRUE;
 
@@ -236,9 +233,7 @@ epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_da
 #ifdef HAVE_PLUGINS
 		g_slist_foreach(epan_plugins, epan_plugin_init, NULL);
 #endif
-		epan_register_all_procotols = g_slist_prepend(epan_register_all_procotols, register_all_protocols_func);
-		epan_register_all_handoffs = g_slist_prepend(epan_register_all_handoffs, register_all_handoffs_func);
-		proto_init(epan_register_all_procotols, epan_register_all_handoffs, cb, client_data);
+		proto_init(epan_plugin_register_all_procotols, epan_plugin_register_all_handoffs, cb, client_data);
 		packet_cache_proto_handles();
 		dfilter_init();
 		final_registration_all_protocols();
@@ -301,10 +296,10 @@ epan_cleanup(void)
 	g_slist_free(epan_plugins);
 	epan_plugins = NULL;
 #endif
-	g_slist_free(epan_register_all_procotols);
-	epan_register_all_procotols = NULL;
-	g_slist_free(epan_register_all_handoffs);
-	epan_register_all_handoffs = NULL;
+	g_slist_free(epan_plugin_register_all_procotols);
+	epan_plugin_register_all_procotols = NULL;
+	g_slist_free(epan_plugin_register_all_handoffs);
+	epan_plugin_register_all_handoffs = NULL;
 
 	dfilter_cleanup();
 	decode_clear_all();

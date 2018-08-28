@@ -15,7 +15,6 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#include "epan/register.h"
 #include "ws_symbol_export.h"
 
 WS_DLL_PUBLIC int wslua_count_plugins(void);

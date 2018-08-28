@@ -269,7 +269,7 @@ fuzz_init(int argc _U_, char **argv)
 	   "-G" flag, as the "-G" flag dumps information registered by the
 	   dissectors, and we must do it before we read the preferences, in
 	   case any dissectors register preferences. */
-	if (!epan_init(register_all_protocols, register_all_protocol_handoffs, NULL, NULL))
+	if (!epan_init(NULL, NULL))
 	{
 		ret = EPAN_INIT_FAIL;
 		goto clean_exit;

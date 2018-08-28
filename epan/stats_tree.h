@@ -16,7 +16,6 @@
 #include <epan/packet_info.h>
 #include <epan/tap.h>
 #include <epan/stat_groups.h>
-#include "register.h"
 #include "ws_symbol_export.h"
 
 #ifdef __cplusplus

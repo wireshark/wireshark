@@ -33,7 +33,6 @@
 #include <wiretap/wtap.h>
 
 #include "ui/util.h"
-#include "epan/register.h"
 
 static void failure_warning_message(const char *msg_format, va_list ap);
 static void open_failure_message(const char *filename, int err,
@@ -78,8 +77,7 @@ main(int argc, char **argv)
 	   "-g" flag, as the "-g" flag dumps a list of fields registered
 	   by the dissectors, and we must do it before we read the preferences,
 	   in case any dissectors register preferences. */
-	if (!epan_init(register_all_protocols, register_all_protocol_handoffs,
-	    NULL, NULL))
+	if (!epan_init(NULL, NULL))
 		return 2;
 
 	/* set the c-language locale to the native environment. */
