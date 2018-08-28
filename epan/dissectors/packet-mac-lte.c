@@ -3512,7 +3512,7 @@ static void call_rlc_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         p_rlc_lte_info = wmem_new0(wmem_file_scope(), struct rlc_lte_info);
     }
 
-    /* Fill in struct details for srb channels */
+    /* Fill in struct details for channel */
     p_rlc_lte_info->rlcMode = mode;
     p_rlc_lte_info->direction = direction;
     p_rlc_lte_info->priority = priority;
@@ -5956,9 +5956,10 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             }
         }
 
-        else if ((lcids[n] >= 2) && (lcids[n] <= 10)) {
+        else if ((lcids[n] >= 3) && (lcids[n] <= 10)) {
 
-            /* Look for mapping for this LCID to drb channel set by UAT table */
+            /* Look for mapping for this LCID to drb channel set by UAT table or through
+               configuration protocol. */
             rlc_channel_type_t rlc_channel_type;
             guint8 seqnum_length;
             gint drb_id;
