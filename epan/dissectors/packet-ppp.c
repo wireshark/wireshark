@@ -6017,8 +6017,6 @@ dissect_ppp_raw_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
  * it directly for USB captures, some captures like the following will not be
  * dissected correctly:
  * https://wiki.wireshark.org/SampleCaptures#head-886e340c31ca977f321c921f81cbec4c21bb7738
- *
- * NOTE: I don't know if these heuristics are sufficient.  Time will tell ...
  */
 static gboolean
 dissect_ppp_usb( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_ )
@@ -6058,7 +6056,8 @@ dissect_ppp_usb( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     } else if (tvb_get_guint8(tvb, 0) == 0x7e) {
         /* Well, let's guess that since the 1st byte is 0x7e that it really is
          * a PPP frame, and the address and control bytes are compressed (NULL)
-         * per http://tools.ietf.org/html/rfc1662, section 3.2. */
+         * per http://tools.ietf.org/html/rfc1662, section 3.2, which means
+         * that they're omitted from the packet. */
         next_tvb = tvb_new_subset_remaining(tvb, 1);
         dissect_ppp_hdlc_common(next_tvb, pinfo, tree);
     } else
@@ -6099,7 +6098,14 @@ proto_reg_handoff_ppp_raw_hdlc(void)
     dissector_add_uint("gre.proto", ETHERTYPE_CDMA2000_A10_UBS, ppp_raw_hdlc_handle);
     dissector_add_uint("gre.proto", ETHERTYPE_3GPP2, ppp_raw_hdlc_handle);
 
-    heur_dissector_add("usb.bulk", dissect_ppp_usb, "PPP USB bulk endpoint", "ppp_usb_bulk", proto_ppp, HEURISTIC_ENABLE);
+    /*
+     * The heuristic checks are rather weak. Each payload starting with
+     * 0x7e is accepted as a PPP over USB frame, this creates a lot of
+     * false positives. We disable the heuristic subdissector by
+     * default.
+     */
+    heur_dissector_add("usb.bulk", dissect_ppp_usb,
+            "PPP USB bulk endpoint", "ppp_usb_bulk", proto_ppp, HEURISTIC_DISABLE);
 
     ppp_hdlc_cap_handle = find_capture_dissector("ppp_hdlc");
     capture_dissector_add_uint("wtap_encap", WTAP_ENCAP_PPP, ppp_hdlc_cap_handle);
