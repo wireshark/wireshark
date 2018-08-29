@@ -21,7 +21,7 @@ The following vulnerabilities have been fixed:
 +
 Bluetooth AVDTP dissector crash.
 wsbuglink:14884[].
-// cveidlink:2018-xxx[].
+cveidlink:2018-16058[].
 // Fixed in master: c48d6a6d60
 // Fixed in master-2.6: 24200230a4
 // Fixed in master-2.4: 590b9d95fc
@@ -31,7 +31,7 @@ wsbuglink:14884[].
 +
 Bluetooth Attribute Protocol dissector crash.
 wsbuglink:14994[].
-// cveidlink:2018-xxx[].
+cveidlink:2018-16056[].
 // Fixed in master: f98fbce64c
 // Fixed in master-2.6: 10db757c35
 // Fixed in master-2.4: 4be24806b2
@@ -41,7 +41,7 @@ wsbuglink:14994[].
 +
 Radiotap dissector crash.
 wsbuglink:15022[].
-// cveidlink:2018-xxx[].
+cveidlink:2018-16057[].
 // Fixed in master: 739eebd3d2
 // Fixed in master-2.6: 1576ae10e7
 // Fixed in master-2.4: bbf46eb46a
