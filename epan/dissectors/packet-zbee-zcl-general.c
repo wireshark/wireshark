@@ -3208,6 +3208,7 @@ proto_reg_handoff_zbee_zcl_scenes(void)
 #define ZBEE_ZCL_ON_OFF_ATTR_ID_GLOBALSCENECONTROL  0x4000
 #define ZBEE_ZCL_ON_OFF_ATTR_ID_ONTIME              0x4001
 #define ZBEE_ZCL_ON_OFF_ATTR_ID_OFFWAITTIME         0x4002
+#define ZBEE_ZCL_ON_OFF_ATTR_ID_STARTUPONOFF        0x4003
 
 /* Server Commands Received */
 #define ZBEE_ZCL_ON_OFF_CMD_OFF                         0x00  /* Off */
@@ -3245,6 +3246,7 @@ static int hf_zbee_zcl_on_off_attr_onoff = -1;
 static int hf_zbee_zcl_on_off_attr_globalscenecontrol = -1;
 static int hf_zbee_zcl_on_off_attr_ontime = -1;
 static int hf_zbee_zcl_on_off_attr_offwaittime = -1;
+static int hf_zbee_zcl_on_off_attr_startuponoff = -1;
 static int hf_zbee_zcl_on_off_srv_rx_cmd_id = -1;
 
 static int hf_zbee_zcl_on_off_effect_identifier = -1;
@@ -3266,6 +3268,7 @@ static const value_string zbee_zcl_on_off_attr_names[] = {
     { ZBEE_ZCL_ON_OFF_ATTR_ID_GLOBALSCENECONTROL,   "GlobalSceneControl" },
     { ZBEE_ZCL_ON_OFF_ATTR_ID_ONTIME,               "OnTime" },
     { ZBEE_ZCL_ON_OFF_ATTR_ID_OFFWAITTIME,          "OffWaitTime" },
+    { ZBEE_ZCL_ON_OFF_ATTR_ID_STARTUPONOFF,         "StartUpOnOff" },
     { 0, NULL }
 };
 
@@ -3317,6 +3320,15 @@ static const range_string zbee_zcl_on_off_effect_variant_dying_light_names[] = {
 
 static const range_string zbee_zcl_on_off_effect_variant_reserved_names[] = {
     { 0x00, 0xFF, "Reserved" },
+    { 0, 0, NULL }
+};
+
+static const range_string zbee_zcl_on_off_startup_on_off_names[] = {
+    { 0x00, 0x00, "Set the OnOff attribute to Off" },
+    { 0x01, 0x01, "Set the OnOff attribute to On" },
+    { 0x02, 0x02, "Toggle the OnOff attribute" },
+    { 0x03, 0xFE, "Reserved" },
+    { 0xFF, 0xFF, "Set the OnOff attribute to its previous value" },
     { 0, 0, NULL }
 };
 
@@ -3452,6 +3464,11 @@ dissect_zcl_on_off_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, gui
             *offset += 2;
             break;
 
+        case ZBEE_ZCL_ON_OFF_ATTR_ID_STARTUPONOFF:
+            proto_tree_add_item(tree, hf_zbee_zcl_on_off_attr_startuponoff, tvb, *offset, 1, ENC_NA);
+            *offset += 1;
+            break;
+
         default:
             dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
             break;
@@ -3494,6 +3511,10 @@ proto_register_zbee_zcl_on_off(void)
 
         { &hf_zbee_zcl_on_off_attr_offwaittime,
             { "Off Wait Time", "zbee_zcl_general.onoff.attr.offwaittime", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_zcl_time_in_100ms),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_on_off_attr_startuponoff,
+            { "Startup On Off", "zbee_zcl_general.onoff.attr.startuponoff", FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(zbee_zcl_on_off_startup_on_off_names),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_on_off_effect_identifier,
@@ -4374,6 +4395,7 @@ proto_reg_handoff_zbee_zcl_time(void)
 #define ZBEE_ZCL_ATTR_ID_LEVEL_CONTROL_REMAINING_TIME           0x0001  /* Remaining Time */
 #define ZBEE_ZCL_ATTR_ID_LEVEL_CONTROL_ONOFF_TRANSIT_TIME       0x0010  /* OnOff Transition Time */
 #define ZBEE_ZCL_ATTR_ID_LEVEL_CONTROL_ON_LEVEL                 0x0011  /* On Level */
+#define ZBEE_ZCL_ATTR_ID_LEVEL_CONTROL_STARTUP_LEVEL            0x4000  /* Startup Level */
 
 /* Server Commands Received */
 #define ZBEE_ZCL_CMD_ID_LEVEL_CONTROL_MOVE_TO_LEVEL             0x00  /* Move to Level */
@@ -4405,6 +4427,7 @@ static int hf_zbee_zcl_level_control_attr_current_level = -1;
 static int hf_zbee_zcl_level_control_attr_remaining_time = -1;
 static int hf_zbee_zcl_level_control_attr_onoff_transmit_time = -1;
 static int hf_zbee_zcl_level_control_attr_on_level = -1;
+static int hf_zbee_zcl_level_control_attr_startup_level = -1;
 static int hf_zbee_zcl_level_control_level = -1;
 static int hf_zbee_zcl_level_control_move_mode = -1;
 static int hf_zbee_zcl_level_control_rate = -1;
@@ -4422,6 +4445,7 @@ static const value_string zbee_zcl_level_control_attr_names[] = {
     { ZBEE_ZCL_ATTR_ID_LEVEL_CONTROL_REMAINING_TIME,            "Remaining Time" },
     { ZBEE_ZCL_ATTR_ID_LEVEL_CONTROL_ONOFF_TRANSIT_TIME,        "OnOff Transition Time" },
     { ZBEE_ZCL_ATTR_ID_LEVEL_CONTROL_ON_LEVEL,                  "On Level" },
+    { ZBEE_ZCL_ATTR_ID_LEVEL_CONTROL_STARTUP_LEVEL,             "Startup Level" },
     { 0, NULL }
 };
 
@@ -4443,6 +4467,13 @@ static const value_string zbee_zcl_level_control_move_step_mode_values[] = {
     { 0x00,   "Up" },
     { 0x01,   "Down" },
     { 0, NULL }
+};
+
+static const range_string zbee_zcl_level_control_startup_level_names[] = {
+    { 0x00, 0x00, "Set the CurrentLevel attribute to the minimum" },
+    { 0x01, 0xFE, "Set the CurrentLevel attribute to this value" },
+    { 0xFF, 0xFF, "Set the CurrentLevel attribute to its previous value" },
+    { 0, 0, NULL }
 };
 
 /*************************/
@@ -4650,6 +4681,11 @@ dissect_zcl_level_control_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offs
             *offset += 1;
             break;
 
+        case ZBEE_ZCL_ATTR_ID_LEVEL_CONTROL_STARTUP_LEVEL:
+            proto_tree_add_item(tree, hf_zbee_zcl_level_control_attr_startup_level, tvb, *offset, 1, ENC_NA);
+            *offset += 1;
+            break;
+
         default:
             dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
             break;
@@ -4693,6 +4729,10 @@ proto_register_zbee_zcl_level_control(void)
 
         { &hf_zbee_zcl_level_control_attr_on_level,
             { "On Level", "zbee_zcl_general.level_control.attr.on_level", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_level_control_attr_startup_level,
+            { "Startup Level", "zbee_zcl_general.level_control.attr.startup_level", FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(zbee_zcl_level_control_startup_level_names),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_level_control_level,

@@ -90,6 +90,7 @@
 #define ZBEE_ZCL_ATTR_ID_COLOR_CONTROL_COLOR_CAPABILITIES                           0x400a  /* Color Capabilities */
 #define ZBEE_ZCL_ATTR_ID_COLOR_CONTROL_COLOR_TEMPERATURE_PHYS_MIN                   0x400b  /* Color Temperature Physical Min */
 #define ZBEE_ZCL_ATTR_ID_COLOR_CONTROL_COLOR_TEMPERATURE_PHYS_MAX                   0x400c  /* Color Temperature Physical Max */
+#define ZBEE_ZCL_ATTR_ID_COLOR_CONTROL_STARTUP_COLOR_TEMPERATURE                    0x4010  /* Startup Color Temperature */
 
 /* Server Commands Received */
 #define ZBEE_ZCL_CMD_ID_COLOR_CONTROL_MOVE_TO_HUE                                   0x00  /* Move to Hue */
@@ -202,6 +203,7 @@ static int hf_zbee_zcl_color_control_attr_color_capabilities_xy = -1;
 static int hf_zbee_zcl_color_control_attr_color_capabilities_ct = -1;
 static int hf_zbee_zcl_color_control_attr_color_temperature_phys_min = -1;
 static int hf_zbee_zcl_color_control_attr_color_temperature_phys_max = -1;
+static int hf_zbee_zcl_color_control_attr_startup_color_temperature = -1;
 static int hf_zbee_zcl_color_control_hue = -1;
 static int hf_zbee_zcl_color_control_direction = -1;
 static int hf_zbee_zcl_color_control_transit_time = -1;
@@ -290,6 +292,7 @@ static const value_string zbee_zcl_color_control_attr_names[] = {
     { ZBEE_ZCL_ATTR_ID_COLOR_CONTROL_COLOR_CAPABILITIES,            "Color Capabilities" },
     { ZBEE_ZCL_ATTR_ID_COLOR_CONTROL_COLOR_TEMPERATURE_PHYS_MIN,    "Color Temperature Physical Min" },
     { ZBEE_ZCL_ATTR_ID_COLOR_CONTROL_COLOR_TEMPERATURE_PHYS_MAX,    "Color Temperature Physical Max" },
+    { ZBEE_ZCL_ATTR_ID_COLOR_CONTROL_STARTUP_COLOR_TEMPERATURE,     "Startup Color Temperature" },
     { 0, NULL }
 };
 
@@ -878,7 +881,33 @@ decode_color_temperature(gchar *s, guint16 value)
 {
     g_snprintf(s, ITEM_LABEL_LENGTH, "%d [Mired] (%d [K])", value, 1000000/value);
     return;
-} /*decode_power_conf_voltage*/
+} /*decode_color_temperature*/
+
+  /*FUNCTION:------------------------------------------------------
+  *  NAME
+  *    decode_startup_color_temperature
+  *  DESCRIPTION
+  *    this function decodes color temperature values
+  *  PARAMETERS
+  *      guint *s        - string to display
+  *      guint16 value   - value to decode
+  *  RETURNS
+  *    none
+  *---------------------------------------------------------------
+  */
+static void
+decode_startup_color_temperature(gchar *s, guint16 value)
+{
+    if (value == 0xffff)
+    {
+        g_snprintf(s, ITEM_LABEL_LENGTH, "Set the Color Temperature attribute to its previous value");
+    }
+    else
+    {
+        decode_color_temperature(s, value);
+    }
+    return;
+} /*decode_startup_color_temperature*/
 
   /**
  *This function is called by ZCL foundation dissector in order to decode
@@ -1145,6 +1174,11 @@ dissect_zcl_color_control_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offs
             *offset += 2;
             break;
 
+        case ZBEE_ZCL_ATTR_ID_COLOR_CONTROL_STARTUP_COLOR_TEMPERATURE:
+            proto_tree_add_item(tree, hf_zbee_zcl_color_control_attr_startup_color_temperature, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+            *offset += 2;
+            break;
+
         case ZBEE_ZCL_ATTR_ID_COLOR_CONTROL_COMPENSATION_TEXT:
         default:
             dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
@@ -1378,6 +1412,10 @@ proto_register_zbee_zcl_color_control(void)
 
         { &hf_zbee_zcl_color_control_attr_color_temperature_phys_max,
             { "Color Temperature", "zbee_zcl_lighting.color_control.attr.color_temperature_physical_max", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_color_temperature),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_color_control_attr_startup_color_temperature,
+            { "Startup Color Temparature", "zbee_zcl_lighting.color_control.attr.startup_color_temperature", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_startup_color_temperature),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_color_control_hue,
