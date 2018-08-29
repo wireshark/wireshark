@@ -2218,30 +2218,22 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     guint8         ip6_tcls, ip6_nxt, ip6_hlim;
     guint32        ip6_flow;
     const ws_in6_addr *ip6_src, *ip6_dst;
+    guint32        ip6_plen = 0, jumbo_plen = 0;
     guint32        plen;
     int            offset;
     guint          reported_plen;
     tvbuff_t      *next_tvb;
     gboolean       save_fragmented;
-    ipv6_pinfo_t  *ipv6_pinfo;
     int            version;
     ws_ip6        *iph;
 
     offset = 0;
-
-    ipv6_pinfo = wmem_new0(pinfo->pool, ipv6_pinfo_t);
-    p_add_proto_data(pinfo->pool, pinfo, proto_ipv6, IPV6_PROTO_PINFO, ipv6_pinfo);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPv6");
     col_clear(pinfo->cinfo, COL_INFO);
 
     ipv6_item = proto_tree_add_item(tree, proto_ipv6, tvb, offset, IPv6_HDR_SIZE, ENC_NA);
     ipv6_tree = proto_item_add_subtree(ipv6_item, ett_ipv6_proto);
-
-    if (!ipv6_exthdr_under_root) {
-        ipv6_pinfo->ipv6_tree = ipv6_tree;
-        ipv6_pinfo->ipv6_item_len = IPv6_HDR_SIZE;
-    }
 
     /* Validate IP version (6) */
     version = tvb_get_bits8(tvb, (offset + IP6H_CTL_VFC) * 8, 4);
@@ -2288,29 +2280,26 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     proto_tree_add_item_ret_uint(ipv6_tree, hf_ipv6_flow, tvb,
                         offset + IP6H_CTL_FLOW, 4, ENC_BIG_ENDIAN, &ip6_flow);
 
-    ipv6_pinfo->ip6_plen = tvb_get_guint16(tvb, offset + IP6H_CTL_PLEN, ENC_BIG_ENDIAN);
+    ip6_plen = tvb_get_guint16(tvb, offset + IP6H_CTL_PLEN, ENC_BIG_ENDIAN);
 
     ip6_nxt = tvb_get_guint8(tvb, offset + IP6H_CTL_NXT);
 
-    if (ipv6_tso_supported && ipv6_pinfo->ip6_plen == 0 &&
+    if (ipv6_tso_supported && ip6_plen == 0 &&
                     ip6_nxt != IP_PROTO_HOPOPTS && ip6_nxt != IP_PROTO_NONE) {
-        ipv6_pinfo->ip6_plen = tvb_reported_length(tvb) - IPv6_HDR_SIZE;
+        ip6_plen = tvb_reported_length(tvb) - IPv6_HDR_SIZE;
         pi = proto_tree_add_uint_format_value(ipv6_tree, hf_ipv6_plen, tvb,
-                                offset + IP6H_CTL_PLEN, 2, ipv6_pinfo->ip6_plen,
+                                offset + IP6H_CTL_PLEN, 2, ip6_plen,
                                 "%u bytes (reported as 0, presumed to be because "
                                 "of \"TCP segmentation offload\" (TSO))",
-                                ipv6_pinfo->ip6_plen);
+                                ip6_plen);
         PROTO_ITEM_SET_GENERATED(pi);
     } else {
         ti_ipv6_plen = proto_tree_add_item(ipv6_tree, hf_ipv6_plen, tvb,
                                 offset + IP6H_CTL_PLEN, 2, ENC_BIG_ENDIAN);
-        if (ipv6_pinfo->ip6_plen == 0 &&
-                    ip6_nxt != IP_PROTO_HOPOPTS && ip6_nxt != IP_PROTO_NONE) {
+        if (ip6_plen == 0 && ip6_nxt != IP_PROTO_HOPOPTS && ip6_nxt != IP_PROTO_NONE) {
             expert_add_info(pinfo, ti_ipv6_plen, &ei_ipv6_plen_zero);
         }
     }
-
-    ipv6_pinfo->frag_plen = ipv6_pinfo->ip6_plen;
 
     proto_tree_add_item(ipv6_tree, hf_ipv6_nxt, tvb, offset + IP6H_CTL_NXT, 1, ENC_NA);
 
@@ -2366,12 +2355,12 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     offset += IPv6_HDR_SIZE;
 
     /* Check for Jumbo option */
-    plen = ipv6_pinfo->ip6_plen;
+    plen = ip6_plen;
     if (plen == 0 && ip6_nxt == IP_PROTO_HOPOPTS) {
-        ipv6_pinfo->jumbo_plen = ipv6_get_jumbo_plen(tvb, offset);
-        if (ipv6_pinfo->jumbo_plen != 0) {
+        jumbo_plen = ipv6_get_jumbo_plen(tvb, offset);
+        if (jumbo_plen != 0) {
             proto_item_append_text(ti_ipv6_plen, " (Jumbogram)");
-            plen = ipv6_pinfo->jumbo_plen;
+            plen = jumbo_plen;
         } else {
             /* IPv6 length zero is invalid if there is a hop-by-hop header without jumbo option */
             col_add_fstr(pinfo->cinfo, COL_INFO, "Invalid IPv6 payload length");
@@ -2395,6 +2384,17 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     iph->ip6_hop = ip6_hlim;
     alloc_address_wmem_ipv6(wmem_packet_scope(), &iph->ip6_src, ip6_src);
     alloc_address_wmem_ipv6(wmem_packet_scope(), &iph->ip6_dst, ip6_dst);
+
+    /* Shared state between IPv6 header and extensions. */
+    ipv6_pinfo_t  *ipv6_pinfo = wmem_new0(pinfo->pool, ipv6_pinfo_t);
+    ipv6_pinfo->ip6_plen = ip6_plen;
+    ipv6_pinfo->jumbo_plen = jumbo_plen;
+    ipv6_pinfo->frag_plen = ip6_plen; /* updated by extension header dissectors, if any */
+    if (!ipv6_exthdr_under_root) {
+        ipv6_pinfo->ipv6_tree = ipv6_tree;
+        ipv6_pinfo->ipv6_item_len = IPv6_HDR_SIZE;
+    }
+    p_add_proto_data(pinfo->pool, pinfo, proto_ipv6, IPV6_PROTO_PINFO, ipv6_pinfo);
 
     /* Adjust the length of this tvbuff to include only the IPv6 datagram. */
     set_actual_length(tvb, IPv6_HDR_SIZE + plen);
