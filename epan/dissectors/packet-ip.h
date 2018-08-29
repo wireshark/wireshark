@@ -85,10 +85,22 @@ struct ws_rthdr {
 
 typedef ws_ip6 ipv6_tap_info_t;
 
-/* Packet info for shared state between IPv6 header and extensions */
+/* Packet info for shared state between IPv6 header and extensions.
+ *
+ * frag_plen: This is the IPv6 header payload length of a fragment packet
+ * minus per-fragment *extension* headers (anything up to and including the
+ * Fragment extension header).
+ *
+ * See RFC 8200 Section 4.5:
+ *   The Per-Fragment headers must consist of the IPv6 header plus any
+ *   extension headers that must be processed by nodes en route to the
+ *   destination, that is, all headers up to and including the Routing
+ *   header if present, else the Hop-by-Hop Options header if present,
+ *   else no extension headers.
+ */
 typedef struct {
     guint32     jumbo_plen;
-    guint16     ip6_plen;
+    guint16     ip6_plen;       /* header payload length (can be zero) */
     gint        frag_plen;
     proto_tree *ipv6_tree;
     gint        ipv6_item_len;
