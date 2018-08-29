@@ -4369,7 +4369,7 @@ static const FieldPart I021_090_GVA = { 2, 1.0, FIELD_PART_UINT, &hf_021_090_GVA
 static const FieldPart I021_090_PIC = { 4, 1.0, FIELD_PART_UINT, &hf_021_090_PIC, NULL };
 static const FieldPart *I021_090_PARTS[] = { &I021_090_NUCR_NACV, &I021_090_NUCP_NIC, &IXXX_FX,
                                              &I021_090_NIC_BARO, &I021_090_SIL, &I021_090_NACP, &IXXX_FX,
-                                             &I021_090_SIL_SUP, &I021_090_SDA, &I021_090_GVA, &IXXX_FX,
+                                             &IXXX_2bit_spare, &I021_090_SIL_SUP, &I021_090_SDA, &I021_090_GVA, &IXXX_FX,
                                              &I021_090_PIC, &IXXX_3bit_spare, &IXXX_FX, NULL };
 
 /* Trajectory Intent */
