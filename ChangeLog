@@ -1,0 +1,627 @@
+commit c704acefc9
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Aug 28 14:26:25 2018 -0700
+
+    Update the release notes for 2.2.17.
+    
+    Change-Id: Ib59dbf002faa20804a42d48819620364be199d6f
+    Reviewed-on: https://code.wireshark.org/review/29325
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 1e61865894
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Mon Aug 27 09:47:58 2018 +0200
+
+    SSL: use col_append_sep_str() to add heartbeat to info column
+    
+    Bug: 15079
+    Change-Id: I97e5179f1385d24b38a0537a91bc73a9eb3a241b
+    Reviewed-on: https://code.wireshark.org/review/29299
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit 281936a5bed109f3ed4287d8d14ab410629f00f4)
+    Reviewed-on: https://code.wireshark.org/review/29303
+
+commit c22dce4a05
+Author: Gerald Combs <gerald.combs@riverbed.com>
+Date:   Sun Aug 26 08:49:42 2018 +0000
+
+    [Automatic update for 2018-08-26]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: Ib9d15dd2a1a346ee1139af6c50c8f79739016e47
+    Reviewed-on: https://code.wireshark.org/review/29289
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit bc3a2a3f75
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Mon Aug 20 15:54:31 2018 +0200
+
+    E.212: fix 255 04 and 255 06 PLMN names
+    
+    This fixes commit g2c89e6c448
+    
+    Bug: 15068
+    Change-Id: Ieec7ffb039af48903f9ee3f91800f603203f811e
+    Reviewed-on: https://code.wireshark.org/review/29201
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 99df34848e6aa2c63f17fe5fb3ee954e1f07bdeb)
+    Reviewed-on: https://code.wireshark.org/review/29204
+
+commit 90a8fee9ae
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Aug 19 17:06:41 2018 +0000
+
+    [Automatic update for 2018-08-19]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: I6f2a2f9432fa91214548ded7e1ffb359c6b144a3
+    Reviewed-on: https://code.wireshark.org/review/29194
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 8df6ab87b3
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Thu Aug 16 21:36:19 2018 +0200
+
+    Windows: upgrade USBPcap to 1.2.0.4
+    
+    Change-Id: I5e94a169d28c0e4981e313f1ecb011fe82a48c70
+    Reviewed-on: https://code.wireshark.org/review/29165
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+
+commit 38f575b482
+Author: Vasil Velichkov <vvvelichkov@gmail.com>
+Date:   Mon Aug 13 21:48:06 2018 +0300
+
+    export_pdu.c: Fix a memory leak
+    
+    Allocate the exp_pdu_data using the wmem_packet_scope allocator so the
+    epan_dissect_run_with_taps will free it after calling all registered tap
+    listeners.
+    
+    valgrind --tool=memcheck --leak-check=full ./run/tshark -r sctp.pcap -U "OSI layer 3" -w exported.pcap
+    
+    32 bytes in 1 blocks are definitely lost in loss record 48 of 76
+       at 0x4C2EBAB: malloc (vg_replace_malloc.c:299)
+       by 0xB3FC3C5: g_malloc (gmem.c:99)
+       by 0x68C2BE1: export_pdu_create_tags (exported_pdu.c:251)
+       by 0x68C2D5E: export_pdu_create_common_tags (exported_pdu.c:231)
+       by 0x70AA54E: create_exp_pdu_proto_name (packet-sctp.c:3240)
+       by 0x70AA54E: export_sctp_data_chunk.part.23 (packet-sctp.c:3268)
+       by 0x70AB76B: export_sctp_data_chunk (packet-sctp.c:3256)
+       by 0x70AB76B: dissect_data_chunk (packet-sctp.c:3509)
+    
+    Change-Id: I6e247ab2861bbb053f0958faf253913b28dbcbeb
+    Reviewed-on: https://code.wireshark.org/review/29126
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 88dd7e734acdc48ebdf61ffcf3f93db9fb7c81dd)
+    Reviewed-on: https://code.wireshark.org/review/29133
+
+commit c88cc3da31
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Tue Aug 14 11:03:09 2018 +0200
+
+    BT A2DP: fully initialize sep_entry_t structure
+    
+    Bug: 14884
+    Change-Id: Id409563d5e8869596db7b479132045bf8cf88f16
+    Reviewed-on: https://code.wireshark.org/review/29128
+    Petri-Dish: Anders Broman <a.broman58@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit c48d6a6d60c5c9111838a945966b6cb8750777be)
+    Reviewed-on: https://code.wireshark.org/review/29136
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+
+commit aecbbb6000
+Author: Peter Wu <peter@lekensteyn.nl>
+Date:   Sun Aug 12 17:23:28 2018 +0200
+
+    HTTP: really choose the correct server port for tunnels
+    
+    The very first message after a 200 OK response to a CONNECT request
+    likely originates from the client. So assume that this destination is
+    actually the server.
+    
+    This reduces the probability of address and port collisions. Previously
+    the proxy port (e.g. 3128) and server port (443) identified each
+    conversation, now it will use the client and server port instead.
+    
+    Bug: 15043
+    Change-Id: Ib73f370334873efd773ac6b49e2db57146bc20b0
+    Fixes: v2.9.0rc0-1420-g2f126db3fe ("HTTP: set correct server port for tunnels")
+    Reviewed-on: https://code.wireshark.org/review/29110
+    Petri-Dish: Peter Wu <peter@lekensteyn.nl>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 1d4bb22a225285a1fb088d0970499131d242d098)
+    Reviewed-on: https://code.wireshark.org/review/29121
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+
+commit 3ccdfbc734
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Aug 12 08:38:30 2018 +0000
+
+    [Automatic update for 2018-08-12]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: I831acb7df584a2c5c3e3403ab83ccde84039d896
+    Reviewed-on: https://code.wireshark.org/review/29108
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 156dc8f6f1
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sat Aug 11 21:12:45 2018 -0700
+
+    More comment cleanup.
+    
+    Change-Id: I0fac7351d204eac1ca5f00fb2f19d275d4d5767c
+    Reviewed-on: https://code.wireshark.org/review/29101
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit fc9d5b7060309083834b644dd6d81eb68df9b16a)
+    Reviewed-on: https://code.wireshark.org/review/29104
+
+commit 1c9ae986d8
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sat Aug 11 20:48:01 2018 -0700
+
+    Improve comments.
+    
+    Change-Id: Icce916d6d465f80e06ed45e4d5bd98362d63a26a
+    Reviewed-on: https://code.wireshark.org/review/29097
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit d22816d2ba9488fd21c8f070bca4fc17d048b4a9)
+    Reviewed-on: https://code.wireshark.org/review/29100
+
+commit 8c52fa0e8b
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sat Aug 11 20:43:00 2018 -0700
+
+    Clean up temporary filename generation.
+    
+    Don't put identical code in both arms of a conditional - move it out of
+    the conditional.
+    
+    Doing that with one line of code means that the conditional is now
+    *itself* duplicated in both arms of a conditional, so move it out, too.
+    
+    Change-Id: I07c1d00e7d0053684aa2ef74b460eb008b145015
+    Reviewed-on: https://code.wireshark.org/review/29093
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit f033cd542efbfa857622853d5b3e53c712cf8344)
+    Reviewed-on: https://code.wireshark.org/review/29096
+
+commit d737b0010c
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sat Aug 11 15:26:41 2018 -0700
+
+    Put a "Friendly Name" column in on UN*X as well.
+    
+    Windows is not the only OS with "friendly" names for interfaces; macOS
+    has them as well, and some *BSDs let you tag interfaces with names as
+    well.
+    
+    Change-Id: Ie1221a5896ace3edcc1ed90ed65a3514ee692f5d
+    Reviewed-on: https://code.wireshark.org/review/29086
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 8461b018a2
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sat Aug 11 13:40:00 2018 -0700
+
+    More comments.
+    
+    Change-Id: I1fc6df514983bb73b7e620d05223728496de7919
+    Reviewed-on: https://code.wireshark.org/review/29078
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 530061b66e25e04ef6acb34da1077f015b2ac275)
+    Reviewed-on: https://code.wireshark.org/review/29081
+
+commit 183063ce65
+Author: Joerg Mayer <jmayer@loplof.de>
+Date:   Sat Oct 29 08:59:18 2016 +0200
+
+    Fix two warnings when compiling with rpcap support on macOS.
+    
+    One is an unused variable warning turning error, the other is
+    
+    [ 71%] Building C object ui/CMakeFiles/ui.dir/recent.c.o
+    /Users/jmayer/worktmp/wireshark/git/ui/recent.c:494:23: error: implicit conversion loses integer precision:
+          'glong' (aka 'long') to 'gint' (aka 'int') [-Werror,-Wshorten-64-to-32]
+          rh->auth_type = auth_type;
+                        ~ ^~~~~~~~~
+    1 error generated.
+    
+    Please review.
+    
+    Change-Id: If838f8fa1e8a76dc8c6cc78db495befdd527da92
+    Reviewed-on: https://code.wireshark.org/review/18544
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Roland Knall <rknall@gmail.com>
+    (cherry picked from commit 42f0695f4d84093a1617ee1f35ee724aa4d98166)
+    Reviewed-on: https://code.wireshark.org/review/29077
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 7bef5c72fb
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sat Aug 11 12:01:21 2018 -0700
+
+    Make a routine static that's not used outside its source file.
+    
+    Change-Id: I5121828c1fb95cbf89e7304dd748f8fcac63ad5a
+    Reviewed-on: https://code.wireshark.org/review/29073
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 1b3aaeae7263b5f97582dbc681ec40b2523e246d)
+    Reviewed-on: https://code.wireshark.org/review/29076
+
+commit 784f00383f
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri Aug 10 19:08:40 2018 -0700
+
+    Add support for reading and writing the new if_hardware IDB option.
+    
+    Support for writing it in live captures will come later; this change,
+    but not that one, will be backported so older versions of Wireshark
+    won't remove it when writing a file out.
+    
+    Change-Id: I9fd4067991acfd2d18c03d0a373ce8337a9f3a76
+    Reviewed-on: https://code.wireshark.org/review/29064
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 08cbe559b3c82c4e152c3b8df2f6f6f1fe3d51a0)
+    Reviewed-on: https://code.wireshark.org/review/29067
+
+commit aa9e918c1d
+Author: Peter Wu <peter@lekensteyn.nl>
+Date:   Thu Aug 9 16:51:55 2018 +0200
+
+    HTTP: set correct server port for tunnels
+    
+    The server port must be set or else http_payload_subdissector will
+    assume two independent flows originating from the client. For example,
+    client 50813 connects through proxy server 3128 to server 443.
+    Previously it would result in three conversations: 50813<->3128 (proxy),
+    50813->443, 3128->443. Now it will see 50813<->3128 and 3128<->443 and
+    TLS decryption will work again.
+    
+    Bug: 15042
+    Change-Id: I50bcef568be320b6512ee6fc5a09d2838d2f7a9a
+    Reviewed-on: https://code.wireshark.org/review/29046
+    Petri-Dish: Peter Wu <peter@lekensteyn.nl>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 2f126db3fea715428b43c346d98cad1a8b3a88d6)
+    Reviewed-on: https://code.wireshark.org/review/29056
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+
+commit af9fc0e15e
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Wed Aug 8 16:45:21 2018 +0200
+
+    802.11 Radiotap: add more bound checks in ieee80211_radiotap_iterator_next()
+    
+    Bug: 15022
+    Change-Id: Ife413312c88b8d78926c78bdb6707903257e7964
+    Reviewed-on: https://code.wireshark.org/review/29017
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Richard Sharpe <realrichardsharpe@gmail.com>
+    (cherry picked from commit 739eebd3d2e39db63c959eb99291edf59647ed6d)
+    Reviewed-on: https://code.wireshark.org/review/29027
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit 4ac83382dc49f9f7b62bffb3cfc508cdaa1e7be5)
+    Reviewed-on: https://code.wireshark.org/review/29028
+
+commit 8fbc41caea
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Wed Aug 8 13:07:17 2018 -0700
+
+    The radiotap header length must be >= 8.
+    
+    Report an error and quit dissecting if it's less than 8.
+    
+    Change-Id: I297fcb0ca754641a9e197037df1140361000fd25
+    Reviewed-on: https://code.wireshark.org/review/29022
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit f4bc40bc3ba3828b1dd700608aa28b75d78e30ad)
+    Reviewed-on: https://code.wireshark.org/review/29025
+
+commit 42b6d8a11d
+Author: Peter Wu <peter@lekensteyn.nl>
+Date:   Mon Aug 6 12:22:53 2018 +0200
+
+    ssl-utils: fix key log read after EOF
+    
+    C99 requires fgets to fail once the EOF bit is set, glibc 2.28 started
+    implementing this behavior. Clear the EOF bit to avoid all future reads
+    from failing. Add another error check while at it.
+    
+    Change-Id: I1c5f7e190426d29e3bf437c443b09092ed8d2d35
+    Fixes: v1.99.0-rc1-1080-ga69a63f5d1 ("ssl: fix SSL keylog file live-capture use case")
+    Reviewed-on: https://code.wireshark.org/review/28984
+    Petri-Dish: Peter Wu <peter@lekensteyn.nl>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 4d87743c234c202e810e727d946b578ab38f4e2f)
+    Reviewed-on: https://code.wireshark.org/review/29013
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+
+commit cce9985234
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Mon Aug 6 12:03:56 2018 -0700
+
+    Another dictionary fix.
+    
+    RFC 5447 says MIP6-Feature-Vector is a 64-bit integer, not an octet
+    string.
+    
+    Change-Id: I676cb4de09424259a9020680d11b92b783100482
+    Reviewed-on: https://code.wireshark.org/review/28999
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 1dc6d54d8d6b794549473ced4435c2d749b72076)
+    Reviewed-on: https://code.wireshark.org/review/29002
+
+commit 78b4f3b828
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Aug 5 08:41:37 2018 +0000
+
+    [Automatic update for 2018-08-05]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: I0beaf0b2d4993f74ffe41a8a1266970516be2e9b
+    Reviewed-on: https://code.wireshark.org/review/28971
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit f14d8f2303
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Sat Aug 4 21:21:45 2018 +0200
+
+    ASTERIX: Fix cat068/135 altitude value
+    
+    The altitude value presented is the value converted into feet.
+    Instead, as the label suggests, the value should be presented
+    as a flight level. Change the conversion as such.
+    
+    Bug: 15030
+    Change-Id: I131f6b586c6b1f59090f93862ea13b117403c502
+    Signed-off-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Reviewed-on: https://code.wireshark.org/review/28961
+    Reviewed-by: Marko Hrastovec <marko.hrastovec@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    (cherry picked from commit aa8ebb94e5d5db58eae56af64cdc5d8968b60b0b)
+    Reviewed-on: https://code.wireshark.org/review/28965
+
+commit 2133e1f874
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Thu Aug 2 21:27:00 2018 -0700
+
+    Fix bug in RFC 5447 dictionary.
+    
+    Pick up the current version ("current" as in "picked up from a recent
+    checkout of the FreeRADIUS/freeradius-server repository on GitHub") of
+    dictionary.rfc5447.
+    
+    See
+    
+        https://github.com/FreeRADIUS/freeradius-server/issues/2269
+    
+    and some of the discussion in
+    
+        https://github.com/the-tcpdump-group/tcpdump/pull/636
+    
+    Change-Id: Ib21838684ac250ff1f02fcea6c1e5ca865b4b6ff
+    Reviewed-on: https://code.wireshark.org/review/28935
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 7b6181ae6bf0acf7dc376058b71cc310dd5f60fd)
+    Reviewed-on: https://code.wireshark.org/review/28938
+
+commit 927140159e
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Tue Jul 31 13:15:36 2018 -0700
+
+    Improve debugging messages.
+    
+    For various attempted matches, print what we're matching against.
+    
+    Change-Id: Ib915aa9bc6e6e1ea6cc7a273f261db2a4952c0c4
+    Reviewed-on: https://code.wireshark.org/review/28900
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 83715db4a99b58f4314242be5de0865d4ec5993b)
+    Reviewed-on: https://code.wireshark.org/review/28903
+
+commit 7cfd7b91a3
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Tue Jul 31 12:13:08 2018 -0700
+
+    Frame numbers are unsigned.
+    
+    Change-Id: I07641b0a759058fe5111e10c3ccd4c8f69eeccef
+    Reviewed-on: https://code.wireshark.org/review/28894
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 20a3248ebb8648928c456e8c0da138dfe966a411)
+    Reviewed-on: https://code.wireshark.org/review/28899
+
+commit eb5a0541d8
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Tue Jul 31 11:24:04 2018 -0700
+
+    Clean up white space.
+    
+    Change-Id: Id1eb5ec743581a0d05b82e94c78f262e7dc33f7b
+    Reviewed-on: https://code.wireshark.org/review/28892
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit a9dcc80f1ba9b3407ac3591940b1bbcefb865f39)
+    Reviewed-on: https://code.wireshark.org/review/28897
+
+commit d61ecac001
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jul 29 08:43:56 2018 +0000
+
+    [Automatic update for 2018-07-29]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: I6bf9c07d90b43da39e2df81a1afac30db95936e9
+    Reviewed-on: https://code.wireshark.org/review/28880
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit c34ab9195e
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Sun Jul 22 20:17:50 2018 +0200
+
+    Remove executable file permission from lua test files
+    
+    Change-Id: I18b3f145bb48a78edabed3cca03691d15cd06842
+    Reviewed-on: https://code.wireshark.org/review/28809
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Petri-Dish: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+    (cherry picked from commit d7c4e482b754b7802e3efb5a56acac1f4aa57268)
+    Reviewed-on: https://code.wireshark.org/review/28826
+
+commit bfc823dc71
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sun Jul 22 20:36:13 2018 -0700
+
+    Alas, REPORT_DISSECTOR_BUG() takes only one argument in 2.2.
+    
+    Change-Id: I5734654cdb8af845e75088c8a3d75a8a018788c2
+    Reviewed-on: https://code.wireshark.org/review/28820
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 178bb86d57
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sun Jul 22 12:19:33 2018 -0700
+
+    If the dissector isn't registered, you shouldn't be calling it.
+    
+    Report a dissector bug, rather than calling the data dissector.
+    
+    Change-Id: I7bde1001a48d2443acf2dc7caa83434e0972aab7
+    Reviewed-on: https://code.wireshark.org/review/28814
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 954fe24e418723df7bac6be146528947ca11d060)
+    Reviewed-on: https://code.wireshark.org/review/28817
+
+commit e5f6e70687
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sun Jul 22 10:18:19 2018 -0700
+
+    Don't assume a given btgatt.uuid0xXXXX dissector exists.
+    
+    They're not guaranteed to have been registered.
+    
+    Bug: 14994
+    Change-Id: I11c2b2d4d8a7dd020a0ef3d700b29b0859bc68ca
+    Reviewed-on: https://code.wireshark.org/review/28805
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit f98fbce64cb230e94a2cafc410a3cedad657b485)
+    Reviewed-on: https://code.wireshark.org/review/28808
+
+commit f4478b3d81
+Author: Vasil Velichkov <vvvelichkov@gmail.com>
+Date:   Sun Jul 22 11:37:46 2018 +0300
+
+    ssl: dtls: Fix small memory leaks
+    
+    Use g_strsplit/g_strfreev instead of wmem_strsplit/wmem_free because in
+    wmem_strutil.h the wmem_strsplit is documented not to be used with a
+    NULL allocator.
+    
+    The wmem_free does not free the string elements in contrast to g_strfreev.
+    
+    Change-Id: Ia207d5df5b8b7edd4ba77071292761ae4819fb12
+    Reviewed-on: https://code.wireshark.org/review/28796
+    Petri-Dish: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+    Reviewed-on: https://code.wireshark.org/review/28800
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+
+commit 24a0c5332d
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jul 22 08:35:56 2018 +0000
+
+    [Automatic update for 2018-07-22]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: Ic889162c078bda9a896b68e94a496d644d962d7b
+    Reviewed-on: https://code.wireshark.org/review/28795
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 03b5dfe4b5
+Author: Vasil Velichkov <vvvelichkov@gmail.com>
+Date:   Fri Jul 20 21:12:06 2018 +0300
+
+    packet-k12: Fix small memory leak
+    
+    Use g_strsplit/g_strfreev instead of wmem_strsplit/wmem_free because in
+    wmem_strutil.h the wmem_strsplit is documented not to be used with a
+    NULL alocator.
+    
+    5 bytes in 1 blocks are definitely lost in loss record 63 of 9,354
+       at 0x4C2EBAB: malloc (vg_replace_malloc.c:299)
+       by 0x4E8D3C5: g_malloc (gmem.c:99)
+       by 0x8214317: wmem_alloc (wmem_core.c:37)
+       by 0x8219227: wmem_strdup (wmem_strutl.c:41)
+       by 0x8219AC1: wmem_strsplit (wmem_strutl.c:272)
+       by 0x749E3C9: protos_chk_cb (packet-k12.c:363)
+    
+    5 bytes in 1 blocks are definitely lost in loss record 64 of 9,354
+       at 0x4C2EBAB: malloc (vg_replace_malloc.c:299)
+       by 0x4E8D3C5: g_malloc (gmem.c:99)
+       by 0x8214317: wmem_alloc (wmem_core.c:37)
+       by 0x8219227: wmem_strdup (wmem_strutl.c:41)
+       by 0x8219AC1: wmem_strsplit (wmem_strutl.c:272)
+       by 0x749E24A: k12_copy_cb (packet-k12.c:327)
+    
+    Change-Id: I994769d17c87ed1d4f620379a2502452f48d80a5
+    Reviewed-on: https://code.wireshark.org/review/28779
+    Reviewed-by: Dario Lombardo <lomato@gmail.com>
+    Petri-Dish: Dario Lombardo <lomato@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Reviewed-on: https://code.wireshark.org/review/28790
+
+commit 46f86f66a0
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Thu Jul 19 02:27:02 2018 -0700
+
+    Extcap programs must write to the packet pipe in binary mode.
+    
+    It doesn't matter on UN*X, but it definitely matters on Windows; we're
+    writing a pcap file, not a text file, so every byte we write should go
+    down the pipe as is.
+    
+    Bug: 14989
+    Change-Id: I26c067b8ff5dba644a579846dd97b568a81c7053
+    Reviewed-on: https://code.wireshark.org/review/28764
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 065a76257935e0699b6cf4aa2352d2f7de914a87)
+    Reviewed-on: https://code.wireshark.org/review/28767
+
+commit 62e746e08b
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Jul 18 14:34:18 2018 -0700
+
+    2.2.16 → 2.2.17.
+    
+    Change-Id: I308e29ee654defe6533838bd414194c861d9be64
+    Reviewed-on: https://code.wireshark.org/review/28760
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
