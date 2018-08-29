@@ -14,35 +14,14 @@ used for troubleshooting, analysis, development and education.
 
 The following vulnerabilities have been fixed:
 
-* wssalink:2018-44[]
+* wssalink:2018-47[]
 +
-Bluetooth AVDTP dissector crash.
-wsbuglink:14884[].
-cveidlink:2018-16058[].
-// Fixed in master: c48d6a6d60
-// Fixed in master-2.6: 24200230a4
-// Fixed in master-2.4: 590b9d95fc
-// Fixed in master-2.2: c88cc3da31
-
-* wssalink:2018-45[]
-+
-Bluetooth Attribute Protocol dissector crash.
-wsbuglink:14994[].
-cveidlink:2018-16056[].
-// Fixed in master: f98fbce64c
-// Fixed in master-2.6: 10db757c35
-// Fixed in master-2.4: 4be24806b2
-// Fixed in master-2.2: e5f6e70687
-
-* wssalink:2018-46[]
-+
-Radiotap dissector crash.
-wsbuglink:15022[].
-cveidlink:2018-16057[].
-// Fixed in master: 739eebd3d2
-// Fixed in master-2.6: 1576ae10e7
-// Fixed in master-2.4: bbf46eb46a
-// Fixed in master-2.2: af9fc0e15e
+A dissector went awry.
+wsbuglink:xxxxx[].
+//cveidlink:2018-xxxxx[].
+// Fixed in master: xxxxx
+// Fixed in master-2.6: xxxxx
+// Fixed in master-2.4: xxxxx
 
 The following bugs have been fixed:
 
@@ -51,24 +30,6 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark keeps leaving voicemails advertising timeshare condominiums in Fresno. (wsbuglink:0000[])
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.4.10rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do ./tools/gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
-
-* Incorrect presentation of dissected data item (NETMASK) in ISAKMP dissector. wsbuglink:14987[].
-
-* udpdump frame too long error. wsbuglink:14989[].
-
-* ASTERIX Category 062 / 135 Altitude has wrong value. wsbuglink:15030[].
-
-* Wireshark cannot decrypt SSL/TLS session if it was proxied over HTTP tunnel. wsbuglink:15042[].
-
-* TLS records in a HTTP tunnel are displayed as "Encrypted Handshake Message". wsbuglink:15043[].
-
-* BTATT Dissector: Temperature Measurement: Celsius and Fahrenheit swapped. wsbuglink:15058[].
-
-* Diameter AVP User Location Info, Mobile Network Code decoded not correctly. wsbuglink:15068[].
-
-* Heartbeat message "Info" displayed without comma separator. wsbuglink:15079[].
-
-* DTAP CC Start DTMF keypad information parsing error. wsbuglink:15088[].
 
 === New and Updated Features
 
@@ -85,33 +46,19 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
-ASTERIX
-Bluetooth AVDTP
-Bluetooth ATT
-DHCP
-DTLS
-E.212
-HTTP
-ISAKMP
-K12
-Nordic BLE
-Radiotap
-SSL
 --sort-and-group--
 
 === New and Updated Capture File Support
 
-//There is no new or updated capture file support in this release.
---sort-and-group--
-pcapng
---sort-and-group--
+There is no new or updated capture file support in this release.
+//--sort-and-group--
+//--sort-and-group--
 
 === New and Updated Capture Interfaces support
 
-//There are no new or updated capture interfaces supported in this release.
---sort-and-group--
-ciscodump, udpdump
---sort-and-group--
+There are no new or updated capture interfaces supported in this release.
+//--sort-and-group--
+//--sort-and-group--
 
 //=== Major API Changes
 
