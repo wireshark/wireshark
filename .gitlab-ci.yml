@@ -3,7 +3,7 @@
   retry: 1
   before_script:
     - rm -rf /etc/apt/sources.list.d/*
-    - echo "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial main" >  /etc/apt/sources.list.d/clang.list
+    - echo "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial main" > /etc/apt/sources.list.d/clang.list
     - echo "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-6.0 main" > /etc/apt/sources.list.d/clang6.list
     - echo "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-7 main" > /etc/apt/sources.list.d/clang7.list
     - apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 15CF4D18AF4F7421
@@ -27,44 +27,44 @@ gcc-5:
 gcc-6:
   <<: *ubuntu
   script:
-    - ../tools/debian-setup.sh --install-optional ninja-build  gcc-6 g++-6 -y
+    - ../tools/debian-setup.sh --install-optional ninja-build gcc-6 g++-6 -y
     - cmake -GNinja -DCMAKE_C_COMPILER=gcc-6 -DCMAKE_CXX_COMPILER=g++-6 ..
     - ninja
 gcc-7:
   <<: *ubuntu
   script:
-    - ../tools/debian-setup.sh --install-optional ninja-build  gcc-7 g++-7 -y
+    - ../tools/debian-setup.sh --install-optional ninja-build gcc-7 g++-7 -y
     - cmake -GNinja -DCMAKE_C_COMPILER=gcc-7 -DCMAKE_CXX_COMPILER=g++-7 ..
     - ninja
 gcc-8:
   <<: *ubuntu
   script:
-    - ../tools/debian-setup.sh --install-optional ninja-build  gcc-8 g++-8 -y
+    - ../tools/debian-setup.sh --install-optional ninja-build gcc-8 g++-8 -y
     - cmake -GNinja -DCMAKE_C_COMPILER=gcc-8 -DCMAKE_CXX_COMPILER=g++-8 ..
     - ninja
 gcc-8-nopcap:
   <<: *ubuntu
   script:
-    - ../tools/debian-setup.sh --install-optional ninja-build  gcc-8 g++-8 -y
+    - ../tools/debian-setup.sh --install-optional ninja-build gcc-8 g++-8 -y
     - cmake -GNinja -DENABLE_PCAP=OFF -DCMAKE_C_COMPILER=gcc-8 -DCMAKE_CXX_COMPILER=g++-8 ..
     - ninja
-clang-5.0:
+clang-5:
   <<: *ubuntu
   script:
-    - ../tools/debian-setup.sh --install-optional ninja-build  clang-5.0 -y
+    - ../tools/debian-setup.sh --install-optional ninja-build clang-5.0 -y
     - cmake -GNinja -DCMAKE_C_COMPILER=clang-5.0 -DCMAKE_CXX_COMPILER=clang++-5.0 -DCMAKE_C_FLAGS=-Wframe-larger-than=20000 ..
     - ninja
-clang-6.0:
+clang-6:
   <<: *ubuntu
   script:
-    - ../tools/debian-setup.sh --install-optional ninja-build  clang-6.0 -y
+    - ../tools/debian-setup.sh --install-optional ninja-build clang-6.0 -y
     - cmake -GNinja -DCMAKE_C_COMPILER=clang-6.0 -DCMAKE_CXX_COMPILER=clang++-6.0 -DCMAKE_C_FLAGS=-Wframe-larger-than=20000 ..
     - ninja
 clang-7:
   <<: *ubuntu
   script:
      - ../tools/debian-setup.sh --install-optional ninja-build clang-7 -y
-     - cmake -GNinja -DCMAKE_C_COMPILER=clang-7  -DCMAKE_CXX_COMPILER=clang++-7 -DCMAKE_C_FLAGS=-Wframe-larger-than=20000 ..
+     - cmake -GNinja -DCMAKE_C_COMPILER=clang-7 -DCMAKE_CXX_COMPILER=clang++-7 -DCMAKE_C_FLAGS=-Wframe-larger-than=20000 ..
      - ninja
 clang-7-nopcap:
   <<: *ubuntu
