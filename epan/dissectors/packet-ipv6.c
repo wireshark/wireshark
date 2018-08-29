@@ -2292,19 +2292,22 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     ip6_nxt = tvb_get_guint8(tvb, offset + IP6H_CTL_NXT);
 
-    if (ipv6_tso_supported && ipv6_pinfo->ip6_plen == 0 && ip6_nxt != IP_PROTO_HOPOPTS && ip6_nxt != IP_PROTO_NONE) {
+    if (ipv6_tso_supported && ipv6_pinfo->ip6_plen == 0 &&
+                    ip6_nxt != IP_PROTO_HOPOPTS && ip6_nxt != IP_PROTO_NONE) {
         ipv6_pinfo->ip6_plen = tvb_reported_length(tvb) - IPv6_HDR_SIZE;
-        pi = proto_tree_add_uint_format_value(ipv6_tree, hf_ipv6_plen, tvb, offset + IP6H_CTL_PLEN, 2,
-          ipv6_pinfo->ip6_plen,
-          "%u bytes (reported as 0, presumed to be because of \"TCP segmentation offload\" (TSO))",
-          ipv6_pinfo->ip6_plen);
+        pi = proto_tree_add_uint_format_value(ipv6_tree, hf_ipv6_plen, tvb,
+                                offset + IP6H_CTL_PLEN, 2, ipv6_pinfo->ip6_plen,
+                                "%u bytes (reported as 0, presumed to be because "
+                                "of \"TCP segmentation offload\" (TSO))",
+                                ipv6_pinfo->ip6_plen);
         PROTO_ITEM_SET_GENERATED(pi);
     } else {
-            ti_ipv6_plen = proto_tree_add_item(ipv6_tree, hf_ipv6_plen, tvb,
+        ti_ipv6_plen = proto_tree_add_item(ipv6_tree, hf_ipv6_plen, tvb,
                                 offset + IP6H_CTL_PLEN, 2, ENC_BIG_ENDIAN);
-            if (ipv6_pinfo->ip6_plen == 0 && ip6_nxt != IP_PROTO_HOPOPTS && ip6_nxt != IP_PROTO_NONE) {
-                expert_add_info(pinfo, ti_ipv6_plen, &ei_ipv6_plen_zero);
-            }
+        if (ipv6_pinfo->ip6_plen == 0 &&
+                    ip6_nxt != IP_PROTO_HOPOPTS && ip6_nxt != IP_PROTO_NONE) {
+            expert_add_info(pinfo, ti_ipv6_plen, &ei_ipv6_plen_zero);
+        }
     }
 
     ipv6_pinfo->frag_plen = ipv6_pinfo->ip6_plen;
