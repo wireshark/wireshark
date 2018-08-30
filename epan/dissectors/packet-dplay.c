@@ -1115,7 +1115,7 @@ static gboolean heur_dissect_dplay(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         return FALSE;
 
     /* The string play = 0x706c6179 */
-    dplay_id = tvb_get_letohl(tvb, 20);
+    dplay_id = tvb_get_ntohl(tvb, 20);
     if( dplay_id == 0x706c6179) {
         dissect_dplay(tvb, pinfo, tree);
         return TRUE;
