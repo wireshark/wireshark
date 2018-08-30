@@ -2687,6 +2687,7 @@ endif()
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 	find_program(RPMBUILD_EXECUTABLE rpmbuild)
+	find_program(DPKG_BUILDPACKAGE_EXECUTABLE dpkg-buildpackage)
 	find_program(GIT_EXECUTABLE git)
 endif()
 
@@ -2776,6 +2777,13 @@ if(RPMBUILD_EXECUTABLE)
 		DEPENDS "${CMAKE_BINARY_DIR}/packaging/rpm/SOURCES/${_export_tarball}"
 		WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/packaging/rpm"
 		COMMENT "Create a tarball from the current git commit."
+	)
+endif()
+
+if(DPKG_BUILDPACKAGE_EXECUTABLE)
+	add_custom_target(deb-package
+		COMMAND ${DPKG_BUILDPACKAGE_EXECUTABLE} -us -uc
+		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 	)
 endif()
 
