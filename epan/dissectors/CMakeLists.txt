@@ -1609,6 +1609,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rtp-events.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rtp-midi.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rtp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-rtp-ed137.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rtpproxy.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rtps.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rtsp.c
