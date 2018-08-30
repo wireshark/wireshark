@@ -16,3 +16,4 @@ mkdir -p build
 cd build
 cmake /vagrant/
 make -j6
+make test
