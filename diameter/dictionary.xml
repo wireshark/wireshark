@@ -6842,11 +6842,16 @@
 				<avp name="Area-Definition" multiplicity="1" />
 				<avp name="Occurrence-Info" multiplicity="0-1" />
 				<avp name="Interval-Time" multiplicity="0-1" />
+				<avp name="Maximum-Interval" multiplicity="0-1" />
+				<avp name="Sampling-Interval" multiplicity="0-1" />
+				<avp name="Reporting-Duration" multiplicity="0-1" />
+				<avp name="Reporting-Location-Requirements" multiplicity="0-1" />
 			</grouped>
 		</avp>
 		<avp name="Area-Definition" code="2534" vendor-id="TGPP" mandatory="mustnot" protected="mustnot" may-encrypt="no" vendor-bit="must" >
 			<grouped>
 				<avp name="Area" multiplicity="1-10" />
+				<avp name="Additional-Area" multiplicity="0-240" />
 			</grouped>
 		</avp>
 		<avp name="Area" code="2535" vendor-id="TGPP" mandatory="mustnot" protected="mustnot" may-encrypt="no" vendor-bit="must" >
@@ -6965,6 +6970,45 @@
 
 		<avp name="UTRAN-Additional-Positioning-Data" code="2558" vendor-id="TGPP" mandatory="mustnot" protected="mustnot" may-encrypt="no" vendor-bit="must" >
 			<type type-name="OctetString" />
+		</avp>
+
+		<avp name="Motion-Event-Info" code="2559" vendor-id="TGPP" mandatory="mustnot" protected="mustnot" may-encrypt="no" vendor-bit="mustnot" >
+			<grouped>
+				<avp name="Linear-Distance" multiplicity="1" />
+				<avp name="Occurrence-Info" multiplicity="0-1" />
+				<avp name="Interval-Time" multiplicity="0-1" />
+				<avp name="Maximum-Interval" multiplicity="0-1" />
+				<avp name="Sampling-Interval" multiplicity="0-1" />
+				<avp name="Reporting-Duration" multiplicity="0-1" />
+				<avp name="Reporting-Location-Requirements" multiplicity="0-1" />
+			</grouped>
+		</avp>
+
+		<avp name="Linear-Distance" code="2560" vendor-id="TGPP" mandatory="mustnot" protected="mustnot" may-encrypt="no" vendor-bit="must" >
+			<type type-name="Unsigned32" />
+		</avp>
+
+		<avp name="Maximum-Interval" code="2561" vendor-id="TGPP" mandatory="mustnot" protected="mustnot" may-encrypt="no" vendor-bit="must" >
+			<type type-name="Unsigned32" />
+		</avp>
+
+		<avp name="Sampling-Interval" code="2562" vendor-id="TGPP" mandatory="mustnot" protected="mustnot" may-encrypt="no" vendor-bit="must" >
+			<type type-name="Unsigned32" />
+		</avp>
+
+		<avp name="Reporting-Duration" code="2563" vendor-id="TGPP" mandatory="mustnot" protected="mustnot" may-encrypt="no" vendor-bit="must" >
+			<type type-name="Unsigned32" />
+		</avp>
+
+		<avp name="Reporting-Location-Requirements" code="2564" vendor-id="TGPP" mandatory="mustnot" protected="mustnot" may-encrypt="no" vendor-bit="must" >
+			<type type-name="Unsigned32" />
+		</avp>
+
+		<avp name="Additional-Area" code="2565" vendor-id="TGPP" mandatory="mustnot" protected="mustnot" may-encrypt="no" vendor-bit="must" >
+			<grouped>
+				<avp name="Area-Type" multiplicity="1" />
+				<avp name="Area-Identification" multiplicity="1" />
+			</grouped>
 		</avp>
 
 		<avp name="Reserved-2600" code="2600" mandatory="must" vendor-bit="must" vendor-id="TGPP">
