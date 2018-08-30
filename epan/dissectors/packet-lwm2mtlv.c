@@ -108,8 +108,12 @@ typedef struct _lwm2m_resource_t {
 	char   *name;
 	guint   data_type;
 	gint   *hf_id;
+	gint   *ett_id;
 	char   *field_name;
 } lwm2m_resource_t;
+
+/* RESOURCE_FILL initializes all the dynamic fields in a lwm2m_resource_t. */
+#define RESOURCE_FILL NULL, NULL, NULL
 
 #define DATA_TYPE_NONE    0
 #define DATA_TYPE_STRING  1
@@ -148,106 +152,109 @@ static const value_string lwm2m_oma_objects[] = {
 static lwm2m_resource_t lwm2m_oma_resources[] =
 {
 	/* LwM2M Security (0) */
-	{ 0, 0,  "LwM2M Server URI", DATA_TYPE_STRING, NULL, NULL },
-	{ 0, 1,  "Bootstrap-Server", DATA_TYPE_BOOLEAN, NULL, NULL },
-	{ 0, 2,  "Security Mode", DATA_TYPE_INTEGER, NULL, NULL },
-	{ 0, 3,  "Public Key or Identity", DATA_TYPE_OPAQUE, NULL, NULL },
-	{ 0, 4,  "Server Public Key", DATA_TYPE_OPAQUE, NULL, NULL },
-	{ 0, 5,  "Secret Key", DATA_TYPE_OPAQUE, NULL, NULL },
-	{ 0, 6,  "SMS Security Mode", DATA_TYPE_INTEGER, NULL, NULL },
-	{ 0, 7,  "SMS Binding Key Parameters", DATA_TYPE_OPAQUE, NULL, NULL },
-	{ 0, 8,  "SMS Binding Secret Keys", DATA_TYPE_OPAQUE, NULL, NULL },
-	{ 0, 9,  "LwM2M Server SMS Number", DATA_TYPE_STRING, NULL, NULL },
-	{ 0, 10, "Short Server ID", DATA_TYPE_INTEGER, NULL, NULL },
-	{ 0, 11, "Client Hold Off Time", DATA_TYPE_INTEGER, NULL, NULL },
-	{ 0, 12, "Bootstrap-Server Account Timeout", DATA_TYPE_INTEGER, NULL, NULL },
+	{ 0, 0,  "LwM2M Server URI", DATA_TYPE_STRING, RESOURCE_FILL },
+	{ 0, 1,  "Bootstrap-Server", DATA_TYPE_BOOLEAN, RESOURCE_FILL },
+	{ 0, 2,  "Security Mode", DATA_TYPE_INTEGER, RESOURCE_FILL },
+	{ 0, 3,  "Public Key or Identity", DATA_TYPE_OPAQUE, RESOURCE_FILL },
+	{ 0, 4,  "Server Public Key", DATA_TYPE_OPAQUE, RESOURCE_FILL },
+	{ 0, 5,  "Secret Key", DATA_TYPE_OPAQUE, RESOURCE_FILL },
+	{ 0, 6,  "SMS Security Mode", DATA_TYPE_INTEGER, RESOURCE_FILL },
+	{ 0, 7,  "SMS Binding Key Parameters", DATA_TYPE_OPAQUE, RESOURCE_FILL },
+	{ 0, 8,  "SMS Binding Secret Keys", DATA_TYPE_OPAQUE, RESOURCE_FILL },
+	{ 0, 9,  "LwM2M Server SMS Number", DATA_TYPE_STRING, RESOURCE_FILL },
+	{ 0, 10, "Short Server ID", DATA_TYPE_INTEGER, RESOURCE_FILL },
+	{ 0, 11, "Client Hold Off Time", DATA_TYPE_INTEGER, RESOURCE_FILL },
+	{ 0, 12, "Bootstrap-Server Account Timeout", DATA_TYPE_INTEGER, RESOURCE_FILL },
 
 	/* LwM2M Server (1) */
-	{ 1, 0,  "Short Server ID", DATA_TYPE_INTEGER, NULL, NULL },
-	{ 1, 1,  "Lifetime", DATA_TYPE_INTEGER, NULL, NULL },
-	{ 1, 2,  "Default Minimum Period", DATA_TYPE_INTEGER, NULL, NULL },
-	{ 1, 3,  "Default Maximum Period", DATA_TYPE_INTEGER, NULL, NULL },
-	{ 1, 4,  "Disable", DATA_TYPE_NONE, NULL, NULL },
-	{ 1, 5,  "Disable Timeout", DATA_TYPE_INTEGER, NULL, NULL },
-	{ 1, 6,  "Notification Storing When Disabled or Offline", DATA_TYPE_BOOLEAN, NULL, NULL },
-	{ 1, 7,  "Binding", DATA_TYPE_STRING, NULL, NULL },
+	{ 1, 0,  "Short Server ID", DATA_TYPE_INTEGER, RESOURCE_FILL },
+	{ 1, 1,  "Lifetime", DATA_TYPE_INTEGER, RESOURCE_FILL },
+	{ 1, 2,  "Default Minimum Period", DATA_TYPE_INTEGER, RESOURCE_FILL },
+	{ 1, 3,  "Default Maximum Period", DATA_TYPE_INTEGER, RESOURCE_FILL },
+	{ 1, 4,  "Disable", DATA_TYPE_NONE, RESOURCE_FILL },
+	{ 1, 5,  "Disable Timeout", DATA_TYPE_INTEGER, RESOURCE_FILL },
+	{ 1, 6,  "Notification Storing When Disabled or Offline", DATA_TYPE_BOOLEAN, RESOURCE_FILL },
+	{ 1, 7,  "Binding", DATA_TYPE_STRING, RESOURCE_FILL },
 
 	/* Access Control (2) */
-	{ 2, 0,  "Object ID", DATA_TYPE_INTEGER, NULL, NULL },
-	{ 2, 1,  "Object Instance ID", DATA_TYPE_INTEGER, NULL, NULL },
-	{ 2, 2,  "ACL", DATA_TYPE_INTEGER, NULL, NULL },
-	{ 2, 3,  "Access Control Owner", DATA_TYPE_INTEGER, NULL, NULL },
+	{ 2, 0,  "Object ID", DATA_TYPE_INTEGER, RESOURCE_FILL },
+	{ 2, 1,  "Object Instance ID", DATA_TYPE_INTEGER, RESOURCE_FILL },
+	{ 2, 2,  "ACL", DATA_TYPE_INTEGER, RESOURCE_FILL },
+	{ 2, 3,  "Access Control Owner", DATA_TYPE_INTEGER, RESOURCE_FILL },
 
 	/* Device (3) */
-	{ 3, 0,  "Manufacturer", DATA_TYPE_STRING, NULL, NULL },
-	{ 3, 1,  "Model Number", DATA_TYPE_STRING, NULL, NULL },
-	{ 3, 2,  "Serial Number", DATA_TYPE_STRING, NULL, NULL },
-	{ 3, 3,  "Firmware Version", DATA_TYPE_STRING, NULL, NULL },
-	{ 3, 4,  "Reboot", DATA_TYPE_NONE, NULL, NULL },
-	{ 3, 5,  "Factory Reset", DATA_TYPE_NONE, NULL, NULL },
-	{ 3, 6,  "Available Power Sources", DATA_TYPE_INTEGER, NULL, NULL },
-	{ 3, 7,  "Power Source Voltage", DATA_TYPE_INTEGER, NULL, NULL },
-	{ 3, 8,  "Power Source Current", DATA_TYPE_INTEGER, NULL, NULL },
-	{ 3, 9,  "Battery Level", DATA_TYPE_INTEGER, NULL, NULL },
-	{ 3, 10, "Memory Free", DATA_TYPE_INTEGER, NULL, NULL },
-	{ 3, 11, "Error Code", DATA_TYPE_INTEGER, NULL, NULL },
-	{ 3, 12, "Reset Error Code", DATA_TYPE_NONE, NULL, NULL },
-	{ 3, 13, "Current Time", DATA_TYPE_TIME, NULL, NULL },
-	{ 3, 14, "UTC Offset", DATA_TYPE_STRING, NULL, NULL },
-	{ 3, 15, "Timezone", DATA_TYPE_STRING, NULL, NULL },
-	{ 3, 16, "Supported Binding and Modes", DATA_TYPE_STRING, NULL, NULL },
-	{ 3, 17, "Device Type", DATA_TYPE_STRING, NULL, NULL },
-	{ 3, 18, "Hardware Version", DATA_TYPE_STRING, NULL, NULL },
-	{ 3, 19, "Software Version", DATA_TYPE_STRING, NULL, NULL },
-	{ 3, 20, "Battery Status", DATA_TYPE_INTEGER, NULL, NULL },
-	{ 3, 21, "Memory Total", DATA_TYPE_INTEGER, NULL, NULL },
-	{ 3, 22, "ExtDevInfo", DATA_TYPE_OBJLNK, NULL, NULL },
+	{ 3, 0,  "Manufacturer", DATA_TYPE_STRING, RESOURCE_FILL },
+	{ 3, 1,  "Model Number", DATA_TYPE_STRING, RESOURCE_FILL },
+	{ 3, 2,  "Serial Number", DATA_TYPE_STRING, RESOURCE_FILL },
+	{ 3, 3,  "Firmware Version", DATA_TYPE_STRING, RESOURCE_FILL },
+	{ 3, 4,  "Reboot", DATA_TYPE_NONE, RESOURCE_FILL },
+	{ 3, 5,  "Factory Reset", DATA_TYPE_NONE, RESOURCE_FILL },
+	{ 3, 6,  "Available Power Sources", DATA_TYPE_INTEGER, RESOURCE_FILL },
+	{ 3, 7,  "Power Source Voltage", DATA_TYPE_INTEGER, RESOURCE_FILL },
+	{ 3, 8,  "Power Source Current", DATA_TYPE_INTEGER, RESOURCE_FILL },
+	{ 3, 9,  "Battery Level", DATA_TYPE_INTEGER, RESOURCE_FILL },
+	{ 3, 10, "Memory Free", DATA_TYPE_INTEGER, RESOURCE_FILL },
+	{ 3, 11, "Error Code", DATA_TYPE_INTEGER, RESOURCE_FILL },
+	{ 3, 12, "Reset Error Code", DATA_TYPE_NONE, RESOURCE_FILL },
+	{ 3, 13, "Current Time", DATA_TYPE_TIME, RESOURCE_FILL },
+	{ 3, 14, "UTC Offset", DATA_TYPE_STRING, RESOURCE_FILL },
+	{ 3, 15, "Timezone", DATA_TYPE_STRING, RESOURCE_FILL },
+	{ 3, 16, "Supported Binding and Modes", DATA_TYPE_STRING, RESOURCE_FILL },
+	{ 3, 17, "Device Type", DATA_TYPE_STRING, RESOURCE_FILL },
+	{ 3, 18, "Hardware Version", DATA_TYPE_STRING, RESOURCE_FILL },
+	{ 3, 19, "Software Version", DATA_TYPE_STRING, RESOURCE_FILL },
+	{ 3, 20, "Battery Status", DATA_TYPE_INTEGER, RESOURCE_FILL },
+	{ 3, 21, "Memory Total", DATA_TYPE_INTEGER, RESOURCE_FILL },
+	{ 3, 22, "ExtDevInfo", DATA_TYPE_OBJLNK, RESOURCE_FILL },
 
 	/* Connectivity Monitoring (4) */
-	{ 4, 0,  "Network Bearer", DATA_TYPE_INTEGER, NULL, NULL },
-	{ 4, 1,  "Available Network Bearer", DATA_TYPE_INTEGER, NULL, NULL },
-	{ 4, 2,  "Radio Signal Strength", DATA_TYPE_INTEGER, NULL, NULL },
-	{ 4, 3,  "Link Quality", DATA_TYPE_INTEGER, NULL, NULL },
-	{ 4, 4,  "IP Addresses", DATA_TYPE_STRING, NULL, NULL },
-	{ 4, 5,  "Router IP Addresses", DATA_TYPE_STRING, NULL, NULL },
-	{ 4, 6,  "Link Utilization", DATA_TYPE_INTEGER, NULL, NULL },
-	{ 4, 7,  "APN", DATA_TYPE_STRING, NULL, NULL },
-	{ 4, 8,  "Cell ID", DATA_TYPE_INTEGER, NULL, NULL },
-	{ 4, 9,  "SMNC", DATA_TYPE_INTEGER, NULL, NULL },
-	{ 4, 10, "SMCC", DATA_TYPE_INTEGER, NULL, NULL },
+	{ 4, 0,  "Network Bearer", DATA_TYPE_INTEGER, RESOURCE_FILL },
+	{ 4, 1,  "Available Network Bearer", DATA_TYPE_INTEGER, RESOURCE_FILL },
+	{ 4, 2,  "Radio Signal Strength", DATA_TYPE_INTEGER, RESOURCE_FILL },
+	{ 4, 3,  "Link Quality", DATA_TYPE_INTEGER, RESOURCE_FILL },
+	{ 4, 4,  "IP Addresses", DATA_TYPE_STRING, RESOURCE_FILL },
+	{ 4, 5,  "Router IP Addresses", DATA_TYPE_STRING, RESOURCE_FILL },
+	{ 4, 6,  "Link Utilization", DATA_TYPE_INTEGER, RESOURCE_FILL },
+	{ 4, 7,  "APN", DATA_TYPE_STRING, RESOURCE_FILL },
+	{ 4, 8,  "Cell ID", DATA_TYPE_INTEGER, RESOURCE_FILL },
+	{ 4, 9,  "SMNC", DATA_TYPE_INTEGER, RESOURCE_FILL },
+	{ 4, 10, "SMCC", DATA_TYPE_INTEGER, RESOURCE_FILL },
 
 	/* Firmware Update (5) */
-	{ 5, 0,  "Package", DATA_TYPE_OPAQUE, NULL, NULL },
-	{ 5, 1,  "Package URI", DATA_TYPE_STRING, NULL, NULL },
-	{ 5, 2,  "Update", DATA_TYPE_NONE, NULL, NULL },
-	{ 5, 3,  "State", DATA_TYPE_INTEGER, NULL, NULL },
-	/* { 5, 4,  "", DATA_TYPE_NONE, NULL, NULL }, */
-	{ 5, 5,  "Update Result", DATA_TYPE_INTEGER, NULL, NULL },
-	{ 5, 6,  "PkgName", DATA_TYPE_STRING, NULL, NULL },
-	{ 5, 7,  "PkgVersion", DATA_TYPE_STRING, NULL, NULL },
-	{ 5, 8,  "Firmware Update Protocol Support", DATA_TYPE_INTEGER, NULL, NULL },
-	{ 5, 9,  "Firmware Update Delivery Method", DATA_TYPE_INTEGER, NULL, NULL },
+	{ 5, 0,  "Package", DATA_TYPE_OPAQUE, RESOURCE_FILL },
+	{ 5, 1,  "Package URI", DATA_TYPE_STRING, RESOURCE_FILL },
+	{ 5, 2,  "Update", DATA_TYPE_NONE, RESOURCE_FILL },
+	{ 5, 3,  "State", DATA_TYPE_INTEGER, RESOURCE_FILL },
+	/* { 5, 4,  "", DATA_TYPE_NONE, RESOURCE_FILL }, */
+	{ 5, 5,  "Update Result", DATA_TYPE_INTEGER, RESOURCE_FILL },
+	{ 5, 6,  "PkgName", DATA_TYPE_STRING, RESOURCE_FILL },
+	{ 5, 7,  "PkgVersion", DATA_TYPE_STRING, RESOURCE_FILL },
+	{ 5, 8,  "Firmware Update Protocol Support", DATA_TYPE_INTEGER, RESOURCE_FILL },
+	{ 5, 9,  "Firmware Update Delivery Method", DATA_TYPE_INTEGER, RESOURCE_FILL },
 
 	/* Location (6) */
-	{ 6, 0,  "Latitude", DATA_TYPE_FLOAT, NULL, NULL },
-	{ 6, 1,  "Longitude", DATA_TYPE_FLOAT, NULL, NULL },
-	{ 6, 2,  "Altitude", DATA_TYPE_FLOAT, NULL, NULL },
-	{ 6, 3,  "Radius", DATA_TYPE_FLOAT, NULL, NULL },
-	{ 6, 4,  "Velocity", DATA_TYPE_OPAQUE, NULL, NULL },
-	{ 6, 5,  "Timestamp", DATA_TYPE_TIME, NULL, NULL },
-	{ 6, 6,  "Speed", DATA_TYPE_FLOAT, NULL, NULL },
+	{ 6, 0,  "Latitude", DATA_TYPE_FLOAT, RESOURCE_FILL },
+	{ 6, 1,  "Longitude", DATA_TYPE_FLOAT, RESOURCE_FILL },
+	{ 6, 2,  "Altitude", DATA_TYPE_FLOAT, RESOURCE_FILL },
+	{ 6, 3,  "Radius", DATA_TYPE_FLOAT, RESOURCE_FILL },
+	{ 6, 4,  "Velocity", DATA_TYPE_OPAQUE, RESOURCE_FILL },
+	{ 6, 5,  "Timestamp", DATA_TYPE_TIME, RESOURCE_FILL },
+	{ 6, 6,  "Speed", DATA_TYPE_FLOAT, RESOURCE_FILL },
 
 	/* Connectivity Statistics (7) */
-	{ 7, 0,  "SMS Tx Counter", DATA_TYPE_INTEGER, NULL, NULL },
-	{ 7, 1,  "SMS Rx Counter", DATA_TYPE_INTEGER, NULL, NULL },
-	{ 7, 2,  "Tx Data", DATA_TYPE_INTEGER, NULL, NULL },
-	{ 7, 3,  "Rx Data", DATA_TYPE_INTEGER, NULL, NULL },
-	{ 7, 4,  "Max Message Size", DATA_TYPE_INTEGER, NULL, NULL },
-	{ 7, 5,  "Average Message Size", DATA_TYPE_INTEGER, NULL, NULL },
-	{ 7, 6,  "Start", DATA_TYPE_NONE, NULL, NULL },
-	{ 7, 7,  "Stop", DATA_TYPE_NONE, NULL, NULL },
-	{ 7, 8,  "Collection Period", DATA_TYPE_INTEGER, NULL, NULL },
+	{ 7, 0,  "SMS Tx Counter", DATA_TYPE_INTEGER, RESOURCE_FILL },
+	{ 7, 1,  "SMS Rx Counter", DATA_TYPE_INTEGER, RESOURCE_FILL },
+	{ 7, 2,  "Tx Data", DATA_TYPE_INTEGER, RESOURCE_FILL },
+	{ 7, 3,  "Rx Data", DATA_TYPE_INTEGER, RESOURCE_FILL },
+	{ 7, 4,  "Max Message Size", DATA_TYPE_INTEGER, RESOURCE_FILL },
+	{ 7, 5,  "Average Message Size", DATA_TYPE_INTEGER, RESOURCE_FILL },
+	{ 7, 6,  "Start", DATA_TYPE_NONE, RESOURCE_FILL },
+	{ 7, 7,  "Stop", DATA_TYPE_NONE, RESOURCE_FILL },
+	{ 7, 8,  "Collection Period", DATA_TYPE_INTEGER, RESOURCE_FILL },
 };
+
+static hf_register_info *static_hf;
+static GArray *static_ett;
 
 /* LwM2M Objects defined by User */
 static lwm2m_object_name_t *lwm2m_uat_object_names;
@@ -257,7 +264,7 @@ static guint num_lwm2m_uat_resources;
 
 static hf_register_info *dynamic_hf;
 static guint dynamic_hf_size;
-static hf_register_info *static_hf;
+static GArray *dynamic_ett;
 
 static gboolean lwm2m_object_name_update_cb(void *record, char **error)
 {
@@ -359,10 +366,13 @@ static void lwm2m_resource_free_cb(void *record)
 static void lwm2m_add_resource(lwm2m_resource_t *resource, hf_register_info *hf)
 {
 	gchar *resource_abbrev;
-	gint *hf_id;
+	gint *hf_id, *ett_id;
 
 	hf_id = g_new(gint,1);
 	*hf_id = -1;
+
+	ett_id = g_new(gint, 1);
+	*ett_id = -1;
 
 	if (resource->field_name) {
 		resource_abbrev = g_strdup(resource->field_name);
@@ -376,6 +386,7 @@ static void lwm2m_add_resource(lwm2m_resource_t *resource, hf_register_info *hf)
 	}
 
 	resource->hf_id = hf_id;
+	resource->ett_id = ett_id;
 
 	hf->p_id = hf_id;
 	hf->hfinfo.name = g_strdup(resource->name);
@@ -429,6 +440,11 @@ static void deregister_resource_fields(void)
 		dynamic_hf = NULL;
 		dynamic_hf_size = 0;
 	}
+
+	if (dynamic_ett) {
+		proto_add_deregistered_data(g_array_free(dynamic_ett, TRUE));
+		dynamic_ett = NULL;
+	}
 }
 
 static void lwm2m_resource_post_update_cb(void)
@@ -437,12 +453,15 @@ static void lwm2m_resource_post_update_cb(void)
 
 	if (num_lwm2m_uat_resources) {
 		dynamic_hf = g_new0(hf_register_info, num_lwm2m_uat_resources);
+		dynamic_ett = g_array_new(TRUE, TRUE, sizeof(gint*));
 
 		for (guint i = 0; i < num_lwm2m_uat_resources; i++) {
 			lwm2m_add_resource(&lwm2m_uat_resources[i], &dynamic_hf[dynamic_hf_size++]);
+			g_array_append_val(dynamic_ett, lwm2m_uat_resources[i].ett_id);
 		}
 
 		proto_register_field_array(proto_lwm2mtlv, dynamic_hf, dynamic_hf_size);
+		proto_register_subtree_array((gint**)(void*)dynamic_ett->data, dynamic_ett->len);
 	}
 }
 
@@ -518,6 +537,7 @@ static proto_tree*
 addElementTree(tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *element, const lwm2m_resource_t *resource)
 {
 	gchar *identifier = NULL;
+	gint ett_id;
 
 	if (resource) {
 		identifier = wmem_strdup_printf(wmem_packet_scope(), "[%02u] %s", element->identifier, resource->name);
@@ -536,11 +556,13 @@ addElementTree(tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *element, con
 		                                     "%02u", element->identifier);
 
 	case RESOURCE_ARRAY:
-		return proto_tree_add_subtree_format(tlv_tree, tvb, 0, element->totalLength, ett_lwm2mtlv_resourceArray, NULL,
+		ett_id = resource ? *resource->ett_id : ett_lwm2mtlv_resourceArray;
+		return proto_tree_add_subtree_format(tlv_tree, tvb, 0, element->totalLength, ett_id, NULL,
 		                                     "%s", identifier);
 
 	case RESOURCE:
-		return proto_tree_add_subtree_format(tlv_tree, tvb, 0, element->totalLength, ett_lwm2mtlv_resource, NULL,
+		ett_id = resource ? *resource->ett_id : ett_lwm2mtlv_resource;
+		return proto_tree_add_subtree_format(tlv_tree, tvb, 0, element->totalLength, ett_id, NULL,
 		                                     "%s", identifier);
 	}
 	return NULL;
@@ -816,6 +838,9 @@ static void lwm2m_shutdown_routine(void)
 
 	proto_add_deregistered_data(static_hf);
 	static_hf = NULL;
+
+	proto_add_deregistered_data(g_array_free(static_ett, TRUE));
+	static_ett = NULL;
 }
 
 void proto_register_lwm2mtlv(void)
@@ -986,10 +1011,15 @@ void proto_register_lwm2mtlv(void)
 	                              resource_uat);
 
 	static_hf = g_new0(hf_register_info, array_length(lwm2m_oma_resources));
+	static_ett = g_array_new(TRUE, TRUE, sizeof(gint*));
+
 	for (guint i = 0; i < array_length(lwm2m_oma_resources); i++) {
 		lwm2m_add_resource(&lwm2m_oma_resources[i], &static_hf[i]);
+		g_array_append_val(static_ett, lwm2m_oma_resources[i].ett_id);
 	}
+
 	proto_register_field_array(proto_lwm2mtlv, static_hf, array_length(lwm2m_oma_resources));
+	proto_register_subtree_array((gint**)(void*)static_ett->data, static_ett->len);
 }
 
 void
