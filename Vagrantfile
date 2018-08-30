@@ -23,6 +23,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       s.path = 'tools/debian-setup.sh'
       s.args = ['--install-optional', '--assume-yes']
     end
+    deb.vm.provision :shell, inline: "apt-get -y install ccache"
     deb.vm.provision :shell, path: 'vagrant_build.sh', privileged: false
   end
 
@@ -33,6 +34,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       s.path = 'tools/rpm-setup.sh'
       s.args = ['--install-optional', '--assumeyes']
     end
+    rpm.vm.provision :shell, inline: "yum -y install ccache"
     rpm.vm.provision :shell, path: 'vagrant_build.sh', privileged: false
   end
 end
