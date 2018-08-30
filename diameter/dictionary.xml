@@ -6725,12 +6725,15 @@
 			<enum name="LOW_DELAY" code="0"/>
 			<enum name="DELAY_TOLERANT" code="1"/>
 		</avp>
+
 		<avp name="Supported-GAD-Shapes" code="2510" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
+
 		<avp name="LCS-Codeword" code="2511" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="UTF8String"/>
 		</avp>
+
 		<avp name="LCS-Privacy-Check" code="2512" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
 			<enum name="ALLOWED_WITHOUT_NOTIFICATION" code="0"/>
@@ -6749,15 +6752,19 @@
 		<avp name="Age-Of-Location-Estimate" code="2514" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
+
 		<avp name="Velocity-Estimate" code="2515" vendor-bit="must" vendor-id="TGPP">
 		<type type-name="OctetString"/>
 		</avp>
+
 		<avp name="EUTRAN-Positioning-Data" code="2516" vendor-bit="must" vendor-id="TGPP">
 		<type type-name="OctetString"/>
 		</avp>
+
 		<avp name="ECGI" code="2517" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="OctetString"/>
 		</avp>
+
 		<avp name="Location-Event" code="2518" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
 			<enum name="EMERGENCY_CALL_ORIGINATION" code="0"/>
@@ -6765,6 +6772,7 @@
 			<enum name="MO_LR" code="2"/>
 			<enum name="EMERGENCY_CALL_HANDOVER" code="3"/>
 		</avp>
+
 		<avp name="Pseudonym-Indicator" code="2519" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
 			<enum name="PSEUDONYM_NOT_REQUESTED" code="0"/>
@@ -6790,51 +6798,174 @@
 			<enum name="BEST EFFORT" code="1"/>
 		</avp>
 
-		<!--
-		GERAN-Positioning-Info 2524 7.4.29 Grouped V M No
-		GERAN-Positioning-Data 2525 7.4.30 OctetString V M No
-		GERAN-GANSS-Positioning-Data 2526 7.4.31 OctetString V M No
-		UTRAN-Positioning-Info 2527 7.4.32 Grouped V M No
-		UTRAN-Positioning-Data 2528 7.4.33 OctetString V M No
-		UTRAN-GANSS-Positioning-Data 2529 7.4.34 OctetString V M No
-		LRR-Flags 2530 7.4.35 Unsigned32 V M No
-		LCS-Reference-Number 2531 7.4.37 OctetString V M No
-		Deferred-Location-Type 2532 7.4.36 Unsigned32 V M No
-		Area-Event-Info 2533 7.4.38 Grouped V M No
-		Area-Definition 2534 7.4.39 Grouped V M No
-		Area 2535 7.4.40 Grouped V M No
-		Area-Type 2536 7.4.41 Unsigned32 V M No
-		Area-Identification 2537 7.4.42 Grouped V M No
-		Occurrence-Info 2538 7.4.43 Enumerated V M No
-		Interval-Time 2539 7.4.44 Unsigned32 V M No
-		Periodic-LDR-Information 2540 7.4.45 Grouped V M No
-		Reporting-Amount 2541 7.4.46 Unsigned32 V M No
-		Reporting-Interval 2542 7.4.47 Unsigned32 V M No
-		Reporting-PLMN-List 2543 7.4.48 Grouped V M No
-		PLMN-ID-List 2544 7.4.49 Grouped V M No
-		PLR-Flags 2545 7.4.52 Unsigned32 V M No
-		PLA-Flags 2546 7.4.53 Unsigned32 V M No
-		Deferred-MT-LR-Data 2547 7.4.54 Grouped V M No
-		Termination-Cause 2548 7.4.55 Unsigned32 V M No
-		LRA-Flags 2549 7.4.56 Unsigned32 V M No
-		Periodic-Location-Support-Indicator 2550 7.4.50 Enumerated V M No
-		Prioritized-List-Indicator 2551 7.4.51 Enumerated V M No
-		ESMLC-Cell-Info 2552 7.4.57 Grouped V M No
-		Cell-Portion-ID 2553 7.4.58 Unsigned32 V M No
-		1xRTT-RCID 2554 7.4.59 OctetString V M No
-		-->
+		<avp name="GERAN-Positioning-Info" code="2524" vendor-id="TGPP" mandatory="mustnot" protected="mustnot" may-encrypt="no" vendor-bit="must" >
+    		<grouped>
+      			<avp name="GERAN-Positioning-Data" multiplicity="0-1" />
+      			<avp name="GERAN-GANSS-Positioning-Data" multiplicity="0-1" />
+    		</grouped>
+		</avp>
+		<avp name="GERAN-Positioning-Data" code="2525" vendor-id="TGPP" mandatory="mustnot" protected="mustnot" may-encrypt="no" vendor-bit="must" >
+			<type type-name="OctetString" />
+		</avp>
+		<avp name="GERAN-GANSS-Positioning-Data" code="2526" vendor-id="TGPP" mandatory="mustnot" protected="mustnot" may-encrypt="no" vendor-bit="must" >
+			<type type-name="OctetString" />
+		</avp>
+
+		<avp name="UTRAN-Positioning-Info" code="2527" vendor-id="TGPP" mandatory="mustnot" protected="mustnot" may-encrypt="no" vendor-bit="must" >
+			<grouped>
+				<avp name="UTRAN-Positioning-Data" multiplicity="0-1" />
+				<avp name="UTRAN-GANSS-Positioning-Data" multiplicity="0-1" />
+				<avp name="UTRAN-Additional-Positioning-Data" multiplicity="0-1" />
+			</grouped>
+		</avp>
+		<avp name="UTRAN-Positioning-Data" code="2528" vendor-id="TGPP" mandatory="mustnot" protected="mustnot" may-encrypt="no" vendor-bit="must" >
+			<type type-name="OctetString" />
+		</avp>
+		<avp name="UTRAN-GANSS-Positioning-Data" code="2529" vendor-id="TGPP" mandatory="mustnot" protected="mustnot" may-encrypt="no" vendor-bit="must" >
+			<type type-name="OctetString" />
+		</avp>
+
+		<avp name="LRR-Flags" code="2530" vendor-id="TGPP" mandatory="mustnot" protected="mustnot" may-encrypt="no" vendor-bit="must" >
+			<type type-name="Unsigned32" />
+		</avp>
+
+		<avp name="LCS-Reference-Number" code="2531" vendor-id="TGPP" mandatory="mustnot" protected="mustnot" may-encrypt="no" vendor-bit="must" >
+    		<type type-name="OctetString" />
+		</avp>
+
+		<avp name="Deferred-Location-Type" code="2532" vendor-id="TGPP" mandatory="mustnot" protected="mustnot" may-encrypt="no" vendor-bit="must" >
+    		<type type-name="Unsigned32" />
+		</avp>
+
+		<avp name="Area-Event-Info" code="2533" vendor-id="TGPP" mandatory="mustnot" protected="mustnot" may-encrypt="no" vendor-bit="must" >
+			<grouped>
+				<avp name="Area-Definition" multiplicity="1" />
+				<avp name="Occurrence-Info" multiplicity="0-1" />
+				<avp name="Interval-Time" multiplicity="0-1" />
+			</grouped>
+		</avp>
+		<avp name="Area-Definition" code="2534" vendor-id="TGPP" mandatory="mustnot" protected="mustnot" may-encrypt="no" vendor-bit="must" >
+			<grouped>
+				<avp name="Area" multiplicity="1-10" />
+			</grouped>
+		</avp>
+		<avp name="Area" code="2535" vendor-id="TGPP" mandatory="mustnot" protected="mustnot" may-encrypt="no" vendor-bit="must" >
+			<grouped>
+				<avp name="Area-Type" multiplicity="1" />
+				<avp name="Area-Identification" multiplicity="1" />
+			</grouped>
+		</avp>
+		<avp name="Area-Type" code="2536" vendor-id="TGPP" mandatory="mustnot" protected="mustnot" may-encrypt="no" vendor-bit="must" >
+			<type type-name="Unsigned32" />
+		</avp>
+		<avp name="Area-Identification" code="2537" vendor-id="TGPP" mandatory="mustnot" protected="mustnot" may-encrypt="no" vendor-bit="must" >
+			<type type-name="OctetString" />
+		</avp>
+		<avp name="Occurrence-Info" code="2538" vendor-id="TGPP" mandatory="mustnot" protected="mustnot" may-encrypt="no" vendor-bit="must" >
+    		<type type-name="Enumerated">
+      			<enum name="ONE_TIME_EVENT" code="0"/>
+      			<enum name="MULTIPLE_TIME_EVENT" code="1"/>
+    		</type>
+		</avp>
+		<avp name="Interval-Time" code="2539" vendor-id="TGPP" mandatory="mustnot" protected="mustnot" may-encrypt="no" vendor-bit="must" >
+			<type type-name="Unsigned32" />
+		</avp>
+
+		<avp name="Periodic-LDR-Info" code="2540" vendor-id="TGPP" mandatory="mustnot" protected="mustnot" may-encrypt="no" vendor-bit="must" >
+			<grouped>
+				<avp name="Reporting-Amount" multiplicity="1" />
+				<avp name="Reporting-Interval" multiplicity="1" />
+			</grouped>
+		</avp>
+		<avp name="Reporting-Amount" code="2541" vendor-id="TGPP" mandatory="mustnot" protected="mustnot" may-encrypt="no" vendor-bit="must" >
+			<type type-name="Unsigned32" />
+		</avp>
+		<avp name="Reporting-Interval" code="2542" vendor-id="TGPP" mandatory="mustnot" protected="mustnot" may-encrypt="no" vendor-bit="must" >
+			<type type-name="Unsigned32" />
+		</avp>
+
+		<avp name="Reporting-PLMN-List" code="2543" vendor-id="TGPP" mandatory="mustnot" protected="mustnot" may-encrypt="no" vendor-bit="must" >
+    		<grouped>
+      			<avp name="PLMN-ID-List" multiplicity="1-20" />
+      			<avp name="Prioritized-List-Indicator" multiplicity="0-1" />
+    		</grouped>
+		</avp>
+		<avp name="PLMN-ID-List" code="2544" vendor-id="TGPP" mandatory="mustnot" protected="mustnot" may-encrypt="no" vendor-bit="must" >
+			<grouped>
+				<avp name="Visited-PLMN-Id" multiplicity="1" />
+				<avp name="Periodic-Location-Support-Indicator" multiplicity="0-1" />
+			</grouped>
+		</avp>
+
+		<avp name="PLR-Flags" code="2545" vendor-id="TGPP" mandatory="mustnot" protected="mustnot" may-encrypt="no" vendor-bit="must" >
+			<type type-name="Unsigned32" />
+		</avp>
+
+		<avp name="PLA-Flags" code="2546" vendor-id="TGPP" mandatory="mustnot" protected="mustnot" may-encrypt="no" vendor-bit="must" >
+			<type type-name="Unsigned32" />
+		</avp>
+
+		<avp name="Deferred-MT-LR-Data" code="2547" vendor-id="TGPP" mandatory="mustnot" protected="mustnot" may-encrypt="no" vendor-bit="must" >
+			<grouped>
+				<avp name="Deferred-Location-Type" multiplicity="1" />
+				<avp name="Termination-Cause" multiplicity="0-1" />
+				<avp name="Serving-Node" multiplicity="0-1" />
+			</grouped>
+		</avp>
+		<avp name="Termination-Cause" code="2548" vendor-id="TGPP" mandatory="mustnot" protected="mustnot" may-encrypt="no" vendor-bit="must" >
+			<type type-name="Unsigned32" />
+		</avp>
+
+		<avp name="LRA-Flags" code="2549" vendor-id="TGPP" mandatory="mustnot" protected="mustnot" may-encrypt="no" vendor-bit="must" >
+			<type type-name="Unsigned32" />
+		</avp>
+
+		<avp name="Periodic-Location-Support-Indicator" code="2550" vendor-id="TGPP" mandatory="mustnot" protected="mustnot" may-encrypt="no" vendor-bit="must" >
+			<type type-name="Enumerated">
+      			<enum name="NOT_SUPPORTED" code="0"/>
+      			<enum name="SUPPORTED" code="1"/>
+    		</type>
+		</avp>
+
+		<avp name="Prioritized-List-Indicator" code="2551" vendor-id="TGPP" vendor-bit="must" >
+			<type type-name="Enumerated">
+				<enum name="NOT_PRIORITIZED" code="0"/>
+				<enum name="PRIORITIZED" code="1"/>
+			</type>
+		</avp>
+
+		<avp name="ESMLC-Cell-Info" code="2552" vendor-id="TGPP" mandatory="mustnot" protected="mustnot" may-encrypt="no" vendor-bit="must" >
+    		<grouped>
+      			<avp name="ECGI" multiplicity="0-1" />
+      			<avp name="Cell-Portion-ID" multiplicity="0-1" />
+    		</grouped>
+		</avp>
+		<avp name="Cell-Portion-ID" code="2553" vendor-id="TGPP" mandatory="mustnot" protected="mustnot" may-encrypt="no" vendor-bit="must" >
+			<type type-name="Unsigned32" />
+		</avp>
+
+		<avp name="1xRTT-RCID" code="2554" vendor-id="TGPP" mandatory="mustnot" protected="mustnot" may-encrypt="no" vendor-bit="must" >
+			<type type-name="OctetString" />
+		</avp>
+
+		<avp name="Delayed-Location-Reporting-Data" code="2555" vendor-id="TGPP" mandatory="mustnot" protected="mustnot" may-encrypt="no" vendor-bit="mustnot" >
+			<grouped>
+				<avp name="Termination-Cause" multiplicity="0-1" />
+				<avp name="Serving-Node" multiplicity="0-1" />
+			</grouped>
+		</avp>
 
 		<avp name="Civic-Address" code="2556" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="UTF8String"/>
 		</avp>
+
 		<avp name="Barometric-Pressure" code="2557" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
 
-		<!--
-		UTRAN-Additional-Positioning-Data 2558 7.4.63 OctetString V M No
-		Note: The AVP codes from 2524 to 2599 are reserved for TS 29.172
-		-->
+		<avp name="UTRAN-Additional-Positioning-Data" code="2558" vendor-id="TGPP" mandatory="mustnot" protected="mustnot" may-encrypt="no" vendor-bit="must" >
+			<type type-name="OctetString" />
+		</avp>
 
 		<avp name="Reserved-2600" code="2600" mandatory="must" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="OctetString"/>
