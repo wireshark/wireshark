@@ -19,6 +19,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.ssh.forward_x11 = true
 
   # Install and build the various things (including wireshark!)
-  config.vm.provision :shell, path: 'vagrant_provision.sh'
+  config.vm.provision "shell" do |s|
+    s.path = 'tools/debian-setup.sh'
+    s.args = ['--install-optional', '--assume-yes']
+  end
   config.vm.provision :shell, path: 'vagrant_build.sh', privileged: false
 end

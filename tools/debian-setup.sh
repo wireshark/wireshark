@@ -125,6 +125,7 @@ then
 fi
 
 # shellcheck disable=SC2086
+apt-get update || exit 2
 apt-get install $ACTUAL_LIST $OPTIONS || exit 2
 
 if [ ! $ADDITIONAL ]
