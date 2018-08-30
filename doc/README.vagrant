@@ -2,9 +2,9 @@
 
 Vagrant is a virtual machine management program that makes it trivial to build
 and configure reproducible virtual machines. Wireshark's source code includes
-a Vagrantfile which can be used to set up a complete Ubuntu development
-environment in a virtual machine, including all necessary compilers, dependent
-libraries, and tools like valgrind.
+a Vagrantfile which can be used to set up a complete development environments
+in a virtual machine, including all necessary compilers, dependent libraries,
+and tools like valgrind.
 
 Using vagrant can greatly simplify the creation of a Linux build environment
 for new developers, at the cost of running your builds in a virtual machine,
@@ -29,48 +29,58 @@ directory. Wireshark's Vagrantfile is located in the root of the Wireshark
 source folder.
 
 Once both VirtualBox and vagrant are installed, setting up an Ubuntu Wireshark
-development VM is as simple as running `vagrant up` followed by
-`vagrant provision`.
+development VM is as simple as running `vagrant up ubuntu`.
 
 The first time that the `vagrant up` command is executed vagrant will initiate
-the download of a specific Ubuntu VM image (what they call a box) from
-HashiCorp's Atlas box catalog. Once the box is downloaded an Unbuntu VM will
-be instantiated and powered-on.
+the download of a specific VM image (what they call a box) from HashiCorp's
+Atlas box catalog. Once the box is downloaded a VM will be instantiated and
+powered-on.
 
-Use the command `vagrant status` to determine the state of the VM.
+Use the command `vagrant status` to determine the state of the VMs.
 
 The command `vagrant provision` will run any provisioning tasks defined in the
-Vagrantfile. Wireshark's Vagrantfile is configured to run two bash based
-provisioning scripts, vagrant_provision.sh and vagrant_build.sh. These
-provisoning scripts are executed on the Ubuntu VM system and not on the host
-system.
+Vagrantfile. Wireshark's Vagrantfile is configured to provision the machine
+and build the project using vagrant_build.sh.
 
-The vagrant_provision.sh script initiates several apt-get tasks to get the
-Ubuntu VM reasonably up to date. The vagrant_build.sh script sets up a cmake
+The vagrant_build.sh script sets up a cmake
 build environment which includes creating a ~/build folder initialized for an
 out-of-tree cmake build and then triggering a build.
 
 4. Usage
 
-Running `vagrant ssh` from the wireshark source directory will log you into
+Running `vagrant ssh ubuntu` from the wireshark source directory will log you into
 Ubuntu VM as the userid vagrant.
 
 The Ubuntu VM's build folder is located in ~/build. The Ubuntu VM's source
-folder is actually the source folder from the host system mounted as /vagrant.
-Any changes made in the VM's /vagrant folder are reflected in the host system's
-Wireshark source folder and visa-versa.
+folder is actually the source folder from the host system mounted as
+/home/vagrant/wireshark. Any changes made in the VM's ~/wireshark folder are
+reflected in the host system's Wireshark source folder and vice-versa.
+
+Installing the vagrant-vbguest plugin is strongly recommended to get synced
+folders working on all boxes and other niceties. You can install it with the
+command `vagrant plugin install vagrant-vbguest`.
 
 Once logged into the VM issue the command `cd ~/build` followed by `make` to
 trigger a new wireshark build based on whatever is in your host system's source
-tree (the Ubuntu VM's /vagrant folder).
+tree (the VM's ~/wireshark folder).
 
 The various Wireshark applications can be run from the ~/build folder of the
-Ubuntu VM with commands such as `./run/wireshark`, `./run/tshark`, etc.
+VM with commands such as `./run/wireshark`, `./run/tshark`, etc.
 
-To run the Wireshark GUI you will typically need an X server. If you are using
-macOS ({Mac} OS X) as the host system then you would likely use XQuartz as
-your X server. XQuartz can be downloaded from https://www.xquartz.org/.
+To run the Wireshark GUI you will need an X server and the X authority file
+utility (xauth) installed in the guest. For Ubuntu use `apt-get install xauth`,
+Fedora use `dnf install xorg-x11-xauth`.
 
-The Ubuntu VM can be shutdown or suspended from the host system with the
+If you are using macOS ({Mac} OS X) as the host system then you would likely
+use XQuartz as your X server. XQuartz can be downloaded from
+https://www.xquartz.org/.
+
+The VM can be shutdown or suspended from the host system with the
 commands `vagrant halt` and `vagrant suspend` repectively. In either case the
-Ubuntu VM can be brought back up with the command `vagrant up`.
+VM can be brought back up with the command `vagrant up`.
+
+5. Using Vagrant with multiple VMs
+Wireshark's Vagrantfile is configured with more than one box so most vagrant
+commands, those that apply to machines, need to be provided with the machine
+name. You can list all machines and their state with the `vagrant status`
+command.
