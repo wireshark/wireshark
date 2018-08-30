@@ -6,9 +6,6 @@ VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
-  # Base box is Ubuntu 16.04
-  config.vm.box = "ubuntu/xenial64"
-
   # Bump the default resources as building is expensive
   config.vm.provider "virtualbox" do |v|
     v.memory = 2048
@@ -19,9 +16,23 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.ssh.forward_x11 = true
 
   # Install and build the various things (including wireshark!)
-  config.vm.provision "shell" do |s|
-    s.path = 'tools/debian-setup.sh'
-    s.args = ['--install-optional', '--assume-yes']
+  config.vm.define "ubuntu", autostart: false do |deb|
+    deb.vm.box = "ubuntu/xenial64"
+
+    deb.vm.provision "shell" do |s|
+      s.path = 'tools/debian-setup.sh'
+      s.args = ['--install-optional', '--assume-yes']
+    end
+    deb.vm.provision :shell, path: 'vagrant_build.sh', privileged: false
   end
-  config.vm.provision :shell, path: 'vagrant_build.sh', privileged: false
+
+  config.vm.define "fedora", autostart: false do |rpm|
+    rpm.vm.box = "fedora/28-cloud-base"
+
+    rpm.vm.provision "shell" do |s|
+      s.path = 'tools/rpm-setup.sh'
+      s.args = ['--install-optional', '--assumeyes']
+    end
+    rpm.vm.provision :shell, path: 'vagrant_build.sh', privileged: false
+  end
 end
