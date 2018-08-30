@@ -14,6 +14,6 @@ grep -q WIRESHARK_RUN_FROM_BUILD_DIRECTORY ~/.profile || echo "export WIRESHARK_
 grep -q WIRESHARK_BIN_DIR ~/.profile || echo "export WIRESHARK_BIN_DIR=~/build/run" >> ~/.profile
 mkdir -p build
 cd build
-cmake -DENABLE_CCACHE=ON /vagrant/
+cmake -DENABLE_CCACHE=ON ../wireshark
 make -j6
 make test

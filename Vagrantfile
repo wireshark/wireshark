@@ -15,11 +15,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # Permit X11 forwarding so running the graphical Wireshark works
   config.ssh.forward_x11 = true
 
+  # Mounting to /vagrant (the default) won't work for building a
+  # Debian package. Let's be consistent for all boxes.
+  config.vm.synced_folder ".", "/vagrant", disabled: true
+  config.vm.synced_folder ".", "/home/vagrant/wireshark", type: "virtualbox"
+
   # Install and build the various things (including wireshark!)
   config.vm.define "ubuntu", autostart: false do |deb|
     deb.vm.box = "ubuntu/xenial64"
-    # XXX: Mounting to /vagrant (the default) won't work for building a
-    # Debian package.
 
     deb.vm.provision "shell" do |s|
       s.path = 'tools/debian-setup.sh'
