@@ -7413,7 +7413,7 @@ dissect_gtpv2_ie_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
     tvbuff_t   *ie_tvb;
     guint8      type, instance;
     guint16     length;
-    int         i;
+    int         i, remaining_length, msg_length;
     /*
      * Octets   8   7   6   5       4   3   2   1
      *  1       Type
@@ -7421,11 +7421,30 @@ dissect_gtpv2_ie_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
      *  4       CR          Spare   Instance
      * 5-(n+4)  IE specific data
      */
-    while (offset < (gint)tvb_reported_length(tvb)) {
+    msg_length = (gint)tvb_reported_length(tvb);
+    while (offset < msg_length) {
         /* Get the type and length */
-
+        remaining_length = msg_length - offset;
+        if (remaining_length < 3) {
+            proto_tree_add_expert_format(tree, pinfo, &ei_gtpv2_ie_len_invalid, tvb, offset, remaining_length,
+                "Not enough data left for IE and length, %i bytes", remaining_length);
+            return;
+        }
         type    = tvb_get_guint8(tvb, offset);
         length  = tvb_get_ntohs(tvb, offset + 1);
+        remaining_length = remaining_length -4;
+        if (remaining_length < length) {
+            proto_tree_add_expert_format(tree, pinfo, &ei_gtpv2_ie_len_invalid, tvb, offset+4, remaining_length,
+                "Less data left than indicated by length %u, remaining length %i", length, remaining_length);
+            /* Octet 1 */
+            proto_tree_add_item(tree, hf_gtpv2_ie, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+
+            /*Octet 2 - 3 */
+            proto_tree_add_item(tree, hf_gtpv2_ie_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            return;
+        }
         ie_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4 + length, ett_gtpv2_ies[type], &ti, "%s : ",
                                       val_to_str_ext_const(type, &gtpv2_element_type_vals_ext, "Unknown"));
 
