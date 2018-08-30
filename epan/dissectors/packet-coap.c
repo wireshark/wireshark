@@ -373,7 +373,7 @@ dissect_coap_opt_uri_path(tvbuff_t *tvb, proto_item *head_item, proto_tree *subt
 		wmem_strbuf_append(coinfo->uri_str_strbuf, str);
 	}
 
-	proto_tree_add_string(subtree, hf, tvb, offset, opt_length, str);
+	proto_tree_add_item(subtree, hf, tvb, offset, opt_length, ENC_ASCII);
 
 	/* add info to the head of the packet detail */
 	proto_item_append_text(head_item, ": %s", str);
@@ -394,7 +394,7 @@ dissect_coap_opt_uri_query(tvbuff_t *tvb, proto_item *head_item,proto_tree *subt
 		wmem_strbuf_append(coinfo->uri_query_strbuf, str);
 	}
 
-	proto_tree_add_string(subtree, hf, tvb, offset, opt_length, str);
+	proto_tree_add_item(subtree, hf, tvb, offset, opt_length, ENC_ASCII);
 
 	/* add info to the head of the packet detail */
 	proto_item_append_text(head_item, ": %s", str);
@@ -411,7 +411,7 @@ dissect_coap_opt_location_path(tvbuff_t *tvb, proto_item *head_item, proto_tree 
 		str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, opt_length, ENC_ASCII);
 	}
 
-	proto_tree_add_string(subtree, hf, tvb, offset, opt_length, str);
+	proto_tree_add_item(subtree, hf, tvb, offset, opt_length, ENC_ASCII);
 
 	/* add info to the head of the packet detail */
 	proto_item_append_text(head_item, ": %s", str);
@@ -428,7 +428,7 @@ dissect_coap_opt_location_query(tvbuff_t *tvb, proto_item *head_item, proto_tree
 		str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, opt_length, ENC_ASCII);
 	}
 
-	proto_tree_add_string(subtree, hf, tvb, offset, opt_length, str);
+	proto_tree_add_item(subtree, hf, tvb, offset, opt_length, ENC_ASCII);
 
 	/* add info to the head of the packet detail */
 	proto_item_append_text(head_item, ": %s", str);
@@ -543,7 +543,7 @@ dissect_coap_opt_proxy_uri(tvbuff_t *tvb, proto_item *head_item, proto_tree *sub
 		str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, opt_length, ENC_ASCII);
 	}
 
-	proto_tree_add_string(subtree, hf, tvb, offset, opt_length, str);
+	proto_tree_add_item(subtree, hf, tvb, offset, opt_length, ENC_ASCII);
 
 	/* add info to the head of the packet detail */
 	proto_item_append_text(head_item, ": %s", str);
@@ -560,7 +560,7 @@ dissect_coap_opt_proxy_scheme(tvbuff_t *tvb, proto_item *head_item, proto_tree *
 		str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, opt_length, ENC_ASCII);
 	}
 
-	proto_tree_add_string(subtree, hf, tvb, offset, opt_length, str);
+	proto_tree_add_item(subtree, hf, tvb, offset, opt_length, ENC_ASCII);
 
 	/* add info to the head of the packet detail */
 	proto_item_append_text(head_item, ": %s", str);
