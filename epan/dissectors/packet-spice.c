@@ -23,13 +23,19 @@
 /* NOTE:
  * packet-spice.h is auto-generated from a Spice protocol definition by a tool
  * included in the spice-common repository
- * (http://cgit.freedesktop.org/spice/spice-common/)
+ * (https://gitlab.freedesktop.org/spice/spice-common)
  * To re-generate this file, run the following command from the root of the
  * spice-common tree:
  *      python ./spice_codegen.py --generate-wireshark-dissector \
  *              spice.proto packet-spice.h
  */
+#if WS_IS_AT_LEAST_GNUC_VERSION(6,0)
+DIAG_OFF(unused-const-variable)
+#endif
 #include "packet-spice.h"
+#if WS_IS_AT_LEAST_GNUC_VERSION(6,0)
+DIAG_ON(unused-const-variable)
+#endif
 
 void proto_register_spice(void);
 void proto_reg_handoff_spice(void);
