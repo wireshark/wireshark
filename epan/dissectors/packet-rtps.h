@@ -558,6 +558,8 @@ typedef struct _rtps_dissector_data {
 #define TOPIC_INFO_ADD_OWNERSHIP                 (0x20)
 #define TOPIC_INFO_ALL_SET                       (0x3f)
 
+#define NOT_A_FRAGMENT                           (-1)
+
 /* Utilities to add elements to the protocol tree for packet-rtps.h and packet-rtps2.h */
 extern guint16 rtps_util_add_protocol_version(proto_tree *tree, tvbuff_t* tvb, gint offset);
 extern guint16 rtps_util_add_vendor_id(proto_tree *tree, tvbuff_t * tvb, gint offset);

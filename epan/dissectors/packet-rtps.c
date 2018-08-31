@@ -6125,7 +6125,7 @@ static gint dissect_parameter_sequence(proto_tree *tree, packet_info *pinfo, tvb
   proto_item *ti, *param_item, *param_len_item = NULL;
   proto_tree *rtps_parameter_sequence_tree, *rtps_parameter_tree;
   guint32    parameter, param_length, param_length_length = 2;
-  gint       original_offset = offset;
+  gint       original_offset = offset, initial_offset = offset;
   gboolean   dissect_return_value = FALSE;
   type_mapping * type_mapping_object = NULL;
   const gchar * param_name = NULL;
@@ -6228,7 +6228,9 @@ static gint dissect_parameter_sequence(proto_tree *tree, packet_info *pinfo, tvb
     if (parameter == PID_SENTINEL) {
       /* PID_SENTINEL closes the parameter list, (length is ignored) */
       proto_item_set_len(param_item, 4);
-      return offset +2;
+      offset += 2;
+      proto_item_set_len(rtps_parameter_sequence_tree, offset - initial_offset);
+      return offset;
     }
 
     /* parameter length */
@@ -6284,6 +6286,7 @@ static gint dissect_parameter_sequence(proto_tree *tree, packet_info *pinfo, tvb
     }
     offset += param_length;
   }
+  proto_item_set_len(ti, offset - initial_offset);
   return offset;
 }
 
@@ -6486,7 +6489,7 @@ static void dissect_parametrized_serialized_data(proto_tree *tree, tvbuff_t *tvb
  */
 static void dissect_serialized_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint offset,
                         int  size, const char *label, guint16 vendor_id, gboolean is_discovery_data,
-                        endpoint_guid * guid) {
+                        endpoint_guid * guid, gint32 frag_number /* -1 if no fragmentation */) {
   proto_item *ti;
   proto_tree *rtps_parameter_sequence_tree;
   guint16 encapsulation_id;
@@ -6498,55 +6501,69 @@ static void dissect_serialized_data(proto_tree *tree, packet_info *pinfo, tvbuff
   /* Creates the sub-tree */
   rtps_parameter_sequence_tree = proto_tree_add_subtree(tree, tvb, offset, size,
           ett_rtps_serialized_data, &ti, label);
+  if (frag_number > 1) {
+    /* if the data is a fragment and not the first fragment, simply dissect the
+       content as raw bytes */
+    proto_tree_add_item(rtps_parameter_sequence_tree, hf_rtps_issue_data, tvb,
+            offset, size, ENC_NA);
+  } else {
+    /* This logic applies to data that is not a fragment (-1) or is the first fragment */
+    /* Encapsulation ID */
+    encapsulation_id =  tvb_get_ntohs(tvb, offset);   /* Always big endian */
+    proto_tree_add_uint(rtps_parameter_sequence_tree,
+            hf_rtps_param_serialize_encap_kind, tvb, offset, 2, encapsulation_id);
+    data->encapsulation_id = encapsulation_id;
+    offset += 2;
 
-  /* Encapsulation ID */
-  encapsulation_id =  tvb_get_ntohs(tvb, offset);   /* Always big endian */
-  proto_tree_add_uint(rtps_parameter_sequence_tree,
-          hf_rtps_param_serialize_encap_kind, tvb, offset, 2, encapsulation_id);
-  data->encapsulation_id = encapsulation_id;
-  offset += 2;
+    /* Sets the correct values for encapsulation_le */
+    if (encapsulation_id == ENCAPSULATION_CDR_LE ||
+        encapsulation_id == ENCAPSULATION_PL_CDR_LE) {
+      encapsulation_encoding = ENC_LITTLE_ENDIAN;
+    }
 
-  /* Sets the correct values for encapsulation_le */
-  if (encapsulation_id == ENCAPSULATION_CDR_LE ||
-      encapsulation_id == ENCAPSULATION_PL_CDR_LE) {
-    encapsulation_encoding = ENC_LITTLE_ENDIAN;
-  }
+    /* Encapsulation length (or option) */
+    proto_tree_add_item(rtps_parameter_sequence_tree, hf_rtps_param_serialize_encap_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
 
-  /* Encapsulation length (or option) */
-  proto_tree_add_item(rtps_parameter_sequence_tree, hf_rtps_param_serialize_encap_len, tvb, offset, 2, ENC_BIG_ENDIAN);
-  offset += 2;
-
-  /* Add Topic Information if enabled (checked inside). This call attemps to dissect
-   * the sample and will return TRUE if it did. We should return in that case.*/
-  if (rtps_util_topic_info_add_column_info_and_try_dissector(rtps_parameter_sequence_tree,
-          pinfo, tvb, offset, guid, data))
+    /* Add Topic Information if enabled (checked inside). This call attemps to dissect
+     * the sample and will return TRUE if it did. We should return in that case.*/
+    if (rtps_util_topic_info_add_column_info_and_try_dissector(rtps_parameter_sequence_tree,
+            pinfo, tvb, offset, guid, data))
       return;
 
-  /* The payload */
-  size -= 4;
-  switch (encapsulation_id) {
-    case ENCAPSULATION_CDR_LE:
-    case ENCAPSULATION_CDR_BE:
+    /* The payload */
+    size -= 4;
+    switch (encapsulation_id) {
+      /* CDR_LE and CDR_BE data should be dissected like this if it is a fragment or
+         if it is not */
+      case ENCAPSULATION_CDR_LE:
+      case ENCAPSULATION_CDR_BE:
           proto_tree_add_item(rtps_parameter_sequence_tree, hf_rtps_issue_data, tvb,
-                        offset, size, ENC_NA);
+              offset, size, ENC_NA);
           break;
 
-    case ENCAPSULATION_PL_CDR_LE:
-    case ENCAPSULATION_PL_CDR_BE:
+      case ENCAPSULATION_PL_CDR_LE:
+      case ENCAPSULATION_PL_CDR_BE:
           if (is_discovery_data) {
-            dissect_parameter_sequence(rtps_parameter_sequence_tree, pinfo, tvb, offset,
-                        encapsulation_encoding, size, label, 0x0200, NULL, vendor_id, FALSE);
+              dissect_parameter_sequence(rtps_parameter_sequence_tree, pinfo, tvb, offset,
+                  encapsulation_encoding, size, label, 0x0200, NULL, vendor_id, FALSE);
+          } else if (frag_number != NOT_A_FRAGMENT) {
+              /* fragments should be dissected as raw bytes (not parametrized) */
+              proto_tree_add_item(rtps_parameter_sequence_tree, hf_rtps_issue_data, tvb,
+                  offset, size, ENC_NA);
+              break;
           } else {
-              /* Instead of showing a warning like before, we know dissect the data as
+              /* Instead of showing a warning like before, we now dissect the data as
                * (id - length - value) members */
               dissect_parametrized_serialized_data(rtps_parameter_sequence_tree,
                       tvb, offset, size, encapsulation_encoding);
           }
           break;
 
-    default:
-        proto_tree_add_item(rtps_parameter_sequence_tree, hf_rtps_data_serialize_data, tvb,
-                        offset, size, ENC_NA);
+      default:
+      proto_tree_add_item(rtps_parameter_sequence_tree, hf_rtps_data_serialize_data, tvb,
+              offset, size, ENC_NA);
+    }
   }
 }
 
@@ -7071,7 +7088,7 @@ static void dissect_DATA_v2(tvbuff_t *tvb, packet_info *pinfo, gint offset, guin
         (((wid & 0xc2) == 0xc2) || ((wid & 0xc3) == 0xc3)) ? TRUE : FALSE;
     dissect_serialized_data(tree, pinfo, tvb, offset,
                         octets_to_next_header - (offset - old_offset) + 4,
-                        "serializedData", vendor_id, from_builtin_writer, guid);
+                        "serializedData", vendor_id, from_builtin_writer, guid, NOT_A_FRAGMENT);
   }
   append_status_info(pinfo, wid, status_info);
 }
@@ -7118,6 +7135,7 @@ static void dissect_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
 
   int  min_len;
   gint old_offset = offset;
+  guint32 frag_number = 0;
   proto_item *octet_item;
   guint32 wid;
   gboolean from_builtin_writer;
@@ -7170,7 +7188,7 @@ static void dissect_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
 
 
   /* Fragment number */
-  proto_tree_add_item(tree, hf_rtps_data_frag_number, tvb, offset, 4, encoding);
+  proto_tree_add_item_ret_uint(tree, hf_rtps_data_frag_number, tvb, offset, 4, encoding, &frag_number);
   offset += 4;
 
   /* Fragments in submessage */
@@ -7199,7 +7217,7 @@ static void dissect_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
         (((wid & 0xc2) == 0xc2) || ((wid & 0xc3) == 0xc3)) ? TRUE : FALSE;
     dissect_serialized_data(tree, pinfo, tvb, offset,
                         octets_to_next_header - (offset - old_offset) + 4,
-                        "serializedData", vendor_id, from_builtin_writer, NULL);
+                        "serializedData", vendor_id, from_builtin_writer, NULL, (gint32)frag_number);
   }
 }
 
@@ -7337,7 +7355,7 @@ static void dissect_NOKEY_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, g
         (((wid & 0xc2) == 0xc2) || ((wid & 0xc3) == 0xc3)) ? TRUE : FALSE;
     dissect_serialized_data(tree, pinfo, tvb, offset,
                         octets_to_next_header - (offset - old_offset) + 4,
-                        "serializedData", vendor_id, from_builtin_writer, NULL);
+                        "serializedData", vendor_id, from_builtin_writer, NULL, NOT_A_FRAGMENT);
   }
 
 }
@@ -7381,6 +7399,7 @@ static void dissect_NOKEY_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offs
   guint32 wid;                  /* Writer EntityID */
   gboolean from_builtin_writer;
   gint old_offset = offset;
+  gint32 frag_number = 0;
   proto_item *octet_item;
   proto_tree_add_bitmask_value(tree, tvb, offset + 1, hf_rtps_sm_flags, ett_rtps_flags, NOKEY_DATA_FRAG_FLAGS, flags);
 
@@ -7413,8 +7432,8 @@ static void dissect_NOKEY_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offs
   offset += 8;
 
   /* Fragment number */
-  proto_tree_add_item(tree, hf_rtps_nokey_data_frag_number, tvb,
-                        offset, 4, encoding);
+  proto_tree_add_item_ret_int(tree, hf_rtps_nokey_data_frag_number, tvb,
+                        offset, 4, encoding, &frag_number);
   offset += 4;
 
   /* Fragments in submessage */
@@ -7441,7 +7460,7 @@ static void dissect_NOKEY_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offs
       (((wid & 0xc2) == 0xc2) || ((wid & 0xc3) == 0xc3)) ? TRUE : FALSE;
     dissect_serialized_data(tree, pinfo, tvb,offset,
                         octets_to_next_header - (offset - old_offset) + 4,
-                        "serializedData", vendor_id, from_builtin_writer, NULL);
+                        "serializedData", vendor_id, from_builtin_writer, NULL, frag_number);
   }
 }
 
@@ -8459,7 +8478,7 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
       /* At the end still dissect the rest of the bytes as raw data */
       dissect_serialized_data(tree, pinfo, tvb, offset,
                         octets_to_next_header - (offset - old_offset) + 4,
-                        label, vendor_id, from_builtin_writer, guid);
+                        label, vendor_id, from_builtin_writer, guid, NOT_A_FRAGMENT);
     }
   }
 
@@ -8505,6 +8524,7 @@ static void dissect_RTPS_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offse
    */
   int min_len;
   gint old_offset = offset;
+  guint32 frag_number = 0;
   guint32 wid;                  /* Writer EntityID */
   gboolean from_builtin_writer;
   guint32 status_info = 0xffffffff;
@@ -8552,7 +8572,7 @@ static void dissect_RTPS_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offse
   offset += 8;
 
   /* Fragment number */
-  proto_tree_add_item(tree, hf_rtps_data_frag_number, tvb, offset, 4, encoding);
+  proto_tree_add_item_ret_uint(tree, hf_rtps_data_frag_number, tvb, offset, 4, encoding, &frag_number);
   offset += 4;
 
   /* Fragments in submessage */
@@ -8586,7 +8606,7 @@ static void dissect_RTPS_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offse
 
     dissect_serialized_data(tree, pinfo, tvb, offset,
                         octets_to_next_header - (offset - old_offset) + 4,
-                        label, vendor_id, from_builtin_writer, NULL);
+                        label, vendor_id, from_builtin_writer, NULL, frag_number);
   }
   append_status_info(pinfo, wid, status_info);
 }
