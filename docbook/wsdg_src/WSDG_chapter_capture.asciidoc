@@ -392,7 +392,7 @@ to discard initial values and set new values, depending on implementation.
 These TYPEs are defined as controls:
 
 [horizontal]
-BOOLEAN:: This provides a checkbox with the possibility to set a true/false value. 
+BOOLEAN:: This provides a checkbox with the possibility to set a true/false value.
 +
 The extcap utility can set a default value at startup, and can change (set) and receive value changes while capturing. When starting a capture the GUI will send the value if different from the default value.
 +
@@ -496,9 +496,6 @@ The protocol used to communicate over the control pipes has a fixed size header 
 |8 |Warning message       |none
 |9 |Error message         |none
 |===
-
-.Payload Length:
-  The length of the following payload. Maximum length is 65535 bytes.
 
 The `Initialized` command will be sent from the GUI to the extcap utility when all
 user changed control values are sent after starting a capture. This is an indication
