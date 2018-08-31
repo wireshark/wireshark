@@ -15,8 +15,9 @@ if [ "$1" = "--help" ]
 then
 	printf "\\nUtility to setup a debian-based system for Wireshark Development.\\n"
 	printf "The basic usage installs the needed software\\n\\n"
-	printf "Usage: %s [--install-optional] [...other options...]\\n" "$0"
-	printf "\\t--install-optional: install optional software as well"
+	printf "Usage: %s [--install-optional] [--install-deb-deps] [...other options...]\\n" "$0"
+	printf "\\t--install-optional: install optional software as well\\n"
+	printf "\\t--install-deb-deps: install packages required to build the .deb file\\n"
 	printf "\\t[other]: other options are passed as-is to apt\\n"
 	exit 1
 fi
@@ -33,6 +34,9 @@ do
 	if [ "$op" = "--install-optional" ]
 	then
 		ADDITIONAL=1
+	elif [ "$op" = "--install-deb-deps" ]
+	then
+		DEBDEPS=1
 	else
 		OPTIONS="$OPTIONS $op"
 	fi
@@ -70,6 +74,14 @@ ADDITIONAL_LIST="libnl-3-dev \
 	ninja-build \
 	doxygen \
 	xsltproc"
+
+DEBDEPS_LIST="debhelper \
+	po-debconf \
+	python-ply \
+	docbook-xsl \
+	docbook-xml \
+	libxml2-utils \
+	quilt"
 
 # Adds package $2 to list variable $1 if the package is found.
 # If $3 is given, then this version requirement must be satisfied.
@@ -124,6 +136,11 @@ then
 	ACTUAL_LIST="$ACTUAL_LIST $ADDITIONAL_LIST"
 fi
 
+if [ $DEBDEPS ]
+then
+	ACTUAL_LIST="$ACTUAL_LIST $DEBDEPS_LIST"
+fi
+
 # shellcheck disable=SC2086
 apt-get update || exit 2
 apt-get install $ACTUAL_LIST $OPTIONS || exit 2
@@ -131,4 +148,9 @@ apt-get install $ACTUAL_LIST $OPTIONS || exit 2
 if [ ! $ADDITIONAL ]
 then
 	printf "\\n*** Optional packages not installed. Rerun with --install-optional to have them.\\n"
+fi
+
+if [ ! $DEBDEPS ]
+then
+	printf "\n*** Debian packages build deps not installed. Rerun with --install-deb-deps to have them.\n"
 fi
