@@ -141,8 +141,8 @@ then
 	ACTUAL_LIST="$ACTUAL_LIST $DEBDEPS_LIST"
 fi
 
-# shellcheck disable=SC2086
 apt-get update || exit 2
+# shellcheck disable=SC2086
 apt-get install $ACTUAL_LIST $OPTIONS || exit 2
 
 if [ ! $ADDITIONAL ]
