@@ -182,10 +182,6 @@ indent_size = 3
 [packet-bjnp.[ch]]
 indent_size = 2
 
-[packet-bootp.[ch]]
-indent_style = tab
-indent_size = tab
-
 [packet-bootparams.[ch]]
 indent_style = tab
 indent_size = tab
@@ -550,6 +546,10 @@ indent_size = tab
 indent_size = 2
 
 [packet-dect.[ch]]
+indent_style = tab
+indent_size = tab
+
+[packet-dhcp.[ch]]
 indent_style = tab
 indent_size = tab
 

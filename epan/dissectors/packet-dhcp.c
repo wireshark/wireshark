@@ -1,4 +1,4 @@
-/* packet-bootp.c
+/* packet-dhcp.c
  * Routines for DHCP/BOOTP packet disassembly
  *
  * Copyright 1998, Gilbert Ramirez <gram@alumni.rice.edu>
