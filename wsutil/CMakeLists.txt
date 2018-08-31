@@ -15,7 +15,6 @@ add_definitions(-DEXTCAP_DIR=\"${CMAKE_INSTALL_PREFIX}/${EXTCAP_INSTALL_LIBDIR}\
 set(WSUTIL_PUBLIC_HEADERS
 	adler32.h
 	base32.h
-	base64.h
 	bits_count_ones.h
 	bits_ctz.h
 	bitswap.h
@@ -77,7 +76,6 @@ set(WSUTIL_PUBLIC_HEADERS
 set(WSUTIL_COMMON_FILES
 	adler32.c
 	base32.c
-	base64.c
 	bitswap.c
 	buffer.c
 	clopts_common.c

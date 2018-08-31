@@ -16,7 +16,6 @@
 
 #include "epan/charsets.h"
 
-#include "wsutil/base64.h"
 #include "wsutil/utf8_entities.h"
 
 #include <QAction>
@@ -487,6 +486,7 @@ void ShowPacketBytesDialog::updateFieldBytes(bool initialization)
     int start = finfo_->start + start_;
     int length = end_ - start_;
     const guint8 *bytes;
+    gsize new_length;
 
     if (!finfo_->ds_tvb)
         return;
@@ -502,8 +502,8 @@ void ShowPacketBytesDialog::updateFieldBytes(bool initialization)
     {
         bytes = tvb_get_ptr(finfo_->ds_tvb, start, -1);
         field_bytes_ = QByteArray((const char *)bytes, length);
-        size_t len = ws_base64_decode_inplace(field_bytes_.data());
-        field_bytes_.resize((int)len);
+        g_base64_decode_inplace(field_bytes_.data(), &new_length);
+        field_bytes_.resize((int)new_length);
         break;
     }
 

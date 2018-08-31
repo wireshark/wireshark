@@ -34,7 +34,6 @@
 #include <epan/proto_data.h>
 #include <epan/export_object.h>
 
-#include <wsutil/base64.h>
 #include "packet-http.h"
 #include "packet-tcp.h"
 #include "packet-ssl.h"
@@ -3311,6 +3310,7 @@ check_auth_basic(proto_item *hdr_item, tvbuff_t *tvb, gchar *value)
 	const char **header;
 	size_t hdrlen;
 	proto_tree *hdr_tree;
+	gsize len;
 
 	for (header = &basic_headers[0]; *header != NULL; header++) {
 		hdrlen = strlen(*header);
@@ -3322,7 +3322,8 @@ check_auth_basic(proto_item *hdr_item, tvbuff_t *tvb, gchar *value)
 				hdr_tree = NULL;
 			value += hdrlen;
 
-			ws_base64_decode_inplace(value);
+			g_base64_decode_inplace(value, &len);
+			value[len] = 0;
 			proto_tree_add_string(hdr_tree, hf_http_basic, tvb,
 			    0, 0, value);
 
@@ -3350,6 +3351,7 @@ check_auth_citrixbasic(proto_item *hdr_item, tvbuff_t *tvb, gchar *value, int of
 	char *data_val;
 	proto_item *hidden_item;
 	proto_item *pi;
+	gsize len;
 
 	for (header = &basic_headers[0]; *header != NULL; header++) {
 		hdrlen = strlen(*header);
@@ -3372,7 +3374,8 @@ check_auth_citrixbasic(proto_item *hdr_item, tvbuff_t *tvb, gchar *value, int of
 				if ( ch_ptr != NULL ) {
 					data_len = (int)(ch_ptr - value + 1);
 					data_val = wmem_strndup(wmem_packet_scope(), value, data_len);
-					ws_base64_decode_inplace(data_val);
+					g_base64_decode_inplace(data_val, &len);
+					data_val[len] = 0;
 					pi = proto_tree_add_string(hdr_tree, hf_http_citrix_user, tvb,
 					    offset , data_len - 1, data_val);
 					PROTO_ITEM_SET_GENERATED(pi);
@@ -3387,7 +3390,8 @@ check_auth_citrixbasic(proto_item *hdr_item, tvbuff_t *tvb, gchar *value, int of
 				if ( ch_ptr != NULL ) {
 					data_len = (int)(ch_ptr - value + 1);
 					data_val = wmem_strndup(wmem_packet_scope(), value, data_len);
-					ws_base64_decode_inplace(data_val);
+					g_base64_decode_inplace(data_val, &len);
+					data_val[len] = 0;
 					pi = proto_tree_add_string(hdr_tree, hf_http_citrix_domain, tvb,
 					    offset, data_len - 1, data_val);
 					PROTO_ITEM_SET_GENERATED(pi);
@@ -3402,7 +3406,8 @@ check_auth_citrixbasic(proto_item *hdr_item, tvbuff_t *tvb, gchar *value, int of
 				if ( ch_ptr != NULL ) {
 					data_len = (int)(ch_ptr - value + 1);
 					data_val = wmem_strndup(wmem_packet_scope(), value, data_len);
-					ws_base64_decode_inplace(data_val);
+					g_base64_decode_inplace(data_val, &len);
+					data_val[len] = 0;
 					pi = proto_tree_add_string(hdr_tree, hf_http_citrix_passwd, tvb,
 					    offset, data_len - 1, data_val);
 					PROTO_ITEM_SET_GENERATED(pi);
@@ -3417,7 +3422,8 @@ check_auth_citrixbasic(proto_item *hdr_item, tvbuff_t *tvb, gchar *value, int of
 				if ( ch_ptr != NULL ) {
 					data_len = (int)(ch_ptr - value + 1);
 					data_val = wmem_strndup(wmem_packet_scope(), value, data_len);
-					ws_base64_decode_inplace(data_val);
+					g_base64_decode_inplace(data_val, &len);
+					data_val[len] = 0;
 					pi = proto_tree_add_string(hdr_tree, hf_http_citrix_session, tvb,
 					    offset, data_len - 1, data_val);
 					PROTO_ITEM_SET_GENERATED(pi);
