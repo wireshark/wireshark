@@ -1865,7 +1865,7 @@ de_nas_5gs_sm_qos_rules(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     proto_tree *sub_tree, *sub_tree2;
     proto_item *item;
     int i = 1, j = 1;
-    gint32 pf_len, pf_type;
+    guint32 pf_len, pf_type;
     guint32 length, curr_offset, start_offset, rule_start_offset;
     guint8 num_pkt_flt, rop;
 
@@ -1897,7 +1897,7 @@ de_nas_5gs_sm_qos_rules(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         num_pkt_flt = tvb_get_guint8(tvb, curr_offset);
         rop = num_pkt_flt >> 5;
         num_pkt_flt = num_pkt_flt & 0x0f;
-        proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags, ENC_BIG_ENDIAN);
+        proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, flags, ENC_BIG_ENDIAN);
         curr_offset++;
 
         /* For the "delete existing QoS rule" operation and for the "modify existing QoS rule without modifying packet filters"
@@ -1911,7 +1911,7 @@ de_nas_5gs_sm_qos_rules(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             continue;
         }
         if ((rop == 2) || (rop == 6)) {
-            if (rop != 0) {
+            if (num_pkt_flt != 0) {
                 proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_num_pkt_flt, tvb, curr_offset, length - 1);
                 i++;
                 curr_offset += (length - 1);
@@ -1937,14 +1937,14 @@ de_nas_5gs_sm_qos_rules(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
                 proto_tree_add_item(sub_tree2, hf_nas_5gs_sm_pkt_flt_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
                 curr_offset++;
                 /* Length of packet filter contents */
-                proto_tree_add_item_ret_int(sub_tree2, hf_nas_5gs_sm_pf_len, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &pf_len);
+                proto_tree_add_item_ret_uint(sub_tree2, hf_nas_5gs_sm_pf_len, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &pf_len);
                 curr_offset++;
                 /* Packet filter contents */
                 /* Each packet filter component shall be encoded as a sequence of a one octet packet filter component type identifier
                  * and a fixed length packet filter component value field.
                  * The packet filter component type identifier shall be transmitted first.
                  */
-                proto_tree_add_item_ret_int(sub_tree2, hf_nas_5gs_sm_pf_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &pf_type);
+                proto_tree_add_item_ret_uint(sub_tree2, hf_nas_5gs_sm_pf_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &pf_type);
                 curr_offset++;
                 switch (pf_type) {
                 default:
