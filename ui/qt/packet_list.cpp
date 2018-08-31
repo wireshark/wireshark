@@ -433,6 +433,7 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
 
             if (!g_str_has_prefix(hfinfo->abbrev, "text") &&
                 !g_str_has_prefix(hfinfo->abbrev, "_ws.expert") &&
+                !g_str_has_prefix(hfinfo->abbrev, "_ws.lua") &&
                 !g_str_has_prefix(hfinfo->abbrev, "_ws.malformed")) {
 
                 if (hfinfo->parent == -1) {
