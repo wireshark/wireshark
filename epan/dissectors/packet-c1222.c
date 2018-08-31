@@ -44,6 +44,10 @@
 #define C1222_EPSEM_FLAG_SECURITY_MODE 0x0c
 #define C1222_EPSEM_FLAG_RESPONSE_CONTROL 0x03
 
+#define C1222_PROCEDURE_RESPONSE 0xf000
+#define C1222_PROCEDURE_MFG 0x800
+#define C1222_PROCEDURE_NUMBER 0x7ff
+
 /* if the packet is encrypted, it can be
  * good, bad, or simply not checked
  */
@@ -106,7 +110,7 @@ static int hf_c1222_c1221_auth_request = -1;      /* OCTET_STRING_SIZE_1_255 */
 static int hf_c1222_c1221_auth_response = -1;     /* OCTET_STRING_SIZE_CONSTR002 */
 
 /*--- End of included file: packet-c1222-hf.c ---*/
-#line 72 "./asn1/c1222/packet-c1222-template.c"
+#line 76 "./asn1/c1222/packet-c1222-template.c"
 /* These are the EPSEM pieces */
 /* first, the flag components */
 static int hf_c1222_epsem_flags = -1;
@@ -147,7 +151,10 @@ static int hf_c1222_write_table = -1;
 static int hf_c1222_write_offset = -1;
 static int hf_c1222_write_size = -1;
 static int hf_c1222_write_data = -1;
+static int hf_c1222_procedure_response = -1;
+static int hf_c1222_procedure_mfg = -1;
 static int hf_c1222_procedure_num = -1;
+static int hf_c1222_procedure_sequence = -1;
 static int hf_c1222_write_chksum = -1;
 static int hf_c1222_write_chksum_status = -1;
 static int hf_c1222_wait_secs = -1;
@@ -211,7 +218,7 @@ static gint ett_c1222_Calling_authentication_value_c1222_U = -1;
 static gint ett_c1222_Calling_authentication_value_c1221_U = -1;
 
 /*--- End of included file: packet-c1222-ett.c ---*/
-#line 164 "./asn1/c1222/packet-c1222-template.c"
+#line 171 "./asn1/c1222/packet-c1222-template.c"
 
 static expert_field ei_c1222_command_truncated = EI_INIT;
 static expert_field ei_c1222_bad_checksum = EI_INIT;
@@ -226,6 +233,7 @@ static expert_field ei_c1222_mac_missing = EI_INIT;
 /* Preferences */
 static gboolean c1222_desegment = TRUE;
 static gboolean c1222_decrypt = TRUE;
+static gboolean c1222_big_endian = FALSE;
 static const gchar *c1222_baseoid_str = NULL;
 static guint8 *c1222_baseoid = NULL;
 static guint c1222_baseoid_len = 0;
@@ -253,12 +261,22 @@ static const value_string tableflags[] = {
   { 0x08, "MT" },
   { 0x10, "Pending ST" },
   { 0x18, "Pending MT" },
+  { 0x20, "UDT" },
+  { 0x30, "Pending UDT" },
   { 0, NULL }
 };
 
 static const value_string procflags[] = {
   { 0x00, "SF" },
   { 0x08, "MF" },
+  { 0, NULL }
+};
+
+static const value_string c1222_proc_response_control[] = {
+  { 0x00, "Post response in ST-8 on completion" },
+  { 0x01, "Post response in ST-8 on exception" },
+  { 0x02, "Do not post response in ST-8" },
+  { 0x03, "Post response in ST-8 now, and on completion" },
   { 0, NULL }
 };
 
@@ -406,6 +424,7 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
   guint16 tblsize = 0;
   guint16 calcsum = 0;
   guint8 wait_seconds = 0;
+  guint8 proc_seq = 0;
   int numrates = 0;
   guint16 packet_size;
   guint16 procedure_num = 0;
@@ -522,17 +541,23 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
         *length -= 2;
         if (*length >= tblsize+1U) {
           if (table == 7) {/* is it a procedure call? */
-            procedure_num = tvb_get_letohs(tvb, *offset);
+            procedure_num = tvb_get_guint16(tvb, *offset, c1222_big_endian ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN);
+            proto_tree_add_uint(tree, hf_c1222_procedure_response, tvb, *offset, 2, procedure_num);
+            proto_tree_add_uint(tree, hf_c1222_procedure_mfg, tvb, *offset, 2, procedure_num);
             proto_tree_add_uint(tree, hf_c1222_procedure_num, tvb, *offset, 2, procedure_num);
             *offset += 2;
             *length -= 2;
-            tblsize -= 2;
+            proc_seq = tvb_get_guint8(tvb, *offset);
+            proto_tree_add_uint(tree, hf_c1222_procedure_sequence, tvb, *offset, 1, proc_seq);
+            *offset += 1;
+            *length -= 1;
+            tblsize -= 3;
           }
           proto_tree_add_item(tree, hf_c1222_write_data, tvb, *offset, tblsize, ENC_NA);
           *offset += tblsize;
           *length -= tblsize;
           if (table == 7) {/* is it a procedure call? */
-            calcsum = c1222_cksum(tvb, (*offset)-tblsize-2, tblsize+2);
+            calcsum = c1222_cksum(tvb, (*offset)-tblsize-3, tblsize+3);
           } else {
             calcsum = c1222_cksum(tvb, (*offset)-tblsize, tblsize);
           }
@@ -543,7 +568,7 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
             proto_item_set_text(tree, "C12.22 EPSEM: %s (%s-%d, %s-%d)",
                     val_to_str(cmd,commandnames,"Unknown (0x%02x)"),
                     val_to_str((table >> 8) & 0xF8, tableflags,"Unknown (0x%04x)"), table & 0x7FF,
-                    val_to_str((procedure_num >> 8) & 0xF8, procflags,"Unknown (0x%04x)"), procedure_num & 0x7FF);
+                    val_to_str((procedure_num >> 8) & 0x08, procflags,"Unknown (0x%04x)"), procedure_num & 0x7FF);
           } else {
             proto_item_set_text(tree, "C12.22 EPSEM: %s (%s-%d)",
                     val_to_str(cmd,commandnames,"Unknown (0x%02x)"),
@@ -1520,7 +1545,7 @@ static int dissect_MESSAGE_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 
 
 /*--- End of included file: packet-c1222-fn.c ---*/
-#line 1004 "./asn1/c1222/packet-c1222-template.c"
+#line 1029 "./asn1/c1222/packet-c1222-template.c"
 
 /**
  * Dissects a a full (reassembled) C12.22 message.
@@ -1741,10 +1766,28 @@ void proto_register_c1222(void) {
     VALS(proto_checksum_vals), 0x0,
     NULL, HFILL }
    },
+   { &hf_c1222_procedure_response,
+    { "C12.22 Procedure Response", "c1222.procedure.response",
+    FT_UINT16, BASE_DEC,
+    VALS(c1222_proc_response_control), C1222_PROCEDURE_RESPONSE,
+    NULL, HFILL }
+   },
+   { &hf_c1222_procedure_mfg,
+    { "C12.22 Procedure Mfg", "c1222.procedure.mfg",
+    FT_UINT16, BASE_DEC,
+    NULL, C1222_PROCEDURE_MFG,
+    NULL, HFILL }
+   },
    { &hf_c1222_procedure_num,
     { "C12.22 Procedure Number", "c1222.procedure.num",
     FT_UINT16, BASE_DEC,
-    NULL, 0x7ff,
+    NULL, C1222_PROCEDURE_NUMBER,
+    NULL, HFILL }
+   },
+   { &hf_c1222_procedure_sequence,
+    { "C12.22 Procedure Sequence Number", "c1222.procedure.sequence",
+    FT_UINT8, BASE_DEC,
+    NULL, 0x0,
     NULL, HFILL }
    },
    { &hf_c1222_neg_pkt_size,
@@ -1912,7 +1955,7 @@ void proto_register_c1222(void) {
         "OCTET_STRING_SIZE_CONSTR002", HFILL }},
 
 /*--- End of included file: packet-c1222-hfarr.c ---*/
-#line 1291 "./asn1/c1222/packet-c1222-template.c"
+#line 1334 "./asn1/c1222/packet-c1222-template.c"
   };
 
   /* List of subtrees */
@@ -1935,7 +1978,7 @@ void proto_register_c1222(void) {
     &ett_c1222_Calling_authentication_value_c1221_U,
 
 /*--- End of included file: packet-c1222-ettarr.c ---*/
-#line 1301 "./asn1/c1222/packet-c1222-template.c"
+#line 1344 "./asn1/c1222/packet-c1222-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -1978,6 +2021,10 @@ void proto_register_c1222(void) {
         "Verify crypto for all applicable C12.22 messages",
         "Whether the C12.22 dissector should verify the crypto for all relevant messages",
         &c1222_decrypt);
+  prefs_register_bool_preference(c1222_module, "big_endian",
+        "Interpret multibyte numbers as big endian",
+        "Whether the C12.22 dissector should interpret procedure numbers as big-endian",
+        &c1222_big_endian);
 
   c1222_uat = uat_new("Decryption Table",
       sizeof(c1222_uat_data_t),         /* record size */
