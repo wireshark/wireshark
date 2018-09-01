@@ -1416,10 +1416,10 @@ dissect_POINT32(tvbuff_t *tvb, proto_tree *tree, const guint32 offset)
     proto_item *ret_item;
     point32_t   point;
 
-    point.x = tvb_get_letohl(tvb, offset);
-    point.y = tvb_get_letohl(tvb, offset + 4);
+    point.x = tvb_get_letohil(tvb, offset);
+    point.y = tvb_get_letohil(tvb, offset + 4);
 
-    point_tree = proto_tree_add_subtree_format(tree, tvb, offset, sizeof(point32_t), ett_point, &ret_item, "POINT (%u, %u)", point.x, point.y);
+    point_tree = proto_tree_add_subtree_format(tree, tvb, offset, sizeof(point32_t), ett_point, &ret_item, "POINT (%d, %d)", point.x, point.y);
 
     proto_tree_add_item(point_tree, hf_point32_x, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(point_tree, hf_point32_y, tvb, offset + 4, 4, ENC_LITTLE_ENDIAN);
@@ -1433,11 +1433,11 @@ dissect_POINT16(tvbuff_t *tvb, proto_tree *tree, const guint32 offset)
     proto_tree *point16_tree;
     point16_t   point16;
 
-    point16.x = tvb_get_letohs(tvb, offset);
-    point16.y = tvb_get_letohs(tvb, offset + 2);
+    point16.x = tvb_get_letohis(tvb, offset);
+    point16.y = tvb_get_letohis(tvb, offset + 2);
 
     if (tree) {
-        point16_tree = proto_tree_add_subtree_format(tree, tvb, offset, sizeof(point16_t), ett_point16, NULL, "POINT16 (%u, %u)", point16.x, point16.y);
+        point16_tree = proto_tree_add_subtree_format(tree, tvb, offset, sizeof(point16_t), ett_point16, NULL, "POINT16 (%d, %d)", point16.x, point16.y);
 
         proto_tree_add_item(point16_tree, hf_point16_x, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(point16_tree, hf_point16_y, tvb, offset + 2, 2, ENC_LITTLE_ENDIAN);
@@ -2531,7 +2531,7 @@ dissect_spice_inputs_client(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             offset += 1;
             break;
         case SPICE_MSGC_INPUTS_MOUSE_MOTION:
-            inputs_tree = proto_tree_add_subtree(tree, tvb, offset, sizeof(point32_t) + 4, ett_inputs_client, NULL, "Client MOUSE_MOTION message");
+            inputs_tree = proto_tree_add_subtree(tree, tvb, offset, sizeof(point32_t) + 2, ett_inputs_client, NULL, "Client MOUSE_MOTION message");
             dissect_POINT32(tvb, inputs_tree, offset);
             offset += (int)sizeof(point32_t);
             proto_tree_add_item(inputs_tree, hf_button_state, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -4368,22 +4368,22 @@ proto_register_spice(void)
         },
         { &hf_point32_x,
           { "x", "spice.point32.x",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
+            FT_INT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_point32_y,
           { "y", "spice.point32.y",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
+            FT_INT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_point16_x,
           { "x", "spice.point16.x",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+            FT_INT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_point16_y,
           { "y", "spice.point16.y",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+            FT_INT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_severity,
