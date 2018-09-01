@@ -35,10 +35,6 @@ EnabledProtocolsDialog::EnabledProtocolsDialog(QWidget *parent) :
     int one_em = ui->protocol_tree_->fontMetrics().height();
     ui->protocol_tree_->setColumnWidth(EnabledProtocolsModel::colProtocol, one_em * 18);
 
-    //"Remove" Save button
-    if (!prefs.gui_use_pref_save)
-        ui->buttonBox->button(QDialogButtonBox::Save)->setHidden(true);
-
     QTimer::singleShot(0, this, SLOT(fillTree()));
 }
 
@@ -92,8 +88,7 @@ void EnabledProtocolsDialog::on_buttonBox_clicked(QAbstractButton *button)
 {
     if (button == ui->buttonBox->button(QDialogButtonBox::Apply))
     {
-        // if we don't have a Save button, just save the settings now
-        applyChanges(!prefs.gui_use_pref_save);
+        applyChanges(TRUE);
     }
 }
 #endif

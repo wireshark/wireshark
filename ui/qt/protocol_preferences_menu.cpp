@@ -276,9 +276,7 @@ void ProtocolPreferencesMenu::boolPreferenceTriggered()
     module_->prefs_changed_flags |= bpa->setBoolValue();
 
     prefs_apply(module_);
-    if (!prefs.gui_use_pref_save) {
-        prefs_main_write();
-    }
+    prefs_main_write();
 
     /* Protocol preference changes almost always affect dissection,
        so don't bother checking flags */
@@ -294,9 +292,7 @@ void ProtocolPreferencesMenu::enumPreferenceTriggered()
     if (changed_flags) { // Changed
         module_->prefs_changed_flags |= changed_flags;
         prefs_apply(module_);
-        if (!prefs.gui_use_pref_save) {
-            prefs_main_write();
-        }
+        prefs_main_write();
 
         /* Protocol preference changes almost always affect dissection,
            so don't bother checking flags */

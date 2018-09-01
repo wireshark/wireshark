@@ -1056,9 +1056,7 @@ bool CaptureInterfacesDialog::saveOptionsToPreferences()
 #endif
         }
     }
-    if (!prefs.gui_use_pref_save) {
-        prefs_main_write();
-    }
+    prefs_main_write();
     return true;
 }
 

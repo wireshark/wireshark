@@ -146,9 +146,7 @@ void ColumnEditorFrame::on_buttonBox_accepted()
                 set_column_custom_occurrence(cur_column_, ui->occurrenceLineEdit->text().toInt());
             }
         }
-        if (!prefs.gui_use_pref_save) {
-            prefs_main_write();
-        }
+        prefs_main_write();
         emit columnEdited();
     }
 

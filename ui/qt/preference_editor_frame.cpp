@@ -207,16 +207,13 @@ void PreferenceEditorFrame::on_buttonBox_accepted()
 
         pref_unstash(pref_, &unstashed_data);
         prefs_apply(module_);
-        if (!prefs.gui_use_pref_save) {
-            gchar* err = NULL;
+        prefs_main_write();
 
-            prefs_main_write();
-
-            if (save_decode_as_entries(&err) < 0)
-            {
-                simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err);
-                g_free(err);
-            }
+        gchar* err = NULL;
+        if (save_decode_as_entries(&err) < 0)
+        {
+            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err);
+            g_free(err);
         }
     }
     on_buttonBox_rejected();

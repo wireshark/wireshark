@@ -3210,10 +3210,7 @@ prefs_register_modules(void)
                                    "Wrap to beginning/end of file during search?",
                                    &prefs.gui_find_wrap);
 
-    prefs_register_bool_preference(gui_module, "use_pref_save",
-                                   "Settings dialogs use a save button",
-                                   "Settings dialogs use a save button?",
-                                   &prefs.gui_use_pref_save);
+    prefs_register_obsolete_preference(gui_module, "use_pref_save");
 
     prefs_register_bool_preference(gui_module, "geometry.save.position",
                                    "Save window position at exit",
@@ -4059,7 +4056,6 @@ pre_init_prefs(void)
     prefs.gui_fileopen_preview       = 3;
     prefs.gui_ask_unsaved            = TRUE;
     prefs.gui_find_wrap              = TRUE;
-    prefs.gui_use_pref_save          = FALSE;
     prefs.gui_update_enabled         = TRUE;
     prefs.gui_update_channel         = UPDATE_CHANNEL_STABLE;
     prefs.gui_update_interval        = 60*60*24; /* Seconds */

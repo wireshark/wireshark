@@ -1444,9 +1444,7 @@ void PacketList::headerMenuTriggered()
     case caResolveNames:
         set_column_resolved(header_ctx_column_, checked);
         packet_list_model_->resetColumns();
-        if (!prefs.gui_use_pref_save) {
-            prefs_main_write();
-        }
+        prefs_main_write();
         redraw = true;
         break;
     case caResizeToContents:
@@ -1458,18 +1456,14 @@ void PacketList::headerMenuTriggered()
     case caHideColumn:
         set_column_visible(header_ctx_column_, FALSE);
         hideColumn(header_ctx_column_);
-        if (!prefs.gui_use_pref_save) {
-            prefs_main_write();
-        }
+        prefs_main_write();
         break;
     case caRemoveColumn:
     {
         if (header()->count() > 2) {
             column_prefs_remove_nth(header_ctx_column_);
             columnsChanged();
-            if (!prefs.gui_use_pref_save) {
-                prefs_main_write();
-            }
+            prefs_main_write();
         }
         break;
     }
@@ -1495,9 +1489,7 @@ void PacketList::columnVisibilityTriggered()
     if (ha->isChecked()) {
         setRecentColumnWidth(col);
     }
-    if (!prefs.gui_use_pref_save) {
-        prefs_main_write();
-    }
+    prefs_main_write();
 }
 
 void PacketList::sectionResized(int col, int, int new_width)
@@ -1574,9 +1566,7 @@ void PacketList::sectionMoved(int logicalIndex, int oldVisualIndex, int newVisua
         header()->resizeSection(i, saved_sizes[i]);
     }
 
-    if (!prefs.gui_use_pref_save) {
-        prefs_main_write();
-    }
+    prefs_main_write();
 
     wsApp->emitAppSignal(WiresharkApplication::ColumnsChanged);
 
