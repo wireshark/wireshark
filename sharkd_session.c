@@ -73,7 +73,7 @@
 
 struct sharkd_filter_item
 {
-	guint8 *filtered;
+	guint8 *filtered; /* can be NULL if all frames are matching for given filter. */
 };
 
 static GHashTable *filter_table = NULL;
@@ -178,7 +178,7 @@ sharkd_session_filter_free(gpointer data)
 	g_free(l);
 }
 
-static const guint8 *
+static const struct sharkd_filter_item *
 sharkd_session_filter_data(const char *filter)
 {
 	struct sharkd_filter_item *l;
@@ -199,7 +199,7 @@ sharkd_session_filter_data(const char *filter)
 		g_hash_table_insert(filter_table, g_strdup(filter), l);
 	}
 
-	return l->filtered;
+	return l;
 }
 
 static gboolean
@@ -810,9 +810,12 @@ sharkd_session_process_frames(const char *buf, const jsmntok_t *tokens, int coun
 
 	if (tok_filter)
 	{
-		filter_data = sharkd_session_filter_data(tok_filter);
-		if (!filter_data)
+		const struct sharkd_filter_item *filter_item;
+
+		filter_item = sharkd_session_filter_data(tok_filter);
+		if (!filter_item)
 			return;
+		filter_data = filter_item->filtered;
 	}
 
 	skip = 0;
@@ -3160,9 +3163,12 @@ sharkd_session_process_intervals(char *buf, const jsmntok_t *tokens, int count)
 
 	if (tok_filter)
 	{
-		filter_data = sharkd_session_filter_data(tok_filter);
-		if (!filter_data)
+		const struct sharkd_filter_item *filter_item;
+
+		filter_item = sharkd_session_filter_data(tok_filter);
+		if (!filter_item)
 			return;
+		filter_data = filter_item->filtered;
 	}
 
 	st_total.frames = 0;

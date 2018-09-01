@@ -726,6 +726,12 @@ sharkd_filter(const char *dftext, guint8 **result)
     return -1;
   }
 
+  /* if dfilter_compile() success, but (dfcode == NULL) all frames are matching */
+  if (dfcode == NULL) {
+    *result = NULL;
+    return 0;
+  }
+
   frames_count = cfile.count;
 
   wtap_rec_init(&rec);
