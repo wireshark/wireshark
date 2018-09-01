@@ -1047,6 +1047,7 @@ dissect_ImageLZ_common(tvbuff_t *tvb, proto_tree *tree, guint32 offset, const gb
 {
 
     guint8 type;
+    guint32 end_offset = offset + size;
 
     offset += dissect_ImageLZ_common_header(tvb, tree, offset);
 
@@ -1068,7 +1069,7 @@ dissect_ImageLZ_common(tvbuff_t *tvb, proto_tree *tree, guint32 offset, const gb
             offset += 4;
             proto_tree_add_item(tree, hf_LZ_RGB_dict_id, tvb, offset, 8, ENC_BIG_ENDIAN);
             offset += 8;
-            proto_tree_add_bytes_format(tree, hf_spice_lz_rgb_compressed_image_data, tvb, offset , size - 29, NULL, "LZ_RGB compressed image data (%u bytes)", size - 29);
+            proto_tree_add_bytes_format(tree, hf_spice_lz_rgb_compressed_image_data, tvb, offset, end_offset - offset, NULL, "LZ_RGB compressed image data (%u bytes)", end_offset - offset);
             break;
         case LZ_IMAGE_TYPE_RGBA:
             offset += 2;
@@ -1094,7 +1095,7 @@ dissect_ImageLZ_common(tvbuff_t *tvb, proto_tree *tree, guint32 offset, const gb
             offset += 4;
             proto_tree_add_item(tree, hf_LZ_RGB_dict_id, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             offset += 8;
-            proto_tree_add_bytes_format(tree, hf_spice_lz_rgb_compressed_image_data, tvb, offset , size - 30, NULL, "LZ_RGB compressed image data (%u bytes)", size - 30);
+            proto_tree_add_bytes_format(tree, hf_spice_lz_rgb_compressed_image_data, tvb, offset, end_offset - offset, NULL, "LZ_RGB compressed image data (%u bytes)", end_offset - offset);
             break;
     }
     return offset;
