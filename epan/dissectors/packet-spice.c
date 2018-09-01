@@ -2384,7 +2384,8 @@ dissect_spice_main_server(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, c
             for (i = 0; i < num_channels; i++ ) {
                 proto_tree *subsubtree;
 
-                subsubtree = proto_tree_add_subtree_format(subtree, tvb, offset, 2, ett_main_client, NULL, "channels[%u]", i);
+                subsubtree = proto_tree_add_subtree_format(subtree, tvb, offset, 2, ett_main_client, NULL, "channels[%u]: %s", i,
+                                                           val_to_str_const(tvb_get_guint8(tvb, offset), channel_types_vs, "Unknown"));
 
                 proto_tree_add_item(subsubtree, hf_channel_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset += 1;
