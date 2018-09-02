@@ -364,15 +364,9 @@ void set_resolution_synchrony(gboolean synchronous);
 WS_DLL_LOCAL
 void name_resolver_init(void);
 
-/* (Re)Initialize hostname resolution subsystem */
+/* Reinitialize hostname resolution subsystem */
 WS_DLL_LOCAL
-void host_name_lookup_init(void);
-
-/* Clean up only hostname resolutions (so they don't "leak" from one
- * file to the next).
- */
-WS_DLL_LOCAL
-void host_name_lookup_cleanup(void);
+void host_name_lookup_reset(void);
 
 WS_DLL_LOCAL
 void addr_resolv_init(void);
