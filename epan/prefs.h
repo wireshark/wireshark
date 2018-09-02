@@ -178,7 +178,6 @@ typedef struct _e_prefs {
   guint        gui_fileopen_preview;
   gboolean     gui_ask_unsaved;
   gboolean     gui_find_wrap;
-  gboolean     gui_use_pref_save;
   gchar       *gui_webbrowser;
   gchar       *gui_window_title;
   gchar       *gui_prepend_window_title;
