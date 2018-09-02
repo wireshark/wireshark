@@ -380,6 +380,9 @@ static int hf_isis_lsp_expense = -1;
 static int hf_isis_lsp_expense_support = -1;
 static int hf_isis_lsp_error = -1;
 static int hf_isis_lsp_error_support = -1;
+static int hf_isis_lsp_clv_ipv6_te_router_id = -1;
+static int hf_isis_lsp_ext_is_reachability_ipv6_interface_address = -1;
+static int hf_isis_lsp_ext_is_reachability_ipv6_neighbor_address = -1;
 
 static gint ett_isis_lsp = -1;
 static gint ett_isis_lsp_info = -1;
@@ -444,6 +447,7 @@ static gint ett_isis_lsp_clv_originating_buff_size = -1; /* CLV 14 */
 static gint ett_isis_lsp_sl_flags = -1;
 static gint ett_isis_lsp_sl_sub_tlv = -1;
 static gint ett_isis_lsp_sl_sub_tlv_flags = -1;
+static gint ett_isis_lsp_clv_ipv6_te_router_id = -1;
 
 static expert_field ie_isis_lsp_checksum_bad = EI_INIT;
 static expert_field ei_isis_lsp_short_packet = EI_INIT;
@@ -2737,6 +2741,12 @@ dissect_sub_clv_tlv_22_22_23_141_222_223(tvbuff_t *tvb, packet_info* pinfo, prot
             case 11:
                 dissect_subclv_unrsv_bw(tvb, subtree, sub_tlv_offset+13+i);
             break;
+            case 12:
+                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_ipv6_interface_address, tvb, sub_tlv_offset+13+i, 16, ENC_NA);
+            break;
+            case 13:
+                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_ipv6_neighbor_address, tvb, sub_tlv_offset+13+i, 16, ENC_NA);
+            break;
             case 18:
                 proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_traffic_engineering_default_metric,
                                     tvb, sub_tlv_offset+13+i, 3, ENC_BIG_ENDIAN);
@@ -3064,6 +3074,31 @@ dissect_lsp_prefix_neighbors_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *
     }
 }
 
+/*
+ * Name: dissect_lsp_ipv6_te_router_id()
+ *
+ * Description: Decode an IPv6 TE Router ID CLV - code 140.
+ *
+ *   Calls into the clv common one.
+ *
+ * Input:
+ *   tvbuff_t * : tvbuffer for packet data
+ *   proto_tree * : proto tree to build on (may be null)
+ *   int : current offset into packet data
+ *   int : length of IDs in packet.
+ *   int : length of this clv
+ *
+ * Output:
+ *   void, will modify proto_tree if not null.
+ */
+static void
+dissect_lsp_ipv6_te_router_id_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
+    int id_length _U_, int length)
+{
+    isis_dissect_ipv6_int_clv(tree, pinfo, tvb, &ei_isis_lsp_short_packet, offset, length,
+        hf_isis_lsp_clv_ipv6_te_router_id );
+}
+
 static const isis_clv_handle_t clv_l1_lsp_opts[] = {
     {
         ISIS_CLV_AREA_ADDRESS,
@@ -3214,6 +3249,12 @@ static const isis_clv_handle_t clv_l1_lsp_opts[] = {
         "Group Address",
         &ett_isis_lsp_clv_grp_address,
         dissect_isis_grp_address_clv
+    },
+    {
+        ISIS_CLV_IPV6_TE_ROUTER_ID,
+        "IPv6 TE Router ID",
+        &ett_isis_lsp_clv_ipv6_te_router_id,
+        dissect_lsp_ipv6_te_router_id_clv
     },
     {
         0,
@@ -3379,6 +3420,12 @@ static const isis_clv_handle_t clv_l2_lsp_opts[] = {
         "Router Capability",
         &ett_isis_lsp_clv_rt_capable,
         dissect_isis_rt_capable_clv
+    },
+    {
+        ISIS_CLV_IPV6_TE_ROUTER_ID,
+        "IPv6 TE Router ID",
+        &ett_isis_lsp_clv_ipv6_te_router_id,
+        dissect_lsp_ipv6_te_router_id_clv
     },
     {
         0,
@@ -4840,6 +4887,23 @@ proto_register_isis_lsp(void)
             FT_BOOLEAN, 8, TFS(&tfs_metric_supported_not_supported), 0x80,
             NULL, HFILL }
         },
+
+        /* rfc6119 */
+        { &hf_isis_lsp_clv_ipv6_te_router_id,
+            { "IPv6 TE Router ID", "isis.lsp.clv_ipv6_te_router_id",
+              FT_IPv6, BASE_NONE, NULL, 0x0,
+              "IPv6 Traffic Engineering Router ID", HFILL }
+        },
+        { &hf_isis_lsp_ext_is_reachability_ipv6_interface_address,
+            { "IPv6 interface address", "isis.lsp.ext_is_reachability.ipv6_interface_address",
+              FT_IPv6, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_ext_is_reachability_ipv6_neighbor_address,
+            { "IPv6 neighbor address", "isis.lsp.ext_is_reachability.ipv6_neighbor_address",
+              FT_IPv6, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
     };
     static gint *ett[] = {
         &ett_isis_lsp,
@@ -4904,7 +4968,8 @@ proto_register_isis_lsp(void)
         &ett_isis_lsp_clv_sr_alg,
         &ett_isis_lsp_sl_flags,
         &ett_isis_lsp_sl_sub_tlv,
-        &ett_isis_lsp_sl_sub_tlv_flags
+        &ett_isis_lsp_sl_sub_tlv_flags,
+        &ett_isis_lsp_clv_ipv6_te_router_id /* CLV 140, rfc6119 */
     };
 
     static ei_register_info ei[] = {

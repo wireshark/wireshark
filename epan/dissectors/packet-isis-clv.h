@@ -48,6 +48,8 @@
 #define ISIS_CLV_EXTD_IP_REACH       135 /* draft-ietf-isis-traffic-05 */
 #define ISIS_CLV_HOSTNAME            137 /* rfc2763 */
 #define ISIS_CLV_SHARED_RISK_GROUP   138 /* rfc5307 */
+#define ISIS_CLV_IPV6_SRLG_TLV       139 /* rfc6119 */
+#define ISIS_CLV_IPV6_TE_ROUTER_ID   140 /* rfc6119 */
 #define ISIS_GRP_ADDR                142 /* rfc7176 */
 #define ISIS_CLV_MT_PORT_CAP         143 /* rfc6165, rfc7176 */
 #define ISIS_CLV_MT_CAP              144 /* rfc6329, rfc7176 */
@@ -57,6 +59,7 @@
 #define ISIS_CLV_MT_IS_REACH         222 /* draft-ietf-isis-wg-multi-topology-05 */
 #define ISIS_CLV_MT_SUPPORTED        229 /* draft-ietf-isis-wg-multi-topology-05 */
 #define ISIS_CLV_IP6_ADDR            232 /* draft-ietf-isis-ipv6-02 */
+#define ISIS_CLV_IPV6_GBL_INT_ADDR   233 /* rfc6119 */
 #define ISIS_CLV_MT_IP_REACH         235 /* draft-ietf-isis-wg-multi-topology-05 */
 #define ISIS_CLV_IP6_REACH           236 /* draft-ietf-isis-ipv6-02 */
 #define ISIS_CLV_MT_IP6_REACH        237 /* draft-ietf-isis-wg-multi-topology-05 */

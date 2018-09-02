@@ -124,6 +124,7 @@ static int hf_isis_hello_trill_hello_reduction = -1;
 static int hf_isis_hello_trill_unassigned_1 = -1;
 static int hf_isis_hello_trill_hop_by_hop_flags = -1;
 static int hf_isis_hello_trill_unassigned_2 = -1;
+static int hf_isis_hello_clv_ipv6_glb_int_addr = -1;
 
 static gint ett_isis_hello = -1;
 static gint ett_isis_hello_clv_area_addr = -1;
@@ -151,6 +152,7 @@ static gint ett_isis_hello_clv_mt_port_cap_port_trill_ver = -1;
 static gint ett_isis_hello_clv_mt_port_cap_vlans_appointed = -1;
 static gint ett_isis_hello_clv_trill_neighbor = -1;
 static gint ett_isis_hello_clv_checksum = -1;
+static gint ett_isis_hello_clv_ipv6_glb_int_addr = -1;
 
 static expert_field ei_isis_hello_short_packet = EI_INIT;
 static expert_field ei_isis_hello_long_packet = EI_INIT;
@@ -918,6 +920,30 @@ dissect_hello_padding_clv(tvbuff_t *tvb _U_, packet_info* pinfo _U_, proto_tree 
     /* nothing to do here! */
 }
 
+/*
+ * Name: dissect_hello_ipv6_glb_int_addr_clv()
+ *
+ * Description:
+ *    Decode for a hello packets ipv6 gobal interface addr clv.  Calls into the
+ *    clv 233.
+ *
+ * Input:
+ *    tvbuff_t * : tvbuffer for packet data
+ *    proto_tree * : proto tree to build on (may be null)
+ *    int : current offset into packet data
+ *    int : length of IDs in packet.
+ *    int : length of this clv
+ *
+ * Output:
+ *    void, will modify proto_tree if not null.
+ */
+static void
+dissect_hello_ipv6_glb_int_addr_clv(tvbuff_t *tvb, packet_info* pinfo,
+    proto_tree *tree, int offset, int id_length _U_, int length)
+{
+    isis_dissect_ipv6_int_clv(tree, pinfo, tvb, &ei_isis_hello_short_packet,
+        offset, length, hf_isis_hello_clv_ipv6_glb_int_addr );
+}
 static const isis_clv_handle_t clv_l1_hello_opts[] = {
     {
         ISIS_CLV_AREA_ADDRESS,
@@ -1004,6 +1030,12 @@ static const isis_clv_handle_t clv_l1_hello_opts[] = {
         dissect_hello_checksum_clv
     },
     {
+        ISIS_CLV_IPV6_GBL_INT_ADDR,
+        "IPv6 Global Interface Address",
+        &ett_isis_hello_clv_ipv6_glb_int_addr,
+        dissect_hello_ipv6_glb_int_addr_clv
+    },
+    {
         0,
         "",
         NULL,
@@ -1083,6 +1115,12 @@ static const isis_clv_handle_t clv_l2_hello_opts[] = {
         "Checksum",
         &ett_isis_hello_clv_checksum,
         dissect_hello_checksum_clv
+    },
+    {
+        ISIS_CLV_IPV6_GBL_INT_ADDR,
+        "IPv6 Global Interface Address",
+        &ett_isis_hello_clv_ipv6_glb_int_addr,
+        dissect_hello_ipv6_glb_int_addr_clv
     },
     {
         0,
@@ -1170,6 +1208,12 @@ static const isis_clv_handle_t clv_ptp_hello_opts[] = {
         "Checksum",
         &ett_isis_hello_clv_checksum,
         dissect_hello_checksum_clv
+    },
+    {
+        ISIS_CLV_IPV6_GBL_INT_ADDR,
+        "IPv6 Global Interface Address",
+        &ett_isis_hello_clv_ipv6_glb_int_addr,
+        dissect_hello_ipv6_glb_int_addr_clv
     },
     {
         0,
@@ -1434,6 +1478,11 @@ proto_register_isis_hello(void)
       { &hf_isis_hello_trill_hop_by_hop_flags, { "Hop-by-hop Extended Header Flags", "isis.hello.trill.hop_by_hop_flags", FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x1ffc0000, NULL, HFILL }},
       { &hf_isis_hello_trill_unassigned_2, { "Unassigned", "isis.hello.trill.unassigned_2",FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x0003ffff, NULL, HFILL }},
       { &hf_isis_hello_is_neighbor, { "IS Neighbor", "isis.hello.is_neighbor", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+      /* rfc6119 */
+      { &hf_isis_hello_clv_ipv6_glb_int_addr,
+        { "IPv6 Global interface address", "isis.hello.clv_ipv6_glb_int_addr",
+            FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     };
 
     static gint *ett[] = {
@@ -1462,7 +1511,8 @@ proto_register_isis_hello(void)
         &ett_isis_hello_clv_mt_port_cap_port_trill_ver,
         &ett_isis_hello_clv_mt_port_cap_vlans_appointed,
         &ett_isis_hello_clv_trill_neighbor,
-        &ett_isis_hello_clv_checksum
+        &ett_isis_hello_clv_checksum,
+        &ett_isis_hello_clv_ipv6_glb_int_addr /* CLV 233, rfc6119 */
     };
 
     static ei_register_info ei[] = {
