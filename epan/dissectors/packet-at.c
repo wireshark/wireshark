@@ -72,6 +72,7 @@ static int hf_cpms_used3                                                   = -1;
 static int hf_cpms_total1                                                  = -1;
 static int hf_cpms_total2                                                  = -1;
 static int hf_cpms_total3                                                  = -1;
+static int hf_cscs_chset                                                   = -1;
 static int hf_csim_command                                                 = -1;
 static int hf_csim_length                                                  = -1;
 static int hf_csim_response                                                = -1;
@@ -597,6 +598,13 @@ static gboolean check_cpin(gint role, guint16 type) {
 }
 
 static gboolean check_cpms(gint role, guint16 type) {
+    if (role == ROLE_DTE && (type == TYPE_ACTION || type == TYPE_READ || type == TYPE_TEST)) return TRUE;
+    if (role == ROLE_DCE && type == TYPE_RESPONSE) return TRUE;
+
+    return FALSE;
+}
+
+static gboolean check_cscs(gint role, guint16 type) {
     if (role == ROLE_DTE && (type == TYPE_ACTION || type == TYPE_READ || type == TYPE_TEST)) return TRUE;
     if (role == ROLE_DCE && type == TYPE_RESPONSE) return TRUE;
 
@@ -1257,6 +1265,26 @@ dissect_cpms_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 static gint
+dissect_cscs_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+        gint offset, gint role, guint16 type, guint8 *parameter_stream _U_,
+        guint parameter_number, gint parameter_length, void **data _U_)
+{
+    if (!((role == ROLE_DTE && type == TYPE_ACTION) ||
+          (role == ROLE_DCE && type == TYPE_RESPONSE))) {
+        return FALSE;
+    }
+
+    if (parameter_number > 0) {
+        return FALSE;
+    }
+
+    /* For both ACTION and RESPONSE the first
+     * and only parameter is the character set */
+    proto_tree_add_item(tree, hf_cscs_chset, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+    return TRUE;
+}
+
+static gint
 dissect_csim_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         gint offset, gint role, guint16 type, guint8 *parameter_stream,
         guint parameter_number, gint parameter_length, void **data)
@@ -1412,6 +1440,7 @@ static const at_cmd_t at_cmds[] = {
     { "+COPS",      "Reading Network Operator",                                check_cops, dissect_cops_parameter },
     { "+CPIN",      "Enter SIM PIN",                                           check_cpin, dissect_cpin_parameter },
     { "+CPMS",      "Preferred Message Storage",                               check_cpms, dissect_cpms_parameter },
+    { "+CSCS",      "Select TE Character Set",                                 check_cscs, dissect_cscs_parameter },
     { "+CSIM",      "Generic SIM access",                                      check_csim, dissect_csim_parameter },
     { "+CSQ",       "Signal Quality",                                          check_csq,  dissect_csq_parameter },
     { "+GSN",       "Request Product Serial Number Identification (ESN/IMEI)", check_gsn,  dissect_no_parameter },
@@ -2070,6 +2099,11 @@ proto_register_at_command(void)
            FT_UINT32, BASE_DEC, NULL, 0,
            "Amount of messages in the receive memory storage",
            HFILL}
+        },
+        { &hf_cscs_chset,
+           { "Character Set",                    "at.cscs.chset",
+           FT_STRING, BASE_NONE, NULL, 0,
+           NULL, HFILL}
         },
         { &hf_csim_command,
            { "Command",                          "at.csim.command",
