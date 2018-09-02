@@ -1,4 +1,4 @@
-Editcap (Wireshark) 2.9.0 (v2.9.0rc0-1442-gfd419dd6)
+Editcap (Wireshark) 2.9.0 (v2.9.0rc0-1638-g57ee8486)
 Edit and/or translate the format of capture files.
 See https://www.wireshark.org for more information.
 
@@ -61,6 +61,9 @@ Packet manipulation:
   -o <change offset>     When used in conjunction with -E, skip some bytes from the
                          beginning of the packet. This allows one to preserve some
                          bytes, in order to have some headers untouched.
+  --seed <seed>          When used in conjunction with -E, set the seed to use for
+                         the pseudo-random number generator. This allows one to
+                         repeat a particular sequence of errors.
   -I <bytes to ignore>   ignore the specified number of bytes at the beginning
                          of the frame during MD5 hash calculation, unless the
                          frame is too short, then the full frame is used.
