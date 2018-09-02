@@ -300,13 +300,14 @@ register_shutdown_routine(void (*func)(void))
 void
 init_dissection(void)
 {
-	wmem_enter_file_scope();
-
 	/*
-	 * Reinitialize resolution information. We do initialization here in
-	 * case we need to resolve between captures.
+	 * Reinitialize resolution information. Don't leak host entries from
+	 * one file to another (e.g. embarassing-host-name.example.com from
+	 * file1.pcapng into a name resolution block in file2.pcapng).
 	 */
-	host_name_lookup_init();
+	host_name_lookup_reset();
+
+	wmem_enter_file_scope();
 
 	/* Initialize the table of conversations. */
 	epan_conversation_init();
@@ -336,10 +337,11 @@ cleanup_dissection(void)
 	wmem_leave_file_scope();
 
 	/*
-	 * Reinitialize resolution information. We do initialization here in
-	 * case we need to resolve between captures.
+	 * Keep the name resolution info around until we start the next
+	 * dissection. Lua scripts may potentially do name resolution at
+	 * any time, even if we're not dissecting and have no capture
+	 * file open.
 	 */
-	host_name_lookup_cleanup();
 }
 
 void

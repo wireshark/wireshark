@@ -2890,7 +2890,7 @@ add_manually_resolved(void)
     }
 }
 
-void
+static void
 host_name_lookup_init(void)
 {
     char *hostspath;
@@ -2960,7 +2960,7 @@ host_name_lookup_init(void)
     ss7pc_name_lookup_init();
 }
 
-void
+static void
 host_name_lookup_cleanup(void)
 {
     guint32 i, j;
@@ -2989,6 +2989,13 @@ host_name_lookup_cleanup(void)
 
     have_subnet_entry = FALSE;
     new_resolved_objects = FALSE;
+}
+
+
+void host_name_lookup_reset(void)
+{
+    host_name_lookup_cleanup();
+    host_name_lookup_init();
 }
 
 void
@@ -3468,8 +3475,7 @@ addr_resolv_init(void)
     initialize_ipxnets();
     initialize_vlans();
     initialize_enterprises();
-    /* host name initialization is done on a per-capture-file basis */
-    /*host_name_lookup_init();*/
+    host_name_lookup_init();
 }
 
 /* Clean up all the address resolution subsystems in this file */
@@ -3481,8 +3487,7 @@ addr_resolv_cleanup(void)
     ethers_cleanup();
     ipx_name_lookup_cleanup();
     enterprises_cleanup();
-    /* host name initialization is done on a per-capture-file basis */
-    /*host_name_lookup_cleanup();*/
+    host_name_lookup_cleanup();
 }
 
 gboolean
