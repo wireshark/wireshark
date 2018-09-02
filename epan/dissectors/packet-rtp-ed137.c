@@ -1,6 +1,6 @@
 /* packet-rtp-ed137.c
  *
- * Routines for RTP ED137 extensions dissection
+ * Routines for RTP ED-137 extensions dissection
  * RTP = Real time Transport Protocol
  *
  * Copyright 2000, Philips Electronics N.V.
@@ -17,6 +17,12 @@
  * This dissector tries to dissect the RTP extension headers by ED-137, ED-137A, ED-137B and ED-137C specification
  * of EUROCAE (The European Organisation for Civil Aviation Equipment)
  *
+ * There are two packet header extension signatures. One for ED-137 and second ED-137A and later releases. Even some extensions are same in ED-137 and ED-137A, constants and code are duplicated because there are slight differences between standard release.
+ * ED-137A and later standards share some extensions (e. g. SQI is defined in ED-137A and repeated without change in ED-137B and C). Naming convention use first standard release where extension was introduced (ED-137A in SQI case).
+ *
+ * Each ED-137 header extension consists of fixed part and variable part (called "extension for additional features" in standard). The code decodes fixed part and some variable part headers. The code decode only additional headers we seen (we have samples) even standard defines more of it.
+ * To allow other developers and vendors to introduce custom decoders, there are dissector tables rtp.hdr_ext.ed137 and rtp.hdr_ext.ed137a which registers dissector for each "additional feature" header by type/length key. It allows anyone extending decoding capabilites just by adding plugin and register dissector in the table - without modifying this source.
+ * rtp.hdr_ext.ed137 table is used for ED-137 standard release. rtp.hdr_ext.ed137a table is used for ED-137A and later standard releases.
  */
 
 
@@ -31,8 +37,16 @@ static int proto_rtp_ed137      = -1;
 
 static dissector_handle_t rtp_hdr_ext_ed137_handle;
 static dissector_handle_t rtp_hdr_ext_ed137a_handle;
+static dissector_handle_t rtp_hdr_ext_ed137a_feature_sqi_handle;
+static dissector_handle_t rtp_hdr_ext_ed137a_feature_climax_tdly_handle;
+static dissector_handle_t rtp_hdr_ext_ed137b_feature_rrc_single_handle;
+static dissector_handle_t rtp_hdr_ext_ed137b_feature_climax_ddc_rmm_handle;
+static dissector_handle_t rtp_hdr_ext_ed137b_feature_climax_ddc_mam_handle;
+static dissector_handle_t rtp_hdr_ext_ed137c_feature_climax_ddc_mam_handle;
 
-/* RTP header ED137 extension fields   */
+static dissector_table_t rtp_hdr_ext_ed137a_add_features_table;
+
+/* RTP header ED-137 extension fields   */
 static int hf_rtp_hdr_ed137s    = -1;
 static int hf_rtp_hdr_ed137     = -1;
 static int hf_rtp_hdr_ed137_add = -1;
@@ -51,7 +65,7 @@ static int hf_rtp_hdr_ed137_ft_bss_qidx_ml  = -1;
 static int hf_rtp_hdr_ed137_vf  = -1;
 static int hf_rtp_hdr_ed137_ft_climax_delay_value = -1;
 
-/* RTP header ED137A extension fields   */
+/* RTP header ED-137A extension fields   */
 static int hf_rtp_hdr_ed137a     = -1;
 static int hf_rtp_hdr_ed137a_add = -1;
 static int hf_rtp_hdr_ed137a_ptt_type  = -1;
@@ -74,7 +88,16 @@ static int hf_rtp_hdr_ed137a_ft_climax_delay_mode  = -1;
 static int hf_rtp_hdr_ed137a_ft_climax_delay_relative_value = -1;
 static int hf_rtp_hdr_ed137a_ft_climax_delay_absolute_value = -1;
 
-/* RTP header ED137B extension fields   */
+/* RTP header ED-137B extension fields   */
+static int hf_rtp_hdr_ed137b_ft_rrc_single = -1;
+static int hf_rtp_hdr_ed137b_ft_rrc_single_ms_tx_f1 = -1;
+static int hf_rtp_hdr_ed137b_ft_rrc_single_ms_rx_f1 = -1;
+static int hf_rtp_hdr_ed137b_ft_rrc_single_ms_tx_f2 = -1;
+static int hf_rtp_hdr_ed137b_ft_rrc_single_ms_rx_f2 = -1;
+static int hf_rtp_hdr_ed137b_ft_rrc_single_sel_tx_f1 = -1;
+static int hf_rtp_hdr_ed137b_ft_rrc_single_sel_tx_f2 = -1;
+static int hf_rtp_hdr_ed137b_ft_rrc_single_mu_rx_f1 = -1;
+static int hf_rtp_hdr_ed137b_ft_rrc_single_mu_rx_f2 = -1;
 static int hf_rtp_hdr_ed137b_ft_climax_ddc_unknown = -1;
 static int hf_rtp_hdr_ed137b_ft_climax_ddc_rmm = -1;
 static int hf_rtp_hdr_ed137b_ft_climax_ddc_rmm_tqv = -1;
@@ -88,7 +111,7 @@ static int hf_rtp_hdr_ed137b_ft_climax_ddc_mam_tsd = -1;
 static int hf_rtp_hdr_ed137b_ft_climax_ddc_mam_tj1 = -1;
 static int hf_rtp_hdr_ed137b_ft_climax_ddc_mam_tid = -1;
 
-/* RTP header ED137C extension fields   */
+/* RTP header ED-137C extension fields   */
 static int hf_rtp_hdr_ed137c_ft_climax_ddc_mam = -1;
 static int hf_rtp_hdr_ed137c_ft_climax_ddc_mam_tqg = -1;
 static int hf_rtp_hdr_ed137c_ft_climax_ddc_mam_t1 = -1;
@@ -109,63 +132,81 @@ static gint ett_hdr_ext_ed137a_add = -1;
 void proto_register_rtp_ed137(void);
 void proto_reg_handoff_rtp_ed137(void);
 
-/* ED137 signature */
+/* Combine 4 bits of type with 4 bits of length to 8 bit key */
+#define MAKE_KEY(type, len) \
+    ( ( type & 0x0F ) << 4 | ( len & 0x0f ) )
+
+/* ED-137 signature */
 #define RTP_ED137_SIG    0x0067
 
-/* ED137A signature */
+/* ED-137A signature */
 #define RTP_ED137A_SIG   0x0167
 
-/* ED137 PTT */
+/* ED-137 PTT */
 #define RTP_ED137_ptt_mask(octet)   ((octet) & 0xE0000000)
-#define RTP_ED137A_ptt_mask(octet)   ((octet) & 0xE0000000)
+#define RTP_ED137A_ptt_mask(octet)   ((octet) & 0xE000)
 #define RTP_ED137_squ_mask(octet)   ((octet) & 0x10000000)
-#define RTP_ED137A_squ_mask(octet)   ((octet) & 0x10000000)
+#define RTP_ED137A_squ_mask(octet)   ((octet) & 0x1000)
 
-/* ED137 extended information */
+/* ED-137 extended information */
 #define RTP_ED137_extended_information(octet)   ((octet) & 0x00400000)
-#define RTP_ED137A_extended_information(octet)  ((octet) & 0x00010000)
+#define RTP_ED137A_extended_information(octet)  ((octet) & 0x0001)
 
-/* ED137 feature type */
+/* ED-137 feature type */
 #define RTP_ED137_feature_type(octet)  (((octet) & 0x003C0000) >> 18)
 #define RTP_ED137A_feature_type(octet) (((octet) & 0x0000F000) >> 12)
 
-/* ED137 feature length */
+/* ED-137 feature length */
 #define RTP_ED137_feature_length(octet)  (((octet) & 0x0003C000) >> 14)
 #define RTP_ED137A_feature_length(octet) (((octet) & 0x00000F00) >> 8)
 
-/* ED137 feature value */
+/* ED-137 feature value */
 #define RTP_ED137_feature_value(octet)  (((octet) & 0x00003FFE) >> 1)
 #define RTP_ED137A_feature_value(octet) (((octet) & 0x000000FF) >> 0)
 
-/* ED137 BSS constants */
+/* ED_137 None constants */
+#define RTP_ED137_feature_none_type    0x0
+
+/* ED-137 BSS constants */
 #define RTP_ED137_feature_bss_type    0x1
 #define RTP_ED137_feature_bss_qidx(octet)   (((octet) & 0x00003FC0) >> 6)
 #define RTP_ED137_feature_bss_qidx_ml(octet)   (((octet) & 0x00000038) >> 2)
 #define RTP_ED137_feature_bss_qidx_ml_rssi      0
 #define RTP_ED137_feature_bss_qidx_rssi_max     15
 
-/* ED137 CLIMAX-Time Delay */
+/* ED-137 CLIMAX-Time Delay */
 #define RTP_ED137_feature_climax_ot_type   0x2
 #define RTP_ED137_feature_climax_ot_value(octet)  (((octet) & 0x00003F00) >> 8)
 
-/* ED137A SQI constants */
-#define RTP_ED137A_feature_sqi_type   0x1
+/* ED-137A SQI constants */
+#define RTP_ED137A_feature_sqi_type             0x1
+#define RTP_ED137A_feature_sqi_len              1
+#define RTP_ED137A_feature_sqi_key              MAKE_KEY( RTP_ED137A_feature_sqi_type, RTP_ED137A_feature_sqi_len )
 #define RTP_ED137A_feature_sqi_qidx(octet)  (((octet) & 0x000000F8) >> 3)
 #define RTP_ED137A_feature_sqi_qidx_ml(octet)  (((octet) & 0x00000007) >> 0)
 #define RTP_ED137A_feature_sqi_qidx_ml_rssi     0
 #define RTP_ED137A_feature_sqi_qidx_rssi_max    15
 
-/* ED137A CLIMAX-Time Delay */
-#define RTP_ED137A_feature_climax_tdly_type   0x2
+/* ED-137A CLIMAX-Time Delay */
+#define RTP_ED137A_feature_climax_tdly_type     0x2
+#define RTP_ED137A_feature_climax_tdly_len      1
+#define RTP_ED137A_feature_climax_tdly_key      MAKE_KEY( RTP_ED137A_feature_climax_tdly_type, RTP_ED137A_feature_climax_tdly_len )
 #define RTP_ED137A_feature_climax_tdly_mode(octet)  (((octet) & 0x00000080) >> 7)
 #define RTP_ED137A_feature_climax_tdly_value(octet)  (((octet) & 0x0000007F) >> 0)
 #define RTP_ED137A_feature_climax_tdly_mode_relative    0
 #define RTP_ED137A_feature_climax_tdly_mode_absolute    1
 
-/* ED137B CLIMAX dynamic delay compensation*/
-#define RTP_ED137B_feature_climax_ddc_type    0x4
+/* ED-137B RRC single */
+#define RTP_ED137B_feature_rrc_single_type      0x3
+#define RTP_ED137B_feature_rrc_single_len   1
+#define RTP_ED137B_feature_rrc_single_key   MAKE_KEY( RTP_ED137B_feature_rrc_single_type, RTP_ED137B_feature_rrc_single_len )
+
+/* ED-137B CLIMAX dynamic delay compensation */
+#define RTP_ED137B_feature_climax_ddc_type      0x4
 #define RTP_ED137B_feature_climax_ddc_rmm_len   3
 #define RTP_ED137B_feature_climax_ddc_mam_len   12
+#define RTP_ED137B_feature_climax_ddc_rmm_key   MAKE_KEY( RTP_ED137B_feature_climax_ddc_type, RTP_ED137B_feature_climax_ddc_rmm_len )
+#define RTP_ED137B_feature_climax_ddc_mam_key   MAKE_KEY( RTP_ED137B_feature_climax_ddc_type, RTP_ED137B_feature_climax_ddc_mam_len )
 #define RTP_ED137B_feature_climax_ddc_rmm_tqv(octet)  (((octet) & 0x00800000) >> 23)
 #define RTP_ED137B_feature_climax_ddc_rmm_t1(octet)   (((octet) & 0x007FFFFF) >> 0)
 #define RTP_ED137B_feature_climax_ddc_mam_tqg(octet)  (((octet) & 0x00800000) >> 23)
@@ -180,8 +221,10 @@ void proto_reg_handoff_rtp_ed137(void);
 #define RTP_ED137B_feature_climax_ddc_mam_tqg_relative  0
 #define RTP_ED137B_feature_climax_ddc_mam_tqg_absolute  1
 
-/* ED137C CLIMAX dynamic delay compensation*/
+/* ED-137C CLIMAX dynamic delay compensation*/
+#define RTP_ED137C_feature_climax_ddc_type      0x4
 #define RTP_ED137C_feature_climax_ddc_mam_len   14
+#define RTP_ED137C_feature_climax_ddc_mam_key   MAKE_KEY( RTP_ED137C_feature_climax_ddc_type, RTP_ED137C_feature_climax_ddc_mam_len )
 #define RTP_ED137C_feature_climax_ddc_rmm_tqv(octet)  (((octet) & 0x00800000) >> 23)
 #define RTP_ED137C_feature_climax_ddc_rmm_t1(octet)   (((octet) & 0x007FFFFF) >> 0)
 #define RTP_ED137C_feature_climax_ddc_mam_tqg(octet)  (((octet) & 0x00800000) >> 23)
@@ -369,6 +412,62 @@ static const value_string rtp_ext_ed137a_ft_climax_delay_mode[] =
     { 0, NULL },
 };
 
+static const value_string rtp_ext_ed137b_ft_single_ms_tx_f1[] =
+{
+    { 0x00, "Main transmitter for F1 is used" },
+    { 0x01, "Standby transmitter for F1 is used" },
+    { 0, NULL },
+};
+
+static const value_string rtp_ext_ed137b_ft_single_ms_rx_f1[] =
+{
+    { 0x00, "Main receiver for F1 is used" },
+    { 0x01, "Standby receiver for F1 is used" },
+    { 0, NULL },
+};
+
+static const value_string rtp_ext_ed137b_ft_single_ms_tx_f2[] =
+{
+    { 0x00, "Main transmitter for F2 is used" },
+    { 0x01, "Standby transmitter for F2 is used" },
+    { 0, NULL },
+};
+
+static const value_string rtp_ext_ed137b_ft_single_ms_rx_f2[] =
+{
+    { 0x00, "Main receiver for F2 is used" },
+    { 0x01, "Standby receiver for F2 is used" },
+    { 0, NULL },
+};
+
+static const value_string rtp_ext_ed137b_ft_single_sel_tx_f1[] =
+{
+    { 0x00, "Active transmitter for F1 shall not be used" },
+    { 0x01, "Active transmitter for F1 shall be used" },
+    { 0, NULL },
+};
+
+static const value_string rtp_ext_ed137b_ft_single_sel_tx_f2[] =
+{
+    { 0x00, "Active transmitter for F2 shall not be used" },
+    { 0x01, "Active transmitter for F2 shall be used" },
+    { 0, NULL },
+};
+
+static const value_string rtp_ext_ed137b_ft_single_mu_rx_f1[] =
+{
+    { 0x00, "Active receiver for F1 shall be unmuted" },
+    { 0x01, "Active receiver for F1 shall be muted" },
+    { 0, NULL },
+};
+
+static const value_string rtp_ext_ed137b_ft_single_mu_rx_f2[] =
+{
+    { 0x00, "Active receiver for F2 shall be unmuted" },
+    { 0x01, "Active receiver for F2 shall be muted" },
+    { 0, NULL },
+};
+
 static const value_string rtp_ext_ed137b_ft_climax_ddc_time_quality[] =
 {
     { 0x00, "Not synchronized" },
@@ -466,7 +565,7 @@ dissect_rtp_hdr_ext_ed137(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
                 ti2 = proto_tree_add_item(rtp_hext_tree, hf_rtp_hdr_ed137, tvb, hdrext_offset, 4, ENC_NA);
                 rtp_hext_tree2 = proto_item_add_subtree( ti2, ett_hdr_ext_ed137 );
 
-                /* Following bits are used from ED137 RTPRx Information field */
+                /* There are multiple formats of header - depends on direction of a flow. As it is not possible to quess flow direction, we use items from RTPRx because unused fields are empty in other formats */
                 proto_tree_add_item( rtp_hext_tree2, hf_rtp_hdr_ed137_ptt_type, tvb, hdrext_offset, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item( rtp_hext_tree2, hf_rtp_hdr_ed137_squ, tvb, hdrext_offset, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item( rtp_hext_tree2, hf_rtp_hdr_ed137_ptt_id, tvb, hdrext_offset, 4, ENC_BIG_ENDIAN);
@@ -605,9 +704,179 @@ static void process_125us_based_value(tvbuff_t *tvb, proto_tree *tree, int value
     proto_tree_add_uint_format_value( tree, value_item, tvb, hdrext_offset, 2, value, "%d us", value_calc);
 }
 
-/* Note:
- * Only seen/tested headers are decoded
- */
+static int
+dissect_rtp_hdr_ext_ed137a_feature_sqi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+{
+    guint32 ext_value;
+    guint32 sqi_qidx;
+    guint32 sqi_qidx_ml;
+
+    ext_value = tvb_get_guint8( tvb, 0 );
+    sqi_qidx    = RTP_ED137A_feature_sqi_qidx(ext_value);
+    sqi_qidx_ml = RTP_ED137A_feature_sqi_qidx_ml(ext_value);
+    if (RTP_ED137A_feature_sqi_qidx_ml_rssi == sqi_qidx_ml) {
+        /* Special handling for RSSI method */
+        if (sqi_qidx <= RTP_ED137A_feature_sqi_qidx_rssi_max) {
+            /* Correct range */
+            proto_tree_add_item( tree, hf_rtp_hdr_ed137a_ft_sqi_rssi_qidx, tvb, 0, 1, ENC_BIG_ENDIAN);
+        }
+        else {
+            /* Handle as other method */
+            proto_tree_add_item( tree, hf_rtp_hdr_ed137a_ft_sqi_qidx, tvb, 0, 1, ENC_BIG_ENDIAN);
+        }
+    }
+    else {
+        /* Other SQI method handling */
+        proto_tree_add_item( tree, hf_rtp_hdr_ed137a_ft_sqi_qidx, tvb, 0, 1, ENC_BIG_ENDIAN);
+    }
+    proto_tree_add_item( tree, hf_rtp_hdr_ed137a_ft_sqi_qidx_ml, tvb, 0, 1, ENC_BIG_ENDIAN);
+
+    return tvb_captured_length(tvb);
+}
+
+static int
+dissect_rtp_hdr_ext_ed137a_feature_climax_tdly(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+{
+    guint32 ext_value;
+    guint32 climax_tdly_mode;
+    guint32 climax_tdly_value;
+    guint32 climax_tdly_value_calc;
+
+    ext_value = tvb_get_guint8( tvb, 0 );
+
+    climax_tdly_mode = RTP_ED137A_feature_climax_tdly_mode(ext_value);
+    climax_tdly_value = RTP_ED137A_feature_climax_tdly_value(ext_value);
+
+    proto_tree_add_item( tree, hf_rtp_hdr_ed137a_ft_climax_delay_mode, tvb, 0, 1, ENC_BIG_ENDIAN);
+    if (RTP_ED137A_feature_climax_tdly_mode_relative == climax_tdly_mode) {
+        /* Relative delay, in 2ms steps */
+        climax_tdly_value_calc=2*climax_tdly_value;
+
+        proto_tree_add_uint_format_value( tree, hf_rtp_hdr_ed137a_ft_climax_delay_relative_value, tvb, 0, 1, climax_tdly_value, "%d ms", climax_tdly_value_calc);
+
+    }
+    else {
+        /* Absolute delay, in 2ms steps */
+        climax_tdly_value_calc=2*climax_tdly_value;
+
+        proto_tree_add_uint_format_value( tree, hf_rtp_hdr_ed137a_ft_climax_delay_absolute_value, tvb, 0, 1, climax_tdly_value, "%d ms", climax_tdly_value_calc);
+
+    }
+
+    return tvb_captured_length(tvb);
+}
+
+static int
+dissect_rtp_hdr_ext_ed137b_feature_rrc_single(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+{
+    proto_tree *item;
+
+    /* Generated item points really to previous byte */
+    item = proto_tree_add_item( tree, hf_rtp_hdr_ed137b_ft_rrc_single, tvb, -1, 1, ENC_NA);
+    PROTO_ITEM_SET_GENERATED(item);
+
+    proto_tree_add_item( tree, hf_rtp_hdr_ed137b_ft_rrc_single_ms_tx_f1, tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item( tree, hf_rtp_hdr_ed137b_ft_rrc_single_ms_rx_f1, tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item( tree, hf_rtp_hdr_ed137b_ft_rrc_single_ms_tx_f2, tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item( tree, hf_rtp_hdr_ed137b_ft_rrc_single_ms_rx_f2, tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item( tree, hf_rtp_hdr_ed137b_ft_rrc_single_sel_tx_f1, tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item( tree, hf_rtp_hdr_ed137b_ft_rrc_single_sel_tx_f2, tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item( tree, hf_rtp_hdr_ed137b_ft_rrc_single_mu_rx_f1, tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item( tree, hf_rtp_hdr_ed137b_ft_rrc_single_mu_rx_f2, tvb, 0, 1, ENC_BIG_ENDIAN);
+
+    return tvb_captured_length(tvb);
+}
+
+static int
+dissect_rtp_hdr_ext_ed137b_feature_climax_ddc_rmm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+{
+    guint32 ext_value;
+    proto_tree *item;
+    guint32 climax_ddc_rmm_tqv;
+    guint32 climax_ddc_rmm_t1;
+
+    /* Generated item points really to previous byte */
+    item = proto_tree_add_item( tree, hf_rtp_hdr_ed137b_ft_climax_ddc_rmm, tvb, -1, 1, ENC_NA);
+    PROTO_ITEM_SET_GENERATED(item);
+
+    ext_value = tvb_get_ntoh24( tvb, 0 );
+    climax_ddc_rmm_tqv = RTP_ED137B_feature_climax_ddc_rmm_tqv(ext_value);
+    climax_ddc_rmm_t1 = RTP_ED137B_feature_climax_ddc_rmm_t1(ext_value);
+
+    proto_tree_add_item( tree, hf_rtp_hdr_ed137b_ft_climax_ddc_rmm_tqv, tvb, 0, 3, ENC_BIG_ENDIAN);
+    process_time_value(tvb, tree, hf_rtp_hdr_ed137b_ft_climax_ddc_rmm_t1, 0, (RTP_ED137B_feature_climax_ddc_rmm_tqv_relative == climax_ddc_rmm_tqv), climax_ddc_rmm_t1);
+
+    return tvb_captured_length(tvb);
+}
+
+static int
+dissect_rtp_hdr_ext_ed137b_feature_climax_ddc_mam(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+{
+    guint32 ext_value;
+    proto_tree *item;
+    guint32 climax_ddc_mam_tqg;
+    guint32 climax_ddc_mam_t1;
+    guint32 climax_ddc_mam_t2;
+
+    /* Generated item points really to previous byte */
+    item = proto_tree_add_item( tree, hf_rtp_hdr_ed137b_ft_climax_ddc_mam, tvb, -1, 1, ENC_NA);
+    PROTO_ITEM_SET_GENERATED(item);
+
+    ext_value = tvb_get_ntoh24( tvb, 0 + 0 );
+    climax_ddc_mam_tqg = RTP_ED137B_feature_climax_ddc_mam_tqg(ext_value);
+    climax_ddc_mam_t1 = RTP_ED137B_feature_climax_ddc_mam_t1(ext_value);
+
+    proto_tree_add_item( tree, hf_rtp_hdr_ed137b_ft_climax_ddc_mam_tqg, tvb, 0, 3, ENC_BIG_ENDIAN);
+    process_time_value(tvb, tree, hf_rtp_hdr_ed137b_ft_climax_ddc_mam_t1, 0, (RTP_ED137B_feature_climax_ddc_mam_tqg_relative == climax_ddc_mam_tqg), climax_ddc_mam_t1);
+
+    ext_value = tvb_get_ntoh24( tvb, 0 + 3 );
+    climax_ddc_mam_t2 = RTP_ED137B_feature_climax_ddc_mam_t2(ext_value);
+
+    proto_tree_add_item( tree, hf_rtp_hdr_ed137b_ft_climax_ddc_mam_nmr, tvb, 0 + 3, 3, ENC_BIG_ENDIAN);
+    process_time_value(tvb, tree, hf_rtp_hdr_ed137b_ft_climax_ddc_mam_t2, 0 + 3, (RTP_ED137B_feature_climax_ddc_mam_tqg_relative == climax_ddc_mam_tqg), climax_ddc_mam_t2);
+
+    process_125us_based_value( tvb, tree, hf_rtp_hdr_ed137b_ft_climax_ddc_mam_tsd, 0 + 6);
+    process_125us_based_value( tvb, tree, hf_rtp_hdr_ed137b_ft_climax_ddc_mam_tj1, 0 + 8);
+    process_125us_based_value( tvb, tree, hf_rtp_hdr_ed137b_ft_climax_ddc_mam_tid, 0 + 10);
+
+    return tvb_captured_length(tvb);
+}
+
+static int
+dissect_rtp_hdr_ext_ed137c_feature_climax_ddc_mam(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+{
+    guint32 ext_value;
+    proto_tree *item;
+    guint32 climax_ddc_mam_tqg;
+    guint32 climax_ddc_mam_t1;
+    guint32 climax_ddc_mam_t2;
+
+    /* Generated item points really to previous byte */
+    item = proto_tree_add_item( tree, hf_rtp_hdr_ed137c_ft_climax_ddc_mam, tvb, -1, 1, ENC_NA);
+    PROTO_ITEM_SET_GENERATED(item);
+
+    ext_value = tvb_get_ntoh24( tvb, 0 + 0 );
+    climax_ddc_mam_tqg = RTP_ED137C_feature_climax_ddc_mam_tqg(ext_value);
+    climax_ddc_mam_t1 = RTP_ED137C_feature_climax_ddc_mam_t1(ext_value);
+
+    proto_tree_add_item( tree, hf_rtp_hdr_ed137c_ft_climax_ddc_mam_tqg, tvb, 0, 3, ENC_BIG_ENDIAN);
+    process_time_value(tvb, tree, hf_rtp_hdr_ed137c_ft_climax_ddc_mam_t1, 0, (RTP_ED137C_feature_climax_ddc_mam_tqg_relative == climax_ddc_mam_tqg), climax_ddc_mam_t1);
+
+    ext_value = tvb_get_ntoh24( tvb, 0 + 3 );
+    climax_ddc_mam_t2 = RTP_ED137C_feature_climax_ddc_mam_t2(ext_value);
+
+    proto_tree_add_item( tree, hf_rtp_hdr_ed137c_ft_climax_ddc_mam_nmr, tvb, 0 + 3, 3, ENC_BIG_ENDIAN);
+    process_time_value(tvb, tree, hf_rtp_hdr_ed137c_ft_climax_ddc_mam_t2, 0 + 3, (RTP_ED137C_feature_climax_ddc_mam_tqg_relative == climax_ddc_mam_tqg), climax_ddc_mam_t2);
+
+    process_125us_based_value( tvb, tree, hf_rtp_hdr_ed137c_ft_climax_ddc_mam_tsd, 0 + 6);
+    process_125us_based_value( tvb, tree, hf_rtp_hdr_ed137c_ft_climax_ddc_mam_tj1, 0 + 8);
+    process_125us_based_value( tvb, tree, hf_rtp_hdr_ed137c_ft_climax_ddc_mam_tid, 0 + 10);
+    process_125us_based_value( tvb, tree, hf_rtp_hdr_ed137c_ft_climax_ddc_mam_ts2, 0 + 12);
+
+    return tvb_captured_length(tvb);
+}
+
+/* Decode ED-137A fixed part and call dissectors for variable part */
 static int
 dissect_rtp_hdr_ext_ed137a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
@@ -621,6 +890,9 @@ dissect_rtp_hdr_ext_ed137a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     hdr_extension_len = tvb_reported_length(tvb);
 
     if ( hdr_extension_len > 0 ) {
+        proto_item *ti2;
+        proto_tree *rtp_hext_tree2;
+        guint32 ext_value = tvb_get_ntohs( tvb, hdrext_offset );
 
         if (rtp_info != NULL) {
             rtp_info->info_is_ed137 = TRUE;
@@ -631,259 +903,145 @@ dissect_rtp_hdr_ext_ed137a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             rtp_hext_tree = proto_item_add_subtree( ti, ett_hdr_ext_ed137s );
         }
 
-        while ( hdr_extension_len > 0 ) {
-            proto_item *ti2;
-            proto_tree *rtp_hext_tree2;
-            proto_item *ti3;
-            proto_tree *rtp_hext_tree3;
-            guint32 ft_type;
-            guint32 ft_len;
-            guint32 ext_value = tvb_get_ntohl( tvb, hdrext_offset );
+        if (RTP_ED137A_ptt_mask(ext_value)) {
+            col_append_str(pinfo->cinfo, COL_INFO, ", PTT");
+            ed137_ptt = TRUE;
+        }
+        if (RTP_ED137A_squ_mask(ext_value)) {
+            col_append_str(pinfo->cinfo, COL_INFO, ", SQU");
+            ed137_squ = TRUE;
+        }
 
-            if (RTP_ED137A_ptt_mask(ext_value)) {
-                col_append_str(pinfo->cinfo, COL_INFO, ", PTT");
-                ed137_ptt = TRUE;
-            }
-            if (RTP_ED137A_squ_mask(ext_value)) {
-                col_append_str(pinfo->cinfo, COL_INFO, ", SQU");
-                ed137_squ = TRUE;
-            }
-
-            /* Map PTT/SQU bits to string */
-            if (rtp_info != NULL) {
-                if (ed137_ptt) {
-                    if (ed137_squ) {
-                        rtp_info->info_ed137_info = ed137_ptt_and_squ;
-                    } else {
-                        rtp_info->info_ed137_info = ed137_ptt_only;
-                    }
+        /* Map PTT/SQU bits to string */
+        if (rtp_info != NULL) {
+            if (ed137_ptt) {
+                if (ed137_squ) {
+                    rtp_info->info_ed137_info = ed137_ptt_and_squ;
                 } else {
-                    if (ed137_squ) {
-                        rtp_info->info_ed137_info = ed137_squ_only;
-                    } else {
-                        rtp_info->info_ed137_info = NULL;
+                    rtp_info->info_ed137_info = ed137_ptt_only;
+                }
+            } else {
+                if (ed137_squ) {
+                    rtp_info->info_ed137_info = ed137_squ_only;
+                } else {
+                    rtp_info->info_ed137_info = NULL;
+                }
+            }
+        }
+
+        if ( rtp_hext_tree ) {
+            ti2 = proto_tree_add_item(rtp_hext_tree, hf_rtp_hdr_ed137a, tvb, hdrext_offset, 2, ENC_NA);
+            rtp_hext_tree2 = proto_item_add_subtree( ti2, ett_hdr_ext_ed137a );
+
+            /* There are multiple formats of header - depends on direction of a flow. As it is not possible to quess flow direction, we use items from RTPRx because unused fields are empty in other formats */
+            proto_tree_add_item( rtp_hext_tree2, hf_rtp_hdr_ed137a_ptt_type, tvb, hdrext_offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item( rtp_hext_tree2, hf_rtp_hdr_ed137a_squ, tvb, hdrext_offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item( rtp_hext_tree2, hf_rtp_hdr_ed137a_ptt_id, tvb, hdrext_offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item( rtp_hext_tree2, hf_rtp_hdr_ed137a_pm, tvb, hdrext_offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item( rtp_hext_tree2, hf_rtp_hdr_ed137a_ptts, tvb, hdrext_offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item( rtp_hext_tree2, hf_rtp_hdr_ed137a_sct, tvb, hdrext_offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item( rtp_hext_tree2, hf_rtp_hdr_ed137a_reserved, tvb, hdrext_offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item( rtp_hext_tree2, hf_rtp_hdr_ed137a_x, tvb, hdrext_offset, 2, ENC_BIG_ENDIAN);
+        }
+
+        /* Shift behind standard ED-137A header */
+        hdrext_offset += 2;
+        hdr_extension_len -= 2;
+
+        /* Do we have additional feature blocks? */
+        if (RTP_ED137A_extended_information(ext_value)) {
+
+            /* Loop over all additional feature blocks */
+            /* The shortest header lenght is 2, anything shorter is padding */
+            while ( hdr_extension_len >= 2 ) {
+                proto_item *ti3;
+                proto_tree *rtp_hext_tree3;
+                guint32 ft_type;
+                guint32 ft_len;
+
+                ext_value = tvb_get_ntohs( tvb, hdrext_offset );
+                ft_type = RTP_ED137A_feature_type(ext_value);
+                ft_len = RTP_ED137A_feature_length(ext_value);
+
+                /* Is it header or padding? */
+                if ( RTP_ED137_feature_none_type != ft_type ) {
+                    ti3 = proto_tree_add_item(rtp_hext_tree, hf_rtp_hdr_ed137a_add, tvb, hdrext_offset, (ft_len > 0 ? ft_len + 1 : 2), ENC_NA);
+                    rtp_hext_tree3 = proto_item_add_subtree( ti3, ett_hdr_ext_ed137a_add );
+
+                    if ( rtp_hext_tree ) {
+                        proto_tree_add_item( rtp_hext_tree3, hf_rtp_hdr_ed137a_ft_type, tvb, hdrext_offset, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item( rtp_hext_tree3, hf_rtp_hdr_ed137a_ft_len, tvb, hdrext_offset, 1, ENC_BIG_ENDIAN);
                     }
-                }
-            }
 
-            if ( rtp_hext_tree ) {
-                ti2 = proto_tree_add_item(rtp_hext_tree, hf_rtp_hdr_ed137a, tvb, hdrext_offset, 2, ENC_NA);
-                rtp_hext_tree2 = proto_item_add_subtree( ti2, ett_hdr_ext_ed137a );
+                    /* Shift behind feature header */
+                    hdrext_offset += 1;
+                    hdr_extension_len -= 1;
 
-                /* Following bits are used from ED137A/B RTPRx Information field */
-                proto_tree_add_item( rtp_hext_tree2, hf_rtp_hdr_ed137a_ptt_type, tvb, hdrext_offset, 2, ENC_BIG_ENDIAN);
-                proto_tree_add_item( rtp_hext_tree2, hf_rtp_hdr_ed137a_squ, tvb, hdrext_offset, 2, ENC_BIG_ENDIAN);
-                proto_tree_add_item( rtp_hext_tree2, hf_rtp_hdr_ed137a_ptt_id, tvb, hdrext_offset, 2, ENC_BIG_ENDIAN);
-                proto_tree_add_item( rtp_hext_tree2, hf_rtp_hdr_ed137a_pm, tvb, hdrext_offset, 2, ENC_BIG_ENDIAN);
-                proto_tree_add_item( rtp_hext_tree2, hf_rtp_hdr_ed137a_ptts, tvb, hdrext_offset, 2, ENC_BIG_ENDIAN);
-                proto_tree_add_item( rtp_hext_tree2, hf_rtp_hdr_ed137a_sct, tvb, hdrext_offset, 2, ENC_BIG_ENDIAN);
-                proto_tree_add_item( rtp_hext_tree2, hf_rtp_hdr_ed137a_reserved, tvb, hdrext_offset, 2, ENC_BIG_ENDIAN);
-                proto_tree_add_item( rtp_hext_tree2, hf_rtp_hdr_ed137a_x, tvb, hdrext_offset, 2, ENC_BIG_ENDIAN);
-            }
+                    if ( rtp_hext_tree ) {
+                        tvbuff_t   *newtvb;
+                        guint32     ft_table_key;
 
-            /* Shift behind standard ED137A header */
-            hdrext_offset += 2;
-            hdr_extension_len -= 2;
+                        /* join 4 bit type and 4 bit lenght to 8 bit key */
+                        ft_table_key = MAKE_KEY( ft_type, ft_len );
 
-            ft_type = RTP_ED137A_feature_type(ext_value);
-            ft_len = RTP_ED137A_feature_length(ext_value);
+                        /* pass interpretation of header extension to a registered subdissector */
+                        /* new subset points to value (starts behind type/length pair) */
+                        newtvb = tvb_new_subset_length(tvb, hdrext_offset, hdr_extension_len);
 
-            ti3 = proto_tree_add_item(rtp_hext_tree, hf_rtp_hdr_ed137a_add, tvb, hdrext_offset, (ft_len > 0 ? ft_len + 1 : 2), ENC_NA);
-            rtp_hext_tree3 = proto_item_add_subtree( ti3, ett_hdr_ext_ed137a_add );
-
-            if (RTP_ED137A_extended_information(ext_value)) {
-                /* Extended information is used */
-                guint32 hdr_extension_padding;
-
-                if ( rtp_hext_tree ) {
-                    proto_tree_add_item( rtp_hext_tree3, hf_rtp_hdr_ed137a_ft_type, tvb, hdrext_offset, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item( rtp_hext_tree3, hf_rtp_hdr_ed137a_ft_len, tvb, hdrext_offset, 1, ENC_BIG_ENDIAN);
-                }
-
-                hdrext_offset += 1;
-                hdr_extension_len -= 1;
-
-                if ( rtp_hext_tree ) {
-                    switch (ft_type) {
-                        case RTP_ED137A_feature_sqi_type:
-                        {
-                            guint32 sqi_qidx;
-                            guint32 sqi_qidx_ml;
-
-                            sqi_qidx    = RTP_ED137A_feature_sqi_qidx(ext_value);
-                            sqi_qidx_ml = RTP_ED137A_feature_sqi_qidx_ml(ext_value);
-                            if (RTP_ED137A_feature_sqi_qidx_ml_rssi == sqi_qidx_ml) {
-                                /* Special handling for RSSI method */
-                                if (sqi_qidx <= RTP_ED137A_feature_sqi_qidx_rssi_max) {
-                                    /* Correct range */
-                                    proto_tree_add_item( rtp_hext_tree3, hf_rtp_hdr_ed137a_ft_sqi_rssi_qidx, tvb, hdrext_offset, 1, ENC_BIG_ENDIAN);
-                                }
-                                else {
-                                    /* Handle as other method */
-                                    proto_tree_add_item( rtp_hext_tree3, hf_rtp_hdr_ed137a_ft_sqi_qidx, tvb, hdrext_offset, 1, ENC_BIG_ENDIAN);
-                                }
-                            }
-                            else {
-                                /* Other SQI method handling */
-                                proto_tree_add_item( rtp_hext_tree3, hf_rtp_hdr_ed137a_ft_sqi_qidx, tvb, hdrext_offset, 1, ENC_BIG_ENDIAN);
-                            }
-                            proto_tree_add_item( rtp_hext_tree3, hf_rtp_hdr_ed137a_ft_sqi_qidx_ml, tvb, hdrext_offset, 1, ENC_BIG_ENDIAN);
-                            break;
-                        }
-                        case RTP_ED137A_feature_climax_tdly_type:
-                        {
-                            guint32 climax_tdly_mode;
-                            guint32 climax_tdly_value;
-                            guint32 climax_tdly_value_calc;
-
-                            climax_tdly_mode = RTP_ED137A_feature_climax_tdly_mode(ext_value);
-                            climax_tdly_value = RTP_ED137A_feature_climax_tdly_value(ext_value);
-
-                            proto_tree_add_item( rtp_hext_tree3, hf_rtp_hdr_ed137a_ft_climax_delay_mode, tvb, hdrext_offset, 1, ENC_BIG_ENDIAN);
-                            if (RTP_ED137A_feature_climax_tdly_mode_relative == climax_tdly_mode) {
-                                /* Relative delay, in 2ms steps */
-                                climax_tdly_value_calc=2*climax_tdly_value;
-
-                                proto_tree_add_uint_format_value( rtp_hext_tree3, hf_rtp_hdr_ed137a_ft_climax_delay_relative_value, tvb, hdrext_offset, 1, climax_tdly_value, "%d ms", climax_tdly_value_calc);
-
-                                }
-                                else {
-                                /* Absolute delay, in 2ms steps */
-                                climax_tdly_value_calc=2*climax_tdly_value;
-
-                                proto_tree_add_uint_format_value( rtp_hext_tree3, hf_rtp_hdr_ed137a_ft_climax_delay_absolute_value, tvb, hdrext_offset, 1, climax_tdly_value, "%d ms", climax_tdly_value_calc);
-
-                                }
-                            break;
-                        }
-                        case RTP_ED137B_feature_climax_ddc_type:
-                        {
-                            switch (ft_len) {
-                                case RTP_ED137B_feature_climax_ddc_rmm_len:
-                                {
-                                    proto_tree *item;
-                                    guint32 climax_ddc_rmm_tqv;
-                                    guint32 climax_ddc_rmm_t1;
-
-                                    ext_value = tvb_get_ntoh24( tvb, hdrext_offset );
-                                    climax_ddc_rmm_tqv = RTP_ED137B_feature_climax_ddc_rmm_tqv(ext_value);
-                                    climax_ddc_rmm_t1 = RTP_ED137B_feature_climax_ddc_rmm_t1(ext_value);
-
-                                    item = proto_tree_add_item( rtp_hext_tree3, hf_rtp_hdr_ed137b_ft_climax_ddc_rmm, tvb, hdrext_offset - 1, 1, ENC_NA);
-                                    PROTO_ITEM_SET_GENERATED(item);
-
-                                    proto_tree_add_item( rtp_hext_tree3, hf_rtp_hdr_ed137b_ft_climax_ddc_rmm_tqv, tvb, hdrext_offset, 3, ENC_BIG_ENDIAN);
-                                    process_time_value(tvb, rtp_hext_tree3, hf_rtp_hdr_ed137b_ft_climax_ddc_rmm_t1, hdrext_offset, (RTP_ED137B_feature_climax_ddc_rmm_tqv_relative == climax_ddc_rmm_tqv), climax_ddc_rmm_t1);
-                                    break;
-                                }
-                                case RTP_ED137B_feature_climax_ddc_mam_len:
-                                {
-                                    proto_tree *item;
-                                    guint32 climax_ddc_mam_tqg;
-                                    guint32 climax_ddc_mam_t1;
-                                    guint32 climax_ddc_mam_t2;
-
-                                    ext_value = tvb_get_ntoh24( tvb, hdrext_offset );
-                                    climax_ddc_mam_tqg = RTP_ED137B_feature_climax_ddc_mam_tqg(ext_value);
-                                    climax_ddc_mam_t1 = RTP_ED137B_feature_climax_ddc_mam_t1(ext_value);
-
-                                    item = proto_tree_add_item( rtp_hext_tree3, hf_rtp_hdr_ed137b_ft_climax_ddc_mam, tvb, hdrext_offset - 1, 1, ENC_NA);
-                                    PROTO_ITEM_SET_GENERATED(item);
-
-                                    proto_tree_add_item( rtp_hext_tree3, hf_rtp_hdr_ed137b_ft_climax_ddc_mam_tqg, tvb, hdrext_offset, 3, ENC_BIG_ENDIAN);
-                                    process_time_value(tvb, rtp_hext_tree3, hf_rtp_hdr_ed137b_ft_climax_ddc_mam_t1, hdrext_offset, (RTP_ED137B_feature_climax_ddc_mam_tqg_relative == climax_ddc_mam_tqg), climax_ddc_mam_t1);
-
-                                    ext_value = tvb_get_ntoh24( tvb, hdrext_offset + 3 );
-                                    climax_ddc_mam_t2 = RTP_ED137B_feature_climax_ddc_mam_t2(ext_value);
-
-                                    proto_tree_add_item( rtp_hext_tree3, hf_rtp_hdr_ed137b_ft_climax_ddc_mam_nmr, tvb, hdrext_offset + 3, 3, ENC_BIG_ENDIAN);
-                                    process_time_value(tvb, rtp_hext_tree3, hf_rtp_hdr_ed137b_ft_climax_ddc_mam_t2, hdrext_offset + 3, (RTP_ED137B_feature_climax_ddc_mam_tqg_relative == climax_ddc_mam_tqg), climax_ddc_mam_t2);
-
-                                    process_125us_based_value( tvb, rtp_hext_tree3, hf_rtp_hdr_ed137b_ft_climax_ddc_mam_tsd, hdrext_offset + 6);
-                                    process_125us_based_value( tvb, rtp_hext_tree3, hf_rtp_hdr_ed137b_ft_climax_ddc_mam_tj1, hdrext_offset + 8);
-                                    process_125us_based_value( tvb, rtp_hext_tree3, hf_rtp_hdr_ed137b_ft_climax_ddc_mam_tid, hdrext_offset + 10);
-
-                                    break;
-                                }
-                                case RTP_ED137C_feature_climax_ddc_mam_len:
-                                {
-                                    proto_tree *item;
-                                    guint32 climax_ddc_mam_tqg;
-                                    guint32 climax_ddc_mam_t1;
-                                    guint32 climax_ddc_mam_t2;
-
-                                    ext_value = tvb_get_ntoh24( tvb, hdrext_offset );
-                                    climax_ddc_mam_tqg = RTP_ED137C_feature_climax_ddc_mam_tqg(ext_value);
-                                    climax_ddc_mam_t1 = RTP_ED137C_feature_climax_ddc_mam_t1(ext_value);
-
-                                    item = proto_tree_add_item( rtp_hext_tree3, hf_rtp_hdr_ed137c_ft_climax_ddc_mam, tvb, hdrext_offset - 1, 1, ENC_NA);
-                                    PROTO_ITEM_SET_GENERATED(item);
-
-                                    proto_tree_add_item( rtp_hext_tree3, hf_rtp_hdr_ed137c_ft_climax_ddc_mam_tqg, tvb, hdrext_offset, 3, ENC_BIG_ENDIAN);
-                                    process_time_value(tvb, rtp_hext_tree3, hf_rtp_hdr_ed137c_ft_climax_ddc_mam_t1, hdrext_offset, (RTP_ED137C_feature_climax_ddc_mam_tqg_relative == climax_ddc_mam_tqg), climax_ddc_mam_t1);
-
-                                    ext_value = tvb_get_ntoh24( tvb, hdrext_offset + 3 );
-                                    climax_ddc_mam_t2 = RTP_ED137C_feature_climax_ddc_mam_t2(ext_value);
-
-                                    proto_tree_add_item( rtp_hext_tree3, hf_rtp_hdr_ed137c_ft_climax_ddc_mam_nmr, tvb, hdrext_offset + 3, 3, ENC_BIG_ENDIAN);
-                                    process_time_value(tvb, rtp_hext_tree3, hf_rtp_hdr_ed137c_ft_climax_ddc_mam_t2, hdrext_offset + 3, (RTP_ED137C_feature_climax_ddc_mam_tqg_relative == climax_ddc_mam_tqg), climax_ddc_mam_t2);
-
-                                    process_125us_based_value( tvb, rtp_hext_tree3, hf_rtp_hdr_ed137c_ft_climax_ddc_mam_tsd, hdrext_offset + 6);
-                                    process_125us_based_value( tvb, rtp_hext_tree3, hf_rtp_hdr_ed137c_ft_climax_ddc_mam_tj1, hdrext_offset + 8);
-                                    process_125us_based_value( tvb, rtp_hext_tree3, hf_rtp_hdr_ed137c_ft_climax_ddc_mam_tid, hdrext_offset + 10);
-                                    process_125us_based_value( tvb, rtp_hext_tree3, hf_rtp_hdr_ed137c_ft_climax_ddc_mam_ts2, hdrext_offset + 12);
-
-                                    break;
-                                }
-                                default:
-                                    proto_tree_add_item( rtp_hext_tree3, hf_rtp_hdr_ed137b_ft_climax_ddc_unknown, tvb, hdrext_offset, ft_len, ENC_NA);
-                                    break;
-                            }
-                            break;
-                        }
-                        default:
+                        /* try to find a dissector by type/len key and dissect additional feature header */
+                        if ( !(dissector_try_uint(rtp_hdr_ext_ed137a_add_features_table, ft_table_key, newtvb, pinfo, rtp_hext_tree3)) ) {
                             proto_tree_add_item( rtp_hext_tree3, hf_rtp_hdr_ed137a_ft_value, tvb, hdrext_offset, ft_len, ENC_NA);
-                            break;
+                        }
                     }
+
+                    /* Shift behind feature data */
+                    hdrext_offset += ft_len;
+                    hdr_extension_len -= ft_len;
+                }
+                else {
+                    /* Padding, exit while loop */
+                    break;
                 }
 
-                /* Shift behind additional feature header */
-                hdrext_offset += ft_len;
-                hdr_extension_len -= ft_len;
+            }
 
-                hdr_extension_padding = hdr_extension_len & 0x03;
+            /* Process padding if any */
+            guint32 hdr_extension_padding;
 
-                /* Calculate padding size */
-                if ( hdr_extension_padding > 0 ) {
+            hdr_extension_padding = hdr_extension_len & 0x03;
+
+            /* Calculate padding size */
+            if ( hdr_extension_padding > 0 ) {
+                if ( rtp_hext_tree ) {
                     proto_tree_add_item( rtp_hext_tree, hf_rtp_hdr_ed137a_ft_padding, tvb, hdrext_offset, hdr_extension_padding, ENC_NA);
                 }
-
-                hdrext_offset += hdr_extension_padding;
-                hdr_extension_len -= hdr_extension_padding;
             }
-            else {
-                /* Extended information is not used */
-                if ( rtp_hext_tree ) {
-                    proto_tree_add_item( rtp_hext_tree3, hf_rtp_hdr_ed137a_x_nu, tvb, hdrext_offset, 2, ENC_BIG_ENDIAN);
-                }
 
-                /* Shift behind empty additional feature header */
-                hdrext_offset += 2;
-                hdr_extension_len -= 2;
+            hdrext_offset += hdr_extension_padding;
+            hdr_extension_len -= hdr_extension_padding;
+        }
+        else {
+            /* Extended information is not used */
+            if ( rtp_hext_tree ) {
+                proto_item *ti3;
+                proto_tree *rtp_hext_tree3;
+
+                ti3 = proto_tree_add_item(rtp_hext_tree, hf_rtp_hdr_ed137a_add, tvb, hdrext_offset, 2, ENC_NA);
+                rtp_hext_tree3 = proto_item_add_subtree( ti3, ett_hdr_ext_ed137a_add );
+                proto_tree_add_item( rtp_hext_tree3, hf_rtp_hdr_ed137a_x_nu, tvb, hdrext_offset, 2, ENC_BIG_ENDIAN);
             }
         }
     }
     return tvb_captured_length(tvb);
 }
 
-/* Register RTP ED137 */
-
+/* Register RTP ED-137 */
 void
 proto_register_rtp_ed137(void)
 {
     static hf_register_info hf[] =
     {
-/* ED137 and ED137A common structures */
+/* ED-137 and ED-137A common structures */
         {
             &hf_rtp_hdr_ed137s,
             {
@@ -896,7 +1054,7 @@ proto_register_rtp_ed137(void)
                 NULL, HFILL
             }
         },
-/* ED137 only structures */
+/* ED-137 only structures */
         {
             &hf_rtp_hdr_ed137,
             {
@@ -912,7 +1070,7 @@ proto_register_rtp_ed137(void)
         {
             &hf_rtp_hdr_ed137_add,
             {
-                "ED137 extension additional features",
+                "ED137 extension additional feature",
                 "rtp.ext.ed137.ft",
                 FT_NONE,
                 BASE_NONE,
@@ -1089,7 +1247,7 @@ proto_register_rtp_ed137(void)
                 NULL, HFILL
             }
         },
-/* ED137A/B only structures */
+/* ED-137A/B only structures */
         {
             &hf_rtp_hdr_ed137a,
             {
@@ -1105,7 +1263,7 @@ proto_register_rtp_ed137(void)
         {
             &hf_rtp_hdr_ed137a_add,
             {
-                "ED137A extension additional features",
+                "ED137A extension additional feature",
                 "rtp.ext.ed137a.ft",
                 FT_NONE,
                 BASE_NONE,
@@ -1339,6 +1497,114 @@ proto_register_rtp_ed137(void)
                 BASE_DEC,
                 NULL,
                 0x7F,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtp_hdr_ed137b_ft_rrc_single,
+            {
+                "RRC for single frequency",
+                "rtp.ext.ed137b.ft.rrc.single",
+                FT_NONE,
+                BASE_NONE,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtp_hdr_ed137b_ft_rrc_single_ms_tx_f1,
+            {
+                "MSTxF1",
+                "rtp.ext.ed137b.ft.rrc.mstxf1",
+                FT_UINT8,
+                BASE_DEC,
+                VALS(rtp_ext_ed137b_ft_single_ms_tx_f1),
+                0x80,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtp_hdr_ed137b_ft_rrc_single_ms_rx_f1,
+            {
+                "MSRxF1",
+                "rtp.ext.ed137b.ft.rrc.msrxf1",
+                FT_UINT8,
+                BASE_DEC,
+                VALS(rtp_ext_ed137b_ft_single_ms_rx_f1),
+                0x40,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtp_hdr_ed137b_ft_rrc_single_ms_tx_f2,
+            {
+                "MSTxF2",
+                "rtp.ext.ed137b.ft.rrc.mstxf2",
+                FT_UINT8,
+                BASE_DEC,
+                VALS(rtp_ext_ed137b_ft_single_ms_tx_f2),
+                0x20,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtp_hdr_ed137b_ft_rrc_single_ms_rx_f2,
+            {
+                "MSRxF2",
+                "rtp.ext.ed137b.ft.rrc.msrxf2",
+                FT_UINT8,
+                BASE_DEC,
+                VALS(rtp_ext_ed137b_ft_single_ms_rx_f2),
+                0x10,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtp_hdr_ed137b_ft_rrc_single_sel_tx_f1,
+            {
+                "SelTxF1",
+                "rtp.ext.ed137b.ft.rrc.seltxf1",
+                FT_UINT8,
+                BASE_DEC,
+                VALS(rtp_ext_ed137b_ft_single_sel_tx_f1),
+                0x08,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtp_hdr_ed137b_ft_rrc_single_sel_tx_f2,
+            {
+                "SelTxF2",
+                "rtp.ext.ed137b.ft.rrc.seltxf2",
+                FT_UINT8,
+                BASE_DEC,
+                VALS(rtp_ext_ed137b_ft_single_sel_tx_f2),
+                0x04,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtp_hdr_ed137b_ft_rrc_single_mu_rx_f1,
+            {
+                "MuRxF1",
+                "rtp.ext.ed137b.ft.rrc.murxf1",
+                FT_UINT8,
+                BASE_DEC,
+                VALS(rtp_ext_ed137b_ft_single_mu_rx_f1),
+                0x02,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtp_hdr_ed137b_ft_rrc_single_mu_rx_f2,
+            {
+                "MuRxF2",
+                "rtp.ext.ed137b.ft.rrc.murxf2",
+                FT_UINT8,
+                BASE_DEC,
+                VALS(rtp_ext_ed137b_ft_single_mu_rx_f2),
+                0x01,
                 NULL, HFILL
             }
         },
@@ -1611,6 +1877,35 @@ proto_register_rtp_ed137(void)
 
     rtp_hdr_ext_ed137_handle = register_dissector("rtp.ext.ed137", dissect_rtp_hdr_ext_ed137, proto_rtp_ed137);
     rtp_hdr_ext_ed137a_handle = register_dissector("rtp.ext.ed137a", dissect_rtp_hdr_ext_ed137a, proto_rtp_ed137);
+
+    /* Table for ED-137A additional feature dissectors */
+    rtp_hdr_ext_ed137a_add_features_table = register_dissector_table("rtp.hdr_ext.ed137a",
+                                "RTP header ED137A additional features", proto_rtp_ed137, FT_UINT8, BASE_HEX);
+
+    /* Register dissectors for tested additional headers */
+    /* ED-137A signal quality information */
+    rtp_hdr_ext_ed137a_feature_sqi_handle = register_dissector("rtp.hdr_ext.ed137a.ed137a_feature_sqi", dissect_rtp_hdr_ext_ed137a_feature_sqi, proto_rtp_ed137);
+    dissector_add_uint("rtp.hdr_ext.ed137a", RTP_ED137A_feature_sqi_key, rtp_hdr_ext_ed137a_feature_sqi_handle);
+
+    /* ED-137A CLIMAX time delay */
+    rtp_hdr_ext_ed137a_feature_climax_tdly_handle = register_dissector("rtp.hdr_ext.ed137a.ed137a_feature_climax_tdly", dissect_rtp_hdr_ext_ed137a_feature_climax_tdly, proto_rtp_ed137);
+    dissector_add_uint("rtp.hdr_ext.ed137a", RTP_ED137A_feature_climax_tdly_key, rtp_hdr_ext_ed137a_feature_climax_tdly_handle);
+
+    /* ED-137B RRC for single frequency */
+    rtp_hdr_ext_ed137b_feature_rrc_single_handle = register_dissector("rtp.hdr_ext.ed137a.ed137b_feature_rrc_single", dissect_rtp_hdr_ext_ed137b_feature_rrc_single, proto_rtp_ed137);
+    dissector_add_uint("rtp.hdr_ext.ed137a", RTP_ED137B_feature_rrc_single_key, rtp_hdr_ext_ed137b_feature_rrc_single_handle);
+
+    /* ED-137B CLIMAX request for measurement message (RMM) */
+    rtp_hdr_ext_ed137b_feature_climax_ddc_rmm_handle = register_dissector("rtp.hdr_ext.ed137a.ed137b_feature_climax_ddc_rmm", dissect_rtp_hdr_ext_ed137b_feature_climax_ddc_rmm, proto_rtp_ed137);
+    dissector_add_uint("rtp.hdr_ext.ed137a", RTP_ED137B_feature_climax_ddc_rmm_key, rtp_hdr_ext_ed137b_feature_climax_ddc_rmm_handle);
+
+    /* ED-137B CLIMAX response message (MAM) */
+    rtp_hdr_ext_ed137b_feature_climax_ddc_mam_handle = register_dissector("rtp.hdr_ext.ed137a.ed137b_feature_climax_ddc_mam", dissect_rtp_hdr_ext_ed137b_feature_climax_ddc_mam, proto_rtp_ed137);
+    dissector_add_uint("rtp.hdr_ext.ed137a", RTP_ED137B_feature_climax_ddc_mam_key, rtp_hdr_ext_ed137b_feature_climax_ddc_mam_handle);
+
+    /* ED-137C CLIMAX response message (MAM) */
+    rtp_hdr_ext_ed137c_feature_climax_ddc_mam_handle = register_dissector("rtp.hdr_ext.ed137a.ed137c_feature_climax_ddc_mam", dissect_rtp_hdr_ext_ed137c_feature_climax_ddc_mam, proto_rtp_ed137);
+    dissector_add_uint("rtp.hdr_ext.ed137a", RTP_ED137C_feature_climax_ddc_mam_key, rtp_hdr_ext_ed137c_feature_climax_ddc_mam_handle);
 }
 
 void
