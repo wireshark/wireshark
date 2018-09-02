@@ -259,7 +259,7 @@ static int hf_ieee_802_3_bt_power_type_ext = -1;
 static int hf_ieee_802_3_bt_pse_maximum_available_power_value = -1;
 static int hf_ieee_802_3_bt_autoclass = -1;
 static int hf_ieee_802_3_bt_pse_autoclass_support = -1;
-static int hf_ieee_802_3_bt_autoclass_supported = -1;
+static int hf_ieee_802_3_bt_autoclass_completed = -1;
 static int hf_ieee_802_3_bt_autoclass_request = -1;
 static int hf_ieee_802_3_bt_autoclass_reserved = -1;
 static int hf_ieee_802_3_bt_power_down = -1;
@@ -2730,7 +2730,7 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 			mac_phy_flags = proto_item_add_subtree(tf, ett_802_3_bt_autoclass);
 
 			proto_tree_add_item(mac_phy_flags, hf_ieee_802_3_bt_pse_autoclass_support, tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(mac_phy_flags, hf_ieee_802_3_bt_autoclass_supported, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(mac_phy_flags, hf_ieee_802_3_bt_autoclass_completed, tvb, offset, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(mac_phy_flags, hf_ieee_802_3_bt_autoclass_request, tvb, offset, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(mac_phy_flags, hf_ieee_802_3_bt_autoclass_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset+=1;
@@ -5154,7 +5154,7 @@ proto_register_lldp(void)
 			NULL, 0x3000, NULL, HFILL }
 		},
 		{ &hf_ieee_802_3_bt_pse_power_pairs_ext,
-			{ "PSE Power Paris ext", "lldp.ieee.802_3.bt_pse_power_pairs_ext", FT_UINT16, BASE_DEC,
+			{ "PSE Power Pairs ext", "lldp.ieee.802_3.bt_pse_power_pairs_ext", FT_UINT16, BASE_DEC,
 			NULL, 0x0C00, NULL, HFILL }
 		},
 		{ &hf_ieee_802_3_bt_ds_pwr_class_ext_a,
@@ -5189,12 +5189,12 @@ proto_register_lldp(void)
 			{ "PSE Autoclass support", "lldp.ieee.802_3.bt_pse_autoclass_support", FT_UINT8, BASE_DEC,
 			NULL, 0x04, NULL, HFILL }
 		},
-		{ &hf_ieee_802_3_bt_autoclass_supported,
-			{ "Autoclass supported", "lldp.ieee.802_3.bt_autoclass_supported", FT_UINT8, BASE_DEC,
+		{ &hf_ieee_802_3_bt_autoclass_completed,
+			{ "Autoclass Completed", "lldp.ieee.802_3.bt_autoclass_completed", FT_UINT8, BASE_DEC,
 			NULL, 0x02, NULL, HFILL }
 		},
 		{ &hf_ieee_802_3_bt_autoclass_request,
-			{ "Autoclass request", "lldp.ieee.802_3.bt_autoclass_request", FT_UINT8, BASE_DEC,
+			{ "Autoclass Request", "lldp.ieee.802_3.bt_autoclass_request", FT_UINT8, BASE_DEC,
 			NULL, 0x01, NULL, HFILL }
 		},
 		{ &hf_ieee_802_3_bt_autoclass_reserved,
