@@ -559,7 +559,7 @@ dissect_rtp_hdr_ext_ed137(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     time.nsecs = (usecs % 1000000) / 1000;
 
 /* Decodes and calculates relative/absolute time item */
-void process_time_value(tvbuff_t *tvb, proto_tree *tree, int time_item, unsigned int hdrext_offset, gboolean time_relative, unsigned int time_value)
+static void process_time_value(tvbuff_t *tvb, proto_tree *tree, int time_item, unsigned int hdrext_offset, gboolean time_relative, unsigned int time_value)
 {
     /* Note: even there is relative/absolute flag, value is shown same way */
     if (time_relative) {
@@ -593,7 +593,7 @@ void process_time_value(tvbuff_t *tvb, proto_tree *tree, int time_item, unsigned
 }
 
 /* Decodes and calculates value based on 125us tick*/
-void process_125us_based_value(tvbuff_t *tvb, proto_tree *tree, int value_item, unsigned int hdrext_offset)
+static void process_125us_based_value(tvbuff_t *tvb, proto_tree *tree, int value_item, unsigned int hdrext_offset)
 {
     guint32 value;
     guint32 value_calc;
