@@ -18,6 +18,7 @@
  * RFC2858 Multiprotocol Extensions for BGP-4
  * RFC2918 Route Refresh Capability for BGP-4
  * RFC3107 Carrying Label Information in BGP-4
+ * RFC4360 BGP Extended Communities Attribute
  * RFC4486 Subcodes for BGP Cease Notification Message
  * RFC4724 Graceful Restart Mechanism for BGP
  * RFC5512 The BGP Encapsulation Subsequent Address Family Identifier (SAFI)
@@ -34,7 +35,6 @@
  * RFC8092 BGP Large Communities Attribute
  * draft-ietf-idr-dynamic-cap
  * draft-ietf-idr-bgp-enhanced-route-refresh-02
- * draft-ietf-idr-bgp-ext-communities-05
  * draft-knoll-idr-qos-attribute-03
  * draft-nalawade-kapoor-tunnel-safi-05
  * draft-ietf-idr-add-paths-04 Additional-Path for BGP-4
@@ -461,7 +461,7 @@ static dissector_handle_t bgp_handle;
 
 /* according to IANA's number assignment at: http://www.iana.org/assignments/bgp-extended-communities */
 
-                                        /* draft-ietf-idr-bgp-ext-communities */
+                                        /* RFC 4360 */
 #define BGP_EXT_COM_RT_AS2        0x0002  /* Route Target,Format AS(2bytes):AN(4bytes) */
 #define BGP_EXT_COM_RT_IP4        0x0102  /* Route Target,Format IP address:AN(2bytes) */
 #define BGP_EXT_COM_RT_AS4        0x0202  /* Route Target,Format AS(4bytes):AN(2bytes) */
