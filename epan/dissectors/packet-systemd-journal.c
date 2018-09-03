@@ -163,7 +163,7 @@ typedef struct _journal_field_hf_map {
 
 static journal_field_hf_map *jf_to_hf;
 
-void init_jf_to_hf_map(void) {
+static void init_jf_to_hf_map(void) {
     journal_field_hf_map jhmap[] = {
         // Official.
         { hf_sj_message, "MESSAGE=" },
