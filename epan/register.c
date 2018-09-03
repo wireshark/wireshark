@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#include "register.h"
+#include "register-int.h"
 #include "ws_attributes.h"
 
 #include <glib.h>
