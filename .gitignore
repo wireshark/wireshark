@@ -46,7 +46,6 @@ plugins/epan/*/plugin.c
 plugins/wiretap/*/plugin.c
 plugins/codecs/*/plugin.c
 plugins/epan/mate/mate_parser.c
-version.h
 tools/lemon/lemon
 tshark-tap-register.c
 wiretap/ascend.c
