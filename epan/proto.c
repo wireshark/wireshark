@@ -2259,15 +2259,29 @@ test_length(header_field_info *hfinfo, tvbuff_t *tvb,
 }
 
 static void
-detect_trailing_stray_characters(const char *string, gint length, proto_item *pi)
+detect_trailing_stray_characters(enum ftenum type, guint encoding, const char *string, gint length, proto_item *pi)
 {
 	gboolean found_stray_character = FALSE;
 
-	for (gint i = (gint)strlen(string); i < length; i++) {
-		if (string[i] != '\0') {
-			found_stray_character = TRUE;
+	if (!string)
+		return;
+
+	if (type != FT_STRING && type != FT_STRINGZ && type != FT_STRINGZPAD)
+		return;
+
+	switch (encoding & ENC_CHARENCODING_MASK) {
+		case ENC_ASCII:
+		case ENC_UTF_8:
+			for (gint i = (gint)strlen(string); i < length; i++) {
+				if (string[i] != '\0') {
+					found_stray_character = TRUE;
+					break;
+				}
+			}
 			break;
-		}
+
+		default:
+			break;
 	}
 
 	if (found_stray_character) {
@@ -2724,10 +2738,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 	 *      to know which item caused exception? */
 	pi = proto_tree_add_node(tree, new_fi);
 
-	if (stringval) {
-		/* Detect trailing stray characters */
-		detect_trailing_stray_characters(stringval, length, pi);
-	}
+	detect_trailing_stray_characters(new_fi->hfinfo->type, encoding, stringval, length, pi);
 
 	return pi;
 }
@@ -3301,10 +3312,7 @@ proto_tree_add_item_ret_string_and_length(proto_tree *tree, int hfindex,
 
 	pi = proto_tree_add_node(tree, new_fi);
 
-	if (value) {
-		/* Detect trailing stray characters */
-		detect_trailing_stray_characters(value, length, pi);
-	}
+	detect_trailing_stray_characters(hfinfo->type, encoding, value, length, pi);
 
 	return pi;
 }
