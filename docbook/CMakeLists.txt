@@ -61,65 +61,14 @@ set(COMMON_GRAPHICS
 	common_graphics/warning.svg
 )
 
-set(WSUG_TOOLS_HELP_COMMANDS
-	capinfos
-	editcap
-	mergecap
-	reordercap
-	text2pcap
-	tshark
-)
-
-if (PCAP_FOUND)
-	list(APPEND WSUG_TOOLS_HELP_COMMANDS
-		dumpcap
-		rawshark
-	)
-endif(PCAP_FOUND)
-
-# We want the wsug_* targets to depend on the tools help files.
-# We want update_tools_help to be an independent target.
-# We don't necessarily want to depend on building our executables before
-# being able to build our documentation.
-set(WSUG_TOOLS_HELP_FILES)
 set(GUIDE_INSTALL_DIRS)
 
-# General help output
-# XXX We should probably do this conditionally, e.g. based on
-#   if (TARGET ${th_command}) ...
-# However, if we do so we'll have to make sure this is processed after
-# our targets are created.
-
-foreach(th_command ${WSUG_TOOLS_HELP_COMMANDS})
-	set(th_file ${CMAKE_CURRENT_SOURCE_DIR}/wsug_src/${th_command}-h.txt)
-	list(APPEND WSUG_TOOLS_HELP_FILES ${th_file})
-	add_custom_command(
-		OUTPUT ${th_file}
-		COMMAND $<TARGET_FILE:${th_command}> -h > ${th_file}
-		DEPENDS $<TARGET_FILE:${th_command}>
-	)
-endforeach()
-
-# Extra command output
-# Note that these won't work on Windows unless we make -F and -T write
-# to stdout and return 0 or wrap the commands similar to hhc.exe.
-set(th_file ${CMAKE_CURRENT_SOURCE_DIR}/wsug_src/editcap-F.txt)
-list(APPEND WSUG_TOOLS_HELP_FILES ${th_file})
-add_custom_command(
-	OUTPUT ${th_file}
-	COMMAND $<TARGET_FILE:editcap> -F > ${th_file}
-	DEPENDS $<TARGET_FILE:editcap>
-)
-set(th_file ${CMAKE_CURRENT_SOURCE_DIR}/wsug_src/editcap-T.txt)
-list(APPEND WSUG_TOOLS_HELP_FILES ${th_file})
-add_custom_command(
-	OUTPUT ${th_file}
-	COMMAND $<TARGET_FILE:editcap> -T > ${th_file}
-	DEPENDS $<TARGET_FILE:editcap>
-)
-
+# This is automatically updated each week. You probably don't need to run it
+# or depend on it.
 add_custom_target(update_tools_help
-	DEPENDS ${WSUG_TOOLS_HELP_FILES}
+	COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/update-tools-help.py
+		--program-path ${WS_PROGRAM_PATH}
+	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
 set_docbook_target_properties(update_tools_help)
 
@@ -141,6 +90,16 @@ set(WSUG_FILES
 	wsug_src/WSUG_chapter_use.asciidoc
 	wsug_src/WSUG_chapter_work.asciidoc
 	wsug_src/WSUG_preface.asciidoc
+	wsug_src/capinfos-h.txt
+	wsug_src/dumpcap-h.txt
+	wsug_src/editcap-F.txt
+	wsug_src/editcap-T.txt
+	wsug_src/editcap-h.txt
+	wsug_src/mergecap-h.txt
+	wsug_src/rawshark-h.txt
+	wsug_src/reordercap-h.txt
+	wsug_src/text2pcap-h.txt
+	wsug_src/tshark-h.txt
 	${COMMON_FILES}
 )
 
@@ -335,7 +294,7 @@ if(NOT CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
 	)
 endif()
 
-set( WSUG_BUILT_DEPS ws.css ${WSUG_TOOLS_HELP_FILES})
+set( WSUG_BUILT_DEPS ws.css)
 
 set(WSDG_SOURCE
 	${WSDG_FILES}

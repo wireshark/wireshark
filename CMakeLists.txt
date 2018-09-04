@@ -279,6 +279,13 @@ endif()
 # This option only has an effect on CMake >= 2.8.9
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+# Path to our generated executables (or wrapper scripts)
+if(WIN32)
+	set(WS_PROGRAM_PATH ./run/$<CONFIG>)
+else()
+	set(WS_PROGRAM_PATH ./run)
+endif()
+
 if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 	if ((MSVC_VERSION LESS "1900") OR (MSVC_VERSION GREATER_EQUAL "2000"))
 		message(FATAL_ERROR "You are using an unsupported version of MSVC")
