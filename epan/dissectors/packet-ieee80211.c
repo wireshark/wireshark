@@ -19511,8 +19511,8 @@ ieee80211_tag_twt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
                       ENC_NA);
   offset += 1;
 
-  item = proto_tree_add_item(tree, hf_ieee80211_tag_twt_wake_interval_mantissa, tvb, offset, 2,
-                             ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(tree, hf_ieee80211_tag_twt_wake_interval_mantissa, tvb, offset, 2,
+                      ENC_LITTLE_ENDIAN);
   offset += 2;
 
   proto_tree_add_item(tree, hf_ieee80211_tag_twt_channel, tvb, offset, 1, ENC_NA);
