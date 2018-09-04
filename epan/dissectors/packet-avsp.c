@@ -57,6 +57,10 @@ static int hf_avsp_ts_64_ns = -1;
 static int hf_avsp_ts_48 = -1;
 static int hf_avsp_ts_48_sec = -1;
 static int hf_avsp_ts_48_ns = -1;
+static int hf_avsp_etype = -1;
+static int hf_avsp_trailer = -1;
+
+static dissector_handle_t ethertype_handle;
 
 static expert_field ei_avsp_ts_unknown_version = EI_INIT;
 
@@ -135,7 +139,19 @@ dissect_avsp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *data 
         }
     }
 
-    call_data_dissector(tvb_new_subset_remaining (tvb, offset), pinfo, tree);
+    guint16 encap_proto;
+    encap_proto = tvb_get_ntohs(tvb, offset);
+    offset += 2;
+
+    ethertype_data_t ethertype_data;
+    ethertype_data.etype = encap_proto;
+    ethertype_data.offset_after_ethertype = offset;
+    ethertype_data.fh_tree = avsp_tree;
+    ethertype_data.etype_id = hf_avsp_etype;
+    ethertype_data.trailer_id = hf_avsp_trailer;
+    ethertype_data.fcs_len = 0;
+
+    call_dissector_with_data(ethertype_handle, tvb, pinfo, tree, &ethertype_data);
     return tvb_captured_length(tvb);
 }
 
@@ -148,6 +164,7 @@ void proto_reg_handoff_avsp(void)
         create_dissector_handle(dissect_avsp, proto_avsp);
 
     dissector_add_uint("ethertype", ETHERTYPE_AVSP, avsp_handle);
+    ethertype_handle = find_dissector_add_dependency("ethertype", proto_avsp);
 }
 
 void proto_register_avsp(void)
@@ -202,6 +219,18 @@ void proto_register_avsp(void)
                 FT_UINT32, BASE_DEC,
                 NULL, 0x0,
                 NULL, HFILL}
+        },
+        {&hf_avsp_etype,
+            {"Type", "avsp.etype",
+                FT_UINT16, BASE_HEX,
+                VALS(etype_vals), 0x0,
+                "Ethertype", HFILL}
+        },
+        {&hf_avsp_trailer,
+            {"Trailer", "avsp.trailer",
+                FT_BYTES, BASE_NONE,
+                NULL, 0x0,
+                "AVSP Trailer", HFILL}
         },
     };
 
