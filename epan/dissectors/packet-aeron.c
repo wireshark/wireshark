@@ -51,7 +51,7 @@ typedef struct
 
 static int aeron_pos_roundup(int offset)
 {
-    return ((offset+7) & 0xfffffff8);
+    return ((offset+31) & (~31));
 }
 
 static int aeron_pos_compare(const aeron_pos_t * pos1, const aeron_pos_t * pos2)
@@ -325,6 +325,7 @@ struct aeron_stream_t_stct
     guint32 stream_id;
     guint32 term_length;
     guint32 mtu;
+    guint32 ttl;
     guint32 flags;
     aeron_pos_t high;
 };
@@ -441,6 +442,7 @@ static aeron_stream_t * aeron_transport_stream_add(aeron_transport_t * transport
         stream->stream_id = stream_id;
         stream->term_length = 0;
         stream->mtu = 0;
+        stream->ttl = 0;
         stream->flags = 0;
         stream->high.term_id = 0;
         stream->high.term_offset = 0;
@@ -725,8 +727,9 @@ static char * aeron_format_transport_uri(const aeron_conversation_info_t * cinfo
 #define O_AERON_DATA_SESSION_ID 12
 #define O_AERON_DATA_STREAM_ID 16
 #define O_AERON_DATA_TERM_ID 20
-#define O_AERON_DATA_DATA 24
-#define L_AERON_DATA_MIN 24
+#define O_AERON_DATA_RESERVED_VALUE 24
+#define O_AERON_DATA_DATA 32
+#define L_AERON_DATA_MIN 32
 
 /* NAK frame */
 #define O_AERON_NAK_FRAME_LENGTH 0
@@ -750,8 +753,9 @@ static char * aeron_format_transport_uri(const aeron_conversation_info_t * cinfo
 #define O_AERON_SM_TERM_ID 16
 #define O_AERON_SM_COMPLETED_TERM_OFFSET 20
 #define O_AERON_SM_RECEIVER_WINDOW 24
-#define O_AERON_SM_FEEDBACK 28
-#define L_AERON_SM_MIN 28
+#define O_AERON_SM_RECEIVER_ID 28
+#define O_AERON_SM_FEEDBACK 36
+#define L_AERON_SM_MIN 36
 
 /* Error header */
 #define O_AERON_ERR_FRAME_LENGTH 0
@@ -766,6 +770,29 @@ static char * aeron_format_transport_uri(const aeron_conversation_info_t * cinfo
 #define O_AERON_ERR_FEEDBACK 28
 #define L_AERON_ERR_MIN 12
 
+/* Heartbeat frame */
+#define O_AERON_HEAERTBEAT_FRAME_LENGTH 0
+#define O_AERON_HEAERTBEAT_VERSION 4
+#define O_AERON_HEAERTBEAT_FLAGS 5
+#define O_AERON_HEAERTBEAT_TYPE 6
+#define O_AERON_HEAERTBEAT_TERM_OFFSET 8
+#define O_AERON_HEAERTBEAT_SESSION_ID 12
+#define O_AERON_HEAERTBEAT_STREAM_ID 16
+#define O_AERON_HEAERTBEAT_TERM_ID 20
+#define L_AERON_HEAERTBEAT_MIN 24
+
+/* RTT message */
+#define O_AERON_RTT_FRAME_LENGTH 0
+#define O_AERON_RTT_VERSION 4
+#define O_AERON_RTT_FLAGS 5
+#define O_AERON_RTT_TYPE 6
+#define O_AERON_RTT_SESSION_ID 8
+#define O_AERON_RTT_STREAM_ID 12
+#define O_AERON_RTT_ECHO_TIMESTAMP 16
+#define O_AERON_RTT_RECEPTION_DELTA 24
+#define O_AERON_RTT_RECEIVER_ID 32
+#define L_AERON_RTT 40
+
 /* Setup frame */
 #define O_AERON_SETUP_FRAME_LENGTH 0
 #define O_AERON_SETUP_VERSION 4
@@ -778,7 +805,8 @@ static char * aeron_format_transport_uri(const aeron_conversation_info_t * cinfo
 #define O_AERON_SETUP_ACTIVE_TERM_ID 24
 #define O_AERON_SETUP_TERM_LENGTH 28
 #define O_AERON_SETUP_MTU 32
-#define L_AERON_SETUP 36
+#define O_AERON_SETUP_TTL 36
+#define L_AERON_SETUP 40
 
 #define HDR_TYPE_PAD 0x0000
 #define HDR_TYPE_DATA 0x0001
@@ -786,13 +814,17 @@ static char * aeron_format_transport_uri(const aeron_conversation_info_t * cinfo
 #define HDR_TYPE_SM 0x0003
 #define HDR_TYPE_ERR 0x0004
 #define HDR_TYPE_SETUP 0x0005
+#define HDR_TYPE_RTT 0x0006
 #define HDR_TYPE_EXT 0xFFFF
 
 #define DATA_FLAGS_BEGIN 0x80
 #define DATA_FLAGS_END 0x40
+#define DATA_FLAGS_EOS 0x20
 #define DATA_FLAGS_COMPLETE (DATA_FLAGS_BEGIN | DATA_FLAGS_END)
 
 #define STATUS_FLAGS_SETUP 0x80
+#define STATUS_FLAGS_REPLY 0x80
+
 
 /*----------------------------------------------------------------------------*/
 /* Value translation tables.                                                  */
@@ -804,6 +836,7 @@ static const value_string aeron_frame_type[] =
     { HDR_TYPE_DATA,  "Data" },
     { HDR_TYPE_NAK,   "NAK" },
     { HDR_TYPE_SM,    "Status" },
+    { HDR_TYPE_RTT,   "RTT" },
     { HDR_TYPE_ERR,   "Error" },
     { HDR_TYPE_SETUP, "Setup" },
     { HDR_TYPE_EXT,   "Extension" },
@@ -872,6 +905,7 @@ static aeron_conversation_info_t * aeron_setup_conversation_info(const packet_in
                         case HDR_TYPE_PAD:
                         case HDR_TYPE_DATA:
                         case HDR_TYPE_SETUP:
+                        case HDR_TYPE_RTT:
                             /* Destination is a receiver */
                             copy_address_wmem(wmem_packet_scope(), cinfo->addr1, &(pinfo->src));
                             cinfo->port1 = pinfo->srcport;
@@ -927,6 +961,7 @@ static aeron_conversation_info_t * aeron_setup_conversation_info(const packet_in
                         case HDR_TYPE_PAD:
                         case HDR_TYPE_DATA:
                         case HDR_TYPE_SETUP:
+                        case HDR_TYPE_RTT:
                             /* Destination is a receiver */
                             copy_address_wmem(wmem_packet_scope(), cinfo->addr1, &(pinfo->src));
                             cinfo->port1 = pinfo->srcport;
@@ -966,6 +1001,8 @@ static gint ett_aeron_data_reassembly = -1;
 static gint ett_aeron_nak = -1;
 static gint ett_aeron_sm = -1;
 static gint ett_aeron_sm_flags = -1;
+static gint ett_aeron_rtt = -1;
+static gint ett_aeron_rtt_flags = -1;
 static gint ett_aeron_err = -1;
 static gint ett_aeron_setup = -1;
 static gint ett_aeron_ext = -1;
@@ -992,6 +1029,7 @@ static int hf_aeron_data_version = -1;
 static int hf_aeron_data_flags = -1;
 static int hf_aeron_data_flags_b = -1;
 static int hf_aeron_data_flags_e = -1;
+static int hf_aeron_data_flags_s = -1;
 static int hf_aeron_data_type = -1;
 static int hf_aeron_data_term_offset = -1;
 static int hf_aeron_data_next_offset = -1;
@@ -1000,6 +1038,7 @@ static int hf_aeron_data_next_offset_first_frame = -1;
 static int hf_aeron_data_session_id = -1;
 static int hf_aeron_data_stream_id = -1;
 static int hf_aeron_data_term_id = -1;
+static int hf_aeron_data_reserved_value = -1;
 static int hf_aeron_data_reassembly = -1;
 static int hf_aeron_data_reassembly_fragment = -1;
 static int hf_aeron_nak = -1;
@@ -1023,6 +1062,7 @@ static int hf_aeron_sm_stream_id = -1;
 static int hf_aeron_sm_consumption_term_id = -1;
 static int hf_aeron_sm_consumption_term_offset = -1;
 static int hf_aeron_sm_receiver_window = -1;
+static int hf_aeron_sm_receiver_id = -1;
 static int hf_aeron_sm_feedback = -1;
 static int hf_aeron_err = -1;
 static int hf_aeron_err_frame_length = -1;
@@ -1032,6 +1072,28 @@ static int hf_aeron_err_type = -1;
 static int hf_aeron_err_off_frame_length = -1;
 static int hf_aeron_err_off_hdr = -1;
 static int hf_aeron_err_string = -1;
+static int hf_aeron_heartbeat = -1;
+static int hf_aeron_heartbeat_frame_length = -1;
+static int hf_aeron_heartbeat_version = -1;
+static int hf_aeron_heartbeat_flags = -1;
+static int hf_aeron_heartbeat_flags_b = -1;
+static int hf_aeron_heartbeat_flags_e = -1;
+static int hf_aeron_heartbeat_type = -1;
+static int hf_aeron_heartbeat_term_offset = -1;
+static int hf_aeron_heartbeat_session_id = -1;
+static int hf_aeron_heartbeat_stream_id = -1;
+static int hf_aeron_heartbeat_term_id = -1;
+static int hf_aeron_rtt = -1;
+static int hf_aeron_rtt_frame_length = -1;
+static int hf_aeron_rtt_version = -1;
+static int hf_aeron_rtt_flags = -1;
+static int hf_aeron_rtt_flags_r = -1;
+static int hf_aeron_rtt_type = -1;
+static int hf_aeron_rtt_session_id = -1;
+static int hf_aeron_rtt_stream_id = -1;
+static int hf_aeron_rtt_echo_timestamp = -1;
+static int hf_aeron_rtt_reception_delta = -1;
+static int hf_aeron_rtt_receiver_id = -1;
 static int hf_aeron_setup = -1;
 static int hf_aeron_setup_frame_length = -1;
 static int hf_aeron_setup_version = -1;
@@ -1044,6 +1106,7 @@ static int hf_aeron_setup_initial_term_id = -1;
 static int hf_aeron_setup_active_term_id = -1;
 static int hf_aeron_setup_term_length = -1;
 static int hf_aeron_setup_mtu = -1;
+static int hf_aeron_setup_ttl = -1;
 static int hf_aeron_sequence_analysis = -1;
 static int hf_aeron_sequence_analysis_channel_prev_frame = -1;
 static int hf_aeron_sequence_analysis_channel_next_frame = -1;
@@ -1084,6 +1147,7 @@ static expert_field ei_aeron_analysis_invalid_pad_length = EI_INIT;
 static expert_field ei_aeron_analysis_invalid_data_length = EI_INIT;
 static expert_field ei_aeron_analysis_invalid_nak_length = EI_INIT;
 static expert_field ei_aeron_analysis_invalid_sm_length = EI_INIT;
+static expert_field ei_aeron_analysis_invalid_rtt_length = EI_INIT;
 static expert_field ei_aeron_analysis_invalid_err_length = EI_INIT;
 static expert_field ei_aeron_analysis_invalid_setup_length = EI_INIT;
 
@@ -1099,6 +1163,7 @@ typedef struct
     guint32 length;
     guint32 data_length;
     guint32 receiver_window;
+    guint64 receiver_id;
     guint32 nak_term_offset;
     guint32 nak_length;
     guint16 type;
@@ -2283,6 +2348,7 @@ static int dissect_aeron_data(tvbuff_t * tvb, int offset, packet_info * pinfo, p
     {
         &hf_aeron_data_flags_b,
         &hf_aeron_data_flags_e,
+        &hf_aeron_data_flags_s,
         NULL
     };
     aeron_transport_t * transport;
@@ -2342,6 +2408,7 @@ static int dissect_aeron_data(tvbuff_t * tvb, int offset, packet_info * pinfo, p
     proto_tree_add_item(subtree, hf_aeron_data_session_id, tvb, offset + O_AERON_DATA_SESSION_ID, 4, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(subtree, hf_aeron_data_stream_id, tvb, offset + O_AERON_DATA_STREAM_ID, 4, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(subtree, hf_aeron_data_term_id, tvb, offset + O_AERON_DATA_TERM_ID, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(subtree, hf_aeron_data_reserved_value, tvb, offset + O_AERON_DATA_RESERVED_VALUE, 8, ENC_LITTLE_ENDIAN);
     if (data_length > 0)
     {
         tvbuff_t * data_tvb = NULL;
@@ -2412,7 +2479,7 @@ static int dissect_aeron_nak(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
     aeron_packet_info_t pktinfo;
 
     frame_length = tvb_get_letohl(tvb, offset + O_AERON_NAK_FRAME_LENGTH);
-    rounded_length = (int) aeron_pos_roundup(frame_length);
+    rounded_length = (int)frame_length;
     if (rounded_length < 0)
         return 0;
     session_id = tvb_get_letohl(tvb, offset + O_AERON_NAK_SESSION_ID);
@@ -2492,12 +2559,13 @@ static int dissect_aeron_sm(tvbuff_t * tvb, int offset, packet_info * pinfo, pro
     guint32 term_id;
     guint32 consumption_offset;
     guint32 rcv_window;
+    guint64 rcv_id;
     int rounded_length;
     aeron_packet_info_t pktinfo;
 
     frame_length = tvb_get_letohl(tvb, offset + O_AERON_SM_FRAME_LENGTH);
     feedback_length = frame_length - O_AERON_SM_FEEDBACK;
-    rounded_length = (int) aeron_pos_roundup(frame_length);
+    rounded_length = (int) frame_length;
     if (rounded_length < 0)
         return 0;
     session_id = tvb_get_letohl(tvb, offset + O_AERON_SM_SESSION_ID);
@@ -2506,6 +2574,7 @@ static int dissect_aeron_sm(tvbuff_t * tvb, int offset, packet_info * pinfo, pro
     term_id = tvb_get_letohl(tvb, offset + O_AERON_SM_TERM_ID);
     consumption_offset = tvb_get_letohl(tvb, offset + O_AERON_SM_COMPLETED_TERM_OFFSET);
     rcv_window = tvb_get_letohl(tvb, offset + O_AERON_SM_RECEIVER_WINDOW);
+    rcv_id = tvb_get_letoh64(tvb, offset + O_AERON_SM_RECEIVER_ID);
     memset((void *) &pktinfo, 0, sizeof(aeron_packet_info_t));
     pktinfo.stream_id = stream_id;
     pktinfo.info_flags = AERON_PACKET_INFO_FLAGS_STREAM_ID_VALID;
@@ -2516,12 +2585,14 @@ static int dissect_aeron_sm(tvbuff_t * tvb, int offset, packet_info * pinfo, pro
         pktinfo.term_offset = consumption_offset;
         pktinfo.info_flags |= (AERON_PACKET_INFO_FLAGS_TERM_ID_VALID | AERON_PACKET_INFO_FLAGS_TERM_OFFSET_VALID);
         pktinfo.receiver_window = rcv_window;
+        pktinfo.receiver_id = rcv_id;
     }
     else
     {
         pktinfo.term_id = 0;
         pktinfo.term_offset = 0;
         pktinfo.receiver_window = 0;
+        pktinfo.receiver_id = 0;
     }
     pktinfo.length = 0;
     pktinfo.data_length = 0;
@@ -2530,8 +2601,8 @@ static int dissect_aeron_sm(tvbuff_t * tvb, int offset, packet_info * pinfo, pro
         return 0;
 
     aeron_info_stream_progress_report(pinfo, HDR_TYPE_SM, pktinfo.flags, term_id, consumption_offset, finfo);
-    sm_item = proto_tree_add_none_format(tree, hf_aeron_sm, tvb, offset, -1, "Status Message: Term 0x%x, ConsumptionOfs %" G_GUINT32_FORMAT ", RcvWindow %" G_GUINT32_FORMAT,
-        term_id, consumption_offset, rcv_window);
+    sm_item = proto_tree_add_none_format(tree, hf_aeron_sm, tvb, offset, -1, "Status Message: Term 0x%x, ConsumptionOfs %" G_GUINT32_FORMAT ", RcvWindow %" G_GUINT32_FORMAT ", RcvID %" G_GUINT64_FORMAT,
+        term_id, consumption_offset, rcv_window, rcv_id);
     subtree = proto_item_add_subtree(sm_item, ett_aeron_sm);
     item = proto_tree_add_uint64(subtree, hf_aeron_channel_id, tvb, 0, 0, transport->channel_id);
     PROTO_ITEM_SET_GENERATED(item);
@@ -2545,6 +2616,7 @@ static int dissect_aeron_sm(tvbuff_t * tvb, int offset, packet_info * pinfo, pro
     proto_tree_add_item(subtree, hf_aeron_sm_consumption_term_offset, tvb, offset + O_AERON_SM_COMPLETED_TERM_OFFSET, 4, ENC_LITTLE_ENDIAN);
     rcv_window_item = proto_tree_add_item(subtree, hf_aeron_sm_receiver_window, tvb, offset + O_AERON_SM_RECEIVER_WINDOW, 4, ENC_LITTLE_ENDIAN);
     aeron_window_resize_report(pinfo, rcv_window_item, finfo);
+    proto_tree_add_item(subtree, hf_aeron_sm_receiver_id, tvb, offset + O_AERON_SM_RECEIVER_ID, 8, ENC_LITTLE_ENDIAN);
     if (feedback_length > 0)
     {
         proto_tree_add_item(subtree, hf_aeron_sm_feedback, tvb, offset + O_AERON_SM_FEEDBACK, feedback_length, ENC_NA);
@@ -2592,7 +2664,7 @@ static int dissect_aeron_err(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
     {
         proto_tree_add_item(subtree, hf_aeron_err_string, tvb, offset + ofs, string_length, ENC_ASCII|ENC_NA);
     }
-    rounded_length = (int) aeron_pos_roundup(frame_length);
+    rounded_length = (int) frame_length;
     if (rounded_length < 0)
         return 0;
     proto_item_set_len(err_item, rounded_length);
@@ -2605,9 +2677,138 @@ static int dissect_aeron_err(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
 }
 
 /*----------------------------------------------------------------------------*/
+/* Aeron heartbeat packet dissection functions. (Data frame also)             */
+/*----------------------------------------------------------------------------*/
+static int dissect_aeron_heartbeat(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, aeron_conversation_info_t * cinfo, aeron_frame_info_t * finfo)
+{
+    proto_tree * subtree;
+    proto_item * data_item;
+    proto_item * channel_item;
+    proto_item * frame_length_item;
+    guint32 frame_length;
+    static const int * flags[] =
+    {
+        &hf_aeron_heartbeat_flags_b,
+        &hf_aeron_heartbeat_flags_e,
+        NULL
+    };
+    aeron_transport_t * transport;
+    guint32 term_offset;
+    guint32 session_id;
+    guint32 stream_id;
+    guint32 term_id;
+
+    int rounded_length = 0;
+    aeron_packet_info_t pktinfo;
+
+    frame_length = tvb_get_letohl(tvb, offset + O_AERON_HEAERTBEAT_FRAME_LENGTH);
+    if (frame_length != 0)
+    {
+       return 0;
+    }
+
+    term_offset = tvb_get_letohl(tvb, offset + O_AERON_HEAERTBEAT_TERM_OFFSET);
+    session_id = tvb_get_letohl(tvb, offset + O_AERON_HEAERTBEAT_SESSION_ID);
+    transport = aeron_transport_add(cinfo, session_id, pinfo->num);
+    stream_id = tvb_get_letohl(tvb, offset + O_AERON_HEAERTBEAT_STREAM_ID);
+    term_id = tvb_get_letohl(tvb, offset + O_AERON_HEAERTBEAT_TERM_ID);
+    memset((void *) &pktinfo, 0, sizeof(aeron_packet_info_t));
+    pktinfo.stream_id = stream_id;
+    pktinfo.term_id = term_id;
+    pktinfo.term_offset = term_offset;
+    pktinfo.info_flags = AERON_PACKET_INFO_FLAGS_STREAM_ID_VALID | AERON_PACKET_INFO_FLAGS_TERM_ID_VALID | AERON_PACKET_INFO_FLAGS_TERM_OFFSET_VALID;
+    pktinfo.length = frame_length;
+    pktinfo.data_length = 0;
+    pktinfo.type = HDR_TYPE_DATA;
+    pktinfo.flags = tvb_get_guint8(tvb, offset + O_AERON_HEAERTBEAT_FLAGS);
+    if (aeron_frame_info_setup(pinfo, transport, &pktinfo, finfo) < 0)
+        return 0;
+
+    aeron_info_stream_progress_report(pinfo, HDR_TYPE_DATA, pktinfo.flags, term_id, term_offset, finfo);
+    data_item = proto_tree_add_none_format(tree, hf_aeron_heartbeat, tvb, offset, -1, "Heartbeat Frame: Term 0x%x, Ofs %" G_GUINT32_FORMAT ", Len %" G_GUINT32_FORMAT "(%d)",
+        (guint32) term_id, term_offset, frame_length, rounded_length);
+    subtree = proto_item_add_subtree(data_item, ett_aeron_data);
+    channel_item = proto_tree_add_uint64(subtree, hf_aeron_channel_id, tvb, 0, 0, transport->channel_id);
+    PROTO_ITEM_SET_GENERATED(channel_item);
+    frame_length_item = proto_tree_add_item(subtree, hf_aeron_heartbeat_frame_length, tvb, offset + O_AERON_HEAERTBEAT_FRAME_LENGTH, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(subtree, hf_aeron_heartbeat_version, tvb, offset + O_AERON_HEAERTBEAT_VERSION, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_bitmask(subtree, tvb, offset + O_AERON_HEAERTBEAT_FLAGS, hf_aeron_heartbeat_flags, ett_aeron_data_flags, flags, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(subtree, hf_aeron_heartbeat_type, tvb, offset + O_AERON_HEAERTBEAT_TYPE, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(subtree, hf_aeron_heartbeat_term_offset, tvb, offset + O_AERON_HEAERTBEAT_TERM_OFFSET, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(subtree, hf_aeron_heartbeat_session_id, tvb, offset + O_AERON_HEAERTBEAT_SESSION_ID, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(subtree, hf_aeron_heartbeat_stream_id, tvb, offset + O_AERON_HEAERTBEAT_STREAM_ID, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(subtree, hf_aeron_heartbeat_term_id, tvb, offset + O_AERON_HEAERTBEAT_TERM_ID, 4, ENC_LITTLE_ENDIAN);
+
+    aeron_sequence_report(tvb, pinfo, subtree, transport, &pktinfo, finfo);
+    aeron_stream_report(tvb, pinfo, subtree, transport, finfo);
+    proto_item_set_len(data_item, rounded_length);
+    if ((frame_length != 0) && (frame_length < L_AERON_HEAERTBEAT_MIN))
+    {
+        expert_add_info(pinfo, frame_length_item, &ei_aeron_analysis_invalid_data_length);
+        return (-rounded_length);
+    }
+    return (rounded_length);
+}
+
+/*----------------------------------------------------------------------------*/
+/* Aeron rtt message packet dissection functions.                          */
+/*----------------------------------------------------------------------------*/
+static int dissect_aeron_rtt(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, aeron_conversation_info_t * cinfo, aeron_frame_info_t * finfo)
+{
+    proto_tree * subtree;
+    proto_item * rtt_item;
+    proto_item * frame_length_item;
+    proto_item * item;
+    guint32 frame_length;
+    static const int * flags[] =
+    {
+        &hf_aeron_rtt_flags_r,
+        NULL
+    };
+    aeron_transport_t * transport;
+    guint32 session_id;
+    guint32 stream_id;
+    guint64 rcv_id;
+    int rounded_length;
+
+    frame_length = tvb_get_letohl(tvb, offset + O_AERON_RTT_FRAME_LENGTH);
+    rounded_length = (int)frame_length;
+    if (rounded_length < 0)
+        return 0;
+    session_id = tvb_get_letohl(tvb, offset + O_AERON_RTT_SESSION_ID);
+    transport = aeron_transport_add(cinfo, session_id, pinfo->num);
+    stream_id = tvb_get_letohl(tvb, offset + O_AERON_RTT_STREAM_ID);
+    rcv_id = tvb_get_letoh64(tvb, offset + O_AERON_RTT_RECEIVER_ID);
+
+    rtt_item = proto_tree_add_none_format(tree, hf_aeron_rtt, tvb, offset, -1, "RTT Message: Stream ID %" G_GUINT32_FORMAT ", RcvID %" G_GUINT64_FORMAT,
+        stream_id, rcv_id);
+    subtree = proto_item_add_subtree(rtt_item, ett_aeron_rtt);
+    item = proto_tree_add_uint64(subtree, hf_aeron_channel_id, tvb, 0, 0, transport->channel_id);
+    PROTO_ITEM_SET_GENERATED(item);
+    frame_length_item = proto_tree_add_item(subtree, hf_aeron_rtt_frame_length, tvb, offset + O_AERON_RTT_FRAME_LENGTH, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(subtree, hf_aeron_rtt_version, tvb, offset + O_AERON_RTT_VERSION, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_bitmask(subtree, tvb, offset + O_AERON_RTT_FLAGS, hf_aeron_rtt_flags, ett_aeron_rtt_flags, flags, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(subtree, hf_aeron_rtt_type, tvb, offset + O_AERON_RTT_TYPE, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(subtree, hf_aeron_rtt_session_id, tvb, offset + O_AERON_RTT_SESSION_ID, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(subtree, hf_aeron_rtt_stream_id, tvb, offset + O_AERON_RTT_STREAM_ID, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(subtree, hf_aeron_rtt_echo_timestamp, tvb, offset + O_AERON_RTT_ECHO_TIMESTAMP, 8, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(subtree, hf_aeron_rtt_reception_delta, tvb, offset + O_AERON_RTT_RECEPTION_DELTA, 8, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(subtree, hf_aeron_rtt_receiver_id, tvb, offset + O_AERON_RTT_RECEIVER_ID, 8, ENC_LITTLE_ENDIAN);
+
+    aeron_stream_report(tvb, pinfo, subtree, transport, finfo);
+    proto_item_set_len(rtt_item, rounded_length);
+    if (frame_length != L_AERON_RTT)
+    {
+        expert_add_info(pinfo, frame_length_item, &ei_aeron_analysis_invalid_rtt_length);
+        return (-rounded_length);
+    }
+    return (rounded_length);
+}
+
+/*----------------------------------------------------------------------------*/
 /* Aeron setup packet dissection functions.                                   */
 /*----------------------------------------------------------------------------*/
-static void aeron_set_stream_mtu_term_length(packet_info * pinfo, aeron_transport_t * transport, guint32 stream_id, guint32 mtu, guint32 term_length)
+static void aeron_set_stream_mtu_ttl_term_length(packet_info * pinfo, aeron_transport_t * transport, guint32 stream_id, guint32 mtu, guint32 ttl, guint32 term_length)
 {
     if (PINFO_FD_VISITED(pinfo) == 0)
     {
@@ -2616,6 +2817,7 @@ static void aeron_set_stream_mtu_term_length(packet_info * pinfo, aeron_transpor
         {
             stream->term_length = term_length;
             stream->mtu = mtu;
+            stream->ttl = ttl;
         }
     }
 }
@@ -2635,11 +2837,12 @@ static int dissect_aeron_setup(tvbuff_t * tvb, int offset, packet_info * pinfo, 
     guint32 term_offset;
     guint32 term_length;
     guint32 mtu;
+    guint32 ttl;
     int rounded_length;
     aeron_packet_info_t pktinfo;
 
     frame_length = tvb_get_letohl(tvb, offset + O_AERON_SETUP_FRAME_LENGTH);
-    rounded_length = (int) aeron_pos_roundup(frame_length);
+    rounded_length = (int) frame_length;
     if (rounded_length < 0)
         return 0;
     term_offset = tvb_get_letohl(tvb, offset + O_AERON_SETUP_TERM_OFFSET);
@@ -2662,11 +2865,13 @@ static int dissect_aeron_setup(tvbuff_t * tvb, int offset, packet_info * pinfo, 
         return 0;
     term_length = tvb_get_letohl(tvb, offset + O_AERON_SETUP_TERM_LENGTH);
     mtu = tvb_get_letohl(tvb, offset + O_AERON_SETUP_MTU);
-    aeron_set_stream_mtu_term_length(pinfo, transport, stream_id, mtu, term_length);
+    ttl = tvb_get_letohl(tvb, offset + O_AERON_SETUP_TTL);
+    aeron_set_stream_mtu_ttl_term_length(pinfo, transport, stream_id, mtu, ttl, term_length);
 
     col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", "Setup");
-    setup_item = proto_tree_add_none_format(tree, hf_aeron_setup, tvb, offset, -1, "Setup Frame: InitTerm 0x%x, ActiveTerm 0x%x, TermLen %" G_GUINT32_FORMAT ", Ofs %" G_GUINT32_FORMAT ", MTU %" G_GUINT32_FORMAT,
-        initial_term_id, (guint32) active_term_id, term_length, term_offset, mtu);
+    setup_item = proto_tree_add_none_format(tree, hf_aeron_setup, tvb, offset, -1,
+        "Setup Frame: InitTerm 0x%x, ActiveTerm 0x%x, TermLen %" G_GUINT32_FORMAT ", Ofs %" G_GUINT32_FORMAT ", MTU %" G_GUINT32_FORMAT ", TTL %" G_GUINT32_FORMAT,
+        initial_term_id, (guint32) active_term_id, term_length, term_offset, mtu, ttl);
     subtree = proto_item_add_subtree(setup_item, ett_aeron_setup);
     channel_item = proto_tree_add_uint64(subtree, hf_aeron_channel_id, tvb, 0, 0, transport->channel_id);
     PROTO_ITEM_SET_GENERATED(channel_item);
@@ -2681,6 +2886,7 @@ static int dissect_aeron_setup(tvbuff_t * tvb, int offset, packet_info * pinfo, 
     proto_tree_add_item(subtree, hf_aeron_setup_active_term_id, tvb, offset + O_AERON_SETUP_ACTIVE_TERM_ID, 4, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(subtree, hf_aeron_setup_term_length, tvb, offset + O_AERON_SETUP_TERM_LENGTH, 4, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(subtree, hf_aeron_setup_mtu, tvb, offset + O_AERON_SETUP_MTU, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(subtree, hf_aeron_setup_ttl, tvb, offset + O_AERON_SETUP_TTL, 4, ENC_LITTLE_ENDIAN);
     aeron_sequence_report(tvb, pinfo, subtree, transport, &pktinfo, finfo);
     proto_item_set_len(setup_item, rounded_length);
     if (frame_length != L_AERON_SETUP)
@@ -2697,6 +2903,8 @@ static int dissect_aeron_setup(tvbuff_t * tvb, int offset, packet_info * pinfo, 
 static int dissect_aeron(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * user_data _U_)
 {
     int total_dissected_length = 0;
+    guint32 frame_length;
+    guint8 frame_flags;
     guint16 frame_type;
     proto_tree * aeron_tree;
     proto_item * aeron_item;
@@ -2731,6 +2939,8 @@ static int dissect_aeron(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
         {
             finfo = aeron_frame_info_add(pinfo->num, (guint32) offset);
         }
+        frame_length = tvb_get_letohl(tvb, offset + O_AERON_BASIC_FRAME_LENGTH);
+        frame_flags = tvb_get_guint8(tvb, offset + O_AERON_BASIC_FLAGS);
         frame_type = tvb_get_letohs(tvb, offset + O_AERON_BASIC_TYPE);
         cinfo = aeron_setup_conversation_info(pinfo, frame_type);
         switch (frame_type)
@@ -2739,13 +2949,23 @@ static int dissect_aeron(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
                 dissected_length = dissect_aeron_pad(tvb, offset, pinfo, aeron_tree, cinfo, finfo);
                 break;
             case HDR_TYPE_DATA:
-                dissected_length = dissect_aeron_data(tvb, offset, pinfo, aeron_tree, cinfo, finfo);
+                if(frame_length == 0 && frame_flags == DATA_FLAGS_COMPLETE)
+                {
+                    dissected_length = dissect_aeron_heartbeat(tvb, offset, pinfo, aeron_tree, cinfo, finfo);
+                }
+                else
+                {
+                    dissected_length = dissect_aeron_data(tvb, offset, pinfo, aeron_tree, cinfo, finfo);
+                }
                 break;
             case HDR_TYPE_NAK:
                 dissected_length = dissect_aeron_nak(tvb, offset, pinfo, aeron_tree, cinfo, finfo);
                 break;
             case HDR_TYPE_SM:
                 dissected_length = dissect_aeron_sm(tvb, offset, pinfo, aeron_tree, cinfo, finfo);
+                break;
+            case HDR_TYPE_RTT:
+                dissected_length = dissect_aeron_rtt(tvb, offset, pinfo, aeron_tree, cinfo, finfo);
                 break;
             case HDR_TYPE_ERR:
                 dissected_length = dissect_aeron_err(tvb, offset, pinfo, aeron_tree);
@@ -2797,6 +3017,7 @@ static gboolean test_aeron_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tre
         case HDR_TYPE_DATA:
         case HDR_TYPE_NAK:
         case HDR_TYPE_SM:
+        case HDR_TYPE_RTT:
         case HDR_TYPE_ERR:
         case HDR_TYPE_SETUP:
         case HDR_TYPE_EXT:
@@ -2873,6 +3094,8 @@ void proto_register_aeron(void)
             { "Begin Message", "aeron.data.flags.b", FT_BOOLEAN, 8, TFS(&tfs_set_notset), DATA_FLAGS_BEGIN, NULL, HFILL } },
         { &hf_aeron_data_flags_e,
             { "End Message", "aeron.data.flags.e", FT_BOOLEAN, 8, TFS(&tfs_set_notset), DATA_FLAGS_END, NULL, HFILL } },
+        { &hf_aeron_data_flags_s,
+            { "End Of Stream", "aeron.data.flags.s", FT_BOOLEAN, 8, TFS(&tfs_set_notset), DATA_FLAGS_EOS, NULL, HFILL } },
         { &hf_aeron_data_type,
             { "Type", "aeron.data.type", FT_UINT16, BASE_DEC_HEX, VALS(aeron_frame_type), 0x0, NULL, HFILL } },
         { &hf_aeron_data_term_offset,
@@ -2889,6 +3112,8 @@ void proto_register_aeron(void)
             { "Stream ID", "aeron.data.stream_id", FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_aeron_data_term_id,
             { "Term ID", "aeron.data.term_id", FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_aeron_data_reserved_value,
+            { "Reserved", "aeron.data.reserved_value", FT_UINT64, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_aeron_data_reassembly,
             { "Reassembled Fragments", "aeron.data.reassembly", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_aeron_data_reassembly_fragment,
@@ -2935,8 +3160,32 @@ void proto_register_aeron(void)
             { "Consumption Term Offset", "aeron.sm.consumption_term_offset", FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_aeron_sm_receiver_window,
             { "Receiver Window", "aeron.sm.receiver_window", FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_aeron_sm_receiver_id,
+            { "Receiver ID", "aeron.sm.receiver_id", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_aeron_sm_feedback,
             { "Application-specific Feedback", "aeron.sm.feedback", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_aeron_rtt,
+            { "RTT Message", "aeron.rtt", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_aeron_rtt_frame_length,
+            { "Frame Length", "aeron.rtt.frame_length", FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_aeron_rtt_version,
+            { "Version", "aeron.rtt.version", FT_UINT8, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_aeron_rtt_flags,
+            { "Flags", "aeron.rtt.flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_aeron_rtt_flags_r,
+            { "Reply", "aeron.rtt.flags.r", FT_BOOLEAN, 8, TFS(&tfs_set_notset), STATUS_FLAGS_REPLY, NULL, HFILL } },
+        { &hf_aeron_rtt_type,
+            { "Type", "aeron.rtt.type", FT_UINT16, BASE_DEC_HEX, VALS(aeron_frame_type), 0x0, NULL, HFILL } },
+        { &hf_aeron_rtt_session_id,
+            { "Session ID", "aeron.rtt.session_id", FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_aeron_rtt_stream_id,
+            { "Stream ID", "aeron.rtt.stream_id", FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_aeron_rtt_echo_timestamp,
+            { "Echo Timestamp", "aeron.rtt.echo_timestamp", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_aeron_rtt_reception_delta,
+            { "Reception Delta", "aeron.rtt.reception_delta", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_aeron_rtt_receiver_id,
+            { "Receiver ID", "aeron.rtt.receiver_id", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_aeron_err,
             { "Error Header", "aeron.err", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_aeron_err_frame_length,
@@ -2953,6 +3202,28 @@ void proto_register_aeron(void)
             { "Offending Header", "aeron.err.off_hdr", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_aeron_err_string,
             { "Error String", "aeron.err.string", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_aeron_heartbeat,
+            { "Heart Frame", "aeron.heartbeat", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_aeron_heartbeat_frame_length,
+            { "Frame Length", "aeron.heartbeat.frame_length", FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_aeron_heartbeat_version,
+            { "Version", "aeron.heartbeat.version", FT_UINT8, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_aeron_heartbeat_flags,
+            { "Flags", "aeron.heartbeat.flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_aeron_heartbeat_flags_b,
+            { "Begin Message", "aeron.heartbeat.flags.b", FT_BOOLEAN, 8, TFS(&tfs_set_notset), DATA_FLAGS_BEGIN, NULL, HFILL } },
+        { &hf_aeron_heartbeat_flags_e,
+            { "End Message", "aeron.heartbeat.flags.e", FT_BOOLEAN, 8, TFS(&tfs_set_notset), DATA_FLAGS_END, NULL, HFILL } },
+        { &hf_aeron_heartbeat_type,
+            { "Type", "aeron.heartbeat.type", FT_UINT16, BASE_DEC_HEX, VALS(aeron_frame_type), 0x0, NULL, HFILL } },
+        { &hf_aeron_heartbeat_term_offset,
+            { "Term Offset", "aeron.heartbeat.term_offset", FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_aeron_heartbeat_session_id,
+            { "Session ID", "aeron.heartbeat.session_id", FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_aeron_heartbeat_stream_id,
+            { "Stream ID", "aeron.heartbeat.stream_id", FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_aeron_heartbeat_term_id,
+            { "Term ID", "aeron.heartbeat.term_id", FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_aeron_setup,
             { "Setup Frame", "aeron.setup", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_aeron_setup_frame_length,
@@ -2977,6 +3248,8 @@ void proto_register_aeron(void)
             { "Term Length", "aeron.setup.term_length", FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_aeron_setup_mtu,
             { "MTU", "aeron.setup.mtu", FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_aeron_setup_ttl,
+            { "TTL", "aeron.setup.ttl", FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_aeron_sequence_analysis,
             { "Sequence Analysis", "aeron.sequence_analysis", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_aeron_sequence_analysis_channel_prev_frame,
@@ -3032,6 +3305,8 @@ void proto_register_aeron(void)
         &ett_aeron_nak,
         &ett_aeron_sm,
         &ett_aeron_sm_flags,
+        &ett_aeron_rtt,
+        &ett_aeron_rtt_flags,
         &ett_aeron_err,
         &ett_aeron_setup,
         &ett_aeron_ext,
@@ -3059,6 +3334,7 @@ void proto_register_aeron(void)
         { &ei_aeron_analysis_invalid_data_length, { "aeron.analysis.invalid_data_length", PI_MALFORMED, PI_ERROR, "Invalid data frame length", EXPFILL } },
         { &ei_aeron_analysis_invalid_nak_length, { "aeron.analysis.invalid_nak_length", PI_MALFORMED, PI_ERROR, "Invalid NAK frame length", EXPFILL } },
         { &ei_aeron_analysis_invalid_sm_length, { "aeron.analysis.invalid_sm_length", PI_MALFORMED, PI_ERROR, "Invalid SM frame length", EXPFILL } },
+        { &ei_aeron_analysis_invalid_rtt_length, { "aeron.analysis.invalid_rtt_length", PI_MALFORMED, PI_ERROR, "Invalid RTT frame length", EXPFILL } },
         { &ei_aeron_analysis_invalid_err_length, { "aeron.analysis.invalid_err_length", PI_MALFORMED, PI_ERROR, "Invalid error frame length", EXPFILL } },
         { &ei_aeron_analysis_invalid_setup_length, { "aeron.analysis.invalid_setup_length", PI_MALFORMED, PI_ERROR, "Invalid setup frame length", EXPFILL } }
     };
