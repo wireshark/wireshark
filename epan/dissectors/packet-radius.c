@@ -1538,6 +1538,7 @@ dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 				guint32 avp_vsa_len;
 				guint8 avp_vsa_flags = 0;
 				guint32 avp_vsa_header_len;
+				guint32 vendor_attribute_len;
 
 				switch (vendor->type_octets) {
 					case 1:
@@ -1627,8 +1628,8 @@ dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 				proto_tree_add_item(avp_tree, hf_radius_avp_vendor_type, tvb, vendor_offset, vendor->type_octets, ENC_BIG_ENDIAN);
 				vendor_offset += vendor->type_octets;
 				if (!avp_is_extended && vendor->length_octets) {
-					proto_tree_add_item(avp_tree, hf_radius_avp_vendor_len, tvb, vendor_offset, vendor->length_octets, ENC_BIG_ENDIAN);
-					/* vendor_offset += vendor->length_octets; */
+					proto_tree_add_item_ret_uint(avp_tree, hf_radius_avp_vendor_len, tvb, vendor_offset, vendor->length_octets, ENC_BIG_ENDIAN, &vendor_attribute_len);
+					vendor_offset += (vendor_attribute_len - vendor->type_octets);
 				}
 
 				if (show_length) {
