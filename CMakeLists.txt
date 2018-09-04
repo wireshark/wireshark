@@ -270,6 +270,13 @@ endif()
 # This option only has an effect on CMake >= 2.8.9
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+# Path to our generated executables (or wrapper scripts)
+if(WIN32)
+	set(WS_PROGRAM_PATH ./run/$<CONFIG>)
+else()
+	set(WS_PROGRAM_PATH ./run)
+endif()
+
 if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 	if ((MSVC_VERSION LESS "1900") OR (MSVC_VERSION GREATER_EQUAL "2000"))
 		message(FATAL_ERROR "You are using an unsupported version of MSVC")
@@ -3018,11 +3025,6 @@ set(_test_group_list
 	suite_unittests
 	suite_wslua
 )
-if(WIN32)
-	set(_test_group_program_path ./run/$<CONFIG>)
-else()
-	set(_test_group_program_path ./run)
-endif()
 
 # We don't currently handle spaces in arguments. On Windows this
 # means that you will probably have to pass in an interface index
@@ -3036,7 +3038,7 @@ foreach(_group_name ${_test_group_list})
 		COMMAND ${CMAKE_COMMAND} -E env PYTHONIOENCODING=UTF-8
 			${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/test/test.py
 			--verbose
-			--program-path ${_test_group_program_path}
+			--program-path ${WS_PROGRAM_PATH}
 			${TEST_EXTRA_ARGS}
 			${_group_name}
 		)

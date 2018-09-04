@@ -61,80 +61,15 @@ set(COMMON_GRAPHICS
 	common_graphics/warning.svg
 )
 
-set(WSUG_TOOLS_HELP_COMMANDS
-	capinfos
-	editcap
-	mergecap
-	reordercap
-	text2pcap
-	tshark
-)
-
-if (PCAP_FOUND)
-	list(APPEND WSUG_TOOLS_HELP_COMMANDS
-		dumpcap
-		rawshark
-	)
-endif(PCAP_FOUND)
-
-# We want the wsug_* targets to depend on our tools help files. However,
-# each WSUG_TOOLS_HELP_COMMANDS target depends on its corresponding
-# binary. Due to this and the following issues update_tools_help should
-# be as independent as possible:
-# - Aside from the first line (which contains the git commit ID) each
-#   command's `-h` output might change every few months or years.
-# - It changes files in the source directory, which usually gives you
-#   git changes that you probably don't want or at least don't care about.
-# - Having our documentation depend on our executables increases the
-#   likelihood of unwanted rebuilds, particularly on the Buildbot.
-set(WSUG_TOOLS_HELP_FILES)
 set(GUIDE_INSTALL_DIRS)
 
-# General help output
-
-foreach(th_command ${WSUG_TOOLS_HELP_COMMANDS})
-	if(NOT DEFINED BUILD_${th_command})
-		# Catch typos, these commands must exist in CMakeOptions.txt
-		message(WARNING "BUILD_${th_command} is an unknown option")
-	endif()
-	if(NOT BUILD_${th_command})
-		message(STATUS "WSUG: will not update ${th_command} output")
-		continue()
-	endif()
-
-	set(th_file ${CMAKE_CURRENT_SOURCE_DIR}/wsug_src/${th_command}-h.txt)
-	list(APPEND WSUG_TOOLS_HELP_FILES ${th_file})
-	add_custom_command(
-		OUTPUT ${th_file}
-		COMMAND ${th_command} -h > ${th_file}
-		DEPENDS ${th_command}
-	)
-endforeach()
-
-# Extra command output
-# Note that these won't work on Windows unless we make -F and -T write
-# to stdout and return 0 or wrap the commands similar to hhc.exe.
-if(BUILD_editcap)
-	set(th_file ${CMAKE_CURRENT_SOURCE_DIR}/wsug_src/editcap-F.txt)
-	list(APPEND WSUG_TOOLS_HELP_FILES ${th_file})
-	add_custom_command(
-		OUTPUT ${th_file}
-		COMMAND editcap -F > ${th_file}
-		DEPENDS editcap
-	)
-	set(th_file ${CMAKE_CURRENT_SOURCE_DIR}/wsug_src/editcap-T.txt)
-	list(APPEND WSUG_TOOLS_HELP_FILES ${th_file})
-	add_custom_command(
-		OUTPUT ${th_file}
-		COMMAND editcap -T > ${th_file}
-		DEPENDS editcap
-	)
-else()
-	message(STATUS "WSUG: will not update editcap output")
-endif()
-
+# This is automatically updated each week. You probably don't need to run it
+# or depend on it.
 add_custom_target(update_tools_help
-	DEPENDS ${WSUG_TOOLS_HELP_FILES}
+	COMMAND ${CMAKE_COMMAND} -E env PYTHONIOENCODING=UTF-8
+		${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/update-tools-help.py
+		--program-path ${WS_PROGRAM_PATH}
+	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
 set_docbook_target_properties(update_tools_help)
 
@@ -157,6 +92,16 @@ set(WSUG_FILES
 	wsug_src/WSUG_chapter_use.asciidoc
 	wsug_src/WSUG_chapter_work.asciidoc
 	wsug_src/WSUG_preface.asciidoc
+	wsug_src/capinfos-h.txt
+	wsug_src/dumpcap-h.txt
+	wsug_src/editcap-F.txt
+	wsug_src/editcap-T.txt
+	wsug_src/editcap-h.txt
+	wsug_src/mergecap-h.txt
+	wsug_src/rawshark-h.txt
+	wsug_src/reordercap-h.txt
+	wsug_src/text2pcap-h.txt
+	wsug_src/tshark-h.txt
 	${COMMON_FILES}
 )
 
@@ -354,7 +299,7 @@ if(NOT CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
 	)
 endif()
 
-set( WSUG_BUILT_DEPS ws.css update_tools_help)
+set( WSUG_BUILT_DEPS ws.css)
 
 set(WSDG_SOURCE
 	${WSDG_FILES}
