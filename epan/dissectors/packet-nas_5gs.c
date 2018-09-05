@@ -182,6 +182,12 @@ static int hf_nas_5gs_sm_pkt_flt_id = -1;
 static int hf_nas_5gs_sm_pkt_flt_dir = -1;
 static int hf_nas_5gs_sm_pf_len = -1;
 static int hf_nas_5gs_sm_pf_type = -1;
+static int hf_nas_5gs_sm_e = -1;
+static int hf_nas_5gs_sm_nof_params = -1;
+static int hf_nas_5gs_sm_param_id = -1;
+static int hf_nas_5gs_sm_param_len = -1;
+static int hf_nas_5gs_sm_qos_rule_precedence = -1;
+static int hf_nas_5gs_sm_qfi = -1;
 
 static int nas_5gs_sm_unit_for_session_ambr_dl = -1;
 static int hf_nas_5gs_sm_session_ambr_dl = -1;
@@ -195,6 +201,7 @@ static int ett_nas_5gs = -1;
 static int ett_nas_5gs_mm_nssai = -1;
 static int ett_nas_5gs_mm_pdu_ses_id = -1;
 static int ett_nas_5gs_sm_qos_rules = -1;
+static int ett_nas_5gs_sm_qos_params = -1;
 static int ett_nas_5gs_plain = -1;
 static int ett_nas_5gs_sec = -1;
 static int ett_nas_5gs_mm_part_sal = -1;
@@ -1855,6 +1862,24 @@ static const value_string nas_5gs_sm_pf_type_values[] = {
     { 0, NULL }
  };
 
+static const value_string nas_5gs_sm_pkt_flt_dir_values[] = {
+    { 0x00, "Reserved" },
+    { 0x01, "Downlink only" },
+    { 0x02, "Uplink only" },
+    { 0x03, "Bidirectional" },
+    { 0, NULL }
+ };
+
+static const value_string nas_5gs_sm_param_id_values[] = {
+    { 0x01, "5QI" },
+    { 0x02, "GFBR uplink" },
+    { 0x03, "GFBR downlink" },
+    { 0x04, "MFBR uplink" },
+    { 0x05, "MFBR downlink" },
+    { 0x06, "Averaging window" },
+    { 0x07, "EPS bearer identity" },
+    { 0, NULL }
+ };
 
 guint16
 de_nas_5gs_sm_qos_rules(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
@@ -1862,17 +1887,23 @@ de_nas_5gs_sm_qos_rules(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     gchar *add_string _U_, int string_len _U_)
 {
 
-    proto_tree *sub_tree, *sub_tree2;
+    proto_tree *sub_tree, *sub_tree2, *sub_tree3;
     proto_item *item;
     int i = 1, j = 1;
-    guint32 pf_len, pf_type;
+    guint32 pf_len, pf_type, param_len;
     guint32 length, curr_offset, start_offset, rule_start_offset;
-    guint8 num_pkt_flt, rop;
+    guint8 num_pkt_flt, rop, num_param;
 
-    static const int * flags[] = {
+    static const int * pkt_flt_flags[] = {
         &hf_nas_5gs_sm_rop,
         &hf_nas_5gs_sm_dqr,
         &hf_nas_5gs_sm_nof_pkt_filters,
+        NULL
+    };
+
+    static const int * param_flags[] = {
+        &hf_nas_5gs_sm_e,
+        &hf_nas_5gs_sm_nof_params,
         NULL
     };
 
@@ -1897,7 +1928,7 @@ de_nas_5gs_sm_qos_rules(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         num_pkt_flt = tvb_get_guint8(tvb, curr_offset);
         rop = num_pkt_flt >> 5;
         num_pkt_flt = num_pkt_flt & 0x0f;
-        proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, flags, ENC_BIG_ENDIAN);
+        proto_tree_add_bitmask_list(sub_tree, tvb, curr_offset, 1, pkt_flt_flags, ENC_BIG_ENDIAN);
         curr_offset++;
 
         /* For the "delete existing QoS rule" operation and for the "modify existing QoS rule without modifying packet filters"
@@ -1921,7 +1952,7 @@ de_nas_5gs_sm_qos_rules(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 
         while (num_pkt_flt > 0) {
             /* Packet filter list */
-            sub_tree2 = proto_tree_add_subtree_format(tree, tvb, curr_offset, -1, ett_nas_5gs_sm_qos_rules, &item, "Packet filter %u", j);
+            sub_tree2 = proto_tree_add_subtree_format(sub_tree, tvb, curr_offset, -1, ett_nas_5gs_sm_qos_rules, &item, "Packet filter %u", j);
             start_offset = curr_offset;
             if (rop == 5) {
                 /* modify existing QoS rule and delete packet filters */
@@ -1958,7 +1989,43 @@ de_nas_5gs_sm_qos_rules(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             proto_item_set_len(item, curr_offset - start_offset);
 
         }
+
         /* 0 Spare    E    Number of parameters */
+        j = 1;
+        num_param = tvb_get_guint8(tvb, curr_offset);
+        num_param = num_param & 0x3f;
+        proto_tree_add_bitmask_list(sub_tree, tvb, curr_offset, 1, param_flags, ENC_BIG_ENDIAN);
+        curr_offset++;
+
+        while (num_param > 0) {
+            /* Parameter list */
+            sub_tree3 = proto_tree_add_subtree_format(sub_tree, tvb, curr_offset, -1, ett_nas_5gs_sm_qos_rules, &item, "Parameter %u", j);
+
+            start_offset = curr_offset;
+
+            /* Parameter identifier */
+            proto_tree_add_item(sub_tree3, hf_nas_5gs_sm_param_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+            curr_offset++;
+            /* Length of parameter contents */
+            proto_tree_add_item_ret_uint(sub_tree3, hf_nas_5gs_sm_param_len, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &param_len);
+            curr_offset++;
+
+            proto_tree_add_expert(sub_tree3, pinfo, &ei_nas_5gs_not_diss, tvb, curr_offset, param_len);
+            curr_offset += param_len;
+
+            num_param--;
+            j++;
+            proto_item_set_len(item, curr_offset - start_offset);
+        }
+
+        /* Qos rule precedence */
+        proto_tree_add_item(sub_tree, hf_nas_5gs_sm_qos_rule_precedence, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+        curr_offset++;
+
+        /* 0 spare 0 spare QFI */
+        proto_tree_add_item(sub_tree, hf_nas_5gs_sm_qfi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+        curr_offset++;
+
         i++;
         curr_offset = rule_start_offset + length + 3;
     }
@@ -4900,7 +4967,7 @@ proto_register_nas_5gs(void)
         },
         { &hf_nas_5gs_sm_pkt_flt_dir,
         { "Packet filter direction",   "nas_5gs.sm.pkt_flt_dir",
-            FT_UINT8, BASE_DEC, NULL, 0x30,
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_sm_pkt_flt_dir_values), 0x30,
             NULL, HFILL }
         },
         { &hf_nas_5gs_sm_pkt_flt_id,
@@ -4916,6 +4983,36 @@ proto_register_nas_5gs(void)
         { &hf_nas_5gs_sm_pf_type,
         { "Packet filter component type",   "nas_5gs.sm.pf_type",
             FT_UINT8, BASE_DEC, VALS(nas_5gs_sm_pf_type_values), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_e,
+        { "E bit",   "nas_5gs.sm.e",
+            FT_UINT8, BASE_DEC, NULL, 0x40,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_nof_params,
+        { "Number of parameters",   "nas_5gs.sm.nof_params",
+            FT_UINT8, BASE_DEC, NULL, 0x3f,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_param_id,
+        { "Parameter identifier",   "nas_5gs.sm.param_id",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_sm_param_id_values), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_param_len,
+        { "Length",   "nas_5gs.sm.param_len",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_qos_rule_precedence,
+        { "QoS rule precedence",   "nas_5gs.sm.qos_rule_precedence",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_qfi,
+        { "Qos flow identifier",   "nas_5gs.sm.qfi",
+            FT_UINT8, BASE_DEC, NULL, 0x3f,
             NULL, HFILL }
         },
         { &nas_5gs_sm_unit_for_session_ambr_dl,
@@ -5044,7 +5141,7 @@ proto_register_nas_5gs(void)
     guint     last_offset;
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS    8
+#define NUM_INDIVIDUAL_ELEMS    9
     gint *ett[NUM_INDIVIDUAL_ELEMS +
         NUM_NAS_5GS_COMMON_ELEM +
         NUM_NAS_5GS_MM_MSG + NUM_NAS_5GS_MM_ELEM +
@@ -5055,10 +5152,11 @@ proto_register_nas_5gs(void)
     ett[1] = &ett_nas_5gs_mm_nssai;
     ett[2] = &ett_nas_5gs_mm_pdu_ses_id;
     ett[3] = &ett_nas_5gs_sm_qos_rules;
-    ett[4] = &ett_nas_5gs_plain;
-    ett[5] = &ett_nas_5gs_sec;
-    ett[6] = &ett_nas_5gs_mm_part_sal;
-    ett[7] = &ett_nas_5gs_mm_part_tal;
+    ett[4] = &ett_nas_5gs_sm_qos_params;
+    ett[5] = &ett_nas_5gs_plain;
+    ett[6] = &ett_nas_5gs_sec;
+    ett[7] = &ett_nas_5gs_mm_part_sal;
+    ett[8] = &ett_nas_5gs_mm_part_tal;
 
     last_offset = NUM_INDIVIDUAL_ELEMS;
 
