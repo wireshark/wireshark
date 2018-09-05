@@ -5617,7 +5617,7 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 
 	const true_false_string  *tfstring;
 
-	int                 len, prev_len = 0, last, i, offset_r = 0, offset_e = 0;
+	int                 len, prev_len, last, i, offset_r = 0, offset_e = 0;
 	GPtrArray          *finfos;
 	field_info         *finfo         = NULL;
 	header_field_info*  hfinfo;
@@ -5646,6 +5646,8 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 				PROTO_REGISTRAR_GET_NTH(hfinfo->same_name_prev_id, hfinfo);
 			}
 		}
+
+		prev_len = 0; /* Reset handled occurrences */
 
 		while (hfinfo) {
 			finfos = proto_get_finfo_ptr_array(tree, hfinfo->id);
