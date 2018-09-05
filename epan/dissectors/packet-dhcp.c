@@ -590,7 +590,7 @@ static int hf_dhcp_cl_ietf_ccc_dev_prov_unc_key_nom_timeout = -1;
 static int hf_dhcp_cl_ietf_ccc_dev_prov_unc_key_max_timeout = -1;
 static int hf_dhcp_cl_ietf_ccc_dev_prov_unc_key_max_retries = -1;
 
-static gint ett_bootp = -1;
+static gint ett_dhcp = -1;
 static gint ett_dhcp_flags = -1;
 static gint ett_dhcp_option = -1;
 static gint ett_dhcp_option43_suboption = -1;
@@ -1289,16 +1289,16 @@ static const string_string option242_avaya_static_vals[] = {
 	{ 0, NULL }
 };
 
-/* bootp options administration */
-#define BOOTP_OPT_NUM	256
+/* dhcp options administration */
+#define DHCP_OPT_NUM	256
 
 /* All of the options that have a "basic" type that can be handled by dissect_dhcpopt_basic_type() */
 #define DHCP_OPTION_BASICTYPE_RANGE "1-20,22-32,34-42,44-51,53-54,56-59,64-76,86-87,91-92,100-101,112-113,116,118,137-138,142,150,153,156-157,161,209-210,252"
 
 /* Re-define structure.	 Values to be updated by dhcp_init_protocol */
-static struct opt_info dhcp_opt[BOOTP_OPT_NUM];
+static struct opt_info dhcp_opt[DHCP_OPT_NUM];
 
-static struct opt_info default_dhcp_opt[BOOTP_OPT_NUM] = {
+static struct opt_info default_dhcp_opt[DHCP_OPT_NUM] = {
 /*   0 */ { "Padding",					none, &hf_dhcp_option_padding },
 /*   1 */ { "Subnet Mask",				ipv4, &hf_dhcp_option_subnet_mask },
 /*   2 */ { "Time Offset",				time_in_s_secs, &hf_dhcp_option_time_offset },
@@ -1586,8 +1586,8 @@ static void* uat_dhcp_record_copy_cb(void* n, const void* o, size_t siz _U_) {
 static gboolean uat_dhcp_record_update_cb(void* r, char** err) {
 	uat_dhcp_record_t* rec = (uat_dhcp_record_t *)r;
 
-	if ((rec->opt == 0) || (rec->opt >=BOOTP_OPT_NUM-1)) {
-		*err = g_strdup_printf("Option must be between 1 and %d", BOOTP_OPT_NUM-2);
+	if ((rec->opt == 0) || (rec->opt >=DHCP_OPT_NUM-1)) {
+		*err = g_strdup_printf("Option must be between 1 and %d", DHCP_OPT_NUM-2);
 		return FALSE;
 	}
 	return TRUE;
@@ -1606,7 +1606,7 @@ UAT_VS_DEF(uat_dhcp_records, ftype, uat_dhcp_record_t, enum field_type, special,
 
 static struct opt_info* dhcp_get_opt(unsigned int idx)
 {
-	if(idx>=BOOTP_OPT_NUM)
+	if(idx>=DHCP_OPT_NUM)
 		return NULL;
 
 	return &dhcp_opt[idx];
@@ -1615,7 +1615,7 @@ static struct opt_info* dhcp_get_opt(unsigned int idx)
 static const char *
 dhcp_get_opt_text(unsigned int idx)
 {
-	if(idx>=BOOTP_OPT_NUM)
+	if(idx>=DHCP_OPT_NUM)
 		return "unknown";
 	return dhcp_opt[idx].text;
 }
@@ -6409,7 +6409,7 @@ dissect_dhcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	eoff = tvb_reported_length(tvb);
 
 	bp_ti = proto_tree_add_item(tree, proto_dhcp, tvb, 0, -1, ENC_NA);
-	bp_tree = proto_item_add_subtree(bp_ti, ett_bootp);
+	bp_tree = proto_item_add_subtree(bp_ti, ett_dhcp);
 
 	/*
 	 * In the first pass, we just look for the DHCP message type
@@ -6612,7 +6612,7 @@ dhcp_init_protocol(void)
 }
 
 static void
-dhcp_clear_uat_bootpopt(gpointer data, gpointer user_data _U_)
+dhcp_clear_uat_dhcpopt(gpointer data, gpointer user_data _U_)
 {
 	dissector_reset_uint("dhcp.option", GPOINTER_TO_UINT(data));
 }
@@ -6621,7 +6621,7 @@ static void
 dhcp_cleanup_protocol(void)
 {
 	if (saved_uat_opts != NULL) {
-		wmem_list_foreach(saved_uat_opts, dhcp_clear_uat_bootpopt,
+		wmem_list_foreach(saved_uat_opts, dhcp_clear_uat_dhcpopt,
 		    NULL);
 
 		wmem_destroy_list(saved_uat_opts);
@@ -9215,7 +9215,7 @@ proto_register_dhcp(void)
 	};
 
 	static gint *ett[] = {
-		&ett_bootp,
+		&ett_dhcp,
 		&ett_dhcp_flags,
 		&ett_dhcp_option,
 		&ett_dhcp_option43_suboption,
@@ -9311,7 +9311,7 @@ proto_register_dhcp(void)
 	dhcp_vendor_info_subdissector = register_heur_dissector_list("dhcp.vendor_info", proto_dhcp);
 	dhcp_enterprise_table = register_dissector_table("dhcp.enterprise", "V-I Vendor Specific Enterprise", proto_dhcp, FT_UINT32, BASE_DEC);
 
-	/* register init/cleanup routine to handle the custom bootp options */
+	/* register init/cleanup routine to handle the custom dhcp options */
 	register_init_routine(&dhcp_init_protocol);
 	register_cleanup_routine(&dhcp_cleanup_protocol);
 
