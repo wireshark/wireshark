@@ -214,6 +214,31 @@ if(BUILD_randpktdump)
 	add_dependencies(extcaps randpktdump)
 endif()
 
+if(BUILD_sdjournal AND SYSTEMD_FOUND)
+	set(sdjournal_LIBS
+		ui
+		wiretap
+		writecap
+		wsutil
+		${GLIB2_LIBRARIES}
+		${ZLIB_LIBRARIES}
+		${CMAKE_DL_LIBS}
+		${SYSTEMD_LIBRARIES}
+	)
+	set(sdjournal_FILES
+		extcap-base.c
+		sdjournal.c
+	)
+
+	add_executable(sdjournal WIN32 ${sdjournal_FILES})
+	set_extcap_executable_properties(sdjournal)
+	target_link_libraries(sdjournal ${sdjournal_LIBS})
+	install(TARGETS sdjournal RUNTIME DESTINATION ${EXTCAP_INSTALL_LIBDIR})
+	add_dependencies(extcaps sdjournal)
+elseif (BUILD_sdjournal)
+	#message( WARNING "Cannot find libsystemd, cannot build sdjournal" )
+endif()
+
 set(CLEAN_C_FILES
 	${dumpcap_FILES}
 	${androiddump_FILES}

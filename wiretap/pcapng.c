@@ -2290,7 +2290,7 @@ pcapng_read_systemd_journal_export_block(wtap *wth, FILE_T fh, pcapng_block_head
 
     pcapng_debug("%s: entry_length %u", G_STRFUNC, entry_length);
 
-    size_t rt_ts_len = sizeof(SDJ__REALTIME_TIMESTAMP);
+    size_t rt_ts_len = strlen(SDJ__REALTIME_TIMESTAMP);
     char *ts_pos = strstr(buf_ptr, SDJ__REALTIME_TIMESTAMP);
 
     if (!ts_pos) {
@@ -2319,8 +2319,8 @@ pcapng_read_systemd_journal_export_block(wtap *wth, FILE_T fh, pcapng_block_head
     wblock->rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
     wblock->rec->tsprec = WTAP_TSPREC_USEC;
 
-    wblock->rec->ts.secs = (time_t) (rt_ts / 1000000000);
-    wblock->rec->ts.nsecs = (int) (rt_ts % 1000000000);
+    wblock->rec->ts.secs = (time_t) rt_ts / 1000000;
+    wblock->rec->ts.nsecs = (rt_ts % 1000000) * 1000;
 
     /*
      * We return these to the caller in pcapng_read().

@@ -83,6 +83,10 @@ if(BUILD_dpauxmon AND HAVE_LIBNL3)
 	pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/dpauxmon    1)
 endif()
 
+if(BUILD_sdjournal AND SYSTEMD_FOUND)
+	pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/sdjournal   1)
+endif()
+
 if(MAXMINDDB_FOUND)
 	pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/mmdbresolve 1)
 endif()
@@ -118,6 +122,10 @@ set(MAN1_INSTALL_FILES
 
 if(BUILD_dpauxmon AND HAVE_LIBNL3)
 	list(APPEND MAN1_INSTALL_FILES ${CMAKE_CURRENT_BINARY_DIR}/dpauxmon.1)
+endif()
+
+if(BUILD_sdjournal AND SYSTEMD_FOUND)
+	list(APPEND MAN1_INSTALL_FILES ${CMAKE_CURRENT_BINARY_DIR}/sdjournal.1)
 endif()
 
 if(MAXMINDDB_FOUND)
@@ -172,6 +180,10 @@ set(HTML_INSTALL_FILES
 
 if(BUILD_dpauxmon AND HAVE_LIBNL3)
 	list(APPEND HTML_INSTALL_FILES ${CMAKE_CURRENT_BINARY_DIR}/dpauxmon.html)
+endif()
+
+if(BUILD_sdjournal AND SYSTEMD_FOUND)
+	list(APPEND MAN1_INSTALL_FILES ${CMAKE_CURRENT_BINARY_DIR}/sdjournal.html)
 endif()
 
 if(MAXMINDDB_FOUND)

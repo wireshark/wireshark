@@ -844,6 +844,10 @@ if(ENABLE_AIRPCAP)
 	set(PACKAGELIST ${PACKAGELIST} AIRPCAP)
 endif()
 
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+	set(PACKAGELIST ${PACKAGELIST} Systemd)
+endif()
+
 # Build the Qt GUI?
 if(BUILD_wireshark)
 	# Untested, may not work if CMAKE_PREFIX_PATH gets overwritten

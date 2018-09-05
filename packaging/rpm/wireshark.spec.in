@@ -18,6 +18,7 @@
 %bcond_without	bcg729
 %bcond_with	libxml2
 %bcond_with	nghttp2
+%bcond_with	sdjournal
 %bcond_with	guides
 
 
@@ -107,6 +108,15 @@ Requires:	lua < 5.3
 %if %{with nghttp2}
 BuildRequires:	libnghttp2-devel
 Requires:	libnghttp2
+%endif
+
+%if %{with sdjournal}
+BuildRequires:	systemd-devel
+%if 0%{?suse_version}
+Requires:	libsystemd0
+%else
+Requires:	systemd-libs
+%endif
 %endif
 
 # Uncomment these if you want to be sure you get them...
@@ -269,6 +279,11 @@ cmake3 \
   -DENABLE_NGHTTP2=ON \
 %else
   -DENABLE_NGHTTP2=OFF \
+%endif
+%if %{with sdjournal}
+  -DBUILD_sdjournal=ON \
+%else
+  -DBUILD_sdjournal=OFF \
 %endif
   -DDISABLE_WERROR=ON \
 %if %{with ninja}
@@ -439,6 +454,9 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %{_libdir}/pkgconfig/wireshark.pc
 
 %changelog
+* Fri Sep 28 2018 Gerald Combs
+- Add sdjournal
+
 * Thu Sep 27 2018 Jeff Morriss
 - Have the qt package obsolute the old gnome and gtk packages.  This allows
   clean upgrades to the Qt version.
