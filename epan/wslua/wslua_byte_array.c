@@ -252,13 +252,15 @@ WSLUA_METHOD ByteArray_base64_decode(lua_State* L) {
     gsize len;
 
     ba2 = g_byte_array_new();
-    data = (gchar*)g_malloc(ba->len + 1);
-    memcpy(data, ba->data, ba->len);
-    data[ba->len] = '\0';
+    if (ba->len > 1) {
+        data = (gchar*)g_malloc(ba->len + 1);
+        memcpy(data, ba->data, ba->len);
+        data[ba->len] = '\0';
 
-    g_base64_decode_inplace(data, &len);
-    g_byte_array_append(ba2, data, (int)len);
-    g_free(data);
+        g_base64_decode_inplace(data, &len);
+        g_byte_array_append(ba2, data, (int)len);
+        g_free(data);
+    }
 
     pushByteArray(L,ba2);
     WSLUA_RETURN(1); /* The created `ByteArray`. */

@@ -486,7 +486,7 @@ void ShowPacketBytesDialog::updateFieldBytes(bool initialization)
     int start = finfo_->start + start_;
     int length = end_ - start_;
     const guint8 *bytes;
-    gsize new_length;
+    gsize new_length = 0;
 
     if (!finfo_->ds_tvb)
         return;
@@ -502,7 +502,9 @@ void ShowPacketBytesDialog::updateFieldBytes(bool initialization)
     {
         bytes = tvb_get_ptr(finfo_->ds_tvb, start, -1);
         field_bytes_ = QByteArray((const char *)bytes, length);
-        g_base64_decode_inplace(field_bytes_.data(), &new_length);
+        if (field_bytes_.size() > 1) {
+            g_base64_decode_inplace(field_bytes_.data(), &new_length);
+        }
         field_bytes_.resize((int)new_length);
         break;
     }
