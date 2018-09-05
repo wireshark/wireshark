@@ -4856,8 +4856,8 @@ prefs_is_column_visible(const gchar *cols_hidden, fmt_data *cfmt)
             }
             if (cfmt->fmt == COL_CUSTOM) {
                 /*
-                 * A custom column has to have the
-                 * same custom field and occurrence.
+                 * A custom column has to have the same custom field,
+                 * occurrence and resolved settings.
                  */
                 if (cfmt_hidden.custom_fields && cfmt->custom_fields) {
                     if (strcmp(cfmt->custom_fields,
@@ -4867,8 +4867,9 @@ prefs_is_column_visible(const gchar *cols_hidden, fmt_data *cfmt)
                         cfmt_hidden.custom_fields = NULL;
                         continue;
                     }
-                    if (cfmt->custom_occurrence != cfmt_hidden.custom_occurrence) {
-                        /* Different occurrences. */
+                    if ((cfmt->custom_occurrence != cfmt_hidden.custom_occurrence) ||
+                        (cfmt->resolved != cfmt_hidden.resolved)) {
+                        /* Different occurrences or resolved settings. */
                         g_free(cfmt_hidden.custom_fields);
                         cfmt_hidden.custom_fields = NULL;
                         continue;
