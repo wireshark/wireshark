@@ -158,27 +158,33 @@ tvbuff_t *
 tvb_new_subset_length(tvbuff_t *backing, const gint backing_offset, const gint backing_length)
 {
 	gint	  captured_length;
+	gint	  actual_backing_length;
 	tvbuff_t *tvb;
 	guint	  subset_tvb_offset;
 	guint	  subset_tvb_length;
 
 	DISSECTOR_ASSERT(backing && backing->initialized);
 
-	THROW_ON(backing_length < 0, ReportedBoundsError);
+	THROW_ON(backing_length < -1, ReportedBoundsError);
+
+	if (backing_length == -1)
+		actual_backing_length = backing->reported_length;
+	else
+		actual_backing_length = backing_length;
 
 	/*
 	 * Give the next dissector only captured_length bytes.
 	 */
 	captured_length = tvb_captured_length_remaining(backing, backing_offset);
 	THROW_ON(captured_length < 0, BoundsError);
-	if (captured_length > backing_length)
-		captured_length = backing_length;
+	if (captured_length > actual_backing_length)
+		captured_length = actual_backing_length;
 
 	tvb_check_offset_length(backing, backing_offset, captured_length,
 			        &subset_tvb_offset,
 			        &subset_tvb_length);
 
-	tvb = tvb_new_with_subset(backing, backing_length,
+	tvb = tvb_new_with_subset(backing, actual_backing_length,
 	    subset_tvb_offset, subset_tvb_length);
 
 	tvb_add_to_chain(backing, tvb);
