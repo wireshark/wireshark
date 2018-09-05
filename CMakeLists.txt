@@ -490,6 +490,8 @@ else() # ! MSVC
 		-Wno-overlength-strings
 		-Wno-long-long
 		-Wheader-guard
+		-Wcomma
+		-Wshorten-64-to-32
 	)
 
 	#
@@ -531,42 +533,15 @@ else() # ! MSVC
 		-Wlogical-op
 		-Wjump-misses-init
 		#
-		# The Qt headers generate a ton of shortening warnings
-		# on 64-bit systems, so we only enable this for C for
-		# now.
-		#
-		-Wshorten-64-to-32
-		#
 		# Implicit function declarations are an error in C++ and most
 		# likely a programming error in C. Turn -Wimplicit-int and
 		# -Wimplicit-function-declaration into an error by default.
 		#
 		-Werror=implicit
-		#
-		# The Qt headers in version 5.10 introduced a lot of
-		# "Possible misuse of comma operator here" warnings.
-		#
-		-Wcomma
 	)
 
 	set(CXX_WARN_FLAGS
 	)
-
-	find_package(Qt5Core ${QT_FIND_PACKAGE_OPTIONS}) # Needed to check for Qt version
-	if (Qt5Core_VERSION VERSION_GREATER 5.8)
-		# The Qt headers in version 5.8 and older generate a ton of shortening
-		# errors on 64-bit systems so only enable this for version 5.9 and greater.
-		set(CXX_WARN_FLAGS ${CXX_WARN_FLAGS}
-			-Wshorten-64-to-32
-		)
-	endif()
-	if (Qt5Core_VERSION VERSION_LESS 5.10)
-		# The Qt headers in version 5.10 introduced a lot of
-		# "Possible misuse of comma operator here" warnings.
-		set(CXX_WARN_FLAGS ${CXX_WARN_FLAGS}
-			-Wcomma
-		)
-	endif()
 
 	#
 	# These are not enabled by default, because the warnings they
