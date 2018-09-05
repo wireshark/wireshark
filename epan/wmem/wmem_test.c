@@ -879,7 +879,7 @@ wmem_test_list(void)
     wmem_destroy_list(list);
 }
 
-void
+static void
 check_val_map(gpointer key _U_, gpointer val, gpointer user_data)
 {
     g_assert(val == user_data);
