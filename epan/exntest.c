@@ -63,7 +63,7 @@ finally_called_exception_from_catch(volatile unsigned int* thrown, volatile unsi
     ENDTRY;
 }
 
-void
+static void
 run_tests(void)
 {
     volatile unsigned int ex_thrown, finally_called;
