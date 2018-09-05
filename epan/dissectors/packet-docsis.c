@@ -468,7 +468,9 @@ dissect_ehdr (tvbuff_t * tvb, proto_tree * tree, packet_info * pinfo, gboolean *
 }
 
 /* Code to Dissect the Header Check Sequence field */
-static void
+/* Return FALSE in case FCS validation is enabled, but FCS is incorrect */
+/* Return TRUE in all other cases */
+static gboolean
 dissect_hcs_field (tvbuff_t * tvb, packet_info * pinfo, proto_tree * docsis_tree, gint hdrlen)
 {
   /* dissect the header check sequence */
@@ -476,12 +478,14 @@ dissect_hcs_field (tvbuff_t * tvb, packet_info * pinfo, proto_tree * docsis_tree
     /* CRC-CCITT(16+12+5+1) */
     guint16 fcs = g_ntohs(crc16_ccitt_tvb(tvb, (hdrlen - 2)));
     proto_tree_add_checksum(docsis_tree, tvb, (hdrlen - 2), hf_docsis_hcs, hf_docsis_hcs_status, &ei_docsis_hcs_bad, pinfo, fcs, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
+
+    return (tvb_get_ntohs(tvb, (hdrlen - 2)) == fcs) ? TRUE : FALSE;
   }
   else
   {
     proto_tree_add_checksum(docsis_tree, tvb, (hdrlen - 2), hf_docsis_hcs, hf_docsis_hcs_status, &ei_docsis_hcs_bad, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
   }
-  return;
+  return TRUE;
 }
 
 /* Code to Dissect the extended header length / MAC Param field and Length field */
@@ -593,7 +597,7 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
   /* guint16 framelen = 0; */
   gboolean save_fragmented;
   gboolean is_encrypted = FALSE;
-
+  gboolean fcs_correct;
   proto_item *ti;
   proto_tree *docsis_tree;
 
@@ -684,14 +688,19 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
       /* Dissect Length field for a PDU */
       dissect_exthdr_length_field (tvb, pinfo, docsis_tree, exthdr, mac_parm, len_sid, &payload_length, &is_encrypted);
       /* Dissect Header Check Sequence field for a PDU */
-      dissect_hcs_field (tvb, pinfo, docsis_tree, hdrlen);
-      if (pdulen > 0)
+      fcs_correct = dissect_hcs_field (tvb, pinfo, docsis_tree, hdrlen);
+      if (fcs_correct)
       {
         next_tvb =  tvb_new_subset_remaining(tvb, hdrlen);
         if(is_encrypted && !docsis_dissect_encrypted_frames)
           dissect_encrypted_frame (next_tvb, docsis_tree, fctype);
         else
           call_dissector (eth_withoutfcs_handle, next_tvb, pinfo, docsis_tree);
+        if (pdulen > 0)
+        {
+          next_tvb =  tvb_new_subset_remaining(tvb, hdrlen);
+          call_dissector (eth_withoutfcs_handle, next_tvb, pinfo, docsis_tree);
+        }
       }
       break;
     }
@@ -703,11 +712,13 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
       /* Dissect Length field for a PDU */
       dissect_exthdr_length_field (tvb, pinfo, docsis_tree, exthdr, mac_parm, len_sid, &payload_length, &is_encrypted);
       /* Dissect Header Check Sequence field for a PDU */
-      dissect_hcs_field (tvb, pinfo, docsis_tree, hdrlen);
-
-      /* Don't do anything for a Reserved Frame */
-      next_tvb =  tvb_new_subset_remaining(tvb, hdrlen);
-      call_data_dissector(next_tvb, pinfo, tree);
+      fcs_correct = dissect_hcs_field (tvb, pinfo, docsis_tree, hdrlen);
+      if (fcs_correct)
+      {
+        /* Don't do anything for a Reserved Frame */
+        next_tvb =  tvb_new_subset_remaining(tvb, hdrlen);
+        call_data_dissector(next_tvb, pinfo, tree);
+      }
       break;
     }
     case FCTYPE_ISOLAT:
@@ -718,14 +729,19 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
       /* Dissect Length field for a PDU */
       dissect_exthdr_length_field (tvb, pinfo, docsis_tree, exthdr, mac_parm, len_sid, &payload_length, &is_encrypted);
       /* Dissect Header Check Sequence field for a PDU */
-      dissect_hcs_field (tvb, pinfo, docsis_tree, hdrlen);
-      if (pdulen > 0)
+      fcs_correct = dissect_hcs_field (tvb, pinfo, docsis_tree, hdrlen);
+      if (fcs_correct)
       {
         next_tvb =  tvb_new_subset_remaining(tvb, hdrlen);
         if(is_encrypted && !docsis_dissect_encrypted_frames)
           dissect_encrypted_frame (next_tvb, docsis_tree, fctype);
         else
           call_dissector (eth_withoutfcs_handle, next_tvb, pinfo, docsis_tree);
+        if (pdulen > 0)
+        {
+          next_tvb =  tvb_new_subset_remaining(tvb, hdrlen);
+          call_dissector (eth_withoutfcs_handle, next_tvb, pinfo, docsis_tree);
+        }
       }
       break;
     }
@@ -743,14 +759,16 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
           /* Dissect Length field for a PDU */
           dissect_exthdr_length_field (tvb, pinfo, docsis_tree, exthdr, mac_parm, len_sid, &payload_length, &is_encrypted);
           /* Dissect Header Check Sequence field for a PDU */
-          dissect_hcs_field (tvb, pinfo, docsis_tree, hdrlen);
-
-          /* Pass off to the DOCSIS Management dissector/s */
-          mgt_tvb = tvb_new_subset_remaining(tvb, hdrlen);
-          if(is_encrypted && !docsis_dissect_encrypted_frames)
-            dissect_encrypted_frame (next_tvb, docsis_tree, fctype);
-          else
-            call_dissector (docsis_mgmt_handle, mgt_tvb, pinfo, docsis_tree);
+          fcs_correct = dissect_hcs_field (tvb, pinfo, docsis_tree, hdrlen);
+          if (fcs_correct)
+          {
+            /* Pass off to the DOCSIS Management dissector/s */
+            mgt_tvb = tvb_new_subset_remaining(tvb, hdrlen);
+            if(is_encrypted && !docsis_dissect_encrypted_frames)
+              dissect_encrypted_frame (next_tvb, docsis_tree, fctype);
+            else
+              call_dissector (docsis_mgmt_handle, mgt_tvb, pinfo, docsis_tree);
+          }
           break;
         }
         case FCPARM_RQST_FRM:
@@ -759,9 +777,11 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
           proto_tree_add_uint (docsis_tree, hf_docsis_mini_slots, tvb, 1, 1, mac_parm);
           proto_tree_add_uint (docsis_tree, hf_docsis_sid, tvb, 2, 2, len_sid);
           /* Dissect Header Check Sequence field for a PDU */
-          dissect_hcs_field (tvb, pinfo, docsis_tree, hdrlen);
-
-          /* Don't do anything for a Request Frame, there is no data following it*/
+          fcs_correct = dissect_hcs_field (tvb, pinfo, docsis_tree, hdrlen);
+          if (fcs_correct)
+          {
+            /* Don't do anything for a Request Frame, there is no data following it*/
+          }
           break;
         }
         case FCPARM_FRAG_HDR:
@@ -773,61 +793,61 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
           /* Dissect Length field for a PDU */
           dissect_exthdr_length_field (tvb, pinfo, docsis_tree, exthdr, mac_parm, len_sid, &payload_length, &is_encrypted);
           /* Dissect Header Check Sequence field for a PDU */
-          dissect_hcs_field (tvb, pinfo, docsis_tree, hdrlen);
-
-          /* Grab the Fragment FCS */
-          guint32 sent_fcs = tvb_get_ntohl(tvb, (hdrlen + len_sid - 4));
-          guint32 fcs = crc32_802_tvb(tvb, tvb_captured_length(tvb) - 4);
-
-          /* Only defragment valid frames with a good FCS */
-          if (sent_fcs == fcs)
+          fcs_correct = dissect_hcs_field (tvb, pinfo, docsis_tree, hdrlen);
+          if (fcs_correct)
           {
-            fragment_item *frag_msg = NULL;
-            frag_msg = fragment_add_seq_check(&docsis_reassembly_table,
-                                              tvb, hdrlen, pinfo,
-                                              frag_sid, NULL, /* ID for fragments belonging together */
-                                              frag_seq, /* Fragment Sequence Number */
-                                              (len_sid - 4), /* fragment length - to the end */
-                                              !(frag_flags & FRAG_LAST)); /* More fragments? */
+            /* Grab the Fragment FCS */
+            guint32 sent_fcs = tvb_get_ntohl(tvb, (hdrlen + len_sid - 4));
+            guint32 fcs = crc32_802_tvb(tvb, tvb_captured_length(tvb) - 4);
 
-            next_tvb = process_reassembled_data(tvb, hdrlen, pinfo,
-                                                "Reassembled Message", frag_msg, &docsis_frag_items,
-                                                NULL, docsis_tree);
-
-            if (frag_flags == FRAG_LAST)
-              pinfo->fragmented = FALSE;
-            else
-              pinfo->fragmented = TRUE;
-
-            if (frag_msg) { /* Reassembled */
-              proto_item_append_text (ti, " (Message Reassembled)");
-            } else { /* Not last packet of reassembled Short Message */
-              proto_item_append_text (ti, " (Message fragment %u)", frag_seq);
-
-            }
-
-            if(next_tvb)
+            /* Only defragment valid frames with a good FCS */
+            if (sent_fcs == fcs)
             {
-              /* By default assume an Ethernet payload */
+              fragment_item *frag_msg = NULL;
+              frag_msg = fragment_add_seq_check(&docsis_reassembly_table,
+                                                tvb, hdrlen, pinfo,
+                                                frag_sid, NULL, /* ID for fragments belonging together */
+                                                frag_seq, /* Fragment Sequence Number */
+                                                (len_sid - 4), /* fragment length - to the end */
+                                                !(frag_flags & FRAG_LAST)); /* More fragments? */
+
+              next_tvb = process_reassembled_data(tvb, hdrlen, pinfo,
+                                                  "Reassembled Message", frag_msg, &docsis_frag_items,
+                                                  NULL, docsis_tree);
+
+              if (frag_flags == FRAG_LAST)
+                pinfo->fragmented = FALSE;
+              else
+                pinfo->fragmented = TRUE;
+
+              if (frag_msg) { /* Reassembled */
+                proto_item_append_text (ti, " (Message Reassembled)");
+              } else { /* Not last packet of reassembled Short Message */
+                proto_item_append_text (ti, " (Message fragment %u)", frag_seq);
+
+              }
+
+              if(next_tvb)
+              {
+                /* By default assume an Ethernet payload */
               if(is_encrypted && !docsis_dissect_encrypted_frames)
                 dissect_encrypted_frame (next_tvb, docsis_tree, fctype);
               else
                 call_dissector (eth_withoutfcs_handle, next_tvb, pinfo, docsis_tree);
+              } else {
+                /* Otherwise treat as Data */
+                tvbuff_t *payload_tvb = tvb_new_subset_length_caplen(tvb, hdrlen, (len_sid - 4), -1);
+                call_data_dissector(payload_tvb, pinfo, docsis_tree);
+              }
             } else {
-              /* Otherwise treat as Data */
-              tvbuff_t *payload_tvb = tvb_new_subset_length_caplen(tvb, hdrlen, (len_sid - 4), -1);
-              call_data_dissector(payload_tvb, pinfo, docsis_tree);
+              /* Report frames with a bad FCS */
+              expert_add_info(pinfo, ti, &ei_docsis_frag_fcs_bad);
             }
-          } else {
-            /* Report frames with a bad FCS */
-            expert_add_info(pinfo, ti, &ei_docsis_frag_fcs_bad);
+            /* Add the Fragment FCS to the end of the parent tree */
+            proto_tree_add_checksum(docsis_tree, tvb, (hdrlen + len_sid - 4), hf_docsis_frag_fcs, hf_docsis_frag_fcs_status, &ei_docsis_frag_fcs_bad, pinfo, fcs, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
+
+            pinfo->fragmented = save_fragmented;
           }
-
-          /* Add the Fragment FCS to the end of the parent tree */
-          proto_tree_add_checksum(docsis_tree, tvb, (hdrlen + len_sid - 4), hf_docsis_frag_fcs, hf_docsis_frag_fcs_status, &ei_docsis_frag_fcs_bad, pinfo, fcs, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
-
-          pinfo->fragmented = save_fragmented;
-
           break;
         }
         case FCPARM_QUEUE_DEPTH_REQ_FRM:
@@ -836,9 +856,11 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
           proto_tree_add_uint (docsis_tree, hf_docsis_requested_size, tvb, 1, 2, mac_parm);
           proto_tree_add_uint (docsis_tree, hf_docsis_sid, tvb, 3, 2, len_sid);
           /* Dissect Header Check Sequence field for a PDU */
-          dissect_hcs_field (tvb, pinfo, docsis_tree, hdrlen);
-
+          fcs_correct = dissect_hcs_field (tvb, pinfo, docsis_tree, hdrlen);
+          if (fcs_correct)
+          {
           /* No PDU Payload for this frame */
+          }
           break;
         }
         case FCPARM_CONCAT_HDR:
@@ -848,23 +870,25 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
           proto_tree_add_item (docsis_tree, hf_docsis_concat_cnt, tvb, 1, 1, ENC_BIG_ENDIAN);
           proto_tree_add_item (docsis_tree, hf_docsis_len, tvb, 2, 2, ENC_BIG_ENDIAN);
           /* Dissect Header Check Sequence field for a PDU */
-          dissect_hcs_field (tvb, pinfo, docsis_tree, hdrlen);
-
-          // There used to be a section of code here that recursively
-          // called dissect_docsis. It has been removed. If you plan on
-          // adding concatenated PDU support back you should consider
-          // doing something like the following:
-          // dissect_docsis(...) {
-          //   while(we_have_pdus_remaining) {
-          //     int pdu_len = dissect_docsis_pdu(...)
-          //     if (pdu_len < 1) {
-          //       add_expert...
-          //       break;
-          //     }
-          //   }
-          // }
-          // Adding back this functionality using recursion might result
-          // in this dissector being disabled by default or removed entirely.
+          fcs_correct = dissect_hcs_field (tvb, pinfo, docsis_tree, hdrlen);
+          if (fcs_correct)
+          {
+            // There used to be a section of code here that recursively
+            // called dissect_docsis. It has been removed. If you plan on
+            // adding concatenated PDU support back you should consider
+            // doing something like the following:
+            // dissect_docsis(...) {
+            //   while(we_have_pdus_remaining) {
+            //     int pdu_len = dissect_docsis_pdu(...)
+            //     if (pdu_len < 1) {
+            //       add_expert...
+            //       break;
+            //     }
+            //   }
+            // }
+            // Adding back this functionality using recursion might result
+            // in this dissector being disabled by default or removed entirely.
+          }
           break;
         }
         default:
