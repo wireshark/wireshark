@@ -13,6 +13,7 @@ set(ASN1_SRC_DIRS
 	HI2Operations
 	acp133
 	acse
+	ain
 	ansi_map
 	ansi_tcap
 	atn-cm

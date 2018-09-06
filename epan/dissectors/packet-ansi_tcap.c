@@ -181,6 +181,7 @@ static const char * cur_oid;
 static const char * tcapext_oid;
 
 static dissector_handle_t ansi_map_handle;
+static dissector_handle_t ain_handle;
 
 struct ansi_tcap_private_t ansi_tcap_private;
 #define MAX_TID_STR_LEN 1024
@@ -368,26 +369,29 @@ find_tcap_subdissector(tvbuff_t *tvb, asn1_ctx_t *actx, proto_tree *tree){
                 return TRUE;
         }else if(ansi_tcap_private.d.OperationCode == 1){
                 /* private */
-                if((ansi_tcap_private.d.OperationCode_private & 0x0900) != 0x0900){
-                        proto_tree_add_expert_format(tree, actx->pinfo, &ei_ansi_tcap_dissector_not_implemented, tvb, 0, -1,
-                                "Dissector for ANSI TCAP PRIVATE code:%u not implemented.\n"
-                                "Contact Wireshark developers if you want this supported(Spec required)",
-                                ansi_tcap_private.d.OperationCode_private);
-                        return FALSE;
+                if((ansi_tcap_private.d.OperationCode_private & 0x0900) == 0x0900){
+                    /* This is abit of a hack as it assumes the private codes with a "family" of 0x09 is ANSI MAP
+                    * See TODO above.
+                    * N.S0005-0 v 1.0 TCAP Formats and Procedures 5-16 Application Services
+                    * 6.3.2 Component Portion
+                    * The Operation Code is partitioned into an Operation Family followed by a
+                    * Specifier associated with each Operation Family member. For TIA/EIA-41 the
+                    * Operation Family is coded as decimal 9. Bit H of the Operation Family is always
+                    * coded as 0.
+                    */
+                    call_dissector_with_data(ansi_map_handle, tvb, actx->pinfo, actx->subtree.top_tree, &ansi_tcap_private);
+
+                    return TRUE;
+                } else if ((ansi_tcap_private.d.OperationCode_private & 0xf000) == 0x6000) {
+                    call_dissector_with_data(ain_handle, tvb, actx->pinfo, actx->subtree.top_tree, &ansi_tcap_private);
+                    return TRUE;
                 }
         }
-        /* This is abit of a hack as it assumes the private codes with a "family" of 0x09 is ANSI MAP
-         * See TODO above.
-         * N.S0005-0 v 1.0 TCAP Formats and Procedures 5-16 Application Services
-         * 6.3.2 Component Portion
-         * The Operation Code is partitioned into an Operation Family followed by a
-         * Specifier associated with each Operation Family member. For TIA/EIA-41 the
-         * Operation Family is coded as decimal 9. Bit H of the Operation Family is always
-         * coded as 0.
-         */
-        call_dissector_with_data(ansi_map_handle, tvb, actx->pinfo, actx->subtree.top_tree, &ansi_tcap_private);
-
-        return TRUE;
+        proto_tree_add_expert_format(tree, actx->pinfo, &ei_ansi_tcap_dissector_not_implemented, tvb, 0, -1,
+            "Dissector for ANSI TCAP PRIVATE code:%u not implemented.\n"
+            "Contact Wireshark developers if you want this supported(Spec required)",
+            ansi_tcap_private.d.OperationCode_private);
+        return FALSE;
 }
 
 
@@ -1360,7 +1364,7 @@ dissect_ansi_tcap_PackageType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 
 /*--- End of included file: packet-ansi_tcap-fn.c ---*/
-#line 303 "./asn1/ansi_tcap/packet-ansi_tcap-template.c"
+#line 307 "./asn1/ansi_tcap/packet-ansi_tcap-template.c"
 
 
 
@@ -1432,6 +1436,7 @@ void
 proto_reg_handoff_ansi_tcap(void)
 {
     ansi_map_handle = find_dissector_add_dependency("ansi_map", proto_ansi_tcap);
+    ain_handle = find_dissector_add_dependency("ain", proto_ansi_tcap);
     ber_oid_dissector_table = find_dissector_table("ber.oid");
 }
 
@@ -1702,7 +1707,7 @@ proto_register_ansi_tcap(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-ansi_tcap-hfarr.c ---*/
-#line 436 "./asn1/ansi_tcap/packet-ansi_tcap-template.c"
+#line 441 "./asn1/ansi_tcap/packet-ansi_tcap-template.c"
     };
 
 /* Setup protocol subtree array */
@@ -1740,7 +1745,7 @@ proto_register_ansi_tcap(void)
     &ett_ansi_tcap_T_paramSet,
 
 /*--- End of included file: packet-ansi_tcap-ettarr.c ---*/
-#line 447 "./asn1/ansi_tcap/packet-ansi_tcap-template.c"
+#line 452 "./asn1/ansi_tcap/packet-ansi_tcap-template.c"
     };
 
     static ei_register_info ei[] = {
