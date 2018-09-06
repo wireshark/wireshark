@@ -716,9 +716,7 @@
         ["wrap"] = '<function 378>',
         ["yield"] = '<function 379>'
     },
-    ["critical"] = '<function 380>',
     ["datafile_path"] = '<function 33>',
-    ["debug"] = '<function 381>',
     ["deregister_filehandler"] = '<function 382>',
     ["dofile"] = '<function 383>',
     ["enable_lua"] = true,
@@ -811,7 +809,6 @@
         [2] = "H225_OTHERS",
         [0] = "H225_RAS"
     },
-    ["info"] = '<function 392>',
     ["init_routines"] = {},
     ["io"] = {
         ["close"] = '<function 393>',
@@ -865,7 +862,6 @@
         ["tan"] = '<function 433>',
         ["tanh"] = '<function 434>'
     },
-    ["message"] = '<function 435>',
     ["module"] = '<function 436>',
     ["new_dialog"] = '<function 437>',
     ["next"] = '<function 438>',
@@ -953,7 +949,6 @@
     ["type"] = '<function 501>',
     ["typeof"] = '<function 502>',
     ["unpack"] = '<function 498>',
-    ["warn"] = '<function 503>',
     ["wtap"] = {
         ["APPLE_IP_OVER_IEEE1394"] = 62,
         ["ARCNET"] = 8,

@@ -53,7 +53,6 @@
 
 #define WSLUA_INIT_ROUTINES "init_routines"
 #define WSLUA_PREFS_CHANGED "prefs_changed"
-#define LOG_DOMAIN_LUA "wslua"
 
 typedef void (*wslua_logger_t)(const gchar *, GLogLevelFlags, const gchar *, gpointer);
 extern wslua_logger_t wslua_logger;

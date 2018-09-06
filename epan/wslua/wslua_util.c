@@ -129,60 +129,6 @@ WSLUA_FUNCTION wslua_report_failure(lua_State* LS) { /* Reports a failure to the
     return 0;
 }
 
-static int wslua_log(lua_State* L, GLogLevelFlags log_level) {
-    GString* str = g_string_new("");
-    int n = lua_gettop(L);  /* Number of arguments */
-    int i;
-
-    lua_getglobal(L, "tostring");
-    for (i=1; i<=n; i++) {
-        const char *s;
-        lua_pushvalue(L, -1);  /* function to be called */
-        lua_pushvalue(L, i);   /* value to print */
-        lua_call(L, 1, 1);
-        s = lua_tostring(L, -1);  /* get result */
-        if (s == NULL)
-            return luaL_error(L, "`tostring' must return a string");
-
-        if (i>1) g_string_append(str,"\t");
-        g_string_append(str,s);
-
-        lua_pop(L, 1);  /* pop result */
-    }
-    g_string_append_c(str, '\n');
-
-    wslua_logger(LOG_DOMAIN_LUA, log_level, str->str, NULL);
-    g_string_free(str,TRUE);
-
-    return 0;
-}
-
-WSLUA_FUNCTION wslua_critical( lua_State* L ) { /* Will add a log entry with critical severity. */
-/* WSLUA_MOREARGS critical objects to be printed    */
-    wslua_log(L,G_LOG_LEVEL_CRITICAL);
-    return 0;
-}
-WSLUA_FUNCTION wslua_warn( lua_State* L ) { /* Will add a log entry with warn severity. */
-/* WSLUA_MOREARGS warn objects to be printed    */
-    wslua_log(L,G_LOG_LEVEL_WARNING);
-    return 0;
-}
-WSLUA_FUNCTION wslua_message( lua_State* L ) { /* Will add a log entry with message severity. */
-/* WSLUA_MOREARGS message objects to be printed    */
-    wslua_log(L,G_LOG_LEVEL_MESSAGE);
-    return 0;
-}
-WSLUA_FUNCTION wslua_info( lua_State* L ) { /* Will add a log entry with info severity. */
-/* WSLUA_MOREARGS info objects to be printed    */
-    wslua_log(L,G_LOG_LEVEL_INFO);
-    return 0;
-}
-WSLUA_FUNCTION wslua_debug( lua_State* L ) { /* Will add a log entry with debug severity. */
-/* WSLUA_MOREARGS debug objects to be printed    */
-    wslua_log(L,G_LOG_LEVEL_DEBUG);
-    return 0;
-}
-
 /* The returned filename is g_malloc()'d so the caller must free it */
 /* except when NULL is returned if file doesn't exist               */
 char* wslua_get_actual_filename(const char* fname) {

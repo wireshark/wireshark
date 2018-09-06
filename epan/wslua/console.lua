@@ -57,34 +57,29 @@ if (gui_enabled()) then
 		local w = TextWindow.new("Console")
 
 		-- save original logger functions
-		local orig = {
-			critical = critical,
-			warn = warn,
-			message = message,
-			info = info,
-			debug = debug
-		}
+		local orig_print = print
 
 		-- define new logger functions that append text to the window
-		function critical(x)  w:append( date() .. " CRITICAL: " .. tostring(x) .. "\n") end
-		function warn(x)  w:append( date() .. " WARN: " .. tostring(x) .. "\n") end
-		function message(x)  w:append( date() .. " MESSAGE: " .. tostring(x) .. "\n") end
-		function info(x)  w:append( date() .. " INFO: " .. tostring(x) .. "\n") end
-		function debug(x)  w:append( date() .. " DEBUG: " .. tostring(x) .. "\n") end
+		function print(...)
+			local arg = {...}
+			local n = #arg
+			w:append(date() .. " ")
+			for i=1, n do
+				if i > 1 then w:append("\t") end
+				w:append(tostring(arg[i]))
+			end
+			w:append("\n")
+		end
 
 		-- when the window gets closed restore the original logger functions
 		local function at_close()
-			critical = orig.critical
-			warn = orig.warn
-			message = orig.message
-			info = orig.info
-			debug = orig.debug
+			print = old_print
 
 			console_open = false
 		end
 
 		w:set_atclose(at_close)
-		info("Console opened")
+		print("Console opened")
 	end
 
 	function ref_manual()

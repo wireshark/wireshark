@@ -38,13 +38,6 @@ if running_superuser then
     file = disabled_lib
 end
 
--- to avoid output to stdout which can cause problems lua's print ()
--- has been suppresed so that it yields an error.
--- have print() call info() instead.
-if gui_enabled() then
-    print = info
-end
-
 function typeof(obj)
     local mt = getmetatable(obj)
     return mt and mt.__typeof or obj.__typeof or type(obj)
@@ -74,7 +67,6 @@ end
 --
 -- since 1.11.3
 function package.prepend_path(name)
-    local debug = require "debug"
     -- get the function calling this package.prepend_path function
     local dt = debug.getinfo(2, "f")
     if not dt then

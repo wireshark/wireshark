@@ -109,7 +109,9 @@ A new extcap has been added: dpauxmon. It allows capturing DisplayPort AUX chann
 data from linux kernel drivers.
 --
 
-//=== Major API Changes
+=== Major API Changes
+* Lua: the various logging functions (debug, info, message, warn and critical)
+  have been removed. Use the print function instead for debugging purposes.
 
 == Getting Wireshark
 
