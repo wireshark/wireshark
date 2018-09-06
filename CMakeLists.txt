@@ -1005,6 +1005,7 @@ endif()
 # Embedded Lua interpreter
 if(ENABLE_LUA)
 	set(PACKAGELIST ${PACKAGELIST} LUA)
+	set(LUA_OPTIONS "5.1")
 endif()
 
 if(ENABLE_NETLINK)

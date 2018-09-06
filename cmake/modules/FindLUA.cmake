@@ -19,7 +19,7 @@ FindWSWinLibs("lua5*" "LUA_HINTS")
 
 if(NOT WIN32)
   find_package(PkgConfig)
-  pkg_search_module(LUA lua5.2 lua-5.2 lua52 lua5.1 lua-5.1 lua51 lua5.0 lua-5.0 lua50)
+  pkg_search_module(LUA lua5.2 lua-5.2 lua52 lua5.1 lua-5.1 lua51)
   if(NOT LUA_FOUND)
       pkg_search_module(LUA "lua<=5.2.99")
   endif()
@@ -47,8 +47,6 @@ if(LUA_INCLUDE_DIR AND EXISTS "${LUA_INCLUDE_DIR}/lua.h")
   if (LUA_VERSION_NUM)
     string(REGEX REPLACE "^#define[ \t]+LUA_VERSION_NUM[ \t]+([0-9]+)" "\\1"
       LUA_VERSION_NUM "${LUA_VERSION_NUM}")
-  else()
-    set( LUA_VERSION_NUM "500")
   endif()
 endif()
 string( REGEX REPLACE ".*[/\\]lua(.+)$" "\\1" LUA_INC_SUFFIX "${LUA_INCLUDE_DIR}" )
@@ -74,7 +72,7 @@ FIND_LIBRARY(LUA_LIBRARY
     /opt
 )
 
-# Lua 5.3 is not supported, only 5.0/5.1/5.2 are (due to bitops problem)
+# Lua 5.3 is not supported, only 5.1/5.2 are (due to bitops problem)
 if(LUA_VERSION_NUM GREATER 502)
   set(LUA_VERSION_NUM)
 endif()
