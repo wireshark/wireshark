@@ -524,11 +524,13 @@ static gboolean lua_load_script(const gchar* filename, const gchar* dirname, con
     lua_settop(L,0);
 
     lua_pushcfunction(L,lua_main_error_handler);
+    /* The source argument should start with with '@' to indicate a file. */
+    lua_pushfstring(L, "@%s", filename);
 
 #if LUA_VERSION_NUM >= 502
-    error = lua_load(L,getF,file,filename,NULL);
+    error = lua_load(L, getF, file, lua_tostring(L, -1), NULL);
 #else
-    error = lua_load(L,getF,file,filename);
+    error = lua_load(L, getF, file, lua_tostring(L, -1));
 #endif
 
     switch (error) {
@@ -540,23 +542,23 @@ static gboolean lua_load_script(const gchar* filename, const gchar* dirname, con
                 numargs = lua_script_push_args(file_count);
             }
             error = lua_pcall(L,numargs,0,1);
-            fclose(file);
-            lua_pop(L,1); /* pop the error handler */
-            return error ? FALSE : TRUE;
-        case LUA_ERRSYNTAX: {
+            break;
+
+        case LUA_ERRSYNTAX:
             report_failure("Lua: syntax error during precompilation of `%s':\n%s",filename,lua_tostring(L,-1));
-            fclose(file);
-            return FALSE;
-        }
+            break;
+
         case LUA_ERRMEM:
             report_failure("Lua: memory allocation error during precompilation of %s",filename);
-            fclose(file);
-            return FALSE;
+            break;
+
         default:
             report_failure("Lua: unknown error during precompilation of %s: %d",filename,error);
-            fclose(file);
-            return FALSE;
+            break;
     }
+    fclose(file);
+    lua_pop(L, 2);  /* pop the filename and error handler */
+    return error == 0;
 }
 
 /* This one is used to load the init.lua scripts, or anything else
