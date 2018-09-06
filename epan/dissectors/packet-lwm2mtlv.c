@@ -1,11 +1,12 @@
 /* packet-lwm2mtlv.c
  * Routines for LWM2M TLV dissection
  * References:
- *     OMA LWM2M Specification: OMA-TS-LightweightM2M-V1_0-20151214-C.pdf
+ *     OMA LWM2M Specification: OMA-TS-LightweightM2M_Core-V1_1-20180710-A.pdf
  *     available from
- *     http://technical.openmobilealliance.org/Technical/technical-information/release-program/current-releases/oma-lightweightm2m-v1-0
+ *     http://openmobilealliance.org/release/LightweightM2M/V1_1-20180710-A/
  *
  * Copyright 2016, Christoph Burger-Scheidlin
+ * Copyright 2018, Stig Bjorlykke <stig@bjorlykke.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -43,6 +44,7 @@ static int hf_lwm2mtlv_length                    = -1;
 static int hf_lwm2mtlv_value                     = -1;
 static int hf_lwm2mtlv_value_string              = -1;
 static int hf_lwm2mtlv_value_integer             = -1;
+static int hf_lwm2mtlv_value_unsigned_integer    = -1;
 static int hf_lwm2mtlv_value_float               = -1;
 static int hf_lwm2mtlv_value_double              = -1;
 static int hf_lwm2mtlv_value_boolean             = -1;
@@ -115,37 +117,42 @@ typedef struct _lwm2m_resource_t {
 /* RESOURCE_FILL initializes all the dynamic fields in a lwm2m_resource_t. */
 #define RESOURCE_FILL NULL, NULL, NULL
 
-#define DATA_TYPE_NONE    0
-#define DATA_TYPE_STRING  1
-#define DATA_TYPE_INTEGER 2
-#define DATA_TYPE_FLOAT   3
-#define DATA_TYPE_BOOLEAN 4
-#define DATA_TYPE_OPAQUE  5
-#define DATA_TYPE_TIME    6
-#define DATA_TYPE_OBJLNK  7
+#define DATA_TYPE_NONE             0
+#define DATA_TYPE_STRING           1
+#define DATA_TYPE_INTEGER          2
+#define DATA_TYPE_UNSIGNED_INTEGER 3
+#define DATA_TYPE_FLOAT            4
+#define DATA_TYPE_BOOLEAN          5
+#define DATA_TYPE_OPAQUE           6
+#define DATA_TYPE_TIME             7
+#define DATA_TYPE_OBJLNK           8
+#define DATA_TYPE_CORELNK          9
 
 static const value_string data_types[] = {
-	{ DATA_TYPE_NONE,    "None"    },
-	{ DATA_TYPE_STRING,  "String"  },
-	{ DATA_TYPE_INTEGER, "Integer" },
-	{ DATA_TYPE_FLOAT,   "Float"   },
-	{ DATA_TYPE_BOOLEAN, "Boolean" },
-	{ DATA_TYPE_OPAQUE,  "Opaque"  },
-	{ DATA_TYPE_TIME,    "Time"    },
-	{ DATA_TYPE_OBJLNK,  "Objlnk"  },
+	{ DATA_TYPE_NONE,             "None"             },
+	{ DATA_TYPE_STRING,           "String"           },
+	{ DATA_TYPE_INTEGER,          "Integer"          },
+	{ DATA_TYPE_UNSIGNED_INTEGER, "Unsigned Integer" },
+	{ DATA_TYPE_FLOAT,            "Float"            },
+	{ DATA_TYPE_BOOLEAN,          "Boolean"          },
+	{ DATA_TYPE_OPAQUE,           "Opaque"           },
+	{ DATA_TYPE_TIME,             "Time"             },
+	{ DATA_TYPE_OBJLNK,           "Objlnk"           },
+	{ DATA_TYPE_CORELNK,          "Corelnk"          },
 	{ 0, NULL }
 };
 
 /* LwM2M Objects defined by OMA (Normative) */
 static const value_string lwm2m_oma_objects[] = {
-	{ 0, "LwM2M Security"          },
-	{ 1, "LwM2M Server"            },
-	{ 2, "Access Control"          },
-	{ 3, "Device"                  },
-	{ 4, "Connectivity Monitoring" },
-	{ 5, "Firmware Update"         },
-	{ 6, "Location"                },
-	{ 7, "Connectivity Statistics" },
+	{ 0,  "LwM2M Security"          },
+	{ 1,  "LwM2M Server"            },
+	{ 2,  "Access Control"          },
+	{ 3,  "Device"                  },
+	{ 4,  "Connectivity Monitoring" },
+	{ 5,  "Firmware Update"         },
+	{ 6,  "Location"                },
+	{ 7,  "Connectivity Statistics" },
+	{ 21, "OSCORE"                  },
 	{ 0, NULL }
 };
 
@@ -165,6 +172,11 @@ static lwm2m_resource_t lwm2m_oma_resources[] =
 	{ 0, 10, "Short Server ID", DATA_TYPE_INTEGER, RESOURCE_FILL },
 	{ 0, 11, "Client Hold Off Time", DATA_TYPE_INTEGER, RESOURCE_FILL },
 	{ 0, 12, "Bootstrap-Server Account Timeout", DATA_TYPE_INTEGER, RESOURCE_FILL },
+	{ 0, 13, "Matching Type", DATA_TYPE_UNSIGNED_INTEGER, RESOURCE_FILL },
+	{ 0, 14, "SNI", DATA_TYPE_STRING, RESOURCE_FILL },
+	{ 0, 15, "Certificate Usage", DATA_TYPE_UNSIGNED_INTEGER, RESOURCE_FILL },
+	{ 0, 16, "TLS DTLS Ciphersuite", DATA_TYPE_UNSIGNED_INTEGER, RESOURCE_FILL },
+	{ 0, 17, "OSCORE Security Mode", DATA_TYPE_OBJLNK, RESOURCE_FILL },
 
 	/* LwM2M Server (1) */
 	{ 1, 0,  "Short Server ID", DATA_TYPE_INTEGER, RESOURCE_FILL },
@@ -175,6 +187,22 @@ static lwm2m_resource_t lwm2m_oma_resources[] =
 	{ 1, 5,  "Disable Timeout", DATA_TYPE_INTEGER, RESOURCE_FILL },
 	{ 1, 6,  "Notification Storing When Disabled or Offline", DATA_TYPE_BOOLEAN, RESOURCE_FILL },
 	{ 1, 7,  "Binding", DATA_TYPE_STRING, RESOURCE_FILL },
+	{ 1, 8,  "Registration Update Trigger", DATA_TYPE_NONE, RESOURCE_FILL },
+	{ 1, 9,  "Bootstrap Request Trigger", DATA_TYPE_NONE, RESOURCE_FILL },
+	{ 1, 10, "APN Link", DATA_TYPE_OBJLNK, RESOURCE_FILL },
+	{ 1, 11, "TLS DTLS Alert Code", DATA_TYPE_UNSIGNED_INTEGER, RESOURCE_FILL },
+	{ 1, 12, "Last Bootstrapped", DATA_TYPE_TIME, RESOURCE_FILL },
+	{ 1, 13, "Registration Priority Order", DATA_TYPE_UNSIGNED_INTEGER, RESOURCE_FILL },
+	{ 1, 14, "Initial Registration Delay Timer", DATA_TYPE_UNSIGNED_INTEGER, RESOURCE_FILL },
+	{ 1, 15, "Registration Failure Block", DATA_TYPE_BOOLEAN, RESOURCE_FILL },
+	{ 1, 16, "Bootstrap on Registration Failure", DATA_TYPE_BOOLEAN, RESOURCE_FILL },
+	{ 1, 17, "Communication Retry Count", DATA_TYPE_UNSIGNED_INTEGER, RESOURCE_FILL },
+	{ 1, 18, "Communication Retry Timer", DATA_TYPE_UNSIGNED_INTEGER, RESOURCE_FILL },
+	{ 1, 19, "Communication Sequence Delay Timer", DATA_TYPE_UNSIGNED_INTEGER, RESOURCE_FILL },
+	{ 1, 20, "Communication Sequence Retry Count", DATA_TYPE_UNSIGNED_INTEGER, RESOURCE_FILL },
+	{ 1, 21, "Trigger", DATA_TYPE_BOOLEAN, RESOURCE_FILL },
+	{ 1, 22, "Preferred Transport", DATA_TYPE_STRING, RESOURCE_FILL },
+	{ 1, 23, "Mute Send", DATA_TYPE_BOOLEAN, RESOURCE_FILL },
 
 	/* Access Control (2) */
 	{ 2, 0,  "Object ID", DATA_TYPE_INTEGER, RESOURCE_FILL },
@@ -219,6 +247,7 @@ static lwm2m_resource_t lwm2m_oma_resources[] =
 	{ 4, 8,  "Cell ID", DATA_TYPE_INTEGER, RESOURCE_FILL },
 	{ 4, 9,  "SMNC", DATA_TYPE_INTEGER, RESOURCE_FILL },
 	{ 4, 10, "SMCC", DATA_TYPE_INTEGER, RESOURCE_FILL },
+	{ 4, 11, "SignalSNR", DATA_TYPE_INTEGER, RESOURCE_FILL },
 
 	/* Firmware Update (5) */
 	{ 5, 0,  "Package", DATA_TYPE_OPAQUE, RESOURCE_FILL },
@@ -251,6 +280,14 @@ static lwm2m_resource_t lwm2m_oma_resources[] =
 	{ 7, 6,  "Start", DATA_TYPE_NONE, RESOURCE_FILL },
 	{ 7, 7,  "Stop", DATA_TYPE_NONE, RESOURCE_FILL },
 	{ 7, 8,  "Collection Period", DATA_TYPE_INTEGER, RESOURCE_FILL },
+
+	/* OSCORE (21) */
+	{ 21, 0, "Master Secret", DATA_TYPE_STRING, RESOURCE_FILL },
+	{ 21, 1, "Sender ID", DATA_TYPE_STRING, RESOURCE_FILL },
+	{ 21, 2, "Recipient ID", DATA_TYPE_STRING, RESOURCE_FILL },
+	{ 21, 3, "AEAD Algorithm", DATA_TYPE_INTEGER, RESOURCE_FILL },
+	{ 21, 4, "HMAC Algorithm", DATA_TYPE_INTEGER, RESOURCE_FILL },
+	{ 21, 5, "Master Salt", DATA_TYPE_STRING, RESOURCE_FILL },
 };
 
 static hf_register_info *static_hf;
@@ -395,12 +432,17 @@ static void lwm2m_add_resource(lwm2m_resource_t *resource, hf_register_info *hf)
 
 	switch (resource->data_type) {
 	case DATA_TYPE_STRING:
+	case DATA_TYPE_CORELNK:
 		hf->hfinfo.display = BASE_NONE;
 		hf->hfinfo.type = FT_STRING;
 		break;
 	case DATA_TYPE_INTEGER:
 		hf->hfinfo.display = BASE_DEC;
 		hf->hfinfo.type = FT_INT64;
+		break;
+	case DATA_TYPE_UNSIGNED_INTEGER:
+		hf->hfinfo.display = BASE_DEC;
+		hf->hfinfo.type = FT_UINT64;
 		break;
 	case DATA_TYPE_FLOAT:
 		hf->hfinfo.display = BASE_NONE;
@@ -579,6 +621,7 @@ addValueInterpretations(tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *ele
 	if (resource && resource->data_type != DATA_TYPE_NONE) {
 		switch (resource->data_type) {
 		case DATA_TYPE_STRING:
+		case DATA_TYPE_CORELNK:
 		{
 			const guint8 *strval;
 			proto_tree_add_item_ret_string(tlv_tree, *resource->hf_id, tvb, valueOffset, element->length_of_value, ENC_UTF_8, wmem_packet_scope(), &strval);
@@ -589,6 +632,13 @@ addValueInterpretations(tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *ele
 			proto_tree_add_item(tlv_tree, *resource->hf_id, tvb, valueOffset, element->length_of_value, ENC_BIG_ENDIAN);
 			proto_item_append_text(tlv_tree, ": %" G_GINT64_FORMAT, decodeVariableInt(tvb, valueOffset, element->length_of_value));
 			break;
+		case DATA_TYPE_UNSIGNED_INTEGER:
+		{
+			guint64 value;
+			proto_tree_add_item_ret_uint64(tlv_tree, *resource->hf_id, tvb, valueOffset, element->length_of_value, ENC_BIG_ENDIAN, &value);
+			proto_item_append_text(tlv_tree, ": %" G_GUINT64_FORMAT, value);
+			break;
+		}
 		case DATA_TYPE_FLOAT:
 			proto_tree_add_item(tlv_tree, *resource->hf_id, tvb, valueOffset, element->length_of_value, ENC_BIG_ENDIAN);
 			proto_item_append_text(tlv_tree, ": %." G_STRINGIFY(FLT_DIG) "g", tvb_get_ieee_float(tvb, valueOffset, ENC_BIG_ENDIAN));
@@ -609,8 +659,15 @@ addValueInterpretations(tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *ele
 			proto_item_append_text(tlv_tree, ": %s", abs_time_to_str(wmem_packet_scope(), &ts, ABSOLUTE_TIME_LOCAL, FALSE));
 			break;
 		}
-		case DATA_TYPE_OPAQUE:
 		case DATA_TYPE_OBJLNK:
+		{
+			guint16 lnk1 = tvb_get_guint16(tvb, valueOffset, ENC_BIG_ENDIAN);
+			guint16 lnk2 = tvb_get_guint16(tvb, valueOffset + 2, ENC_BIG_ENDIAN);
+			proto_tree_add_bytes_format(tlv_tree, *resource->hf_id, tvb, valueOffset, element->length_of_value, NULL, "%u:%u", lnk1, lnk2);
+			proto_item_append_text(tlv_tree, ": %u:%u", lnk1, lnk2);
+			break;
+		}
+		case DATA_TYPE_OPAQUE:
 		default:
 			proto_tree_add_item(tlv_tree, *resource->hf_id, tvb, valueOffset, element->length_of_value, ENC_BIG_ENDIAN);
 			proto_item_append_text(tlv_tree, ": %s", tvb_bytes_to_str(wmem_packet_scope(), tvb, valueOffset, element->length_of_value));
@@ -628,20 +685,24 @@ addValueInterpretations(tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *ele
 		switch(element->length_of_value) {
 		case 0x01:
 			proto_tree_add_item(tlv_tree, hf_lwm2mtlv_value_integer, tvb, valueOffset, element->length_of_value, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tlv_tree, hf_lwm2mtlv_value_unsigned_integer, tvb, valueOffset, element->length_of_value, ENC_BIG_ENDIAN);
 			if (tvb_get_guint8(tvb, valueOffset) < 2) {
 				proto_tree_add_item(tlv_tree, hf_lwm2mtlv_value_boolean, tvb, valueOffset, element->length_of_value, ENC_BIG_ENDIAN);
 			}
 			break;
 		case 0x02:
 			proto_tree_add_item(tlv_tree, hf_lwm2mtlv_value_integer, tvb, valueOffset, element->length_of_value, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tlv_tree, hf_lwm2mtlv_value_unsigned_integer, tvb, valueOffset, element->length_of_value, ENC_BIG_ENDIAN);
 			break;
 		case 0x04:
 			proto_tree_add_item(tlv_tree, hf_lwm2mtlv_value_integer, tvb, valueOffset, element->length_of_value, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tlv_tree, hf_lwm2mtlv_value_unsigned_integer, tvb, valueOffset, element->length_of_value, ENC_BIG_ENDIAN);
 			proto_tree_add_item(tlv_tree, hf_lwm2mtlv_value_float, tvb, valueOffset, element->length_of_value, ENC_BIG_ENDIAN);
 			proto_tree_add_item(tlv_tree, hf_lwm2mtlv_value_timestamp, tvb, valueOffset, element->length_of_value, ENC_BIG_ENDIAN);
 			break;
 		case 0x08:
 			proto_tree_add_item(tlv_tree, hf_lwm2mtlv_value_integer, tvb, valueOffset, element->length_of_value, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tlv_tree, hf_lwm2mtlv_value_unsigned_integer, tvb, valueOffset, element->length_of_value, ENC_BIG_ENDIAN);
 			proto_tree_add_item(tlv_tree, hf_lwm2mtlv_value_double, tvb, valueOffset, element->length_of_value, ENC_BIG_ENDIAN);
 			/* apparently, wireshark does not deal well with 8 bytes. */
 			proto_tree_add_item(tlv_tree, hf_lwm2mtlv_value_timestamp, tvb, valueOffset+4, element->length_of_value-4, ENC_BIG_ENDIAN);
@@ -904,6 +965,11 @@ void proto_register_lwm2mtlv(void)
 		{ &hf_lwm2mtlv_value_integer,
 			{ "As Integer", "lwm2mtlv.value.integer",
 				FT_INT64, BASE_DEC, NULL, 0,
+				NULL, HFILL }
+		},
+		{ &hf_lwm2mtlv_value_unsigned_integer,
+			{ "As Unsigned Integer", "lwm2mtlv.value.unsigned_integer",
+				FT_UINT64, BASE_DEC, NULL, 0,
 				NULL, HFILL }
 		},
 		{ &hf_lwm2mtlv_value_float,
