@@ -1,9 +1,9 @@
 /* packet-cp2179.c
- * Routines for Communication Protocol 2179 (CP2179) Dissection
+ * Routines for Communication Protocol 2179 (aka "Cooper 2179") Dissection
  * By Qiaoyin Yang (qiaoyin[DOT]yang[AT]gmail.com
  * Copyright 2014-2015,Schweitzer Engineering Laboratories
  *
- *
+ * Enhancements by Chris Bontje (cbontje<at>gmail<dot>com, Aug 2018
  ************************************************************************************************
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -47,57 +47,7 @@ F = 16-bit CRC
 void proto_reg_handoff_cp2179(void);
 void proto_register_cp2179(void);
 
-/* CP2179 function codes */
-#define BASIC_SCAN                          0x00
-#define SCAN_INCLUSIVE                      0x01
-#define SCAN_FOR_SPECIAL_CALC               0x03
-#define RETRIEVE_TIME_TAGGED_INFOR          0x04   /* not supported */
-#define SCAN_BY_TABLE                       0x0A
-#define SUPERVISORY_CONTROL                 0x10
-#define RTU_CONFIG                          0x20
-#define RETURN_RTU_CONFIG                   0x25
-#define REPORT_EXCEPTION_DATA               0x0D
-
-/* Function Code 0x00 (Basic Scan) Command codes */
-#define SIMPLE_STATUS_DATA                 0x01
-#define ALWAYS_RESERVED                    0x02
-#define TWO_BIT_STATUS                     0x04
-#define ANALOG_16_BIT                      0x08
-#define ACCUMULATOR_16_BIT                 0x40
-
-/* Function Code 0x03 (Special Calc) Command Codes */
-#define SPECIAL_CALC_RANGE                 0x00
-#define SPECIAL_CALC_ALL                   0x80
-
-/* Function Code 0x10 (Supervisory Control) Command Codes */
-#define SBO_SELECT_OPEN                    0x10
-#define SBO_SELECT_CLOSE                   0x11
-#define SBO_OPERATE                        0x20
-
-/* Function Code 0x20 (RTU Control) Command Codes */
-#define INIT_RTU_CONFIGURATION             0x00
-#define RESET_ACCUMULATOR                  0x11
-
-/* packet type */
-#define BASIC_SCAN_QUERY_PACKET            1
-#define BASIC_SCAN_RESPONSE_PACKET         2
-#define SPECIAL_CALC_REQUEST_ALL           3
-#define SPECIAL_CALC_RESPONSE_ALL          4
-#define SPECIAL_CALC_REQUEST_RANGE         5
-#define SPECIAL_CALC_RESPONSE_RANGE        6
-#define SCAN_INCLUSIVE_16_ANALOG_REQUEST   7
-#define SCAN_INCLUSIVE_16_ANALOG_RESPONSE  8
-#define SBO_SELECT_REQUEST                 9
-#define SBO_SELECT_RESPONSE                10
-#define SBO_OPERATE_REQUEST                11
-#define SBO_OPERATE_RESPONSE               12
-#define INIT_RTU_REQUEST                   13
-#define INIT_RTU_RESPONSE                  14
-#define RESET_ACC_REQUEST                  15
-#define RESET_ACC_RESPONSE                 16
-#define SPECIAL_CALC_RESPONSE              17
-
-/* packet length */
+/* Message Length Constants */
 #define CP2179_MIN_LENGTH                  7
 #define RESPONSE_HEADER_SIZE               7  /*includes addr, addr, function, status, port status, number of characters */
 #define BASIC_SCAN_REQ_LEN                 8
@@ -110,11 +60,32 @@ void proto_register_cp2179(void);
 
 static gboolean cp2179_telnet_clean = TRUE;
 
+/* Message Types */
+#define BASIC_SCAN_REQUEST                 1
+#define BASIC_SCAN_RESPONSE                2
+#define SPECIAL_CALC_REQUEST_ALL           3
+#define SPECIAL_CALC_RESPONSE_ALL          4
+#define SPECIAL_CALC_REQUEST_RANGE         5
+#define SPECIAL_CALC_RESPONSE_RANGE        6
+#define SPECIAL_CALC_RESPONSE              7
+#define SCAN_INCLUSIVE_16_ANALOG_REQUEST   8
+#define SCAN_INCLUSIVE_16_ANALOG_RESPONSE  9
+#define SBO_SELECT_REQUEST                 10
+#define SBO_SELECT_RESPONSE                11
+#define SBO_OPERATE_REQUEST                12
+#define SBO_OPERATE_RESPONSE               13
+#define INIT_RTU_REQUEST                   14
+#define INIT_RTU_RESPONSE                  15
+#define RESET_ACC_REQUEST                  16
+#define RESET_ACC_RESPONSE                 17
+#define TIMETAG_INFO_REQUEST               18
+#define TIMETAG_INFO_RESPONSE              19
+#define RST_RESPONSE                       20
 
-/* Packet type Lookup */
-static const value_string cp2179_packettype_vals[] = {
-{BASIC_SCAN_QUERY_PACKET,               "Basic Scan Request"},
-{BASIC_SCAN_RESPONSE_PACKET,            "Basic Scan Response"},
+/* Message type Lookup */
+static const value_string cp2179_messagetype_vals[] = {
+{BASIC_SCAN_REQUEST,                    "Basic Scan Request"},
+{BASIC_SCAN_RESPONSE,                   "Basic Scan Response"},
 {SPECIAL_CALC_REQUEST_ALL,              "Special Calc Request All"},
 {SPECIAL_CALC_RESPONSE_ALL,             "Special Calc Response All"},
 {SPECIAL_CALC_REQUEST_RANGE,            "Special Calc Request a Range"},
@@ -130,48 +101,99 @@ static const value_string cp2179_packettype_vals[] = {
 {INIT_RTU_RESPONSE,                     "INIT RTU Response"},
 {RESET_ACC_REQUEST,                     "RESET Accumulator Request"},
 {RESET_ACC_RESPONSE,                    "RESET Accumulator Response"},
-{-99,                                   "Unknown Function Code"},
+{TIMETAG_INFO_REQUEST,                  "Time-Tagged Information Request"},
+{TIMETAG_INFO_RESPONSE,                 "Time-Tagged Information Response"},
+{RST_RESPONSE,                          "RST Response - Out of Sequence SBO"},
 { 0,                                    NULL }
 
 };
 
-static value_string_ext cp2179_packettype_vals_ext = VALUE_STRING_EXT_INIT(cp2179_packettype_vals);
+static value_string_ext cp2179_messagetype_vals_ext = VALUE_STRING_EXT_INIT(cp2179_messagetype_vals);
 
 /* List contains request data  */
 typedef struct {
-    wmem_list_t *bs_request_frame_data;
+    wmem_list_t *request_frame_data;
 } cp2179_conversation;
 
+/* CP2179 function codes */
+#define BASIC_SCAN                          0x00
+#define SCAN_INCLUSIVE                      0x01
+#define SCAN_FOR_SPECIAL_CALC               0x03
+#define RETRIEVE_TIME_TAGGED_INFO           0x04   /* not supported by the RTAC */
+#define SCAN_BY_TABLE                       0x0A
+#define SUPERVISORY_CONTROL                 0x10
+#define RTU_CONFIG                          0x20
+#define RETURN_RTU_CONFIG                   0x25
+#define REPORT_EXCEPTION_DATA               0x0D
+#define RST_RESPONSE_CODE                   0x80
 
 /* Function code Lookup */
 static const value_string FunctionCodenames[] = {
 { BASIC_SCAN,                     "Basic Scan" },
 { SCAN_INCLUSIVE,                 "Scan Inclusive"},
 { SCAN_FOR_SPECIAL_CALC,          "Scan Floating Points" },
+{ RETRIEVE_TIME_TAGGED_INFO,      "Retrieve Time Tagged Information" },
 { SCAN_BY_TABLE,                  "Scan by Table" },
 { SUPERVISORY_CONTROL,            "Supervisory Control" },
 { RTU_CONFIG,                     "RTU Internal Control" },
 { RETURN_RTU_CONFIG,              "Return RTU Config"},
 { REPORT_EXCEPTION_DATA,          "Report Exception data"},
+{ RST_RESPONSE_CODE,              "RST Response"},
 { 0,                              NULL }
 };
 
-/* Command code Lookup (FC00, FC03, FC10) */
+/* Function Code 0x00 (Basic Scan) Command Codes */
+#define SIMPLE_STATUS_DATA                 0x01
+#define ALWAYS_RESERVED                    0x02
+#define TWO_BIT_STATUS                     0x04
+#define ANALOG_16_BIT                      0x08
+#define SS_AND_ANA16                       0x09
+#define ACCUMULATOR_16_BIT                 0x40
+
+/* Function Code 0x03 (Special Calc / Floating Point) Command Codes */
+#define SPECIAL_CALC_ALL                   0x80
+#define SPECIAL_CALC_RANGE                 0x00
+
+/* Function Code 0x10 (Supervisory Control) Command Codes */
+#define SBO_SELECT_OPEN                    0x10
+#define SBO_SELECT_CLOSE                   0x11
+#define SBO_OPERATE                        0x20
+
 static const value_string cp2179_CommandCodeNames [] = {
+{ SPECIAL_CALC_RANGE,             "Request a Range of Special Calc"},
 { SIMPLE_STATUS_DATA,             "Simple Status" },
 { ALWAYS_RESERVED,                "Reserved" },
 { TWO_BIT_STATUS,                 "2 Bit Data Status" },
 { ANALOG_16_BIT,                  "16 Bit Analog" },
-{ ACCUMULATOR_16_BIT,             "16 Bit Pulsed Accumulator" },
+{ SS_AND_ANA16,                   "Simple Status and 16-bit Analog" },
 { SBO_SELECT_OPEN,                "SBO Open" },
 { SBO_SELECT_CLOSE,               "SBO Close" },
 { SBO_OPERATE,                    "SBO Operate" },
+{ ACCUMULATOR_16_BIT,             "16 Bit Pulsed Accumulator" },
 { SPECIAL_CALC_ALL,               "Request All Special Calc Data"},
-{ SPECIAL_CALC_RANGE,             "Request a Range of Special Calc"},
 { 0,                              NULL }
 };
 
 static value_string_ext cp2179_CommandCodeNames_ext = VALUE_STRING_EXT_INIT(cp2179_CommandCodeNames);
+
+/* Function Code 0x04 (Retrieve Time Tagged Information) Command Codes */
+#define TIMETAG_INFO_RETRYLAST_SINGLEREC   0x00
+#define TIMETAG_INFO_RETRYLAST_DUMP        0x20
+#define TIMETAG_INFO_SINGLEREC             0x40
+#define TIMETAG_INFO_DUMP                  0x60
+
+static const value_string cp2179_FC04_CommandCodeNames [] = {
+{ TIMETAG_INFO_RETRYLAST_SINGLEREC,         "Retransmit Last Single Record" },
+{ TIMETAG_INFO_RETRYLAST_DUMP,              "Retransmit Last Dump All Records" },
+{ TIMETAG_INFO_SINGLEREC,                   "Return Single Record" },
+{ TIMETAG_INFO_DUMP,                        "Dump All Records" },
+{ 0,                              NULL }
+};
+
+
+/* Function Code 0x20 (RTU Control) Command Codes */
+#define INIT_RTU_CONFIGURATION             0x00
+#define RESET_ACCUMULATOR                  0x11
 
 /* Function Code 0x20 Command Code Lookup */
 static const value_string cp2179_FC20_CommandCodeNames [] = {
@@ -188,7 +210,7 @@ typedef struct {
    guint8   commmand_code;
    guint16  numberofcharacters;
    guint8   *requested_points;
-} bs_request_frame;
+} request_frame;
 
 
 static int proto_cp2179 = -1;
@@ -200,6 +222,7 @@ static gint ett_cp2179_addr = -1;
 static gint ett_cp2179_fc = -1;
 static gint ett_cp2179_data = -1;
 static gint ett_cp2179_subdata = -1;
+static gint ett_cp2179_event   = -1;
 
 /* Initialize the protocol and registered fields */
 static int hf_cp2179_request_frame = -1;
@@ -210,6 +233,7 @@ static int hf_cp2179_nop_flag = -1;
 static int hf_cp2179_rst_flag = -1;
 static int hf_cp2179_reserved = -1;
 static int hf_cp2179_command_code = -1;
+static int hf_cp2179_command_code_fc04 = -1;
 static int hf_cp2179_command_code_fc20 = -1;
 static int hf_cp2179_sbo_request_point = -1;
 static int hf_cp2179_resetacc_request_point = -1;
@@ -258,6 +282,15 @@ static int hf_cp2179_2bitstatusstatus4 = -1;
 static int hf_cp2179_2bitstatusstatus5 = -1;
 static int hf_cp2179_2bitstatusstatus6 = -1;
 static int hf_cp2179_2bitstatusstatus7 = -1;
+static int hf_cp2179_timetag_moredata  = -1;
+static int hf_cp2179_timetag_numsets   = -1;
+static int hf_cp2179_timetag_event_type            = -1;
+static int hf_cp2179_timetag_event_date_hundreds   = -1;
+static int hf_cp2179_timetag_event_date_tens       = -1;
+static int hf_cp2179_timetag_event_hour            = -1;
+static int hf_cp2179_timetag_event_minute          = -1;
+static int hf_cp2179_timetag_event_second          = -1;
+
 
 static dissector_handle_t cp2179_handle;
 
@@ -348,7 +381,7 @@ clean_telnet_iac(packet_info *pinfo, tvbuff_t *tvb, int offset, int len)
 /* Code to Dissect Request frames */
 /******************************************************************************************************/
 static int
-dissect_request_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset, guint16 packet_type )
+dissect_request_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset, guint16 message_type )
 {
 /* Set up structures needed to add the protocol subtree and manage it */
     proto_tree *cp2179_proto_tree = NULL;
@@ -384,27 +417,29 @@ dissect_request_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
     proto_tree_add_item(cp2179_fc_tree, hf_cp2179_reserved, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
-    /* Because the function code basic scan for simple status and function code Internal Control for INIT RTU have the same
-       command code. If the packet type is a INIT RTU request, interpret the command code as INIT RTU, or else report it as
-       basic scan simple status command code.*/
-    switch(packet_type)
+    /* The command-byte interpretation is dependent on the function code.  */
+    switch(message_type)
     {
-    case INIT_RTU_REQUEST:
-    case RESET_ACC_REQUEST:
-        proto_tree_add_item(cp2179_proto_tree,  hf_cp2179_command_code_fc20 , tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        break;
+        case INIT_RTU_REQUEST:
+        case RESET_ACC_REQUEST:
+            proto_tree_add_item(cp2179_proto_tree,  hf_cp2179_command_code_fc20 , tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            break;
 
-    case BASIC_SCAN_QUERY_PACKET:
-    case SCAN_INCLUSIVE_16_ANALOG_REQUEST:
-        req_command_code = tvb_get_guint8(tvb, offset);
-        /* Update Info column with useful information of Command Code Type */
-        col_append_fstr(pinfo->cinfo, COL_INFO, " [ %s ]", val_to_str_ext_const(req_command_code, &cp2179_CommandCodeNames_ext, "Unknown Command Code"));
-        proto_tree_add_item(cp2179_proto_tree, hf_cp2179_command_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        break;
+        case BASIC_SCAN_REQUEST:
+        case SCAN_INCLUSIVE_16_ANALOG_REQUEST:
+            req_command_code = tvb_get_guint8(tvb, offset);
+            /* Update Info column with useful information of Command Code Type */
+            col_append_fstr(pinfo->cinfo, COL_INFO, " [ %s ]", val_to_str_ext_const(req_command_code, &cp2179_CommandCodeNames_ext, "Unknown Command Code"));
+            proto_tree_add_item(cp2179_proto_tree, hf_cp2179_command_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            break;
 
-    default:
-        proto_tree_add_item(cp2179_proto_tree, hf_cp2179_command_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        break;
+        case TIMETAG_INFO_REQUEST:
+            proto_tree_add_item(cp2179_proto_tree,  hf_cp2179_command_code_fc04 , tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            break;
+
+        default:
+            proto_tree_add_item(cp2179_proto_tree, hf_cp2179_command_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            break;
     }
     offset += 1;
 
@@ -412,10 +447,10 @@ dissect_request_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
     proto_tree_add_item(cp2179_proto_tree, hf_cp2179_number_characters, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
-    /*If request number is greater than 0, data field in the request is not empty, we need to report the data field*/
+    /* If request number is greater than 0, there is data field present in the request */
     if ( requestnumberofcharacters > 0 ){
         /*Depends on the packet type, the data field should be dissect differently*/
-        switch (packet_type)
+        switch (message_type)
         {
             case SBO_SELECT_REQUEST:
                 proto_tree_add_item(cp2179_proto_tree, hf_cp2179_sbo_request_point, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -446,8 +481,9 @@ dissect_request_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
                 break;
         }
     }
-        /*report the last two bytes as CRC in the request*/
-    proto_tree_add_item(cp2179_proto_tree, hf_cp2179_crc, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+
+    /* The last two bytes of the message are a 16-bit CRC */
+    proto_tree_add_item(cp2179_proto_tree, hf_cp2179_crc, tvb, offset, 2, ENC_BIG_ENDIAN);
 
     return tvb_reported_length(tvb);
 }
@@ -457,10 +493,10 @@ dissect_request_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
 /* Code to dissect Response frames  */
 /******************************************************************************************************/
 static int
-dissect_bs_response_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset, guint16 packet_type)
+dissect_response_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset, guint16 message_type)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item *bs_response_item = NULL;
+    proto_item *response_item = NULL;
     proto_item *cp2179_proto_item = NULL;
     proto_item *cp2179_subdata_item = NULL;
 
@@ -468,13 +504,14 @@ dissect_bs_response_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, i
     proto_tree *cp2179_addr_tree = NULL;
     proto_tree *cp2179_fc_tree = NULL;
     proto_tree *cp2179_data_tree = NULL;
+    proto_tree *cp2179_event_tree = NULL;
 
     cp2179_conversation  *conv;
     guint32 req_frame_num;
     guint16 req_address_word;
     guint8  req_command_code;
     gboolean request_found = FALSE;
-    bs_request_frame *request_data;
+    request_frame *request_data;
 
     gint analogtestvalue = 0;
     gint analog16_num = 0;
@@ -487,6 +524,8 @@ dissect_bs_response_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, i
     guint16 numberofcharacters = -1;
 
     gfloat specialcalvalue = 0;
+
+    int x, y, num_records = 0, recordsize = 0, num_values = 0;
 
     cp2179_proto_item = proto_tree_add_item(tree, proto_cp2179, tvb, 0, -1, ENC_NA);
     cp2179_proto_tree = proto_item_add_subtree(cp2179_proto_item, ett_cp2179_header);
@@ -503,7 +542,7 @@ dissect_bs_response_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, i
 
     /*The response always echos the function code in request, except when the RTU can't perform the required function.
     It may set the NOP or RST bit. Bit 0 to bit 5 is the field for function codes. Bit 6 is NOP bit. Bit 7 is RST bit. */
-    function_code = tvb_get_guint8(tvb, offset) & 0x3f;
+    function_code = tvb_get_guint8(tvb, offset);
 
     cp2179_fc_tree = proto_tree_add_subtree_format(cp2179_proto_tree, tvb, offset, 1, ett_cp2179_fc, NULL,
                "Function Code: %s (0x%02x)", val_to_str_const(function_code, FunctionCodenames, "Unknown Function Code"), function_code);
@@ -529,17 +568,17 @@ dissect_bs_response_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, i
     conv = (cp2179_conversation *)p_get_proto_data(wmem_file_scope(), pinfo, proto_cp2179, 0);
 
     if (conv) {
-        wmem_list_frame_t *frame = wmem_list_head(conv->bs_request_frame_data);
+        wmem_list_frame_t *frame = wmem_list_head(conv->request_frame_data);
         /* Cycle through all logged instances of request frames, looking for request frame number that occurred immediately
            prior to current frame number that has a matching address word */
         while (frame && !request_found) {
-            request_data = (bs_request_frame *)wmem_list_frame_data(frame);
+            request_data = (request_frame *)wmem_list_frame_data(frame);
             req_frame_num = request_data->fnum;
             req_command_code = request_data->commmand_code;
             req_address_word = request_data->address_word;
                 if ((pinfo->num > req_frame_num) && (req_address_word == address_word)) {
-                    bs_response_item = proto_tree_add_uint(cp2179_proto_tree, hf_cp2179_request_frame, tvb, 0, 0, req_frame_num);
-                    PROTO_ITEM_SET_GENERATED(bs_response_item);
+                    response_item = proto_tree_add_uint(cp2179_proto_tree, hf_cp2179_request_frame, tvb, 0, 0, req_frame_num);
+                    PROTO_ITEM_SET_GENERATED(response_item);
                     request_found = TRUE;
                 }
                 frame = wmem_list_frame_next(frame);
@@ -547,7 +586,7 @@ dissect_bs_response_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, i
 
         if (request_found)
         {
-            switch (packet_type)
+            switch (message_type)
             {
                 case SBO_SELECT_RESPONSE:
                 case SBO_OPERATE_RESPONSE:
@@ -555,12 +594,12 @@ dissect_bs_response_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, i
                 case INIT_RTU_RESPONSE:
 
                     if ( numberofcharacters > 0 ){
-                        /*Based on the packet type, change the displayed messages*/
-                        if ( packet_type == SBO_SELECT_RESPONSE ){
+                        /* Based on the message type, process the next byte differently */
+                        if ( message_type == SBO_SELECT_RESPONSE ){
                             proto_tree_add_item(cp2179_proto_tree, hf_cp2179_sbo_request_point, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                             offset += 1;
                         }
-                        if ( packet_type == RESET_ACC_RESPONSE ){
+                        if ( message_type == RESET_ACC_RESPONSE ){
                             proto_tree_add_item(cp2179_proto_tree, hf_cp2179_resetacc_request_point, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                             offset += 1;
                         }
@@ -602,18 +641,18 @@ dissect_bs_response_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, i
                     col_append_fstr(pinfo->cinfo, COL_INFO, " [ %s ]", val_to_str_ext_const(req_command_code, &cp2179_CommandCodeNames_ext, "Unknown Command Code"));
 
                     /*Report the values of the requested SCAN inclusive data. To figure out which sequence ID the values in the response associated with,
-                    we read the bs_request_frame information and show the corresponding sequence ID of the data in response frame.*/
+                      we read the request_frame information and show the corresponding sequence ID of the data in response frame.*/
                     do{
                         analogtestvalue = tvb_get_letohis(tvb, offset);
-                        proto_tree_add_uint_format(cp2179_data_tree, hf_cp2179_analog_16bit, tvb, offset, 2, request_data->requested_points[point_num],
-                                                   "Analog (16 bit) %u : %i",  request_data->requested_points[point_num], analogtestvalue);
+                        proto_tree_add_int_format(cp2179_data_tree, hf_cp2179_analog_16bit, tvb, offset, 2, request_data->requested_points[point_num],
+                                                   "Analog (16 bit) %u : %d",  request_data->requested_points[point_num], analogtestvalue);
                         point_num += 1;
                         offset += 2;
                     }while(tvb_reported_length_remaining(tvb, offset) > 2);
 
                     break;
 
-                case BASIC_SCAN_RESPONSE_PACKET:
+                case BASIC_SCAN_RESPONSE:
                 {
                     cp2179_data_tree = proto_tree_add_subtree(cp2179_proto_tree, tvb, offset, numberofcharacters, ett_cp2179_data, NULL, "CP2179 Data Field");
 
@@ -639,7 +678,7 @@ dissect_bs_response_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, i
                         case ANALOG_16_BIT:
                             do{
                                 analogtestvalue = tvb_get_letohis(tvb, offset);
-                                proto_tree_add_uint_format(cp2179_data_tree, hf_cp2179_analog_16bit, tvb, offset, 2, analog16_num,
+                                proto_tree_add_int_format(cp2179_data_tree, hf_cp2179_analog_16bit, tvb, offset, 2, analog16_num,
                                                            "Analog (16 bit) %u : %i", analog16_num, analogtestvalue);
                                 analog16_num += 1;
                                 offset += 2;
@@ -672,20 +711,54 @@ dissect_bs_response_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, i
                             break;
                     } /* end of command code switch */
 
+                    break;
+
                 } /* end of basic scan response switch */
 
+                case TIMETAG_INFO_RESPONSE:
+                {
+                    proto_tree_add_item(cp2179_proto_tree, hf_cp2179_timetag_moredata, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(cp2179_proto_tree, hf_cp2179_timetag_numsets, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+
+                    num_records = tvb_get_guint8(tvb, offset) & 0x7F;
+                    recordsize = (numberofcharacters-1) / num_records;
+                    num_values = (recordsize-6) / 2;      /* Determine how many 16-bit analog values are present in each event record */
+
+                    offset += 1;
+
+                    for (x = 0; x < num_records; x++)
+                    {
+                        cp2179_event_tree = proto_tree_add_subtree_format(cp2179_proto_tree, tvb, offset, recordsize, ett_cp2179_event, NULL, "Event Record # %d", x+1);
+                        proto_tree_add_item(cp2179_event_tree, hf_cp2179_timetag_event_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                        proto_tree_add_item(cp2179_event_tree, hf_cp2179_timetag_event_date_hundreds, tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
+                        proto_tree_add_item(cp2179_event_tree, hf_cp2179_timetag_event_date_tens, tvb, offset+2, 1, ENC_LITTLE_ENDIAN);
+                        proto_tree_add_item(cp2179_event_tree, hf_cp2179_timetag_event_hour, tvb, offset+3, 1, ENC_LITTLE_ENDIAN);
+                        proto_tree_add_item(cp2179_event_tree, hf_cp2179_timetag_event_minute, tvb, offset+4, 1, ENC_LITTLE_ENDIAN);
+                        proto_tree_add_item(cp2179_event_tree, hf_cp2179_timetag_event_second, tvb, offset+5, 1, ENC_LITTLE_ENDIAN);
+                        offset += 6;
+
+                        for (y = 0; y < num_values; y++)
+                        {
+                            analogtestvalue = tvb_get_letohis(tvb, offset);
+                            proto_tree_add_int_format(cp2179_event_tree, hf_cp2179_analog_16bit, tvb, offset, 2, analogtestvalue,
+                                                       "Analog Value (16 bit) %u : %d",  y+1, analogtestvalue);
+                            offset += 2;
+                        }
+                    }
+                    break;
+                }
                 break;
 
-            } /* end of packet type switch */
+            } /* end of message type switch */
 
-            proto_tree_add_item(cp2179_proto_tree, hf_cp2179_crc, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(cp2179_proto_tree, hf_cp2179_crc, tvb, offset, 2, ENC_BIG_ENDIAN);
 
         } /* request found */
 
     } /* conversation data found */
 
     if (!request_found) {
-        proto_item_append_text(bs_response_item, ", No Request found");
+        proto_item_append_text(response_item, ", No Request found");
         return 0;
     }
 
@@ -695,16 +768,16 @@ dissect_bs_response_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, i
 /******************************************************************************************************/
 /* Load Request information into bs request struct */
 /******************************************************************************************************/
-static bs_request_frame* copy_bs_request_frame(tvbuff_t *tvb  )
+static request_frame* copy_request_frame(tvbuff_t *tvb  )
 {
  /* Set up structures needed to add the protocol request and use it for dissecting response packet */
     guint offset = 0;
     guint8 idx=0 ;
-    bs_request_frame *frame;
+    request_frame *frame;
     guint16 num_objects=0;
 
     /* get a new frame and initialize it */
-    frame = wmem_new(wmem_file_scope(), bs_request_frame);
+    frame = wmem_new(wmem_file_scope(), request_frame);
 
     /* update the data within the structure frame */
     frame->address_word = tvb_get_letohs(tvb, offset); offset +=2;
@@ -748,117 +821,137 @@ static bs_request_frame* copy_bs_request_frame(tvbuff_t *tvb  )
 /* Classify the different packet type  */
 /******************************************************************************************************/
 static int
-classify_packet_type(tvbuff_t *tvb)
+classify_message_type(tvbuff_t *tvb)
 {
-    int packet_type = -1;
+    int message_type = -1;
     guint8 function_code;
     guint8 command_code;
     guint16 requestnumberofcharacters = 0;
     guint16 responsenumberofcharacters = 0;
-    guint16 packet_length = 0;
+    guint16 message_length = 0;
 
 
-    packet_length = tvb_reported_length(tvb);
-    /*Get function code*/
+    message_length = tvb_reported_length(tvb);
+
+    /* The response always echos the function code from the request, except when the RTU can't perform the required function.
+       It may set the NOP or RST bit. Bit 0 to bit 5 is the field for function codes. Bit 6 is NOP bit. Bit 7 is RST bit. */
     function_code = tvb_get_guint8(tvb, 2);
-    /*Get command codes */
     command_code = tvb_get_guint8(tvb, 3);
-    /* Get number of characters */
+
+    /* We still don't know what type of message this is, request or response                       */
+    /* Get the 'number of characters' value, for both request frames (offset 4) and response frames (offset 5) */
     requestnumberofcharacters = tvb_get_letohs(tvb, 4);
     responsenumberofcharacters = tvb_get_letohs(tvb, 5);
 
-    /*The response always echos the function code in request, except when the RTU can't perform the required function.
-    It may set the NOP or RST bit. Bit 0 to bit 5 is the field for function codes. Bit 6 is NOP bit. Bit 7 is RST bit. */
-
-    /*Remove NOP and RST bit*/
-    function_code = function_code & 0x3f ;
-
-    /*2179 protocol frames doesn't have data tells you whether it is a request or a response. We will decide what packet type is based on
-    multiple factors, function code, command code, the length of the packet*/
+    /* 2179 protocol messages do not have a flag that tells you whether it is a request or a response.
+       Use various values within the message (function code, command code, message length) to determine this */
     switch (function_code ){
+        /* Basic Scan Operation (Function code 0x00), supported by the RTAC */
         case BASIC_SCAN:
-            /*Basic scan request message, the number of characters is always 0 and length is fixed*/
-            if ( (requestnumberofcharacters == 0) && (packet_length == BASIC_SCAN_REQ_LEN) ) {
-                packet_type = BASIC_SCAN_QUERY_PACKET ; /* supported */
+            /* Basic Scan Request Message */
+            if ( (requestnumberofcharacters == 0) && (message_length == BASIC_SCAN_REQ_LEN) ) {
+                message_type = BASIC_SCAN_REQUEST ;
             }
-            else if ( (responsenumberofcharacters > 0) && (packet_length > BASIC_SCAN_REQ_LEN) ) {
-                packet_type = BASIC_SCAN_RESPONSE_PACKET; /* supported */
+            /* Basic Scan Response Message */
+            else if ( (responsenumberofcharacters > 0) && (message_length > BASIC_SCAN_REQ_LEN) ) {
+                message_type = BASIC_SCAN_RESPONSE;
             }
 
             break;
 
+        /* Supervisory Control (Function code 0x10), supported by the RTAC */
         case SUPERVISORY_CONTROL:
-            /*SBO select request messages always has number of characters equals to 1 and SBO length is fixed*/
-            if ( (requestnumberofcharacters == 1) && (packet_length == SBO_SELECT_REQ_LEN) ) {
-                packet_type = SBO_SELECT_REQUEST; /* supported */
+            /* SBO Select Request */
+            if ( (requestnumberofcharacters == 1) && (message_length == SBO_SELECT_REQ_LEN) ) {
+                message_type = SBO_SELECT_REQUEST;
             }
-            /*SBO select response always has number of characters equals to 1 and SBO length is fixed. */
-            else if ( (responsenumberofcharacters == 1) && (packet_length == SBO_SELECT_REPLY_LEN) ) {
-                packet_type = SBO_SELECT_RESPONSE; /* supported */
+            /* SBO Select Response */
+            else if ( (responsenumberofcharacters == 1) && (message_length == SBO_SELECT_REPLY_LEN) ) {
+                message_type = SBO_SELECT_RESPONSE;
             }
-            /*SBO operate request always has number of characters as 0 */
+            /* SBO Operate Request */
             else if (requestnumberofcharacters == 0) {
-                if ( (packet_length == SBO_OPERATE_REQ_LEN) && (command_code == SBO_OPERATE) ) {
-                    packet_type = SBO_OPERATE_REQUEST; /* supported */
+                if ( (message_length == SBO_OPERATE_REQ_LEN) && (command_code == SBO_OPERATE) ) {
+                    message_type = SBO_OPERATE_REQUEST;
                 }
             }
-            /*SBO operate response always has number of characters as 0 */
+            /* SBO Operate Response */
             else if (responsenumberofcharacters == 0) {
-                if (packet_length == SBO_OPERATE_REPLY_LEN) {
-                    packet_type = SBO_OPERATE_RESPONSE; /* supported */
+                if (message_length == SBO_OPERATE_REPLY_LEN) {
+                    message_type = SBO_OPERATE_RESPONSE;
                 }
             }
 
             break;
 
+        /* Scan for floating point (aka: special calculations) (Function code 0x03), supported by the RTAC */
         case SCAN_FOR_SPECIAL_CALC:
-            /*Scan for special cal has to command code associated with it, requests all special calculation data or a range of it */
+            /* Special Calc Request All */
             if ( (requestnumberofcharacters == 0) && (command_code == SPECIAL_CALC_ALL ) ) {
-                packet_type = SPECIAL_CALC_REQUEST_ALL; /* supported */
+                message_type = SPECIAL_CALC_REQUEST_ALL;
             }
+            /* Special Calc Request Range */
             else if ( (requestnumberofcharacters > 0) && (command_code == SPECIAL_CALC_RANGE ) ) {
-                packet_type = SPECIAL_CALC_REQUEST_RANGE; /* supported */
+                message_type = SPECIAL_CALC_REQUEST_RANGE;
             }
-            /*If a packet has SCAN_FOR_SPECIAL_CAL as function code and it is not a request, then it is a response */
-            else if ( (responsenumberofcharacters > 0) && (packet_length == (responsenumberofcharacters + 9) ) ) {
-                packet_type = SPECIAL_CALC_RESPONSE; /* supported */
+            /* Special Calc Response */
+            else if ( (responsenumberofcharacters > 0) && (message_length == (responsenumberofcharacters + 9) ) ) {
+                message_type = SPECIAL_CALC_RESPONSE;
             }
 
             break;
-        /*Scan Inclusive request always has request number of characters equals to 2 and a fixed command code */
+
+        /* Retrieve Time-tagged information (Function code 0x04), not supported by RTAC */
+        case RETRIEVE_TIME_TAGGED_INFO:
+
+            if (requestnumberofcharacters == 0) {
+                message_type = TIMETAG_INFO_REQUEST;
+            }
+            else {
+                message_type = TIMETAG_INFO_RESPONSE;
+            }
+
+            break;
+
+        /* Scan Inclusive (Function Code 0x01), supported by the RTAC */
         case SCAN_INCLUSIVE:
-            /*If a packet has SCAN Inclusive function code and it is not a request, then it is a SCAN Inclusive response*/
+            /* Scan Inclusive Response */
             if ( (responsenumberofcharacters > 0) ) {
-                packet_type = SCAN_INCLUSIVE_16_ANALOG_RESPONSE; /* supported */
+                message_type = SCAN_INCLUSIVE_16_ANALOG_RESPONSE;
             }
 
+            /* Scan Inclusive Request */
             if( (command_code == ANALOG_16_BIT) && (requestnumberofcharacters == 2) ) {
-                packet_type = SCAN_INCLUSIVE_16_ANALOG_REQUEST; /* supported */
+                message_type = SCAN_INCLUSIVE_16_ANALOG_REQUEST;
             }
 
             break;
 
+        /* RTU Internal Control and Configuration (Function Code 0x20) */
         case RTU_CONFIG:
             if (responsenumberofcharacters == 0) {
-                packet_type = INIT_RTU_RESPONSE;
+                message_type = INIT_RTU_RESPONSE;
             }
             if ( (requestnumberofcharacters == 0) && (command_code == INIT_RTU_CONFIGURATION) ) {
-                packet_type = INIT_RTU_REQUEST;
+                message_type = INIT_RTU_REQUEST;
             }
 
             if (responsenumberofcharacters == 1) {
-                packet_type = RESET_ACC_RESPONSE;
+                message_type = RESET_ACC_RESPONSE;
             }
             if ( (requestnumberofcharacters == 1) && (command_code == RESET_ACCUMULATOR) ) {
-                packet_type = RESET_ACC_REQUEST;
+                message_type = RESET_ACC_REQUEST;
             }
             break;
+        case RST_RESPONSE_CODE:
+            message_type = RST_RESPONSE;
+            break;
         default :
-            packet_type = -99;
+            message_type = -99;
             break;
     }
 
-    return packet_type;
+    return message_type;
 }
 
 
@@ -870,48 +963,49 @@ static int
 dissect_cp2179_pdu(tvbuff_t *cp2179_tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     int offset = 0;
-    gint16 packet_type;
+    gint16 message_type;
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "CP2179");
     col_clear(pinfo->cinfo,COL_INFO);
 
-    packet_type = classify_packet_type(cp2179_tvb);
+    message_type = classify_message_type(cp2179_tvb);
     /* set information for Information column for CP2179 */
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_ext_const(packet_type, &cp2179_packettype_vals_ext, "Unknown Packet Type"));
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_ext_const(message_type, &cp2179_messagetype_vals_ext, "Unknown Message Type"));
 
     if (!pinfo->fd->flags.visited){
-        conversation_t       *conversation = NULL;
-        cp2179_conversation      *bs_conv_data = NULL;
+        conversation_t           *conversation = NULL;
+        cp2179_conversation      *conv_data = NULL;
 
         /* Find a conversation, create a new if no one exists */
         conversation = find_or_create_conversation(pinfo);
-        bs_conv_data = (cp2179_conversation *)conversation_get_proto_data(conversation, proto_cp2179);
+        conv_data = (cp2179_conversation *)conversation_get_proto_data(conversation, proto_cp2179);
 
-        if (bs_conv_data == NULL){
-           bs_conv_data = wmem_new(wmem_file_scope(), cp2179_conversation);
-           bs_conv_data->bs_request_frame_data = wmem_list_new(wmem_file_scope());
-           conversation_add_proto_data(conversation, proto_cp2179, (void *)bs_conv_data);
+        if (conv_data == NULL){
+           conv_data = wmem_new(wmem_file_scope(), cp2179_conversation);
+           conv_data->request_frame_data = wmem_list_new(wmem_file_scope());
+           conversation_add_proto_data(conversation, proto_cp2179, (void *)conv_data);
         }
 
-        p_add_proto_data(wmem_file_scope(), pinfo, proto_cp2179, 0, bs_conv_data);
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_cp2179, 0, conv_data);
 
-        if ((packet_type == BASIC_SCAN_QUERY_PACKET) || (packet_type == SBO_SELECT_REQUEST)
-           ||(packet_type == SPECIAL_CALC_REQUEST_ALL)||(packet_type == SBO_OPERATE_REQUEST)
-           ||(packet_type == SPECIAL_CALC_REQUEST_RANGE)||(packet_type == INIT_RTU_REQUEST)
-           ||(packet_type == RESET_ACC_REQUEST)||(packet_type == SCAN_INCLUSIVE_16_ANALOG_REQUEST)) {
+        if ((message_type == BASIC_SCAN_REQUEST) || (message_type == SBO_SELECT_REQUEST)
+           ||(message_type == SPECIAL_CALC_REQUEST_ALL)||(message_type == SBO_OPERATE_REQUEST)
+           ||(message_type == SPECIAL_CALC_REQUEST_RANGE)||(message_type == INIT_RTU_REQUEST)
+           ||(message_type == RESET_ACC_REQUEST)||(message_type == SCAN_INCLUSIVE_16_ANALOG_REQUEST)) {
 
-            /*fill the bs request frame. It holds the request information.*/
-            bs_request_frame    *frame_ptr = NULL;
-            frame_ptr = copy_bs_request_frame(cp2179_tvb);
+            /*fill the request frame. It holds the request information, to be used later when dissecting the response. */
+            request_frame    *frame_ptr = NULL;
+            frame_ptr = copy_request_frame(cp2179_tvb);
 
             /*also hold the current frame number*/
             frame_ptr->fnum = pinfo->num;
-            wmem_list_prepend(bs_conv_data->bs_request_frame_data, frame_ptr);
+            wmem_list_prepend(conv_data->request_frame_data, frame_ptr);
         }
     } /* !visited */
 
     if (tvb_reported_length_remaining(cp2179_tvb, offset) > 0){
-        switch (packet_type){
-            case BASIC_SCAN_QUERY_PACKET:
+        switch (message_type){
+            case BASIC_SCAN_REQUEST:
+            case TIMETAG_INFO_REQUEST:
             case SBO_SELECT_REQUEST:
             case SBO_OPERATE_REQUEST:
             case SPECIAL_CALC_REQUEST_ALL:
@@ -919,17 +1013,19 @@ dissect_cp2179_pdu(tvbuff_t *cp2179_tvb, packet_info *pinfo, proto_tree *tree, v
             case SCAN_INCLUSIVE_16_ANALOG_REQUEST:
             case RESET_ACC_REQUEST:
             case INIT_RTU_REQUEST:
-                dissect_request_frame(cp2179_tvb, tree, pinfo, offset, packet_type);
+                dissect_request_frame(cp2179_tvb, tree, pinfo, offset, message_type);
                 break;
 
-            case BASIC_SCAN_RESPONSE_PACKET:
+            case BASIC_SCAN_RESPONSE:
+            case TIMETAG_INFO_RESPONSE:
             case SBO_SELECT_RESPONSE:
             case SBO_OPERATE_RESPONSE:
             case SPECIAL_CALC_RESPONSE:
             case SCAN_INCLUSIVE_16_ANALOG_RESPONSE:
             case INIT_RTU_RESPONSE:
             case RESET_ACC_RESPONSE:
-                dissect_bs_response_frame(cp2179_tvb, tree, pinfo, offset, packet_type);
+            case RST_RESPONSE:
+                dissect_response_frame(cp2179_tvb, tree, pinfo, offset, message_type);
                 break;
             default:
                 break;
@@ -1027,8 +1123,16 @@ proto_register_cp2179(void)
             NULL, HFILL }
         },
 
+        { &hf_cp2179_command_code_fc04,
+            { "Command Code (FC 0x04)", "cp2179.commandcode.fc04",
+            FT_UINT8, BASE_HEX,
+            VALS(cp2179_FC04_CommandCodeNames), 0x0,
+            NULL, HFILL }
+        },
+
+
         { &hf_cp2179_command_code_fc20,
-            { "Command Code (FC 0x20)", "cp2179.commandcodeinitrtu",
+            { "Command Code (FC 0x20)", "cp2179.commandcode.fc20",
             FT_UINT8, BASE_HEX,
             VALS(cp2179_FC20_CommandCodeNames), 0x0,
             NULL, HFILL }
@@ -1111,7 +1215,7 @@ proto_register_cp2179(void)
 
       { &hf_cp2179_analog_16bit,
          { "Analog 16-bit", "cp2179.analogdata",
-         FT_UINT16, BASE_DEC,
+         FT_INT16, BASE_DEC,
          0x0, 0x0,
          NULL, HFILL }
         },
@@ -1325,7 +1429,55 @@ proto_register_cp2179(void)
          FT_BOOLEAN, 16,
          NULL, 0x8000,
          NULL, HFILL }
-}
+      },
+      { &hf_cp2179_timetag_moredata,
+         { "Additional Records Available", "cp2179.timetag.moredata",
+         FT_UINT8, BASE_DEC,
+         NULL, 0x80,
+         NULL, HFILL }
+      },
+      { &hf_cp2179_timetag_numsets,
+         { "Number of Sets", "cp2179.timetag.numsets",
+         FT_UINT8, BASE_DEC,
+         NULL, 0x7F,
+         NULL, HFILL }
+      },
+      { &hf_cp2179_timetag_event_type,
+         { "Event Type", "cp2179.timetag.event.type",
+         FT_UINT8, BASE_DEC,
+         NULL, 0x0,
+         NULL, HFILL }
+      },
+      { &hf_cp2179_timetag_event_date_hundreds,
+         { "Julian Date (Hundreds)", "cp2179.timetag.event.date.hundreds",
+         FT_UINT8, BASE_DEC,
+         NULL, 0x0F,
+         NULL, HFILL }
+      },
+      { &hf_cp2179_timetag_event_date_tens,
+         { "Julian Date (Tens)", "cp2179.timetag.event.date.tens",
+         FT_UINT8, BASE_DEC,
+         NULL, 0x0,
+         NULL, HFILL }
+      },
+      { &hf_cp2179_timetag_event_hour,
+         { "Hour", "cp2179.timetag.event.hour",
+         FT_UINT8, BASE_DEC,
+         NULL, 0x0,
+         NULL, HFILL }
+      },
+      { &hf_cp2179_timetag_event_minute,
+         { "Minute", "cp2179.timetag.event.minute",
+         FT_UINT8, BASE_DEC,
+         NULL, 0x0,
+         NULL, HFILL }
+      },
+      { &hf_cp2179_timetag_event_second,
+         { "Second", "cp2179.timetag.event.second",
+         FT_UINT8, BASE_DEC,
+         NULL, 0x0,
+         NULL, HFILL }
+      }
     };
 
     /* Setup protocol subtree array */
@@ -1335,7 +1487,8 @@ proto_register_cp2179(void)
       &ett_cp2179_addr,
       &ett_cp2179_fc,
       &ett_cp2179_data,
-      &ett_cp2179_subdata
+      &ett_cp2179_subdata,
+      &ett_cp2179_event
 
     };
 
