@@ -97,9 +97,9 @@ static int hf_ccwa_mode                                                    = -1;
 static int hf_ccwa_class                                                   = -1;
 static int hf_cfun_fun                                                     = -1;
 static int hf_cfun_rst                                                     = -1;
-static int hf_cgmi_model_id                                                = -1;
+static int hf_cgmi_manufacturer_id                                         = -1;
 static int hf_cgmm_model_id                                                = -1;
-static int hf_cgmr_model_id                                                = -1;
+static int hf_cgmr_revision_id                                             = -1;
 static int hf_indicator[20] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
 
 static expert_field ei_unknown_command                                = EI_INIT;
@@ -654,7 +654,7 @@ static gboolean check_vts(gint role, guint16 type) {
     return FALSE;
 }
 
-static gint
+static gboolean
 dissect_ccwa_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         gint offset, gint role, guint16 type, guint8 *parameter_stream,
         guint parameter_number, gint parameter_length, void **data _U_)
@@ -720,7 +720,7 @@ dissect_ccwa_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return TRUE;
 }
 
-static gint
+static gboolean
 dissect_cfun_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         gint offset, gint role, guint16 type, guint8 *parameter_stream,
         guint parameter_number, gint parameter_length, void **data _U_)
@@ -771,7 +771,7 @@ dissect_cfun_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return TRUE;
 }
 
-static gint
+static gboolean
 dissect_cgmi_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         gint offset, gint role, guint16 type, guint8 *parameter_stream _U_,
         guint parameter_number, gint parameter_length, void **data _U_)
@@ -782,12 +782,12 @@ dissect_cgmi_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
     if (parameter_number > 1) return FALSE;
 
-    proto_tree_add_item(tree, hf_cgmi_model_id, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+    proto_tree_add_item(tree, hf_cgmi_manufacturer_id, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
 
     return TRUE;
 }
 
-static gint
+static gboolean
 dissect_cgmm_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         gint offset, gint role, guint16 type, guint8 *parameter_stream _U_,
         guint parameter_number, gint parameter_length, void **data _U_)
@@ -803,7 +803,7 @@ dissect_cgmm_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     return TRUE;
 }
 
-static gint
+static gboolean
 dissect_cgmr_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         gint offset, gint role, guint16 type, guint8 *parameter_stream _U_,
         guint parameter_number, gint parameter_length, void **data _U_)
@@ -814,12 +814,12 @@ dissect_cgmr_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
     if (parameter_number > 1) return FALSE;
 
-    proto_tree_add_item(tree, hf_cgmr_model_id, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+    proto_tree_add_item(tree, hf_cgmr_revision_id, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
 
     return TRUE;
 }
 
-static gint
+static gboolean
 dissect_chld_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         gint offset, gint role, guint16 type, guint8 *parameter_stream,
         guint parameter_number, gint parameter_length, void **data _U_)
@@ -855,7 +855,7 @@ dissect_chld_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return TRUE;
 }
 
-static gint
+static gboolean
 dissect_ciev_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         gint offset, gint role, guint16 type, guint8 *parameter_stream,
         guint parameter_number, gint parameter_length, void **data)
@@ -886,7 +886,7 @@ dissect_ciev_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return TRUE;
 }
 
-static gint
+static gboolean
 dissect_cimi_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         gint offset, gint role, guint16 type, guint8 *parameter_stream _U_,
         guint parameter_number, gint parameter_length, void **data _U_)
@@ -907,7 +907,7 @@ dissect_cimi_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      return TRUE;
 }
 
-static gint
+static gboolean
 dissect_cind_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         gint offset, gint role, guint16 type, guint8 *parameter_stream _U_,
         guint parameter_number, gint parameter_length, void **data _U_)
@@ -921,7 +921,7 @@ dissect_cind_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     return TRUE;
 }
 
-static gint
+static gboolean
 dissect_clcc_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         gint offset, gint role, guint16 type, guint8 *parameter_stream,
         guint parameter_number, gint parameter_length, void **data _U_)
@@ -978,7 +978,7 @@ dissect_clcc_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return TRUE;
 }
 
-static gint
+static gboolean
 dissect_clip_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         gint offset, gint role, guint16 type, guint8 *parameter_stream,
         guint parameter_number, gint parameter_length, void **data _U_)
@@ -1034,7 +1034,7 @@ dissect_clip_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return TRUE;
 }
 
-static gint
+static gboolean
 dissect_cme_error_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         gint offset, gint role, guint16 type, guint8 *parameter_stream,
         guint parameter_number, gint parameter_length, void **data _U_)
@@ -1065,7 +1065,7 @@ dissect_cme_error_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
     return TRUE;
 }
 
-static gint
+static gboolean
 dissect_cmee_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         gint offset, gint role, guint16 type, guint8 *parameter_stream,
         guint parameter_number, gint parameter_length, void **data _U_)
@@ -1085,7 +1085,7 @@ dissect_cmee_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     return TRUE;
 }
 
-static gint
+static gboolean
 dissect_cmer_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         gint offset, gint role, guint16 type, guint8 *parameter_stream,
         guint parameter_number, gint parameter_length, void **data _U_)
@@ -1132,7 +1132,7 @@ dissect_cmer_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return TRUE;
 }
 
-static gint
+static gboolean
 dissect_cnum_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         gint offset, gint role, guint16 type, guint8 *parameter_stream,
         guint parameter_number, gint parameter_length, void **data _U_)
@@ -1177,7 +1177,7 @@ dissect_cnum_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return TRUE;
 }
 
-static gint
+static gboolean
 dissect_cops_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         gint offset, gint role, guint16 type, guint8 *parameter_stream,
         guint parameter_number, gint parameter_length, void **data _U_)
@@ -1212,7 +1212,7 @@ dissect_cops_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     return TRUE;
 }
 
-static gint
+static gboolean
 dissect_cpin_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         gint offset, gint role, guint16 type, guint8 *parameter_stream,
         guint parameter_number, gint parameter_length, void **data _U_)
@@ -1255,7 +1255,7 @@ dissect_cpin_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     return FALSE;
 }
 
-static gint
+static gboolean
 dissect_cpms_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         gint offset, gint role, guint16 type, guint8 *parameter_stream,
         guint parameter_number, gint parameter_length, void **data _U_)
@@ -1312,7 +1312,7 @@ dissect_cpms_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     }
 }
 
-static gint
+static gboolean
 dissect_cscs_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         gint offset, gint role, guint16 type, guint8 *parameter_stream _U_,
         guint parameter_number, gint parameter_length, void **data _U_)
@@ -1332,7 +1332,7 @@ dissect_cscs_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     return TRUE;
 }
 
-static gint
+static gboolean
 dissect_csim_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         gint offset, gint role, guint16 type, guint8 *parameter_stream,
         guint parameter_number, gint parameter_length, void **data)
@@ -1399,7 +1399,7 @@ dissect_csim_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return TRUE;
 }
 
-static gint
+static gboolean
 dissect_csq_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         gint offset, gint role, guint16 type, guint8 *parameter_stream,
         guint parameter_number, gint parameter_length, void **data _U_)
@@ -1429,7 +1429,7 @@ dissect_csq_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return TRUE;
 }
 
-static gint
+static gboolean
 dissect_vts_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         gint offset, gint role, guint16 type, guint8 *parameter_stream,
         guint parameter_number, gint parameter_length, void **data _U_)
@@ -1455,7 +1455,7 @@ dissect_vts_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return TRUE;
 }
 
-static gint
+static gboolean
 dissect_no_parameter(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_,
         gint offset _U_, gint role _U_, guint16 type _U_, guint8 *parameter_stream _U_,
         guint parameter_number _U_, gint parameter_length _U_, void **data _U_)
@@ -2292,7 +2292,7 @@ proto_register_at_command(void)
            FT_UINT8, BASE_DEC, VALS(cfun_rst_vals), 0,
            NULL, HFILL}
         },
-        { &hf_cgmi_model_id,
+        { &hf_cgmi_manufacturer_id,
            { "Manufacturer Identification",       "at.cgmi.manufacturer_id",
            FT_STRING, BASE_NONE, NULL, 0,
            NULL, HFILL}
@@ -2302,7 +2302,7 @@ proto_register_at_command(void)
            FT_STRING, BASE_NONE, NULL, 0,
            NULL, HFILL}
         },
-        { &hf_cgmr_model_id,
+        { &hf_cgmr_revision_id,
            { "Revision Identification",           "at.cgmr.revision_id",
            FT_STRING, BASE_NONE, NULL, 0,
            NULL, HFILL}
