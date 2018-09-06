@@ -97,7 +97,9 @@ static int hf_ccwa_mode                                                    = -1;
 static int hf_ccwa_class                                                   = -1;
 static int hf_cfun_fun                                                     = -1;
 static int hf_cfun_rst                                                     = -1;
+static int hf_cgmi_model_id                                                = -1;
 static int hf_cgmm_model_id                                                = -1;
+static int hf_cgmr_model_id                                                = -1;
 static int hf_indicator[20] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
 
 static expert_field ei_unknown_command                                = EI_INIT;
@@ -489,7 +491,21 @@ static gboolean check_cfun(gint role, guint16 type) {
     return FALSE;
 }
 
+static gboolean check_cgmi(gint role, guint16 type) {
+    if (role == ROLE_DTE && (type == TYPE_ACTION_SIMPLY || type == TYPE_TEST)) return TRUE;
+    if (role == ROLE_DCE && type == TYPE_RESPONSE) return TRUE;
+
+    return FALSE;
+}
+
 static gboolean check_cgmm(gint role, guint16 type) {
+    if (role == ROLE_DTE && (type == TYPE_ACTION_SIMPLY || type == TYPE_TEST)) return TRUE;
+    if (role == ROLE_DCE && type == TYPE_RESPONSE) return TRUE;
+
+    return FALSE;
+}
+
+static gboolean check_cgmr(gint role, guint16 type) {
     if (role == ROLE_DTE && (type == TYPE_ACTION_SIMPLY || type == TYPE_TEST)) return TRUE;
     if (role == ROLE_DCE && type == TYPE_RESPONSE) return TRUE;
 
@@ -756,6 +772,22 @@ dissect_cfun_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static gint
+dissect_cgmi_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+        gint offset, gint role, guint16 type, guint8 *parameter_stream _U_,
+        guint parameter_number, gint parameter_length, void **data _U_)
+{
+    if (!(role == ROLE_DCE && type == TYPE_RESPONSE)) {
+        return FALSE;
+    }
+
+    if (parameter_number > 1) return FALSE;
+
+    proto_tree_add_item(tree, hf_cgmi_model_id, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+
+    return TRUE;
+}
+
+static gint
 dissect_cgmm_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         gint offset, gint role, guint16 type, guint8 *parameter_stream _U_,
         guint parameter_number, gint parameter_length, void **data _U_)
@@ -767,6 +799,22 @@ dissect_cgmm_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     if (parameter_number > 1) return FALSE;
 
     proto_tree_add_item(tree, hf_cgmm_model_id, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+
+    return TRUE;
+}
+
+static gint
+dissect_cgmr_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+        gint offset, gint role, guint16 type, guint8 *parameter_stream _U_,
+        guint parameter_number, gint parameter_length, void **data _U_)
+{
+    if (!(role == ROLE_DCE && type == TYPE_RESPONSE)) {
+        return FALSE;
+    }
+
+    if (parameter_number > 1) return FALSE;
+
+    proto_tree_add_item(tree, hf_cgmr_model_id, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
 
     return TRUE;
 }
@@ -1422,7 +1470,9 @@ dissect_no_parameter(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree
 static const at_cmd_t at_cmds[] = {
     { "+CCWA",      "Call Waiting Notification",                               check_ccwa, dissect_ccwa_parameter },
     { "+CFUN",      "Set Phone Functionality",                                 check_cfun, dissect_cfun_parameter },
+    { "+CGMI",      "Request manufacturer identification",                     check_cgmi, dissect_cgmi_parameter },
     { "+CGMM",      "Request model identification",                            check_cgmm, dissect_cgmm_parameter },
+    { "+CGMR",      "Request revision identification",                         check_cgmr, dissect_cgmr_parameter },
     { "+CGSN",      "Request Product Serial Number Identification (ESN/IMEI)", check_cgsn, dissect_no_parameter },
     { "+CHLD",      "Call Hold and Multiparty Handling",                       check_chld, dissect_chld_parameter },
     { "+CHUP",      "Call Hang-up",                                            check_chup, dissect_no_parameter   },
@@ -2242,8 +2292,18 @@ proto_register_at_command(void)
            FT_UINT8, BASE_DEC, VALS(cfun_rst_vals), 0,
            NULL, HFILL}
         },
+        { &hf_cgmi_model_id,
+           { "Manufacturer Identification",       "at.cgmi.manufacturer_id",
+           FT_STRING, BASE_NONE, NULL, 0,
+           NULL, HFILL}
+        },
         { &hf_cgmm_model_id,
            { "Model Identification",              "at.cgmm.model_id",
+           FT_STRING, BASE_NONE, NULL, 0,
+           NULL, HFILL}
+        },
+        { &hf_cgmr_model_id,
+           { "Revision Identification",           "at.cgmr.revision_id",
            FT_STRING, BASE_NONE, NULL, 0,
            NULL, HFILL}
         },
