@@ -1623,20 +1623,11 @@ dissect_per_enumerated(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tr
 		offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_per_enum_index, 0, root_num - 1, &enum_index, FALSE);
 		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
 	} else {
-		/* 13.3  */
-		if (ext_num == 1) {
-			/* 10.5.4	If "range" has the value 1,
-			 * then the result of the encoding shall be
-			 * an empty bit-field (no bits).
-			 */
-			enum_index = 0;
-		} else {
-			/* 13.3 ".. and the value shall be added to the field-list as a
-			 * normally small non-negative whole number whose value is the
-			 * enumeration index of the additional enumeration and with "lb" set to 0.."
-			 */
-			offset = dissect_per_normally_small_nonnegative_whole_number(tvb, offset, actx, tree, hf_per_enum_extension_index, &enum_index);
-		}
+		/* 13.3 ".. and the value shall be added to the field-list as a
+		 * normally small non-negative whole number whose value is the
+		 * enumeration index of the additional enumeration and with "lb" set to 0.."
+		 */
+		offset = dissect_per_normally_small_nonnegative_whole_number(tvb, offset, actx, tree, hf_per_enum_extension_index, &enum_index);
 		enum_index += root_num;
 	}
 	val = (value_map && (enum_index<(root_num+ext_num))) ? value_map[enum_index] : enum_index;
