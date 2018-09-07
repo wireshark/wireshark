@@ -4380,7 +4380,10 @@ void proto_register_radiotap(void)
 		&ett_radiotap_he_mu_info,
 		&ett_radiotap_he_mu_info_flags_1,
 		&ett_radiotap_he_mu_info_flags_2,
-		&ett_radiotap_0_length_psdu
+		&ett_radiotap_0_length_psdu,
+		&ett_radiotap_l_sig,
+		&ett_radiotap_l_sig_data_1,
+		&ett_radiotap_l_sig_data_2
 	};
 	static ei_register_info ei[] = {
 		{ &ei_radiotap_invalid_header_length, { "radiotap.length.invalid", PI_MALFORMED, PI_ERROR, "The radiotap header length is less than 8 bytes", EXPFILL }},

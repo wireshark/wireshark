@@ -1822,6 +1822,7 @@ proto_register_bitcoin(void)
     &ett_addr_list,
     &ett_inv_list,
     &ett_getdata_list,
+    &ett_notfound_list,
     &ett_getblocks_list,
     &ett_getheaders_list,
     &ett_tx_in_list,

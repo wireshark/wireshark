@@ -515,6 +515,7 @@ void proto_register_ngap(void) {
     &ett_ngap_NGRANTraceID,
     &ett_ngap_InterfacesToTrace,
     &ett_ngap_SourceToTarget_TransparentContainer,
+    &ett_ngap_TargetToSource_TransparentContainer,
     &ett_ngap_RRCContainer,
     &ett_ngap_RATRestrictionInformation,
     &ett_ngap_NrencryptionAlgorithms,

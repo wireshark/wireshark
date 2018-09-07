@@ -34658,6 +34658,7 @@ proto_register_ieee80211(void)
     &ett_osen_rsn_cap_tree,
     &ett_osen_pmkid_list,
     &ett_osen_pmkid_tree,
+    &ett_osen_group_management_cipher_suite,
 
     &ett_hs20_cc_proto_port_tuple,
 
@@ -34671,6 +34672,8 @@ proto_register_ieee80211(void)
 
     &ett_qos_map_set_exception,
     &ett_qos_map_set_range,
+
+    &ett_wnm_notif_subelt,
 
     /* 802.11ad trees */
     &ett_dynamic_alloc_tree,

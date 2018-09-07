@@ -13951,6 +13951,7 @@ void proto_register_ngap(void) {
     &ett_ngap_NGRANTraceID,
     &ett_ngap_InterfacesToTrace,
     &ett_ngap_SourceToTarget_TransparentContainer,
+    &ett_ngap_TargetToSource_TransparentContainer,
     &ett_ngap_RRCContainer,
     &ett_ngap_RATRestrictionInformation,
     &ett_ngap_NrencryptionAlgorithms,
@@ -14295,7 +14296,7 @@ void proto_register_ngap(void) {
     &ett_ngap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-ngap-ettarr.c ---*/
-#line 525 "./asn1/ngap/packet-ngap-template.c"
+#line 526 "./asn1/ngap/packet-ngap-template.c"
   };
 
   static ei_register_info ei[] = {
