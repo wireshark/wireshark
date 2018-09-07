@@ -60,7 +60,7 @@ EXTRA_DIST = \
 	lex.py						\
 	list_protos_in_cap.sh				\
 	make-dissector-reg.py				\
-	make-manuf					\
+	make-manuf.py					\
 	make-sminmpec.pl				\
 	make-services.pl				\
 	make-services.py				\
