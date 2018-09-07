@@ -56,7 +56,7 @@ rtpstreams_stat_draw_cb(rtpstream_tapinfo_t *tapinfo _U_)
     char *savelocale;
 
     printf("========================= RTP Streams ========================\n");
-    printf("%15s %5s %15s %5s %10s %16s %5s %12s %15s %15s %15s %s\n","Src IP addr", "Port",  "Dest IP addr", "Port", "SSRC", "Payload", "Pkts", "Lost", "Max Delta(ms)", "Max Jitter(ms)", "Mean Jitter(ms)", "Problems?");
+    printf("%13s %13s %15s %5s %15s %5s %10s %16s %5s %12s %15s %15s %15s %s\n", "Start time", "End time", "Src IP addr", "Port",  "Dest IP addr", "Port", "SSRC", "Payload", "Pkts", "Lost", "Max Delta(ms)", "Max Jitter(ms)", "Mean Jitter(ms)", "Problems?");
 
     /* save the current locale */
     savelocale = g_strdup(setlocale(LC_NUMERIC, NULL));
@@ -72,7 +72,9 @@ rtpstreams_stat_draw_cb(rtpstream_tapinfo_t *tapinfo _U_)
         strinfo = (rtpstream_info_t*)(list->data);
         rtpstream_info_calculate(strinfo, &calc);
 
-        printf("%15s %5u %15s %5u 0x%08X %16s %5u %5d (%.1f%%) %15.2f %15.2f %15.2f %s\n",
+        printf("%13.6f %13.6f %15s %5u %15s %5u 0x%08X %16s %5u %5d (%.1f%%) %15.2f %15.2f %15.2f %s\n",
+            nstime_to_sec(&(strinfo->start_rel_time)),
+            nstime_to_sec(&(strinfo->stop_rel_time)),
             calc.src_addr_str,
             calc.src_port,
             calc.dst_addr_str,
