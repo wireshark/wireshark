@@ -1076,8 +1076,7 @@ de_nas_5gs_mm_nssai(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     curr_offset = offset;
 
     while ((curr_offset - offset) < len) {
-
-        sub_tree = proto_tree_add_subtree_format(tree, tvb, curr_offset, len, ett_nas_5gs_mm_nssai, &item, "S-NSSAI %u", i);
+        sub_tree = proto_tree_add_subtree_format(tree, tvb, curr_offset, 2, ett_nas_5gs_mm_nssai, &item, "S-NSSAI %u", i);
 
         proto_tree_add_item_ret_uint(sub_tree, hf_nas_5gs_mm_length, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &length);
         curr_offset++;
