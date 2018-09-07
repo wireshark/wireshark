@@ -154,6 +154,8 @@ def main():
         ieee_csv = csv.reader(ieee_fd)
         #Registry,Assignment,Organization Name,Organization Address
         #IAB,0050C2DD6,Transas Marine Limited,Datavagen 37 Askim Vastra Gotaland SE 436 32
+        # Pop the title row.
+        next(ieee_csv)
         for ieee_row in ieee_csv:
             oui = prefix_to_oui(ieee_row[1].upper())
             if sys.version_info[0] >= 3:
