@@ -100,6 +100,9 @@ static int hf_cfun_rst                                                     = -1;
 static int hf_cgmi_manufacturer_id                                         = -1;
 static int hf_cgmm_model_id                                                = -1;
 static int hf_cgmr_revision_id                                             = -1;
+static int hf_gmi_manufacturer_id                                          = -1;
+static int hf_gmm_model_id                                                 = -1;
+static int hf_gmr_revision_id                                              = -1;
 static int hf_indicator[20] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
 
 static expert_field ei_unknown_command                                = EI_INIT;
@@ -636,6 +639,26 @@ static gboolean check_csim(gint role, guint16 type) {
 
 static gboolean check_csq(gint role, guint16 type) {
     if (role == ROLE_DTE && (type == TYPE_ACTION || type == TYPE_TEST)) return TRUE;
+    if (role == ROLE_DCE && type == TYPE_RESPONSE) return TRUE;
+
+    return FALSE;
+}
+static gboolean check_gmi(gint role, guint16 type) {
+    if (role == ROLE_DTE && (type == TYPE_ACTION_SIMPLY || type == TYPE_TEST)) return TRUE;
+    if (role == ROLE_DCE && type == TYPE_RESPONSE) return TRUE;
+
+    return FALSE;
+}
+
+static gboolean check_gmm(gint role, guint16 type) {
+    if (role == ROLE_DTE && (type == TYPE_ACTION_SIMPLY || type == TYPE_TEST)) return TRUE;
+    if (role == ROLE_DCE && type == TYPE_RESPONSE) return TRUE;
+
+    return FALSE;
+}
+
+static gboolean check_gmr(gint role, guint16 type) {
+    if (role == ROLE_DTE && (type == TYPE_ACTION_SIMPLY || type == TYPE_TEST)) return TRUE;
     if (role == ROLE_DCE && type == TYPE_RESPONSE) return TRUE;
 
     return FALSE;
@@ -1430,6 +1453,54 @@ dissect_csq_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static gboolean
+dissect_gmi_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+        gint offset, gint role, guint16 type, guint8 *parameter_stream _U_,
+        guint parameter_number, gint parameter_length, void **data _U_)
+{
+    if (!(role == ROLE_DCE && type == TYPE_RESPONSE)) {
+        return FALSE;
+    }
+
+    if (parameter_number > 1) return FALSE;
+
+    proto_tree_add_item(tree, hf_gmi_manufacturer_id, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+
+    return TRUE;
+}
+
+static gboolean
+dissect_gmm_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+        gint offset, gint role, guint16 type, guint8 *parameter_stream _U_,
+        guint parameter_number, gint parameter_length, void **data _U_)
+{
+    if (!(role == ROLE_DCE && type == TYPE_RESPONSE)) {
+        return FALSE;
+    }
+
+    if (parameter_number > 1) return FALSE;
+
+    proto_tree_add_item(tree, hf_gmm_model_id, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+
+    return TRUE;
+}
+
+static gboolean
+dissect_gmr_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+        gint offset, gint role, guint16 type, guint8 *parameter_stream _U_,
+        guint parameter_number, gint parameter_length, void **data _U_)
+{
+    if (!(role == ROLE_DCE && type == TYPE_RESPONSE)) {
+        return FALSE;
+    }
+
+    if (parameter_number > 1) return FALSE;
+
+    proto_tree_add_item(tree, hf_gmr_revision_id, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+
+    return TRUE;
+}
+
+static gboolean
 dissect_vts_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         gint offset, gint role, guint16 type, guint8 *parameter_stream,
         guint parameter_number, gint parameter_length, void **data _U_)
@@ -1493,6 +1564,9 @@ static const at_cmd_t at_cmds[] = {
     { "+CSCS",      "Select TE Character Set",                                 check_cscs, dissect_cscs_parameter },
     { "+CSIM",      "Generic SIM access",                                      check_csim, dissect_csim_parameter },
     { "+CSQ",       "Signal Quality",                                          check_csq,  dissect_csq_parameter },
+    { "+GMI",       "Request manufacturer identification",                     check_gmi,  dissect_gmi_parameter },
+    { "+GMM",       "Request model identification",                            check_gmm,  dissect_gmm_parameter },
+    { "+GMR",       "Request revision identification",                         check_gmr,  dissect_gmr_parameter },
     { "+GSN",       "Request Product Serial Number Identification (ESN/IMEI)", check_gsn,  dissect_no_parameter },
     { "+VTS",       "DTMF and tone generation",                                check_vts,  dissect_vts_parameter  },
     { "ERROR",      "ERROR",                                                   check_only_dce_role, dissect_no_parameter },
@@ -2304,6 +2378,21 @@ proto_register_at_command(void)
         },
         { &hf_cgmr_revision_id,
            { "Revision Identification",           "at.cgmr.revision_id",
+           FT_STRING, BASE_NONE, NULL, 0,
+           NULL, HFILL}
+        },
+        { &hf_gmi_manufacturer_id,
+           { "Manufacturer Identification",       "at.gmi.manufacturer_id",
+           FT_STRING, BASE_NONE, NULL, 0,
+           NULL, HFILL}
+        },
+        { &hf_gmm_model_id,
+           { "Model Identification",              "at.gmm.model_id",
+           FT_STRING, BASE_NONE, NULL, 0,
+           NULL, HFILL}
+        },
+        { &hf_gmr_revision_id,
+           { "Revision Identification",           "at.gmr.revision_id",
            FT_STRING, BASE_NONE, NULL, 0,
            NULL, HFILL}
         },
