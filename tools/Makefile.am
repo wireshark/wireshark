@@ -62,7 +62,7 @@ EXTRA_DIST = \
 	list_protos_in_cap.sh				\
 	macos-setup.sh					\
 	macos-setup-brew.sh				\
-	make-manuf					\
+	make-manuf.py					\
 	make-plugin-reg.py				\
 	make-regs.py					\
 	make-sminmpec.pl				\
