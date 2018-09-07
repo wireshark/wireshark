@@ -191,7 +191,7 @@ systemd_journal_read_export_entry(FILE_T fh, wtap_rec *rec, Buffer *buf, int *er
             if (!wtap_read_bytes(fh, entry_buff + fld_end, (unsigned) data_len + 1, err, err_info)) {
                 return FALSE;
             }
-            fld_end += data_len + 1;
+            fld_end += (size_t) data_len + 1;
         }
         if (MAX_EXPORT_ENTRY_LENGTH < fld_end + 2) { // \n\0
             break;
