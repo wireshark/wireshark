@@ -1,4 +1,4 @@
-/* packet-systemd-journal-export.c
+/* packet-systemd-journal.c
  * Routines for systemd journal export (application/vnd.fdo.journal) dissection
  * Copyright 2018, Gerald Combs <gerald@wireshark.org>
  *
@@ -16,6 +16,7 @@
  * Registered MIME type: application/vnd.fdo.journal
  *
  * To do:
+ * - Rename systemd_journal to sdjournal? It's easier to type.
  * - Add an extcap module.
  * - Add errno strings.
  * - Pretty-print _CAP_EFFECTIVE
@@ -136,6 +137,9 @@ static int hf_sj_userspace_usec = -1;
 static int hf_sj_session_id = -1;
 static int hf_sj_user_id = -1;
 static int hf_sj_leader = -1;
+static int hf_sj_job_type = -1;
+static int hf_sj_job_result = -1;
+static int hf_sj_user_invocation_id = -1;
 
 // Metadata.
 static int hf_sj_binary_data_len = -1;
@@ -261,6 +265,9 @@ static void init_jf_to_hf_map(void) {
         { hf_sj_session_id, "SESSION_ID" },
         { hf_sj_user_id, "USER_ID" },
         { hf_sj_leader, "LEADER" },
+        { hf_sj_job_type, "JOB_TYPE" },
+        { hf_sj_job_result, "JOB_RESULT" },
+        { hf_sj_user_invocation_id, "USER_INVOCATION_ID" },
         { 0, NULL }
     };
     jf_to_hf = (journal_field_hf_map*) g_memdup(jhmap, sizeof(jhmap));
@@ -746,6 +753,18 @@ proto_register_systemd_journal(void)
         { &hf_sj_leader,
           { "Leader", "systemd_journal.leader",
             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+        },
+        { &hf_sj_job_type,
+          { "Job type", "systemd_journal.job_type",
+            FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
+        },
+        { &hf_sj_job_result,
+          { "Job result", "systemd_journal.job_result",
+            FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
+        },
+        { &hf_sj_user_invocation_id,
+          { "User invocation ID", "systemd_journal.user_invocation_id",
+            FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
 
         { &hf_sj_binary_data_len,
