@@ -8016,6 +8016,7 @@ proto_register_lustre(void)
         &ett_lustre_seq_range,
         &ett_lustre_mdt_ioepoch,
         &ett_lustre_capa,
+        &ett_lustre_idx_info,
         &ett_lustre_eadata,
         &ett_lustre_close_data,
         &ett_lustre_acl,
