@@ -1094,6 +1094,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-gsm_bsslap.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-gsm_bssmap_le.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-gsm_cbch.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-gsm_cbsp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-gsm_gsup.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-gsm_ipa.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-gsm_osmux.c
