@@ -50,6 +50,15 @@ static int hf_cmer_bfr                                                     = -1;
 static int hf_cmee                                                         = -1;
 static int hf_cme_error                                                    = -1;
 static int hf_cme_error_verbose                                            = -1;
+static int hf_cmux_k                                                       = -1;
+static int hf_cmux_n1                                                      = -1;
+static int hf_cmux_n2                                                      = -1;
+static int hf_cmux_port_speed                                              = -1;
+static int hf_cmux_subset                                                  = -1;
+static int hf_cmux_t1                                                      = -1;
+static int hf_cmux_t2                                                      = -1;
+static int hf_cmux_t3                                                      = -1;
+static int hf_cmux_transparency                                            = -1;
 static int hf_cnum_speed                                                   = -1;
 static int hf_cnum_service                                                 = -1;
 static int hf_cnum_itc                                                     = -1;
@@ -235,6 +244,29 @@ static const value_string cmee_vals[] = {
     { 0,   "Disabled" },
     { 1,   "Enabled" },
     { 2,   "Verbose" },
+    { 0, NULL }
+};
+
+static const value_string cmux_port_speed_vals[] = {
+    { 1,   "9,600 bit/s" },
+    { 2,   "19,200 bit/s" },
+    { 3,   "38,400 bit/s" },
+    { 4,   "57,600 bit/s" },
+    { 5,   "115,200 bit/s" },
+    { 6,   "230,400 bit/s" },
+    { 0, NULL }
+};
+
+static const value_string cmux_subset_vals[] = {
+    { 0,   "UIH frames used only" },
+    { 1,   "UI frames used only" },
+    { 2,   "I frames used only" },
+    { 0, NULL }
+};
+
+static const value_string cmux_transparency_vals[] = {
+    { 0,   "Basic option" },
+    { 1,   "Advanced option" },
     { 0, NULL }
 };
 
@@ -589,6 +621,13 @@ static gboolean check_cmee(gint role, guint16 type) {
 }
 
 static gboolean check_cmer(gint role, guint16 type) {
+    if (role == ROLE_DTE && (type == TYPE_ACTION || type == TYPE_READ || type == TYPE_TEST)) return TRUE;
+    if (role == ROLE_DCE && type == TYPE_RESPONSE) return TRUE;
+
+    return FALSE;
+}
+
+static gboolean check_cmux(gint role, guint16 type) {
     if (role == ROLE_DTE && (type == TYPE_ACTION || type == TYPE_READ || type == TYPE_TEST)) return TRUE;
     if (role == ROLE_DCE && type == TYPE_RESPONSE) return TRUE;
 
@@ -1156,6 +1195,59 @@ dissect_cmer_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static gboolean
+dissect_cmux_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+        gint offset, gint role, guint16 type, guint8 *parameter_stream,
+        guint parameter_number, gint parameter_length, void **data _U_)
+{
+    guint32      value = 0;
+    if (!((role == ROLE_DTE && type == TYPE_ACTION) ||
+          (role == ROLE_DCE && type == TYPE_RESPONSE))) {
+        return FALSE;
+    }
+
+    if (parameter_number > 8) return FALSE;
+
+    /* Parameters are the same for both ACTION and RESPONSE */
+    if (parameter_length != 0) {
+        value = get_uint_parameter(parameter_stream, parameter_length);
+    }
+    switch (parameter_number) {
+    case 0:
+        proto_tree_add_uint(tree, hf_cmux_transparency, tvb, offset, parameter_length, value);
+        break;
+    case 1:
+        /* In the RESPONSE, the subset parameter might be missing */
+        if (type == TYPE_ACTION || parameter_length != 0) {
+            proto_tree_add_uint(tree, hf_cmux_subset, tvb, offset, parameter_length, value);
+        }
+        break;
+    case 2:
+        proto_tree_add_item(tree, hf_cmux_port_speed, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+        break;
+    case 3:
+        proto_tree_add_uint(tree, hf_cmux_n1, tvb, offset, parameter_length, value);
+        break;
+    case 4:
+        proto_tree_add_uint(tree, hf_cmux_t1, tvb, offset, parameter_length, value);
+        break;
+    case 5:
+        proto_tree_add_uint(tree, hf_cmux_n2, tvb, offset, parameter_length, value);
+        break;
+    case 6:
+        proto_tree_add_uint(tree, hf_cmux_t2, tvb, offset, parameter_length, value);
+        break;
+    case 7:
+        proto_tree_add_uint(tree, hf_cmux_t3, tvb, offset, parameter_length, value);
+        break;
+    case 8:
+        proto_tree_add_uint(tree, hf_cmux_k, tvb, offset, parameter_length, value);
+        break;
+    }
+
+    return TRUE;
+}
+
+static gboolean
 dissect_cnum_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         gint offset, gint role, guint16 type, guint8 *parameter_stream,
         guint parameter_number, gint parameter_length, void **data _U_)
@@ -1557,6 +1649,7 @@ static const at_cmd_t at_cmds[] = {
     { "+CME ERROR", "Mobile Termination Error Result Code",                    check_cme,  dissect_cme_error_parameter },
     { "+CMEE",      "Mobile Equipment Error",                                  check_cmee, dissect_cmee_parameter },
     { "+CMER",      "Event Reporting Activation/Deactivation",                 check_cmer, dissect_cmer_parameter },
+    { "+CMUX",      "Multiplexing mode",                                       check_cmux, dissect_cmux_parameter },
     { "+CNUM",      "Subscriber Number Information",                           check_cnum, dissect_cnum_parameter },
     { "+COPS",      "Reading Network Operator",                                check_cops, dissect_cops_parameter },
     { "+CPIN",      "Enter SIM PIN",                                           check_cpin, dissect_cpin_parameter },
@@ -2094,6 +2187,58 @@ proto_register_at_command(void)
            { "Mode",                             "at.cmee",
            FT_UINT8, BASE_DEC, VALS(cmee_vals), 0,
            NULL, HFILL}
+        },
+        { &hf_cmux_k,
+           { "Window Size",                      "at.k",
+           FT_UINT8, BASE_DEC, NULL, 0,
+           "Window Size for Advanced option with Error-Recovery Mode",
+           HFILL}
+        },
+        { &hf_cmux_n1,
+           { "Maximum Frame Size",               "at.n1",
+           FT_UINT16, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        { &hf_cmux_n2,
+           { "Maximum Number of Re-transmissions",  "at.n2",
+           FT_UINT8, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        { &hf_cmux_port_speed,
+           { "Transmission Rate",                "at.port_speed",
+           FT_UINT8, BASE_DEC, VALS(cmux_port_speed_vals), 0,
+           NULL,
+           HFILL}
+        },
+        { &hf_cmux_subset,
+           { "Subset",                           "at.subset",
+           FT_UINT8, BASE_DEC, VALS(cmux_subset_vals), 0,
+           NULL,
+           HFILL}
+        },
+        { &hf_cmux_t1,
+           { "Acknowledgement Timer",            "at.t1",
+           FT_UINT8, BASE_DEC, NULL, 0,
+           "Acknowledgement timer in units of ten milliseconds",
+           HFILL}
+        },
+        { &hf_cmux_t2,
+           { "Response Timer",                   "at.t2",
+           FT_UINT8, BASE_DEC, NULL, 0,
+           "Response timer for the multiplexer control channel in units of ten milliseconds",
+           HFILL}
+        },
+        { &hf_cmux_t3,
+           { "Wake Up Response Timer",           "at.t3",
+           FT_UINT8, BASE_DEC, NULL, 0,
+           "Wake up response timer in seconds",
+           HFILL}
+        },
+        { &hf_cmux_transparency,
+           { "Transparency Mechanism",           "at.transparency",
+           FT_UINT8, BASE_DEC, VALS(cmux_transparency_vals), 0,
+           NULL,
+           HFILL}
         },
         { &hf_chld_mode,
            { "Mode",                             "at.chld.mode_value",
