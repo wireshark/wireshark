@@ -66,7 +66,7 @@ dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     guint32                   k_adapter_id;
     remote_bdaddr_t          *remote_bdaddr;
     const gchar              *localhost_name;
-    guint8                    localhost_bdaddr[6];
+    guint8                   *localhost_bdaddr;
     const gchar              *localhost_ether_addr;
     gchar                    *localhost_addr_name;
     gint                      localhost_length;
@@ -221,6 +221,7 @@ dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
 
     localhost_bdaddr_entry = (localhost_bdaddr_entry_t *)wmem_tree_lookup32_array_le(bluetooth_data->localhost_bdaddr, key);
+    localhost_bdaddr = (guint8 *) wmem_alloc(pinfo->pool, 6);
     if (localhost_bdaddr_entry && localhost_bdaddr_entry->interface_id == bluetooth_data->interface_id &&
         localhost_bdaddr_entry->adapter_id == bluetooth_data->adapter_id) {
 
