@@ -116,7 +116,7 @@ void proto_reg_handoff_docsis_mgmt(void);
 #define MGT_REG_RSP_MP 45
 #define MGT_EM_REQ 46
 #define MGT_EM_RSP 47
-#define MGT_STATUS_ACK 48
+#define MGT_CM_STATUS_ACK 48
 #define MGT_OCD 49
 #define MGT_DPD 50
 #define MGT_TYPE51UCD 51
@@ -579,6 +579,7 @@ static int proto_docsis_dbcack = -1;
 static int proto_docsis_dpvreq = -1;
 static int proto_docsis_dpvrsp = -1;
 static int proto_docsis_cmstatus = -1;
+static int proto_docsis_cmstatusack = -1;
 static int proto_docsis_cmctrlreq = -1;
 static int proto_docsis_cmctrlrsp = -1;
 static int proto_docsis_regreqmp = -1;
@@ -1213,6 +1214,8 @@ static gint ett_docsis_cmstatus = -1;
 static gint ett_docsis_cmstatus_tlv = -1;
 static gint ett_docsis_cmstatus_tlvtlv = -1;
 
+static gint ett_docsis_cmstatusack = -1;
+
 static gint ett_docsis_cmctrlreq = -1;
 static gint ett_docsis_cmctrlreq_tlv = -1;
 static gint ett_docsis_cmctrlreq_tlvtlv = -1;
@@ -1373,7 +1376,7 @@ static const value_string mgmt_type_vals[] = {
   {MGT_REG_RSP_MP,     "Multipart Registration Response"},
   {MGT_EM_REQ,         "Energy Management Request"},
   {MGT_EM_RSP,         "Energy Management Response"},
-  {MGT_STATUS_ACK,     "Status Report Acknowledge"},
+  {MGT_CM_STATUS_ACK,     "Status Report Acknowledge"},
   {MGT_OCD,            "OFDM Channel Descriptor"},
   {MGT_DPD,            "Downstream Profile Descriptor"},
   {MGT_TYPE51UCD,      "Upstream Channel Descriptor Type 51"},
@@ -5440,13 +5443,63 @@ dissect_cmstatus_tlv (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree)
   } /* while */
 }
 
+static void
+dissect_cmstatus_common (tvbuff_t * tvb, proto_tree * tree)
+{
+  guint8 event_type;
+
+  event_type = tvb_get_guint8 (tvb, 2);
+  switch (event_type)
+  {
+  case SEC_CH_MDD_TIMEOUT:
+    proto_tree_add_item (tree, hf_docsis_cmstatus_e_t_mdd_t, tvb, 2, 1, ENC_BIG_ENDIAN);
+    break;
+
+  case QAM_FEC_LOCK_FAILURE:
+    proto_tree_add_item (tree, hf_docsis_cmstatus_e_t_qfl_f, tvb, 2, 1, ENC_BIG_ENDIAN);
+    break;
+
+  case SEQ_OUT_OF_RANGE:
+    proto_tree_add_item (tree, hf_docsis_cmstatus_e_t_s_o, tvb, 2, 1, ENC_BIG_ENDIAN);
+    break;
+
+  case SEC_CH_MDD_RECOVERY:
+    proto_tree_add_item (tree, hf_docsis_cmstatus_e_t_mdd_r, tvb, 2, 1, ENC_BIG_ENDIAN);
+    break;
+
+  case QAM_FEC_LOCK_RECOVERY:
+    proto_tree_add_item (tree, hf_docsis_cmstatus_e_t_qfl_r, tvb, 2, 1, ENC_BIG_ENDIAN);
+    break;
+
+  case T4_TIMEOUT:
+    proto_tree_add_item (tree, hf_docsis_cmstatus_e_t_t4_t, tvb, 2, 1, ENC_BIG_ENDIAN);
+    break;
+
+  case T3_RETRIES_EXCEEDED:
+    proto_tree_add_item (tree, hf_docsis_cmstatus_e_t_t3_e, tvb, 2, 1, ENC_BIG_ENDIAN);
+    break;
+
+   case SUCCESS_RANGING_AFTER_T3_RETRIES_EXCEEDED:
+    proto_tree_add_item (tree, hf_docsis_cmstatus_e_t_rng_s, tvb, 2, 1, ENC_BIG_ENDIAN);
+    break;
+
+  case CM_ON_BATTERY:
+    proto_tree_add_item (tree, hf_docsis_cmstatus_e_t_cm_b, tvb, 2, 1, ENC_BIG_ENDIAN);
+    break;
+
+  case CM_ON_AC_POWER:
+    proto_tree_add_item (tree, hf_docsis_cmstatus_e_t_cm_a, tvb, 2, 1, ENC_BIG_ENDIAN);
+    break;
+  } /* switch */
+  return;
+}
+
 static int
 dissect_cmstatus (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
   proto_item *it;
   proto_tree *cmstatus_tree;
   guint32 transid;
-  guint8 event_type;
   tvbuff_t* next_tvb;
 
   it = proto_tree_add_item(tree, proto_docsis_cmstatus, tvb, 0, -1, ENC_NA);
@@ -5455,53 +5508,29 @@ dissect_cmstatus (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* 
 
   col_add_fstr (pinfo->cinfo, COL_INFO, "CM-STATUS Report: Transaction ID = %u", transid);
 
-  event_type = tvb_get_guint8 (tvb, 2);
-  switch (event_type)
-  {
-  case SEC_CH_MDD_TIMEOUT:
-    proto_tree_add_item (cmstatus_tree, hf_docsis_cmstatus_e_t_mdd_t, tvb, 2, 1, ENC_BIG_ENDIAN);
-    break;
-
-  case QAM_FEC_LOCK_FAILURE:
-    proto_tree_add_item (cmstatus_tree, hf_docsis_cmstatus_e_t_qfl_f, tvb, 2, 1, ENC_BIG_ENDIAN);
-    break;
-
-  case SEQ_OUT_OF_RANGE:
-    proto_tree_add_item (cmstatus_tree, hf_docsis_cmstatus_e_t_s_o, tvb, 2, 1, ENC_BIG_ENDIAN);
-    break;
-
-  case SEC_CH_MDD_RECOVERY:
-    proto_tree_add_item (cmstatus_tree, hf_docsis_cmstatus_e_t_mdd_r, tvb, 2, 1, ENC_BIG_ENDIAN);
-    break;
-
-  case QAM_FEC_LOCK_RECOVERY:
-    proto_tree_add_item (cmstatus_tree, hf_docsis_cmstatus_e_t_qfl_r, tvb, 2, 1, ENC_BIG_ENDIAN);
-    break;
-
-  case T4_TIMEOUT:
-    proto_tree_add_item (cmstatus_tree, hf_docsis_cmstatus_e_t_t4_t, tvb, 2, 1, ENC_BIG_ENDIAN);
-    break;
-
-  case T3_RETRIES_EXCEEDED:
-    proto_tree_add_item (cmstatus_tree, hf_docsis_cmstatus_e_t_t3_e, tvb, 2, 1, ENC_BIG_ENDIAN);
-    break;
-
-   case SUCCESS_RANGING_AFTER_T3_RETRIES_EXCEEDED:
-    proto_tree_add_item (cmstatus_tree, hf_docsis_cmstatus_e_t_rng_s, tvb, 2, 1, ENC_BIG_ENDIAN);
-    break;
-
-  case CM_ON_BATTERY:
-    proto_tree_add_item (cmstatus_tree, hf_docsis_cmstatus_e_t_cm_b, tvb, 2, 1, ENC_BIG_ENDIAN);
-    break;
-
-  case CM_ON_AC_POWER:
-    proto_tree_add_item (cmstatus_tree, hf_docsis_cmstatus_e_t_cm_a, tvb, 2, 1, ENC_BIG_ENDIAN);
-    break;
-  } /* switch */
+  dissect_cmstatus_common (tvb, cmstatus_tree);
 
   /* Call Dissector TLV's */
   next_tvb = tvb_new_subset_remaining(tvb, 3);
   dissect_cmstatus_tlv(next_tvb, pinfo, cmstatus_tree);
+  return tvb_captured_length(tvb);
+}
+
+static int
+dissect_cmstatusack (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
+{
+  proto_item *it;
+  proto_tree *cmstatus_tree;
+  guint32 transid;
+
+  it = proto_tree_add_item(tree, proto_docsis_cmstatusack, tvb, 0, -1, ENC_NA);
+  cmstatus_tree = proto_item_add_subtree (it, ett_docsis_cmstatusack);
+  proto_tree_add_item_ret_uint (cmstatus_tree, hf_docsis_mgt_tranid, tvb, 0, 2, ENC_BIG_ENDIAN, &transid);
+
+  col_add_fstr (pinfo->cinfo, COL_INFO, "CM-STATUS Report Acknowledge: Transaction ID = %u", transid);
+
+  dissect_cmstatus_common (tvb, cmstatus_tree);
+
   return tvb_captured_length(tvb);
 }
 
@@ -9269,6 +9298,7 @@ proto_register_docsis_mgmt (void)
     &ett_docsis_cmstatus,
     &ett_docsis_cmstatus_tlv,
     &ett_docsis_cmstatus_tlvtlv,
+    &ett_docsis_cmstatusack,
     &ett_docsis_cmctrlreq,
     &ett_docsis_cmctrlreq_tlv,
     &ett_docsis_cmctrlreq_tlvtlv,
@@ -9359,6 +9389,7 @@ proto_register_docsis_mgmt (void)
   proto_docsis_dpvreq = proto_register_protocol_in_name_only("DOCSIS Path Verify Request", "DOCSIS DPV-REQ", "docsis_dpv.req", proto_docsis_mgmt, FT_BYTES);
   proto_docsis_dpvrsp = proto_register_protocol_in_name_only("DOCSIS Path Verify Response", "DOCSIS DPV-RSP", "docsis_dpv.rsp", proto_docsis_mgmt, FT_BYTES);
   proto_docsis_cmstatus = proto_register_protocol_in_name_only("DOCSIS CM-STATUS Report", "DOCSIS CM-STATUS", "docsis_cmstatus", proto_docsis_mgmt, FT_BYTES);
+  proto_docsis_cmstatusack = proto_register_protocol_in_name_only("DOCSIS Status Report Acknowledge", "DOCSIS CM-STATUS-ACK", "docsis_cmstatusack", proto_docsis_mgmt, FT_BYTES);
   proto_docsis_cmctrlreq = proto_register_protocol_in_name_only("DOCSIS CM Control Request", "DOCSIS CM-CTRL-REQ", "docsis_cmctrl.req", proto_docsis_mgmt, FT_BYTES);
   proto_docsis_cmctrlrsp = proto_register_protocol_in_name_only("DOCSIS CM Control Response", "DOCSIS CM-CTRL-RSP", "docsis_cmctrlrsp", proto_docsis_mgmt, FT_BYTES);
   proto_docsis_regreqmp = proto_register_protocol_in_name_only("DOCSIS Registration Request Multipart", "DOCSIS Reg-Req-Mp", "docsis_regreqmp", proto_docsis_mgmt, FT_BYTES);
@@ -9414,6 +9445,7 @@ proto_reg_handoff_docsis_mgmt (void)
   dissector_add_uint ("docsis_mgmt", MGT_DPV_REQ, create_dissector_handle( dissect_dpvreq, proto_docsis_dpvreq ));
   dissector_add_uint ("docsis_mgmt", MGT_DPV_RSP, create_dissector_handle( dissect_dpvrsp, proto_docsis_dpvrsp ));
   dissector_add_uint ("docsis_mgmt", MGT_CM_STATUS, create_dissector_handle( dissect_cmstatus, proto_docsis_cmstatus ));
+  dissector_add_uint ("docsis_mgmt", MGT_CM_STATUS_ACK, create_dissector_handle( dissect_cmstatusack, proto_docsis_cmstatusack ));
   dissector_add_uint ("docsis_mgmt", MGT_CM_CTRL_REQ, create_dissector_handle( dissect_cmctrlreq, proto_docsis_cmctrlreq ));
   dissector_add_uint ("docsis_mgmt", MGT_CM_CTRL_RSP, create_dissector_handle( dissect_cmctrlrsp, proto_docsis_cmctrlrsp ));
   dissector_add_uint ("docsis_mgmt", MGT_REG_REQ_MP, create_dissector_handle( dissect_regreqmp, proto_docsis_regreqmp ));
