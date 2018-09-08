@@ -83,6 +83,10 @@ void column_prefs_remove_link(GList* col_link);
  */
 void column_prefs_remove_nth(gint col);
 
+/** Save the UAT and complete migration of old preferences by writing the main
+ * preferences file (if necessary).
+ */
+void save_migrated_uat(const char *uat_name, gboolean *old_pref);
 
 #ifdef __cplusplus
 }

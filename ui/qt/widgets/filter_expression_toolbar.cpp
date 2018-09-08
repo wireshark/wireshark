@@ -14,6 +14,7 @@
 #include <ui/qt/wireshark_application.h>
 
 #include <epan/filter_expressions.h>
+#include <ui/preference_utils.h>
 
 #include <QApplication>
 #include <QFrame>
@@ -114,7 +115,6 @@ void FilterExpressionToolBar::filterExpressionsChanged()
 
 void FilterExpressionToolBar::removeFilter()
 {
-    gchar* err = NULL;
     UatModel * uatModel = new UatModel(this, "Display expressions");
 
     QString label = ((QAction *)sender())->property(dfe_property_label_).toString();
@@ -126,8 +126,7 @@ void FilterExpressionToolBar::removeFilter()
     if ( rowIndex.isValid() ) {
         uatModel->removeRow(rowIndex.row());
 
-        uat_save(uat_get_table_by_name("Display expressions"), &err);
-        g_free(err);
+        save_migrated_uat("Display expressions", &prefs.filter_expressions_old);
         filterExpressionsChanged();
     }
 }
@@ -155,8 +154,6 @@ void FilterExpressionToolBar::onActionMoved(QAction* action, int oldPos, int new
 
 void FilterExpressionToolBar::disableFilter()
 {
-    gchar* err = NULL;
-
     QString label = ((QAction *)sender())->property(dfe_property_label_).toString();
     QString expr = ((QAction *)sender())->property(dfe_property_expression_).toString();
 
@@ -167,8 +164,7 @@ void FilterExpressionToolBar::disableFilter()
     if ( rowIndex.isValid() ) {
         uatModel->setData(rowIndex, QVariant::fromValue(false));
 
-        uat_save(uat_get_table_by_name("Display expressions"), &err);
-        g_free(err);
+        save_migrated_uat("Display expressions", &prefs.filter_expressions_old);
         filterExpressionsChanged();
     }
 }
@@ -189,16 +185,13 @@ void FilterExpressionToolBar::editFilter()
 
 void FilterExpressionToolBar::onFilterDropped(QString description, QString filter)
 {
-    gchar* err = NULL;
     if ( filter.length() == 0 )
         return;
 
     filter_expression_new(qUtf8Printable(description),
             qUtf8Printable(filter), qUtf8Printable(description), TRUE);
 
-    uat_save(uat_get_table_by_name("Display expressions"), &err);
-    g_free(err);
-
+    save_migrated_uat("Display expressions", &prefs.filter_expressions_old);
     filterExpressionsChanged();
 }
 

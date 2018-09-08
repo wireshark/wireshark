@@ -18,6 +18,7 @@
 #include <epan/prefs-int.h>
 #include <epan/packet.h>
 #include <epan/decode_as.h>
+#include <epan/uat-int.h>
 
 #ifdef HAVE_LIBPCAP
 #include "capture_opts.h"
@@ -211,6 +212,23 @@ void
 column_prefs_remove_nth(gint col)
 {
     column_prefs_remove_link(g_list_nth(prefs.col_list, col));
+}
+
+void save_migrated_uat(const char *uat_name, gboolean *old_pref)
+{
+    char *err = NULL;
+
+    if (!uat_save(uat_get_table_by_name(uat_name), &err)) {
+        g_warning("Unable to save %s: %s", uat_name, err);
+        g_free(err);
+        return;
+    }
+
+    // Ensure that any old preferences are removed after successful migration.
+    if (*old_pref) {
+        *old_pref = FALSE;
+        prefs_main_write();
+    }
 }
 
 /*
