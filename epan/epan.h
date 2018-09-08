@@ -100,7 +100,7 @@ Ref2 for further edits - delete when done
  * Returns TRUE on success, FALSE on failure.
  */
 WS_DLL_PUBLIC
-gboolean epan_init(register_cb cb, void *client_data);
+gboolean epan_init(register_cb cb, void *client_data, gboolean load_plugins);
 
 /**
  * Load all settings, from the current profile, that affect epan.

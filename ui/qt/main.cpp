@@ -618,7 +618,7 @@ int main(int argc, char *qt_argv[])
        "-G" flag, as the "-G" flag dumps information registered by the
        dissectors, and we must do it before we read the preferences, in
        case any dissectors register preferences. */
-    if (!epan_init(splash_update, NULL)) {
+    if (!epan_init(splash_update, NULL, TRUE)) {
         SimpleDialog::displayQueuedMessages(main_w);
         ret_val = INIT_FAILED;
         goto clean_exit;

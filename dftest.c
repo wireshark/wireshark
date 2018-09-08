@@ -77,7 +77,7 @@ main(int argc, char **argv)
 	   "-g" flag, as the "-g" flag dumps a list of fields registered
 	   by the dissectors, and we must do it before we read the preferences,
 	   in case any dissectors register preferences. */
-	if (!epan_init(NULL, NULL))
+	if (!epan_init(NULL, NULL, FALSE))
 		return 2;
 
 	/* set the c-language locale to the native environment. */

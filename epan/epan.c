@@ -176,7 +176,7 @@ void epan_register_plugin(const epan_plugin *plug)
 #endif
 
 gboolean
-epan_init(register_cb cb, gpointer client_data)
+epan_init(register_cb cb, gpointer client_data, gboolean load_plugins)
 {
 	volatile gboolean status = TRUE;
 
@@ -198,9 +198,11 @@ epan_init(register_cb cb, gpointer client_data)
 
 	except_init();
 
+	if (load_plugins) {
 #ifdef HAVE_PLUGINS
-	libwireshark_plugins = plugins_init(WS_PLUGIN_EPAN);
+		libwireshark_plugins = plugins_init(WS_PLUGIN_EPAN);
 #endif
+	}
 
 	/* initialize libgcrypt (beware, it won't be thread-safe) */
 	gcry_check_version(NULL);
