@@ -213,6 +213,7 @@ void proto_reg_handoff_docsis_mgmt(void);
 #define RNGRSP_RANGING_STATUS 5
 #define RNGRSP_DOWN_FREQ_OVER 6
 #define RNGRSP_UP_CHID_OVER 7
+#define RNGRSP_T4_TIMEOUT_MULTIPLIER 13
 #define RNGRSP_DYNAMIC_RANGE_WINDOW_UPPER_EDGE 14
 #define RNGRSP_TRANSMIT_EQ_ADJUST_OFDMA_CHANNELS 15
 #define RNGRSP_TRANSMIT_EQ_SET_OFDMA_CHANNELS 16
@@ -718,6 +719,7 @@ static int hf_docsis_rngrsp_xmit_eq_adj = -1;
 static int hf_docsis_rngrsp_ranging_status = -1;
 static int hf_docsis_rngrsp_down_freq_over = -1;
 static int hf_docsis_rngrsp_upstream_ch_over = -1;
+static int hf_docsis_rngrsp_rngrsp_t4_timeout_multiplier = -1;
 static int hf_docsis_rngrsp_dynamic_range_window_upper_edge = -1;
 static int hf_docsis_rngrsp_tlv_unknown = -1;
 static int hf_docsis_rngrsp_trans_eq_data = -1;
@@ -1479,6 +1481,7 @@ static const value_string rngrsp_tlv_vals[] = {
   {RNGRSP_RANGING_STATUS,    "Ranging Status"},
   {RNGRSP_DOWN_FREQ_OVER,    "Downstream Frequency Override (Hz)"},
   {RNGRSP_UP_CHID_OVER,      "Upstream Channel ID Override"},
+  {RNGRSP_T4_TIMEOUT_MULTIPLIER, "T4 Timeout Multiplier"},
   {RNGRSP_DYNAMIC_RANGE_WINDOW_UPPER_EDGE, "Dynamic Range Window Upper Edge"},
   {RNGRSP_TRANSMIT_EQ_ADJUST_OFDMA_CHANNELS, "Transmit Equalization Adjust for OFDMA Channels"},
   {RNGRSP_TRANSMIT_EQ_SET_OFDMA_CHANNELS, "Transmit Equalization Set for OFDMA Channels"},
@@ -3218,25 +3221,33 @@ dissect_rngrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
         proto_tree_add_item (rngrsptlv_tree, hf_docsis_rngrsp_upstream_ch_over, tvb, pos, tlvlen, ENC_BIG_ENDIAN);
       }
       break;
-     case RNGRSP_DYNAMIC_RANGE_WINDOW_UPPER_EDGE:
-       if (tlvlen == 1)
-         proto_tree_add_item (rngrsptlv_tree, hf_docsis_rngrsp_dynamic_range_window_upper_edge, tvb, pos, tlvlen, ENC_BIG_ENDIAN);
-       else
-       {
-         expert_add_info_format(pinfo, rngrsptlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", tlvlen);
-       }
-       break;
-     case RNGRSP_TRANSMIT_EQ_ADJUST_OFDMA_CHANNELS:
-       dissect_rngrsp_transmit_equalization_encodings(tvb, rngrsptlv_tree, pos, tlvlen);
-       break;
-     case RNGRSP_TRANSMIT_EQ_SET_OFDMA_CHANNELS:
-       dissect_rngrsp_transmit_equalization_encodings(tvb, rngrsptlv_tree, pos, tlvlen);
-       break;
-     case RNGRSP_COMMANDED_POWER:
-       dissect_rngrsp_commanded_power(tvb, rngrsptlv_tree, pos, tlvlen);
-       break;
+    case RNGRSP_T4_TIMEOUT_MULTIPLIER:
+      if (tlvlen == 1)
+        proto_tree_add_item (rngrsptlv_tree, hf_docsis_rngrsp_rngrsp_t4_timeout_multiplier, tvb, pos, tlvlen, ENC_BIG_ENDIAN);
+      else
+      {
+        expert_add_info_format(pinfo, rngrsptlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", tlvlen);
+      }
+      break;
+    case RNGRSP_DYNAMIC_RANGE_WINDOW_UPPER_EDGE:
+      if (tlvlen == 1)
+        proto_tree_add_item (rngrsptlv_tree, hf_docsis_rngrsp_dynamic_range_window_upper_edge, tvb, pos, tlvlen, ENC_BIG_ENDIAN);
+      else
+      {
+        expert_add_info_format(pinfo, rngrsptlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", tlvlen);
+      }
+      break;
+    case RNGRSP_TRANSMIT_EQ_ADJUST_OFDMA_CHANNELS:
+      dissect_rngrsp_transmit_equalization_encodings(tvb, rngrsptlv_tree, pos, tlvlen);
+      break;
+    case RNGRSP_TRANSMIT_EQ_SET_OFDMA_CHANNELS:
+      dissect_rngrsp_transmit_equalization_encodings(tvb, rngrsptlv_tree, pos, tlvlen);
+      break;
+    case RNGRSP_COMMANDED_POWER:
+      dissect_rngrsp_commanded_power(tvb, rngrsptlv_tree, pos, tlvlen);
+      break;
 
-     default:
+    default:
        proto_tree_add_item (rngrsp_tree, hf_docsis_rngrsp_tlv_unknown, tvb, pos, tlvlen, ENC_NA);
     }                   /* switch(tlvtype) */
     pos += tlvlen;
@@ -7154,6 +7165,11 @@ proto_register_docsis_mgmt (void)
      {"Upstream Channel ID Override", "docsis_rngrsp.chid_override",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       NULL, HFILL}
+     },
+    {&hf_docsis_rngrsp_rngrsp_t4_timeout_multiplier,
+     {"Multiplier of the default T4 Timeout (the valid range is 1-10)", "docsis_rngrsp.t4_timeout_multiplier",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "T4 Timeout Multiplier", HFILL}
      },
     {&hf_docsis_rngrsp_dynamic_range_window_upper_edge,
      {"Dynamic Range Window Upper Edge (in units of 0.25 db below the max allowable setting)", "docsis_rngrsp.dynamic_range_window_upper_edge",
