@@ -2128,7 +2128,8 @@ dissect_epl_pdo(struct epl_convo *convo, proto_tree *epl_tree, tvbuff_t *tvb, pa
 	return offset + payload_len;
 }
 
-static address epl_placeholder_mac;
+static guint8 epl_placeholder_mac_addr[6] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+static address epl_placeholder_mac = ADDRESS_INIT(AT_ETHER, 6, epl_placeholder_mac_addr);
 
 static struct epl_convo *
 epl_get_convo(packet_info *pinfo, int opts)
@@ -6178,8 +6179,6 @@ proto_register_epl(void)
 	epl_profiles_by_device = wmem_map_new(wmem_epan_scope(), g_direct_hash, g_direct_equal);
 	epl_profiles_by_nodeid = wmem_map_new(wmem_epan_scope(), g_direct_hash, g_direct_equal);
 	epl_profiles_by_address = wmem_map_new(wmem_epan_scope(), epl_address_hash, epl_address_equal);
-
-	set_address(&epl_placeholder_mac, AT_ETHER, 6, "\xFF\xFF\xFF\xFF\xFF\xFF");
 
 #ifdef HAVE_LIBXML2
 	epl_xdd_init();
