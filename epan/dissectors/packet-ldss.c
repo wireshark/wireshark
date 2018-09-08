@@ -748,12 +748,11 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 static gboolean
 is_broadcast(address* addr)
 {
-	static address broadcast_addr;
 	static const guint8 broadcast_addr_bytes[6] = {
 		0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
 	};
+	static const address broadcast_addr = ADDRESS_INIT(AT_ETHER, 6, broadcast_addr_bytes);
 
-	set_address(&broadcast_addr, AT_ETHER, 6, broadcast_addr_bytes);
 	return addresses_equal(addr, &broadcast_addr);
 }
 
