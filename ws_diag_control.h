@@ -182,7 +182,7 @@ extern "C" {
       DIAG_OFF(shorten-64-to-32) \
       DIAG_OFF(unreachable-code)
     #define DIAG_ON_FLEX \
-      DIAG_OFF(unreachable-code) \
+      DIAG_ON(unreachable-code) \
       DIAG_ON(shorten-64-to-32) \
       DIAG_ON(sign-compare)
   #else
