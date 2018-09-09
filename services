@@ -5311,6 +5311,7 @@ acd-pm		8793/tcp/udp	# Accedian Performance Measurement
 sunwebadmin	8800/tcp/udp	# Sun Web Server Admin Service
 truecm		8804/tcp/udp
 pfcp		8805/udp	# Destination Port number for PFCP
+hes-clip	8807/udp	# HES-CLIP Interoperability protocol
 ssports-bcast	8808/udp	# STATSports Broadcast Service
 dxspider	8873/tcp/udp	# dxspider linking protocol
 cddbp-alt	8880/tcp/udp	# CDDBP
