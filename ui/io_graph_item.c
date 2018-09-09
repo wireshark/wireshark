@@ -204,7 +204,7 @@ double get_io_graph_item(const io_graph_item_t *items_, io_graph_item_unit_t val
             break;
         case IOG_ITEM_UNIT_CALC_AVERAGE:
             if (item->fields) {
-                value = item->float_tot / item->fields;
+                value = (double)item->float_tot / item->fields;
             } else {
                 value = 0;
             }
