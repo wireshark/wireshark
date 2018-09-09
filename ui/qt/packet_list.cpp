@@ -1153,13 +1153,15 @@ QString PacketList::allPacketComments()
 
 void PacketList::setCaptureFile(capture_file *cf)
 {
-    if (cf) {
-        // We're opening. Restore our column widths.
-        header()->restoreState(column_state_);
-    }
     cap_file_ = cf;
-    if (cap_file_ && columns_changed_) {
-        columnsChanged();
+    if (cf) {
+        if (columns_changed_) {
+            columnsChanged();
+        } else {
+            // Restore columns widths and visibility.
+            header()->restoreState(column_state_);
+            setColumnVisibility();
+        }
     }
     packet_list_model_->setCaptureFile(cf);
     create_near_overlay_ = true;
