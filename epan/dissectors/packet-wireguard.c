@@ -148,7 +148,7 @@ typedef struct wg_ekey {
  * Maps the public key to the "wg_skey_t" structure.
  * Keys are populated from the UAT and key log file.
  */
-static GHashTable *wg_static_keys;
+static GHashTable *wg_static_keys = NULL;
 
 /*
  * Set of ephemeral keys (for decryption). Maps the public key to the
@@ -802,8 +802,10 @@ static void
 wg_key_uat_reset(void)
 {
     /* Erase keys when the UAT is unloaded. */
-    g_hash_table_destroy(wg_static_keys);
-    wg_static_keys = NULL;
+    if (wg_static_keys != NULL) {
+        g_hash_table_destroy(wg_static_keys);
+        wg_static_keys = NULL;
+    }
 }
 
 UAT_VS_DEF(wg_key_uat, key_type, wg_key_uat_record_t, guint, WG_KEY_UAT_PUBLIC, "Public")
