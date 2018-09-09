@@ -636,22 +636,14 @@ else() # ! MSVC
 	)
 
 	set(WIRESHARK_LD_FLAGS
+		# See also CheckCLinkerFlag.cmake
 		-Wl,--as-needed
 		# -flto
 		# -fwhopr
 		# -fwhole-program
+		# XXX: This is applicable only when linking executables.
+		-pie
 	)
-	# CMAKE_POSITION_INDEPENDENT_CODE is only supported starting with CMake
-	# 2.8.9. Do not add -pie automatically for older versions.
-	#
-	# XXX - are there other compilers that don't support -pie?  It's
-	# not as if the only platforms we support are Windows and Linux....
-	#
-	if(NOT CMAKE_VERSION VERSION_LESS "2.8.9")
-		set(WIRESHARK_LD_FLAGS ${WIRESHARK_LD_FLAGS}
-			-pie
-		)
-	endif()
 endif() # ! MSVC
 
 set( C_FLAG_TESTS ${WIRESHARK_COMMON_FLAGS} ${WIRESHARK_C_ONLY_FLAGS} )
