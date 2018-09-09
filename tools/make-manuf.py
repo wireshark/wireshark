@@ -82,7 +82,13 @@ def shorten(manuf):
     # Remove all spaces
     manuf = re.sub('\s+', '', manuf)
     # Truncate all names to a reasonable length, say, 8 characters.
-    # If the string contains UTF-8, this may be substantially more than 8 bytes.
+    # If the string contains UTF-8, this may be substantially more than 8
+    # bytes. It might also be less than 8 visible characters. Python slices
+    # unicode strings by code point, which is better than raw bytes but not
+    # as good as grapheme clusters. https://bugs.python.org/issue30717
+    #
+    # In our case 'Savroni̇k Elektroni̇k' is truncated to 'Savroni̇', which
+    # is 7 visible characters, 8 code points, and 9 bytes.
     manuf = manuf[:8]
 
     if manuf.lower() == orig_manuf.lower():
