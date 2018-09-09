@@ -39,7 +39,7 @@ extern "C" {
    * Clang, so we'd use _Pragma("clang diagnostic XXX"), if it's
    * supported.
    */
-  #if WS_IS_AT_LEAST_CLANG_VERSION(2,8)
+//  #if WS_IS_AT_LEAST_CLANG_VERSION(2,8)
     /*
      * This is Clang 2.8 or later: we can use "clang diagnostic ignored -Wxxx"
      * and "clang diagnostic push/pop".
@@ -47,7 +47,7 @@ extern "C" {
     #define DIAG_PRAGMA(x) DIAG_DO_PRAGMA(clang diagnostic x)
     #define DIAG_OFF(x) DIAG_PRAGMA(push) DIAG_PRAGMA(ignored DIAG_JOINSTR(-W,x))
     #define DIAG_ON(x) DIAG_PRAGMA(pop)
-  #endif
+//  #endif
 
   /*
    * Not all versions of Clang understand -Wpedantic.  Clang 4.0 appears
