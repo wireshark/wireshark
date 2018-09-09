@@ -10215,6 +10215,7 @@ sunwebadmin      8800/udp # Sun Web Server Admin Service [Jyri_J_Virkki] [Jyri_J
 truecm           8804/tcp # truecm [Scott_Kramer] [Scott_Kramer]
 truecm           8804/udp # truecm [Scott_Kramer] [Scott_Kramer]
 pfcp             8805/udp # Destination Port number for PFCP [Kimmo_Kymalainen] [Kimmo_Kymalainen] 2017-05-08
+hes-clip         8807/udp # HES-CLIP Interoperability protocol [Tim_Schoechle] [Ludo_Bertsch] 2018-09-07
 ssports-bcast    8808/udp # STATSports Broadcast Service [Statsports_International] [Catalin_Caranfil] 2016-12-22
 dxspider         8873/tcp # dxspider linking protocol [Dirk_Koopman] [Dirk_Koopman] 2005-08
 dxspider         8873/udp # dxspider linking protocol [Dirk_Koopman] [Dirk_Koopman] 2005-08
