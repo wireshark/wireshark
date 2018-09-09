@@ -796,18 +796,15 @@ if( NOT CMAKE_C_COMPILER_ID MATCHES "MSVC")
 endif()
 
 include(CheckCLinkerFlag)
-set(_C 0)
-# Sigh: Have to use THIS_FLAG instead of ${F} for some reason
+
 foreach(THIS_FLAG ${WIRESHARK_LD_FLAGS})
-	set(F WS_LD_FLAG_${_C})
-	set(${F} ${THIS_FLAG})
-	set(V WS_LD_FLAG_VALID${_C})
-	check_c_linker_flag(${${F}} ${V})
-	if (${${V}})
-		set(WS_LINK_FLAGS "${WS_LINK_FLAGS} ${${F}}")
+	string(MAKE_C_IDENTIFIER "LINK${THIS_FLAG}_VALID" _flag_var)
+	check_c_linker_flag(${THIS_FLAG} ${_flag_var})
+	if (${_flag_var})
+		set(WS_LINK_FLAGS "${WS_LINK_FLAGS} ${THIS_FLAG}")
 	endif()
-	math(EXPR _C "${_C} + 1")
 endforeach()
+message(STATUS "Linker flags: ${WS_LINK_FLAGS}")
 
 if(APPLE AND EXISTS /usr/local/opt/gettext)
 	# GLib on macOS requires libintl. Homebrew installs gettext (and
