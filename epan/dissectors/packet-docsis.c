@@ -689,18 +689,13 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
       dissect_exthdr_length_field (tvb, pinfo, docsis_tree, exthdr, mac_parm, len_sid, &payload_length, &is_encrypted);
       /* Dissect Header Check Sequence field for a PDU */
       fcs_correct = dissect_hcs_field (tvb, pinfo, docsis_tree, hdrlen);
-      if (fcs_correct)
+      if (fcs_correct && pdulen > 0)
       {
         next_tvb =  tvb_new_subset_remaining(tvb, hdrlen);
         if(is_encrypted && !docsis_dissect_encrypted_frames)
           dissect_encrypted_frame (next_tvb, docsis_tree, fctype);
         else
           call_dissector (eth_withoutfcs_handle, next_tvb, pinfo, docsis_tree);
-        if (pdulen > 0)
-        {
-          next_tvb =  tvb_new_subset_remaining(tvb, hdrlen);
-          call_dissector (eth_withoutfcs_handle, next_tvb, pinfo, docsis_tree);
-        }
       }
       break;
     }
@@ -730,18 +725,13 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
       dissect_exthdr_length_field (tvb, pinfo, docsis_tree, exthdr, mac_parm, len_sid, &payload_length, &is_encrypted);
       /* Dissect Header Check Sequence field for a PDU */
       fcs_correct = dissect_hcs_field (tvb, pinfo, docsis_tree, hdrlen);
-      if (fcs_correct)
+      if (fcs_correct && pdulen > 0)
       {
         next_tvb =  tvb_new_subset_remaining(tvb, hdrlen);
         if(is_encrypted && !docsis_dissect_encrypted_frames)
           dissect_encrypted_frame (next_tvb, docsis_tree, fctype);
         else
           call_dissector (eth_withoutfcs_handle, next_tvb, pinfo, docsis_tree);
-        if (pdulen > 0)
-        {
-          next_tvb =  tvb_new_subset_remaining(tvb, hdrlen);
-          call_dissector (eth_withoutfcs_handle, next_tvb, pinfo, docsis_tree);
-        }
       }
       break;
     }
