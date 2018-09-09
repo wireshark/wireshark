@@ -83,7 +83,7 @@ EXTRA_DIST = \
 	process-x11-xcb.pl				\
 	randpkt-test.sh					\
 	rdps.py						\
-	rpm_setup.sh 					\
+	rpm-setup.sh 					\
 	test-common.sh					\
 	test-captures.sh				\
 	textify.ps1					\
