@@ -787,7 +787,7 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf, mgcp
 
 	if (len > 0)
 	{
-		tempchar = tvb_get_guint8(tvb, tvb_current_offset);
+		tempchar = (guint8)g_ascii_toupper(tvb_get_guint8(tvb, tvb_current_offset));
 
 		switch (tempchar)
 		{
@@ -892,7 +892,7 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf, mgcp
 			case 'M':
 				tvb_current_offset++;
 				if (len > (tvb_current_offset - offset) &&
-				   (tempchar = tvb_get_guint8(tvb, tvb_current_offset)) == ':')
+				   (tempchar = (guint8)g_ascii_toupper(tvb_get_guint8(tvb, tvb_current_offset))) == ':')
 				{
 					*hf = &hf_mgcp_param_connectionmode;
 					tvb_current_offset--;
@@ -906,7 +906,7 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf, mgcp
 			case 'R':
 				tvb_current_offset++;
 				if (len > (tvb_current_offset - offset) &&
-				    (tempchar = tvb_get_guint8(tvb, tvb_current_offset)) == ':')
+				    (tempchar = (guint8)g_ascii_toupper(tvb_get_guint8(tvb, tvb_current_offset))) == ':')
 				{
 					*hf = &hf_mgcp_param_reqevents;
 					tvb_current_offset--;
@@ -952,7 +952,7 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf, mgcp
 			case 'P':
 				tvb_current_offset++;
 				if (len > (tvb_current_offset - offset) &&
-				    (tempchar = tvb_get_guint8(tvb, tvb_current_offset)) == ':')
+				    (tempchar = (guint8)g_ascii_toupper(tvb_get_guint8(tvb, tvb_current_offset))) == ':')
 				{
 					*hf = &hf_mgcp_param_connectionparam;
 					tvb_current_offset--;
@@ -966,7 +966,7 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf, mgcp
 			case 'E':
 				tvb_current_offset++;
 				if (len > (tvb_current_offset - offset) &&
-				    (tempchar = tvb_get_guint8(tvb, tvb_current_offset)) == ':')
+				    (tempchar = (guint8)g_ascii_toupper(tvb_get_guint8(tvb, tvb_current_offset))) == ':')
 				{
 					*hf = &hf_mgcp_param_reasoncode;
 					tvb_current_offset--;
@@ -980,7 +980,7 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf, mgcp
 			case 'Z':
 				tvb_current_offset++;
 				if (len > (tvb_current_offset - offset) &&
-				    (tempchar = tvb_get_guint8(tvb, tvb_current_offset)) == ':')
+				    (tempchar = (guint8)g_ascii_toupper(tvb_get_guint8(tvb, tvb_current_offset))) == ':')
 				{
 					*hf = &hf_mgcp_param_specificendpoint;
 					tvb_current_offset--;
