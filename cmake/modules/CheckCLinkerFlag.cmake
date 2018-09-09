@@ -51,7 +51,6 @@ MACRO (CHECK_C_LINKER_FLAG _FLAG _RESULT)
       set(CMAKE_REQUIRED_LIBRARIES
          "-Werror=unused-command-line-argument ${CMAKE_REQUIRED_LIBRARIES}")
    endif()
-   message(status "check linker flag - test linker flags: ${_FLAG}")
    check_c_source_compiles("int main(void) { return 0;}" ${_RESULT})
    set(CMAKE_REQUIRED_LIBRARIES "${save_CMAKE_REQUIRED_LIBRARIES}")
 ENDMACRO (CHECK_C_LINKER_FLAG)
