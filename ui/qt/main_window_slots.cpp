@@ -4140,23 +4140,18 @@ void MainWindow::filterToolbarEditFilter()
 
 void MainWindow::filterDropped(QString description, QString filter)
 {
-    gchar* err = NULL;
     if ( filter.length() == 0 )
         return;
 
     filter_expression_new(qUtf8Printable(description),
             qUtf8Printable(filter), qUtf8Printable(description), TRUE);
 
-    uat_save(uat_get_table_by_name("Display expressions"), &err);
-    g_free(err);
-
+    save_migrated_uat("Display expressions", &prefs.filter_expressions_old);
     filterExpressionsChanged();
 }
 
 void MainWindow::filterToolbarDisableFilter()
 {
-    gchar* err = NULL;
-
     QString label = ((QAction *)sender())->property(dfe_property_label_).toString();
     QString expr = ((QAction *)sender())->property(dfe_property_expression_).toString();
 
@@ -4167,15 +4162,13 @@ void MainWindow::filterToolbarDisableFilter()
     if ( rowIndex.isValid() ) {
         uatModel->setData(rowIndex, QVariant::fromValue(false));
 
-        uat_save(uat_get_table_by_name("Display expressions"), &err);
-        g_free(err);
+        save_migrated_uat("Display expressions", &prefs.filter_expressions_old);
         filterExpressionsChanged();
     }
 }
 
 void MainWindow::filterToolbarRemoveFilter()
 {
-    gchar* err = NULL;
     UatModel * uatModel = new UatModel(this, "Display expressions");
 
     QString label = ((QAction *)sender())->property(dfe_property_label_).toString();
@@ -4187,8 +4180,7 @@ void MainWindow::filterToolbarRemoveFilter()
     if ( rowIndex.isValid() ) {
         uatModel->removeRow(rowIndex.row());
 
-        uat_save(uat_get_table_by_name("Display expressions"), &err);
-        g_free(err);
+        save_migrated_uat("Display expressions", &prefs.filter_expressions_old);
         filterExpressionsChanged();
     }
 }

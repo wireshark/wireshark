@@ -5412,6 +5412,8 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
         filter_expression_new(filter_label, value, "", filter_enabled);
         g_free(filter_label);
         filter_label = NULL;
+        /* Remember to save the new UAT to file. */
+        prefs.filter_expressions_old = TRUE;
     } else if (strcmp(pref_name, "gui.version_in_start_page") == 0) {
         /* Convert deprecated value to closest current equivalent */
         if (g_ascii_strcasecmp(value, "true") == 0) {
@@ -6610,6 +6612,21 @@ write_prefs(char **pf_path_return)
         g_free(pf_path);
     } else {
         pf = stdout;
+    }
+
+    /*
+     * If the preferences file is being written, be sure to write UAT files
+     * first that were migrated from the preferences file.
+     */
+    if (pf_path_return != NULL) {
+        if (prefs.filter_expressions_old) {
+            char *err = NULL;
+            prefs.filter_expressions_old = FALSE;
+            if (!uat_save(uat_get_table_by_name("Display expressions"), &err)) {
+                g_warning("Unable to save Display expressions: %s", err);
+                g_free(err);
+            }
+        }
     }
 
     fputs("# Configuration file for Wireshark " VERSION ".\n"

@@ -316,12 +316,7 @@ filter_save_ok_cb(GtkWidget *ok_bt _U_, GtkWindow *parent_w)
 	label = gtk_entry_get_text(GTK_ENTRY(label_te));
 
 	if (filter_button_add(label, expr, NULL) == 0) {
-		gchar *err = NULL;
-
-		//Filter buttons are just a UAT, so only need to save that
-		uat_save(uat_get_table_by_name("Display expressions"), &err);
-		//ignore any errors
-		g_free(err);
+		save_migrated_uat("Display expressions", &prefs.filter_expressions_old);
 		filter_save_close_cb(NULL, parent_w);
 	}
 }

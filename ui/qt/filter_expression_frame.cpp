@@ -11,7 +11,6 @@
 #include <ui_filter_expression_frame.h>
 
 #include <epan/filter_expressions.h>
-#include <epan/uat-int.h>
 #include <ui/preference_utils.h>
 
 #include <ui/qt/models/uat_model.h>
@@ -122,7 +121,6 @@ void FilterExpressionFrame::on_displayFilterLineEdit_textChanged(const QString)
 
 void FilterExpressionFrame::on_buttonBox_accepted()
 {
-    gchar* err = NULL;
     QByteArray label_ba = ui->labelLineEdit->text().toUtf8();
     QByteArray expr_ba = ui->displayFilterLineEdit->text().toUtf8();
     QByteArray comment_ba = ui->commentLineEdit->text().toUtf8();
@@ -147,12 +145,10 @@ void FilterExpressionFrame::on_buttonBox_accepted()
     {
         filter_expression_new(label_ba.constData(), expr_ba.constData(), comment_ba.constData(), TRUE);
     }
-    uat_save(uat_get_table_by_name("Display expressions"), &err);
 
+    save_migrated_uat("Display expressions", &prefs.filter_expressions_old);
     on_buttonBox_rejected();
     emit filterExpressionsChanged();
-
-    g_free(err);
 }
 
 void FilterExpressionFrame::on_buttonBox_rejected()
