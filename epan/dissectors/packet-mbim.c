@@ -717,6 +717,8 @@ static int hf_mbim_ms_device_slot_mapping_info_executor_slot_index = -1;
 static int hf_mbim_ms_slot_info_req_slot_index = -1;
 static int hf_mbim_ms_slot_info_slot_index = -1;
 static int hf_mbim_ms_slot_info_state = -1;
+static int hf_mbim_ms_atr_info_atr_offset = -1;
+static int hf_mbim_ms_atr_info_atr_size = -1;
 static int hf_mbim_fragmented_payload = -1;
 static int hf_mbim_request_in = -1;
 static int hf_mbim_response_in = -1;
@@ -815,6 +817,7 @@ static dissector_handle_t ip_handle;
 static dissector_handle_t data_handle;
 static dissector_handle_t bulk_ndp_ctrl_handle;
 static dissector_handle_t mbim_control_handle;
+static dissector_handle_t iso7816_atr_handle;
 
 static gboolean mbim_control_decode_unknown_itf = FALSE;
 
@@ -4950,6 +4953,31 @@ mbim_dissect_ms_device_slot_mapping_info(tvbuff_t *tvb, proto_tree *tree, gint o
     }
 }
 
+static void
+mbim_dissect_ms_atr_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
+{
+    gint base_offset;
+    guint32 atr_offset, atr_size;
+    tvbuff_t *next_tvb;
+
+    base_offset = offset;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_atr_info_atr_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &atr_size);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_atr_info_atr_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &atr_offset);
+    offset += 4;
+
+    if (atr_offset && atr_size) {
+        if (iso7816_atr_handle) {
+            next_tvb = tvb_new_subset_length(tvb, base_offset + atr_offset, atr_size);
+            call_dissector(iso7816_atr_handle, next_tvb, pinfo, tree);
+        } else {
+            proto_tree_add_item(tree, hf_mbim_info_buffer, tvb, base_offset + atr_offset, atr_size, ENC_NA);
+        }
+
+        // TODO: check atr_size <= 33
+    }
+}
+
 static int
 dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
@@ -5801,6 +5829,12 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                     case UUID_MS_UICC_LOW_LEVEL:
                         switch (cid) {
                             case MBIM_CID_MS_UICC_ATR:
+                                if (cmd_type == MBIM_COMMAND_SET) {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                                } else if (info_buff_len) {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_info_buffer, frag_tvb, offset, info_buff_len);
+                                }
+                                break;
                             case MBIM_CID_MS_UICC_OPEN_CHANNEL:
                             case MBIM_CID_MS_UICC_CLOSE_CHANNEL:
                             case MBIM_CID_MS_UICC_APDU:
@@ -6642,6 +6676,16 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                     case UUID_MS_UICC_LOW_LEVEL:
                         switch (cid) {
                             case MBIM_CID_MS_UICC_ATR:
+                                if (msg_type == MBIM_COMMAND_DONE) {
+                                    if (mbim_info && (mbim_info->cmd_type == MBIM_COMMAND_SET)) {
+                                        proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                                    } else {
+                                        mbim_dissect_ms_atr_info(frag_tvb, pinfo, subtree, offset);
+                                    }
+                                } else {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                                }
+                                break;
                             case MBIM_CID_MS_UICC_OPEN_CHANNEL:
                             case MBIM_CID_MS_UICC_CLOSE_CHANNEL:
                             case MBIM_CID_MS_UICC_APDU:
@@ -10419,6 +10463,16 @@ proto_register_mbim(void)
                FT_UINT32, BASE_DEC, VALS(mbim_ms_uiccslot_state_vals), 0,
               NULL, HFILL }
         },
+        { &hf_mbim_ms_atr_info_atr_offset,
+            { "ATR Offset", "mbim.control.ms_atr_info.atr_offset",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_atr_info_atr_size,
+            { "ATR Size", "mbim.control.ms_atr_info.atr_size",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
         { &hf_mbim_fragmented_payload,
             { "Fragmented Payload", "mbim.control.fragmented_payload",
                FT_BYTES, BASE_NONE, NULL, 0,
@@ -10806,6 +10860,7 @@ proto_reg_handoff_mbim(void)
         eth_handle = find_dissector_add_dependency("eth_withoutfcs", proto_mbim);
         eth_fcs_handle = find_dissector_add_dependency("eth_withfcs", proto_mbim);
         ip_handle = find_dissector_add_dependency("ip", proto_mbim);
+        iso7816_atr_handle = find_dissector_add_dependency("iso7816.atr", proto_mbim);
         data_handle = find_dissector("data");
         bulk_ndp_ctrl_handle = create_dissector_handle(dissect_mbim_bulk_ndp_ctrl, proto_mbim);
         heur_dissector_add("usb.bulk", dissect_mbim_bulk_heur, "MBIM USB bulk endpoint", "mbim_usb_bulk", proto_mbim, HEURISTIC_ENABLE);
