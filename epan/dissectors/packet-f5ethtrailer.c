@@ -1486,7 +1486,7 @@ static proto_item *displayIPv6as4(
 
 	if(tvb_memeql(tvb, offset, ipv4as6prefix, sizeof(ipv4as6prefix)) == 0) {
 		if(addrfield >= 0) {
-			pi = proto_tree_add_item(tree, addrfield, tvb, offset+sizeof(ipv4as6prefix), 4, ENC_BIG_ENDIAN);
+			pi = proto_tree_add_item(tree, addrfield, tvb, offset+(int)sizeof(ipv4as6prefix), 4, ENC_BIG_ENDIAN);
 			if(hidden) PROTO_ITEM_SET_HIDDEN(pi);
 		}
 	} else if(tvb_memeql(tvb, offset, f5rtdomprefix, sizeof(f5rtdomprefix)) == 0) {
@@ -1498,11 +1498,11 @@ static proto_item *displayIPv6as4(
 		 * when configuring, people usually see route domain after the address, so that is why this
 		 * particular ordering is used (and none of the callers currently use the return value). */
 		if(addrfield >= 0) {
-			pi = proto_tree_add_item(tree, addrfield, tvb, offset+sizeof(f5rtdomprefix)+2, 4, ENC_BIG_ENDIAN);
+			pi = proto_tree_add_item(tree, addrfield, tvb, offset+(int)sizeof(f5rtdomprefix)+2, 4, ENC_BIG_ENDIAN);
 			if(hidden) PROTO_ITEM_SET_HIDDEN(pi);
 		}
 		if(rtdomfield >= 0) {
-			pi = proto_tree_add_item(tree, rtdomfield, tvb, offset+sizeof(f5rtdomprefix), 2, ENC_BIG_ENDIAN);
+			pi = proto_tree_add_item(tree, rtdomfield, tvb, offset+(int)sizeof(f5rtdomprefix), 2, ENC_BIG_ENDIAN);
 			if(hidden) PROTO_ITEM_SET_HIDDEN(pi);
 		}
 	}
