@@ -3266,11 +3266,19 @@ prefs_register_modules(void)
                                    &prefs.gui_update_interval);
 
     register_string_like_preference(gui_module, "window_title", "Custom window title",
-        "Custom window title to be appended to the existing title\n%P = profile name\n%V = version info",
+        "Custom window title to be appended to the existing title\n"
+        "%F = file path of the capture file\n"
+        "%P = profile name\n"
+        "%S = a conditional separator (\" - \") that only shows when surrounded by variables with values or static text\n"
+        "%V = version info",
         &prefs.gui_window_title, PREF_STRING, NULL, TRUE);
 
     register_string_like_preference(gui_module, "prepend_window_title", "Custom window title prefix",
-        "Custom window title to be prepended to the existing title\n%P = profile name\n%V = version info",
+        "Custom window title to be prepended to the existing title\n"
+        "%F = file path of the capture file\n"
+        "%P = profile name\n"
+        "%S = a conditional separator (\" - \") that only shows when surrounded by variables with values or static text\n"
+        "%V = version info",
         &prefs.gui_prepend_window_title, PREF_STRING, NULL, TRUE);
 
     register_string_like_preference(gui_module, "start_title", "Custom start page title",

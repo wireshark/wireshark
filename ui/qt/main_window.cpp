@@ -2167,8 +2167,28 @@ void MainWindow::setTitlebarForCaptureFile()
 
 QString MainWindow::replaceWindowTitleVariables(QString title)
 {
-    title.replace ("%P", get_profile_name());
-    title.replace ("%V", get_ws_vcs_version_info());
+    title.replace("%P", get_profile_name());
+    title.replace("%V", get_ws_vcs_version_info());
+    if (capture_file_.capFile()) {
+        // get_dirname() will overwrite the argument so make a copy first
+        char *filename = g_strdup(capture_file_.capFile()->filename);
+        title.replace("%F", get_dirname(filename));
+        g_free(filename);
+    } else {
+        // No file loaded, no folder name
+        title.remove("%F");
+    }
+
+    // %S is a conditional separator (" - ") that only shows when surrounded by variables
+    // with values or static text. Remove repeating, leading and trailing separators.
+    title.replace(QRegExp("(%S)+"), "%S");
+    title.replace(QRegExp("^%S|%S$"), "");
+#ifdef __APPLE__
+    // On macOS we separate with a unicode em dash
+    title.replace("%S", " " UTF8_EM_DASH " ");
+#else
+    title.replace("%S", " - ");
+#endif
 
     return title;
 }
