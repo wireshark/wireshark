@@ -271,8 +271,13 @@ static inline gboolean is_quic_draft_max(guint32 version, guint8 max_version) {
     return draft_version && draft_version <= max_version;
 }
 
+static inline guint8 is_gquic_version(guint32 version) {
+    return version == 0x51303434; /* Q044 is the first release to use IETF QUIC (draft-12) packet header */
+}
+
 const value_string quic_version_vals[] = {
     { 0x00000000, "Version Negotiation" },
+    { 0x51303434, "Google Q044" },
     { 0xff000004, "draft-04" },
     { 0xff000005, "draft-05" },
     { 0xff000006, "draft-06" },
@@ -2277,6 +2282,7 @@ static gboolean dissect_quic_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     conversation_t *conversation = NULL;
     int offset = 0;
     guint8 flags;
+    guint32 version;
     gboolean is_quic = FALSE;
 
     /* Verify packet size  (Flag (1 byte) + Connection ID (8 bytes) + Version (4 bytes)) */
@@ -2293,8 +2299,9 @@ static gboolean dissect_quic_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     }
     offset += 1;
 
-    // check for draft QUIC version (for draft -11 and newer)
-    is_quic = quic_draft_version(tvb_get_ntohl(tvb, offset)) >= 11;
+    // check for draft QUIC version (for draft -11 and newer) or check for gQUIC version (= Q044)
+    version = tvb_get_ntohl(tvb, offset);
+    is_quic = (quic_draft_version(version) >= 11) || is_gquic_version(version);
 
     if (is_quic) {
         conversation = find_or_create_conversation(pinfo);
