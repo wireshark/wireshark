@@ -470,7 +470,7 @@ else() # ! MSVC
 		)
 	endif()
 
-	set(COMMON_WARN_FLAGS
+	list(APPEND WIRESHARK_COMMON_FLAGS
 		# The following are for C and C++
 		# -O<X> and -g get set by the CMAKE_BUILD_TYPE
 		-Wall
@@ -505,12 +505,12 @@ else() # ! MSVC
 		# the stack usage - we only care about stack
 		# usage in normal operation.
 		#
-		set(COMMON_WARN_FLAGS ${COMMON_WARN_FLAGS}
+		set(WIRESHARK_COMMON_FLAGS ${WIRESHARK_COMMON_FLAGS}
 			-Wframe-larger-than=32768
 		)
 	endif()
 
-	set(C_WARN_FLAGS
+	list(APPEND WIRESHARK_C_ONLY_FLAGS
 		# The following are C only, not C++
 		-Wc++-compat
 		-Wunused-const-variable
@@ -541,94 +541,90 @@ else() # ! MSVC
 		-Werror=implicit
 	)
 
-	set(CXX_WARN_FLAGS
+	list(APPEND WIRESHARK_CXX_ONLY_FLAGS
 	)
 
 	#
 	# These are not enabled by default, because the warnings they
 	# produce are very hard or impossible to eliminate.
 	#
-	set(COMMON_EXTRA_WARN_FLAGS
-		# The following are for C and C++
-		-Wpedantic
-		#
-		# As we use variadic macros, we don't want warnings
-		# about them, even with -Wpedantic.
-		#
-		-Wno-variadic-macros
-		#
-		# Various code blocks this one.
-		#
-		-Woverflow
-		-fstrict-overflow -Wstrict-overflow=4
-		#
-		# Due to various places where APIs we don't control
-		# require us to cast away constness, we can probably
-		# never enable this one with -Werror.
-		#
-		-Wcast-qual
-		#
-		# Some generated ASN.1 dissectors block this one;
-		# multiple function declarations for the same
-		# function are being generated.
-		#
-		-Wredundant-decls
-		#
-		# Some loops are safe, but it's hard to convince the
-		# compiler of that.
-		#
-		-Wunsafe-loop-optimizations
-		#
-		# All the registration functions block these for now.
-		#
-		-Wmissing-prototypes
-		-Wmissing-declarations
-		#
-		# A bunch of "that might not work on SPARC" code blocks
-		# this one for now; some of it is code that *will* work
-		# on SPARC, such as casts of "struct sockaddr *" to
-		# "struct sockaddr_in *", which are required by some
-		# APIs such as getifaddrs().
-		#
-		-Wcast-align
-		#
-		# Works only with Clang
-		#
-		-Wunreachable-code
-		#
-		# Works only with Clang but generates a lot of warnings
-		# (about glib library not using Doxygen)
-		#
-		-Wdocumentation
-		#
-		# Works only with GCC 7
-		#
-		-Wduplicated-branches
-		#
-		# No longer supported by El Capitan clang on C++
-		# XXX - is this one of those where CMake's check
-		# doesn't fail, so it won't reject this?
-		#
-		-fno-delete-null-pointer-checks
-	)
-
-	set(C_EXTRA_WARN_FLAGS
-		# The following are C only, not C++
-		#
-		# Due to various places where APIs we don't control
-		# require us to cast away constness, we can probably
-		# never enable this one with -Werror.
-		#
-		-Wbad-function-cast
-	)
-
-	set(CXX_EXTRA_WARN_FLAGS
-	)
-
 	if(ENABLE_EXTRA_COMPILER_WARNINGS)   # This overrides -Werror
-		set(COMMON_WARN_FLAGS ${COMMON_WARN_FLAGS} ${COMMON_EXTRA_WARN_FLAGS})
-		set(C_WARN_FLAGS ${C_WARN_FLAGS} ${C_EXTRA_WARN_FLAGS})
-		set(CXX_WARN_FLAGS ${CXX_WARN_FLAGS} ${CXX_EXTRA_WARN_FLAGS})
+		list(APPEND WIRESHARK_COMMON_FLAGS
+			# The following are for C and C++
+			-Wpedantic
+			#
+			# As we use variadic macros, we don't want warnings
+			# about them, even with -Wpedantic.
+			#
+			-Wno-variadic-macros
+			#
+			# Various code blocks this one.
+			#
+			-Woverflow
+			-fstrict-overflow -Wstrict-overflow=4
+			#
+			# Due to various places where APIs we don't control
+			# require us to cast away constness, we can probably
+			# never enable this one with -Werror.
+			#
+			-Wcast-qual
+			#
+			# Some generated ASN.1 dissectors block this one;
+			# multiple function declarations for the same
+			# function are being generated.
+			#
+			-Wredundant-decls
+			#
+			# Some loops are safe, but it's hard to convince the
+			# compiler of that.
+			#
+			-Wunsafe-loop-optimizations
+			#
+			# All the registration functions block these for now.
+			#
+			-Wmissing-prototypes
+			-Wmissing-declarations
+			#
+			# A bunch of "that might not work on SPARC" code blocks
+			# this one for now; some of it is code that *will* work
+			# on SPARC, such as casts of "struct sockaddr *" to
+			# "struct sockaddr_in *", which are required by some
+			# APIs such as getifaddrs().
+			#
+			-Wcast-align
+			#
+			# Works only with Clang
+			#
+			-Wunreachable-code
+			#
+			# Works only with Clang but generates a lot of warnings
+			# (about glib library not using Doxygen)
+			#
+			-Wdocumentation
+			#
+			# Works only with GCC 7
+			#
+			-Wduplicated-branches
+			#
+			# No longer supported by El Capitan clang on C++
+			# XXX - is this one of those where CMake's check
+			# doesn't fail, so it won't reject this?
+			#
+			-fno-delete-null-pointer-checks
+		)
+
+		list(APPEND WIRESHARK_C_ONLY_FLAGS
+			# The following are C only, not C++
+			#
+			# Due to various places where APIs we don't control
+			# require us to cast away constness, we can probably
+			# never enable this one with -Werror.
+			#
+			-Wbad-function-cast
+		)
+
+		list(APPEND WIRESHARK_CXX_ONLY_FLAGS
+		)
 	endif()
 
 	add_definitions(
@@ -646,12 +642,6 @@ else() # ! MSVC
 		-pie
 	)
 endif() # ! MSVC
-
-set( C_FLAG_TESTS ${WIRESHARK_COMMON_FLAGS} ${WIRESHARK_C_ONLY_FLAGS} )
-set( CXX_FLAG_TESTS ${WIRESHARK_COMMON_FLAGS} ${WIRESHARK_CXX_ONLY_FLAGS} )
-
-set( C_WARN_TESTS ${COMMON_WARN_FLAGS} ${C_WARN_FLAGS} )
-set( CXX_WARN_TESTS ${COMMON_WARN_FLAGS} ${CXX_WARN_FLAGS} )
 
 # Counterhack to work around some cache magic in CHECK_C_SOURCE_COMPILES
 include(CheckCCompilerFlag)
@@ -678,25 +668,15 @@ function(test_compiler_flag _lang _this_flag _valid_flags_var)
 	endif()
 endfunction()
 
-foreach(THIS_FLAG ${C_FLAG_TESTS})
+foreach(THIS_FLAG ${WIRESHARK_COMMON_FLAGS} ${WIRESHARK_C_ONLY_FLAGS})
 	test_compiler_flag(C ${THIS_FLAG} ADDED_CMAKE_C_FLAGS)
 endforeach()
 set(CMAKE_C_FLAGS "${ADDED_CMAKE_C_FLAGS} ${CMAKE_C_FLAGS}")
 
-foreach(THIS_FLAG ${CXX_FLAG_TESTS})
+foreach(THIS_FLAG ${WIRESHARK_COMMON_FLAGS} ${WIRESHARK_CXX_ONLY_FLAGS})
 	test_compiler_flag(CXX ${THIS_FLAG} ADDED_CMAKE_CXX_FLAGS)
 endforeach()
 set(CMAKE_CXX_FLAGS "${ADDED_CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS}")
-
-foreach(THIS_FLAG ${C_WARN_TESTS})
-	test_compiler_flag(C ${THIS_FLAG} ADDED_WARN_C_FLAGS)
-endforeach()
-set(CMAKE_C_FLAGS "${ADDED_WARN_C_FLAGS} ${CMAKE_C_FLAGS}")
-
-foreach(THIS_FLAG ${CXX_WARN_TESTS})
-	test_compiler_flag(CXX ${THIS_FLAG} ADDED_WARN_CXX_FLAGS)
-endforeach()
-set(CMAKE_CXX_FLAGS "${ADDED_WARN_CXX_FLAGS} ${CMAKE_CXX_FLAGS}")
 
 include(CMakePushCheckState)
 
