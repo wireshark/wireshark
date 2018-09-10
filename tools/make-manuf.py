@@ -169,7 +169,7 @@ def main():
             else:
                 manuf = ieee_row[2].strip().decode('UTF-8')
             if oui in oui_d:
-                print(u'{} - Skipping IEEE "{}" in favor of "{}'.format(oui, manuf, oui_d[oui]))
+                print(u'{} - Skipping IEEE "{}" in favor of "{}"'.format(oui, manuf, oui_d[oui]))
                 ieee_d[db]['skipped'] += 1
             else:
                 oui_d[oui] = shorten(manuf)
