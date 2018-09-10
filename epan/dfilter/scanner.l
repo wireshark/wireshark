@@ -84,8 +84,19 @@
     #else
       #error This is __clang_major__ and __clang_minor__
     #endif
+  #elif defined(__GNUC__)
+    #if WS_IS_AT_LEAST_GNUC_VERSION(4,8)
+      _Pragma("gcc diagnostic push")
+      _Pragma("gcc diagnostic ignored \"-Wsign-compare\"")
+      _Pragma("gcc diagnostic push")
+      _Pragma("gcc diagnostic ignored \"-Wshorten-64-to-32\"")
+      _Pragma("gcc diagnostic push")
+      _Pragma("gcc diagnostic ignored \"-Wunreachable-code\"")
+    #else
+      #error This is __GNUC__ and __GNUC_MINOR__
+    #endif
   #else
-    #error This is not clang
+    #error This is not clang or GCC
   #endif
 #else
 DIAG_OFF_FLEX
