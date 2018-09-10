@@ -653,9 +653,9 @@ dissect_rtp_hdr_ext_ed137(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 }
 
 
-#define NSTIME_INIT_USEC(time, usecs) \
-    time.secs = usecs / 1000000; \
-    time.nsecs = (usecs % 1000000) / 1000;
+#define NSTIME_INIT_USEC(nstime, usecs) \
+    nstime.secs = usecs / 1000000; \
+    nstime.nsecs = (usecs % 1000000) / 1000;
 
 /* Decodes and calculates relative/absolute time item */
 static void process_time_value(tvbuff_t *tvb, proto_tree *tree, int time_item, unsigned int hdrext_offset, gboolean time_relative, unsigned int time_value)
