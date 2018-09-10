@@ -34,5 +34,7 @@
 	<avp name="Policy-Counter-Value" code="1137" mandatory="mustnot" protected="may" vendor-bit="must" vendor-id="ALU" may-encrypt="yes">
 		<type type-name="Unsigned32"/>
 	</avp>
-
+	<avp name="Subscriber-User-Id" code="1139" mandatory="mustnot" vendor-bit="must" may-encrypt="no" protected="may" vendor-id="ALU">
+		<type type-name="UTF8String"/>
+	</avp>
 </application>
