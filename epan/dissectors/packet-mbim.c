@@ -5726,8 +5726,8 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                             case MBIM_CID_MS_PROVISIONED_CONTEXT_V2:
                                 if (cmd_type == MBIM_COMMAND_SET) {
                                     mbim_dissect_set_ms_provisioned_context_v2(frag_tvb, pinfo, subtree, offset);
-                                } else {
-                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                                } else if (info_buff_len) {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_info_buffer, frag_tvb, offset, info_buff_len);
                                 }
                                 break;
                             case MBIM_CID_MS_NETWORK_BLACKLIST:
