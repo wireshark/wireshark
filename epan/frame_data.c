@@ -179,8 +179,9 @@ frame_data_init(frame_data *fdata, guint32 num, const wtap_rec *rec,
     /*
      * XXX
      */
-    fdata->pkt_len = 0;
-    fdata->cap_len = 0;
+    fdata->pkt_len = rec->rec_header.ft_specific_header.record_len;
+    fdata->cum_bytes = cum_bytes + rec->rec_header.ft_specific_header.record_len;
+    fdata->cap_len = rec->rec_header.ft_specific_header.record_len;
     break;
 
   case REC_TYPE_SYSCALL:

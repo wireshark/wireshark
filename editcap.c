@@ -1781,6 +1781,12 @@ main(int argc, char *argv[])
                         do_mutation = TRUE;
                         break;
 
+                    case REC_TYPE_FT_SPECIFIC_EVENT:
+                    case REC_TYPE_FT_SPECIFIC_REPORT:
+                        caplen = rec->rec_header.ft_specific_header.record_len;
+                        do_mutation = TRUE;
+                        break;
+
                     case REC_TYPE_SYSCALL:
                         caplen = rec->rec_header.syscall_header.event_filelen;
                         do_mutation = TRUE;

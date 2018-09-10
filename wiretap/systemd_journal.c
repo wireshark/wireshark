@@ -12,6 +12,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "wtap-int.h"
+#include "pcapng_module.h"
 #include "file_wrappers.h"
 #include "systemd_journal.h"
 
@@ -91,6 +92,7 @@ wtap_open_return_val systemd_journal_open(wtap *wth, int *err _U_, gchar **err_i
         return WTAP_OPEN_NOT_MINE;
     }
 
+    wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_SYSTEMD_JOURNAL;
     wth->subtype_read = systemd_journal_read;
     wth->subtype_seek_read = systemd_journal_seek_read;
     wth->file_encap = WTAP_ENCAP_SYSTEMD_JOURNAL;
@@ -137,7 +139,7 @@ static gboolean
 systemd_journal_read_export_entry(FILE_T fh, wtap_rec *rec, Buffer *buf, int *err, gchar **err_info)
 {
     size_t fld_end = 0;
-    gchar *entry_buff = (gchar*) g_malloc(MAX_EXPORT_ENTRY_LENGTH);
+    gchar *buf_ptr;
     gchar *entry_line = NULL;
     gboolean got_cursor = FALSE;
     gboolean got_rt_ts = FALSE;
@@ -146,8 +148,11 @@ systemd_journal_read_export_entry(FILE_T fh, wtap_rec *rec, Buffer *buf, int *er
     int line_num;
     size_t rt_ts_len = strlen(FLD__REALTIME_TIMESTAMP);
 
+    ws_buffer_assure_space(buf, MAX_EXPORT_ENTRY_LENGTH);
+    buf_ptr = (gchar *) ws_buffer_start_ptr(buf);
+
     for (line_num = 0; line_num < MAX_EXPORT_ENTRY_LINES; line_num++) {
-        entry_line = file_gets(entry_buff + fld_end, MAX_EXPORT_ENTRY_LENGTH - (int) fld_end, fh);
+        entry_line = file_gets(buf_ptr + fld_end, MAX_EXPORT_ENTRY_LENGTH - (int) fld_end, fh);
         if (!entry_line) {
             break;
         }
@@ -179,7 +184,7 @@ systemd_journal_read_export_entry(FILE_T fh, wtap_rec *rec, Buffer *buf, int *er
             if (!wtap_read_bytes(fh, &le_data_len, 8, err, err_info)) {
                 return FALSE;
             }
-            memcpy(entry_buff + fld_end, &le_data_len, 8);
+            memcpy(buf_ptr + fld_end, &le_data_len, 8);
             fld_end += 8;
             data_len = pletoh64(&le_data_len);
             if (data_len < 1 || data_len - 1 >= MAX_EXPORT_ENTRY_LENGTH - fld_end) {
@@ -188,7 +193,7 @@ systemd_journal_read_export_entry(FILE_T fh, wtap_rec *rec, Buffer *buf, int *er
                 return FALSE;
             }
             // Data + trailing \n
-            if (!wtap_read_bytes(fh, entry_buff + fld_end, (unsigned) data_len + 1, err, err_info)) {
+            if (!wtap_read_bytes(fh, buf_ptr + fld_end, (unsigned) data_len + 1, err, err_info)) {
                 return FALSE;
             }
             fld_end += (size_t) data_len + 1;
@@ -199,25 +204,17 @@ systemd_journal_read_export_entry(FILE_T fh, wtap_rec *rec, Buffer *buf, int *er
     }
 
     if (!got_cursor || !got_rt_ts || !got_mt_ts) {
-        g_free(entry_buff);
         return FALSE;
     }
 
     if (!got_double_newline && !file_eof(fh)) {
-        g_free(entry_buff);
         return FALSE;
     }
 
-    rec->rec_type = REC_TYPE_PACKET;
-    rec->presence_flags = WTAP_HAS_TS;
-    rec->rec_header.packet_header.caplen = (guint32) fld_end;
-    rec->rec_header.packet_header.len = rec->rec_header.packet_header.caplen;
-
-    ws_buffer_assure_space(buf, rec->rec_header.packet_header.caplen + 1);
-    guint8 *pd = ws_buffer_start_ptr(buf);
-    entry_buff[fld_end+1] = '\0';
-    memcpy(pd, entry_buff, rec->rec_header.packet_header.caplen + 1);
-    g_free(entry_buff);
+    rec->rec_type = REC_TYPE_FT_SPECIFIC_EVENT;
+    rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
+    rec->rec_header.ft_specific_header.record_type = WTAP_FILE_TYPE_SUBTYPE_SYSTEMD_JOURNAL;
+    rec->rec_header.ft_specific_header.record_len = (guint32) fld_end;
 
     return TRUE;
 }

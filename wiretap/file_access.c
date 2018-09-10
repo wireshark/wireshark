@@ -1622,6 +1622,16 @@ static const struct file_type_subtype_info dump_open_table_base[] = {
 	/* WTAP_FILE_TYPE_SUBTYPE_RFC7468 */
 	{ "RFC 7468 files", "rfc7468", NULL, NULL,
 	  FALSE, FALSE, 0,
+	  NULL, NULL, NULL },
+
+	/* WTAP_FILE_TYPE_SUBTYPE_RUBY_MARSHAL */
+	{ "Ruby marshal files", "ruby_marshal", NULL, NULL,
+	  FALSE, FALSE, 0,
+	  NULL, NULL, NULL },
+
+	/* WTAP_FILE_TYPE_SUBTYPE_SYSTEMD_JOURNAL */
+	{ "systemd journal export", "systemd journal", NULL, NULL,
+	  FALSE, FALSE, 0,
 	  NULL, NULL, NULL }
 };
 
@@ -2250,7 +2260,6 @@ wtap_dump_init_dumper(int file_type_subtype, int encap, int snaplen, gboolean co
 
 		/* Note: this memory is owned by wtap_dumper and will become
 		 * invalid after wtap_dump_close. */
-		wdh->interface_data = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
 		for (itf_count = 0; itf_count < idb_inf->interface_data->len; itf_count++) {
 			file_int_data = g_array_index(idb_inf->interface_data, wtap_block_t, itf_count);
 			file_int_data_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(file_int_data);
@@ -2263,6 +2272,7 @@ wtap_dump_init_dumper(int file_type_subtype, int encap, int snaplen, gboolean co
 			g_array_append_val(wdh->interface_data, descr);
 		}
 	} else {
+		// XXX IDBs should be optional.
 		descr = wtap_block_create(WTAP_BLOCK_IF_DESCR);
 		descr_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(descr);
 		descr_mand->wtap_encap = encap;
@@ -2289,7 +2299,6 @@ wtap_dump_init_dumper(int file_type_subtype, int encap, int snaplen, gboolean co
 		descr_mand->snap_len = snaplen;
 		descr_mand->num_stat_entries = 0;          /* Number of ISB:s */
 		descr_mand->interface_statistics = NULL;
-		wdh->interface_data = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
 		g_array_append_val(wdh->interface_data, descr);
 	}
 	return wdh;
@@ -2542,6 +2551,7 @@ wtap_dump_alloc_wdh(int file_type_subtype, int encap, int snaplen, gboolean comp
 	wdh->encap = encap;
 	wdh->compressed = compressed;
 	wdh->wslua_data = NULL;
+	wdh->interface_data = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
 	return wdh;
 }
 

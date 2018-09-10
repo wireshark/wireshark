@@ -930,6 +930,9 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_RFC7468 */
 	{ "RFC 7468 file", "rfc7468" },
+
+	/* WTAP_ENCAP_SYSTEMD_JOURNAL */
+	{ "systemd journal", "sdjournal" }
 };
 
 WS_DLL_LOCAL
@@ -1363,8 +1366,12 @@ wtap_read_packet_bytes(FILE_T fh, Buffer *buf, guint length, int *err,
     gchar **err_info)
 {
 	ws_buffer_assure_space(buf, length);
-	return wtap_read_bytes(fh, ws_buffer_start_ptr(buf), length, err,
-	    err_info);
+	if (wtap_read_bytes(fh, ws_buffer_start_ptr(buf), length, err,
+	    err_info)) {
+		ws_buffer_increase_length(buf, length);
+		return TRUE;
+	}
+	return FALSE;
 }
 
 /*

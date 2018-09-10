@@ -15,17 +15,18 @@
  *
  * XXX - Dear Sysdig People: please add your blocks to the spec!
  */
-#define BLOCK_TYPE_SHB          0x0A0D0D0A /* Section Header Block */
-#define BLOCK_TYPE_IDB          0x00000001 /* Interface Description Block */
-#define BLOCK_TYPE_PB           0x00000002 /* Packet Block (obsolete) */
-#define BLOCK_TYPE_SPB          0x00000003 /* Simple Packet Block */
-#define BLOCK_TYPE_NRB          0x00000004 /* Name Resolution Block */
-#define BLOCK_TYPE_ISB          0x00000005 /* Interface Statistics Block */
-#define BLOCK_TYPE_EPB          0x00000006 /* Enhanced Packet Block */
-#define BLOCK_TYPE_IRIG_TS      0x00000007 /* IRIG Timestamp Block */
-#define BLOCK_TYPE_ARINC_429    0x00000008 /* ARINC 429 in AFDX Encapsulation Information Block */
-#define BLOCK_TYPE_SYSDIG_EVENT 0x00000204 /* Sysdig Event Block */
-#define BLOCK_TYPE_SYSDIG_EVF   0x00000208 /* Sysdig Event Block with flags */
+#define BLOCK_TYPE_SHB              0x0A0D0D0A /* Section Header Block */
+#define BLOCK_TYPE_IDB              0x00000001 /* Interface Description Block */
+#define BLOCK_TYPE_PB               0x00000002 /* Packet Block (obsolete) */
+#define BLOCK_TYPE_SPB              0x00000003 /* Simple Packet Block */
+#define BLOCK_TYPE_NRB              0x00000004 /* Name Resolution Block */
+#define BLOCK_TYPE_ISB              0x00000005 /* Interface Statistics Block */
+#define BLOCK_TYPE_EPB              0x00000006 /* Enhanced Packet Block */
+#define BLOCK_TYPE_IRIG_TS          0x00000007 /* IRIG Timestamp Block */
+#define BLOCK_TYPE_ARINC_429        0x00000008 /* ARINC 429 in AFDX Encapsulation Information Block */
+#define BLOCK_TYPE_SYSTEMD_JOURNAL  0x00000009 /* systemd journal entry */
+#define BLOCK_TYPE_SYSDIG_EVENT     0x00000204 /* Sysdig Event Block */
+#define BLOCK_TYPE_SYSDIG_EVF       0x00000208 /* Sysdig Event Block with flags */
 
 /* TODO: the following are not yet well defined in the draft spec,
  * and do not yet have block type values assigned to them:

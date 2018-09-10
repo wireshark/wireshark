@@ -826,6 +826,7 @@ proto_register_systemd_journal(void)
     init_jf_to_hf_map();
 }
 
+#define BLOCK_TYPE_SYSTEMD_JOURNAL 0x0000009
 void
 proto_reg_handoff_systemd_journal(void)
 {
@@ -836,7 +837,8 @@ proto_reg_handoff_systemd_journal(void)
                 proto_systemd_journal);
     }
 
-    dissector_add_uint("wtap_encap", WTAP_ENCAP_SYSTEMD_JOURNAL, sje_handle);
+    dissector_add_uint("wtap_fts_rec", WTAP_FILE_TYPE_SUBTYPE_SYSTEMD_JOURNAL, sje_handle);
+    dissector_add_uint("pcapng.block_type", BLOCK_TYPE_SYSTEMD_JOURNAL, sje_handle);
     // It's possible to ship journal entries over HTTP/HTTPS using
     // systemd-journal-remote. Dissecting them on the wire isn't very
     // useful since it's easy to end up with a packet containing a

@@ -283,7 +283,7 @@ extern "C" {
 #define WTAP_ENCAP_DPAUXMON                     200
 #define WTAP_ENCAP_RUBY_MARSHAL                 201
 #define WTAP_ENCAP_RFC7468                      202
-#define WTAP_ENCAP_SYSTEMD_JOURNAL              203
+#define WTAP_ENCAP_SYSTEMD_JOURNAL              203 /* Event, not a packet */
 
 /* After adding new item here, please also add new item to encap_table_base array */
 
@@ -1268,6 +1268,7 @@ typedef struct {
 
 typedef struct {
     guint     record_type;      /* the type of record this is - file type-specific value */
+    guint32   record_len;       /* length of the record */
 } wtap_ft_specific_header;
 
 typedef struct {

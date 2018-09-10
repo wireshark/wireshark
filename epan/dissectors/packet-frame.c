@@ -598,7 +598,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 					if (!dissector_try_uint(wtap_fts_rec_dissector_table, file_type_subtype,
 					    tvb, pinfo, parent_tree)) {
 						col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNKNOWN");
-						col_add_fstr(pinfo->cinfo, COL_INFO, "WTAP_ENCAP = %d",
+						col_add_fstr(pinfo->cinfo, COL_INFO, "WTAP FT ST = %d",
 							     file_type_subtype);
 						call_data_dissector(tvb, pinfo, parent_tree);
 					}
