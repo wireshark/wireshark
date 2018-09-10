@@ -6623,7 +6623,7 @@ write_prefs(char **pf_path_return)
             char *err = NULL;
             prefs.filter_expressions_old = FALSE;
             if (!uat_save(uat_get_table_by_name("Display expressions"), &err)) {
-                g_warning("Unable to save Display expressions: %s", err);
+                ws_g_warning("Unable to save Display expressions: %s", err);
                 g_free(err);
             }
         }
