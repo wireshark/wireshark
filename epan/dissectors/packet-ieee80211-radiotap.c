@@ -1937,6 +1937,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 	gboolean  rtap_ns_next;
 	guint	  rtap_ns_offset;
 	guint	  rtap_ns_offset_next;
+	gboolean  zero_length_psdu = FALSE;
 
 	/* our non-standard overrides */
 	static struct radiotap_override overrides[] = {
@@ -2744,6 +2745,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 			break;
 		case IEEE80211_RADIOTAP_0_LENGTH_PSDU:
 			dissect_radiotap_0_length_psdu(tvb, pinfo, radiotap_tree, offset, &phdr);
+			zero_length_psdu = TRUE;
 			break;
 		case IEEE80211_RADIOTAP_L_SIG:
 			dissect_radiotap_l_sig(tvb, pinfo, radiotap_tree, offset);
@@ -2756,6 +2758,13 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 		    &ei_radiotap_data_past_header);
  malformed:
 		proto_item_append_text(ti, " (malformed)");
+	}
+
+	/*
+	 * Is there any more there?
+	 */
+	if (zero_length_psdu) {
+		return tvb_captured_length(tvb);
 	}
 
  hand_off_to_80211:

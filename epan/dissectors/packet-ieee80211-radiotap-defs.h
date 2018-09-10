@@ -209,7 +209,7 @@ enum ieee80211_radiotap_type {
 
 /* not (yet) defined Radiotap present flag */
 /* Bit 25 and 28 are not defined (in binary : 0001 0010 0000 0000 0000 0000 0000 0000 */
-#define IEEE80211_RADIOTAP_NOTDEFINED 0x1A000000
+#define IEEE80211_RADIOTAP_NOTDEFINED 0x10000000
 
 /* Channel flags. */
 /* 0x00000001 through 0x00000008 undefined (reserved?) */
