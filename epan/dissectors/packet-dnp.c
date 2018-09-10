@@ -595,9 +595,6 @@
 #define AL_OBJ_VT_OBLK     0x7000   /* 112 xx Virtual Terminal Output Block */
 #define AL_OBJ_VT_EVTD     0x7100   /* 113 xx Virtual Terminal Event Data */
 
-/* Reasonable amount of fields that are expected to be empty and thus don't
-   increment the packet offset.  Used to prevent infinite/really long loops */
-#define DNP_EMPTY_FIELD_LIMIT       50
 
 /***************************************************************************/
 /* End of Application Layer Data Object Definitions */
@@ -1347,7 +1344,7 @@ static expert_field ei_dnp3_data_hdr_crc_incorrect = EI_INIT;
 static expert_field ei_dnp3_data_chunk_crc_incorrect = EI_INIT;
 static expert_field ei_dnp3_unknown_object = EI_INIT;
 static expert_field ei_dnp3_unknown_group0_variation = EI_INIT;
-static expert_field ei_dnp_empty_field_limit = EI_INIT;
+static expert_field ei_dnp3_num_items_invalid = EI_INIT;
 /* Generated from convert_proto_tree_add_text.pl */
 #if 0
 static expert_field ei_dnp3_buffering_user_data_until_final_frame_is_received = EI_INIT;
@@ -1645,6 +1642,36 @@ dnp3_al_get_timestamp(nstime_t *timestamp, tvbuff_t *tvb, int data_pos)
   timestamp->nsecs = (int)(time_ms % 1000) * 1000000;
 }
 
+static gboolean
+dnp3_al_empty_obj(guint16 al_obj)
+{
+
+  /* return a TRUE if we expect an empty object (default var, class object, etc) */
+  switch (al_obj)
+  {
+    case AL_OBJ_BI_ALL:      /* Binary Input Default Variation (Obj:01, Var:Default) */
+    case AL_OBJ_BIC_ALL:     /* Binary Input Change Default Variation (Obj:02, Var:Default) */
+    case AL_OBJ_BOC_ALL:     /* Binary Output Event Default Variation (Obj:11, Var:Default) */
+    case AL_OBJ_2BI_ALL:     /* Double-bit Input Default Variation (Obj:03, Var:Default) */
+    case AL_OBJ_2BIC_ALL:    /* Double-bit Input Change Default Variation (Obj:04, Var:Default) */
+    case AL_OBJ_CTR_ALL:     /* Binary Counter Default Variation (Obj:20, Var:Default) */
+    case AL_OBJ_CTRC_ALL:    /* Binary Counter Change Default Variation (Obj:22 Var:Default) */
+    case AL_OBJ_AI_ALL:      /* Analog Input Default Variation (Obj:30, Var:Default) */
+    case AL_OBJ_AIC_ALL:     /* Analog Input Change Default Variation (Obj:32 Var:Default) */
+    case AL_OBJ_AIDB_ALL:    /* Analog Input Deadband Default Variation (Obj:34, Var:Default) */
+    case AL_OBJ_AOC_ALL:     /* Analog Output Event Default Variation (Obj:42 Var:Default) */
+    case AL_OBJ_CLASS0:      /* Class Data Objects */
+    case AL_OBJ_CLASS1:
+    case AL_OBJ_CLASS2:
+    case AL_OBJ_CLASS3:
+      return TRUE;
+      break;
+    default:
+      return FALSE;
+      break;
+  }
+}
+
 /*****************************************************************/
 /*  Desc:    Application Layer Process Object Details            */
 /*  Returns: New offset pointer into tvb                         */
@@ -1660,7 +1687,6 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
   guint32     al_ptaddr = 0;
   int         num_items = 0;
   int         orig_offset, rangebytes = 0;
-  int         empty_field_limit = 0;    //Used to control the potential for really long/infinite loops
   proto_item *object_item, *range_item;
   proto_tree *object_tree, *qualifier_tree, *range_tree;
 
@@ -1830,14 +1856,15 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
       data_pos   = offset;
       prefixbytes = dnp3_al_obj_procprefix(tvb, offset, al_objq_prefix, &al_ptaddr, point_tree);
-      if (prefixbytes == 0) {
-        empty_field_limit++;
-      }
-      if (empty_field_limit > DNP_EMPTY_FIELD_LIMIT) {
+
+      /* If this is an 'empty' object type and the num_items field is not equal to zero,
+         then the packet is potentially malicious */
+      if ((num_items != 0) && (dnp3_al_empty_obj(al_obj))) {
         proto_item_append_text(range_item, " (bogus)");
-        expert_add_info(pinfo, range_item, &ei_dnp_empty_field_limit);
-        return tvb_captured_length(tvb);
+        expert_add_info(pinfo, range_item, &ei_dnp3_num_items_invalid);
+        num_items = 0;
       }
+
       proto_item_append_text(point_item, " %u", al_ptaddr);
       proto_item_set_len(point_item, prefixbytes);
       data_pos += prefixbytes;
@@ -1956,7 +1983,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
           switch (al_obj)
           {
 
-            /* There is nothing to handle for the defalt variations */
+            /* There is nothing to handle for the default variations */
             case AL_OBJ_BI_ALL:      /* Binary Input Default Variation (Obj:01, Var:Default) */
             case AL_OBJ_BIC_ALL:     /* Binary Input Change Default Variation (Obj:02, Var:Default) */
             case AL_OBJ_BOC_ALL:     /* Binary Output Event Default Variation (Obj:11, Var:Default) */
@@ -2352,14 +2379,14 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
             case AL_OBJ_FCTR_16:    /* 16-Bit Frozen Counter (Obj:21, Var:02) */
             case AL_OBJ_FDCTR_32:   /* 21 03 32-Bit Frozen Delta Counter */
             case AL_OBJ_FDCTR_16:   /* 21 04 16-Bit Frozen Delta Counter */
-            case AL_OBJ_FCTR_32T:   /* 21 05 32-Bit Frozen Counter w/ Time of Freeze */
-            case AL_OBJ_FCTR_16T:   /* 21 06 16-Bit Frozen Counter w/ Time of Freeze */
-            case AL_OBJ_FDCTR_32T:  /* 21 07 32-Bit Frozen Delta Counter w/ Time of Freeze */
-            case AL_OBJ_FDCTR_16T:  /* 21 08 16-Bit Frozen Delta Counter w/ Time of Freeze */
-            case AL_OBJ_FCTR_32NF:  /* 21 09 32-Bit Frozen Counter Without Flag */
-            case AL_OBJ_FCTR_16NF:  /* 21 10 16-Bit Frozen Counter Without Flag */
-            case AL_OBJ_FDCTR_32NF: /* 21 11 32-Bit Frozen Delta Counter Without Flag */
-            case AL_OBJ_FDCTR_16NF: /* 21 12 16-Bit Frozen Delta Counter Without Flag */
+            case AL_OBJ_FCTR_32T:   /* 32-Bit Frozen Counter w/ Time of Freeze (Obj:21 Var:05 ) */
+            case AL_OBJ_FCTR_16T:   /* 16-Bit Frozen Counter w/ Time of Freeze (Obj:21 Var:06) */
+            case AL_OBJ_FDCTR_32T:  /* 32-Bit Frozen Delta Counter w/ Time of Freeze (Obj:21 Var:07) */
+            case AL_OBJ_FDCTR_16T:  /* 16-Bit Frozen Delta Counter w/ Time of Freeze (Obj:21 Var:08) */
+            case AL_OBJ_FCTR_32NF:  /* 32-Bit Frozen Counter Without Flag (Obj:21 Var:09) */
+            case AL_OBJ_FCTR_16NF:  /* 16-Bit Frozen Counter Without Flag (Obj:21 Var:10) */
+            case AL_OBJ_FDCTR_32NF: /* 32-Bit Frozen Delta Counter Without Flag (Obj:21 Var:11) */
+            case AL_OBJ_FDCTR_16NF: /* 16-Bit Frozen Delta Counter Without Flag (Obj:21 Var:12) */
             case AL_OBJ_CTRC_32:    /* 32-Bit Counter Change Event w/o Time (Obj:22, Var:01) */
             case AL_OBJ_CTRC_16:    /* 16-Bit Counter Change Event w/o Time (Obj:22, Var:02) */
             case AL_OBJ_DCTRC_32:   /* 32-Bit Delta Counter Change Event w/o Time (Obj:22, Var:03) */
@@ -2368,14 +2395,14 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
             case AL_OBJ_CTRC_16T:   /* 16-Bit Counter Change Event with Time (Obj:22, Var:06) */
             case AL_OBJ_DCTRC_32T:  /* 32-Bit Delta Counter Change Event with Time (Obj:22, Var:07) */
             case AL_OBJ_DCTRC_16T:  /* 16-Bit Delta Counter Change Event with Time (Obj:22, Var:08) */
-            case AL_OBJ_FCTRC_32:   /* 21 01 32-Bit Frozen Counter Change Event */
-            case AL_OBJ_FCTRC_16:   /* 21 02 16-Bit Frozen Counter Change Event */
-            case AL_OBJ_FDCTRC_32:  /* 21 03 32-Bit Frozen Delta Counter Change Event */
-            case AL_OBJ_FDCTRC_16:  /* 21 04 16-Bit Frozen Delta Counter Change Event */
-            case AL_OBJ_FCTRC_32T:  /* 21 05 32-Bit Frozen Counter Change Event w/ Time of Freeze */
-            case AL_OBJ_FCTRC_16T:  /* 21 06 16-Bit Frozen Counter Change Event w/ Time of Freeze */
-            case AL_OBJ_FDCTRC_32T: /* 21 07 32-Bit Frozen Delta Counter Change Event w/ Time of Freeze */
-            case AL_OBJ_FDCTRC_16T: /* 21 08 16-Bit Frozen Delta Counter Change Event w/ Time of Freeze */
+            case AL_OBJ_FCTRC_32:   /* 32-Bit Frozen Counter Change Event (Obj:23 Var:01) */
+            case AL_OBJ_FCTRC_16:   /* 16-Bit Frozen Counter Change Event (Obj:23 Var:02) */
+            case AL_OBJ_FDCTRC_32:  /* 32-Bit Frozen Delta Counter Change Event (Obj:23 Var:03) */
+            case AL_OBJ_FDCTRC_16:  /* 16-Bit Frozen Delta Counter Change Event (Obj:23 Var:04) */
+            case AL_OBJ_FCTRC_32T:  /* 32-Bit Frozen Counter Change Event w/ Time of Freeze (Obj:23 Var:05) */
+            case AL_OBJ_FCTRC_16T:  /* 16-Bit Frozen Counter Change Event w/ Time of Freeze (Obj:23 Var:06) */
+            case AL_OBJ_FDCTRC_32T: /* 32-Bit Frozen Delta Counter Change Event w/ Time of Freeze (Obj:23 Var:07) */
+            case AL_OBJ_FDCTRC_16T: /* 16-Bit Frozen Delta Counter Change Event w/ Time of Freeze (Obj:23 Var:08) */
 
               /* Get Point Flags for those types that have them, it's easier to block out those that don't have flags */
               switch (al_obj)
@@ -4602,7 +4629,7 @@ proto_register_dnp3(void)
      { &ei_dnp3_data_chunk_crc_incorrect, { "dnp3.data_chunk.CRC.incorrect", PI_CHECKSUM, PI_WARN, "Data Chunk Checksum incorrect", EXPFILL }},
      { &ei_dnp3_unknown_object, { "dnp3.unknown_object", PI_PROTOCOL, PI_WARN, "Unknown Object\\Variation", EXPFILL }},
      { &ei_dnp3_unknown_group0_variation, { "dnp3.unknown_group0_variation", PI_PROTOCOL, PI_WARN, "Unknown Group 0 Variation", EXPFILL }},
-     { &ei_dnp_empty_field_limit, { "dnp3.empty_field_limit", PI_MALFORMED, PI_ERROR, "Empty field limit reached.  Potentially malicious packet", EXPFILL }},
+     { &ei_dnp3_num_items_invalid, { "dnp3.num_items_invalid", PI_MALFORMED, PI_ERROR, "Number of items is invalid for normally empty object.  Potentially malicious packet", EXPFILL }},
       /* Generated from convert_proto_tree_add_text.pl */
 #if 0
       { &ei_dnp3_buffering_user_data_until_final_frame_is_received, { "dnp3.buffering_user_data_until_final_frame_is_received", PI_PROTOCOL, PI_WARN, "Buffering User Data Until Final Frame is Received..", EXPFILL }},
