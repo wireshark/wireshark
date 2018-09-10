@@ -586,6 +586,7 @@ write_recent_enum(FILE *rf, const char *description, const char *name,
 {
     const char *if_invalid = NULL;
     const value_string *valp;
+    const gchar *str_value;
 
     fprintf(rf, "\n# %s.\n", description);
     fprintf(rf, "# One of: ");
@@ -599,8 +600,11 @@ write_recent_enum(FILE *rf, const char *description, const char *name,
             fprintf(rf, ", ");
     }
     fprintf(rf, "\n");
-    fprintf(rf, "%s: %s\n", name,
-            val_to_str(value, values, if_invalid != NULL ? if_invalid : "Unknown"));
+    str_value = try_val_to_str(value, values);
+    if (str_value != NULL)
+        fprintf(rf, "%s: %s\n", name, str_value);
+    else
+        fprintf(rf, "%s: %s\n", name, if_invalid != NULL ? if_invalid : "Unknown");
 }
 
 /* Attempt to write out "recent common" to the user's recent common file.
