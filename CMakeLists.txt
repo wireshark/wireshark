@@ -490,8 +490,9 @@ else() # ! MSVC
 		-Wno-overlength-strings
 		-Wno-long-long
 		-Wheader-guard
-		-Wcomma
-		-Wshorten-64-to-32
+		# XXX: Remove -Wno-error once the build is clean on our buildbots
+		-Wcomma -Wno-error=comma
+		-Wshorten-64-to-32 -Wno-error=shorten-64-to-32
 	)
 
 	#
