@@ -70,6 +70,7 @@ Cisco Meraki Discovery Protocol (MDP)
 DoIP (ISO 13400-2 Diagnostic communication over Internet Protocol)
 DXL protocol
 E1AP (5G) protocol
+EVS (3GPP TS 26.445 A.2 EVS RTP)
 Exablaze trailers
 GLOW Lawo Emberplus Data format
 GSM-R protocol (User-to-User Information Element usage)
