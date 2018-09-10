@@ -85,7 +85,7 @@
       #error This is __clang_major__ and __clang_minor__
     #endif
   #elif defined(__GNUC__)
-    #if WS_IS_AT_LEAST_GNUC_VERSION(4,8)
+    #if WS_IS_AT_LEAST_GNUC_VERSION(4,8) || defined(__llvm__)
       _Pragma("gcc diagnostic push")
       _Pragma("gcc diagnostic ignored \"-Wsign-compare\"")
       _Pragma("gcc diagnostic push")
@@ -93,7 +93,7 @@
       _Pragma("gcc diagnostic push")
       _Pragma("gcc diagnostic ignored \"-Wunreachable-code\"")
     #else
-      #error This is __GNUC__ and __GNUC_MINOR__
+      #error This is not GCC 4.8 or later and it is not llvm-gcc
     #endif
   #else
     #error This is not clang or GCC
