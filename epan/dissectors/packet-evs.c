@@ -1,6 +1,6 @@
-/* packet-evc.c
- * Routines for AMR dissection
- * Copyright 2005-2008, Anders Broman <anders.broman[at]ericsson.com>
+/* packet-evs.c
+ * Routines for EVS dissection
+ * Copyright 2018, Anders Broman <anders.broman[at]ericsson.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
