@@ -25,6 +25,7 @@ QUIC source code in Chromium : https://code.google.com/p/chromium/codesearch#chr
 #include <epan/conversation.h>
 #include <epan/dissectors/packet-http2.h>
 #include <wsutil/strtoi.h>
+#include "packet-gquic.h"
 
 void proto_register_gquic(void);
 void proto_reg_handoff_gquic(void);
@@ -185,6 +186,7 @@ static expert_field ei_gquic_tag_undecoded = EI_INIT;
 static expert_field ei_gquic_tag_length = EI_INIT;
 static expert_field ei_gquic_tag_unknown = EI_INIT;
 static expert_field ei_gquic_version_invalid = EI_INIT;
+
 
 typedef struct gquic_info_data {
     guint8 version;
@@ -1097,7 +1099,7 @@ static guint32 get_len_packet_number(guint8 puflags){
     return 6;
 }
 
-static gboolean is_gquic_unencrypt(tvbuff_t *tvb, packet_info *pinfo, guint offset, guint16 len_pkn, gquic_info_data_t *gquic_info){
+gboolean is_gquic_unencrypt(tvbuff_t *tvb, packet_info *pinfo, guint offset, guint16 len_pkn, gquic_info_data_t *gquic_info){
     guint8 frame_type;
     guint8 num_ranges, num_revived, num_blocks = 0, num_timestamp;
     guint32 len_stream = 0, len_offset = 0, len_data = 0, len_largest_observed = 1, len_missing_packet = 1;
@@ -1986,8 +1988,7 @@ dissect_gquic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tr
 
 }
 
-
-static int
+int
 dissect_gquic_unencrypt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, guint offset, guint8 len_pkn, gquic_info_data_t *gquic_info){
     proto_item *ti_prflags;
     proto_tree *prflags_tree;
@@ -2014,6 +2015,44 @@ dissect_gquic_unencrypt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tre
     return offset;
 
 }
+
+int
+dissect_gquic_ietf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, guint offset, guint32 version){
+    conversation_t  *conv;
+    gquic_info_data_t  *gquic_info;
+    guint64 pkn;
+
+   /* get conversation, create if necessary*/
+    conv = find_or_create_conversation(pinfo);
+
+    /* get associated state information, create if necessary */
+    gquic_info = (gquic_info_data_t *)conversation_get_proto_data(conv, proto_gquic);
+
+    if (!gquic_info) {
+        gquic_info = wmem_new(wmem_file_scope(), gquic_info_data_t);
+        gquic_info->version = (guint8)version;
+        gquic_info->encoding = ENC_LITTLE_ENDIAN;
+        gquic_info->version_valid = TRUE;
+        gquic_info->server_port = 443;
+        conversation_add_proto_data(conv, proto_gquic, gquic_info);
+    }
+
+    proto_tree_add_item_ret_uint64(gquic_tree, hf_gquic_packet_number, tvb, offset, 4, ENC_BIG_ENDIAN, &pkn);
+    offset += 4;
+
+    if (is_gquic_unencrypt(tvb, pinfo, offset, tvb_reported_length_remaining(tvb, offset), gquic_info)){
+        offset = dissect_gquic_unencrypt(tvb, pinfo, gquic_tree, offset, tvb_reported_length_remaining(tvb, offset), gquic_info);
+    }else {     /* Payload... (encrypted... TODO FIX !) */
+        col_add_str(pinfo->cinfo, COL_INFO, "Payload (Encrypted)");
+        proto_tree_add_item(gquic_tree, hf_gquic_payload, tvb, offset, -1, ENC_NA);
+        offset += tvb_reported_length_remaining(tvb, offset);
+    }
+
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", PKN: %" G_GINT64_MODIFIER "u", pkn);
+
+    return offset;
+}
+
 
 static int
 dissect_gquic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,

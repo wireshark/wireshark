@@ -27,6 +27,7 @@
 #include "packet-tls.h"
 #include <epan/prefs.h>
 #include <wsutil/pint.h>
+#include "packet-gquic.h"
 
 #if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
 /* Whether to provide support for authentication in addition to decryption. */
@@ -1901,6 +1902,10 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
 
     offset = dissect_quic_long_header_common(tvb, pinfo, quic_tree, offset, quic_packet, &version, &dcid, &scid);
 
+    if (conn->version == 0x51303434) { /* gQUIC Q044 */
+        return dissect_gquic_ietf(tvb, pinfo, quic_tree, offset, conn->version);
+    }
+
     if (long_packet_type == QUIC_LPT_INITIAL) {
         proto_tree_add_item_ret_varint(quic_tree, hf_quic_token_length, tvb, offset, -1, ENC_VARINT_QUIC, &token_length, &len_token_length);
         offset += len_token_length;
@@ -2069,7 +2074,7 @@ quic_get_message_tvb(tvbuff_t *tvb, const guint offset)
         guint version = tvb_get_ntohl(tvb, offset + 1);
         // If this is not a VN packet but a valid long form, extract a subset.
         // TODO check for valid QUIC versions as future versions might change the format.
-        if (version != 0) {
+        if (version != 0 && !is_gquic_version(version)) {
             guint8 cid_lengths = tvb_get_guint8(tvb, offset + 5);
             guint8 dcil = cid_lengths >> 4;
             guint8 scil = cid_lengths & 0xf;

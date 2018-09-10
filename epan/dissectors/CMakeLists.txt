@@ -352,6 +352,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-gmr1_common.h
 	packet-gmr1_rr.h
 	packet-gprscdr.h
+	packet-gquic.h
 	packet-gre.h
 	packet-gsm_a_common.h
 	packet-gsm_a_rr.h
