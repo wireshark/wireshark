@@ -78,12 +78,6 @@ static const value_string evs_protected_payload_sizes_value[] = {
 { 0, NULL }
 };
 
-static const value_string evs_h_bit_values[] = {
-{    0, "ToC" },
-{    1, "CMR" },
-{ 0, NULL }
-};
-
 static const value_string evs_d_bits_t0_values[] = {
     { 0x0, "NB 5.9 (VBR)" },
     { 0x1, "NB 7.2" },
@@ -314,7 +308,7 @@ static const true_false_string toc_evs_q_bit_vals = {
 };
 
 static void
-dissect_evs_cmr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *evs_tree, int offset, guint8 t_bits)
+dissect_evs_cmr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *evs_tree, int offset, guint8 t_bits)
 {
     proto_tree *tree;
     /* CMR */
