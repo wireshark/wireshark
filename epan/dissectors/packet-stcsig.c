@@ -295,7 +295,7 @@ dissect_stcsig(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 	timestamp_2_5_ns = (guint64)(tvb_get_guint8(stcsig_tvb, 15) & 0xfc) << 30;
 	timestamp_2_5_ns |= tvb_get_ntohl(stcsig_tvb, 11);
 	timestamp.secs = timestamp_2_5_ns / 400000000L;
-	timestamp.nsecs = timestamp_2_5_ns % 400000000L;
+	timestamp.nsecs = (int)(timestamp_2_5_ns % 400000000L);
 	proto_tree_add_time(stcsig_tree, &hfi_stcsig_timestamp, stcsig_tvb, 11, 5, &timestamp);
 	proto_tree_add_item(stcsig_tree, &hfi_stcsig_prbseq, stcsig_tvb, 15, 1, ENC_NA);
 	proto_tree_add_item(stcsig_tree, &hfi_stcsig_tslr, stcsig_tvb, 15, 1, ENC_NA);
