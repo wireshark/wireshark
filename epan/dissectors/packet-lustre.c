@@ -804,7 +804,7 @@ static expert_field ei_lustre_obsopc = EI_INIT;
 /* LUSTRE_BUFFER_LEN(buffnum) */
 #define LUSTRE_BUFFER_LEN(_n) (LUSTRE_BUFCOUNT <= (_n) ? 0              \
                                : tvb_get_letohl(tvb, LUSTRE_BUFLEN_OFF+ \
-                                                sizeof(guint32)*(_n)))
+                                                4*(_n)))
 
 #define LUSTRE_REC_OFF  1 /* normal request/reply record offset */
 
@@ -4536,7 +4536,7 @@ dissect_xattr_buffers(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_t
     datalen = LUSTRE_BUFFER_LEN(buff_num+1);
     lenlen = LUSTRE_BUFFER_LEN(buff_num+2);
 
-    count = lenlen / sizeof(guint32);
+    count = lenlen / 4;
 
     namestart = nameoffset = offset;
     datastart = namestart + namelen;
