@@ -490,10 +490,24 @@ else() # ! MSVC
 		-Wno-overlength-strings
 		-Wno-long-long
 		-Wheader-guard
-		# XXX: Remove -Wno-error once the build is clean on our buildbots
-		-Wcomma -Wno-error=comma
-		-Wshorten-64-to-32 -Wno-error=shorten-64-to-32
+		-Wcomma
+		-Wshorten-64-to-32
 	)
+
+	#
+	# Apple's llvm-gcc appears not to support suppressing warnings with
+	# pragmas, so, if we're building on a Mac (we check for APPLE),
+	# and we're not using Clang, we suppress errors for some warnings
+	# that we can only remove by suppressing them, as they're in
+	# generated code.
+	#
+	if (APPLE AND NOT CMAKE_C_COMPILER_ID MATCHES "Clang")
+		list(APPEND WIRESHARK_COMMON_FLAGS
+			-Wno-error=comma
+			-Wno-error=shorten-64-to-32
+			-Wno-error=unused-function
+		)
+	endif()
 
 	#
 	# Code that may be worth looking into (coding practices)
@@ -733,19 +747,9 @@ if(NOT DISABLE_WERROR AND NOT ENABLE_EXTRA_COMPILER_WARNINGS)
 	if(CMAKE_C_COMPILER_ID MATCHES "MSVC")
 		set(WERROR_COMMON_FLAGS "/WX")
 	else()
-		#
-		# Apple's llvm-gcc appears not to support suppressing
-		# warnings with pragmas, so, if we're building on a
-		# Mac (we check for APPLE), and we're not using Clang,
-		# we don't turn on -Werror, because we rely on
-		# those pragmas to suppress otherwise-unremovable
-		# warnings in order to build warning-free.
-		#
-		if ((NOT APPLE) OR CMAKE_C_COMPILER_ID MATCHES "Clang")
-			check_c_compiler_flag(-Werror WERROR)
-			if (WERROR)
-				set(WERROR_COMMON_FLAGS "-Werror")
-			endif()
+		check_c_compiler_flag(-Werror WERROR)
+		if (WERROR)
+			set(WERROR_COMMON_FLAGS "-Werror")
 		endif()
 	endif()
 endif()
