@@ -30,8 +30,15 @@
 #include "packet-ber.h"
 #include "packet-ansi_tcap.h"
 
-/* This is meant to handle dissect_ain_ROS' defined but not used */
-DIAG_OFF(unused-function)
+#if defined(__GNUC__)
+/*
+ * This is meant to handle dissect_ain_ROS' defined but not used.
+ *
+ * DIAG_OFF doesn't work with llvm-gcc, for some unknown reason, so
+ * we just use the pragma directly.
+ */
+#pragma GCC diagnostic ignored "-Wunused-function"
+#endif
 
 #define PNAME  "Advanced Intelligent Network"
 #define PSNAME "AIN"
@@ -53,7 +60,7 @@ static dissector_handle_t   ain_handle;
 #define noInvokeId                     NULL
 
 /*--- End of included file: packet-ain-val.h ---*/
-#line 43 "./asn1/ain/packet-ain-template.c"
+#line 50 "./asn1/ain/packet-ain-template.c"
 
 static int hf_ain_ext_type_oid = -1;
 static int hf_ain_odd_even_indicator = -1;
@@ -550,7 +557,7 @@ static int hf_ain_RequestMemorySlot_incoming = -1;
 static int hf_ain_RequestMemorySlot_outgoing = -1;
 
 /*--- End of included file: packet-ain-hf.c ---*/
-#line 51 "./asn1/ain/packet-ain-template.c"
+#line 58 "./asn1/ain/packet-ain-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_ain = -1;
@@ -735,7 +742,7 @@ static gint ett_ain_T_problem = -1;
 static gint ett_ain_InvokeId = -1;
 
 /*--- End of included file: packet-ain-ett.c ---*/
-#line 57 "./asn1/ain/packet-ain-template.c"
+#line 64 "./asn1/ain/packet-ain-template.c"
 
 static expert_field ei_ain_unknown_invokeData = EI_INIT;
 static expert_field ei_ain_unknown_returnResultData = EI_INIT;
@@ -838,7 +845,7 @@ static const value_string ain_err_code_string_vals[] = {
 
 
 /*--- End of included file: packet-ain-table.c ---*/
-#line 79 "./asn1/ain/packet-ain-template.c"
+#line 86 "./asn1/ain/packet-ain-template.c"
 
 
 /*--- Included file: packet-ain-fn.c ---*/
@@ -8964,7 +8971,7 @@ static int dissect_PAR_failureReport_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
 
 
 /*--- End of included file: packet-ain-fn.c ---*/
-#line 81 "./asn1/ain/packet-ain-template.c"
+#line 88 "./asn1/ain/packet-ain-template.c"
 
 
 /*--- Included file: packet-ain-table2.c ---*/
@@ -9232,7 +9239,7 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
 
 
 /*--- End of included file: packet-ain-table2.c ---*/
-#line 83 "./asn1/ain/packet-ain-template.c"
+#line 90 "./asn1/ain/packet-ain-template.c"
 
 
 static int
@@ -11266,7 +11273,7 @@ void proto_register_ain(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ain-hfarr.c ---*/
-#line 180 "./asn1/ain/packet-ain-template.c"
+#line 187 "./asn1/ain/packet-ain-template.c"
     };
 
     /* List of subtrees */
@@ -11452,7 +11459,7 @@ void proto_register_ain(void) {
     &ett_ain_InvokeId,
 
 /*--- End of included file: packet-ain-ettarr.c ---*/
-#line 187 "./asn1/ain/packet-ain-template.c"
+#line 194 "./asn1/ain/packet-ain-template.c"
     };
 
     static ei_register_info ei[] = {

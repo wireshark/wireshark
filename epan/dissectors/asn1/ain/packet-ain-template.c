@@ -22,8 +22,15 @@
 #include "packet-ber.h"
 #include "packet-ansi_tcap.h"
 
-/* This is meant to handle dissect_ain_ROS' defined but not used */
-DIAG_OFF(unused-function)
+#if defined(__GNUC__)
+/*
+ * This is meant to handle dissect_ain_ROS' defined but not used.
+ *
+ * DIAG_OFF doesn't work with llvm-gcc, for some unknown reason, so
+ * we just use the pragma directly.
+ */
+#pragma GCC diagnostic ignored "-Wunused-function"
+#endif
 
 #define PNAME  "Advanced Intelligent Network"
 #define PSNAME "AIN"
