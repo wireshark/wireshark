@@ -11569,12 +11569,12 @@ static const range_string he_action_rvals[] = {
 
 #define HE_BSS_COLOR_CHANGE_ANNOUNCEMENT  0
 
-#if 0
-static const value_string protected_he_action_vals[] = {
-  { HE_BSS_COLOR_CHANGE_ANNOUNCEMENT, "HE BSS Color Change Announcement" },
-  { 0, NULL }
+static const range_string protected_he_action_rvals[] = {
+  { HE_BSS_COLOR_CHANGE_ANNOUNCEMENT, HE_BSS_COLOR_CHANGE_ANNOUNCEMENT,
+        "HE BSS Color Change Announcement" },
+  { HE_BSS_COLOR_CHANGE_ANNOUNCEMENT + 1, 255, "Reserved" },
+  { 0, 0, NULL }
 };
-#endif
 
 /*
  *  * This currently only works for SU, 20MHz, 40MHz and 80MHz and grouping 4 and 16.
@@ -11936,6 +11936,9 @@ static const int *he_mimo_control_headers[] = {
   NULL
 };
 
+/*
+ * Handle compressed beamforming matrices and CQI
+ */
 static guint
 dissect_compressed_beamforming_and_cqi(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
@@ -26822,7 +26825,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ff_protected_he_action,
       {"Protected HE Action", "wlan.he.protected_action",
-       FT_UINT8, BASE_RANGE_STRING | BASE_DEC, RVALS(he_action_rvals), 0,
+       FT_UINT8, BASE_RANGE_STRING | BASE_DEC, RVALS(protected_he_action_rvals), 0,
        NULL, HFILL }},
 
     {&hf_he_mimo_control_nc_index,
@@ -35091,7 +35094,7 @@ proto_register_ieee80211(void)
 
     {&hf_he_operation_txop_duration_rts_threshold,
      {"TXOP Duration RTS Threshold", "wlan.ext_tag.he_operation.txop_duration_rts_thresh",
-      FT_UINT24, BASE_DEC, NULL, 0x0003FF, NULL, HFILL }},
+      FT_UINT24, BASE_DEC, NULL, 0x003FF0, NULL, HFILL }},
 
     {&hf_he_operation_vht_operation_information_present,
      {"VHT Operation Information Present", "wlan.ext_tag.he_operation.vht_op_info_present",
