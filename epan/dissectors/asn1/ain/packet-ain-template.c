@@ -22,10 +22,8 @@
 #include "packet-ber.h"
 #include "packet-ansi_tcap.h"
 
-#if defined(__GNUC__)
 /* This is meant to handle dissect_ain_ROS' defined but not used */
-#pragma GCC diagnostic ignored "-Wunused-function"
-#endif
+DIAG_OFF(unused-function)
 
 #define PNAME  "Advanced Intelligent Network"
 #define PSNAME "AIN"
