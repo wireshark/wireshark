@@ -750,10 +750,11 @@ if(NOT DISABLE_WERROR AND NOT ENABLE_EXTRA_COMPILER_WARNINGS)
 		# all errors.
 		#
 		if (APPLE AND NOT CMAKE_C_COMPILER_ID MATCHES "Clang")
-			list(APPEND WERROR_COMMON_FLAGS
+			set(WERROR_COMMON_FLAGS
+				"${WERROR_COMMON_FLAGS}
 				-Wno-error=comma
 				-Wno-error=shorten-64-to-32
-				-Wno-error=unused-function
+				-Wno-error=unused-function"
 			)
 		endif()
 	endif()
