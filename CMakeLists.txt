@@ -733,9 +733,19 @@ if(NOT DISABLE_WERROR AND NOT ENABLE_EXTRA_COMPILER_WARNINGS)
 	if(CMAKE_C_COMPILER_ID MATCHES "MSVC")
 		set(WERROR_COMMON_FLAGS "/WX")
 	else()
-		check_c_compiler_flag(-Werror WERROR)
-		if (WERROR)
-			set(WERROR_COMMON_FLAGS "-Werror")
+		#
+		# Apple's llvm-gcc appears not to support suppressing
+		# warnings with pragmas, so, if we're building on a
+		# Mac (we check for APPLE), and we're not using Clang,
+		# we don't turn on -Werror, because we rely on
+		# those pragmas to suppress otherwise-unremovable
+		# warnings in order to build warning-free.
+		#
+		if ((NOT APPLE) OR CMAKE_C_COMPILER_ID MATCHES "Clang")
+			check_c_compiler_flag(-Werror WERROR)
+			if (WERROR)
+				set(WERROR_COMMON_FLAGS "-Werror")
+			endif()
 		endif()
 	endif()
 endif()
