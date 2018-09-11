@@ -22426,7 +22426,7 @@ dissect_ieee80211_he_trigger(tvbuff_t *tvb, packet_info *pinfo _U_,
   /*
    * Now the User Info field. It returns an offset not a length used.
    */
-  offset = add_he_trigger_user_info(tree, tvb, offset, pinfo,
+  add_he_trigger_user_info(tree, tvb, offset, pinfo,
                         trigger_type, &length);
 
   /*
