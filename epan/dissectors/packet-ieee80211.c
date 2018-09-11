@@ -11569,10 +11569,12 @@ static const range_string he_action_rvals[] = {
 
 #define HE_BSS_COLOR_CHANGE_ANNOUNCEMENT  0
 
+#if 0
 static const value_string protected_he_action_vals[] = {
   { HE_BSS_COLOR_CHANGE_ANNOUNCEMENT, "HE BSS Color Change Announcement" },
   { 0, NULL }
 };
+#endif
 
 /*
  *  * This currently only works for SU, 20MHz, 40MHz and 80MHz and grouping 4 and 16.
