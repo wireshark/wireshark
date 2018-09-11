@@ -746,7 +746,6 @@ dissect_netlink_route_ifla_attrs(tvbuff_t *tvb, struct netlink_route_info *info,
 {
 	enum ws_ifla_attr_type type = (enum ws_ifla_attr_type) rta_type;
 	const guint8* str;
-	guint32 gint;
 	proto_tree* subtree;
 	switch (type) {
 		case WS_IFLA_IFNAME:
@@ -762,7 +761,7 @@ dissect_netlink_route_ifla_attrs(tvbuff_t *tvb, struct netlink_route_info *info,
 			proto_tree_add_item(tree, &hfi_netlink_route_ifla_txqlen, tvb, offset, len, info->encoding);
 			return 1;
 		case WS_IFLA_OPERSTATE:
-			proto_tree_add_item_ret_uint(tree, &hfi_netlink_route_ifla_operstate, tvb, offset, len, info->encoding, &gint);
+			proto_tree_add_item(tree, &hfi_netlink_route_ifla_operstate, tvb, offset, len, info->encoding);
 			return 1;
 		case WS_IFLA_PROMISCUITY:
 			proto_item_append_text(tree, ": %u", tvb_get_letohl(tvb, offset));
