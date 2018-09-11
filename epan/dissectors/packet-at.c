@@ -1255,7 +1255,7 @@ dissect_cnum_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item  *pitem;
     guint32      value;
 
-    if (!(role == ROLE_DCE && type == TYPE_RESPONSE)) return TRUE;
+    if (!(role == ROLE_DCE && type == TYPE_RESPONSE)) return FALSE;
     if (parameter_number > 5) return FALSE;
 
     switch (parameter_number) {
@@ -1600,7 +1600,7 @@ dissect_vts_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item  *pitem;
     guint32      value;
 
-    if (!(role == ROLE_DTE && type == TYPE_ACTION)) return TRUE;
+    if (!(role == ROLE_DTE && type == TYPE_ACTION)) return FALSE;
     if (parameter_number > 1) return FALSE;
 
     switch (parameter_number) {
