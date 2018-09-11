@@ -145,6 +145,7 @@ static const struct luaL_Reg bit_funcs[] = {
 */
 #define BAD_SAR		(bsar(-8, 2) != (SBits)-2)
 
+DIAG_OFF(unreachable-code)
 LUALIB_API int luaopen_bit(lua_State *L)
 {
   UBits b;
@@ -160,10 +161,8 @@ LUALIB_API int luaopen_bit(lua_State *L)
     if (b == (UBits)1127743488L)
       msg = "not compiled with SWAPPED_DOUBLE";
 #endif
-DIAG_OFF(unreachable-code)
     if (BAD_SAR)
       msg = "arithmetic right-shift broken";
-DIAG_ON(unreachable-code)
     luaL_error(L, "bit library self-test failed (%s)", msg);
   }
 #if LUA_VERSION_NUM < 502
@@ -175,4 +174,4 @@ DIAG_ON(unreachable-code)
   return 0; /* changed from 1 to 0 for wireshark, since lua_setglobal now pops the table */
 #endif
 }
-
+DIAG_ON(unreachable-code)
