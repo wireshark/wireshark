@@ -22063,7 +22063,7 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
         /* now find correct length */
         meshctl_len = find_mesh_control_length(mesh_flags);
         /* ... and try to read two bytes of next header */
-        if (tvb_bytes_exist(tvb, hdr_len, meshctl_len + sizeof(guint16))) {
+        if (tvb_bytes_exist(tvb, hdr_len, meshctl_len + 2)) {
           guint16 next_header = tvb_get_letohs(tvb, meshoff + meshctl_len);
           if (has_mesh_control_local(fcf, mesh_flags, next_header)) {
             /* Yes, add the length of that in as well. */
