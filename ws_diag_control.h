@@ -43,6 +43,12 @@ extern "C" {
     /*
      * This is Clang 2.8 or later: we can use "clang diagnostic ignored -Wxxx"
      * and "clang diagnostic push/pop".
+     *
+     * The good news is that this can be used for diagnostics that
+     * might be errors or might just be warnings.  The bad news is
+     * that DIAG_ON() just undoes the results of the most recent
+     * DIAG_OFF(), independent of its argument, so you have to be
+     * careful in how you nest them.
      */
     #define DIAG_PRAGMA(x) DIAG_DO_PRAGMA(clang diagnostic x)
     #define DIAG_OFF(x) DIAG_PRAGMA(push) DIAG_PRAGMA(ignored DIAG_JOINSTR(-W,x))
@@ -50,13 +56,20 @@ extern "C" {
   #endif
 
   /*
-   * Not all versions of Clang understand -Wpedantic.  Clang 4.0 appears
-   * to be the first version to do so.
+   * Not all versions of Clang understand -Wpedantic.
    */
   #if WS_IS_AT_LEAST_CLANG_VERSION(4,0)
+    /*
+     * This is Clang 4.0, which appears to be the first version to
+     * support -Wpedantic.
+     */
     #define DIAG_OFF_PEDANTIC DIAG_OFF(pedantic)
     #define DIAG_ON_PEDANTIC DIAG_ON(pedantic)
   #else
+    /*
+     * -Wpedantic isn't supported, so there's nothing to turn on or
+     * off, and we can't turn it on or off in any case.
+     */
     #define DIAG_OFF_PEDANTIC
     #define DIAG_ON_PEDANTIC
   #endif
@@ -66,24 +79,69 @@ extern "C" {
    * We assume that the compiler accepts _Pragma("GCC diagnostic xxx")
    * even if it's only claiming to be GCC.
    */
-  #if WS_IS_AT_LEAST_GNUC_VERSION(4,8)
+  #if WS_IS_AT_LEAST_GNUC_VERSION(4,2)
     /*
-     * This is GCC 4.8 or later, or a compiler claiming to be that.
-     * We can use "GCC diagnostic ignored -Wxxx" (introduced in 4.2)
-     * and "GCC diagnostic push/pop" (introduced in 4.6), *and* gcc
-     * supports "-Wpedantic" (introduced in 4.8), allowing us to
-     * turn off pedantic warnings with DIAG_OFF().
+     * This is GCC 4.2 or later, or a compiler claiming to be that.
+     * We can use "GCC diagnostic ignored -Wxxx"; we may or may
+     * not be able to use "GCC diagnostic push/pop" (introduced in 4.6).
      */
     #define DIAG_PRAGMA(x) DIAG_DO_PRAGMA(GCC diagnostic x)
-    #define DIAG_OFF(x) DIAG_PRAGMA(push) DIAG_PRAGMA(ignored DIAG_JOINSTR(-W,x))
-    #define DIAG_ON(x) DIAG_PRAGMA(pop)
+    #if WS_IS_AT_LEAST_GNUC_VERSION(4,6)
+      /*
+       * This is GCC 4.6 or later, or a compiler claiming to be that.
+       * We can use "GCC diagnostic push/pop".
+       *
+       * The good news is that this can be used for diagnostics that
+       * might be errors or might just be warnings.  The bad news is
+       * that DIAG_ON() just undoes the results of the most recent
+       * DIAG_OFF(), independent of its argument, so you have to be
+       * careful in how you nest them.
+       */
+      #define DIAG_OFF(x) DIAG_PRAGMA(push) DIAG_PRAGMA(ignored DIAG_JOINSTR(-W,x))
+      #define DIAG_ON(x) DIAG_PRAGMA(pop)
 
+      #if WS_IS_AT_LEAST_GNUC_VERSION(4,8)
+        /*
+         * This is GCC 4.8, which supports -Wpedantic.
+         */
+        #define DIAG_OFF_PEDANTIC DIAG_OFF(pedantic)
+        #define DIAG_ON_PEDANTIC DIAG_ON(pedantic)
+      #else /* WS_IS_AT_LEAST_GNUC_VERSION(4,8) */
+        /*
+         * -Wpedantic isn't supported, so there's nothing to turn on or
+         * off, and we can't turn it on or off in any case.
+         */
+        #define DIAG_OFF_PEDANTIC
+        #define DIAG_ON_PEDANTIC
+      #endif /* WS_IS_AT_LEAST_GNUC_VERSION(4,8) */
+    #else /* WS_IS_AT_LEAST_GNUC_VERSION(4,6) */
+      /*
+       * This is GCC 4.2 through 4.5; we can't use push and pop to turn
+       * diagnostics on or off, but we can, at least, use "error" to
+       * turn a diagnostic back on.
+       *
+       * The good news is that DIAG_ON() really *does* turn the
+       * diagnostic in question back on, so you don't have to worry
+       * about nesting them correctly.  The bad news is that if you
+       * use it on a diagnostic that's not supposed to be an error,
+       * it'll become an error anyway.
+       */
+      #define DIAG_OFF(x) DIAG_PRAGMA(ignored DIAG_JOINSTR(-W,x))
+      #define DIAG_ON(x) DIAG_PRAGMA(error DIAG_JOINSTR(-W,x))
+
+      /*
+       * -Wpedantic isn't supported, so there's nothing to turn on or
+       * off, and we can't turn it on or off in any case.
+       */
+      #define DIAG_OFF_PEDANTIC
+      #define DIAG_ON_PEDANTIC
+    #endif /* WS_IS_AT_LEAST_GNUC_VERSION(4,6) */
+  #else /* WS_IS_AT_LEAST_GNUC_VERSION(4,2) */
     /*
-     * We assume GCC 4.8 and later understand -Wpedantic.
+     * This is GCC prior to 4.2 -Wpedantic isn't supported, so there's
+     * nothing to turn on or off, and we can't turn it on or off in any
+     * case.
      */
-    #define DIAG_OFF_PEDANTIC DIAG_OFF(pedantic)
-    #define DIAG_ON_PEDANTIC DIAG_ON(pedantic)
-  #else
     #define DIAG_OFF_PEDANTIC
     #define DIAG_ON_PEDANTIC
   #endif
