@@ -271,7 +271,7 @@ typedef struct _StringInfo {
 #define DTLSV1DOT2_VERSION     0xfefd
 
 /* Returns the TLS 1.3 draft version or 0 if not applicable. */
-static inline guint8 tls13_draft_version(guint32 version) {
+static inline guint8 extract_tls13_draft_version(guint32 version) {
     if ((version & 0xff00) == 0x7f00) {
         return (guint8) version;
     }

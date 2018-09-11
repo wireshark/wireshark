@@ -6265,7 +6265,7 @@ ssl_dissect_hnd_hello_ext_supported_versions(ssl_common_dissect_t *hf, tvbuff_t 
         proto_tree_add_item_ret_uint(tree, hf->hf.hs_ext_supported_version, tvb, offset, 2, ENC_BIG_ENDIAN, &version);
         offset += 2;
 
-        draft_version = tls13_draft_version(version);
+        draft_version = extract_tls13_draft_version(version);
         max_draft_version = MAX(draft_version, max_draft_version);
     }
     if (!ssl_end_vector(hf, tvb, pinfo, tree, offset, next_offset)) {
@@ -7278,7 +7278,7 @@ ssl_try_set_version(SslSession *session, SslDecryptSession *ssl,
         return;
 
     if (handshake_type == SSL_HND_SERVER_HELLO) {
-        tls13_draft = tls13_draft_version(version);
+        tls13_draft = extract_tls13_draft_version(version);
         if (tls13_draft != 0) {
             /* This is TLS 1.3 (a draft version). */
             version = TLSV1DOT3_VERSION;
@@ -7657,7 +7657,7 @@ ssl_dissect_hnd_hello_retry_request(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 
     proto_tree_add_item_ret_uint(tree, hf->hf.hs_server_version, tvb,
                                  offset, 2, ENC_BIG_ENDIAN, &version);
-    draft_version = tls13_draft_version(version);
+    draft_version = extract_tls13_draft_version(version);
     offset += 2;
 
     if (draft_version == 0 || draft_version >= 19) {
