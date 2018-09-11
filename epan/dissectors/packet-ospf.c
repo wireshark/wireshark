@@ -4492,7 +4492,7 @@ proto_register_ospf(void)
       { &hf_ospf_mpls_num_labels, { "Num Labels", "ospf.mpls.num.labels", FT_UINT16, BASE_DEC, NULL, 0x0FFF, NULL, HFILL }},
       { &hf_ospf_mpls_interface_mtu, { "Interface MTU", "ospf.mpls.interface_mtu", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_ospf_mpls_length, { "Length", "ospf.mpls.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_ospf_mpls_pri, { "Priority", "ospf.mpls.pri", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_ospf_mpls_pri, { "Priority", "ospf.mpls.priority", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_ospf_mpls_protection_capability, { "Protection Capability", "ospf.mpls.protection_capability", FT_UINT8, BASE_HEX, VALS(gmpls_protection_cap_str), 0x0, NULL, HFILL }},
       { &hf_ospf_mpls_shared_risk_link_group, { "Shared Risk Link Group", "ospf.mpls.shared_risk_link_group", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_ospf_mpls_starting, { "Starting n", "ospf.mpls.starting", FT_UINT32, BASE_DEC, NULL, 0x0FFFF000, NULL, HFILL }},
