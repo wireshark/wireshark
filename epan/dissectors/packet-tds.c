@@ -2031,7 +2031,7 @@ handle_tds_sql_datetime(tvbuff_t *tvb, guint offset, proto_tree *sub_tree, tds_c
     }
 
     tv.secs = (time_t)((days * G_GUINT64_CONSTANT(86400)) + (threehndths/300) - G_GUINT64_CONSTANT(2208988800)); /* 2208988800 - seconds between Jan 1, 1900 and Jan 1, 1970 */
-    tv.nsecs = (threehndths%300) * 10000000 / 3;
+    tv.nsecs = (int)((threehndths%300) * 10000000 / 3);
     proto_tree_add_time(sub_tree, hf_tds_type_varbyte_data_absdatetime, tvb, offset, 8, &tv);
 }
 
