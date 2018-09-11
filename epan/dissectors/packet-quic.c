@@ -1393,13 +1393,7 @@ quic_process_payload(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_
 
 static int
 dissect_quic_initial(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset,
-                     quic_info_data_t *quic_info, quic_packet_info_t *quic_packet, guint64 pkn,
-#ifdef HAVE_LIBGCRYPT_AEAD
-                     const quic_cid_t *cid
-#else /* !HAVE_LIBGCRYPT_AEAD */
-                     const quic_cid_t *cid _U_
-#endif /* !HAVE_LIBGCRYPT_AEAD */
-                     )
+                     quic_info_data_t *quic_info, quic_packet_info_t *quic_packet, guint64 pkn)
 {
     proto_item *ti;
 
@@ -1407,18 +1401,6 @@ dissect_quic_initial(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, g
 
     // An Initial Packet should always result in creating a new connection.
     DISSECTOR_ASSERT(quic_info);
-
-#ifdef HAVE_LIBGCRYPT_AEAD
-    if (!PINFO_FD_VISITED(pinfo)) {
-        const gchar *error = NULL;
-        /* Create new decryption context based on the Client Connection
-         * ID from the Client Initial packet. */
-        if (!quic_create_handshake_decoders(cid, &error, quic_info)) {
-            expert_add_info_format(pinfo, ti, &ei_quic_decryption_failed, "Failed to create decryption context: %s", error);
-            quic_packet->decryption.error = wmem_strdup(wmem_file_scope(), error);
-        }
-    }
-#endif /* !HAVE_LIBGCRYPT_AEAD */
 
     quic_process_payload(tvb, pinfo, quic_tree, ti, offset,
                          quic_info, quic_packet, &quic_info->client_handshake_cipher, pkn);
@@ -1565,6 +1547,19 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
     proto_tree_add_item_ret_varint(quic_tree, hf_quic_payload_length, tvb, offset, -1, ENC_VARINT_QUIC, &payload_length, &len_payload_length);
     offset += len_payload_length;
 
+#ifdef HAVE_LIBGCRYPT_AEAD
+    /* Build handshake cipher now for PKN (and handshake) decryption. */
+    if (!PINFO_FD_VISITED(pinfo) && long_packet_type == QUIC_LPT_INITIAL) {
+        const gchar *error = NULL;
+        /* Create new decryption context based on the Client Connection
+         * ID from the Client Initial packet. */
+        if (!quic_create_handshake_decoders(&dcid, &error, conn)) {
+            expert_add_info_format(pinfo, quic_tree, &ei_quic_decryption_failed, "Failed to create decryption context: %s", error);
+            quic_packet->decryption.error = wmem_strdup(wmem_file_scope(), error);
+        }
+    }
+#endif /* !HAVE_LIBGCRYPT_AEAD */
+
     pkn = dissect_quic_packet_number(tvb, pinfo, quic_tree, offset, conn, quic_packet, 4);
     offset += 4;
     col_append_fstr(pinfo->cinfo, COL_INFO, ", PKN: %" G_GINT64_MODIFIER "u", pkn);
@@ -1572,7 +1567,7 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
     /* Payload */
     switch(long_packet_type) {
         case QUIC_LPT_INITIAL: /* Initial */
-            offset = dissect_quic_initial(tvb, pinfo, quic_tree, offset, conn, quic_packet, pkn, &dcid);
+            offset = dissect_quic_initial(tvb, pinfo, quic_tree, offset, conn, quic_packet, pkn);
         break;
         case QUIC_LPT_HANDSHAKE: /* Handshake */
             offset = dissect_quic_handshake(tvb, pinfo, quic_tree, offset, conn, quic_packet, pkn);
