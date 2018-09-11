@@ -495,25 +495,6 @@ else() # ! MSVC
 	)
 
 	#
-	# Apple's llvm-gcc appears not to support suppressing warnings with
-	# pragmas, so, if we're building on a Mac (we check for APPLE),
-	# and we're not using Clang, we suppress errors for some warnings
-	# that we can only remove by suppressing them, as they're in
-	# generated code.
-	#
-	# Unfortunately, -Wno-error=unused-function, perhaps because
-	# it's enabled by -Wall, not by -Wunused-function, so we just
-	# say "don't report this".
-	#
-	if (APPLE AND NOT CMAKE_C_COMPILER_ID MATCHES "Clang")
-		list(APPEND WIRESHARK_COMMON_FLAGS
-			-Wno-error=comma
-			-Wno-error=shorten-64-to-32
-			-Wno-unused-function
-		)
-	endif()
-
-	#
 	# Code that may be worth looking into (coding practices)
 	#
 	if((NOT ENABLE_ASAN) AND (NOT ENABLE_TSAN) AND (NOT ENABLE_UBSAN) AND (NOT DISABLE_FRAME_LARGER_THAN_WARNING))
@@ -754,6 +735,26 @@ if(NOT DISABLE_WERROR AND NOT ENABLE_EXTRA_COMPILER_WARNINGS)
 		check_c_compiler_flag(-Werror WERROR)
 		if (WERROR)
 			set(WERROR_COMMON_FLAGS "-Werror")
+		endif()
+
+		#
+		# Apple's llvm-gcc appears not to support suppressing
+		# warnings with pragmas, so, if we're building on a Mac
+		# (we check for APPLE), and we're not using Clang, we
+		# suppress errors for some warnings that we can only
+		# remove by suppressing them, as they're in generated
+		# code.
+		#
+		# We have to do this *after* -Werror, otherwise the
+		# compiler decides -Werror means "never mind, make 'em
+		# all errors.
+		#
+		if (APPLE AND NOT CMAKE_C_COMPILER_ID MATCHES "Clang")
+			list(APPEND WIRESHARK_COMMON_FLAGS
+				-Wno-error=comma
+				-Wno-error=shorten-64-to-32
+				-Wno-error=unused-function
+			)
 		endif()
 	endif()
 endif()
