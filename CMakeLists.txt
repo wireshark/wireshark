@@ -501,11 +501,15 @@ else() # ! MSVC
 	# that we can only remove by suppressing them, as they're in
 	# generated code.
 	#
+	# Unfortunately, -Wno-error=unused-function, perhaps because
+	# it's enabled by -Wall, not by -Wunused-function, so we just
+	# say "don't report this".
+	#
 	if (APPLE AND NOT CMAKE_C_COMPILER_ID MATCHES "Clang")
 		list(APPEND WIRESHARK_COMMON_FLAGS
 			-Wno-error=comma
 			-Wno-error=shorten-64-to-32
-			-Wno-error=unused-function
+			-Wno-unused-function
 		)
 	endif()
 
