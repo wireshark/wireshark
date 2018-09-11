@@ -11948,14 +11948,14 @@ dissect_compressed_beamforming_and_cqi(proto_tree *tree, tvbuff_t *tvb, packet_i
   int start_offset;
   int ru_start_index, ru_end_index;
 
-  nc = (mimo_cntl & 0x07) + 1;
-  nr = ((mimo_cntl >> 3) & 0x07) + 1;
-  bw = (mimo_cntl >> 6) & 0x03;
-  grouping = (mimo_cntl >> 8) & 0x01;
-  codebook = (mimo_cntl >> 9) & 0x01;
-  feedback = (mimo_cntl >> 10) & 0x03;
-  ru_start_index = (mimo_cntl >> 16) & 0x7F;
-  ru_end_index = (mimo_cntl >> 23) & 0x7F;
+  nc = (int)((mimo_cntl & 0x07) + 1);
+  nr = (int)(((mimo_cntl >> 3) & 0x07) + 1);
+  bw = (int)((mimo_cntl >> 6) & 0x03);
+  grouping = (int)((mimo_cntl >> 8) & 0x01);
+  codebook = (int)((mimo_cntl >> 9) & 0x01);
+  feedback = (int)((mimo_cntl >> 10) & 0x03);
+  ru_start_index = (int)((mimo_cntl >> 16) & 0x7F);
+  ru_end_index = (int)((mimo_cntl >> 23) & 0x7F);
 
   proto_tree_add_bitmask_with_flags(tree, tvb, offset,
     hf_ieee80211_he_mimo_control_field, ett_ff_he_mimo_control,
