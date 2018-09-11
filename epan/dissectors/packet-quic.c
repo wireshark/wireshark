@@ -1527,9 +1527,10 @@ dissect_quic_long_header_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *q
 }
 
 static int
-dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset,
+dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree,
                          quic_packet_info_t *quic_packet)
 {
+    guint offset = 0;
     guint32 long_packet_type;
     guint32 version;
     quic_cid_t  dcid = {.len=0}, scid = {.len=0};
@@ -1586,9 +1587,10 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
 }
 
 static int
-dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset,
+dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree,
                           quic_packet_info_t *quic_packet)
 {
+    guint offset = 0;
     guint8 short_flags;
     quic_cid_t dcid = {.len=0};
     guint32 pkn_len;
@@ -1645,8 +1647,9 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
 }
 
 static int
-dissect_quic_version_negotiation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, const quic_packet_info_t *quic_packet)
+dissect_quic_version_negotiation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, const quic_packet_info_t *quic_packet)
 {
+    guint       offset = 0;
     quic_cid_t  dcid = {.len=0}, scid = {.len=0};
     guint32 supported_version;
     proto_item *ti;
@@ -1668,6 +1671,43 @@ dissect_quic_version_negotiation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     }
 
     return offset;
+}
+
+static tvbuff_t *
+quic_get_message_tvb(tvbuff_t *tvb, const guint offset)
+{
+    guint64 payload_length;
+    guint8 packet_type = tvb_get_guint8(tvb, offset);
+    if (packet_type & 0x80) {
+        // long header form, check version
+        guint version = tvb_get_ntohl(tvb, offset + 1);
+        // If this is not a VN packet but a valid long form, extract a subset.
+        // TODO check for valid QUIC versions as future versions might change the format.
+        if (version != 0) {
+            guint8 cid_lengths = tvb_get_guint8(tvb, offset + 5);
+            guint8 dcil = cid_lengths >> 4;
+            guint8 scil = cid_lengths & 0xf;
+            guint length = 6;
+            if (dcil) {
+                length += 3 + dcil;
+            }
+            if (scil) {
+                length += 3 + scil;
+            }
+            length += tvb_get_varint(tvb, offset + length, 8, &payload_length, ENC_VARINT_QUIC);
+            // draft <= 11 does not include PKN length in Payload Length, add it.
+            if (quic_draft_version(version) == 11) {
+                length += 4;
+            }
+            length += (guint)payload_length;
+            if (payload_length <= G_MAXINT32 && length < (guint)tvb_reported_length_remaining(tvb, offset)) {
+                return tvb_new_subset_length(tvb, offset, length);
+            }
+        }
+    }
+
+    // short header form, VN or unknown message, return remaining data.
+    return tvb_new_subset_remaining(tvb, offset);
 }
 
 /**
@@ -1773,17 +1813,21 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     quic_add_connection_info(tvb, pinfo, quic_tree, quic_packet);
 
-    proto_tree_add_item_ret_uint(quic_tree, hf_quic_header_form, tvb, offset, 1, ENC_NA, &header_form);
-    if(header_form) {
-        gboolean is_vn = tvb_get_ntohl(tvb, offset + 1) == 0;
-        if (is_vn) {
-            offset = dissect_quic_version_negotiation(tvb, pinfo, quic_tree, offset, quic_packet);
-            return offset;
+    do {
+        tvbuff_t *next_tvb = quic_get_message_tvb(tvb, offset);
+        proto_tree_add_item_ret_uint(quic_tree, hf_quic_header_form, next_tvb, 0, 1, ENC_NA, &header_form);
+        if (header_form) {
+            gboolean is_vn = tvb_get_ntohl(next_tvb, 1) == 0;
+            if (is_vn) {
+                dissect_quic_version_negotiation(next_tvb, pinfo, quic_tree, quic_packet);
+                break;
+            }
+            dissect_quic_long_header(next_tvb, pinfo, quic_tree, quic_packet);
+        } else {
+            dissect_quic_short_header(next_tvb, pinfo, quic_tree, quic_packet);
         }
-        offset = dissect_quic_long_header(tvb, pinfo, quic_tree, offset, quic_packet);
-    } else {
-        offset = dissect_quic_short_header(tvb, pinfo, quic_tree, offset, quic_packet);
-    }
+        offset += tvb_reported_length(next_tvb);
+    } while (tvb_reported_length_remaining(tvb, offset));
 
     return offset;
 }
