@@ -682,6 +682,13 @@ static gboolean check_csq(gint role, guint16 type) {
 
     return FALSE;
 }
+
+static gboolean check_csupi(gint role, guint16 type) {
+    if (role == ROLE_DTE && (type == TYPE_ACTION_SIMPLY || type == TYPE_TEST)) return TRUE;
+
+    return FALSE;
+}
+
 static gboolean check_gmi(gint role, guint16 type) {
     if (role == ROLE_DTE && (type == TYPE_ACTION_SIMPLY || type == TYPE_TEST)) return TRUE;
     if (role == ROLE_DCE && type == TYPE_RESPONSE) return TRUE;
@@ -1657,6 +1664,7 @@ static const at_cmd_t at_cmds[] = {
     { "+CSCS",      "Select TE Character Set",                                 check_cscs, dissect_cscs_parameter },
     { "+CSIM",      "Generic SIM access",                                      check_csim, dissect_csim_parameter },
     { "+CSQ",       "Signal Quality",                                          check_csq,  dissect_csq_parameter },
+    { "+CSUPI",     "Request 5G subscription permanent identifier",            check_csupi, dissect_no_parameter },
     { "+GMI",       "Request manufacturer identification",                     check_gmi,  dissect_gmi_parameter },
     { "+GMM",       "Request model identification",                            check_gmm,  dissect_gmm_parameter },
     { "+GMR",       "Request revision identification",                         check_gmr,  dissect_gmr_parameter },
