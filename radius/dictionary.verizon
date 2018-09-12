@@ -1,0 +1,24 @@
+# -*- text -*-
+# Copyright (C) 2018 The FreeRADIUS Server project and contributors
+##############################################################################
+#
+#       Verizon RADIUS Dictionary for Diameter Rf
+#
+##############################################################################
+
+VENDOR		VerizonWireless			12951
+
+BEGIN-VENDOR	VerizonWireless
+
+ATTRIBUTE	Acct-Interim-Record-Number		200	integer
+ATTRIBUTE	UE-Info-Type				201	integer
+ATTRIBUTE	UE-Info-Value				202	string
+ATTRIBUTE	Dynamic-Address-Flag			203	integer
+ATTRIBUTE	Local-Seq-Number			204	integer
+ATTRIBUTE	Time-First-Usage			205	date
+ATTRIBUTE	Time-Last-Usage				206	date
+ATTRIBUTE	Charging-Group-ID			207	string
+ATTRIBUTE	Service-Data-Container-Bin		210	octets
+ATTRIBUTE	Service-Data-Container			211	tlv
+
+END-VENDOR      VerizonWireless

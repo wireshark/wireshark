@@ -282,6 +282,7 @@ $INCLUDE dictionary.usr
 $INCLUDE dictionary.utstarcom
 $INCLUDE dictionary.valemount
 $INCLUDE dictionary.versanet
+$INCLUDE dictionary.verizon
 ###$INCLUDE dictionary.vqp
 $INCLUDE dictionary.waverider
 $INCLUDE dictionary.walabi
