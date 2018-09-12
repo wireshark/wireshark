@@ -273,15 +273,6 @@ test(tvbuff_t *tvb, const gchar* name,
 	return TRUE;
 }
 
-static gboolean
-skip(tvbuff_t *tvb _U_, gchar* name,
-		guint8* expected_data _U_, guint expected_length _U_)
-{
-	printf("Skipping TVB=%s\n", name);
-	return FALSE;
-}
-
-
 static void
 run_tests(void)
 {
