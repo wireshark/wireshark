@@ -23,7 +23,7 @@ gboolean failed = FALSE;
 
 /* Tests a tvbuff against the expected pattern/length.
  * Returns TRUE if all tests succeeed, FALSE if any test fails */
-gboolean
+static gboolean
 test(tvbuff_t *tvb, const gchar* name,
      guint8* expected_data, guint expected_length, guint expected_reported_length)
 {
@@ -273,7 +273,7 @@ test(tvbuff_t *tvb, const gchar* name,
 	return TRUE;
 }
 
-gboolean
+static gboolean
 skip(tvbuff_t *tvb _U_, gchar* name,
 		guint8* expected_data _U_, guint expected_length _U_)
 {
@@ -282,7 +282,7 @@ skip(tvbuff_t *tvb _U_, gchar* name,
 }
 
 
-void
+static void
 run_tests(void)
 {
 	int		i, j;
