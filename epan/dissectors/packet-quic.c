@@ -49,7 +49,9 @@ static int hf_quic_dcid = -1;
 static int hf_quic_scid = -1;
 static int hf_quic_dcil = -1;
 static int hf_quic_scil = -1;
-static int hf_quic_payload_length = -1;
+static int hf_quic_token_length = -1;
+static int hf_quic_token = -1;
+static int hf_quic_length = -1;
 static int hf_quic_packet_number = -1;
 static int hf_quic_packet_number_full = -1;
 static int hf_quic_version = -1;
@@ -135,7 +137,7 @@ static dissector_handle_t ssl_handle;
  * - During live capture, keys might not be immediately be available. 1-RTT
  *   client keys will be ready while client proceses Server Hello (Handshake).
  *   1-RTT server keys will be ready while server creates Handshake message in
- *   response to Inititial Handshake.
+ *   response to Initial Handshake.
  * - So delay cipher creation until first short packet is received.
  *
  * Required input from TLS dissector: TLS-Exporter 0-RTT/1-RTT secrets and
@@ -253,6 +255,7 @@ const value_string quic_version_vals[] = {
     { 0xff00000a, "draft-10" },
     { 0xff00000b, "draft-11" },
     { 0xff00000c, "draft-12" },
+    { 0xff00000d, "draft-13" },
     { 0, NULL }
 };
 
@@ -682,6 +685,10 @@ quic_connection_find(packet_info *pinfo, guint8 long_packet_type,
 
     if ((long_packet_type == QUIC_LPT_INITIAL || long_packet_type == QUIC_LPT_0RTT) && dcid->len > 0) {
         conn = (quic_info_data_t *) wmem_map_lookup(quic_initial_connections, dcid);
+        // Both the client and server can send Initial (since draft -13).
+        if (!conn && long_packet_type == QUIC_LPT_INITIAL) {
+            conn = quic_connection_find_dcid(pinfo, dcid, from_server);
+        }
     } else {
         conn = quic_connection_find_dcid(pinfo, dcid, from_server);
     }
@@ -690,8 +697,8 @@ quic_connection_find(packet_info *pinfo, guint8 long_packet_type,
         // For short packets, first try to find a match based on the address.
         conn = quic_connection_find_dcid(pinfo, NULL, from_server);
         if (conn) {
-            if ((from_server && !quic_cids_has_match(&conn->server_cids, dcid)) ||
-                (!from_server && !quic_cids_has_match(&conn->client_cids, dcid))) {
+            if ((*from_server && !quic_cids_has_match(&conn->server_cids, dcid)) ||
+                (!*from_server && !quic_cids_has_match(&conn->client_cids, dcid))) {
                 // Connection does not match packet.
                 conn = NULL;
             }
@@ -755,14 +762,15 @@ quic_connection_create_or_update(quic_info_data_t **conn_p,
 
     switch (long_packet_type) {
     case QUIC_LPT_INITIAL:
-        // The first Initial Packet creates a new connection.
-        if (!conn) {
+        // The first Initial Packet from the client creates a new connection.
+        if (!conn && !from_server) {
             *conn_p = quic_connection_create(pinfo, version, scid, dcid);
         }
-        break;
+        /* fallthrough */
     case QUIC_LPT_RETRY:
     case QUIC_LPT_HANDSHAKE:
         // Remember CID from first server Retry/Handshake packet
+        // (or from the first server Initial packet, since draft -13).
         if (conn && conn->server_cids.data.len == 0 && from_server) {
             memcpy(&conn->server_cids.data, scid, sizeof(quic_cid_t));
             if (scid->len) {
@@ -1626,8 +1634,9 @@ dissect_quic_initial(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, g
     // An Initial Packet should always result in creating a new connection.
     DISSECTOR_ASSERT(quic_info);
 
+    quic_cipher *cipher = quic_packet->from_server ? &quic_info->server_handshake_cipher : &quic_info->client_handshake_cipher;
     quic_process_payload(tvb, pinfo, quic_tree, ti, offset,
-                         quic_info, quic_packet, &quic_info->client_handshake_cipher, pkn_len);
+                         quic_info, quic_packet, cipher, pkn_len);
     offset += tvb_reported_length_remaining(tvb, offset);
 
     return offset;
@@ -1758,6 +1767,8 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
     guint32 long_packet_type;
     guint32 version;
     quic_cid_t  dcid = {.len=0}, scid = {.len=0};
+    guint32 len_token_length;
+    guint64 token_length;
     guint32 len_payload_length;
     guint64 payload_length;
     guint32 pkn_len;
@@ -1771,15 +1782,26 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
 
     offset = dissect_quic_long_header_common(tvb, pinfo, quic_tree, offset, quic_packet, &version, &dcid, &scid);
 
-    proto_tree_add_item_ret_varint(quic_tree, hf_quic_payload_length, tvb, offset, -1, ENC_VARINT_QUIC, &payload_length, &len_payload_length);
+    if (!is_quic_draft_max(version, 12) && long_packet_type == QUIC_LPT_INITIAL) {
+        proto_tree_add_item_ret_varint(quic_tree, hf_quic_token_length, tvb, offset, -1, ENC_VARINT_QUIC, &token_length, &len_token_length);
+        offset += len_token_length;
+
+        if (token_length) {
+            proto_tree_add_item(quic_tree, hf_quic_token, tvb, offset, (guint32)token_length, ENC_NA);
+            offset += (guint)token_length;
+        }
+    }
+
+    proto_tree_add_item_ret_varint(quic_tree, hf_quic_length, tvb, offset, -1, ENC_VARINT_QUIC, &payload_length, &len_payload_length);
     offset += len_payload_length;
 
 #ifdef HAVE_LIBGCRYPT_AEAD
     /* Build handshake cipher now for PKN (and handshake) decryption. */
-    if (!PINFO_FD_VISITED(pinfo) && long_packet_type == QUIC_LPT_INITIAL) {
+    if (!PINFO_FD_VISITED(pinfo) && (long_packet_type == QUIC_LPT_INITIAL && !quic_packet->from_server) &&
+        conn && !memcmp(&dcid, &conn->client_dcid_initial, sizeof(quic_cid_t))) {
         const gchar *error = NULL;
         /* Create new decryption context based on the Client Connection
-         * ID from the Client Initial packet. */
+         * ID from the *very first* Client Initial packet. */
         if (!quic_create_handshake_decoders(&dcid, &error, conn)) {
             expert_add_info_format(pinfo, quic_tree, &ei_quic_decryption_failed, "Failed to create decryption context: %s", error);
             quic_packet->decryption.error = wmem_strdup(wmem_file_scope(), error);
@@ -1914,6 +1936,7 @@ dissect_quic_version_negotiation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 static tvbuff_t *
 quic_get_message_tvb(tvbuff_t *tvb, const guint offset)
 {
+    guint64 token_length;
     guint64 payload_length;
     guint8 packet_type = tvb_get_guint8(tvb, offset);
     if (packet_type & 0x80) {
@@ -1931,6 +1954,10 @@ quic_get_message_tvb(tvbuff_t *tvb, const guint offset)
             }
             if (scil) {
                 length += 3 + scil;
+            }
+            if (!is_quic_draft_max(version, 12) && packet_type == (0x80 | QUIC_LPT_INITIAL)) {
+                length += tvb_get_varint(tvb, offset + length, 8, &token_length, ENC_VARINT_QUIC);
+                length += (guint)token_length;
             }
             length += tvb_get_varint(tvb, offset + length, 8, &payload_length, ENC_VARINT_QUIC);
             // draft <= 11 does not include PKN length in Payload Length, add it.
@@ -2176,10 +2203,20 @@ proto_register_quic(void)
             FT_UINT8, BASE_DEC, VALS(quic_cid_len_vals), 0x0f,
             "Source Connection ID Length (for non-zero lengths, add 3 for actual length)", HFILL }
         },
-        { &hf_quic_payload_length,
-          { "Payload Length", "quic.payload_length",
+        { &hf_quic_token_length,
+          { "Token Length", "quic.token_length",
             FT_UINT64, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
+        },
+        { &hf_quic_token,
+          { "Token", "quic.token",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_quic_length,
+          { "Length", "quic.length",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            "Length of Packet Number and Payload fields", HFILL }
         },
 
         { &hf_quic_packet_number,
