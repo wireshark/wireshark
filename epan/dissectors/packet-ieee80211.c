@@ -31771,17 +31771,17 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_extended_capabilities_b77,
      {"TWT Requester Support", "wlan.extcap.b77",
-      FT_BOOLEAN, 16, NULL, 0x20,
+      FT_BOOLEAN, 8, NULL, 0x20,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_extended_capabilities_b78,
      {"TWT Responder Support", "wlan.extcap.b78",
-      FT_BOOLEAN, 16, NULL, 0x40,
+      FT_BOOLEAN, 8, NULL, 0x40,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_extended_capabilities_b79,
      {"OBSS Narrow Bandwidth RU in UL OFDMA Tolerance Support", "wlan.extcap.b79",
-      FT_BOOLEAN, 16, NULL, 0x80,
+      FT_BOOLEAN, 8, NULL, 0x80,
       NULL, HFILL }},
 
 
