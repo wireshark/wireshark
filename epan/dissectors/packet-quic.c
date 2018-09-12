@@ -1130,7 +1130,7 @@ qhkdf_expand(int md, const guint8 *secret, guint secret_len,
              const char *label, guint8 *out, guint out_len);
 
 static gboolean
-quic_cipher_init(quic_cipher *cipher, int hash_algo, guint8 key_length, guint8 *secret);
+quic_cipher_init(guint32 version, quic_cipher *cipher, int hash_algo, guint8 key_length, guint8 *secret);
 
 
 /**
@@ -1209,6 +1209,19 @@ quic_decrypt_message(quic_cipher *cipher, tvbuff_t *head, guint header_length, g
     result->data_len = buffer_length;
 }
 
+static gboolean
+quic_hkdf_expand_label(int hash_algo, guint8 *secret, guint secret_len, const char *label, guint8 *out, guint out_len)
+{
+    const StringInfo secret_si = { secret, secret_len };
+    guchar *out_mem = NULL;
+    if (tls13_hkdf_expand_label(hash_algo, &secret_si, "quic ", label, out_len, &out_mem)) {
+        memcpy(out, out_mem, out_len);
+        wmem_free(NULL, out_mem);
+        return TRUE;
+    }
+    return FALSE;
+}
+
 /**
  * Compute the client and server handshake secrets given Connection ID "cid".
  *
@@ -1219,7 +1232,7 @@ static gboolean
 quic_derive_handshake_secrets(const quic_cid_t *cid,
                               guint8 client_handshake_secret[HASH_SHA2_256_LENGTH],
                               guint8 server_handshake_secret[HASH_SHA2_256_LENGTH],
-                              quic_info_data_t *quic_info _U_,
+                              quic_info_data_t *quic_info,
                               const gchar **error)
 {
     /*
@@ -1233,6 +1246,16 @@ quic_derive_handshake_secrets(const quic_cid_t *cid,
      *    QHKDF-Expand(handshake_secret, "client hs", Hash.length)
      * server_handshake_secret =
      *    QHKDF-Expand(handshake_secret, "server hs", Hash.length)
+     *
+     * https://tools.ietf.org/html/draft-ietf-quic-tls-14#section-5.1.1
+     *
+     * initial_salt = 0x9c108f98520a5c5c32968e950e8a2c5fe06d6c38
+     * initial_secret = HKDF-Extract(initial_salt, client_dst_connection_id)
+     *
+     * client_initial_secret = HKDF-Expand-Label(initial_secret,
+     *                                           "client in", "", Hash.length)
+     * server_initial_secret = HKDF-Expand-Label(initial_secret,
+     *                                           "server in", "", Hash.length)
      *
      * Hash for handshake packets is SHA-256 (output size 32).
      */
@@ -1250,16 +1273,30 @@ quic_derive_handshake_secrets(const quic_cid_t *cid,
         return FALSE;
     }
 
-    if (qhkdf_expand(GCRY_MD_SHA256, secret, sizeof(secret), "client hs",
-                     client_handshake_secret, HASH_SHA2_256_LENGTH)) {
-        *error = "Key expansion (client) failed";
-        return FALSE;
-    }
+    if (is_quic_draft_max(quic_info->version, 12)) {
+        if (qhkdf_expand(GCRY_MD_SHA256, secret, sizeof(secret), "client hs",
+                         client_handshake_secret, HASH_SHA2_256_LENGTH)) {
+            *error = "Key expansion (client) failed";
+            return FALSE;
+        }
 
-    if (qhkdf_expand(GCRY_MD_SHA256, secret, sizeof(secret), "server hs",
-                     server_handshake_secret, HASH_SHA2_256_LENGTH)) {
-        *error = "Key expansion (server) failed";
-        return FALSE;
+        if (qhkdf_expand(GCRY_MD_SHA256, secret, sizeof(secret), "server hs",
+                         server_handshake_secret, HASH_SHA2_256_LENGTH)) {
+            *error = "Key expansion (server) failed";
+            return FALSE;
+        }
+    } else {
+        if (!quic_hkdf_expand_label(GCRY_MD_SHA256, secret, sizeof(secret), "client in",
+                                    client_handshake_secret, HASH_SHA2_256_LENGTH)) {
+            *error = "Key expansion (client) failed";
+            return FALSE;
+        }
+
+        if (!quic_hkdf_expand_label(GCRY_MD_SHA256, secret, sizeof(secret), "server in",
+                                    server_handshake_secret, HASH_SHA2_256_LENGTH)) {
+            *error = "Key expansion (server) failed";
+            return FALSE;
+        }
     }
 
     *error = NULL;
@@ -1294,6 +1331,7 @@ quic_create_handshake_decoders(const quic_cid_t *cid, const gchar **error, quic_
 {
     guint8          client_secret[HASH_SHA2_256_LENGTH];
     guint8          server_secret[HASH_SHA2_256_LENGTH];
+    guint32         version = quic_info->version;
 
     if (!quic_derive_handshake_secrets(cid, client_secret, server_secret, quic_info, error)) {
         return FALSE;
@@ -1322,8 +1360,8 @@ quic_create_handshake_decoders(const quic_cid_t *cid, const gchar **error, quic_
     }
 
     guint cipher_keylen = (guint8) gcry_cipher_get_algo_keylen(GCRY_CIPHER_AES128);
-    if (!quic_cipher_init(&quic_info->client_handshake_cipher, GCRY_MD_SHA256, cipher_keylen, client_secret) ||
-        !quic_cipher_init(&quic_info->server_handshake_cipher, GCRY_MD_SHA256, cipher_keylen, server_secret)) {
+    if (!quic_cipher_init(version, &quic_info->client_handshake_cipher, GCRY_MD_SHA256, cipher_keylen, client_secret) ||
+        !quic_cipher_init(version, &quic_info->server_handshake_cipher, GCRY_MD_SHA256, cipher_keylen, server_secret)) {
         *error = "Failed to derive key material for cipher";
         return FALSE;
     }
@@ -1390,7 +1428,7 @@ quic_get_pp0_secret(packet_info *pinfo, int hash_algo, quic_pp_state_t *pp_state
  * and initialize cipher with the new key.
  */
 static gboolean
-quic_cipher_init(quic_cipher *cipher, int hash_algo, guint8 key_length, guint8 *secret)
+quic_cipher_init(guint32 version, quic_cipher *cipher, int hash_algo, guint8 key_length, guint8 *secret)
 {
     guchar      write_key[256/8];   /* Maximum key size is for AES256 cipher. */
     guchar      pn_key[256/8];
@@ -1400,10 +1438,18 @@ quic_cipher_init(quic_cipher *cipher, int hash_algo, guint8 key_length, guint8 *
         return FALSE;
     }
 
-    if (qhkdf_expand(hash_algo, secret, hash_len, "key", write_key, key_length) ||
-        qhkdf_expand(hash_algo, secret, hash_len, "iv", cipher->pp_iv, sizeof(cipher->pp_iv)) ||
-        qhkdf_expand(hash_algo, secret, hash_len, "pn", pn_key, key_length)) {
-        return FALSE;
+    if (is_quic_draft_max(version, 12)) {
+        if (qhkdf_expand(hash_algo, secret, hash_len, "key", write_key, key_length) ||
+            qhkdf_expand(hash_algo, secret, hash_len, "iv", cipher->pp_iv, sizeof(cipher->pp_iv)) ||
+            qhkdf_expand(hash_algo, secret, hash_len, "pn", pn_key, key_length)) {
+            return FALSE;
+        }
+    } else {
+        if (!quic_hkdf_expand_label(hash_algo, secret, hash_len, "key", write_key, key_length) ||
+            !quic_hkdf_expand_label(hash_algo, secret, hash_len, "iv", cipher->pp_iv, sizeof(cipher->pp_iv)) ||
+            !quic_hkdf_expand_label(hash_algo, secret, hash_len, "pn", pn_key, key_length)) {
+            return FALSE;
+        }
     }
 
     return gcry_cipher_setkey(cipher->pn_cipher, pn_key, key_length) == 0 &&
@@ -1430,6 +1476,7 @@ static quic_cipher *
 quic_get_pp_cipher(packet_info *pinfo, gboolean key_phase, guint64 pkn, quic_info_data_t *quic_info, gboolean from_server)
 {
     gboolean    needs_key_update = FALSE;
+    guint32     version = quic_info->version;
 
     /* Keys were previously not available. */
     if (quic_info->skip_decryption) {
@@ -1479,8 +1526,8 @@ quic_get_pp_cipher(packet_info *pinfo, gboolean key_phase, guint64 pkn, quic_inf
         quic_info->cipher_keylen = (guint8) gcry_cipher_get_algo_keylen(cipher_algo);
 
         /* Set key for cipher handles KEY_PHASE 0. */
-        if (!quic_cipher_init(&client_pp->cipher[0], quic_info->hash_algo, quic_info->cipher_keylen, client_pp->secret) ||
-            !quic_cipher_init(&server_pp->cipher[0], quic_info->hash_algo, quic_info->cipher_keylen, server_pp->secret)) {
+        if (!quic_cipher_init(version, &client_pp->cipher[0], quic_info->hash_algo, quic_info->cipher_keylen, client_pp->secret) ||
+            !quic_cipher_init(version, &server_pp->cipher[0], quic_info->hash_algo, quic_info->cipher_keylen, server_pp->secret)) {
             quic_info->skip_decryption = TRUE;
             return NULL;
         }
@@ -1507,7 +1554,7 @@ quic_get_pp_cipher(packet_info *pinfo, gboolean key_phase, guint64 pkn, quic_inf
         } else {
             /* Key update requested, update key. */
             quic_update_key(quic_info->hash_algo, pp_state, !from_server);
-            quic_cipher_init(&pp_state->cipher[key_phase], quic_info->hash_algo, quic_info->cipher_keylen, pp_state->secret);
+            quic_cipher_init(version, &pp_state->cipher[key_phase], quic_info->hash_algo, quic_info->cipher_keylen, pp_state->secret);
             pp_state->key_phase = key_phase;
             pp_state->changed_in_pkn = pkn;
         }
