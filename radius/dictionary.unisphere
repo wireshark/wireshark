@@ -6,7 +6,7 @@
 #	Juniper's (was Unisphere's) broadband RAS
 #	From Terje Krogdahl <tekr@nextra.com>
 #
-# Version:	$Id: d9eab0c853621e95f16f295c8f82f6204a4f917b $
+# Version:	$Id: a950e241de865770f73cf8a6cccfb930cc6330e2 $
 #
 
 # This dictionary applies to access services on Juniper JUNOS (M/MX)
@@ -221,11 +221,40 @@ ATTRIBUTE	Jnpr-Vlan-Map-Id			160	integer
 ATTRIBUTE	Jnpr-IPv6-Delegated-Pool-Name		161	string
 ATTRIBUTE	Jnpr-Tx-Connect-Speed			162	integer
 ATTRIBUTE	Jnpr-Rx-Connect-Speed			163	integer
+ATTRIBUTE	Unisphere-Ipv4-release-control		164	string
+ATTRIBUTE	Pcp-Server-Name				165	string
 
-# ATTRIBUTE 164 - 173 RESERVED
+# ATTRIBUTE 166 - 173 RESERVED
 ATTRIBUTE	Unisphere-Client-Profile-Name		174	string
 ATTRIBUTE	Jnpr-Redirect-GW-Address		175	ipaddr
 ATTRIBUTE	Jnpr-APN-Name				176	string
+ATTRIBUTE	Unisphere-Cos-Shaping-Rate		177	string
+ATTRIBUTE	Unisphere-Action-Reason			178	string
+ATTRIBUTE	Unisphere-Service-Volume-Gigawords	179	integer has_tag
+ATTRIBUTE	Unisphere-Update-Service		180	string has_tag
+
+ATTRIBUTE	Unisphere-Acc-Loop-Remote-Id		182	string
+ATTRIBUTE	Unisphere-Acc-Loop-Encap		183	octets
+ATTRIBUTE	Unisphere-Inner-Vlan-Map-Id		184	integer
+ATTRIBUTE	Unisphere-Core-Facing-Interface		185	string
+ATTRIBUTE	Unisphere-Pcp-Port-Map			186	string
+ATTRIBUTE	Unisphere-vCPE-Lan-Extension		187	string
+ATTRIBUTE	Unisphere-vCPE-IPv4-Offload		188	string
+
+ATTRIBUTE	Jnpr-Input-Interface-Filter		191	string
+ATTRIBUTE	Jnpr-Output-Interface-Filter		192	string
+ATTRIBUTE	ERX-Bulk-CoA-Transaction-Id		194	integer
+ATTRIBUTE	ERX-Bulk-CoA-Identifier			195	integer
+ATTRIBUTE	Unisphere-IPv4-Input-Service-Set	196	string
+ATTRIBUTE	Unisphere-IPv4-Output-Service-Set	197	string
+ATTRIBUTE	Unisphere-IPv4-Input-Service-Filter	198	string
+ATTRIBUTE	Unisphere-IPv4-Output-Service-Filter	199	string
+ATTRIBUTE	Unisphere-IPv6-Input-Service-Set	200	string
+ATTRIBUTE	Unisphere-IPv6-Output-Service-Set	201	string
+ATTRIBUTE	Unisphere-IPv6-Input-Service-Filter	202	string
+ATTRIBUTE	Unisphere-IPv6-Output-Service-Filter	203	string
+ATTRIBUTE	Unisphere-Adv-Pcef-Profile-Name		204	string
+ATTRIBUTE	Unisphere-Adv-Pcef-Rule-Name		205	string
 
 #
 #  Values	Attribute		Name			Number
@@ -267,11 +296,11 @@ VALUE	Unisphere-Qos-Profile-Interface-Type PPPOE-SUB		12
 VALUE	Unisphere-Nas-Port-Method	None			0
 VALUE	Unisphere-Nas-Port-Method	CISCO-CLID		1
 
-VALUE	Unisphere-Ppp-Protocol		None			0
-VALUE	Unisphere-Ppp-Protocol		PAP			1
-VALUE	Unisphere-Ppp-Protocol		CHAP			2
-VALUE	Unisphere-Ppp-Protocol		PAP-CHAP		3
-VALUE	Unisphere-Ppp-Protocol		CHAP-PAP		4
+VALUE	Unisphere-PPP-Protocol		None			0
+VALUE	Unisphere-PPP-Protocol		PAP			1
+VALUE	Unisphere-PPP-Protocol		CHAP			2
+VALUE	Unisphere-PPP-Protocol		PAP-CHAP		3
+VALUE	Unisphere-PPP-Protocol		CHAP-PAP		4
 
 VALUE	Unisphere-Tunnel-Bearer-Type	None			0
 VALUE	Unisphere-Tunnel-Bearer-Type	Analog			1
