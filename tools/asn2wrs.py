@@ -2421,7 +2421,7 @@ class EthCnf:
                     if not par: continue
                     p = 1
                     if (par[0] == 'WITH_VALS'):      default_flags |= EF_TYPE|EF_VALS
-                    elif (par[0] == 'WITHOUT_VALS'): default_flags |= EF_TYPE; default_flags &= ~EF_TYPE
+                    elif (par[0] == 'WITHOUT_VALS'): default_flags |= EF_TYPE; default_flags &= ~EF_VALS
                     elif (par[0] == 'ONLY_VALS'):    default_flags &= ~EF_TYPE; default_flags |= EF_VALS
                     elif (ctx == 'EXPORTS'): p = 0
                     else: warnings.warn_explicit("Unknown parameter value '%s'" % (par[0]), UserWarning, fn, lineno)
@@ -2557,7 +2557,7 @@ class EthCnf:
                 p = 2
                 if (len(par)>=2):
                     if (par[1] == 'WITH_VALS'):      flags |= EF_TYPE|EF_VALS
-                    elif (par[1] == 'WITHOUT_VALS'): flags |= EF_TYPE; flags &= ~EF_TYPE
+                    elif (par[1] == 'WITHOUT_VALS'): flags |= EF_TYPE; flags &= ~EF_VALS
                     elif (par[1] == 'ONLY_VALS'):    flags &= ~EF_TYPE; flags |= EF_VALS
                     elif (ctx == 'EXPORTS'): p = 1
                     else: warnings.warn_explicit("Unknown parameter value '%s'" % (par[1]), UserWarning, fn, lineno)
