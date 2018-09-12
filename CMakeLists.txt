@@ -491,28 +491,8 @@ else() # ! MSVC
 		-Wno-long-long
 		-Wheader-guard
 		-Wcomma
+		-Wshorten-64-to-32
 	)
-
-	#
-	# For -Wshorten-64-to-32, Apple's llvm-gcc doesn't seem to support
-	# specifying -Werror and then specifying that -Wshorten-64-to-32
-	# warnings should *not* be treated as errors - not with pragmas
-	# and not even with -Werror ... -Wshorten-64-to-32 ...
-	# -Wno-error=shorten-64-to-32.
-	#
-	# So we only add -Wshorten-64-to-32 if either 1) we're not building
-	# on/for Apple or 2) we're using Clang.
-	#
-	# We also suppress -Wunused-function; that's enabled by -Wall,
-	# but it's another warning that can be difficult to suppress
-	# in generated code.
-	#
-	if ((NOT APPLE) OR CMAKE_C_COMPILER_ID MATCHES "Clang")
-		list(APPEND WIRESHARK_COMMON_FLAGS
-			-Wshorten-64-to-32
-			-Wno-unused-function
-		)
-	endif()
 
 	#
 	# Code that may be worth looking into (coding practices)
@@ -752,9 +732,22 @@ if(NOT DISABLE_WERROR AND NOT ENABLE_EXTRA_COMPILER_WARNINGS)
 	if(CMAKE_C_COMPILER_ID MATCHES "MSVC")
 		set(WERROR_COMMON_FLAGS "/WX")
 	else()
-		check_c_compiler_flag(-Werror WERROR)
-		if (WERROR)
-			set(WERROR_COMMON_FLAGS "-Werror")
+		#
+		# If a warning has been enabled by -Wall or -W,
+		# and have specified -Werror, there appears to be
+		# no way, in Apple's llvm-gcc, to prevent that
+		# particular warning from giving an error - not
+		# with a pragma, not with -Wno-{warning}, and not
+		# with -Wno-error={warning}.
+		#
+		# Therefore, with that compiler, we just disable
+		# -Werror.
+		#
+		if ((NOT APPLE) OR CMAKE_C_COMPILER_ID MATCHES "Clang")
+			check_c_compiler_flag(-Werror WERROR)
+			if (WERROR)
+				set(WERROR_COMMON_FLAGS "-Werror")
+			endif()
 		endif()
 	endif()
 endif()
