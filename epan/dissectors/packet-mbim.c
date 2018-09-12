@@ -20,7 +20,7 @@
  * https://docs.microsoft.com/en-us/windows-hardware/drivers/network/mb-network-blacklist-operations
  * https://docs.microsoft.com/en-us/windows-hardware/drivers/network/mb-lte-attach-operations
  * https://docs.microsoft.com/en-us/windows-hardware/drivers/network/mb-multi-sim-operations
- * https://docs.microsoft.com/en-us/windows-hardware/drivers/network/mb-protocol-configuration-operations--pco-
+ * https://docs.microsoft.com/en-us/windows-hardware/drivers/network/mb-protocol-configuration-options-pco-operations
  * https://docs.microsoft.com/en-us/windows-hardware/drivers/network/mb-modem-reset-operations
  *
  * https://docs.microsoft.com/en-us/windows-hardware/drivers/network/mb-sar-platform-support
@@ -1256,11 +1256,11 @@ static const value_string mbim_uuid_intel_ciq_cid_vals[] = {
     { 0, NULL}
 };
 
-#define MBIM_CID_ATDS_SIGNAL                1
-#define MBIM_CID_ATDS_LOCATION              2
-#define MBIM_CID_ATDS_OPERATORS             3
-#define MBIM_CID_ATDS_RAT                   4
-#define MBIM_CID_ATDS_REGISTER_STATE        9
+#define MBIM_CID_ATDS_SIGNAL                 1
+#define MBIM_CID_ATDS_LOCATION               2
+#define MBIM_CID_ATDS_OPERATORS              3
+#define MBIM_CID_ATDS_RAT                    4
+#define MBIM_CID_ATDS_REGISTER_STATE         9
 #define MBIM_CID_ATDS_SET_PROJECTION_TABLES 10
 
 static const value_string mbim_uuid_atds_cid_vals[] = {
@@ -1286,25 +1286,18 @@ static const value_string mbim_uuid_multiflow_cid_vals[] = {
     { 0, NULL}
 };
 
-#define MBIM_CID_MS_PROVISIONED_CONTEXT_V2 1
-#define MBIM_CID_MS_NETWORK_BLACKLIST      2
-#define MBIM_CID_MS_LTE_ATTACH_CONFIG      3
-#define MBIM_CID_MS_LTE_ATTACH_STATUS      4
-#define MBIM_CID_MS_SYS_CAPS               5
-#define MBIM_CID_MS_DEVICE_CAPS_V2         6
-#define MBIM_CID_MS_DEVICE_SLOT_MAPPINGS   7
-#define MBIM_CID_MS_SLOT_INFO_STATUS       8
-#define MBIM_CID_PCO                       9
-#define MBIM_CID_MS_DEVICE_RESET          10
-
-/*
-TODO: These are not defined in the online docs. I guessed them from
-packet capture.
-See https://github.com/MicrosoftDocs/windows-driver-docs/issues/824
-
-#define MBIM_CID_BASE_STATIONS_INFO       11
-#define MBIM_CID_LOCATION_INFO_STATUS     12
- */
+#define MBIM_CID_MS_PROVISIONED_CONTEXT_V2  1
+#define MBIM_CID_MS_NETWORK_BLACKLIST       2
+#define MBIM_CID_MS_LTE_ATTACH_CONFIG       3
+#define MBIM_CID_MS_LTE_ATTACH_STATUS       4
+#define MBIM_CID_MS_SYS_CAPS                5
+#define MBIM_CID_MS_DEVICE_CAPS_V2          6
+#define MBIM_CID_MS_DEVICE_SLOT_MAPPINGS    7
+#define MBIM_CID_MS_SLOT_INFO_STATUS        8
+#define MBIM_CID_PCO                        9
+#define MBIM_CID_MS_DEVICE_RESET           10
+#define MBIM_CID_BASE_STATIONS_INFO        11
+#define MBIM_CID_LOCATION_INFO_STATUS      12
 
 static const value_string mbim_uuid_basic_connect_extensions_cid_vals[] = {
     { MBIM_CID_MS_PROVISIONED_CONTEXT_V2, "MS_PROVISIONED_CONTEXT_V2"},
@@ -1317,6 +1310,8 @@ static const value_string mbim_uuid_basic_connect_extensions_cid_vals[] = {
     { MBIM_CID_MS_SLOT_INFO_STATUS, "MS_SLOT_INFO_STATUS"},
     { MBIM_CID_PCO, "MBIM_CID_PCO"},
     { MBIM_CID_MS_DEVICE_RESET, "MS_DEVICE_RESET"},
+    { MBIM_CID_BASE_STATIONS_INFO, "MBIM_CID_BASE_STATIONS_INFO"},
+    { MBIM_CID_LOCATION_INFO_STATUS, "MBIM_CID_LOCATION_INFO_STATUS"},
     { 0, NULL}
 };
 
@@ -5760,10 +5755,9 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                                 break;
                             case MBIM_CID_MS_NETWORK_BLACKLIST:
                                 if (cmd_type == MBIM_COMMAND_SET) {
-                                    /* TODO: documentation not provided by MSFT, see https://github.com/MicrosoftDocs/windows-driver-docs/issues/823 */
-                                    proto_tree_add_item(subtree, hf_mbim_info_buffer, frag_tvb, offset, info_buff_len, ENC_NA);
-                                } else {
-                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                                    mbim_dissect_ms_network_blacklist_info(frag_tvb, subtree, offset);
+                                } else if (info_buff_len) {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_info_buffer, frag_tvb, offset, info_buff_len);
                                 }
                                 break;
                             case MBIM_CID_MS_LTE_ATTACH_CONFIG:
@@ -5806,6 +5800,20 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                                     }
                                 } else {
                                     proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                                }
+                                break;
+                            case MBIM_CID_BASE_STATIONS_INFO:
+                                if (cmd_type == MBIM_COMMAND_SET) {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                                } else if (info_buff_len) {
+                                    proto_tree_add_item(subtree, hf_mbim_info_buffer, frag_tvb, offset, info_buff_len, ENC_NA);
+                                }
+                                break;
+                            case MBIM_CID_LOCATION_INFO_STATUS:
+                                if (cmd_type == MBIM_COMMAND_SET) {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                                } else if (info_buff_len) {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_info_buffer, frag_tvb, offset, info_buff_len);
                                 }
                                 break;
                             default:
@@ -6655,6 +6663,20 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                                     }
                                 } else {
                                     proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                                }
+                                break;
+                            case MBIM_CID_BASE_STATIONS_INFO:
+                                if (mbim_info && (mbim_info->cmd_type == MBIM_COMMAND_SET)) {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                                } else {
+                                    proto_tree_add_item(subtree, hf_mbim_info_buffer, frag_tvb, offset, info_buff_len, ENC_NA);
+                                }
+                                break;
+                            case MBIM_CID_LOCATION_INFO_STATUS:
+                                if (mbim_info && (mbim_info->cmd_type == MBIM_COMMAND_SET)) {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                                } else {
+                                    proto_tree_add_item(subtree, hf_mbim_info_buffer, frag_tvb, offset, info_buff_len, ENC_NA);
                                 }
                                 break;
                             default:
