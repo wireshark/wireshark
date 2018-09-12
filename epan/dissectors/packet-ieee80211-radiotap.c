@@ -2047,7 +2047,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 					    offset + 4, 2, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(ven_tree, hf_radiotap_ven_data, tvb,
 					    offset + 6, iter.this_arg_size - 6,
-					    ENC_NA);
+					    ENC_ASCII|ENC_NA);
 		}
 
 		if (!iter.is_radiotap_ns)
@@ -3523,7 +3523,7 @@ void proto_register_radiotap(void)
 
 		{&hf_radiotap_ven_data,
 		 {"Vendor data", "radiotap.vendor_data",
-		  FT_NONE, BASE_NONE, NULL, 0x0,
+		  FT_STRING, BASE_NONE, NULL, 0x0,
 		  "Vendor-specified data", HFILL}},
 
 		/* Special variables */

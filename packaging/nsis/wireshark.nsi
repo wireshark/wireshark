@@ -162,13 +162,13 @@ DirText "Choose a directory in which to install ${PROGRAM_NAME}."
 
 ; The default installation directory
 !if ${WIRESHARK_TARGET_PLATFORM} == "win64"
-  InstallDir $PROGRAMFILES64\${PROGRAM_NAME}
+  InstallDir $PROGRAMFILES64\${PROGRAM_NAME}-octoScope
 !else
-  InstallDir $PROGRAMFILES\${PROGRAM_NAME}
+  InstallDir $PROGRAMFILES\${PROGRAM_NAME}-octoScope
 !endif
 
 ; See if this is an upgrade; if so, use the old InstallDir as default
-InstallDirRegKey HKEY_LOCAL_MACHINE SOFTWARE\${PROGRAM_NAME} "InstallDir"
+;InstallDirRegKey HKEY_LOCAL_MACHINE SOFTWARE\${PROGRAM_NAME} "InstallDir"
 
 
 ; ============================================================================
@@ -311,7 +311,7 @@ lbl_winversion_supported:
   MessageBox MB_YESNOCANCEL|MB_ICONQUESTION \
     "$OLD_DISPLAYNAME is already installed.\
      $\n$\nWould you like to uninstall it first?" \
-      /SD IDYES \
+      /SD IDNO \
       IDYES prep_nsis_uninstaller \
       IDNO done
   Abort
@@ -360,7 +360,7 @@ check_wix:
       MessageBox MB_YESNOCANCEL|MB_ICONQUESTION \
         "$WIX_DISPLAYNAME $WIX_DISPLAYVERSION (msi) is already installed.\
          $\n$\nWould you like to uninstall it first?" \
-          /SD IDYES \
+          /SD IDNO \
           IDYES prep_wix_uninstaller \
           IDNO done
       Abort
@@ -440,7 +440,9 @@ File "${STAGING_DIR}\AUTHORS-SHORT"
 File "${STAGING_DIR}\manuf"
 File "${STAGING_DIR}\wka"
 File "${STAGING_DIR}\services"
+File "${STAGING_DIR}\octoScope.bat"
 File "${STAGING_DIR}\pdml2html.xsl"
+File "${STAGING_DIR}\preferences"
 File "${STAGING_DIR}\ws.css"
 File "${STAGING_DIR}\wireshark.html"
 File "${STAGING_DIR}\wireshark-filter.html"

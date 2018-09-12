@@ -26,6 +26,10 @@
 #include <ui/qt/utils/field_information.h>
 #include <QTreeWidgetItemIterator>
 
+#ifdef _WIN64
+#include <Windows.h>
+#endif
+
 // To do:
 // - Copy over experimental packet editing code.
 // - Fix ElidedText width.
@@ -99,6 +103,35 @@ PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata) 
     connect(byte_view_tab_, SIGNAL(fieldHighlight(FieldInformation *)),
             this, SLOT(setHintText(FieldInformation *)));
 
+#ifdef _WIN64
+    QString radiotap_str = QString("radiotap");
+    QString vendor_namespace_str = QString("radiotap.vendor_namespace");
+    QString vendor_data_str = QString("radiotap.vendor_data");
+    gchar *probe_id = NULL;
+    for (_proto_node *tree_child = this->edt_.tree->first_child; tree_child != NULL; tree_child=tree_child->next) {
+        if (!radiotap_str.compare(tree_child->finfo->hfinfo->abbrev)) {
+            for(_proto_node *radiotap_child = tree_child->first_child; radiotap_child != NULL; radiotap_child=radiotap_child->next) {
+                if (!vendor_namespace_str.compare(radiotap_child->finfo->hfinfo->abbrev)) {
+                    for(_proto_node *vendor_child = radiotap_child->first_child; vendor_child !=NULL; vendor_child=vendor_child->next) {
+                        if(!vendor_data_str.compare(vendor_child->finfo->hfinfo->abbrev)) {
+                            probe_id = vendor_child->finfo->value.value.string;
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+            break;
+        }
+    }
+    if (probe_id != NULL)
+    {
+        STARTUPINFOA startup_info = {sizeof(startup_info)};
+        PROCESS_INFORMATION process_information;
+        QString process = QString("\"C:\\Program Files\\Wireshark-octoScope\\octoScope.bat\" \"%1\"").arg(probe_id);
+        CreateProcessA(NULL, (LPSTR)process.toLocal8Bit().constData(), NULL, NULL, FALSE, 0, NULL, NULL, &startup_info, &process_information);
+    }
+#endif
 }
 
 PacketDialog::~PacketDialog()
