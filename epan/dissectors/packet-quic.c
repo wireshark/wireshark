@@ -109,6 +109,9 @@ static int hf_quic_frame_type_nci_connection_id = -1;
 static int hf_quic_frame_type_nci_stateless_reset_token = -1;
 static int hf_quic_frame_type_ss_stream_id = -1;
 static int hf_quic_frame_type_ss_application_error_code = -1;
+static int hf_quic_frame_type_crypt_offset = -1;
+static int hf_quic_frame_type_crypt_length = -1;
+static int hf_quic_frame_type_crypt_crypto_data = -1;
 
 static expert_field ei_quic_connection_unknown = EI_INIT;
 static expert_field ei_quic_ft_unknown = EI_INIT;
@@ -339,6 +342,7 @@ static const value_string quic_long_packet_type_vals[] = {
 #define FT_STREAM_15        0x15
 #define FT_STREAM_16        0x16
 #define FT_STREAM_17        0x17
+#define FT_CRYPTO           0x18
 
 static const range_string quic_frame_type_vals[] = {
     { 0x00, 0x00,   "PADDING" },
@@ -358,6 +362,7 @@ static const range_string quic_frame_type_vals[] = {
     { 0x0e, 0x0e,   "PATH_CHALLENGE" },
     { 0x0f, 0x0f,   "PATH_RESPONSE" },
     { 0x10, 0x17,   "STREAM" },
+    { 0x18, 0x18,   "CRYPTO" },
     { 0,    0,        NULL },
 };
 
@@ -1125,6 +1130,18 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             offset += (int)length;
 
 
+        }
+        break;
+        case FT_CRYPTO: {
+            guint64 crypto_offset, crypto_length;
+            guint32 lenvar;
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", CRYPT");
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_crypt_offset, tvb, offset, -1, ENC_VARINT_QUIC, &crypto_offset, &lenvar);
+            offset += lenvar;
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_crypt_length, tvb, offset, -1, ENC_VARINT_QUIC, &crypto_length, &lenvar);
+            offset += lenvar;
+            proto_tree_add_item(ft_tree, hf_quic_frame_type_crypt_crypto_data, tvb, offset, (guint32)crypto_length, ENC_NA);
+            offset += (guint32)crypto_length;
         }
         break;
         default:
@@ -2524,6 +2541,22 @@ proto_register_quic(void)
               "Indicates why the sender is ignoring the stream", HFILL }
         },
 
+        /* CRYPTO */
+        { &hf_quic_frame_type_crypt_offset,
+            { "Offset", "quic.frame_type.crypt.offset",
+              FT_UINT64, BASE_DEC, NULL, 0x0,
+              "Byte offset into the stream", HFILL }
+        },
+        { &hf_quic_frame_type_crypt_length,
+            { "Length", "quic.frame_type.crypt.length",
+              FT_UINT64, BASE_DEC, NULL, 0x0,
+              "Length of the Crypto Data field", HFILL }
+        },
+        { &hf_quic_frame_type_crypt_crypto_data,
+            { "Crypto Data", "quic.frame_type.crypt.crypto_data",
+              FT_NONE, BASE_NONE, NULL, 0x0,
+              "The cryptographic message data", HFILL }
+        },
     };
 
     static gint *ett[] = {
