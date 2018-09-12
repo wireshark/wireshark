@@ -1124,6 +1124,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_node_group_children_by_json_key@Base 2.5.0
  proto_node_group_children_by_unique@Base 2.5.0
  proto_reenable_all@Base 2.3.0
+ proto_register_alias@Base 2.9.0
  proto_register_field_array@Base 1.9.1
  proto_register_fields_manual@Base 1.12.0~rc1
  proto_register_fields_section@Base 1.12.0~rc1
@@ -1139,6 +1140,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_registrar_dump_protocols@Base 1.9.1
  proto_registrar_dump_values@Base 1.9.1
  proto_registrar_get_abbrev@Base 1.9.1
+ proto_registrar_get_byalias@Base 2.9.0
  proto_registrar_get_byname@Base 1.9.1
  proto_registrar_get_ftype@Base 1.9.1
  proto_registrar_get_id_byname@Base 2.1.0
