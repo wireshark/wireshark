@@ -4676,12 +4676,20 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 				break;
 			case 0x001d:
 				if (link_dir == P2P_DIR_DL) {
-					de_nas_5gs_sm_qos_rules(tvb, pco_tree, pinfo, curr_offset, e_len, NULL, 0);
+					/* Network to MS direction */
+					de_nas_5gs_sm_session_ambr(tvb, pco_tree, pinfo, curr_offset, e_len, NULL, 0);
 				}
 				break;
 			case 0x001e:
-				if (link_dir == P2P_DIR_DL) {
-					de_nas_5gs_sm_session_ambr(tvb, pco_tree, pinfo, curr_offset, e_len, NULL, 0);
+				if (link_dir == P2P_DIR_DL && e_len == 2) {
+					/* When the container identifier indicates PDU session address lifetime,
+					 * the length of container identifier contents indicates a length equal to two.
+					 * The container identifier contents field contains the binary coded representation
+					 * of how long the network is willing to maintain the PDU session in units of seconds.
+					 * ...If the length of container identifier contents is different from two octets,
+					 * then it shall be ignored by the receiver
+					 */
+					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_pdu_session_address_lifetime, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
 				}
 				break;
 			case 0x001f:
