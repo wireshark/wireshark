@@ -783,7 +783,7 @@ de_nas_5gs_mm_conf_upd_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
  */
 static const true_false_string nas_5gs_mm_switch_off_tfs = {
     "Switch off",
-    "Normal detach"
+    "Normal de-registration"
 };
 
 static const true_false_string nas_5gs_mm_re_reg_req_tfs = {
@@ -3977,18 +3977,16 @@ static void(*nas_5gs_mm_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info 
     { 0xc5,    "PDU session authentication command"},
 
     { 0xc6,    "PDU session authentication complete" },
-    { 0xc7,    "Not used in v 0.4.0" },
+    { 0xc7,    "PDU session authentication result" },
     { 0xc8,    "Not used in v 0.4.0" },
 
     { 0xc9,    "PDU session modification request"},
     { 0xca,    "PDU session modification reject"},
     { 0xcb,    "PDU session modification command"},
+    { 0xcc,    "PDU session modification complete" },
+    { 0xcd,    "PDU session modification command reject"},
 
-    { 0xcc,    "Not used in v 0.4.0" },
-
-    { 0xcd,    "PDU session modification complete"},
-    { 0xce,    "PDU session modification command reject"},
-
+    { 0xce,    "Not used in v 0.4.0" },
     { 0xcf,    "Not used in v 0.4.0" },
     { 0xd0,    "Not used in v 0.4.0" },
 
@@ -4022,12 +4020,10 @@ static void(*nas_5gs_sm_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info 
     nas_5gs_sm_pdu_ses_mod_req,            /* 0xc9     PDU session modification request */
     nas_5gs_sm_pdu_ses_mod_rej,            /* 0xca     PDU session modification reject */
     nas_5gs_sm_pdu_ses_mod_cmd,            /* 0xcb     PDU session modification command */
+    nas_5gs_sm_pdu_ses_mod_comp,           /* 0xcc     PDU session modification complete */
+    nas_5gs_sm_pdu_ses_mod_com_rej,        /* 0xcd     PDU session modification command reject */
 
-    nas_5gs_exp_not_dissected_yet,         /* 0xcc     Not used in v 0.4.0 */
-
-    nas_5gs_sm_pdu_ses_mod_comp,           /* 0xcd     PDU session modification complete */
-    nas_5gs_sm_pdu_ses_mod_com_rej,        /* 0xce     PDU session modification command reject */
-
+    nas_5gs_exp_not_dissected_yet,         /* 0xce     Not used in v 0.4.0 */
     nas_5gs_exp_not_dissected_yet,         /* 0xcf     Not used in v 0.4.0 */
     nas_5gs_exp_not_dissected_yet,         /* 0xd0     Not used in v 0.4.0 */
 
