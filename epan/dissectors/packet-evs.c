@@ -308,11 +308,15 @@ static const true_false_string toc_evs_q_bit_vals = {
 };
 
 static void
-dissect_evs_cmr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *evs_tree, int offset, guint8 t_bits)
+dissect_evs_cmr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *evs_tree, int offset, guint8 cmr_oct)
 {
     proto_tree *tree;
+    const gchar *str;
+    guint8 t_bits = (cmr_oct & 0x70) >> 4;;
+    guint8 d_bits = (cmr_oct & 0x0f);
     /* CMR */
     tree = proto_tree_add_subtree(evs_tree, tvb, offset, 1, ett_evs_header, NULL, "CMR");
+
 
     switch (t_bits) {
     case 0:
@@ -324,6 +328,7 @@ dissect_evs_cmr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *evs_tree, int
             NULL
         };
 
+        str = val_to_str_const(d_bits, evs_d_bits_t0_values, "Unknown value");
         proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags_t0, ENC_BIG_ENDIAN);
     }
     break;
@@ -336,6 +341,7 @@ dissect_evs_cmr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *evs_tree, int
             NULL
         };
 
+        str = val_to_str_const(d_bits, evs_d_bits_t1_values, "Unknown value");
         proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags_t1, ENC_BIG_ENDIAN);
     }
     break;
@@ -348,6 +354,7 @@ dissect_evs_cmr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *evs_tree, int
             NULL
         };
 
+        str = val_to_str_const(d_bits, evs_d_bits_t2_values, "Unknown value");
         proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags_t2, ENC_BIG_ENDIAN);
     }
     break;
@@ -360,6 +367,7 @@ dissect_evs_cmr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *evs_tree, int
             NULL
         };
 
+        str = val_to_str_const(d_bits, evs_d_bits_t3_values, "Unknown value");
         proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags_t3, ENC_BIG_ENDIAN);
     }
     break;
@@ -372,6 +380,7 @@ dissect_evs_cmr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *evs_tree, int
             NULL
         };
 
+        str = val_to_str_const(d_bits, evs_d_bits_t4_values, "Unknown value");
         proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags_t4, ENC_BIG_ENDIAN);
     }
     break;
@@ -384,6 +393,7 @@ dissect_evs_cmr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *evs_tree, int
             NULL
         };
 
+        str = val_to_str_const(d_bits, evs_d_bits_t5_values, "Unknown value");
         proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags_t5, ENC_BIG_ENDIAN);
     }
     break;
@@ -396,6 +406,7 @@ dissect_evs_cmr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *evs_tree, int
             NULL
         };
 
+        str = val_to_str_const(d_bits, evs_d_bits_t6_values, "Unknown value");
         proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags_t6, ENC_BIG_ENDIAN);
     }
     break;
@@ -408,6 +419,7 @@ dissect_evs_cmr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *evs_tree, int
             NULL
         };
 
+        str = val_to_str_const(d_bits, evs_d_bits_t7_values, "Unknown value");
         proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags_t7, ENC_BIG_ENDIAN);
     }
     break;
@@ -415,7 +427,7 @@ dissect_evs_cmr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *evs_tree, int
         break;
 
     }
-
+    col_append_fstr(pinfo->cinfo, COL_INFO, " %s ", str);
 }
 
 /* Code to actually dissect the packets */
@@ -428,7 +440,7 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     int packet_len, idx;
     guint32 num_bits;
     const gchar *str;
-    guint8 oct, h_bit, t_bits, toc_f_bit, evs_mode_b;
+    guint8 oct, h_bit, toc_f_bit, evs_mode_b;
     int num_toc;
 
     /* Make entries in Protocol column and Info column on summary display */
@@ -461,11 +473,10 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     /*proto_tree_add_int_format(evs_tree, hf_evs_packet_length, tvb, offset, 1, packet_len * 8, "packet_len %i bits", packet_len * 8);*/
     oct = tvb_get_guint8(tvb, offset);
     h_bit = oct >> 7;
-    t_bits = (oct & 0x70) >> 4;
 
     if (h_bit == 1) {
         /* `CMR */
-        dissect_evs_cmr(tvb, pinfo, evs_tree, offset, t_bits);
+        dissect_evs_cmr(tvb, pinfo, evs_tree, offset, oct);
         offset++;
     }
     /* ToC */
@@ -505,6 +516,7 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         offset++;
     } while (toc_f_bit == 1);
 
+    proto_tree_add_item(evs_tree, hf_evs_voice_data, tvb, offset, -1, ENC_NA);
     return packet_len;
 }
 
