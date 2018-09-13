@@ -534,7 +534,7 @@ void proto_register_credssp(void) {
 /*--- proto_reg_handoff_credssp --- */
 void proto_reg_handoff_credssp(void) {
 
-  heur_dissector_add("ssl", dissect_credssp_heur, "CredSSP over SSL", "credssp_ssl", proto_credssp, HEURISTIC_ENABLE);
+  heur_dissector_add("tls", dissect_credssp_heur, "CredSSP over TLS", "credssp_tls", proto_credssp, HEURISTIC_ENABLE);
   exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_LAYER_7);
 }
 

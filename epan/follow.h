@@ -39,7 +39,7 @@ typedef enum {
 /* Type of follow we are doing */
 typedef enum {
     FOLLOW_TCP,
-    FOLLOW_SSL,
+    FOLLOW_TLS,
     FOLLOW_UDP,
     FOLLOW_HTTP
 } follow_type_t;

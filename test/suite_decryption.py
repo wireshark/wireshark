@@ -121,8 +121,8 @@ class case_decrypt_dtls(subprocesstest.SubprocessTestCase):
         self.assertTrue(self.grepOutput('UDT'))
 
 class case_decrypt_tls(subprocesstest.SubprocessTestCase):
-    def test_ssl(self):
-        '''SSL using the server's private key'''
+    def test_tls(self):
+        '''TLS using the server's private key'''
         # https://wiki.wireshark.org/SampleCaptures?action=AttachFile&do=view&target=snakeoil2_070531.tgz
         capture_file = os.path.join(config.capture_dir, 'rsasnakeoil2.pcap')
         self.runProcess((config.cmd_tshark,
@@ -134,14 +134,14 @@ class case_decrypt_tls(subprocesstest.SubprocessTestCase):
             env=config.test_env)
         self.assertTrue(self.grepOutput('favicon.ico'))
 
-    def test_ssl_rsa_pq(self):
-        '''SSL using the server's private key with p < q
+    def test_tls_rsa_pq(self):
+        '''TLS using the server's private key with p < q
         (test whether libgcrypt is correctly called)'''
         capture_file = os.path.join(config.capture_dir, 'rsa-p-lt-q.pcap')
         key_file = os.path.join(config.key_dir, 'rsa-p-lt-q.key')
         self.runProcess((config.cmd_tshark,
                 '-r', capture_file,
-                '-o', 'ssl.keys_list:0.0.0.0,443,http,{}'.format(key_file),
+                '-o', 'tls.keys_list:0.0.0.0,443,http,{}'.format(key_file),
                 '-Tfields',
                 '-e', 'http.request.uri',
                 '-Y', 'http',
@@ -149,8 +149,8 @@ class case_decrypt_tls(subprocesstest.SubprocessTestCase):
             env=config.test_env)
         self.assertTrue(self.grepOutput('/'))
 
-    def test_ssl_with_password(self):
-        '''SSL using the server's private key with password'''
+    def test_tls_with_password(self):
+        '''TLS using the server's private key with password'''
         capture_file = os.path.join(config.capture_dir, 'dmgr.pcapng')
         self.runProcess((config.cmd_tshark,
                 '-r', capture_file,
@@ -161,21 +161,23 @@ class case_decrypt_tls(subprocesstest.SubprocessTestCase):
             env=config.test_env)
         self.assertTrue(self.grepOutput('unsecureLogon.jsp'))
 
-    def test_ssl_master_secret(self):
-        '''SSL using the master secret'''
+    def test_tls_master_secret(self):
+        '''TLS using the master secret and ssl.keylog_file preference aliasing'''
         capture_file = os.path.join(config.capture_dir, 'dhe1.pcapng.gz')
         key_file = os.path.join(config.key_dir, 'dhe1_keylog.dat')
         self.runProcess((config.cmd_tshark,
                 '-r', capture_file,
                 '-o', 'ssl.keylog_file: {}'.format(key_file),
-                '-o', 'ssl.desegment_ssl_application_data: FALSE',
-                '-o', 'http.ssl.port: 443',
+                '-o', 'tls.desegment_ssl_application_data: FALSE',
+                '-o', 'http.tls.port: 443',
                 '-Tfields',
+                '-e', 'http.request.method',
                 '-e', 'http.request.uri',
+                '-e', 'http.request.version',
                 '-Y', 'http',
             ),
             env=config.test_env)
-        self.assertTrue(self.grepOutput('test'))
+        self.assertTrue(self.grepOutput('GET\s+/test\s+HTTP/1.0'))
 
     def test_tls12_renegotiation(self):
         '''TLS 1.2 with renegotiation'''
@@ -183,7 +185,7 @@ class case_decrypt_tls(subprocesstest.SubprocessTestCase):
         key_file = os.path.join(config.key_dir, 'rsasnakeoil2.key')
         self.runProcess((config.cmd_tshark,
                 '-r', capture_file,
-                '-o', 'ssl.keys_list:0.0.0.0,4433,http,{}'.format(key_file),
+                '-o', 'tls.keys_list:0.0.0.0,4433,http,{}'.format(key_file),
                 '-Tfields',
                 '-e', 'http.content_length',
                 '-Y', 'http',
@@ -198,9 +200,9 @@ class case_decrypt_tls(subprocesstest.SubprocessTestCase):
         capture_file = os.path.join(config.capture_dir, 'tls12-aes128ccm.pcap')
         self.runProcess((config.cmd_tshark,
                 '-r', capture_file,
-                '-o', 'ssl.psk:ca19e028a8a372ad2d325f950fcaceed',
+                '-o', 'tls.psk:ca19e028a8a372ad2d325f950fcaceed',
                 '-q',
-                '-z', 'follow,ssl,ascii,0',
+                '-z', 'follow,tls,ascii,0',
             ),
             env=config.test_env)
         self.assertTrue(self.grepOutput('http://www.gnu.org/software/gnutls'))
@@ -210,9 +212,9 @@ class case_decrypt_tls(subprocesstest.SubprocessTestCase):
         capture_file = os.path.join(config.capture_dir, 'tls12-aes256gcm.pcap')
         self.runProcess((config.cmd_tshark,
                 '-r', capture_file,
-                '-o', 'ssl.psk:ca19e028a8a372ad2d325f950fcaceed',
+                '-o', 'tls.psk:ca19e028a8a372ad2d325f950fcaceed',
                 '-q',
-                '-z', 'follow,ssl,ascii,0',
+                '-z', 'follow,tls,ascii,0',
             ),
             env=config.test_env)
         self.assertTrue(self.grepOutput('http://www.gnu.org/software/gnutls'))
@@ -236,9 +238,9 @@ class case_decrypt_tls(subprocesstest.SubprocessTestCase):
         for cipher in ciphers:
             self.runProcess((config.cmd_tshark,
                     '-r', capture_file,
-                    '-o', 'ssl.keylog_file: {}'.format(key_file),
+                    '-o', 'tls.keylog_file: {}'.format(key_file),
                     '-q',
-                    '-z', 'follow,ssl,ascii,{}'.format(stream),
+                    '-z', 'follow,tls,ascii,{}'.format(stream),
                 ),
                 env=config.test_env)
             stream += 1
@@ -252,9 +254,9 @@ class case_decrypt_tls(subprocesstest.SubprocessTestCase):
         key_file = os.path.join(config.key_dir, 'tls13-20-chacha20poly1305.keys')
         self.runProcess((config.cmd_tshark,
                 '-r', capture_file,
-                '-o', 'ssl.keylog_file: {}'.format(key_file),
+                '-o', 'tls.keylog_file: {}'.format(key_file),
                 '-q',
-                '-z', 'follow,ssl,ascii,0',
+                '-z', 'follow,tls,ascii,0',
             ),
             env=config.test_env)
         self.assertTrue(self.grepOutput('TLS13-CHACHA20-POLY1305-SHA256'))
@@ -267,7 +269,7 @@ class case_decrypt_tls(subprocesstest.SubprocessTestCase):
         key_file = os.path.join(config.key_dir, 'tls13-rfc8446.keys')
         proc = self.runProcess((config.cmd_tshark,
                 '-r', capture_file,
-                '-ossl.keylog_file:{}'.format(key_file),
+                '-otls.keylog_file:{}'.format(key_file),
                 '-Y', 'http',
                 '-Tfields',
                 '-e', 'frame.number',
@@ -293,7 +295,7 @@ class case_decrypt_tls(subprocesstest.SubprocessTestCase):
         key_file = os.path.join(config.key_dir, 'tls13-rfc8446-noearly.keys')
         proc = self.runProcess((config.cmd_tshark,
                 '-r', capture_file,
-                '-ossl.keylog_file:{}'.format(key_file),
+                '-otls.keylog_file:{}'.format(key_file),
                 '-Y', 'http',
                 '-Tfields',
                 '-e', 'frame.number',

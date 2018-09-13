@@ -21,7 +21,7 @@ void proto_register_pgsql(void);
 void proto_reg_handoff_pgsql(void);
 
 static dissector_handle_t pgsql_handle;
-static dissector_handle_t ssl_handle;
+static dissector_handle_t tls_handle;
 
 static int proto_pgsql = -1;
 static int hf_frontend = -1;
@@ -657,7 +657,7 @@ dissect_pgsql(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         switch (tvb_get_guint8(tvb, 0)) {
         case 'S':   /* Willing to perform SSL */
             /* Next packet will start using SSL. */
-            ssl_starttls_ack(ssl_handle, pinfo, pgsql_handle);
+            ssl_starttls_ack(tls_handle, pinfo, pgsql_handle);
             break;
         case 'N':   /* Unwilling to perform SSL */
         default:    /* ErrorMessage when server does not support SSL. */
@@ -891,7 +891,7 @@ proto_reg_handoff_pgsql(void)
 
     dissector_add_uint_with_preference("tcp.port", PGSQL_PORT, pgsql_handle);
 
-    ssl_handle = find_dissector_add_dependency("ssl", proto_pgsql);
+    tls_handle = find_dissector_add_dependency("tls", proto_pgsql);
 }
 
 /*

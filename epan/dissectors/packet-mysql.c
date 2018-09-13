@@ -640,7 +640,7 @@ static int hf_mysql_compressed_packet_length_uncompressed = -1;
 static int hf_mysql_compressed_packet_number = -1;
 
 static dissector_handle_t mysql_handle;
-static dissector_handle_t ssl_handle;
+static dissector_handle_t tls_handle;
 
 static expert_field ei_mysql_eof = EI_INIT;
 static expert_field ei_mysql_dissector_incomplete = EI_INIT;
@@ -1042,7 +1042,7 @@ mysql_dissect_login(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	{
 		col_set_str(pinfo->cinfo, COL_INFO, "Response: SSL Handshake");
 		conn_data->frame_start_ssl = pinfo->num;
-		ssl_starttls_ack(ssl_handle, pinfo, mysql_handle);
+		ssl_starttls_ack(tls_handle, pinfo, mysql_handle);
 	}
 	if (conn_data->clnt_caps & MYSQL_CAPS_CU) /* 4.1 protocol */
 	{
@@ -2334,7 +2334,7 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 	}
 #endif
 
-	is_ssl = proto_is_frame_protocol(pinfo->layers, "ssl");
+	is_ssl = proto_is_frame_protocol(pinfo->layers, "tls");
 
 	if (is_response) {
 		if (packet_number == 0 && mysql_frame_data_p->state == UNDEFINED) {
@@ -3322,7 +3322,7 @@ void proto_register_mysql(void)
 /* dissector registration */
 void proto_reg_handoff_mysql(void)
 {
-	ssl_handle = find_dissector("ssl");
+	tls_handle = find_dissector("tls");
 	dissector_add_uint_with_preference("tcp.port", TCP_PORT_MySQL, mysql_handle);
 }
 

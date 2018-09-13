@@ -104,7 +104,7 @@ static const fragment_items smtp_data_frag_items = {
 };
 
 static  dissector_handle_t smtp_handle;
-static  dissector_handle_t ssl_handle;
+static  dissector_handle_t tls_handle;
 static  dissector_handle_t imf_handle;
 static  dissector_handle_t ntlmssp_handle;
 static  dissector_handle_t data_text_lines_handle;
@@ -1078,7 +1078,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             if (session_state->smtp_state == SMTP_STATE_AWAITING_STARTTLS_RESPONSE) {
               if (code == 220) {
                 /* This is the last non-TLS frame. */
-                ssl_starttls_ack(ssl_handle, pinfo, smtp_handle);
+                ssl_starttls_ack(tls_handle, pinfo, smtp_handle);
               }
               session_state->smtp_state =  SMTP_STATE_READING_CMDS;
             }
@@ -1343,8 +1343,8 @@ proto_reg_handoff_smtp(void)
   /* find the IMF dissector */
   imf_handle = find_dissector_add_dependency("imf", proto_smtp);
 
-  /* find the SSL dissector */
-  ssl_handle = find_dissector_add_dependency("ssl", proto_smtp);
+  /* find the TLS dissector */
+  tls_handle = find_dissector_add_dependency("tls", proto_smtp);
 
   /* find the NTLM dissector */
   ntlmssp_handle = find_dissector_add_dependency("ntlmssp", proto_smtp);

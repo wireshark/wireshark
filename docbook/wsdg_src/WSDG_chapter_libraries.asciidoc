@@ -229,7 +229,7 @@ https://www.winpcap.org/install/[]
 
 === GnuTLS (optional)
 
-The GNU Transport Layer Security Library is used to dissect SSL and TLS
+The GNU Transport Layer Security Library is used to dissect TLS and SSL
 protocols (aka: HTTPS).
 
 [[ChLibsUnixGNUTLS]]

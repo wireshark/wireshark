@@ -1938,7 +1938,7 @@ void proto_register_spdy(void)
 void proto_reg_handoff_spdy(void) {
 
   dissector_add_uint_with_preference("tcp.port", TCP_PORT_SPDY, spdy_handle);
-  /* Use "0" to avoid overwriting HTTPS port and still offer support over SSL */
+  /* Use "0" to avoid overwriting HTTPS port and still offer support over TLS */
   ssl_dissector_add(0, spdy_handle);
   dissector_add_string("http.upgrade", "spdy", spdy_handle);
 

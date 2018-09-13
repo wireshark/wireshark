@@ -38,7 +38,7 @@ static gint ett_imap = -1;
 static gint ett_imap_reqresp = -1;
 
 static dissector_handle_t imap_handle;
-static dissector_handle_t ssl_handle;
+static dissector_handle_t tls_handle;
 
 static gboolean imap_ssl_heuristic = TRUE;
 
@@ -133,9 +133,9 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   if (session_state->ssl_heur_tries_left > 0) {
     session_state->ssl_heur_tries_left--;
     if (!check_imap_heur(tvb)) {
-      ssl_starttls_post_ack(ssl_handle, pinfo, imap_handle);
+      ssl_starttls_post_ack(tls_handle, pinfo, imap_handle);
       session_state->ssl_heur_tries_left = 0;
-      return call_dissector(ssl_handle, tvb, pinfo, tree);
+      return call_dissector(tls_handle, tvb, pinfo, tree);
     }
   }
 
@@ -304,7 +304,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
           if (session_state->ssl_requested) {
             if (!is_request && strncmp(tokenbuf, "ok", tokenlen) == 0) {
               /* STARTTLS accepted, next reply will be TLS. */
-              ssl_starttls_ack(ssl_handle, pinfo, imap_handle);
+              ssl_starttls_ack(tls_handle, pinfo, imap_handle);
               if (session_state->ssl_heur_tries_left > 0) {
                 session_state->ssl_heur_tries_left = 0;
               }
@@ -417,7 +417,7 @@ proto_reg_handoff_imap(void)
 {
   dissector_add_uint_with_preference("tcp.port", TCP_PORT_IMAP, imap_handle);
   ssl_dissector_add(TCP_PORT_SSL_IMAP, imap_handle);
-  ssl_handle = find_dissector("ssl");
+  tls_handle = find_dissector("tls");
 }
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

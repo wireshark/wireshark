@@ -217,7 +217,7 @@ static dissector_handle_t gssapi_handle;
 static dissector_handle_t gssapi_wrap_handle;
 static dissector_handle_t ntlmssp_handle;
 static dissector_handle_t spnego_handle;
-static dissector_handle_t ssl_handle;
+static dissector_handle_t tls_handle;
 static dissector_handle_t ldap_handle ;
 
 static void prefs_register_ldap(void); /* forward declaration for use in preferences registration */
@@ -2205,8 +2205,8 @@ void proto_register_ldap(void) {
     " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
     &ldap_desegment);
 
-  prefs_register_uint_preference(ldap_module, "ssl.port", "LDAPS TCP Port",
-                                 "Set the port for LDAP operations over SSL",
+  prefs_register_uint_preference(ldap_module, "tls.port", "LDAPS TCP Port",
+                                 "Set the port for LDAP operations over TLS",
                                  10, &global_ldaps_tcp_port);
   /* UAT */
   attributes_uat = uat_new("Custom LDAP AttributeValue types",
@@ -2260,7 +2260,7 @@ proto_reg_handoff_ldap(void)
 
   ntlmssp_handle = find_dissector_add_dependency("ntlmssp", proto_ldap);
 
-  ssl_handle = find_dissector_add_dependency("ssl", proto_ldap);
+  tls_handle = find_dissector_add_dependency("tls", proto_ldap);
 
   prefs_register_ldap();
 

@@ -72,7 +72,7 @@ static gint proto_openvpn = -1;
 static dissector_handle_t openvpn_udp_handle;
 static dissector_handle_t openvpn_tcp_handle;
 
-static dissector_handle_t ssl_handle;
+static dissector_handle_t tls_handle;
 
 /* Preferences */
 static gboolean pref_long_format       = TRUE;
@@ -356,7 +356,7 @@ dissect_openvpn_msg_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *openvp
 
   if (new_tvb) {
     /* call SSL/TLS dissector if we just processed the last fragment */
-    call_dissector(ssl_handle, new_tvb, pinfo, parent_tree);
+    call_dissector(tls_handle, new_tvb, pinfo, parent_tree);
   }
 
   return tvb_captured_length(tvb);
@@ -624,7 +624,7 @@ proto_register_openvpn(void)
 void
 proto_reg_handoff_openvpn(void)
 {
-  ssl_handle     = find_dissector_add_dependency("ssl", proto_openvpn);
+  tls_handle     = find_dissector_add_dependency("tls", proto_openvpn);
   dissector_add_uint_with_preference("tcp.port", OPENVPN_PORT, openvpn_tcp_handle);
   dissector_add_uint_with_preference("udp.port", OPENVPN_PORT, openvpn_udp_handle);
 }

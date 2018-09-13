@@ -1462,7 +1462,7 @@ save it as text to a file.
 
 =item Analyze:Follow UDP Stream
 
-=item Analyze:Follow SSL Stream
+=item Analyze:Follow TLS Stream
 
 (Similar to Analyze:Follow TCP Stream)
 

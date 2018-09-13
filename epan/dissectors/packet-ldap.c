@@ -431,7 +431,7 @@ static dissector_handle_t gssapi_handle;
 static dissector_handle_t gssapi_wrap_handle;
 static dissector_handle_t ntlmssp_handle;
 static dissector_handle_t spnego_handle;
-static dissector_handle_t ssl_handle;
+static dissector_handle_t tls_handle;
 static dissector_handle_t ldap_handle ;
 
 static void prefs_register_ldap(void); /* forward declaration for use in preferences registration */
@@ -3024,7 +3024,7 @@ dissect_ldap_ExtendedResponse_resultCode(gboolean implicit_tag _U_, tvbuff_t *tv
   if (ldap_info && ldap_info->start_tls_pending &&
       hf_index == hf_ldap_extendedResponse_resultCode && resultCode == 0) {
     /* The conversation will continue using SSL */
-    ssl_starttls_ack(find_dissector("ssl"), actx->pinfo, ldap_handle);
+    ssl_starttls_ack(find_dissector("tls"), actx->pinfo, ldap_handle);
     ldap_info->start_tls_pending = FALSE;
   }
 
@@ -5752,8 +5752,8 @@ void proto_register_ldap(void) {
     " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
     &ldap_desegment);
 
-  prefs_register_uint_preference(ldap_module, "ssl.port", "LDAPS TCP Port",
-                                 "Set the port for LDAP operations over SSL",
+  prefs_register_uint_preference(ldap_module, "tls.port", "LDAPS TCP Port",
+                                 "Set the port for LDAP operations over TLS",
                                  10, &global_ldaps_tcp_port);
   /* UAT */
   attributes_uat = uat_new("Custom LDAP AttributeValue types",
@@ -5807,7 +5807,7 @@ proto_reg_handoff_ldap(void)
 
   ntlmssp_handle = find_dissector_add_dependency("ntlmssp", proto_ldap);
 
-  ssl_handle = find_dissector_add_dependency("ssl", proto_ldap);
+  tls_handle = find_dissector_add_dependency("tls", proto_ldap);
 
   prefs_register_ldap();
 

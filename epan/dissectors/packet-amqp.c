@@ -44,7 +44,7 @@ void proto_reg_handoff_amqp(void);
 /*  Generic data  */
 
 #define AMQP_PORT   5672
-static guint amqps_port = 5671; /* AMQP over TLS/SSL */
+static guint amqps_port = 5671; /* AMQP over SSL/TLS */
 
 /*
  * This dissector handles AMQP 0-9, 0-10 and 1.0. The conversation structure
@@ -13404,9 +13404,9 @@ proto_register_amqp(void)
 
     amqp_module = prefs_register_protocol(proto_amqp, proto_reg_handoff_amqp);
 
-    prefs_register_uint_preference(amqp_module, "ssl.port",
+    prefs_register_uint_preference(amqp_module, "tls.port",
                                    "AMQPS listening TCP Port",
-                                   "Set the TCP port for AMQP over TLS/SSL"
+                                   "Set the TCP port for AMQP over SSL/TLS"
                                    "(if other than the default of 5671)",
                                    10, &amqps_port);
 
@@ -13430,7 +13430,7 @@ proto_reg_handoff_amqp(void)
         initialize = TRUE;
     }
 
-    /* Register for TLS/SSL payload dissection */
+    /* Register for SSL/TLS payload dissection */
     if (old_amqps_port != amqps_port) {
         if (old_amqps_port != 0)
             ssl_dissector_delete(old_amqps_port, amqp_tcp_handle);

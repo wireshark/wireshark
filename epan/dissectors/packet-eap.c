@@ -97,7 +97,7 @@ static expert_field ei_eap_dictionary_attacks = EI_INIT;
 
 static dissector_handle_t eap_handle;
 
-static dissector_handle_t ssl_handle;
+static dissector_handle_t tls_handle;
 
 const value_string eap_code_vals[] = {
   { EAP_REQUEST,  "Request" },
@@ -1144,7 +1144,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
               show_fragment_seq_tree(fd_head, &eap_tls_frag_items,
                                      eap_tree, pinfo, next_tvb, &frag_tree_item);
 
-              call_dissector(ssl_handle, next_tvb, pinfo, eap_tree);
+              call_dissector(tls_handle, next_tvb, pinfo, eap_tree);
 
               /*
                * We're finished reassembing this frame.
@@ -1158,7 +1158,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
           } else { /* this data is NOT fragmented */
             next_tvb = tvb_new_subset_length_caplen(tvb, offset, tvb_len, size);
-            call_dissector(ssl_handle, next_tvb, pinfo, eap_tree);
+            call_dissector(tls_handle, next_tvb, pinfo, eap_tree);
           }
         }
       }
@@ -1687,7 +1687,7 @@ proto_reg_handoff_eap(void)
   /*
    * Get a handle for the SSL/TLS dissector.
    */
-  ssl_handle = find_dissector_add_dependency("ssl", proto_eap);
+  tls_handle = find_dissector_add_dependency("tls", proto_eap);
 
   dissector_add_uint("ppp.protocol", PPP_EAP, eap_handle);
   dissector_add_uint("eapol.type", EAPOL_EAP, eap_handle);

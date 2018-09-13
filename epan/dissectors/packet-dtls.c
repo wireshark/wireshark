@@ -17,7 +17,7 @@
  * Notes :
  * This dissector is based on the TLS dissector (packet-ssl.c); Because of the similarity
  *   of DTLS and TLS, decryption works like TLS with RSA key exchange.
- * This dissector uses the sames things (file, libraries) as the SSL dissector (gnutls, packet-ssl-utils.h)
+ * This dissector uses the sames things (file, libraries) as the TLS dissector (gnutls, packet-ssl-utils.h)
  *  to make it easily maintainable.
  *
  * It was developed to dissect and decrypt the OpenSSL v 0.9.8f DTLS implementation.

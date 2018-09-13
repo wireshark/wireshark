@@ -197,7 +197,7 @@
     <addaction name="menuFileExportPacketDissections"/>
     <addaction name="actionFileExportPacketBytes"/>
     <addaction name="actionFileExportPDU"/>
-    <addaction name="actionFileExportSSLSessionKeys"/>
+    <addaction name="actionFileExportTLSSessionKeys"/>
     <addaction name="menuFileExportObjects"/>
     <addaction name="separator"/>
     <addaction name="actionFilePrint"/>
@@ -425,7 +425,7 @@
      </property>
      <addaction name="actionAnalyzeFollowTCPStream"/>
      <addaction name="actionAnalyzeFollowUDPStream"/>
-     <addaction name="actionAnalyzeFollowSSLStream"/>
+     <addaction name="actionAnalyzeFollowTLSStream"/>
      <addaction name="actionAnalyzeFollowHTTPStream"/>
     </widget>
     <widget class="QMenu" name="menuConversationFilter">
@@ -1177,9 +1177,9 @@
     <string notr="true">Ctrl+Shift+X</string>
    </property>
   </action>
-  <action name="actionFileExportSSLSessionKeys">
+  <action name="actionFileExportTLSSessionKeys">
    <property name="text">
-    <string>Export SSL Session Keys…</string>
+    <string>Export TLS Session Keys…</string>
    </property>
   </action>
   <action name="actionFilePrint">
@@ -1790,12 +1790,12 @@
     <string notr="true">Ctrl+Alt+Shift+U</string>
    </property>
   </action>
-  <action name="actionAnalyzeFollowSSLStream">
+  <action name="actionAnalyzeFollowTLSStream">
    <property name="enabled">
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>SSL Stream</string>
+    <string>TLS Stream</string>
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Alt+Shift+S</string>

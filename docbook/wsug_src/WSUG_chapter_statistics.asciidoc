@@ -129,7 +129,7 @@ be counted for each packet. Example: In the screenshot IP has 99.9% and TCP
 Protocol layers can consist of packets that won’t contain any higher layer
 protocol, so the sum of all higher layer packets may not sum up to the protocols
 packet count. Example: In the screenshot TCP has 98.5% but the sum of the
-subprotocols (SSL, HTTP, etc) is much less. This can be caused by continuation
+subprotocols (TLS, HTTP, etc) is much less. This can be caused by continuation
 frames, TCP protocol overhead, and other undissected data.
 
 A single packet can contain the same protocol more than once. In this case, the

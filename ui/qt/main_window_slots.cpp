@@ -1215,7 +1215,7 @@ void MainWindow::setMenusForSelectedPacket()
 
     main_ui_->actionAnalyzeFollowTCPStream->setEnabled(is_tcp);
     main_ui_->actionAnalyzeFollowUDPStream->setEnabled(is_udp);
-    main_ui_->actionAnalyzeFollowSSLStream->setEnabled(is_ssl);
+    main_ui_->actionAnalyzeFollowTLSStream->setEnabled(is_ssl);
     main_ui_->actionAnalyzeFollowHTTPStream->setEnabled(is_http);
 
     foreach (QAction *cc_action, cc_actions) {
@@ -1824,7 +1824,7 @@ void MainWindow::on_actionFileExportPDU_triggered()
     exportpdu_dialog->activateWindow();
 }
 
-void MainWindow::on_actionFileExportSSLSessionKeys_triggered()
+void MainWindow::on_actionFileExportTLSSessionKeys_triggered()
 {
     QString file_name;
     QString save_title;
@@ -1837,17 +1837,17 @@ void MainWindow::on_actionFileExportSSLSessionKeys_triggered()
         QMessageBox::warning(
                     this,
                     tr("No Keys"),
-                    tr("There are no SSL Session Keys to save."),
+                    tr("There are no TLS Session Keys to save."),
                     QMessageBox::Ok
                     );
         return;
     }
 
-    save_title.append(wsApp->windowTitleString(tr("Export SSL Session Keys (%Ln key(s))", "", keylist_len)));
+    save_title.append(wsApp->windowTitleString(tr("Export TLS Session Keys (%Ln key(s))", "", keylist_len)));
     file_name = WiresharkFileDialog::getSaveFileName(this,
                                              save_title,
                                              wsApp->lastOpenDir().canonicalPath(),
-                                             tr("SSL Session Keys (*.keys *.txt);;All Files (" ALL_FILES_WILDCARD ")")
+                                             tr("TLS Session Keys (*.keys *.txt);;All Files (" ALL_FILES_WILDCARD ")")
                                              );
     if (file_name.length() > 0) {
         gchar *keylist;
@@ -2776,9 +2776,9 @@ void MainWindow::on_actionAnalyzeFollowUDPStream_triggered()
     openFollowStreamDialog(FOLLOW_UDP);
 }
 
-void MainWindow::on_actionAnalyzeFollowSSLStream_triggered()
+void MainWindow::on_actionAnalyzeFollowTLSStream_triggered()
 {
-    openFollowStreamDialog(FOLLOW_SSL);
+    openFollowStreamDialog(FOLLOW_TLS);
 }
 
 void MainWindow::on_actionAnalyzeFollowHTTPStream_triggered()

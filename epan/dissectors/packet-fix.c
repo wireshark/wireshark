@@ -538,7 +538,7 @@ proto_reg_handoff_fix(void)
 {
     /* Let the tcp dissector know that we're interested in traffic      */
     heur_dissector_add("tcp", dissect_fix_heur, "FIX over TCP", "fix_tcp", proto_fix, HEURISTIC_ENABLE);
-    heur_dissector_add("ssl", dissect_fix_heur_ssl, "FIX over SSL", "fix_ssl", proto_fix, HEURISTIC_ENABLE);
+    heur_dissector_add("tls", dissect_fix_heur_ssl, "FIX over TLS", "fix_tls", proto_fix, HEURISTIC_ENABLE);
     dissector_add_uint_range_with_preference("tcp.port", "", fix_handle);
 }
 

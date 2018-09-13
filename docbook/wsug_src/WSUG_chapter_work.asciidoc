@@ -113,7 +113,7 @@ The following table gives an overview of which functions are available  in this 
 |menu:SCTP[]|| Allows you to analyze and prepare a filter for this SCTP association.
 |menu:Follow TCP Stream[]|menu:Analyze[]| Allows you to view all the data on a TCP  stream between a pair of nodes.
 |menu:Follow UDP Stream[]|menu:Analyze[]| Allows you to view all the data on a UDP datagram stream between a pair of nodes.
-|menu:Follow SSL Stream[]|menu:Analyze[]| Same as “Follow TCP Stream” but for SSL. XXX - add a new section describing this better.
+|menu:Follow TLS Stream[]|menu:Analyze[]| Same as “Follow TCP Stream” but for TLS or SSL. XXX - add a new section describing this better.
 |menu:Copy/ Summary (Text)[]|| Copy the summary fields as displayed to the clipboard, as tab-separated text.
 |menu:Copy/ Summary (CSV)[]|| Copy the summary fields as displayed to the clipboard, as comma-separated text.
 |menu:Copy/ As Filter[]|| Prepare a display filter based on the currently selected item and copy that filter to the clipboard.
@@ -157,7 +157,7 @@ description of each item.
 |menu:Colorize with Filter[]|| This menu item uses a display filter with the information from the selected protocol item to build a new colorizing rule.
 |menu:Follow TCP Stream[]|menu:Analyze[]| Allows you to view all the data on a TCP stream between a pair of nodes.
 |menu:Follow UDP Stream[]|menu:Analyze[]| Allows you to view all the data on a UDP datagram stream between a pair of nodes.
-|menu:Follow SSL Stream[]|menu:Analyze[]| Same as “Follow TCP Stream” but for SSL. XXX - add a new section describing this better.
+|menu:Follow TLS Stream[]|menu:Analyze[]| Same as “Follow TCP Stream” but for TLS. XXX - add a new section describing this better.
 |menu:Copy/ Description[]|menu:Edit[]| Copy the displayed text of the selected field to the system  clipboard.
 |menu:Copy/ Fieldname[]|menu:Edit[]| Copy the name of the selected field to the system clipboard.
 |menu:Copy/ Value[]|menu:Edit[]| Copy the value of the selected field to the system clipboard.

@@ -58,7 +58,7 @@ UatDialog::UatDialog(QWidget *parent, epan_uat *uat) :
 
     // FIXME: this prevents the columns from being resized, even if the text
     // within a combobox needs more space (e.g. in the USER DLT settings).  For
-    // very long filenames in the SSL RSA keys dialog, it also results in a
+    // very long filenames in the TLS RSA keys dialog, it also results in a
     // vertical scrollbar. Maybe remove this since the editor is not limited to
     // the column width (and overlays other fields if more width is needed)?
     ui->uatTreeView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);

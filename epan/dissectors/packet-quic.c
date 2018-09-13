@@ -121,7 +121,7 @@ static gint ett_quic_ft = -1;
 static gint ett_quic_ftflags = -1;
 
 static dissector_handle_t quic_handle;
-static dissector_handle_t ssl_handle;
+static dissector_handle_t tls_handle;
 
 /*
  * PROTECTED PAYLOAD DECRYPTION (done in first pass)
@@ -1112,7 +1112,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
                 proto_item_append_text(ti_stream, " (Cryptographic handshake)");
                 col_set_writable(pinfo->cinfo, -1, FALSE);
                 next_tvb = tvb_new_subset_length(tvb, offset, (int)length);
-                call_dissector(ssl_handle, next_tvb, pinfo, ft_tree);
+                call_dissector(tls_handle, next_tvb, pinfo, ft_tree);
                 col_set_writable(pinfo->cinfo, -1, TRUE);
             }
             offset += (int)length;
@@ -2550,7 +2550,7 @@ proto_register_quic(void)
 void
 proto_reg_handoff_quic(void)
 {
-    ssl_handle = find_dissector("ssl");
+    tls_handle = find_dissector("tls");
     dissector_add_uint_with_preference("udp.port", 0, quic_handle);
     heur_dissector_add("udp", dissect_quic_heur, "QUIC", "quic", proto_quic, HEURISTIC_ENABLE);
 }

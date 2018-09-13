@@ -18,10 +18,10 @@ This chapter will describe some of Wireshark’s advanced features.
 It can be very helpful to see protocol in the way that the application
 layer sees it. Perhaps you are looking for passwords in a Telnet stream,
 or you are trying to make sense of a data stream. Maybe you just need a
-display filter to show only the packets in an SSL stream. If so,
+display filter to show only the packets in a TLS or SSL stream. If so,
 Wireshark’s ability to follow protocol streams will be useful to you.
 
-Simply select a TCP, UDP, SSL, or HTTP packet in the packet list of the stream/connection you are
+Simply select a TCP, UDP, TLS, or HTTP packet in the packet list of the stream/connection you are
 interested in and then select the Follow TCP Stream menu item from the Wireshark
 Tools menu (or use the context menu in the packet list). Wireshark will set an
 appropriate display filter and pop up a dialog box with all the data from the

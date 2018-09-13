@@ -85,8 +85,8 @@ FollowStreamDialog::FollowStreamDialog(QWidget &parent, CaptureFile &cf, follow_
     case FOLLOW_TCP:
         follower_ = get_follow_by_name("TCP");
         break;
-    case FOLLOW_SSL:
-        follower_ = get_follow_by_name("SSL");
+    case FOLLOW_TLS:
+        follower_ = get_follow_by_name("TLS");
         break;
     case FOLLOW_UDP:
         follower_ = get_follow_by_name("UDP");
@@ -455,7 +455,7 @@ FollowStreamDialog::readStream()
     case FOLLOW_TCP :
     case FOLLOW_UDP :
     case FOLLOW_HTTP :
-    case FOLLOW_SSL :
+    case FOLLOW_TLS :
         ret = readFollowStream();
         break;
 
@@ -802,9 +802,9 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
         return false;
     }
 
-    if (follow_type_ == FOLLOW_SSL || follow_type_ == FOLLOW_HTTP)
+    if (follow_type_ == FOLLOW_TLS || follow_type_ == FOLLOW_HTTP)
     {
-        /* we got ssl/http so we can follow */
+        /* we got tls/http so we can follow */
         removeStreamControls();
     }
 
@@ -868,7 +868,7 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
 
         break;
     }
-    case FOLLOW_SSL:
+    case FOLLOW_TLS:
     case FOLLOW_HTTP:
         /* No extra handling */
         break;

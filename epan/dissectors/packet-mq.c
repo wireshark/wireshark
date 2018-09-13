@@ -4536,7 +4536,7 @@ void proto_reg_handoff_mq(void)
     heur_dissector_add("tcp", dissect_mq_heur_tcp, "WebSphere MQ over TCP", "mq_tcp", proto_mq, HEURISTIC_ENABLE);
     heur_dissector_add("netbios", dissect_mq_heur_nontcp, "WebSphere MQ over Netbios", "mq_netbios", proto_mq, HEURISTIC_ENABLE);
     heur_dissector_add("http", dissect_mq_heur_nontcp, "WebSphere MQ over HTTP", "mq_http", proto_mq, HEURISTIC_ENABLE);
-    heur_dissector_add("ssl", dissect_mq_heur_ssl, "WebSphere MQ over SSL", "mq_ssl", proto_mq, HEURISTIC_ENABLE);
+    heur_dissector_add("tls", dissect_mq_heur_ssl, "WebSphere MQ over TLS", "mq_tls", proto_mq, HEURISTIC_ENABLE);
     dissector_add_uint("spx.socket", MQ_SOCKET_SPX, mq_spx_handle);
     mqpcf_handle = find_dissector("mqpcf");
 }

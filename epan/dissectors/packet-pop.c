@@ -66,7 +66,7 @@ static gint ett_pop_data_fragments = -1;
 
 static dissector_handle_t pop_handle;
 static dissector_handle_t imf_handle;
-static dissector_handle_t ssl_handle;
+static dissector_handle_t tls_handle;
 
 #define TCP_PORT_POP            110
 #define TCP_PORT_SSL_POP        995
@@ -293,7 +293,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         if (data_val->stls_request) {
           if (g_ascii_strncasecmp(line, "+OK ", 4) == 0) {
               /* This is the last non-TLS frame. */
-              ssl_starttls_ack(ssl_handle, pinfo, pop_handle);
+              ssl_starttls_ack(tls_handle, pinfo, pop_handle);
           }
           data_val->stls_request = FALSE;
         }
@@ -467,8 +467,8 @@ proto_reg_handoff_pop(void)
   /* find the IMF dissector */
   imf_handle = find_dissector_add_dependency("imf", proto_pop);
 
-  /* find the SSL dissector */
-  ssl_handle = find_dissector_add_dependency("ssl", proto_pop);
+  /* find the TLS dissector */
+  tls_handle = find_dissector_add_dependency("tls", proto_pop);
 }
 
 /*

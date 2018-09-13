@@ -718,7 +718,7 @@ xmpp_proceed(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     }
 
     ssl_proceed =
-        ssl_starttls_ack(find_dissector("ssl"), pinfo, find_dissector("xmpp"));
+        ssl_starttls_ack(find_dissector("tls"), pinfo, find_dissector("xmpp"));
     if (ssl_proceed > 0 && ssl_proceed != pinfo->num) {
         expert_add_info_format(pinfo, proceed_item, &ei_xmpp_proceed_already_in_frame,
                                "Already saw PROCEED in frame %u", ssl_proceed);

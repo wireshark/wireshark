@@ -4364,13 +4364,13 @@ end:
 
 /* get ssl data for this session. if no ssl data is found allocate a new one*/
 SslDecryptSession *
-ssl_get_session(conversation_t *conversation, dissector_handle_t ssl_handle)
+ssl_get_session(conversation_t *conversation, dissector_handle_t tls_handle)
 {
     void               *conv_data;
     SslDecryptSession  *ssl_session;
     int                 proto_ssl;
 
-    proto_ssl = dissector_handle_get_protocol_index(ssl_handle);
+    proto_ssl = dissector_handle_get_protocol_index(tls_handle);
     conv_data = conversation_get_proto_data(conversation, proto_ssl);
     if (conv_data != NULL)
         return (SslDecryptSession *)conv_data;
@@ -4452,20 +4452,20 @@ static void ssl_reset_session(SslSession *session, SslDecryptSession *ssl, gbool
 }
 
 static guint32
-ssl_starttls(dissector_handle_t ssl_handle, packet_info *pinfo,
+ssl_starttls(dissector_handle_t tls_handle, packet_info *pinfo,
                  dissector_handle_t app_handle, guint32 last_nontls_frame)
 {
     conversation_t  *conversation;
     SslSession      *session;
 
-    /* Ignore if the SSL dissector is disabled. */
-    if (!ssl_handle)
+    /* Ignore if the TLS dissector is disabled. */
+    if (!tls_handle)
         return 0;
     /* The caller should always pass a valid handle to its own dissector. */
     DISSECTOR_ASSERT(app_handle);
 
     conversation = find_or_create_conversation(pinfo);
-    session = &ssl_get_session(conversation, ssl_handle)->session;
+    session = &ssl_get_session(conversation, tls_handle)->session;
 
     ssl_debug_printf("%s: old frame %d, app_handle=%p (%s)\n", G_STRFUNC,
                      session->last_nontls_frame,
@@ -4482,26 +4482,26 @@ ssl_starttls(dissector_handle_t ssl_handle, packet_info *pinfo,
     }
 
     session->app_handle = app_handle;
-    /* The SSL dissector should be called first for this conversation. */
-    conversation_set_dissector(conversation, ssl_handle);
-    /* SSL starts after this frame. */
+    /* The TLS dissector should be called first for this conversation. */
+    conversation_set_dissector(conversation, tls_handle);
+    /* TLS starts after this frame. */
     session->last_nontls_frame = last_nontls_frame;
     return 0;
 } /* }}} */
 
 /* ssl_starttls_ack: mark future frames as encrypted. {{{ */
 guint32
-ssl_starttls_ack(dissector_handle_t ssl_handle, packet_info *pinfo,
+ssl_starttls_ack(dissector_handle_t tls_handle, packet_info *pinfo,
                  dissector_handle_t app_handle)
 {
-    return ssl_starttls(ssl_handle, pinfo, app_handle, pinfo->num);
+    return ssl_starttls(tls_handle, pinfo, app_handle, pinfo->num);
 }
 
 guint32
-ssl_starttls_post_ack(dissector_handle_t ssl_handle, packet_info *pinfo,
+ssl_starttls_post_ack(dissector_handle_t tls_handle, packet_info *pinfo,
                  dissector_handle_t app_handle)
 {
-    return ssl_starttls(ssl_handle, pinfo, app_handle, pinfo->num - 1);
+    return ssl_starttls(tls_handle, pinfo, app_handle, pinfo->num - 1);
 }
 
 dissector_handle_t

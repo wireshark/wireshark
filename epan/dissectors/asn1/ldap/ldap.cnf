@@ -441,7 +441,7 @@ ldap_conv_info_t *ldap_info;
   if (ldap_info && ldap_info->start_tls_pending &&
       hf_index == hf_ldap_extendedResponse_resultCode && resultCode == 0) {
     /* The conversation will continue using SSL */
-    ssl_starttls_ack(find_dissector("ssl"), actx->pinfo, ldap_handle);
+    ssl_starttls_ack(find_dissector("tls"), actx->pinfo, ldap_handle);
     ldap_info->start_tls_pending = FALSE;
   }
 

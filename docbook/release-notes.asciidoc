@@ -49,6 +49,9 @@ since version 2.6.0:
 * The BOOTP dissector has been renamed to DHCP. With the exception of
   “bootp.dhcp”, the old “bootp.*” display filter fields are still supported
   but may be removed in a future release.
+* The SSL dissector has been renamed to TLS. As with BOOTP the old
+  “ssl.*” display filter fields are supported but may be removed in a
+  future release.
 
 === Removed Features and Support
 

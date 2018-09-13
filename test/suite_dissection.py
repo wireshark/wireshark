@@ -23,8 +23,8 @@ class case_dissect_http2(subprocesstest.SubprocessTestCase):
         key_file = os.path.join(config.key_dir, 'http2-data-reassembly.keys')
         self.runProcess((config.cmd_tshark,
                 '-r', capture_file,
-                '-o', 'ssl.keylog_file: {}'.format(key_file),
-                '-d', 'tcp.port==8443,ssl',
+                '-o', 'tls.keylog_file: {}'.format(key_file),
+                '-d', 'tcp.port==8443,tls',
                 '-Y', 'http2.data.data matches "PNG" && http2.data.data matches "END"',
             ),
             env=config.test_env)

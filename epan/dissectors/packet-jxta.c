@@ -65,7 +65,7 @@ static int jxta_tap = -1;
 static dissector_table_t media_type_dissector_table = NULL;
 static dissector_handle_t media_handle = NULL;
 static dissector_handle_t stream_jxta_handle = NULL;
-static dissector_handle_t ssl_handle = NULL;
+static dissector_handle_t tls_handle = NULL;
 
 static int hf_uri_addr = -1;
 static int hf_uri_src = -1;
@@ -2032,9 +2032,9 @@ static int dissect_media( const gchar* fullmediatype, tvbuff_t * tvb, packet_inf
         ascii_strdown_inplace(mediatype);
 
         if (0 == strcmp("application/x-jxta-tls-block", mediatype)) {
-            /* If we recognize it as a TLS packet then we shuffle it off to ssl dissector. */
-            if (NULL != ssl_handle) {
-                dissected = call_dissector(ssl_handle, tvb, pinfo, tree);
+            /* If we recognize it as a TLS packet then we shuffle it off to tls dissector. */
+            if (NULL != tls_handle) {
+                dissected = call_dissector(tls_handle, tvb, pinfo, tree);
             }
         } else if (0 == strcmp("application/gzip", mediatype)) {
             tvbuff_t *uncomp_tvb = tvb_child_uncompress(tvb, tvb, 0, tvb_captured_length(tvb));
@@ -2383,7 +2383,7 @@ void proto_reg_handoff_jxta(void)
         message_jxta_handle = create_dissector_handle(dissect_jxta_message, proto_message_jxta);
 
         media_type_dissector_table = find_dissector_table("media_type");
-        ssl_handle = find_dissector_add_dependency("ssl", proto_jxta);
+        tls_handle = find_dissector_add_dependency("tls", proto_jxta);
 
         media_handle = find_dissector_add_dependency("media", proto_jxta);
 

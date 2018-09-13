@@ -2286,7 +2286,7 @@ void MainWindow::setMenusForCaptureFile(bool force_disable)
 
     main_ui_->actionFileExportPacketBytes->setEnabled(enable);
     main_ui_->actionFileExportPDU->setEnabled(enable);
-    main_ui_->actionFileExportSSLSessionKeys->setEnabled(enable);
+    main_ui_->actionFileExportTLSSessionKeys->setEnabled(enable);
 
     foreach (QAction *eo_action, main_ui_->menuFileExportObjects->actions()) {
         eo_action->setEnabled(enable);
@@ -2316,7 +2316,7 @@ void MainWindow::setMenusForCaptureInProgress(bool capture_in_progress) {
 
     main_ui_->actionFileExportPacketBytes->setEnabled(capture_in_progress);
     main_ui_->actionFileExportPDU->setEnabled(!capture_in_progress);
-    main_ui_->actionFileExportSSLSessionKeys->setEnabled(capture_in_progress);
+    main_ui_->actionFileExportTLSSessionKeys->setEnabled(capture_in_progress);
 
     foreach (QAction *eo_action, main_ui_->menuFileExportObjects->actions()) {
         eo_action->setEnabled(capture_in_progress);

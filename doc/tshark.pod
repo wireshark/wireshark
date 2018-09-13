@@ -99,7 +99,7 @@ L<https://www.wireshark.org/docs/man-pages/wireshark.html> is a detailed
 description of the way B<Wireshark> handles this, which is the same way
 B<Tshark> handles this.
 
-Compressed file support uses (and therefore requires) the zlib library. 
+Compressed file support uses (and therefore requires) the zlib library.
 If the zlib library is not present when compiling B<TShark>, it will be
 possible to compile it, but the resulting program will be unable to read
 compressed files.
@@ -130,7 +130,7 @@ Read filters in B<TShark>, which allow you to select which packets are
 to be decoded or written to a file, are very powerful; more fields are
 filterable in B<TShark> than in other protocol analyzers, and the syntax
 you can use to create your filters is richer.  As B<TShark> progresses,
-expect more and more protocol fields to be allowed in read filters. 
+expect more and more protocol fields to be allowed in read filters.
 Read filters use the same syntax as display and color filters in
 B<Wireshark>; a read filter is specified with the B<-R> option.
 
@@ -1214,7 +1214,7 @@ I<prot> specifies the transport protocol.  It can be one of:
 
   tcp   TCP
   udp   UDP
-  ssl   SSL
+  tls   TLS or SSL
 
 I<mode> specifies the output mode.  It can be one of:
 
@@ -1227,7 +1227,7 @@ Since the output in B<ascii> or B<ebcdic> mode may contain newlines, the length
 of each section of output plus a newline precedes each section of output.
 
 I<filter> specifies the stream to be displayed. UDP/TCP streams are selected
-with either the stream index or IP address plus port pairs. SSL streams are
+with either the stream index or IP address plus port pairs. TLS streams are
 selected with the stream index. For example:
 
   ip-addr0:port0,ip-addr1:port1

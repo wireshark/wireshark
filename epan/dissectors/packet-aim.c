@@ -4548,7 +4548,7 @@ proto_reg_handoff_aim(void)
 
 	ssl_dissector_add(0, aim_handle);
 	/* Heuristics disabled by default, it is really weak... */
-	heur_dissector_add("ssl", dissect_aim_ssl_heur, "AIM over SSL", "aim_ssl", proto_aim, HEURISTIC_DISABLE);
+	heur_dissector_add("tls", dissect_aim_ssl_heur, "AIM over TLS", "aim_tls", proto_aim, HEURISTIC_DISABLE);
 
 
 	aim_init_family(proto_aim_admin, ett_aim_admin, FAMILY_ADMIN, aim_fnac_family_admin);
