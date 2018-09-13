@@ -5250,7 +5250,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, packet_info *pinfo, tvbuff_t *tv
 						};
 
 						proto_tree_add_bitmask_list_value(subtree2, tvb, subopt_off, 2, cl_flags, mib_val);
-                        }
+						}
 						break;
 
 					case PKT_MDC_MIB_IETF: {
@@ -5263,7 +5263,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, packet_info *pinfo, tvbuff_t *tv
 						};
 
 						proto_tree_add_bitmask_list_value(subtree2, tvb, subopt_off, 2, ietf_flags, mib_val);
-                        }
+						}
 						break;
 
 					case PKT_MDC_MIB_EURO: {
@@ -5279,7 +5279,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, packet_info *pinfo, tvbuff_t *tv
 						};
 
 						proto_tree_add_bitmask_list_value(subtree2, tvb, subopt_off, 2, euro_flags, mib_val);
-                        }
+						}
 						break;
 
 					default:
@@ -9299,7 +9299,7 @@ proto_register_dhcp(void)
 
 	proto_dhcp = proto_register_protocol("Dynamic Host Configuration Protocol", "DHCP/BOOTP", "dhcp");
 	proto_register_field_array(proto_dhcp, hf, array_length(hf));
-    proto_register_alias(proto_dhcp, "bootp");
+	proto_register_alias(proto_dhcp, "bootp");
 	proto_register_subtree_array(ett, array_length(ett));
 	dhcp_bootp_tap = register_tap("dhcp");
 
