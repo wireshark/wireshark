@@ -5505,11 +5505,17 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
                              strcmp(pref_name, "isup_thin") == 0) {
                         /* This protocol was removed 7. July 2009 */
                         return PREFS_SET_OBSOLETE;
+                    } else {
+                        /* See if the module name matches any protocol aliases. */
+                        header_field_info *hfinfo = proto_registrar_get_byalias(pref_name);
+                        if (hfinfo) {
+                            module = (module_t *) wmem_tree_lookup_string(prefs_modules, hfinfo->abbrev, WMEM_TREE_STRING_NOCASE);
+                        }
                     }
                     if (module) {
-                        ws_g_warning ("Preference \"%s.%s\" has been converted to \"%s.%s.%s\"\n"
+                        ws_g_warning ("Preference \"%s.%s\" has been converted to \"%s.%s\"\n"
                                    "Save your preferences to make this change permanent.",
-                                   pref_name, dotp+1, module->parent->name, pref_name, dotp+1);
+                                   pref_name, dotp+1, module->name, dotp+1);
                         prefs.unknown_prefs = TRUE;
                     }
                 }
