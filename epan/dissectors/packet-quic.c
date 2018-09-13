@@ -125,6 +125,7 @@ static gint ett_quic_ftflags = -1;
 
 static dissector_handle_t quic_handle;
 static dissector_handle_t tls_handle;
+static dissector_handle_t tls13_handshake_handle;
 
 /*
  * PROTECTED PAYLOAD DECRYPTION (done in first pass)
@@ -781,7 +782,7 @@ quic_connection_destroy(gpointer data, gpointer user_data _U_)
 
 #ifdef HAVE_LIBGCRYPT_AEAD
 static int
-dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, quic_packet_info_t *quic_packet _U_)
+dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, guint32 version)
 {
     proto_item *ti_ft, *ti_ftflags, *ti;
     proto_tree *ft_tree, *ftflags_tree;
@@ -1085,7 +1086,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
 
             proto_tree_add_item(ft_tree, hf_quic_stream_data, tvb, offset, (int)length, ENC_NA);
 
-            if (stream_id == 0) { /* Special Stream */
+            if (is_quic_draft_max(version, 12) && stream_id == 0) { /* Special Stream */
                 tvbuff_t *next_tvb;
 
                 proto_item_append_text(ti_stream, " (Cryptographic handshake)");
@@ -1108,6 +1109,20 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_crypt_length, tvb, offset, -1, ENC_VARINT_QUIC, &crypto_length, &lenvar);
             offset += lenvar;
             proto_tree_add_item(ft_tree, hf_quic_frame_type_crypt_crypto_data, tvb, offset, (guint32)crypto_length, ENC_NA);
+            {
+                tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset, (int)crypto_length);
+                col_set_writable(pinfo->cinfo, -1, FALSE);
+                /*
+                 * Dissect TLS handshake record. The Client/Server Hello (CH/SH)
+                 * are contained in the Initial Packet. 0-RTT keys are ready
+                 * after CH. HS + 1-RTT keys are ready after SH.
+                 * (Note: keys captured from the client might become available
+                 * after capturing the packets due to processing delay.)
+                 * These keys will be loaded in the first HS/0-RTT/1-RTT msg.
+                 */
+                call_dissector(tls13_handshake_handle, next_tvb, pinfo, ft_tree);
+                col_set_writable(pinfo->cinfo, -1, TRUE);
+            }
             offset += (guint32)crypto_length;
         }
         break;
@@ -1577,6 +1592,7 @@ quic_process_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
                      quic_info_data_t *quic_info, quic_packet_info_t *quic_packet, quic_cipher *cipher, guint pkn_len)
 {
     quic_decrypt_result_t *decryption = &quic_packet->decryption;
+    guint32     version = quic_info ? quic_info->version : 0;
 
     /*
      * If no decryption error has occurred yet, try decryption on the first
@@ -1598,7 +1614,7 @@ quic_process_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
 
         guint decrypted_offset = 0;
         while (tvb_reported_length_remaining(decrypted_tvb, decrypted_offset) > 0) {
-            decrypted_offset = dissect_quic_frame_type(decrypted_tvb, pinfo, tree, decrypted_offset, quic_packet);
+            decrypted_offset = dissect_quic_frame_type(decrypted_tvb, pinfo, tree, decrypted_offset, version);
         }
     } else if (quic_info->skip_decryption) {
         expert_add_info_format(pinfo, ti, &ei_quic_decryption_failed,
@@ -2566,6 +2582,7 @@ void
 proto_reg_handoff_quic(void)
 {
     tls_handle = find_dissector("tls");
+    tls13_handshake_handle = find_dissector("tls13-handshake");
     dissector_add_uint_with_preference("udp.port", 0, quic_handle);
     heur_dissector_add("udp", dissect_quic_heur, "QUIC", "quic", proto_quic, HEURISTIC_ENABLE);
 }

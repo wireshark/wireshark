@@ -4997,6 +4997,14 @@ void
 tls13_change_key(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map,
                  gboolean is_from_server, TLSRecordType type)
 {
+    if (ssl->state & SSL_QUIC_RECORD_LAYER) {
+        /*
+         * QUIC does not use the TLS record layer for message protection.
+         * The required keys will be extracted later by QUIC.
+         */
+        return;
+    }
+
     StringInfo *secret = tls13_load_secret(ssl, mk_map, is_from_server, type);
     if (!secret) {
         return;

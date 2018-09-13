@@ -237,6 +237,7 @@ static inline guint8 extract_tls13_draft_version(guint32 version) {
 #define SSL_NEW_SESSION_TICKET  (1<<10)
 #define SSL_ENCRYPT_THEN_MAC    (1<<11)
 #define SSL_SEEN_0RTT_APPDATA   (1<<12)
+#define SSL_QUIC_RECORD_LAYER   (1<<13) /* For QUIC (draft >= -13) */
 
 #define SSL_EXTENDED_MASTER_SECRET_MASK (SSL_CLIENT_EXTENDED_MASTER_SECRET|SSL_SERVER_EXTENDED_MASTER_SECRET)
 

@@ -770,6 +770,52 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     return tvb_captured_length(tvb);
 }
 
+/*
+ * Dissect TLS 1.3 handshake messages (without the record layer).
+ * For use by QUIC (draft -13).
+ */
+static int
+dissect_tls13_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+
+    conversation_t    *conversation;
+    SslDecryptSession *ssl_session;
+    SslSession        *session;
+    gint               is_from_server;
+
+    ssl_debug_printf("\n%s enter frame #%u (%s)\n", G_STRFUNC, pinfo->num, (pinfo->fd->flags.visited)?"already visited":"first time");
+
+    conversation = find_or_create_conversation(pinfo);
+    ssl_session = ssl_get_session(conversation, tls_handle);
+    session = &ssl_session->session;
+    is_from_server = ssl_packet_from_server(session, ssl_associations, pinfo);
+    if (session->version == SSL_VER_UNKNOWN) {
+        session->version = TLSV1DOT3_VERSION;
+        ssl_session->state |= SSL_VERSION;
+        ssl_session->state |= SSL_QUIC_RECORD_LAYER;
+    }
+
+    /*
+     * First pass: collect state (including Client Random for key matching).
+     * Second pass: dissection only, no need to collect state.
+     */
+    if (PINFO_FD_VISITED(pinfo)) {
+         ssl_session = NULL;
+    }
+
+    ssl_debug_printf("  conversation = %p, ssl_session = %p, from_server = %d\n",
+                     (void *)conversation, (void *)ssl_session, is_from_server);
+
+    /* Directly add handshake message to the tree (without proto_tls item). */
+    dissect_ssl3_handshake(tvb, pinfo, tree, 0,
+                           tvb_reported_length(tvb), FALSE, session,
+                           is_from_server, ssl_session, SSL_ID_HANDSHAKE, TLSV1DOT3_VERSION);
+
+    ssl_debug_flush();
+
+    return tvb_captured_length(tvb);
+}
+
 static gboolean
 is_sslv3_or_tls(tvbuff_t *tvb)
 {
@@ -4010,6 +4056,7 @@ proto_register_tls(void)
         proto_tls);
 
     tls_handle = register_dissector("tls", dissect_ssl, proto_tls);
+    register_dissector("tls13-handshake", dissect_tls13_handshake, proto_tls);
 
     register_init_routine(ssl_init);
     register_cleanup_routine(ssl_cleanup);
