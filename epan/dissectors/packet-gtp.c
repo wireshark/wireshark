@@ -9428,9 +9428,9 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                 call_dissector(ppp_handle, next_tvb, pinfo, tree);
 #endif
                 proto_tree_add_item(tree, hf_gtp_tpdu_data, tvb, offset, -1, ENC_NA);
-                col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "GTP <");
-                col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
             }
+            col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "GTP <");
+            col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
             break;
         case GTP_TPDU_AS_PDCP_LTE:
             if (tvb_reported_length_remaining(tvb, offset) > 0) {
