@@ -45,46 +45,55 @@ static int hf_evs_amr_wb_q_bit = -1;
 static int hf_evs_bit_rate_mode_0 = -1;
 static int hf_evs_bit_rate_mode_1 = -1;
 static int hf_evs_cmr_amr_io = -1;
+static int hf_evs_bw = -1;
+static int hf_evs_reserved_1bit = -1;
+static int hf_evs_celp_mdct_core = -1;
+static int hf_evs_tcx_or_hq_mdct_core = -1;
+static int hf_evs_sid_cng = -1;
+static int hf_evs_celp_sample_rate = -1;
+static int hf_evs_core_sample_rate = -1;
 
 static int ett_evs = -1;
 static int ett_evs_header = -1;
+static int ett_evs_speech = -1;
+static int ett_evs_voice_data = -1;
 
 /* The dynamic payload type which will be dissected as EVS */
 static guint temp_dynamic_payload_type = 0;
 
 static const value_string evs_protected_payload_sizes_value[] = {
-{    48, "EVS Primary 2.4" },
-{    56, "Special case" },
-{   136, "EVS AMR-WB IO" },
-{   144, "EVS Primary 7.2" },
-{   160, "EVS Primary 8.0" },
-{   184, "EVS AMR-WB IO" },
-{   192, "EVS Primary 9.6" },
-{   256, "EVS AMR-WB IO" },
-{   264, "EVS Primary 13.2" },
-{   288, "EVS AMR-WB IO" },
-{   320, "EVS AMR-WB IO" },
-{   328, "EVS Primary 16.4" },
-{   368, "EVS AMR-WB IO" },
-{   400, "EVS AMR-WB IO" },
-{   464, "EVS AMR-WB IO" },
-{   480, "EVS Primary 24.0" },
-{   488, "EVS Primary 24.4" },
-{   640, "EVS Primary 32.0" },
-{   960, "EVS Primary 48.0" },
-{  1280, "EVS Primary 64.0" },
-{  1920, "EVS Primary 96.0" },
-{  2560, "EVS Primary 128.0" },
-{ 0, NULL }
+    {    48, "EVS Primary SID 2.4" },
+    {    56, "Special case" },
+    {   136, "EVS AMR-WB IO" },
+    {   144, "EVS Primary 7.2" },
+    {   160, "EVS Primary 8.0" },
+    {   184, "EVS AMR-WB IO" },
+    {   192, "EVS Primary 9.6" },
+    {   256, "EVS AMR-WB IO" },
+    {   264, "EVS Primary 13.2" },
+    {   288, "EVS AMR-WB IO" },
+    {   320, "EVS AMR-WB IO" },
+    {   328, "EVS Primary 16.4" },
+    {   368, "EVS AMR-WB IO" },
+    {   400, "EVS AMR-WB IO" },
+    {   464, "EVS AMR-WB IO" },
+    {   480, "EVS Primary 24.0" },
+    {   488, "EVS Primary 24.4" },
+    {   640, "EVS Primary 32.0" },
+    {   960, "EVS Primary 48.0" },
+    {  1280, "EVS Primary 64.0" },
+    {  1920, "EVS Primary 96.0" },
+    {  2560, "EVS Primary 128.0" },
+    { 0, NULL }
 };
 
 static const value_string evs_d_bits_t0_values[] = {
-    { 0x0, "NB 5.9 (VBR)" },
-    { 0x1, "NB 7.2" },
-    { 0x2, "NB 8.0" },
-    { 0x3, "NB 9.6" },
-    { 0x4, "NB 13.2" },
-    { 0x5, "NB 16.4" },
+    { 0x0, "NB 5.9 kbps (VBR)" },
+    { 0x1, "NB 7.2 kbps" },
+    { 0x2, "NB 8.0 kbps" },
+    { 0x3, "NB 9.6 kbps" },
+    { 0x4, "NB 13.2 kbps" },
+    { 0x5, "NB 16.4 kbps" },
     { 0x6, "Not used" },
     { 0x7, "Not used" },
     { 0x8, "Not used" },
@@ -99,15 +108,15 @@ static const value_string evs_d_bits_t0_values[] = {
 };
 
 static const value_string evs_d_bits_t1_values[] = {
-    { 0x0, "IO 6.6" },
-    { 0x1, "IO 8.8" },
-    { 0x2, "IO 12.65" },
-    { 0x3, "IO 14.25" },
-    { 0x4, "IO 15.85" },
-    { 0x5, "IO 18.25" },
-    { 0x6, "IO 19.85" },
-    { 0x7, "IO 23.05" },
-    { 0x8, "IO 23.85" },
+    { 0x0, "AMR-WB IO 6.6 kbps (mode-set 0)" },
+    { 0x1, "AMR-WB IO 8.8 kbps (mode-set 1)" },
+    { 0x2, "AMR-WB IO 12.65 kbps (mode-set 2)" },
+    { 0x3, "AMR-WB IO 14.25 kbps (mode-set 3)" },
+    { 0x4, "AMR-WB IO 15.85 kbps (mode-set 4)" },
+    { 0x5, "AMR-WB IO 18.25 kbps (mode-set 5)" },
+    { 0x6, "AMR-WB IO 19.85 kbps (mode-set 6)" },
+    { 0x7, "AMR-WB IO 23.05 kbps (mode-set 7)" },
+    { 0x8, "AMR-WB IO 23.85 kbps (mode-set 8)" },
     { 0x9, "Not used" },
     { 0xa, "Not used" },
     { 0xb, "Not used" },
@@ -120,18 +129,18 @@ static const value_string evs_d_bits_t1_values[] = {
 
 
 static const value_string evs_d_bits_t2_values[] = {
-    { 0x0, "WB 5.9 (VBR)" },
-    { 0x1, "WB 7.2" },
-    { 0x2, "WB 8" },
-    { 0x3, "WB 9.6" },
-    { 0x4,"WB 13.2" },
-    { 0x5,"WB 16.4" },
-    { 0x6,"WB 24.4" },
-    { 0x7,"WB 32" },
-    { 0x8,"WB 48" },
-    { 0x9,"WB 64" },
-    { 0xa,"WB 96" },
-    { 0xb,"WB 128" },
+    { 0x0, "WB 5.9 kbps (VBR)" },
+    { 0x1, "WB 7.2 kbps" },
+    { 0x2, "WB 8 kbps" },
+    { 0x3, "WB 9.6 kbps" },
+    { 0x4,"WB 13.2 kbps" },
+    { 0x5,"WB 16.4 kbps" },
+    { 0x6,"WB 24.4 kbps" },
+    { 0x7,"WB 32 kbps" },
+    { 0x8,"WB 48 kbps" },
+    { 0x9,"WB 64 kbps" },
+    { 0xa,"WB 96 kbps" },
+    { 0xb,"WB 128 kbps" },
     { 0xc, "Not used" },
     { 0xd, "Not used" },
     { 0xe, "Not used" },
@@ -143,15 +152,15 @@ static const value_string evs_d_bits_t3_values[] = {
     { 0x0, "Not used" },
     { 0x1, "Not used" },
     { 0x2, "Not used" },
-    { 0x3, "SWB 9.6" },
-    { 0x4, "SWB 13.2" },
-    { 0x5, "SWB 16.4" },
-    { 0x6, "SWB 24.4" },
-    { 0x7, "SWB 32" },
-    { 0x8, "SWB 48" },
-    { 0x9, "SWB 64" },
-    { 0xa, "SWB 96" },
-    { 0xb, "SWB 128" },
+    { 0x3, "SWB 9.6 kbps" },
+    { 0x4, "SWB 13.2 kbps" },
+    { 0x5, "SWB 16.4 kbps" },
+    { 0x6, "SWB 24.4 kbps" },
+    { 0x7, "SWB 32 kbps" },
+    { 0x8, "SWB 48 kbps" },
+    { 0x9, "SWB 64 kbps" },
+    { 0xa, "SWB 96 kbps" },
+    { 0xb, "SWB 128 kbps" },
     { 0xc, "Not used" },
     { 0xd, "Not used" },
     { 0xe, "Not used" },
@@ -165,13 +174,13 @@ static const value_string evs_d_bits_t4_values[] = {
     { 0x2, "Not used" },
     { 0x3, "Not used" },
     { 0x4, "Not used" },
-    { 0x5, "FB 16.4" },
-    { 0x6, "FB 24.4" },
-    { 0x7, "FB 32" },
-    { 0x8, "FB 48" },
-    { 0x9, "FB 64" },
-    { 0xa, "FB 96" },
-    { 0xb, "FB 128" },
+    { 0x5, "FB 16.4 kbps" },
+    { 0x6, "FB 24.4 kbps" },
+    { 0x7, "FB 32 kbps" },
+    { 0x8, "FB 48 kbps" },
+    { 0x9, "FB 64 kbps" },
+    { 0xa, "FB 96 kbps" },
+    { 0xb, "FB 128 kbps" },
     { 0xc, "Not used" },
     { 0xd, "Not used" },
     { 0xe, "Not used" },
@@ -180,14 +189,14 @@ static const value_string evs_d_bits_t4_values[] = {
 };
 
 static const value_string evs_d_bits_t5_values[] = {
-    { 0x0, "WB 13.2 CA-L-O2" },
-    { 0x1, "WB 13.2 CA-L-O2" },
-    { 0x2, "WB 13.2 CA-L-O5" },
-    { 0x3, "WB 13.2 CA-L-O7" },
-    { 0x4, "WB 13.2 CA-H-O2" },
-    { 0x5, "WB 13.2 CA-H-O3" },
-    { 0x6, "WB 13.2 CA-H-O5" },
-    { 0x7, "WB 13.2 CA-H-O7" },
+    { 0x0, "WB 13.2 kbps CA-L-O2" },
+    { 0x1, "WB 13.2 kbps CA-L-O2" },
+    { 0x2, "WB 13.2 kbps CA-L-O5" },
+    { 0x3, "WB 13.2 kbps CA-L-O7" },
+    { 0x4, "WB 13.2 kbps CA-H-O2" },
+    { 0x5, "WB 13.2 kbps CA-H-O3" },
+    { 0x6, "WB 13.2 kbps CA-H-O5" },
+    { 0x7, "WB 13.2 kbps CA-H-O7" },
     { 0x8, "Not used" },
     { 0x9, "Not used" },
     { 0xa, "Not used" },
@@ -200,14 +209,14 @@ static const value_string evs_d_bits_t5_values[] = {
 };
 
 static const value_string evs_d_bits_t6_values[] = {
-    { 0x0, "SWB 13.2 CA-L-O2" },
-    { 0x1, "SWB 13.2 CA-L-O2" },
-    { 0x2, "SWB 13.2 CA-L-O5" },
-    { 0x3, "SWB 13.2 CA-L-O7" },
-    { 0x4, "SWB 13.2 CA-H-O2" },
-    { 0x5, "SWB 13.2 CA-H-O3" },
-    { 0x6, "SWB 13.2 CA-H-O5" },
-    { 0x7, "SWB 13.2 CA-H-O7" },
+    { 0x0, "SWB 13.2 kbps CA-L-O2" },
+    { 0x1, "SWB 13.2 kbps CA-L-O2" },
+    { 0x2, "SWB 13.2 kbps CA-L-O5" },
+    { 0x3, "SWB 13.2 kbps CA-L-O7" },
+    { 0x4, "SWB 13.2 kbps CA-H-O2" },
+    { 0x5, "SWB 13.2 kbps CA-H-O3" },
+    { 0x6, "SWB 13.2 kbps CA-H-O5" },
+    { 0x7, "SWB 13.2 kbps CA-H-O7" },
     { 0x8, "Not used" },
     { 0x9, "Not used" },
     { 0xa, "Not used" },
@@ -252,7 +261,7 @@ static const value_string evs_bit_rate_mode_0_values[] = {
     { 0x9, "Primary 64.0 kbps" },
     { 0xa, "Primary 96.0 kbps" },
     { 0xb, "Primary 128.0 kbps" },
-    { 0xc, "Primary 2.4kbps SID" },
+    { 0xc, "Primary 2.4 kbps SID" },
     { 0xd, "For future use" },
     { 0xe, "SPEECH_LOST" },
     { 0xf, "NO_DATA" },
@@ -307,15 +316,50 @@ static const true_false_string toc_evs_q_bit_vals = {
     "Severely damaged frame"
 };
 
+static const value_string evs_bw_values[] = {
+    { 0x0, "NB" },
+    { 0x1, "WB" },
+    { 0x2, "SWB" },
+    { 0x3, "FB" },
+    { 0, NULL }
+};
+
+static const value_string evs_celp_or_mdct_core_values[] = {
+    { 0x0, "CELP" },
+    { 0x1, "MDCT" },
+    { 0, NULL }
+};
+
+static const value_string evs_tcx_or_hq_mdct_core_values[] = {
+    { 0x0, "TCX Core" },
+    { 0x1, "HQ-MDCT core" },
+    { 0, NULL }
+};
+
+static const value_string evs_sid_cng_values[] = {
+    { 0x0, "FD-CNG" },
+    { 0x1, "LP-CNG SID" },
+    { 0, NULL }
+};
+
+static const value_string evs_sid_celp_sample_rate_values[] = {
+    { 0x0, "12.8 kHz" },
+    { 0x1, "16 kHz" },
+    { 0, NULL }
+};
+
+
+
 static void
 dissect_evs_cmr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *evs_tree, int offset, guint8 cmr_oct)
 {
     proto_tree *tree;
+    proto_item *item;
     const gchar *str;
     guint8 t_bits = (cmr_oct & 0x70) >> 4;;
     guint8 d_bits = (cmr_oct & 0x0f);
     /* CMR */
-    tree = proto_tree_add_subtree(evs_tree, tvb, offset, 1, ett_evs_header, NULL, "CMR");
+    tree = proto_tree_add_subtree(evs_tree, tvb, offset, 1, ett_evs_header, &item, "CMR");
 
 
     switch (t_bits) {
@@ -329,6 +373,7 @@ dissect_evs_cmr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *evs_tree, int
         };
 
         str = val_to_str_const(d_bits, evs_d_bits_t0_values, "Unknown value");
+        proto_item_append_text(item, " %s",str);
         proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags_t0, ENC_BIG_ENDIAN);
     }
     break;
@@ -342,6 +387,7 @@ dissect_evs_cmr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *evs_tree, int
         };
 
         str = val_to_str_const(d_bits, evs_d_bits_t1_values, "Unknown value");
+        proto_item_append_text(item, " %s",str);
         proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags_t1, ENC_BIG_ENDIAN);
     }
     break;
@@ -355,6 +401,7 @@ dissect_evs_cmr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *evs_tree, int
         };
 
         str = val_to_str_const(d_bits, evs_d_bits_t2_values, "Unknown value");
+        proto_item_append_text(item, " %s",str);
         proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags_t2, ENC_BIG_ENDIAN);
     }
     break;
@@ -368,6 +415,7 @@ dissect_evs_cmr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *evs_tree, int
         };
 
         str = val_to_str_const(d_bits, evs_d_bits_t3_values, "Unknown value");
+        proto_item_append_text(item, " %s",str);
         proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags_t3, ENC_BIG_ENDIAN);
     }
     break;
@@ -381,6 +429,7 @@ dissect_evs_cmr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *evs_tree, int
         };
 
         str = val_to_str_const(d_bits, evs_d_bits_t4_values, "Unknown value");
+        proto_item_append_text(item, " %s",str);
         proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags_t4, ENC_BIG_ENDIAN);
     }
     break;
@@ -394,6 +443,7 @@ dissect_evs_cmr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *evs_tree, int
         };
 
         str = val_to_str_const(d_bits, evs_d_bits_t5_values, "Unknown value");
+        proto_item_append_text(item, " %s",str);
         proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags_t5, ENC_BIG_ENDIAN);
     }
     break;
@@ -407,6 +457,7 @@ dissect_evs_cmr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *evs_tree, int
         };
 
         str = val_to_str_const(d_bits, evs_d_bits_t6_values, "Unknown value");
+        proto_item_append_text(item, " %s",str);
         proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags_t6, ENC_BIG_ENDIAN);
     }
     break;
@@ -420,6 +471,7 @@ dissect_evs_cmr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *evs_tree, int
         };
 
         str = val_to_str_const(d_bits, evs_d_bits_t7_values, "Unknown value");
+        proto_item_append_text(item, " %s",str);
         proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags_t7, ENC_BIG_ENDIAN);
     }
     break;
@@ -427,7 +479,7 @@ dissect_evs_cmr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *evs_tree, int
         break;
 
     }
-    col_append_fstr(pinfo->cinfo, COL_INFO, " %s ", str);
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s ", str);
 }
 
 /* Code to actually dissect the packets */
@@ -435,13 +487,14 @@ static int
 dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *ti;
-    proto_tree *evs_tree, *sub_tree;
-    int offset = 0;
-    int packet_len, idx;
+    proto_tree *evs_tree, *sub_tree, *vd_tree;
+    int offset = 0 , bit_offset = 0;
+    int packet_len, idx, speech_data_len;
     guint32 num_bits;
     const gchar *str;
     guint8 oct, h_bit, toc_f_bit, evs_mode_b;
-    int num_toc;
+    int num_toc, num_data;
+    guint64 value;
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "EVS");
@@ -455,8 +508,11 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     evs_tree = proto_item_add_subtree(ti, ett_evs);
     if (str) {
         /* A.2.1 EVS codec Compact Format */
+        proto_tree_add_subtree(evs_tree, tvb, offset, -1, ett_evs_header, &ti, "Framing Mode: Compact");
+        PROTO_ITEM_SET_GENERATED(ti);
+
         /* One of the protected payload sizes, no further dissection currently. XXX add handling of "Special case"*/
-        col_append_fstr(pinfo->cinfo, COL_INFO, " %s ", str);
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", %s ", str);
         proto_tree_add_int_format(evs_tree, hf_evs_packet_length, tvb, offset, 1, packet_len * 8, " %s, packet_len %i bits", str, packet_len * 8);
         if (strcmp(str, "EVS A") == 0) {
             /* A.2.1.2	Compact format for EVS AMR-WB IO mode */
@@ -464,11 +520,62 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             proto_tree_add_item(evs_tree, hf_evs_cmr_amr_io, tvb, offset, 1, ENC_BIG_ENDIAN);
         }
 
-        proto_tree_add_item(evs_tree, hf_evs_voice_data, tvb, offset, -1, ENC_NA);
+        vd_tree = proto_tree_add_subtree(evs_tree, tvb, offset, -1, ett_evs_voice_data, NULL, "Voice Data");
+        switch (packet_len) {
+        case 6:
+            /* 7.2	Bit allocation for SID frames in the DTX operation */
+            /* CNG type flag 1 bit */
+            proto_tree_add_bits_ret_val(vd_tree, hf_evs_sid_cng, tvb, bit_offset, 1, &value, ENC_BIG_ENDIAN);
+            bit_offset++;
+            if (value == 0) {
+                /* FD-CNG SID frame */
+                /* Bandwidth indicator 2 bits */
+                proto_tree_add_bits_item(vd_tree, hf_evs_bw, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+                bit_offset += 2;
+                /* CELP sample rate 1 bit*/
+                proto_tree_add_bits_item(vd_tree, hf_evs_celp_sample_rate, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+                /* Global gain 7 bits */
+                /* Spectral band and energy 37 bits */
+            } else {
+                /* LP-CNG SID frame */
+                /* Bandwidth indicator 1 bit */
+                oct = tvb_get_bits8(tvb, bit_offset, 1);
+                proto_tree_add_uint_bits_format_value(vd_tree, hf_evs_bw, tvb, bit_offset, 1, 1,"BW: %s (%u)",
+                    val_to_str_const(oct << 1, evs_bw_values, "Unknown value"),
+                    oct << 1);
+                bit_offset++;
+                /* Core sampling rate indicator */
+                proto_tree_add_bits_item(vd_tree, hf_evs_core_sample_rate, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+            }
+            break;
+        case 61:
+            /* EVS Primary 24.4 */
+            /* 7.1.3	Bit allocation at 16.4 and 24.4 kbps */
+            /* BW 2 bits*/
+            proto_tree_add_bits_item(vd_tree, hf_evs_bw, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+            bit_offset+=2;
+            /* Reserved 1 bit */
+            proto_tree_add_bits_item(vd_tree, hf_evs_reserved_1bit, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+            bit_offset++;
+            /* CELP/MDCT core flag	1 */
+            proto_tree_add_bits_ret_val(vd_tree, hf_evs_celp_mdct_core, tvb, bit_offset, 1, &value, ENC_BIG_ENDIAN);
+            bit_offset++;
+            /* In the case of MDCT-based core, the next bit decides whether HQ-MDCT core or TCX core is used */
+            if (value == 1) {
+                /* MDCT-based core*/
+                proto_tree_add_bits_ret_val(vd_tree, hf_evs_tcx_or_hq_mdct_core, tvb, bit_offset, 1, &value, ENC_BIG_ENDIAN);
+            }
+            break;
+        default:
+            break;
+        }
+
         return packet_len;
     }
 
     /* A.2.2 EVS codec Header-Full format */
+    proto_tree_add_subtree(evs_tree, tvb, offset, -1, ett_evs_header, &ti, "Framing Mode: Header-full");
+    PROTO_ITEM_SET_GENERATED(ti);
 
     /*proto_tree_add_int_format(evs_tree, hf_evs_packet_length, tvb, offset, 1, packet_len * 8, "packet_len %i bits", packet_len * 8);*/
     oct = tvb_get_guint8(tvb, offset);
@@ -487,7 +594,7 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         evs_mode_b = (oct & 0x20) >> 5;
         num_toc++;
 
-        sub_tree = proto_tree_add_subtree_format(evs_tree, tvb, offset, 1, ett_evs_header, NULL, "TOC %u",
+        sub_tree = proto_tree_add_subtree_format(evs_tree, tvb, offset, 1, ett_evs_header, NULL, "TOC # %u",
             num_toc);
 
         if (evs_mode_b == 0) {
@@ -516,7 +623,22 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         offset++;
     } while (toc_f_bit == 1);
 
-    proto_tree_add_item(evs_tree, hf_evs_voice_data, tvb, offset, -1, ENC_NA);
+    speech_data_len = (packet_len - offset) / num_toc;
+
+    num_data = num_toc;
+    num_toc = 1;
+    col_append_fstr(pinfo->cinfo, COL_INFO, "... ( %u frames in packet)", num_data);
+    while (num_data > 0) {
+        proto_tree *speech_tree;
+
+        speech_tree = proto_tree_add_subtree_format(evs_tree, tvb, offset, speech_data_len, ett_evs_speech, NULL, "Speech frame for TOC # %u",
+            num_toc);
+        proto_tree_add_item(speech_tree, hf_evs_voice_data, tvb, offset, speech_data_len, ENC_NA);
+        offset += speech_data_len;
+        num_toc++;
+        num_data--;
+    }
+
     return packet_len;
 }
 
@@ -623,12 +745,50 @@ proto_register_evs(void)
         FT_UINT8, BASE_DEC, VALS(evs_cmr_amr_io_values), 0xe0,
         NULL, HFILL }
     },
-    };
+    { &hf_evs_bw,
+    { "BW", "evs.bw",
+        FT_UINT8, BASE_DEC, VALS(evs_bw_values), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_evs_reserved_1bit,
+    { "Reserved", "evs.reserved_1bit",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_evs_celp_mdct_core,
+    { "CELP/MDCT core", "evs.celp_mdct_core",
+        FT_UINT8, BASE_DEC, VALS(evs_celp_or_mdct_core_values), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_evs_tcx_or_hq_mdct_core,
+    { "TCX/HQ-MDCT core", "evs.celp_mdct_core",
+        FT_UINT8, BASE_DEC, VALS(evs_tcx_or_hq_mdct_core_values), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_evs_sid_cng,
+    { "CNG type", "evs.sid.cng",
+        FT_UINT8, BASE_DEC, VALS(evs_sid_cng_values), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_evs_celp_sample_rate,
+    { "CELP Sample Rate", "evs.sid.celp_sample_rate",
+        FT_UINT8, BASE_DEC, VALS(evs_sid_celp_sample_rate_values), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_evs_core_sample_rate,
+    { "Core sampling rate indicator", "evs.sid.core_sample_rate",
+        FT_UINT8, BASE_DEC, VALS(evs_sid_celp_sample_rate_values), 0x0,
+        NULL, HFILL }
+    },
+};
+
 
     /* Setup protocol subtree array */
     static gint *ett[] = {
         &ett_evs,
         &ett_evs_header,
+        &ett_evs_speech,
+        &ett_evs_voice_data,
     };
 
 
