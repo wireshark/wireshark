@@ -3390,9 +3390,10 @@ dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         guint16 user_buffer_size;
         int n;
         guint j;
+        guint64 lchid_val;
 
         #define MAX_PDU_BLOCKS 31
-        guint64 lchid[MAX_PDU_BLOCKS];
+        guint64 lchid_field[MAX_PDU_BLOCKS];
         guint64 pdu_length[MAX_PDU_BLOCKS];
         guint64 no_of_pdus[MAX_PDU_BLOCKS];
 
@@ -3495,7 +3496,7 @@ dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             /* Logical channel ID in block (4 bits) */
             proto_tree_add_bits_ret_val(pdu_block_header_tree, hf_fp_lchid, tvb,
                                         (offset*8) + ((n % 2) ? 4 : 0), 4,
-                                        &lchid[n], ENC_BIG_ENDIAN);
+                                        &lchid_field[n], ENC_BIG_ENDIAN);
             if ((n % 2) == 1) {
                 offset++;
             }
@@ -3509,7 +3510,7 @@ dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             /* Append summary to header tree root */
             proto_item_append_text(pdu_block_header_ti,
                                    " (lch:%u, %u pdus of %u bytes)",
-                                   (guint16)lchid[n],
+                                   (guint16)lchid_field[n],
                                    (guint16)no_of_pdus[n],
                                    (guint16)pdu_length[n]);
 
@@ -3557,30 +3558,48 @@ dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             for (j=0;j<no_of_pdus[n];j++) {
 
                 /*Configure (signal to lower layers) the PDU!*/
-                macinf->content[j] = lchId_type_table[lchid[n]+1];/*hsdsch_macdflow_id_mac_content_map[p_fp_info->hsdsch_macflowd_id];*/ /*MAC_CONTENT_PS_DTCH;*/
-                macinf->lchid[j] = (guint8)lchid[n]+1;    /*Add 1 since C/T is zero indexed? ie C/T =0 => L-CHID = 1*/
-                macinf->macdflow_id[j] = p_fp_info->hsdsch_macflowd_id;
-                /*Figure out RLC_MODE based on MACd-flow-ID, basically MACd-flow-ID = 0 then it's SRB0 == UM else AM*/
-                rlcinf->mode[j] = lchId_rlc_map[lchid[n]+1];/*hsdsch_macdflow_id_rlc_map[p_fp_info->hsdsch_macflowd_id];*/
+                if (lchid_field[n] != 0x0f) {
+                    lchid_val = lchid_field[n] + 1; /* Add 1 since 'LCHID' field is zero indexed. ie field value = 0 => Actual L-CHID = 1*/
+                    macinf->content[j] = lchId_type_table[lchid_val];
+                    macinf->lchid[j] = (guint8)lchid_val;
+                    macinf->macdflow_id[j] = p_fp_info->hsdsch_macflowd_id;
+                    /*Figure out RLC_MODE based on MACd-flow-ID, basically MACd-flow-ID = 0 then it's SRB0 == UM else AM*/
+                    rlcinf->mode[j] = lchId_rlc_map[lchid_val];/*hsdsch_macdflow_id_rlc_map[p_fp_info->hsdsch_macflowd_id];*/
 
-                macinf->ctmux[n] = FALSE;
+                    macinf->ctmux[n] = FALSE;
 
-                rlcinf->li_size[j] = RLC_LI_7BITS;
+                    rlcinf->li_size[j] = RLC_LI_7BITS;
 
-                /** Configure ciphering **/
+                    /** Configure ciphering **/
 #if 0
-                /*If this entry exists, SECRUITY_MODE is completed*/
-                if ( rrc_ciph_inf && g_tree_lookup(rrc_ciph_inf, GINT_TO_POINTER((gint)p_fp_info->com_context_id)) ) {
-                    rlcinf->ciphered[j] = TRUE;
-                } else {
-                    rlcinf->ciphered[j] = FALSE;
-                }
+                    /*If this entry exists, SECRUITY_MODE is completed*/
+                    if ( rrc_ciph_inf && g_tree_lookup(rrc_ciph_inf, GINT_TO_POINTER((gint)p_fp_info->com_context_id)) ) {
+                        rlcinf->ciphered[j] = TRUE;
+                    } else {
+                        rlcinf->ciphered[j] = FALSE;
+                    }
 #endif
-                rlcinf->ciphered[j] = FALSE;
-                rlcinf->deciphered[j] = FALSE;
-                rlcinf->rbid[j] = (guint8)lchid[n]+1;
+                    rlcinf->ciphered[j] = FALSE;
+                    rlcinf->deciphered[j] = FALSE;
+                    rlcinf->rbid[j] = (guint8)lchid_val;
 
-                rlcinf->ueid[j] = user_identity;
+                    rlcinf->ueid[j] = user_identity;
+                }
+                else {
+                    /* LCHID field is 15. This value indicates BCCH or PCCH mapped on HS-DSCH*/
+                    /* The dissector does not handle this case yet, so we are filling zeroes and default values below*/
+                    macinf->content[j] = MAC_CONTENT_UNKNOWN;
+                    macinf->lchid[j] = 0; /* LCHID field doesn't reflect a real ID in this case*/
+                    macinf->macdflow_id[j] = 0;
+                    macinf->ctmux[j] = FALSE;
+
+                    rlcinf->mode[j] = RLC_TM; /* PCCH and BCCH should be using RLC TM? */
+                    rlcinf->li_size[j] = RLC_LI_7BITS;
+                    rlcinf->ciphered[j] = FALSE;
+                    rlcinf->deciphered[j] = FALSE;
+                    rlcinf->rbid[j] = 0;
+                    rlcinf->ueid[j] = 0;
+                }
             }
 
             /* Add PDU block header subtree */
@@ -5179,7 +5198,7 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
                                 proto_tree *tree _U_)
 {
     fp_info  *fpi;
-    guint8    tfi, c_t;
+    guint8    tfi, c_t, lchid;
     int       offset = 0, i=0, j=0, num_tbs, chan, tb_size, tb_bit_off;
     gboolean  is_control_frame;
     gboolean  is_known_dcch_tf,is_stndalone_ps_rab_tf,is_muxed_cs_ps_tf;
@@ -5366,10 +5385,11 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
 
                         /* Peek at C/T, different RLC params for different logical channels */
                         /* C/T is 4 bits according to 3GPP TS 25.321, paragraph 9.2.1, from MAC header (not FP) */
-                        c_t = (tvb_get_bits8(tvb, tb_bit_off, 4) + 1) % 0xf;
-                        macinf->lchid[j+chan] = c_t;                     /* Logical Channel ID is the value in C/T */
-                        macinf->content[j+chan] = lchId_type_table[c_t]; /* Base MAC content on logical channel id (Table is in packet-nbap.h) */
-                        rlcinf->mode[j+chan] = lchId_rlc_map[c_t];       /* Base RLC mode on logical channel id */
+                        c_t = tvb_get_bits8(tvb, tb_bit_off, 4);
+                        lchid = (c_t + 1) % 0xf; /* C/T field represents the Logical Channel ID but it is zero-based */
+                        macinf->lchid[j+chan] = lchid;
+                        macinf->content[j+chan] = lchId_type_table[lchid]; /* Base MAC content on logical channel id (Table is in packet-nbap.h) */
+                        rlcinf->mode[j+chan] = lchId_rlc_map[lchid];       /* Base RLC mode on logical channel id */
                     }
                     else if (is_stndalone_ps_rab_tf) {
                         /* Channel isn't multiplexed (ie. C/T flag not present) */
