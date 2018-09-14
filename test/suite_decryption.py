@@ -526,7 +526,7 @@ class case_decrypt_kerberos(subprocesstest.SubprocessTestCase):
         '''Kerberos'''
         # Files are from krb-816.zip on the SampleCaptures page.
         if not config.have_kerberos:
-            self.skipTest('Requires nghttp2.')
+            self.skipTest('Requires kerberos.')
         capture_file = os.path.join(config.capture_dir, 'krb-816.pcap.gz')
         keytab_file = os.path.join(config.key_dir, 'krb-816.keytab')
         self.runProcess((config.cmd_tshark,
