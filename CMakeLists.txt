@@ -3039,8 +3039,8 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 	find_program(GIT_EXECUTABLE git)
 endif()
 
-# This will fail if we're not building from a git checkout.
-if(RPMBUILD_EXECUTABLE AND GIT_EXECUTABLE)
+# RPM target must be built from a git checkout. We simply test for .git for now.
+if(RPMBUILD_EXECUTABLE AND GIT_EXECUTABLE AND EXISTS "${CMAKE_SOURCE_DIR}/.git")
 	foreach(_rpm_dir BUILD RPMS SOURCES SPECS SRPMS)
 		file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/packaging/rpm/${_rpm_dir}")
 	endforeach()
