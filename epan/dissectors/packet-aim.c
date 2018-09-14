@@ -19,7 +19,7 @@
 #include <epan/to_str.h>
 
 #include "packet-tcp.h"
-#include "packet-ssl.h"
+#include "packet-tls.h"
 #include <epan/prefs.h>
 #include <epan/expert.h>
 

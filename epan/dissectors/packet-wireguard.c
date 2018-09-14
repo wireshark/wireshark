@@ -617,7 +617,7 @@ wg_psk_iter_next(wg_psk_iter_context *psk_iter, const wg_handshake_state_t *hs,
 /* PSK handling. }}} */
 
 /* UAT and key configuration. {{{ */
-/* XXX this is copied verbatim from packet-ssl-utils.c - create new common API
+/* XXX this is copied verbatim from packet-tls-utils.c - create new common API
  * for retrieval of runtime secrets? */
 static gboolean
 file_needs_reopen(FILE *fp, const char *filename)

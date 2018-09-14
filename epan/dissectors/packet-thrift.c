@@ -20,7 +20,7 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 
-#include "packet-ssl.h"
+#include "packet-tls.h"
 #include "packet-thrift.h"
 
 

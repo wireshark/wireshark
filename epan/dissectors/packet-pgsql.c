@@ -14,7 +14,7 @@
 
 #include <epan/packet.h>
 
-#include "packet-ssl-utils.h"
+#include "packet-tls-utils.h"
 #include "packet-tcp.h"
 
 void proto_register_pgsql(void);

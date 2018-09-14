@@ -27,7 +27,7 @@
 #include <epan/uat.h>
 #include <epan/to_str.h>
 #include "packet-x509af.h"
-#include "packet-ssl-utils.h"
+#include "packet-tls-utils.h"
 #include "packet-reload.h"
 
 void proto_register_reload(void);

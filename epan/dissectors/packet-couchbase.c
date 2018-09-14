@@ -40,7 +40,7 @@
 #endif
 
 #include "packet-tcp.h"
-#include "packet-ssl.h"
+#include "packet-tls.h"
 
 #include <glib.h>
 #include <math.h>

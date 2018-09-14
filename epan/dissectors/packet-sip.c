@@ -39,7 +39,7 @@
 #include <wsutil/strtoi.h>
 #include <wsutil/wsgcrypt.h>
 
-#include "packet-ssl.h"
+#include "packet-tls.h"
 
 #include "packet-isup.h"
 #include "packet-e164.h"

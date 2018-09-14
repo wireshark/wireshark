@@ -1,4 +1,4 @@
-/* packet-ssl.c
+/* packet-tls.c
  * Routines for TLS dissection
  * Copyright (c) 2000-2001, Scott Renfro <scott@renfro.org>
  *
@@ -82,8 +82,8 @@
 #include <wsutil/rsa.h>
 #include "packet-tcp.h"
 #include "packet-x509af.h"
-#include "packet-ssl.h"
-#include "packet-ssl-utils.h"
+#include "packet-tls.h"
+#include "packet-tls-utils.h"
 #include "packet-ber.h"
 #if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
 /* Whether to provide support for authentication in addition to decryption. */
@@ -852,7 +852,7 @@ is_sslv3_or_tls(tvbuff_t *tvb)
         return FALSE;
     }
 
-    /* Check for sane length, see also ssl_check_record_length in packet-ssl-utils.c */
+    /* Check for sane length, see also ssl_check_record_length in packet-tls-utils.c */
     if (record_length == 0 || record_length >= TLS_MAX_RECORD_LENGTH + 2048) {
         return FALSE;
     }
@@ -3384,7 +3384,7 @@ tls_get_cipher_info(packet_info *pinfo, int *cipher_algo, int *cipher_mode, int 
         return FALSE;
     }
 
-    /* adapted from ssl_cipher_init in packet-ssl-utils.c */
+    /* adapted from ssl_cipher_init in packet-tls-utils.c */
     static const gint gcry_modes[] = {
         GCRY_CIPHER_MODE_STREAM,
         GCRY_CIPHER_MODE_CBC,

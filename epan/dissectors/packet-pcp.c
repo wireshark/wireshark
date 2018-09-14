@@ -14,7 +14,7 @@
 #include <epan/expert.h>
 #include <glib.h>
 #include "packet-tcp.h"
-#include "packet-ssl-utils.h"
+#include "packet-tls-utils.h"
 
 void proto_register_pcp(void);
 void proto_reg_handoff_pcp(void);

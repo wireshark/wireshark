@@ -21,7 +21,7 @@
 #include "packet-xmpp-other.h"
 #include "packet-xmpp-gtalk.h"
 #include "packet-xmpp-conference.h"
-#include "packet-ssl-utils.h"
+#include "packet-tls-utils.h"
 
 tvbparse_wanted_t *want_ignore;
 tvbparse_wanted_t *want_stream_end_tag;

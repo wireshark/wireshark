@@ -36,7 +36,7 @@
 
 #include "packet-http.h"
 #include "packet-tcp.h"
-#include "packet-ssl.h"
+#include "packet-tls.h"
 
 void proto_register_http(void);
 void proto_reg_handoff_http(void);

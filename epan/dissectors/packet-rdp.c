@@ -21,7 +21,7 @@
 #include <epan/asn1.h>
 #include <epan/expert.h>
 #include <epan/strutil.h>
-#include "packet-ssl.h"
+#include "packet-tls.h"
 #include "packet-t124.h"
 
 #define PNAME  "Remote Desktop Protocol"

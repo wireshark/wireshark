@@ -1,4 +1,4 @@
-/* packet-ssl-utils.c
+/* packet-tls-utils.c
  * ssl manipulation functions
  * By Paolo Abeni <paolo.abeni@email.com>
  *
@@ -43,9 +43,9 @@
 #include "packet-ber.h"
 #include "packet-x509af.h"
 #include "packet-x509if.h"
-#include "packet-ssl-utils.h"
+#include "packet-tls-utils.h"
 #include "packet-ocsp.h"
-#include "packet-ssl.h"
+#include "packet-tls.h"
 #include "packet-dtls.h"
 #if defined(HAVE_LIBGNUTLS)
 #include <gnutls/abstract.h>
@@ -1371,7 +1371,7 @@ const value_string quic_tp_preferred_address_vals[] = {
 
 /* Lookup tables }}} */
 
-/* we keep this internal to packet-ssl-utils, as there should be
+/* we keep this internal to packet-tls-utils, as there should be
    no need to access it any other way.
 
    This also allows us to hide the dependency on zlib.

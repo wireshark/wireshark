@@ -14,7 +14,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
-#include "packet-ssl.h"
+#include "packet-tls.h"
 #include "packet-tcp.h"
 
 void proto_reg_handoff_opa_fe(void);

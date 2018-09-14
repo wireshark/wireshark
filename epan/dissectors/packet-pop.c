@@ -27,8 +27,8 @@
 #include <wsutil/str_util.h>
 #include <wsutil/strtoi.h>
 
-#include "packet-ssl.h"
-#include "packet-ssl-utils.h"
+#include "packet-tls.h"
+#include "packet-tls-utils.h"
 
 void proto_register_pop(void);
 void proto_reg_handoff_pop(void);

@@ -15,9 +15,9 @@
  * See RFC 4347 for details about DTLS specs.
  *
  * Notes :
- * This dissector is based on the TLS dissector (packet-ssl.c); Because of the similarity
+ * This dissector is based on the TLS dissector (packet-tls.c); Because of the similarity
  *   of DTLS and TLS, decryption works like TLS with RSA key exchange.
- * This dissector uses the sames things (file, libraries) as the TLS dissector (gnutls, packet-ssl-utils.h)
+ * This dissector uses the sames things (file, libraries) as the TLS dissector (gnutls, packet-tls-utils.h)
  *  to make it easily maintainable.
  *
  * It was developed to dissect and decrypt the OpenSSL v 0.9.8f DTLS implementation.
@@ -30,7 +30,7 @@
  * Todo :
  *  - activate correct Mac calculation when openssl will be corrected
  *    (or if an other implementation works),
- *    corrected code is ready and commented in packet-ssl-utils.h file.
+ *    corrected code is ready and commented in packet-tls-utils.h file.
  *  - add missing things (desegmentation, reordering... that aren't present in actual OpenSSL implementation)
  */
 
@@ -50,7 +50,7 @@
 #include <wsutil/strtoi.h>
 #include <wsutil/utf8_entities.h>
 #include <wsutil/rsa.h>
-#include "packet-ssl-utils.h"
+#include "packet-tls-utils.h"
 #include "packet-dtls.h"
 
 void proto_register_dtls(void);

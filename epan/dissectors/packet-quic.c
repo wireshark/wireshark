@@ -23,8 +23,8 @@
 #include <epan/expert.h>
 #include <epan/proto_data.h>
 #include <epan/to_str.h>
-#include "packet-ssl-utils.h"
-#include "packet-ssl.h"
+#include "packet-tls-utils.h"
+#include "packet-tls.h"
 #include <epan/prefs.h>
 #include <wsutil/pint.h>
 

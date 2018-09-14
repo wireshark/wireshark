@@ -48,7 +48,7 @@
 #include "packet-h245.h"
 #include "packet-h323.h"
 #include "packet-q931.h"
-#include "packet-ssl.h"
+#include "packet-tls.h"
 
 #define PNAME  "H323-MESSAGES"
 #define PSNAME "H.225.0"

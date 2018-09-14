@@ -542,8 +542,6 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-spice.h
 	packet-sprt.h
 	packet-sscop.h
-	packet-ssl.h
-	packet-ssl-utils.h
 	packet-stat.h
 	packet-stat-notify.h
 	packet-sv.h
@@ -555,6 +553,8 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-tcap.h
 	packet-tcp.h
 	packet-tetra.h
+	packet-tls-utils.h
+	packet-tls.h
 	packet-tn3270.h
 	packet-tn5250.h
 	packet-tpkt.h
@@ -1686,8 +1686,6 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-sscf-nni.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-sscop.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ssh.c
-	${CMAKE_CURRENT_SOURCE_DIR}/packet-ssl-utils.c
-	${CMAKE_CURRENT_SOURCE_DIR}/packet-ssl.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-sstp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-stanag4607.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-starteam.c
@@ -1730,6 +1728,8 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-time.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tipc.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tivoconnect.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-tls-utils.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-tls.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tn3270.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tn5250.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tnef.c

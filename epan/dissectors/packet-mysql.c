@@ -30,7 +30,7 @@
 #include <epan/strutil.h>
 #include <epan/proto_data.h>
 #include "packet-tcp.h"
-#include "packet-ssl-utils.h"
+#include "packet-tls-utils.h"
 
 void proto_register_mysql(void);
 void proto_reg_handoff_mysql(void);

@@ -19,7 +19,7 @@
 #include <epan/expert.h>
 #include <epan/asn1.h>
 #include "packet-kerberos.h"
-#include "packet-ssl-utils.h"
+#include "packet-tls-utils.h"
 #include "packet-tn3270.h"
 #include "packet-tn5250.h"
 

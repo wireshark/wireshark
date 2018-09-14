@@ -23,7 +23,7 @@
 #include <epan/exceptions.h>
 #include <epan/expert.h>
 #include "packet-tcp.h"
-#include "packet-ssl.h"
+#include "packet-tls.h"
 #ifdef HAVE_SNAPPY
 #include <snappy-c.h>
 #endif

@@ -16,8 +16,8 @@
 
 #include <epan/packet.h>
 #include <epan/strutil.h>
-#include "packet-ssl.h"
-#include "packet-ssl-utils.h"
+#include "packet-tls.h"
+#include "packet-tls-utils.h"
 
 void proto_register_imap(void);
 void proto_reg_handoff_imap(void);

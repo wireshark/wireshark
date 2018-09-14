@@ -1,4 +1,4 @@
-/* packet-ssl.h
+/* packet-tls.h
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -8,8 +8,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef __PACKET_SSL_H__
-#define __PACKET_SSL_H__
+#ifndef __PACKET_TLS_H__
+#define __PACKET_TLS_H__
 
 #include "ws_symbol_export.h"
 #include <epan/packet.h>
@@ -46,4 +46,4 @@ tls13_exporter(packet_info *pinfo, gboolean is_early,
 gboolean
 tls13_get_quic_secret(packet_info *pinfo, gboolean is_from_server, int type, guint secret_len, guint8 *secret_out);
 
-#endif  /* __PACKET_SSL_H__ */
+#endif  /* __PACKET_TLS_H__ */

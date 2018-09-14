@@ -24,7 +24,7 @@
 #include <wsutil/strtoi.h>
 
 #include "packet-tcp.h"
-#include "packet-ssl.h"
+#include "packet-tls.h"
 
 void proto_register_fix(void);
 void proto_reg_handoff_fix(void);

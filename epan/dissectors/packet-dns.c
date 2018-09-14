@@ -33,7 +33,7 @@
 #include <epan/afn.h>
 #include <epan/tap.h>
 #include <epan/stats_tree.h>
-#include "packet-ssl.h"
+#include "packet-tls.h"
 #include "packet-dtls.h"
 
 void proto_register_dns(void);

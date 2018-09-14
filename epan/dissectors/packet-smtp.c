@@ -25,8 +25,8 @@
 #include <epan/proto_data.h>
 
 #include <wsutil/str_util.h>
-#include "packet-ssl.h"
-#include "packet-ssl-utils.h"
+#include "packet-tls.h"
+#include "packet-tls-utils.h"
 
 /* RFC 2821 */
 #define TCP_PORT_SMTP      "25"

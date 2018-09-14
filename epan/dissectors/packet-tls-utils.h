@@ -1,4 +1,4 @@
-/* packet-ssl-utils.h
+/* packet-tls-utils.h
  * ssl manipulation functions
  * By Paolo Abeni <paolo.abeni@email.com>
  *
@@ -9,8 +9,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef __SSL_UTILS_H_
-#define __SSL_UTILS_H_
+#ifndef __PACKET_TLS_UTILS_H__
+#define __PACKET_TLS_UTILS_H__
 
 #include <stdio.h>      /* some APIs we declare take a stdio stream as an argument */
 
@@ -334,7 +334,7 @@ typedef struct {
 #define KEX_TLS13       0x23
 #define KEX_ECJPAKE     0x24
 
-/* Order is significant, must match "ciphers" array in packet-ssl-utils.c */
+/* Order is significant, must match "ciphers" array in packet-tls-utils.c */
 #define ENC_DES         0x30
 #define ENC_3DES        0x31
 #define ENC_RC4         0x32
@@ -931,12 +931,12 @@ typedef struct {
     /* Do not forget to initialize dtls_hfs to -1 in packet-dtls.c! */
 } dtls_hfs_t;
 
-/* Header fields specific to SSL. See packet-ssl.c */
+/* Header fields specific to SSL. See packet-tls.c */
 typedef struct {
     gint hs_md5_hash;
     gint hs_sha_hash;
 
-    /* Do not forget to initialize ssl_hfs to -1 in packet-ssl.c! */
+    /* Do not forget to initialize ssl_hfs to -1 in packet-tls.c! */
 } ssl_hfs_t;
 
 
@@ -2076,7 +2076,7 @@ ssl_debug_printf(const gchar* fmt _U_,...)
 
 #endif /* SSL_DECRYPT_DEBUG */
 
-#endif /* SSL_UTILS_H */
+#endif /* __PACKET_TLS_UTILS_H__ */
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

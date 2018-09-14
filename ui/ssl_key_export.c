@@ -15,8 +15,8 @@
 #include <glib.h>
 
 #include <epan/address.h>
-#include <epan/dissectors/packet-ssl.h>
-#include <epan/dissectors/packet-ssl-utils.h>
+#include <epan/dissectors/packet-tls.h>
+#include <epan/dissectors/packet-tls-utils.h>
 
 #include "ui/ssl_key_export.h"
 

@@ -90,8 +90,8 @@
 
 #include "packet-ldap.h"
 #include "packet-ntlmssp.h"
-#include "packet-ssl.h"
-#include "packet-ssl-utils.h"
+#include "packet-tls.h"
+#include "packet-tls-utils.h"
 #include "packet-smb-common.h"
 #include "packet-gssapi.h"
 

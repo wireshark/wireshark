@@ -40,8 +40,8 @@
 #include "packet-enip.h"
 #include "packet-cipsafety.h"
 #include "packet-dtls.h"
-#include "packet-ssl.h"
-#include "packet-ssl-utils.h"
+#include "packet-tls.h"
+#include "packet-tls-utils.h"
 
 void proto_register_enip(void);
 void proto_reg_handoff_enip(void);

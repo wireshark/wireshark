@@ -27,7 +27,7 @@
 #include <epan/expert.h>
 #include <epan/tap.h>
 #include "packet-tcp.h"
-#include "packet-ssl.h"
+#include "packet-tls.h"
 #include "packet-http.h"
 
 #ifdef HAVE_ZLIB

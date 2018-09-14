@@ -44,7 +44,7 @@
 
 #include "packet-rtp.h"
 #include "packet-tcp.h"
-#include "packet-ssl.h"
+#include "packet-tls.h"
 #include "packet-skinny.h"
 
 /* un-comment the following as well as this line in conversation.c, to enable debug printing */

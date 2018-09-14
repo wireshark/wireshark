@@ -37,7 +37,7 @@
 #include <epan/strutil.h>
 #include <epan/uat.h>
 #include "packet-tcp.h"
-#include "packet-ssl.h"
+#include "packet-tls.h"
 
 #define MQTT_DEFAULT_PORT     1883 /* IANA registered under service name as mqtt */
 #define MQTT_SSL_DEFAULT_PORT 8883 /* IANA registered under service name secure-mqtt */

@@ -18,7 +18,7 @@ WS_DLL_PUBLIC void dtls_dissector_add(guint port, dissector_handle_t handle);
 WS_DLL_PUBLIC void dtls_dissector_delete(guint port, dissector_handle_t handle);
 
 
-/* Shared with packet-ssl-utils.c */
+/* Shared with packet-tls-utils.c */
 
 gint
 dtls_dissect_hnd_hello_ext_use_srtp(tvbuff_t *tvb, proto_tree *tree,
