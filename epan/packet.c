@@ -91,7 +91,15 @@ struct dissector_table {
 	gboolean	supports_decode_as;
 };
 
+/*
+ * Dissector tables. const char * -> dissector_table *
+ */
 static GHashTable *dissector_tables = NULL;
+
+/*
+ * Dissector table aliases. const char * -> const char *
+ */
+static GHashTable *dissector_table_aliases = NULL;
 
 /*
  * List of registered dissectors.
@@ -191,6 +199,9 @@ packet_init(void)
 	dissector_tables = g_hash_table_new_full(g_str_hash, g_str_equal,
 			NULL, destroy_dissector_table);
 
+	dissector_table_aliases = g_hash_table_new_full(g_str_hash, g_str_equal,
+			NULL, NULL);
+
 	registered_dissectors = g_hash_table_new_full(g_str_hash, g_str_equal,
 			NULL, NULL);
 
@@ -243,6 +254,7 @@ packet_cleanup(void)
 	g_slist_free(cleanup_routines);
 	g_slist_free(postseq_cleanup_routines);
 	g_hash_table_destroy(dissector_tables);
+	g_hash_table_destroy(dissector_table_aliases);
 	g_hash_table_destroy(registered_dissectors);
 	g_hash_table_destroy(depend_dissector_lists);
 	g_hash_table_destroy(heur_dissector_lists);
@@ -914,7 +926,17 @@ struct dtbl_entry {
 dissector_table_t
 find_dissector_table(const char *name)
 {
-	return (dissector_table_t)g_hash_table_lookup(dissector_tables, name);
+	dissector_table_t dissector_table = (dissector_table_t) g_hash_table_lookup(dissector_tables, name);
+	if (! dissector_table) {
+		const char *new_name = (const char *) g_hash_table_lookup(dissector_table_aliases, name);
+		if (new_name) {
+			dissector_table = (dissector_table_t) g_hash_table_lookup(dissector_tables, new_name);
+		}
+		if (dissector_table) {
+			g_warning("%s is now %s", name, new_name);
+		}
+	}
+	return dissector_table;
 }
 
 /* Find an entry in a uint dissector table. */
@@ -2468,12 +2490,39 @@ dissector_table_t register_custom_dissector_table(const char *name,
 }
 
 void
+register_dissector_table_alias(dissector_table_t dissector_table, const char *alias_name) {
+	if (!dissector_table || !alias_name) return;
+
+	const char *name = NULL;
+	GList *list = g_hash_table_get_keys(dissector_tables);
+	for (GList *cur = list; cur; cur = cur->next) {
+		if (g_hash_table_lookup(dissector_tables, cur->data) == dissector_table) {
+			name = (const char *) cur->data;
+			break;
+		}
+	}
+	g_list_free(list);
+	if (!name) return;
+
+	g_hash_table_insert(dissector_table_aliases, (gpointer) alias_name, (gpointer) name);
+}
+
+void
 deregister_dissector_table(const char *name)
 {
-	dissector_table_t sub_dissectors = find_dissector_table(name);
+	dissector_table_t sub_dissectors = (dissector_table_t) g_hash_table_lookup(dissector_tables, name);
 	if (!sub_dissectors) return;
 
 	g_hash_table_remove(dissector_tables, name);
+
+	GList *list = g_hash_table_get_keys(dissector_table_aliases);
+	for (GList *cur = list; cur; cur = cur->next) {
+		gpointer alias_name = cur->data;
+		if (g_hash_table_lookup(dissector_table_aliases, alias_name) == name) {
+			g_hash_table_remove(dissector_table_aliases, alias_name);
+		}
+	}
+	g_list_free(list);
 }
 
 const char *

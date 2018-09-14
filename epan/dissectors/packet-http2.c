@@ -3349,7 +3349,7 @@ proto_reg_handoff_http2(void)
     /*
      * SSL/TLS Application-Layer Protocol Negotiation (ALPN) protocol ID.
      */
-    dissector_add_string("tls.handshake.extensions_alpn_str", "h2", http2_handle);
+    dissector_add_string("tls.alpn", "h2", http2_handle);
     dissector_add_string("http.upgrade", "h2", http2_handle);
     dissector_add_string("http.upgrade", "h2c", http2_handle);
 

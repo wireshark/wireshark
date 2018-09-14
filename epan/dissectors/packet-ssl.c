@@ -4572,6 +4572,7 @@ proto_register_tls(void)
                                         "TLS", "tls");
 
     ssl_associations = register_dissector_table("tls.port", "TLS Port", proto_tls, FT_UINT16, BASE_DEC);
+    register_dissector_table_alias(ssl_associations, "ssl.port");
 
     /* Required function calls to register the header fields and
      * subtrees used */
@@ -4647,7 +4648,7 @@ proto_register_tls(void)
     /* heuristic dissectors for any premable e.g. CredSSP before RDP */
     ssl_heur_subdissector_list = register_heur_dissector_list("tls", proto_tls);
 
-    ssl_common_register_ssl_alpn_dissector_table("tls.handshake.extensions_alpn_str",
+    ssl_common_register_ssl_alpn_dissector_table("tls.alpn",
         "SSL/TLS Application-Layer Protocol Negotiation (ALPN) Protocol IDs",
         proto_tls);
 

@@ -4148,7 +4148,7 @@ proto_reg_handoff_http(void)
 	 * SSL/TLS Application-Layer Protocol Negotiation (ALPN) protocol
 	 * ID.
 	 */
-	dissector_add_string("tls.handshake.extensions_alpn_str", "http/1.1", http_tls_handle);
+	dissector_add_string("tls.alpn", "http/1.1", http_tls_handle);
 
 	ntlmssp_handle = find_dissector_add_dependency("ntlmssp", proto_http);
 	gssapi_handle = find_dissector_add_dependency("gssapi", proto_http);
