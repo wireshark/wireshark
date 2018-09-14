@@ -32,6 +32,7 @@ static void parseArrayOfElements(tvbuff_t *tvb, proto_tree *tlv_tree, const char
 static int proto_lwm2mtlv = -1;
 
 static int hf_lwm2mtlv_object_name               = -1;
+static int hf_lwm2mtlv_resource_name             = -1;
 static int hf_lwm2mtlv_header                    = -1;
 static int hf_lwm2mtlv_type_type                 = -1;
 static int hf_lwm2mtlv_type_length_of_identifier = -1;
@@ -716,6 +717,11 @@ addValueTree(tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *element, const
 {
 	guint valueOffset = 1 + element->length_of_identifier + element->length_of_length;
 
+	if (resource && (element->type == RESOURCE || element->type == RESOURCE_ARRAY)) {
+		proto_item *ti = proto_tree_add_string(tlv_tree, hf_lwm2mtlv_resource_name, tvb, 0, 0, resource->name);
+		PROTO_ITEM_SET_GENERATED(ti);
+	}
+
 	if ( element->type == RESOURCE || element->type == RESOURCE_INSTANCE ) {
 		proto_tree_add_item(tlv_tree, hf_lwm2mtlv_value, tvb, valueOffset, element->length_of_value, ENC_NA);
 		addValueInterpretations(tvb, tlv_tree, element, resource);
@@ -909,6 +915,11 @@ void proto_register_lwm2mtlv(void)
 	static hf_register_info hf[] = {
 		{ &hf_lwm2mtlv_object_name,
 			{ "Object Name", "lwm2mtlv.object_name",
+				FT_STRING, BASE_NONE, NULL, 0,
+				NULL, HFILL }
+		},
+		{ &hf_lwm2mtlv_resource_name,
+			{ "Resource Name", "lwm2mtlv.resource_name",
 				FT_STRING, BASE_NONE, NULL, 0,
 				NULL, HFILL }
 		},
