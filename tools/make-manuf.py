@@ -44,6 +44,14 @@ if sys.version_info[0] >= 3:
 else:
     import urllib
 
+have_icu = False
+try:
+    # Use the grapheme or segments module instead?
+    import icu
+    have_icu = True
+except ImportError:
+    pass
+
 def exit_msg(msg=None, status=1):
     if msg is not None:
         sys.stderr.write(msg + '\n\n')
@@ -81,15 +89,30 @@ def shorten(manuf):
     manuf = re.sub('\W(the|incorporated|inc|plc|systems|corporation|corp|s/a|a/s|ab|ag|kg|gmbh|company|co|limited|ltd|holding|spa)(?= )', '', manuf, flags=re.IGNORECASE)
     # Remove all spaces
     manuf = re.sub('\s+', '', manuf)
-    # Truncate all names to a reasonable length, say, 8 characters.
-    # If the string contains UTF-8, this may be substantially more than 8
-    # bytes. It might also be less than 8 visible characters. Python slices
-    # unicode strings by code point, which is better than raw bytes but not
-    # as good as grapheme clusters. https://bugs.python.org/issue30717
+
+    # Truncate names to a reasonable length, say, 8 characters. If
+    # the string contains UTF-8, this may be substantially more than
+    # 8 bytes. It might also be less than 8 visible characters. Plain
+    # Python slices Unicode strings by code point, which is better
+    # than raw bytes but not as good as grapheme clusters. PyICU
+    # supports grapheme clusters. https://bugs.python.org/issue30717
     #
-    # In our case 'Savroni̇k Elektroni̇k' is truncated to 'Savroni̇', which
-    # is 7 visible characters, 8 code points, and 9 bytes.
-    manuf = manuf[:8]
+    # In our case plain Python truncates 'Savroni̇k Elektroni̇k'
+    # to 'Savroni̇', which is 7 visible characters, 8 code points,
+    # and 9 bytes.
+
+    # Truncate by code points
+    trunc_len = 8
+
+    if have_icu:
+        # Truncate by grapheme clusters
+        bi_ci = icu.BreakIterator.createCharacterInstance(icu.Locale('en_US'))
+        bi_ci.setText(manuf)
+        bounds = list(bi_ci)
+        bounds = bounds[0:8]
+        trunc_len = bounds[-1]
+
+    manuf = manuf[:trunc_len]
 
     if manuf.lower() == orig_manuf.lower():
         # Original manufacturer name was short and simple.
