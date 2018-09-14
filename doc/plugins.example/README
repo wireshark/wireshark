@@ -11,8 +11,8 @@ $ cmake ..
 $ make
 $ sudo make install
 
-If your wireshark.pc file is not in one of the standard pkg-config search paths
-you will have to tell pkg-config where to find it. Arguably the easiest way to
-do so is setting PKG_CONFIG_PATH in your build environment, for example:
+If your WiresharkConfig.cmake file is not in one of the standard cmake search
+paths you will have to tell cmake where to find it. You can do so using
+CMAKE_PREFIX_PATH, for example
 
-$ export PKG_CONFIG_PATH="/usr/local/lib64/pkgconfig"
+$ cmake -DCMAKE_PREFIX_PATH="/opt/wireshark" ..
