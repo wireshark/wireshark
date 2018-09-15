@@ -156,6 +156,7 @@ typedef enum {
 #define SSL_HND_QUIC_TP_STATELESS_RESET_TOKEN           6
 #define SSL_HND_QUIC_TP_ACK_DELAY_EXPONENT              7
 #define SSL_HND_QUIC_TP_INITIAL_MAX_UNI_STREAMS         8
+#define SSL_HND_QUIC_TP_DISABLE_MIGRATION               9
 
 /*
  * Lookup tables

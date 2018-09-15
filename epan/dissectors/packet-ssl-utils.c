@@ -1357,6 +1357,7 @@ const value_string quic_transport_parameter_id[] = {
     { SSL_HND_QUIC_TP_STATELESS_RESET_TOKEN, "stateless_reset_token" },
     { SSL_HND_QUIC_TP_ACK_DELAY_EXPONENT, "ack_delay_exponent" },
     { SSL_HND_QUIC_TP_INITIAL_MAX_UNI_STREAMS, "initial_max_uni_streams" },
+    { SSL_HND_QUIC_TP_DISABLE_MIGRATION, "disable_migration" },
     { 0, NULL }
 };
 
@@ -6496,6 +6497,7 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
      *     stateless_reset_token(6),
      *     ack_delay_exponent(7),
      *     initial_max_uni_streams(8),
+     *     disable_migration(9),
      *     (65535)
      *  } TransportParameterId;
      *
@@ -6681,6 +6683,9 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
                                     tvb, offset, 2, ENC_BIG_ENDIAN);
                 proto_item_append_text(parameter_tree, " %u", tvb_get_ntohs(tvb, offset));
                 offset += 2;
+            break;
+            case SSL_HND_QUIC_TP_DISABLE_MIGRATION:
+                /* No Payload */
             break;
             default:
                 offset += parameter_length;
