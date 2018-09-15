@@ -43,4 +43,7 @@ tls13_exporter(packet_info *pinfo, gboolean is_early,
                const char *label, guint8 *context,
                guint context_length, guint key_length, guchar **out);
 
+gboolean
+tls13_get_quic_secret(packet_info *pinfo, gboolean is_from_server, int type, guint secret_len, guint8 *secret_out);
+
 #endif  /* __PACKET_SSL_H__ */

@@ -3430,6 +3430,84 @@ tls_get_cipher_info(packet_info *pinfo, int *cipher_algo, int *cipher_mode, int 
     return TRUE;
 }
 
+/**
+ * Load the QUIC traffic secret from the keylog file.
+ * Returns TRUE and the secret into 'secret' if a secret was found of length
+ * 'secret_size' and FALSE otherwise.
+ */
+gboolean
+tls13_get_quic_secret(packet_info *pinfo, gboolean is_from_server, int type, guint secret_len, guint8 *secret_out)
+{
+    GHashTable *key_map;
+    const char *label;
+    conversation_t *conv = find_conversation_pinfo(pinfo, 0);
+    if (!conv) {
+        return FALSE;
+    }
+
+    SslDecryptSession *ssl = (SslDecryptSession *)conversation_get_proto_data(conv, proto_tls);
+    if (ssl == NULL) {
+        return FALSE;
+    }
+
+    gboolean is_quic = !!(ssl->state & SSL_QUIC_RECORD_LAYER);
+    ssl_debug_printf("%s frame %d is_quic=%d\n", G_STRFUNC, pinfo->num, is_quic);
+    if (!is_quic) {
+        return FALSE;
+    }
+
+    if (ssl->client_random.data_len == 0) {
+        /* May happen if Hello message is missing and Finished is found. */
+        ssl_debug_printf("%s missing Client Random\n", G_STRFUNC);
+        return FALSE;
+    }
+
+    // Not strictly necessary as QUIC CRYPTO frames have just been processed
+    // which also calls ssl_load_keyfile for key transitions.
+    ssl_load_keyfile(ssl_options.keylog_filename, &ssl_keylog_file, &ssl_master_key_map);
+
+    switch ((TLSRecordType)type) {
+    case TLS_SECRET_0RTT_APP:
+        DISSECTOR_ASSERT(!is_from_server);
+        label = "CLIENT_EARLY_TRAFFIC_SECRET";
+        key_map = ssl_master_key_map.quic_client_early;
+        break;
+    case TLS_SECRET_HANDSHAKE:
+        if (is_from_server) {
+            label = "SERVER_HANDSHAKE_TRAFFIC_SECRET";
+            key_map = ssl_master_key_map.quic_server_handshake;
+        } else {
+            label = "CLIENT_HANDSHAKE_TRAFFIC_SECRET";
+            key_map = ssl_master_key_map.quic_client_handshake;
+        }
+        break;
+    case TLS_SECRET_APP:
+        if (is_from_server) {
+            label = "SERVER_TRAFFIC_SECRET_0";
+            key_map = ssl_master_key_map.quic_server_appdata;
+        } else {
+            label = "CLIENT_TRAFFIC_SECRET_0";
+            key_map = ssl_master_key_map.quic_client_appdata;
+        }
+        break;
+    default:
+        g_assert_not_reached();
+    }
+
+    StringInfo *secret = (StringInfo *)g_hash_table_lookup(key_map, &ssl->client_random);
+    if (!secret || secret->data_len != secret_len) {
+        ssl_debug_printf("%s Cannot QUIC_%s of size %d, found bad size %d!\n",
+                         G_STRFUNC, label, secret_len, secret ? secret->data_len : 0);
+        return FALSE;
+    }
+
+    ssl_debug_printf("%s Retrieved QUIC traffic secret.\n", G_STRFUNC);
+    ssl_print_string("Client Random", &ssl->client_random);
+    ssl_print_string(label, secret);
+    memcpy(secret_out, secret->data, secret_len);
+    return TRUE;
+}
+
 /* TLS Exporters {{{ */
 #if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
 /**

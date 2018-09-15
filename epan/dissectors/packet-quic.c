@@ -128,8 +128,7 @@ static dissector_handle_t tls13_handshake_handle;
 /*
  * PROTECTED PAYLOAD DECRYPTION (done in first pass)
  *
- * Long packet types always use a single cipher (client_handshake_cipher or
- * server_handshake_cipher).
+ * Long packet types always use a single cipher depending on packet type.
  * Short packet types always use 1-RTT secrets for packet protection (pp).
  * TODO 0-RTT decryption requires another (client) cipher.
  *
@@ -198,6 +197,8 @@ typedef struct quic_info_data {
     int             hash_algo;      /**< Libgcrypt hash algorithm for key derivation. */
     int             cipher_algo;    /**< Cipher algorithm for packet number and packet encryption. */
     int             cipher_mode;    /**< Cipher mode for packet encryption. */
+    quic_cipher     client_initial_cipher;
+    quic_cipher     server_initial_cipher;
     quic_cipher     client_handshake_cipher;
     quic_cipher     server_handshake_cipher;
     quic_pp_state_t client_pp;
@@ -771,6 +772,8 @@ static void
 quic_connection_destroy(gpointer data, gpointer user_data _U_)
 {
     quic_info_data_t *conn = (quic_info_data_t *)data;
+    quic_cipher_reset(&conn->client_initial_cipher);
+    quic_cipher_reset(&conn->server_initial_cipher);
     quic_cipher_reset(&conn->client_handshake_cipher);
     quic_cipher_reset(&conn->server_handshake_cipher);
 
@@ -1239,17 +1242,17 @@ quic_hkdf_expand_label(int hash_algo, guint8 *secret, guint secret_len, const ch
 }
 
 /**
- * Compute the client and server handshake secrets given Connection ID "cid".
+ * Compute the client and server initial secrets given Connection ID "cid".
  *
- * On success TRUE is returned and the two handshake secrets are set.
+ * On success TRUE is returned and the two initial secrets are set.
  * FALSE is returned on error (see "error" parameter for the reason).
  */
 static gboolean
-quic_derive_handshake_secrets(const quic_cid_t *cid,
-                              guint8 client_handshake_secret[HASH_SHA2_256_LENGTH],
-                              guint8 server_handshake_secret[HASH_SHA2_256_LENGTH],
-                              quic_info_data_t *quic_info,
-                              const gchar **error)
+quic_derive_initial_secrets(const quic_cid_t *cid,
+                            guint8 client_initial_secret[HASH_SHA2_256_LENGTH],
+                            guint8 server_initial_secret[HASH_SHA2_256_LENGTH],
+                            quic_info_data_t *quic_info,
+                            const gchar **error)
 {
     /*
      * https://tools.ietf.org/html/draft-ietf-quic-tls-10#section-5.2.2
@@ -1291,25 +1294,25 @@ quic_derive_handshake_secrets(const quic_cid_t *cid,
 
     if (is_quic_draft_max(quic_info->version, 12)) {
         if (qhkdf_expand(GCRY_MD_SHA256, secret, sizeof(secret), "client hs",
-                         client_handshake_secret, HASH_SHA2_256_LENGTH)) {
+                         client_initial_secret, HASH_SHA2_256_LENGTH)) {
             *error = "Key expansion (client) failed";
             return FALSE;
         }
 
         if (qhkdf_expand(GCRY_MD_SHA256, secret, sizeof(secret), "server hs",
-                         server_handshake_secret, HASH_SHA2_256_LENGTH)) {
+                         server_initial_secret, HASH_SHA2_256_LENGTH)) {
             *error = "Key expansion (server) failed";
             return FALSE;
         }
     } else {
         if (!quic_hkdf_expand_label(GCRY_MD_SHA256, secret, sizeof(secret), "client in",
-                                    client_handshake_secret, HASH_SHA2_256_LENGTH)) {
+                                    client_initial_secret, HASH_SHA2_256_LENGTH)) {
             *error = "Key expansion (client) failed";
             return FALSE;
         }
 
         if (!quic_hkdf_expand_label(GCRY_MD_SHA256, secret, sizeof(secret), "server in",
-                                    server_handshake_secret, HASH_SHA2_256_LENGTH)) {
+                                    server_initial_secret, HASH_SHA2_256_LENGTH)) {
             *error = "Key expansion (server) failed";
             return FALSE;
         }
@@ -1378,22 +1381,49 @@ quic_cipher_prepare(guint32 version, quic_cipher *cipher, int hash_algo, int cip
 }
 
 static gboolean
-quic_create_handshake_decoders(const quic_cid_t *cid, const gchar **error, quic_info_data_t *quic_info)
+quic_create_initial_decoders(const quic_cid_t *cid, const gchar **error, quic_info_data_t *quic_info)
 {
     guint8          client_secret[HASH_SHA2_256_LENGTH];
     guint8          server_secret[HASH_SHA2_256_LENGTH];
     guint32         version = quic_info->version;
 
-    if (!quic_derive_handshake_secrets(cid, client_secret, server_secret, quic_info, error)) {
+    if (!quic_derive_initial_secrets(cid, client_secret, server_secret, quic_info, error)) {
         return FALSE;
     }
 
     /* Packet numbers are protected with AES128-CTR,
      * initial packets are protected with AEAD_AES_128_GCM. */
-    if (!quic_cipher_prepare(version, &quic_info->client_handshake_cipher, GCRY_MD_SHA256,
+    if (!quic_cipher_prepare(version, &quic_info->client_initial_cipher, GCRY_MD_SHA256,
                              GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_GCM, client_secret, error) ||
-        !quic_cipher_prepare(version, &quic_info->server_handshake_cipher, GCRY_MD_SHA256,
+        !quic_cipher_prepare(version, &quic_info->server_initial_cipher, GCRY_MD_SHA256,
                              GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_GCM, server_secret, error)) {
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+static gboolean
+quic_create_decoders(packet_info *pinfo, guint32 version, quic_info_data_t *quic_info, quic_cipher *cipher,
+                     gboolean from_server, TLSRecordType type, const char **error)
+{
+    if (!quic_info->hash_algo) {
+        if (!tls_get_cipher_info(pinfo, &quic_info->cipher_algo, &quic_info->cipher_mode, &quic_info->hash_algo)) {
+            *error = "Unable to retrieve cipher information";
+            return FALSE;
+        }
+    }
+
+    guint hash_len = gcry_md_get_algo_dlen(quic_info->hash_algo);
+    char *secret = (char *)wmem_alloc0(wmem_packet_scope(), hash_len);
+
+    if (!tls13_get_quic_secret(pinfo, from_server, type, hash_len, secret)) {
+        *error = "Unable to retrieve secret";
+        return FALSE;
+    }
+
+    if (!quic_cipher_prepare(version, cipher, quic_info->hash_algo,
+                             quic_info->cipher_algo, quic_info->cipher_mode, secret, error)) {
         return FALSE;
     }
 
@@ -1451,6 +1481,21 @@ quic_get_pp0_secret(packet_info *pinfo, int hash_algo, quic_pp_state_t *pp_state
     }
     pp_state->next_secret = (guint8 *)wmem_memdup(wmem_file_scope(), pp_secret, hash_len);
     wmem_free(NULL, pp_secret);
+    return TRUE;
+}
+
+/**
+ * Tries to obtain the QUIC application traffic secrets.
+ */
+static gboolean
+quic_get_traffic_secret(packet_info *pinfo, int hash_algo, quic_pp_state_t *pp_state, gboolean from_client)
+{
+    guint hash_len = gcry_md_get_algo_dlen(hash_algo);
+    char *secret = (char *)wmem_alloc0(wmem_packet_scope(), hash_len);
+    if (!tls13_get_quic_secret(pinfo, !from_client, TLS_SECRET_APP, hash_len, secret)) {
+        return FALSE;
+    }
+    pp_state->next_secret = (guint8 *)wmem_memdup(wmem_file_scope(), secret, hash_len);
     return TRUE;
 }
 
@@ -1529,10 +1574,18 @@ quic_get_pp_cipher(packet_info *pinfo, gboolean key_phase, quic_info_data_t *qui
         }
 
         /* Retrieve secrets for both the client and server. */
-        if (!quic_get_pp0_secret(pinfo, quic_info->hash_algo, client_pp, TRUE) ||
-            !quic_get_pp0_secret(pinfo, quic_info->hash_algo, server_pp, FALSE)) {
-            quic_info->skip_decryption = TRUE;
-            return NULL;
+        if (is_quic_draft_max(version, 12)) {
+            if (!quic_get_pp0_secret(pinfo, quic_info->hash_algo, client_pp, TRUE) ||
+                !quic_get_pp0_secret(pinfo, quic_info->hash_algo, server_pp, FALSE)) {
+                quic_info->skip_decryption = TRUE;
+                return NULL;
+            }
+        } else {
+            if (!quic_get_traffic_secret(pinfo, quic_info->hash_algo, client_pp, TRUE) ||
+                !quic_get_traffic_secret(pinfo, quic_info->hash_algo, server_pp, FALSE)) {
+                quic_info->skip_decryption = TRUE;
+                return NULL;
+            }
         }
 
         /* Create initial cipher handles for KEY_PHASE 0 and 1. */
@@ -1750,19 +1803,30 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
     offset += len_payload_length;
 
 #ifdef HAVE_LIBGCRYPT_AEAD
+    if (conn) {
+        if (long_packet_type == QUIC_LPT_INITIAL || is_quic_draft_max(version, 12)) {
+            cipher = !from_server ? &conn->client_initial_cipher : &conn->server_initial_cipher;
+        } else if (long_packet_type == QUIC_LPT_HANDSHAKE) {
+            cipher = !from_server ? &conn->client_handshake_cipher : &conn->server_handshake_cipher;
+        }
+    }
     /* Build handshake cipher now for PKN (and handshake) decryption. */
-    if (!PINFO_FD_VISITED(pinfo) && (long_packet_type == QUIC_LPT_INITIAL && !from_server) &&
-        conn && !memcmp(&dcid, &conn->client_dcid_initial, sizeof(quic_cid_t))) {
+    if (!PINFO_FD_VISITED(pinfo) && conn) {
         const gchar *error = NULL;
-        /* Create new decryption context based on the Client Connection
-         * ID from the *very first* Client Initial packet. */
-        if (!quic_create_handshake_decoders(&dcid, &error, conn)) {
+        if (long_packet_type == QUIC_LPT_INITIAL && !from_server &&
+            !memcmp(&dcid, &conn->client_dcid_initial, sizeof(quic_cid_t))) {
+            /* Create new decryption context based on the Client Connection
+             * ID from the *very first* Client Initial packet. */
+            quic_create_initial_decoders(&dcid, &error, conn);
+        } else if (long_packet_type == QUIC_LPT_HANDSHAKE && !is_quic_draft_max(version, 12)) {
+            if (!cipher->pn_cipher) {
+                quic_create_decoders(pinfo, version, conn, cipher, from_server, TLS_SECRET_HANDSHAKE, &error);
+            }
+        }
+        if (error) {
             expert_add_info_format(pinfo, quic_tree, &ei_quic_decryption_failed, "Failed to create decryption context: %s", error);
             quic_packet->decryption.error = wmem_strdup(wmem_file_scope(), error);
         }
-    }
-    if (conn) {
-        cipher = !from_server ? &conn->client_handshake_cipher : &conn->server_handshake_cipher;
     }
 #endif /* !HAVE_LIBGCRYPT_AEAD */
 
