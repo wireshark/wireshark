@@ -181,7 +181,7 @@ WS_DLL_PUBLIC dissector_table_t register_custom_dissector_table(const char *name
 
 /** Register a dissector table alias.
  * This is for dissectors whose original name has changed, e.g. SSL to TLS.
- * @param dissector_table_t dissector table returned by register_dissector_table.
+ * @param dissector_table dissector table returned by register_dissector_table.
  * @param alias_name alias for the dissector table name.
  */
 WS_DLL_PUBLIC void register_dissector_table_alias(dissector_table_t dissector_table,
