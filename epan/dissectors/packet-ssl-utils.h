@@ -77,55 +77,6 @@ typedef enum {
 #define SSL2_HND_REQUEST_CERTIFICATE   0x07
 #define SSL2_HND_CLIENT_CERTIFICATE    0x08
 
-#define PCT_VERSION_1                  0x8001
-
-#define PCT_MSG_CLIENT_HELLO           0x01
-#define PCT_MSG_SERVER_HELLO           0x02
-#define PCT_MSG_CLIENT_MASTER_KEY      0x03
-#define PCT_MSG_SERVER_VERIFY          0x04
-#define PCT_MSG_ERROR                  0x05
-
-#define PCT_CH_OFFSET_V1               0xa
-
-#define PCT_CIPHER_DES                 0x01
-#define PCT_CIPHER_IDEA                0x02
-#define PCT_CIPHER_RC2                 0x03
-#define PCT_CIPHER_RC4                 0x04
-#define PCT_CIPHER_DES_112             0x05
-#define PCT_CIPHER_DES_168             0x06
-
-#define PCT_HASH_MD5                   0x0001
-#define PCT_HASH_MD5_TRUNC_64          0x0002
-#define PCT_HASH_SHA                   0x0003
-#define PCT_HASH_SHA_TRUNC_80          0x0004
-#define PCT_HASH_DES_DM                0x0005
-
-#define PCT_CERT_NONE                  0x00
-#define PCT_CERT_X509                  0x01
-#define PCT_CERT_PKCS7                 0x02
-
-#define PCT_SIG_NONE                   0x0000
-#define PCT_SIG_RSA_MD5                0x0001
-#define PCT_SIG_RSA_SHA                0x0002
-#define PCT_SIG_DSA_SHA                0x0003
-
-#define PCT_EXCH_RSA_PKCS1             0x01
-#define PCT_EXCH_RSA_PKCS1_TOKEN_DES   0x02
-#define PCT_EXCH_RSA_PKCS1_TOKEN_DES3  0x03
-#define PCT_EXCH_RSA_PKCS1_TOKEN_RC2   0x04
-#define PCT_EXCH_RSA_PKCS1_TOKEN_RC4   0x05
-#define PCT_EXCH_DH_PKCS3              0x06
-#define PCT_EXCH_DH_PKCS3_TOKEN_DES    0x07
-#define PCT_EXCH_DH_PKCS3_TOKEN_DES3   0x08
-#define PCT_EXCH_FORTEZZA_TOKEN        0x09
-
-#define PCT_ERR_BAD_CERTIFICATE        0x01
-#define PCT_ERR_CLIENT_AUTH_FAILED     0x02
-#define PCT_ERR_ILLEGAL_MESSAGE        0x03
-#define PCT_ERR_INTEGRITY_CHECK_FAILED 0x04
-#define PCT_ERR_SERVER_AUTH_FAILED     0x05
-#define PCT_ERR_SPECS_MISMATCH         0x06
-
 #define SSL_HND_HELLO_EXT_SERVER_NAME                   0
 #define SSL_HND_HELLO_EXT_MAX_FRAGMENT_LENGTH           1
 #define SSL_HND_HELLO_EXT_CLIENT_CERTIFICATE_URL        2
@@ -226,13 +177,6 @@ extern const value_string ssl_31_signature_algorithm[];
 extern const value_string ssl_31_client_certificate_type[];
 extern const value_string ssl_31_public_value_encoding[];
 extern value_string_ext ssl_31_ciphersuite_ext;
-extern const value_string pct_msg_types[];
-extern const value_string pct_cipher_type[];
-extern const value_string pct_hash_type[];
-extern const value_string pct_cert_type[];
-extern const value_string pct_sig_type[];
-extern const value_string pct_exch_type[];
-extern const value_string pct_error_code[];
 extern const value_string tls_hello_extension_types[];
 extern const value_string tls_hash_algorithm[];
 extern const value_string tls_signature_algorithm[];
@@ -258,7 +202,6 @@ typedef struct _StringInfo {
 #define SSL_WRITE_KEY           1
 
 #define SSL_VER_UNKNOWN         0
-#define PCT_VERSION             0x8001 /* PCT_VERSION_1 from http://graphcomp.com/info/specs/ms/pct.htm */
 #define SSLV2_VERSION           0x0002 /* not in record layer, SSL_CLIENT_SERVER from
                                           http://www-archive.mozilla.org/projects/security/pki/nss/ssl/draft02.html */
 #define SSLV3_VERSION          0x300

@@ -22,12 +22,6 @@
  *
  * See RFC 2246 for SSL 3.1/TLS 1.0 specs.
  *
- * See (among other places)
- *
- *    http://www.graphcomp.com/info/specs/ms/pct.htm
- *
- * for PCT 1 draft specs.
- *
  * See
  *
  *    http://research.sun.com/projects/crypto/draft-ietf-tls-ecc-05.txt
@@ -130,7 +124,6 @@ static gint hf_ssl2_record                    = -1;
 static gint hf_ssl2_record_is_escape          = -1;
 static gint hf_ssl2_record_padding_length     = -1;
 static gint hf_ssl2_msg_type                  = -1;
-static gint hf_pct_msg_type                   = -1;
 static gint hf_tls_alert_message              = -1;
 static gint hf_tls_alert_message_level        = -1;
 static gint hf_tls_alert_message_description  = -1;
@@ -156,62 +149,6 @@ static gint hf_ssl2_handshake_session_id_hit  = -1;
 static gint hf_ssl2_handshake_cert_type       = -1;
 static gint hf_ssl2_handshake_connection_id_len = -1;
 static gint hf_ssl2_handshake_connection_id   = -1;
-static gint hf_pct_handshake_cipher_spec      = -1;
-static gint hf_pct_handshake_hash_spec        = -1;
-static gint hf_pct_handshake_cert_spec        = -1;
-static gint hf_pct_handshake_cert             = -1;
-static gint hf_pct_handshake_server_cert      = -1;
-static gint hf_pct_handshake_exch_spec        = -1;
-static gint hf_pct_handshake_hash             = -1;
-static gint hf_pct_handshake_cipher           = -1;
-static gint hf_pct_handshake_exch             = -1;
-static gint hf_pct_handshake_sig              = -1;
-static gint hf_pct_msg_error_type             = -1;
-
-/* Generated from convert_proto_tree_add_text.pl */
-static int hf_ssl_pct_client_version = -1;
-static int hf_ssl_pct_pad = -1;
-static int hf_ssl_pct_client_session_id_data = -1;
-static int hf_ssl_pct_challenge_data = -1;
-static int hf_ssl_pct_ch_offset = -1;
-static int hf_ssl_pct_cipher_specs_length = -1;
-static int hf_ssl_pct_hash_specs_length = -1;
-static int hf_ssl_pct_cert_specs_length = -1;
-static int hf_ssl_pct_exch_specs_length = -1;
-static int hf_ssl_pct_iv_length = -1;
-static int hf_ssl_pct_encryption_key_length = -1;
-static int hf_ssl_pct_mac_key_length_in_bits = -1;
-static int hf_ssl_pct_iv_data = -1;
-static int hf_ssl_pct_server_version = -1;
-static int hf_ssl_pct_sh_restart_session_ok_flag = -1;
-static int hf_ssl_pct_sh_client_auth_req_flag = -1;
-static int hf_ssl_pct_connection_id_data = -1;
-static int hf_ssl_pct_server_certificate_length = -1;
-static int hf_ssl_pct_client_cert_specs_length = -1;
-static int hf_ssl_pct_client_sig_specs_length = -1;
-static int hf_ssl_pct_response_length = -1;
-static int hf_ssl_pct_client_cert_specs = -1;
-static int hf_ssl_pct_client_signature = -1;
-static int hf_ssl_pct_server_response = -1;
-static int hf_ssl_pct_clear_key_length = -1;
-static int hf_ssl_pct_encrypted_key_length = -1;
-static int hf_ssl_pct_verify_prelude_length = -1;
-static int hf_ssl_pct_client_cert_length = -1;
-static int hf_ssl_pct_clear_key_data = -1;
-static int hf_ssl_pct_encrypted_key_data = -1;
-static int hf_ssl_pct_verify_prelude_data = -1;
-static int hf_ssl_pct_client_certificate_data = -1;
-static int hf_ssl_pct_response_data = -1;
-static int hf_ssl_pct_server_session_id_data = -1;
-static int hf_ssl_pct_server_response_length = -1;
-static int hf_ssl_pct_error_information_length = -1;
-static int hf_ssl_pct_specs_mismatch_cipher = -1;
-static int hf_ssl_pct_specs_mismatch_hash = -1;
-static int hf_ssl_pct_specs_mismatch_cert = -1;
-static int hf_ssl_pct_specs_mismatch_exch = -1;
-static int hf_ssl_pct_specs_mismatch_client_cert = -1;
-static int hf_ssl_pct_specs_mismatch_client_sig = -1;
-static int hf_ssl_pct_error_information_data = -1;
 
 static int hf_tls_reassembled_in              = -1;
 static int hf_tls_reassembled_length          = -1;
@@ -241,10 +178,6 @@ static gint ett_tls_alert             = -1;
 static gint ett_tls_handshake         = -1;
 static gint ett_tls_heartbeat         = -1;
 static gint ett_tls_certs             = -1;
-static gint ett_pct_cipher_suites     = -1;
-static gint ett_pct_hash_suites       = -1;
-static gint ett_pct_cert_suites       = -1;
-static gint ett_pct_exch_suites       = -1;
 static gint ett_tls_segments          = -1;
 static gint ett_tls_segment           = -1;
 
@@ -253,10 +186,7 @@ static expert_field ei_ssl3_heartbeat_payload_length = EI_INIT;
 static expert_field ei_tls_unexpected_message = EI_INIT;
 
 /* Generated from convert_proto_tree_add_text.pl */
-static expert_field ei_ssl_pct_ch_offset = EI_INIT;
-static expert_field ei_ssl_pct_server_version = EI_INIT;
 static expert_field ei_tls_ignored_unknown_record = EI_INIT;
-static expert_field ei_ssl_pct_client_version = EI_INIT;
 
 /* not all of the hf_fields below make sense for TLS but we have to provide
    them anyways to comply with the api (which was aimed for ip fragment
@@ -581,34 +511,16 @@ static void dissect_ssl2_hnd_client_hello(tvbuff_t *tvb, packet_info *pinfo,
                                           guint32 offset,
                                           SslDecryptSession *ssl);
 
-static void dissect_pct_msg_client_hello(tvbuff_t *tvb, packet_info *pinfo,
-                                          proto_tree *tree,
-                                          guint32 offset);
-
 /* client master key dissector */
 static void dissect_ssl2_hnd_client_master_key(tvbuff_t *tvb,
                                                proto_tree *tree,
                                                guint32 offset);
-static void dissect_pct_msg_client_master_key(tvbuff_t *tvb,
-                                              proto_tree *tree,
-                                              guint32 offset);
 
 /* server hello dissector */
 static void dissect_ssl2_hnd_server_hello(tvbuff_t *tvb,
                                           proto_tree *tree,
                                           guint32 offset, packet_info *pinfo);
-static void dissect_pct_msg_server_hello(tvbuff_t *tvb,
-                                         proto_tree *tree,
-                                         guint32 offset, packet_info *pinfo);
 
-
-static void dissect_pct_msg_server_verify(tvbuff_t *tvb,
-                                          proto_tree *tree,
-                                          guint32 offset);
-
-static void dissect_pct_msg_error(tvbuff_t *tvb,
-                                  proto_tree *tree,
-                                  guint32 offset);
 
 /*
  * Support Functions
@@ -621,9 +533,6 @@ static gint  ssl_looks_like_sslv3(tvbuff_t *tvb, const guint32 offset);
 static gint  ssl_looks_like_valid_v2_handshake(tvbuff_t *tvb,
                                                const guint32 offset,
                                                const guint32 record_length);
-static gint  ssl_looks_like_valid_pct_handshake(tvbuff_t *tvb,
-                                                const guint32 offset,
-                                                const guint32 record_length);
 
 /*********************************************************************
  *
@@ -746,7 +655,6 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
          */
         switch (session->version) {
         case SSLV2_VERSION:
-        case PCT_VERSION:
             offset = dissect_ssl2_record(tvb, pinfo, ssl_tree,
                                          offset, session,
                                          &need_desegmentation,
@@ -816,7 +724,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
             if (ssl_looks_like_sslv2(tvb, offset))
             {
-                /* looks like sslv2 or pct client hello */
+                /* looks like sslv2 client hello */
                 offset = dissect_ssl2_record(tvb, pinfo, ssl_tree,
                                              offset, session,
                                              &need_desegmentation,
@@ -2669,13 +2577,7 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      */
     if (session->version == SSL_VER_UNKNOWN)
     {
-        if (ssl_looks_like_valid_pct_handshake(tvb,
-                                               (initial_offset +
-                                                record_length_length),
-                                               record_length)) {
-            session->version = PCT_VERSION;
-        }
-        else if (msg_type >= 2 && msg_type <= 8)
+        if (msg_type >= 2 && msg_type <= 8)
         {
             session->version = SSLV2_VERSION;
         }
@@ -2685,30 +2587,21 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * conversation, then set a version for just this frame
      * (e.g., on a client hello)
      */
-    col_set_str(pinfo->cinfo, COL_PROTOCOL,
-                    (session->version == PCT_VERSION) ? "PCT" : "SSLv2");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "SSLv2");
 
     /* see if the msg_type is valid; if not the payload is
      * probably encrypted, so note that fact and bail
      */
-    msg_type_str = try_val_to_str(msg_type,
-                                (session->version == PCT_VERSION)
-                                ? pct_msg_types : ssl_20_msg_types);
+    msg_type_str = try_val_to_str(msg_type, ssl_20_msg_types);
     if (!msg_type_str
-        || ((session->version != PCT_VERSION) &&
-            !ssl_looks_like_valid_v2_handshake(tvb, initial_offset
-                               + record_length_length,
-                               record_length))
-        || ((session->version == PCT_VERSION) &&
-            !ssl_looks_like_valid_pct_handshake(tvb, initial_offset
+        || (!ssl_looks_like_valid_v2_handshake(tvb, initial_offset
                                + record_length_length,
                                record_length)))
     {
         if (ssl_record_tree)
         {
             proto_item_set_text(ssl_record_tree, "%s Record Layer: %s",
-                                (session->version == PCT_VERSION)
-                                ? "PCT" : "SSLv2",
+                                "SSLv2",
                                 "Encrypted Data");
 
             /* Unlike SSLv3, the SSLv2 record layer does not have a
@@ -2732,8 +2625,7 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (ssl_record_tree)
         {
             proto_item_set_text(ssl_record_tree, "%s Record Layer: %s",
-                                (session->version == PCT_VERSION)
-                                ? "PCT" : "SSLv2",
+                                "SSLv2",
                                 msg_type_str);
         }
     }
@@ -2784,14 +2676,11 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* add the message type */
     if (ssl_record_tree)
     {
-        proto_tree_add_item(ssl_record_tree,
-                            (session->version == PCT_VERSION)
-                            ? hf_pct_msg_type : hf_ssl2_msg_type,
+        proto_tree_add_item(ssl_record_tree, hf_ssl2_msg_type,
                             tvb, offset, 1, ENC_BIG_ENDIAN);
     }
     offset += 1;                   /* move past msg_type byte */
 
-    if (session->version != PCT_VERSION)
     {
         /* dissect the message (only handle client hello right now) */
         switch (msg_type) {
@@ -2814,30 +2703,6 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         case SSL2_HND_REQUEST_CERTIFICATE:
         case SSL2_HND_CLIENT_CERTIFICATE:
             /* unimplemented */
-            break;
-
-        default:                    /* unknown */
-            break;
-        }
-    }
-    else
-    {
-        /* dissect the message */
-        switch (msg_type) {
-        case PCT_MSG_CLIENT_HELLO:
-            dissect_pct_msg_client_hello(tvb, pinfo, ssl_record_tree, offset);
-            break;
-        case PCT_MSG_SERVER_HELLO:
-            dissect_pct_msg_server_hello(tvb, ssl_record_tree, offset, pinfo);
-            break;
-        case PCT_MSG_CLIENT_MASTER_KEY:
-            dissect_pct_msg_client_master_key(tvb, ssl_record_tree, offset);
-            break;
-        case PCT_MSG_SERVER_VERIFY:
-            dissect_pct_msg_server_verify(tvb, ssl_record_tree, offset);
-            break;
-        case PCT_MSG_ERROR:
-            dissect_pct_msg_error(tvb, ssl_record_tree, offset);
             break;
 
         default:                    /* unknown */
@@ -2981,329 +2846,6 @@ dissect_ssl2_hnd_client_hello(tvbuff_t *tvb, packet_info *pinfo,
             ssl->state |= SSL_CLIENT_RANDOM;
             ssl_debug_printf("dissect_ssl2_hnd_client_hello found CLIENT RANDOM -> state 0x%02X\n", ssl->state);
         }
-    }
-}
-
-static void
-dissect_pct_msg_client_hello(tvbuff_t *tvb, packet_info *pinfo,
-                             proto_tree *tree, guint32 offset)
-{
-    guint16 CH_CLIENT_VERSION, CH_OFFSET, CH_CIPHER_SPECS_LENGTH, CH_HASH_SPECS_LENGTH, CH_CERT_SPECS_LENGTH, CH_EXCH_SPECS_LENGTH, CH_KEY_ARG_LENGTH, mac_key_length;
-    proto_item *CH_CIPHER_SPECS_ti, *CH_HASH_SPECS_ti, *CH_CERT_SPECS_ti, *CH_EXCH_SPECS_ti, *ti;
-    proto_tree *CH_CIPHER_SPECS_tree, *CH_HASH_SPECS_tree, *CH_CERT_SPECS_tree, *CH_EXCH_SPECS_tree;
-    gint i;
-
-    CH_CLIENT_VERSION = tvb_get_ntohs(tvb, offset);
-    ti = proto_tree_add_item(tree, hf_ssl_pct_client_version, tvb, offset, 2, ENC_BIG_ENDIAN);
-    if (CH_CLIENT_VERSION != PCT_VERSION_1)
-        expert_add_info_format(pinfo, ti, &ei_ssl_pct_client_version, "Client Version, should be %x in PCT version 1", PCT_VERSION_1);
-    offset += 2;
-
-    proto_tree_add_item(tree, hf_ssl_pct_pad, tvb, offset, 1, ENC_NA);
-    offset += 1;
-
-    proto_tree_add_item(tree, hf_ssl_pct_client_session_id_data, tvb, offset, 32, ENC_NA);
-    offset += 32;
-
-    proto_tree_add_item(tree, hf_ssl_pct_challenge_data, tvb, offset, 32, ENC_NA);
-    offset += 32;
-
-    CH_OFFSET = tvb_get_ntohs(tvb, offset);
-    ti = proto_tree_add_item(tree, hf_ssl_pct_ch_offset, tvb, offset, 2, ENC_BIG_ENDIAN);
-    if (CH_OFFSET != PCT_CH_OFFSET_V1)
-        expert_add_info_format(pinfo, ti, &ei_ssl_pct_ch_offset, "should be %d in PCT version 1", PCT_CH_OFFSET_V1);
-    offset += 2;
-
-    CH_CIPHER_SPECS_LENGTH = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_ssl_pct_cipher_specs_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
-
-    CH_HASH_SPECS_LENGTH = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_ssl_pct_hash_specs_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
-
-    CH_CERT_SPECS_LENGTH = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_ssl_pct_cert_specs_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
-
-    CH_EXCH_SPECS_LENGTH = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_ssl_pct_exch_specs_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
-
-    CH_KEY_ARG_LENGTH = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_ssl_pct_iv_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
-
-    if (CH_CIPHER_SPECS_LENGTH) {
-        CH_CIPHER_SPECS_ti = proto_tree_add_item(tree, hf_pct_handshake_cipher_spec, tvb, offset, CH_CIPHER_SPECS_LENGTH, ENC_NA);
-        CH_CIPHER_SPECS_tree = proto_item_add_subtree(CH_CIPHER_SPECS_ti, ett_pct_cipher_suites);
-
-        for(i=0; i<(CH_CIPHER_SPECS_LENGTH/4); i++) {
-            proto_tree_add_item(CH_CIPHER_SPECS_tree, hf_pct_handshake_cipher, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset += 2;
-            proto_tree_add_item(CH_CIPHER_SPECS_tree, hf_ssl_pct_encryption_key_length, tvb, offset, 1, ENC_NA);
-            offset += 1;
-            mac_key_length = tvb_get_guint8(tvb, offset) + 64;
-            proto_tree_add_uint(CH_CIPHER_SPECS_tree, hf_ssl_pct_mac_key_length_in_bits, tvb, offset, 1, mac_key_length);
-            offset += 1;
-        }
-    }
-
-    if (CH_HASH_SPECS_LENGTH) {
-        CH_HASH_SPECS_ti = proto_tree_add_item(tree, hf_pct_handshake_hash_spec, tvb, offset, CH_HASH_SPECS_LENGTH, ENC_NA);
-        CH_HASH_SPECS_tree = proto_item_add_subtree(CH_HASH_SPECS_ti, ett_pct_hash_suites);
-
-        for(i=0; i<(CH_HASH_SPECS_LENGTH/2); i++) {
-            proto_tree_add_item(CH_HASH_SPECS_tree, hf_pct_handshake_hash, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset += 2;
-        }
-    }
-
-    if (CH_CERT_SPECS_LENGTH) {
-        CH_CERT_SPECS_ti = proto_tree_add_item(tree, hf_pct_handshake_cert_spec, tvb, offset, CH_CERT_SPECS_LENGTH, ENC_NA);
-        CH_CERT_SPECS_tree = proto_item_add_subtree(CH_CERT_SPECS_ti, ett_pct_cert_suites);
-
-        for(i=0; i< (CH_CERT_SPECS_LENGTH/2); i++) {
-            proto_tree_add_item(CH_CERT_SPECS_tree, hf_pct_handshake_cert, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset += 2;
-        }
-    }
-
-    if (CH_EXCH_SPECS_LENGTH) {
-        CH_EXCH_SPECS_ti = proto_tree_add_item(tree, hf_pct_handshake_exch_spec, tvb, offset, CH_EXCH_SPECS_LENGTH, ENC_NA);
-        CH_EXCH_SPECS_tree = proto_item_add_subtree(CH_EXCH_SPECS_ti, ett_pct_exch_suites);
-
-        for(i=0; i<(CH_EXCH_SPECS_LENGTH/2); i++) {
-            proto_tree_add_item(CH_EXCH_SPECS_tree, hf_pct_handshake_exch, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset += 2;
-        }
-    }
-
-    if (CH_KEY_ARG_LENGTH) {
-        proto_tree_add_item(tree, hf_ssl_pct_iv_data, tvb, offset, CH_KEY_ARG_LENGTH, ENC_NA);
-    }
-}
-
-static void
-dissect_pct_msg_server_hello(tvbuff_t *tvb, proto_tree *tree, guint32 offset, packet_info *pinfo)
-{
-/* structure:
-   char SH_MSG_SERVER_HELLO
-   char SH_PAD
-   char SH_SERVER_VERSION_MSB
-   char SH_SERVER_VERSION_LSB
-   char SH_RESTART_SESSION_OK
-   char SH_CLIENT_AUTH_REQ
-   char SH_CIPHER_SPECS_DATA[4]
-   char SH_HASH_SPECS_DATA[2]
-   char SH_CERT_SPECS_DATA[2]
-   char SH_EXCH_SPECS_DATA[2]
-   char SH_CONNECTION_ID_DATA[32]
-   char SH_CERTIFICATE_LENGTH_MSB
-   char SH_CERTIFICATE_LENGTH_LSB
-   char SH_CLIENT_CERT_SPECS_LENGTH_MSB
-   char SH_CLIENT_CERT_SPECS_LENGTH_LSB
-   char SH_CLIENT_SIG_SPECS_LENGTH_MSB
-   char SH_CLIENT_SIG_SPECS_LENGTH_LSB
-   char SH_RESPONSE_LENGTH_MSB
-   char SH_RESPONSE_LENGTH_LSB
-   char SH_CERTIFICATE_DATA[MSB<<8|LSB]
-   char SH_CLIENT_CERT_SPECS_DATA[MSB<<8|LSB]
-   char SH_CLIENT_SIG_SPECS_DATA[MSB<<8|LSB]
-   char SH_RESPONSE_DATA[MSB<<8|LSB]
-
-*/
-
-    guint16 SH_SERVER_VERSION, SH_CERT_LENGTH, SH_CERT_SPECS_LENGTH, SH_CLIENT_SIG_LENGTH, SH_RESPONSE_LENGTH, mac_key_length;
-    proto_item* ti;
-    asn1_ctx_t asn1_ctx;
-    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-
-    proto_tree_add_item(tree, hf_ssl_pct_pad, tvb, offset, 1, ENC_NA);
-    offset += 1;
-
-    SH_SERVER_VERSION = tvb_get_ntohs(tvb, offset);
-    ti = proto_tree_add_item(tree, hf_ssl_pct_server_version, tvb, offset, 2, ENC_BIG_ENDIAN);
-    if (SH_SERVER_VERSION != PCT_VERSION_1)
-        expert_add_info_format(pinfo, ti, &ei_ssl_pct_server_version, "Server Version, should be %x in PCT version 1", PCT_VERSION_1);
-    offset += 2;
-
-    proto_tree_add_item(tree, hf_ssl_pct_sh_restart_session_ok_flag, tvb, offset, 1, ENC_NA);
-    offset += 1;
-
-    proto_tree_add_item(tree, hf_ssl_pct_sh_client_auth_req_flag, tvb, offset, 1, ENC_NA);
-    offset += 1;
-
-    proto_tree_add_item(tree, hf_pct_handshake_cipher, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
-    proto_tree_add_item(tree, hf_ssl_pct_encryption_key_length, tvb, offset, 1, ENC_NA);
-    offset += 1;
-    mac_key_length = tvb_get_guint8(tvb, offset) + 64;
-    proto_tree_add_uint(tree, hf_ssl_pct_mac_key_length_in_bits, tvb, offset, 1, mac_key_length);
-    offset += 1;
-
-    proto_tree_add_item(tree, hf_pct_handshake_hash, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
-
-    proto_tree_add_item(tree, hf_pct_handshake_cert, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
-
-    proto_tree_add_item(tree, hf_pct_handshake_exch, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
-
-    proto_tree_add_item(tree, hf_ssl_pct_connection_id_data, tvb, offset, 32, ENC_NA);
-    offset += 32;
-
-    SH_CERT_LENGTH = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_ssl_pct_server_certificate_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
-
-    SH_CERT_SPECS_LENGTH = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_ssl_pct_client_cert_specs_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
-
-    SH_CLIENT_SIG_LENGTH = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_ssl_pct_client_sig_specs_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
-
-    SH_RESPONSE_LENGTH = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_ssl_pct_response_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
-
-    if (SH_CERT_LENGTH) {
-        dissect_x509af_Certificate(FALSE, tvb, offset, &asn1_ctx, tree, hf_pct_handshake_server_cert);
-        offset += SH_CERT_LENGTH;
-    }
-
-    if (SH_CERT_SPECS_LENGTH) {
-        proto_tree_add_item(tree, hf_ssl_pct_client_cert_specs, tvb, offset, SH_CERT_SPECS_LENGTH, ENC_NA);
-        offset += SH_CERT_SPECS_LENGTH;
-    }
-
-    if (SH_CLIENT_SIG_LENGTH) {
-        proto_tree_add_item(tree, hf_ssl_pct_client_signature, tvb, offset, SH_CLIENT_SIG_LENGTH, ENC_NA);
-        offset += SH_CLIENT_SIG_LENGTH;
-    }
-
-    if (SH_RESPONSE_LENGTH) {
-        proto_tree_add_item(tree, hf_ssl_pct_server_response, tvb, offset, SH_RESPONSE_LENGTH, ENC_NA);
-    }
-
-}
-
-static void
-dissect_pct_msg_client_master_key(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
-{
-    guint16 CMK_CLEAR_KEY_LENGTH, CMK_ENCRYPTED_KEY_LENGTH, CMK_KEY_ARG_LENGTH, CMK_VERIFY_PRELUDE, CMK_CLIENT_CERT_LENGTH, CMK_RESPONSE_LENGTH;
-
-    proto_tree_add_item(tree, hf_ssl_pct_pad, tvb, offset, 1, ENC_NA);
-    offset += 1;
-
-    proto_tree_add_item(tree, hf_pct_handshake_cert, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
-
-    proto_tree_add_item(tree, hf_pct_handshake_sig, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
-
-    CMK_CLEAR_KEY_LENGTH = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_ssl_pct_clear_key_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
-
-    CMK_ENCRYPTED_KEY_LENGTH = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_ssl_pct_encrypted_key_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
-
-    CMK_KEY_ARG_LENGTH= tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_ssl_pct_iv_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
-
-    CMK_VERIFY_PRELUDE = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_ssl_pct_verify_prelude_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
-
-    CMK_CLIENT_CERT_LENGTH = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_ssl_pct_client_cert_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
-
-    CMK_RESPONSE_LENGTH = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_ssl_pct_response_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
-
-    if (CMK_CLEAR_KEY_LENGTH) {
-        proto_tree_add_item(tree, hf_ssl_pct_clear_key_data, tvb, offset, CMK_CLEAR_KEY_LENGTH, ENC_NA);
-        offset += CMK_CLEAR_KEY_LENGTH;
-    }
-    if (CMK_ENCRYPTED_KEY_LENGTH) {
-        proto_tree_add_item(tree, hf_ssl_pct_encrypted_key_data, tvb, offset, CMK_ENCRYPTED_KEY_LENGTH, ENC_NA);
-        offset += CMK_ENCRYPTED_KEY_LENGTH;
-    }
-    if (CMK_KEY_ARG_LENGTH) {
-        proto_tree_add_item(tree, hf_ssl_pct_iv_data, tvb, offset, CMK_KEY_ARG_LENGTH, ENC_NA);
-        offset += CMK_KEY_ARG_LENGTH;
-    }
-    if (CMK_VERIFY_PRELUDE) {
-        proto_tree_add_item(tree, hf_ssl_pct_verify_prelude_data, tvb, offset, CMK_VERIFY_PRELUDE, ENC_NA);
-        offset += CMK_VERIFY_PRELUDE;
-    }
-    if (CMK_CLIENT_CERT_LENGTH) {
-        proto_tree_add_item(tree, hf_ssl_pct_client_certificate_data, tvb, offset, CMK_CLIENT_CERT_LENGTH, ENC_NA);
-        offset += CMK_CLIENT_CERT_LENGTH;
-    }
-    if (CMK_RESPONSE_LENGTH) {
-        proto_tree_add_item(tree, hf_ssl_pct_response_data, tvb, offset, CMK_RESPONSE_LENGTH, ENC_NA);
-    }
-}
-
-static void
-dissect_pct_msg_server_verify(tvbuff_t *tvb,
-                              proto_tree *tree, guint32 offset)
-{
-    guint16 SV_RESPONSE_LENGTH;
-
-    proto_tree_add_item(tree, hf_ssl_pct_pad, tvb, offset, 1, ENC_NA);
-    offset += 1;
-
-    proto_tree_add_item(tree, hf_ssl_pct_server_session_id_data, tvb, offset, 32, ENC_NA);
-    offset += 32;
-
-    SV_RESPONSE_LENGTH = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_ssl_pct_server_response_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
-
-    if (SV_RESPONSE_LENGTH) {
-        proto_tree_add_item(tree, hf_ssl_pct_server_response, tvb, offset, SV_RESPONSE_LENGTH, ENC_NA);
-    }
-}
-
-static void
-dissect_pct_msg_error(tvbuff_t *tvb,
-                      proto_tree *tree, guint32 offset)
-{
-    guint16 ERROR_CODE, INFO_LEN;
-
-    ERROR_CODE = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_pct_msg_error_type, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
-
-    INFO_LEN = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_ssl_pct_error_information_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
-    if (ERROR_CODE == PCT_ERR_SPECS_MISMATCH && INFO_LEN == 6)
-    {
-        proto_tree_add_item(tree, hf_ssl_pct_specs_mismatch_cipher, tvb, offset, 1, ENC_NA);
-        offset += 1;
-        proto_tree_add_item(tree, hf_ssl_pct_specs_mismatch_hash, tvb, offset, 1, ENC_NA);
-        offset += 1;
-        proto_tree_add_item(tree, hf_ssl_pct_specs_mismatch_cert, tvb, offset, 1, ENC_NA);
-        offset += 1;
-        proto_tree_add_item(tree, hf_ssl_pct_specs_mismatch_exch, tvb, offset, 1, ENC_NA);
-        offset += 1;
-        proto_tree_add_item(tree, hf_ssl_pct_specs_mismatch_client_cert, tvb, offset, 1, ENC_NA);
-        offset += 1;
-        proto_tree_add_item(tree, hf_ssl_pct_specs_mismatch_client_sig, tvb, offset, 1, ENC_NA);
-    }
-    else if (INFO_LEN) {
-        proto_tree_add_item(tree, hf_ssl_pct_error_information_data, tvb, offset, INFO_LEN, ENC_NA);
     }
 }
 
@@ -3678,8 +3220,6 @@ ssl_looks_like_sslv2(tvbuff_t *tvb, const guint32 offset)
     case SSL2_HND_CLIENT_HELLO:
     case SSL2_HND_CLIENT_MASTER_KEY:
     case SSL2_HND_SERVER_HELLO:
-    case PCT_MSG_CLIENT_MASTER_KEY:
-    case PCT_MSG_ERROR:
         return 1;
     }
     return 0;
@@ -3768,76 +3308,6 @@ ssl_looks_like_valid_v2_handshake(tvbuff_t *tvb, const guint32 offset,
         sum += tvb_get_ntohs(tvb, offset + 6); /* encrypted_key_length */
         sum += tvb_get_ntohs(tvb, offset + 8); /* key_arg_length */
         if (sum <= record_length) {
-            ret = 1;
-        }
-        break;
-
-    default:
-        break;
-    }
-
-    return ret;
-}
-
-/* applies a heuristic to determine whether
- * or not the data beginning at offset looks
- * like a valid, unencrypted pct handshake message.
- * since it isn't possible to completely tell random
- * data apart from a valid message without state,
- * we try to help the odds.
- */
-static gint
-ssl_looks_like_valid_pct_handshake(tvbuff_t *tvb, const guint32 offset,
-                   const guint32 record_length)
-{
-    /* first byte should be a msg_type.
-     *
-     *   - we know we only see client_hello, client_master_key,
-     *     and server_hello in the clear, so check to see if
-     *     msg_type is one of those (this gives us a 3 in 2^8
-     *     chance of saying yes with random payload)
-     *
-     *   - for those three types that we know about, do some
-     *     further validation to reduce the chance of an error
-     */
-    guint8  msg_type;
-    guint16 version;
-    guint32 sum;
-    gint    ret = 0;
-
-    /* fetch the msg_type */
-    msg_type = tvb_get_guint8(tvb, offset);
-
-    switch (msg_type) {
-    case PCT_MSG_CLIENT_HELLO:
-        /* version follows msg byte, so verify that this is valid */
-        version = tvb_get_ntohs(tvb, offset+1);
-        ret = (version == PCT_VERSION_1);
-        break;
-
-    case PCT_MSG_SERVER_HELLO:
-        /* version is one byte after msg_type */
-        version = tvb_get_ntohs(tvb, offset+2);
-        ret = (version == PCT_VERSION_1);
-        break;
-
-    case PCT_MSG_CLIENT_MASTER_KEY:
-        /* sum of various length fields must be less than record length */
-        sum  = tvb_get_ntohs(tvb, offset +  6); /* clear_key_length */
-        sum += tvb_get_ntohs(tvb, offset +  8); /* encrypted_key_length */
-        sum += tvb_get_ntohs(tvb, offset + 10); /* key_arg_length */
-        sum += tvb_get_ntohs(tvb, offset + 12); /* verify_prelude_length */
-        sum += tvb_get_ntohs(tvb, offset + 14); /* client_cert_length */
-        sum += tvb_get_ntohs(tvb, offset + 16); /* response_length */
-        if (sum <= record_length) {
-            ret = 1;
-        }
-        break;
-
-    case PCT_MSG_SERVER_VERIFY:
-        /* record is 36 bytes longer than response_length */
-        sum = tvb_get_ntohs(tvb, offset + 34); /* response_length */
-        if ((sum + 36) == record_length) {
             ret = 1;
         }
         break;
@@ -4169,11 +3639,6 @@ proto_register_tls(void)
             FT_UINT8, BASE_DEC, VALS(ssl_20_msg_types), 0x0,
             "SSLv2 handshake message type", HFILL}
         },
-        { &hf_pct_msg_type,
-          { "Handshake Message Type", "ssl.pct_handshake.type",
-            FT_UINT8, BASE_DEC, VALS(pct_msg_types), 0x0,
-            "PCT handshake message type", HFILL}
-        },
         { &hf_tls_record_version,
           { "Version", "tls.record.version",
             FT_UINT16, BASE_HEX, VALS(ssl_versions), 0x0,
@@ -4191,9 +3656,9 @@ proto_register_tls(void)
         },
 
         { &hf_ssl2_record,
-          { "SSLv2/PCT Record Header", "tls.record",
+          { "SSLv2 Record Header", "tls.record",
             FT_NONE, BASE_NONE, NULL, 0x0,
-            "SSLv2/PCT record data", HFILL }
+            "SSLv2 record data", HFILL }
         },
         { &hf_ssl2_record_is_escape,
           { "Is Escape", "tls.record.is_escape",
@@ -4362,107 +3827,6 @@ proto_register_tls(void)
             FT_NONE, BASE_NONE, NULL, 0x0,
             "Server's challenge to client", HFILL }
         },
-        { &hf_pct_handshake_cipher_spec,
-          { "Cipher Spec", "ssl.pct.handshake.cipherspec",
-            FT_NONE, BASE_NONE, NULL, 0x0,
-            "PCT Cipher specification", HFILL }
-        },
-        { &hf_pct_handshake_cipher,
-          { "Cipher", "ssl.pct.handshake.cipher",
-            FT_UINT16, BASE_HEX, VALS(pct_cipher_type), 0x0,
-            "PCT Ciper", HFILL }
-        },
-        { &hf_pct_handshake_hash_spec,
-          { "Hash Spec", "ssl.pct.handshake.hashspec",
-            FT_NONE, BASE_NONE, NULL, 0x0,
-            "PCT Hash specification", HFILL }
-        },
-        { &hf_pct_handshake_hash,
-          { "Hash", "ssl.pct.handshake.hash",
-            FT_UINT16, BASE_HEX, VALS(pct_hash_type), 0x0,
-            "PCT Hash", HFILL }
-        },
-        { &hf_pct_handshake_cert_spec,
-          { "Cert Spec", "ssl.pct.handshake.certspec",
-            FT_NONE, BASE_NONE, NULL, 0x0,
-            "PCT Certificate specification", HFILL }
-        },
-        { &hf_pct_handshake_cert,
-          { "Cert", "ssl.pct.handshake.cert",
-            FT_UINT16, BASE_HEX, VALS(pct_cert_type), 0x0,
-            "PCT Certificate", HFILL }
-        },
-        { &hf_pct_handshake_exch_spec,
-          { "Exchange Spec", "ssl.pct.handshake.exchspec",
-            FT_NONE, BASE_NONE, NULL, 0x0,
-            "PCT Exchange specification", HFILL }
-        },
-        { &hf_pct_handshake_exch,
-          { "Exchange", "ssl.pct.handshake.exch",
-            FT_UINT16, BASE_HEX, VALS(pct_exch_type), 0x0,
-            "PCT Exchange", HFILL }
-        },
-        { &hf_pct_handshake_sig,
-          { "Sig Spec", "ssl.pct.handshake.sig",
-            FT_UINT16, BASE_HEX, VALS(pct_sig_type), 0x0,
-            "PCT Signature", HFILL }
-        },
-        { &hf_pct_msg_error_type,
-          { "PCT Error Code", "ssl.pct.msg_error_code",
-            FT_UINT16, BASE_HEX, VALS(pct_error_code), 0x0,
-            NULL, HFILL }
-        },
-        { &hf_pct_handshake_server_cert,
-          { "Server Cert", "ssl.pct.handshake.server_cert",
-            FT_BYTES, BASE_NONE, NULL , 0x0,
-            "PCT Server Certificate", HFILL }
-        },
-
-      /* Generated from convert_proto_tree_add_text.pl */
-      { &hf_ssl_pct_client_version, { "Client Version", "ssl.pct.client_version", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_ssl_pct_pad, { "PAD", "ssl.pct.pad", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_ssl_pct_client_session_id_data, { "Client Session ID Data", "ssl.pct.client_session_id_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_ssl_pct_challenge_data, { "Challenge Data", "ssl.pct.challenge_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_ssl_pct_ch_offset, { "CH_OFFSET", "ssl.pct.ch_offset", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_ssl_pct_cipher_specs_length, { "CIPHER_SPECS Length", "ssl.pct.cipher_specs_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_ssl_pct_hash_specs_length, { "HASH_SPECS Length", "ssl.pct.hash_specs_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_ssl_pct_cert_specs_length, { "CERT_SPECS Length", "ssl.pct.cert_specs_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_ssl_pct_exch_specs_length, { "EXCH_SPECS Length", "ssl.pct.exch_specs_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_ssl_pct_iv_length, { "IV Length", "ssl.pct.iv_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_ssl_pct_encryption_key_length, { "Encryption key length", "ssl.pct.encryption_key_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_ssl_pct_mac_key_length_in_bits, { "MAC key length in bits", "ssl.pct.mac_key_length_in_bits", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_ssl_pct_iv_data, { "IV data", "ssl.pct.iv_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_ssl_pct_server_version, { "Server Version", "ssl.pct.server_version", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_ssl_pct_sh_restart_session_ok_flag, { "SH_RESTART_SESSION_OK flag", "ssl.pct.sh_restart_session_ok_flag", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_ssl_pct_sh_client_auth_req_flag, { "SH_CLIENT_AUTH_REQ flag", "ssl.pct.sh_client_auth_req_flag", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_ssl_pct_connection_id_data, { "Connection ID Data", "tls.connection_id_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_ssl_pct_server_certificate_length, { "Server Certificate Length", "ssl.pct.server_certificate_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_ssl_pct_client_cert_specs_length, { "Client CERT_SPECS Length", "ssl.pct.client_cert_specs_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_ssl_pct_client_sig_specs_length, { "Client SIG_SPECS Length", "ssl.pct.client_sig_specs_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_ssl_pct_response_length, { "Response Length", "ssl.pct.response_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_ssl_pct_client_cert_specs, { "Client CERT_SPECS", "ssl.pct.client_cert_specs", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_ssl_pct_client_signature, { "Client Signature", "ssl.pct.client_signature", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_ssl_pct_server_response, { "Server Response", "ssl.pct.server_response", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_ssl_pct_clear_key_length, { "Clear Key Length", "ssl.pct.clear_key_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_ssl_pct_encrypted_key_length, { "Encrypted Key Length", "ssl.pct.encrypted_key_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_ssl_pct_verify_prelude_length, { "Verify Prelude Length", "ssl.pct.verify_prelude_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_ssl_pct_client_cert_length, { "Client Cert Length", "ssl.pct.client_cert_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_ssl_pct_clear_key_data, { "Clear Key data", "ssl.pct.clear_key_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_ssl_pct_encrypted_key_data, { "Encrypted Key data", "ssl.pct.encrypted_key_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_ssl_pct_verify_prelude_data, { "Verify Prelude data", "ssl.pct.verify_prelude_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_ssl_pct_client_certificate_data, { "Client Certificate data", "ssl.pct.client_certificate_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_ssl_pct_response_data, { "Response data", "ssl.pct.response_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_ssl_pct_server_session_id_data, { "Server Session ID data", "ssl.pct.server_session_id_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_ssl_pct_server_response_length, { "Server Response Length", "ssl.pct.server_response_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_ssl_pct_error_information_length, { "Error Information Length", "ssl.pct.error_information_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_ssl_pct_specs_mismatch_cipher, { "SPECS_MISMATCH_CIPHER", "ssl.pct.specs_mismatch_cipher", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_ssl_pct_specs_mismatch_hash, { "SPECS_MISMATCH_HASH", "ssl.pct.specs_mismatch_hash", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_ssl_pct_specs_mismatch_cert, { "SPECS_MISMATCH_CERT", "ssl.pct.specs_mismatch_cert", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_ssl_pct_specs_mismatch_exch, { "SPECS_MISMATCH_EXCH", "ssl.pct.specs_mismatch_exch", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_ssl_pct_specs_mismatch_client_cert, { "SPECS_MISMATCH_CLIENT_CERT", "ssl.pct.specs_mismatch_client_cert", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_ssl_pct_specs_mismatch_client_sig, { "SPECS_MISMATCH_CLIENT_SIG", "ssl.pct.specs_mismatch_client_sig", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_ssl_pct_error_information_data, { "Error Information data", "ssl.pct.error_information_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-
 
         { &hf_tls_segment_overlap,
           { "Segment overlap", "tls.segment.overlap",
@@ -4535,10 +3899,6 @@ proto_register_tls(void)
         &ett_tls_handshake,
         &ett_tls_heartbeat,
         &ett_tls_certs,
-        &ett_pct_cipher_suites,
-        &ett_pct_hash_suites,
-        &ett_pct_cert_suites,
-        &ett_pct_exch_suites,
         &ett_tls_segments,
         &ett_tls_segment,
         SSL_COMMON_ETT_LIST(dissect_ssl3_hf)
@@ -4551,9 +3911,6 @@ proto_register_tls(void)
 
       /* Generated from convert_proto_tree_add_text.pl */
       { &ei_tls_ignored_unknown_record, { "tls.ignored_unknown_record", PI_PROTOCOL, PI_WARN, "Ignored Unknown Record", EXPFILL }},
-      { &ei_ssl_pct_client_version, { "ssl.pct.client_version.invalid", PI_PROTOCOL, PI_WARN, "Client Version invalid", EXPFILL }},
-      { &ei_ssl_pct_ch_offset, { "ssl.pct.ch_offset.invalid", PI_PROTOCOL, PI_WARN, "CH_OFFSET invalid", EXPFILL }},
-      { &ei_ssl_pct_server_version, { "ssl.pct.server_version.invalid", PI_PROTOCOL, PI_WARN, "Server Version invalid", EXPFILL }},
 
         SSL_COMMON_EI_LIST(dissect_ssl3_hf, "tls")
     };

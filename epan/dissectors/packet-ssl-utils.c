@@ -70,7 +70,6 @@ const value_string ssl_version_short_names[] = {
     { DTLSV1DOT0_VERSION,   "DTLSv1.0" },
     { DTLSV1DOT2_VERSION,   "DTLSv1.2" },
     { DTLSV1DOT0_OPENSSL_VERSION, "DTLS 1.0 (OpenSSL pre 0.9.8f)" },
-    { PCT_VERSION,          "PCT" },
     { 0x00, NULL }
 };
 
@@ -412,17 +411,6 @@ static const value_string ssl_20_cipher_suites[] = {
     { 0x0700c0, "SSL2_DES_192_EDE3_CBC_WITH_MD5" },
     { 0x080080, "SSL2_RC4_64_WITH_MD5" },
 
-    /* Microsoft's old PCT protocol. These are from Eric Rescorla's
-       book "SSL and TLS" */
-    { 0x800001, "PCT_SSL_CERT_TYPE | PCT1_CERT_X509" },
-    { 0x800003, "PCT_SSL_CERT_TYPE | PCT1_CERT_X509_CHAIN" },
-    { 0x810001, "PCT_SSL_HASH_TYPE | PCT1_HASH_MD5" },
-    { 0x810003, "PCT_SSL_HASH_TYPE | PCT1_HASH_SHA" },
-    { 0x820001, "PCT_SSL_EXCH_TYPE | PCT1_EXCH_RSA_PKCS1" },
-    { 0x830004, "PCT_SSL_CIPHER_TYPE_1ST_HALF | PCT1_CIPHER_RC4" },
-    { 0x842840, "PCT_SSL_CIPHER_TYPE_2ND_HALF | PCT1_ENC_BITS_40 | PCT1_MAC_BITS_128" },
-    { 0x848040, "PCT_SSL_CIPHER_TYPE_2ND_HALF | PCT1_ENC_BITS_128 | PCT1_MAC_BITS_128" },
-    { 0x8f8001, "PCT_SSL_COMPAT | PCT_VERSION_1" },
     { 0x00, NULL }
 };
 
@@ -1110,72 +1098,6 @@ static const value_string ssl_31_ciphersuite[] = {
 };
 
 value_string_ext ssl_31_ciphersuite_ext = VALUE_STRING_EXT_INIT(ssl_31_ciphersuite);
-
-
-const value_string pct_msg_types[] = {
-    { PCT_MSG_CLIENT_HELLO,         "Client Hello" },
-    { PCT_MSG_SERVER_HELLO,         "Server Hello" },
-    { PCT_MSG_CLIENT_MASTER_KEY,    "Client Master Key" },
-    { PCT_MSG_SERVER_VERIFY,        "Server Verify" },
-    { PCT_MSG_ERROR,                "Error" },
-    { 0x00, NULL }
-};
-
-const value_string pct_cipher_type[] = {
-    { PCT_CIPHER_DES, "DES" },
-    { PCT_CIPHER_IDEA, "IDEA" },
-    { PCT_CIPHER_RC2, "RC2" },
-    { PCT_CIPHER_RC4, "RC4" },
-    { PCT_CIPHER_DES_112, "DES 112 bit" },
-    { PCT_CIPHER_DES_168, "DES 168 bit" },
-    { 0x00, NULL }
-};
-
-const value_string pct_hash_type[] = {
-    { PCT_HASH_MD5, "MD5" },
-    { PCT_HASH_MD5_TRUNC_64, "MD5_TRUNC_64"},
-    { PCT_HASH_SHA, "SHA"},
-    { PCT_HASH_SHA_TRUNC_80, "SHA_TRUNC_80"},
-    { PCT_HASH_DES_DM, "DES_DM"},
-    { 0x00, NULL }
-};
-
-const value_string pct_cert_type[] = {
-    { PCT_CERT_NONE, "None" },
-    { PCT_CERT_X509, "X.509" },
-    { PCT_CERT_PKCS7, "PKCS #7" },
-    { 0x00, NULL }
-};
-const value_string pct_sig_type[] = {
-    { PCT_SIG_NONE, "None" },
-    { PCT_SIG_RSA_MD5, "MD5" },
-    { PCT_SIG_RSA_SHA, "RSA SHA" },
-    { PCT_SIG_DSA_SHA, "DSA SHA" },
-    { 0x00, NULL }
-};
-
-const value_string pct_exch_type[] = {
-    { PCT_EXCH_RSA_PKCS1, "RSA PKCS#1" },
-    { PCT_EXCH_RSA_PKCS1_TOKEN_DES, "RSA PKCS#1 Token DES" },
-    { PCT_EXCH_RSA_PKCS1_TOKEN_DES3, "RSA PKCS#1 Token 3DES" },
-    { PCT_EXCH_RSA_PKCS1_TOKEN_RC2, "RSA PKCS#1 Token RC-2" },
-    { PCT_EXCH_RSA_PKCS1_TOKEN_RC4, "RSA PKCS#1 Token RC-4" },
-    { PCT_EXCH_DH_PKCS3, "DH PKCS#3" },
-    { PCT_EXCH_DH_PKCS3_TOKEN_DES, "DH PKCS#3 Token DES" },
-    { PCT_EXCH_DH_PKCS3_TOKEN_DES3, "DH PKCS#3 Token 3DES" },
-    { PCT_EXCH_FORTEZZA_TOKEN, "Fortezza" },
-    { 0x00, NULL }
-};
-
-const value_string pct_error_code[] = {
-    { PCT_ERR_BAD_CERTIFICATE, "PCT_ERR_BAD_CERTIFICATE" },
-    { PCT_ERR_CLIENT_AUTH_FAILED, "PCT_ERR_CLIENT_AUTH_FAILE" },
-    { PCT_ERR_ILLEGAL_MESSAGE, "PCT_ERR_ILLEGAL_MESSAGE" },
-    { PCT_ERR_INTEGRITY_CHECK_FAILED, "PCT_ERR_INTEGRITY_CHECK_FAILED" },
-    { PCT_ERR_SERVER_AUTH_FAILED, "PCT_ERR_SERVER_AUTH_FAILED" },
-    { PCT_ERR_SPECS_MISMATCH, "PCT_ERR_SPECS_MISMATCH" },
-    { 0x00, NULL }
-};
 
 /* http://www.iana.org/assignments/tls-extensiontype-values/tls-extensiontype-values.xhtml#tls-extensiontype-values-1 */
 const value_string tls_hello_extension_types[] = {
