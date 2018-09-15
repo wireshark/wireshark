@@ -448,7 +448,6 @@ static int hf_xattr_value = -1;
 static int hf_xattrs = -1;
 
 static int hf_flex_extras = -1;
-static int hf_flex_frame = -1;
 static int hf_flex_frame_id_len = -1;
 static int hf_flex_frame_id = -1;
 static int hf_flex_frame_len = -1;
@@ -2392,7 +2391,6 @@ proto_register_couchbase(void)
     { &hf_flex_keylength, { "Key Length", "couchbase.key.length", FT_UINT8, BASE_DEC, NULL, 0x0, "Length in bytes of the text key that follows the command extras", HFILL } },
     { &hf_flex_extras_length, { "Flexible Framing Extras Length", "couchbase.flex_extras", FT_UINT8, BASE_DEC, NULL, 0x0, "Length in bytes of the flexible framing extras that follows the response header", HFILL } },
     { &hf_flex_extras, {"Flexible Framing Extras", "couchbase.flex_frame_extras", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-    { &hf_flex_frame, {"Flexible Frame", "couchbase.flex_frame.frame", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
     { &hf_flex_frame_id_len, {"Flexible Frame Byte0", "couchbase.flex_frame.byte0", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_flex_frame_id, {"Flexible Frame ID", "couchbase.flex_frame.frame.id", FT_UINT8, BASE_DEC, VALS(flex_frame_ids), 0xF0, NULL, HFILL } },
     { &hf_flex_frame_id_esc, {"Flexible Frame ID (escaped)", "couchbase.flex_frame.frame.id", FT_UINT16, BASE_DEC, VALS(flex_frame_ids), 0xF0, NULL, HFILL } },
