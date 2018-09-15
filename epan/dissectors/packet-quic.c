@@ -59,9 +59,7 @@ static int hf_quic_supported_version = -1;
 static int hf_quic_vn_unused = -1;
 static int hf_quic_short_kp_flag = -1;
 static int hf_quic_short_reserved = -1;
-static int hf_quic_initial_payload = -1;
-static int hf_quic_handshake_payload = -1;
-static int hf_quic_retry_payload = -1;
+static int hf_quic_payload = -1;
 static int hf_quic_protected_payload = -1;
 
 static int hf_quic_frame = -1;
@@ -1630,68 +1628,6 @@ quic_process_payload(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_
 }
 #endif /* !HAVE_LIBGCRYPT_AEAD */
 
-static int
-dissect_quic_initial(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset,
-                     quic_info_data_t *quic_info, quic_packet_info_t *quic_packet, gboolean from_server, guint pkn_len)
-{
-    proto_item *ti;
-
-    ti = proto_tree_add_item(quic_tree, hf_quic_initial_payload, tvb, offset, -1, ENC_NA);
-
-    // An Initial Packet should always result in creating a new connection.
-    DISSECTOR_ASSERT(quic_info);
-
-    quic_cipher *cipher = from_server ? &quic_info->server_handshake_cipher : &quic_info->client_handshake_cipher;
-    quic_process_payload(tvb, pinfo, quic_tree, ti, offset,
-                         quic_info, quic_packet, cipher, pkn_len);
-    offset += tvb_reported_length_remaining(tvb, offset);
-
-    return offset;
-}
-
-static int
-dissect_quic_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset,
-                       quic_info_data_t *quic_info, quic_packet_info_t *quic_packet, gboolean from_server, guint pkn_len)
-{
-    proto_item *ti;
-
-    ti = proto_tree_add_item(quic_tree, hf_quic_handshake_payload, tvb, offset, -1, ENC_NA);
-
-    if (!quic_info) {
-        // No connection might be available if the Initial Packet is missing.
-        return tvb_reported_length_remaining(tvb, offset);
-    }
-
-    quic_cipher *cipher = from_server ? &quic_info->server_handshake_cipher : &quic_info->client_handshake_cipher;
-    quic_process_payload(tvb, pinfo, quic_tree, ti, offset,
-                         quic_info, quic_packet, cipher, pkn_len);
-    offset += tvb_reported_length_remaining(tvb, offset);
-
-    return offset;
-}
-
-static int
-dissect_quic_retry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset,
-                   quic_info_data_t *quic_info, quic_packet_info_t *quic_packet, guint pkn_len)
-{
-    proto_item *ti;
-
-    ti = proto_tree_add_item(quic_tree, hf_quic_retry_payload, tvb, offset, -1, ENC_NA);
-
-    if (!quic_info) {
-        // No connection might be available if the Initial Packet is missing.
-        return tvb_reported_length_remaining(tvb, offset);
-    }
-
-    /* Retry coming always from server */
-    quic_process_payload(tvb, pinfo, quic_tree, ti, offset,
-                         quic_info, quic_packet, &quic_info->server_handshake_cipher, pkn_len);
-    offset += tvb_reported_length_remaining(tvb, offset);
-
-
-    return offset;
-}
-
 static void
 quic_add_connection_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, quic_info_data_t *conn)
 {
@@ -1782,6 +1718,7 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
     quic_info_data_t *conn = dgram_info->conn;
     const gboolean from_server = dgram_info->from_server;
     quic_cipher *cipher = NULL;
+    proto_item *ti;
 
     proto_tree_add_item_ret_uint(quic_tree, hf_quic_long_packet_type, tvb, offset, 1, ENC_NA, &long_packet_type);
     offset += 1;
@@ -1828,22 +1765,13 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
     col_append_fstr(pinfo->cinfo, COL_INFO, ", PKN: %" G_GINT64_MODIFIER "u", pkn);
 
     /* Payload */
-    switch(long_packet_type) {
-        case QUIC_LPT_INITIAL: /* Initial */
-            offset = dissect_quic_initial(tvb, pinfo, quic_tree, offset, conn, quic_packet, from_server, pkn_len);
-        break;
-        case QUIC_LPT_HANDSHAKE: /* Handshake */
-            offset = dissect_quic_handshake(tvb, pinfo, quic_tree, offset, conn, quic_packet, from_server, pkn_len);
-        break;
-        case QUIC_LPT_RETRY: /* Retry */
-            offset = dissect_quic_retry(tvb, pinfo, quic_tree, offset, conn, quic_packet, pkn_len);
-        break;
-        default:
-            /* Protected (Encrypted) Payload */
-            proto_tree_add_item(quic_tree, hf_quic_protected_payload, tvb, offset, -1, ENC_NA);
-            offset += tvb_reported_length_remaining(tvb, offset);
-        break;
+    ti = proto_tree_add_item(quic_tree, hf_quic_payload, tvb, offset, -1, ENC_NA);
+
+    if (conn) {
+        quic_process_payload(tvb, pinfo, quic_tree, ti, offset,
+                             conn, quic_packet, cipher, pkn_len);
     }
+    offset += tvb_reported_length_remaining(tvb, offset);
 
     return offset;
 }
@@ -2269,26 +2197,16 @@ proto_register_quic(void)
             FT_UINT8, BASE_DEC, NULL, 0x07,
             "Reserved bits for experimentation", HFILL }
         },
-        { &hf_quic_initial_payload,
-          { "Initial Payload", "quic.initial_payload",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }
-        },
-        { &hf_quic_handshake_payload,
-          { "Handshake Payload", "quic.handshake_payload",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }
-        },
-        { &hf_quic_retry_payload,
-          { "Retry Payload", "quic.retry_payload",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }
-        },
 
+        { &hf_quic_payload,
+          { "Payload", "quic.payload",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            "(Encrypted) payload of a packet", HFILL }
+        },
         { &hf_quic_protected_payload,
           { "Protected Payload", "quic.protected_payload",
             FT_BYTES, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }
+            "1-RTT protected payload", HFILL }
         },
 
         { &hf_quic_frame,
