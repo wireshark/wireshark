@@ -110,9 +110,9 @@ static int hf_quic_frame_type_nci_connection_id = -1;
 static int hf_quic_frame_type_nci_stateless_reset_token = -1;
 static int hf_quic_frame_type_ss_stream_id = -1;
 static int hf_quic_frame_type_ss_application_error_code = -1;
-static int hf_quic_frame_type_crypt_offset = -1;
-static int hf_quic_frame_type_crypt_length = -1;
-static int hf_quic_frame_type_crypt_crypto_data = -1;
+static int hf_quic_frame_type_crypto_offset = -1;
+static int hf_quic_frame_type_crypto_length = -1;
+static int hf_quic_frame_type_crypto_crypto_data = -1;
 
 static expert_field ei_quic_connection_unknown = EI_INIT;
 static expert_field ei_quic_ft_unknown = EI_INIT;
@@ -1132,12 +1132,12 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         case FT_CRYPTO: {
             guint64 crypto_offset, crypto_length;
             guint32 lenvar;
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", CRYPT");
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_crypt_offset, tvb, offset, -1, ENC_VARINT_QUIC, &crypto_offset, &lenvar);
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", CRYPTO");
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_crypto_offset, tvb, offset, -1, ENC_VARINT_QUIC, &crypto_offset, &lenvar);
             offset += lenvar;
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_crypt_length, tvb, offset, -1, ENC_VARINT_QUIC, &crypto_length, &lenvar);
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_crypto_length, tvb, offset, -1, ENC_VARINT_QUIC, &crypto_length, &lenvar);
             offset += lenvar;
-            proto_tree_add_item(ft_tree, hf_quic_frame_type_crypt_crypto_data, tvb, offset, (guint32)crypto_length, ENC_NA);
+            proto_tree_add_item(ft_tree, hf_quic_frame_type_crypto_crypto_data, tvb, offset, (guint32)crypto_length, ENC_NA);
             {
                 tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset, (int)crypto_length);
                 col_set_writable(pinfo->cinfo, -1, FALSE);
@@ -2587,18 +2587,18 @@ proto_register_quic(void)
         },
 
         /* CRYPTO */
-        { &hf_quic_frame_type_crypt_offset,
-            { "Offset", "quic.frame_type.crypt.offset",
+        { &hf_quic_frame_type_crypto_offset,
+            { "Offset", "quic.frame_type.crypto.offset",
               FT_UINT64, BASE_DEC, NULL, 0x0,
               "Byte offset into the stream", HFILL }
         },
-        { &hf_quic_frame_type_crypt_length,
-            { "Length", "quic.frame_type.crypt.length",
+        { &hf_quic_frame_type_crypto_length,
+            { "Length", "quic.frame_type.crypto.length",
               FT_UINT64, BASE_DEC, NULL, 0x0,
               "Length of the Crypto Data field", HFILL }
         },
-        { &hf_quic_frame_type_crypt_crypto_data,
-            { "Crypto Data", "quic.frame_type.crypt.crypto_data",
+        { &hf_quic_frame_type_crypto_crypto_data,
+            { "Crypto Data", "quic.frame_type.crypto.crypto_data",
               FT_NONE, BASE_NONE, NULL, 0x0,
               "The cryptographic message data", HFILL }
         },
