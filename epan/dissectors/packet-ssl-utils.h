@@ -1844,7 +1844,7 @@ ssl_common_dissect_t name = {   \
         FT_UINT32, BASE_DEC, NULL, 0x00,                                \
         "Contains the initial value for the maximum amount of data that can be sent on the connection", HFILL }                                                                 \
     },                                                                  \
-    { & name .hf.hs_ext_quictp_parameter_initial_max_bidi_streams,    \
+    { & name .hf.hs_ext_quictp_parameter_initial_max_bidi_streams,      \
       { "initial_max_bidi_streams", prefix ".quic.parameter.initial_max_bidi_streams",  \
         FT_UINT16, BASE_DEC, NULL, 0x00,                                \
         "Initial maximum number of application-owned bidirectional streams", HFILL } \
@@ -1852,7 +1852,7 @@ ssl_common_dissect_t name = {   \
     { & name .hf.hs_ext_quictp_parameter_idle_timeout,                  \
       { "idle_timeout", prefix ".quic.parameter.idle_timeout",          \
         FT_UINT16, BASE_DEC, NULL, 0x00,                                \
-        "In seconds", HFILL }                                            \
+        "In seconds", HFILL }                                           \
     },                                                                  \
     { & name .hf.hs_ext_quictp_parameter_pa_ipversion,                  \
       { "ipVersion", prefix ".quic.parameter.preferred_address.ipversion",  \
@@ -1904,15 +1904,15 @@ ssl_common_dissect_t name = {   \
         FT_BYTES, BASE_NONE, NULL, 0x00,                                \
         "Used in verifying a stateless reset", HFILL }                  \
     },                                                                  \
-    { & name .hf.hs_ext_quictp_parameter_ack_delay_exponent,         \
+    { & name .hf.hs_ext_quictp_parameter_ack_delay_exponent,            \
       { "ack_delay_exponent", prefix ".quic.parameter.ack_delay_exponent",  \
-        FT_UINT8, BASE_DEC, NULL, 0x00,                                \
+        FT_UINT8, BASE_DEC, NULL, 0x00,                                 \
         "Indicating an exponent used to decode the ACK Delay field in the ACK frame,", HFILL }  \
     },                                                                  \
-    { & name .hf.hs_ext_quictp_parameter_initial_max_uni_streams,    \
-      { "initial_max_uni_streams", prefix ".quic.parameter.initial_max_uni_streams",  \
+    { & name .hf.hs_ext_quictp_parameter_initial_max_uni_streams,       \
+      { "initial_max_uni_streams", prefix ".quic.parameter.initial_max_uni_streams",    \
         FT_UINT16, BASE_DEC, NULL, 0x00,                                \
-        "Initial maximum number of application-owned unidirectional streams", HFILL } \
+        "Initial maximum number of application-owned unidirectional streams", HFILL }   \
     }
 /* }}} */
 

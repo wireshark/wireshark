@@ -6673,7 +6673,7 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
             case SSL_HND_QUIC_TP_ACK_DELAY_EXPONENT:
                 proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_ack_delay_exponent,
                                     tvb, offset, 1, ENC_BIG_ENDIAN);
-                /*TODO display multiplier (x8) and expert info about invaluid value (> 20) ? */
+                /*TODO display multiplier (x8) and expert info about invalid value (> 20) ? */
                 offset += 1;
             break;
             case SSL_HND_QUIC_TP_INITIAL_MAX_UNI_STREAMS:
