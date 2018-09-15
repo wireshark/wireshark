@@ -150,7 +150,6 @@ typedef enum {
 #define SSL_HND_QUIC_TP_INITIAL_MAX_DATA                1
 #define SSL_HND_QUIC_TP_INITIAL_MAX_BIDI_STREAMS        2
 #define SSL_HND_QUIC_TP_IDLE_TIMEOUT                    3
-#define SSL_HND_QUIC_TP_OMIT_CONNECTION_ID              4 /* removed in draft -11 */
 #define SSL_HND_QUIC_TP_MAX_PACKET_SIZE                 5
 #define SSL_HND_QUIC_TP_STATELESS_RESET_TOKEN           6
 #define SSL_HND_QUIC_TP_ACK_DELAY_EXPONENT              7

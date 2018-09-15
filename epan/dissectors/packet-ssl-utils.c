@@ -1351,7 +1351,6 @@ const value_string quic_transport_parameter_id[] = {
     { SSL_HND_QUIC_TP_INITIAL_MAX_DATA, "initial_max_data" },
     { SSL_HND_QUIC_TP_INITIAL_MAX_BIDI_STREAMS, "initial_max_bidi_streams" },
     { SSL_HND_QUIC_TP_IDLE_TIMEOUT, "idle_timeout" },
-    { SSL_HND_QUIC_TP_OMIT_CONNECTION_ID, "omit_connection_id" }, // removed in draft -11
     { SSL_HND_QUIC_TP_MAX_PACKET_SIZE, "max_packet_size" },
     { SSL_HND_QUIC_TP_STATELESS_RESET_TOKEN, "stateless_reset_token" },
     { SSL_HND_QUIC_TP_ACK_DELAY_EXPONENT, "ack_delay_exponent" },
@@ -6597,9 +6596,6 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
                                     tvb, offset, 2, ENC_BIG_ENDIAN);
                 proto_item_append_text(parameter_tree, " %u secs", tvb_get_ntohs(tvb, offset));
                 offset += 2;
-            break;
-            case SSL_HND_QUIC_TP_OMIT_CONNECTION_ID:
-                /* No Payload */
             break;
             case SSL_HND_QUIC_TP_MAX_PACKET_SIZE:
                 proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_max_packet_size,
