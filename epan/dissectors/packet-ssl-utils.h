@@ -151,6 +151,7 @@ typedef enum {
 #define SSL_HND_QUIC_TP_INITIAL_MAX_DATA                1
 #define SSL_HND_QUIC_TP_INITIAL_MAX_BIDI_STREAMS        2
 #define SSL_HND_QUIC_TP_IDLE_TIMEOUT                    3
+#define SSL_HND_QUIC_TP_PREFERRED_ADDRESS               4
 #define SSL_HND_QUIC_TP_MAX_PACKET_SIZE                 5
 #define SSL_HND_QUIC_TP_STATELESS_RESET_TOKEN           6
 #define SSL_HND_QUIC_TP_ACK_DELAY_EXPONENT              7
@@ -192,6 +193,7 @@ extern const value_string tls_hello_ext_psk_ke_mode[];
 extern const value_string tls13_key_update_request[];
 extern const value_string quic_transport_parameter_id[];
 extern const value_string quic_version_vals[];
+extern const value_string quic_tp_preferred_address_vals[];
 
 /* XXX Should we use GByteArray instead? */
 typedef struct _StringInfo {
@@ -838,6 +840,14 @@ typedef struct ssl_common_dissect {
         gint hs_ext_quictp_parameter_initial_max_data;
         gint hs_ext_quictp_parameter_initial_max_bidi_streams;
         gint hs_ext_quictp_parameter_idle_timeout;
+        gint hs_ext_quictp_parameter_pa_ipversion;
+        gint hs_ext_quictp_parameter_pa_ipaddress_length;
+        gint hs_ext_quictp_parameter_pa_ipaddress_ipv4;
+        gint hs_ext_quictp_parameter_pa_ipaddress_ipv6;
+        gint hs_ext_quictp_parameter_pa_port;
+        gint hs_ext_quictp_parameter_pa_connectionid_length;
+        gint hs_ext_quictp_parameter_pa_connectionid;
+        gint hs_ext_quictp_parameter_pa_statelessresettoken;
         gint hs_ext_quictp_parameter_max_packet_size;
         gint hs_ext_quictp_parameter_stateless_reset_token;
         gint hs_ext_quictp_parameter_ack_delay_exponent;
@@ -886,6 +896,8 @@ typedef struct ssl_common_dissect {
         expert_field hs_ext_cert_status_undecoded;
         expert_field resumed;
         expert_field record_length_invalid;
+
+        expert_field hs_ext_quictp_parameter_pa_ipaddress;
 
         /* do not forget to update SSL_COMMON_LIST_T and SSL_COMMON_EI_LIST! */
     } ei;
@@ -1055,14 +1067,15 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,         \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
+        -1, -1, -1, -1, -1, -1,                                         \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,                 \
     },                                                                  \
     /* ei */ {                                                          \
-        EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT,           \
+        EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT,  \
     },                                                                  \
 }
 /* }}} */
@@ -1841,6 +1854,46 @@ ssl_common_dissect_t name = {   \
         FT_UINT16, BASE_DEC, NULL, 0x00,                                \
         "In seconds", HFILL }                                            \
     },                                                                  \
+    { & name .hf.hs_ext_quictp_parameter_pa_ipversion,                  \
+      { "ipVersion", prefix ".quic.parameter.preferred_address.ipversion",  \
+        FT_UINT8, BASE_DEC, VALS(quic_tp_preferred_address_vals), 0x00, \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_quictp_parameter_pa_ipaddress_length,           \
+      { "Length", prefix ".quic.parameter.preferred_address.ipaddress.length",  \
+        FT_UINT8, BASE_DEC, NULL, 0x00,                                \
+        "Length of ipAddress field", HFILL }                            \
+    },                                                                  \
+    { & name .hf.hs_ext_quictp_parameter_pa_ipaddress_ipv4,             \
+      { "ipAddress (IPv4)", prefix ".quic.parameter.preferred_address.ipaddress.ipv4",  \
+        FT_IPv4, BASE_NONE, NULL, 0x00,                                 \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_quictp_parameter_pa_ipaddress_ipv6,             \
+      { "ipAddress (IPv6)", prefix ".quic.parameter.preferred_address.ipaddress.ipv6",  \
+        FT_IPv6, BASE_NONE, NULL, 0x00,                                 \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_quictp_parameter_pa_port,                       \
+      { "port", prefix ".quic.parameter.preferred_address.port",        \
+        FT_UINT16, BASE_DEC, NULL, 0x00,                                \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_quictp_parameter_pa_connectionid_length,        \
+      { "Length", prefix ".quic.parameter.preferred_address.connectionid.length",   \
+        FT_UINT8, BASE_DEC, NULL, 0x00,                                 \
+        "Length of connectionId Field", HFILL }                         \
+    },                                                                  \
+    { & name .hf.hs_ext_quictp_parameter_pa_connectionid,               \
+      { "connectionId", prefix ".quic.parameter.preferred_address.connectionid",    \
+        FT_BYTES, BASE_NONE, NULL, 0x00,                                \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_quictp_parameter_pa_statelessresettoken,        \
+      { "statelessResetToken", prefix ".quic.parameter.preferred_address.statelessresettoken",  \
+        FT_BYTES, BASE_NONE, NULL, 0x00,                                \
+        NULL, HFILL }                                                   \
+    },                                                                  \
     { & name .hf.hs_ext_quictp_parameter_max_packet_size,               \
       { "max_packet_size", prefix ".quic.parameter.max_packet_size",    \
         FT_UINT16, BASE_DEC, NULL, 0x00,                                \
@@ -1920,6 +1973,10 @@ ssl_common_dissect_t name = {   \
     { & name .ei.record_length_invalid, \
         { prefix ".record.length.invalid", PI_PROTOCOL, PI_ERROR, \
         "Record fragment length is too large", EXPFILL } \
+    }, \
+    { & name .ei.hs_ext_quictp_parameter_pa_ipaddress, \
+        { prefix ".quic.parameter.pa.ipaddress.unknown", PI_PROTOCOL, PI_ERROR, \
+        "Unknown QUIC Transport Parameter Preferred Address type", EXPFILL } \
     }
 /* }}} */
 

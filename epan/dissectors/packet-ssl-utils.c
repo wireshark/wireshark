@@ -1352,10 +1352,17 @@ const value_string quic_transport_parameter_id[] = {
     { SSL_HND_QUIC_TP_INITIAL_MAX_DATA, "initial_max_data" },
     { SSL_HND_QUIC_TP_INITIAL_MAX_BIDI_STREAMS, "initial_max_bidi_streams" },
     { SSL_HND_QUIC_TP_IDLE_TIMEOUT, "idle_timeout" },
+    { SSL_HND_QUIC_TP_PREFERRED_ADDRESS, "preferred_address" },
     { SSL_HND_QUIC_TP_MAX_PACKET_SIZE, "max_packet_size" },
     { SSL_HND_QUIC_TP_STATELESS_RESET_TOKEN, "stateless_reset_token" },
     { SSL_HND_QUIC_TP_ACK_DELAY_EXPONENT, "ack_delay_exponent" },
     { SSL_HND_QUIC_TP_INITIAL_MAX_UNI_STREAMS, "initial_max_uni_streams" },
+    { 0, NULL }
+};
+
+const value_string quic_tp_preferred_address_vals[] = {
+    { 4, "IPv4" },
+    { 6, "IPv6" },
     { 0, NULL }
 };
 
@@ -6477,18 +6484,18 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
 {
     guint32 quic_length, parameter_length, supported_versions_length, next_offset;
 
-    /* https://tools.ietf.org/html/draft-ietf-quic-transport-08#section-7.4
-     *  uint32 QuicVersion;
+    /* https://tools.ietf.org/html/draft-ietf-quic-transport-12#section-6.4
+    *  uint32 QuicVersion;
      *  enum {
      *     initial_max_stream_data(0),
      *     initial_max_data(1),
-     *     initial_max_stream_id_bidi(2),
+     *     initial_max_bidi_streams(2),
      *     idle_timeout(3),
-     *     truncate_connection_id(4),
+     *     preferred_address(4),
      *     max_packet_size(5),
      *     stateless_reset_token(6),
      *     ack_delay_exponent(7),
-     *     initial_max_stream_id_uni(8),
+     *     initial_max_uni_streams(8),
      *     (65535)
      *  } TransportParameterId;
      *
@@ -6508,6 +6515,14 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
      *      };
      *      TransportParameter parameters<22..2^16-1>;
      *  } TransportParameters;
+     *
+     *  struct {
+     *    enum { IPv4(4), IPv6(6), (15) } ipVersion;
+     *    opaque ipAddress<4..2^8-1>;
+     *    uint16 port;
+     *    opaque connectionId<0..18>;
+     *    opaque statelessResetToken[16];
+     *  } PreferredAddress;
      */
     switch (hnd_type) {
     case SSL_HND_CLIENT_HELLO:
@@ -6597,6 +6612,51 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
                                     tvb, offset, 2, ENC_BIG_ENDIAN);
                 proto_item_append_text(parameter_tree, " %u secs", tvb_get_ntohs(tvb, offset));
                 offset += 2;
+            break;
+            case SSL_HND_QUIC_TP_PREFERRED_ADDRESS: {
+                guint32 ipversion, ipaddress_length, connectionid_length;
+                proto_tree_add_item_ret_uint(parameter_tree, hf->hf.hs_ext_quictp_parameter_pa_ipversion,
+                                             tvb, offset, 1, ENC_BIG_ENDIAN, &ipversion);
+                offset += 1;
+                if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &ipaddress_length,
+                                    hf->hf.hs_ext_quictp_parameter_pa_ipaddress_length, 4, G_MAXUINT8-1)) {
+                    break;
+                }
+                offset += 1;
+                switch (ipversion){
+                    case 4:
+                        proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_pa_ipaddress_ipv4,
+                                            tvb, offset, 4, ENC_BIG_ENDIAN);
+                    break;
+                    case 6:
+                        proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_pa_ipaddress_ipv6,
+                                            tvb, offset, 16, ENC_NA);
+                    break;
+                    default:
+                        proto_tree_add_expert(tree, pinfo, &hf->ei.hs_ext_quictp_parameter_pa_ipaddress,
+                                              tvb, offset, ipaddress_length);
+                    break;
+                }
+                offset += ipaddress_length;
+
+                proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_pa_port,
+                                    tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+
+                if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &connectionid_length,
+                                    hf->hf.hs_ext_quictp_parameter_pa_connectionid_length, 0, 18)) {
+                    break;
+                }
+                offset += 1;
+
+                proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_pa_connectionid,
+                                    tvb, offset, connectionid_length, ENC_NA);
+                offset += connectionid_length;
+
+                proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_pa_statelessresettoken,
+                                    tvb, offset, 16, ENC_NA);
+                offset += 16;
+            }
             break;
             case SSL_HND_QUIC_TP_MAX_PACKET_SIZE:
                 proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_max_packet_size,
