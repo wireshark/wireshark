@@ -350,8 +350,6 @@ static int hf_rdp_DaylightName = -1;
 static int hf_rdp_DaylightDate = -1;
 static int hf_rdp_DaylightBias = -1;
 
-static int hf_rdp_unused = -1;
-
 #define TYPE_RDP_NEG_REQ          0x01
 #define TYPE_RDP_NEG_RSP          0x02
 #define TYPE_RDP_NEG_FAILURE      0x03
@@ -3228,10 +3226,6 @@ proto_register_rdp(void) {
         NULL, HFILL }},
     { &hf_rdp_DaylightDate,
       { "DaylightDate", "rdp.Date.Daylight",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_rdp_unused,
-      { "Unused", "rdp.unused",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
   };
