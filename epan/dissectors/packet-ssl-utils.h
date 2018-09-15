@@ -103,7 +103,7 @@ typedef enum {
 #define SSL_HND_HELLO_EXT_EXTENDED_MASTER_SECRET        23
 #define SSL_HND_HELLO_EXT_TOKEN_BINDING                 24
 #define SSL_HND_HELLO_EXT_CACHED_INFO                   25
-#define SSL_HND_HELLO_EXT_QUIC_TRANSPORT_PARAMETERS     26 /* Not yet assigned by IANA (QUIC-TLS Draft04) */
+#define SSL_HND_HELLO_EXT_QUIC_TRANSPORT_PARAMETERS_OLD 26 /* Not yet assigned by IANA (QUIC-TLS Draft04 and Remove in -13) */
 /* 26-34  Unassigned*/
 #define SSL_HND_HELLO_EXT_SESSION_TICKET_TLS            35
 /* RFC 8446 (TLS 1.3) */
@@ -139,6 +139,7 @@ typedef enum {
 #define SSL_HND_HELLO_EXT_GREASE_EAEA                   60138
 #define SSL_HND_HELLO_EXT_GREASE_FAFA                   64250
 #define SSL_HND_HELLO_EXT_RENEGOTIATION_INFO            65281 /* 0xFF01 */
+#define SSL_HND_HELLO_EXT_QUIC_TRANSPORT_PARAMETERS     65445 /* 0xffa5 draft-ietf-quic-tls-13 */
 
 #define SSL_HND_CERT_URL_TYPE_INDIVIDUAL_CERT       1
 #define SSL_HND_CERT_URL_TYPE_PKIPATH               2
