@@ -172,7 +172,7 @@ typedef struct quic_cipher {
  * Packet protection state for an endpoint.
  */
 typedef struct quic_pp_state {
-    guint8         *secret;         /**< client_pp_secret_N / server_pp_secret_N */
+    guint8         *next_secret;    /**< Next application traffic secret. */
     quic_cipher     cipher[2];      /**< Cipher for KEY_PHASE 0/1 */
     guint64         changed_in_pkn; /**< Packet number where key change occurred. */
     gboolean        key_phase : 1;  /**< Current key phase. */
@@ -195,9 +195,9 @@ typedef struct quic_info_data {
     address         server_address;
     guint16         server_port;
     gboolean        skip_decryption : 1; /**< Set to 1 if no keys are available. */
-    guint8          cipher_keylen;  /**< Cipher key length. */
     int             hash_algo;      /**< Libgcrypt hash algorithm for key derivation. */
-    int             pn_cipher_algo; /**< Cipher algorithm for packet number encryption. */
+    int             cipher_algo;    /**< Cipher algorithm for packet number and packet encryption. */
+    int             cipher_mode;    /**< Cipher mode for packet encryption. */
     quic_cipher     client_handshake_cipher;
     quic_cipher     server_handshake_cipher;
     quic_pp_state_t client_pp;
@@ -400,6 +400,14 @@ static const value_string quic_error_code_vals[] = {
     { 0, NULL }
 };
 static value_string_ext quic_error_code_vals_ext = VALUE_STRING_EXT_INIT(quic_error_code_vals);
+
+static void
+quic_cipher_reset(quic_cipher *cipher)
+{
+    gcry_cipher_close(cipher->pn_cipher);
+    gcry_cipher_close(cipher->pp_cipher);
+    memset(cipher, 0, sizeof(*cipher));
+}
 
 /* Inspired from ngtcp2 */
 static guint64 quic_pkt_adjust_pkt_num(guint64 max_pkt_num, guint64 pkt_num,
@@ -763,16 +771,12 @@ static void
 quic_connection_destroy(gpointer data, gpointer user_data _U_)
 {
     quic_info_data_t *conn = (quic_info_data_t *)data;
-    gcry_cipher_close(conn->client_handshake_cipher.pn_cipher);
-    gcry_cipher_close(conn->server_handshake_cipher.pn_cipher);
-    gcry_cipher_close(conn->client_handshake_cipher.pp_cipher);
-    gcry_cipher_close(conn->server_handshake_cipher.pp_cipher);
+    quic_cipher_reset(&conn->client_handshake_cipher);
+    quic_cipher_reset(&conn->server_handshake_cipher);
 
     for (int i = 0; i < 2; i++) {
-        gcry_cipher_close(conn->client_pp.cipher[i].pn_cipher);
-        gcry_cipher_close(conn->server_pp.cipher[i].pn_cipher);
-        gcry_cipher_close(conn->client_pp.cipher[i].pp_cipher);
-        gcry_cipher_close(conn->server_pp.cipher[i].pp_cipher);
+        quic_cipher_reset(&conn->client_pp.cipher[i]);
+        quic_cipher_reset(&conn->server_pp.cipher[i]);
     }
 }
 /* QUIC Connection tracking. }}} */
@@ -1320,9 +1324,8 @@ quic_derive_handshake_secrets(const quic_cid_t *cid,
  * See https://tools.ietf.org/html/draft-ietf-quic-tls-12#section-5.6
  */
 static gboolean
-quic_get_pn_cipher_algo(int cipher_algo, int *pn_cipher_algo, int *pn_cipher_mode)
+quic_get_pn_cipher_algo(int cipher_algo, int *pn_cipher_mode)
 {
-    *pn_cipher_algo = cipher_algo;
     switch (cipher_algo) {
     case GCRY_CIPHER_AES128:
     case GCRY_CIPHER_AES256:
@@ -1338,6 +1341,42 @@ quic_get_pn_cipher_algo(int cipher_algo, int *pn_cipher_algo, int *pn_cipher_mod
     }
 }
 
+/*
+ * (Re)initialize the PNE/PP ciphers using the given cipher algorithm.
+ * If the optional base secret is given, then its length MUST match the hash
+ * algorithm output.
+ */
+static gboolean
+quic_cipher_prepare(guint32 version, quic_cipher *cipher, int hash_algo, int cipher_algo, int cipher_mode, guint8 *secret, const char **error)
+{
+    /* Clear previous state (if any). */
+    quic_cipher_reset(cipher);
+
+    int pn_cipher_mode;
+    if (!quic_get_pn_cipher_algo(cipher_algo, &pn_cipher_mode)) {
+        *error = "Unsupported cipher algorithm";
+        return FALSE;
+    }
+
+    if (gcry_cipher_open(&cipher->pn_cipher, cipher_algo, pn_cipher_mode, 0) ||
+        gcry_cipher_open(&cipher->pp_cipher, cipher_algo, cipher_mode, 0)) {
+        quic_cipher_reset(cipher);
+        *error = "Failed to create ciphers";
+        return FALSE;
+    }
+
+    if (secret) {
+        guint cipher_keylen = (guint8) gcry_cipher_get_algo_keylen(cipher_algo);
+        if (!quic_cipher_init(version, cipher, hash_algo, cipher_keylen, secret)) {
+            quic_cipher_reset(cipher);
+            *error = "Failed to derive key material for cipher";
+            return FALSE;
+        }
+    }
+
+    return TRUE;
+}
+
 static gboolean
 quic_create_handshake_decoders(const quic_cid_t *cid, const gchar **error, quic_info_data_t *quic_info)
 {
@@ -1349,32 +1388,12 @@ quic_create_handshake_decoders(const quic_cid_t *cid, const gchar **error, quic_
         return FALSE;
     }
 
-    /* Destroy any previous ciphers in case there exist multiple Initial packets */
-    gcry_cipher_close(quic_info->client_handshake_cipher.pn_cipher);
-    gcry_cipher_close(quic_info->server_handshake_cipher.pn_cipher);
-    gcry_cipher_close(quic_info->client_handshake_cipher.pp_cipher);
-    gcry_cipher_close(quic_info->server_handshake_cipher.pp_cipher);
-    memset(&quic_info->client_handshake_cipher, 0, sizeof(quic_cipher));
-    memset(&quic_info->server_handshake_cipher, 0, sizeof(quic_cipher));
-
-    /* packet numbers are protected with AES128-CTR */
-    if (gcry_cipher_open(&quic_info->client_handshake_cipher.pn_cipher, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CTR, 0) ||
-        gcry_cipher_open(&quic_info->server_handshake_cipher.pn_cipher, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CTR, 0)) {
-        *error = "Failed to create packet number ciphers";
-        return FALSE;
-    }
-
-    /* handshake packets are protected with AEAD_AES_128_GCM */
-    if (gcry_cipher_open(&quic_info->client_handshake_cipher.pp_cipher, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_GCM, 0) ||
-        gcry_cipher_open(&quic_info->server_handshake_cipher.pp_cipher, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_GCM, 0)) {
-        *error = "Failed to create ciphers";
-        return FALSE;
-    }
-
-    guint cipher_keylen = (guint8) gcry_cipher_get_algo_keylen(GCRY_CIPHER_AES128);
-    if (!quic_cipher_init(version, &quic_info->client_handshake_cipher, GCRY_MD_SHA256, cipher_keylen, client_secret) ||
-        !quic_cipher_init(version, &quic_info->server_handshake_cipher, GCRY_MD_SHA256, cipher_keylen, server_secret)) {
-        *error = "Failed to derive key material for cipher";
+    /* Packet numbers are protected with AES128-CTR,
+     * initial packets are protected with AEAD_AES_128_GCM. */
+    if (!quic_cipher_prepare(version, &quic_info->client_handshake_cipher, GCRY_MD_SHA256,
+                             GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_GCM, client_secret, error) ||
+        !quic_cipher_prepare(version, &quic_info->server_handshake_cipher, GCRY_MD_SHA256,
+                             GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_GCM, server_secret, error)) {
         return FALSE;
     }
 
@@ -1430,7 +1449,7 @@ quic_get_pp0_secret(packet_info *pinfo, int hash_algo, quic_pp_state_t *pp_state
     if (!tls13_exporter(pinfo, FALSE, label, NULL, 0, hash_len, &pp_secret)) {
         return FALSE;
     }
-    pp_state->secret = (guint8 *)wmem_memdup(wmem_file_scope(), pp_secret, hash_len);
+    pp_state->next_secret = (guint8 *)wmem_memdup(wmem_file_scope(), pp_secret, hash_len);
     wmem_free(NULL, pp_secret);
     return TRUE;
 }
@@ -1475,9 +1494,9 @@ static void
 quic_update_key(int hash_algo, quic_pp_state_t *pp_state, gboolean from_client)
 {
     guint hash_len = gcry_md_get_algo_dlen(hash_algo);
-    qhkdf_expand(hash_algo, pp_state->secret, hash_len,
+    qhkdf_expand(hash_algo, pp_state->next_secret, hash_len,
                  from_client ? "client 1rtt" : "server 1rtt",
-                 pp_state->secret, hash_len);
+                 pp_state->next_secret, hash_len);
 }
 
 /**
@@ -1485,10 +1504,11 @@ quic_update_key(int hash_algo, quic_pp_state_t *pp_state, gboolean from_client)
  * See also "PROTECTED PAYLOAD DECRYPTION" comment on top of this file.
  */
 static quic_cipher *
-quic_get_pp_cipher(packet_info *pinfo, gboolean key_phase, guint64 pkn, quic_info_data_t *quic_info, gboolean from_server)
+quic_get_pp_cipher(packet_info *pinfo, gboolean key_phase, quic_info_data_t *quic_info, gboolean from_server)
 {
-    gboolean    needs_key_update = FALSE;
     guint32     version = quic_info->version;
+    const char *error = NULL;
+    gboolean    success = FALSE;
 
     /* Keys were previously not available. */
     if (quic_info->skip_decryption) {
@@ -1500,10 +1520,9 @@ quic_get_pp_cipher(packet_info *pinfo, gboolean key_phase, guint64 pkn, quic_inf
     quic_pp_state_t *pp_state = !from_server ? client_pp : server_pp;
 
     /* Try to lookup secrets if not available. */
-    if (!quic_info->client_pp.secret) {
-        int cipher_algo, cipher_mode;
+    if (!quic_info->client_pp.next_secret) {
         /* Query TLS for the cipher suite. */
-        if (!tls_get_cipher_info(pinfo, &cipher_algo, &cipher_mode, &quic_info->hash_algo)) {
+        if (!tls_get_cipher_info(pinfo, &quic_info->cipher_algo, &quic_info->cipher_mode, &quic_info->hash_algo)) {
             /* No previous TLS handshake found or unsupported ciphers, fail. */
             quic_info->skip_decryption = TRUE;
             return NULL;
@@ -1516,59 +1535,50 @@ quic_get_pp_cipher(packet_info *pinfo, gboolean key_phase, guint64 pkn, quic_inf
             return NULL;
         }
 
-        int pn_cipher_algo, pn_cipher_mode;
-        if (!quic_get_pn_cipher_algo(cipher_algo, &pn_cipher_algo, &pn_cipher_mode) ||
-            gcry_cipher_open(&client_pp->cipher[0].pn_cipher, pn_cipher_algo, pn_cipher_mode, 0) ||
-            gcry_cipher_open(&server_pp->cipher[0].pn_cipher, pn_cipher_algo, pn_cipher_mode, 0) ||
-            gcry_cipher_open(&client_pp->cipher[1].pn_cipher, pn_cipher_algo, pn_cipher_mode, 0) ||
-            gcry_cipher_open(&server_pp->cipher[1].pn_cipher, pn_cipher_algo, pn_cipher_mode, 0)) {
-            quic_info->skip_decryption = TRUE;
-            return NULL;
-        }
-        quic_info->pn_cipher_algo = pn_cipher_algo;
-
         /* Create initial cipher handles for KEY_PHASE 0 and 1. */
-        if (gcry_cipher_open(&client_pp->cipher[0].pp_cipher, cipher_algo, cipher_mode, 0) ||
-            gcry_cipher_open(&server_pp->cipher[0].pp_cipher, cipher_algo, cipher_mode, 0) ||
-            gcry_cipher_open(&client_pp->cipher[1].pp_cipher, cipher_algo, cipher_mode, 0) ||
-            gcry_cipher_open(&server_pp->cipher[1].pp_cipher, cipher_algo, cipher_mode, 0)) {
+        if (!quic_cipher_prepare(version, &client_pp->cipher[0], quic_info->hash_algo,
+                                 quic_info->cipher_algo, quic_info->cipher_mode, client_pp->next_secret, &error) ||
+            !quic_cipher_prepare(version, &server_pp->cipher[0], quic_info->hash_algo,
+                                 quic_info->cipher_algo, quic_info->cipher_mode, server_pp->next_secret, &error)) {
             quic_info->skip_decryption = TRUE;
             return NULL;
         }
-        quic_info->cipher_keylen = (guint8) gcry_cipher_get_algo_keylen(cipher_algo);
-
-        /* Set key for cipher handles KEY_PHASE 0. */
-        if (!quic_cipher_init(version, &client_pp->cipher[0], quic_info->hash_algo, quic_info->cipher_keylen, client_pp->secret) ||
-            !quic_cipher_init(version, &server_pp->cipher[0], quic_info->hash_algo, quic_info->cipher_keylen, server_pp->secret)) {
-            quic_info->skip_decryption = TRUE;
-            return NULL;
-        }
-
-        pp_state->changed_in_pkn = pkn;
-
-        /*
-         * If the first received packet has KEY_PHASE=1, then the key must be
-         * updated now.
-         */
-        needs_key_update = key_phase;
+        quic_update_key(quic_info->hash_algo, pp_state, !from_server);
     }
 
     /*
-     * Check for key phase change. Either it is out-of-order (when packet number
-     * is lower than the one triggering the most recent key update) or it is
-     * actually a key update (if the packet number is higher).
-     * TODO verify decryption before switching keys.
+     * If the key phase changed, try to decrypt the packet using the new cipher.
+     * If that fails, then it is either a malicious packet or out-of-order.
+     * In that case, try the previous cipher (unless it is the very first KP1).
      */
     if (key_phase != pp_state->key_phase) {
-        if (!needs_key_update && pkn < pp_state->changed_in_pkn) {
-            /* Packet is from before the key phase change, use old cipher. */
-            return &pp_state->cipher[1 - key_phase];
-        } else {
-            /* Key update requested, update key. */
+        quic_cipher new_cipher;
+
+        memset(&new_cipher, 0, sizeof(quic_cipher));
+        if (!quic_cipher_prepare(version, &new_cipher, quic_info->hash_algo,
+                                 quic_info->cipher_algo, quic_info->cipher_mode, server_pp->next_secret, &error)) {
+            /* This should never be reached, if the parameters were wrong
+             * before, then it should have set "skip_decryption". */
+            REPORT_DISSECTOR_BUG("quic_cipher_prepare unexpectedly failed: %s", error);
+            return NULL;
+        }
+
+        // TODO verify decryption before switching keys.
+        success = TRUE;
+
+        if (success) {
+            /* Verified the cipher, use it from now on and rotate the key. */
+            quic_cipher_reset(&pp_state->cipher[key_phase]);
+            pp_state->cipher[key_phase] = new_cipher;
             quic_update_key(quic_info->hash_algo, pp_state, !from_server);
-            quic_cipher_init(version, &pp_state->cipher[key_phase], quic_info->hash_algo, quic_info->cipher_keylen, pp_state->secret);
+
             pp_state->key_phase = key_phase;
-            pp_state->changed_in_pkn = pkn;
+            //pp_state->changed_in_pkn = pkn;
+
+            return &pp_state->cipher[key_phase];
+        } else {
+            // TODO fallback to previous cipher
+            return NULL;
         }
     }
 
@@ -1806,18 +1816,14 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
 
 #ifdef HAVE_LIBGCRYPT_AEAD
     if (!PINFO_FD_VISITED(pinfo) && conn) {
-        // TODO fix key update. Chicken: need decrypted PKN to detect whether a
-        // KeyUpdate was legitimate and create new cipher. Egg: need cipher to
-        // decrypt PKN...
-        pkn = 0;
-        cipher = quic_get_pp_cipher(pinfo, key_phase, pkn, conn, from_server);
+        cipher = quic_get_pp_cipher(pinfo, key_phase, conn, from_server);
     }
 #endif /* !HAVE_LIBGCRYPT_AEAD */
 
 
     /* Packet Number */
     pkn_len = dissect_quic_packet_number(tvb, pinfo, quic_tree, offset, conn, quic_packet, from_server,
-                                         cipher, conn ? conn->pn_cipher_algo : 0, &pkn);
+                                         cipher, conn ? conn->cipher_algo : 0, &pkn);
     if (pkn_len == 0) {
         return offset;
     }
