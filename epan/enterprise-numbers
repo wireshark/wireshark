@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2018-09-08)
+(last updated 2018-09-14)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -67319,8 +67319,8 @@ Decimal
       ldapadmin&web.oakley.com
 16942
   TRX
-    Przemyslaw Strzelczyk
-      przemek&trx.pl
+    Krzysztof Kryński
+      trx&trx.com.pl
 16943
   Overture Networks, Inc. (formerly 'Ceterus Networks')
     Rodney Spruell
@@ -92003,8 +92003,8 @@ Decimal
       eino&utu.fi
 23113
   LXPT
-    Jorge Gomes
-      it&lxpt.net
+    J. Gomes
+      iana&lxpt.net
 23114
   Comstar Ltd.
     Victor Kiranov
@@ -99550,9 +99550,9 @@ Decimal
     Richard Critz
       cz&vatsim.net
 25000
-  ConSol* Consulting & Solutions Software GmbH
-    Hannes Fremann
-      hg&consol.de
+  ConSol Consulting & Solutions Software GmbH
+    Network Operating Group
+      nog&consol.de
 25001
   Codra Ingenierie Informatique
     Jean-Claude Hallynck
@@ -107352,7 +107352,7 @@ Decimal
 26950
   GUST / Ninja Services
     Jonathan Hunter
-      jh-iana-oid2&ninja.org.uk
+      jh-iana-oid3&ninja.org.uk
 26951
   RENAULT-NISSAN B.V.
     Witold KLAUDEL
@@ -164047,8 +164047,8 @@ Decimal
       yongxing&sumologic.com
 41124
   KfW
-    Mark Heitbrink
-      Mark.Heitbrink_extern&kfw.de
+    André Zähle
+      pki&kfw.de
 41125
   Mystic Video, Inc.
     Som Ghosh
@@ -179246,9 +179246,9 @@ Decimal
     R. Peters
       remco&remco-ict.nl
 44924
-  AllSeen Alliance, Inc.
-    Philip DesAutels
-      info&allseenalliance.org
+  Open Connectivity Foundation (formerly 'AllSeen Alliance, Inc.')
+    Aja Murray
+      staff&openconnectivity.org
 44925
   East Kent Hospitals University Foundation Trust
     Mark Williams
@@ -193599,8 +193599,8 @@ Decimal
       farhah.zm&gmail.com
 48512
   Inspur Group Co.,Ltd.
-    Fairy Sun
-      sunfl&inspur.com
+    Chunpeng Mao
+      Maochp&inspur.com
 48513
   Owari Precision Products (India) Pvt.Ltd.
     Man Mohan Kumar
@@ -209388,7 +209388,7 @@ Decimal
 52459
   NanoTemper Technologies GmbH
     Matthias Fleschütz 
-      matthias.fleschuetz&nanotempertech.com
+      it&nanotempertech.com
 52460
   Urząd Dozoru Technicznego
     Wojciech Napierała
@@ -209955,7 +209955,7 @@ Decimal
       jay&auburnnetworks.com
 52601
   HORISEN AG
-    Nemanja
+    Nemanja Miljkovic
       nemanja.miljkovic&horisen.com
 52602
   PTZNetwork
@@ -209990,9 +209990,9 @@ Decimal
     Philip Yarra
       DST-IANA-PEN_Alerts&genesiscare.com.au
 52610
-  上海宽域工业网络设备有限公司 (Shanghai Kuanyu Industrial Network Equipment Co., Ltd.)
+  上海宽域工业网络设备有限公司 (Shanghai Kemyond Industrial Network Equipment Co., Ltd)
     林海 (Lin Hai)
-      932417878&qq.com
+      kemyond&apextech.cn
 52611
   Thatcham Research
     David Maskell
@@ -210013,6 +210013,186 @@ Decimal
   hangzhou anlantech Co.
     Wang hua
       orc&anlantech.net
+52616
+  OOO "RusBITech-Astra"
+    Kirill Dobrynin
+      root&astralinux.ru
+52617
+  RomTeck Australia Pty Ltd
+    Russell Jones
+      russell.jones&romteck.com
+52618
+  Health Gorilla Inc.
+    Sultan Tezadov
+      stezadov&healthgorilla.com
+52619
+  KeyWest Networks
+    Kishore Gandham
+      kishore&keywestnetworks.com
+52620
+  unique projects GmbH & Co. KG
+    Marcel Rodewald
+      marcel.rodewald&unique-projects.com
+52621
+  Wireless Systems Solutions
+    Susan Gross
+      susan&wirelesss2.net
+52622
+  byon gmbh
+    Christian Fertig
+      edv&byon.de
+52623
+  Evonik Industries AG
+    Kai Kreilkamp
+      pki&evonik.com
+52624
+  Mail.Ru, LLC
+    Mikhail Popov
+      mi.popov&corp.mail.ru
+52625
+  Shearwater Geoservices Norway AS
+    Stephen Isherwood
+      stephen.isherwood&shearwatergeo.com
+52626
+  Semicyber, LLC
+    Andy Hoag
+      info&semicyber.com
+52627
+  Apple Inc
+    Stuart Cheshire
+      goodmorning2u75&gmail.com
+52628
+  Express Retail LLC
+    Aleksandr Nemov
+      aleksandr.nemov&x5.ru
+52629
+  Nook Industries, Inc.
+    Rick Bergen
+      it&nookind.com
+52630
+  TechCertain Limited
+    TechCertain Admin
+      admin&techcertain.com
+52631
+  Shanghai Zhuoran Information Technology Co., Ltd.
+    Chengzhi Jia
+      czjia&139.com
+52632
+  LogSentinel
+    Bozhidar Bozhanov
+      bozhidar.bozhanov&logsentinel.com
+52633
+  Meierguss Sales & Logistics GmbH & Co. KG
+    Tobias Szabo
+      edv&meierguss.de
+52634
+  PKIMONSTER LTD.
+    Valerij Prusakov
+      vaprus&pkimonster.com
+52635
+  Gauff
+    Maik Martin
+      it&gauff.com
+52636
+  AIR-LYNX SAS
+    Christophe PECHUZAL
+      christophe.pechuzal&air-lynx.com
+52637
+  MOCX Engenharia LTDA ME
+    Edner
+      edner&mocx.com.br
+52638
+  Allentown Family Foot Care Prof Corp
+    Lois Clauss
+      lclauss&affc.com
+52639
+  CDNTV TECNOLOGIA LTDA
+    Matheus Cadori
+      suporte&technobox.com.br
+52640
+  3Derm Systems, Inc.
+    Tim Howe
+      tim&3derm.com
+52641
+  COAC Jardin Azuayo Ltda.
+    Francisco Muñoz Campos
+      f.munoza&jardinazuayo.fin.ec
+52642
+  FIBERSTORE CO.，LIMITED
+    Abel.Yan
+      Abel.Yan&feisu.com
+52643
+  Datilmedia S.A.
+    Eduardo Raad
+      eraad&datil.co
+52644
+  UNITEL LLC
+    Shijir Chimed-Ochir
+      shijir.ch&unitel.mn
+52645
+  San Francisco Foot and Ankle Center
+    Kelly Anderson
+      kelly&footprince.com
+52646
+  J-TEK Inc.
+    hawk kuo
+      hawk_kuo&j-tek.com.tw
+52647
+  tosee garan electronic rakhsh
+    mohsen sheikh hasani
+      mohsenmsh2003&yahoo.com
+52648
+  Nordmalings skogsmaskiner AB
+    Pär Rönnkvist
+      Johan.soderholm&cgi.com
+52649
+  myhELO
+    Earle Thomas
+      help&myhelo.com
+52650
+  J Group Italia
+    Michele Gentilini
+      info&jgroup.xyz
+52651
+  柏科数据技术（深圳）股份有限公司 (Baike Data Technology (Shenzhen) Co., Ltd.)
+    许宇峰 (Xu Yufeng)
+      xuyufeng&rorke.com.cn
+52652
+  V3iT Consulting, Inc
+    Charles Lipscomb
+      chad.lipscomb&v3it.com
+52653
+  Teonite
+    Lech Karol Pawłaszek
+      admin&teonite.com
+52654
+  KRON d.o.o.
+    Stjepan Busic
+      stipe.busic&kron.hr
+52655
+  Newicon Oy
+    Tomi Hirvonen
+      it-support&newicon.fi
+52656
+  JP/Politikens Hus A/S
+    Thomas Kjaer
+      thomas.kjaer&jppol.dk
+52657
+  Mitsubishi Hitachi Power Systems Europe GmbH
+    Dirk Wedemeyer
+      d_wedemeyer&eu.mhps.com
+52658
+  Azienda Zero
+    Marco Scognamiglio
+      msc&bit4id.com
+52659
+  Guido de Bres Christian High School
+    Frederick DeWit
+      gdbchs&gmail.com
+52660
+  myToys GmbH
+    OPIS Team
+      license&mytoys.de
 
 
 End of Document

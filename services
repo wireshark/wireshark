@@ -11284,8 +11284,8 @@ k3software-svr  26262/tcp # K3 Software-Server [Jim_Baldridge] [Jim_Baldridge]
 k3software-svr  26262/udp # K3 Software-Server [Jim_Baldridge] [Jim_Baldridge]
 k3software-cli  26263/tcp # K3 Software-Client [Jim_Baldridge] [Jim_Baldridge]
 k3software-cli  26263/udp # K3 Software-Client [Jim_Baldridge] [Jim_Baldridge]
-exoline-tcp     26486/tcp # EXOline-TCP [Lars_Mattsson] [Lars_Mattsson] 2008-12-24
-exoline-udp     26486/udp # EXOline-UDP [Lars_Mattsson] [Lars_Mattsson] 2008-12-24
+exoline-tcp     26486/tcp # EXOline-TCP [AB_Regin] [Simon_Jonsson] 2008-12-24 2018-09-13
+exoline-udp     26486/udp # EXOline-UDP [AB_Regin] [Simon_Jonsson] 2008-12-24 2018-09-13
 exoconfig       26487/tcp # EXOconfig [Urban_Fosseus] [Urban_Fosseus] 2008-12-24
 exoconfig       26487/udp # EXOconfig [Urban_Fosseus] [Urban_Fosseus] 2008-12-24
 exonet          26489/tcp # EXOnet [Urban_Fosseus] [Urban_Fosseus] 2008-12-24
