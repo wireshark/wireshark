@@ -245,6 +245,7 @@ typedef struct fp_info
     enum   fp_hsdsch_entity hsdsch_entity;
     gint        hsdsch_macflowd_id;
     gboolean hsdhsch_macfdlow_is_mux[MAX_NUM_HSDHSCH_MACDFLOW];
+    enum   fp_rlc_mode hsdsch_rlc_mode;
     enum   fp_link_type link_type;
     guint urnti;         /*Used for tracking a "sequence" over diffrent transport channels*/
 

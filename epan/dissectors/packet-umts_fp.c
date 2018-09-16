@@ -3256,9 +3256,6 @@ dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             macinf->lchid[i] = fake_lchid_macd_flow[p_fp_info->hsdsch_macflowd_id];/*Faked logical channel id 255 used as a mark if it doesn't exist...*/
             macinf->fake_chid[i] = TRUE;    /**/
             macinf->macdflow_id[i] = p_fp_info->hsdsch_macflowd_id;    /*Save the flow ID (+1 to make it human readable (it's zero indexed!))*/
-            /*Figure out RLC_MODE based on MACd-flow-ID, basically MACd-flow-ID = 0 then it's SRB0 == UM else AM*/
-            rlcinf->mode[i] = hsdsch_macdflow_id_rlc_map[p_fp_info->hsdsch_macflowd_id];
-
 
             /*Check if this is multiplexed (signaled by RRC)*/
             if (p_fp_info->hsdhsch_macfdlow_is_mux[p_fp_info->hsdsch_macflowd_id] ) {
@@ -3268,6 +3265,18 @@ dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             } else {
                     macinf->ctmux[i] = FALSE;    /*Either it's multiplexed and not signled or it's not MUX*/
             }
+
+            /* Figure out RLC mode */
+            if(p_fp_info->hsdsch_rlc_mode != FP_RLC_MODE_UNKNOWN) {
+                /* We know the RLC mode, possibly reported from NBAP */
+                rlcinf->mode[i] = (enum rlc_mode)(p_fp_info->hsdsch_rlc_mode - 1);
+            }
+            else {
+                /* Guess the mode by the MACd-flow-ID, basically MACd-flow-ID = 0 then it's SRB0 == UM else AM */
+                /* This logic might be incorrect sometimes */
+                rlcinf->mode[i] = hsdsch_macdflow_id_rlc_map[p_fp_info->hsdsch_macflowd_id];
+            }
+
             rlcinf->ueid[i] = user_identity;
             rlcinf->li_size[i] = RLC_LI_7BITS;
             rlcinf->deciphered[i] = FALSE;
@@ -5261,6 +5270,7 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
                 break;
             }
             fpi->hsdsch_entity = fp_hsdsch_channel_info->hsdsch_entity;
+            fpi->hsdsch_rlc_mode = p_conv_data->rlc_mode;
             macinf = wmem_new0(wmem_file_scope(), umts_mac_info);
             fpi->hsdsch_macflowd_id = fp_hsdsch_channel_info->hsdsch_macdflow_id;
             macinf->content[0] = hsdsch_macdflow_id_mac_content_map[fp_hsdsch_channel_info->hsdsch_macdflow_id]; /*MAC_CONTENT_PS_DTCH;*/
