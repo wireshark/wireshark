@@ -5,7 +5,7 @@
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2018-09-08)
+# (last updated 2018-09-14)
 
 0	Reserved
 1	NxNetworks
@@ -24842,7 +24842,7 @@
 24997	Cirrologic Ltd
 24998	SBA Technologies, Inc
 24999	VATSIM.net
-25000	ConSol* Consulting & Solutions Software GmbH
+25000	ConSol Consulting & Solutions Software GmbH
 25001	Codra Ingenierie Informatique
 25002	VistiC Ltd.
 25003	SQUILD
@@ -44744,7 +44744,7 @@
 44921	Exele
 44922	Echo Technology Solutions
 44923	Remco ICT
-44924	AllSeen Alliance, Inc.
+44924	Open Connectivity Foundation	# formerly 'AllSeen Alliance, Inc.'
 44925	East Kent Hospitals University Foundation Trust
 44926	Amdocs Network Solutions
 44927	SyS LLC.
@@ -52420,9 +52420,54 @@
 52607	Nrby
 52608	Kingsen Creations Co., LTD.
 52609	GenesisCare
-52610	上海宽域工业网络设备有限公司 (Shanghai Kuanyu Industrial Network Equipment Co., Ltd.)
+52610	上海宽域工业网络设备有限公司 (Shanghai Kemyond Industrial Network Equipment Co., Ltd)
 52611	Thatcham Research
 52612	Matoa Systems
 52613	Hetrogenous communications Pvt ltd
 52614	Gregory Pest Control LLC
 52615	hangzhou anlantech Co.
+52616	OOO "RusBITech-Astra"
+52617	RomTeck Australia Pty Ltd
+52618	Health Gorilla Inc.
+52619	KeyWest Networks
+52620	unique projects GmbH & Co. KG
+52621	Wireless Systems Solutions
+52622	byon gmbh
+52623	Evonik Industries AG
+52624	Mail.Ru, LLC
+52625	Shearwater Geoservices Norway AS
+52626	Semicyber, LLC
+52627	Apple Inc
+52628	Express Retail LLC
+52629	Nook Industries, Inc.
+52630	TechCertain Limited
+52631	Shanghai Zhuoran Information Technology Co., Ltd.
+52632	LogSentinel
+52633	Meierguss Sales & Logistics GmbH & Co. KG
+52634	PKIMONSTER LTD.
+52635	Gauff
+52636	AIR-LYNX SAS
+52637	MOCX Engenharia LTDA ME
+52638	Allentown Family Foot Care Prof Corp
+52639	CDNTV TECNOLOGIA LTDA
+52640	3Derm Systems, Inc.
+52641	COAC Jardin Azuayo Ltda.
+52642	FIBERSTORE CO.，LIMITED
+52643	Datilmedia S.A.
+52644	UNITEL LLC
+52645	San Francisco Foot and Ankle Center
+52646	J-TEK Inc.
+52647	tosee garan electronic rakhsh
+52648	Nordmalings skogsmaskiner AB
+52649	myhELO
+52650	J Group Italia
+52651	柏科数据技术（深圳）股份有限公司 (Baike Data Technology (Shenzhen) Co., Ltd.)
+52652	V3iT Consulting, Inc
+52653	Teonite
+52654	KRON d.o.o.
+52655	Newicon Oy
+52656	JP/Politikens Hus A/S
+52657	Mitsubishi Hitachi Power Systems Europe GmbH
+52658	Azienda Zero
+52659	Guido de Bres Christian High School
+52660	myToys GmbH
