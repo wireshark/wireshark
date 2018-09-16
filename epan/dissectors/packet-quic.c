@@ -61,6 +61,9 @@ static int hf_quic_short_kp_flag = -1;
 static int hf_quic_short_reserved = -1;
 static int hf_quic_payload = -1;
 static int hf_quic_protected_payload = -1;
+static int hf_quic_odcil_draft13 = -1;
+static int hf_quic_odcid = -1;
+static int hf_quic_retry_token = -1;
 
 static int hf_quic_frame = -1;
 static int hf_quic_frame_type = -1;
@@ -1764,6 +1767,43 @@ dissect_quic_long_header_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *q
     return offset;
 }
 
+/* Retry Packet dissection for draft -13 and newer. */
+static int
+dissect_quic_retry_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree,
+                          quic_datagram *dgram_info _U_, quic_packet_info_t *quic_packet)
+{
+    guint       offset = 0;
+    guint32     version;
+    guint32     len_payload_length;
+    guint64     payload_length;
+    quic_cid_t  dcid = {.len=0}, scid = {.len=0};
+    guint32     odcil = 0;
+    guint       retry_token_len;
+
+    proto_tree_add_item(quic_tree, hf_quic_long_packet_type, tvb, offset, 1, ENC_NA);
+    offset += 1;
+    col_set_str(pinfo->cinfo, COL_INFO, "Retry");
+
+    offset = dissect_quic_long_header_common(tvb, pinfo, quic_tree, offset, quic_packet, &version, &dcid, &scid);
+
+    if (is_quic_draft_max(version, 13)) {
+        proto_tree_add_item_ret_varint(quic_tree, hf_quic_length, tvb, offset, -1, ENC_VARINT_QUIC, &payload_length, &len_payload_length);
+        offset += len_payload_length;
+        // PKN is encrypted, but who cares about draft -13 anyway.
+        proto_tree_add_item(quic_tree, hf_quic_packet_number, tvb, offset, 1, ENC_NA);
+        offset += 1;
+        proto_tree_add_item_ret_uint(quic_tree, hf_quic_odcil_draft13, tvb, offset, 1, ENC_NA, &odcil);
+    }
+    offset += 1;
+    proto_tree_add_item(quic_tree, hf_quic_odcid, tvb, offset, odcil, ENC_NA);
+    offset += odcil;
+    retry_token_len = tvb_reported_length_remaining(tvb, offset);
+    proto_tree_add_item(quic_tree, hf_quic_retry_token, tvb, offset, retry_token_len, ENC_NA);
+    offset += retry_token_len;
+
+    return offset;
+}
+
 static int
 dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree,
                          quic_datagram *dgram_info, quic_packet_info_t *quic_packet)
@@ -2095,12 +2135,17 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         tvbuff_t *next_tvb = quic_get_message_tvb(tvb, offset);
         proto_tree_add_item_ret_uint(quic_tree, hf_quic_header_form, next_tvb, 0, 1, ENC_NA, &header_form);
         if (header_form) {
-            gboolean is_vn = tvb_get_ntohl(next_tvb, 1) == 0;
-            if (is_vn) {
+            guint8 long_packet_type = tvb_get_guint8(next_tvb, 0) & 0x7f;
+            guint32 version = tvb_get_ntohl(next_tvb, 1);
+            if (version == 0) {
                 dissect_quic_version_negotiation(next_tvb, pinfo, quic_tree, quic_packet);
                 break;
             }
-            dissect_quic_long_header(next_tvb, pinfo, quic_tree, dgram_info, quic_packet);
+            if (long_packet_type == QUIC_LPT_RETRY && !is_quic_draft_max(version, 12)) {
+                dissect_quic_retry_packet(next_tvb, pinfo, quic_tree, dgram_info, quic_packet);
+            } else {
+                dissect_quic_long_header(next_tvb, pinfo, quic_tree, dgram_info, quic_packet);
+            }
         } else {
             dissect_quic_short_header(next_tvb, pinfo, quic_tree, dgram_info, quic_packet);
         }
@@ -2277,6 +2322,22 @@ proto_register_quic(void)
           { "Protected Payload", "quic.protected_payload",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             "1-RTT protected payload", HFILL }
+        },
+
+        { &hf_quic_odcil_draft13,
+          { "Original Destination Connection ID Length", "quic.odcil_draft13",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_quic_odcid,
+          { "Original Destination Connection ID", "quic.odcid",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_quic_retry_token,
+          { "Retry Token", "quic.retry_token",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
         },
 
         { &hf_quic_frame,
