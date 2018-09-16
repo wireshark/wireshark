@@ -137,6 +137,9 @@ static int hf_rsl_descriptive_group_or_broadcast_call_reference = -1;
 static int hf_rsl_group_channel_description = -1;
 static int hf_rsl_uic = -1;
 static int hf_rsl_codec_list = -1;
+static int hf_rsl_cb_cmd_type = -1;
+static int hf_rsl_cb_def_bcast = -1;
+static int hf_rsl_cb_last_block = -1;
 
 /* Encapsulating paging messages into a packet REF: EP2192796 - proprietor Huawei */
 static int hf_rsl_paging_spare                 = -1;
@@ -709,6 +712,32 @@ static const value_string rsl_phy_con_ie_vals[] = {
     { 0,            NULL }
 };
 static value_string_ext rsl_phy_con_ie_vals_ext = VALUE_STRING_EXT_INIT(rsl_phy_con_ie_vals);
+
+/* Section 9.3.41 CB Command Type; bits 5 to 8 */
+static const value_string rsl_cb_cmd_type_vals[] = {
+    { 0x0, "Normal Message Broadcast" },
+    { 0x8, "Schedule Message Broadcast" },
+    { 0xE, "Default Message Broadcast" },
+    { 0xF, "Null Message Broadcast" },
+    { 0, NULL }
+};
+
+/* Section 9.3.41 CB Command Type; bit 4 */
+static const value_string rsl_cb_cmd_type_def_bcast_vals[] = {
+    { 0x0, "Normal Message" },
+    { 0x1, "Null Message" },
+    { 0, NULL }
+};
+
+/* Section 9.3.41 CB Command Type; bits 1 and 2 */
+static const value_string rsl_cb_cmd_type_last_block_vals[] = {
+    { 0x0, "Block 4/4" },
+    { 0x1, "Block 1/4" },
+    { 0x2, "Block 2/4" },
+    { 0x3, "Block 3/4" },
+    { 0, NULL }
+};
+
 
 /* From openbsc/include/openbsc/tlv.h */
 enum tlv_type {
@@ -2486,8 +2515,9 @@ dissect_rsl_ie_cb_cmd_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     proto_tree_add_item(ie_tree, hf_rsl_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    /* Channel */
-    proto_tree_add_item(ie_tree, hf_rsl_ch_needed, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ie_tree, hf_rsl_cb_cmd_type, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(ie_tree, hf_rsl_cb_def_bcast, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(ie_tree, hf_rsl_cb_last_block, tvb, offset, 1, ENC_NA);
     offset++;
 
     return offset;
@@ -4726,6 +4756,21 @@ void proto_register_rsl(void)
         { &hf_rsl_phy_ctx_rx_lvl_ext,
           { "Rx Level Ext", "gsm_abis_rsl.phy_ctx_rx_lvl_ext",
             FT_UINT8, BASE_HEX_DEC, NULL, 0xff,
+            NULL, HFILL }
+        },
+        { &hf_rsl_cb_cmd_type,
+          { "CB Command", "gsm_abis_rsl.cb_cmd_type.command",
+            FT_UINT8, BASE_HEX, VALS(rsl_cb_cmd_type_vals), 0xf0,
+            NULL, HFILL }
+        },
+        { &hf_rsl_cb_def_bcast,
+          { "CB Default Broadcast", "gsm_abis_rsl.cb_cmd_type.def_bcast",
+            FT_UINT8, BASE_HEX, VALS(rsl_cb_cmd_type_def_bcast_vals), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_rsl_cb_last_block,
+          { "CB Last Block", "gsm_abis_rsl.cb_cmd_type.last_block",
+            FT_UINT8, BASE_HEX, VALS(rsl_cb_cmd_type_last_block_vals), 0x03,
             NULL, HFILL }
         },
       /* Generated from convert_proto_tree_add_text.pl */
