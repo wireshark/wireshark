@@ -356,17 +356,6 @@ static const value_string hsdshc_mac_entity_vals[] = {
     { 0,   NULL }
 };
 
-/* TODO: add and use */
-#if 0
-static const value_string segmentation_status_vals[] = {
-    { 0,    "" },
-    { 1,    "" },
-    { 2,    "" },
-    { 3,    "" },
-    { 0,   NULL }
-};
-#endif
-
 static const value_string lchid_vals[] = {
     {  0,   "Logical Channel 1" },
     {  1,   "Logical Channel 2" },
@@ -3578,16 +3567,6 @@ dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     macinf->ctmux[n] = FALSE;
 
                     rlcinf->li_size[j] = RLC_LI_7BITS;
-
-                    /** Configure ciphering **/
-#if 0
-                    /*If this entry exists, SECRUITY_MODE is completed*/
-                    if ( rrc_ciph_inf && g_tree_lookup(rrc_ciph_inf, GINT_TO_POINTER((gint)p_fp_info->com_context_id)) ) {
-                        rlcinf->ciphered[j] = TRUE;
-                    } else {
-                        rlcinf->ciphered[j] = FALSE;
-                    }
-#endif
                     rlcinf->ciphered[j] = FALSE;
                     rlcinf->deciphered[j] = FALSE;
                     rlcinf->rbid[j] = (guint8)lchid_val;
