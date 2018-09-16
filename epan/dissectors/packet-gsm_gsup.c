@@ -127,8 +127,8 @@ enum osmo_gsup_message_type {
 #define OSMO_GSUP_TO_MSGT_ERROR(msgt)   (((msgt) & 0b11111100) | 0b01)
 
 enum osmo_gsup_cancel_type {
-	OSMO_GSUP_CANCEL_TYPE_UPDATE		= 1, /* on wire: 0 */
-	OSMO_GSUP_CANCEL_TYPE_WITHDRAW		= 2, /* on wire: 1 */
+	OSMO_GSUP_CANCEL_TYPE_UPDATE		= 0,
+	OSMO_GSUP_CANCEL_TYPE_WITHDRAW		= 1,
 };
 
 enum osmo_gsup_cn_domain {
