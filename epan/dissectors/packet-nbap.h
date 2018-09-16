@@ -38,21 +38,4 @@ extern wmem_tree_t *nbap_scrambling_code_crncc_map;
 /* Mapping C-RNC Contexts to U-RNTIs */
 extern wmem_tree_t *nbap_crncc_urnti_map;
 
-#if 0
-static const value_string lchid_name_resolve[] = {
-	{1,"DCCH"},	/* 1 to 4 SRB => DCCH*/
-	{2,"DCCH"},
-	{3,"DCCH"},
-	{4,"DCCH"},
-	{8,"DCCH"},	/* 8 SRB => DCCH*/
-	{9,"DTCH"},	/*9 maps to DTCH*/
-	{10,"UNKNOWN"},	/*10 Conv CS unknown*/
-	{11,"DTCH"},	/*11 Interactive PS => DTCH*/
-	{12,"DTCH"},	/*12 13 Streaming PS => DTCH*/
-	{13,"DTCH"},
-	{14,"DTCH"},	/*14 Interatictive PS => DTCH*/
-	{15,"MAC_CONTENT_UNKNOWN"},
-	{0, NULL}	/* This is CCCH? */
-};
-#endif
 #endif
