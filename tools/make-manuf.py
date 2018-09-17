@@ -30,7 +30,7 @@ if sys.version_info[0] >= 3:
     import urllib.request, urllib.error, urllib.parse
     import codecs
 else:
-    import urllib
+    import urllib2
 
 have_icu = False
 try:
@@ -47,12 +47,15 @@ def exit_msg(msg=None, status=1):
     sys.exit(status)
 
 def open_url(url):
+    req_headers = { 'User-Agent': 'Wireshark make-manuf' }
     try:
         if sys.version_info[0] >= 3:
-            req = urllib.request.urlopen(url)
-            url_fd = codecs.getreader('utf8')(req)
+            req = urllib.request.Request(url, headers=req_headers)
+            url_fo = urllib.request.urlopen(req)
+            url_fd = codecs.getreader('utf8')(url_fo)
         else:
-            url_fd = urllib.urlopen(url)
+            req = urllib2.Request(url, headers=req_headers)
+            url_fd = urllib2.urlopen(req)
     except:
         exit_msg('Error opening ' + url)
 
