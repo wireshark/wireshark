@@ -390,11 +390,12 @@ static const range_string quic_frame_type_vals[] = {
 #define QUIC_STREAM_ID_ERROR            0x0004
 #define QUIC_STREAM_STATE_ERROR         0x0005
 #define QUIC_FINAL_OFFSET_ERROR         0x0006
-#define QUIC_FRAME_FORMAT_ERROR         0x0007
+#define QUIC_FRAME_ENCODING_ERROR       0x0007
 #define QUIC_TRANSPORT_PARAMETER_ERROR  0x0008
 #define QUIC_VERSION_NEGOTIATION_ERROR  0x0009
 #define QUIC_PROTOCOL_VIOLATION         0x000A
 #define QUIC_UNSOLICITED_PATH_RESPONSE  0x000B
+#define QUIC_INVALID_MIGRATION          0x000C
 #define TLS_HANDSHAKE_FAILED            0x0201
 #define TLS_FATAL_ALERT_GENERATED       0x0202
 #define TLS_FATAL_ALERT_RECEIVED        0x0203
@@ -407,11 +408,12 @@ static const value_string quic_error_code_vals[] = {
     { QUIC_STREAM_ID_ERROR, "STREAM_ID_ERROR (An endpoint received a frame for a stream identifier that exceeded its advertised maximum stream ID)" },
     { QUIC_STREAM_STATE_ERROR, "STREAM_STATE_ERROR (An endpoint received a frame for a stream that was not in a state that permitted that frame)" },
     { QUIC_FINAL_OFFSET_ERROR, "FINAL_OFFSET_ERROR (An endpoint received a STREAM frame containing data that exceeded the previously established final offset)" },
-    { QUIC_FRAME_FORMAT_ERROR, "FRAME_FORMAT_ERROR (An endpoint received a frame that was badly formatted)" },
+    { QUIC_FRAME_ENCODING_ERROR, "FRAME_ENCODING_ERROR (An endpoint received a frame that was badly formatted)" },
     { QUIC_TRANSPORT_PARAMETER_ERROR, "TRANSPORT_PARAMETER_ERROR (An endpoint received transport parameters that were badly formatted)" },
     { QUIC_VERSION_NEGOTIATION_ERROR, "VERSION_NEGOTIATION_ERROR (An endpoint received transport parameters that contained version negotiation parameters that disagreed with the version negotiation that it performed)" },
     { QUIC_PROTOCOL_VIOLATION, "PROTOCOL_VIOLATION (An endpoint detected an error with protocol compliance that was not covered by more specific error codes)" },
     { QUIC_UNSOLICITED_PATH_RESPONSE, "An endpoint received a PATH_RESPONSE frame that did not correspond to any PATH_CHALLENGE frame that it previously sent" },
+    { QUIC_INVALID_MIGRATION, "A peer has migrated to a different network when the endpoint had disabled migration" },
     /* TLS */
     { TLS_HANDSHAKE_FAILED, "TLS_HANDSHAKE_FAILED (The TLS handshake failed)" },
     { TLS_FATAL_ALERT_GENERATED, "TLS_FATAL_ALERT_GENERATED (A TLS fatal alert was sent causing the TLS connection to end prematurely)" },
