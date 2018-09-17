@@ -2226,8 +2226,6 @@ main(int argc, char *argv[])
 #endif
   }
 
-  g_free(cf_name);
-
   if (cfile.provider.frames != NULL) {
     free_frame_data_sequence(cfile.provider.frames);
     cfile.provider.frames = NULL;
@@ -2245,6 +2243,7 @@ main(int argc, char *argv[])
   output_fields = NULL;
 
 clean_exit:
+  g_free(cf_name);
   destroy_print_stream(print_stream);
 #ifdef HAVE_LIBPCAP
   capture_opts_cleanup(&global_capture_opts);
