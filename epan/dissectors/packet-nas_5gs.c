@@ -147,6 +147,24 @@ static int hf_nas_5gs_pdu_ses_sts_psi_10_b2 = -1;
 static int hf_nas_5gs_pdu_ses_sts_psi_9_b1 = -1;
 static int hf_nas_5gs_pdu_ses_sts_psi_8_b0 = -1;
 
+static int hf_nas_5gs_pdu_ses_rect_res_psi_7_b7 = -1;
+static int hf_nas_5gs_pdu_ses_rect_res_psi_6_b6 = -1;
+static int hf_nas_5gs_pdu_ses_rect_res_psi_5_b5 = -1;
+static int hf_nas_5gs_pdu_ses_rect_res_psi_4_b4 = -1;
+static int hf_nas_5gs_pdu_ses_rect_res_psi_3_b3 = -1;
+static int hf_nas_5gs_pdu_ses_rect_res_psi_2_b2 = -1;
+static int hf_nas_5gs_pdu_ses_rect_res_psi_1_b1 = -1;
+static int hf_nas_5gs_pdu_ses_rect_res_psi_0_b0 = -1;
+
+static int hf_nas_5gs_pdu_ses_rect_res_psi_15_b7 = -1;
+static int hf_nas_5gs_pdu_ses_rect_res_psi_14_b6 = -1;
+static int hf_nas_5gs_pdu_ses_rect_res_psi_13_b5 = -1;
+static int hf_nas_5gs_pdu_ses_rect_res_psi_12_b4 = -1;
+static int hf_nas_5gs_pdu_ses_rect_res_psi_11_b3 = -1;
+static int hf_nas_5gs_pdu_ses_rect_res_psi_10_b2 = -1;
+static int hf_nas_5gs_pdu_ses_rect_res_psi_9_b1 = -1;
+static int hf_nas_5gs_pdu_ses_rect_res_psi_8_b0 = -1;
+
 static int hf_nas_5gs_ul_data_sts_psi_7_b7 = -1;
 static int hf_nas_5gs_ul_data_sts_psi_6_b6 = -1;
 static int hf_nas_5gs_ul_data_sts_psi_5_b5 = -1;
@@ -617,6 +635,26 @@ static const value_string nas_5gs_mm_tal_t_li_values[] = {
     { 0x01, "list of TACs belonging to one PLMN, with consecutive TAC values" },
     { 0x02, "list of TAIs belonging to different PLMNs" },
     { 0, NULL } };
+
+static const value_string nas_5gs_mm_tal_num_e[] = {
+    { 0x00, "1 element" },
+    { 0x01, "2 elements" },
+    { 0x02, "3 elements" },
+    { 0x03, "4 elements" },
+    { 0x04, "5 elements" },
+    { 0x05, "6 elements" },
+    { 0x06, "7 elements" },
+    { 0x07, "8 elements" },
+    { 0x08, "9 elements" },
+    { 0x09, "10 elements" },
+    { 0x0a, "11 elements" },
+    { 0x0b, "12 elements" },
+    { 0x0c, "13 elements" },
+    { 0x0d, "14 elements" },
+    { 0x0e, "15 elements" },
+    { 0x0f, "16 elements" },
+    { 0, NULL }
+};
 
 static guint16
 de_nas_5gs_mm_5gs_ta_id_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
@@ -1153,14 +1191,55 @@ de_nas_5gs_mm_pdu_ses_id_2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 /*
  *   9.10.3.38    PDU session reactivation result
  */
+
+
+static true_false_string tfs_nas_5gs_pdu_ses_rect_res_psi = {
+    "1",
+    "0"
+};
+
 static guint16
 de_nas_5gs_mm_pdu_ses_react_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     guint32 offset, guint len,
     gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+    int curr_offset;
 
-    return len;
+    static const int * psi_0_7_flags[] = {
+        &hf_nas_5gs_pdu_ses_rect_res_psi_7_b7,
+        &hf_nas_5gs_pdu_ses_rect_res_psi_6_b6,
+        &hf_nas_5gs_pdu_ses_rect_res_psi_5_b5,
+        &hf_nas_5gs_pdu_ses_rect_res_psi_4_b4,
+        &hf_nas_5gs_pdu_ses_rect_res_psi_3_b3,
+        &hf_nas_5gs_pdu_ses_rect_res_psi_2_b2,
+        &hf_nas_5gs_pdu_ses_rect_res_psi_1_b1,
+        &hf_nas_5gs_pdu_ses_rect_res_psi_0_b0,
+        NULL
+         };
+
+        static const int * psi_8_15_flags[] = {
+        &hf_nas_5gs_pdu_ses_rect_res_psi_15_b7,
+        &hf_nas_5gs_pdu_ses_rect_res_psi_14_b6,
+        &hf_nas_5gs_pdu_ses_rect_res_psi_13_b5,
+        &hf_nas_5gs_pdu_ses_rect_res_psi_12_b4,
+        &hf_nas_5gs_pdu_ses_rect_res_psi_11_b3,
+        &hf_nas_5gs_pdu_ses_rect_res_psi_10_b2,
+        &hf_nas_5gs_pdu_ses_rect_res_psi_9_b1,
+        &hf_nas_5gs_pdu_ses_rect_res_psi_8_b0,
+        NULL
+         };
+
+    curr_offset = offset;
+    proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, psi_0_7_flags, ENC_BIG_ENDIAN);
+    curr_offset++;
+
+    proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, psi_8_15_flags, ENC_BIG_ENDIAN);
+    curr_offset++;
+
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_nas_5gs_extraneous_data);
+
+    return (curr_offset - offset);
+
 }
 
 /*
@@ -2077,7 +2156,11 @@ get_ext_ambr_unit(guint32 unit, const char **unit_str)
 {
     guint32 mult;
 
-    if (unit <= 0x05) {
+    if (unit == 0x01) {
+        mult = 1;
+        *unit_str = "kbps";
+    }
+    else if (unit <= 0x05) {
         mult = pow4(guint32, unit);
         *unit_str = "Kbps";
     }
@@ -3315,11 +3398,13 @@ nas_5gs_mm_sec_mode_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 
     /*E-    IMEISV request    IMEISV request     9.10.3.18    O    TV    1*/
     ELEM_OPT_TV_SHORT(0xE0, NAS_PDU_TYPE_EMM, DE_EMM_IMEISV_REQ, NULL);
+
     /*4F    HashAMF    HashAMF     9.10.3.17    O    TV    9 */
     ELEM_OPT_TV(0x4F, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_HASHAMF, NULL);
 
     /*57    Selected EPS NAS security algorithms    EPS NAS security algorithms 9.10.3.23    O    TV    2 */
-    ELEM_OPT_TV(0x57, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_EPS_NAS_SEC_ALGO, " - Selected EPS NAS security algorithms");
+    ELEM_OPT_TV(0x57, NAS_PDU_TYPE_EMM, DE_EMM_NAS_SEC_ALGS, " - Selected EPS NAS security algorithms");
+
     /*78    EAP message    EAP message     9.10.2.2    O    TLV-E    7*/
     ELEM_OPT_TLV_E(0x78,  NAS_5GS_PDU_TYPE_COMMON, DE_NAS_5GS_CMN_EAP_MESSAGE, NULL);
 
@@ -3851,19 +3936,19 @@ static const value_string nas_5gs_mm_message_type_vals[] = {
     { 0x47,    "Deregistration request (UE terminated)"},
     { 0x48,    "Deregistration accept (UE terminated)"},
 
-    { 0x49,    "Not used in v 0.4.0"},
-    { 0x4a,    "Not used in v 0.4.0" },
-    { 0x4b,    "Not used in v 0.4.0" },
+    { 0x49,    "Not used in current version"},
+    { 0x4a,    "Not used in current version" },
+    { 0x4b,    "Not used in current version" },
 
     { 0x4c,    "Service request"},
     { 0x4d,    "Service reject"},
     { 0x4e,    "Service accept"},
 
-    { 0x4f,    "Not used in v 0.4.0" },
-    { 0x50,    "Not used in v 0.4.0" },
-    { 0x51,    "Not used in v 0.4.0" },
-    { 0x52,    "Not used in v 0.4.0" },
-    { 0x53,    "Not used in v 0.4.0" },
+    { 0x4f,    "Not used in current version" },
+    { 0x50,    "Not used in current version" },
+    { 0x51,    "Not used in current version" },
+    { 0x52,    "Not used in current version" },
+    { 0x53,    "Not used in current version" },
 
     { 0x54,    "Configuration update command"},
     { 0x55,    "Configuration update complete"},
@@ -3885,12 +3970,12 @@ static const value_string nas_5gs_mm_message_type_vals[] = {
     { 0x5c,    "Security mode command" },
     { 0x5d,    "Security mode complete" },
     { 0x5e,    "Security mode reject" },
-    { 0x5f,    "Not used in v 0.4.0" },
+    { 0x5f,    "Not used in current version" },
 #endif
-    { 0x60,    "Not used in v 0.4.0" },
-    { 0x61,    "Not used in v 0.4.0" },
-    { 0x62,    "Not used in v 0.4.0" },
-    { 0x63,    "Not used in v 0.4.0" },
+    { 0x60,    "Not used in current version" },
+    { 0x61,    "Not used in current version" },
+    { 0x62,    "Not used in current version" },
+    { 0x63,    "Not used in current version" },
 
 
     { 0x64,    "5GMM status"},
@@ -3915,19 +4000,19 @@ static void(*nas_5gs_mm_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info 
     nas_5gs_mm_de_registration_req_ue_term,     /* 0x47    Deregistration request (UE terminated) */
     NULL,                                       /* 0x48    Deregistration accept (UE terminated) No data */
 
-    nas_5gs_exp_not_dissected_yet,              /* 0x49    Not used in v 0.4.0 */
-    nas_5gs_exp_not_dissected_yet,              /* 0x4a    Not used in v 0.4.0 */
-    nas_5gs_exp_not_dissected_yet,              /* 0x4b    Not used in v 0.4.0 */
+    nas_5gs_exp_not_dissected_yet,              /* 0x49    Not used in current version */
+    nas_5gs_exp_not_dissected_yet,              /* 0x4a    Not used in current version */
+    nas_5gs_exp_not_dissected_yet,              /* 0x4b    Not used in current version */
 
     nas_5gs_mm_service_req,                     /* 0x4c    Service request */
     nas_5gs_mm_service_rej,                     /* 0x4d    Service reject */
     nas_5gs_mm_service_acc,                     /* 0x4e    Service accept */
 
-    nas_5gs_exp_not_dissected_yet,              /* 0x4f    Not used in v 0.4.0 */
-    nas_5gs_exp_not_dissected_yet,              /* 0x50    Not used in v 0.4.0 */
-    nas_5gs_exp_not_dissected_yet,              /* 0x51    Not used in v 0.4.0 */
-    nas_5gs_exp_not_dissected_yet,              /* 0x52    Not used in v 0.4.0 */
-    nas_5gs_exp_not_dissected_yet,              /* 0x53    Not used in v 0.4.0 */
+    nas_5gs_exp_not_dissected_yet,              /* 0x4f    Not used in current version */
+    nas_5gs_exp_not_dissected_yet,              /* 0x50    Not used in current version */
+    nas_5gs_exp_not_dissected_yet,              /* 0x51    Not used in current version */
+    nas_5gs_exp_not_dissected_yet,              /* 0x52    Not used in current version */
+    nas_5gs_exp_not_dissected_yet,              /* 0x53    Not used in current version */
 
     nas_5gs_mm_conf_upd_cmd,                    /* 0x54    Configuration update command */
     nas_5gs_exp_not_dissected_yet,              /* 0x55    Configuration update complete */
@@ -3948,12 +4033,12 @@ static void(*nas_5gs_mm_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info 
     nas_5gs_mm_sec_mode_cmd,                    /* 0x5c    Security mode command */
     nas_5gs_mm_sec_mode_comp,                   /* 0x5d    Security mode complete */
     nas_5gs_mm_sec_mode_rej,                    /* 0x5e    Security mode reject */
-    nas_5gs_exp_not_dissected_yet,              /* 0x5f    Not used in v 0.4.0 */
+    nas_5gs_exp_not_dissected_yet,              /* 0x5f    Not used in current version */
 #endif
-    nas_5gs_exp_not_dissected_yet,              /* 0x60    Not used in v 0.4.0 */
-    nas_5gs_exp_not_dissected_yet,              /* 0x61    Not used in v 0.4.0 */
-    nas_5gs_exp_not_dissected_yet,              /* 0x62    Not used in v 0.4.0 */
-    nas_5gs_exp_not_dissected_yet,              /* 0x63    Not used in v 0.4.0 */
+    nas_5gs_exp_not_dissected_yet,              /* 0x60    Not used in current version */
+    nas_5gs_exp_not_dissected_yet,              /* 0x61    Not used in current version */
+    nas_5gs_exp_not_dissected_yet,              /* 0x62    Not used in current version */
+    nas_5gs_exp_not_dissected_yet,              /* 0x63    Not used in current version */
 
     nas_5gs_mm_5gmm_status,                     /* 0x64    5GMM status */
     nas_5gs_mm_notification,                    /* 0x65    Notification */
@@ -3972,12 +4057,12 @@ static void(*nas_5gs_mm_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info 
     { 0xc2,    "PDU session establishment accept"},
     { 0xc3,    "PDU session establishment reject"},
 
-    { 0xc4,    "Not used in v 0.4.0"},
+    { 0xc4,    "Not used in current version"},
     { 0xc5,    "PDU session authentication command"},
 
     { 0xc6,    "PDU session authentication complete" },
     { 0xc7,    "PDU session authentication result" },
-    { 0xc8,    "Not used in v 0.4.0" },
+    { 0xc8,    "Not used in current version" },
 
     { 0xc9,    "PDU session modification request"},
     { 0xca,    "PDU session modification reject"},
@@ -3985,16 +4070,16 @@ static void(*nas_5gs_mm_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info 
     { 0xcc,    "PDU session modification complete" },
     { 0xcd,    "PDU session modification command reject"},
 
-    { 0xce,    "Not used in v 0.4.0" },
-    { 0xcf,    "Not used in v 0.4.0" },
-    { 0xd0,    "Not used in v 0.4.0" },
+    { 0xce,    "Not used in current version" },
+    { 0xcf,    "Not used in current version" },
+    { 0xd0,    "Not used in current version" },
 
     { 0xd1,    "PDU session release request"},
     { 0xd2,    "PDU session release reject"},
     { 0xd3,    "PDU session release command"},
     { 0xd4,    "PDU session release complete"},
 
-    { 0xd5,    "Not used in v 0.4.0" },
+    { 0xd5,    "Not used in current version" },
 
     { 0xd6,    "5GSM status"},
     { 0,    NULL }
@@ -4009,12 +4094,12 @@ static void(*nas_5gs_sm_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info 
     nas_5gs_sm_pdu_ses_est_acc,            /* 0xc2     PDU session establishment accept */
     nas_5gs_sm_pdu_ses_est_rej,            /* 0xc3     PDU session establishment reject */
 
-    nas_5gs_exp_not_dissected_yet,         /* 0xc4     Not used in v 0.4.0 */
+    nas_5gs_exp_not_dissected_yet,         /* 0xc4     Not used in current version */
     nas_5gs_sm_pdu_ses_auth_cmd,           /* 0xc5     PDU session authentication command */
 
     nas_5gs_sm_pdu_ses_auth_comp,          /* 0xc6     PDU session authentication complete */
-    nas_5gs_exp_not_dissected_yet,         /* 0xc7     Not used in v 0.4.0 */
-    nas_5gs_exp_not_dissected_yet,         /* 0xc8     Not used in v 0.4.0 */
+    nas_5gs_exp_not_dissected_yet,         /* 0xc7     Not used in current version */
+    nas_5gs_exp_not_dissected_yet,         /* 0xc8     Not used in current version */
 
     nas_5gs_sm_pdu_ses_mod_req,            /* 0xc9     PDU session modification request */
     nas_5gs_sm_pdu_ses_mod_rej,            /* 0xca     PDU session modification reject */
@@ -4022,16 +4107,16 @@ static void(*nas_5gs_sm_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info 
     nas_5gs_sm_pdu_ses_mod_comp,           /* 0xcc     PDU session modification complete */
     nas_5gs_sm_pdu_ses_mod_com_rej,        /* 0xcd     PDU session modification command reject */
 
-    nas_5gs_exp_not_dissected_yet,         /* 0xce     Not used in v 0.4.0 */
-    nas_5gs_exp_not_dissected_yet,         /* 0xcf     Not used in v 0.4.0 */
-    nas_5gs_exp_not_dissected_yet,         /* 0xd0     Not used in v 0.4.0 */
+    nas_5gs_exp_not_dissected_yet,         /* 0xce     Not used in current version */
+    nas_5gs_exp_not_dissected_yet,         /* 0xcf     Not used in current version */
+    nas_5gs_exp_not_dissected_yet,         /* 0xd0     Not used in current version */
 
     nas_5gs_sm_pdu_ses_rel_req,            /* 0xd1     PDU session release request */
     nas_5gs_sm_pdu_ses_rel_rej,            /* 0xd2     PDU session release reject */
     nas_5gs_sm_pdu_ses_rel_cmd,            /* 0xd3     PDU session release command */
     nas_5gs_sm_pdu_ses_rel_comp,           /* 0xd4     PDU session release complete */
 
-    nas_5gs_exp_not_dissected_yet,         /* 0xd5     Not used in v 0.4.0 */
+    nas_5gs_exp_not_dissected_yet,         /* 0xd5     Not used in current version */
 
     nas_5gs_sm_5gsm_status,                /* 0xd6     5GSM status */
 
@@ -4750,12 +4835,12 @@ proto_register_nas_5gs(void)
             NULL, HFILL }
         },
         { &hf_nas_5gs_pdu_ses_sts_psi_1_b1,
-        { "Spare","nas_5gs.pdu_ses_sts_psi_1_b1",
+        { "PSI(1)","nas_5gs.pdu_ses_sts_psi_1_b1",
             FT_BOOLEAN, 8, NULL, 0x02,
             NULL, HFILL }
         },
         { &hf_nas_5gs_pdu_ses_sts_psi_2_b2,
-        { "Spare","nas_5gs.pdu_ses_sts_psi_2_b2",
+        { "PSI(2)","nas_5gs.pdu_ses_sts_psi_2_b2",
             FT_BOOLEAN, 8, NULL, 0x04,
             NULL, HFILL }
         },
@@ -4824,19 +4909,98 @@ proto_register_nas_5gs(void)
             FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_pdu_ses_sts_psi), 0x80,
             NULL, HFILL }
         },
-
+        { &hf_nas_5gs_pdu_ses_rect_res_psi_0_b0,
+        { "PSI(0) Spare","nas_5gs.pdu_ses_rect_res_psi_0_b0",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_pdu_ses_rect_res_psi), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_pdu_ses_rect_res_psi_1_b1,
+        { "PSI(1)","nas_5gs.pdu_ses_rect_res_psi_1_b1",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_pdu_ses_rect_res_psi), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_pdu_ses_rect_res_psi_2_b2,
+        { "PSI(2)","nas_5gs.pdu_ses_rect_res_psi_2_b2",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_pdu_ses_rect_res_psi), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_pdu_ses_rect_res_psi_3_b3,
+        { "PSI(3)","nas_5gs.pdu_ses_rect_res_psi_3_b3",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_pdu_ses_rect_res_psi), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_pdu_ses_rect_res_psi_4_b4,
+        { "PSI(4)","nas_5gs.pdu_ses_rect_res_psi_3_b4",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_pdu_ses_rect_res_psi), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_pdu_ses_rect_res_psi_5_b5,
+        { "PSI(5)","nas_5gs.pdu_ses_rect_res_psi_3_b5",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_pdu_ses_rect_res_psi), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_pdu_ses_rect_res_psi_6_b6,
+        { "PSI(6)","nas_5gs.pdu_ses_rect_res_psi_3_b6",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_pdu_ses_rect_res_psi), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_pdu_ses_rect_res_psi_7_b7,
+        { "PSI(7)","nas_5gs.pdu_ses_rect_res_psi_3_b7",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_pdu_ses_rect_res_psi), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_pdu_ses_rect_res_psi_8_b0,
+        { "PSI(8)","nas_5gs.pdu_ses_rect_res_psi_8_b0",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_pdu_ses_rect_res_psi), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_pdu_ses_rect_res_psi_9_b1,
+        { "PSI(9)","nas_5gs.pdu_ses_rect_res_psi_9_b1",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_pdu_ses_rect_res_psi), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_pdu_ses_rect_res_psi_10_b2,
+        { "PSI(10)","nas_5gs.pdu_ses_rect_res_psi_10_b2",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_pdu_ses_rect_res_psi), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_pdu_ses_rect_res_psi_11_b3,
+        { "PSI(11)","nas_5gs.pdu_ses_rect_res_psi_11_b3",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_pdu_ses_rect_res_psi), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_pdu_ses_rect_res_psi_12_b4,
+        { "PSI(12)","nas_5gs.pdu_ses_rect_res_psi_12_b4",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_pdu_ses_rect_res_psi), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_pdu_ses_rect_res_psi_13_b5,
+        { "PSI(13)","nas_5gs.pdu_ses_sts_psi_13_b5",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_pdu_ses_rect_res_psi), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_pdu_ses_rect_res_psi_14_b6,
+        { "PSI(14)","nas_5gs.pdu_ses_sts_psi_14_b6",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_pdu_ses_rect_res_psi), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_pdu_ses_rect_res_psi_15_b7,
+        { "PSI(15)","nas_5gs.pdu_ses_sts_psi_15_b7",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_pdu_ses_rect_res_psi), 0x80,
+            NULL, HFILL }
+        },
         { &hf_nas_5gs_ul_data_sts_psi_0_b0,
         { "Spare","nas_5gs.ul_data_sts_psi_0_b0",
             FT_BOOLEAN, 8, NULL, 0x01,
             NULL, HFILL }
         },
         { &hf_nas_5gs_ul_data_sts_psi_1_b1,
-        { "Spare","nas_5gs.ul_data_sts_psi_1_b1",
+        { "PSI(1)","nas_5gs.ul_data_sts_psi_1_b1",
             FT_BOOLEAN, 8, NULL, 0x02,
             NULL, HFILL }
         },
         { &hf_nas_5gs_ul_data_sts_psi_2_b2,
-        { "Spare","nas_5gs.ul_data_sts_psi_2_b2",
+        { "PSI(2)","nas_5gs.ul_data_sts_psi_2_b2",
             FT_BOOLEAN, 8, NULL, 0x04,
             NULL, HFILL }
         },
@@ -5132,7 +5296,7 @@ proto_register_nas_5gs(void)
         },
         { &hf_nas_5gs_mm_tal_num_e,
         { "Number of elements",   "nas_5gs.mm.tal_num_e",
-            FT_UINT8, BASE_DEC, NULL, 0x1f,
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_mm_tal_num_e), 0x1f,
             NULL, HFILL }
         },
     };
