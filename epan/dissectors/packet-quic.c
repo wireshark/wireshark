@@ -752,18 +752,39 @@ quic_connection_create_or_update(quic_info_data_t **conn_p,
 
     switch (long_packet_type) {
     case QUIC_LPT_INITIAL:
-        // The first Initial Packet from the client creates a new connection.
-        if (!conn && !from_server) {
-            *conn_p = quic_connection_create(pinfo, version, scid, dcid);
+        if (!from_server) {
+            if (!conn) {
+                // The first Initial Packet from the client creates a new connection.
+                *conn_p = quic_connection_create(pinfo, version, scid, dcid);
+            } else if (conn->client_dcid_initial.len == 0 && dcid->len &&
+                       scid->len && !quic_cids_has_match(&conn->server_cids, scid)) {
+                // If this client Initial Packet responds to a Retry Packet,
+                // then remember the new DCID for the new Initial cipher and
+                // clear the first server CID such that the next server Initial
+                // Packet can link the connection with that new SCID.
+                memcpy(&conn->client_dcid_initial, dcid, sizeof(quic_cid_t));
+                wmem_map_insert(quic_initial_connections, &conn->client_dcid_initial, conn);
+                wmem_map_remove(quic_server_connections, &conn->server_cids.data);
+                memset(&conn->server_cids, 0, sizeof(quic_cid_t));
+            }
+            break;
         }
         /* fallthrough */
     case QUIC_LPT_RETRY:
     case QUIC_LPT_HANDSHAKE:
         // Remember CID from first server Retry/Handshake packet
         // (or from the first server Initial packet, since draft -13).
-        if (conn && conn->server_cids.data.len == 0 && from_server) {
-            memcpy(&conn->server_cids.data, scid, sizeof(quic_cid_t));
-            if (scid->len) {
+        if (from_server && conn) {
+            if (!is_quic_draft_max(version, 12) && long_packet_type == QUIC_LPT_RETRY) {
+                // Stateless Retry Packet: the next Initial Packet from the
+                // client should start a new cryptographic handshake. Erase the
+                // current "Initial DCID" such that the next client Initial
+                // packet populates the new value.
+                wmem_map_remove(quic_initial_connections, &conn->client_dcid_initial);
+                memset(&conn->client_dcid_initial, 0, sizeof(quic_cid_t));
+            }
+            if (conn->server_cids.data.len == 0 && scid->len) {
+                memcpy(&conn->server_cids.data, scid, sizeof(quic_cid_t));
                 wmem_map_insert(quic_server_connections, &conn->server_cids.data, conn);
             }
         }
