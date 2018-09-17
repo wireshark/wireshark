@@ -353,7 +353,8 @@ static const value_string quic_long_packet_type_vals[] = {
 #define FT_STREAM_17        0x17
 #define FT_CRYPTO           0x18
 #define FT_NEW_TOKEN        0x19 /* Add in draft 13 */
-#define FT_ACK_ECN          0x20 /* Add in draft 13 */
+#define FT_ACK_ECN          0x1a /* Add in draft 14 */
+#define FT_ACK_ECN_OLD      0x20 /* Remove in draft 14 */
 
 static const range_string quic_frame_type_vals[] = {
     { 0x00, 0x00,   "PADDING" },
@@ -375,6 +376,7 @@ static const range_string quic_frame_type_vals[] = {
     { 0x10, 0x17,   "STREAM" },
     { 0x18, 0x18,   "CRYPTO" },
     { 0x19, 0x19,   "NEW_TOKEN" },
+    { 0x1a, 0x1a,   "ACK_ECN" },
     { 0x20, 0x20,   "ACK_ECN" },
     { 0,    0,        NULL },
 };
