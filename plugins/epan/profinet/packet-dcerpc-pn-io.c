@@ -714,6 +714,7 @@ static int hf_pn_io_am_location_endsubslotnum = -1;
 static int hf_pn_io_am_software_revision = -1;
 static int hf_pn_io_am_hardware_revision = -1;
 static int hf_pn_io_am_type_identification = -1;
+static int hf_pn_io_am_reserved = -1;
 
 static int hf_pn_io_dcp_boundary_value = -1;
 static int hf_pn_io_dcp_boundary_value_bit0 = -1;
@@ -3957,6 +3958,7 @@ guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
 {
     e_guid_t IM_UniqueIdentifier;
     guint16  u16AM_TypeIdentification;
+    guint16  u16AM_Reserved;
 
     if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
         expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
@@ -3998,6 +4000,10 @@ guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
     /* AM_TypeIdentification */
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
         hf_pn_io_am_type_identification, &u16AM_TypeIdentification);
+
+    /* AM_Reserved */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+        hf_pn_io_am_reserved, &u16AM_Reserved);
 
     return offset;
 }
@@ -10794,6 +10800,7 @@ dissect_RecordDataWrite(tvbuff_t *tvb, int offset,
     case(0x8090):   /* PDInterfaceFSUDataAdjust */
     case(0x80B0):   /* CombinedObjectContainer*/
     case(0x80CF):   /* RS_AdjustObserver */
+    case(0xaff3):   /* I&M3 */
     case(0xe030):   /* IsochronousModeData for one AR */
     case(0xe050):   /* FastStartUp data for one AR */
     case(0xe061):   /* RS_AckEvent (using RecordDataWrite service) */
@@ -14006,6 +14013,11 @@ proto_register_pn_io (void)
     },
     { &hf_pn_io_am_type_identification,
       { "AM Type Identification", "pn_io.am_type_identification",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_am_reserved,
+      { "AM Reserved", "pn_io.am_reserved",
         FT_UINT16, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
