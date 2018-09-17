@@ -113,6 +113,17 @@ static int hf_quic_frame_type_ss_application_error_code = -1;
 static int hf_quic_frame_type_crypto_offset = -1;
 static int hf_quic_frame_type_crypto_length = -1;
 static int hf_quic_frame_type_crypto_crypto_data = -1;
+static int hf_quic_frame_type_nt_length = -1;
+static int hf_quic_frame_type_nt_token = -1;
+static int hf_quic_frame_type_ae_largest_acknowledged = -1;
+static int hf_quic_frame_type_ae_ack_delay = -1;
+static int hf_quic_frame_type_ae_ect0_count = -1;
+static int hf_quic_frame_type_ae_ect1_count = -1;
+static int hf_quic_frame_type_ae_ecn_ce_count = -1;
+static int hf_quic_frame_type_ae_ack_block_count = -1;
+static int hf_quic_frame_type_ae_fab = -1;
+static int hf_quic_frame_type_ae_gap = -1;
+static int hf_quic_frame_type_ae_ack_block = -1;
 
 static expert_field ei_quic_connection_unknown = EI_INIT;
 static expert_field ei_quic_ft_unknown = EI_INIT;
@@ -338,6 +349,8 @@ static const value_string quic_long_packet_type_vals[] = {
 #define FT_STREAM_16        0x16
 #define FT_STREAM_17        0x17
 #define FT_CRYPTO           0x18
+#define FT_NEW_TOKEN        0x19 /* Add in draft 13 */
+#define FT_ACK_ECN          0x20 /* Add in draft 13 */
 
 static const range_string quic_frame_type_vals[] = {
     { 0x00, 0x00,   "PADDING" },
@@ -358,6 +371,8 @@ static const range_string quic_frame_type_vals[] = {
     { 0x0f, 0x0f,   "PATH_RESPONSE" },
     { 0x10, 0x17,   "STREAM" },
     { 0x18, 0x18,   "CRYPTO" },
+    { 0x19, 0x19,   "NEW_TOKEN" },
+    { 0x20, 0x20,   "ACK_ECN" },
     { 0,    0,        NULL },
 };
 
@@ -1153,6 +1168,64 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
                 col_set_writable(pinfo->cinfo, -1, TRUE);
             }
             offset += (guint32)crypto_length;
+        }
+        break;
+        case FT_NEW_TOKEN: {
+            guint64 token_length;
+            guint32 lenvar;
+
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", NT");
+
+
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_nt_length, tvb, offset, -1, ENC_VARINT_QUIC, &token_length, &lenvar);
+            offset += lenvar;
+
+            proto_tree_add_item(ft_tree, hf_quic_frame_type_nt_token, tvb, offset, (guint32)token_length, ENC_NA);
+
+            offset += (guint32)token_length;
+        }
+        break;
+        case FT_ACK_ECN:{
+            guint64 ack_block_count;
+            guint32 lenvar;
+
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", AE");
+
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ae_largest_acknowledged, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+            offset += lenvar;
+
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ae_ack_delay, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+            offset += lenvar;
+
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ae_ect0_count, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+            offset += lenvar;
+
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ae_ect1_count, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+            offset += lenvar;
+
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ae_ecn_ce_count, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+            offset += lenvar;
+
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ae_ack_block_count, tvb, offset, -1, ENC_VARINT_QUIC, &ack_block_count, &lenvar);
+            offset += lenvar;
+
+            /* ACK Block */
+            /* First ACK Block Length */
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ae_fab, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+            offset += lenvar;
+
+            /* Repeated "Ack Block Count" */
+            while(ack_block_count){
+
+                /* Gap To Next Block */
+                proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ae_gap, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+                offset += lenvar;
+
+                proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ae_ack_block, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+                offset += lenvar;
+
+                ack_block_count--;
+            }
         }
         break;
         default:
@@ -2601,6 +2674,65 @@ proto_register_quic(void)
             { "Crypto Data", "quic.frame_type.crypto.crypto_data",
               FT_NONE, BASE_NONE, NULL, 0x0,
               "The cryptographic message data", HFILL }
+        },
+
+        /* NEW_TOKEN */
+        { &hf_quic_frame_type_nt_length,
+            { "(Token) Length", "quic.frame_type.nt.length",
+              FT_UINT64, BASE_DEC, NULL, 0x0,
+              "Specifying the length of the token", HFILL }
+        },
+        { &hf_quic_frame_type_nt_token,
+            { "Token", "quic.frame_type.nt.token",
+              FT_BYTES, BASE_NONE, NULL, 0x0,
+              "An opaque blob that the client may use with a future Initial packet", HFILL }
+        },
+
+        /* ACK_ECN */
+        { &hf_quic_frame_type_ae_largest_acknowledged,
+          { "Largest Acknowledged", "quic.frame_type.ae.largest_acknowledged",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            "Representing the largest packet number the peer is acknowledging in this packet", HFILL }
+        },
+        { &hf_quic_frame_type_ae_ack_delay,
+          { "ACK Delay", "quic.frame_type.ae.ack_delay",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            "The time from when the largest acknowledged packet, as indicated in the Largest Acknowledged field, was received by this peer to when this ACK was sent", HFILL }
+        },
+        { &hf_quic_frame_type_ae_ect0_count,
+          { "ECT(0) Count", "quic.frame_type.ae.ect0_count",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            "Representing the total number packets received with the ECT(0) codepoint", HFILL }
+        },
+        { &hf_quic_frame_type_ae_ect1_count,
+          { "ECT(1) Count", "quic.frame_type.ae.ect1_count",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            "Representing the total number packets received with the ECT(1) codepoint", HFILL }
+        },
+        { &hf_quic_frame_type_ae_ecn_ce_count,
+          { "CE Count", "quic.frame_type.ae.ecn_ce_count",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            "Representing the total number packets received with the CE codepoint", HFILL }
+        },
+        { &hf_quic_frame_type_ae_ack_block_count,
+          { "ACK Block Count", "quic.frame_type.ae.ack_block_count",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            "The number of Additional ACK Block (and Gap) fields after the First ACK Block", HFILL }
+        },
+        { &hf_quic_frame_type_ae_fab,
+          { "First ACK Block", "quic.frame_type.ack.fab",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            "Indicates the number of contiguous additional packets being acknowledged starting at the Largest Acknowledged", HFILL }
+        },
+        { &hf_quic_frame_type_ae_gap,
+          { "Gap", "quic.frame_type.ae.gap",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            "Indicating the number of contiguous unacknowledged packets preceding the packet number one lower than the smallest in the preceding ACK Block", HFILL }
+        },
+        { &hf_quic_frame_type_ae_ack_block,
+          { "ACK Block", "quic.frame_type.ae.ack_block",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            "Indicating the number of contiguous acknowledged packets preceding the largest packet number, as determined by the preceding Gap", HFILL }
         },
     };
 
