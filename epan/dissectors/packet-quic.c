@@ -520,6 +520,24 @@ quic_decrypt_packet_number(tvbuff_t *tvb, guint offset, quic_cipher *cipher,
     *pkn = g_htonl(pkt_pkn) >> (8 * (4 - pkn_len));
     return pkn_len;
 }
+
+static void
+quic_encode_packet_number(guint8 *output, guint32 pkn, guint pkn_len)
+{
+    switch (pkn_len) {
+    default:
+        output[0] = (guint8)pkn;
+        break;
+    case 2:
+        phton16(output, (guint16)pkn);
+        output[0] |= 0x80;
+        break;
+    case 4:
+        phton32(output, pkn);
+        output[0] |= 0xc0;
+        break;
+    }
+}
 #else /* !HAVE_LIBGCRYPT_AEAD */
 static inline guint
 quic_decrypt_packet_number(tvbuff_t *tvb _U_, guint offset _U_, quic_cipher *cipher _U_,
@@ -1277,9 +1295,7 @@ quic_decrypt_message(quic_cipher *cipher, tvbuff_t *head, guint header_length, g
     DISSECTOR_ASSERT(1 <= pkn_len && pkn_len <= 4);
     // copy header, but replace encrypted PKN by plaintext PKN.
     header = (guint8 *)tvb_memdup(wmem_packet_scope(), head, 0, header_length);
-    for (guint i = 0; i < pkn_len; i++) {
-        header[header_length - 1 - i] = (guint8)(packet_number >> (8 * i));
-    }
+    quic_encode_packet_number(header + header_length - pkn_len, (guint32)packet_number, pkn_len);
 
     /* Input is "header || ciphertext (buffer) || auth tag (16 bytes)" */
     buffer_length = tvb_captured_length_remaining(head, header_length + 16);
