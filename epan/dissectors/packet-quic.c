@@ -93,6 +93,7 @@ static int hf_quic_frame_type_rsts_stream_id = -1;
 static int hf_quic_frame_type_rsts_application_error_code = -1;
 static int hf_quic_frame_type_rsts_final_offset = -1;
 static int hf_quic_frame_type_cc_error_code = -1;
+static int hf_quic_frame_type_cc_frame_type = -1;
 static int hf_quic_frame_type_cc_reason_phrase_length = -1;
 static int hf_quic_frame_type_cc_reason_phrase = -1;
 static int hf_quic_frame_type_ac_error_code = -1;
@@ -899,13 +900,16 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         }
         break;
         case FT_CONNECTION_CLOSE:{
-            guint32 len_reasonphrase, error_code;
+            guint32 len_reasonphrase, len_frametype, error_code;
             guint64 len_reason = 0;
 
             col_append_fstr(pinfo->cinfo, COL_INFO, ", CC");
 
             proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type_cc_error_code, tvb, offset, 2, ENC_BIG_ENDIAN, &error_code);
             offset += 2;
+
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_cc_frame_type, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_frametype);
+            offset += len_frametype;
 
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_cc_reason_phrase_length, tvb, offset, -1, ENC_VARINT_QUIC, &len_reason, &len_reasonphrase);
             offset += len_reasonphrase;
@@ -2508,6 +2512,11 @@ proto_register_quic(void)
             { "Error code", "quic.frame_type.cc.error_code",
               FT_UINT16, BASE_DEC|BASE_EXT_STRING, &quic_error_code_vals_ext, 0x0,
               "Indicates the reason for closing this connection", HFILL }
+        },
+        { &hf_quic_frame_type_cc_frame_type,
+            { "Frame Type", "quic.frame_type.cc.frame_type",
+              FT_UINT64, BASE_DEC, NULL, 0x0,
+              "The type of frame that triggered the error", HFILL }
         },
         { &hf_quic_frame_type_cc_reason_phrase_length,
             { "Reason phrase Length", "quic.frame_type.cc.reason_phrase.length",
