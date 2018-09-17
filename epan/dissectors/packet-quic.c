@@ -1164,9 +1164,6 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
 }
 #endif /* HAVE_LIBGCRYPT_AEAD */
 
-/* Maximum for draft >= -11: type, version, DCIL/SCIL, DCID, SCID, payload length, PKN. */
-#define QUIC_LONG_HEADER_MAX_LENGTH     (1+4+1+18+18+8+4)
-
 #ifdef HAVE_LIBGCRYPT_AEAD
 static gcry_error_t
 qhkdf_expand(int md, const guint8 *secret, guint secret_len,
@@ -1189,7 +1186,7 @@ static void
 quic_decrypt_message(quic_cipher *cipher, tvbuff_t *head, guint header_length, guint pkn_len, guint64 packet_number, quic_decrypt_result_t *result)
 {
     gcry_error_t    err;
-    guint8          header[QUIC_LONG_HEADER_MAX_LENGTH];
+    guint8         *header;
     guint8          nonce[TLS13_AEAD_NONCE_LENGTH];
     guint8         *buffer;
     guint8         *atag[16];
@@ -1198,11 +1195,10 @@ quic_decrypt_message(quic_cipher *cipher, tvbuff_t *head, guint header_length, g
 
     DISSECTOR_ASSERT(cipher != NULL);
     DISSECTOR_ASSERT(cipher->pp_cipher != NULL);
-    DISSECTOR_ASSERT(header_length <= sizeof(header));
     DISSECTOR_ASSERT(pkn_len < header_length);
     DISSECTOR_ASSERT(1 <= pkn_len && pkn_len <= 4);
     // copy header, but replace encrypted PKN by plaintext PKN.
-    tvb_memcpy(head, header, 0, header_length - pkn_len);
+    header = (guint8 *)tvb_memdup(wmem_packet_scope(), head, 0, header_length);
     for (guint i = 0; i < pkn_len; i++) {
         header[header_length - 1 - i] = (guint8)(packet_number >> (8 * i));
     }
