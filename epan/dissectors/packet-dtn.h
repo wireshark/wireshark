@@ -89,7 +89,7 @@
 #define BUNDLE_BLOCK_TYPE_EXTENSION_SECURITY    0x09 /* RFC6257 */
 #define BUNDLE_BLOCK_TYPE_CUSTODY_TRANSFER      0x0a /* http://bioserve.colorado.edu/bp-acs/ */
 #define BUNDLE_BLOCK_TYPE_EXTENDED_COS          0x13 /* http://tools.ietf.org/html/draft-irtf-dtnrg-ecos-02 */
-#define BUNDLE_BLOCK_TYPE_BUNDLE_AGE_EXTENSION  0x14 /* ION NASA specific */
+#define BUNDLE_BLOCK_TYPE_BUNDLE_AGE            0x14 /* https://tools.ietf.org/html/draft-irtf-dtnrg-bundle-age-block-01 */
 
 /* Payload Header Processing Flags */
 #define PAYLOAD_PROCFLAGS_REPLICATE_MASK        0x01
@@ -134,6 +134,9 @@
 #define ECOS_FLAGS_STREAMING            0x02
 #define ECOS_FLAGS_FLOWLABEL            0x04
 #define ECOS_FLAGS_RELIABLE             0x08
+
+/* Ciphersuite Flags */
+#define BLOCK_CIPHERSUITE_PARAMS        0x01
 
 #define DTN_SCHEME_STR                  "dtn"
 #define IPN_SCHEME_STR                  "ipn"
