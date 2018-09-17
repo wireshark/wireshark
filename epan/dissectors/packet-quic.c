@@ -63,6 +63,7 @@ static int hf_quic_short_reserved = -1;
 static int hf_quic_payload = -1;
 static int hf_quic_protected_payload = -1;
 static int hf_quic_odcil_draft13 = -1;
+static int hf_quic_odcil = -1;
 static int hf_quic_odcid = -1;
 static int hf_quic_retry_token = -1;
 
@@ -1887,6 +1888,11 @@ dissect_quic_retry_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
         proto_tree_add_item(quic_tree, hf_quic_packet_number, tvb, offset, 1, ENC_NA);
         offset += 1;
         proto_tree_add_item_ret_uint(quic_tree, hf_quic_odcil_draft13, tvb, offset, 1, ENC_NA, &odcil);
+    } else {
+        proto_tree_add_item_ret_uint(quic_tree, hf_quic_odcil, tvb, offset, 1, ENC_NA, &odcil);
+        if (odcil) {
+            odcil += 3;
+        }
     }
     offset += 1;
     proto_tree_add_item(quic_tree, hf_quic_odcid, tvb, offset, odcil, ENC_NA);
@@ -2079,7 +2085,9 @@ quic_get_message_tvb(tvbuff_t *tvb, const guint offset)
     guint64 token_length;
     guint64 payload_length;
     guint8 packet_type = tvb_get_guint8(tvb, offset);
-    if (packet_type & 0x80) {
+    guint8 long_packet_type = packet_type & 0x7f;
+    // Retry and VN packets cannot be coalesced (clarified in draft -14).
+    if ((packet_type & 0x80) && long_packet_type != QUIC_LPT_RETRY) {
         // long header form, check version
         guint version = tvb_get_ntohl(tvb, offset + 1);
         // If this is not a VN packet but a valid long form, extract a subset.
@@ -2095,7 +2103,7 @@ quic_get_message_tvb(tvbuff_t *tvb, const guint offset)
             if (scil) {
                 length += 3 + scil;
             }
-            if (!is_quic_draft_max(version, 12) && packet_type == (0x80 | QUIC_LPT_INITIAL)) {
+            if (!is_quic_draft_max(version, 12) && long_packet_type == QUIC_LPT_INITIAL) {
                 length += tvb_get_varint(tvb, offset + length, 8, &token_length, ENC_VARINT_QUIC);
                 length += (guint)token_length;
             }
@@ -2421,6 +2429,11 @@ proto_register_quic(void)
         { &hf_quic_odcil_draft13,
           { "Original Destination Connection ID Length", "quic.odcil_draft13",
             FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_quic_odcil,
+          { "Original Destination Connection ID Length", "quic.odcil",
+            FT_UINT8, BASE_DEC, VALS(quic_cid_len_vals), 0x0f,
             NULL, HFILL }
         },
         { &hf_quic_odcid,
