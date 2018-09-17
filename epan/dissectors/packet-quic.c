@@ -138,7 +138,6 @@ static gint ett_quic_ft = -1;
 static gint ett_quic_ftflags = -1;
 
 static dissector_handle_t quic_handle;
-static dissector_handle_t tls_handle;
 static dissector_handle_t tls13_handshake_handle;
 
 /*
@@ -400,9 +399,6 @@ static const range_string quic_frame_type_vals[] = {
 #define QUIC_VERSION_NEGOTIATION_ERROR  0x0009
 #define QUIC_PROTOCOL_VIOLATION         0x000A
 #define QUIC_INVALID_MIGRATION          0x000C
-#define TLS_HANDSHAKE_FAILED            0x0201
-#define TLS_FATAL_ALERT_GENERATED       0x0202
-#define TLS_FATAL_ALERT_RECEIVED        0x0203
 
 static const value_string quic_error_code_vals[] = {
     { QUIC_NO_ERROR, "NO_ERROR (An endpoint uses this with CONNECTION_CLOSE to signal that the connection is being closed abruptly in the absence of any error.)" },
@@ -417,10 +413,6 @@ static const value_string quic_error_code_vals[] = {
     { QUIC_VERSION_NEGOTIATION_ERROR, "VERSION_NEGOTIATION_ERROR (An endpoint received transport parameters that contained version negotiation parameters that disagreed with the version negotiation that it performed)" },
     { QUIC_PROTOCOL_VIOLATION, "PROTOCOL_VIOLATION (An endpoint detected an error with protocol compliance that was not covered by more specific error codes)" },
     { QUIC_INVALID_MIGRATION, "A peer has migrated to a different network when the endpoint had disabled migration" },
-    /* TLS */
-    { TLS_HANDSHAKE_FAILED, "TLS_HANDSHAKE_FAILED (The TLS handshake failed)" },
-    { TLS_FATAL_ALERT_GENERATED, "TLS_FATAL_ALERT_GENERATED (A TLS fatal alert was sent causing the TLS connection to end prematurely)" },
-    { TLS_FATAL_ALERT_RECEIVED, "TLS_FATAL_ALERT_RECEIVED (A TLS fatal alert was sent received the TLS connection to end prematurely)" },
     { 0, NULL }
 };
 static value_string_ext quic_error_code_vals_ext = VALUE_STRING_EXT_INIT(quic_error_code_vals);
@@ -813,7 +805,7 @@ quic_connection_create_or_update(quic_info_data_t **conn_p,
         // Remember CID from first server Retry/Handshake packet
         // (or from the first server Initial packet, since draft -13).
         if (from_server && conn) {
-            if (!is_quic_draft_max(version, 12) && long_packet_type == QUIC_LPT_RETRY) {
+            if (long_packet_type == QUIC_LPT_RETRY) {
                 // Stateless Retry Packet: the next Initial Packet from the
                 // client should start a new cryptographic handshake. Erase the
                 // current "Initial DCID" such that the next client Initial
@@ -849,7 +841,7 @@ quic_connection_destroy(gpointer data, gpointer user_data _U_)
 
 #ifdef HAVE_LIBGCRYPT_AEAD
 static int
-dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, guint32 version)
+dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, guint32 version _U_)
 {
     proto_item *ti_ft, *ti_ftflags, *ti;
     proto_tree *ft_tree, *ftflags_tree;
@@ -1121,7 +1113,6 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         case FT_STREAM_17: {
             guint64 stream_id, length;
             guint32 lenvar;
-            proto_item *ti_stream;
 
             offset -= 1;
 
@@ -1133,7 +1124,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             proto_tree_add_item(ftflags_tree, hf_quic_frame_type_stream_off, tvb, offset, 1, ENC_NA);
             offset += 1;
 
-            ti_stream = proto_tree_add_item_ret_varint(ft_tree, hf_quic_stream_stream_id, tvb, offset, -1, ENC_VARINT_QUIC, &stream_id, &lenvar);
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_stream_stream_id, tvb, offset, -1, ENC_VARINT_QUIC, &stream_id, &lenvar);
             offset += lenvar;
 
             proto_item_append_text(ti_ft, " Stream ID: %" G_GINT64_MODIFIER "u", stream_id);
@@ -1152,16 +1143,6 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             }
 
             proto_tree_add_item(ft_tree, hf_quic_stream_data, tvb, offset, (int)length, ENC_NA);
-
-            if (is_quic_draft_max(version, 12) && stream_id == 0) { /* Special Stream */
-                tvbuff_t *next_tvb;
-
-                proto_item_append_text(ti_stream, " (Cryptographic handshake)");
-                col_set_writable(pinfo->cinfo, -1, FALSE);
-                next_tvb = tvb_new_subset_length(tvb, offset, (int)length);
-                call_dissector(tls_handle, next_tvb, pinfo, ft_tree);
-                col_set_writable(pinfo->cinfo, -1, TRUE);
-            }
             offset += (int)length;
 
 
@@ -1365,21 +1346,9 @@ static gboolean
 quic_derive_initial_secrets(const quic_cid_t *cid,
                             guint8 client_initial_secret[HASH_SHA2_256_LENGTH],
                             guint8 server_initial_secret[HASH_SHA2_256_LENGTH],
-                            quic_info_data_t *quic_info,
                             const gchar **error)
 {
     /*
-     * https://tools.ietf.org/html/draft-ietf-quic-tls-10#section-5.2.2
-     *
-     * handshake_salt = 0x9c108f98520a5c5c32968e950e8a2c5fe06d6c38
-     * handshake_secret =
-     *     HKDF-Extract(handshake_salt, client_connection_id)
-     *
-     * client_handshake_secret =
-     *    QHKDF-Expand(handshake_secret, "client hs", Hash.length)
-     * server_handshake_secret =
-     *    QHKDF-Expand(handshake_secret, "server hs", Hash.length)
-     *
      * https://tools.ietf.org/html/draft-ietf-quic-tls-14#section-5.1.1
      *
      * initial_salt = 0x9c108f98520a5c5c32968e950e8a2c5fe06d6c38
@@ -1406,30 +1375,16 @@ quic_derive_initial_secrets(const quic_cid_t *cid,
         return FALSE;
     }
 
-    if (is_quic_draft_max(quic_info->version, 12)) {
-        if (qhkdf_expand(GCRY_MD_SHA256, secret, sizeof(secret), "client hs",
-                         client_initial_secret, HASH_SHA2_256_LENGTH)) {
-            *error = "Key expansion (client) failed";
-            return FALSE;
-        }
+    if (!quic_hkdf_expand_label(GCRY_MD_SHA256, secret, sizeof(secret), "client in",
+                                client_initial_secret, HASH_SHA2_256_LENGTH)) {
+        *error = "Key expansion (client) failed";
+        return FALSE;
+    }
 
-        if (qhkdf_expand(GCRY_MD_SHA256, secret, sizeof(secret), "server hs",
-                         server_initial_secret, HASH_SHA2_256_LENGTH)) {
-            *error = "Key expansion (server) failed";
-            return FALSE;
-        }
-    } else {
-        if (!quic_hkdf_expand_label(GCRY_MD_SHA256, secret, sizeof(secret), "client in",
-                                    client_initial_secret, HASH_SHA2_256_LENGTH)) {
-            *error = "Key expansion (client) failed";
-            return FALSE;
-        }
-
-        if (!quic_hkdf_expand_label(GCRY_MD_SHA256, secret, sizeof(secret), "server in",
-                                    server_initial_secret, HASH_SHA2_256_LENGTH)) {
-            *error = "Key expansion (server) failed";
-            return FALSE;
-        }
+    if (!quic_hkdf_expand_label(GCRY_MD_SHA256, secret, sizeof(secret), "server in",
+                                server_initial_secret, HASH_SHA2_256_LENGTH)) {
+        *error = "Key expansion (server) failed";
+        return FALSE;
     }
 
     *error = NULL;
@@ -1438,7 +1393,7 @@ quic_derive_initial_secrets(const quic_cid_t *cid,
 
 /**
  * Maps a Packet Protection cipher to the Packet Number protection cipher.
- * See https://tools.ietf.org/html/draft-ietf-quic-tls-12#section-5.6
+ * See https://tools.ietf.org/html/draft-ietf-quic-tls-14#section-5.3
  */
 static gboolean
 quic_get_pn_cipher_algo(int cipher_algo, int *pn_cipher_mode)
@@ -1501,7 +1456,7 @@ quic_create_initial_decoders(const quic_cid_t *cid, const gchar **error, quic_in
     guint8          server_secret[HASH_SHA2_256_LENGTH];
     guint32         version = quic_info->version;
 
-    if (!quic_derive_initial_secrets(cid, client_secret, server_secret, quic_info, error)) {
+    if (!quic_derive_initial_secrets(cid, client_secret, server_secret, error)) {
         return FALSE;
     }
 
@@ -1582,23 +1537,6 @@ qhkdf_expand(int md, const guint8 *secret, guint secret_len,
 }
 
 /**
- * Tries to obtain the "client_pp_secret_0" or "server_pp_secret_0" secret.
- */
-static gboolean
-quic_get_pp0_secret(packet_info *pinfo, int hash_algo, quic_pp_state_t *pp_state, gboolean from_client)
-{
-    const char *label = from_client ? "EXPORTER-QUIC client 1rtt" : "EXPORTER-QUIC server 1rtt";
-    guint hash_len = gcry_md_get_algo_dlen(hash_algo);
-    guchar *pp_secret = NULL;
-    if (!tls13_exporter(pinfo, FALSE, label, NULL, 0, hash_len, &pp_secret)) {
-        return FALSE;
-    }
-    pp_state->next_secret = (guint8 *)wmem_memdup(wmem_file_scope(), pp_secret, hash_len);
-    wmem_free(NULL, pp_secret);
-    return TRUE;
-}
-
-/**
  * Tries to obtain the QUIC application traffic secrets.
  */
 static gboolean
@@ -1618,7 +1556,7 @@ quic_get_traffic_secret(packet_info *pinfo, int hash_algo, quic_pp_state_t *pp_s
  * and initialize cipher with the new key.
  */
 static gboolean
-quic_cipher_init(guint32 version, quic_cipher *cipher, int hash_algo, guint8 key_length, guint8 *secret)
+quic_cipher_init(guint32 version _U_, quic_cipher *cipher, int hash_algo, guint8 key_length, guint8 *secret)
 {
     guchar      write_key[256/8];   /* Maximum key size is for AES256 cipher. */
     guchar      pn_key[256/8];
@@ -1628,18 +1566,10 @@ quic_cipher_init(guint32 version, quic_cipher *cipher, int hash_algo, guint8 key
         return FALSE;
     }
 
-    if (is_quic_draft_max(version, 12)) {
-        if (qhkdf_expand(hash_algo, secret, hash_len, "key", write_key, key_length) ||
-            qhkdf_expand(hash_algo, secret, hash_len, "iv", cipher->pp_iv, sizeof(cipher->pp_iv)) ||
-            qhkdf_expand(hash_algo, secret, hash_len, "pn", pn_key, key_length)) {
-            return FALSE;
-        }
-    } else {
-        if (!quic_hkdf_expand_label(hash_algo, secret, hash_len, "key", write_key, key_length) ||
-            !quic_hkdf_expand_label(hash_algo, secret, hash_len, "iv", cipher->pp_iv, sizeof(cipher->pp_iv)) ||
-            !quic_hkdf_expand_label(hash_algo, secret, hash_len, "pn", pn_key, key_length)) {
-            return FALSE;
-        }
+    if (!quic_hkdf_expand_label(hash_algo, secret, hash_len, "key", write_key, key_length) ||
+        !quic_hkdf_expand_label(hash_algo, secret, hash_len, "iv", cipher->pp_iv, sizeof(cipher->pp_iv)) ||
+        !quic_hkdf_expand_label(hash_algo, secret, hash_len, "pn", pn_key, key_length)) {
+        return FALSE;
     }
 
     return gcry_cipher_setkey(cipher->pn_cipher, pn_key, key_length) == 0 &&
@@ -1688,18 +1618,10 @@ quic_get_pp_cipher(packet_info *pinfo, gboolean key_phase, quic_info_data_t *qui
         }
 
         /* Retrieve secrets for both the client and server. */
-        if (is_quic_draft_max(version, 12)) {
-            if (!quic_get_pp0_secret(pinfo, quic_info->hash_algo, client_pp, TRUE) ||
-                !quic_get_pp0_secret(pinfo, quic_info->hash_algo, server_pp, FALSE)) {
-                quic_info->skip_decryption = TRUE;
-                return NULL;
-            }
-        } else {
-            if (!quic_get_traffic_secret(pinfo, quic_info->hash_algo, client_pp, TRUE) ||
-                !quic_get_traffic_secret(pinfo, quic_info->hash_algo, server_pp, FALSE)) {
-                quic_info->skip_decryption = TRUE;
-                return NULL;
-            }
+        if (!quic_get_traffic_secret(pinfo, quic_info->hash_algo, client_pp, TRUE) ||
+            !quic_get_traffic_secret(pinfo, quic_info->hash_algo, server_pp, FALSE)) {
+            quic_info->skip_decryption = TRUE;
+            return NULL;
         }
 
         /* Create initial cipher handles for KEY_PHASE 0 and 1. */
@@ -1945,7 +1867,7 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
 
     offset = dissect_quic_long_header_common(tvb, pinfo, quic_tree, offset, quic_packet, &version, &dcid, &scid);
 
-    if (!is_quic_draft_max(version, 12) && long_packet_type == QUIC_LPT_INITIAL) {
+    if (long_packet_type == QUIC_LPT_INITIAL) {
         proto_tree_add_item_ret_varint(quic_tree, hf_quic_token_length, tvb, offset, -1, ENC_VARINT_QUIC, &token_length, &len_token_length);
         offset += len_token_length;
 
@@ -1960,7 +1882,7 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
 
 #ifdef HAVE_LIBGCRYPT_AEAD
     if (conn) {
-        if (long_packet_type == QUIC_LPT_INITIAL || is_quic_draft_max(version, 12)) {
+        if (long_packet_type == QUIC_LPT_INITIAL) {
             cipher = !from_server ? &conn->client_initial_cipher : &conn->server_initial_cipher;
         } else if (long_packet_type == QUIC_LPT_HANDSHAKE) {
             cipher = !from_server ? &conn->client_handshake_cipher : &conn->server_handshake_cipher;
@@ -1974,7 +1896,7 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
             /* Create new decryption context based on the Client Connection
              * ID from the *very first* Client Initial packet. */
             quic_create_initial_decoders(&dcid, &error, conn);
-        } else if (long_packet_type == QUIC_LPT_HANDSHAKE && !is_quic_draft_max(version, 12)) {
+        } else if (long_packet_type == QUIC_LPT_HANDSHAKE) {
             if (!cipher->pn_cipher) {
                 quic_create_decoders(pinfo, version, conn, cipher, from_server, TLS_SECRET_HANDSHAKE, &error);
             }
@@ -2119,7 +2041,7 @@ quic_get_message_tvb(tvbuff_t *tvb, const guint offset)
             if (scil) {
                 length += 3 + scil;
             }
-            if (!is_quic_draft_max(version, 12) && long_packet_type == QUIC_LPT_INITIAL) {
+            if (long_packet_type == QUIC_LPT_INITIAL) {
                 length += tvb_get_varint(tvb, offset + length, 8, &token_length, ENC_VARINT_QUIC);
                 length += (guint)token_length;
             }
@@ -2259,7 +2181,7 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 dissect_quic_version_negotiation(next_tvb, pinfo, quic_tree, quic_packet);
                 break;
             }
-            if (long_packet_type == QUIC_LPT_RETRY && !is_quic_draft_max(version, 12)) {
+            if (long_packet_type == QUIC_LPT_RETRY) {
                 dissect_quic_retry_packet(next_tvb, pinfo, quic_tree, dgram_info, quic_packet);
             } else {
                 dissect_quic_long_header(next_tvb, pinfo, quic_tree, dgram_info, quic_packet);
@@ -2812,7 +2734,6 @@ proto_register_quic(void)
 void
 proto_reg_handoff_quic(void)
 {
-    tls_handle = find_dissector("tls");
     tls13_handshake_handle = find_dissector("tls13-handshake");
     dissector_add_uint_with_preference("udp.port", 0, quic_handle);
     heur_dissector_add("udp", dissect_quic_heur, "QUIC", "quic", proto_quic, HEURISTIC_ENABLE);
