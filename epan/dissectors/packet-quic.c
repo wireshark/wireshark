@@ -11,9 +11,10 @@
  */
 
 /*
- * See https://quicwg.github.io/
- * https://tools.ietf.org/html/draft-ietf-quic-transport-13
- * https://tools.ietf.org/html/draft-ietf-quic-tls-13
+ * See https://quicwg.org
+ * https://tools.ietf.org/html/draft-ietf-quic-transport-14
+ * https://tools.ietf.org/html/draft-ietf-quic-tls-14
+ * https://tools.ietf.org/html/draft-ietf-quic-invariants-02
  */
 
 #include <config.h>
@@ -279,6 +280,7 @@ const value_string quic_version_vals[] = {
     { 0xff00000b, "draft-11" },
     { 0xff00000c, "draft-12" },
     { 0xff00000d, "draft-13" },
+    { 0xff00000e, "draft-14" },
     { 0, NULL }
 };
 
