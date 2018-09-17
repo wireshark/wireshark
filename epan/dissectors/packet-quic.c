@@ -88,7 +88,6 @@ static int hf_quic_frame_type_path_challenge_data = -1;
 static int hf_quic_frame_type_path_response_data = -1;
 
 static int hf_quic_frame_type_padding_length = -1;
-static int hf_quic_frame_type_padding = -1;
 static int hf_quic_frame_type_rsts_stream_id = -1;
 static int hf_quic_frame_type_rsts_application_error_code = -1;
 static int hf_quic_frame_type_rsts_final_offset = -1;
@@ -903,26 +902,18 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
 
     switch(frame_type){
         case FT_PADDING:{
-            proto_item *ti_pad_len;
-            guint32 padding_offset = offset, pad_len;
+            guint32 pad_len;
 
             col_append_fstr(pinfo->cinfo, COL_INFO, ", PADDING");
 
-            /* get length of padding (with check if it is always a 0) */
-            while ( tvb_reported_length_remaining(tvb, padding_offset) > 0) {
-                if(tvb_get_guint8(tvb, padding_offset) != 0){
-                    break;
-                }
-                padding_offset ++;
-            }
-            pad_len = padding_offset - offset;
-
-            ti_pad_len = proto_tree_add_uint(ft_tree, hf_quic_frame_type_padding_length, tvb, offset, 0, pad_len);
-            PROTO_ITEM_SET_GENERATED(ti_pad_len);
+            /* A padding frame consists of a single zero octet, but for brevity
+             * sake let's combine multiple zeroes into a single field. */
+            pad_len = 1 + tvb_skip_guint8(tvb, offset, tvb_reported_length_remaining(tvb, offset), '\0') - offset;
+            ti = proto_tree_add_uint(ft_tree, hf_quic_frame_type_padding_length, tvb, offset, 0, pad_len);
+            PROTO_ITEM_SET_GENERATED(ti);
             proto_item_append_text(ti_ft, " Length: %u", pad_len);
-            proto_tree_add_item(ft_tree, hf_quic_frame_type_padding, tvb, offset, pad_len, ENC_NA);
-            offset += pad_len;
-            proto_item_set_len(ti_ft, 1+pad_len);
+            offset += pad_len - 1;
+            proto_item_set_len(ti_ft, pad_len);
         }
         break;
         case FT_RST_STREAM:{
@@ -2565,14 +2556,9 @@ proto_register_quic(void)
         },
         /* PADDING */
         { &hf_quic_frame_type_padding_length,
-          { "Padding Length", "quic.frame_type.padding.length",
+          { "Padding Length", "quic.frame_type.padding_length",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
-        },
-        { &hf_quic_frame_type_padding,
-          { "Padding", "quic.frame_type.padding",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
-            "Must be zero", HFILL }
         },
         /* RST_STREAM */
         { &hf_quic_frame_type_rsts_stream_id,
