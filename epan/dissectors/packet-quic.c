@@ -642,6 +642,15 @@ quic_cids_has_match(const quic_cid_item_t *items, const quic_cid_t *raw_cid)
     return FALSE;
 }
 
+static void
+quic_cids_insert(quic_cid_t *cid, quic_info_data_t *conn, gboolean from_server)
+{
+    wmem_map_t *connections = from_server ? quic_server_connections : quic_client_connections;
+    // Replace any previous CID key with the new one.
+    wmem_map_remove(connections, cid);
+    wmem_map_insert(connections, cid, conn);
+}
+
 /**
  * Tries to lookup a matching connection (Connection ID is optional).
  * If connection is found, "from_server" is set accordingly.
@@ -756,7 +765,7 @@ quic_connection_create(packet_info *pinfo, guint32 version, const quic_cid_t *sc
     // Key connection by Client CID (if provided).
     if (scid->len) {
         memcpy(&conn->client_cids.data, scid, sizeof(quic_cid_t));
-        wmem_map_insert(quic_client_connections, &conn->client_cids.data, conn);
+        quic_cids_insert(&conn->client_cids.data, conn, FALSE);
     }
     if (dcid->len > 0) {
         // According to the spec, the Initial Packet DCID MUST be at least 8
@@ -770,6 +779,31 @@ quic_connection_create(packet_info *pinfo, guint32 version, const quic_cid_t *sc
     conversation_add_proto_data(conv, proto_quic, conn);
 
     return conn;
+}
+
+/**
+ * Use the new CID as additional identifier for the specified connection and
+ * remember it for connection tracking.
+ */
+static void
+quic_connection_add_cid(quic_info_data_t *conn, const quic_cid_t *new_cid, gboolean from_server)
+{
+    DISSECTOR_ASSERT(new_cid->len > 0);
+    quic_cid_item_t *items = from_server ? &conn->server_cids : &conn->client_cids;
+
+    if (quic_cids_has_match(items, new_cid)) {
+        // CID is already known for this connection.
+        return;
+    }
+
+    // Insert new CID right after the first known CID (the very first CID cannot
+    // be overwritten since it might be used as key somewhere else).
+    quic_cid_item_t *new_item = wmem_new0(wmem_file_scope(), quic_cid_item_t);
+    new_item->data = *new_cid;
+    new_item->next = items->next;
+    items->next = new_item;
+
+    quic_cids_insert(&new_item->data, conn, from_server);
 }
 
 /** Create or update a connection. */
@@ -816,7 +850,7 @@ quic_connection_create_or_update(quic_info_data_t **conn_p,
             }
             if (conn->server_cids.data.len == 0 && scid->len) {
                 memcpy(&conn->server_cids.data, scid, sizeof(quic_cid_t));
-                wmem_map_insert(quic_server_connections, &conn->server_cids.data, conn);
+                quic_cids_insert(&conn->server_cids.data, conn, TRUE);
             }
         }
         break;
@@ -842,7 +876,7 @@ quic_connection_destroy(gpointer data, gpointer user_data _U_)
 
 #ifdef HAVE_LIBGCRYPT_AEAD
 static int
-dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, guint32 version _U_)
+dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, quic_info_data_t *quic_info, gboolean from_server)
 {
     proto_item *ti_ft, *ti_ftflags, *ti;
     proto_tree *ft_tree, *ftflags_tree;
@@ -1035,6 +1069,12 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             }
 
             proto_tree_add_item(ft_tree, hf_quic_frame_type_nci_connection_id, tvb, offset, nci_length, ENC_NA);
+            if (valid_cid && quic_info) {
+                quic_cid_t cid = {.len=0};
+                tvb_memcpy(tvb, cid.cid, offset, nci_length);
+                cid.len = nci_length;
+                quic_connection_add_cid(quic_info, &cid, from_server);
+            }
             offset += nci_length;
 
             proto_tree_add_item(ft_tree, hf_quic_frame_type_nci_stateless_reset_token, tvb, offset, 16, ENC_NA);
@@ -1690,10 +1730,10 @@ quic_get_pp_cipher(packet_info *pinfo, gboolean key_phase, quic_info_data_t *qui
  */
 static void
 quic_process_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *ti, guint offset,
-                     quic_info_data_t *quic_info, quic_packet_info_t *quic_packet, quic_cipher *cipher, guint pkn_len)
+                     quic_info_data_t *quic_info, quic_packet_info_t *quic_packet, gboolean from_server,
+                     quic_cipher *cipher, guint pkn_len)
 {
     quic_decrypt_result_t *decryption = &quic_packet->decryption;
-    guint32     version = quic_info ? quic_info->version : 0;
 
     /*
      * If no decryption error has occurred yet, try decryption on the first
@@ -1715,7 +1755,7 @@ quic_process_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
 
         guint decrypted_offset = 0;
         while (tvb_reported_length_remaining(decrypted_tvb, decrypted_offset) > 0) {
-            decrypted_offset = dissect_quic_frame_type(decrypted_tvb, pinfo, tree, decrypted_offset, version);
+            decrypted_offset = dissect_quic_frame_type(decrypted_tvb, pinfo, tree, decrypted_offset, quic_info, from_server);
         }
     } else if (quic_info->skip_decryption) {
         expert_add_info_format(pinfo, ti, &ei_quic_decryption_failed,
@@ -1725,7 +1765,8 @@ quic_process_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
 #else /* !HAVE_LIBGCRYPT_AEAD */
 static void
 quic_process_payload(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_, proto_item *ti, guint offset _U_,
-                     quic_info_data_t *quic_info _U_, quic_packet_info_t *quic_packet _U_, quic_cipher *cipher _U_, guint pkn_len _U_)
+                     quic_info_data_t *quic_info _U_, quic_packet_info_t *quic_packet _U_, gboolean from_server,
+                     quic_cipher *cipher _U_, guint pkn_len _U_)
 {
     expert_add_info_format(pinfo, ti, &ei_quic_decryption_failed, "Libgcrypt >= 1.6.0 is required for QUIC decryption");
 }
@@ -1925,7 +1966,7 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
 
     if (conn) {
         quic_process_payload(tvb, pinfo, quic_tree, ti, offset,
-                             conn, quic_packet, cipher, pkn_len);
+                             conn, quic_packet, from_server, cipher, pkn_len);
     }
     offset += tvb_reported_length_remaining(tvb, offset);
 
@@ -1987,7 +2028,7 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
 
     if (conn) {
         quic_process_payload(tvb, pinfo, quic_tree, ti, offset,
-                             conn, quic_packet, cipher, pkn_len);
+                             conn, quic_packet, from_server, cipher, pkn_len);
     }
     offset += tvb_reported_length_remaining(tvb, offset);
 
