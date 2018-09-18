@@ -2250,6 +2250,34 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return offset;
 }
 
+static gboolean
+dissect_quic_short_header_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    // If this capture does not contain QUIC, skip the more expensive checks.
+    if (quic_cid_lengths == 0) {
+        return FALSE;
+    }
+
+    // Is this a SH packet after connection migration? SH (draft -14):
+    // Flag (1) + DCID (4-18) + PKN (1/2/4) + encrypted payload (>= 16).
+    if (tvb_captured_length(tvb) < 1 + 4 + 1 + 16) {
+        return FALSE;
+    }
+
+    // DCID length is unknown, so extract the maximum and look for a match.
+    quic_cid_t dcid = {.len=18};
+    tvb_memcpy(tvb, dcid.cid, 1, 18);
+    gboolean from_server;
+    if (!quic_connection_find(pinfo, QUIC_SHORT_PACKET, &dcid, &from_server)) {
+        return FALSE;
+    }
+
+    conversation_t *conversation = find_or_create_conversation(pinfo);
+    conversation_set_dissector(conversation, quic_handle);
+    dissect_quic(tvb, pinfo, tree, NULL);
+    return TRUE;
+}
+
 static gboolean dissect_quic_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     /*
@@ -2276,7 +2304,8 @@ static gboolean dissect_quic_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     flags = tvb_get_guint8(tvb, offset);
     /* Check if long Packet is set */
     if((flags & 0x80) == 0) {
-        return FALSE;
+        // Perhaps this is a short header, check it.
+        return dissect_quic_short_header_heur(tvb, pinfo, tree);
     }
     offset += 1;
 
