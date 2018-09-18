@@ -1347,7 +1347,7 @@ static const ssl_alpn_prefix_match_protocol_t ssl_alpn_prefix_match_protocols[] 
 };
 
 const value_string quic_transport_parameter_id[] = {
-    { SSL_HND_QUIC_TP_INITIAL_MAX_STREAM_DATA, "initial_max_stream_data" },
+    { SSL_HND_QUIC_TP_INITIAL_MAX_STREAM_DATA_BIDI_LOCAL, "initial_max_stream_data_bidi_local" },
     { SSL_HND_QUIC_TP_INITIAL_MAX_DATA, "initial_max_data" },
     { SSL_HND_QUIC_TP_INITIAL_MAX_BIDI_STREAMS, "initial_max_bidi_streams" },
     { SSL_HND_QUIC_TP_IDLE_TIMEOUT, "idle_timeout" },
@@ -1357,6 +1357,8 @@ const value_string quic_transport_parameter_id[] = {
     { SSL_HND_QUIC_TP_ACK_DELAY_EXPONENT, "ack_delay_exponent" },
     { SSL_HND_QUIC_TP_INITIAL_MAX_UNI_STREAMS, "initial_max_uni_streams" },
     { SSL_HND_QUIC_TP_DISABLE_MIGRATION, "disable_migration" },
+    { SSL_HND_QUIC_TP_INITIAL_MAX_STREAM_DATA_BIDI_REMOTE, "initial_max_stream_data_bidi_remote" },
+    { SSL_HND_QUIC_TP_INITIAL_MAX_STREAM_DATA_UNI, "initial_max_stream_data_uni" },
     { 0, NULL }
 };
 
@@ -6519,10 +6521,10 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
 {
     guint32 quic_length, parameter_length, supported_versions_length, next_offset;
 
-    /* https://tools.ietf.org/html/draft-ietf-quic-transport-12#section-6.4
+    /* https://tools.ietf.org/html/draft-ietf-quic-transport-14#section-6.6
     *  uint32 QuicVersion;
      *  enum {
-     *     initial_max_stream_data(0),
+     *     initial_max_stream_data_bidi_local(0),
      *     initial_max_data(1),
      *     initial_max_bidi_streams(2),
      *     idle_timeout(3),
@@ -6532,6 +6534,8 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
      *     ack_delay_exponent(7),
      *     initial_max_uni_streams(8),
      *     disable_migration(9),
+     *     initial_max_stream_data_bidi_remote(10),
+     *     initial_max_stream_data_uni(11),
      *     (65535)
      *  } TransportParameterId;
      *
@@ -6625,8 +6629,8 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
                             tvb, offset, parameter_length, ENC_NA);
 
         switch (parameter_type) {
-            case SSL_HND_QUIC_TP_INITIAL_MAX_STREAM_DATA:
-                proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_initial_max_stream_data,
+            case SSL_HND_QUIC_TP_INITIAL_MAX_STREAM_DATA_BIDI_LOCAL:
+                proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_initial_max_stream_data_bidi_local,
                                     tvb, offset, 4, ENC_BIG_ENDIAN);
                 proto_item_append_text(parameter_tree, " %u", tvb_get_ntohl(tvb, offset));
                 offset += 4;
@@ -6720,6 +6724,18 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
             break;
             case SSL_HND_QUIC_TP_DISABLE_MIGRATION:
                 /* No Payload */
+            break;
+            case SSL_HND_QUIC_TP_INITIAL_MAX_STREAM_DATA_BIDI_REMOTE:
+                proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_initial_max_stream_data_bidi_remote,
+                                    tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_item_append_text(parameter_tree, " %u", tvb_get_ntohl(tvb, offset));
+                offset += 4;
+            break;
+            case SSL_HND_QUIC_TP_INITIAL_MAX_STREAM_DATA_UNI:
+                proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_initial_max_stream_data_uni,
+                                    tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_item_append_text(parameter_tree, " %u", tvb_get_ntohl(tvb, offset));
+                offset += 4;
             break;
             default:
                 offset += parameter_length;
