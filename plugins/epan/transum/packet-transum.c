@@ -18,6 +18,7 @@
 #include <epan/proto.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <wsutil/ws_printf.h>
 #include "packet-transum.h"
 #include "preferences.h"
 #include "extractors.h"
@@ -59,7 +60,7 @@ HF_OF_INTEREST_INFO hf_of_interest[HF_INTEREST_END_OF_LIST] = {
     { -1, "udp.stream" },
     { -1, "udp.length" },
 
-    { -1, "ssl.record.content_type" },
+    { -1, "tls.record.content_type" },
 
     { -1, "tds.type" },
     { -1, "tds.length" },
@@ -768,7 +769,10 @@ static void init_globals(void)
     GArray *wanted_fields = g_array_sized_new(FALSE, FALSE, (guint)sizeof(int), HF_INTEREST_END_OF_LIST);
     for (int i = 0; i < HF_INTEREST_END_OF_LIST; i++)
     {
-        g_array_append_val(wanted_fields, hf_of_interest[i].hf);
+        if (hf_of_interest[i].hf != -1)
+            g_array_append_val(wanted_fields, hf_of_interest[i].hf);
+        else
+            ws_g_warning("TRANSUM: unknown field %s", hf_of_interest[i].proto_name);
     }
     set_postdissector_wanted_hfids(transum_handle, wanted_fields);
 

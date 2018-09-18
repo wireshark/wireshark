@@ -92,7 +92,7 @@ typedef struct _PKT_INFO
     guint16 dstport;  /* tcp.dstport or udp.dstport*/
     guint16 len;  /* tcp.len or udp.len */
 
-    guint8  ssl_content_type;  /*ssl.record.content_type */
+    guint8  ssl_content_type;  /*tls.record.content_type */
 
     guint8  tds_type;  /*tds.type */
     guint16 tds_length;  /* tds.length */
