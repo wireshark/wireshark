@@ -255,6 +255,7 @@ typedef struct quic_datagram {
 static wmem_map_t *quic_client_connections, *quic_server_connections;
 static wmem_map_t *quic_initial_connections;    /* Initial.DCID -> connection */
 static wmem_list_t *quic_connections;   /* All unique connections. */
+static guint32 quic_cid_lengths;        /* Bitmap of CID lengths. */
 static guint quic_connections_count;
 
 /* Returns the QUIC draft version or 0 if not applicable. */
@@ -649,6 +650,13 @@ quic_cids_insert(quic_cid_t *cid, quic_info_data_t *conn, gboolean from_server)
     // Replace any previous CID key with the new one.
     wmem_map_remove(connections, cid);
     wmem_map_insert(connections, cid, conn);
+    quic_cid_lengths |= (1 << cid->len);
+}
+
+static inline gboolean
+quic_cids_is_known_length(const quic_cid_t *cid)
+{
+    return (quic_cid_lengths & (1 << cid->len)) != 0;
 }
 
 /**
@@ -669,7 +677,7 @@ quic_connection_find_dcid(packet_info *pinfo, const quic_cid_t *dcid, gboolean *
     quic_info_data_t *conn = NULL;
     gboolean check_ports = FALSE;
 
-    if (dcid && dcid->len > 0) {
+    if (dcid && dcid->len > 0 && quic_cids_is_known_length(dcid)) {
         conn = (quic_info_data_t *) wmem_map_lookup(quic_client_connections, dcid);
         if (conn) {
             // DCID recognized by client, so it was from server.
@@ -738,7 +746,9 @@ quic_connection_find(packet_info *pinfo, guint8 long_packet_type,
         // actual DCID is unknown, so just keep decrementing until found.
         while (!conn && dcid->len > 4) {
             dcid->len--;
-            conn = quic_connection_find_dcid(pinfo, dcid, from_server);
+            if (quic_cids_is_known_length(dcid)) {
+                conn = quic_connection_find_dcid(pinfo, dcid, from_server);
+            }
         }
         if (!conn) {
             // No match found, truncate DCID (not really needed, but this
@@ -2291,6 +2301,7 @@ quic_init(void)
     quic_initial_connections = wmem_map_new(wmem_file_scope(), quic_connection_hash, quic_connection_equal);
     quic_client_connections = wmem_map_new(wmem_file_scope(), quic_connection_hash, quic_connection_equal);
     quic_server_connections = wmem_map_new(wmem_file_scope(), quic_connection_hash, quic_connection_equal);
+    quic_cid_lengths = 0;
 }
 
 /** Release QUIC dissection state on closing a capture file. */
