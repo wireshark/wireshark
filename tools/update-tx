@@ -17,7 +17,8 @@ LUPDATE_FILES=$(find ui/qt -name '*.cpp' -o -name '*.h' -o -name '*.ui')
 
 # Add line numbers
 for i in ui/qt/*.ts ; do
-    lupdate -locations absolute "${LUPDATE_FILES[@]}" -ts "$i"
+    # shellcheck disable=SC2086
+    lupdate -locations absolute ${LUPDATE_FILES} -ts "$i"
 done
 
 # Get last translation for Transifex
@@ -25,7 +26,8 @@ tx pull -f
 
 # Regenerate last translation for repo
 for i in ui/qt/*.ts ; do
-    lupdate -locations absolute "${LUPDATE_FILES[@]}" -ts "$i"
+    # shellcheck disable=SC2086
+    lupdate -locations absolute ${LUPDATE_FILES} -ts "$i"
 done
 
 # Push last change tranlastion on Transifex
@@ -35,7 +37,8 @@ fi
 
 # Remove line numbers
 for i in ui/qt/*.ts ; do
-    lupdate -locations none -no-ui-lines "${LUPDATE_FILES[@]}" -ts "$i"
+    # shellcheck disable=SC2086
+    lupdate -locations none -no-ui-lines ${LUPDATE_FILES} -ts "$i"
 done
 
 #Add new commit with last translaation update
