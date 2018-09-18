@@ -13,7 +13,6 @@
 #include "config.h"
 
 #include <epan/wmem/wmem.h>
-#include <wsutil/ws_printf.h> /* ws_g_warning */
 
 #include "wslua.h"
 
@@ -49,10 +48,10 @@ static void lua_menu_callback(gpointer data) {
         case 0:
             break;
         case LUA_ERRRUN:
-            ws_g_warning("Runtime error while calling menu callback");
+            g_warning("Runtime error while calling menu callback");
             break;
         case LUA_ERRMEM:
-            ws_g_warning("Memory alloc error while calling menu callback");
+            g_warning("Memory alloc error while calling menu callback");
             break;
         default:
             g_assert_not_reached();
@@ -146,10 +145,10 @@ static void lua_dialog_cb(gchar** user_input, void* data) {
         case 0:
             break;
         case LUA_ERRRUN:
-            ws_g_warning("Runtime error while calling dialog callback");
+            g_warning("Runtime error while calling dialog callback");
             break;
         case LUA_ERRMEM:
-            ws_g_warning("Memory alloc error while calling dialog callback");
+            g_warning("Memory alloc error while calling dialog callback");
             break;
         default:
             g_assert_not_reached();
@@ -185,10 +184,10 @@ static void text_win_close_cb(void* data) {
             case 0:
                 break;
             case LUA_ERRRUN:
-                ws_g_warning("Runtime error during execution of TextWindow close callback");
+                g_warning("Runtime error during execution of TextWindow close callback");
                 break;
             case LUA_ERRMEM:
-                ws_g_warning("Memory alloc error during execution of TextWindow close callback");
+                g_warning("Memory alloc error during execution of TextWindow close callback");
                 break;
             default:
                 break;
@@ -614,10 +613,10 @@ static gboolean wslua_button_callback(funnel_text_window_t* ws_tw, void* data) {
         case 0:
             break;
         case LUA_ERRRUN:
-            ws_g_warning("Runtime error while calling button callback");
+            g_warning("Runtime error while calling button callback");
             break;
         case LUA_ERRMEM:
-            ws_g_warning("Memory alloc error while calling button callback");
+            g_warning("Memory alloc error while calling button callback");
             break;
         default:
             g_assert_not_reached();

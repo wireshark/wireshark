@@ -32,7 +32,6 @@
 #include <epan/decode_as.h>
 #include "print.h"
 #include <wsutil/file_util.h>
-#include <wsutil/ws_printf.h> /* ws_g_warning */
 #include <wsutil/report_message.h>
 
 #include <epan/prefs-int.h>
@@ -4456,7 +4455,7 @@ read_prefs_file(const char *pf_path, FILE *pf,
                                  * If the pref has a trailing comma, eliminate it.
                                  */
                                 cur_val->str[cur_val->len-1] = '\0';
-                                ws_g_warning ("%s line %d: trailing comma in \"%s\" %s", pf_path, pline, cur_var->str, hint);
+                                g_warning ("%s line %d: trailing comma in \"%s\" %s", pf_path, pline, cur_var->str, hint);
                             }
                         }
                         /* Call the routine to set the preference; it will parse
@@ -4472,7 +4471,7 @@ read_prefs_file(const char *pf_path, FILE *pf,
                             break;
 
                         case PREFS_SET_SYNTAX_ERR:
-                            ws_g_warning ("Syntax error in preference \"%s\" at line %d of\n%s %s",
+                            g_warning ("Syntax error in preference \"%s\" at line %d of\n%s %s",
                                        cur_var->str, pline, pf_path, hint);
                             break;
 
@@ -4482,7 +4481,7 @@ read_prefs_file(const char *pf_path, FILE *pf,
                              * on non-Win32 platforms.
                              */
                             if (strcmp(cur_var->str, "print.command") != 0)
-                                ws_g_warning ("No such preference \"%s\" at line %d of\n%s %s",
+                                g_warning ("No such preference \"%s\" at line %d of\n%s %s",
                                            cur_var->str, pline, pf_path, hint);
                             prefs.unknown_prefs = TRUE;
                             break;
@@ -4495,13 +4494,13 @@ read_prefs_file(const char *pf_path, FILE *pf,
                                    The prefs in question need to be listed in the console window so that the
                                    user can make an informed choice.
                                 */
-                                ws_g_warning ("Obsolete preference \"%s\" at line %d of\n%s %s",
+                                g_warning ("Obsolete preference \"%s\" at line %d of\n%s %s",
                                            cur_var->str, pline, pf_path, hint);
                             prefs.unknown_prefs = TRUE;
                             break;
                         }
                     } else {
-                        ws_g_warning ("Incomplete preference at line %d: of\n%s %s", pline, pf_path, hint);
+                        g_warning ("Incomplete preference at line %d: of\n%s %s", pline, pf_path, hint);
                     }
                 }
                 state      = IN_VAR;
@@ -4514,7 +4513,7 @@ read_prefs_file(const char *pf_path, FILE *pf,
             } else if (got_c == '#') {
                 state = IN_SKIP;
             } else {
-                ws_g_warning ("Malformed preference at line %d of\n%s %s", fline, pf_path, hint);
+                g_warning ("Malformed preference at line %d of\n%s %s", fline, pf_path, hint);
             }
             break;
         case IN_VAR:
@@ -4559,12 +4558,12 @@ read_prefs_file(const char *pf_path, FILE *pf,
                 break;
 
             case PREFS_SET_SYNTAX_ERR:
-                ws_g_warning ("Syntax error in preference %s at line %d of\n%s %s",
+                g_warning ("Syntax error in preference %s at line %d of\n%s %s",
                            cur_var->str, pline, pf_path, hint);
                 break;
 
             case PREFS_SET_NO_SUCH_PREF:
-                ws_g_warning ("No such preference \"%s\" at line %d of\n%s %s",
+                g_warning ("No such preference \"%s\" at line %d of\n%s %s",
                            cur_var->str, pline, pf_path, hint);
                 prefs.unknown_prefs = TRUE;
                 break;
@@ -4574,7 +4573,7 @@ read_prefs_file(const char *pf_path, FILE *pf,
                 break;
             }
         } else {
-            ws_g_warning("Incomplete preference at line %d of\n%s %s",
+            g_warning("Incomplete preference at line %d of\n%s %s",
                        pline, pf_path, hint);
         }
     }
@@ -5230,16 +5229,16 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
         for (i = 0; i < G_N_ELEMENTS(port_prefs); i++) {
             module = prefs_find_module(port_prefs[i].module_name);
             if (!module) {
-                ws_g_warning("Deprecated ports pref check - module '%s' not found", port_prefs[i].module_name);
+                g_warning("Deprecated ports pref check - module '%s' not found", port_prefs[i].module_name);
                 continue;
             }
             pref = prefs_find_preference(module, port_prefs[i].table_name);
             if (!pref) {
-                ws_g_warning("Deprecated ports pref '%s.%s' not found", module->name, port_prefs[i].table_name);
+                g_warning("Deprecated ports pref '%s.%s' not found", module->name, port_prefs[i].table_name);
                 continue;
             }
             if (pref->type != PREF_DECODE_AS_UINT && pref->type != PREF_DECODE_AS_RANGE) {
-                ws_g_warning("Deprecated ports pref '%s.%s' has wrong type: %#x (%s)", module->name, port_prefs[i].table_name, pref->type, prefs_pref_type_name(pref));
+                g_warning("Deprecated ports pref '%s.%s' has wrong type: %#x (%s)", module->name, port_prefs[i].table_name, pref->type, prefs_pref_type_name(pref));
             }
         }
     }
@@ -5513,7 +5512,7 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
                         }
                     }
                     if (module) {
-                        ws_g_warning ("Preference \"%s.%s\" has been converted to \"%s.%s\"\n"
+                        g_warning ("Preference \"%s.%s\" has been converted to \"%s.%s\"\n"
                                    "Save your preferences to make this change permanent.",
                                    pref_name, dotp+1, module->name, dotp+1);
                         prefs.unknown_prefs = TRUE;
@@ -6611,7 +6610,7 @@ write_prefs(char **pf_path_return)
             char *err = NULL;
             prefs.filter_expressions_old = FALSE;
             if (!uat_save(uat_get_table_by_name("Display expressions"), &err)) {
-                ws_g_warning("Unable to save Display expressions: %s", err);
+                g_warning("Unable to save Display expressions: %s", err);
                 g_free(err);
             }
         }

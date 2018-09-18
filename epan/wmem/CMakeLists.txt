@@ -84,7 +84,8 @@ CHECKAPI(
 	NAME
 	  wmem
 	SWITCHES
-	  -g termoutput -build
+	  --group termoutput:1 --summary-group termoutput
+	  --build
 	SOURCES
 	  ${WMEM_FILES}
 )

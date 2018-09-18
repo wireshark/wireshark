@@ -23,7 +23,6 @@
 
 #include "disabled_protos.h"
 #include <wsutil/file_util.h>
-#include <wsutil/ws_printf.h> /* ws_g_warning */
 #include <wsutil/report_message.h>
 
 #define ENABLED_PROTOCOLS_FILE_NAME     "enabled_protos"
@@ -321,7 +320,7 @@ read_protos_list_file(const char *ff_path, FILE *ff, GList **flp)
       if (c != EOF && c != '\n' && c != '#') {
         /* Non-white-space after the protocol name; warn about it,
            in case we come up with a reason to use it. */
-        ws_g_warning("'%s' line %d has extra stuff after the protocol name.",
+        g_warning("'%s' line %d has extra stuff after the protocol name.",
                   ff_path, line);
       }
     }
@@ -336,7 +335,7 @@ read_protos_list_file(const char *ff_path, FILE *ff, GList **flp)
         goto error;     /* I/O error */
       else {
         /* EOF, not error; no newline seen before EOF */
-        ws_g_warning("'%s' line %d doesn't have a newline.", ff_path,
+        g_warning("'%s' line %d doesn't have a newline.", ff_path,
                   line);
       }
       break;    /* nothing more to read */
@@ -642,7 +641,7 @@ read_heur_dissector_list_file(const char *ff_path, FILE *ff, GList **flp)
       if (c != EOF && c != '\n' && c != '#') {
         /* Non-white-space after the protocol name; warn about it,
            in case we come up with a reason to use it. */
-        ws_g_warning("'%s' line %d has extra stuff after the protocol name.",
+        g_warning("'%s' line %d has extra stuff after the protocol name.",
                   ff_path, line);
       }
     }
@@ -657,7 +656,7 @@ read_heur_dissector_list_file(const char *ff_path, FILE *ff, GList **flp)
         goto error;     /* I/O error */
       else {
         /* EOF, not error; no newline seen before EOF */
-        ws_g_warning("'%s' line %d doesn't have a newline.", ff_path,
+        g_warning("'%s' line %d doesn't have a newline.", ff_path,
                   line);
       }
       break;    /* nothing more to read */

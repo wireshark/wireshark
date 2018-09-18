@@ -61,7 +61,9 @@ CHECKAPI(
 	NAME
 	  mate
 	SWITCHES
-	  -g abort -g termoutput -build
+	  --group abort
+	  --group termoutput:1 --summary-group termoutput
+	  --build
 	SOURCES
 	  ${DISSECTOR_SRC}
 	  ${DISSECTOR_SUPPORT_SRC}

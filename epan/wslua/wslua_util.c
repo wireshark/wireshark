@@ -17,7 +17,6 @@
 #include "wslua.h"
 #include <math.h>
 #include <epan/stat_tap_ui.h>
-#include <wsutil/ws_printf.h> /* ws_g_warning */
 
 
 WSLUA_FUNCTION wslua_get_version(lua_State* L) { /* Gets a string of the Wireshark version. */
@@ -243,10 +242,10 @@ static void statcmd_init(const char *opt_arg, void* userdata) {
         case 0:
             break;
         case LUA_ERRRUN:
-            ws_g_warning("Runtime error while calling statcmd callback");
+            g_warning("Runtime error while calling statcmd callback");
             break;
         case LUA_ERRMEM:
-            ws_g_warning("Memory alloc error while calling statcmd callback");
+            g_warning("Memory alloc error while calling statcmd callback");
             break;
         default:
             g_assert_not_reached();

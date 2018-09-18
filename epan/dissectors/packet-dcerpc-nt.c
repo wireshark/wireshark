@@ -21,7 +21,6 @@
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
 #include "packet-windows-common.h"
-#include <wsutil/ws_printf.h> /* ws_g_warning */
 
 
 int hf_nt_cs_len = -1;
@@ -778,7 +777,7 @@ void dcerpc_store_polhnd_name(e_ctx_hnd *policy_hnd, packet_info *pinfo,
 		if (pol->name && name) {
 #ifdef DEBUG_HASH_COLL
 			if (strcmp(pol->name, name) != 0)
-				ws_g_warning("dcerpc_smb: pol_hash name collision %s/%s\n", value->name, name);
+				g_warning("dcerpc_smb: pol_hash name collision %s/%s\n", value->name, name);
 #endif
 			/* pol->name is wmem_file_scope() allocated, don't free it now */
 		}

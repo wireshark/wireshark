@@ -772,7 +772,7 @@ static void init_globals(void)
         if (hf_of_interest[i].hf != -1)
             g_array_append_val(wanted_fields, hf_of_interest[i].hf);
         else
-            ws_g_warning("TRANSUM: unknown field %s", hf_of_interest[i].proto_name);
+            g_warning("TRANSUM: unknown field %s", hf_of_interest[i].proto_name);
     }
     set_postdissector_wanted_hfids(transum_handle, wanted_fields);
 

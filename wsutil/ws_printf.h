@@ -71,11 +71,6 @@ debugging context has a protocol tree.
 */
 #define ws_debug_printf     printf
 
-/* This is intended to fool checkAPIs.pl for few places that have legitimate
-use for g_warning. This should be used sparingly.
-*/
-#define ws_g_warning  g_warning
-
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

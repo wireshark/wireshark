@@ -39,7 +39,7 @@
 #include <epan/range.h>
 
 #include <wsutil/str_util.h>
-#include <wsutil/ws_printf.h> /* ws_debug_printf and ws_g_warning */
+#include <wsutil/ws_printf.h> /* ws_debug_printf */
 
 static gint proto_malformed = -1;
 static dissector_handle_t frame_handle = NULL;
@@ -933,7 +933,7 @@ find_dissector_table(const char *name)
 			dissector_table = (dissector_table_t) g_hash_table_lookup(dissector_tables, new_name);
 		}
 		if (dissector_table) {
-			ws_g_warning("%s is now %s", name, new_name);
+			g_warning("%s is now %s", name, new_name);
 		}
 	}
 	return dissector_table;

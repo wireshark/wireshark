@@ -22,8 +22,6 @@
 #include <epan/proto_data.h>
 #include <epan/uat.h>
 
-#include <wsutil/ws_printf.h> /* ws_g_warning */
-
 #include "packet-per.h"
 #include "packet-isup.h"
 #include "packet-umts_fp.h"
@@ -48,7 +46,7 @@
 #define DEBUG_NBAP 0
 #if DEBUG_NBAP
 #include <epan/to_str.h>
-#define nbap_debug(...) ws_g_warning(__VA_ARGS__)
+#define nbap_debug(...) g_warning(__VA_ARGS__)
 #else
 #define nbap_debug(...)
 #endif

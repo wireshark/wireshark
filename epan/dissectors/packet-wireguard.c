@@ -26,7 +26,6 @@
 #include <epan/proto_data.h>
 #include <epan/uat.h>
 #include <wsutil/file_util.h>
-#include <wsutil/ws_printf.h> /* ws_g_warning */
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/curve25519.h>
 
@@ -912,7 +911,7 @@ wg_process_response(tvbuff_t *tvb, wg_handshake_state_t *hs)
     // XXX when multiple responses are linkable to a single handshake state,
     // they should probably fork into a new state or be discarded when equal.
     if (hs->initiator_recv_cipher || hs->responder_recv_cipher) {
-        ws_g_warning("%s FIXME multiple responses linked to a single session", G_STRFUNC);
+        g_warning("%s FIXME multiple responses linked to a single session", G_STRFUNC);
         return;
     }
     DISSECTOR_ASSERT(!hs->initiator_recv_cipher);
@@ -1836,7 +1835,7 @@ proto_register_wg(void)
             &pref_keylog_file, FALSE);
 
     if (!wg_decrypt_init()) {
-        ws_g_warning("%s: decryption will not be possible due to lack of algorithms support", G_STRFUNC);
+        g_warning("%s: decryption will not be possible due to lack of algorithms support", G_STRFUNC);
     }
 
     wg_ephemeral_keys = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_int_hash, wg_pubkey_equal);

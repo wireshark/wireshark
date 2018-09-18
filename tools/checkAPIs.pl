@@ -890,8 +890,8 @@ sub check_pref_var_dupes($$)
 
 sub print_usage
 {
-        print "Usage: checkAPIs.pl [-M] [-h] [-g group1] [-g group2] ... \n";
-        print "                    [--build] [-s group1] [-s group2] ... \n";
+        print "Usage: checkAPIs.pl [-M] [-h] [-g group1[:count]] [-g group2] ... \n";
+        print "                    [--build] [-summary-group group1] [-summary-group group2] ... \n";
         print "                    [--sourcedir=srcdir] \n";
         print "                    [--nocheck-value-string-array] \n";
         print "                    [--nocheck-addtext] [--nocheck-hf] [--debug]\n";
@@ -903,7 +903,8 @@ sub print_usage
         print "       -h: help, print usage message\n";
         print "       -g <group>:  Check input files for use of APIs in <group>\n";
         print "                    (in addition to the default groups)\n";
-        print "       -s <group>:  Output summary (count) for each API in <group>\n";
+        print "                    Maximum uses can be specified with <group>:<count>\n";
+        print "       -summary-group <group>:  Output summary (count) for each API in <group>\n";
         print "                    (-g <group> also req'd)\n";
         print "       ---nocheck-value-string-array: UNDOCUMENTED\n";
         print "       ---nocheck-addtext: UNDOCUMENTED\n";
@@ -1078,6 +1079,11 @@ for my $apiGroup (keys %APIs) {
 
         $APIs{$apiGroup}->{function_counts}   = {};
         @{$APIs{$apiGroup}->{function_counts}}{@functions} = ();  # Add fcn names as keys to the anonymous hash
+        $APIs{$apiGroup}->{max_function_count}   = -1;
+        if ($APIs{$apiGroup}->{count_errors}) {
+                $APIs{$apiGroup}->{max_function_count}   = 0;
+        }
+        $APIs{$apiGroup}->{cur_function_count}   = 0;
 }
 
 my @filelist;
@@ -1219,11 +1225,35 @@ while ($_ = pop @filelist)
 
 
         # Check and count APIs
-        for my $apiGroup (@apiGroups) {
+        for my $groupArg (@apiGroups) {
                 my $pfx = "Warning";
                 @foundAPIs = ();
+                my @groupParts = split(/:/, $groupArg);
+                my $apiGroup = $groupParts[0];
+                my $curFuncCount = 0;
+
+                if (scalar @groupParts > 1) {
+                        $APIs{$apiGroup}->{max_function_count} = $groupParts[1];
+                }
 
                 findAPIinFile($APIs{$apiGroup}, \$fileContents, \@foundAPIs);
+
+                for my $api (keys %{$APIs{$apiGroup}->{function_counts}}   ) {
+                        $curFuncCount += $APIs{$apiGroup}{function_counts}{$api};
+                }
+
+                # If we have a max function count and we've exceeded it, treat it
+                # as an error.
+                if (!$APIs{$apiGroup}->{count_errors} && $APIs{$apiGroup}->{max_function_count} >= 0) {
+                        if ($curFuncCount > $APIs{$apiGroup}->{max_function_count}) {
+                                print STDERR $pfx . ": " . $apiGroup . " exceeds maximum function count: " . $APIs{$apiGroup}->{max_function_count} . "\n";
+                                $APIs{$apiGroup}->{count_errors} = 1;
+                        }
+                }
+
+                if ($curFuncCount <= $APIs{$apiGroup}->{max_function_count}) {
+                        next;
+                }
 
                 if ($APIs{$apiGroup}->{count_errors}) {
                         # the use of "prohibited" APIs is an error, increment the error count
@@ -1244,10 +1274,16 @@ while ($_ = pop @filelist)
 
 # Summary: Print Use Counts of each API in each requested summary group
 
-for my $apiGroup (@apiSummaryGroups) {
-        printf "\n\nUse Counts\n";
-        for my $api (sort {"\L$a" cmp "\L$b"} (keys %{$APIs{$apiGroup}->{function_counts}}   )) {
-                printf "%-20.20s %5d  %-40.40s\n", $apiGroup . ':', $APIs{$apiGroup}{function_counts}{$api}, $api;
+if (scalar @apiSummaryGroups > 0) {
+        my $fileline = join(", ", @ARGV);
+        printf "\nSummary for " . substr($fileline, 0, 65) . "…\n";
+
+        for my $apiGroup (@apiSummaryGroups) {
+                printf "\nUse counts for %s (maximum allowed total is %d)\n", $apiGroup, $APIs{$apiGroup}->{max_function_count};
+                for my $api (sort {"\L$a" cmp "\L$b"} (keys %{$APIs{$apiGroup}->{function_counts}}   )) {
+                        if ($APIs{$apiGroup}{function_counts}{$api} < 1) { next; }
+                        printf "%5d  %-40.40s\n", $APIs{$apiGroup}{function_counts}{$api}, $api;
+                }
         }
 }
 

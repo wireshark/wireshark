@@ -171,9 +171,9 @@ CHECKAPI(
 	NAME
 	  wiretap
 	SWITCHES
-## 'abort' checking disabled for now pending resolution of existing use of g_assert & g_error
-##	  -g abort -g termoutput
-	  -g termoutput -build
+	  --group abort:10 --summary-group abort
+	  --group termoutput:1 --summary-group termoutput
+	  --build
 	SOURCES
 	  ${WIRETAP_NONGENERATED_FILES}
 # LEX files commented out due to use of malloc, free etc.

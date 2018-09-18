@@ -14,7 +14,6 @@
  */
 
 #include "wslua_file_common.h"
-#include <wsutil/ws_printf.h> /* ws_g_warning */
 
 /* WSLUA_CONTINUE_MODULE File */
 
@@ -51,19 +50,19 @@ static gboolean in_routine = FALSE;
 /* This does the verification and setup common to all open/read/seek_read/close routines */
 #define INIT_FILEHANDLER_ROUTINE(name,retval) \
     if (!fh) { \
-        ws_g_warning("Error in file %s: no Lua FileHandler object", #name); \
+        g_warning("Error in file %s: no Lua FileHandler object", #name); \
         return retval; \
     } \
     if (!fh->registered) { \
-        ws_g_warning("Error in file %s: Lua FileHandler is not registered", #name); \
+        g_warning("Error in file %s: Lua FileHandler is not registered", #name); \
         return retval; \
     } \
     if (!fh->L) { \
-        ws_g_warning("Error in file %s: no FileHandler Lua state", #name); \
+        g_warning("Error in file %s: no FileHandler Lua state", #name); \
         return retval; \
     } \
     if (fh->name##_ref == LUA_NOREF) { \
-        ws_g_warning("Error in file %s: no FileHandler %s routine reference", #name, #name); \
+        g_warning("Error in file %s: no FileHandler %s routine reference", #name, #name); \
         return retval; \
     } \
     L = fh->L; \
@@ -71,7 +70,7 @@ static gboolean in_routine = FALSE;
     push_error_handler(L, #name " routine"); \
     lua_rawgeti(L, LUA_REGISTRYINDEX, fh->name##_ref); \
     if (!lua_isfunction(L, -1)) { \
-         ws_g_warning("Error in file %s: no FileHandler %s routine function in Lua", #name, #name); \
+         g_warning("Error in file %s: no FileHandler %s routine function in Lua", #name, #name); \
         return retval; \
     } \
     /* now guard against deregistering during pcall() */ \
@@ -89,16 +88,16 @@ static gboolean in_routine = FALSE;
 
 #define CASE_ERROR(name) \
     case LUA_ERRRUN: \
-        ws_g_warning("Run-time error while calling FileHandler %s routine", name); \
+        g_warning("Run-time error while calling FileHandler %s routine", name); \
         break; \
     case LUA_ERRMEM: \
-        ws_g_warning("Memory alloc error while calling FileHandler %s routine", name); \
+        g_warning("Memory alloc error while calling FileHandler %s routine", name); \
         break; \
     case LUA_ERRERR: \
-        ws_g_warning("Error in error handling while calling FileHandler %s routine", name); \
+        g_warning("Error in error handling while calling FileHandler %s routine", name); \
         break; \
     case LUA_ERRGCMM: \
-        ws_g_warning("Error in garbage collector while calling FileHandler %s routine", name); \
+        g_warning("Error in garbage collector while calling FileHandler %s routine", name); \
         break; \
     default: \
         g_assert_not_reached(); \
@@ -106,19 +105,19 @@ static gboolean in_routine = FALSE;
 
 #define CASE_ERROR_ERRINFO(name) \
     case LUA_ERRRUN: \
-        ws_g_warning("Run-time error while calling FileHandler %s routine", name); \
+        g_warning("Run-time error while calling FileHandler %s routine", name); \
         *err_info = g_strdup_printf("Run-time error while calling FileHandler %s routine", name); \
         break; \
     case LUA_ERRMEM: \
-        ws_g_warning("Memory alloc error while calling FileHandler %s routine", name); \
+        g_warning("Memory alloc error while calling FileHandler %s routine", name); \
         *err_info = g_strdup_printf("Memory alloc error while calling FileHandler %s routine", name); \
         break; \
     case LUA_ERRERR: \
-        ws_g_warning("Error in error handling while calling FileHandler %s routine", name); \
+        g_warning("Error in error handling while calling FileHandler %s routine", name); \
         *err_info = g_strdup_printf("Error in error handling while calling FileHandler %s routine", name); \
         break; \
     case LUA_ERRGCMM: \
-        ws_g_warning("Error in garbage collector while calling FileHandler %s routine", name); \
+        g_warning("Error in garbage collector while calling FileHandler %s routine", name); \
         *err_info = g_strdup_printf("Error in garbage collector while calling FileHandler %s routine", name); \
         break; \
     default: \
@@ -187,7 +186,7 @@ wslua_filehandler_open(wtap *wth, int *err, gchar **err_info)
             wth->subtype_read = wslua_filehandler_read;
         }
         else {
-            ws_g_warning("Lua file format module lacks a read routine");
+            g_warning("Lua file format module lacks a read routine");
             return WTAP_OPEN_NOT_MINE;
         }
 
@@ -195,7 +194,7 @@ wslua_filehandler_open(wtap *wth, int *err, gchar **err_info)
             wth->subtype_seek_read = wslua_filehandler_seek_read;
         }
         else {
-            ws_g_warning("Lua file format module lacks a seek-read routine");
+            g_warning("Lua file format module lacks a seek-read routine");
             return WTAP_OPEN_NOT_MINE;
         }
 
@@ -225,7 +224,7 @@ wslua_filehandler_open(wtap *wth, int *err, gchar **err_info)
     }
     else {
         /* not a valid return type */
-        ws_g_warning("FileHandler read_open routine returned %d", retval);
+        g_warning("FileHandler read_open routine returned %d", retval);
         if (err) {
             *err = WTAP_ERR_INTERNAL;
         }
@@ -505,7 +504,7 @@ wslua_filehandler_dump_open(wtap_dumper *wdh, int *err)
             wdh->subtype_write = wslua_filehandler_dump;
         }
         else {
-            ws_g_warning("FileHandler was not set with a write function, even though write_open() returned true");
+            g_warning("FileHandler was not set with a write function, even though write_open() returned true");
             return 0;
         }
 

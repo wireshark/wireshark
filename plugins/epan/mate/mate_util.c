@@ -14,7 +14,6 @@
 #include "mate.h"
 #include "mate_util.h"
 #include <wsutil/file_util.h>
-#include <wsutil/ws_printf.h> /* ws_g_warning */
 
 
 /***************************************************************************
@@ -125,7 +124,7 @@ gchar* scs_subscribe(SCS_collection* c, const gchar* s) {
 			len = SCS_HUGE_SIZE;
 		} else {
 			len = SCS_HUGE_SIZE;
-			ws_g_warning("mate SCS: string truncated due to huge size");
+			g_warning("mate SCS: string truncated due to huge size");
 		}
 
 		orig = (gchar *)g_slice_alloc(len);
@@ -175,7 +174,7 @@ void scs_unsubscribe(SCS_collection* c, gchar* s) {
 			(*ip)--;
 		}
 	} else {
-		ws_g_warning("unsubscribe: not subscribed");
+		g_warning("unsubscribe: not subscribed");
 	}
 }
 

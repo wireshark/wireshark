@@ -20,7 +20,6 @@
 #else
 #include <windows.h>
 #endif
-#include "ws_printf.h" /* ws_g_warning */
 
 /* converts a broken down date representation, relative to UTC,
  * to a timestamp; it uses timegm() if it's available.
@@ -108,7 +107,7 @@ void log_resource_usage(gboolean reset_delta, const char *format, ...) {
 	g_string_append_vprintf(log_str, format, ap);
 	va_end(ap);
 
-	ws_g_warning("%s", log_str->str);
+	g_warning("%s", log_str->str);
 	g_string_free(log_str, TRUE);
 
 }

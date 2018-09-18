@@ -18,7 +18,6 @@
 
 #include "mate.h"
 #include <epan/expert.h>
-#include <wsutil/ws_printf.h> /* ws_g_warning */
 
 void proto_register_mate(void);
 void proto_reg_handoff_mate(void);

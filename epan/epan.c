@@ -12,7 +12,6 @@
 #include <stdarg.h>
 
 #include <wsutil/wsgcrypt.h>
-#include <wsutil/ws_printf.h> /* ws_g_warning */
 
 #ifdef HAVE_LIBGNUTLS
 #include <gnutls/gnutls.h>
@@ -407,7 +406,7 @@ epan_get_frame_ts(const epan_t *session, guint32 frame_num)
 		abs_ts = session->funcs.get_frame_ts(session->prov, frame_num);
 
 	if (!abs_ts)
-		ws_g_warning("!!! couldn't get frame ts for %u !!!\n", frame_num);
+		g_warning("!!! couldn't get frame ts for %u !!!\n", frame_num);
 
 	return abs_ts;
 }

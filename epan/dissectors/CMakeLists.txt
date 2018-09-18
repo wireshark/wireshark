@@ -1971,7 +1971,9 @@ CHECKAPI(
 	NAME
 	  dissectors
 	SWITCHES
-	  -g abort -g termoutput -build --file ${CHECKAPI_FILE_LIST}
+	  --group abort
+	  --group termoutput:5 --summary-group termoutput
+	  --build --file ${CHECKAPI_FILE_LIST}
 	SOURCES
 	  ${DISSECTOR_SUPPORT_SRC}
 	  ${DISSECTOR_HEADERS}

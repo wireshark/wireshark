@@ -17,7 +17,6 @@
 #include "proto.h"
 #include "to_str.h"
 #include "value_string.h"
-#include <wsutil/ws_printf.h> /* ws_g_warning */
 
 /* REGULAR VALUE STRING */
 
@@ -453,14 +452,14 @@ _try_val_to_str_ext_init(const guint32 val, value_string_ext *vse)
         /* XXX: Should check for dups ?? */
         if (type == VS_BIN_TREE) {
             if (prev_value > vs_p[i].value) {
-                ws_g_warning("Extended value string '%s' forced to fall back to linear search:\n"
+                g_warning("Extended value string '%s' forced to fall back to linear search:\n"
                           "  entry %u, value %u [%#x] < previous entry, value %u [%#x]",
                           vse->_vs_name, i, vs_p[i].value, vs_p[i].value, prev_value, prev_value);
                 type = VS_SEARCH;
                 break;
             }
             if (first_value > vs_p[i].value) {
-                ws_g_warning("Extended value string '%s' forced to fall back to linear search:\n"
+                g_warning("Extended value string '%s' forced to fall back to linear search:\n"
                           "  entry %u, value %u [%#x] < first entry, value %u [%#x]",
                           vse->_vs_name, i, vs_p[i].value, vs_p[i].value, first_value, first_value);
                 type = VS_SEARCH;
