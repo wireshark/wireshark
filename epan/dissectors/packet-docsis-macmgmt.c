@@ -374,6 +374,8 @@ void proto_reg_handoff_docsis_mgmt(void);
 #define CM_PERIODIC_MAINTENANCE_TIMEOUT_INDICATOR 18
 #define DLS_BROADCAST_AND_MULTICAST_DELIVERY_METHOD 19
 #define CM_STATUS_EVENT_ENABLE_FOR_DOCSIS_3_1_EVENTS 20
+#define DIPLEXER_BAND_EDGE 21
+#define FULL_DUPLEX_DESCRIPTOR 22
 
 
 /*Downstream Active Channel List*/
@@ -541,6 +543,18 @@ void proto_reg_handoff_docsis_mgmt(void);
 #define OPT_RSP_RXMER_AND_SNR_MARGIN_DATA 1
 #define OPT_RSP_RXMER_PER_SUBCARRIER 1
 #define OPT_RSP_SNR_MARGIN 4
+
+#define DIPLEXER_US_UPPER_BAND_EDGE 1
+#define DIPLEXER_DS_LOWER_BAND_EDGE 2
+#define DIPLEXER_DS_UPPER_BAND_EDGE 3
+
+#define FDX_ALLOCATED_SPECTRUM 1
+#define FDX_TOTAL_NUMBER_OF_SUB_BANDS 2
+#define FDX_SUB_BAND_WIDTH 3
+#define FDX_SUB_BAND_DESCRIPTOR 4
+
+#define FDX_SUB_BAND_ID 1
+#define FDX_SUB_BAND_OFFSET 2
 
 static int proto_docsis_mgmt = -1;
 static int proto_docsis_sync = -1;
@@ -955,6 +969,21 @@ static int hf_docsis_mdd_cm_status_event_d31_map_stor_overflow_ind = -1;
 static int hf_docsis_mdd_cm_status_event_d31_ofdm_map_stor_almost_full_ind = -1;
 static int hf_docsis_mdd_cm_status_event_d31_reserved = -1;
 
+static int hf_docsis_mdd_diplexer_band_edge = -1;
+static int hf_docsis_mdd_diplexer_band_edge_length = -1;
+static int hf_docsis_mdd_diplexer_us_upper_band_edge = -1;
+static int hf_docsis_mdd_diplexer_ds_lower_band_edge = -1;
+static int hf_docsis_mdd_diplexer_ds_upper_band_edge = -1;
+
+static int hf_docsis_mdd_full_duplex_descriptor = -1;
+static int hf_docsis_mdd_full_duplex_descriptor_length = -1;
+static int hf_docsis_mdd_full_duplex_allocated_spectrum = -1;
+static int hf_docsis_mdd_full_duplex_total_number_of_sub_bands = -1;
+static int hf_docsis_mdd_full_duplex_sub_band_width = -1;
+static int hf_docsis_mdd_full_duplex_sub_band_descriptor = -1;
+static int hf_docsis_mdd_full_duplex_sub_band_descriptor_length = -1;
+static int hf_docsis_mdd_full_duplex_sub_band_id = -1;
+static int hf_docsis_mdd_full_duplex_sub_band_offset = -1;
 
 static int hf_docsis_bintrngreq_mddsgid = -1;
 static int hf_docsis_bintrngreq_capflags = -1;
@@ -1200,6 +1229,9 @@ static gint ett_docsis_mdd_ip_init_param = -1;
 static gint ett_docsis_mdd_up_active_channel_list = -1;
 static gint ett_docsis_mdd_cm_status_event_control = -1;
 static gint ett_docsis_mdd_dsg_da_to_dsid = -1;
+static gint ett_docsis_mdd_diplexer_band_edge = -1;
+static gint ett_docsis_mdd_full_duplex_descriptor = -1;
+static gint ett_docsis_mdd_full_duplex_sub_band_descriptor = -1;
 
 static gint ett_docsis_bintrngreq = -1;
 
@@ -1782,6 +1814,8 @@ static const value_string mdd_tlv_vals[] = {
   {CM_PERIODIC_MAINTENANCE_TIMEOUT_INDICATOR  ,          "CM Periodic Maintenance Timeout Indicator"},
   {DLS_BROADCAST_AND_MULTICAST_DELIVERY_METHOD  ,        "DLS Broadcast and Multicast Delivery Method"},
   {CM_STATUS_EVENT_ENABLE_FOR_DOCSIS_3_1_EVENTS  ,       "CM-STATUS Event Enable for DOCSIS 3.1 Specific Events"},
+  {DIPLEXER_BAND_EDGE  ,                                 "Diplexer Band Edge"},
+  {FULL_DUPLEX_DESCRIPTOR  ,                             "Full Duplex Descriptor"},
   {0, NULL}
 };
 
@@ -1911,6 +1945,64 @@ static const value_string tlv20_vals[] = {
   {1, "Selectable active codes mode 1 enabled and code hopping mode 1 enabled"},
   {2, "Selectable active codes mode 2 enabled and code hopping mode 2 enabled"},
   {3, "Selectable active codes mode 2 enabled and code hopping disabled"},
+  {0, NULL}
+};
+
+static const value_string mdd_diplexer_band_edge_vals[] = {
+  {DIPLEXER_US_UPPER_BAND_EDGE, "Diplexer Upstream Upper Band Edge"},
+  {DIPLEXER_DS_LOWER_BAND_EDGE, "Diplexer Downstream Lower Band Edge"},
+  {DIPLEXER_DS_UPPER_BAND_EDGE, "Diplexer Downstream Upper Band Edge"},
+  {0, NULL}
+};
+
+static const value_string mdd_diplexer_us_upper_band_edge_vals[] = {
+  {0, "Upstream Frequency Range up to 42 MHz"},
+  {1, "Upstream Frequency Range up to 65 MHz"},
+  {2, "Upstream Frequency Range up to 85 MHz"},
+  {3, "Upstream Frequency Range up to 117 MHz"},
+  {4, "Upstream Frequency Range up to 204 MHz"},
+  {0, NULL}
+};
+
+static const value_string mdd_diplexer_ds_lower_band_edge_vals[] = {
+  {0, "Downstream Frequency Range starting from 108 MHz"},
+  {1, "Downstream Frequency Range starting from 258 MHz"},
+  {0, NULL}
+};
+
+static const value_string mdd_diplexer_ds_upper_band_edge_vals[] = {
+  {0, "Downstream Frequency Range up to 1218 MHz"},
+  {1, "Downstream Frequency Range up to 1794 MHz"},
+  {2, "Downstream Frequency Range up to 1002 MHz"},
+  {0, NULL}
+};
+
+static const value_string mdd_full_duplex_descriptor_vals[] = {
+  {FDX_ALLOCATED_SPECTRUM, "Full Duplex Allocated Spectrum"},
+  {FDX_TOTAL_NUMBER_OF_SUB_BANDS, "Total number of sub-bands"},
+  {FDX_SUB_BAND_WIDTH, "Full Duplex Sub-band Width"},
+  {FDX_SUB_BAND_DESCRIPTOR, "Full Duplex Sub-band Descriptor"},
+  {0, NULL}
+};
+
+static const value_string mdd_full_duplex_allocated_spectrum_vals[] = {
+  {0, "96 MHz"},
+  {1, "192 MHz"},
+  {2, "288 MHz"},
+  {3, "384 MHz"},
+  {4, "576 MHz"},
+  {0, NULL}
+};
+
+static const value_string mdd_full_duplex_sub_band_width_vals[] = {
+  {0, "96 MHz"},
+  {1, "192 MHz"},
+  {0, NULL}
+};
+
+static const value_string mdd_full_duplex_sub_band_vals[] = {
+  {FDX_SUB_BAND_ID, "Full Duplex Sub-band ID"},
+  {FDX_SUB_BAND_OFFSET, "Full Duplex Sub-band Offset"},
   {0, NULL}
 };
 
@@ -5020,6 +5112,156 @@ dissect_mdd_dsg_da_to_dsid(tvbuff_t * tvb, packet_info* pinfo _U_, proto_tree * 
   }
 }
 
+static void
+dissect_mdd_diplexer_band_edge(tvbuff_t * tvb, packet_info* pinfo _U_, proto_tree * tree, int start, guint16 len)
+{
+  guint8 type;
+  guint32 length;
+  proto_tree *mdd_tree;
+  proto_item *mdd_item;
+  int pos;
+
+  pos = start;
+  while ( pos < ( start + len) )
+  {
+    type = tvb_get_guint8 (tvb, pos);
+    mdd_tree = proto_tree_add_subtree(tree, tvb, pos, 1,
+                                            ett_docsis_mdd_diplexer_band_edge, &mdd_item,
+                                            val_to_str(type, mdd_diplexer_band_edge_vals,
+                                                       "Unknown TLV (%u)"));
+    proto_tree_add_uint (mdd_tree, hf_docsis_mdd_diplexer_band_edge, tvb, pos, 1, type);
+    pos++;
+    proto_tree_add_item_ret_uint (mdd_tree, hf_docsis_mdd_diplexer_band_edge_length, tvb, pos, 1, ENC_BIG_ENDIAN, &length);
+    pos++;
+    proto_item_set_len(mdd_item, length + 2);
+
+    if (length == 1)
+    {
+      switch(type)
+      {
+      case DIPLEXER_US_UPPER_BAND_EDGE:
+        proto_tree_add_item (mdd_tree, hf_docsis_mdd_diplexer_us_upper_band_edge, tvb, pos, length, ENC_BIG_ENDIAN);
+        break;
+      case DIPLEXER_DS_LOWER_BAND_EDGE:
+        proto_tree_add_item (mdd_tree, hf_docsis_mdd_diplexer_ds_lower_band_edge, tvb, pos, length, ENC_BIG_ENDIAN);
+        break;
+      case DIPLEXER_DS_UPPER_BAND_EDGE:
+        proto_tree_add_item (mdd_tree, hf_docsis_mdd_diplexer_ds_upper_band_edge, tvb, pos, length, ENC_BIG_ENDIAN);
+        break;
+      default:
+        expert_add_info_format(pinfo, mdd_item, &ei_docsis_mgmt_tlvtype_unknown, "Unknown Diplexer Band Edge TLV type: %u", type);
+        break;
+      }
+    } else
+    {
+      expert_add_info_format(pinfo, mdd_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", length);
+      break;
+    }
+    pos += length;
+  }
+}
+
+static void
+dissect_mdd_full_duplex_descriptor(tvbuff_t * tvb, packet_info* pinfo _U_, proto_tree * tree, int start, guint16 len)
+{
+  guint8 type;
+  guint8 subtype;
+  guint32 length;
+  guint32 sublength;
+  proto_tree *mdd_tree;
+  proto_item *mdd_item;
+  int pos;
+  guint subpos;
+
+  pos = start;
+  while ( pos < ( start + len) )
+  {
+    type = tvb_get_guint8 (tvb, pos);
+    mdd_tree = proto_tree_add_subtree(tree, tvb, pos, 1,
+                                            ett_docsis_mdd_full_duplex_descriptor, &mdd_item,
+                                            val_to_str(type, mdd_full_duplex_descriptor_vals,
+                                                       "Unknown TLV (%u)"));
+    proto_tree_add_uint (mdd_tree, hf_docsis_mdd_full_duplex_descriptor, tvb, pos, 1, type);
+    pos++;
+    proto_tree_add_item_ret_uint (mdd_tree, hf_docsis_mdd_full_duplex_descriptor_length, tvb, pos, 1, ENC_BIG_ENDIAN, &length);
+    pos++;
+    proto_item_set_len(mdd_item, length + 2);
+
+    switch(type)
+    {
+    case FDX_ALLOCATED_SPECTRUM:
+      if (length == 1)
+      {
+        proto_tree_add_item (mdd_tree, hf_docsis_mdd_full_duplex_allocated_spectrum, tvb, pos, length, ENC_BIG_ENDIAN);
+      } else
+      {
+        expert_add_info_format(pinfo, mdd_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case FDX_TOTAL_NUMBER_OF_SUB_BANDS:
+      if (length == 1)
+      {
+        proto_tree_add_item (mdd_tree, hf_docsis_mdd_full_duplex_total_number_of_sub_bands, tvb, pos, length, ENC_BIG_ENDIAN);
+      } else
+      {
+        expert_add_info_format(pinfo, mdd_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case FDX_SUB_BAND_WIDTH:
+      if (length == 1)
+      {
+        proto_tree_add_item (mdd_tree, hf_docsis_mdd_full_duplex_sub_band_width, tvb, pos, length, ENC_BIG_ENDIAN);
+      } else
+      {
+        expert_add_info_format(pinfo, mdd_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+    case FDX_SUB_BAND_DESCRIPTOR:
+      mdd_tree = proto_tree_add_subtree(mdd_tree, tvb, pos, 1,
+                                            ett_docsis_mdd_full_duplex_sub_band_descriptor, &mdd_item,
+                                            val_to_str(type, mdd_full_duplex_sub_band_vals,
+                                                       "Unknown TLV (%u)"));
+      proto_tree_add_item (mdd_tree, hf_docsis_mdd_full_duplex_sub_band_descriptor, tvb, pos, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item_ret_uint (mdd_tree, hf_docsis_mdd_full_duplex_sub_band_descriptor_length, tvb, pos + 1, 1, ENC_BIG_ENDIAN, &sublength);
+      proto_item_set_len(mdd_item, length + 2);
+      subpos = pos + 2;
+      while (subpos < pos + length + 2) {
+        subtype = tvb_get_guint8 (tvb, subpos);
+        sublength = tvb_get_guint8 (tvb, subpos + 1);
+        switch(subtype) {
+          case FDX_SUB_BAND_ID:
+            if (length == 1)
+            {
+              proto_tree_add_item (mdd_tree, hf_docsis_mdd_full_duplex_sub_band_id, tvb, subpos + 2, sublength, ENC_BIG_ENDIAN);
+            } else
+            {
+              expert_add_info_format(pinfo, mdd_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", length);
+            }
+            break;
+          case FDX_SUB_BAND_OFFSET:
+            if (length == 2)
+            {
+            proto_tree_add_item (mdd_tree, hf_docsis_mdd_full_duplex_sub_band_offset, tvb, subpos + 2, sublength, ENC_BIG_ENDIAN);
+            } else
+            {
+              expert_add_info_format(pinfo, mdd_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", length);
+            }
+            break;
+          default:
+            expert_add_info_format(pinfo, mdd_item, &ei_docsis_mgmt_tlvtype_unknown, "Unknown Full Duplex Sub-band TLV type: %u", subtype);
+            break;
+        }
+        subpos += sublength + 2;
+      }
+      break;
+    default:
+      expert_add_info_format(pinfo, mdd_item, &ei_docsis_mgmt_tlvtype_unknown, "Unknown Diplexer Band Edge TLV type: %u", type);
+      break;
+    }
+    pos += length;
+  }
+}
+
 static int
 dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
@@ -5158,13 +5400,18 @@ dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
           &hf_docsis_mdd_cm_status_event_d31_reserved,
           NULL
         };
-
         proto_tree_add_bitmask_list(tlv_tree, tvb, pos, length, mdd_cm_status_event_d31, ENC_BIG_ENDIAN);
       }
       else
       {
         expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", length);
       }
+      break;
+    case DIPLEXER_BAND_EDGE:
+      dissect_mdd_diplexer_band_edge(tvb, pinfo, tlv_tree, pos, length );
+      break;
+    case FULL_DUPLEX_DESCRIPTOR:
+      dissect_mdd_full_duplex_descriptor(tvb, pinfo, tlv_tree, pos, length );
       break;
     }
 
@@ -8638,6 +8885,76 @@ proto_register_docsis_mgmt (void)
        FT_UINT32, BASE_HEX, NULL, 0xFFFFF000,
        NULL, HFILL}
     },
+    {&hf_docsis_mdd_diplexer_band_edge,
+     { "Diplexer Band Edge", "docsis_mdd.diplexer_band_edge",
+       FT_UINT8, BASE_DEC, VALS(mdd_diplexer_band_edge_vals), 0x0,
+       NULL, HFILL}
+    },
+    {&hf_docsis_mdd_diplexer_band_edge_length,
+     {"Length", "docsis_mdd.diplexer_band_edge_length",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_mdd_diplexer_us_upper_band_edge,
+     {"Diplexer Upstream Upper Band Edge", "docsis_mdd.diplexer_us_upper_band_edge",
+      FT_UINT8, BASE_DEC, VALS(mdd_diplexer_us_upper_band_edge_vals), 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_mdd_diplexer_ds_lower_band_edge,
+     {"Diplexer Downstream Lower Band Edge", "docsis_mdd.diplexer_ds_lower_band_edge",
+      FT_UINT8, BASE_DEC, VALS(mdd_diplexer_ds_lower_band_edge_vals), 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_mdd_diplexer_ds_upper_band_edge,
+     {"Diplexer Downstream Upper Band Edge", "docsis_mdd.diplexer_ds_upper_band_edge",
+      FT_UINT8, BASE_DEC, VALS(mdd_diplexer_ds_upper_band_edge_vals), 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_mdd_full_duplex_descriptor,
+     {"Full Duplex Descriptor", "docsis_mdd.full_duplex_descriptor",
+      FT_UINT8, BASE_DEC, VALS(mdd_full_duplex_descriptor_vals), 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_mdd_full_duplex_descriptor_length,
+     {"Length", "docsis_mdd.full_duplex_descriptor_length",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_mdd_full_duplex_allocated_spectrum,
+     {"Full Duplex Allocated Spectrum", "docsis_mdd.full_duplex_full_allocated_spectrum",
+      FT_UINT8, BASE_DEC, VALS(mdd_full_duplex_allocated_spectrum_vals), 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_mdd_full_duplex_total_number_of_sub_bands,
+     {"Total number of sub-bands", "docsis_mdd.full_duplex_total_number_of_sub_bands",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_mdd_full_duplex_sub_band_width,
+     {"Full Duplex Sub-band Width", "docsis_mdd.full_duplex_sub_band_width",
+      FT_UINT8, BASE_DEC, VALS(mdd_full_duplex_sub_band_width_vals), 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_mdd_full_duplex_sub_band_descriptor,
+     {"Full Duplex Sub-band Descriptor", "docsis_mdd.full_duplex_sub_band_descriptor",
+      FT_UINT8, BASE_DEC, VALS(mdd_full_duplex_sub_band_vals), 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_mdd_full_duplex_sub_band_descriptor_length,
+     {"Length", "docsis_mdd.full_duplex_sub_band_descriptor_length",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_mdd_full_duplex_sub_band_id,
+     {"Full Duplex Sub-band ID", "docsis_mdd.full_duplex_sub_band_id",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_mdd_full_duplex_sub_band_offset,
+     {"Full Duplex Sub-band ID", "docsis_mdd.full_duplex_sub_band_offset",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      NULL, HFILL}
+    },
 
     /* B_INIT_RNG_REQ */
     {&hf_docsis_bintrngreq_capflags,
@@ -9289,6 +9606,9 @@ proto_register_docsis_mgmt (void)
     &ett_docsis_mdd_up_active_channel_list,
     &ett_docsis_mdd_cm_status_event_control,
     &ett_docsis_mdd_dsg_da_to_dsid,
+    &ett_docsis_mdd_diplexer_band_edge,
+    &ett_docsis_mdd_full_duplex_descriptor,
+    &ett_docsis_mdd_full_duplex_sub_band_descriptor,
     &ett_docsis_bintrngreq,
     &ett_docsis_dbcreq,
     &ett_docsis_dbcrsp,
