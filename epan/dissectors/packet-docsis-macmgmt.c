@@ -5172,6 +5172,7 @@ dissect_mdd_full_duplex_descriptor(tvbuff_t * tvb, packet_info* pinfo _U_, proto
   proto_item *mdd_item;
   int pos;
   guint subpos;
+  guint32 sub_band_offset;
 
   pos = start;
   while ( pos < ( start + len) )
@@ -5241,7 +5242,9 @@ dissect_mdd_full_duplex_descriptor(tvbuff_t * tvb, packet_info* pinfo _U_, proto
           case FDX_SUB_BAND_OFFSET:
             if (length == 2)
             {
-            proto_tree_add_item (mdd_tree, hf_docsis_mdd_full_duplex_sub_band_offset, tvb, subpos + 2, sublength, ENC_BIG_ENDIAN);
+              mdd_item = proto_tree_add_item_ret_uint (mdd_tree, hf_docsis_mdd_full_duplex_sub_band_offset,
+                                                       tvb, subpos + 2, sublength, ENC_BIG_ENDIAN, &sub_band_offset);
+              proto_item_append_text(mdd_item, "%s", (sub_band_offset) ? " MHz" : " (108 MHz)");
             } else
             {
               expert_add_info_format(pinfo, mdd_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", length);
