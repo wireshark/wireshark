@@ -1698,12 +1698,18 @@ nbap_edch_channel_info = nbap_private_data->nbap_edch_channel_info;
 
     p_conv_data->dch_crc_present = nbap_private_data->dch_crc_present;
 
-    /* Figure out which type of E-DCH frame, based on DDI value (DDI = 0 => type 2)*/
-    if( 0 == nbap_private_data->e_dch_ddi_value ){
-        fp_edch_channel_info->edch_type = 1; /* 1 means T2 */
+    /* Figure out MAC entity: MAC-e/es or MAC-i/is
+     * Then derive the type of E-DCH frame:
+     * MAC-e/es => Type 1
+     * MAC-i/is => Type 2
+     * The specifications isn't very clear about the indicator for what entity
+     * should be used. For now, it seems like the presence of the "Maximum MAC-d PDU Size Extended IE"
+     * indicates MAC-i/is and it's absense means MAC-e/es
+     */
+    if(nbap_private_data->max_mac_d_pdu_size_ext_ie_present){
+        fp_edch_channel_info->edch_type = 1; /* 1 means Type 2 */
     }else{
-    /*Value 1-5 means T1*/
-        fp_edch_channel_info->edch_type = 0;  /* 0 means T1 */
+        fp_edch_channel_info->edch_type = 0;  /* 0 means Type 1 */
     }
     /* use to display e_dch_macdflow_id */
     p_conv_data->num_dch_in_flow = 1;
@@ -1875,12 +1881,18 @@ nbap_private_data->num_items = 1;
 
     p_conv_data->dch_crc_present = nbap_private_data->dch_crc_present;
 
-    /* Figure out which type of E-DCH frame, based on DDI value (DDI = 0 => type 2)*/
-    if( 0 == nbap_private_data->e_dch_ddi_value ){
-        fp_edch_channel_info->edch_type = 1; /* 1 means T2 */
+    /* Figure out MAC entity: MAC-e/es or MAC-i/is
+     * Then derive the type of E-DCH frame:
+     * MAC-e/es => Type 1
+     * MAC-i/is => Type 2
+     * The specifications isn't very clear about the indicator for what entity
+     * should be used. For now, it seems like the presence of the "Maximum MAC-d PDU Size Extended IE"
+     * indicates MAC-i/is and it's absense means MAC-e/es
+     */
+    if(nbap_private_data->max_mac_d_pdu_size_ext_ie_present){
+        fp_edch_channel_info->edch_type = 1; /* 1 means Type 2 */
     }else{
-    /*Value 1-5 means T1*/
-        fp_edch_channel_info->edch_type = 0;  /* 0 means T1 */
+        fp_edch_channel_info->edch_type = 0;  /* 0 means Type 1 */
     }
     /* use to display e_dch_macdflow_id */
     p_conv_data->num_dch_in_flow = 1;

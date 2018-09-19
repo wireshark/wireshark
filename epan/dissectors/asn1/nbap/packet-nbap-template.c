@@ -233,6 +233,7 @@ typedef struct nbap_private_data_t
   guint32 common_physical_channel_id;
   guint32 e_dch_macdflow_id;
   guint32 hsdsch_macdflow_id;
+  gboolean max_mac_d_pdu_size_ext_ie_present;
   guint32 e_dch_ddi_value;
   guint32 logical_channel_id;
   guint32 common_macdflow_id;

@@ -6626,6 +6626,7 @@ typedef struct nbap_private_data_t
   guint32 common_physical_channel_id;
   guint32 e_dch_macdflow_id;
   guint32 hsdsch_macdflow_id;
+  gboolean max_mac_d_pdu_size_ext_ie_present;
   guint32 e_dch_ddi_value;
   guint32 logical_channel_id;
   guint32 common_macdflow_id;
@@ -10428,7 +10429,7 @@ dissect_nbap_AvailabilityStatus(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static int
 dissect_nbap_HSDSCH_RNTI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2457 "./asn1/nbap/nbap.cnf"
+#line 2469 "./asn1/nbap/nbap.cnf"
   gint hrnti;
 umts_fp_conversation_info_t *umts_fp_conversation_info = NULL;
 fp_hsdsch_channel_info_t* fp_hsdsch_channel_info = NULL;
@@ -11793,7 +11794,7 @@ dissect_nbap_E_DCH_MACdFlow_Multiplexing_List(tvbuff_t *tvb _U_, int offset _U_,
 
 static int
 dissect_nbap_LogicalChannelID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1940 "./asn1/nbap/nbap.cnf"
+#line 1952 "./asn1/nbap/nbap.cnf"
   guint32 logical_channel_id;
   guint num_items;
   nbap_edch_channel_info_t* nbap_edch_channel_info;
@@ -11818,7 +11819,7 @@ dissect_nbap_LogicalChannelID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 static int
 dissect_nbap_MAC_PDU_SizeExtended(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2059 "./asn1/nbap/nbap.cnf"
+#line 2071 "./asn1/nbap/nbap.cnf"
 guint32 hsdsch_macdflow_id;
 nbap_hsdsch_channel_info_t* nbap_hsdsch_channel_info;
 nbap_hsdsch_channel_info = nbap_get_private_data(actx->pinfo)->nbap_hsdsch_channel_info;
@@ -12244,7 +12245,7 @@ static const per_sequence_t CommonMACFlow_Specific_InfoItem_sequence[] = {
 
 static int
 dissect_nbap_CommonMACFlow_Specific_InfoItem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2303 "./asn1/nbap/nbap.cnf"
+#line 2315 "./asn1/nbap/nbap.cnf"
     address     dst_addr;
     guint32 transportLayerAddress_ipv4;
     guint16 bindingID;
@@ -12296,7 +12297,7 @@ dissect_nbap_CommonMACFlow_Specific_InfoList(tvbuff_t *tvb _U_, int offset _U_, 
 
 static int
 dissect_nbap_MACdPDU_Size(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1923 "./asn1/nbap/nbap.cnf"
+#line 1935 "./asn1/nbap/nbap.cnf"
 guint32 mac_d_pdu_size;
 guint num_items;
 nbap_edch_channel_info_t* nbap_edch_channel_info;
@@ -13566,7 +13567,7 @@ dissect_nbap_CriticalityDiagnostics(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
 static int
 dissect_nbap_CRNC_CommunicationContextID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2416 "./asn1/nbap/nbap.cnf"
+#line 2428 "./asn1/nbap/nbap.cnf"
 guint32 com_context_id;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 1048575U, &com_context_id, FALSE);
@@ -18298,7 +18299,7 @@ dissect_nbap_E_DCH_HARQ_Combining_Capability(tvbuff_t *tvb _U_, int offset _U_, 
 
 static int
 dissect_nbap_E_DCH_DDI_Value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1906 "./asn1/nbap/nbap.cnf"
+#line 1918 "./asn1/nbap/nbap.cnf"
   guint32 e_dch_ddi_value;
   guint num_items;
   nbap_edch_channel_info_t* nbap_edch_channel_info;
@@ -18439,7 +18440,7 @@ static const per_sequence_t E_DCH_LogicalChannelInformationItem_sequence[] = {
 
 static int
 dissect_nbap_E_DCH_LogicalChannelInformationItem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1903 "./asn1/nbap/nbap.cnf"
+#line 1915 "./asn1/nbap/nbap.cnf"
     nbap_get_private_data(actx->pinfo)->num_items++;
 
 
@@ -18456,7 +18457,7 @@ static const per_sequence_t E_DCH_LogicalChannelInformation_sequence_of[1] = {
 
 static int
 dissect_nbap_E_DCH_LogicalChannelInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1893 "./asn1/nbap/nbap.cnf"
+#line 1905 "./asn1/nbap/nbap.cnf"
     nbap_private_data_t* nbap_private_data = nbap_get_private_data(actx->pinfo);
     nbap_private_data->num_items = 0;
     nbap_edch_channel_info_t* nbap_edch_channel_info;
@@ -18537,12 +18538,18 @@ nbap_edch_channel_info = nbap_private_data->nbap_edch_channel_info;
 
     p_conv_data->dch_crc_present = nbap_private_data->dch_crc_present;
 
-    /* Figure out which type of E-DCH frame, based on DDI value (DDI = 0 => type 2)*/
-    if( 0 == nbap_private_data->e_dch_ddi_value ){
-        fp_edch_channel_info->edch_type = 1; /* 1 means T2 */
+    /* Figure out MAC entity: MAC-e/es or MAC-i/is
+     * Then derive the type of E-DCH frame:
+     * MAC-e/es => Type 1
+     * MAC-i/is => Type 2
+     * The specifications isn't very clear about the indicator for what entity
+     * should be used. For now, it seems like the presence of the "Maximum MAC-d PDU Size Extended IE"
+     * indicates MAC-i/is and it's absense means MAC-e/es
+     */
+    if(nbap_private_data->max_mac_d_pdu_size_ext_ie_present){
+        fp_edch_channel_info->edch_type = 1; /* 1 means Type 2 */
     }else{
-    /*Value 1-5 means T1*/
-        fp_edch_channel_info->edch_type = 0;  /* 0 means T1 */
+        fp_edch_channel_info->edch_type = 0;  /* 0 means Type 1 */
     }
     /* use to display e_dch_macdflow_id */
     p_conv_data->num_dch_in_flow = 1;
@@ -18680,7 +18687,7 @@ dissect_nbap_E_DCH_LogicalChannelToModifyItem(tvbuff_t *tvb _U_, int offset _U_,
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_nbap_E_DCH_LogicalChannelToModifyItem, E_DCH_LogicalChannelToModifyItem_sequence);
 
-#line 1890 "./asn1/nbap/nbap.cnf"
+#line 1902 "./asn1/nbap/nbap.cnf"
     nbap_get_private_data(actx->pinfo)->num_items++;
 
 
@@ -18750,7 +18757,7 @@ static const per_sequence_t E_DCH_MACdFlow_Specific_InfoItem_to_Modify_sequence[
 
 static int
 dissect_nbap_E_DCH_MACdFlow_Specific_InfoItem_to_Modify(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1805 "./asn1/nbap/nbap.cnf"
+#line 1811 "./asn1/nbap/nbap.cnf"
 guint32 no_ddi_entries, i;
 address     null_addr;
 nbap_edch_port_info_t *old_info;
@@ -18826,12 +18833,18 @@ nbap_private_data->num_items = 1;
 
     p_conv_data->dch_crc_present = nbap_private_data->dch_crc_present;
 
-    /* Figure out which type of E-DCH frame, based on DDI value (DDI = 0 => type 2)*/
-    if( 0 == nbap_private_data->e_dch_ddi_value ){
-        fp_edch_channel_info->edch_type = 1; /* 1 means T2 */
+    /* Figure out MAC entity: MAC-e/es or MAC-i/is
+     * Then derive the type of E-DCH frame:
+     * MAC-e/es => Type 1
+     * MAC-i/is => Type 2
+     * The specifications isn't very clear about the indicator for what entity
+     * should be used. For now, it seems like the presence of the "Maximum MAC-d PDU Size Extended IE"
+     * indicates MAC-i/is and it's absense means MAC-e/es
+     */
+    if(nbap_private_data->max_mac_d_pdu_size_ext_ie_present){
+        fp_edch_channel_info->edch_type = 1; /* 1 means Type 2 */
     }else{
-    /*Value 1-5 means T1*/
-        fp_edch_channel_info->edch_type = 0;  /* 0 means T1 */
+        fp_edch_channel_info->edch_type = 0;  /* 0 means Type 1 */
     }
     /* use to display e_dch_macdflow_id */
     p_conv_data->num_dch_in_flow = 1;
@@ -18885,7 +18898,7 @@ static const per_sequence_t E_DCH_FDD_Information_to_Modify_sequence[] = {
 
 static int
 dissect_nbap_E_DCH_FDD_Information_to_Modify(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1714 "./asn1/nbap/nbap.cnf"
+#line 1720 "./asn1/nbap/nbap.cnf"
 
 address     dst_addr, null_addr;
 conversation_t *conversation,*old_conversation = NULL;
@@ -23588,7 +23601,7 @@ static const per_sequence_t HSDSCH_Common_System_InformationFDD_sequence[] = {
 
 static int
 dissect_nbap_HSDSCH_Common_System_InformationFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2330 "./asn1/nbap/nbap.cnf"
+#line 2342 "./asn1/nbap/nbap.cnf"
 /*
  * 5.1.6 High Speed Downlink Shared Channels
  * The Data Transfer procedure is used to transfer a HS-DSCH DATA FRAME (TYPE 1, TYPE 2 [FDD and 1.28Mcps
@@ -23764,7 +23777,7 @@ static const per_sequence_t HSDSCH_MACdFlow_Specific_InfoItem_sequence[] = {
 
 static int
 dissect_nbap_HSDSCH_MACdFlow_Specific_InfoItem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2032 "./asn1/nbap/nbap.cnf"
+#line 2044 "./asn1/nbap/nbap.cnf"
     address     dst_addr;
     guint32 transportLayerAddress_ipv4;
     guint16 bindingID;
@@ -23872,7 +23885,7 @@ static const value_string nbap_RLC_Mode_vals[] = {
 
 static int
 dissect_nbap_RLC_Mode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1954 "./asn1/nbap/nbap.cnf"
+#line 1966 "./asn1/nbap/nbap.cnf"
     guint32 rlc_mode;
     nbap_hsdsch_channel_info_t* nbap_hsdsch_channel_info;
     nbap_private_data_t* nbap_private_data = nbap_get_private_data(actx->pinfo);
@@ -23915,7 +23928,7 @@ static const per_sequence_t PriorityQueue_InfoItem_sequence[] = {
 
 static int
 dissect_nbap_PriorityQueue_InfoItem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2023 "./asn1/nbap/nbap.cnf"
+#line 2035 "./asn1/nbap/nbap.cnf"
     nbap_get_private_data(actx->pinfo)->num_items++;
 
 
@@ -23949,7 +23962,7 @@ static const per_sequence_t HSDSCH_MACdFlows_Information_sequence[] = {
 
 static int
 dissect_nbap_HSDSCH_MACdFlows_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1983 "./asn1/nbap/nbap.cnf"
+#line 1995 "./asn1/nbap/nbap.cnf"
     int protocol_ie_id;
     guint32 i;
     nbap_private_data_t* nbap_private_data = nbap_get_private_data(actx->pinfo);
@@ -23993,7 +24006,7 @@ dissect_nbap_HSDSCH_MACdFlows_Information(tvbuff_t *tvb _U_, int offset _U_, asn
 
 static int
 dissect_nbap_T_hSDSCH_Physical_Layer_Category(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1973 "./asn1/nbap/nbap.cnf"
+#line 1985 "./asn1/nbap/nbap.cnf"
     guint32 hsdsch_physical_layer_category;
     nbap_hsdsch_channel_info_t* nbap_hsdsch_channel_info;
     nbap_private_data_t* nbap_private_data = nbap_get_private_data(actx->pinfo);
@@ -24064,7 +24077,7 @@ static const per_sequence_t HSDSCH_FDD_Information_sequence[] = {
 
 static int
 dissect_nbap_HSDSCH_FDD_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2069 "./asn1/nbap/nbap.cnf"
+#line 2081 "./asn1/nbap/nbap.cnf"
 /*
  * Collect the information about the HSDSCH MACdFlows set up conversation(s) and set the conversation data.
  */
@@ -24208,7 +24221,7 @@ static const per_sequence_t HSDSCH_MACdFlow_Specific_InfoItem_to_Modify_sequence
 
 static int
 dissect_nbap_HSDSCH_MACdFlow_Specific_InfoItem_to_Modify(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2165 "./asn1/nbap/nbap.cnf"
+#line 2177 "./asn1/nbap/nbap.cnf"
     address     dst_addr;
     guint32 transportLayerAddress_ipv4;
     guint16 bindingID;
@@ -24271,7 +24284,7 @@ static const per_sequence_t PriorityQueue_InfoItem_to_Add_sequence[] = {
 
 static int
 dissect_nbap_PriorityQueue_InfoItem_to_Add(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2026 "./asn1/nbap/nbap.cnf"
+#line 2038 "./asn1/nbap/nbap.cnf"
     nbap_get_private_data(actx->pinfo)->num_items = 1;
 
 
@@ -24406,7 +24419,7 @@ static const per_sequence_t HSDSCH_Information_to_Modify_sequence[] = {
 
 static int
 dissect_nbap_HSDSCH_Information_to_Modify(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2190 "./asn1/nbap/nbap.cnf"
+#line 2202 "./asn1/nbap/nbap.cnf"
 /*
  * This is pretty much the same like if we setup a previous flow
  * Collect the information about the HSDSCH MACdFlows set up conversation(s) and set the conversation data.
@@ -24619,7 +24632,7 @@ static const per_sequence_t HSDSCH_MACdFlow_Specific_InformationResp_Item_sequen
 
 static int
 dissect_nbap_HSDSCH_MACdFlow_Specific_InformationResp_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2029 "./asn1/nbap/nbap.cnf"
+#line 2041 "./asn1/nbap/nbap.cnf"
     nbap_get_private_data(actx->pinfo)->num_items++;
 
 
@@ -25035,7 +25048,7 @@ static const per_sequence_t HSDSCH_Paging_System_InformationFDD_sequence[] = {
 
 static int
 dissect_nbap_HSDSCH_Paging_System_InformationFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2406 "./asn1/nbap/nbap.cnf"
+#line 2418 "./asn1/nbap/nbap.cnf"
   /*
   g_warning("HS-DSCH Type 3 NOT Implemented!");
   */
@@ -25229,7 +25242,7 @@ static const per_sequence_t HSDSCH_MACdFlows_to_Delete_Item_sequence[] = {
 
 static int
 dissect_nbap_HSDSCH_MACdFlows_to_Delete_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2020 "./asn1/nbap/nbap.cnf"
+#line 2032 "./asn1/nbap/nbap.cnf"
     nbap_get_private_data(actx->pinfo)->num_items++;
 
 
@@ -25246,7 +25259,7 @@ static const per_sequence_t HSDSCH_MACdFlows_to_Delete_sequence_of[1] = {
 
 static int
 dissect_nbap_HSDSCH_MACdFlows_to_Delete(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2015 "./asn1/nbap/nbap.cnf"
+#line 2027 "./asn1/nbap/nbap.cnf"
     nbap_get_private_data(actx->pinfo)->num_items = 0;
 
 
@@ -28556,7 +28569,7 @@ dissect_nbap_NI_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 static int
 dissect_nbap_NodeB_CommunicationContextID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2422 "./asn1/nbap/nbap.cnf"
+#line 2434 "./asn1/nbap/nbap.cnf"
   gboolean crnc_context_present;
   guint node_b_com_context_id;
   nbap_com_context_id_t *cur_val;
@@ -55641,7 +55654,7 @@ static int dissect_NULL_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
 
 
 /*--- End of included file: packet-nbap-fn.c ---*/
-#line 437 "./asn1/nbap/packet-nbap-template.c"
+#line 438 "./asn1/nbap/packet-nbap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -69116,7 +69129,7 @@ void proto_register_nbap(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-nbap-hfarr.c ---*/
-#line 747 "./asn1/nbap/packet-nbap-template.c"
+#line 748 "./asn1/nbap/packet-nbap-template.c"
   };
 
   /* List of subtrees */
@@ -70756,7 +70769,7 @@ void proto_register_nbap(void)
     &ett_nbap_Outcome,
 
 /*--- End of included file: packet-nbap-ettarr.c ---*/
-#line 756 "./asn1/nbap/packet-nbap-template.c"
+#line 757 "./asn1/nbap/packet-nbap-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -71911,6 +71924,6 @@ proto_reg_handoff_nbap(void)
 
 
 /*--- End of included file: packet-nbap-dis-tab.c ---*/
-#line 814 "./asn1/nbap/packet-nbap-template.c"
+#line 815 "./asn1/nbap/packet-nbap-template.c"
 }
 
