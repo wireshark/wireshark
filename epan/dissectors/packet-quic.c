@@ -418,6 +418,11 @@ static const value_string quic_error_code_vals[] = {
 };
 static value_string_ext quic_error_code_vals_ext = VALUE_STRING_EXT_INIT(quic_error_code_vals);
 
+static const value_string quic_application_error_code_vals[] = {
+    { 0x0000, "STOPPING" },
+    { 0, NULL }
+};
+
 static void
 quic_cipher_reset(quic_cipher *cipher)
 {
@@ -931,7 +936,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_rsts_final_offset, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_finaloffset);
             offset += len_finaloffset;
 
-            proto_item_append_text(ti_ft, " Stream ID: %" G_GINT64_MODIFIER "u, Error code: %s", stream_id, val_to_str_ext(error_code, &quic_error_code_vals_ext, "Unknown (%d)"));
+            proto_item_append_text(ti_ft, " Stream ID: %" G_GINT64_MODIFIER "u, Error code: %s", stream_id, val_to_str(error_code, quic_application_error_code_vals, "0x%04x"));
         }
         break;
         case FT_CONNECTION_CLOSE:{
@@ -969,7 +974,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             proto_tree_add_item(ft_tree, hf_quic_frame_type_ac_reason_phrase, tvb, offset, (guint32)len_reason, ENC_ASCII|ENC_NA);
             offset += (guint32)len_reason;
 
-            proto_item_append_text(ti_ft, " Error code: %s", val_to_str_ext(error_code, &quic_error_code_vals_ext, "Unknown (%d)"));
+            proto_item_append_text(ti_ft, " Error code: %s", val_to_str(error_code, quic_application_error_code_vals, "0x%04x"));
         }
         break;
         case FT_MAX_DATA:{
@@ -1069,15 +1074,17 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         }
         break;
         case FT_STOP_SENDING:{
-            guint32 len_streamid;
+            guint32 len_streamid, error_code;
 
             col_append_fstr(pinfo->cinfo, COL_INFO, ", SS");
 
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ss_stream_id, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_streamid);
             offset += len_streamid;
 
-            proto_tree_add_item(ft_tree, hf_quic_frame_type_ss_application_error_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type_ss_application_error_code, tvb, offset, 2, ENC_BIG_ENDIAN, &error_code);
             offset += 2;
+
+            proto_item_append_text(ti_ft, " Error code: 0x%04x", error_code);
         }
         break;
         case FT_ACK:{
@@ -2544,7 +2551,7 @@ proto_register_quic(void)
         },
         { &hf_quic_frame_type_rsts_application_error_code,
             { "Application Error code", "quic.frame_type.rsts.application_error_code",
-              FT_UINT16, BASE_DEC|BASE_EXT_STRING, &quic_error_code_vals_ext, 0x0,
+              FT_UINT16, BASE_DEC, VALS(quic_application_error_code_vals), 0x0,
               "Indicates why the stream is being closed", HFILL }
         },
         { &hf_quic_frame_type_rsts_final_offset,
@@ -2576,7 +2583,7 @@ proto_register_quic(void)
         /* APPLICATION_CLOSE */
         { &hf_quic_frame_type_ac_error_code,
             { "Application Error code", "quic.frame_type.ac.error_code",
-              FT_UINT16, BASE_DEC|BASE_EXT_STRING, &quic_error_code_vals_ext, 0x0,
+              FT_UINT16, BASE_DEC, VALS(quic_application_error_code_vals), 0x0,
               "Indicates the reason for closing this application", HFILL }
         },
         { &hf_quic_frame_type_ac_reason_phrase_length,
@@ -2664,7 +2671,7 @@ proto_register_quic(void)
         },
         { &hf_quic_frame_type_ss_application_error_code,
             { "Application Error code", "quic.frame_type.ss.application_error_code",
-              FT_UINT16, BASE_DEC|BASE_EXT_STRING, &quic_error_code_vals_ext, 0x0,
+              FT_UINT16, BASE_DEC, NULL, 0x0,
               "Indicates why the sender is ignoring the stream", HFILL }
         },
 
