@@ -205,6 +205,7 @@ static int hf_nas_5gs_sm_nof_params = -1;
 static int hf_nas_5gs_sm_param_id = -1;
 static int hf_nas_5gs_sm_param_len = -1;
 static int hf_nas_5gs_sm_qos_rule_precedence = -1;
+static int hf_nas_5gs_sm_pal_cont = -1;
 static int hf_nas_5gs_sm_qfi = -1;
 
 static int nas_5gs_sm_unit_for_session_ambr_dl = -1;
@@ -1964,6 +1965,20 @@ static const value_string nas_5gs_sm_param_id_values[] = {
     { 0, NULL }
  };
 
+static const value_string nas_5gs_rule_param_cont[] = {
+    { 0x0, "Reserved" },
+    { 0x01, "5QI 1" },
+    { 0x02, "5QI 2" },
+    { 0x03, "5QI 3" },
+    { 0x04, "5QI 4" },
+    { 0x05, "5QI 5" },
+    { 0x06, "5QI 6" },
+    { 0x07, "5QI 7" },
+    { 0x08, "5QI 8" },
+    { 0x09, "5QI 9" },
+    { 0, NULL }
+};
+
 guint16
 de_nas_5gs_sm_qos_rules(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     guint32 offset, guint len,
@@ -2093,7 +2108,7 @@ de_nas_5gs_sm_qos_rules(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             proto_tree_add_item_ret_uint(sub_tree3, hf_nas_5gs_sm_param_len, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &param_len);
             curr_offset++;
 
-            proto_tree_add_expert(sub_tree3, pinfo, &ei_nas_5gs_not_diss, tvb, curr_offset, param_len);
+            proto_tree_add_item(sub_tree3, hf_nas_5gs_sm_pal_cont, tvb, curr_offset, param_len, ENC_BIG_ENDIAN);
             curr_offset += param_len;
 
             num_param--;
@@ -2156,11 +2171,14 @@ get_ext_ambr_unit(guint32 unit, const char **unit_str)
 {
     guint32 mult;
 
-    if (unit == 0x01) {
+    if (unit == 0) {
         mult = 1;
-        *unit_str = "kbps";
+        *unit_str = "Unit value 0, Illegal";
+        return mult;
     }
-    else if (unit <= 0x05) {
+    unit = unit - 1;
+
+    if (unit <= 0x05) {
         mult = pow4(guint32, unit);
         *unit_str = "Kbps";
     }
@@ -3283,8 +3301,18 @@ nas_5gs_mm_conf_upd_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 /*
  * 8.2.20 Configuration update complete
  */
+static void
+nas_5gs_mm_conf_update_comp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+{
+    guint32 curr_offset;
+    guint   curr_len;
 
-/* No Data */
+    curr_offset = offset;
+    curr_len = len;
+
+    /* No Data */
+    EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_5gs_extraneous_data);
+}
 /*
  * 8.2.21 Identity request
  */
@@ -4015,7 +4043,7 @@ static void(*nas_5gs_mm_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info 
     nas_5gs_exp_not_dissected_yet,              /* 0x53    Not used in current version */
 
     nas_5gs_mm_conf_upd_cmd,                    /* 0x54    Configuration update command */
-    nas_5gs_exp_not_dissected_yet,              /* 0x55    Configuration update complete */
+    nas_5gs_mm_conf_update_comp,                /* 0x55    Configuration update complete */
     nas_5gs_mm_authentication_req,              /* 0x56    Authentication request */
     nas_5gs_mm_authentication_resp,             /* 0x57    Authentication response */
     nas_5gs_mm_authentication_rej,              /* 0x58    Authentication reject */
@@ -5172,6 +5200,11 @@ proto_register_nas_5gs(void)
         { &hf_nas_5gs_sm_qos_rule_precedence,
         { "QoS rule precedence",   "nas_5gs.sm.qos_rule_precedence",
             FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_pal_cont,
+        { "Parameters content",   "nas_5gs.sm.pal_cont",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_rule_param_cont), 0x0,
             NULL, HFILL }
         },
         { &hf_nas_5gs_sm_qfi,
