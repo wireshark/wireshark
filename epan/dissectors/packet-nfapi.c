@@ -634,12 +634,6 @@ static const value_string dlsch_re13_pdsch_payload_type_vals[] = {
 	{ 0, NULL }
 };
 
-static const value_string csi_rs_flags_strname[] = {
-	{ 0, "CSI - RS parameters are not valid" },
-	{ 1, "CSI - RS parameters are valid" },
-	{ 0, NULL}
-};
-
 
 static const value_string paging_direct_indication_differtiation_flag_vals[] = {
 	{ 0, "Direct Information" },
@@ -9975,7 +9969,7 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_csi_rs_flag,
 			{ "CSI RS Flag", "nfapi.csi.rs.flag",
-			FT_BOOLEAN, 8, TFS(&csi_rs_flags_strname), 0x0,
+			FT_BOOLEAN, 8, TFS(&tfs_valid_not_valid), 0x0,
 			"Indicates if parameters related to CSI-RS are valid or not.", HFILL }
 		},
 		{ &hf_nfapi_csi_rs_resource_config_r10,
