@@ -103,6 +103,7 @@ typedef enum {
 #define SSL_HND_HELLO_EXT_EXTENDED_MASTER_SECRET        23
 #define SSL_HND_HELLO_EXT_TOKEN_BINDING                 24
 #define SSL_HND_HELLO_EXT_CACHED_INFO                   25
+#define SSL_HND_HELLO_EXT_COMPRESS_CERTIFICATE          27
 /* 26-34  Unassigned*/
 #define SSL_HND_HELLO_EXT_SESSION_TICKET_TLS            35
 /* RFC 8446 (TLS 1.3) */
@@ -194,6 +195,7 @@ extern const value_string ssl_curve_types[];
 extern const value_string tls_hello_ext_server_name_type_vs[];
 extern const value_string tls_hello_ext_psk_ke_mode[];
 extern const value_string tls13_key_update_request[];
+extern const value_string compress_certificate_algorithm_vals[];
 extern const value_string quic_transport_parameter_id[];
 extern const value_string quic_version_vals[];
 extern const value_string quic_tp_preferred_address_vals[];
@@ -837,6 +839,10 @@ typedef struct ssl_common_dissect {
         gint hs_ext_oid_filters_oid;
         gint hs_ext_oid_filters_values_length;
 
+        /* compress_certificate */
+        gint hs_ext_compress_certificate_algorithms_length;
+        gint hs_ext_compress_certificate_algorithm;
+
         /* QUIC Transport Parameters */
         gint hs_ext_quictp_negotiated_version;
         gint hs_ext_quictp_initial_version;
@@ -1088,7 +1094,7 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,         \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
@@ -1807,6 +1813,16 @@ ssl_common_dissect_t name = {   \
     { & name .hf.hs_ext_oid_filters_values_length,                      \
       { "Certificate Extension Values Length", prefix ".extension.oid_filters.values_length", \
         FT_UINT16, BASE_DEC, NULL, 0x00,                                \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_compress_certificate_algorithms_length,         \
+      { "Algorithms Length", prefix ".compress_certificate.algorithms_length", \
+        FT_UINT8, BASE_DEC, NULL, 0x00,                                 \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_compress_certificate_algorithm,                 \
+      { "Algorithm", prefix ".compress_certificate.algorithm",          \
+        FT_UINT16, BASE_DEC, VALS(compress_certificate_algorithm_vals), 0x00, \
         NULL, HFILL }                                                   \
     },                                                                  \
     { & name .hf.hs_ext_quictp_negotiated_version,                      \

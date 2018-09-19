@@ -1127,6 +1127,7 @@ const value_string tls_hello_extension_types[] = {
     { SSL_HND_HELLO_EXT_EXTENDED_MASTER_SECRET, "extended_master_secret" }, /* RFC 7627 */
     { SSL_HND_HELLO_EXT_TOKEN_BINDING, "token_binding" }, /* https://tools.ietf.org/html/draft-ietf-tokbind-negotiation */
     { SSL_HND_HELLO_EXT_CACHED_INFO, "cached_info" }, /* RFC 7924 */
+    { SSL_HND_HELLO_EXT_COMPRESS_CERTIFICATE, "compress_certificate" }, /* https://tools.ietf.org/html/draft-ietf-tls-certificate-compression-03 */
     { SSL_HND_HELLO_EXT_SESSION_TICKET_TLS, "session_ticket" }, /* RFC 5077 / RFC 8447 */
     { SSL_HND_HELLO_EXT_KEY_SHARE_OLD, "Reserved (key_share)" }, /* https://tools.ietf.org/html/draft-ietf-tls-tls13-22 (removed in -23) */
     { SSL_HND_HELLO_EXT_PRE_SHARED_KEY, "pre_shared_key" }, /* RFC 8446 */
@@ -1346,6 +1347,13 @@ static const ssl_alpn_prefix_match_protocol_t ssl_alpn_prefix_match_protocols[] 
     /* draft-ietf-httpbis-http2-16 */
     { "h2-",                "http2" }, /* draft versions */
 };
+
+const value_string compress_certificate_algorithm_vals[] = {
+    { 1, "zlib" },
+    { 2, "broli" },
+    { 0, NULL }
+};
+
 
 const value_string quic_transport_parameter_id[] = {
     { SSL_HND_QUIC_TP_INITIAL_MAX_STREAM_DATA_BIDI_LOCAL, "initial_max_stream_data_bidi_local" },
@@ -6516,6 +6524,47 @@ ssl_dissect_hnd_hello_ext_cert_type(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 }
 
 static guint32
+ssl_dissect_hnd_hello_ext_compress_certificate(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
+                                                    proto_tree *tree, guint32 offset, guint32 offset_end,
+                                                    guint8 hnd_type, SslDecryptSession *ssl _U_)
+{
+    guint32 compress_certificate_algorithms_length, next_offset;
+
+    /* https://tools.ietf.org/html/draft-ietf-tls-certificate-compression-03#section-3.0
+     * enum {
+     *     zlib(1),
+     *     brotli(2),
+     *     (65535)
+     * } CertificateCompressionAlgorithm;
+     *
+     * struct {
+     *     CertificateCompressionAlgorithm algorithms<1..2^8-1>;
+     * } CertificateCompressionAlgorithms;
+     */
+    switch (hnd_type) {
+    case SSL_HND_CLIENT_HELLO:
+    case SSL_HND_CERT_REQUEST:
+        /* CertificateCompressionAlgorithm algorithms<1..2^8-1>;*/
+        if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &compress_certificate_algorithms_length,
+                            hf->hf.hs_ext_compress_certificate_algorithms_length, 1, G_MAXUINT8-1)) {
+            return offset_end;
+        }
+        offset += 1;
+        next_offset = offset + compress_certificate_algorithms_length;
+
+        while (offset < next_offset) {
+            proto_tree_add_item(tree, hf->hf.hs_ext_compress_certificate_algorithm,
+                                tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+        }
+        break;
+    default:
+        break;
+    }
+
+    return offset;
+}
+static guint32
 ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
                                                     proto_tree *tree, guint32 offset, guint32 offset_end,
                                                     guint8 hnd_type, SslDecryptSession *ssl _U_)
@@ -8304,6 +8353,9 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
                     break;
                 }
             }
+            break;
+        case SSL_HND_HELLO_EXT_COMPRESS_CERTIFICATE:
+            offset = ssl_dissect_hnd_hello_ext_compress_certificate(hf, tvb, pinfo, ext_tree, offset, next_offset, hnd_type, ssl);
             break;
         case SSL_HND_HELLO_EXT_QUIC_TRANSPORT_PARAMETERS:
             offset = ssl_dissect_hnd_hello_ext_quic_transport_parameters(hf, tvb, pinfo, ext_tree, offset, next_offset, hnd_type, ssl);
