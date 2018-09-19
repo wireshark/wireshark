@@ -726,11 +726,23 @@ sub check_hf_entries($$)
         my $errorCount = 0;
 
         my @items;
-        @items = (${$fileContentsRef} =~ m{
+        my $hfRegex = qr{
                                   \{
                                   \s*
                                   &\s*([A-Z0-9_\[\]-]+)         # &hf
                                   \s*,\s*
+        }xis;
+        if (${$fileContentsRef} =~ /^#define\s+NEW_PROTO_TREE_API/m) {
+                $hfRegex = qr{
+                                  \sheader_field_info\s+
+                                  ([A-Z0-9_]+)
+                                  \s+
+                                  [A-Z0-9_]*
+                                  \s*=\s*
+                }xis;
+        }
+        @items = (${$fileContentsRef} =~ m{
+                                  $hfRegex                      # &hf or "new" hfi name
                                   \{\s*
                                   ("[A-Z0-9 '\./\(\)_:-]+")     # name
                                   \s*,\s*
