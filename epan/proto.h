@@ -66,17 +66,20 @@ WS_DLL_PUBLIC int hf_text_only;
 
 struct expert_field;
 
+/* Type-check that 'x' is compatible with 'type', should give compiler warnings otherwise. */
+#define cast_same(type, x) (0 ? (type)0 : (x))
+
 /** Make a const value_string[] look like a _value_string pointer, used to set header_field_info.strings */
-#define VALS(x)	(const struct _value_string*)(x)
+#define VALS(x)     (cast_same(const struct _value_string*, (x)))
 
 /** Make a const val64_string[] look like a _val64_string pointer, used to set header_field_info.strings */
-#define VALS64(x)   (const struct _val64_string*)(x)
+#define VALS64(x)   (cast_same(const struct _val64_string*, (x)))
 
 /** Something to satisfy checkAPIs when you have a pointer to a value_string_ext (e.g., one built with value_string_ext_new()) */
-#define VALS_EXT_PTR(x) (x)
+#define VALS_EXT_PTR(x) (cast_same(value_string_ext*, (x)))
 
 /** Make a const true_false_string[] look like a _true_false_string pointer, used to set header_field_info.strings */
-#define TFS(x)	(const struct true_false_string*)(x)
+#define TFS(x)      (cast_same(const struct true_false_string*, (x)))
 
 typedef void (*custom_fmt_func_t)(gchar *, guint32);
 
@@ -93,7 +96,7 @@ typedef void (*custom_fmt_func_64_t)(gchar *, guint64);
 
 /** Make a const range_string[] look like a _range_string pointer, used to set
  * header_field_info.strings */
-#define RVALS(x) (const struct _range_string*)(x)
+#define RVALS(x) (cast_same(const struct _range_string*, (x)))
 
 /** Cast a ft_framenum_type_t, used to set header_field_info.strings */
 #define FRAMENUM_TYPE(x) GINT_TO_POINTER(x)
