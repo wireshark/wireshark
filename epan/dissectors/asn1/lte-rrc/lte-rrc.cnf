@@ -27,7 +27,7 @@ SIB-Type
 SL-CommResourcePoolV2X-r14/sizeSubchannel-r14
 SL-PeriodComm-r12
 SupportedBandUTRA-FDD
-SystemInformation-r8-IEs/sib-TypeAndInfo
+#SystemInformation-r8-IEs/sib-TypeAndInfo
 T-PollRetransmit
 T-Reordering
 T-StatusProhibit
