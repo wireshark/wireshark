@@ -26830,12 +26830,12 @@ proto_register_ieee80211(void)
 
     {&hf_he_mimo_control_nc_index,
      {"Nc Index", "wlan.he.mimo.nc_index",
-      FT_UINT40, BASE_DEC, VALS(he_mimo_cntrl_nc_index_vals),
+      FT_UINT40, BASE_DEC|BASE_VAL64_STRING, VALS64(he_mimo_cntrl_nc_index_vals),
       0x0000000007, NULL, HFILL }},
 
     {&hf_he_mimo_control_nr_index,
      {"Nr Index", "wlan.he.mimo.nr_index",
-      FT_UINT40, BASE_DEC, VALS(he_mimo_cntrl_nr_index_vals),
+      FT_UINT40, BASE_DEC|BASE_VAL64_STRING, VALS64(he_mimo_cntrl_nr_index_vals),
       0x0000000038, NULL, HFILL }},
 
     {&hf_he_mimo_control_bw,
@@ -26844,7 +26844,7 @@ proto_register_ieee80211(void)
 
     {&hf_he_mimo_control_grouping,
      {"Grouping", "wlan.he.mimo.grouping",
-      FT_UINT40, BASE_DEC, VALS(he_mimo_cntrl_grouping_flags),
+      FT_UINT40, BASE_DEC|BASE_VAL64_STRING, VALS64(he_mimo_cntrl_grouping_flags),
       0x0000000100, NULL, HFILL }},
 
     {&hf_he_mimo_control_codebook_info,
@@ -26853,7 +26853,7 @@ proto_register_ieee80211(void)
 
     {&hf_he_mimo_control_feedback_type,
      {"Feedback Type", "wlan.he.mimo.feedback_type",
-      FT_UINT40, BASE_DEC, VALS(he_mimo_cntrl_feedback_vals),
+      FT_UINT40, BASE_DEC|BASE_VAL64_STRING, VALS64(he_mimo_cntrl_feedback_vals),
       0x0000000C00, NULL, HFILL }},
 
     {&hf_he_mimo_control_remaining_feedback_segs,
