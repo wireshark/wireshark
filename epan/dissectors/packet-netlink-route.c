@@ -396,11 +396,11 @@ static header_field_info hfi_netlink_route_ifi_flags NETLINK_ROUTE_HFI_INIT =
 
 static header_field_info hfi_netlink_route_ifi_flags_iff_up NETLINK_ROUTE_HFI_INIT =
 	{ "Interface", "netlink-route.ifi_flags.iff_up", FT_BOOLEAN, 32,
-	  &tfs_up_down, WS_IFF_UP, NULL, HFILL };
+	  TFS(&tfs_up_down), WS_IFF_UP, NULL, HFILL };
 
 static header_field_info hfi_netlink_route_ifi_flags_iff_broadcast NETLINK_ROUTE_HFI_INIT =
 	{ "Broadcast", "netlink-route.ifi_flags.iff_broadcast", FT_BOOLEAN, 32,
-	  &tfs_valid_invalid, WS_IFF_BROADCAST, NULL, HFILL };
+	  TFS(&tfs_valid_invalid), WS_IFF_BROADCAST, NULL, HFILL };
 
 static header_field_info hfi_netlink_route_ifi_change NETLINK_ROUTE_HFI_INIT =
        { "Device change flags", "netlink-route.ifi_change", FT_UINT32, BASE_DEC,
@@ -551,7 +551,7 @@ static header_field_info hfi_netlink_route_ifla_gso_maxsegs NETLINK_ROUTE_HFI_IN
 
 static header_field_info hfi_netlink_route_ifla_carrier NETLINK_ROUTE_HFI_INIT =
 	{ "Carrier", "netlink-route.ifla_carrier", FT_BOOLEAN, 32,
-	  &tfs_restricted_not_restricted, 0x00, NULL, HFILL };
+	  TFS(&tfs_restricted_not_restricted), 0x00, NULL, HFILL };
 
 static header_field_info hfi_netlink_route_ifla_qdisc NETLINK_ROUTE_HFI_INIT =
 	{ "Queueing discipline", "netlink-route.ifla_qdisc", FT_STRINGZ, STR_ASCII,

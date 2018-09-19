@@ -454,27 +454,27 @@ static header_field_info hfi_netlink_sock_diag_unix_show NETLINK_SOCK_DIAG_HFI_I
 
 static header_field_info hfi_netlink_sock_diag_unix_show_name NETLINK_SOCK_DIAG_HFI_INIT =
 	{ "Name", "netlink-sock_diag.unix_show.name", FT_BOOLEAN, 32,
-	  &_tfs_show_do_not_show, WS_UDIAG_SHOW_NAME, NULL, HFILL };
+	  TFS(&_tfs_show_do_not_show), WS_UDIAG_SHOW_NAME, NULL, HFILL };
 
 static header_field_info hfi_netlink_sock_diag_unix_show_vfs NETLINK_SOCK_DIAG_HFI_INIT =
 	{ "VFS inode info", "netlink-sock_diag.unix_show.vfs", FT_BOOLEAN, 32,
-	  &_tfs_show_do_not_show, WS_UDIAG_SHOW_VFS, NULL, HFILL };
+	  TFS(&_tfs_show_do_not_show), WS_UDIAG_SHOW_VFS, NULL, HFILL };
 
 static header_field_info hfi_netlink_sock_diag_unix_show_peer NETLINK_SOCK_DIAG_HFI_INIT =
 	{ "Peer socket info", "netlink-sock_diag.unix_show.peer", FT_BOOLEAN, 32,
-	  &_tfs_show_do_not_show, WS_UDIAG_SHOW_PEER, NULL, HFILL };
+	  TFS(&_tfs_show_do_not_show), WS_UDIAG_SHOW_PEER, NULL, HFILL };
 
 static header_field_info hfi_netlink_sock_diag_unix_show_icons NETLINK_SOCK_DIAG_HFI_INIT =
 	{ "Pending connections", "netlink-sock_diag.unix_show.icons", FT_BOOLEAN, 32,
-	  &_tfs_show_do_not_show, WS_UDIAG_SHOW_ICONS, NULL, HFILL };
+	  TFS(&_tfs_show_do_not_show), WS_UDIAG_SHOW_ICONS, NULL, HFILL };
 
 static header_field_info hfi_netlink_sock_diag_unix_show_rqlen NETLINK_SOCK_DIAG_HFI_INIT =
 	{ "skb receive queue len", "netlink-sock_diag.unix_show.rqlen", FT_BOOLEAN, 32,
-	  &_tfs_show_do_not_show, WS_UDIAG_SHOW_RQLEN, NULL, HFILL };
+	  TFS(&_tfs_show_do_not_show), WS_UDIAG_SHOW_RQLEN, NULL, HFILL };
 
 static header_field_info hfi_netlink_sock_diag_unix_show_meminfo NETLINK_SOCK_DIAG_HFI_INIT =
 	{ "Memory info of a socket", "netlink-sock_diag.unix_show.rqlen", FT_BOOLEAN, 32,
-	  &_tfs_show_do_not_show, WS_UDIAG_SHOW_MEMINFO, NULL, HFILL };
+	  TFS(&_tfs_show_do_not_show), WS_UDIAG_SHOW_MEMINFO, NULL, HFILL };
 
 static int
 dissect_sock_diag_unix_request_show(tvbuff_t *tvb, netlink_sock_diag_info_t *info, proto_tree *tree, int offset)
@@ -843,15 +843,15 @@ static header_field_info hfi_netlink_sock_diag_netlink_show NETLINK_SOCK_DIAG_HF
 
 static header_field_info hfi_netlink_sock_diag_netlink_show_meminfo NETLINK_SOCK_DIAG_HFI_INIT =
 	{ "Memory info of a socket", "netlink-sock_diag.netlink_show.meminfo", FT_BOOLEAN, 32,
-	  &_tfs_show_do_not_show, WS_NDIAG_SHOW_MEMINFO, NULL, HFILL };
+	  TFS(&_tfs_show_do_not_show), WS_NDIAG_SHOW_MEMINFO, NULL, HFILL };
 
 static header_field_info hfi_netlink_sock_diag_netlink_show_groups NETLINK_SOCK_DIAG_HFI_INIT =
 	{ "Groups of a netlink socket", "netlink-sock_diag.netlink_show.groups", FT_BOOLEAN, 32,
-	  &_tfs_show_do_not_show, WS_NDIAG_SHOW_GROUPS, NULL, HFILL };
+	  TFS(&_tfs_show_do_not_show), WS_NDIAG_SHOW_GROUPS, NULL, HFILL };
 
 static header_field_info hfi_netlink_sock_diag_netlink_show_ring_cfg NETLINK_SOCK_DIAG_HFI_INIT =
 	{ "Ring configuration", "netlink-sock_diag.netlink_show.ring_cfg", FT_BOOLEAN, 32,
-	  &_tfs_show_do_not_show, WS_NDIAG_SHOW_RING_CFG, NULL, HFILL };
+	  TFS(&_tfs_show_do_not_show), WS_NDIAG_SHOW_RING_CFG, NULL, HFILL };
 
 static int
 dissect_sock_diag_netlink_request_show(tvbuff_t *tvb, netlink_sock_diag_info_t *info, proto_tree *tree, int offset)
@@ -971,27 +971,27 @@ static header_field_info hfi_netlink_sock_diag_packet_show NETLINK_SOCK_DIAG_HFI
 
 static header_field_info hfi_netlink_sock_diag_packet_show_info NETLINK_SOCK_DIAG_HFI_INIT =
 	{ "Basic packet_sk information", "netlink-sock_diag.packet_show.info", FT_BOOLEAN, 32,
-	  &_tfs_show_do_not_show, WS_PACKET_SHOW_INFO, NULL, HFILL };
+	  TFS(&_tfs_show_do_not_show), WS_PACKET_SHOW_INFO, NULL, HFILL };
 
 static header_field_info hfi_netlink_sock_diag_packet_show_mclist NETLINK_SOCK_DIAG_HFI_INIT =
 	{ "Set of packet_diag_mclist-s", "netlink-sock_diag.packet_show.mclist", FT_BOOLEAN, 32,
-	  &_tfs_show_do_not_show, WS_PACKET_SHOW_MCLIST, NULL, HFILL };
+	  TFS(&_tfs_show_do_not_show), WS_PACKET_SHOW_MCLIST, NULL, HFILL };
 
 static header_field_info hfi_netlink_sock_diag_packet_show_ring_cfg NETLINK_SOCK_DIAG_HFI_INIT =
 	{ "Rings configuration parameters", "netlink-sock_diag.packet_show.ring_cfg", FT_BOOLEAN, 32,
-	  &_tfs_show_do_not_show, WS_PACKET_SHOW_RING_CFG, NULL, HFILL };
+	  TFS(&_tfs_show_do_not_show), WS_PACKET_SHOW_RING_CFG, NULL, HFILL };
 
 static header_field_info hfi_netlink_sock_diag_packet_show_fanout NETLINK_SOCK_DIAG_HFI_INIT =
 	{ "Fanout", "netlink-sock_diag.packet_show.fanout", FT_BOOLEAN, 32,
-	  &_tfs_show_do_not_show, WS_PACKET_SHOW_FANOUT, NULL, HFILL };
+	  TFS(&_tfs_show_do_not_show), WS_PACKET_SHOW_FANOUT, NULL, HFILL };
 
 static header_field_info hfi_netlink_sock_diag_packet_show_meminfo NETLINK_SOCK_DIAG_HFI_INIT =
 	{ "memory info", "netlink-sock_diag.packet_show.meminfo", FT_BOOLEAN, 32,
-	  &_tfs_show_do_not_show, WS_PACKET_SHOW_MEMINFO, NULL, HFILL };
+	  TFS(&_tfs_show_do_not_show), WS_PACKET_SHOW_MEMINFO, NULL, HFILL };
 
 static header_field_info hfi_netlink_sock_diag_packet_show_filter NETLINK_SOCK_DIAG_HFI_INIT =
 	{ "Filter", "netlink-sock_diag.packet_show.filter", FT_BOOLEAN, 32,
-	  &_tfs_show_do_not_show, WS_PACKET_SHOW_FILTER, NULL, HFILL };
+	  TFS(&_tfs_show_do_not_show), WS_PACKET_SHOW_FILTER, NULL, HFILL };
 
 static int
 dissect_sock_diag_packet_request_show(tvbuff_t *tvb, netlink_sock_diag_info_t *info, proto_tree *tree, int offset)
