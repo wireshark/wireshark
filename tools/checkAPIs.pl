@@ -750,7 +750,7 @@ sub check_hf_entries($$)
                                   \s*,\s*
                                   (FT_[A-Z0-9_]+)               # field type
                                   \s*,\s*
-                                  ([A-Z0-9x\|_]+)               # display
+                                  ([A-Z0-9x\|_\s]+)             # display
                                   \s*,\s*
                                   ([^,]+?)                      # convert
                                   \s*,\s*
@@ -766,6 +766,9 @@ sub check_hf_entries($$)
                 ##my $errorCount_save = $errorCount;
                 my ($hf, $name, $abbrev, $ft, $display, $convert, $bitmask, $blurb) = @items;
                 shift @items; shift @items; shift @items; shift @items; shift @items; shift @items; shift @items; shift @items;
+
+                $display =~ s/\s+//g;
+                $convert =~ s/\s+//g;
 
                 #print "name=$name, abbrev=$abbrev, ft=$ft, display=$display, convert=>$convert<, bitmask=$bitmask, blurb=$blurb\n";
 
