@@ -791,6 +791,7 @@ quic_connection_create(packet_info *pinfo, guint32 version, const quic_cid_t *sc
     return conn;
 }
 
+#ifdef HAVE_LIBGCRYPT_AEAD
 /**
  * Use the new CID as additional identifier for the specified connection and
  * remember it for connection tracking.
@@ -815,6 +816,7 @@ quic_connection_add_cid(quic_info_data_t *conn, const quic_cid_t *new_cid, gbool
 
     quic_cids_insert(&new_item->data, conn, from_server);
 }
+#endif
 
 /** Create or update a connection. */
 static void
