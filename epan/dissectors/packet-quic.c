@@ -1775,7 +1775,7 @@ quic_process_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
 #else /* !HAVE_LIBGCRYPT_AEAD */
 static void
 quic_process_payload(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_, proto_item *ti, guint offset _U_,
-                     quic_info_data_t *quic_info _U_, quic_packet_info_t *quic_packet _U_, gboolean from_server,
+                     quic_info_data_t *quic_info _U_, quic_packet_info_t *quic_packet _U_, gboolean from_server _U_,
                      quic_cipher *cipher _U_, guint pkn_len _U_)
 {
     expert_add_info_format(pinfo, ti, &ei_quic_decryption_failed, "Libgcrypt >= 1.6.0 is required for QUIC decryption");
