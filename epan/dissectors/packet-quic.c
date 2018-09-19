@@ -388,36 +388,21 @@ static const range_string quic_frame_type_vals[] = {
 #define FTFLAGS_STREAM_LEN 0x02
 #define FTFLAGS_STREAM_OFF 0x04
 
-/* > draft 07 */
-#define QUIC_NO_ERROR                   0x0000
-#define QUIC_INTERNAL_ERROR             0x0001
-#define QUIC_SERVER_BUSY                0x0002
-#define QUIC_FLOW_CONTROL_ERROR         0x0003
-#define QUIC_STREAM_ID_ERROR            0x0004
-#define QUIC_STREAM_STATE_ERROR         0x0005
-#define QUIC_FINAL_OFFSET_ERROR         0x0006
-#define QUIC_FRAME_ENCODING_ERROR       0x0007
-#define QUIC_TRANSPORT_PARAMETER_ERROR  0x0008
-#define QUIC_VERSION_NEGOTIATION_ERROR  0x0009
-#define QUIC_PROTOCOL_VIOLATION         0x000A
-#define QUIC_INVALID_MIGRATION          0x000C
-
-static const value_string quic_error_code_vals[] = {
-    { QUIC_NO_ERROR, "NO_ERROR (An endpoint uses this with CONNECTION_CLOSE to signal that the connection is being closed abruptly in the absence of any error.)" },
-    { QUIC_INTERNAL_ERROR, "INTERNAL_ERROR (The endpoint encountered an internal error and cannot continue with the connection)" },
-    { QUIC_SERVER_BUSY, "SERVER_BUSY (The server is currently busy and does not accept any new connections." },
-    { QUIC_FLOW_CONTROL_ERROR, "FLOW_CONTROL_ERROR (An endpoint received more data than An endpoint received more data tha)" },
-    { QUIC_STREAM_ID_ERROR, "STREAM_ID_ERROR (An endpoint received a frame for a stream identifier that exceeded its advertised maximum stream ID)" },
-    { QUIC_STREAM_STATE_ERROR, "STREAM_STATE_ERROR (An endpoint received a frame for a stream that was not in a state that permitted that frame)" },
-    { QUIC_FINAL_OFFSET_ERROR, "FINAL_OFFSET_ERROR (An endpoint received a STREAM frame containing data that exceeded the previously established final offset)" },
-    { QUIC_FRAME_ENCODING_ERROR, "FRAME_ENCODING_ERROR (An endpoint received a frame that was badly formatted)" },
-    { QUIC_TRANSPORT_PARAMETER_ERROR, "TRANSPORT_PARAMETER_ERROR (An endpoint received transport parameters that were badly formatted)" },
-    { QUIC_VERSION_NEGOTIATION_ERROR, "VERSION_NEGOTIATION_ERROR (An endpoint received transport parameters that contained version negotiation parameters that disagreed with the version negotiation that it performed)" },
-    { QUIC_PROTOCOL_VIOLATION, "PROTOCOL_VIOLATION (An endpoint detected an error with protocol compliance that was not covered by more specific error codes)" },
-    { QUIC_INVALID_MIGRATION, "A peer has migrated to a different network when the endpoint had disabled migration" },
-    { 0, NULL }
+static const range_string quic_transport_error_code_vals[] = {
+    { 0x0000, 0x0000, "NO_ERROR" },
+    { 0x0001, 0x0001, "INTERNAL_ERROR" },
+    { 0x0002, 0x0002, "SERVER_BUSY" },
+    { 0x0003, 0x0003, "FLOW_CONTROL_ERROR" },
+    { 0x0004, 0x0004, "STREAM_ID_ERROR" },
+    { 0x0005, 0x0005, "STREAM_STATE_ERROR" },
+    { 0x0006, 0x0006, "FINAL_OFFSET_ERROR" },
+    { 0x0007, 0x0007, "FRAME_ENCODING_ERROR" },
+    { 0x0008, 0x0008, "TRANSPORT_PARAMETER_ERROR" },
+    { 0x0009, 0x0009, "VERSION_NEGOTIATION_ERROR" },
+    { 0x000A, 0x000A, "PROTOCOL_VIOLATION" },
+    { 0x000C, 0x000C, "INVALID_MIGRATION" },
+    { 0, 0, NULL }
 };
-static value_string_ext quic_error_code_vals_ext = VALUE_STRING_EXT_INIT(quic_error_code_vals);
 
 static const value_string quic_application_error_code_vals[] = {
     { 0x0000, "STOPPING" },
@@ -958,7 +943,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             proto_tree_add_item(ft_tree, hf_quic_frame_type_cc_reason_phrase, tvb, offset, (guint32)len_reason, ENC_ASCII|ENC_NA);
             offset += (guint32)len_reason;
 
-            proto_item_append_text(ti_ft, " Error code: %s", val_to_str_ext(error_code, &quic_error_code_vals_ext, "Unknown (%d)"));
+            proto_item_append_text(ti_ft, " Error code: %s", rval_to_str(error_code, quic_transport_error_code_vals, "Unknown (%d)"));
         }
         break;
         case FT_APPLICATION_CLOSE:{
@@ -2576,9 +2561,9 @@ proto_register_quic(void)
               "Indicating the absolute byte offset of the end of data written on this stream", HFILL }
         },
         /* CONNECTION_CLOSE */
-        { &hf_quic_frame_type_cc_error_code, /* >= draft07 */
+        { &hf_quic_frame_type_cc_error_code,
             { "Error code", "quic.frame_type.cc.error_code",
-              FT_UINT16, BASE_DEC|BASE_EXT_STRING, &quic_error_code_vals_ext, 0x0,
+              FT_UINT16, BASE_DEC|BASE_RANGE_STRING, RVALS(quic_transport_error_code_vals), 0x0,
               "Indicates the reason for closing this connection", HFILL }
         },
         { &hf_quic_frame_type_cc_frame_type,
