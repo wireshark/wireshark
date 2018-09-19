@@ -340,7 +340,7 @@ static header_field_info hfi_gadu_gadu_login_uin GADU_GADU_HFI_INIT =
 	{ "Client UIN", "gadu-gadu.login.uin", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL };
 
 static header_field_info hfi_gadu_gadu_login_hash_type GADU_GADU_HFI_INIT =
-	{ "Login hash type", "gadu-gadu.login.hash_type", FT_UINT8, BASE_HEX, gadu_gadu_hash_type_vals, 0x00, NULL, HFILL };
+	{ "Login hash type", "gadu-gadu.login.hash_type", FT_UINT8, BASE_HEX, VALS(gadu_gadu_hash_type_vals), 0x00, NULL, HFILL };
 
 static header_field_info hfi_gadu_gadu_login_hash GADU_GADU_HFI_INIT =
 	{ "Login hash", "gadu-gadu.login.hash", FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL };
@@ -379,7 +379,7 @@ static header_field_info hfi_gadu_gadu_userdata_attr_value GADU_GADU_HFI_INIT =
 
 /* Typing notify (gadu-gadu.typing_notify.*) */
 static header_field_info hfi_gadu_gadu_typing_notify_type GADU_GADU_HFI_INIT =
-	{ "Typing notify type", "gadu-gadu.typing_notify.type", FT_UINT16, BASE_HEX, gadu_gadu_typing_notify_type_vals, 0x00, NULL, HFILL };
+	{ "Typing notify type", "gadu-gadu.typing_notify.type", FT_UINT16, BASE_HEX, VALS(gadu_gadu_typing_notify_type_vals), 0x00, NULL, HFILL };
 
 static header_field_info hfi_gadu_gadu_typing_notify_uin GADU_GADU_HFI_INIT =
 	{ "Typing notify recipient", "gadu-gadu.typing_notify.uin", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL };
@@ -415,7 +415,7 @@ static header_field_info hfi_gadu_gadu_msg80_offset_attr GADU_GADU_HFI_INIT =
 
 /* GG_SEND_MSG_ACK (gadu-gadu.msg_ack.*) */
 static header_field_info hfi_gadu_gadu_msg_ack_status GADU_GADU_HFI_INIT =
-	{ "Message status", "gadu-gadu.msg_ack.status", FT_UINT32, BASE_HEX, gadu_gadu_msg_ack_status_vals, 0x00, NULL, HFILL };
+	{ "Message status", "gadu-gadu.msg_ack.status", FT_UINT32, BASE_HEX, VALS(gadu_gadu_msg_ack_status_vals), 0x00, NULL, HFILL };
 
 static header_field_info hfi_gadu_gadu_msg_ack_recipient GADU_GADU_HFI_INIT =
 	{ "Message recipient", "gadu-gadu.msg_ack.recipient", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL };
@@ -447,7 +447,7 @@ static header_field_info hfi_gadu_gadu_status_descr GADU_GADU_HFI_INIT =
 
 /* Direct Connection (gadu-gadu.dcc.*) */
 static header_field_info hfi_dcc_type GADU_GADU_HFI_INIT =
-	{ "Direct connection type", "gadu-gadu.dcc.type", FT_UINT32, BASE_HEX, gadu_gadu_dcc_type_vals, 0x00, NULL, HFILL };
+	{ "Direct connection type", "gadu-gadu.dcc.type", FT_UINT32, BASE_HEX, VALS(gadu_gadu_dcc_type_vals), 0x00, NULL, HFILL };
 
 static header_field_info hfi_dcc_id GADU_GADU_HFI_INIT =
 	{ "Direct connection id", "gadu-gadu.dcc.id", FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL };
@@ -470,16 +470,16 @@ static header_field_info hfi_gadu_gadu_new_status_desc GADU_GADU_HFI_INIT =
 
 /* Userlist (gadu-gadu.userlist.*) */
 static header_field_info hfi_gadu_gadu_userlist_request_type GADU_GADU_HFI_INIT =
-	{ "Request type", "gadu-gadu.userlist.request_type", FT_UINT32, BASE_HEX, gadu_gadu_userlist_request_type_vals, 0x00, NULL, HFILL };
+	{ "Request type", "gadu-gadu.userlist.request_type", FT_UINT32, BASE_HEX, VALS(gadu_gadu_userlist_request_type_vals), 0x00, NULL, HFILL };
 
 static header_field_info hfi_gadu_gadu_userlist_version GADU_GADU_HFI_INIT =
 	{ "Userlist version", "gadu-gadu.userlist.version", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL };
 
 static header_field_info hfi_gadu_gadu_userlist_format GADU_GADU_HFI_INIT =
-	{ "Userlist format", "gadu-gadu.userlist.format", FT_UINT8, BASE_HEX, gadu_gadu_userlist_request_format_vals, 0x00, NULL, HFILL };
+	{ "Userlist format", "gadu-gadu.userlist.format", FT_UINT8, BASE_HEX, VALS(gadu_gadu_userlist_request_format_vals), 0x00, NULL, HFILL };
 
 static header_field_info hfi_gadu_gadu_userlist_reply_type GADU_GADU_HFI_INIT =
-	{ "Reply type", "gadu-gadu.userlist.reply_type", FT_UINT32, BASE_HEX, gadu_gadu_userlist_reply_type_vals, 0x00, NULL, HFILL };
+	{ "Reply type", "gadu-gadu.userlist.reply_type", FT_UINT32, BASE_HEX, VALS(gadu_gadu_userlist_reply_type_vals), 0x00, NULL, HFILL };
 
 static header_field_info hfi_gadu_gadu_userlist GADU_GADU_HFI_INIT =
 	{ "Userlist XML data", "gadu-gadu.userlist", FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL };
@@ -487,7 +487,7 @@ static header_field_info hfi_gadu_gadu_userlist GADU_GADU_HFI_INIT =
 
 /* Public Directory (gadu-gadu.pubdir.*) */
 static header_field_info hfi_gadu_gadu_pubdir_request_type GADU_GADU_HFI_INIT =
-	{ "Request type", "gadu-gadu.pubdir.request_type", FT_UINT8, BASE_HEX, gadu_gadu_pubdir_type_vals, 0x00, NULL, HFILL };
+	{ "Request type", "gadu-gadu.pubdir.request_type", FT_UINT8, BASE_HEX, VALS(gadu_gadu_pubdir_type_vals), 0x00, NULL, HFILL };
 
 static header_field_info hfi_gadu_gadu_pubdir_request_seq GADU_GADU_HFI_INIT =
 	{ "Request sequence", "gadu-gadu.pubdir.request_seq", FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL };
@@ -496,7 +496,7 @@ static header_field_info hfi_gadu_gadu_pubdir_request_str GADU_GADU_HFI_INIT =
 	{ "Request string", "gadu-gadu.pubdir.request_str", FT_STRINGZ, BASE_NONE, NULL, 0x00, NULL, HFILL };
 
 static header_field_info hfi_gadu_gadu_pubdir_reply_type GADU_GADU_HFI_INIT =
-	{ "Reply type", "gadu-gadu.pubdir.reply_type", FT_UINT8, BASE_HEX, gadu_gadu_pubdir_type_vals, 0x00, NULL, HFILL };
+	{ "Reply type", "gadu-gadu.pubdir.reply_type", FT_UINT8, BASE_HEX, VALS(gadu_gadu_pubdir_type_vals), 0x00, NULL, HFILL };
 
 static header_field_info hfi_gadu_gadu_pubdir_reply_seq GADU_GADU_HFI_INIT =
 	{ "Reply sequence", "gadu-gadu.pubdir.reply_seq", FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL };

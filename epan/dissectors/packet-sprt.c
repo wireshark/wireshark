@@ -680,8 +680,8 @@ static const range_string sprt_payload_dlci1[] = {
     { 0, 0, NULL }
 };
 
-static const true_false_string sprt_payload_ea_bit[] = {
-    { "Last octet of address field", "Another octet of address field follows" }
+static const true_false_string sprt_payload_ea_bit = {
+    "Last octet of address field", "Another octet of address field follows"
 };
 
 static const range_string sprt_payload_dlci2[] = {

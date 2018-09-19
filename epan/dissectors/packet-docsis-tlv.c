@@ -5146,7 +5146,7 @@ proto_register_docsis_tlv (void)
     {&hf_docsis_tlv_mcap_cm_status_ack,
      {".46 CM-STATUS_ACK",
       "docsis_tlv.mcap.cm_status_ack",
-      FT_UINT8, BASE_DEC, VALS (&sup_unsup_vals), 0x0,
+      FT_UINT8, BASE_DEC, VALS(sup_unsup_vals), 0x0,
       "CM_STATUS_ACK", HFILL}
     },
     {&hf_docsis_tlv_cm_mic,

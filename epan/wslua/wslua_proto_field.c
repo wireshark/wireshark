@@ -632,7 +632,7 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
     } else if (vs64) {
         /* Indicate that we are using val64_string */
         f->base |= BASE_VAL64_STRING;
-        f->vs = VALS(vs64);
+        f->vs = VALS64(vs64);
     } else if (uns) {
         f->base |= BASE_UNIT_STRING;
         f->vs = uns;
@@ -727,7 +727,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
     if (vs64) {
         /* Indicate that we are using val64_string */
         f->base |= BASE_VAL64_STRING;
-        f->vs = VALS(vs64);
+        f->vs = VALS64(vs64);
     } else if (vs32) {
         f->vs = VALS(vs32);
     } else if (uns) {
