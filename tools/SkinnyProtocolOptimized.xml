@@ -2977,7 +2977,7 @@
   </enum>
   <message comment="" direction="pbx2dev" dynamic="no" msgtype="event" name="CallStateMessage" opcode="0x0111" type="CallControl">
     <fields beginversion="0" endversion="22">
-      <enum comment="CallState" name="callState" subtype="DCallState" type="uint32"/>
+      <enum comment="" name="callState" subtype="DCallState" type="uint32"/>
       <integer comment="LineId" name="lineInstance" type="uint32"/>
       <integer comment="CallId" name="callReference" type="uint32"/>
       <enum comment="" name="privacy" subtype="CallPrivacy" type="uint32"/>

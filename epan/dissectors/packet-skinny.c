@@ -9536,7 +9536,7 @@ proto_register_skinny(void)
     {&hf_skinny_callState,
       {
         "callState", "skinny.callState", FT_UINT32, BASE_HEX | BASE_EXT_STRING, &DCallState_ext, 0x0,
-        "CallState", HFILL }},
+        NULL, HFILL }},
     {&hf_skinny_callType,
       {
         "callType", "skinny.callType", FT_UINT32, BASE_HEX | BASE_EXT_STRING, &CallType_ext, 0x0,
