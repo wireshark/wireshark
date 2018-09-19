@@ -769,6 +769,8 @@ sub check_hf_entries($$)
 
                 $display =~ s/\s+//g;
                 $convert =~ s/\s+//g;
+                # GET_VALS_EXTP is a macro in packet-mq.h for packet-mq.c and packet-mq-pcf.c
+                $convert =~ s/\bGET_VALS_EXTP\(/VALS_EXT_PTR\(/;
 
                 #print "name=$name, abbrev=$abbrev, ft=$ft, display=$display, convert=>$convert<, bitmask=$bitmask, blurb=$blurb\n";
 
@@ -836,12 +838,24 @@ sub check_hf_entries($$)
                         print STDERR "Error: $hf uses RVALS but 'display' does not include BASE_RANGE_STRING in $filename\n";
                         $errorCount++;
                 }
-                if ($convert =~ m/^VALS\(&.*\)/) {
-                        print STDERR "Error: $hf is passing the address of a pointer to VALS in $filename\n";
+                if ($convert =~ m/VALS64/ && $display !~ m/BASE_VAL64_STRING/) {
+                        print STDERR "Error: $hf uses VALS64 but 'display' does not include BASE_VAL64_STRING in $filename\n";
                         $errorCount++;
                 }
-                if ($convert =~ m/^RVALS\(&.*\)/) {
-                        print STDERR "Error: $hf is passing the address of a pointer to RVALS in $filename\n";
+                if ($display =~ /BASE_EXT_STRING/ && $convert !~ /^(VALS_EXT_PTR\(|&)/) {
+                        print STDERR "Error: $hf: BASE_EXT_STRING should use VALS_EXT_PTR for 'strings' instead of '$convert' in $filename\n";
+                        $errorCount++;
+                }
+                if ($ft =~ m/^FT_U?INT(8|16|24|32)$/ && $convert =~ m/^VALS64\(/) {
+                        print STDERR "Error: $hf: 32-bit field must use VALS instead of VALS64 in $filename\n";
+                        $errorCount++;
+                }
+                if ($ft =~ m/^FT_U?INT(40|48|56|64)$/ && $convert =~ m/^VALS\(/) {
+                        print STDERR "Error: $hf: 64-bit field must use VALS64 instead of VALS in $filename\n";
+                        $errorCount++;
+                }
+                if ($convert =~ m/^(VALS|VALS64|RVALS)\(&.*\)/) {
+                        print STDERR "Error: $hf is passing the address of a pointer to $1 in $filename\n";
                         $errorCount++;
                 }
                 if ($convert !~ m/^((0[xX]0?)?0$|NULL$|VALS|VALS64|VALS_EXT_PTR|RVALS|TFS|CF_FUNC|FRAMENUM_TYPE|&|STRINGS_ENTERPRISES)/ && $display !~ /BASE_CUSTOM/) {
