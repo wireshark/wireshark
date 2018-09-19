@@ -385,7 +385,7 @@ dissect_xra(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _
   proto_item *it;
   proto_tree *xra_tree;
 
-  it = proto_tree_add_protocol_format (tree, proto_xra, tvb, 0, -1,"XRA (Excentis XRA header)");
+  it = proto_tree_add_protocol_format (tree, proto_xra, tvb, 0, -1,"XRA");
 
   xra_tree = proto_item_add_subtree (it, ett_xra);
 
@@ -403,6 +403,10 @@ dissect_xra(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _
   proto_tree_add_item_ret_uint (xra_tree, hf_xra_packettype, tvb, 1, 1, ENC_BIG_ENDIAN, &packet_type);
   proto_tree_add_item_ret_uint (xra_tree, hf_xra_tlvlength, tvb, 2, 2, ENC_BIG_ENDIAN, &tlv_length);
 
+  guint16 xra_length = 4 + tlv_length;
+  proto_item_append_text(it, " (Excentis XRA header: %d bytes). DOCSIS frame is %d bytes.", xra_length, tvb_reported_length_remaining(tvb, xra_length));
+  proto_item_set_len(it, xra_length);
+
   col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(packet_type, packettype, "Unknown XRA packet type: %u"));
 
   /*Dissecting TLVs*/
@@ -410,7 +414,6 @@ dissect_xra(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _
   xra_tlv_tvb = tvb_new_subset_length(tvb, 4, tlv_length);
   dissect_xra_tlv(xra_tlv_tvb, pinfo, xra_tree, data, tlv_length, &segment_header_present);
 
-  guint16 xra_length = 4 + tlv_length;
   if(tvb_reported_length_remaining(tvb, xra_length) == 0) {
     return xra_length;
   }
