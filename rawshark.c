@@ -1196,7 +1196,7 @@ static gboolean print_field_value(field_info *finfo, int cmd_line_index)
                                 DISSECTOR_ASSERT(!hfinfo->bitmask);
                                 svalue = fvalue_get_sinteger(&finfo->value);
                                 if (hfinfo->display & BASE_RANGE_STRING) {
-                                    g_string_append(label_s, rval_to_str_const(svalue, RVALS(hfinfo->strings), "Unknown"));
+                                    g_string_append(label_s, rval_to_str_const(svalue, (const range_string *) hfinfo->strings, "Unknown"));
                                 } else if (hfinfo->display & BASE_EXT_STRING) {
                                     g_string_append(label_s, val_to_str_ext_const(svalue, (value_string_ext *) hfinfo->strings, "Unknown"));
                                 } else {
@@ -1220,7 +1220,7 @@ static gboolean print_field_value(field_info *finfo, int cmd_line_index)
                                 DISSECTOR_ASSERT(!hfinfo->bitmask);
                                 uvalue = fvalue_get_uinteger(&finfo->value);
                                 if (!hfinfo->bitmask && hfinfo->display & BASE_RANGE_STRING) {
-                                    g_string_append(label_s, rval_to_str_const(uvalue, RVALS(hfinfo->strings), "Unknown"));
+                                    g_string_append(label_s, rval_to_str_const(uvalue, (const range_string *) hfinfo->strings, "Unknown"));
                                 } else if (hfinfo->display & BASE_EXT_STRING) {
                                     g_string_append(label_s, val_to_str_ext_const(uvalue, (value_string_ext *) hfinfo->strings, "Unknown"));
                                 } else {
