@@ -110,6 +110,7 @@ static int hf_fp_edch_macis_descriptors = -1;
 static int hf_fp_edch_macis_lchid = -1;
 static int hf_fp_edch_macis_length = -1;
 static int hf_fp_edch_macis_flag = -1;
+static int hf_fp_edch_entity = -1;
 
 static int hf_fp_frame_seq_nr = -1;
 static int hf_fp_hsdsch_pdu_block_header = -1;
@@ -353,6 +354,12 @@ static const value_string hsdshc_mac_entity_vals[] = {
     { entity_not_specified,    "Unspecified (assume MAC-hs)" },
     { hs,                      "MAC-hs" },
     { ehs,                     "MAC-ehs" },
+    { 0,   NULL }
+};
+
+static const value_string edch_mac_entity_vals[] = {
+    { 0,                    "MAC-e/es" },
+    { 1,                    "MAC-i/is" },
     { 0,   NULL }
 };
 
@@ -5796,6 +5803,15 @@ dissect_fp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             break;
         case CHANNEL_EDCH:
         case CHANNEL_EDCH_COMMON:
+            /* Show configured MAC E-DCH entity in use */
+            if (fp_tree)
+            {
+                proto_item *entity_ti;
+                entity_ti = proto_tree_add_uint(fp_tree, hf_fp_edch_entity,
+                                                tvb, 0, 0,
+                                                p_fp_info->edch_type);
+                PROTO_ITEM_SET_GENERATED(entity_ti);
+            }
             dissect_e_dch_channel_info(tvb, pinfo, fp_tree, offset, p_fp_info,
                                        p_fp_info->channel == CHANNEL_EDCH_COMMON,
                                        data);
@@ -6234,6 +6250,12 @@ void proto_register_fp(void)
               { "Flag",
                 "fp.edch.mac-is.lchid", FT_UINT8, BASE_HEX, 0, 0x01,
                 "Indicates if another entry follows", HFILL
+              }
+            },
+            { &hf_fp_edch_entity,
+              { "E-DCH Entity",
+                "fp.edch.entity", FT_UINT8, BASE_DEC, VALS(edch_mac_entity_vals), 0x0,
+                "Type of MAC entity for this E-DCH channel", HFILL
               }
             },
             { &hf_fp_frame_seq_nr,
