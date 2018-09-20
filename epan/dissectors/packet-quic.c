@@ -62,6 +62,7 @@ static int hf_quic_short_kp_flag = -1;
 static int hf_quic_short_reserved = -1;
 static int hf_quic_payload = -1;
 static int hf_quic_protected_payload = -1;
+static int hf_quic_remaining_payload = -1;
 static int hf_quic_odcil_draft13 = -1;
 static int hf_quic_odcil = -1;
 static int hf_quic_odcid = -1;
@@ -1517,7 +1518,7 @@ quic_create_decoders(packet_info *pinfo, guint32 version, quic_info_data_t *quic
     char *secret = (char *)wmem_alloc0(wmem_packet_scope(), hash_len);
 
     if (!tls13_get_quic_secret(pinfo, from_server, type, hash_len, secret)) {
-        *error = "Unable to retrieve secret";
+        *error = "Secrets are not available";
         return FALSE;
     }
 
@@ -1933,11 +1934,15 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
             }
         }
         if (error) {
-            expert_add_info_format(pinfo, quic_tree, &ei_quic_decryption_failed, "Failed to create decryption context: %s", error);
             quic_packet->decryption.error = wmem_strdup(wmem_file_scope(), error);
         }
     }
 #endif /* !HAVE_LIBGCRYPT_AEAD */
+    if (quic_packet->decryption.error) {
+        expert_add_info_format(pinfo, quic_tree, &ei_quic_decryption_failed,
+                               "Failed to create decryption context: %s", quic_packet->decryption.error);
+        return offset;
+    }
 
     pkn_len = dissect_quic_packet_number(tvb, pinfo, quic_tree, offset, conn, quic_packet, from_server,
                                          cipher, GCRY_CIPHER_AES128, &pkn);
@@ -1980,11 +1985,15 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
     }
     offset += 1;
 
+    col_clear(pinfo->cinfo, COL_INFO);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "Protected Payload (KP%u)", key_phase);
+
     /* Connection ID */
     if (dcid.len > 0) {
         proto_tree_add_item(quic_tree, hf_quic_dcid, tvb, offset, dcid.len, ENC_NA);
         tvb_memcpy(tvb, dcid.cid, offset, dcid.len);
         offset += dcid.len;
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", DCID=%s", cid_to_string(&dcid));
     }
 
 #ifdef HAVE_LIBGCRYPT_AEAD
@@ -1992,7 +2001,9 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
         cipher = quic_get_pp_cipher(pinfo, key_phase, conn, from_server);
     }
 #endif /* !HAVE_LIBGCRYPT_AEAD */
-
+    if (!conn || conn->skip_decryption) {
+        return offset;
+    }
 
     /* Packet Number */
     pkn_len = dissect_quic_packet_number(tvb, pinfo, quic_tree, offset, conn, quic_packet, from_server,
@@ -2002,12 +2013,7 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
     }
     offset += pkn_len;
 
-    col_clear(pinfo->cinfo, COL_INFO);
-    col_append_fstr(pinfo->cinfo, COL_INFO, "Protected Payload (KP%u), PKN: %" G_GINT64_MODIFIER "u", key_phase, pkn);
-
-    if (dcid.len > 0) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", DCID=%s", cid_to_string(&dcid));
-    }
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", PKN: %" G_GINT64_MODIFIER "u", pkn);
 
     /* Protected Payload */
     ti = proto_tree_add_item(quic_tree, hf_quic_protected_payload, tvb, offset, -1, ENC_NA);
@@ -2205,6 +2211,7 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         tvbuff_t *next_tvb = quic_get_message_tvb(tvb, offset);
         proto_tree_add_item_ret_uint(quic_tree, hf_quic_header_form, next_tvb, 0, 1, ENC_NA, &header_form);
+        guint new_offset = 0;
         if (header_form) {
             guint8 long_packet_type = tvb_get_guint8(next_tvb, 0) & 0x7f;
             guint32 version = tvb_get_ntohl(next_tvb, 1);
@@ -2213,12 +2220,16 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 break;
             }
             if (long_packet_type == QUIC_LPT_RETRY) {
-                dissect_quic_retry_packet(next_tvb, pinfo, quic_tree, dgram_info, quic_packet);
+                new_offset = dissect_quic_retry_packet(next_tvb, pinfo, quic_tree, dgram_info, quic_packet);
             } else {
-                dissect_quic_long_header(next_tvb, pinfo, quic_tree, dgram_info, quic_packet);
+                new_offset = dissect_quic_long_header(next_tvb, pinfo, quic_tree, dgram_info, quic_packet);
             }
         } else {
-            dissect_quic_short_header(next_tvb, pinfo, quic_tree, dgram_info, quic_packet);
+            new_offset = dissect_quic_short_header(next_tvb, pinfo, quic_tree, dgram_info, quic_packet);
+        }
+        if (tvb_reported_length_remaining(next_tvb, new_offset)) {
+            // should usually not be present unless decryption is not possible.
+            proto_tree_add_item(quic_tree, hf_quic_remaining_payload, next_tvb, new_offset, -1, ENC_NA);
         }
         offset += tvb_reported_length(next_tvb);
     } while (tvb_reported_length_remaining(tvb, offset));
@@ -2423,6 +2434,11 @@ proto_register_quic(void)
           { "Protected Payload", "quic.protected_payload",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             "1-RTT protected payload", HFILL }
+        },
+        { &hf_quic_remaining_payload,
+          { "Remaining Payload", "quic.remaining_payload",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            "Remaining payload in a packet (possibly PKN followed by encrypted payload)", HFILL }
         },
 
         { &hf_quic_odcil_draft13,
