@@ -221,9 +221,10 @@ including the following platforms:
 
 * Red Hat Enterprise/Fedora Linux
 
-* Sun Solaris/i386
+// Packages available as of 2018-09 are ancient.
+//* Sun Solaris/i386
 
-* Sun Solaris/SPARC
+//* Sun Solaris/SPARC
 
 * Canonical Ubuntu
 
