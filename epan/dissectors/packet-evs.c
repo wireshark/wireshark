@@ -476,6 +476,7 @@ dissect_evs_cmr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *evs_tree, int
     }
     break;
     default:
+        DISSECTOR_ASSERT_NOT_REACHED();
         break;
 
     }
