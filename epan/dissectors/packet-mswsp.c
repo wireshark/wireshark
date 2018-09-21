@@ -4233,7 +4233,6 @@ static int parse_CBaseStorageVariant(tvbuff_t *tvb, packet_info *pinfo, int offs
 		 * Not a valid type.
 		 */
 		ti_type = proto_tree_add_string(tree, hf_mswsp_cbasestorvariant_vtype, tvb, offset, 2, "Unknown CBaseStorageVariant type");
-		offset += 2;
 		expert_add_info(pinfo, ti_type, &ei_mswsp_invalid_variant_type);
 
 		THROW_MESSAGE(ReportedBoundsError, "Unknown CBaseStorageVariant type");
@@ -5275,7 +5274,6 @@ static int parse_VariantCol(tvbuff_t *tvb, packet_info *pinfo, int offset, proto
 		 */
 		ti_type = proto_tree_add_string(tree, hf_mswsp_ctablecolumn_vtype, tvb, offset, 4, "Unknown variant column type");
 		expert_add_info(pinfo, ti_type, &ei_mswsp_invalid_variant_type);
-		offset += 2;
 
 		THROW_FORMATTED(ReportedBoundsError, "Unknown variant column type%s", modifier);
 		return offset;
