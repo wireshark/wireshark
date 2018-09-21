@@ -3193,7 +3193,7 @@ dissect_ieee802154_payload_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
         volatile int consumed = 0;
         guint16 ie_header = tvb_get_letohs(tvb, offset);
         guint16 id = (guint16) ((ie_header & IEEE802154_PAYLOAD_IE_ID_MASK) >> 11);
-        guint16 length = (guint16) (ie_header & IEEE802154_PAYLOAD_IE_LENGTH_MASK);
+        volatile guint16 length = (guint16) (ie_header & IEEE802154_PAYLOAD_IE_LENGTH_MASK);
         tvbuff_t *ie_tvb = tvb_new_subset_length(tvb, offset, 2 + length);
 
         if (id == IEEE802154_PAYLOAD_IE_TERMINATION) {
