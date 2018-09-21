@@ -4959,7 +4959,6 @@ mbim_dissect_ms_atr_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     proto_tree_add_item_ret_uint(tree, hf_mbim_ms_atr_info_atr_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &atr_size);
     offset += 4;
     proto_tree_add_item_ret_uint(tree, hf_mbim_ms_atr_info_atr_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &atr_offset);
-    offset += 4;
 
     if (atr_offset && atr_size) {
         if (iso7816_atr_handle) {
