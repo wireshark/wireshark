@@ -556,7 +556,6 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-tcap.h
 	packet-tcp.h
 	packet-tetra.h
-	packet-tftp.h
 	packet-tn3270.h
 	packet-tn5250.h
 	packet-tpkt.h

@@ -36,8 +36,6 @@
 #include <epan/tap.h>
 #include <epan/export_object.h>
 
-#include "packet-tftp.h"
-
 void proto_register_tftp(void);
 
 /* Things we may want to remember for a whole conversation */
@@ -169,11 +167,11 @@ tftp_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const
   entry->payload_len = eo_info->payload_len;
   entry->payload_data = (guint8 *)g_try_malloc((gsize)entry->payload_len);
   for (block_iterator = eo_info->block_list; block_iterator; block_iterator = block_iterator->next) {
-    file_block_t *block = (file_block_t*)block_iterator->data;
+    GByteArray *block = (GByteArray*)block_iterator->data;
     memcpy(entry->payload_data + payload_data_offset,
                block->data,
-               block->length);
-    payload_data_offset += block->length;
+               block->len);
+    payload_data_offset += block->len;
   }
 
   /* These 2 fields not used */
@@ -202,12 +200,9 @@ static void cleanup_tftp_eo(eo_info_dynamic_t *dynamic_info)
 
   /* Walk list of block items */
   for (block_iterator = dynamic_info->block_list; block_iterator; block_iterator = block_iterator->next) {
-    file_block_t *block = (file_block_t*)(block_iterator->data);
-    /* Free block data */
-    wmem_free(NULL, block->data);
-
-    /* Free block itself */
-    g_free(block);
+    GByteArray *block = (GByteArray*)(block_iterator->data);
+    /* Free block data and the block itself */
+    g_byte_array_free(block, TRUE);
   }
 }
 
@@ -277,12 +272,9 @@ static void cleanup_tftp_blocks(tftp_conv_info_t *conv)
 
     /* Walk list of block items */
     for (block_iterator = conv->block_list; block_iterator; block_iterator = block_iterator->next) {
-        file_block_t *block = (file_block_t*)block_iterator->data;
-        /* Free block data */
-        wmem_free(NULL, block->data);
-
-        /* Free block itself */
-        g_free(block);
+        GByteArray *block = (GByteArray*)block_iterator->data;
+        /* Free block data and the block itself */
+        g_byte_array_free(block, TRUE);
     }
     conv->block_list = NULL;
     conv->file_length = 0;
@@ -340,7 +332,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
                         tvb, offset, i1, ENC_ASCII|ENC_NA, wmem_file_scope(), &tftp_info->source_file);
 
     /* we either have a source file name (for read requests) or a
-       destination file name (for write requests) 
+       destination file name (for write requests)
        when we set one of the names, we clear the other */
     tftp_info->destination_file = NULL;
 
@@ -428,8 +420,6 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
        to send to tap. But if already know there are blocks missing, there is no
        point in trying. */
     if (have_tap_listener(tftp_eo_tap) && !tftp_info->blocks_missing) {
-      file_block_t *block;
-
       if (blocknum == 1) {
         /* Reset data for this conversation, freeing any accumulated blocks! */
         cleanup_tftp_blocks(tftp_info);
@@ -443,9 +433,8 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
 
       if (bytes > 0) {
         /* Create a block for this block */
-        block = (file_block_t*)g_malloc(sizeof(file_block_t));
-        block->length = bytes;
-        block->data = tvb_memdup(NULL, data_tvb, 0, bytes);
+        GByteArray *block = g_byte_array_sized_new(bytes);
+        tvb_memcpy(data_tvb, block->data, 0, bytes);
 
         /* Add to the end of the list (does involve traversing whole list..) */
         tftp_info->block_list = g_slist_append(tftp_info->block_list, block);
