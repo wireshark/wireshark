@@ -356,7 +356,7 @@ dissect_evs_cmr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *evs_tree, int
     proto_tree *tree;
     proto_item *item;
     const gchar *str;
-    guint8 t_bits = (cmr_oct & 0x70) >> 4;;
+    guint8 t_bits = (cmr_oct & 0x70) >> 4;
     guint8 d_bits = (cmr_oct & 0x0f);
     /* CMR */
     tree = proto_tree_add_subtree(evs_tree, tvb, offset, 1, ett_evs_header, &item, "CMR");
