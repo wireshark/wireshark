@@ -61,6 +61,7 @@
 #include <QClipboard>
 #include <QMenu>
 #include <QFileInfo>
+#include <QMessageBox>
 
 AuthorListModel::AuthorListModel(QObject * parent) :
 AStringListListModel(parent)
@@ -455,8 +456,20 @@ void AboutDialog::urlDoubleClicked(const QModelIndex &idx)
     if ( urlText.isEmpty() )
         return;
 
-    QFileInfo fi (urlText);
-    if ( fi.isDir() && fi.exists() )
+    if ( ! QDir(urlText).exists() )
+    {
+        if ( QMessageBox::question(this, tr("The directory does not exist"),
+                          QString(tr("Should the directory %1 be created?").arg(urlText)) ) == QMessageBox::Yes )
+        {
+            if ( ! QDir().mkdir(urlText) )
+            {
+                QMessageBox::warning(this, tr("The directory could not be created"),
+                                     QString(tr("The directory %1 could not be created!").arg(urlText)));
+            }
+        }
+    }
+
+    if ( QDir(urlText).exists() )
     {
         QUrl url = QUrl::fromLocalFile(urlText);
         if ( url.isValid() )
