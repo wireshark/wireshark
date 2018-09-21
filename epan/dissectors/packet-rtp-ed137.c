@@ -1017,8 +1017,6 @@ dissect_rtp_hdr_ext_ed137a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                 }
             }
 
-            hdrext_offset += hdr_extension_padding;
-            hdr_extension_len -= hdr_extension_padding;
         }
         else {
             /* Extended information is not used */
