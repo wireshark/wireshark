@@ -84,20 +84,14 @@ option and interface feature.
 Multiple File Types
 -------------------
 
-The wiretap library is a packet-capture library currently under
-development parallel to Wireshark.  In the future it is hoped that
-wiretap will have more features than libpcap, but wiretap is still in
-its infancy. However, wiretap is used in wireshark for its ability
-to read multiple file types.  See the Wireshark man page or the
-Wireshark User's Guide for a list of supported file formats.
+Wireshark can read packets from a number of different file types.  See
+the Wireshark man page or the Wireshark User's Guide for a list of
+supported file formats.
 
-In addition, it can read gzipped versions of any of those files
-automatically if you have the zlib library available when compiling
-Wireshark. Wireshark needs a modern version of zlib to be able to use
-zlib to read gzipped files; version 1.1.3 is known to work.  Versions
-prior to 1.0.9 are missing some functions that Wireshark needs and won't
-work.  CMake will automatically use zlib if it is found on your system.
-You can disable zlib support by running `cmake -DENABLE_ZLIB=OFF`.
+Wireshark can transparently read gzipped versions of any of those files if
+zlib was available when Wireshark was compiled.  CMake will automatically
+use zlib if it is found on your system.  You can disable zlib support by
+running `cmake -DENABLE_ZLIB=OFF`.
 
 Although Wireshark can read AIX iptrace files, the documentation on
 AIX's iptrace packet-trace command is sparse.  The `iptrace` command
