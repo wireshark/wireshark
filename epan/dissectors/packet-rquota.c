@@ -14,7 +14,6 @@
 #include "config.h"
 
 #include "packet-rpc.h"
-#include "packet-rquota.h"
 
 void proto_register_rquota(void);
 void proto_reg_handoff_rquota(void);
@@ -41,6 +40,14 @@ static int hf_rquota_ftimeleft = -1;
 
 static gint ett_rquota = -1;
 static gint ett_rquota_rquota = -1;
+
+#define RQUOTAPROC_NULL 		0
+#define RQUOTAPROC_GETQUOTA		1
+#define RQUOTAPROC_GETACTIVEQUOTA	2
+#define RQUOTAPROC_SETQUOTA		3
+#define RQUOTAPROC_SETACTIVEQUOTA	4
+
+#define RQUOTA_PROGRAM 100011
 
 static const value_string names_rquota_status[] =
 {

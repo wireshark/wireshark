@@ -11,7 +11,6 @@
 #include "config.h"
 
 #include "packet-nfs.h"
-#include "packet-klm.h"
 
 void proto_register_klm(void);
 void proto_reg_handoff_klm(void);
@@ -31,6 +30,13 @@ static int hf_klm_block = -1;
 static gint ett_klm = -1;
 static gint ett_klm_lock = -1;
 static gint ett_klm_holder = -1;
+
+#define KLMPROC_TEST   1
+#define KLMPROC_LOCK   2
+#define KLMPROC_CANCEL 3
+#define KLMPROC_UNLOCK 4
+
+#define KLM_PROGRAM 100020
 
 static const value_string names_klm_stats[] =
 {

@@ -11,7 +11,6 @@
 #include "config.h"
 
 #include "packet-rpc.h"
-#include "packet-spray.h"
 
 void proto_register_spray(void);
 void proto_reg_handoff_spray(void);
@@ -27,6 +26,14 @@ static int hf_spray_usec = -1;
 static gint ett_spray = -1;
 static gint ett_spray_clock = -1;
 
+#define PACKET_SPRAY_H
+
+#define SPRAYPROC_NULL	0
+#define SPRAYPROC_SPRAY	1
+#define SPRAYPROC_GET	2
+#define SPRAYPROC_CLEAR	3
+
+#define SPRAY_PROGRAM 100012
 
 static int
 dissect_get_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)

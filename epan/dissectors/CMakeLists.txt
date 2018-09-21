@@ -280,7 +280,6 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-chdlc.h
 	packet-cip.h
 	packet-cipsafety.h
-	packet-clearcase.h
 	packet-cmip.h
 	packet-cmp.h
 	packet-cms.h
@@ -340,7 +339,6 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-fcfcs.h
 	packet-fcfzs.h
 	packet-fclctl.h
-	packet-fcp.h
 	packet-fcsb3.h
 	packet-fcswils.h
 	packet-ff.h
@@ -406,7 +404,6 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-juniper.h
 	packet-jxta.h
 	packet-kerberos.h
-	packet-klm.h
 	packet-l2tp.h
 	packet-lapdm.h
 	packet-lbm.h
@@ -480,7 +477,6 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-pkixqualified.h
 	packet-pkixtsp.h
 	packet-pkinit.h
-	packet-pktc.h
 	packet-portmap.h
 	packet-ppi-geolocation-common.h
 	packet-ppp.h
@@ -507,7 +503,6 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-ros.h
 	packet-rpc.h
 	packet-rpcrdma.h
-	packet-rquota.h
 	packet-rrc.h
 	packet-rsvp.h
 	packet-rtcp.h
@@ -516,7 +511,6 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-rtp-events.h
 	packet-rtse.h
 	packet-rtsp.h
-	packet-rwall.h
 	packet-rx.h
 	packet-s1ap.h
 	packet-s5066sis.h
@@ -548,7 +542,6 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-snmp.h
 	packet-socketcan.h
 	packet-spice.h
-	packet-spray.h
 	packet-sprt.h
 	packet-sscop.h
 	packet-ssl.h

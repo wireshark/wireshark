@@ -16,7 +16,6 @@
 #include <epan/proto_data.h>
 #include "packet-scsi.h"
 #include "packet-fc.h"
-#include "packet-fcp.h"
 #include "packet-fcels.h"
 
 void proto_register_fcp(void);
@@ -86,6 +85,9 @@ typedef struct fcp_request_data {
    nstime_t request_time;
    itlq_nexus_t *itlq;
 } fcp_request_data_t;
+
+#define FCP_DEF_CMND_LEN         32 /* by default cmnd is 32 bytes */
+#define FCP_DEF_RSP_LEN          24 /* default FCP_RSP len */
 
 /* Information Categories based on lower 4 bits of R_CTL */
 #define FCP_IU_DATA              0x1

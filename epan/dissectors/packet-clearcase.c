@@ -15,7 +15,6 @@
 #include <epan/packet.h>
 
 #include "packet-rpc.h"
-#include "packet-clearcase.h"
 
 void proto_register_clearcase(void);
 void proto_reg_handoff_clearcase(void);
@@ -24,6 +23,10 @@ static int proto_clearcase = -1;
 static int hf_clearcase_procedure_v3 = -1;
 
 static gint ett_clearcase = -1;
+
+#define CLEARCASEPROC_NULL 0
+
+#define CLEARCASE_PROGRAM 390512
 
 /* proc number, "proc name", dissect_request, dissect_reply */
 static const vsff clearcase3_proc[] = {

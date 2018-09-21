@@ -24,7 +24,6 @@
 #include <epan/expert.h>
 #include <epan/to_str.h>
 #include <epan/asn1.h>
-#include "packet-pktc.h"
 #include "packet-ber.h"
 #include "packet-kerberos.h"
 #include "packet-snmp.h"
