@@ -161,10 +161,7 @@ LIBXML2_VERSION=2.9.4
 LZ4_VERSION=1.7.5
 SBC_VERSION=1.3
 CARES_VERSION=1.12.0
-# Redmine used by libssh.org numbers the files available for download,
-# so using version only isn't enough
 LIBSSH_VERSION=0.7.4
-LIBSSH_FILENUM=210
 # mmdbresolve
 MAXMINDDB_VERSION=1.3.2
 
