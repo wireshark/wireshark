@@ -390,22 +390,22 @@ sub find_hf_array_entries {
         }
     }
 
+    # pre-process contents to fold multiple lines and speed up matching.
+    $fileContentsWithoutComments =~ s/\s*=\s*/=/gs;
+    $fileContentsWithoutComments =~ s/^\s+//g;
+
     # RegEx to get "proto" variable name
     my $protoRegEx = qr /
-                            ^ \s*                     # note m modifier below
+                            ^                         # note m modifier below
                             (
                                 [a-zA-Z0-9_]+
                             )
-                            \s*
                             =
-                            \s*
-                            proto_register_protocol
-                            \s*
-                            \(
-                        /xoms;
+                            proto_register_protocol\b
+                        /xom;
 
     # Find all registered protocols
-    while ($fileContentsWithoutComments =~ m { $protoRegEx }xgioms ) {
+    while ($fileContentsWithoutComments =~ m { $protoRegEx }xgom ) {
         ##print "$1\n";
         if (exists $hfArrayEntryFieldType{$1}) {
             printf "%-35.35s: ? duplicate 'proto': no fixes done for: $1; manual action may be req'd\n", $fileName;
@@ -517,8 +517,8 @@ sub find_hf_array_entries {
 #      - ref to array containing hf[] types to be processed (FT_STRING, etc)
 #      - ref to hash containing search (keys) and replacement (values) for encoding arg
 #   fcn_name string
-#   ref to hfArrayEntries hash (key: hf name; value: field type)
 #   ref to string containing file contents
+#   ref to hfArrayEntries hash (key: hf name; value: field type)
 #   filename string
 
 {  # block begin
@@ -573,24 +573,32 @@ sub find_hf_array_entries {
             $encArgPat = qr / [^,)]+? /x;
         }
 
+        my @hf_index_names;
+
         # For each hf[] entry which matches a type in %hfTypes do replacements
         $found = 0;
         foreach my $key (keys %$hfArrayEntryFieldTypeHRef) {
             $hf_index_name = $key;
-            $hf_index_name =~ s{ ( \[ | \] ) }{\\$1}xg;     # escape any "[" or "]" characters
             $hf_field_type = $$hfArrayEntryFieldTypeHRef{$key};
             ##printf "--> %-35.35s: %s\n", $hf_index_name,  $hf_field_type;
 
             next unless exists $hfTypes{$hf_field_type};    # Do we want to process for this hf[] entry type ?
 
+            ##print "\n$hf_index_name $hf_field_type\n";
+            push @hf_index_names, $hf_index_name;
+        }
+
+        if (@hf_index_names) {
             # build the complete pattern
+            my $hf_index_names_re = join('|', @hf_index_names);
+            $hf_index_names_re =~ s/\[|\]/\\$&/g;   # escape any "[" or "]" characters
             my $patRegEx = qr /
                                   # part 1: $1
                                   (
                                       $fcn_name \s* \(
                                       [^;]+?
                                       ,\s*
-                                      $hf_index_name
+                                      (?:$hf_index_names_re)
                                       \s*,
                                       [^;]+
                                       ,\s*
@@ -607,7 +615,6 @@ sub find_hf_array_entries {
                                   )
                               /xs;
 
-            ##print "\n$hf_index_name $hf_field_type\n";
             ##print "\n$patRegEx\n";
 
             ## Match and substitute as specified
