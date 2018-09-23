@@ -2715,7 +2715,7 @@ dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             /* Subframe number */
             subframes[n].subframe_number = (tvb_get_guint8(tvb, offset) & 0x07);
             proto_tree_add_bits_item(subframe_header_tree, hf_fp_edch_subframe_number, tvb,
-                                     offset*8+5, 1, ENC_BIG_ENDIAN);
+                                     offset*8+5, 3, ENC_BIG_ENDIAN);
             offset++;
 
             /* Number of MAC-es PDUs */
