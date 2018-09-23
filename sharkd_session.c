@@ -2081,8 +2081,8 @@ sharkd_session_process_tap_rtp_cb(void *arg)
 	printf(",\"streams\":[");
 	for (listx = g_list_first(rtp_tapinfo->strinfo_list); listx; listx = listx->next)
 	{
-		rtpstream_info_calc_t calc;
 		rtpstream_info_t *streaminfo = (rtpstream_info_t *) listx->data;
+		rtpstream_info_calc_t calc;
 
 		rtpstream_info_calculate(streaminfo, &calc);
 
@@ -2679,14 +2679,10 @@ sharkd_session_process_frame_cb_tree(epan_dissect_t *edt, proto_tree *tree, tvbu
 		}
 
 		if (FI_GET_FLAG(finfo, FI_GENERATED))
-		{
 			printf(",\"g\":true");
-		}
 
 		if (FI_GET_FLAG(finfo, FI_HIDDEN))
-		{
 			printf(",\"v\":true");
-		}
 
 		if (FI_GET_FLAG(finfo, PI_SEVERITY_MASK))
 		{
@@ -2752,6 +2748,7 @@ sharkd_session_process_frame_cb(epan_dissect_t *edt, proto_tree *tree, struct ep
 
 	const struct sharkd_frame_request_data * const req_data = (const struct sharkd_frame_request_data * const) data;
 	const gboolean display_hidden = (req_data) ? req_data->display_hidden : FALSE;
+
 	printf("{");
 
 	printf("\"err\":0");
@@ -3280,16 +3277,10 @@ sharkd_session_process_frame(char *buf, const jsmntok_t *tokens, int count)
 	const char *tok_frame = json_find_attr(buf, tokens, count, "frame");
 	const char *tok_ref_frame = json_find_attr(buf, tokens, count, "ref_frame");
 	const char *tok_prev_frame = json_find_attr(buf, tokens, count, "prev_frame");
+
 	guint32 framenum, ref_frame_num, prev_dis_num;
 	guint32 dissect_flags = SHARKD_DISSECT_FLAG_NULL;
-	if (json_find_attr(buf, tokens, count, "proto") != NULL)
-		dissect_flags |= SHARKD_DISSECT_FLAG_PROTO_TREE;
-	if (json_find_attr(buf, tokens, count, "bytes") != NULL)
-		dissect_flags |= SHARKD_DISSECT_FLAG_BYTES;
-	if (json_find_attr(buf, tokens, count, "columns") != NULL)
-		dissect_flags |= SHARKD_DISSECT_FLAG_COLUMNS;
-	if (json_find_attr(buf, tokens, count, "color") != NULL)
-		dissect_flags |= SHARKD_DISSECT_FLAG_COLOR;
+	struct sharkd_frame_request_data req_data;
 
 	if (!tok_frame || !ws_strtou32(tok_frame, NULL, &framenum) || framenum == 0)
 		return;
@@ -3302,7 +3293,15 @@ sharkd_session_process_frame(char *buf, const jsmntok_t *tokens, int count)
 	if (tok_prev_frame && (!ws_strtou32(tok_prev_frame, NULL, &prev_dis_num) || prev_dis_num >= framenum))
 		return;
 
-	struct sharkd_frame_request_data req_data;
+	if (json_find_attr(buf, tokens, count, "proto") != NULL)
+		dissect_flags |= SHARKD_DISSECT_FLAG_PROTO_TREE;
+	if (json_find_attr(buf, tokens, count, "bytes") != NULL)
+		dissect_flags |= SHARKD_DISSECT_FLAG_BYTES;
+	if (json_find_attr(buf, tokens, count, "columns") != NULL)
+		dissect_flags |= SHARKD_DISSECT_FLAG_COLUMNS;
+	if (json_find_attr(buf, tokens, count, "color") != NULL)
+		dissect_flags |= SHARKD_DISSECT_FLAG_COLOR;
+
 	req_data.display_hidden = (json_find_attr(buf, tokens, count, "v") != NULL);
 
 	sharkd_dissect_request(framenum, ref_frame_num, prev_dis_num, &sharkd_session_process_frame_cb, dissect_flags, &req_data);
@@ -4043,7 +4042,7 @@ sharkd_session_process_download(char *buf, const jsmntok_t *tokens, int count)
 			printf(",\"mime\":");
 			json_puts_string(mime);
 			printf(",\"data\":");
-			json_print_base64(eo_entry->payload_data, (size_t)(eo_entry->payload_len));
+			json_print_base64(eo_entry->payload_data, (size_t) eo_entry->payload_len);
 			printf("}\n");
 		}
 	}
