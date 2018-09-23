@@ -35,7 +35,7 @@
  *  - IUR interface-specific formats
  *  - do CRC verification before further parsing
  *  - Set the logical channel properly for non multiplexed, channels
- *    for channels that doesn't have the C/T flag! This should be based
+ *    for channels that doesn't have the C/T field! This should be based
  *    on the RRC message RadioBearerSetup.
  *  - E-DCH (T1 & T2) heuristic dissectors
  */
@@ -2871,25 +2871,20 @@ dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         next_tvb = tvb_new_subset_length(tvb, offset + bit_offset/8,
                                 ((bit_offset % 8) + size + 7) / 8);
 
-
-                        /*This was all previously stored in [0] rather than [macd_idx] and cur_tb wasn't updated!*/
                         /*Set up information needed for MAC and lower layers*/
                         macinf->content[macd_idx] = lchId_type_table[lchid];     /*Set the proper Content type for the mac layer.*/
                         macinf->lchid[macd_idx] = lchid;
                         rlcinf->mode[macd_idx] = lchId_rlc_map[lchid]; /* Set RLC mode by lchid to RLC_MODE map in nbap.h */
 
-                        /* Set U-RNTI to ComuncationContext signaled from nbap*/
+                        /* Set UE ID to U-RNTI or NBAP Comuncation Context*/
                         rlcinf->ueid[macd_idx] = user_identity;
-                        rlcinf->rbid[macd_idx] = lchid; /*subframes[n].ddi[i];*/    /*Save the DDI value for RLC*/
-                        /*g_warning("========Setting RBID:%d for lchid:%d", subframes[n].ddi[i], lchid);*/
-                        /* rlcinf->mode[0] = RLC_AM;*/
+                        rlcinf->rbid[macd_idx] = lchid;
                         rlcinf->li_size[macd_idx] = RLC_LI_7BITS;
 
                         rlcinf->ciphered[macd_idx] = FALSE;
                         rlcinf->deciphered[macd_idx] = FALSE;
                         p_fp_info->cur_tb = macd_idx;    /*Set the transport block index (NOTE: This and not subnum is used in MAC dissector!)*/
 
-                        /* TODO: use maces_tree? */
                         call_dissector_with_data(mac_fdd_edch_handle, next_tvb, pinfo, top_level_tree, data);
                         dissected = TRUE;
                     }
@@ -3569,7 +3564,7 @@ dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     macinf->lchid[j] = (guint8)lchid_val;
                     macinf->macdflow_id[j] = p_fp_info->hsdsch_macflowd_id;
                     /*Figure out RLC_MODE based on MACd-flow-ID, basically MACd-flow-ID = 0 then it's SRB0 == UM else AM*/
-                    rlcinf->mode[j] = lchId_rlc_map[lchid_val];/*hsdsch_macdflow_id_rlc_map[p_fp_info->hsdsch_macflowd_id];*/
+                    rlcinf->mode[j] = lchId_rlc_map[lchid_val];
 
                     macinf->ctmux[n] = FALSE;
 
@@ -5259,7 +5254,7 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
             fpi->hsdsch_rlc_mode = p_conv_data->rlc_mode;
             macinf = wmem_new0(wmem_file_scope(), umts_mac_info);
             fpi->hsdsch_macflowd_id = fp_hsdsch_channel_info->hsdsch_macdflow_id;
-            macinf->content[0] = hsdsch_macdflow_id_mac_content_map[fp_hsdsch_channel_info->hsdsch_macdflow_id]; /*MAC_CONTENT_PS_DTCH;*/
+            macinf->content[0] = hsdsch_macdflow_id_mac_content_map[fp_hsdsch_channel_info->hsdsch_macdflow_id];
             macinf->lchid[0] = fp_hsdsch_channel_info->hsdsch_macdflow_id;
             p_add_proto_data(wmem_file_scope(), pinfo, proto_umts_mac, 0, macinf);
 
@@ -5361,7 +5356,7 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
                     p_conv_data->fp_dch_channel_info[chan].ul_chan_tf_size[tfi] :
                     p_conv_data->fp_dch_channel_info[chan].dl_chan_tf_size[tfi];
 
-                tb_bit_off = (2+p_conv_data->num_dch_in_flow)*8; /*Point to the C/T of first TB*/
+                tb_bit_off = (2 + p_conv_data->num_dch_in_flow) * 8; /*Point to the C/T of first TB*/
                 /* Iterate over the Transport Blocks */
                 /* Set configuration for each individual block */
                 for (j=0; j < num_tbs && j+chan < MAX_MAC_FRAMES; j++) {
@@ -5376,7 +5371,7 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
                     is_muxed_cs_ps_tf = (p_conv_data->dch_ids_in_flow_list[chan] == 24 && tb_size == 340);
 
                     if (is_known_dcch_tf || is_muxed_cs_ps_tf) {
-                        /* Channel is multiplexed (ie. C/T flag present) */
+                        /* Channel is multiplexed (ie. C/T field present) */
                         macinf->ctmux[j+chan] = TRUE;
 
                         /* Peek at C/T, different RLC params for different logical channels */
@@ -5388,7 +5383,7 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
                         rlcinf->mode[j+chan] = lchId_rlc_map[lchid];       /* Base RLC mode on logical channel id */
                     }
                     else if (is_stndalone_ps_rab_tf) {
-                        /* Channel isn't multiplexed (ie. C/T flag not present) */
+                        /* Channel isn't multiplexed (ie. C/T field not present) */
                         macinf->ctmux[j+chan] = FALSE;
 
                         /* Using a fake 'interactive PS' DTCH logical channel id */
@@ -5400,7 +5395,7 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
                     }
                     else {
                         /* Unfamiliar DCH format, faking LCHID */
-                        /* Asuming the channel isn't multiplexed (ie. C/T flag not present) */
+                        /* Asuming the channel isn't multiplexed (ie. C/T field not present) */
                         macinf->ctmux[j+chan] = FALSE;
 
                         /* TODO: This stuff has to be reworked! */
@@ -5423,7 +5418,7 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
                     rlcinf->deciphered[j+chan] = FALSE;
                     rlcinf->rbid[j+chan] = macinf->lchid[j+chan];
 
-                    /*Step over this TB and it's C/T flag.*/
+                    /*Step over this TB and it's C/T field.*/
                     tb_bit_off += tb_size+4;
                 }
 
