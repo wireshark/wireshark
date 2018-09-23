@@ -1354,6 +1354,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
           case SSL_HND_KEY_UPDATE:
           case SSL_HND_ENCRYPTED_EXTS:
           case SSL_HND_END_OF_EARLY_DATA: /* TLS 1.3 */
+          case SSL_HND_COMPRESSED_CERTIFICATE:
           case SSL_HND_ENCRYPTED_EXTENSIONS: /* TLS 1.3 */
             /* TODO: does this need further dissection? */
             break;

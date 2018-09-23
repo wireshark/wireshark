@@ -2389,6 +2389,12 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 }
                 break;
 
+            case SSL_HND_COMPRESSED_CERTIFICATE:
+                ssl_dissect_hnd_compress_certificate(&dissect_ssl3_hf, tvb, ssl_hand_tree,
+                                                     offset, offset + length, pinfo, session,
+                                                     ssl, ssl_key_hash, is_from_server, FALSE);
+                break;
+
             case SSL_HND_ENCRYPTED_EXTS:
                 dissect_ssl3_hnd_encrypted_exts(tvb, ssl_hand_tree, offset);
                 break;

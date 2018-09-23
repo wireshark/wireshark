@@ -62,6 +62,7 @@ typedef enum {
     SSL_HND_CERT_STATUS            = 22,
     SSL_HND_SUPPLEMENTAL_DATA      = 23,
     SSL_HND_KEY_UPDATE             = 24,
+    SSL_HND_COMPRESSED_CERTIFICATE = 25,
     /* Encrypted Extensions was NextProtocol in draft-agl-tls-nextprotoneg-03
      * and changed in draft 04. Not to be confused with TLS 1.3 EE. */
     SSL_HND_ENCRYPTED_EXTS         = 67
@@ -846,6 +847,9 @@ typedef struct ssl_common_dissect {
         /* compress_certificate */
         gint hs_ext_compress_certificate_algorithms_length;
         gint hs_ext_compress_certificate_algorithm;
+        gint hs_ext_compress_certificate_uncompressed_length;
+        gint hs_ext_compress_certificate_compressed_certificate_message_length;
+        gint hs_ext_compress_certificate_compressed_certificate_message;
 
         /* QUIC Transport Parameters */
         gint hs_ext_quictp_negotiated_version;
@@ -1084,6 +1088,11 @@ tls13_hkdf_expand_label(int md, const StringInfo *secret,
                         const char *label_prefix, const char *label,
                         guint16 out_len, guchar **out);
 
+extern void
+ssl_dissect_hnd_compress_certificate(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
+                                     guint32 offset, guint32 offset_end, packet_info *pinfo,
+                                     SslSession *session _U_, SslDecryptSession *ssl _U_,
+                                     GHashTable *key_hash _U_, gboolean is_from_server _U_, gboolean is_dtls _U_);
 /* {{{ */
 #define SSL_COMMON_LIST_T(name) \
 ssl_common_dissect_t name = {   \
@@ -1099,6 +1108,7 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
+        -1, -1, -1,                                                     \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
@@ -1827,6 +1837,21 @@ ssl_common_dissect_t name = {   \
     { & name .hf.hs_ext_compress_certificate_algorithm,                 \
       { "Algorithm", prefix ".compress_certificate.algorithm",          \
         FT_UINT16, BASE_DEC, VALS(compress_certificate_algorithm_vals), 0x00, \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_compress_certificate_uncompressed_length,       \
+      { "Uncompressed Length", prefix ".compress_certificate.uncompressed_length", \
+        FT_UINT24, BASE_DEC, NULL, 0x00,                                \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_compress_certificate_compressed_certificate_message_length, \
+      { "Length", prefix ".compress_certificate.compressed_certificate_message.length", \
+        FT_UINT24, BASE_DEC, NULL, 0x00,                                \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_compress_certificate_compressed_certificate_message, \
+      { "Compressed Certificate Message", prefix ".compress_certificate.compressed_certificate_message", \
+        FT_BYTES, BASE_NONE, NULL, 0x00,                                \
         NULL, HFILL }                                                   \
     },                                                                  \
     { & name .hf.hs_ext_quictp_negotiated_version,                      \

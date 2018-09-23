@@ -581,6 +581,7 @@ const value_string ssl_31_handshake_type[] = {
     { SSL_HND_CERT_STATUS,       "Certificate Status" },
     { SSL_HND_SUPPLEMENTAL_DATA, "Supplemental Data" },
     { SSL_HND_KEY_UPDATE,        "Key Update" },
+    { SSL_HND_COMPRESSED_CERTIFICATE, "Compressed Certificate" },
     { SSL_HND_ENCRYPTED_EXTS,    "Encrypted Extensions" },
     { 0x00, NULL }
 };
@@ -7346,6 +7347,7 @@ ssl_is_valid_handshake_type(guint8 hs_type, gboolean is_dtls)
     case SSL_HND_CERT_STATUS:
     case SSL_HND_SUPPLEMENTAL_DATA:
     case SSL_HND_KEY_UPDATE:
+    case SSL_HND_COMPRESSED_CERTIFICATE:
     case SSL_HND_ENCRYPTED_EXTS:
         return TRUE;
     }
@@ -8240,6 +8242,42 @@ ssl_dissect_hnd_cert_url(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tr
         offset += 20;
     }
 } /* }}} */
+
+void
+ssl_dissect_hnd_compress_certificate(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
+                                      guint32 offset, guint32 offset_end, packet_info *pinfo,
+                                      SslSession *session _U_, SslDecryptSession *ssl _U_,
+                                      GHashTable *key_hash _U_, gboolean is_from_server _U_, gboolean is_dtls _U_)
+{
+    guint32 compressed_certificate_message_length;
+    /*
+     * struct {
+     *       CertificateCompressionAlgorithm algorithm;
+     *       uint24 uncompressed_length;
+     *       opaque compressed_certificate_message<1..2^24-1>;
+     * } CompressedCertificate;
+     */
+
+    proto_tree_add_item(tree, hf->hf.hs_ext_compress_certificate_algorithm,
+                        tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf->hf.hs_ext_compress_certificate_uncompressed_length,
+                       tvb, offset, 3, ENC_BIG_ENDIAN);
+    offset += 3;
+
+    /* opaque compressed_certificate_message<1..2^24-1>; */
+    if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &compressed_certificate_message_length,
+                        hf->hf.hs_ext_compress_certificate_compressed_certificate_message_length, 1, G_MAXUINT24)) {
+        return;
+    }
+    offset += 3;
+
+    proto_tree_add_item(tree, hf->hf.hs_ext_compress_certificate_compressed_certificate_message,
+                        tvb, offset, compressed_certificate_message_length, ENC_NA);
+
+    /* TODO: Add Certificate decompression following algo... (Need to implement brotli too)*/
+}
 
 /* Dissection of TLS Extensions in Client Hello, Server Hello, etc. {{{ */
 static gint
