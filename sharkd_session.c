@@ -3335,7 +3335,7 @@ sharkd_session_process_check(char *buf, const jsmntok_t *tokens, int count)
 		{
 			const char *s = "ok";
 
-			if (dfilter_deprecated_tokens(dfp))
+			if (dfp && dfilter_deprecated_tokens(dfp))
 				s = "warn";
 
 			printf(",\"filter\":\"%s\"", s);
