@@ -37,7 +37,7 @@
  *  - Set the logical channel properly for non multiplexed, channels
  *    for channels that doesn't have the C/T field! This should be based
  *    on the RRC message RadioBearerSetup.
- *  - E-DCH (T1 & T2) heuristic dissectors
+ *  - E-DCH T2 heuristic dissector
  */
 void proto_register_fp(void);
 void proto_reg_handoff_fp(void);
@@ -3933,6 +3933,28 @@ check_payload_crc_for_heur(tvbuff_t *tvb, guint16 header_length)
 
     return calc_crc == crc;
 }
+/* Validates the header CRC in a E-DCH Data FP frame */
+/* Should only be used in heuristic dissectors! */
+static gboolean
+check_edch_header_crc_for_heur(tvbuff_t *tvb, guint16 header_length)
+{
+    guint16 crc = 0;
+    guint16 calc_crc = 0;
+    guint8 * data = NULL;
+
+    if (header_length > tvb_captured_length(tvb))
+        return FALSE;
+
+    crc = (tvb_get_bits8(tvb, 0, 7) << 4) + tvb_get_bits8(tvb, 8, 4);
+    /* Get data of header excluding the first byte */
+    data = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, 1, header_length-1);
+    /*Zero the part in the second byte which contains part of the CRC*/
+    data[0] = data[0] & 0x0f;
+
+    calc_crc = crc11_307_noreflect_noxor(data, header_length-1);
+
+    return calc_crc == crc;
+}
 /* Generates a unique 32bit identifier based on the frame's metadata */
 /* This ID is used in the RLC dissector for reassembly */
 /* Should only be used in heuristic dissectors! */
@@ -5000,6 +5022,177 @@ heur_dissect_fp_hsdsch_type_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     dissect_fp(tvb, pinfo, tree, data);
     return TRUE;
 }
+
+static gboolean
+heur_dissect_fp_edch_type_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    conversation_t   *p_conv;
+    umts_fp_conversation_info_t* umts_fp_conversation_info = NULL;
+    fp_edch_channel_info_t* fp_edch_channel_info;
+    struct fp_info *p_fp_info;
+    guint32 captured_length;
+    guint8 frame_type;
+    guint8 num_sub_frames_byte;
+    guint8 number_of_subframes;
+    guint8 number_of_mac_es_pdus;
+    guint32 subframe_number;
+    guint32 total_sub_headers_len;
+    guint32 total_header_length;
+    guint32 payload_length;
+    guint32 total_mac_pdus_count;
+    guint32 macd_pdu_bit_size;
+    guint32 bit_offset;
+    guint32 offset;
+    guint32 i = 0;
+    guint32 n = 0;
+
+    /* Trying to find existing conversation */
+    p_conv = (conversation_t *)find_conversation(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
+        conversation_pt_to_endpoint_type(pinfo->ptype),
+        pinfo->destport, pinfo->srcport, NO_ADDR_B);
+
+    if (p_conv != NULL) {
+        /* Checking if the conversation was already framed */
+        umts_fp_conversation_info = (umts_fp_conversation_info_t *)conversation_get_proto_data(p_conv, proto_fp);
+        if (umts_fp_conversation_info) {
+            fp_edch_channel_info = (fp_edch_channel_info_t*)umts_fp_conversation_info->channel_specific_info;
+            if (umts_fp_conversation_info->channel == CHANNEL_EDCH && fp_edch_channel_info->edch_type == 0) {
+                conversation_set_dissector(p_conv, fp_handle);
+                dissect_fp(tvb, pinfo, tree, data);
+                return TRUE;
+            }
+            else if (umts_fp_conversation_info->channel != CHANNEL_UNKNOWN){
+                /* This conversation was successfuly framed as ANOTHER type */
+                return FALSE;
+            }
+        }
+    }
+
+    /* Making sure FP info isn't already attached */
+    p_fp_info = (fp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);
+    if (p_fp_info) {
+        return FALSE;
+    }
+
+    captured_length = tvb_reported_length(tvb);
+    /* Lengths limit: header size + at least 1 Subframe Header + CRC Payload size */
+    if (captured_length < 9) {
+        return FALSE;
+    }
+
+    frame_type = tvb_get_guint8(tvb, 0) & 0x01;
+    if (frame_type == 1) { /* is 'control' frame type*/
+        return FALSE;
+    }
+
+    num_sub_frames_byte = tvb_get_guint8(tvb, 2);
+    /* Checking 4 leftmost bits in the 'Number of Subframes' byte, which are reserved and should be 0 */
+    if (num_sub_frames_byte & 0xf0) {
+        return FALSE;
+    }
+
+    /* Values {11-16} are reserved */
+    number_of_subframes = (num_sub_frames_byte & 0x0f) + 1;
+    if (number_of_subframes >= 11) {
+        return FALSE;
+    }
+
+    /* Iterating through the block headers looking for invalid fields */
+    total_header_length = 4;
+    offset = 4;
+    total_mac_pdus_count = 0;
+    /* EDCH subframe header list */
+    for (n=0; n < number_of_subframes; n++) {
+
+        /* Making sure the next index is not out of range */
+        if (((guint32)(offset + 3)) >= captured_length) {
+            return FALSE;
+        }
+
+        /* Subframe number */
+        subframe_number = (tvb_get_guint8(tvb, offset) & 0x07);
+        if (subframe_number > 4) {
+            return FALSE;
+        }
+        offset++;
+
+        /* Number of MAC-es PDUs */
+        number_of_mac_es_pdus = (tvb_get_guint8(tvb, offset) & 0xf0) >> 4;
+        if (number_of_mac_es_pdus == 0) {
+            return FALSE;
+        }
+        bit_offset = 4;
+
+        /* Making sure enough bytes are presesnt for all sub-header */
+        total_sub_headers_len = ((int)((((1.5 + (number_of_mac_es_pdus * 1.5))*8+7)/8)));
+        if ((offset + total_sub_headers_len) >= captured_length) {
+            return FALSE;
+        }
+        /* Details of each MAC-es PDU */
+        for (i=0; i < number_of_mac_es_pdus; i++) {
+            guint32 n_pdus;    /*Size of the PDU*/
+
+            /* DDI (6 bits) */
+            bit_offset += 6;
+
+            /* Number of MAC-d PDUs (6 bits) */
+            n_pdus = tvb_get_bits8( tvb, offset*8 + bit_offset, 6);
+            total_mac_pdus_count += n_pdus;
+            bit_offset += 6;
+        }
+
+        total_header_length += total_sub_headers_len;
+        offset += ((bit_offset+7)/8);
+    }
+
+    /* Figure MAC bit size */
+    payload_length = captured_length - total_header_length - 3; /* Removing 3 bytes for Payload CRC and TSN */
+    if (payload_length == (total_mac_pdus_count * 42)) {
+        macd_pdu_bit_size = 336;
+    }
+    else if (payload_length == (total_mac_pdus_count * 18)) {
+        macd_pdu_bit_size = 144;
+    }
+    else {
+        /* Unexpected payload length or DDIs combination */
+        return FALSE;
+    }
+
+    if (!check_edch_header_crc_for_heur(tvb, total_header_length)) {
+        return FALSE;
+    }
+    if (!check_payload_crc_for_heur(tvb, total_header_length)) {
+        return FALSE;
+    }
+
+    if(!umts_fp_conversation_info) {
+        umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
+        set_both_sides_umts_fp_conv_data(pinfo, umts_fp_conversation_info);
+    }
+    umts_fp_conversation_info->iface_type = IuB_Interface;
+    umts_fp_conversation_info->division = Division_FDD;
+    umts_fp_conversation_info->dl_frame_number = pinfo->num;
+    umts_fp_conversation_info->ul_frame_number = pinfo->num;
+    umts_fp_conversation_info->dch_crc_present = 1;
+    umts_fp_conversation_info->com_context_id = generate_ue_id_for_heur(pinfo);
+    umts_fp_conversation_info->rlc_mode = FP_RLC_AM;
+    copy_address_wmem(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &pinfo->src);
+    umts_fp_conversation_info->crnc_port = pinfo->srcport;
+    umts_fp_conversation_info->channel = CHANNEL_EDCH;
+    fp_edch_channel_info = wmem_new0(wmem_file_scope(), fp_edch_channel_info_t);
+    fp_edch_channel_info->no_ddi_entries = 0x0f;
+    for(i = 0;i<0x0f;i++) {
+        fp_edch_channel_info->edch_ddi[i] = i;
+        fp_edch_channel_info->edch_macd_pdu_size[i] = macd_pdu_bit_size;
+        fp_edch_channel_info->edch_lchId[i] = 9;
+    }
+    fp_edch_channel_info->edch_type = 0; /* Type 1 */
+    umts_fp_conversation_info->channel_specific_info = (void*)fp_edch_channel_info;
+
+    conversation_set_dissector(find_or_create_conversation(pinfo), fp_handle);
+    dissect_fp(tvb, pinfo, tree, data);
+    return TRUE;
+}
 /* This method can frame UDP streams containing FP packets but dissection of those packets will */
 /* fail since the FP conversation info is never attached */
 /* Usefull for DCH streams containing CS data and don't have their own heuristic method */
@@ -5123,6 +5316,9 @@ heur_dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     if(match)
         return TRUE;
     match = heur_dissect_fp_hsdsch_type_2(tvb, pinfo, tree, data);
+    if(match)
+        return TRUE;
+    match = heur_dissect_fp_edch_type_1(tvb, pinfo, tree, data);
     if(match)
         return TRUE;
     /* NOTE: Add new heuristic dissectors BEFORE the 'unknown format' dissector */
