@@ -10210,7 +10210,7 @@ a:hover {
     <message>
         <location filename="packet_format_group_box.ui" line="36"/>
         <source>Include column headings</source>
-        <translation type="unfinished"></translation>
+        <translation>ヘッダ列を含む</translation>
     </message>
     <message>
         <location filename="packet_format_group_box.ui" line="46"/>
