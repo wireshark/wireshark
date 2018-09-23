@@ -1693,7 +1693,7 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Dissector Tables</source>
+        <source>Conversation Hash Tables</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2476,6 +2476,25 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Invalid filter expression.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>FilterExpressionToolBar</name>
+    <message>
+        <source>Filter Button Preferences...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disable</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -5849,6 +5868,10 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Export TLS Session Keys…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>List Files</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6051,10 +6074,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Export Packet &amp;Bytes…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Export SSL Session Keys…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6287,6 +6306,10 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>TCP window scaling</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>TLS Stream</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6787,10 +6810,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>UDP Stream</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>SSL Stream</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7387,10 +7406,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>(File name can&apos;t be mapped to UTF-8)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>The Wireshark Network Analyzer</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7438,14 +7453,10 @@ PLEASE NOTE: One option MUST be selected.</source>
         <source>No Keys</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>There are no SSL Session Keys to save.</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message numerus="yes">
         <source>Export SSL Session Keys (%Ln key(s))</source>
         <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
-        <translation>
+        <translation type="vanished">
             <numerusform>Export SSL Session Keys (%Ln key)</numerusform>
             <numerusform>Export SSL Session Keys (%Ln keys)</numerusform>
         </translation>
@@ -7456,10 +7467,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Merging files</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>SSL Session Keys (*.keys *.txt);;All Files (</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7499,6 +7506,21 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>There are no TLS Session Keys to save.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>Export TLS Session Keys (%Ln key(s))</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>TLS Session Keys (*.keys *.txt);;All Files (</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source> before restarting the capture</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7508,22 +7530,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Filter Button Preferences...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Edit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Disable</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7951,6 +7957,10 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Summary line</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Include column headings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10407,6 +10417,14 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Warning</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Could not find SCTP Association with id: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Complete list of IP-Addresses as provided in the INIT-Chunk</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10587,6 +10605,10 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Relative TSNs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Only SACKs</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10600,10 +10622,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Reset to full size</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -11385,7 +11403,7 @@ PLEASE NOTE: One option MUST be selected.</source>
 <context>
     <name>SyntaxLineEdit</name>
     <message>
-        <source>&quot;%1&quot; may have unexpected results (see the User&apos;s Guide)</source>
+        <source>&quot;%1&quot; is deprecated or may have unexpected results. See the User&apos;s Guide.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
