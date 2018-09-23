@@ -97,6 +97,7 @@ while (my $filename = $ARGV[0]) {
 
     remove_comments      (\$file_contents, $filename);
     remove_blank_lines   (\$file_contents, $filename);
+    $file_contents =~ s/^\s+//m;        # Remove leading spaces
     remove_quoted_strings(\$file_contents, $filename);
     remove_if0_code      (\$file_contents, $filename);
 
@@ -279,88 +280,71 @@ sub remove_quoted_strings {
 
 # -------------
 # action:  remove '#if 0'd code from the input string
-# args     code_ref, filename
+# args     codeRef, fileName
+# returns: codeRef
 #
-# Essentially: Use s//patsub/meg to pass each line to patsub.
-#              patsub monitors #if/#if 0/etc and determines
-#               if a particular code line should be removed.
-# XXX: This is probably pretty inefficient;
-#      I could imagine using another approach such as converting
-#       the input string to an array of lines and then making
-#       a pass through the array deleting lines as needed.
+# Essentially: split the input into blocks of code or lines of #if/#if 0/etc.
+#               Remove blocks that follow '#if 0' until '#else/#endif' is found.
 
 {                               # block begin
-    my ($if_lvl, $if0_lvl, $if0); # shared vars
 
     sub remove_if0_code {
-        my ($code_ref, $filename)  = @_;
+        my ($codeRef, $fileName)  = @_;
 
-        # First see if any '#if 0' lines which need to be handled
-        if (${$code_ref} !~ m{ \# \s* if \s+ 0 }xmso ) {
-            return;
-        }
+        # Preprocess outputput (ensure trailing LF and no leading WS before '#')
+        $$codeRef =~ s/^\s*#/#/m;
+        if ($$codeRef !~ /\n$/) { $$codeRef .= "\n"; }
 
-        my ($preproc_regex) = qr{
-                                    (                                    # $1 [complete line)
-                                        ^
-                                        (?:                              # non-capturing
-                                            \s* \# \s*
-                                            (if \s 0| if | else | endif) # $2 (only if #...)
-                                        ) ?
-                                        [^\n]*
-                                        \n ?
-                                    )
-                            }xmso;
+        # Split into blocks of normal code or lines with conditionals.
+        my $ifRegExp = qr/if 0|if|else|endif/;
+        my @blocks = split(/^(#\s*(?:$ifRegExp).*\n)/m, $$codeRef);
 
-        ($if_lvl, $if0_lvl, $if0) = (0,0,0);
-        ${$code_ref} =~ s{ $preproc_regex } { patsub($1,$2) }xmsoeg;
-
-        ($debug == 2) && print "==> After Remove if0: code: [$filename]\n${$code_ref}\n===<\n";
-        return;
-    }
-
-    sub patsub {
-        if ($debug == 99) {
-            print "-->$_[0]\n";
-            (defined $_[1]) && print "  >$_[1]<\n";
-        }
-
-        # #if/#if 0/#else/#endif processing
-        if (defined $_[1]) {
-            my ($if) = $_[1];
-            if ($if eq 'if') {
-                $if_lvl += 1;
-            }
-            elsif ($if eq 'if 0') {
-                $if_lvl += 1;
-                if ($if0_lvl == 0) {
-                    $if0_lvl = $if_lvl;
-                    $if0     = 1; # inside #if 0
+        my ($if_lvl, $if0_lvl, $if0) = (0,0,0);
+        my $lines = '';
+        for my $block (@blocks) {
+            my $if;
+            if ($block =~ /^#\s*($ifRegExp)/) {
+                # #if/#if 0/#else/#endif processing
+                $if = $1;
+                if ($debug == 99) {
+                    print(STDERR "if0=$if0 if0_lvl=$if0_lvl lvl=$if_lvl [$if] - $block");
+                }
+                if ($if eq 'if') {
+                    $if_lvl += 1;
+                } elsif ($if eq 'if 0') {
+                    $if_lvl += 1;
+                    if ($if0_lvl == 0) {
+                        $if0_lvl = $if_lvl;
+                        $if0     = 1;  # inside #if 0
+                    }
+                } elsif ($if eq 'else') {
+                    if ($if0_lvl == $if_lvl) {
+                        $if0 = 0;
+                    }
+                } elsif ($if eq 'endif') {
+                    if ($if0_lvl == $if_lvl) {
+                        $if0     = 0;
+                        $if0_lvl = 0;
+                    }
+                    $if_lvl -= 1;
+                    if ($if_lvl < 0) {
+                        die "patsub: #if/#endif mismatch in $fileName"
+                    }
                 }
             }
-            elsif ($if eq 'else') {
-                if ($if0_lvl == $if_lvl) {
-                    $if0 = 0;
-                }
-            }
-            elsif ($if eq 'endif') {
-                if ($if0_lvl == $if_lvl) {
-                    $if0     = 0;
-                    $if0_lvl = 0;
-                }
-                $if_lvl -= 1;
-                if ($if_lvl < 0) {
-                    die "patsub: #if/#endif mismatch"
-                }
-            }
-            return $_[0]; # don't remove preprocessor lines themselves
-        }
 
-        # not preprocessor line: See if under #if 0: If so, remove
-        if ($if0 == 1) {
-            return '';          # remove
+            if ($debug == 99) {
+                print(STDERR "if0=$if0 if0_lvl=$if0_lvl lvl=$if_lvl\n");
+            }
+            # Keep preprocessor lines and blocks that are not enclosed in #if 0
+            if ($if or $if0 != 1) {
+                $lines .= $block;
+            }
         }
-        return $_[0];
+        $$codeRef = $lines;
+
+        ($debug == 2) && print "==> After Remove if0: code: [$fileName]\n$$codeRef\n===<\n";
+        return $codeRef;
     }
 }                               # block end
 
@@ -590,7 +574,6 @@ sub find_remove_ei_defs {
     # p1: 'static? expert_field ei_foo'
     my $p1_regex = qr{
                          ^
-                         \s*
                          (static \s+)?
                          expert_field
                          \s+
