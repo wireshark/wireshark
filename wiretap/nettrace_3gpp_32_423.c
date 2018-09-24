@@ -643,6 +643,8 @@ write_packet_data(wtap_dumper *wdh, wtap_rec *rec, int *err, gchar **err_info, g
 		}
 		else{
 			/* Something wrong, bail out */
+			*err_info = g_strdup("Could not parse hex data");
+			*err = WTAP_ERR_BAD_FILE;
 			g_free(packet_buf);
 			return WTAP_OPEN_ERROR;
 		}
@@ -1031,6 +1033,8 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 		temp_val = write_packet_data(wdh_exp_pdu, &rec, &wrt_err, &wrt_err_info, curr_pos, start_time, ms, &exported_pdu_info, name_str);
 		if (temp_val != WTAP_OPEN_MINE){
 			result = temp_val;
+			*err = wrt_err;
+			*err_info = g_strdup(wrt_err_info);
 			goto end;
 		}
 		curr_pos = next_msg_pos;
