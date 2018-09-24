@@ -2216,17 +2216,21 @@ void MainWindow::setWSWindowTitle(QString title)
 
     if (prefs.gui_prepend_window_title && prefs.gui_prepend_window_title[0]) {
         QString custom_title = replaceWindowTitleVariables(prefs.gui_prepend_window_title);
-        title.prepend(QString("[%1] ").arg(custom_title));
+        if (custom_title.length() > 0) {
+            title.prepend(QString("[%1] ").arg(custom_title));
+        }
     }
 
     if (prefs.gui_window_title && prefs.gui_window_title[0]) {
         QString custom_title = replaceWindowTitleVariables(prefs.gui_window_title);
+        if (custom_title.length() > 0) {
 #ifdef __APPLE__
-        // On macOS we separate the titles with a unicode em dash
-        title.append(QString(" %1 %2").arg(UTF8_EM_DASH).arg(custom_title));
+            // On macOS we separate the titles with a unicode em dash
+            title.append(QString(" %1 %2").arg(UTF8_EM_DASH).arg(custom_title));
 #else
-        title.append(QString(" [%1]").arg(custom_title));
+            title.append(QString(" [%1]").arg(custom_title));
 #endif
+        }
     }
 
     setWindowTitle(title);
