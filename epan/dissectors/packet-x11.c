@@ -1456,7 +1456,6 @@ static void listOfInt32(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
       }
 }
 
-#if 0 /* Not yet used by any extension */
 static void listOfCard64(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
                          int hf_item, int length, guint byte_order)
 {
@@ -1468,6 +1467,7 @@ static void listOfCard64(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
       }
 }
 
+#if 0 /* Not yet used by any extension */
 static void listOfInt64(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
                          int hf_item, int length, guint byte_order)
 {
