@@ -1163,6 +1163,7 @@ const value_string tls_hello_extension_types[] = {
     { SSL_HND_HELLO_EXT_GREASE_EAEA, "Reserved (GREASE)" }, /* https://tools.ietf.org/html/draft-ietf-tls-grease */
     { SSL_HND_HELLO_EXT_GREASE_FAFA, "Reserved (GREASE)" }, /* https://tools.ietf.org/html/draft-ietf-tls-grease */
     { SSL_HND_HELLO_EXT_QUIC_TRANSPORT_PARAMETERS, "quic_transports_parameters" }, /* https://tools.ietf.org/html/draft-ietf-quic-tls */
+    { SSL_HND_HELLO_EXT_ENCRYPTED_SERVER_NAME, "encrypted_server_name" }, /* https://tools.ietf.org/html/draft-ietf-tls-esni-01 */
     { 0, NULL }
 };
 
@@ -7187,6 +7188,59 @@ tls_dissect_sct_list(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo
 
     return offset;
 }
+
+static guint32
+ssl_dissect_hnd_hello_ext_esni(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
+                               proto_tree *tree, guint32 offset, guint32 offset_end,
+                               guint8 hnd_type, SslDecryptSession *ssl _U_)
+{
+    guint32 record_digest_length, encrypted_sni_length;
+
+    switch (hnd_type) {
+    case SSL_HND_CLIENT_HELLO:
+        /*
+         * struct {
+         *     CipherSuite suite;
+         *     KeyShareEntry key_share;
+         *     opaque record_digest<0..2^16-1>;
+         *     opaque encrypted_sni<0..2^16-1>;
+         * } ClientEncryptedSNI;
+         */
+        proto_tree_add_item(tree, hf->hf.esni_suite, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+        offset = ssl_dissect_hnd_hello_ext_key_share_entry(hf, tvb, pinfo, tree, offset, offset_end);
+
+        /* opaque record_digest<0..2^16-1> */
+        if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &record_digest_length,
+                            hf->hf.esni_record_digest_length, 0, G_MAXUINT16)) {
+            return offset_end;
+        }
+        offset += 2;
+        if (record_digest_length > 0) {
+            proto_tree_add_item(tree, hf->hf.esni_record_digest, tvb, offset, record_digest_length, ENC_NA);
+            offset += record_digest_length;
+        }
+
+        /* opaque encrypted_sni<0..2^16-1> */
+        if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &encrypted_sni_length,
+                            hf->hf.esni_encrypted_sni_length, 0, G_MAXUINT16)) {
+            return offset_end;
+        }
+        offset += 2;
+        if (encrypted_sni_length > 0) {
+            proto_tree_add_item(tree, hf->hf.esni_encrypted_sni, tvb, offset, encrypted_sni_length, ENC_NA);
+            offset += encrypted_sni_length;
+        }
+        break;
+
+    case SSL_HND_ENCRYPTED_EXTENSIONS:
+        proto_tree_add_item(tree, hf->hf.esni_nonce, tvb, offset, 16, ENC_NA);
+        offset += 16;
+        break;
+    }
+
+    return offset;
+}
 /** TLS Extensions (in Client Hello and Server Hello). }}} */
 
 /* Whether the Content and Handshake Types are valid; handle Protocol Version. {{{ */
@@ -8299,6 +8353,9 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             break;
         case SSL_HND_HELLO_EXT_RENEGOTIATION_INFO:
             offset = ssl_dissect_hnd_hello_ext_reneg_info(hf, tvb, pinfo, ext_tree, offset, next_offset);
+            break;
+        case SSL_HND_HELLO_EXT_ENCRYPTED_SERVER_NAME:
+            offset = ssl_dissect_hnd_hello_ext_esni(hf, tvb, pinfo, ext_tree, offset, next_offset, hnd_type, ssl);
             break;
         default:
             proto_tree_add_item(ext_tree, hf->hf.hs_ext_data,

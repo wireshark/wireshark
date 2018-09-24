@@ -139,6 +139,7 @@ typedef enum {
 #define SSL_HND_HELLO_EXT_GREASE_FAFA                   64250
 #define SSL_HND_HELLO_EXT_RENEGOTIATION_INFO            65281 /* 0xFF01 */
 #define SSL_HND_HELLO_EXT_QUIC_TRANSPORT_PARAMETERS     65445 /* 0xffa5 draft-ietf-quic-tls-13 */
+#define SSL_HND_HELLO_EXT_ENCRYPTED_SERVER_NAME         65486 /* 0xffce draft-ietf-tls-esni-01 */
 
 #define SSL_HND_CERT_URL_TYPE_INDIVIDUAL_CERT       1
 #define SSL_HND_CERT_URL_TYPE_PKIPATH               2
@@ -865,6 +866,13 @@ typedef struct ssl_common_dissect {
         gint hs_ext_quictp_parameter_initial_max_stream_data_bidi_remote;
         gint hs_ext_quictp_parameter_initial_max_stream_data_uni;
 
+        gint esni_suite;
+        gint esni_record_digest_length;
+        gint esni_record_digest;
+        gint esni_encrypted_sni_length;
+        gint esni_encrypted_sni;
+        gint esni_nonce;
+
         /* do not forget to update SSL_COMMON_LIST_T and SSL_COMMON_HF_LIST! */
     } hf;
     struct {
@@ -1080,7 +1088,7 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1,                                 \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,         \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
@@ -1935,6 +1943,36 @@ ssl_common_dissect_t name = {   \
       { "initial_max_stream_data_uni", prefix ".quic.parameter.initial_max_stream_data_uni", \
         FT_UINT32, BASE_DEC, NULL, 0x00,                                \
         "Initial stream maximum data for unidirectional streams parameter", HFILL } \
+    },                                                                  \
+    { & name .hf.esni_suite,                                            \
+      { "Cipher Suite", prefix ".esni.suite",                           \
+        FT_UINT16, BASE_HEX|BASE_EXT_STRING, &ssl_31_ciphersuite_ext, 0x0, \
+        "Cipher suite used to encrypt the SNI", HFILL }                 \
+    },                                                                  \
+    { & name .hf.esni_record_digest_length,                             \
+      { "Record Digest Length", prefix ".esni.record_digest_length",    \
+        FT_UINT16, BASE_DEC, NULL, 0x00,                                \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.esni_record_digest,                                    \
+      { "Record Digest", prefix ".esni.record_digest",                  \
+        FT_BYTES, BASE_NONE, NULL, 0x00,                                \
+        "Cryptographic hash of the ESNIKeys from which the ESNI key was obtained", HFILL } \
+    },                                                                  \
+    { & name .hf.esni_encrypted_sni_length,                             \
+      { "Encrypted SNI Length", prefix ".esni.encrypted_sni_length",    \
+        FT_UINT16, BASE_DEC, NULL, 0x00,                                \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.esni_encrypted_sni,                                    \
+      { "Encrypted SNI", prefix ".esni.encrypted_sni",                  \
+        FT_BYTES, BASE_NONE, NULL, 0x00,                                \
+        "The encrypted ClientESNIInner structure", HFILL }              \
+    },                                                                  \
+    { & name .hf.esni_nonce,                                            \
+      { "Nonce", prefix ".esni.nonce",                                  \
+        FT_BYTES, BASE_NONE, NULL, 0x00,                                \
+        "Contents of ClientESNIInner.nonce", HFILL }                    \
     }
 /* }}} */
 
