@@ -1317,6 +1317,10 @@ indent_size = 2
 [packet-mesh.[ch]]
 indent_size = 2
 
+[packet-messageanalyzer.[ch]]
+indent_style = tab
+indent_size = tab
+
 [packet-metamako.[ch]]
 indent_size = 2
 
@@ -1465,6 +1469,10 @@ indent_style = tab
 indent_size = tab
 
 [packet-netlink.[ch]]
+indent_style = tab
+indent_size = tab
+
+[packet-netmon.[ch]]
 indent_style = tab
 indent_size = tab
 

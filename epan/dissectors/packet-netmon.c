@@ -591,7 +591,9 @@ dissect_netmon_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	if (!dissector_try_guid_new(provider_id_table, &provider_guid, provider_id_tvb, pinfo, tree, TRUE, &provider_id_data))
 	{
 		proto_tree_add_item(event_tree, hf_netmon_event_user_data, tvb, offset, user_data_size, ENC_NA);
+		offset += user_data_size;
 	}
+	proto_item_set_len(ti, offset);
 	return tvb_captured_length(tvb);
 }
 
