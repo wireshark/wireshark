@@ -170,6 +170,30 @@ json_print_base64(const guint8 *data, size_t len)
 }
 
 static void
+sharkd_json_array_open(void)
+{
+	printf("[");
+}
+
+static void
+sharkd_json_array_close(void)
+{
+	printf("]");
+}
+
+static void
+sharkd_json_object_open(void)
+{
+	printf("{");
+}
+
+static void
+sharkd_json_object_close(void)
+{
+	printf("}");
+}
+
+static void
 sharkd_session_filter_free(gpointer data)
 {
 	struct sharkd_filter_item *l = (struct sharkd_filter_item *) data;
@@ -253,7 +277,7 @@ sharkd_session_process_info_nstat_cb(const void *key, void *value, void *userdat
 	printf("%s{", (*pi) ? "," : "");
 		printf("\"name\":\"%s\"", stat_tap->title);
 		printf(",\"tap\":\"nstat:%s\"", (const char *) key);
-	printf("}");
+	sharkd_json_object_close();
 
 	*pi = *pi + 1;
 	return FALSE;
@@ -272,7 +296,7 @@ sharkd_session_process_info_conv_cb(const void* key, void* value, void* userdata
 		printf("%s{", (*pi) ? "," : "");
 			printf("\"name\":\"Conversation List/%s\"", label);
 			printf(",\"tap\":\"conv:%s\"", label);
-		printf("}");
+		sharkd_json_object_close();
 
 		*pi = *pi + 1;
 	}
@@ -282,7 +306,7 @@ sharkd_session_process_info_conv_cb(const void* key, void* value, void* userdata
 		printf("%s{", (*pi) ? "," : "");
 			printf("\"name\":\"Endpoint/%s\"", label);
 			printf(",\"tap\":\"endpt:%s\"", label);
-		printf("}");
+		sharkd_json_object_close();
 
 		*pi = *pi + 1;
 	}
@@ -298,7 +322,7 @@ sharkd_session_seq_analysis_cb(const void *key, void *value, void *userdata)
 	printf("%s{", (*pi) ? "," : "");
 		printf("\"name\":\"%s\"", sequence_analysis_get_ui_name(analysis));
 		printf(",\"tap\":\"seqa:%s\"", (const char *) key);
-	printf("}");
+	sharkd_json_object_close();
 
 	*pi = *pi + 1;
 	return FALSE;
@@ -317,7 +341,7 @@ sharkd_export_object_visit_cb(const void *key _U_, void *value, void *user_data)
 	printf("%s{", (*pi) ? "," : "");
 		printf("\"name\":\"Export Object/%s\"", label);
 		printf(",\"tap\":\"eo:%s\"", filter);
-	printf("}");
+	sharkd_json_object_close();
 
 	*pi = *pi + 1;
 	return FALSE;
@@ -336,7 +360,7 @@ sharkd_srt_visit_cb(const void *key _U_, void *value, void *user_data)
 	printf("%s{", (*pi) ? "," : "");
 		printf("\"name\":\"Service Response Time/%s\"", label);
 		printf(",\"tap\":\"srt:%s\"", filter);
-	printf("}");
+	sharkd_json_object_close();
 
 	*pi = *pi + 1;
 	return FALSE;
@@ -355,7 +379,7 @@ sharkd_rtd_visit_cb(const void *key _U_, void *value, void *user_data)
 	printf("%s{", (*pi) ? "," : "");
 		printf("\"name\":\"Response Time Delay/%s\"", label);
 		printf(",\"tap\":\"rtd:%s\"", filter);
-	printf("}");
+	sharkd_json_object_close();
 
 	*pi = *pi + 1;
 	return FALSE;
@@ -374,7 +398,7 @@ sharkd_follower_visit_cb(const void *key _U_, void *value, void *user_data)
 	printf("%s{", (*pi) ? "," : "");
 		printf("\"name\":\"Follow/%s\"", label);
 		printf(",\"tap\":\"follow:%s\"", filter);
-	printf("}");
+	sharkd_json_object_close();
 
 	*pi = *pi + 1;
 	return FALSE;
@@ -438,9 +462,9 @@ sharkd_session_process_info(void)
 		printf("%s{", (i) ? "," : "");
 			printf("\"name\":\"%s\"", col_descr);
 			printf(",\"format\":\"%s\"", col_format);
-		printf("}");
+		sharkd_json_object_close();
 	}
-	printf("]");
+	sharkd_json_array_close();
 
 	printf(",\"stats\":[");
 	{
@@ -455,13 +479,13 @@ sharkd_session_process_info(void)
 			printf("%s{", sepa);
 				printf("\"name\":\"%s\"", cfg->name);
 				printf(",\"tap\":\"stat:%s\"", cfg->abbr);
-			printf("}");
+			sharkd_json_object_close();
 			sepa = ",";
 		}
 
 		g_list_free(cfg_list);
 	}
-	printf("]");
+	sharkd_json_array_close();
 
 	printf(",\"ftypes\":[");
 	for (i = 0; i < FT_NUM_TYPES; i++)
@@ -470,7 +494,7 @@ sharkd_session_process_info(void)
 			printf(",");
 		json_puts_string(ftype_name((ftenum_t) i));
 	}
-	printf("]");
+	sharkd_json_array_close();
 
 	printf(",\"version\":");
 	json_puts_string(sharkd_version());
@@ -478,44 +502,44 @@ sharkd_session_process_info(void)
 	printf(",\"nstat\":[");
 	i = 0;
 	stat_tap_iterate_tables(sharkd_session_process_info_nstat_cb, &i);
-	printf("]");
+	sharkd_json_array_close();
 
 	printf(",\"convs\":[");
 	i = 0;
 	conversation_table_iterate_tables(sharkd_session_process_info_conv_cb, &i);
-	printf("]");
+	sharkd_json_array_close();
 
 	printf(",\"seqa\":[");
 	i = 0;
 	sequence_analysis_table_iterate_tables(sharkd_session_seq_analysis_cb, &i);
-	printf("]");
+	sharkd_json_array_close();
 
 	printf(",\"taps\":[");
 	{
 		printf("{\"name\":\"%s\",\"tap\":\"%s\"}", "RTP streams", "rtp-streams");
 		printf(",{\"name\":\"%s\",\"tap\":\"%s\"}", "Expert Information", "expert");
 	}
-	printf("]");
+	sharkd_json_array_close();
 
 	printf(",\"eo\":[");
 	i = 0;
 	eo_iterate_tables(sharkd_export_object_visit_cb, &i);
-	printf("]");
+	sharkd_json_array_close();
 
 	printf(",\"srt\":[");
 	i = 0;
 	srt_table_iterate_tables(sharkd_srt_visit_cb, &i);
-	printf("]");
+	sharkd_json_array_close();
 
 	printf(",\"rtd\":[");
 	i = 0;
 	rtd_table_iterate_tables(sharkd_rtd_visit_cb, &i);
-	printf("]");
+	sharkd_json_array_close();
 
 	printf(",\"follow\":[");
 	i = 0;
 	follow_iterate_followers(sharkd_follower_visit_cb, &i);
-	printf("]");
+	sharkd_json_array_close();
 
 	printf("}\n");
 }
@@ -671,7 +695,7 @@ sharkd_session_process_analyse(void)
 	printf(",\"protocols\":[");
 	for (framenum = 1; framenum <= cfile.count; framenum++)
 		sharkd_dissect_request(framenum, (framenum != 1) ? 1 : 0, framenum - 1, &sharkd_session_process_analyse_cb, SHARKD_DISSECT_FLAG_NULL, &analyser);
-	printf("]");
+	sharkd_json_array_close();
 
 	if (analyser.first_time)
 		printf(",\"first\":%.9f", nstime_to_sec(analyser.first_time));
@@ -838,7 +862,7 @@ sharkd_session_process_frames(const char *buf, const jsmntok_t *tokens, int coun
 			return;
 	}
 
-	printf("[");
+	sharkd_json_array_open();
 	for (framenum = 1; framenum <= cfile.count; framenum++)
 	{
 		frame_data *fdata;
@@ -918,7 +942,7 @@ sharkd_session_process_frames(const char *buf, const jsmntok_t *tokens, int coun
 			printf(",\"fg\":\"%x\"", color_t_to_rgb(&fdata->color_filter->fg_color));
 		}
 
-		printf("}");
+		sharkd_json_object_close();
 		frame_sepa = ",";
 		prev_dis_num = framenum;
 
@@ -937,7 +961,7 @@ sharkd_session_process_tap_stats_node_cb(const stat_node *n)
 	stat_node *node;
 	const char *sepa = "";
 
-	printf("[");
+	sharkd_json_array_open();
 	for (node = n->children; node; node = node->next)
 	{
 		/* code based on stats_tree_get_values_from_node() */
@@ -973,10 +997,10 @@ sharkd_session_process_tap_stats_node_cb(const stat_node *n)
 			printf(",\"sub\":");
 			sharkd_session_process_tap_stats_node_cb(node);
 		}
-		printf("}");
+		sharkd_json_object_close();
 		sepa = ",";
 	}
-	printf("]");
+	sharkd_json_array_close();
 }
 
 /**
@@ -1077,10 +1101,10 @@ sharkd_session_process_tap_expert_cb(void *tapdata)
 			json_puts_string(ei->protocol);
 		}
 
-		printf("}");
+		sharkd_json_object_close();
 		sepa = ",";
 	}
-	printf("]");
+	sharkd_json_array_close();
 
 	printf("},");
 }
@@ -1156,7 +1180,7 @@ sharkd_session_process_tap_flow_cb(void *tapdata)
 		json_puts_string(addr_str);
 		wmem_free(NULL, addr_str);
 	}
-	printf("]");
+	sharkd_json_array_close();
 
 	printf(",\"flows\":[");
 
@@ -1182,11 +1206,11 @@ sharkd_session_process_tap_flow_cb(void *tapdata)
 			json_puts_string(sai->comment);
 		}
 
-		printf("}");
+		sharkd_json_object_close();
 		sepa = ",";
 	}
 
-	printf("]");
+	sharkd_json_array_close();
 
 	printf("},");
 }
@@ -1453,10 +1477,10 @@ sharkd_session_process_tap_rtp_analyse_cb(void *tapdata)
 		if (item->marker)
 			printf(",\"mark\":1");
 
-		printf("}");
+		sharkd_json_object_close();
 		sepa = ",";
 	}
-	printf("]");
+	sharkd_json_array_close();
 
 	printf("},");
 }
@@ -1568,7 +1592,7 @@ sharkd_session_process_tap_conv_cb(void *arg)
 			if (sharkd_session_geoip_addr(&(iui->dst_address), "2"))
 				with_geoip = 1;
 
-			printf("}");
+			sharkd_json_object_close();
 		}
 	}
 	else if (iu->hash.conv_array != NULL && !strncmp(iu->type, "endpt:", 6))
@@ -1607,7 +1631,7 @@ sharkd_session_process_tap_conv_cb(void *arg)
 
 			if (sharkd_session_geoip_addr(&(host->myaddress), ""))
 				with_geoip = 1;
-			printf("}");
+			sharkd_json_object_close();
 		}
 	}
 
@@ -1661,14 +1685,14 @@ sharkd_session_process_tap_nstat_cb(void *arg)
 		if (i)
 			printf(",");
 
-		printf("{");
+		sharkd_json_object_open();
 
 		printf("\"c\":");
 		json_puts_string(field->column_name);
 
-		printf("}");
+		sharkd_json_object_close();
 	}
-	printf("]");
+	sharkd_json_array_close();
 
 	printf(",\"tables\":[");
 	for (i = 0; i < stat_data->stat_tap_data->tables->len; i++)
@@ -1679,7 +1703,7 @@ sharkd_session_process_tap_nstat_cb(void *arg)
 		if (i)
 			printf(",");
 
-		printf("{");
+		sharkd_json_object_open();
 
 		printf("\"t\":");
 		printf("\"%s\"", table->title);
@@ -1729,11 +1753,11 @@ sharkd_session_process_tap_nstat_cb(void *arg)
 				}
 			}
 
-			printf("]");
+			sharkd_json_array_close();
 			sepa = ",";
 		}
-		printf("]");
-		printf("}");
+		sharkd_json_array_close();
+		sharkd_json_object_close();
 	}
 
 	printf("]},");
@@ -1838,7 +1862,7 @@ sharkd_session_process_tap_rtd_cb(void *arg)
 				printf(",\"rsp_dup\":%u", ms->rsp_dup_num);
 			}
 
-			printf("}");
+			sharkd_json_object_close();
 			sepa = ",";
 		}
 	}
@@ -1896,7 +1920,7 @@ sharkd_session_process_tap_srt_cb(void *arg)
 
 		if (i)
 			printf(",");
-		printf("{");
+		sharkd_json_object_open();
 
 		printf("\"n\":");
 		if (rst->name)
@@ -1941,7 +1965,7 @@ sharkd_session_process_tap_srt_cb(void *arg)
 			printf(",\"max\":%.9f", nstime_to_sec(&proc->stats.max));
 			printf(",\"tot\":%.9f", nstime_to_sec(&proc->stats.tot));
 
-			printf("}");
+			sharkd_json_object_close();
 			sepa = ",";
 		}
 		printf("]}");
@@ -2028,7 +2052,7 @@ sharkd_session_process_tap_eo_cb(void *tapdata)
 
 		printf(",\"len\":%" G_GINT64_FORMAT, eo_entry->payload_len);
 
-		printf("}");
+		sharkd_json_object_close();
 
 		i++;
 	}
@@ -2117,7 +2141,7 @@ sharkd_session_process_tap_rtp_cb(void *arg)
 
 		rtpstream_info_calc_free(&calc);
 
-		printf("}");
+		sharkd_json_object_close();
 		sepa = ",";
 	}
 	printf("]},");
@@ -2537,7 +2561,7 @@ sharkd_session_process_follow(char *buf, const jsmntok_t *tokens, int count)
 
 	sharkd_retap();
 
-	printf("{");
+	sharkd_json_object_open();
 
 	printf("\"err\":0");
 
@@ -2587,11 +2611,11 @@ sharkd_session_process_follow(char *buf, const jsmntok_t *tokens, int count)
 			if (follow_record->is_server)
 				printf(",\"s\":%d", 1);
 
-			printf("}");
+			sharkd_json_object_close();
 			sepa = ",";
 		}
 
-		printf("]");
+		sharkd_json_array_close();
 	}
 
 	printf("}\n");
@@ -2606,7 +2630,7 @@ sharkd_session_process_frame_cb_tree(epan_dissect_t *edt, proto_tree *tree, tvbu
 	proto_node *node;
 	const char *sepa = "";
 
-	printf("[");
+	sharkd_json_array_open();
 	for (node = tree->first_child; node; node = node->next)
 	{
 		field_info *finfo = PNODE_FINFO(node);
@@ -2707,10 +2731,10 @@ sharkd_session_process_frame_cb_tree(epan_dissect_t *edt, proto_tree *tree, tvbu
 			sharkd_session_process_frame_cb_tree(edt, (proto_tree *) node, tvbs, display_hidden);
 		}
 
-		printf("}");
+		sharkd_json_object_close();
 		sepa = ",";
 	}
-	printf("]");
+	sharkd_json_array_close();
 }
 
 static gboolean
@@ -2732,7 +2756,7 @@ sharkd_follower_visit_layers_cb(const void *key _U_, void *value, void *user_dat
 
 		printf(",[\"%s\",", layer_proto);
 		json_puts_string(follow_filter);
-		printf("]");
+		sharkd_json_array_close();
 
 		g_free(follow_filter);
 	}
@@ -2755,7 +2779,7 @@ sharkd_session_process_frame_cb(epan_dissect_t *edt, proto_tree *tree, struct ep
 	const struct sharkd_frame_request_data * const req_data = (const struct sharkd_frame_request_data * const) data;
 	const gboolean display_hidden = (req_data) ? req_data->display_hidden : FALSE;
 
-	printf("{");
+	sharkd_json_object_open();
 
 	printf("\"err\":0");
 
@@ -2810,7 +2834,7 @@ sharkd_session_process_frame_cb(epan_dissect_t *edt, proto_tree *tree, struct ep
 
 			printf("%s\"%s\"", (col) ? "," : "", col_item->col_data);
 		}
-		printf("]");
+		sharkd_json_array_close();
 	}
 
 	if (fdata->flags.ignored)
@@ -2884,7 +2908,7 @@ sharkd_session_process_frame_cb(epan_dissect_t *edt, proto_tree *tree, struct ep
 				json_print_base64("", 0);
 			}
 
-			printf("}");
+			sharkd_json_object_close();
 			ds_sepa = ",";
 
 			data_src = data_src->next;
@@ -2892,12 +2916,12 @@ sharkd_session_process_frame_cb(epan_dissect_t *edt, proto_tree *tree, struct ep
 
 		/* close ds, only if was opened */
 		if (ds_sepa != NULL)
-			printf("]");
+			sharkd_json_array_close();
 	}
 
 	printf(",\"fol\":[0");
 	follow_iterate_followers(sharkd_follower_visit_layers_cb, pi);
-	printf("]");
+	sharkd_json_array_close();
 
 	printf("}\n");
 }
@@ -3065,7 +3089,7 @@ sharkd_session_process_iograph(char *buf, const jsmntok_t *tokens, int count)
 
 		if (i)
 			printf(",");
-		printf("{");
+		sharkd_json_object_open();
 
 		if (graph->error)
 		{
@@ -3100,9 +3124,9 @@ sharkd_session_process_iograph(char *buf, const jsmntok_t *tokens, int count)
 				next_idx = idx + 1;
 				sepa = ",";
 			}
-			printf("]");
+			sharkd_json_array_close();
 		}
-		printf("}");
+		sharkd_json_object_close();
 
 		remove_tap_listener(graph);
 		g_free(graph->items);
@@ -3467,7 +3491,7 @@ sharkd_session_process_complete(char *buf, const jsmntok_t *tokens, int count)
 					printf(",\"n\":");
 					json_puts_string(protocol_name);
 				}
-				printf("}");
+				sharkd_json_object_close();
 				sepa = ",";
 			}
 
@@ -3494,13 +3518,13 @@ sharkd_session_process_complete(char *buf, const jsmntok_t *tokens, int count)
 							json_puts_string(hfinfo->name);
 						}
 					}
-					printf("}");
+					sharkd_json_object_close();
 					sepa = ",";
 				}
 			}
 		}
 
-		printf("]");
+		sharkd_json_array_close();
 	}
 
 	if (tok_pref != NULL && tok_pref[0])
@@ -3532,7 +3556,7 @@ sharkd_session_process_complete(char *buf, const jsmntok_t *tokens, int count)
 			prefs_modules_foreach(sharkd_session_process_complete_pref_cb, &data);
 		}
 
-		printf("]");
+		sharkd_json_array_close();
 	}
 
 
@@ -3663,10 +3687,10 @@ sharkd_session_process_dumpconf_cb(pref_t *pref, gpointer d)
 				printf(",\"d\":");
 				json_puts_string(enums->description);
 
-				printf("}");
+				sharkd_json_object_close();
 				enum_sepa = ",";
 			}
-			printf("]");
+			sharkd_json_array_close();
 			break;
 		}
 
@@ -3693,7 +3717,7 @@ sharkd_session_process_dumpconf_cb(pref_t *pref, gpointer d)
 				if (idx)
 					printf(",");
 
-				printf("[");
+				sharkd_json_array_open();
 				for (colnum = 0; colnum < uat->ncols; colnum++)
 				{
 					char *str = uat_fld_tostr(rec, &(uat->fields[colnum]));
@@ -3705,10 +3729,10 @@ sharkd_session_process_dumpconf_cb(pref_t *pref, gpointer d)
 					g_free(str);
 				}
 
-				printf("]");
+				sharkd_json_array_close();
 			}
 
-			printf("]");
+			sharkd_json_array_close();
 			break;
 		}
 
@@ -3725,7 +3749,7 @@ sharkd_session_process_dumpconf_cb(pref_t *pref, gpointer d)
 	json_puts_string(prefs_get_title(pref));
 #endif
 
-	printf("}");
+	sharkd_json_object_close();
 	data->sepa = ",";
 
 	return 0; /* continue */
