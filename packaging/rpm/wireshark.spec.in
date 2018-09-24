@@ -121,6 +121,11 @@ Requires:	libnghttp2
 #BuildRequires:	gnutls-devel
 #BuildRequires:	libcap-devel
 
+%if %{with mmdbresolve}
+BuildRequires:	libmaxminddb-devel
+Requires:	libmaxminddb
+%endif
+
 %if %{use_wireshark_group}
 %if 0%{?suse_version}
 # SuSE's groupadd is in this package:
@@ -191,20 +196,13 @@ BuildRequires:	gcc-c++
 BuildRequires:	update-desktop-files
 %endif
 
-%description qt
-This package contains the Qt Wireshark GUI and desktop integration files.
-%endif
-
-
-%if %{with mmdbresolve}
-BuildRequires:	libmaxminddb-devel
-Requires:	libmaxminddb
-%endif
-
 # Uncomment these if you want to be sure you get them...
 # Add this for more readable fonts on some distributions/versions
 #Requires:	dejavu-sans-mono-fonts
 
+%description qt
+This package contains the Qt Wireshark GUI and desktop integration files.
+%endif
 
 %prep
 %setup -q -n %{name}-%{package_version}
@@ -436,6 +434,9 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %endif
 
 %changelog
+* Mon Sep 24 2018 Jeff Morriss
+- Make the (optional) maxminddb dependencies actually work.
+
 * Wed Apr 11 2018 Gerald Combs
 - Make documentation installation conditional.
 
