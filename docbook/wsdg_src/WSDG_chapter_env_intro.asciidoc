@@ -53,8 +53,7 @@ others:
 
 * OpenBSD
 
-// Packages available as of 2018-09 are ancient.
-// * Oracle Solaris
+* Oracle Solaris
 
 ==== Linux
 
