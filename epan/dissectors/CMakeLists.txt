@@ -429,7 +429,6 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-mount.h
 	packet-mp4ves.h
 	packet-mpeg-descriptor.h
-	packet-mpeg-pmt.h
 	packet-mpeg-sect.h
 	packet-mpls.h
 	packet-mq.h
