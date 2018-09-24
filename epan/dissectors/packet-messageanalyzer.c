@@ -924,8 +924,8 @@ dissect_etw_ndis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 		else
 		{
 			proto_tree_add_item(etw_tree, hf_etw_ndis_fragment, tvb, offset, length, ENC_NA);
+			offset += length;
 		}
-		offset += length;
 		break;
 
 	case 1002: // EventPacketMetadata
@@ -1007,8 +1007,8 @@ dissect_etw_ndis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 		else
 		{
 			proto_tree_add_item(etw_tree, hf_etw_ndis_fragment, tvb, offset, length, ENC_NA);
+			offset += length;
 		}
-		offset += length;
 		proto_tree_add_item_ret_uint(etw_tree, hf_etw_ndis_oob_data_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &length);
 		offset += 4;
 
