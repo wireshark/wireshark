@@ -873,6 +873,12 @@ sharkd_session_process_frames(const char *buf, const jsmntok_t *tokens, int coun
 						break;
 					}
 				}
+
+				if (*tok_refs == '\0' && framenum >= next_ref_frame)
+				{
+					current_ref_frame = next_ref_frame;
+					next_ref_frame = G_MAXUINT32;
+				}
 			}
 
 			if (current_ref_frame)
