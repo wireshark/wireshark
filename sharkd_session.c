@@ -3314,17 +3314,21 @@ sharkd_session_process_frame(char *buf, const jsmntok_t *tokens, int count)
  *
  * Input:
  *   (o) filter - filter to be checked
+ *   (o) field - field to be checked
  *
  * Output object with attributes:
  *   (m) err - always 0
  *   (o) filter - 'ok', 'warn' or error message
+ *   (o) field - 'ok', or 'notfound'
  */
 static int
 sharkd_session_process_check(char *buf, const jsmntok_t *tokens, int count)
 {
 	const char *tok_filter = json_find_attr(buf, tokens, count, "filter");
+	const char *tok_field = json_find_attr(buf, tokens, count, "field");
 
 	printf("{\"err\":0");
+
 	if (tok_filter != NULL)
 	{
 		char *err_msg = NULL;
@@ -3346,6 +3350,13 @@ sharkd_session_process_check(char *buf, const jsmntok_t *tokens, int count)
 			json_puts_string(err_msg);
 			g_free(err_msg);
 		}
+	}
+
+	if (tok_field != NULL)
+	{
+		header_field_info *hfi = proto_registrar_get_byname(tok_field);
+
+		printf(",\"field\":\"%s\"", (hfi) ? "ok" : "notfound");
 	}
 
 	printf("}\n");
