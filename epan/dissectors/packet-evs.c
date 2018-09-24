@@ -52,6 +52,7 @@ static int hf_evs_tcx_or_hq_mdct_core = -1;
 static int hf_evs_sid_cng = -1;
 static int hf_evs_celp_sample_rate = -1;
 static int hf_evs_core_sample_rate = -1;
+static int hf_evs_132_bwctrf_idx = -1;
 
 static int ett_evs = -1;
 static int ett_evs_header = -1;
@@ -523,7 +524,7 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
         vd_tree = proto_tree_add_subtree(evs_tree, tvb, offset, -1, ett_evs_voice_data, NULL, "Voice Data");
         switch (packet_len) {
-        case 6:
+        case 6: /*  48 bits EVS Primary SID 2.4 */
             /* 7.2	Bit allocation for SID frames in the DTX operation */
             /* CNG type flag 1 bit */
             proto_tree_add_bits_ret_val(vd_tree, hf_evs_sid_cng, tvb, bit_offset, 1, &value, ENC_BIG_ENDIAN);
@@ -549,8 +550,36 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 proto_tree_add_bits_item(vd_tree, hf_evs_core_sample_rate, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
             }
             break;
-        case 61:
-            /* EVS Primary 24.4 */
+            /* A.2.1.2 Compact format for EVS AMR-WB IO mode (except SID)
+            * In the Compact format for EVS AMR-WB IO mode, except SID, the RTP payload consists of one 3-bit CMR field,
+            * one coded frame, and zero-padding bits if necessary.
+            */
+        case 17: /* 136 EVS AMR-WB IO */
+        case 23: /* 184 EVS AMR-WB IO */
+        case 32: /* 256 EVS AMR-WB IO */
+            /* EVS AMR-WB IO */
+            /* CMR */
+            proto_tree_add_item(evs_tree, hf_evs_cmr_amr_io, tvb, offset, 1, ENC_BIG_ENDIAN);
+            break;
+        case 33: /* 264 EVS Primary 13.2 */
+            /* 7.1.2 Bit allocation at 13.2 kbps
+             * The EVS codec encodes NB, WB and SWB content at 13.2 kbps with CELP core, HQ-MDCT core, or TCX core.
+             * For WB signals, the CELP core uses TBE or FD extension layer. For SWB signals, the CELP core uses TBE or FD extension layer,
+             * and the TCX core uses IGF extension layer
+             */
+            /* BW, CT, RF	5*/
+            proto_tree_add_bits_item(vd_tree, hf_evs_132_bwctrf_idx, tvb, bit_offset, 5, ENC_BIG_ENDIAN);
+            break;
+        case 36: /* 288 EVS AMR-WB IO */
+        case 40: /* 320 EVS AMR-WB IO */
+        case 46: /* 368 EVS AMR-WB IO */
+        case 50: /* 400 EVS AMR-WB IO */
+        case 58: /* 464 EVS AMR-WB IO */
+            /* EVS AMR-WB IO */
+            /* CMR */
+            proto_tree_add_item(evs_tree, hf_evs_cmr_amr_io, tvb, offset, 1, ENC_BIG_ENDIAN);
+            break;
+        case 61: /* 488 EVS Primary 24.4 */
             /* 7.1.3	Bit allocation at 16.4 and 24.4 kbps */
             /* BW 2 bits*/
             proto_tree_add_bits_item(vd_tree, hf_evs_bw, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
@@ -779,6 +808,11 @@ proto_register_evs(void)
     { &hf_evs_core_sample_rate,
     { "Core sampling rate indicator", "evs.sid.core_sample_rate",
         FT_UINT8, BASE_DEC, VALS(evs_sid_celp_sample_rate_values), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_evs_132_bwctrf_idx,
+    { "BW CT RF Index", "evs.132.bwctrf_idx",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
 };
