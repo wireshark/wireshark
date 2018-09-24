@@ -9,10 +9,11 @@
 # - Find a better way to sync with git-export-release.sh.
 # - We currently install into /usr/local.
 
+%bcond_with	ninja
+%bcond_with	ccache
 %bcond_without	qt5
 %bcond_with	lua
 %bcond_with	mmdbresolve
-%bcond_with	ninja
 %bcond_with	lz4_and_snappy
 %bcond_with	c_ares
 %bcond_without	spandsp
@@ -220,6 +221,9 @@ This package contains the Qt Wireshark GUI and desktop integration files.
 cmake3 \
 %else
 %cmake \
+%endif
+%if %{with ccache}
+  -DENABLE_CCACHE=ON \
 %endif
 %if %{with qt5}
   -DBUILD_wireshark=ON \
@@ -434,6 +438,9 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %endif
 
 %changelog
+* Mon Sep 24 2018 Jeff Morriss
+- Allow using ccache to (greatly) speed up rebuilds.
+
 * Mon Sep 24 2018 Jeff Morriss
 - Make the (optional) maxminddb dependencies actually work.
 
