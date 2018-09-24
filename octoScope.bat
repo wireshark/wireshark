@@ -16,7 +16,8 @@ SET equipment=%%b
 SET filename=%%c
 SET packetnum=%%d
 )
-
+SET system=%system:~1%
+SET packetnum=%packetnum:~0,-1%
 if [%iqSource%]==[] (
 ECHO "Usage: octoScope.bat <IQ Source>"
 exit /b 1
@@ -37,8 +38,10 @@ SET found=0
 if %file_ext%==iqvsa (
 ECHO IQVSA File type indicated
 SET found=0
+py -3.6 "C:\Users\Andrew.McGarry\workspace\Triathlon_Litepoint_Project_Trunk\analyzePacketLitepoint.py" %packetnum% --address 10.100.100.130
 )
 if %found%==1 (
 ECHO Invalid filetype indicated
 )
+cmd /k
 exit /b %found%
