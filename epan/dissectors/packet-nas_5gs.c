@@ -425,30 +425,41 @@ de_nas_5gs_mm_5gs_mobile_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     guint32 offset, guint len,
     gchar *add_string _U_, int string_len _U_)
 {
-    guint32 type_id;
+    guint8 type_id;
     tvbuff_t * new_tvb;
     const char *digit_str;
 
-    proto_tree_add_item(tree, hf_nas_5gs_mm_odd_even, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item_ret_uint(tree, hf_nas_5gs_mm_type_id, tvb, offset, 1, ENC_BIG_ENDIAN, &type_id);
-    offset++;
-    len--;
+    static const int * flags_odd_even_tid[] = {
+        &hf_nas_5gs_mm_odd_even,
+        &hf_nas_5gs_mm_type_id,
+        NULL
+    };
+
+    type_id = tvb_get_guint8(tvb, offset) & 0x07;
+
     switch (type_id) {
+    case 0:
+        proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags_odd_even_tid, ENC_BIG_ENDIAN);
+        break;
     case 1:
         /* SUCI */
+        proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags_odd_even_tid, ENC_BIG_ENDIAN);
         new_tvb = tvb_new_subset_length(tvb, offset, len);
-        digit_str = tvb_bcd_dig_to_wmem_packet_str(new_tvb, 0, len, NULL, TRUE);
+        digit_str = tvb_bcd_dig_to_wmem_packet_str(new_tvb, 0, -1, NULL, TRUE);
         proto_tree_add_string(tree, hf_nas_5gs_mm_suci, new_tvb, 0, -1, digit_str);
         break;
     case 3:
         /* IMEI */
+        proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags_odd_even_tid, ENC_BIG_ENDIAN);
         new_tvb = tvb_new_subset_length(tvb, offset, len);
-        digit_str = tvb_bcd_dig_to_wmem_packet_str(new_tvb, 0, len, NULL, TRUE);
+        digit_str = tvb_bcd_dig_to_wmem_packet_str(new_tvb, 0, -1, NULL, TRUE);
         proto_tree_add_string(tree, hf_nas_5gs_mm_imei, new_tvb, 0, -1, digit_str);
         break;
     case 4:
         /*5G-S-TMSI*/
         /* AMF Set ID    AMF Pointer */
+        proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags_odd_even_tid, ENC_BIG_ENDIAN);
+        offset++;
         proto_tree_add_item(tree, hf_nas_5gs_amf_set_id, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_nas_5gs_amf_pointer, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
@@ -456,11 +467,15 @@ de_nas_5gs_mm_5gs_mobile_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         break;
     case 5:
         /* IMEISV */
+        proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags_odd_even_tid, ENC_BIG_ENDIAN);
         new_tvb = tvb_new_subset_length(tvb, offset, len);
-        digit_str = tvb_bcd_dig_to_wmem_packet_str(new_tvb, 0, len, NULL, TRUE);
+        digit_str = tvb_bcd_dig_to_wmem_packet_str(new_tvb, 0, -1, NULL, TRUE);
         proto_tree_add_string(tree, hf_nas_5gs_mm_imeisv, new_tvb, 0, -1, digit_str);
         break;
     case 6:
+        /* 5G-GUTI*/
+        proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags_odd_even_tid, ENC_BIG_ENDIAN);
+        offset++;
         /* MCC digit 2    MCC digit 1
          * MNC digit 3     MCC digit 3
          * MNC digit 2    MNC digit 1
@@ -483,7 +498,7 @@ de_nas_5gs_mm_5gs_mobile_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         break;
     }
 
-    return len+1;
+    return len;
 }
 
 /*
