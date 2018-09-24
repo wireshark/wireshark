@@ -169,10 +169,19 @@ json_print_base64(const guint8 *data, size_t len)
 	putchar('"');
 }
 
-static void
-sharkd_json_array_open(void)
+static inline void
+sharkd_json_open(gboolean sepa, const char *key, char ch)
 {
-	printf("[");
+	if (key)
+		printf("%s\"%s\":%c", (sepa) ? "," : "", key, ch);
+	else
+		printf("%s%c", (sepa) ? "," : "", ch);
+}
+
+static void
+sharkd_json_array_open(gboolean sepa, const char *key)
+{
+	sharkd_json_open(sepa, key, '[');
 }
 
 static void
@@ -182,9 +191,9 @@ sharkd_json_array_close(void)
 }
 
 static void
-sharkd_json_object_open(void)
+sharkd_json_object_open(gboolean sepa)
 {
-	printf("{");
+	sharkd_json_open(sepa, NULL, '{');
 }
 
 static void
@@ -274,7 +283,7 @@ sharkd_session_process_info_nstat_cb(const void *key, void *value, void *userdat
 	stat_tap_table_ui *stat_tap = (stat_tap_table_ui *) value;
 	int *pi = (int *) userdata;
 
-	printf("%s{", (*pi) ? "," : "");
+	sharkd_json_object_open(*pi != 0);
 		printf("\"name\":\"%s\"", stat_tap->title);
 		printf(",\"tap\":\"nstat:%s\"", (const char *) key);
 	sharkd_json_object_close();
@@ -293,7 +302,7 @@ sharkd_session_process_info_conv_cb(const void* key, void* value, void* userdata
 
 	if (get_conversation_packet_func(table))
 	{
-		printf("%s{", (*pi) ? "," : "");
+		sharkd_json_object_open(*pi != 0);
 			printf("\"name\":\"Conversation List/%s\"", label);
 			printf(",\"tap\":\"conv:%s\"", label);
 		sharkd_json_object_close();
@@ -303,7 +312,7 @@ sharkd_session_process_info_conv_cb(const void* key, void* value, void* userdata
 
 	if (get_hostlist_packet_func(table))
 	{
-		printf("%s{", (*pi) ? "," : "");
+		sharkd_json_object_open(*pi != 0);
 			printf("\"name\":\"Endpoint/%s\"", label);
 			printf(",\"tap\":\"endpt:%s\"", label);
 		sharkd_json_object_close();
@@ -319,7 +328,7 @@ sharkd_session_seq_analysis_cb(const void *key, void *value, void *userdata)
 	register_analysis_t *analysis = (register_analysis_t *) value;
 	int *pi = (int *) userdata;
 
-	printf("%s{", (*pi) ? "," : "");
+	sharkd_json_object_open(*pi != 0);
 		printf("\"name\":\"%s\"", sequence_analysis_get_ui_name(analysis));
 		printf(",\"tap\":\"seqa:%s\"", (const char *) key);
 	sharkd_json_object_close();
@@ -338,7 +347,7 @@ sharkd_export_object_visit_cb(const void *key _U_, void *value, void *user_data)
 	const char *filter = proto_get_protocol_filter_name(proto_id);
 	const char *label  = proto_get_protocol_short_name(find_protocol_by_id(proto_id));
 
-	printf("%s{", (*pi) ? "," : "");
+	sharkd_json_object_open(*pi != 0);
 		printf("\"name\":\"Export Object/%s\"", label);
 		printf(",\"tap\":\"eo:%s\"", filter);
 	sharkd_json_object_close();
@@ -357,7 +366,7 @@ sharkd_srt_visit_cb(const void *key _U_, void *value, void *user_data)
 	const char *filter = proto_get_protocol_filter_name(proto_id);
 	const char *label  = proto_get_protocol_short_name(find_protocol_by_id(proto_id));
 
-	printf("%s{", (*pi) ? "," : "");
+	sharkd_json_object_open(*pi != 0);
 		printf("\"name\":\"Service Response Time/%s\"", label);
 		printf(",\"tap\":\"srt:%s\"", filter);
 	sharkd_json_object_close();
@@ -376,7 +385,7 @@ sharkd_rtd_visit_cb(const void *key _U_, void *value, void *user_data)
 	const char *filter = proto_get_protocol_filter_name(proto_id);
 	const char *label  = proto_get_protocol_short_name(find_protocol_by_id(proto_id));
 
-	printf("%s{", (*pi) ? "," : "");
+	sharkd_json_object_open(*pi != 0);
 		printf("\"name\":\"Response Time Delay/%s\"", label);
 		printf(",\"tap\":\"rtd:%s\"", filter);
 	sharkd_json_object_close();
@@ -395,7 +404,7 @@ sharkd_follower_visit_cb(const void *key _U_, void *value, void *user_data)
 	const char *label  = proto_get_protocol_short_name(find_protocol_by_id(proto_id));
 	const char *filter = label; /* correct: get_follow_by_name() is registered by short name */
 
-	printf("%s{", (*pi) ? "," : "");
+	sharkd_json_object_open(*pi != 0);
 		printf("\"name\":\"Follow/%s\"", label);
 		printf(",\"tap\":\"follow:%s\"", filter);
 	sharkd_json_object_close();
@@ -453,41 +462,43 @@ sharkd_session_process_info(void)
 {
 	int i;
 
-	printf("{\"columns\":[");
+	sharkd_json_object_open(FALSE);
+
+	sharkd_json_array_open(FALSE, "columns");
 	for (i = 0; i < NUM_COL_FMTS; i++)
 	{
 		const char *col_format = col_format_to_string(i);
 		const char *col_descr  = col_format_desc(i);
 
-		printf("%s{", (i) ? "," : "");
+		sharkd_json_object_open(i != 0);
 			printf("\"name\":\"%s\"", col_descr);
 			printf(",\"format\":\"%s\"", col_format);
 		sharkd_json_object_close();
 	}
 	sharkd_json_array_close();
 
-	printf(",\"stats\":[");
+	sharkd_json_array_open(TRUE, "stats");
 	{
 		GList *cfg_list = stats_tree_get_cfg_list();
 		GList *l;
-		const char *sepa = "";
+		gboolean sepa = FALSE;
 
 		for (l = cfg_list; l; l = l->next)
 		{
 			stats_tree_cfg *cfg = (stats_tree_cfg *) l->data;
 
-			printf("%s{", sepa);
+			sharkd_json_object_open(sepa);
 				printf("\"name\":\"%s\"", cfg->name);
 				printf(",\"tap\":\"stat:%s\"", cfg->abbr);
 			sharkd_json_object_close();
-			sepa = ",";
+			sepa = TRUE;
 		}
 
 		g_list_free(cfg_list);
 	}
 	sharkd_json_array_close();
 
-	printf(",\"ftypes\":[");
+	sharkd_json_array_open(TRUE, "ftypes");
 	for (i = 0; i < FT_NUM_TYPES; i++)
 	{
 		if (i)
@@ -499,44 +510,44 @@ sharkd_session_process_info(void)
 	printf(",\"version\":");
 	json_puts_string(sharkd_version());
 
-	printf(",\"nstat\":[");
+	sharkd_json_array_open(TRUE, "nstat");
 	i = 0;
 	stat_tap_iterate_tables(sharkd_session_process_info_nstat_cb, &i);
 	sharkd_json_array_close();
 
-	printf(",\"convs\":[");
+	sharkd_json_array_open(TRUE, "convs");
 	i = 0;
 	conversation_table_iterate_tables(sharkd_session_process_info_conv_cb, &i);
 	sharkd_json_array_close();
 
-	printf(",\"seqa\":[");
+	sharkd_json_array_open(TRUE, "seqa");
 	i = 0;
 	sequence_analysis_table_iterate_tables(sharkd_session_seq_analysis_cb, &i);
 	sharkd_json_array_close();
 
-	printf(",\"taps\":[");
+	sharkd_json_array_open(TRUE, "taps");
 	{
 		printf("{\"name\":\"%s\",\"tap\":\"%s\"}", "RTP streams", "rtp-streams");
 		printf(",{\"name\":\"%s\",\"tap\":\"%s\"}", "Expert Information", "expert");
 	}
 	sharkd_json_array_close();
 
-	printf(",\"eo\":[");
+	sharkd_json_array_open(TRUE, "eo");
 	i = 0;
 	eo_iterate_tables(sharkd_export_object_visit_cb, &i);
 	sharkd_json_array_close();
 
-	printf(",\"srt\":[");
+	sharkd_json_array_open(TRUE, "srt");
 	i = 0;
 	srt_table_iterate_tables(sharkd_srt_visit_cb, &i);
 	sharkd_json_array_close();
 
-	printf(",\"rtd\":[");
+	sharkd_json_array_open(TRUE, "rtd");
 	i = 0;
 	rtd_table_iterate_tables(sharkd_rtd_visit_cb, &i);
 	sharkd_json_array_close();
 
-	printf(",\"follow\":[");
+	sharkd_json_array_open(TRUE, "follow");
 	i = 0;
 	follow_iterate_followers(sharkd_follower_visit_cb, &i);
 	sharkd_json_array_close();
@@ -692,7 +703,7 @@ sharkd_session_process_analyse(void)
 
 	printf("{\"frames\":%u", cfile.count);
 
-	printf(",\"protocols\":[");
+	sharkd_json_array_open(TRUE, "protocols");
 	for (framenum = 1; framenum <= cfile.count; framenum++)
 		sharkd_dissect_request(framenum, (framenum != 1) ? 1 : 0, framenum - 1, &sharkd_session_process_analyse_cb, SHARKD_DISSECT_FLAG_NULL, &analyser);
 	sharkd_json_array_close();
@@ -862,7 +873,7 @@ sharkd_session_process_frames(const char *buf, const jsmntok_t *tokens, int coun
 			return;
 	}
 
-	sharkd_json_array_open();
+	sharkd_json_array_open(FALSE, NULL);
 	for (framenum = 1; framenum <= cfile.count; framenum++)
 	{
 		frame_data *fdata;
@@ -961,7 +972,7 @@ sharkd_session_process_tap_stats_node_cb(const stat_node *n)
 	stat_node *node;
 	const char *sepa = "";
 
-	sharkd_json_array_open();
+	sharkd_json_array_open(FALSE, NULL);
 	for (node = n->children; node; node = node->next)
 	{
 		/* code based on stats_tree_get_values_from_node() */
@@ -1069,17 +1080,17 @@ sharkd_session_process_tap_expert_cb(void *tapdata)
 {
 	struct sharkd_expert_tap *etd = (struct sharkd_expert_tap *) tapdata;
 	GSList *list;
-	const char *sepa = "";
+	gboolean sepa = FALSE;
 
 	printf("{\"tap\":\"%s\",\"type\":\"%s\"", "expert", "expert");
 
-	printf(",\"details\":[");
+	sharkd_json_array_open(TRUE, "details");
 	for (list = etd->details; list; list = list->next)
 	{
 		expert_info_t *ei = (expert_info_t *) list->data;
 		const char *tmp;
 
-		printf("%s{", sepa);
+		sharkd_json_object_open(sepa);
 
 		printf("\"f\":%u,", ei->packet_num);
 
@@ -1102,7 +1113,7 @@ sharkd_session_process_tap_expert_cb(void *tapdata)
 		}
 
 		sharkd_json_object_close();
-		sepa = ",";
+		sepa = TRUE;
 	}
 	sharkd_json_array_close();
 
@@ -1162,13 +1173,13 @@ sharkd_session_process_tap_flow_cb(void *tapdata)
 	GList *flow_list;
 	guint i;
 
-	const char *sepa = "";
+	gboolean sepa = FALSE;
 
 	sequence_analysis_get_nodes(graph_analysis);
 
 	printf("{\"tap\":\"seqa:%s\",\"type\":\"%s\"", graph_analysis->name, "flow");
 
-	printf(",\"nodes\":[");
+	sharkd_json_array_open(TRUE, "nodes");
 	for (i = 0; i < graph_analysis->num_nodes; i++)
 	{
 		char *addr_str;
@@ -1182,8 +1193,7 @@ sharkd_session_process_tap_flow_cb(void *tapdata)
 	}
 	sharkd_json_array_close();
 
-	printf(",\"flows\":[");
-
+	sharkd_json_array_open(TRUE, "flows");
 	flow_list = g_queue_peek_nth_link(graph_analysis->items, 0);
 	while (flow_list)
 	{
@@ -1194,7 +1204,7 @@ sharkd_session_process_tap_flow_cb(void *tapdata)
 		if (!sai->display)
 			continue;
 
-		printf("%s{", sepa);
+		sharkd_json_object_open(sepa);
 
 		printf("\"t\":\"%s\"", sai->time_str);
 		printf(",\"n\":[%u,%u]", sai->src_node, sai->dst_node);
@@ -1207,9 +1217,8 @@ sharkd_session_process_tap_flow_cb(void *tapdata)
 		}
 
 		sharkd_json_object_close();
-		sepa = ",";
+		sepa = TRUE;
 	}
-
 	sharkd_json_array_close();
 
 	printf("},");
@@ -1415,7 +1424,7 @@ sharkd_session_process_tap_rtp_analyse_cb(void *tapdata)
 	const struct sharkd_analyse_rtp *rtp_req = (struct sharkd_analyse_rtp *) tapdata;
 	const tap_rtp_stat_t *statinfo = &rtp_req->statinfo;
 
-	const char *sepa = "";
+	gboolean sepa = FALSE;
 	GSList *l;
 
 	printf("{\"tap\":\"%s\",\"type\":\"rtp-analyse\"", rtp_req->tap_name);
@@ -1431,12 +1440,12 @@ sharkd_session_process_tap_rtp_analyse_cb(void *tapdata)
 	printf(",\"seq_err\":%u", statinfo->sequence);
 	printf(",\"duration\":%f", statinfo->time - statinfo->start_time);
 
-	printf(",\"items\":[");
+	sharkd_json_array_open(TRUE, "items");
 	for (l = rtp_req->packets; l; l = l->next)
 	{
 		struct sharkd_analyse_rtp_items *item = (struct sharkd_analyse_rtp_items *) l->data;
 
-		printf("%s{", sepa);
+		sharkd_json_object_open(sepa);
 
 		printf("\"f\":%u", item->frame_num);
 		printf(",\"o\":%.9f", item->arrive_offset);
@@ -1478,7 +1487,7 @@ sharkd_session_process_tap_rtp_analyse_cb(void *tapdata)
 			printf(",\"mark\":1");
 
 		sharkd_json_object_close();
-		sepa = ",";
+		sepa = TRUE;
 	}
 	sharkd_json_array_close();
 
@@ -1528,13 +1537,13 @@ sharkd_session_process_tap_conv_cb(void *arg)
 	if (!strncmp(iu->type, "conv:", 5))
 	{
 		printf("{\"tap\":\"%s\",\"type\":\"conv\"", iu->type);
-		printf(",\"convs\":[");
+		sharkd_json_array_open(TRUE, "convs");
 		proto = iu->type + 5;
 	}
 	else if (!strncmp(iu->type, "endpt:", 6))
 	{
 		printf("{\"tap\":\"%s\",\"type\":\"host\"", iu->type);
-		printf(",\"hosts\":[");
+		sharkd_json_array_open(TRUE, "hosts");
 		proto = iu->type + 6;
 	}
 	else
@@ -1554,7 +1563,7 @@ sharkd_session_process_tap_conv_cb(void *arg)
 			char *src_port, *dst_port;
 			char *filter_str;
 
-			printf("%s{", i ? "," : "");
+			sharkd_json_object_open(i != 0);
 
 			printf("\"saddr\":\"%s\"",  (src_addr = get_conversation_address(NULL, &iui->src_address, iu->resolve_name)));
 			printf(",\"daddr\":\"%s\"", (dst_addr = get_conversation_address(NULL, &iui->dst_address, iu->resolve_name)));
@@ -1603,7 +1612,7 @@ sharkd_session_process_tap_conv_cb(void *arg)
 			char *host_str, *port_str;
 			char *filter_str;
 
-			printf("%s{", i ? "," : "");
+			sharkd_json_object_open(i != 0);
 
 			printf("\"host\":\"%s\"", (host_str = get_conversation_address(NULL, &host->myaddress, iu->resolve_name)));
 
@@ -1677,15 +1686,12 @@ sharkd_session_process_tap_nstat_cb(void *arg)
 
 	printf("{\"tap\":\"nstat:%s\",\"type\":\"nstat\"", stat_data->stat_tap_data->cli_string);
 
-	printf(",\"fields\":[");
+	sharkd_json_array_open(TRUE, "fields");
 	for (i = 0; i < stat_data->stat_tap_data->nfields; i++)
 	{
 		stat_tap_table_item *field = &(stat_data->stat_tap_data->fields[i]);
 
-		if (i)
-			printf(",");
-
-		sharkd_json_object_open();
+		sharkd_json_object_open(i != 0);
 
 		printf("\"c\":");
 		json_puts_string(field->column_name);
@@ -1694,21 +1700,18 @@ sharkd_session_process_tap_nstat_cb(void *arg)
 	}
 	sharkd_json_array_close();
 
-	printf(",\"tables\":[");
+	sharkd_json_array_open(TRUE, "tables");
 	for (i = 0; i < stat_data->stat_tap_data->tables->len; i++)
 	{
 		stat_tap_table *table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table *, i);
-		const char *sepa = "";
+		gboolean sepa = FALSE;
 
-		if (i)
-			printf(",");
-
-		sharkd_json_object_open();
+		sharkd_json_object_open(i != 0);
 
 		printf("\"t\":");
 		printf("\"%s\"", table->title);
 
-		printf(",\"i\":[");
+		sharkd_json_array_open(TRUE, "i");
 		for (j = 0; j < table->num_elements; j++)
 		{
 			stat_tap_table_item_type *field_data;
@@ -1717,7 +1720,7 @@ sharkd_session_process_tap_nstat_cb(void *arg)
 			if (field_data == NULL || field_data->type == TABLE_ITEM_NONE) /* Nothing for us here */
 				continue;
 
-			printf("%s[", sepa);
+			sharkd_json_array_open(sepa, NULL);
 			for (k = 0; k < table->num_fields; k++)
 			{
 				field_data = stat_tap_get_field_data(table, j, k);
@@ -1754,7 +1757,7 @@ sharkd_session_process_tap_nstat_cb(void *arg)
 			}
 
 			sharkd_json_array_close();
-			sepa = ",";
+			sepa = TRUE;
 		}
 		sharkd_json_array_close();
 		sharkd_json_object_close();
@@ -1811,7 +1814,7 @@ sharkd_session_process_tap_rtd_cb(void *arg)
 	 * (for usage grep for: register_rtd_table)
 	 */
 	const value_string *vs = get_rtd_value_string(rtd);
-	const char *sepa = "";
+	gboolean sepa = FALSE;
 
 	printf("{\"tap\":\"rtd:%s\",\"type\":\"rtd\"", filter);
 
@@ -1825,7 +1828,7 @@ sharkd_session_process_tap_rtd_cb(void *arg)
 		printf(",\"rsp_dup\":%u", ms->rsp_dup_num);
 	}
 
-	printf(",\"stats\":[");
+	sharkd_json_array_open(TRUE, "stats");
 	for (i = 0; i < rtd_data->stat_table.num_rtds; i++)
 	{
 		const rtd_timestat *ms = &rtd_data->stat_table.time_stats[i];
@@ -1837,7 +1840,7 @@ sharkd_session_process_tap_rtd_cb(void *arg)
 			if (ms->rtd[j].num == 0)
 				continue;
 
-			printf("%s{", sepa);
+			sharkd_json_object_open(sepa);
 
 			if (rtd_data->stat_table.num_rtds == 1)
 				type_str = val_to_str_const(j, vs, "Other"); /* 1 table - description per row */
@@ -1863,7 +1866,7 @@ sharkd_session_process_tap_rtd_cb(void *arg)
 			}
 
 			sharkd_json_object_close();
-			sepa = ",";
+			sepa = TRUE;
 		}
 	}
 	printf("]},");
@@ -1909,18 +1912,16 @@ sharkd_session_process_tap_srt_cb(void *arg)
 
 	printf("{\"tap\":\"srt:%s\",\"type\":\"srt\"", filter);
 
-	printf(",\"tables\":[");
+	sharkd_json_array_open(TRUE, "tables");
 	for (i = 0; i < srt_data->srt_array->len; i++)
 	{
 		/* SRT table */
 		srt_stat_table *rst = g_array_index(srt_data->srt_array, srt_stat_table *, i);
-		const char *sepa = "";
+		gboolean sepa = FALSE;
 
 		int j;
 
-		if (i)
-			printf(",");
-		sharkd_json_object_open();
+		sharkd_json_object_open(i != 0);
 
 		printf("\"n\":");
 		if (rst->name)
@@ -1942,7 +1943,7 @@ sharkd_session_process_tap_srt_cb(void *arg)
 			json_puts_string(rst->proc_column_name);
 		}
 
-		printf(",\"r\":[");
+		sharkd_json_array_open(TRUE, "r");
 		for (j = 0; j < rst->num_procs; j++)
 		{
 			/* SRT row */
@@ -1951,7 +1952,7 @@ sharkd_session_process_tap_srt_cb(void *arg)
 			if (proc->stats.num == 0)
 				continue;
 
-			printf("%s{", sepa);
+			sharkd_json_object_open(sepa);
 
 			printf("\"n\":");
 			json_puts_string(proc->procedure);
@@ -1966,12 +1967,15 @@ sharkd_session_process_tap_srt_cb(void *arg)
 			printf(",\"tot\":%.9f", nstime_to_sec(&proc->stats.tot));
 
 			sharkd_json_object_close();
-			sepa = ",";
+			sepa = TRUE;
 		}
-		printf("]}");
-	}
+		sharkd_json_array_close();
 
-	printf("]},");
+		sharkd_json_object_close();
+	}
+	sharkd_json_array_close();
+
+	printf("},");
 }
 
 static void
@@ -2020,13 +2024,13 @@ sharkd_session_process_tap_eo_cb(void *tapdata)
 
 	printf("{\"tap\":\"%s\",\"type\":\"eo\"", object_list->type);
 	printf(",\"proto\":\"%s\"", object_list->proto);
-	printf(",\"objects\":[");
 
+	sharkd_json_array_open(TRUE, "objects");
 	for (slist = object_list->entries; slist; slist = slist->next)
 	{
 		const export_object_entry_t *eo_entry = (export_object_entry_t *) slist->data;
 
-		printf("%s{", i ? "," : "");
+		sharkd_json_object_open(i != 0);
 
 		printf("\"pkt\":%u", eo_entry->pkt_num);
 
@@ -2056,8 +2060,9 @@ sharkd_session_process_tap_eo_cb(void *tapdata)
 
 		i++;
 	}
+	sharkd_json_array_close();
 
-	printf("]},");
+	printf("},");
 }
 
 static void
@@ -2108,7 +2113,7 @@ sharkd_session_process_tap_rtp_cb(void *arg)
 
 	printf("{\"tap\":\"%s\",\"type\":\"%s\"", "rtp-streams", "rtp-streams");
 
-	printf(",\"streams\":[");
+	sharkd_json_array_open(TRUE, "streams");
 	for (listx = g_list_first(rtp_tapinfo->strinfo_list); listx; listx = listx->next)
 	{
 		rtpstream_info_t *streaminfo = (rtpstream_info_t *) listx->data;
@@ -2144,7 +2149,9 @@ sharkd_session_process_tap_rtp_cb(void *arg)
 		sharkd_json_object_close();
 		sepa = ",";
 	}
-	printf("]},");
+	sharkd_json_array_close();
+
+	printf("},");
 }
 
 /**
@@ -2561,7 +2568,7 @@ sharkd_session_process_follow(char *buf, const jsmntok_t *tokens, int count)
 
 	sharkd_retap();
 
-	sharkd_json_object_open();
+	sharkd_json_object_open(FALSE);
 
 	printf("\"err\":0");
 
@@ -2593,15 +2600,14 @@ sharkd_session_process_follow(char *buf, const jsmntok_t *tokens, int count)
 	{
 		follow_record_t *follow_record;
 		GList *cur;
-		const char *sepa = "";
+		gboolean sepa = FALSE;
 
-		printf(",\"payloads\":[");
-
+		sharkd_json_array_open(TRUE, "payloads");
 		for (cur = g_list_last(follow_info->payload); cur; cur = g_list_previous(cur))
 		{
 			follow_record = (follow_record_t *) cur->data;
 
-			printf("%s{", sepa);
+			sharkd_json_object_open(sepa);
 
 			printf("\"n\":%u", follow_record->packet_num);
 
@@ -2612,9 +2618,8 @@ sharkd_session_process_follow(char *buf, const jsmntok_t *tokens, int count)
 				printf(",\"s\":%d", 1);
 
 			sharkd_json_object_close();
-			sepa = ",";
+			sepa = TRUE;
 		}
-
 		sharkd_json_array_close();
 	}
 
@@ -2628,9 +2633,9 @@ static void
 sharkd_session_process_frame_cb_tree(epan_dissect_t *edt, proto_tree *tree, tvbuff_t **tvbs, gboolean display_hidden)
 {
 	proto_node *node;
-	const char *sepa = "";
+	gboolean sepa = FALSE;
 
-	sharkd_json_array_open();
+	sharkd_json_array_open(FALSE, NULL);
 	for (node = tree->first_child; node; node = node->next)
 	{
 		field_info *finfo = PNODE_FINFO(node);
@@ -2641,7 +2646,7 @@ sharkd_session_process_frame_cb_tree(epan_dissect_t *edt, proto_tree *tree, tvbu
 		if (!display_hidden && FI_GET_FLAG(finfo, FI_HIDDEN))
 			continue;
 
-		printf("%s{", sepa);
+		sharkd_json_object_open(sepa);
 
 		printf("\"l\":");
 		if (!finfo->rep)
@@ -2732,7 +2737,7 @@ sharkd_session_process_frame_cb_tree(epan_dissect_t *edt, proto_tree *tree, tvbu
 		}
 
 		sharkd_json_object_close();
-		sepa = ",";
+		sepa = TRUE;
 	}
 	sharkd_json_array_close();
 }
@@ -2779,7 +2784,7 @@ sharkd_session_process_frame_cb(epan_dissect_t *edt, proto_tree *tree, struct ep
 	const struct sharkd_frame_request_data * const req_data = (const struct sharkd_frame_request_data * const) data;
 	const gboolean display_hidden = (req_data) ? req_data->display_hidden : FALSE;
 
-	sharkd_json_object_open();
+	sharkd_json_object_open(FALSE);
 
 	printf("\"err\":0");
 
@@ -2827,7 +2832,7 @@ sharkd_session_process_frame_cb(epan_dissect_t *edt, proto_tree *tree, struct ep
 	{
 		int col;
 
-		printf(",\"col\":[");
+		sharkd_json_array_open(TRUE, "col");
 		for (col = 0; col < cinfo->num_cols; ++col)
 		{
 			const col_item_t *col_item = &cinfo->columns[col];
@@ -2876,7 +2881,7 @@ sharkd_session_process_frame_cb(epan_dissect_t *edt, proto_tree *tree, struct ep
 		data_src = data_src->next;
 		if (data_src)
 		{
-			printf(",\"ds\":[");
+			sharkd_json_array_open(TRUE, "ds");
 			ds_sepa = "";
 		}
 
@@ -2919,7 +2924,8 @@ sharkd_session_process_frame_cb(epan_dissect_t *edt, proto_tree *tree, struct ep
 			sharkd_json_array_close();
 	}
 
-	printf(",\"fol\":[0");
+	sharkd_json_array_open(TRUE, "fol");
+	printf("0");
 	follow_iterate_followers(sharkd_follower_visit_layers_cb, pi);
 	sharkd_json_array_close();
 
@@ -3081,15 +3087,14 @@ sharkd_session_process_iograph(char *buf, const jsmntok_t *tokens, int count)
 	if (is_any_ok)
 		sharkd_retap();
 
-	printf("{\"iograph\":[");
+	sharkd_json_object_open(FALSE);
 
+	sharkd_json_array_open(TRUE, "iograph");
 	for (i = 0; i < graph_count; i++)
 	{
 		struct sharkd_iograph *graph = &graphs[i];
 
-		if (i)
-			printf(",");
-		sharkd_json_object_open();
+		sharkd_json_object_open(i != 0);
 
 		if (graph->error)
 		{
@@ -3103,7 +3108,7 @@ sharkd_session_process_iograph(char *buf, const jsmntok_t *tokens, int count)
 			int next_idx = 0;
 			const char *sepa = "";
 
-			printf("\"items\":[");
+			sharkd_json_array_open(FALSE, "items");
 			for (idx = 0; idx < graph->num_items; idx++)
 			{
 				double val;
@@ -3131,8 +3136,9 @@ sharkd_session_process_iograph(char *buf, const jsmntok_t *tokens, int count)
 		remove_tap_listener(graph);
 		g_free(graph->items);
 	}
+	sharkd_json_array_close();
 
-	printf("]}\n");
+	printf("}\n");
 }
 
 /**
@@ -3206,7 +3212,8 @@ sharkd_session_process_intervals(char *buf, const jsmntok_t *tokens, int count)
 
 	idx = 0;
 
-	printf("{\"intervals\":[");
+	sharkd_json_object_open(FALSE);
+	sharkd_json_array_open(FALSE, "intervals");
 
 	start_ts = (cfile.count >= 1) ? &(sharkd_get_frame(1)->abs_ts) : NULL;
 
@@ -3252,8 +3259,9 @@ sharkd_session_process_intervals(char *buf, const jsmntok_t *tokens, int count)
 		printf("%s[%" G_GINT64_FORMAT ",%u,%" G_GUINT64_FORMAT "]", sepa, idx, st.frames, st.bytes);
 		/* sepa = ","; */
 	}
+	sharkd_json_array_close();
 
-	printf("],\"last\":%" G_GINT64_FORMAT ",\"frames\":%u,\"bytes\":%" G_GUINT64_FORMAT "}\n", max_idx, st_total.frames, st_total.bytes);
+	printf(",\"last\":%" G_GINT64_FORMAT ",\"frames\":%u,\"bytes\":%" G_GUINT64_FORMAT "}\n", max_idx, st_total.frames, st_total.bytes);
 }
 
 /**
@@ -3464,9 +3472,9 @@ sharkd_session_process_complete(char *buf, const jsmntok_t *tokens, int count)
 		void *proto_cookie;
 		void *field_cookie;
 		int proto_id;
-		const char *sepa = "";
+		gboolean sepa = FALSE;
 
-		printf(",\"field\":[");
+		sharkd_json_array_open(TRUE, "field");
 
 		for (proto_id = proto_get_first_protocol(&proto_cookie); proto_id != -1; proto_id = proto_get_next_protocol(&proto_cookie))
 		{
@@ -3483,7 +3491,7 @@ sharkd_session_process_complete(char *buf, const jsmntok_t *tokens, int count)
 
 			if (strlen(protocol_filter) >= filter_length && !g_ascii_strncasecmp(tok_field, protocol_filter, filter_length))
 			{
-				printf("%s{", sepa);
+				sharkd_json_object_open(sepa);
 				{
 					printf("\"f\":");
 					json_puts_string(protocol_filter);
@@ -3492,7 +3500,7 @@ sharkd_session_process_complete(char *buf, const jsmntok_t *tokens, int count)
 					json_puts_string(protocol_name);
 				}
 				sharkd_json_object_close();
-				sepa = ",";
+				sepa = TRUE;
 			}
 
 			if (!filter_with_dot)
@@ -3505,7 +3513,7 @@ sharkd_session_process_complete(char *buf, const jsmntok_t *tokens, int count)
 
 				if (strlen(hfinfo->abbrev) >= filter_length && !g_ascii_strncasecmp(tok_field, hfinfo->abbrev, filter_length))
 				{
-					printf("%s{", sepa);
+					sharkd_json_object_open(sepa);
 					{
 						printf("\"f\":");
 						json_puts_string(hfinfo->abbrev);
@@ -3519,7 +3527,7 @@ sharkd_session_process_complete(char *buf, const jsmntok_t *tokens, int count)
 						}
 					}
 					sharkd_json_object_close();
-					sepa = ",";
+					sepa = TRUE;
 				}
 			}
 		}
@@ -3536,8 +3544,7 @@ sharkd_session_process_complete(char *buf, const jsmntok_t *tokens, int count)
 		data.pref = tok_pref;
 		data.sepa = "";
 
-		printf(",\"pref\":[");
-
+		sharkd_json_array_open(TRUE, "pref");
 		if ((dot_sepa = strchr(tok_pref, '.')))
 		{
 			module_t *pref_mod;
@@ -3555,7 +3562,6 @@ sharkd_session_process_complete(char *buf, const jsmntok_t *tokens, int count)
 		{
 			prefs_modules_foreach(sharkd_session_process_complete_pref_cb, &data);
 		}
-
 		sharkd_json_array_close();
 	}
 
@@ -3676,7 +3682,7 @@ sharkd_session_process_dumpconf_cb(pref_t *pref, gpointer d)
 			const enum_val_t *enums;
 			const char *enum_sepa = "";
 
-			printf("\"e\":[");
+			sharkd_json_array_open(FALSE, "e");
 			for (enums = prefs_get_enumvals(pref); enums->name; enums++)
 			{
 				printf("%s{\"v\":%d", enum_sepa, enums->value);
@@ -3708,16 +3714,13 @@ sharkd_session_process_dumpconf_cb(pref_t *pref, gpointer d)
 			uat_t *uat = prefs_get_uat_value(pref);
 			guint idx;
 
-			printf("\"t\":[");
+			sharkd_json_array_open(FALSE, "t");
 			for (idx = 0; idx < uat->raw_data->len; idx++)
 			{
 				void *rec = UAT_INDEX_PTR(uat, idx);
 				guint colnum;
 
-				if (idx)
-					printf(",");
-
-				sharkd_json_array_open();
+				sharkd_json_array_open(idx != 0, NULL);
 				for (colnum = 0; colnum < uat->ncols; colnum++)
 				{
 					char *str = uat_fld_tostr(rec, &(uat->fields[colnum]));
