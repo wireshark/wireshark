@@ -48,8 +48,6 @@ Source:		https://www.wireshark.org/download/src/%{name}-%{package_version}.tar.x
 #Source:	https://www.wireshark.org/download/automated/src/%%{name}-%%{package_version}.tar.xz
 URL:		https://www.wireshark.org/
 Packager:	Gerald Combs <gerald[AT]wireshark.org>
-# Some distributions create a wireshark-devel package; get rid of it
-Obsoletes:	wireshark-devel
 
 BuildRoot:	/tmp/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -80,14 +78,14 @@ Requires:	libgcrypt
 %if %{with lz4_and_snappy}
 %if 0%{?suse_version}
 BuildRequires:	liblz4-devel
+Requires:	liblz4-1
 BuildRequires:	snappy-devel
 Requires:	libsnappy1
-Requires:	liblz4-1
 %else
 BuildRequires:	lz4-devel
+Requires:	lz4
 BuildRequires:	snappy-devel
 Requires:	snappy
-Requires:	lz4
 %endif
 %endif
 
@@ -168,42 +166,47 @@ Wireshark. A Qt graphical user interface is packaged separately.
 %package	qt
 Summary:	Wireshark's Qt-based GUI
 Group:		Applications/Internet
+%description qt
+This package contains the Qt Wireshark GUI and desktop integration files.
+
+Requires:	%{name} = %{version}-%{release}
+BuildRequires:	gcc-c++
 %if 0%{?suse_version}
-Requires: libQt5Core5
-Requires: libQt5Gui5
-Requires: libQt5Widgets5
-Requires: libQt5PrintSupport5
-Requires: libQt5Multimedia5
-BuildRequires: libQt5Core-devel
-BuildRequires: libQt5Gui-devel
-BuildRequires: libQt5Widgets-devel
-BuildRequires: libQt5PrintSupport-devel
-BuildRequires: libqt5-qtmultimedia-devel
+BuildRequires:	libQt5Core-devel
+Requires:	libQt5Core5
+BuildRequires:	libQt5Gui-devel
+Requires:	libQt5Gui5
+BuildRequires:	libQt5Widgets-devel
+Requires:	libQt5Widgets5
+BuildRequires:	libQt5PrintSupport-devel
+Requires:	libQt5PrintSupport5
+BuildRequires:	libqt5-qtmultimedia-devel
+Requires:	libQt5Multimedia5
+# Need this for SuSE's suse_update_desktop_file macro
+BuildRequires:	update-desktop-files
 %else
+BuildRequires:	qt5-qtbase-devel
 Requires:	qt5-qtbase
 Requires:	qt5-qtbase-gui
-Requires:	qt5-qtmultimedia
-BuildRequires:	qt5-qtbase-devel
 BuildRequires:	qt5-qtmultimedia-devel
+Requires:	qt5-qtmultimedia
 %endif
-Requires:	%{name} = %{version}-%{release}
 Requires:	xdg-utils
 Requires:	hicolor-icon-theme
 BuildRequires:	desktop-file-utils
 Requires(post):	desktop-file-utils
-BuildRequires:	gcc-c++
-%if 0%{?suse_version}
-# Need this for SuSE's suse_update_desktop_file macro
-BuildRequires:	update-desktop-files
-%endif
-
-# Uncomment these if you want to be sure you get them...
 # Add this for more readable fonts on some distributions/versions
 #Requires:	dejavu-sans-mono-fonts
-
-%description qt
-This package contains the Qt Wireshark GUI and desktop integration files.
 %endif
+
+%package	devel
+Summary:	Development headers for Wireshark
+Group:		Applications/Internet
+Requires:	%{name} = %{version}-%{release}
+%description devel
+The wireshark-devel package contains the header and other files required for
+development of Wireshark scripts and plugins.
+
 
 %prep
 %setup -q -n %{name}-%{package_version}
@@ -337,8 +340,8 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/wireshark.desktop
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%pre
 %if %{use_wireshark_group}
+%pre
 getent group wireshark >/dev/null || groupadd -r wireshark
 %endif
 
@@ -410,14 +413,15 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %endif
 
 %{_libdir}/lib*.so*
+# Don't pick up the cmake files here
+%exclude %{_libdir}/wireshark/cmake
 %{_libdir}/wireshark
-%{_libdir}/pkgconfig/wireshark.pc
-# Don't pick up the wireshark (GUI) man page
+# Don't pick up the wireshark (GUI) man page here
 %exclude %{_mandir}/man1/wireshark.*
 %{_mandir}/man1/*
 %{_mandir}/man4/*
 %{_datadir}/wireshark
-%{_includedir}/wireshark
+
 %if 0%{?install_ld_so_conf}
 /etc/ld.so.conf.d/wireshark.conf
 %endif
@@ -437,7 +441,15 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %{_mandir}/man1/wireshark.*
 %endif
 
+%files devel
+%{_includedir}/wireshark
+%{_libdir}/wireshark/cmake
+%{_libdir}/pkgconfig/wireshark.pc
+
 %changelog
+* Wed Sep 26 2018 Jeff Morriss
+- Put development-related files in a new -devel RPM.
+
 * Mon Sep 24 2018 Jeff Morriss
 - Allow using ccache to (greatly) speed up rebuilds.
 
