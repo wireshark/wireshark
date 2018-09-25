@@ -692,6 +692,9 @@ static value_string_ext tag_num_vals_ext = VALUE_STRING_EXT_INIT(tag_num_vals);
 #define ETAG_FILS_NONCE                13
 #define ETAG_FUTURE_CHANNEL_GUIDANCE   14
 
+/* RFC 8110 */
+#define ETAG_OWE_DH_PARAMETER          32
+
 /* 802.11AX defined tags */
 #define ETAG_HE_CAPABILITIES                   35
 #define ETAG_HE_OPERATION                      36
@@ -718,6 +721,7 @@ static const value_string tag_num_vals_eid_ext[] = {
   { ETAG_FILS_PUBLIC_KEY,                     "FILS Public Key" },
   { ETAG_FILS_NONCE,                          "FILS Nonce" },
   { ETAG_FUTURE_CHANNEL_GUIDANCE,             "Future Channel Guidance" },
+  { ETAG_OWE_DH_PARAMETER,                    "OWE Diffie-Hellman Parameter" },
   { ETAG_HE_CAPABILITIES,                     "HE Capabilities (IEEE Std 802.11ax/D3.0)" },
   { ETAG_HE_OPERATION,                        "HE Operation (IEEE Std 802.11ax/D3.0)" },
   { ETAG_UORA_PARAMETER_SET,                  "UORA Parameter Set" },
@@ -5607,6 +5611,11 @@ static int hf_ieee80211_tag_twt_nom_min_twt_wake_dur = -1;
 static int hf_ieee80211_tag_twt_wake_interval_mantissa = -1;
 static int hf_ieee80211_tag_twt_channel = -1;
 
+/* ************************************************************************* */
+/*                              RFC 8110 fields                              */
+/* ************************************************************************* */
+static int hf_owe_dh_parameter_group = -1;
+static int hf_owe_dh_parameter_public_key = -1;
 
 /* ************************************************************************* */
 /*                               Protocol trees                              */
@@ -12442,6 +12451,7 @@ static const value_string ieee80211_rsn_keymgmt_vals[] = {
   {5, "WPA (SHA256)"},
   {6, "PSK (SHA256)"},
   {7, "TDLS / TPK Handshake"},
+  {18, "Opportunistic Wireless Encryption"},
   {0, NULL}
 };
 
@@ -20106,6 +20116,54 @@ dissect_future_channel_guidance(tvbuff_t *tvb, packet_info *pinfo _U_,
   return offset;
 }
 
+/* IANA, "Transform Type 4 - Diffie-Hellman Group Transform IDs" */
+static const value_string owe_dh_parameter_group_vals[] = {
+  { 0, "None" },
+  { 1, "768-bit MODP Group" },
+  { 2, "1024-bit MODP Group" },
+  { 5, "1536-bit MODP Group" },
+  { 14, "2048-bit MODP Group"},
+  { 15, "3072-bit MODP Group"},
+  { 16, "4096-bit MODP Group"},
+  { 17, "6144-bit MODP Group"},
+  { 18, "8192-bit MODP Group"},
+  { 19, "256-bit random ECP group"},
+  { 20, "384-bit random ECP group"},
+  { 21, "521-bit random ECP group"},
+  { 22, "1024-bit MODP Group with 160-bit Prime Order Subgroup"},
+  { 23, "2048-bit MODP Group with 224-bit Prime Order Subgroup"},
+  { 24, "2048-bit MODP Group with 256-bit Prime Order Subgroup"},
+  { 25, "192-bit Random ECP Group"},
+  { 26, "224-bit Random ECP Group"},
+  { 27, "brainpoolP224r1"},
+  { 28, "brainpoolP256r1"},
+  { 29, "brainpoolP384r1"},
+  { 30, "brainpoolP512r1"},
+  { 31, "Curve25519"},
+  { 32, "Curve448"},
+  { 0, NULL }
+};
+
+static int
+dissect_owe_dh_parameter(tvbuff_t *tvb, packet_info *pinfo _U_,
+  proto_tree *tree, int offset, int len _U_)
+{
+  if (len < 2) {
+    expert_add_info_format(pinfo, tree, &ei_ieee80211_tag_length,
+                           "OWE: Diffie-Hellman Parameter must be at least 2 "
+                           "octets long");
+    return offset + len;
+  }
+
+  proto_tree_add_item(tree, hf_owe_dh_parameter_group, tvb, offset,
+                        2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(tree, hf_owe_dh_parameter_public_key, tvb, offset + 2,
+                        len - 2, ENC_NA);
+  offset += len;
+
+  return offset;
+}
+
 static int
 ieee80211_tag_twt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
@@ -20261,6 +20319,9 @@ ieee80211_tag_element_id_extension(tvbuff_t *tvb, packet_info *pinfo, proto_tree
       break;
     case ETAG_FUTURE_CHANNEL_GUIDANCE:
       dissect_future_channel_guidance(tvb, pinfo, tree, offset, ext_tag_len);
+      break;
+    case ETAG_OWE_DH_PARAMETER:
+      dissect_owe_dh_parameter(tvb, pinfo, tree, offset, ext_tag_len);
       break;
     case ETAG_HE_CAPABILITIES:
       dissect_he_capabilities(tvb, pinfo, tree, offset, ext_tag_len);
@@ -35408,6 +35469,14 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_tag_twt_channel,
       {"TWT Channel", "wlan.twt.channel",
        FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_owe_dh_parameter_group,
+     {"Group", "wlan.ext_tag.owe_dh_parameter.group",
+      FT_UINT32, BASE_DEC, VALS(owe_dh_parameter_group_vals), 0x0, NULL, HFILL }},
+
+    {&hf_owe_dh_parameter_public_key,
+     {"Public Key", "wlan.ext_tag.owe_dh_parameter.public_key",
+      FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
   };
 
   static hf_register_info aggregate_fields[] = {
