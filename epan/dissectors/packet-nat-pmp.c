@@ -123,6 +123,7 @@ static int hf_option_p64_suffix = -1;
 static int hf_option_p64_ipv4_prefix_count = -1;
 static int hf_option_p64_ipv4_prefix_length = -1;
 static int hf_option_p64_ipv4_address = -1;
+static int hf_option_padding = -1;
 
 static gint ett_pcp = -1;
 static gint ett_opcode = -1;
@@ -290,6 +291,8 @@ dissect_portcontrol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
   gint offset = 0, start_offset, start_opcode_offset, start_option_offset;
   guint8 ropcode, option;
   guint16 option_length;
+  gint mod_option_length = 0;
+  gint option_padding_length = 0;
   gboolean is_response;
   const gchar* op_str;
 
@@ -458,7 +461,13 @@ dissect_portcontrol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
       option_length = tvb_get_ntohs(tvb, offset);
       offset+=2;
 
-      proto_item_set_len(suboption_ti, option_length+4);
+      mod_option_length = option_length % 4;
+      if( mod_option_length != 0 )
+      {
+        option_padding_length = 4 - mod_option_length;
+      }
+
+      proto_item_set_len(suboption_ti, option_length+4+option_padding_length);
 
       if(option_length > 0)
       {
@@ -555,6 +564,12 @@ dissect_portcontrol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
       }
 
       offset+=option_length;
+
+      if( option_padding_length > 0 )
+      {
+        proto_tree_add_item(option_sub_tree, hf_option_padding, tvb, offset, option_padding_length, ENC_NA);
+        offset+=option_padding_length;
+      }
     }
 
     proto_item_set_len(option_ti, offset-start_option_offset);
@@ -765,6 +780,9 @@ void proto_register_nat_pmp(void)
         NULL, 0x0, NULL, HFILL } },
     { &hf_option_p64_ipv4_address,
       { "IPv4 Address", "portcontrol.option.p64.ipv4_address", FT_IPv4, BASE_NONE,
+        NULL, 0x0, NULL, HFILL } },
+    { &hf_option_padding,
+      { "Padding", "portcontrol.option.padding", FT_BYTES, BASE_NONE,
         NULL, 0x0, NULL, HFILL } },
     };
 
