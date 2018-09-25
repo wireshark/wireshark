@@ -662,6 +662,10 @@ static int hf_docsis_ucd_change_ind_bitmask_burst_attr_iuc13 = -1;
 static int hf_docsis_ucd_change_ind_bitmask_burst_attr_iuc3_or_4 = -1;
 static int hf_docsis_ucd_change_ind_bitmask_reserved = -1;
 static int hf_docsis_ucd_ofdma_timestamp_snapshot = -1;
+static int hf_docsis_ucd_ofdma_timestamp_snapshot_reserved = -1;
+static int hf_docsis_ucd_ofdma_timestamp_snapshot_d30timestamp = -1;
+static int hf_docsis_ucd_ofdma_timestamp_snapshot_4msbits_of_div20 = -1;
+static int hf_docsis_ucd_ofdma_timestamp_snapshot_minislot_count = -1;
 static int hf_docsis_ucd_ofdma_cyclic_prefix_size = -1;
 static int hf_docsis_ucd_ofdma_rolloff_period_size = -1;
 static int hf_docsis_ucd_subc_spacing = -1;
@@ -2916,7 +2920,14 @@ dissect_any_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int pro
     case UCD_OFDMA_TIMESTAMP_SNAPSHOT:
       if (length == 9)
       {
+        static const int* timestamp_snapshot_parts[] = {
+          &hf_docsis_ucd_ofdma_timestamp_snapshot_reserved,
+          &hf_docsis_ucd_ofdma_timestamp_snapshot_d30timestamp,
+          &hf_docsis_ucd_ofdma_timestamp_snapshot_4msbits_of_div20
+        };
         proto_tree_add_item (tlv_tree, hf_docsis_ucd_ofdma_timestamp_snapshot, tvb, pos, length, ENC_NA);
+        proto_tree_add_bitmask_list(tlv_tree, tvb, pos, 5, timestamp_snapshot_parts, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tlv_tree, hf_docsis_ucd_ofdma_timestamp_snapshot_minislot_count, tvb, pos+5, length-5, ENC_NA);
       }
       else
       {
@@ -7068,6 +7079,26 @@ proto_register_docsis_mgmt (void)
     {&hf_docsis_ucd_ofdma_timestamp_snapshot,
      {"OFDMA Timestamp Snapshot", "docsis_ucd.ofdma_timestamp_snapshot",
       FT_BYTES, BASE_NONE, NULL, 0x00,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ucd_ofdma_timestamp_snapshot_reserved,
+     {"OFDMA Timestamp Snapshot - Reserved", "docsis_ucd.ofdma_timestamp_snapshot_reserved",
+      FT_UINT40, BASE_HEX, NULL, 0xF000000000,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ucd_ofdma_timestamp_snapshot_d30timestamp,
+     {"OFDMA Timestamp Snapshot - D3.0 timestamp", "docsis_ucd.ofdma_timestamp_snapshot_d30timestamp",
+      FT_UINT40, BASE_HEX, NULL, 0x0FFFFFFFF0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ucd_ofdma_timestamp_snapshot_4msbits_of_div20,
+     {"OFDMA Timestamp Snapshot - 4 Most Significant bits of div20 field", "docsis_ucd.ofdma_timestamp_snapshot_4msbits_of_div20",
+      FT_UINT40, BASE_HEX, NULL, 0x000000000F,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ucd_ofdma_timestamp_snapshot_minislot_count,
+     {"OFDMA Timestamp Snapshot - Minislot Count", "docsis_ucd.ofdma_timestamp_snapshot_minislot_count",
+      FT_UINT32, BASE_HEX, NULL, 0x0,
       NULL, HFILL}
     },
     {&hf_docsis_ucd_ofdma_cyclic_prefix_size,
