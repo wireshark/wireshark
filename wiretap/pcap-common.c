@@ -1648,8 +1648,7 @@ pcap_read_i2c_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header, i
 
 int
 pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
-    guint packet_size, gboolean check_packet_size,
-    wtap_rec *rec, int *err, gchar **err_info)
+    guint packet_size, wtap_rec *rec, int *err, gchar **err_info)
 {
 	int phdr_len = 0;
 	guint size;
@@ -1661,7 +1660,7 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 			/*
 			 * Nokia IPSO ATM.
 			 */
-			if (check_packet_size && packet_size < NOKIAATM_LEN) {
+			if (packet_size < NOKIAATM_LEN) {
 				/*
 				 * Uh-oh, the packet isn't big enough to even
 				 * have a pseudo-header.
@@ -1680,7 +1679,7 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 			/*
 			 * SunATM.
 			 */
-			if (check_packet_size && packet_size < SUNATM_LEN) {
+			if (packet_size < SUNATM_LEN) {
 				/*
 				 * Uh-oh, the packet isn't big enough to even
 				 * have a pseudo-header.
@@ -1733,7 +1732,7 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 		break;
 
 	case WTAP_ENCAP_IRDA:
-		if (check_packet_size && packet_size < IRDA_SLL_LEN) {
+		if (packet_size < IRDA_SLL_LEN) {
 			/*
 			 * Uh-oh, the packet isn't big enough to even
 			 * have a pseudo-header.
@@ -1751,7 +1750,7 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 		break;
 
 	case WTAP_ENCAP_MTP2_WITH_PHDR:
-		if (check_packet_size && packet_size < MTP2_HDR_LEN) {
+		if (packet_size < MTP2_HDR_LEN) {
 			/*
 			 * Uh-oh, the packet isn't big enough to even
 			 * have a pseudo-header.
@@ -1769,7 +1768,7 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 		break;
 
 	case WTAP_ENCAP_LINUX_LAPD:
-		if (check_packet_size && packet_size < LAPD_SLL_LEN) {
+		if (packet_size < LAPD_SLL_LEN) {
 			/*
 			 * Uh-oh, the packet isn't big enough to even
 			 * have a pseudo-header.
@@ -1787,7 +1786,7 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 		break;
 
 	case WTAP_ENCAP_SITA:
-		if (check_packet_size && packet_size < SITA_HDR_LEN) {
+		if (packet_size < SITA_HDR_LEN) {
 			/*
 			 * Uh-oh, the packet isn't big enough to even
 			 * have a pseudo-header.
@@ -1810,8 +1809,7 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 		break;
 
 	case WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR:
-		if (check_packet_size &&
-		    packet_size < sizeof (struct libpcap_bt_phdr)) {
+		if (packet_size < sizeof (struct libpcap_bt_phdr)) {
 			/*
 			 * Uh-oh, the packet isn't big enough to even
 			 * have a pseudo-header.
@@ -1829,8 +1827,7 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 		break;
 
 	case WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR:
-		if (check_packet_size &&
-		    packet_size < sizeof (struct libpcap_bt_monitor_phdr)) {
+		if (packet_size < sizeof (struct libpcap_bt_monitor_phdr)) {
 			/*
 			 * Uh-oh, the packet isn't big enough to even
 			 * have a pseudo-header.
@@ -1848,7 +1845,7 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 		break;
 
 	case WTAP_ENCAP_NFC_LLCP:
-		if (check_packet_size && packet_size < LLCP_HEADER_LEN) {
+		if (packet_size < LLCP_HEADER_LEN) {
 			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup("pcap: libpcap llcp file too short");
 			return -1;
@@ -1859,8 +1856,7 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 		break;
 
 	case WTAP_ENCAP_PPP_WITH_PHDR:
-		if (check_packet_size &&
-		    packet_size < sizeof (struct libpcap_ppp_phdr)) {
+		if (packet_size < sizeof (struct libpcap_ppp_phdr)) {
 			/*
 			 * Uh-oh, the packet isn't big enough to even
 			 * have a pseudo-header.
@@ -1878,8 +1874,7 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 		break;
 
 	case WTAP_ENCAP_ERF:
-		if (check_packet_size &&
-		    packet_size < sizeof(struct erf_phdr) ) {
+		if (packet_size < sizeof(struct erf_phdr) ) {
 			/*
 			 * Uh-oh, the packet isn't big enough to even
 			 * have a pseudo-header.
@@ -1910,8 +1905,7 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 
 		phdr_len += size;
 
-		if (check_packet_size &&
-		    packet_size < (guint)phdr_len) {
+		if (packet_size < (guint)phdr_len) {
 			/*
 			 * Uh-oh, the packet isn't big enough for the pseudo-
 			 * header.
@@ -1924,8 +1918,7 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 		break;
 
 	case WTAP_ENCAP_I2C:
-		if (check_packet_size &&
-		    packet_size < sizeof (struct i2c_file_hdr)) {
+		if (packet_size < sizeof (struct i2c_file_hdr)) {
 			/*
 			 * Uh-oh, the packet isn't big enough to even
 			 * have a pseudo-header.
