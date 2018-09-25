@@ -550,15 +550,14 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 proto_tree_add_bits_item(vd_tree, hf_evs_core_sample_rate, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
             }
             break;
-            /* A.2.1.2 Compact format for EVS AMR-WB IO mode (except SID)
-            * In the Compact format for EVS AMR-WB IO mode, except SID, the RTP payload consists of one 3-bit CMR field,
-            * one coded frame, and zero-padding bits if necessary.
-            */
         case 17: /* 136 EVS AMR-WB IO */
         case 23: /* 184 EVS AMR-WB IO */
         case 32: /* 256 EVS AMR-WB IO */
-            /* EVS AMR-WB IO */
-            /* CMR */
+                 /* A.2.1.2 Compact format for EVS AMR-WB IO mode (except SID)
+                 * In the Compact format for EVS AMR-WB IO mode, except SID, the RTP payload consists of one 3-bit CMR field,
+                 * one coded frame, and zero-padding bits if necessary.
+                 */
+                 /* CMR */
             proto_tree_add_item(evs_tree, hf_evs_cmr_amr_io, tvb, offset, 1, ENC_BIG_ENDIAN);
             break;
         case 33: /* 264 EVS Primary 13.2 */
@@ -575,8 +574,11 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         case 46: /* 368 EVS AMR-WB IO */
         case 50: /* 400 EVS AMR-WB IO */
         case 58: /* 464 EVS AMR-WB IO */
-            /* EVS AMR-WB IO */
-            /* CMR */
+                 /* A.2.1.2 Compact format for EVS AMR-WB IO mode (except SID)
+                 * In the Compact format for EVS AMR-WB IO mode, except SID, the RTP payload consists of one 3-bit CMR field,
+                 * one coded frame, and zero-padding bits if necessary.
+                 */
+                 /* CMR */
             proto_tree_add_item(evs_tree, hf_evs_cmr_amr_io, tvb, offset, 1, ENC_BIG_ENDIAN);
             break;
         case 61: /* 488 EVS Primary 24.4 */
