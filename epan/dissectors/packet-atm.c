@@ -144,7 +144,7 @@ static dissector_table_t atm_type_aal5_table;
 /*
  * See
  *
- *      http://www.atmforum.org/atmforum/specs/approved.html
+ *      https://www.broadband-forum.org/index.php?option=com_sppagebuilder&view=page&id=185
  *
  * for a number of ATM Forum specifications, e.g. the LAN Emulation
  * over ATM 1.0 spec, whence I got most of this.

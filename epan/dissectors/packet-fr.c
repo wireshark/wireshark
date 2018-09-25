@@ -12,7 +12,7 @@
  * References:
  *
  * http://web.archive.org/web/20150510093619/http://www.protocols.com/pbook/frame.htm
- * http://www.mplsforum.org/frame/Approved/FRF.3/FRF.3.2.pdf
+ * https://www.broadband-forum.org/technical/download/FRF.3/FRF.3.2.pdf
  * ITU Recommendations Q.922 and Q.933
  * RFC-1490
  * RFC-2427
