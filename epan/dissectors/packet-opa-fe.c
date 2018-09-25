@@ -142,6 +142,7 @@ void proto_register_opa_fe(void)
     prefs_register_range_preference(opa_fe_module, "tls.port", "SSL/TLS Ports",
         "SSL/TLS Ports range",
         &global_fe_ssl_range, 65535);
+    prefs_register_obsolete_preference(opa_fe_module, "ssl.port");
 }
 
 void proto_reg_handoff_opa_fe(void)

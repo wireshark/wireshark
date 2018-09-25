@@ -2582,9 +2582,10 @@ proto_register_couchbase(void)
                                  " to reassemble TCP streams\" in the TCP protocol settings.",
                                  &couchbase_desegment_body);
 
-  prefs_register_uint_preference(couchbase_module, "tls_port", "SSL/TLS Data Port",
+  prefs_register_uint_preference(couchbase_module, "tls.port", "SSL/TLS Data Port",
                                  "The port used for communicating with the data service via SSL/TLS",
                                  10, &couchbase_ssl_port_pref);
+  prefs_register_obsolete_preference(couchbase_module, "ssl_port");
 
 
 }

@@ -4017,6 +4017,7 @@ proto_register_http(void)
 	prefs_register_range_preference(http_module, "tls.port", "SSL/TLS Ports",
 					"SSL/TLS Ports range",
 					&global_http_ssl_range, 65535);
+	prefs_register_obsolete_preference(http_module, "ssl.port");
 	/* UAT */
 	headers_uat = uat_new("Custom HTTP Header Fields",
 			      sizeof(header_field_t),

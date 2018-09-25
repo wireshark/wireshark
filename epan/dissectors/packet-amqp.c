@@ -13409,6 +13409,7 @@ proto_register_amqp(void)
                                    "Set the TCP port for AMQP over SSL/TLS"
                                    "(if other than the default of 5671)",
                                    10, &amqps_port);
+    prefs_register_obsolete_preference(amqp_module, "ssl.port");
 
     register_decode_as(&amqp_da);
 }

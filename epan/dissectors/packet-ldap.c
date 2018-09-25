@@ -5755,6 +5755,7 @@ void proto_register_ldap(void) {
   prefs_register_uint_preference(ldap_module, "tls.port", "LDAPS TCP Port",
                                  "Set the port for LDAP operations over TLS",
                                  10, &global_ldaps_tcp_port);
+  prefs_register_obsolete_preference(ldap_module, "ssl.port");
   /* UAT */
   attributes_uat = uat_new("Custom LDAP AttributeValue types",
                            sizeof(attribute_type_t),
@@ -5905,7 +5906,7 @@ proto_reg_handoff_ldap(void)
 
 
 /*--- End of included file: packet-ldap-dis-tab.c ---*/
-#line 2345 "./asn1/ldap/packet-ldap-template.c"
+#line 2346 "./asn1/ldap/packet-ldap-template.c"
 
  dissector_add_uint_range_with_preference("tcp.port", TCP_PORT_RANGE_LDAP, ldap_handle);
 }
