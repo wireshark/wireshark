@@ -10,7 +10,7 @@
  *
  * Based on the RANAP dissector
  *
- * References: 3GPP TS 36.413 V15.2.0 (2018-03)
+ * References: 3GPP TS 36.413 V15.3.0 (2018-09)
  */
 
 #include "config.h"

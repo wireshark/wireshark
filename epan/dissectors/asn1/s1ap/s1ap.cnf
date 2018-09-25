@@ -1195,6 +1195,31 @@ M-TMSI TYPE = FT_UINT32 DISPLAY = BASE_DEC_HEX
 #.TYPE_ATTR
 Packet-LossRate DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(s1ap_Packet_LossRate_fmt)
 
+#.TYPE_ATTR
+BluetoothName TYPE=FT_STRING DISPLAY = STR_UNICODE
+#.FN_BODY BluetoothName VAL_PTR = &parameter_tvb HF_INDEX = -1
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, -1, ENC_UTF_8|ENC_NA);
+#.END
+
+#.TYPE_ATTR
+WLANName TYPE=FT_STRING DISPLAY = STR_UNICODE
+#.FN_BODY WLANName VAL_PTR = &parameter_tvb HF_INDEX = -1
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, -1, ENC_UTF_8|ENC_NA);
+#.END
+
+#.TYPE_ATTR
+Subscription-Based-UE-DifferentiationInfo/periodicTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+
+#.TYPE_ATTR
+ScheduledCommunicationTime/timeofDayStart DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+
+#.TYPE_ATTR
+ScheduledCommunicationTime/timeofDayEnd DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+
 #.ASSIGN_VALUE_TO_TYPE  # S1AP does not have constants assigned to types, they are pure INTEGER
 # ProcedureCode
 
@@ -1505,7 +1530,7 @@ id-extended-e-RAB-GuaranteedBitrateDL               ProtocolIE-ID
 id-extended-e-RAB-GuaranteedBitrateUL               ProtocolIE-ID
 id-extended-uEaggregateMaximumBitRateDL             ProtocolIE-ID
 id-extended-uEaggregateMaximumBitRateUL             ProtocolIE-ID
-id-NRrestriction                                    ProtocolIE-ID
+id-NRrestrictioninEPSasSecondaryRAT                 ProtocolIE-ID
 id-UEAppLayerMeasConfig                             ProtocolIE-ID
 id-UE-Application-Layer-Measurement-Capability      ProtocolIE-ID
 id-SecondaryRATDataUsageReportList                  ProtocolIE-ID
@@ -1522,9 +1547,15 @@ id-UplinkPacketLossRate	                            ProtocolIE-ID
 id-UECapabilityInfoRequest                          ProtocolIE-ID
 id-serviceType                                      ProtocolIE-ID
 id-AerialUEsubscriptionInformation                  ProtocolIE-ID
+id-Subscription-Based-UE-DifferentiationInfo        ProtocolIE-ID
 id-EndIndication                                    ProtocolIE-ID
 id-EDT-Session                                      ProtocolIE-ID
 id-CNTypeRestrictions                               ProtocolIE-ID
+id-PendingDataIndication                            ProtocolIE-ID
+id-BluetoothMeasurementConfiguration                ProtocolIE-ID
+id-WLANMeasurementConfiguration                     ProtocolIE-ID
+id-WarningAreaCoordinates                           ProtocolIE-ID
+id-NRrestrictionin5GS                               ProtocolIE-ID
 
 #.END
 
@@ -1745,6 +1776,9 @@ UECapabilityInfoRequest                         N s1ap.ies id-UECapabilityInfoRe
 EndIndication                                   N s1ap.ies id-EndIndication
 EDT-Session                                     N s1ap.ies id-EDT-Session
 LTE-M-Indication                                N s1ap.ies id-LTE-M-Indication
+Subscription-Based-UE-DifferentiationInfo       N s1ap.ies id-Subscription-Based-UE-DifferentiationInfo
+PendingDataIndication                           N s1ap.ies id-PendingDataIndication
+WarningAreaCoordinates                          N s1ap.ies id-WarningAreaCoordinates
 
 #S1AP-PROTOCOL-IES-PAIR
 #RAB-SetupOrModifyItemFirst             N s1ap.ies.pair.first id-RAB-SetupOrModifyItem
@@ -1790,7 +1824,7 @@ ExtendedBitRate                         N s1ap.extension id-extended-e-RAB-Maxim
 ExtendedBitRate                         N s1ap.extension id-extended-e-RAB-MaximumBitrateUL
 ExtendedBitRate                         N s1ap.extension id-extended-e-RAB-GuaranteedBitrateDL
 ExtendedBitRate                         N s1ap.extension id-extended-e-RAB-GuaranteedBitrateUL
-NRrestriction                           N s1ap.extension id-NRrestriction
+NRrestrictioninEPSasSecondaryRAT        N s1ap.extension id-NRrestrictioninEPSasSecondaryRAT
 UEAppLayerMeasConfig                    N s1ap.extension id-UEAppLayerMeasConfig
 ExtendedBitRate                         N s1ap.extension id-extended-uEaggregateMaximumBitRateDL
 ExtendedBitRate                         N s1ap.extension id-extended-uEaggregateMaximumBitRateUL
@@ -1799,6 +1833,10 @@ CNTypeRestrictions                      N s1ap.extension id-CNTypeRestrictions
 Packet-LossRate                         N s1ap.extension id-DownlinkPacketLossRate
 Packet-LossRate                         N s1ap.extension id-UplinkPacketLossRate
 ServiceType                             N s1ap.extension id-serviceType
+CNTypeRestrictions                      N s1ap.extension id-CNTypeRestrictions
+BluetoothMeasurementConfiguration       N s1ap.extension id-BluetoothMeasurementConfiguration
+WLANMeasurementConfiguration            N s1ap.extension id-WLANMeasurementConfiguration
+NRrestrictionin5GS                      N s1ap.extension id-NRrestrictionin5GS
 
 #S1AP-ELEMENTARY-PROCEDURE
 HandoverRequired                        N s1ap.proc.imsg id-HandoverPreparation

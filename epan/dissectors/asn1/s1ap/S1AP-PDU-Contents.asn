@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V15.2.0 (2018-06)
+-- 3GPP TS 36.413 V15.3.0 (2018-09)
 -- 9.3.3	PDU Definitions
 -- **************************************************************
 --
@@ -177,7 +177,10 @@ IMPORTS
 	EndIndication,
 	EDT-Session,
 	LTE-M-Indication,
-	AerialUEsubscriptionInformation
+	AerialUEsubscriptionInformation,
+	PendingDataIndication,
+	WarningAreaCoordinates,
+	Subscription-Based-UE-DifferentiationInfo
 
 
 
@@ -425,7 +428,10 @@ FROM S1AP-Containers
 	id-UECapabilityInfoRequest,
 	id-EndIndication,
 	id-EDT-Session,
-	id-LTE-M-Indication
+	id-LTE-M-Indication,
+	id-PendingDataIndication,
+	id-WarningAreaCoordinates,
+	id-Subscription-Based-UE-DifferentiationInfo
 
 
 
@@ -591,7 +597,9 @@ HandoverRequestIEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-EnhancedCoverageRestricted				CRITICALITY ignore	TYPE EnhancedCoverageRestricted			PRESENCE optional}|
 	{ ID id-NRUESecurityCapabilities				CRITICALITY ignore	TYPE NRUESecurityCapabilities			PRESENCE optional}|
 	{ ID id-CE-ModeBRestricted						CRITICALITY ignore	TYPE CE-ModeBRestricted					PRESENCE optional}|
-	{ ID id-AerialUEsubscriptionInformation			CRITICALITY ignore	TYPE AerialUEsubscriptionInformation				PRESENCE optional},
+	{ ID id-AerialUEsubscriptionInformation			CRITICALITY ignore	TYPE AerialUEsubscriptionInformation				PRESENCE optional}|
+	{ ID id-PendingDataIndication					CRITICALITY ignore	TYPE PendingDataIndication			PRESENCE optional}|
+	{ ID id-Subscription-Based-UE-DifferentiationInfo		CRITICALITY ignore	TYPE Subscription-Based-UE-DifferentiationInfo		PRESENCE optional},
 	...
 }
 
@@ -812,7 +820,9 @@ PathSwitchRequestAcknowledgeIEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-EnhancedCoverageRestricted		CRITICALITY ignore	TYPE EnhancedCoverageRestricted			PRESENCE optional}|
 	{ ID id-NRUESecurityCapabilities				CRITICALITY ignore	TYPE NRUESecurityCapabilities			PRESENCE optional}|
 	{ ID id-CE-ModeBRestricted				CRITICALITY ignore	TYPE CE-ModeBRestricted			PRESENCE optional}|
-	{ ID id-AerialUEsubscriptionInformation			CRITICALITY ignore	TYPE AerialUEsubscriptionInformation				PRESENCE optional},
+	{ ID id-AerialUEsubscriptionInformation			CRITICALITY ignore	TYPE AerialUEsubscriptionInformation				PRESENCE optional}|
+	{ ID id-PendingDataIndication			CRITICALITY ignore	TYPE PendingDataIndication				PRESENCE optional}|
+	{ ID id-Subscription-Based-UE-DifferentiationInfo		CRITICALITY ignore	TYPE Subscription-Based-UE-DifferentiationInfo		PRESENCE optional},
 	...
 }
 
@@ -1226,7 +1236,9 @@ InitialContextSetupRequestIEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-EnhancedCoverageRestricted		CRITICALITY ignore	TYPE EnhancedCoverageRestricted			PRESENCE optional}|
 	{ ID id-NRUESecurityCapabilities				CRITICALITY ignore	TYPE NRUESecurityCapabilities			PRESENCE optional}|
 	{ ID id-CE-ModeBRestricted				CRITICALITY ignore	TYPE CE-ModeBRestricted			PRESENCE optional}|
-	{ ID id-AerialUEsubscriptionInformation	CRITICALITY ignore	TYPE AerialUEsubscriptionInformation				PRESENCE optional},
+	{ ID id-AerialUEsubscriptionInformation	CRITICALITY ignore	TYPE AerialUEsubscriptionInformation				PRESENCE optional}|
+	{ ID id-PendingDataIndication			CRITICALITY ignore	TYPE PendingDataIndication				PRESENCE optional}|
+	{ ID id-Subscription-Based-UE-DifferentiationInfo		CRITICALITY ignore	TYPE Subscription-Based-UE-DifferentiationInfo		PRESENCE optional},
 	...
 }
 
@@ -1591,7 +1603,9 @@ DownlinkNASTransport-IEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-NRUESecurityCapabilities	CRITICALITY ignore	TYPE NRUESecurityCapabilities		PRESENCE optional}|
 	{ ID id-CE-ModeBRestricted			CRITICALITY ignore	TYPE CE-ModeBRestricted				PRESENCE optional}|
 	{ ID id-UECapabilityInfoRequest		CRITICALITY ignore	TYPE UECapabilityInfoRequest	PRESENCE optional}|
-	{ ID id-EndIndication				CRITICALITY ignore	TYPE EndIndication					PRESENCE optional},
+	{ ID id-EndIndication				CRITICALITY ignore	TYPE EndIndication					PRESENCE optional}|
+	{ ID id-PendingDataIndication		CRITICALITY ignore	TYPE PendingDataIndication			PRESENCE optional}|
+	{ ID id-Subscription-Based-UE-DifferentiationInfo		CRITICALITY ignore	TYPE Subscription-Based-UE-DifferentiationInfo		PRESENCE optional},
 	...
 }
 
@@ -2363,7 +2377,8 @@ WriteReplaceWarningRequestIEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-WarningSecurityInfo					CRITICALITY ignore	TYPE WarningSecurityInfo				PRESENCE optional	}|
 	{ ID id-DataCodingScheme					CRITICALITY ignore	TYPE DataCodingScheme					PRESENCE optional	}|
 	{ ID id-WarningMessageContents				CRITICALITY ignore	TYPE WarningMessageContents				PRESENCE optional	}|
-	{ ID id-ConcurrentWarningMessageIndicator	CRITICALITY reject	TYPE ConcurrentWarningMessageIndicator	PRESENCE optional	},
+	{ ID id-ConcurrentWarningMessageIndicator	CRITICALITY reject	TYPE ConcurrentWarningMessageIndicator	PRESENCE optional	}|
+	{ ID id-WarningAreaCoordinates				CRITICALITY ignore	TYPE WarningAreaCoordinates				PRESENCE optional	},
 	...
 }
 -- **************************************************************
@@ -2933,7 +2948,8 @@ UEContextResumeResponseIEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-eNB-UE-S1AP-ID						CRITICALITY ignore	TYPE ENB-UE-S1AP-ID							PRESENCE mandatory}|
 	{ ID id-E-RABFailedToResumeListResumeRes	CRITICALITY reject	TYPE E-RABFailedToResumeListResumeRes		PRESENCE optional}|
 	{ ID id-CriticalityDiagnostics				CRITICALITY ignore	TYPE CriticalityDiagnostics					PRESENCE optional}|
-	{ ID id-SecurityContext						CRITICALITY reject	TYPE SecurityContext						PRESENCE optional},
+	{ ID id-SecurityContext						CRITICALITY reject	TYPE SecurityContext						PRESENCE optional}|
+	{ ID id-PendingDataIndication				CRITICALITY ignore	TYPE PendingDataIndication					PRESENCE optional},
 	...
 }
 
@@ -2992,7 +3008,8 @@ ConnectionEstablishmentIndicationIEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-EnhancedCoverageRestricted	CRITICALITY ignore	TYPE EnhancedCoverageRestricted	PRESENCE optional }|
 	{ ID id-DL-CP-SecurityInformation	CRITICALITY ignore	TYPE DL-CP-SecurityInformation	PRESENCE optional }|
 	{ ID id-CE-ModeBRestricted			CRITICALITY ignore	TYPE CE-ModeBRestricted			PRESENCE optional}|
-	{ ID id-EndIndication				CRITICALITY ignore	TYPE EndIndication				PRESENCE optional},
+	{ ID id-EndIndication				CRITICALITY ignore	TYPE EndIndication				PRESENCE optional}|
+	{ ID id-Subscription-Based-UE-DifferentiationInfo		CRITICALITY ignore	TYPE Subscription-Based-UE-DifferentiationInfo		PRESENCE optional},
 	...
 }
 
@@ -3027,7 +3044,8 @@ UEInformationTransfer ::= SEQUENCE {
 UEInformationTransferIEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-S-TMSI						CRITICALITY reject 	TYPE S-TMSI						PRESENCE mandatory}|
 	{ ID id-UE-Level-QoS-Parameters		CRITICALITY ignore	TYPE E-RABLevelQoSParameters	PRESENCE optional}|
-	{ ID id-UERadioCapability			CRITICALITY ignore	TYPE UERadioCapability			PRESENCE optional},
+	{ ID id-UERadioCapability			CRITICALITY ignore	TYPE UERadioCapability			PRESENCE optional}|
+	{ ID id-Subscription-Based-UE-DifferentiationInfo		CRITICALITY ignore	TYPE Subscription-Based-UE-DifferentiationInfo		PRESENCE optional},
 	...
 }
 
@@ -3085,7 +3103,7 @@ SecondaryRATDataUsageReport ::= SEQUENCE {
 SecondaryRATDataUsageReportIEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-MME-UE-S1AP-ID							CRITICALITY ignore	TYPE MME-UE-S1AP-ID				PRESENCE mandatory}|
 	{ ID id-eNB-UE-S1AP-ID						CRITICALITY ignore	TYPE ENB-UE-S1AP-ID				PRESENCE mandatory}|
-	{ ID id-SecondaryRATDataUsageReportList			CRITICALITY ignore	TYPE SecondaryRATDataUsageReportList	PRESENCE optional}|
+	{ ID id-SecondaryRATDataUsageReportList			CRITICALITY ignore	TYPE SecondaryRATDataUsageReportList	PRESENCE mandatory}|
 	{ ID id-HandoverFlag							CRITICALITY ignore	TYPE HandoverFlag					PRESENCE optional},
 	...
 }

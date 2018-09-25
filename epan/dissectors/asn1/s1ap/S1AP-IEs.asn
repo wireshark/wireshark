@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V15.1.0 (2018-03)
+-- 3GPP TS 36.413 V15.3.0 (2018-09)
 -- 9.3.4	Information Element Definitions
 -- **************************************************************
 --
@@ -36,7 +36,8 @@ IMPORTS
 	id-eNBIndirectX2TransportLayerAddresses,
 	id-Muting-Availability-Indication,
 	id-Muting-Pattern-Information,
-	id-NRrestriction,
+	id-NRrestrictioninEPSasSecondaryRAT,
+	id-NRrestrictionin5GS,
 	id-Synchronisation-Information,
 	id-uE-HistoryInformationFromTheUE,
 	id-LoggedMBSFNMDT,
@@ -63,6 +64,8 @@ IMPORTS
 	id-UnlicensedSpectrumRestriction, 
 	id-CNTypeRestrictions,	id-DownlinkPacketLossRate,
 	id-UplinkPacketLossRate,
+	id-BluetoothMeasurementConfiguration,
+	id-WLANMeasurementConfiguration,
 	maxnoofCSGs,
 	maxnoofE-RABs,
 	maxnoofErrors,
@@ -73,7 +76,7 @@ IMPORTS
 	maxnoofEPLMNsPlusOne,
 	maxnoofForbLACs,
 	maxnoofForbTACs,
-	maxnoofCells,
+	maxnoofCellsinUEHistoryInfo,
 	maxnoofCellID,
 	maxnoofDCNs,
 	maxnoofEmergencyAreaID,
@@ -100,7 +103,10 @@ IMPORTS
 	maxnooftimeperiods,
 	maxnoofCellIDforQMC,
 	maxnoofTAforQMC,
-	maxnoofPLMNforQMC
+	maxnoofPLMNforQMC,
+	maxnoofBluetoothName,
+	maxnoofWLANName
+
 
 
 
@@ -233,6 +239,24 @@ BearerType ::= ENUMERATED {
 }
 
 BitRate	::= INTEGER (0..10000000000) 
+
+BluetoothMeasurementConfiguration ::= SEQUENCE {
+	bluetoothMeasConfig             BluetoothMeasConfig,
+	bluetoothMeasConfigNameList		BluetoothMeasConfigNameList     OPTIONAL,
+	bt-rssi                         ENUMERATED {true, ...}          OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { { BluetoothMeasurementConfiguration-ExtIEs } } OPTIONAL,
+	...
+}
+
+BluetoothMeasurementConfiguration-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+BluetoothMeasConfigNameList ::= SEQUENCE (SIZE(1..maxnoofBluetoothName)) OF BluetoothName
+
+BluetoothMeasConfig::= ENUMERATED {setup,...}
+
+BluetoothName ::= OCTET STRING (SIZE (1..248))
 
 BPLMNs ::= SEQUENCE (SIZE(1.. maxnoofBPLMNs)) OF PLMNidentity
 
@@ -1080,9 +1104,10 @@ HandoverRestrictionList ::= SEQUENCE {
 }
 
 HandoverRestrictionList-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
-	{ ID id-NRrestriction		CRITICALITY ignore	EXTENSION NRrestriction	PRESENCE optional}|
+	{ ID id-NRrestrictioninEPSasSecondaryRAT		CRITICALITY ignore	EXTENSION NRrestrictioninEPSasSecondaryRAT		PRESENCE optional}|
 	{ ID id-UnlicensedSpectrumRestriction		CRITICALITY ignore	EXTENSION UnlicensedSpectrumRestriction	PRESENCE optional}|
-	{ ID id-CNTypeRestrictions		CRITICALITY ignore	EXTENSION CNTypeRestrictions	PRESENCE optional},
+	{ ID id-CNTypeRestrictions		CRITICALITY ignore	EXTENSION CNTypeRestrictions	PRESENCE optional}|
+	{ ID id-NRrestrictionin5GS		CRITICALITY ignore	EXTENSION NRrestrictionin5GS 	PRESENCE optional},
 	...
 }
 
@@ -1123,7 +1148,9 @@ ImmediateMDT-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 	{ ID id-M5Configuration		CRITICALITY ignore	EXTENSION M5Configuration		PRESENCE conditional}|
 	{ ID id-MDT-Location-Info	CRITICALITY ignore	EXTENSION MDT-Location-Info		PRESENCE optional}|
 	{ ID id-M6Configuration		CRITICALITY ignore	EXTENSION M6Configuration		PRESENCE conditional}|
-	{ ID id-M7Configuration		CRITICALITY ignore	EXTENSION M7Configuration		PRESENCE conditional},
+	{ ID id-M7Configuration		CRITICALITY ignore	EXTENSION M7Configuration		PRESENCE conditional}|
+	{ ID id-BluetoothMeasurementConfiguration		CRITICALITY ignore	EXTENSION BluetoothMeasurementConfiguration		PRESENCE optional}|
+	{ ID id-WLANMeasurementConfiguration		CRITICALITY ignore	EXTENSION WLANMeasurementConfiguration		PRESENCE optional},
 	...
 }
 
@@ -1173,7 +1200,8 @@ LastVisitedCell-Item ::= CHOICE {
 	e-UTRAN-Cell					LastVisitedEUTRANCellInformation,
 	uTRAN-Cell						LastVisitedUTRANCellInformation,
 	gERAN-Cell						LastVisitedGERANCellInformation,
-	...
+	...,
+	nG-RAN-Cell						LastVisitedNGRANCellInformation
 }
 LastVisitedEUTRANCellInformation ::= SEQUENCE {
 	global-Cell-ID					EUTRAN-CGI,
@@ -1188,6 +1216,9 @@ LastVisitedEUTRANCellInformation-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 	{ ID id-HO-Cause									CRITICALITY ignore	EXTENSION Cause							PRESENCE optional},
 	...
 }
+
+LastVisitedNGRANCellInformation	::= OCTET STRING
+
 LastVisitedUTRANCellInformation	::= OCTET STRING
 
 LastVisitedGERANCellInformation ::= CHOICE {
@@ -1223,6 +1254,8 @@ LoggedMDT ::= SEQUENCE {
 }
 
 LoggedMDT-ExtIEs	S1AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-BluetoothMeasurementConfiguration		CRITICALITY ignore	EXTENSION BluetoothMeasurementConfiguration		PRESENCE optional}|
+	{ ID id-WLANMeasurementConfiguration			CRITICALITY ignore	EXTENSION WLANMeasurementConfiguration				PRESENCE optional},
 ...
 }
 
@@ -1464,8 +1497,13 @@ NextPagingAreaScope ::= ENUMERATED {
 NRencryptionAlgorithms ::= BIT STRING (SIZE (16,...))
 NRintegrityProtectionAlgorithms ::= BIT STRING (SIZE (16,...))
 
-NRrestriction ::= ENUMERATED {
-	nRrestricted,
+NRrestrictioninEPSasSecondaryRAT ::= ENUMERATED {
+	nRrestrictedinEPSasSecondaryRAT,
+	...
+}
+
+NRrestrictionin5GS ::= ENUMERATED {
+	nRrestrictedin5GS,
 	...
 }
 
@@ -1564,6 +1602,11 @@ PDCP-SN ::= INTEGER (0..4095)
 PDCP-SNExtended ::= INTEGER (0..32767)
 
 PDCP-SNlength18 ::= INTEGER (0..262143)
+
+PendingDataIndication ::= ENUMERATED {
+	true,
+	...
+}
 
 M1PeriodicReporting ::= SEQUENCE { 
 	reportInterval				ReportIntervalMDT,
@@ -2006,6 +2049,33 @@ ServedPLMNs ::= SEQUENCE (SIZE(1.. maxnoofPLMNsPerMME)) OF PLMNidentity
 
 SubscriberProfileIDforRFP ::= INTEGER (1..256) 
 
+Subscription-Based-UE-DifferentiationInfo ::= SEQUENCE {
+	periodicCommunicationIndicator	ENUMERATED {periodically, ondemand, ...} 	OPTIONAL,
+	periodicTime						INTEGER (1..3600, ...) 						OPTIONAL,
+	scheduledCommunicationTime		ScheduledCommunicationTime 					OPTIONAL,
+	stationaryIndication				ENUMERATED {stationary, mobile, ...}			OPTIONAL,
+	trafficProfile 					ENUMERATED {single-packet, dual-packets, multiple-packets, ...} 			OPTIONAL,
+	batteryIndication				ENUMERATED {battery-powered, battery-powered-not-rechargeable-or-replaceable, not-battery-powered, ...}		OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { { Subscription-Based-UE-DifferentiationInfo-ExtIEs} } OPTIONAL,
+	...
+}
+
+Subscription-Based-UE-DifferentiationInfo-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+ScheduledCommunicationTime ::= SEQUENCE {
+	dayofWeek				BIT STRING (SIZE(7))									OPTIONAL,
+	timeofDayStart			INTEGER (0..86399, ...) 								OPTIONAL,
+	timeofDayEnd				INTEGER (0..86399, ...) 								OPTIONAL,
+	iE-Extensions			ProtocolExtensionContainer { { ScheduledCommunicationTime-ExtIEs}}	OPTIONAL,
+	...
+}
+
+ScheduledCommunicationTime-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 SupportedTAs ::= SEQUENCE (SIZE(1.. maxnoofTACs)) OF SupportedTAs-Item
 
 SupportedTAs-Item ::=	SEQUENCE  {
@@ -2158,9 +2228,8 @@ TargetID ::= CHOICE {
 	targeteNB-ID		TargeteNB-ID,
 	targetRNC-ID		TargetRNC-ID,
 	cGI					CGI,
-	targetgNgRanNode-ID		TargetNgRanNode-ID,
-
-	...
+	...,
+	targetgNgRanNode-ID		TargetNgRanNode-ID
 }
 
 TargeteNB-ID ::= SEQUENCE {
@@ -2412,7 +2481,7 @@ UE-associatedLogicalS1-ConnectionItemExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 
 UEIdentityIndexValue	::=	BIT STRING (SIZE (10))
 
-UE-HistoryInformation ::= SEQUENCE (SIZE(1..maxnoofCells)) OF LastVisitedCell-Item
+UE-HistoryInformation ::= SEQUENCE (SIZE(1..maxnoofCellsinUEHistoryInfo)) OF LastVisitedCell-Item
 
 UE-HistoryInformationFromTheUE ::= OCTET STRING
 -- This IE is a transparent container and shall be encoded as the VisitedCellInfoList field contained in the UEInformationResponse message as defined in TS 36.331 [16]
@@ -2533,6 +2602,8 @@ PedestrianUE ::= ENUMERATED {
 
 -- W
 
+WarningAreaCoordinates ::= OCTET STRING (SIZE(1..1024))
+
 WarningAreaList ::= CHOICE {
 	cellIDList						ECGIList,
 	trackingAreaListforWarning		TAIListforWarning,
@@ -2548,6 +2619,24 @@ WarningSecurityInfo ::= OCTET STRING (SIZE (50))
 
 WarningMessageContents ::= OCTET STRING (SIZE(1..9600))
 
+WLANMeasurementConfiguration ::= SEQUENCE {
+	wlanMeasConfig             WLANMeasConfig,
+	wlanMeasConfigNameList		WLANMeasConfigNameList            OPTIONAL,
+	wlan-rssi                  ENUMERATED {true, ...}            OPTIONAL,
+	wlan-rtt                   ENUMERATED {true, ...}            OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { { WLANMeasurementConfiguration-ExtIEs } } OPTIONAL,
+	...
+}
+
+WLANMeasurementConfiguration-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+WLANMeasConfigNameList ::= SEQUENCE (SIZE(1..maxnoofWLANName)) OF WLANName
+
+WLANMeasConfig::= ENUMERATED {setup,...}
+
+WLANName ::= OCTET STRING (SIZE (1..32))   
 
 -- X
 

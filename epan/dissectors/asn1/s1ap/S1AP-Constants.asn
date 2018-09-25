@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V15.2.0 (2018-06)
+-- 3GPP TS 36.413 V15.3.0 (2018-09)
 -- 9.3.6	Constant Definitions
 -- **************************************************************
 --
@@ -124,7 +124,7 @@ maxnoofEPLMNsPlusOne					INTEGER ::= 16
 maxnoofForbLACs							INTEGER ::= 4096
 maxnoofForbTACs							INTEGER ::= 4096
 maxnoofIndividualS1ConnectionsToReset	INTEGER ::= 256
-maxnoofCells							INTEGER ::= 16
+maxnoofCellsinUEHistoryInfo				INTEGER ::= 16
 maxnoofCellsineNB						INTEGER ::= 256
 maxnoofTAIforWarning					INTEGER ::= 65535 
 maxnoofCellID							INTEGER ::= 65535 
@@ -152,6 +152,8 @@ maxnooftimeperiods						INTEGER ::= 2
 maxnoofCellIDforQMC						INTEGER ::= 32
 maxnoofTAforQMC							INTEGER ::= 8
 maxnoofPLMNforQMC						INTEGER ::= 16
+maxnoofBluetoothName					INTEGER ::= 4
+maxnoofWLANName							INTEGER ::= 4
 
 
 
@@ -434,7 +436,7 @@ id-extended-e-RAB-GuaranteedBitrateDL				ProtocolIE-ID ::= 257
 id-extended-e-RAB-GuaranteedBitrateUL				ProtocolIE-ID ::= 258
 id-extended-uEaggregateMaximumBitRateDL				ProtocolIE-ID ::= 259
 id-extended-uEaggregateMaximumBitRateUL				ProtocolIE-ID ::= 260
-id-NRrestriction									ProtocolIE-ID ::= 261
+id-NRrestrictioninEPSasSecondaryRAT					ProtocolIE-ID ::= 261
 id-UEAppLayerMeasConfig								ProtocolIE-ID ::= 262
 id-UE-Application-Layer-Measurement-Capability		ProtocolIE-ID ::= 263
 id-SecondaryRATDataUsageReportList					ProtocolIE-ID ::= 264
@@ -451,11 +453,16 @@ id-UplinkPacketLossRate								ProtocolIE-ID ::= 274
 id-UECapabilityInfoRequest							ProtocolIE-ID ::= 275
 id-serviceType										ProtocolIE-ID ::= 276
 id-AerialUEsubscriptionInformation					ProtocolIE-ID ::= 277
+id-Subscription-Based-UE-DifferentiationInfo		ProtocolIE-ID ::= 278
 --WS extension
-id-Unknown-278										ProtocolIE-ID ::= 278
 id-Unknown-279										ProtocolIE-ID ::= 279
-id-EndIndication										ProtocolIE-ID ::=  280 
+id-EndIndication									ProtocolIE-ID ::= 280
 id-EDT-Session										ProtocolIE-ID ::= 281
 id-CNTypeRestrictions								ProtocolIE-ID ::= 282
+id-PendingDataIndication							ProtocolIE-ID ::= 283
+id-BluetoothMeasurementConfiguration				ProtocolIE-ID ::= 284
+id-WLANMeasurementConfiguration						ProtocolIE-ID ::= 285
+id-WarningAreaCoordinates							ProtocolIE-ID ::= 286
+id-NRrestrictionin5GS								ProtocolIE-ID ::= 287
 
 END
