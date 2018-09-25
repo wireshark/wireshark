@@ -32,8 +32,7 @@
 extern guint wtap_max_snaplen_for_encap(int wtap_encap);
 
 extern int pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
-    guint packet_size, gboolean check_packet_size,
-    struct wtap_pkthdr *phdr, int *err, gchar **err_info);
+    guint packet_size, struct wtap_pkthdr *phdr, int *err, gchar **err_info);
 
 extern void pcap_read_post_process(int file_type, int wtap_encap,
     struct wtap_pkthdr *phdr, guint8 *pd, gboolean bytes_swapped, int fcs_len);
