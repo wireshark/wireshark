@@ -751,7 +751,7 @@ libpcap_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 	}
 
 	phdr_len = pcap_process_pseudo_header(fh, wth->file_type_subtype,
-	    wth->file_encap, packet_size, TRUE, rec, err, err_info);
+	    wth->file_encap, packet_size, rec, err, err_info);
 	if (phdr_len < 0)
 		return FALSE;	/* error */
 

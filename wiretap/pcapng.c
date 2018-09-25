@@ -1222,7 +1222,6 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
                                                    WTAP_FILE_TYPE_SUBTYPE_PCAPNG,
                                                    iface_info.wtap_encap,
                                                    packet.cap_len,
-                                                   TRUE,
                                                    wblock->rec,
                                                    err,
                                                    err_info);
@@ -1510,7 +1509,6 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
                                                    WTAP_FILE_TYPE_SUBTYPE_PCAPNG,
                                                    iface_info.wtap_encap,
                                                    simple_packet.cap_len,
-                                                   TRUE,
                                                    wblock->rec,
                                                    err,
                                                    err_info);
