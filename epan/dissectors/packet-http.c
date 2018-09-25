@@ -135,7 +135,7 @@ static expert_field ei_http_chat = EI_INIT;
 static expert_field ei_http_te_and_length = EI_INIT;
 static expert_field ei_http_te_unknown = EI_INIT;
 static expert_field ei_http_subdissector_failed = EI_INIT;
-static expert_field ei_http_ssl_port = EI_INIT;
+static expert_field ei_http_tls_port = EI_INIT;
 static expert_field ei_http_leading_crlf = EI_INIT;
 static expert_field ei_http_bad_header_name = EI_INIT;
 
@@ -253,21 +253,21 @@ static gboolean http_decompress_body = FALSE;
 #define UDP_PORT_SSDP			1900
 
 /*
- * tcp and ssl ports
+ * TCP and TLS ports
  *
  * 2710 is the XBT BitTorrent tracker
  */
 
 #define TCP_DEFAULT_RANGE "80,3128,3132,5985,8080,8088,11371,1900,2869,2710"
 #define SCTP_DEFAULT_RANGE "80"
-#define SSL_DEFAULT_RANGE "443"
+#define TLS_DEFAULT_RANGE "443"
 
 static range_t *global_http_sctp_range = NULL;
-static range_t *global_http_ssl_range = NULL;
+static range_t *global_http_tls_range = NULL;
 
 static range_t *http_tcp_range = NULL;
 static range_t *http_sctp_range = NULL;
-static range_t *http_ssl_range = NULL;
+static range_t *http_tls_range = NULL;
 
 typedef void (*ReqRespDissector)(tvbuff_t*, proto_tree*, int, const guchar*,
 				 const guchar*, http_conv_t *);
@@ -1040,7 +1040,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	const guchar	*linep, *lineend;
 	int		orig_offset;
 	int		first_linelen, linelen;
-	gboolean	is_request_or_reply, is_ssl = FALSE;
+	gboolean	is_request_or_reply, is_tls = FALSE;
 	gboolean	saw_req_resp_or_header;
 	http_type_t     http_type;
 	proto_item	*hdr_item = NULL;
@@ -1194,7 +1194,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 	}
 
-	is_ssl = proto_is_frame_protocol(pinfo->layers, "ssl");
+	is_tls = proto_is_frame_protocol(pinfo->layers, "tls");
 
 	stat_info = wmem_new(wmem_packet_scope(), http_info_value_t);
 	stat_info->framenum = pinfo->num;
@@ -1320,9 +1320,9 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			}
 		}
 
-		if (first_loop && !is_ssl && pinfo->ptype == PT_TCP &&
+		if (first_loop && !is_tls && pinfo->ptype == PT_TCP &&
 				(pinfo->srcport == 443 || pinfo->destport == 443)) {
-			expert_add_info(pinfo, ti, &ei_http_ssl_port);
+			expert_add_info(pinfo, ti, &ei_http_tls_port);
 		}
 
 		first_loop = FALSE;
@@ -1379,7 +1379,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 		else {
 			uri = wmem_strdup_printf(wmem_packet_scope(), "%s://%s%s",
-				    is_ssl ? "https" : "http",
+				    is_tls ? "https" : "http",
 				    g_strstrip(wmem_strdup(wmem_packet_scope(), stat_info->http_host)), stat_info->request_uri);
 		}
 		stat_info->full_uri = wmem_strdup(wmem_packet_scope(), uri);
@@ -3576,7 +3576,7 @@ dissect_http_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 }
 
 static int
-dissect_http_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_http_tls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	conversation_t *conversation;
 	http_conv_t *conv_data;
@@ -3633,12 +3633,12 @@ dissect_ssdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 }
 
 static void
-range_delete_http_ssl_callback(guint32 port, gpointer ptr _U_) {
+range_delete_http_tls_callback(guint32 port, gpointer ptr _U_) {
 	ssl_dissector_delete(port, http_tls_handle);
 }
 
 static void
-range_add_http_ssl_callback(guint32 port, gpointer ptr _U_) {
+range_add_http_tls_callback(guint32 port, gpointer ptr _U_) {
 	ssl_dissector_add(port, http_tls_handle);
 }
 
@@ -3650,10 +3650,10 @@ static void reinit_http(void) {
 	http_sctp_range = range_copy(wmem_epan_scope(), global_http_sctp_range);
 	dissector_add_uint_range("sctp.port", http_sctp_range, http_sctp_handle);
 
-	range_foreach(http_ssl_range, range_delete_http_ssl_callback, NULL);
-	wmem_free(wmem_epan_scope(), http_ssl_range);
-	http_ssl_range = range_copy(wmem_epan_scope(), global_http_ssl_range);
-	range_foreach(http_ssl_range, range_add_http_ssl_callback, NULL);
+	range_foreach(http_tls_range, range_delete_http_tls_callback, NULL);
+	wmem_free(wmem_epan_scope(), http_tls_range);
+	http_tls_range = range_copy(wmem_epan_scope(), global_http_tls_range);
+	range_foreach(http_tls_range, range_add_http_tls_callback, NULL);
 }
 
 void
@@ -3948,7 +3948,7 @@ proto_register_http(void)
 		{ &ei_http_te_and_length, { "http.te_and_length", PI_MALFORMED, PI_WARN, "The Content-Length and Transfer-Encoding header must not be set together", EXPFILL }},
 		{ &ei_http_te_unknown, { "http.te_unknown", PI_UNDECODED, PI_WARN, "Unknown transfer coding name in Transfer-Encoding header", EXPFILL }},
 		{ &ei_http_subdissector_failed, { "http.subdissector_failed", PI_MALFORMED, PI_NOTE, "HTTP body subdissector failed, trying heuristic subdissector", EXPFILL }},
-		{ &ei_http_ssl_port, { "http.ssl_port", PI_SECURITY, PI_WARN, "Unencrypted HTTP protocol detected over encrypted port, could indicate a dangerous misconfiguration.", EXPFILL }},
+		{ &ei_http_tls_port, { "http.tls_port", PI_SECURITY, PI_WARN, "Unencrypted HTTP protocol detected over encrypted port, could indicate a dangerous misconfiguration.", EXPFILL }},
 		{ &ei_http_leading_crlf, { "http.leading_crlf", PI_MALFORMED, PI_ERROR, "Leading CRLF previous message in the stream may have extra CRLF", EXPFILL }},
 		{ &ei_http_bad_header_name, { "http.bad_header_name", PI_PROTOCOL, PI_WARN, "Illegal characters found in header name", EXPFILL }},
 	};
@@ -3974,7 +3974,7 @@ proto_register_http(void)
 
 	http_handle = register_dissector("http", dissect_http, proto_http);
 	http_tcp_handle = register_dissector("http-over-tcp", dissect_http_tcp, proto_http);
-	http_tls_handle = register_dissector("http-over-tls", dissect_http_ssl, proto_http); /* RFC 2818 */
+	http_tls_handle = register_dissector("http-over-tls", dissect_http_tls, proto_http); /* RFC 2818 */
 	http_sctp_handle = register_dissector("http-over-sctp", dissect_http_sctp, proto_http);
 
 	http_module = prefs_register_protocol(proto_http, reinit_http);
@@ -4013,10 +4013,10 @@ proto_register_http(void)
 					"SCTP Ports range",
 					&global_http_sctp_range, 65535);
 
-	range_convert_str(wmem_epan_scope(), &global_http_ssl_range, SSL_DEFAULT_RANGE, 65535);
+	range_convert_str(wmem_epan_scope(), &global_http_tls_range, TLS_DEFAULT_RANGE, 65535);
 	prefs_register_range_preference(http_module, "tls.port", "SSL/TLS Ports",
 					"SSL/TLS Ports range",
-					&global_http_ssl_range, 65535);
+					&global_http_tls_range, 65535);
 	prefs_register_obsolete_preference(http_module, "ssl.port");
 	/* UAT */
 	headers_uat = uat_new("Custom HTTP Header Fields",
@@ -4146,8 +4146,7 @@ proto_reg_handoff_http(void)
 	dissector_add_uint_with_preference("udp.port", UDP_PORT_SSDP, ssdp_handle);
 
 	/*
-	 * SSL/TLS Application-Layer Protocol Negotiation (ALPN) protocol
-	 * ID.
+	 * TLS Application-Layer Protocol Negotiation (ALPN) protocol ID.
 	 */
 	dissector_add_string("tls.alpn", "http/1.1", http_tls_handle);
 
