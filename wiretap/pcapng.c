@@ -1231,10 +1231,6 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
         return FALSE;
     }
     block_read += pseudo_header_len;
-    if (pseudo_header_len != pcap_get_phdr_size(iface_info.wtap_encap, &wblock->rec->rec_header.packet_header.pseudo_header)) {
-        pcapng_debug("pcapng_read_packet_block: Could only read %d bytes for pseudo header.",
-                      pseudo_header_len);
-    }
     wblock->rec->rec_header.packet_header.caplen = packet.cap_len - pseudo_header_len;
     wblock->rec->rec_header.packet_header.len = packet.packet_len - pseudo_header_len;
 
@@ -1518,10 +1514,6 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
     }
     wblock->rec->rec_header.packet_header.caplen = simple_packet.cap_len - pseudo_header_len;
     wblock->rec->rec_header.packet_header.len = simple_packet.packet_len - pseudo_header_len;
-    if (pseudo_header_len != pcap_get_phdr_size(iface_info.wtap_encap, &wblock->rec->rec_header.packet_header.pseudo_header)) {
-        pcapng_debug("pcapng_read_simple_packet_block: Could only read %d bytes for pseudo header.",
-                      pseudo_header_len);
-    }
 
     memset((void *)&wblock->rec->rec_header.packet_header.pseudo_header, 0, sizeof(union wtap_pseudo_header));
 
