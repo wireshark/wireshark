@@ -1594,9 +1594,6 @@ struct pcap_ppp_phdr {
 /*
  * Pseudo-header at the beginning of DLT_PPP_WITH_DIR frames.
  */
-#define LIBPCAP_PPP_PHDR_RECV    0
-#define LIBPCAP_PPP_PHDR_SENT    1
-
 static int
 pcap_read_ppp_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
     guint packet_size, int *err, gchar **err_info)
@@ -1616,7 +1613,8 @@ pcap_read_ppp_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 	if (!wtap_read_bytes(fh, &phdr, sizeof (struct pcap_ppp_phdr),
 	    err, err_info))
 		return -1;
-	pseudo_header->p2p.sent = (phdr.direction == LIBPCAP_PPP_PHDR_SENT) ? TRUE: FALSE;
+	/* Any non-zero value means "sent" */
+	pseudo_header->p2p.sent = (phdr.direction != 0) ? TRUE: FALSE;
 	return (int)sizeof (struct pcap_ppp_phdr);
 }
 
@@ -2355,7 +2353,8 @@ pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pse
 		break;
 
 	case WTAP_ENCAP_PPP_WITH_PHDR:
-		ppp_hdr.direction = (pseudo_header->p2p.sent ? LIBPCAP_PPP_PHDR_SENT : LIBPCAP_PPP_PHDR_RECV);
+		/* Any non-zero value means "sent" */
+		ppp_hdr.direction = (pseudo_header->p2p.sent ? 1 : 0);
 		if (!wtap_dump_file_write(wdh, &ppp_hdr, sizeof ppp_hdr, err))
 			return FALSE;
 		wdh->bytes_dumped += sizeof ppp_hdr;
