@@ -872,6 +872,52 @@ pcap_read_sunatm_pseudoheader(FILE_T fh,
 	return SUNATM_LEN;
 }
 
+static gboolean
+pcap_write_sunatm_pseudoheader(wtap_dumper *wdh,
+    const union wtap_pseudo_header *pseudo_header, int *err)
+{
+	guint8 atm_hdr[SUNATM_LEN];
+
+	/*
+	 * Write the ATM header.
+	 */
+	atm_hdr[SUNATM_FLAGS] =
+	    (pseudo_header->atm.channel == 0) ? 0x80 : 0x00;
+	switch (pseudo_header->atm.aal) {
+
+	case AAL_SIGNALLING:
+		/* Q.2931 */
+		atm_hdr[SUNATM_FLAGS] |= 0x06;
+		break;
+
+	case AAL_5:
+		switch (pseudo_header->atm.type) {
+
+		case TRAF_LANE:
+			/* LANE */
+			atm_hdr[SUNATM_FLAGS] |= 0x01;
+			break;
+
+		case TRAF_LLCMX:
+			/* RFC 1483 LLC multiplexed traffic */
+			atm_hdr[SUNATM_FLAGS] |= 0x02;
+			break;
+
+		case TRAF_ILMI:
+			/* ILMI */
+			atm_hdr[SUNATM_FLAGS] |= 0x05;
+			break;
+		}
+		break;
+	}
+	atm_hdr[SUNATM_VPI] = (guint8)pseudo_header->atm.vpi;
+	phtons(&atm_hdr[SUNATM_VCI], pseudo_header->atm.vci);
+	if (!wtap_dump_file_write(wdh, atm_hdr, sizeof(atm_hdr), err))
+		return FALSE;
+	wdh->bytes_dumped += sizeof(atm_hdr);
+	return TRUE;
+}
+
 /*
  * The link-layer header on Nokia IPSO ATM packets.
  */
@@ -990,6 +1036,24 @@ pcap_read_irda_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 	return IRDA_SLL_LEN;
 }
 
+static gboolean
+pcap_write_irda_pseudoheader(wtap_dumper *wdh,
+    const union wtap_pseudo_header *pseudo_header, int *err)
+{
+	guint8 irda_hdr[IRDA_SLL_LEN];
+
+	/*
+	 * Write the IrDA header.
+	 */
+	memset(irda_hdr, 0, sizeof(irda_hdr));
+	phtons(&irda_hdr[IRDA_SLL_PKTTYPE_OFFSET], pseudo_header->irda.pkttype);
+	phtons(&irda_hdr[IRDA_SLL_PROTOCOL_OFFSET], 0x0017);
+	if (!wtap_dump_file_write(wdh, irda_hdr, sizeof(irda_hdr), err))
+		return FALSE;
+	wdh->bytes_dumped += sizeof(irda_hdr);
+	return TRUE;
+}
+
 /*
  * A header containing additional MTP information.
  */
@@ -1022,6 +1086,26 @@ pcap_read_mtp2_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 	pseudo_header->mtp2.link_number  = pntoh16(&mtp2_hdr[MTP2_LINK_NUMBER_OFFSET]);
 
 	return MTP2_HDR_LEN;
+}
+
+static gboolean
+pcap_write_mtp2_pseudoheader(wtap_dumper *wdh,
+    const union wtap_pseudo_header *pseudo_header, int *err)
+{
+	guint8 mtp2_hdr[MTP2_HDR_LEN];
+
+	/*
+	 * Write the MTP2 header.
+	 */
+	memset(&mtp2_hdr, 0, sizeof(mtp2_hdr));
+	mtp2_hdr[MTP2_SENT_OFFSET] = pseudo_header->mtp2.sent;
+	mtp2_hdr[MTP2_ANNEX_A_USED_OFFSET] = pseudo_header->mtp2.annex_a_used;
+	phtons(&mtp2_hdr[MTP2_LINK_NUMBER_OFFSET],
+	    pseudo_header->mtp2.link_number);
+	if (!wtap_dump_file_write(wdh, mtp2_hdr, sizeof(mtp2_hdr), err))
+		return FALSE;
+	wdh->bytes_dumped += sizeof(mtp2_hdr);
+	return TRUE;
 }
 
 /*
@@ -1070,6 +1154,26 @@ pcap_read_lapd_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 	return LAPD_SLL_LEN;
 }
 
+static gboolean
+pcap_write_lapd_pseudoheader(wtap_dumper *wdh,
+    const union wtap_pseudo_header *pseudo_header, int *err)
+{
+	guint8 lapd_hdr[LAPD_SLL_LEN];
+
+	/*
+	 * Write the LAPD header.
+	 */
+	memset(&lapd_hdr, 0, sizeof(lapd_hdr));
+	phtons(&lapd_hdr[LAPD_SLL_PKTTYPE_OFFSET], pseudo_header->lapd.pkttype);
+	phtons(&lapd_hdr[LAPD_SLL_PROTOCOL_OFFSET], ETH_P_LAPD);
+	lapd_hdr[LAPD_SLL_ADDR_OFFSET + 0] =
+	    pseudo_header->lapd.we_network?0x01:0x00;
+	if (!wtap_dump_file_write(wdh, lapd_hdr, sizeof(lapd_hdr), err))
+		return FALSE;
+	wdh->bytes_dumped += sizeof(lapd_hdr);
+	return TRUE;
+}
+
 /*
  * A header containing additional SITA WAN information.
  */
@@ -1106,6 +1210,27 @@ pcap_read_sita_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 	pseudo_header->sita.sita_proto   = sita_phdr[SITA_PROTO_OFFSET];
 
 	return SITA_HDR_LEN;
+}
+
+static gboolean
+pcap_write_sita_pseudoheader(wtap_dumper *wdh,
+    const union wtap_pseudo_header *pseudo_header, int *err)
+{
+	guint8 sita_hdr[SITA_HDR_LEN];
+
+	/*
+	 * Write the SITA header.
+	 */
+	memset(&sita_hdr, 0, sizeof(sita_hdr));
+	sita_hdr[SITA_FLAGS_OFFSET]   = pseudo_header->sita.sita_flags;
+	sita_hdr[SITA_SIGNALS_OFFSET] = pseudo_header->sita.sita_signals;
+	sita_hdr[SITA_ERRORS1_OFFSET] = pseudo_header->sita.sita_errors1;
+	sita_hdr[SITA_ERRORS2_OFFSET] = pseudo_header->sita.sita_errors2;
+	sita_hdr[SITA_PROTO_OFFSET]   = pseudo_header->sita.sita_proto;
+	if (!wtap_dump_file_write(wdh, sita_hdr, sizeof(sita_hdr), err))
+		return FALSE;
+	wdh->bytes_dumped += sizeof(sita_hdr);
+	return TRUE;
 }
 
 /*
@@ -1522,6 +1647,19 @@ pcap_read_bt_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 	return (int)sizeof (struct pcap_bt_phdr);
 }
 
+static gboolean
+pcap_write_bt_pseudoheader(wtap_dumper *wdh,
+    const union wtap_pseudo_header *pseudo_header, int *err)
+{
+	struct pcap_bt_phdr bt_hdr;
+
+	bt_hdr.direction = GUINT32_TO_BE(pseudo_header->p2p.sent ? LIBPCAP_BT_PHDR_SENT : LIBPCAP_BT_PHDR_RECV);
+	if (!wtap_dump_file_write(wdh, &bt_hdr, sizeof bt_hdr, err))
+		return FALSE;
+	wdh->bytes_dumped += sizeof bt_hdr;
+	return TRUE;
+}
+
 /*
  * Pseudo-header at the beginning of DLT_BLUETOOTH_LINUX_MONITOR frames.
  * Values in network byte order.
@@ -1555,6 +1693,21 @@ pcap_read_bt_monitor_pseudoheader(FILE_T fh,
 	pseudo_header->btmon.adapter_id = g_ntohs(phdr.adapter_id);
 	pseudo_header->btmon.opcode = g_ntohs(phdr.opcode);
 	return (int)sizeof (struct pcap_bt_monitor_phdr);
+}
+
+static gboolean
+pcap_write_bt_monitor_pseudoheader(wtap_dumper *wdh,
+    const union wtap_pseudo_header *pseudo_header, int *err)
+{
+	struct pcap_bt_monitor_phdr bt_monitor_hdr;
+
+	bt_monitor_hdr.adapter_id = GUINT16_TO_BE(pseudo_header->btmon.adapter_id);
+	bt_monitor_hdr.opcode = GUINT16_TO_BE(pseudo_header->btmon.opcode);
+
+	if (!wtap_dump_file_write(wdh, &bt_monitor_hdr, sizeof bt_monitor_hdr, err))
+		return FALSE;
+	wdh->bytes_dumped += sizeof bt_monitor_hdr;
+	return TRUE;
 }
 
 /*
@@ -1616,6 +1769,20 @@ pcap_read_ppp_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 	/* Any non-zero value means "sent" */
 	pseudo_header->p2p.sent = (phdr.direction != 0) ? TRUE: FALSE;
 	return (int)sizeof (struct pcap_ppp_phdr);
+}
+
+static gboolean
+pcap_write_ppp_pseudoheader(wtap_dumper *wdh,
+    const union wtap_pseudo_header *pseudo_header, int *err)
+{
+	struct pcap_ppp_phdr ppp_hdr;
+
+	/* Any non-zero value means "sent" */
+	ppp_hdr.direction = (pseudo_header->p2p.sent ? 1 : 0);
+	if (!wtap_dump_file_write(wdh, &ppp_hdr, sizeof ppp_hdr, err))
+		return FALSE;
+	wdh->bytes_dumped += sizeof ppp_hdr;
+	return TRUE;
 }
 
 static int
@@ -1770,6 +1937,25 @@ pcap_read_i2c_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 	pseudo_header->i2c.flags = pntoh32(&i2c_hdr.flags);
 
 	return (int)sizeof (struct i2c_file_hdr);
+}
+
+static gboolean
+pcap_write_i2c_pseudoheader(wtap_dumper *wdh,
+    const union wtap_pseudo_header *pseudo_header, int *err)
+{
+	struct i2c_file_hdr i2c_hdr;
+
+	/*
+	 * Write the I2C header.
+	 */
+	memset(&i2c_hdr, 0, sizeof(i2c_hdr));
+	i2c_hdr.bus = pseudo_header->i2c.bus |
+			(pseudo_header->i2c.is_event ? 0x80 : 0x00);
+	phtonl((guint8 *)&i2c_hdr.flags, pseudo_header->i2c.flags);
+	if (!wtap_dump_file_write(wdh, &i2c_hdr, sizeof(i2c_hdr), err))
+		return FALSE;
+	wdh->bytes_dumped += sizeof(i2c_hdr);
+	return TRUE;
 }
 
 int
@@ -2127,117 +2313,36 @@ gboolean
 pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pseudo_header,
     int *err)
 {
-	guint8 atm_hdr[SUNATM_LEN];
-	guint8 irda_hdr[IRDA_SLL_LEN];
-	guint8 lapd_hdr[LAPD_SLL_LEN];
-	guint8 mtp2_hdr[MTP2_HDR_LEN];
-	guint8 sita_hdr[SITA_HDR_LEN];
 	guint8 erf_hdr[ sizeof(struct erf_mc_phdr)];
 	guint8 erf_subhdr[sizeof(union erf_subhdr)];
-	struct i2c_file_hdr i2c_hdr;
-	struct pcap_bt_phdr bt_hdr;
-	struct pcap_bt_monitor_phdr bt_monitor_hdr;
-	struct pcap_ppp_phdr ppp_hdr;
 	size_t size;
 	size_t subhdr_size = 0;
 
 	switch (encap) {
 
 	case WTAP_ENCAP_ATM_PDUS:
-		/*
-		 * Write the ATM header.
-		 */
-		atm_hdr[SUNATM_FLAGS] =
-		    (pseudo_header->atm.channel == 0) ? 0x80 : 0x00;
-		switch (pseudo_header->atm.aal) {
-
-		case AAL_SIGNALLING:
-			/* Q.2931 */
-			atm_hdr[SUNATM_FLAGS] |= 0x06;
-			break;
-
-		case AAL_5:
-			switch (pseudo_header->atm.type) {
-
-			case TRAF_LANE:
-				/* LANE */
-				atm_hdr[SUNATM_FLAGS] |= 0x01;
-				break;
-
-			case TRAF_LLCMX:
-				/* RFC 1483 LLC multiplexed traffic */
-				atm_hdr[SUNATM_FLAGS] |= 0x02;
-				break;
-
-			case TRAF_ILMI:
-				/* ILMI */
-				atm_hdr[SUNATM_FLAGS] |= 0x05;
-				break;
-			}
-			break;
-		}
-		atm_hdr[SUNATM_VPI] = (guint8)pseudo_header->atm.vpi;
-		phtons(&atm_hdr[SUNATM_VCI], pseudo_header->atm.vci);
-		if (!wtap_dump_file_write(wdh, atm_hdr, sizeof(atm_hdr), err))
+		if (!pcap_write_sunatm_pseudoheader(wdh, pseudo_header, err))
 			return FALSE;
-		wdh->bytes_dumped += sizeof(atm_hdr);
 		break;
 
 	case WTAP_ENCAP_IRDA:
-		/*
-		 * Write the IrDA header.
-		 */
-		memset(irda_hdr, 0, sizeof(irda_hdr));
-		phtons(&irda_hdr[IRDA_SLL_PKTTYPE_OFFSET],
-		    pseudo_header->irda.pkttype);
-		phtons(&irda_hdr[IRDA_SLL_PROTOCOL_OFFSET], 0x0017);
-		if (!wtap_dump_file_write(wdh, irda_hdr, sizeof(irda_hdr), err))
+		if (!pcap_write_irda_pseudoheader(wdh, pseudo_header, err))
 			return FALSE;
-		wdh->bytes_dumped += sizeof(irda_hdr);
 		break;
 
 	case WTAP_ENCAP_MTP2_WITH_PHDR:
-		/*
-		 * Write the MTP2 header.
-		 */
-		memset(&mtp2_hdr, 0, sizeof(mtp2_hdr));
-		mtp2_hdr[MTP2_SENT_OFFSET] = pseudo_header->mtp2.sent;
-		mtp2_hdr[MTP2_ANNEX_A_USED_OFFSET] = pseudo_header->mtp2.annex_a_used;
-		phtons(&mtp2_hdr[MTP2_LINK_NUMBER_OFFSET],
-		    pseudo_header->mtp2.link_number);
-		if (!wtap_dump_file_write(wdh, mtp2_hdr, sizeof(mtp2_hdr), err))
+		if (!pcap_write_mtp2_pseudoheader(wdh, pseudo_header, err))
 			return FALSE;
-		wdh->bytes_dumped += sizeof(mtp2_hdr);
 		break;
 
 	case WTAP_ENCAP_LINUX_LAPD:
-		/*
-		 * Write the LAPD header.
-		 */
-		memset(&lapd_hdr, 0, sizeof(lapd_hdr));
-		phtons(&lapd_hdr[LAPD_SLL_PKTTYPE_OFFSET],
-		    pseudo_header->lapd.pkttype);
-		phtons(&lapd_hdr[LAPD_SLL_PROTOCOL_OFFSET], ETH_P_LAPD);
-		lapd_hdr[LAPD_SLL_ADDR_OFFSET + 0] =
-		    pseudo_header->lapd.we_network?0x01:0x00;
-		if (!wtap_dump_file_write(wdh, lapd_hdr, sizeof(lapd_hdr), err))
+		if (!pcap_write_lapd_pseudoheader(wdh, pseudo_header, err))
 			return FALSE;
-		wdh->bytes_dumped += sizeof(lapd_hdr);
 		break;
 
 	case WTAP_ENCAP_SITA:
-		/*
-		 * Write the SITA header.
-		 */
-		memset(&sita_hdr, 0, sizeof(sita_hdr));
-		sita_hdr[SITA_FLAGS_OFFSET]   = pseudo_header->sita.sita_flags;
-		sita_hdr[SITA_SIGNALS_OFFSET] = pseudo_header->sita.sita_signals;
-		sita_hdr[SITA_ERRORS1_OFFSET] = pseudo_header->sita.sita_errors1;
-		sita_hdr[SITA_ERRORS2_OFFSET] = pseudo_header->sita.sita_errors2;
-		sita_hdr[SITA_PROTO_OFFSET]   = pseudo_header->sita.sita_proto;
-		if (!wtap_dump_file_write(wdh, sita_hdr, sizeof(sita_hdr), err))
+		if (!pcap_write_sita_pseudoheader(wdh, pseudo_header, err))
 			return FALSE;
-		wdh->bytes_dumped += sizeof(sita_hdr);
 		break;
 
 	case WTAP_ENCAP_ERF:
@@ -2324,40 +2429,23 @@ pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pse
 		break;
 
 	case WTAP_ENCAP_I2C:
-		/*
-		 * Write the I2C header.
-		 */
-		memset(&i2c_hdr, 0, sizeof(i2c_hdr));
-		i2c_hdr.bus = pseudo_header->i2c.bus |
-			(pseudo_header->i2c.is_event ? 0x80 : 0x00);
-		phtonl((guint8 *)&i2c_hdr.flags, pseudo_header->i2c.flags);
-		if (!wtap_dump_file_write(wdh, &i2c_hdr, sizeof(i2c_hdr), err))
+		if (!pcap_write_i2c_pseudoheader(wdh, pseudo_header, err))
 			return FALSE;
-		wdh->bytes_dumped += sizeof(i2c_hdr);
 		break;
 
 	case WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR:
-		bt_hdr.direction = GUINT32_TO_BE(pseudo_header->p2p.sent ? LIBPCAP_BT_PHDR_SENT : LIBPCAP_BT_PHDR_RECV);
-		if (!wtap_dump_file_write(wdh, &bt_hdr, sizeof bt_hdr, err))
+		if (!pcap_write_bt_pseudoheader(wdh, pseudo_header, err))
 			return FALSE;
-		wdh->bytes_dumped += sizeof bt_hdr;
 		break;
 
 	case WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR:
-		bt_monitor_hdr.adapter_id = GUINT16_TO_BE(pseudo_header->btmon.adapter_id);
-		bt_monitor_hdr.opcode = GUINT16_TO_BE(pseudo_header->btmon.opcode);
-
-		if (!wtap_dump_file_write(wdh, &bt_monitor_hdr, sizeof bt_monitor_hdr, err))
+		if (!pcap_write_bt_monitor_pseudoheader(wdh, pseudo_header, err))
 			return FALSE;
-		wdh->bytes_dumped += sizeof bt_monitor_hdr;
 		break;
 
 	case WTAP_ENCAP_PPP_WITH_PHDR:
-		/* Any non-zero value means "sent" */
-		ppp_hdr.direction = (pseudo_header->p2p.sent ? 1 : 0);
-		if (!wtap_dump_file_write(wdh, &ppp_hdr, sizeof ppp_hdr, err))
+		if (!pcap_write_ppp_pseudoheader(wdh, pseudo_header, err))
 			return FALSE;
-		wdh->bytes_dumped += sizeof ppp_hdr;
 		break;
 	}
 	return TRUE;
