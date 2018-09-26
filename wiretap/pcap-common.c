@@ -2049,6 +2049,22 @@ pcap_get_phdr_size(int encap, const union wtap_pseudo_header *pseudo_header)
 		hdrsize = SITA_HDR_LEN;
 		break;
 
+	case WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR:
+		hdrsize = (int)sizeof (struct libpcap_bt_phdr);
+		break;
+
+	case WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR:
+		hdrsize = (int)sizeof (struct libpcap_bt_monitor_phdr);
+		break;
+
+	case WTAP_ENCAP_NFC_LLCP:
+		hdrsize = LLCP_HEADER_LEN;
+		break;
+
+	case WTAP_ENCAP_PPP_WITH_PHDR:
+		hdrsize = (int)sizeof (struct libpcap_ppp_phdr);
+		break;
+
 	case WTAP_ENCAP_ERF:
 		hdrsize = (int)sizeof (struct erf_phdr);
 		switch (pseudo_header->erf.phdr.type & 0x7F) {
@@ -2096,18 +2112,6 @@ pcap_get_phdr_size(int encap, const union wtap_pseudo_header *pseudo_header)
 
 	case WTAP_ENCAP_I2C:
 		hdrsize = (int)sizeof (struct i2c_file_hdr);
-		break;
-
-	case WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR:
-		hdrsize = (int)sizeof (struct libpcap_bt_phdr);
-		break;
-
-	case WTAP_ENCAP_PPP_WITH_PHDR:
-		hdrsize = (int)sizeof (struct libpcap_ppp_phdr);
-		break;
-
-	case WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR:
-		hdrsize = (int)sizeof (struct libpcap_bt_monitor_phdr);
 		break;
 
 	default:
