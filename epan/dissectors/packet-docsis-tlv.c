@@ -225,6 +225,7 @@ static int hf_docsis_tlv_sflow_min_traf = -1;
 static int hf_docsis_tlv_sflow_ass_min_pkt_size = -1;
 static int hf_docsis_tlv_sflow_timeout_active = -1;
 static int hf_docsis_tlv_sflow_timeout_admitted = -1;
+static int hf_docsis_tlv_sflow_peak_traffic_rate = -1;
 static int hf_docsis_tlv_sflow_req_attr_mask = -1;
 static int hf_docsis_tlv_sflow_forb_attr_mask = -1;
 static int hf_docsis_tlv_sflow_attr_aggr_rule_mask = -1;
@@ -1380,6 +1381,18 @@ dissect_sflow (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int start,
                 proto_tree_add_item (sflow_tree,
                                      hf_docsis_tlv_sflow_timeout_admitted, tvb,
                                      pos, length, ENC_BIG_ENDIAN);
+              }
+            else
+              {
+                expert_add_info_format(pinfo, sflow_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
+              }
+            break;
+          case SFW_PEAK_TRAFFIC_RATE:
+            if (length == 4)
+              {
+                proto_tree_add_item (sflow_tree,
+                                     hf_docsis_tlv_sflow_peak_traffic_rate, tvb, pos,
+                                     length, ENC_BIG_ENDIAN);
               }
             else
               {
@@ -5652,6 +5665,11 @@ proto_register_docsis_tlv (void)
      {".24 UGS Time Reference", "docsis_tlv.sflow.ugs_timeref",
       FT_UINT32, BASE_DEC, NULL, 0x0,
       "UGS Time Reference", HFILL}
+    },
+    {&hf_docsis_tlv_sflow_peak_traffic_rate,
+     {".27 Peak Traffic Rate", "docsis_tlv.sflow.peak_traffic_rate",
+      FT_UINT32, BASE_DEC, NULL, 0x0,
+      "Peak Traffic Rate", HFILL}
     },
     {&hf_docsis_tlv_sflow_req_attr_mask,
      {".31 Required Attribute Mask", "docsis_tlv.sflow.req_attr_mask",
