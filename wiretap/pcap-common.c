@@ -780,87 +780,6 @@ wtap_encap_requires_phdr(int wtap_encap)
 #define SUNATM_VCI	2	/* VCI - 2 bytes */
 #define SUNATM_LEN	4	/* length of the header */
 
-/*
- * The link-layer header on Nokia IPSO ATM packets.
- */
-#define NOKIAATM_FLAGS	0	/* destination - 1 byte */
-#define NOKIAATM_VPI	1	/* VPI - 1 byte */
-#define NOKIAATM_VCI	2	/* VCI - 2 bytes */
-#define NOKIAATM_LEN	4	/* length of the header */
-
-/*
- * The link-layer header on Nokia IPSO packets.
- */
-#define NOKIA_LEN	4	/* length of the header */
-
-/*
- * The fake link-layer header of Linux cooked packets.
- */
-#define LINUX_SLL_PROTOCOL_OFFSET	14	/* protocol */
-#define LINUX_SLL_LEN			16	/* length of the header */
-
-/*
- * The protocols we have to check for.
- */
-#define LINUX_SLL_P_CAN			0x000C	/* Controller Area Network */
-#define LINUX_SLL_P_CANFD		0x000D	/* Controller Area Network flexible data rate */
-
-/*
- * The fake link-layer header of IrDA packets as introduced by Jean Tourrilhes
- * to libpcap.
- */
-#define IRDA_SLL_PKTTYPE_OFFSET		0	/* packet type - 2 bytes */
-/* 12 unused bytes */
-#define IRDA_SLL_PROTOCOL_OFFSET	14	/* protocol, should be ETH_P_LAPD - 2 bytes */
-#define IRDA_SLL_LEN			16	/* length of the header */
-
-/*
- * A header containing additional MTP information.
- */
-#define MTP2_SENT_OFFSET		0	/* 1 byte */
-#define MTP2_ANNEX_A_USED_OFFSET	1	/* 1 byte */
-#define MTP2_LINK_NUMBER_OFFSET		2	/* 2 bytes */
-#define MTP2_HDR_LEN			4	/* length of the header */
-
-/*
- * A header containing additional SITA WAN information.
- */
-#define SITA_FLAGS_OFFSET		0	/* 1 byte */
-#define SITA_SIGNALS_OFFSET		1	/* 1 byte */
-#define SITA_ERRORS1_OFFSET		2	/* 1 byte */
-#define SITA_ERRORS2_OFFSET		3	/* 1 byte */
-#define SITA_PROTO_OFFSET		4	/* 1 byte */
-#define SITA_HDR_LEN			5	/* length of the header */
-
-/*
- * The fake link-layer header of LAPD packets.
- */
-#ifndef ETH_P_LAPD
-#define ETH_P_LAPD 0x0030
-#endif
-
-#define LAPD_SLL_PKTTYPE_OFFSET		0	/* packet type - 2 bytes */
-#define LAPD_SLL_HATYPE_OFFSET		2	/* hardware address type - 2 bytes */
-#define LAPD_SLL_HALEN_OFFSET		4	/* hardware address length - 2 bytes */
-#define LAPD_SLL_ADDR_OFFSET		6	/* address - 8 bytes */
-#define LAPD_SLL_PROTOCOL_OFFSET	14	/* protocol, should be ETH_P_LAPD - 2 bytes */
-#define LAPD_SLL_LEN			16	/* length of the header */
-
-/*
- * The NFC LLCP per-packet header.
- */
-#define LLCP_ADAPTER_OFFSET		0
-#define LLCP_FLAGS_OFFSET		1
-#define LLCP_HEADER_LEN			2
-
-/*
- * I2C link-layer on-disk format
- */
-struct i2c_file_hdr {
-	guint8 bus;
-	guint8 flags[4];
-};
-
 static int
 pcap_read_sunatm_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, guint packet_size,
@@ -953,6 +872,14 @@ pcap_read_sunatm_pseudoheader(FILE_T fh,
 	return SUNATM_LEN;
 }
 
+/*
+ * The link-layer header on Nokia IPSO ATM packets.
+ */
+#define NOKIAATM_FLAGS	0	/* destination - 1 byte */
+#define NOKIAATM_VPI	1	/* VPI - 1 byte */
+#define NOKIAATM_VCI	2	/* VCI - 2 bytes */
+#define NOKIAATM_LEN	4	/* length of the header */
+
 static int
 pcap_read_nokiaatm_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, guint packet_size,
@@ -992,6 +919,11 @@ pcap_read_nokiaatm_pseudoheader(FILE_T fh,
 	return NOKIAATM_LEN;
 }
 
+/*
+ * The link-layer header on Nokia IPSO packets.
+ */
+#define NOKIA_LEN	4	/* length of the header */
+
 static gboolean
 pcap_read_nokia_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info)
@@ -1017,6 +949,15 @@ pcap_read_nokia_pseudoheader(FILE_T fh,
 
 	return TRUE;
 }
+
+/*
+ * The fake link-layer header of IrDA packets as introduced by Jean Tourrilhes
+ * to libpcap.
+ */
+#define IRDA_SLL_PKTTYPE_OFFSET		0	/* packet type - 2 bytes */
+/* 12 unused bytes */
+#define IRDA_SLL_PROTOCOL_OFFSET	14	/* protocol, should be ETH_P_LAPD - 2 bytes */
+#define IRDA_SLL_LEN			16	/* length of the header */
 
 static int
 pcap_read_irda_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
@@ -1049,6 +990,14 @@ pcap_read_irda_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 	return IRDA_SLL_LEN;
 }
 
+/*
+ * A header containing additional MTP information.
+ */
+#define MTP2_SENT_OFFSET		0	/* 1 byte */
+#define MTP2_ANNEX_A_USED_OFFSET	1	/* 1 byte */
+#define MTP2_LINK_NUMBER_OFFSET		2	/* 2 bytes */
+#define MTP2_HDR_LEN			4	/* length of the header */
+
 static int
 pcap_read_mtp2_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
     guint packet_size, int *err, gchar **err_info)
@@ -1074,6 +1023,20 @@ pcap_read_mtp2_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 
 	return MTP2_HDR_LEN;
 }
+
+/*
+ * The fake link-layer header of LAPD packets.
+ */
+#ifndef ETH_P_LAPD
+#define ETH_P_LAPD 0x0030
+#endif
+
+#define LAPD_SLL_PKTTYPE_OFFSET		0	/* packet type - 2 bytes */
+#define LAPD_SLL_HATYPE_OFFSET		2	/* hardware address type - 2 bytes */
+#define LAPD_SLL_HALEN_OFFSET		4	/* hardware address length - 2 bytes */
+#define LAPD_SLL_ADDR_OFFSET		6	/* address - 8 bytes */
+#define LAPD_SLL_PROTOCOL_OFFSET	14	/* protocol, should be ETH_P_LAPD - 2 bytes */
+#define LAPD_SLL_LEN			16	/* length of the header */
 
 static int
 pcap_read_lapd_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
@@ -1106,6 +1069,16 @@ pcap_read_lapd_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 
 	return LAPD_SLL_LEN;
 }
+
+/*
+ * A header containing additional SITA WAN information.
+ */
+#define SITA_FLAGS_OFFSET		0	/* 1 byte */
+#define SITA_SIGNALS_OFFSET		1	/* 1 byte */
+#define SITA_ERRORS1_OFFSET		2	/* 1 byte */
+#define SITA_ERRORS2_OFFSET		3	/* 1 byte */
+#define SITA_PROTO_OFFSET		4	/* 1 byte */
+#define SITA_HDR_LEN			5	/* length of the header */
 
 static int
 pcap_read_sita_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
@@ -1302,6 +1275,18 @@ struct can_socketcan_hdr {
 	guint8 reserved1;
 	guint8 reserved2;
 };
+
+/*
+ * The fake link-layer header of Linux cooked packets.
+ */
+#define LINUX_SLL_PROTOCOL_OFFSET	14	/* protocol */
+#define LINUX_SLL_LEN			16	/* length of the header */
+
+/*
+ * The protocols we have to check for.
+ */
+#define LINUX_SLL_P_CAN			0x000C	/* Controller Area Network */
+#define LINUX_SLL_P_CANFD		0x000D	/* Controller Area Network flexible data rate */
 
 static void
 pcap_byteswap_linux_sll_pseudoheader(wtap_rec *rec, guint8 *pd)
@@ -1572,6 +1557,13 @@ pcap_read_bt_monitor_pseudoheader(FILE_T fh,
 	return (int)sizeof (struct pcap_bt_monitor_phdr);
 }
 
+/*
+ * The NFC LLCP per-packet header.
+ */
+#define LLCP_ADAPTER_OFFSET		0
+#define LLCP_FLAGS_OFFSET		1
+#define LLCP_HEADER_LEN			2
+
 static int
 pcap_read_llcp_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, guint packet_size,
@@ -1747,6 +1739,14 @@ pcap_read_erf_subheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 	}
 	return TRUE;
 }
+
+/*
+ * I2C link-layer on-disk format
+ */
+struct i2c_file_hdr {
+	guint8 bus;
+	guint8 flags[4];
+};
 
 static int
 pcap_read_i2c_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
