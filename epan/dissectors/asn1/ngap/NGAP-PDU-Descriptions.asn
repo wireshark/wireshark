@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V15.0.0 (2018-06)
+-- 3GPP TS 38.413 V15.1.0 (2018-09)
 -- 9.4.3	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -60,6 +60,8 @@ FROM NGAP-CommonDataTypes
 	NGSetupFailure,
 	NGSetupRequest,
 	NGSetupResponse,
+	OverloadStart,
+	OverloadStop,
 	Paging,
 	PathSwitchRequest,
 	PathSwitchRequestAcknowledge,
@@ -82,9 +84,9 @@ FROM NGAP-CommonDataTypes
 	RANConfigurationUpdateAcknowledge,
 	RANConfigurationUpdateFailure,
 	RerouteNASRequest,
+	RRCInactiveTransitionReport,
 	TraceFailureIndication,
 	TraceStart,
-	UECapabilityInfoIndication,
 	UEContextModificationFailure,
 	UEContextModificationRequest,
 	UEContextModificationResponse,
@@ -93,6 +95,7 @@ FROM NGAP-CommonDataTypes
 	UEContextReleaseRequest,
 	UERadioCapabilityCheckRequest,
 	UERadioCapabilityCheckResponse,
+	UERadioCapabilityInfoIndication,
 	UETNLABindingReleaseRequest,
 	UplinkNASTransport,
 	UplinkNonUEAssociatedNRPPaTransport,
@@ -125,6 +128,8 @@ FROM NGAP-PDU-Contents
 	id-NASNonDeliveryIndication,
 	id-NGReset,
 	id-NGSetup,
+	id-OverloadStart,
+	id-OverloadStop,
 	id-Paging,
 	id-PathSwitchRequest,
 	id-PDUSessionResourceModify,
@@ -138,13 +143,14 @@ FROM NGAP-PDU-Contents
 	id-PWSRestartIndication,
 	id-RANConfigurationUpdate,
 	id-RerouteNASRequest,
+	id-RRCInactiveTransitionReport,
 	id-TraceFailureIndication,
 	id-TraceStart,
-	id-UECapabilityInfoIndication,
 	id-UEContextModification,
 	id-UEContextRelease,
 	id-UEContextReleaseRequest,
 	id-UERadioCapabilityCheck,
+	id-UERadioCapabilityInfoIndication,
 	id-UETNLABindingRelease,
 	id-UplinkNASTransport,
 	id-UplinkNonUEAssociatedNRPPaTransport,
@@ -256,16 +262,19 @@ NGAP-ELEMENTARY-PROCEDURES-CLASS-2 NGAP-ELEMENTARY-PROCEDURE ::= {
 	locationReportingControl		|
 	locationReportingFailureIndication	|
 	nASNonDeliveryIndication		|
+	overloadStart					|
+	overloadStop					|
 	paging							|
 	pDUSessionResourceNotify		|
 	privateMessage					|
 	pWSFailureIndication						|
 	pWSRestartIndication			|
 	rerouteNASRequest				|
+	rRCInactiveTransitionReport		|
 	traceFailureIndication			|
 	traceStart						|
-	uECapabilityInfoIndication		|
 	uEContextReleaseRequest			|
+	uERadioCapabilityInfoIndication	|
 	uETNLABindingRelease			|
 	uplinkNASTransport				|
 	uplinkNonUEAssociatedNRPPaTransport	|
@@ -424,6 +433,18 @@ nGSetup NGAP-ELEMENTARY-PROCEDURE ::= {
 	CRITICALITY				reject
 }
 
+overloadStart NGAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		OverloadStart
+	PROCEDURE CODE			id-OverloadStart
+	CRITICALITY				ignore
+}
+
+overloadStop NGAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		OverloadStop
+	PROCEDURE CODE			id-OverloadStop
+	CRITICALITY				reject
+}
+
 paging NGAP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		Paging
 	PROCEDURE CODE			id-Paging
@@ -511,6 +532,12 @@ rerouteNASRequest NGAP-ELEMENTARY-PROCEDURE ::= {
 	CRITICALITY				reject
 }
 
+rRCInactiveTransitionReport NGAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		RRCInactiveTransitionReport
+	PROCEDURE CODE			id-RRCInactiveTransitionReport
+	CRITICALITY				ignore
+}
+
 traceFailureIndication NGAP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		TraceFailureIndication
 	PROCEDURE CODE			id-TraceFailureIndication
@@ -520,12 +547,6 @@ traceFailureIndication NGAP-ELEMENTARY-PROCEDURE ::= {
 traceStart NGAP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		TraceStart
 	PROCEDURE CODE			id-TraceStart
-	CRITICALITY				ignore
-}
-
-uECapabilityInfoIndication NGAP-ELEMENTARY-PROCEDURE ::= {
-	INITIATING MESSAGE		UECapabilityInfoIndication
-	PROCEDURE CODE			id-UECapabilityInfoIndication
 	CRITICALITY				ignore
 }
 
@@ -555,6 +576,12 @@ uERadioCapabilityCheck NGAP-ELEMENTARY-PROCEDURE ::= {
 	SUCCESSFUL OUTCOME		UERadioCapabilityCheckResponse
 	PROCEDURE CODE			id-UERadioCapabilityCheck
 	CRITICALITY				reject
+}
+
+uERadioCapabilityInfoIndication NGAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		UERadioCapabilityInfoIndication
+	PROCEDURE CODE			id-UERadioCapabilityInfoIndication
+	CRITICALITY				ignore
 }
 
 uETNLABindingRelease NGAP-ELEMENTARY-PROCEDURE ::= {

@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V15.0.0 (2018-06)
+-- 3GPP TS 38.413 V15.1.0 (2018-09)
 -- 9.4.6	Common Definitions
 -- **************************************************************
 --
@@ -32,4 +32,3 @@ ProtocolIE-ID		::= INTEGER (0..65535)
 TriggeringMessage	::= ENUMERATED { initiating-message, successful-outcome, unsuccessfull-outcome }
 
 END
-

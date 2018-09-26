@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V15.0.0 (2018-06)
+-- 3GPP TS 38.413 V15.1.0 (2018-09)
 -- 9.4.4	PDU Definitions
 -- **************************************************************
 --
@@ -6,11 +6,11 @@
 --
 -- **************************************************************
 
-NGAP-PDU-Contents {
-itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
+NGAP-PDU-Contents { 
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
 ngran-Access (22) modules (3) ngap (1) version1 (1) ngap-PDU-Contents (1) }
 
-DEFINITIONS AUTOMATIC TAGS ::=
+DEFINITIONS AUTOMATIC TAGS ::= 
 
 BEGIN
 
@@ -25,6 +25,10 @@ IMPORTS
 	AllowedNSSAI,
 	AMFName,
 	AMFSetID,
+	AMF-TNLAssociationSetupList,
+	AMF-TNLAssociationToAddList,
+	AMF-TNLAssociationToRemoveList,
+	AMF-TNLAssociationToUpdateList,
 	AMF-UE-NGAP-ID,
 	AssistanceDataForPaging,
 	BroadcastCancelledAreaList,
@@ -33,6 +37,7 @@ IMPORTS
 	Cause,
 	CellIDListForRestart,
 	ConcurrentWarningMessageInd,
+	CoreNetworkAssistanceInformation,
 	CPTransportLayerInformation,
 	CriticalityDiagnostics,
 	DataCodingScheme,
@@ -43,38 +48,55 @@ IMPORTS
 	FiveG-S-TMSI,
 	GlobalRANNodeID,
 	GUAMI,
-	HandoverCommandTransfer,
-	HandoverRequestAcknowledgeTransfer,
 	HandoverType,
 	IMSVoiceSupportIndicator,
 	IndexToRFSP,
 	InfoOnRecommendedCellsAndRANNodesForPaging,
-	KamfChangeInd,
 	LocationReportingRequestType,
 	MaskedIMEISV,
 	MessageIdentifier,
 	MobilityRestrictionList,
 	NAS-PDU,
+	NASSecurityParametersFromNGRAN,
+	NewSecurityContextInd,
 	NGRAN-CGI,
 	NGRANTraceID,
 	NR-CGI,
 	NRPPa-PDU,
 	NumberOfBroadcastsRequested,
+	OverloadResponse,
+	OverloadStartNSSAIList,
 	PagingDRX,
 	PagingOrigin,
 	PagingPriority,
-	PathSwitchRequestAcknowledgeTransfer,
-	PathSwitchRequestTransfer,
-	PDUSessionID,
-	PDUSessionList,
-	PDUSessionResourceModifyConfirmTransfer,
-	PDUSessionResourceModifyIndicationTransfer,
-	PDUSessionResourceModifyRequestTransfer,
-	PDUSessionResourceModifyResponseTransfer,
-	PDUSessionResourceNotifyTransfer,
-	PDUSessionResourceSetupRequestTransfer,
-	PDUSessionResourceSetupResponseTransfer,
-	PDUSessionResourceSubjectToHandover,
+	PDUSessionAggregateMaximumBitRate,
+	PDUSessionResourceAdmittedList,
+	PDUSessionResourceFailedToModifyListModRes,
+	PDUSessionResourceFailedToSetupListCxtRes,
+	PDUSessionResourceFailedToSetupListHOAck,
+	PDUSessionResourceFailedToSetupListPSReq,
+	PDUSessionResourceFailedToSetupListSURes,
+	PDUSessionResourceHandoverList,
+	PDUSessionResourceListCxtRelCpl,
+	PDUSessionResourceListHORqd,
+	PDUSessionResourceModifyListModCfm,
+	PDUSessionResourceModifyListModInd,
+	PDUSessionResourceModifyListModReq,
+	PDUSessionResourceModifyListModRes,
+	PDUSessionResourceNotifyList,
+	PDUSessionResourceReleasedListNot,
+	PDUSessionResourceReleasedListPSAck,
+	PDUSessionResourceReleasedListPSFail,
+	PDUSessionResourceReleasedListRelRes,
+	PDUSessionResourceSetupListCxtReq,
+	PDUSessionResourceSetupListCxtRes,
+	PDUSessionResourceSetupListHOReq,
+	PDUSessionResourceSetupListSUReq,
+	PDUSessionResourceSetupListSURes,
+	PDUSessionResourceSwitchedList,
+	PDUSessionResourceToBeSwitchedDLList,
+	PDUSessionResourceToReleaseListHOCmd,
+	PDUSessionResourceToReleaseListRelCmd,
 	PLMNSupportList,
 	PWSFailedCellIDList,
 	RANNodeName,
@@ -83,9 +105,11 @@ IMPORTS
 	RAN-UE-NGAP-ID,
 	RelativeAMFCapacity,
 	RepetitionPeriod,
+	ResetType,
 	RoutingID,
 	RRCEstablishmentCause,
-	RRCInactiveAssistanceInformation,
+	RRCInactiveTransitionReportRequest,
+	RRCState,
 	SecurityContext,
 	SecurityKey,
 	SerialNumber,
@@ -95,19 +119,17 @@ IMPORTS
 	SONConfigurationTransfer,
 	SourceToTarget-TransparentContainer,
 	SupportedTAList,
-	TAI,
+	TAIListForPaging,
 	TAIListForRestart,
 	TargetID,
 	TargetToSource-TransparentContainer,
-	TimeStamp,
 	TimeToWait,
 	TNLAssociationList,
-	TNLAssociationUsage,
-	TNLAssociationWeightFactor,
 	TraceActivation,
+	TrafficLoadReductionIndication,
 	TransportLayerAddress,
 	UEAggregateMaximumBitRate,
-	UE-associatedLogicalNG-ConnectionItem,
+	UE-associatedLogicalNG-connectionList,
 	UEContextRequest,
 	UEIdentityIndexValue,
 	UE-NGAP-IDs,
@@ -138,16 +160,14 @@ FROM NGAP-Containers
 
 	id-AllowedNSSAI,
 	id-AMFName,
+	id-AMFOverloadResponse,
 	id-AMFSetID,
 	id-AMF-TNLAssociationFailedToSetupList,
-	id-AMF-TNLAssociationSetupItem,
 	id-AMF-TNLAssociationSetupList,
-	id-AMF-TNLAssociationToAddItem,
 	id-AMF-TNLAssociationToAddList,
-	id-AMF-TNLAssociationToRemoveItem,
 	id-AMF-TNLAssociationToRemoveList,
-	id-AMF-TNLAssociationToUpdateItem,
 	id-AMF-TNLAssociationToUpdateList,
+	id-AMFTrafficLoadReductionIndication,
 	id-AMF-UE-NGAP-ID,
 	id-AssistanceDataForPaging,
 	id-BroadcastCancelledAreaList,
@@ -156,6 +176,7 @@ FROM NGAP-Containers
 	id-Cause,
 	id-CellIDListForRestart,
 	id-ConcurrentWarningMessageInd,
+	id-CoreNetworkAssistanceInformation,
 	id-CriticalityDiagnostics,
 	id-DataCodingScheme,
 	id-DefaultPagingDRX,
@@ -170,14 +191,15 @@ FROM NGAP-Containers
 	id-IMSVoiceSupportIndicator,
 	id-IndexToRFSP,
 	id-InfoOnRecommendedCellsAndRANNodesForPaging,
-	id-KamfChangeInd,
 	id-LocationReportingRequestType,
 	id-MaskedIMEISV,
 	id-MessageIdentifier,
 	id-MobilityRestrictionList,
 	id-NAS-PDU,
 	id-NASC,
+	id-NASSecurityParametersFromNGRAN,
 	id-NewAMF-UE-NGAP-ID,
+	id-NewSecurityContextInd,
 	id-NGAP-Message,
 	id-NGRAN-CGI,
 	id-NGRANTraceID,
@@ -185,55 +207,50 @@ FROM NGAP-Containers
 	id-NRPPa-PDU,
 	id-NumberOfBroadcastsRequested,
 	id-OldAMF,
+	id-OverloadStartNSSAIList,
 	id-PagingDRX,
 	id-PagingOrigin,
 	id-PagingPriority,
-	id-PDUSessionResourceAdmittedItem,
 	id-PDUSessionResourceAdmittedList,
 	id-PDUSessionResourceFailedToModifyListModRes,
-	id-PDUSessionResourceFailedToSetupList,
-	id-PDUSessionResourceItemHORqd,
+	id-PDUSessionResourceFailedToSetupListCxtRes,
+	id-PDUSessionResourceFailedToSetupListHOAck,
+	id-PDUSessionResourceFailedToSetupListPSReq,
+	id-PDUSessionResourceFailedToSetupListSURes,
+	id-PDUSessionResourceHandoverList,
+	id-PDUSessionResourceListCxtRelCpl,
 	id-PDUSessionResourceListHORqd,
-	id-PDUSessionResourceModifyItemModCfm,
-	id-PDUSessionResourceModifyItemModInd,
-	id-PDUSessionResourceModifyItemModReq,
-	id-PDUSessionResourceModifyItemModRes,
 	id-PDUSessionResourceModifyListModCfm,
 	id-PDUSessionResourceModifyListModInd,
 	id-PDUSessionResourceModifyListModReq,
 	id-PDUSessionResourceModifyListModRes,
-	id-PDUSessionResourceNotifyItem,
 	id-PDUSessionResourceNotifyList,
-	id-PDUSessionResourceReleasedList,
-	id-PDUSessionResourceSetupItemCxtReq,
-	id-PDUSessionResourceSetupItemCxtRes,
-	id-PDUSessionResourceSetupItemHOReq,
-	id-PDUSessionResourceSetupItemSUReq,
-	id-PDUSessionResourceSetupItemSURes,
+	id-PDUSessionResourceReleasedListNot,
+	id-PDUSessionResourceReleasedListPSAck,
+	id-PDUSessionResourceReleasedListPSFail,
+	id-PDUSessionResourceReleasedListRelRes,
 	id-PDUSessionResourceSetupListCxtReq,
 	id-PDUSessionResourceSetupListCxtRes,
 	id-PDUSessionResourceSetupListHOReq,
 	id-PDUSessionResourceSetupListSUReq,
 	id-PDUSessionResourceSetupListSURes,
-	id-PDUSessionResourceSubjectToForwardingItem,
-	id-PDUSessionResourceSubjectToForwardingList,
-	id-PDUSessionResourceToBeSwitchedDLItem,
+	id-PDUSessionResourceSwitchedList,
 	id-PDUSessionResourceToBeSwitchedDLList,
-	id-PDUSessionResourceToBeSwitchedULItem,
-	id-PDUSessionResourceToBeSwitchedULList,
-	id-PDUSessionResourceToReleaseList,
+	id-PDUSessionResourceToReleaseListHOCmd,
+	id-PDUSessionResourceToReleaseListRelCmd,
 	id-PLMNSupportList,
 	id-PWSFailedCellIDList,
 	id-RANNodeName,
 	id-RANPagingPriority,
 	id-RANStatusTransfer-TransparentContainer,
-	id-RAN-UE-NGAP-ID,
+	id-RAN-UE-NGAP-ID, 
 	id-RelativeAMFCapacity,
 	id-RepetitionPeriod,
 	id-ResetType,
 	id-RoutingID,
 	id-RRCEstablishmentCause,
-	id-RRCInactiveAssistanceInformation,
+	id-RRCInactiveTransitionReportRequest,
+	id-RRCState,
 	id-SecurityContext,
 	id-SecurityKey,
 	id-SerialNumber,
@@ -244,19 +261,15 @@ FROM NGAP-Containers
 	id-SourceAMF-UE-NGAP-ID,
 	id-SourceToTarget-TransparentContainer,
 	id-SupportedTAList,
-	id-TAI,
-	id-TAIItem,
-	id-TAIList,
+	id-TAIListForPaging,
 	id-TAIListForRestart,
 	id-TargetID,
 	id-TargetToSource-TransparentContainer,
-	id-TimeStamp,
 	id-TimeToWait,
 	id-TraceActivation,
 	id-TraceCollectionEntityIPAddress,
 	id-UEAggregateMaximumBitRate,
-	id-UE-associatedLogicalNG-ConnectionItem,
-	id-UE-associatedLogicalNG-ConnectionListResAck,
+	id-UE-associatedLogicalNG-connectionList,
 	id-UEContextRequest,
 	id-UEIdentityIndexValue,
 	id-UE-NGAP-IDs,
@@ -270,11 +283,7 @@ FROM NGAP-Containers
 	id-WarningAreaList,
 	id-WarningMessageContents,
 	id-WarningSecurityInfo,
-	id-WarningType,
-	maxnoofNGConnectionsToReset,
-	maxnoofTAIs,
-	maxnoofTNLAssociations,
-	maxnoofPDUSessions
+	id-WarningType
 FROM NGAP-Constants;
 
 -- **************************************************************
@@ -309,26 +318,6 @@ PDUSessionResourceSetupRequestIEs NGAP-PROTOCOL-IES ::= {
 	...
 }
 
-PDUSessionResourceSetupListSUReq ::= SEQUENCE (SIZE(1..maxnoofPDUSessions)) OF ProtocolIE-SingleContainer { {PDUSessionResourceSetupItemSUReqIEs} }
-
-PDUSessionResourceSetupItemSUReqIEs NGAP-PROTOCOL-IES ::= {
-	{ ID id-PDUSessionResourceSetupItemSUReq		CRITICALITY reject	TYPE PDUSessionResourceSetupItemSUReq	PRESENCE mandatory	},
-	...
-}
-
-PDUSessionResourceSetupItemSUReq ::= SEQUENCE {
-	pDUSessionID								PDUSessionID,
-	pDUSessionNAS-PDU							NAS-PDU												OPTIONAL,
-	s-NSSAI										S-NSSAI,
-	pDUSessionResourceSetupRequestTransfer		OCTET STRING (CONTAINING PDUSessionResourceSetupRequestTransfer),
-	iE-Extensions		ProtocolExtensionContainer { {PDUSessionResourceSetupItemSUReq-ExtIEs} }	OPTIONAL,
-	...
-}
-
-PDUSessionResourceSetupItemSUReq-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
-	...
-}
-
 -- **************************************************************
 --
 -- PDU SESSION RESOURCE SETUP RESPONSE
@@ -341,32 +330,14 @@ PDUSessionResourceSetupResponse ::= SEQUENCE {
 }
 
 PDUSessionResourceSetupResponseIEs NGAP-PROTOCOL-IES ::= {
-	{ ID id-AMF-UE-NGAP-ID							CRITICALITY ignore	TYPE AMF-UE-NGAP-ID								PRESENCE mandatory	}|
-	{ ID id-RAN-UE-NGAP-ID							CRITICALITY ignore	TYPE RAN-UE-NGAP-ID								PRESENCE mandatory	}|
-	{ ID id-PDUSessionResourceSetupListSURes		CRITICALITY ignore	TYPE PDUSessionResourceSetupListSURes		PRESENCE optional		}|
-	{ ID id-PDUSessionResourceFailedToSetupList		CRITICALITY ignore	TYPE PDUSessionList								PRESENCE optional		}|
-	{ ID id-CriticalityDiagnostics					CRITICALITY ignore	TYPE CriticalityDiagnostics					PRESENCE optional		},
-	...
+	{ ID id-AMF-UE-NGAP-ID								CRITICALITY ignore	TYPE AMF-UE-NGAP-ID											PRESENCE mandatory	}|
+	{ ID id-RAN-UE-NGAP-ID								CRITICALITY ignore	TYPE RAN-UE-NGAP-ID											PRESENCE mandatory	}|
+	{ ID id-PDUSessionResourceSetupListSURes			CRITICALITY ignore	TYPE PDUSessionResourceSetupListSURes				PRESENCE optional		}|
+	{ ID id-PDUSessionResourceFailedToSetupListSURes	CRITICALITY ignore	TYPE PDUSessionResourceFailedToSetupListSURes		PRESENCE optional		}|
+	{ ID id-CriticalityDiagnostics						CRITICALITY ignore	TYPE CriticalityDiagnostics								PRESENCE optional		},
+	...	
 }
 
-PDUSessionResourceSetupListSURes ::= SEQUENCE (SIZE(1..maxnoofPDUSessions)) OF ProtocolIE-SingleContainer { {PDUSessionResourceSetupItemSUResIEs} }
-
-PDUSessionResourceSetupItemSUResIEs NGAP-PROTOCOL-IES ::= {
-	{ ID id-PDUSessionResourceSetupItemSURes		CRITICALITY ignore	TYPE PDUSessionResourceSetupItemSURes		PRESENCE mandatory	},
-	...
-}
-
-PDUSessionResourceSetupItemSURes ::= SEQUENCE {
-	pDUSessionID											PDUSessionID,
-	pDUSessionResourceSetupResponseTransfer					OCTET STRING (CONTAINING PDUSessionResourceSetupResponseTransfer),
-	additionalPDUSessionResourceSetupResponseTransfer		OCTET STRING (CONTAINING PDUSessionResourceSetupResponseTransfer)		OPTIONAL,
-	iE-Extensions										ProtocolExtensionContainer { {PDUSessionResourceSetupItemSURes-ExtIEs} }	OPTIONAL,
-	...
-}
-
-PDUSessionResourceSetupItemSURes-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
-	...
-}
 
 -- **************************************************************
 --
@@ -386,11 +357,11 @@ PDUSessionResourceReleaseCommand ::= SEQUENCE {
 }
 
 PDUSessionResourceReleaseCommandIEs NGAP-PROTOCOL-IES ::= {
-	{ ID id-AMF-UE-NGAP-ID						CRITICALITY reject	TYPE AMF-UE-NGAP-ID				PRESENCE mandatory	}|
-	{ ID id-RAN-UE-NGAP-ID						CRITICALITY reject	TYPE RAN-UE-NGAP-ID				PRESENCE mandatory	}|
-	{ ID id-RANPagingPriority					CRITICALITY ignore	TYPE RANPagingPriority			PRESENCE optional		}|
-	{ ID id-NAS-PDU								CRITICALITY ignore	TYPE NAS-PDU					PRESENCE optional		}|
-	{ ID id-PDUSessionResourceToReleaseList		CRITICALITY ignore	TYPE PDUSessionList				PRESENCE mandatory	},
+	{ ID id-AMF-UE-NGAP-ID								CRITICALITY reject	TYPE AMF-UE-NGAP-ID										PRESENCE mandatory	}|
+	{ ID id-RAN-UE-NGAP-ID								CRITICALITY reject	TYPE RAN-UE-NGAP-ID										PRESENCE mandatory	}|
+	{ ID id-RANPagingPriority							CRITICALITY ignore	TYPE RANPagingPriority								PRESENCE optional		}|
+	{ ID id-NAS-PDU										CRITICALITY ignore	TYPE NAS-PDU											PRESENCE optional		}|
+	{ ID id-PDUSessionResourceToReleaseListRelCmd		CRITICALITY reject	TYPE PDUSessionResourceToReleaseListRelCmd		PRESENCE mandatory	},
 	...
 }
 
@@ -406,10 +377,11 @@ PDUSessionResourceReleaseResponse ::= SEQUENCE {
 }
 
 PDUSessionResourceReleaseResponseIEs NGAP-PROTOCOL-IES ::= {
-	{ ID id-AMF-UE-NGAP-ID				CRITICALITY ignore	TYPE AMF-UE-NGAP-ID					PRESENCE mandatory	}|
-	{ ID id-RAN-UE-NGAP-ID				CRITICALITY ignore	TYPE RAN-UE-NGAP-ID					PRESENCE mandatory	}|
-	{ ID id-UserLocationInformation		CRITICALITY ignore	TYPE UserLocationInformation		PRESENCE optional	}|
-	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional	},
+	{ ID id-AMF-UE-NGAP-ID								CRITICALITY ignore	TYPE AMF-UE-NGAP-ID										PRESENCE mandatory	}|
+	{ ID id-RAN-UE-NGAP-ID								CRITICALITY ignore	TYPE RAN-UE-NGAP-ID										PRESENCE mandatory	}|
+	{ ID id-PDUSessionResourceReleasedListRelRes			CRITICALITY ignore	TYPE PDUSessionResourceReleasedListRelRes		PRESENCE mandatory	}|
+	{ ID id-UserLocationInformation						CRITICALITY ignore	TYPE UserLocationInformation						PRESENCE optional		}|
+	{ ID id-CriticalityDiagnostics						CRITICALITY ignore	TYPE CriticalityDiagnostics							PRESENCE optional		},
 	...
 }
 
@@ -438,25 +410,6 @@ PDUSessionResourceModifyRequestIEs NGAP-PROTOCOL-IES ::= {
 	...
 }
 
-PDUSessionResourceModifyListModReq ::= SEQUENCE (SIZE(1..maxnoofPDUSessions)) OF ProtocolIE-SingleContainer { {PDUSessionResourceModifyItemModReqIEs} }
-
-PDUSessionResourceModifyItemModReqIEs NGAP-PROTOCOL-IES ::= {
-	{ ID id-PDUSessionResourceModifyItemModReq		CRITICALITY reject	TYPE PDUSessionResourceModifyItemModReq	PRESENCE mandatory	},
-	...
-}
-
-PDUSessionResourceModifyItemModReq ::= SEQUENCE {
-	pDUSessionID								PDUSessionID,
-	nAS-PDU										NAS-PDU													OPTIONAL,
-	pDUSessionResourceModifyRequestTransfer		OCTET STRING (CONTAINING PDUSessionResourceModifyRequestTransfer),
-	iE-Extensions		ProtocolExtensionContainer { {PDUSessionResourceModifyItemModReq-ExtIEs} }	OPTIONAL,
-	...
-}
-
-PDUSessionResourceModifyItemModReq-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
-	...
-}
-
 -- **************************************************************
 --
 -- PDU SESSION RESOURCE MODIFY RESPONSE
@@ -469,32 +422,15 @@ PDUSessionResourceModifyResponse ::= SEQUENCE {
 }
 
 PDUSessionResourceModifyResponseIEs NGAP-PROTOCOL-IES ::= {
-	{ ID id-AMF-UE-NGAP-ID									CRITICALITY ignore	TYPE AMF-UE-NGAP-ID								PRESENCE mandatory	}|
-	{ ID id-RAN-UE-NGAP-ID									CRITICALITY ignore	TYPE RAN-UE-NGAP-ID								PRESENCE mandatory	}|
-	{ ID id-PDUSessionResourceModifyListModRes				CRITICALITY ignore	TYPE PDUSessionResourceModifyListModRes	PRESENCE optional		}|
-	{ ID id-PDUSessionResourceFailedToModifyListModRes		CRITICALITY ignore	TYPE PDUSessionList								PRESENCE optional		}|
-	{ ID id-UserLocationInformation							CRITICALITY ignore	TYPE UserLocationInformation					PRESENCE optional		}|
-	{ ID id-CriticalityDiagnostics							CRITICALITY ignore	TYPE CriticalityDiagnostics					PRESENCE optional		},
+	{ ID id-AMF-UE-NGAP-ID									CRITICALITY ignore	TYPE AMF-UE-NGAP-ID										PRESENCE mandatory	}|
+	{ ID id-RAN-UE-NGAP-ID									CRITICALITY ignore	TYPE RAN-UE-NGAP-ID										PRESENCE mandatory	}|
+	{ ID id-PDUSessionResourceModifyListModRes				CRITICALITY ignore	TYPE PDUSessionResourceModifyListModRes			PRESENCE optional		}|
+	{ ID id-PDUSessionResourceFailedToModifyListModRes		CRITICALITY ignore	TYPE PDUSessionResourceFailedToModifyListModRes		PRESENCE optional	}|
+	{ ID id-UserLocationInformation							CRITICALITY ignore	TYPE UserLocationInformation							PRESENCE optional		}|
+	{ ID id-CriticalityDiagnostics							CRITICALITY ignore	TYPE CriticalityDiagnostics							PRESENCE optional		},
 	...
 }
 
-PDUSessionResourceModifyListModRes ::= SEQUENCE (SIZE(1..maxnoofPDUSessions)) OF ProtocolIE-SingleContainer { {PDUSessionResourceModifyItemModResIEs} }
-
-PDUSessionResourceModifyItemModResIEs	NGAP-PROTOCOL-IES ::= {
-	{ ID id-PDUSessionResourceModifyItemModRes				CRITICALITY ignore	TYPE PDUSessionResourceModifyItemModRes	PRESENCE mandatory	},
-	...
-}
-
-PDUSessionResourceModifyItemModRes ::= SEQUENCE {
-	pDUSessionID									PDUSessionID,
-	pDUSessionResourceModifyResponseTransfer		OCTET STRING (CONTAINING PDUSessionResourceModifyResponseTransfer),
-	iE-Extensions		ProtocolExtensionContainer { {PDUSessionResourceModifyItemModRes-ExtIEs} }	OPTIONAL,
-	...
-}
-
-PDUSessionResourceModifyItemModRes-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
-	...
-}
 
 -- **************************************************************
 --
@@ -514,31 +450,14 @@ PDUSessionResourceNotify ::= SEQUENCE {
 }
 
 PDUSessionResourceNotifyIEs NGAP-PROTOCOL-IES ::= {
-	{ ID id-AMF-UE-NGAP-ID						CRITICALITY reject	TYPE AMF-UE-NGAP-ID							PRESENCE mandatory	}|
-	{ ID id-RAN-UE-NGAP-ID						CRITICALITY reject	TYPE RAN-UE-NGAP-ID							PRESENCE mandatory	}|
-	{ ID id-PDUSessionResourceNotifyList		CRITICALITY reject	TYPE PDUSessionResourceNotifyList		PRESENCE optional		}|
-	{ ID id-PDUSessionResourceReleasedList		CRITICALITY ignore	TYPE PDUSessionList							PRESENCE optional		}|
-	{ ID id-UserLocationInformation				CRITICALITY ignore	TYPE UserLocationInformation				PRESENCE optional		},
+	{ ID id-AMF-UE-NGAP-ID							CRITICALITY reject	TYPE AMF-UE-NGAP-ID									PRESENCE mandatory	}|
+	{ ID id-RAN-UE-NGAP-ID							CRITICALITY reject	TYPE RAN-UE-NGAP-ID									PRESENCE mandatory	}|
+	{ ID id-PDUSessionResourceNotifyList			CRITICALITY reject	TYPE PDUSessionResourceNotifyList				PRESENCE optional		}|
+	{ ID id-PDUSessionResourceReleasedListNot		CRITICALITY ignore	TYPE PDUSessionResourceReleasedListNot		PRESENCE optional		}|
+	{ ID id-UserLocationInformation					CRITICALITY ignore	TYPE UserLocationInformation						PRESENCE optional		},
 	...
 }
 
-PDUSessionResourceNotifyList ::= SEQUENCE (SIZE(1..maxnoofPDUSessions)) OF ProtocolIE-SingleContainer { {PDUSessionResourceNotifyItemIEs} }
-
-PDUSessionResourceNotifyItemIEs NGAP-PROTOCOL-IES ::= {
-	{ ID id-PDUSessionResourceNotifyItem		CRITICALITY reject	TYPE PDUSessionResourceNotifyItem		PRESENCE mandatory	},
-	...
-}
-
-PDUSessionResourceNotifyItem ::= SEQUENCE {
-	pDUSessionID						PDUSessionID,
-	pDUSessionResourceNotifyTransfer	OCTET STRING (CONTAINING PDUSessionResourceNotifyTransfer),
-	iE-Extensions		ProtocolExtensionContainer { {PDUSessionResourceNotifyItem-ExtIEs} }	OPTIONAL,
-	...
-}
-
-PDUSessionResourceNotifyItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
-	...
-}
 
 -- **************************************************************
 --
@@ -564,24 +483,6 @@ PDUSessionResourceModifyIndicationIEs NGAP-PROTOCOL-IES ::= {
 	...
 }
 
-PDUSessionResourceModifyListModInd ::= SEQUENCE (SIZE(1..maxnoofPDUSessions)) OF ProtocolIE-SingleContainer { {PDUSessionResourceModifyItemModIndIEs} }
-
-PDUSessionResourceModifyItemModIndIEs NGAP-PROTOCOL-IES ::= {
-	{ ID id-PDUSessionResourceModifyItemModInd		CRITICALITY reject	TYPE PDUSessionResourceModifyItemModInd		PRESENCE mandatory	},
-	...
-}
-
-PDUSessionResourceModifyItemModInd ::= SEQUENCE {
-	pDUSessionID									PDUSessionID,
-	pDUSessionResourceModifyIndicationTransfer		OCTET STRING (CONTAINING PDUSessionResourceModifyIndicationTransfer),
-	iE-Extensions		ProtocolExtensionContainer { {PDUSessionResourceModifyItemModInd-ExtIEs} }	OPTIONAL,
-	...
-}
-
-PDUSessionResourceModifyItemModInd-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
-	...
-}
-
 -- **************************************************************
 --
 -- PDU SESSION RESOURCE MODIFY CONFIRM
@@ -598,24 +499,6 @@ PDUSessionResourceModifyConfirmIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-RAN-UE-NGAP-ID							CRITICALITY ignore	TYPE RAN-UE-NGAP-ID									PRESENCE mandatory	}|
 	{ ID id-PDUSessionResourceModifyListModCfm		CRITICALITY ignore	TYPE PDUSessionResourceModifyListModCfm		PRESENCE mandatory	}|
 	{ ID id-CriticalityDiagnostics					CRITICALITY ignore	TYPE CriticalityDiagnostics						PRESENCE optional		},
-	...
-}
-
-PDUSessionResourceModifyListModCfm ::= SEQUENCE (SIZE(1..maxnoofPDUSessions)) OF ProtocolIE-SingleContainer { {PDUSessionResourceModifyItemModCfmIEs} }
-
-PDUSessionResourceModifyItemModCfmIEs	NGAP-PROTOCOL-IES ::= {
-	{ ID id-PDUSessionResourceModifyItemModCfm		CRITICALITY reject	TYPE PDUSessionResourceModifyItemModCfm		PRESENCE mandatory	},
-	...
-}
-
-PDUSessionResourceModifyItemModCfm ::= SEQUENCE {
-	pDUSessionID								PDUSessionID,
-	pDUSessionResourceModifyConfirmTransfer		OCTET STRING (CONTAINING PDUSessionResourceModifyConfirmTransfer),
-	iE-Extensions		ProtocolExtensionContainer { {PDUSessionResourceModifyItemModCfm-ExtIEs} }	OPTIONAL,
-	...
-}
-
-PDUSessionResourceModifyItemModCfm-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -647,7 +530,7 @@ InitialContextSetupRequestIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-RAN-UE-NGAP-ID							CRITICALITY reject	TYPE RAN-UE-NGAP-ID										PRESENCE mandatory	}|
 	{ ID id-OldAMF									CRITICALITY reject	TYPE AMFName											PRESENCE optional		}|
 	{ ID id-UEAggregateMaximumBitRate				CRITICALITY reject	TYPE UEAggregateMaximumBitRate						PRESENCE conditional	}|
-	{ ID id-RRCInactiveAssistanceInformation		CRITICALITY ignore	TYPE RRCInactiveAssistanceInformation				PRESENCE optional		}|
+	{ ID id-CoreNetworkAssistanceInformation		CRITICALITY ignore	TYPE CoreNetworkAssistanceInformation				PRESENCE optional		}|
 	{ ID id-GUAMI									CRITICALITY reject	TYPE GUAMI												PRESENCE mandatory	}|
 	{ ID id-PDUSessionResourceSetupListCxtReq		CRITICALITY reject	TYPE PDUSessionResourceSetupListCxtReq			PRESENCE optional		}|
 	{ ID id-AllowedNSSAI							CRITICALITY ignore	TYPE AllowedNSSAI										PRESENCE mandatory	}|
@@ -659,27 +542,8 @@ InitialContextSetupRequestIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-IndexToRFSP								CRITICALITY ignore	TYPE IndexToRFSP										PRESENCE optional		}|
 	{ ID id-MaskedIMEISV							CRITICALITY ignore	TYPE MaskedIMEISV										PRESENCE optional		}|
 	{ ID id-NAS-PDU									CRITICALITY ignore	TYPE NAS-PDU											PRESENCE optional		}|
-	{ ID id-EmergencyFallbackIndicator				CRITICALITY reject	TYPE EmergencyFallbackIndicator						PRESENCE optional		},
-	...
-}
-
-PDUSessionResourceSetupListCxtReq ::= SEQUENCE (SIZE(1..maxnoofPDUSessions)) OF ProtocolIE-SingleContainer { {PDUSessionResourceSetupItemCxtReqIEs} }
-
-PDUSessionResourceSetupItemCxtReqIEs NGAP-PROTOCOL-IES ::= {
-	{ ID id-PDUSessionResourceSetupItemCxtReq		CRITICALITY reject	TYPE PDUSessionResourceSetupItemCxtReq			PRESENCE mandatory	},
-	...
-}
-
-PDUSessionResourceSetupItemCxtReq ::= SEQUENCE {
-	pDUSessionID								PDUSessionID,
-	nAS-PDU										NAS-PDU												OPTIONAL,
-	s-NSSAI										S-NSSAI,
-	pDUSessionResourceSetupRequestTransfer		OCTET STRING (CONTAINING PDUSessionResourceSetupRequestTransfer),
-	iE-Extensions		ProtocolExtensionContainer { {PDUSessionResourceSetupItemCxtReq-ExtIEs} }	OPTIONAL,
-	...
-}
-
-PDUSessionResourceSetupItemCxtReq-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-EmergencyFallbackIndicator				CRITICALITY reject	TYPE EmergencyFallbackIndicator						PRESENCE optional		}|
+	{ ID id-RRCInactiveTransitionReportRequest		CRITICALITY ignore	TYPE RRCInactiveTransitionReportRequest			PRESENCE optional		},
 	...
 }
 
@@ -695,32 +559,14 @@ InitialContextSetupResponse ::= SEQUENCE {
 }
 
 InitialContextSetupResponseIEs NGAP-PROTOCOL-IES ::= {
-	{ ID id-AMF-UE-NGAP-ID							CRITICALITY ignore	TYPE AMF-UE-NGAP-ID									PRESENCE mandatory	}|
-	{ ID id-RAN-UE-NGAP-ID							CRITICALITY ignore	TYPE RAN-UE-NGAP-ID									PRESENCE mandatory	}|
-	{ ID id-PDUSessionResourceSetupListCxtRes		CRITICALITY ignore	TYPE PDUSessionResourceSetupListCxtRes		PRESENCE optional		}|
-	{ ID id-PDUSessionResourceFailedToSetupList		CRITICALITY ignore	TYPE PDUSessionList									PRESENCE optional		}|
-	{ ID id-CriticalityDiagnostics					CRITICALITY ignore	TYPE CriticalityDiagnostics						PRESENCE optional		},
+	{ ID id-AMF-UE-NGAP-ID								CRITICALITY ignore	TYPE AMF-UE-NGAP-ID												PRESENCE mandatory	}|
+	{ ID id-RAN-UE-NGAP-ID								CRITICALITY ignore	TYPE RAN-UE-NGAP-ID												PRESENCE mandatory	}|
+	{ ID id-PDUSessionResourceSetupListCxtRes			CRITICALITY ignore	TYPE PDUSessionResourceSetupListCxtRes					PRESENCE optional		}|
+	{ ID id-PDUSessionResourceFailedToSetupListCxtRes	CRITICALITY ignore	TYPE PDUSessionResourceFailedToSetupListCxtRes		PRESENCE optional		}|
+	{ ID id-CriticalityDiagnostics						CRITICALITY ignore	TYPE CriticalityDiagnostics									PRESENCE optional		},
 	...
 }
 
-PDUSessionResourceSetupListCxtRes ::= SEQUENCE (SIZE(1..maxnoofPDUSessions)) OF ProtocolIE-SingleContainer { {PDUSessionResourceSetupItemCxtResIEs} }
-
-PDUSessionResourceSetupItemCxtResIEs	NGAP-PROTOCOL-IES ::= {
-	{ ID id-PDUSessionResourceSetupItemCxtRes	 CRITICALITY ignore	TYPE PDUSessionResourceSetupItemCxtRes	PRESENCE mandatory },
-	...
-}
-
-PDUSessionResourceSetupItemCxtRes ::= SEQUENCE {
-	pDUSessionID											PDUSessionID,
-	pDUSessionResourceSetupResponseTransfer					OCTET STRING (CONTAINING PDUSessionResourceSetupResponseTransfer),
-	additionalPDUSessionResourceSetupResponseTransfer		OCTET STRING (CONTAINING PDUSessionResourceSetupResponseTransfer)		OPTIONAL,
-	iE-Extensions										ProtocolExtensionContainer { {PDUSessionResourceSetupItemCxtRes-ExtIEs} }	OPTIONAL,
-	...
-}
-
-PDUSessionResourceSetupItemCxtRes-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
-	...
-}
 
 -- **************************************************************
 --
@@ -805,6 +651,7 @@ UEContextReleaseComplete-IEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-RAN-UE-NGAP-ID								CRITICALITY ignore	TYPE RAN-UE-NGAP-ID											PRESENCE mandatory	}|
 	{ ID id-UserLocationInformation						CRITICALITY ignore	TYPE UserLocationInformation							PRESENCE optional		}|
 	{ ID id-InfoOnRecommendedCellsAndRANNodesForPaging	CRITICALITY ignore	TYPE InfoOnRecommendedCellsAndRANNodesForPaging	PRESENCE optional		}|
+	{ ID id-PDUSessionResourceListCxtRelCpl				CRITICALITY	reject	TYPE PDUSessionResourceListCxtRelCpl					PRESENCE optional		}|
 	{ ID id-CriticalityDiagnostics						CRITICALITY ignore	TYPE CriticalityDiagnostics								PRESENCE optional		},
 	...
 }
@@ -826,17 +673,18 @@ UEContextModificationRequest ::= SEQUENCE {
 	...
 }
 
-UEContextModificationRequestIEs NGAP-PROTOCOL-IES ::= {
-	{ ID id-AMF-UE-NGAP-ID							CRITICALITY reject	TYPE AMF-UE-NGAP-ID								PRESENCE mandatory	}|
-	{ ID id-RAN-UE-NGAP-ID							CRITICALITY reject	TYPE RAN-UE-NGAP-ID								PRESENCE mandatory	}|
-	{ ID id-RANPagingPriority						CRITICALITY ignore	TYPE RANPagingPriority							PRESENCE optional		}|
-	{ ID id-SecurityKey								CRITICALITY reject	TYPE SecurityKey								PRESENCE optional		}|
-	{ ID id-IndexToRFSP								CRITICALITY ignore	TYPE IndexToRFSP								PRESENCE optional		}|
-	{ ID id-UEAggregateMaximumBitRate				CRITICALITY ignore	TYPE UEAggregateMaximumBitRate				PRESENCE optional		}|
-	{ ID id-UESecurityCapabilities					CRITICALITY reject	TYPE UESecurityCapabilities					PRESENCE optional		}|
-	{ ID id-RRCInactiveAssistanceInformation		CRITICALITY ignore	TYPE RRCInactiveAssistanceInformation		PRESENCE optional		}|
-	{ ID id-EmergencyFallbackIndicator				CRITICALITY reject	TYPE EmergencyFallbackIndicator				PRESENCE optional		}|
-	{ ID id-NewAMF-UE-NGAP-ID						CRITICALITY ignore	TYPE AMF-UE-NGAP-ID								PRESENCE optional		},
+UEContextModificationRequestIEs NGAP-PROTOCOL-IES ::= {	
+	{ ID id-AMF-UE-NGAP-ID							CRITICALITY reject	TYPE AMF-UE-NGAP-ID									PRESENCE mandatory	}|
+	{ ID id-RAN-UE-NGAP-ID							CRITICALITY reject	TYPE RAN-UE-NGAP-ID									PRESENCE mandatory	}|
+	{ ID id-RANPagingPriority						CRITICALITY ignore	TYPE RANPagingPriority								PRESENCE optional		}|
+	{ ID id-SecurityKey								CRITICALITY reject	TYPE SecurityKey									PRESENCE optional		}|
+	{ ID id-IndexToRFSP								CRITICALITY ignore	TYPE IndexToRFSP									PRESENCE optional		}|
+	{ ID id-UEAggregateMaximumBitRate				CRITICALITY ignore	TYPE UEAggregateMaximumBitRate					PRESENCE optional		}|
+	{ ID id-UESecurityCapabilities					CRITICALITY reject	TYPE UESecurityCapabilities						PRESENCE optional		}|
+	{ ID id-CoreNetworkAssistanceInformation		CRITICALITY ignore	TYPE CoreNetworkAssistanceInformation			PRESENCE optional		}|
+	{ ID id-EmergencyFallbackIndicator				CRITICALITY reject	TYPE EmergencyFallbackIndicator					PRESENCE optional		}|
+	{ ID id-NewAMF-UE-NGAP-ID						CRITICALITY ignore	TYPE AMF-UE-NGAP-ID									PRESENCE optional		}|
+	{ ID id-RRCInactiveTransitionReportRequest		CRITICALITY ignore	TYPE RRCInactiveTransitionReportRequest		PRESENCE optional		},
 	...
 }
 
@@ -851,9 +699,11 @@ UEContextModificationResponse ::= SEQUENCE {
 	...
 }
 
-UEContextModificationResponseIEs NGAP-PROTOCOL-IES ::= {
+UEContextModificationResponseIEs NGAP-PROTOCOL-IES ::= {	
 	{ ID id-AMF-UE-NGAP-ID				CRITICALITY ignore	TYPE AMF-UE-NGAP-ID				PRESENCE mandatory	}|
 	{ ID id-RAN-UE-NGAP-ID				CRITICALITY ignore	TYPE RAN-UE-NGAP-ID				PRESENCE mandatory	}|
+	{ ID id-RRCState					CRITICALITY ignore	TYPE RRCState					PRESENCE optional		}|
+	{ ID id-UserLocationInformation		CRITICALITY ignore	TYPE UserLocationInformation	PRESENCE optional 	}|
 	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional		},
 	...
 }
@@ -869,11 +719,30 @@ UEContextModificationFailure ::= SEQUENCE {
 	...
 }
 
-UEContextModificationFailureIEs NGAP-PROTOCOL-IES ::= {
+UEContextModificationFailureIEs NGAP-PROTOCOL-IES ::= {	
 	{ ID id-AMF-UE-NGAP-ID				CRITICALITY ignore	TYPE AMF-UE-NGAP-ID				PRESENCE mandatory	}|
 	{ ID id-RAN-UE-NGAP-ID				CRITICALITY ignore	TYPE RAN-UE-NGAP-ID				PRESENCE mandatory	}|
 	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE mandatory	}|
 	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional		},
+	...
+}
+
+-- **************************************************************
+--
+-- RRC INACTIVE TRANSITION REPORT
+--
+-- **************************************************************
+
+RRCInactiveTransitionReport ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ {RRCInactiveTransitionReportIEs} },
+	...
+}
+
+RRCInactiveTransitionReportIEs NGAP-PROTOCOL-IES ::= {
+	{ ID id-AMF-UE-NGAP-ID				CRITICALITY reject	TYPE AMF-UE-NGAP-ID					PRESENCE mandatory	}|
+	{ ID id-RAN-UE-NGAP-ID				CRITICALITY reject	TYPE RAN-UE-NGAP-ID					PRESENCE mandatory	}|
+	{ ID id-RRCState					CRITICALITY ignore	TYPE RRCState						PRESENCE mandatory	}|
+	{ ID id-UserLocationInformation		CRITICALITY ignore	TYPE UserLocationInformation		PRESENCE mandatory	},
 	...
 }
 
@@ -900,7 +769,7 @@ HandoverRequired ::= SEQUENCE {
 	...
 }
 
-HandoverRequiredIEs NGAP-PROTOCOL-IES ::= {
+HandoverRequiredIEs NGAP-PROTOCOL-IES ::= {	
 	{ ID id-AMF-UE-NGAP-ID							CRITICALITY reject	TYPE AMF-UE-NGAP-ID									PRESENCE mandatory	}|
 	{ ID id-RAN-UE-NGAP-ID							CRITICALITY reject	TYPE RAN-UE-NGAP-ID									PRESENCE mandatory	}|
 	{ ID id-HandoverType							CRITICALITY reject	TYPE HandoverType									PRESENCE mandatory	}|
@@ -909,26 +778,6 @@ HandoverRequiredIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-DirectForwardingPathAvailability		CRITICALITY ignore	TYPE DirectForwardingPathAvailability			PRESENCE optional		}|
 	{ ID id-PDUSessionResourceListHORqd				CRITICALITY reject	TYPE PDUSessionResourceListHORqd				PRESENCE mandatory	}|
 	{ ID id-SourceToTarget-TransparentContainer		CRITICALITY reject	TYPE SourceToTarget-TransparentContainer		PRESENCE mandatory	},
-	...
-}
-
-PDUSessionResourceListHORqd ::= SEQUENCE (SIZE(1..maxnoofPDUSessions)) OF ProtocolIE-SingleContainer { {PDUSessionResourceItemHORqdIEs} }
-
-PDUSessionResourceItemHORqdIEs NGAP-PROTOCOL-IES ::= {
-	{ ID id-PDUSessionResourceItemHORqd				CRITICALITY reject	TYPE PDUSessionResourceItemHORqd				PRESENCE mandatory	},
-	...
-}
-
-PDUSessionResourceItemHORqd ::= SEQUENCE {
-	pDUSessionID							PDUSessionID,
-	s-NSSAI									S-NSSAI,
-	handoverRequiredTransfer				OCTET STRING (CONTAINING PDUSessionResourceSetupRequestTransfer),
-	pDUSessionResourceSubjectToHandover		PDUSessionResourceSubjectToHandover,
-	iE-Extensions		ProtocolExtensionContainer { {PDUSessionResourceItemHORqd-ExtIEs} }	OPTIONAL,
-	...
-}
-
-PDUSessionResourceItemHORqd-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -943,34 +792,19 @@ HandoverCommand ::= SEQUENCE {
 	...
 }
 
-HandoverCommandIEs NGAP-PROTOCOL-IES ::= {
+HandoverCommandIEs NGAP-PROTOCOL-IES ::= {	
 	{ ID id-AMF-UE-NGAP-ID								CRITICALITY reject	TYPE AMF-UE-NGAP-ID											PRESENCE mandatory	}|
 	{ ID id-RAN-UE-NGAP-ID								CRITICALITY reject	TYPE RAN-UE-NGAP-ID											PRESENCE mandatory	}|
 	{ ID id-HandoverType								CRITICALITY reject	TYPE HandoverType											PRESENCE mandatory	}|
-	{ ID id-PDUSessionResourceSubjectToForwardingList	CRITICALITY ignore	TYPE PDUSessionResourceSubjectToForwardingList	PRESENCE optional		}|
-	{ ID id-PDUSessionResourceToReleaseList				CRITICALITY ignore	TYPE PDUSessionList											PRESENCE optional		}|
+	{ ID id-NASSecurityParametersFromNGRAN				CRITICALITY reject	TYPE NASSecurityParametersFromNGRAN					PRESENCE conditional	}|
+	-- This IE shall be present if HandoverType IE is set to value "5GStoEPPS" --
+	{ ID id-PDUSessionResourceHandoverList				CRITICALITY ignore	TYPE PDUSessionResourceHandoverList					PRESENCE mandatory	}|
+	{ ID id-PDUSessionResourceToReleaseListHOCmd		CRITICALITY ignore	TYPE PDUSessionResourceToReleaseListHOCmd			PRESENCE optional		}|
 	{ ID id-TargetToSource-TransparentContainer			CRITICALITY reject	TYPE TargetToSource-TransparentContainer			PRESENCE mandatory	}|
 	{ ID id-CriticalityDiagnostics						CRITICALITY ignore	TYPE CriticalityDiagnostics								PRESENCE optional		},
 	...
 }
 
-PDUSessionResourceSubjectToForwardingList ::= SEQUENCE (SIZE(1..maxnoofPDUSessions)) OF ProtocolIE-SingleContainer { {PDUSessionResourceSubjectToForwardingItemIEs} }
-
-PDUSessionResourceSubjectToForwardingItemIEs NGAP-PROTOCOL-IES ::= {
-	{ ID id-PDUSessionResourceSubjectToForwardingItem	 CRITICALITY reject TYPE PDUSessionResourceSubjectToForwardingItem	PRESENCE mandatory	},
-	...
-}
-
-PDUSessionResourceSubjectToForwardingItem ::= SEQUENCE {
-	pDUSessionID						PDUSessionID,
-	handoverCommandTransfer				OCTET STRING (CONTAINING HandoverCommandTransfer)						OPTIONAL,
-	iE-Extensions		ProtocolExtensionContainer { {PDUSessionResourceSubjectToForwardingItem-ExtIEs} }	OPTIONAL,
-	...
-}
-
-PDUSessionResourceSubjectToForwardingItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
-	...
-}
 
 -- **************************************************************
 --
@@ -983,7 +817,7 @@ HandoverPreparationFailure ::= SEQUENCE {
 	...
 }
 
-HandoverPreparationFailureIEs NGAP-PROTOCOL-IES ::= {
+HandoverPreparationFailureIEs NGAP-PROTOCOL-IES ::= {	
 	{ ID id-AMF-UE-NGAP-ID				CRITICALITY ignore	TYPE AMF-UE-NGAP-ID				PRESENCE mandatory	}|
 	{ ID id-RAN-UE-NGAP-ID				CRITICALITY ignore	TYPE RAN-UE-NGAP-ID				PRESENCE mandatory	}|
 	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE mandatory	}|
@@ -1013,36 +847,20 @@ HandoverRequestIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-HandoverType							CRITICALITY reject	TYPE HandoverType									PRESENCE mandatory	}|
 	{ ID id-Cause									CRITICALITY ignore	TYPE Cause											PRESENCE mandatory	}|
 	{ ID id-UEAggregateMaximumBitRate				CRITICALITY reject	TYPE UEAggregateMaximumBitRate					PRESENCE mandatory	}|
-	{ ID id-RRCInactiveAssistanceInformation		CRITICALITY ignore	TYPE RRCInactiveAssistanceInformation			PRESENCE optional		}|
+	{ ID id-CoreNetworkAssistanceInformation		CRITICALITY ignore	TYPE CoreNetworkAssistanceInformation			PRESENCE optional		}|
 	{ ID id-UESecurityCapabilities					CRITICALITY reject	TYPE UESecurityCapabilities						PRESENCE mandatory	}|
 	{ ID id-SecurityContext							CRITICALITY reject	TYPE SecurityContext								PRESENCE mandatory	}|
-	{ ID id-KamfChangeInd							CRITICALITY reject	TYPE KamfChangeInd									PRESENCE optional		}|
+	{ ID id-NewSecurityContextInd					CRITICALITY reject	TYPE NewSecurityContextInd						PRESENCE optional		}|
 	{ ID id-NASC									CRITICALITY reject	TYPE NAS-PDU										PRESENCE optional		}|
 	{ ID id-PDUSessionResourceSetupListHOReq		CRITICALITY reject	TYPE PDUSessionResourceSetupListHOReq			PRESENCE mandatory	}|
+	{ ID id-AllowedNSSAI							CRITICALITY ignore	TYPE AllowedNSSAI									PRESENCE mandatory	}|
 	{ ID id-TraceActivation							CRITICALITY ignore	TYPE TraceActivation								PRESENCE optional		}|
 	{ ID id-MaskedIMEISV							CRITICALITY ignore	TYPE MaskedIMEISV									PRESENCE optional		}|
 	{ ID id-SourceToTarget-TransparentContainer		CRITICALITY reject	TYPE SourceToTarget-TransparentContainer		PRESENCE mandatory	}|
 	{ ID id-MobilityRestrictionList					CRITICALITY ignore	TYPE MobilityRestrictionList						PRESENCE optional		}|
-	{ ID id-LocationReportingRequestType			CRITICALITY ignore	TYPE LocationReportingRequestType				PRESENCE optional		},
-	...
-}
-
-PDUSessionResourceSetupListHOReq ::= SEQUENCE (SIZE(1..maxnoofPDUSessions)) OF ProtocolIE-SingleContainer { {PDUSessionResourceSetupItemHOReqIEs} }
-
-PDUSessionResourceSetupItemHOReqIEs NGAP-PROTOCOL-IES ::= {
-	{ ID id-PDUSessionResourceSetupItemHOReq		CRITICALITY reject	TYPE PDUSessionResourceSetupItemHOReq			PRESENCE mandatory	},
-	...
-}
-
-PDUSessionResourceSetupItemHOReq ::= SEQUENCE {
-	pDUSessionID				PDUSessionID,
-	s-NSSAI						S-NSSAI,
-	handoverRequestTransfer		OCTET STRING (CONTAINING PDUSessionResourceSetupRequestTransfer),
-	iE-Extensions		ProtocolExtensionContainer { {PDUSessionResourceSetupItemHOReq-ExtIEs} }	OPTIONAL,
-	...
-}
-
-PDUSessionResourceSetupItemHOReq-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-LocationReportingRequestType			CRITICALITY ignore	TYPE LocationReportingRequestType				PRESENCE optional		}|
+	{ ID id-RRCInactiveTransitionReportRequest		CRITICALITY ignore	TYPE RRCInactiveTransitionReportRequest		PRESENCE optional		}|
+	{ ID id-GUAMI									CRITICALITY reject	TYPE GUAMI											PRESENCE mandatory	},
 	...
 }
 
@@ -1058,32 +876,15 @@ HandoverRequestAcknowledge ::= SEQUENCE {
 }
 
 HandoverRequestAcknowledgeIEs NGAP-PROTOCOL-IES ::= {
-	{ ID id-AMF-UE-NGAP-ID							CRITICALITY ignore	TYPE AMF-UE-NGAP-ID									PRESENCE mandatory	}|
-	{ ID id-RAN-UE-NGAP-ID							CRITICALITY ignore	TYPE RAN-UE-NGAP-ID									PRESENCE mandatory	}|
-	{ ID id-PDUSessionResourceAdmittedList			CRITICALITY ignore	TYPE PDUSessionResourceAdmittedList			PRESENCE mandatory	}|
-	{ ID id-PDUSessionResourceFailedToSetupList		CRITICALITY ignore	TYPE PDUSessionList									PRESENCE optional		}|
-	{ ID id-TargetToSource-TransparentContainer		CRITICALITY reject	TYPE TargetToSource-TransparentContainer		PRESENCE mandatory	}|
-	{ ID id-CriticalityDiagnostics					CRITICALITY ignore	TYPE CriticalityDiagnostics						PRESENCE optional		},
+	{ ID id-AMF-UE-NGAP-ID								CRITICALITY ignore	TYPE AMF-UE-NGAP-ID											PRESENCE mandatory	}|
+	{ ID id-RAN-UE-NGAP-ID								CRITICALITY ignore	TYPE RAN-UE-NGAP-ID											PRESENCE mandatory	}|
+	{ ID id-PDUSessionResourceAdmittedList				CRITICALITY ignore	TYPE PDUSessionResourceAdmittedList					PRESENCE mandatory	}|
+	{ ID id-PDUSessionResourceFailedToSetupListHOAck	CRITICALITY ignore	TYPE PDUSessionResourceFailedToSetupListHOAck		PRESENCE optional		}|
+	{ ID id-TargetToSource-TransparentContainer			CRITICALITY reject	TYPE TargetToSource-TransparentContainer			PRESENCE mandatory	}|
+	{ ID id-CriticalityDiagnostics						CRITICALITY ignore	TYPE CriticalityDiagnostics								PRESENCE optional		},
 	...
 }
 
-PDUSessionResourceAdmittedList ::= SEQUENCE (SIZE(1..maxnoofPDUSessions)) OF ProtocolIE-SingleContainer { {PDUSessionResourceAdmittedItemIEs} }
-
-PDUSessionResourceAdmittedItemIEs NGAP-PROTOCOL-IES ::= {
-	{ ID id-PDUSessionResourceAdmittedItem			CRITICALITY ignore	TYPE PDUSessionResourceAdmittedItem			PRESENCE mandatory	},
-	...
-}
-
-PDUSessionResourceAdmittedItem ::= SEQUENCE {
-	pDUSessionID							PDUSessionID,
-	handoverRequestAcknowledgeTransfer		OCTET STRING (CONTAINING HandoverRequestAcknowledgeTransfer),
-	iE-Extensions		ProtocolExtensionContainer { {PDUSessionResourceAdmittedItem-ExtIEs} }	OPTIONAL,
-	...
-}
-
-PDUSessionResourceAdmittedItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
-	...
-}
 
 -- **************************************************************
 --
@@ -1096,7 +897,7 @@ HandoverFailure ::= SEQUENCE {
 	...
 }
 
-HandoverFailureIEs NGAP-PROTOCOL-IES ::= {
+HandoverFailureIEs NGAP-PROTOCOL-IES ::= {	
 	{ ID id-AMF-UE-NGAP-ID				CRITICALITY ignore	TYPE AMF-UE-NGAP-ID				PRESENCE mandatory	}|
 	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE mandatory	}|
 	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional		},
@@ -1120,7 +921,7 @@ HandoverNotify ::= SEQUENCE {
 	...
 }
 
-HandoverNotifyIEs NGAP-PROTOCOL-IES ::= {
+HandoverNotifyIEs NGAP-PROTOCOL-IES ::= {	
 	{ ID id-AMF-UE-NGAP-ID				CRITICALITY reject	TYPE AMF-UE-NGAP-ID				PRESENCE mandatory	}|
 	{ ID id-RAN-UE-NGAP-ID				CRITICALITY reject	TYPE RAN-UE-NGAP-ID				PRESENCE mandatory	}|
 	{ ID id-UserLocationInformation		CRITICALITY ignore	TYPE UserLocationInformation	PRESENCE optional		},
@@ -1144,33 +945,16 @@ PathSwitchRequest ::= SEQUENCE {
 	...
 }
 
-PathSwitchRequestIEs NGAP-PROTOCOL-IES ::= {
-	{ ID id-RAN-UE-NGAP-ID								CRITICALITY reject	TYPE RAN-UE-NGAP-ID										PRESENCE mandatory	}|
-	{ ID id-SourceAMF-UE-NGAP-ID						CRITICALITY reject	TYPE AMF-UE-NGAP-ID										PRESENCE mandatory	}|
-	{ ID id-UserLocationInformation						CRITICALITY ignore	TYPE UserLocationInformation						PRESENCE mandatory	}|
-	{ ID id-UESecurityCapabilities						CRITICALITY ignore	TYPE UESecurityCapabilities							PRESENCE mandatory	}|
-	{ ID id-PDUSessionResourceToBeSwitchedDLList		CRITICALITY reject	TYPE PDUSessionResourceToBeSwitchedDLList		PRESENCE mandatory	}|
-	{ ID id-PDUSessionResourceFailedToSetupList			CRITICALITY ignore	TYPE PDUSessionList										PRESENCE optional		},
+PathSwitchRequestIEs NGAP-PROTOCOL-IES ::= {	
+	{ ID id-RAN-UE-NGAP-ID								CRITICALITY reject	TYPE RAN-UE-NGAP-ID											PRESENCE mandatory	}|
+	{ ID id-SourceAMF-UE-NGAP-ID						CRITICALITY reject	TYPE AMF-UE-NGAP-ID											PRESENCE mandatory	}|
+	{ ID id-UserLocationInformation						CRITICALITY ignore	TYPE UserLocationInformation							PRESENCE mandatory	}|
+	{ ID id-UESecurityCapabilities						CRITICALITY ignore	TYPE UESecurityCapabilities								PRESENCE mandatory	}|
+	{ ID id-PDUSessionResourceToBeSwitchedDLList		CRITICALITY reject	TYPE PDUSessionResourceToBeSwitchedDLList			PRESENCE mandatory	}|
+	{ ID id-PDUSessionResourceFailedToSetupListPSReq	CRITICALITY ignore	TYPE PDUSessionResourceFailedToSetupListPSReq		PRESENCE optional		},
 	...
 }
 
-PDUSessionResourceToBeSwitchedDLList ::= SEQUENCE (SIZE(1..maxnoofPDUSessions)) OF ProtocolIE-SingleContainer { {PDUSessionResourceToBeSwitchedDLItemIEs} }
-
-PDUSessionResourceToBeSwitchedDLItemIEs NGAP-PROTOCOL-IES ::= {
-	{ ID id-PDUSessionResourceToBeSwitchedDLItem		CRITICALITY reject	TYPE PDUSessionResourceToBeSwitchedDLItem		PRESENCE mandatory	},
-	...
-}
-
-PDUSessionResourceToBeSwitchedDLItem ::= SEQUENCE {
-	pDUSessionID					PDUSessionID,
-	pathSwitchRequestTransfer		OCTET STRING (CONTAINING PathSwitchRequestTransfer),
-	iE-Extensions		ProtocolExtensionContainer { { PDUSessionResourceToBeSwitchedDLItem-ExtIEs} }	OPTIONAL,
-	...
-}
-
-PDUSessionResourceToBeSwitchedDLItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
-	...
-}
 
 -- **************************************************************
 --
@@ -1183,36 +967,21 @@ PathSwitchRequestAcknowledge ::= SEQUENCE {
 	...
 }
 
-PathSwitchRequestAcknowledgeIEs NGAP-PROTOCOL-IES ::= {
+PathSwitchRequestAcknowledgeIEs NGAP-PROTOCOL-IES ::= {	
 	{ ID id-AMF-UE-NGAP-ID								CRITICALITY ignore	TYPE AMF-UE-NGAP-ID										PRESENCE mandatory	}|
 	{ ID id-RAN-UE-NGAP-ID								CRITICALITY ignore	TYPE RAN-UE-NGAP-ID										PRESENCE mandatory	}|
 	{ ID id-UESecurityCapabilities						CRITICALITY reject	TYPE UESecurityCapabilities							PRESENCE optional		}|
 	{ ID id-SecurityContext								CRITICALITY reject	TYPE SecurityContext									PRESENCE mandatory	}|
-	{ ID id-KamfChangeInd								CRITICALITY reject	TYPE KamfChangeInd										PRESENCE optional		}|
-	{ ID id-PDUSessionResourceToBeSwitchedULList		CRITICALITY ignore	TYPE PDUSessionResourceToBeSwitchedULList		PRESENCE optional		}|
-	{ ID id-PDUSessionResourceReleasedList				CRITICALITY ignore	TYPE PDUSessionList										PRESENCE optional		}|
-	{ ID id-RRCInactiveAssistanceInformation			CRITICALITY ignore	TYPE RRCInactiveAssistanceInformation			PRESENCE optional		}|
+	{ ID id-NewSecurityContextInd						CRITICALITY ignore	TYPE NewSecurityContextInd							PRESENCE optional		}|
+	{ ID id-PDUSessionResourceSwitchedList				CRITICALITY ignore	TYPE PDUSessionResourceSwitchedList				PRESENCE mandatory	}|
+	{ ID id-PDUSessionResourceReleasedListPSAck			CRITICALITY ignore	TYPE PDUSessionResourceReleasedListPSAck		PRESENCE optional		}|
+	{ ID id-AllowedNSSAI								CRITICALITY ignore	TYPE AllowedNSSAI										PRESENCE mandatory	}|
+	{ ID id-CoreNetworkAssistanceInformation			CRITICALITY ignore	TYPE CoreNetworkAssistanceInformation			PRESENCE optional		}|
+	{ ID id-RRCInactiveTransitionReportRequest			CRITICALITY ignore	TYPE RRCInactiveTransitionReportRequest			PRESENCE optional		}|
 	{ ID id-CriticalityDiagnostics						CRITICALITY ignore	TYPE CriticalityDiagnostics							PRESENCE optional		},
 	...
 }
 
-PDUSessionResourceToBeSwitchedULList ::= SEQUENCE (SIZE(1..maxnoofPDUSessions)) OF ProtocolIE-SingleContainer { {PDUSessionResourceToBeSwitchedULItemIEs} }
-
-PDUSessionResourceToBeSwitchedULItemIEs NGAP-PROTOCOL-IES ::= {
-	{ ID id-PDUSessionResourceToBeSwitchedULItem		CRITICALITY reject	TYPE PDUSessionResourceToBeSwitchedULItem		PRESENCE mandatory	},
-	...
-}
-
-PDUSessionResourceToBeSwitchedULItem ::= SEQUENCE {
-	pDUSessionID					PDUSessionID,
-	pathSwitchRequestTransfer		OCTET STRING (CONTAINING PathSwitchRequestAcknowledgeTransfer),
-	iE-Extensions		ProtocolExtensionContainer { { PDUSessionResourceToBeSwitchedULItem-ExtIEs} }	OPTIONAL,
-	...
-}
-
-PDUSessionResourceToBeSwitchedULItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
-	...
-}
 
 -- **************************************************************
 --
@@ -1225,11 +994,11 @@ PathSwitchRequestFailure ::= SEQUENCE {
 	...
 }
 
-PathSwitchRequestFailureIEs NGAP-PROTOCOL-IES ::= {
-	{ ID id-AMF-UE-NGAP-ID				CRITICALITY ignore	TYPE AMF-UE-NGAP-ID					PRESENCE mandatory	}|
-	{ ID id-RAN-UE-NGAP-ID				CRITICALITY ignore	TYPE RAN-UE-NGAP-ID					PRESENCE mandatory	}|
-	{ ID id-Cause						CRITICALITY ignore	TYPE Cause							PRESENCE mandatory	}|
-	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional	},
+PathSwitchRequestFailureIEs NGAP-PROTOCOL-IES ::= {	
+	{ ID id-AMF-UE-NGAP-ID							CRITICALITY ignore	TYPE AMF-UE-NGAP-ID									PRESENCE mandatory	}|
+	{ ID id-RAN-UE-NGAP-ID							CRITICALITY ignore	TYPE RAN-UE-NGAP-ID									PRESENCE mandatory	}|
+	{ ID id-PDUSessionResourceReleasedListPSFail	CRITICALITY ignore	TYPE PDUSessionResourceReleasedListPSFail	PRESENCE mandatory	}|
+	{ ID id-CriticalityDiagnostics					CRITICALITY ignore	TYPE CriticalityDiagnostics						PRESENCE optional		},
 	...
 }
 
@@ -1250,7 +1019,7 @@ HandoverCancel ::= SEQUENCE {
 	...
 }
 
-HandoverCancelIEs NGAP-PROTOCOL-IES ::= {
+HandoverCancelIEs NGAP-PROTOCOL-IES ::= {	
 	{ ID id-AMF-UE-NGAP-ID		CRITICALITY reject	TYPE AMF-UE-NGAP-ID		PRESENCE mandatory	}|
 	{ ID id-RAN-UE-NGAP-ID		CRITICALITY reject	TYPE RAN-UE-NGAP-ID		PRESENCE mandatory	}|
 	{ ID id-Cause				CRITICALITY ignore	TYPE Cause				PRESENCE mandatory	},
@@ -1268,7 +1037,7 @@ HandoverCancelAcknowledge ::= SEQUENCE {
 	...
 }
 
-HandoverCancelAcknowledgeIEs NGAP-PROTOCOL-IES ::= {
+HandoverCancelAcknowledgeIEs NGAP-PROTOCOL-IES ::= {	
 	{ ID id-AMF-UE-NGAP-ID				CRITICALITY ignore	TYPE AMF-UE-NGAP-ID				PRESENCE mandatory	}|
 	{ ID id-RAN-UE-NGAP-ID				CRITICALITY ignore	TYPE RAN-UE-NGAP-ID				PRESENCE mandatory	}|
 	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional	},
@@ -1344,28 +1113,11 @@ PagingIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-UEIdentityIndexValue			CRITICALITY ignore	TYPE UEIdentityIndexValue			PRESENCE mandatory	}|
 	{ ID id-UEPagingIdentity				CRITICALITY ignore	TYPE UEPagingIdentity				PRESENCE mandatory	}|
 	{ ID id-PagingDRX						CRITICALITY ignore	TYPE PagingDRX						PRESENCE optional		}|
-	{ ID id-TAIList							CRITICALITY ignore	TYPE TAIList						PRESENCE mandatory	}|
+	{ ID id-TAIListForPaging				CRITICALITY ignore	TYPE TAIListForPaging				PRESENCE mandatory	}|
 	{ ID id-PagingPriority					CRITICALITY ignore	TYPE PagingPriority					PRESENCE optional		}|
 	{ ID id-UERadioCapabilityForPaging		CRITICALITY ignore	TYPE UERadioCapabilityForPaging		PRESENCE optional		}|
 	{ ID id-PagingOrigin					CRITICALITY ignore	TYPE PagingOrigin					PRESENCE optional		}|
 	{ ID id-AssistanceDataForPaging			CRITICALITY ignore	TYPE AssistanceDataForPaging		PRESENCE optional		},
-	...
-}
-
-TAIList ::= SEQUENCE (SIZE(1..maxnoofTAIs)) OF ProtocolIE-SingleContainer { {TAIItemIEs} }
-
-TAIItemIEs	NGAP-PROTOCOL-IES ::= {
-	{ ID id-TAIItem							CRITICALITY ignore	TYPE TAIItem						PRESENCE mandatory	},
-	...
-}
-
-TAIItem ::= SEQUENCE {
-	tAI				TAI,
-	iE-Extensions		ProtocolExtensionContainer { {TAIItem-ExtIEs} }	OPTIONAL,
-	...
-}
-
-TAIItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -1392,9 +1144,9 @@ InitialUEMessage-IEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-UserLocationInformation		CRITICALITY reject	TYPE UserLocationInformation	PRESENCE mandatory	}|
 	{ ID id-RRCEstablishmentCause		CRITICALITY ignore	TYPE RRCEstablishmentCause		PRESENCE optional		}|
 	{ ID id-FiveG-S-TMSI				CRITICALITY reject	TYPE FiveG-S-TMSI				PRESENCE optional		}|
-	{ ID id-GUAMI						CRITICALITY reject	TYPE GUAMI						PRESENCE optional		}|
 	{ ID id-AMFSetID					CRITICALITY ignore	TYPE AMFSetID					PRESENCE optional		}|
-	{ ID id-UEContextRequest			CRITICALITY ignore	TYPE UEContextRequest			PRESENCE optional		},
+	{ ID id-UEContextRequest			CRITICALITY ignore	TYPE UEContextRequest			PRESENCE optional		}|
+	{ ID id-AllowedNSSAI				CRITICALITY reject	TYPE AllowedNSSAI				PRESENCE optional		},
 	...
 }
 
@@ -1417,7 +1169,8 @@ DownlinkNASTransport-IEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-NAS-PDU							CRITICALITY reject	TYPE NAS-PDU						PRESENCE mandatory	}|
 	{ ID id-MobilityRestrictionList			CRITICALITY ignore	TYPE MobilityRestrictionList		PRESENCE optional		}|
 	{ ID id-IndexToRFSP						CRITICALITY ignore	TYPE IndexToRFSP					PRESENCE optional		}|
-	{ ID id-UEAggregateMaximumBitRate		CRITICALITY ignore	TYPE UEAggregateMaximumBitRate		PRESENCE optional		},
+	{ ID id-UEAggregateMaximumBitRate		CRITICALITY ignore	TYPE UEAggregateMaximumBitRate		PRESENCE optional		}|
+	{ ID id-AllowedNSSAI					CRITICALITY ignore	TYPE AllowedNSSAI					PRESENCE optional		},
 	...
 }
 
@@ -1478,8 +1231,8 @@ RerouteNASRequest-IEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-AMF-UE-NGAP-ID			CRITICALITY ignore	TYPE AMF-UE-NGAP-ID			PRESENCE optional	}|
 -- WS modification, add a definition for NGAP Message
 --	{ ID id-NGAP-Message			CRITICALITY reject	TYPE OCTET STRING			PRESENCE mandatory	}|
-	{ ID id-NGAP-Message			CRITICALITY reject	TYPE NGAP-Message			PRESENCE mandatory	}|
-	{ ID id-AMFSetID				CRITICALITY reject	TYPE AMFSetID				PRESENCE mandatory	}|
+    { ID id-NGAP-Message			CRITICALITY reject	TYPE NGAP-Message			PRESENCE mandatory	}|
+    { ID id-AMFSetID                CRITICALITY reject  TYPE AMFSetID               PRESENCE mandatory  }|
 	{ ID id-AllowedNSSAI			CRITICALITY ignore	TYPE AllowedNSSAI			PRESENCE optional	},
 	...
 }
@@ -1561,7 +1314,7 @@ NGSetupFailureIEs NGAP-PROTOCOL-IES ::= {
 
 -- **************************************************************
 --
--- RAN CONFIGURATION UPDATE
+-- RAN CONFIGURATION UPDATE 
 --
 -- **************************************************************
 
@@ -1619,7 +1372,7 @@ RANConfigurationUpdateFailureIEs NGAP-PROTOCOL-IES ::= {
 
 -- **************************************************************
 --
--- AMF CONFIGURATION UPDATE
+-- AMF CONFIGURATION UPDATE 
 --
 -- **************************************************************
 
@@ -1639,61 +1392,6 @@ AMFConfigurationUpdateIEs NGAP-PROTOCOL-IES ::= {
 	...
 }
 
-AMF-TNLAssociationToAddList ::= SEQUENCE (SIZE(1..maxnoofTNLAssociations)) OF ProtocolIE-SingleContainer { {AMF-TNLAssociationToAddItemIEs} }
-
-AMF-TNLAssociationToAddItemIEs NGAP-PROTOCOL-IES ::= {
-	{ ID id-AMF-TNLAssociationToAddItem			CRITICALITY reject	TYPE AMF-TNLAssociationToAddItem		PRESENCE mandatory	},
-	...
-}
-
-AMF-TNLAssociationToAddItem ::= SEQUENCE {
-	aMF-TNLAssociationAddress			CPTransportLayerInformation,
-	tNLAssociationUsage					TNLAssociationUsage									OPTIONAL,
-	tNLAssociationWeightFactor			TNLAssociationWeightFactor,
-	iE-Extensions		ProtocolExtensionContainer { {AMF-TNLAssociationToAddItem-ExtIEs} }	OPTIONAL,
-	...
-}
-
-AMF-TNLAssociationToAddItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
-	...
-}
-
-AMF-TNLAssociationToRemoveList ::= SEQUENCE (SIZE(1..maxnoofTNLAssociations)) OF ProtocolIE-SingleContainer { {AMF-TNLAssociationToRemoveItemIEs} }
-
-AMF-TNLAssociationToRemoveItemIEs NGAP-PROTOCOL-IES ::= {
-	{ ID id-AMF-TNLAssociationToRemoveItem			CRITICALITY reject	TYPE AMF-TNLAssociationToRemoveItem		PRESENCE mandatory	},
-	...
-}
-
-AMF-TNLAssociationToRemoveItem ::= SEQUENCE {
-	aMF-TNLAssociationAddress		CPTransportLayerInformation,
-	iE-Extensions		ProtocolExtensionContainer { {AMF-TNLAssociationToRemoveItem-ExtIEs} }	OPTIONAL,
-	...
-}
-
-AMF-TNLAssociationToRemoveItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
-	...
-}
-
-AMF-TNLAssociationToUpdateList ::= SEQUENCE (SIZE(1..maxnoofTNLAssociations)) OF ProtocolIE-SingleContainer { {AMF-TNLAssociationToUpdateItemIEs} }
-
-AMF-TNLAssociationToUpdateItemIEs NGAP-PROTOCOL-IES ::= {
-	{ ID id-AMF-TNLAssociationToUpdateItem			CRITICALITY reject	TYPE AMF-TNLAssociationToUpdateItem		PRESENCE mandatory	},
-	...
-}
-
-AMF-TNLAssociationToUpdateItem ::= SEQUENCE {
-	aMF-TNLAssociationAddress			CPTransportLayerInformation,
-	tNLAssociationUsage					TNLAssociationUsage										OPTIONAL,
-	tNLAssociationWeightFactor			TNLAssociationWeightFactor								OPTIONAL,
-	iE-Extensions		ProtocolExtensionContainer { {AMF-TNLAssociationToUpdateItem-ExtIEs} }	OPTIONAL,
-	...
-}
-
-AMF-TNLAssociationToUpdateItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
-	...
-}
-
 -- **************************************************************
 --
 -- AMF CONFIGURATION UPDATE ACKNOWLEDGE
@@ -1709,23 +1407,6 @@ AMFConfigurationUpdateAcknowledgeIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-AMF-TNLAssociationSetupList				CRITICALITY ignore	TYPE AMF-TNLAssociationSetupList			PRESENCE optional		}|
 	{ ID id-AMF-TNLAssociationFailedToSetupList		CRITICALITY ignore	TYPE TNLAssociationList							PRESENCE optional		}|
 	{ ID id-CriticalityDiagnostics					CRITICALITY ignore	TYPE CriticalityDiagnostics					PRESENCE optional		},
-	...
-}
-
-AMF-TNLAssociationSetupList ::= SEQUENCE (SIZE(1..maxnoofTNLAssociations)) OF ProtocolIE-SingleContainer { {AMF-TNLAssociationSetupItemIEs} }
-
-AMF-TNLAssociationSetupItemIEs NGAP-PROTOCOL-IES ::= {
-	{ ID id-AMF-TNLAssociationSetupItem			CRITICALITY reject	TYPE AMF-TNLAssociationSetupItem		PRESENCE mandatory	},
-	...
-}
-
-AMF-TNLAssociationSetupItem ::= SEQUENCE {
-	aMF-TNLAssociationAddress		CPTransportLayerInformation,
-	iE-Extensions		ProtocolExtensionContainer { {AMF-TNLAssociationSetupItem-ExtIEs} }	OPTIONAL,
-	...
-}
-
-AMF-TNLAssociationSetupItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -1792,24 +1473,6 @@ NGResetIEs NGAP-PROTOCOL-IES ::= {
 	...
 }
 
-ResetType ::= CHOICE {
-	nG-Interface			ResetAll,
-	partOfNG-Interface		UE-associatedLogicalNG-ConnectionListRes,
-	...
-}
-
-ResetAll ::= ENUMERATED {
-	reset-all,
-	...
-}
-
-UE-associatedLogicalNG-ConnectionListRes ::= SEQUENCE (SIZE(1..maxnoofNGConnectionsToReset)) OF ProtocolIE-SingleContainer { {UE-associatedLogicalNG-ConnectionItemResIEs} }
-
-UE-associatedLogicalNG-ConnectionItemResIEs NGAP-PROTOCOL-IES ::= {
-	{ ID id-UE-associatedLogicalNG-ConnectionItem	CRITICALITY reject	TYPE UE-associatedLogicalNG-ConnectionItem		PRESENCE mandatory},
-	...
-}
-
 -- **************************************************************
 --
 -- NG RESET ACKNOWLEDGE
@@ -1822,15 +1485,8 @@ NGResetAcknowledge ::= SEQUENCE {
 }
 
 NGResetAcknowledgeIEs NGAP-PROTOCOL-IES ::= {
-	{ ID id-UE-associatedLogicalNG-ConnectionListResAck		CRITICALITY ignore	TYPE UE-associatedLogicalNG-ConnectionListResAck	PRESENCE optional	}|
+	{ ID id-UE-associatedLogicalNG-connectionList			CRITICALITY ignore	TYPE UE-associatedLogicalNG-connectionList			PRESENCE optional	}|
 	{ ID id-CriticalityDiagnostics							CRITICALITY ignore	TYPE CriticalityDiagnostics								PRESENCE optional	},
-	...
-}
-
-UE-associatedLogicalNG-ConnectionListResAck ::= SEQUENCE (SIZE(1..maxnoofNGConnectionsToReset)) OF ProtocolIE-SingleContainer { {UE-associatedLogicalNG-ConnectionItemResAck} }
-
-UE-associatedLogicalNG-ConnectionItemResAck	NGAP-PROTOCOL-IES ::= {
-	{ ID id-UE-associatedLogicalNG-ConnectionItem			CRITICALITY ignore	TYPE UE-associatedLogicalNG-ConnectionItem			PRESENCE mandatory },
 	...
 }
 
@@ -1856,6 +1512,39 @@ ErrorIndicationIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-RAN-UE-NGAP-ID				CRITICALITY ignore	TYPE RAN-UE-NGAP-ID				PRESENCE optional		}|
 	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE optional		}|
 	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional		},
+	...
+}
+
+-- **************************************************************
+--
+-- OVERLOAD START
+--
+-- **************************************************************
+
+OverloadStart ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ {OverloadStartIEs} },
+	...
+}
+
+OverloadStartIEs NGAP-PROTOCOL-IES ::= {	
+	{ ID id-AMFOverloadResponse						CRITICALITY reject	TYPE OverloadResponse							PRESENCE optional 	}|
+	{ ID id-AMFTrafficLoadReductionIndication		CRITICALITY ignore	TYPE TrafficLoadReductionIndication		PRESENCE optional		}|
+	{ ID id-OverloadStartNSSAIList					CRITICALITY ignore	TYPE OverloadStartNSSAIList					PRESENCE optional		},
+	...
+}
+
+-- **************************************************************
+--
+-- OVERLOAD STOP
+--
+-- **************************************************************
+
+OverloadStop ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ {OverloadStopIEs} },
+	...
+}
+
+OverloadStopIEs NGAP-PROTOCOL-IES ::= {	
 	...
 }
 
@@ -1899,7 +1588,7 @@ DownlinkRANConfigurationTransferIEs NGAP-PROTOCOL-IES ::= {
 
 -- **************************************************************
 --
--- WARNING MESSAGE TRANSMISSION ELEMENTARY PROCEDURES
+-- WARNING MESSAGE TRANSMISSION ELEMENTARY PROCEDURES 
 --
 -- **************************************************************
 
@@ -1920,7 +1609,7 @@ WriteReplaceWarningRequest ::= SEQUENCE {
 	...
 }
 
-WriteReplaceWarningRequestIEs NGAP-PROTOCOL-IES ::= {
+WriteReplaceWarningRequestIEs NGAP-PROTOCOL-IES ::= {	
 	{ ID id-MessageIdentifier				CRITICALITY reject	TYPE MessageIdentifier					PRESENCE mandatory	}|
 	{ ID id-SerialNumber					CRITICALITY reject	TYPE SerialNumber						PRESENCE mandatory	}|
 	{ ID id-WarningAreaList					CRITICALITY ignore	TYPE WarningAreaList					PRESENCE optional		}|
@@ -1970,7 +1659,7 @@ PWSCancelRequest ::= SEQUENCE {
 	...
 }
 
-PWSCancelRequestIEs NGAP-PROTOCOL-IES ::= {
+PWSCancelRequestIEs NGAP-PROTOCOL-IES ::= {	
 	{ ID id-MessageIdentifier			CRITICALITY reject	TYPE MessageIdentifier				PRESENCE mandatory	}|
 	{ ID id-SerialNumber				CRITICALITY reject	TYPE SerialNumber					PRESENCE mandatory	}|
 	{ ID id-WarningAreaList				CRITICALITY ignore	TYPE WarningAreaList				PRESENCE optional	}|
@@ -2261,7 +1950,6 @@ LocationReportIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-AMF-UE-NGAP-ID						CRITICALITY reject	TYPE AMF-UE-NGAP-ID							PRESENCE mandatory	}|
 	{ ID id-RAN-UE-NGAP-ID						CRITICALITY reject	TYPE RAN-UE-NGAP-ID							PRESENCE mandatory	}|
 	{ ID id-UserLocationInformation				CRITICALITY ignore	TYPE UserLocationInformation				PRESENCE mandatory	}|
-	{ ID id-TimeStamp							CRITICALITY ignore	TYPE TimeStamp								PRESENCE optional		}|
 	{ ID id-UEPresenceInAreaOfInterestList		CRITICALITY ignore	TYPE UEPresenceInAreaOfInterestList		PRESENCE optional		}|
 	{ ID id-LocationReportingRequestType		CRITICALITY ignore	TYPE LocationReportingRequestType		PRESENCE mandatory	},
 	...
@@ -2292,22 +1980,22 @@ UETNLABindingReleaseRequestIEs NGAP-PROTOCOL-IES ::= {
 
 -- **************************************************************
 --
--- UE CAPABILITY MANAGEMENT ELEMENTARY PROCEDURES
+-- UE RADIO CAPABILITY MANAGEMENT ELEMENTARY PROCEDURES
 --
 -- **************************************************************
 
 -- **************************************************************
 --
--- UE CAPABILITY INFO INDICATION
+-- UE RADIO CAPABILITY INFO INDICATION
 --
 -- **************************************************************
 
-UECapabilityInfoIndication ::= SEQUENCE {
-	protocolIEs			ProtocolIE-Container		{ {UECapabilityInfoIndicationIEs} },
+UERadioCapabilityInfoIndication ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container		{ {UERadioCapabilityInfoIndicationIEs} },
 	...
 }
 
-UECapabilityInfoIndicationIEs NGAP-PROTOCOL-IES ::= {
+UERadioCapabilityInfoIndicationIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-AMF-UE-NGAP-ID					CRITICALITY reject	TYPE AMF-UE-NGAP-ID					PRESENCE mandatory	}|
 	{ ID id-RAN-UE-NGAP-ID					CRITICALITY reject	TYPE RAN-UE-NGAP-ID					PRESENCE mandatory	}|
 	{ ID id-UERadioCapability				CRITICALITY ignore	TYPE UERadioCapability				PRESENCE mandatory	}|
@@ -2332,7 +2020,7 @@ UERadioCapabilityCheckRequest ::= SEQUENCE {
 	...
 }
 
-UERadioCapabilityCheckRequestIEs NGAP-PROTOCOL-IES ::= {
+UERadioCapabilityCheckRequestIEs NGAP-PROTOCOL-IES ::= {	
 	{ ID id-AMF-UE-NGAP-ID			CRITICALITY reject	TYPE AMF-UE-NGAP-ID			PRESENCE mandatory	}|
 	{ ID id-RAN-UE-NGAP-ID			CRITICALITY reject	TYPE RAN-UE-NGAP-ID			PRESENCE mandatory	}|
 	{ ID id-UERadioCapability		CRITICALITY ignore	TYPE UERadioCapability		PRESENCE optional	},
@@ -2350,7 +2038,7 @@ UERadioCapabilityCheckResponse ::= SEQUENCE {
 	...
 }
 
-UERadioCapabilityCheckResponseIEs NGAP-PROTOCOL-IES ::= {
+UERadioCapabilityCheckResponseIEs NGAP-PROTOCOL-IES ::= {	
 	{ ID id-AMF-UE-NGAP-ID					CRITICALITY ignore	TYPE AMF-UE-NGAP-ID					PRESENCE mandatory	}|
 	{ ID id-RAN-UE-NGAP-ID					CRITICALITY ignore	TYPE RAN-UE-NGAP-ID					PRESENCE mandatory	}|
 	{ ID id-IMSVoiceSupportIndicator		CRITICALITY reject	TYPE IMSVoiceSupportIndicator		PRESENCE mandatory	}|
@@ -2380,4 +2068,3 @@ PrivateMessageIEs NGAP-PRIVATE-IES ::= {
 }
 
 END
-

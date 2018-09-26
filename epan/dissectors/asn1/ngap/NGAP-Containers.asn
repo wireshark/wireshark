@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V15.0.0 (2018-06)
+-- 3GPP TS 38.413 V15.1.0 (2018-09)
 -- 9.4.8	Container Definitions
 -- **************************************************************
 --
@@ -120,17 +120,17 @@ WITH SYNTAX {
 --
 -- **************************************************************
 
-ProtocolIE-Container {NGAP-PROTOCOL-IES : IesSetParam} ::= 
+ProtocolIE-Container {NGAP-PROTOCOL-IES : IEsSetParam} ::= 
 	SEQUENCE (SIZE (0..maxProtocolIEs)) OF
-	ProtocolIE-Field {{IesSetParam}}
+	ProtocolIE-Field {{IEsSetParam}}
 
-ProtocolIE-SingleContainer {NGAP-PROTOCOL-IES : IesSetParam} ::= 
-	ProtocolIE-Field {{IesSetParam}}
+ProtocolIE-SingleContainer {NGAP-PROTOCOL-IES : IEsSetParam} ::= 
+	ProtocolIE-Field {{IEsSetParam}}
 
-ProtocolIE-Field {NGAP-PROTOCOL-IES : IesSetParam} ::= SEQUENCE {
-	id				NGAP-PROTOCOL-IES.&id				({IesSetParam}),
-	criticality		NGAP-PROTOCOL-IES.&criticality		({IesSetParam}{@id}),
-	value			NGAP-PROTOCOL-IES.&Value			({IesSetParam}{@id})
+ProtocolIE-Field {NGAP-PROTOCOL-IES : IEsSetParam} ::= SEQUENCE {
+	id				NGAP-PROTOCOL-IES.&id				({IEsSetParam}),
+	criticality		NGAP-PROTOCOL-IES.&criticality		({IEsSetParam}{@id}),
+	value			NGAP-PROTOCOL-IES.&Value			({IEsSetParam}{@id})
 }
 
 -- **************************************************************
@@ -139,16 +139,16 @@ ProtocolIE-Field {NGAP-PROTOCOL-IES : IesSetParam} ::= SEQUENCE {
 --
 -- **************************************************************
 
-ProtocolIE-ContainerPair {NGAP-PROTOCOL-IES-PAIR : IesSetParam} ::= 
+ProtocolIE-ContainerPair {NGAP-PROTOCOL-IES-PAIR : IEsSetParam} ::= 
 	SEQUENCE (SIZE (0..maxProtocolIEs)) OF
-	ProtocolIE-FieldPair {{IesSetParam}}
+	ProtocolIE-FieldPair {{IEsSetParam}}
 
-ProtocolIE-FieldPair {NGAP-PROTOCOL-IES-PAIR : IesSetParam} ::= SEQUENCE {
-	id					NGAP-PROTOCOL-IES-PAIR.&id					({IesSetParam}),
-	firstCriticality	NGAP-PROTOCOL-IES-PAIR.&firstCriticality	({IesSetParam}{@id}),
-	firstValue			NGAP-PROTOCOL-IES-PAIR.&FirstValue			({IesSetParam}{@id}),
-	secondCriticality	NGAP-PROTOCOL-IES-PAIR.&secondCriticality	({IesSetParam}{@id}),
-	secondValue			NGAP-PROTOCOL-IES-PAIR.&SecondValue			({IesSetParam}{@id})
+ProtocolIE-FieldPair {NGAP-PROTOCOL-IES-PAIR : IEsSetParam} ::= SEQUENCE {
+	id					NGAP-PROTOCOL-IES-PAIR.&id					({IEsSetParam}),
+	firstCriticality	NGAP-PROTOCOL-IES-PAIR.&firstCriticality	({IEsSetParam}{@id}),
+	firstValue			NGAP-PROTOCOL-IES-PAIR.&FirstValue			({IEsSetParam}{@id}),
+	secondCriticality	NGAP-PROTOCOL-IES-PAIR.&secondCriticality	({IEsSetParam}{@id}),
+	secondValue			NGAP-PROTOCOL-IES-PAIR.&SecondValue			({IEsSetParam}{@id})
 }
 
 -- **************************************************************
@@ -157,13 +157,13 @@ ProtocolIE-FieldPair {NGAP-PROTOCOL-IES-PAIR : IesSetParam} ::= SEQUENCE {
 --
 -- **************************************************************
 
-ProtocolIE-ContainerList {INTEGER : lowerBound, INTEGER : upperBound, NGAP-PROTOCOL-IES : IesSetParam} ::=
+ProtocolIE-ContainerList {INTEGER : lowerBound, INTEGER : upperBound, NGAP-PROTOCOL-IES : IEsSetParam} ::=
 	SEQUENCE (SIZE (lowerBound..upperBound)) OF
-	ProtocolIE-SingleContainer {{IesSetParam}}
+	ProtocolIE-SingleContainer {{IEsSetParam}}
 
-ProtocolIE-ContainerPairList {INTEGER : lowerBound, INTEGER : upperBound, NGAP-PROTOCOL-IES-PAIR : IesSetParam} ::=
+ProtocolIE-ContainerPairList {INTEGER : lowerBound, INTEGER : upperBound, NGAP-PROTOCOL-IES-PAIR : IEsSetParam} ::=
 	SEQUENCE (SIZE (lowerBound..upperBound)) OF
-	ProtocolIE-ContainerPair {{IesSetParam}}
+	ProtocolIE-ContainerPair {{IEsSetParam}}
 
 -- **************************************************************
 --
@@ -187,15 +187,14 @@ ProtocolExtensionField {NGAP-PROTOCOL-EXTENSION : ExtensionSetParam} ::= SEQUENC
 --
 -- **************************************************************
 
-PrivateIE-Container {NGAP-PRIVATE-IES : IesSetParam } ::= 
+PrivateIE-Container {NGAP-PRIVATE-IES : IEsSetParam } ::= 
 	SEQUENCE (SIZE (1..maxPrivateIEs)) OF
-	PrivateIE-Field {{IesSetParam}}
+	PrivateIE-Field {{IEsSetParam}}
 
-PrivateIE-Field {NGAP-PRIVATE-IES : IesSetParam} ::= SEQUENCE {
-	id					NGAP-PRIVATE-IES.&id				({IesSetParam}),
-	criticality			NGAP-PRIVATE-IES.&criticality		({IesSetParam}{@id}),
-	value				NGAP-PRIVATE-IES.&Value				({IesSetParam}{@id})
+PrivateIE-Field {NGAP-PRIVATE-IES : IEsSetParam} ::= SEQUENCE {
+	id					NGAP-PRIVATE-IES.&id				({IEsSetParam}),
+	criticality			NGAP-PRIVATE-IES.&criticality		({IEsSetParam}{@id}),
+	value				NGAP-PRIVATE-IES.&Value				({IEsSetParam}{@id})
 }
 
 END
-
