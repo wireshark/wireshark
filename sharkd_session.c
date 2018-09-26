@@ -105,6 +105,12 @@ json_find_attr(const char *buf, const jsmntok_t *tokens, int count, const char *
 static void
 json_puts_string(const char *str)
 {
+	static const char json_cntrl[0x20][6] =
+	{
+		"u0000", "u0001", "u0002", "u0003", "u0004", "u0005", "u0006", "u0007", "b",     "t",     "n",     "u000b", "f",     "r",     "u000e", "u000f",
+		"u0010", "u0011", "u0012", "u0013", "u0014", "u0015", "u0016", "u0017", "u0018", "u0019", "u001a", "u001b", "u001c", "u001d", "u001e", "u001f"
+	};
+
 	int i;
 
 	if (str == NULL)
@@ -113,22 +119,16 @@ json_puts_string(const char *str)
 	putchar('"');
 	for (i = 0; str[i]; i++)
 	{
-		switch (str[i])
+		if (((unsigned char) str[i]) < 0x20)
 		{
-			case '\\':
-			case '"':
+			putchar('\\');
+			fputs(json_cntrl[str[i]], stdout);
+		}
+		else
+		{
+			if (str[i] == '\\' || str[i] == '"')
 				putchar('\\');
-				putchar(str[i]);
-				break;
-
-			case '\n':
-				putchar('\\');
-				putchar('n');
-				break;
-
-			default:
-				putchar(str[i]);
-				break;
+			putchar(str[i]);
 		}
 	}
 
@@ -3198,7 +3198,7 @@ sharkd_session_process_iograph(char *buf, const jsmntok_t *tokens, int count)
 
 	sharkd_json_object_open(FALSE);
 
-	sharkd_json_array_open(TRUE, "iograph");
+	sharkd_json_array_open(FALSE, "iograph");
 	for (i = 0; i < graph_count; i++)
 	{
 		struct sharkd_iograph *graph = &graphs[i];
