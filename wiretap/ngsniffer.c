@@ -1417,7 +1417,7 @@ set_pseudo_header_frame2(wtap *wth, union wtap_pseudo_header *pseudo_header,
 	case WTAP_ENCAP_LAPB:
 	case WTAP_ENCAP_FRELAY_WITH_PHDR:
 	case WTAP_ENCAP_PER_PACKET:
-		pseudo_header->x25.flags = (frame2->fs & FS_WAN_DTE) ? 0x00 : FROM_DCE;
+		pseudo_header->dte_dce.flags = (frame2->fs & FS_WAN_DTE) ? 0x00 : FROM_DCE;
 		break;
 
 	case WTAP_ENCAP_ISDN:
@@ -1830,14 +1830,14 @@ fix_pseudo_header(int encap, Buffer *buf, int len,
 		case WTAP_ENCAP_WFLEET_HDLC:
 		case WTAP_ENCAP_CHDLC_WITH_PHDR:
 		case WTAP_ENCAP_PPP_WITH_PHDR:
-			if (pseudo_header->x25.flags == 0)
+			if (pseudo_header->dte_dce.flags == 0)
 				pseudo_header->p2p.sent = TRUE;
 			else
 				pseudo_header->p2p.sent = FALSE;
 			break;
 
 		case WTAP_ENCAP_ISDN:
-			if (pseudo_header->x25.flags == 0x00)
+			if (pseudo_header->dte_dce.flags == 0x00)
 				pseudo_header->isdn.uton = FALSE;
 			else
 				pseudo_header->isdn.uton = TRUE;
@@ -2099,7 +2099,7 @@ ngsniffer_dump(wtap_dumper *wdh, const wtap_rec *rec,
 
 	case WTAP_ENCAP_LAPB:
 	case WTAP_ENCAP_FRELAY_WITH_PHDR:
-		rec_hdr.fs = (pseudo_header->x25.flags & FROM_DCE) ? 0x00 : FS_WAN_DTE;
+		rec_hdr.fs = (pseudo_header->dte_dce.flags & FROM_DCE) ? 0x00 : FS_WAN_DTE;
 		break;
 
 	case WTAP_ENCAP_PPP_WITH_PHDR:

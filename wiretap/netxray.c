@@ -1350,7 +1350,7 @@ netxray_process_rec_header(wtap *wth, FILE_T fh, wtap_rec *rec,
 			 * is the direction flag.  (Probably true for other
 			 * HDLC encapsulations as well.)
 			 */
-			rec->rec_header.packet_header.pseudo_header.x25.flags =
+			rec->rec_header.packet_header.pseudo_header.dte_dce.flags =
 			    (hdr.hdr_2_x.xxx[12] & 0x01) ? 0x00 : FROM_DCE;
 
 			/*
@@ -1971,7 +1971,7 @@ netxray_dump_2_0(wtap_dumper *wdh,
 		break;
 
 	case WTAP_ENCAP_FRELAY_WITH_PHDR:
-		rec_hdr.xxx[12] |= (pseudo_header->x25.flags & FROM_DCE) ? 0x00 : 0x01;
+		rec_hdr.xxx[12] |= (pseudo_header->dte_dce.flags & FROM_DCE) ? 0x00 : 0x01;
 		break;
 	}
 

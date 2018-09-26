@@ -3256,7 +3256,7 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
       call_dissector(ppp_handle, tvb, pinfo, tree);
       break;
     case ERF_HDLC_FRELAY:
-      memset(&pinfo->pseudo_header->x25, 0, sizeof(pinfo->pseudo_header->x25));
+      memset(&pinfo->pseudo_header->dte_dce, 0, sizeof(pinfo->pseudo_header->dte_dce));
       call_dissector(frelay_handle, tvb, pinfo, tree);
       break;
     case ERF_HDLC_MTP2:

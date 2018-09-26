@@ -1988,9 +1988,9 @@ static int
 dissect_x25_dir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_x25_common(tvb, pinfo, tree,
-        (pinfo->pseudo_header->x25.flags & FROM_DCE) ? X25_FROM_DCE :
+        (pinfo->pseudo_header->dte_dce.flags & FROM_DCE) ? X25_FROM_DCE :
                                                        X25_FROM_DTE,
-        pinfo->pseudo_header->x25.flags & FROM_DCE);
+        pinfo->pseudo_header->dte_dce.flags & FROM_DCE);
     return tvb_captured_length(tvb);
 }
 

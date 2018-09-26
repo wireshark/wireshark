@@ -251,7 +251,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 			case WTAP_ENCAP_LAPB:
 			case WTAP_ENCAP_FRELAY_WITH_PHDR:
 				pinfo->p2p_dir =
-				    (pinfo->pseudo_header->x25.flags & FROM_DCE) ?
+				    (pinfo->pseudo_header->dte_dce.flags & FROM_DCE) ?
 				    P2P_DIR_RECV : P2P_DIR_SENT;
 				break;
 

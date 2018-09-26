@@ -435,7 +435,7 @@ wcp_window_t *get_wcp_window_ptr(packet_info *pinfo){
 		wcp_circuit_data->send.initialized = 0;
 		conversation_add_proto_data(conv, proto_wcp, wcp_circuit_data);
 	}
-	if (pinfo->pseudo_header->x25.flags & FROM_DCE)
+	if (pinfo->pseudo_header->dte_dce.flags & FROM_DCE)
 		return &wcp_circuit_data->recv;
 	else
 		return &wcp_circuit_data->send;

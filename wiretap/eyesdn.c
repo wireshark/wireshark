@@ -224,7 +224,7 @@ read_eyesdn_rec(FILE_T fh, wtap_rec *rec, Buffer *buf, int *err,
 
 	case EYESDN_ENCAP_LAPB: /* X.25 via LAPB */
 		rec->rec_header.packet_header.pkt_encap = WTAP_ENCAP_LAPB;
-		pseudo_header->x25.flags = (direction & 1) ? 0 : 0x80;
+		pseudo_header->dte_dce.flags = (direction & 1) ? 0 : 0x80;
 		break;
 
 	case EYESDN_ENCAP_ATM: { /* ATM cells */

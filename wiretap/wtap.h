@@ -431,10 +431,11 @@ struct eth_phdr {
     gint   fcs_len;  /* Number of bytes of FCS - -1 means "unknown" */
 };
 
-/* Packet "pseudo-header" information for X.25 capture files. */
+/* Packet "pseudo-header" information for capture files for traffic
+   between DTE and DCE. */
 #define FROM_DCE 0x80
-struct x25_phdr {
-    guint8  flags;   /* ENCAP_LAPB, ENCAP_V120 : 1st bit means From DCE */
+struct dte_dce_phdr {
+    guint8  flags;   /* ENCAP_LAPB, ENCAP_V120, ENCAP_FRELAY: 1st bit means From DCE */
 };
 
 /* Packet "pseudo-header" information for ISDN capture files. */
@@ -1172,7 +1173,7 @@ struct netmon_phdr {
 
 union wtap_pseudo_header {
     struct eth_phdr     eth;
-    struct x25_phdr     x25;
+    struct dte_dce_phdr dte_dce;
     struct isdn_phdr    isdn;
     struct atm_phdr     atm;
     struct ascend_phdr  ascend;

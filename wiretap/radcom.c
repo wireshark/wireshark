@@ -330,7 +330,7 @@ radcom_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 		break;
 
 	case WTAP_ENCAP_LAPB:
-		rec->rec_header.packet_header.pseudo_header.x25.flags = (hdr.dce & 0x1) ?
+		rec->rec_header.packet_header.pseudo_header.dte_dce.flags = (hdr.dce & 0x1) ?
 		    0x00 : FROM_DCE;
 		length -= 2; /* FCS */
 		real_length -= 2;

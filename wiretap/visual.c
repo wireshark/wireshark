@@ -399,7 +399,7 @@ visual_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
         }
         rec->rec_header.packet_header.len -= 2;
 
-        rec->rec_header.packet_header.pseudo_header.x25.flags =
+        rec->rec_header.packet_header.pseudo_header.dte_dce.flags =
             (packet_status & PS_SENT) ? 0x00 : FROM_DCE;
         break;
 
@@ -414,7 +414,7 @@ visual_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
         }
         rec->rec_header.packet_header.len -= 2;
 
-        rec->rec_header.packet_header.pseudo_header.x25.flags =
+        rec->rec_header.packet_header.pseudo_header.dte_dce.flags =
             (packet_status & PS_SENT) ? 0x00 : FROM_DCE;
         break;
 
@@ -715,7 +715,7 @@ static gboolean visual_dump(wtap_dumper *wdh, const wtap_rec *rec,
     case WTAP_ENCAP_FRELAY_WITH_PHDR:
     case WTAP_ENCAP_LAPB:
         packet_status |=
-            ((pseudo_header->x25.flags & FROM_DCE) ? 0x00 : PS_SENT);
+            ((pseudo_header->dte_dce.flags & FROM_DCE) ? 0x00 : PS_SENT);
         break;
     }
     vpkt_hdr.status = GUINT32_TO_LE(packet_status);

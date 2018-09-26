@@ -378,7 +378,7 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   col_clear(pinfo->cinfo, COL_INFO);
 
   if (has_direction) {
-    if (pinfo->pseudo_header->x25.flags & FROM_DCE) {
+    if (pinfo->pseudo_header->dte_dce.flags & FROM_DCE) {
       col_set_str(pinfo->cinfo, COL_RES_DL_DST, "DTE");
       col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "DCE");
     } else {
