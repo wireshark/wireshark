@@ -744,6 +744,7 @@ static const value_string wfa_subtype_vals[] = {
   { WFA_SUBTYPE_OSEN, "OSU Server-only l2 Encryption Network" },
   { WFA_SUBTYPE_DPP, "Device Provisioning Protocol" },
   { WFA_SUBTYPE_IEEE1905_MULTI_AP, "IEEE1905 Multi-AP" },
+  { WFA_SUBTYPE_OWE_TRANSITION_MODE, "OWE Transition Mode" },
   { 0, NULL }
 };
 
@@ -4727,6 +4728,11 @@ static int hf_ieee80211_wfa_ie_wme_tspec_delay_bound = -1;
 static int hf_ieee80211_wfa_ie_wme_tspec_min_phy = -1;
 static int hf_ieee80211_wfa_ie_wme_tspec_surplus = -1;
 static int hf_ieee80211_wfa_ie_wme_tspec_medium = -1;
+static int hf_ieee80211_wfa_ie_owe_bssid = -1;
+static int hf_ieee80211_wfa_ie_owe_ssid_length = -1;
+static int hf_ieee80211_wfa_ie_owe_ssid = -1;
+static int hf_ieee80211_wfa_ie_owe_band_info = -1;
+static int hf_ieee80211_wfa_ie_owe_channel_info = -1;
 
 static int hf_ieee80211_aironet_ie_type = -1;
 static int hf_ieee80211_aironet_ie_dtpc = -1;
@@ -13287,6 +13293,46 @@ dissect_hs20_indication(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
      proto_tree_add_item(tree, hf_hs20_indication_anqp_domain_id, tvb, offset,
                          2, ENC_LITTLE_ENDIAN);
      offset += 2;
+  }
+
+  return offset;
+}
+
+static int
+dissect_owe_transition_mode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+{
+  guint8 ssid_len;
+
+  int len = tvb_captured_length(tvb);
+  int offset = 0;
+
+  proto_tree_add_item(tree, hf_ieee80211_wfa_ie_owe_bssid, tvb, offset, 6, ENC_NA);
+  offset  += 6;
+  len -= 6;
+
+  ssid_len = tvb_get_guint8(tvb, offset);
+
+  proto_tree_add_uint(tree, hf_ieee80211_wfa_ie_owe_ssid_length, tvb, offset, 1, ssid_len);
+  offset  += 1;
+  len -= 1;
+
+  if (len < ssid_len) {
+    expert_add_info(pinfo, tree, &ei_ieee80211_bad_length);
+    return offset;
+  }
+
+  proto_tree_add_item(tree, hf_ieee80211_wfa_ie_owe_ssid, tvb, offset, ssid_len, ENC_ASCII|ENC_NA);
+  offset  += len;
+  len -= len;
+
+  if (len >= 2) {
+    proto_tree_add_item(tree, hf_ieee80211_wfa_ie_owe_band_info, tvb, offset, 1, ENC_NA);
+    offset  += 1;
+    len -= 1;
+
+    proto_tree_add_item(tree, hf_ieee80211_wfa_ie_owe_channel_info, tvb, offset, 1, ENC_NA);
+    offset  += 1;
+    len -= 1;
   }
 
   return offset;
@@ -32351,6 +32397,31 @@ proto_register_ieee80211(void)
       FT_UINT16, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
+    {&hf_ieee80211_wfa_ie_owe_bssid,
+     {"BSSID", "wlan.wfa.ie.owe.bssid",
+      FT_ETHER, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_owe_ssid_length,
+     {"SSID length", "wlan.wfa.ie.owe.ssid_length",
+      FT_UINT16, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_owe_ssid,
+     {"SSID", "wlan.wfa.ie.owe.ssid",
+      FT_STRING, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_owe_band_info,
+     {"Band info", "wlan.wfa.ie.owe.band_info",
+      FT_UINT16, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_ie_owe_channel_info,
+     {"Channel info", "wlan.wfa.ie.owe.channel_info",
+      FT_UINT16, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
     {&hf_ieee80211_rsn_ie_pmkid,
      {"RSN PMKID", "wlan.rsn.ie.pmkid",
       FT_BYTES, BASE_NONE, NULL, 0,
@@ -36426,6 +36497,7 @@ proto_reg_handoff_ieee80211(void)
   dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_DEAUTHENTICATION_IMMINENT, create_dissector_handle(dissect_hs20_deauthentication_imminent, -1));
   dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_HS20_INDICATION, create_dissector_handle(dissect_hs20_indication, -1));
   dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_OSEN, create_dissector_handle(dissect_hs20_osen, -1));
+  dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_OWE_TRANSITION_MODE, create_dissector_handle(dissect_owe_transition_mode, -1));
 }
 
 /*
