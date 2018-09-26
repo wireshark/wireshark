@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V15.2.0 (2018-06)
+-- 3GPP TS 36.423 V15.3.0 (2018-09)
 -- 9.3.3	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -114,7 +114,8 @@ FROM X2AP-CommonDataTypes
 	SgNBActivityNotification,
 	ENDCX2RemovalRequest,
 	ENDCX2RemovalResponse,
-	ENDCX2RemovalFailure
+	ENDCX2RemovalFailure,
+	DataForwardingAddressIndication
 
 
 FROM X2AP-PDU-Contents
@@ -164,7 +165,8 @@ FROM X2AP-PDU-Contents
 	id-endcPartialReset,
 	id-eUTRANRCellResourceCoordination,
 	id-SgNBActivityNotification,
-	id-endcX2Removal
+	id-endcX2Removal,
+	id-dataForwardingAddressIndication
 
 
 FROM X2AP-Constants;
@@ -281,8 +283,8 @@ X2AP-ELEMENTARY-PROCEDURES-CLASS-2 X2AP-ELEMENTARY-PROCEDURE ::= {
 	sgNBCounterCheck							|
 	rRCTransfer								|
 	secondaryRATDataUsageReport				|
-	sgNBActivityNotification
-,
+	sgNBActivityNotification					|
+	dataForwardingAddressIndication,
 	...
 
 }
@@ -604,6 +606,12 @@ endcX2Removal	X2AP-ELEMENTARY-PROCEDURE ::= {
 	UNSUCCESSFUL OUTCOME	ENDCX2RemovalFailure
 	PROCEDURE CODE			id-endcX2Removal
 	CRITICALITY				reject
+}
+
+dataForwardingAddressIndication	X2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		DataForwardingAddressIndication
+	PROCEDURE CODE			id-dataForwardingAddressIndication
+	CRITICALITY				ignore
 }
 
 END

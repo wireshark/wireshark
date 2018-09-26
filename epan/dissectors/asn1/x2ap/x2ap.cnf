@@ -612,6 +612,31 @@ Packet-LossRate DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(x2ap_Packet_LossRate_fmt
 #.FN_FTR ReservedSubframePattern/mBSFNControlRegionLength
   proto_item_append_text(actx->created_item, " REs");
 
+#.TYPE_ATTR
+BluetoothName TYPE=FT_STRING DISPLAY = STR_UNICODE
+#.FN_BODY BluetoothName VAL_PTR = &parameter_tvb HF_INDEX = -1
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, -1, ENC_UTF_8|ENC_NA);
+#.END
+
+#.TYPE_ATTR
+WLANName TYPE=FT_STRING DISPLAY = STR_UNICODE
+#.FN_BODY WLANName VAL_PTR = &parameter_tvb HF_INDEX = -1
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, -1, ENC_UTF_8|ENC_NA);
+#.END
+
+#.TYPE_ATTR
+Subscription-Based-UE-DifferentiationInfo/periodicTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+
+#.TYPE_ATTR
+ScheduledCommunicationTime/timeofDayStart DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+
+#.TYPE_ATTR
+ScheduledCommunicationTime/timeofDayEnd DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+
 #.END
 
 #.FN_HDR HandoverRequest
@@ -792,6 +817,8 @@ Packet-LossRate DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(x2ap_Packet_LossRate_fmt
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ENDCX2RemovalResponse");
 #.FN_HDR ENDCX2RemovalFailure
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ENDCX2RemovalFailure");
+#.FN_HDR DataForwardingAddressIndication
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DataForwardingAddressIndication");
 
 #.ASSIGN_VALUE_TO_TYPE  # X2AP does not have constants assigned to types, they are pure INTEGER
 # ProcedureCode
@@ -840,6 +867,7 @@ id-endcPartialReset						ProcedureCode
 id-eUTRANRCellResourceCoordination				ProcedureCode
 id-SgNBActivityNotification					ProcedureCode
 id-endcX2Removal						ProcedureCode
+id-dataForwardingAddressIndication				ProcedureCode
 
 
 # ProtocolIE-ID
@@ -1036,7 +1064,7 @@ id-extended-e-RAB-GuaranteedBitrateDL				ProtocolIE-ID
 id-extended-e-RAB-GuaranteedBitrateUL				ProtocolIE-ID
 id-extended-uEaggregateMaximumBitRateDownlink			ProtocolIE-ID
 id-extended-uEaggregateMaximumBitRateUplink			ProtocolIE-ID
-id-NRrestriction						ProtocolIE-ID
+id-NRrestrictioninEPSasSecondaryRAT				ProtocolIE-ID
 id-SgNBSecurityKey						ProtocolIE-ID
 id-SgNBUEAggregateMaximumBitRate				ProtocolIE-ID
 id-E-RABs-ToBeAdded-SgNBAddReqList				ProtocolIE-ID
@@ -1134,6 +1162,16 @@ id-UEContextLevelUserPlaneActivity				ProtocolIE-ID
 id-ERABActivityNotifyItemList					ProtocolIE-ID
 id-InitiatingNodeType-EndcX2Removal				ProtocolIE-ID
 id-RespondingNodeType-EndcX2Removal				ProtocolIE-ID
+id-RLC-Status							ProtocolIE-ID
+id-CNTypeRestrictions						ProtocolIE-ID
+id-pDCPSnLength							ProtocolIE-ID
+id-BluetoothMeasurementConfiguration				ProtocolIE-ID
+id-WLANMeasurementConfiguration					ProtocolIE-ID
+id-NRrestrictionin5GS						ProtocolIE-ID
+id-dL-Forwarding						ProtocolIE-ID
+id-E-RABs-DataForwardingAddress-List				ProtocolIE-ID
+id-E-RABs-DataForwardingAddress-Item				ProtocolIE-ID
+id-Subscription-Based-UE-DifferentiationInfo			ProtocolIE-ID
 
 #.REGISTER
 
@@ -1355,6 +1393,9 @@ UserPlaneTrafficActivityReport					N x2ap.ies id-UEContextLevelUserPlaneActivity
 ERABActivityNotifyItemList					N x2ap.ies id-ERABActivityNotifyItemList
 InitiatingNodeType-EndcX2Removal				N x2ap.ies id-InitiatingNodeType-EndcX2Removal
 RespondingNodeType-EndcX2Removal				N x2ap.ies id-RespondingNodeType-EndcX2Removal
+E-RABs-DataForwardingAddress-List				N x2ap.ies id-E-RABs-DataForwardingAddress-List
+E-RABs-DataForwardingAddress-Item				N x2ap.ies id-E-RABs-DataForwardingAddress-Item
+Subscription-Based-UE-DifferentiationInfo			N x2ap.ies id-Subscription-Based-UE-DifferentiationInfo
 
 #X2AP-PROTOCOL-EXTENSION
 Number-of-Antennaports						N x2ap.extension id-Number-of-Antennaports
@@ -1420,7 +1461,7 @@ ExtendedBitRate							N x2ap.extension id-extended-e-RAB-GuaranteedBitrateDL
 ExtendedBitRate							N x2ap.extension id-extended-e-RAB-GuaranteedBitrateUL
 ExtendedBitRate							N x2ap.extension id-extended-uEaggregateMaximumBitRateDownlink
 ExtendedBitRate							N x2ap.extension id-extended-uEaggregateMaximumBitRateUplink
-NRrestriction							N x2ap.extension id-NRrestriction
+NRrestrictioninEPSasSecondaryRAT				N x2ap.extension id-NRrestrictioninEPSasSecondaryRAT
 Packet-LossRate							N x2ap.extension id-DownlinkPacketLossRate
 Packet-LossRate							N x2ap.extension id-UplinkPacketLossRate
 SubscriberProfileIDforRFP					N x2ap.extension id-SubscriberProfileIDforRFP
@@ -1428,6 +1469,13 @@ ServiceType							N x2ap.extension id-serviceType
 NRS-NSSS-PowerOffset						N x2ap.extension id-NRS-NSSS-PowerOffset
 NSSS-NumOccasionDifferentPrecoder				N x2ap.extension id-NSSS-NumOccasionDifferentPrecoder
 ProtectedEUTRAResourceIndication				N x2ap.extension id-ProtectedEUTRAResourceIndication
+RLC-Status							N x2ap.extension id-RLC-Status
+CNTypeRestrictions						N x2ap.extension id-CNTypeRestrictions
+PDCPSnLength							N x2ap.extension id-pDCPSnLength
+BluetoothMeasurementConfiguration				N x2ap.extension id-BluetoothMeasurementConfiguration
+WLANMeasurementConfiguration					N x2ap.extension id-WLANMeasurementConfiguration
+NRrestrictionin5GS						N x2ap.extension id-NRrestrictionin5GS
+DL-Forwarding							N x2ap.extension id-dL-Forwarding
 
 # X2AP-PDU-Descriptions.asn  Interface Elementary Procedures
 #X2AP-ELEMENTARY-PROCEDURE
@@ -1563,4 +1611,6 @@ SgNBActivityNotification			N x2ap.proc.imsg id-SgNBActivityNotification
 ENDCX2RemovalRequest				N x2ap.proc.imsg id-endcX2Removal
 ENDCX2RemovalResponse				N x2ap.proc.sout id-endcX2Removal
 ENDCX2RemovalFailure				N x2ap.proc.uout id-endcX2Removal
+
+DataForwardingAddressIndication			N x2ap.proc.imsg id-dataForwardingAddressIndication
 #.END
