@@ -1289,7 +1289,6 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
             /* XXX - free anything? */
             return FALSE;
         }
-        block_read += bytes_read;
         to_read -= bytes_read;
 
         /* handle option content */
