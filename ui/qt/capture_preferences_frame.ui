@@ -100,7 +100,7 @@
    <item>
     <widget class="QCheckBox" name="captureNoInterfaceLoad">
      <property name="text">
-      <string>Don't load interfaces on startup.</string>
+      <string>Don't load interfaces on startup</string>
      </property>
     </widget>
    </item>
