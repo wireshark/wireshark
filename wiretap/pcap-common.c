@@ -751,6 +751,53 @@ wtap_max_snaplen_for_encap(int wtap_encap)
  */
 
 /*
+ * The link-layer header on Nokia IPSO ATM packets.
+ */
+#define NOKIAATM_FLAGS	0	/* destination - 1 byte */
+#define NOKIAATM_VPI	1	/* VPI - 1 byte */
+#define NOKIAATM_VCI	2	/* VCI - 2 bytes */
+#define NOKIAATM_LEN	4	/* length of the header */
+
+static int
+pcap_read_nokiaatm_pseudoheader(FILE_T fh,
+    union wtap_pseudo_header *pseudo_header, guint packet_size,
+    int *err, gchar **err_info)
+{
+	guint8	atm_phdr[NOKIAATM_LEN];
+	guint8	vpi;
+	guint16	vci;
+
+	if (packet_size < NOKIAATM_LEN) {
+		/*
+		 * Uh-oh, the packet isn't big enough to even
+		 * have a pseudo-header.
+		 */
+		*err = WTAP_ERR_BAD_FILE;
+		*err_info = g_strdup_printf("pcap/pcapng: Nokia IPSO ATM file has a %u-byte packet, too small to have even an ATM pseudo-header",
+		    packet_size);
+		return -1;
+	}
+	if (!wtap_read_bytes(fh, atm_phdr, NOKIAATM_LEN, err, err_info))
+		return -1;
+
+	vpi = atm_phdr[NOKIAATM_VPI];
+	vci = pntoh16(&atm_phdr[NOKIAATM_VCI]);
+
+	pseudo_header->atm.vpi = vpi;
+	pseudo_header->atm.vci = vci;
+	pseudo_header->atm.channel = (atm_phdr[NOKIAATM_FLAGS] & 0x80) ? 0 : 1;
+
+	/* We don't have this information */
+	pseudo_header->atm.flags = 0;
+	pseudo_header->atm.cells = 0;
+	pseudo_header->atm.aal5t_u2u = 0;
+	pseudo_header->atm.aal5t_len = 0;
+	pseudo_header->atm.aal5t_chksum = 0;
+
+	return NOKIAATM_LEN;
+}
+
+/*
  * The link-layer header on SunATM packets.
  */
 #define SUNATM_FLAGS	0	/* destination and traffic type - 1 byte */
@@ -893,84 +940,6 @@ pcap_write_sunatm_pseudoheader(wtap_dumper *wdh,
 	if (!wtap_dump_file_write(wdh, atm_hdr, sizeof(atm_hdr), err))
 		return FALSE;
 	wdh->bytes_dumped += sizeof(atm_hdr);
-	return TRUE;
-}
-
-/*
- * The link-layer header on Nokia IPSO ATM packets.
- */
-#define NOKIAATM_FLAGS	0	/* destination - 1 byte */
-#define NOKIAATM_VPI	1	/* VPI - 1 byte */
-#define NOKIAATM_VCI	2	/* VCI - 2 bytes */
-#define NOKIAATM_LEN	4	/* length of the header */
-
-static int
-pcap_read_nokiaatm_pseudoheader(FILE_T fh,
-    union wtap_pseudo_header *pseudo_header, guint packet_size,
-    int *err, gchar **err_info)
-{
-	guint8	atm_phdr[NOKIAATM_LEN];
-	guint8	vpi;
-	guint16	vci;
-
-	if (packet_size < NOKIAATM_LEN) {
-		/*
-		 * Uh-oh, the packet isn't big enough to even
-		 * have a pseudo-header.
-		 */
-		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("pcap/pcapng: Nokia IPSO ATM file has a %u-byte packet, too small to have even an ATM pseudo-header",
-		    packet_size);
-		return -1;
-	}
-	if (!wtap_read_bytes(fh, atm_phdr, NOKIAATM_LEN, err, err_info))
-		return -1;
-
-	vpi = atm_phdr[NOKIAATM_VPI];
-	vci = pntoh16(&atm_phdr[NOKIAATM_VCI]);
-
-	pseudo_header->atm.vpi = vpi;
-	pseudo_header->atm.vci = vci;
-	pseudo_header->atm.channel = (atm_phdr[NOKIAATM_FLAGS] & 0x80) ? 0 : 1;
-
-	/* We don't have this information */
-	pseudo_header->atm.flags = 0;
-	pseudo_header->atm.cells = 0;
-	pseudo_header->atm.aal5t_u2u = 0;
-	pseudo_header->atm.aal5t_len = 0;
-	pseudo_header->atm.aal5t_chksum = 0;
-
-	return NOKIAATM_LEN;
-}
-
-/*
- * The link-layer header on Nokia IPSO packets.
- */
-#define NOKIA_LEN	4	/* length of the header */
-
-static gboolean
-pcap_read_nokia_pseudoheader(FILE_T fh,
-    union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info)
-{
-	guint8	phdr[NOKIA_LEN];
-
-
-	/* backtrack to read the 4 mysterious bytes that aren't considered
-	* part of the packet size
-	*/
-	if (file_seek(fh, -NOKIA_LEN, SEEK_CUR, err) == -1)
-	{
-		*err = file_error(fh, err_info);
-		if (*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
-		return FALSE;
-	}
-
-	if (!wtap_read_bytes(fh, phdr, NOKIA_LEN, err, err_info))
-		return FALSE;
-
-	memcpy(pseudo_header->nokia.stuff, phdr, NOKIA_LEN);
-
 	return TRUE;
 }
 
@@ -1209,386 +1178,6 @@ pcap_write_sita_pseudoheader(wtap_dumper *wdh,
 		return FALSE;
 	wdh->bytes_dumped += sizeof(sita_hdr);
 	return TRUE;
-}
-
-/*
- * When not using the memory-mapped interface to capture USB events,
- * code that reads those events can use the MON_IOCX_GET ioctl to
- * read a 48-byte header consisting of a "struct linux_usb_phdr", as
- * defined below, followed immediately by one of:
- *
- *	8 bytes of a "struct usb_device_setup_hdr", if "setup_flag"
- *	in the preceding "struct linux_usb_phdr" is 0;
- *
- *	in Linux 2.6.30 or later, 8 bytes of a "struct iso_rec", if
- *	this is an isochronous transfer;
- *
- *	8 bytes of junk, otherwise.
- *
- * In Linux 2.6.31 and later, it can also use the MON_IOCX_GETX ioctl
- * to read a 64-byte header; that header consists of the 48 bytes
- * above, followed immediately by 16 bytes of a "struct linux_usb_phdr_ext",
- * as defined below.
- *
- * In Linux 2.6.21 and later, there's a memory-mapped interface to
- * capture USB events.  In that interface, the events in the memory-mapped
- * buffer have a 64-byte header, followed immediately by the data.
- * In Linux 2.6.21 through 2.6.30.x, the 64-byte header is the 48-byte
- * header described above, followed by 16 bytes of zeroes; in Linux
- * 2.6.31 and later, the 64-byte header is the 64-byte header described
- * above.
- *
- * See linux/Documentation/usb/usbmon.txt and libpcap/pcap/usb.h for details.
- *
- * With WTAP_ENCAP_USB_LINUX, packets have the 48-byte header; with
- * WTAP_ENCAP_USB_LINUX_MMAPPED, they have the 64-byte header.  There
- * is no indication of whether the header has the "struct iso_rec", or
- * whether the last 16 bytes of a 64-byte header are all zeros or are
- * a "struct linux_usb_phdr_ext".
- */
-
-/*
- * URB transfer_type values
- */
-#define URB_ISOCHRONOUS   0x0
-#define URB_INTERRUPT     0x1
-#define URB_CONTROL       0x2
-#define URB_BULK          0x3
-
-/*
- * Information from the URB for Isochronous transfers.
- *
- * This structure is 8 bytes long.
- */
-struct iso_rec {
-	gint32 error_count;
-	gint32 numdesc;
-};
-
-/*
- * Header prepended by Linux kernel to each USB event.
- *
- * (Setup flag is '-', 'D', 'Z', or 0.  Data flag is '<', '>', 'Z', or 0.)
- *
- * The values are in *host* byte order.
- */
-struct linux_usb_phdr {
-	guint64 id;             /* urb id, to link submission and completion events */
-	guint8 event_type;      /* Submit ('S'), Completed ('C'), Error ('E') */
-	guint8 transfer_type;   /* ISO (0), Intr, Control, Bulk (3) */
-	guint8 endpoint_number; /* Endpoint number (0-15) and transfer direction */
-	guint8 device_address;  /* 0-127 */
-	guint16 bus_id;
-	gint8 setup_flag;       /* 0, if the urb setup header is meaningful */
-	gint8 data_flag;        /* 0, if urb data is present */
-	gint64 ts_sec;
-	gint32 ts_usec;
-	gint32 status;
-	guint32 urb_len;        /* whole len of urb this event refers to */
-	guint32 data_len;       /* amount of urb data really present in this event */
-
-	/*
-	 * Packet-type-dependent data.
-	 * USB setup information of setup_flag is true.
-	 * Otherwise, some isochronous transfer information.
-	 */
-	union {
-		guint8 data[8];
-		struct iso_rec iso;
-	} s;
-
-	/*
-	 * This data is provided by Linux 2.6.31 and later kernels.
-	 *
-	 * For WTAP_ENCAP_USB_LINUX, it's not in the pseudo-header, so
-	 * the pseudo-header is always 48 bytes long, including the
-	 * packet-type-dependent data.
-	 *
-	 * For WTAP_ENCAP_USB_LINUX_MMAPPED, the pseudo-header is always
-	 * 64 bytes long, with the packet-type-dependent data preceding
-	 * these last 16 bytes.  In pre-2.6.31 kernels, it's zero padding;
-	 * in 2.6.31 and later, it's the following data.
-	 */
-	gint32 interval;    /* only for Interrupt and Isochronous events */
-	gint32 start_frame; /* for Isochronous */
-	guint32 xfer_flags; /* copy of URB's transfer_flags */
-	guint32 ndesc;      /* actual number of isochronous descriptors */
-};
-
-struct linux_usb_isodesc {
-	gint32 iso_status;
-	guint32 iso_off;
-	guint32 iso_len;
-	guint32 _pad;
-};
-
-/*
- * USB setup header as defined in USB specification
- * See usb_20.pdf, Chapter 9.3 'USB Device Requests' for details.
- * http://www.usb.org/developers/docs/usb_20_122909-2.zip
- *
- * This structure is 8 bytes long.
- */
-struct usb_device_setup_hdr {
-	gint8 bmRequestType;
-	guint8 bRequest;
-	guint16 wValue;
-	guint16 wIndex;
-	guint16 wLength;
-};
-
-/*
- * Offset of the *end* of a field within a particular structure.
- */
-#define END_OFFSETOF(basep, fieldp) \
-	(((char *)(void *)(fieldp)) - ((char *)(void *)(basep)) + \
-	    sizeof(*fieldp))
-
-/*
- * Is that offset within the bounds of the packet?
- */
-#define WITHIN_PACKET(basep, fieldp) \
-	(packet_size >= END_OFFSETOF((basep), (fieldp)))
-
-#define CHECK_AND_SWAP16(fieldp) \
-	{ \
-		if (!WITHIN_PACKET(usb_phdr, fieldp)) \
-			return; \
-		PBSWAP16((guint8 *)fieldp); \
-	}
-
-#define CHECK_AND_SWAP32(fieldp) \
-	{ \
-		if (!WITHIN_PACKET(usb_phdr, fieldp)) \
-			return; \
-		PBSWAP32((guint8 *)fieldp); \
-	}
-
-#define CHECK_AND_SWAP64(fieldp) \
-	{ \
-		if (!WITHIN_PACKET(usb_phdr, fieldp)) \
-			return; \
-		PBSWAP64((guint8 *)fieldp); \
-	}
-
-struct can_socketcan_hdr {
-	guint32 can_id;			/* CAN ID and flags */
-	guint8 payload_length;		/* Frame payload length */
-	guint8 padding;
-	guint8 reserved1;
-	guint8 reserved2;
-};
-
-/*
- * The fake link-layer header of Linux cooked packets.
- */
-#define LINUX_SLL_PROTOCOL_OFFSET	14	/* protocol */
-#define LINUX_SLL_LEN			16	/* length of the header */
-
-/*
- * The protocols we have to check for.
- */
-#define LINUX_SLL_P_CAN			0x000C	/* Controller Area Network */
-#define LINUX_SLL_P_CANFD		0x000D	/* Controller Area Network flexible data rate */
-
-static void
-pcap_byteswap_linux_sll_pseudoheader(wtap_rec *rec, guint8 *pd)
-{
-	guint packet_size;
-	guint16 protocol;
-	struct can_socketcan_hdr *can_socketcan_phdr;
-
-	/*
-	 * Minimum of captured and actual length (just in case the
-	 * actual length < the captured length, which Should Never
-	 * Happen).
-	 */
-	packet_size = rec->rec_header.packet_header.caplen;
-	if (packet_size > rec->rec_header.packet_header.len)
-		packet_size = rec->rec_header.packet_header.len;
-
-	if (packet_size < LINUX_SLL_LEN) {
-		/* Not enough data to have the protocol */
-		return;
-	}
-
-	protocol = pntoh16(&pd[LINUX_SLL_PROTOCOL_OFFSET]);
-	if (protocol != LINUX_SLL_P_CAN && protocol != LINUX_SLL_P_CANFD) {
-		/* Not a CAN packet; nothing to fix */
-		return;
-	}
-
-	/*
-	 * Greasy hack, but we never directly dereference any of
-	 * the fields in *can_socketcan_phdr, we just get offsets
-	 * of and addresses of its members and byte-swap it with a
-	 * byte-at-a-time macro, so it's alignment-safe.
-	 */
-	can_socketcan_phdr = (struct can_socketcan_hdr *)(void *)(pd + LINUX_SLL_LEN);
-
-	if (packet_size < LINUX_SLL_LEN + sizeof(can_socketcan_phdr->can_id)) {
-		/* Not enough data to have the full CAN ID */
-		return;
-	}
-
-	PBSWAP32((guint8 *)&can_socketcan_phdr->can_id);
-}
-
-static void
-pcap_byteswap_linux_usb_pseudoheader(wtap_rec *rec, guint8 *pd,
-    gboolean header_len_64_bytes)
-{
-	guint packet_size;
-	struct linux_usb_phdr *usb_phdr;
-	struct linux_usb_isodesc *pisodesc;
-	gint32 iso_numdesc, i;
-
-	/*
-	 * Minimum of captured and actual length (just in case the
-	 * actual length < the captured length, which Should Never
-	 * Happen).
-	 */
-	packet_size = rec->rec_header.packet_header.caplen;
-	if (packet_size > rec->rec_header.packet_header.len)
-		packet_size = rec->rec_header.packet_header.len;
-
-	/*
-	 * Greasy hack, but we never directly dereference any of
-	 * the fields in *usb_phdr, we just get offsets of and
-	 * addresses of its members and byte-swap it with a
-	 * byte-at-a-time macro, so it's alignment-safe.
-	 */
-	usb_phdr = (struct linux_usb_phdr *)(void *)pd;
-
-	CHECK_AND_SWAP64(&usb_phdr->id);
-	CHECK_AND_SWAP16(&usb_phdr->bus_id);
-	CHECK_AND_SWAP64(&usb_phdr->ts_sec);
-	CHECK_AND_SWAP32(&usb_phdr->ts_usec);
-	CHECK_AND_SWAP32(&usb_phdr->status);
-	CHECK_AND_SWAP32(&usb_phdr->urb_len);
-	CHECK_AND_SWAP32(&usb_phdr->data_len);
-
-	if (usb_phdr->transfer_type == URB_ISOCHRONOUS) {
-		CHECK_AND_SWAP32(&usb_phdr->s.iso.error_count);
-		CHECK_AND_SWAP32(&usb_phdr->s.iso.numdesc);
-	}
-
-	if (header_len_64_bytes) {
-		/*
-		 * This is either the "version 1" header, with
-		 * 16 bytes of additional fields at the end, or
-		 * a "version 0" header from a memory-mapped
-		 * capture, with 16 bytes of zeroed-out padding
-		 * at the end.  Byte swap them as if this were
-		 * a "version 1" header.
-		 *
-		 * Yes, the first argument to END_OFFSETOF() should
-		 * be usb_phdr, not usb_phdr_ext; we want the offset of
-		 * the additional fields from the beginning of
-		 * the packet.
-		 */
-		CHECK_AND_SWAP32(&usb_phdr->interval);
-		CHECK_AND_SWAP32(&usb_phdr->start_frame);
-		CHECK_AND_SWAP32(&usb_phdr->xfer_flags);
-		CHECK_AND_SWAP32(&usb_phdr->ndesc);
-	}
-
-	if (usb_phdr->transfer_type == URB_ISOCHRONOUS) {
-		/* swap the values in struct linux_usb_isodesc */
-
-		/*
-		 * See previous "Greasy hack" comment.
-		 */
-		if (header_len_64_bytes) {
-			pisodesc = (struct linux_usb_isodesc*)(void *)(pd + 64);
-		} else {
-			pisodesc = (struct linux_usb_isodesc*)(void *)(pd + 48);
-		}
-		iso_numdesc = usb_phdr->s.iso.numdesc;
-		for (i = 0; i < iso_numdesc; i++) {
-			CHECK_AND_SWAP32(&pisodesc->iso_status);
-			CHECK_AND_SWAP32(&pisodesc->iso_off);
-			CHECK_AND_SWAP32(&pisodesc->iso_len);
-			CHECK_AND_SWAP32(&pisodesc->_pad);
-
-			pisodesc++;
-		}
-	}
-}
-
-struct nflog_hdr {
-	guint8 nflog_family;		/* address family */
-	guint8 nflog_version;		/* version */
-	guint16 nflog_rid;		/* resource ID */
-};
-
-struct nflog_tlv {
-	guint16 tlv_length;		/* tlv length */
-	guint16 tlv_type;		/* tlv type */
-	/* value follows this */
-};
-
-static void
-pcap_byteswap_nflog_pseudoheader(wtap_rec *rec, guint8 *pd)
-{
-	guint packet_size;
-	guint8 *p;
-	struct nflog_hdr *nfhdr;
-	struct nflog_tlv *tlv;
-	guint size;
-
-	/*
-	 * Minimum of captured and actual length (just in case the
-	 * actual length < the captured length, which Should Never
-	 * Happen).
-	 */
-	packet_size = rec->rec_header.packet_header.caplen;
-	if (packet_size > rec->rec_header.packet_header.len)
-		packet_size = rec->rec_header.packet_header.len;
-
-	if (packet_size < sizeof(struct nflog_hdr)) {
-		/* Not enough data to have any TLVs. */
-		return;
-	}
-
-	p = pd;
-	nfhdr = (struct nflog_hdr *)pd;
-	if (nfhdr->nflog_version != 0) {
-		/* Unknown NFLOG version */
-		return;
-	}
-
-	packet_size -= (guint)sizeof(struct nflog_hdr);
-	p += sizeof(struct nflog_hdr);
-
-	while (packet_size >= sizeof(struct nflog_tlv)) {
-		tlv = (struct nflog_tlv *) p;
-
-		/* Swap the type and length. */
-		PBSWAP16((guint8 *)&tlv->tlv_type);
-		PBSWAP16((guint8 *)&tlv->tlv_length);
-
-		/* Get the length of the TLV. */
-		size = tlv->tlv_length;
-		if (size % 4 != 0)
-			size += 4 - size % 4;
-
-		/* Is the TLV's length less than the minimum? */
-		if (size < sizeof(struct nflog_tlv)) {
-			/* Yes. Give up now. */
-			return;
-		}
-
-		/* Do we have enough data for the full TLV? */
-		if (packet_size < size) {
-			/* No. */
-			return;
-		}
-
-		/* Skip over the TLV. */
-		packet_size -= size;
-		p += size;
-	}
 }
 
 /*
@@ -2077,6 +1666,417 @@ pcap_write_i2c_pseudoheader(wtap_dumper *wdh,
 		return FALSE;
 	wdh->bytes_dumped += sizeof(i2c_hdr);
 	return TRUE;
+}
+
+/*
+ * The link-layer header on Nokia IPSO packets.
+ */
+#define NOKIA_LEN	4	/* length of the header */
+
+static gboolean
+pcap_read_nokia_pseudoheader(FILE_T fh,
+    union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info)
+{
+	guint8	phdr[NOKIA_LEN];
+
+
+	/* backtrack to read the 4 mysterious bytes that aren't considered
+	* part of the packet size
+	*/
+	if (file_seek(fh, -NOKIA_LEN, SEEK_CUR, err) == -1)
+	{
+		*err = file_error(fh, err_info);
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return FALSE;
+	}
+
+	if (!wtap_read_bytes(fh, phdr, NOKIA_LEN, err, err_info))
+		return FALSE;
+
+	memcpy(pseudo_header->nokia.stuff, phdr, NOKIA_LEN);
+
+	return TRUE;
+}
+
+/*
+ * When not using the memory-mapped interface to capture USB events,
+ * code that reads those events can use the MON_IOCX_GET ioctl to
+ * read a 48-byte header consisting of a "struct linux_usb_phdr", as
+ * defined below, followed immediately by one of:
+ *
+ *	8 bytes of a "struct usb_device_setup_hdr", if "setup_flag"
+ *	in the preceding "struct linux_usb_phdr" is 0;
+ *
+ *	in Linux 2.6.30 or later, 8 bytes of a "struct iso_rec", if
+ *	this is an isochronous transfer;
+ *
+ *	8 bytes of junk, otherwise.
+ *
+ * In Linux 2.6.31 and later, it can also use the MON_IOCX_GETX ioctl
+ * to read a 64-byte header; that header consists of the 48 bytes
+ * above, followed immediately by 16 bytes of a "struct linux_usb_phdr_ext",
+ * as defined below.
+ *
+ * In Linux 2.6.21 and later, there's a memory-mapped interface to
+ * capture USB events.  In that interface, the events in the memory-mapped
+ * buffer have a 64-byte header, followed immediately by the data.
+ * In Linux 2.6.21 through 2.6.30.x, the 64-byte header is the 48-byte
+ * header described above, followed by 16 bytes of zeroes; in Linux
+ * 2.6.31 and later, the 64-byte header is the 64-byte header described
+ * above.
+ *
+ * See linux/Documentation/usb/usbmon.txt and libpcap/pcap/usb.h for details.
+ *
+ * With WTAP_ENCAP_USB_LINUX, packets have the 48-byte header; with
+ * WTAP_ENCAP_USB_LINUX_MMAPPED, they have the 64-byte header.  There
+ * is no indication of whether the header has the "struct iso_rec", or
+ * whether the last 16 bytes of a 64-byte header are all zeros or are
+ * a "struct linux_usb_phdr_ext".
+ */
+
+/*
+ * URB transfer_type values
+ */
+#define URB_ISOCHRONOUS   0x0
+#define URB_INTERRUPT     0x1
+#define URB_CONTROL       0x2
+#define URB_BULK          0x3
+
+/*
+ * Information from the URB for Isochronous transfers.
+ *
+ * This structure is 8 bytes long.
+ */
+struct iso_rec {
+	gint32 error_count;
+	gint32 numdesc;
+};
+
+/*
+ * Header prepended by Linux kernel to each USB event.
+ *
+ * (Setup flag is '-', 'D', 'Z', or 0.  Data flag is '<', '>', 'Z', or 0.)
+ *
+ * The values are in *host* byte order.
+ */
+struct linux_usb_phdr {
+	guint64 id;             /* urb id, to link submission and completion events */
+	guint8 event_type;      /* Submit ('S'), Completed ('C'), Error ('E') */
+	guint8 transfer_type;   /* ISO (0), Intr, Control, Bulk (3) */
+	guint8 endpoint_number; /* Endpoint number (0-15) and transfer direction */
+	guint8 device_address;  /* 0-127 */
+	guint16 bus_id;
+	gint8 setup_flag;       /* 0, if the urb setup header is meaningful */
+	gint8 data_flag;        /* 0, if urb data is present */
+	gint64 ts_sec;
+	gint32 ts_usec;
+	gint32 status;
+	guint32 urb_len;        /* whole len of urb this event refers to */
+	guint32 data_len;       /* amount of urb data really present in this event */
+
+	/*
+	 * Packet-type-dependent data.
+	 * USB setup information of setup_flag is true.
+	 * Otherwise, some isochronous transfer information.
+	 */
+	union {
+		guint8 data[8];
+		struct iso_rec iso;
+	} s;
+
+	/*
+	 * This data is provided by Linux 2.6.31 and later kernels.
+	 *
+	 * For WTAP_ENCAP_USB_LINUX, it's not in the pseudo-header, so
+	 * the pseudo-header is always 48 bytes long, including the
+	 * packet-type-dependent data.
+	 *
+	 * For WTAP_ENCAP_USB_LINUX_MMAPPED, the pseudo-header is always
+	 * 64 bytes long, with the packet-type-dependent data preceding
+	 * these last 16 bytes.  In pre-2.6.31 kernels, it's zero padding;
+	 * in 2.6.31 and later, it's the following data.
+	 */
+	gint32 interval;    /* only for Interrupt and Isochronous events */
+	gint32 start_frame; /* for Isochronous */
+	guint32 xfer_flags; /* copy of URB's transfer_flags */
+	guint32 ndesc;      /* actual number of isochronous descriptors */
+};
+
+struct linux_usb_isodesc {
+	gint32 iso_status;
+	guint32 iso_off;
+	guint32 iso_len;
+	guint32 _pad;
+};
+
+/*
+ * USB setup header as defined in USB specification
+ * See usb_20.pdf, Chapter 9.3 'USB Device Requests' for details.
+ * http://www.usb.org/developers/docs/usb_20_122909-2.zip
+ *
+ * This structure is 8 bytes long.
+ */
+struct usb_device_setup_hdr {
+	gint8 bmRequestType;
+	guint8 bRequest;
+	guint16 wValue;
+	guint16 wIndex;
+	guint16 wLength;
+};
+
+/*
+ * Offset of the *end* of a field within a particular structure.
+ */
+#define END_OFFSETOF(basep, fieldp) \
+	(((char *)(void *)(fieldp)) - ((char *)(void *)(basep)) + \
+	    sizeof(*fieldp))
+
+/*
+ * Is that offset within the bounds of the packet?
+ */
+#define WITHIN_PACKET(basep, fieldp) \
+	(packet_size >= END_OFFSETOF((basep), (fieldp)))
+
+#define CHECK_AND_SWAP16(fieldp) \
+	{ \
+		if (!WITHIN_PACKET(usb_phdr, fieldp)) \
+			return; \
+		PBSWAP16((guint8 *)fieldp); \
+	}
+
+#define CHECK_AND_SWAP32(fieldp) \
+	{ \
+		if (!WITHIN_PACKET(usb_phdr, fieldp)) \
+			return; \
+		PBSWAP32((guint8 *)fieldp); \
+	}
+
+#define CHECK_AND_SWAP64(fieldp) \
+	{ \
+		if (!WITHIN_PACKET(usb_phdr, fieldp)) \
+			return; \
+		PBSWAP64((guint8 *)fieldp); \
+	}
+
+struct can_socketcan_hdr {
+	guint32 can_id;			/* CAN ID and flags */
+	guint8 payload_length;		/* Frame payload length */
+	guint8 padding;
+	guint8 reserved1;
+	guint8 reserved2;
+};
+
+/*
+ * The fake link-layer header of Linux cooked packets.
+ */
+#define LINUX_SLL_PROTOCOL_OFFSET	14	/* protocol */
+#define LINUX_SLL_LEN			16	/* length of the header */
+
+/*
+ * The protocols we have to check for.
+ */
+#define LINUX_SLL_P_CAN			0x000C	/* Controller Area Network */
+#define LINUX_SLL_P_CANFD		0x000D	/* Controller Area Network flexible data rate */
+
+static void
+pcap_byteswap_linux_sll_pseudoheader(wtap_rec *rec, guint8 *pd)
+{
+	guint packet_size;
+	guint16 protocol;
+	struct can_socketcan_hdr *can_socketcan_phdr;
+
+	/*
+	 * Minimum of captured and actual length (just in case the
+	 * actual length < the captured length, which Should Never
+	 * Happen).
+	 */
+	packet_size = rec->rec_header.packet_header.caplen;
+	if (packet_size > rec->rec_header.packet_header.len)
+		packet_size = rec->rec_header.packet_header.len;
+
+	if (packet_size < LINUX_SLL_LEN) {
+		/* Not enough data to have the protocol */
+		return;
+	}
+
+	protocol = pntoh16(&pd[LINUX_SLL_PROTOCOL_OFFSET]);
+	if (protocol != LINUX_SLL_P_CAN && protocol != LINUX_SLL_P_CANFD) {
+		/* Not a CAN packet; nothing to fix */
+		return;
+	}
+
+	/*
+	 * Greasy hack, but we never directly dereference any of
+	 * the fields in *can_socketcan_phdr, we just get offsets
+	 * of and addresses of its members and byte-swap it with a
+	 * byte-at-a-time macro, so it's alignment-safe.
+	 */
+	can_socketcan_phdr = (struct can_socketcan_hdr *)(void *)(pd + LINUX_SLL_LEN);
+
+	if (packet_size < LINUX_SLL_LEN + sizeof(can_socketcan_phdr->can_id)) {
+		/* Not enough data to have the full CAN ID */
+		return;
+	}
+
+	PBSWAP32((guint8 *)&can_socketcan_phdr->can_id);
+}
+
+static void
+pcap_byteswap_linux_usb_pseudoheader(wtap_rec *rec, guint8 *pd,
+    gboolean header_len_64_bytes)
+{
+	guint packet_size;
+	struct linux_usb_phdr *usb_phdr;
+	struct linux_usb_isodesc *pisodesc;
+	gint32 iso_numdesc, i;
+
+	/*
+	 * Minimum of captured and actual length (just in case the
+	 * actual length < the captured length, which Should Never
+	 * Happen).
+	 */
+	packet_size = rec->rec_header.packet_header.caplen;
+	if (packet_size > rec->rec_header.packet_header.len)
+		packet_size = rec->rec_header.packet_header.len;
+
+	/*
+	 * Greasy hack, but we never directly dereference any of
+	 * the fields in *usb_phdr, we just get offsets of and
+	 * addresses of its members and byte-swap it with a
+	 * byte-at-a-time macro, so it's alignment-safe.
+	 */
+	usb_phdr = (struct linux_usb_phdr *)(void *)pd;
+
+	CHECK_AND_SWAP64(&usb_phdr->id);
+	CHECK_AND_SWAP16(&usb_phdr->bus_id);
+	CHECK_AND_SWAP64(&usb_phdr->ts_sec);
+	CHECK_AND_SWAP32(&usb_phdr->ts_usec);
+	CHECK_AND_SWAP32(&usb_phdr->status);
+	CHECK_AND_SWAP32(&usb_phdr->urb_len);
+	CHECK_AND_SWAP32(&usb_phdr->data_len);
+
+	if (usb_phdr->transfer_type == URB_ISOCHRONOUS) {
+		CHECK_AND_SWAP32(&usb_phdr->s.iso.error_count);
+		CHECK_AND_SWAP32(&usb_phdr->s.iso.numdesc);
+	}
+
+	if (header_len_64_bytes) {
+		/*
+		 * This is either the "version 1" header, with
+		 * 16 bytes of additional fields at the end, or
+		 * a "version 0" header from a memory-mapped
+		 * capture, with 16 bytes of zeroed-out padding
+		 * at the end.  Byte swap them as if this were
+		 * a "version 1" header.
+		 *
+		 * Yes, the first argument to END_OFFSETOF() should
+		 * be usb_phdr, not usb_phdr_ext; we want the offset of
+		 * the additional fields from the beginning of
+		 * the packet.
+		 */
+		CHECK_AND_SWAP32(&usb_phdr->interval);
+		CHECK_AND_SWAP32(&usb_phdr->start_frame);
+		CHECK_AND_SWAP32(&usb_phdr->xfer_flags);
+		CHECK_AND_SWAP32(&usb_phdr->ndesc);
+	}
+
+	if (usb_phdr->transfer_type == URB_ISOCHRONOUS) {
+		/* swap the values in struct linux_usb_isodesc */
+
+		/*
+		 * See previous "Greasy hack" comment.
+		 */
+		if (header_len_64_bytes) {
+			pisodesc = (struct linux_usb_isodesc*)(void *)(pd + 64);
+		} else {
+			pisodesc = (struct linux_usb_isodesc*)(void *)(pd + 48);
+		}
+		iso_numdesc = usb_phdr->s.iso.numdesc;
+		for (i = 0; i < iso_numdesc; i++) {
+			CHECK_AND_SWAP32(&pisodesc->iso_status);
+			CHECK_AND_SWAP32(&pisodesc->iso_off);
+			CHECK_AND_SWAP32(&pisodesc->iso_len);
+			CHECK_AND_SWAP32(&pisodesc->_pad);
+
+			pisodesc++;
+		}
+	}
+}
+
+struct nflog_hdr {
+	guint8 nflog_family;		/* address family */
+	guint8 nflog_version;		/* version */
+	guint16 nflog_rid;		/* resource ID */
+};
+
+struct nflog_tlv {
+	guint16 tlv_length;		/* tlv length */
+	guint16 tlv_type;		/* tlv type */
+	/* value follows this */
+};
+
+static void
+pcap_byteswap_nflog_pseudoheader(wtap_rec *rec, guint8 *pd)
+{
+	guint packet_size;
+	guint8 *p;
+	struct nflog_hdr *nfhdr;
+	struct nflog_tlv *tlv;
+	guint size;
+
+	/*
+	 * Minimum of captured and actual length (just in case the
+	 * actual length < the captured length, which Should Never
+	 * Happen).
+	 */
+	packet_size = rec->rec_header.packet_header.caplen;
+	if (packet_size > rec->rec_header.packet_header.len)
+		packet_size = rec->rec_header.packet_header.len;
+
+	if (packet_size < sizeof(struct nflog_hdr)) {
+		/* Not enough data to have any TLVs. */
+		return;
+	}
+
+	p = pd;
+	nfhdr = (struct nflog_hdr *)pd;
+	if (nfhdr->nflog_version != 0) {
+		/* Unknown NFLOG version */
+		return;
+	}
+
+	packet_size -= (guint)sizeof(struct nflog_hdr);
+	p += sizeof(struct nflog_hdr);
+
+	while (packet_size >= sizeof(struct nflog_tlv)) {
+		tlv = (struct nflog_tlv *) p;
+
+		/* Swap the type and length. */
+		PBSWAP16((guint8 *)&tlv->tlv_type);
+		PBSWAP16((guint8 *)&tlv->tlv_length);
+
+		/* Get the length of the TLV. */
+		size = tlv->tlv_length;
+		if (size % 4 != 0)
+			size += 4 - size % 4;
+
+		/* Is the TLV's length less than the minimum? */
+		if (size < sizeof(struct nflog_tlv)) {
+			/* Yes. Give up now. */
+			return;
+		}
+
+		/* Do we have enough data for the full TLV? */
+		if (packet_size < size) {
+			/* No. */
+			return;
+		}
+
+		/* Skip over the TLV. */
+		packet_size -= size;
+		p += size;
+	}
 }
 
 int
