@@ -560,14 +560,9 @@ struct ascend_phdr {
     guint32 task;                         /* Task number */
 };
 
-/* Also defined in epan/packet_info.h */
-#define P2P_DIR_UNKNOWN -1
-#define P2P_DIR_SENT     0
-#define P2P_DIR_RECV     1
-
 /* Packet "pseudo-header" for point-to-point links with direction flags. */
 struct p2p_phdr {
-    int sent; /* TRUE=sent, FALSE=received, -1=unknown*/
+    gboolean sent;
 };
 
 /*
