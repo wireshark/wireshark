@@ -1412,7 +1412,7 @@ pcap_read_erf_pseudoheader(FILE_T fh, wtap_rec *rec,
 
 	/*
 	 * If the type of record given in the pseudo header indicates
-	 * the presence of an extension header then, read all the
+	 * the presence of an extension header, then read all the
 	 * extension headers.
 	 */
 	if (pseudo_header->erf.phdr.type & 0x80) {
@@ -2374,6 +2374,28 @@ pcap_get_phdr_size(int encap, const union wtap_pseudo_header *pseudo_header)
 
 	case WTAP_ENCAP_ERF:
 		hdrsize = (int)sizeof (struct erf_phdr);
+
+		/*
+		 * If the type of record given in the pseudo header
+		 * indicates the presence of an extension header, then
+		 * add in the lengths of the extension headers.
+		 */
+		if (pseudo_header->erf.phdr.type & 0x80) {
+			int i = 0, max = sizeof(pseudo_header->erf.ehdr_list)/sizeof(struct erf_ehdr);
+			guint8 erf_exhdr[8];
+			guint8 type;
+
+			do {
+				phtonll(erf_exhdr, pseudo_header->erf.ehdr_list[i].ehdr);
+				type = erf_exhdr[0];
+				hdrsize += 8;
+				i++;
+			} while (type & 0x80 && i < max);
+		}
+
+		/*
+		 * Now add in the length of the subheader, if any.
+		 */
 		switch (pseudo_header->erf.phdr.type & 0x7F) {
 
 		case ERF_TYPE_MC_HDLC:
@@ -2398,22 +2420,6 @@ pcap_get_phdr_size(int encap, const union wtap_pseudo_header *pseudo_header)
 
 		default:
 			break;
-		}
-
-		/*
-		 * Add in the lengths of the extension headers.
-		 */
-		if (pseudo_header->erf.phdr.type & 0x80) {
-			int i = 0, max = sizeof(pseudo_header->erf.ehdr_list)/sizeof(struct erf_ehdr);
-			guint8 erf_exhdr[8];
-			guint8 type;
-
-			do {
-				phtonll(erf_exhdr, pseudo_header->erf.ehdr_list[i].ehdr);
-				type = erf_exhdr[0];
-				hdrsize += 8;
-				i++;
-			} while (type & 0x80 && i < max);
 		}
 		break;
 
