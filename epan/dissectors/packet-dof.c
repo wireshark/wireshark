@@ -5454,7 +5454,7 @@ static int dof_dissect_dnp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     if (dnp_flags_included && !api_data->transport_session->negotiation_complete_at)
     {
         api_data->transport_session->negotiation_complete_at = pinfo->fd->num;
-        api_data->transport_session->negotiation_complete_at_ts = pinfo->fd->abs_ts;
+        api_data->transport_session->negotiation_complete_at_ts = pinfo->abs_ts;
     }
 
     return offset;
@@ -5644,7 +5644,7 @@ static udp_session_data* create_udp_session_data(packet_info *pinfo, conversatio
     }
 
     packet->common.is_streaming = FALSE;
-    packet->common.session_start_ts = pinfo->fd->abs_ts;
+    packet->common.session_start_ts = pinfo->abs_ts;
     packet->common.negotiation_required = FALSE;
     packet->common.negotiation_complete_at = 0;
 
@@ -5665,7 +5665,7 @@ static tcp_session_data* create_tcp_session_data(packet_info *pinfo, conversatio
     packet->common.transport_id = proto_2008_1_dof_tcp;
     packet->common.is_2_node = TRUE;
     packet->common.is_streaming = TRUE;
-    packet->common.session_start_ts = pinfo->fd->abs_ts;
+    packet->common.session_start_ts = pinfo->abs_ts;
     packet->common.negotiation_required = TRUE;
     packet->common.negotiation_complete_at = 0;
 

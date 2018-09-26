@@ -488,7 +488,7 @@ cql_transaction_add_request(cql_conversation_type* conv,
 		trans->req_frame = pinfo->fd->num;
 	}
 	trans->rep_frame = 0;
-	trans->req_time = pinfo->fd->abs_ts;
+	trans->req_time = pinfo->abs_ts;
 
 	wmem_list_append(list, (void *)trans);
 	wmem_map_insert(conv->streams, GINT_TO_POINTER(stream), (void*)list);
@@ -1071,7 +1071,7 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 
 		ti = proto_tree_add_uint(cql_tree, hf_cql_response_to, raw_tvb, 0, 0, cql_trans->req_frame);
 		PROTO_ITEM_SET_GENERATED(ti);
-		nstime_delta(&ns, &pinfo->fd->abs_ts, &cql_trans->req_time);
+		nstime_delta(&ns, &pinfo->abs_ts, &cql_trans->req_time);
 		ti = proto_tree_add_time(cql_tree, hf_cql_response_time, raw_tvb, 0, 0, &ns);
 		PROTO_ITEM_SET_GENERATED(ti);
 	}

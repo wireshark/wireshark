@@ -2333,7 +2333,7 @@ static void skinny_reqrep_add_request(ptvcursor_t *cursor, packet_info * pinfo, 
     req_resp = wmem_new0(wmem_file_scope(), skinny_req_resp_t);
     req_resp->request_frame = pinfo->num;
     req_resp->response_frame = 0;
-    req_resp->request_time = pinfo->fd->abs_ts;
+    req_resp->request_time = pinfo->abs_ts;
     wmem_map_insert(skinny_conv->pending_req_resp, GINT_TO_POINTER(request_key), (void *)req_resp);
     DPRINT(("SKINNY: setup_request: frame=%d add key=%d to map\n", pinfo->num, request_key));
   }
@@ -2376,7 +2376,7 @@ static void skinny_reqrep_add_response(ptvcursor_t *cursor, packet_info * pinfo,
     it = proto_tree_add_uint(tree, hf_skinny_response_to, tvb, 0, 0, req_resp->request_frame);
     PROTO_ITEM_SET_GENERATED(it);
 
-    nstime_delta(&ns, &pinfo->fd->abs_ts, &req_resp->request_time);
+    nstime_delta(&ns, &pinfo->abs_ts, &req_resp->request_time);
     it = proto_tree_add_time(tree, hf_skinny_response_time, tvb, 0, 0, &ns);
     PROTO_ITEM_SET_GENERATED(it);
   } else {

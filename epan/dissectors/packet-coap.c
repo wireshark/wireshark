@@ -1102,7 +1102,7 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 					coap_trans = wmem_new0(wmem_file_scope(), coap_transaction);
 					coap_trans->req_frame = pinfo->num;
 					coap_trans->rsp_frame = 0;
-					coap_trans->req_time = pinfo->fd->abs_ts;
+					coap_trans->req_time = pinfo->abs_ts;
 					if (coinfo->uri_str_strbuf) {
 						/* Store the URI into CoAP transaction info */
 						coap_trans->uri_str_strbuf = wmem_strbuf_new(wmem_file_scope(), wmem_strbuf_get_str(coinfo->uri_str_strbuf));
@@ -1183,7 +1183,7 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 						tvb, 0, 0, coap_trans->req_frame);
 				PROTO_ITEM_SET_GENERATED(it);
 
-				nstime_delta(&ns, &pinfo->fd->abs_ts, &coap_trans->req_time);
+				nstime_delta(&ns, &pinfo->abs_ts, &coap_trans->req_time);
 				it = proto_tree_add_time(coap_tree, hf_coap_response_time, tvb, 0, 0, &ns);
 				PROTO_ITEM_SET_GENERATED(it);
 			}

@@ -451,7 +451,7 @@ dissect_ipp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             ipp_trans=wmem_new(wmem_file_scope(), ipp_transaction_t);
             ipp_trans->req_frame = pinfo->num;
             ipp_trans->rep_frame = 0;
-            ipp_trans->req_time = pinfo->fd->abs_ts;
+            ipp_trans->req_time = pinfo->abs_ts;
             wmem_map_insert(ipp_info->pdus, GUINT_TO_POINTER(request_id), (void *)ipp_trans);
         } else {
             ipp_trans=(ipp_transaction_t *)wmem_map_lookup(ipp_info->pdus, GUINT_TO_POINTER(request_id));
@@ -467,7 +467,7 @@ dissect_ipp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         ipp_trans=wmem_new(wmem_packet_scope(), ipp_transaction_t);
         ipp_trans->req_frame = 0;
         ipp_trans->rep_frame = 0;
-        ipp_trans->req_time = pinfo->fd->abs_ts;
+        ipp_trans->req_time = pinfo->abs_ts;
     }
 
     /* print state tracking in the tree */
@@ -490,7 +490,7 @@ dissect_ipp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                             tvb, 0, 0, ipp_trans->req_frame);
             PROTO_ITEM_SET_GENERATED(it);
 
-            nstime_delta(&ns, &pinfo->fd->abs_ts, &ipp_trans->req_time);
+            nstime_delta(&ns, &pinfo->abs_ts, &ipp_trans->req_time);
             it = proto_tree_add_time(ipp_tree, hf_ipp_response_time, tvb, 0, 0, &ns);
             PROTO_ITEM_SET_GENERATED(it);
         }

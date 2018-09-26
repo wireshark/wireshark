@@ -1786,7 +1786,7 @@ dissect_u3v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                     gencp_trans = wmem_new0(wmem_file_scope(), gencp_transaction_t);
                     gencp_trans->cmd_frame = pinfo->fd->num;
                     gencp_trans->ack_frame = 0;
-                    gencp_trans->cmd_time = pinfo->fd->abs_ts;
+                    gencp_trans->cmd_time = pinfo->abs_ts;
                     /* add reference to current packet */
                     p_add_proto_data(wmem_file_scope(), pinfo, proto_u3v, req_id, gencp_trans);
                     /* add reference to current */
@@ -1808,7 +1808,7 @@ dissect_u3v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             gencp_trans = wmem_new0(wmem_packet_scope(), gencp_transaction_t);
             gencp_trans->cmd_frame = 0;
             gencp_trans->ack_frame = 0;
-            gencp_trans->cmd_time = pinfo->fd->abs_ts;
+            gencp_trans->cmd_time = pinfo->abs_ts;
         }
 
         /* dissect depending on command? */
