@@ -1743,7 +1743,6 @@ pcap_write_llcp_pseudoheader(wtap_dumper *wdh,
 {
 	guint8 phdr[LLCP_HEADER_LEN];
 
-	/* Any non-zero value means "sent" */
 	phdr[LLCP_ADAPTER_OFFSET] = pseudo_header->llcp.adapter;
 	phdr[LLCP_FLAGS_OFFSET] = pseudo_header->llcp.flags;
 	if (!wtap_dump_file_write(wdh, &phdr, sizeof phdr, err))
