@@ -349,6 +349,42 @@ static const value_string evs_sid_celp_sample_rate_values[] = {
     { 0, NULL }
 };
 
+static const value_string evs_132_bwctrf_idx_vals[] = {
+    { 0x0, "NB generic" },
+    { 0x1, "NB voiced" },
+    { 0x2, "NB transition" },
+    { 0x3, "NB audio" },
+    { 0x4, "NB inactive" },
+    { 0x5, "WB generic" },
+    { 0x6, "WB voiced" },
+    { 0x7, "WB transition" },
+    { 0x8, "WB audio" },
+    { 0x9, "WB inactive" },
+    { 0xa, "SWB generic" },
+    { 0xb, "SWB voiced" },
+    { 0xc, "SWB transition" },
+    { 0xd, "SWB audio" },
+    { 0xe, "SWB inactive" },
+    { 0xf, "NB generic" },
+    { 0x10, "NB voiced" },
+    { 0x11, "WB generic" },
+    { 0x12, "WB voiced" },
+    { 0x13, "SWB generic" },
+    { 0x14, "SWB voiced" },
+    { 0x15, "WB generic" },
+    { 0x16, "WB unvoiced" },
+    { 0x17, "WB voiced" },
+    { 0x18, "WB inactive" },
+    { 0x19, "SWB generic" },
+    { 0x1a, "SWB unvoiced" },
+    { 0x1b, "SWB voiced" },
+    { 0x1c, "SWB inactive" },
+    { 0x1d, "NB lrMDCT" },
+    { 0x1e, "WB lrMDCT" },
+    { 0x1f, "SWB lrMDCT" },
+    { 0, NULL }
+};
+
 
 
 static void
@@ -814,7 +850,7 @@ proto_register_evs(void)
     },
     { &hf_evs_132_bwctrf_idx,
     { "BW CT RF Index", "evs.132.bwctrf_idx",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
+        FT_UINT8, BASE_DEC, VALS(evs_132_bwctrf_idx_vals), 0x0,
         NULL, HFILL }
     },
 };
