@@ -15425,6 +15425,7 @@ dissect_ff2_response_data(tvbuff_t * tvb, packet_info * pinfo,
     proto_tree * tree, int offset, guint16 *bcp, gboolean *trunc, smb_info_t *si)
 {
 	if (!*bcp) {
+		*trunc = FALSE;
 		return offset;
 	}
 
