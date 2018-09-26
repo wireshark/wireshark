@@ -751,6 +751,7 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
         bytes_read = pcapng_read_option(fh, pn, &oh, option_content, opt_cont_buf_len, to_read, err, err_info, "if_descr");
         if (bytes_read <= 0) {
             pcapng_debug("pcapng_read_if_descr_block: failed to read option");
+            g_free(option_content);
             return FALSE;
         }
         to_read -= bytes_read;
