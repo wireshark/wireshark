@@ -103,7 +103,7 @@ json_find_attr(const char *buf, const jsmntok_t *tokens, int count, const char *
 }
 
 static void
-json_puts_string(const char *str)
+json_puts_string(const char *s)
 {
 	static const char json_cntrl[0x20][6] =
 	{
@@ -111,15 +111,13 @@ json_puts_string(const char *str)
 		"u0010", "u0011", "u0012", "u0013", "u0014", "u0015", "u0016", "u0017", "u0018", "u0019", "u001a", "u001b", "u001c", "u001d", "u001e", "u001f"
 	};
 
+	const unsigned char *str = (const unsigned char *) s ? s : "";
 	int i;
-
-	if (str == NULL)
-		str = "";
 
 	putchar('"');
 	for (i = 0; str[i]; i++)
 	{
-		if (((unsigned char) str[i]) < 0x20)
+		if (str[i] < 0x20)
 		{
 			putchar('\\');
 			fputs(json_cntrl[str[i]], stdout);
