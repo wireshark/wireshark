@@ -1833,7 +1833,6 @@ CNTypeRestrictions                      N s1ap.extension id-CNTypeRestrictions
 Packet-LossRate                         N s1ap.extension id-DownlinkPacketLossRate
 Packet-LossRate                         N s1ap.extension id-UplinkPacketLossRate
 ServiceType                             N s1ap.extension id-serviceType
-CNTypeRestrictions                      N s1ap.extension id-CNTypeRestrictions
 BluetoothMeasurementConfiguration       N s1ap.extension id-BluetoothMeasurementConfiguration
 WLANMeasurementConfiguration            N s1ap.extension id-WLANMeasurementConfiguration
 NRrestrictionin5GS                      N s1ap.extension id-NRrestrictionin5GS
