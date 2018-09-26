@@ -1737,6 +1737,21 @@ pcap_read_llcp_pseudoheader(FILE_T fh,
 	return LLCP_HEADER_LEN;
 }
 
+static gboolean
+pcap_write_llcp_pseudoheader(wtap_dumper *wdh,
+    const union wtap_pseudo_header *pseudo_header, int *err)
+{
+	guint8 phdr[LLCP_HEADER_LEN];
+
+	/* Any non-zero value means "sent" */
+	phdr[LLCP_ADAPTER_OFFSET] = pseudo_header->llcp.adapter;
+	phdr[LLCP_FLAGS_OFFSET] = pseudo_header->llcp.flags;
+	if (!wtap_dump_file_write(wdh, &phdr, sizeof phdr, err))
+		return FALSE;
+	wdh->bytes_dumped += sizeof phdr;
+	return TRUE;
+}
+
 /*
  * Pseudo-header at the beginning of DLT_PPP_WITH_DIR frames.
  */
@@ -2345,6 +2360,26 @@ pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pse
 			return FALSE;
 		break;
 
+	case WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR:
+		if (!pcap_write_bt_pseudoheader(wdh, pseudo_header, err))
+			return FALSE;
+		break;
+
+	case WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR:
+		if (!pcap_write_bt_monitor_pseudoheader(wdh, pseudo_header, err))
+			return FALSE;
+		break;
+
+	case WTAP_ENCAP_NFC_LLCP:
+		if (!pcap_write_llcp_pseudoheader(wdh, pseudo_header, err))
+			return FALSE;
+		break;
+
+	case WTAP_ENCAP_PPP_WITH_PHDR:
+		if (!pcap_write_ppp_pseudoheader(wdh, pseudo_header, err))
+			return FALSE;
+		break;
+
 	case WTAP_ENCAP_ERF:
 		/*
 		 * Write the ERF header.
@@ -2430,21 +2465,6 @@ pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pse
 
 	case WTAP_ENCAP_I2C:
 		if (!pcap_write_i2c_pseudoheader(wdh, pseudo_header, err))
-			return FALSE;
-		break;
-
-	case WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR:
-		if (!pcap_write_bt_pseudoheader(wdh, pseudo_header, err))
-			return FALSE;
-		break;
-
-	case WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR:
-		if (!pcap_write_bt_monitor_pseudoheader(wdh, pseudo_header, err))
-			return FALSE;
-		break;
-
-	case WTAP_ENCAP_PPP_WITH_PHDR:
-		if (!pcap_write_ppp_pseudoheader(wdh, pseudo_header, err))
 			return FALSE;
 		break;
 	}
