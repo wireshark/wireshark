@@ -2130,6 +2130,7 @@ pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pse
 	struct libpcap_bt_phdr bt_hdr;
 	struct libpcap_bt_monitor_phdr bt_monitor_hdr;
 	struct libpcap_ppp_phdr ppp_hdr;
+	guint8 llcp_phdr[LLCP_HEADER_LEN];
 	size_t size;
 	size_t subhdr_size = 0;
 
@@ -2341,6 +2342,14 @@ pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pse
 		if (!wtap_dump_file_write(wdh, &bt_monitor_hdr, sizeof bt_monitor_hdr, err))
 			return FALSE;
 		wdh->bytes_dumped += sizeof bt_monitor_hdr;
+		break;
+
+	case WTAP_ENCAP_NFC_LLCP:
+		llcp_phdr[LLCP_ADAPTER_OFFSET] = pseudo_header->llcp.adapter;
+		llcp_phdr[LLCP_FLAGS_OFFSET] = pseudo_header->llcp.flags;
+		if (!wtap_dump_file_write(wdh, &llcp_phdr, sizeof llcp_phdr, err))
+			return FALSE;
+		wdh->bytes_dumped += sizeof llcp_phdr;
 		break;
 
 	case WTAP_ENCAP_PPP_WITH_PHDR:
