@@ -1805,8 +1805,10 @@ pcap_read_erf_pseudoheader(FILE_T fh, wtap_rec *rec,
     int *err, gchar **err_info)
 {
 	guint8 erf_hdr[sizeof(struct erf_phdr)];
+	guint8 erf_subhdr[sizeof(union erf_subhdr)];
+	int phdr_len;
 
-	if (packet_size < sizeof(struct erf_phdr) ) {
+	if (packet_size < sizeof(struct erf_phdr)) {
 		/*
 		 * Uh-oh, the packet isn't big enough to even
 		 * have a pseudo-header.
@@ -1818,8 +1820,9 @@ pcap_read_erf_pseudoheader(FILE_T fh, wtap_rec *rec,
 	}
 	if (!wtap_read_bytes(fh, erf_hdr, sizeof(struct erf_phdr), err, err_info))
 		return -1;
+	phdr_len = (int)sizeof(struct erf_phdr);
 	pseudo_header->erf.phdr.ts = pletoh64(&erf_hdr[0]); /* timestamp */
-	pseudo_header->erf.phdr.type =  erf_hdr[8];
+	pseudo_header->erf.phdr.type = erf_hdr[8];
 	pseudo_header->erf.phdr.flags = erf_hdr[9];
 	pseudo_header->erf.phdr.rlen = pntoh16(&erf_hdr[10]);
 	pseudo_header->erf.phdr.lctr = pntoh16(&erf_hdr[12]);
@@ -1834,54 +1837,51 @@ pcap_read_erf_pseudoheader(FILE_T fh, wtap_rec *rec,
 		ts = ((ts & 0xffffffff) * 1000 * 1000 * 1000);
 		ts += (ts & 0x80000000) << 1; /* rounding */
 		rec->ts.nsecs = ((guint32) (ts >> 32));
-		if ( rec->ts.nsecs >= 1000000000) {
+		if (rec->ts.nsecs >= 1000000000) {
 			rec->ts.nsecs -= 1000000000;
 			rec->ts.secs += 1;
 		}
 	}
-	return (int)sizeof(struct erf_phdr);
-}
 
-/*
- * If the type of record given in the pseudo header indicate the presence of an extension
- * header then, read all the extension headers
- */
-static gboolean
-pcap_read_erf_exheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
-		       int *err, gchar **err_info, guint * psize)
-{
-	guint8 erf_exhdr[8];
-	guint64 erf_exhdr_sw;
-	int i = 0, max = sizeof(pseudo_header->erf.ehdr_list)/sizeof(struct erf_ehdr);
-	guint8 type;
-	*psize = 0;
-	if (pseudo_header->erf.phdr.type & 0x80){
-		do{
+	/*
+	 * If the type of record given in the pseudo header indicates
+	 * the presence of an extension header then, read all the
+	 * extension headers.
+	 */
+	if (pseudo_header->erf.phdr.type & 0x80) {
+		int i = 0, max = sizeof(pseudo_header->erf.ehdr_list)/sizeof(struct erf_ehdr);
+		guint8 erf_exhdr[8];
+		guint8 type;
+
+		do {
+			if (phdr_len > INT_MAX - 8) {
+				*err = WTAP_ERR_BAD_FILE;
+				*err_info = g_strdup_printf("pcap/pcapng: ERF file has a packet larger than %d bytes",
+				    INT_MAX);
+				return -1;
+			}
+			if (packet_size < (guint)phdr_len + 8) {
+				*err = WTAP_ERR_BAD_FILE;
+				*err_info = g_strdup_printf("pcap/pcapng: ERF file has a %u-byte packet, too small to include the extension headers",
+				    packet_size);
+				return -1;
+			}
 			if (!wtap_read_bytes(fh, erf_exhdr, 8, err, err_info))
-				return FALSE;
+				return -1;
 			type = erf_exhdr[0];
-			erf_exhdr_sw = pntoh64(erf_exhdr);
-			if (i < max)
+			if (i < max) {
+				guint64 erf_exhdr_sw;
+
+				erf_exhdr_sw = pntoh64(erf_exhdr);
 				memcpy(&pseudo_header->erf.ehdr_list[i].ehdr, &erf_exhdr_sw, sizeof(erf_exhdr_sw));
-			*psize += 8;
+			}
+			phdr_len += 8;
 			i++;
 		} while (type & 0x80);
 	}
-	return TRUE;
-}
 
-/*
- * If the type of record given in the pseudo header indicate the precense of a subheader
- * then, read this optional subheader
- */
-static gboolean
-pcap_read_erf_subheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
-			int *err, gchar **err_info, guint * psize)
-{
-	guint8 erf_subhdr[sizeof(union erf_subhdr)];
-
-	*psize=0;
-	switch(pseudo_header->erf.phdr.type & 0x7F) {
+	/* check the optional subheader */
+	switch (pseudo_header->erf.phdr.type & 0x7F) {
 	case ERF_TYPE_MC_HDLC:
 	case ERF_TYPE_MC_RAW:
 	case ERF_TYPE_MC_ATM:
@@ -1890,30 +1890,159 @@ pcap_read_erf_subheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 	case ERF_TYPE_MC_AAL2:
 	case ERF_TYPE_COLOR_MC_HDLC_POS:
 		/* Extract the Multi Channel header to include it in the pseudo header part */
+		if (phdr_len > INT_MAX - (int)sizeof(erf_mc_header_t)) {
+			*err = WTAP_ERR_BAD_FILE;
+			*err_info = g_strdup_printf("pcap/pcapng: ERF file has a packet larger than %d bytes",
+			    INT_MAX);
+			return -1;
+		}
+		if (packet_size < (guint)(phdr_len + (int)sizeof(erf_mc_header_t))) {
+			*err = WTAP_ERR_BAD_FILE;
+			*err_info = g_strdup_printf("pcap/pcapng: ERF file has a %u-byte packet, too small to include the Multi Channel header",
+			    packet_size);
+			return -1;
+		}
 		if (!wtap_read_bytes(fh, erf_subhdr, sizeof(erf_mc_header_t), err, err_info))
-			return FALSE;
+			return -1;
 		pseudo_header->erf.subhdr.mc_hdr = pntoh32(&erf_subhdr[0]);
-		*psize = sizeof(erf_mc_header_t);
+		phdr_len += sizeof(erf_mc_header_t);
 		break;
 	case ERF_TYPE_AAL2:
 		/* Extract the AAL2 header to include it in the pseudo header part */
+		if (phdr_len > INT_MAX - (int)sizeof(erf_aal2_header_t)) {
+			*err = WTAP_ERR_BAD_FILE;
+			*err_info = g_strdup_printf("pcap/pcapng: ERF file has a packet larger than %d bytes",
+			    INT_MAX);
+			return -1;
+		}
+		if (packet_size < (guint)(phdr_len + (int)sizeof(erf_aal2_header_t))) {
+			*err = WTAP_ERR_BAD_FILE;
+			*err_info = g_strdup_printf("pcap/pcapng: ERF file has a %u-byte packet, too small to include the AAL2 headerr",
+			    packet_size);
+			return -1;
+		}
 		if (!wtap_read_bytes(fh, erf_subhdr, sizeof(erf_aal2_header_t), err, err_info))
-			return FALSE;
+			return -1;
 		pseudo_header->erf.subhdr.aal2_hdr = pntoh32(&erf_subhdr[0]);
-		*psize = sizeof(erf_aal2_header_t);
+		phdr_len += sizeof(erf_aal2_header_t);
 		break;
 	case ERF_TYPE_ETH:
 	case ERF_TYPE_COLOR_ETH:
 	case ERF_TYPE_DSM_COLOR_ETH:
 	case ERF_TYPE_COLOR_HASH_ETH:
 		/* Extract the Ethernet additional header to include it in the pseudo header part */
+		if (phdr_len > INT_MAX - (int)sizeof(erf_eth_header_t)) {
+			*err = WTAP_ERR_BAD_FILE;
+			*err_info = g_strdup_printf("pcap/pcapng: ERF file has a packet larger than %d bytes",
+			    INT_MAX);
+			return -1;
+		}
+		if (packet_size < (guint)(phdr_len + (int)sizeof(erf_eth_header_t))) {
+			*err = WTAP_ERR_BAD_FILE;
+			*err_info = g_strdup_printf("pcap/pcapng: ERF file has a %u-byte packet, too small to include the Ethernet additional header",
+			    packet_size);
+			return -1;
+		}
 		if (!wtap_read_bytes(fh, erf_subhdr, sizeof(erf_eth_header_t), err, err_info))
-			return FALSE;
+			return -1;
 		memcpy(&pseudo_header->erf.subhdr.eth_hdr, erf_subhdr, sizeof pseudo_header->erf.subhdr.eth_hdr);
-		*psize = sizeof(erf_eth_header_t);
+		phdr_len += sizeof(erf_eth_header_t);
 		break;
 	default:
 		/* No optional pseudo header for this ERF type */
+		break;
+	}
+	return phdr_len;
+}
+
+static gboolean
+pcap_write_erf_pseudoheader(wtap_dumper *wdh,
+    const union wtap_pseudo_header *pseudo_header, int *err)
+{
+	guint8 erf_hdr[sizeof(struct erf_phdr)];
+	guint8 erf_subhdr[sizeof(union erf_subhdr)];
+
+	/*
+	 * Write the ERF header.
+	 */
+	memset(&erf_hdr, 0, sizeof(erf_hdr));
+	phtolell(&erf_hdr[0], pseudo_header->erf.phdr.ts);
+	erf_hdr[8] = pseudo_header->erf.phdr.type;
+	erf_hdr[9] = pseudo_header->erf.phdr.flags;
+
+	/*
+	 * Recalculate rlen as padding (and maybe extension headers)
+	 * have been stripped from caplen.
+	 *
+	 * XXX: Since we don't have rec->rec_header.packet_header.caplen
+	 * here, assume caplen was calculated correctly and
+	 * recalculate from wlen.
+	 */
+	phtons(&erf_hdr[10],
+	    MIN(pseudo_header->erf.phdr.rlen, pseudo_header->erf.phdr.wlen + pcap_get_phdr_size(WTAP_ENCAP_ERF, pseudo_header)));
+
+	phtons(&erf_hdr[12], pseudo_header->erf.phdr.lctr);
+	phtons(&erf_hdr[14], pseudo_header->erf.phdr.wlen);
+	if (!wtap_dump_file_write(wdh, erf_hdr,  sizeof(struct erf_phdr), err))
+		return FALSE;
+	wdh->bytes_dumped += sizeof(struct erf_phdr);
+
+	/*
+	 * Now write out the extension headers.
+	 */
+	if (pseudo_header->erf.phdr.type & 0x80) {
+		int i = 0, max = sizeof(pseudo_header->erf.ehdr_list)/sizeof(struct erf_ehdr);
+		guint8 erf_exhdr[8];
+		guint8 type;
+
+		do {
+			phtonll(erf_exhdr, pseudo_header->erf.ehdr_list[i].ehdr);
+			type = erf_exhdr[0];
+			/* Clear more extension headers bit if > 8 */
+			if(i == max-1)
+				erf_exhdr[0] = erf_exhdr[0] & 0x7F;
+			if (!wtap_dump_file_write(wdh, erf_exhdr, 8, err))
+				return FALSE;
+			wdh->bytes_dumped += 8;
+			i++;
+		} while (type & 0x80 && i < max);
+	}
+
+	/*
+	 * Now write out the subheader, if any
+	 */
+	switch (pseudo_header->erf.phdr.type & 0x7F) {
+	case ERF_TYPE_MC_HDLC:
+	case ERF_TYPE_MC_RAW:
+	case ERF_TYPE_MC_ATM:
+	case ERF_TYPE_MC_RAW_CHANNEL:
+	case ERF_TYPE_MC_AAL5:
+	case ERF_TYPE_MC_AAL2:
+	case ERF_TYPE_COLOR_MC_HDLC_POS:
+		phtonl(&erf_subhdr[0], pseudo_header->erf.subhdr.mc_hdr);
+		if (!wtap_dump_file_write(wdh, erf_subhdr,
+		    sizeof(struct erf_mc_hdr), err))
+			return FALSE;
+		wdh->bytes_dumped += sizeof(struct erf_mc_hdr);;
+		break;
+	case ERF_TYPE_AAL2:
+		phtonl(&erf_subhdr[0], pseudo_header->erf.subhdr.aal2_hdr);
+		if (!wtap_dump_file_write(wdh, erf_subhdr,
+		    sizeof(struct erf_aal2_hdr), err))
+			return FALSE;
+		wdh->bytes_dumped += sizeof(struct erf_aal2_hdr);;
+		break;
+	case ERF_TYPE_ETH:
+	case ERF_TYPE_COLOR_ETH:
+	case ERF_TYPE_DSM_COLOR_ETH:
+	case ERF_TYPE_COLOR_HASH_ETH:
+		memcpy(&erf_subhdr[0], &pseudo_header->erf.subhdr.eth_hdr, sizeof pseudo_header->erf.subhdr.eth_hdr);
+		if (!wtap_dump_file_write(wdh, erf_subhdr,
+		    sizeof(struct erf_eth_hdr), err))
+			return FALSE;
+		wdh->bytes_dumped += sizeof(struct erf_eth_hdr);
+		break;
+	default:
 		break;
 	}
 	return TRUE;
@@ -1977,7 +2106,6 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
     guint packet_size, wtap_rec *rec, int *err, gchar **err_info)
 {
 	int phdr_len = 0;
-	guint size;
 
 	switch (wtap_encap) {
 
@@ -2112,31 +2240,6 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 		    packet_size, err, err_info);
 		if (phdr_len == -1)
 			return -1;	/* Read error */
-
-		/* check the optional Extension header */
-		if (!pcap_read_erf_exheader(fh, &rec->rec_header.packet_header.pseudo_header, err, err_info,
-		    &size))
-			return -1;	/* Read error */
-
-		phdr_len += size;
-
-		/* check the optional Multi Channel header */
-		if (!pcap_read_erf_subheader(fh, &rec->rec_header.packet_header.pseudo_header, err, err_info,
-		    &size))
-			return -1;	/* Read error */
-
-		phdr_len += size;
-
-		if (packet_size < (guint)phdr_len) {
-			/*
-			 * Uh-oh, the packet isn't big enough for the pseudo-
-			 * header.
-			 */
-			*err = WTAP_ERR_BAD_FILE;
-			*err_info = g_strdup_printf("pcap/pcapng: ERF file has a %u-byte packet, too small for a pseudo-header with ex- and sub-headers (%d)",
-			    packet_size, phdr_len);
-			return -1;
-		}
 		break;
 
 	case WTAP_ENCAP_I2C:
@@ -2327,11 +2430,6 @@ gboolean
 pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pseudo_header,
     int *err)
 {
-	guint8 erf_hdr[ sizeof(struct erf_mc_phdr)];
-	guint8 erf_subhdr[sizeof(union erf_subhdr)];
-	size_t size;
-	size_t subhdr_size = 0;
-
 	switch (encap) {
 
 	case WTAP_ENCAP_ATM_PDUS:
@@ -2380,86 +2478,8 @@ pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pse
 		break;
 
 	case WTAP_ENCAP_ERF:
-		/*
-		 * Write the ERF header.
-		 */
-		memset(&erf_hdr, 0, sizeof(erf_hdr));
-		phtolell(&erf_hdr[0], pseudo_header->erf.phdr.ts);
-		erf_hdr[8] = pseudo_header->erf.phdr.type;
-		erf_hdr[9] = pseudo_header->erf.phdr.flags;
-
-		/*
-		 * Recalculate rlen as padding (and maybe extension headers)
-		 * have been stripped from caplen.
-		 *
-		 * XXX: Since we don't have rec->rec_header.packet_header.caplen
-		 * here, assume caplen was calculated correctly and
-		 * recalculate from wlen.
-		 */
-		phtons(&erf_hdr[10],
-		    MIN(pseudo_header->erf.phdr.rlen, pseudo_header->erf.phdr.wlen + pcap_get_phdr_size(WTAP_ENCAP_ERF, pseudo_header)));
-
-		phtons(&erf_hdr[12], pseudo_header->erf.phdr.lctr);
-		phtons(&erf_hdr[14], pseudo_header->erf.phdr.wlen);
-		size = sizeof(struct erf_phdr);
-
-		switch(pseudo_header->erf.phdr.type & 0x7F) {
-		case ERF_TYPE_MC_HDLC:
-		case ERF_TYPE_MC_RAW:
-		case ERF_TYPE_MC_ATM:
-		case ERF_TYPE_MC_RAW_CHANNEL:
-		case ERF_TYPE_MC_AAL5:
-		case ERF_TYPE_MC_AAL2:
-		case ERF_TYPE_COLOR_MC_HDLC_POS:
-			phtonl(&erf_subhdr[0], pseudo_header->erf.subhdr.mc_hdr);
-			subhdr_size += (int)sizeof(struct erf_mc_hdr);
-			break;
-		case ERF_TYPE_AAL2:
-			phtonl(&erf_subhdr[0], pseudo_header->erf.subhdr.aal2_hdr);
-			subhdr_size += (int)sizeof(struct erf_aal2_hdr);
-			break;
-		case ERF_TYPE_ETH:
-		case ERF_TYPE_COLOR_ETH:
-		case ERF_TYPE_DSM_COLOR_ETH:
-		case ERF_TYPE_COLOR_HASH_ETH:
-			memcpy(&erf_subhdr[0], &pseudo_header->erf.subhdr.eth_hdr, sizeof pseudo_header->erf.subhdr.eth_hdr);
-			subhdr_size += (int)sizeof(struct erf_eth_hdr);
-			break;
-		default:
-			break;
-		}
-		if (!wtap_dump_file_write(wdh, erf_hdr, size, err))
+		if (!pcap_write_erf_pseudoheader(wdh, pseudo_header, err))
 			return FALSE;
-		wdh->bytes_dumped += size;
-
-		/*
-		 * Now write out the extension headers.
-		 */
-		if (pseudo_header->erf.phdr.type & 0x80) {
-			int i = 0, max = sizeof(pseudo_header->erf.ehdr_list)/sizeof(struct erf_ehdr);
-			guint8 erf_exhdr[8];
-			guint8 type;
-
-			do {
-				phtonll(erf_exhdr, pseudo_header->erf.ehdr_list[i].ehdr);
-				type = erf_exhdr[0];
-				/* Clear more extension headers bit if > 8 */
-				if(i == max-1)
-					erf_exhdr[0] = erf_exhdr[0] & 0x7F;
-
-				if (!wtap_dump_file_write(wdh, erf_exhdr, 8, err))
-					return FALSE;
-				wdh->bytes_dumped += 8;
-				i++;
-			} while (type & 0x80 && i < max);
-		}
-
-		/*
-		 * Now write out the subheader.
-		 */
-		if(!wtap_dump_file_write(wdh, erf_subhdr, subhdr_size, err))
-			return FALSE;
-		wdh->bytes_dumped += subhdr_size;
 		break;
 
 	case WTAP_ENCAP_I2C:
