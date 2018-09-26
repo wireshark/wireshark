@@ -861,16 +861,27 @@ struct i2c_file_hdr {
 	guint8 flags[4];
 };
 
-static gboolean
+static int
 pcap_read_sunatm_pseudoheader(FILE_T fh,
-    union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info)
+    union wtap_pseudo_header *pseudo_header, guint packet_size,
+    int *err, gchar **err_info)
 {
 	guint8	atm_phdr[SUNATM_LEN];
 	guint8	vpi;
 	guint16	vci;
 
+	if (packet_size < SUNATM_LEN) {
+		/*
+		 * Uh-oh, the packet isn't big enough to even
+		 * have a pseudo-header.
+		 */
+		*err = WTAP_ERR_BAD_FILE;
+		*err_info = g_strdup_printf("pcap/pcapng: SunATM file has a %u-byte packet, too small to have even an ATM pseudo-header",
+		    packet_size);
+		return -1;
+	}
 	if (!wtap_read_bytes(fh, atm_phdr, SUNATM_LEN, err, err_info))
-		return FALSE;
+		return -1;
 
 	vpi = atm_phdr[SUNATM_VPI];
 	vci = pntoh16(&atm_phdr[SUNATM_VCI]);
@@ -939,19 +950,30 @@ pcap_read_sunatm_pseudoheader(FILE_T fh,
 	pseudo_header->atm.aal5t_len = 0;
 	pseudo_header->atm.aal5t_chksum = 0;
 
-	return TRUE;
+	return SUNATM_LEN;
 }
 
-static gboolean
+static int
 pcap_read_nokiaatm_pseudoheader(FILE_T fh,
-    union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info)
+    union wtap_pseudo_header *pseudo_header, guint packet_size,
+    int *err, gchar **err_info)
 {
 	guint8	atm_phdr[NOKIAATM_LEN];
 	guint8	vpi;
 	guint16	vci;
 
+	if (packet_size < NOKIAATM_LEN) {
+		/*
+		 * Uh-oh, the packet isn't big enough to even
+		 * have a pseudo-header.
+		 */
+		*err = WTAP_ERR_BAD_FILE;
+		*err_info = g_strdup_printf("pcap/pcapng: Nokia IPSO ATM file has a %u-byte packet, too small to have even an ATM pseudo-header",
+		    packet_size);
+		return -1;
+	}
 	if (!wtap_read_bytes(fh, atm_phdr, NOKIAATM_LEN, err, err_info))
-		return FALSE;
+		return -1;
 
 	vpi = atm_phdr[NOKIAATM_VPI];
 	vci = pntoh16(&atm_phdr[NOKIAATM_VCI]);
@@ -967,7 +989,7 @@ pcap_read_nokiaatm_pseudoheader(FILE_T fh,
 	pseudo_header->atm.aal5t_len = 0;
 	pseudo_header->atm.aal5t_chksum = 0;
 
-	return TRUE;
+	return NOKIAATM_LEN;
 }
 
 static gboolean
@@ -996,71 +1018,113 @@ pcap_read_nokia_pseudoheader(FILE_T fh,
 	return TRUE;
 }
 
-static gboolean
+static int
 pcap_read_irda_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
-    int *err, gchar **err_info)
+    guint packet_size, int *err, gchar **err_info)
 {
 	guint8	irda_phdr[IRDA_SLL_LEN];
 
+	if (packet_size < IRDA_SLL_LEN) {
+		/*
+		 * Uh-oh, the packet isn't big enough to even
+		 * have a pseudo-header.
+		 */
+		*err = WTAP_ERR_BAD_FILE;
+		*err_info = g_strdup_printf("pcap/pcapng: IrDA file has a %u-byte packet, too small to have even an IrDA pseudo-header",
+		    packet_size);
+		return -1;
+	}
 	if (!wtap_read_bytes(fh, irda_phdr, IRDA_SLL_LEN, err, err_info))
-		return FALSE;
+		return -1;
 
 	if (pntoh16(&irda_phdr[IRDA_SLL_PROTOCOL_OFFSET]) != 0x0017) {
 		*err = WTAP_ERR_BAD_FILE;
 		if (err_info != NULL)
 			*err_info = g_strdup("pcap/pcapng: IrDA capture has a packet with an invalid sll_protocol field");
-		return FALSE;
+		return -1;
 	}
 
 	pseudo_header->irda.pkttype = pntoh16(&irda_phdr[IRDA_SLL_PKTTYPE_OFFSET]);
 
-	return TRUE;
+	return IRDA_SLL_LEN;
 }
 
-static gboolean
-pcap_read_mtp2_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info)
+static int
+pcap_read_mtp2_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
+    guint packet_size, int *err, gchar **err_info)
 {
 	guint8 mtp2_hdr[MTP2_HDR_LEN];
 
+	if (packet_size < MTP2_HDR_LEN) {
+		/*
+		 * Uh-oh, the packet isn't big enough to even
+		 * have a pseudo-header.
+		 */
+		*err = WTAP_ERR_BAD_FILE;
+		*err_info = g_strdup_printf("pcap/pcapng: MTP2 file has a %u-byte packet, too small to have even an MTP2 pseudo-header",
+		    packet_size);
+		return -1;
+	}
 	if (!wtap_read_bytes(fh, mtp2_hdr, MTP2_HDR_LEN, err, err_info))
-		return FALSE;
+		return -1;
 
 	pseudo_header->mtp2.sent         = mtp2_hdr[MTP2_SENT_OFFSET];
 	pseudo_header->mtp2.annex_a_used = mtp2_hdr[MTP2_ANNEX_A_USED_OFFSET];
 	pseudo_header->mtp2.link_number  = pntoh16(&mtp2_hdr[MTP2_LINK_NUMBER_OFFSET]);
 
-	return TRUE;
+	return MTP2_HDR_LEN;
 }
 
-static gboolean
+static int
 pcap_read_lapd_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
-    int *err, gchar **err_info)
+    guint packet_size, int *err, gchar **err_info)
 {
 	guint8	lapd_phdr[LAPD_SLL_LEN];
 
+	if (packet_size < LAPD_SLL_LEN) {
+		/*
+		 * Uh-oh, the packet isn't big enough to even
+		 * have a pseudo-header.
+		 */
+		*err = WTAP_ERR_BAD_FILE;
+		*err_info = g_strdup_printf("pcap/pcapng: LAPD file has a %u-byte packet, too small to have even a LAPD pseudo-header",
+		    packet_size);
+		return -1;
+	}
 	if (!wtap_read_bytes(fh, lapd_phdr, LAPD_SLL_LEN, err, err_info))
-		return FALSE;
+		return -1;
 
 	if (pntoh16(&lapd_phdr[LAPD_SLL_PROTOCOL_OFFSET]) != ETH_P_LAPD) {
 		*err = WTAP_ERR_BAD_FILE;
 		if (err_info != NULL)
 			*err_info = g_strdup("pcap/pcapng: LAPD capture has a packet with an invalid sll_protocol field");
-		return FALSE;
+		return -1;
 	}
 
 	pseudo_header->lapd.pkttype = pntoh16(&lapd_phdr[LAPD_SLL_PKTTYPE_OFFSET]);
 	pseudo_header->lapd.we_network = !!lapd_phdr[LAPD_SLL_ADDR_OFFSET+0];
 
-	return TRUE;
+	return LAPD_SLL_LEN;
 }
 
-static gboolean
-pcap_read_sita_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info)
+static int
+pcap_read_sita_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
+    guint packet_size, int *err, gchar **err_info)
 {
 	guint8	sita_phdr[SITA_HDR_LEN];
 
+	if (packet_size < SITA_HDR_LEN) {
+		/*
+		 * Uh-oh, the packet isn't big enough to even
+		 * have a pseudo-header.
+		 */
+		*err = WTAP_ERR_BAD_FILE;
+		*err_info = g_strdup_printf("pcap/pcapng: SITA file has a %u-byte packet, too small to have even a SITA pseudo-header",
+		    packet_size);
+		return -1;
+	}
 	if (!wtap_read_bytes(fh, sita_phdr, SITA_HDR_LEN, err, err_info))
-		return FALSE;
+		return -1;
 
 	pseudo_header->sita.sita_flags   = sita_phdr[SITA_FLAGS_OFFSET];
 	pseudo_header->sita.sita_signals = sita_phdr[SITA_SIGNALS_OFFSET];
@@ -1068,7 +1132,7 @@ pcap_read_sita_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header, 
 	pseudo_header->sita.sita_errors2 = sita_phdr[SITA_ERRORS2_OFFSET];
 	pseudo_header->sita.sita_proto   = sita_phdr[SITA_PROTO_OFFSET];
 
-	return TRUE;
+	return SITA_HDR_LEN;
 }
 
 /*
@@ -1450,17 +1514,27 @@ struct pcap_bt_phdr {
 #define LIBPCAP_BT_PHDR_SENT    0
 #define LIBPCAP_BT_PHDR_RECV    1
 
-static gboolean
-pcap_read_bt_pseudoheader(FILE_T fh,
-    union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info)
+static int
+pcap_read_bt_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
+    guint packet_size, int *err, gchar **err_info)
 {
 	struct pcap_bt_phdr phdr;
 
+	if (packet_size < sizeof (struct pcap_bt_phdr)) {
+		/*
+		 * Uh-oh, the packet isn't big enough to even
+		 * have a pseudo-header.
+		 */
+		*err = WTAP_ERR_BAD_FILE;
+		*err_info = g_strdup_printf("pcap/pcapng: Bluetooth file has a %u-byte packet, too small to have even a pseudo-header",
+		    packet_size);
+		return -1;
+	}
 	if (!wtap_read_bytes(fh, &phdr, sizeof (struct pcap_bt_phdr),
 	    err, err_info))
-		return FALSE;
+		return -1;
 	pseudo_header->p2p.sent = ((g_ntohl(phdr.direction) & LIBPCAP_BT_PHDR_RECV) == 0)? TRUE: FALSE;
-	return TRUE;
+	return (int)sizeof (struct pcap_bt_phdr);
 }
 
 /*
@@ -1472,32 +1546,50 @@ struct pcap_bt_monitor_phdr {
 	guint16 opcode;
 };
 
-static gboolean
+static int
 pcap_read_bt_monitor_pseudoheader(FILE_T fh,
-    union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info)
+    union wtap_pseudo_header *pseudo_header, guint packet_size,
+    int *err, gchar **err_info)
 {
 	struct pcap_bt_monitor_phdr phdr;
 
+	if (packet_size < sizeof (struct pcap_bt_monitor_phdr)) {
+		/*
+		 * Uh-oh, the packet isn't big enough to even
+		 * have a pseudo-header.
+		 */
+		*err = WTAP_ERR_BAD_FILE;
+		*err_info = g_strdup_printf("pcap/pcapng: Bluetooth monitor file has a %u-byte packet, too small to have even a pseudo-header",
+		    packet_size);
+		return -1;
+	}
 	if (!wtap_read_bytes(fh, &phdr, sizeof (struct pcap_bt_monitor_phdr),
 	    err, err_info))
-		return FALSE;
+		return -1;
 
 	pseudo_header->btmon.adapter_id = g_ntohs(phdr.adapter_id);
 	pseudo_header->btmon.opcode = g_ntohs(phdr.opcode);
-	return TRUE;
+	return (int)sizeof (struct pcap_bt_monitor_phdr);
 }
 
-static gboolean
+static int
 pcap_read_llcp_pseudoheader(FILE_T fh,
-    union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info)
+    union wtap_pseudo_header *pseudo_header, guint packet_size,
+    int *err, gchar **err_info)
 {
 	guint8 phdr[LLCP_HEADER_LEN];
 
+	if (packet_size < LLCP_HEADER_LEN) {
+		*err = WTAP_ERR_BAD_FILE;
+		*err_info = g_strdup_printf("pcap/pcapng: NFC LLCP file has a %u-byte packet, too small to have even a pseudo-header",
+		    packet_size);
+		return -1;
+	}
 	if (!wtap_read_bytes(fh, phdr, LLCP_HEADER_LEN, err, err_info))
-		return FALSE;
+		return -1;
 	pseudo_header->llcp.adapter = phdr[LLCP_ADAPTER_OFFSET];
 	pseudo_header->llcp.flags = phdr[LLCP_FLAGS_OFFSET];
-	return TRUE;
+	return LLCP_HEADER_LEN;
 }
 
 /*
@@ -1507,30 +1599,54 @@ struct pcap_ppp_phdr {
 	guint8 direction;
 };
 
+/*
+ * Pseudo-header at the beginning of DLT_PPP_WITH_DIR frames.
+ */
 #define LIBPCAP_PPP_PHDR_RECV    0
 #define LIBPCAP_PPP_PHDR_SENT    1
 
-static gboolean
-pcap_read_ppp_pseudoheader(FILE_T fh,
-    union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info)
+static int
+pcap_read_ppp_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
+    guint packet_size, int *err, gchar **err_info)
 {
 	struct pcap_ppp_phdr phdr;
 
+	if (packet_size < sizeof (struct pcap_ppp_phdr)) {
+		/*
+		 * Uh-oh, the packet isn't big enough to even
+		 * have a pseudo-header.
+		 */
+		*err = WTAP_ERR_BAD_FILE;
+		*err_info = g_strdup_printf("pcap/pcapng: PPP file has a %u-byte packet, too small to have even a pseudo-header",
+		    packet_size);
+		return -1;
+	}
 	if (!wtap_read_bytes(fh, &phdr, sizeof (struct pcap_ppp_phdr),
 	    err, err_info))
-		return FALSE;
+		return -1;
 	pseudo_header->p2p.sent = (phdr.direction == LIBPCAP_PPP_PHDR_SENT) ? TRUE: FALSE;
-	return TRUE;
+	return (int)sizeof (struct pcap_ppp_phdr);
 }
 
-static gboolean
+static int
 pcap_read_erf_pseudoheader(FILE_T fh, wtap_rec *rec,
-			   union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info)
+    union wtap_pseudo_header *pseudo_header, guint packet_size,
+    int *err, gchar **err_info)
 {
 	guint8 erf_hdr[sizeof(struct erf_phdr)];
 
+	if (packet_size < sizeof(struct erf_phdr) ) {
+		/*
+		 * Uh-oh, the packet isn't big enough to even
+		 * have a pseudo-header.
+		 */
+		*err = WTAP_ERR_BAD_FILE;
+		*err_info = g_strdup_printf("pcap/pcapng: ERF file has a %u-byte packet, too small to have even an ERF pseudo-header",
+		    packet_size);
+		return -1;
+	}
 	if (!wtap_read_bytes(fh, erf_hdr, sizeof(struct erf_phdr), err, err_info))
-		return FALSE;
+		return -1;
 	pseudo_header->erf.phdr.ts = pletoh64(&erf_hdr[0]); /* timestamp */
 	pseudo_header->erf.phdr.type =  erf_hdr[8];
 	pseudo_header->erf.phdr.flags = erf_hdr[9];
@@ -1552,7 +1668,7 @@ pcap_read_erf_pseudoheader(FILE_T fh, wtap_rec *rec,
 			rec->ts.secs += 1;
 		}
 	}
-	return TRUE;
+	return (int)sizeof(struct erf_phdr);
 }
 
 /*
@@ -1632,19 +1748,30 @@ pcap_read_erf_subheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 	return TRUE;
 }
 
-static gboolean
-pcap_read_i2c_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info)
+static int
+pcap_read_i2c_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
+    guint packet_size, int *err, gchar **err_info)
 {
 	struct i2c_file_hdr i2c_hdr;
 
+	if (packet_size < sizeof (struct i2c_file_hdr)) {
+		/*
+		 * Uh-oh, the packet isn't big enough to even
+		 * have a pseudo-header.
+		 */
+		*err = WTAP_ERR_BAD_FILE;
+		*err_info = g_strdup_printf("pcap/pcapng: I2C file has a %u-byte packet, too small to have even a I2C pseudo-header",
+		    packet_size);
+		return -1;
+	}
 	if (!wtap_read_bytes(fh, &i2c_hdr, sizeof (i2c_hdr), err, err_info))
-		return FALSE;
+		return -1;
 
 	pseudo_header->i2c.is_event = i2c_hdr.bus & 0x80 ? 1 : 0;
 	pseudo_header->i2c.bus = i2c_hdr.bus & 0x7f;
 	pseudo_header->i2c.flags = pntoh32(&i2c_hdr.flags);
 
-	return TRUE;
+	return (int)sizeof (struct i2c_file_hdr);
 }
 
 int
@@ -1661,40 +1788,20 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 			/*
 			 * Nokia IPSO ATM.
 			 */
-			if (packet_size < NOKIAATM_LEN) {
-				/*
-				 * Uh-oh, the packet isn't big enough to even
-				 * have a pseudo-header.
-				 */
-				*err = WTAP_ERR_BAD_FILE;
-				*err_info = g_strdup_printf("pcap/pcapng: Nokia IPSO ATM file has a %u-byte packet, too small to have even an ATM pseudo-header",
-				    packet_size);
-				return -1;
-			}
-			if (!pcap_read_nokiaatm_pseudoheader(fh,
-			    &rec->rec_header.packet_header.pseudo_header, err, err_info))
+			phdr_len = pcap_read_nokiaatm_pseudoheader(fh,
+			    &rec->rec_header.packet_header.pseudo_header,
+			    packet_size, err, err_info);
+			if (phdr_len == -1)
 				return -1;	/* Read error */
-
-			phdr_len = NOKIAATM_LEN;
 		} else {
 			/*
 			 * SunATM.
 			 */
-			if (packet_size < SUNATM_LEN) {
-				/*
-				 * Uh-oh, the packet isn't big enough to even
-				 * have a pseudo-header.
-				 */
-				*err = WTAP_ERR_BAD_FILE;
-				*err_info = g_strdup_printf("pcap/pcapng: SunATM file has a %u-byte packet, too small to have even an ATM pseudo-header",
-				    packet_size);
-				return -1;
-			}
-			if (!pcap_read_sunatm_pseudoheader(fh,
-			    &rec->rec_header.packet_header.pseudo_header, err, err_info))
+			phdr_len = pcap_read_sunatm_pseudoheader(fh,
+			    &rec->rec_header.packet_header.pseudo_header,
+			    packet_size, err, err_info);
+			if (phdr_len == -1)
 				return -1;	/* Read error */
-
-			phdr_len = SUNATM_LEN;
 		}
 		break;
 
@@ -1733,75 +1840,35 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 		break;
 
 	case WTAP_ENCAP_IRDA:
-		if (packet_size < IRDA_SLL_LEN) {
-			/*
-			 * Uh-oh, the packet isn't big enough to even
-			 * have a pseudo-header.
-			 */
-			*err = WTAP_ERR_BAD_FILE;
-			*err_info = g_strdup_printf("pcap/pcapng: IrDA file has a %u-byte packet, too small to have even an IrDA pseudo-header",
-			    packet_size);
-			return -1;
-		}
-		if (!pcap_read_irda_pseudoheader(fh, &rec->rec_header.packet_header.pseudo_header,
-		    err, err_info))
+		phdr_len = pcap_read_irda_pseudoheader(fh,
+		    &rec->rec_header.packet_header.pseudo_header,
+		    packet_size, err, err_info);
+		if (phdr_len == -1)
 			return -1;	/* Read error */
-
-		phdr_len = IRDA_SLL_LEN;
 		break;
 
 	case WTAP_ENCAP_MTP2_WITH_PHDR:
-		if (packet_size < MTP2_HDR_LEN) {
-			/*
-			 * Uh-oh, the packet isn't big enough to even
-			 * have a pseudo-header.
-			 */
-			*err = WTAP_ERR_BAD_FILE;
-			*err_info = g_strdup_printf("pcap/pcapng: MTP2 file has a %u-byte packet, too small to have even an MTP2 pseudo-header",
-			    packet_size);
-			return -1;
-		}
-		if (!pcap_read_mtp2_pseudoheader(fh, &rec->rec_header.packet_header.pseudo_header,
-		    err, err_info))
+		phdr_len = pcap_read_mtp2_pseudoheader(fh,
+		    &rec->rec_header.packet_header.pseudo_header,
+		    packet_size, err, err_info);
+		if (phdr_len == -1)
 			return -1;	/* Read error */
-
-		phdr_len = MTP2_HDR_LEN;
 		break;
 
 	case WTAP_ENCAP_LINUX_LAPD:
-		if (packet_size < LAPD_SLL_LEN) {
-			/*
-			 * Uh-oh, the packet isn't big enough to even
-			 * have a pseudo-header.
-			 */
-			*err = WTAP_ERR_BAD_FILE;
-			*err_info = g_strdup_printf("pcap/pcapng: LAPD file has a %u-byte packet, too small to have even a LAPD pseudo-header",
-			    packet_size);
-			return -1;
-		}
-		if (!pcap_read_lapd_pseudoheader(fh, &rec->rec_header.packet_header.pseudo_header,
-		    err, err_info))
+		phdr_len = pcap_read_lapd_pseudoheader(fh,
+		    &rec->rec_header.packet_header.pseudo_header,
+		    packet_size, err, err_info);
+		if (phdr_len == -1)
 			return -1;	/* Read error */
-
-		phdr_len = LAPD_SLL_LEN;
 		break;
 
 	case WTAP_ENCAP_SITA:
-		if (packet_size < SITA_HDR_LEN) {
-			/*
-			 * Uh-oh, the packet isn't big enough to even
-			 * have a pseudo-header.
-			 */
-			*err = WTAP_ERR_BAD_FILE;
-			*err_info = g_strdup_printf("pcap/pcapng: SITA file has a %u-byte packet, too small to have even a SITA pseudo-header",
-			    packet_size);
-			return -1;
-		}
-		if (!pcap_read_sita_pseudoheader(fh, &rec->rec_header.packet_header.pseudo_header,
-		    err, err_info))
+		phdr_len = pcap_read_sita_pseudoheader(fh,
+		    &rec->rec_header.packet_header.pseudo_header,
+		    packet_size, err, err_info);
+		if (phdr_len == -1)
 			return -1;	/* Read error */
-
-		phdr_len = SITA_HDR_LEN;
 		break;
 
 	case WTAP_ENCAP_BLUETOOTH_H4:
@@ -1810,88 +1877,43 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 		break;
 
 	case WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR:
-		if (packet_size < sizeof (struct pcap_bt_phdr)) {
-			/*
-			 * Uh-oh, the packet isn't big enough to even
-			 * have a pseudo-header.
-			 */
-			*err = WTAP_ERR_BAD_FILE;
-			*err_info = g_strdup_printf("pcap/pcapng: Bluetooth file has a %u-byte packet, too small to have even a pseudo-header",
-			    packet_size);
-			return -1;
-		}
-		if (!pcap_read_bt_pseudoheader(fh,
-		    &rec->rec_header.packet_header.pseudo_header, err, err_info))
+		phdr_len = pcap_read_bt_pseudoheader(fh,
+		    &rec->rec_header.packet_header.pseudo_header,
+		    packet_size, err, err_info);
+		if (phdr_len == -1)
 			return -1;	/* Read error */
-
-		phdr_len = (int)sizeof (struct pcap_bt_phdr);
 		break;
 
 	case WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR:
-		if (packet_size < sizeof (struct pcap_bt_monitor_phdr)) {
-			/*
-			 * Uh-oh, the packet isn't big enough to even
-			 * have a pseudo-header.
-			 */
-			*err = WTAP_ERR_BAD_FILE;
-			*err_info = g_strdup_printf("pcap/pcapng: Bluetooth monitor file has a %u-byte packet, too small to have even a pseudo-header",
-			    packet_size);
-			return -1;
-		}
-		if (!pcap_read_bt_monitor_pseudoheader(fh,
-		    &rec->rec_header.packet_header.pseudo_header, err, err_info))
+		phdr_len = pcap_read_bt_monitor_pseudoheader(fh,
+		    &rec->rec_header.packet_header.pseudo_header,
+		    packet_size, err, err_info);
+		if (phdr_len == -1)
 			return -1;	/* Read error */
-
-		phdr_len = (int)sizeof (struct pcap_bt_monitor_phdr);
 		break;
 
 	case WTAP_ENCAP_NFC_LLCP:
-		if (packet_size < LLCP_HEADER_LEN) {
-			*err = WTAP_ERR_BAD_FILE;
-			*err_info = g_strdup_printf("pcap/pcapng: NFC LLCP file has a %u-byte packet, too small to have even a pseudo-header",
-			    packet_size);
-			return -1;
-		}
-		if (!pcap_read_llcp_pseudoheader(fh, &rec->rec_header.packet_header.pseudo_header, err, err_info))
+		phdr_len = pcap_read_llcp_pseudoheader(fh,
+		    &rec->rec_header.packet_header.pseudo_header,
+		    packet_size, err, err_info);
+		if (phdr_len == -1)
 			return -1;	/* Read error */
-		phdr_len = LLCP_HEADER_LEN;
 		break;
 
 	case WTAP_ENCAP_PPP_WITH_PHDR:
-		if (packet_size < sizeof (struct pcap_ppp_phdr)) {
-			/*
-			 * Uh-oh, the packet isn't big enough to even
-			 * have a pseudo-header.
-			 */
-			*err = WTAP_ERR_BAD_FILE;
-			*err_info = g_strdup_printf("pcap/pcapng: PPP file has a %u-byte packet, too small to have even a pseudo-header",
-			    packet_size);
-			return -1;
-		}
-		if (!pcap_read_ppp_pseudoheader(fh,
-		    &rec->rec_header.packet_header.pseudo_header, err, err_info))
+		phdr_len = pcap_read_ppp_pseudoheader(fh,
+		    &rec->rec_header.packet_header.pseudo_header,
+		    packet_size, err, err_info);
+		if (phdr_len == -1)
 			return -1;	/* Read error */
-
-		phdr_len = (int)sizeof (struct pcap_ppp_phdr);
 		break;
 
 	case WTAP_ENCAP_ERF:
-		if (packet_size < sizeof(struct erf_phdr) ) {
-			/*
-			 * Uh-oh, the packet isn't big enough to even
-			 * have a pseudo-header.
-			 */
-			*err = WTAP_ERR_BAD_FILE;
-			*err_info = g_strdup_printf("pcap/pcapng: ERF file has a %u-byte packet, too small to have even an ERF pseudo-header",
-			    packet_size);
-			return -1;
-		}
-
-		if (!pcap_read_erf_pseudoheader(fh, rec, &rec->rec_header.packet_header.pseudo_header,
-		    err, err_info))
+		phdr_len = pcap_read_erf_pseudoheader(fh, rec,
+		    &rec->rec_header.packet_header.pseudo_header,
+		    packet_size, err, err_info);
+		if (phdr_len == -1)
 			return -1;	/* Read error */
-
-		phdr_len = (int)sizeof(struct erf_phdr);
 
 		/* check the optional Extension header */
 		if (!pcap_read_erf_exheader(fh, &rec->rec_header.packet_header.pseudo_header, err, err_info,
@@ -1920,24 +1942,11 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 		break;
 
 	case WTAP_ENCAP_I2C:
-		if (packet_size < sizeof (struct i2c_file_hdr)) {
-			/*
-			 * Uh-oh, the packet isn't big enough to even
-			 * have a pseudo-header.
-			 */
-			*err = WTAP_ERR_BAD_FILE;
-			*err_info = g_strdup_printf("pcap/pcapng: I2C file has a %u-byte packet, too small to have even a I2C pseudo-header",
-			    packet_size);
-			return -1;
-		}
-		if (!pcap_read_i2c_pseudoheader(fh, &rec->rec_header.packet_header.pseudo_header,
-		    err, err_info))
+		phdr_len = pcap_read_i2c_pseudoheader(fh,
+		    &rec->rec_header.packet_header.pseudo_header,
+		    packet_size, err, err_info);
+		if (phdr_len == -1)
 			return -1;	/* Read error */
-
-		/*
-		 * Don't count the pseudo-header as part of the packet.
-		 */
-		phdr_len = (int)sizeof (struct i2c_file_hdr);
 		break;
 	}
 
