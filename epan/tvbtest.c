@@ -95,7 +95,7 @@ test(tvbuff_t *tvb, const gchar* name,
 		ex_thrown = TRUE;
 	}
 	CATCH_ALL {
-		printf("02: Caught wrong exception: %lu\n", exc->except_id.except_code);
+		printf("03: Caught wrong exception: %lu\n", exc->except_id.except_code);
 	}
 	ENDTRY;
 
@@ -121,7 +121,7 @@ test(tvbuff_t *tvb, const gchar* name,
 		printf("04: Caught wrong exception: ReportedBoundsError\n");
 	}
 	CATCH_ALL {
-		printf("02: Caught wrong exception: %lu\n", exc->except_id.except_code);
+		printf("04: Caught wrong exception: %lu\n", exc->except_id.except_code);
 	}
 	ENDTRY;
 
@@ -135,7 +135,7 @@ test(tvbuff_t *tvb, const gchar* name,
 	/* Test boundary case. A BoundsError exception should not be thrown. */
 	ex_thrown = FALSE;
 	TRY {
-		tvb_get_ptr(tvb, 0, 1);
+		tvb_get_ptr(tvb, 0, length ? 1 : 0);
 	}
 	CATCH(BoundsError) {
 		ex_thrown = TRUE;
@@ -147,7 +147,7 @@ test(tvbuff_t *tvb, const gchar* name,
 		printf("05: Caught wrong exception: ReportedBoundsError\n");
 	}
 	CATCH_ALL {
-		printf("02: Caught wrong exception: %lu\n", exc->except_id.except_code);
+		printf("05: Caught wrong exception: %lu\n", exc->except_id.except_code);
 	}
 	ENDTRY;
 
@@ -161,7 +161,7 @@ test(tvbuff_t *tvb, const gchar* name,
 	/* Test boundary case. A BoundsError exception should not be thrown. */
 	ex_thrown = FALSE;
 	TRY {
-		tvb_get_ptr(tvb, -1, 1);
+		tvb_get_ptr(tvb, -1, length ? 1 : 0);
 	}
 	CATCH(BoundsError) {
 		ex_thrown = TRUE;
@@ -173,7 +173,7 @@ test(tvbuff_t *tvb, const gchar* name,
 		printf("06: Caught wrong exception: ReportedBoundsError\n");
 	}
 	CATCH_ALL {
-		printf("02: Caught wrong exception: %lu\n", exc->except_id.except_code);
+		printf("06: Caught wrong exception: %lu\n", exc->except_id.except_code);
 	}
 	ENDTRY;
 
@@ -258,7 +258,8 @@ test(tvbuff_t *tvb, const gchar* name,
 
 	/* One big memdup */
 	ptr = (guint8*)tvb_memdup(NULL, tvb, 0, -1);
-	if (memcmp(ptr, expected_data, length) != 0) {
+	if ((length != 0 && memcmp(ptr, expected_data, length) != 0) ||
+	    (length == 0 && ptr != NULL)) {
 		printf("12: Failed TVB=%s Offset=0 Length=-1 "
 				"Bad memdup\n", name);
 		failed = TRUE;
@@ -279,9 +280,11 @@ run_tests(void)
 	int		i, j;
 
 	tvbuff_t	*tvb_parent;
+	tvbuff_t	*tvb_empty;
 	tvbuff_t	*tvb_small[3];
 	tvbuff_t	*tvb_large[3];
 	tvbuff_t	*tvb_subset[6];
+	tvbuff_t	*tvb_empty_subset;
 	guint8		*small[3];
 	guint		small_length[3];
 	guint		small_reported_length[3];
@@ -325,6 +328,10 @@ run_tests(void)
 		tvb_large[i] = tvb_new_child_real_data(tvb_parent, large[i], 19, 20);
 		tvb_set_free_cb(tvb_large[i], g_free);
 	}
+
+	/* Test empty tvb */
+	tvb_empty = tvb_new_child_real_data(tvb_parent, NULL, 0, 1);
+	test(tvb_empty, "Empty", NULL, 0, 1);
 
 	/* Test the "real" tvbuff objects. */
 	test(tvb_small[0], "Small 0", small[0], small_length[0], small_reported_length[0]);
@@ -372,6 +379,10 @@ run_tests(void)
 	test(tvb_subset[3], "Subset 3", subset[3], subset_length[3], subset_reported_length[3]);
 	test(tvb_subset[4], "Subset 4", subset[4], subset_length[4], subset_reported_length[4]);
 	test(tvb_subset[5], "Subset 5", subset[5], subset_length[5], subset_reported_length[5]);
+
+	/* Subset of an empty tvb. */
+	tvb_empty_subset = tvb_new_subset_length_caplen(tvb_empty, 0, 0, 1);
+	test(tvb_empty_subset, "Empty Subset", NULL, 0, 1);
 
 	/* One Real */
 	printf("Making Composite 0\n");

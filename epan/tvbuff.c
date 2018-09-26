@@ -763,6 +763,14 @@ ensure_contiguous_no_exception(tvbuff_t *tvb, const gint offset, const gint leng
 	}
 
 	/*
+	 * Special case: if the caller (e.g. tvb_get_ptr) requested no data,
+	 * then it is acceptable to have an empty tvb (!tvb->real_data).
+	 */
+	if (length == 0) {
+		return NULL;
+	}
+
+	/*
 	 * We know that all the data is present in the tvbuff, so
 	 * no exceptions should be thrown.
 	 */
@@ -783,7 +791,7 @@ ensure_contiguous(tvbuff_t *tvb, const gint offset, const gint length)
 	const guint8 *p;
 
 	p = ensure_contiguous_no_exception(tvb, offset, length, &exception);
-	if (p == NULL) {
+	if (p == NULL && length != 0) {
 		DISSECTOR_ASSERT(exception > 0);
 		THROW(exception);
 	}
