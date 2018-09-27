@@ -5185,11 +5185,8 @@ typedef struct ssl_master_key_match_group {
 } ssl_master_key_match_group_t;
 
 void
-ssl_load_keyfile(const gchar *ssl_keylog_filename, FILE **keylog_file,
-                 const ssl_master_key_map_t *mk_map)
+tls_keylog_process_lines(const ssl_master_key_map_t *mk_map, const char *lines)
 {
-    unsigned i;
-    GRegex *regex;
     ssl_master_key_match_group_t mk_groups[] = {
         { "encrypted_pmk",  mk_map->pre_master },
         { "session_id",     mk_map->session },
@@ -5210,12 +5207,6 @@ ssl_load_keyfile(const gchar *ssl_keylog_filename, FILE **keylog_file,
         { "quic_client_appdata",    mk_map->quic_client_appdata },
         { "quic_server_appdata",    mk_map->quic_server_appdata },
     };
-    /* no need to try if no key log file is configured. */
-    if (!ssl_keylog_filename || !*ssl_keylog_filename) {
-        ssl_debug_printf("%s dtls/ssl.keylog_file is not configured!\n",
-                         G_STRFUNC);
-        return;
-    }
 
     /* The format of the file is a series of records with one of the following formats:
      *   - "RSA xxxx yyyy"
@@ -5255,58 +5246,29 @@ ssl_load_keyfile(const gchar *ssl_keylog_filename, FILE **keylog_file,
      *     handshake or master secrets. (This format is introduced with TLS 1.3
      *     and supported by BoringSSL, OpenSSL, etc. See bug 12779.)
      */
-    regex = ssl_compile_keyfile_regex();
+    GRegex *regex = ssl_compile_keyfile_regex();
     if (!regex)
         return;
 
-    ssl_debug_printf("trying to use SSL keylog in %s\n", ssl_keylog_filename);
+    const char *next_line = lines;
+    while (next_line && next_line[0]) {
+        const char *line = next_line;
+        next_line = strchr(line, '\n');
+        gssize linelen;
 
-    /* if the keylog file was deleted, re-open it */
-    if (*keylog_file && file_needs_reopen(*keylog_file, ssl_keylog_filename)) {
-        ssl_debug_printf("%s file got deleted, trying to re-open\n", G_STRFUNC);
-        fclose(*keylog_file);
-        *keylog_file = NULL;
-    }
-
-    if (*keylog_file == NULL) {
-        *keylog_file = ws_fopen(ssl_keylog_filename, "r");
-        if (!*keylog_file) {
-            ssl_debug_printf("%s failed to open SSL keylog\n", G_STRFUNC);
-            return;
+        if (next_line) {
+            linelen = next_line - line;
+            next_line++;    /* drop LF */
+        } else {
+            linelen = (gssize)strlen(line);
         }
-    }
-
-    for (;;) {
-        char buf[512], *line;
-        gsize bytes_read;
-        GMatchInfo *mi;
-
-        line = fgets(buf, sizeof(buf), *keylog_file);
-        if (!line) {
-            if (feof(*keylog_file)) {
-                /* Ensure that newly appended keys can be read in the future. */
-                clearerr(*keylog_file);
-            } else if (ferror(*keylog_file)) {
-                ssl_debug_printf("%s Error while reading key log file, closing it!\n", G_STRFUNC);
-                fclose(*keylog_file);
-                *keylog_file = NULL;
-            }
-            break;
-        }
-
-        bytes_read = strlen(line);
-        /* fgets includes the \n at the end of the line. */
-        if (bytes_read > 0 && line[bytes_read - 1] == '\n') {
-            line[bytes_read - 1] = 0;
-            bytes_read--;
-        }
-        if (bytes_read > 0 && line[bytes_read - 1] == '\r') {
-            line[bytes_read - 1] = 0;
-            bytes_read--;
+        if (linelen > 0 && line[linelen - 1] == '\r') {
+            linelen--;      /* drop CR */
         }
 
         ssl_debug_printf("  checking keylog line: %s\n", line);
-        if (g_regex_match(regex, line, G_REGEX_MATCH_ANCHORED, &mi)) {
+        GMatchInfo *mi;
+        if (g_regex_match_full(regex, line, linelen, 0, G_REGEX_MATCH_ANCHORED, &mi, NULL)) {
             gchar *hex_key, *hex_pre_ms_or_ms;
             StringInfo *key = wmem_new(wmem_file_scope(), StringInfo);
             StringInfo *pre_ms_or_ms = NULL;
@@ -5333,7 +5295,7 @@ ssl_load_keyfile(const gchar *ssl_keylog_filename, FILE **keylog_file,
             g_free(hex_pre_ms_or_ms);
 
             /* Find a master key from any format (CLIENT_RANDOM, SID, ...) */
-            for (i = 0; i < G_N_ELEMENTS(mk_groups); i++) {
+            for (unsigned i = 0; i < G_N_ELEMENTS(mk_groups); i++) {
                 ssl_master_key_match_group_t *g = &mk_groups[i];
                 hex_key = g_match_info_fetch_named(mi, g->re_group_name);
                 if (hex_key && *hex_key) {
@@ -5354,6 +5316,57 @@ ssl_load_keyfile(const gchar *ssl_keylog_filename, FILE **keylog_file,
         }
         /* always free match info even if there is no match. */
         g_match_info_free(mi);
+    }
+}
+
+void
+ssl_load_keyfile(const gchar *tls_keylog_filename, FILE **keylog_file,
+                 const ssl_master_key_map_t *mk_map)
+{
+    /* no need to try if no key log file is configured. */
+    if (!tls_keylog_filename || !*tls_keylog_filename) {
+        ssl_debug_printf("%s dtls/tls.keylog_file is not configured!\n",
+                         G_STRFUNC);
+        return;
+    }
+
+    /* Validate regexes before even trying to use it. */
+    if (!ssl_compile_keyfile_regex()) {
+        return;
+    }
+
+    ssl_debug_printf("trying to use TLS keylog in %s\n", tls_keylog_filename);
+
+    /* if the keylog file was deleted, re-open it */
+    if (*keylog_file && file_needs_reopen(*keylog_file, tls_keylog_filename)) {
+        ssl_debug_printf("%s file got deleted, trying to re-open\n", G_STRFUNC);
+        fclose(*keylog_file);
+        *keylog_file = NULL;
+    }
+
+    if (*keylog_file == NULL) {
+        *keylog_file = ws_fopen(tls_keylog_filename, "r");
+        if (!*keylog_file) {
+            ssl_debug_printf("%s failed to open SSL keylog\n", G_STRFUNC);
+            return;
+        }
+    }
+
+    for (;;) {
+        char buf[512], *line;
+        line = fgets(buf, sizeof(buf), *keylog_file);
+        if (!line) {
+            if (feof(*keylog_file)) {
+                /* Ensure that newly appended keys can be read in the future. */
+                clearerr(*keylog_file);
+            } else if (ferror(*keylog_file)) {
+                ssl_debug_printf("%s Error while reading key log file, closing it!\n", G_STRFUNC);
+                fclose(*keylog_file);
+                *keylog_file = NULL;
+            }
+            break;
+        }
+        tls_keylog_process_lines(mk_map, line);
     }
 }
 /** SSL keylog file handling. }}} */

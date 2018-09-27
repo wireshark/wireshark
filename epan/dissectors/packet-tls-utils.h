@@ -644,6 +644,10 @@ extern void
 ssl_common_cleanup(ssl_master_key_map_t *master_key_map, FILE **ssl_keylog_file,
                    StringInfo *decrypted_data, StringInfo *compressed_data);
 
+/* Process lines from the TLS key log and populate the secrets map. */
+extern void
+tls_keylog_process_lines(const ssl_master_key_map_t *mk_map, const char *lines);
+
 /* tries to update the secrets cache from the given filename */
 extern void
 ssl_load_keyfile(const gchar *ssl_keylog_filename, FILE **keylog_file,
