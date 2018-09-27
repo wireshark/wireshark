@@ -120,7 +120,7 @@ json_puts_string(const char *s)
 		if (str[i] < 0x20)
 		{
 			putchar('\\');
-			fputs(json_cntrl[str[i]], stdout);
+			fputs(json_cntrl[(guint)str[i]], stdout);
 		}
 		else
 		{
