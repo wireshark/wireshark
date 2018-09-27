@@ -1508,6 +1508,9 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         if ((p_mac_nr_info->direction == DIRECTION_UPLINK && lcid <= CCCH_48_BITS_LCID) ||
             (p_mac_nr_info->direction == DIRECTION_DOWNLINK && lcid <= 32)) {
 
+            /* Note whether this sub-pdu gets dissected by RLC */
+            gboolean dissected_as_rlc = FALSE;
+
             /* Add SDU, for now just as hex data */
             if (p_mac_nr_info->direction == DIRECTION_UPLINK) {
                 if (lcid == CCCH_48_BITS_LCID) {
@@ -1520,8 +1523,6 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 proto_tree_add_item(subheader_tree, hf_mac_nr_dlsch_sdu,
                                     tvb, offset, SDU_length, ENC_NA);
             }
-            write_pdu_label_and_info(pdu_ti, subheader_ti, pinfo,
-                                     "(LCID:%u %u bytes) ", lcid, SDU_length);
 
             /* Call RLC if configured to do so for this SDU */
             if ((lcid >= 3) && (lcid <= 32)) {
@@ -1547,6 +1548,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                            RLC_UM_MODE, p_mac_nr_info->direction, p_mac_nr_info->ueid,
                                            BEARER_TYPE_DRB, drb_id, seqnum_length,
                                            priority);
+                        dissected_as_rlc = TRUE;
                         break;
                     case rlcAM12:
                     case rlcAM18:
@@ -1554,18 +1556,24 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                            RLC_AM_MODE, p_mac_nr_info->direction, p_mac_nr_info->ueid,
                                            BEARER_TYPE_DRB, drb_id, seqnum_length,
                                            priority);
+                        dissected_as_rlc = TRUE;
                         break;
                     case rlcTM:
                         call_rlc_dissector(tvb, pinfo, tree, pdu_ti, offset, SDU_length,
                                            RLC_TM_MODE, p_mac_nr_info->direction, p_mac_nr_info->ueid,
                                            BEARER_TYPE_DRB, drb_id, 0,
                                            priority);
+                        dissected_as_rlc = TRUE;
                         break;
                     case rlcRaw:
                         /* Nothing to do! */
                         break;
                 }
             }
+
+            /* Only write summary to Info column if didn't send to RLC dissector */
+            write_pdu_label_and_info(pdu_ti, subheader_ti, dissected_as_rlc ? NULL : pinfo,
+                                     "(LCID:%u %u bytes) ", lcid, SDU_length);
 
             offset += SDU_length;
 
@@ -1580,6 +1588,12 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         }
         else {
             /* Control Elements */
+
+            /* Add some space to info column between entries */
+            if (data_seen || ces_seen) {
+                col_append_str(pinfo->cinfo, COL_INFO, "  ");
+            }
+
             if (lcid != PADDING_LCID) {
                 ces_seen = TRUE;
             }
@@ -2289,6 +2303,9 @@ static int dissect_mac_nr(tvbuff_t *tvb, packet_info *pinfo,
 
     /* Clear info column */
     col_clear(pinfo->cinfo, COL_INFO);
+
+    /* Restart this count */
+    s_number_of_rlc_pdus_shown = 0;
 
 
     /*****************************************/
