@@ -1,13 +1,11 @@
 # Note that this is NOT a relocatable package
 # XXX is this still true? https://fedoraproject.org/wiki/Packaging:Cmake
 # says that recent CMake versions take care of rpathification.
-#
-# BUILD_wireshark: @BUILD_wireshark@
-# CMAKE_INSTALL_PREFIX: @CMAKE_INSTALL_PREFIX@
 
 # To do:
 # - Find a better way to sync with git-export-release.sh.
-# - We currently install into /usr/local.
+# - Set version in version.h
+# - Add bcond_with clang
 
 %bcond_with	ninja
 %bcond_with	ccache
@@ -22,7 +20,6 @@
 %bcond_with	nghttp2
 %bcond_with	guides
 
-# To do: Add bcond_with clang
 
 # Set at most one of these two:
 # Note that setcap requires rpmbuild 4.7.0 or later.
@@ -91,7 +88,7 @@ Requires:	snappy
 
 %if %{with c_ares}
 %if 0%{?suse_version}
-# SuSE uses these package names (yes 2!):
+# SUSE uses these package names (yes 2!):
 BuildRequires:	libcares-devel
 Requires:	libcares2
 %else
@@ -127,7 +124,7 @@ Requires:	libmaxminddb
 
 %if %{use_wireshark_group}
 %if 0%{?suse_version}
-# SuSE's groupadd is in this package:
+# SUSE's groupadd is in this package:
 Requires(pre):	pwdutils
 %else
 # ... while Red Hat's is in this one:
@@ -166,6 +163,7 @@ Wireshark. A Qt graphical user interface is packaged separately.
 %package	qt
 Summary:	Wireshark's Qt-based GUI
 Group:		Applications/Internet
+Obsoletes:	wireshark-gnome wireshark-gtk
 %description qt
 This package contains the Qt Wireshark GUI and desktop integration files.
 
@@ -182,7 +180,7 @@ BuildRequires:	libQt5PrintSupport-devel
 Requires:	libQt5PrintSupport5
 BuildRequires:	libqt5-qtmultimedia-devel
 Requires:	libQt5Multimedia5
-# Need this for SuSE's suse_update_desktop_file macro
+# Need this for SUSE's suse_update_desktop_file macro
 BuildRequires:	update-desktop-files
 %else
 BuildRequires:	qt5-qtbase-devel
@@ -211,15 +209,11 @@ development of Wireshark scripts and plugins.
 %prep
 %setup -q -n %{name}-%{package_version}
 
-# Suse has a wrong bindir for cmake. Set it to the right one.
+# SUSE has a wrong bindir for cmake. Set it to the right one.
 %if 0%{?suse_version}
 %define _bindir /usr/bin
 %endif
 
-# Don't specify the prefix here: configure is a macro which expands to set
-# the prefix and everything else too.  If you need to change the prefix
-# set _prefix (note the underscore) either in this file or on rpmbuild's
-# command-line.
 %if 0%{?rhel}
 cmake3 \
 %else
@@ -228,6 +222,7 @@ cmake3 \
 %if %{with ccache}
   -DENABLE_CCACHE=ON \
 %endif
+  -DCMAKE_INSTALL_PREFIX=@CMAKE_INSTALL_PREFIX@ \
 %if %{with qt5}
   -DBUILD_wireshark=ON \
 %else
@@ -284,9 +279,6 @@ cmake3 \
 # Older RPM-based distributions used ninja-build in order to prevent a collision with
 # the Ninja IRC client: https://bugzilla.redhat.com/show_bug.cgi?id=1166135
 NINJA=$(which ninja || which ninja-build)
-%endif
-
-%if %{with ninja}
 $NINJA
 %else
 # Suggestion: put this in your ~/.rpmmacros (without the hash sign, of course):
@@ -325,7 +317,7 @@ cd -
 
 %if %{with qt5}
 %if 0%{?suse_version}
-# SuSE's packaging conventions
+# SUSE's packaging conventions
 # (http://en.opensuse.org/openSUSE:Packaging_Conventions_RPM_Macros#.25suse_update_desktop_file)
 # require this:
 install -Dm 0644 %{buildroot}/usr/local/share/applications/wireshark.desktop %{buildroot}/usr/share/applications/wireshark.desktop
@@ -447,6 +439,12 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %{_libdir}/pkgconfig/wireshark.pc
 
 %changelog
+* Thu Sep 27 2018 Jeff Morriss
+- Have the qt package obsolute the old gnome and gtk packages.  This allows
+  clean upgrades to the Qt version.
+- Set install prefix based on original cmake call's prefix.
+- Update capitalization of SUSE.
+
 * Wed Sep 26 2018 Jeff Morriss
 - Put development-related files in a new -devel RPM.
 
