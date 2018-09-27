@@ -1105,6 +1105,7 @@ get_http2_session(packet_info *pinfo)
     return h2session;
 }
 
+#ifdef HAVE_NGHTTP2
 guint32
 http2_get_stream_id(packet_info *pinfo)
 {
@@ -1123,6 +1124,13 @@ http2_get_stream_id(packet_info *pinfo)
 
     return h2session->current_stream_id;
 }
+#else /* ! HAVE_NGHTTP2 */
+guint32
+http2_get_stream_id(packet_info *pinfo _U_)
+{
+    return 0;
+}
+#endif /* ! HAVE_NGHTTP2 */
 
 #ifdef HAVE_NGHTTP2
 static guint32
