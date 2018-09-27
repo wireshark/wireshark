@@ -35,6 +35,7 @@
 #include <epan/stats_tree.h>
 #include "packet-tls.h"
 #include "packet-dtls.h"
+#include "packet-http2.h"
 
 void proto_register_dns(void);
 void proto_reg_handoff_dns(void);
@@ -448,6 +449,13 @@ static guint32 retransmission_timer = 5;
 /* Dissector handle for GSSAPI */
 static dissector_handle_t gssapi_handle;
 static dissector_handle_t ntlmssp_handle;
+
+/* Transport protocol for DNS. */
+enum DnsTransport {
+  DNS_TRANSPORT_UDP,    /* includes compatible transports like SCTP */
+  DNS_TRANSPORT_TCP,
+  DNS_TRANSPORT_HTTP
+};
 
 /* Structure containing transaction specific information */
 typedef struct _dns_transaction_t {
@@ -3667,14 +3675,15 @@ dissect_answer_records(tvbuff_t *tvb, int cur_off, int dns_data_offset,
 
 static void
 dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    gboolean is_tcp, gboolean is_mdns, gboolean is_llmnr)
+    enum DnsTransport transport, gboolean is_mdns, gboolean is_llmnr)
 {
-  int                offset   = is_tcp ? 2 : 0;
+  int                offset   = transport == DNS_TRANSPORT_TCP ? 2 : 0;
   int                dns_data_offset;
   proto_tree        *dns_tree, *field_tree;
   proto_item        *ti, *tf, *transaction_item;
   guint16            flags, opcode, rcode, quest, ans, auth, add;
   guint              id;
+  guint32            reqresp_id = 0;
   int                cur_off;
   gboolean           isupdate;
   conversation_t    *conversation;
@@ -3735,6 +3744,19 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   conversation = find_or_create_conversation(pinfo);
 
   /*
+   * DoH: Each DNS query-response pair is mapped into an HTTP exchange.
+   * For other transports, just use the DNS transaction ID as usual.
+   */
+  if (transport == DNS_TRANSPORT_HTTP) {
+    /* For DoH using HTTP/2, use the Stream ID if available. For HTTP/1,
+     * hopefully there is no pipelining or the DNS ID is unique enough. */
+    reqresp_id = http2_get_stream_id(pinfo);
+  }
+  if (reqresp_id == 0) {
+    reqresp_id = id;
+  }
+
+  /*
    * Do we already have a state structure for this conv
    */
   dns_info = (dns_conv_info_t *)conversation_get_proto_data(conversation, proto_dns);
@@ -3748,7 +3770,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
 
   key[0].length = 1;
-  key[0].key = &id;
+  key[0].key = &reqresp_id;
   key[1].length = 1;
   key[1].key = &pinfo->num;
   key[2].length = 0;
@@ -3761,7 +3783,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
       /* Check if we've seen this transaction before */
       dns_trans=(dns_transaction_t *)wmem_tree_lookup32_array_le(dns_info->pdus, key);
-      if ((dns_trans == NULL) || (dns_trans->id != id) || (dns_trans->rep_frame > 0)) {
+      if ((dns_trans == NULL) || (dns_trans->id != reqresp_id) || (dns_trans->rep_frame > 0)) {
         new_transaction = TRUE;
       } else {
         nstime_t request_delta;
@@ -3780,13 +3802,13 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         dns_trans->req_frame=pinfo->num;
         dns_trans->rep_frame=0;
         dns_trans->req_time=pinfo->abs_ts;
-        dns_trans->id = id;
+        dns_trans->id = reqresp_id;
         wmem_tree_insert32_array(dns_info->pdus, key, (void *)dns_trans);
       }
     } else {
       dns_trans=(dns_transaction_t *)wmem_tree_lookup32_array_le(dns_info->pdus, key);
       if (dns_trans) {
-        if (dns_trans->id != id) {
+        if (dns_trans->id != reqresp_id) {
           dns_trans = NULL;
         } else if (dns_trans->rep_frame == 0) {
           dns_trans->rep_frame=pinfo->num;
@@ -3798,7 +3820,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   } else {
     dns_trans=(dns_transaction_t *)wmem_tree_lookup32_array_le(dns_info->pdus, key);
     if (dns_trans) {
-      if (dns_trans->id != id) {
+      if (dns_trans->id != reqresp_id) {
         dns_trans = NULL;
       } else if ((!(flags & F_RESPONSE)) && (dns_trans->req_frame != pinfo->num)) {
         /* This is a request retransmission, create a "fake" dns_trans structure*/
@@ -3822,7 +3844,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     dns_trans->req_time=pinfo->abs_ts;
   }
 
-  if (is_tcp) {
+  if (transport == DNS_TRANSPORT_TCP) {
     /* Put the length indication into the tree. */
     proto_tree_add_item(dns_tree, hf_dns_length, tvb, offset - 2, 2, ENC_BIG_ENDIAN);
   }
@@ -4045,7 +4067,16 @@ dissect_dns_udp_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 {
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "DNS");
 
-  dissect_dns_common(tvb, pinfo, tree, FALSE, FALSE, FALSE);
+  dissect_dns_common(tvb, pinfo, tree, DNS_TRANSPORT_UDP, FALSE, FALSE);
+  return tvb_captured_length(tvb);
+}
+
+static int
+dissect_dns_doh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "DoH");
+
+  dissect_dns_common(tvb, pinfo, tree, DNS_TRANSPORT_HTTP, FALSE, FALSE);
   return tvb_captured_length(tvb);
 }
 
@@ -4054,7 +4085,7 @@ dissect_mdns_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 {
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "MDNS");
 
-  dissect_dns_common(tvb, pinfo, tree, FALSE, TRUE, FALSE);
+  dissect_dns_common(tvb, pinfo, tree, DNS_TRANSPORT_UDP, TRUE, FALSE);
   return tvb_captured_length(tvb);
 }
 
@@ -4063,7 +4094,7 @@ dissect_llmnr_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 {
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "LLMNR");
 
-  dissect_dns_common(tvb, pinfo, tree, FALSE, FALSE, TRUE);
+  dissect_dns_common(tvb, pinfo, tree, DNS_TRANSPORT_UDP, FALSE, TRUE);
   return tvb_captured_length(tvb);
 }
 
@@ -4088,7 +4119,7 @@ dissect_dns_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 {
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "DNS");
 
-  dissect_dns_common(tvb, pinfo, tree, TRUE, FALSE, FALSE);
+  dissect_dns_common(tvb, pinfo, tree, DNS_TRANSPORT_TCP, FALSE, FALSE);
   return tvb_reported_length(tvb);
 }
 
@@ -4106,7 +4137,9 @@ dissect_dns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
   /* since draft-ietf-doh-dns-over-https-07 */
   gboolean is_doh = !g_strcmp0(pinfo->match_string, "application/dns-message");
 
-  if (pinfo->ptype == PT_TCP && !is_doh) {
+  if (is_doh) {
+    return dissect_dns_doh(tvb, pinfo, tree, data);
+  } else if (pinfo->ptype == PT_TCP) {
     return dissect_dns_tcp(tvb, pinfo, tree, data);
   } else {
     dissect_dns_udp_sctp(tvb, pinfo, tree, data);
