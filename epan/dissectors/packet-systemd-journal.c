@@ -140,6 +140,7 @@ static int hf_sj_leader = -1;
 static int hf_sj_job_type = -1;
 static int hf_sj_job_result = -1;
 static int hf_sj_user_invocation_id = -1;
+static int hf_sj_systemd_user_slice = -1;
 
 // Metadata.
 static int hf_sj_binary_data_len = -1;
@@ -268,6 +269,7 @@ static void init_jf_to_hf_map(void) {
         { hf_sj_job_type, "JOB_TYPE" },
         { hf_sj_job_result, "JOB_RESULT" },
         { hf_sj_user_invocation_id, "USER_INVOCATION_ID" },
+        { hf_sj_systemd_user_slice, "_SYSTEMD_USER_SLICE=" },
         { 0, NULL }
     };
     jf_to_hf = (journal_field_hf_map*) g_memdup(jhmap, sizeof(jhmap));
@@ -303,7 +305,6 @@ dissect_systemd_journal_line_entry(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     proto_item *ti;
     proto_tree *sje_tree;
     int         offset = 0, next_offset = 0;
-    int         line_len;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
     col_clear(pinfo->cinfo, COL_INFO);
@@ -312,7 +313,14 @@ dissect_systemd_journal_line_entry(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     ti = proto_tree_add_item(tree, proto_systemd_journal, tvb, 0, -1, ENC_NA);
     sje_tree = proto_item_add_subtree(ti, ett_systemd_journal_entry);
 
-    while ((line_len = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE)) >= 3) { // A=1
+    while (tvb_offset_exists(tvb, offset)) {
+        int line_len = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+        if (line_len < 3) {
+            // Invalid or zero length.
+            // XXX Add an expert item for non-empty lines.
+            offset = next_offset;
+            continue;
+        }
         gboolean found = FALSE;
         int eq_off = tvb_find_guint8(tvb, offset, line_len, '=') + 1;
         int val_len = offset + line_len - eq_off;
@@ -764,6 +772,10 @@ proto_register_systemd_journal(void)
         },
         { &hf_sj_user_invocation_id,
           { "User invocation ID", "systemd_journal.user_invocation_id",
+            FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
+        },
+        { &hf_sj_systemd_user_slice,
+          { "Systemd user slice", "systemd_journal.systemd_user_slice",
             FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
 
