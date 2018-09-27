@@ -2319,8 +2319,6 @@ pcapng_read_systemd_journal_export_block(wtap *wth, FILE_T fh, pcapng_block_head
     wblock->rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
     wblock->rec->tsprec = WTAP_TSPREC_USEC;
 
-    wblock->rec->rec_header.syscall_header.byte_order = G_BYTE_ORDER;
-
     wblock->rec->ts.secs = (time_t) (rt_ts / 1000000000);
     wblock->rec->ts.nsecs = (int) (rt_ts % 1000000000);
 
