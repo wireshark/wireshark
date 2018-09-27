@@ -767,7 +767,7 @@ proto_register_gsmtap(void)
 		{ &hf_sacch_l1h_power_lev, { "MS power level", "gsmtap.sacch_l1.power_lev",
 		  FT_UINT8, BASE_DEC, NULL, 0x1f, NULL, HFILL } },
 		{ &hf_sacch_l1h_fpc, { "FPC", "gsmtap.sacch_l1.fpc",
-		  FT_BOOLEAN, 8, TFS(&sacch_l1h_fpc_mode_vals), 0x04,
+		  FT_BOOLEAN, 8, TFS(&sacch_l1h_fpc_mode_vals), 0x20,
 		  NULL, HFILL } },
 		{ &hf_sacch_l1h_ta, { "Actual Timing Advance", "gsmtap.sacch_l1.ta",
 		  FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
