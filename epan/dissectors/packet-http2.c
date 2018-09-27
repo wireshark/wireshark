@@ -1105,6 +1105,25 @@ get_http2_session(packet_info *pinfo)
     return h2session;
 }
 
+guint32
+http2_get_stream_id(packet_info *pinfo)
+{
+    conversation_t *conversation;
+    http2_session_t *h2session;
+
+    conversation = find_conversation_pinfo(pinfo, 0);
+    if (!conversation) {
+        return 0;
+    }
+
+    h2session = (http2_session_t*)conversation_get_proto_data(conversation, proto_http2);
+    if (!h2session) {
+        return 0;
+    }
+
+    return h2session->current_stream_id;
+}
+
 #ifdef HAVE_NGHTTP2
 static guint32
 select_http2_flow_index(packet_info *pinfo, http2_session_t *h2session)
