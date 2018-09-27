@@ -11114,7 +11114,7 @@ dissect_PNIO_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* frame id must be in valid range (cyclic Real-Time, class=3) */
     if ((u16FrameID >= 0x0100 && u16FrameID <= 0x06FF) ||   /* RTC3 non redundant */
         (u16FrameID >= 0x700 && u16FrameID <= 0x0fff)) {    /* RTC3 redundant */
-        dissect_PNIO_C_SDU(tvb, 0, pinfo, tree, drep);
+        dissect_CSF_SDU_heur(tvb, pinfo, tree, data);
         return TRUE;
     }
 
