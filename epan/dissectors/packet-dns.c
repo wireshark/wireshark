@@ -4103,8 +4103,8 @@ dissect_dns_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 static int
 dissect_dns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-  /* draft-ietf-doh-dns-over-https-03 */
-  gboolean is_doh = !g_strcmp0(pinfo->match_string, "application/dns-udpwireformat");
+  /* since draft-ietf-doh-dns-over-https-07 */
+  gboolean is_doh = !g_strcmp0(pinfo->match_string, "application/dns-message");
 
   if (pinfo->ptype == PT_TCP && !is_doh) {
     return dissect_dns_tcp(tvb, pinfo, tree, data);
@@ -4225,7 +4225,7 @@ proto_reg_handoff_dns(void)
   dtls_dissector_add(UDP_PORT_DNS_DTLS, dns_handle);
   dissector_add_uint_range_with_preference("tcp.port", DEFAULT_DNS_TCP_PORT_RANGE, dns_handle);
   dissector_add_uint_range_with_preference("udp.port", DEFAULT_DNS_PORT_RANGE, dns_handle);
-  dissector_add_string("media_type", "application/dns-udpwireformat", dns_handle); /* draft-ietf-doh-dns-over-https-03 */
+  dissector_add_string("media_type", "application/dns-message", dns_handle); /* since draft-ietf-doh-dns-over-https-07 */
 }
 
 void
