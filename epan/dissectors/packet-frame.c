@@ -304,10 +304,10 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		item = proto_tree_add_item(tree, proto_pkt_comment, tvb, 0, 0, ENC_NA);
 		comments_tree = proto_item_add_subtree(item, ett_comments);
 		comment_item = proto_tree_add_string_format(comments_tree, hf_comments_text, tvb, 0, 0,
-							                   fr_data->pkt_comment, "%s",
-							                   fr_data->pkt_comment);
+									   fr_data->pkt_comment, "%s",
+									   fr_data->pkt_comment);
 		expert_add_info_format(pinfo, comment_item, &ei_comments_text,
-					                       "%s",  fr_data->pkt_comment);
+							       "%s",  fr_data->pkt_comment);
 
 
 	}
@@ -414,10 +414,10 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 				if_item = proto_tree_add_uint(fh_tree, hf_frame_interface_id, tvb, 0, 0, pinfo->rec->rec_header.packet_header.interface_id);
 			}
 
-                        if (interface_description) {
+			if (interface_description) {
 				if_tree = proto_item_add_subtree(if_item, ett_ifname);
 				proto_tree_add_string(if_tree, hf_frame_interface_description, tvb, 0, 0, interface_description);
-                        }
+			}
 		}
 
 		if (pinfo->rec->presence_flags & WTAP_HAS_PACK_FLAGS) {
@@ -761,7 +761,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 				}
 			}
 		}
-        }
+	}
 
 	return tvb_captured_length(tvb);
 }
