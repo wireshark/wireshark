@@ -1664,6 +1664,9 @@ dhcp_handle_basic_types(packet_info *pinfo, proto_tree *tree, proto_item *item, 
 			proto_tree_add_item(tree, *hf, tvb, offset, 4, ENC_BIG_ENDIAN);
 		else if (hf_default->ipv4 != NULL)
 			proto_tree_add_item(tree, *hf_default->ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
+
+		/* Show IP address in root of option */
+		proto_item_append_text(tree, " (%s)", tvb_ip_to_str(tvb, offset));
 		consumed = 4;
 		break;
 
