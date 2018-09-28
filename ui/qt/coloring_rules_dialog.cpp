@@ -109,6 +109,17 @@ ColoringRulesDialog::ColoringRulesDialog(QWidget *parent, QString add_filter) :
     export_button_ = ui->buttonBox->addButton(tr("Export" UTF8_HORIZONTAL_ELLIPSIS), QDialogButtonBox::ApplyRole);
     export_button_->setToolTip(tr("Save filters in a file."));
 
+    if (prefs.unknown_colorfilters) {
+        QMessageBox mb;
+        mb.setText(tr("Your coloring rules file contains unknown rules"));
+        mb.setInformativeText(tr("Wireshark doesn't recognize one or more of your coloring rules. "
+                                 "They have been disabled."));
+        mb.setStandardButtons(QMessageBox::Ok);
+
+        mb.exec();
+        prefs.unknown_colorfilters = FALSE;
+    }
+
     updateWidgets();
 }
 
@@ -360,16 +371,7 @@ void ColoringRulesDialog::on_buttonBox_accepted()
 {
     GSList *cfl = createColorFilterList();
     gchar* err_msg = NULL;
-    if (prefs.unknown_colorfilters) {
-        QMessageBox mb;
-        mb.setText(tr("Your coloring rules file contains unknown rules"));
-        mb.setInformativeText(tr("Wireshark doesn't recognize one or more of your coloring rules. "
-                                 "They have been disabled."));
-        mb.setStandardButtons(QMessageBox::Ok);
 
-        int result = mb.exec();
-        if (result != QMessageBox::Save) return;
-    }
     if (!color_filters_apply(conversation_colors_, cfl, &err_msg)) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
         g_free(err_msg);
