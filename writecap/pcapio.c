@@ -280,7 +280,7 @@ pcapng_write_block(FILE* pfile,
                    guint64 *bytes_written,
                    int *err)
 {
-    guint32 block_length, end_lenth;
+    guint32 block_length, end_length;
     /* Check
      * - length and data are aligned to 4 bytes
      * - block_total_length field is the same at the start and end of the block
@@ -290,11 +290,13 @@ pcapng_write_block(FILE* pfile,
      * us an implicit check of correctness without needing to do an endian swap
      */
     if (((length & 3) != 0) || (((gintptr)data & 3) != 0)) {
+        *err = EINVAL;
         return FALSE;
     }
-    memcpy(&block_length, data+sizeof(guint32), sizeof(guint32));
-    memcpy(&end_lenth, data+length-sizeof(guint32), sizeof(guint32));
-    if (block_length != end_lenth) {
+    block_length = *(guint32 *) (data+sizeof(guint32));
+    end_length = *(guint32 *) (data+length-sizeof(guint32));
+    if (block_length != end_length) {
+        *err = EBADMSG;
         return FALSE;
     }
     return write_to_file(pfile, data, length, bytes_written, err);
