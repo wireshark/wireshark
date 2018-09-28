@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V15.2.2 (2018-06)
+-- 3GPP TS 36.331 V15.3.0 (2018-09)
 --
 EUTRA-UE-Variables DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -9,9 +9,12 @@ IMPORTS
 	AreaConfiguration-r10,
 	AreaConfiguration-v1130,
 	ARFCN-ValueNR-r15,
+	BT-NameList-r15,
 	CarrierFreqGERAN,
 	CellIdentity,
+	CellList-r15,
 	ConnEstFailReport-r11,
+	EUTRA-CarrierList-r15,
 	SpeedStateScaleFactors,
 	C-RNTI,
 	LoggingDuration-r10,
@@ -27,6 +30,7 @@ IMPORTS
 	MeasObjectToAddModList,
 	MeasObjectToAddModList-v9e0,
 	MeasObjectToAddModListExt-r13,
+	MeasResultListIdle-r15,
 	MeasScaleFactor-r12,
 	MobilityStateParameters,
 	NeighCellConfig,
@@ -55,6 +59,7 @@ IMPORTS
 	WLAN-CarrierInfo-r13,
 	WLAN-Identifiers-r12,
 	WLAN-Id-List-r13,
+	WLAN-NameList-r15,
 	WLAN-Status-r13,
 	WLAN-Status-v1430,
 	WLAN-SuspendConfig-r14
@@ -87,6 +92,16 @@ VarLogMeasConfig-r12 ::=		SEQUENCE {
 	loggingDuration-r10				LoggingDuration-r10,
 	loggingInterval-r10				LoggingInterval-r10,
 	targetMBSFN-AreaList-r12		TargetMBSFN-AreaList-r12	OPTIONAL
+}
+
+VarLogMeasConfig-r15 ::=		SEQUENCE {
+	areaConfiguration-r10			AreaConfiguration-r10		OPTIONAL,
+	areaConfiguration-v1130			AreaConfiguration-v1130		OPTIONAL,
+	loggingDuration-r10				LoggingDuration-r10,
+	loggingInterval-r10				LoggingInterval-r10,
+	targetMBSFN-AreaList-r12			TargetMBSFN-AreaList-r12		OPTIONAL,
+	bt-NameList-r15				BT-NameList-r15					OPTIONAL,
+	wlan-NameList-r15				WLAN-NameList-r15					OPTIONAL
 }
 
 
@@ -138,6 +153,18 @@ VarMeasConfig ::=					SEQUENCE {
 }
 
 
+VarMeasIdleConfig-r15 ::=	SEQUENCE {
+	measIdleCarrierListEUTRA-r15			EUTRA-CarrierList-r15			OPTIONAL,
+	measIdleDuration-r15					ENUMERATED {sec10, sec30, sec60, sec120,
+														sec180, sec240, sec300}
+}
+
+
+VarMeasIdleReport-r15 ::=	SEQUENCE {
+	measReportIdle-r15				MeasResultListIdle-r15
+}
+
+
 VarMeasReportList ::=				SEQUENCE (SIZE (1..maxMeasId)) OF VarMeasReport
 VarMeasReportList-r12 ::=			SEQUENCE (SIZE (1..maxMeasId-r12)) OF VarMeasReport
 
@@ -177,6 +204,11 @@ SSB-IndexList-r15::=			SEQUENCE (SIZE (1..maxRS-Index-r15)) OF RS-IndexNR-r15
 VarMobilityHistoryReport-r12 ::=	VisitedCellInfoList-r12
 
 
+VarPendingRnaProcedure-r15 ::=					SEQUENCE {
+	pendingRnaProcedure					BOOLEAN								OPTIONAL
+}
+
+
 VarRLF-Report-r10 ::=				SEQUENCE {
 	rlf-Report-r10							RLF-Report-r9,
 	plmn-Identity-r10						PLMN-Identity
@@ -185,6 +217,13 @@ VarRLF-Report-r10 ::=				SEQUENCE {
 VarRLF-Report-r11 ::=				SEQUENCE {
 	rlf-Report-r10						RLF-Report-r9,
 	plmn-IdentityList-r11				PLMN-IdentityList3-r11
+}
+
+
+VarShortINACTIVE-MAC-Input-r15 ::=		SEQUENCE {
+	cellIdentity-r15							CellIdentity,
+	physCellId-r15							PhysCellId,
+	c-RNTI-r15								C-RNTI
 }
 
 

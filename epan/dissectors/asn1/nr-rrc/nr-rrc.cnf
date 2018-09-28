@@ -73,7 +73,7 @@ MeasurementTimingConfiguration
 MIB
 P-Max
 RadioBearerConfig
-RRCReconfiguration
+RRCReconfiguration           @rrc_reconf
 RRCReconfigurationComplete
 SIB1
 UE-CapabilityRAT-ContainerList

@@ -1,7 +1,7 @@
 /* packet-lte-rrc-template.c
  * Routines for Evolved Universal Terrestrial Radio Access (E-UTRA);
  * Radio Resource Control (RRC) protocol specification
- * (3GPP TS 36.331 V15.2.2 Release 15) packet dissection
+ * (3GPP TS 36.331 V15.3.0 Release 15) packet dissection
  * Copyright 2008, Vincent Helfre
  * Copyright 2009-2018, Pascal Quantin
  *
@@ -51,6 +51,8 @@ static dissector_handle_t rrc_irat_ho_to_utran_cmd_handle = NULL;
 static dissector_handle_t rrc_sys_info_cont_handle = NULL;
 static dissector_handle_t gsm_a_dtap_handle = NULL;
 static dissector_handle_t gsm_rlcmac_dl_handle = NULL;
+static dissector_handle_t nr_rrc_reconf_handle = NULL;
+static dissector_handle_t lte_rrc_conn_reconf_handle;
 static dissector_handle_t lte_rrc_dl_ccch_handle;
 
 static wmem_map_t *lte_rrc_etws_cmas_dcs_hash = NULL;
@@ -301,7 +303,7 @@ static gint ett_lte_rrc_ul_DCCH_MessageNR_r15 = -1;
 static gint ett_lte_rrc_sourceRB_ConfigNR_r15 = -1;
 static gint ett_lte_rrc_sourceRB_ConfigSN_NR_r15 = -1;
 static gint ett_lte_rrc_sourceOtherConfigSN_NR_r15 = -1;
-static gint ett_lte_rrc_sourceContextENDC_r15 = -1;
+static gint ett_lte_rrc_sourceContextEN_DC_r15 = -1;
 static gint ett_lte_rrc_requestedFreqBandsNR_MRDC_r15 = -1;
 static gint ett_lte_rrc_measGapPatterns_v1520 = -1;
 
@@ -4282,7 +4284,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_sourceRB_ConfigNR_r15,
     &ett_lte_rrc_sourceRB_ConfigSN_NR_r15,
     &ett_lte_rrc_sourceOtherConfigSN_NR_r15,
-    &ett_lte_rrc_sourceContextENDC_r15,
+    &ett_lte_rrc_sourceContextEN_DC_r15,
     &ett_lte_rrc_requestedFreqBandsNR_MRDC_r15,
     &ett_lte_rrc_measGapPatterns_v1520
   };
@@ -4354,12 +4356,14 @@ void proto_register_lte_rrc(void) {
 void
 proto_reg_handoff_lte_rrc(void)
 {
-	dissector_add_for_decode_as_with_preference("udp.port", lte_rrc_dl_ccch_handle);
-	nas_eps_handle = find_dissector("nas-eps");
-	rrc_irat_ho_to_utran_cmd_handle = find_dissector("rrc.irat.ho_to_utran_cmd");
-	rrc_sys_info_cont_handle = find_dissector("rrc.sysinfo.cont");
-	gsm_a_dtap_handle = find_dissector("gsm_a_dtap");
-	gsm_rlcmac_dl_handle = find_dissector("gsm_rlcmac_dl");
+  dissector_add_for_decode_as_with_preference("udp.port", lte_rrc_dl_ccch_handle);
+  nas_eps_handle = find_dissector("nas-eps");
+  rrc_irat_ho_to_utran_cmd_handle = find_dissector("rrc.irat.ho_to_utran_cmd");
+  rrc_sys_info_cont_handle = find_dissector("rrc.sysinfo.cont");
+  gsm_a_dtap_handle = find_dissector("gsm_a_dtap");
+  gsm_rlcmac_dl_handle = find_dissector("gsm_rlcmac_dl");
+  nr_rrc_reconf_handle = find_dissector("nr-rrc.rrc_reconf");
+  lte_rrc_conn_reconf_handle = find_dissector("lte-rrc.rrc_conn_reconf");
 }
 
 

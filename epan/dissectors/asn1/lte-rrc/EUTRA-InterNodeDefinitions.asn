@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V15.2.2 (2018-06)
+-- 3GPP TS 36.331 V15.3.0 (2018-09)
 --
 EUTRA-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -15,6 +15,7 @@ IMPORTS
 	DL-DCCH-Message,
 	DRB-Identity,
 	DRB-ToReleaseList,
+	DRB-ToReleaseList-r15,
 	FreqBandIndicator-r11,
 	InDeviceCoexIndication-r11,
 	LWA-Config-r13,
@@ -22,6 +23,8 @@ IMPORTS
 	maxBands,
 	maxFreq,
 	maxDRB,
+	maxDRBExt-r15,
+	maxDRB-r15,
 	maxSCell-r10,
 	maxSCell-r13,
 	maxServCell-r10,
@@ -40,6 +43,7 @@ IMPORTS
 	SL-CommConfig-r12,
 	SL-DiscConfig-r12,
 	RadioResourceConfigDedicated,
+	RAN-NotificationAreaInfo-r15,
 	RCLWI-Configuration-r13,
 	RSRP-Range,
 	RSRQ-Range,
@@ -163,6 +167,11 @@ HandoverPreparationInformation-v1430-IEs ::= SEQUENCE {
 	nonCriticalExtension			SEQUENCE {}							OPTIONAL
 }
 
+HandoverPreparationInformation-v1530-IEs ::= SEQUENCE {
+	ran-NotificationAreaInfo-r15		RAN-NotificationAreaInfo-r15			OPTIONAL,
+	nonCriticalExtension				SEQUENCE {}							OPTIONAL
+}
+
 
 SCG-Config-r12 ::=					SEQUENCE {
 	criticalExtensions					CHOICE {
@@ -229,10 +238,17 @@ SCG-ConfigInfo-v1330-IEs ::=		SEQUENCE {
 SCG-ConfigInfo-v1430-IEs ::=		SEQUENCE {
 	makeBeforeBreakSCG-Req-r14		ENUMERATED {true}					OPTIONAL,
 	measGapConfigPerCC-List		MeasGapConfigPerCC-List-r14			OPTIONAL,
+	nonCriticalExtension			SCG-ConfigInfo-v1530-IEs					OPTIONAL
+}
+
+SCG-ConfigInfo-v1530-IEs ::=		SEQUENCE {
+	drb-ToAddModListSCG-r15			DRB-InfoListSCG-r15					OPTIONAL,
+	drb-ToReleaseListSCG-r15		DRB-ToReleaseList-r15				OPTIONAL,
 	nonCriticalExtension			SEQUENCE {}							OPTIONAL
 }
 
 DRB-InfoListSCG-r12 ::=				SEQUENCE (SIZE (1..maxDRB)) OF DRB-InfoSCG-r12
+DRB-InfoListSCG-r15 ::=				SEQUENCE (SIZE (1..maxDRB-r15)) OF DRB-InfoSCG-r12
 
 DRB-InfoSCG-r12 ::=				SEQUENCE {
 	eps-BearerIdentity-r12			INTEGER (0..15)				OPTIONAL,	-- Cond DRB-Setup
@@ -429,7 +445,7 @@ AS-Context-v1130 ::=					SEQUENCE {
 	[[	sidelinkUEInformation-r12				OCTET STRING (CONTAINING
 												SidelinkUEInformation-r12)	OPTIONAL	-- Cond HO2
 	]],
-	[[	sourceContextENDC-r15				OCTET STRING					OPTIONAL	-- Cond HO2
+	[[	sourceContextEN-DC-r15				OCTET STRING					OPTIONAL	-- Cond HO2
 	]]
 }
 

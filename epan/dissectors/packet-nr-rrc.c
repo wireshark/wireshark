@@ -35288,6 +35288,7 @@ void proto_register_nr_rrc(void) {
   register_dissector("nr-rrc.bcch.bch", dissect_BCCH_BCH_Message_PDU, proto_nr_rrc);
   register_dissector("nr-rrc.dl.dcch", dissect_DL_DCCH_Message_PDU, proto_nr_rrc);
   register_dissector("nr-rrc.ul.dcch", dissect_nr_rrc_UL_DCCH_Message_PDU, proto_nr_rrc);
+  register_dissector("nr-rrc.rrc_reconf", dissect_nr_rrc_RRCReconfiguration_PDU, proto_nr_rrc);
   register_dissector("nr-rrc.ue_mrdc_cap", dissect_nr_rrc_UE_MRDC_Capability_PDU, proto_nr_rrc);
   register_dissector("nr-rrc.ue_nr_cap", dissect_nr_rrc_UE_NR_Capability_PDU, proto_nr_rrc);
 

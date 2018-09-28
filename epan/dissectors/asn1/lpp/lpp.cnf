@@ -35,6 +35,8 @@ GNSS-ID-Bitmap
 ARFCN-ValueUTRA
 ARFCN-ValueEUTRA-v9a0
 Velocity
+HorizontalWithVerticalVelocity_PDU
+HorizontalVelocityWithUncertainty_PDU
 #.END
 
 #.PDU
@@ -47,6 +49,8 @@ EllipsoidPointWithAltitudeAndUncertaintyEllipsoid
 Ellipsoid-PointWithUncertaintyCircle
 EllipsoidPointWithUncertaintyEllipse
 Polygon
+HorizontalWithVerticalVelocity
+HorizontalVelocityWithUncertainty
 #.END
 
 #.MAKE_ENUM
