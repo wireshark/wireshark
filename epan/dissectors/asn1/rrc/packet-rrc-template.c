@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref: 3GPP TS 25.331 V15.3.0 (2018-06)
+ * Ref: 3GPP TS 25.331 V15.4.0 (2018-09)
  */
 
 /**

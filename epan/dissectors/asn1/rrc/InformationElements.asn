@@ -1,4 +1,4 @@
--- 3GPP TS 25.331 V15.3.0 (2018-06)
+-- 3GPP TS 25.331 V15.4.0 (2018-09)
 --
 -- 11.3	Information element definitions
 --
@@ -3053,7 +3053,7 @@ UE-RadioAccessCapability-ve30ext-IEs ::=		SEQUENCE {
 
 UE-RadioAccessCapability-vf10ext-IEs ::=		SEQUENCE { 
 	physicalChannelCapability					PhysicalChannelCapability-vf10ext   OPTIONAL,
-	ue-RadioAccessCapability-vf20ext-IEs	        UE-RadioAccessCapability-vf20ext-IEs
+	ue-RadioAccessCapability-vf20ext-IEs	    UE-RadioAccessCapability-vf20ext-IEs OPTIONAL
 }
 
 UE-RadioAccessCapability-vf20ext-IEs ::=		SEQUENCE { 
