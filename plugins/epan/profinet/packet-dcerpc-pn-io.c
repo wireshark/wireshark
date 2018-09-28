@@ -8174,7 +8174,7 @@ dissect_AlarmCRBlockRes_block(tvbuff_t *tvb, int offset,
 /* dissect the ARServerBlock */
 static int
 dissect_ARServerBlock(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
+    packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow, guint16 u16BodyLength)
 {
     char    *pStationName;
     guint16  u16NameLength, u16padding;
@@ -8193,9 +8193,9 @@ dissect_ARServerBlock(tvbuff_t *tvb, int offset,
     pStationName[u16NameLength] = '\0';
     proto_tree_add_string (tree, hf_pn_io_cminitiator_station_name, tvb, offset, u16NameLength, pStationName);
     offset += u16NameLength;
-    /* Padding to next 4 byte allignment in this block */
-    u16padding = (u16NameLength-2) & 0x3;
-    if (u16padding >0)
+    /* Padding to next 4 byte alignment in this block */
+    u16padding = u16BodyLength - (2 + u16NameLength);
+    if (u16padding > 0)
         offset = dissect_pn_padding(tvb, offset, pinfo, tree, u16padding);
     return offset;
 }
@@ -10019,7 +10019,7 @@ dissect_block(tvbuff_t *tvb, int offset,
         dissect_ModuleDiffBlock_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
         break;
     case(0x8106):
-        dissect_ARServerBlock(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        dissect_ARServerBlock(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
         break;
     case(0x8110):
     case(0x8111):
