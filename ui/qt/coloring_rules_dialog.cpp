@@ -80,6 +80,17 @@ ColoringRulesDialog::ColoringRulesDialog(QWidget *parent, QString add_filter) :
         ui->coloringRulesTreeView->setCurrentIndex(QModelIndex());
     }
 
+    if (prefs.unknown_colorfilters) {
+        QMessageBox mb;
+        mb.setText(tr("Your coloring rules file contains unknown rules"));
+        mb.setInformativeText(tr("Wireshark doesn't recognize one or more of your coloring rules. "
+                                 "They have been disabled."));
+        mb.setStandardButtons(QMessageBox::Ok);
+
+        mb.exec();
+        prefs.unknown_colorfilters = FALSE;
+    }
+
     updateHint();
 }
 
@@ -309,17 +320,6 @@ void ColoringRulesDialog::on_buttonBox_clicked(QAbstractButton *button)
 
 void ColoringRulesDialog::on_buttonBox_accepted()
 {
-    if (prefs.unknown_colorfilters) {
-        QMessageBox mb;
-        mb.setText(tr("Your coloring rules file contains unknown rules"));
-        mb.setInformativeText(tr("Wireshark doesn't recognize one or more of your coloring rules. "
-                                 "They have been disabled."));
-        mb.setStandardButtons(QMessageBox::Ok);
-
-        int result = mb.exec();
-        if (result != QMessageBox::Save) return;
-    }
-
     QString err;
     if (!colorRuleModel_.writeColors(err)) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err.toUtf8().constData());
