@@ -178,7 +178,8 @@ Description: network packet dissection library -- data files
 
 Package: libwireshark-dev
 Section: libdevel
-Depends: ${misc:Depends}, libwsutil-dev, libwireshark0 (= ${binary:Version})
+Depends: ${misc:Depends}, libwsutil-dev, libwiretap-dev,
+ libwireshark0 (= ${binary:Version})
 Conflicts: wireshark-dev (<< 1.4.0~rc2-1)
 Replaces: wireshark-dev (<< 1.4.0~rc2-1)
 Architecture: any
