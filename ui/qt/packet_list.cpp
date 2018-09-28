@@ -1037,15 +1037,22 @@ QString PacketList::getFilterFromRowAndColumn()
 
     if (fdata != NULL) {
         epan_dissect_t edt;
+        wtap_rec rec; /* Record metadata */
+        Buffer buf;   /* Record data */
 
-        if (!cf_read_record(cap_file_, fdata))
+        wtap_rec_init(&rec);
+        ws_buffer_init(&buf, 1500);
+        if (!cf_read_record_r(cap_file_, fdata, &rec, &buf)) {
+            wtap_rec_cleanup(&rec);
+            ws_buffer_free(&buf);
             return filter; /* error reading the record */
+        }
         /* proto tree, visible. We need a proto tree if there's custom columns */
         epan_dissect_init(&edt, cap_file_->epan, have_custom_cols(&cap_file_->cinfo), FALSE);
         col_custom_prime_edt(&edt, &cap_file_->cinfo);
 
-        epan_dissect_run(&edt, cap_file_->cd_t, &cap_file_->rec,
-                         frame_tvbuff_new_buffer(&cap_file_->provider, fdata, &cap_file_->buf),
+        epan_dissect_run(&edt, cap_file_->cd_t, &rec,
+                         frame_tvbuff_new_buffer(&cap_file_->provider, fdata, &buf),
                          fdata, &cap_file_->cinfo);
         epan_dissect_fill_in_columns(&edt, TRUE, TRUE);
 
@@ -1094,6 +1101,8 @@ QString PacketList::getFilterFromRowAndColumn()
         }
 
         epan_dissect_cleanup(&edt);
+        wtap_rec_cleanup(&rec);
+        ws_buffer_free(&buf);
     }
 
     return filter;
