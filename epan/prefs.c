@@ -5838,26 +5838,26 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
                     handle = dissector_table_get_dissector_handle(sub_dissectors, module->title);
                     if (handle != NULL) {
                         /* Delete all of the old values from the dissector table */
-		                for (i = 0; i < (*pref->varp.range)->nranges; i++) {
-			                for (j = (*pref->varp.range)->ranges[i].low; j < (*pref->varp.range)->ranges[i].high; j++) {
+                        for (i = 0; i < (*pref->varp.range)->nranges; i++) {
+                            for (j = (*pref->varp.range)->ranges[i].low; j < (*pref->varp.range)->ranges[i].high; j++) {
                                 dissector_delete_uint(pref->name, j, handle);
                                 decode_build_reset_list(pref->name, dissector_table_get_type(sub_dissectors), GUINT_TO_POINTER(j), NULL, NULL);
                             }
 
                             dissector_delete_uint(pref->name, (*pref->varp.range)->ranges[i].high, handle);
                             decode_build_reset_list(pref->name, dissector_table_get_type(sub_dissectors), GUINT_TO_POINTER((*pref->varp.range)->ranges[i].high), NULL, NULL);
-		                }
+                        }
 
                         /* Add new values to the dissector table */
-		                for (i = 0; i < newrange->nranges; i++) {
-			                for (j = newrange->ranges[i].low; j < newrange->ranges[i].high; j++) {
+                        for (i = 0; i < newrange->nranges; i++) {
+                            for (j = newrange->ranges[i].low; j < newrange->ranges[i].high; j++) {
                                 dissector_change_uint(pref->name, j, handle);
                                 decode_build_reset_list(pref->name, dissector_table_get_type(sub_dissectors), GUINT_TO_POINTER(j), NULL, NULL);
                             }
 
                             dissector_change_uint(pref->name, newrange->ranges[i].high, handle);
                             decode_build_reset_list(pref->name, dissector_table_get_type(sub_dissectors), GUINT_TO_POINTER(newrange->ranges[i].high), NULL, NULL);
-		                }
+                        }
 
                         /* XXX - Do we save the decode_as_entries file here? */
                     }
