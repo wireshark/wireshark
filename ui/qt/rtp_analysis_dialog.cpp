@@ -1599,6 +1599,8 @@ void RtpAnalysisDialog::findStreams()
     }
     fwd_statinfo_.id.ssrc = fvalue_get_uinteger(&((field_info *)gp->pdata[0])->value);
 
+    epan_dissect_cleanup(&edt);
+
     /* Register the tap listener */
     memset(&tapinfo_, 0, sizeof(rtpstream_tapinfo_t));
     tapinfo_.tap_data = this;
