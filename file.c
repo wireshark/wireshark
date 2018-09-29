@@ -2058,6 +2058,7 @@ process_specified_records(capture_file *cf, packet_range_t *range,
 {
   guint32          framenum;
   frame_data      *fdata;
+  wtap_rec         rec;
   Buffer           buf;
   psp_return_t     ret     = PSP_FINISHED;
 
@@ -2068,7 +2069,6 @@ process_specified_records(capture_file *cf, packet_range_t *range,
   GTimeVal         progbar_start_time;
   gchar            progbar_status_str[100];
   range_process_e  process_this;
-  wtap_rec         rec;
 
   wtap_rec_init(&rec);
   ws_buffer_init(&buf, 1500);
