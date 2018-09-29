@@ -80,22 +80,6 @@ static int mgcp_udp_port_count;
 
 e_prefs prefs;
 
-static const enum_val_t gui_ptree_line_style[] = {
-    {"NONE", "NONE", 0},
-    {"SOLID", "SOLID", 1},
-    {"DOTTED", "DOTTED", 2},
-    {"TABBED", "TABBED", 3},
-    {NULL, NULL, -1}
-};
-
-static const enum_val_t gui_ptree_expander_style[] = {
-    {"NONE", "NONE", 0},
-    {"SQUARE", "SQUARE", 1},
-    {"TRIANGLE", "TRIANGLE", 2},
-    {"CIRCULAR", "CIRCULAR", 3},
-    {NULL, NULL, -1}
-};
-
 static const enum_val_t gui_console_open_type[] = {
     {"NEVER", "NEVER", console_open_never},
     {"AUTOMATIC", "AUTOMATIC", console_open_auto},
@@ -3000,31 +2984,17 @@ prefs_register_modules(void)
     prefs_register_obsolete_preference(gui_module, "packet_list_sel_browse");
     prefs_register_obsolete_preference(gui_module, "protocol_tree_sel_browse");
     prefs_register_obsolete_preference(gui_module, "tree_view_altern_colors");
-
-    prefs_register_bool_preference(gui_module, "expert_composite_eyecandy",
-                                   "Display Icons on Expert Composite Dialog Tabs",
-                                   "Display Icons on Expert Composite Dialog Tabs?",
-                                   &prefs.gui_expert_composite_eyecandy);
-
-    prefs_register_bool_preference(gui_module, "filter_toolbar_show_in_statusbar",
-                                   "Place filter toolbar inside the statusbar",
-                                   "Place filter toolbar inside the statusbar?",
-                                   &prefs.filter_toolbar_show_in_statusbar);
+    prefs_register_obsolete_preference(gui_module, "expert_composite_eyecandy");
+    prefs_register_obsolete_preference(gui_module, "filter_toolbar_show_in_statusbar");
 
     prefs_register_bool_preference(gui_module, "restore_filter_after_following_stream",
                                    "Restore current display filter after following a stream",
                                    "Restore current display filter after following a stream?",
                                    &prefs.restore_filter_after_following_stream);
 
-    prefs_register_enum_preference(gui_module, "protocol_tree_line_style",
-                       "Protocol-tree line style",
-                       "Protocol-tree line style",
-                       &prefs.gui_ptree_line_style, gui_ptree_line_style, FALSE);
+    prefs_register_obsolete_preference(gui_module, "protocol_tree_line_style");
 
-    prefs_register_enum_preference(gui_module, "protocol_tree_expander_style",
-                       "Protocol-tree expander style",
-                       "Protocol-tree expander style",
-                       &prefs.gui_ptree_expander_style, gui_ptree_expander_style, FALSE);
+    prefs_register_obsolete_preference(gui_module, "protocol_tree_expander_style");
 
     prefs_register_obsolete_preference(gui_module, "hex_dump_highlight_style");
 
@@ -3222,14 +3192,8 @@ prefs_register_modules(void)
                        "Main Toolbar style",
                        &prefs.gui_toolbar_main_style, gui_toolbar_style, FALSE);
 
-    prefs_register_enum_preference(gui_module, "toolbar_filter_style",
-                       "Filter Toolbar style",
-                       "Filter Toolbar style",
-                       &prefs.gui_toolbar_filter_style, gui_toolbar_style, FALSE);
-
-    register_string_like_preference(gui_module, "webbrowser", "The path to the webbrowser",
-        "The path to the webbrowser (Ex: mozilla)",
-        &prefs.gui_webbrowser, PREF_STRING, NULL, TRUE);
+    prefs_register_obsolete_preference(gui_module, "toolbar_filter_style");
+    prefs_register_obsolete_preference(gui_module, "webbrowser");
 
     prefs_register_bool_preference(gui_module, "update.enabled",
                                    "Check for updates",
@@ -3941,13 +3905,8 @@ pre_init_prefs(void)
         "Protocol", "%p", "Length",      "%L",
         "Info",     "%i"};
 
-    prefs.gui_expert_composite_eyecandy = FALSE;
-    prefs.gui_ptree_line_style = 0;
-    prefs.gui_ptree_expander_style = 1;
-    prefs.filter_toolbar_show_in_statusbar = FALSE;
     prefs.restore_filter_after_following_stream = FALSE;
     prefs.gui_toolbar_main_style = TB_STYLE_ICONS;
-    prefs.gui_toolbar_filter_style = TB_STYLE_TEXT;
     /* We try to find the best font in the Qt code */
     g_free(prefs.gui_qt_font_name);
     prefs.gui_qt_font_name           = g_strdup("");
@@ -4033,8 +3992,6 @@ pre_init_prefs(void)
     prefs.gui_update_enabled         = TRUE;
     prefs.gui_update_channel         = UPDATE_CHANNEL_STABLE;
     prefs.gui_update_interval        = 60*60*24; /* Seconds */
-    g_free(prefs.gui_webbrowser);
-    prefs.gui_webbrowser             = g_strdup("");
     g_free(prefs.gui_window_title);
     prefs.gui_window_title           = g_strdup("");
     g_free(prefs.gui_prepend_window_title);

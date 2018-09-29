@@ -41,7 +41,6 @@ private:
     pref_t *pref_recent_files_count_max_;
     pref_t *pref_ask_unsaved_;
     pref_t *pref_toolbar_main_style_;
-    pref_t *pref_toolbar_filter_style_;
     void updateWidgets();
 
 private slots:

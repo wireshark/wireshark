@@ -140,13 +140,8 @@ typedef struct _e_prefs {
   gint         num_cols;
   color_t      st_client_fg, st_client_bg, st_server_fg, st_server_bg;
   color_t      gui_text_valid, gui_text_invalid, gui_text_deprecated;
-  gboolean     gui_expert_composite_eyecandy;
-  gboolean     filter_toolbar_show_in_statusbar;
   gboolean     restore_filter_after_following_stream;
-  gint         gui_ptree_line_style;
-  gint         gui_ptree_expander_style;
   gint         gui_toolbar_main_style;
-  gint         gui_toolbar_filter_style;
   gchar       *gui_qt_font_name;
   color_t      gui_active_fg;
   color_t      gui_active_bg;
@@ -171,7 +166,6 @@ typedef struct _e_prefs {
   guint        gui_fileopen_preview;
   gboolean     gui_ask_unsaved;
   gboolean     gui_find_wrap;
-  gchar       *gui_webbrowser;
   gchar       *gui_window_title;
   gchar       *gui_prepend_window_title;
   gchar       *gui_start_title;

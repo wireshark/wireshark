@@ -36,7 +36,6 @@ MainWindowPreferencesFrame::MainWindowPreferencesFrame(QWidget *parent) :
     pref_recent_files_count_max_ = prefFromPrefPtr(&prefs.gui_recent_files_count_max);
     pref_ask_unsaved_ = prefFromPrefPtr(&prefs.gui_ask_unsaved);
     pref_toolbar_main_style_ = prefFromPrefPtr(&prefs.gui_toolbar_main_style);
-    pref_toolbar_filter_style_ = prefFromPrefPtr(&prefs.gui_toolbar_filter_style);
 
     QStyleOption style_opt;
     QString indent_ss = QString(
