@@ -258,6 +258,11 @@ WS_DLL_PUBLIC void prefs_set_gui_theme_is_dark(gboolean is_dark);
  */
 WS_DLL_PUBLIC module_t *prefs_register_protocol(int id, void (*apply_cb)(void));
 
+/*
+ * Register an alias for a preference module.
+ */
+WS_DLL_PUBLIC void prefs_register_module_alias(const char *name, module_t *module);
+
 /**
  * Deregister preferences from a protocol.
  */

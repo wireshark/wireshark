@@ -42,12 +42,21 @@
 #include "epan/wmem/wmem.h"
 #include <epan/stats_tree.h>
 
+/*
+ * Module alias.
+ */
+typedef struct pref_module_alias {
+    const char *name;           /**< name of module alias */
+    module_t *module;           /**< module for which it's an alias */
+} module_alias_t;
+
 /* Internal functions */
 static module_t *find_subtree(module_t *parent, const char *tilte);
 static module_t *prefs_register_module_or_subtree(module_t *parent,
     const char *name, const char *title, const char *description, gboolean is_subtree,
     void (*apply_cb)(void), gboolean use_gui);
 static void prefs_register_modules(void);
+static module_t *prefs_find_module_alias(const char *name);
 static prefs_set_pref_e set_pref(gchar*, const gchar*, void *, gboolean);
 static void free_col_info(GList *);
 static void pre_init_prefs(void);
@@ -271,6 +280,11 @@ static wmem_tree_t *prefs_modules = NULL;
  */
 static wmem_tree_t *prefs_top_level_modules = NULL;
 
+/*
+ * List of aliases for modules.
+ */
+static wmem_tree_t *prefs_module_aliases = NULL;
+
 /** Sets up memory used by proto routines. Called at program startup */
 void
 prefs_init(void)
@@ -278,6 +292,7 @@ prefs_init(void)
     memset(&prefs, 0, sizeof(prefs));
     prefs_modules = wmem_tree_new(wmem_epan_scope());
     prefs_top_level_modules = wmem_tree_new(wmem_epan_scope());
+    prefs_module_aliases = wmem_tree_new(wmem_epan_scope());
 }
 
 /*
@@ -539,6 +554,50 @@ prefs_register_module_or_subtree(module_t *parent, const char *name,
     }
 
     return module;
+}
+
+void
+prefs_register_module_alias(const char *name, module_t *module)
+{
+    module_alias_t *alias;
+    const char *p;
+    guchar c;
+
+    /*
+     * Yes.
+     * Make sure that only ASCII letters, numbers, underscores, hyphens,
+     * and dots appear in the name.  We allow upper-case letters, to
+     * handle the Diameter dissector having used "Diameter" rather
+     * than "diameter" as its preference module name in the past.
+     *
+     * Crash if there is, as that's an error in the code, but the name
+     * can be used on the command line, and shouldn't require quoting,
+     * etc.
+     */
+    for (p = name; (c = *p) != '\0'; p++) {
+        if (!(g_ascii_isalpha(c) || g_ascii_isdigit(c) || c == '_' ||
+              c == '-' || c == '.'))
+            g_error("Preference module alias \"%s\" contains invalid characters", name);
+    }
+
+    /*
+     * Make sure there's not already an alias with that
+     * name.  Crash if there is, as that's an error in the
+     * code, and the code has to be fixed not to register
+     * more than one alias with the same name.
+     *
+     * We search the list of all aliases.
+     */
+    g_assert(prefs_find_module_alias(name) == NULL);
+
+    alias = wmem_new(wmem_epan_scope(), module_alias_t);
+    alias->name = name;
+    alias->module = module;
+
+    /*
+     * Insert this module in the list of all modules.
+     */
+    wmem_tree_insert_string(prefs_module_aliases, name, alias, WMEM_TREE_STRING_NOCASE);
 }
 
 /*
@@ -889,6 +948,17 @@ prefs_apply(module_t *module)
 {
     if (module && module->prefs_changed_flags)
         call_apply_cb(NULL, module, NULL);
+}
+
+static module_t *
+prefs_find_module_alias(const char *name)
+{
+    module_alias_t *alias;
+
+    alias = (module_alias_t *)wmem_tree_lookup_string(prefs_module_aliases, name, WMEM_TREE_STRING_NOCASE);
+    if (alias == NULL)
+        return NULL;
+    return alias->module;
 }
 
 /*
@@ -2999,6 +3069,8 @@ prefs_register_modules(void)
     prefs_register_obsolete_preference(gui_module, "hex_dump_highlight_style");
 
     gui_column_module = prefs_register_subtree(gui_module, "Columns", "Columns", NULL);
+    /* For reading older preference files with "column." preferences */
+    prefs_register_module_alias("column", gui_column_module);
 
     custom_cbs.free_cb = free_string_like_preference;
     custom_cbs.reset_cb = reset_string_like_preference;
@@ -5402,36 +5474,34 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
                  * its modern name, the Nortel Discovery Protocol (NDP).
                  */
                 if (module == NULL) {
-                    if (strcmp(pref_name, "column") == 0)
-                        module = gui_column_module;
-                    else if (strcmp(pref_name, "Diameter") == 0)
-                        module = prefs_find_module("diameter");
-                    else if (strcmp(pref_name, "bxxp") == 0)
-                        module = prefs_find_module("beep");
-                    else if (strcmp(pref_name, "gtpv0") == 0 ||
-                             strcmp(pref_name, "gtpv1") == 0)
-                        module = prefs_find_module("gtp");
-                    else if (strcmp(pref_name, "smpp-gsm-sms") == 0)
-                        module = prefs_find_module("gsm-sms-ud");
-                    else if (strcmp(pref_name, "dcp") == 0)
-                        module = prefs_find_module("dccp");
-                    else if (strcmp(pref_name, "x.25") == 0)
-                        module = prefs_find_module("x25");
-                    else if (strcmp(pref_name, "x411") == 0)
-                        module = prefs_find_module("p1");
-                    else if (strcmp(pref_name, "nsip") == 0)
-                        module = prefs_find_module("gprs-ns");
-                    else if (strcmp(pref_name, "sonmp") == 0)
-                        module = prefs_find_module("ndp");
-                    else if (strcmp(pref_name, "etheric") == 0 ||
-                             strcmp(pref_name, "isup_thin") == 0) {
-                        /* This protocol was removed 7. July 2009 */
-                        return PREFS_SET_OBSOLETE;
-                    } else {
-                        /* See if the module name matches any protocol aliases. */
+                    /*
+                     * See if there's a backwards-compatibility name
+                     * that maps to this module.
+                     */
+                    module = prefs_find_module_alias(pref_name);
+                    if (module == NULL) {
+                        /*
+                         * There's no alias for the module; see if the
+                         * module name matches any protocol aliases.
+                         */
                         header_field_info *hfinfo = proto_registrar_get_byalias(pref_name);
                         if (hfinfo) {
                             module = (module_t *) wmem_tree_lookup_string(prefs_modules, hfinfo->abbrev, WMEM_TREE_STRING_NOCASE);
+                        }
+                    }
+                    if (module == NULL) {
+                        /*
+                         * There aren't any aliases.  Was the module
+                         * removed rather than renamed?
+                         */
+                        if (strcmp(pref_name, "etheric") == 0 ||
+                            strcmp(pref_name, "isup_thin") == 0) {
+                            /*
+                             * The dissectors for these protocols were
+                             * removed as obsolete on 2009-07-70 in change
+                             * 739bfc6ff035583abb9434e0e988048de38a8d9a.
+                             */
+                            return PREFS_SET_OBSOLETE;
                         }
                     }
                     if (module) {

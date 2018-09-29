@@ -2332,6 +2332,8 @@ proto_register_diameter(void)
 
 	/* Register configuration options for ports */
 	diameter_module = prefs_register_protocol(proto_diameter, proto_reg_handoff_diameter);
+	/* For reading older preference files with "Diameter." preferences */
+	prefs_register_module_alias("Diameter", diameter_module);
 
 	prefs_register_range_preference(diameter_module, "sctp.ports",
 					"Diameter SCTP Ports",

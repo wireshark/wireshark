@@ -10990,6 +10990,9 @@ proto_register_gtp(void)
     expert_register_field_array(expert_gtp, ei, array_length(ei));
 
     gtp_module = prefs_register_protocol(proto_gtp, proto_reg_handoff_gtp);
+    /* For reading older preference files with "gtpv0." or "gtpv1." preferences */
+    prefs_register_module_alias("gtpv0", gtp_module);
+    prefs_register_module_alias("gtpv1", gtp_module);
 
     prefs_register_uint_preference(gtp_module, "v0_port", "GTPv0 and GTP' port", "GTPv0 and GTP' port (default 3386)", 10, &g_gtpv0_port);
     prefs_register_uint_preference(gtp_module, "v1c_port", "GTPv1 or GTPv2 control plane (GTP-C, GTPv2-C) port", "GTPv1 and GTPv2 control plane port (default 2123)", 10,

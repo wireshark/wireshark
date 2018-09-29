@@ -366,6 +366,8 @@ void proto_register_p1(void) {
   /* Register our configuration options for P1, particularly our port */
 
   p1_module = prefs_register_protocol_subtree("OSI/X.400", proto_p1, NULL);
+  /* For reading older preference files with "x411." preferences */
+  prefs_register_module_alias("x411", p1_module);
 
   prefs_register_obsolete_preference(p1_module, "tcp.port");
 

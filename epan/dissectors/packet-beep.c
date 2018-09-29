@@ -971,6 +971,8 @@ proto_register_beep(void)
   /* Register our configuration options for BEEP, particularly our port */
 
   beep_module = prefs_register_protocol(proto_beep, apply_beep_prefs);
+  /* For reading older preference files with "bxxp." preferences */
+  prefs_register_module_alias("bxxp", beep_module);
 
   prefs_register_bool_preference(beep_module, "strict_header_terminator",
                                  "BEEP Header Requires CRLF",

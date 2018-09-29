@@ -1283,6 +1283,8 @@ proto_register_dccp(void)
 
     /* reg preferences */
     dccp_module = prefs_register_protocol(proto_dccp, NULL);
+    /* For reading older preference files with "dcp." preferences */
+    prefs_register_module_alias("dcp", dccp_module);
     prefs_register_bool_preference(
         dccp_module, "summary_in_tree",
         "Show DCCP summary in protocol tree",
