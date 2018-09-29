@@ -3028,6 +3028,7 @@ proto_reg_handoff_ip(void)
   dissector_add_uint("juniper.proto", JUNIPER_PROTO_IP, ip_handle);
   dissector_add_uint("juniper.proto", JUNIPER_PROTO_MPLS_IP, ip_handle);
   dissector_add_uint("pwach.channel_type", PW_ACH_TYPE_IPV4, ip_handle);
+  dissector_add_uint("mcc.proto", PW_ACH_TYPE_IPV4, ip_handle);
   dissector_add_uint("sflow_245.header_protocol", SFLOW_245_HEADER_IPv4, ip_handle);
   dissector_add_uint("l2tp.pw_type", L2TPv3_PROTOCOL_IP, ip_handle);
   dissector_add_for_decode_as_with_preference("udp.port", ip_handle);

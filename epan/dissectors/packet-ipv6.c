@@ -3647,6 +3647,7 @@ proto_reg_handoff_ipv6(void)
     dissector_add_uint("juniper.proto", JUNIPER_PROTO_IP6, ipv6_handle);
     dissector_add_uint("juniper.proto", JUNIPER_PROTO_MPLS_IP6, ipv6_handle);
     dissector_add_uint("pwach.channel_type", PW_ACH_TYPE_IPV6, ipv6_handle);
+    dissector_add_uint("mcc.proto", PW_ACH_TYPE_IPV6, ipv6_handle);
     dissector_add_uint("sflow_245.header_protocol", SFLOW_245_HEADER_IPv6, ipv6_handle);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_RAW_IP6, ipv6_handle);
     dissector_add_uint("enc", BSD_AF_INET6_BSD, ipv6_handle);

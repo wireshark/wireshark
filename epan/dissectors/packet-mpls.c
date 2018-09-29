@@ -63,10 +63,12 @@ void proto_reg_handoff_mpls(void);
 
 static gint proto_mpls = -1;
 static gint proto_pw_ach = -1;
+static gint proto_pw_ach_mcc = -1;
 static gint proto_pw_mcw = -1;
 
 static gint ett_mpls = -1;
 static gint ett_mpls_pw_ach = -1;
+static gint ett_mpls_pw_ach_mcc = -1;
 static gint ett_mpls_pw_mcw = -1;
 static char PW_ACH[50] = "PW Associated Channel Header";
 
@@ -82,11 +84,13 @@ const value_string special_labels[] = {
 };
 
 static dissector_table_t   pw_ach_subdissector_table;
+static dissector_table_t   pw_ach_mcc_subdissector_table;
 
 static dissector_handle_t dissector_ipv6;
 static dissector_handle_t dissector_ip;
 static dissector_handle_t dissector_pw_ach;
 static dissector_handle_t dissector_pw_eth_heuristic;
+static dissector_handle_t dissector_pw_ach_mcc;
 
 /* For RFC6391 - Flow aware transport of pseudowire over a mpls PSN*/
 static gboolean mpls_bos_flowlabel = FALSE;
@@ -101,6 +105,8 @@ static int hf_mpls_pw_ach_ver = -1;
 static int hf_mpls_pw_ach_res = -1;
 static int hf_mpls_pw_ach_channel_type = -1;
 
+static int hf_mpls_pw_ach_mcc_proto = -1;
+
 static int hf_mpls_pw_mcw_flags = -1;
 static int hf_mpls_pw_mcw_length = -1;
 static int hf_mpls_pw_mcw_sequence_number = -1;
@@ -112,6 +118,7 @@ static expert_field ei_mpls_invalid_label = EI_INIT;
 
 static dissector_handle_t mpls_handle;
 static dissector_handle_t mpls_pwcw_handle;
+static dissector_handle_t mpls_mcc_handle;
 
 #if 0 /*not used yet*/
 /*
@@ -235,6 +242,32 @@ decode_mpls_label(tvbuff_t *tvb, int offset,
     *exp = (octet2 >> 1) & 0x7;
     *bos = (octet2 & 0x1);
     *ttl = tvb_get_guint8(tvb, offset+3);
+}
+
+/*
+ * PW Associated Channel Header Management Communication
+ * Network (MCN) dissection as per RFC 5718.
+ */
+static int
+dissect_pw_ach_mcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    tvbuff_t   *next_tvb;
+    proto_tree *mpls_pw_ach_mcc_tree;
+    proto_item *ti;
+    guint32     pid;
+
+    ti = proto_tree_add_item(tree, proto_pw_ach_mcc, tvb, 0,2, ENC_NA);
+    mpls_pw_ach_mcc_tree = proto_item_add_subtree(ti, ett_mpls_pw_ach_mcc);
+    proto_tree_add_item_ret_uint(mpls_pw_ach_mcc_tree, hf_mpls_pw_ach_mcc_proto,tvb, 0, 2, ENC_BIG_ENDIAN, &pid);
+
+    next_tvb = tvb_new_subset_remaining(tvb, 2);
+
+    if (!dissector_try_uint(pw_ach_mcc_subdissector_table, pid, next_tvb, pinfo, tree))
+    {
+        call_data_dissector(next_tvb, pinfo, tree);
+    }
+
+    return tvb_captured_length(tvb);
 }
 
 /*
@@ -570,6 +603,13 @@ proto_register_mpls(void)
           "PW Associated Channel Type", HFILL }
         },
 
+        /* Generic/Preferred PW MPLS MCC Control Word fields */
+        {&hf_mpls_pw_ach_mcc_proto,
+         {"Protocol Id", "mcc.proto",
+          FT_UINT16, BASE_HEX|BASE_EXT_STRING, &mpls_pwac_types_ext, 0x0,
+          "MCC Protocol", HFILL }
+        },
+
         /* Generic/Preferred PW MPLS Control Word fields */
         {&hf_mpls_pw_mcw_flags,
          {"Flags", "pwmcw.flags",
@@ -593,6 +633,7 @@ proto_register_mpls(void)
     static gint *ett[] = {
         &ett_mpls,
         &ett_mpls_pw_ach,
+        &ett_mpls_pw_ach_mcc,
         &ett_mpls_pw_mcw,
     };
 
@@ -623,6 +664,8 @@ proto_register_mpls(void)
                                            "PW Associated Channel", "pwach");
     proto_pw_mcw = proto_register_protocol("PW MPLS Control Word (generic/preferred)",
                                            "Generic PW (with CW)", "pwmcw");
+    proto_pw_ach_mcc = proto_register_protocol("Management Communication Channel (MCC)",
+                                               "PW Associated Management Communication Channel", "mcc");
 
     proto_register_field_array(proto_mpls, mplsf_info, array_length(mplsf_info));
     proto_register_subtree_array(ett, array_length(ett));
@@ -630,6 +673,7 @@ proto_register_mpls(void)
     expert_register_field_array(expert_mpls, ei, array_length(ei));
 
     mpls_handle = register_dissector("mpls", dissect_mpls, proto_mpls);
+    mpls_mcc_handle = register_dissector("mplsmcc", dissect_pw_ach_mcc,proto_pw_ach_mcc);
     mpls_pwcw_handle = register_dissector("mplspwcw", dissect_pw_mcw, proto_pw_mcw );
 
     /* FF: mpls subdissector table is indexed by label */
@@ -638,6 +682,8 @@ proto_register_mpls(void)
                                                        proto_mpls, FT_UINT32, BASE_DEC);
 
     pw_ach_subdissector_table  = register_dissector_table("pwach.channel_type", "PW Associated Channel Type", proto_pw_ach, FT_UINT16, BASE_HEX);
+
+    pw_ach_mcc_subdissector_table  = register_dissector_table("mcc.proto", "PW Associated Management Communication Channel Protocol", proto_pw_ach_mcc, FT_UINT16, BASE_HEX);
 
     module_mpls = prefs_register_protocol( proto_mpls, NULL );
 
@@ -677,14 +723,18 @@ proto_reg_handoff_mpls(void)
     dissector_add_uint("vxlan.next_proto", VXLAN_MPLS, mpls_handle);
     dissector_add_uint("nsh.next_proto", NSH_MPLS, mpls_handle);
 
-    dissector_add_uint( "mpls.label", MPLS_LABEL_INVALID, mpls_pwcw_handle );
+    dissector_add_uint( "mpls.label", MPLS_LABEL_INVALID, mpls_pwcw_handle);
+
+    dissector_add_uint("pwach.channel_type", PW_ACH_TYPE_MCC, mpls_mcc_handle);
 
     dissector_ipv6                  = find_dissector_add_dependency("ipv6", proto_pw_mcw );
     dissector_ip                    = find_dissector_add_dependency("ip", proto_pw_mcw );
     dissector_pw_eth_heuristic      = find_dissector_add_dependency("pw_eth_heuristic", proto_pw_mcw);
 
     dissector_pw_ach                = create_dissector_handle(dissect_pw_ach, proto_pw_ach );
+    dissector_pw_ach_mcc            = create_dissector_handle(dissect_pw_ach_mcc, proto_pw_ach_mcc );
 }
+
 /*
  * Editor modelines
  *

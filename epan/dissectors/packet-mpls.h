@@ -30,7 +30,10 @@ enum {
     MPLS_LABEL_MAX_RESERVED      = 15,
     MPLS_LABEL_INVALID           = -1
 };
-
+/* As per RFC 5718 */
+#define PW_ACH_TYPE_MCC               0x0001
+/* As per RFC 5718 */
+#define PW_ACH_TYPE_SCC               0x0002
 /* As per RFC 5885 */
 #define PW_ACH_TYPE_BFD               0x0007
 /* As per RFC 6374 */
@@ -56,7 +59,6 @@ enum {
 #define PW_ACH_TYPE_IPV6              0x0057
 /* As per RFC 6427 */
 #define PW_ACH_TYPE_MPLSTP_FM         0x0058
-
 
 /* MPLS over UDP http://tools.ietf.org/html/draft-ietf-mpls-in-udp-11,
  * udp destination port as defined in
