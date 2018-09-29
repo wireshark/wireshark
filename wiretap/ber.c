@@ -52,7 +52,6 @@ static gboolean ber_read_file(wtap *wth, FILE_T fh, wtap_rec *rec,
   rec->ts.secs = 0;
   rec->ts.nsecs = 0;
 
-  ws_buffer_assure_space(buf, packet_size);
   return wtap_read_packet_bytes(fh, buf, packet_size, err, err_info);
 }
 

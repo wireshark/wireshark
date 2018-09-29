@@ -551,9 +551,6 @@ read_packet_data(FILE_T fh, int offset_to_frame, int current_offset_from_packet_
         bytes_consumed += seek_increment;
     }
 
-    /* set-up the packet buffer */
-    ws_buffer_assure_space(buf, length);
-
     /* read in the packet data */
     if (!wtap_read_packet_bytes(fh, buf, length, err, err_info))
         return FALSE;
