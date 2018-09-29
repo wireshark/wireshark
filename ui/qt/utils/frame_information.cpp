@@ -89,17 +89,13 @@ int FrameInformation::frameNum() const
 
 const QByteArray FrameInformation::printableData()
 {
-    QByteArray data;
+    if ( ! fi_ )
+        return QByteArray();
 
-    if ( fi_ )
-    {
-        int rem_length = tvb_captured_length(edt_.tvb);
 
-        uint8_t * dataSet = (uint8_t *)tvb_memdup(wmem_file_scope(), edt_.tvb, 0, rem_length );
-        data = QByteArray::fromRawData((char *)dataSet, rem_length);
-    }
-
-    return data;
+    int length = tvb_captured_length(edt_.tvb);
+    const char *data = (const char *)tvb_get_ptr(edt_.tvb, 0, length);
+    return QByteArray(data, length);
 }
 /*
  * Editor modelines
