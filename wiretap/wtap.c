@@ -1366,12 +1366,8 @@ wtap_read_packet_bytes(FILE_T fh, Buffer *buf, guint length, int *err,
     gchar **err_info)
 {
 	ws_buffer_assure_space(buf, length);
-	if (wtap_read_bytes(fh, ws_buffer_start_ptr(buf), length, err,
-	    err_info)) {
-		ws_buffer_increase_length(buf, length);
-		return TRUE;
-	}
-	return FALSE;
+	return wtap_read_bytes(fh, ws_buffer_start_ptr(buf), length, err,
+	    err_info);
 }
 
 /*
