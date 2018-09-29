@@ -338,6 +338,8 @@ Iax2AnalysisDialog::Iax2AnalysisDialog(QWidget &parent, CaptureFile &cf) :
     /* assume the inverse ip/port combination for the reverse direction */
     rtpstream_id_copy_pinfo(&(edt.pi),&(rev_id_),TRUE);
 
+    epan_dissect_cleanup(&edt);
+
 #ifdef IAX2_RTP_STREAM_CHECK
     rtpstream_tapinfo_t tapinfo;
 
