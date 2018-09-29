@@ -27,9 +27,10 @@
 FrameInformation::FrameInformation(CaptureFile * capfile, frame_data * fi, QObject * parent)
 :QObject(parent),
  fi_(fi),
- cap_file_(capfile),
- packet_data_(0)
+ cap_file_(capfile)
 {
+    wtap_rec_init(&rec_);
+    ws_buffer_init(&buf_, 1500);
     loadFrameTree();
 }
 
@@ -38,21 +39,15 @@ void FrameInformation::loadFrameTree()
     if ( ! fi_ || ! cap_file_ || !cap_file_->capFile())
         return;
 
-    if (!cf_read_record(cap_file_->capFile(), fi_))
+    if (!cf_read_record_r(cap_file_->capFile(), fi_, &rec_, &buf_))
         return;
-
-    wtap_rec rec_ = cap_file_->capFile()->rec;
-
-#ifndef __clang_analyzer__
-    packet_data_ = (guint8 *) g_memdup(ws_buffer_start_ptr(&(cap_file_->capFile()->buf)), fi_->cap_len);
-#endif
 
     /* proto tree, visible. We need a proto tree if there's custom columns */
     epan_dissect_init(&edt_, cap_file_->capFile()->epan, TRUE, TRUE);
     col_custom_prime_edt(&edt_, &(cap_file_->capFile()->cinfo));
 
     epan_dissect_run(&edt_, cap_file_->capFile()->cd_t, &rec_,
-                     frame_tvbuff_new(&cap_file_->capFile()->provider, fi_, packet_data_),
+                     frame_tvbuff_new_buffer(&cap_file_->capFile()->provider, fi_, &buf_),
                      fi_, &(cap_file_->capFile()->cinfo));
     epan_dissect_fill_in_columns(&edt_, TRUE, TRUE);
 }
@@ -60,7 +55,8 @@ void FrameInformation::loadFrameTree()
 FrameInformation::~FrameInformation()
 {
     epan_dissect_cleanup(&edt_);
-    g_free(packet_data_);
+    wtap_rec_cleanup(&rec_);
+    ws_buffer_free(&buf_);
 }
 
 bool FrameInformation::isValid()

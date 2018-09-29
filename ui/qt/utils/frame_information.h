@@ -45,8 +45,9 @@ private:
 
     frame_data * fi_;
     CaptureFile * cap_file_;
-    guint8 *packet_data_;
     epan_dissect_t edt_;
+    wtap_rec rec_; /* Record metadata */
+    Buffer buf_;   /* Record data */
 
     void loadFrameTree();
 
