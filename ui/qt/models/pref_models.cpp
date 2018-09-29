@@ -292,11 +292,6 @@ fill_prefs(module_t *module, gpointer root_ptr)
 
 void PrefsModel::populate()
 {
-    // Printing prefs don't apply here.
-    module_t *print_module = prefs_find_module("print");
-    if (print_module)
-        print_module->use_gui = FALSE;
-
     //Since "expert" is really a pseudo protocol, it shouldn't be
     //categorized with other "real" protocols when it comes to
     //preferences.  Since it's just a UAT, don't bury it in

@@ -24,9 +24,6 @@ extern "C" {
 
 #include "ws_symbol_export.h"
 
-#define PR_DEST_CMD  0
-#define PR_DEST_FILE 1
-
 #define DEF_WIDTH 750
 #define DEF_HEIGHT 550
 
@@ -139,10 +136,6 @@ typedef enum {
 } software_update_channel_e;
 
 typedef struct _e_prefs {
-  gint         pr_format;
-  gint         pr_dest;
-  gchar       *pr_file;
-  gchar       *pr_cmd;
   GList       *col_list;
   gint         num_cols;
   color_t      st_client_fg, st_client_bg, st_server_fg, st_server_bg;

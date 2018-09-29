@@ -2257,23 +2257,6 @@ prefs_pref_foreach(module_t *module, pref_cb callback, gpointer user_data)
     return 0;
 }
 
-static const enum_val_t print_format_vals[] = {
-    { "text",       "Plain Text", PR_FMT_TEXT },
-    { "postscript", "Postscript", PR_FMT_PS },
-    { NULL,         NULL,         0 }
-};
-
-static const enum_val_t print_dest_vals[] = {
-#ifdef _WIN32
-    /* "PR_DEST_CMD" means "to printer" on Windows */
-    { "command", "Printer", PR_DEST_CMD },
-#else
-    { "command", "Command", PR_DEST_CMD },
-#endif
-    { "file",    "File",    PR_DEST_FILE },
-    { NULL,      NULL,      0 }
-};
-
 static const enum_val_t st_sort_col_vals[] = {
     { "name",    "Node name (topic/item)", ST_SORT_COL_NAME },
     { "count",   "Item count", ST_SORT_COL_COUNT },
@@ -3494,27 +3477,15 @@ prefs_register_modules(void)
     oid_pref_init(nameres_module);
     maxmind_db_pref_init(nameres_module);
 
-    /* Printing */
+    /* Printing
+     * None of these have any effect; we keep them as obsolete preferences
+     * in order to avoid errors when reading older preference files.
+     */
     printing = prefs_register_module(NULL, "print", "Printing",
-        "Printing", NULL, TRUE);
-
-    prefs_register_enum_preference(printing, "format",
-                                   "Format", "Can be one of \"text\" or \"postscript\"",
-                                   &prefs.pr_format, print_format_vals, TRUE);
-
-    prefs_register_enum_preference(printing, "destination",
-                                   "Print to", "Can be one of \"command\" or \"file\"",
-                                   &prefs.pr_dest, print_dest_vals, TRUE);
-
-#ifndef _WIN32
-    register_string_like_preference(printing, "command", "Command",
-        "Output gets piped to this command when the destination is set to \"command\"",
-        &prefs.pr_cmd, PREF_STRING, NULL, TRUE);
-#endif
-
-    register_string_like_preference(printing, "file", "File",
-        "This is the file that gets written to when the destination is set to \"file\"",
-        &prefs.pr_file, PREF_SAVE_FILENAME, NULL, TRUE);
+        "Printing", NULL, FALSE);
+    prefs_register_obsolete_preference(printing, "format");
+    prefs_register_obsolete_preference(printing, "command");
+    prefs_register_obsolete_preference(printing, "file");
 
     /* Codecs */
     codecs_module = prefs_register_module(NULL, "codecs", "Codecs",
@@ -3969,13 +3940,6 @@ pre_init_prefs(void)
         "Source",   "%s", "Destination", "%d",
         "Protocol", "%p", "Length",      "%L",
         "Info",     "%i"};
-
-    prefs.pr_format  = PR_FMT_TEXT;
-    prefs.pr_dest    = PR_DEST_CMD;
-    g_free(prefs.pr_file);
-    prefs.pr_file    = g_strdup("wireshark.out");
-    g_free(prefs.pr_cmd);
-    prefs.pr_cmd     = g_strdup("lpr");
 
     prefs.gui_expert_composite_eyecandy = FALSE;
     prefs.gui_ptree_line_style = 0;
@@ -4479,26 +4443,25 @@ read_prefs_file(const char *pf_path, FILE *pf,
                             break;
 
                         case PREFS_SET_NO_SUCH_PREF:
-                            /*
-                             * If "print.command" silently ignore it because it's valid
-                             * on non-Win32 platforms.
-                             */
-                            if (strcmp(cur_var->str, "print.command") != 0)
-                                g_warning ("No such preference \"%s\" at line %d of\n%s %s",
-                                           cur_var->str, pline, pf_path, hint);
+                            g_warning ("No such preference \"%s\" at line %d of\n%s %s",
+                                       cur_var->str, pline, pf_path, hint);
                             prefs.unknown_prefs = TRUE;
                             break;
 
                         case PREFS_SET_OBSOLETE:
-                            if (strcmp(cur_var->str, "print.command") != 0)
-                                /* If an attempt is made to save the preferences, a popup warning will be
-                                   displayed stating that obsolete prefs have been detected and the user will
-                                   be given the opportunity to save these prefs under a different profile name.
-                                   The prefs in question need to be listed in the console window so that the
-                                   user can make an informed choice.
-                                */
-                                g_warning ("Obsolete preference \"%s\" at line %d of\n%s %s",
-                                           cur_var->str, pline, pf_path, hint);
+                            /*
+                             * If an attempt is made to save the
+                             * preferences, a popup warning will be
+                             * displayed stating that obsolete prefs
+                             * have been detected and the user will
+                             * be given the opportunity to save these
+                             * prefs under a different profile name.
+                             * The prefs in question need to be listed
+                             * in the console window so that the
+                             * user can make an informed choice.
+                             */
+                            g_warning ("Obsolete preference \"%s\" at line %d of\n%s %s",
+                                       cur_var->str, pline, pf_path, hint);
                             prefs.unknown_prefs = TRUE;
                             break;
                         }
