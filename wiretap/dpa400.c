@@ -203,8 +203,6 @@ static gboolean dpa400_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec, Buff
 
 static gboolean dpa400_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
-	*err = 0;
-
 	*data_offset = file_tell(wth->fh);
 
 	return dpa400_read_packet(wth, wth->fh, &wth->rec, wth->rec_data, err, err_info);
