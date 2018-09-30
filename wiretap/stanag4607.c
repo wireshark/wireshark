@@ -147,13 +147,7 @@ static gboolean stanag4607_read_file(wtap *wth, FILE_T fh, wtap_rec *rec,
 
 static gboolean stanag4607_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
-  gint64 offset;
-
-  *err = 0;
-
-  offset = file_tell(wth->fh);
-
-  *data_offset = offset;
+  *data_offset = file_tell(wth->fh);
 
   return stanag4607_read_file(wth, wth->fh, &wth->rec, wth->rec_data, err, err_info);
 }
