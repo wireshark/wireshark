@@ -2218,7 +2218,7 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             guint8 long_packet_type = tvb_get_guint8(next_tvb, 0) & 0x7f;
             guint32 version = tvb_get_ntohl(next_tvb, 1);
             if (version == 0) {
-                dissect_quic_version_negotiation(next_tvb, pinfo, quic_tree, quic_packet);
+                offset += dissect_quic_version_negotiation(next_tvb, pinfo, quic_tree, quic_packet);
                 break;
             }
             if (long_packet_type == QUIC_LPT_RETRY) {
