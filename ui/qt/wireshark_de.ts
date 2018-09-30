@@ -72,6 +72,22 @@
         <translation>Lizenzen</translation>
     </message>
     <message>
+        <source>The directory does not exist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Should the directory %1 be created?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The directory could not be created</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The directory %1 could not be created!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Copy</source>
         <translation>Kopieren</translation>
     </message>
@@ -1475,6 +1491,10 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <source>Disable external capture interfaces</source>
         <translation>Externe Mitschnittschnittstellen deaktivieren</translation>
     </message>
+    <message>
+        <source>Don&apos;t load interfaces on startup</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ColoringRulesDelegate</name>
@@ -1696,12 +1716,8 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>Dialog</translation>
     </message>
     <message>
-        <source>Dissector Tables</source>
-        <translation type="vanished">Dissector Tabelle</translation>
-    </message>
-    <message>
         <source>Conversation Hash Tables</source>
-        <translation type="unfinished">Verbindungshashtabelle</translation>
+        <translation>Verbindungshashtabelle</translation>
     </message>
 </context>
 <context>
@@ -2492,19 +2508,19 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <name>FilterExpressionToolBar</name>
     <message>
         <source>Filter Button Preferences...</source>
-        <translation type="unfinished">Einstellungen Filterknöpfe...</translation>
+        <translation>Einstellungen Filterknöpfe...</translation>
     </message>
     <message>
         <source>Edit</source>
-        <translation type="unfinished">Editieren</translation>
+        <translation>Editieren</translation>
     </message>
     <message>
         <source>Disable</source>
-        <translation type="unfinished">Deaktivieren</translation>
+        <translation>Deaktivieren</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="unfinished">Entfernen</translation>
+        <translation>Entfernen</translation>
     </message>
 </context>
 <context>
@@ -5932,7 +5948,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Export TLS Session Keys…</source>
-        <translation type="unfinished"></translation>
+        <translation>TLS Sitzungsschlüssel exportieren...</translation>
     </message>
     <message>
         <source>List Files</source>
@@ -6138,10 +6154,6 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <source>Export Packet &amp;Bytes…</source>
         <translation>Paket&amp;bytes exportieren...</translation>
-    </message>
-    <message>
-        <source>Export SSL Session Keys…</source>
-        <translation type="vanished">SSL Sitzungsschlüssel exportieren...</translation>
     </message>
     <message>
         <source>&amp;Print…</source>
@@ -6377,7 +6389,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>TLS Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>TLS Stream</translation>
     </message>
     <message>
         <source>HTTP Stream</source>
@@ -6878,10 +6890,6 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <source>UDP Stream</source>
         <translation>UDP Stream</translation>
-    </message>
-    <message>
-        <source>SSL Stream</source>
-        <translation type="vanished">SSL Stream</translation>
     </message>
     <message>
         <source>Request Sequences</source>
@@ -7477,10 +7485,6 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>Stoppen und Fortsetzen &amp;ohne zu Speichern</translation>
     </message>
     <message>
-        <source>(File name can&apos;t be mapped to UTF-8)</source>
-        <translation type="vanished">(Dateiname kann nicht auf UTF-8 angewendet werden)</translation>
-    </message>
-    <message>
         <source>The Wireshark Network Analyzer</source>
         <translation>Die Wireshark Netzwerk Analysesoftware</translation>
     </message>
@@ -7528,10 +7532,6 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <source>No Keys</source>
         <translation>Keine Schlüssel</translation>
     </message>
-    <message>
-        <source>There are no SSL Session Keys to save.</source>
-        <translation type="vanished">Es sind keine SSL Sitzungsschlüssel zum Speichern vorhanden.</translation>
-    </message>
     <message numerus="yes">
         <source>Export SSL Session Keys (%Ln key(s))</source>
         <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
@@ -7547,10 +7547,6 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <source>Merging files</source>
         <translation>Dateien zusammenfügen</translation>
-    </message>
-    <message>
-        <source>SSL Session Keys (*.keys *.txt);;All Files (</source>
-        <translation type="vanished">SSL Sitzungsschlüssel (*.keys *.txt);; Alle Dateien (</translation>
     </message>
     <message>
         <source>Couldn&apos;t copy text. Try another item.</source>
@@ -7590,18 +7586,18 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>There are no TLS Session Keys to save.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es sind keine TLS Sitzungsschlüssel zum speichern vorhanden.</translation>
     </message>
     <message numerus="yes">
         <source>Export TLS Session Keys (%Ln key(s))</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>TLS Sitzungsschlüssel exportieren (%Ln Schlüssel)</numerusform>
+            <numerusform>TLS Sitzungsschlüssel exportieren (%Ln Schlüssel)</numerusform>
         </translation>
     </message>
     <message>
         <source>TLS Session Keys (*.keys *.txt);;All Files (</source>
-        <translation type="unfinished"></translation>
+        <translation>TLS Sitzungsschlüssel (*.keys *.txt);; Alle Dateien (</translation>
     </message>
     <message>
         <source> before restarting the capture</source>
@@ -7614,22 +7610,6 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Das Wireshark Wiki wird durch die Community gepflegt.&lt;/p&gt;&lt;p&gt;Die Seite, die aufgerufen werden soll, kann wundervoll, unvollständig, falsch oder gar nicht vorhanden sein.&lt;/p&gt;&lt;p&gt;Zum Wiki gehen?&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>Filter Button Preferences...</source>
-        <translation type="vanished">Einstellungen Filterknöpfe...</translation>
-    </message>
-    <message>
-        <source>Edit</source>
-        <translation type="vanished">Editieren</translation>
-    </message>
-    <message>
-        <source>Disable</source>
-        <translation type="vanished">Deaktivieren</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="vanished">Entfernen</translation>
     </message>
     <message>
         <source>Loading</source>
@@ -8060,7 +8040,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Include column headings</source>
-        <translation type="unfinished"></translation>
+        <translation>Spaltenüberschrift inkludieren</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Packet details similar to the protocol tree&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -10562,11 +10542,11 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Warning</source>
-        <translation type="unfinished">Warnungen</translation>
+        <translation>Warnung</translation>
     </message>
     <message>
         <source>Could not find SCTP Association with id: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Es konnten keine SCTP Associationen mit ID %1 gefunden werden:</translation>
     </message>
     <message>
         <source>Complete list of IP-Addresses as provided in the INIT-Chunk</source>
@@ -10750,7 +10730,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Relative TSNs</source>
-        <translation type="unfinished"></translation>
+        <translation>Relative TSNs</translation>
     </message>
     <message>
         <source>Only SACKs</source>
@@ -10767,10 +10747,6 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <source>Reset to full size</source>
         <translation>Auf volle Größe zurücksetzen</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Save Graph</source>
@@ -11574,12 +11550,8 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
 <context>
     <name>SyntaxLineEdit</name>
     <message>
-        <source>&quot;%1&quot; may have unexpected results (see the User&apos;s Guide)</source>
-        <translation type="vanished">&quot;%1&quot; kann zu einem unerwarteten Ergebnis führen (s. Benutzerhandbuch)</translation>
-    </message>
-    <message>
         <source>&quot;%1&quot; is deprecated or may have unexpected results. See the User&apos;s Guide.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; ist veraltet und kann zu einem unerwarteten Ergebnis führen. Siehe Benutzerhandbuch.</translation>
     </message>
 </context>
 <context>

@@ -159,6 +159,7 @@ editcap: The available encapsulation types for the "-T" flag are:
     sccp - SS7 SCCP
     sctp - SCTP
     sdh - SDH
+    sdjournal - systemd journal
     sdlc - SDLC
     sita-wan - SITA WAN packets
     slip - SLIP

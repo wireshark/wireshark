@@ -72,6 +72,22 @@
         <translation>许可</translation>
     </message>
     <message>
+        <source>The directory does not exist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Should the directory %1 be created?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The directory could not be created</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The directory %1 could not be created!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Copy</source>
         <translation>复制</translation>
     </message>
@@ -1468,6 +1484,10 @@ PLEASE NOTE: One option MUST be selected.</source>
         <source>Disable external capture interfaces</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Don&apos;t load interfaces on startup</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ColoringRulesDelegate</name>
@@ -1687,10 +1707,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Dialog</source>
         <translation>对话框</translation>
-    </message>
-    <message>
-        <source>Dissector Tables</source>
-        <translation type="vanished">解析器表</translation>
     </message>
     <message>
         <source>Conversation Hash Tables</source>
@@ -2490,11 +2506,11 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Disable</source>
-        <translation type="unfinished">禁用</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="unfinished">移除</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -6121,10 +6137,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>导出分组字节流(&amp;B)…</translation>
     </message>
     <message>
-        <source>Export SSL Session Keys…</source>
-        <translation type="vanished">导出 SSL 会话密钥…</translation>
-    </message>
-    <message>
         <source>&amp;Print…</source>
         <translation>打印(&amp;P)…</translation>
     </message>
@@ -6861,10 +6873,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>UDP 流</translation>
     </message>
     <message>
-        <source>SSL Stream</source>
-        <translation type="vanished">SSL 流</translation>
-    </message>
-    <message>
         <source>Request Sequences</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7458,10 +7466,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>停止并继续，不保存(&amp;W)</translation>
     </message>
     <message>
-        <source>(File name can&apos;t be mapped to UTF-8)</source>
-        <translation type="vanished">文件名不能映射到UTF-8</translation>
-    </message>
-    <message>
         <source>The Wireshark Network Analyzer</source>
         <translation>Wireshark 网络分析器</translation>
     </message>
@@ -7509,10 +7513,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <source>No Keys</source>
         <translation>无密钥</translation>
     </message>
-    <message>
-        <source>There are no SSL Session Keys to save.</source>
-        <translation type="vanished">没有可以保存的 SSL 会话密钥。</translation>
-    </message>
     <message numerus="yes">
         <source>Export SSL Session Keys (%Ln key(s))</source>
         <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
@@ -7527,10 +7527,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Merging files</source>
         <translation>合并文件</translation>
-    </message>
-    <message>
-        <source>SSL Session Keys (*.keys *.txt);;All Files (</source>
-        <translation type="vanished">SSL 会话密钥 (*.keys *.txt);;所有文件 (</translation>
     </message>
     <message>
         <source>Couldn&apos;t copy text. Try another item.</source>
@@ -7593,18 +7589,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Wireshark Wiki 由社区进行维护。&lt;/p&gt;&lt;p&gt;您即将加载的页面可能是良好的、不完整的、有错误的，甚至不存在的。&lt;/p&gt;&lt;p&gt;继续访问该 Wiki？&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>Edit</source>
-        <translation type="vanished">编辑</translation>
-    </message>
-    <message>
-        <source>Disable</source>
-        <translation type="vanished">禁用</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="vanished">移除</translation>
     </message>
     <message>
         <source>Loading</source>
@@ -10743,10 +10727,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>复位为完整尺寸</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
         <source>Save Graph</source>
         <translation>保存图形</translation>
     </message>
@@ -12636,7 +12616,7 @@ a:hover {
     </message>
     <message>
         <source>Remove</source>
-        <translation type="unfinished">移除</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

@@ -72,6 +72,22 @@
         <translation>Licence</translation>
     </message>
     <message>
+        <source>The directory does not exist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Should the directory %1 be created?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The directory could not be created</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The directory %1 could not be created!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Copy</source>
         <translation type="unfinished">Copier</translation>
     </message>
@@ -1452,6 +1468,10 @@ NOTE: Une option DOIT être sélectionnée.</translation>
         <source>Disable external capture interfaces</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Don&apos;t load interfaces on startup</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ColoringRulesDelegate</name>
@@ -1671,10 +1691,6 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     <message>
         <source>Dialog</source>
         <translation>Dialogue</translation>
-    </message>
-    <message>
-        <source>Dissector Tables</source>
-        <translation type="vanished">Tables de dissecteur</translation>
     </message>
     <message>
         <source>Conversation Hash Tables</source>
@@ -6117,10 +6133,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Exporter Paquets &amp;Octets...</translation>
     </message>
     <message>
-        <source>Export SSL Session Keys…</source>
-        <translation type="vanished">Exporter Clés de Session SSL...</translation>
-    </message>
-    <message>
         <source>&amp;Print…</source>
         <translation>&amp;Imprimer...</translation>
     </message>
@@ -6857,10 +6869,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Flux UDP</translation>
     </message>
     <message>
-        <source>SSL Stream</source>
-        <translation type="vanished">Flux SSL</translation>
-    </message>
-    <message>
         <source>Request Sequences</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7454,10 +7462,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>(File name can&apos;t be mapped to UTF-8)</source>
-        <translation type="vanished">(Nom du fichier ne peut pas être mappé à l&apos;UTF-8)</translation>
-    </message>
-    <message>
         <source>The Wireshark Network Analyzer</source>
         <translation>L&apos;analyseur de réseau Wireshark</translation>
     </message>
@@ -7504,10 +7508,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>No Keys</source>
         <translation>Aucune clés</translation>
-    </message>
-    <message>
-        <source>There are no SSL Session Keys to save.</source>
-        <translation type="vanished">Il y a aucune clé de Session SSL à sauvegarder.</translation>
     </message>
     <message>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
@@ -10712,10 +10712,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>Reset to full size</source>
         <translation>Remise à taille réelle</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Save Graph</source>
