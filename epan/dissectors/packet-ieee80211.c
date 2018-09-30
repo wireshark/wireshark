@@ -13328,11 +13328,9 @@ dissect_owe_transition_mode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
   if (len >= 2) {
     proto_tree_add_item(tree, hf_ieee80211_wfa_ie_owe_band_info, tvb, offset, 1, ENC_NA);
     offset  += 1;
-    len -= 1;
 
     proto_tree_add_item(tree, hf_ieee80211_wfa_ie_owe_channel_info, tvb, offset, 1, ENC_NA);
     offset  += 1;
-    len -= 1;
   }
 
   return offset;
