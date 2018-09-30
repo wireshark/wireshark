@@ -1820,37 +1820,37 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
         <translation>Zapisz filtry w pliku.</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="175"/>
+        <location filename="coloring_rules_dialog.cpp" line="186"/>
         <source>the &quot;@&quot; symbol will be ignored.</source>
         <translation>Symbol &quot;@&quot; będzie zignorowany.</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="202"/>
+        <location filename="coloring_rules_dialog.cpp" line="213"/>
         <source>Double click to edit. Drag to move. Rules are processed in order until a match is found.</source>
         <translation>Kliknij podwójnie by edytować. Przeciągnij by przenieść. Reguły są przetwarzane zgodnie z kolejnością aż do znalezienia pasującej reguły.</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="326"/>
+        <location filename="coloring_rules_dialog.cpp" line="337"/>
         <source>Import Coloring Rules</source>
         <translation>Importuj reguły kolorowania</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="344"/>
+        <location filename="coloring_rules_dialog.cpp" line="355"/>
         <source>Export %1 Coloring Rules</source>
         <translation>Wyeksportuj %1 reguły kolorowania</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="365"/>
+        <location filename="coloring_rules_dialog.cpp" line="114"/>
         <source>Your coloring rules file contains unknown rules</source>
         <translation>Twój plik z regułami kolorowania zawiera błędną regułę</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="366"/>
+        <location filename="coloring_rules_dialog.cpp" line="115"/>
         <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. They have been disabled.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="378"/>
+        <location filename="coloring_rules_dialog.cpp" line="380"/>
         <source>Unable to save coloring rules: %s</source>
         <translation>Nie można zapisać reguł kolorowania: %s</translation>
     </message>

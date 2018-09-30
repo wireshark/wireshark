@@ -1819,37 +1819,37 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>Salva i filtri in un file.</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="175"/>
+        <location filename="coloring_rules_dialog.cpp" line="186"/>
         <source>the &quot;@&quot; symbol will be ignored.</source>
         <translation>il simbolo &quot;@&quot; sarà ignorato.</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="202"/>
+        <location filename="coloring_rules_dialog.cpp" line="213"/>
         <source>Double click to edit. Drag to move. Rules are processed in order until a match is found.</source>
         <translation>Doppio clic per modificare. Trascina per spostare. Le regole sono elaborate in ordine fino alla prima corrispondenza.</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="326"/>
+        <location filename="coloring_rules_dialog.cpp" line="337"/>
         <source>Import Coloring Rules</source>
         <translation>Importazione regole di colorazione</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="344"/>
+        <location filename="coloring_rules_dialog.cpp" line="355"/>
         <source>Export %1 Coloring Rules</source>
         <translation>Esporta %1 regole di colorazione</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="365"/>
+        <location filename="coloring_rules_dialog.cpp" line="114"/>
         <source>Your coloring rules file contains unknown rules</source>
         <translation>Il file delle tue regole di colorazione contiene regole sconosciute</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="366"/>
+        <location filename="coloring_rules_dialog.cpp" line="115"/>
         <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. They have been disabled.</source>
         <translation>Wireshark non riconosce una o più delle tue regole di colorazione. Sono state disabilitate.</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="378"/>
+        <location filename="coloring_rules_dialog.cpp" line="380"/>
         <source>Unable to save coloring rules: %s</source>
         <translation>Impossibile salvare le regole di colorazione: %s</translation>
     </message>

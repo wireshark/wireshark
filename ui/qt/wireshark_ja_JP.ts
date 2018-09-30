@@ -1816,37 +1816,37 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>ファイルにフィルタを保存します</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="175"/>
+        <location filename="coloring_rules_dialog.cpp" line="186"/>
         <source>the &quot;@&quot; symbol will be ignored.</source>
         <translation>この &quot;@&quot; シンボルは無視されます</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="202"/>
+        <location filename="coloring_rules_dialog.cpp" line="213"/>
         <source>Double click to edit. Drag to move. Rules are processed in order until a match is found.</source>
         <translation>ダブルクリックして編集します。ドラッグして動かします。ルールは一致が見つかるまで順番に処理されます</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="326"/>
+        <location filename="coloring_rules_dialog.cpp" line="337"/>
         <source>Import Coloring Rules</source>
         <translation>色付けルールをインポート</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="344"/>
+        <location filename="coloring_rules_dialog.cpp" line="355"/>
         <source>Export %1 Coloring Rules</source>
         <translation>%1 色付けルールをエクスポート</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="365"/>
+        <location filename="coloring_rules_dialog.cpp" line="114"/>
         <source>Your coloring rules file contains unknown rules</source>
         <translation>あなたの色付けルールのファイルは未知のルールを含んでいます。</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="366"/>
+        <location filename="coloring_rules_dialog.cpp" line="115"/>
         <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. They have been disabled.</source>
         <translation>Wiresharkは１つかそれ以上の色分けルールを認識しません。それらは無効とされました。</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="378"/>
+        <location filename="coloring_rules_dialog.cpp" line="380"/>
         <source>Unable to save coloring rules: %s</source>
         <translation>色付けルール %s を保存できません</translation>
     </message>

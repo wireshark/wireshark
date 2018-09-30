@@ -1815,37 +1815,37 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>保存过滤器到文件。</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="175"/>
+        <location filename="coloring_rules_dialog.cpp" line="186"/>
         <source>the &quot;@&quot; symbol will be ignored.</source>
         <translation>忽略&quot;@&quot;符号。</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="202"/>
+        <location filename="coloring_rules_dialog.cpp" line="213"/>
         <source>Double click to edit. Drag to move. Rules are processed in order until a match is found.</source>
         <translation>双击编辑。拖拽移动。规则按顺序进行处理，直到找到一个匹配的。</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="326"/>
+        <location filename="coloring_rules_dialog.cpp" line="337"/>
         <source>Import Coloring Rules</source>
         <translation>导入着色规则</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="344"/>
+        <location filename="coloring_rules_dialog.cpp" line="355"/>
         <source>Export %1 Coloring Rules</source>
         <translation>导出 %1 着色规则</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="365"/>
+        <location filename="coloring_rules_dialog.cpp" line="114"/>
         <source>Your coloring rules file contains unknown rules</source>
         <translation>您的着色规则文件包含未知规则</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="366"/>
+        <location filename="coloring_rules_dialog.cpp" line="115"/>
         <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. They have been disabled.</source>
         <translation>Wireshark 无法识别您的一个或多个着色规则。它们已被禁用。</translation>
     </message>
     <message>
-        <location filename="coloring_rules_dialog.cpp" line="378"/>
+        <location filename="coloring_rules_dialog.cpp" line="380"/>
         <source>Unable to save coloring rules: %s</source>
         <translation>无法保存着色规则: %s</translation>
     </message>
