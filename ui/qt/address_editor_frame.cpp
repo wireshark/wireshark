@@ -1,4 +1,4 @@
-/* address_editor_frame.h
+/* address_editor_frame.cpp
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
