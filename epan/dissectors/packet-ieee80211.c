@@ -20985,8 +20985,13 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
 
     case DATA_FRAME:
     {
-      guint32 da_offset, sa_offset, ta_offset = 10, bssid_offset;
+      guint32 src_offset, dst_offset, da_offset, sa_offset, ta_offset = 10, bssid_offset;
       addr_type = FCF_ADDR_SELECTOR(fcf);
+      if ((option_flags & IEEE80211_COMMON_OPT_NORMAL_QOS) && DATA_FRAME_IS_QOS(frame_type_subtype)) {
+        if (!DATA_FRAME_IS_NULL(frame_type_subtype)) {
+          is_amsdu = QOS_AMSDU_PRESENT(qos_control);
+        }
+      }
 
       /* In order to show src/dst address we must always do the following */
       switch (addr_type)
@@ -20996,44 +21001,59 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
           da_offset = 4;
           sa_offset = 10;
           bssid_offset = 16;
+          dst_offset = da_offset;
+          src_offset = sa_offset;
           break;
 
         case DATA_ADDR_T2:
           da_offset = 4;
-          sa_offset = 16;
+          sa_offset = !is_amsdu ? 16 : 0;
           bssid_offset = 10;
+          dst_offset = da_offset;
+          src_offset = sa_offset;
           break;
 
         case DATA_ADDR_T3:
-          da_offset = 16;
+          da_offset = !is_amsdu ? 16 : 0;
           sa_offset = 10;
           bssid_offset = 4;
+          dst_offset = da_offset;
+          src_offset = sa_offset;
           break;
 
         case DATA_ADDR_T4:
-          da_offset = 16;
-          sa_offset = 24;
-          bssid_offset = 10;
+          if (!is_amsdu) {
+            da_offset = 16;
+            sa_offset = 24;
+            bssid_offset = 0;
+            dst_offset = da_offset;
+            src_offset = sa_offset;
+          } else {
+            da_offset = 0;
+            sa_offset = 0;
+            // The second BSSID (Addr4) is handled below.
+            bssid_offset = 16;
+            dst_offset = 4;     // RA
+            src_offset = 10;    // TA
+          }
           break;
 
         default:
-          /* Should never happen? */
-          da_offset = 0;
-          sa_offset = 0;
-          ta_offset = 0;
-          bssid_offset = 0;
-          break;
+          /* All four cases are covered above. */
+          DISSECTOR_ASSERT_NOT_REACHED();
       }
 
 
 
-      set_address_tvb(&pinfo->dl_src, wlan_address_type, 6, tvb, sa_offset);
+      set_address_tvb(&pinfo->dl_src, wlan_address_type, 6, tvb, src_offset);
       copy_address_shallow(&pinfo->src, &pinfo->dl_src);
-      set_address_tvb(&pinfo->dl_dst, wlan_address_type, 6, tvb, da_offset);
+      set_address_tvb(&pinfo->dl_dst, wlan_address_type, 6, tvb, dst_offset);
       copy_address_shallow(&pinfo->dst, &pinfo->dl_dst);
 
       /* for tap */
-      set_address_tvb(&whdr->bssid, wlan_bssid_address_type, 6, tvb, bssid_offset);
+      if (bssid_offset) {
+        set_address_tvb(&whdr->bssid, wlan_bssid_address_type, 6, tvb, bssid_offset);
+      }
 
       copy_address_shallow(&whdr->src, &pinfo->dl_src);
       copy_address_shallow(&whdr->dst, &pinfo->dl_dst);
@@ -21048,7 +21068,7 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
       /* Now if we have a tree we start adding stuff */
       if (tree)
       {
-        const gchar *ta_name, *sa_name, *da_name, *bssid_name = NULL;
+        const gchar *ta_name, *sa_name = NULL, *da_name = NULL, *bssid_name = NULL, *bssid2_name = NULL;
 
         switch (addr_type)
         {
@@ -21066,20 +21086,33 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
             hidden_item = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_resolved, tvb, ta_offset, 6, ta_name);
             PROTO_ITEM_SET_HIDDEN(hidden_item);
 
-            proto_tree_add_item(hdr_tree, hf_ieee80211_addr_da, tvb, da_offset, 6, ENC_NA);
-            da_name = tvb_get_ether_name(tvb, da_offset);
-            hidden_item = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_da_resolved, tvb, da_offset, 6, da_name);
-            PROTO_ITEM_SET_HIDDEN(hidden_item);
+            if (da_offset) {
+              proto_tree_add_item(hdr_tree, hf_ieee80211_addr_da, tvb, da_offset, 6, ENC_NA);
+              da_name = tvb_get_ether_name(tvb, da_offset);
+              hidden_item = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_da_resolved, tvb, da_offset, 6, da_name);
+              PROTO_ITEM_SET_HIDDEN(hidden_item);
+            }
 
-            proto_tree_add_item(hdr_tree, hf_ieee80211_addr_sa, tvb, sa_offset, 6, ENC_NA);
-            sa_name = tvb_get_ether_name(tvb, sa_offset);
-            hidden_item = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_sa_resolved, tvb, sa_offset, 6, sa_name);
-            PROTO_ITEM_SET_HIDDEN(hidden_item);
+            if (sa_offset) {
+              proto_tree_add_item(hdr_tree, hf_ieee80211_addr_sa, tvb, sa_offset, 6, ENC_NA);
+              sa_name = tvb_get_ether_name(tvb, sa_offset);
+              hidden_item = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_sa_resolved, tvb, sa_offset, 6, sa_name);
+              PROTO_ITEM_SET_HIDDEN(hidden_item);
+            }
 
-            proto_tree_add_item(hdr_tree, hf_ieee80211_addr_bssid, tvb, bssid_offset, 6, ENC_NA);
-            bssid_name = tvb_get_ether_name(tvb, bssid_offset);
-            hidden_item = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_bssid_resolved, tvb, bssid_offset, 6, bssid_name);
-            PROTO_ITEM_SET_HIDDEN(hidden_item);
+            if (bssid_offset) {
+              proto_tree_add_item(hdr_tree, hf_ieee80211_addr_bssid, tvb, bssid_offset, 6, ENC_NA);
+              bssid_name = tvb_get_ether_name(tvb, bssid_offset);
+              hidden_item = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_bssid_resolved, tvb, bssid_offset, 6, bssid_name);
+              PROTO_ITEM_SET_HIDDEN(hidden_item);
+            }
+
+            if (addr_type == DATA_ADDR_T4 && is_amsdu) {
+              proto_tree_add_item(hdr_tree, hf_ieee80211_addr_bssid, tvb, 24, 6, ENC_NA);
+              bssid2_name = tvb_get_ether_name(tvb, 24);
+              hidden_item = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_bssid_resolved, tvb, 24, 6, bssid2_name);
+              PROTO_ITEM_SET_HIDDEN(hidden_item);
+            }
 
             if ((flags & FROM_TO_DS) == FLAG_FROM_DS) { /* Receiver address */
               sta_addr_offset = 4;
@@ -21096,22 +21129,28 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
             proto_tree_add_item(hdr_tree, hf_ieee80211_seq_number, tvb, 22, 2, ENC_LITTLE_ENDIAN);
 
             /* add 3rd and 4th address for wlan.addr filter */
-            if (sa_offset != 4 && sa_offset != 10) {
+            if (sa_offset >= 16) {
               hidden_item = proto_tree_add_item(hdr_tree, hf_ieee80211_addr, tvb, sa_offset, 6, ENC_NA);
               PROTO_ITEM_SET_HIDDEN(hidden_item);
               hidden_item = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_resolved, tvb, sa_offset, 6, sa_name);
               PROTO_ITEM_SET_HIDDEN(hidden_item);
             }
-            if (da_offset != 4 && da_offset != 10 && da_offset != sa_offset) {
+            if (da_offset >= 16 && da_offset != sa_offset) {
               hidden_item = proto_tree_add_item(hdr_tree, hf_ieee80211_addr, tvb, da_offset, 6, ENC_NA);
               PROTO_ITEM_SET_HIDDEN(hidden_item);
               hidden_item = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_resolved, tvb, da_offset, 6, da_name);
               PROTO_ITEM_SET_HIDDEN(hidden_item);
             }
-            if (bssid_offset != 4 && bssid_offset != 10 && bssid_offset != sa_offset && bssid_offset != da_offset) {
+            if (bssid_offset >= 16 && bssid_offset != sa_offset && bssid_offset != da_offset) {
               hidden_item = proto_tree_add_item(hdr_tree, hf_ieee80211_addr, tvb, bssid_offset, 6, ENC_NA);
               PROTO_ITEM_SET_HIDDEN(hidden_item);
               hidden_item = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_resolved, tvb, bssid_offset, 6, bssid_name);
+              PROTO_ITEM_SET_HIDDEN(hidden_item);
+            }
+            if (addr_type == DATA_ADDR_T4 && is_amsdu) {
+              hidden_item = proto_tree_add_item(hdr_tree, hf_ieee80211_addr, tvb, 24, 6, ENC_NA);
+              PROTO_ITEM_SET_HIDDEN(hidden_item);
+              hidden_item = proto_tree_add_string(hdr_tree, hf_ieee80211_addr_resolved, tvb, 24, 6, bssid2_name);
               PROTO_ITEM_SET_HIDDEN(hidden_item);
             }
             break;
