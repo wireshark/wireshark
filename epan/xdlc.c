@@ -120,7 +120,7 @@ const value_string modifier_vals_resp[] = {
 };
 
 int
-get_xdlc_control(const guchar *pd, int offset, gboolean is_extended)
+get_xdlc_control(const guint8 *pd, int offset, gboolean is_extended)
 {
     guint16 control;
 

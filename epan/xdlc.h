@@ -120,7 +120,7 @@ extern const value_string stype_vals[];
 extern const value_string modifier_vals_cmd[];
 extern const value_string modifier_vals_resp[];
 
-extern int get_xdlc_control(const guchar *pd, int offset, gboolean is_extended);
+extern int get_xdlc_control(const guint8 *pd, int offset, gboolean is_extended);
 
 WS_DLL_PUBLIC int dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
   proto_tree *xdlc_tree, int hf_xdlc_control, gint ett_xdlc_control,
