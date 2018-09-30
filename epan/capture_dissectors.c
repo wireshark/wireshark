@@ -134,7 +134,7 @@ void capture_dissector_add_uint(const char *name, const guint32 pattern, capture
     g_hash_table_insert(sub_dissectors->hash_table, GUINT_TO_POINTER(pattern), (gpointer) handle);
 }
 
-gboolean try_capture_dissector(const char* name, const guint32 pattern, const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
+gboolean try_capture_dissector(const char* name, const guint32 pattern, const guint8 *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
 {
     struct capture_dissector_table*	sub_dissectors;
     capture_dissector_handle_t handle;
@@ -153,7 +153,7 @@ gboolean try_capture_dissector(const char* name, const guint32 pattern, const gu
     return handle->dissector(pd, offset, len, cpinfo, pseudo_header);
 }
 
-gboolean call_capture_dissector(capture_dissector_handle_t handle, const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
+gboolean call_capture_dissector(capture_dissector_handle_t handle, const guint8 *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
 {
     if (handle == NULL)
         return FALSE;

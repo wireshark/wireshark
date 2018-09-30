@@ -35,7 +35,7 @@ typedef struct _capture_packet_info {
 typedef struct capture_dissector_handle* capture_dissector_handle_t;
 
 /** callback function definition for capture dissectors */
-typedef gboolean (*capture_dissector_t)(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header);
+typedef gboolean (*capture_dissector_t)(const guint8 *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header);
 
 /* a protocol uses the function to register a capture sub-dissector table
  * @param[in] name Name of capture sub-dissector table.
@@ -82,7 +82,7 @@ WS_DLL_PUBLIC void capture_dissector_add_uint(const char *name, const guint32 pa
  * @param[in] cpinfo Capture statistics
  * @param[in] pseudo_header Wiretap pseudo header information
  */
-WS_DLL_PUBLIC gboolean try_capture_dissector(const char* name, const guint32 pattern, const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header);
+WS_DLL_PUBLIC gboolean try_capture_dissector(const char* name, const guint32 pattern, const guint8 *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header);
 
 /* Call a capture dissector through a handle. If handle is value return TRUE,
  * otherwise return FALSE
@@ -93,7 +93,7 @@ WS_DLL_PUBLIC gboolean try_capture_dissector(const char* name, const guint32 pat
  * @param[in] cpinfo Capture statistics
  * @param[in] pseudo_header Wiretap pseudo header information
  */
-WS_DLL_PUBLIC gboolean call_capture_dissector(capture_dissector_handle_t handle, const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header);
+WS_DLL_PUBLIC gboolean call_capture_dissector(capture_dissector_handle_t handle, const guint8 *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header);
 
 /* Get current capture packet count for a particular protocol
  * @param[in] counts Packet count structure
