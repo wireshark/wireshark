@@ -25,6 +25,16 @@
 #define PSNAME "T.125"
 #define PFNAME "t125"
 
+
+#define HF_T125_ERECT_DOMAIN_REQUEST 1
+#define HF_T125_DISCONNECT_PROVIDER_ULTIMATUM 8
+#define HF_T125_ATTACH_USER_REQUEST 10
+#define HF_T125_ATTACH_USER_CONFIRM 11
+#define HF_T125_CHANNEL_JOIN_REQUEST 14
+#define HF_T125_CHANNEL_JOIN_CONFIRM 15
+#define HF_T125_SEND_DATA_REQUEST 25
+#define HF_T125_SEND_DATA_INDICATION 26
+
 void proto_register_t125(void);
 void proto_reg_handoff_t125(void);
 
@@ -78,6 +88,7 @@ dissect_t125_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
   gboolean pc;
   gint32 tag;
   volatile gboolean failed;
+  gboolean is_t125;
 
   /*
    * We must catch all the "ran past the end of the packet" exceptions
@@ -88,6 +99,32 @@ dissect_t125_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
    */
   failed = FALSE;
   TRY {
+    /*
+     * Check that the first byte of the packet is a valid t125/MCS header.
+     * This might not be enough, but since t125 only catch COTP packets,
+     * it should not be a problem.
+     */
+    guint8 first_byte = tvb_get_guint8(tvb, 0) >> 2;
+    switch (first_byte) {
+      case HF_T125_ERECT_DOMAIN_REQUEST:
+      case HF_T125_ATTACH_USER_REQUEST:
+      case HF_T125_ATTACH_USER_CONFIRM:
+      case HF_T125_CHANNEL_JOIN_REQUEST:
+      case HF_T125_CHANNEL_JOIN_CONFIRM:
+      case HF_T125_DISCONNECT_PROVIDER_ULTIMATUM:
+      case HF_T125_SEND_DATA_REQUEST:
+      case HF_T125_SEND_DATA_INDICATION:
+        is_t125 = TRUE;
+        break;
+      default:
+        is_t125 = FALSE;
+        break;
+    }
+    if(is_t125) {
+      dissect_t125(tvb, pinfo, parent_tree, NULL);
+      return TRUE;
+    }
+
     /* could be BER */
     get_ber_identifier(tvb, 0, &ber_class, &pc, &tag);
   } CATCH_BOUNDS_ERRORS {
