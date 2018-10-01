@@ -954,7 +954,7 @@ process_ssl_payload(tvbuff_t *tvb, int offset, packet_info *pinfo,
                     dissector_handle_t app_handle_port);
 
 static guint32
-tls_msp_frament_id(struct tcp_multisegment_pdu *msp)
+tls_msp_fragment_id(struct tcp_multisegment_pdu *msp)
 {
     /*
      * If a frame contains multiple appdata PDUs, then "first_frame" is not
@@ -1055,7 +1055,7 @@ again:
         }
 
         ipfd_head = fragment_add(&ssl_reassembly_table, tvb, offset,
-                                 pinfo, tls_msp_frament_id(msp), NULL,
+                                 pinfo, tls_msp_fragment_id(msp), NULL,
                                  seq - msp->seq,
                                  len, (LT_SEQ (nxtseq,msp->nxtpdu)));
 
@@ -1182,7 +1182,7 @@ again:
                  * needs desegmentation).
                  */
                 fragment_set_partial_reassembly(&ssl_reassembly_table,
-                                                pinfo, msp->first_frame, NULL);
+                                                pinfo, tls_msp_fragment_id(msp), NULL);
                 /* Update msp->nxtpdu to point to the new next
                  * pdu boundary.
                  */
@@ -1328,7 +1328,7 @@ again:
 
             /* add this segment as the first one for this new pdu */
             fragment_add(&ssl_reassembly_table, tvb, deseg_offset,
-                         pinfo, tls_msp_frament_id(msp), NULL,
+                         pinfo, tls_msp_fragment_id(msp), NULL,
                          0, nxtseq - deseg_seq,
                          LT_SEQ(nxtseq, msp->nxtpdu));
         }
