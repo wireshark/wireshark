@@ -128,6 +128,12 @@ echo "libgnutls28-dev and libgnutls-dev are unavailable" >&2
 add_package ADDITIONAL_LIST libmaxminddb-dev ||
 echo "libmaxminddb-dev is unavailable" >&2
 
+# libsystemd-journal-dev: Ubuntu 14.04
+# libsystemd-dev: Ubuntu >= 16.04
+add_package DEBDEPS_LIST libsystemd-dev ||
+add_package DEBDEPS_LIST libsystemd-journal-dev ||
+echo "libsystemd-dev is unavailable"
+
 ACTUAL_LIST=$BASIC_LIST
 
 # Now arrange for optional support libraries

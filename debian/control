@@ -15,7 +15,7 @@ Build-Depends: lsb-release,
 # backports-compatible.
  libgnutls28-dev (>= 3.2.14-1~) | libgnutls-dev,
  libgcrypt-dev, libkrb5-dev, liblua5.2-dev, libsmi2-dev,
- libmaxminddb-dev, dpkg-dev (>= 1.16.1~), libsystemd-dev,
+ libmaxminddb-dev, dpkg-dev (>= 1.16.1~), libsystemd-dev | libsystemd-journal-dev,
  libnl-genl-3-dev [linux-any], libnl-route-3-dev [linux-any], asciidoctor,
  cmake (>= 3.5) | cmake3, libsbc-dev, libnghttp2-dev, libssh-gcrypt-dev,
  liblz4-dev, libsnappy-dev, libspandsp-dev, libxml2-dev
