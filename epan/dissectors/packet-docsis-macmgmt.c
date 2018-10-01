@@ -3411,7 +3411,6 @@ dissect_uccreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
   proto_item *it;
   proto_tree *uccreq_tree;
   guint32 chid;
-  tvbuff_t *next_tvb;
 
   it = proto_tree_add_item (tree, proto_docsis_uccreq, tvb, 0, -1, ENC_NA);
   uccreq_tree = proto_item_add_subtree (it, ett_docsis_uccreq);
@@ -3419,12 +3418,9 @@ dissect_uccreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
   proto_tree_add_item_ret_uint (uccreq_tree, hf_docsis_mgt_upstream_chid, tvb, 0, 1, ENC_BIG_ENDIAN, &chid);
 
   col_add_fstr (pinfo->cinfo, COL_INFO,
-                "Upstream Channel Change request  Channel ID = %u (U%u)",
+                "Upstream Channel Change request: Channel ID = %u (U%u)",
                 chid, (chid > 0 ? chid - 1 : chid));
 
-  /* call dissector for Appendix C TLV's */
-  next_tvb = tvb_new_subset_remaining (tvb, 1);
-  call_dissector (docsis_tlv_handle, next_tvb, pinfo, uccreq_tree);
   return tvb_captured_length(tvb);
 }
 
@@ -3441,7 +3437,7 @@ dissect_uccrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
   proto_tree_add_item_ret_uint (uccrsp_tree, hf_docsis_mgt_upstream_chid, tvb, 0, 1, ENC_BIG_ENDIAN, &chid);
 
   col_add_fstr (pinfo->cinfo, COL_INFO,
-                "Upstream Channel Change response  Channel ID = %u (U%u)",
+                "Upstream Channel Change response: Channel ID = %u (U%u)",
                 chid, (chid > 0 ? chid - 1 : chid));
 
   return tvb_captured_length(tvb);
