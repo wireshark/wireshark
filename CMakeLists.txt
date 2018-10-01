@@ -2694,6 +2694,9 @@ if(RPMBUILD_EXECUTABLE)
 	if (NGHTTP2_FOUND)
 		list(APPEND _rpmbuild_with_args --with nghttp2)
 	endif()
+	if (SYSTEMD_FOUND)
+		list(APPEND _rpmbuild_with_args --with sdjournal)
+	endif()
 
 	execute_process(
 		COMMAND ${PERL_EXECUTABLE}
