@@ -196,12 +196,28 @@ WDD_TYPE    "type "[^\n\r\t ]+
   return WDS_PREFIX;
 }
 
+ /*
+  * If we allow an arbitrary non-zero number of non-left-parentheses after
+  * "ETHER", that means that some file that has ETHER followed by a lot of
+  * text (see, for example, tpncp/tpncp.dat in the source tree) can cause
+  * either an infinite loop or a loop that take forever to finish, as the
+  * scanner keeps swallowing characters.  Limit it to 20 characters.
+  *
+  * XXX - any reason to require at least two of them?
+  */
 <sc_ether_direction>[^\(]{2,20} {
   BEGIN(sc_gen_task);
   return STRING;
 }
 
-<sc_isdn_call>[^\/\(:]{2,20} {
+ /*
+  * If we allow an arbitrary non-zero number of non-slash, non-left-parentheses,
+  * non-colon characters after "PRI-XMIT", that means that some file that has
+  * PRI-XMIT= followed by a lot of text can cause either an infinite loop or
+  * a loop that take forever to finish, as the scanner keeps swallowing
+  * characters.  Limit it to 20 characters.
+  */
+<sc_isdn_call>[^\/\(:]{1,20} {
   BEGIN(sc_gen_task);
   return DECNUM;
 }
