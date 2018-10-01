@@ -110,11 +110,11 @@ systemd Journal Export
 === New and Updated Capture Interfaces support
 
 //_Non-empty section placeholder._
-[commaize]
---
-A new extcap has been added: dpauxmon. It allows capturing DisplayPort AUX channel
-data from linux kernel drivers.
---
+
+dpauxmon, an external capture interface (extcap) that captures
+DisplayPort AUX channel data from linux kernel drivers.
+
+sdjournal, an extcap that captures systemd journal entries.
 
 === Major API Changes
 * Lua: the various logging functions (debug, info, message, warn and critical)
