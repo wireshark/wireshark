@@ -1255,8 +1255,8 @@ dissect_rdp_shareDataHeader(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 
   offset = dissect_rdp_fields(tvb, offset, pinfo, tree, share_fields, 0);
 
-  if (pduType2 != PDUTYPE2_CONTROL)
-    col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", val_to_str_const(pduType2, rdp_pduType2_vals, "Unknown"));
+  col_append_str(pinfo->cinfo, COL_INFO, "RDP PDU Type: ");
+  col_append_sep_str(pinfo->cinfo, COL_INFO, "", val_to_str_const(pduType2, rdp_pduType2_vals, "Unknown"));
 
   fields = NULL;
   switch(pduType2) {
@@ -1320,8 +1320,10 @@ dissect_rdp_shareDataHeader(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
     offset = dissect_rdp_fields(tvb, offset, pinfo, tree, fields, 0);
   }
 
-  if (pduType2 == PDUTYPE2_CONTROL)
-    col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", val_to_str_const(action, rdp_action_vals, "Unknown"));
+  if (pduType2 == PDUTYPE2_CONTROL) {
+    col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", "Action: ");
+    col_append_sep_str(pinfo->cinfo, COL_INFO, "", val_to_str_const(action, rdp_action_vals, "Unknown"));
+  }
 
   return offset;
 }
