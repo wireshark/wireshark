@@ -36,11 +36,6 @@ UatDialog::UatDialog(QWidget *parent, epan_uat *uat) :
     ui->setupUi(this);
     if (uat) loadGeometry(0, 0, uat->name);
 
-    ui->deleteToolButton->setEnabled(false);
-    ui->copyToolButton->setEnabled(false);
-    ui->moveUpToolButton->setEnabled(false);
-    ui->moveDownToolButton->setEnabled(false);
-    ui->clearToolButton->setEnabled(false);
     ok_button_ = ui->buttonBox->button(QDialogButtonBox::Ok);
     help_button_ = ui->buttonBox->button(QDialogButtonBox::Help);
 
@@ -107,6 +102,7 @@ void UatDialog::setUat(epan_uat *uat)
         uat_delegate_ = new UatDelegate;
         ui->uatTreeView->setModel(uat_model_);
         ui->uatTreeView->setItemDelegate(uat_delegate_);
+        ui->clearToolButton->setEnabled(uat_model_->rowCount() != 0);
 
         connect(uat_model_, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
                 this, SLOT(modelDataChanged(QModelIndex)));

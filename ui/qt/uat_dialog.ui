@@ -61,6 +61,9 @@
         <iconset resource="../../image/stock_icons.qrc">
          <normaloff>:/stock/minus-8.png</normaloff>:/stock/minus-8.png</iconset>
        </property>
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
       </widget>
      </item>
      <item>
@@ -74,6 +77,9 @@
        <property name="icon">
         <iconset resource="../../image/stock_icons.qrc">
          <normaloff>:/stock/copy-8.png</normaloff>:/stock/copy-8.png</iconset>
+       </property>
+       <property name="enabled">
+        <bool>false</bool>
        </property>
       </widget>
      </item>
@@ -89,6 +95,9 @@
         <iconset resource="../../image/stock_icons.qrc">
          <normaloff>:/stock/arrow_up.png</normaloff>:/stock/arrow_up.png</iconset>
        </property>
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
       </widget>
      </item>
      <item>
@@ -102,6 +111,9 @@
        <property name="icon">
         <iconset resource="../../image/stock_icons.qrc">
          <normaloff>:/stock/arrow_down.png</normaloff>:/stock/arrow_down.png</iconset>
+       </property>
+       <property name="enabled">
+        <bool>false</bool>
        </property>
       </widget>
      </item>
@@ -118,6 +130,9 @@
             <normaloff>:/stock/delete_list.png</normaloff>:/stock/delete_list.png
           </iconset>
         </property>
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
       </widget>
      </item>
      <item>
