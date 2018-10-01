@@ -74,7 +74,7 @@ static gboolean dbs_etherwatch_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean dbs_etherwatch_seek_read(wtap *wth, gint64 seek_off,
     wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
-static gboolean parse_dbs_etherwatch_packet(wtap_rec *rec, FILE_T fh,
+static gboolean parse_dbs_etherwatch_packet(FILE_T fh, wtap_rec *rec,
     Buffer* buf, int *err, gchar **err_info);
 static guint parse_single_hex_dump_line(char* rec, guint8 *buf,
     int byte_offset);
@@ -194,7 +194,7 @@ static gboolean dbs_etherwatch_read(wtap *wth, int *err, gchar **err_info,
     *data_offset = offset;
 
     /* Parse the packet */
-    return parse_dbs_etherwatch_packet(&wth->rec, wth->fh,
+    return parse_dbs_etherwatch_packet(wth->fh, &wth->rec,
          wth->rec_data, err, err_info);
 }
 
@@ -206,7 +206,7 @@ dbs_etherwatch_seek_read(wtap *wth, gint64 seek_off,
     if (file_seek(wth->random_fh, seek_off - 1, SEEK_SET, err) == -1)
         return FALSE;
 
-    return parse_dbs_etherwatch_packet(rec, wth->random_fh, buf, err,
+    return parse_dbs_etherwatch_packet(wth->random_fh, rec, buf, err,
         err_info);
 }
 
@@ -255,7 +255,7 @@ unnumbered. Unnumbered has length 1, numbered 2.
 #define CTL_UNNUMB_MASK     0x03
 #define CTL_UNNUMB_VALUE    0x03
 static gboolean
-parse_dbs_etherwatch_packet(wtap_rec *rec, FILE_T fh, Buffer* buf,
+parse_dbs_etherwatch_packet(FILE_T fh, wtap_rec *rec, Buffer* buf,
     int *err, gchar **err_info)
 {
     guint8 *pd;
