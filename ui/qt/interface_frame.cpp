@@ -249,8 +249,9 @@ void InterfaceFrame::resetInterfaceTreeDisplay()
     {
         ui->interfaceTree->setHidden(true);
         ui->lblNoInterfaces->setHidden(false);
-
         ui->lblNoInterfaces->setText( proxyModel.interfaceError() );
+        if ( prefs.capture_no_interface_load )
+            ui->lblNoInterfaces->setText( "Interfaces not loaded (due to preference)" );
     }
     else
     {
@@ -370,6 +371,11 @@ void InterfaceFrame::updateStatistics(void)
 void InterfaceFrame::getPoints(int idx, PointList * pts)
 {
     sourceModel.getPoints(idx, pts);
+}
+
+void InterfaceFrame::showRunOnFile(void)
+{
+    ui->lblNoInterfaces->setText("Interfaces not loaded on startup (run on capture file)");
 }
 
 /*

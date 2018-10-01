@@ -198,6 +198,8 @@ bool MainWindow::openCaptureFile(QString cf_path, QString read_filter, unsigned 
                 ret = false;
                 goto finish;
             }
+        } else {
+            this->welcome_page_->getInterfaceFrame()->showRunOnFile();
         }
 
         // TODO detect call from "cf_read" -> "update_progress_dlg"
@@ -248,7 +250,6 @@ bool MainWindow::openCaptureFile(QString cf_path, QString read_filter, unsigned 
         }
 
         switch (cf_read(CaptureFile::globalCapFile(), FALSE)) {
-
         case CF_READ_OK:
         case CF_READ_ERROR:
             /* Just because we got an error, that doesn't mean we were unable
@@ -267,6 +268,7 @@ bool MainWindow::openCaptureFile(QString cf_path, QString read_filter, unsigned 
         }
         break;
     }
+
     // get_dirname overwrites its path.
     wsApp->setLastOpenDir(get_dirname(cf_path.toUtf8().data()));
 

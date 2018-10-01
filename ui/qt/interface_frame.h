@@ -58,6 +58,7 @@ public slots:
     void toggleRemoteInterfaces();
 #endif
     void getPoints(int idx, PointList *pts);
+    void showRunOnFile();
 
 protected:
     void hideEvent(QHideEvent *evt);
