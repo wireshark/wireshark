@@ -203,6 +203,8 @@ static gboolean pref_dissect_next_layer = FALSE;
 #define BLOCK_ENHANCED_PACKET        0x00000006
 #define BLOCK_IRIG_TIMESTAMP         0x00000007
 #define BLOCK_ARINC_429              0x00000008
+#define BLOCK_SYSTEMD_JOURNAL        0x00000009
+#define BLOCK_DSB                    0x0000000a
 #define BLOCK_SECTION_HEADER         0x0A0D0D0A
 #define BLOCK_DARWIN_PROCESS         0x80000001
 
@@ -214,7 +216,11 @@ static const value_string block_type_vals[] = {
     { 0x00000005,  "Interface Statistics Block" },
     { 0x00000006,  "Enhanced Packet Block" },
     { 0x00000007,  "IRIG Timestamp Block" },
-    { 0x00000008,  "Arinc 429 in AFDX Encapsulation Information Block " },
+    { 0x00000008,  "Arinc 429 in AFDX Encapsulation Information Block" },
+    { 0x00000009,  "systemd Journal Export Block" },
+    { 0x0000000A,  "Decryption Secrets Block" },
+    { 0x00000204,  "Sysdig Event Block" },
+    { 0x00000208,  "Sysdig Event Block with flags" },
     { 0x0A0D0D0A,  "Section Header Block" },
     { 0x80000001,  "Darwin Process Event Block" },
     { 0, NULL }
@@ -1578,6 +1584,7 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         break;
     case BLOCK_IRIG_TIMESTAMP:
     case BLOCK_ARINC_429:
+    case BLOCK_DSB:
     default:
         offset += block_data_length;
     }
