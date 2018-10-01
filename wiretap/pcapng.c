@@ -2272,6 +2272,7 @@ pcapng_read_systemd_journal_export_block(wtap *wth, FILE_T fh, pcapng_block_head
                                 entry_length, err, err_info)) {
         return FALSE;
     }
+    ws_buffer_increase_length(wblock->frame_buffer, entry_length);
 
     /* We don't have memmem available everywhere, so we get to use strstr. */
     ws_buffer_append(wblock->frame_buffer, (guint8 * ) "", 1);
