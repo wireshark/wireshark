@@ -382,8 +382,8 @@ wdd_hdr: WDD_CHUNK hexnum KEYWORD KEYWORD hexnum KEYWORD decnum decnum decnum KE
 ;
 
 byte: HEXBYTE {
-  /* remember the position of the data group in the trace, to tip
-     off ascend_seek() as to where to look for the next header. */
+  /* remember the position of the data group in the trace, to tip off
+     ascend_find_next_packet() as to where to look for the next header. */
   if (parser_state->first_hexbyte == 0)
     parser_state->first_hexbyte = file_tell(fh);
 
