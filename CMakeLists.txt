@@ -174,6 +174,13 @@ if(NOT CMAKE_INSTALL_RPATH AND NOT (WIN32 OR APPLE))
 	endif()
 endif()
 
+
+if(WIN32)
+    # Linking with setargv.obj enables "wildcard expansion" of
+    # command-line arguments.
+    set(WILDCARD_OBJ setargv.obj)
+endif(WIN32)
+
 # Banner shown at top right of Qt welcome screen.
 if(DEFINED ENV{WIRESHARK_VERSION_FLAVOR})
 	set(VERSION_FLAVOR "$ENV{WIRESHARK_VERSION_FLAVOR}")
@@ -2376,6 +2383,7 @@ endif()
 
 if(BUILD_mergecap)
 	set(mergecap_LIBS
+		${WILDCARD_OBJ}
 		ui
 		wiretap
 		${ZLIB_LIBRARIES}
