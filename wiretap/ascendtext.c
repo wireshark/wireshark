@@ -83,12 +83,12 @@ static gboolean ascend_seek_read(wtap *wth, gint64 seek_off,
 /* Seeks to the beginning of the next packet, and returns the
    byte offset at which the header for that packet begins.
    Returns -1 on failure. */
-static gint64 ascend_seek(wtap *wth, int *err, gchar **err_info)
+static gint64 ascend_find_next_packet(wtap *wth, int *err, gchar **err_info)
 {
   int byte;
   gint64 date_off = -1, cur_off, packet_off;
   size_t string_level[ASCEND_MAGIC_STRINGS];
-  guint string_i = 0, type = 0;
+  guint string_i = 0;
   static const gchar ascend_date[] = ASCEND_DATE;
   size_t ascend_date_len           = sizeof ascend_date - 1; /* strlen of a constant string */
   size_t ascend_date_string_level;
@@ -147,7 +147,6 @@ static gint64 ascend_seek(wtap *wth, int *err, gchar **err_info)
             packet_off = date_off;
           }
 
-          type = ascend_magic[string_i].type;
           goto found;
         }
       } else {
@@ -212,8 +211,6 @@ found:
   if (file_seek(wth->fh, packet_off, SEEK_SET, err) == -1)
     return -1;
 
-  wth->phdr.pseudo_header.ascend.type = type;
-
   return packet_off;
 }
 
@@ -226,11 +223,11 @@ wtap_open_return_val ascend_open(wtap *wth, int *err, gchar **err_info)
   ascend_t *ascend;
 
   /* We haven't yet allocated a data structure for our private stuff;
-     set the pointer to null, so that "ascend_seek()" knows not to
-     fill it in. */
+     set the pointer to null, so that "ascend_find_next_packet()" knows
+     not to fill it in. */
   wth->priv = NULL;
 
-  offset = ascend_seek(wth, err, err_info);
+  offset = ascend_find_next_packet(wth, err, err_info);
   if (offset == -1) {
     if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
       return WTAP_OPEN_ERROR;
@@ -281,9 +278,9 @@ wtap_open_return_val ascend_open(wtap *wth, int *err, gchar **err_info)
   ascend = (ascend_t *)g_malloc(sizeof(ascend_t));
   wth->priv = (void *)ascend;
 
-  /* The first packet we want to read is the one that "ascend_seek()"
-     just found; start searching for it at the offset at which it
-     found it. */
+  /* The first packet we want to read is the one that
+     "ascend_find_next_packet()" just found; start searching
+     for it at the offset at which it found it. */
   ascend->next_packet_seek_start = offset;
 
   /* MAXen and Pipelines report the time since reboot.  In order to keep
@@ -305,7 +302,8 @@ wtap_open_return_val ascend_open(wtap *wth, int *err, gchar **err_info)
    Returns TRUE if we got a packet, FALSE otherwise. */
 static gboolean
 parse_ascend(ascend_t *ascend, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
-             guint length, int *err, gchar **err_info)
+             guint length, gint64 *next_packet_seek_start_ret,
+             int *err, gchar **err_info)
 {
   ascend_state_t parser_state;
   int retval;
@@ -314,19 +312,29 @@ parse_ascend(ascend_t *ascend, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
   retval = run_ascend_parser(fh, phdr, ws_buffer_start_ptr(buf), &parser_state,
                              err, err_info);
 
-  /* did we see any data (hex bytes)? if so, tip off ascend_seek()
-     as to where to look for the next packet, if any. If we didn't,
-     maybe this record was broken. Advance so we don't get into
-     an infinite loop reading a broken trace. */
+  /* Did we see any data (hex bytes)? */
   if (parser_state.first_hexbyte) {
-    ascend->next_packet_seek_start = parser_state.first_hexbyte;
+    /* Yes.  Provide the offset of the first byte so that our caller can
+       tip off ascend_find_next_packet() as to where to look for the next
+       packet, if any. */
+    if (next_packet_seek_start_ret != NULL)
+      *next_packet_seek_start_ret = parser_state.first_hexbyte;
   } else {
-    /* Sometimes, a header will be printed but the data will be omitted, or
-       worse -- two headers will be printed, followed by the data for each.
+    /* No.  Maybe this record was broken; sometimes, a header will be
+       printed but the data will be omitted, or worse -- two headers will
+       be printed, followed by the data for each.
+
        Because of this, we need to be fairly tolerant of what we accept
-       here.  If we didn't find any hex bytes, skip over what we've read so
-       far so we can try reading a new packet. */
-    ascend->next_packet_seek_start = file_tell(fh);
+       here.  Provide our current offset so that our caller can tell
+       ascend_find_next_packet() to skip over what we've read so far so
+       we can try reading a new packet.
+
+     . That keeps us from getting into an infinite loop reading a broken
+       trace. */
+    if (next_packet_seek_start_ret != NULL)
+      *next_packet_seek_start_ret = file_tell(fh);
+
+    /* Don't treat that as a fatal error; pretend the parse succeeded. */
     retval = 0;
   }
 
@@ -417,11 +425,12 @@ static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
                 SEEK_SET, err) == -1)
     return FALSE;
 
-  offset = ascend_seek(wth, err, err_info);
+  offset = ascend_find_next_packet(wth, err, err_info);
   if (offset == -1)
     return FALSE;
   if (!parse_ascend(ascend, wth->fh, &wth->phdr, wth->frame_buffer,
-                   wth->snapshot_length, err, err_info))
+                   wth->snapshot_length, &ascend->next_packet_seek_start,
+                   err, err_info))
     return FALSE;
 
   /* Flex might have gotten an EOF and caused *err to be set to
@@ -446,7 +455,7 @@ static gboolean ascend_seek_read(wtap *wth, gint64 seek_off,
   if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
     return FALSE;
   if (!parse_ascend(ascend, wth->random_fh, phdr, buf,
-                   wth->snapshot_length, err, err_info))
+                   wth->snapshot_length, NULL, err, err_info))
     return FALSE;
 
   /* Flex might have gotten an EOF and caused *err to be set to
