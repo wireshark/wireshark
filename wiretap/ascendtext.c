@@ -424,6 +424,15 @@ static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
                    wth->snapshot_length, err, err_info))
     return FALSE;
 
+  /* Flex might have gotten an EOF and caused *err to be set to
+     WTAP_ERR_SHORT_READ.  If so, that's not an error, as the parser
+     didn't return an error; set *err to 0, and get rid of any error
+     string. */
+  *err = 0;
+  if (*err_info != NULL) {
+      g_free(*err_info);
+      *err_info = NULL;
+  }
   *data_offset = offset;
   return TRUE;
 }
@@ -440,6 +449,15 @@ static gboolean ascend_seek_read(wtap *wth, gint64 seek_off,
                    wth->snapshot_length, err, err_info))
     return FALSE;
 
+  /* Flex might have gotten an EOF and caused *err to be set to
+     WTAP_ERR_SHORT_READ.  If so, that's not an error, as the parser
+     didn't return an error; set *err to 0, and get rid of any error
+     string. */
+  *err = 0;
+  if (*err_info != NULL) {
+      g_free(*err_info);
+      *err_info = NULL;
+  }
   return TRUE;
 }
 
