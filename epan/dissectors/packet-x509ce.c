@@ -21,6 +21,7 @@
 
 #include <epan/packet.h>
 #include <epan/asn1.h>
+#include <epan/oids.h>
 
 #include "packet-ber.h"
 #include "packet-x509ce.h"
@@ -245,7 +246,7 @@ static int hf_x509ce_EntrustInfoFlags_webCategory = -1;
 static int hf_x509ce_EntrustInfoFlags_sETCategory = -1;
 
 /*--- End of included file: packet-x509ce-hf.c ---*/
-#line 39 "./asn1/x509ce/packet-x509ce-template.c"
+#line 40 "./asn1/x509ce/packet-x509ce-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -313,7 +314,7 @@ static gint ett_x509ce_EntrustInfoFlags = -1;
 static gint ett_x509ce_ScramblerCapabilities = -1;
 
 /*--- End of included file: packet-x509ce-ett.c ---*/
-#line 42 "./asn1/x509ce/packet-x509ce-template.c"
+#line 43 "./asn1/x509ce/packet-x509ce-template.c"
 
 /*--- Included file: packet-x509ce-fn.c ---*/
 #line 1 "./asn1/x509ce/packet-x509ce-fn.c"
@@ -1943,7 +1944,7 @@ static int dissect_CicamBrandId_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 
 
 /*--- End of included file: packet-x509ce-fn.c ---*/
-#line 43 "./asn1/x509ce/packet-x509ce-template.c"
+#line 44 "./asn1/x509ce/packet-x509ce-template.c"
 
 /* CI+ (www.ci-plus.com) defines some X.509 certificate extensions
    that use OIDs which are not officially assigned
@@ -2800,7 +2801,7 @@ void proto_register_x509ce(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-x509ce-hfarr.c ---*/
-#line 111 "./asn1/x509ce/packet-x509ce-template.c"
+#line 112 "./asn1/x509ce/packet-x509ce-template.c"
   };
 
   /* List of subtrees */
@@ -2870,7 +2871,7 @@ void proto_register_x509ce(void) {
     &ett_x509ce_ScramblerCapabilities,
 
 /*--- End of included file: packet-x509ce-ettarr.c ---*/
-#line 116 "./asn1/x509ce/packet-x509ce-template.c"
+#line 117 "./asn1/x509ce/packet-x509ce-template.c"
   };
 
   /* Register protocol */
@@ -2933,9 +2934,10 @@ void proto_reg_handoff_x509ce(void) {
 
 
 /*--- End of included file: packet-x509ce-dis-tab.c ---*/
-#line 131 "./asn1/x509ce/packet-x509ce-template.c"
+#line 132 "./asn1/x509ce/packet-x509ce-template.c"
   register_ber_oid_dissector("2.5.29.24", dissect_x509ce_invalidityDate_callback, proto_x509ce, "id-ce-invalidityDate");
   register_ber_oid_dissector("2.5.29.51", dissect_x509ce_baseUpdateTime_callback, proto_x509ce, "id-ce-baseUpdateTime");
+  oid_add_from_string("anyPolicy","2.5.29.32.0");
 }
 
 
