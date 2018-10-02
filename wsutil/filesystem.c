@@ -685,7 +685,7 @@ init_progfile_dir(const char *arg0
                     g_free(cmake_file);
                 }
 #ifdef __APPLE__
-                if (!running_in_build_directory_flag) {
+                {
                     /*
                      * Scan up the path looking for a component
                      * named "Contents".  If we find it, we assume
@@ -765,10 +765,12 @@ get_progfile_dir(void)
  * On Windows, we use the directory in which the executable for this
  * process resides.
  *
- * On UN*X, we use the DATAFILE_DIR value supplied by the configure
- * script, unless we think we're being run from the build directory,
- * in which case we use the directory in which the executable for this
- * process resides.
+ * On macOS (when executed from an app bundle), use a directory within
+ * that app bundle.
+ *
+ * Otherwise, if the program was executed from the build directory, use the
+ * directory in which the executable for this process resides. In all other
+ * cases, use the DATAFILE_DIR value that was set at compile time.
  *
  * XXX - if we ever make libwireshark a real library, used by multiple
  * applications (more than just TShark and versions of Wireshark with
@@ -825,7 +827,30 @@ get_datafile_dir(void)
     }
 #else
 
-    if (running_in_build_directory_flag) {
+    if (g_getenv("WIRESHARK_DATA_DIR") && !started_with_special_privs()) {
+        /*
+         * The user specified a different directory for data files
+         * and we aren't running with special privileges.
+         * XXX - We might be able to dispense with the priv check
+         */
+        datafile_dir = g_strdup(g_getenv("WIRESHARK_DATA_DIR"));
+    }
+#ifdef __APPLE__
+    /*
+     * If we're running from an app bundle and weren't started
+     * with special privileges, use the Contents/Resources/share/wireshark
+     * subdirectory of the app bundle.
+     *
+     * (appbundle_dir is not set to a non-null value if we're
+     * started with special privileges, so we need only check
+     * it; we don't need to call started_with_special_privs().)
+     */
+    else if (appbundle_dir != NULL) {
+        datafile_dir = g_strdup_printf("%s/Contents/Resources/share/wireshark",
+                                       appbundle_dir);
+    }
+#endif
+    else if (running_in_build_directory_flag && progfile_dir != NULL) {
         /*
          * We're (probably) being run from the build directory and
          * weren't started with special privileges.
@@ -835,37 +860,12 @@ get_datafile_dir(void)
          * only check it; we don't need to call started_with_special_privs().)
          *
          * Data files (console.lua, radius/, etc.) are copied to the build
-         * directory during the build.
+         * directory during the build which also contains executables. A special
+         * exception is macOS (when built with an app bundle).
          */
-        datafile_dir = BUILD_TIME_DATAFILE_DIR;
-        return datafile_dir;
+        datafile_dir = progfile_dir;
     } else {
-        if (g_getenv("WIRESHARK_DATA_DIR") && !started_with_special_privs()) {
-            /*
-             * The user specified a different directory for data files
-             * and we aren't running with special privileges.
-             * XXX - We might be able to dispense with the priv check
-             */
-            datafile_dir = g_strdup(g_getenv("WIRESHARK_DATA_DIR"));
-        }
-#ifdef __APPLE__
-        /*
-         * If we're running from an app bundle and weren't started
-         * with special privileges, use the Contents/Resources/share/wireshark
-         * subdirectory of the app bundle.
-         *
-         * (appbundle_dir is not set to a non-null value if we're
-         * started with special privileges, so we need only check
-         * it; we don't need to call started_with_special_privs().)
-         */
-        else if (appbundle_dir != NULL) {
-            datafile_dir = g_strdup_printf("%s/Contents/Resources/share/wireshark",
-                                           appbundle_dir);
-        }
-#endif
-        else {
-            datafile_dir = DATAFILE_DIR;
-        }
+        datafile_dir = DATAFILE_DIR;
     }
 
 #endif
