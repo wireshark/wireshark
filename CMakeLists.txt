@@ -2185,7 +2185,7 @@ endif()
 # Common properties for CLI executables
 macro(set_extra_executable_properties _executable _folder)
 	set_target_properties(${_executable} PROPERTIES
-		LINK_FLAGS "${WS_LINK_FLAGS}"
+		LINK_FLAGS "${WILDCARD_OBJ} ${WS_LINK_FLAGS}"
 		FOLDER ${_folder}
 	)
 
@@ -2383,7 +2383,6 @@ endif()
 
 if(BUILD_mergecap)
 	set(mergecap_LIBS
-		${WILDCARD_OBJ}
 		ui
 		wiretap
 		${ZLIB_LIBRARIES}
