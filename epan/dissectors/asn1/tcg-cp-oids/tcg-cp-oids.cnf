@@ -1,0 +1,62 @@
+# tcg-cp-OID.cnf
+# Trusted Computing Group Certificate Profile OIDs conformation file
+
+#.MODULE_IMPORT
+PKIX1Explicit88	pkix1explicit
+#.INCLUDE ../pkix1explicit/pkix1explicit_exp.cnf
+
+
+#.OMIT_ASSIGNMENT
+SubjectInfoURIList
+#.END
+
+#.EXPORTS
+
+#.REGISTER
+
+TCPASpecVersion           B "2.23.133.1"    "tcg-tcpaSpecVersion"
+
+ProtectionProfile         B "2.23.133.2.11" "tcg-at-tpmProtectionProfile"
+SecurityTarget            B "2.23.133.2.12" "tcg-at-tpmSecurityTarget"
+ProtectionProfile         B "2.23.133.2.13" "tcg-at-tbbProtectionProfile"
+SecurityTarget            B "2.23.133.2.14" "tcg-at-tbbSecurityTarget"
+TPMSpecification          B "2.23.133.2.16" "tcg-at-tpmSpecification"
+TCGPlatformSpecification  B "2.23.133.2.17" "tcg-at-tcgPlatformSpecification"
+TPMSecurityAssertions     B "2.23.133.2.18" "tcg-at-tpmSecurityAssertions"
+TBBSecurityAssertions     B "2.23.133.2.19" "tcg-at-tbbSecurityAssertions"
+
+# TCG Certificate Extensions
+# this is a guess for SubjectInfoURIList, whose use is not specified anywhere
+#SubjectInfoURIList B "2.23.133.6.1" "tcg-ce-subjectInfoURIList"
+TCGRelevantCredentials B "2.23.133.6.2" "tcg-ce-relevantCredentials"
+TCGRelevantManifests   B "2.23.133.6.3" "tcg-ce-relevantManifests"
+
+VirtualPlatformAttestationServiceURI      B "2.23.133.6.4" "tcg-ce-virtualPlatformAttestationService"
+MigrationControllerAttestationServiceURI  B "2.23.133.6.5" "tcg-ce-migrationControllerAttestationService"
+MigrationControllerRegistrationServiceURI B "2.23.133.6.6" "tcg-ce-migrationControllerRegistrationService"
+VirtualPlatformBackupServiceURI           B "2.23.133.6.7" "tcg-ce-virtualPlatformBackupService"
+
+#.NO_EMIT
+
+#.TYPE_RENAME
+
+#.FIELD_RENAME
+HashAlgAndValue/hashValue hash_alg_and_value_hashvalue
+URIReference/hashValue    uri_reference_hashvalue
+
+TPMSpecification/level tpm_specification_level
+FIPSLevel/level fips_security_level
+
+TPMSecurityAssertions/version security_assertions_version
+TBBSecurityAssertions/version security_assertions_version
+
+TCGPlatformSpecification/version tcg_specification_vesion
+
+CommonCriteriaMeasures/version cc_measures_version_string
+FIPSLevel/version fips_level_version_string
+
+
+
+#.END
+
+

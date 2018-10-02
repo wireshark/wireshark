@@ -113,6 +113,7 @@ set(ASN1_SRC_DIRS
 	t125
 	t38
 	tcap
+	tcg-cp-oids
 	tetra
 	ulp
 	wlancertextn

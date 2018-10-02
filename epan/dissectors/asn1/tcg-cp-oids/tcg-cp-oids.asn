@@ -1,0 +1,294 @@
+--
+-- ASN.1 extracted from
+--   TCG EK Credential Profile
+--   For TPM Family 2.0; Level 0
+--   Specification Version 2.0
+--   Revision 14
+--   4 November 2014
+--   https://www.trustedcomputinggroup.org/wp-content/uploads/Credential_Profile_EK_V2.0_R14_published.pdf
+-- on 2018-10-02, and heavily polished + bug fixed for asn2wrs
+
+TCG DEFINITIONS::=
+
+BEGIN
+
+IMPORTS
+
+-- Additional IMPORT for Wireshark
+   AlgorithmIdentifier
+        FROM PKIX1Explicit88 {iso(1) identified-organization(3)
+        dod(6) internet(1) security(5) mechanisms(5) pkix(7)
+        id-mod(0) id-pkix1-explicit-88(1)};
+
+-- TCG specific OIDs
+-- tcg OBJECT IDENTIFIER ::= { joint-iso-itu-t(2) international-organizations(23) tcg(133) }
+-- tcg-tcpaSpecVersion OBJECT IDENTIFIER ::= {tcg 1}
+-- tcg-attribute OBJECT IDENTIFIER ::= {tcg 2}
+-- tcg-protocol OBJECT IDENTIFIER ::= {tcg 3}
+-- tcg-algorithm OBJECT IDENTIFIER ::= {tcg 4}
+-- tcg-ce OBJECT IDENTIFIER ::= {tcg 6}
+-- tcg-kp OBJECT IDENTIFIER ::= {tcg 8}
+-- TCG Spec Version OIDs
+-- tcg-sv-tpm12 OBJECT IDENTIFIER ::= { tcg-tcpaSpecVersion 1}
+-- tcg-sv-tpm20 OBJECT IDENTIFIER ::= { tcg-tcpaSpecVersion 2}
+-- TCG Attribute OIDs
+-- tcg-at-tpmManufacturer OBJECT IDENTIFIER ::= {tcg-attribute 1}
+-- tcg-at-tpmModel OBJECT IDENTIFIER ::= {tcg-attribute 2}
+-- tcg-at-tpmVersion OBJECT IDENTIFIER ::= {tcg-attribute 3}
+-- tcg-at-platformManufacturer OBJECT IDENTIFIER ::= {tcg-attribute 4}
+-- tcg-at-platformModel OBJECT IDENTIFIER ::= {tcg-attribute 5}
+-- tcg-at-platformVersion OBJECT IDENTIFIER ::= {tcg-attribute 6}
+-- tcg-at-securityQualities OBJECT IDENTIFIER ::= {tcg-attribute 10}
+-- tcg-at-tpmProtectionProfile OBJECT IDENTIFIER ::= {tcg-attribute 11}
+-- tcg-at-tpmSecurityTarget OBJECT IDENTIFIER ::= {tcg-attribute 12}
+-- tcg-at-tbbProtectionProfile OBJECT IDENTIFIER ::= {tcg-attribute 13}
+-- tcg-at-tbbSecurityTarget OBJECT IDENTIFIER ::= {tcg-attribute 14}
+-- tcg-at-tpmIdLabel OBJECT IDENTIFIER ::= {tcg-attribute 15}
+-- tcg-at-tpmSpecification OBJECT IDENTIFIER ::= {tcg-attribute 16}
+-- tcg-at-tcgPlatformSpecification OBJECT IDENTIFIER ::= {tcg-attribute 17}
+-- tcg-at-tpmSecurityAssertions OBJECT IDENTIFIER ::= {tcg-attribute 18}
+-- tcg-at-tbbSecurityAssertions OBJECT IDENTIFIER ::= {tcg-attribute 19}
+-- TCG Algorithm OIDs
+-- tcg-algorithm-null OBJECT IDENTIFIER ::= {tcg-algorithm 1}
+-- TCG Key Purposes OIDs
+-- tcg-kp-EKCertificate OBJECT IDENTIFIER ::= {tcg-kp 1}
+-- tcg-kp-PlatformCertificate OBJECT IDENTIFIER ::= {tcg-kp 2}
+-- tcg-kp-AIKCertificate OBJECT IDENTIFIER ::= {tcg-kp 3}
+-- TCG Certificate Extensions
+-- tcg-ce-relevantCredentials OBJECT IDENTIFIER ::= {tcg-ce 2}
+-- tcg-ce-relevantManifests OBJECT IDENTIFIER ::= {tcg-ce 3}
+-- tcg-ce-virtualPlatformAttestationService OBJECT IDENTIFIER ::= {tcg-ce 4}
+-- tcg-ce-migrationControllerAttestationService OBJECT IDENTIFIER ::= {tcg-ce 5}
+-- tcg-ce-migrationControllerRegistrationService OBJECT IDENTIFIER ::= {tcg-ce 6}
+-- tcg-ce-virtualPlatformBackupService OBJECT IDENTIFIER ::= {tcg-ce 7}
+-- TCG Protocol OIDs
+-- tcg-prt-tpmIdProtocol OBJECT IDENTIFIER ::= {tcg-protocol 1}
+-- tcg specification attributes for tpm and platform
+
+-- tPMSpecification ATTRIBUTE ::= {
+-- WITH SYNTAX TPMSpecification
+-- ID tcg-at-tpmSpecification }
+
+TPMSpecification ::= SEQUENCE {
+family UTF8String, -- (SIZE (1..STRMAX)),
+level INTEGER,
+revision INTEGER }
+
+-- tCGPlatformSpecification ATTRIBUTE ::= {
+-- WITH SYNTAX TCGPlatformSpecification
+-- ID tcg-at-tcgPlatformSpecification }
+
+TCGSpecificationVersion ::= SEQUENCE {
+majorVersion INTEGER,
+minorVersion INTEGER,
+revision INTEGER }
+
+TCGPlatformSpecification ::= SEQUENCE {
+version TCGSpecificationVersion,
+platformClass OCTET STRING } -- SIZE(4) }
+
+-- tcpa tpm specification attribute (deprecated)
+-- tCPASpecVersion ATTRIBUTE ::= {
+-- WITH SYNTAX TCPASpecVersion
+-- ID tcg-tcpaSpecVersion }
+
+TCPASpecVersion ::= SEQUENCE {
+major INTEGER,
+minor INTEGER }
+
+-- manufacturer implementation model and version attributes
+-- TPMManufacturer ATTRIBUTE ::= {
+-- WITH SYNTAX UTF8String (SIZE (1..STRMAX))
+-- ID tcg-at-tpmManufacturer }
+-- TPMModel ATTRIBUTE ::= {
+-- WITH SYNTAX UTF8String (SIZE (1..STRMAX))
+-- ID tcg-at-tpmModel }
+-- TPMVersion ATTRIBUTE ::= {
+-- WITH SYNTAX UTF8String (SIZE (1..STRMAX))
+-- ID tcg-at-tpmVersion }
+-- PlatformManufacturer ATTRIBUTE ::= {
+-- WITH SYNTAX UTF8String (SIZE (1..STRMAX))
+-- ID tcg-at-platformManufacturer }
+-- PlatformModel ATTRIBUTE ::= {
+-- WITH SYNTAX UTF8String (SIZE (1..STRMAX))
+-- ID tcg-at-platformModel }
+-- PlatformVersion ATTRIBUTE ::= {
+-- WITH SYNTAX UTF8String (SIZE (1..STRMAX))
+-- ID tcg-at-platformVersion }
+-- tpm and platform tbb security assertions
+
+-- TODO: Wireshark dissection of version could be added
+Version ::= INTEGER -- { v1(0) }
+
+-- tPMSecurityAssertions ATTRIBUTE ::= {
+-- WITH SYNTAX TPMSecurityAssertions
+-- ID tcg—at-tpmSecurityAssertions
+-- }
+
+TPMSecurityAssertions ::= SEQUENCE {
+version Version DEFAULT v1,
+fieldUpgradable BOOLEAN DEFAULT FALSE,
+ekGenerationType [0] IMPLICIT EKGenerationType OPTIONAL,
+ekGenerationLocation [1] IMPLICIT EKGenerationLocation OPTIONAL,
+ekCertificateGenerationLocation [2] IMPLICIT
+EKCertificateGenerationLocation OPTIONAL,
+ccInfo [3] IMPLICIT CommonCriteriaMeasures OPTIONAL,
+fipsLevel [4] IMPLICIT FIPSLevel OPTIONAL,
+iso9000Certified [5] IMPLICIT BOOLEAN DEFAULT FALSE,
+iso9000Uri IA5String OPTIONAL } -- (SIZE (1..URIMAX)) OPTIONAL }
+
+-- tBBSecurityAssertions ATTRIBUTE ::= {
+-- WITH SYNTAX TBBSecurityAssertions
+-- ID tcg—at-tbbSecurityAssertions }
+
+TBBSecurityAssertions ::= SEQUENCE {
+version Version DEFAULT v1,
+ccInfo [0] IMPLICIT CommonCriteriaMeasures OPTIONAL,
+fipsLevel [1] IMPLICIT FIPSLevel OPTIONAL,
+rtmType [2] IMPLICIT MeasurementRootType OPTIONAL,
+iso9000Certified BOOLEAN DEFAULT FALSE,
+iso9000Uri IA5String OPTIONAL } -- (SIZE (1..URIMAX)) OPTIONAL }
+
+EKGenerationType ::= ENUMERATED {
+internal (0),
+injected (1),
+internalRevocable(2),
+injectedRevocable(3) }
+
+EKGenerationLocation ::= ENUMERATED {
+tpmManufacturer (0),
+platformManufacturer (1),
+ekCertSigner (2) }
+
+EKCertificateGenerationLocation ::= ENUMERATED {
+tpmManufacturer (0),
+platformManufacturer (1),
+ekCertSigner (2) }
+
+-- V1.1 of this specification adds hybrid and physical.
+-- Hybrid means the measurement root is capable of static AND dynamic
+-- Physical means that the root is anchored by a physical TPM
+-- Virtual means the TPM is virtualized (possibly running in a VMM)
+-- TPMs or RTMs might leverage other lower layer RTMs to virtualize the
+-- the capabilities of the platform.
+
+MeasurementRootType ::= ENUMERATED {
+static (0),
+dynamic (1),
+nonHost (2),
+hybrid (3),
+physical (4),
+virtual (5) }
+
+-- common criteria evaluation
+CommonCriteriaMeasures ::= SEQUENCE {
+version IA5String, --  (SIZE (1..STRMAX)), “2.2” or “3.1”; future syntax defined by CC
+assurancelevel EvaluationAssuranceLevel,
+evaluationStatus EvaluationStatus,
+plus BOOLEAN DEFAULT FALSE,
+strengthOfFunction [0] IMPLICIT StrengthOfFunction OPTIONAL,
+profileOid [1] IMPLICIT OBJECT IDENTIFIER OPTIONAL,
+profileUri [2] IMPLICIT URIReference OPTIONAL,
+targetOid [3] IMPLICIT OBJECT IDENTIFIER OPTIONAL,
+targetUri [4] IMPLICIT URIReference OPTIONAL }
+
+EvaluationAssuranceLevel ::= ENUMERATED {
+levell (1),
+level2 (2),
+level3 (3),
+level4 (4),
+level5 (5),
+level6 (6),
+level7 (7) }
+
+StrengthOfFunction ::= ENUMERATED {
+basic (0),
+medium (1),
+high (2) }
+
+URIReference ::= SEQUENCE {
+uniformResourceIdentifier IA5String, -- (SIZE (1..URIMAX)),
+hashAlgorithm AlgorithmIdentifier OPTIONAL,
+hashValue BIT STRING OPTIONAL }
+
+EvaluationStatus ::= ENUMERATED {
+designedToMeet (0),
+evaluationInProgress (1),
+evaluationCompleted (2) }
+-- fips evaluation
+
+FIPSLevel ::= SEQUENCE {
+version IA5String, -- (SIZE (1..STRMAX)), “140-1” or “140-2”
+level SecurityLevel,
+plus BOOLEAN DEFAULT FALSE }
+
+SecurityLevel ::= ENUMERATED {
+level1 (1),
+level2 (2),
+level3 (3),
+level4 (4) }
+
+-- aik certificate label from tpm owner
+--TPMIdLabel OTHER-NAME ::= {UTF8String IDENTIFIED BY {tcg-at-tpmIdLabel} }
+-- the following are deprecated but may be present for compatibility with TCPA
+
+-- TPMProtectionProfile ATTRIBUTE ::= {
+-- WITH SYNTAX ProtectionProfile
+-- ID tcg-at-tpmProtectionProfile }
+-- TPMSecurityTarget ATTRIBUTE ::= {
+-- WITH SYNTAX SecurityTarget
+-- ID tcg-at-tpmSecurityTarget }
+--
+-- TBBProtectionProfile ATTRIBUTE ::= {
+-- WITH SYNTAX ProtectionProfile
+-- ID tcg-at-tbbProtectionProfile }
+-- TBBSecurityTarget ATTRIBUTE ::= {
+-- WITH SYNTAX SecurityTarget
+-- ID tcg-at-tbbSecurityTarget }
+
+ProtectionProfile ::= OBJECT IDENTIFIER
+
+SecurityTarget ::= OBJECT IDENTIFIER
+
+-- V1.1 addition for enabling references to other credentials or
+-- XML-based Reference Manifests. These data objects are included
+-- in X.509 extensions using the new tcg-ce-[relevantCredentials,
+-- relevantManifests] OIDs.
+
+HashAlgAndValue ::= SEQUENCE {
+hashAlg AlgorithmIdentifier,
+hashValue OCTET STRING }
+
+HashedSubjectInfoURI ::= SEQUENCE {
+documentURI IA5String, -- (SIZE (1..URIMAX)),
+documentAccessInfo OBJECT IDENTIFIER OPTIONAL,
+documentHashInfo HashAlgAndValue OPTIONAL }
+
+-- Use of SubjectInfoURIList is not specified anywhere, therefore commented out for Wireshark in cnf file
+SubjectInfoURIList ::=
+SEQUENCE -- SIZE (1..REFMAX) -- OF HashedSubjectInfoURI
+
+TCGRelevantCredentials::=
+SEQUENCE -- SIZE (1..REFMAX) -- OF HashedSubjectInfoURI
+
+TCGRelevantManifests::=
+SEQUENCE -- SIZE (1..REFMAX) -- OF HashedSubjectInfoURI
+
+-- V1.2 addition of virtualization oriented credential extensions.
+-- This extension indicates how a remote challenger can contact the (deep) attestation service below the current credential holder in order to attest the layer below.
+-- Using this model allows the credential of each virtualization layer to reference the attestation service for the layer below it.
+-- A remote challenger could traverse the layer hierarchy using this extension until reaching the physical trusted platform rooted attestation.
+-- The following URI is optionally included in a certificate for a virtual machine associated with the tcg-ce-virtualPlatformAttestationService extension OID.
+-- These URI are associated with the tcg-ce-[virtualPlatformAttestationService,
+--  migrationControllerAttestationService, migrationControllerRegistrationService, virtualPlatformBackupService] OIDs respectively:
+VirtualPlatformAttestationServiceURI ::= IA5String -- (SIZE (1..URIMAX)
+
+MigrationControllerAttestationServiceURI ::= IA5String -- (SIZE (1..URIMAX)
+
+MigrationControllerRegistrationServiceURI ::= IA5String -- (SIZE (1..URIMAX)
+
+VirtualPlatformBackupServiceURI ::= SEQUENCE {
+restoreAllowed BOOLEAN DEFAULT FALSE,
+backupServiceURI IA5String }
+
+END
