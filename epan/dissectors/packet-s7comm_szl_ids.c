@@ -3998,8 +3998,8 @@ s7comm_decode_ud_cpu_szl_subfunc(tvbuff_t *tvb,
                  * it's not possible to decode this and following telegrams without knowing the previous requests.
                  */
                 tbytes = 0;
-                if (list_len > 0) {
-                    if ((list_count * list_len) > (len - 8)) {
+                if (list_len > 0 && list_count > 0) {
+                    if ( (guint32) (list_count * list_len) > (guint32) (len - 8)) {
                         list_count = (len - 8) / list_len;
                         /* remind the number of trailing bytes */
                         if (list_count > 0) {
@@ -4007,10 +4007,14 @@ s7comm_decode_ud_cpu_szl_subfunc(tvbuff_t *tvb,
                         }
                     }
                 }
+                else {
+                    tbytes = len - 8;
+                }
+
                 offset += 2;
                 /* Add a Data element for each partlist */
                 if (len > 8) {      /* minimum length of a correct szl data part is 8 bytes */
-                    for (i = 1; i <= list_count; i++) {
+                    for (i = 1; i <= list_count && (list_count * list_len != 0); i++) {
                         /* Add a separate tree for the SZL data */
                         szl_item = proto_tree_add_item(data_tree, hf_s7comm_userdata_szl_tree, tvb, offset, list_len, ENC_NA);
                         szl_item_tree = proto_item_add_subtree(szl_item, ett_s7comm_szl);
