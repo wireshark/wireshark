@@ -205,6 +205,8 @@ WS_DLL_PUBLIC void draw_tap_listeners(gboolean draw_all);
  *                   from a separate thread up to once every 2-3 seconds.
  *                   On other ports it might only be called once when the capture is finished
  *                   or the file has been [re]read completely.
+ * @param tap_finish void (*finish)(void *tapdata)
+ *                   This callback is called when your listener is removed.
  */
 
 WS_DLL_PUBLIC GString *register_tap_listener(const char *tapname, void *tapdata,
