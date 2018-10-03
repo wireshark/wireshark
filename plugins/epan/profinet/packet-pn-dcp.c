@@ -87,7 +87,7 @@ static int hf_pn_dcp_suboption_dhcp = -1;
 static int hf_pn_dcp_suboption_dhcp_device_id = -1;
 
 static int hf_pn_dcp_suboption_control = -1;
-static int hf_pn_dcp_suboption_control_response = -1;
+static int hf_pn_dcp_suboption_control_option = -1;
 static int hf_pn_dcp_suboption_control_signal_value = -1;
 
 static int hf_pn_dcp_suboption_deviceinitiative = -1;
@@ -824,7 +824,7 @@ dissect_PNDCP_Suboption_Control(tvbuff_t *tvb, int offset, packet_info *pinfo,
         break;
     case PNDCP_SUBOPTION_CONTROL_RESPONSE:
         proto_item_append_text(block_item, "Control/Response");
-        offset = dissect_PNDCP_Option(tvb, offset, pinfo, tree, block_item, hf_pn_dcp_suboption_control_response,
+        offset = dissect_PNDCP_Option(tvb, offset, pinfo, tree, block_item, hf_pn_dcp_suboption_control_option,
             FALSE /* append_col */);
         block_error = tvb_get_guint8 (tvb, offset);
         if (tree) {
@@ -1315,8 +1315,8 @@ proto_register_pn_dcp (void)
             FT_UINT8, BASE_DEC, VALS(pn_dcp_suboption_control), 0x0,
             NULL, HFILL }},
 
-        { &hf_pn_dcp_suboption_control_response,
-          { "Response", "pn_dcp.suboption_control_response",
+        { &hf_pn_dcp_suboption_control_option,
+          { "Option", "pn_dcp.suboption_control_option",
             FT_UINT8, BASE_DEC, VALS(pn_dcp_option), 0x0,
             NULL, HFILL }},
 
