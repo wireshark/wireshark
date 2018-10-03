@@ -105,6 +105,7 @@ typedef enum {
 #define SSL_HND_HELLO_EXT_TOKEN_BINDING                 24
 #define SSL_HND_HELLO_EXT_CACHED_INFO                   25
 #define SSL_HND_HELLO_EXT_COMPRESS_CERTIFICATE          27
+#define SSL_HND_HELLO_EXT_RECORD_SIZE_LIMIT             28
 /* 26-34  Unassigned*/
 #define SSL_HND_HELLO_EXT_SESSION_TICKET_TLS            35
 /* RFC 8446 (TLS 1.3) */
@@ -851,6 +852,8 @@ typedef struct ssl_common_dissect {
         gint hs_ext_compress_certificate_compressed_certificate_message_length;
         gint hs_ext_compress_certificate_compressed_certificate_message;
 
+        gint hs_ext_record_size_limit;
+
         /* QUIC Transport Parameters */
         gint hs_ext_quictp_negotiated_version;
         gint hs_ext_quictp_initial_version;
@@ -1108,7 +1111,7 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1,                                                     \
+        -1, -1, -1, -1,                                                 \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
@@ -1853,6 +1856,11 @@ ssl_common_dissect_t name = {   \
       { "Compressed Certificate Message", prefix ".compress_certificate.compressed_certificate_message", \
         FT_BYTES, BASE_NONE, NULL, 0x00,                                \
         NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_record_size_limit,                              \
+      { "Record Size Limit", prefix ".record_size_limit",               \
+        FT_UINT16, BASE_DEC, NULL, 0x00,                                \
+        "Maximum record size that an endpoint is willing to receive", HFILL } \
     },                                                                  \
     { & name .hf.hs_ext_quictp_negotiated_version,                      \
       { "Negotiated Version", prefix ".quic.negotiated_version",        \

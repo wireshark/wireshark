@@ -1129,6 +1129,7 @@ const value_string tls_hello_extension_types[] = {
     { SSL_HND_HELLO_EXT_TOKEN_BINDING, "token_binding" }, /* https://tools.ietf.org/html/draft-ietf-tokbind-negotiation */
     { SSL_HND_HELLO_EXT_CACHED_INFO, "cached_info" }, /* RFC 7924 */
     { SSL_HND_HELLO_EXT_COMPRESS_CERTIFICATE, "compress_certificate" }, /* https://tools.ietf.org/html/draft-ietf-tls-certificate-compression-03 */
+    { SSL_HND_HELLO_EXT_RECORD_SIZE_LIMIT, "record_size_limit" }, /* RFC 8449 */
     { SSL_HND_HELLO_EXT_SESSION_TICKET_TLS, "session_ticket" }, /* RFC 5077 / RFC 8447 */
     { SSL_HND_HELLO_EXT_KEY_SHARE_OLD, "Reserved (key_share)" }, /* https://tools.ietf.org/html/draft-ietf-tls-tls13-22 (removed in -23) */
     { SSL_HND_HELLO_EXT_PRE_SHARED_KEY, "pre_shared_key" }, /* RFC 8446 */
@@ -6578,6 +6579,7 @@ ssl_dissect_hnd_hello_ext_compress_certificate(ssl_common_dissect_t *hf, tvbuff_
 
     return offset;
 }
+
 static guint32
 ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
                                                     proto_tree *tree, guint32 offset, guint32 offset_end,
@@ -8407,6 +8409,11 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             break;
         case SSL_HND_HELLO_EXT_COMPRESS_CERTIFICATE:
             offset = ssl_dissect_hnd_hello_ext_compress_certificate(hf, tvb, pinfo, ext_tree, offset, next_offset, hnd_type, ssl);
+            break;
+        case SSL_HND_HELLO_EXT_RECORD_SIZE_LIMIT:
+            proto_tree_add_item(ext_tree, hf->hf.hs_ext_record_size_limit,
+                                tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
             break;
         case SSL_HND_HELLO_EXT_QUIC_TRANSPORT_PARAMETERS:
             offset = ssl_dissect_hnd_hello_ext_quic_transport_parameters(hf, tvb, pinfo, ext_tree, offset, next_offset, hnd_type, ssl);
