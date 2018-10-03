@@ -4,6 +4,7 @@
 #.MODULE_IMPORT
 PKIX1Explicit88	pkix1explicit
 PKIX1Implicit88	pkix1implicit
+PKCS-10 pkcs10
 
 #.INCLUDE ../pkix1explicit/pkix1explicit_exp.cnf
 #.INCLUDE ../pkix1implicit/pkix1implicit_exp.cnf

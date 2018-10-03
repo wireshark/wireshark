@@ -31,6 +31,7 @@
 #include "packet-crmf.h"
 #include "packet-pkix1explicit.h"
 #include "packet-pkix1implicit.h"
+#include "packet-pkcs10.h"
 #include "packet-tcp.h"
 #include "packet-http.h"
 #include <epan/prefs.h>
@@ -103,7 +104,7 @@ static int hf_cmp_ir = -1;                        /* CertReqMessages */
 static int hf_cmp_ip = -1;                        /* CertRepMessage */
 static int hf_cmp_cr = -1;                        /* CertReqMessages */
 static int hf_cmp_cp = -1;                        /* CertRepMessage */
-static int hf_cmp_p10cr = -1;                     /* NULL */
+static int hf_cmp_p10cr = -1;                     /* CertificationRequest */
 static int hf_cmp_popdecc = -1;                   /* POPODecKeyChallContent */
 static int hf_cmp_popdecr = -1;                   /* POPODecKeyRespContent */
 static int hf_cmp_kur = -1;                       /* CertReqMessages */
@@ -222,7 +223,7 @@ static int hf_cmp_PKIFailureInfo_systemFailure = -1;
 static int hf_cmp_PKIFailureInfo_duplicateCertReq = -1;
 
 /*--- End of included file: packet-cmp-hf.c ---*/
-#line 55 "./asn1/cmp/packet-cmp-template.c"
+#line 56 "./asn1/cmp/packet-cmp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_cmp = -1;
@@ -278,7 +279,7 @@ static gint ett_cmp_PollRepContent = -1;
 static gint ett_cmp_PollRepContent_item = -1;
 
 /*--- End of included file: packet-cmp-ett.c ---*/
-#line 59 "./asn1/cmp/packet-cmp-template.c"
+#line 60 "./asn1/cmp/packet-cmp-template.c"
 
 /*--- Included file: packet-cmp-fn.c ---*/
 #line 1 "./asn1/cmp/packet-cmp-fn.c"
@@ -380,7 +381,7 @@ dissect_cmp_T_infoType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_cmp_T_infoValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 51 "./asn1/cmp/cmp.cnf"
+#line 52 "./asn1/cmp/cmp.cnf"
   offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 
@@ -479,7 +480,7 @@ static const value_string cmp_PKIStatus_vals[] = {
 
 static int
 dissect_cmp_PKIStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 67 "./asn1/cmp/cmp.cnf"
+#line 68 "./asn1/cmp/cmp.cnf"
   guint32 value;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -629,15 +630,6 @@ static int
 dissect_cmp_CertRepMessage(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    CertRepMessage_sequence, hf_index, ett_cmp_CertRepMessage);
-
-  return offset;
-}
-
-
-
-static int
-dissect_cmp_NULL(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_null(implicit_tag, actx, tree, tvb, offset, hf_index);
 
   return offset;
 }
@@ -1048,7 +1040,7 @@ static const ber_choice_t PKIBody_choice[] = {
   {   1, &hf_cmp_ip              , BER_CLASS_CON, 1, 0, dissect_cmp_CertRepMessage },
   {   2, &hf_cmp_cr              , BER_CLASS_CON, 2, 0, dissect_crmf_CertReqMessages },
   {   3, &hf_cmp_cp              , BER_CLASS_CON, 3, 0, dissect_cmp_CertRepMessage },
-  {   4, &hf_cmp_p10cr           , BER_CLASS_CON, 4, 0, dissect_cmp_NULL },
+  {   4, &hf_cmp_p10cr           , BER_CLASS_CON, 4, 0, dissect_pkcs10_CertificationRequest },
   {   5, &hf_cmp_popdecc         , BER_CLASS_CON, 5, 0, dissect_cmp_POPODecKeyChallContent },
   {   6, &hf_cmp_popdecr         , BER_CLASS_CON, 6, 0, dissect_cmp_POPODecKeyRespContent },
   {   7, &hf_cmp_kur             , BER_CLASS_CON, 7, 0, dissect_crmf_CertReqMessages },
@@ -1076,7 +1068,7 @@ static const ber_choice_t PKIBody_choice[] = {
 
 static int
 dissect_cmp_PKIBody(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 57 "./asn1/cmp/cmp.cnf"
+#line 58 "./asn1/cmp/cmp.cnf"
   gint branch_taken;
 
     offset = dissect_ber_choice(actx, tree, tvb, offset,
@@ -1470,7 +1462,7 @@ static int dissect_SuppLangTagsValue_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
 
 
 /*--- End of included file: packet-cmp-fn.c ---*/
-#line 60 "./asn1/cmp/packet-cmp-template.c"
+#line 61 "./asn1/cmp/packet-cmp-template.c"
 
 static int
 dissect_cmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -1882,7 +1874,7 @@ void proto_register_cmp(void) {
     { &hf_cmp_p10cr,
       { "p10cr", "cmp.p10cr_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
+        "CertificationRequest", HFILL }},
     { &hf_cmp_popdecc,
       { "popdecc", "cmp.popdecc",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -2345,7 +2337,7 @@ void proto_register_cmp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-cmp-hfarr.c ---*/
-#line 302 "./asn1/cmp/packet-cmp-template.c"
+#line 303 "./asn1/cmp/packet-cmp-template.c"
 	};
 
 	/* List of subtrees */
@@ -2403,7 +2395,7 @@ void proto_register_cmp(void) {
     &ett_cmp_PollRepContent_item,
 
 /*--- End of included file: packet-cmp-ettarr.c ---*/
-#line 308 "./asn1/cmp/packet-cmp-template.c"
+#line 309 "./asn1/cmp/packet-cmp-template.c"
 	};
 	module_t *cmp_module;
 
@@ -2490,7 +2482,7 @@ void proto_reg_handoff_cmp(void) {
 
 
 /*--- End of included file: packet-cmp-dis-tab.c ---*/
-#line 373 "./asn1/cmp/packet-cmp-template.c"
+#line 374 "./asn1/cmp/packet-cmp-template.c"
 		inited = TRUE;
 	}
 

@@ -23,6 +23,7 @@
 #include "packet-crmf.h"
 #include "packet-pkix1explicit.h"
 #include "packet-pkix1implicit.h"
+#include "packet-pkcs10.h"
 #include "packet-tcp.h"
 #include "packet-http.h"
 #include <epan/prefs.h>
