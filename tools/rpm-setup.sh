@@ -71,6 +71,7 @@ ADDITIONAL_LIST="libnl3-devel \
 	doxygen \
 	libxml2-devel \
 	spandsp-devel \
+	systemd-devel \
 	rpm-build"
 
 # Guess which package manager we will use
