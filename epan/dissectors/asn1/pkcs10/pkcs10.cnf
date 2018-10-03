@@ -1,0 +1,21 @@
+# pkcs10.cnf
+# PKCS10 conformation file
+
+#.MODULE_IMPORT
+PKIX1Explicit88	pkix1explicit
+
+#.INCLUDE ../pkix1explicit/pkix1explicit_exp.cnf
+
+#.EXPORTS
+CertificationRequest
+
+#.PDU
+CertificationRequest
+
+#.NO_EMIT
+
+#.TYPE_RENAME
+
+#.FIELD_RENAME
+
+#.END_OF_CNF

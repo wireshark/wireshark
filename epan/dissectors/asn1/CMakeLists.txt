@@ -83,6 +83,7 @@ set(ASN1_SRC_DIRS
 	p772
 	pcap
 	pkcs1
+	pkcs10
 	pkcs12
 	pkinit
 	pkix1explicit
