@@ -104,7 +104,10 @@ Too many protocols have been updated to list here.
 // Add one file type per line between the --sort-and-group-- delimiters.
 [commaize]
 --
+RFC 7468 (PEM)
+Ruby marshal object files
 systemd Journal Export
+Unigraf DPA-400 DisplayPort AUX channel monitor
 --
 
 === New and Updated Capture Interfaces support
@@ -117,6 +120,7 @@ DisplayPort AUX channel data from linux kernel drivers.
 sdjournal, an extcap that captures systemd journal entries.
 
 === Major API Changes
+
 * Lua: the various logging functions (debug, info, message, warn and critical)
   have been removed. Use the print function instead for debugging purposes.
 
