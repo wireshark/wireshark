@@ -8,7 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref 3GPP TS 36.355 version 15.0.0 Release 15
+ * Ref 3GPP TS 36.355 version 15.1.0 Release 15
  * http://www.3gpp.org
  */
 
@@ -1881,7 +1881,7 @@ static void
 lpp_rsrq_Result_fmt(gchar *s, guint32 v)
 {
   if (v == 0) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "RSRQ < -19.5 dB (0)");
+    g_snprintf(s, ITEM_LABEL_LENGTH, "RSRQ < -19.5dB (0)");
   } else if (v < 34) {
     g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB <= RSRQ < %.1fdB (%u)", ((float)v/2)-20, (((float)v+1)/2)-20, v);
   } else {
@@ -1910,6 +1910,32 @@ lpp_nrsrq_Result_fmt(gchar *s, guint32 v)
     g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB <= NRSRQ < %.1fdB (%u)", (((float)v-1)/2)-34, ((float)v/2)-34, v);
   } else {
     g_snprintf(s, ITEM_LABEL_LENGTH, "2.5dB <= NRSRQ (%u)", v);
+  }
+}
+
+static void
+lpp_rsrp_Result_v1470_fmt(gchar *s, guint32 v)
+{
+  gint32 d = (gint32)v;
+
+  if (d == -17) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "RSRP < -157dBm (-17)");
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%ddBm <= RSRP < %ddBm (%d)", d-141, d-140, d);
+  }
+}
+
+static void
+lpp_rsrq_Result_v1470_fmt(gchar *s, guint32 v)
+{
+  gint32 d = (gint32)v;
+
+  if (v == 0) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "RSRQ < -34.5dB (-30)");
+  } else if (v < 46) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB <= RSRQ < %.1fdB (%d)", ((float)d/2)-20, (((float)d+1)/2)-20, d);
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "3dB <= RSRQ (46)");
   }
 }
 

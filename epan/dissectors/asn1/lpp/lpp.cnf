@@ -122,7 +122,7 @@ EPDU-ID STRINGS=VALS(lpp_ePDU_ID_vals)
       proto_tree_add_item(subtree, hf_lpp_T_accessTypes_nb_iot, accessTypes_tvb, 0, 1, ENC_BIG_ENDIAN);
     }
     if (len >= 5) {
-      proto_tree_add_item(subtree, hf_lpp_T_accessTypes_nr, accessTypes_tvb, 0, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item(subtree, hf_lpp_T_accessTypes_nr_v1510, accessTypes_tvb, 0, 1, ENC_BIG_ENDIAN);
     }
   }
 
@@ -371,7 +371,7 @@ MessageSizeLimitNB-r14/measurementLimit-r14 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(
       proto_tree_add_item(subtree, hf_lpp_LocationSource_r13_sensor, locSource_tvb, 0, 1, ENC_BIG_ENDIAN);
     }
     if (len >= 6) {
-      proto_tree_add_item(subtree, hf_lpp_LocationSource_r13_ha_gnss_v15xy, locSource_tvb, 0, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item(subtree, hf_lpp_LocationSource_r13_ha_gnss_v1510, locSource_tvb, 0, 1, ENC_BIG_ENDIAN);
     }
   }
 
@@ -1925,6 +1925,12 @@ MeasuredResultsElement/eag_2/nrsrp-Result-r14 DISPLAY=BASE_CUSTOM STRINGS=CF_FUN
 
 #.TYPE_ATTR
 MeasuredResultsElement/eag_2/nrsrq-Result-r14 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_nrsrq_Result_fmt)
+
+#.TYPE_ATTR
+MeasuredResultsElement/eag_3/rsrp-Result-v1470 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_rsrp_Result_v1470_fmt)
+
+#.TYPE_ATTR
+MeasuredResultsElement/eag_3/rsrq-Result-v1470 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_rsrq_Result_v1470_fmt)
 
 #.FN_BODY ECID-RequestLocationInformation/requestedMeasurements VAL_PTR = &requestedMeasurements_tvb LEN_PTR = &len
   tvbuff_t *requestedMeasurements_tvb = NULL;
