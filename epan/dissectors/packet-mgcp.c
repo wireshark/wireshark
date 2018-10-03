@@ -148,6 +148,7 @@ static int hf_mgcp_param_maxmgcpdatagram = -1;
 static int hf_mgcp_param_packagelist = -1;
 static int hf_mgcp_param_extension = -1;
 static int hf_mgcp_param_extension_critical = -1;
+static int hf_mgcp_param_resourceid = -1;
 static int hf_mgcp_param_invalid = -1;
 static int hf_mgcp_messagecount = -1;
 static int hf_mgcp_dup = -1;
@@ -974,6 +975,18 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf, mgcp
 			case 'D':
 				if (tvb_get_guint8(tvb, tvb_current_offset+1) != ':')
 				{
+					if (len > (tvb_current_offset + 5 - offset) &&
+						(g_ascii_toupper(tvb_get_guint8(tvb, tvb_current_offset + 1) == 'Q')) &&
+						(                tvb_get_guint8(tvb, tvb_current_offset + 2) == '-' ) &&
+						(g_ascii_toupper(tvb_get_guint8(tvb, tvb_current_offset + 3) == 'R')) &&
+						(g_ascii_toupper(tvb_get_guint8(tvb, tvb_current_offset + 4) == 'I')) &&
+						(                tvb_get_guint8(tvb, tvb_current_offset + 5) == ':' )
+					) {
+						tvb_current_offset+=4;
+						*hf = &hf_mgcp_param_resourceid;
+						break;
+					}
+
 					*hf = &hf_mgcp_param_invalid;
 					break;
 				}
@@ -2645,6 +2658,9 @@ void proto_register_mgcp(void)
 			{ &hf_mgcp_param_extension_critical,
 			  { "Extension Parameter (critical)", "mgcp.param.extensioncritical", FT_STRING, BASE_NONE, NULL, 0x0,
 			    "Critical Extension Parameter", HFILL }},
+			{ &hf_mgcp_param_resourceid,
+			  { "ResourceIdentifier (DQ-RI)", "mgcp.param.resourceid", FT_STRING, BASE_NONE, NULL, 0x0,
+			    "Resource Identifier", HFILL }},
 			{ &hf_mgcp_param_invalid,
 			  { "Invalid Parameter", "mgcp.param.invalid", FT_STRING, BASE_NONE, NULL, 0x0,
 			    NULL, HFILL }},
