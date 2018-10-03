@@ -559,6 +559,11 @@ void MainStatusBar::showProfileMenu(const QPoint &global_pos, Qt::MouseButton bu
                 pa->setCheckable(true);
                 pa->setChecked(true);
             }
+            if (profile->is_global) {
+                QFont ti_font = pa->font();
+                ti_font.setItalic(true);
+                pa->setFont(ti_font);
+            }
             connect(pa, SIGNAL(triggered()), this, SLOT(switchToProfile()));
         }
         fl_entry = g_list_next(fl_entry);
