@@ -291,7 +291,7 @@ static int hf_mac_nr_rar_subheader = -1;
 static int hf_mac_nr_rar_e = -1;
 static int hf_mac_nr_rar_t = -1;
 static int hf_mac_nr_rar_reserved = -1;
-static int hf_mac_nr_rar_reserved2 = -1;
+static int hf_mac_nr_rar_reserved1 = -1;
 
 static int hf_mac_nr_rar_bi = -1;
 static int hf_mac_nr_rar_rapid = -1;
@@ -1207,15 +1207,15 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             if (TRUE) {
                 /* SubPDU.  Not for SI request - TODO: define RAPID range for SI request in mac_nr_info */
 
-                /* 3 reserved bits */
-                proto_tree_add_item(rar_subheader_tree, hf_mac_nr_rar_reserved2, tvb, offset, 1, ENC_BIG_ENDIAN);
+                /* 1 reserved bit */
+                proto_tree_add_item(rar_subheader_tree, hf_mac_nr_rar_reserved1, tvb, offset, 1, ENC_BIG_ENDIAN);
 
                 /* TA (12 bits) */
                 guint32 ta;
                 proto_tree_add_item_ret_uint(rar_subheader_tree, hf_mac_nr_rar_ta, tvb, offset, 2, ENC_BIG_ENDIAN, &ta);
                 offset++;
 
-                /* Break down the 25-bits of the grant field, according to 38.213, section 8.2 */
+                /* Break down the 27-bits of the grant field, according to 38.213, section 8.2 */
                 static const int *rar_grant_fields[] = {
                     &hf_mac_nr_rar_grant_hopping,
                     &hf_mac_nr_rar_grant_fra,
@@ -2672,9 +2672,9 @@ void proto_register_mac_nr(void)
               NULL, HFILL
             }
         },
-        { &hf_mac_nr_rar_reserved2,
+        { &hf_mac_nr_rar_reserved1,
             { "Reserved",
-              "mac-nr.rar.reserved", FT_UINT8, BASE_DEC, NULL, 0xe0,
+              "mac-nr.rar.reserved", FT_UINT8, BASE_DEC, NULL, 0x80,
               NULL, HFILL
             }
         },
@@ -2699,26 +2699,26 @@ void proto_register_mac_nr(void)
         },
         { &hf_mac_nr_rar_ta,
             { "Timing Advance",
-              "mac-nr.rar.ta", FT_UINT16, BASE_DEC, NULL, 0x1ffe,
+              "mac-nr.rar.ta", FT_UINT16, BASE_DEC, NULL, 0x7ff8,
               NULL, HFILL
             }
         },
 
         { &hf_mac_nr_rar_grant,
             { "Grant",
-              "mac-nr.rar.grant", FT_UINT32, BASE_HEX, NULL, 0x01ffffff,
+              "mac-nr.rar.grant", FT_UINT32, BASE_HEX, NULL, 0x07ffffff,
               "UL Grant details", HFILL
             }
         },
         { &hf_mac_nr_rar_grant_hopping,
             { "Frequency hopping flag",
-              "mac-nr.rar.grant.hopping", FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x01000000,
+              "mac-nr.rar.grant.hopping", FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x04000000,
               NULL, HFILL
             }
         },
         { &hf_mac_nr_rar_grant_fra,
             { "Msg3 PUSCH frequency resource allocation",
-              "mac-nr.rar.grant.fra", FT_UINT32, BASE_DEC, NULL, 0x00fff000,
+              "mac-nr.rar.grant.fra", FT_UINT32, BASE_DEC, NULL, 0x03fff000,
               NULL, HFILL
             }
         },
