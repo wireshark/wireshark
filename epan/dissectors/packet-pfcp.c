@@ -181,7 +181,6 @@ static int hf_pfcp_subsequent_time_threshold = -1;
 static int hf_pfcp_inactivity_detection_time = -1;
 static int hf_pfcp_monitoring_time = -1;
 
-static int hf_pfcp_reporting_triggers = -1;
 static int hf_pfcp_reporting_triggers_o5_b7_liusa = -1;
 static int hf_pfcp_reporting_triggers_o5_b6_droth = -1;
 static int hf_pfcp_reporting_triggers_o5_b5_stopt = -1;
@@ -262,7 +261,6 @@ static int hf_pfcp_metric = -1;
 static int hf_pfcp_timer_unit = -1;
 static int hf_pfcp_timer_value = -1;
 
-static int hf_pfcp_usage_report_trigger = -1;
 static int hf_pfcp_usage_report_trigger_o5_b7_immer = -1;
 static int hf_pfcp_usage_report_trigger_o5_b6_droth = -1;
 static int hf_pfcp_usage_report_trigger_o5_b5_stopt = -1;
@@ -1815,11 +1813,9 @@ dissect_pfcp_reporting_triggers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     };
     /* Octet 5 [Bits 15-08] LIUSA   DROTH   STOPT   START   QUHTI   TIMTH   VOLTH   PERIO */
     /* Octet 6 [Bits 07-00] SPARE   SPARE   SPARE   SPARE   MACAR   ENVCL   TIMQU   VOLQU */
-    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_pfcp_reporting_triggers,
-        ett_pfcp_reporting_triggers, pfcp_reporting_triggers_o5_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT);
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_reporting_triggers_o5_flags, ENC_BIG_ENDIAN);
     offset++;
-    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_pfcp_reporting_triggers,
-        ett_pfcp_reporting_triggers, pfcp_reporting_triggers_o6_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT);
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_reporting_triggers_o6_flags, ENC_BIG_ENDIAN);
     offset++;
 
     if (offset < length) {
@@ -2593,11 +2589,9 @@ dissect_pfcp_usage_report_trigger(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     };
     /* Octet 5  IMMER   DROTH   STOPT   START   QUHTI   TIMTH   VOLTH   PERIO*/
     /* Octet 6  Spare   MACAR   ENVCL   MONIT   TERMR   LIUSA   TIMQU   VOLQU*/
-    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_pfcp_usage_report_trigger,
-        ett_pfcp_report_trigger, pfcp_usage_report_trigger_o5_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT);
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_usage_report_trigger_o5_flags, ENC_BIG_ENDIAN);
     offset++;
-    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_pfcp_usage_report_trigger,
-        ett_pfcp_report_trigger, pfcp_usage_report_trigger_o6_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT);
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_usage_report_trigger_o6_flags, ENC_BIG_ENDIAN);
     offset++;
 
     if (offset < length) {
@@ -6142,11 +6136,6 @@ proto_register_pfcp(void)
             FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
-        { &hf_pfcp_reporting_triggers,
-        { "Flags", "pfcp.reporting_triggers_flags",
-            FT_UINT8, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }
-        },
         { &hf_pfcp_reporting_triggers_o5_b0_perio,
         { "PERIO (Periodic Reporting)", "pfcp.reporting_triggers_flags.perio",
             FT_BOOLEAN, 8, NULL, 0x01,
@@ -6205,12 +6194,6 @@ proto_register_pfcp(void)
         { &hf_pfcp_reporting_triggers_o6_b3_macar,
         { "MACAR (MAC Addresses Reporting)", "pfcp.reporting_triggers_flags.macar",
             FT_BOOLEAN, 8, NULL, 0x08,
-            NULL, HFILL }
-        },
-
-        { &hf_pfcp_usage_report_trigger,
-        { "Flags", "pfcp.usage_report_trigger",
-            FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
 
