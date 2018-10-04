@@ -2827,12 +2827,48 @@ SR-NPRACH-Resource-NB-r15/p0-SR-r15 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&u
   /* Clear out the struct again */
   memset(&drb_mapping, 0, sizeof(drb_mapping));
 
-#.FN_BODY RLC-Config-NB-r13
+#.FN_BODY RLC-Config-NB-r13/am
   drb_mapping_t *mapping = private_data_get_drb_mapping(actx);
 %(DEFAULT_BODY)s
   if (mapping != NULL) {
     mapping->rlcMode = RLC_AM_MODE;
     mapping->rlcMode_present = TRUE;
+    mapping->pdcp_sn_size = 7;
+    mapping->pdcp_sn_size_present = TRUE;
+  }
+
+#.FN_BODY RLC-Config-NB-r13/um-Bi-Directional-r15
+  drb_mapping_t *mapping = private_data_get_drb_mapping(actx);
+%(DEFAULT_BODY)s
+  if (mapping != NULL) {
+    mapping->rlcMode = RLC_UM_MODE;
+    mapping->rlcMode_present = TRUE;
+    mapping->um_sn_length = 5;
+    mapping->um_sn_length_present = TRUE;
+    mapping->pdcp_sn_size = 7;
+    mapping->pdcp_sn_size_present = TRUE;
+  }
+
+#.FN_BODY RLC-Config-NB-r13/um-Uni-Directional-UL-r15
+  drb_mapping_t *mapping = private_data_get_drb_mapping(actx);
+%(DEFAULT_BODY)s
+  if (mapping != NULL) {
+    mapping->rlcMode = RLC_UM_MODE;
+    mapping->rlcMode_present = TRUE;
+    mapping->um_sn_length = 5;
+    mapping->um_sn_length_present = TRUE;
+    mapping->pdcp_sn_size = 7;
+    mapping->pdcp_sn_size_present = TRUE;
+  }
+
+#.FN_BODY RLC-Config-NB-r13/um-Uni-Directional-DL-r15
+  drb_mapping_t *mapping = private_data_get_drb_mapping(actx);
+%(DEFAULT_BODY)s
+  if (mapping != NULL) {
+    mapping->rlcMode = RLC_UM_MODE;
+    mapping->rlcMode_present = TRUE;
+    mapping->um_sn_length = 5;
+    mapping->um_sn_length_present = TRUE;
     mapping->pdcp_sn_size = 7;
     mapping->pdcp_sn_size_present = TRUE;
   }
