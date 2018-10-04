@@ -675,7 +675,8 @@ void proto_register_h248_3gpp(void) {
 		&ett_h248_3GTFO_codec_list,
 		&ett_h248_3GTFO_codec,
 		&ett_pkg_3GCSD_sig_actprot,
-		&ett_h248_package_threegiptra
+		&ett_h248_package_threegiptra,
+		&ett_h248_package_threegint
 	};
 
 	proto_h248_package_3GUP = proto_register_protocol(PNAME, PSNAME, PFNAME);
