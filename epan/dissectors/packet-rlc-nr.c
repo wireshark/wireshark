@@ -17,6 +17,7 @@
 #include <epan/prefs.h>
 #include <epan/proto_data.h>
 #include "packet-rlc-nr.h"
+#include "packet-pdcp-nr.h"
 
 
 /* Described in:
@@ -36,6 +37,21 @@ void proto_reg_handoff_rlc_nr(void);
 /********************************/
 /* Preference settings          */
 
+/* By default do call PDCP/RRC dissectors for SDU data */
+static gboolean global_rlc_nr_call_pdcp_for_srb = TRUE;
+
+enum pdcp_for_drb { PDCP_drb_off, PDCP_drb_SN_12, PDCP_drb_SN_18};
+static const enum_val_t pdcp_drb_col_vals[] = {
+    {"pdcp-drb-off",           "Off",                 PDCP_drb_off},
+    {"pdcp-drb-sn-12",         "12-bit SN",           PDCP_drb_SN_12},
+    {"pdcp-drb-sn-18",         "18-bit SN",           PDCP_drb_SN_18},
+    {NULL, NULL, -1}
+};
+/* Separate config for UL/DL */
+static gint global_rlc_nr_call_pdcp_for_ul_drb = (gint)PDCP_drb_off;
+static gint global_rlc_nr_call_pdcp_for_dl_drb = (gint)PDCP_drb_off;
+
+
 static gboolean global_rlc_nr_call_rrc_for_ccch = TRUE;
 
 /* Preference to expect RLC headers without payloads */
@@ -45,6 +61,9 @@ static gboolean global_rlc_nr_headers_expected = FALSE;
 /* Initialize the protocol and registered fields. */
 int proto_rlc_nr = -1;
 
+extern int proto_pdcp_nr;
+
+static dissector_handle_t pdcp_nr_handle;
 static dissector_handle_t nr_rrc_bcch_bch;
 
 
@@ -284,7 +303,77 @@ static void show_PDU_in_tree(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t 
                         hf_rlc_nr_am_data : hf_rlc_nr_um_data,
                         tvb, offset, length, ENC_NA);
 
-    /* TODO: add reassembly and call upper layer dissector */
+    /* TODO: handle reassembled PDCP PDUs. */
+    /* For now only dissect complete PDUs */
+    if (seg_info == 0) {  /* i.e. contains whole SDU */
+        if ((global_rlc_nr_call_pdcp_for_srb && (rlc_info->bearerType == BEARER_TYPE_SRB)) ||
+            ((rlc_info->bearerType == BEARER_TYPE_DRB) &&
+                 (((rlc_info->direction == PDCP_NR_DIRECTION_UPLINK) &&   (global_rlc_nr_call_pdcp_for_ul_drb != PDCP_drb_off)) ||
+                  ((rlc_info->direction == PDCP_NR_DIRECTION_DOWNLINK) && (global_rlc_nr_call_pdcp_for_dl_drb != PDCP_drb_off)))))
+        {
+
+            /* Get whole PDU into tvb */
+            tvbuff_t *pdcp_tvb = tvb_new_subset_length(tvb, offset, length);
+
+            /* Reuse or allocate struct */
+            struct pdcp_nr_info *p_pdcp_nr_info;
+            p_pdcp_nr_info = (pdcp_nr_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_pdcp_nr, 0);
+            if (p_pdcp_nr_info == NULL) {
+                p_pdcp_nr_info = wmem_new0(wmem_file_scope(), pdcp_nr_info);
+                /* Store info in packet */
+                p_add_proto_data(wmem_file_scope(), pinfo, proto_pdcp_nr, 0, p_pdcp_nr_info);
+            }
+
+            /* Fill in struct params. */
+            p_pdcp_nr_info->direction = rlc_info->direction;
+            p_pdcp_nr_info->ueid = rlc_info->ueid;
+
+            gint seqnum_len;
+
+            switch (rlc_info->bearerType) {
+                case BEARER_TYPE_SRB:
+                    p_pdcp_nr_info->plane = NR_SIGNALING_PLANE;
+                    p_pdcp_nr_info->bearerType = Bearer_DCCH;
+                    p_pdcp_nr_info->seqnum_length = 12;
+                    break;
+
+                case BEARER_TYPE_DRB:
+                    p_pdcp_nr_info->plane = NR_USER_PLANE;
+                    p_pdcp_nr_info->bearerType = Bearer_DCCH;
+
+                    seqnum_len = (rlc_info->direction == PDCP_NR_DIRECTION_UPLINK) ?
+                                       global_rlc_nr_call_pdcp_for_ul_drb :
+                                       global_rlc_nr_call_pdcp_for_dl_drb;
+                    switch (seqnum_len) {
+                        case PDCP_drb_SN_12:
+                            p_pdcp_nr_info->seqnum_length = 12;
+                            break;
+                        case PDCP_drb_SN_18:
+                            p_pdcp_nr_info->seqnum_length = 18;
+                            break;
+                    }
+                    break;
+
+                default:
+                    /* Shouldn't get here */
+                    return;
+            }
+            p_pdcp_nr_info->bearerId = rlc_info->bearerId;
+
+            /* Assume no SDAP present */
+            p_pdcp_nr_info->sdap_header = 0;
+            p_pdcp_nr_info->rohc.rohc_compression = FALSE;
+            p_pdcp_nr_info->is_retx = FALSE;
+            p_pdcp_nr_info->pdu_length = length;
+
+            TRY {
+                call_dissector_only(pdcp_nr_handle, pdcp_tvb, pinfo, tree, NULL);
+            }
+            CATCH_ALL {
+            }
+            ENDTRY
+        }
+    }
 }
 
 /***************************************************/
@@ -1277,6 +1366,24 @@ void proto_register_rlc_nr(void)
 
     /* Preferences */
     rlc_nr_module = prefs_register_protocol(proto_rlc_nr, NULL);
+
+    prefs_register_bool_preference(rlc_nr_module, "call_pdcp_for_srb",
+        "Call PDCP dissector for SRB PDUs",
+        "Call PDCP dissector for signalling PDUs.  Note that without reassembly, it can"
+        "only be called for complete PDUs (i.e. not segmented over RLC)",
+        &global_rlc_nr_call_pdcp_for_srb);
+
+    prefs_register_enum_preference(rlc_nr_module, "call_pdcp_for_ul_drb",
+        "Call PDCP dissector for UL DRB PDUs",
+        "Call PDCP dissector for UL user-plane PDUs.  Note that without reassembly, it can"
+        "only be called for complete PDUs (i.e. not segmented over RLC)",
+        &global_rlc_nr_call_pdcp_for_ul_drb, pdcp_drb_col_vals, FALSE);
+
+    prefs_register_enum_preference(rlc_nr_module, "call_pdcp_for_dl_drb",
+        "Call PDCP dissector for DL DRB PDUs",
+        "Call PDCP dissector for DL user-plane PDUs.  Note that without reassembly, it can"
+        "only be called for complete PDUs (i.e. not segmented over RLC)",
+        &global_rlc_nr_call_pdcp_for_dl_drb, pdcp_drb_col_vals, FALSE);
 
     prefs_register_bool_preference(rlc_nr_module, "call_rrc_for_ccch",
         "Call RRC dissector for CCCH PDUs",
