@@ -9,6 +9,7 @@
 CalledNumber
 CauseForTerm
 ChargeIndicator
+DataVolumeOctets
 MscNo
 SystemType
 NodeAddress

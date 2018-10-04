@@ -1,4 +1,4 @@
--- 3GPP TS 32.298 v15.3.0 (2018-06-18)
+-- 3GPP TS 32.298 v15.4.0 (2018-09-21)
 GenericChargingDataTypes {itu-t (0) identified-organization (4) etsi(0) mobileDomain (0) charging (5) genericChargingDataTypes (0) asn1Module (0) version1 (0)}  
 
 DEFINITIONS IMPLICIT TAGS	::=
@@ -13,12 +13,12 @@ AddressString,
 ISDN-AddressString,
 LCSClientExternalID,
 LCSClientInternalID
-FROM MAP-CommonDataTypes { itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Network (1) modules (3) map-CommonDataTypes (18)  version15 (15) }
+FROM MAP-CommonDataTypes { itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Network (1) modules (3) map-CommonDataTypes (18)  version18 (18) }
 -- from TS 29.002 [214]
 
 PositionMethodFailure-Diagnostic,
 UnauthorizedLCSClient-Diagnostic
-FROM MAP-ER-DataTypes { itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Network (1) modules (3) map-ER-DataTypes (17)  version15 (15)}
+FROM MAP-ER-DataTypes { itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Network (1) modules (3) map-ER-DataTypes (17)  version18 (18)}
 -- from TS 29.002 [214]
 
 ObjectInstance	
@@ -268,6 +268,11 @@ CauseForTerm			::= INTEGER
 CivicAddressInformation		::= OCTET STRING
 --
 -- as defined in subclause 3.1 of IETF RFC 4776 [409] excluding the first 3 octets.
+--
+
+DataVolumeOctets		::= INTEGER
+--
+-- The volume of data transferred in octets.
 --
 
 CNIPMulticastDistribution		::= ENUMERATED
@@ -651,17 +656,21 @@ aTCFRecord			(91),
 --	32.253 [13]
 --
 	cPDTSCERecord			(105),
-	cPDTSNNRecord			(106) , --
+	cPDTSNNRecord			(106), --
 --  Record values 110 to 111 are SMS specific. The contents are defined in TS 
 --	32.274 [34]
 --
 	sCDVTT4Record			(110),
-	sCSMOT4Record			(111) ,
+	sCSMOT4Record			(111),
 --  
---  Record values120 are Exposure Function API specific. The contents are defined in TS 
+--  Record values 120 are Exposure Function API specific. The contents are defined in TS 
 --	32.254 [14]
 --
-	eASCERecord			(120)
+	eASCERecord			(120),
+--
+--  Record values from 200 are specific to Charging Function domain 
+--
+	chargingFunctionRecord		(200)
 --
 
 

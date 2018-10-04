@@ -1,5 +1,5 @@
 --
--- 3GPP TS 32.298 v15.3.0 (2018-06-18)
+-- 3GPP TS 32.298 v15.4.0 (2018-09-21)
 --
 GPRSChargingDataTypes {itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) charging (5) gprsChargingDataTypes (2) asn1Module (0) version1 (0)}
 DEFINITIONS IMPLICIT TAGS	::=
@@ -44,36 +44,36 @@ SmsTpDestinationNumber,
 SubscriptionID, 
 ThreeGPPPSDataOffStatus,
 TimeStamp
-FROM GenericChargingDataTypes {itu-t (0) identified-organization (4) etsi(0) mobileDomain (0) charging (5) genericChargingDataTypes (0) asn1Module (0) version1 (0)}
+FROM GenericChargingDataTypes {itu-t (0) identified-organization (4) etsi(0) mobileDomain (0) charging (5) genericChargingDataTypes (0) asn1Module (0) version2 (1)}
 
 DefaultGPRS-Handling,
 DefaultSMS-Handling,
 NotificationToMSUser,
 ServiceKey
 FROM MAP-MS-DataTypes {itu-t identified-organization (4) etsi (0) mobileDomain (0)
-gsm-Network (1) modules (3) map-MS-DataTypes (11) version15 (15)}
+gsm-Network (1) modules (3) map-MS-DataTypes (11) version18 (18)}
 -- from TS 29.002 [214]
 
 IMEI,
 IMSI,
 ISDN-AddressString,
 RAIdentity
-FROM MAP-CommonDataTypes {itu-t identified-organization (4) etsi (0) mobileDomain (0)gsm-Network (1) modules (3) map-CommonDataTypes (18) version15 (15)}
+FROM MAP-CommonDataTypes {itu-t identified-organization (4) etsi (0) mobileDomain (0)gsm-Network (1) modules (3) map-CommonDataTypes (18) version18 (18)}
 -- from TS 29.002 [214]
 
 CallReferenceNumber
-FROM MAP-CH-DataTypes {itu-t identified-organization (4) etsi (0) mobileDomain (0)gsm-Network (1) modules (3) map-CH-DataTypes (13) version15 (15)}
+FROM MAP-CH-DataTypes {itu-t identified-organization (4) etsi (0) mobileDomain (0)gsm-Network (1) modules (3) map-CH-DataTypes (13) version18 (18)}
 -- from TS 29.002 [214]
 
 Ext-GeographicalInformation,
 LCSClientType,
 LCS-Priority,
 LocationType
-FROM MAP-LCS-DataTypes {itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Network (1) modules (3) map-LCS-DataTypes (25) version15 (15) }
+FROM MAP-LCS-DataTypes {itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Network (1) modules (3) map-LCS-DataTypes (25) version18 (18) }
 -- from TS 29.002 [214]
 
 LocationMethod
-FROM SS-DataTypes {itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Access (2) modules (3) ss-DataTypes (2) version15 (15)}
+FROM SS-DataTypes {itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Access (2) modules (3) ss-DataTypes (2) version12 (12)}
 -- from TS 24.080 [209] 
 
 ;
@@ -888,7 +888,7 @@ ChangeCondition	::= ENUMERATED
 	unusabilityOfAccess				(16),	-- NBIFOM "Unusability of Access"
 	indirectChangeCondition			(17),	-- NBIFOM "Indirect Change Condition"
 	userPlaneToUEChange				(18),	-- bearer modification. "Change of user plane to UE"	
-	servingPLMNRateControlChange	(19) , 	
+	servingPLMNRateControlChange	(19), 	
 -- bearer modification "Serving PLMN Rate Control Change"
 	threeGPPPSDataOffStatusChange	(20)   -- "Change of 3GPP PS DataO ff Status"
 
@@ -1239,7 +1239,8 @@ RANSecondaryRATUsageReport	::= SEQUENCE
 	dataVolumeDownlink				[2] DataVolumeGPRS,
 	rANStartTime					[3] TimeStamp,
 	rANEndTime						[4] TimeStamp,
-	secondaryRATType				[5] SecondaryRATType OPTIONAL
+	secondaryRATType				[5] SecondaryRATType OPTIONAL,
+	chargingID						[6] ChargingID OPTIONAL
 }
 
 
@@ -1291,9 +1292,8 @@ ResultCode		::= INTEGER
 --
 
 SecondaryRATType	::= INTEGER
-{	
-	reserved		(0),
-	nR				(1)		-- New Radio 5G
+{
+	nR				(0)		-- New Radio 5G
 }
 
 ServiceConditionChange	::= BIT STRING
