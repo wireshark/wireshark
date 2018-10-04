@@ -82,6 +82,7 @@ GSUP (Osmocom Generic Subscriber Update Protocol)
 MsgPack protocol
 NGAP (5G) protocol
 NR (5G) PDCP protocol
+PKCS#10 (RFC2986 Certification Request Syntax)
 PROXY (v2) protocol
 Ruby Distributed protocol
 Ruby Marshal format
