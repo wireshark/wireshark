@@ -35697,6 +35697,12 @@ proto_register_ieee80211(void)
     &ett_vht_ndp_annc_sta_info_tree,
     &ett_vht_ndp_annc_sta_list,
 
+    &ett_ff_he_action,
+    &ett_ff_protected_he_action,
+    &ett_ff_he_mimo_control,
+    &ett_ff_he_mimo_beamforming_report_snr,
+    &ett_ff_he_mimo_feedback_matrices,
+
     &ett_ff_vhtmimo_cntrl,
     &ett_ff_vhtmimo_beamforming_report,
     &ett_ff_vhtmimo_beamforming_report_snr,
