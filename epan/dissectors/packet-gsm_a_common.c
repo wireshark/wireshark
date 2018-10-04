@@ -758,7 +758,6 @@ static expert_field ei_gsm_a_unknown_pdu_type = EI_INIT;
 static expert_field ei_gsm_a_no_element_dissector = EI_INIT;
 static expert_field ei_gsm_a_format_not_supported = EI_INIT;
 static expert_field ei_gsm_a_mobile_identity_type = EI_INIT;
-static expert_field ei_gsm_a_not_enough_data = EI_INIT;
 
 sccp_assoc_info_t* sccp_assoc;
 
@@ -1290,14 +1289,6 @@ guint16 elem_tlv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 iei
 
     SET_ELEM_VARS(pdu_type, elem_names_ext, elem_ett, elem_funcs, &ei_gsm_a_unknown_pdu_type);
 
-    if (len < 2) {
-        /* We don't have enough data to read IE id + length */
-        proto_tree_add_expert_format(tree, pinfo, &ei_gsm_a_not_enough_data,
-            tvb, curr_offset, -1,
-            "Not enough data to read IE id + Length (IE: %s)", try_val_to_str_ext(idx, &elem_names_ext));
-        return consumed;
-    }
-
     oct = tvb_get_guint8(tvb, curr_offset);
 
     if (oct == iei) {
@@ -1381,14 +1372,6 @@ guint16 elem_telv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 ie
 
     SET_ELEM_VARS(pdu_type, elem_names_ext, elem_ett, elem_funcs, &ei_gsm_a_unknown_pdu_type);
 
-    if (len < 2) {
-        /* We don't have enough data to read IE id + length */
-        proto_tree_add_expert_format(tree, pinfo, &ei_gsm_a_not_enough_data,
-            tvb, curr_offset, -1,
-            "Not enough data to read IE id + Length (IE: %s)", try_val_to_str_ext(idx, &elem_names_ext));
-        return consumed;
-    }
-
     oct = tvb_get_guint8(tvb, curr_offset);
 
     if (oct == iei) {
@@ -1460,7 +1443,7 @@ guint16 elem_telv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 ie
  * information elements of format LV-E or TLV-E with value part consisting of zero,
  * one or more octets and a maximum of 65535 octets (type 6). This category is used in EPS only.
  */
-guint16 elem_tlv_e(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 iei, gint pdu_type, int idx, guint32 offset, guint len, const gchar *name_add)
+guint16 elem_tlv_e(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 iei, gint pdu_type, int idx, guint32 offset, guint len _U_, const gchar *name_add)
 {
     guint8              oct;
     guint16             parm_len;
@@ -1478,13 +1461,6 @@ guint16 elem_tlv_e(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 i
 
     SET_ELEM_VARS(pdu_type, elem_names_ext, elem_ett, elem_funcs, &ei_gsm_a_unknown_pdu_type);
 
-    if (len < 3) {
-        /* We don't have enough data to read IE id + length */
-        proto_tree_add_expert_format(tree, pinfo, &ei_gsm_a_not_enough_data,
-            tvb, curr_offset, -1,
-            "Not enough data to read IE id + Length (IE: %s)", try_val_to_str_ext(idx, &elem_names_ext));
-        return consumed;
-    }
     oct = tvb_get_guint8(tvb, curr_offset);
 
     if (oct == iei) {
@@ -4715,7 +4691,6 @@ proto_register_gsm_a_common(void)
         { &ei_gsm_a_no_element_dissector, { "gsm_a.no_element_dissector", PI_PROTOCOL, PI_WARN, "No element dissector, rest of dissection may be incorrect", EXPFILL }},
         { &ei_gsm_a_format_not_supported, { "gsm_a.format_not_supported", PI_PROTOCOL, PI_WARN, "Format not supported", EXPFILL }},
         { &ei_gsm_a_mobile_identity_type, { "gsm_a.ie.mobileid.type.unknown", PI_PROTOCOL, PI_WARN, "Format unknown", EXPFILL }},
-        { &ei_gsm_a_not_enough_data, { "gsm_a.ie.not_enough_data", PI_PROTOCOL, PI_ERROR, "To few bytes left", EXPFILL }},
     };
 
     expert_module_t* expert_a_common;
