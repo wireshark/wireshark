@@ -313,7 +313,7 @@ static int dissect_xdmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         alen = tvb_get_ntohs(tvb, caddrs_offset);
         caddrs_offset += 2;
 
-        connection_tree = proto_tree_add_subtree_format(clist_tree, NULL, 0, 0,
+        connection_tree = proto_tree_add_subtree_format(clist_tree, tvb, 0, 0,
                                             ett_xdmcp_connection, &connection_ti, "Connection %d", n);
 
     proto_tree_add_item(connection_tree, hf_xdmcp_connection_type, tvb, offset-2, 2, ENC_BIG_ENDIAN);
