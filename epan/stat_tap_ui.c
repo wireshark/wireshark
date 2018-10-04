@@ -85,6 +85,11 @@ process_stat_cmd_arg(char *optstr)
     stat_cmd_arg *sca;
     stat_requested *tr;
 
+    /* Renamed in Wireshark 3.0, backwards compatibility. */
+    if (!strncmp(optstr, "follow,ssl", strlen("follow,ssl"))) {
+        memcpy(optstr + 7, "tls", 3);
+    }
+
     /* The strings "ipx" or "ipv6" must be tested before "ip" to select the
       right tap so the sorting does matter.  And it's also why the list is
       walked backwards */
