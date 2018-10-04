@@ -174,10 +174,11 @@ if(NOT CMAKE_INSTALL_RPATH AND NOT (WIN32 OR APPLE))
 	endif()
 endif()
 
+
 if(WIN32)
     # Linking with setargv.obj enables "wildcard expansion" of
     # command-line arguments.
-    set(CMAKE_EXE_LINKER_FLAGS setargv.obj)
+    set(WILDCARD_OBJ setargv.obj)
 endif(WIN32)
 
 # Banner shown at top right of Qt welcome screen.
@@ -1052,8 +1053,6 @@ foreach(PACKAGE ${PACKAGELIST})
 		message(STATUS "${PACKAGE_VAR} NOT FOUND")
 	endif()
 endforeach()
-
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${WS_LINK_FLAGS}")
 
 # Provide Windows system lib names
 include( UseWinLibs )
@@ -2132,6 +2131,7 @@ if(BUILD_wireshark AND QT_FOUND)
 		set_target_properties(wireshark PROPERTIES COMPILE_FLAGS "${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
 	endif()
 	set_target_properties(wireshark PROPERTIES
+		LINK_FLAGS "${WS_LINK_FLAGS}"
 		FOLDER "Executables"
 	)
 	if(ENABLE_APPLICATION_BUNDLE OR WIN32)
@@ -2185,6 +2185,7 @@ endif()
 # Common properties for CLI executables
 macro(set_extra_executable_properties _executable _folder)
 	set_target_properties(${_executable} PROPERTIES
+		LINK_FLAGS "${WILDCARD_OBJ} ${WS_LINK_FLAGS}"
 		FOLDER ${_folder}
 	)
 
