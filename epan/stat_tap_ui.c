@@ -79,15 +79,16 @@ register_stat_tap_ui(stat_tap_ui *ui, void *userdata)
  * Function called for a stat command-line argument
  * ********************************************************************** */
 gboolean
-process_stat_cmd_arg(char *optstr)
+process_stat_cmd_arg(const char *optstr)
 {
     wmem_list_frame_t *entry;
     stat_cmd_arg *sca;
     stat_requested *tr;
+    char *stat_command = g_strdup(optstr);
 
     /* Renamed in Wireshark 3.0, backwards compatibility. */
-    if (!strncmp(optstr, "follow,ssl", strlen("follow,ssl"))) {
-        memcpy(optstr + 7, "tls", 3);
+    if (!strncmp(stat_command, "follow,ssl", strlen("follow,ssl"))) {
+        memcpy(stat_command + 7, "tls", 3);
     }
 
     /* The strings "ipx" or "ipv6" must be tested before "ip" to select the
@@ -95,14 +96,15 @@ process_stat_cmd_arg(char *optstr)
       walked backwards */
     for (entry = wmem_list_tail(stat_cmd_arg_list); entry; entry = wmem_list_frame_prev(entry)) {
         sca = (stat_cmd_arg*)wmem_list_frame_data(entry);
-        if(!strncmp(sca->cmd, optstr, strlen(sca->cmd))) {
+        if (!strncmp(sca->cmd, stat_command, strlen(sca->cmd))) {
             tr=(stat_requested *)g_malloc(sizeof (stat_requested));
             tr->sca = sca;
-            tr->arg=g_strdup(optstr);
+            tr->arg = stat_command;
             stats_requested = g_slist_append(stats_requested, tr);
             return TRUE;
         }
     }
+    g_free(stat_command);
     return FALSE;
 }
 

@@ -178,7 +178,7 @@ WS_DLL_PUBLIC stat_tap_table_ui *stat_tap_by_name(const char *name);
 WS_DLL_PUBLIC void free_stat_tables(stat_tap_table_ui* new_stat);
 
 
-WS_DLL_PUBLIC gboolean process_stat_cmd_arg(char *optstr);
+WS_DLL_PUBLIC gboolean process_stat_cmd_arg(const char *optstr);
 
 WS_DLL_PUBLIC void list_stat_cmd_args(void);
 
