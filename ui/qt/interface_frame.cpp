@@ -251,7 +251,7 @@ void InterfaceFrame::resetInterfaceTreeDisplay()
         ui->lblNoInterfaces->setHidden(false);
         ui->lblNoInterfaces->setText( proxyModel.interfaceError() );
         if ( prefs.capture_no_interface_load )
-            ui->lblNoInterfaces->setText( "Interfaces not loaded (due to preference)" );
+            ui->lblNoInterfaces->setText( "Interfaces not loaded (due to preference). Go to Capture -> Refresh Interfaces to load." );
     }
     else
     {
@@ -375,7 +375,7 @@ void InterfaceFrame::getPoints(int idx, PointList * pts)
 
 void InterfaceFrame::showRunOnFile(void)
 {
-    ui->lblNoInterfaces->setText("Interfaces not loaded on startup (run on capture file)");
+    ui->lblNoInterfaces->setText("Interfaces not loaded on startup (run on capture file). Go to Capture -> Refresh Interfaces to load.");
 }
 
 /*
