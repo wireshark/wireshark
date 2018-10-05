@@ -297,7 +297,7 @@ void SCTPChunkStatisticsDialog::on_actionChunkTypePreferences_triggered()
     uat_t *uat = prefs_get_uat_value(pref);
     uat_clear(uat);
 
-    if (!uat_load(uat, &err)) {
+    if (!uat_load(uat, NULL, &err)) {
         /* XXX - report this through the GUI */
         g_log(NULL, G_LOG_LEVEL_WARNING, "Error loading table '%s': %s", uat->name, err);
         g_free(err);

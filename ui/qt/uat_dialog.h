@@ -38,6 +38,7 @@ public:
     void setUat(struct epan_uat *uat = NULL);
 
 private slots:
+    void copyFromProfile(QAction *action);
     void modelDataChanged(const QModelIndex &topLeft);
     void modelRowsRemoved();
     void modelRowsReset();

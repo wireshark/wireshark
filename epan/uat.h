@@ -301,12 +301,13 @@ void uat_cleanup(void);
 /** Populate a uat using its file.
  *
  * @param uat_in Pointer to a uat. Must not be NULL.
+ * @param filename Filename to load, NULL to fetch from current profile.
  * @param err Upon failure, points to an error string.
  *
  * @return TRUE on success, FALSE on failure.
  */
 WS_DLL_PUBLIC
-gboolean uat_load(uat_t* uat_in, char** err);
+gboolean uat_load(uat_t* uat_in, const gchar *filename, char** err);
 
 /** Create or update a single uat entry using a string.
  *

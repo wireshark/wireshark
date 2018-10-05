@@ -145,7 +145,7 @@ void UatFrame::rejectChanges()
     if (uat_->changed) {
         gchar *err = NULL;
         uat_clear(uat_);
-        if (!uat_load(uat_, &err)) {
+        if (!uat_load(uat_, NULL, &err)) {
             report_failure("Error while loading %s: %s", uat_->name, err);
             g_free(err);
         }

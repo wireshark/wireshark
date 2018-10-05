@@ -44,6 +44,13 @@ void UatModel::loadUat(epan_uat * uat)
     }
 }
 
+void UatModel::reloadUat()
+{
+    beginResetModel();
+    loadUat(uat_);
+    endResetModel();
+}
+
 Qt::ItemFlags UatModel::flags(const QModelIndex &index) const
 {
     if (!index.isValid())

@@ -529,7 +529,7 @@ void uat_load_all(void) {
 
         if (!u->loaded) {
             err = NULL;
-            if (!uat_load(u, &err)) {
+            if (!uat_load(u, NULL, &err)) {
                 report_failure("Error loading table '%s': %s",u->name,err);
                 g_free(err);
             }

@@ -16,11 +16,13 @@
 #include "ui/help_url.h"
 #include <wsutil/report_message.h>
 
+#include <ui/qt/widgets/copy_from_profile_button.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 
 #include <QDesktopServices>
 #include <QPushButton>
 #include <QUrl>
+#include <QMenu>
 
 #include <QDebug>
 
@@ -38,6 +40,12 @@ UatDialog::UatDialog(QWidget *parent, epan_uat *uat) :
 
     ok_button_ = ui->buttonBox->button(QDialogButtonBox::Ok);
     help_button_ = ui->buttonBox->button(QDialogButtonBox::Help);
+
+    if (uat->from_profile) {
+        QPushButton *copy_button = new CopyFromProfileButton(uat->filename);
+        ui->buttonBox->addButton(copy_button, QDialogButtonBox::ApplyRole);
+        connect(copy_button->menu(), SIGNAL(triggered(QAction *)), this, SLOT(copyFromProfile(QAction *)));
+    }
 
 #ifdef Q_OS_MAC
     ui->newToolButton->setAttribute(Qt::WA_MacSmallSize, true);
@@ -75,6 +83,20 @@ UatDialog::~UatDialog()
     delete ui;
     delete uat_delegate_;
     delete uat_model_;
+}
+
+void UatDialog::copyFromProfile(QAction *action)
+{
+    QString filename = action->data().toString();
+
+    gchar *err = NULL;
+    if (uat_load(uat_, filename.toUtf8().constData(), &err)) {
+        uat_->changed = TRUE;
+        uat_model_->reloadUat();
+    } else {
+        report_failure("Error while loading %s: %s", uat_->name, err);
+        g_free(err);
+    }
 }
 
 void UatDialog::setUat(epan_uat *uat)
@@ -152,7 +174,7 @@ void UatDialog::modelRowsRemoved()
 void UatDialog::modelRowsReset()
 {
     ui->deleteToolButton->setEnabled(false);
-    ui->clearToolButton->setEnabled(false);
+    ui->clearToolButton->setEnabled(uat_model_->rowCount() != 0);
     ui->copyToolButton->setEnabled(false);
     ui->moveUpToolButton->setEnabled(false);
     ui->moveDownToolButton->setEnabled(false);
@@ -344,7 +366,7 @@ void UatDialog::rejectChanges()
     if (uat_->changed) {
         gchar *err = NULL;
         uat_clear(uat_);
-        if (!uat_load(uat_, &err)) {
+        if (!uat_load(uat_, NULL, &err)) {
             report_failure("Error while loading %s: %s", uat_->name, err);
             g_free(err);
         }

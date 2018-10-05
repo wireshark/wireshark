@@ -44,6 +44,7 @@ public:
     bool copyRow(int dst_row, int src_row);
     bool moveRow(int src_row, int dst_row);
 
+    void reloadUat();
     bool hasErrors() const;
     void clearAll();
 

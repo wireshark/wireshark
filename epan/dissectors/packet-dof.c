@@ -10960,9 +10960,9 @@ static void dof_register(void)
                                   "A table of secrets for different identities.",
                                   identsecret_uat);
 
-    uat_load(secmode_uat, &uat_load_err);
-    uat_load(seckey_uat, &uat_load_err);
-    uat_load(identsecret_uat, &uat_load_err);
+    uat_load(secmode_uat, NULL, &uat_load_err);
+    uat_load(seckey_uat, NULL, &uat_load_err);
+    uat_load(identsecret_uat, NULL, &uat_load_err);
 }
 
 static void dof_handoff(void)
