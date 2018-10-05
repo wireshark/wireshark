@@ -20,11 +20,13 @@
 #include "wsutil/filesystem.h"
 
 #include "wireshark_application.h"
+#include "ui/qt/widgets/copy_from_profile_button.h"
 #include "ui/qt/widgets/wireshark_file_dialog.h"
 
 #include <QColorDialog>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QMenu>
 
 /*
  * @file Coloring Rules dialog
@@ -62,11 +64,19 @@ ColoringRulesDialog::ColoringRulesDialog(QWidget *parent, QString add_filter) :
             this, SLOT(invalidField(const QModelIndex&, const QString&)));
     connect(&colorRuleDelegate_, SIGNAL(validField(const QModelIndex&)),
             this, SLOT(validField(const QModelIndex&)));
+    connect(&colorRuleModel_, SIGNAL(rowsInserted(const QModelIndex &, int, int)), this, SLOT(rowCountChanged()));
+    connect(&colorRuleModel_, SIGNAL(rowsRemoved(const QModelIndex &, int, int)), this, SLOT(rowCountChanged()));
+
+    rowCountChanged();
 
     import_button_ = ui->buttonBox->addButton(tr("Import" UTF8_HORIZONTAL_ELLIPSIS), QDialogButtonBox::ApplyRole);
     import_button_->setToolTip(tr("Select a file and add its filters to the end of the list."));
     export_button_ = ui->buttonBox->addButton(tr("Export" UTF8_HORIZONTAL_ELLIPSIS), QDialogButtonBox::ApplyRole);
     export_button_->setToolTip(tr("Save filters in a file."));
+
+    QPushButton *copy_button = new CopyFromProfileButton("colorfilters");
+    ui->buttonBox->addButton(copy_button, QDialogButtonBox::ApplyRole);
+    connect(copy_button->menu(), SIGNAL(triggered(QAction *)), this, SLOT(copyFromProfile(QAction *)));
 
     if (!add_filter.isEmpty()) {
         colorRuleModel_.addColor(false, add_filter, palette().color(QPalette::Text), palette().color(QPalette::Base));
@@ -80,6 +90,18 @@ ColoringRulesDialog::ColoringRulesDialog(QWidget *parent, QString add_filter) :
         ui->coloringRulesTreeView->setCurrentIndex(QModelIndex());
     }
 
+    checkUnknownColorfilters();
+
+    updateHint();
+}
+
+ColoringRulesDialog::~ColoringRulesDialog()
+{
+    delete ui;
+}
+
+void ColoringRulesDialog::checkUnknownColorfilters()
+{
     if (prefs.unknown_colorfilters) {
         QMessageBox mb;
         mb.setText(tr("Your coloring rules file contains unknown rules"));
@@ -90,13 +112,22 @@ ColoringRulesDialog::ColoringRulesDialog(QWidget *parent, QString add_filter) :
         mb.exec();
         prefs.unknown_colorfilters = FALSE;
     }
-
-    updateHint();
 }
 
-ColoringRulesDialog::~ColoringRulesDialog()
+void ColoringRulesDialog::copyFromProfile(QAction *action)
 {
-    delete ui;
+    QString filename = action->data().toString();
+    QString err;
+
+    if (!colorRuleModel_.importColors(filename, err)) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err.toUtf8().constData());
+    }
+
+    for (int i = 0; i < colorRuleModel_.columnCount(); i++) {
+        ui->coloringRulesTreeView->resizeColumnToContents(i);
+    }
+
+    checkUnknownColorfilters();
 }
 
 void ColoringRulesDialog::showEvent(QShowEvent *)
@@ -104,6 +135,11 @@ void ColoringRulesDialog::showEvent(QShowEvent *)
     ui->fGPushButton->setFixedHeight(ui->copyToolButton->geometry().height());
     ui->bGPushButton->setFixedHeight(ui->copyToolButton->geometry().height());
     ui->displayFilterPushButton->setFixedHeight(ui->copyToolButton->geometry().height());
+}
+
+void ColoringRulesDialog::rowCountChanged()
+{
+    ui->clearToolButton->setEnabled(colorRuleModel_.rowCount() > 0);
 }
 
 void ColoringRulesDialog::invalidField(const QModelIndex &index, const QString& errMessage)
@@ -283,6 +319,11 @@ void ColoringRulesDialog::on_deleteToolButton_clicked()
 void ColoringRulesDialog::on_copyToolButton_clicked()
 {
     addRule(true);
+}
+
+void ColoringRulesDialog::on_clearToolButton_clicked()
+{
+    colorRuleModel_.removeRows(0, colorRuleModel_.rowCount());
 }
 
 void ColoringRulesDialog::on_buttonBox_clicked(QAbstractButton *button)

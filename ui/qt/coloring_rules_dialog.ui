@@ -103,6 +103,21 @@
       </widget>
      </item>
      <item>
+      <widget class="QToolButton" name="clearToolButton">
+       <property name="toolTip">
+        <string>Clear all coloring rules.</string>
+       </property>
+        <property name="icon">
+          <iconset resource="../../image/stock_icons.qrc">
+            <normaloff>:/stock/delete_list.png</normaloff>:/stock/delete_list.png
+          </iconset>
+        </property>
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="fGPushButton">
        <property name="toolTip">
         <string>Set the foreground color for this rule.</string>
