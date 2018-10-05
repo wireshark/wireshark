@@ -153,8 +153,8 @@ class case_tshark_name_resolution_clopts(subprocesstest.SubprocessTestCase):
     def test_tshark_valid_name_resolution(self):
         if not config.canCapture():
             self.skipTest('Test requires capture privileges and an interface.')
-        # $TSHARK -N mntC -a duration:1 > ./testout.txt 2>&1
-        self.assertRun((config.cmd_tshark, '-N', 'mntC', '-a', 'duration: 1'))
+        # $TSHARK -N mnNtdv -a duration:1 > ./testout.txt 2>&1
+        self.assertRun((config.cmd_tshark, '-N', 'mnNtdv', '-a', 'duration: 1'))
 
     # XXX Add invalid name resolution.
 

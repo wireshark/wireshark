@@ -123,7 +123,7 @@ commandline_print_usage(gboolean for_help_option) {
     fprintf(output, "Processing:\n");
     fprintf(output, "  -R <read filter>         packet filter in Wireshark display filter syntax\n");
     fprintf(output, "  -n                       disable all name resolutions (def: all enabled)\n");
-    fprintf(output, "  -N <name resolve flags>  enable specific name resolution(s): \"mnNtd\"\n");
+    fprintf(output, "  -N <name resolve flags>  enable specific name resolution(s): \"mnNtdv\"\n");
     fprintf(output, "  -d %s ...\n", DECODE_AS_ARG_TEMPLATE);
     fprintf(output, "                           \"Decode As\", see the man page for details\n");
     fprintf(output, "                           Example: tcp.port==8888,http\n");

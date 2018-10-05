@@ -190,7 +190,7 @@ print_usage(FILE *output)
     fprintf(output, "  -m                       virtual memory limit, in bytes\n");
 #endif
     fprintf(output, "  -n                       disable all name resolution (def: all enabled)\n");
-    fprintf(output, "  -N <name resolve flags>  enable specific name resolution(s): \"mnNtd\"\n");
+    fprintf(output, "  -N <name resolve flags>  enable specific name resolution(s): \"mnNtdv\"\n");
     fprintf(output, "  -p                       use the system's packet header format\n");
     fprintf(output, "                           (which may have 64-bit timestamps)\n");
     fprintf(output, "  -R <read filter>         packet filter in Wireshark display filter syntax\n");

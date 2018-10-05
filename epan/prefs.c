@@ -4932,10 +4932,6 @@ string_to_name_resolve(const char *string, e_addr_resolve *name_resolve)
         case 't':
             name_resolve->transport_name = TRUE;
             break;
-        case 'C':
-            /* DEPRECATED */
-            /* name_resolve->concurrent_dns */
-            break;
         case 'd':
             name_resolve->dns_pkt_addr_resolution = TRUE;
             break;
