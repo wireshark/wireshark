@@ -44,6 +44,7 @@ SCG-ConfigInfo-r12_PDU
 UEPagingCoverageInformation_PDU
 UEPagingCoverageInformation-NB_PDU
 UE-EUTRA-Capability_PDU
+VisitedCellInfo-r12_PDU
 VisitedCellInfoList-r12_PDU
 #.END
 
@@ -62,6 +63,7 @@ UERadioAccessCapabilityInformation    @ue_radio_access_cap_info
 UERadioAccessCapabilityInformation-NB @ue_radio_access_cap_info.nb
 UERadioPagingInformation              @ue_radio_paging_info
 UERadioPagingInformation-NB           @ue_radio_paging_info.nb
+VisitedCellInfo-r12
 VisitedCellInfoList-r12
 BCCH-BCH-Message             @bcch.bch
 BCCH-DL-SCH-Message          @bcch.dl.sch

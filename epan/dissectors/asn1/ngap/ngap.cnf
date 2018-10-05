@@ -483,6 +483,28 @@ PortNumber TYPE = FT_UINT16 DISPLAY = BASE_DEC
     }
   }
 
+#.FN_BODY UERadioCapabilityForPaging VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+
+%(DEFAULT_BODY)s
+  if (parameter_tvb && nr_rrc_ue_radio_paging_info_handle) {
+    proto_tree *subtree;
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_ngap_UERadioCapabilityForPaging);
+    call_dissector(nr_rrc_ue_radio_paging_info_handle, parameter_tvb, actx->pinfo, subtree);
+  }
+
+#.FN_BODY UERadioCapability VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+
+%(DEFAULT_BODY)s
+  if (parameter_tvb && nr_rrc_ue_radio_access_cap_info_handle) {
+    proto_tree *subtree;
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_ngap_UERadioCapability);
+    call_dissector(nr_rrc_ue_radio_access_cap_info_handle, parameter_tvb, actx->pinfo, subtree);
+  }
+
 #.FN_BODY TimeStamp VAL_PTR = &timestamp_tvb
   tvbuff_t *timestamp_tvb = NULL;
 %(DEFAULT_BODY)s
@@ -566,189 +588,224 @@ PortNumber TYPE = FT_UINT16 DISPLAY = BASE_DEC
     proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 2, fields, ENC_BIG_ENDIAN);
   }
 
+#.FN_BODY LastVisitedEUTRANCellInformation VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (!parameter_tvb)
+    return offset;
+  subtree = proto_item_add_subtree(actx->created_item, ett_ngap_LastVisitedEUTRANCellInformation);
+  dissect_lte_rrc_VisitedCellInfo_r12_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+
+#.TYPE_ATTR
+ExpectedActivityPeriod DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+
+#.TYPE_ATTR
+ExpectedIdlePeriod DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+
+#.TYPE_ATTR
+TimeUEStayedInCell DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+
+#.TYPE_ATTR
+TimeUEStayedInCellEnhancedGranularity DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ngap_TimeUEStayedInCellEnhancedGranularity_fmt)
+
+#.TYPE_ATTR
+TrafficLoadReductionIndication DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_percent
+
+#.FN_BODY PeriodicRegistrationUpdateTimer VAL_PTR=&val_tvb HF_INDEX=-1
+  tvbuff_t *val_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (val_tvb) {
+    guint32 val = tvb_get_guint8(val_tvb, 0);
+    actx->created_item = proto_tree_add_uint(tree, hf_index, val_tvb, 0, 1, val);
+  }
+
+#.TYPE_ATTR
+PeriodicRegistrationUpdateTimer TYPE=FT_UINT8 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ngap_PeriodicRegistrationUpdateTimer_fmt)
+
 #.ASSIGN_VALUE_TO_TYPE  # NGAP does not have constants assigned to types, they are pure INTEGER
 # ProcedureCode
 
-id-AMFConfigurationUpdate					ProcedureCode
-id-AMFStatusIndication						ProcedureCode
-id-CellTrafficTrace							ProcedureCode
-id-DeactivateTrace							ProcedureCode
-id-DownlinkNASTransport						ProcedureCode
-id-DownlinkNonUEAssociatedNRPPaTransport	ProcedureCode
-id-DownlinkRANConfigurationTransfer			ProcedureCode
-id-DownlinkRANStatusTransfer				ProcedureCode
-id-DownlinkUEAssociatedNRPPaTransport		ProcedureCode
-id-ErrorIndication							ProcedureCode
-id-HandoverCancel							ProcedureCode
-id-HandoverNotification						ProcedureCode
-id-HandoverPreparation						ProcedureCode
-id-HandoverResourceAllocation				ProcedureCode
-id-InitialContextSetup						ProcedureCode
-id-InitialUEMessage							ProcedureCode
-id-LocationReportingControl					ProcedureCode
-id-LocationReportingFailureIndication		ProcedureCode
-id-LocationReport							ProcedureCode
-id-NASNonDeliveryIndication					ProcedureCode
-id-NGReset									ProcedureCode
-id-NGSetup									ProcedureCode
-id-OverloadStart							ProcedureCode
-id-OverloadStop								ProcedureCode
-id-Paging									ProcedureCode
-id-PathSwitchRequest						ProcedureCode
-id-PDUSessionResourceModify					ProcedureCode
-id-PDUSessionResourceModifyIndication		ProcedureCode
-id-PDUSessionResourceRelease				ProcedureCode
-id-PDUSessionResourceSetup					ProcedureCode
-id-PDUSessionResourceNotify					ProcedureCode
-id-PrivateMessage							ProcedureCode
-id-PWSCancel								ProcedureCode
-id-PWSFailureIndication						ProcedureCode
-id-PWSRestartIndication						ProcedureCode
-id-RANConfigurationUpdate					ProcedureCode
-id-RerouteNASRequest						ProcedureCode
-id-RRCInactiveTransitionReport				ProcedureCode
-id-TraceFailureIndication					ProcedureCode
-id-TraceStart								ProcedureCode
-id-UEContextModification					ProcedureCode
-id-UEContextRelease							ProcedureCode
-id-UEContextReleaseRequest					ProcedureCode
-id-UERadioCapabilityCheck					ProcedureCode
-id-UERadioCapabilityInfoIndication			ProcedureCode
-id-UETNLABindingRelease						ProcedureCode
-id-UplinkNASTransport						ProcedureCode
-id-UplinkNonUEAssociatedNRPPaTransport		ProcedureCode
-id-UplinkRANConfigurationTransfer			ProcedureCode
-id-UplinkRANStatusTransfer					ProcedureCode
-id-UplinkUEAssociatedNRPPaTransport			ProcedureCode
-id-WriteReplaceWarning						ProcedureCode
+id-AMFConfigurationUpdate                ProcedureCode
+id-AMFStatusIndication                   ProcedureCode
+id-CellTrafficTrace                      ProcedureCode
+id-DeactivateTrace                       ProcedureCode
+id-DownlinkNASTransport                  ProcedureCode
+id-DownlinkNonUEAssociatedNRPPaTransport ProcedureCode
+id-DownlinkRANConfigurationTransfer      ProcedureCode
+id-DownlinkRANStatusTransfer             ProcedureCode
+id-DownlinkUEAssociatedNRPPaTransport    ProcedureCode
+id-ErrorIndication                       ProcedureCode
+id-HandoverCancel                        ProcedureCode
+id-HandoverNotification                  ProcedureCode
+id-HandoverPreparation                   ProcedureCode
+id-HandoverResourceAllocation            ProcedureCode
+id-InitialContextSetup                   ProcedureCode
+id-InitialUEMessage                      ProcedureCode
+id-LocationReportingControl              ProcedureCode
+id-LocationReportingFailureIndication    ProcedureCode
+id-LocationReport                        ProcedureCode
+id-NASNonDeliveryIndication              ProcedureCode
+id-NGReset                               ProcedureCode
+id-NGSetup                               ProcedureCode
+id-OverloadStart                         ProcedureCode
+id-OverloadStop                          ProcedureCode
+id-Paging                                ProcedureCode
+id-PathSwitchRequest                     ProcedureCode
+id-PDUSessionResourceModify              ProcedureCode
+id-PDUSessionResourceModifyIndication    ProcedureCode
+id-PDUSessionResourceRelease             ProcedureCode
+id-PDUSessionResourceSetup               ProcedureCode
+id-PDUSessionResourceNotify              ProcedureCode
+id-PrivateMessage                        ProcedureCode
+id-PWSCancel                             ProcedureCode
+id-PWSFailureIndication                  ProcedureCode
+id-PWSRestartIndication                  ProcedureCode
+id-RANConfigurationUpdate                ProcedureCode
+id-RerouteNASRequest                     ProcedureCode
+id-RRCInactiveTransitionReport           ProcedureCode
+id-TraceFailureIndication                ProcedureCode
+id-TraceStart                            ProcedureCode
+id-UEContextModification                 ProcedureCode
+id-UEContextRelease                      ProcedureCode
+id-UEContextReleaseRequest               ProcedureCode
+id-UERadioCapabilityCheck                ProcedureCode
+id-UERadioCapabilityInfoIndication       ProcedureCode
+id-UETNLABindingRelease                  ProcedureCode
+id-UplinkNASTransport                    ProcedureCode
+id-UplinkNonUEAssociatedNRPPaTransport   ProcedureCode
+id-UplinkRANConfigurationTransfer        ProcedureCode
+id-UplinkRANStatusTransfer               ProcedureCode
+id-UplinkUEAssociatedNRPPaTransport      ProcedureCode
+id-WriteReplaceWarning                   ProcedureCode
 
 # ProtocolIE-ID
-	id-AllowedNSSAI											ProtocolIE-ID
-	id-AMFName												ProtocolIE-ID
-	id-AMFOverloadResponse									ProtocolIE-ID
-	id-AMFSetID												ProtocolIE-ID
-	id-AMF-TNLAssociationFailedToSetupList					ProtocolIE-ID
-	id-AMF-TNLAssociationSetupList							ProtocolIE-ID
-	id-AMF-TNLAssociationToAddList							ProtocolIE-ID
-	id-AMF-TNLAssociationToRemoveList						ProtocolIE-ID
-	id-AMF-TNLAssociationToUpdateList						ProtocolIE-ID
-	id-AMFTrafficLoadReductionIndication					ProtocolIE-ID
-	id-AMF-UE-NGAP-ID										ProtocolIE-ID
-	id-AssistanceDataForPaging								ProtocolIE-ID
-	id-BroadcastCancelledAreaList							ProtocolIE-ID
-	id-BroadcastCompletedAreaList							ProtocolIE-ID
-	id-CancelAllWarningMessages								ProtocolIE-ID
-	id-Cause												ProtocolIE-ID
-	id-CellIDListForRestart									ProtocolIE-ID
-	id-ConcurrentWarningMessageInd							ProtocolIE-ID
-	id-CoreNetworkAssistanceInformation						ProtocolIE-ID
-	id-CriticalityDiagnostics								ProtocolIE-ID
-	id-DataCodingScheme										ProtocolIE-ID
-	id-DefaultPagingDRX										ProtocolIE-ID
-	id-DirectForwardingPathAvailability						ProtocolIE-ID
-	id-EmergencyAreaIDListForRestart						ProtocolIE-ID
-	id-EmergencyFallbackIndicator							ProtocolIE-ID
-	id-EUTRA-CGI											ProtocolIE-ID
-	id-FiveG-S-TMSI											ProtocolIE-ID
-	id-GlobalRANNodeID										ProtocolIE-ID
-	id-GUAMI												ProtocolIE-ID
-	id-HandoverType											ProtocolIE-ID
-	id-IMSVoiceSupportIndicator								ProtocolIE-ID
-	id-IndexToRFSP											ProtocolIE-ID
-	id-InfoOnRecommendedCellsAndRANNodesForPaging			ProtocolIE-ID
-	id-LocationReportingRequestType							ProtocolIE-ID
-	id-MaskedIMEISV											ProtocolIE-ID
-	id-MessageIdentifier									ProtocolIE-ID
-	id-MobilityRestrictionList								ProtocolIE-ID
-	id-NASC													ProtocolIE-ID
-	id-NAS-PDU												ProtocolIE-ID
-	id-NASSecurityParametersFromNGRAN						ProtocolIE-ID
-	id-NewAMF-UE-NGAP-ID									ProtocolIE-ID
-	id-NewSecurityContextInd								ProtocolIE-ID
-	id-NGAP-Message											ProtocolIE-ID
-	id-NGRAN-CGI											ProtocolIE-ID
-	id-NGRANTraceID											ProtocolIE-ID
-	id-NR-CGI												ProtocolIE-ID
-	id-NRPPa-PDU											ProtocolIE-ID
-	id-NumberOfBroadcastsRequested							ProtocolIE-ID
-	id-OldAMF												ProtocolIE-ID
-	id-OverloadStartNSSAIList								ProtocolIE-ID
-	id-PagingDRX											ProtocolIE-ID
-	id-PagingOrigin											ProtocolIE-ID
-	id-PagingPriority										ProtocolIE-ID
-	id-PDUSessionResourceAdmittedList						ProtocolIE-ID
-	id-PDUSessionResourceFailedToModifyListModRes			ProtocolIE-ID
-	id-PDUSessionResourceFailedToSetupListCxtRes			ProtocolIE-ID
-	id-PDUSessionResourceFailedToSetupListHOAck				ProtocolIE-ID
-	id-PDUSessionResourceFailedToSetupListPSReq				ProtocolIE-ID
-	id-PDUSessionResourceFailedToSetupListSURes				ProtocolIE-ID
-	id-PDUSessionResourceHandoverList						ProtocolIE-ID
-	id-PDUSessionResourceListCxtRelCpl						ProtocolIE-ID
-	id-PDUSessionResourceListHORqd							ProtocolIE-ID
-	id-PDUSessionResourceModifyListModCfm					ProtocolIE-ID
-	id-PDUSessionResourceModifyListModInd					ProtocolIE-ID
-	id-PDUSessionResourceModifyListModReq					ProtocolIE-ID
-	id-PDUSessionResourceModifyListModRes					ProtocolIE-ID
-	id-PDUSessionResourceNotifyList							ProtocolIE-ID
-	id-PDUSessionResourceReleasedListNot					ProtocolIE-ID
-	id-PDUSessionResourceReleasedListPSAck					ProtocolIE-ID
-	id-PDUSessionResourceReleasedListPSFail					ProtocolIE-ID
-	id-PDUSessionResourceReleasedListRelRes					ProtocolIE-ID
-	id-PDUSessionResourceSetupListCxtReq					ProtocolIE-ID
-	id-PDUSessionResourceSetupListCxtRes					ProtocolIE-ID
-	id-PDUSessionResourceSetupListHOReq						ProtocolIE-ID
-	id-PDUSessionResourceSetupListSUReq						ProtocolIE-ID
-	id-PDUSessionResourceSetupListSURes						ProtocolIE-ID
-	id-PDUSessionResourceToBeSwitchedDLList					ProtocolIE-ID
-	id-PDUSessionResourceSwitchedList						ProtocolIE-ID
-	id-PDUSessionResourceToReleaseListHOCmd					ProtocolIE-ID
-	id-PDUSessionResourceToReleaseListRelCmd				ProtocolIE-ID
-	id-PLMNSupportList										ProtocolIE-ID
-	id-PWSFailedCellIDList									ProtocolIE-ID
-	id-RANNodeName											ProtocolIE-ID
-	id-RANPagingPriority									ProtocolIE-ID
-	id-RANStatusTransfer-TransparentContainer				ProtocolIE-ID
-	id-RAN-UE-NGAP-ID										ProtocolIE-ID
-	id-RelativeAMFCapacity									ProtocolIE-ID
-	id-RepetitionPeriod										ProtocolIE-ID
-	id-ResetType											ProtocolIE-ID
-	id-RoutingID											ProtocolIE-ID
-	id-RRCEstablishmentCause								ProtocolIE-ID
-	id-RRCInactiveTransitionReportRequest					ProtocolIE-ID
-	id-RRCState												ProtocolIE-ID
-	id-SecurityContext										ProtocolIE-ID
-	id-SecurityKey											ProtocolIE-ID
-	id-SerialNumber											ProtocolIE-ID
-	id-ServedGUAMIList										ProtocolIE-ID
-	id-SliceSupportList										ProtocolIE-ID
-	id-SONConfigurationTransferDL							ProtocolIE-ID
-	id-SONConfigurationTransferUL							ProtocolIE-ID
-	id-SourceAMF-UE-NGAP-ID									ProtocolIE-ID
-	id-SourceToTarget-TransparentContainer					ProtocolIE-ID
-	id-SupportedTAList										ProtocolIE-ID
-	id-TAIListForPaging										ProtocolIE-ID
-	id-TAIListForRestart									ProtocolIE-ID
-	id-TargetID												ProtocolIE-ID
-	id-TargetToSource-TransparentContainer					ProtocolIE-ID
-	id-TimeToWait											ProtocolIE-ID
-	id-TraceActivation										ProtocolIE-ID
-	id-TraceCollectionEntityIPAddress						ProtocolIE-ID
-	id-UEAggregateMaximumBitRate							ProtocolIE-ID
-	id-UE-associatedLogicalNG-connectionList				ProtocolIE-ID
-	id-UEContextRequest										ProtocolIE-ID
-	id-UEIdentityIndexValue									ProtocolIE-ID
-	id-UE-NGAP-IDs											ProtocolIE-ID
-	id-UEPagingIdentity										ProtocolIE-ID
-	id-UEPresenceInAreaOfInterestList						ProtocolIE-ID
-	id-UERadioCapability									ProtocolIE-ID
-	id-UERadioCapabilityForPaging							ProtocolIE-ID
-	id-UESecurityCapabilities								ProtocolIE-ID
-	id-UnavailableGUAMIList									ProtocolIE-ID
-	id-UserLocationInformation								ProtocolIE-ID
-	id-WarningAreaList										ProtocolIE-ID
-	id-WarningMessageContents								ProtocolIE-ID
-	id-WarningSecurityInfo									ProtocolIE-ID
-	id-WarningType											ProtocolIE-ID
+id-AllowedNSSAI                               ProtocolIE-ID
+id-AMFName                                    ProtocolIE-ID
+id-AMFOverloadResponse                        ProtocolIE-ID
+id-AMFSetID                                   ProtocolIE-ID
+id-AMF-TNLAssociationFailedToSetupList        ProtocolIE-ID
+id-AMF-TNLAssociationSetupList                ProtocolIE-ID
+id-AMF-TNLAssociationToAddList                ProtocolIE-ID
+id-AMF-TNLAssociationToRemoveList             ProtocolIE-ID
+id-AMF-TNLAssociationToUpdateList             ProtocolIE-ID
+id-AMFTrafficLoadReductionIndication          ProtocolIE-ID
+id-AMF-UE-NGAP-ID                             ProtocolIE-ID
+id-AssistanceDataForPaging                    ProtocolIE-ID
+id-BroadcastCancelledAreaList                 ProtocolIE-ID
+id-BroadcastCompletedAreaList                 ProtocolIE-ID
+id-CancelAllWarningMessages                   ProtocolIE-ID
+id-Cause                                      ProtocolIE-ID
+id-CellIDListForRestart                       ProtocolIE-ID
+id-ConcurrentWarningMessageInd                ProtocolIE-ID
+id-CoreNetworkAssistanceInformation           ProtocolIE-ID
+id-CriticalityDiagnostics                     ProtocolIE-ID
+id-DataCodingScheme                           ProtocolIE-ID
+id-DefaultPagingDRX                           ProtocolIE-ID
+id-DirectForwardingPathAvailability           ProtocolIE-ID
+id-EmergencyAreaIDListForRestart              ProtocolIE-ID
+id-EmergencyFallbackIndicator                 ProtocolIE-ID
+id-EUTRA-CGI                                  ProtocolIE-ID
+id-FiveG-S-TMSI                               ProtocolIE-ID
+id-GlobalRANNodeID                            ProtocolIE-ID
+id-GUAMI                                      ProtocolIE-ID
+id-HandoverType                               ProtocolIE-ID
+id-IMSVoiceSupportIndicator                   ProtocolIE-ID
+id-IndexToRFSP                                ProtocolIE-ID
+id-InfoOnRecommendedCellsAndRANNodesForPaging ProtocolIE-ID
+id-LocationReportingRequestType               ProtocolIE-ID
+id-MaskedIMEISV                               ProtocolIE-ID
+id-MessageIdentifier                          ProtocolIE-ID
+id-MobilityRestrictionList                    ProtocolIE-ID
+id-NASC                                       ProtocolIE-ID
+id-NAS-PDU                                    ProtocolIE-ID
+id-NASSecurityParametersFromNGRAN             ProtocolIE-ID
+id-NewAMF-UE-NGAP-ID                          ProtocolIE-ID
+id-NewSecurityContextInd                      ProtocolIE-ID
+id-NGAP-Message                               ProtocolIE-ID
+id-NGRAN-CGI                                  ProtocolIE-ID
+id-NGRANTraceID                               ProtocolIE-ID
+id-NR-CGI                                     ProtocolIE-ID
+id-NRPPa-PDU                                  ProtocolIE-ID
+id-NumberOfBroadcastsRequested                ProtocolIE-ID
+id-OldAMF                                     ProtocolIE-ID
+id-OverloadStartNSSAIList                     ProtocolIE-ID
+id-PagingDRX                                  ProtocolIE-ID
+id-PagingOrigin                               ProtocolIE-ID
+id-PagingPriority                             ProtocolIE-ID
+id-PDUSessionResourceAdmittedList             ProtocolIE-ID
+id-PDUSessionResourceFailedToModifyListModRes ProtocolIE-ID
+id-PDUSessionResourceFailedToSetupListCxtRes  ProtocolIE-ID
+id-PDUSessionResourceFailedToSetupListHOAck   ProtocolIE-ID
+id-PDUSessionResourceFailedToSetupListPSReq   ProtocolIE-ID
+id-PDUSessionResourceFailedToSetupListSURes   ProtocolIE-ID
+id-PDUSessionResourceHandoverList             ProtocolIE-ID
+id-PDUSessionResourceListCxtRelCpl            ProtocolIE-ID
+id-PDUSessionResourceListHORqd                ProtocolIE-ID
+id-PDUSessionResourceModifyListModCfm         ProtocolIE-ID
+id-PDUSessionResourceModifyListModInd         ProtocolIE-ID
+id-PDUSessionResourceModifyListModReq         ProtocolIE-ID
+id-PDUSessionResourceModifyListModRes         ProtocolIE-ID
+id-PDUSessionResourceNotifyList               ProtocolIE-ID
+id-PDUSessionResourceReleasedListNot          ProtocolIE-ID
+id-PDUSessionResourceReleasedListPSAck        ProtocolIE-ID
+id-PDUSessionResourceReleasedListPSFail       ProtocolIE-ID
+id-PDUSessionResourceReleasedListRelRes       ProtocolIE-ID
+id-PDUSessionResourceSetupListCxtReq          ProtocolIE-ID
+id-PDUSessionResourceSetupListCxtRes          ProtocolIE-ID
+id-PDUSessionResourceSetupListHOReq           ProtocolIE-ID
+id-PDUSessionResourceSetupListSUReq           ProtocolIE-ID
+id-PDUSessionResourceSetupListSURes           ProtocolIE-ID
+id-PDUSessionResourceToBeSwitchedDLList	      ProtocolIE-ID
+id-PDUSessionResourceSwitchedList             ProtocolIE-ID
+id-PDUSessionResourceToReleaseListHOCmd       ProtocolIE-ID
+id-PDUSessionResourceToReleaseListRelCmd      ProtocolIE-ID
+id-PLMNSupportList                            ProtocolIE-ID
+id-PWSFailedCellIDList                        ProtocolIE-ID
+id-RANNodeName                                ProtocolIE-ID
+id-RANPagingPriority                          ProtocolIE-ID
+id-RANStatusTransfer-TransparentContainer     ProtocolIE-ID
+id-RAN-UE-NGAP-ID                             ProtocolIE-ID
+id-RelativeAMFCapacity                        ProtocolIE-ID
+id-RepetitionPeriod                           ProtocolIE-ID
+id-ResetType                                  ProtocolIE-ID
+id-RoutingID                                  ProtocolIE-ID
+id-RRCEstablishmentCause                      ProtocolIE-ID
+id-RRCInactiveTransitionReportRequest         ProtocolIE-ID
+id-RRCState                                   ProtocolIE-ID
+id-SecurityContext                            ProtocolIE-ID
+id-SecurityKey                                ProtocolIE-ID
+id-SerialNumber                               ProtocolIE-ID
+id-ServedGUAMIList                            ProtocolIE-ID
+id-SliceSupportList                           ProtocolIE-ID
+id-SONConfigurationTransferDL                 ProtocolIE-ID
+id-SONConfigurationTransferUL                 ProtocolIE-ID
+id-SourceAMF-UE-NGAP-ID                       ProtocolIE-ID
+id-SourceToTarget-TransparentContainer        ProtocolIE-ID
+id-SupportedTAList                            ProtocolIE-ID
+id-TAIListForPaging                           ProtocolIE-ID
+id-TAIListForRestart                          ProtocolIE-ID
+id-TargetID                                   ProtocolIE-ID
+id-TargetToSource-TransparentContainer        ProtocolIE-ID
+id-TimeToWait                                 ProtocolIE-ID
+id-TraceActivation                            ProtocolIE-ID
+id-TraceCollectionEntityIPAddress             ProtocolIE-ID
+id-UEAggregateMaximumBitRate                  ProtocolIE-ID
+id-UE-associatedLogicalNG-connectionList      ProtocolIE-ID
+id-UEContextRequest                           ProtocolIE-ID
+id-UEIdentityIndexValue                       ProtocolIE-ID
+id-UE-NGAP-IDs                                ProtocolIE-ID
+id-UEPagingIdentity                           ProtocolIE-ID
+id-UEPresenceInAreaOfInterestList             ProtocolIE-ID
+id-UERadioCapability                          ProtocolIE-ID
+id-UERadioCapabilityForPaging                 ProtocolIE-ID
+id-UESecurityCapabilities                     ProtocolIE-ID
+id-UnavailableGUAMIList                       ProtocolIE-ID
+id-UserLocationInformation                    ProtocolIE-ID
+id-WarningAreaList                            ProtocolIE-ID
+id-WarningMessageContents                     ProtocolIE-ID
+id-WarningSecurityInfo                        ProtocolIE-ID
+id-WarningType                                ProtocolIE-ID
 #.END
 
 
@@ -756,132 +813,132 @@ id-WriteReplaceWarning						ProcedureCode
 
 #NGAP-PROTOCOL-IES
 
-AllowedNSSAI										N ngap.ies id-AllowedNSSAI
-AMFName												N ngap.ies id-AMFName
-OverloadResponse									N ngap.ies id-AMFOverloadResponse
-AMFSetID											N ngap.ies id-AMFSetID
-TNLAssociationList									N ngap.ies id-AMF-TNLAssociationFailedToSetupList
-AMF-TNLAssociationSetupList							N ngap.ies id-AMF-TNLAssociationSetupList
-AMF-TNLAssociationToAddList							N ngap.ies id-AMF-TNLAssociationToAddList
-AMF-TNLAssociationToRemoveList						N ngap.ies id-AMF-TNLAssociationToRemoveList
-AMF-TNLAssociationToUpdateList						N ngap.ies id-AMF-TNLAssociationToUpdateList
-TrafficLoadReductionIndication						N ngap.ies id-AMFTrafficLoadReductionIndication
-AMF-UE-NGAP-ID										N ngap.ies id-AMF-UE-NGAP-ID
-AssistanceDataForPaging								N ngap.ies id-AssistanceDataForPaging
-BroadcastCancelledAreaList							N ngap.ies id-BroadcastCancelledAreaList
-BroadcastCompletedAreaList							N ngap.ies id-BroadcastCompletedAreaList
-CancelAllWarningMessages							N ngap.ies id-CancelAllWarningMessages
-Cause												N ngap.ies id-Cause
-CellIDListForRestart								N ngap.ies id-CellIDListForRestart
-ConcurrentWarningMessageInd							N ngap.ies id-ConcurrentWarningMessageInd
-CoreNetworkAssistanceInformation					N ngap.ies id-CoreNetworkAssistanceInformation
-CriticalityDiagnostics								N ngap.ies id-CriticalityDiagnostics
-DataCodingScheme									N ngap.ies id-DataCodingScheme
-PagingDRX											N ngap.ies id-DefaultPagingDRX
-DirectForwardingPathAvailability					N ngap.ies id-DirectForwardingPathAvailability
-EmergencyAreaIDListForRestart						N ngap.ies id-EmergencyAreaIDListForRestart
-EmergencyFallbackIndicator							N ngap.ies id-EmergencyFallbackIndicator
-EUTRA-CGI											N ngap.ies id-EUTRA-CGI
-FiveG-S-TMSI										N ngap.ies id-FiveG-S-TMSI
-GlobalRANNodeID										N ngap.ies id-GlobalRANNodeID
-GUAMI												N ngap.ies id-GUAMI
-HandoverType										N ngap.ies id-HandoverType
-IMSVoiceSupportIndicator							N ngap.ies id-IMSVoiceSupportIndicator
-IndexToRFSP											N ngap.ies id-IndexToRFSP
-InfoOnRecommendedCellsAndRANNodesForPaging			N ngap.ies id-InfoOnRecommendedCellsAndRANNodesForPaging
-LocationReportingRequestType						N ngap.ies id-LocationReportingRequestType
-MaskedIMEISV										N ngap.ies id-MaskedIMEISV
-MessageIdentifier									N ngap.ies id-MessageIdentifier
-MobilityRestrictionList								N ngap.ies id-MobilityRestrictionList
-NAS-PDU												N ngap.ies id-NASC
-NAS-PDU												N ngap.ies id-NAS-PDU
-NASSecurityParametersFromNGRAN						N ngap.ies id-NASSecurityParametersFromNGRAN
-AMF-UE-NGAP-ID										N ngap.ies id-NewAMF-UE-NGAP-ID
-NewSecurityContextInd								N ngap.ies id-NewSecurityContextInd
-NGAP-Message										N ngap.ies id-NGAP-Message
-NGRAN-CGI											N ngap.ies id-NGRAN-CGI
-NGRANTraceID										N ngap.ies id-NGRANTraceID
-NR-CGI												N ngap.ies id-NR-CGI
-NRPPa-PDU											N ngap.ies id-NRPPa-PDU
-NumberOfBroadcastsRequested							N ngap.ies id-NumberOfBroadcastsRequested
-AMFName												N ngap.ies id-OldAMF
-OverloadStartNSSAIList								N ngap.ies id-OverloadStartNSSAIList
-PagingDRX											N ngap.ies id-PagingDRX
-PagingOrigin										N ngap.ies id-PagingOrigin
-PagingPriority										N ngap.ies id-PagingPriority
-PDUSessionResourceAdmittedList						N ngap.ies id-PDUSessionResourceAdmittedList
-PDUSessionResourceFailedToModifyListModRes			N ngap.ies id-PDUSessionResourceFailedToModifyListModRes
-PDUSessionResourceFailedToSetupListCxtRes			N ngap.ies id-PDUSessionResourceFailedToSetupListCxtRes
-PDUSessionResourceFailedToSetupListHOAck			N ngap.ies id-PDUSessionResourceFailedToSetupListHOAck
-PDUSessionResourceFailedToSetupListPSReq			N ngap.ies id-PDUSessionResourceFailedToSetupListPSReq
-PDUSessionResourceFailedToSetupListSURes			N ngap.ies id-PDUSessionResourceFailedToSetupListSURes
-PDUSessionResourceHandoverList						N ngap.ies id-PDUSessionResourceHandoverList
-PDUSessionResourceListCxtRelCpl						N ngap.ies id-PDUSessionResourceListCxtRelCpl
-PDUSessionResourceListHORqd							N ngap.ies id-PDUSessionResourceListHORqd
-PDUSessionResourceModifyListModCfm					N ngap.ies id-PDUSessionResourceModifyListModCfm
-PDUSessionResourceModifyListModInd					N ngap.ies id-PDUSessionResourceModifyListModInd
-PDUSessionResourceModifyListModReq					N ngap.ies id-PDUSessionResourceModifyListModReq
-PDUSessionResourceModifyListModRes					N ngap.ies id-PDUSessionResourceModifyListModRes
-PDUSessionResourceNotifyList						N ngap.ies id-PDUSessionResourceNotifyList
-PDUSessionResourceReleasedListNot					N ngap.ies id-PDUSessionResourceReleasedListNot
-PDUSessionResourceReleasedListPSAck					N ngap.ies id-PDUSessionResourceReleasedListPSAck
-PDUSessionResourceReleasedListPSFail				N ngap.ies id-PDUSessionResourceReleasedListPSFail
-PDUSessionResourceReleasedListRelRes				N ngap.ies id-PDUSessionResourceReleasedListRelRes
-PDUSessionResourceSetupListCxtReq					N ngap.ies id-PDUSessionResourceSetupListCxtReq
-PDUSessionResourceSetupListCxtRes					N ngap.ies id-PDUSessionResourceSetupListCxtRes
-PDUSessionResourceSetupListHOReq					N ngap.ies id-PDUSessionResourceSetupListHOReq
-PDUSessionResourceSetupListSUReq					N ngap.ies id-PDUSessionResourceSetupListSUReq
-PDUSessionResourceSetupListSURes					N ngap.ies id-PDUSessionResourceSetupListSURes
-PDUSessionResourceToBeSwitchedDLList				N ngap.ies id-PDUSessionResourceToBeSwitchedDLList
-PDUSessionResourceSwitchedList						N ngap.ies id-PDUSessionResourceSwitchedList
-PDUSessionResourceToReleaseListHOCmd				N ngap.ies id-PDUSessionResourceToReleaseListHOCmd
-PDUSessionResourceToReleaseListRelCmd				N ngap.ies id-PDUSessionResourceToReleaseListRelCmd
-PLMNSupportList										N ngap.ies id-PLMNSupportList
-PWSFailedCellIDList									N ngap.ies id-PWSFailedCellIDList
-RANNodeName											N ngap.ies id-RANNodeName
-RANPagingPriority									N ngap.ies id-RANPagingPriority
-RANStatusTransfer-TransparentContainer				N ngap.ies id-RANStatusTransfer-TransparentContainer
-RAN-UE-NGAP-ID										N ngap.ies id-RAN-UE-NGAP-ID
-RelativeAMFCapacity									N ngap.ies id-RelativeAMFCapacity
-RepetitionPeriod									N ngap.ies id-RepetitionPeriod
-ResetType											N ngap.ies id-ResetType
-RoutingID											N ngap.ies id-RoutingID
-RRCEstablishmentCause								N ngap.ies id-RRCEstablishmentCause
-RRCInactiveTransitionReportRequest					N ngap.ies id-RRCInactiveTransitionReportRequest
-RRCState											N ngap.ies id-RRCState
-SecurityContext										N ngap.ies id-SecurityContext
-SecurityKey											N ngap.ies id-SecurityKey
-SerialNumber										N ngap.ies id-SerialNumber
-ServedGUAMIList										N ngap.ies id-ServedGUAMIList
-SliceSupportList									N ngap.ies id-SliceSupportList
-SONConfigurationTransfer							N ngap.ies id-SONConfigurationTransferDL
-SONConfigurationTransfer							N ngap.ies id-SONConfigurationTransferUL
-AMF-UE-NGAP-ID										N ngap.ies id-SourceAMF-UE-NGAP-ID
-SourceToTarget-TransparentContainer					N ngap.ies id-SourceToTarget-TransparentContainer
-SupportedTAList										N ngap.ies id-SupportedTAList
-TAIListForPaging									N ngap.ies id-TAIListForPaging
-TAIListForRestart									N ngap.ies id-TAIListForRestart
-TargetID											N ngap.ies id-TargetID
-TargetToSource-TransparentContainer					N ngap.ies id-TargetToSource-TransparentContainer
-TimeToWait											N ngap.ies id-TimeToWait
-TraceActivation										N ngap.ies id-TraceActivation
-TransportLayerAddress								N ngap.ies id-TraceCollectionEntityIPAddress
-UEAggregateMaximumBitRate							N ngap.ies id-UEAggregateMaximumBitRate
-UE-associatedLogicalNG-connectionList				N ngap.ies id-UE-associatedLogicalNG-connectionList
-UEContextRequest									N ngap.ies id-UEContextRequest
-UEIdentityIndexValue								N ngap.ies id-UEIdentityIndexValue
-UE-NGAP-IDs											N ngap.ies id-UE-NGAP-IDs
-UEPagingIdentity									N ngap.ies id-UEPagingIdentity
-UEPresenceInAreaOfInterestList						N ngap.ies id-UEPresenceInAreaOfInterestList
-UERadioCapability									N ngap.ies id-UERadioCapability
-UERadioCapabilityForPaging							N ngap.ies id-UERadioCapabilityForPaging
-UESecurityCapabilities								N ngap.ies id-UESecurityCapabilities
-UnavailableGUAMIList								N ngap.ies id-UnavailableGUAMIList
-UserLocationInformation								N ngap.ies id-UserLocationInformation
-WarningAreaList										N ngap.ies id-WarningAreaList
-WarningMessageContents								N ngap.ies id-WarningMessageContents
-WarningSecurityInfo									N ngap.ies id-WarningSecurityInfo
-WarningType											N ngap.ies id-WarningType
+AllowedNSSAI                               N ngap.ies id-AllowedNSSAI
+AMFName                                    N ngap.ies id-AMFName
+OverloadResponse                           N ngap.ies id-AMFOverloadResponse
+AMFSetID                                   N ngap.ies id-AMFSetID
+TNLAssociationList                         N ngap.ies id-AMF-TNLAssociationFailedToSetupList
+AMF-TNLAssociationSetupList                N ngap.ies id-AMF-TNLAssociationSetupList
+AMF-TNLAssociationToAddList                N ngap.ies id-AMF-TNLAssociationToAddList
+AMF-TNLAssociationToRemoveList             N ngap.ies id-AMF-TNLAssociationToRemoveList
+AMF-TNLAssociationToUpdateList             N ngap.ies id-AMF-TNLAssociationToUpdateList
+TrafficLoadReductionIndication             N ngap.ies id-AMFTrafficLoadReductionIndication
+AMF-UE-NGAP-ID                             N ngap.ies id-AMF-UE-NGAP-ID
+AssistanceDataForPaging                    N ngap.ies id-AssistanceDataForPaging
+BroadcastCancelledAreaList                 N ngap.ies id-BroadcastCancelledAreaList
+BroadcastCompletedAreaList                 N ngap.ies id-BroadcastCompletedAreaList
+CancelAllWarningMessages                   N ngap.ies id-CancelAllWarningMessages
+Cause                                      N ngap.ies id-Cause
+CellIDListForRestart                       N ngap.ies id-CellIDListForRestart
+ConcurrentWarningMessageInd                N ngap.ies id-ConcurrentWarningMessageInd
+CoreNetworkAssistanceInformation           N ngap.ies id-CoreNetworkAssistanceInformation
+CriticalityDiagnostics                     N ngap.ies id-CriticalityDiagnostics
+DataCodingScheme                           N ngap.ies id-DataCodingScheme
+PagingDRX                                  N ngap.ies id-DefaultPagingDRX
+DirectForwardingPathAvailability           N ngap.ies id-DirectForwardingPathAvailability
+EmergencyAreaIDListForRestart              N ngap.ies id-EmergencyAreaIDListForRestart
+EmergencyFallbackIndicator                 N ngap.ies id-EmergencyFallbackIndicator
+EUTRA-CGI                                  N ngap.ies id-EUTRA-CGI
+FiveG-S-TMSI                               N ngap.ies id-FiveG-S-TMSI
+GlobalRANNodeID                            N ngap.ies id-GlobalRANNodeID
+GUAMI                                      N ngap.ies id-GUAMI
+HandoverType                               N ngap.ies id-HandoverType
+IMSVoiceSupportIndicator                   N ngap.ies id-IMSVoiceSupportIndicator
+IndexToRFSP                                N ngap.ies id-IndexToRFSP
+InfoOnRecommendedCellsAndRANNodesForPaging N ngap.ies id-InfoOnRecommendedCellsAndRANNodesForPaging
+LocationReportingRequestType               N ngap.ies id-LocationReportingRequestType
+MaskedIMEISV                               N ngap.ies id-MaskedIMEISV
+MessageIdentifier                          N ngap.ies id-MessageIdentifier
+MobilityRestrictionList                    N ngap.ies id-MobilityRestrictionList
+NAS-PDU	                                   N ngap.ies id-NASC
+NAS-PDU                                    N ngap.ies id-NAS-PDU
+NASSecurityParametersFromNGRAN             N ngap.ies id-NASSecurityParametersFromNGRAN
+AMF-UE-NGAP-ID                             N ngap.ies id-NewAMF-UE-NGAP-ID
+NewSecurityContextInd                      N ngap.ies id-NewSecurityContextInd
+NGAP-Message                               N ngap.ies id-NGAP-Message
+NGRAN-CGI                                  N ngap.ies id-NGRAN-CGI
+NGRANTraceID                               N ngap.ies id-NGRANTraceID
+NR-CGI                                     N ngap.ies id-NR-CGI
+NRPPa-PDU                                  N ngap.ies id-NRPPa-PDU
+NumberOfBroadcastsRequested                N ngap.ies id-NumberOfBroadcastsRequested
+AMFName                                    N ngap.ies id-OldAMF
+OverloadStartNSSAIList                     N ngap.ies id-OverloadStartNSSAIList
+PagingDRX                                  N ngap.ies id-PagingDRX
+PagingOrigin                               N ngap.ies id-PagingOrigin
+PagingPriority                             N ngap.ies id-PagingPriority
+PDUSessionResourceAdmittedList             N ngap.ies id-PDUSessionResourceAdmittedList
+PDUSessionResourceFailedToModifyListModRes N ngap.ies id-PDUSessionResourceFailedToModifyListModRes
+PDUSessionResourceFailedToSetupListCxtRes  N ngap.ies id-PDUSessionResourceFailedToSetupListCxtRes
+PDUSessionResourceFailedToSetupListHOAck   N ngap.ies id-PDUSessionResourceFailedToSetupListHOAck
+PDUSessionResourceFailedToSetupListPSReq   N ngap.ies id-PDUSessionResourceFailedToSetupListPSReq
+PDUSessionResourceFailedToSetupListSURes   N ngap.ies id-PDUSessionResourceFailedToSetupListSURes
+PDUSessionResourceHandoverList             N ngap.ies id-PDUSessionResourceHandoverList
+PDUSessionResourceListCxtRelCpl            N ngap.ies id-PDUSessionResourceListCxtRelCpl
+PDUSessionResourceListHORqd                N ngap.ies id-PDUSessionResourceListHORqd
+PDUSessionResourceModifyListModCfm         N ngap.ies id-PDUSessionResourceModifyListModCfm
+PDUSessionResourceModifyListModInd         N ngap.ies id-PDUSessionResourceModifyListModInd
+PDUSessionResourceModifyListModReq         N ngap.ies id-PDUSessionResourceModifyListModReq
+PDUSessionResourceModifyListModRes         N ngap.ies id-PDUSessionResourceModifyListModRes
+PDUSessionResourceNotifyList               N ngap.ies id-PDUSessionResourceNotifyList
+PDUSessionResourceReleasedListNot          N ngap.ies id-PDUSessionResourceReleasedListNot
+PDUSessionResourceReleasedListPSAck        N ngap.ies id-PDUSessionResourceReleasedListPSAck
+PDUSessionResourceReleasedListPSFail       N ngap.ies id-PDUSessionResourceReleasedListPSFail
+PDUSessionResourceReleasedListRelRes       N ngap.ies id-PDUSessionResourceReleasedListRelRes
+PDUSessionResourceSetupListCxtReq          N ngap.ies id-PDUSessionResourceSetupListCxtReq
+PDUSessionResourceSetupListCxtRes          N ngap.ies id-PDUSessionResourceSetupListCxtRes
+PDUSessionResourceSetupListHOReq           N ngap.ies id-PDUSessionResourceSetupListHOReq
+PDUSessionResourceSetupListSUReq           N ngap.ies id-PDUSessionResourceSetupListSUReq
+PDUSessionResourceSetupListSURes           N ngap.ies id-PDUSessionResourceSetupListSURes
+PDUSessionResourceToBeSwitchedDLList       N ngap.ies id-PDUSessionResourceToBeSwitchedDLList
+PDUSessionResourceSwitchedList             N ngap.ies id-PDUSessionResourceSwitchedList
+PDUSessionResourceToReleaseListHOCmd       N ngap.ies id-PDUSessionResourceToReleaseListHOCmd
+PDUSessionResourceToReleaseListRelCmd      N ngap.ies id-PDUSessionResourceToReleaseListRelCmd
+PLMNSupportList                            N ngap.ies id-PLMNSupportList
+PWSFailedCellIDList                        N ngap.ies id-PWSFailedCellIDList
+RANNodeName                                N ngap.ies id-RANNodeName
+RANPagingPriority                          N ngap.ies id-RANPagingPriority
+RANStatusTransfer-TransparentContainer     N ngap.ies id-RANStatusTransfer-TransparentContainer
+RAN-UE-NGAP-ID                             N ngap.ies id-RAN-UE-NGAP-ID
+RelativeAMFCapacity                        N ngap.ies id-RelativeAMFCapacity
+RepetitionPeriod                           N ngap.ies id-RepetitionPeriod
+ResetType                                  N ngap.ies id-ResetType
+RoutingID                                  N ngap.ies id-RoutingID
+RRCEstablishmentCause                      N ngap.ies id-RRCEstablishmentCause
+RRCInactiveTransitionReportRequest         N ngap.ies id-RRCInactiveTransitionReportRequest
+RRCState                                   N ngap.ies id-RRCState
+SecurityContext                            N ngap.ies id-SecurityContext
+SecurityKey                                N ngap.ies id-SecurityKey
+SerialNumber                               N ngap.ies id-SerialNumber
+ServedGUAMIList                            N ngap.ies id-ServedGUAMIList
+SliceSupportList                           N ngap.ies id-SliceSupportList
+SONConfigurationTransfer                   N ngap.ies id-SONConfigurationTransferDL
+SONConfigurationTransfer                   N ngap.ies id-SONConfigurationTransferUL
+AMF-UE-NGAP-ID                             N ngap.ies id-SourceAMF-UE-NGAP-ID
+SourceToTarget-TransparentContainer        N ngap.ies id-SourceToTarget-TransparentContainer
+SupportedTAList                            N ngap.ies id-SupportedTAList
+TAIListForPaging                           N ngap.ies id-TAIListForPaging
+TAIListForRestart                          N ngap.ies id-TAIListForRestart
+TargetID                                   N ngap.ies id-TargetID
+TargetToSource-TransparentContainer        N ngap.ies id-TargetToSource-TransparentContainer
+TimeToWait                                 N ngap.ies id-TimeToWait
+TraceActivation                            N ngap.ies id-TraceActivation
+TransportLayerAddress                      N ngap.ies id-TraceCollectionEntityIPAddress
+UEAggregateMaximumBitRate                  N ngap.ies id-UEAggregateMaximumBitRate
+UE-associatedLogicalNG-connectionList      N ngap.ies id-UE-associatedLogicalNG-connectionList
+UEContextRequest                           N ngap.ies id-UEContextRequest
+UEIdentityIndexValue                       N ngap.ies id-UEIdentityIndexValue
+UE-NGAP-IDs                                N ngap.ies id-UE-NGAP-IDs
+UEPagingIdentity                           N ngap.ies id-UEPagingIdentity
+UEPresenceInAreaOfInterestList             N ngap.ies id-UEPresenceInAreaOfInterestList
+UERadioCapability                          N ngap.ies id-UERadioCapability
+UERadioCapabilityForPaging                 N ngap.ies id-UERadioCapabilityForPaging
+UESecurityCapabilities                     N ngap.ies id-UESecurityCapabilities
+UnavailableGUAMIList                       N ngap.ies id-UnavailableGUAMIList
+UserLocationInformation                    N ngap.ies id-UserLocationInformation
+WarningAreaList                            N ngap.ies id-WarningAreaList
+WarningMessageContents                     N ngap.ies id-WarningMessageContents
+WarningSecurityInfo                        N ngap.ies id-WarningSecurityInfo
+WarningType                                N ngap.ies id-WarningType
 
 #NGAP-ELEMENTARY-PROCEDURE
 
