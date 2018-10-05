@@ -445,9 +445,8 @@ void IOGraphDialog::addGraph(bool copy_from_current)
             return;
         }
         const QModelIndex &new_index = uat_model_->index(uat_model_->rowCount() - 1, 0);
-        if (copy_from_current) {
-            uat_model_->copyRow(new_index.row(), current.row());
-        }
+        uat_model_->copyRow(new_index.row(), current.row());
+        createIOGraph(new_index.row());
 
         ui->graphUat->setCurrentIndex(new_index);
     } else {
