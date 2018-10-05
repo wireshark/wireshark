@@ -39,6 +39,7 @@ HandoverPreparationInformation_PDU
 HandoverPreparationInformation-NB_PDU
 RLF-Report-r9_PDU
 RLF-Report-v9e0_PDU
+SCG-Config-r12_PDU
 SCG-ConfigInfo-r12_PDU
 UEPagingCoverageInformation_PDU
 UEPagingCoverageInformation-NB_PDU
@@ -53,6 +54,7 @@ HandoverPreparationInformation-NB
 RLF-Report-r9
 RLF-Report-v9e0
 RRCConnectionReconfiguration @rrc_conn_reconf
+SCG-Config-r12
 SCG-ConfigInfo-r12
 UEPagingCoverageInformation
 UEPagingCoverageInformation-NB
@@ -1447,7 +1449,7 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
 
   if (private_data_get_bcch_dl_sch_msg(actx) == FALSE) {
     col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SystemInformationBlockType1");
-    }
+  }
 
 #.FN_HDR SystemInformation-BR-r13
 

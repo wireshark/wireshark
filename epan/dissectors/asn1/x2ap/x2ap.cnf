@@ -246,7 +246,7 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
   if (!parameter_tvb)
     return offset;
   subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_SeNBtoMeNBContainer);
-  dissect_lte_rrc_SCG_ConfigInfo_r12_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  dissect_lte_rrc_SCG_Config_r12_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
 
 #.FN_BODY MeNBtoSgNBContainer VAL_PTR = &parameter_tvb
  tvbuff_t *parameter_tvb;

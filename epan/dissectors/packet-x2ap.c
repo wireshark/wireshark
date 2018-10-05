@@ -8821,7 +8821,7 @@ dissect_x2ap_SeNBtoMeNBContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
   if (!parameter_tvb)
     return offset;
   subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_SeNBtoMeNBContainer);
-  dissect_lte_rrc_SCG_ConfigInfo_r12_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  dissect_lte_rrc_SCG_Config_r12_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
 
 
 
