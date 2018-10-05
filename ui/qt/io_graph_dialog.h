@@ -143,6 +143,7 @@ public slots:
     void scheduleReplot(bool now = false);
     void scheduleRecalc(bool now = false);
     void scheduleRetap(bool now = false);
+    void modelRowsReset();
     void reloadFields();
 
 protected:
@@ -199,6 +200,7 @@ private:
     bool graphIsEnabled(int row) const;
 
 private slots:
+    void copyFromProfile(QAction *action);
     void updateWidgets();
     void graphClicked(QMouseEvent *event);
     void mouseMoved(QMouseEvent *event);
@@ -218,6 +220,7 @@ private slots:
     void on_newToolButton_clicked();
     void on_deleteToolButton_clicked();
     void on_copyToolButton_clicked();
+    void on_clearToolButton_clicked();
     void on_dragRadioButton_toggled(bool checked);
     void on_zoomRadioButton_toggled(bool checked);
     void on_actionReset_triggered();

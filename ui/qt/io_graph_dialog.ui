@@ -115,6 +115,21 @@
       </widget>
      </item>
      <item>
+      <widget class="QToolButton" name="clearToolButton">
+       <property name="toolTip">
+        <string>Clear all graphs.</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../../image/stock_icons.qrc">
+         <normaloff>:/stock/delete_list.png</normaloff>:/stock/delete_list.png
+        </iconset>
+       </property>
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="horizontalSpacer_4">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>

@@ -29,6 +29,7 @@
 #include <wsutil/report_message.h>
 
 #include <ui/qt/utils/tango_colors.h> //provides some default colors
+#include <ui/qt/widgets/copy_from_profile_button.h>
 #include "ui/qt/widgets/wireshark_file_dialog.h"
 
 #include <QClipboard>
@@ -42,6 +43,7 @@
 #include <QSpacerItem>
 #include <QTimer>
 #include <QVariant>
+#include <QMenu>
 
 // Bugs and uncertainties:
 // - Regular (non-stacked) bar graphs are drawn on top of each other on the Z axis.
@@ -313,6 +315,10 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf) :
     QPushButton *copy_bt = ui->buttonBox->addButton(tr("Copy"), QDialogButtonBox::ActionRole);
     connect (copy_bt, SIGNAL(clicked()), this, SLOT(copyAsCsvClicked()));
 
+    QPushButton *copy_from_bt = new CopyFromProfileButton("io_graphs");
+    ui->buttonBox->addButton(copy_from_bt, QDialogButtonBox::ActionRole);
+    connect(copy_from_bt->menu(), SIGNAL(triggered(QAction *)), this, SLOT(copyFromProfile(QAction *)));
+
     QPushButton *close_bt = ui->buttonBox->button(QDialogButtonBox::Close);
     if (close_bt) {
         close_bt->setDefault(true);
@@ -387,6 +393,8 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf) :
 
     iop->rescaleAxes();
 
+    ui->clearToolButton->setEnabled(uat_model_->rowCount() != 0);
+
     //XXX - resize columns?
 
     ProgressFrame::addToButtonBox(ui->buttonBox, &parent);
@@ -405,6 +413,24 @@ IOGraphDialog::~IOGraphDialog()
     }
     delete ui;
     ui = NULL;
+}
+
+void IOGraphDialog::copyFromProfile(QAction *action)
+{
+    QString filename = action->data().toString();
+    guint orig_data_len = iog_uat_->raw_data->len;
+
+    gchar *err = NULL;
+    if (uat_load(iog_uat_, filename.toUtf8().constData(), &err)) {
+        iog_uat_->changed = TRUE;
+        uat_model_->reloadUat();
+        for (guint i = orig_data_len; i < iog_uat_->raw_data->len; i++) {
+            createIOGraph(i);
+        }
+    } else {
+        report_failure("Error while loading %s: %s", iog_uat_->name, err);
+        g_free(err);
+    }
 }
 
 void IOGraphDialog::addGraph(bool checked, QString name, QString dfilter, int color_idx, IOGraph::PlotStyles style, io_graph_item_unit_t value_units, QString yfield, int moving_average)
@@ -1147,6 +1173,7 @@ void IOGraphDialog::loadProfileGraphs()
 
     connect(uat_model_, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
             this, SLOT(modelDataChanged(QModelIndex)));
+    connect(uat_model_, SIGNAL(modelReset()), this, SLOT(modelRowsReset()));
 }
 
 // Slots
@@ -1189,14 +1216,23 @@ void IOGraphDialog::on_todCheckBox_toggled(bool checked)
     mouseMoved(NULL); // Update hint
 }
 
+void IOGraphDialog::modelRowsReset()
+{
+    ui->deleteToolButton->setEnabled(false);
+    ui->copyToolButton->setEnabled(false);
+    ui->clearToolButton->setEnabled(uat_model_->rowCount() != 0);
+}
+
 void IOGraphDialog::on_graphUat_currentItemChanged(const QModelIndex &current, const QModelIndex&)
 {
     if (current.isValid()) {
         ui->deleteToolButton->setEnabled(true);
         ui->copyToolButton->setEnabled(true);
+        ui->clearToolButton->setEnabled(true);
     } else {
         ui->deleteToolButton->setEnabled(false);
         ui->copyToolButton->setEnabled(false);
+        ui->clearToolButton->setEnabled(false);
     }
 }
 
@@ -1250,6 +1286,20 @@ void IOGraphDialog::on_deleteToolButton_clicked()
 void IOGraphDialog::on_copyToolButton_clicked()
 {
     addGraph(true);
+}
+
+void IOGraphDialog::on_clearToolButton_clicked()
+{
+    if (uat_model_) {
+        foreach(IOGraph* iog, ioGraphs_) {
+            delete iog;
+        }
+        ioGraphs_.clear();
+        uat_model_->clearAll();
+    }
+
+    hint_err_.clear();
+    mouseMoved(NULL);
 }
 
 void IOGraphDialog::on_dragRadioButton_toggled(bool checked)
