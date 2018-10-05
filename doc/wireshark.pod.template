@@ -494,6 +494,8 @@ B<t> to enable transport-layer port number resolution
 
 B<d> to enable resolution from captured DNS packets
 
+B<v> to enable VLAN IDs to names resolution
+
 =item -o  E<lt>preference/recent settingE<gt>
 
 Set a preference or recent value, overriding the default value and any value
