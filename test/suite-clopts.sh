@@ -270,7 +270,7 @@ clopts_step_valid_name_resolving() {
 		return
 	fi
 
-	$TSHARK -N mntC -a duration:1 > ./testout.txt 2>&1
+	$TSHARK -N mnNtdv -a duration:1 > ./testout.txt 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		test_step_failed "exit status: $RETURNVALUE"

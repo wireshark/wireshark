@@ -76,7 +76,7 @@ Input file:
 Processing:
   -R <read filter>         packet filter in Wireshark display filter syntax
   -n                       disable all name resolutions (def: all enabled)
-  -N <name resolve flags>  enable specific name resolution(s): "mnNtCd"
+  -N <name resolve flags>  enable specific name resolution(s): "mnNtdv"
   -d <layer_type>==<selector>,<decode_as_protocol> ...
                            "Decode As”, see the man page for details
                            Example: tcp.port==8888,http
@@ -295,6 +295,7 @@ argument is a string that may contain the letters `m` to enable MAC address
 resolution, `n` to enable network address resolution, and `t` to enable
 transport-layer port number resolution. This overrides `-n` if both `-N` and
 `-n` are present. The letter `d` enables resolution from captured DNS packets.
+The letter `v` enables resolution from VLAN IDs to names.
 
 -o <preference or recent settings>::
 

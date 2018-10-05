@@ -13,7 +13,7 @@ Processing:
   -F <field>               field to display
   -m                       virtual memory limit, in bytes
   -n                       disable all name resolution (def: all enabled)
-  -N <name resolve flags>  enable specific name resolution(s): "mnNtd"
+  -N <name resolve flags>  enable specific name resolution(s): "mnNtdv"
   -p                       use the system's packet header format
                            (which may have 64-bit timestamps)
   -R <read filter>         packet filter in Wireshark display filter syntax

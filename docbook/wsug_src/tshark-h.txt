@@ -38,7 +38,7 @@ Processing:
   -Y <display filter>      packet displaY filter in Wireshark display filter
                            syntax
   -n                       disable all name resolutions (def: all enabled)
-  -N <name resolve flags>  enable specific name resolution(s): "mnNtCd"
+  -N <name resolve flags>  enable specific name resolution(s): "mnNtdv"
   -d <layer_type>==<selector>,<decode_as_protocol> ...
                            "Decode As", see the man page for details
                            Example: tcp.port==8888,http
