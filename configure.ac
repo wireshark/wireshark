@@ -1504,7 +1504,7 @@ AC_SUBST(wireshark_bin)
 AC_SUBST(wireshark_man)
 AC_SUBST(wireshark_SUBDIRS)
 AM_CONDITIONAL(HAVE_Qt, test "$have_qt" = "yes")
-AM_CONDITIONAL(HAVE_QT_VERSION_4, [test $qt_version -eq 4])
+AM_CONDITIONAL(HAVE_QT_VERSION_4, [test "$qt_version" -eq 4])
 AM_CONDITIONAL(HAVE_GTK, test "$have_gtk" = "yes")
 
 # Enable/disable tshark
