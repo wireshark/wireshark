@@ -1961,6 +1961,7 @@ pcapng_read_shb(capture_src *pcap_src,
                            g_strerror(errno));
             return -1;
         }
+        /* Continuing with STATE_EXPECT_DATA requires reading into cap_pipe_databuf at offset cap_pipe_bytes_read */
         pcap_src->cap_pipe_bytes_read = sizeof(struct pcapng_block_header_s) + sizeof(struct pcapng_section_header_block_s);
     }
 #endif
@@ -1989,7 +1990,7 @@ pcapng_read_shb(capture_src *pcap_src,
 
     pcap_src->cap_pipe_max_pkt_size = WTAP_MAX_PACKET_SIZE_STANDARD;
 
-    /* Setup state to capture the rest of the section header block */
+    /* Setup state to capture any options following the section header block */
     pcap_src->cap_pipe_state = STATE_EXPECT_DATA;
 
     return 0;
@@ -2382,8 +2383,10 @@ pcapng_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, int err
             pcap_src->cap_pipe_bytes_read = 0;
 
 #ifdef _WIN32
-            pcap_src->cap_pipe_buf = pcap_src->cap_pipe_databuf;
-            g_async_queue_push(pcap_src->cap_pipe_pending_q, pcap_src->cap_pipe_buf);
+            if (!pcap_src->from_cap_socket) {
+                pcap_src->cap_pipe_buf = pcap_src->cap_pipe_databuf;
+                g_async_queue_push(pcap_src->cap_pipe_pending_q, pcap_src->cap_pipe_buf);
+            }
             g_mutex_unlock(pcap_src->cap_pipe_read_mtx);
         }
 #endif
@@ -2434,9 +2437,12 @@ pcapng_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, int err
 
 
 #ifdef _WIN32
-            pcap_src->cap_pipe_bytes_to_read -= pcap_src->cap_pipe_bytes_read;
-            pcap_src->cap_pipe_buf = pcap_src->cap_pipe_databuf + pcap_src->cap_pipe_bytes_read;
-            g_async_queue_push(pcap_src->cap_pipe_pending_q, pcap_src->cap_pipe_buf);
+            if (!pcap_src->from_cap_socket) {
+                pcap_src->cap_pipe_bytes_to_read -= pcap_src->cap_pipe_bytes_read;
+                pcap_src->cap_pipe_buf = pcap_src->cap_pipe_databuf + pcap_src->cap_pipe_bytes_read;
+                pcap_src->cap_pipe_bytes_read = 0;
+                g_async_queue_push(pcap_src->cap_pipe_pending_q, pcap_src->cap_pipe_buf);
+            }
             g_mutex_unlock(pcap_src->cap_pipe_read_mtx);
         }
 #endif
@@ -2450,8 +2456,6 @@ pcapng_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, int err
             if (cap_pipe_read_data_bytes(pcap_src, errmsg, errmsgl)) {
                 return -1;
             }
-            if (pcap_src->cap_pipe_bytes_read < pcap_src->cap_pipe_bytes_to_read)
-                return 0;
         }
 #ifdef _WIN32
         else {
@@ -2473,12 +2477,11 @@ pcapng_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, int err
             if (!q_status) {
                 return 0;
             }
-            if (pcap_src->cap_pipe_bytes_read < pcap_src->cap_pipe_bytes_to_read) {
-                return 0;
-            }
-            pcap_src->cap_pipe_bytes_read = bh->block_total_length;
         }
 #endif /* _WIN32 */
+        if (pcap_src->cap_pipe_bytes_read < pcap_src->cap_pipe_bytes_to_read) {
+            return 0;
+        }
         result = PD_DATA_READ;
         break;
 
@@ -2745,13 +2748,24 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
         } else {
             /* We couldn't open "iface" as a network device. */
             /* Try to open it as a pipe */
+            gboolean pipe_err = FALSE;
             cap_pipe_open_live(interface_opts->name, pcap_src, &pcap_src->cap_pipe_info.pcap.hdr, errmsg, (int) errmsg_len);
 
-#ifndef _WIN32
-            if (pcap_src->cap_pipe_fd == -1) {
-#else
-            if (pcap_src->cap_pipe_h == INVALID_HANDLE_VALUE) {
+#ifdef _WIN32
+            if (pcap_src->from_cap_socket) {
 #endif
+                if (pcap_src->cap_pipe_fd == -1) {
+                    pipe_err = TRUE;
+                }
+#ifdef _WIN32
+            } else {
+                if (pcap_src->cap_pipe_h == INVALID_HANDLE_VALUE) {
+                    pipe_err = TRUE;
+                }
+            }
+#endif
+
+            if (pipe_err) {
                 if (pcap_src->cap_pipe_err == PIPNEXIST) {
                     /*
                      * We tried opening as an interface, and that failed,
@@ -3083,11 +3097,9 @@ static int
 capture_loop_dispatch(loop_data *ld,
                       char *errmsg, int errmsg_len, capture_src *pcap_src)
 {
-    int    inpkts;
+    int    inpkts = 0;
     gint   packet_count_before;
-#ifndef _WIN32
     int    sel_ret;
-#endif
 
     packet_count_before = ld->packet_count;
     if (pcap_src->from_cap_pipe) {
@@ -3095,27 +3107,36 @@ capture_loop_dispatch(loop_data *ld,
 #ifdef LOG_CAPTURE_VERBOSE
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_dispatch: from capture pipe");
 #endif
-#ifndef _WIN32
-        sel_ret = cap_pipe_select(pcap_src->cap_pipe_fd);
-        if (sel_ret <= 0) {
-            if (sel_ret < 0 && errno != EINTR) {
-                g_snprintf(errmsg, errmsg_len,
-                           "Unexpected error from select: %s", g_strerror(errno));
-                report_capture_error(errmsg, please_report);
-                ld->go = FALSE;
+#ifdef _WIN32
+        if (pcap_src->from_cap_socket) {
+#endif
+            sel_ret = cap_pipe_select(pcap_src->cap_pipe_fd);
+            if (sel_ret <= 0) {
+                if (sel_ret < 0 && errno != EINTR) {
+                    g_snprintf(errmsg, errmsg_len,
+                            "Unexpected error from select: %s", g_strerror(errno));
+                    report_capture_error(errmsg, please_report);
+                    ld->go = FALSE;
+                }
             }
+#ifdef _WIN32
         } else {
+            /* Windows does not have select() for pipes. */
+            /* Proceed with _dispatch() which waits for cap_pipe_done_q
+             * notification from cap_thread_read() when ReadFile() on
+             * the pipe has read enough bytes. */
+            sel_ret = 1;
+        }
+#endif
+        if (sel_ret > 0) {
             /*
              * "select()" says we can read from the pipe without blocking
              */
-#endif
             inpkts = pcap_src->cap_pipe_dispatch(ld, pcap_src, errmsg, errmsg_len);
             if (inpkts < 0) {
                 ld->go = FALSE;
             }
-#ifndef _WIN32
         }
-#endif
     }
     else
     {
