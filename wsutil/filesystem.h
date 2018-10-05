@@ -123,6 +123,12 @@ WS_DLL_PUBLIC gboolean has_global_profiles(void);
 WS_DLL_PUBLIC char *get_profiles_dir(void);
 
 /*
+ * Get the directory used to store configuration files for a given profile.
+ * Caller must free the returned string.
+ */
+WS_DLL_PUBLIC char *get_profile_dir(const char *profilename, gboolean is_global);
+
+/*
  * Create the directory used to store configuration profile directories.
  */
 WS_DLL_PUBLIC int create_profiles_dir(char **pf_dir_path_return);

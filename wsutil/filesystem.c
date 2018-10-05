@@ -1419,40 +1419,50 @@ get_persconffile_dir(const gchar *profilename)
     return persconffile_profile_dir;
 }
 
-gboolean
-profile_exists(const gchar *profilename, gboolean global)
+char *
+get_profile_dir(const char *profilename, gboolean is_global)
 {
-    gchar *path = NULL, *global_path;
+    gchar *profile_dir;
 
-    if (global) {
-        /*
-         * If we're looking up a global profile, we must have a
-         * profile name.
-         */
-        if (!profilename)
-            return FALSE;
-        global_path = get_global_profiles_dir();
-        path = g_strdup_printf ("%s%s%s", global_path,
-                           G_DIR_SEPARATOR_S, profilename);
-        g_free(global_path);
-        if (test_for_directory (path) == EISDIR) {
-            g_free (path);
-            return TRUE;
+    if (is_global) {
+        if (profilename && strlen(profilename) > 0 &&
+            strcmp(profilename, DEFAULT_PROFILE) != 0)
+        {
+            gchar *global_path = get_global_profiles_dir();
+            profile_dir = g_build_filename(global_path, profilename, NULL);
+            g_free(global_path);
+        } else {
+            profile_dir = g_strdup(get_datafile_dir());
         }
     } else {
         /*
          * If we didn't supply a profile name, i.e. if profilename is
          * null, get_persconffile_dir() returns the default profile.
          */
-        path = get_persconffile_dir (profilename);
-        if (test_for_directory (path) == EISDIR) {
-            g_free (path);
-            return TRUE;
-        }
+        profile_dir = get_persconffile_dir(profilename);
     }
 
-    g_free (path);
-    return FALSE;
+    return profile_dir;
+}
+
+gboolean
+profile_exists(const gchar *profilename, gboolean global)
+{
+    gchar *path = NULL;
+    gboolean exists;
+
+    /*
+     * If we're looking up a global profile, we must have a
+     * profile name.
+     */
+    if (global && !profilename)
+        return FALSE;
+
+    path = get_profile_dir(profilename, global);
+    exists = (test_for_directory(path) == EISDIR) ? TRUE : FALSE;
+
+    g_free(path);
+    return exists;
 }
 
 static int
@@ -1673,20 +1683,10 @@ copy_persconffile_profile(const char *toname, const char *fromname, gboolean fro
 {
     gchar *from_dir;
     gchar *to_dir = get_persconffile_dir(toname);
-    gchar *filename, *from_file, *to_file, *global_path;
+    gchar *filename, *from_file, *to_file;
     GList *files, *file;
 
-    if (from_global) {
-        if (strcmp(fromname, DEFAULT_PROFILE) == 0) {
-            from_dir = get_global_profiles_dir();
-        } else {
-            global_path = get_global_profiles_dir();
-            from_dir = g_strdup_printf ("%s%s%s", global_path, G_DIR_SEPARATOR_S, fromname);
-            g_free(global_path);
-        }
-    } else {
-        from_dir = get_persconffile_dir(fromname);
-    }
+    from_dir = get_profile_dir(fromname, from_global);
 
     files = g_hash_table_get_keys(profile_files);
     file = g_list_first(files);
