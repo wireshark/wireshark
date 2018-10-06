@@ -3,7 +3,7 @@
 #
 #	GSS-EAP VSAs
 #
-#	$Id: 54f7d3ed88459d8927039976ad6879a4713fa38b $
+#	$Id: dbf19e8427b2a4ab96d6b6b21e4295ec09f73c3c $
 #
 
 VENDOR		UKERNA				25622
@@ -21,5 +21,8 @@ ATTRIBUTE	Trust-Router-APC			137	string
 ATTRIBUTE	Moonshot-Host-TargetedId		138	string
 ATTRIBUTE	Moonshot-Realm-TargetedId		139	string
 ATTRIBUTE	Moonshot-TR-COI-TargetedId		140	string
-
+ATTRIBUTE	Moonshot-MSTID-GSS-Acceptor		141	string
+ATTRIBUTE	Moonshot-MSTID-Namespace		142	string
+ATTRIBUTE	Moonshot-MSTID-TargetedId		143	string
+ATTRIBUTE	Moonshot-OTP-Secret			144	string
 END-VENDOR UKERNA
