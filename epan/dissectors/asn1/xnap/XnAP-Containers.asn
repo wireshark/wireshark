@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V15.0.0 (2018-06)
+-- 3GPP TS 38.423 V15.1.0 (2018-09)
 -- 9.3.8	Container definitions
 -- **************************************************************
 --
@@ -7,10 +7,10 @@
 -- **************************************************************
 
 XnAP-Containers {
-itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
 ngran-access (22) modules (3) xnap (2) version1 (1) xnap-Containers (5) }
 
-DEFINITIONS AUTOMATIC TAGS ::= 
+DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
 
@@ -116,12 +116,11 @@ WITH SYNTAX {
 --
 -- **************************************************************
 
-ProtocolIE-Container {XNAP-PROTOCOL-IES : IEsSetParam} ::= 
+ProtocolIE-Container {XNAP-PROTOCOL-IES : IEsSetParam} ::=
 	SEQUENCE (SIZE (0..maxProtocolIEs)) OF
 	ProtocolIE-Field {{IEsSetParam}}
 
-ProtocolIE-Single-Container {XNAP-PROTOCOL-IES : IEsSetParam} ::= 
-	ProtocolIE-Field {{IEsSetParam}}
+ProtocolIE-Single-Container {XNAP-PROTOCOL-IES : IEsSetParam} ::= 	ProtocolIE-Field {{IEsSetParam}}
 
 ProtocolIE-Field {XNAP-PROTOCOL-IES : IEsSetParam} ::= SEQUENCE {
 	id				XNAP-PROTOCOL-IES.&id					({IEsSetParam}),
@@ -135,7 +134,7 @@ ProtocolIE-Field {XNAP-PROTOCOL-IES : IEsSetParam} ::= SEQUENCE {
 --
 -- **************************************************************
 
-ProtocolIE-ContainerPair {XNAP-PROTOCOL-IES-PAIR : IEsSetParam} ::= 
+ProtocolIE-ContainerPair {XNAP-PROTOCOL-IES-PAIR : IEsSetParam} ::=
 	SEQUENCE (SIZE (0..maxProtocolIEs)) OF
 	ProtocolIE-FieldPair {{IEsSetParam}}
 
@@ -167,8 +166,7 @@ ProtocolIE-ContainerPairList {INTEGER : lowerBound, INTEGER : upperBound, XNAP-P
 --
 -- **************************************************************
 
-ProtocolExtensionContainer {XNAP-PROTOCOL-EXTENSION : ExtensionSetParam} ::= 
-	SEQUENCE (SIZE (1..maxProtocolExtensions)) OF
+ProtocolExtensionContainer {XNAP-PROTOCOL-EXTENSION : ExtensionSetParam} ::=	SEQUENCE (SIZE (1..maxProtocolExtensions)) OF
 	ProtocolExtensionField {{ExtensionSetParam}}
 
 ProtocolExtensionField {XNAP-PROTOCOL-EXTENSION : ExtensionSetParam} ::= SEQUENCE {
@@ -183,7 +181,7 @@ ProtocolExtensionField {XNAP-PROTOCOL-EXTENSION : ExtensionSetParam} ::= SEQUENC
 --
 -- **************************************************************
 
-PrivateIE-Container {XNAP-PRIVATE-IES : IEsSetParam} ::= 
+PrivateIE-Container {XNAP-PRIVATE-IES : IEsSetParam} ::=
 	SEQUENCE (SIZE (1..maxPrivateIEs)) OF
 	PrivateIE-Field {{IEsSetParam}}
 

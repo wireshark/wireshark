@@ -10,7 +10,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Ref:
- * 3GPP TS 38.423 V15.0.0 (2018-06)
+ * 3GPP TS 38.423 V15.1.0 (2018-09)
  */
 
 #include "config.h"
@@ -62,6 +62,7 @@ static gint ett_xnap_e_utra_EncyptionAlgorithms = -1;
 static gint ett_xnap_e_utra_IntegrityProtectionAlgorithms = -1;
 static gint ett_xnap_ng_ran_TraceID = -1;
 static gint ett_xnap_interfaces_to_trace = -1;
+static gint ett_xnap_LastVisitedEUTRANCellInformation = -1;
 #include "packet-xnap-ett.c"
 
 enum {
@@ -102,7 +103,13 @@ static dissector_handle_t xnap_handle;
 static void
 xnap_PacketLossRate_fmt(gchar *s, guint32 v)
 {
-  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1f %% (%u)", (float)v/10, v);
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1f%% (%u)", (float)v/10, v);
+}
+
+static void
+xnap_PacketDelayBudget_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fms (%u)", (float)v/2, v);
 }
 
 typedef enum {
@@ -113,8 +120,10 @@ typedef enum {
 
 struct xnap_conv_info {
   address addr_a;
+  guint32 port_a;
   GlobalNG_RANNode_ID_enum ranmode_id_a;
   address addr_b;
+  guint32 port_b;
   GlobalNG_RANNode_ID_enum ranmode_id_b;
 };
 
@@ -135,6 +144,22 @@ xnap_get_private_data(packet_info *pinfo)
     p_add_proto_data(pinfo->pool, pinfo, proto_xnap, 0, xnap_data);
   }
   return xnap_data;
+}
+
+static GlobalNG_RANNode_ID_enum
+xnap_get_ranmode_id(address *addr, guint32 port, packet_info *pinfo)
+{
+  struct xnap_private_data *xnap_data = xnap_get_private_data(pinfo);
+  GlobalNG_RANNode_ID_enum ranmode_id = (GlobalNG_RANNode_ID_enum)-1;
+
+  if (xnap_data->xnap_conv) {
+    if (addresses_equal(addr, &xnap_data->xnap_conv->addr_a) && port == xnap_data->xnap_conv->port_a) {
+      ranmode_id = xnap_data->xnap_conv->ranmode_id_a;
+    } else if (addresses_equal(addr, &xnap_data->xnap_conv->addr_b) && port == xnap_data->xnap_conv->port_b) {
+      ranmode_id = xnap_data->xnap_conv->ranmode_id_b;
+    }
+  }
+  return ranmode_id;
 }
 
 #include "packet-xnap-fn.c"
@@ -195,8 +220,10 @@ dissect_xnap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
   if (!xnap_data->xnap_conv) {
     xnap_data->xnap_conv = wmem_new0(wmem_file_scope(), struct xnap_conv_info);
     copy_address_wmem(wmem_file_scope(), &xnap_data->xnap_conv->addr_a, &pinfo->src);
+    xnap_data->xnap_conv->port_a = pinfo->srcport;
     xnap_data->xnap_conv->ranmode_id_a = (GlobalNG_RANNode_ID_enum)-1;
     copy_address_wmem(wmem_file_scope(), &xnap_data->xnap_conv->addr_b, &pinfo->dst);
+    xnap_data->xnap_conv->port_b = pinfo->destport;
     xnap_data->xnap_conv->ranmode_id_b = (GlobalNG_RANNode_ID_enum)-1;
     conversation_add_proto_data(conversation, proto_xnap, xnap_data->xnap_conv);
   }
@@ -242,6 +269,7 @@ void proto_register_xnap(void) {
     &ett_xnap_e_utra_IntegrityProtectionAlgorithms,
     &ett_xnap_ng_ran_TraceID,
     &ett_xnap_interfaces_to_trace,
+    &ett_xnap_LastVisitedEUTRANCellInformation,
 #include "packet-xnap-ettarr.c"
   };
 

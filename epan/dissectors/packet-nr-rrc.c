@@ -262,6 +262,7 @@ static int hf_nr_rrc_UL_CCCH_Message_PDU = -1;    /* UL_CCCH_Message */
 static int hf_nr_rrc_UL_CCCH1_Message_PDU = -1;   /* UL_CCCH1_Message */
 static int hf_nr_rrc_nr_rrc_UL_DCCH_Message_PDU = -1;  /* UL_DCCH_Message */
 static int hf_nr_rrc_nr_rrc_MIB_PDU = -1;         /* MIB */
+static int hf_nr_rrc_nr_rrc_MeasurementReport_PDU = -1;  /* MeasurementReport */
 static int hf_nr_rrc_nr_rrc_RRCReconfiguration_PDU = -1;  /* RRCReconfiguration */
 static int hf_nr_rrc_nr_rrc_RRCReconfigurationComplete_PDU = -1;  /* RRCReconfigurationComplete */
 static int hf_nr_rrc_nr_rrc_SIB1_PDU = -1;        /* SIB1 */
@@ -37567,6 +37568,14 @@ int dissect_nr_rrc_MIB_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
   offset += 7; offset >>= 3;
   return offset;
 }
+int dissect_nr_rrc_MeasurementReport_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
+  offset = dissect_nr_rrc_MeasurementReport(tvb, offset, &asn1_ctx, tree, hf_nr_rrc_nr_rrc_MeasurementReport_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 int dissect_nr_rrc_RRCReconfiguration_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -37783,6 +37792,10 @@ proto_register_nr_rrc(void) {
         NULL, HFILL }},
     { &hf_nr_rrc_nr_rrc_MIB_PDU,
       { "MIB", "nr-rrc.MIB_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_nr_rrc_MeasurementReport_PDU,
+      { "MeasurementReport", "nr-rrc.MeasurementReport_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_nr_rrc_nr_rrc_RRCReconfiguration_PDU,
