@@ -2923,7 +2923,8 @@ dissect_any_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int pro
         static const int* timestamp_snapshot_parts[] = {
           &hf_docsis_ucd_ofdma_timestamp_snapshot_reserved,
           &hf_docsis_ucd_ofdma_timestamp_snapshot_d30timestamp,
-          &hf_docsis_ucd_ofdma_timestamp_snapshot_4msbits_of_div20
+          &hf_docsis_ucd_ofdma_timestamp_snapshot_4msbits_of_div20,
+          NULL
         };
         proto_tree_add_item (tlv_tree, hf_docsis_ucd_ofdma_timestamp_snapshot, tvb, pos, length, ENC_NA);
         proto_tree_add_bitmask_list(tlv_tree, tvb, pos, 5, timestamp_snapshot_parts, ENC_BIG_ENDIAN);
