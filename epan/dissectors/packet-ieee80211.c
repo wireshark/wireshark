@@ -12442,9 +12442,14 @@ static const value_string ieee80211_rsn_cipher_vals[] = {
   {3, "AES (OCB)"},
   {4, "AES (CCM)"},
   {5, "WEP (104-bit)"},
-  {6, "BIP"},
+  {6, "BIP (128)"},
   {7, "Group addressed traffic not allowed"},
-  {8, "GCMP"},
+  {8, "GCMP (128)" },
+  {9, "GCMP (256)" },
+  {10, "CCMP (256)" },
+  {11, "BIP (GMAC-128)" },
+  {12, "BIP (GMAC-256)" },
+  {13, "BIP (CMAC-256)" },
   {0, NULL}
 };
 
@@ -12456,7 +12461,13 @@ static const value_string ieee80211_rsn_keymgmt_vals[] = {
   {4, "FT using PSK"},
   {5, "WPA (SHA256)"},
   {6, "PSK (SHA256)"},
-  {7, "TDLS / TPK Handshake"},
+  {7, "TDLS / TPK Handshake (SHA256)"},
+  {8, "SAE (SHA256)" },
+  {9, "FT using SAE (SHA256)" },
+  {10, "APPeerKey (SHA256)" },
+  {11, "WPA (SHA256-SuiteB)" },
+  {12, "WPA (SHA384-SuiteB)" },
+  {13, "FT over IEEE 802.1X (SHA384)" },
   {18, "Opportunistic Wireless Encryption"},
   {0, NULL}
 };
