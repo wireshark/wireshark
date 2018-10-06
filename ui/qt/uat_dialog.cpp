@@ -43,7 +43,7 @@ UatDialog::UatDialog(QWidget *parent, epan_uat *uat) :
 
     if (uat->from_profile) {
         QPushButton *copy_button = new CopyFromProfileButton(uat->filename);
-        ui->buttonBox->addButton(copy_button, QDialogButtonBox::ApplyRole);
+        ui->buttonBox->addButton(copy_button, QDialogButtonBox::ActionRole);
         connect(copy_button->menu(), SIGNAL(triggered(QAction *)), this, SLOT(copyFromProfile(QAction *)));
     }
 

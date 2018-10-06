@@ -75,7 +75,7 @@ ColoringRulesDialog::ColoringRulesDialog(QWidget *parent, QString add_filter) :
     export_button_->setToolTip(tr("Save filters in a file."));
 
     QPushButton *copy_button = new CopyFromProfileButton("colorfilters");
-    ui->buttonBox->addButton(copy_button, QDialogButtonBox::ApplyRole);
+    ui->buttonBox->addButton(copy_button, QDialogButtonBox::ActionRole);
     connect(copy_button->menu(), SIGNAL(triggered(QAction *)), this, SLOT(copyFromProfile(QAction *)));
 
     if (!add_filter.isEmpty()) {
