@@ -176,9 +176,9 @@ endif()
 
 
 if(WIN32)
-    # Linking with setargv.obj enables "wildcard expansion" of
+    # Linking with wsetargv.obj enables "wildcard expansion" of
     # command-line arguments.
-    set(WILDCARD_OBJ setargv.obj)
+    set(WILDCARD_OBJ wsetargv.obj)
 endif(WIN32)
 
 # Banner shown at top right of Qt welcome screen.
