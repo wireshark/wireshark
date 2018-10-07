@@ -73,19 +73,19 @@
     </message>
     <message>
         <source>The directory does not exist</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Verzeichnis existiert nicht</translation>
     </message>
     <message>
         <source>Should the directory %1 be created?</source>
-        <translation type="unfinished"></translation>
+        <translation>Soll das Verzeichnis %1 erstellt werden?</translation>
     </message>
     <message>
         <source>The directory could not be created</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Verzeichnis konnte nicht erstellt werden</translation>
     </message>
     <message>
         <source>The directory %1 could not be created!</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Verzeichnis %1 konnte nicht erstellt werden!</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -1488,12 +1488,12 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>Automatisches Scrollen während des Mitschnitts</translation>
     </message>
     <message>
-        <source>Disable external capture interfaces</source>
-        <translation>Externe Mitschnittschnittstellen deaktivieren</translation>
+        <source>Don&apos;t load interfaces on startup</source>
+        <translation>Interfaces nicht beim Start laden</translation>
     </message>
     <message>
-        <source>Don&apos;t load interfaces on startup</source>
-        <translation type="unfinished"></translation>
+        <source>Disable external capture interfaces</source>
+        <translation>Externe Mitschnittschnittstellen deaktivieren</translation>
     </message>
 </context>
 <context>
@@ -1524,6 +1524,10 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <source>Duplicate this coloring rule.</source>
         <translation>Diese Einfärbungsregel duplizieren.</translation>
+    </message>
+    <message>
+        <source>Clear all coloring rules.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Set the foreground color for this rule.</source>
@@ -1718,6 +1722,17 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <source>Conversation Hash Tables</source>
         <translation>Verbindungshashtabelle</translation>
+    </message>
+</context>
+<context>
+    <name>CopyFromProfileButton</name>
+    <message>
+        <source>Copy from</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy entries from another profile.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3211,6 +3226,10 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <source>Duplicate this graph.</source>
         <translation>Diesen Graph duplizieren.</translation>
+    </message>
+    <message>
+        <source>Clear all graphs.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Mouse</source>

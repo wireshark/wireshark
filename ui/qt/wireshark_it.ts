@@ -73,19 +73,19 @@
     </message>
     <message>
         <source>The directory does not exist</source>
-        <translation type="unfinished"></translation>
+        <translation>La cartella non esiste</translation>
     </message>
     <message>
         <source>Should the directory %1 be created?</source>
-        <translation type="unfinished"></translation>
+        <translation>Dovrebbe essere creata la cartella %1?</translation>
     </message>
     <message>
         <source>The directory could not be created</source>
-        <translation type="unfinished"></translation>
+        <translation>La cartella non può essere creata</translation>
     </message>
     <message>
         <source>The directory %1 could not be created!</source>
-        <translation type="unfinished"></translation>
+        <translation>La cartella %1 non può essere creata!</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -1488,12 +1488,12 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>Scorrimento automatico durante la cattura</translation>
     </message>
     <message>
-        <source>Disable external capture interfaces</source>
-        <translation>Disabilita le interfacce di cattura esterne</translation>
+        <source>Don&apos;t load interfaces on startup</source>
+        <translation>Non caricare le interfacce all&apos;avvio</translation>
     </message>
     <message>
-        <source>Don&apos;t load interfaces on startup</source>
-        <translation type="unfinished"></translation>
+        <source>Disable external capture interfaces</source>
+        <translation>Disabilita le interfacce di cattura esterne</translation>
     </message>
 </context>
 <context>
@@ -1524,6 +1524,10 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     <message>
         <source>Duplicate this coloring rule.</source>
         <translation>Duplica questa regola di colorazione.</translation>
+    </message>
+    <message>
+        <source>Clear all coloring rules.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Set the foreground color for this rule.</source>
@@ -1718,6 +1722,17 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     <message>
         <source>Conversation Hash Tables</source>
         <translation>Tabella hash di conversazione</translation>
+    </message>
+</context>
+<context>
+    <name>CopyFromProfileButton</name>
+    <message>
+        <source>Copy from</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy entries from another profile.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3211,6 +3226,10 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     <message>
         <source>Duplicate this graph.</source>
         <translation>Duplica questo grafico.</translation>
+    </message>
+    <message>
+        <source>Clear all graphs.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Mouse</source>

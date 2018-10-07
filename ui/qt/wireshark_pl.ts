@@ -1466,11 +1466,11 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
         <translation>Automatyczne przewijanie podczas przechwytywania</translation>
     </message>
     <message>
-        <source>Disable external capture interfaces</source>
+        <source>Don&apos;t load interfaces on startup</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Don&apos;t load interfaces on startup</source>
+        <source>Disable external capture interfaces</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1502,6 +1502,10 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <message>
         <source>Duplicate this coloring rule.</source>
         <translation>Duplikuj tę regułę.</translation>
+    </message>
+    <message>
+        <source>Clear all coloring rules.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Set the foreground color for this rule.</source>
@@ -1696,6 +1700,17 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <message>
         <source>Conversation Hash Tables</source>
         <translation type="unfinished">Tablice mieszające konwersacji</translation>
+    </message>
+</context>
+<context>
+    <name>CopyFromProfileButton</name>
+    <message>
+        <source>Copy from</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy entries from another profile.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3187,6 +3202,10 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <message>
         <source>Duplicate this graph.</source>
         <translation>Duplikuj ten wykres.</translation>
+    </message>
+    <message>
+        <source>Clear all graphs.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Mouse</source>

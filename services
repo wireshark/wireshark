@@ -5224,6 +5224,7 @@ lm-instmgr	8205/tcp/udp	# LM Instmgr
 lm-dta		8206/tcp/udp	# LM Dta
 lm-sserver	8207/tcp/udp	# LM SServer
 lm-webwatcher	8208/tcp/udp	# LM Webwatcher
+aruba-papi	8211/udp	# Aruba Networks AP management
 rexecj		8230/tcp/udp	# RexecJ Server
 hncp-udp-port	8231/udp	# HNCP
 hncp-dtls-port	8232/udp	# HNCP over DTLS

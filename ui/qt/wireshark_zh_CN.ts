@@ -1481,11 +1481,11 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>实时捕获时自动滚屏</translation>
     </message>
     <message>
-        <source>Disable external capture interfaces</source>
+        <source>Don&apos;t load interfaces on startup</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Don&apos;t load interfaces on startup</source>
+        <source>Disable external capture interfaces</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1517,6 +1517,10 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Duplicate this coloring rule.</source>
         <translation>复制着色规则。</translation>
+    </message>
+    <message>
+        <source>Clear all coloring rules.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Set the foreground color for this rule.</source>
@@ -1711,6 +1715,17 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Conversation Hash Tables</source>
         <translation type="unfinished">对话哈希表</translation>
+    </message>
+</context>
+<context>
+    <name>CopyFromProfileButton</name>
+    <message>
+        <source>Copy from</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy entries from another profile.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3195,6 +3210,10 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Duplicate this graph.</source>
         <translation>复制图形。</translation>
+    </message>
+    <message>
+        <source>Clear all graphs.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Mouse</source>

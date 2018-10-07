@@ -1465,11 +1465,11 @@ NOTE: Une option DOIT être sélectionnée.</translation>
         <translation>Défilement automatique dans la capture en temps réel</translation>
     </message>
     <message>
-        <source>Disable external capture interfaces</source>
+        <source>Don&apos;t load interfaces on startup</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Don&apos;t load interfaces on startup</source>
+        <source>Disable external capture interfaces</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1501,6 +1501,10 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     <message>
         <source>Duplicate this coloring rule.</source>
         <translation>Dupliquer cette règle de coloration.</translation>
+    </message>
+    <message>
+        <source>Clear all coloring rules.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Set the foreground color for this rule.</source>
@@ -1694,6 +1698,17 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     </message>
     <message>
         <source>Conversation Hash Tables</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>CopyFromProfileButton</name>
+    <message>
+        <source>Copy from</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy entries from another profile.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3188,6 +3203,10 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     <message>
         <source>Duplicate this graph.</source>
         <translation>Dupliquer ce graphique.</translation>
+    </message>
+    <message>
+        <source>Clear all graphs.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Mouse</source>

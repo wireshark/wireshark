@@ -1523,6 +1523,10 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Clear all coloring rules.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Set the foreground color for this rule.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1714,6 +1718,17 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Conversation Hash Tables</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>CopyFromProfileButton</name>
+    <message>
+        <source>Copy from</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy entries from another profile.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3176,6 +3191,10 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Duplicate this graph.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear all graphs.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
