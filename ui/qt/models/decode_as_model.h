@@ -72,6 +72,7 @@ public:
 
     bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex());
     bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
+    void clearAll();
     bool copyRow(int dst_row, int src_row);
 
     static QString entryString(const gchar *table_name, gpointer value);

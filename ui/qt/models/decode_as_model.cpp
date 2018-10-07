@@ -391,6 +391,16 @@ bool DecodeAsModel::removeRows(int row, int count, const QModelIndex &/*parent*/
     return true;
 }
 
+void DecodeAsModel::clearAll()
+{
+    if (rowCount() < 1)
+        return;
+
+    beginResetModel();
+    decode_as_items_.clear();
+    endResetModel();
+}
+
 bool DecodeAsModel::copyRow(int dst_row, int src_row)
 {
     if (src_row < 0 || src_row >= rowCount() || dst_row < 0 || dst_row >= rowCount()) {

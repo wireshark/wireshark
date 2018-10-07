@@ -47,12 +47,16 @@ private:
     void fillTable();
     void resizeColumns();
 
+public slots:
+    void modelRowsReset();
+
 private slots:
     void on_decodeAsTreeView_currentItemChanged(const QModelIndex &current, const QModelIndex &previous);
 
     void on_newToolButton_clicked();
     void on_deleteToolButton_clicked();
     void on_copyToolButton_clicked();
+    void on_clearToolButton_clicked();
 
     void on_buttonBox_clicked(QAbstractButton *button);
 };

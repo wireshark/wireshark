@@ -50,6 +50,9 @@ DecodeAsDialog::DecodeAsDialog(QWidget *parent, capture_file *cf, bool create_ne
 
     fillTable();
 
+    connect(model_, SIGNAL(modelReset()), this, SLOT(modelRowsReset()));
+    ui->clearToolButton->setEnabled(model_->rowCount() > 0);
+
     if (create_new)
         on_newToolButton_clicked();
 }
@@ -83,14 +86,23 @@ void DecodeAsDialog::resizeColumns()
     }
 }
 
+void DecodeAsDialog::modelRowsReset()
+{
+    ui->deleteToolButton->setEnabled(false);
+    ui->copyToolButton->setEnabled(false);
+    ui->clearToolButton->setEnabled(false);
+}
+
 void DecodeAsDialog::on_decodeAsTreeView_currentItemChanged(const QModelIndex &current, const QModelIndex&)
 {
     if (current.isValid()) {
         ui->deleteToolButton->setEnabled(true);
         ui->copyToolButton->setEnabled(true);
+        ui->clearToolButton->setEnabled(true);
     } else {
         ui->deleteToolButton->setEnabled(false);
         ui->copyToolButton->setEnabled(false);
+        ui->clearToolButton->setEnabled(false);
     }
 }
 
@@ -136,6 +148,11 @@ void DecodeAsDialog::on_deleteToolButton_clicked()
 void DecodeAsDialog::on_copyToolButton_clicked()
 {
     addRecord(true);
+}
+
+void DecodeAsDialog::on_clearToolButton_clicked()
+{
+    model_->clearAll();
 }
 
 void DecodeAsDialog::applyChanges()
