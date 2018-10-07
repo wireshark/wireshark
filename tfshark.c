@@ -321,8 +321,8 @@ get_tfshark_runtime_version_info(GString *str)
   epan_get_runtime_version_info(str);
 }
 
-int
-main(int argc, char *argv[])
+static int
+real_main(int argc, char *argv[])
 {
   GString             *comp_info_str;
   GString             *runtime_info_str;
@@ -378,7 +378,6 @@ main(int argc, char *argv[])
   cmdarg_err_init(failure_warning_message, failure_message_cont);
 
 #ifdef _WIN32
-  arg_list_utf_16to8(argc, argv);
   create_app_running_mutex();
 #if !GLIB_CHECK_VERSION(2,31,0)
   g_thread_init(NULL);
@@ -1034,6 +1033,26 @@ clean_exit:
   wtap_cleanup();
   return exit_status;
 }
+
+#ifdef _WIN32
+int
+wmain(int argc, wchar_t *argv[])
+{
+  char **argv_utf8;
+
+  /* Convert our arg list from UTF-16LE to UTF-8. */
+  argv_utf8 = g_malloc(argc * sizeof *argv_utf8);
+  for (int i = 0; i < argc; i++)
+    argv_utf8[i] = g_utf16_to_utf8(argv[i], -1, NULL, NULL, NULL);
+  return real_main(argc, argv_utf8);
+}
+#else
+int
+main(int argc, char *argv[])
+{
+  return real_main(argc, argv);
+}
+#endif
 
 static const nstime_t *
 tfshark_get_frame_ts(void *data, guint32 frame_num)

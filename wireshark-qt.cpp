@@ -29,6 +29,13 @@
 
 #include <locale.h>
 
+#ifdef _WIN32
+#include <windows.h>
+#include <tchar.h>
+#include <wchar.h>
+#include <shellapi.h>
+#endif
+
 #ifdef HAVE_GETOPT_H
 #include <getopt.h>
 #endif
@@ -113,7 +120,6 @@
 #ifdef _WIN32
 #  include "caputils/capture-wpcap.h"
 #  include "caputils/capture_wpcap_packet.h"
-#  include <tchar.h> /* Needed for Unicode */
 #  include <wsutil/file_util.h>
 #  include <wsutil/os_version_info.h>
 #endif /* _WIN32 */
@@ -346,6 +352,8 @@ int main(int argc, char *qt_argv[])
 
 #ifdef _WIN32
     int                  opt;
+    LPWSTR              *wc_argv;
+    int                  wc_argc;
 #endif
     int                  ret_val = EXIT_SUCCESS;
     char               **argv = qt_argv;
@@ -400,12 +408,26 @@ int main(int argc, char *qt_argv[])
     setlocale(LC_ALL, "");
 
 #ifdef _WIN32
-    // QCoreApplication clobbers argv. Let's have a local copy.
-    argv = (char **) g_malloc(sizeof(char *) * argc);
-    for (opt = 0; opt < argc; opt++) {
-        argv[opt] = qt_argv[opt];
-    }
-    arg_list_utf_16to8(argc, argv);
+    //
+    // On Windows, QCoreApplication has its own WinMain(), which gets the
+    // command line using GetCommandLineW(), breaks it into individual
+    // arguments using CommandLineToArgvW(), and then "helpfully"
+    // converts those UTF-16LE arguments into strings in the local code
+    // page.
+    //
+    // We don't want that, because not all file names can be represented
+    // in the local code page, so we do the same, but we convert the
+    // strings into UTF-8.
+    //
+    wc_argv = CommandLineToArgvW(GetCommandLineW(), &wc_argc);
+    if (wc_argv && wc_argc == argc) {
+        argv = (char **) g_malloc(sizeof(char *) * argc);
+        for (opt = 0; opt < argc; opt++) {
+            argv[opt] = g_utf16_to_utf8((const gunichar2 *)wc_argv[opt], -1, NULL, NULL, NULL);
+        }
+    } /* XXX else bail because something is horribly, horribly wrong? */
+    LocalFree(wc_argv);
+
     create_app_running_mutex();
 #endif /* _WIN32 */
 
