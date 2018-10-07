@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2018-09-30)
+(last updated 2018-10-06)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -87750,9 +87750,9 @@ Decimal
     Mr. Guido Schroers
       guido.schroers&mgi.de
 22050
-  COPA-DATA GmbH
-    jens reindl
-      jensr&copadata.at
+  Ing. Punzenberger COPA-DATA GmbH
+    Guenther Haslauer
+      development&copadata.com
 22051
   SavageS Net
     Shaun Savage
@@ -94355,8 +94355,8 @@ Decimal
       bachvaroff&internews-bg.com
 23701
   Cannon Technologies Ltd
-    Mark Wheeler
-      mark.wheeler&cannontech.co.uk
+    Mark Hirst
+      mark.hirst&cannontech.co.uk
 23702
   SHD Holding GmbH
     Carsten Bastian
@@ -143911,8 +143911,8 @@ Decimal
       clc-iana&sparf.net
 36090
   Remote Instruments
-    Swee-Hong Tay
-      sweehong.tay&remote-instruments.com
+    Michelle Low
+      snmp.admin&remote-instruments.com
 36091
   SIS Group Pty Ltd
     Luke Iggleden
@@ -156354,9 +156354,9 @@ Decimal
     Somporn Jarusinchai
       somporn.jaru&ktbcs.co.th
 39201
-  redtoo ag
+  Axians redtoo AG (formerly 'redtoo ag')
     Patrick Sczepanski
-      patrick.sczepanski&redtoo.com
+      patrick.sczepanski&axians.com
 39202
   ASP Alerce Tecnology SL
     Alvaro Fernandez Corugedo Feilenreiter
@@ -210290,9 +210290,9 @@ Decimal
     JAVIER OURET
       javier&atriantech.com
 52685
-  Rémi Dubois
+  R. Dubois
     Rémi Dubois
-      remi&rdubois.fr
+      oid-iana&rdubois.fr
 52686
   Laretk
     Carlos F. Reynoso
@@ -210465,6 +210465,170 @@ Decimal
   Xiamen Dianchu Technology Co.,Ltd.
     tian gui
       tg&dianchu.com
+52729
+  Mitteldeutsche Flughafen AG
+    Steffen Loeb
+      pki&mdf-ag.com
+52730
+  Vinetu Technologies Ltd
+    Eli Melamed
+      admin&vinetu.co.il
+52731
+  Society for Human Resource Management
+    Bryan Fennell
+      bryan.fennell&shrm.org
+52732
+  BODINE ELECTRIC COMPANY
+    Dave Sturgeon
+      dave.sturgeon&bodine-electric.com
+52733
+  A.K. & Sons
+    Alexander A. Kelner
+      a.a.kelner&gmail.com
+52734
+  Brain Corporation
+    Daniel Woodlins
+      woodlins&braincorp.com
+52735
+  DearBytes BV
+    J Wijnands
+      iana&dearbytes.nl
+52736
+  BlastAsia Inc.
+    System Admin
+      itg&blastasia.com
+52737
+  InQuest, LLC
+    InQuest Help Desk
+      support&inquest.net
+52738
+  Abris Ltd.
+    Viktor Weininger
+      viktor.weininger&abrisconsult.com
+52739
+  Trinity Anglican College
+    Cameron Bishop
+      itadmin&trinityac.nsw.edu.au
+52740
+  Hiscale GmbH
+    Tilo Skomudek
+      tilo.skomudek&hiscale.com
+52741
+  Doolins
+    Nicholas Doolin
+      oid&doolins.com
+52742
+  KeHE Distributors, LLC
+    Internet Administrator
+      internet.administrator&kehe.com
+52743
+  Darrera
+    Raúl Martínez Zancada
+      raul&darrera.com
+52744
+  Arkansas Department of Human Services - Office of Information Technology
+    Kevin Grace
+      kevin.grace&dhs.arkansas.gov
+52745
+  cupids guide by cynrocks
+    cindy l appley
+      cinpeaches01&yahoo.com
+52746
+  Amtelco
+    Paul Henning
+      paul&amtelco.com
+52747
+  X Free Space Optical Communication
+    Varun Puri
+      vpuri&google.com
+52748
+  Evolution Digital
+    Nicholas Bracciale
+      support&evolutiondigital.com
+52749
+  Qvalent
+    Frans Henskens
+      fhenskens&qvalent.com
+52750
+  Ahnnet
+    Hyunho Lee
+      hhlee&ahnnet.co.kr
+52751
+  RCI Financial Services Ltd
+    Neale Lonslow
+      neale.lonslow&rcibanque.com
+52752
+  XPHONE Czech s.r.o.
+    Michael Novotny
+      michael&xgw.cz
+52753
+  TE Technology, Inc.
+    Paul Lau
+      pglau&tetech.com
+52754
+  NIICHASPROM
+    Vladimir Trofimov
+      trofimov&niichasprom.ru
+52755
+  At Home
+    Brandy Johnston
+      bjohnston&athome.com
+52756
+  XVTEC
+    Avner Flesch
+      avner&xvtec.com
+52757
+  Beacon Cancer Care, PLL
+    Natalie Spiller
+      nspiller&beaconcancercare.com
+52758
+  Kistler Instrumente AG
+    Josua Hunziker
+      josua.hunziker&kistler.com
+52759
+  Rayhaan Systems
+    Rayhaan Jaufeerally
+      noc&rayhaan.ch
+52760
+  SBTAP-AS59715
+    Mauro Vito Angiolillo
+      mauro.angiolillo&as59715.net
+52761
+  Baldwin Risk Partners
+    Keith Johnson
+      keith.johnson&bks-partners.com
+52762
+  Instituto Federal Catarinense - Araquari
+    Jefferson Douglas Viana
+      jefferson.viana&ifc.edu.br
+52763
+  HTTPCART Technologies Pvt Ltd
+    Praveen Gupta
+      tech&wijungle.com
+52764
+  SOUTHCERT, LLC
+    Luis Alfredo Armas
+      luis.armas&southcert.com
+52765
+  Einfaches-Netzwerk
+    Dietmar Haimann
+      blog&einfaches-netzwerk.at
+52766
+  Oita Denshi Kogyo Co., Ltd.
+    Technical Contact
+      tech&oitadensi.co.jp
+52767
+  E-Government
+    Roel Vonsee
+      roel.vonsee&president.gov.sr
+52768
+  IOV42 LTD
+    Robert Zapfel
+      robert&iov42.com
+52769
+  Kara Systems
+    Meysam Farsi
+      m.farsi&karasystems.ir
 
 
 End of Document

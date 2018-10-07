@@ -10074,6 +10074,7 @@ lm-sserver       8207/tcp # LM SServer [Chris_Flynn] [Chris_Flynn]
 lm-sserver       8207/udp # LM SServer [Chris_Flynn] [Chris_Flynn]
 lm-webwatcher    8208/tcp # LM Webwatcher [Chris_Flynn] [Chris_Flynn]
 lm-webwatcher    8208/udp # LM Webwatcher [Chris_Flynn] [Chris_Flynn]
+aruba-papi       8211/udp # Aruba Networks AP management [Aruba_Networks] [Jon_Green] 2018-10-04
 rexecj           8230/tcp # RexecJ Server [Curtiss_Howard] [Curtiss_Howard] 2004-11
 rexecj           8230/udp # RexecJ Server [Curtiss_Howard] [Curtiss_Howard] 2004-11
 hncp-udp-port    8231/udp # HNCP [IESG] [IETF_Chair] 2016-01-13 [RFC7788]
