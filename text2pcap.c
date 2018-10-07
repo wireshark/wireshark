@@ -1459,11 +1459,6 @@ parse_options (int argc, char *argv[])
     };
     struct tm *now_tm;
 
-#ifdef _WIN32
-    arg_list_utf_16to8(argc, argv);
-    create_app_running_mutex();
-#endif /* _WIN32 */
-
     /* Get the compile-time version information string */
     comp_info_str = get_compiled_version_info(NULL, NULL);
 
@@ -1864,10 +1859,14 @@ parse_options (int argc, char *argv[])
     return EXIT_SUCCESS;
 }
 
-int
-main(int argc, char *argv[])
+static int
+real_main(int argc, char *argv[])
 {
     int ret = EXIT_SUCCESS;
+
+#ifdef _WIN32
+    create_app_running_mutex();
+#endif /* _WIN32 */
 
     if (parse_options(argc, argv) != EXIT_SUCCESS) {
         ret = EXIT_FAILURE;
@@ -1932,6 +1931,26 @@ clean_exit:
     return ret;
 }
 
+#ifdef _WIN32
+int
+wmain(int argc, wchar_t *argv[])
+{
+    char **argv_utf8;
+
+    /* Convert our arg list from UTF-16LE to UTF-8. */
+    argv_utf8 = g_malloc(argc * sizeof *argv_utf8);
+    for (int i = 0; i < argc; i++)
+        argv_utf8[i] = g_utf16_to_utf8(argv[i], -1, NULL, NULL, NULL);
+    return real_main(argc, argv_utf8);
+}
+#else
+int
+main(int argc, char *argv[])
+{
+    return real_main(argc, argv);
+}
+#endif
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
@@ -1944,4 +1963,3 @@ clean_exit:
  * vi: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-
