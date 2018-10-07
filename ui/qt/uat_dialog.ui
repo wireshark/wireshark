@@ -125,11 +125,10 @@
        <property name="text">
         <string/>
        </property>
-        <property name="icon">
-          <iconset resource="../../image/stock_icons.qrc">
-            <normaloff>:/stock/delete_list.png</normaloff>:/stock/delete_list.png
-          </iconset>
-        </property>
+       <property name="icon">
+        <iconset resource="../../image/stock_icons.qrc">
+         <normaloff>:/stock/delete_list.png</normaloff>:/stock/delete_list.png</iconset>
+       </property>
        <property name="enabled">
         <bool>false</bool>
        </property>
