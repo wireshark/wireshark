@@ -124,8 +124,10 @@ typedef struct _ngap_ctx_t {
 
 struct ngap_conv_info {
   address addr_a;
+  guint32 port_a;
   GlobalRANNodeID_enum ranmode_id_a;
   address addr_b;
+  guint32 port_b;
   GlobalRANNodeID_enum ranmode_id_b;
 };
 
@@ -285,6 +287,21 @@ ngap_get_private_data(packet_info *pinfo)
   return ngap_data;
 }
 
+static GlobalRANNodeID_enum
+ngap_get_ranmode_id(address *addr, guint32 port, packet_info *pinfo)
+{
+  struct ngap_private_data *ngap_data = ngap_get_private_data(pinfo);
+  GlobalRANNodeID_enum ranmode_id = (GlobalRANNodeID_enum)-1;
+
+  if (ngap_data->ngap_conv) {
+    if (addresses_equal(addr, &ngap_data->ngap_conv->addr_a) && port == ngap_data->ngap_conv->port_a) {
+      ranmode_id = ngap_data->ngap_conv->ranmode_id_a;
+    } else if (addresses_equal(addr, &ngap_data->ngap_conv->addr_b) && port == ngap_data->ngap_conv->port_b) {
+      ranmode_id = ngap_data->ngap_conv->ranmode_id_b;
+    }
+  }
+  return ranmode_id;
+}
 
 #include "packet-ngap-fn.c"
 
@@ -378,8 +395,10 @@ dissect_ngap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   if (!ngap_data->ngap_conv) {
     ngap_data->ngap_conv = wmem_new0(wmem_file_scope(), struct ngap_conv_info);
     copy_address_wmem(wmem_file_scope(), &ngap_data->ngap_conv->addr_a, &pinfo->src);
+    ngap_data->ngap_conv->port_a = pinfo->srcport;
     ngap_data->ngap_conv->ranmode_id_a = (GlobalRANNodeID_enum)-1;
     copy_address_wmem(wmem_file_scope(), &ngap_data->ngap_conv->addr_b, &pinfo->dst);
+    ngap_data->ngap_conv->port_b = pinfo->destport;
     ngap_data->ngap_conv->ranmode_id_b = (GlobalRANNodeID_enum)-1;
     conversation_add_proto_data(conversation, proto_ngap, ngap_data->ngap_conv);
   }

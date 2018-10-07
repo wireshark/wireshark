@@ -429,9 +429,11 @@ PortNumber TYPE = FT_UINT16 DISPLAY = BASE_DEC
 
 %(DEFAULT_BODY)s
   if (ngap_data->ngap_conv && ngap_data->procedure_code == id_NGSetup) {
-    if (addresses_equal(&actx->pinfo->src, &ngap_data->ngap_conv->addr_a)) {
+    if (addresses_equal(&actx->pinfo->src, &ngap_data->ngap_conv->addr_a) &&
+        actx->pinfo->srcport == ngap_data->ngap_conv->port_a) {
       ngap_data->ngap_conv->ranmode_id_a = (GlobalRANNodeID_enum)value;
-    } else if (addresses_equal(&actx->pinfo->src, &ngap_data->ngap_conv->addr_b)) {
+    } else if (addresses_equal(&actx->pinfo->src, &ngap_data->ngap_conv->addr_b) &&
+               actx->pinfo->srcport == ngap_data->ngap_conv->port_b) {
       ngap_data->ngap_conv->ranmode_id_b = (GlobalRANNodeID_enum)value;
     }
   }
@@ -454,18 +456,18 @@ PortNumber TYPE = FT_UINT16 DISPLAY = BASE_DEC
   if (parameter_tvb) {
     struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
     proto_tree *subtree;
-    GlobalRANNodeID_enum target_ranmode_id = (GlobalRANNodeID_enum)-1;
+    GlobalRANNodeID_enum ranmode_id;
 
-    if (ngap_data->ngap_conv) {
-      if (addresses_equal(&actx->pinfo->dst, &ngap_data->ngap_conv->addr_a)) {
-        target_ranmode_id = ngap_data->ngap_conv->ranmode_id_a;
-      } else if (addresses_equal(&actx->pinfo->dst, &ngap_data->ngap_conv->addr_b)) {
-        target_ranmode_id = ngap_data->ngap_conv->ranmode_id_b;
-      }
+    if (ngap_data->transparent_container_type == SOURCE_TO_TARGET_TRANSPARENT_CONTAINER) {
+      ranmode_id = ngap_get_ranmode_id(&actx->pinfo->dst, actx->pinfo->destport, actx->pinfo);
+    } else if (ngap_data->transparent_container_type == TARGET_TO_SOURCE_TRANSPARENT_CONTAINER) {
+      ranmode_id = ngap_get_ranmode_id(&actx->pinfo->src, actx->pinfo->srcport, actx->pinfo);
+    } else {
+      ranmode_id = (GlobalRANNodeID_enum)-1;
     }
     subtree = proto_item_add_subtree(actx->created_item, ett_ngap_RRCContainer);
     if ((ngap_dissect_target_ng_ran_container_as == NGAP_NG_RAN_CONTAINER_AUTOMATIC &&
-         target_ranmode_id == globalGNB_ID) ||
+         ranmode_id == globalGNB_ID) ||
         (ngap_dissect_target_ng_ran_container_as == NGAP_NG_RAN_CONTAINER_GNB)) {
       if (ngap_data->transparent_container_type == SOURCE_TO_TARGET_TRANSPARENT_CONTAINER) {
         dissect_nr_rrc_HandoverPreparationInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
@@ -473,7 +475,7 @@ PortNumber TYPE = FT_UINT16 DISPLAY = BASE_DEC
         dissect_nr_rrc_HandoverCommand_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
       }
     } else if ((ngap_dissect_target_ng_ran_container_as == NGAP_NG_RAN_CONTAINER_AUTOMATIC &&
-                target_ranmode_id == globalNgENB_ID) ||
+                ranmode_id == globalNgENB_ID) ||
                (ngap_dissect_target_ng_ran_container_as == NGAP_NG_RAN_CONTAINER_NG_ENB)) {
       if (ngap_data->transparent_container_type == SOURCE_TO_TARGET_TRANSPARENT_CONTAINER) {
         dissect_lte_rrc_HandoverPreparationInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
