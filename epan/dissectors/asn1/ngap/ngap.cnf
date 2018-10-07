@@ -396,6 +396,15 @@ EUTRA-CGI/eUTRACellIdentity ABBREV=EUTRACellIdentity TYPE=FT_UINT32 DISPLAY=BASE
 #.TYPE_ATTR
 PacketLossRate DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(ngap_PacketLossRate_fmt)
 
+#.TYPE_ATTR
+PacketDelayBudget DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(ngap_PacketDelayBudget_fmt)
+
+#.TYPE_ATTR
+AveragingWindow DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_milliseconds
+
+#.TYPE_ATTR
+MaximumDataBurstVolume DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_byte_bytes
+
 #.FN_BODY InterfacesToTrace VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
@@ -594,10 +603,10 @@ PortNumber TYPE = FT_UINT16 DISPLAY = BASE_DEC
   tvbuff_t *parameter_tvb = NULL;
   proto_tree *subtree;
 %(DEFAULT_BODY)s
-  if (!parameter_tvb)
-    return offset;
-  subtree = proto_item_add_subtree(actx->created_item, ett_ngap_LastVisitedEUTRANCellInformation);
-  dissect_lte_rrc_VisitedCellInfo_r12_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  if (parameter_tvb) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_ngap_LastVisitedEUTRANCellInformation);
+    dissect_lte_rrc_VisitedCellInfo_r12_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
 
 #.TYPE_ATTR
 ExpectedActivityPeriod DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
