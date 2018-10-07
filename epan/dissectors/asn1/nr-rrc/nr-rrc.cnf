@@ -57,10 +57,19 @@ RadioBearerConfig_PDU
 RRCReconfiguration_PDU
 RRCReconfigurationComplete_PDU
 SIB1_PDU
+SIB2_PDU
+SIB3_PDU
+SIB4_PDU
+SIB5_PDU
+SIB6_PDU
+SIB7_PDU
+SIB8_PDU
+SIB9_PDU
 UE-CapabilityRAT-ContainerList_PDU
 UE-MRDC-Capability_PDU
 UE-NR-Capability_PDU
 UL-DCCH-Message_PDU
+UplinkTxDirectCurrentList_PDU
 
 #.PDU
 BCCH-BCH-Message                   @bcch.bch
@@ -86,15 +95,24 @@ RadioBearerConfig
 RRCReconfiguration                 @rrc_reconf
 RRCReconfigurationComplete
 SIB1
+SIB2
+SIB3
+SIB4
+SIB5
+SIB6
+SIB7
+SIB8
+SIB9
 UE-CapabilityRAT-ContainerList
 UE-CapabilityRequestFilterNR
 UE-MRDC-Capability                 @ue_mrdc_cap
 UE-NR-Capability                   @ue_nr_cap
+UERadioAccessCapabilityInformation @ue_radio_access_cap_info
+UERadioPagingInformation           @ue_radio_paging_info
 UL-CCCH-Message                    @ul.ccch
 UL-CCCH1-Message                   @ul.ccch1
 UL-DCCH-Message                    @ul.dcch
-UERadioAccessCapabilityInformation @ue_radio_access_cap_info
-UERadioPagingInformation           @ue_radio_paging_info
+UplinkTxDirectCurrentList
 #.END
 
 #.OMIT_ASSIGNMENT

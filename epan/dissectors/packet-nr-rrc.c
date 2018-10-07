@@ -266,12 +266,21 @@ static int hf_nr_rrc_nr_rrc_MeasurementReport_PDU = -1;  /* MeasurementReport */
 static int hf_nr_rrc_nr_rrc_RRCReconfiguration_PDU = -1;  /* RRCReconfiguration */
 static int hf_nr_rrc_nr_rrc_RRCReconfigurationComplete_PDU = -1;  /* RRCReconfigurationComplete */
 static int hf_nr_rrc_nr_rrc_SIB1_PDU = -1;        /* SIB1 */
+static int hf_nr_rrc_nr_rrc_SIB2_PDU = -1;        /* SIB2 */
+static int hf_nr_rrc_nr_rrc_SIB3_PDU = -1;        /* SIB3 */
+static int hf_nr_rrc_nr_rrc_SIB4_PDU = -1;        /* SIB4 */
+static int hf_nr_rrc_nr_rrc_SIB5_PDU = -1;        /* SIB5 */
+static int hf_nr_rrc_nr_rrc_SIB6_PDU = -1;        /* SIB6 */
+static int hf_nr_rrc_nr_rrc_SIB7_PDU = -1;        /* SIB7 */
+static int hf_nr_rrc_nr_rrc_SIB8_PDU = -1;        /* SIB8 */
+static int hf_nr_rrc_nr_rrc_SIB9_PDU = -1;        /* SIB9 */
 static int hf_nr_rrc_nr_rrc_CellGroupConfig_PDU = -1;  /* CellGroupConfig */
 static int hf_nr_rrc_nr_rrc_MeasConfig_PDU = -1;  /* MeasConfig */
 static int hf_nr_rrc_nr_rrc_MeasGapConfig_PDU = -1;  /* MeasGapConfig */
 static int hf_nr_rrc_nr_rrc_MeasResults_PDU = -1;  /* MeasResults */
 static int hf_nr_rrc_nr_rrc_P_Max_PDU = -1;       /* P_Max */
 static int hf_nr_rrc_nr_rrc_RadioBearerConfig_PDU = -1;  /* RadioBearerConfig */
+static int hf_nr_rrc_nr_rrc_UplinkTxDirectCurrentList_PDU = -1;  /* UplinkTxDirectCurrentList */
 static int hf_nr_rrc_nr_rrc_FreqBandList_PDU = -1;  /* FreqBandList */
 static int hf_nr_rrc_nr_rrc_UE_CapabilityRAT_ContainerList_PDU = -1;  /* UE_CapabilityRAT_ContainerList */
 static int hf_nr_rrc_UE_CapabilityRequestFilterNR_PDU = -1;  /* UE_CapabilityRequestFilterNR */
@@ -37600,6 +37609,70 @@ int dissect_nr_rrc_SIB1_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
   offset += 7; offset >>= 3;
   return offset;
 }
+int dissect_nr_rrc_SIB2_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
+  offset = dissect_nr_rrc_SIB2(tvb, offset, &asn1_ctx, tree, hf_nr_rrc_nr_rrc_SIB2_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+int dissect_nr_rrc_SIB3_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
+  offset = dissect_nr_rrc_SIB3(tvb, offset, &asn1_ctx, tree, hf_nr_rrc_nr_rrc_SIB3_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+int dissect_nr_rrc_SIB4_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
+  offset = dissect_nr_rrc_SIB4(tvb, offset, &asn1_ctx, tree, hf_nr_rrc_nr_rrc_SIB4_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+int dissect_nr_rrc_SIB5_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
+  offset = dissect_nr_rrc_SIB5(tvb, offset, &asn1_ctx, tree, hf_nr_rrc_nr_rrc_SIB5_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+int dissect_nr_rrc_SIB6_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
+  offset = dissect_nr_rrc_SIB6(tvb, offset, &asn1_ctx, tree, hf_nr_rrc_nr_rrc_SIB6_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+int dissect_nr_rrc_SIB7_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
+  offset = dissect_nr_rrc_SIB7(tvb, offset, &asn1_ctx, tree, hf_nr_rrc_nr_rrc_SIB7_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+int dissect_nr_rrc_SIB8_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
+  offset = dissect_nr_rrc_SIB8(tvb, offset, &asn1_ctx, tree, hf_nr_rrc_nr_rrc_SIB8_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+int dissect_nr_rrc_SIB9_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
+  offset = dissect_nr_rrc_SIB9(tvb, offset, &asn1_ctx, tree, hf_nr_rrc_nr_rrc_SIB9_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 int dissect_nr_rrc_CellGroupConfig_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -37645,6 +37718,14 @@ int dissect_nr_rrc_RadioBearerConfig_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
   offset = dissect_nr_rrc_RadioBearerConfig(tvb, offset, &asn1_ctx, tree, hf_nr_rrc_nr_rrc_RadioBearerConfig_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+int dissect_nr_rrc_UplinkTxDirectCurrentList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
+  offset = dissect_nr_rrc_UplinkTxDirectCurrentList(tvb, offset, &asn1_ctx, tree, hf_nr_rrc_nr_rrc_UplinkTxDirectCurrentList_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -37810,6 +37891,38 @@ proto_register_nr_rrc(void) {
       { "SIB1", "nr-rrc.SIB1_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_nr_rrc_nr_rrc_SIB2_PDU,
+      { "SIB2", "nr-rrc.SIB2_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_nr_rrc_SIB3_PDU,
+      { "SIB3", "nr-rrc.SIB3_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_nr_rrc_SIB4_PDU,
+      { "SIB4", "nr-rrc.SIB4_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_nr_rrc_SIB5_PDU,
+      { "SIB5", "nr-rrc.SIB5_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_nr_rrc_SIB6_PDU,
+      { "SIB6", "nr-rrc.SIB6_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_nr_rrc_SIB7_PDU,
+      { "SIB7", "nr-rrc.SIB7_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_nr_rrc_SIB8_PDU,
+      { "SIB8", "nr-rrc.SIB8_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_nr_rrc_SIB9_PDU,
+      { "SIB9", "nr-rrc.SIB9_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_nr_rrc_nr_rrc_CellGroupConfig_PDU,
       { "CellGroupConfig", "nr-rrc.CellGroupConfig_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -37833,6 +37946,10 @@ proto_register_nr_rrc(void) {
     { &hf_nr_rrc_nr_rrc_RadioBearerConfig_PDU,
       { "RadioBearerConfig", "nr-rrc.RadioBearerConfig_element",
         FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_nr_rrc_UplinkTxDirectCurrentList_PDU,
+      { "UplinkTxDirectCurrentList", "nr-rrc.UplinkTxDirectCurrentList",
+        FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_nr_rrc_nr_rrc_FreqBandList_PDU,
       { "FreqBandList", "nr-rrc.FreqBandList",

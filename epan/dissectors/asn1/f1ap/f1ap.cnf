@@ -131,6 +131,7 @@ id-WriteReplaceWarning              ProcedureCode
 id-PWSCancel                        ProcedureCode
 id-PWSRestartIndication             ProcedureCode
 id-PWSFailureIndication             ProcedureCode
+id-GNBDUStatusIndication            ProcedureCode
 
 
 # ProtocolIE-ID
@@ -219,8 +220,8 @@ id-SCell-FailedtoSetup-Item                          ProtocolIE-ID
 id-SCell-FailedtoSetupMod-List                       ProtocolIE-ID
 id-SCell-FailedtoSetupMod-Item                       ProtocolIE-ID
 id-RRCRconfigurationCompleteIndicator                ProtocolIE-ID
-id-Active-Cells-Item                                 ProtocolIE-ID
-id-Active-Cells-List                                 ProtocolIE-ID
+id-Cells-Status-Item                                 ProtocolIE-ID
+id-Cells-Status-List                                 ProtocolIE-ID
 id-Candidate-SpCell-List                             ProtocolIE-ID
 id-Candidate-SpCell-Item                             ProtocolIE-ID
 id-Potential-SpCell-List                             ProtocolIE-ID
@@ -234,8 +235,6 @@ id-DRB-Activity-Item                                 ProtocolIE-ID
 id-DRB-Activity-List                                 ProtocolIE-ID
 id-EUTRA-NR-CellResourceCoordinationReq-Container    ProtocolIE-ID
 id-EUTRA-NR-CellResourceCoordinationReqAck-Container ProtocolIE-ID
-id-SpectrumSharingGroupID                            ProtocolIE-ID
-id-ListofEUTRACellsinGNBDUCoordination               ProtocolIE-ID
 id-Protected-EUTRA-Resources-List                    ProtocolIE-ID
 id-RequestType                                       ProtocolIE-ID
 id-ServCellndex                                      ProtocolIE-ID
@@ -246,7 +245,7 @@ id-PagingCell-Item                                   ProtocolIE-ID
 id-PagingCell-List                                   ProtocolIE-ID
 id-PagingDRX                                         ProtocolIE-ID
 id-PagingPriority                                    ProtocolIE-ID
-id-SIBtype-List                                      ProtocolIE-ID
+id-SItype-List                                       ProtocolIE-ID
 id-UEIdentityIndexValue                              ProtocolIE-ID
 id-gNB-CUSystemInformation                           ProtocolIE-ID
 id-HandoverPreparationInformation                    ProtocolIE-ID
@@ -273,7 +272,6 @@ id-RANAC                                             ProtocolIE-ID
 id-PWSSystemInformation                              ProtocolIE-ID
 id-RepetitionPeriod                                  ProtocolIE-ID
 id-NumberofBroadcastRequest                          ProtocolIE-ID
-id-ConcurrentWarningMessageIndicator                 ProtocolIE-ID
 id-Cells-To-Be-Broadcast-List                        ProtocolIE-ID
 id-Cells-To-Be-Broadcast-Item                        ProtocolIE-ID
 id-Cells-Broadcast-Completed-List                    ProtocolIE-ID
@@ -288,6 +286,27 @@ id-PWS-Failed-NR-CGI-List                            ProtocolIE-ID
 id-PWS-Failed-NR-CGI-Item                            ProtocolIE-ID
 id-ConfirmedUEID                                     ProtocolIE-ID
 id-Cancel-all-Warning-Messages-Indicator             ProtocolIE-ID
+id-GNB-DU-UE-AMBR-UL                                 ProtocolIE-ID
+id-DRXConfigurationIndicator                         ProtocolIE-ID
+id-RLC-Status                                        ProtocolIE-ID
+id-PDCPSNLength                                      ProtocolIE-ID
+id-GNB-DUConfigurationQuery                          ProtocolIE-ID
+id-MeasurementTimingConfiguration                    ProtocolIE-ID
+id-DRB-Information                                   ProtocolIE-ID
+id-ServingPLMN                                       ProtocolIE-ID
+id-Protected-EUTRA-Resources-Item                    ProtocolIE-ID
+id-GNB-CU-RRC-Version                                ProtocolIE-ID
+id-GNB-DU-RRC-Version                                ProtocolIE-ID
+id-GNBDUOverloadInformation                          ProtocolIE-ID
+id-CellGroupConfig                                   ProtocolIE-ID
+id-RLCFailureIndication                              ProtocolIE-ID
+id-UplinkTxDirectCurrentListInformation              ProtocolIE-ID
+id-DC-Based-Duplication-Configured                   ProtocolIE-ID
+id-DC-Based-Duplication-Activation                   ProtocolIE-ID
+id-SULAccessIndication                               ProtocolIE-ID
+id-AvailablePLMNList                                 ProtocolIE-ID
+id-PDUSessionID                                      ProtocolIE-ID
+id-ULPDUSessionAggregateMaximumBitRate               ProtocolIE-ID
 #.END
 
 #.REGISTER
@@ -377,8 +396,8 @@ SCell-FailedtoSetup-Item                          N f1ap.ies id-SCell-FailedtoSe
 SCell-FailedtoSetupMod-List                       N f1ap.ies id-SCell-FailedtoSetupMod-List
 SCell-FailedtoSetupMod-Item                       N f1ap.ies id-SCell-FailedtoSetupMod-Item
 RRCRconfigurationCompleteIndicator                N f1ap.ies id-RRCRconfigurationCompleteIndicator
-Active-Cells-Item                                 N f1ap.ies id-Active-Cells-Item
-Active-Cells-List                                 N f1ap.ies id-Active-Cells-List
+Cells-Status-Item                                 N f1ap.ies id-Cells-Status-Item
+Cells-Status-List                                 N f1ap.ies id-Cells-Status-List
 Candidate-SpCell-List                             N f1ap.ies id-Candidate-SpCell-List
 Candidate-SpCell-Item                             N f1ap.ies id-Candidate-SpCell-Item
 Potential-SpCell-List                             N f1ap.ies id-Potential-SpCell-List
@@ -392,8 +411,6 @@ DRB-Activity-Item                                 N f1ap.ies id-DRB-Activity-Ite
 DRB-Activity-List                                 N f1ap.ies id-DRB-Activity-List
 EUTRA-NR-CellResourceCoordinationReq-Container    N f1ap.ies id-EUTRA-NR-CellResourceCoordinationReq-Container
 EUTRA-NR-CellResourceCoordinationReqAck-Container N f1ap.ies id-EUTRA-NR-CellResourceCoordinationReqAck-Container
-SpectrumSharingGroupID                            N f1ap.ies id-SpectrumSharingGroupID
-ListofEUTRACellsinGNBDUCoordination               N f1ap.ies id-ListofEUTRACellsinGNBDUCoordination
 Protected-EUTRA-Resources-List                    N f1ap.ies id-Protected-EUTRA-Resources-List
 RequestType                                       N f1ap.ies id-RequestType
 ServCellIndex                                     N f1ap.ies id-ServCellndex
@@ -404,7 +421,7 @@ PagingCell-Item                                   N f1ap.ies id-PagingCell-Item
 PagingCell-list                                   N f1ap.ies id-PagingCell-List
 PagingDRX                                         N f1ap.ies id-PagingDRX
 PagingPriority                                    N f1ap.ies id-PagingPriority
-SIBtype-List                                      N f1ap.ies id-SIBtype-List
+SItype-List                                       N f1ap.ies id-SItype-List
 UEIdentityIndexValue                              N f1ap.ies id-UEIdentityIndexValue
 GNB-CU-TNL-Association-To-Add-Item                N f1ap.ies id-GNB-CU-TNL-Association-To-Add-Item
 GNB-CU-TNL-Association-To-Add-List                N f1ap.ies id-GNB-CU-TNL-Association-To-Add-List
@@ -426,7 +443,6 @@ DRB-Notify-List                                   N f1ap.ies id-DRB-Notify-List
 PWSSystemInformation                              N f1ap.ies id-PWSSystemInformation
 RepetitionPeriod                                  N f1ap.ies id-RepetitionPeriod
 NumberofBroadcastRequest                          N f1ap.ies id-NumberofBroadcastRequest
-ConcurrentWarningMessageIndicator                 N f1ap.ies id-ConcurrentWarningMessageIndicator
 Cells-To-Be-Broadcast-List                        N f1ap.ies id-Cells-To-Be-Broadcast-List
 Cells-To-Be-Broadcast-Item                        N f1ap.ies id-Cells-To-Be-Broadcast-Item
 Cells-Broadcast-Completed-List                    N f1ap.ies id-Cells-Broadcast-Completed-List
@@ -441,12 +457,33 @@ PWS-Failed-NR-CGI-List                            N f1ap.ies id-PWS-Failed-NR-CG
 PWS-Failed-NR-CGI-Item                            N f1ap.ies id-PWS-Failed-NR-CGI-Item
 GNB-DU-UE-F1AP-ID                                 N f1ap.ies id-ConfirmedUEID
 Cancel-all-Warning-Messages-Indicator             N f1ap.ies id-Cancel-all-Warning-Messages-Indicator
+BitRate                                           N f1ap.ies id-GNB-DU-UE-AMBR-UL
+DRXConfigurationIndicator                         N f1ap.ies id-DRXConfigurationIndicator
+GNB-DUConfigurationQuery                          N f1ap.ies id-GNB-DUConfigurationQuery
+DRB-Information                                   N f1ap.ies id-DRB-Information
+PLMN-Identity                                     N f1ap.ies id-ServingPLMN
+Protected-EUTRA-Resources-Item                    N f1ap.ies id-Protected-EUTRA-Resources-Item
+RRC-Version                                       N f1ap.ies id-GNB-CU-RRC-Version
+RRC-Version                                       N f1ap.ies id-GNB-DU-RRC-Version
+GNBDUOverloadInformation                          N f1ap.ies id-GNBDUOverloadInformation
+RLCFailureIndication                              N f1ap.ies id-RLCFailureIndication
+UplinkTxDirectCurrentListInformation              N f1ap.ies id-UplinkTxDirectCurrentListInformation
+SULAccessIndication                               N f1ap.ies id-SULAccessIndication
 
 #F1AP-PROTOCOL-EXTENSION
 GNB-CUSystemInformation                           N f1ap.extension id-gNB-CUSystemInformation
 HandoverPreparationInformation                    N f1ap.extension id-HandoverPreparationInformation
 SliceSupportList                                  N f1ap.extension id-TAISliceSupportList
 RANAC                                             N f1ap.extension id-RANAC
+RLC-Status                                        N f1ap.extension id-RLC-Status
+PDCPSNLength                                      N f1ap.extension id-PDCPSNLength
+MeasurementTimingConfiguration                    N f1ap.extension id-MeasurementTimingConfiguration
+CellGroupConfig                                   N f1ap.extension id-CellGroupConfig
+DCBasedDuplicationConfigured                      N f1ap.extension id-DC-Based-Duplication-Configured
+DuplicationActivation                             N f1ap.extension id-DC-Based-Duplication-Activation
+AvailablePLMNList                                 N f1ap.extension id-AvailablePLMNList
+PDUSessionID                                      N f1ap.extension id-PDUSessionID
+BitRate                                           N f1ap.extension id-ULPDUSessionAggregateMaximumBitRate
 
 #F1AP-ELEMENTARY-PROCEDURE
 Reset                               N f1ap.proc.imsg id-Reset
@@ -511,6 +548,24 @@ PWSRestartIndication                N f1ap.proc.imsg id-PWSRestartIndication
 
 PWSFailureIndication                N f1ap.proc.imsg id-PWSFailureIndication
 
+GNBDUStatusIndication               N f1ap.proc.imsg id-GNBDUStatusIndication
+
+#.FN_BODY EUTRA-NR-CellResourceCoordinationReq-Container VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_EUTRA_NR_CellResourceCoordinationReq_Container);
+    dissect_x2ap_EUTRANRCellResourceCoordinationRequest_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY EUTRA-NR-CellResourceCoordinationReqAck-Container VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_EUTRA_NR_CellResourceCoordinationReqAck_Container);
+    dissect_x2ap_EUTRANRCellResourceCoordinationResponse_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
 #.FN_BODY ResourceCoordinationTransferContainer VAL_PTR=&param_tvb
   tvbuff_t *param_tvb = NULL;
 %(DEFAULT_BODY)s
@@ -549,6 +604,37 @@ PWSFailureIndication                N f1ap.proc.imsg id-PWSFailureIndication
     default:
       break;
     }
+  }
+
+#.FN_BODY RRCContainer VAL_PTR=&param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree;
+    f1ap_private_data_t *f1ap_data = f1ap_get_private_data(actx->pinfo);
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_RRCContainer);
+    switch (f1ap_data->message_type) {
+    case INITIATING_MESSAGE:
+      switch (f1ap_data->procedure_code) {
+      case id_InitialULRRCMessageTransfer:
+        call_dissector(nr_rrc_ul_ccch_handle, param_tvb, actx->pinfo, subtree);
+        break;
+      default:
+        break;
+      }
+      break;
+    default:
+      break;
+    }
+  }
+
+#.FN_BODY DUtoCURRCContainer VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_DUtoCURRCContainer);
+    dissect_nr_rrc_CellGroupConfig_PDU(param_tvb, actx->pinfo, subtree, NULL);
   }
 
 #.FN_BODY Served-Cell-Information/measurementTimingConfiguration VAL_PTR = &param_tvb
@@ -602,12 +688,146 @@ BitRate DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_bit_sec
     dissect_nr_rrc_UE_CapabilityRAT_ContainerList_PDU(param_tvb, actx->pinfo, subtree, NULL);
   }
 
+#.FN_BODY MeasConfig VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_MeasConfig);
+    dissect_nr_rrc_MeasConfig_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY HandoverPreparationInformation VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_HandoverPreparationInformation);
+    dissect_nr_rrc_HandoverPreparationInformation_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
 #.FN_BODY CellGroupConfig VAL_PTR = &param_tvb
   tvbuff_t *param_tvb = NULL;
 %(DEFAULT_BODY)s
   if (param_tvb) {
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_CellGroupConfig);
     dissect_nr_rrc_CellGroupConfig_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY MeasurementTimingConfiguration VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_measurementTimingConfiguration);
+    dissect_nr_rrc_MeasurementTimingConfiguration_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY MeasGapConfig VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_MeasGapConfig);
+    dissect_nr_rrc_MeasGapConfig_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY DUtoCURRCInformation/requestedP-MaxFR1 VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_requestedP_MaxFR1);
+    dissect_nr_rrc_P_Max_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.TYPE_ATTR
+FiveGS-TAC TYPE = FT_UINT24 DISPLAY = BASE_DEC_HEX
+#.FN_BODY FiveGS-TAC VAL_PTR = &parameter_tvb HF_INDEX = -1
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 3, ENC_BIG_ENDIAN);
+  }
+
+#.TYPE_ATTR
+Configured-EPS-TAC TYPE = FT_UINT16 DISPLAY = BASE_DEC_HEX
+#.FN_BODY Configured-EPS-TAC VAL_PTR = &parameter_tvb HF_INDEX = -1
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY SibtypetobeupdatedListItem/sIBtype VAL_PTR = &f1ap_data->sib_type
+  f1ap_private_data_t *f1ap_data = f1ap_get_private_data(actx->pinfo);
+%(DEFAULT_BODY)s
+
+#.FN_BODY SibtypetobeupdatedListItem/sIBmessage VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    f1ap_private_data_t *f1ap_data = f1ap_get_private_data(actx->pinfo);
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_sIBmessage);
+    switch (f1ap_data->sib_type) {
+    case 2:
+      dissect_nr_rrc_SIB2_PDU(param_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 3:
+      dissect_nr_rrc_SIB3_PDU(param_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 4:
+      dissect_nr_rrc_SIB4_PDU(param_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 5:
+      dissect_nr_rrc_SIB5_PDU(param_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 6:
+      dissect_nr_rrc_SIB6_PDU(param_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 7:
+      dissect_nr_rrc_SIB7_PDU(param_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 8:
+      dissect_nr_rrc_SIB8_PDU(param_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 9:
+      dissect_nr_rrc_SIB9_PDU(param_tvb, actx->pinfo, subtree, NULL);
+      break;
+    default:
+      break;
+    }
+  }
+
+#.TYPE_ATTR
+MaxPacketLossRate DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(f1ap_MaxPacketLossRate_fmt)
+
+#.TYPE_ATTR
+PacketDelayBudget DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(f1ap_PacketDelayBudget_fmt)
+
+#.TYPE_ATTR
+AveragingWindow DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_milliseconds
+
+#.TYPE_ATTR
+MaximumDataBurstVolume DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_byte_bytes
+
+#.FN_BODY ProtectedEUTRAResourceIndication VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_ProtectedEUTRAResourceIndication);
+    dissect_x2ap_ProtectedEUTRAResourceIndication_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY UplinkTxDirectCurrentListInformation VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_UplinkTxDirectCurrentListInformation);
+    dissect_nr_rrc_UplinkTxDirectCurrentList_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY RRC-Version/latest-RRC-Version VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+#.FN_FTR RRC-Version/latest-RRC-Version
+  if (param_tvb) {
+    proto_item_set_text(actx->created_item, "%u.%u.%u", tvb_get_guint8(param_tvb, 0), tvb_get_guint8(param_tvb, 1), tvb_get_guint8(param_tvb, 2));
   }
 
 #.FN_BODY TransportLayerAddress VAL_PTR = &param_tvb
@@ -631,73 +851,6 @@ BitRate DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_bit_sec
       /* IPv6 */
        proto_tree_add_item(subtree, hf_f1ap_transportLayerAddressIPv6, param_tvb, 4, 16, ENC_NA);
     }
-  }
-
-#.FN_BODY DUtoCURRCContainer VAL_PTR = &param_tvb
-  tvbuff_t *param_tvb = NULL;
-%(DEFAULT_BODY)s
-  if (param_tvb) {
-    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_DUtoCURRCContainer);
-    dissect_nr_rrc_CellGroupConfig_PDU(param_tvb, actx->pinfo, subtree, NULL);
-  }
-
-#.FN_BODY DUtoCURRCInformation/requestedP-MaxFR1 VAL_PTR = &param_tvb
-  tvbuff_t *param_tvb = NULL;
-%(DEFAULT_BODY)s
-  if (param_tvb) {
-    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_requestedP_MaxFR1);
-    dissect_nr_rrc_P_Max_PDU(param_tvb, actx->pinfo, subtree, NULL);
-  }
-
-#.FN_BODY HandoverPreparationInformation VAL_PTR = &param_tvb
-  tvbuff_t *param_tvb = NULL;
-%(DEFAULT_BODY)s
-  if (param_tvb) {
-    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_HandoverPreparationInformation);
-    dissect_nr_rrc_HandoverPreparationInformation_PDU(param_tvb, actx->pinfo, subtree, NULL);
-  }
-
-#.TYPE_ATTR
-MaxPacketLossRate DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(f1ap_MaxPacketLossRate_fmt)
-
-#.FN_BODY MeasConfig VAL_PTR = &param_tvb
-  tvbuff_t *param_tvb = NULL;
-%(DEFAULT_BODY)s
-  if (param_tvb) {
-    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_MeasConfig);
-    dissect_nr_rrc_MeasConfig_PDU(param_tvb, actx->pinfo, subtree, NULL);
-  }
-
-#.FN_BODY MeasGapConfig VAL_PTR = &param_tvb
-  tvbuff_t *param_tvb = NULL;
-%(DEFAULT_BODY)s
-  if (param_tvb) {
-    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_MeasGapConfig);
-    dissect_nr_rrc_MeasGapConfig_PDU(param_tvb, actx->pinfo, subtree, NULL);
-  }
-
-#.FN_BODY EUTRA-NR-CellResourceCoordinationReq-Container VAL_PTR = &param_tvb
-  tvbuff_t *param_tvb = NULL;
-%(DEFAULT_BODY)s
-  if (param_tvb) {
-    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_EUTRA_NR_CellResourceCoordinationReq_Container);
-    dissect_x2ap_EUTRANRCellResourceCoordinationRequest_PDU(param_tvb, actx->pinfo, subtree, NULL);
-  }
-
-#.FN_BODY EUTRA-NR-CellResourceCoordinationReqAck-Container VAL_PTR = &param_tvb
-  tvbuff_t *param_tvb = NULL;
-%(DEFAULT_BODY)s
-  if (param_tvb) {
-    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_EUTRA_NR_CellResourceCoordinationReqAck_Container);
-    dissect_x2ap_EUTRANRCellResourceCoordinationResponse_PDU(param_tvb, actx->pinfo, subtree, NULL);
-  }
-
-#.FN_BODY ProtectedEUTRAResourceIndication VAL_PTR = &param_tvb
-  tvbuff_t *param_tvb = NULL;
-%(DEFAULT_BODY)s
-  if (param_tvb) {
-    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_ProtectedEUTRAResourceIndication);
-    dissect_x2ap_ProtectedEUTRAResourceIndication_PDU(param_tvb, actx->pinfo, subtree, NULL);
   }
 
 #.FN_HDR Reset
@@ -778,6 +931,8 @@ MaxPacketLossRate DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(f1ap_MaxPacketLossRate
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PWSRestartIndication");
 #.FN_HDR PWSFailureIndication
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PWSFailureIndication");
+#.FN_HDR GNBDUStatusIndication
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNBDUStatusIndication");
 #.END
 
 #

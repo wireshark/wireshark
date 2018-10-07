@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V15.2.1 (2018-07)
+-- 3GPP TS 38.473 V15.3.0 (2018-09)
 -- 9.4.3	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -6,11 +6,11 @@
 --
 -- **************************************************************
 
-F1AP-PDU-Descriptions  {
-itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
+F1AP-PDU-Descriptions  { 
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
 ngran-access (22) modules (3) f1ap (3) version1 (1) f1ap-PDU-Descriptions (0)}
 
-DEFINITIONS AUTOMATIC TAGS ::=
+DEFINITIONS AUTOMATIC TAGS ::= 
 
 BEGIN
 
@@ -29,7 +29,7 @@ FROM F1AP-CommonDataTypes
 	ResetAcknowledge,
 	F1SetupRequest,
 	F1SetupResponse,
-	F1SetupFailure,
+	F1SetupFailure, 
 	GNBDUConfigurationUpdate,
 	GNBDUConfigurationUpdateAcknowledge,
 	GNBDUConfigurationUpdateFailure,
@@ -63,7 +63,8 @@ FROM F1AP-CommonDataTypes
 	PWSCancelRequest,
 	PWSCancelResponse,
 	PWSRestartIndication,
-	PWSFailureIndication
+	PWSFailureIndication,
+	GNBDUStatusIndication
 
 FROM F1AP-PDU-Contents
 	id-Reset,
@@ -74,7 +75,7 @@ FROM F1AP-PDU-Contents
 	id-UEContextRelease,
 	id-UEContextModification,
 	id-UEContextModificationRequired,
-	id-ErrorIndication,
+	id-ErrorIndication, 
 	id-UEContextReleaseRequest,
 	id-DLRRCMessageTransfer,
 	id-ULRRCMessageTransfer,
@@ -88,10 +89,16 @@ FROM F1AP-PDU-Contents
 	id-WriteReplaceWarning,
 	id-PWSCancel,
 	id-PWSRestartIndication,
-	id-PWSFailureIndication
+	id-PWSFailureIndication,
+	id-GNBDUStatusIndication
 
 
-FROM F1AP-Constants;
+FROM F1AP-Constants
+
+	ProtocolIE-SingleContainer{},
+	F1AP-PROTOCOL-IES
+
+FROM F1AP-Containers;
 
 
 -- **************************************************************
@@ -124,7 +131,11 @@ WITH SYNTAX {
 F1AP-PDU ::= CHOICE {
 	initiatingMessage	InitiatingMessage,
 	successfulOutcome	SuccessfulOutcome,
-	unsuccessfulOutcome	UnsuccessfulOutcome,
+	unsuccessfulOutcome	UnsuccessfulOutcome, 
+	choice-extension	ProtocolIE-SingleContainer { { F1AP-PDU-ExtIEs} }
+}
+
+F1AP-PDU-ExtIEs F1AP-PROTOCOL-IES ::= {
 	...
 }
 
@@ -154,7 +165,7 @@ UnsuccessfulOutcome ::= SEQUENCE {
 
 F1AP-ELEMENTARY-PROCEDURES F1AP-ELEMENTARY-PROCEDURE ::= {
 	F1AP-ELEMENTARY-PROCEDURES-CLASS-1			|
-	F1AP-ELEMENTARY-PROCEDURES-CLASS-2,
+	F1AP-ELEMENTARY-PROCEDURES-CLASS-2,	
 	...
 }
 
@@ -173,7 +184,7 @@ F1AP-ELEMENTARY-PROCEDURES-CLASS-1 F1AP-ELEMENTARY-PROCEDURE ::= {
 	gNBDUResourceCoordination		,
 	...}
 
- F1AP-ELEMENTARY-PROCEDURES-CLASS-2 F1AP-ELEMENTARY-PROCEDURE ::= {
+ F1AP-ELEMENTARY-PROCEDURES-CLASS-2 F1AP-ELEMENTARY-PROCEDURE ::= {	
 	errorIndication					|
 	uEContextReleaseRequest			|
 	dLRRCMessageTransfer			|
@@ -185,7 +196,8 @@ F1AP-ELEMENTARY-PROCEDURES-CLASS-1 F1AP-ELEMENTARY-PROCEDURE ::= {
 	paging							|
 	notify							|
 	pWSRestartIndication				|
-	pWSFailureIndication			,
+	pWSFailureIndication			|
+	gNBDUStatusIndication			,
 	...
 }
 -- **************************************************************
@@ -348,6 +360,12 @@ pWSRestartIndication F1AP-ELEMENTARY-PROCEDURE ::= {
 pWSFailureIndication F1AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		PWSFailureIndication
 	PROCEDURE CODE			id-PWSFailureIndication
+	CRITICALITY				ignore
+}
+
+gNBDUStatusIndication 	F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		GNBDUStatusIndication
+	PROCEDURE CODE			id-GNBDUStatusIndication
 	CRITICALITY				ignore
 }
 

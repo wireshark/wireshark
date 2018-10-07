@@ -8,7 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 38.473 V15.2.1 (2018-07)
+ * References: 3GPP TS 38.473 V15.3.0 (2018-09)
  */
 
 #include "config.h"
@@ -61,6 +61,9 @@ static gint ett_f1ap_MeasGapConfig = -1;
 static gint ett_f1ap_EUTRA_NR_CellResourceCoordinationReq_Container = -1;
 static gint ett_f1ap_EUTRA_NR_CellResourceCoordinationReqAck_Container = -1;
 static gint ett_f1ap_ProtectedEUTRAResourceIndication = -1;
+static gint ett_f1ap_RRCContainer = -1;
+static gint ett_f1ap_sIBmessage = -1;
+static gint ett_f1ap_UplinkTxDirectCurrentListInformation = -1;
 #include "packet-f1ap-ett.c"
 
 enum{
@@ -75,6 +78,7 @@ typedef struct {
   guint32 protocol_ie_id;
   guint32 protocol_extension_id;
   const char *obj_id;
+  guint32 sib_type;
 } f1ap_private_data_t;
 
 typedef struct {
@@ -86,6 +90,7 @@ typedef struct {
 
 /* Global variables */
 static dissector_handle_t f1ap_handle;
+static dissector_handle_t nr_rrc_ul_ccch_handle;
 
 /* Dissector tables */
 static dissector_table_t f1ap_ies_dissector_table;
@@ -103,7 +108,13 @@ static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, p
 static void
 f1ap_MaxPacketLossRate_fmt(gchar *s, guint32 v)
 {
-  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1f %% (%u)", (float)v/10, v);
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1f%% (%u)", (float)v/10, v);
+}
+
+static void
+f1ap_PacketDelayBudget_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fms (%u)", (float)v/2, v);
 }
 
 static f1ap_private_data_t*
@@ -221,6 +232,9 @@ void proto_register_f1ap(void) {
     &ett_f1ap_EUTRA_NR_CellResourceCoordinationReq_Container,
     &ett_f1ap_EUTRA_NR_CellResourceCoordinationReqAck_Container,
     &ett_f1ap_ProtectedEUTRAResourceIndication,
+    &ett_f1ap_RRCContainer,
+    &ett_f1ap_sIBmessage,
+    &ett_f1ap_UplinkTxDirectCurrentListInformation,
 #include "packet-f1ap-ettarr.c"
   };
 
@@ -246,6 +260,7 @@ proto_reg_handoff_f1ap(void)
 {
   dissector_add_uint_with_preference("sctp.port", SCTP_PORT_F1AP, f1ap_handle);
   dissector_add_uint("sctp.ppi", F1AP_PROTOCOL_ID, f1ap_handle);
+  nr_rrc_ul_ccch_handle = find_dissector_add_dependency("nr-rrc.ul.ccch", proto_f1ap);
 #include "packet-f1ap-dis-tab.c"
 }
 
