@@ -9,7 +9,6 @@
 #
 '''Subprocess test case superclass'''
 
-import config
 import difflib
 import io
 import os
@@ -34,6 +33,19 @@ def cat_dhcp_command(mode):
     this_dir = os.path.dirname(__file__)
     sd_cmd += os.path.join(this_dir, 'util_dump_dhcp_pcap.py ' + mode)
     return sd_cmd
+
+def cat_cap_file_command(cap_files):
+    '''Create a command string for dumping one or more capture files to stdout'''
+    # XXX Do this in Python in a thread?
+    if isinstance(cap_files, str):
+        cap_files = [ cap_files ]
+    quoted_paths = ' '.join('"{}"'.format(cap_file) for cap_file in cap_files)
+    if sys.platform.startswith('win32'):
+        # https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-xp/bb491026(v=technet.10)
+        # says that the `type` command "displays the contents of a text
+        # file." Copy to the console instead.
+        return 'copy {} CON'.format(quoted_paths)
+    return 'cat {}'.format(quoted_paths)
 
 class LoggingPopen(subprocess.Popen):
     '''Run a process using subprocess.Popen. Capture and log its output.

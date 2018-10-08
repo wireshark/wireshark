@@ -227,8 +227,7 @@ typedef struct _pcap_pipe_info {
 
 typedef struct _pcapng_pipe_info {
     struct pcapng_block_header_s         bh;  /**< Pcapng general block header when capturing from a pipe */
-    struct pcapng_section_header_block_s shb; /**< Pcapng section header when capturing from a pipe */
-    GList  *saved_blocks;                     /**< Pcapng block list of SHB and IDBs for multi_file_on */
+    GArray *src_iface_to_global;               /**< Int array mapping local IDB numbers to global_ld.interface_data */
 } pcapng_pipe_info_t;
 
 struct _loop_data; /* forward declaration so we can use it in the cap_pipe_dispatch function pointer */
@@ -284,6 +283,13 @@ typedef struct _capture_src {
 #endif
 } capture_src;
 
+typedef struct _saved_idb {
+    gboolean deleted;
+    guint interface_id; /* capture_src->interface_id for the associated SHB */
+    guint8 *idb;        /* If non-NULL, IDB read from capture_src. This is an interface specified on the command line otherwise. */
+    guint idb_len;
+} saved_idb_t;
+
 /*
  * Global capture loop state.
  */
@@ -297,6 +303,10 @@ typedef struct _loop_data {
     gboolean  report_packet_count; /**< Set by SIGINFO handler; print packet count */
 #endif
     GArray   *pcaps;               /**< Array of capture_src's on which we're capturing */
+    gboolean  pcapng_passthrough;  /**< We have one source and it's pcapng. Pass its SHB and IDBs through. */
+    guint8   *saved_shb;           /**< SHB to write when we have one pcapng input */
+    GArray   *saved_idbs;          /**< Array of saved_idb_t, written when we have a new section or output file. */
+    GRWLock   saved_shb_idb_lock;  /**< Saved IDB RW mutex */
     /* output file(s) */
     FILE     *pdh;
     int       save_file_fd;
@@ -329,7 +339,7 @@ static const char please_report[] =
 
 /*
  * This needs to be static, so that the SIGINT handler can clear the "go"
- * flag.
+ * flag and for saved_shb_idb_lock.
  */
 static loop_data   global_ld;
 
@@ -1846,6 +1856,7 @@ cap_pipe_open_live(char *pipename,
         /* This isn't pcap, it's pcapng. */
         pcap_src->from_pcapng = TRUE;
         pcap_src->cap_pipe_dispatch = pcapng_pipe_dispatch;
+        pcap_src->cap_pipe_info.pcapng.src_iface_to_global = g_array_new(FALSE, FALSE, sizeof(guint32));
         global_capture_opts.use_pcapng = TRUE;      /* we can only output in pcapng format */
         pcapng_pipe_open_live(fd, pcap_src, errmsg, errmsgl);
         return;
@@ -1967,7 +1978,7 @@ pcapng_read_shb(capture_src *pcap_src,
                 char *errmsg,
                 int errmsgl)
 {
-    struct pcapng_section_header_block_s *shb = &pcap_src->cap_pipe_info.pcapng.shb;
+    struct pcapng_section_header_block_s shb;
 
 #ifdef _WIN32
     if (pcap_src->from_cap_socket)
@@ -1997,8 +2008,8 @@ pcapng_read_shb(capture_src *pcap_src,
         pcap_src->cap_pipe_bytes_read = sizeof(struct pcapng_block_header_s) + sizeof(struct pcapng_section_header_block_s);
     }
 #endif
-    memcpy(shb, pcap_src->cap_pipe_databuf + sizeof(struct pcapng_block_header_s), sizeof(struct pcapng_section_header_block_s));
-    switch (shb->magic)
+    memcpy(&shb, pcap_src->cap_pipe_databuf + sizeof(struct pcapng_block_header_s), sizeof(struct pcapng_section_header_block_s));
+    switch (shb.magic)
     {
     case PCAPNG_MAGIC:
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "pcapng SHB MAGIC");
@@ -2034,29 +2045,101 @@ pcapng_read_shb(capture_src *pcap_src,
     return 0;
 }
 
-/* Save SHB and IDB blocks to playback whenever we change output files. */
-/* The list is saved in reverse order of blocks added */
+/*
+ * Save IDB blocks for playback whenever we change output files.
+ * Rewrite EPB and ISB interface IDs.
+ */
 static gboolean
-pcapng_block_save(capture_src *pcap_src)
+pcapng_adjust_block(loop_data *ld, capture_src *pcap_src)
 {
     pcapng_pipe_info_t *pcapng = &pcap_src->cap_pipe_info.pcapng;
     struct pcapng_block_header_s *bh = &pcapng->bh;
 
-    /* Delete all the old blocks first whenever we get a SHB */
-    if (bh->block_type == BLOCK_TYPE_SHB) {
-        g_list_free_full(pcapng->saved_blocks, g_free);
-        pcapng->saved_blocks = NULL;
-    } else if (bh->block_type != BLOCK_TYPE_IDB) {
-        return TRUE;
-    }
+    switch(bh->block_type) {
+    case BLOCK_TYPE_SHB:
+    {
+        g_rw_lock_writer_lock (&ld->saved_shb_idb_lock);
+        if (ld->pcapng_passthrough) {
+            /*
+             * We have a single pcapng input. We pass the SHB through when
+             * writing a single output file and for the first ring buffer
+             * file. We need to save it for the second and subsequent ring
+             * buffer files.
+             */
+            g_free(ld->saved_shb);
+            ld->saved_shb = (guint8 *) g_memdup(pcap_src->cap_pipe_databuf, bh->block_total_length);
 
-    gpointer data = g_malloc(bh->block_total_length);
-    if (data == NULL) {
-        return FALSE;
-    }
-    memcpy(data, pcap_src->cap_pipe_databuf, bh->block_total_length);
+            /*
+             * We're dealing with one section at a time, so we can (and must)
+             * get rid of our old IDBs.
+             */
+            for (unsigned i = 0; i < ld->saved_idbs->len; i++) {
+                saved_idb_t *idb_source = &g_array_index(ld->saved_idbs, saved_idb_t, i);
+                g_free(idb_source->idb);
+            }
+            g_array_set_size(ld->saved_idbs, 0);
+        } else {
+            /*
+             * We have a new SHB from this capture source. We need to keep
+             * global_ld.saved_idbs intact, so we mark IDBs we previously
+             * collected from this source as deleted.
+             */
+            for (unsigned i = 0; i < pcap_src->cap_pipe_info.pcapng.src_iface_to_global->len; i++) {
+                guint32 iface_id = g_array_index(pcap_src->cap_pipe_info.pcapng.src_iface_to_global, guint32, i);
+                saved_idb_t *idb_source = &g_array_index(ld->saved_idbs, saved_idb_t, iface_id);
+                g_assert(idb_source->interface_id == pcap_src->interface_id);
+                g_free(idb_source->idb);
+                memset(idb_source, 0, sizeof(saved_idb_t));
+                idb_source->deleted = TRUE;
+                g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "%s: deleted pcapng IDB %u", G_STRFUNC, iface_id);
+            }
+        }
+        g_rw_lock_writer_unlock (&ld->saved_shb_idb_lock);
 
-    pcapng->saved_blocks = g_list_prepend(pcapng->saved_blocks, data);
+        g_array_set_size(pcap_src->cap_pipe_info.pcapng.src_iface_to_global, 0);
+    }
+        break;
+    case BLOCK_TYPE_IDB:
+    {
+        /*
+         * Always gather IDBs. We can remove them or mark them as deleted
+         * when we get a new SHB.
+         */
+        saved_idb_t idb_source = { 0 };
+        idb_source.interface_id = pcap_src->interface_id;
+        idb_source.idb_len = bh->block_total_length;
+        idb_source.idb = (guint8 *) g_memdup(pcap_src->cap_pipe_databuf, idb_source.idb_len);
+        g_rw_lock_writer_lock (&ld->saved_shb_idb_lock);
+        g_array_append_val(ld->saved_idbs, idb_source);
+        guint32 iface_id = ld->saved_idbs->len - 1;
+        g_rw_lock_writer_unlock (&ld->saved_shb_idb_lock);
+        g_array_append_val(pcap_src->cap_pipe_info.pcapng.src_iface_to_global, iface_id);
+        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "%s: saved pcapng IDB %u -> %u from source %u",
+              G_STRFUNC, pcap_src->cap_pipe_info.pcapng.src_iface_to_global->len - 1, iface_id, pcap_src->interface_id);
+    }
+        break;
+    case BLOCK_TYPE_EPB:
+    case BLOCK_TYPE_ISB:
+    {
+        if (ld->pcapng_passthrough) {
+            /* Our input and output interface IDs are the same. */
+            break;
+        }
+        /* The interface ID is the first 32-bit field after the BH for both EPBs and ISBs. */
+        guint32 iface_id;
+        memcpy(&iface_id, pcap_src->cap_pipe_databuf + sizeof(struct pcapng_block_header_s), 4);
+        if (iface_id < pcap_src->cap_pipe_info.pcapng.src_iface_to_global->len) {
+            memcpy(pcap_src->cap_pipe_databuf + sizeof(struct pcapng_block_header_s),
+                   &g_array_index(pcap_src->cap_pipe_info.pcapng.src_iface_to_global, guint32, iface_id), 4);
+        } else {
+            g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "%s: pcapng EPB or ISB interface id %u > max %u", G_STRFUNC, iface_id, pcap_src->cap_pipe_info.pcapng.src_iface_to_global->len);
+            return FALSE;
+        }
+    }
+        break;
+    default:
+        break;
+    }
 
     return TRUE;
 }
@@ -2545,7 +2628,7 @@ pcapng_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, int err
         return 0;
 
     case PD_DATA_READ:
-        if (!pcapng_block_save(pcap_src)) {
+        if (!pcapng_adjust_block(ld, pcap_src)) {
             g_snprintf(errmsg, errmsgl, "pcapng_pipe_dispatch block save failed");
             return -1;
         }
@@ -2656,6 +2739,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
         return FALSE;
     }
 
+    int pcapng_src_count = 0;
     for (i = 0; i < capture_opts->ifaces->len; i++) {
         interface_opts = &g_array_index(capture_opts->ifaces, interface_options, i);
         pcap_src = (capture_src *)g_malloc0(sizeof (capture_src));
@@ -2664,6 +2748,19 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
                    "Could not allocate memory.");
             return FALSE;
         }
+
+        /*
+         * Add our pcapng interface entry. This will be deleted further
+         * down if pcapng_passthrough == TRUE.
+         */
+        saved_idb_t idb_source = { 0 };
+        idb_source.interface_id = i;
+        g_rw_lock_writer_lock (&ld->saved_shb_idb_lock);
+        g_array_append_val(global_ld.saved_idbs, idb_source);
+        g_rw_lock_writer_unlock (&ld->saved_shb_idb_lock);
+        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "%s: saved capture_opts IDB %u",
+              G_STRFUNC, i);
+
 #ifdef MUST_DO_SELECT
         pcap_src->pcap_fd = -1;
 #endif
@@ -2801,6 +2898,17 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
             report_capture_error(sync_msg_str, "");
             g_free(sync_msg_str);
         }
+        if (pcap_src->from_pcapng) {
+            pcapng_src_count++;
+        }
+    }
+    if (capture_opts->ifaces->len == 1 && pcapng_src_count == 1) {
+        ld->pcapng_passthrough = TRUE;
+        g_rw_lock_writer_lock (&ld->saved_shb_idb_lock);
+        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "%s: Clearing %u interfaces for passthrough",
+              G_STRFUNC, global_ld.saved_idbs->len);
+        g_array_set_size(global_ld.saved_idbs, 0);
+        g_rw_lock_writer_unlock (&ld->saved_shb_idb_lock);
     }
 
     /* If not using libcap: we now can now set euid/egid to ruid/rgid         */
@@ -2845,8 +2953,8 @@ static void capture_loop_close_input(loop_data *ld)
                 pcap_src->cap_pipe_databuf = NULL;
             }
             if (pcap_src->from_pcapng) {
-                g_list_free_full(pcap_src->cap_pipe_info.pcapng.saved_blocks, g_free);
-                pcap_src->cap_pipe_info.pcapng.saved_blocks = NULL;
+                g_array_free(pcap_src->cap_pipe_info.pcapng.src_iface_to_global, TRUE);
+                pcap_src->cap_pipe_info.pcapng.src_iface_to_global = NULL;
             }
         } else {
             /* Capture device.  If open, close the pcap_t. */
@@ -2899,15 +3007,124 @@ capture_loop_init_filter(pcap_t *pcap_h, gboolean from_cap_pipe,
     return INITFILTER_NO_ERROR;
 }
 
+/*
+ * Write the dumpcap pcapng SHB and IDBs if needed.
+ * Called from capture_loop_init_output and do_file_switch_or_stop.
+ */
+static gboolean
+capture_loop_init_pcapng_output(capture_options *capture_opts, loop_data *ld)
+{
+    g_rw_lock_reader_lock (&ld->saved_shb_idb_lock);
+
+    if (ld->pcapng_passthrough && !ld->saved_shb) {
+        /* We have a single pcapng capture interface and this is the first or only output file. */
+        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "%s: skipping dumpcap SHB and IDBs in favor of source", G_STRFUNC);
+        g_rw_lock_reader_unlock (&ld->saved_shb_idb_lock);
+        return TRUE;
+    }
+
+    gboolean successful = TRUE;
+    int      err;
+    GString *os_info_str = g_string_new("");
+
+    get_os_version_info(os_info_str);
+
+    if (ld->saved_shb) {
+        /* We have a single pcapng capture interface and multiple output files. */
+
+        struct pcapng_block_header_s bh;
+
+        memcpy(&bh, ld->saved_shb, sizeof(struct pcapng_block_header_s));
+
+        successful = pcapng_write_block(ld->pdh, ld->saved_shb, bh.block_total_length, &ld->bytes_written, &err);
+
+        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "%s: wrote saved passthrough SHB %d", G_STRFUNC, successful);
+    } else {
+        GString *cpu_info_str = g_string_new("");
+        get_cpu_info(cpu_info_str);
+
+        char *appname = g_strdup_printf("Dumpcap (Wireshark) %s", get_ws_vcs_version_info());
+        successful = pcapng_write_session_header_block(ld->pdh,
+                                                       (const char *)capture_opts->capture_comment,   /* Comment */
+                                                       cpu_info_str->str,           /* HW */
+                                                       os_info_str->str,            /* OS */
+                                                       appname,
+                                                       -1,                          /* section_length */
+                                                       &ld->bytes_written,
+                                                       &err);
+        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "%s: wrote dumpcap SHB %d", G_STRFUNC, successful);
+        g_string_free(cpu_info_str, TRUE);
+        g_free(appname);
+    }
+
+    for (unsigned i = 0; successful && (i < ld->saved_idbs->len); i++) {
+        saved_idb_t idb_source = g_array_index(ld->saved_idbs, saved_idb_t, i);
+        if (idb_source.deleted) {
+            /*
+             * Our interface is out of scope. Suppose we're writing multiple
+             * files and a source switches sections. We currently write dummy
+             * IDBs like so:
+             *
+             * File 1: IDB0, IDB1, IDB2
+             * [ The source of IDBs 1 and 2 writes an SHB with two new IDBs ]
+             * [ We switch output files ]
+             * File 2: IDB0, dummy IDB, dummy IDB, IDB3, IDB4
+             *
+             * It might make more sense to write the original data so that
+             * so that our IDB lists are more consistent across files.
+             */
+            successful = pcapng_write_interface_description_block(global_ld.pdh,
+                                                                  "Interface went out of scope",    /* OPT_COMMENT       1 */
+                                                                  "dummy",                          /* IDB_NAME          2 */
+                                                                  "Dumpcap dummy interface",        /* IDB_DESCRIPTION   3 */
+                                                                  NULL,                             /* IDB_FILTER       11 */
+                                                                  os_info_str->str,                 /* IDB_OS           12 */
+                                                                  -1,
+                                                                  0,
+                                                                  &(global_ld.bytes_written),
+                                                                  0,                                /* IDB_IF_SPEED      8 */
+                                                                  6,                                /* IDB_TSRESOL       9 */
+                                                                  &global_ld.err);
+            g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "%s: skipping deleted pcapng IDB %u", G_STRFUNC, i);
+        } else if (idb_source.idb && idb_source.idb_len) {
+            successful = pcapng_write_block(global_ld.pdh, idb_source.idb, idb_source.idb_len, &ld->bytes_written, &err);
+            g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "%s: wrote pcapng IDB %d", G_STRFUNC, successful);
+        } else if (idb_source.interface_id < capture_opts->ifaces->len) {
+            unsigned if_id = idb_source.interface_id;
+            interface_options *interface_opts = &g_array_index(capture_opts->ifaces, interface_options, if_id);
+            capture_src *pcap_src = g_array_index(ld->pcaps, capture_src *, if_id);
+            if (pcap_src->from_cap_pipe) {
+                pcap_src->snaplen = pcap_src->cap_pipe_info.pcap.hdr.snaplen;
+            } else {
+                pcap_src->snaplen = pcap_snapshot(pcap_src->pcap_h);
+            }
+            successful = pcapng_write_interface_description_block(global_ld.pdh,
+                                                                  NULL,                       /* OPT_COMMENT       1 */
+                                                                  interface_opts->name,       /* IDB_NAME          2 */
+                                                                  interface_opts->descr,      /* IDB_DESCRIPTION   3 */
+                                                                  interface_opts->cfilter,    /* IDB_FILTER       11 */
+                                                                  os_info_str->str,           /* IDB_OS           12 */
+                                                                  pcap_src->linktype,
+                                                                  pcap_src->snaplen,
+                                                                  &(global_ld.bytes_written),
+                                                                  0,                          /* IDB_IF_SPEED      8 */
+                                                                  pcap_src->ts_nsec ? 9 : 6,  /* IDB_TSRESOL       9 */
+                                                                  &global_ld.err);
+            g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "%s: wrote capture_opts IDB %d: %d", G_STRFUNC, if_id, successful);
+        }
+    }
+    g_rw_lock_reader_unlock (&ld->saved_shb_idb_lock);
+
+    g_string_free(os_info_str, TRUE);
+
+    return successful;
+}
 
 /* set up to write to the already-opened capture output file/files */
 static gboolean
 capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *errmsg, int errmsg_len)
 {
     int               err;
-    guint             i;
-    capture_src      *pcap_src;
-    interface_options *interface_opts;
     gboolean          successful;
 
     g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_init_output");
@@ -2929,58 +3146,10 @@ capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *err
         }
     }
     if (ld->pdh) {
-        pcap_src = g_array_index(ld->pcaps, capture_src *, 0);
-        if (pcap_src->from_pcapng) {
-            /* We are just going to rewrite the source SHB and IDB blocks */
-            return TRUE;
-        }
         if (capture_opts->use_pcapng) {
-            char    *appname;
-            GString *cpu_info_str;
-            GString *os_info_str;
-
-            cpu_info_str = g_string_new("");
-            os_info_str = g_string_new("");
-            get_cpu_info(cpu_info_str);
-            get_os_version_info(os_info_str);
-
-            appname = g_strdup_printf("Dumpcap (Wireshark) %s", get_ws_vcs_version_info());
-            successful = pcapng_write_session_header_block(ld->pdh,
-                                (const char *)capture_opts->capture_comment,   /* Comment */
-                                cpu_info_str->str,           /* HW */
-                                os_info_str->str,            /* OS */
-                                appname,
-                                -1,                          /* section_length */
-                                &ld->bytes_written,
-                                &err);
-            g_string_free(cpu_info_str, TRUE);
-            g_free(appname);
-
-            for (i = 0; successful && (i < capture_opts->ifaces->len); i++) {
-                interface_opts = &g_array_index(capture_opts->ifaces, interface_options, i);
-                pcap_src = g_array_index(ld->pcaps, capture_src *, i);
-                if (pcap_src->from_cap_pipe) {
-                    pcap_src->snaplen = pcap_src->cap_pipe_info.pcap.hdr.snaplen;
-                } else {
-                    pcap_src->snaplen = pcap_snapshot(pcap_src->pcap_h);
-                }
-                successful = pcapng_write_interface_description_block(global_ld.pdh,
-                                                                    NULL,                       /* OPT_COMMENT       1 */
-                                                                    interface_opts->name,       /* IDB_NAME          2 */
-                                                                    interface_opts->descr,      /* IDB_DESCRIPTION   3 */
-                                                                    interface_opts->cfilter,    /* IDB_FILTER       11 */
-                                                                    os_info_str->str,           /* IDB_OS           12 */
-                                                                    pcap_src->linktype,
-                                                                    pcap_src->snaplen,
-                                                                    &(global_ld.bytes_written),
-                                                                    0,                          /* IDB_IF_SPEED      8 */
-                                                                    pcap_src->ts_nsec ? 9 : 6,  /* IDB_TSRESOL       9 */
-                                                                    &global_ld.err);
-            }
-
-            g_string_free(os_info_str, TRUE);
-
+            successful = capture_loop_init_pcapng_output(capture_opts, ld);
         } else {
+            capture_src *pcap_src;
             pcap_src = g_array_index(ld->pcaps, capture_src *, 0);
             if (pcap_src->from_cap_pipe) {
                 pcap_src->snaplen = pcap_src->cap_pipe_info.pcap.hdr.snaplen;
@@ -3471,9 +3640,6 @@ static time_t get_next_time_interval(int interval_s) {
 static gboolean
 do_file_switch_or_stop(capture_options *capture_opts)
 {
-    guint             i;
-    capture_src      *pcap_src;
-    interface_options *interface_opts;
     gboolean          successful;
 
     if (capture_opts->multi_files_on) {
@@ -3491,70 +3657,15 @@ do_file_switch_or_stop(capture_options *capture_opts)
             /* File switch succeeded: reset the conditions */
             global_ld.bytes_written = 0;
             global_ld.packets_written = 0;
-            pcap_src = g_array_index(global_ld.pcaps, capture_src *, 0);
-            if (pcap_src->from_pcapng) {
-                /* Write the saved SHB and all IDBs to start of next file */
-                /* The blocks were saved in reverse so reverse it before iterating */
-                GList *rlist = g_list_reverse(pcap_src->cap_pipe_info.pcapng.saved_blocks);
-                GList *list = rlist;
-                successful = TRUE;
-                while (list && successful) {
-                    struct pcapng_block_header_s *bh = (struct pcapng_block_header_s *) list->data;
-                    successful = pcapng_write_block(global_ld.pdh,
-                       (const guint8 *) bh,
-                       bh->block_total_length,
-                       &global_ld.bytes_written, &global_ld.err);
-                    list = g_list_next(list);
-                }
-                pcap_src->cap_pipe_info.pcapng.saved_blocks = g_list_reverse(rlist);
+            if (capture_opts->use_pcapng) {
+                successful = capture_loop_init_pcapng_output(capture_opts, &global_ld);
             } else {
-                if (capture_opts->use_pcapng) {
-                    char    *appname;
-                    GString *cpu_info_str;
-                    GString *os_info_str;
-
-                    cpu_info_str = g_string_new("");
-                    os_info_str = g_string_new("");
-                    get_cpu_info(cpu_info_str);
-                    get_os_version_info(os_info_str);
-
-                    appname = g_strdup_printf("Dumpcap (Wireshark) %s", get_ws_vcs_version_info());
-                    successful = pcapng_write_session_header_block(global_ld.pdh,
-                                    (const char *)capture_opts->capture_comment,   /* Comment */
-                                    cpu_info_str->str,           /* HW */
-                                    os_info_str->str,            /* OS */
-                                    appname,
-                                    -1,                          /* section_length */
-                                    &(global_ld.bytes_written),
-                                    &global_ld.err);
-                    g_string_free(cpu_info_str, TRUE);
-                    g_free(appname);
-
-                    for (i = 0; successful && (i < capture_opts->ifaces->len); i++) {
-                        interface_opts = &g_array_index(capture_opts->ifaces, interface_options, i);
-                        pcap_src = g_array_index(global_ld.pcaps, capture_src *, i);
-                        successful = pcapng_write_interface_description_block(global_ld.pdh,
-                                                                            NULL,                        /* OPT_COMMENT       1 */
-                                                                            interface_opts->name,        /* IDB_NAME          2 */
-                                                                            interface_opts->descr,       /* IDB_DESCRIPTION   3 */
-                                                                            interface_opts->cfilter,     /* IDB_FILTER       11 */
-                                                                            os_info_str->str,            /* IDB_OS           12 */
-                                                                            pcap_src->linktype,
-                                                                            pcap_src->snaplen,
-                                                                            &(global_ld.bytes_written),
-                                                                            0,                          /* IDB_IF_SPEED      8 */
-                                                                            pcap_src->ts_nsec ? 9 : 6,  /* IDB_TSRESOL       9 */
-                                                                            &global_ld.err);
-                    }
-
-                    g_string_free(os_info_str, TRUE);
-
-                } else {
-                    pcap_src = g_array_index(global_ld.pcaps, capture_src *, 0);
-                    successful = libpcap_write_file_header(global_ld.pdh, pcap_src->linktype, pcap_src->snaplen,
-                                                        pcap_src->ts_nsec, &global_ld.bytes_written, &global_ld.err);
-                }
+                capture_src *pcap_src;
+                pcap_src = g_array_index(global_ld.pcaps, capture_src *, 0);
+                successful = libpcap_write_file_header(global_ld.pdh, pcap_src->linktype, pcap_src->snaplen,
+                                                       pcap_src->ts_nsec, &global_ld.bytes_written, &global_ld.err);
             }
+
             if (!successful) {
                 fclose(global_ld.pdh);
                 global_ld.pdh = NULL;
@@ -4222,6 +4333,15 @@ capture_loop_write_pcapng_cb(capture_src *pcap_src, const struct pcapng_block_he
         return;
     }
 
+    if (bh->block_type == BLOCK_TYPE_SHB && !global_ld.pcapng_passthrough) {
+        /*
+         * capture_loop_init_pcapng_output should've handled this. We need
+         * to write ISBs when they're initially read so we shouldn't skip
+         * them here.
+         */
+        return;
+    }
+
     if (global_ld.pdh) {
         gboolean successful;
 
@@ -4242,15 +4362,15 @@ capture_loop_write_pcapng_cb(capture_src *pcap_src, const struct pcapng_block_he
             /* count packet only if we actually have an EPB or SPB */
 #if defined(DEBUG_DUMPCAP) || defined(DEBUG_CHILD_DUMPCAP)
             g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO,
-                  "Wrote a packet of length %d captured on interface %u.",
-                   bh->block_total_length, pcap_src->interface_id);
+                  "Wrote a pcapng block type %u of length %d captured on interface %u.",
+                   bh->block_type, bh->block_total_length, pcap_src->interface_id);
 #endif
             capture_loop_wrote_one_packet(pcap_src);
         }
     }
 }
 
-/* one packet was captured, process it */
+/* one pcap packet was captured, process it */
 static void
 capture_loop_write_packet_cb(u_char *pcap_src_p, const struct pcap_pkthdr *phdr,
                              const u_char *pd)
@@ -4298,7 +4418,7 @@ capture_loop_write_packet_cb(u_char *pcap_src_p, const struct pcap_pkthdr *phdr,
         } else {
 #if defined(DEBUG_DUMPCAP) || defined(DEBUG_CHILD_DUMPCAP)
             g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO,
-                  "Wrote a packet of length %d captured on interface %u.",
+                  "Wrote a pcap packet of length %d captured on interface %u.",
                    phdr->caplen, pcap_src->interface_id);
 #endif
             capture_loop_wrote_one_packet(pcap_src);
@@ -4418,8 +4538,8 @@ capture_loop_queue_pcapng_cb(capture_src *pcap_src, const struct pcapng_block_he
     } else {
         pcap_src->received++;
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO,
-              "Queued a packet of length %d captured on interface %u.",
-              bh->block_total_length, pcap_src->interface_id);
+              "Queued a block of type 0x%08x of length %d captured on interface %u.",
+              bh->block_type, bh->block_total_length, pcap_src->interface_id);
     }
     /* I don't want to hold the mutex over the debug output. So the
        output may be wrong */
@@ -4689,8 +4809,11 @@ real_main(int argc, char *argv[])
                       log_flags,
                       console_log_handler, NULL /* user_data */);
 
-    /* Initialize the pcaps list */
+    /* Initialize the pcaps list and IDBs */
     global_ld.pcaps = g_array_new(FALSE, FALSE, sizeof(capture_src *));
+    global_ld.pcapng_passthrough = FALSE;
+    global_ld.saved_shb = NULL;
+    global_ld.saved_idbs = g_array_new(FALSE, TRUE, sizeof(saved_idb_t));
 
 #ifdef _WIN32
     /* Load wpcap if possible. Do this before collecting the run-time version information */
@@ -5382,13 +5505,13 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
 static void
 report_packet_count(unsigned int packet_count)
 {
-    char tmp[SP_DECISIZE+1+1];
+    char count_str[SP_DECISIZE+1+1];
     static unsigned int count = 0;
 
     if (capture_child) {
-        g_snprintf(tmp, sizeof(tmp), "%u", packet_count);
-        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Packets: %s", tmp);
-        pipe_write_block(2, SP_PACKET_COUNT, tmp);
+        g_snprintf(count_str, sizeof(count_str), "%u", packet_count);
+        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Packets: %s", count_str);
+        pipe_write_block(2, SP_PACKET_COUNT, count_str);
     } else {
         count += packet_count;
         fprintf(stderr, "\rPackets: %u ", count);

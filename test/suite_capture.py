@@ -9,18 +9,20 @@
 #
 '''Capture tests'''
 
+import fixtures
 import glob
+import hashlib
 import os
 import subprocess
 import subprocesstest
 import sys
 import time
 import uuid
-import fixtures
 
 capture_duration = 5
 
 testout_pcap = 'testout.pcap'
+testout_pcapng = 'testout.pcapng'
 snapshot_len = 96
 
 @fixtures.fixture
@@ -70,6 +72,7 @@ def traffic_generator():
 @fixtures.fixture(scope='session')
 def wireshark_k(wireshark_command):
     return tuple(list(wireshark_command) + ['-k'])
+
 
 def capture_command(*cmd_args, shell=False):
     if type(cmd_args[0]) != str:
@@ -326,6 +329,165 @@ def check_dumpcap_ringbuffer_stdin(cmd_dumpcap):
     return check_dumpcap_ringbuffer_stdin_real
 
 
+@fixtures.fixture
+def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, capture_file):
+    if sys.platform == 'win32':
+        fixtures.skip('Test requires OS fifo support.')
+    def check_dumpcap_pcapng_sections_real(self, multi_input=False, multi_output=False):
+        # Make sure we always test multiple SHBs in an input.
+        in_files_l = [ [
+            capture_file('many_interfaces.pcapng.1'),
+            capture_file('many_interfaces.pcapng.2')
+            ] ]
+        if multi_input:
+            in_files_l.append([ capture_file('many_interfaces.pcapng.3') ])
+        fifo_files = []
+        fifo_procs = []
+        # Default values for our validity tests
+        check_val_d = {
+            'filename': None,
+            'packet_count': 0,
+            'idb_count': 0,
+            'ua_pt1_count': 0,
+            'ua_pt2_count': 0,
+            'ua_pt3_count': 0,
+            'ua_dc_count': 0,
+        }
+        check_vals = [ check_val_d ]
+
+        for in_files in in_files_l:
+            fifo_file = self.filename_from_id('dumpcap_pcapng_sections_{}.fifo'.format(len(fifo_files) + 1))
+            fifo_files.append(fifo_file)
+            # If a previous test left its fifo laying around, e.g. from a failure, remove it.
+            try:
+                os.unlink(fifo_file)
+            except: pass
+            os.mkfifo(fifo_file)
+            cat_cmd = subprocesstest.cat_cap_file_command(in_files)
+            fifo_procs.append(self.startProcess(('{0} > {1}'.format(cat_cmd, fifo_file)), shell=True))
+
+        if multi_output:
+            rb_unique = 'sections_rb_' + uuid.uuid4().hex[:6] # Random ID
+            testout_glob = '{}.{}_*.pcapng'.format(self.id(), rb_unique)
+            testout_file = '{}.{}.pcapng'.format(self.id(), rb_unique)
+            check_vals.append(check_val_d)
+            # check_vals[]['filename'] will be filled in below
+        else:
+            testout_file = self.filename_from_id(testout_pcapng)
+            check_vals[0]['filename'] = testout_file
+
+        # Capture commands
+        if not multi_input and not multi_output:
+            # Passthrough SHBs, single output file
+            capture_cmd_args = (
+                '-i', fifo_files[0],
+                '-w', testout_file
+            )
+            check_vals[0]['packet_count'] = 79
+            check_vals[0]['idb_count'] = 22
+            check_vals[0]['ua_pt1_count'] = 1
+            check_vals[0]['ua_pt2_count'] = 1
+        elif not multi_input and multi_output:
+            # Passthrough SHBs, multiple output files
+            capture_cmd_args = (
+                '-i', fifo_files[0],
+                '-w', testout_file,
+                '-a', 'files:2',
+                '-b', 'packets:53'
+            )
+            check_vals[0]['packet_count'] = 53
+            check_vals[0]['idb_count'] = 22
+            check_vals[0]['ua_pt1_count'] = 1
+            check_vals[1]['packet_count'] = 26
+            check_vals[1]['idb_count'] = 22
+            check_vals[1]['ua_pt1_count'] = 1
+            check_vals[1]['ua_pt2_count'] = 1
+        elif multi_input and not multi_output:
+            # Dumpcap SHBs, single output file
+            capture_cmd_args = (
+                '-i', fifo_files[0],
+                '-i', fifo_files[1],
+                '-w', testout_file
+            )
+            check_vals[0]['packet_count'] = 88
+            check_vals[0]['idb_count'] = 35
+            check_vals[0]['ua_dc_count'] = 1
+        else:
+            # Dumpcap SHBs, multiple output files
+            capture_cmd_args = (
+                '-i', fifo_files[0],
+                '-i', fifo_files[1],
+                '-w', testout_file,
+                '-a', 'files:2',
+                '-b', 'packets:53'
+            )
+            check_vals[0]['packet_count'] = 53
+            check_vals[0]['idb_count'] = 35
+            check_vals[0]['ua_dc_count'] = 1
+            check_vals[1]['packet_count'] = 35
+            check_vals[1]['idb_count'] = 35
+            check_vals[1]['ua_dc_count'] = 1
+
+        capture_cmd = capture_command(cmd_dumpcap, *capture_cmd_args)
+
+        capture_proc = self.runProcess(capture_cmd)
+        for fifo_proc in fifo_procs: fifo_proc.kill()
+
+        rb_files = []
+        if multi_output:
+            rb_files = sorted(glob.glob(testout_glob))
+            self.assertEqual(len(rb_files), 2)
+            check_vals[0]['filename'] = rb_files[0]
+            check_vals[1]['filename'] = rb_files[1]
+
+        for rbf in rb_files:
+            self.cleanup_files.append(rbf)
+            self.assertTrue(os.path.isfile(rbf))
+
+        returncode = capture_proc.returncode
+        self.assertEqual(returncode, 0)
+        if (returncode != 0):
+            return
+
+        # Output tests
+
+        if not multi_input and not multi_output:
+            # Check strict bit-for-bit passthrough.
+            in_hash = hashlib.sha256()
+            out_hash = hashlib.sha256()
+            for in_file in in_files_l[0]:
+                in_cap_file = capture_file(in_file)
+                with open(in_cap_file, 'rb') as f:
+                    in_hash.update(f.read())
+            with open(testout_file, 'rb') as f:
+                out_hash.update(f.read())
+            self.assertEqual(in_hash.hexdigest(), out_hash.hexdigest())
+
+        # many_interfaces.pcapng.1 : 64 packets written by "Passthrough test #1"
+        # many_interfaces.pcapng.2 : 15 packets written by "Passthrough test #2"
+        # many_interfaces.pcapng.3 : 9 packets written by "Passthrough test #3"
+        for check_val in check_vals:
+            self.checkPacketCount(check_val['packet_count'], cap_file=check_val['filename'])
+
+            tshark_proc = self.runProcess(capture_command(cmd_tshark,
+                '-r', check_val['filename'],
+                '-V',
+                '-X', 'read_format:MIME Files Format'
+            ))
+            # XXX Are there any other sanity checks we should run?
+            self.assertEqual(self.countOutput('Block: Interface Description Block',
+                proc=tshark_proc), check_val['idb_count'])
+            self.assertEqual(self.countOutput('Option: User Application = Passthrough test #1',
+                proc=tshark_proc), check_val['ua_pt1_count'])
+            self.assertEqual(self.countOutput('Option: User Application = Passthrough test #2',
+                proc=tshark_proc), check_val['ua_pt2_count'])
+            self.assertEqual(self.countOutput('Option: User Application = Passthrough test #3',
+                proc=tshark_proc), check_val['ua_pt3_count'])
+            self.assertEqual(self.countOutput('Option: User Application = Dumpcap \(Wireshark\)',
+                proc=tshark_proc), check_val['ua_dc_count'])
+    return check_dumpcap_pcapng_sections_real
+
+
 @fixtures.mark_usefixtures('test_env')
 @fixtures.uses_fixtures
 class case_wireshark_capture(subprocesstest.SubprocessTestCase):
@@ -416,7 +578,6 @@ class case_dumpcap_autostop(subprocesstest.SubprocessTestCase):
 @fixtures.uses_fixtures
 class case_dumpcap_ringbuffer(subprocesstest.SubprocessTestCase):
     # duration, interval, filesize, packets, files
-    # Need a function that finds ringbuffer file names.
     def test_dumpcap_ringbuffer_filesize(self, check_dumpcap_ringbuffer_stdin):
         '''Capture from stdin using Dumpcap and write multiple files until we reach a file size limit'''
         check_dumpcap_ringbuffer_stdin(self, filesize=15)
@@ -424,3 +585,23 @@ class case_dumpcap_ringbuffer(subprocesstest.SubprocessTestCase):
     def test_dumpcap_ringbuffer_packets(self, check_dumpcap_ringbuffer_stdin):
         '''Capture from stdin using Dumpcap and write multiple files until we reach a packet limit'''
         check_dumpcap_ringbuffer_stdin(self, packets=47) # Last prime before 50. Arbitrary.
+
+
+@fixtures.mark_usefixtures('base_env')
+@fixtures.uses_fixtures
+class case_dumpcap_pcapng_sections(subprocesstest.SubprocessTestCase):
+    def test_dumpcap_pcapng_single_in_single_out(self, check_dumpcap_pcapng_sections):
+        '''Capture from a single pcapng source using Dumpcap and write a single file'''
+        check_dumpcap_pcapng_sections(self)
+
+    def test_dumpcap_pcapng_single_in_multi_out(self, check_dumpcap_pcapng_sections):
+        '''Capture from a single pcapng source using Dumpcap and write two files'''
+        check_dumpcap_pcapng_sections(self, multi_output=True)
+
+    def test_dumpcap_pcapng_multi_in_single_out(self, check_dumpcap_pcapng_sections):
+        '''Capture from two pcapng sources using Dumpcap and write a single file'''
+        check_dumpcap_pcapng_sections(self, multi_input=True)
+
+    def test_dumpcap_pcapng_multi_in_multi_out(self, check_dumpcap_pcapng_sections):
+        '''Capture from two pcapng sources using Dumpcap and write two files'''
+        check_dumpcap_pcapng_sections(self, multi_input=True, multi_output=True)
