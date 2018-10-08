@@ -344,7 +344,7 @@ sharkd_session_process_info_nstat_cb(const void *key, void *value, void *userdat
 	int *pi = (int *) userdata;
 
 	sharkd_json_object_open(*pi != 0);
-		sharkd_json_value_stringf(FALSE, "name", "%s", stat_tap->title);
+		sharkd_json_value_string(FALSE, "name", stat_tap->title);
 		sharkd_json_value_stringf(TRUE, "tap", "nstat:%s", (const char *) key);
 	sharkd_json_object_close();
 
@@ -389,7 +389,7 @@ sharkd_session_seq_analysis_cb(const void *key, void *value, void *userdata)
 	int *pi = (int *) userdata;
 
 	sharkd_json_object_open(*pi != 0);
-		sharkd_json_value_stringf(FALSE, "name", "%s", sequence_analysis_get_ui_name(analysis));
+		sharkd_json_value_string(FALSE, "name", sequence_analysis_get_ui_name(analysis));
 		sharkd_json_value_stringf(TRUE, "tap", "seqa:%s", (const char *) key);
 	sharkd_json_object_close();
 
@@ -531,8 +531,8 @@ sharkd_session_process_info(void)
 		const char *col_descr  = col_format_desc(i);
 
 		sharkd_json_object_open(i != 0);
-			sharkd_json_value_stringf(FALSE, "name", "%s", col_descr);
-			sharkd_json_value_stringf(TRUE, "format", "%s", col_format);
+			sharkd_json_value_string(FALSE, "name", col_descr);
+			sharkd_json_value_string(TRUE, "format", col_format);
 		sharkd_json_object_close();
 	}
 	sharkd_json_array_close();
@@ -548,7 +548,7 @@ sharkd_session_process_info(void)
 			stats_tree_cfg *cfg = (stats_tree_cfg *) l->data;
 
 			sharkd_json_object_open(sepa);
-				sharkd_json_value_stringf(FALSE, "name", "%s", cfg->name);
+				sharkd_json_value_string(FALSE, "name", cfg->name);
 				sharkd_json_value_stringf(TRUE, "tap", "stat:%s", cfg->abbr);
 			sharkd_json_object_close();
 			sepa = TRUE;
@@ -1047,7 +1047,7 @@ sharkd_session_process_tap_stats_node_cb(const stat_node *n)
 		sharkd_json_object_open(sepa);
 
 		/* code based on stats_tree_get_values_from_node() */
-		sharkd_json_value_stringf(FALSE, "name", "%s", node->name);
+		sharkd_json_value_string(FALSE, "name", node->name);
 		sharkd_json_value_anyf(TRUE, "count", "%d", node->counter);
 		if (node->counter && ((node->st_flags & ST_FLG_AVERAGE) || node->rng))
 		{
@@ -1115,7 +1115,7 @@ sharkd_session_process_tap_stats_cb(void *psp)
 
 	sharkd_json_value_stringf(FALSE, "tap", "stats:%s", st->cfg->abbr);
 	sharkd_json_value_string(TRUE, "type", "stats");
-	sharkd_json_value_stringf(TRUE, "name", "%s", st->cfg->name);
+	sharkd_json_value_string(TRUE, "name", st->cfg->name);
 
 	sharkd_json_value_anyf(TRUE, "stats", NULL);
 	sharkd_session_process_tap_stats_node_cb(&st->root);
@@ -1281,7 +1281,7 @@ sharkd_session_process_tap_flow_cb(void *tapdata)
 
 		sharkd_json_object_open(sepa);
 
-		sharkd_json_value_stringf(FALSE, "t", "%s", sai->time_str);
+		sharkd_json_value_string(FALSE, "t", sai->time_str);
 		sharkd_json_value_anyf(TRUE, "n", "[%u,%u]", sai->src_node, sai->dst_node);
 		sharkd_json_value_anyf(TRUE, "pn", "[%u,%u]", sai->port_src, sai->port_dst);
 
@@ -1671,13 +1671,13 @@ sharkd_session_process_tap_conv_cb(void *arg)
 
 			sharkd_json_object_open(i != 0);
 
-			sharkd_json_value_stringf(FALSE, "saddr", "%s", (src_addr = get_conversation_address(NULL, &iui->src_address, iu->resolve_name)));
-			sharkd_json_value_stringf(TRUE,  "daddr", "%s", (dst_addr = get_conversation_address(NULL, &iui->dst_address, iu->resolve_name)));
+			sharkd_json_value_string(FALSE, "saddr", (src_addr = get_conversation_address(NULL, &iui->src_address, iu->resolve_name)));
+			sharkd_json_value_string(TRUE,  "daddr", (dst_addr = get_conversation_address(NULL, &iui->dst_address, iu->resolve_name)));
 
 			if (proto_with_port)
 			{
-				sharkd_json_value_stringf(TRUE, "sport", "%s", (src_port = get_conversation_port(NULL, iui->src_port, iui->etype, iu->resolve_port)));
-				sharkd_json_value_stringf(TRUE, "dport", "%s", (dst_port = get_conversation_port(NULL, iui->dst_port, iui->etype, iu->resolve_port)));
+				sharkd_json_value_string(TRUE, "sport", (src_port = get_conversation_port(NULL, iui->src_port, iui->etype, iu->resolve_port)));
+				sharkd_json_value_string(TRUE, "dport", (dst_port = get_conversation_port(NULL, iui->dst_port, iui->etype, iu->resolve_port)));
 
 				wmem_free(NULL, src_port);
 				wmem_free(NULL, dst_port);
@@ -1695,7 +1695,7 @@ sharkd_session_process_tap_conv_cb(void *arg)
 			filter_str = get_conversation_filter(iui, CONV_DIR_A_TO_FROM_B);
 			if (filter_str)
 			{
-				sharkd_json_value_stringf(TRUE, "filter", "%s", filter_str);
+				sharkd_json_value_string(TRUE, "filter", filter_str);
 				g_free(filter_str);
 			}
 
@@ -1720,11 +1720,11 @@ sharkd_session_process_tap_conv_cb(void *arg)
 
 			sharkd_json_object_open(i != 0);
 
-			sharkd_json_value_stringf(FALSE, "host", "%s", (host_str = get_conversation_address(NULL, &host->myaddress, iu->resolve_name)));
+			sharkd_json_value_string(FALSE, "host", (host_str = get_conversation_address(NULL, &host->myaddress, iu->resolve_name)));
 
 			if (proto_with_port)
 			{
-				sharkd_json_value_stringf(TRUE, "port", "%s", (port_str = get_conversation_port(NULL, host->port, host->etype, iu->resolve_port)));
+				sharkd_json_value_string(TRUE, "port", (port_str = get_conversation_port(NULL, host->port, host->etype, iu->resolve_port)));
 
 				wmem_free(NULL, port_str);
 			}
@@ -1738,7 +1738,7 @@ sharkd_session_process_tap_conv_cb(void *arg)
 			filter_str = get_hostlist_filter(host);
 			if (filter_str)
 			{
-				sharkd_json_value_stringf(TRUE, "filter", "%s", filter_str);
+				sharkd_json_value_string(TRUE, "filter", filter_str);
 				g_free(filter_str);
 			}
 
@@ -1818,7 +1818,7 @@ sharkd_session_process_tap_nstat_cb(void *arg)
 
 		sharkd_json_object_open(i != 0);
 
-		sharkd_json_value_stringf(FALSE, "t", "%s", table->title);
+		sharkd_json_value_string(FALSE, "t", table->title);
 
 		sharkd_json_array_open(TRUE, "i");
 		for (j = 0; j < table->num_elements; j++)
@@ -2133,7 +2133,7 @@ sharkd_session_process_tap_eo_cb(void *tapdata)
 	sharkd_json_value_string(FALSE, "tap", object_list->type);
 	sharkd_json_value_string(TRUE, "type", "eo");
 
-	sharkd_json_value_stringf(TRUE, "proto", "%s", object_list->proto);
+	sharkd_json_value_string(TRUE, "proto", object_list->proto);
 
 	sharkd_json_array_open(TRUE, "objects");
 	for (slist = object_list->entries; slist; slist = slist->next)
@@ -2214,7 +2214,7 @@ sharkd_session_process_tap_rtp_cb(void *arg)
 	gboolean sepa = FALSE;
 
 	sharkd_json_object_open(FALSE);
-	sharkd_json_value_stringf(FALSE, "tap", "rtp-streams");
+	sharkd_json_value_string(FALSE, "tap", "rtp-streams");
 	sharkd_json_value_string(TRUE, "type", "rtp-streams");
 
 	sharkd_json_array_open(TRUE, "streams");
@@ -2228,11 +2228,11 @@ sharkd_session_process_tap_rtp_cb(void *arg)
 		sharkd_json_object_open(sepa);
 
 		sharkd_json_value_anyf(FALSE, "ssrc", "%u", calc.ssrc);
-		sharkd_json_value_stringf(TRUE, "payload", "%s", calc.all_payload_type_names);
+		sharkd_json_value_string(TRUE, "payload", calc.all_payload_type_names);
 
-		sharkd_json_value_stringf(TRUE, "saddr", "%s", calc.src_addr_str);
+		sharkd_json_value_string(TRUE, "saddr", calc.src_addr_str);
 		sharkd_json_value_anyf(TRUE, "sport", "%u", calc.src_port);
-		sharkd_json_value_stringf(TRUE, "daddr", "%s", calc.dst_addr_str);
+		sharkd_json_value_string(TRUE, "daddr", calc.dst_addr_str);
 		sharkd_json_value_anyf(TRUE, "dport", "%u", calc.dst_port);
 
 		sharkd_json_value_anyf(TRUE, "pkts", "%u", calc.packet_count);
@@ -2797,7 +2797,7 @@ sharkd_session_process_frame_cb_tree(epan_dissect_t *edt, proto_tree *tree, tvbu
 
 			if (finfo->hfinfo->type == FT_PROTOCOL)
 			{
-				sharkd_json_value_stringf(TRUE, "t", "proto");
+				sharkd_json_value_string(TRUE, "t", "proto");
 			}
 			else if (finfo->hfinfo->type == FT_FRAMENUM)
 			{
@@ -2833,7 +2833,7 @@ sharkd_session_process_frame_cb_tree(epan_dissect_t *edt, proto_tree *tree, tvbu
 
 			g_assert(severity != NULL);
 
-			sharkd_json_value_stringf(TRUE, "s", "%s", severity);
+			sharkd_json_value_string(TRUE, "s", severity);
 		}
 
 		if (((proto_tree *) node)->first_child)
@@ -3488,7 +3488,7 @@ sharkd_session_process_check(char *buf, const jsmntok_t *tokens, int count)
 			if (dfp && dfilter_deprecated_tokens(dfp))
 				s = "warn";
 
-			sharkd_json_value_stringf(TRUE, "filter", "%s", s);
+			sharkd_json_value_string(TRUE, "filter", s);
 			dfilter_free(dfp);
 		}
 		else
@@ -3502,7 +3502,7 @@ sharkd_session_process_check(char *buf, const jsmntok_t *tokens, int count)
 	{
 		header_field_info *hfi = proto_registrar_get_byname(tok_field);
 
-		sharkd_json_value_stringf(TRUE, "field", (hfi) ? "ok" : "notfound");
+		sharkd_json_value_string(TRUE, "field", (hfi) ? "ok" : "notfound");
 	}
 
 	sharkd_json_object_close();
@@ -3527,8 +3527,8 @@ sharkd_session_process_complete_pref_cb(module_t *module, gpointer d)
 		return 0;
 
 	sharkd_json_object_open(data->sepa);
-	sharkd_json_value_stringf(FALSE, "f", "%s", module->name);
-	sharkd_json_value_stringf(TRUE, "d", "%s", module->title);
+	sharkd_json_value_string(FALSE, "f", module->name);
+	sharkd_json_value_string(TRUE, "d", module->title);
 	sharkd_json_object_close();
 
 	data->sepa = TRUE;
@@ -3548,7 +3548,7 @@ sharkd_session_process_complete_pref_option_cb(pref_t *pref, gpointer d)
 
 	sharkd_json_object_open(data->sepa);
 	sharkd_json_value_stringf(FALSE, "f", "%s.%s", data->module, pref_name);
-	sharkd_json_value_stringf(TRUE, "d", "%s", pref_title);
+	sharkd_json_value_string(TRUE, "d", pref_title);
 	sharkd_json_object_close();
 
 	data->sepa = TRUE;
@@ -3819,7 +3819,7 @@ sharkd_session_process_dumpconf_cb(pref_t *pref, gpointer d)
 		case PREF_DECODE_AS_RANGE:
 		{
 			char *range_str = range_convert_range(NULL, prefs_get_range_value_real(pref, pref_current));
-			sharkd_json_value_stringf(FALSE, "r", "%s", range_str);
+			sharkd_json_value_string(FALSE, "r", range_str);
 			wmem_free(NULL, range_str);
 			break;
 		}
