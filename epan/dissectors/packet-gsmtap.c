@@ -18,7 +18,7 @@
  *
  * It is defined by the gsmtap.h libosmocore header, in
  *
- * http://cgit.osmocom.org/cgit/libosmocore/tree/include/osmocom/core/gsmtap.h
+ * http://cgit.osmocom.org/libosmocore/tree/include/osmocom/core/gsmtap.h
  *
  * Example programs generating GSMTAP data are airprobe
  * (http://airprobe.org/) or OsmocomBB (http://bb.osmocom.org/)
@@ -243,6 +243,21 @@ enum {
 	GSMTAP_LTE_RRC_SUB_BCCH_DL_SCH_Message,
 	GSMTAP_LTE_RRC_SUB_PCCH_Message,
 	GSMTAP_LTE_RRC_SUB_MCCH_Message,
+	GSMTAP_LTE_RRC_SUB_BCCH_BCH_Message_MBMS,
+	GSMTAP_LTE_RRC_SUB_BCCH_DL_SCH_Message_BR,
+	GSMTAP_LTE_RRC_SUB_BCCH_DL_SCH_Message_MBMS,
+	GSMTAP_LTE_RRC_SUB_SC_MCCH_Message,
+	GSMTAP_LTE_RRC_SUB_SBCCH_SL_BCH_Message,
+	GSMTAP_LTE_RRC_SUB_SBCCH_SL_BCH_Message_V2X,
+	GSMTAP_LTE_RRC_SUB_DL_CCCH_Message_NB,
+	GSMTAP_LTE_RRC_SUB_DL_DCCH_Message_NB,
+	GSMTAP_LTE_RRC_SUB_UL_CCCH_Message_NB,
+	GSMTAP_LTE_RRC_SUB_UL_DCCH_Message_NB,
+	GSMTAP_LTE_RRC_SUB_BCCH_BCH_Message_NB,
+	GSMTAP_LTE_RRC_SUB_BCCH_BCH_Message_TDD_NB,
+	GSMTAP_LTE_RRC_SUB_BCCH_DL_SCH_Message_NB,
+	GSMTAP_LTE_RRC_SUB_PCCH_Message_NB,
+	GSMTAP_LTE_RRC_SUB_SC_MCCH_Message_NB,
 
 	GSMTAP_LTE_RRC_SUB_MAX
 };
@@ -882,6 +897,21 @@ proto_reg_handoff_gsmtap(void)
 	lte_rrc_sub_handles[GSMTAP_LTE_RRC_SUB_BCCH_DL_SCH_Message] = find_dissector_add_dependency("lte_rrc.bcch_dl_sch", proto_gsmtap);
 	lte_rrc_sub_handles[GSMTAP_LTE_RRC_SUB_PCCH_Message] = find_dissector_add_dependency("lte_rrc.pcch", proto_gsmtap);
 	lte_rrc_sub_handles[GSMTAP_LTE_RRC_SUB_MCCH_Message] = find_dissector_add_dependency("lte_rrc.mcch", proto_gsmtap);
+	lte_rrc_sub_handles[GSMTAP_LTE_RRC_SUB_BCCH_BCH_Message_MBMS] = find_dissector_add_dependency("lte_rrc.bcch_bch.mbms", proto_gsmtap);
+	lte_rrc_sub_handles[GSMTAP_LTE_RRC_SUB_BCCH_DL_SCH_Message_BR] = find_dissector_add_dependency("lte_rrc.bcch_dl_sch.br", proto_gsmtap);
+	lte_rrc_sub_handles[GSMTAP_LTE_RRC_SUB_BCCH_DL_SCH_Message_MBMS] = find_dissector_add_dependency("lte_rrc.bcch_dl_sch.mbms", proto_gsmtap);
+	lte_rrc_sub_handles[GSMTAP_LTE_RRC_SUB_SC_MCCH_Message] = find_dissector_add_dependency("lte_rrc.sc_mcch", proto_gsmtap);
+	lte_rrc_sub_handles[GSMTAP_LTE_RRC_SUB_SBCCH_SL_BCH_Message] = find_dissector_add_dependency("lte_rrc.sbcch_sl_bch", proto_gsmtap);
+	lte_rrc_sub_handles[GSMTAP_LTE_RRC_SUB_SBCCH_SL_BCH_Message_V2X] = find_dissector_add_dependency("lte_rrc.sbcch_sl_bch.v2x", proto_gsmtap);
+	lte_rrc_sub_handles[GSMTAP_LTE_RRC_SUB_DL_CCCH_Message_NB] = find_dissector_add_dependency("lte_rrc.dl_ccch.nb", proto_gsmtap);
+	lte_rrc_sub_handles[GSMTAP_LTE_RRC_SUB_DL_DCCH_Message_NB] = find_dissector_add_dependency("lte_rrc.dl_dcch.nb", proto_gsmtap);
+	lte_rrc_sub_handles[GSMTAP_LTE_RRC_SUB_UL_CCCH_Message_NB] = find_dissector_add_dependency("lte_rrc.ul_ccch.nb", proto_gsmtap);
+	lte_rrc_sub_handles[GSMTAP_LTE_RRC_SUB_UL_DCCH_Message_NB] = find_dissector_add_dependency("lte_rrc.ul_dcch.nb", proto_gsmtap);
+	lte_rrc_sub_handles[GSMTAP_LTE_RRC_SUB_BCCH_BCH_Message_NB] = find_dissector_add_dependency("lte_rrc.bcch_bch.nb", proto_gsmtap);
+	lte_rrc_sub_handles[GSMTAP_LTE_RRC_SUB_BCCH_BCH_Message_TDD_NB] = find_dissector_add_dependency("lte_rrc.bcch_bch.nb.tdd", proto_gsmtap);
+	lte_rrc_sub_handles[GSMTAP_LTE_RRC_SUB_BCCH_DL_SCH_Message_NB] = find_dissector_add_dependency("lte_rrc.bcch_dl_sch.nb", proto_gsmtap);
+	lte_rrc_sub_handles[GSMTAP_LTE_RRC_SUB_PCCH_Message_NB] = find_dissector_add_dependency("lte_rrc.pcch.nb", proto_gsmtap);
+	lte_rrc_sub_handles[GSMTAP_LTE_RRC_SUB_SC_MCCH_Message_NB] = find_dissector_add_dependency("lte_rrc.sc_mcch.nb", proto_gsmtap);
 
 	lte_nas_sub_handles[GSMTAP_LTE_NAS_PLAIN] = find_dissector_add_dependency("nas-eps_plain", proto_gsmtap);
 	lte_nas_sub_handles[GSMTAP_LTE_NAS_SEC_HEADER] = find_dissector_add_dependency("nas-eps", proto_gsmtap);
