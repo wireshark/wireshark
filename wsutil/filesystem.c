@@ -33,9 +33,6 @@
 #include <sys/types.h>
 #include <sys/sysctl.h>
 #endif
-#ifdef HAVE_DLADDR
-#include <dlfcn.h>
-#endif
 #include <pwd.h>
 #endif /* _WIN32 */
 
