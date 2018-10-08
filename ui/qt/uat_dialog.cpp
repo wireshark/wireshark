@@ -16,13 +16,12 @@
 #include "ui/help_url.h"
 #include <wsutil/report_message.h>
 
-#include <ui/qt/widgets/copy_from_profile_button.h>
+#include <ui/qt/widgets/copy_from_profile_menu.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 
 #include <QDesktopServices>
 #include <QPushButton>
 #include <QUrl>
-#include <QMenu>
 
 #include <QDebug>
 
@@ -33,6 +32,7 @@ UatDialog::UatDialog(QWidget *parent, epan_uat *uat) :
     ui(new Ui::UatDialog),
     uat_model_(NULL),
     uat_delegate_(NULL),
+    copy_from_menu_(NULL),
     uat_(uat)
 {
     ui->setupUi(this);
@@ -40,12 +40,6 @@ UatDialog::UatDialog(QWidget *parent, epan_uat *uat) :
 
     ok_button_ = ui->buttonBox->button(QDialogButtonBox::Ok);
     help_button_ = ui->buttonBox->button(QDialogButtonBox::Help);
-
-    if (uat->from_profile) {
-        QPushButton *copy_button = new CopyFromProfileButton(uat->filename);
-        ui->buttonBox->addButton(copy_button, QDialogButtonBox::ActionRole);
-        connect(copy_button->menu(), SIGNAL(triggered(QAction *)), this, SLOT(copyFromProfile(QAction *)));
-    }
 
 #ifdef Q_OS_MAC
     ui->newToolButton->setAttribute(Qt::WA_MacSmallSize, true);
@@ -83,20 +77,7 @@ UatDialog::~UatDialog()
     delete ui;
     delete uat_delegate_;
     delete uat_model_;
-}
-
-void UatDialog::copyFromProfile(QAction *action)
-{
-    QString filename = action->data().toString();
-
-    gchar *err = NULL;
-    if (uat_load(uat_, filename.toUtf8().constData(), &err)) {
-        uat_->changed = TRUE;
-        uat_model_->reloadUat();
-    } else {
-        report_failure("Error while loading %s: %s", uat_->name, err);
-        g_free(err);
-    }
+    delete copy_from_menu_;
 }
 
 void UatDialog::setUat(epan_uat *uat)
@@ -112,6 +93,15 @@ void UatDialog::setUat(epan_uat *uat)
     if (uat_) {
         if (uat_->name) {
             title = uat_->name;
+        }
+
+        if (uat->from_profile) {
+            QPushButton *copy_button = ui->buttonBox->addButton(tr("Copy from"), QDialogButtonBox::ActionRole);
+            copy_from_menu_ = new CopyFromProfileMenu(uat->filename);
+            copy_button->setMenu(copy_from_menu_);
+            copy_button->setToolTip(tr("Copy entries from another profile."));
+            copy_button->setEnabled(copy_from_menu_->haveProfiles());
+            connect(copy_from_menu_, SIGNAL(triggered(QAction *)), this, SLOT(copyFromProfile(QAction *)));
         }
 
         QString abs_path = gchar_free_to_qstring(uat_get_actual_filename(uat_, FALSE));
@@ -143,6 +133,20 @@ void UatDialog::setUat(epan_uat *uat)
     }
 
     setWindowTitle(title);
+}
+
+void UatDialog::copyFromProfile(QAction *action)
+{
+    QString filename = action->data().toString();
+
+    gchar *err = NULL;
+    if (uat_load(uat_, filename.toUtf8().constData(), &err)) {
+        uat_->changed = TRUE;
+        uat_model_->reloadUat();
+    } else {
+        report_failure("Error while loading %s: %s", uat_->name, err);
+        g_free(err);
+    }
 }
 
 // Invoked when a field in the model changes (e.g. by closing the editor)

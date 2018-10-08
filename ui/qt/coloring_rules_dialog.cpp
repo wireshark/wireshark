@@ -20,13 +20,12 @@
 #include "wsutil/filesystem.h"
 
 #include "wireshark_application.h"
-#include "ui/qt/widgets/copy_from_profile_button.h"
+#include "ui/qt/widgets/copy_from_profile_menu.h"
 #include "ui/qt/widgets/wireshark_file_dialog.h"
 
 #include <QColorDialog>
 #include <QMessageBox>
 #include <QPushButton>
-#include <QMenu>
 
 /*
  * @file Coloring Rules dialog
@@ -41,6 +40,7 @@
 ColoringRulesDialog::ColoringRulesDialog(QWidget *parent, QString add_filter) :
     GeometryStateDialog(parent),
     ui(new Ui::ColoringRulesDialog),
+    copy_from_menu_(NULL),
     colorRuleModel_(palette().color(QPalette::Text), palette().color(QPalette::Base), this),
     colorRuleDelegate_(this)
 {
@@ -74,9 +74,12 @@ ColoringRulesDialog::ColoringRulesDialog(QWidget *parent, QString add_filter) :
     export_button_ = ui->buttonBox->addButton(tr("Export" UTF8_HORIZONTAL_ELLIPSIS), QDialogButtonBox::ApplyRole);
     export_button_->setToolTip(tr("Save filters in a file."));
 
-    QPushButton *copy_button = new CopyFromProfileButton("colorfilters");
-    ui->buttonBox->addButton(copy_button, QDialogButtonBox::ActionRole);
-    connect(copy_button->menu(), SIGNAL(triggered(QAction *)), this, SLOT(copyFromProfile(QAction *)));
+    QPushButton *copy_button = ui->buttonBox->addButton(tr("Copy from"), QDialogButtonBox::ActionRole);
+    copy_from_menu_ = new CopyFromProfileMenu("colorfilters");
+    copy_button->setMenu(copy_from_menu_);
+    copy_button->setToolTip(tr("Copy coloring rules from another profile."));
+    copy_button->setEnabled(copy_from_menu_->haveProfiles());
+    connect(copy_from_menu_, SIGNAL(triggered(QAction *)), this, SLOT(copyFromProfile(QAction *)));
 
     if (!add_filter.isEmpty()) {
         colorRuleModel_.addColor(false, add_filter, palette().color(QPalette::Text), palette().color(QPalette::Base));
@@ -97,6 +100,7 @@ ColoringRulesDialog::ColoringRulesDialog(QWidget *parent, QString add_filter) :
 
 ColoringRulesDialog::~ColoringRulesDialog()
 {
+    delete copy_from_menu_;
     delete ui;
 }
 

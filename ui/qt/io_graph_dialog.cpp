@@ -29,7 +29,7 @@
 #include <wsutil/report_message.h>
 
 #include <ui/qt/utils/tango_colors.h> //provides some default colors
-#include <ui/qt/widgets/copy_from_profile_button.h>
+#include <ui/qt/widgets/copy_from_profile_menu.h>
 #include "ui/qt/widgets/wireshark_file_dialog.h"
 
 #include <QClipboard>
@@ -43,7 +43,6 @@
 #include <QSpacerItem>
 #include <QTimer>
 #include <QVariant>
-#include <QMenu>
 
 // Bugs and uncertainties:
 // - Regular (non-stacked) bar graphs are drawn on top of each other on the Z axis.
@@ -290,6 +289,7 @@ static void io_graph_free_cb(void* p) {
 IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf) :
     WiresharkDialog(parent, cf),
     ui(new Ui::IOGraphDialog),
+    copy_from_menu_(NULL),
     uat_model_(NULL),
     uat_delegate_(NULL),
     base_graph_(NULL),
@@ -315,9 +315,12 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf) :
     QPushButton *copy_bt = ui->buttonBox->addButton(tr("Copy"), QDialogButtonBox::ActionRole);
     connect (copy_bt, SIGNAL(clicked()), this, SLOT(copyAsCsvClicked()));
 
-    QPushButton *copy_from_bt = new CopyFromProfileButton("io_graphs");
-    ui->buttonBox->addButton(copy_from_bt, QDialogButtonBox::ActionRole);
-    connect(copy_from_bt->menu(), SIGNAL(triggered(QAction *)), this, SLOT(copyFromProfile(QAction *)));
+    QPushButton *copy_from_bt = ui->buttonBox->addButton(tr("Copy from"), QDialogButtonBox::ActionRole);
+    copy_from_menu_ = new CopyFromProfileMenu("io_graphs");
+    copy_from_bt->setMenu(copy_from_menu_);
+    copy_from_bt->setToolTip(tr("Copy graphs from another profile."));
+    copy_from_bt->setEnabled(copy_from_menu_->haveProfiles());
+    connect(copy_from_menu_, SIGNAL(triggered(QAction *)), this, SLOT(copyFromProfile(QAction *)));
 
     QPushButton *close_bt = ui->buttonBox->button(QDialogButtonBox::Close);
     if (close_bt) {
@@ -411,6 +414,7 @@ IOGraphDialog::~IOGraphDialog()
     foreach(IOGraph* iog, ioGraphs_) {
         delete iog;
     }
+    delete copy_from_menu_;
     delete ui;
     ui = NULL;
 }
