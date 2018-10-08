@@ -2735,7 +2735,6 @@ WinMain (struct HINSTANCE__ *hInstance,
     INITCOMMONCONTROLSEX comm_ctrl;
     LPWSTR *wc_argv;
     int argc;
-    int argc;
     char **argv;
 
     /*
