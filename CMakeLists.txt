@@ -199,6 +199,7 @@ message(STATUS "V: ${PROJECT_VERSION}, MaV: ${PROJECT_MAJOR_VERSION}, MiV: ${PRO
 include(UseLemon)
 include(UseMakePluginReg)
 include(UseMakeTaps)
+include(UseExecutableResources)
 include(UseAsn2Wrs)
 
 # The following snippet has been taken from
@@ -1396,36 +1397,23 @@ string (REPLACE ";" " " DOXYGEN_TOP_LEVEL_SOURCES "${TOP_LEVEL_SOURCE_LIST}")
 set(DOXYGEN_INPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
 set(DOXYGEN_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
-set(ICON_PATH "${CMAKE_SOURCE_DIR}/image/")
-set( IN_FILES
-	doxygen.cfg.in
-	image/libwireshark.rc.in
-	image/text2pcap.rc.in
-	image/capinfos.rc.in
-	image/wireshark.rc.in
-	image/mergecap.rc.in
-	image/tshark.rc.in
-	image/dumpcap.rc.in
-	image/reordercap.rc.in
-	image/rawshark.rc.in
-	image/file_dlg_win32.rc
-	image/tfshark.rc.in
-	image/editcap.rc.in
-	image/captype.rc.in
-	image/libwscodecs.rc.in
-	image/libwsutil.rc.in
-	image/wiretap.rc.in
-	image/wireshark.exe.manifest.in
-	packaging/macosx/Info.plist.in
-	packaging/macosx/osx-app.sh.in
-	packaging/macosx/osx-dmg.sh.in
-	packaging/macosx/Wireshark_package.pmdoc/index.xml.in
-	wireshark.pc.in
+set(CFG_OUT_FILES
+	doxygen.cfg
+	image/libwireshark.rc
+	image/wireshark.rc
+	image/dumpcap.rc
+	image/libwscodecs.rc
+	image/libwsutil.rc
+	image/wiretap.rc
+	image/wireshark.exe.manifest
+	packaging/macosx/Info.plist
+	packaging/macosx/osx-app.sh
+	packaging/macosx/osx-dmg.sh
+	packaging/macosx/Wireshark_package.pmdoc/index.xml
+	wireshark.pc
 )
-foreach( _in_file ${IN_FILES} )
-	get_filename_component( _path ${_in_file} PATH )
-	string( REGEX REPLACE "(.*)\\.in" "\\1" _outfile ${_in_file}  )
-	configure_file( ${CMAKE_SOURCE_DIR}/${_in_file} ${CMAKE_BINARY_DIR}/${_outfile} @ONLY )
+foreach( _cfg_file ${CFG_OUT_FILES} )
+	configure_file( ${CMAKE_SOURCE_DIR}/${_cfg_file}.in ${CMAKE_BINARY_DIR}/${_cfg_file} @ONLY )
 endforeach()
 
 include(FeatureSummary)
@@ -2025,9 +2013,9 @@ if(BUILD_wireshark AND QT_FOUND)
 	)
 	set(wireshark_FILES
 		${WIRESHARK_SRC}
-		${CMAKE_BINARY_DIR}/image/wireshark.rc
 		${PLATFORM_UI_RC_FILES}
 	)
+	set_executable_resources(wireshark "Wireshark" UNIQUE_RC)
 endif()
 
 if(ENABLE_APPLICATION_BUNDLE)
@@ -2237,9 +2225,9 @@ if(BUILD_tshark)
 		tshark.c
 		${TSHARK_TAP_SRC}
 		${SHARK_COMMON_SRC}
-		${CMAKE_BINARY_DIR}/image/tshark.rc
 	)
 
+	set_executable_resources(tshark "TShark" UNIQUE_RC)
 	add_executable(tshark ${tshark_FILES})
 	add_dependencies(tshark version)
 	set_extra_executable_properties(tshark "Executables")
@@ -2259,8 +2247,8 @@ if(BUILD_tfshark)
 		tfshark.c
 		${TSHARK_TAP_SRC}
 		${SHARK_COMMON_SRC}
-		${CMAKE_BINARY_DIR}/image/tfshark.rc
 	)
+	set_executable_resources(tfshark "TFShark")
 	add_executable(tfshark ${tfshark_FILES})
 	add_dependencies(tfshark version)
 	set_extra_executable_properties(tfshark "Executables")
@@ -2280,8 +2268,8 @@ if(BUILD_rawshark AND PCAP_FOUND)
 	set(rawshark_FILES
 		${SHARK_COMMON_SRC}
 		rawshark.c
-		${CMAKE_BINARY_DIR}/image/rawshark.rc
 	)
+	set_executable_resources(rawshark "Rawshark")
 	add_executable(rawshark ${rawshark_FILES})
 	add_dependencies(rawshark version)
 	set_extra_executable_properties(rawshark "Executables")
@@ -2304,6 +2292,7 @@ if(BUILD_sharkd)
 		sharkd_session.c
 		${SHARK_COMMON_SRC}
 	)
+	set_executable_resources(sharkd "SharkD")
 	add_executable(sharkd ${sharkd_FILES})
 	add_dependencies(sharkd version)
 	set_extra_executable_properties(sharkd "Executables")
@@ -2378,8 +2367,9 @@ if(BUILD_text2pcap)
 	add_lex_files(text2pcap_LEX_FILES text2pcap_FILES
 		text2pcap-scanner.l
 	)
-	add_executable(text2pcap ${text2pcap_FILES}
-		${CMAKE_BINARY_DIR}/image/text2pcap.rc)
+	set_executable_resources(text2pcap "Text2pcap"
+		COPYRIGHT_INFO "2001 Ashok Narayanan <ashokn@cisco.com>")
+	add_executable(text2pcap ${text2pcap_FILES})
 	add_dependencies(text2pcap version)
 	set_extra_executable_properties(text2pcap "Executables")
 	target_link_libraries(text2pcap ${text2pcap_LIBS})
@@ -2396,8 +2386,8 @@ if(BUILD_mergecap)
 	set(mergecap_FILES
 		mergecap.c
 		version_info.c
-		${CMAKE_BINARY_DIR}/image/mergecap.rc
 	)
+	set_executable_resources(mergecap "Mergecap")
 	add_executable(mergecap ${mergecap_FILES})
 	add_dependencies(mergecap version)
 	set_extra_executable_properties(mergecap "Executables")
@@ -2415,8 +2405,8 @@ if(BUILD_reordercap)
 	set(reordercap_FILES
 		reordercap.c
 		version_info.c
-		${CMAKE_BINARY_DIR}/image/reordercap.rc
 	)
+	set_executable_resources(reordercap "Reordercap")
 	add_executable(reordercap ${reordercap_FILES})
 	add_dependencies(reordercap version)
 	set_extra_executable_properties(reordercap "Executables")
@@ -2436,8 +2426,8 @@ if(BUILD_capinfos)
 	set(capinfos_FILES
 		capinfos.c
 		version_info.c
-		${CMAKE_BINARY_DIR}/image/capinfos.rc
 	)
+	set_executable_resources(capinfos "Capinfos")
 	add_executable(capinfos ${capinfos_FILES})
 	add_dependencies(capinfos version)
 	set_extra_executable_properties(capinfos "Executables")
@@ -2456,8 +2446,8 @@ if(BUILD_captype)
 	set(captype_FILES
 		captype.c
 		version_info.c
-		${CMAKE_BINARY_DIR}/image/captype.rc
 	)
+	set_executable_resources(captype "Captype")
 	add_executable(captype ${captype_FILES})
 	add_dependencies(captype version)
 	set_extra_executable_properties(captype "Executables")
@@ -2476,8 +2466,8 @@ if(BUILD_editcap)
 	set(editcap_FILES
 		editcap.c
 		version_info.c
-		${CMAKE_BINARY_DIR}/image/editcap.rc
 	)
+	set_executable_resources(editcap "Editcap")
 	add_executable(editcap ${editcap_FILES})
 	add_dependencies(editcap version)
 	set_extra_executable_properties(editcap "Executables")
@@ -2508,8 +2498,8 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 		ringbuffer.c
 		sync_pipe_write.c
 		version_info.c
-		${CMAKE_BINARY_DIR}/image/dumpcap.rc
 	)
+	set_executable_resources(dumpcap "Dumpcap" UNIQUE_RC)
 	add_executable(dumpcap ${dumpcap_FILES})
 	add_dependencies(dumpcap version)
 	set_extra_executable_properties(dumpcap "Executables")

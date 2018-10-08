@@ -1,4 +1,5 @@
 #include "winver.h"
+#pragma code_page(65001)
 
 WIRESHARK_ICON ICON "@ICON_PATH@wireshark.ico"
 
@@ -23,7 +24,7 @@ BEGIN
             VALUE "FileDescription", "Dumpcap\0"
             VALUE "FileVersion", "@VERSION@\0"
             VALUE "InternalName", "Dumpcap @VERSION@\0"
-            VALUE "LegalCopyright", "Copyright © 2000 Gerald Combs <gerald@wireshark.org>, Gilbert Ramirez <gram@alumni.rice.edu> and others\0"
+            VALUE "LegalCopyright", "Copyright Â© 2000 Gerald Combs <gerald@wireshark.org>, Gilbert Ramirez <gram@alumni.rice.edu> and others\0"
             VALUE "OriginalFilename", "Dumpcap.exe\0"
             VALUE "ProductName", "Dumpcap\0"
             VALUE "ProductVersion", "@VERSION@\0"

@@ -1,4 +1,5 @@
 #include "winver.h"
+#pragma code_page(65001)
 
 VS_VERSION_INFO VERSIONINFO
  FILEVERSION @RC_VERSION@
@@ -21,7 +22,7 @@ BEGIN
             VALUE "FileDescription", "Wireshark capture file library\0"
             VALUE "FileVersion", "@VERSION@\0"
             VALUE "InternalName", "wiretap @VERSION@\0"
-            VALUE "LegalCopyright", "Copyright © 2000 Gerald Combs <gerald@wireshark.org>, Gilbert Ramirez <gram@alumni.rice.edu> and others\0"
+            VALUE "LegalCopyright", "Copyright Â© 2000 Gerald Combs <gerald@wireshark.org>, Gilbert Ramirez <gram@alumni.rice.edu> and others\0"
             VALUE "OriginalFilename", "libwiretap.dll\0"
             VALUE "ProductName", "Wireshark\0"
             VALUE "ProductVersion", "@VERSION@\0"

@@ -95,6 +95,7 @@ if(BUILD_androiddump)
 		extcap-base.c
 	)
 
+	set_executable_resources(androiddump "Androiddump")
 	add_executable(androiddump WIN32 ${androiddump_FILES})
 	# XXX Shouldn't we add wsutil to androiddump_LIBS instead?
 	set_extcap_executable_properties(androiddump)
@@ -116,6 +117,7 @@ if(BUILD_sshdump AND LIBSSH_FOUND)
 		ssh-base.c
 	)
 
+	set_executable_resources(sshdump "Sshdump")
 	add_executable(sshdump WIN32 ${sshdump_FILES})
 	set_extcap_executable_properties(sshdump)
 	target_link_libraries(sshdump ${sshdump_LIBS})
@@ -140,6 +142,7 @@ if(BUILD_ciscodump AND LIBSSH_FOUND)
 		ssh-base.c
 	)
 
+	set_executable_resources(ciscodump "Ciscodump")
 	add_executable(ciscodump WIN32 ${ciscodump_FILES})
 	set_extcap_executable_properties(ciscodump)
 	target_link_libraries(ciscodump ${ciscodump_LIBS})
@@ -163,6 +166,7 @@ if(BUILD_dpauxmon AND HAVE_LIBNL3)
 		extcap-base.c
 	)
 
+	set_executable_resources(dpauxmon "dpauxmon")
 	add_executable(dpauxmon WIN32 ${dpauxmon_FILES})
 	set_extcap_executable_properties(dpauxmon)
 	target_link_libraries(dpauxmon ${dpauxmon_LIBS})
@@ -185,6 +189,7 @@ if(BUILD_udpdump)
 		extcap-base.c
 	)
 
+	set_executable_resources(udpdump "udpdump")
 	add_executable(udpdump WIN32 ${udpdump_FILES})
 	set_extcap_executable_properties(udpdump)
 	target_link_libraries(udpdump ${udpdump_LIBS})
@@ -206,6 +211,7 @@ if(BUILD_randpktdump)
 		randpktdump.c
 	)
 
+	set_executable_resources(randpktdump "randpktdump")
 	add_executable(randpktdump WIN32 ${randpktdump_FILES})
 	# XXX Shouldn't we add wsutil to randpktdump_LIBS instead?
 	set_extcap_executable_properties(randpktdump)
@@ -230,6 +236,7 @@ if(BUILD_sdjournal AND SYSTEMD_FOUND)
 		sdjournal.c
 	)
 
+	set_executable_resources(sdjournal "sdjournal")
 	add_executable(sdjournal WIN32 ${sdjournal_FILES})
 	set_extcap_executable_properties(sdjournal)
 	target_link_libraries(sdjournal ${sdjournal_LIBS})

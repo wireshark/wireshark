@@ -1,4 +1,5 @@
 #include "winver.h"
+#pragma code_page(65001)
 
 WIRESHARK_ICON ICON "@ICON_PATH@wireshark.ico"
 
@@ -23,7 +24,7 @@ BEGIN
             VALUE "FileDescription", "TShark\0"
             VALUE "FileVersion", "@VERSION@\0"
             VALUE "InternalName", "TShark @VERSION@\0"
-            VALUE "LegalCopyright", "Copyright © 2000 Gerald Combs <gerald@wireshark.org>, Gilbert Ramirez <gram@alumni.rice.edu> and others\0"
+            VALUE "LegalCopyright", "Copyright Â© 2000 Gerald Combs <gerald@wireshark.org>, Gilbert Ramirez <gram@alumni.rice.edu> and others\0"
             VALUE "OriginalFilename", "TShark.exe\0"
             VALUE "ProductName", "TShark\0"
             VALUE "ProductVersion", "@VERSION@\0"
