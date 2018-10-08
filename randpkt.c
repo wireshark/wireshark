@@ -275,15 +275,12 @@ clean_exit:
 
 #ifdef _WIN32
 int
-wmain(int argc, wchar_t **argv)
+wmain(int argc, wchar_t **wc_argv)
 {
-	char **argv_utf8;
+	char **argv;
 
-	/* Convert our arg list from UTF-16LE to UTF-8. */
-	argv_utf8 = g_malloc(argc * sizeof *argv_utf8);
-	for (int i = 0; i < argc; i++)
-		argv_utf8[i] = g_utf16_to_utf8(argv[i], -1, NULL, NULL, NULL);
-	return real_main(argc, argv_utf8);
+	argv = arg_list_utf_16to8(argc, wc_argv);
+	return real_main(argc, argv);
 }
 #else
 int

@@ -76,6 +76,17 @@ void utf_8to16_snprintf(TCHAR *utf16buf, gint utf16buf_len, const gchar* fmt,
  */
 WS_DLL_PUBLIC
 gchar * utf_16to8(const wchar_t *utf16str);
+
+/** Convert the supplied program argument list from UTF-16 to UTF-8
+ * return a pointer to the array of UTF-8 arguments. This is intended
+ * to be used to normalize command line arguments at program startup.
+ *
+ * @param argc The number of arguments.
+ * @param argv The argument values (vector).
+ */
+WS_DLL_PUBLIC
+char ** arg_list_utf_16to8(int argc, wchar_t *wc_argv[]);
+
 #endif /* _WIN32 */
 
 /*
