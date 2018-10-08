@@ -1540,37 +1540,6 @@ else
 fi
 
 #
-# If we have <dlfcn.h>, check whether we have dladdr.
-#
-if test "$ac_cv_header_dlfcn_h" = "yes"
-then
-	#
-	# Use GLib compiler flags and linker flags; GLib's gmodule
-	# stuff uses the dl APIs if available, so it might know
-	# what flags are needed.
-	#
-	ac_save_CFLAGS="$CFLAGS"
-	ac_save_LIBS="$LIBS"
-	CFLAGS="$WS_CFLAGS $GLIB_CFLAGS $CFLAGS"
-	LIBS="$LIBS $GLIB_LIBS"
-	AC_CHECK_FUNCS(dladdr)
-	if test x$ac_cv_func_dladdr = xno
-	then
-		#
-		# OK, try it with -ldl, in case you need that to get
-		# dladdr().  For some reason, on Linux, that's not
-		# part of the GLib flags; perhaps GLib itself is
-		# linked with libdl, so that you can link with
-		# Glib and it'll pull libdl in itself.
-		#
-		LIBS="$LIBS -ldl"
-		AC_CHECK_FUNCS(dladdr)
-	fi
-	CFLAGS="$ac_save_CFLAGS"
-	LIBS="$ac_save_LIBS"
-fi
-
-#
 # Check whether GLib's printf supports thousands grouping. (This might
 # be different from the system's printf since GLib can optionally use
 # its own printf implementation.)
