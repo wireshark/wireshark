@@ -174,7 +174,6 @@ if(NOT CMAKE_INSTALL_RPATH AND NOT (WIN32 OR APPLE))
 	endif()
 endif()
 
-
 if(WIN32)
     # Linking with wsetargv.obj enables "wildcard expansion" of
     # command-line arguments.
@@ -1054,16 +1053,12 @@ foreach(PACKAGE ${PACKAGELIST})
 	endif()
 endforeach()
 
-# Provide Windows system lib names
-include( UseWinLibs )
-
 # dist target that prepares source dir
 # XXX Duplicated in the RPM section below.
 add_custom_target(dist
 	COMMAND ./tools/git-export-release.sh -d "${CMAKE_BINARY_DIR}"
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
-
 
 if(HAVE_LIBAIRPCAP)
 	set(HAVE_AIRPCAP 1)
@@ -1193,6 +1188,16 @@ endif()
 
 if(ENABLE_CHECKHF_CONFLICT)
 	set(ENABLE_CHECK_FILTER 1)
+endif()
+
+#
+# Platform-specific additional libraries.
+#
+if(WIN32)
+	set(WIN_PSAPI_LIBRARY    psapi.lib)
+	set(WIN_WSOCK32_LIBRARY  wsock32.lib)
+	set(WIN_COMCTL32_LIBRARY comctl32.lib )
+	set(WIN_VERSION_LIBRARY  version.lib)
 endif()
 
 if(APPLE)
