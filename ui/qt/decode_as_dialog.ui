@@ -65,7 +65,7 @@
      <item>
       <widget class="QToolButton" name="clearToolButton">
        <property name="toolTip">
-        <string>Clear all coloring rules.</string>
+        <string>Clear all dissection behaviors.</string>
        </property>
        <property name="icon">
         <iconset resource="../../image/stock_icons.qrc">
