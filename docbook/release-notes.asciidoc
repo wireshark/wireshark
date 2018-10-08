@@ -52,8 +52,9 @@ since version 2.6.0:
 * The SSL dissector has been renamed to TLS. As with BOOTP the old
   “ssl.*” display filter fields are supported but may be removed in a
   future release.
-* Coloring rules, IO graphs and protocol preference tables can now be copied
-  from other profiles using a button in the corresponding configuration dialogs.
+* Coloring rules, IO graphs, Filter Buttons and protocol preference tables
+  can now be copied from other profiles using a button in the corresponding
+  configuration dialogs.
 
 === Removed Features and Support
 
