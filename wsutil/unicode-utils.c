@@ -141,6 +141,20 @@ utf_16to8(const wchar_t *utf16str)
 
   return utf8buf[idx];
 }
+
+/* Convert our argument list from UTF-16 to UTF-8. */
+char **
+arg_list_utf_16to8(int argc, wchar_t *wc_argv[]) {
+  char               **argv;
+  int                  i;
+
+  argv = (char **) g_malloc(sizeof(char *) * argc);
+  for (i = 0; i < argc; i++) {
+    argv[i] = g_utf16_to_utf8(wc_argv[i], -1, NULL, NULL, NULL);
+  }
+  return argv;
+}
+
 #endif
 
 /*

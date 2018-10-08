@@ -357,7 +357,6 @@ int main(int argc, char *qt_argv[])
     MainWindow *main_w;
 
 #ifdef _WIN32
-    int                  opt;
     LPWSTR              *wc_argv;
     int                  wc_argc;
 #endif
@@ -420,13 +419,11 @@ int main(int argc, char *qt_argv[])
     // strings into UTF-8.
     //
     wc_argv = CommandLineToArgvW(GetCommandLineW(), &wc_argc);
-    if (wc_argv && wc_argc == argc) {
-        argv = (char **) g_malloc(sizeof(char *) * argc);
-        for (opt = 0; opt < argc; opt++) {
-            argv[opt] = g_utf16_to_utf8((const gunichar2 *)wc_argv[opt], -1, NULL, NULL, NULL);
-        }
+    if (wc_argv) {
+        argc = wc_argc;
+        argv = arg_list_utf_16to8(wc_argc, wc_argv);
+        LocalFree(wc_argv);
     } /* XXX else bail because something is horribly, horribly wrong? */
-    LocalFree(wc_argv);
 
     create_app_running_mutex();
 #endif /* _WIN32 */
