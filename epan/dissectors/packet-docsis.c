@@ -659,11 +659,11 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
     case FCTYPE_MACSPC:
       if (fcparm == FCPARM_RQST_FRM)
         col_add_fstr (pinfo->cinfo, COL_INFO,
-                      "Request Frame SID = %u Mini Slots = %u", len_sid,
+                      "Request Frame SID=%u Mini Slots=%u", len_sid,
                       mac_parm);
       else if (fcparm == FCPARM_QUEUE_DEPTH_REQ_FRM)
         col_add_fstr (pinfo->cinfo, COL_INFO,
-                      "Request Frame SID = %u Bytes Requested = %u", len_sid,
+                      "Request Frame SID=%u, Requested Size=%uxN bytes", len_sid,
                       mac_parm);
       else if (fcparm == FCPARM_FRAG_HDR)
         col_set_str (pinfo->cinfo, COL_INFO, "Fragmented Frame");
@@ -995,7 +995,7 @@ proto_register_docsis (void)
       "Mini Slots Requested", HFILL}
     },
     {&hf_docsis_requested_size,
-     {"Bytes Requested", "docsis.ehdr.reqsize",
+     {"Requested bytes in units of N bytes, N a parameter of the service flow for which this request is being made", "docsis.ehdr.reqsize",
       FT_UINT16, BASE_DEC, NULL, 0xFFFF,
       NULL, HFILL}
     },
