@@ -544,6 +544,7 @@ sharkd_dissect_request(guint32 framenum, guint32 frame_ref_num, guint32 prev_dis
   ws_buffer_init(&buf, 1500);
 
   if (!wtap_seek_read(cfile.provider.wth, fdata->file_off, &rec, &buf, &err, &err_info)) {
+    wtap_rec_cleanup(&rec);
     ws_buffer_free(&buf);
     return -1; /* error reading the record */
   }
@@ -604,6 +605,7 @@ sharkd_dissect_columns(frame_data *fdata, guint32 frame_ref_num, guint32 prev_di
 
   if (!wtap_seek_read(cfile.provider.wth, fdata->file_off, &rec, &buf, &err, &err_info)) {
     col_fill_in_error(cinfo, fdata, FALSE, FALSE /* fill_fd_columns */);
+    wtap_rec_cleanup(&rec);
     ws_buffer_free(&buf);
     return -1; /* error reading the record */
   }
