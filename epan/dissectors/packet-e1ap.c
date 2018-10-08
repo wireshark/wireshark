@@ -16,7 +16,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 38.463 V15.0.0 (2018-06)
+ * References: 3GPP TS 38.463 V15.1.0 (2018-09)
  */
 
 #include "config.h"
@@ -60,6 +60,7 @@ void proto_reg_handoff_e1ap(void);
 #define maxnoofUPParameters            4
 #define maxnoofCellGroups              4
 #define maxnooftimeperiods             2
+#define maxnoofTNLAssociations         32
 
 typedef enum _ProcedureCode_enum {
   id_reset     =   0,
@@ -77,7 +78,8 @@ typedef enum _ProcedureCode_enum {
   id_bearerContextReleaseRequest =  12,
   id_bearerContextInactivityNotification =  13,
   id_dLDataNotification =  14,
-  id_dataUsageReport =  15
+  id_dataUsageReport =  15,
+  id_gNB_CU_UP_CounterCheck =  16
 } ProcedureCode_enum;
 
 typedef enum _ProtocolIE_ID_enum {
@@ -93,22 +95,57 @@ typedef enum _ProtocolIE_ID_enum {
   id_gNB_CU_CP_Name =   9,
   id_CNSupport =  10,
   id_SupportedPLMNs =  11,
-  id_SupportedPLMNs_Item =  12,
-  id_TimeToWait =  13,
-  id_SecurityInformation =  14,
-  id_UEDLAggregateMaximumBitRate =  15,
-  id_System_BearerContextSetupRequest =  16,
-  id_System_BearerContextSetupResponse =  17,
-  id_BearerContextStatusChange =  18,
-  id_System_BearerContextModificationRequest =  19,
-  id_System_BearerContextModificationResponse =  20,
-  id_System_BearerContextModificationConfirm =  21,
-  id_System_BearerContextModificationRequired =  22,
-  id_DRB_Status_List =  23,
-  id_DRB_Status_Item =  24,
-  id_DRB_Activity_List =  25,
-  id_DRB_Activity_Item =  26,
-  id_Data_Usage_Report_List =  27
+  id_TimeToWait =  12,
+  id_SecurityInformation =  13,
+  id_UEDLAggregateMaximumBitRate =  14,
+  id_System_BearerContextSetupRequest =  15,
+  id_System_BearerContextSetupResponse =  16,
+  id_BearerContextStatusChange =  17,
+  id_System_BearerContextModificationRequest =  18,
+  id_System_BearerContextModificationResponse =  19,
+  id_System_BearerContextModificationConfirm =  20,
+  id_System_BearerContextModificationRequired =  21,
+  id_DRB_Status_List =  22,
+  id_ActivityNotificationLevel =  23,
+  id_ActivityInformation =  24,
+  id_Data_Usage_Report_List =  25,
+  id_New_UL_TNL_Information_Required =  26,
+  id_GNB_CU_CP_TNLA_To_Add_List =  27,
+  id_GNB_CU_CP_TNLA_To_Remove_List =  28,
+  id_GNB_CU_CP_TNLA_To_Update_List =  29,
+  id_GNB_CU_CP_TNLA_Setup_List =  30,
+  id_GNB_CU_CP_TNLA_Failed_To_Setup_List =  31,
+  id_DRB_To_Setup_List_EUTRAN =  32,
+  id_DRB_To_Modify_List_EUTRAN =  33,
+  id_DRB_To_Remove_List_EUTRAN =  34,
+  id_DRB_Required_To_Modify_List_EUTRAN =  35,
+  id_DRB_Required_To_Remove_List_EUTRAN =  36,
+  id_DRB_Setup_List_EUTRAN =  37,
+  id_DRB_Failed_List_EUTRAN =  38,
+  id_DRB_Modified_List_EUTRAN =  39,
+  id_DRB_Failed_To_Modify_List_EUTRAN =  40,
+  id_DRB_Confirm_Modified_List_EUTRAN =  41,
+  id_PDU_Session_Resource_To_Setup_List =  42,
+  id_PDU_Session_Resource_To_Modify_List =  43,
+  id_PDU_Session_Resource_To_Remove_List =  44,
+  id_PDU_Session_Resource_Required_To_Modify_List =  45,
+  id_PDU_Session_Resource_Setup_List =  46,
+  id_PDU_Session_Resource_Failed_List =  47,
+  id_PDU_Session_Resource_Modified_List =  48,
+  id_PDU_Session_Resource_Failed_To_Modify_List =  49,
+  id_PDU_Session_Resource_Confirm_Modified_List =  50,
+  id_DRB_To_Setup_Mod_List_EUTRAN =  51,
+  id_DRB_Setup_Mod_List_EUTRAN =  52,
+  id_DRB_Failed_Mod_List_EUTRAN =  53,
+  id_PDU_Session_Resource_Setup_Mod_List =  54,
+  id_PDU_Session_Resource_Failed_Mod_List =  55,
+  id_PDU_Session_Resource_To_Setup_Mod_List =  56,
+  id_TransactionID =  57,
+  id_Serving_PLMN =  58,
+  id_UE_Inactivity_Timer =  59,
+  id_System_GNB_CU_UP_CounterCheckRequest =  60,
+  id_DRBs_Subject_To_Counter_Check_List_EUTRAN =  61,
+  id_DRBs_Subject_To_Counter_Check_List_NG_RAN =  62
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-e1ap-val.h ---*/
@@ -122,21 +159,52 @@ static int hf_e1ap_transportLayerAddressIPv6 = -1;
 
 /*--- Included file: packet-e1ap-hf.c ---*/
 #line 1 "./asn1/e1ap/packet-e1ap-hf.c"
+static int hf_e1ap_ActivityInformation_PDU = -1;  /* ActivityInformation */
+static int hf_e1ap_ActivityNotificationLevel_PDU = -1;  /* ActivityNotificationLevel */
 static int hf_e1ap_BearerContextStatusChange_PDU = -1;  /* BearerContextStatusChange */
 static int hf_e1ap_BitRate_PDU = -1;              /* BitRate */
 static int hf_e1ap_Cause_PDU = -1;                /* Cause */
 static int hf_e1ap_CNSupport_PDU = -1;            /* CNSupport */
 static int hf_e1ap_CriticalityDiagnostics_PDU = -1;  /* CriticalityDiagnostics */
 static int hf_e1ap_Data_Usage_Report_List_PDU = -1;  /* Data_Usage_Report_List */
-static int hf_e1ap_DRB_Activity_Item_PDU = -1;    /* DRB_Activity_Item */
-static int hf_e1ap_DRB_Status_Item_PDU = -1;      /* DRB_Status_Item */
+static int hf_e1ap_DRB_Confirm_Modified_List_EUTRAN_PDU = -1;  /* DRB_Confirm_Modified_List_EUTRAN */
+static int hf_e1ap_DRB_Failed_List_EUTRAN_PDU = -1;  /* DRB_Failed_List_EUTRAN */
+static int hf_e1ap_DRB_Failed_Mod_List_EUTRAN_PDU = -1;  /* DRB_Failed_Mod_List_EUTRAN */
+static int hf_e1ap_DRB_Failed_To_Modify_List_EUTRAN_PDU = -1;  /* DRB_Failed_To_Modify_List_EUTRAN */
+static int hf_e1ap_DRB_Modified_List_EUTRAN_PDU = -1;  /* DRB_Modified_List_EUTRAN */
+static int hf_e1ap_DRB_Required_To_Modify_List_EUTRAN_PDU = -1;  /* DRB_Required_To_Modify_List_EUTRAN */
+static int hf_e1ap_DRB_Setup_List_EUTRAN_PDU = -1;  /* DRB_Setup_List_EUTRAN */
+static int hf_e1ap_DRB_Setup_Mod_List_EUTRAN_PDU = -1;  /* DRB_Setup_Mod_List_EUTRAN */
+static int hf_e1ap_DRBs_Subject_To_Counter_Check_List_EUTRAN_PDU = -1;  /* DRBs_Subject_To_Counter_Check_List_EUTRAN */
+static int hf_e1ap_DRBs_Subject_To_Counter_Check_List_NG_RAN_PDU = -1;  /* DRBs_Subject_To_Counter_Check_List_NG_RAN */
+static int hf_e1ap_DRB_To_Modify_List_EUTRAN_PDU = -1;  /* DRB_To_Modify_List_EUTRAN */
+static int hf_e1ap_DRB_To_Remove_List_EUTRAN_PDU = -1;  /* DRB_To_Remove_List_EUTRAN */
+static int hf_e1ap_DRB_Required_To_Remove_List_EUTRAN_PDU = -1;  /* DRB_Required_To_Remove_List_EUTRAN */
+static int hf_e1ap_DRB_To_Setup_List_EUTRAN_PDU = -1;  /* DRB_To_Setup_List_EUTRAN */
+static int hf_e1ap_DRB_To_Setup_Mod_List_EUTRAN_PDU = -1;  /* DRB_To_Setup_Mod_List_EUTRAN */
 static int hf_e1ap_GNB_CU_CP_Name_PDU = -1;       /* GNB_CU_CP_Name */
 static int hf_e1ap_GNB_CU_CP_UE_E1AP_ID_PDU = -1;  /* GNB_CU_CP_UE_E1AP_ID */
 static int hf_e1ap_GNB_CU_UP_ID_PDU = -1;         /* GNB_CU_UP_ID */
 static int hf_e1ap_GNB_CU_UP_Name_PDU = -1;       /* GNB_CU_UP_Name */
 static int hf_e1ap_GNB_CU_UP_UE_E1AP_ID_PDU = -1;  /* GNB_CU_UP_UE_E1AP_ID */
+static int hf_e1ap_Inactivity_Timer_PDU = -1;     /* Inactivity_Timer */
+static int hf_e1ap_New_UL_TNL_Information_Required_PDU = -1;  /* New_UL_TNL_Information_Required */
+static int hf_e1ap_PDU_Session_Resource_Confirm_Modified_List_PDU = -1;  /* PDU_Session_Resource_Confirm_Modified_List */
+static int hf_e1ap_PDU_Session_Resource_Failed_List_PDU = -1;  /* PDU_Session_Resource_Failed_List */
+static int hf_e1ap_PDU_Session_Resource_Failed_Mod_List_PDU = -1;  /* PDU_Session_Resource_Failed_Mod_List */
+static int hf_e1ap_PDU_Session_Resource_Failed_To_Modify_List_PDU = -1;  /* PDU_Session_Resource_Failed_To_Modify_List */
+static int hf_e1ap_PDU_Session_Resource_Modified_List_PDU = -1;  /* PDU_Session_Resource_Modified_List */
+static int hf_e1ap_PDU_Session_Resource_Required_To_Modify_List_PDU = -1;  /* PDU_Session_Resource_Required_To_Modify_List */
+static int hf_e1ap_PDU_Session_Resource_Setup_List_PDU = -1;  /* PDU_Session_Resource_Setup_List */
+static int hf_e1ap_PDU_Session_Resource_Setup_Mod_List_PDU = -1;  /* PDU_Session_Resource_Setup_Mod_List */
+static int hf_e1ap_PDU_Session_Resource_To_Modify_List_PDU = -1;  /* PDU_Session_Resource_To_Modify_List */
+static int hf_e1ap_PDU_Session_Resource_To_Remove_List_PDU = -1;  /* PDU_Session_Resource_To_Remove_List */
+static int hf_e1ap_PDU_Session_Resource_To_Setup_List_PDU = -1;  /* PDU_Session_Resource_To_Setup_List */
+static int hf_e1ap_PDU_Session_Resource_To_Setup_Mod_List_PDU = -1;  /* PDU_Session_Resource_To_Setup_Mod_List */
+static int hf_e1ap_PLMN_Identity_PDU = -1;        /* PLMN_Identity */
 static int hf_e1ap_SecurityInformation_PDU = -1;  /* SecurityInformation */
 static int hf_e1ap_TimeToWait_PDU = -1;           /* TimeToWait */
+static int hf_e1ap_TransactionID_PDU = -1;        /* TransactionID */
 static int hf_e1ap_UE_associatedLogicalE1_ConnectionItem_PDU = -1;  /* UE_associatedLogicalE1_ConnectionItem */
 static int hf_e1ap_Reset_PDU = -1;                /* Reset */
 static int hf_e1ap_ResetType_PDU = -1;            /* ResetType */
@@ -145,7 +213,6 @@ static int hf_e1ap_UE_associatedLogicalE1_ConnectionListResAck_PDU = -1;  /* UE_
 static int hf_e1ap_ErrorIndication_PDU = -1;      /* ErrorIndication */
 static int hf_e1ap_GNB_CU_UP_E1SetupRequest_PDU = -1;  /* GNB_CU_UP_E1SetupRequest */
 static int hf_e1ap_SupportedPLMNs_List_PDU = -1;  /* SupportedPLMNs_List */
-static int hf_e1ap_SupportedPLMNs_Item_PDU = -1;  /* SupportedPLMNs_Item */
 static int hf_e1ap_GNB_CU_UP_E1SetupResponse_PDU = -1;  /* GNB_CU_UP_E1SetupResponse */
 static int hf_e1ap_GNB_CU_UP_E1SetupFailure_PDU = -1;  /* GNB_CU_UP_E1SetupFailure */
 static int hf_e1ap_GNB_CU_CP_E1SetupRequest_PDU = -1;  /* GNB_CU_CP_E1SetupRequest */
@@ -155,7 +222,12 @@ static int hf_e1ap_GNB_CU_UP_ConfigurationUpdate_PDU = -1;  /* GNB_CU_UP_Configu
 static int hf_e1ap_GNB_CU_UP_ConfigurationUpdateAcknowledge_PDU = -1;  /* GNB_CU_UP_ConfigurationUpdateAcknowledge */
 static int hf_e1ap_GNB_CU_UP_ConfigurationUpdateFailure_PDU = -1;  /* GNB_CU_UP_ConfigurationUpdateFailure */
 static int hf_e1ap_GNB_CU_CP_ConfigurationUpdate_PDU = -1;  /* GNB_CU_CP_ConfigurationUpdate */
+static int hf_e1ap_GNB_CU_CP_TNLA_To_Add_List_PDU = -1;  /* GNB_CU_CP_TNLA_To_Add_List */
+static int hf_e1ap_GNB_CU_CP_TNLA_To_Remove_List_PDU = -1;  /* GNB_CU_CP_TNLA_To_Remove_List */
+static int hf_e1ap_GNB_CU_CP_TNLA_To_Update_List_PDU = -1;  /* GNB_CU_CP_TNLA_To_Update_List */
 static int hf_e1ap_GNB_CU_CP_ConfigurationUpdateAcknowledge_PDU = -1;  /* GNB_CU_CP_ConfigurationUpdateAcknowledge */
+static int hf_e1ap_GNB_CU_CP_TNLA_Setup_List_PDU = -1;  /* GNB_CU_CP_TNLA_Setup_List */
+static int hf_e1ap_GNB_CU_CP_TNLA_Failed_To_Setup_List_PDU = -1;  /* GNB_CU_CP_TNLA_Failed_To_Setup_List */
 static int hf_e1ap_GNB_CU_CP_ConfigurationUpdateFailure_PDU = -1;  /* GNB_CU_CP_ConfigurationUpdateFailure */
 static int hf_e1ap_E1ReleaseRequest_PDU = -1;     /* E1ReleaseRequest */
 static int hf_e1ap_E1ReleaseResponse_PDU = -1;    /* E1ReleaseResponse */
@@ -178,9 +250,10 @@ static int hf_e1ap_BearerContextReleaseComplete_PDU = -1;  /* BearerContextRelea
 static int hf_e1ap_BearerContextReleaseRequest_PDU = -1;  /* BearerContextReleaseRequest */
 static int hf_e1ap_DRB_Status_List_PDU = -1;      /* DRB_Status_List */
 static int hf_e1ap_BearerContextInactivityNotification_PDU = -1;  /* BearerContextInactivityNotification */
-static int hf_e1ap_DRB_Activity_List_PDU = -1;    /* DRB_Activity_List */
 static int hf_e1ap_DLDataNotification_PDU = -1;   /* DLDataNotification */
 static int hf_e1ap_DataUsageReport_PDU = -1;      /* DataUsageReport */
+static int hf_e1ap_GNB_CU_UP_CounterCheckRequest_PDU = -1;  /* GNB_CU_UP_CounterCheckRequest */
+static int hf_e1ap_System_GNB_CU_UP_CounterCheckRequest_PDU = -1;  /* System_GNB_CU_UP_CounterCheckRequest */
 static int hf_e1ap_PrivateMessage_PDU = -1;       /* PrivateMessage */
 static int hf_e1ap_E1AP_PDU_PDU = -1;             /* E1AP_PDU */
 static int hf_e1ap_local = -1;                    /* INTEGER_0_maxPrivateIEs */
@@ -195,6 +268,10 @@ static int hf_e1ap_extensionValue = -1;           /* T_extensionValue */
 static int hf_e1ap_PrivateIE_Container_item = -1;  /* PrivateIE_Field */
 static int hf_e1ap_private_id = -1;               /* PrivateIE_ID */
 static int hf_e1ap_value = -1;                    /* T_value */
+static int hf_e1ap_dRB_Activity_List = -1;        /* DRB_Activity_List */
+static int hf_e1ap_pDU_Session_Resource_Activity_List = -1;  /* PDU_Session_Resource_Activity_List */
+static int hf_e1ap_uE_Activity = -1;              /* UE_Activity */
+static int hf_e1ap_choice_extension = -1;         /* ProtocolIE_SingleContainer */
 static int hf_e1ap_radioNetwork = -1;             /* CauseRadioNetwork */
 static int hf_e1ap_transport = -1;                /* CauseTransport */
 static int hf_e1ap_protocol = -1;                 /* CauseProtocol */
@@ -205,9 +282,11 @@ static int hf_e1ap_uL_Configuration = -1;         /* UL_Configuration */
 static int hf_e1ap_dL_TX_Stop = -1;               /* DL_TX_Stop */
 static int hf_e1ap_rAT_Type = -1;                 /* RAT_Type */
 static int hf_e1ap_iE_Extensions = -1;            /* ProtocolExtensionContainer */
+static int hf_e1ap_endpoint_IP_Address = -1;      /* TransportLayerAddress */
 static int hf_e1ap_procedureCode = -1;            /* ProcedureCode */
 static int hf_e1ap_triggeringMessage = -1;        /* TriggeringMessage */
 static int hf_e1ap_procedureCriticality = -1;     /* Criticality */
+static int hf_e1ap_transactionID = -1;            /* TransactionID */
 static int hf_e1ap_iEsCriticalityDiagnostics = -1;  /* CriticalityDiagnostics_IE_List */
 static int hf_e1ap_CriticalityDiagnostics_IE_List_item = -1;  /* CriticalityDiagnostics_IE_List_item */
 static int hf_e1ap_iECriticality = -1;            /* Criticality */
@@ -216,19 +295,24 @@ static int hf_e1ap_typeOfError = -1;              /* TypeOfError */
 static int hf_e1ap_data_Forwarding_Request = -1;  /* Data_Forwarding_Request */
 static int hf_e1ap_uL_Data_Forwarding = -1;       /* UP_TNL_Information */
 static int hf_e1ap_dL_Data_Forwarding = -1;       /* UP_TNL_Information */
+static int hf_e1ap_qoS_Flow_List_PDU_Session_DL_Forwarding = -1;  /* QoS_Flow_List */
 static int hf_e1ap_Data_Usage_Report_List_item = -1;  /* Data_Usage_Report_Item */
 static int hf_e1ap_dRB_ID = -1;                   /* DRB_ID */
 static int hf_e1ap_dRB_Usage_Report_List = -1;    /* DRB_Usage_Report_List */
-static int hf_e1ap_dRB_Activity = -1;             /* DRB_Acivity */
+static int hf_e1ap_DRB_Activity_List_item = -1;   /* DRB_Activity_Item */
+static int hf_e1ap_dRB_Activity = -1;             /* DRB_Activity */
 static int hf_e1ap_DRB_Confirm_Modified_List_EUTRAN_item = -1;  /* DRB_Confirm_Modified_Item_EUTRAN */
 static int hf_e1ap_cell_Group_Information = -1;   /* Cell_Group_Information */
 static int hf_e1ap_DRB_Confirm_Modified_List_NG_RAN_item = -1;  /* DRB_Confirm_Modified_Item_NG_RAN */
 static int hf_e1ap_DRB_Failed_List_EUTRAN_item = -1;  /* DRB_Failed_Item_EUTRAN */
 static int hf_e1ap_cause = -1;                    /* Cause */
+static int hf_e1ap_DRB_Failed_Mod_List_EUTRAN_item = -1;  /* DRB_Failed_Mod_Item_EUTRAN */
 static int hf_e1ap_DRB_Failed_List_NG_RAN_item = -1;  /* DRB_Failed_Item_NG_RAN */
+static int hf_e1ap_DRB_Failed_Mod_List_NG_RAN_item = -1;  /* DRB_Failed_Mod_Item_NG_RAN */
 static int hf_e1ap_DRB_Failed_To_Modify_List_EUTRAN_item = -1;  /* DRB_Failed_To_Modify_Item_EUTRAN */
 static int hf_e1ap_DRB_Failed_To_Modify_List_NG_RAN_item = -1;  /* DRB_Failed_To_Modify_Item_NG_RAN */
 static int hf_e1ap_DRB_Modified_List_EUTRAN_item = -1;  /* DRB_Modified_Item_EUTRAN */
+static int hf_e1ap_s1_DL_UP_TNL_Information = -1;  /* UP_TNL_Information */
 static int hf_e1ap_pDCP_UL_Count = -1;            /* PDCP_Count */
 static int hf_e1ap_pDCP_DL_Count = -1;            /* PDCP_Count */
 static int hf_e1ap_uL_UP_Transport_Parameters = -1;  /* UP_Parameters */
@@ -236,14 +320,18 @@ static int hf_e1ap_DRB_Modified_List_NG_RAN_item = -1;  /* DRB_Modified_Item_NG_
 static int hf_e1ap_flow_Setup_List = -1;          /* QoS_Flow_List */
 static int hf_e1ap_flow_Failed_List = -1;         /* QoS_Flow_Failed_List */
 static int hf_e1ap_DRB_Required_To_Modify_List_EUTRAN_item = -1;  /* DRB_Required_To_Modify_Item_EUTRAN */
-static int hf_e1ap_s1_DL_UP_TNL_Information = -1;  /* UP_TNL_Information */
 static int hf_e1ap_data_Forwarding_Information_Response = -1;  /* Data_Forwarding_Information_Response */
 static int hf_e1ap_gNB_CU_UP_CellGroupRelatedConfiguration = -1;  /* GNB_CU_UP_CellGroupRelatedConfiguration */
 static int hf_e1ap_DRB_Required_To_Modify_List_NG_RAN_item = -1;  /* DRB_Required_To_Modify_Item_NG_RAN */
 static int hf_e1ap_flow_To_Remove = -1;           /* QoS_Flow_List */
 static int hf_e1ap_DRB_Setup_List_EUTRAN_item = -1;  /* DRB_Setup_Item_EUTRAN */
+static int hf_e1ap_DRB_Setup_Mod_List_EUTRAN_item = -1;  /* DRB_Setup_Mod_Item_EUTRAN */
 static int hf_e1ap_DRB_Setup_List_NG_RAN_item = -1;  /* DRB_Setup_Item_NG_RAN */
 static int hf_e1ap_dRB_data_Forwarding_Information_Response = -1;  /* Data_Forwarding_Information_Response */
+static int hf_e1ap_DRB_Setup_Mod_List_NG_RAN_item = -1;  /* DRB_Setup_Mod_Item_NG_RAN */
+static int hf_e1ap_DRBs_Subject_To_Counter_Check_List_EUTRAN_item = -1;  /* DRBs_Subject_To_Counter_Check_Item_EUTRAN */
+static int hf_e1ap_DRBs_Subject_To_Counter_Check_List_NG_RAN_item = -1;  /* DRBs_Subject_To_Counter_Check_Item_NG_RAN */
+static int hf_e1ap_pDU_Session_ID = -1;           /* PDU_Session_ID */
 static int hf_e1ap_DRB_To_Modify_List_EUTRAN_item = -1;  /* DRB_To_Modify_Item_EUTRAN */
 static int hf_e1ap_pDCP_Configuration = -1;       /* PDCP_Configuration */
 static int hf_e1ap_eUTRAN_QoS = -1;               /* EUTRAN_QoS */
@@ -254,22 +342,28 @@ static int hf_e1ap_dL_UP_Parameters = -1;         /* UP_Parameters */
 static int hf_e1ap_cell_Group_To_Add = -1;        /* Cell_Group_Information */
 static int hf_e1ap_cell_Group_To_Modify = -1;     /* Cell_Group_Information */
 static int hf_e1ap_cell_Group_To_Remove = -1;     /* Cell_Group_Information */
+static int hf_e1ap_dRB_Inactivity_Timer = -1;     /* Inactivity_Timer */
 static int hf_e1ap_DRB_To_Modify_List_NG_RAN_item = -1;  /* DRB_To_Modify_Item_NG_RAN */
 static int hf_e1ap_sDAP_Configuration = -1;       /* SDAP_Configuration */
 static int hf_e1ap_dRB_Data_Forwarding_Information_Request = -1;  /* Data_Forwarding_Information_Request */
 static int hf_e1ap_flow_Mapping_Information = -1;  /* QoS_Flow_QoS_Parameter_List */
 static int hf_e1ap_DRB_To_Remove_List_EUTRAN_item = -1;  /* DRB_To_Remove_Item_EUTRAN */
+static int hf_e1ap_DRB_Required_To_Remove_List_EUTRAN_item = -1;  /* DRB_Required_To_Remove_Item_EUTRAN */
 static int hf_e1ap_DRB_To_Remove_List_NG_RAN_item = -1;  /* DRB_To_Remove_Item_NG_RAN */
+static int hf_e1ap_DRB_Required_To_Remove_List_NG_RAN_item = -1;  /* DRB_Required_To_Remove_Item_NG_RAN */
 static int hf_e1ap_DRB_To_Setup_List_EUTRAN_item = -1;  /* DRB_To_Setup_Item_EUTRAN */
+static int hf_e1ap_DRB_To_Setup_Mod_List_EUTRAN_item = -1;  /* DRB_To_Setup_Mod_Item_EUTRAN */
 static int hf_e1ap_DRB_To_Setup_List_NG_RAN_item = -1;  /* DRB_To_Setup_Item_NG_RAN */
+static int hf_e1ap_DRB_To_Setup_Mod_List_NG_RAN_item = -1;  /* DRB_To_Setup_Mod_Item_NG_RAN */
 static int hf_e1ap_DRB_Usage_Report_List_item = -1;  /* DRB_Usage_Report_Item */
 static int hf_e1ap_startTimeStamp = -1;           /* T_startTimeStamp */
 static int hf_e1ap_endTimeStamp = -1;             /* T_endTimeStamp */
 static int hf_e1ap_usageCountUL = -1;             /* INTEGER_0_18446744073709551615 */
 static int hf_e1ap_usageCountDL = -1;             /* INTEGER_0_18446744073709551615 */
-static int hf_e1ap_qoSPriorityLevel = -1;         /* INTEGER_1_127 */
+static int hf_e1ap_qoSPriorityLevel = -1;         /* QoSPriorityLevel */
 static int hf_e1ap_packetDelayBudget = -1;        /* PacketDelayBudget */
 static int hf_e1ap_packetErrorRate = -1;          /* PacketErrorRate */
+static int hf_e1ap_fiveQI = -1;                   /* INTEGER_0_255_ */
 static int hf_e1ap_delayCritical = -1;            /* T_delayCritical */
 static int hf_e1ap_averagingWindow = -1;          /* AveragingWindow */
 static int hf_e1ap_maxDataBurstVolume = -1;       /* MaxDataBurstVolume */
@@ -282,6 +376,8 @@ static int hf_e1ap_eUTRANallocationAndRetentionPriority = -1;  /* EUTRANAllocati
 static int hf_e1ap_gbrQosInformation = -1;        /* GBR_QosInformation */
 static int hf_e1ap_GNB_CU_UP_CellGroupRelatedConfiguration_item = -1;  /* GNB_CU_UP_CellGroupRelatedConfiguration_Item */
 static int hf_e1ap_uP_TNL_Information = -1;       /* UP_TNL_Information */
+static int hf_e1ap_tNLAssociationTransportLayerAddress = -1;  /* CP_TNL_Information */
+static int hf_e1ap_tNLAssociationUsage = -1;      /* TNLAssociationUsage */
 static int hf_e1ap_e_RAB_MaximumBitrateDL = -1;   /* BitRate */
 static int hf_e1ap_e_RAB_MaximumBitrateUL = -1;   /* BitRate */
 static int hf_e1ap_e_RAB_GuaranteedBitrateDL = -1;  /* BitRate */
@@ -297,12 +393,12 @@ static int hf_e1ap_transportLayerAddress = -1;    /* TransportLayerAddress */
 static int hf_e1ap_gTP_TEID = -1;                 /* GTP_TEID */
 static int hf_e1ap_NG_RAN_QoS_Support_List_item = -1;  /* NG_RAN_QoS_Support_Item */
 static int hf_e1ap_non_Dynamic5QIDescriptor = -1;  /* Non_Dynamic5QIDescriptor */
-static int hf_e1ap_fiveQI = -1;                   /* INTEGER_0_255_ */
-static int hf_e1ap_qoSPriorityLevel_01 = -1;      /* INTEGER_1_127_ */
 static int hf_e1ap_pLMN_Identity = -1;            /* PLMN_Identity */
 static int hf_e1ap_nR_Cell_Identity = -1;         /* NR_Cell_Identity */
 static int hf_e1ap_NR_CGI_Support_List_item = -1;  /* NR_CGI_Support_Item */
 static int hf_e1ap_nR_CGI = -1;                   /* NR_CGI */
+static int hf_e1ap_pER_Scalar = -1;               /* PER_Scalar */
+static int hf_e1ap_pER_Exponent = -1;             /* PER_Exponent */
 static int hf_e1ap_pDCP_SN_Size = -1;             /* PDCP_SN_Size */
 static int hf_e1ap_rLC_Mode = -1;                 /* RLC_Mode */
 static int hf_e1ap_rOHC_Parameters = -1;          /* ROHC_Parameters */
@@ -310,36 +406,49 @@ static int hf_e1ap_t_ReorderingTimer = -1;        /* T_ReorderingTimer */
 static int hf_e1ap_discardTimer = -1;             /* DiscardTimer */
 static int hf_e1ap_uLDataSplitThreshold = -1;     /* ULDataSplitThreshold */
 static int hf_e1ap_pDCP_Duplication = -1;         /* PDCP_Duplication */
+static int hf_e1ap_pDCP_Reestablishment = -1;     /* PDCP_Reestablishment */
+static int hf_e1ap_pDCP_DataRecovery = -1;        /* PDCP_DataRecovery */
 static int hf_e1ap_pDCP_SN = -1;                  /* PDCP_SN */
 static int hf_e1ap_hFN = -1;                      /* HFN */
+static int hf_e1ap_PDU_Session_Resource_Activity_List_item = -1;  /* PDU_Session_Resource_Activity_Item */
+static int hf_e1ap_pDU_Session_Resource_Activity = -1;  /* PDU_Session_Resource_Activity */
 static int hf_e1ap_PDU_Session_Resource_Confirm_Modified_List_item = -1;  /* PDU_Session_Resource_Confirm_Modified_Item */
-static int hf_e1ap_pDU_Session_ID = -1;           /* PDU_Session_ID */
 static int hf_e1ap_dRB_Confirm_Modified_List_NG_RAN = -1;  /* DRB_Confirm_Modified_List_NG_RAN */
 static int hf_e1ap_PDU_Session_Resource_Failed_List_item = -1;  /* PDU_Session_Resource_Failed_Item */
 static int hf_e1ap_casue = -1;                    /* Cause */
+static int hf_e1ap_PDU_Session_Resource_Failed_Mod_List_item = -1;  /* PDU_Session_Resource_Failed_Mod_Item */
 static int hf_e1ap_PDU_Session_Resource_Failed_To_Modify_List_item = -1;  /* PDU_Session_Resource_Failed_To_Modify_Item */
 static int hf_e1ap_PDU_Session_Resource_Modified_List_item = -1;  /* PDU_Session_Resource_Modified_Item */
+static int hf_e1ap_nG_DL_UP_TNL_Information = -1;  /* UP_TNL_Information */
+static int hf_e1ap_securityResult = -1;           /* SecurityResult */
 static int hf_e1ap_dRB_Setup_List_NG_RAN = -1;    /* DRB_Setup_List_NG_RAN */
 static int hf_e1ap_dRB_Failed_List_NG_RAN = -1;   /* DRB_Failed_List_NG_RAN */
 static int hf_e1ap_dRB_Modified_List_NG_RAN = -1;  /* DRB_Modified_List_NG_RAN */
 static int hf_e1ap_dRB_Failed_To_Modify_List_NG_RAN = -1;  /* DRB_Failed_To_Modify_List_NG_RAN */
 static int hf_e1ap_dRB_To_Remove_List_NG_RAN = -1;  /* DRB_To_Remove_List_NG_RAN */
 static int hf_e1ap_PDU_Session_Resource_Required_To_Modify_List_item = -1;  /* PDU_Session_Resource_Required_To_Modify_Item */
-static int hf_e1ap_nG_DL_UP_TNL_Information = -1;  /* UP_TNL_Information */
 static int hf_e1ap_pDU_Session_Data_Forwarding_Information_Response = -1;  /* Data_Forwarding_Information_Response */
 static int hf_e1ap_dRB_Required_To_Modify_List_NG_RAN = -1;  /* DRB_Required_To_Modify_List_NG_RAN */
 static int hf_e1ap_PDU_Session_Resource_Setup_List_item = -1;  /* PDU_Session_Resource_Setup_Item */
+static int hf_e1ap_PDU_Session_Resource_Setup_Mod_List_item = -1;  /* PDU_Session_Resource_Setup_Mod_Item */
+static int hf_e1ap_dRB_Setup_Mod_List_NG_RAN = -1;  /* DRB_Setup_Mod_List_NG_RAN */
+static int hf_e1ap_dRB_Failed_Mod_List_NG_RAN = -1;  /* DRB_Failed_Mod_List_NG_RAN */
 static int hf_e1ap_PDU_Session_Resource_To_Modify_List_item = -1;  /* PDU_Session_Resource_To_Modify_Item */
 static int hf_e1ap_pDU_Session_Type = -1;         /* PDU_Session_Type */
 static int hf_e1ap_sNSSAI = -1;                   /* SNSSAI */
 static int hf_e1ap_securityIndication = -1;       /* SecurityIndication */
-static int hf_e1ap_pDU_Session_Resource_AMBR = -1;  /* BitRate */
+static int hf_e1ap_pDU_Session_Resource_DL_AMBR = -1;  /* BitRate */
 static int hf_e1ap_nG_UL_UP_TNL_Information = -1;  /* UP_TNL_Information */
 static int hf_e1ap_pDU_Session_Data_Forwarding_Information_Request = -1;  /* Data_Forwarding_Information_Request */
+static int hf_e1ap_pDU_Session_Inactivity_Timer = -1;  /* Inactivity_Timer */
 static int hf_e1ap_dRB_To_Setup_List_NG_RAN = -1;  /* DRB_To_Setup_List_NG_RAN */
 static int hf_e1ap_dRB_To_Modify_List_NG_RAN = -1;  /* DRB_To_Modify_List_NG_RAN */
+static int hf_e1ap_dRB_Required_To_Remove_List_NG_RAN = -1;  /* DRB_Required_To_Remove_List_NG_RAN */
 static int hf_e1ap_PDU_Session_Resource_To_Remove_List_item = -1;  /* PDU_Session_Resource_To_Remove_Item */
 static int hf_e1ap_PDU_Session_Resource_To_Setup_List_item = -1;  /* PDU_Session_Resource_To_Setup_Item */
+static int hf_e1ap_PDU_Session_Resource_To_Setup_Mod_List_item = -1;  /* PDU_Session_Resource_To_Setup_Mod_Item */
+static int hf_e1ap_pDU_Session_Resource_AMBR = -1;  /* BitRate */
+static int hf_e1ap_dRB_To_Setup_Mod_List_NG_RAN = -1;  /* DRB_To_Setup_Mod_List_NG_RAN */
 static int hf_e1ap_non_Dynamic_5QI = -1;          /* Non_Dynamic5QIDescriptor */
 static int hf_e1ap_dynamic_5QI = -1;              /* Dynamic5QIDescriptor */
 static int hf_e1ap_QoS_Flow_List_item = -1;       /* QoS_Flow_Item */
@@ -363,6 +472,8 @@ static int hf_e1ap_integrityProtectionIndication = -1;  /* IntegrityProtectionIn
 static int hf_e1ap_confidentialityProtectionIndication = -1;  /* ConfidentialityProtectionIndication */
 static int hf_e1ap_securityAlgorithm = -1;        /* SecurityAlgorithm */
 static int hf_e1ap_uPSecuritykey = -1;            /* UPSecuritykey */
+static int hf_e1ap_integrityProtectionResult = -1;  /* IntegrityProtectionResult */
+static int hf_e1ap_confidentialityProtectionResult = -1;  /* ConfidentialityProtectionResult */
 static int hf_e1ap_Slice_Support_List_item = -1;  /* Slice_Support_Item */
 static int hf_e1ap_sST = -1;                      /* OCTET_STRING_SIZE_1 */
 static int hf_e1ap_sD = -1;                       /* OCTET_STRING_SIZE_3 */
@@ -382,42 +493,30 @@ static int hf_e1ap_e1_Interface = -1;             /* ResetAll */
 static int hf_e1ap_partOfE1_Interface = -1;       /* UE_associatedLogicalE1_ConnectionListRes */
 static int hf_e1ap_UE_associatedLogicalE1_ConnectionListRes_item = -1;  /* ProtocolIE_SingleContainer */
 static int hf_e1ap_UE_associatedLogicalE1_ConnectionListResAck_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_e1ap_SupportedPLMNs_List_item = -1;  /* ProtocolIE_SingleContainer */
+static int hf_e1ap_SupportedPLMNs_List_item = -1;  /* SupportedPLMNs_Item */
 static int hf_e1ap_slice_Support_List = -1;       /* Slice_Support_List */
 static int hf_e1ap_nR_CGI_Support_List = -1;      /* NR_CGI_Support_List */
 static int hf_e1ap_qoS_Parameters_Support_List = -1;  /* QoS_Parameters_Support_List */
-static int hf_e1ap_e_UTRAN_BearerContextSetupRequest = -1;  /* EUTRAN_BearerContextSetupRequest */
-static int hf_e1ap_nG_RAN_BearerContextSetupRequest = -1;  /* NG_RAN_BearerContextSetupRequest */
-static int hf_e1ap_dRB_To_Setup_List_EUTRAN = -1;  /* DRB_To_Setup_List_EUTRAN */
-static int hf_e1ap_pDU_Session_Resource_To_Setup_List = -1;  /* PDU_Session_Resource_To_Setup_List */
-static int hf_e1ap_e_UTRAN_BearerContextSetupResponse = -1;  /* EUTRAN_BearerContextSetupResponse */
-static int hf_e1ap_nG_RAN_BearerContextSetupResponse = -1;  /* NG_RAN_BearerContextSetupResponse */
-static int hf_e1ap_dRB_Setup_List_EUTRAN = -1;    /* DRB_Setup_List_EUTRAN */
-static int hf_e1ap_dRB_Failed_List_EUTRAN = -1;   /* DRB_Failed_List_EUTRAN */
-static int hf_e1ap_pDU_Session_Resource_Setup_List = -1;  /* PDU_Session_Resource_Setup_List */
-static int hf_e1ap_pDU_Session_Resource_Failed_List = -1;  /* PDU_Session_Resource_Failed_List */
-static int hf_e1ap_e_UTRAN_BearerContextModificationRequest = -1;  /* EUTRAN_BearerContextModificationRequest */
-static int hf_e1ap_nG_RAN_BearerContextModificationRequest = -1;  /* NG_RAN_BearerContextModificationRequest */
-static int hf_e1ap_dRB_To_Modify_List_EUTRAN = -1;  /* DRB_To_Modify_List_EUTRAN */
-static int hf_e1ap_dRB_To_Remove_List_EUTRAN = -1;  /* DRB_To_Remove_List_EUTRAN */
-static int hf_e1ap_pDU_Session_Resource_To_Modify_List = -1;  /* PDU_Session_Resource_To_Modify_List */
-static int hf_e1ap_pDU_Session_Resource_To_Remove_List = -1;  /* PDU_Session_Resource_To_Remove_List */
-static int hf_e1ap_e_UTRAN_BearerContextModificationResponse = -1;  /* EUTRAN_BearerContextModificationResponse */
-static int hf_e1ap_nG_RAN_BearerContextModificationResponse = -1;  /* NG_RAN_BearerContextModificationResponse */
-static int hf_e1ap_dRB_Modified_List_EUTRAN = -1;  /* DRB_Modified_List_EUTRAN */
-static int hf_e1ap_dRB_Failed_To_Modify_List_EUTRAN = -1;  /* DRB_Failed_To_Modify_List_EUTRAN */
-static int hf_e1ap_pDU_Session_Resource_Modified_List = -1;  /* PDU_Session_Resource_Modified_List */
-static int hf_e1ap_pDU_Session_Resource_Failed_To_Modify_List = -1;  /* PDU_Session_Resource_Failed_To_Modify_List */
-static int hf_e1ap_e_UTRAN_BearerContextModificationRequired = -1;  /* EUTRAN_BearerContextModificationRequired */
-static int hf_e1ap_nG_RAN_BearerContextModificationRequired = -1;  /* NG_RAN_BearerContextModificationRequired */
-static int hf_e1ap_dRB_Required_To_Modify_List_EUTRAN = -1;  /* DRB_Required_To_Modify_List_EUTRAN */
-static int hf_e1ap_pDU_Session_Resource_Required_To_Modify_List = -1;  /* PDU_Session_Resource_Required_To_Modify_List */
-static int hf_e1ap_e_UTRAN_BearerContextModificationConfirm = -1;  /* EUTRAN_BearerContextModificationConfirm */
-static int hf_e1ap_nG_RAN_BearerContextModificationConfirm = -1;  /* NG_RAN_BearerContextModificationConfirm */
-static int hf_e1ap_dRB_Confirm_Modified_List_EUTRAN = -1;  /* DRB_Confirm_Modified_List_EUTRAN */
-static int hf_e1ap_pDU_Session_Resource_Confirm_Modified_List = -1;  /* PDU_Session_Resource_Confirm_Modified_List */
-static int hf_e1ap_DRB_Status_List_item = -1;     /* ProtocolIE_SingleContainer */
-static int hf_e1ap_DRB_Activity_List_item = -1;   /* ProtocolIE_SingleContainer */
+static int hf_e1ap_GNB_CU_CP_TNLA_To_Add_List_item = -1;  /* GNB_CU_CP_TNLA_To_Add_Item */
+static int hf_e1ap_GNB_CU_CP_TNLA_To_Remove_List_item = -1;  /* GNB_CU_CP_TNLA_To_Remove_Item */
+static int hf_e1ap_GNB_CU_CP_TNLA_To_Update_List_item = -1;  /* GNB_CU_CP_TNLA_To_Update_Item */
+static int hf_e1ap_GNB_CU_CP_TNLA_Setup_List_item = -1;  /* GNB_CU_CP_TNLA_Setup_Item */
+static int hf_e1ap_GNB_CU_CP_TNLA_Failed_To_Setup_List_item = -1;  /* GNB_CU_CP_TNLA_Failed_To_Setup_Item */
+static int hf_e1ap_e_UTRAN_BearerContextSetupRequest = -1;  /* ProtocolIE_Container */
+static int hf_e1ap_nG_RAN_BearerContextSetupRequest = -1;  /* ProtocolIE_Container */
+static int hf_e1ap_e_UTRAN_BearerContextSetupResponse = -1;  /* ProtocolIE_Container */
+static int hf_e1ap_nG_RAN_BearerContextSetupResponse = -1;  /* ProtocolIE_Container */
+static int hf_e1ap_e_UTRAN_BearerContextModificationRequest = -1;  /* ProtocolIE_Container */
+static int hf_e1ap_nG_RAN_BearerContextModificationRequest = -1;  /* ProtocolIE_Container */
+static int hf_e1ap_e_UTRAN_BearerContextModificationResponse = -1;  /* ProtocolIE_Container */
+static int hf_e1ap_nG_RAN_BearerContextModificationResponse = -1;  /* ProtocolIE_Container */
+static int hf_e1ap_e_UTRAN_BearerContextModificationRequired = -1;  /* ProtocolIE_Container */
+static int hf_e1ap_nG_RAN_BearerContextModificationRequired = -1;  /* ProtocolIE_Container */
+static int hf_e1ap_e_UTRAN_BearerContextModificationConfirm = -1;  /* ProtocolIE_Container */
+static int hf_e1ap_nG_RAN_BearerContextModificationConfirm = -1;  /* ProtocolIE_Container */
+static int hf_e1ap_DRB_Status_List_item = -1;     /* DRB_Status_Item */
+static int hf_e1ap_e_UTRAN_GNB_CU_UP_CounterCheckRequest = -1;  /* ProtocolIE_Container */
+static int hf_e1ap_nG_RAN_GNB_CU_UP_CounterCheckRequest = -1;  /* ProtocolIE_Container */
 static int hf_e1ap_privateIEs = -1;               /* PrivateIE_Container */
 static int hf_e1ap_initiatingMessage = -1;        /* InitiatingMessage */
 static int hf_e1ap_successfulOutcome = -1;        /* SuccessfulOutcome */
@@ -443,9 +542,11 @@ static gint ett_e1ap_ProtocolExtensionContainer = -1;
 static gint ett_e1ap_ProtocolExtensionField = -1;
 static gint ett_e1ap_PrivateIE_Container = -1;
 static gint ett_e1ap_PrivateIE_Field = -1;
+static gint ett_e1ap_ActivityInformation = -1;
 static gint ett_e1ap_Cause = -1;
 static gint ett_e1ap_Cell_Group_Information = -1;
 static gint ett_e1ap_Cell_Group_Information_Item = -1;
+static gint ett_e1ap_CP_TNL_Information = -1;
 static gint ett_e1ap_CriticalityDiagnostics = -1;
 static gint ett_e1ap_CriticalityDiagnostics_IE_List = -1;
 static gint ett_e1ap_CriticalityDiagnostics_IE_List_item = -1;
@@ -453,6 +554,7 @@ static gint ett_e1ap_Data_Forwarding_Information_Request = -1;
 static gint ett_e1ap_Data_Forwarding_Information_Response = -1;
 static gint ett_e1ap_Data_Usage_Report_List = -1;
 static gint ett_e1ap_Data_Usage_Report_Item = -1;
+static gint ett_e1ap_DRB_Activity_List = -1;
 static gint ett_e1ap_DRB_Activity_Item = -1;
 static gint ett_e1ap_DRB_Confirm_Modified_List_EUTRAN = -1;
 static gint ett_e1ap_DRB_Confirm_Modified_Item_EUTRAN = -1;
@@ -460,8 +562,12 @@ static gint ett_e1ap_DRB_Confirm_Modified_List_NG_RAN = -1;
 static gint ett_e1ap_DRB_Confirm_Modified_Item_NG_RAN = -1;
 static gint ett_e1ap_DRB_Failed_List_EUTRAN = -1;
 static gint ett_e1ap_DRB_Failed_Item_EUTRAN = -1;
+static gint ett_e1ap_DRB_Failed_Mod_List_EUTRAN = -1;
+static gint ett_e1ap_DRB_Failed_Mod_Item_EUTRAN = -1;
 static gint ett_e1ap_DRB_Failed_List_NG_RAN = -1;
 static gint ett_e1ap_DRB_Failed_Item_NG_RAN = -1;
+static gint ett_e1ap_DRB_Failed_Mod_List_NG_RAN = -1;
+static gint ett_e1ap_DRB_Failed_Mod_Item_NG_RAN = -1;
 static gint ett_e1ap_DRB_Failed_To_Modify_List_EUTRAN = -1;
 static gint ett_e1ap_DRB_Failed_To_Modify_Item_EUTRAN = -1;
 static gint ett_e1ap_DRB_Failed_To_Modify_List_NG_RAN = -1;
@@ -476,21 +582,37 @@ static gint ett_e1ap_DRB_Required_To_Modify_List_NG_RAN = -1;
 static gint ett_e1ap_DRB_Required_To_Modify_Item_NG_RAN = -1;
 static gint ett_e1ap_DRB_Setup_List_EUTRAN = -1;
 static gint ett_e1ap_DRB_Setup_Item_EUTRAN = -1;
+static gint ett_e1ap_DRB_Setup_Mod_List_EUTRAN = -1;
+static gint ett_e1ap_DRB_Setup_Mod_Item_EUTRAN = -1;
 static gint ett_e1ap_DRB_Setup_List_NG_RAN = -1;
 static gint ett_e1ap_DRB_Setup_Item_NG_RAN = -1;
+static gint ett_e1ap_DRB_Setup_Mod_List_NG_RAN = -1;
+static gint ett_e1ap_DRB_Setup_Mod_Item_NG_RAN = -1;
 static gint ett_e1ap_DRB_Status_Item = -1;
+static gint ett_e1ap_DRBs_Subject_To_Counter_Check_List_EUTRAN = -1;
+static gint ett_e1ap_DRBs_Subject_To_Counter_Check_Item_EUTRAN = -1;
+static gint ett_e1ap_DRBs_Subject_To_Counter_Check_List_NG_RAN = -1;
+static gint ett_e1ap_DRBs_Subject_To_Counter_Check_Item_NG_RAN = -1;
 static gint ett_e1ap_DRB_To_Modify_List_EUTRAN = -1;
 static gint ett_e1ap_DRB_To_Modify_Item_EUTRAN = -1;
 static gint ett_e1ap_DRB_To_Modify_List_NG_RAN = -1;
 static gint ett_e1ap_DRB_To_Modify_Item_NG_RAN = -1;
 static gint ett_e1ap_DRB_To_Remove_List_EUTRAN = -1;
 static gint ett_e1ap_DRB_To_Remove_Item_EUTRAN = -1;
+static gint ett_e1ap_DRB_Required_To_Remove_List_EUTRAN = -1;
+static gint ett_e1ap_DRB_Required_To_Remove_Item_EUTRAN = -1;
 static gint ett_e1ap_DRB_To_Remove_List_NG_RAN = -1;
 static gint ett_e1ap_DRB_To_Remove_Item_NG_RAN = -1;
+static gint ett_e1ap_DRB_Required_To_Remove_List_NG_RAN = -1;
+static gint ett_e1ap_DRB_Required_To_Remove_Item_NG_RAN = -1;
 static gint ett_e1ap_DRB_To_Setup_List_EUTRAN = -1;
 static gint ett_e1ap_DRB_To_Setup_Item_EUTRAN = -1;
+static gint ett_e1ap_DRB_To_Setup_Mod_List_EUTRAN = -1;
+static gint ett_e1ap_DRB_To_Setup_Mod_Item_EUTRAN = -1;
 static gint ett_e1ap_DRB_To_Setup_List_NG_RAN = -1;
 static gint ett_e1ap_DRB_To_Setup_Item_NG_RAN = -1;
+static gint ett_e1ap_DRB_To_Setup_Mod_List_NG_RAN = -1;
+static gint ett_e1ap_DRB_To_Setup_Mod_Item_NG_RAN = -1;
 static gint ett_e1ap_DRB_Usage_Report_List = -1;
 static gint ett_e1ap_DRB_Usage_Report_Item = -1;
 static gint ett_e1ap_Dynamic5QIDescriptor = -1;
@@ -500,6 +622,11 @@ static gint ett_e1ap_EUTRAN_QoS_Support_Item = -1;
 static gint ett_e1ap_EUTRAN_QoS = -1;
 static gint ett_e1ap_GNB_CU_UP_CellGroupRelatedConfiguration = -1;
 static gint ett_e1ap_GNB_CU_UP_CellGroupRelatedConfiguration_Item = -1;
+static gint ett_e1ap_GNB_CU_CP_TNLA_Setup_Item = -1;
+static gint ett_e1ap_GNB_CU_CP_TNLA_Failed_To_Setup_Item = -1;
+static gint ett_e1ap_GNB_CU_CP_TNLA_To_Add_Item = -1;
+static gint ett_e1ap_GNB_CU_CP_TNLA_To_Remove_Item = -1;
+static gint ett_e1ap_GNB_CU_CP_TNLA_To_Update_Item = -1;
 static gint ett_e1ap_GBR_QosInformation = -1;
 static gint ett_e1ap_GBR_QoSFlowInformation = -1;
 static gint ett_e1ap_GTPTunnel = -1;
@@ -510,12 +637,17 @@ static gint ett_e1ap_Non_Dynamic5QIDescriptor = -1;
 static gint ett_e1ap_NR_CGI = -1;
 static gint ett_e1ap_NR_CGI_Support_List = -1;
 static gint ett_e1ap_NR_CGI_Support_Item = -1;
+static gint ett_e1ap_PacketErrorRate = -1;
 static gint ett_e1ap_PDCP_Configuration = -1;
 static gint ett_e1ap_PDCP_Count = -1;
+static gint ett_e1ap_PDU_Session_Resource_Activity_List = -1;
+static gint ett_e1ap_PDU_Session_Resource_Activity_Item = -1;
 static gint ett_e1ap_PDU_Session_Resource_Confirm_Modified_List = -1;
 static gint ett_e1ap_PDU_Session_Resource_Confirm_Modified_Item = -1;
 static gint ett_e1ap_PDU_Session_Resource_Failed_List = -1;
 static gint ett_e1ap_PDU_Session_Resource_Failed_Item = -1;
+static gint ett_e1ap_PDU_Session_Resource_Failed_Mod_List = -1;
+static gint ett_e1ap_PDU_Session_Resource_Failed_Mod_Item = -1;
 static gint ett_e1ap_PDU_Session_Resource_Failed_To_Modify_List = -1;
 static gint ett_e1ap_PDU_Session_Resource_Failed_To_Modify_Item = -1;
 static gint ett_e1ap_PDU_Session_Resource_Modified_List = -1;
@@ -524,12 +656,16 @@ static gint ett_e1ap_PDU_Session_Resource_Required_To_Modify_List = -1;
 static gint ett_e1ap_PDU_Session_Resource_Required_To_Modify_Item = -1;
 static gint ett_e1ap_PDU_Session_Resource_Setup_List = -1;
 static gint ett_e1ap_PDU_Session_Resource_Setup_Item = -1;
+static gint ett_e1ap_PDU_Session_Resource_Setup_Mod_List = -1;
+static gint ett_e1ap_PDU_Session_Resource_Setup_Mod_Item = -1;
 static gint ett_e1ap_PDU_Session_Resource_To_Modify_List = -1;
 static gint ett_e1ap_PDU_Session_Resource_To_Modify_Item = -1;
 static gint ett_e1ap_PDU_Session_Resource_To_Remove_List = -1;
 static gint ett_e1ap_PDU_Session_Resource_To_Remove_Item = -1;
 static gint ett_e1ap_PDU_Session_Resource_To_Setup_List = -1;
 static gint ett_e1ap_PDU_Session_Resource_To_Setup_Item = -1;
+static gint ett_e1ap_PDU_Session_Resource_To_Setup_Mod_List = -1;
+static gint ett_e1ap_PDU_Session_Resource_To_Setup_Mod_Item = -1;
 static gint ett_e1ap_QoS_Characteristics = -1;
 static gint ett_e1ap_QoS_Flow_List = -1;
 static gint ett_e1ap_QoS_Flow_Item = -1;
@@ -543,6 +679,7 @@ static gint ett_e1ap_ROHC_Parameters = -1;
 static gint ett_e1ap_SecurityAlgorithm = -1;
 static gint ett_e1ap_SecurityIndication = -1;
 static gint ett_e1ap_SecurityInformation = -1;
+static gint ett_e1ap_SecurityResult = -1;
 static gint ett_e1ap_Slice_Support_List = -1;
 static gint ett_e1ap_Slice_Support_Item = -1;
 static gint ett_e1ap_SNSSAI = -1;
@@ -571,44 +708,38 @@ static gint ett_e1ap_GNB_CU_UP_ConfigurationUpdate = -1;
 static gint ett_e1ap_GNB_CU_UP_ConfigurationUpdateAcknowledge = -1;
 static gint ett_e1ap_GNB_CU_UP_ConfigurationUpdateFailure = -1;
 static gint ett_e1ap_GNB_CU_CP_ConfigurationUpdate = -1;
+static gint ett_e1ap_GNB_CU_CP_TNLA_To_Add_List = -1;
+static gint ett_e1ap_GNB_CU_CP_TNLA_To_Remove_List = -1;
+static gint ett_e1ap_GNB_CU_CP_TNLA_To_Update_List = -1;
 static gint ett_e1ap_GNB_CU_CP_ConfigurationUpdateAcknowledge = -1;
+static gint ett_e1ap_GNB_CU_CP_TNLA_Setup_List = -1;
+static gint ett_e1ap_GNB_CU_CP_TNLA_Failed_To_Setup_List = -1;
 static gint ett_e1ap_GNB_CU_CP_ConfigurationUpdateFailure = -1;
 static gint ett_e1ap_E1ReleaseRequest = -1;
 static gint ett_e1ap_E1ReleaseResponse = -1;
 static gint ett_e1ap_BearerContextSetupRequest = -1;
 static gint ett_e1ap_System_BearerContextSetupRequest = -1;
-static gint ett_e1ap_EUTRAN_BearerContextSetupRequest = -1;
-static gint ett_e1ap_NG_RAN_BearerContextSetupRequest = -1;
 static gint ett_e1ap_BearerContextSetupResponse = -1;
 static gint ett_e1ap_System_BearerContextSetupResponse = -1;
-static gint ett_e1ap_EUTRAN_BearerContextSetupResponse = -1;
-static gint ett_e1ap_NG_RAN_BearerContextSetupResponse = -1;
 static gint ett_e1ap_BearerContextSetupFailure = -1;
 static gint ett_e1ap_BearerContextModificationRequest = -1;
 static gint ett_e1ap_System_BearerContextModificationRequest = -1;
-static gint ett_e1ap_EUTRAN_BearerContextModificationRequest = -1;
-static gint ett_e1ap_NG_RAN_BearerContextModificationRequest = -1;
 static gint ett_e1ap_BearerContextModificationResponse = -1;
 static gint ett_e1ap_System_BearerContextModificationResponse = -1;
-static gint ett_e1ap_EUTRAN_BearerContextModificationResponse = -1;
-static gint ett_e1ap_NG_RAN_BearerContextModificationResponse = -1;
 static gint ett_e1ap_BearerContextModificationFailure = -1;
 static gint ett_e1ap_BearerContextModificationRequired = -1;
 static gint ett_e1ap_System_BearerContextModificationRequired = -1;
-static gint ett_e1ap_EUTRAN_BearerContextModificationRequired = -1;
-static gint ett_e1ap_NG_RAN_BearerContextModificationRequired = -1;
 static gint ett_e1ap_BearerContextModificationConfirm = -1;
 static gint ett_e1ap_System_BearerContextModificationConfirm = -1;
-static gint ett_e1ap_EUTRAN_BearerContextModificationConfirm = -1;
-static gint ett_e1ap_NG_RAN_BearerContextModificationConfirm = -1;
 static gint ett_e1ap_BearerContextReleaseCommand = -1;
 static gint ett_e1ap_BearerContextReleaseComplete = -1;
 static gint ett_e1ap_BearerContextReleaseRequest = -1;
 static gint ett_e1ap_DRB_Status_List = -1;
 static gint ett_e1ap_BearerContextInactivityNotification = -1;
-static gint ett_e1ap_DRB_Activity_List = -1;
 static gint ett_e1ap_DLDataNotification = -1;
 static gint ett_e1ap_DataUsageReport = -1;
+static gint ett_e1ap_GNB_CU_UP_CounterCheckRequest = -1;
+static gint ett_e1ap_System_GNB_CU_UP_CounterCheckRequest = -1;
 static gint ett_e1ap_PrivateMessage = -1;
 static gint ett_e1ap_E1AP_PDU = -1;
 static gint ett_e1ap_InitiatingMessage = -1;
@@ -658,7 +789,13 @@ static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, p
 static void
 e1ap_MaxPacketLossRate_fmt(gchar *s, guint32 v)
 {
-  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1f %% (%u)", (float)v/10, v);
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1f%% (%u)", (float)v/10, v);
+}
+
+static void
+e1ap_PacketDelayBudget_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fms (%u)", (float)v/2, v);
 }
 
 static e1ap_private_data_t*
@@ -706,7 +843,7 @@ dissect_e1ap_INTEGER_0_maxPrivateIEs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 static int
 dissect_e1ap_T_global(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 107 "./asn1/e1ap/e1ap.cnf"
+#line 106 "./asn1/e1ap/e1ap.cnf"
   e1ap_private_data_t *e1ap_data = e1ap_get_private_data(actx->pinfo);
   offset = dissect_per_object_identifier_str(tvb, offset, actx, tree, hf_index, &e1ap_data->obj_id);
 
@@ -731,7 +868,7 @@ static const per_choice_t PrivateIE_ID_choice[] = {
 
 static int
 dissect_e1ap_PrivateIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 103 "./asn1/e1ap/e1ap.cnf"
+#line 102 "./asn1/e1ap/e1ap.cnf"
   e1ap_private_data_t *e1ap_data = e1ap_get_private_data(actx->pinfo);
   e1ap_data->obj_id = NULL;
 
@@ -761,6 +898,7 @@ static const value_string e1ap_ProcedureCode_vals[] = {
   { id_bearerContextInactivityNotification, "id-bearerContextInactivityNotification" },
   { id_dLDataNotification, "id-dLDataNotification" },
   { id_dataUsageReport, "id-dataUsageReport" },
+  { id_gNB_CU_UP_CounterCheck, "id-gNB-CU-UP-CounterCheck" },
   { 0, NULL }
 };
 
@@ -769,7 +907,7 @@ static value_string_ext e1ap_ProcedureCode_vals_ext = VALUE_STRING_EXT_INIT(e1ap
 
 static int
 dissect_e1ap_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 84 "./asn1/e1ap/e1ap.cnf"
+#line 83 "./asn1/e1ap/e1ap.cnf"
   e1ap_private_data_t *e1ap_data = e1ap_get_private_data(actx->pinfo);
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &e1ap_data->procedure_code, FALSE);
@@ -793,7 +931,6 @@ static const value_string e1ap_ProtocolIE_ID_vals[] = {
   { id_gNB_CU_CP_Name, "id-gNB-CU-CP-Name" },
   { id_CNSupport, "id-CNSupport" },
   { id_SupportedPLMNs, "id-SupportedPLMNs" },
-  { id_SupportedPLMNs_Item, "id-SupportedPLMNs-Item" },
   { id_TimeToWait, "id-TimeToWait" },
   { id_SecurityInformation, "id-SecurityInformation" },
   { id_UEDLAggregateMaximumBitRate, "id-UEDLAggregateMaximumBitRate" },
@@ -805,10 +942,46 @@ static const value_string e1ap_ProtocolIE_ID_vals[] = {
   { id_System_BearerContextModificationConfirm, "id-System-BearerContextModificationConfirm" },
   { id_System_BearerContextModificationRequired, "id-System-BearerContextModificationRequired" },
   { id_DRB_Status_List, "id-DRB-Status-List" },
-  { id_DRB_Status_Item, "id-DRB-Status-Item" },
-  { id_DRB_Activity_List, "id-DRB-Activity-List" },
-  { id_DRB_Activity_Item, "id-DRB-Activity-Item" },
+  { id_ActivityNotificationLevel, "id-ActivityNotificationLevel" },
+  { id_ActivityInformation, "id-ActivityInformation" },
   { id_Data_Usage_Report_List, "id-Data-Usage-Report-List" },
+  { id_New_UL_TNL_Information_Required, "id-New-UL-TNL-Information-Required" },
+  { id_GNB_CU_CP_TNLA_To_Add_List, "id-GNB-CU-CP-TNLA-To-Add-List" },
+  { id_GNB_CU_CP_TNLA_To_Remove_List, "id-GNB-CU-CP-TNLA-To-Remove-List" },
+  { id_GNB_CU_CP_TNLA_To_Update_List, "id-GNB-CU-CP-TNLA-To-Update-List" },
+  { id_GNB_CU_CP_TNLA_Setup_List, "id-GNB-CU-CP-TNLA-Setup-List" },
+  { id_GNB_CU_CP_TNLA_Failed_To_Setup_List, "id-GNB-CU-CP-TNLA-Failed-To-Setup-List" },
+  { id_DRB_To_Setup_List_EUTRAN, "id-DRB-To-Setup-List-EUTRAN" },
+  { id_DRB_To_Modify_List_EUTRAN, "id-DRB-To-Modify-List-EUTRAN" },
+  { id_DRB_To_Remove_List_EUTRAN, "id-DRB-To-Remove-List-EUTRAN" },
+  { id_DRB_Required_To_Modify_List_EUTRAN, "id-DRB-Required-To-Modify-List-EUTRAN" },
+  { id_DRB_Required_To_Remove_List_EUTRAN, "id-DRB-Required-To-Remove-List-EUTRAN" },
+  { id_DRB_Setup_List_EUTRAN, "id-DRB-Setup-List-EUTRAN" },
+  { id_DRB_Failed_List_EUTRAN, "id-DRB-Failed-List-EUTRAN" },
+  { id_DRB_Modified_List_EUTRAN, "id-DRB-Modified-List-EUTRAN" },
+  { id_DRB_Failed_To_Modify_List_EUTRAN, "id-DRB-Failed-To-Modify-List-EUTRAN" },
+  { id_DRB_Confirm_Modified_List_EUTRAN, "id-DRB-Confirm-Modified-List-EUTRAN" },
+  { id_PDU_Session_Resource_To_Setup_List, "id-PDU-Session-Resource-To-Setup-List" },
+  { id_PDU_Session_Resource_To_Modify_List, "id-PDU-Session-Resource-To-Modify-List" },
+  { id_PDU_Session_Resource_To_Remove_List, "id-PDU-Session-Resource-To-Remove-List" },
+  { id_PDU_Session_Resource_Required_To_Modify_List, "id-PDU-Session-Resource-Required-To-Modify-List" },
+  { id_PDU_Session_Resource_Setup_List, "id-PDU-Session-Resource-Setup-List" },
+  { id_PDU_Session_Resource_Failed_List, "id-PDU-Session-Resource-Failed-List" },
+  { id_PDU_Session_Resource_Modified_List, "id-PDU-Session-Resource-Modified-List" },
+  { id_PDU_Session_Resource_Failed_To_Modify_List, "id-PDU-Session-Resource-Failed-To-Modify-List" },
+  { id_PDU_Session_Resource_Confirm_Modified_List, "id-PDU-Session-Resource-Confirm-Modified-List" },
+  { id_DRB_To_Setup_Mod_List_EUTRAN, "id-DRB-To-Setup-Mod-List-EUTRAN" },
+  { id_DRB_Setup_Mod_List_EUTRAN, "id-DRB-Setup-Mod-List-EUTRAN" },
+  { id_DRB_Failed_Mod_List_EUTRAN, "id-DRB-Failed-Mod-List-EUTRAN" },
+  { id_PDU_Session_Resource_Setup_Mod_List, "id-PDU-Session-Resource-Setup-Mod-List" },
+  { id_PDU_Session_Resource_Failed_Mod_List, "id-PDU-Session-Resource-Failed-Mod-List" },
+  { id_PDU_Session_Resource_To_Setup_Mod_List, "id-PDU-Session-Resource-To-Setup-Mod-List" },
+  { id_TransactionID, "id-TransactionID" },
+  { id_Serving_PLMN, "id-Serving-PLMN" },
+  { id_UE_Inactivity_Timer, "id-UE-Inactivity-Timer" },
+  { id_System_GNB_CU_UP_CounterCheckRequest, "id-System-GNB-CU-UP-CounterCheckRequest" },
+  { id_DRBs_Subject_To_Counter_Check_List_EUTRAN, "id-DRBs-Subject-To-Counter-Check-List-EUTRAN" },
+  { id_DRBs_Subject_To_Counter_Check_List_NG_RAN, "id-DRBs-Subject-To-Counter-Check-List-NG-RAN" },
   { 0, NULL }
 };
 
@@ -817,7 +990,7 @@ static value_string_ext e1ap_ProtocolIE_ID_vals_ext = VALUE_STRING_EXT_INIT(e1ap
 
 static int
 dissect_e1ap_ProtocolIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 66 "./asn1/e1ap/e1ap.cnf"
+#line 65 "./asn1/e1ap/e1ap.cnf"
   e1ap_private_data_t *e1ap_data = e1ap_get_private_data(actx->pinfo);
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, maxProtocolIEs, &e1ap_data->protocol_ie_id, FALSE);
@@ -825,7 +998,7 @@ dissect_e1ap_ProtocolIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 
 
-#line 70 "./asn1/e1ap/e1ap.cnf"
+#line 69 "./asn1/e1ap/e1ap.cnf"
   if (tree) {
     proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s",
                            val_to_str_ext(e1ap_data->protocol_ie_id, &e1ap_ProtocolIE_ID_vals_ext, "unknown (%d)"));
@@ -943,7 +1116,7 @@ dissect_e1ap_ProtocolExtensionContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_
 
 static int
 dissect_e1ap_T_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 111 "./asn1/e1ap/e1ap.cnf"
+#line 110 "./asn1/e1ap/e1ap.cnf"
   e1ap_private_data_t *e1ap_data = e1ap_get_private_data(actx->pinfo);
   if (e1ap_data->obj_id) {
     offset = call_per_oid_callback(e1ap_data->obj_id, tvb, actx->pinfo, tree, offset, actx, hf_index);
@@ -990,9 +1163,180 @@ dissect_e1ap_PrivateIE_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 
 static int
+dissect_e1ap_DRB_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            1U, 32U, NULL, TRUE);
+
+  return offset;
+}
+
+
+static const value_string e1ap_DRB_Activity_vals[] = {
+  {   0, "active" },
+  {   1, "not-active" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_e1ap_DRB_Activity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     2, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t DRB_Activity_Item_sequence[] = {
+  { &hf_e1ap_dRB_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_DRB_ID },
+  { &hf_e1ap_dRB_Activity   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_DRB_Activity },
+  { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_e1ap_DRB_Activity_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_e1ap_DRB_Activity_Item, DRB_Activity_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t DRB_Activity_List_sequence_of[1] = {
+  { &hf_e1ap_DRB_Activity_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e1ap_DRB_Activity_Item },
+};
+
+static int
+dissect_e1ap_DRB_Activity_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_e1ap_DRB_Activity_List, DRB_Activity_List_sequence_of,
+                                                  1, maxnoofDRBs, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_e1ap_PDU_Session_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 255U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const value_string e1ap_PDU_Session_Resource_Activity_vals[] = {
+  {   0, "active" },
+  {   1, "not-active" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_e1ap_PDU_Session_Resource_Activity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     2, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t PDU_Session_Resource_Activity_Item_sequence[] = {
+  { &hf_e1ap_pDU_Session_ID , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_PDU_Session_ID },
+  { &hf_e1ap_pDU_Session_Resource_Activity, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_PDU_Session_Resource_Activity },
+  { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_e1ap_PDU_Session_Resource_Activity_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_e1ap_PDU_Session_Resource_Activity_Item, PDU_Session_Resource_Activity_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t PDU_Session_Resource_Activity_List_sequence_of[1] = {
+  { &hf_e1ap_PDU_Session_Resource_Activity_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e1ap_PDU_Session_Resource_Activity_Item },
+};
+
+static int
+dissect_e1ap_PDU_Session_Resource_Activity_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_e1ap_PDU_Session_Resource_Activity_List, PDU_Session_Resource_Activity_List_sequence_of,
+                                                  1, maxnoofPDUSessionResource, FALSE);
+
+  return offset;
+}
+
+
+static const value_string e1ap_UE_Activity_vals[] = {
+  {   0, "active" },
+  {   1, "not-active" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_e1ap_UE_Activity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     2, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string e1ap_ActivityInformation_vals[] = {
+  {   0, "dRB-Activity-List" },
+  {   1, "pDU-Session-Resource-Activity-List" },
+  {   2, "uE-Activity" },
+  {   3, "choice-extension" },
+  { 0, NULL }
+};
+
+static const per_choice_t ActivityInformation_choice[] = {
+  {   0, &hf_e1ap_dRB_Activity_List, ASN1_NO_EXTENSIONS     , dissect_e1ap_DRB_Activity_List },
+  {   1, &hf_e1ap_pDU_Session_Resource_Activity_List, ASN1_NO_EXTENSIONS     , dissect_e1ap_PDU_Session_Resource_Activity_List },
+  {   2, &hf_e1ap_uE_Activity    , ASN1_NO_EXTENSIONS     , dissect_e1ap_UE_Activity },
+  {   3, &hf_e1ap_choice_extension, ASN1_NO_EXTENSIONS     , dissect_e1ap_ProtocolIE_SingleContainer },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_e1ap_ActivityInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_e1ap_ActivityInformation, ActivityInformation_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const value_string e1ap_ActivityNotificationLevel_vals[] = {
+  {   0, "drb" },
+  {   1, "pdu-session" },
+  {   2, "ue" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_e1ap_ActivityNotificationLevel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     3, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+
+static int
 dissect_e1ap_AveragingWindow(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 63U, NULL, FALSE);
+                                                            0U, 4095U, NULL, TRUE);
 
   return offset;
 }
@@ -1030,6 +1374,25 @@ static const value_string e1ap_CauseRadioNetwork_vals[] = {
   {   2, "unknown-or-already-allocated-gnb-cu-up-ue-e1ap-id" },
   {   3, "unknown-or-inconsistent-pair-of-ue-e1ap-id" },
   {   4, "interaction-with-other-procedure" },
+  {   5, "not-supported-QCI-value" },
+  {   6, "not-supported-5QI-value" },
+  {   7, "encryption-algorithms-not-supported" },
+  {   8, "integrity-protection-algorithms-not-supported" },
+  {   9, "uP-integrity-protection-not-possible" },
+  {  10, "uP-confidentiality-protection-not-possible" },
+  {  11, "multiple-PDU-Session-ID-Instances" },
+  {  12, "unknown-PDU-Session-ID" },
+  {  13, "multiple-QoS-Flow-ID-Instances" },
+  {  14, "unknown-QoS-Flow-ID" },
+  {  15, "multiple-DRB-ID-Instances" },
+  {  16, "unknown-DRB-ID" },
+  {  17, "invalid-QoS-combination" },
+  {  18, "procedure-cancelled" },
+  {  19, "normal-release" },
+  {  20, "no-radio-resources-available" },
+  {  21, "action-desirable-for-radio-reasons" },
+  {  22, "resources-not-available-for-the-slice" },
+  {  23, "pDCP-configuration-not-supported" },
   { 0, NULL }
 };
 
@@ -1037,7 +1400,7 @@ static const value_string e1ap_CauseRadioNetwork_vals[] = {
 static int
 dissect_e1ap_CauseRadioNetwork(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     5, NULL, TRUE, 0, NULL);
+                                     24, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -1104,14 +1467,16 @@ static const value_string e1ap_Cause_vals[] = {
   {   1, "transport" },
   {   2, "protocol" },
   {   3, "misc" },
+  {   4, "choice-extension" },
   { 0, NULL }
 };
 
 static const per_choice_t Cause_choice[] = {
-  {   0, &hf_e1ap_radioNetwork   , ASN1_EXTENSION_ROOT    , dissect_e1ap_CauseRadioNetwork },
-  {   1, &hf_e1ap_transport      , ASN1_EXTENSION_ROOT    , dissect_e1ap_CauseTransport },
-  {   2, &hf_e1ap_protocol       , ASN1_EXTENSION_ROOT    , dissect_e1ap_CauseProtocol },
-  {   3, &hf_e1ap_misc           , ASN1_EXTENSION_ROOT    , dissect_e1ap_CauseMisc },
+  {   0, &hf_e1ap_radioNetwork   , ASN1_NO_EXTENSIONS     , dissect_e1ap_CauseRadioNetwork },
+  {   1, &hf_e1ap_transport      , ASN1_NO_EXTENSIONS     , dissect_e1ap_CauseTransport },
+  {   2, &hf_e1ap_protocol       , ASN1_NO_EXTENSIONS     , dissect_e1ap_CauseProtocol },
+  {   3, &hf_e1ap_misc           , ASN1_NO_EXTENSIONS     , dissect_e1ap_CauseMisc },
+  {   4, &hf_e1ap_choice_extension, ASN1_NO_EXTENSIONS     , dissect_e1ap_ProtocolIE_SingleContainer },
   { 0, NULL, 0, NULL }
 };
 
@@ -1267,6 +1632,88 @@ dissect_e1ap_ConfidentialityProtectionIndication(tvbuff_t *tvb _U_, int offset _
 }
 
 
+static const value_string e1ap_ConfidentialityProtectionResult_vals[] = {
+  {   0, "performed" },
+  {   1, "not-performed" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_e1ap_ConfidentialityProtectionResult(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     2, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_e1ap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 374 "./asn1/e1ap/e1ap.cnf"
+  tvbuff_t *param_tvb = NULL;
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     1, 160, TRUE, &param_tvb, NULL);
+
+  if (param_tvb) {
+    proto_tree *subtree;
+    gint tvb_len;
+
+    tvb_len = tvb_reported_length(param_tvb);
+    subtree = proto_item_add_subtree(actx->created_item, ett_e1ap_TransportLayerAddress);
+    if (tvb_len == 4) {
+      /* IPv4 */
+       proto_tree_add_item(subtree, hf_e1ap_transportLayerAddressIPv4, param_tvb, 0, 4, ENC_BIG_ENDIAN);
+    } else if (tvb_len == 16) {
+      /* IPv6 */
+       proto_tree_add_item(subtree, hf_e1ap_transportLayerAddressIPv6, param_tvb, 0, 16, ENC_NA);
+    } else if (tvb_len == 20) {
+      /* IPv4 */
+       proto_tree_add_item(subtree, hf_e1ap_transportLayerAddressIPv4, param_tvb, 0, 4, ENC_BIG_ENDIAN);
+      /* IPv6 */
+       proto_tree_add_item(subtree, hf_e1ap_transportLayerAddressIPv6, param_tvb, 4, 16, ENC_NA);
+    }
+  }
+
+
+
+  return offset;
+}
+
+
+static const value_string e1ap_CP_TNL_Information_vals[] = {
+  {   0, "endpoint-IP-Address" },
+  {   1, "choice-extension" },
+  { 0, NULL }
+};
+
+static const per_choice_t CP_TNL_Information_choice[] = {
+  {   0, &hf_e1ap_endpoint_IP_Address, ASN1_NO_EXTENSIONS     , dissect_e1ap_TransportLayerAddress },
+  {   1, &hf_e1ap_choice_extension, ASN1_NO_EXTENSIONS     , dissect_e1ap_ProtocolIE_SingleContainer },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_e1ap_CP_TNL_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_e1ap_CP_TNL_Information, CP_TNL_Information_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_e1ap_TransactionID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 255U, NULL, TRUE);
+
+  return offset;
+}
+
+
 static const value_string e1ap_TypeOfError_vals[] = {
   {   0, "not-understood" },
   {   1, "missing" },
@@ -1318,6 +1765,7 @@ static const per_sequence_t CriticalityDiagnostics_sequence[] = {
   { &hf_e1ap_procedureCode  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProcedureCode },
   { &hf_e1ap_triggeringMessage, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_TriggeringMessage },
   { &hf_e1ap_procedureCriticality, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_Criticality },
+  { &hf_e1ap_transactionID  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_TransactionID },
   { &hf_e1ap_iEsCriticalityDiagnostics, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_CriticalityDiagnostics_IE_List },
   { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
@@ -1351,40 +1799,6 @@ dissect_e1ap_Data_Forwarding_Request(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 
 static int
-dissect_e1ap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 290 "./asn1/e1ap/e1ap.cnf"
-  tvbuff_t *param_tvb = NULL;
-  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 160, TRUE, &param_tvb, NULL);
-
-  if (param_tvb) {
-    proto_tree *subtree;
-    gint tvb_len;
-
-    tvb_len = tvb_reported_length(param_tvb);
-    subtree = proto_item_add_subtree(actx->created_item, ett_e1ap_TransportLayerAddress);
-    if (tvb_len == 4) {
-      /* IPv4 */
-       proto_tree_add_item(subtree, hf_e1ap_transportLayerAddressIPv4, param_tvb, 0, 4, ENC_BIG_ENDIAN);
-    } else if (tvb_len == 16) {
-      /* IPv6 */
-       proto_tree_add_item(subtree, hf_e1ap_transportLayerAddressIPv6, param_tvb, 0, 16, ENC_NA);
-    } else if (tvb_len == 20) {
-      /* IPv4 */
-       proto_tree_add_item(subtree, hf_e1ap_transportLayerAddressIPv4, param_tvb, 0, 4, ENC_BIG_ENDIAN);
-      /* IPv6 */
-       proto_tree_add_item(subtree, hf_e1ap_transportLayerAddressIPv6, param_tvb, 4, 16, ENC_NA);
-    }
-  }
-
-
-
-  return offset;
-}
-
-
-
-static int
 dissect_e1ap_GTP_TEID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        4, 4, FALSE, NULL);
@@ -1411,11 +1825,13 @@ dissect_e1ap_GTPTunnel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 
 static const value_string e1ap_UP_TNL_Information_vals[] = {
   {   0, "gTPTunnel" },
+  {   1, "choice-extension" },
   { 0, NULL }
 };
 
 static const per_choice_t UP_TNL_Information_choice[] = {
-  {   0, &hf_e1ap_gTPTunnel      , ASN1_EXTENSION_ROOT    , dissect_e1ap_GTPTunnel },
+  {   0, &hf_e1ap_gTPTunnel      , ASN1_NO_EXTENSIONS     , dissect_e1ap_GTPTunnel },
+  {   1, &hf_e1ap_choice_extension, ASN1_NO_EXTENSIONS     , dissect_e1ap_ProtocolIE_SingleContainer },
   { 0, NULL, 0, NULL }
 };
 
@@ -1429,10 +1845,50 @@ dissect_e1ap_UP_TNL_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 }
 
 
+
+static int
+dissect_e1ap_QoS_Flow_Indicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 63U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t QoS_Flow_Item_sequence[] = {
+  { &hf_e1ap_qoS_Flow_Indicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_QoS_Flow_Indicator },
+  { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_e1ap_QoS_Flow_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_e1ap_QoS_Flow_Item, QoS_Flow_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t QoS_Flow_List_sequence_of[1] = {
+  { &hf_e1ap_QoS_Flow_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e1ap_QoS_Flow_Item },
+};
+
+static int
+dissect_e1ap_QoS_Flow_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_e1ap_QoS_Flow_List, QoS_Flow_List_sequence_of,
+                                                  1, maxnoofQoSFlows, FALSE);
+
+  return offset;
+}
+
+
 static const per_sequence_t Data_Forwarding_Information_Request_sequence[] = {
-  { &hf_e1ap_data_Forwarding_Request, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_Data_Forwarding_Request },
+  { &hf_e1ap_data_Forwarding_Request, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_Data_Forwarding_Request },
   { &hf_e1ap_uL_Data_Forwarding, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_UP_TNL_Information },
   { &hf_e1ap_dL_Data_Forwarding, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_UP_TNL_Information },
+  { &hf_e1ap_qoS_Flow_List_PDU_Session_DL_Forwarding, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_QoS_Flow_List },
   { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
@@ -1464,18 +1920,8 @@ dissect_e1ap_Data_Forwarding_Information_Response(tvbuff_t *tvb _U_, int offset 
 
 
 static int
-dissect_e1ap_DRB_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 32U, NULL, TRUE);
-
-  return offset;
-}
-
-
-
-static int
 dissect_e1ap_T_startTimeStamp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 263 "./asn1/e1ap/e1ap.cnf"
+#line 335 "./asn1/e1ap/e1ap.cnf"
   tvbuff_t *timestamp_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        4, 4, FALSE, &timestamp_tvb);
@@ -1483,7 +1929,7 @@ dissect_e1ap_T_startTimeStamp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 
 
-#line 267 "./asn1/e1ap/e1ap.cnf"
+#line 339 "./asn1/e1ap/e1ap.cnf"
   if (timestamp_tvb) {
     proto_item_append_text(actx->created_item, " (%s)", tvb_ntp_fmt_ts_sec(timestamp_tvb, 0));
   }
@@ -1496,7 +1942,7 @@ dissect_e1ap_T_startTimeStamp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 static int
 dissect_e1ap_T_endTimeStamp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 272 "./asn1/e1ap/e1ap.cnf"
+#line 344 "./asn1/e1ap/e1ap.cnf"
   tvbuff_t *timestamp_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        4, 4, FALSE, &timestamp_tvb);
@@ -1504,7 +1950,7 @@ dissect_e1ap_T_endTimeStamp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 
 
-#line 276 "./asn1/e1ap/e1ap.cnf"
+#line 348 "./asn1/e1ap/e1ap.cnf"
   if (timestamp_tvb) {
     proto_item_append_text(actx->created_item, " (%s)", tvb_ntp_fmt_ts_sec(timestamp_tvb, 0));
   }
@@ -1632,38 +2078,6 @@ dissect_e1ap_DiscardTimer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 }
 
 
-static const value_string e1ap_DRB_Acivity_vals[] = {
-  {   0, "active" },
-  {   1, "not-active" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_e1ap_DRB_Acivity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t DRB_Activity_Item_sequence[] = {
-  { &hf_e1ap_dRB_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_DRB_ID },
-  { &hf_e1ap_dRB_Activity   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_DRB_Acivity },
-  { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_e1ap_DRB_Activity_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_e1ap_DRB_Activity_Item, DRB_Activity_Item_sequence);
-
-  return offset;
-}
-
-
 static const per_sequence_t DRB_Confirm_Modified_Item_EUTRAN_sequence[] = {
   { &hf_e1ap_dRB_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_DRB_ID },
   { &hf_e1ap_cell_Group_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_Cell_Group_Information },
@@ -1754,6 +2168,36 @@ dissect_e1ap_DRB_Failed_List_EUTRAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 }
 
 
+static const per_sequence_t DRB_Failed_Mod_Item_EUTRAN_sequence[] = {
+  { &hf_e1ap_dRB_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_DRB_ID },
+  { &hf_e1ap_cause          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_Cause },
+  { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_e1ap_DRB_Failed_Mod_Item_EUTRAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_e1ap_DRB_Failed_Mod_Item_EUTRAN, DRB_Failed_Mod_Item_EUTRAN_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t DRB_Failed_Mod_List_EUTRAN_sequence_of[1] = {
+  { &hf_e1ap_DRB_Failed_Mod_List_EUTRAN_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e1ap_DRB_Failed_Mod_Item_EUTRAN },
+};
+
+static int
+dissect_e1ap_DRB_Failed_Mod_List_EUTRAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_e1ap_DRB_Failed_Mod_List_EUTRAN, DRB_Failed_Mod_List_EUTRAN_sequence_of,
+                                                  1, maxnoofDRBs, FALSE);
+
+  return offset;
+}
+
+
 static const per_sequence_t DRB_Failed_Item_NG_RAN_sequence[] = {
   { &hf_e1ap_dRB_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_DRB_ID },
   { &hf_e1ap_cause          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_Cause },
@@ -1778,6 +2222,36 @@ static int
 dissect_e1ap_DRB_Failed_List_NG_RAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_e1ap_DRB_Failed_List_NG_RAN, DRB_Failed_List_NG_RAN_sequence_of,
+                                                  1, maxnoofDRBs, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t DRB_Failed_Mod_Item_NG_RAN_sequence[] = {
+  { &hf_e1ap_dRB_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_DRB_ID },
+  { &hf_e1ap_cause          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_Cause },
+  { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_e1ap_DRB_Failed_Mod_Item_NG_RAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_e1ap_DRB_Failed_Mod_Item_NG_RAN, DRB_Failed_Mod_Item_NG_RAN_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t DRB_Failed_Mod_List_NG_RAN_sequence_of[1] = {
+  { &hf_e1ap_DRB_Failed_Mod_List_NG_RAN_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e1ap_DRB_Failed_Mod_Item_NG_RAN },
+};
+
+static int
+dissect_e1ap_DRB_Failed_Mod_List_NG_RAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_e1ap_DRB_Failed_Mod_List_NG_RAN, DRB_Failed_Mod_List_NG_RAN_sequence_of,
                                                   1, maxnoofDRBs, FALSE);
 
   return offset;
@@ -1912,6 +2386,7 @@ dissect_e1ap_UP_Parameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 static const per_sequence_t DRB_Modified_Item_EUTRAN_sequence[] = {
   { &hf_e1ap_dRB_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_DRB_ID },
+  { &hf_e1ap_s1_DL_UP_TNL_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_UP_TNL_Information },
   { &hf_e1ap_pDCP_UL_Count  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_PDCP_Count },
   { &hf_e1ap_pDCP_DL_Count  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_PDCP_Count },
   { &hf_e1ap_uL_UP_Transport_Parameters, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_UP_Parameters },
@@ -1937,45 +2412,6 @@ dissect_e1ap_DRB_Modified_List_EUTRAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_e1ap_DRB_Modified_List_EUTRAN, DRB_Modified_List_EUTRAN_sequence_of,
                                                   1, maxnoofDRBs, FALSE);
-
-  return offset;
-}
-
-
-
-static int
-dissect_e1ap_QoS_Flow_Indicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 63U, NULL, FALSE);
-
-  return offset;
-}
-
-
-static const per_sequence_t QoS_Flow_Item_sequence[] = {
-  { &hf_e1ap_qoS_Flow_Indicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_QoS_Flow_Indicator },
-  { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_e1ap_QoS_Flow_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_e1ap_QoS_Flow_Item, QoS_Flow_Item_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t QoS_Flow_List_sequence_of[1] = {
-  { &hf_e1ap_QoS_Flow_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e1ap_QoS_Flow_Item },
-};
-
-static int
-dissect_e1ap_QoS_Flow_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
-                                                  ett_e1ap_QoS_Flow_List, QoS_Flow_List_sequence_of,
-                                                  1, maxnoofQoSFlows, FALSE);
 
   return offset;
 }
@@ -2172,6 +2608,38 @@ dissect_e1ap_DRB_Setup_List_EUTRAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 }
 
 
+static const per_sequence_t DRB_Setup_Mod_Item_EUTRAN_sequence[] = {
+  { &hf_e1ap_dRB_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_DRB_ID },
+  { &hf_e1ap_s1_DL_UP_TNL_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_UP_TNL_Information },
+  { &hf_e1ap_data_Forwarding_Information_Response, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_Data_Forwarding_Information_Response },
+  { &hf_e1ap_uL_UP_Transport_Parameters, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_UP_Parameters },
+  { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_e1ap_DRB_Setup_Mod_Item_EUTRAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_e1ap_DRB_Setup_Mod_Item_EUTRAN, DRB_Setup_Mod_Item_EUTRAN_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t DRB_Setup_Mod_List_EUTRAN_sequence_of[1] = {
+  { &hf_e1ap_DRB_Setup_Mod_List_EUTRAN_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e1ap_DRB_Setup_Mod_Item_EUTRAN },
+};
+
+static int
+dissect_e1ap_DRB_Setup_Mod_List_EUTRAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_e1ap_DRB_Setup_Mod_List_EUTRAN, DRB_Setup_Mod_List_EUTRAN_sequence_of,
+                                                  1, maxnoofDRBs, FALSE);
+
+  return offset;
+}
+
+
 static const per_sequence_t DRB_Setup_Item_NG_RAN_sequence[] = {
   { &hf_e1ap_dRB_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_DRB_ID },
   { &hf_e1ap_dRB_data_Forwarding_Information_Response, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_Data_Forwarding_Information_Response },
@@ -2205,6 +2673,39 @@ dissect_e1ap_DRB_Setup_List_NG_RAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 }
 
 
+static const per_sequence_t DRB_Setup_Mod_Item_NG_RAN_sequence[] = {
+  { &hf_e1ap_dRB_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_DRB_ID },
+  { &hf_e1ap_dRB_data_Forwarding_Information_Response, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_Data_Forwarding_Information_Response },
+  { &hf_e1ap_uL_UP_Transport_Parameters, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_UP_Parameters },
+  { &hf_e1ap_flow_Setup_List, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_QoS_Flow_List },
+  { &hf_e1ap_flow_Failed_List, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_QoS_Flow_Failed_List },
+  { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_e1ap_DRB_Setup_Mod_Item_NG_RAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_e1ap_DRB_Setup_Mod_Item_NG_RAN, DRB_Setup_Mod_Item_NG_RAN_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t DRB_Setup_Mod_List_NG_RAN_sequence_of[1] = {
+  { &hf_e1ap_DRB_Setup_Mod_List_NG_RAN_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e1ap_DRB_Setup_Mod_Item_NG_RAN },
+};
+
+static int
+dissect_e1ap_DRB_Setup_Mod_List_NG_RAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_e1ap_DRB_Setup_Mod_List_NG_RAN, DRB_Setup_Mod_List_NG_RAN_sequence_of,
+                                                  1, maxnoofDRBs, FALSE);
+
+  return offset;
+}
+
+
 static const per_sequence_t DRB_Status_Item_sequence[] = {
   { &hf_e1ap_dRB_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_DRB_ID },
   { &hf_e1ap_pDCP_DL_Count  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_PDCP_Count },
@@ -2218,6 +2719,69 @@ static int
 dissect_e1ap_DRB_Status_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_e1ap_DRB_Status_Item, DRB_Status_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t DRBs_Subject_To_Counter_Check_Item_EUTRAN_sequence[] = {
+  { &hf_e1ap_dRB_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_DRB_ID },
+  { &hf_e1ap_pDCP_UL_Count  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_PDCP_Count },
+  { &hf_e1ap_pDCP_DL_Count  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_PDCP_Count },
+  { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_e1ap_DRBs_Subject_To_Counter_Check_Item_EUTRAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_e1ap_DRBs_Subject_To_Counter_Check_Item_EUTRAN, DRBs_Subject_To_Counter_Check_Item_EUTRAN_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t DRBs_Subject_To_Counter_Check_List_EUTRAN_sequence_of[1] = {
+  { &hf_e1ap_DRBs_Subject_To_Counter_Check_List_EUTRAN_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e1ap_DRBs_Subject_To_Counter_Check_Item_EUTRAN },
+};
+
+static int
+dissect_e1ap_DRBs_Subject_To_Counter_Check_List_EUTRAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_e1ap_DRBs_Subject_To_Counter_Check_List_EUTRAN, DRBs_Subject_To_Counter_Check_List_EUTRAN_sequence_of,
+                                                  1, maxnoofDRBs, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t DRBs_Subject_To_Counter_Check_Item_NG_RAN_sequence[] = {
+  { &hf_e1ap_pDU_Session_ID , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_PDU_Session_ID },
+  { &hf_e1ap_dRB_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_DRB_ID },
+  { &hf_e1ap_pDCP_UL_Count  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_PDCP_Count },
+  { &hf_e1ap_pDCP_DL_Count  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_PDCP_Count },
+  { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_e1ap_DRBs_Subject_To_Counter_Check_Item_NG_RAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_e1ap_DRBs_Subject_To_Counter_Check_Item_NG_RAN, DRBs_Subject_To_Counter_Check_Item_NG_RAN_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t DRBs_Subject_To_Counter_Check_List_NG_RAN_sequence_of[1] = {
+  { &hf_e1ap_DRBs_Subject_To_Counter_Check_List_NG_RAN_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e1ap_DRBs_Subject_To_Counter_Check_Item_NG_RAN },
+};
+
+static int
+dissect_e1ap_DRBs_Subject_To_Counter_Check_List_NG_RAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_e1ap_DRBs_Subject_To_Counter_Check_List_NG_RAN, DRBs_Subject_To_Counter_Check_List_NG_RAN_sequence_of,
+                                                  1, maxnoofDRBs, FALSE);
 
   return offset;
 }
@@ -2240,9 +2804,11 @@ dissect_e1ap_PDCP_SN_Size(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 
 static const value_string e1ap_RLC_Mode_vals[] = {
-  {   0, "tM" },
-  {   1, "uM" },
-  {   2, "aM" },
+  {   0, "rlc-tm" },
+  {   1, "rlc-am" },
+  {   2, "rlc-um-bidirectional" },
+  {   3, "rlc-um-unidirectional-ul" },
+  {   4, "rlc-um-unidirectional-dl" },
   { 0, NULL }
 };
 
@@ -2250,7 +2816,7 @@ static const value_string e1ap_RLC_Mode_vals[] = {
 static int
 dissect_e1ap_RLC_Mode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     3, NULL, TRUE, 0, NULL);
+                                     5, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -2460,6 +3026,36 @@ dissect_e1ap_PDCP_Duplication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 }
 
 
+static const value_string e1ap_PDCP_Reestablishment_vals[] = {
+  {   0, "true" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_e1ap_PDCP_Reestablishment(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string e1ap_PDCP_DataRecovery_vals[] = {
+  {   0, "true" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_e1ap_PDCP_DataRecovery(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
 static const per_sequence_t PDCP_Configuration_sequence[] = {
   { &hf_e1ap_pDCP_SN_Size   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_PDCP_SN_Size },
   { &hf_e1ap_rLC_Mode       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_RLC_Mode },
@@ -2468,6 +3064,8 @@ static const per_sequence_t PDCP_Configuration_sequence[] = {
   { &hf_e1ap_discardTimer   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_DiscardTimer },
   { &hf_e1ap_uLDataSplitThreshold, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ULDataSplitThreshold },
   { &hf_e1ap_pDCP_Duplication, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_PDCP_Duplication },
+  { &hf_e1ap_pDCP_Reestablishment, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_PDCP_Reestablishment },
+  { &hf_e1ap_pDCP_DataRecovery, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_PDCP_DataRecovery },
   { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
@@ -2608,6 +3206,16 @@ dissect_e1ap_PDCP_Count_Request(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 }
 
 
+
+static int
+dissect_e1ap_Inactivity_Timer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            1U, 7200U, NULL, TRUE);
+
+  return offset;
+}
+
+
 static const per_sequence_t DRB_To_Modify_Item_EUTRAN_sequence[] = {
   { &hf_e1ap_dRB_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_DRB_ID },
   { &hf_e1ap_pDCP_Configuration, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_PDCP_Configuration },
@@ -2621,6 +3229,7 @@ static const per_sequence_t DRB_To_Modify_Item_EUTRAN_sequence[] = {
   { &hf_e1ap_cell_Group_To_Add, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_Cell_Group_Information },
   { &hf_e1ap_cell_Group_To_Modify, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_Cell_Group_Information },
   { &hf_e1ap_cell_Group_To_Remove, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_Cell_Group_Information },
+  { &hf_e1ap_dRB_Inactivity_Timer, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_Inactivity_Timer },
   { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
@@ -2709,9 +3318,9 @@ dissect_e1ap_INTEGER_0_255_(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 
 static int
-dissect_e1ap_INTEGER_1_127_(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_e1ap_QoSPriorityLevel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 127U, NULL, TRUE);
+                                                            0U, 127U, NULL, TRUE);
 
   return offset;
 }
@@ -2721,7 +3330,7 @@ dissect_e1ap_INTEGER_1_127_(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 static int
 dissect_e1ap_MaxDataBurstVolume(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 63U, NULL, FALSE);
+                                                            0U, 4095U, NULL, TRUE);
 
   return offset;
 }
@@ -2729,7 +3338,7 @@ dissect_e1ap_MaxDataBurstVolume(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static const per_sequence_t Non_Dynamic5QIDescriptor_sequence[] = {
   { &hf_e1ap_fiveQI         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e1ap_INTEGER_0_255_ },
-  { &hf_e1ap_qoSPriorityLevel_01, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_e1ap_INTEGER_1_127_ },
+  { &hf_e1ap_qoSPriorityLevel, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_e1ap_QoSPriorityLevel },
   { &hf_e1ap_averagingWindow, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_e1ap_AveragingWindow },
   { &hf_e1ap_maxDataBurstVolume, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_e1ap_MaxDataBurstVolume },
   { &hf_e1ap_iE_Extensions  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
@@ -2747,9 +3356,9 @@ dissect_e1ap_Non_Dynamic5QIDescriptor(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
 
 static int
-dissect_e1ap_INTEGER_1_127(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_e1ap_PacketDelayBudget(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 127U, NULL, FALSE);
+                                                            0U, 1023U, NULL, TRUE);
 
   return offset;
 }
@@ -2757,19 +3366,35 @@ dissect_e1ap_INTEGER_1_127(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 
 static int
-dissect_e1ap_PacketDelayBudget(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_e1ap_PER_Scalar(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 63U, NULL, FALSE);
+                                                            0U, 9U, NULL, TRUE);
 
   return offset;
 }
 
 
+
+static int
+dissect_e1ap_PER_Exponent(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 9U, NULL, TRUE);
+
+  return offset;
+}
+
+
+static const per_sequence_t PacketErrorRate_sequence[] = {
+  { &hf_e1ap_pER_Scalar     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_PER_Scalar },
+  { &hf_e1ap_pER_Exponent   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_PER_Exponent },
+  { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
 
 static int
 dissect_e1ap_PacketErrorRate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 63U, NULL, FALSE);
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_e1ap_PacketErrorRate, PacketErrorRate_sequence);
 
   return offset;
 }
@@ -2792,9 +3417,10 @@ dissect_e1ap_T_delayCritical(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
 
 static const per_sequence_t Dynamic5QIDescriptor_sequence[] = {
-  { &hf_e1ap_qoSPriorityLevel, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e1ap_INTEGER_1_127 },
+  { &hf_e1ap_qoSPriorityLevel, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e1ap_QoSPriorityLevel },
   { &hf_e1ap_packetDelayBudget, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e1ap_PacketDelayBudget },
   { &hf_e1ap_packetErrorRate, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e1ap_PacketErrorRate },
+  { &hf_e1ap_fiveQI         , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_e1ap_INTEGER_0_255_ },
   { &hf_e1ap_delayCritical  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_e1ap_T_delayCritical },
   { &hf_e1ap_averagingWindow, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_e1ap_AveragingWindow },
   { &hf_e1ap_maxDataBurstVolume, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_e1ap_MaxDataBurstVolume },
@@ -2814,12 +3440,14 @@ dissect_e1ap_Dynamic5QIDescriptor(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 static const value_string e1ap_QoS_Characteristics_vals[] = {
   {   0, "non-Dynamic-5QI" },
   {   1, "dynamic-5QI" },
+  {   2, "choice-extension" },
   { 0, NULL }
 };
 
 static const per_choice_t QoS_Characteristics_choice[] = {
-  {   0, &hf_e1ap_non_Dynamic_5QI, ASN1_EXTENSION_ROOT    , dissect_e1ap_Non_Dynamic5QIDescriptor },
-  {   1, &hf_e1ap_dynamic_5QI    , ASN1_EXTENSION_ROOT    , dissect_e1ap_Dynamic5QIDescriptor },
+  {   0, &hf_e1ap_non_Dynamic_5QI, ASN1_NO_EXTENSIONS     , dissect_e1ap_Non_Dynamic5QIDescriptor },
+  {   1, &hf_e1ap_dynamic_5QI    , ASN1_NO_EXTENSIONS     , dissect_e1ap_Dynamic5QIDescriptor },
+  {   2, &hf_e1ap_choice_extension, ASN1_NO_EXTENSIONS     , dissect_e1ap_ProtocolIE_SingleContainer },
   { 0, NULL, 0, NULL }
 };
 
@@ -2869,7 +3497,7 @@ dissect_e1ap_T_notificationControl(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 static int
 dissect_e1ap_MaxPacketLossRate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 1000U, NULL, FALSE);
+                                                            0U, 1000U, NULL, TRUE);
 
   return offset;
 }
@@ -3015,6 +3643,7 @@ static const per_sequence_t DRB_To_Modify_Item_NG_RAN_sequence[] = {
   { &hf_e1ap_cell_Group_To_Modify, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_Cell_Group_Information },
   { &hf_e1ap_cell_Group_To_Remove, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_Cell_Group_Information },
   { &hf_e1ap_flow_Mapping_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_QoS_Flow_QoS_Parameter_List },
+  { &hf_e1ap_dRB_Inactivity_Timer, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_Inactivity_Timer },
   { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
@@ -3071,6 +3700,36 @@ dissect_e1ap_DRB_To_Remove_List_EUTRAN(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 }
 
 
+static const per_sequence_t DRB_Required_To_Remove_Item_EUTRAN_sequence[] = {
+  { &hf_e1ap_dRB_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_DRB_ID },
+  { &hf_e1ap_cause          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_Cause },
+  { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_e1ap_DRB_Required_To_Remove_Item_EUTRAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_e1ap_DRB_Required_To_Remove_Item_EUTRAN, DRB_Required_To_Remove_Item_EUTRAN_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t DRB_Required_To_Remove_List_EUTRAN_sequence_of[1] = {
+  { &hf_e1ap_DRB_Required_To_Remove_List_EUTRAN_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e1ap_DRB_Required_To_Remove_Item_EUTRAN },
+};
+
+static int
+dissect_e1ap_DRB_Required_To_Remove_List_EUTRAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_e1ap_DRB_Required_To_Remove_List_EUTRAN, DRB_Required_To_Remove_List_EUTRAN_sequence_of,
+                                                  1, maxnoofDRBs, FALSE);
+
+  return offset;
+}
+
+
 static const per_sequence_t DRB_To_Remove_Item_NG_RAN_sequence[] = {
   { &hf_e1ap_dRB_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_DRB_ID },
   { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
@@ -3100,6 +3759,36 @@ dissect_e1ap_DRB_To_Remove_List_NG_RAN(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 }
 
 
+static const per_sequence_t DRB_Required_To_Remove_Item_NG_RAN_sequence[] = {
+  { &hf_e1ap_dRB_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_DRB_ID },
+  { &hf_e1ap_cause          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_Cause },
+  { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_e1ap_DRB_Required_To_Remove_Item_NG_RAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_e1ap_DRB_Required_To_Remove_Item_NG_RAN, DRB_Required_To_Remove_Item_NG_RAN_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t DRB_Required_To_Remove_List_NG_RAN_sequence_of[1] = {
+  { &hf_e1ap_DRB_Required_To_Remove_List_NG_RAN_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e1ap_DRB_Required_To_Remove_Item_NG_RAN },
+};
+
+static int
+dissect_e1ap_DRB_Required_To_Remove_List_NG_RAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_e1ap_DRB_Required_To_Remove_List_NG_RAN, DRB_Required_To_Remove_List_NG_RAN_sequence_of,
+                                                  1, maxnoofDRBs, FALSE);
+
+  return offset;
+}
+
+
 static const per_sequence_t DRB_To_Setup_Item_EUTRAN_sequence[] = {
   { &hf_e1ap_dRB_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_DRB_ID },
   { &hf_e1ap_pDCP_Configuration, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_PDCP_Configuration },
@@ -3107,6 +3796,8 @@ static const per_sequence_t DRB_To_Setup_Item_EUTRAN_sequence[] = {
   { &hf_e1ap_s1_UL_UP_TNL_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_UP_TNL_Information },
   { &hf_e1ap_data_Forwarding_Information_Request, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_Data_Forwarding_Information_Request },
   { &hf_e1ap_cell_Group_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_Cell_Group_Information },
+  { &hf_e1ap_dL_UP_Parameters, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_UP_Parameters },
+  { &hf_e1ap_dRB_Inactivity_Timer, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_Inactivity_Timer },
   { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
@@ -3134,6 +3825,42 @@ dissect_e1ap_DRB_To_Setup_List_EUTRAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 }
 
 
+static const per_sequence_t DRB_To_Setup_Mod_Item_EUTRAN_sequence[] = {
+  { &hf_e1ap_dRB_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_DRB_ID },
+  { &hf_e1ap_pDCP_Configuration, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_PDCP_Configuration },
+  { &hf_e1ap_eUTRAN_QoS     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_EUTRAN_QoS },
+  { &hf_e1ap_s1_UL_UP_TNL_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_UP_TNL_Information },
+  { &hf_e1ap_data_Forwarding_Information_Request, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_Data_Forwarding_Information_Request },
+  { &hf_e1ap_cell_Group_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_Cell_Group_Information },
+  { &hf_e1ap_dL_UP_Parameters, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_UP_Parameters },
+  { &hf_e1ap_dRB_Inactivity_Timer, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_Inactivity_Timer },
+  { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_e1ap_DRB_To_Setup_Mod_Item_EUTRAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_e1ap_DRB_To_Setup_Mod_Item_EUTRAN, DRB_To_Setup_Mod_Item_EUTRAN_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t DRB_To_Setup_Mod_List_EUTRAN_sequence_of[1] = {
+  { &hf_e1ap_DRB_To_Setup_Mod_List_EUTRAN_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e1ap_DRB_To_Setup_Mod_Item_EUTRAN },
+};
+
+static int
+dissect_e1ap_DRB_To_Setup_Mod_List_EUTRAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_e1ap_DRB_To_Setup_Mod_List_EUTRAN, DRB_To_Setup_Mod_List_EUTRAN_sequence_of,
+                                                  1, maxnoofDRBs, FALSE);
+
+  return offset;
+}
+
+
 static const per_sequence_t DRB_To_Setup_Item_NG_RAN_sequence[] = {
   { &hf_e1ap_dRB_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_DRB_ID },
   { &hf_e1ap_sDAP_Configuration, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_SDAP_Configuration },
@@ -3141,6 +3868,9 @@ static const per_sequence_t DRB_To_Setup_Item_NG_RAN_sequence[] = {
   { &hf_e1ap_cell_Group_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_Cell_Group_Information },
   { &hf_e1ap_flow_Mapping_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_QoS_Flow_QoS_Parameter_List },
   { &hf_e1ap_dRB_Data_Forwarding_Information_Request, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_Data_Forwarding_Information_Request },
+  { &hf_e1ap_dRB_Inactivity_Timer, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_Inactivity_Timer },
+  { &hf_e1ap_pDCP_UL_Count  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_PDCP_Count },
+  { &hf_e1ap_pDCP_DL_Count  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_PDCP_Count },
   { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
@@ -3162,6 +3892,43 @@ static int
 dissect_e1ap_DRB_To_Setup_List_NG_RAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_e1ap_DRB_To_Setup_List_NG_RAN, DRB_To_Setup_List_NG_RAN_sequence_of,
+                                                  1, maxnoofDRBs, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t DRB_To_Setup_Mod_Item_NG_RAN_sequence[] = {
+  { &hf_e1ap_dRB_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_DRB_ID },
+  { &hf_e1ap_sDAP_Configuration, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_SDAP_Configuration },
+  { &hf_e1ap_pDCP_Configuration, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_PDCP_Configuration },
+  { &hf_e1ap_cell_Group_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_Cell_Group_Information },
+  { &hf_e1ap_flow_Mapping_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_QoS_Flow_QoS_Parameter_List },
+  { &hf_e1ap_dRB_Data_Forwarding_Information_Request, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_Data_Forwarding_Information_Request },
+  { &hf_e1ap_dRB_Inactivity_Timer, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_Inactivity_Timer },
+  { &hf_e1ap_pDCP_UL_Count  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_PDCP_Count },
+  { &hf_e1ap_pDCP_DL_Count  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_PDCP_Count },
+  { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_e1ap_DRB_To_Setup_Mod_Item_NG_RAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_e1ap_DRB_To_Setup_Mod_Item_NG_RAN, DRB_To_Setup_Mod_Item_NG_RAN_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t DRB_To_Setup_Mod_List_NG_RAN_sequence_of[1] = {
+  { &hf_e1ap_DRB_To_Setup_Mod_List_NG_RAN_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e1ap_DRB_To_Setup_Mod_Item_NG_RAN },
+};
+
+static int
+dissect_e1ap_DRB_To_Setup_Mod_List_NG_RAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_e1ap_DRB_To_Setup_Mod_List_NG_RAN, DRB_To_Setup_Mod_List_NG_RAN_sequence_of,
                                                   1, maxnoofDRBs, FALSE);
 
   return offset;
@@ -3257,6 +4024,101 @@ dissect_e1ap_GNB_CU_UP_UE_E1AP_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 }
 
 
+static const per_sequence_t GNB_CU_CP_TNLA_Setup_Item_sequence[] = {
+  { &hf_e1ap_tNLAssociationTransportLayerAddress, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_CP_TNL_Information },
+  { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_e1ap_GNB_CU_CP_TNLA_Setup_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_e1ap_GNB_CU_CP_TNLA_Setup_Item, GNB_CU_CP_TNLA_Setup_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t GNB_CU_CP_TNLA_Failed_To_Setup_Item_sequence[] = {
+  { &hf_e1ap_tNLAssociationTransportLayerAddress, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e1ap_CP_TNL_Information },
+  { &hf_e1ap_cause          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e1ap_Cause },
+  { &hf_e1ap_iE_Extensions  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_e1ap_GNB_CU_CP_TNLA_Failed_To_Setup_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_e1ap_GNB_CU_CP_TNLA_Failed_To_Setup_Item, GNB_CU_CP_TNLA_Failed_To_Setup_Item_sequence);
+
+  return offset;
+}
+
+
+static const value_string e1ap_TNLAssociationUsage_vals[] = {
+  {   0, "ue" },
+  {   1, "non-ue" },
+  {   2, "both" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_e1ap_TNLAssociationUsage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     3, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t GNB_CU_CP_TNLA_To_Add_Item_sequence[] = {
+  { &hf_e1ap_tNLAssociationTransportLayerAddress, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e1ap_CP_TNL_Information },
+  { &hf_e1ap_tNLAssociationUsage, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e1ap_TNLAssociationUsage },
+  { &hf_e1ap_iE_Extensions  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_e1ap_GNB_CU_CP_TNLA_To_Add_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_e1ap_GNB_CU_CP_TNLA_To_Add_Item, GNB_CU_CP_TNLA_To_Add_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t GNB_CU_CP_TNLA_To_Remove_Item_sequence[] = {
+  { &hf_e1ap_tNLAssociationTransportLayerAddress, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e1ap_CP_TNL_Information },
+  { &hf_e1ap_iE_Extensions  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_e1ap_GNB_CU_CP_TNLA_To_Remove_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_e1ap_GNB_CU_CP_TNLA_To_Remove_Item, GNB_CU_CP_TNLA_To_Remove_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t GNB_CU_CP_TNLA_To_Update_Item_sequence[] = {
+  { &hf_e1ap_tNLAssociationTransportLayerAddress, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e1ap_CP_TNL_Information },
+  { &hf_e1ap_tNLAssociationUsage, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_e1ap_TNLAssociationUsage },
+  { &hf_e1ap_iE_Extensions  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_e1ap_GNB_CU_CP_TNLA_To_Update_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_e1ap_GNB_CU_CP_TNLA_To_Update_Item, GNB_CU_CP_TNLA_To_Update_Item_sequence);
+
+  return offset;
+}
+
+
 static const value_string e1ap_IntegrityProtectionIndication_vals[] = {
   {   0, "required" },
   {   1, "preferred" },
@@ -3297,6 +4159,37 @@ static int
 dissect_e1ap_IntegrityProtectionKey(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, NULL);
+
+  return offset;
+}
+
+
+static const value_string e1ap_IntegrityProtectionResult_vals[] = {
+  {   0, "performed" },
+  {   1, "not-performed" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_e1ap_IntegrityProtectionResult(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     2, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string e1ap_New_UL_TNL_Information_Required_vals[] = {
+  {   0, "required" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_e1ap_New_UL_TNL_Information_Required(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -3344,7 +4237,7 @@ dissect_e1ap_NR_Cell_Identity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 static int
 dissect_e1ap_PLMN_Identity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 252 "./asn1/e1ap/e1ap.cnf"
+#line 324 "./asn1/e1ap/e1ap.cnf"
   tvbuff_t *param_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        3, 3, FALSE, &param_tvb);
@@ -3400,16 +4293,6 @@ dissect_e1ap_NR_CGI_Support_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_e1ap_NR_CGI_Support_List, NR_CGI_Support_List_sequence_of,
                                                   1, maxnoofNRCGI, FALSE);
-
-  return offset;
-}
-
-
-
-static int
-dissect_e1ap_PDU_Session_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 255U, NULL, FALSE);
 
   return offset;
 }
@@ -3475,6 +4358,36 @@ dissect_e1ap_PDU_Session_Resource_Failed_List(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 
+static const per_sequence_t PDU_Session_Resource_Failed_Mod_Item_sequence[] = {
+  { &hf_e1ap_pDU_Session_ID , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_PDU_Session_ID },
+  { &hf_e1ap_casue          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_Cause },
+  { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_e1ap_PDU_Session_Resource_Failed_Mod_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_e1ap_PDU_Session_Resource_Failed_Mod_Item, PDU_Session_Resource_Failed_Mod_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t PDU_Session_Resource_Failed_Mod_List_sequence_of[1] = {
+  { &hf_e1ap_PDU_Session_Resource_Failed_Mod_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e1ap_PDU_Session_Resource_Failed_Mod_Item },
+};
+
+static int
+dissect_e1ap_PDU_Session_Resource_Failed_Mod_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_e1ap_PDU_Session_Resource_Failed_Mod_List, PDU_Session_Resource_Failed_Mod_List_sequence_of,
+                                                  1, maxnoofPDUSessionResource, FALSE);
+
+  return offset;
+}
+
+
 static const per_sequence_t PDU_Session_Resource_Failed_To_Modify_Item_sequence[] = {
   { &hf_e1ap_pDU_Session_ID , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_PDU_Session_ID },
   { &hf_e1ap_casue          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_Cause },
@@ -3505,8 +4418,26 @@ dissect_e1ap_PDU_Session_Resource_Failed_To_Modify_List(tvbuff_t *tvb _U_, int o
 }
 
 
+static const per_sequence_t SecurityResult_sequence[] = {
+  { &hf_e1ap_integrityProtectionResult, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_IntegrityProtectionResult },
+  { &hf_e1ap_confidentialityProtectionResult, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_ConfidentialityProtectionResult },
+  { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_e1ap_SecurityResult(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_e1ap_SecurityResult, SecurityResult_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t PDU_Session_Resource_Modified_Item_sequence[] = {
   { &hf_e1ap_pDU_Session_ID , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_PDU_Session_ID },
+  { &hf_e1ap_nG_DL_UP_TNL_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_UP_TNL_Information },
+  { &hf_e1ap_securityResult , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_SecurityResult },
   { &hf_e1ap_dRB_Setup_List_NG_RAN, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_DRB_Setup_List_NG_RAN },
   { &hf_e1ap_dRB_Failed_List_NG_RAN, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_DRB_Failed_List_NG_RAN },
   { &hf_e1ap_dRB_Modified_List_NG_RAN, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_DRB_Modified_List_NG_RAN },
@@ -3573,6 +4504,7 @@ dissect_e1ap_PDU_Session_Resource_Required_To_Modify_List(tvbuff_t *tvb _U_, int
 
 static const per_sequence_t PDU_Session_Resource_Setup_Item_sequence[] = {
   { &hf_e1ap_pDU_Session_ID , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_PDU_Session_ID },
+  { &hf_e1ap_securityResult , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_SecurityResult },
   { &hf_e1ap_nG_DL_UP_TNL_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_UP_TNL_Information },
   { &hf_e1ap_pDU_Session_Data_Forwarding_Information_Response, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_Data_Forwarding_Information_Response },
   { &hf_e1ap_dRB_Setup_List_NG_RAN, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_DRB_Setup_List_NG_RAN },
@@ -3598,6 +4530,40 @@ static int
 dissect_e1ap_PDU_Session_Resource_Setup_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_e1ap_PDU_Session_Resource_Setup_List, PDU_Session_Resource_Setup_List_sequence_of,
+                                                  1, maxnoofPDUSessionResource, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t PDU_Session_Resource_Setup_Mod_Item_sequence[] = {
+  { &hf_e1ap_pDU_Session_ID , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_PDU_Session_ID },
+  { &hf_e1ap_securityResult , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_SecurityResult },
+  { &hf_e1ap_nG_DL_UP_TNL_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_UP_TNL_Information },
+  { &hf_e1ap_pDU_Session_Data_Forwarding_Information_Response, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_Data_Forwarding_Information_Response },
+  { &hf_e1ap_dRB_Setup_Mod_List_NG_RAN, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_DRB_Setup_Mod_List_NG_RAN },
+  { &hf_e1ap_dRB_Failed_Mod_List_NG_RAN, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_DRB_Failed_Mod_List_NG_RAN },
+  { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_e1ap_PDU_Session_Resource_Setup_Mod_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_e1ap_PDU_Session_Resource_Setup_Mod_Item, PDU_Session_Resource_Setup_Mod_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t PDU_Session_Resource_Setup_Mod_List_sequence_of[1] = {
+  { &hf_e1ap_PDU_Session_Resource_Setup_Mod_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e1ap_PDU_Session_Resource_Setup_Mod_Item },
+};
+
+static int
+dissect_e1ap_PDU_Session_Resource_Setup_Mod_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_e1ap_PDU_Session_Resource_Setup_Mod_List, PDU_Session_Resource_Setup_Mod_List_sequence_of,
                                                   1, maxnoofPDUSessionResource, FALSE);
 
   return offset;
@@ -3680,12 +4646,13 @@ static const per_sequence_t PDU_Session_Resource_To_Modify_Item_sequence[] = {
   { &hf_e1ap_pDU_Session_Type, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_PDU_Session_Type },
   { &hf_e1ap_sNSSAI         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_SNSSAI },
   { &hf_e1ap_securityIndication, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_SecurityIndication },
-  { &hf_e1ap_pDU_Session_Resource_AMBR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_BitRate },
+  { &hf_e1ap_pDU_Session_Resource_DL_AMBR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_BitRate },
   { &hf_e1ap_nG_UL_UP_TNL_Information, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_UP_TNL_Information },
   { &hf_e1ap_pDU_Session_Data_Forwarding_Information_Request, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_Data_Forwarding_Information_Request },
+  { &hf_e1ap_pDU_Session_Inactivity_Timer, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_Inactivity_Timer },
   { &hf_e1ap_dRB_To_Setup_List_NG_RAN, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_DRB_To_Setup_List_NG_RAN },
   { &hf_e1ap_dRB_To_Modify_List_NG_RAN, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_DRB_To_Modify_List_NG_RAN },
-  { &hf_e1ap_dRB_To_Remove_List_NG_RAN, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_DRB_To_Remove_List_NG_RAN },
+  { &hf_e1ap_dRB_Required_To_Remove_List_NG_RAN, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_DRB_Required_To_Remove_List_NG_RAN },
   { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
@@ -3747,9 +4714,10 @@ static const per_sequence_t PDU_Session_Resource_To_Setup_Item_sequence[] = {
   { &hf_e1ap_pDU_Session_Type, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_PDU_Session_Type },
   { &hf_e1ap_sNSSAI         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_SNSSAI },
   { &hf_e1ap_securityIndication, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_SecurityIndication },
-  { &hf_e1ap_pDU_Session_Resource_AMBR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_BitRate },
+  { &hf_e1ap_pDU_Session_Resource_DL_AMBR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_BitRate },
   { &hf_e1ap_nG_UL_UP_TNL_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_UP_TNL_Information },
   { &hf_e1ap_pDU_Session_Data_Forwarding_Information_Request, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_Data_Forwarding_Information_Request },
+  { &hf_e1ap_pDU_Session_Inactivity_Timer, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_Inactivity_Timer },
   { &hf_e1ap_dRB_To_Setup_List_NG_RAN, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_DRB_To_Setup_List_NG_RAN },
   { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
@@ -3772,6 +4740,43 @@ static int
 dissect_e1ap_PDU_Session_Resource_To_Setup_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_e1ap_PDU_Session_Resource_To_Setup_List, PDU_Session_Resource_To_Setup_List_sequence_of,
+                                                  1, maxnoofPDUSessionResource, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t PDU_Session_Resource_To_Setup_Mod_Item_sequence[] = {
+  { &hf_e1ap_pDU_Session_ID , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_PDU_Session_ID },
+  { &hf_e1ap_pDU_Session_Type, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_PDU_Session_Type },
+  { &hf_e1ap_sNSSAI         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_SNSSAI },
+  { &hf_e1ap_securityIndication, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_SecurityIndication },
+  { &hf_e1ap_pDU_Session_Resource_AMBR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_BitRate },
+  { &hf_e1ap_nG_UL_UP_TNL_Information, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_UP_TNL_Information },
+  { &hf_e1ap_pDU_Session_Data_Forwarding_Information_Request, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_Data_Forwarding_Information_Request },
+  { &hf_e1ap_pDU_Session_Inactivity_Timer, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_Inactivity_Timer },
+  { &hf_e1ap_dRB_To_Setup_Mod_List_NG_RAN, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_DRB_To_Setup_Mod_List_NG_RAN },
+  { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_e1ap_PDU_Session_Resource_To_Setup_Mod_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_e1ap_PDU_Session_Resource_To_Setup_Mod_Item, PDU_Session_Resource_To_Setup_Mod_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t PDU_Session_Resource_To_Setup_Mod_List_sequence_of[1] = {
+  { &hf_e1ap_PDU_Session_Resource_To_Setup_Mod_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e1ap_PDU_Session_Resource_To_Setup_Mod_Item },
+};
+
+static int
+dissect_e1ap_PDU_Session_Resource_To_Setup_Mod_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_e1ap_PDU_Session_Resource_To_Setup_Mod_List, PDU_Session_Resource_To_Setup_Mod_List_sequence_of,
                                                   1, maxnoofPDUSessionResource, FALSE);
 
   return offset;
@@ -3914,7 +4919,7 @@ static const per_sequence_t Reset_sequence[] = {
 
 static int
 dissect_e1ap_Reset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 313 "./asn1/e1ap/e1ap.cnf"
+#line 397 "./asn1/e1ap/e1ap.cnf"
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Reset");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -3956,12 +4961,14 @@ dissect_e1ap_UE_associatedLogicalE1_ConnectionListRes(tvbuff_t *tvb _U_, int off
 static const value_string e1ap_ResetType_vals[] = {
   {   0, "e1-Interface" },
   {   1, "partOfE1-Interface" },
+  {   2, "choice-extension" },
   { 0, NULL }
 };
 
 static const per_choice_t ResetType_choice[] = {
-  {   0, &hf_e1ap_e1_Interface   , ASN1_EXTENSION_ROOT    , dissect_e1ap_ResetAll },
-  {   1, &hf_e1ap_partOfE1_Interface, ASN1_EXTENSION_ROOT    , dissect_e1ap_UE_associatedLogicalE1_ConnectionListRes },
+  {   0, &hf_e1ap_e1_Interface   , ASN1_NO_EXTENSIONS     , dissect_e1ap_ResetAll },
+  {   1, &hf_e1ap_partOfE1_Interface, ASN1_NO_EXTENSIONS     , dissect_e1ap_UE_associatedLogicalE1_ConnectionListRes },
+  {   2, &hf_e1ap_choice_extension, ASN1_NO_EXTENSIONS     , dissect_e1ap_ProtocolIE_SingleContainer },
   { 0, NULL, 0, NULL }
 };
 
@@ -3982,7 +4989,7 @@ static const per_sequence_t ResetAcknowledge_sequence[] = {
 
 static int
 dissect_e1ap_ResetAcknowledge(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 315 "./asn1/e1ap/e1ap.cnf"
+#line 399 "./asn1/e1ap/e1ap.cnf"
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ResetAcknowledge");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -4013,7 +5020,7 @@ static const per_sequence_t ErrorIndication_sequence[] = {
 
 static int
 dissect_e1ap_ErrorIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 317 "./asn1/e1ap/e1ap.cnf"
+#line 401 "./asn1/e1ap/e1ap.cnf"
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ErrorIndication");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -4030,25 +5037,11 @@ static const per_sequence_t GNB_CU_UP_E1SetupRequest_sequence[] = {
 
 static int
 dissect_e1ap_GNB_CU_UP_E1SetupRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 319 "./asn1/e1ap/e1ap.cnf"
+#line 403 "./asn1/e1ap/e1ap.cnf"
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNB-CU-UP-E1SetupRequest");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_e1ap_GNB_CU_UP_E1SetupRequest, GNB_CU_UP_E1SetupRequest_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t SupportedPLMNs_List_sequence_of[1] = {
-  { &hf_e1ap_SupportedPLMNs_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e1ap_ProtocolIE_SingleContainer },
-};
-
-static int
-dissect_e1ap_SupportedPLMNs_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
-                                                  ett_e1ap_SupportedPLMNs_List, SupportedPLMNs_List_sequence_of,
-                                                  1, maxnoofSPLMNs, FALSE);
 
   return offset;
 }
@@ -4072,6 +5065,20 @@ dissect_e1ap_SupportedPLMNs_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 }
 
 
+static const per_sequence_t SupportedPLMNs_List_sequence_of[1] = {
+  { &hf_e1ap_SupportedPLMNs_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e1ap_SupportedPLMNs_Item },
+};
+
+static int
+dissect_e1ap_SupportedPLMNs_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_e1ap_SupportedPLMNs_List, SupportedPLMNs_List_sequence_of,
+                                                  1, maxnoofSPLMNs, FALSE);
+
+  return offset;
+}
+
+
 static const per_sequence_t GNB_CU_UP_E1SetupResponse_sequence[] = {
   { &hf_e1ap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_ProtocolIE_Container },
   { NULL, 0, 0, NULL }
@@ -4079,7 +5086,7 @@ static const per_sequence_t GNB_CU_UP_E1SetupResponse_sequence[] = {
 
 static int
 dissect_e1ap_GNB_CU_UP_E1SetupResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 321 "./asn1/e1ap/e1ap.cnf"
+#line 405 "./asn1/e1ap/e1ap.cnf"
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNB-CU-UP-E1SetupResponse");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -4096,7 +5103,7 @@ static const per_sequence_t GNB_CU_UP_E1SetupFailure_sequence[] = {
 
 static int
 dissect_e1ap_GNB_CU_UP_E1SetupFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 323 "./asn1/e1ap/e1ap.cnf"
+#line 407 "./asn1/e1ap/e1ap.cnf"
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNB-CU-UP-E1SetupFailure");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -4113,7 +5120,7 @@ static const per_sequence_t GNB_CU_CP_E1SetupRequest_sequence[] = {
 
 static int
 dissect_e1ap_GNB_CU_CP_E1SetupRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 325 "./asn1/e1ap/e1ap.cnf"
+#line 409 "./asn1/e1ap/e1ap.cnf"
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNB-CU-CP-E1SetupRequest");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -4130,7 +5137,7 @@ static const per_sequence_t GNB_CU_CP_E1SetupResponse_sequence[] = {
 
 static int
 dissect_e1ap_GNB_CU_CP_E1SetupResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 327 "./asn1/e1ap/e1ap.cnf"
+#line 411 "./asn1/e1ap/e1ap.cnf"
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNB-CU-CP-E1SetupResponse");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -4147,7 +5154,7 @@ static const per_sequence_t GNB_CU_CP_E1SetupFailure_sequence[] = {
 
 static int
 dissect_e1ap_GNB_CU_CP_E1SetupFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 329 "./asn1/e1ap/e1ap.cnf"
+#line 413 "./asn1/e1ap/e1ap.cnf"
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNB-CU-CP-E1SetupFailure");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -4164,7 +5171,7 @@ static const per_sequence_t GNB_CU_UP_ConfigurationUpdate_sequence[] = {
 
 static int
 dissect_e1ap_GNB_CU_UP_ConfigurationUpdate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 331 "./asn1/e1ap/e1ap.cnf"
+#line 415 "./asn1/e1ap/e1ap.cnf"
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNB-CU-UP-ConfigurationUpdate");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -4181,7 +5188,7 @@ static const per_sequence_t GNB_CU_UP_ConfigurationUpdateAcknowledge_sequence[] 
 
 static int
 dissect_e1ap_GNB_CU_UP_ConfigurationUpdateAcknowledge(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 333 "./asn1/e1ap/e1ap.cnf"
+#line 417 "./asn1/e1ap/e1ap.cnf"
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNB-CU-UP-ConfigurationUpdateAcknowledge");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -4198,7 +5205,7 @@ static const per_sequence_t GNB_CU_UP_ConfigurationUpdateFailure_sequence[] = {
 
 static int
 dissect_e1ap_GNB_CU_UP_ConfigurationUpdateFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 335 "./asn1/e1ap/e1ap.cnf"
+#line 419 "./asn1/e1ap/e1ap.cnf"
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNB-CU-UP-ConfigurationUpdateFailure");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -4215,11 +5222,53 @@ static const per_sequence_t GNB_CU_CP_ConfigurationUpdate_sequence[] = {
 
 static int
 dissect_e1ap_GNB_CU_CP_ConfigurationUpdate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 337 "./asn1/e1ap/e1ap.cnf"
+#line 421 "./asn1/e1ap/e1ap.cnf"
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNB-CU-CP-ConfigurationUpdate");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_e1ap_GNB_CU_CP_ConfigurationUpdate, GNB_CU_CP_ConfigurationUpdate_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t GNB_CU_CP_TNLA_To_Add_List_sequence_of[1] = {
+  { &hf_e1ap_GNB_CU_CP_TNLA_To_Add_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e1ap_GNB_CU_CP_TNLA_To_Add_Item },
+};
+
+static int
+dissect_e1ap_GNB_CU_CP_TNLA_To_Add_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_e1ap_GNB_CU_CP_TNLA_To_Add_List, GNB_CU_CP_TNLA_To_Add_List_sequence_of,
+                                                  1, maxnoofTNLAssociations, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t GNB_CU_CP_TNLA_To_Remove_List_sequence_of[1] = {
+  { &hf_e1ap_GNB_CU_CP_TNLA_To_Remove_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e1ap_GNB_CU_CP_TNLA_To_Remove_Item },
+};
+
+static int
+dissect_e1ap_GNB_CU_CP_TNLA_To_Remove_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_e1ap_GNB_CU_CP_TNLA_To_Remove_List, GNB_CU_CP_TNLA_To_Remove_List_sequence_of,
+                                                  1, maxnoofTNLAssociations, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t GNB_CU_CP_TNLA_To_Update_List_sequence_of[1] = {
+  { &hf_e1ap_GNB_CU_CP_TNLA_To_Update_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e1ap_GNB_CU_CP_TNLA_To_Update_Item },
+};
+
+static int
+dissect_e1ap_GNB_CU_CP_TNLA_To_Update_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_e1ap_GNB_CU_CP_TNLA_To_Update_List, GNB_CU_CP_TNLA_To_Update_List_sequence_of,
+                                                  1, maxnoofTNLAssociations, FALSE);
 
   return offset;
 }
@@ -4232,11 +5281,39 @@ static const per_sequence_t GNB_CU_CP_ConfigurationUpdateAcknowledge_sequence[] 
 
 static int
 dissect_e1ap_GNB_CU_CP_ConfigurationUpdateAcknowledge(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 339 "./asn1/e1ap/e1ap.cnf"
+#line 423 "./asn1/e1ap/e1ap.cnf"
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNB-CU-CP-ConfigurationUpdateAcknowledge");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_e1ap_GNB_CU_CP_ConfigurationUpdateAcknowledge, GNB_CU_CP_ConfigurationUpdateAcknowledge_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t GNB_CU_CP_TNLA_Setup_List_sequence_of[1] = {
+  { &hf_e1ap_GNB_CU_CP_TNLA_Setup_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e1ap_GNB_CU_CP_TNLA_Setup_Item },
+};
+
+static int
+dissect_e1ap_GNB_CU_CP_TNLA_Setup_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_e1ap_GNB_CU_CP_TNLA_Setup_List, GNB_CU_CP_TNLA_Setup_List_sequence_of,
+                                                  1, maxnoofTNLAssociations, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t GNB_CU_CP_TNLA_Failed_To_Setup_List_sequence_of[1] = {
+  { &hf_e1ap_GNB_CU_CP_TNLA_Failed_To_Setup_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e1ap_GNB_CU_CP_TNLA_Failed_To_Setup_Item },
+};
+
+static int
+dissect_e1ap_GNB_CU_CP_TNLA_Failed_To_Setup_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_e1ap_GNB_CU_CP_TNLA_Failed_To_Setup_List, GNB_CU_CP_TNLA_Failed_To_Setup_List_sequence_of,
+                                                  1, maxnoofTNLAssociations, FALSE);
 
   return offset;
 }
@@ -4249,7 +5326,7 @@ static const per_sequence_t GNB_CU_CP_ConfigurationUpdateFailure_sequence[] = {
 
 static int
 dissect_e1ap_GNB_CU_CP_ConfigurationUpdateFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 341 "./asn1/e1ap/e1ap.cnf"
+#line 425 "./asn1/e1ap/e1ap.cnf"
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNB-CU-CP-ConfigurationUpdateFailure");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -4266,7 +5343,7 @@ static const per_sequence_t E1ReleaseRequest_sequence[] = {
 
 static int
 dissect_e1ap_E1ReleaseRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 343 "./asn1/e1ap/e1ap.cnf"
+#line 427 "./asn1/e1ap/e1ap.cnf"
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E1ReleaseRequest");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -4283,7 +5360,7 @@ static const per_sequence_t E1ReleaseResponse_sequence[] = {
 
 static int
 dissect_e1ap_E1ReleaseResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 345 "./asn1/e1ap/e1ap.cnf"
+#line 429 "./asn1/e1ap/e1ap.cnf"
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E1ReleaseResponse");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -4300,7 +5377,7 @@ static const per_sequence_t BearerContextSetupRequest_sequence[] = {
 
 static int
 dissect_e1ap_BearerContextSetupRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 347 "./asn1/e1ap/e1ap.cnf"
+#line 431 "./asn1/e1ap/e1ap.cnf"
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "BearerContextSetupRequest");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -4310,45 +5387,17 @@ dissect_e1ap_BearerContextSetupRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 }
 
 
-static const per_sequence_t EUTRAN_BearerContextSetupRequest_sequence[] = {
-  { &hf_e1ap_dRB_To_Setup_List_EUTRAN, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_DRB_To_Setup_List_EUTRAN },
-  { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_e1ap_EUTRAN_BearerContextSetupRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_e1ap_EUTRAN_BearerContextSetupRequest, EUTRAN_BearerContextSetupRequest_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t NG_RAN_BearerContextSetupRequest_sequence[] = {
-  { &hf_e1ap_pDU_Session_Resource_To_Setup_List, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_PDU_Session_Resource_To_Setup_List },
-  { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_e1ap_NG_RAN_BearerContextSetupRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_e1ap_NG_RAN_BearerContextSetupRequest, NG_RAN_BearerContextSetupRequest_sequence);
-
-  return offset;
-}
-
-
 static const value_string e1ap_System_BearerContextSetupRequest_vals[] = {
   {   0, "e-UTRAN-BearerContextSetupRequest" },
   {   1, "nG-RAN-BearerContextSetupRequest" },
+  {   2, "choice-extension" },
   { 0, NULL }
 };
 
 static const per_choice_t System_BearerContextSetupRequest_choice[] = {
-  {   0, &hf_e1ap_e_UTRAN_BearerContextSetupRequest, ASN1_EXTENSION_ROOT    , dissect_e1ap_EUTRAN_BearerContextSetupRequest },
-  {   1, &hf_e1ap_nG_RAN_BearerContextSetupRequest, ASN1_EXTENSION_ROOT    , dissect_e1ap_NG_RAN_BearerContextSetupRequest },
+  {   0, &hf_e1ap_e_UTRAN_BearerContextSetupRequest, ASN1_NO_EXTENSIONS     , dissect_e1ap_ProtocolIE_Container },
+  {   1, &hf_e1ap_nG_RAN_BearerContextSetupRequest, ASN1_NO_EXTENSIONS     , dissect_e1ap_ProtocolIE_Container },
+  {   2, &hf_e1ap_choice_extension, ASN1_NO_EXTENSIONS     , dissect_e1ap_ProtocolIE_SingleContainer },
   { 0, NULL, 0, NULL }
 };
 
@@ -4369,7 +5418,7 @@ static const per_sequence_t BearerContextSetupResponse_sequence[] = {
 
 static int
 dissect_e1ap_BearerContextSetupResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 349 "./asn1/e1ap/e1ap.cnf"
+#line 433 "./asn1/e1ap/e1ap.cnf"
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "BearerContextSetupResponse");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -4379,47 +5428,17 @@ dissect_e1ap_BearerContextSetupResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_
 }
 
 
-static const per_sequence_t EUTRAN_BearerContextSetupResponse_sequence[] = {
-  { &hf_e1ap_dRB_Setup_List_EUTRAN, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_DRB_Setup_List_EUTRAN },
-  { &hf_e1ap_dRB_Failed_List_EUTRAN, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_DRB_Failed_List_EUTRAN },
-  { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_e1ap_EUTRAN_BearerContextSetupResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_e1ap_EUTRAN_BearerContextSetupResponse, EUTRAN_BearerContextSetupResponse_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t NG_RAN_BearerContextSetupResponse_sequence[] = {
-  { &hf_e1ap_pDU_Session_Resource_Setup_List, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_PDU_Session_Resource_Setup_List },
-  { &hf_e1ap_pDU_Session_Resource_Failed_List, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_PDU_Session_Resource_Failed_List },
-  { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_e1ap_NG_RAN_BearerContextSetupResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_e1ap_NG_RAN_BearerContextSetupResponse, NG_RAN_BearerContextSetupResponse_sequence);
-
-  return offset;
-}
-
-
 static const value_string e1ap_System_BearerContextSetupResponse_vals[] = {
   {   0, "e-UTRAN-BearerContextSetupResponse" },
   {   1, "nG-RAN-BearerContextSetupResponse" },
+  {   2, "choice-extension" },
   { 0, NULL }
 };
 
 static const per_choice_t System_BearerContextSetupResponse_choice[] = {
-  {   0, &hf_e1ap_e_UTRAN_BearerContextSetupResponse, ASN1_EXTENSION_ROOT    , dissect_e1ap_EUTRAN_BearerContextSetupResponse },
-  {   1, &hf_e1ap_nG_RAN_BearerContextSetupResponse, ASN1_EXTENSION_ROOT    , dissect_e1ap_NG_RAN_BearerContextSetupResponse },
+  {   0, &hf_e1ap_e_UTRAN_BearerContextSetupResponse, ASN1_NO_EXTENSIONS     , dissect_e1ap_ProtocolIE_Container },
+  {   1, &hf_e1ap_nG_RAN_BearerContextSetupResponse, ASN1_NO_EXTENSIONS     , dissect_e1ap_ProtocolIE_Container },
+  {   2, &hf_e1ap_choice_extension, ASN1_NO_EXTENSIONS     , dissect_e1ap_ProtocolIE_SingleContainer },
   { 0, NULL, 0, NULL }
 };
 
@@ -4440,7 +5459,7 @@ static const per_sequence_t BearerContextSetupFailure_sequence[] = {
 
 static int
 dissect_e1ap_BearerContextSetupFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 351 "./asn1/e1ap/e1ap.cnf"
+#line 435 "./asn1/e1ap/e1ap.cnf"
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "BearerContextSetupFailure");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -4457,7 +5476,7 @@ static const per_sequence_t BearerContextModificationRequest_sequence[] = {
 
 static int
 dissect_e1ap_BearerContextModificationRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 353 "./asn1/e1ap/e1ap.cnf"
+#line 437 "./asn1/e1ap/e1ap.cnf"
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "BearerContextModificationRequest");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -4467,49 +5486,17 @@ dissect_e1ap_BearerContextModificationRequest(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 
-static const per_sequence_t EUTRAN_BearerContextModificationRequest_sequence[] = {
-  { &hf_e1ap_dRB_To_Setup_List_EUTRAN, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_DRB_To_Setup_List_EUTRAN },
-  { &hf_e1ap_dRB_To_Modify_List_EUTRAN, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_DRB_To_Modify_List_EUTRAN },
-  { &hf_e1ap_dRB_To_Remove_List_EUTRAN, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_DRB_To_Remove_List_EUTRAN },
-  { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_e1ap_EUTRAN_BearerContextModificationRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_e1ap_EUTRAN_BearerContextModificationRequest, EUTRAN_BearerContextModificationRequest_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t NG_RAN_BearerContextModificationRequest_sequence[] = {
-  { &hf_e1ap_pDU_Session_Resource_To_Setup_List, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_PDU_Session_Resource_To_Setup_List },
-  { &hf_e1ap_pDU_Session_Resource_To_Modify_List, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_PDU_Session_Resource_To_Modify_List },
-  { &hf_e1ap_pDU_Session_Resource_To_Remove_List, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_PDU_Session_Resource_To_Remove_List },
-  { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_e1ap_NG_RAN_BearerContextModificationRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_e1ap_NG_RAN_BearerContextModificationRequest, NG_RAN_BearerContextModificationRequest_sequence);
-
-  return offset;
-}
-
-
 static const value_string e1ap_System_BearerContextModificationRequest_vals[] = {
   {   0, "e-UTRAN-BearerContextModificationRequest" },
   {   1, "nG-RAN-BearerContextModificationRequest" },
+  {   2, "choice-extension" },
   { 0, NULL }
 };
 
 static const per_choice_t System_BearerContextModificationRequest_choice[] = {
-  {   0, &hf_e1ap_e_UTRAN_BearerContextModificationRequest, ASN1_EXTENSION_ROOT    , dissect_e1ap_EUTRAN_BearerContextModificationRequest },
-  {   1, &hf_e1ap_nG_RAN_BearerContextModificationRequest, ASN1_EXTENSION_ROOT    , dissect_e1ap_NG_RAN_BearerContextModificationRequest },
+  {   0, &hf_e1ap_e_UTRAN_BearerContextModificationRequest, ASN1_NO_EXTENSIONS     , dissect_e1ap_ProtocolIE_Container },
+  {   1, &hf_e1ap_nG_RAN_BearerContextModificationRequest, ASN1_NO_EXTENSIONS     , dissect_e1ap_ProtocolIE_Container },
+  {   2, &hf_e1ap_choice_extension, ASN1_NO_EXTENSIONS     , dissect_e1ap_ProtocolIE_SingleContainer },
   { 0, NULL, 0, NULL }
 };
 
@@ -4530,7 +5517,7 @@ static const per_sequence_t BearerContextModificationResponse_sequence[] = {
 
 static int
 dissect_e1ap_BearerContextModificationResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 355 "./asn1/e1ap/e1ap.cnf"
+#line 439 "./asn1/e1ap/e1ap.cnf"
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "BearerContextModificationResponse");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -4540,51 +5527,17 @@ dissect_e1ap_BearerContextModificationResponse(tvbuff_t *tvb _U_, int offset _U_
 }
 
 
-static const per_sequence_t EUTRAN_BearerContextModificationResponse_sequence[] = {
-  { &hf_e1ap_dRB_Setup_List_EUTRAN, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_DRB_Setup_List_EUTRAN },
-  { &hf_e1ap_dRB_Failed_List_EUTRAN, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_DRB_Failed_List_EUTRAN },
-  { &hf_e1ap_dRB_Modified_List_EUTRAN, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_DRB_Modified_List_EUTRAN },
-  { &hf_e1ap_dRB_Failed_To_Modify_List_EUTRAN, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_DRB_Failed_To_Modify_List_EUTRAN },
-  { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_e1ap_EUTRAN_BearerContextModificationResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_e1ap_EUTRAN_BearerContextModificationResponse, EUTRAN_BearerContextModificationResponse_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t NG_RAN_BearerContextModificationResponse_sequence[] = {
-  { &hf_e1ap_pDU_Session_Resource_Setup_List, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_PDU_Session_Resource_Setup_List },
-  { &hf_e1ap_pDU_Session_Resource_Failed_List, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_PDU_Session_Resource_Failed_List },
-  { &hf_e1ap_pDU_Session_Resource_Modified_List, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_PDU_Session_Resource_Modified_List },
-  { &hf_e1ap_pDU_Session_Resource_Failed_To_Modify_List, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_PDU_Session_Resource_Failed_To_Modify_List },
-  { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_e1ap_NG_RAN_BearerContextModificationResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_e1ap_NG_RAN_BearerContextModificationResponse, NG_RAN_BearerContextModificationResponse_sequence);
-
-  return offset;
-}
-
-
 static const value_string e1ap_System_BearerContextModificationResponse_vals[] = {
   {   0, "e-UTRAN-BearerContextModificationResponse" },
   {   1, "nG-RAN-BearerContextModificationResponse" },
+  {   2, "choice-extension" },
   { 0, NULL }
 };
 
 static const per_choice_t System_BearerContextModificationResponse_choice[] = {
-  {   0, &hf_e1ap_e_UTRAN_BearerContextModificationResponse, ASN1_EXTENSION_ROOT    , dissect_e1ap_EUTRAN_BearerContextModificationResponse },
-  {   1, &hf_e1ap_nG_RAN_BearerContextModificationResponse, ASN1_EXTENSION_ROOT    , dissect_e1ap_NG_RAN_BearerContextModificationResponse },
+  {   0, &hf_e1ap_e_UTRAN_BearerContextModificationResponse, ASN1_NO_EXTENSIONS     , dissect_e1ap_ProtocolIE_Container },
+  {   1, &hf_e1ap_nG_RAN_BearerContextModificationResponse, ASN1_NO_EXTENSIONS     , dissect_e1ap_ProtocolIE_Container },
+  {   2, &hf_e1ap_choice_extension, ASN1_NO_EXTENSIONS     , dissect_e1ap_ProtocolIE_SingleContainer },
   { 0, NULL, 0, NULL }
 };
 
@@ -4605,7 +5558,7 @@ static const per_sequence_t BearerContextModificationFailure_sequence[] = {
 
 static int
 dissect_e1ap_BearerContextModificationFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 357 "./asn1/e1ap/e1ap.cnf"
+#line 441 "./asn1/e1ap/e1ap.cnf"
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "BearerContextModificationFailure");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -4622,7 +5575,7 @@ static const per_sequence_t BearerContextModificationRequired_sequence[] = {
 
 static int
 dissect_e1ap_BearerContextModificationRequired(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 359 "./asn1/e1ap/e1ap.cnf"
+#line 443 "./asn1/e1ap/e1ap.cnf"
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "BearerContextModificationRequired");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -4632,47 +5585,17 @@ dissect_e1ap_BearerContextModificationRequired(tvbuff_t *tvb _U_, int offset _U_
 }
 
 
-static const per_sequence_t EUTRAN_BearerContextModificationRequired_sequence[] = {
-  { &hf_e1ap_dRB_Required_To_Modify_List_EUTRAN, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_DRB_Required_To_Modify_List_EUTRAN },
-  { &hf_e1ap_dRB_To_Remove_List_EUTRAN, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_DRB_To_Remove_List_EUTRAN },
-  { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_e1ap_EUTRAN_BearerContextModificationRequired(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_e1ap_EUTRAN_BearerContextModificationRequired, EUTRAN_BearerContextModificationRequired_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t NG_RAN_BearerContextModificationRequired_sequence[] = {
-  { &hf_e1ap_pDU_Session_Resource_Required_To_Modify_List, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_PDU_Session_Resource_Required_To_Modify_List },
-  { &hf_e1ap_pDU_Session_Resource_To_Remove_List, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_PDU_Session_Resource_To_Remove_List },
-  { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_e1ap_NG_RAN_BearerContextModificationRequired(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_e1ap_NG_RAN_BearerContextModificationRequired, NG_RAN_BearerContextModificationRequired_sequence);
-
-  return offset;
-}
-
-
 static const value_string e1ap_System_BearerContextModificationRequired_vals[] = {
   {   0, "e-UTRAN-BearerContextModificationRequired" },
   {   1, "nG-RAN-BearerContextModificationRequired" },
+  {   2, "choice-extension" },
   { 0, NULL }
 };
 
 static const per_choice_t System_BearerContextModificationRequired_choice[] = {
-  {   0, &hf_e1ap_e_UTRAN_BearerContextModificationRequired, ASN1_EXTENSION_ROOT    , dissect_e1ap_EUTRAN_BearerContextModificationRequired },
-  {   1, &hf_e1ap_nG_RAN_BearerContextModificationRequired, ASN1_EXTENSION_ROOT    , dissect_e1ap_NG_RAN_BearerContextModificationRequired },
+  {   0, &hf_e1ap_e_UTRAN_BearerContextModificationRequired, ASN1_NO_EXTENSIONS     , dissect_e1ap_ProtocolIE_Container },
+  {   1, &hf_e1ap_nG_RAN_BearerContextModificationRequired, ASN1_NO_EXTENSIONS     , dissect_e1ap_ProtocolIE_Container },
+  {   2, &hf_e1ap_choice_extension, ASN1_NO_EXTENSIONS     , dissect_e1ap_ProtocolIE_SingleContainer },
   { 0, NULL, 0, NULL }
 };
 
@@ -4693,7 +5616,7 @@ static const per_sequence_t BearerContextModificationConfirm_sequence[] = {
 
 static int
 dissect_e1ap_BearerContextModificationConfirm(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 361 "./asn1/e1ap/e1ap.cnf"
+#line 445 "./asn1/e1ap/e1ap.cnf"
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "BearerContextModificationConfirm");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -4703,45 +5626,17 @@ dissect_e1ap_BearerContextModificationConfirm(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 
-static const per_sequence_t EUTRAN_BearerContextModificationConfirm_sequence[] = {
-  { &hf_e1ap_dRB_Confirm_Modified_List_EUTRAN, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_DRB_Confirm_Modified_List_EUTRAN },
-  { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_e1ap_EUTRAN_BearerContextModificationConfirm(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_e1ap_EUTRAN_BearerContextModificationConfirm, EUTRAN_BearerContextModificationConfirm_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t NG_RAN_BearerContextModificationConfirm_sequence[] = {
-  { &hf_e1ap_pDU_Session_Resource_Confirm_Modified_List, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_PDU_Session_Resource_Confirm_Modified_List },
-  { &hf_e1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_e1ap_ProtocolExtensionContainer },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_e1ap_NG_RAN_BearerContextModificationConfirm(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_e1ap_NG_RAN_BearerContextModificationConfirm, NG_RAN_BearerContextModificationConfirm_sequence);
-
-  return offset;
-}
-
-
 static const value_string e1ap_System_BearerContextModificationConfirm_vals[] = {
   {   0, "e-UTRAN-BearerContextModificationConfirm" },
   {   1, "nG-RAN-BearerContextModificationConfirm" },
+  {   2, "choice-extension" },
   { 0, NULL }
 };
 
 static const per_choice_t System_BearerContextModificationConfirm_choice[] = {
-  {   0, &hf_e1ap_e_UTRAN_BearerContextModificationConfirm, ASN1_EXTENSION_ROOT    , dissect_e1ap_EUTRAN_BearerContextModificationConfirm },
-  {   1, &hf_e1ap_nG_RAN_BearerContextModificationConfirm, ASN1_EXTENSION_ROOT    , dissect_e1ap_NG_RAN_BearerContextModificationConfirm },
+  {   0, &hf_e1ap_e_UTRAN_BearerContextModificationConfirm, ASN1_NO_EXTENSIONS     , dissect_e1ap_ProtocolIE_Container },
+  {   1, &hf_e1ap_nG_RAN_BearerContextModificationConfirm, ASN1_NO_EXTENSIONS     , dissect_e1ap_ProtocolIE_Container },
+  {   2, &hf_e1ap_choice_extension, ASN1_NO_EXTENSIONS     , dissect_e1ap_ProtocolIE_SingleContainer },
   { 0, NULL, 0, NULL }
 };
 
@@ -4762,7 +5657,7 @@ static const per_sequence_t BearerContextReleaseCommand_sequence[] = {
 
 static int
 dissect_e1ap_BearerContextReleaseCommand(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 363 "./asn1/e1ap/e1ap.cnf"
+#line 447 "./asn1/e1ap/e1ap.cnf"
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "BearerContextReleaseCommand");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -4779,7 +5674,7 @@ static const per_sequence_t BearerContextReleaseComplete_sequence[] = {
 
 static int
 dissect_e1ap_BearerContextReleaseComplete(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 365 "./asn1/e1ap/e1ap.cnf"
+#line 449 "./asn1/e1ap/e1ap.cnf"
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "BearerContextReleaseComplete");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -4796,7 +5691,7 @@ static const per_sequence_t BearerContextReleaseRequest_sequence[] = {
 
 static int
 dissect_e1ap_BearerContextReleaseRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 367 "./asn1/e1ap/e1ap.cnf"
+#line 451 "./asn1/e1ap/e1ap.cnf"
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "BearerContextReleaseRequest");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -4807,7 +5702,7 @@ dissect_e1ap_BearerContextReleaseRequest(tvbuff_t *tvb _U_, int offset _U_, asn1
 
 
 static const per_sequence_t DRB_Status_List_sequence_of[1] = {
-  { &hf_e1ap_DRB_Status_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e1ap_ProtocolIE_SingleContainer },
+  { &hf_e1ap_DRB_Status_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e1ap_DRB_Status_Item },
 };
 
 static int
@@ -4827,25 +5722,11 @@ static const per_sequence_t BearerContextInactivityNotification_sequence[] = {
 
 static int
 dissect_e1ap_BearerContextInactivityNotification(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 369 "./asn1/e1ap/e1ap.cnf"
+#line 453 "./asn1/e1ap/e1ap.cnf"
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "BearerContextInactivityNotification");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_e1ap_BearerContextInactivityNotification, BearerContextInactivityNotification_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t DRB_Activity_List_sequence_of[1] = {
-  { &hf_e1ap_DRB_Activity_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_e1ap_ProtocolIE_SingleContainer },
-};
-
-static int
-dissect_e1ap_DRB_Activity_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
-                                                  ett_e1ap_DRB_Activity_List, DRB_Activity_List_sequence_of,
-                                                  1, maxnoofDRBs, FALSE);
 
   return offset;
 }
@@ -4858,7 +5739,7 @@ static const per_sequence_t DLDataNotification_sequence[] = {
 
 static int
 dissect_e1ap_DLDataNotification(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 371 "./asn1/e1ap/e1ap.cnf"
+#line 455 "./asn1/e1ap/e1ap.cnf"
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DLDataNotification");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -4875,11 +5756,52 @@ static const per_sequence_t DataUsageReport_sequence[] = {
 
 static int
 dissect_e1ap_DataUsageReport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 373 "./asn1/e1ap/e1ap.cnf"
+#line 457 "./asn1/e1ap/e1ap.cnf"
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DataUsageReport");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_e1ap_DataUsageReport, DataUsageReport_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t GNB_CU_UP_CounterCheckRequest_sequence[] = {
+  { &hf_e1ap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e1ap_ProtocolIE_Container },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_e1ap_GNB_CU_UP_CounterCheckRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 459 "./asn1/e1ap/e1ap.cnf"
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNB-CU-UP-CounterCheckRequest");
+
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_e1ap_GNB_CU_UP_CounterCheckRequest, GNB_CU_UP_CounterCheckRequest_sequence);
+
+  return offset;
+}
+
+
+static const value_string e1ap_System_GNB_CU_UP_CounterCheckRequest_vals[] = {
+  {   0, "e-UTRAN-GNB-CU-UP-CounterCheckRequest" },
+  {   1, "nG-RAN-GNB-CU-UP-CounterCheckRequest" },
+  {   2, "choice-extension" },
+  { 0, NULL }
+};
+
+static const per_choice_t System_GNB_CU_UP_CounterCheckRequest_choice[] = {
+  {   0, &hf_e1ap_e_UTRAN_GNB_CU_UP_CounterCheckRequest, ASN1_NO_EXTENSIONS     , dissect_e1ap_ProtocolIE_Container },
+  {   1, &hf_e1ap_nG_RAN_GNB_CU_UP_CounterCheckRequest, ASN1_NO_EXTENSIONS     , dissect_e1ap_ProtocolIE_Container },
+  {   2, &hf_e1ap_choice_extension, ASN1_NO_EXTENSIONS     , dissect_e1ap_ProtocolIE_SingleContainer },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_e1ap_System_GNB_CU_UP_CounterCheckRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_e1ap_System_GNB_CU_UP_CounterCheckRequest, System_GNB_CU_UP_CounterCheckRequest_choice,
+                                 NULL);
 
   return offset;
 }
@@ -4892,7 +5814,7 @@ static const per_sequence_t PrivateMessage_sequence[] = {
 
 static int
 dissect_e1ap_PrivateMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 375 "./asn1/e1ap/e1ap.cnf"
+#line 461 "./asn1/e1ap/e1ap.cnf"
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PrivateMessage");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -4905,7 +5827,7 @@ dissect_e1ap_PrivateMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 static int
 dissect_e1ap_InitiatingMessage_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 90 "./asn1/e1ap/e1ap.cnf"
+#line 89 "./asn1/e1ap/e1ap.cnf"
   e1ap_private_data_t *e1ap_data = e1ap_get_private_data(actx->pinfo);
   e1ap_data->message_type = INITIATING_MESSAGE;
 
@@ -4934,7 +5856,7 @@ dissect_e1ap_InitiatingMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_e1ap_SuccessfulOutcome_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 94 "./asn1/e1ap/e1ap.cnf"
+#line 93 "./asn1/e1ap/e1ap.cnf"
   e1ap_private_data_t *e1ap_data = e1ap_get_private_data(actx->pinfo);
   e1ap_data->message_type = SUCCESSFUL_OUTCOME;
 
@@ -4963,7 +5885,7 @@ dissect_e1ap_SuccessfulOutcome(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_e1ap_UnsuccessfulOutcome_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 98 "./asn1/e1ap/e1ap.cnf"
+#line 97 "./asn1/e1ap/e1ap.cnf"
   e1ap_private_data_t *e1ap_data = e1ap_get_private_data(actx->pinfo);
   e1ap_data->message_type = UNSUCCESSFUL_OUTCOME;
 
@@ -5014,6 +5936,22 @@ dissect_e1ap_E1AP_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 
 /*--- PDUs ---*/
 
+static int dissect_ActivityInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_e1ap_ActivityInformation(tvb, offset, &asn1_ctx, tree, hf_e1ap_ActivityInformation_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_ActivityNotificationLevel_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_e1ap_ActivityNotificationLevel(tvb, offset, &asn1_ctx, tree, hf_e1ap_ActivityNotificationLevel_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_BearerContextStatusChange_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -5062,19 +6000,123 @@ static int dissect_Data_Usage_Report_List_PDU(tvbuff_t *tvb _U_, packet_info *pi
   offset += 7; offset >>= 3;
   return offset;
 }
-static int dissect_DRB_Activity_Item_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+static int dissect_DRB_Confirm_Modified_List_EUTRAN_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
-  offset = dissect_e1ap_DRB_Activity_Item(tvb, offset, &asn1_ctx, tree, hf_e1ap_DRB_Activity_Item_PDU);
+  offset = dissect_e1ap_DRB_Confirm_Modified_List_EUTRAN(tvb, offset, &asn1_ctx, tree, hf_e1ap_DRB_Confirm_Modified_List_EUTRAN_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
-static int dissect_DRB_Status_Item_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+static int dissect_DRB_Failed_List_EUTRAN_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
-  offset = dissect_e1ap_DRB_Status_Item(tvb, offset, &asn1_ctx, tree, hf_e1ap_DRB_Status_Item_PDU);
+  offset = dissect_e1ap_DRB_Failed_List_EUTRAN(tvb, offset, &asn1_ctx, tree, hf_e1ap_DRB_Failed_List_EUTRAN_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_DRB_Failed_Mod_List_EUTRAN_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_e1ap_DRB_Failed_Mod_List_EUTRAN(tvb, offset, &asn1_ctx, tree, hf_e1ap_DRB_Failed_Mod_List_EUTRAN_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_DRB_Failed_To_Modify_List_EUTRAN_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_e1ap_DRB_Failed_To_Modify_List_EUTRAN(tvb, offset, &asn1_ctx, tree, hf_e1ap_DRB_Failed_To_Modify_List_EUTRAN_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_DRB_Modified_List_EUTRAN_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_e1ap_DRB_Modified_List_EUTRAN(tvb, offset, &asn1_ctx, tree, hf_e1ap_DRB_Modified_List_EUTRAN_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_DRB_Required_To_Modify_List_EUTRAN_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_e1ap_DRB_Required_To_Modify_List_EUTRAN(tvb, offset, &asn1_ctx, tree, hf_e1ap_DRB_Required_To_Modify_List_EUTRAN_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_DRB_Setup_List_EUTRAN_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_e1ap_DRB_Setup_List_EUTRAN(tvb, offset, &asn1_ctx, tree, hf_e1ap_DRB_Setup_List_EUTRAN_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_DRB_Setup_Mod_List_EUTRAN_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_e1ap_DRB_Setup_Mod_List_EUTRAN(tvb, offset, &asn1_ctx, tree, hf_e1ap_DRB_Setup_Mod_List_EUTRAN_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_DRBs_Subject_To_Counter_Check_List_EUTRAN_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_e1ap_DRBs_Subject_To_Counter_Check_List_EUTRAN(tvb, offset, &asn1_ctx, tree, hf_e1ap_DRBs_Subject_To_Counter_Check_List_EUTRAN_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_DRBs_Subject_To_Counter_Check_List_NG_RAN_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_e1ap_DRBs_Subject_To_Counter_Check_List_NG_RAN(tvb, offset, &asn1_ctx, tree, hf_e1ap_DRBs_Subject_To_Counter_Check_List_NG_RAN_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_DRB_To_Modify_List_EUTRAN_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_e1ap_DRB_To_Modify_List_EUTRAN(tvb, offset, &asn1_ctx, tree, hf_e1ap_DRB_To_Modify_List_EUTRAN_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_DRB_To_Remove_List_EUTRAN_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_e1ap_DRB_To_Remove_List_EUTRAN(tvb, offset, &asn1_ctx, tree, hf_e1ap_DRB_To_Remove_List_EUTRAN_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_DRB_Required_To_Remove_List_EUTRAN_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_e1ap_DRB_Required_To_Remove_List_EUTRAN(tvb, offset, &asn1_ctx, tree, hf_e1ap_DRB_Required_To_Remove_List_EUTRAN_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_DRB_To_Setup_List_EUTRAN_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_e1ap_DRB_To_Setup_List_EUTRAN(tvb, offset, &asn1_ctx, tree, hf_e1ap_DRB_To_Setup_List_EUTRAN_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_DRB_To_Setup_Mod_List_EUTRAN_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_e1ap_DRB_To_Setup_Mod_List_EUTRAN(tvb, offset, &asn1_ctx, tree, hf_e1ap_DRB_To_Setup_Mod_List_EUTRAN_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -5118,6 +6160,126 @@ static int dissect_GNB_CU_UP_UE_E1AP_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinf
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_Inactivity_Timer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_e1ap_Inactivity_Timer(tvb, offset, &asn1_ctx, tree, hf_e1ap_Inactivity_Timer_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_New_UL_TNL_Information_Required_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_e1ap_New_UL_TNL_Information_Required(tvb, offset, &asn1_ctx, tree, hf_e1ap_New_UL_TNL_Information_Required_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_PDU_Session_Resource_Confirm_Modified_List_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_e1ap_PDU_Session_Resource_Confirm_Modified_List(tvb, offset, &asn1_ctx, tree, hf_e1ap_PDU_Session_Resource_Confirm_Modified_List_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_PDU_Session_Resource_Failed_List_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_e1ap_PDU_Session_Resource_Failed_List(tvb, offset, &asn1_ctx, tree, hf_e1ap_PDU_Session_Resource_Failed_List_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_PDU_Session_Resource_Failed_Mod_List_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_e1ap_PDU_Session_Resource_Failed_Mod_List(tvb, offset, &asn1_ctx, tree, hf_e1ap_PDU_Session_Resource_Failed_Mod_List_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_PDU_Session_Resource_Failed_To_Modify_List_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_e1ap_PDU_Session_Resource_Failed_To_Modify_List(tvb, offset, &asn1_ctx, tree, hf_e1ap_PDU_Session_Resource_Failed_To_Modify_List_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_PDU_Session_Resource_Modified_List_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_e1ap_PDU_Session_Resource_Modified_List(tvb, offset, &asn1_ctx, tree, hf_e1ap_PDU_Session_Resource_Modified_List_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_PDU_Session_Resource_Required_To_Modify_List_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_e1ap_PDU_Session_Resource_Required_To_Modify_List(tvb, offset, &asn1_ctx, tree, hf_e1ap_PDU_Session_Resource_Required_To_Modify_List_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_PDU_Session_Resource_Setup_List_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_e1ap_PDU_Session_Resource_Setup_List(tvb, offset, &asn1_ctx, tree, hf_e1ap_PDU_Session_Resource_Setup_List_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_PDU_Session_Resource_Setup_Mod_List_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_e1ap_PDU_Session_Resource_Setup_Mod_List(tvb, offset, &asn1_ctx, tree, hf_e1ap_PDU_Session_Resource_Setup_Mod_List_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_PDU_Session_Resource_To_Modify_List_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_e1ap_PDU_Session_Resource_To_Modify_List(tvb, offset, &asn1_ctx, tree, hf_e1ap_PDU_Session_Resource_To_Modify_List_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_PDU_Session_Resource_To_Remove_List_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_e1ap_PDU_Session_Resource_To_Remove_List(tvb, offset, &asn1_ctx, tree, hf_e1ap_PDU_Session_Resource_To_Remove_List_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_PDU_Session_Resource_To_Setup_List_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_e1ap_PDU_Session_Resource_To_Setup_List(tvb, offset, &asn1_ctx, tree, hf_e1ap_PDU_Session_Resource_To_Setup_List_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_PDU_Session_Resource_To_Setup_Mod_List_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_e1ap_PDU_Session_Resource_To_Setup_Mod_List(tvb, offset, &asn1_ctx, tree, hf_e1ap_PDU_Session_Resource_To_Setup_Mod_List_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_PLMN_Identity_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_e1ap_PLMN_Identity(tvb, offset, &asn1_ctx, tree, hf_e1ap_PLMN_Identity_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_SecurityInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -5131,6 +6293,14 @@ static int dissect_TimeToWait_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_e1ap_TimeToWait(tvb, offset, &asn1_ctx, tree, hf_e1ap_TimeToWait_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_TransactionID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_e1ap_TransactionID(tvb, offset, &asn1_ctx, tree, hf_e1ap_TransactionID_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -5195,14 +6365,6 @@ static int dissect_SupportedPLMNs_List_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_e1ap_SupportedPLMNs_List(tvb, offset, &asn1_ctx, tree, hf_e1ap_SupportedPLMNs_List_PDU);
-  offset += 7; offset >>= 3;
-  return offset;
-}
-static int dissect_SupportedPLMNs_Item_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
-  offset = dissect_e1ap_SupportedPLMNs_Item(tvb, offset, &asn1_ctx, tree, hf_e1ap_SupportedPLMNs_Item_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -5278,11 +6440,51 @@ static int dissect_GNB_CU_CP_ConfigurationUpdate_PDU(tvbuff_t *tvb _U_, packet_i
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_GNB_CU_CP_TNLA_To_Add_List_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_e1ap_GNB_CU_CP_TNLA_To_Add_List(tvb, offset, &asn1_ctx, tree, hf_e1ap_GNB_CU_CP_TNLA_To_Add_List_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_GNB_CU_CP_TNLA_To_Remove_List_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_e1ap_GNB_CU_CP_TNLA_To_Remove_List(tvb, offset, &asn1_ctx, tree, hf_e1ap_GNB_CU_CP_TNLA_To_Remove_List_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_GNB_CU_CP_TNLA_To_Update_List_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_e1ap_GNB_CU_CP_TNLA_To_Update_List(tvb, offset, &asn1_ctx, tree, hf_e1ap_GNB_CU_CP_TNLA_To_Update_List_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_GNB_CU_CP_ConfigurationUpdateAcknowledge_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_e1ap_GNB_CU_CP_ConfigurationUpdateAcknowledge(tvb, offset, &asn1_ctx, tree, hf_e1ap_GNB_CU_CP_ConfigurationUpdateAcknowledge_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_GNB_CU_CP_TNLA_Setup_List_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_e1ap_GNB_CU_CP_TNLA_Setup_List(tvb, offset, &asn1_ctx, tree, hf_e1ap_GNB_CU_CP_TNLA_Setup_List_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_GNB_CU_CP_TNLA_Failed_To_Setup_List_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_e1ap_GNB_CU_CP_TNLA_Failed_To_Setup_List(tvb, offset, &asn1_ctx, tree, hf_e1ap_GNB_CU_CP_TNLA_Failed_To_Setup_List_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -5462,14 +6664,6 @@ static int dissect_BearerContextInactivityNotification_PDU(tvbuff_t *tvb _U_, pa
   offset += 7; offset >>= 3;
   return offset;
 }
-static int dissect_DRB_Activity_List_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
-  offset = dissect_e1ap_DRB_Activity_List(tvb, offset, &asn1_ctx, tree, hf_e1ap_DRB_Activity_List_PDU);
-  offset += 7; offset >>= 3;
-  return offset;
-}
 static int dissect_DLDataNotification_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -5483,6 +6677,22 @@ static int dissect_DataUsageReport_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_e1ap_DataUsageReport(tvb, offset, &asn1_ctx, tree, hf_e1ap_DataUsageReport_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_GNB_CU_UP_CounterCheckRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_e1ap_GNB_CU_UP_CounterCheckRequest(tvb, offset, &asn1_ctx, tree, hf_e1ap_GNB_CU_UP_CounterCheckRequest_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_System_GNB_CU_UP_CounterCheckRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_e1ap_System_GNB_CU_UP_CounterCheckRequest(tvb, offset, &asn1_ctx, tree, hf_e1ap_System_GNB_CU_UP_CounterCheckRequest_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -5505,7 +6715,7 @@ static int dissect_E1AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-e1ap-fn.c ---*/
-#line 106 "./asn1/e1ap/packet-e1ap-template.c"
+#line 112 "./asn1/e1ap/packet-e1ap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -5589,6 +6799,14 @@ void proto_register_e1ap(void) {
 
 /*--- Included file: packet-e1ap-hfarr.c ---*/
 #line 1 "./asn1/e1ap/packet-e1ap-hfarr.c"
+    { &hf_e1ap_ActivityInformation_PDU,
+      { "ActivityInformation", "e1ap.ActivityInformation",
+        FT_UINT32, BASE_DEC, VALS(e1ap_ActivityInformation_vals), 0,
+        NULL, HFILL }},
+    { &hf_e1ap_ActivityNotificationLevel_PDU,
+      { "ActivityNotificationLevel", "e1ap.ActivityNotificationLevel",
+        FT_UINT32, BASE_DEC, VALS(e1ap_ActivityNotificationLevel_vals), 0,
+        NULL, HFILL }},
     { &hf_e1ap_BearerContextStatusChange_PDU,
       { "BearerContextStatusChange", "e1ap.BearerContextStatusChange",
         FT_UINT32, BASE_DEC, VALS(e1ap_BearerContextStatusChange_vals), 0,
@@ -5613,13 +6831,65 @@ void proto_register_e1ap(void) {
       { "Data-Usage-Report-List", "e1ap.Data_Usage_Report_List",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
-    { &hf_e1ap_DRB_Activity_Item_PDU,
-      { "DRB-Activity-Item", "e1ap.DRB_Activity_Item_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+    { &hf_e1ap_DRB_Confirm_Modified_List_EUTRAN_PDU,
+      { "DRB-Confirm-Modified-List-EUTRAN", "e1ap.DRB_Confirm_Modified_List_EUTRAN",
+        FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
-    { &hf_e1ap_DRB_Status_Item_PDU,
-      { "DRB-Status-Item", "e1ap.DRB_Status_Item_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+    { &hf_e1ap_DRB_Failed_List_EUTRAN_PDU,
+      { "DRB-Failed-List-EUTRAN", "e1ap.DRB_Failed_List_EUTRAN",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_DRB_Failed_Mod_List_EUTRAN_PDU,
+      { "DRB-Failed-Mod-List-EUTRAN", "e1ap.DRB_Failed_Mod_List_EUTRAN",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_DRB_Failed_To_Modify_List_EUTRAN_PDU,
+      { "DRB-Failed-To-Modify-List-EUTRAN", "e1ap.DRB_Failed_To_Modify_List_EUTRAN",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_DRB_Modified_List_EUTRAN_PDU,
+      { "DRB-Modified-List-EUTRAN", "e1ap.DRB_Modified_List_EUTRAN",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_DRB_Required_To_Modify_List_EUTRAN_PDU,
+      { "DRB-Required-To-Modify-List-EUTRAN", "e1ap.DRB_Required_To_Modify_List_EUTRAN",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_DRB_Setup_List_EUTRAN_PDU,
+      { "DRB-Setup-List-EUTRAN", "e1ap.DRB_Setup_List_EUTRAN",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_DRB_Setup_Mod_List_EUTRAN_PDU,
+      { "DRB-Setup-Mod-List-EUTRAN", "e1ap.DRB_Setup_Mod_List_EUTRAN",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_DRBs_Subject_To_Counter_Check_List_EUTRAN_PDU,
+      { "DRBs-Subject-To-Counter-Check-List-EUTRAN", "e1ap.DRBs_Subject_To_Counter_Check_List_EUTRAN",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_DRBs_Subject_To_Counter_Check_List_NG_RAN_PDU,
+      { "DRBs-Subject-To-Counter-Check-List-NG-RAN", "e1ap.DRBs_Subject_To_Counter_Check_List_NG_RAN",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_DRB_To_Modify_List_EUTRAN_PDU,
+      { "DRB-To-Modify-List-EUTRAN", "e1ap.DRB_To_Modify_List_EUTRAN",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_DRB_To_Remove_List_EUTRAN_PDU,
+      { "DRB-To-Remove-List-EUTRAN", "e1ap.DRB_To_Remove_List_EUTRAN",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_DRB_Required_To_Remove_List_EUTRAN_PDU,
+      { "DRB-Required-To-Remove-List-EUTRAN", "e1ap.DRB_Required_To_Remove_List_EUTRAN",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_DRB_To_Setup_List_EUTRAN_PDU,
+      { "DRB-To-Setup-List-EUTRAN", "e1ap.DRB_To_Setup_List_EUTRAN",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_DRB_To_Setup_Mod_List_EUTRAN_PDU,
+      { "DRB-To-Setup-Mod-List-EUTRAN", "e1ap.DRB_To_Setup_Mod_List_EUTRAN",
+        FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_e1ap_GNB_CU_CP_Name_PDU,
       { "GNB-CU-CP-Name", "e1ap.GNB_CU_CP_Name",
@@ -5641,6 +6911,66 @@ void proto_register_e1ap(void) {
       { "GNB-CU-UP-UE-E1AP-ID", "e1ap.GNB_CU_UP_UE_E1AP_ID",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
+    { &hf_e1ap_Inactivity_Timer_PDU,
+      { "Inactivity-Timer", "e1ap.Inactivity_Timer",
+        FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_New_UL_TNL_Information_Required_PDU,
+      { "New-UL-TNL-Information-Required", "e1ap.New_UL_TNL_Information_Required",
+        FT_UINT32, BASE_DEC, VALS(e1ap_New_UL_TNL_Information_Required_vals), 0,
+        NULL, HFILL }},
+    { &hf_e1ap_PDU_Session_Resource_Confirm_Modified_List_PDU,
+      { "PDU-Session-Resource-Confirm-Modified-List", "e1ap.PDU_Session_Resource_Confirm_Modified_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_PDU_Session_Resource_Failed_List_PDU,
+      { "PDU-Session-Resource-Failed-List", "e1ap.PDU_Session_Resource_Failed_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_PDU_Session_Resource_Failed_Mod_List_PDU,
+      { "PDU-Session-Resource-Failed-Mod-List", "e1ap.PDU_Session_Resource_Failed_Mod_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_PDU_Session_Resource_Failed_To_Modify_List_PDU,
+      { "PDU-Session-Resource-Failed-To-Modify-List", "e1ap.PDU_Session_Resource_Failed_To_Modify_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_PDU_Session_Resource_Modified_List_PDU,
+      { "PDU-Session-Resource-Modified-List", "e1ap.PDU_Session_Resource_Modified_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_PDU_Session_Resource_Required_To_Modify_List_PDU,
+      { "PDU-Session-Resource-Required-To-Modify-List", "e1ap.PDU_Session_Resource_Required_To_Modify_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_PDU_Session_Resource_Setup_List_PDU,
+      { "PDU-Session-Resource-Setup-List", "e1ap.PDU_Session_Resource_Setup_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_PDU_Session_Resource_Setup_Mod_List_PDU,
+      { "PDU-Session-Resource-Setup-Mod-List", "e1ap.PDU_Session_Resource_Setup_Mod_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_PDU_Session_Resource_To_Modify_List_PDU,
+      { "PDU-Session-Resource-To-Modify-List", "e1ap.PDU_Session_Resource_To_Modify_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_PDU_Session_Resource_To_Remove_List_PDU,
+      { "PDU-Session-Resource-To-Remove-List", "e1ap.PDU_Session_Resource_To_Remove_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_PDU_Session_Resource_To_Setup_List_PDU,
+      { "PDU-Session-Resource-To-Setup-List", "e1ap.PDU_Session_Resource_To_Setup_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_PDU_Session_Resource_To_Setup_Mod_List_PDU,
+      { "PDU-Session-Resource-To-Setup-Mod-List", "e1ap.PDU_Session_Resource_To_Setup_Mod_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_PLMN_Identity_PDU,
+      { "PLMN-Identity", "e1ap.PLMN_Identity",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_e1ap_SecurityInformation_PDU,
       { "SecurityInformation", "e1ap.SecurityInformation_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -5648,6 +6978,10 @@ void proto_register_e1ap(void) {
     { &hf_e1ap_TimeToWait_PDU,
       { "TimeToWait", "e1ap.TimeToWait",
         FT_UINT32, BASE_DEC, VALS(e1ap_TimeToWait_vals), 0,
+        NULL, HFILL }},
+    { &hf_e1ap_TransactionID_PDU,
+      { "TransactionID", "e1ap.TransactionID",
+        FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_e1ap_UE_associatedLogicalE1_ConnectionItem_PDU,
       { "UE-associatedLogicalE1-ConnectionItem", "e1ap.UE_associatedLogicalE1_ConnectionItem_element",
@@ -5680,10 +7014,6 @@ void proto_register_e1ap(void) {
     { &hf_e1ap_SupportedPLMNs_List_PDU,
       { "SupportedPLMNs-List", "e1ap.SupportedPLMNs_List",
         FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_e1ap_SupportedPLMNs_Item_PDU,
-      { "SupportedPLMNs-Item", "e1ap.SupportedPLMNs_Item_element",
-        FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_e1ap_GNB_CU_UP_E1SetupResponse_PDU,
       { "GNB-CU-UP-E1SetupResponse", "e1ap.GNB_CU_UP_E1SetupResponse_element",
@@ -5721,9 +7051,29 @@ void proto_register_e1ap(void) {
       { "GNB-CU-CP-ConfigurationUpdate", "e1ap.GNB_CU_CP_ConfigurationUpdate_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_e1ap_GNB_CU_CP_TNLA_To_Add_List_PDU,
+      { "GNB-CU-CP-TNLA-To-Add-List", "e1ap.GNB_CU_CP_TNLA_To_Add_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_GNB_CU_CP_TNLA_To_Remove_List_PDU,
+      { "GNB-CU-CP-TNLA-To-Remove-List", "e1ap.GNB_CU_CP_TNLA_To_Remove_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_GNB_CU_CP_TNLA_To_Update_List_PDU,
+      { "GNB-CU-CP-TNLA-To-Update-List", "e1ap.GNB_CU_CP_TNLA_To_Update_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
     { &hf_e1ap_GNB_CU_CP_ConfigurationUpdateAcknowledge_PDU,
       { "GNB-CU-CP-ConfigurationUpdateAcknowledge", "e1ap.GNB_CU_CP_ConfigurationUpdateAcknowledge_element",
         FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_GNB_CU_CP_TNLA_Setup_List_PDU,
+      { "GNB-CU-CP-TNLA-Setup-List", "e1ap.GNB_CU_CP_TNLA_Setup_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_GNB_CU_CP_TNLA_Failed_To_Setup_List_PDU,
+      { "GNB-CU-CP-TNLA-Failed-To-Setup-List", "e1ap.GNB_CU_CP_TNLA_Failed_To_Setup_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_e1ap_GNB_CU_CP_ConfigurationUpdateFailure_PDU,
       { "GNB-CU-CP-ConfigurationUpdateFailure", "e1ap.GNB_CU_CP_ConfigurationUpdateFailure_element",
@@ -5813,10 +7163,6 @@ void proto_register_e1ap(void) {
       { "BearerContextInactivityNotification", "e1ap.BearerContextInactivityNotification_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_e1ap_DRB_Activity_List_PDU,
-      { "DRB-Activity-List", "e1ap.DRB_Activity_List",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
     { &hf_e1ap_DLDataNotification_PDU,
       { "DLDataNotification", "e1ap.DLDataNotification_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -5824,6 +7170,14 @@ void proto_register_e1ap(void) {
     { &hf_e1ap_DataUsageReport_PDU,
       { "DataUsageReport", "e1ap.DataUsageReport_element",
         FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_GNB_CU_UP_CounterCheckRequest_PDU,
+      { "GNB-CU-UP-CounterCheckRequest", "e1ap.GNB_CU_UP_CounterCheckRequest_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_System_GNB_CU_UP_CounterCheckRequest_PDU,
+      { "System-GNB-CU-UP-CounterCheckRequest", "e1ap.System_GNB_CU_UP_CounterCheckRequest",
+        FT_UINT32, BASE_DEC, VALS(e1ap_System_GNB_CU_UP_CounterCheckRequest_vals), 0,
         NULL, HFILL }},
     { &hf_e1ap_PrivateMessage_PDU,
       { "PrivateMessage", "e1ap.PrivateMessage_element",
@@ -5881,6 +7235,22 @@ void proto_register_e1ap(void) {
       { "value", "e1ap.value_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_e1ap_dRB_Activity_List,
+      { "dRB-Activity-List", "e1ap.dRB_Activity_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_pDU_Session_Resource_Activity_List,
+      { "pDU-Session-Resource-Activity-List", "e1ap.pDU_Session_Resource_Activity_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_uE_Activity,
+      { "uE-Activity", "e1ap.uE_Activity",
+        FT_UINT32, BASE_DEC, VALS(e1ap_UE_Activity_vals), 0,
+        NULL, HFILL }},
+    { &hf_e1ap_choice_extension,
+      { "choice-extension", "e1ap.choice_extension_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ProtocolIE_SingleContainer", HFILL }},
     { &hf_e1ap_radioNetwork,
       { "radioNetwork", "e1ap.radioNetwork",
         FT_UINT32, BASE_DEC, VALS(e1ap_CauseRadioNetwork_vals), 0,
@@ -5921,6 +7291,10 @@ void proto_register_e1ap(void) {
       { "iE-Extensions", "e1ap.iE_Extensions",
         FT_UINT32, BASE_DEC, NULL, 0,
         "ProtocolExtensionContainer", HFILL }},
+    { &hf_e1ap_endpoint_IP_Address,
+      { "endpoint-IP-Address", "e1ap.endpoint_IP_Address",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "TransportLayerAddress", HFILL }},
     { &hf_e1ap_procedureCode,
       { "procedureCode", "e1ap.procedureCode",
         FT_UINT32, BASE_DEC|BASE_EXT_STRING, &e1ap_ProcedureCode_vals_ext, 0,
@@ -5933,6 +7307,10 @@ void proto_register_e1ap(void) {
       { "procedureCriticality", "e1ap.procedureCriticality",
         FT_UINT32, BASE_DEC, VALS(e1ap_Criticality_vals), 0,
         "Criticality", HFILL }},
+    { &hf_e1ap_transactionID,
+      { "transactionID", "e1ap.transactionID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
     { &hf_e1ap_iEsCriticalityDiagnostics,
       { "iEsCriticalityDiagnostics", "e1ap.iEsCriticalityDiagnostics",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -5965,6 +7343,10 @@ void proto_register_e1ap(void) {
       { "dL-Data-Forwarding", "e1ap.dL_Data_Forwarding",
         FT_UINT32, BASE_DEC, VALS(e1ap_UP_TNL_Information_vals), 0,
         "UP_TNL_Information", HFILL }},
+    { &hf_e1ap_qoS_Flow_List_PDU_Session_DL_Forwarding,
+      { "qoS-Flow-List-PDU-Session-DL-Forwarding", "e1ap.qoS_Flow_List_PDU_Session_DL_Forwarding",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "QoS_Flow_List", HFILL }},
     { &hf_e1ap_Data_Usage_Report_List_item,
       { "Data-Usage-Report-Item", "e1ap.Data_Usage_Report_Item_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -5977,10 +7359,14 @@ void proto_register_e1ap(void) {
       { "dRB-Usage-Report-List", "e1ap.dRB_Usage_Report_List",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
+    { &hf_e1ap_DRB_Activity_List_item,
+      { "DRB-Activity-Item", "e1ap.DRB_Activity_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_e1ap_dRB_Activity,
       { "dRB-Activity", "e1ap.dRB_Activity",
-        FT_UINT32, BASE_DEC, VALS(e1ap_DRB_Acivity_vals), 0,
-        "DRB_Acivity", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(e1ap_DRB_Activity_vals), 0,
+        NULL, HFILL }},
     { &hf_e1ap_DRB_Confirm_Modified_List_EUTRAN_item,
       { "DRB-Confirm-Modified-Item-EUTRAN", "e1ap.DRB_Confirm_Modified_Item_EUTRAN_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -6001,8 +7387,16 @@ void proto_register_e1ap(void) {
       { "cause", "e1ap.cause",
         FT_UINT32, BASE_DEC, VALS(e1ap_Cause_vals), 0,
         NULL, HFILL }},
+    { &hf_e1ap_DRB_Failed_Mod_List_EUTRAN_item,
+      { "DRB-Failed-Mod-Item-EUTRAN", "e1ap.DRB_Failed_Mod_Item_EUTRAN_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_e1ap_DRB_Failed_List_NG_RAN_item,
       { "DRB-Failed-Item-NG-RAN", "e1ap.DRB_Failed_Item_NG_RAN_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_DRB_Failed_Mod_List_NG_RAN_item,
+      { "DRB-Failed-Mod-Item-NG-RAN", "e1ap.DRB_Failed_Mod_Item_NG_RAN_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_e1ap_DRB_Failed_To_Modify_List_EUTRAN_item,
@@ -6017,6 +7411,10 @@ void proto_register_e1ap(void) {
       { "DRB-Modified-Item-EUTRAN", "e1ap.DRB_Modified_Item_EUTRAN_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_e1ap_s1_DL_UP_TNL_Information,
+      { "s1-DL-UP-TNL-Information", "e1ap.s1_DL_UP_TNL_Information",
+        FT_UINT32, BASE_DEC, VALS(e1ap_UP_TNL_Information_vals), 0,
+        "UP_TNL_Information", HFILL }},
     { &hf_e1ap_pDCP_UL_Count,
       { "pDCP-UL-Count", "e1ap.pDCP_UL_Count_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -6045,10 +7443,6 @@ void proto_register_e1ap(void) {
       { "DRB-Required-To-Modify-Item-EUTRAN", "e1ap.DRB_Required_To_Modify_Item_EUTRAN_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_e1ap_s1_DL_UP_TNL_Information,
-      { "s1-DL-UP-TNL-Information", "e1ap.s1_DL_UP_TNL_Information",
-        FT_UINT32, BASE_DEC, VALS(e1ap_UP_TNL_Information_vals), 0,
-        "UP_TNL_Information", HFILL }},
     { &hf_e1ap_data_Forwarding_Information_Response,
       { "data-Forwarding-Information-Response", "e1ap.data_Forwarding_Information_Response_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -6069,6 +7463,10 @@ void proto_register_e1ap(void) {
       { "DRB-Setup-Item-EUTRAN", "e1ap.DRB_Setup_Item_EUTRAN_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_e1ap_DRB_Setup_Mod_List_EUTRAN_item,
+      { "DRB-Setup-Mod-Item-EUTRAN", "e1ap.DRB_Setup_Mod_Item_EUTRAN_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_e1ap_DRB_Setup_List_NG_RAN_item,
       { "DRB-Setup-Item-NG-RAN", "e1ap.DRB_Setup_Item_NG_RAN_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -6077,6 +7475,22 @@ void proto_register_e1ap(void) {
       { "dRB-data-Forwarding-Information-Response", "e1ap.dRB_data_Forwarding_Information_Response_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "Data_Forwarding_Information_Response", HFILL }},
+    { &hf_e1ap_DRB_Setup_Mod_List_NG_RAN_item,
+      { "DRB-Setup-Mod-Item-NG-RAN", "e1ap.DRB_Setup_Mod_Item_NG_RAN_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_DRBs_Subject_To_Counter_Check_List_EUTRAN_item,
+      { "DRBs-Subject-To-Counter-Check-Item-EUTRAN", "e1ap.DRBs_Subject_To_Counter_Check_Item_EUTRAN_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_DRBs_Subject_To_Counter_Check_List_NG_RAN_item,
+      { "DRBs-Subject-To-Counter-Check-Item-NG-RAN", "e1ap.DRBs_Subject_To_Counter_Check_Item_NG_RAN_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_pDU_Session_ID,
+      { "pDU-Session-ID", "e1ap.pDU_Session_ID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
     { &hf_e1ap_DRB_To_Modify_List_EUTRAN_item,
       { "DRB-To-Modify-Item-EUTRAN", "e1ap.DRB_To_Modify_Item_EUTRAN_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -6117,6 +7531,10 @@ void proto_register_e1ap(void) {
       { "cell-Group-To-Remove", "e1ap.cell_Group_To_Remove",
         FT_UINT32, BASE_DEC, NULL, 0,
         "Cell_Group_Information", HFILL }},
+    { &hf_e1ap_dRB_Inactivity_Timer,
+      { "dRB-Inactivity-Timer", "e1ap.dRB_Inactivity_Timer",
+        FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0,
+        "Inactivity_Timer", HFILL }},
     { &hf_e1ap_DRB_To_Modify_List_NG_RAN_item,
       { "DRB-To-Modify-Item-NG-RAN", "e1ap.DRB_To_Modify_Item_NG_RAN_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -6137,16 +7555,32 @@ void proto_register_e1ap(void) {
       { "DRB-To-Remove-Item-EUTRAN", "e1ap.DRB_To_Remove_Item_EUTRAN_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_e1ap_DRB_Required_To_Remove_List_EUTRAN_item,
+      { "DRB-Required-To-Remove-Item-EUTRAN", "e1ap.DRB_Required_To_Remove_Item_EUTRAN_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_e1ap_DRB_To_Remove_List_NG_RAN_item,
       { "DRB-To-Remove-Item-NG-RAN", "e1ap.DRB_To_Remove_Item_NG_RAN_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_DRB_Required_To_Remove_List_NG_RAN_item,
+      { "DRB-Required-To-Remove-Item-NG-RAN", "e1ap.DRB_Required_To_Remove_Item_NG_RAN_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_e1ap_DRB_To_Setup_List_EUTRAN_item,
       { "DRB-To-Setup-Item-EUTRAN", "e1ap.DRB_To_Setup_Item_EUTRAN_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_e1ap_DRB_To_Setup_Mod_List_EUTRAN_item,
+      { "DRB-To-Setup-Mod-Item-EUTRAN", "e1ap.DRB_To_Setup_Mod_Item_EUTRAN_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_e1ap_DRB_To_Setup_List_NG_RAN_item,
       { "DRB-To-Setup-Item-NG-RAN", "e1ap.DRB_To_Setup_Item_NG_RAN_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_DRB_To_Setup_Mod_List_NG_RAN_item,
+      { "DRB-To-Setup-Mod-Item-NG-RAN", "e1ap.DRB_To_Setup_Mod_Item_NG_RAN_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_e1ap_DRB_Usage_Report_List_item,
@@ -6172,26 +7606,30 @@ void proto_register_e1ap(void) {
     { &hf_e1ap_qoSPriorityLevel,
       { "qoSPriorityLevel", "e1ap.qoSPriorityLevel",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_1_127", HFILL }},
+        NULL, HFILL }},
     { &hf_e1ap_packetDelayBudget,
       { "packetDelayBudget", "e1ap.packetDelayBudget",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT32, BASE_CUSTOM, CF_FUNC(e1ap_PacketDelayBudget_fmt), 0,
         NULL, HFILL }},
     { &hf_e1ap_packetErrorRate,
-      { "packetErrorRate", "e1ap.packetErrorRate",
-        FT_UINT32, BASE_DEC, NULL, 0,
+      { "packetErrorRate", "e1ap.packetErrorRate_element",
+        FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_e1ap_fiveQI,
+      { "fiveQI", "e1ap.fiveQI",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_255_", HFILL }},
     { &hf_e1ap_delayCritical,
       { "delayCritical", "e1ap.delayCritical",
         FT_UINT32, BASE_DEC, VALS(e1ap_T_delayCritical_vals), 0,
         NULL, HFILL }},
     { &hf_e1ap_averagingWindow,
       { "averagingWindow", "e1ap.averagingWindow",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0,
         NULL, HFILL }},
     { &hf_e1ap_maxDataBurstVolume,
       { "maxDataBurstVolume", "e1ap.maxDataBurstVolume",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_byte_bytes, 0,
         NULL, HFILL }},
     { &hf_e1ap_priorityLevel,
       { "priorityLevel", "e1ap.priorityLevel",
@@ -6228,6 +7666,14 @@ void proto_register_e1ap(void) {
     { &hf_e1ap_uP_TNL_Information,
       { "uP-TNL-Information", "e1ap.uP_TNL_Information",
         FT_UINT32, BASE_DEC, VALS(e1ap_UP_TNL_Information_vals), 0,
+        NULL, HFILL }},
+    { &hf_e1ap_tNLAssociationTransportLayerAddress,
+      { "tNLAssociationTransportLayerAddress", "e1ap.tNLAssociationTransportLayerAddress",
+        FT_UINT32, BASE_DEC, VALS(e1ap_CP_TNL_Information_vals), 0,
+        "CP_TNL_Information", HFILL }},
+    { &hf_e1ap_tNLAssociationUsage,
+      { "tNLAssociationUsage", "e1ap.tNLAssociationUsage",
+        FT_UINT32, BASE_DEC, VALS(e1ap_TNLAssociationUsage_vals), 0,
         NULL, HFILL }},
     { &hf_e1ap_e_RAB_MaximumBitrateDL,
       { "e-RAB-MaximumBitrateDL", "e1ap.e_RAB_MaximumBitrateDL",
@@ -6289,14 +7735,6 @@ void proto_register_e1ap(void) {
       { "non-Dynamic5QIDescriptor", "e1ap.non_Dynamic5QIDescriptor_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_e1ap_fiveQI,
-      { "fiveQI", "e1ap.fiveQI",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_255_", HFILL }},
-    { &hf_e1ap_qoSPriorityLevel_01,
-      { "qoSPriorityLevel", "e1ap.qoSPriorityLevel",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_1_127_", HFILL }},
     { &hf_e1ap_pLMN_Identity,
       { "pLMN-Identity", "e1ap.pLMN_Identity",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -6312,6 +7750,14 @@ void proto_register_e1ap(void) {
     { &hf_e1ap_nR_CGI,
       { "nR-CGI", "e1ap.nR_CGI_element",
         FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_pER_Scalar,
+      { "pER-Scalar", "e1ap.pER_Scalar",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_pER_Exponent,
+      { "pER-Exponent", "e1ap.pER_Exponent",
+        FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_e1ap_pDCP_SN_Size,
       { "pDCP-SN-Size", "e1ap.pDCP_SN_Size",
@@ -6341,6 +7787,14 @@ void proto_register_e1ap(void) {
       { "pDCP-Duplication", "e1ap.pDCP_Duplication",
         FT_UINT32, BASE_DEC, VALS(e1ap_PDCP_Duplication_vals), 0,
         NULL, HFILL }},
+    { &hf_e1ap_pDCP_Reestablishment,
+      { "pDCP-Reestablishment", "e1ap.pDCP_Reestablishment",
+        FT_UINT32, BASE_DEC, VALS(e1ap_PDCP_Reestablishment_vals), 0,
+        NULL, HFILL }},
+    { &hf_e1ap_pDCP_DataRecovery,
+      { "pDCP-DataRecovery", "e1ap.pDCP_DataRecovery",
+        FT_UINT32, BASE_DEC, VALS(e1ap_PDCP_DataRecovery_vals), 0,
+        NULL, HFILL }},
     { &hf_e1ap_pDCP_SN,
       { "pDCP-SN", "e1ap.pDCP_SN",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -6349,13 +7803,17 @@ void proto_register_e1ap(void) {
       { "hFN", "e1ap.hFN",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
+    { &hf_e1ap_PDU_Session_Resource_Activity_List_item,
+      { "PDU-Session-Resource-Activity-Item", "e1ap.PDU_Session_Resource_Activity_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_pDU_Session_Resource_Activity,
+      { "pDU-Session-Resource-Activity", "e1ap.pDU_Session_Resource_Activity",
+        FT_UINT32, BASE_DEC, VALS(e1ap_PDU_Session_Resource_Activity_vals), 0,
+        NULL, HFILL }},
     { &hf_e1ap_PDU_Session_Resource_Confirm_Modified_List_item,
       { "PDU-Session-Resource-Confirm-Modified-Item", "e1ap.PDU_Session_Resource_Confirm_Modified_Item_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_e1ap_pDU_Session_ID,
-      { "pDU-Session-ID", "e1ap.pDU_Session_ID",
-        FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_e1ap_dRB_Confirm_Modified_List_NG_RAN,
       { "dRB-Confirm-Modified-List-NG-RAN", "e1ap.dRB_Confirm_Modified_List_NG_RAN",
@@ -6369,12 +7827,24 @@ void proto_register_e1ap(void) {
       { "casue", "e1ap.casue",
         FT_UINT32, BASE_DEC, VALS(e1ap_Cause_vals), 0,
         "Cause", HFILL }},
+    { &hf_e1ap_PDU_Session_Resource_Failed_Mod_List_item,
+      { "PDU-Session-Resource-Failed-Mod-Item", "e1ap.PDU_Session_Resource_Failed_Mod_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_e1ap_PDU_Session_Resource_Failed_To_Modify_List_item,
       { "PDU-Session-Resource-Failed-To-Modify-Item", "e1ap.PDU_Session_Resource_Failed_To_Modify_Item_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_e1ap_PDU_Session_Resource_Modified_List_item,
       { "PDU-Session-Resource-Modified-Item", "e1ap.PDU_Session_Resource_Modified_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_nG_DL_UP_TNL_Information,
+      { "nG-DL-UP-TNL-Information", "e1ap.nG_DL_UP_TNL_Information",
+        FT_UINT32, BASE_DEC, VALS(e1ap_UP_TNL_Information_vals), 0,
+        "UP_TNL_Information", HFILL }},
+    { &hf_e1ap_securityResult,
+      { "securityResult", "e1ap.securityResult_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_e1ap_dRB_Setup_List_NG_RAN,
@@ -6401,10 +7871,6 @@ void proto_register_e1ap(void) {
       { "PDU-Session-Resource-Required-To-Modify-Item", "e1ap.PDU_Session_Resource_Required_To_Modify_Item_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_e1ap_nG_DL_UP_TNL_Information,
-      { "nG-DL-UP-TNL-Information", "e1ap.nG_DL_UP_TNL_Information",
-        FT_UINT32, BASE_DEC, VALS(e1ap_UP_TNL_Information_vals), 0,
-        "UP_TNL_Information", HFILL }},
     { &hf_e1ap_pDU_Session_Data_Forwarding_Information_Response,
       { "pDU-Session-Data-Forwarding-Information-Response", "e1ap.pDU_Session_Data_Forwarding_Information_Response_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -6416,6 +7882,18 @@ void proto_register_e1ap(void) {
     { &hf_e1ap_PDU_Session_Resource_Setup_List_item,
       { "PDU-Session-Resource-Setup-Item", "e1ap.PDU_Session_Resource_Setup_Item_element",
         FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_PDU_Session_Resource_Setup_Mod_List_item,
+      { "PDU-Session-Resource-Setup-Mod-Item", "e1ap.PDU_Session_Resource_Setup_Mod_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_dRB_Setup_Mod_List_NG_RAN,
+      { "dRB-Setup-Mod-List-NG-RAN", "e1ap.dRB_Setup_Mod_List_NG_RAN",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_dRB_Failed_Mod_List_NG_RAN,
+      { "dRB-Failed-Mod-List-NG-RAN", "e1ap.dRB_Failed_Mod_List_NG_RAN",
+        FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_e1ap_PDU_Session_Resource_To_Modify_List_item,
       { "PDU-Session-Resource-To-Modify-Item", "e1ap.PDU_Session_Resource_To_Modify_Item_element",
@@ -6433,8 +7911,8 @@ void proto_register_e1ap(void) {
       { "securityIndication", "e1ap.securityIndication_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_e1ap_pDU_Session_Resource_AMBR,
-      { "pDU-Session-Resource-AMBR", "e1ap.pDU_Session_Resource_AMBR",
+    { &hf_e1ap_pDU_Session_Resource_DL_AMBR,
+      { "pDU-Session-Resource-DL-AMBR", "e1ap.pDU_Session_Resource_DL_AMBR",
         FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_bit_sec, 0,
         "BitRate", HFILL }},
     { &hf_e1ap_nG_UL_UP_TNL_Information,
@@ -6445,12 +7923,20 @@ void proto_register_e1ap(void) {
       { "pDU-Session-Data-Forwarding-Information-Request", "e1ap.pDU_Session_Data_Forwarding_Information_Request_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "Data_Forwarding_Information_Request", HFILL }},
+    { &hf_e1ap_pDU_Session_Inactivity_Timer,
+      { "pDU-Session-Inactivity-Timer", "e1ap.pDU_Session_Inactivity_Timer",
+        FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0,
+        "Inactivity_Timer", HFILL }},
     { &hf_e1ap_dRB_To_Setup_List_NG_RAN,
       { "dRB-To-Setup-List-NG-RAN", "e1ap.dRB_To_Setup_List_NG_RAN",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_e1ap_dRB_To_Modify_List_NG_RAN,
       { "dRB-To-Modify-List-NG-RAN", "e1ap.dRB_To_Modify_List_NG_RAN",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_dRB_Required_To_Remove_List_NG_RAN,
+      { "dRB-Required-To-Remove-List-NG-RAN", "e1ap.dRB_Required_To_Remove_List_NG_RAN",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_e1ap_PDU_Session_Resource_To_Remove_List_item,
@@ -6460,6 +7946,18 @@ void proto_register_e1ap(void) {
     { &hf_e1ap_PDU_Session_Resource_To_Setup_List_item,
       { "PDU-Session-Resource-To-Setup-Item", "e1ap.PDU_Session_Resource_To_Setup_Item_element",
         FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_PDU_Session_Resource_To_Setup_Mod_List_item,
+      { "PDU-Session-Resource-To-Setup-Mod-Item", "e1ap.PDU_Session_Resource_To_Setup_Mod_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_pDU_Session_Resource_AMBR,
+      { "pDU-Session-Resource-AMBR", "e1ap.pDU_Session_Resource_AMBR",
+        FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_bit_sec, 0,
+        "BitRate", HFILL }},
+    { &hf_e1ap_dRB_To_Setup_Mod_List_NG_RAN,
+      { "dRB-To-Setup-Mod-List-NG-RAN", "e1ap.dRB_To_Setup_Mod_List_NG_RAN",
+        FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_e1ap_non_Dynamic_5QI,
       { "non-Dynamic-5QI", "e1ap.non_Dynamic_5QI_element",
@@ -6553,6 +8051,14 @@ void proto_register_e1ap(void) {
       { "uPSecuritykey", "e1ap.uPSecuritykey_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_e1ap_integrityProtectionResult,
+      { "integrityProtectionResult", "e1ap.integrityProtectionResult",
+        FT_UINT32, BASE_DEC, VALS(e1ap_IntegrityProtectionResult_vals), 0,
+        NULL, HFILL }},
+    { &hf_e1ap_confidentialityProtectionResult,
+      { "confidentialityProtectionResult", "e1ap.confidentialityProtectionResult",
+        FT_UINT32, BASE_DEC, VALS(e1ap_ConfidentialityProtectionResult_vals), 0,
+        NULL, HFILL }},
     { &hf_e1ap_Slice_Support_List_item,
       { "Slice-Support-Item", "e1ap.Slice_Support_Item_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -6630,7 +8136,7 @@ void proto_register_e1ap(void) {
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_e1ap_SupportedPLMNs_List_item,
-      { "ProtocolIE-SingleContainer", "e1ap.ProtocolIE_SingleContainer_element",
+      { "SupportedPLMNs-Item", "e1ap.SupportedPLMNs_Item_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_e1ap_slice_Support_List,
@@ -6645,134 +8151,86 @@ void proto_register_e1ap(void) {
       { "qoS-Parameters-Support-List", "e1ap.qoS_Parameters_Support_List_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_e1ap_GNB_CU_CP_TNLA_To_Add_List_item,
+      { "GNB-CU-CP-TNLA-To-Add-Item", "e1ap.GNB_CU_CP_TNLA_To_Add_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_GNB_CU_CP_TNLA_To_Remove_List_item,
+      { "GNB-CU-CP-TNLA-To-Remove-Item", "e1ap.GNB_CU_CP_TNLA_To_Remove_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_GNB_CU_CP_TNLA_To_Update_List_item,
+      { "GNB-CU-CP-TNLA-To-Update-Item", "e1ap.GNB_CU_CP_TNLA_To_Update_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_GNB_CU_CP_TNLA_Setup_List_item,
+      { "GNB-CU-CP-TNLA-Setup-Item", "e1ap.GNB_CU_CP_TNLA_Setup_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_e1ap_GNB_CU_CP_TNLA_Failed_To_Setup_List_item,
+      { "GNB-CU-CP-TNLA-Failed-To-Setup-Item", "e1ap.GNB_CU_CP_TNLA_Failed_To_Setup_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_e1ap_e_UTRAN_BearerContextSetupRequest,
-      { "e-UTRAN-BearerContextSetupRequest", "e1ap.e_UTRAN_BearerContextSetupRequest_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "EUTRAN_BearerContextSetupRequest", HFILL }},
+      { "e-UTRAN-BearerContextSetupRequest", "e1ap.e_UTRAN_BearerContextSetupRequest",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ProtocolIE_Container", HFILL }},
     { &hf_e1ap_nG_RAN_BearerContextSetupRequest,
-      { "nG-RAN-BearerContextSetupRequest", "e1ap.nG_RAN_BearerContextSetupRequest_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_e1ap_dRB_To_Setup_List_EUTRAN,
-      { "dRB-To-Setup-List-EUTRAN", "e1ap.dRB_To_Setup_List_EUTRAN",
+      { "nG-RAN-BearerContextSetupRequest", "e1ap.nG_RAN_BearerContextSetupRequest",
         FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_e1ap_pDU_Session_Resource_To_Setup_List,
-      { "pDU-Session-Resource-To-Setup-List", "e1ap.pDU_Session_Resource_To_Setup_List",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
+        "ProtocolIE_Container", HFILL }},
     { &hf_e1ap_e_UTRAN_BearerContextSetupResponse,
-      { "e-UTRAN-BearerContextSetupResponse", "e1ap.e_UTRAN_BearerContextSetupResponse_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "EUTRAN_BearerContextSetupResponse", HFILL }},
+      { "e-UTRAN-BearerContextSetupResponse", "e1ap.e_UTRAN_BearerContextSetupResponse",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ProtocolIE_Container", HFILL }},
     { &hf_e1ap_nG_RAN_BearerContextSetupResponse,
-      { "nG-RAN-BearerContextSetupResponse", "e1ap.nG_RAN_BearerContextSetupResponse_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_e1ap_dRB_Setup_List_EUTRAN,
-      { "dRB-Setup-List-EUTRAN", "e1ap.dRB_Setup_List_EUTRAN",
+      { "nG-RAN-BearerContextSetupResponse", "e1ap.nG_RAN_BearerContextSetupResponse",
         FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_e1ap_dRB_Failed_List_EUTRAN,
-      { "dRB-Failed-List-EUTRAN", "e1ap.dRB_Failed_List_EUTRAN",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_e1ap_pDU_Session_Resource_Setup_List,
-      { "pDU-Session-Resource-Setup-List", "e1ap.pDU_Session_Resource_Setup_List",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_e1ap_pDU_Session_Resource_Failed_List,
-      { "pDU-Session-Resource-Failed-List", "e1ap.pDU_Session_Resource_Failed_List",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
+        "ProtocolIE_Container", HFILL }},
     { &hf_e1ap_e_UTRAN_BearerContextModificationRequest,
-      { "e-UTRAN-BearerContextModificationRequest", "e1ap.e_UTRAN_BearerContextModificationRequest_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "EUTRAN_BearerContextModificationRequest", HFILL }},
+      { "e-UTRAN-BearerContextModificationRequest", "e1ap.e_UTRAN_BearerContextModificationRequest",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ProtocolIE_Container", HFILL }},
     { &hf_e1ap_nG_RAN_BearerContextModificationRequest,
-      { "nG-RAN-BearerContextModificationRequest", "e1ap.nG_RAN_BearerContextModificationRequest_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_e1ap_dRB_To_Modify_List_EUTRAN,
-      { "dRB-To-Modify-List-EUTRAN", "e1ap.dRB_To_Modify_List_EUTRAN",
+      { "nG-RAN-BearerContextModificationRequest", "e1ap.nG_RAN_BearerContextModificationRequest",
         FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_e1ap_dRB_To_Remove_List_EUTRAN,
-      { "dRB-To-Remove-List-EUTRAN", "e1ap.dRB_To_Remove_List_EUTRAN",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_e1ap_pDU_Session_Resource_To_Modify_List,
-      { "pDU-Session-Resource-To-Modify-List", "e1ap.pDU_Session_Resource_To_Modify_List",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_e1ap_pDU_Session_Resource_To_Remove_List,
-      { "pDU-Session-Resource-To-Remove-List", "e1ap.pDU_Session_Resource_To_Remove_List",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
+        "ProtocolIE_Container", HFILL }},
     { &hf_e1ap_e_UTRAN_BearerContextModificationResponse,
-      { "e-UTRAN-BearerContextModificationResponse", "e1ap.e_UTRAN_BearerContextModificationResponse_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "EUTRAN_BearerContextModificationResponse", HFILL }},
+      { "e-UTRAN-BearerContextModificationResponse", "e1ap.e_UTRAN_BearerContextModificationResponse",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ProtocolIE_Container", HFILL }},
     { &hf_e1ap_nG_RAN_BearerContextModificationResponse,
-      { "nG-RAN-BearerContextModificationResponse", "e1ap.nG_RAN_BearerContextModificationResponse_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_e1ap_dRB_Modified_List_EUTRAN,
-      { "dRB-Modified-List-EUTRAN", "e1ap.dRB_Modified_List_EUTRAN",
+      { "nG-RAN-BearerContextModificationResponse", "e1ap.nG_RAN_BearerContextModificationResponse",
         FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_e1ap_dRB_Failed_To_Modify_List_EUTRAN,
-      { "dRB-Failed-To-Modify-List-EUTRAN", "e1ap.dRB_Failed_To_Modify_List_EUTRAN",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_e1ap_pDU_Session_Resource_Modified_List,
-      { "pDU-Session-Resource-Modified-List", "e1ap.pDU_Session_Resource_Modified_List",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_e1ap_pDU_Session_Resource_Failed_To_Modify_List,
-      { "pDU-Session-Resource-Failed-To-Modify-List", "e1ap.pDU_Session_Resource_Failed_To_Modify_List",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
+        "ProtocolIE_Container", HFILL }},
     { &hf_e1ap_e_UTRAN_BearerContextModificationRequired,
-      { "e-UTRAN-BearerContextModificationRequired", "e1ap.e_UTRAN_BearerContextModificationRequired_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "EUTRAN_BearerContextModificationRequired", HFILL }},
+      { "e-UTRAN-BearerContextModificationRequired", "e1ap.e_UTRAN_BearerContextModificationRequired",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ProtocolIE_Container", HFILL }},
     { &hf_e1ap_nG_RAN_BearerContextModificationRequired,
-      { "nG-RAN-BearerContextModificationRequired", "e1ap.nG_RAN_BearerContextModificationRequired_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_e1ap_dRB_Required_To_Modify_List_EUTRAN,
-      { "dRB-Required-To-Modify-List-EUTRAN", "e1ap.dRB_Required_To_Modify_List_EUTRAN",
+      { "nG-RAN-BearerContextModificationRequired", "e1ap.nG_RAN_BearerContextModificationRequired",
         FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_e1ap_pDU_Session_Resource_Required_To_Modify_List,
-      { "pDU-Session-Resource-Required-To-Modify-List", "e1ap.pDU_Session_Resource_Required_To_Modify_List",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
+        "ProtocolIE_Container", HFILL }},
     { &hf_e1ap_e_UTRAN_BearerContextModificationConfirm,
-      { "e-UTRAN-BearerContextModificationConfirm", "e1ap.e_UTRAN_BearerContextModificationConfirm_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "EUTRAN_BearerContextModificationConfirm", HFILL }},
+      { "e-UTRAN-BearerContextModificationConfirm", "e1ap.e_UTRAN_BearerContextModificationConfirm",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ProtocolIE_Container", HFILL }},
     { &hf_e1ap_nG_RAN_BearerContextModificationConfirm,
-      { "nG-RAN-BearerContextModificationConfirm", "e1ap.nG_RAN_BearerContextModificationConfirm_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_e1ap_dRB_Confirm_Modified_List_EUTRAN,
-      { "dRB-Confirm-Modified-List-EUTRAN", "e1ap.dRB_Confirm_Modified_List_EUTRAN",
+      { "nG-RAN-BearerContextModificationConfirm", "e1ap.nG_RAN_BearerContextModificationConfirm",
         FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_e1ap_pDU_Session_Resource_Confirm_Modified_List,
-      { "pDU-Session-Resource-Confirm-Modified-List", "e1ap.pDU_Session_Resource_Confirm_Modified_List",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
+        "ProtocolIE_Container", HFILL }},
     { &hf_e1ap_DRB_Status_List_item,
-      { "ProtocolIE-SingleContainer", "e1ap.ProtocolIE_SingleContainer_element",
+      { "DRB-Status-Item", "e1ap.DRB_Status_Item_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_e1ap_DRB_Activity_List_item,
-      { "ProtocolIE-SingleContainer", "e1ap.ProtocolIE_SingleContainer_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
+    { &hf_e1ap_e_UTRAN_GNB_CU_UP_CounterCheckRequest,
+      { "e-UTRAN-GNB-CU-UP-CounterCheckRequest", "e1ap.e_UTRAN_GNB_CU_UP_CounterCheckRequest",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ProtocolIE_Container", HFILL }},
+    { &hf_e1ap_nG_RAN_GNB_CU_UP_CounterCheckRequest,
+      { "nG-RAN-GNB-CU-UP-CounterCheckRequest", "e1ap.nG_RAN_GNB_CU_UP_CounterCheckRequest",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ProtocolIE_Container", HFILL }},
     { &hf_e1ap_privateIEs,
       { "privateIEs", "e1ap.privateIEs",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -6803,7 +8261,7 @@ void proto_register_e1ap(void) {
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-e1ap-hfarr.c ---*/
-#line 187 "./asn1/e1ap/packet-e1ap-template.c"
+#line 193 "./asn1/e1ap/packet-e1ap-template.c"
   };
 
   /* List of subtrees */
@@ -6821,9 +8279,11 @@ void proto_register_e1ap(void) {
     &ett_e1ap_ProtocolExtensionField,
     &ett_e1ap_PrivateIE_Container,
     &ett_e1ap_PrivateIE_Field,
+    &ett_e1ap_ActivityInformation,
     &ett_e1ap_Cause,
     &ett_e1ap_Cell_Group_Information,
     &ett_e1ap_Cell_Group_Information_Item,
+    &ett_e1ap_CP_TNL_Information,
     &ett_e1ap_CriticalityDiagnostics,
     &ett_e1ap_CriticalityDiagnostics_IE_List,
     &ett_e1ap_CriticalityDiagnostics_IE_List_item,
@@ -6831,6 +8291,7 @@ void proto_register_e1ap(void) {
     &ett_e1ap_Data_Forwarding_Information_Response,
     &ett_e1ap_Data_Usage_Report_List,
     &ett_e1ap_Data_Usage_Report_Item,
+    &ett_e1ap_DRB_Activity_List,
     &ett_e1ap_DRB_Activity_Item,
     &ett_e1ap_DRB_Confirm_Modified_List_EUTRAN,
     &ett_e1ap_DRB_Confirm_Modified_Item_EUTRAN,
@@ -6838,8 +8299,12 @@ void proto_register_e1ap(void) {
     &ett_e1ap_DRB_Confirm_Modified_Item_NG_RAN,
     &ett_e1ap_DRB_Failed_List_EUTRAN,
     &ett_e1ap_DRB_Failed_Item_EUTRAN,
+    &ett_e1ap_DRB_Failed_Mod_List_EUTRAN,
+    &ett_e1ap_DRB_Failed_Mod_Item_EUTRAN,
     &ett_e1ap_DRB_Failed_List_NG_RAN,
     &ett_e1ap_DRB_Failed_Item_NG_RAN,
+    &ett_e1ap_DRB_Failed_Mod_List_NG_RAN,
+    &ett_e1ap_DRB_Failed_Mod_Item_NG_RAN,
     &ett_e1ap_DRB_Failed_To_Modify_List_EUTRAN,
     &ett_e1ap_DRB_Failed_To_Modify_Item_EUTRAN,
     &ett_e1ap_DRB_Failed_To_Modify_List_NG_RAN,
@@ -6854,21 +8319,37 @@ void proto_register_e1ap(void) {
     &ett_e1ap_DRB_Required_To_Modify_Item_NG_RAN,
     &ett_e1ap_DRB_Setup_List_EUTRAN,
     &ett_e1ap_DRB_Setup_Item_EUTRAN,
+    &ett_e1ap_DRB_Setup_Mod_List_EUTRAN,
+    &ett_e1ap_DRB_Setup_Mod_Item_EUTRAN,
     &ett_e1ap_DRB_Setup_List_NG_RAN,
     &ett_e1ap_DRB_Setup_Item_NG_RAN,
+    &ett_e1ap_DRB_Setup_Mod_List_NG_RAN,
+    &ett_e1ap_DRB_Setup_Mod_Item_NG_RAN,
     &ett_e1ap_DRB_Status_Item,
+    &ett_e1ap_DRBs_Subject_To_Counter_Check_List_EUTRAN,
+    &ett_e1ap_DRBs_Subject_To_Counter_Check_Item_EUTRAN,
+    &ett_e1ap_DRBs_Subject_To_Counter_Check_List_NG_RAN,
+    &ett_e1ap_DRBs_Subject_To_Counter_Check_Item_NG_RAN,
     &ett_e1ap_DRB_To_Modify_List_EUTRAN,
     &ett_e1ap_DRB_To_Modify_Item_EUTRAN,
     &ett_e1ap_DRB_To_Modify_List_NG_RAN,
     &ett_e1ap_DRB_To_Modify_Item_NG_RAN,
     &ett_e1ap_DRB_To_Remove_List_EUTRAN,
     &ett_e1ap_DRB_To_Remove_Item_EUTRAN,
+    &ett_e1ap_DRB_Required_To_Remove_List_EUTRAN,
+    &ett_e1ap_DRB_Required_To_Remove_Item_EUTRAN,
     &ett_e1ap_DRB_To_Remove_List_NG_RAN,
     &ett_e1ap_DRB_To_Remove_Item_NG_RAN,
+    &ett_e1ap_DRB_Required_To_Remove_List_NG_RAN,
+    &ett_e1ap_DRB_Required_To_Remove_Item_NG_RAN,
     &ett_e1ap_DRB_To_Setup_List_EUTRAN,
     &ett_e1ap_DRB_To_Setup_Item_EUTRAN,
+    &ett_e1ap_DRB_To_Setup_Mod_List_EUTRAN,
+    &ett_e1ap_DRB_To_Setup_Mod_Item_EUTRAN,
     &ett_e1ap_DRB_To_Setup_List_NG_RAN,
     &ett_e1ap_DRB_To_Setup_Item_NG_RAN,
+    &ett_e1ap_DRB_To_Setup_Mod_List_NG_RAN,
+    &ett_e1ap_DRB_To_Setup_Mod_Item_NG_RAN,
     &ett_e1ap_DRB_Usage_Report_List,
     &ett_e1ap_DRB_Usage_Report_Item,
     &ett_e1ap_Dynamic5QIDescriptor,
@@ -6878,6 +8359,11 @@ void proto_register_e1ap(void) {
     &ett_e1ap_EUTRAN_QoS,
     &ett_e1ap_GNB_CU_UP_CellGroupRelatedConfiguration,
     &ett_e1ap_GNB_CU_UP_CellGroupRelatedConfiguration_Item,
+    &ett_e1ap_GNB_CU_CP_TNLA_Setup_Item,
+    &ett_e1ap_GNB_CU_CP_TNLA_Failed_To_Setup_Item,
+    &ett_e1ap_GNB_CU_CP_TNLA_To_Add_Item,
+    &ett_e1ap_GNB_CU_CP_TNLA_To_Remove_Item,
+    &ett_e1ap_GNB_CU_CP_TNLA_To_Update_Item,
     &ett_e1ap_GBR_QosInformation,
     &ett_e1ap_GBR_QoSFlowInformation,
     &ett_e1ap_GTPTunnel,
@@ -6888,12 +8374,17 @@ void proto_register_e1ap(void) {
     &ett_e1ap_NR_CGI,
     &ett_e1ap_NR_CGI_Support_List,
     &ett_e1ap_NR_CGI_Support_Item,
+    &ett_e1ap_PacketErrorRate,
     &ett_e1ap_PDCP_Configuration,
     &ett_e1ap_PDCP_Count,
+    &ett_e1ap_PDU_Session_Resource_Activity_List,
+    &ett_e1ap_PDU_Session_Resource_Activity_Item,
     &ett_e1ap_PDU_Session_Resource_Confirm_Modified_List,
     &ett_e1ap_PDU_Session_Resource_Confirm_Modified_Item,
     &ett_e1ap_PDU_Session_Resource_Failed_List,
     &ett_e1ap_PDU_Session_Resource_Failed_Item,
+    &ett_e1ap_PDU_Session_Resource_Failed_Mod_List,
+    &ett_e1ap_PDU_Session_Resource_Failed_Mod_Item,
     &ett_e1ap_PDU_Session_Resource_Failed_To_Modify_List,
     &ett_e1ap_PDU_Session_Resource_Failed_To_Modify_Item,
     &ett_e1ap_PDU_Session_Resource_Modified_List,
@@ -6902,12 +8393,16 @@ void proto_register_e1ap(void) {
     &ett_e1ap_PDU_Session_Resource_Required_To_Modify_Item,
     &ett_e1ap_PDU_Session_Resource_Setup_List,
     &ett_e1ap_PDU_Session_Resource_Setup_Item,
+    &ett_e1ap_PDU_Session_Resource_Setup_Mod_List,
+    &ett_e1ap_PDU_Session_Resource_Setup_Mod_Item,
     &ett_e1ap_PDU_Session_Resource_To_Modify_List,
     &ett_e1ap_PDU_Session_Resource_To_Modify_Item,
     &ett_e1ap_PDU_Session_Resource_To_Remove_List,
     &ett_e1ap_PDU_Session_Resource_To_Remove_Item,
     &ett_e1ap_PDU_Session_Resource_To_Setup_List,
     &ett_e1ap_PDU_Session_Resource_To_Setup_Item,
+    &ett_e1ap_PDU_Session_Resource_To_Setup_Mod_List,
+    &ett_e1ap_PDU_Session_Resource_To_Setup_Mod_Item,
     &ett_e1ap_QoS_Characteristics,
     &ett_e1ap_QoS_Flow_List,
     &ett_e1ap_QoS_Flow_Item,
@@ -6921,6 +8416,7 @@ void proto_register_e1ap(void) {
     &ett_e1ap_SecurityAlgorithm,
     &ett_e1ap_SecurityIndication,
     &ett_e1ap_SecurityInformation,
+    &ett_e1ap_SecurityResult,
     &ett_e1ap_Slice_Support_List,
     &ett_e1ap_Slice_Support_Item,
     &ett_e1ap_SNSSAI,
@@ -6949,44 +8445,38 @@ void proto_register_e1ap(void) {
     &ett_e1ap_GNB_CU_UP_ConfigurationUpdateAcknowledge,
     &ett_e1ap_GNB_CU_UP_ConfigurationUpdateFailure,
     &ett_e1ap_GNB_CU_CP_ConfigurationUpdate,
+    &ett_e1ap_GNB_CU_CP_TNLA_To_Add_List,
+    &ett_e1ap_GNB_CU_CP_TNLA_To_Remove_List,
+    &ett_e1ap_GNB_CU_CP_TNLA_To_Update_List,
     &ett_e1ap_GNB_CU_CP_ConfigurationUpdateAcknowledge,
+    &ett_e1ap_GNB_CU_CP_TNLA_Setup_List,
+    &ett_e1ap_GNB_CU_CP_TNLA_Failed_To_Setup_List,
     &ett_e1ap_GNB_CU_CP_ConfigurationUpdateFailure,
     &ett_e1ap_E1ReleaseRequest,
     &ett_e1ap_E1ReleaseResponse,
     &ett_e1ap_BearerContextSetupRequest,
     &ett_e1ap_System_BearerContextSetupRequest,
-    &ett_e1ap_EUTRAN_BearerContextSetupRequest,
-    &ett_e1ap_NG_RAN_BearerContextSetupRequest,
     &ett_e1ap_BearerContextSetupResponse,
     &ett_e1ap_System_BearerContextSetupResponse,
-    &ett_e1ap_EUTRAN_BearerContextSetupResponse,
-    &ett_e1ap_NG_RAN_BearerContextSetupResponse,
     &ett_e1ap_BearerContextSetupFailure,
     &ett_e1ap_BearerContextModificationRequest,
     &ett_e1ap_System_BearerContextModificationRequest,
-    &ett_e1ap_EUTRAN_BearerContextModificationRequest,
-    &ett_e1ap_NG_RAN_BearerContextModificationRequest,
     &ett_e1ap_BearerContextModificationResponse,
     &ett_e1ap_System_BearerContextModificationResponse,
-    &ett_e1ap_EUTRAN_BearerContextModificationResponse,
-    &ett_e1ap_NG_RAN_BearerContextModificationResponse,
     &ett_e1ap_BearerContextModificationFailure,
     &ett_e1ap_BearerContextModificationRequired,
     &ett_e1ap_System_BearerContextModificationRequired,
-    &ett_e1ap_EUTRAN_BearerContextModificationRequired,
-    &ett_e1ap_NG_RAN_BearerContextModificationRequired,
     &ett_e1ap_BearerContextModificationConfirm,
     &ett_e1ap_System_BearerContextModificationConfirm,
-    &ett_e1ap_EUTRAN_BearerContextModificationConfirm,
-    &ett_e1ap_NG_RAN_BearerContextModificationConfirm,
     &ett_e1ap_BearerContextReleaseCommand,
     &ett_e1ap_BearerContextReleaseComplete,
     &ett_e1ap_BearerContextReleaseRequest,
     &ett_e1ap_DRB_Status_List,
     &ett_e1ap_BearerContextInactivityNotification,
-    &ett_e1ap_DRB_Activity_List,
     &ett_e1ap_DLDataNotification,
     &ett_e1ap_DataUsageReport,
+    &ett_e1ap_GNB_CU_UP_CounterCheckRequest,
+    &ett_e1ap_System_GNB_CU_UP_CounterCheckRequest,
     &ett_e1ap_PrivateMessage,
     &ett_e1ap_E1AP_PDU,
     &ett_e1ap_InitiatingMessage,
@@ -6994,7 +8484,7 @@ void proto_register_e1ap(void) {
     &ett_e1ap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-e1ap-ettarr.c ---*/
-#line 195 "./asn1/e1ap/packet-e1ap-template.c"
+#line 201 "./asn1/e1ap/packet-e1ap-template.c"
   };
 
   /* Register protocol */
@@ -7034,7 +8524,6 @@ proto_reg_handoff_e1ap(void)
   dissector_add_uint("e1ap.ies", id_gNB_CU_CP_Name, create_dissector_handle(dissect_GNB_CU_CP_Name_PDU, proto_e1ap));
   dissector_add_uint("e1ap.ies", id_CNSupport, create_dissector_handle(dissect_CNSupport_PDU, proto_e1ap));
   dissector_add_uint("e1ap.ies", id_SupportedPLMNs, create_dissector_handle(dissect_SupportedPLMNs_List_PDU, proto_e1ap));
-  dissector_add_uint("e1ap.ies", id_SupportedPLMNs_Item, create_dissector_handle(dissect_SupportedPLMNs_Item_PDU, proto_e1ap));
   dissector_add_uint("e1ap.ies", id_TimeToWait, create_dissector_handle(dissect_TimeToWait_PDU, proto_e1ap));
   dissector_add_uint("e1ap.ies", id_SecurityInformation, create_dissector_handle(dissect_SecurityInformation_PDU, proto_e1ap));
   dissector_add_uint("e1ap.ies", id_UEDLAggregateMaximumBitRate, create_dissector_handle(dissect_BitRate_PDU, proto_e1ap));
@@ -7046,10 +8535,46 @@ proto_reg_handoff_e1ap(void)
   dissector_add_uint("e1ap.ies", id_System_BearerContextModificationConfirm, create_dissector_handle(dissect_System_BearerContextModificationConfirm_PDU, proto_e1ap));
   dissector_add_uint("e1ap.ies", id_System_BearerContextModificationRequired, create_dissector_handle(dissect_System_BearerContextModificationRequired_PDU, proto_e1ap));
   dissector_add_uint("e1ap.ies", id_DRB_Status_List, create_dissector_handle(dissect_DRB_Status_List_PDU, proto_e1ap));
-  dissector_add_uint("e1ap.ies", id_DRB_Status_Item, create_dissector_handle(dissect_DRB_Status_Item_PDU, proto_e1ap));
-  dissector_add_uint("e1ap.ies", id_DRB_Activity_List, create_dissector_handle(dissect_DRB_Activity_List_PDU, proto_e1ap));
-  dissector_add_uint("e1ap.ies", id_DRB_Activity_Item, create_dissector_handle(dissect_DRB_Activity_Item_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.ies", id_ActivityNotificationLevel, create_dissector_handle(dissect_ActivityNotificationLevel_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.ies", id_ActivityInformation, create_dissector_handle(dissect_ActivityInformation_PDU, proto_e1ap));
   dissector_add_uint("e1ap.ies", id_Data_Usage_Report_List, create_dissector_handle(dissect_Data_Usage_Report_List_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.ies", id_New_UL_TNL_Information_Required, create_dissector_handle(dissect_New_UL_TNL_Information_Required_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.ies", id_GNB_CU_CP_TNLA_To_Add_List, create_dissector_handle(dissect_GNB_CU_CP_TNLA_To_Add_List_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.ies", id_GNB_CU_CP_TNLA_To_Remove_List, create_dissector_handle(dissect_GNB_CU_CP_TNLA_To_Remove_List_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.ies", id_GNB_CU_CP_TNLA_To_Update_List, create_dissector_handle(dissect_GNB_CU_CP_TNLA_To_Update_List_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.ies", id_GNB_CU_CP_TNLA_Setup_List, create_dissector_handle(dissect_GNB_CU_CP_TNLA_Setup_List_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.ies", id_GNB_CU_CP_TNLA_Failed_To_Setup_List, create_dissector_handle(dissect_GNB_CU_CP_TNLA_Failed_To_Setup_List_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.ies", id_DRB_To_Setup_List_EUTRAN, create_dissector_handle(dissect_DRB_To_Setup_List_EUTRAN_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.ies", id_DRB_To_Modify_List_EUTRAN, create_dissector_handle(dissect_DRB_To_Modify_List_EUTRAN_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.ies", id_DRB_To_Remove_List_EUTRAN, create_dissector_handle(dissect_DRB_To_Remove_List_EUTRAN_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.ies", id_DRB_Required_To_Modify_List_EUTRAN, create_dissector_handle(dissect_DRB_Required_To_Modify_List_EUTRAN_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.ies", id_DRB_Required_To_Remove_List_EUTRAN, create_dissector_handle(dissect_DRB_Required_To_Remove_List_EUTRAN_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.ies", id_DRB_Setup_List_EUTRAN, create_dissector_handle(dissect_DRB_Setup_List_EUTRAN_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.ies", id_DRB_Failed_List_EUTRAN, create_dissector_handle(dissect_DRB_Failed_List_EUTRAN_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.ies", id_DRB_Modified_List_EUTRAN, create_dissector_handle(dissect_DRB_Modified_List_EUTRAN_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.ies", id_DRB_Failed_To_Modify_List_EUTRAN, create_dissector_handle(dissect_DRB_Failed_To_Modify_List_EUTRAN_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.ies", id_DRB_Confirm_Modified_List_EUTRAN, create_dissector_handle(dissect_DRB_Confirm_Modified_List_EUTRAN_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.ies", id_PDU_Session_Resource_To_Setup_List, create_dissector_handle(dissect_PDU_Session_Resource_To_Setup_List_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.ies", id_PDU_Session_Resource_To_Modify_List, create_dissector_handle(dissect_PDU_Session_Resource_To_Modify_List_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.ies", id_PDU_Session_Resource_To_Remove_List, create_dissector_handle(dissect_PDU_Session_Resource_To_Remove_List_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.ies", id_PDU_Session_Resource_Required_To_Modify_List, create_dissector_handle(dissect_PDU_Session_Resource_Required_To_Modify_List_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.ies", id_PDU_Session_Resource_Setup_List, create_dissector_handle(dissect_PDU_Session_Resource_Setup_List_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.ies", id_PDU_Session_Resource_Failed_List, create_dissector_handle(dissect_PDU_Session_Resource_Failed_List_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.ies", id_PDU_Session_Resource_Modified_List, create_dissector_handle(dissect_PDU_Session_Resource_Modified_List_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.ies", id_PDU_Session_Resource_Failed_To_Modify_List, create_dissector_handle(dissect_PDU_Session_Resource_Failed_To_Modify_List_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.ies", id_PDU_Session_Resource_Confirm_Modified_List, create_dissector_handle(dissect_PDU_Session_Resource_Confirm_Modified_List_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.ies", id_DRB_To_Setup_Mod_List_EUTRAN, create_dissector_handle(dissect_DRB_To_Setup_Mod_List_EUTRAN_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.ies", id_DRB_Setup_Mod_List_EUTRAN, create_dissector_handle(dissect_DRB_Setup_Mod_List_EUTRAN_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.ies", id_DRB_Failed_Mod_List_EUTRAN, create_dissector_handle(dissect_DRB_Failed_Mod_List_EUTRAN_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.ies", id_PDU_Session_Resource_Setup_Mod_List, create_dissector_handle(dissect_PDU_Session_Resource_Setup_Mod_List_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.ies", id_PDU_Session_Resource_Failed_Mod_List, create_dissector_handle(dissect_PDU_Session_Resource_Failed_Mod_List_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.ies", id_PDU_Session_Resource_To_Setup_Mod_List, create_dissector_handle(dissect_PDU_Session_Resource_To_Setup_Mod_List_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.ies", id_TransactionID, create_dissector_handle(dissect_TransactionID_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.ies", id_Serving_PLMN, create_dissector_handle(dissect_PLMN_Identity_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.ies", id_UE_Inactivity_Timer, create_dissector_handle(dissect_Inactivity_Timer_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.ies", id_System_GNB_CU_UP_CounterCheckRequest, create_dissector_handle(dissect_System_GNB_CU_UP_CounterCheckRequest_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.ies", id_DRBs_Subject_To_Counter_Check_List_EUTRAN, create_dissector_handle(dissect_DRBs_Subject_To_Counter_Check_List_EUTRAN_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.ies", id_DRBs_Subject_To_Counter_Check_List_NG_RAN, create_dissector_handle(dissect_DRBs_Subject_To_Counter_Check_List_NG_RAN_PDU, proto_e1ap));
   dissector_add_uint("e1ap.proc.imsg", id_reset, create_dissector_handle(dissect_Reset_PDU, proto_e1ap));
   dissector_add_uint("e1ap.proc.sout", id_reset, create_dissector_handle(dissect_ResetAcknowledge_PDU, proto_e1ap));
   dissector_add_uint("e1ap.proc.imsg", id_errorIndication, create_dissector_handle(dissect_ErrorIndication_PDU, proto_e1ap));
@@ -7081,11 +8606,12 @@ proto_reg_handoff_e1ap(void)
   dissector_add_uint("e1ap.proc.imsg", id_bearerContextInactivityNotification, create_dissector_handle(dissect_BearerContextInactivityNotification_PDU, proto_e1ap));
   dissector_add_uint("e1ap.proc.imsg", id_dLDataNotification, create_dissector_handle(dissect_DLDataNotification_PDU, proto_e1ap));
   dissector_add_uint("e1ap.proc.imsg", id_dataUsageReport, create_dissector_handle(dissect_DataUsageReport_PDU, proto_e1ap));
+  dissector_add_uint("e1ap.proc.imsg", id_gNB_CU_UP_CounterCheck, create_dissector_handle(dissect_GNB_CU_UP_CounterCheckRequest_PDU, proto_e1ap));
   dissector_add_uint("e1ap.proc.imsg", id_privateMessage, create_dissector_handle(dissect_PrivateMessage_PDU, proto_e1ap));
 
 
 /*--- End of included file: packet-e1ap-dis-tab.c ---*/
-#line 220 "./asn1/e1ap/packet-e1ap-template.c"
+#line 226 "./asn1/e1ap/packet-e1ap-template.c"
 }
 
 /*

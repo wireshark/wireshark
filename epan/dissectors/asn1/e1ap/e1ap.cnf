@@ -23,7 +23,6 @@ ProtocolIE-ID
 
 #.OMIT_ASSIGNMENT
 # Get rid of unused code warnings
-CP-TNL-Information
 Presence
 ProtocolIE-ContainerList
 ProtocolExtensionID
@@ -133,69 +132,140 @@ id-bearerContextReleaseRequest         ProcedureCode
 id-bearerContextInactivityNotification ProcedureCode
 id-dLDataNotification                  ProcedureCode
 id-dataUsageReport                     ProcedureCode
+id-gNB-CU-UP-CounterCheck              ProcedureCode
 
 # ProtocolIE-ID
-id-Cause                                       ProtocolIE-ID
-id-CriticalityDiagnostics                      ProtocolIE-ID
-id-gNB-CU-CP-UE-E1AP-ID                        ProtocolIE-ID
-id-gNB-CU-UP-UE-E1AP-ID                        ProtocolIE-ID
-id-ResetType                                   ProtocolIE-ID
-id-UE-associatedLogicalE1-ConnectionItem       ProtocolIE-ID
-id-UE-associatedLogicalE1-ConnectionListResAck ProtocolIE-ID
-id-gNB-CU-UP-ID                                ProtocolIE-ID
-id-gNB-CU-UP-Name                              ProtocolIE-ID
-id-gNB-CU-CP-Name                              ProtocolIE-ID
-id-CNSupport                                   ProtocolIE-ID
-id-SupportedPLMNs                              ProtocolIE-ID
-id-SupportedPLMNs-Item                         ProtocolIE-ID
-id-TimeToWait                                  ProtocolIE-ID
-id-SecurityInformation                         ProtocolIE-ID
-id-UEDLAggregateMaximumBitRate                 ProtocolIE-ID
-id-System-BearerContextSetupRequest            ProtocolIE-ID
-id-System-BearerContextSetupResponse           ProtocolIE-ID
-id-BearerContextStatusChange                   ProtocolIE-ID
-id-System-BearerContextModificationRequest     ProtocolIE-ID
-id-System-BearerContextModificationResponse    ProtocolIE-ID
-id-System-BearerContextModificationConfirm     ProtocolIE-ID
-id-System-BearerContextModificationRequired    ProtocolIE-ID
-id-DRB-Status-List                             ProtocolIE-ID
-id-DRB-Status-Item                             ProtocolIE-ID
-id-DRB-Activity-List                           ProtocolIE-ID
-id-DRB-Activity-Item                           ProtocolIE-ID
-id-Data-Usage-Report-List                      ProtocolIE-ID
+id-Cause                                        ProtocolIE-ID
+id-CriticalityDiagnostics                       ProtocolIE-ID
+id-gNB-CU-CP-UE-E1AP-ID                         ProtocolIE-ID
+id-gNB-CU-UP-UE-E1AP-ID                         ProtocolIE-ID
+id-ResetType                                    ProtocolIE-ID
+id-UE-associatedLogicalE1-ConnectionItem        ProtocolIE-ID
+id-UE-associatedLogicalE1-ConnectionListResAck  ProtocolIE-ID
+id-gNB-CU-UP-ID                                 ProtocolIE-ID
+id-gNB-CU-UP-Name                               ProtocolIE-ID
+id-gNB-CU-CP-Name                               ProtocolIE-ID
+id-CNSupport                                    ProtocolIE-ID
+id-SupportedPLMNs                               ProtocolIE-ID
+id-TimeToWait                                   ProtocolIE-ID
+id-SecurityInformation                          ProtocolIE-ID
+id-UEDLAggregateMaximumBitRate                  ProtocolIE-ID
+id-System-BearerContextSetupRequest             ProtocolIE-ID
+id-System-BearerContextSetupResponse            ProtocolIE-ID
+id-BearerContextStatusChange                    ProtocolIE-ID
+id-System-BearerContextModificationRequest      ProtocolIE-ID
+id-System-BearerContextModificationResponse     ProtocolIE-ID
+id-System-BearerContextModificationConfirm      ProtocolIE-ID
+id-System-BearerContextModificationRequired     ProtocolIE-ID
+id-DRB-Status-List                              ProtocolIE-ID
+id-ActivityNotificationLevel                    ProtocolIE-ID
+id-ActivityInformation                          ProtocolIE-ID
+id-Data-Usage-Report-List                       ProtocolIE-ID
+id-New-UL-TNL-Information-Required              ProtocolIE-ID
+id-GNB-CU-CP-TNLA-To-Add-List                   ProtocolIE-ID
+id-GNB-CU-CP-TNLA-To-Remove-List                ProtocolIE-ID
+id-GNB-CU-CP-TNLA-To-Update-List                ProtocolIE-ID
+id-GNB-CU-CP-TNLA-Setup-List                    ProtocolIE-ID
+id-GNB-CU-CP-TNLA-Failed-To-Setup-List          ProtocolIE-ID
+id-DRB-To-Setup-List-EUTRAN                     ProtocolIE-ID
+id-DRB-To-Modify-List-EUTRAN                    ProtocolIE-ID
+id-DRB-To-Remove-List-EUTRAN                    ProtocolIE-ID
+id-DRB-Required-To-Modify-List-EUTRAN           ProtocolIE-ID
+id-DRB-Required-To-Remove-List-EUTRAN           ProtocolIE-ID
+id-DRB-Setup-List-EUTRAN                        ProtocolIE-ID
+id-DRB-Failed-List-EUTRAN                       ProtocolIE-ID
+id-DRB-Modified-List-EUTRAN                     ProtocolIE-ID
+id-DRB-Failed-To-Modify-List-EUTRAN             ProtocolIE-ID
+id-DRB-Confirm-Modified-List-EUTRAN             ProtocolIE-ID
+id-PDU-Session-Resource-To-Setup-List           ProtocolIE-ID
+id-PDU-Session-Resource-To-Modify-List          ProtocolIE-ID
+id-PDU-Session-Resource-To-Remove-List          ProtocolIE-ID
+id-PDU-Session-Resource-Required-To-Modify-List ProtocolIE-ID
+id-PDU-Session-Resource-Setup-List              ProtocolIE-ID
+id-PDU-Session-Resource-Failed-List             ProtocolIE-ID
+id-PDU-Session-Resource-Modified-List           ProtocolIE-ID
+id-PDU-Session-Resource-Failed-To-Modify-List   ProtocolIE-ID
+id-PDU-Session-Resource-Confirm-Modified-List   ProtocolIE-ID
+id-DRB-To-Setup-Mod-List-EUTRAN                 ProtocolIE-ID
+id-DRB-Setup-Mod-List-EUTRAN                    ProtocolIE-ID
+id-DRB-Failed-Mod-List-EUTRAN                   ProtocolIE-ID
+id-PDU-Session-Resource-Setup-Mod-List          ProtocolIE-ID
+id-PDU-Session-Resource-Failed-Mod-List         ProtocolIE-ID
+id-PDU-Session-Resource-To-Setup-Mod-List       ProtocolIE-ID
+id-TransactionID                                ProtocolIE-ID
+id-Serving-PLMN                                 ProtocolIE-ID
+id-UE-Inactivity-Timer                          ProtocolIE-ID
+id-System-GNB-CU-UP-CounterCheckRequest         ProtocolIE-ID
+id-DRBs-Subject-To-Counter-Check-List-EUTRAN    ProtocolIE-ID
+id-DRBs-Subject-To-Counter-Check-List-NG-RAN    ProtocolIE-ID
 #.END
 
 #.REGISTER
 
 #E1AP-PROTOCOL-IES
-Cause                                       N e1ap.ies id-Cause
-CriticalityDiagnostics                      N e1ap.ies id-CriticalityDiagnostics
-GNB-CU-CP-UE-E1AP-ID                        N e1ap.ies id-gNB-CU-CP-UE-E1AP-ID
-GNB-CU-UP-UE-E1AP-ID                        N e1ap.ies id-gNB-CU-UP-UE-E1AP-ID
-ResetType                                   N e1ap.ies id-ResetType
-UE-associatedLogicalE1-ConnectionItem       N e1ap.ies id-UE-associatedLogicalE1-ConnectionItem
-UE-associatedLogicalE1-ConnectionListResAck N e1ap.ies id-UE-associatedLogicalE1-ConnectionListResAck
-GNB-CU-UP-ID                                N e1ap.ies id-gNB-CU-UP-ID
-GNB-CU-UP-Name                              N e1ap.ies id-gNB-CU-UP-Name
-GNB-CU-CP-Name                              N e1ap.ies id-gNB-CU-CP-Name
-CNSupport                                   N e1ap.ies id-CNSupport
-SupportedPLMNs-List                         N e1ap.ies id-SupportedPLMNs
-SupportedPLMNs-Item                         N e1ap.ies id-SupportedPLMNs-Item
-TimeToWait                                  N e1ap.ies id-TimeToWait
-SecurityInformation                         N e1ap.ies id-SecurityInformation
-BitRate                                     N e1ap.ies id-UEDLAggregateMaximumBitRate
-System-BearerContextSetupRequest            N e1ap.ies id-System-BearerContextSetupRequest
-System-BearerContextSetupResponse           N e1ap.ies id-System-BearerContextSetupResponse
-BearerContextStatusChange                   N e1ap.ies id-BearerContextStatusChange
-System-BearerContextModificationRequest     N e1ap.ies id-System-BearerContextModificationRequest
-System-BearerContextModificationResponse    N e1ap.ies id-System-BearerContextModificationResponse
-System-BearerContextModificationConfirm     N e1ap.ies id-System-BearerContextModificationConfirm
-System-BearerContextModificationRequired    N e1ap.ies id-System-BearerContextModificationRequired
-DRB-Status-List                             N e1ap.ies id-DRB-Status-List
-DRB-Status-Item                             N e1ap.ies id-DRB-Status-Item
-DRB-Activity-List                           N e1ap.ies id-DRB-Activity-List
-DRB-Activity-Item                           N e1ap.ies id-DRB-Activity-Item
-Data-Usage-Report-List                      N e1ap.ies id-Data-Usage-Report-List
+Cause                                        N e1ap.ies id-Cause
+CriticalityDiagnostics                       N e1ap.ies id-CriticalityDiagnostics
+GNB-CU-CP-UE-E1AP-ID                         N e1ap.ies id-gNB-CU-CP-UE-E1AP-ID
+GNB-CU-UP-UE-E1AP-ID                         N e1ap.ies id-gNB-CU-UP-UE-E1AP-ID
+ResetType                                    N e1ap.ies id-ResetType
+UE-associatedLogicalE1-ConnectionItem        N e1ap.ies id-UE-associatedLogicalE1-ConnectionItem
+UE-associatedLogicalE1-ConnectionListResAck  N e1ap.ies id-UE-associatedLogicalE1-ConnectionListResAck
+GNB-CU-UP-ID                                 N e1ap.ies id-gNB-CU-UP-ID
+GNB-CU-UP-Name                               N e1ap.ies id-gNB-CU-UP-Name
+GNB-CU-CP-Name                               N e1ap.ies id-gNB-CU-CP-Name
+CNSupport                                    N e1ap.ies id-CNSupport
+SupportedPLMNs-List                          N e1ap.ies id-SupportedPLMNs
+TimeToWait                                   N e1ap.ies id-TimeToWait
+SecurityInformation                          N e1ap.ies id-SecurityInformation
+BitRate                                      N e1ap.ies id-UEDLAggregateMaximumBitRate
+System-BearerContextSetupRequest             N e1ap.ies id-System-BearerContextSetupRequest
+System-BearerContextSetupResponse            N e1ap.ies id-System-BearerContextSetupResponse
+BearerContextStatusChange                    N e1ap.ies id-BearerContextStatusChange
+System-BearerContextModificationRequest      N e1ap.ies id-System-BearerContextModificationRequest
+System-BearerContextModificationResponse     N e1ap.ies id-System-BearerContextModificationResponse
+System-BearerContextModificationConfirm      N e1ap.ies id-System-BearerContextModificationConfirm
+System-BearerContextModificationRequired     N e1ap.ies id-System-BearerContextModificationRequired
+DRB-Status-List                              N e1ap.ies id-DRB-Status-List
+ActivityNotificationLevel                    N e1ap.ies id-ActivityNotificationLevel
+ActivityInformation                          N e1ap.ies id-ActivityInformation
+Data-Usage-Report-List                       N e1ap.ies id-Data-Usage-Report-List
+New-UL-TNL-Information-Required              N e1ap.ies id-New-UL-TNL-Information-Required
+GNB-CU-CP-TNLA-To-Add-List                   N e1ap.ies id-GNB-CU-CP-TNLA-To-Add-List
+GNB-CU-CP-TNLA-To-Remove-List                N e1ap.ies id-GNB-CU-CP-TNLA-To-Remove-List
+GNB-CU-CP-TNLA-To-Update-List                N e1ap.ies id-GNB-CU-CP-TNLA-To-Update-List
+GNB-CU-CP-TNLA-Setup-List                    N e1ap.ies id-GNB-CU-CP-TNLA-Setup-List
+GNB-CU-CP-TNLA-Failed-To-Setup-List          N e1ap.ies id-GNB-CU-CP-TNLA-Failed-To-Setup-List
+DRB-To-Setup-List-EUTRAN                     N e1ap.ies id-DRB-To-Setup-List-EUTRAN
+DRB-To-Modify-List-EUTRAN                    N e1ap.ies id-DRB-To-Modify-List-EUTRAN
+DRB-To-Remove-List-EUTRAN                    N e1ap.ies id-DRB-To-Remove-List-EUTRAN
+DRB-Required-To-Modify-List-EUTRAN           N e1ap.ies id-DRB-Required-To-Modify-List-EUTRAN
+DRB-Required-To-Remove-List-EUTRAN           N e1ap.ies id-DRB-Required-To-Remove-List-EUTRAN
+DRB-Setup-List-EUTRAN                        N e1ap.ies id-DRB-Setup-List-EUTRAN
+DRB-Failed-List-EUTRAN                       N e1ap.ies id-DRB-Failed-List-EUTRAN
+DRB-Modified-List-EUTRAN                     N e1ap.ies id-DRB-Modified-List-EUTRAN
+DRB-Failed-To-Modify-List-EUTRAN             N e1ap.ies id-DRB-Failed-To-Modify-List-EUTRAN
+DRB-Confirm-Modified-List-EUTRAN             N e1ap.ies id-DRB-Confirm-Modified-List-EUTRAN
+PDU-Session-Resource-To-Setup-List           N e1ap.ies id-PDU-Session-Resource-To-Setup-List
+PDU-Session-Resource-To-Modify-List          N e1ap.ies id-PDU-Session-Resource-To-Modify-List
+PDU-Session-Resource-To-Remove-List          N e1ap.ies id-PDU-Session-Resource-To-Remove-List
+PDU-Session-Resource-Required-To-Modify-List N e1ap.ies id-PDU-Session-Resource-Required-To-Modify-List
+PDU-Session-Resource-Setup-List              N e1ap.ies id-PDU-Session-Resource-Setup-List
+PDU-Session-Resource-Failed-List             N e1ap.ies id-PDU-Session-Resource-Failed-List
+PDU-Session-Resource-Modified-List           N e1ap.ies id-PDU-Session-Resource-Modified-List
+PDU-Session-Resource-Failed-To-Modify-List   N e1ap.ies id-PDU-Session-Resource-Failed-To-Modify-List
+PDU-Session-Resource-Confirm-Modified-List   N e1ap.ies id-PDU-Session-Resource-Confirm-Modified-List
+DRB-To-Setup-Mod-List-EUTRAN                 N e1ap.ies id-DRB-To-Setup-Mod-List-EUTRAN
+DRB-Setup-Mod-List-EUTRAN                    N e1ap.ies id-DRB-Setup-Mod-List-EUTRAN
+DRB-Failed-Mod-List-EUTRAN                   N e1ap.ies id-DRB-Failed-Mod-List-EUTRAN
+PDU-Session-Resource-Setup-Mod-List          N e1ap.ies id-PDU-Session-Resource-Setup-Mod-List
+PDU-Session-Resource-Failed-Mod-List         N e1ap.ies id-PDU-Session-Resource-Failed-Mod-List
+PDU-Session-Resource-To-Setup-Mod-List       N e1ap.ies id-PDU-Session-Resource-To-Setup-Mod-List
+TransactionID                                N e1ap.ies id-TransactionID
+PLMN-Identity                                N e1ap.ies id-Serving-PLMN
+Inactivity-Timer                             N e1ap.ies id-UE-Inactivity-Timer
+System-GNB-CU-UP-CounterCheckRequest         N e1ap.ies id-System-GNB-CU-UP-CounterCheckRequest
+DRBs-Subject-To-Counter-Check-List-EUTRAN    N e1ap.ies id-DRBs-Subject-To-Counter-Check-List-EUTRAN
+DRBs-Subject-To-Counter-Check-List-NG-RAN    N e1ap.ies id-DRBs-Subject-To-Counter-Check-List-NG-RAN
 
 #E1AP-PROTOCOL-EXTENSION
 
@@ -246,6 +316,8 @@ DLDataNotification                       N e1ap.proc.imsg id-dLDataNotification
 
 DataUsageReport                          N e1ap.proc.imsg id-dataUsageReport
 
+GNB-CU-UP-CounterCheckRequest            N e1ap.proc.imsg id-gNB-CU-UP-CounterCheck
+
 PrivateMessage                           N e1ap.proc.imsg id-privateMessage
 
 #.FN_BODY PLMN-Identity  VAL_PTR = &param_tvb
@@ -285,6 +357,18 @@ DRB-Usage-Report-Item/usageCountDL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&un
 
 #.TYPE_ATTR
 MaxPacketLossRate DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(e1ap_MaxPacketLossRate_fmt)
+
+#.TYPE_ATTR
+PacketDelayBudget DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(e1ap_PacketDelayBudget_fmt)
+
+#.TYPE_ATTR
+AveragingWindow DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_milliseconds
+
+#.TYPE_ATTR
+MaxDataBurstVolume DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_byte_bytes
+
+#.TYPE_ATTR
+Inactivity-Timer DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 
 #.FN_BODY TransportLayerAddress VAL_PTR = &param_tvb
   tvbuff_t *param_tvb = NULL;
@@ -371,6 +455,8 @@ MaxPacketLossRate DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(e1ap_MaxPacketLossRate
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DLDataNotification");
 #.FN_HDR DataUsageReport
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DataUsageReport");
+#.FN_HDR GNB-CU-UP-CounterCheckRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNB-CU-UP-CounterCheckRequest");
 #.FN_HDR PrivateMessage
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PrivateMessage");
 #.END
