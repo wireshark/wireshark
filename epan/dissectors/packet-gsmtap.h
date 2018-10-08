@@ -15,7 +15,7 @@
  *
  * prior to getting them accepted/included into the official Osmocom
  * GSMTAP definition, available from
- * http://cgit.osmocom.org/cgit/libosmocore/tree/include/osmocom/core/gsmtap.h
+ * http://cgit.osmocom.org/libosmocore/tree/include/osmocom/core/gsmtap.h
  *
  * The GSMTAP maintainer can be contacted via the
  * openbsc@lists.osmocom.org mailing list, or by private e-mail
