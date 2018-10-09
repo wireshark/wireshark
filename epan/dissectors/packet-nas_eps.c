@@ -9,7 +9,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 24.301 V15.3.0 (2018-06)
+ * References: 3GPP TS 24.301 V15.4.0 (2018-09)
  */
 
 #include "config.h"
@@ -273,7 +273,6 @@ static int hf_emm_ciph_key_data_pos_sib_type_2_17 = -1;
 static int hf_emm_ciph_key_data_pos_sib_type_2_18 = -1;
 static int hf_emm_ciph_key_data_pos_sib_type_2_19 = -1;
 static int hf_emm_ciph_key_data_pos_sib_type_3_1 = -1;
-static int hf_emm_ciph_key_data_pos_sib_type_3_2 = -1;
 static int hf_emm_ciph_key_data_validity_start_time = -1;
 static int hf_emm_ciph_key_data_validity_duration = -1;
 static int hf_emm_ciph_key_data_tais_list_len = -1;
@@ -2722,7 +2721,6 @@ de_emm_ciph_key_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
             &hf_emm_ciph_key_data_pos_sib_type_2_18,
             &hf_emm_ciph_key_data_pos_sib_type_2_19,
             &hf_emm_ciph_key_data_pos_sib_type_3_1,
-            &hf_emm_ciph_key_data_pos_sib_type_3_2,
             NULL
         };
         saved_offset = curr_offset;
@@ -2928,7 +2926,8 @@ static const range_string nas_eps_qci_vals[] = {
     { 0x0A, 0x40, "Spare"},
     { 0x41, 0x41, "QCI 65"},
     { 0x42, 0x42, "QCI 66"},
-    { 0x43, 0x44, "Spare"},
+    { 0x43, 0x43, "QCI 67"},
+    { 0x44, 0x44, "Spare"},
     { 0x45, 0x45, "QCI 69"},
     { 0x46, 0x46, "QCI 70"},
     { 0x47, 0x4A, "Spare"},
@@ -2939,7 +2938,9 @@ static const range_string nas_eps_qci_vals[] = {
     { 0x51, 0x51, "Spare"},
     { 0x52, 0x52, "QCI 82"},
     { 0x53, 0x53, "QCI 83"},
-    { 0x54, 0x7F, "Spare"},
+    { 0x54, 0x54, "QCI 84"},
+    { 0x55, 0x55, "QCI 85"},
+    { 0x56, 0x7F, "Spare"},
     { 0x80, 0xFE, "Operator-specific QCI"},
     { 0xFF, 0xFF, "Reserved"},
     { 0,    0,    NULL }
@@ -4182,10 +4183,10 @@ nas_emm_attach_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
     ELEM_OPT_TV_SHORT(0xC0, NAS_PDU_TYPE_EMM, DE_EMM_NETWORK_POLICY, NULL);
     /* 6C   T3447 value GPRS timer 3 9.9.3.16B O   TLV  3 */
     ELEM_OPT_TLV(0x6C, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3447 value");
-    /* 35   Extended emergency number list Extended emergency number list 9.9.3.37A O   TLV-E  6-65535 */
-    ELEM_OPT_TLV_E(0x35, NAS_PDU_TYPE_EMM, DE_EMM_EXT_EMERG_NUM_LIST, NULL);
-    /* 80   Ciphering key data Ciphering key data 9.9.3.56 O   TLV-E  35-2291 */
-    ELEM_OPT_TLV_E(0x80, NAS_PDU_TYPE_EMM, DE_EMM_CIPH_KEY_DATA, NULL);
+    /* 7A   Extended emergency number list Extended emergency number list 9.9.3.37A O   TLV-E  6-65538 */
+    ELEM_OPT_TLV_E(0x7A, NAS_PDU_TYPE_EMM, DE_EMM_EXT_EMERG_NUM_LIST, NULL);
+    /* 7C   Ciphering key data Ciphering key data 9.9.3.56 O   TLV-E  35-2291 */
+    ELEM_OPT_TLV_E(0x7C, NAS_PDU_TYPE_EMM, DE_EMM_CIPH_KEY_DATA, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -4964,10 +4965,10 @@ nas_emm_trac_area_upd_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
     ELEM_OPT_TV_SHORT(0xC0, NAS_PDU_TYPE_EMM, DE_EMM_NETWORK_POLICY, NULL);
     /* 6C   T3447 value GPRS timer 3 9.9.3.16B O   TLV  3 */
     ELEM_OPT_TLV(0x6C, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3447 value");
-    /* 35   Extended emergency number list Extended emergency number list 9.9.3.37A O   TLV-E  6-65535 */
-    ELEM_OPT_TLV_E(0x35, NAS_PDU_TYPE_EMM, DE_EMM_EXT_EMERG_NUM_LIST, NULL);
-    /* 80   Ciphering key data Ciphering key data 9.9.3.56 O   TLV-E  35-2291 */
-    ELEM_OPT_TLV_E(0x80, NAS_PDU_TYPE_EMM, DE_EMM_CIPH_KEY_DATA, NULL);
+    /* 7A   Extended emergency number list Extended emergency number list 9.9.3.37A O   TLV-E  6-65538 */
+    ELEM_OPT_TLV_E(0x7A, NAS_PDU_TYPE_EMM, DE_EMM_EXT_EMERG_NUM_LIST, NULL);
+    /* 7C   Ciphering key data Ciphering key data 9.9.3.56 O   TLV-E  35-2291 */
+    ELEM_OPT_TLV_E(0x7C, NAS_PDU_TYPE_EMM, DE_EMM_CIPH_KEY_DATA, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -7682,11 +7683,6 @@ proto_register_nas_eps(void)
     { &hf_emm_ciph_key_data_pos_sib_type_3_1,
         { "Ciphering data set for positioning SIB type 3-1","nas_eps.emm.ciph_key_data.pos_sib_type_3_1",
         FT_BOOLEAN, 8, TFS(&emm_applicable_not_applicable), 0x20,
-        NULL, HFILL }
-    },
-    { &hf_emm_ciph_key_data_pos_sib_type_3_2,
-        { "Ciphering data set for positioning SIB type 3-2","nas_eps.emm.ciph_key_data.pos_sib_type_3_2",
-        FT_BOOLEAN, 8, TFS(&emm_applicable_not_applicable), 0x10,
         NULL, HFILL }
     },
     { &hf_emm_ciph_key_data_validity_start_time,
