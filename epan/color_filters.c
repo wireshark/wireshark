@@ -287,7 +287,7 @@ color_filters_get(gchar** err_msg, color_filter_add_cb_func add_cb)
      * Get the path for the file that would have their filters, and
      * try to open it.
      */
-    path = get_persconffile_path("colorfilters", TRUE);
+    path = get_persconffile_path(COLORFILTERS_FILE_NAME, TRUE);
     if ((f = ws_fopen(path, "r")) == NULL) {
         if (errno != ENOENT) {
             /* Error trying to open the file; give up. */
@@ -687,7 +687,7 @@ color_filters_read_globals(gpointer user_data, gchar** err_msg, color_filter_add
      * Get the path for the file that would have the global filters, and
      * try to open it.
      */
-    path = get_datafile_path("colorfilters");
+    path = get_datafile_path(COLORFILTERS_FILE_NAME);
     if ((f = ws_fopen(path, "r")) == NULL) {
         if (errno != ENOENT) {
             /* Error trying to open the file; give up. */
@@ -804,7 +804,7 @@ color_filters_write(GSList *cfl, gchar** err_msg)
         return FALSE;
     }
 
-    path = get_persconffile_path("colorfilters", TRUE);
+    path = get_persconffile_path(COLORFILTERS_FILE_NAME, TRUE);
     if ((f = ws_fopen(path, "w+")) == NULL) {
         *err_msg = g_strdup_printf("Could not open\n%s\nfor writing: %s.",
                       path, g_strerror(errno));

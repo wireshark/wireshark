@@ -23,21 +23,6 @@
 #include "ui/filter_files.h"
 
 /*
- * Old filter file name.
- */
-#define FILTER_FILE_NAME      "filters"
-
-/*
- * Capture filter file name.
- */
-#define CFILTER_FILE_NAME     "cfilters"
-
-/*
- * Display filter file name.
- */
-#define DFILTER_FILE_NAME     "dfilters"
-
-/*
  * List of capture filters - saved.
  */
 static GList *capture_filters = NULL;

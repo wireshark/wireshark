@@ -16,6 +16,21 @@ extern "C" {
 #endif /* __cplusplus */
 
 /*
+ * Old filter file name.
+ */
+#define FILTER_FILE_NAME      "filters"
+
+/*
+ * Capture filter file name.
+ */
+#define CFILTER_FILE_NAME     "cfilters"
+
+/*
+ * Display filter file name.
+ */
+#define DFILTER_FILE_NAME     "dfilters"
+
+/*
  * Filter lists.
  */
 typedef enum {

@@ -22,7 +22,9 @@
 
 #include <QMessageBox>
 #include <QThread>
+#include <QUrl>
 
+#include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/widgets/capture_filter_edit.h>
 //#include "capture_filter_syntax_worker.h"
 #include <ui/qt/widgets/display_filter_edit.h>
@@ -51,13 +53,22 @@ FilterDialog::FilterDialog(QWidget *parent, FilterType filter_type, const QStrin
     if (parent) loadGeometry(parent->width() * 2 / 3, parent->height() * 2 / 3);
     setWindowIcon(wsApp->normalIcon());
 
+#ifdef Q_OS_MAC
+    ui->newToolButton->setAttribute(Qt::WA_MacSmallSize, true);
+    ui->deleteToolButton->setAttribute(Qt::WA_MacSmallSize, true);
+    ui->copyToolButton->setAttribute(Qt::WA_MacSmallSize, true);
+    ui->pathLabel->setAttribute(Qt::WA_MacSmallSize, true);
+#endif
+
     ui->filterTreeWidget->setDragEnabled(true);
     ui->filterTreeWidget->viewport()->setAcceptDrops(true);
     ui->filterTreeWidget->setDropIndicatorShown(true);
     ui->filterTreeWidget->setDragDropMode(QAbstractItemView::InternalMove);
 
+    const gchar * filename = NULL;
     if (filter_type == CaptureFilter) {
         setWindowTitle(wsApp->windowTitleString(tr("Capture Filters")));
+        filename = CFILTER_FILE_NAME;
 
 //        QThread *syntax_thread = new QThread;
 //        syntax_worker_ = new CaptureFilterSyntaxWorker;
@@ -70,6 +81,15 @@ FilterDialog::FilterDialog(QWidget *parent, FilterType filter_type, const QStrin
 //        syntax_thread->start();
     } else {
         setWindowTitle(wsApp->windowTitleString(tr("Display Filters")));
+        filename = DFILTER_FILE_NAME;
+    }
+
+    QString abs_path = gchar_free_to_qstring(get_persconffile_path(filename, TRUE));
+    if (file_exists(abs_path.toUtf8().constData())) {
+        ui->pathLabel->setText(abs_path);
+        ui->pathLabel->setUrl(QUrl::fromLocalFile(abs_path).toString());
+        ui->pathLabel->setToolTip(tr("Open ") + filename);
+        ui->pathLabel->setEnabled(true);
     }
 
     ui->filterTreeWidget->setItemDelegateForColumn(filter_col_, filter_tree_delegate_);

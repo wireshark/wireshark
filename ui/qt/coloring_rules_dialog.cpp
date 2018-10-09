@@ -20,12 +20,14 @@
 #include "wsutil/filesystem.h"
 
 #include "wireshark_application.h"
+#include "ui/qt/utils/qt_ui_utils.h"
 #include "ui/qt/widgets/copy_from_profile_menu.h"
 #include "ui/qt/widgets/wireshark_file_dialog.h"
 
 #include <QColorDialog>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QUrl>
 
 /*
  * @file Coloring Rules dialog
@@ -58,6 +60,14 @@ ColoringRulesDialog::ColoringRulesDialog(QWidget *parent, QString add_filter) :
         ui->coloringRulesTreeView->resizeColumnToContents(i);
     }
 
+#ifdef Q_OS_MAC
+    ui->newToolButton->setAttribute(Qt::WA_MacSmallSize, true);
+    ui->deleteToolButton->setAttribute(Qt::WA_MacSmallSize, true);
+    ui->copyToolButton->setAttribute(Qt::WA_MacSmallSize, true);
+    ui->clearToolButton->setAttribute(Qt::WA_MacSmallSize, true);
+    ui->pathLabel->setAttribute(Qt::WA_MacSmallSize, true);
+#endif
+
     connect(ui->coloringRulesTreeView->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
             this, SLOT(colorRuleSelectionChanged(const QItemSelection &, const QItemSelection &)));
     connect(&colorRuleDelegate_, SIGNAL(invalidField(const QModelIndex&, const QString&)),
@@ -75,11 +85,19 @@ ColoringRulesDialog::ColoringRulesDialog(QWidget *parent, QString add_filter) :
     export_button_->setToolTip(tr("Save filters in a file."));
 
     QPushButton *copy_button = ui->buttonBox->addButton(tr("Copy from"), QDialogButtonBox::ActionRole);
-    copy_from_menu_ = new CopyFromProfileMenu("colorfilters");
+    copy_from_menu_ = new CopyFromProfileMenu(COLORFILTERS_FILE_NAME);
     copy_button->setMenu(copy_from_menu_);
     copy_button->setToolTip(tr("Copy coloring rules from another profile."));
     copy_button->setEnabled(copy_from_menu_->haveProfiles());
     connect(copy_from_menu_, SIGNAL(triggered(QAction *)), this, SLOT(copyFromProfile(QAction *)));
+
+    QString abs_path = gchar_free_to_qstring(get_persconffile_path(COLORFILTERS_FILE_NAME, TRUE));
+    if (file_exists(abs_path.toUtf8().constData())) {
+        ui->pathLabel->setText(abs_path);
+        ui->pathLabel->setUrl(QUrl::fromLocalFile(abs_path).toString());
+        ui->pathLabel->setToolTip(tr("Open ") + COLORFILTERS_FILE_NAME);
+        ui->pathLabel->setEnabled(true);
+    }
 
     if (!add_filter.isEmpty()) {
         colorRuleModel_.addColor(false, add_filter, palette().color(QPalette::Text), palette().color(QPalette::Base));
