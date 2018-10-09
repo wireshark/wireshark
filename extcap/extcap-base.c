@@ -49,53 +49,6 @@ typedef struct _extcap_option {
 
 FILE* custom_log = NULL;
 
-#ifdef _WIN32
-BOOLEAN IsHandleRedirected(DWORD handle)
-{
-    HANDLE h = GetStdHandle(handle);
-    if (h) {
-        BY_HANDLE_FILE_INFORMATION fi;
-        if (GetFileInformationByHandle(h, &fi)) {
-            return TRUE;
-        }
-    }
-    return FALSE;
-}
-
-void attach_parent_console()
-{
-    BOOL outRedirected, errRedirected;
-
-    outRedirected = IsHandleRedirected(STD_OUTPUT_HANDLE);
-    errRedirected = IsHandleRedirected(STD_ERROR_HANDLE);
-
-    if (outRedirected && errRedirected) {
-        /* Both standard output and error handles are redirected.
-         * There is no point in attaching to parent process console.
-         */
-        return;
-    }
-
-    if (AttachConsole(ATTACH_PARENT_PROCESS) == 0) {
-        /* Console attach failed. */
-        return;
-    }
-
-    /* Console attach succeeded */
-    if (outRedirected == FALSE) {
-        if (!freopen("CONOUT$", "w", stdout)) {
-            g_warning("Cannot redirect to stdout.");
-        }
-    }
-
-    if (errRedirected == FALSE) {
-        if (!freopen("CONOUT$", "w", stderr)) {
-            g_warning("Cannot redirect to strerr.");
-        }
-    }
-}
-#endif
-
 void extcap_base_register_interface(extcap_parameters * extcap, const char * interface, const char * ifdescription, uint16_t dlt, const char * dltdescription )
 {
     extcap_base_register_interface_ext(extcap, interface, ifdescription, dlt, NULL, dltdescription );

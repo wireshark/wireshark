@@ -324,7 +324,7 @@ static char* concat_filters(const char* extcap_filter, const char* remote_filter
 	return g_strdup_printf("(%s) and (%s)", extcap_filter, remote_filter);
 }
 
-int main(int argc, char **argv)
+int real_main(int argc, char **argv)
 {
 	int result;
 	int option_idx = 0;
@@ -347,8 +347,6 @@ int main(int argc, char **argv)
 
 #ifdef _WIN32
 	WSADATA wsaData;
-
-	attach_parent_console();
 #endif  /* _WIN32 */
 
 	help_url = data_file_url("sshdump.html");
@@ -534,13 +532,19 @@ end:
 }
 
 #ifdef _WIN32
-int _stdcall
-WinMain (struct HINSTANCE__ *hInstance,
-        struct HINSTANCE__ *hPrevInstance,
-        char               *lpszCmdLine,
-        int                 nCmdShow)
+int
+wmain(int argc, wchar_t *wc_argv[])
 {
-	return main(__argc, __argv);
+	char **argv;
+
+	argv = arg_list_utf_16to8(argc, wc_argv);
+	return real_main(argc, argv);
+}
+#else
+int
+main(int argc, char *argv[])
+{
+	return real_main(argc, argv);
 }
 #endif
 

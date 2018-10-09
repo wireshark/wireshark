@@ -119,7 +119,7 @@ static int list_config(char *interface)
 	return EXIT_SUCCESS;
 }
 
-int main(int argc, char *argv[])
+int real_main(int argc, char *argv[])
 {
 	int option_idx = 0;
 	int result;
@@ -171,10 +171,6 @@ int main(int argc, char *argv[])
 		help(extcap_conf);
 		goto end;
 	}
-
-#ifdef _WIN32
-	attach_parent_console();
-#endif  /* _WIN32 */
 
 	while ((result = getopt_long(argc, argv, ":", longopts, &option_idx)) != -1) {
 		switch (result) {
@@ -323,13 +319,19 @@ end:
 }
 
 #ifdef _WIN32
-int _stdcall
-WinMain (struct HINSTANCE__ *hInstance,
-        struct HINSTANCE__ *hPrevInstance,
-        char               *lpszCmdLine,
-        int                 nCmdShow)
+int
+wmain(int argc, wchar_t *wc_argv[])
 {
-	return main(__argc, __argv);
+    char **argv;
+
+    argv = arg_list_utf_16to8(argc, wc_argv);
+    return real_main(argc, argv);
+}
+#else
+int
+main(int argc, char *argv[])
+{
+    return real_main(argc, argv);
 }
 #endif
 

@@ -29,6 +29,7 @@
 
 #ifdef _WIN32
 	#include <io.h>
+	#include <wsutil/unicode-utils.h> // arg_list_utf_16to8
 #endif
 
 #include <wsutil/socket.h>
@@ -57,11 +58,6 @@
 	{ "fifo", required_argument, NULL, EXTCAP_OPT_FIFO}, \
 	{ "debug", required_argument, NULL, EXTCAP_OPT_DEBUG}, \
 	{ "debug-file", required_argument, NULL, EXTCAP_OPT_DEBUG_FILE}
-
-#if defined(_WIN32)
-	BOOLEAN IsHandleRedirected(DWORD handle);
-	void attach_parent_console();
-#endif
 
 typedef struct _extcap_parameters
 {
