@@ -270,7 +270,7 @@ cmp_gt(const fvalue_t *fv_a, const fvalue_t *fv_b)
 				gt = (memcmp(tvb_get_ptr(a->tvb, 0, a_len), tvb_get_ptr(b->tvb, 0, a_len), a_len) > 0);
 			}
 		} else {
-			return (strcmp(a->proto_string, b->proto_string) > 0);
+			gt = (strcmp(a->proto_string, b->proto_string) > 0);
 		}
 	}
 	CATCH_ALL {
@@ -299,7 +299,7 @@ cmp_ge(const fvalue_t *fv_a, const fvalue_t *fv_b)
 				ge = (memcmp(tvb_get_ptr(a->tvb, 0, a_len), tvb_get_ptr(b->tvb, 0, a_len), a_len) >= 0);
 			}
 		} else {
-			return (strcmp(a->proto_string, b->proto_string) >= 0);
+			ge = (strcmp(a->proto_string, b->proto_string) >= 0);
 		}
 	}
 	CATCH_ALL {
@@ -328,7 +328,7 @@ cmp_lt(const fvalue_t *fv_a, const fvalue_t *fv_b)
 				lt = (memcmp(tvb_get_ptr(a->tvb, 0, a_len), tvb_get_ptr(b->tvb, 0, a_len), a_len) < 0);
 			}
 		} else {
-			return (strcmp(a->proto_string, b->proto_string) < 0);
+			lt = (strcmp(a->proto_string, b->proto_string) < 0);
 		}
 	}
 	CATCH_ALL {
@@ -357,7 +357,7 @@ cmp_le(const fvalue_t *fv_a, const fvalue_t *fv_b)
 				le = (memcmp(tvb_get_ptr(a->tvb, 0, a_len), tvb_get_ptr(b->tvb, 0, a_len), a_len) <= 0);
 			}
 		} else {
-			return (strcmp(a->proto_string, b->proto_string) <= 0);
+			le = (strcmp(a->proto_string, b->proto_string) <= 0);
 		}
 	}
 	CATCH_ALL {
@@ -441,7 +441,7 @@ cmp_matches(const fvalue_t *fv_a, const fvalue_t *fv_b)
 		}
 	}
 	CATCH_ALL {
-		return FALSE;
+		rc = FALSE;
 	}
 	ENDTRY;
 	return rc;
