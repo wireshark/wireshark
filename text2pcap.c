@@ -1564,7 +1564,6 @@ parse_options (int argc, char *argv[])
                 return EXIT_FAILURE;
             }
 
-            hdr_ip = TRUE;
             hdr_ip_proto = 132;
             hdr_ethernet = TRUE;
             hdr_ethernet_proto = 0x800;
@@ -1607,7 +1606,6 @@ parse_options (int argc, char *argv[])
                 return EXIT_FAILURE;
             }
 
-            hdr_ip = TRUE;
             hdr_ip_proto = 132;
             hdr_ethernet = TRUE;
             hdr_ethernet_proto = 0x800;
@@ -1641,7 +1639,6 @@ parse_options (int argc, char *argv[])
                 print_usage(stderr);
                 return EXIT_FAILURE;
             }
-            hdr_ip = TRUE;
             hdr_ip_proto = 17;
             hdr_ethernet = TRUE;
             hdr_ethernet_proto = 0x800;
@@ -1671,7 +1668,6 @@ parse_options (int argc, char *argv[])
                 print_usage(stderr);
                 return EXIT_FAILURE;
             }
-            hdr_ip = TRUE;
             hdr_ip_proto = 6;
             hdr_ethernet = TRUE;
             hdr_ethernet_proto = 0x800;
@@ -1836,6 +1832,14 @@ parse_options (int argc, char *argv[])
     timecode_default = *now_tm;
     timecode_default.tm_isdst = -1; /* Unknown for now, depends on time given to the strptime() function */
 
+    if ((hdr_tcp || hdr_udp || hdr_sctp) && !(hdr_ip || hdr_ipv6)) {
+        /*
+         * If TCP (-T), UDP (-u) or SCTP (-s/-S) header options are specified
+         * but none of IPv4 (-4) or IPv6 (-6) options then add an IPv4 header
+         */
+        hdr_ip = TRUE;
+    }
+
     /* Display summary of our state */
     if (!quiet) {
         fprintf(stderr, "Input from: %s\n", input_filename);
@@ -1845,6 +1849,8 @@ parse_options (int argc, char *argv[])
         if (hdr_ethernet) fprintf(stderr, "Generate dummy Ethernet header: Protocol: 0x%0X\n",
                                   hdr_ethernet_proto);
         if (hdr_ip) fprintf(stderr, "Generate dummy IP header: Protocol: %ld\n",
+                            hdr_ip_proto);
+        if (hdr_ipv6) fprintf(stderr, "Generate dummy IPv6 header: Protocol: %ld\n",
                             hdr_ip_proto);
         if (hdr_udp) fprintf(stderr, "Generate dummy UDP header: Source port: %u. Dest port: %u\n",
                              hdr_src_port, hdr_dest_port);
