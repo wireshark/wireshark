@@ -24,7 +24,6 @@
 #include <epan/exceptions.h>
 
 #include <epan/asn1.h>
-#include <epan/conversation.h>
 #include "packet-ber.h"
 #include "packet-per.h"
 
@@ -420,7 +419,6 @@ dissect_t125_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
   gboolean pc;
   gint32 tag;
   volatile gboolean failed;
-  gboolean is_t125;
 
   /*
    * We must catch all the "ran past the end of the packet" exceptions
@@ -431,43 +429,39 @@ dissect_t125_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
    */
   failed = FALSE;
   TRY {
-    /*
-     * Check that the first byte of the packet is a valid t125/MCS header.
-     * This might not be enough, but since t125 only catch COTP packets,
-     * it should not be a problem.
-     */
-    guint8 first_byte = tvb_get_guint8(tvb, 0) >> 2;
-    switch (first_byte) {
-      case HF_T125_ERECT_DOMAIN_REQUEST:
-      case HF_T125_ATTACH_USER_REQUEST:
-      case HF_T125_ATTACH_USER_CONFIRM:
-      case HF_T125_CHANNEL_JOIN_REQUEST:
-      case HF_T125_CHANNEL_JOIN_CONFIRM:
-      case HF_T125_DISCONNECT_PROVIDER_ULTIMATUM:
-      case HF_T125_SEND_DATA_REQUEST:
-      case HF_T125_SEND_DATA_INDICATION:
-        is_t125 = TRUE;
-        break;
-      default:
-        is_t125 = FALSE;
-        break;
-    }
-    if(is_t125) {
-      dissect_t125(tvb, pinfo, parent_tree, NULL);
-      return TRUE;
-    }
-
     /* could be BER */
     get_ber_identifier(tvb, 0, &ber_class, &pc, &tag);
   } CATCH_BOUNDS_ERRORS {
     failed = TRUE;
   } ENDTRY;
 
-  /* is this strong enough ? */
-  if (!failed && ((ber_class==BER_CLASS_APP) && ((tag>=101) && (tag<=104)))) {
+  if (failed) {
+      return FALSE;
+  }
+
+  if (((ber_class==BER_CLASS_APP) && ((tag>=101) && (tag<=104)))) {
     dissect_t125(tvb, pinfo, parent_tree, NULL);
 
     return TRUE;
+  }
+
+  /*
+   * Check that the first byte of the packet is a valid t125/MCS header.
+   * This might not be enough, but since t125 only catch COTP packets,
+   * it should not be a problem.
+   */
+  guint8 first_byte = tvb_get_guint8(tvb, 0) >> 2;
+  switch (first_byte) {
+    case HF_T125_ERECT_DOMAIN_REQUEST:
+    case HF_T125_ATTACH_USER_REQUEST:
+    case HF_T125_ATTACH_USER_CONFIRM:
+    case HF_T125_CHANNEL_JOIN_REQUEST:
+    case HF_T125_CHANNEL_JOIN_CONFIRM:
+    case HF_T125_DISCONNECT_PROVIDER_ULTIMATUM:
+    case HF_T125_SEND_DATA_REQUEST:
+    case HF_T125_SEND_DATA_INDICATION:
+      dissect_t125(tvb, pinfo, parent_tree, NULL);
+      return TRUE;
   }
 
   return FALSE;
@@ -584,7 +578,7 @@ void proto_register_t125(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-t125-hfarr.c ---*/
-#line 151 "./asn1/t125/packet-t125-template.c"
+#line 146 "./asn1/t125/packet-t125-template.c"
   };
 
   /* List of subtrees */
@@ -601,7 +595,7 @@ void proto_register_t125(void) {
     &ett_t125_ConnectMCSPDU,
 
 /*--- End of included file: packet-t125-ettarr.c ---*/
-#line 157 "./asn1/t125/packet-t125-template.c"
+#line 152 "./asn1/t125/packet-t125-template.c"
   };
 
   /* Register protocol */
