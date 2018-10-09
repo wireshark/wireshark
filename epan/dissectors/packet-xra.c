@@ -724,7 +724,14 @@ dissect_timestamp_mb(tvbuff_t * tvb, proto_tree* tree) {
   /*See figure 104  CM-SP-MULPIv3.1-115-180509*/
   proto_tree_add_bitmask_list(timestamp_tree, tvb, 1, 8, timestamp_parts, ENC_BIG_ENDIAN);
 
-  plc_timestamp_ns = ((plc_timestamp >>9)*20*16 + ((plc_timestamp>>4)&0x1F)*16 + (plc_timestamp&0x0F))*10000/2048/16;
+  /*Timestamp calculation in ns. Beware of overflow of guint64. Splitting off timestamp in composing contributions
+   * Epoch (bits 63-41): 10.24 MHz/2^32 clock: *100000*2^22 ns
+   * D3.0 timestamp (bits 40-9): 204.8MHz/20 clock: 10.24MHz clock
+   * Bits 8-4: 204.8MHz clock
+   * Lowest 4 bits (bits 3-0): 16*204.8MHz clock
+   */
+  plc_timestamp_ns = ((plc_timestamp>>41)&0x7FFFFF)*100000*4194304 +  ((plc_timestamp >>9)&0xFFFFFFFF)*100000/1024 + ((plc_timestamp>>4)&0x1F)*10000/2048 + (plc_timestamp&0x0F)*10000/2048/16;
+
   ts.secs= plc_timestamp_ns/1000000000;
   ts.nsecs=plc_timestamp_ns%1000000000;
   proto_tree_add_time(timestamp_tree, hf_plc_mb_ts_timestamp_formatted, tvb, 1, 8,  &ts);
