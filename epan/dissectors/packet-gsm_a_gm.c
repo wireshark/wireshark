@@ -557,6 +557,9 @@ static int hf_gsm_a_gm_sm_pco_add_apn_rate_ctrl_params_ul_time_unit = -1;
 static int hf_gsm_a_gm_sm_pco_add_apn_rate_ctrl_params_max_ul_rate = -1;
 static int hf_gsm_a_gm_sm_pco_pdu_session_id = -1;
 static int hf_gsm_a_gm_sm_pco_pdu_session_address_lifetime = -1;
+static int hf_gsm_a_gm_sm_pco_qos_flow_descriptions = -1;
+static int hf_gsm_a_gm_sm_pco_eth_frame_payload_mtu = -1;
+static int hf_gsm_a_gm_sm_pco_unstruct_link_mtu = -1;
 static int hf_gsm_a_sm_pdp_type_number = -1;
 static int hf_gsm_a_sm_pdp_address = -1;
 static int hf_gsm_a_gm_ti_value = -1;
@@ -4416,6 +4419,9 @@ static const range_string gsm_a_sm_pco_ms2net_prot_vals[] = {
 	{ 0x0018, 0x0018, "Reliable Data Service request indicator" },
 	{ 0x0019, 0x0019, "Additional APN rate control for exception data support indicator" },
 	{ 0x001a, 0x001a, "PDU session ID" },
+	{ 0x001b, 0x001f, "Reserved" },
+	{ 0x0020, 0x0020, "Ethernet Frame Payload MTU Request" },
+	{ 0x0021, 0x0021, "Unstructured Link MTU Request" },
 	{ 0xff00, 0xffff, "Operator Specific Use" },
 	{ 0, 0, NULL }
 };
@@ -4450,6 +4456,9 @@ static const range_string gsm_a_sm_pco_net2ms_prot_vals[] = {
 	{ 0x001c, 0x001c, "QoS rules" },
 	{ 0x001d, 0x001d, "Session-AMBR" },
 	{ 0x001e, 0x001e, "PDU session address lifetime" },
+	{ 0x001f, 0x001f, "QoS flow descriptions" },
+	{ 0x0020, 0x0020, "Ethernet Frame Payload MTU" },
+	{ 0x0021, 0x0021, "Unstructured Link MTU" },
 	{ 0xff00, 0xffff, "Operator Specific Use" },
 	{ 0, 0, NULL }
 };
@@ -4693,8 +4702,18 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 				}
 				break;
 			case 0x001f:
+				if (link_dir == P2P_DIR_DL && e_len > 0) {
+					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_qos_flow_descriptions, tvb, curr_offset, e_len, ENC_NA);
+				}
+				break;
+			case 0x0020:
 				if (link_dir == P2P_DIR_DL && e_len == 2) {
-					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_pdu_session_address_lifetime, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_eth_frame_payload_mtu, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+				}
+				break;
+			case 0x0021:
+				if (link_dir == P2P_DIR_DL && e_len == 2) {
+					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_unstruct_link_mtu, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
 				}
 				break;
 			default:
@@ -9260,7 +9279,22 @@ proto_register_gsm_a_gm(void)
 		},
 		{ &hf_gsm_a_gm_sm_pco_pdu_session_address_lifetime,
 		  { "PDU session address lifetime", "gsm_a.gm.sm.pco.pdu_session_address_lifetime",
-		    FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_second_seconds, 0x0,
+		    FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_second_seconds, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_sm_pco_qos_flow_descriptions,
+		  { "QoS flow descriptions", "gsm_a.gm.sm.pco.qos_flow_descriptions",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_sm_pco_eth_frame_payload_mtu,
+		  { "Ethernet Frame Payload MTU", "gsm_a.gm.sm.pco.eth_frame_payload_mtu",
+		    FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_sm_pco_unstruct_link_mtu,
+		  { "Unstructured Link MTU", "gsm_a.gm.sm.pco.unstruct_link_mtu",
+		    FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0,
 		    NULL, HFILL }
 		},
 		/* Generated from convert_proto_tree_add_text.pl */
