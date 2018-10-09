@@ -260,6 +260,7 @@ void except_setup_try(struct except_stacknode *esn,
 struct except_stacknode *except_pop(void)
 {
     struct except_stacknode *top = get_top();
+    assert (top->except_type == XCEPT_CLEANUP || top->except_type == XCEPT_CATCHER);
     set_top(top->except_down);
     return top;
 }
