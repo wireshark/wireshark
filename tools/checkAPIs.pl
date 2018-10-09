@@ -917,6 +917,38 @@ sub check_pref_var_dupes($$)
         return $errorcount;
 }
 
+# Check for forbidden control flow changes, see epan/exceptions.h
+sub check_try_catch($$)
+{
+        my ($fileContentsRef, $filename) = @_;
+        my $errorCount = 0;
+
+        # Match TRY { ... } ENDTRY (with an optional '\' in case of a macro).
+        my @items = (${$fileContentsRef} =~ m/ \bTRY\s*\{ (.+?) \}\s* \\? \s*ENDTRY\b /xsg);
+        for my $block (@items) {
+                if ($block =~ m/ \breturn\b /x) {
+                        print STDERR "Error: return is forbidden in TRY/CATCH in $filename\n";
+                        $errorCount++;
+                }
+
+                my @gotoLabels = $block =~ m/ \bgoto\s+ (\w+) /xsg;
+                my %seen = ();
+                for my $gotoLabel (@gotoLabels) {
+                        if ($seen{$gotoLabel}) {
+                                next;
+                        }
+                        $seen{$gotoLabel} = 1;
+
+                        if ($block !~ /^ \s* $gotoLabel \s* :/xsgm) {
+                                print STDERR "Error: goto to label '$gotoLabel' outside TRY/CATCH is forbidden in $filename\n";
+                                $errorCount++;
+                        }
+                }
+        }
+
+        return $errorCount;
+}
+
 sub print_usage
 {
         print "Usage: checkAPIs.pl [-M] [-h] [-g group1[:count]] [-g group2] ... \n";
@@ -1240,6 +1272,8 @@ while ($_ = pop @filelist)
 
         $errorCount += check_proto_tree_add_XXX(\$fileContents, $filename);
 
+        $errorCount += check_try_catch(\$fileContents, $filename);
+
 
         # Check and count APIs
         for my $groupArg (@apiGroups) {
@@ -1304,7 +1338,7 @@ if (scalar @apiSummaryGroups > 0) {
         }
 }
 
-exit($errorCount);
+exit($errorCount > 120 ? 120 : $errorCount);
 
 #
 # Editor modelines  -  http://www.wireshark.org/tools/modelines.html
