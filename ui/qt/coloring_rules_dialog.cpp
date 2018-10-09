@@ -138,7 +138,9 @@ void ColoringRulesDialog::showEvent(QShowEvent *)
 {
     ui->fGPushButton->setFixedHeight(ui->copyToolButton->geometry().height());
     ui->bGPushButton->setFixedHeight(ui->copyToolButton->geometry().height());
+#ifndef Q_OS_MAC
     ui->displayFilterPushButton->setFixedHeight(ui->copyToolButton->geometry().height());
+#endif
 }
 
 void ColoringRulesDialog::rowCountChanged()

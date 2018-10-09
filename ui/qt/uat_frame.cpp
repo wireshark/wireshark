@@ -46,7 +46,6 @@ UatFrame::UatFrame(QWidget *parent) :
     ui->moveUpToolButton->setAttribute(Qt::WA_MacSmallSize, true);
     ui->moveDownToolButton->setAttribute(Qt::WA_MacSmallSize, true);
     ui->clearToolButton->setAttribute(Qt::WA_MacSmallSize, true);
-    ui->copyFromProfileButton->setAttribute(Qt::WA_MacSmallSize, true);
     ui->pathLabel->setAttribute(Qt::WA_MacSmallSize, true);
 #endif
 
@@ -131,7 +130,9 @@ void UatFrame::copyFromProfile(QAction *action)
 
 void UatFrame::showEvent(QShowEvent *)
 {
+#ifndef Q_OS_MAC
     ui->copyFromProfileButton->setFixedHeight(ui->copyToolButton->geometry().height());
+#endif
 }
 
 void UatFrame::applyChanges()
