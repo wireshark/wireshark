@@ -2875,9 +2875,6 @@ dissect_ndr_wchar_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                FALSE, NULL);
 }
 
-static int current_depth = 0;
-static int len_ndr_pointer_list = 0;
-
 /* ndr pointer handling */
 /* Should we re-read the size of the list ?
  * Instead of re-calculating the size everytime, use the stored value unless this
@@ -2929,7 +2926,6 @@ void
 init_ndr_pointer_list(dcerpc_info *di)
 {
     di->conformant_run = 0;
-    current_depth = 0;
 
     while (list_ndr_pointer_list) {
         GSList *list = (GSList *)g_slist_nth_data(list_ndr_pointer_list, 0);
@@ -2943,13 +2939,12 @@ init_ndr_pointer_list(dcerpc_info *di)
     must_check_size = FALSE;
 
     ndr_pointer_list = create_empty_list();
-    list_ndr_pointer_list = g_slist_insert(list_ndr_pointer_list,
-                                           ndr_pointer_list, 0);
+    list_ndr_pointer_list = g_slist_append(list_ndr_pointer_list,
+                                           ndr_pointer_list);
     if (ndr_pointer_hash) {
         g_hash_table_destroy(ndr_pointer_hash);
     }
     ndr_pointer_hash = g_hash_table_new(g_int_hash, g_int_equal);
-    len_ndr_pointer_list = 1;
 }
 
 int
@@ -2958,15 +2953,17 @@ dissect_deferred_pointers(packet_info *pinfo, tvbuff_t *tvb, int offset, dcerpc_
     int          found_new_pointer;
     int          old_offset;
     int          next_pointer;
-    int          original_depth;
+    unsigned     original_depth;
     int          len;
     GSList      *current_ndr_pointer_list;
+
     ndr_pointer_list = NULL;
 
     next_pointer = 0;
 
-    original_depth = current_depth;
-    current_ndr_pointer_list = (GSList *)g_slist_nth_data(list_ndr_pointer_list, current_depth);
+    /* Obtain the current list of pointers at this level. */
+    current_ndr_pointer_list = (GSList *)g_slist_last(list_ndr_pointer_list)->data;
+    original_depth = g_slist_length(list_ndr_pointer_list);
 
     len = g_slist_length(current_ndr_pointer_list);
     do {
@@ -2977,7 +2974,6 @@ dissect_deferred_pointers(packet_info *pinfo, tvbuff_t *tvb, int offset, dcerpc_
             ndr_pointer_data_t *tnpd = (ndr_pointer_data_t *)g_slist_nth_data(current_ndr_pointer_list, i);
 
             if (tnpd->fnct) {
-                int saved_len_ndr_pointer_list = 0;
                 GSList *saved_ndr_pointer_list = NULL;
 
                 dcerpc_dissect_fnct_t *fnct;
@@ -2992,10 +2988,7 @@ dissect_deferred_pointers(packet_info *pinfo, tvbuff_t *tvb, int offset, dcerpc_
                 di->conformant_run = 1;
                 di->conformant_eaten = 0;
                 old_offset = offset;
-                current_depth++;
                 saved_ndr_pointer_list = current_ndr_pointer_list;
-                saved_len_ndr_pointer_list = len_ndr_pointer_list;
-                len_ndr_pointer_list = 1;
                 ndr_pointer_list = create_empty_list();
                 offset = (*(fnct))(tvb, offset, pinfo, NULL, di, drep);
 
@@ -3052,22 +3045,21 @@ dissect_deferred_pointers(packet_info *pinfo, tvbuff_t *tvb, int offset, dcerpc_
                 if (tnpd->callback)
                     tnpd->callback(pinfo, tnpd->tree, tnpd->item, di, tvb, old_offset, offset, tnpd->callback_args);
                 proto_item_set_len(tnpd->item, offset - old_offset);
-                if (len_ndr_pointer_list > 1) {
+                if (ndr_pointer_list->next) {
                     /* We found some pointers to dissect let's create one more level */
-                    len = len_ndr_pointer_list;
+                    len = g_slist_length(ndr_pointer_list);
                     current_ndr_pointer_list = ndr_pointer_list;
                     /* So we will arrive right away at the second element of the list
                      * but that's not too importnt because the first one is always empty
                     */
                     i = next_pointer = 0;
-                    list_ndr_pointer_list = g_slist_insert(list_ndr_pointer_list,
-                                                           ndr_pointer_list, current_depth);
+                    /* Save the old pointer list before moving to the next. */
+                    list_ndr_pointer_list = g_slist_append(list_ndr_pointer_list,
+                                                           ndr_pointer_list);
                     ndr_pointer_list = create_empty_list();
                     continue;
                 } else {
-                    current_depth--;
                     current_ndr_pointer_list = saved_ndr_pointer_list;
-                    len_ndr_pointer_list = saved_len_ndr_pointer_list;
                 }
             }
             if (i == (len - 1) && (must_check_size == TRUE)) {
@@ -3079,12 +3071,11 @@ dissect_deferred_pointers(packet_info *pinfo, tvbuff_t *tvb, int offset, dcerpc_
         /* We reached the end of one level, go to the level bellow if possible
          * reset list a level n
          */
-        if ((i >= (len - 1)) && (current_depth > original_depth)) {
+        if ((i >= (len - 1)) && (g_slist_length(list_ndr_pointer_list) > original_depth)) {
             GSList *list;
             /* Remove existing list */
             g_slist_free_full(current_ndr_pointer_list, g_free);
-            list = (GSList *)g_slist_nth_data(list_ndr_pointer_list, current_depth);
-            current_depth--;
+            list = (GSList *)g_slist_last(list_ndr_pointer_list)->data;
             list_ndr_pointer_list = g_slist_remove(list_ndr_pointer_list, list);
 
             /* Rewind on the lower level, in theory it's not too great because we
@@ -3092,18 +3083,18 @@ dissect_deferred_pointers(packet_info *pinfo, tvbuff_t *tvb, int offset, dcerpc_
              * In practice it shouldn't be that bad !
              */
             next_pointer = 0;
-            current_ndr_pointer_list = (GSList *)g_slist_nth_data(list_ndr_pointer_list, current_depth);
+            /* Move to the next list of pointers. */
+            current_ndr_pointer_list = (GSList *)g_slist_last(list_ndr_pointer_list)->data;
             len = g_slist_length(current_ndr_pointer_list);
-            len_ndr_pointer_list = len;
             found_new_pointer = 1;
         }
 
     } while (found_new_pointer);
-    DISSECTOR_ASSERT(original_depth == current_depth);
+    DISSECTOR_ASSERT(original_depth == g_slist_length(list_ndr_pointer_list));
 
     g_slist_free_full(ndr_pointer_list, g_free);
-    ndr_pointer_list = (GSList *)g_slist_nth_data(list_ndr_pointer_list, current_depth);
-    len_ndr_pointer_list = g_slist_length(ndr_pointer_list);
+    /* Restore the previous list of pointers. */
+    ndr_pointer_list = (GSList *)g_slist_last(list_ndr_pointer_list)->data;
 
     return offset;
 }
@@ -3163,10 +3154,8 @@ add_pointer_to_list(packet_info *pinfo, proto_tree *tree, proto_item *item,
     p_id = wmem_new(wmem_file_scope(), guint);
     *p_id = id;
 
-    ndr_pointer_list = g_slist_insert(ndr_pointer_list, npd,
-                                      len_ndr_pointer_list);
+    ndr_pointer_list = g_slist_append(ndr_pointer_list, npd);
     g_hash_table_insert(ndr_pointer_hash, p_id, p_id);
-    len_ndr_pointer_list++;
     must_check_size = TRUE;
 }
 
