@@ -467,7 +467,7 @@ AM_CONDITIONAL(BUILD_USER_GUIDE, [test "x$have_wsug" = xyes -a "x$want_wsug" != 
 AC_CHECK_PROGS(RPMBUILD, [rpmbuild], [rpmbuild])
 
 # Shellcheck
-AC_CHECK_PROG(SHELLCHECK, shellcheck)
+AC_PATH_PROG(SHELLCHECK, shellcheck)
 
 #
 # Check compiler vendor. For GCC this will be 'gnu' and for Clang 'clang'.
