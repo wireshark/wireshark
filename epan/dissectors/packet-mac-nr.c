@@ -56,6 +56,7 @@ static int hf_mac_nr_dlsch_lcid = -1;
 static int hf_mac_nr_dlsch_sdu = -1;
 static int hf_mac_nr_ulsch_sdu = -1;
 static int hf_mac_nr_bcch_pdu = -1;
+static int hf_mac_nr_pcch_pdu = -1;
 
 static int hf_mac_nr_control_crnti = -1;
 static int hf_mac_nr_control_ue_contention_resolution_identity = -1;
@@ -322,6 +323,11 @@ static expert_field ei_mac_nr_ul_sch_control_subheader_before_data_subheader = E
 
 
 static dissector_handle_t nr_rrc_bcch_bch_handle;
+static dissector_handle_t nr_rrc_bcch_dl_sch_handle;
+static dissector_handle_t nr_rrc_pcch_handle;
+static dissector_handle_t nr_rrc_dl_ccch_handle;
+static dissector_handle_t nr_rrc_ul_ccch_handle;
+static dissector_handle_t nr_rrc_ul_ccch1_handle;
 
 
 /**************************************************************************/
@@ -1147,14 +1153,43 @@ static void dissect_bcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (p_mac_nr_info->rntiType == NO_RNTI) {
             protocol_handle = nr_rrc_bcch_bch_handle;
         } else {
-            /* TODO: add handle once NR-RRC spec is updated */
-            protocol_handle = NULL;
+            protocol_handle = nr_rrc_bcch_dl_sch_handle;
         }
 
         /* Hide raw view of bytes */
         PROTO_ITEM_SET_HIDDEN(ti);
 
         call_with_catch_all(protocol_handle, rrc_tvb, pinfo, tree);
+    }
+}
+
+/* Dissect PCCH PDU */
+static void dissect_pcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                         proto_item *pdu_ti, int offset, mac_nr_info *p_mac_nr_info _U_)
+{
+    proto_item *ti;
+
+    write_pdu_label_and_info(pdu_ti, NULL, pinfo,
+                             "PCCH PDU (%u bytes)  ",
+                             tvb_reported_length_remaining(tvb, offset));
+
+    /****************************************/
+    /* Whole frame is PCCH data             */
+
+    /* Always show as raw data */
+    ti = proto_tree_add_item(tree, hf_mac_nr_pcch_pdu,
+                             tvb, offset, -1, ENC_NA);
+
+    if (global_mac_nr_attempt_rrc_decode) {
+
+        /* Attempt to decode payload using NR RRC dissector */
+        tvbuff_t *rrc_tvb = tvb_new_subset_remaining(tvb, offset);
+
+        /* Hide raw view of bytes */
+        PROTO_ITEM_SET_HIDDEN(ti);
+
+        call_with_catch_all(nr_rrc_pcch_handle, rrc_tvb, pinfo, tree);
+
     }
 }
 
@@ -1506,9 +1541,10 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         }
 
         if (lcid <= 32 || (p_mac_nr_info->direction == DIRECTION_UPLINK && lcid == CCCH_48_BITS_LCID)) {
+            proto_item *sch_pdu_ti;
 
-            /* Note whether this sub-pdu gets dissected by RLC */
-            gboolean dissected_as_rlc = FALSE;
+            /* Note whether this sub-pdu gets dissected by RLC/RRC */
+            gboolean dissected_by_upper_layer = FALSE;
 
             /* Add SDU, for now just as hex data */
             if (p_mac_nr_info->direction == DIRECTION_UPLINK) {
@@ -1517,12 +1553,12 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 } else if (lcid == CCCH_48_BITS_LCID) {
                     SDU_length = 6;
                 }
-                proto_tree_add_item(subheader_tree, hf_mac_nr_ulsch_sdu,
-                                    tvb, offset, SDU_length, ENC_NA);
+                sch_pdu_ti = proto_tree_add_item(subheader_tree, hf_mac_nr_ulsch_sdu,
+                                                 tvb, offset, SDU_length, ENC_NA);
             }
             else {
-                proto_tree_add_item(subheader_tree, hf_mac_nr_dlsch_sdu,
-                                    tvb, offset, SDU_length, ENC_NA);
+                sch_pdu_ti = proto_tree_add_item(subheader_tree, hf_mac_nr_dlsch_sdu,
+                                                 tvb, offset, SDU_length, ENC_NA);
             }
 
             /* Call RLC if configured to do so for this SDU */
@@ -1549,7 +1585,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                            RLC_UM_MODE, p_mac_nr_info->direction, p_mac_nr_info->ueid,
                                            BEARER_TYPE_DRB, drb_id, seqnum_length,
                                            priority);
-                        dissected_as_rlc = TRUE;
+                        dissected_by_upper_layer = TRUE;
                         break;
                     case rlcAM12:
                     case rlcAM18:
@@ -1557,23 +1593,38 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                            RLC_AM_MODE, p_mac_nr_info->direction, p_mac_nr_info->ueid,
                                            BEARER_TYPE_DRB, drb_id, seqnum_length,
                                            priority);
-                        dissected_as_rlc = TRUE;
+                        dissected_by_upper_layer = TRUE;
                         break;
                     case rlcTM:
                         call_rlc_dissector(tvb, pinfo, tree, pdu_ti, offset, SDU_length,
                                            RLC_TM_MODE, p_mac_nr_info->direction, p_mac_nr_info->ueid,
                                            BEARER_TYPE_DRB, drb_id, 0,
                                            priority);
-                        dissected_as_rlc = TRUE;
+                        dissected_by_upper_layer = TRUE;
                         break;
                     case rlcRaw:
                         /* Nothing to do! */
                         break;
                 }
+            } else if (lcid == 1 || lcid == 2) {
+                /* SRB, TODO: call RLC dissector */
+            } else if (global_mac_nr_attempt_rrc_decode) {
+                dissector_handle_t protocol_handle;
+                tvbuff_t *rrc_tvb = tvb_new_subset_remaining(tvb, offset);
+
+                if (p_mac_nr_info->direction == DIRECTION_UPLINK) {
+                    protocol_handle = (lcid == CCCH_LCID) ? nr_rrc_ul_ccch1_handle : nr_rrc_ul_ccch_handle;
+                } else {
+                    protocol_handle = nr_rrc_dl_ccch_handle;
+                }
+                /* Hide raw view of bytes */
+                PROTO_ITEM_SET_HIDDEN(sch_pdu_ti);
+                call_with_catch_all(protocol_handle, rrc_tvb, pinfo, tree);
+                dissected_by_upper_layer = TRUE;
             }
 
-            /* Only write summary to Info column if didn't send to RLC dissector */
-            write_pdu_label_and_info(pdu_ti, subheader_ti, dissected_as_rlc ? NULL : pinfo,
+            /* Only write summary to Info column if didn't send to upper_layer dissector */
+            write_pdu_label_and_info(pdu_ti, subheader_ti, dissected_by_upper_layer ? NULL : pinfo,
                                      "(LCID:%u %u bytes) ", lcid, SDU_length);
 
             offset += SDU_length;
@@ -2358,8 +2409,8 @@ static int dissect_mac_nr(tvbuff_t *tvb, packet_info *pinfo,
     switch (p_mac_nr_info->rntiType) {
 
         case P_RNTI:
-            /* PCH PDU */
-//            dissect_pch(tvb, pinfo, mac_nr_tree, pdu_ti, offset, p_mac_nr_info, tap_info);
+            /* PCCH PDU */
+            dissect_pcch(tvb, pinfo, mac_nr_tree, pdu_ti, offset, p_mac_nr_info);
             break;
 
         case RA_RNTI:
@@ -2638,6 +2689,12 @@ void proto_register_mac_nr(void)
         { &hf_mac_nr_bcch_pdu,
             { "BCCH PDU",
               "mac-nr.bcch.pdu", FT_BYTES, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_nr_pcch_pdu,
+            { "PCCH PDU",
+              "mac-nr.pcch.pdu", FT_BYTES, BASE_NONE, NULL, 0x0,
               NULL, HFILL
             }
         },
@@ -4191,6 +4248,11 @@ void proto_reg_handoff_mac_nr(void)
 
     rlc_nr_handle = find_dissector_add_dependency("rlc-nr", proto_mac_nr);
     nr_rrc_bcch_bch_handle = find_dissector_add_dependency("nr-rrc.bcch.bch", proto_mac_nr);
+    nr_rrc_bcch_dl_sch_handle = find_dissector_add_dependency("nr-rrc.bcch.dl.sch", proto_mac_nr);
+    nr_rrc_pcch_handle = find_dissector_add_dependency("nr-rrc.pcch", proto_mac_nr);
+    nr_rrc_dl_ccch_handle = find_dissector_add_dependency("nr-rrc.dl.ccch", proto_mac_nr);
+    nr_rrc_ul_ccch_handle = find_dissector_add_dependency("nr-rrc.ul.ccch", proto_mac_nr);
+    nr_rrc_ul_ccch1_handle = find_dissector_add_dependency("nr-rrc.ul.ccch1", proto_mac_nr);
 }
 
 
