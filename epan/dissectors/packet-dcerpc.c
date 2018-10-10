@@ -2881,7 +2881,10 @@ dissect_ndr_wchar_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * flag is set which means: re-read the size of the list
  */
 static gboolean must_check_size = FALSE;
-/* list of pointers encountered so far in the current level */
+/*
+ * List of pointers encountered so far in the current level. Points to an
+ * element of list_ndr_pointer_list.
+ */
 static GSList *ndr_pointer_list = NULL;
 
 static GHashTable *ndr_pointer_hash = NULL;
@@ -2909,19 +2912,6 @@ typedef struct ndr_pointer_data {
     void                   *callback_args;
 } ndr_pointer_data_t;
 
-static GSList * create_empty_list(void)
-{
-    ndr_pointer_data_t *npd;
-    GSList *list;
-
-    npd = (ndr_pointer_data_t *)g_malloc(sizeof(ndr_pointer_data_t));
-    memset(npd, 0, sizeof(ndr_pointer_data_t));
-
-    /* First add a Dummy entry to get a real GSList pointer */
-    list = g_slist_append(NULL, npd);
-    return list;
-}
-
 void
 init_ndr_pointer_list(dcerpc_info *di)
 {
@@ -2938,9 +2928,7 @@ init_ndr_pointer_list(dcerpc_info *di)
     pointers_are_top_level = TRUE;
     must_check_size = FALSE;
 
-    ndr_pointer_list = create_empty_list();
-    list_ndr_pointer_list = g_slist_append(list_ndr_pointer_list,
-                                           ndr_pointer_list);
+    ndr_pointer_list = NULL;
     if (ndr_pointer_hash) {
         g_hash_table_destroy(ndr_pointer_hash);
     }
@@ -2957,6 +2945,11 @@ dissect_deferred_pointers(packet_info *pinfo, tvbuff_t *tvb, int offset, dcerpc_
     int          len;
     GSList      *current_ndr_pointer_list;
 
+    /* The list is assumed to be non-empty, otherwise this should not be called. */
+    DISSECTOR_ASSERT(list_ndr_pointer_list);
+
+    /* Probably not necessary, it is supposed to prevent more pointers from
+     * being added to the list. */
     ndr_pointer_list = NULL;
 
     next_pointer = 0;
@@ -2970,6 +2963,7 @@ dissect_deferred_pointers(packet_info *pinfo, tvbuff_t *tvb, int offset, dcerpc_
         int i;
 
         found_new_pointer = 0;
+process_list:
         for (i=next_pointer; i<len; i++) {
             ndr_pointer_data_t *tnpd = (ndr_pointer_data_t *)g_slist_nth_data(current_ndr_pointer_list, i);
 
@@ -2989,7 +2983,7 @@ dissect_deferred_pointers(packet_info *pinfo, tvbuff_t *tvb, int offset, dcerpc_
                 di->conformant_eaten = 0;
                 old_offset = offset;
                 saved_ndr_pointer_list = current_ndr_pointer_list;
-                ndr_pointer_list = create_empty_list();
+                ndr_pointer_list = NULL;
                 offset = (*(fnct))(tvb, offset, pinfo, NULL, di, drep);
 
                 DISSECTOR_ASSERT((offset-old_offset) == di->conformant_eaten);
@@ -3045,23 +3039,19 @@ dissect_deferred_pointers(packet_info *pinfo, tvbuff_t *tvb, int offset, dcerpc_
                 if (tnpd->callback)
                     tnpd->callback(pinfo, tnpd->tree, tnpd->item, di, tvb, old_offset, offset, tnpd->callback_args);
                 proto_item_set_len(tnpd->item, offset - old_offset);
-                if (ndr_pointer_list->next) {
-                    /* We found some pointers to dissect let's create one more level */
+                if (ndr_pointer_list) {
+                    /* We found some pointers to dissect, descend into it. */
+                    next_pointer = 0;
                     len = g_slist_length(ndr_pointer_list);
                     current_ndr_pointer_list = ndr_pointer_list;
-                    /* So we will arrive right away at the second element of the list
-                     * but that's not too importnt because the first one is always empty
-                    */
-                    i = next_pointer = 0;
-                    /* Save the old pointer list before moving to the next. */
-                    list_ndr_pointer_list = g_slist_append(list_ndr_pointer_list,
-                                                           ndr_pointer_list);
-                    ndr_pointer_list = create_empty_list();
-                    continue;
+                    ndr_pointer_list = NULL;
+                    goto process_list;          /* Process the new current_ndr_pointer_list */
                 } else {
                     current_ndr_pointer_list = saved_ndr_pointer_list;
                 }
             }
+            /* If we found the end of the list, but add_pointer_to_list extended
+             * it, then be sure to handle those extra elements. */
             if (i == (len - 1) && (must_check_size == TRUE)) {
                 len = g_slist_length(ndr_pointer_list);
                 must_check_size = FALSE;
@@ -3154,7 +3144,14 @@ add_pointer_to_list(packet_info *pinfo, proto_tree *tree, proto_item *item,
     p_id = wmem_new(wmem_file_scope(), guint);
     *p_id = id;
 
-    ndr_pointer_list = g_slist_append(ndr_pointer_list, npd);
+    /* Update the list of pointers for use by dissect_deferred_pointers. If this
+     * is the first pointer, create a list and add it to the stack. */
+    if (!ndr_pointer_list) {
+        ndr_pointer_list = g_slist_append(NULL, npd);
+        list_ndr_pointer_list = g_slist_append(list_ndr_pointer_list, ndr_pointer_list);
+    } else {
+        ndr_pointer_list = g_slist_append(ndr_pointer_list, npd);
+    }
     g_hash_table_insert(ndr_pointer_hash, p_id, p_id);
     must_check_size = TRUE;
 }
