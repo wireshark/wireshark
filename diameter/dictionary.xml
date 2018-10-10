@@ -6172,6 +6172,24 @@
 		<avp name="Broadcast-Location-Assistance-Data-Types" code="1700" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned64"/>
 		</avp>
+		<avp name="Paging-Time-Window" code="1701" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Operation-Mode"/>
+				<gavp name="Paging-Time-Window-Length"/>
+			</grouped>
+		</avp>
+		<avp name="Operation-Mode" code="1702" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="Iu mode" code="1"/>
+			<enum name="WB-S1 mode" code="2"/>
+			<enum name="NB-S1 mode" code="3"/>
+		</avp>
+		<avp name="Paging-Time-Window-Length" code="1703" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Core-Network-Restrictions" code="1704" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
 
 		<avp name="SMS-Information" code="2000" vendor-bit="must" vendor-id="TGPP">
 			<grouped>

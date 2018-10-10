@@ -254,6 +254,10 @@ static int hf_diameter_3gpp_dsr_flags_bit23 = -1;
 static int hf_diameter_3gpp_dsr_flags_bit24 = -1;
 static int hf_diameter_3gpp_dsr_flags_bit25 = -1;
 static int hf_diameter_3gpp_dsr_flags_bit26 = -1;
+static int hf_diameter_3gpp_dsr_flags_bit27 = -1;
+static int hf_diameter_3gpp_dsr_flags_bit28 = -1;
+static int hf_diameter_3gpp_dsr_flags_bit29 = -1;
+static int hf_diameter_3gpp_dsr_flags_bit30 = -1;
 static int hf_diameter_3gpp_dsa_flags = -1;
 static int hf_diameter_3gpp_dsa_flags_bit0 = -1;
 static int hf_diameter_3gpp_ida_flags = -1;
@@ -374,6 +378,10 @@ static int hf_diameter_3gpp_v2x_permission = -1;
 static int hf_diameter_3gpp_v2x_permission_spare_bits = -1;
 static int hf_diameter_3gpp_v2x_permission_bit1 = -1;
 static int hf_diameter_3gpp_v2x_permission_bit0 = -1;
+static int hf_diameter_3gpp_core_network_restrictions = -1;
+static int hf_diameter_3gpp_core_network_restrictions_spare_bits = -1;
+static int hf_diameter_3gpp_core_network_restrictions_bit1 = -1;
+static int hf_diameter_3gpp_core_network_restrictions_bit0 = -1;
 static int hf_diameter_3gpp_uar_flags_flags_spare_bits = -1;
 static int hf_diameter_3gpp_feature_list1_sh_flags_spare_bits = -1;
 static int hf_diameter_3gpp_feature_list2_s6a_flags_spare_bits = -1;
@@ -445,6 +453,7 @@ static gint diameter_3gpp_wlan_offloadability_utran_ett = -1;
 static gint diameter_3gpp_air_flags_ett = -1;
 static gint diameter_3gpp_preferred_data_mode_ett = -1;
 static gint diameter_3gpp_v2x_permission_ett = -1;
+static gint diameter_3gpp_core_network_restrictions_ett = -1;
 
 static int hf_diameter_3gpp_feature_list1_rx_flags_bit0 = -1;
 static int hf_diameter_3gpp_feature_list1_rx_flags_bit1 = -1;
@@ -1762,6 +1771,10 @@ dissect_diameter_3gpp_dsr_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 {
     static const int *flags[] = {
         &hf_diameter_3gpp_dsr_flags_spare_bits,
+        &hf_diameter_3gpp_dsr_flags_bit30,
+        &hf_diameter_3gpp_dsr_flags_bit29,
+        &hf_diameter_3gpp_dsr_flags_bit28,
+        &hf_diameter_3gpp_dsr_flags_bit27,
         &hf_diameter_3gpp_dsr_flags_bit26,
         &hf_diameter_3gpp_dsr_flags_bit25,
         &hf_diameter_3gpp_dsr_flags_bit24,
@@ -2211,6 +2224,24 @@ dissect_diameter_3gpp_v2x_permission(tvbuff_t *tvb, packet_info *pinfo _U_, prot
     return 4;
 }
 
+/* 3GPP TS 29.272
+* 7.3.230 Core-Network-Restrictions
+* AVP Code: 1704 Core-Network-Restrictions
+*/
+static int
+dissect_diameter_3gpp_core_network_restrictions(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    static const int *flags[] = {
+        &hf_diameter_3gpp_core_network_restrictions_spare_bits,
+        &hf_diameter_3gpp_core_network_restrictions_bit1,
+        &hf_diameter_3gpp_core_network_restrictions_bit0,
+        NULL
+    };
+
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_core_network_restrictions, diameter_3gpp_core_network_restrictions_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    return 4;
+}
+
 /* AVP Code: 2516 EUTRAN-Positioning-Data */
 static int
 dissect_diameter_3gpp_eutran_positioning_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -2592,6 +2623,9 @@ proto_reg_handoff_diameter_3gpp(void)
 
     /* AVP Code: 1689 V2X-Permission */
     dissector_add_uint("diameter.3gpp", 1689, create_dissector_handle(dissect_diameter_3gpp_v2x_permission, proto_diameter_3gpp));
+
+    /* AVP Code: 1704 Core-Network-Restrictions */
+    dissector_add_uint("diameter.3gpp", 1704, create_dissector_handle(dissect_diameter_3gpp_core_network_restrictions, proto_diameter_3gpp));
 
     /* AVP Code: 2516 EUTRAN-Positioning-Data */
     dissector_add_uint("diameter.3gpp", 2516, create_dissector_handle(dissect_diameter_3gpp_eutran_positioning_data, proto_diameter_3gpp));
@@ -3818,9 +3852,29 @@ proto_register_diameter_3gpp(void)
             FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x04000000,
             NULL, HFILL }
         },
+        { &hf_diameter_3gpp_dsr_flags_bit27,
+            { "Aerial-UE-Subscription-Withdrawal", "diameter.3gpp.dsr_flags_bit27",
+            FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x08000000,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_dsr_flags_bit28,
+            { "Paging-Time-Window-Subscription-Withdrawal", "diameter.3gpp.dsr_flags_bit28",
+            FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x10000000,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_dsr_flags_bit29,
+            { "Active-Time-Withdrawal", "diameter.3gpp.dsr_flags_bit29",
+            FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x20000000,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_dsr_flags_bit30,
+            { "eDRX-Cycle-Length-Withdrawal", "diameter.3gpp.dsr_flags_bit30",
+            FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x40000000,
+            NULL, HFILL }
+        },
         { &hf_diameter_3gpp_dsr_flags_spare_bits,
             { "Spare", "diameter.3gpp.dsr_flags_spare",
-            FT_UINT32, BASE_HEX, NULL, 0xF8000000,
+            FT_UINT32, BASE_HEX, NULL, 0x80000000,
             NULL, HFILL }
         },
         { &hf_diameter_3gpp_dsa_flags,
@@ -4796,6 +4850,26 @@ proto_register_diameter_3gpp(void)
           FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000001,
           NULL, HFILL }
         },
+        { &hf_diameter_3gpp_core_network_restrictions,
+        { "Core Network Restrictions", "diameter.3gpp.core_network_restrictions",
+          FT_UINT32, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_core_network_restrictions_spare_bits,
+        { "Spare", "diameter.3gpp.core_network_restrictions_spare",
+          FT_UINT32, BASE_HEX, NULL, 0xFFFFFFFC,
+          NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_core_network_restrictions_bit1,
+        { "5GC", "diameter.3gpp.core_network_restrictions_bit1",
+          FT_BOOLEAN, 32, TFS(&tfs_not_allowed_allowed), 0x00000002,
+          NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_core_network_restrictions_bit0,
+        { "EPS", "diameter.3gpp.core_network_restrictions_bit0",
+          FT_BOOLEAN, 32, TFS(&tfs_not_allowed_allowed), 0x00000001,
+          NULL, HFILL }
+        },
 };
 
 
@@ -4836,7 +4910,8 @@ proto_register_diameter_3gpp(void)
         &diameter_3gpp_wlan_offloadability_utran_ett,
         &diameter_3gpp_air_flags_ett,
         &diameter_3gpp_preferred_data_mode_ett,
-        &diameter_3gpp_v2x_permission_ett
+        &diameter_3gpp_v2x_permission_ett,
+        &diameter_3gpp_core_network_restrictions_ett
     };
 
     expert_module_t *expert_diameter_3gpp;
