@@ -26,7 +26,7 @@ void proto_register_mac_nr(void);
 void proto_reg_handoff_mac_nr(void);
 
 /* Described in:
- * 3GPP TS 38.321 NR; Medium Access Control (MAC) protocol specification v15.2.0
+ * 3GPP TS 38.321 NR; Medium Access Control (MAC) protocol specification v15.3.0
  */
 
 /* Initialize the protocol and registered fields. */
@@ -183,9 +183,7 @@ static int hf_mac_nr_control_sp_csi_report_on_pucch_act_deact_s3 = -1;
 static int hf_mac_nr_control_sp_csi_report_on_pucch_act_deact_s2 = -1;
 static int hf_mac_nr_control_sp_csi_report_on_pucch_act_deact_s1 = -1;
 static int hf_mac_nr_control_sp_csi_report_on_pucch_act_deact_s0 = -1;
-static int hf_mac_nr_control_tci_state_ind_for_ue_spec_pdcch_reserved = -1;
 static int hf_mac_nr_control_tci_state_ind_for_ue_spec_pdcch_serving_cell_id = -1;
-static int hf_mac_nr_control_tci_state_ind_for_ue_spec_pdcch_bwp_id = -1;
 static int hf_mac_nr_control_tci_state_ind_for_ue_spec_pdcch_coreset_id = -1;
 static int hf_mac_nr_control_tci_state_ind_for_ue_spec_pdcch_tci_state_id = -1;
 static int hf_mac_nr_control_tci_states_act_deact_for_ue_spec_pdsch_reserved = -1;
@@ -458,6 +456,7 @@ static const value_string bcch_transport_channel_vals[] =
     { 0, NULL }
 };
 
+#define CCCH_LCID                                   0x00
 #define RECOMMENDED_BIT_RATE_LCID                   0x2f
 #define SP_ZP_CSI_RS_RESOURCE_SET_ACT_DEACT_LCID    0x30
 #define PUCCH_SPATIAL_REL_ACT_DEACT_LCID            0x31
@@ -478,7 +477,7 @@ static const value_string bcch_transport_channel_vals[] =
 
 static const value_string dlsch_lcid_vals[] =
 {
-    { 0,                                           "CCCH"},
+    { CCCH_LCID,                                   "CCCH"},
     { 1,                                           "1"},
     { 2,                                           "2"},
     { 3,                                           "3"},
@@ -532,7 +531,7 @@ static const value_string dlsch_lcid_vals[] =
 };
 static value_string_ext dlsch_lcid_vals_ext = VALUE_STRING_EXT_INIT(dlsch_lcid_vals);
 
-#define CCCH_48_BITS_LCID                    0x21
+#define CCCH_48_BITS_LCID                    0x34
 #define RECOMMENDED_BIT_RATE_QUERY_LCID      0x35
 #define MULTIPLE_ENTRY_PHR_4_LCID            0x36
 #define CONFIGURED_GRANT_CONFIGURATION_LCID  0x37
@@ -547,7 +546,7 @@ static value_string_ext dlsch_lcid_vals_ext = VALUE_STRING_EXT_INIT(dlsch_lcid_v
 
 static const value_string ulsch_lcid_vals[] =
 {
-    { 0,                                    "CCCH"},
+    { CCCH_LCID,                            "CCCH (64 bits)"},
     { 1,                                    "1"},
     { 2,                                    "2"},
     { 3,                                    "3"},
@@ -1258,6 +1257,7 @@ static gboolean is_fixed_sized_lcid(guint8 lcid, guint8 direction)
 {
     if (direction == DIRECTION_UPLINK) {
         switch (lcid) {
+            case CCCH_LCID:
             case CCCH_48_BITS_LCID:
             case RECOMMENDED_BIT_RATE_QUERY_LCID:
             case CONFIGURED_GRANT_CONFIGURATION_LCID:
@@ -1505,15 +1505,16 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             }
         }
 
-        if ((p_mac_nr_info->direction == DIRECTION_UPLINK && lcid <= CCCH_48_BITS_LCID) ||
-            (p_mac_nr_info->direction == DIRECTION_DOWNLINK && lcid <= 32)) {
+        if (lcid <= 32 || (p_mac_nr_info->direction == DIRECTION_UPLINK && lcid == CCCH_48_BITS_LCID)) {
 
             /* Note whether this sub-pdu gets dissected by RLC */
             gboolean dissected_as_rlc = FALSE;
 
             /* Add SDU, for now just as hex data */
             if (p_mac_nr_info->direction == DIRECTION_UPLINK) {
-                if (lcid == CCCH_48_BITS_LCID) {
+                if (lcid == CCCH_LCID) {
+                    SDU_length = 8;
+                } else if (lcid == CCCH_48_BITS_LCID) {
                     SDU_length = 6;
                 }
                 proto_tree_add_item(subheader_tree, hf_mac_nr_ulsch_sdu,
@@ -2015,15 +2016,11 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         }
                         break;
                     case TCI_STATE_IND_FOR_UE_SPEC_PDCCH_LCID:
-                        proto_tree_add_item(subheader_tree, hf_mac_nr_control_tci_state_ind_for_ue_spec_pdcch_reserved,
-                                            tvb, offset, 1, ENC_NA);
                         proto_tree_add_item(subheader_tree, hf_mac_nr_control_tci_state_ind_for_ue_spec_pdcch_serving_cell_id,
                                             tvb, offset, 1, ENC_NA);
-                        proto_tree_add_item(subheader_tree, hf_mac_nr_control_tci_state_ind_for_ue_spec_pdcch_bwp_id,
-                                            tvb, offset, 1, ENC_NA);
-                        offset++;
                         proto_tree_add_item(subheader_tree, hf_mac_nr_control_tci_state_ind_for_ue_spec_pdcch_coreset_id,
-                                            tvb, offset, 1, ENC_NA);
+                                            tvb, offset, 2, ENC_NA);
+                        offset++;
                         proto_tree_add_item(subheader_tree, hf_mac_nr_control_tci_state_ind_for_ue_spec_pdcch_tci_state_id,
                                             tvb, offset, 1, ENC_NA);
                         offset++;
@@ -3516,33 +3513,21 @@ void proto_register_mac_nr(void)
               NULL, HFILL
             }
         },
-        { &hf_mac_nr_control_tci_state_ind_for_ue_spec_pdcch_reserved,
-            { "Reserved",
-              "mac-nr.control.tci-state-ind-for-ue-spec-pdcch.reserved", FT_UINT8, BASE_HEX, NULL, 0x80,
-              NULL, HFILL
-            }
-        },
         { &hf_mac_nr_control_tci_state_ind_for_ue_spec_pdcch_serving_cell_id,
             { "Serving Cell ID",
-              "mac-nr.control.tci-state-ind-for-ue-spec-pdcch.serving-cell-id", FT_UINT8, BASE_DEC, NULL, 0x7c,
-              NULL, HFILL
-            }
-        },
-        { &hf_mac_nr_control_tci_state_ind_for_ue_spec_pdcch_bwp_id,
-            { "BWP ID",
-              "mac-nr.control.tci-state-ind-for-ue-spec-pdcch.bwp-id", FT_UINT8, BASE_DEC, NULL, 0x03,
+              "mac-nr.control.tci-state-ind-for-ue-spec-pdcch.serving-cell-id", FT_UINT8, BASE_DEC, NULL, 0xf8,
               NULL, HFILL
             }
         },
         { &hf_mac_nr_control_tci_state_ind_for_ue_spec_pdcch_coreset_id,
             { "CORESET ID",
-              "mac-nr.control.tci-state-ind-for-ue-spec-pdcch.coreset-id", FT_UINT8, BASE_DEC, NULL, 0xc0,
+              "mac-nr.control.tci-state-ind-for-ue-spec-pdcch.coreset-id", FT_UINT16, BASE_DEC, NULL, 0x0780,
               NULL, HFILL
             }
         },
         { &hf_mac_nr_control_tci_state_ind_for_ue_spec_pdcch_tci_state_id,
             { "TCI State ID",
-              "mac-nr.control.tci-state-ind-for-ue-spec-pdcch.tci-state-id", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              "mac-nr.control.tci-state-ind-for-ue-spec-pdcch.tci-state-id", FT_UINT8, BASE_DEC, NULL, 0x7f,
               NULL, HFILL
             }
         },
@@ -3728,13 +3713,13 @@ void proto_register_mac_nr(void)
         },
         { &hf_mac_nr_control_sp_csi_rs_csi_im_res_set_act_deact_reserved3,
             { "Reserved",
-              "mac-nr.control.sp-csi-rs-cs-im-res-set-act-deact.reserved", FT_UINT8, BASE_HEX, NULL, 0xc0,
+              "mac-nr.control.sp-csi-rs-cs-im-res-set-act-deact.reserved", FT_UINT8, BASE_HEX, NULL, 0x80,
               NULL, HFILL
             }
         },
         { &hf_mac_nr_control_sp_csi_rs_csi_im_res_set_act_deact_tci_state_id,
             { "TCI State ID",
-              "mac-nr.control.sp-csi-rs-cs-im-res-set-act-deact.tci-state-id", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              "mac-nr.control.sp-csi-rs-cs-im-res-set-act-deact.tci-state-id", FT_UINT8, BASE_DEC, NULL, 0x7f,
               NULL, HFILL
             }
         },
