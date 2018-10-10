@@ -1019,9 +1019,6 @@ static const fragment_items dcerpc_frag_items = {
     "fragments"
 };
 
-/* list of hooks to be called when init_protocols is done */
-GHookList dcerpc_hooks_init_protos;
-
 /* try to desegment big DCE/RPC packets over TCP? */
 static gboolean dcerpc_cn_desegment = TRUE;
 
@@ -1322,7 +1319,7 @@ typedef struct _dcerpc_dissector_data
  * Subdissectors
  */
 
-dissector_table_t   uuid_dissector_table;
+static dissector_table_t    uuid_dissector_table;
 
 /* the registered subdissectors */
 GHashTable *dcerpc_uuids = NULL;
