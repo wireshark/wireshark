@@ -54,7 +54,7 @@ end
 --     number of verifyFields() * (1 + number of fields) +
 --     number of verifyResults() * (1 + 2 * number of values)
 --
-local taptests = { [FRAME]=4, [OTHER]=330 }
+local taptests = { [FRAME]=4, [OTHER]=333 }
 
 local function getResults()
     print("\n-----------------------------\n")
@@ -166,6 +166,7 @@ local testfield =
         ABSOLUTE_UTC   = ProtoField.absolute_time("test.basic.absolute.utc",  "Basic absolute utc", base.UTC),
         IPv4           = ProtoField.ipv4   ("test.basic.ipv4",    "Basic ipv4 address"),
         IPv6           = ProtoField.ipv6   ("test.basic.ipv6",    "Basic ipv6 address"),
+        ETHER          = ProtoField.ether  ("test.basic.ether",   "Basic ethernet address"),
         -- GUID           = ProtoField.guid   ("test.basic.guid",    "Basic GUID"),
     },
 
@@ -216,6 +217,7 @@ local getfield =
         ABSOLUTE_UTC   = Field.new ("test.basic.absolute.utc"),
         IPv4           = Field.new ("test.basic.ipv4"),
         IPv6           = Field.new ("test.basic.ipv6"),
+        ETHER          = Field.new ("test.basic.ether"),
         -- GUID           = Field.new ("test.basic.guid"),
     },
 
@@ -575,6 +577,18 @@ function test_proto.dissector(tvbuf,pktinfo,root)
     -- addMatchFields(ipv4_match_fields, Address.ip('1.0.0.127'))
 
     verifyFields("basic.IPv4", ipv4_match_fields)
+
+----------------------------------------
+    testing(OTHER, "tree:add ether")
+
+    local tvb = ByteArray.new("010203040506"):tvb("Ether")
+    local ether = testfield.basic.ETHER
+    local ether_match_fields = {}
+
+    execute ("ether", pcall (callTreeAdd, tree, ether, tvb:range(0,6)))
+    addMatchFields(ether_match_fields, Address.ether('01:02:03:04:05:06'))
+
+    verifyFields("basic.ETHER", ether_match_fields)
 
 ----------------------------------------
     testing(OTHER, "tree:add_packet_field Bytes")

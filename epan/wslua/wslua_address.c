@@ -60,17 +60,25 @@ WSLUA_CONSTRUCTOR Address_ipv6(lua_State* L) {
     WSLUA_RETURN(1); /* The Address object */
 }
 
+WSLUA_CONSTRUCTOR Address_ether(lua_State *L) {
+    /* Creates an Address Object representing an Ethernet address. */
+
+#define WSLUA_ARG_Address_ether_ETH 1 /* The Ethernet address. */
+    Address addr = (Address)g_malloc(sizeof(address));
+    const gchar *name = luaL_checkstring(L, WSLUA_ARG_Address_ether_ETH);
+    guint8 eth_buf[6];
+
+    if(!str_to_eth(name, eth_buf))
+        memset(eth_buf, 0, sizeof(eth_buf));
+
+    alloc_address_wmem(NULL, addr, AT_ETHER, sizeof(eth_buf), eth_buf);
+    pushAddress(L, addr);
+    WSLUA_RETURN(1); /* The Address object. */
+}
+
 #if 0
 /* TODO */
 static int Address_ss7(lua_State* L) {
-    Address addr = g_malloc(sizeof(address));
-
-    /* alloc_address() */
-
-    pushAddress(L,addr);
-    return 1;
-}
-static int Address_eth(lua_State* L) {
     Address addr = g_malloc(sizeof(address));
 
     /* alloc_address() */
@@ -164,9 +172,9 @@ WSLUA_METHODS Address_methods[] = {
     WSLUA_CLASS_FNREG(Address,ip),
     WSLUA_CLASS_FNREG_ALIAS(Address,ipv4,ip),
     WSLUA_CLASS_FNREG(Address,ipv6),
+    WSLUA_CLASS_FNREG(Address,ether),
 #if 0
     WSLUA_CLASS_FNREG_ALIAS(Address,ss7pc,ss7),
-    WSLUA_CLASS_FNREG(Address,eth),
     WSLUA_CLASS_FNREG(Address,sna},
     WSLUA_CLASS_FNREG(Address,atalk),
     WSLUA_CLASS_FNREG(Address,vines),
