@@ -384,6 +384,9 @@ WS_DLL_PUBLIC
 gboolean str_to_ip6(const char *str, void *dst);
 
 WS_DLL_LOCAL
+gboolean str_to_eth(const char *str, char *eth_bytes);
+
+WS_DLL_LOCAL
 guint ipv6_oat_hash(gconstpointer key);
 
 WS_DLL_LOCAL
