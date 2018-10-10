@@ -2024,6 +2024,36 @@ file_exists(const char *fname)
     }
 }
 
+gboolean config_file_exists_with_entries(const char *fname, char comment_char)
+{
+    gboolean start_of_line = TRUE;
+    gboolean has_entries = FALSE;
+    FILE *file;
+    int c;
+
+    if (!fname) {
+        return FALSE;
+    }
+
+    if ((file = ws_fopen(fname, "r")) == NULL) {
+        return FALSE;
+    }
+
+    do {
+        c = ws_getc_unlocked(file);
+        if (start_of_line && c != comment_char && !g_ascii_isspace(c) && g_ascii_isprint(c)) {
+            has_entries = TRUE;
+            break;
+        }
+        if (c == '\n' || !g_ascii_isspace(c)) {
+            start_of_line = (c == '\n');
+        }
+    } while (c != EOF);
+
+    fclose(file);
+    return has_entries;
+}
+
 /*
  * Check that the from file is not the same as to file
  * We do it here so we catch all cases ...

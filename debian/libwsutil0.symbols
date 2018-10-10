@@ -10,6 +10,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  cmdarg_err@Base 1.99.0
  cmdarg_err_cont@Base 1.99.0
  cmdarg_err_init@Base 1.99.0
+ config_file_exists_with_entries@Base 2.9.0
  copy_file_binary_mode@Base 1.12.0~rc1
  copy_persconffile_profile@Base 1.12.0~rc1
  crc11_307_noreflect_noxor@Base 1.10.0

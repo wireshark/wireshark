@@ -287,6 +287,12 @@ WS_DLL_PUBLIC int test_for_fifo(const char *);
 WS_DLL_PUBLIC gboolean file_exists(const char *fname);
 
 /*
+ * Check if file is existing and has text entries which does not start
+ * with the comment character.
+ */
+WS_DLL_PUBLIC gboolean config_file_exists_with_entries(const char *fname, char comment_char);
+
+/*
  * Check if two filenames are identical (with absolute and relative paths).
  */
 WS_DLL_PUBLIC gboolean files_identical(const char *fname1, const char *fname2);

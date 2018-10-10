@@ -25,7 +25,7 @@ CopyFromProfileMenu::CopyFromProfileMenu(QString filename) :
         profile_def *profile = (profile_def *) fl_entry->data;
         char *profile_dir = get_profile_dir(profile->name, profile->is_global);
         char *file_name = g_build_filename(profile_dir, filename_.toUtf8().constData(), NULL);
-        if (file_exists(file_name) && strcmp(profile_name, profile->name) != 0) {
+        if ((strcmp(profile_name, profile->name) != 0) && config_file_exists_with_entries(file_name, '#')) {
             if (profile->is_global && !globals_started) {
                 if (have_profiles_) {
                     addSeparator();
