@@ -16,12 +16,21 @@ The following vulnerabilities have been fixed:
 
 * wssalink:2018-47[]
 +
-A dissector went awry.
-wsbuglink:xxxxx[].
+MS-WSP dissector crash.
+wsbuglink:15119[].
 //cveidlink:2018-xxxxx[].
-// Fixed in master: xxxxx
-// Fixed in master-2.6: xxxxx
-// Fixed in master-2.4: xxxxx
+// Fixed in master: f4d2dffd8b
+// Fixed in master-2.6: 536fb9403a
+// Fixed in master-2.4: e2bc6abff0
+
+* wssalink:2018-50[]
++
+OpcUA dissector crash.
+//wsbuglink:15172[].
+cveidlink:2018-12086[].
+// Fixed in master: 28a7a79cac
+// Fixed in master-2.6: fc956747a1
+// Fixed in master-2.4: d8df84879b
 
 The following bugs have been fixed:
 
@@ -29,7 +38,28 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark keeps leaving voicemails advertising timeshare condominiums in Fresno. (wsbuglink:0000[])
-// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.4.10rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do ./tools/gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.4.11rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do ./tools/gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
+
+* HTTP2 dissector decodes first SSL record only. wsbuglink:11173[].
+
+* Undocumented sub-option for -N option in man page and tshark -N help. wsbuglink:14826[].
+
+* Mishandling of Port Control Protocol option padding. wsbuglink:14950[].
+
+* MGCP: parameter lines are case-insensitive. wsbuglink:15008[].
+
+* details of 2nd sub-VSA in bundled RADIUS VSA are incorrect. wsbuglink:15073[].
+
+* Heuristic DPLAY dissector fails to recognize DPLAY packets. wsbuglink:15092[].
+
+* gsm_rlcmac_dl dissector exception. wsbuglink:15112[].
+
+* Buildbot crash output: fuzz-2018-09-07-29306.pcap. wsbuglink:15119[].
+
+* Wildcard expansion doesn't work on Windows 10 for command-line programs in cmd.exe or PowerShell. wsbuglink:15151[].
+
+* SSL Reassembly Error New fragment past old data limits. wsbuglink:15158[].
+
 
 === New and Updated Features
 
@@ -46,13 +76,25 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
+ASN.1 PER
+DPLAY
+CIP
+HTTP
+MGCP
+MS-WSP
+OpcUa
+PCP
+RADIUS
+TLS
 --sort-and-group--
 
 === New and Updated Capture File Support
 
-There is no new or updated capture file support in this release.
-//--sort-and-group--
-//--sort-and-group--
+//There is no new or updated capture file support in this release.
+--sort-and-group--
+Ascend
+pcapng
+--sort-and-group--
 
 === New and Updated Capture Interfaces support
 
