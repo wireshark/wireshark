@@ -1725,8 +1725,10 @@ dissect_dcom_BSTR(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, sub_tree, di, drep,
 			&u32ArraySize);
 
-	if ((guint32)offset + u32ArraySize*2 > G_MAXINT)
+	if ((guint32)offset + u32ArraySize*2 > G_MAXINT) {
+		pszStr[0] = 0;
 		return offset;
+	}
 
 	realOffset = offset + u32ArraySize*2;
 
