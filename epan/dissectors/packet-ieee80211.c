@@ -1769,6 +1769,33 @@ static const value_string auth_alg[] = {
   {0, NULL}
 };
 
+/* IANA - Internet Key Exchange (IKE) Attributes - Group Description (https://www.iana.org/assignments/ipsec-registry/ipsec-registry.xhtml) */
+static const value_string ff_finite_cyclic_group_vals[] = {
+  { 1, "default 768-bit MODP group"},
+  { 2, "alternate 1024-bit MODP group"},
+  { 3, "EC2N group on GP[2^155]"},
+  { 4, "EC2N group on GP[2^185]"},
+  { 5, "1536-bit MODP group"},
+  {14, "2048-bit MODP group"},
+  {15, "3072-bit MODP group"},
+  {16, "4096-bit MODP group"},
+  {17, "6144-bit MODP group"},
+  {18, "8192-bit MODP group"},
+  {19, "256-bit random ECP group"},
+  {20, "384-bit random ECP group"},
+  {21, "521-bit random ECP group"},
+  {22, "1024-bit MODP Group with 160-bit Prime Order Subgroup"},
+  {23, "2048-bit MODP Group with 224-bit Prime Order Subgroup"},
+  {24, "2048-bit MODP Group with 256-bit Prime Order Subgroup"},
+  {25, "192-bit Random ECP Group"},
+  {26, "224-bit Random ECP Group"},
+  {27, "224-bit Brainpool ECP group"},
+  {28, "256-bit Brainpool ECP group"},
+  {29, "384-bit Brainpool ECP group"},
+  {30, "512-bit Brainpool ECP group"},
+  {0, NULL}
+};
+
 static const true_false_string ff_block_ack_params_amsdu_permitted_flag = {
   "Permitted in QoS Data MPDUs",
   "Not Permitted"
@@ -3429,6 +3456,7 @@ static int hf_ieee80211_ff_scalar = -1;
 static int hf_ieee80211_ff_finite_field_element = -1;
 static int hf_ieee80211_ff_confirm = -1;
 static int hf_ieee80211_ff_finite_cyclic_group = -1;
+static int hf_ieee80211_ff_sae_message_type = -1;
 
 /* Vendor specific */
 static int hf_ieee80211_ff_marvell_action_type = -1;
@@ -9866,6 +9894,12 @@ get_ff_auth_sae_len(tvbuff_t *tvb)
   return tvb_reported_length_remaining(tvb, 6);
 }
 
+static const value_string ff_sae_message_type_vals[] = {
+  {1, "Commit" },
+  {2, "Confirm" },
+  {0, NULL }
+};
+
 static void
 add_ff_auth_sae(proto_tree *tree, tvbuff_t *tvb)
 {
@@ -9878,6 +9912,8 @@ add_ff_auth_sae(proto_tree *tree, tvbuff_t *tvb)
 
   seq = tvb_get_letohs(tvb, 2);
   status_code = tvb_get_letohs(tvb, 4);
+
+  proto_tree_add_uint(tree, hf_ieee80211_ff_sae_message_type, tvb, 2, 2, seq);
 
   if (seq == 1)
   {
@@ -28661,7 +28697,12 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ff_finite_cyclic_group,
      {"Group Id", "wlan.fixed.finite_cyclic_group",
-      FT_UINT16, BASE_DEC, NULL, 0,
+      FT_UINT16, BASE_DEC, VALS(ff_finite_cyclic_group_vals), 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_sae_message_type,
+     {"SAE Message Type", "wlan.fixed.sae_message_type",
+      FT_UINT16, BASE_DEC, VALS(ff_sae_message_type_vals), 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_anqp_wfa_subtype,
