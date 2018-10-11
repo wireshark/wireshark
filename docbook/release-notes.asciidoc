@@ -18,7 +18,7 @@ The following vulnerabilities have been fixed:
 +
 MS-WSP dissector crash.
 wsbuglink:15119[].
-//cveidlink:2018-xxxxx[].
+cveidlink:2018-18227[].
 // Fixed in master: f4d2dffd8b
 // Fixed in master-2.6: 536fb9403a
 // Fixed in master-2.4: e2bc6abff0
@@ -59,7 +59,6 @@ The following bugs have been fixed:
 * Wildcard expansion doesn't work on Windows 10 for command-line programs in cmd.exe or PowerShell. wsbuglink:15151[].
 
 * SSL Reassembly Error New fragment past old data limits. wsbuglink:15158[].
-
 
 === New and Updated Features
 
