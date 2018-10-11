@@ -284,8 +284,12 @@ void
 wmem_tree_destroy(wmem_tree_t *tree, gboolean free_keys, gboolean free_values)
 {
     free_tree_node(tree->allocator, tree->root, free_keys, free_values);
-    wmem_unregister_callback(tree->master, tree->master_cb_id);
-    wmem_unregister_callback(tree->allocator, tree->slave_cb_id);
+    if (tree->master) {
+        wmem_unregister_callback(tree->master, tree->master_cb_id);
+    }
+    if (tree->allocator) {
+        wmem_unregister_callback(tree->allocator, tree->slave_cb_id);
+    }
     wmem_free(tree->master, tree);
 }
 
