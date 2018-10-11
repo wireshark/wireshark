@@ -300,6 +300,7 @@ static int hf_ieee802154_security = -1;
 static int hf_ieee802154_pending = -1;
 static int hf_ieee802154_ack_request = -1;
 static int hf_ieee802154_pan_id_compression = -1;
+static int hf_ieee802154_fcf_reserved = -1;
 static int hf_ieee802154_seqno_suppression = -1;
 static int hf_ieee802154_ie_present = -1;
 static int hf_ieee802154_src_addr_mode = -1;
@@ -958,6 +959,7 @@ dissect_ieee802154_fcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee
         &hf_ieee802154_pending,
         &hf_ieee802154_ack_request,
         &hf_ieee802154_pan_id_compression,
+        &hf_ieee802154_fcf_reserved,
         &hf_ieee802154_seqno_suppression,
         &hf_ieee802154_ie_present,
         &hf_ieee802154_dst_addr_mode,
@@ -4302,6 +4304,10 @@ void proto_register_ieee802154(void)
         { &hf_ieee802154_pan_id_compression,
         { "PAN ID Compression",             "wpan.pan_id_compression", FT_BOOLEAN, 16, NULL, IEEE802154_FCF_PAN_ID_COMPRESSION,
             "Whether this packet contains the PAN ID or not.", HFILL }},
+
+        { &hf_ieee802154_fcf_reserved,
+        { "Reserved",                       "wpan.fcf.reserved", FT_BOOLEAN, 16, NULL, 0x0080,
+            NULL, HFILL }},
 
         { &hf_ieee802154_seqno_suppression,
         { "Sequence Number Suppression",    "wpan.seqno_suppression", FT_BOOLEAN, 16, NULL, IEEE802154_FCF_SEQNO_SUPPRESSION,
