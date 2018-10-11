@@ -36,6 +36,8 @@ static int hf_eap_type = -1;
 static int hf_eap_type_nak = -1;
 
 static int hf_eap_identity = -1;
+static int hf_eap_identity_pseudo = -1;
+static int hf_eap_identity_reauth = -1;
 static int hf_eap_identity_actual_len = -1;
 static int hf_eap_identity_wlan_prefix = -1;
 static int hf_eap_identity_wlan_mcc = -1;
@@ -94,6 +96,7 @@ static expert_field ei_eap_ms_chap_v2_length = EI_INIT;
 static expert_field ei_eap_mitm_attacks = EI_INIT;
 static expert_field ei_eap_md5_value_size_overflow = EI_INIT;
 static expert_field ei_eap_dictionary_attacks = EI_INIT;
+static expert_field ei_eap_identity_invalid = EI_INIT;
 
 static dissector_handle_t eap_handle;
 
@@ -543,6 +546,7 @@ dissect_eap_identity_wlan(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, i
   guint       ntokens = 0;
   gboolean    ret = TRUE;
   int         hf_eap_identity_wlan_mcc_mnc;
+  proto_item* item;
 
   identity = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, size, ENC_ASCII);
 
@@ -566,10 +570,28 @@ dissect_eap_identity_wlan(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, i
   /* Go on with the dissection */
   eap_identity_tree = proto_item_add_subtree(tree, ett_identity);
   eap_identity_prefix = tokens[0][0];
-  proto_tree_add_uint(eap_identity_tree, hf_eap_identity_wlan_prefix,
+  item = proto_tree_add_uint(eap_identity_tree, hf_eap_identity_wlan_prefix,
     tvb, offset, 1, eap_identity_prefix);
 
-  dissect_e212_utf8_imsi(tvb, pinfo, eap_identity_tree, offset + 1, (guint)strlen(tokens[0]) - 1);
+  switch(eap_identity_prefix) {
+    case '0':
+    case '1':
+    case '6':
+      dissect_e212_utf8_imsi(tvb, pinfo, eap_identity_tree, offset + 1, (guint)strlen(tokens[0]) - 1);
+      break;
+    case '2':
+    case '3':
+    case '7':
+      proto_tree_add_item(eap_identity_tree, hf_eap_identity_pseudo, tvb, offset + 1, (guint)strlen(tokens[0]) - 1, ENC_ASCII|ENC_NA);
+      break;
+    case '4':
+    case '5':
+    case '8':
+      proto_tree_add_item(eap_identity_tree, hf_eap_identity_reauth, tvb, offset + 1, (guint)strlen(tokens[0]) - 1, ENC_ASCII|ENC_NA);
+      break;
+    default:
+      expert_add_info(pinfo, item, &ei_eap_identity_invalid);
+  }
 
   /* guess if we have a 3 bytes mnc by comparing the first bytes with the imsi */
   if (!sscanf(tokens[2] + 3, "%u", &mnc) || !sscanf(tokens[3] + 3, "%u", &mcc)) {
@@ -1339,6 +1361,16 @@ proto_register_eap(void)
       FT_STRING, BASE_NONE, NULL, 0x0,
       NULL, HFILL }},
 
+    { &hf_eap_identity_pseudo, {
+      "Identity (Pseudonym)", "eap.identity",
+      FT_STRING, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_identity_reauth, {
+      "Identity (Reauth)", "eap.identity",
+      FT_STRING, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
     { &hf_eap_identity_wlan_prefix, {
       "WLAN Identity Prefix", "eap.identity.wlan.prefix",
       FT_CHAR, BASE_HEX, VALS(eap_identity_wlan_prefix_vals), 0x0,
@@ -1664,6 +1696,7 @@ proto_register_eap(void)
      { &ei_eap_dictionary_attacks, { "eap.dictionary_attacks", PI_SECURITY, PI_WARN,
                                "Vulnerable to dictionary attacks. If possible, change EAP type."
                                " See http://www.cisco.com/warp/public/cc/pd/witc/ao350ap/prodlit/2331_pp.pdf", EXPFILL }},
+     { &ei_eap_identity_invalid, { "eap.identity.invalid", PI_PROTOCOL, PI_WARN, "Invalid identity code", EXPFILL }}
   };
 
   expert_module_t* expert_eap;
