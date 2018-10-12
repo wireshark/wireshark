@@ -178,96 +178,162 @@ get_compiler_info(GString *str)
 	 * doesn't also offer a nice printable string, we try prettifying
 	 * the number somehow.
 	 */
-#if defined(__GNUC__) && defined(__VERSION__)
+#if defined(_MSC_FULL_VER)
+	/*
+	 * We check for this first, as Microsoft have a version of their
+	 * compiler that has Clang as the front end and their code generator
+	 * as the back end.
+	 *
+	 * My head asplode.
+	 */
+
+	/* As of Wireshark 2.4, we support only Visual Studio 2010 (10.x)
+	 * or later.
+	 *
+	 * https://dev.to/yumetodo/list-of-mscver-and-mscfullver-8nd
+	 * has a *large* table of Microsoft product names, VC++ versions,
+	 * _MSC_VER values, and _MSC_FULL_VER values.  All the versions
+	 * we support define _MSC_FULL_VER.  We don't bother trying to
+	 * get the SP/update/version number from the build number, as
+	 * we'd have to keep updating that with every update; there's no
+	 * way to get that information directly from a predefine, and in
+	 * some cases multiple updates/versions have the *same* build
+	 * number (because they didn't update the toolchain).
+	 *
+	 * https://docs.microsoft.com/en-us/cpp/preprocessor/predefined-macros?view=vs-2017
+	 * defines the format of _MSC_VER and _MSC_FULL_VER.  _MSC_FULL_VER
+	 * is a decimal number of the form MMmmBBBBB, where MM is the compiler/
+	 * toolchain major version, mm is the minor version, and BBBBB is the
+	 * build.  We break it down based on that.
+	 */
+  #define COMPILER_MAJOR_VERSION	 (_MSC_FULL_VER / 10000000)
+  #define COMPILER_MINOR_VERSION	((_MSC_FULL_VER % 10000000) / 100000)
+  #define COMPILER_BUILD_NUMBER		 (_MSC_FULL_VER % 100000)
+
+	/*
+	 * From https://blogs.msdn.microsoft.com/vcblog/2014/11/17/c111417-features-in-vs-2015-preview/
+         *
+	 *  Bakersfield: DevDiv's upper management determines the scheduling
+	 *  of new major versions.  They also decided to increment the product
+	 *  version from 12 (for VS 2013) to 14 (for VS 2015).  However, the
+	 *  C++ compiler's version incremented normally, from 18 to 19.
+	 *  (It's larger because the C++ compiler predates the "Visual" in
+	 *  Visual C++.)
+	 *
+	 * We calculate the Visual C++ version number based on that.
+	 */
+  #if COMPILER_MAJOR_VERSION < 19
+    #define VCPP_MAJOR_VERSION	(COMPILER_MAJOR_VERSION - 6)
+  #else
+    #define VCPP_MAJOR_VERSION	(COMPILER_MAJOR_VERSION - 5)
+  #endif
+
+  #if VCPP_MAJOR_VERSION == 10
+	/*
+	 * For VC++ version 10.x, it's Visual Studio 2010.
+	 */
+    #define VS_VERSION	"2010"
+  #elif VCPP_MAJOR_VERSION == 11
+	/*
+	 * For VC++ version 11.x, it's Visual Studio 2012.
+	 */
+    #define VS_VERSION	"2012"
+  #elif VCPP_MAJOR_VERSION == 12
+	/*
+	 * For VC++ version 12.x, it's Visual Studio 2013.
+	 */
+    #define VS_VERSION	"2013"
+  #elif VCPP_MAJOR_VERSION == 14
+	/*
+	 * From https://blogs.msdn.microsoft.com/vcblog/2017/11/15/side-by-side-minor-version-msvc-toolsets-in-visual-studio-2017/:
+	 *
+	 *  We've been delivering improvements to Visual Studio 2017 more
+	 *  frequently than ever before. Since its first release in March
+	 *  we've released four major updates to VS2017 and are currently
+	 *  previewing the fifth update, VS2017 version 15.5.
+	 *
+	 *  The MSVC toolset in VS2017 is built as a minor version update to
+	 *  the VS2015 compiler toolset. This minor version bump indicates
+	 *  that the VS2017 MSVC toolset is binary compatible with the VS2015
+	 *  MSVC toolset, enabling an easier upgrade for VS2015 users. Even
+	 *  though the MSVC compiler toolset in VS2017 delivers many new
+	 *  features and conformance improvements it is a minor version,
+	 *  compatible update from 14.00 in VS2015 to 14.10 in VS2017.
+	 */
+    #if COMPILER_MINOR_VERSION < 10
+      #define VS_VERSION	"2015"
+    #else
+      #define VS_VERSION	"2017"
+    #endif
+  #else
+    /*
+     * Add additional checks here, before the #else.
+     */
+    #if VCPP_MAJOR_VERSION < 10
+      #error "Visual C++/Visual Studio prior to Visual Studio 2010 isn't supported"
+    #else
+      #define VS_VERSION	"(unknown)"
+    #endif
+  #endif /* VCPP_MAJOR_VERSION */
+
+	/*
+	 * XXX - should we show the raw compiler version number, as is
+	 * shown by "cl /?", which would be %d.%d.%d.%d with
+	 * COMPILER_MAJOR_VERSION, COMPILER_MINOR_VERSION,
+	 * COMPILER_BUILD_NUMBER, and _MSC_BUILD, the last of which is
+	 * "the revision number element of the compiler's version number",
+	 * which I guess is not to be confused with the build number,
+	 * the _BUILD in the name nonwithstanding.
+	 */
+	g_string_append_printf(str, "\n\nBuilt using Microsoft Visual Studio " VS_VERSION "(VC++ %d.%d, build %d)",
+	    VCPP_MAJOR_VERSION, COMPILER_MINOR_VERSION, COMPILER_BUILD_NUMBER);
+  #if defined(__clang__)
+	/*
+	 * See above.
+	 */
+	g_string_append_printf(str, " clang/C2 %s and -fno-ms-compatibility.\n",
+	    __VERSION__);
+  #else
+        g_string_append_printf(str, "\n");
+  #endif
+#elif defined(__GNUC__) && defined(__VERSION__)
 	/*
 	 * Clang and llvm-gcc also define __GNUC__ and __VERSION__;
 	 * distinguish between them.
 	 */
-#if defined(__clang__)
+  #if defined(__clang__)
 	/*
-	 * Microsoft have a version of their compiler that has Clang
-	 * as the front end and their code generator as the back end.
-	 *
-	 * My head asplode.
+	 * We know this isn't clang/C2, as _MSC_FULL_VER isn't defined.
 	 */
-  #if defined(__MSC_VER)
-	g_string_append_printf(str, "\n\nBuilt using Microsoft Visual C++ %d.%d.%d clang/C2 %s and -fno-ms-compatibility.\n",
-	    (_MSC_VER / 100) - 6, _MSC_VER % 100, __VERSION__);
-  #else
 	g_string_append_printf(str, "\n\nBuilt using clang %s.\n", __VERSION__);
-  #endif /* defined(__MSC_VER) */
-#elif defined(__llvm__)
+  #elif defined(__llvm__)
+	/* llvm-gcc */
 	g_string_append_printf(str, "\n\nBuilt using llvm-gcc %s.\n", __VERSION__);
-#else /* boring old GCC */
+  #else /* boring old GCC */
 	g_string_append_printf(str, "\n\nBuilt using gcc %s.\n", __VERSION__);
-#endif /* llvm */
+  #endif /* llvm */
 #elif defined(__HP_aCC)
 	g_string_append_printf(str, "\n\nBuilt using HP aCC %d.\n", __HP_aCC);
 #elif defined(__xlC__)
 	g_string_append_printf(str, "\n\nBuilt using IBM XL C %d.%d\n",
 	    (__xlC__ >> 8) & 0xFF, __xlC__ & 0xFF);
-#ifdef __IBMC__
+  #ifdef __IBMC__
 	if ((__IBMC__ % 10) != 0)
 		g_string_append_printf(str, " patch %d", __IBMC__ % 10);
-#endif /* __IBMC__ */
+  #endif /* __IBMC__ */
 	g_string_append_printf(str, "\n");
 #elif defined(__INTEL_COMPILER)
 	g_string_append_printf(str, "\n\nBuilt using Intel C %d.%d",
 	    __INTEL_COMPILER / 100, (__INTEL_COMPILER / 10) % 10);
 	if ((__INTEL_COMPILER % 10) != 0)
 		g_string_append_printf(str, " patch %d", __INTEL_COMPILER % 10);
-#ifdef __INTEL_COMPILER_BUILD_DATE
+  #ifdef __INTEL_COMPILER_BUILD_DATE
 	g_string_sprinta(str, ", compiler built %04d-%02d-%02d",
 	    __INTEL_COMPILER_BUILD_DATE / 10000,
 	    (__INTEL_COMPILER_BUILD_DATE / 100) % 100,
 	    __INTEL_COMPILER_BUILD_DATE % 100);
-#endif /* __INTEL_COMPILER_BUILD_DATE */
+  #endif /* __INTEL_COMPILER_BUILD_DATE */
 	g_string_append_printf(str, "\n");
-#elif defined(_MSC_FULL_VER)
-# if _MSC_FULL_VER > 99999999
-	/* Quote from the web:
-	 * Bakersfield: DevDiv's upper management determines the scheduling of new major versions.
-	 * They also decided to increment the product version from 12 (for VS 2013) to 14 (for VS 2015).
-	 * However, the C++ compiler's version incremented normally, from 18 to 19.
-	 * (It's larger because the C++ compiler predates the "Visual" in Visual C++.)
-	 * XXX? Should we just output the compiler version?
-	 */
-    int compiler_major_version = (_MSC_FULL_VER / 10000000), visual_studio_ver;
-
-    if (compiler_major_version < 19) {
-        visual_studio_ver = compiler_major_version - 6;
-    }else{
-        visual_studio_ver = compiler_major_version - 5;
-    }
-
-    g_string_append_printf(str, "\n\nBuilt using Microsoft Visual C++ %d.%d",
-                   visual_studio_ver,
-			       (_MSC_FULL_VER / 100000) % 100);
-#  if (_MSC_FULL_VER % 100000) != 0
-	g_string_append_printf(str, " build %d",
-			       _MSC_FULL_VER % 100000);
-#  endif
-# else
-	g_string_append_printf(str, "\n\nBuilt using Microsoft Visual C++ %d.%d",
-			       (_MSC_FULL_VER / 1000000) - 6,
-			       (_MSC_FULL_VER / 10000) % 100);
-#  if (_MSC_FULL_VER % 10000) != 0
-	g_string_append_printf(str, " build %d",
-			       _MSC_FULL_VER % 10000);
-#  endif
-# endif
-	g_string_append_printf(str, "\n");
-#elif defined(_MSC_VER)
-	/* _MSC_FULL_VER not defined, but _MSC_VER defined */
-  #if defined(__clang__)
-	/* More head asplosion; see above. */
-	g_string_append_printf(str, "\n\nBuilt using Microsoft Visual C++ %d.%d.%d clang/C2 %s.\n",
-	    (_MSC_VER / 100) - 6, _MSC_VER % 100, __VERSION__);
-  #else
-	g_string_append_printf(str, "\n\nBuilt using clang %s.\n", __VERSION__);
-  #endif /* defined(__MSC_VER) */
-	g_string_append_printf(str, "\n\nBuilt using Microsoft Visual C++ %d.%d\n",
-	    (_MSC_VER / 100) - 6, _MSC_VER % 100);
 #elif defined(__SUNPRO_C)
 	g_string_append_printf(str, "\n\nBuilt using Sun C %d.%d",
 	    (__SUNPRO_C >> 8) & 0xF, (__SUNPRO_C >> 4) & 0xF);
