@@ -171,8 +171,14 @@ SI-OrPSI-GERAN TYPE_PREFIX
 # EUTRA-RRC-Definitions.asn
 #
 
+#.FN_HDR UL-CCCH-Message
+  actx->pinfo->link_dir = P2P_DIR_UL;
+
 #.FN_HDR UL-DCCH-Message
   actx->pinfo->link_dir = P2P_DIR_UL;
+
+#.FN_HDR DL-CCCH-Message
+  actx->pinfo->link_dir = P2P_DIR_DL;
 
 #.FN_HDR DL-DCCH-Message
   actx->pinfo->link_dir = P2P_DIR_DL;
@@ -2642,8 +2648,14 @@ SL-V2X-PreconfigCommPool-r14/threshS-RSSI-CBR-r14 DISPLAY=BASE_CUSTOM STRINGS=CF
 # NBIOT-RRC-Definitions
 #
 
+#.FN_HDR UL-CCCH-Message-NB
+  actx->pinfo->link_dir = P2P_DIR_UL;
+
 #.FN_HDR UL-DCCH-Message-NB
   actx->pinfo->link_dir = P2P_DIR_UL;
+
+#.FN_HDR DL-CCCH-Message-NB
+  actx->pinfo->link_dir = P2P_DIR_DL;
 
 #.FN_HDR DL-DCCH-Message-NB
   actx->pinfo->link_dir = P2P_DIR_DL;
