@@ -371,8 +371,6 @@ There is NO WARRANTY, to the extent permitted by law.
 
 Your version string may vary, of course.
 
-[[ChToolsMSChain]]
-
 ==== Ninja
 
 Ninja is an alternative to make, and is available for many of the
@@ -389,6 +387,8 @@ If Ninja isn't already installed and isn't
 available as a package for your platform, you can get it from:
 https://ninja-build.org.  You can download the source code or binaries
 for Linux, macOS, and Windows (we have not tested Ninja on Windows).
+
+[[ChToolsMSChain]]
 
 === Microsoft compiler toolchain (Windows native)
 
