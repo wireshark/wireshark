@@ -381,50 +381,11 @@ SDK required for 64-bit builds?:: No
 
 CMake Generator: *`Visual Studio 14`*
 
-.Visual {cpp} 2013 Community Edition
-
-IDE + Debugger?:: Yes
-
-SDK required for 64-bit builds?:: No
-
-CMake Generator: *`Visual Studio 12`*
-
-.Visual {cpp} 2010 Express Edition
-
-IDE + Debugger?:: Yes
-
-SDK required for 64-bit builds?:: Yes.
-
-CMake Generator: *`Visual Studio 10`*
-
-Remarks:: Installers created using express editions require a {cpp} redistributable
-_vcredist_x86.exe_ (3MB free
-download) is required to build
-Wireshark-win32-{wireshark-version}.exe, and
-_vcredist_x64.exe_ is required to build
-Wireshark-win64-{wireshark-version}.exe. The version of
-_vcredist_x86.exe_ or _vcredist_x64.exe_ _must_ match the version for your
-compiler including any service packs installed for the compiler.]
-
-.Visual Studio 2010
-
-IDE + Debugger?:: Yes
-
-Purchase required?:: Yes
-
-SDK required for 64-bit builds?:: No
-
-CMake Generator: *`Visual Studio 10`*
-
-Remarks:: Building a 64-bit installer
-requires a a {cpp} redistributable
-(_vcredist_x86.exe_).footnoteref[vcredist]
-
 You can use Chocolatey to install Visual Studio, e.g:
 
 [source,cmd]
 ----
-PS:\> choco install VisualStudioCommunity2013
+PS:\> choco install VisualStudioCommunity2015
 ----
 
 ==== cl.exe (C Compiler)
@@ -436,9 +397,6 @@ versions ordered by release date.
 |===============
 |Compiler Package|cl.exe|_MSC_VER|CRT DLL
 |Visual Studio 2015|14.0|1900|msvcr140.dll
-|Visual Studio 2013|12.0|1800|msvcr120.dll
-|Visual Studio 2012|11.0|1700|msvcr110.dll
-|Visual Studio 2010|10.0|1600|msvcr100.dll
 |===============
 
 After correct installation of the toolchain, typing
@@ -530,37 +488,6 @@ libraries for Wireshark have been downloaded and installed. This directory is
 specified by the WIRESHARK_BASE_DIR or WIRESHARK_LIB_DIR environment variables.
 It need not, and should not, be run after being downloaded.
 
-===== msvcr120.dll / vcredist_x86.exe / vcredist_x64.exe - Version 12.0 (2013)
-
-There are three redistribution methods that MSDN
-mentions for MSVC 2013 (see:
-https://docs.microsoft.com/en-us/previous-versions/visualstudio/visual-studio-2013/ms235316(v=vs.120)["Choosing a Deployment Method"]):
-
-. _Using Visual {cpp} Redistributable Package._
-The Microsoft libraries are installed by copying
-_vcredist_x64.exe_ or
-_vcredist_x86.exe_ to the target
-machine and executing it on that machine (MSDN recommends
-this for applications built with Visual Studio 2013)
-
-. _Using Visual {cpp} Redistributable Merge Modules._
-(Loadable modules for building msi installers.
-Not suitable for Wireshark’s NSIS based installer)
-
-. _Install a particular Visual {cpp} assembly as a
-private assembly for the application._ The
-Microsoft libraries are installed by copying the folder
-content of _Microsoft.VC120.CRT_ to
-the target directory (e.g. _C:\Program Files\Wireshark_)
-
-To save installer size, and to make a portable
-version of Wireshark (which must be completely self-contained,
-on a medium such as a flash drive, and not require that an
-installer be run to install anything on the target machine)
-possible, when building 32-bit Wireshark with MSVC2013, method
-3 (copying the content of _Microsoft.VC120.CRT_)
-is used (this produces the smallest package).
-
 ==== Windows (Platform) SDK
 
 The Windows Platform SDK (PSDK) or Windows SDK is a free
@@ -569,15 +496,8 @@ libraries (e.g. `windows.h`, `WSock32.lib`, etc.). As new Windows
 features evolve in time, updated SDK’s become available that
 include new and updated APIs.
 
-When you purchase a commercial Visual Studio or use the Community Edition, it will
-include an SDK. The free Express (as in beer) downloadable C compiler
-versions (V{cpp} 2012 Express, V{cpp} 2012 Express, etc.) do not
-contain an SDK -- you'll need to download a PSDK in order to
-have the required C header files and libraries.
-
-Older versions of the SDK should also work. However, the
-command to set the environment settings will be different, try
-search for SetEnv.* in the SDK directory.
+When you purchase a commercial Visual Studio or use the Community
+Edition, it will include an SDK.
 
 === Documentation Toolchain
 
