@@ -107,7 +107,7 @@ def compare_capinfos_info(self, cii1, cii2, filename1, filename2):
         self.fail('text2pcap output file differs from input file.')
 
 def check_text2pcap(self, cap_file, file_type, expected_packets=None, expected_datasize=None):
-    # Perfom the following actions
+    # Perform the following actions
     # - Get information for the input pcap file with capinfos
     # - Generate an ASCII hexdump with TShark
     # - Convert the ASCII hexdump back to pcap using text2pcap
@@ -116,6 +116,15 @@ def check_text2pcap(self, cap_file, file_type, expected_packets=None, expected_d
     #   in the output file are the same as in the input file
 
     pre_cap_info = check_capinfos_info(self, cap_file)
+    # Due to limitations of "tshark -x", the output might contain more than one
+    # data source which is subsequently interpreted as additional frame data.
+    # See https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14639
+    if expected_packets is not None:
+        self.assertNotEqual(pre_cap_info['packets'], expected_packets)
+        pre_cap_info['packets'] = expected_packets
+    if expected_datasize is not None:
+        self.assertNotEqual(pre_cap_info['datasize'], expected_datasize)
+        pre_cap_info['datasize'] = expected_datasize
     self.assertTrue(pre_cap_info['encapsulation'] in encap_to_link_type)
 
     self.assertTrue(file_type in file_type_to_testout, 'Invalid file type')
@@ -149,10 +158,6 @@ def check_text2pcap(self, cap_file, file_type, expected_packets=None, expected_d
     self.assertFalse(self.grepOutput('Inconsistent offset'), 'text2pcap detected inconsistent offset')
 
     post_cap_info = check_capinfos_info(self, testout_file)
-    if expected_packets is not None:
-        post_cap_info['packtets'] = expected_packets
-    if expected_datasize is not None:
-        post_cap_info['datasize'] = expected_datasize
     compare_capinfos_info(self, pre_cap_info, post_cap_info, cap_file, testout_fname)
 
 
@@ -217,7 +222,7 @@ class case_text2pcap_pcap(subprocesstest.SubprocessTestCase):
         '''Test text2pcap with wpa-Induction.pcap.gz.'''
         check_text2pcap(self, wpa_induction_pcap_gz, 'pcap')
 
-class case_text2pcap_pcap(subprocesstest.SubprocessTestCase):
+class case_text2pcap_pcapng(subprocesstest.SubprocessTestCase):
     def test_text2pcap_dhcp_pcapng(self):
         '''Test text2pcap with dhcp.pcapng.'''
         check_text2pcap(self, dhcp_pcapng, 'pcapng')
@@ -239,7 +244,7 @@ class case_text2pcap_pcap(subprocesstest.SubprocessTestCase):
         # Different data size
         # Most probably the problem is that input file timestamp precision is in microseconds
         # File timestamp precision: microseconds (6)
-        check_text2pcap(self, dns_icmp_pcapng_gz, 'pcapng', None, 3180)
+        check_text2pcap(self, dns_icmp_pcapng_gz, 'pcapng', None, 3202)
 
     def test_text2pcap_packet_h2_14_headers_pcapng(self):
         '''Test text2pcap with packet-h2-14_headers.pcapng.'''
