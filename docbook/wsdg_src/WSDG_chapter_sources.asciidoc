@@ -451,7 +451,7 @@ be informative when things don't work as expected.
 [[ChSrcRunFirstTimeWin32]]
 
 
-==== Windows Native
+==== Windows native
 
 During the build all relevant program files are collected in a
 subdirectory `run\RelWithDebInfo`. You can run the program from there by
