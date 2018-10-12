@@ -186,7 +186,7 @@ get_compiler_info(GString *str)
 	 * My head asplode.
 	 */
 
-	/* As of Wireshark 2.4, we support only Visual Studio 2010 (10.x)
+	/* As of Wireshark 3.0, we support only Visual Studio 2015 (14.x)
 	 * or later.
 	 *
 	 * https://dev.to/yumetodo/list-of-mscver-and-mscfullver-8nd
@@ -219,30 +219,12 @@ get_compiler_info(GString *str)
 	 *  (It's larger because the C++ compiler predates the "Visual" in
 	 *  Visual C++.)
 	 *
-	 * We calculate the Visual C++ version number based on that.
+	 * So the product version number is 5 less than the compiler version
+	 * number.
 	 */
-  #if COMPILER_MAJOR_VERSION < 19
-    #define VCPP_MAJOR_VERSION	(COMPILER_MAJOR_VERSION - 6)
-  #else
-    #define VCPP_MAJOR_VERSION	(COMPILER_MAJOR_VERSION - 5)
-  #endif
+  #define VCPP_MAJOR_VERSION	(COMPILER_MAJOR_VERSION - 5)
 
-  #if VCPP_MAJOR_VERSION == 10
-	/*
-	 * For VC++ version 10.x, it's Visual Studio 2010.
-	 */
-    #define VS_VERSION	"2010"
-  #elif VCPP_MAJOR_VERSION == 11
-	/*
-	 * For VC++ version 11.x, it's Visual Studio 2012.
-	 */
-    #define VS_VERSION	"2012"
-  #elif VCPP_MAJOR_VERSION == 12
-	/*
-	 * For VC++ version 12.x, it's Visual Studio 2013.
-	 */
-    #define VS_VERSION	"2013"
-  #elif VCPP_MAJOR_VERSION == 14
+  #if VCPP_MAJOR_VERSION == 14
 	/*
 	 * From https://blogs.msdn.microsoft.com/vcblog/2017/11/15/side-by-side-minor-version-msvc-toolsets-in-visual-studio-2017/:
 	 *
@@ -268,11 +250,7 @@ get_compiler_info(GString *str)
     /*
      * Add additional checks here, before the #else.
      */
-    #if VCPP_MAJOR_VERSION < 10
-      #error "Visual C++/Visual Studio prior to Visual Studio 2010 isn't supported"
-    #else
-      #define VS_VERSION	"(unknown)"
-    #endif
+    #define VS_VERSION	"(unknown)"
   #endif /* VCPP_MAJOR_VERSION */
 
 	/*
