@@ -260,21 +260,21 @@ Exchange listed below.
 For further reference, see the following:
 
 * Android Design:
-http://developer.android.com/design/index.html[]. Wireshark doesn't have
+https://developer.android.com/design/[]. Wireshark doesn't have
 a mobile frontend (not yet, at least) but there is still useful
 information here.
 
 * GNOME Human Interface Guidelines:
-http://library.gnome.org/devel/hig-book/stable/[]
+https://developer.gnome.org/hig/stable/[]
 
-* The KDE Usability/HIG project:
-http://techbase.kde.org/Projects/Usability/HIG[]
+* KDE Human Interface Guidelines:
+https://hig.kde.org[]
 
 * macOS Human Interface Guidelines:
-https://developer.apple.com/library/mac/documentation/UserExperience/Conceptual/AppleHIGuidelines/Intro/Intro.html[]
+https://developer.apple.com/design/human-interface-guidelines/macos/overview/themes/[]
 
-* Design apps for the Windows desktop:
-http://msdn.microsoft.com/en-us/library/Aa511258.aspx[]
+* Design guidelines for the Windows desktop:
+https://docs.microsoft.com/en-us/windows/desktop/uxguide/guidelines[]
 
 * User Experience Stack Exchange:
 https://ux.stackexchange.com/[]
