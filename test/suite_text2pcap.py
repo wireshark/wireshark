@@ -80,13 +80,13 @@ def check_capinfos_info(self, cap_file):
 
     for ci_line in capinfos_out.splitlines():
         for sp_key in str_pats:
-            str_pat = '{}:\s+([\S ]+)'.format(str_pats[sp_key])
+            str_pat = r'{}:\s+([\S ]+)'.format(str_pats[sp_key])
             str_res = re.search(str_pat, ci_line)
             if str_res is not None:
                 cap_info[sp_key] = str_res.group(1)
 
         for ip_key in int_pats:
-            int_pat = '{}:\s+(\d+)'.format(int_pats[ip_key])
+            int_pat = r'{}:\s+(\d+)'.format(int_pats[ip_key])
             int_res = re.search(int_pat, ci_line)
             if int_res is not None:
                 cap_info[ip_key] = int(int_res.group(1))
@@ -263,7 +263,7 @@ class case_text2pcap_eol_hash(subprocesstest.SubprocessTestCase):
             testout_file,
         ))
         self.assertFalse(self.grepOutput('Inconsistent offset'), 'text2pcap failed to parse the hash sign at the end of the line')
-        self.assertTrue(self.grepOutput('Directive \[ test_directive'), 'text2pcap failed to parse #TEXT2PCAP test_directive')
+        self.assertTrue(self.grepOutput(r'Directive \[ test_directive'), 'text2pcap failed to parse #TEXT2PCAP test_directive')
         pre_cmp_info = {'encapsulation': 'Ethernet', 'packets': 1, 'datasize': 96 }
         post_cmp_info = check_capinfos_info(self, testout_file)
         compare_capinfos_info(self, pre_cmp_info, post_cmp_info, txt_fname, testout_pcap)

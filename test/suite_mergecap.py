@@ -60,23 +60,23 @@ def check_mergecap(self, mergecap_proc, file_type, encapsulation, tot_packets, g
     capinfos_testout = self.getCaptureInfo(capinfos_args=('-t', '-E', '-I', '-c'), cap_file=testout_file)
 
     file_descr = file_type_to_descr[file_type]
-    type_pat = 'File type:\s+{}'.format(file_descr)
+    type_pat = r'File type:\s+{}'.format(file_descr)
     self.assertTrue(re.search(type_pat, capinfos_testout) is not None,
         'Failed to generate a {} file'.format(file_type))
 
-    encap_pat = 'File encapsulation:\s+{}'.format(encapsulation)
+    encap_pat = r'File encapsulation:\s+{}'.format(encapsulation)
     self.assertTrue(re.search(encap_pat, capinfos_testout) is not None,
         'Failed to generate an {} encapsulation'.format(encapsulation))
 
-    pkt_pat = 'Number of packets:\s+{}'.format(tot_packets)
+    pkt_pat = r'Number of packets:\s+{}'.format(tot_packets)
     self.assertTrue(re.search(pkt_pat, capinfos_testout) is not None,
         'Failed to generate {} packets'.format(tot_packets))
 
-    gidb_pat = 'Number of interfaces in file:\s+{}'.format(generated_idbs)
+    gidb_pat = r'Number of interfaces in file:\s+{}'.format(generated_idbs)
     self.assertTrue(re.search(gidb_pat, capinfos_testout) is not None,
         'Failed to generate {} IDBs'.format(generated_idbs))
 
-    midb_pat = '\s+Number of packets\s+=\s+{}'.format(idb_packets)
+    midb_pat = r'\s+Number of packets\s+=\s+{}'.format(idb_packets)
     self.assertTrue(re.search(midb_pat, capinfos_testout) is not None,
         'Failed to merge {} IDB packets'.format(idb_packets))
 

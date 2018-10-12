@@ -177,7 +177,7 @@ class case_decrypt_tls(subprocesstest.SubprocessTestCase):
                 '-Y', 'http',
             ),
             env=config.test_env)
-        self.assertTrue(self.grepOutput('GET\s+/test\s+HTTP/1.0'))
+        self.assertTrue(self.grepOutput(r'GET\s+/test\s+HTTP/1.0'))
 
     def test_tls12_renegotiation(self):
         '''TLS 1.2 with renegotiation'''

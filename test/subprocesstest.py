@@ -225,7 +225,7 @@ class SubprocessTestCase(unittest.TestCase):
         '''Make sure a capture file contains a specific number of packets.'''
         got_num_packets = False
         capinfos_testout = self.getCaptureInfo(cap_file=cap_file)
-        count_pat = 'Number of packets:\s+{}'.format(num_packets)
+        count_pat = r'Number of packets:\s+{}'.format(num_packets)
         if re.search(count_pat, capinfos_testout):
             got_num_packets = True
         self.assertTrue(got_num_packets, 'Failed to capture exactly {} packets'.format(num_packets))
