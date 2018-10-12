@@ -856,7 +856,7 @@ However, the version string may vary.
 
 [[ChToolsWindowsPerl]]
 
-==== Windows Native: Perl
+==== Windows native: Perl
 
 A native Windows Perl package can be obtained from
 http://www.ActiveState.com[Active State] or http://strawberryperl.com/[Strawberry Perl]. The installation
@@ -937,7 +937,7 @@ Your version string may vary.
 
 [[ChToolsWindowsBison]]
 
-==== Windows Native: Win flex-bison and bison
+==== Windows native: Win flex-bison and bison
 
 A native Windows version of bison is available in the _winflexbison_
 https://chocolatey.org/[Chocolatey] package. Note that the executable is named
@@ -981,7 +981,7 @@ Your version string may vary.
 
 [[ChToolsWindowsFlex]]
 
-==== Windows Native: Win flex-bison and flex
+==== Windows native: Win flex-bison and flex
 
 A native Windows version of flex is available in the _winflexbison_
 https://chocolatey.org/[Chocolatey] package. Note that the executable is named
@@ -1037,7 +1037,7 @@ Your version will likely be different.
 
 [[ChToolsWindowsGit]]
 
-==== Windows Native: git
+==== Windows native: git
 
 The Git command line tools for Windows can be found at
 http://git-scm.com/download/win[] and can also be installed using Chocolatey:
