@@ -67,16 +67,18 @@ def check_capinfos_info(self, cap_file):
         'encapsulation': None,
         'packets': None,
         'datasize': None,
+        'timeend': None,
     }
     str_pats = {
         'filetype': 'File type',
         'encapsulation': 'File encapsulation',
+        'timeend': 'Last packet time',
     }
     int_pats = {
         'packets': 'Number of packets',
         'datasize': 'Data size',
     }
-    capinfos_out = self.getCaptureInfo(capinfos_args=('-t', '-E', '-c', '-d', '-M'), cap_file=cap_file)
+    capinfos_out = self.getCaptureInfo(capinfos_args=('-tEcdMe',), cap_file=cap_file)
 
     for ci_line in capinfos_out.splitlines():
         for sp_key in str_pats:
@@ -254,7 +256,8 @@ class case_text2pcap_pcapng(subprocesstest.SubprocessTestCase):
         '''Test text2pcap with sip.pcapng.'''
         check_text2pcap(self, sip_pcapng, 'pcapng')
 
-class case_text2pcap_eol_hash(subprocesstest.SubprocessTestCase):
+
+class case_text2pcap_parsing(subprocesstest.SubprocessTestCase):
     def test_text2pcap_eol_hash(self):
         '''Test text2pcap hash sign at the end-of-line.'''
         txt_fname = 'text2pcap_hash_eol.txt'
@@ -269,37 +272,66 @@ class case_text2pcap_eol_hash(subprocesstest.SubprocessTestCase):
         ))
         self.assertFalse(self.grepOutput('Inconsistent offset'), 'text2pcap failed to parse the hash sign at the end of the line')
         self.assertTrue(self.grepOutput(r'Directive \[ test_directive'), 'text2pcap failed to parse #TEXT2PCAP test_directive')
-        pre_cmp_info = {'encapsulation': 'Ethernet', 'packets': 1, 'datasize': 96 }
+        pre_cmp_info = {'encapsulation': 'Ethernet', 'packets': 1, 'datasize': 96, 'timeend': '2015-10-01 21:16:24.317453000'}
         post_cmp_info = check_capinfos_info(self, testout_file)
         compare_capinfos_info(self, pre_cmp_info, post_cmp_info, txt_fname, testout_pcap)
 
+    def check_rawip(self, pdata, packets, datasize):
+        self.assertEqual({'encapsulation': 'Raw IPv4', 'packets': packets,
+            'datasize': datasize},
+            get_capinfos_cmp_info(check_capinfos_info(self,
+                run_text2pcap_content(self, pdata, ("-l228",)))))
 
+    def test_text2pcap_doc_no_line_limit(self):
+        '''
+        Verify: There is no limit on the width or number of bytes per line and
+        Bytes/hex numbers can be uppercase or lowercase.
+        '''
+        pdata = "0000  45 00 00 21 00 01 00 00 40 11\n" \
+                "000A  7C C9 7F 00 00 01" \
+                " 7f 00 00 01 ff 98 00 13 00 0d b5 48 66 69 72 73\n" \
+                "0020  74\n"
+        self.check_rawip(pdata, 1, 33)
 
-# 	test_step_add "hash sign at the end of the line" text2pcap_step_hash_at_eol
+    def test_text2pcap_doc_ignore_text(self):
+        '''
+        Verify: the text dump at the end of the line is ignored. Any hex numbers
+        in this text are also ignored. Any lines of text between the bytestring
+        lines is ignored. Any line where the first non-whitespace character is
+        '#' will be ignored as a comment.
+        '''
+        pdata = "0000 45 00 00 21 00 01 00 00  40 11 7c c9 7f 00 00 01 bad\n" \
+                "0010 7f 00 00 01 ff 98 00 13  00 0d b5 48 66 69 72 73 - 42\n" \
+                "0020 74\n" \
+                "0021\n" \
+                "That 0021 should probably be ignored as it this: 00 20\n" \
+                "0000 45 00 00 22 00 01 00 00 40 11 7c c8 7f 00 00 01\n" \
+                "0010 7f 00 00 01 ff 99 00 13 00 0e bc e9 73 65 63 6f  ...\n" \
+                " \t# 0020 12 34 56<-- comment, ignore this!\n" \
+                "0020 6e 64\n" \
+                "12 34 56 78 90 # ignore this due to missing offset!\n"
+        self.check_rawip(pdata, 2, 67)
 
+    def test_text2pcap_doc_leading_text_ignored(self):
+        '''
+        Verify: Any test before the offset is ignored, including email
+        forwarding characters '>'. An offset is a hex number longer than two
+        characters. An offset of zero is indicative of starting a new packet.
+        '''
+        pdata = "> >> 000  45 00 00 21 00 01 00 00 40 11 7c c9 7f 00 00 01\n" \
+                "> >> 010  7f 00 00 01 ff 98 00 13 00 0d b5 48 66 69 72 73\n" \
+                "> >> 020  74\n" \
+                "> >> 000  45 00 00 22 00 01 00 00 40 11 7c c8 7f 00 00 01\n" \
+                "> >> 010  7f 00 00 01 ff 99 00 13 00 0e bc e9 73 65 63 6f\n" \
+                "> >> 020  6e 64\n"
+        self.check_rawip(pdata, 2, 67)
 
+    def test_text2pcap_doc_require_offset(self):
+        '''Any line which has only bytes without a leading offset is ignored.'''
+        pdata = "45 00 00 21 00 01 00 00 40 11 7c c9 7f 00 00 01\n" \
+                "7f 00 00 01 ff 98 00 13 00 0d b5 48 66 69 72 73\n"
+        self.check_rawip(pdata, 0, 0)
 
-# text2pcap_step_hash_at_eol() {
-# 	$TEXT2PCAP -n -d -t "%Y-%m-%d %H:%M:%S."\
-# 		"${CAPTURE_DIR}/text2pcap_hash_eol.txt" testout.pcap > testout.txt 2>&1
-# 	RETURNVALUE=$?
-
-# 	grep -q "Inconsistent offset" testout.txt
-# 	if [ $? -eq 0 ]; then
-# 		cat ./testout.txt
-# 		test_step_failed "text2pcap failed to parse the hash sign at the end of the line"
-# 	fi
-
-# 	#Check that #TEXT2PCAP is not prased as a comment
-# 	grep -q "Directive \[ test_directive" testout.txt
-# 	if [ $? -ne 0 ]; then
-# 		cat ./testout.txt
-# 		test_step_failed "text2pcap failed to parse #TEXT2PCAP test_directive"
-# 	fi
-
-# 	text2pcap_common_pcapng_check $RETURNVALUE "Ethernet" 1 96
-# 	test_step_ok
-# }
 
 def run_text2pcap_content(test, content, args):
     testin_file = test.filename_from_id(testin_txt)
