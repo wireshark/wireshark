@@ -1902,7 +1902,7 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
 
     offset = dissect_quic_long_header_common(tvb, pinfo, quic_tree, offset, quic_packet, &version, &dcid, &scid);
 
-    if (conn->version == 0x51303434) { /* gQUIC Q044 */
+    if (conn && conn->version == 0x51303434) { /* gQUIC Q044 */
         return dissect_gquic_ietf(tvb, pinfo, quic_tree, offset, conn->version);
     }
 
