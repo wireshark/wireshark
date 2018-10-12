@@ -241,7 +241,7 @@ static int hf_bundle_block_previous_hop_eid = -1;
 
 /* Security Block Variables */
 static int hf_bundle_target_block_type = -1;
-static int hf_bundle_target_block_occurance = -1;
+static int hf_bundle_target_block_occurrence = -1;
 static int hf_bundle_ciphersuite_type = -1;
 static int hf_bundle_ciphersuite_flags = -1;
 static int hf_block_ciphersuite_params = -1;
@@ -1649,7 +1649,7 @@ display_extension_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int
     case BUNDLE_BLOCK_TYPE_CONFIDENTIALITY:
     {
         int target_block_type;
-        int target_block_occurance;
+        int target_block_occurrence;
         int ciphersuite_type;
         unsigned int ciphersuite_flags;
 
@@ -1657,8 +1657,8 @@ display_extension_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int
         proto_tree_add_int(block_tree, hf_bundle_target_block_type, tvb, offset, sdnv_length, target_block_type);
         offset += sdnv_length;
 
-        target_block_occurance = evaluate_sdnv(tvb, offset, &sdnv_length);
-        proto_tree_add_int(block_tree, hf_bundle_target_block_occurance, tvb, offset, sdnv_length, target_block_occurance);
+        target_block_occurrence = evaluate_sdnv(tvb, offset, &sdnv_length);
+        proto_tree_add_int(block_tree, hf_bundle_target_block_occurrence, tvb, offset, sdnv_length, target_block_occurrence);
         offset += sdnv_length;
 
         ciphersuite_type = evaluate_sdnv(tvb, offset, &sdnv_length);
@@ -3077,8 +3077,8 @@ proto_register_bundle(void)
          {"Target Block Type", "bundle.target_block_type",
           FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
-        {&hf_bundle_target_block_occurance,
-         {"Target Block Occurance", "bundle.target_block_occurance",
+        {&hf_bundle_target_block_occurrence,
+         {"Target Block Occurrence", "bundle.target_block_occurrence",
           FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         {&hf_bundle_ciphersuite_type,
