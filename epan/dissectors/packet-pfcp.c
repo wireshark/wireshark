@@ -348,8 +348,10 @@ static int hf_pfcp_cp = -1;
 static int hf_pfcp_header_type = -1;
 static int hf_pfcp_hf_len = -1;
 static int hf_pfcp_hf_name = -1;
+static int hf_pfcp_hf_name_str = -1;
 static int hf_pfcp_hf_val_len = -1;
 static int hf_pfcp_hf_val = -1;
+static int hf_pfcp_hf_val_str = -1;
 
 static int hf_pfcp_measurement_info = -1;
 static int hf_pfcp_measurement_info_b0_mbqe = -1;
@@ -3497,6 +3499,7 @@ dissect_pfcp_header_enrichment(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 {
     int offset = 0;
     guint32 len;
+
     /* Octet 5 Spare    Header Type
     */
     proto_tree_add_item(tree, hf_pfcp_spare_b7_b5, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3510,7 +3513,10 @@ dissect_pfcp_header_enrichment(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     /* 7 to m Header Field Name
      * Header Field Name shall be encoded as an OctetString
      */
-    proto_tree_add_item(tree, hf_pfcp_hf_name, tvb, offset, len, ENC_NA);
+    if (tvb_ascii_isprint(tvb, offset, len))
+        proto_tree_add_item(tree, hf_pfcp_hf_name_str, tvb, offset, len, ENC_ASCII | ENC_NA);
+    else
+        proto_tree_add_item(tree, hf_pfcp_hf_name, tvb, offset, len, ENC_NA);
     offset+= len;
 
     /* p    Length of Header Field Value*/
@@ -3518,7 +3524,10 @@ dissect_pfcp_header_enrichment(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     offset++;
 
     /* (p+1) to q   Header Field Value */
-    proto_tree_add_item(tree, hf_pfcp_hf_val, tvb, offset, len, ENC_NA);
+    if (tvb_ascii_isprint(tvb, offset, len))
+        proto_tree_add_item(tree, hf_pfcp_hf_val_str, tvb, offset, len, ENC_ASCII | ENC_NA);
+    else
+        proto_tree_add_item(tree, hf_pfcp_hf_val, tvb, offset, len, ENC_NA);
     offset += len;
 
     if (offset < length) {
@@ -7138,6 +7147,11 @@ proto_register_pfcp(void)
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_pfcp_hf_name_str,
+        { "Header Field Name", "pfcp.hf_name_str",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_pfcp_hf_val_len,
         { "Length of Header Field Value", "pfcp.hf_val_len",
             FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -7146,6 +7160,11 @@ proto_register_pfcp(void)
         { &hf_pfcp_hf_val,
         { "Header Field Value", "pfcp.hf_val",
             FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_hf_val_str,
+        { "Header Field Value", "pfcp.hf_val_str",
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pfcp_measurement_info,
