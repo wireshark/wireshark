@@ -271,7 +271,7 @@ get_compiler_info(GString *str)
 	g_string_append_printf(str, " clang/C2 %s and -fno-ms-compatibility.\n",
 	    __VERSION__);
   #else
-        g_string_append_printf(str, "\n");
+        g_string_append_printf(str, ".\n");
   #endif
 #elif defined(__GNUC__) && defined(__VERSION__)
 	/*
