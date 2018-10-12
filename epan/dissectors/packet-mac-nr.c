@@ -276,6 +276,7 @@ static int hf_mac_nr_control_bsr_long_lcg3 = -1;
 static int hf_mac_nr_control_bsr_long_lcg2 = -1;
 static int hf_mac_nr_control_bsr_long_lcg1 = -1;
 static int hf_mac_nr_control_bsr_long_lcg0 = -1;
+static int hf_mac_nr_control_bsr_trunc_long_bs = -1;
 static int hf_mac_nr_control_bsr_long_bs_lcg0 = -1;
 static int hf_mac_nr_control_bsr_long_bs_lcg1 = -1;
 static int hf_mac_nr_control_bsr_long_bs_lcg2 = -1;
@@ -1864,8 +1865,39 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                             offset++;
                         }
                         break;
-                    case LONG_BSR_LCID:
                     case LONG_TRUNCATED_BSR_LCID:
+                        {
+                            static const int * long_bsr_flags[] = {
+                                &hf_mac_nr_control_bsr_long_lcg7,
+                                &hf_mac_nr_control_bsr_long_lcg6,
+                                &hf_mac_nr_control_bsr_long_lcg5,
+                                &hf_mac_nr_control_bsr_long_lcg4,
+                                &hf_mac_nr_control_bsr_long_lcg3,
+                                &hf_mac_nr_control_bsr_long_lcg2,
+                                &hf_mac_nr_control_bsr_long_lcg1,
+                                &hf_mac_nr_control_bsr_long_lcg0,
+                                NULL
+                            };
+
+                            proto_tree_add_bitmask_list(subheader_tree, tvb, offset, 1, long_bsr_flags, ENC_NA);
+                            guint CE_start = offset;
+                            offset++;
+
+                            while ((offset-CE_start) < SDU_length) proto_tree_add_item(subheader_tree, hf_mac_nr_control_bsr_trunc_long_bs, tvb, offset++, 1, ENC_NA);
+
+                            /* TODO: show in string here how many BSs were seen */
+                            write_pdu_label_and_info_literal(pdu_ti, subheader_ti, pinfo,
+                                                             "(Long Truncated BSR) ");
+
+                            if (SDU_length > 7) {
+                                proto_tree_add_expert_format(subheader_tree, pinfo, &ei_mac_nr_sdu_length_different_from_dissected,
+                                                             tvb, CE_start, SDU_length,
+                                                             "A Long Truncated BSR subheader should have a length field up to 7 bytes, but "
+                                                             "is set to %u bytes", SDU_length);
+                            }
+                        }
+                        break;
+                    case LONG_BSR_LCID:
                         {
                             static const int * long_bsr_flags[] = {
                                 &hf_mac_nr_control_bsr_long_lcg7,
@@ -1884,26 +1916,29 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                             guint CE_start = offset;
                             offset++;
 
-                            /* Show BSR values.  TODO: break out into a function so can report in expert info if
-                               Long BSR case is truncated... */
-                            if ((flags & 0x01) && ((offset-CE_start) < SDU_length)) proto_tree_add_item(subheader_tree, hf_mac_nr_control_bsr_long_bs_lcg0, tvb, offset++, 1, ENC_NA);
-                            if ((flags & 0x02) && ((offset-CE_start) < SDU_length)) proto_tree_add_item(subheader_tree, hf_mac_nr_control_bsr_long_bs_lcg1, tvb, offset++, 1, ENC_NA);
-                            if ((flags & 0x04) && ((offset-CE_start) < SDU_length)) proto_tree_add_item(subheader_tree, hf_mac_nr_control_bsr_long_bs_lcg2, tvb, offset++, 1, ENC_NA);
-                            if ((flags & 0x08) && ((offset-CE_start) < SDU_length)) proto_tree_add_item(subheader_tree, hf_mac_nr_control_bsr_long_bs_lcg3, tvb, offset++, 1, ENC_NA);
-                            if ((flags & 0x10) && ((offset-CE_start) < SDU_length)) proto_tree_add_item(subheader_tree, hf_mac_nr_control_bsr_long_bs_lcg4, tvb, offset++, 1, ENC_NA);
-                            if ((flags & 0x20) && ((offset-CE_start) < SDU_length)) proto_tree_add_item(subheader_tree, hf_mac_nr_control_bsr_long_bs_lcg5, tvb, offset++, 1, ENC_NA);
-                            if ((flags & 0x40) && ((offset-CE_start) < SDU_length)) proto_tree_add_item(subheader_tree, hf_mac_nr_control_bsr_long_bs_lcg6, tvb, offset++, 1, ENC_NA);
-                            if ((flags & 0x80) && ((offset-CE_start) < SDU_length)) proto_tree_add_item(subheader_tree, hf_mac_nr_control_bsr_long_bs_lcg7, tvb, offset++, 1, ENC_NA);
+                            /* Show BSR values. */
+                            if (flags & 0x01) proto_tree_add_item(subheader_tree, hf_mac_nr_control_bsr_long_bs_lcg0, tvb, offset++, 1, ENC_NA);
+                            if (flags & 0x02) proto_tree_add_item(subheader_tree, hf_mac_nr_control_bsr_long_bs_lcg1, tvb, offset++, 1, ENC_NA);
+                            if (flags & 0x04) proto_tree_add_item(subheader_tree, hf_mac_nr_control_bsr_long_bs_lcg2, tvb, offset++, 1, ENC_NA);
+                            if (flags & 0x08) proto_tree_add_item(subheader_tree, hf_mac_nr_control_bsr_long_bs_lcg3, tvb, offset++, 1, ENC_NA);
+                            if (flags & 0x10) proto_tree_add_item(subheader_tree, hf_mac_nr_control_bsr_long_bs_lcg4, tvb, offset++, 1, ENC_NA);
+                            if (flags & 0x20) proto_tree_add_item(subheader_tree, hf_mac_nr_control_bsr_long_bs_lcg5, tvb, offset++, 1, ENC_NA);
+                            if (flags & 0x40) proto_tree_add_item(subheader_tree, hf_mac_nr_control_bsr_long_bs_lcg6, tvb, offset++, 1, ENC_NA);
+                            if (flags & 0x80) proto_tree_add_item(subheader_tree, hf_mac_nr_control_bsr_long_bs_lcg7, tvb, offset++, 1, ENC_NA);
 
-                            /* TODO: check change in offset against PDU_length */
                             /* TODO: show in string here how many BSs were seen */
-                            if (lcid == LONG_BSR_LCID) {
-                                write_pdu_label_and_info_literal(pdu_ti, subheader_ti, pinfo,
-                                                                 "(Long BSR) ");
-                            }
-                            else {
-                                write_pdu_label_and_info_literal(pdu_ti, subheader_ti, pinfo,
-                                                                 "(Long Truncated BSR) ");
+                            write_pdu_label_and_info_literal(pdu_ti, subheader_ti, pinfo,
+                                                             "(Long BSR) ");
+
+
+                            /* Make sure dissected length matches signalled length */
+                            if ((offset - CE_start) != SDU_length) {
+                                proto_tree_add_expert_format(subheader_tree, pinfo, &ei_mac_nr_sdu_length_different_from_dissected,
+                                                             tvb, CE_start, offset-CE_start,
+                                                             "A Long BSR subheader has a length field of %u bytes, but "
+                                                             "dissected %u bytes", SDU_length, offset-CE_start);
+                                /* Assume length was correct, so at least can dissect further subheaders */
+                                offset = CE_start + SDU_length;
                             }
                         }
                         break;
@@ -4120,6 +4155,12 @@ void proto_register_mac_nr(void)
             { "LCG0",
               "mac-nr.control.bsr.long.lcg0", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x01,
               "Logical Channel Group 0", HFILL
+            }
+        },
+        { &hf_mac_nr_control_bsr_trunc_long_bs,
+            { "Buffer Size",
+              "mac-nr.control.bsr.trunc-bs", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &buffer_size_8bits_vals_ext, 0x0,
+              NULL, HFILL
             }
         },
         { &hf_mac_nr_control_bsr_long_bs_lcg7,
