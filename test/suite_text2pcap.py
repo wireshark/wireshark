@@ -332,6 +332,13 @@ class case_text2pcap_parsing(subprocesstest.SubprocessTestCase):
                 "7f 00 00 01 ff 98 00 13 00 0d b5 48 66 69 72 73\n"
         self.check_rawip(pdata, 0, 0)
 
+    def test_text2pcap_eol_missing(self):
+        '''Verify that the last LF can be missing.'''
+        pdata = "0000  45 00 00 21 00 01 00 00 40 11 7c c9 7f 00 00 01\n" \
+                "0010  7f 00 00 01 ff 98 00 13 00 0d b5 48 66 69 72 73\n" \
+                "0020  74"
+        self.check_rawip(pdata, 1, 33)
+
 
 def run_text2pcap_content(test, content, args):
     testin_file = test.filename_from_id(testin_txt)
