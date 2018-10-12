@@ -348,7 +348,7 @@ remember later that you really did change something before.
 If you have changed your source tree, you have to merge the official
 changes since the last update into your source tree. You will install
 the content of the `.tar.xz` file into a new directory and use a good
-merge tool (e.g. http://winmerge.sourceforge.net/[]for Windows to bring
+merge tool (e.g. http://winmerge.sourceforge.net/[]for Windows) to bring
 your personal source tree in sync with the official sources again.
 
 This method can be problematic and can be much more difficult and

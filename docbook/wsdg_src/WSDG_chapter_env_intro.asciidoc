@@ -234,7 +234,7 @@ e.g. if you need a distribution for a special audience, see
 ==== Source code distributions
 
 It's still common for developers for UNIX-like platforms to give the
-enduser a source tarball and let the user compile it on their target
+end user a source tarball and let the user compile it on their target
 machine (configure make make install). However, for different UNIX
 and UNIX-like systems, such as Linux distributions, it's becoming more
 common to release binary packages (e.g., .deb or .rpm files) these days.
