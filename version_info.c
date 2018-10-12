@@ -285,7 +285,7 @@ get_compiler_info(GString *str)
 	 * which I guess is not to be confused with the build number,
 	 * the _BUILD in the name nonwithstanding.
 	 */
-	g_string_append_printf(str, "\n\nBuilt using Microsoft Visual Studio " VS_VERSION "(VC++ %d.%d, build %d)",
+	g_string_append_printf(str, "\n\nBuilt using Microsoft Visual Studio " VS_VERSION " (VC++ %d.%d, build %d)",
 	    VCPP_MAJOR_VERSION, COMPILER_MINOR_VERSION, COMPILER_BUILD_NUMBER);
   #if defined(__clang__)
 	/*
