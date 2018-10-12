@@ -413,7 +413,8 @@ _windows.h_, _WSock32.lib_)
 
 ==== Official Toolchain Packages And Alternatives
 
-The official Wireshark 2.4.x releases are compiled using Microsoft Visual {cpp} 2015.
+The official Wireshark 2.6.x releases are compiled using Microsoft Visual {cpp} 2017.
+The Wireshark 2.4.x releases are compiled using Microsoft Visual {cpp} 2015.
 The Wireshark 2.2.x and 2.0.x releases are compiled using Microsoft Visual {cpp} 2013.
 The Wireshark 1.12.x and 1.10.x releases were compiled using
 Microsoft Visual {cpp} 2010 SP1.
@@ -435,13 +436,24 @@ package is to be used. See
 <<msvc-runtime-redistributable>> below for more details.
 
 However, you might already have a different Microsoft {cpp} compiler
-installed. It should be possible to use any of the following with the considerations listed:
+installed.  It should be possible to use any of the following with the
+considerations listed.  You will need to sign up for a
+https://visualstudio.microsoft.com/dev-essentials/[Visual Studio Dev
+Essentials] account if you don't have a Visual Studio (MSDN)
+subscription.  The older versions can be downloaded from
+https://visualstudio.microsoft.com/vs/older-downloads/[].
+
+.Visual {cpp} 2015 Community Edition
+
+IDE + Debugger?:: Yes
+
+SDK required for 64-bit builds?:: No
+
+CMake Generator: *`Visual Studio 14`*
 
 .Visual {cpp} 2013 Community Edition
 
 IDE + Debugger?:: Yes
-
-Purchase required?:: http://www.visualstudio.com/en-us/downloads/download-visual-studio-vs#d-community[Free Download]
 
 SDK required for 64-bit builds?:: No
 
@@ -450,8 +462,6 @@ CMake Generator: *`Visual Studio 12`*
 .Visual {cpp} 2010 Express Edition
 
 IDE + Debugger?:: Yes
-
-Purchase required?:: http://www.microsoft.com/express/Downloads/#Visual_Studio_2010_Express_Downloads[Free Download]
 
 SDK required for 64-bit builds?:: Yes.
 
@@ -521,7 +531,7 @@ usage: cl [ option... ] filename... [ /link linkoption...
 However, the version string may vary.
 
 Documentation on the compiler can be found at
-http://msdn.microsoft.com/en-us/library/wk21sfcf.aspx[Microsoft MSDN]
+https://docs.microsoft.com/en-us/cpp/build/reference/compiling-a-c-cpp-program?view=vs-2017[Microsoft Docs]
 
 ==== link.exe (Linker)
 
@@ -545,7 +555,7 @@ Copyright (C) Microsoft Corporation.  All rights reserved.
 However, the version string may vary.
 
 Documentation on the linker can be found at
-http://msdn.microsoft.com/en-us/library/t2fck18t.aspx[Microsoft MSDN]
+https://docs.microsoft.com/en-us/cpp/build/reference/linking?view=vs-2017[Microsoft Docs]
 
 [[msvc-runtime-redistributable]]
 
@@ -579,10 +589,10 @@ can't be legally redistributed by third parties like
 us.
 ====
 
-The following MSDN link is recommended for the
+The following Microsoft Docs link is recommended for the
 interested reader:
 
-* http://msdn.microsoft.com/en-us/library/ms235299.aspx[Redistributing Visual C++ Files]
+* https://docs.microsoft.com/en-us/cpp/ide/redistributing-visual-cpp-files?view=vs-2017[Redistributing Visual C++ Files]
 
 In all cases where _vcredist_x86.exe_ or _vcredist_x64.exe_ is
 downloaded it should be downloaded to the directory into which the support
@@ -594,7 +604,7 @@ It need not, and should not, be run after being downloaded.
 
 There are three redistribution methods that MSDN
 mentions for MSVC 2013 (see:
-http://msdn.microsoft.com/en-us/library/vstudio/ms235316(v=vs.120).aspx["Choosing a Deployment Method"]):
+https://docs.microsoft.com/en-us/previous-versions/visualstudio/visual-studio-2013/ms235316(v=vs.120)["Choosing a Deployment Method"]):
 
 . _Using Visual {cpp} Redistributable Package._
 The Microsoft libraries are installed by copying
@@ -762,7 +772,7 @@ debugging with the Visual Studio integrated debugger it can be helpful if you
 have to debug on a machine where an integrated debugger is not available.
 
 You can get it free of charge from Microsoft in several ways, see the
-http://msdn.microsoft.com/en-us/library/windows/hardware/ff551063%28v=vs.85%29.aspx)[Debugging tools for Windows] page.
+https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/[Debugging tools for Windows] page.
 
 You can also use Chocolatey to install WinDbg:
 

@@ -62,12 +62,12 @@ the Python Package Index.
 You need to install, in exactly this order:
 
 . C compiler:
-https://go.microsoft.com/fwlink/?LinkId=532606&clcid=0x409[Download]
-and install ``Microsoft Visual Studio 2015 Community Edition.'' This is a small
+https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&rel=15[Download]
+and install ``Microsoft Visual Studio 2017 Community Edition.'' This is a small
 download that then downloads all the other required parts (which are quite large).
 
 Select the "Custom" install and then uncheck all the optional components other
-than "Common Tools for Visual C++ 2015" (unless you want to use them for purposes
+than "Common Tools for Visual C++ 2017" (unless you want to use them for purposes
 other than Wireshark).
 
 You can use Chocolatey to install Visual Studio, to correctly configure the
@@ -78,7 +78,7 @@ and pass the path the file to the chocolatey install command:
 PS$>choco install -y VisualStudio2015Community --timeout 0 -package-parameters "--AdminFile path\to\msvc2015AdminDeployment.xml"
 ----
 
-You can use other Microsoft C compiler variants, but VS2015 is used to
+You can use other Microsoft C compiler variants, but VS2017 is used to
 build the development releases and is the preferred option. It’s
 possible to compile Wireshark with a wide range of Microsoft C compiler
 variants. For details see <<ChToolsMSChain>>.
@@ -96,9 +96,9 @@ of Visual Studio add more cross-platform support.
 // required components
 
 Why is this recommended? While this is a huge download,
-Visual Studio 2015 Community Edition is the only free (as in beer)
+Visual Studio 2017 Community Edition is the only free (as in beer)
 versions that includes the Visual Studio integrated
-debugger. Visual Studio 2015 is also used to create official
+debugger. Visual Studio 2017 is also used to create official
 Wireshark builds, so it will likely have fewer development-related
 problems.
 
@@ -110,15 +110,15 @@ The main Wireshark application uses the Qt windowing toolkit. To install
 Qt download the *Qt Online Installer for Windows* from the Qt Project
 https://www.qt.io/download-open-source/["Download Open Source" page] and
 select a component that matches your target system and compiler. For
-example, the ``msvc2015 64-bit'' component is used to build the official
+example, the ``msvc2017 64-bit'' component is used to build the official
 64-bit packages.  You can deselect all the Qt xxxx (e.g. Qt Charts)
 components as they aren't required.
 
 Note that installation of separate Qt components are required for 32 bit
-and 64 bit builds, e.g. ``msvc2015 32-bit'' and ``msvc2015 64-bit''. The
+and 64 bit builds, e.g. ``msvc2017 32-bit'' and ``msvc2017 64-bit''. The
 environment variable `QT5_BASE_DIR` should be set as appropriate for your
 environment and should point to the Qt directory that contains the bin
-directory, e.g. _C:\Qt\5.9.5\msvc2015_64_
+directory, e.g. _C:\Qt\5.9.5\msvc2017_64_
 
 The Qt maintenance tool (_C:\Qt\MaintenanceTool.exe_) can be used to
 upgrade Qt to newer versions.
@@ -351,12 +351,12 @@ Make sure your repository path doesn't contain spaces.
 ==== Open a Visual Studio Command Prompt
 
 From the Start Menu (or Start Screen), navigate to the `Visual Studio
-2015' folder and choose the Command Prompt appropriate for
-the build you wish to make, e.g. `VS2015 x64 Native Tools Command
-Prompt' for a 64-bit version or `VS2015 x86 Native Tools Command Prompt'
+2017' folder and choose the Command Prompt appropriate for
+the build you wish to make, e.g. `VS2017 x64 Native Tools Command
+Prompt' for a 64-bit version or `VS2017 x86 Native Tools Command Prompt'
 for a 32-bit version. Depending on your version of Windows the Command
-Prompt list might be directly under `Visual Studio 2015' or you might
-have to dig for it under multiple folders, e.g. `Visual Studio 2015 ->
+Prompt list might be directly under `Visual Studio 2017' or you might
+have to dig for it under multiple folders, e.g. `Visual Studio 2017 ->
 Visual Studio Tools -> Windows Desktop Command Prompts'.
 
 [TIP]
@@ -379,7 +379,7 @@ Set the following environment variables, using paths and values suitable for you
 > set WIRESHARK_BASE_DIR=C:\Development
 > rem set WIRESHARK_LIB_DIR=c:\wireshark-win64-libs
 > rem Set the Qt installation directory
-> set QT5_BASE_DIR=C:\Qt\5.9.5\msvc2015_64
+> set QT5_BASE_DIR=C:\Qt\5.9.5\msvc2017_64
 > rem Append a custom string to the package version. Optional.
 > set WIRESHARK_VERSION_EXTRA=-YourExtraVersionInfo
 ----
@@ -392,8 +392,8 @@ you can explicitly specify it with the following environment variable:
 > set WIRESHARK_CYGWIN_INSTALL_PATH=C:\ProgramData\chocolatey\lib\Cygwin\tools\cygwin
 ----
 
-If you are using a version of Visual Studio earlier than VS2012 then you must set an additional env var,
-e.g. for VS2010 set the following:
+If you are using a version of Visual Studio earlier than VS2017 then you must set an additional env var,
+e.g. for VS2019 set the following:
 ----
 > set VisualStudioVersion=10.0
 ----
@@ -441,7 +441,7 @@ If you've closed the Visual Studio Command Prompt <<ChSetupPrepareCommandCom,pre
 
 To generate the build files enter the following at the Visual Studio command prompt:
 ----
-> cmake -G "Visual Studio 14 2015" ..\wireshark
+> cmake -G "Visual Studio 15 2017" ..\wireshark
 ----
 
 Adjusting the paths as required to Python and the wireshark source tree.
@@ -450,10 +450,10 @@ all the CMake supported generators, but only Visual Studio is supported
 for Wireshark builds.
 
 To build an x64 version, the `-G` parameter must have a Win64 suffix,
-e.g. `-G "Visual Studio 14 2015 Win64"`:
+e.g. `-G "Visual Studio 15 2017 Win64"`:
 
 ----
-> cmake -DENABLE_CHM_GUIDES=on -G "Visual Studio 14 2015 Win64" ..\wireshark
+> cmake -DENABLE_CHM_GUIDES=on -G "Visual Studio 15 2017 Win64" ..\wireshark
 ----
 
 The CMake generation process will download the required 3rd party libraries (apart from Qt)
