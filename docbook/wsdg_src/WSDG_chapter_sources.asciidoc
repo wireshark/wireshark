@@ -348,7 +348,7 @@ remember later that you really did change something before.
 If you have changed your source tree, you have to merge the official
 changes since the last update into your source tree. You will install
 the content of the `.tar.xz` file into a new directory and use a good
-merge tool (e.g. http://winmerge.sourceforge.net/[]for Win32) to bring
+merge tool (e.g. http://winmerge.sourceforge.net/[]for Windows to bring
 your personal source tree in sync with the official sources again.
 
 This method can be problematic and can be much more difficult and
@@ -399,7 +399,7 @@ $ cmake -LH ../wireshark
 
 to see what options you have.
 
-==== Win32 native
+==== Windows native
 
 Follow the build procedure in <<ChWin32Build>> to build Wireshark.
 
@@ -423,7 +423,7 @@ installed version first.
 
 [[ChSrcRunFirstTimeUnix]]
 
-==== Unix/Linux
+==== Unix-like platforms
 
 After a successful build you can run Wireshark right from the build
 directory. Still the program would need to know that it’s being run from
@@ -451,7 +451,7 @@ be informative when things don't work as expected.
 [[ChSrcRunFirstTimeWin32]]
 
 
-==== Win32 native
+==== Windows Native
 
 During the build all relevant program files are collected in a
 subdirectory `run\RelWithDebInfo`. You can run the program from there by
@@ -470,7 +470,7 @@ executable.
 [[ChSrcUnixDebug]]
 
 
-==== Unix/Linux
+==== Unix-like platforms
 
 You can debug using command-line debuggers such as gdb, dbx, or lldb.
 If you prefer a graphic debugger, you can use the Data Display Debugger
@@ -508,7 +508,7 @@ See https://developer.gnome.org/glib/stable/glib-running.html[]
 [[ChSrcWin32Debug]]
 
 
-==== Win32 native
+==== Windows native
 
 You can debug using the Visual Studio Debugger or WinDbg.  See the section
 on using the <<ChToolsDebugger, Debugger Tools>>.
@@ -842,10 +842,12 @@ change, you can run git commit --no-verify to skip running the hooks. Warning: u
 Change-ID to your commit. In case you are not updating an existing patch you may generate
 a Change-ID by running git review -i (or git commit --amend if don't use git review).
 +
-Additionally, if your system supports symbolic links (like Linux), you can use them
-instead of copying files. Running ln -s ./tools/pre-commit .git/hooks creates a symbolic
-link that will make the hook to be up-to-date with the current master. The same can
-be done for commit-msg script.
+
+Additionally, if your system supports symbolic links, as all UNIX-like
+platforms do, you can use them instead of copying files.  Running ln -s
+./tools/pre-commit .git/hooks creates a symbolic link that will make the
+hook to be up-to-date with the current master.  The same can be done for
+commit-msg script.
 
 
 * _Fuzz test your changes!_ Fuzz testing is a very
@@ -1123,7 +1125,7 @@ to build the macOS Package.
 
 [[ChSrcNSIS]]
 
-==== Win32: NSIS .exe installer
+==== Windows: NSIS .exe installer
 
 The _Nullsoft Install System_ is a free installer generator for Windows
 systems. Instructions on installing it can be found in <<ChToolsNSIS>>.
@@ -1154,7 +1156,7 @@ the _packaging/nsis_ directory in your build directory.
 
 [[ChSrcPortableApps]]
 
-==== Win32: PortableApps .paf.exe package
+==== Windows: PortableApps .paf.exe package
 
 _PortableApps.com_ is an environment that lets users run popular applications
 from portable media such as flash drives and cloud drive services.

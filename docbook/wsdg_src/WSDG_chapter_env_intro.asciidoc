@@ -24,7 +24,7 @@ which will provide a lot of general information about it.
 
 === Supported Platforms
 
-Wireshark currently runs on most UNIX platforms and various Windows
+Wireshark currently runs on most UNIX-like platforms and various Windows
 platforms. It requires Qt, GLib, libpcap and some other libraries in
 order to run.
 
@@ -39,7 +39,7 @@ to mailto:{wireshark-dev-list-email}[].
 Binary packages are available for the following platforms along with many
 others:
 
-==== Unix
+==== Unix and Unix-like platforms
 
 * Apple macOS
 
@@ -55,11 +55,13 @@ others:
 
 * Oracle Solaris
 
-==== Linux
+===== Linux
 
 * Debian GNU/Linux
 
 * Ubuntu
+
+* Fedora
 
 * Gentoo Linux
 
@@ -231,11 +233,11 @@ e.g. if you need a distribution for a special audience, see
 
 ==== Source code distributions
 
-It’s still common for UNIX developers to give the end user a source
-tarball and let the user compile it on their target machine (configure,
-make, make install). However, for different UNIX (Linux) distributions
-it’s becoming more common to release binary packages (e.g. .deb or .rpm
-files) these days.
+It's still common for developers for UNIX-like platforms to give the
+enduser a source tarball and let the user compile it on their target
+machine (configure make make install). However, for different UNIX
+and UNIX-like systems, such as Linux distributions, it's becoming more
+common to release binary packages (e.g., .deb or .rpm files) these days.
 
 You should use the released sources if you want to build Wireshark from
 source on your platform for productive use. However, if you going to
@@ -507,7 +509,7 @@ such as passwords.  Visibility of such files can be limited to certain
 groups in the Bugzilla database though.
 ====
 
-==== Reporting Crashes on UNIX/Linux platforms
+==== Reporting Crashes on UNIX-like platforms
 
 When reporting crashes with Wireshark, it is helpful if you supply the
 traceback information (besides the information mentioned in
