@@ -104,7 +104,7 @@ def getTsharkInfo():
             (cmd_tshark, '--version'),
             stderr=subprocess.PIPE,
             universal_newlines=True,
-            env={'WIRESHARK_CONFIG_DIR': '/dummy/non/existing'}
+            env=baseEnv()
         ).replace('\n', ' ')
     except subprocess.CalledProcessError as e:
         logging.warning("Failed to detect tshark features: %s", e)
@@ -172,8 +172,18 @@ def setProgramPath(path):
     setUpHostFiles()
     return retval
 
-def testEnvironment():
-    return test_env
+def baseEnv(home=None):
+    """A modified environment to ensure reproducible tests."""
+    env = os.environ.copy()
+    env['TZ'] = 'UTC'
+    home_env = 'APPDATA' if sys.platform.startswith('win32') else 'HOME'
+    if home:
+        env[home_env] = home
+    else:
+        # This directory is supposed not to be written and is used by
+        # "readonly" tests that do not read any other preferences.
+        env[home_env] = "/wireshark-tests-unused"
+    return env
 
 def setUpTestEnvironment():
     global home_path
@@ -185,10 +195,8 @@ def setUpTestEnvironment():
     test_confdir = tempfile.mkdtemp(prefix='wireshark-tests.')
     home_path = os.path.join(test_confdir, 'home')
     if sys.platform.startswith('win32'):
-        home_env = 'APPDATA'
         conf_path = os.path.join(home_path, 'Wireshark')
     else:
-        home_env = 'HOME'
         conf_path = os.path.join(home_path, '.config', 'wireshark')
     os.makedirs(conf_path)
     # Test spaces while we're here.
@@ -209,11 +217,9 @@ def setUpTestEnvironment():
         setUpUatFile(uat)
 
     # Set up our environment
-    test_env = os.environ.copy()
+    test_env = baseEnv(home=home_path)
     test_env['WIRESHARK_RUN_FROM_BUILD_DIRECTORY'] = 'True'
     test_env['WIRESHARK_QUIT_AFTER_CAPTURE'] = 'True'
-    test_env['TZ'] = 'UTC'
-    test_env[home_env] = home_path
 
 def setUpUatFile(conf_file):
     global home_path

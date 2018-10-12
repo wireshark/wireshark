@@ -178,7 +178,7 @@ class case_tshark_dump_glossaries(subprocesstest.SubprocessTestCase):
 
     def test_tshark_glossary_valid_utf8(self):
         for glossary in glossaries:
-            env = os.environ.copy()
+            env = config.baseEnv()
             env['LANG'] = 'en_US.UTF-8'
             g_contents = subprocess.check_output((config.cmd_tshark, '-G', glossary), env=env, stderr=subprocess.PIPE)
             decoded = True
@@ -189,7 +189,7 @@ class case_tshark_dump_glossaries(subprocesstest.SubprocessTestCase):
             self.assertTrue(decoded, '{} is not valid UTF-8'.format(glossary))
 
     def test_tshark_glossary_plugin_count(self):
-        self.runProcess((config.cmd_tshark, '-G', 'plugins'), env=os.environ.copy())
+        self.runProcess((config.cmd_tshark, '-G', 'plugins'), env=config.baseEnv())
         self.assertGreaterEqual(self.countOutput('dissector'), 10, 'Fewer than 10 dissector plugins found')
 
 

@@ -129,7 +129,7 @@ def check_text2pcap(self, cap_file, file_type, expected_packets=None, expected_d
         cf = cf_path,
         of = testin_file,
     )
-    self.assertRun(tshark_cmd, shell=True, env=os.environ.copy())
+    self.assertRun(tshark_cmd, shell=True, env=config.baseEnv())
 
     testout_fname = file_type_to_testout[file_type]
     testout_file = self.filename_from_id(testout_fname)
