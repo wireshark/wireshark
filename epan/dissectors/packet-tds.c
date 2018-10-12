@@ -5373,46 +5373,52 @@ dissect_tds_error_token(tvbuff_t *tvb, guint offset, proto_tree *tree, tds_conv_
     guint cur = offset;
     guint32 msg_len;
     guint32 srvr_len, proc_len;
-    int encoding = tds_little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN;
 
-    proto_tree_add_item(tree, hf_tds_error_length, tvb, cur, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_tds_error_length, tvb, cur, 2, tds_get_int2_encoding(tds_info));
     cur += 2;
 
-    proto_tree_add_item(tree, hf_tds_error_number, tvb, cur, 4, encoding);
+    proto_tree_add_item(tree, hf_tds_error_number, tvb, cur, 4, tds_get_int4_encoding(tds_info));
     cur += 4;
     proto_tree_add_item(tree, hf_tds_error_state, tvb, cur, 1, ENC_NA);
     cur +=1;
     proto_tree_add_item(tree, hf_tds_error_class, tvb, cur, 1, ENC_NA);
     cur +=1;
 
-    proto_tree_add_item_ret_uint(tree, hf_tds_error_msgtext_length, tvb, cur, 2, encoding, &msg_len);
+    proto_tree_add_item_ret_uint(tree, hf_tds_error_msgtext_length, tvb, cur, 2,
+        tds_get_int2_encoding(tds_info), &msg_len);
     cur +=2;
 
-    msg_len *= 2;
-    proto_tree_add_item(tree, hf_tds_error_msgtext, tvb, cur, msg_len, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+    if (tds_char_encoding_is_two_byte(tds_info)) {
+        msg_len *= 2;
+    }
+    proto_tree_add_item(tree, hf_tds_error_msgtext, tvb, cur, msg_len, tds_get_char_encoding(tds_info));
     cur += msg_len;
 
     proto_tree_add_item_ret_uint(tree, hf_tds_error_servername_length, tvb, cur, 1, ENC_NA, &srvr_len);
     cur +=1;
     if(srvr_len) {
-        srvr_len *=2;
-        proto_tree_add_item(tree, hf_tds_error_servername, tvb, cur, srvr_len, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+        if (tds_char_encoding_is_two_byte(tds_info)) {
+            srvr_len *=2;
+        }
+        proto_tree_add_item(tree, hf_tds_error_servername, tvb, cur, srvr_len, tds_get_char_encoding(tds_info));
         cur += srvr_len;
     }
 
     proto_tree_add_item_ret_uint(tree, hf_tds_error_procname_length, tvb, cur, 1, ENC_NA, &proc_len);
     cur +=1;
     if(proc_len) {
-        proc_len *=2;
-        proto_tree_add_item(tree, hf_tds_error_procname, tvb, cur, proc_len, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+        if (tds_char_encoding_is_two_byte(tds_info)) {
+            proc_len *=2;
+        }
+        proto_tree_add_item(tree, hf_tds_error_procname, tvb, cur, proc_len, tds_get_char_encoding(tds_info));
         cur += proc_len;
     }
 
     if (TDS_PROTO_TDS7_1_OR_LESS(tds_info)) {
-        proto_tree_add_item(tree, hf_tds_error_linenumber_16, tvb, cur, 2, encoding);
+        proto_tree_add_item(tree, hf_tds_error_linenumber_16, tvb, cur, 2, tds_get_int2_encoding(tds_info));
         cur += 2;
     } else {
-        proto_tree_add_item(tree, hf_tds_error_linenumber_32, tvb, cur, 4, encoding);
+        proto_tree_add_item(tree, hf_tds_error_linenumber_32, tvb, cur, 4, tds_get_int4_encoding(tds_info));
         cur += 4;
     }
 
@@ -6405,6 +6411,9 @@ dissect_tds_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv_i
                     break;
                 case TDS_CONTROL_TOKEN:
                     token_sz = dissect_tds_control_token(token_tree, tvb, pos + 1, tds_info, &nl_data) + 1;
+                    break;
+                case TDS_ERR_TOKEN:
+                    token_sz = dissect_tds_error_token(tvb, pos + 1, token_tree, tds_info) + 1;
                     break;
                 case TDS_INFO_TOKEN:
                     token_sz = dissect_tds_info_token(tvb, pos + 1, token_tree, tds_info) + 1;
