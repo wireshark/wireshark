@@ -64,8 +64,8 @@ PS:\>iex ((new-object net.webclient).DownloadString(_https://chocolatey.org/inst
 
 Chocolatey sometimes installs packages in unexpected locations. Python
 is a notable example. While it's typically installed in a top-level
-directory, e.g. _C:\Python27_ or in %PROGRAMFILES%, e.g. _C:\Program
-Files\Python36_, Chocolatey tends to install it under
+directory, e.g. _C:\Python37_ or in %PROGRAMFILES%, e.g. _C:\Program
+Files\Python37_, Chocolatey tends to install it under
 _C:\ProgramData\chocolatey_ or _C:\Tools_. If you want to avoid this
 behavior you'll probabaly want to install Python using the packages from
 python.org.
@@ -677,13 +677,12 @@ Your version string will likely vary.
 
 === Python
 
-http://python.org/[Python] is an interpreted programming language. It is
-used to generate some source files, documenation, and other tasks.
-Python 2.5 or later (including Python 3) should work fine and Python 3 is
-recommended. It may be required in the future.
+https://python.org/[Python] is an interpreted programming language. It is
+used to generate some source files, documentation, testing and other tasks.
+Python 3.4 and later is required. Python 2.7 is no longer supported.
 
 Python is either included or available as a package on most UNIX-like platforms.
-Windows packages and source are available at http://python.org/download/[].
+Windows packages and source are available at https://python.org/download/[].
 The Cygwin Python package is *not* recommended since _/usr/bin/python_ is
 a symbolic link, which causes confusion outside Cygwin.
 
@@ -694,19 +693,12 @@ You can also use Chocolatey to install Python:
 PS:\> choco install Python3
 ----
 
-or
-
-[source,cmd]
-----
-PS:\> choco install Python2
-----
-
-Chocolatey installs Python into _C:\tools\python3_ or _C:\tools\python2_ by
+Chocolatey installs Python into _C:\Python37_ by
 default. You can verify your Python version by running
 
 [source,sh]
 ----
-$ python --version
+$ python3 --version
 ----
 
 on UNIX-like platforms and

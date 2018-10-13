@@ -23,7 +23,7 @@ endif
 VERSION := $(shell dpkg-parsechangelog | sed -n 's/^Version: \(.*\)-.*/\1/p')
 export docdir = /usr/share/doc/wireshark-doc
 %:
-	dh $@ --with python2 --buildsystem cmake --with quilt --parallel
+	dh $@ --with python3 --buildsystem cmake --with quilt --parallel
 
 override_dh_auto_configure:
 	dh_auto_configure -- -DBUILD_xxx2deb=ON

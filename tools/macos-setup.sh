@@ -178,6 +178,7 @@ if [ "$SPANDSP_VERSION" ]; then
 fi
 BCG729_VERSION=1.0.2
 JSON_GLIB_VERSION=1.2.6
+PYTHON3_VERSION=3.7.1
 
 #
 # GNU autotools; they're provided with releases up to Snow Leopard, but
@@ -1700,11 +1701,65 @@ uninstall_json_glib() {
     fi
 }
 
+install_python3() {
+    if [ "$PYTHON3_VERSION" -a ! -f python3-$PYTHON3_VERSION-done ] ; then
+        echo "Downloading and installing python3:"
+        [ -f python-$PYTHON3_VERSION-macosx10.9.pkg ] || curl -L -O https://www.python.org/ftp/python/$PYTHON3_VERSION/python-$PYTHON3_VERSION-macosx10.9.pkg || exit 1
+        $no_build && echo "Skipping installation" && return
+        sudo installer -target / -pkg python-$PYTHON3_VERSION-macosx10.9.pkg || exit 1
+        touch python3-$PYTHON3_VERSION-done
+    fi
+}
+
+uninstall_python3() {
+    # Major version (e.g. "3.7")
+    local PYTHON_VERSION=${installed_python3_version%.*}
+    if [ ! -z "$installed_python3_version" ] ; then
+        echo "Uninstalling python3:"
+        frameworkdir="/Library/Frameworks/Python.framework/Versions/$PYTHON_VERSION"
+        sudo rm -rf "$frameworkdir"
+        sudo rm -rf "/Applications/Python $PYTHON_VERSION"
+        sudo find /usr/local/bin -maxdepth 1 -lname "*$frameworkdir/bin/*" -delete
+        # Remove three symlinks and empty directories. Removing directories
+        # might fail if for some reason multiple versions are installed.
+        sudo rm    /Library/Frameworks/Python.framework/Headers
+        sudo rm    /Library/Frameworks/Python.framework/Python
+        sudo rm    /Library/Frameworks/Python.framework/Resources
+        sudo rmdir /Library/Frameworks/Python.framework/Versions
+        sudo rmdir /Library/Frameworks/Python.framework
+        sudo pkgutil --forget org.python.Python.PythonApplications-$PYTHON_VERSION
+        sudo pkgutil --forget org.python.Python.PythonDocumentation-$PYTHON_VERSION
+        sudo pkgutil --forget org.python.Python.PythonFramework-$PYTHON_VERSION
+        sudo pkgutil --forget org.python.Python.PythonUnixTools-$PYTHON_VERSION
+        rm python3-$installed_python3_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -f python-$installed_python3_version-macosx10.9.pkg
+        fi
+
+        installed_python3_version=""
+    fi
+}
+
 install_all() {
     #
     # Check whether the versions we have installed are the versions
     # requested; if not, uninstall the installed versions.
     #
+    if [ ! -z "$installed_python3_version" -a \
+              "$installed_python3_version" != "$PYTHON3_VERSION" ] ; then
+        echo "Installed python3 version is $installed_python3_version"
+        if [ -z "$PYTHON3_VERSION" ] ; then
+            echo "python3 is not requested"
+        else
+            echo "Requested python3 version is $PYTHON3_VERSION"
+        fi
+        uninstall_python3 -r
+    fi
+
     if [ ! -z "$installed_json_glib_version" -a \
               "$installed_json_glib_version" != "$JSON_GLIB_VERSION" ] ; then
         echo "Installed json-glib version is $installed_json_glib_version"
@@ -2177,6 +2232,8 @@ install_all() {
     install_bcg729
 
     install_json_glib
+
+    install_python3
 }
 
 uninstall_all() {
@@ -2193,6 +2250,8 @@ uninstall_all() {
         # We also do a "make distclean", so that we don't have leftovers from
         # old configurations.
         #
+        uninstall_python3
+
         uninstall_json_glib
 
         uninstall_bcg729
@@ -2400,6 +2459,7 @@ then
     installed_spandsp_version=`ls spandsp-*-done 2>/dev/null | sed 's/spandsp-\(.*\)-done/\1/'`
     installed_bcg729_version=`ls bcg729-*-done 2>/dev/null | sed 's/bcg729-\(.*\)-done/\1/'`
     installed_json_glib_version=`ls json_glib-*-done 2>/dev/null | sed 's/json_glib-\(.*\)-done/\1/'`
+    installed_python3_version=`ls python3-*-done 2>/dev/null | sed 's/python3-\(.*\)-done/\1/'`
 
     cd $topdir
 fi

@@ -7,7 +7,7 @@ Build-Depends: lsb-release,
  qtbase5-dev, qtbase5-dev-tools, qttools5-dev, qttools5-dev-tools,
  qtmultimedia5-dev, libqt5svg5-dev,
  libpcap0.8-dev, flex, libz-dev, debhelper (>= 9), po-debconf, libtool,
- python (>= 2.6.6-3~), python-ply, libc-ares-dev, xsltproc,
+ python3, python3-ply, libc-ares-dev, xsltproc,
  docbook-xsl (>= 1.64.1.0-0), docbook-xml, libxml2-utils, libpcre3-dev,
  libcap2-dev [linux-any] | libcap-dev (>= 2.17) [linux-any],
  bison, quilt, libparse-yapp-perl,
@@ -84,7 +84,7 @@ Package: wireshark-dev
 Architecture: any
 Section: devel
 Depends: ${misc:Depends}, omniidl (>= 4.0.1-2), libpcap0.8-dev, libtool,
- libglib2.0-dev, ${python:Depends}, python-ply, snacc, debhelper,
+ libglib2.0-dev, ${python3:Depends}, python3-ply, snacc, debhelper,
  cdbs, libwireshark-dev, libwiretap-dev
 Replaces: ethereal-dev (<< 1.0.0-3)
 Conflicts: ethereal-dev (<< 1.0.0-3)

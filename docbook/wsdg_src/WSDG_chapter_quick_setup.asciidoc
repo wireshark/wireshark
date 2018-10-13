@@ -209,8 +209,8 @@ PS$>cyg-get docbook-xml45 [...]
 
 ==== Install Python
 
-Get the Python 3.5 or 2.7 installer from http://python.org/download/[] and
-install Python into the default location (_C:\Python35_ or _C:\Python27_).
+Get a Python 3.x installer from https://python.org/download/[] and
+install Python into the default location (_C:\Python37_).
 
 Why is this recommended? Cygwin’s _/usr/bin/python_ is a Cygwin-specific
 symbolic link which cannot be run from Windows. The native package is faster
@@ -222,13 +222,7 @@ Alternatively you can install Python using Chocolatey:
 PS$>choco install -y python3
 ----
 
-or
-
-----
-PS$>choco install -y python2
-----
-
-Chocolatey installs Python in _C:\tools\python3_ and _C:\tools\python2_ by default.
+Chocolatey installs Python in _C:\Python37_ by default.
 
 [[ChSetupGit]]
 

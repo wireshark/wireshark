@@ -73,7 +73,7 @@ path via the `-p` flag:
 
 [source,sh]
 ----
-$ python test.py -p /path/to/wireshark-build/run
+$ python3 test.py -p /path/to/wireshark-build/run
 ----
 
 You can list tests by passing one or more complete or partial names to
@@ -82,19 +82,19 @@ You can list tests by passing one or more complete or partial names to
 [source,sh]
 ----
 # List all tests
-$ python test.py -l
-$ python test.py -l all
-$ python test.py --list
-$ python test.py --list all
+$ python3 test.py -l
+$ python3 test.py -l all
+$ python3 test.py --list
+$ python3 test.py --list all
 
 # List only tests containing "dumpcap"
-$ python test.py -l dumpcap
+$ python3 test.py -l dumpcap
 
 # List all suites
-$ python test.py --list-suites
+$ python3 test.py --list-suites
 
 # List all suites and cases
-$ python test.py --list-cases
+$ python3 test.py --list-cases
 ----
 
 If one of the listing flags is not present, tests are run. If no names or `all` is supplied,
@@ -103,14 +103,14 @@ all tests are run. Otherwise tests that match are run.
 [source,sh]
 ----
 # Run all tests
-$ python test.py
-$ python test.py all
+$ python3 test.py
+$ python3 test.py all
 
 # Only run tests containing "dumpcap"
-$ python test.py -l dumpcap
+$ python3 test.py -l dumpcap
 
 # Run the "clopts" suite
-$ python test.py suite_clopts
+$ python3 test.py suite_clopts
 ----
 
 === Adding Or Modifying Tests

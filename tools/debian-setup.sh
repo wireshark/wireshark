@@ -52,7 +52,7 @@ BASIC_LIST="libglib2.0-dev \
 	bison \
 	flex \
 	make \
-	python \
+	python3 \
 	perl \
 	libgcrypt-dev"
 
@@ -78,7 +78,7 @@ ADDITIONAL_LIST="libnl-3-dev \
 
 DEBDEPS_LIST="debhelper \
 	po-debconf \
-	python-ply \
+	python3-ply \
 	docbook-xsl \
 	docbook-xml \
 	libxml2-utils \

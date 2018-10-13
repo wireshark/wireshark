@@ -1181,7 +1181,7 @@ It is also COOL to work on a great Open Source project such as the case with
 
 To use the idl2wrs to generate Wireshark dissectors, you need the following:
 
-* Python must be installed.  See link:http://python.org/[]
+* Python must be installed.  See link:https://python.org/[]
 
 * `omniidl` from the omniORB package must be available. See link:http://omniorb.sourceforge.net/[]
 
@@ -1321,8 +1321,7 @@ wireshark_gen.py are residing in the current directory. This may need tweaking
 if you place these files somewhere else.
 
 If it complains about being unable to find some modules (e.g. tempfile.py), you
-may want to check if PYTHONPATH is set correctly. On my Linux box, it is
-PYTHONPATH=/usr/lib/python2.4/
+may want to check if PYTHONPATH is set correctly.
 
 
 // End of WSDG Chapter Dissection

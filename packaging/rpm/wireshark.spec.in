@@ -55,7 +55,7 @@ BuildRequires:	cmake3 >= 3.5
 BuildRequires:	cmake >= 3.5
 %endif
 BuildRequires:	gcc
-BuildRequires:	python
+BuildRequires:	python3
 BuildRequires:	perl
 BuildRequires:	flex
 BuildRequires:	bison
