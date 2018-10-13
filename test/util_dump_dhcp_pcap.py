@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # Wireshark tests
 # By Gerald Combs <gerald@wireshark.org>
@@ -20,10 +20,6 @@ def main():
     parser.add_argument('dump_type', choices=['cat', 'slow', 'raw'],
         help='cat: Just dump the file. slow: Dump the file, pause, and dump its packet records. raw: Dump only the packet records.')
     args = parser.parse_args()
-
-    if sys.version_info[0] < 3 and sys.platform == "win32":
-        import msvcrt
-        msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
 
     dhcp_pcap = os.path.join(os.path.dirname(__file__), 'captures', 'dhcp.pcap')
 

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
 # Wireshark tests
@@ -13,8 +13,6 @@
 # To do:
 # - Avoid printing Python tracebacks when we assert? It looks like we'd need
 #   to override unittest.TextTestResult.addFailure().
-# - Switch to Python 3 only? [Windows, Linux, macOS] x [Python 2, Python 3]
-#   is painful.
 # - Remove BIN_PATH/hosts via config.tearDownHostFiles + case_name_resolution.tearDownClass?
 
 
@@ -41,6 +39,10 @@ def dump_failed_output(suite):
                 dump_failed_output(s)
 
 def main():
+    if sys.version_info[0] < 3:
+        print("Unit tests require Python 3")
+        sys.exit(2)
+
     parser = argparse.ArgumentParser(description='Wireshark unit tests')
     cap_group = parser.add_mutually_exclusive_group()
     cap_group.add_argument('-e', '--enable-capture', action='store_true', help='Enable capture tests')
@@ -132,12 +134,8 @@ def main():
         import codecs
         import locale
         sys.stderr.write('Warning: Output encoding is {0} and not UTF-8.\n'.format(sys.stdout.encoding))
-        if sys.version_info[0] >= 3:
-            sys.stdout = codecs.getwriter(locale.getpreferredencoding())(sys.stdout.buffer, 'backslashreplace')
-            sys.stderr = codecs.getwriter(locale.getpreferredencoding())(sys.stderr.buffer, 'backslashreplace')
-        else:
-            sys.stdout = codecs.getwriter(locale.getpreferredencoding())(sys.stdout, 'backslashreplace')
-            sys.stderr = codecs.getwriter(locale.getpreferredencoding())(sys.stderr, 'backslashreplace')
+        sys.stdout = codecs.getwriter(locale.getpreferredencoding())(sys.stdout.buffer, 'backslashreplace')
+        sys.stderr = codecs.getwriter(locale.getpreferredencoding())(sys.stderr.buffer, 'backslashreplace')
 
     run_suite = unittest.defaultTestLoader.loadTestsFromNames(run_ids)
     runner = unittest.TextTestRunner(verbosity=args.verbose)

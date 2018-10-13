@@ -25,8 +25,7 @@ import unittest
 
 # XXX This should probably be in config.py and settable from
 # the command line.
-if sys.version_info[0] >= 3:
-    process_timeout = 300 # Seconds
+process_timeout = 300 # Seconds
 
 def capture_command(cmd, *args, **kwargs):
     '''Convert the supplied arguments into a command suitable for SubprocessTestCase.
@@ -67,39 +66,33 @@ class LoggingPopen(subprocess.Popen):
         # Make sure communicate() gives us bytes.
         kwargs['universal_newlines'] = False
         self.cmd_str = 'command ' + repr(proc_args)
-        super(LoggingPopen, self).__init__(proc_args, *args, **kwargs)
+        super().__init__(proc_args, *args, **kwargs)
         self.stdout_str = ''
         self.stderr_str = ''
 
     def wait_and_log(self):
         '''Wait for the process to finish and log its output.'''
-        # Wherein we navigate the Python 2 and 3 Unicode compatibility maze.
-        if sys.version_info[0] >= 3:
-            out_data, err_data = self.communicate(timeout=process_timeout)
-            out_log = out_data.decode('UTF-8', 'replace')
-            err_log = err_data.decode('UTF-8', 'replace')
-        else:
-            out_data, err_data = self.communicate()
-            out_log = unicode(out_data, 'UTF-8', 'replace')
-            err_log = unicode(err_data, 'UTF-8', 'replace')
+        out_data, err_data = self.communicate(timeout=process_timeout)
+        out_log = out_data.decode('UTF-8', 'replace')
+        err_log = err_data.decode('UTF-8', 'replace')
+        self.log_fd.flush()
+        self.log_fd.write('-- Begin stdout for {} --\n'.format(self.cmd_str))
+        self.log_fd.write(out_log)
+        self.log_fd.write('-- End stdout for {} --\n'.format(self.cmd_str))
+        self.log_fd.write('-- Begin stderr for {} --\n'.format(self.cmd_str))
+        self.log_fd.write(err_log)
+        self.log_fd.write('-- End stderr for {} --\n'.format(self.cmd_str))
+        self.log_fd.flush()
         # Throwing a UnicodeDecodeError exception here is arguably a good thing.
         self.stdout_str = out_data.decode('UTF-8', 'strict')
         self.stderr_str = err_data.decode('UTF-8', 'strict')
-        self.log_fd.flush()
-        self.log_fd.write(u'-- Begin stdout for {} --\n'.format(self.cmd_str))
-        self.log_fd.write(out_log)
-        self.log_fd.write(u'-- End stdout for {} --\n'.format(self.cmd_str))
-        self.log_fd.write(u'-- Begin stderr for {} --\n'.format(self.cmd_str))
-        self.log_fd.write(err_log)
-        self.log_fd.write(u'-- End stderr for {} --\n'.format(self.cmd_str))
-        self.log_fd.flush()
 
     def stop_process(self, kill=False):
         '''Stop the process immediately.'''
         if kill:
-            super(LoggingPopen, self).kill()
+            super().kill()
         else:
-            super(LoggingPopen, self).terminate()
+            super().terminate()
 
     def terminate(self):
         '''Terminate the process. Do not log its output.'''
@@ -114,7 +107,7 @@ class SubprocessTestCase(unittest.TestCase):
     '''Run a program and gather its stdout and stderr.'''
 
     def __init__(self, *args, **kwargs):
-        super(SubprocessTestCase, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.exit_ok = 0
         self.exit_command_line = 1
         self.exit_error = 2
@@ -126,10 +119,7 @@ class SubprocessTestCase(unittest.TestCase):
         self.dump_files = []
 
     def log_fd_write_bytes(self, log_data):
-        if sys.version_info[0] >= 3:
-            self.log_fd.write(log_data)
-        else:
-            self.log_fd.write(unicode(log_data, 'UTF-8', 'replace'))
+        self.log_fd.write(log_data)
 
     def filename_from_id(self, filename):
         '''Generate a filename prefixed with our test ID.'''
@@ -175,7 +165,7 @@ class SubprocessTestCase(unittest.TestCase):
         self.cleanup_files.append(self.log_fname)
         pre_run_problem_count = self._error_count(result)
         try:
-            super(SubprocessTestCase, self).run(result=result)
+            super().run(result=result)
         except KeyboardInterrupt:
             # XXX This doesn't seem to work on Windows, which is where we need it the most.
             self.kill_processes()
@@ -208,16 +198,13 @@ class SubprocessTestCase(unittest.TestCase):
         Default cap_file is <test id>.testout.pcap.'''
         if not cap_file:
             cap_file = self.filename_from_id('testout.pcap')
-        self.log_fd.write(u'\nOutput of {0} {1}:\n'.format(config.cmd_capinfos, cap_file))
+        self.log_fd.write('\nOutput of {0} {1}:\n'.format(config.cmd_capinfos, cap_file))
         capinfos_cmd = [config.cmd_capinfos]
         if capinfos_args is not None:
             capinfos_cmd += capinfos_args
         capinfos_cmd.append(cap_file)
         capinfos_data = subprocess.check_output(capinfos_cmd)
-        if sys.version_info[0] >= 3:
-            capinfos_stdout = capinfos_data.decode('UTF-8', 'replace')
-        else:
-            capinfos_stdout = unicode(capinfos_data, 'UTF-8', 'replace')
+        capinfos_stdout = capinfos_data.decode('UTF-8', 'replace')
         self.log_fd.write(capinfos_stdout)
         return capinfos_stdout
 
@@ -238,7 +225,7 @@ class SubprocessTestCase(unittest.TestCase):
         if proc is None:
             proc = self.processes[-1]
 
-        out_data = u''
+        out_data = ''
         if count_stdout:
             out_data = proc.stdout_str
         if count_stderr:
@@ -265,12 +252,10 @@ class SubprocessTestCase(unittest.TestCase):
         lines_b = blob_b.splitlines()
         diff = '\n'.join(list(difflib.unified_diff(lines_a, lines_b, *args, **kwargs)))
         if len(diff) > 0:
-            if sys.version_info[0] < 3 and not isinstance(diff, unicode):
-                diff = unicode(diff, 'UTF-8', 'replace')
             self.log_fd.flush()
-            self.log_fd.write(u'-- Begin diff output --\n')
+            self.log_fd.write('-- Begin diff output --\n')
             self.log_fd.writelines(diff)
-            self.log_fd.write(u'-- End diff output --\n')
+            self.log_fd.write('-- End diff output --\n')
             return False
         return True
 

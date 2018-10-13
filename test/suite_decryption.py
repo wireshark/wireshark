@@ -512,7 +512,7 @@ class case_decrypt_http2(subprocesstest.SubprocessTestCase):
             env=config.test_env)
         test_passed = self.grepOutput('nghttp2')
         if not test_passed:
-            self.log_fd.write(u'\n\n-- Verbose output --\n\n')
+            self.log_fd.write('\n\n-- Verbose output --\n\n')
             self.runProcess((config.cmd_tshark,
                     '-r', capture_file,
                     '-V',

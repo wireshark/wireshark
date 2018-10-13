@@ -24,9 +24,7 @@ class case_sharkd(subprocesstest.SubprocessTestCase):
             stdin=subprocess.PIPE
         )
 
-        sharkd_commands = '{"req":"status"}\n'
-        if sys.version_info[0] >= 3:
-            sharkd_commands = sharkd_commands.encode('UTF-8')
+        sharkd_commands = b'{"req":"status"}\n'
         sharkd_proc.stdin.write(sharkd_commands)
         self.waitProcess(sharkd_proc)
 
@@ -44,12 +42,11 @@ class case_sharkd(subprocesstest.SubprocessTestCase):
             stdin=subprocess.PIPE
         )
 
-        sharkd_commands = ''
-        sharkd_commands = '{"req":"load","file":' + json.JSONEncoder().encode(dhcp_pcap) + '}\n'
-        sharkd_commands += '{"req":"status"}\n'
-        sharkd_commands += '{"req":"frames"}\n'
-        if sys.version_info[0] >= 3:
-            sharkd_commands = sharkd_commands.encode('UTF-8')
+        sharkd_commands = b'{"req":"load","file":'
+        sharkd_commands += json.dumps(dhcp_pcap).encode('utf8')
+        sharkd_commands += b'}\n'
+        sharkd_commands += b'{"req":"status"}\n'
+        sharkd_commands += b'{"req":"frames"}\n'
 
         sharkd_proc.stdin.write(sharkd_commands)
         self.waitProcess(sharkd_proc)
