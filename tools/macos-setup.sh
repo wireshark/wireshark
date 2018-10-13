@@ -2399,6 +2399,7 @@ then
     installed_libtiff_version=`ls tiff-*-done 2>/dev/null | sed 's/tiff-\(.*\)-done/\1/'`
     installed_spandsp_version=`ls spandsp-*-done 2>/dev/null | sed 's/spandsp-\(.*\)-done/\1/'`
     installed_bcg729_version=`ls bcg729-*-done 2>/dev/null | sed 's/bcg729-\(.*\)-done/\1/'`
+    installed_json_glib_version=`ls json_glib-*-done 2>/dev/null | sed 's/json_glib-\(.*\)-done/\1/'`
 
     cd $topdir
 fi
