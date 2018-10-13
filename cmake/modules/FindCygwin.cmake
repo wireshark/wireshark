@@ -34,8 +34,6 @@ if (WIN32)
   if(NOT CYGWIN_INSTALL_PATH)
     if(WIRESHARK_CYGWIN_INSTALL_PATH)
       message(FATAL_ERROR "WIRESHARK_CYGWIN_INSTALL_PATH was specified, but Cygwin was not found.")
-    else()
-      message(WARNING "Cygwin installation path was not detected. You can set it with WIRESHARK_CYGWIN_INSTALL_PATH environment variable.")
     endif()
   endif()
 
