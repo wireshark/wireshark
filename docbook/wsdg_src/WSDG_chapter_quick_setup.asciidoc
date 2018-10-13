@@ -66,9 +66,10 @@ https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Comm
 and install ``Microsoft Visual Studio 2017 Community Edition.'' This is a small
 download that then downloads all the other required parts (which are quite large).
 
-Select the "Custom" install and then uncheck all the optional components other
-than "Common Tools for Visual C++ 2017" (unless you want to use them for purposes
-other than Wireshark).
+Check the checkbox for "Desktop development with C++" and then uncheck
+all the optional components other than the "VC++ 2017" item with the
+"latest ... tools", the "Windows 10 SDK", and the "Visual C++ tools for
+CMake" (unless you want to use them for purposes other than Wireshark).
 
 You can use Chocolatey to install Visual Studio, to correctly configure the
 installation, copy the deployment XML file https://code.wireshark.org/review/gitweb?p=wireshark.git;a=blob_plain;f=tools/msvc2015AdminDeployment.xml;hb=HEAD[msvc2015AdminDeployment.xml] from the source code tools directory
@@ -106,13 +107,14 @@ problems.
 
 ==== Install Qt
 
-The main Wireshark application uses the Qt windowing toolkit. To install
-Qt download the *Qt Online Installer for Windows* from the Qt Project
-https://www.qt.io/download-open-source/["Download Open Source" page] and
-select a component that matches your target system and compiler. For
-example, the ``msvc2017 64-bit'' component is used to build the official
-64-bit packages.  You can deselect all the Qt xxxx (e.g. Qt Charts)
-components as they aren't required.
+The main Wireshark application uses the Qt windowing toolkit.  To
+install Qt, go to the https://www.qt.io/download["Download Qt" page],
+select "Go open source", download the *Qt Online Installer for Windows*
+from the Qt Project and select, for the desired Qt version, a component
+that matches your target system and compiler.  For example, the Qt 5.9.5
+``msvc2017 64-bit'' component is used to build the official 64-bit
+packages.  You can deselect all the Qt xxxx (e.g.  Qt Charts) components
+as they aren't required.
 
 Note that installation of separate Qt components are required for 32 bit
 and 64 bit builds, e.g. ``msvc2017 32-bit'' and ``msvc2017 64-bit''. The
