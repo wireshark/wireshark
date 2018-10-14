@@ -142,13 +142,21 @@ end
 
 ----------------------------------------
 -- a table of all of our Protocol's fields
+range_string = {
+  { 0, 200, "The first part" },
+  { 201, 233, "The second part" },
+  { 234, 255, "The last part" },
+}
+
 local testfield =
 {
     basic =
     {
         STRING         = ProtoField.string ("test.basic.string",  "Basic string"),
         BOOLEAN        = ProtoField.bool   ("test.basic.boolean", "Basic boolean", 16, {"yes","no"}, 0x0001),
+        UINT8          = ProtoField.uint8  ("test.basic.uint8",   "Basic uint8 with range string", base.RANGE_STRING, range_string ),
         UINT16         = ProtoField.uint16 ("test.basic.uint16",  "Basic uint16"),
+        UINT32         = ProtoField.uint32 ("test.basic.uint32",  "Basic uint32 test with a unit string", base.UINT_STRING, { "femtoFarads" }),
         INT24          = ProtoField.int24  ("test.basic.uint24",  "Basic uint24"),
         BYTES          = ProtoField.bytes  ("test.basic.bytes",   "Basic Bytes"),
         UINT_BYTES     = ProtoField.ubytes ("test.basic.ubytes",  "Basic Uint Bytes"),
@@ -197,6 +205,7 @@ local getfield =
     {
         STRING         = Field.new ("test.basic.string"),
         BOOLEAN        = Field.new ("test.basic.boolean"),
+	UINT8          = Field.new ("test.basic.uint8"),
         UINT16         = Field.new ("test.basic.uint16"),
         INT24          = Field.new ("test.basic.uint24"),
         BYTES          = Field.new ("test.basic.bytes"),

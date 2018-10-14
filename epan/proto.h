@@ -602,7 +602,7 @@ typedef enum {
 
 /* Following constants have to be ORed with a field_display_e when dissector
  * want to use specials value-string MACROs for a header_field_info */
-#define BASE_RANGE_STRING       0x0100
+#define BASE_RANGE_STRING       0x0100  /**< Use the supplied range string to convert the field to text */
 #define BASE_EXT_STRING         0x0200
 #define BASE_VAL64_STRING       0x0400
 #define BASE_ALLOW_ZERO         0x0800  /**< Display <none> instead of <MISSING> for zero sized byte array */

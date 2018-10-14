@@ -172,6 +172,12 @@ while(<PROTO_H>) {
         $bases_table .= "\t[\"$1\"] = $2,  -- $3\n";
     }
 
+    if (/^#define\s+BASE_(RANGE_STRING)[ ]*((?:0x)?[0-9]+)[ ]+(?:\/\*\*< (.*?) \*\/)?/) {
+        # Handle BASE_RANGE_STRING
+        my $num = hex($2);
+        $bases_table .= "\t[\"$1\"] = $num,  -- $3\n";
+    }
+
     if (/^#define\s+BASE_(UNIT_STRING)[ ]*((?:0x)?[0-9]+)[ ]+(?:\/\*\*< (.*?) \*\/)?/) {
         # Handle BASE_UNIT_STRING as a valid base value in Lua
         my $num = hex($2);

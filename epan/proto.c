@@ -7429,6 +7429,12 @@ free_deregistered_field (gpointer data, gpointer user_data _U_)
 					unit_name_string *unit = (unit_name_string*)hfi->strings;
 					g_free ((gchar *)unit->singular);
 					g_free ((gchar *)unit->plural);
+                                } else  if (hfi->display & BASE_RANGE_STRING) {
+					range_string *rs = (range_string *)hfi->strings;
+					while (rs->strptr) {
+						g_free((gchar *)rs->strptr);
+						rs++;
+					}
 				} else {
 					value_string *vs = (value_string *)hfi->strings;
 					while (vs->strptr) {
