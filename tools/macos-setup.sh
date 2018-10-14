@@ -92,7 +92,7 @@ NINJA_VERSION=${NINJA_VERSION-1.8.2}
 # The following libraries and tools are required even to build only TShark.
 #
 GETTEXT_VERSION=0.19.8.1
-GLIB_VERSION=2.36.0
+GLIB_VERSION=2.37.6	# json-glib requires at least 2.37.6
 PKG_CONFIG_VERSION=0.29.2
 #
 # libgpg-error is required for libgcrypt.
