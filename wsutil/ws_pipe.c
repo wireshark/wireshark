@@ -576,8 +576,16 @@ ws_read_string_from_pipe(ws_pipe_handle read_pipe, gchar *buffer,
             return FALSE;
         }
 #else
+        /*
+         * Check if data is available before doing a blocking I/O read.
+         */
+        if (!ws_pipe_data_available(read_pipe)) {
+            ret = TRUE;
+            break;
+        }
+
         bytes_to_read = buffer_bytes_remaining;
-        bytes_read = read(read_pipe, buffer, bytes_to_read);
+        bytes_read = read(read_pipe, &buffer[total_bytes_read], bytes_to_read);
         if (bytes_read == -1)
         {
             /* XXX - provide an error string */
