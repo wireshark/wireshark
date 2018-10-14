@@ -1131,7 +1131,7 @@ void extcap_if_cleanup(capture_options *capture_opts, gchar **errormsg)
         pipedata = (ws_pipe_t *) interface_opts->extcap_pipedata;
         if (pipedata)
         {
-            if (pipedata->stderr_fd > 0 && ws_pipe_data_available(pipedata->stderr_fd))
+            if (pipedata->stderr_fd > 0)
             {
                 buffer = (gchar *)g_malloc0(STDERR_BUFFER_SIZE + 1);
                 ws_read_string_from_pipe(ws_get_pipe_handle(pipedata->stderr_fd), buffer, STDERR_BUFFER_SIZE + 1);
