@@ -44,10 +44,16 @@ static dissector_handle_t h245dg_handle;
 #define SRP_SRP_RESPONSE 251
 #define SRP_NSRP_RESPONSE 247
 
+/* WNSRP definitions */
+#define WNSRP_COMMAND_HEADER 241
+#define WNSRP_RESPONSE_HEADER 243
+
 static const value_string srp_frame_types[] = {
     {SRP_SRP_COMMAND, "SRP command"},
     {SRP_SRP_RESPONSE, "SRP response"},
     {SRP_NSRP_RESPONSE, "NSRP response"},
+    {WNSRP_COMMAND_HEADER, "WNSRP command"},
+    {WNSRP_RESPONSE_HEADER, "WNSRP response"},
     {0,NULL}
 };
 
@@ -117,6 +123,7 @@ static int dissect_srp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
 
     switch( header ) {
         case SRP_SRP_COMMAND:
+        case WNSRP_COMMAND_HEADER:
             dissect_srp_command(tvb,pinfo,srp_tree);
             break;
 
@@ -124,6 +131,7 @@ static int dissect_srp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
             break;
 
         case SRP_NSRP_RESPONSE:
+        case WNSRP_RESPONSE_HEADER:
             if( srp_tree )
                 proto_tree_add_item(srp_tree,hf_srp_seqno,tvb,1,1,ENC_BIG_ENDIAN);
             break;
