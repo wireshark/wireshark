@@ -365,13 +365,13 @@ Make sure your repository path doesn't contain spaces.
 ==== Open a Visual Studio Command Prompt
 
 From the Start Menu (or Start Screen), navigate to the `Visual Studio
-2017' folder and choose the Command Prompt appropriate for
-the build you wish to make, e.g. `VS2017 x64 Native Tools Command
-Prompt' for a 64-bit version or `VS2017 x86 Native Tools Command Prompt'
-for a 32-bit version. Depending on your version of Windows the Command
-Prompt list might be directly under `Visual Studio 2017' or you might
-have to dig for it under multiple folders, e.g. `Visual Studio 2017 ->
-Visual Studio Tools -> Windows Desktop Command Prompts'.
+2017' folder and choose the Command Prompt appropriate for the build you
+wish to make, e.g. `x64 Native Tools Command Prompt for VS 2017' for a
+64-bit version or `x86 Native Tools Command Prompt for VS 2017' for a
+32-bit version.  Depending on your version of Windows the Command Prompt
+list might be directly under `Visual Studio 2017' or you might have to
+dig for it under multiple folders, e.g.  `Visual Studio 2017 -> Visual
+Studio Tools -> Windows Desktop Command Prompts'.
 
 [TIP]
 .Pin the items to the Task Bar
