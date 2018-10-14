@@ -1551,6 +1551,18 @@ NOTE: Une option DOIT être sélectionnée.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Copy from</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy coloring rules from another profile.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open </source>
+        <translation type="unfinished">Ouvrir </translation>
+    </message>
+    <message>
         <source>Double click to edit. Drag to move. Rules are processed in order until a match is found.</source>
         <translation>Double-cliquer pour éditer. Glisser pour déplacer. Les règles sont traitées dans l&apos;ordre jusqu&apos;à trouver une correspondance.</translation>
     </message>
@@ -1702,17 +1714,6 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     </message>
 </context>
 <context>
-    <name>CopyFromProfileButton</name>
-    <message>
-        <source>Copy from</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copy entries from another profile.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>DataPrinter</name>
     <message>
         <source>Copy Bytes as Hex + ASCII Dump</source>
@@ -1758,8 +1759,16 @@ NOTE: Une option DOIT être sélectionnée.</translation>
         <translation>Copier la dissection.</translation>
     </message>
     <message>
+        <source>Clear all dissection behaviors.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Decode As</source>
         <translation>Décoder comme</translation>
+    </message>
+    <message>
+        <source>Open </source>
+        <translation type="unfinished">Ouvrir </translation>
     </message>
 </context>
 <context>
@@ -2431,6 +2440,10 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     <message>
         <source>Display Filters</source>
         <translation>Filtres d&apos;affichage</translation>
+    </message>
+    <message>
+        <source>Open </source>
+        <translation type="unfinished">Ouvrir </translation>
     </message>
     <message>
         <source>New filter</source>
@@ -3453,6 +3466,14 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     <message>
         <source>Copy</source>
         <translation>Copier</translation>
+    </message>
+    <message>
+        <source>Copy from</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy graphs from another profile.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>1 ms</source>
@@ -12311,6 +12332,14 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>inconnu UAT</translation>
     </message>
     <message>
+        <source>Copy from</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy entries from another profile.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Open </source>
         <translation>Ouvrir </translation>
     </message>
@@ -12343,6 +12372,14 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Clear all entries.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy entries from another profile.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy from</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

@@ -1567,6 +1567,18 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Copy from</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy coloring rules from another profile.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open </source>
+        <translation type="unfinished">打开</translation>
+    </message>
+    <message>
         <source>Double click to edit. Drag to move. Rules are processed in order until a match is found.</source>
         <translation>双击编辑。拖拽移动。规则按顺序进行处理，直到找到一个匹配的。</translation>
     </message>
@@ -1718,17 +1730,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
 </context>
 <context>
-    <name>CopyFromProfileButton</name>
-    <message>
-        <source>Copy from</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copy entries from another profile.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>DataPrinter</name>
     <message>
         <source>Copy Bytes as Hex + ASCII Dump</source>
@@ -1774,8 +1775,16 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>复制解析行为。</translation>
     </message>
     <message>
+        <source>Clear all dissection behaviors.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Decode As</source>
         <translation>解码</translation>
+    </message>
+    <message>
+        <source>Open </source>
+        <translation type="unfinished">打开</translation>
     </message>
 </context>
 <context>
@@ -2446,6 +2455,10 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Display Filters</source>
         <translation>显示过滤器</translation>
+    </message>
+    <message>
+        <source>Open </source>
+        <translation type="unfinished">打开</translation>
     </message>
     <message>
         <source>New filter</source>
@@ -3460,6 +3473,14 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Copy</source>
         <translation>复制</translation>
+    </message>
+    <message>
+        <source>Copy from</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy graphs from another profile.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>1 ms</source>
@@ -12338,6 +12359,14 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>未知用户可访问表</translation>
     </message>
     <message>
+        <source>Copy from</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy entries from another profile.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Open </source>
         <translation>打开</translation>
     </message>
@@ -12370,6 +12399,14 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Clear all entries.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy entries from another profile.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy from</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

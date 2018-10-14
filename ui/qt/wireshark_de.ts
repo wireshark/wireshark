@@ -1527,7 +1527,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Clear all coloring rules.</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Einfärbungsregeln löschen.</translation>
     </message>
     <message>
         <source>Set the foreground color for this rule.</source>
@@ -1572,6 +1572,18 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <source>Coloring Rules %1</source>
         <translation>Einfärbungsregeln %1</translation>
+    </message>
+    <message>
+        <source>Copy from</source>
+        <translation type="unfinished">Kopieren von</translation>
+    </message>
+    <message>
+        <source>Copy coloring rules from another profile.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open </source>
+        <translation type="unfinished">Öffnen</translation>
     </message>
     <message>
         <source>Double click to edit. Drag to move. Rules are processed in order until a match is found.</source>
@@ -1728,11 +1740,11 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <name>CopyFromProfileButton</name>
     <message>
         <source>Copy from</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Kopieren von</translation>
     </message>
     <message>
         <source>Copy entries from another profile.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Einträge von einem anderen Profil kopieren.</translation>
     </message>
 </context>
 <context>
@@ -1781,8 +1793,16 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>Dieses Dissektionsverhalten kopieren.</translation>
     </message>
     <message>
+        <source>Clear all dissection behaviors.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Decode As</source>
         <translation>Dekodieren als</translation>
+    </message>
+    <message>
+        <source>Open </source>
+        <translation type="unfinished">Öffnen</translation>
     </message>
 </context>
 <context>
@@ -2456,6 +2476,10 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <source>Display Filters</source>
         <translation>Anzeigefilter</translation>
+    </message>
+    <message>
+        <source>Open </source>
+        <translation type="unfinished">Öffnen</translation>
     </message>
     <message>
         <source>New filter</source>
@@ -3229,7 +3253,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Clear all graphs.</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Graphen löschen.</translation>
     </message>
     <message>
         <source>Mouse</source>
@@ -3476,6 +3500,14 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <source>Copy</source>
         <translation>Kopieren</translation>
+    </message>
+    <message>
+        <source>Copy from</source>
+        <translation type="unfinished">Kopieren von</translation>
+    </message>
+    <message>
+        <source>Copy graphs from another profile.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>1 ms</source>
@@ -12368,6 +12400,14 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>Unbekannte User Accessible Table </translation>
     </message>
     <message>
+        <source>Copy from</source>
+        <translation type="unfinished">Kopieren von</translation>
+    </message>
+    <message>
+        <source>Copy entries from another profile.</source>
+        <translation type="unfinished">Einträge von einem anderen Profil kopieren.</translation>
+    </message>
+    <message>
         <source>Open </source>
         <translation>Öffnen</translation>
     </message>
@@ -12401,6 +12441,14 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <source>Clear all entries.</source>
         <translation>Alle Einträge löschen.</translation>
+    </message>
+    <message>
+        <source>Copy entries from another profile.</source>
+        <translation type="unfinished">Einträge von einem anderen Profil kopieren.</translation>
+    </message>
+    <message>
+        <source>Copy from</source>
+        <translation type="unfinished">Kopieren von</translation>
     </message>
     <message>
         <source>Unknown User Accessible Table</source>

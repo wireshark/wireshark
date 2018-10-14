@@ -1571,6 +1571,18 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Copy from</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy coloring rules from another profile.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Double click to edit. Drag to move. Rules are processed in order until a match is found.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1722,17 +1734,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
 </context>
 <context>
-    <name>CopyFromProfileButton</name>
-    <message>
-        <source>Copy from</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copy entries from another profile.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>DataPrinter</name>
     <message>
         <source>Copy Bytes as Hex + ASCII Dump</source>
@@ -1778,7 +1779,15 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Clear all dissection behaviors.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Decode As</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open </source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2450,6 +2459,10 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Display Filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3441,6 +3454,14 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Copy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy from</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy graphs from another profile.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -12202,6 +12223,14 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Copy from</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy entries from another profile.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Open </source>
         <translation type="unfinished"></translation>
     </message>
@@ -12234,6 +12263,14 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Clear all entries.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy entries from another profile.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy from</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

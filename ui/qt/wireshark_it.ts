@@ -1527,7 +1527,7 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
     <message>
         <source>Clear all coloring rules.</source>
-        <translation type="unfinished"></translation>
+        <translation>Cancella tutte le regole di colorazione.</translation>
     </message>
     <message>
         <source>Set the foreground color for this rule.</source>
@@ -1572,6 +1572,18 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     <message>
         <source>Coloring Rules %1</source>
         <translation>Regole di colorazione %1</translation>
+    </message>
+    <message>
+        <source>Copy from</source>
+        <translation type="unfinished">Copia da</translation>
+    </message>
+    <message>
+        <source>Copy coloring rules from another profile.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open </source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Double click to edit. Drag to move. Rules are processed in order until a match is found.</source>
@@ -1728,11 +1740,11 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     <name>CopyFromProfileButton</name>
     <message>
         <source>Copy from</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Copia da</translation>
     </message>
     <message>
         <source>Copy entries from another profile.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Copia voci da questo profilo.</translation>
     </message>
 </context>
 <context>
@@ -1781,8 +1793,16 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>Copia il comportamento di questa decodifica.</translation>
     </message>
     <message>
+        <source>Clear all dissection behaviors.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Decode As</source>
         <translation>Decodifica come</translation>
+    </message>
+    <message>
+        <source>Open </source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2456,6 +2476,10 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     <message>
         <source>Display Filters</source>
         <translation>Filtri di visualizzazione</translation>
+    </message>
+    <message>
+        <source>Open </source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>New filter</source>
@@ -3229,7 +3253,7 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
     <message>
         <source>Clear all graphs.</source>
-        <translation type="unfinished"></translation>
+        <translation>Cancella tutti i grafici.</translation>
     </message>
     <message>
         <source>Mouse</source>
@@ -3476,6 +3500,14 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     <message>
         <source>Copy</source>
         <translation>Copia</translation>
+    </message>
+    <message>
+        <source>Copy from</source>
+        <translation type="unfinished">Copia da</translation>
+    </message>
+    <message>
+        <source>Copy graphs from another profile.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>1 ms</source>
@@ -12363,6 +12395,14 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>Tabella accessibile dall&apos;utente sconosciuta</translation>
     </message>
     <message>
+        <source>Copy from</source>
+        <translation type="unfinished">Copia da</translation>
+    </message>
+    <message>
+        <source>Copy entries from another profile.</source>
+        <translation type="unfinished">Copia voci da questo profilo.</translation>
+    </message>
+    <message>
         <source>Open </source>
         <translation>Apri </translation>
     </message>
@@ -12396,6 +12436,14 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     <message>
         <source>Clear all entries.</source>
         <translation>Cancella tutte le voci.</translation>
+    </message>
+    <message>
+        <source>Copy entries from another profile.</source>
+        <translation type="unfinished">Copia voci da questo profilo.</translation>
+    </message>
+    <message>
+        <source>Copy from</source>
+        <translation type="unfinished">Copia da</translation>
     </message>
     <message>
         <source>Unknown User Accessible Table</source>

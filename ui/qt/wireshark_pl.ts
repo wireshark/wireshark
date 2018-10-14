@@ -1552,6 +1552,18 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Copy from</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy coloring rules from another profile.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open </source>
+        <translation type="unfinished">Otwórz</translation>
+    </message>
+    <message>
         <source>Double click to edit. Drag to move. Rules are processed in order until a match is found.</source>
         <translation>Kliknij podwójnie by edytować. Przeciągnij by przenieść. Reguły są przetwarzane zgodnie z kolejnością aż do znalezienia pasującej reguły.</translation>
     </message>
@@ -1703,17 +1715,6 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
 </context>
 <context>
-    <name>CopyFromProfileButton</name>
-    <message>
-        <source>Copy from</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copy entries from another profile.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>DataPrinter</name>
     <message>
         <source>Copy Bytes as Hex + ASCII Dump</source>
@@ -1759,8 +1760,16 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
         <translation>Kopiuj regułę.</translation>
     </message>
     <message>
+        <source>Clear all dissection behaviors.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Decode As</source>
         <translation>Dekoduj jako</translation>
+    </message>
+    <message>
+        <source>Open </source>
+        <translation type="unfinished">Otwórz</translation>
     </message>
 </context>
 <context>
@@ -2433,6 +2442,10 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <message>
         <source>Display Filters</source>
         <translation>Filtry wyświetlania</translation>
+    </message>
+    <message>
+        <source>Open </source>
+        <translation type="unfinished">Otwórz</translation>
     </message>
     <message>
         <source>New filter</source>
@@ -3452,6 +3465,14 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <message>
         <source>Copy</source>
         <translation>Kopiuj</translation>
+    </message>
+    <message>
+        <source>Copy from</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy graphs from another profile.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>1 ms</source>
@@ -12347,6 +12368,14 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
         <translation>Nieznana Tabela Użytkownika</translation>
     </message>
     <message>
+        <source>Copy from</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy entries from another profile.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Open </source>
         <translation>Otwórz</translation>
     </message>
@@ -12380,6 +12409,14 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <message>
         <source>Clear all entries.</source>
         <translation>Usuń wszystkie wpisy.</translation>
+    </message>
+    <message>
+        <source>Copy entries from another profile.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy from</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unknown User Accessible Table</source>
