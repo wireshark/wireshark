@@ -568,6 +568,21 @@ ws_read_string_from_pipe(ws_pipe_handle read_pipe, gchar *buffer,
 #else
         /*
          * Check if data is available before doing a blocking I/O read.
+         *
+         * XXX - this means that if part of the string, but not all of
+         * the string, has been written to the pipe, this will just
+         * return, as the string, the part that's been written as of
+         * this point.
+         *
+         * Pipes, on UN*X, are like TCP connections - there are *no*
+         * message boundaries, they're just byte streams.  Either 1)
+         * precisely *one* string can be sent on this pipe, and the
+         * sending side must be closed after the string is written to
+         * the pipe, so that an EOF indicates the end of the string
+         * or 2) the strings must either be preceded by a length indication
+         * or must be terminated with an end-of-string indication (such
+         * as a '\0'), so that we can determine when one string ends and
+         * another string begins.
          */
         if (!ws_pipe_data_available(read_pipe)) {
             ret = TRUE;
