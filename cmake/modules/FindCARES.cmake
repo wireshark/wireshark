@@ -17,6 +17,16 @@ ENDIF (CARES_INCLUDE_DIRS)
 INCLUDE(FindWSWinLibs)
 FindWSWinLibs("c-ares-.*" "CARES_HINTS")
 
+if (NOT WIN32)
+  find_package(PkgConfig)
+
+  if( CARES_OPTIONS )
+    pkg_search_module( CARES c-ares>=${CARES_OPTIONS} )
+  else()
+    pkg_search_module( CARES c-ares )
+  endif()
+endif()
+
 FIND_PATH(CARES_INCLUDE_DIR ares.h HINTS "${CARES_HINTS}/include" )
 
 SET(CARES_NAMES cares libcares-2)
