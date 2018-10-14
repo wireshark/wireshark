@@ -17,6 +17,7 @@
 
 #include <glib.h>
 
+#include <epan/expert.h>
 #include <epan/packet.h>
 #include <wsutil/base32.h>
 
@@ -42,6 +43,7 @@ static int hf_fc00_authenticator    = -1;
 static int hf_fc00_temp_publicy_key = -1;
 static int hf_fc00_payload          = -1;
 
+static expert_field ei_fc00_chksum_unsupported = EI_INIT;
 
 /* Cjdns constants */
 #define SESSION_STATE_OFF 0
@@ -121,6 +123,7 @@ dissect_cryptoauth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     proto_tree_add_item(fc00_tree, hf_fc00_random_nonce, tvb,
             NONCE_OFF, NONCE_LEN, ENC_NA);
 
+#if GLIB_CHECK_VERSION(2, 36, 0)  /* sha512 support was added in glib 2.36 */
     if (fc00_tree)
     {
         GChecksum *hash  = g_checksum_new(G_CHECKSUM_SHA512);
@@ -150,6 +153,9 @@ dissect_cryptoauth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
         proto_tree_add_ipv6(key_tree, hf_fc00_ip_address, tvb, PUBLIC_KEY_OFF, PUBLIC_KEY_LEN, (ws_in6_addr*)ip_buf);
     }
+#else
+    proto_tree_add_expert(fc00_tree, pinfo, &ei_fc00_chksum_unsupported, tvb, PUBLIC_KEY_OFF, PUBLIC_KEY_LEN);
+#endif
 
     proto_tree_add_item(fc00_tree, hf_fc00_authenticator, tvb,
             POLY_AUTH_OFF, POLY_AUTH_LEN, ENC_NA);
@@ -257,17 +263,27 @@ proto_register_fc00(void)
         }
     };
 
+    static ei_register_info ei[] = {
+        { &ei_fc00_chksum_unsupported,
+            { "fc00.chksum_unsupported", PI_DECRYPTION, PI_NOTE,
+                "checksum calculation is not supported",
+                EXPFILL }}
+    };
+
     static gint *ett[] = {
         &ett_fc00,
         &ett_fc00_auth,
         &ett_fc00_key
     };
 
+    expert_module_t *expert_fc00;
 
     proto_fc00 = proto_register_protocol("Fc00 CryptoAuth", "Fc00", "fc00");
 
     proto_register_field_array(proto_fc00, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_fc00 = expert_register_protocol(proto_fc00);
+    expert_register_field_array(expert_fc00, ei, array_length(ei));
 }
 
 void
