@@ -1088,6 +1088,16 @@ void extcap_if_cleanup(capture_options *capture_opts, gchar **errormsg)
             interface_opts->extcap_child_watch = 0;
         }
 
+        if (pipedata->stdout_fd > 0)
+        {
+            ws_close(pipedata->stdout_fd);
+        }
+
+        if (pipedata->stderr_fd > 0)
+        {
+            ws_close(pipedata->stderr_fd);
+        }
+
         if (interface_opts->extcap_pid != WS_INVALID_PID)
         {
 #ifdef _WIN32
