@@ -264,6 +264,14 @@ class SubprocessTestCase(unittest.TestCase):
 
         You typically wait for it using waitProcess() or assertWaitProcess().'''
         if env is None:
+            # Apply default test environment if no override is provided.
+            env = getattr(self, 'injected_test_env', None)
+            # Not all tests need test_env, but those that use runProcess or
+            # startProcess must either pass an explicit environment or load the
+            # fixture (via a test method parameter or class decorator).
+            assert not (env is None and hasattr(self, '_fixture_request')), \
+                "Decorate class with @fixtures.mark_usefixtures('test_env')"
+        if env is None:
             # Avoid using the test user's real environment by default.
             env = config.test_env
         proc = LoggingPopen(proc_args, stdin=stdin, env=env, shell=shell, log_fd=self.log_fd)

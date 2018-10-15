@@ -10,8 +10,8 @@
 
 import os
 import sys
+import fixtures
 import config
-
 
 # XXX remove globals in config and create py.test-specific fixtures
 try:
@@ -32,3 +32,7 @@ def pytest_collection_modifyitems(items):
         if name not in suites:
             suites.append(name)
     config.all_groups = list(sorted(suites))
+
+# Must enable pytest before importing fixtures_ws.
+fixtures.enable_pytest()
+from fixtures_ws import *

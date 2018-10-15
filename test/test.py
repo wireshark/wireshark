@@ -21,6 +21,8 @@ import config
 import os.path
 import sys
 import unittest
+# Required to make fixtures available to tests!
+import fixtures_ws
 
 def find_test_ids(suite, all_ids):
     if hasattr(suite, '__iter__'):
@@ -139,7 +141,13 @@ def main():
 
     run_suite = unittest.defaultTestLoader.loadTestsFromNames(run_ids)
     runner = unittest.TextTestRunner(verbosity=args.verbose)
-    test_result = runner.run(run_suite)
+    # for unittest compatibility (not needed with pytest)
+    fixtures_ws.fixtures.create_session()
+    try:
+        test_result = runner.run(run_suite)
+    finally:
+        # for unittest compatibility (not needed with pytest)
+        fixtures_ws.fixtures.destroy_session()
 
     dump_failed_output(run_suite)
 

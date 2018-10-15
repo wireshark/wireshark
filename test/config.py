@@ -211,18 +211,14 @@ def setUpTestEnvironment():
         'ikev2_decryption_table',
     ]
     for uat in uat_files:
-        setUpUatFile(uat)
+        setUpUatFile(conf_path, uat)
 
     # Set up our environment
     test_env = baseEnv(home=home_path)
     test_env['WIRESHARK_RUN_FROM_BUILD_DIRECTORY'] = 'True'
     test_env['WIRESHARK_QUIT_AFTER_CAPTURE'] = 'True'
 
-def setUpUatFile(conf_file):
-    global home_path
-    global conf_path
-    if home_path is None or conf_path is None:
-        setUpTestEnvironment()
+def setUpUatFile(conf_path, conf_file):
     template = os.path.join(os.path.dirname(__file__), 'config', conf_file) + '.tmpl'
     with open(template, 'r') as tplt_fd:
         tplt_contents = tplt_fd.read()
