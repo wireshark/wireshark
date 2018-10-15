@@ -580,7 +580,6 @@ ws_read_string_from_pipe(ws_pipe_handle read_pipe, gchar *buffer,
          * Check if data is available before doing a blocking I/O read.
          */
         if (!ws_pipe_data_available(read_pipe)) {
-            ret = TRUE;
             break;
         }
 
