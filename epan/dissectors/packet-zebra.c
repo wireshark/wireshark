@@ -2187,11 +2187,11 @@ proto_register_zebra(void)
 		{ &hf_zebra_maclen,
 		  { "MAC address length", "zebra.maclen",
 		    FT_UINT32, BASE_DEC, NULL, 0x0,
-		    "Lenght of MAC address of interface", HFILL }},
+		    "Length of MAC address of interface", HFILL }},
 		{ &hf_zebra_haslinkparam,
 		  { "Message has link parameters", "zebra.haslinkparam",
 		    FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-		    "Interface message has link paramters", HFILL }},
+		    "Interface message has link parameters", HFILL }},
 		/* FRRouting, Zebra API v4 and v5*/
 		{ &hf_zebra_command_v4,
 		  { "Command",		"zebra.command",
