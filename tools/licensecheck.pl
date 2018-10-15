@@ -850,11 +850,9 @@ sub parselicense {
 		}
 
 		if ($licensetext =~ /SPDX-License-Identifier:\s+\(([a-zA-Z0-9-\.]+)\s+OR\s+([a-zA-Z0-9-\.]+)\)/i) {
-		  # print STDERR "OK ---$1---$2---";
-			# print "PIPPO " . parselicense("SPDX-License-Identifier: $1") . " E " . parselicense("SPDX-License-Identifier: $2");
-			if ($1 and $2) {
-				$license = parselicense("SPDX-License-Identifier: $1") . " " . parselicense("SPDX-License-Identifier: $2");
-			}
+			my $license1 = $1;
+			my $license2 = $2;
+			$license = parselicense("SPDX-License-Identifier: $license1") . ";" . parselicense("SPDX-License-Identifier: $license2");
 		}
 
 		$license = "UNKNOWN" if (!length($license));
