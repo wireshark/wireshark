@@ -37,8 +37,7 @@ typedef struct mac_nr_info
     guint16         rnti;
     guint16         ueid;
 
-    /* Will these be include in the ME PHR report? */
-    guint8          phr_type2_pcell;
+    /* Will these be included in the ME PHR report? */
     guint8          phr_type2_othercell;
 
     /* Timing info */
@@ -97,10 +96,7 @@ void set_mac_nr_proto_data(packet_info *pinfo, mac_nr_info *p_mac_nr_info);
 #define MAC_NR_FRAME_SUBFRAME_TAG      0x04
 /* 2 bytes, network order, SFN is stored in 12 MSB and SF in 4 LSB */
 
-#define MAC_NR_PHR_TYPE2_PCELL_TAG     0x05
-/* 1 byte, TRUE/FALSE */
-
-#define MAC_NR_PHR_TYPE2_OTHERCELL_TAG 0x06
+#define MAC_NR_PHR_TYPE2_OTHERCELL_TAG 0x05
 /* 1 byte, TRUE/FALSE */
 
 

@@ -42,7 +42,6 @@ static int hf_mac_nr_context_rnti = -1;
 static int hf_mac_nr_context_rnti_type = -1;
 static int hf_mac_nr_context_ueid = -1;
 static int hf_mac_nr_context_bcch_transport_channel = -1;
-static int hf_mac_nr_context_phr_type2_pcell = -1;
 static int hf_mac_nr_context_phr_type2_othercell = -1;
 
 
@@ -104,9 +103,8 @@ static int hf_mac_nr_control_me_phr_entry = -1;
 static int hf_mac_nr_control_me_phr_p = -1;
 static int hf_mac_nr_control_me_phr_v = -1;
 static int hf_mac_nr_control_me_phr_reserved_2 = -1;
-static int hf_mac_nr_control_me_phr_ph_type2_pcell = -1;
-static int hf_mac_nr_control_me_phr_ph_type2_pscell_or_pucch_scell = -1;
-static int hf_mac_nr_control_me_phr_ph_typex_pcell = -1;
+static int hf_mac_nr_control_me_phr_ph_type2_spcell = -1;
+static int hf_mac_nr_control_me_phr_ph_type1_pcell = -1;
 static int hf_mac_nr_control_me_phr_ph_c31 = -1;
 static int hf_mac_nr_control_me_phr_ph_c30 = -1;
 static int hf_mac_nr_control_me_phr_ph_c29 = -1;
@@ -1775,16 +1773,12 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         /* PCell entries */
                         guint32 PH;
                         proto_item *entry_ti;
-                        if (p_mac_nr_info->phr_type2_pcell) {
-                             entry_ti = dissect_me_phr_ph(tvb, pinfo, subheader_ti, &hf_mac_nr_control_me_phr_ph_type2_pcell, &PH, &offset);
-                            proto_item_append_text(entry_ti, " (Type 2 PCell PH=%u)", PH);
-                        }
                         if (p_mac_nr_info->phr_type2_othercell) {
-                            entry_ti = dissect_me_phr_ph(tvb, pinfo, subheader_ti, &hf_mac_nr_control_me_phr_ph_type2_pscell_or_pucch_scell, &PH, &offset);
-                            proto_item_append_text(entry_ti, " (Type2, PSCell or PUCCH SCell PH=%u)", PH);
+                            entry_ti = dissect_me_phr_ph(tvb, pinfo, subheader_ti, &hf_mac_nr_control_me_phr_ph_type2_spcell, &PH, &offset);
+                            proto_item_append_text(entry_ti, " (Type2, SpCell PH=%u)", PH);
                         }
-                        entry_ti = dissect_me_phr_ph(tvb, pinfo, subheader_ti, &hf_mac_nr_control_me_phr_ph_typex_pcell, &PH, &offset);
-                        proto_item_append_text(entry_ti, " (TypeX, PCell PH=%u)", PH);
+                        entry_ti = dissect_me_phr_ph(tvb, pinfo, subheader_ti, &hf_mac_nr_control_me_phr_ph_type1_pcell, &PH, &offset);
+                        proto_item_append_text(entry_ti, " (Type1, PCell PH=%u)", PH);
 
 
                         /* SCell entries */
@@ -2429,11 +2423,6 @@ static int dissect_mac_nr(tvbuff_t *tvb, packet_info *pinfo,
         PROTO_ITEM_SET_GENERATED(ti);
     }
 
-    /* Type 2 PCell */
-    ti = proto_tree_add_boolean(context_tree,  hf_mac_nr_context_phr_type2_pcell,
-                                tvb, 0, 0, p_mac_nr_info->phr_type2_pcell);
-    PROTO_ITEM_SET_GENERATED(ti);
-
     /* Type 2 other */
     ti = proto_tree_add_boolean(context_tree, hf_mac_nr_context_phr_type2_othercell,
                                 tvb, 0, 0, p_mac_nr_info->phr_type2_othercell);
@@ -2531,10 +2520,6 @@ static gboolean dissect_mac_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
                     p_mac_nr_info->sysframeNumber = tvb_get_bits16(tvb, offset<<3, 12, ENC_BIG_ENDIAN);
                     p_mac_nr_info->subframeNumber = tvb_get_bits8(tvb, ((offset+1)<<3)+4, 4);
                     offset += 2;
-                    break;
-                case MAC_NR_PHR_TYPE2_PCELL_TAG:
-                    p_mac_nr_info->phr_type2_pcell = tvb_get_guint8(tvb, offset);
-                    offset++;
                     break;
                 case MAC_NR_PHR_TYPE2_OTHERCELL_TAG:
                     p_mac_nr_info->phr_type2_othercell = tvb_get_guint8(tvb, offset);
@@ -2652,12 +2637,6 @@ void proto_register_mac_nr(void)
             { "Transport channel",
               "mac-nr.bcch-transport-channel", FT_UINT8, BASE_DEC, VALS(bcch_transport_channel_vals), 0x0,
               "Transport channel BCCH data was carried on", HFILL
-            }
-        },
-        { &hf_mac_nr_context_phr_type2_pcell,
-            { "PHR Type2 PCell PHR",
-              "mac-nr.type2-pcell", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-              NULL, HFILL
             }
         },
         { &hf_mac_nr_context_phr_type2_othercell,
@@ -3128,21 +3107,15 @@ void proto_register_mac_nr(void)
               NULL, HFILL
             }
         },
-        { &hf_mac_nr_control_me_phr_ph_type2_pcell,
-            { "Power Headroom (Type2, PCell)",
-              "mac-nr.control.me-phr.ph.type2-pcell", FT_UINT8, BASE_DEC, NULL, 0x3f,
-              NULL, HFILL
-            }
-        },
-        { &hf_mac_nr_control_me_phr_ph_type2_pscell_or_pucch_scell,
-            { "Power Headroom, (Type2, PSCell or PUCCH SCell)",
+        { &hf_mac_nr_control_me_phr_ph_type2_spcell,
+            { "Power Headroom, (Type2, SpCell)",
               "mac-nr.control.me-phr.ph", FT_UINT8, BASE_DEC, NULL, 0x3f,
               NULL, HFILL
             }
         },
-        { &hf_mac_nr_control_me_phr_ph_typex_pcell,
-            { "Power Headroom (TypeX, PCell)",
-              "mac-nr.control.me-phr.ph.typex-pcell", FT_UINT8, BASE_DEC, NULL, 0x3f,
+        { &hf_mac_nr_control_me_phr_ph_type1_pcell,
+            { "Power Headroom (Type1, PCell)",
+              "mac-nr.control.me-phr.ph.type1-pcell", FT_UINT8, BASE_DEC, NULL, 0x3f,
               NULL, HFILL
             }
         },
