@@ -268,6 +268,36 @@ if(APPLE AND EXISTS /usr/local/opt/qt5)
 	set (QT_FIND_PACKAGE_OPTIONS PATHS /usr/local/opt/qt5)
 endif()
 
+set(OSS_FUZZ OFF CACHE BOOL "Whether building for oss-fuzz")
+mark_as_advanced(OSS_FUZZ)
+if(OSS_FUZZ)
+	if(ENABLE_FUZZER)
+		# In oss-fuzz mode, the fuzzing engine can be afl or libFuzzer.
+		message(FATAL_ERROR "Cannot force libFuzzer when using oss-fuzz")
+	endif()
+	# Must not depend on external dependencies so statically link all libs.
+	set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+endif()
+
+#
+# Linking can consume a lot of memory, especially when built with ASAN and
+# static libraries (like oss-fuzz) or Debug mode. With Ninja, the number of
+# parallel linker processes is constrained by job parallelism (-j), but this can
+# be reduced further by setting "job pools" to a lower number.
+#
+if(CMAKE_MAKE_PROGRAM MATCHES "ninja" AND OSS_FUZZ)
+	# Assume oss-fuzz linker jobs do not require more than 1.2G per task
+	set(per_job_memory_mb 1200)
+	cmake_host_system_information(RESULT total_memory_mb QUERY TOTAL_PHYSICAL_MEMORY)
+	math(EXPR parallel_link_jobs "${total_memory_mb} / ${per_job_memory_mb}")
+	if(parallel_link_jobs LESS 1)
+		set(parallel_link_jobs 1)
+	endif()
+	set_property(GLOBAL APPEND PROPERTY JOB_POOLS link_job_pool=${parallel_link_jobs})
+	set(CMAKE_JOB_POOL_LINK link_job_pool)
+	message(STATUS "Ninja job pool size: ${parallel_link_jobs}")
+endif()
+
 # Always enable position-independent code when compiling, even for
 # executables, so you can build position-independent executables.
 # -pie is added below for non-MSVC.
@@ -730,6 +760,21 @@ if(ENABLE_UBSAN)
 	endif()
 	set(CMAKE_C_FLAGS "-fsanitize=undefined ${CMAKE_C_FLAGS}")
 	set(CMAKE_CXX_FLAGS "-fsanitize=undefined ${CMAKE_CXX_FLAGS}")
+endif()
+
+if(ENABLE_FUZZER)
+	# Available since Clang >= 6
+	# Will enable coverage flags which can be used by the fuzzshark target.
+	cmake_push_check_state()
+	set(CMAKE_REQUIRED_LIBRARIES "-fsanitize=fuzzer-no-link")
+	check_c_compiler_flag(-fsanitize=fuzzer C__fsanitize_fuzzer_no_link_VALID)
+	check_cxx_compiler_flag(-fsanitize=fuzzer CXX__fsanitize_fuzzer_no_link_VALID)
+	cmake_pop_check_state()
+	if(NOT C__fsanitize_fuzzer_no_link_VALID OR NOT CXX__fsanitize_fuzzer_no_link_VALID)
+		message(FATAL_ERROR "ENABLE_FUZZER was requested, but not supported!")
+	endif()
+	set(CMAKE_C_FLAGS "-fsanitize=fuzzer-no-link ${CMAKE_C_FLAGS}")
+	set(CMAKE_CXX_FLAGS "-fsanitize=fuzzer-no-link ${CMAKE_CXX_FLAGS}")
 endif()
 
 set(WERROR_COMMON_FLAGS "")
@@ -2351,20 +2396,8 @@ if(BUILD_randpkt)
 	install(TARGETS randpkt RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
-if(BUILD_fuzzshark)
-	set(fuzzshark_LIBS
-		wiretap
-		${LIBEPAN_LIBS}
-	)
-	set(fuzzshark_FILES
-		tools/oss-fuzzshark/fuzzshark.c
-		tools/oss-fuzzshark/StandaloneFuzzTargetMain.c
-		version_info.c
-	)
-	add_executable(fuzzshark ${fuzzshark_FILES})
-	add_dependencies(fuzzshark version)
-	set_extra_executable_properties(fuzzshark "Executables")
-	target_link_libraries(fuzzshark ${fuzzshark_LIBS})
+if(BUILD_fuzzshark OR ENABLE_FUZZER OR OSS_FUZZ)
+	add_subdirectory(fuzz)
 endif()
 
 if(BUILD_text2pcap)
