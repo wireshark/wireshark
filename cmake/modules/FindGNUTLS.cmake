@@ -19,12 +19,7 @@ FindWSWinLibs("gnutls-.*" "GNUTLS_HINTS")
 
 if (NOT WIN32)
   find_package(PkgConfig)
-
-  if( GNUTLS_OPTIONS )
-    pkg_search_module( GNUTLS gnutls>=${GNUTLS_OPTIONS} )
-  else()
-    pkg_search_module( GNUTLS gnutls )
-  endif()
+  pkg_search_module(GNUTLS gnutls)
 endif()
 
 # sources include gnutls/gnutls.h, look for that location instead of gnutls.h.
