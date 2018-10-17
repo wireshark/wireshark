@@ -115,6 +115,7 @@ static gboolean wlan_ignore_draft_ht = FALSE;
 static gint wlan_ignore_prot = WLAN_IGNORE_PROT_NO;
 
 /* The Key MIC len has been set by the user */
+static gboolean wlan_key_mic_len_enable = FALSE;
 static guint wlan_key_mic_len = 0;
 
 /* Table for reassembly of fragments. */
@@ -503,6 +504,11 @@ typedef struct mimo_control
 #define TAG_OPERATING_MODE_NOTIFICATION 199  /* IEEE Std 802.11ac */
 #define TAG_TWT                      216  /* IEEE Std 802.11ah */
 #define TAG_VENDOR_SPECIFIC_IE       221
+#define TAG_CAG_NUMBER               237  /* IEEE Std 802.11ai */
+#define TAG_AP_CSN                   239  /* IEEE Std 802.11ai */
+#define TAG_FILS_INDICATION          240  /* IEEE Std 802.11ai */
+#define TAG_DIFF_INITIAL_LINK_SETUP  241  /* IEEE Std 802.11ai */
+#define TAG_FRAGMENT                 242  /* IEEE Std 802.11ai */
 #define TAG_ELEMENT_ID_EXTENSION     255  /* IEEE Std 802.11ai */
 
 static const value_string tag_num_vals[] = {
@@ -672,6 +678,11 @@ static const value_string tag_num_vals[] = {
   { TAG_OPERATING_MODE_NOTIFICATION,          "Operating Mode Notification" },
   { TAG_TWT,                                  "Target Wake Time" },
   { TAG_VENDOR_SPECIFIC_IE,                   "Vendor Specific" },
+  { TAG_CAG_NUMBER,                           "CAG Number"},
+  { TAG_AP_CSN,                               "AP-CSN"},
+  { TAG_FILS_INDICATION,                      "FILS Indication"},
+  { TAG_DIFF_INITIAL_LINK_SETUP,              "Differential Initial Link Setup"},
+  { TAG_FRAGMENT,                             "Fragment"},
   { TAG_ELEMENT_ID_EXTENSION,                 "Element ID Extension" },
   { 0, NULL }
 };
@@ -984,6 +995,8 @@ static const value_string ieee80211_status_code[] = {
   { 105, "Enablement denied" },
   { 106, "Enablement denied due to restriction from an authorized GDB" },
   { 107, "Authorization deenabled" },
+  { 112, "Authentication rejected due to FILS authentication failure" },
+  { 113, "Authentication rejected due to unknown Authentication Server" },
   { 0,    NULL}
 };
 static value_string_ext ieee80211_status_code_ext = VALUE_STRING_EXT_INIT(ieee80211_status_code);
@@ -1148,6 +1161,7 @@ static value_string_ext aruba_mgt_typevals_ext = VALUE_STRING_EXT_INIT(aruba_mgt
 #define CAT_UNPROTECTED_DMG       20
 #define CAT_VHT                   21
 #define CAT_S1G                   22
+#define CAT_FILS                  26
 #define CAT_HE                    30
 #define CAT_PROTECTED_HE          31
 #define CAT_VENDOR_SPECIFIC_PROTECTED 126
@@ -1345,6 +1359,10 @@ static value_string_ext aruba_mgt_typevals_ext = VALUE_STRING_EXT_INIT(aruba_mgt
 #define ANQP_INFO_TDLS_CAPAB_INFO                270
 #define ANQP_INFO_EMERGENCY_NAI                  271
 #define ANQP_INFO_NEIGHBOR_REPORT                272
+#define ANQP_INFO_QUERY_AP_LIST                  273
+#define ANQP_INFO_AP_LIST_RESPONSE               274
+#define ANQP_INFO_FILS_REALM_INFO                275
+#define ANQP_INFO_CAG                            276
 #define ANQP_INFO_VENUE_URL                      277
 #define ANQP_INFO_ADVICE_OF_CHARGE               278
 #define ANQP_INFO_LOCAL_CONTENT                  279
@@ -1371,6 +1389,10 @@ static const value_string anqp_info_id_vals[] = {
   {ANQP_INFO_TDLS_CAPAB_INFO, "TDLS Capability information"},
   {ANQP_INFO_EMERGENCY_NAI, "Emergency NAI"},
   {ANQP_INFO_NEIGHBOR_REPORT, "Neighbor Report"},
+  {ANQP_INFO_QUERY_AP_LIST, "Query AP List"},
+  {ANQP_INFO_AP_LIST_RESPONSE, "AP List Response"},
+  {ANQP_INFO_FILS_REALM_INFO, "FILS Realm Info"},
+  {ANQP_INFO_CAG, "CAG"},
   {ANQP_INFO_VENUE_URL, "Venue URL"},
   {ANQP_INFO_ADVICE_OF_CHARGE, "Advice of Charge"},
   {ANQP_INFO_LOCAL_CONTENT, "Local Content"},
@@ -1756,16 +1778,24 @@ static const value_string ap_cf_pollable[] = {
   {0, NULL}
 };
 
+#define AUTH_ALG_OPEN                   0
+#define AUTH_ALG_SHARED                 1
+#define AUTH_ALG_FAST_BSS_TRANS         2
+#define AUTH_ALG_SAE                    3
+#define AUTH_ALG_FILS_SK_WITHOUT_PFS    4
+#define AUTH_ALG_FILS_SK_WITH_PFS       5
+#define AUTH_ALG_FILS_PK                6
+#define AUTH_ALG_NETWORK_EAP         0x80
 
 static const value_string auth_alg[] = {
-  {0x00, "Open System"},
-  {0x01, "Shared key"},
-  {0x02, "Fast BSS Transition"},
-  {0x03, "Simultaneous Authentication of Equals (SAE)"},
-  {0x04, "FILS Shared Key authentication without PFS"},
-  {0x05, "FILS Shared Key authentication with PFS"},
-  {0x06, "FILS Public Key authentication"},
-  {0x80, "Network EAP"},  /* Cisco proprietary? */
+  {AUTH_ALG_OPEN,                "Open System"},
+  {AUTH_ALG_SHARED,              "Shared key"},
+  {AUTH_ALG_FAST_BSS_TRANS,      "Fast BSS Transition"},
+  {AUTH_ALG_SAE,                 "Simultaneous Authentication of Equals (SAE)"},
+  {AUTH_ALG_FILS_SK_WITHOUT_PFS, "FILS Shared Key authentication without PFS"},
+  {AUTH_ALG_FILS_SK_WITH_PFS,    "FILS Shared Key authentication with PFS"},
+  {AUTH_ALG_FILS_PK,             "FILS Public Key authentication"},
+  {AUTH_ALG_NETWORK_EAP,         "Network EAP"},  /* Cisco proprietary? */
   {0, NULL}
 };
 
@@ -2045,6 +2075,7 @@ static const value_string category_codes[] = {
   {CAT_UNPROTECTED_DMG,                  "Unprotected DMG"},
   {CAT_VHT,                              "VHT"},
   {CAT_S1G,                              "S1G"},
+  {CAT_FILS,                             "FILS"},
   {CAT_HE,                               "HE"},
   {CAT_PROTECTED_HE,                     "Protected HE"},
   {CAT_VENDOR_SPECIFIC_PROTECTED,        "Vendor-specific Protected"},
@@ -5381,10 +5412,29 @@ static int hf_ieee80211_estimated_service_params = -1;
 static int hf_ieee80211_fcg_new_channel_number = -1;
 static int hf_ieee80211_fcg_extra_info = -1;
 
+static int hf_ieee80211_tag_fils_indication_info_nr_pk = -1;
+static int hf_ieee80211_tag_fils_indication_info_nr_realm = -1;
+static int hf_ieee80211_tag_fils_indication_info_ip_config = -1;
+static int hf_ieee80211_tag_fils_indication_info_cache_id_included = -1;
+static int hf_ieee80211_tag_fils_indication_info_hessid_included = -1;
+static int hf_ieee80211_tag_fils_indication_info_ska_without_pfs = -1;
+static int hf_ieee80211_tag_fils_indication_info_ska_with_pfs = -1;
+static int hf_ieee80211_tag_fils_indication_info_pka = -1;
+static int hf_ieee80211_tag_fils_indication_info_reserved = -1;
+static int hf_ieee80211_tag_fils_indication_cache_identifier = -1;
+static int hf_ieee80211_tag_fils_indication_hessid = -1;
+static int hf_ieee80211_tag_fils_indication_realm_list = -1;
+static int hf_ieee80211_tag_fils_indication_realm_identifier = -1;
+static int hf_ieee80211_tag_fils_indication_public_key_list = -1;
+static int hf_ieee80211_tag_fils_indication_public_key_type = -1;
+static int hf_ieee80211_tag_fils_indication_public_key_length = -1;
+static int hf_ieee80211_tag_fils_indication_public_key_indicator = -1;
+
 static int hf_ieee80211_ext_tag = -1;
 static int hf_ieee80211_ext_tag_number = -1;
 static int hf_ieee80211_ext_tag_length = -1;
 static int hf_ieee80211_fils_session = -1;
+static int hf_ieee80211_fils_encrypted_data = -1;
 static int hf_ieee80211_fils_wrapped_data = -1;
 static int hf_ieee80211_fils_nonce = -1;
 
@@ -5992,6 +6042,10 @@ static gint ett_he_ndp_annc = -1;
 static gint ett_he_ndp_annc_sta_list = -1;
 static gint ett_he_ndp_annc_sta_item = -1;
 static gint ett_he_ndp_annc_sta_info = -1;
+
+/* 802.11ai trees */
+static gint ett_fils_indication_realm_list = -1;
+static gint ett_fils_indication_public_key_list = -1;
 
 static const fragment_items frag_items = {
   &ett_fragment,
@@ -9873,25 +9927,119 @@ add_ff_s1g_action(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int o
   return 1;
 }
 
+static guint get_group_element_len(guint group) {
+  switch (group) {
+    /* Diffie-Hellman groups */
+    case 1:
+      return 96;
+    case 2:
+    case 22:
+      return 128;
+    case 5:
+      return 192;
+    case 14:
+    case 23:
+    case 24:
+      return 256;
+    case 15:
+      return 384;
+    case 16:
+      return 512;
+    case 17:
+      return 768;
+    case 18:
+      return 1024;
+    /* ECC groups */
+    case 19:
+    case 28:
+      return 64;
+    case 20:
+    case 29:
+      return 96;
+    case 21:
+      return 132;
+    case 25:
+      return 48;
+    case 26:
+      return 56;
+    case 30:
+      return 128;
+    default:
+      return 0;
+  }
+}
+
+static guint get_scalar_len(guint group) {
+  switch (group) {
+    /* Diffie-Hellman groups */
+    case 1:
+      return 96;
+    case 2:
+      return 128;
+    case 5:
+      return 192;
+    case 14:
+      return 256;
+    case 15:
+      return 384;
+    case 16:
+      return 512;
+    case 17:
+      return 768;
+    case 18:
+      return 1024;
+    case 22:
+      return 20;
+    case 23:
+      return 28;
+    case 24:
+      return 32;
+    /* ECC groups */
+    case 19:
+    case 28:
+      return 32;
+    case 20:
+    case 29:
+      return 48;
+    case 21:
+      return 66;
+    case 25:
+      return 24;
+    case 26:
+      return 28;
+    case 30:
+      return 64;
+    default:
+      return 0;
+  }
+}
+
 static guint
-get_ff_auth_sae_len(tvbuff_t *tvb)
+get_ff_auth_len(tvbuff_t *tvb)
 {
   guint alg, seq, status_code;
   alg = tvb_get_letohs(tvb, 0);
-
-  /* SAE authentication is alg 3 (cf auth_alg) */
-  if (alg != 3)
-    return 0;
-
   seq = tvb_get_letohs(tvb, 2);
   status_code = tvb_get_letohs(tvb, 4);
 
-  /* 82: Rejected with Suggested BSS Transition (cf ieee80211_status_code) */
-  if ((seq == 2) && (status_code == 82))
-    return 0;
+  if (alg == AUTH_ALG_SAE) {
+    /* 82: Rejected with Suggested BSS Transition (cf ieee80211_status_code) */
+    if ((seq == 2) && (status_code == 82))
+      return 0;
 
-  /* everything is fixed size fields */
-  return tvb_reported_length_remaining(tvb, 6);
+    /* everything is fixed size fields */
+    return tvb_reported_length_remaining(tvb, 6);
+  } else if ((alg == AUTH_ALG_FILS_SK_WITH_PFS) || (alg == AUTH_ALG_FILS_PK)) {
+    if ((seq ==2) && (status_code != 0))
+      return 0;
+
+    guint group = tvb_get_letohs(tvb, 6);
+    guint elt_len = get_group_element_len(group);
+
+    return 2 + elt_len;
+  } else {
+    return 0;
+  }
 }
 
 static const value_string ff_sae_message_type_vals[] = {
@@ -9906,8 +10054,7 @@ add_ff_auth_sae(proto_tree *tree, tvbuff_t *tvb)
   guint alg, seq, status_code, len;
   alg = tvb_get_letohs(tvb, 0);
 
-  /* SAE authentication is alg 3 (cf auth_alg) */
-  if (alg != 3)
+  if (alg != AUTH_ALG_SAE)
     return;
 
   seq = tvb_get_letohs(tvb, 2);
@@ -9934,84 +10081,20 @@ add_ff_auth_sae(proto_tree *tree, tvbuff_t *tvb)
                           ENC_LITTLE_ENDIAN);
       offset = 8;
       len = tvb_reported_length_remaining(tvb, offset);
-      switch (group)
-      {
-        /* Diffie-Hellman groups */
-        case 1:
-          sc_len = elt_len = 96;
-          break;
-        case 2:
-          sc_len = elt_len = 128;
-          break;
-        case 5:
-          sc_len = elt_len = 192;
-          break;
-        case 14:
-          sc_len = elt_len = 256;
-          break;
-        case 15:
-          sc_len = elt_len = 384;
-          break;
-        case 16:
-          sc_len = elt_len = 512;
-          break;
-        case 17:
-          sc_len = elt_len = 768;
-          break;
-        case 18:
-          sc_len = elt_len = 1024;
-          break;
-        case 22:
-          sc_len = 20;
-          elt_len = 128;
-          break;
-        case 23:
-          sc_len = 28;
-          elt_len = 256;
-          break;
-        case 24:
-          sc_len = 32;
-          elt_len = 256;
-          break;
-        /* ECC groups */
-        case 19:
-        case 28:
-          sc_len = 32;
-          elt_len = 64;
-          break;
-        case 20:
-        case 29:
-          sc_len = 48;
-          elt_len = 96;
-          break;
-        case 21:
-          sc_len = 66;
-          elt_len = 132;
-          break;
-        case 25:
-          sc_len = 24;
-          elt_len = 48;
-          break;
-        case 26:
-          sc_len = 28;
-          elt_len = 56;
-          break;
-        case 30:
-          sc_len = 64;
-          elt_len = 128;
-          break;
-        default:
-          /* assume no anti-clogging token */
-          if (!(len % 3))
-          {
-            sc_len = len / 3;
-          }
-          else
-          {
-            sc_len = len / 2;
-          }
-          elt_len = len - sc_len;
-          break;
+      sc_len = get_scalar_len(group);
+      elt_len = get_group_element_len(group);
+
+      if (sc_len == 0) {
+        /* assume no anti-clogging token */
+        if (!(len % 3))
+        {
+          sc_len = len / 3;
+        }
+        else
+        {
+          sc_len = len / 2;
+        }
+        elt_len = len - sc_len;
       }
 
       if ((sc_len + elt_len) < len)
@@ -10037,6 +10120,31 @@ add_ff_auth_sae(proto_tree *tree, tvbuff_t *tvb)
     proto_tree_add_item(tree, hf_ieee80211_ff_confirm, tvb, 8, len,
                         ENC_NA);
   };
+}
+
+static void
+add_ff_auth_fils(proto_tree *tree, tvbuff_t *tvb)
+{
+  guint alg, seq, status_code;
+  alg = tvb_get_letohs(tvb, 0);
+
+  if ((alg != AUTH_ALG_FILS_SK_WITH_PFS) && (alg != AUTH_ALG_FILS_PK))
+    return;
+
+  seq = tvb_get_letohs(tvb, 2);
+  status_code = tvb_get_letohs(tvb, 4);
+
+  if ((seq == 1) || (seq == 2 && status_code == 0)) {
+    guint group = tvb_get_letohs(tvb, 6);
+    guint elt_len, offset;
+    proto_tree_add_item(tree, hf_ieee80211_ff_finite_cyclic_group, tvb, 6, 2,
+                        ENC_LITTLE_ENDIAN);
+    offset = 8;
+    elt_len = get_group_element_len(group);
+
+    proto_tree_add_item(tree, hf_ieee80211_ff_finite_field_element, tvb, offset,
+                        elt_len, ENC_NA);
+  }
 }
 
 static guint
@@ -12504,6 +12612,10 @@ static const value_string ieee80211_rsn_keymgmt_vals[] = {
   {11, "WPA (SHA256-SuiteB)" },
   {12, "WPA (SHA384-SuiteB)" },
   {13, "FT over IEEE 802.1X (SHA384)" },
+  {14, "FILS (SHA256 and AES-SIV-256)" },
+  {15, "FILS (SHA384 and AES-SIV-512)" },
+  {16, "FT over FILS (SHA256 and AES-SIV-256)" },
+  {17, "FT over FILS (SHA384 and AES-SIV-512)" },
   {18, "Opportunistic Wireless Encryption"},
   {0, NULL}
 };
@@ -14148,7 +14260,9 @@ dissect_rsn_ie(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
       if (association_sanity_check) {
         guint32 akm_suite = tvb_get_ntohl(tvb, offset);
-        if (akm_suite == 0x000FAC03 || akm_suite == 0x000FAC04 || akm_suite == 0x000FAC09) {
+        association_sanity_check->last_akm_suite = akm_suite;
+
+        if (akm_suite == 0x000FAC03 || akm_suite == 0x000FAC04 || akm_suite == 0x000FAC09 || akm_suite == 0x000FAC10 || akm_suite == 0x000FAC11) {
           /* This is an FT AKM suite */
           association_sanity_check->has_ft_akm_suite = TRUE;
           if (association_sanity_check->rsn_first_ft_akm_suite == NULL && rsn_sub_akms_tree != NULL) {
@@ -19296,6 +19410,7 @@ ieee80211_tag_vendor_specific_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
   proto_tree_add_item_ret_uint(tree, hf_ieee80211_tag_oui, tvb, offset, 3, ENC_BIG_ENDIAN, &oui);
   proto_item_append_text(field_data->item_tag, ": %s", uint_get_manuf_name_if_known(oui));
+
   offset += 3;
   tag_vs_len -= 3;
 
@@ -20380,6 +20495,89 @@ ieee80211_tag_twt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 }
 
 static int
+ieee80211_tag_fils_indication(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+  int tag_len = tvb_reported_length(tvb);
+  ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
+  int offset = 0;
+  guint16 info;
+  guint8 nr_realm, nr_pk, i, len;
+  proto_item *item;
+  proto_tree *subtree;
+
+  if (tag_len < 2)
+  {
+    expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be >= 2", tag_len);
+    return tvb_captured_length(tvb);
+  }
+
+  static const int * ieee80211_tag_fils_indication_info[] = {
+    &hf_ieee80211_tag_fils_indication_info_nr_pk,
+    &hf_ieee80211_tag_fils_indication_info_nr_realm,
+    &hf_ieee80211_tag_fils_indication_info_ip_config,
+    &hf_ieee80211_tag_fils_indication_info_cache_id_included,
+    &hf_ieee80211_tag_fils_indication_info_hessid_included,
+    &hf_ieee80211_tag_fils_indication_info_ska_without_pfs,
+    &hf_ieee80211_tag_fils_indication_info_ska_with_pfs,
+    &hf_ieee80211_tag_fils_indication_info_pka,
+    &hf_ieee80211_tag_fils_indication_info_reserved,
+    NULL
+  };
+
+  info = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+  proto_tree_add_bitmask_list(tree, tvb, offset, 2, ieee80211_tag_fils_indication_info, ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  nr_pk = info & 0x07;
+  nr_realm = (info >> 3) & 0x07;
+
+  /* Cache identifier */
+  if (info & (1 << 7)) {
+    proto_tree_add_item(tree, hf_ieee80211_tag_fils_indication_cache_identifier, tvb, offset, 2, ENC_NA);
+    offset += 2;
+  }
+
+  /* HESSID */
+  if (info & (1 << 8)) {
+    proto_tree_add_item(tree, hf_ieee80211_tag_fils_indication_hessid, tvb, offset, 6, ENC_NA);
+    offset += 6;
+  }
+
+  /* Realm identifiers */
+  if (nr_realm > 0) {
+    item = proto_tree_add_item(tree, hf_ieee80211_tag_fils_indication_realm_list, tvb, offset, nr_realm * 2, ENC_NA);
+    subtree = proto_item_add_subtree(item, ett_fils_indication_realm_list);
+    proto_item_append_text(item, ": %u", nr_realm);
+
+    for (i = 0; i < nr_realm; i++) {
+      proto_tree_add_item(subtree, hf_ieee80211_tag_fils_indication_realm_identifier, tvb, offset, 2, ENC_NA);
+      offset += 2;
+    }
+  }
+
+  /* PK identifiers */
+  if (nr_pk > 0) {
+    item = proto_tree_add_item(tree, hf_ieee80211_tag_fils_indication_public_key_list, tvb, offset, tag_len - offset, ENC_NA);
+    subtree = proto_item_add_subtree(item, ett_fils_indication_public_key_list);
+    proto_item_append_text(item, ": %u", nr_pk);
+
+    for (i = 0; i < nr_pk; i++) {
+      proto_tree_add_item(subtree, hf_ieee80211_tag_fils_indication_public_key_type, tvb, offset, 1, ENC_NA);
+      offset += 1;
+
+      proto_tree_add_item(subtree, hf_ieee80211_tag_fils_indication_public_key_length, tvb, offset, 1, ENC_NA);
+      len = tvb_get_guint8(tvb, offset);
+      offset += 1;
+
+      proto_tree_add_item(subtree, hf_ieee80211_tag_fils_indication_public_key_indicator, tvb, offset, len, ENC_NA);
+      offset += len;
+    }
+  }
+
+  return tvb_captured_length(tvb);
+}
+
+static int
 ieee80211_tag_element_id_extension(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
   int tag_len = tvb_reported_length(tvb);
@@ -20399,6 +20597,9 @@ ieee80211_tag_element_id_extension(tvbuff_t *tvb, packet_info *pinfo, proto_tree
   switch (ext_tag_no) {
     case ETAG_FILS_SESSION:
       proto_tree_add_item(tree, hf_ieee80211_fils_session, tvb, offset, ext_tag_len, ENC_NA);
+      if (field_data->sanity_check != NULL) {
+        field_data->sanity_check->has_fils_session = TRUE;
+      }
       break;
     case ETAG_FILS_WRAPPED_DATA:
       proto_tree_add_item(tree, hf_ieee80211_fils_wrapped_data, tvb, offset, ext_tag_len, ENC_NA);
@@ -21540,6 +21741,12 @@ ieee_80211_add_tagged_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
     }
     offset                += next_len;
     tagged_parameters_len -= next_len;
+
+    /* If FILS is used, all data after the FILS Session tag in a (re)association message is encrypted */
+    if (association_sanity_check != NULL && association_sanity_check->has_fils_session) {
+      proto_tree_add_item(tree, hf_ieee80211_fils_encrypted_data, tvb, offset, tagged_parameters_len, ENC_NA);
+      break;
+    }
   }
 }
 
@@ -21564,6 +21771,15 @@ ieee_80211_do_association_sanity_check(packet_info *pinfo, association_sanity_ch
   }
 }
 
+static ieee80211_conversation_data_t* get_or_create_conversation_data(conversation_t *conversation) {
+  ieee80211_conversation_data_t *conversation_data = (ieee80211_conversation_data_t*)conversation_get_proto_data(conversation, proto_wlan);
+  if (!conversation_data) {
+    conversation_data = wmem_new(wmem_file_scope(), ieee80211_conversation_data_t);
+    conversation_add_proto_data(conversation, proto_wlan, conversation_data);
+  }
+  return conversation_data;
+}
+
 /* ************************************************************************* */
 /*                     Dissect 802.11 management frame                       */
 /* ************************************************************************* */
@@ -21577,8 +21793,12 @@ dissect_ieee80211_mgt(guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tree
   int         offset = 0;
   int         tagged_parameter_tree_len;
 
+  conversation_t *conversation;
+  ieee80211_conversation_data_t *conversation_data;
+
   association_sanity_check_t association_sanity_check;
   memset(&association_sanity_check, 0, sizeof(association_sanity_check));
+
 
   ieee80211_tvb_invalid = FALSE;
 
@@ -21601,6 +21821,10 @@ dissect_ieee80211_mgt(guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tree
       ieee_80211_add_tagged_parameters(tvb, offset, pinfo, tagged_tree,
           tagged_parameter_tree_len, MGT_ASSOC_REQ, &association_sanity_check);
       ieee_80211_do_association_sanity_check(pinfo, &association_sanity_check);
+
+      conversation = find_or_create_conversation(pinfo);
+      conversation_data = get_or_create_conversation_data(conversation);
+      conversation_data->last_akm_suite = association_sanity_check.last_akm_suite;
       break;
 
 
@@ -21616,7 +21840,7 @@ dissect_ieee80211_mgt(guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tree
       tagged_tree = get_tagged_parameter_tree(mgt_tree, tvb, offset,
                  tagged_parameter_tree_len);
       ieee_80211_add_tagged_parameters(tvb, offset, pinfo, tagged_tree,
-          tagged_parameter_tree_len, MGT_ASSOC_RESP, NULL);
+          tagged_parameter_tree_len, MGT_ASSOC_RESP, &association_sanity_check);
       break;
 
 
@@ -21634,6 +21858,10 @@ dissect_ieee80211_mgt(guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tree
       ieee_80211_add_tagged_parameters(tvb, offset, pinfo, tagged_tree,
           tagged_parameter_tree_len, MGT_REASSOC_REQ, &association_sanity_check);
       ieee_80211_do_association_sanity_check(pinfo, &association_sanity_check);
+
+      conversation = find_or_create_conversation(pinfo);
+      conversation_data = get_or_create_conversation_data(conversation);
+      conversation_data->last_akm_suite = association_sanity_check.last_akm_suite;
       break;
 
     case MGT_REASSOC_RESP:
@@ -21648,7 +21876,7 @@ dissect_ieee80211_mgt(guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tree
       tagged_tree = get_tagged_parameter_tree(mgt_tree, tvb, offset,
                  tagged_parameter_tree_len);
       ieee_80211_add_tagged_parameters(tvb, offset, pinfo, tagged_tree,
-          tagged_parameter_tree_len, MGT_REASSOC_RESP, NULL);
+          tagged_parameter_tree_len, MGT_REASSOC_RESP, &association_sanity_check);
       break;
 
 
@@ -21723,17 +21951,23 @@ dissect_ieee80211_mgt(guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tree
         ieee_80211_add_tagged_parameters(tvb, offset, pinfo, tagged_tree,
                                          tagged_parameter_tree_len, MGT_DISASS, NULL);
       }
+
+      conversation = find_conversation_pinfo(pinfo, proto_wlan);
+      if (conversation) {
+        conversation_delete_proto_data(conversation, proto_wlan);
+      }
       break;
 
     case MGT_AUTHENTICATION:
       offset = 6;  /* Size of fixed fields */
-      offset += get_ff_auth_sae_len(tvb);
+      offset += get_ff_auth_len(tvb);
 
       fixed_tree = get_fixed_parameter_tree(mgt_tree, tvb, 0, offset);
       add_ff_auth_alg(fixed_tree, tvb, pinfo, 0);
       add_ff_auth_trans_seq(fixed_tree, tvb, pinfo, 2);
       add_ff_status_code(fixed_tree, tvb, pinfo, 4);
       add_ff_auth_sae(fixed_tree, tvb);
+      add_ff_auth_fils(fixed_tree, tvb);
 
       tagged_parameter_tree_len =
         tvb_reported_length_remaining(tvb, offset);
@@ -21758,6 +21992,11 @@ dissect_ieee80211_mgt(guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                 tagged_parameter_tree_len);
         ieee_80211_add_tagged_parameters(tvb, offset, pinfo, tagged_tree,
                                          tagged_parameter_tree_len, MGT_DEAUTHENTICATION, NULL);
+      }
+
+      conversation = find_conversation_pinfo(pinfo, proto_wlan);
+      if (conversation) {
+        conversation_delete_proto_data(conversation, proto_wlan);
       }
       break;
 
@@ -24673,6 +24912,26 @@ static gint ett_wlan_rsna_eapol_keydes_data = -1;
 
 static const true_false_string keyinfo_key_type_tfs = { "Pairwise Key", "Group Key" };
 
+static guint16 get_mic_len(guint32 akm_suite) {
+  switch(akm_suite) {
+    case 0x000FAC0C:
+    case 0x000FAC0D:
+      // HMAC-SHA-384
+      return 24;
+
+    case 0x000FAC0E:
+    case 0x000FAC0F:
+    case 0x000FAC10:
+    case 0x000FAC11:
+      // AES-SIV-256 and AES-SIV-512
+      return 0;
+
+    default:
+      // HMAC-SHA-1-128, AES-128-CMAC, HMAC-SHA-256
+      return 16;
+  }
+}
+
 static int
 dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -24696,15 +24955,21 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
     NULL
   };
   guint16 eapol_data_offset = 76;  /* 92 - 16 */
-  guint16 eapol_key_mic_len = 0;
+  guint16 eapol_key_mic_len = 16; // Default MIC length
 
-  if (wlan_key_mic_len) {
-    eapol_data_offset += wlan_key_mic_len;
+  conversation_t *conversation = find_conversation_pinfo(pinfo, 0);
+
+  if (wlan_key_mic_len_enable) {
     eapol_key_mic_len = wlan_key_mic_len;
-  } else {
-    eapol_data_offset = 92;
-    eapol_key_mic_len = 16;
+  } else if (conversation) {
+    ieee80211_conversation_data_t *conversation_data = (ieee80211_conversation_data_t*)conversation_get_proto_data(conversation, proto_wlan);
+
+    if (conversation_data) {
+      eapol_key_mic_len = get_mic_len(conversation_data->last_akm_suite);
+    }
   }
+
+  eapol_data_offset += eapol_key_mic_len;
 
   /*
    * RSNA key descriptors.
@@ -24718,8 +24983,9 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
   } else if (keyinfo & KEY_INFO_KEY_TYPE_MASK) {
     guint16 masked;
     /* Windows is setting the Secure Bit on message 2 when rekeying, so we'll ignore it */
+    /* When an AEAD cipher is used no MIC is included, so we cannot rely on the MIC flag */
     masked = keyinfo &
-      (KEY_INFO_INSTALL_MASK | KEY_INFO_KEY_ACK_MASK | KEY_INFO_KEY_MIC_MASK);
+      (KEY_INFO_INSTALL_MASK | KEY_INFO_KEY_ACK_MASK);
 
     switch (masked) {
     case KEY_INFO_KEY_ACK_MASK:
@@ -24729,14 +24995,24 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
       col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 1 of 4)");
       break;
     }
-    case KEY_INFO_KEY_MIC_MASK:
+
+    case (KEY_INFO_INSTALL_MASK | KEY_INFO_KEY_ACK_MASK):
+    {
+      ti = proto_tree_add_uint(tree, hf_wlan_rsna_eapol_wpa_keydes_msgnr, tvb, offset, 0, 3);
+
+      col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 3 of 4)");
+      break;
+    }
+
+    default:
       /* We check the key length to differentiate between message 2 and 4 and just hope that
       there are no strange implementations with key data and non-zero key length in message 4.
       According to the IEEE specification, sections 11.6.6.3 and 11.6.6.5 we should
       use the Secure Bit and/or the Nonce, but there are implementations ignoring the spec.
       The Secure Bit is incorrectly set on rekeys for Windows clients for Message 2 and the Nonce is non-zero
       in Message 4 in Bug 11994 (Apple?) */
-      if (eapol_data_len) {
+      /* When using AES-SIV without plaintext (i.e. only for integrity), the ciphertext has length 16 */
+      if (((eapol_key_mic_len == 0) && (eapol_data_len > 16)) || ((eapol_key_mic_len > 0) && (eapol_data_len > 0))) {
         ti = proto_tree_add_uint(tree, hf_wlan_rsna_eapol_wpa_keydes_msgnr, tvb, offset, 0, 2);
 
         col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 2 of 4)");
@@ -24746,14 +25022,6 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
         col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 4 of 4)");
       }
       break;
-
-    case (KEY_INFO_INSTALL_MASK | KEY_INFO_KEY_ACK_MASK | KEY_INFO_KEY_MIC_MASK):
-    {
-      ti = proto_tree_add_uint(tree, hf_wlan_rsna_eapol_wpa_keydes_msgnr, tvb, offset, 0, 3);
-
-      col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 3 of 4)");
-      break;
-    }
     }
   } else {
     if (keyinfo & KEY_INFO_KEY_ACK_MASK) {
@@ -24792,9 +25060,13 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
   proto_tree_add_item(tree, hf_wlan_rsna_eapol_wpa_keydes_id, tvb, offset, 8,
                       ENC_NA);
   offset += 8;
-  proto_tree_add_item(tree, hf_wlan_rsna_eapol_wpa_keydes_mic, tvb, offset,
-                      eapol_key_mic_len, ENC_NA);
-  offset += eapol_key_mic_len;
+
+  if (eapol_key_mic_len > 0) {
+    proto_tree_add_item(tree, hf_wlan_rsna_eapol_wpa_keydes_mic, tvb, offset,
+                        eapol_key_mic_len, ENC_NA);
+    offset += eapol_key_mic_len;
+  }
+
   proto_tree_add_item(tree, hf_wlan_rsna_eapol_wpa_keydes_data_len, tvb,
                       offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
@@ -31942,8 +32214,8 @@ proto_register_ieee80211(void)
 
     /* Extended Capability Octet 10 */
     {&hf_ieee80211_tag_extended_capabilities_b72,
-     {"Reserved", "wlan.extcap.b72",
-      FT_UINT8, BASE_HEX, NULL, 0x01,
+     {"FILS Capable", "wlan.extcap.b72",
+      FT_BOOLEAN, 8, NULL, 0x01,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_extended_capabilities_b73,
@@ -34559,6 +34831,74 @@ proto_register_ieee80211(void)
      {"Extra bytes", "wlan.ext_tag.future_channel_guidance.extra_bytes",
       FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
+    {&hf_ieee80211_tag_fils_indication_info_nr_pk,
+     {"Number of Public Key Identifiers", "wlan.fils_indication.info.nr_pk",
+      FT_UINT16, BASE_DEC, NULL, GENMASK(2,0), NULL, HFILL }},
+
+    {&hf_ieee80211_tag_fils_indication_info_nr_realm,
+     {"Number of Realm Identifiers", "wlan.fils_indication.info.nr_realm",
+      FT_UINT16, BASE_DEC, NULL, GENMASK(5,3), NULL, HFILL }},
+
+    {&hf_ieee80211_tag_fils_indication_info_ip_config,
+     {"FILS IP Address Configuration", "wlan.fils_indication.info.ip_config",
+      FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), GENMASK(6,6), NULL, HFILL }},
+
+    {&hf_ieee80211_tag_fils_indication_info_cache_id_included,
+     {"Cache Identifier", "wlan.fils_indication.info.cache_id_included",
+      FT_BOOLEAN, 16, TFS(&tfs_included_not_included), GENMASK(7,7), NULL, HFILL }},
+
+    {&hf_ieee80211_tag_fils_indication_info_hessid_included,
+     {"HESSID", "wlan.fils_indication.info.hessid_included",
+      FT_BOOLEAN, 16, TFS(&tfs_included_not_included), GENMASK(8,8), NULL, HFILL }},
+
+    {&hf_ieee80211_tag_fils_indication_info_ska_without_pfs,
+     {"FILS Shared Key Authentication without PFS", "wlan.fils_indication.info.ska_without_pfs",
+      FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), GENMASK(9,9), NULL, HFILL }},
+
+    {&hf_ieee80211_tag_fils_indication_info_ska_with_pfs,
+     {"FILS Shared Key Authentication with PFS", "wlan.fils_indication.info.ska_with_pfs",
+      FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), GENMASK(10,10), NULL, HFILL }},
+
+    {&hf_ieee80211_tag_fils_indication_info_pka,
+     {"FILS Public Key Authentication", "wlan.fils_indication.info.pka",
+      FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), GENMASK(11,11), NULL, HFILL }},
+
+    {&hf_ieee80211_tag_fils_indication_info_reserved,
+     {"Reserved", "wlan.fils_indication.info.reserved",
+      FT_UINT16, BASE_HEX, NULL, GENMASK(15,12), NULL, HFILL }},
+
+    {&hf_ieee80211_tag_fils_indication_cache_identifier,
+     {"Cache Identifier", "wlan.fils_indication.cache_identifier",
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_fils_indication_hessid,
+     {"HESSID", "wlan.fils_indication.hessid",
+      FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_fils_indication_realm_list,
+     {"Realm Identifiers", "wlan.fils_indication.realms",
+      FT_NONE, BASE_NONE, 0x0, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_fils_indication_realm_identifier,
+     {"Realm Identifier", "wlan.fils_indication.realms.identifier",
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_fils_indication_public_key_list,
+     {"Public Keys", "wlan.fils_indication.public_keys",
+      FT_NONE, BASE_NONE, 0x0, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_fils_indication_public_key_type,
+     {"Key Type", "wlan.fils_indication.public_keys.key_type",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_fils_indication_public_key_length,
+     {"Length", "wlan.fils_indication.public_keys.length",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_fils_indication_public_key_indicator,
+     {"Public Key Indicator", "wlan.fils_indication.public_keys.indicator",
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+
     {&hf_ieee80211_ext_tag,
      {"Ext Tag", "wlan.ext_tag",
       FT_NONE, BASE_NONE, 0x0, 0,
@@ -34576,6 +34916,11 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_fils_session,
      {"FILS Session", "wlan.ext_tag.fils.session",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_fils_encrypted_data,
+     {"FILS Encrypted Data", "wlan.ext_tag.fils.encrypted_data",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       NULL, HFILL }},
 
@@ -35963,6 +36308,10 @@ proto_register_ieee80211(void)
     &ett_he_ndp_annc_sta_item,
     &ett_he_ndp_annc_sta_info,
     &ett_ieee80211_3gpp_plmn,
+
+    /* 802.11ai trees */
+    &ett_fils_indication_realm_list,
+    &ett_fils_indication_public_key_list,
   };
 
   static ei_register_info ei[] = {
@@ -36221,6 +36570,11 @@ proto_register_ieee80211(void)
     "Some 802.11 cards leave the Protection bit set even though the packet is decrypted, "
     "and some also leave the IV (initialization vector).",
     &wlan_ignore_prot, wlan_ignore_prot_options, TRUE);
+
+  prefs_register_bool_preference(wlan_module, "wpa_key_mic_len_enable",
+    "Enable WPA Key MIC Length override",
+    "Whether to enable MIC Length override or not.",
+    &wlan_key_mic_len_enable);
 
   prefs_register_uint_preference(wlan_module, "wpa_key_mic_len",
     "WPA Key MIC Length override",
@@ -36579,6 +36933,7 @@ proto_reg_handoff_ieee80211(void)
   dissector_add_uint("wlan.tag.number", TAG_MULTI_BAND, create_dissector_handle(ieee80211_tag_multi_band, -1));
   dissector_add_uint("wlan.tag.number", TAG_DMG_LINK_MARGIN, create_dissector_handle(ieee80211_tag_dmg_link_margin, -1));
   dissector_add_uint("wlan.tag.number", TAG_DMG_LINK_ADAPTION_ACK, create_dissector_handle(ieee80211_tag_dmg_link_adaption_ack, -1));
+  dissector_add_uint("wlan.tag.number", TAG_FILS_INDICATION, create_dissector_handle(ieee80211_tag_fils_indication, -1));
   dissector_add_uint("wlan.tag.number", TAG_SWITCHING_STREAM, create_dissector_handle(ieee80211_tag_switching_stream, -1));
   dissector_add_uint("wlan.tag.number", TAG_ELEMENT_ID_EXTENSION, create_dissector_handle(ieee80211_tag_element_id_extension, -1));
   dissector_add_uint("wlan.tag.number", TAG_TWT, create_dissector_handle(ieee80211_tag_twt, -1));
