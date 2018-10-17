@@ -223,8 +223,9 @@ typedef enum {
 } cap_pipe_err_t;
 
 typedef struct _pcap_pipe_info {
-    struct pcap_hdr              hdr;       /**< Pcap header when capturing from a pipe */
-    struct pcaprec_modified_hdr  rechdr;    /**< Pcap record header when capturing from a pipe */
+    gboolean                     byte_swapped; /**< TRUE if data in the pipe is byte swapped. */
+    struct pcap_hdr              hdr;          /**< Pcap header when capturing from a pipe */
+    struct pcaprec_modified_hdr  rechdr;       /**< Pcap record header when capturing from a pipe */
 } pcap_pipe_info_t;
 
 typedef struct _pcapng_pipe_info {
@@ -265,7 +266,6 @@ typedef struct _capture_src {
 #endif
     int                          cap_pipe_fd;            /**< the file descriptor of the capture pipe */
     gboolean                     cap_pipe_modified;      /**< TRUE if data in the pipe uses modified pcap headers */
-    gboolean                     cap_pipe_byte_swapped;  /**< TRUE if data in the pipe is byte swapped */
     char *                       cap_pipe_databuf;       /**< Pointer to the data buffer we've allocated */
     size_t                       cap_pipe_databuf_size;  /**< Current size of the data buffer */
     guint                        cap_pipe_max_pkt_size;  /**< Maximum packet size allowed */
@@ -1198,7 +1198,7 @@ relinquish_privs_except_capture(void)
 /* Take care of byte order in the libpcap headers read from pipes.
  * (function taken from wiretap/libpcap.c) */
 static void
-cap_pipe_adjust_header(gboolean byte_swapped, struct pcap_hdr *hdr, struct pcaprec_hdr *rechdr)
+cap_pipe_adjust_pcap_header(gboolean byte_swapped, struct pcap_hdr *hdr, struct pcaprec_hdr *rechdr)
 {
     if (byte_swapped) {
         /* Byte-swap the record header fields. */
@@ -1802,14 +1802,14 @@ cap_pipe_open_live(char *pipename,
     case PCAP_NSEC_MAGIC:
         /* Host that wrote it has our byte order, and was running
            a program using either standard or ss990417 libpcap. */
-        pcap_src->cap_pipe_byte_swapped = FALSE;
+        pcap_src->cap_pipe_info.pcap.byte_swapped = FALSE;
         pcap_src->cap_pipe_modified = FALSE;
         pcap_src->ts_nsec = magic == PCAP_NSEC_MAGIC;
         break;
     case PCAP_MODIFIED_MAGIC:
         /* Host that wrote it has our byte order, but was running
            a program using either ss990915 or ss991029 libpcap. */
-        pcap_src->cap_pipe_byte_swapped = FALSE;
+        pcap_src->cap_pipe_info.pcap.byte_swapped = FALSE;
         pcap_src->cap_pipe_modified = TRUE;
         break;
     case PCAP_SWAPPED_MAGIC:
@@ -1817,7 +1817,7 @@ cap_pipe_open_live(char *pipename,
         /* Host that wrote it has a byte order opposite to ours,
            and was running a program using either standard or
            ss990417 libpcap. */
-        pcap_src->cap_pipe_byte_swapped = TRUE;
+        pcap_src->cap_pipe_info.pcap.byte_swapped = TRUE;
         pcap_src->cap_pipe_modified = FALSE;
         pcap_src->ts_nsec = magic == PCAP_SWAPPED_NSEC_MAGIC;
         break;
@@ -1825,7 +1825,7 @@ cap_pipe_open_live(char *pipename,
         /* Host that wrote it out has a byte order opposite to
            ours, and was running a program using either ss990915
            or ss991029 libpcap. */
-        pcap_src->cap_pipe_byte_swapped = TRUE;
+        pcap_src->cap_pipe_info.pcap.byte_swapped = TRUE;
         pcap_src->cap_pipe_modified = TRUE;
         break;
     case BLOCK_TYPE_SHB:
@@ -1909,7 +1909,7 @@ pcap_pipe_open_live(int fd,
     }
 #endif
 
-    if (pcap_src->cap_pipe_byte_swapped) {
+    if (pcap_src->cap_pipe_info.pcap.byte_swapped) {
         /* Byte-swap the header fields about which we care. */
         hdr->version_major = GUINT16_SWAP_LE_BE(hdr->version_major);
         hdr->version_minor = GUINT16_SWAP_LE_BE(hdr->version_minor);
@@ -1955,7 +1955,6 @@ pcapng_read_shb(capture_src *pcap_src,
                 char *errmsg,
                 int errmsgl)
 {
-    struct pcapng_block_header_s *bh = &pcap_src->cap_pipe_info.pcapng.bh;
     struct pcapng_section_header_block_s *shb = &pcap_src->cap_pipe_info.pcapng.shb;
 
 #ifdef _WIN32
@@ -1991,24 +1990,28 @@ pcapng_read_shb(capture_src *pcap_src,
     {
     case PCAPNG_MAGIC:
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "pcapng SHB MAGIC");
-        pcap_src->cap_pipe_byte_swapped = FALSE;
         break;
     case PCAPNG_SWAPPED_MAGIC:
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "pcapng SHB SWAPPED MAGIC");
-        pcap_src->cap_pipe_byte_swapped = TRUE;
-        break;
+        /*
+         * pcapng sources can contain all sorts of block types. Rather than add a bunch of
+         * complexity to this code (which is often privileged), punt and tell the user to
+         * swap bytes elsewhere.
+         */
+#if G_BYTE_ORDER == G_BIG_ENDIAN
+#define OUR_ENDIAN "big"
+#define IFACE_ENDIAN "little"
+#else
+#define OUR_ENDIAN "little"
+#define IFACE_ENDIAN "big"
+#endif
+        g_snprintf(errmsg, errmsgl, "Interface %u is " IFACE_ENDIAN " endian but we're " OUR_ENDIAN " endian.",
+                   pcap_src->interface_id);
+        return -1;
     default:
         /* Not a pcapng type we know about, or not pcapng at all. */
         g_snprintf(errmsg, errmsgl, "Unrecognized pcapng format or not pcapng data.");
         return -1;
-    }
-
-    if (pcap_src->cap_pipe_byte_swapped) {
-        /* Byte-swap the header fields about which we care. */
-        shb->version_major = GUINT16_SWAP_LE_BE(shb->version_major);
-        shb->version_minor = GUINT16_SWAP_LE_BE(shb->version_minor);
-        shb->section_length = GUINT64_SWAP_LE_BE(shb->section_length);
-        bh->block_total_length = GUINT32_SWAP_LE_BE(bh->block_total_length);
     }
 
     pcap_src->cap_pipe_max_pkt_size = WTAP_MAX_PACKET_SIZE_STANDARD;
@@ -2017,21 +2020,6 @@ pcapng_read_shb(capture_src *pcap_src,
     pcap_src->cap_pipe_state = STATE_EXPECT_DATA;
 
     return 0;
-}
-
-static int
-pcapng_write_saved_block(capture_src *pcap_src, struct pcapng_block_header_s *bh)
-{
-    guint32 length = bh->block_total_length;
-
-    if (pcap_src->cap_pipe_byte_swapped) {
-        length = GUINT32_SWAP_LE_BE(length);
-    }
-
-    return pcapng_write_block(global_ld.pdh,
-                       (const guint8 *) bh,
-                       length,
-                       &global_ld.bytes_written, &global_ld.err);
 }
 
 /* Save SHB and IDB blocks to playback whenever we change output files. */
@@ -2272,7 +2260,7 @@ pcap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, int errms
 
     case PD_REC_HDR_READ:
         /* We've read the header. Take care of byte order. */
-        cap_pipe_adjust_header(pcap_src->cap_pipe_byte_swapped, &pcap_info->hdr,
+        cap_pipe_adjust_pcap_header(pcap_src->cap_pipe_info.pcap.byte_swapped, &pcap_info->hdr,
                                &pcap_info->rechdr.hdr);
         if (pcap_info->rechdr.hdr.incl_len > pcap_src->cap_pipe_max_pkt_size) {
             /*
@@ -2504,12 +2492,6 @@ pcapng_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, int err
             return 1;
         }
 
-        /* We've read the header. Take care of byte order. */
-        if (pcap_src->cap_pipe_byte_swapped) {
-            /* Byte-swap the record header fields. */
-            bh->block_type = GUINT32_SWAP_LE_BE(bh->block_type);
-            bh->block_total_length = GUINT32_SWAP_LE_BE(bh->block_total_length);
-        }
         if (bh->block_total_length > pcap_src->cap_pipe_max_pkt_size) {
             /*
             * The record contains more data than the advertised/allowed in the
@@ -3502,7 +3484,11 @@ do_file_switch_or_stop(capture_options *capture_opts,
                 GList *list = rlist;
                 successful = TRUE;
                 while (list && successful) {
-                    successful = pcapng_write_saved_block(pcap_src, (struct pcapng_block_header_s *) list->data);
+                    struct pcapng_block_header_s *bh = (struct pcapng_block_header_s *) list->data;
+                    successful = pcapng_write_block(global_ld.pdh,
+                       (const guint8 *) bh,
+                       bh->block_total_length,
+                       &global_ld.bytes_written, &global_ld.err);
                     list = g_list_next(list);
                 }
                 pcap_src->cap_pipe_info.pcapng.saved_blocks = g_list_reverse(rlist);
