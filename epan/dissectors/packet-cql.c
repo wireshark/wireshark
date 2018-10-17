@@ -1242,6 +1242,8 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 				offset += 2;
 
 				for (i = 0; i < batch_size; ++i) {
+					guint32 value_count = 0;
+
 					proto_tree_add_item_ret_uint(cql_subtree, hf_cql_batch_query_type, tvb, offset, 1, ENC_BIG_ENDIAN, &batch_query_type);
 					batch_query_type = tvb_get_guint8(tvb, offset);
 					offset += 1;
@@ -1251,11 +1253,7 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 						offset += 4;
 						proto_tree_add_item(cql_subtree, hf_cql_string, tvb, offset, string_length, ENC_UTF_8 | ENC_NA);
 						offset += string_length;
-
-						/* Query parameters */
-						offset = dissect_cql_query_parameters(cql_subtree, tvb, offset, 0);
 					} else if (batch_query_type == 1) {
-						guint32 value_count = 0;
 						guint32 query_id_bytes_length;
 
 						/* Query ID */
@@ -1263,17 +1261,16 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 						offset += 2;
 						proto_tree_add_item(cql_subtree, hf_cql_query_id, tvb, offset, query_id_bytes_length, ENC_NA);
 						offset += query_id_bytes_length;
+					}
 
-						proto_tree_add_item_ret_uint(cql_subtree, hf_cql_value_count, tvb, offset, 2, ENC_BIG_ENDIAN, &value_count);
-						offset += 2;
-						for (k = 0; k < value_count; ++k) {
-							guint32 batch_bytes_length = 0;
-							proto_tree_add_item_ret_int(cql_subtree, hf_cql_bytes_length, tvb, offset, 4, ENC_BIG_ENDIAN, &batch_bytes_length);
-							offset += 4;
-							proto_tree_add_item(cql_subtree, hf_cql_bytes, tvb, offset, batch_bytes_length, ENC_NA);
-							offset += batch_bytes_length;
-						}
-
+					proto_tree_add_item_ret_uint(cql_subtree, hf_cql_value_count, tvb, offset, 2, ENC_BIG_ENDIAN, &value_count);
+					offset += 2;
+					for (k = 0; k < value_count; ++k) {
+						guint32 batch_bytes_length = 0;
+						proto_tree_add_item_ret_int(cql_subtree, hf_cql_bytes_length, tvb, offset, 4, ENC_BIG_ENDIAN, &batch_bytes_length);
+						offset += 4;
+						proto_tree_add_item(cql_subtree, hf_cql_bytes, tvb, offset, batch_bytes_length, ENC_NA);
+						offset += batch_bytes_length;
 					}
 				}
 				/* consistency */
