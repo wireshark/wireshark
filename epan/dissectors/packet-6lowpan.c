@@ -551,6 +551,7 @@ static const gchar *        lowpan_context_prefs[LOWPAN_CONTEXT_MAX];
 /* Preferences */
 static gboolean rfc4944_short_address_format = FALSE;
 static gboolean iid_has_universal_local_bit = FALSE;
+static gboolean ipv6_summary_in_tree = TRUE;
 
 /* Helper macro to convert a bit offset/length into a byte count. */
 #define BITS_TO_BYTE_LEN(bitoff, bitlen)    ((bitlen)?(((bitlen) + ((bitoff)&0x07) + 7) >> 3):(0))
@@ -1828,6 +1829,7 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
     gint                length = 0;
     proto_tree *        iphc_tree;
     proto_item *        ti_dam = NULL;
+    proto_item *        ti;
     /* IPHC header fields. */
     guint16             iphc_flags;
     guint8              iphc_traffic;
@@ -2040,12 +2042,18 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
     siid = &ipv6.ip6h_src.bytes[sizeof(ipv6.ip6h_src) - LOWPAN_IFC_ID_LEN];
 
     /* Display the source IPv6 address. */
-    proto_tree_add_ipv6(tree, hf_6lowpan_source, tvb, offset, length, &ipv6.ip6h_src);
+    ti = proto_tree_add_ipv6(tree, hf_6lowpan_source, tvb, offset, length, &ipv6.ip6h_src);
+    if (length == 0) {
+        PROTO_ITEM_SET_GENERATED(ti);
+    }
+    if (ipv6_summary_in_tree) {
+        address src_addr = ADDRESS_INIT(AT_IPv6, sizeof(ipv6.ip6h_src), &ipv6.ip6h_src);
+        proto_item_append_text(tree, ", Src: %s", address_with_resolution_to_str(wmem_packet_scope(), &src_addr));
+    }
 
     /* Add information about where the context came from. */
     /* TODO: We should display the prefix length too. */
     if (sctx->plen) {
-        proto_item *ti;
         ti = proto_tree_add_ipv6(iphc_tree, hf_6lowpan_iphc_sctx_prefix, tvb, 0, 0, &sctx->prefix);
         PROTO_ITEM_SET_GENERATED(ti);
         if ( sctx->frame ) {
@@ -2166,12 +2174,18 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
     }
 
     /* Display the destination IPv6 address. */
-    proto_tree_add_ipv6(tree, hf_6lowpan_dest, tvb, offset, length, &ipv6.ip6h_dst);
+    ti = proto_tree_add_ipv6(tree, hf_6lowpan_dest, tvb, offset, length, &ipv6.ip6h_dst);
+    if (length == 0) {
+        PROTO_ITEM_SET_GENERATED(ti);
+    }
+    if (ipv6_summary_in_tree) {
+        address dst_addr = ADDRESS_INIT(AT_IPv6, sizeof(ipv6.ip6h_dst), &ipv6.ip6h_dst);
+        proto_item_append_text(tree, ", Dest: %s", address_with_resolution_to_str(wmem_packet_scope(), &dst_addr));
+    }
 
     /* Add information about where the context came from. */
     /* TODO: We should display the prefix length too. */
     if (dctx->plen) {
-        proto_item *ti;
         ti = proto_tree_add_ipv6(iphc_tree, hf_6lowpan_iphc_dctx_prefix, tvb, 0, 0, &dctx->prefix);
         PROTO_ITEM_SET_GENERATED(ti);
         if ( dctx->frame ) {
@@ -3366,6 +3380,10 @@ proto_register_6lowpan(void)
                                    "IID has Universal/Local bit",
                                    "Linux kernels before version 4.12 does toggle the Universal/Local bit.",
                                    &iid_has_universal_local_bit);
+    prefs_register_bool_preference(prefs_module, "summary_in_tree",
+                                   "Show IPv6 summary in protocol tree",
+                                   "Whether the IPv6 summary line should be shown in the protocol tree",
+                                   &ipv6_summary_in_tree);
 
     for (i = 0; i < LOWPAN_CONTEXT_MAX; i++) {
         char *pref_name, *pref_title;
