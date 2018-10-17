@@ -644,8 +644,6 @@ else() # ! MSVC
 		# -flto
 		# -fwhopr
 		# -fwhole-program
-		# XXX: This is applicable only when linking executables.
-		-pie
 	)
 endif() # ! MSVC
 
@@ -796,6 +794,22 @@ if( NOT CMAKE_C_COMPILER_ID MATCHES "MSVC")
 endif()
 
 include(CheckCLinkerFlag)
+
+if(NOT CMAKE_C_COMPILER_ID MATCHES "MSVC")
+	#
+	# The -pie linker option produces a position-independent executable.
+	# Some Linux distributions have this enabled by default in the compiler,
+	# so setting it here will be superfluous though.
+	#
+	# Note that linking with static libraries that are not position
+	# independent may fail, the user can set CMAKE_EXE_LINKER_FLAGS=-no-pie
+	# as a workaround.
+	#
+	check_c_linker_flag(LINK_pie_VALID -pie)
+	if(LINK_pie_VALID)
+		set(CMAKE_EXE_LINKER_FLAGS "-pie ${CMAKE_EXE_LINKER_FLAGS}")
+	endif()
+endif()
 
 foreach(THIS_FLAG ${WIRESHARK_LD_FLAGS})
 	string(MAKE_C_IDENTIFIER "LINK${THIS_FLAG}_VALID" _flag_var)
