@@ -524,6 +524,11 @@ static const value_string g_AttributeIdTable[] = {
     {20, "Historizing"},
     {21, "Executable"},
     {22, "UserExecutable"},
+    {23, "DataTypeDefinition"},
+    {24, "RolePermissions"},
+    {25, "UserRolePermissions"},
+    {26, "AccessRestrictions"},
+    {27, "AccessLevelEx"},
     {0, NULL}
 };
 static int hf_opcua_AttributeId = -1;
