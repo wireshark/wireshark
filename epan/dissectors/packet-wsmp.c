@@ -292,7 +292,7 @@ dissect_wsmp_v3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 oct)
     guint8 header_opt_ind = oct & 0x08 >> 3;
     guint8 ie;
     guint16 count, ie_len, wsm_len;
-    guint32 tpid, psid;
+    guint32 tpid, psid = 0;
 
     static const int * flags[] = {
         &hf_wsmp_subtype,
