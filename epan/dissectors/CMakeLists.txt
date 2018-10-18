@@ -139,6 +139,7 @@ set(CLEAN_ASN1_DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-nr-rrc.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ns_cert_exts.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ocsp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-oer.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-p1.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-p22.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-p7.c
@@ -457,6 +458,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-ntp.h
 	packet-nvme.h
 	packet-ocsp.h
+	packet-oer.h
 	packet-opensafety.h
 	packet-oscore.h
 	packet-osi.h

@@ -95,6 +95,7 @@ systemd Journal Export
 TPM 2.0 protocol
 Ubiquiti Discovery Protocol (UBDP)
 XnAP (5G) protocol
+ITU-t X.696 Octet Encoding Rules (OER)
 WireGuard protocol
 --
 
