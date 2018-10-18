@@ -462,6 +462,8 @@ typedef struct _rtps_dissector_data {
 #define RTPS_VENDOR_PT_LITE_STRING       "PrismTech - OpenSplice Lite"
 #define RTPS_VENDOR_TECHNICOLOR          (0x010E)
 #define RTPS_VENDOR_TECHNICOLOR_STRING   "Technicolor Inc. - Qeo"
+#define RTPS_VENDOR_EPROSIMA             (0x010F)
+#define RTPS_VENDOR_EPROSIMA_STRING      "eProsima - Fast-RTPS"
 
 /* Data encapsulation */
 #define ENCAPSULATION_CDR_BE            (0x0000)
