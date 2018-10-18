@@ -2,8 +2,11 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
+import unittest
+
 from suite_dfilter import dfiltertest
 
+@unittest.skip("Need to find a replacement to NTP for those tests")
 class case_double(dfiltertest.DFTestCase):
 
     trace_file = "ntp.pcap"

@@ -913,8 +913,10 @@ dissect_ntp_std(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree)
 	guint8 stratum;
 	guint8 ppoll;
 	gint8 precision;
-	double rootdelay;
-	double rootdispersion;
+	guint32 rootdelay;
+	double rootdelay_double;
+	guint32 rootdispersion;
+	double rootdispersion_double;
 	guint32 refid_addr;
 	gchar *buff;
 	int i;
@@ -952,17 +954,19 @@ dissect_ntp_std(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree)
 	 * the total roundtrip delay to the primary reference source,
 	 * in seconds with fraction point between bits 15 and 16.
 	 */
-	rootdelay = tvb_get_ntohis(tvb, 4) +
-			(tvb_get_ntohs(tvb, 6) / 65536.0);
-	proto_tree_add_double(ntp_tree, hf_ntp_rootdelay, tvb, 4, 4, rootdelay);
+	rootdelay = tvb_get_ntohl(tvb, 4);
+	rootdelay_double = (rootdelay >> 16) + (rootdelay & 0xffff) / 65536.0;
+	proto_tree_add_uint_format_value(ntp_tree, hf_ntp_rootdelay, tvb, 4, 4,
+		rootdelay, "%8.6f seconds", rootdelay_double);
 
 	/* Root Dispersion, 32-bit unsigned fixed-point number indicating
 	 * the nominal error relative to the primary reference source, in
 	 * seconds with fraction point between bits 15 and 16.
 	 */
-	rootdispersion = tvb_get_ntohis(tvb, 8) +
-				(tvb_get_ntohs(tvb, 10) / 65536.0);
-	proto_tree_add_double(ntp_tree, hf_ntp_rootdispersion, tvb, 8, 4, rootdispersion);
+	rootdispersion = tvb_get_ntohl(tvb, 8);
+	rootdispersion_double = (rootdispersion >> 16) + (rootdispersion & 0xffff) / 65536.0;
+	proto_tree_add_uint_format_value(ntp_tree, hf_ntp_rootdispersion, tvb, 8, 4,
+		rootdispersion, "%8.6f seconds", rootdispersion_double);
 
 	/* Now, there is a problem with secondary servers.  Standards
 	 * asks from stratum-2 - stratum-15 servers to set this to the
@@ -1451,11 +1455,11 @@ proto_register_ntp(void)
 			"Peer Clock Precision", "ntp.precision", FT_UINT8, BASE_DEC,
 			NULL, 0, "The precision of the system clock", HFILL }},
 		{ &hf_ntp_rootdelay, {
-			"Root Delay", "ntp.rootdelay", FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING,
-			&units_second_seconds, 0, "Total round-trip delay to the reference clock", HFILL }},
+			"Root Delay", "ntp.rootdelay", FT_UINT32, BASE_DEC,
+			NULL, 0, "Total round-trip delay to the reference clock", HFILL }},
 		{ &hf_ntp_rootdispersion, {
-			"Root Dispersion", "ntp.rootdispersion", FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING,
-			&units_second_seconds, 0, "Total dispersion to the reference clock", HFILL }},
+			"Root Dispersion", "ntp.rootdispersion", FT_UINT32, BASE_DEC,
+			NULL, 0, "Total dispersion to the reference clock", HFILL }},
 		{ &hf_ntp_refid, {
 			"Reference ID", "ntp.refid", FT_BYTES, BASE_NONE,
 			NULL, 0, "Particular server or reference clock being used", HFILL }},
