@@ -2,56 +2,45 @@
 # - Try to find GModule2
 # Find GModule headers, libraries and the answer to all questions.
 #
-#  GMODULE2_FOUND               True if GMODULE2 got found
+#  GMODULE2_FOUND               True if GMODULE2 was found
 #  GMODULE2_INCLUDE_DIRS        Location of GMODULE2 headers
 #  GMODULE2_LIBRARIES           List of libraries to use GMODULE2
 #
-#  Copyright (c) 2008 Bjoern Ricks <bjoern.ricks@googlemail.com>
-#
-#  Redistribution and use is allowed according to the terms of the New
-#  BSD license.
-#  For details see the accompanying COPYING-CMAKE-SCRIPTS file.
-#
 
-if( NOT WIN32 )
-	include( FindPkgConfig )
+include(FindWSWinLibs)
+FindWSWinLibs("glib2-*" "GMODULE2_HINTS")
 
-	if( GMODULE2_FIND_REQUIRED )
-		set( _pkgconfig_REQUIRED "REQUIRED" )
-	else()
-		set( _pkgconfig_REQUIRED "" )
-	endif()
-
-	if( GMODULE2_MIN_VERSION )
-		pkg_search_module( GMODULE2 ${_pkgconfig_REQUIRED} gmodule-2.0>=${GMODULE2_MIN_VERSION} )
-	else()
-		pkg_search_module( GMODULE2 ${_pkgconfig_REQUIRED} gmodule-2.0 )
-	endif()
+if(NOT WIN32)
+	find_package(PkgConfig QUIET)
+	pkg_check_modules(PC_GMODULE2 gmodule-2.0)
 endif()
 
-if( GMODULE2_FOUND  )
-	if( GMODULE2_LIBRARY_DIRS )
-		LINK_DIRECTORIES( ${GMODULE2_LIBRARY_DIRS} )
-	endif()
+find_path(GMODULE2_INCLUDE_DIR
+	NAMES
+		gmodule.h
+	PATH_SUFFIXES
+		glib-2.0
+	HINTS
+		${PC_GMODULE2_INCLUDE_DIRS}
+		"${GMODULE2_HINTS}/include"
+)
+find_library(GMODULE2_LIBRARY
+	NAMES
+		gmodule-2.0 gmodule
+	HINTS
+		${PC_GMODULE2_LIBRARY_DIRS}
+		"${GMODULE2_HINTS}/lib"
+)
+
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(GMODULE2 DEFAULT_MSG GMODULE2_LIBRARY GMODULE2_INCLUDE_DIR)
+
+if(GMODULE2_FOUND)
+	set(GMODULE2_INCLUDE_DIRS ${GMODULE2_INCLUDE_DIR})
+	set(GMODULE2_LIBRARIES ${GMODULE2_LIBRARY})
 else()
-	include( FindWSWinLibs )
-	FindWSWinLibs( "glib2-*" "GMODULE2_HINTS" )
-	find_path( GMODULE2_INCLUDE_DIRS
-		NAMES
-			gmodule.h
-		PATH_SUFFIXES
-			glib-2.0
-		HINTS
-			"${GMODULE2_HINTS}/include"
-	)
-	find_library( GMODULE2_LIBRARIES NAMES gmodule-2.0 gmodule HINTS "${GMODULE2_HINTS}/lib" )
-	if( NOT GMODULE2_LIBRARIES AND APPLE )
-		# Fallback as APPLE glib libs already contain this - except
-		# Homebrew which needs the non-Apple setup
-		find_library( GMODULE2_LIBRARIES glib )
-	endif()
-	include( FindPackageHandleStandardArgs )
-	find_package_handle_standard_args( GMODULE2 DEFAULT_MSG GMODULE2_LIBRARIES GMODULE2_INCLUDE_DIRS )
+	set(GMODULE2_INCLUDE_DIRS)
+	set(GMODULE2_LIBRARIES)
 endif()
 
-mark_as_advanced( GMODULE2_LIBRARIES GMODULE2_INCLUDE_DIRS )
+mark_as_advanced(GMODULE2_LIBRARIES GMODULE2_INCLUDE_DIRS)
