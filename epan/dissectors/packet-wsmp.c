@@ -67,6 +67,9 @@ static int ett_wsmp_ie = -1;
 
 static expert_field ei_wsmp_length_field_err = EI_INIT;
 
+dissector_handle_t IEEE1609dot2_handle;
+
+
 static const value_string wsmp_subtype_vals[] = {
     { 0x0, "Null-networking protocol" },
     { 0x1, "ITS station-internal forwarding" },
@@ -283,7 +286,7 @@ dissect_wsmp_length_and_count(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static int
 dissect_wsmp_v3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 oct)
 {
-    proto_tree *sub_tree, *n_tree, *t_tree;
+    proto_tree *sub_tree, *n_tree, *t_tree, *data_tree;
     proto_item *item;
     int offset = 0, ie_start, len_to_set;
     guint8 header_opt_ind = oct & 0x08 >> 3;
@@ -361,7 +364,12 @@ dissect_wsmp_v3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 oct)
     offset = dissect_wsmp_length_and_count(tvb, pinfo, t_tree, offset, hf_wsmp_wave_ie_len, &wsm_len);
 
     /* WSM Data */
-    proto_tree_add_subtree(tree, tvb, offset, wsm_len, ett_wsmdata, NULL, "Wave Short Message");
+    data_tree = proto_tree_add_subtree(tree, tvb, offset, wsm_len, ett_wsmdata, NULL, "Wave Short Message");
+
+    if((psid == 0x20) && (IEEE1609dot2_handle)){
+        tvbuff_t * tvb_new = tvb_new_subset_remaining(tvb, offset);
+        call_dissector(IEEE1609dot2_handle, tvb_new, pinfo, data_tree);
+    }
 
     return tvb_captured_length(tvb);
 }
@@ -541,6 +549,7 @@ proto_register_wsmp(void)
         { &hf_wsmp_tpid,
           { "TPID", "wsmp.wave_ie", FT_UINT8, BASE_DEC, VALS(wsmp_tpid_vals), 0x0,
             NULL, HFILL }},
+
     };
 
     /* Setup protocol subtree array */
@@ -579,6 +588,8 @@ proto_reg_handoff_wsmp(void)
 
     wsmp_handle = create_dissector_handle(dissect_wsmp, proto_wsmp);
     dissector_add_uint("ethertype", ETHERTYPE_WSMP, wsmp_handle);
+
+    IEEE1609dot2_handle = find_dissector_add_dependency("IEEE1609dot2.data", proto_wsmp);
 }
 
 /*
