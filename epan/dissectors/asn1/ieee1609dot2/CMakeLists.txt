@@ -7,7 +7,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 
-set( PROTOCOL_NAME IEEE1609dot2 )
+set( PROTOCOL_NAME ieee1609dot2 )
 
 set( PROTO_OPT )
 
