@@ -1,0 +1,24 @@
+# IEEE1609dot2.cnf
+# IEEE1609dot2 conformation file
+
+#.MODULE
+#.MODULE_IMPORT
+
+#.EXPORTS
+
+#.REGISTER
+
+#.PDU
+Ieee1609Dot2Data
+
+#.NO_EMIT
+
+#.OMIT_ASSIGNMENT
+# Get rid of unused code warnings
+
+#.TYPE_RENAME
+
+#.FIELD_RENAME
+
+#.END
+

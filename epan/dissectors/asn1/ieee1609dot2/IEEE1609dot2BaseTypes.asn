@@ -1,0 +1,285 @@
+IEEE1609dot2BaseTypes {iso(1) identified-organization(3) ieee(111)
+standards-association-numbered-series-standards(2) wave-stds(1609)
+dot2(2) base(1) base-types(2)}
+--
+--********************************************************************
+-- * IEEE P1609.2 Base Data Types
+--
+--********************************************************************
+	DEFINITIONS AUTOMATIC TAGS ::= BEGIN
+	EXPORTS ALL;
+-- ------------------------------------------------------------------
+--
+-- Integers
+--
+-- ------------------------------------------------------------------
+	Uint3 ::= INTEGER (0..7) -- (hex) 07
+	Uint8 ::= INTEGER (0..255) -- (hex) ff
+	Uint16 ::= INTEGER (0..65535) -- (hex) ff ff
+	Uint32 ::= INTEGER (0..4294967295)--<LONGLONG>-- -- (hex) ff ff ff ff
+	Uint64 ::= INTEGER (0..18446744073709551615) -- (hex) ff ff ff ff ff ff ff ff
+	SequenceOfUint3 ::= SEQUENCE OF Uint3
+	SequenceOfUint8 ::= SEQUENCE OF Uint8
+	SequenceOfUint16 ::= SEQUENCE OF Uint16
+-- ------------------------------------------------------------------
+--
+-- OCTET STRING types
+--
+-- ------------------------------------------------------------------
+	Opaque ::= OCTET STRING
+	HashedId32 ::= OCTET STRING (SIZE(32))
+	HashedId10 ::= OCTET STRING (SIZE(10))
+	HashedId8 ::= OCTET STRING (SIZE(8))
+	HashedId4 ::= OCTET STRING (SIZE(4))
+	HashedId3 ::= OCTET STRING (SIZE(3))
+-- ------------------------------------------------------------------
+--
+-- Time
+--
+-- ------------------------------------------------------------------
+	Time32 ::= Uint32
+	Time64 ::= Uint64
+
+	ValidityPeriod ::= SEQUENCE {
+		start Time32,
+		duration Duration
+	}
+	Duration ::= CHOICE {
+		microseconds Uint16,
+		milliseconds Uint16,
+		seconds Uint16,
+		minutes Uint16,
+		hours Uint16,
+		sixtyHours Uint16,
+		years Uint16
+	}
+-- ------------------------------------------------------------------
+--
+-- Location
+--
+-- ------------------------------------------------------------------
+	GeographicRegion ::= CHOICE {
+		circularRegion CircularRegion,
+		rectangularRegion SequenceOfRectangularRegion,
+		polygonalRegion PolygonalRegion,
+		identifiedRegion SequenceOfIdentifiedRegion,
+		...
+	}
+
+	CircularRegion ::= SEQUENCE {
+		center TwoDLocation,
+		radius Uint16
+	}
+
+	RectangularRegion ::= SEQUENCE {
+		northWest TwoDLocation,
+		southEast TwoDLocation
+	}
+
+	SequenceOfRectangularRegion ::= SEQUENCE OF RectangularRegion
+
+	PolygonalRegion ::= SEQUENCE SIZE(3..MAX) OF TwoDLocation
+
+	TwoDLocation ::= SEQUENCE {
+		latitude Latitude,
+		longitude Longitude
+	}
+
+	IdentifiedRegion ::= CHOICE {
+		countryOnly CountryOnly,
+		countryAndRegions CountryAndRegions,
+		countryAndSubregions CountryAndSubregions,
+		...
+	}
+	SequenceOfIdentifiedRegion ::= SEQUENCE OF IdentifiedRegion
+
+	CountryOnly ::= Uint16
+
+	CountryAndRegions ::= SEQUENCE {
+		countryOnly CountryOnly,
+		regions SequenceOfUint8
+	}
+
+	CountryAndSubregions ::= SEQUENCE {
+		country CountryOnly,
+		regionAndSubregions SequenceOfRegionAndSubregions
+	}
+
+	RegionAndSubregions ::= SEQUENCE {
+		region Uint8,
+		subregions SequenceOfUint16
+	}
+
+	SequenceOfRegionAndSubregions ::= SEQUENCE OF RegionAndSubregions
+
+	ThreeDLocation ::= SEQUENCE {
+		latitude Latitude,
+		longitude Longitude,
+		elevation Elevation
+	}
+
+	Latitude ::= NinetyDegreeInt
+
+	Longitude ::= OneEightyDegreeInt
+
+	Elevation ::= ElevInt
+
+	NinetyDegreeInt ::= INTEGER { 
+							min (-900000000),
+							max (900000000),
+							unknown (900000001)
+	} (-900000000..900000001)
+
+	KnownLatitude ::= NinetyDegreeInt (min..max) 
+	-- Minus 90deg to +90deg in microdegree intervals
+	
+	UnknownLatitude ::= NinetyDegreeInt (unknown)
+	
+	OneEightyDegreeInt ::= INTEGER {
+			min (-1799999999),
+			max (1800000000),
+			unknown (1800000001)
+	} (-1799999999..1800000001)
+
+	KnownLongitude ::= OneEightyDegreeInt (min..max)
+
+	UnknownLongitude ::= OneEightyDegreeInt (unknown)
+
+	ElevInt ::= Uint16 -- Range is from -4096 to 61439 in units of one-tenth of a meter
+-- ------------------------------------------------------------------
+--
+-- Crypto
+--
+-- ------------------------------------------------------------------
+	Signature ::= CHOICE {
+		ecdsaNistP256Signature			EcdsaP256Signature,
+		ecdsaBrainpoolP256r1Signature	EcdsaP256Signature,
+		...
+	}
+
+	EcdsaP256Signature ::= SEQUENCE {
+		r	EccP256CurvePoint,
+		s	OCTET STRING (SIZE (32))
+	}
+
+	EccP256CurvePoint ::= CHOICE {
+		x-only OCTET STRING (SIZE (32)),
+		fill NULL, -- consistency with 1363 / X9.62
+		compressed-y-0 OCTET STRING (SIZE (32)),
+		compressed-y-1 OCTET STRING (SIZE (32)),
+		uncompressed SEQUENCE {
+			x OCTET STRING (SIZE (32)),
+			y OCTET STRING (SIZE (32))
+		}
+	}
+
+	SymmAlgorithm ::= ENUMERATED {
+		aes128Ccm,
+		...
+	}
+
+	HashAlgorithm ::= ENUMERATED {
+		sha256,
+		...
+	}
+
+	EciesP256EncryptedKey ::= SEQUENCE {
+		v	EccP256CurvePoint,
+		c	OCTET STRING (SIZE (16)),
+		t	OCTET STRING (SIZE (16))
+	}
+
+	EncryptionKey ::= CHOICE {
+		public PublicEncryptionKey,
+		symmetric SymmetricEncryptionKey
+	}
+
+	PublicEncryptionKey ::= SEQUENCE {
+		supportedSymmAlg	SymmAlgorithm,
+		publicKey			BasePublicEncryptionKey
+	}
+
+	BasePublicEncryptionKey ::= CHOICE {
+		eciesNistP256			EccP256CurvePoint,
+		eciesBrainpoolP256r1	EccP256CurvePoint,
+		...
+	}
+
+	PublicVerificationKey ::= CHOICE {
+		ecdsaNistP256 EccP256CurvePoint,
+		ecdsaBrainpoolP256r1 EccP256CurvePoint,
+		...
+	}
+
+	SymmetricEncryptionKey ::= CHOICE {
+		aes128Ccm OCTET STRING(SIZE(16)),
+		...
+	}
+
+-- ------------------------------------------------------------------
+--
+-- PSID / ITS-AID
+--
+-- ------------------------------------------------------------------
+	PsidSsp ::= SEQUENCE {
+		psid Psid,
+		ssp ServiceSpecificPermissions OPTIONAL
+	}
+
+	SequenceOfPsidSsp ::= SEQUENCE OF PsidSsp
+
+	Psid ::= INTEGER (0..MAX)
+
+	SequenceOfPsid ::= SEQUENCE OF Psid
+
+	ServiceSpecificPermissions ::= CHOICE {
+		opaque OCTET STRING (SIZE(0..MAX)),
+		... -- will define Structured SSP here
+	}
+
+	PsidSspRange ::= SEQUENCE {
+		psid Psid,
+		sspRange SspRange OPTIONAL
+	}
+
+	SequenceOfPsidSspRange ::= SEQUENCE OF PsidSspRange
+
+	SspRange ::= CHOICE {
+		opaque SequenceOfOctetString,
+		all NULL,
+		... -- will define Structured SSP Range here
+	}
+
+	SequenceOfOctetString ::= SEQUENCE (SIZE (0..MAX)) OF OCTET STRING (SIZE(0..MAX))
+
+-- ------------------------------------------------------------------
+--
+-- Goes in certs
+--
+-- ------------------------------------------------------------------
+
+	SubjectAssurance ::= OCTET STRING (SIZE(1))
+
+	CrlSeries ::= Uint16
+
+-- ------------------------------------------------------------------
+--
+-- Pseudonym Linkage
+--
+-- ------------------------------------------------------------------
+	IValue ::= Uint16
+
+	Hostname ::= UTF8String (SIZE(0..255))
+
+	LinkageValue ::= OCTET STRING (SIZE(9))
+
+	GroupLinkageValue ::= SEQUENCE {
+		jValue OCTET STRING (SIZE(4)),
+		value OCTET STRING (SIZE(9))
+	}
+
+	LaId ::= OCTET STRING (SIZE(2))
+
+	LinkageSeed ::= OCTET STRING (SIZE(16))
+
+END
