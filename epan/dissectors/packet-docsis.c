@@ -528,7 +528,7 @@ dissect_exthdr_length_field (tvbuff_t * tvb, packet_info * pinfo, proto_tree * d
 /* Print DST and SRC MACs and do not dissect the payload */
 /* Implementation inferred from packet-eth.c */
 static void
-dissect_encrypted_frame (tvbuff_t * tvb, proto_tree * tree, const guint8 fctype)
+dissect_encrypted_frame (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, const guint8 fctype)
 {
   guint32           offset, frame_len;
   const guint8      *src_addr, *dst_addr;
@@ -544,6 +544,8 @@ dissect_encrypted_frame (tvbuff_t * tvb, proto_tree * tree, const guint8 fctype)
    * - Registration Request (REG-REQ-MP) MAC Management Message Frames;
    * - Isolation PDU MAC Frames.
    */
+  col_append_str (pinfo->cinfo, COL_INFO, " (Encrypted)");
+
   offset = 0;
   frame_len = tvb_captured_length_remaining (tvb, offset);
   switch (fctype)
@@ -695,7 +697,7 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
       {
         next_tvb =  tvb_new_subset_remaining(tvb, hdrlen);
         if(is_encrypted && !docsis_dissect_encrypted_frames)
-          dissect_encrypted_frame (next_tvb, docsis_tree, fctype);
+          dissect_encrypted_frame (next_tvb, pinfo, docsis_tree, fctype);
         else
           call_dissector (eth_withoutfcs_handle, next_tvb, pinfo, docsis_tree);
       }
@@ -731,7 +733,7 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
       {
         next_tvb =  tvb_new_subset_remaining(tvb, hdrlen);
         if(is_encrypted && !docsis_dissect_encrypted_frames)
-          dissect_encrypted_frame (next_tvb, docsis_tree, fctype);
+          dissect_encrypted_frame (next_tvb, pinfo, docsis_tree, fctype);
         else
           call_dissector (eth_withoutfcs_handle, next_tvb, pinfo, docsis_tree);
       }
@@ -757,7 +759,7 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
             /* Pass off to the DOCSIS Management dissector/s */
             mgt_tvb = tvb_new_subset_remaining(tvb, hdrlen);
             if(is_encrypted && !docsis_dissect_encrypted_frames)
-              dissect_encrypted_frame (next_tvb, docsis_tree, fctype);
+              dissect_encrypted_frame (next_tvb, pinfo, docsis_tree, fctype);
             else
               call_dissector (docsis_mgmt_handle, mgt_tvb, pinfo, docsis_tree);
           }
@@ -823,7 +825,7 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
               {
                 /* By default assume an Ethernet payload */
               if(is_encrypted && !docsis_dissect_encrypted_frames)
-                dissect_encrypted_frame (next_tvb, docsis_tree, fctype);
+                dissect_encrypted_frame (next_tvb, pinfo, docsis_tree, fctype);
               else
                 call_dissector (eth_withoutfcs_handle, next_tvb, pinfo, docsis_tree);
               } else {
