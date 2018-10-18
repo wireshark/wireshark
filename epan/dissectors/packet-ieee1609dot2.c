@@ -1,0 +1,2635 @@
+/* Do not modify this file. Changes will be overwritten.                      */
+/* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
+/* packet-IEEE1609dot2.c                                                      */
+/* asn2wrs.py -p IEEE1609dot2 -c ./IEEE1609dot2.cnf -s ./packet-IEEE1609dot2-template -D . -O ../.. IEEE1609dot2BaseTypes.asn IEEE1609dot2DataTypes.asn */
+
+/* Input file: packet-IEEE1609dot2-template.c */
+
+#line 1 "./asn1/ieee1609dot2/packet-IEEE1609dot2-template.c"
+/* packet-IEEE1609dot2.c
+ * Routines for HI2 (ETSI TS 101 671 V3.5.1 (2009-11))
+ *  Erwin van Eijk 2010
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
+
+#include "config.h"
+
+#include <epan/packet.h>
+#include <epan/conversation.h>
+#include <epan/oids.h>
+#include <epan/asn1.h>
+
+#include "packet-oer.h"
+
+#define PNAME  "IEEE1609dot2"
+#define PSNAME "IEEE1609dot2"
+#define PFNAME "ieee1609dot2"
+
+#if defined(__GNUC__)
+ /*
+ * This is meant to handle defined but not used. Fix in a better way when automatically generated OER
+ *
+ * DIAG_OFF doesn't work with llvm-gcc, for some unknown reason, so
+ * we just use the pragma directly.
+ */
+#pragma GCC diagnostic ignored "-Wunused-function"
+#endif
+
+void proto_register_IEEE1609dot2(void);
+void proto_reg_handoff_IEEE1609dot2(void);
+
+/* Initialize the protocol and registered fields */
+int proto_IEEE1609dot2 = -1;
+
+/*--- Included file: packet-IEEE1609dot2-hf.c ---*/
+#line 1 "./asn1/ieee1609dot2/packet-IEEE1609dot2-hf.c"
+static int hf_IEEE1609dot2_Ieee1609Dot2Data_PDU = -1;  /* Ieee1609Dot2Data */
+static int hf_IEEE1609dot2_SequenceOfUint3_item = -1;  /* Uint3 */
+static int hf_IEEE1609dot2_SequenceOfUint8_item = -1;  /* Uint8 */
+static int hf_IEEE1609dot2_SequenceOfUint16_item = -1;  /* Uint16 */
+static int hf_IEEE1609dot2_start = -1;            /* Time32 */
+static int hf_IEEE1609dot2_duration = -1;         /* Duration */
+static int hf_IEEE1609dot2_microseconds = -1;     /* Uint16 */
+static int hf_IEEE1609dot2_milliseconds = -1;     /* Uint16 */
+static int hf_IEEE1609dot2_seconds = -1;          /* Uint16 */
+static int hf_IEEE1609dot2_minutes = -1;          /* Uint16 */
+static int hf_IEEE1609dot2_hours = -1;            /* Uint16 */
+static int hf_IEEE1609dot2_sixtyHours = -1;       /* Uint16 */
+static int hf_IEEE1609dot2_years = -1;            /* Uint16 */
+static int hf_IEEE1609dot2_circularRegion = -1;   /* CircularRegion */
+static int hf_IEEE1609dot2_rectangularRegion = -1;  /* SequenceOfRectangularRegion */
+static int hf_IEEE1609dot2_polygonalRegion = -1;  /* PolygonalRegion */
+static int hf_IEEE1609dot2_identifiedRegion = -1;  /* SequenceOfIdentifiedRegion */
+static int hf_IEEE1609dot2_center = -1;           /* TwoDLocation */
+static int hf_IEEE1609dot2_radius = -1;           /* Uint16 */
+static int hf_IEEE1609dot2_northWest = -1;        /* TwoDLocation */
+static int hf_IEEE1609dot2_southEast = -1;        /* TwoDLocation */
+static int hf_IEEE1609dot2_SequenceOfRectangularRegion_item = -1;  /* RectangularRegion */
+static int hf_IEEE1609dot2_PolygonalRegion_item = -1;  /* TwoDLocation */
+static int hf_IEEE1609dot2_latitude = -1;         /* Latitude */
+static int hf_IEEE1609dot2_longitude = -1;        /* Longitude */
+static int hf_IEEE1609dot2_countryOnly = -1;      /* CountryOnly */
+static int hf_IEEE1609dot2_countryAndRegions = -1;  /* CountryAndRegions */
+static int hf_IEEE1609dot2_countryAndSubregions = -1;  /* CountryAndSubregions */
+static int hf_IEEE1609dot2_SequenceOfIdentifiedRegion_item = -1;  /* IdentifiedRegion */
+static int hf_IEEE1609dot2_regions = -1;          /* SequenceOfUint8 */
+static int hf_IEEE1609dot2_country = -1;          /* CountryOnly */
+static int hf_IEEE1609dot2_regionAndSubregions = -1;  /* SequenceOfRegionAndSubregions */
+static int hf_IEEE1609dot2_region = -1;           /* Uint8 */
+static int hf_IEEE1609dot2_subregions = -1;       /* SequenceOfUint16 */
+static int hf_IEEE1609dot2_SequenceOfRegionAndSubregions_item = -1;  /* RegionAndSubregions */
+static int hf_IEEE1609dot2_elevation = -1;        /* Elevation */
+static int hf_IEEE1609dot2_ecdsaNistP256Signature = -1;  /* EcdsaP256Signature */
+static int hf_IEEE1609dot2_ecdsaBrainpoolP256r1Signature = -1;  /* EcdsaP256Signature */
+static int hf_IEEE1609dot2_r = -1;                /* EccP256CurvePoint */
+static int hf_IEEE1609dot2_s = -1;                /* OCTET_STRING_SIZE_32 */
+static int hf_IEEE1609dot2_x_only = -1;           /* OCTET_STRING_SIZE_32 */
+static int hf_IEEE1609dot2_fill = -1;             /* NULL */
+static int hf_IEEE1609dot2_compressed_y_0 = -1;   /* OCTET_STRING_SIZE_32 */
+static int hf_IEEE1609dot2_compressed_y_1 = -1;   /* OCTET_STRING_SIZE_32 */
+static int hf_IEEE1609dot2_uncompressed = -1;     /* T_uncompressed */
+static int hf_IEEE1609dot2_x = -1;                /* OCTET_STRING_SIZE_32 */
+static int hf_IEEE1609dot2_y = -1;                /* OCTET_STRING_SIZE_32 */
+static int hf_IEEE1609dot2_v = -1;                /* EccP256CurvePoint */
+static int hf_IEEE1609dot2_c = -1;                /* OCTET_STRING_SIZE_16 */
+static int hf_IEEE1609dot2_t = -1;                /* OCTET_STRING_SIZE_16 */
+static int hf_IEEE1609dot2_public = -1;           /* PublicEncryptionKey */
+static int hf_IEEE1609dot2_symmetric = -1;        /* SymmetricEncryptionKey */
+static int hf_IEEE1609dot2_supportedSymmAlg = -1;  /* SymmAlgorithm */
+static int hf_IEEE1609dot2_publicKey = -1;        /* BasePublicEncryptionKey */
+static int hf_IEEE1609dot2_eciesNistP256 = -1;    /* EccP256CurvePoint */
+static int hf_IEEE1609dot2_eciesBrainpoolP256r1 = -1;  /* EccP256CurvePoint */
+static int hf_IEEE1609dot2_ecdsaNistP256 = -1;    /* EccP256CurvePoint */
+static int hf_IEEE1609dot2_ecdsaBrainpoolP256r1 = -1;  /* EccP256CurvePoint */
+static int hf_IEEE1609dot2_aes128Ccm = -1;        /* OCTET_STRING_SIZE_16 */
+static int hf_IEEE1609dot2_psid = -1;             /* Psid */
+static int hf_IEEE1609dot2_ssp = -1;              /* ServiceSpecificPermissions */
+static int hf_IEEE1609dot2_SequenceOfPsidSsp_item = -1;  /* PsidSsp */
+static int hf_IEEE1609dot2_SequenceOfPsid_item = -1;  /* Psid */
+static int hf_IEEE1609dot2_opaque = -1;           /* OCTET_STRING_SIZE_0_MAX */
+static int hf_IEEE1609dot2_sspRange = -1;         /* SspRange */
+static int hf_IEEE1609dot2_SequenceOfPsidSspRange_item = -1;  /* PsidSspRange */
+static int hf_IEEE1609dot2_opaque_01 = -1;        /* SequenceOfOctetString */
+static int hf_IEEE1609dot2_all = -1;              /* NULL */
+static int hf_IEEE1609dot2_SequenceOfOctetString_item = -1;  /* OCTET_STRING_SIZE_0_MAX */
+static int hf_IEEE1609dot2_jValue = -1;           /* OCTET_STRING_SIZE_4 */
+static int hf_IEEE1609dot2_value = -1;            /* OCTET_STRING_SIZE_9 */
+static int hf_IEEE1609dot2_data = -1;             /* Ieee1609Dot2Data */
+static int hf_IEEE1609dot2_extDataHash = -1;      /* HashedData */
+static int hf_IEEE1609dot2_protocolVersion = -1;  /* Uint8 */
+static int hf_IEEE1609dot2_content = -1;          /* Ieee1609Dot2Content */
+static int hf_IEEE1609dot2_unsecuredData = -1;    /* Opaque */
+static int hf_IEEE1609dot2_signedData = -1;       /* SignedData */
+static int hf_IEEE1609dot2_encryptedData = -1;    /* EncryptedData */
+static int hf_IEEE1609dot2_signedCertificateRequest = -1;  /* Opaque */
+static int hf_IEEE1609dot2_hashId = -1;           /* HashAlgorithm */
+static int hf_IEEE1609dot2_tbsData = -1;          /* ToBeSignedData */
+static int hf_IEEE1609dot2_signer = -1;           /* SignerIdentifier */
+static int hf_IEEE1609dot2_signature = -1;        /* Signature */
+static int hf_IEEE1609dot2_digest = -1;           /* HashedId8 */
+static int hf_IEEE1609dot2_certificate = -1;      /* SequenceOfCertificate */
+static int hf_IEEE1609dot2_self = -1;             /* NULL */
+static int hf_IEEE1609dot2_payload = -1;          /* SignedDataPayload */
+static int hf_IEEE1609dot2_headerInfo = -1;       /* HeaderInfo */
+static int hf_IEEE1609dot2_sha256HashedData = -1;  /* OCTET_STRING_SIZE_32 */
+static int hf_IEEE1609dot2_generationTime = -1;   /* Time64 */
+static int hf_IEEE1609dot2_expiryTime = -1;       /* Time64 */
+static int hf_IEEE1609dot2_generationLocation = -1;  /* ThreeDLocation */
+static int hf_IEEE1609dot2_p2pcdLearningRequest = -1;  /* HashedId3 */
+static int hf_IEEE1609dot2_missingCrlIdentifier = -1;  /* MissingCrlIdentifier */
+static int hf_IEEE1609dot2_encryptionKey = -1;    /* EncryptionKey */
+static int hf_IEEE1609dot2_cracaId = -1;          /* HashedId3 */
+static int hf_IEEE1609dot2_crlSeries = -1;        /* CrlSeries */
+static int hf_IEEE1609dot2_recipients = -1;       /* SequenceOfRecipientInfo */
+static int hf_IEEE1609dot2_ciphertext = -1;       /* SymmetricCiphertext */
+static int hf_IEEE1609dot2_pskRecipInfo = -1;     /* PreSharedKeyRecipientInfo */
+static int hf_IEEE1609dot2_symmRecipInfo = -1;    /* SymmRecipientInfo */
+static int hf_IEEE1609dot2_certRecipInfo = -1;    /* PKRecipientInfo */
+static int hf_IEEE1609dot2_signedDataRecipInfo = -1;  /* PKRecipientInfo */
+static int hf_IEEE1609dot2_rekRecipInfo = -1;     /* PKRecipientInfo */
+static int hf_IEEE1609dot2_SequenceOfRecipientInfo_item = -1;  /* RecipientInfo */
+static int hf_IEEE1609dot2_recipientId = -1;      /* HashedId8 */
+static int hf_IEEE1609dot2_encKey = -1;           /* SymmetricCiphertext */
+static int hf_IEEE1609dot2_encKey_01 = -1;        /* EncryptedDataEncryptionKey */
+static int hf_IEEE1609dot2_eciesNistP256_01 = -1;  /* EciesP256EncryptedKey */
+static int hf_IEEE1609dot2_eciesBrainpoolP256r1_01 = -1;  /* EciesP256EncryptedKey */
+static int hf_IEEE1609dot2_aes128ccm = -1;        /* AesCcmCiphertext */
+static int hf_IEEE1609dot2_nonce = -1;            /* OCTET_STRING_SIZE_12 */
+static int hf_IEEE1609dot2_ccmCiphertext = -1;    /* Opaque */
+static int hf_IEEE1609dot2_SequenceOfCertificate_item = -1;  /* Certificate */
+static int hf_IEEE1609dot2_version = -1;          /* Uint8 */
+static int hf_IEEE1609dot2_type = -1;             /* CertificateType */
+static int hf_IEEE1609dot2_issuer = -1;           /* IssuerIdentifier */
+static int hf_IEEE1609dot2_toBeSigned = -1;       /* ToBeSignedCertificate */
+static int hf_IEEE1609dot2_sha256AndDigest = -1;  /* HashedId8 */
+static int hf_IEEE1609dot2_self_01 = -1;          /* HashAlgorithm */
+static int hf_IEEE1609dot2_id = -1;               /* CertificateId */
+static int hf_IEEE1609dot2_validityPeriod = -1;   /* ValidityPeriod */
+static int hf_IEEE1609dot2_region_01 = -1;        /* GeographicRegion */
+static int hf_IEEE1609dot2_assuranceLevel = -1;   /* SubjectAssurance */
+static int hf_IEEE1609dot2_appPermissions = -1;   /* SequenceOfPsidSsp */
+static int hf_IEEE1609dot2_certIssuePermissions = -1;  /* SequenceOfPsidGroupPermissions */
+static int hf_IEEE1609dot2_certRequestPermissions = -1;  /* SequenceOfPsidGroupPermissions */
+static int hf_IEEE1609dot2_canRequestRollover = -1;  /* NULL */
+static int hf_IEEE1609dot2_encryptionKey_01 = -1;  /* PublicEncryptionKey */
+static int hf_IEEE1609dot2_verifyKeyIndicator = -1;  /* VerificationKeyIndicator */
+static int hf_IEEE1609dot2_linkageData = -1;      /* LinkageData */
+static int hf_IEEE1609dot2_name = -1;             /* Hostname */
+static int hf_IEEE1609dot2_binaryId = -1;         /* OCTET_STRING_SIZE_1_64 */
+static int hf_IEEE1609dot2_none = -1;             /* NULL */
+static int hf_IEEE1609dot2_iCert = -1;            /* IValue */
+static int hf_IEEE1609dot2_linkage_value = -1;    /* LinkageValue */
+static int hf_IEEE1609dot2_group_linkage_value = -1;  /* GroupLinkageValue */
+static int hf_IEEE1609dot2_appPermissions_01 = -1;  /* SubjectPermissions */
+static int hf_IEEE1609dot2_minChainDepth = -1;    /* INTEGER */
+static int hf_IEEE1609dot2_chainDepthRange = -1;  /* INTEGER */
+static int hf_IEEE1609dot2_eeType = -1;           /* EndEntityType */
+static int hf_IEEE1609dot2_SequenceOfPsidGroupPermissions_item = -1;  /* PsidGroupPermissions */
+static int hf_IEEE1609dot2_explicit = -1;         /* SequenceOfPsidSspRange */
+static int hf_IEEE1609dot2_verificationKey = -1;  /* PublicVerificationKey */
+static int hf_IEEE1609dot2_reconstructionValue = -1;  /* EccP256CurvePoint */
+/* named bits */
+//static int hf_IEEE1609dot2_EndEntityType_app = -1;
+//static int hf_IEEE1609dot2_EndEntityType_enrol = -1;
+
+/*--- End of included file: packet-IEEE1609dot2-hf.c ---*/
+#line 31 "./asn1/ieee1609dot2/packet-IEEE1609dot2-template.c"
+
+/* Initialize the subtree pointers */
+
+/*--- Included file: packet-IEEE1609dot2-ett.c ---*/
+#line 1 "./asn1/ieee1609dot2/packet-IEEE1609dot2-ett.c"
+static gint ett_IEEE1609dot2_SequenceOfUint3 = -1;
+static gint ett_IEEE1609dot2_SequenceOfUint8 = -1;
+static gint ett_IEEE1609dot2_SequenceOfUint16 = -1;
+static gint ett_IEEE1609dot2_ValidityPeriod = -1;
+static gint ett_IEEE1609dot2_Duration = -1;
+static gint ett_IEEE1609dot2_GeographicRegion = -1;
+static gint ett_IEEE1609dot2_CircularRegion = -1;
+static gint ett_IEEE1609dot2_RectangularRegion = -1;
+static gint ett_IEEE1609dot2_SequenceOfRectangularRegion = -1;
+static gint ett_IEEE1609dot2_PolygonalRegion = -1;
+static gint ett_IEEE1609dot2_TwoDLocation = -1;
+static gint ett_IEEE1609dot2_IdentifiedRegion = -1;
+static gint ett_IEEE1609dot2_SequenceOfIdentifiedRegion = -1;
+static gint ett_IEEE1609dot2_CountryAndRegions = -1;
+static gint ett_IEEE1609dot2_CountryAndSubregions = -1;
+static gint ett_IEEE1609dot2_RegionAndSubregions = -1;
+static gint ett_IEEE1609dot2_SequenceOfRegionAndSubregions = -1;
+static gint ett_IEEE1609dot2_ThreeDLocation = -1;
+static gint ett_IEEE1609dot2_Signature = -1;
+static gint ett_IEEE1609dot2_EcdsaP256Signature = -1;
+static gint ett_IEEE1609dot2_EccP256CurvePoint = -1;
+static gint ett_IEEE1609dot2_T_uncompressed = -1;
+static gint ett_IEEE1609dot2_EciesP256EncryptedKey = -1;
+static gint ett_IEEE1609dot2_EncryptionKey = -1;
+static gint ett_IEEE1609dot2_PublicEncryptionKey = -1;
+static gint ett_IEEE1609dot2_BasePublicEncryptionKey = -1;
+static gint ett_IEEE1609dot2_PublicVerificationKey = -1;
+static gint ett_IEEE1609dot2_SymmetricEncryptionKey = -1;
+static gint ett_IEEE1609dot2_PsidSsp = -1;
+static gint ett_IEEE1609dot2_SequenceOfPsidSsp = -1;
+static gint ett_IEEE1609dot2_SequenceOfPsid = -1;
+static gint ett_IEEE1609dot2_ServiceSpecificPermissions = -1;
+static gint ett_IEEE1609dot2_PsidSspRange = -1;
+static gint ett_IEEE1609dot2_SequenceOfPsidSspRange = -1;
+static gint ett_IEEE1609dot2_SspRange = -1;
+static gint ett_IEEE1609dot2_SequenceOfOctetString = -1;
+static gint ett_IEEE1609dot2_GroupLinkageValue = -1;
+static gint ett_IEEE1609dot2_SignedDataPayload = -1;
+static gint ett_IEEE1609dot2_Ieee1609Dot2Data = -1;
+static gint ett_IEEE1609dot2_Ieee1609Dot2Content = -1;
+static gint ett_IEEE1609dot2_SignedData = -1;
+static gint ett_IEEE1609dot2_SignerIdentifier = -1;
+static gint ett_IEEE1609dot2_ToBeSignedData = -1;
+static gint ett_IEEE1609dot2_HashedData = -1;
+static gint ett_IEEE1609dot2_HeaderInfo = -1;
+static gint ett_IEEE1609dot2_MissingCrlIdentifier = -1;
+static gint ett_IEEE1609dot2_EncryptedData = -1;
+static gint ett_IEEE1609dot2_RecipientInfo = -1;
+static gint ett_IEEE1609dot2_SequenceOfRecipientInfo = -1;
+static gint ett_IEEE1609dot2_SymmRecipientInfo = -1;
+static gint ett_IEEE1609dot2_PKRecipientInfo = -1;
+static gint ett_IEEE1609dot2_EncryptedDataEncryptionKey = -1;
+static gint ett_IEEE1609dot2_SymmetricCiphertext = -1;
+static gint ett_IEEE1609dot2_AesCcmCiphertext = -1;
+static gint ett_IEEE1609dot2_SequenceOfCertificate = -1;
+static gint ett_IEEE1609dot2_CertificateBase = -1;
+static gint ett_IEEE1609dot2_IssuerIdentifier = -1;
+static gint ett_IEEE1609dot2_ToBeSignedCertificate = -1;
+static gint ett_IEEE1609dot2_CertificateId = -1;
+static gint ett_IEEE1609dot2_LinkageData = -1;
+static gint ett_IEEE1609dot2_EndEntityType = -1;
+static gint ett_IEEE1609dot2_PsidGroupPermissions = -1;
+static gint ett_IEEE1609dot2_SequenceOfPsidGroupPermissions = -1;
+static gint ett_IEEE1609dot2_SubjectPermissions = -1;
+static gint ett_IEEE1609dot2_VerificationKeyIndicator = -1;
+
+/*--- End of included file: packet-IEEE1609dot2-ett.c ---*/
+#line 34 "./asn1/ieee1609dot2/packet-IEEE1609dot2-template.c"
+
+
+/*--- Included file: packet-IEEE1609dot2-fn.c ---*/
+#line 1 "./asn1/ieee1609dot2/packet-IEEE1609dot2-fn.c"
+/*--- Cyclic dependencies ---*/
+
+/* SignedDataPayload -> Ieee1609Dot2Data -> Ieee1609Dot2Content -> SignedData -> ToBeSignedData -> SignedDataPayload */
+static int dissect_IEEE1609dot2_SignedDataPayload(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+
+
+
+static int
+dissect_IEEE1609dot2_Uint3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 7U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_IEEE1609dot2_Uint8(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 255U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_IEEE1609dot2_Uint16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 65535U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_IEEE1609dot2_Uint32(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 4294967295U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_IEEE1609dot2_Uint64(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
+                                                            0U, G_GUINT64_CONSTANT(18446744073709551615), NULL, FALSE);
+
+  return offset;
+}
+
+
+static const oer_sequence_t SequenceOfUint3_sequence_of[1] = {
+  { &hf_IEEE1609dot2_SequenceOfUint3_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_Uint3 },
+};
+
+static int
+dissect_IEEE1609dot2_SequenceOfUint3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_sequence_of(tvb, offset, actx, tree, hf_index,
+                                      ett_IEEE1609dot2_SequenceOfUint3, SequenceOfUint3_sequence_of);
+
+  return offset;
+}
+
+
+static const oer_sequence_t SequenceOfUint8_sequence_of[1] = {
+  { &hf_IEEE1609dot2_SequenceOfUint8_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_Uint8 },
+};
+
+static int
+dissect_IEEE1609dot2_SequenceOfUint8(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_sequence_of(tvb, offset, actx, tree, hf_index,
+                                      ett_IEEE1609dot2_SequenceOfUint8, SequenceOfUint8_sequence_of);
+
+  return offset;
+}
+
+
+static const oer_sequence_t SequenceOfUint16_sequence_of[1] = {
+  { &hf_IEEE1609dot2_SequenceOfUint16_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_Uint16 },
+};
+
+static int
+dissect_IEEE1609dot2_SequenceOfUint16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_sequence_of(tvb, offset, actx, tree, hf_index,
+                                      ett_IEEE1609dot2_SequenceOfUint16, SequenceOfUint16_sequence_of);
+
+  return offset;
+}
+
+
+
+static int
+dissect_IEEE1609dot2_Opaque(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, FALSE, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_IEEE1609dot2_HashedId32(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_octet_string(tvb, offset, actx, tree, hf_index,
+                                       32, 32, FALSE, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_IEEE1609dot2_HashedId10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_octet_string(tvb, offset, actx, tree, hf_index,
+                                       10, 10, FALSE, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_IEEE1609dot2_HashedId8(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_octet_string(tvb, offset, actx, tree, hf_index,
+                                       8, 8, FALSE, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_IEEE1609dot2_HashedId4(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_octet_string(tvb, offset, actx, tree, hf_index,
+                                       4, 4, FALSE, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_IEEE1609dot2_HashedId3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_octet_string(tvb, offset, actx, tree, hf_index,
+                                       3, 3, FALSE, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_IEEE1609dot2_Time32(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_IEEE1609dot2_Uint32(tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_IEEE1609dot2_Time64(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_IEEE1609dot2_Uint64(tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+static const value_string IEEE1609dot2_Duration_vals[] = {
+  {   0, "microseconds" },
+  {   1, "milliseconds" },
+  {   2, "seconds" },
+  {   3, "minutes" },
+  {   4, "hours" },
+  {   5, "sixtyHours" },
+  {   6, "years" },
+  { 0, NULL }
+};
+
+static const oer_choice_t Duration_choice[] = {
+  {   0, &hf_IEEE1609dot2_microseconds, ASN1_NO_EXTENSIONS     , dissect_IEEE1609dot2_Uint16 },
+  {   1, &hf_IEEE1609dot2_milliseconds, ASN1_NO_EXTENSIONS     , dissect_IEEE1609dot2_Uint16 },
+  {   2, &hf_IEEE1609dot2_seconds, ASN1_NO_EXTENSIONS     , dissect_IEEE1609dot2_Uint16 },
+  {   3, &hf_IEEE1609dot2_minutes, ASN1_NO_EXTENSIONS     , dissect_IEEE1609dot2_Uint16 },
+  {   4, &hf_IEEE1609dot2_hours  , ASN1_NO_EXTENSIONS     , dissect_IEEE1609dot2_Uint16 },
+  {   5, &hf_IEEE1609dot2_sixtyHours, ASN1_NO_EXTENSIONS     , dissect_IEEE1609dot2_Uint16 },
+  {   6, &hf_IEEE1609dot2_years  , ASN1_NO_EXTENSIONS     , dissect_IEEE1609dot2_Uint16 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_Duration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_IEEE1609dot2_Duration, Duration_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const oer_sequence_t ValidityPeriod_sequence[] = {
+  { &hf_IEEE1609dot2_start  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_Time32 },
+  { &hf_IEEE1609dot2_duration, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_Duration },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_ValidityPeriod(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_IEEE1609dot2_ValidityPeriod, ValidityPeriod_sequence);
+
+  return offset;
+}
+
+
+static const value_string IEEE1609dot2_NinetyDegreeInt_vals[] = {
+  { -900000000, "min" },
+  { 900000000, "max" },
+  { 900000001, "unknown" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_IEEE1609dot2_NinetyDegreeInt(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            -900000000, 900000001U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_IEEE1609dot2_Latitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_IEEE1609dot2_NinetyDegreeInt(tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+static const value_string IEEE1609dot2_OneEightyDegreeInt_vals[] = {
+  { -1799999999, "min" },
+  { 1800000000, "max" },
+  { 1800000001, "unknown" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_IEEE1609dot2_OneEightyDegreeInt(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            -1799999999, 1800000001U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_IEEE1609dot2_Longitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_IEEE1609dot2_OneEightyDegreeInt(tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+static const oer_sequence_t TwoDLocation_sequence[] = {
+  { &hf_IEEE1609dot2_latitude, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_Latitude },
+  { &hf_IEEE1609dot2_longitude, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_Longitude },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_TwoDLocation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_IEEE1609dot2_TwoDLocation, TwoDLocation_sequence);
+
+  return offset;
+}
+
+
+static const oer_sequence_t CircularRegion_sequence[] = {
+  { &hf_IEEE1609dot2_center , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_TwoDLocation },
+  { &hf_IEEE1609dot2_radius , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_Uint16 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_CircularRegion(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_IEEE1609dot2_CircularRegion, CircularRegion_sequence);
+
+  return offset;
+}
+
+
+static const oer_sequence_t RectangularRegion_sequence[] = {
+  { &hf_IEEE1609dot2_northWest, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_TwoDLocation },
+  { &hf_IEEE1609dot2_southEast, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_TwoDLocation },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_RectangularRegion(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_IEEE1609dot2_RectangularRegion, RectangularRegion_sequence);
+
+  return offset;
+}
+
+
+static const oer_sequence_t SequenceOfRectangularRegion_sequence_of[1] = {
+  { &hf_IEEE1609dot2_SequenceOfRectangularRegion_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_RectangularRegion },
+};
+
+static int
+dissect_IEEE1609dot2_SequenceOfRectangularRegion(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_sequence_of(tvb, offset, actx, tree, hf_index,
+                                      ett_IEEE1609dot2_SequenceOfRectangularRegion, SequenceOfRectangularRegion_sequence_of);
+
+  return offset;
+}
+
+
+static const oer_sequence_t PolygonalRegion_sequence_of[1] = {
+  { &hf_IEEE1609dot2_PolygonalRegion_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_TwoDLocation },
+};
+
+static int
+dissect_IEEE1609dot2_PolygonalRegion(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_IEEE1609dot2_PolygonalRegion, PolygonalRegion_sequence_of,
+                                                  3, NO_BOUND, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_IEEE1609dot2_CountryOnly(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_IEEE1609dot2_Uint16(tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+static const oer_sequence_t CountryAndRegions_sequence[] = {
+  { &hf_IEEE1609dot2_countryOnly, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_CountryOnly },
+  { &hf_IEEE1609dot2_regions, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_SequenceOfUint8 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_CountryAndRegions(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_IEEE1609dot2_CountryAndRegions, CountryAndRegions_sequence);
+
+  return offset;
+}
+
+
+static const oer_sequence_t RegionAndSubregions_sequence[] = {
+  { &hf_IEEE1609dot2_region , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_Uint8 },
+  { &hf_IEEE1609dot2_subregions, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_SequenceOfUint16 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_RegionAndSubregions(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_IEEE1609dot2_RegionAndSubregions, RegionAndSubregions_sequence);
+
+  return offset;
+}
+
+
+static const oer_sequence_t SequenceOfRegionAndSubregions_sequence_of[1] = {
+  { &hf_IEEE1609dot2_SequenceOfRegionAndSubregions_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_RegionAndSubregions },
+};
+
+static int
+dissect_IEEE1609dot2_SequenceOfRegionAndSubregions(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_sequence_of(tvb, offset, actx, tree, hf_index,
+                                      ett_IEEE1609dot2_SequenceOfRegionAndSubregions, SequenceOfRegionAndSubregions_sequence_of);
+
+  return offset;
+}
+
+
+static const oer_sequence_t CountryAndSubregions_sequence[] = {
+  { &hf_IEEE1609dot2_country, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_CountryOnly },
+  { &hf_IEEE1609dot2_regionAndSubregions, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_SequenceOfRegionAndSubregions },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_CountryAndSubregions(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_IEEE1609dot2_CountryAndSubregions, CountryAndSubregions_sequence);
+
+  return offset;
+}
+
+
+static const value_string IEEE1609dot2_IdentifiedRegion_vals[] = {
+  {   0, "countryOnly" },
+  {   1, "countryAndRegions" },
+  {   2, "countryAndSubregions" },
+  { 0, NULL }
+};
+
+static const oer_choice_t IdentifiedRegion_choice[] = {
+  {   0, &hf_IEEE1609dot2_countryOnly, ASN1_EXTENSION_ROOT    , dissect_IEEE1609dot2_CountryOnly },
+  {   1, &hf_IEEE1609dot2_countryAndRegions, ASN1_EXTENSION_ROOT    , dissect_IEEE1609dot2_CountryAndRegions },
+  {   2, &hf_IEEE1609dot2_countryAndSubregions, ASN1_EXTENSION_ROOT    , dissect_IEEE1609dot2_CountryAndSubregions },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_IdentifiedRegion(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_IEEE1609dot2_IdentifiedRegion, IdentifiedRegion_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const oer_sequence_t SequenceOfIdentifiedRegion_sequence_of[1] = {
+  { &hf_IEEE1609dot2_SequenceOfIdentifiedRegion_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_IdentifiedRegion },
+};
+
+static int
+dissect_IEEE1609dot2_SequenceOfIdentifiedRegion(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_sequence_of(tvb, offset, actx, tree, hf_index,
+                                      ett_IEEE1609dot2_SequenceOfIdentifiedRegion, SequenceOfIdentifiedRegion_sequence_of);
+
+  return offset;
+}
+
+
+static const value_string IEEE1609dot2_GeographicRegion_vals[] = {
+  {   0, "circularRegion" },
+  {   1, "rectangularRegion" },
+  {   2, "polygonalRegion" },
+  {   3, "identifiedRegion" },
+  { 0, NULL }
+};
+
+static const oer_choice_t GeographicRegion_choice[] = {
+  {   0, &hf_IEEE1609dot2_circularRegion, ASN1_EXTENSION_ROOT    , dissect_IEEE1609dot2_CircularRegion },
+  {   1, &hf_IEEE1609dot2_rectangularRegion, ASN1_EXTENSION_ROOT    , dissect_IEEE1609dot2_SequenceOfRectangularRegion },
+  {   2, &hf_IEEE1609dot2_polygonalRegion, ASN1_EXTENSION_ROOT    , dissect_IEEE1609dot2_PolygonalRegion },
+  {   3, &hf_IEEE1609dot2_identifiedRegion, ASN1_EXTENSION_ROOT    , dissect_IEEE1609dot2_SequenceOfIdentifiedRegion },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_GeographicRegion(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_IEEE1609dot2_GeographicRegion, GeographicRegion_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_IEEE1609dot2_ElevInt(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_IEEE1609dot2_Uint16(tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_IEEE1609dot2_Elevation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_IEEE1609dot2_ElevInt(tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+static const oer_sequence_t ThreeDLocation_sequence[] = {
+  { &hf_IEEE1609dot2_latitude, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_Latitude },
+  { &hf_IEEE1609dot2_longitude, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_Longitude },
+  { &hf_IEEE1609dot2_elevation, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_Elevation },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_ThreeDLocation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_IEEE1609dot2_ThreeDLocation, ThreeDLocation_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_IEEE1609dot2_KnownLatitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_IEEE1609dot2_NinetyDegreeInt(tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_IEEE1609dot2_UnknownLatitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_IEEE1609dot2_NinetyDegreeInt(tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_IEEE1609dot2_KnownLongitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_IEEE1609dot2_OneEightyDegreeInt(tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_IEEE1609dot2_UnknownLongitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_IEEE1609dot2_OneEightyDegreeInt(tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_IEEE1609dot2_OCTET_STRING_SIZE_32(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_octet_string(tvb, offset, actx, tree, hf_index,
+                                       32, 32, FALSE, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_IEEE1609dot2_NULL(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_null(tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+static const oer_sequence_t T_uncompressed_sequence[] = {
+  { &hf_IEEE1609dot2_x      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_OCTET_STRING_SIZE_32 },
+  { &hf_IEEE1609dot2_y      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_OCTET_STRING_SIZE_32 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_T_uncompressed(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_IEEE1609dot2_T_uncompressed, T_uncompressed_sequence);
+
+  return offset;
+}
+
+
+static const value_string IEEE1609dot2_EccP256CurvePoint_vals[] = {
+  {   0, "x-only" },
+  {   1, "fill" },
+  {   2, "compressed-y-0" },
+  {   3, "compressed-y-1" },
+  {   4, "uncompressed" },
+  { 0, NULL }
+};
+
+static const oer_choice_t EccP256CurvePoint_choice[] = {
+  {   0, &hf_IEEE1609dot2_x_only , ASN1_NO_EXTENSIONS     , dissect_IEEE1609dot2_OCTET_STRING_SIZE_32 },
+  {   1, &hf_IEEE1609dot2_fill   , ASN1_NO_EXTENSIONS     , dissect_IEEE1609dot2_NULL },
+  {   2, &hf_IEEE1609dot2_compressed_y_0, ASN1_NO_EXTENSIONS     , dissect_IEEE1609dot2_OCTET_STRING_SIZE_32 },
+  {   3, &hf_IEEE1609dot2_compressed_y_1, ASN1_NO_EXTENSIONS     , dissect_IEEE1609dot2_OCTET_STRING_SIZE_32 },
+  {   4, &hf_IEEE1609dot2_uncompressed, ASN1_NO_EXTENSIONS     , dissect_IEEE1609dot2_T_uncompressed },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_EccP256CurvePoint(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_IEEE1609dot2_EccP256CurvePoint, EccP256CurvePoint_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const oer_sequence_t EcdsaP256Signature_sequence[] = {
+  { &hf_IEEE1609dot2_r      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_EccP256CurvePoint },
+  { &hf_IEEE1609dot2_s      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_OCTET_STRING_SIZE_32 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_EcdsaP256Signature(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_IEEE1609dot2_EcdsaP256Signature, EcdsaP256Signature_sequence);
+
+  return offset;
+}
+
+
+static const value_string IEEE1609dot2_Signature_vals[] = {
+  {   0, "ecdsaNistP256Signature" },
+  {   1, "ecdsaBrainpoolP256r1Signature" },
+  { 0, NULL }
+};
+
+static const oer_choice_t Signature_choice[] = {
+  {   0, &hf_IEEE1609dot2_ecdsaNistP256Signature, ASN1_EXTENSION_ROOT    , dissect_IEEE1609dot2_EcdsaP256Signature },
+  {   1, &hf_IEEE1609dot2_ecdsaBrainpoolP256r1Signature, ASN1_EXTENSION_ROOT    , dissect_IEEE1609dot2_EcdsaP256Signature },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_Signature(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_IEEE1609dot2_Signature, Signature_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const value_string IEEE1609dot2_SymmAlgorithm_vals[] = {
+  {   0, "aes128Ccm" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_IEEE1609dot2_SymmAlgorithm(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string IEEE1609dot2_HashAlgorithm_vals[] = {
+  {   0, "sha256" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_IEEE1609dot2_HashAlgorithm(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_IEEE1609dot2_OCTET_STRING_SIZE_16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_octet_string(tvb, offset, actx, tree, hf_index,
+                                       16, 16, FALSE, NULL);
+
+  return offset;
+}
+
+
+static const oer_sequence_t EciesP256EncryptedKey_sequence[] = {
+  { &hf_IEEE1609dot2_v      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_EccP256CurvePoint },
+  { &hf_IEEE1609dot2_c      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_OCTET_STRING_SIZE_16 },
+  { &hf_IEEE1609dot2_t      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_OCTET_STRING_SIZE_16 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_EciesP256EncryptedKey(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_IEEE1609dot2_EciesP256EncryptedKey, EciesP256EncryptedKey_sequence);
+
+  return offset;
+}
+
+
+static const value_string IEEE1609dot2_BasePublicEncryptionKey_vals[] = {
+  {   0, "eciesNistP256" },
+  {   1, "eciesBrainpoolP256r1" },
+  { 0, NULL }
+};
+
+static const oer_choice_t BasePublicEncryptionKey_choice[] = {
+  {   0, &hf_IEEE1609dot2_eciesNistP256, ASN1_EXTENSION_ROOT    , dissect_IEEE1609dot2_EccP256CurvePoint },
+  {   1, &hf_IEEE1609dot2_eciesBrainpoolP256r1, ASN1_EXTENSION_ROOT    , dissect_IEEE1609dot2_EccP256CurvePoint },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_BasePublicEncryptionKey(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_IEEE1609dot2_BasePublicEncryptionKey, BasePublicEncryptionKey_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const oer_sequence_t PublicEncryptionKey_sequence[] = {
+  { &hf_IEEE1609dot2_supportedSymmAlg, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_SymmAlgorithm },
+  { &hf_IEEE1609dot2_publicKey, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_BasePublicEncryptionKey },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_PublicEncryptionKey(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_IEEE1609dot2_PublicEncryptionKey, PublicEncryptionKey_sequence);
+
+  return offset;
+}
+
+
+static const value_string IEEE1609dot2_SymmetricEncryptionKey_vals[] = {
+  {   0, "aes128Ccm" },
+  { 0, NULL }
+};
+
+static const oer_choice_t SymmetricEncryptionKey_choice[] = {
+  {   0, &hf_IEEE1609dot2_aes128Ccm, ASN1_EXTENSION_ROOT    , dissect_IEEE1609dot2_OCTET_STRING_SIZE_16 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_SymmetricEncryptionKey(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_IEEE1609dot2_SymmetricEncryptionKey, SymmetricEncryptionKey_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const value_string IEEE1609dot2_EncryptionKey_vals[] = {
+  {   0, "public" },
+  {   1, "symmetric" },
+  { 0, NULL }
+};
+
+static const oer_choice_t EncryptionKey_choice[] = {
+  {   0, &hf_IEEE1609dot2_public , ASN1_NO_EXTENSIONS     , dissect_IEEE1609dot2_PublicEncryptionKey },
+  {   1, &hf_IEEE1609dot2_symmetric, ASN1_NO_EXTENSIONS     , dissect_IEEE1609dot2_SymmetricEncryptionKey },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_EncryptionKey(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_IEEE1609dot2_EncryptionKey, EncryptionKey_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const value_string IEEE1609dot2_PublicVerificationKey_vals[] = {
+  {   0, "ecdsaNistP256" },
+  {   1, "ecdsaBrainpoolP256r1" },
+  { 0, NULL }
+};
+
+static const oer_choice_t PublicVerificationKey_choice[] = {
+  {   0, &hf_IEEE1609dot2_ecdsaNistP256, ASN1_EXTENSION_ROOT    , dissect_IEEE1609dot2_EccP256CurvePoint },
+  {   1, &hf_IEEE1609dot2_ecdsaBrainpoolP256r1, ASN1_EXTENSION_ROOT    , dissect_IEEE1609dot2_EccP256CurvePoint },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_PublicVerificationKey(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_IEEE1609dot2_PublicVerificationKey, PublicVerificationKey_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_IEEE1609dot2_Psid(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_constrained_integer_64b_no_ub(tvb, offset, actx, tree, hf_index,
+                                                            0U, NO_BOUND, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_IEEE1609dot2_OCTET_STRING_SIZE_0_MAX(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_octet_string(tvb, offset, actx, tree, hf_index,
+                                       0, NO_BOUND, FALSE, NULL);
+
+  return offset;
+}
+
+
+static const value_string IEEE1609dot2_ServiceSpecificPermissions_vals[] = {
+  {   0, "opaque" },
+  { 0, NULL }
+};
+
+static const oer_choice_t ServiceSpecificPermissions_choice[] = {
+  {   0, &hf_IEEE1609dot2_opaque , ASN1_EXTENSION_ROOT    , dissect_IEEE1609dot2_OCTET_STRING_SIZE_0_MAX },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_ServiceSpecificPermissions(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_IEEE1609dot2_ServiceSpecificPermissions, ServiceSpecificPermissions_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const oer_sequence_t PsidSsp_sequence[] = {
+  { &hf_IEEE1609dot2_psid   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_Psid },
+  { &hf_IEEE1609dot2_ssp    , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_IEEE1609dot2_ServiceSpecificPermissions },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_PsidSsp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_IEEE1609dot2_PsidSsp, PsidSsp_sequence);
+
+  return offset;
+}
+
+
+static const oer_sequence_t SequenceOfPsidSsp_sequence_of[1] = {
+  { &hf_IEEE1609dot2_SequenceOfPsidSsp_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_PsidSsp },
+};
+
+static int
+dissect_IEEE1609dot2_SequenceOfPsidSsp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_sequence_of(tvb, offset, actx, tree, hf_index,
+                                      ett_IEEE1609dot2_SequenceOfPsidSsp, SequenceOfPsidSsp_sequence_of);
+
+  return offset;
+}
+
+
+static const oer_sequence_t SequenceOfPsid_sequence_of[1] = {
+  { &hf_IEEE1609dot2_SequenceOfPsid_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_Psid },
+};
+
+static int
+dissect_IEEE1609dot2_SequenceOfPsid(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_sequence_of(tvb, offset, actx, tree, hf_index,
+                                      ett_IEEE1609dot2_SequenceOfPsid, SequenceOfPsid_sequence_of);
+
+  return offset;
+}
+
+
+static const oer_sequence_t SequenceOfOctetString_sequence_of[1] = {
+  { &hf_IEEE1609dot2_SequenceOfOctetString_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_OCTET_STRING_SIZE_0_MAX },
+};
+
+static int
+dissect_IEEE1609dot2_SequenceOfOctetString(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_IEEE1609dot2_SequenceOfOctetString, SequenceOfOctetString_sequence_of,
+                                                  0, NO_BOUND, FALSE);
+
+  return offset;
+}
+
+
+static const value_string IEEE1609dot2_SspRange_vals[] = {
+  {   0, "opaque" },
+  {   1, "all" },
+  { 0, NULL }
+};
+
+static const oer_choice_t SspRange_choice[] = {
+  {   0, &hf_IEEE1609dot2_opaque_01, ASN1_EXTENSION_ROOT    , dissect_IEEE1609dot2_SequenceOfOctetString },
+  {   1, &hf_IEEE1609dot2_all    , ASN1_EXTENSION_ROOT    , dissect_IEEE1609dot2_NULL },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_SspRange(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_IEEE1609dot2_SspRange, SspRange_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const oer_sequence_t PsidSspRange_sequence[] = {
+  { &hf_IEEE1609dot2_psid   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_Psid },
+  { &hf_IEEE1609dot2_sspRange, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_IEEE1609dot2_SspRange },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_PsidSspRange(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_IEEE1609dot2_PsidSspRange, PsidSspRange_sequence);
+
+  return offset;
+}
+
+
+static const oer_sequence_t SequenceOfPsidSspRange_sequence_of[1] = {
+  { &hf_IEEE1609dot2_SequenceOfPsidSspRange_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_PsidSspRange },
+};
+
+static int
+dissect_IEEE1609dot2_SequenceOfPsidSspRange(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_sequence_of(tvb, offset, actx, tree, hf_index,
+                                      ett_IEEE1609dot2_SequenceOfPsidSspRange, SequenceOfPsidSspRange_sequence_of);
+
+  return offset;
+}
+
+
+
+static int
+dissect_IEEE1609dot2_SubjectAssurance(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_octet_string(tvb, offset, actx, tree, hf_index,
+                                       1, 1, FALSE, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_IEEE1609dot2_CrlSeries(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_IEEE1609dot2_Uint16(tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_IEEE1609dot2_IValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_IEEE1609dot2_Uint16(tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_IEEE1609dot2_Hostname(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_UTF8String(tvb, offset, actx, tree, hf_index,
+                                          0, 255, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_IEEE1609dot2_LinkageValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_octet_string(tvb, offset, actx, tree, hf_index,
+                                       9, 9, FALSE, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_IEEE1609dot2_OCTET_STRING_SIZE_4(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_octet_string(tvb, offset, actx, tree, hf_index,
+                                       4, 4, FALSE, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_IEEE1609dot2_OCTET_STRING_SIZE_9(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_octet_string(tvb, offset, actx, tree, hf_index,
+                                       9, 9, FALSE, NULL);
+
+  return offset;
+}
+
+
+static const oer_sequence_t GroupLinkageValue_sequence[] = {
+  { &hf_IEEE1609dot2_jValue , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_OCTET_STRING_SIZE_4 },
+  { &hf_IEEE1609dot2_value  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_OCTET_STRING_SIZE_9 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_GroupLinkageValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_IEEE1609dot2_GroupLinkageValue, GroupLinkageValue_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_IEEE1609dot2_LaId(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_octet_string(tvb, offset, actx, tree, hf_index,
+                                       2, 2, FALSE, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_IEEE1609dot2_LinkageSeed(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_octet_string(tvb, offset, actx, tree, hf_index,
+                                       16, 16, FALSE, NULL);
+
+  return offset;
+}
+
+
+static const oer_sequence_t MissingCrlIdentifier_sequence[] = {
+  { &hf_IEEE1609dot2_cracaId, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_HashedId3 },
+  { &hf_IEEE1609dot2_crlSeries, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_CrlSeries },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_MissingCrlIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_IEEE1609dot2_MissingCrlIdentifier, MissingCrlIdentifier_sequence);
+
+  return offset;
+}
+
+
+static const oer_sequence_t HeaderInfo_sequence[] = {
+  { &hf_IEEE1609dot2_psid   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_Psid },
+  { &hf_IEEE1609dot2_generationTime, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_IEEE1609dot2_Time64 },
+  { &hf_IEEE1609dot2_expiryTime, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_IEEE1609dot2_Time64 },
+  { &hf_IEEE1609dot2_generationLocation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_IEEE1609dot2_ThreeDLocation },
+  { &hf_IEEE1609dot2_p2pcdLearningRequest, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_IEEE1609dot2_HashedId3 },
+  { &hf_IEEE1609dot2_missingCrlIdentifier, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_IEEE1609dot2_MissingCrlIdentifier },
+  { &hf_IEEE1609dot2_encryptionKey, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_IEEE1609dot2_EncryptionKey },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_HeaderInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_IEEE1609dot2_HeaderInfo, HeaderInfo_sequence);
+
+  return offset;
+}
+
+
+static const oer_sequence_t ToBeSignedData_sequence[] = {
+  { &hf_IEEE1609dot2_payload, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_SignedDataPayload },
+  { &hf_IEEE1609dot2_headerInfo, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_HeaderInfo },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_ToBeSignedData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_IEEE1609dot2_ToBeSignedData, ToBeSignedData_sequence);
+
+  return offset;
+}
+
+
+static const value_string IEEE1609dot2_CertificateType_vals[] = {
+  {   0, "explicit" },
+  {   1, "implicit" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_IEEE1609dot2_CertificateType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_enumerated(tvb, offset, actx, tree, hf_index,
+                                     2, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string IEEE1609dot2_IssuerIdentifier_vals[] = {
+  {   0, "sha256AndDigest" },
+  {   1, "self" },
+  { 0, NULL }
+};
+
+static const oer_choice_t IssuerIdentifier_choice[] = {
+  {   0, &hf_IEEE1609dot2_sha256AndDigest, ASN1_EXTENSION_ROOT    , dissect_IEEE1609dot2_HashedId8 },
+  {   1, &hf_IEEE1609dot2_self_01, ASN1_EXTENSION_ROOT    , dissect_IEEE1609dot2_HashAlgorithm },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_IssuerIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_IEEE1609dot2_IssuerIdentifier, IssuerIdentifier_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const oer_sequence_t LinkageData_sequence[] = {
+  { &hf_IEEE1609dot2_iCert  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_IValue },
+  { &hf_IEEE1609dot2_linkage_value, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_LinkageValue },
+  { &hf_IEEE1609dot2_group_linkage_value, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_IEEE1609dot2_GroupLinkageValue },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_LinkageData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_IEEE1609dot2_LinkageData, LinkageData_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_IEEE1609dot2_OCTET_STRING_SIZE_1_64(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_octet_string(tvb, offset, actx, tree, hf_index,
+                                       1, 64, FALSE, NULL);
+
+  return offset;
+}
+
+
+static const value_string IEEE1609dot2_CertificateId_vals[] = {
+  {   0, "linkageData" },
+  {   1, "name" },
+  {   2, "binaryId" },
+  {   3, "none" },
+  { 0, NULL }
+};
+
+static const oer_choice_t CertificateId_choice[] = {
+  {   0, &hf_IEEE1609dot2_linkageData, ASN1_EXTENSION_ROOT    , dissect_IEEE1609dot2_LinkageData },
+  {   1, &hf_IEEE1609dot2_name   , ASN1_EXTENSION_ROOT    , dissect_IEEE1609dot2_Hostname },
+  {   2, &hf_IEEE1609dot2_binaryId, ASN1_EXTENSION_ROOT    , dissect_IEEE1609dot2_OCTET_STRING_SIZE_1_64 },
+  {   3, &hf_IEEE1609dot2_none   , ASN1_EXTENSION_ROOT    , dissect_IEEE1609dot2_NULL },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_CertificateId(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_IEEE1609dot2_CertificateId, CertificateId_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const value_string IEEE1609dot2_SubjectPermissions_vals[] = {
+  {   0, "explicit" },
+  {   1, "all" },
+  { 0, NULL }
+};
+
+static const oer_choice_t SubjectPermissions_choice[] = {
+  {   0, &hf_IEEE1609dot2_explicit, ASN1_EXTENSION_ROOT    , dissect_IEEE1609dot2_SequenceOfPsidSspRange },
+  {   1, &hf_IEEE1609dot2_all    , ASN1_EXTENSION_ROOT    , dissect_IEEE1609dot2_NULL },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_SubjectPermissions(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_IEEE1609dot2_SubjectPermissions, SubjectPermissions_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_IEEE1609dot2_INTEGER(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_integer(tvb, offset, actx, tree, hf_index, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_IEEE1609dot2_EndEntityType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_bit_string(tvb, offset, actx, tree, hf_index,
+                                     8, 8, FALSE, NULL, NULL);
+
+  return offset;
+}
+
+
+static const oer_sequence_t PsidGroupPermissions_sequence[] = {
+  { &hf_IEEE1609dot2_appPermissions_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_SubjectPermissions },
+  { &hf_IEEE1609dot2_minChainDepth, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_IEEE1609dot2_INTEGER },
+  { &hf_IEEE1609dot2_chainDepthRange, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_IEEE1609dot2_INTEGER },
+  { &hf_IEEE1609dot2_eeType , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_IEEE1609dot2_EndEntityType },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_PsidGroupPermissions(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_IEEE1609dot2_PsidGroupPermissions, PsidGroupPermissions_sequence);
+
+  return offset;
+}
+
+
+static const oer_sequence_t SequenceOfPsidGroupPermissions_sequence_of[1] = {
+  { &hf_IEEE1609dot2_SequenceOfPsidGroupPermissions_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_PsidGroupPermissions },
+};
+
+static int
+dissect_IEEE1609dot2_SequenceOfPsidGroupPermissions(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_sequence_of(tvb, offset, actx, tree, hf_index,
+                                      ett_IEEE1609dot2_SequenceOfPsidGroupPermissions, SequenceOfPsidGroupPermissions_sequence_of);
+
+  return offset;
+}
+
+
+static const value_string IEEE1609dot2_VerificationKeyIndicator_vals[] = {
+  {   0, "verificationKey" },
+  {   1, "reconstructionValue" },
+  { 0, NULL }
+};
+
+static const oer_choice_t VerificationKeyIndicator_choice[] = {
+  {   0, &hf_IEEE1609dot2_verificationKey, ASN1_EXTENSION_ROOT    , dissect_IEEE1609dot2_PublicVerificationKey },
+  {   1, &hf_IEEE1609dot2_reconstructionValue, ASN1_EXTENSION_ROOT    , dissect_IEEE1609dot2_EccP256CurvePoint },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_VerificationKeyIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_IEEE1609dot2_VerificationKeyIndicator, VerificationKeyIndicator_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const oer_sequence_t ToBeSignedCertificate_sequence[] = {
+  { &hf_IEEE1609dot2_id     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_CertificateId },
+  { &hf_IEEE1609dot2_cracaId, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_HashedId3 },
+  { &hf_IEEE1609dot2_crlSeries, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_CrlSeries },
+  { &hf_IEEE1609dot2_validityPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_ValidityPeriod },
+  { &hf_IEEE1609dot2_region_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_IEEE1609dot2_GeographicRegion },
+  { &hf_IEEE1609dot2_assuranceLevel, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_IEEE1609dot2_SubjectAssurance },
+  { &hf_IEEE1609dot2_appPermissions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_IEEE1609dot2_SequenceOfPsidSsp },
+  { &hf_IEEE1609dot2_certIssuePermissions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_IEEE1609dot2_SequenceOfPsidGroupPermissions },
+  { &hf_IEEE1609dot2_certRequestPermissions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_IEEE1609dot2_SequenceOfPsidGroupPermissions },
+  { &hf_IEEE1609dot2_canRequestRollover, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_IEEE1609dot2_NULL },
+  { &hf_IEEE1609dot2_encryptionKey_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_IEEE1609dot2_PublicEncryptionKey },
+  { &hf_IEEE1609dot2_verifyKeyIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_VerificationKeyIndicator },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_ToBeSignedCertificate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_IEEE1609dot2_ToBeSignedCertificate, ToBeSignedCertificate_sequence);
+
+  return offset;
+}
+
+
+static const oer_sequence_t CertificateBase_sequence[] = {
+  { &hf_IEEE1609dot2_version, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_Uint8 },
+  { &hf_IEEE1609dot2_type   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_CertificateType },
+  { &hf_IEEE1609dot2_issuer , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_IssuerIdentifier },
+  { &hf_IEEE1609dot2_toBeSigned, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_ToBeSignedCertificate },
+  { &hf_IEEE1609dot2_signature, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_IEEE1609dot2_Signature },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_CertificateBase(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_IEEE1609dot2_CertificateBase, CertificateBase_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_IEEE1609dot2_Certificate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_IEEE1609dot2_CertificateBase(tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+static const oer_sequence_t SequenceOfCertificate_sequence_of[1] = {
+  { &hf_IEEE1609dot2_SequenceOfCertificate_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_Certificate },
+};
+
+static int
+dissect_IEEE1609dot2_SequenceOfCertificate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_sequence_of(tvb, offset, actx, tree, hf_index,
+                                      ett_IEEE1609dot2_SequenceOfCertificate, SequenceOfCertificate_sequence_of);
+
+  return offset;
+}
+
+
+static const value_string IEEE1609dot2_SignerIdentifier_vals[] = {
+  {   0, "digest" },
+  {   1, "certificate" },
+  {   2, "self" },
+  { 0, NULL }
+};
+
+static const oer_choice_t SignerIdentifier_choice[] = {
+  {   0, &hf_IEEE1609dot2_digest , ASN1_EXTENSION_ROOT    , dissect_IEEE1609dot2_HashedId8 },
+  {   1, &hf_IEEE1609dot2_certificate, ASN1_EXTENSION_ROOT    , dissect_IEEE1609dot2_SequenceOfCertificate },
+  {   2, &hf_IEEE1609dot2_self   , ASN1_EXTENSION_ROOT    , dissect_IEEE1609dot2_NULL },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_SignerIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_IEEE1609dot2_SignerIdentifier, SignerIdentifier_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const oer_sequence_t SignedData_sequence[] = {
+  { &hf_IEEE1609dot2_hashId , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_HashAlgorithm },
+  { &hf_IEEE1609dot2_tbsData, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_ToBeSignedData },
+  { &hf_IEEE1609dot2_signer , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_SignerIdentifier },
+  { &hf_IEEE1609dot2_signature, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_Signature },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_SignedData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_IEEE1609dot2_SignedData, SignedData_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_IEEE1609dot2_PreSharedKeyRecipientInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_IEEE1609dot2_HashedId8(tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_IEEE1609dot2_OCTET_STRING_SIZE_12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_octet_string(tvb, offset, actx, tree, hf_index,
+                                       12, 12, FALSE, NULL);
+
+  return offset;
+}
+
+
+static const oer_sequence_t AesCcmCiphertext_sequence[] = {
+  { &hf_IEEE1609dot2_nonce  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_OCTET_STRING_SIZE_12 },
+  { &hf_IEEE1609dot2_ccmCiphertext, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_Opaque },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_AesCcmCiphertext(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_IEEE1609dot2_AesCcmCiphertext, AesCcmCiphertext_sequence);
+
+  return offset;
+}
+
+
+static const value_string IEEE1609dot2_SymmetricCiphertext_vals[] = {
+  {   0, "aes128ccm" },
+  { 0, NULL }
+};
+
+static const oer_choice_t SymmetricCiphertext_choice[] = {
+  {   0, &hf_IEEE1609dot2_aes128ccm, ASN1_EXTENSION_ROOT    , dissect_IEEE1609dot2_AesCcmCiphertext },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_SymmetricCiphertext(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_IEEE1609dot2_SymmetricCiphertext, SymmetricCiphertext_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const oer_sequence_t SymmRecipientInfo_sequence[] = {
+  { &hf_IEEE1609dot2_recipientId, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_HashedId8 },
+  { &hf_IEEE1609dot2_encKey , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_SymmetricCiphertext },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_SymmRecipientInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_IEEE1609dot2_SymmRecipientInfo, SymmRecipientInfo_sequence);
+
+  return offset;
+}
+
+
+static const value_string IEEE1609dot2_EncryptedDataEncryptionKey_vals[] = {
+  {   0, "eciesNistP256" },
+  {   1, "eciesBrainpoolP256r1" },
+  { 0, NULL }
+};
+
+static const oer_choice_t EncryptedDataEncryptionKey_choice[] = {
+  {   0, &hf_IEEE1609dot2_eciesNistP256_01, ASN1_EXTENSION_ROOT    , dissect_IEEE1609dot2_EciesP256EncryptedKey },
+  {   1, &hf_IEEE1609dot2_eciesBrainpoolP256r1_01, ASN1_EXTENSION_ROOT    , dissect_IEEE1609dot2_EciesP256EncryptedKey },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_EncryptedDataEncryptionKey(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_IEEE1609dot2_EncryptedDataEncryptionKey, EncryptedDataEncryptionKey_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const oer_sequence_t PKRecipientInfo_sequence[] = {
+  { &hf_IEEE1609dot2_recipientId, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_HashedId8 },
+  { &hf_IEEE1609dot2_encKey_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_EncryptedDataEncryptionKey },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_PKRecipientInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_IEEE1609dot2_PKRecipientInfo, PKRecipientInfo_sequence);
+
+  return offset;
+}
+
+
+static const value_string IEEE1609dot2_RecipientInfo_vals[] = {
+  {   0, "pskRecipInfo" },
+  {   1, "symmRecipInfo" },
+  {   2, "certRecipInfo" },
+  {   3, "signedDataRecipInfo" },
+  {   4, "rekRecipInfo" },
+  { 0, NULL }
+};
+
+static const oer_choice_t RecipientInfo_choice[] = {
+  {   0, &hf_IEEE1609dot2_pskRecipInfo, ASN1_NO_EXTENSIONS     , dissect_IEEE1609dot2_PreSharedKeyRecipientInfo },
+  {   1, &hf_IEEE1609dot2_symmRecipInfo, ASN1_NO_EXTENSIONS     , dissect_IEEE1609dot2_SymmRecipientInfo },
+  {   2, &hf_IEEE1609dot2_certRecipInfo, ASN1_NO_EXTENSIONS     , dissect_IEEE1609dot2_PKRecipientInfo },
+  {   3, &hf_IEEE1609dot2_signedDataRecipInfo, ASN1_NO_EXTENSIONS     , dissect_IEEE1609dot2_PKRecipientInfo },
+  {   4, &hf_IEEE1609dot2_rekRecipInfo, ASN1_NO_EXTENSIONS     , dissect_IEEE1609dot2_PKRecipientInfo },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_RecipientInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_IEEE1609dot2_RecipientInfo, RecipientInfo_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const oer_sequence_t SequenceOfRecipientInfo_sequence_of[1] = {
+  { &hf_IEEE1609dot2_SequenceOfRecipientInfo_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_RecipientInfo },
+};
+
+static int
+dissect_IEEE1609dot2_SequenceOfRecipientInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_sequence_of(tvb, offset, actx, tree, hf_index,
+                                      ett_IEEE1609dot2_SequenceOfRecipientInfo, SequenceOfRecipientInfo_sequence_of);
+
+  return offset;
+}
+
+
+static const oer_sequence_t EncryptedData_sequence[] = {
+  { &hf_IEEE1609dot2_recipients, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_SequenceOfRecipientInfo },
+  { &hf_IEEE1609dot2_ciphertext, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_SymmetricCiphertext },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_EncryptedData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_IEEE1609dot2_EncryptedData, EncryptedData_sequence);
+
+  return offset;
+}
+
+
+static const value_string IEEE1609dot2_Ieee1609Dot2Content_vals[] = {
+  {   0, "unsecuredData" },
+  {   1, "signedData" },
+  {   2, "encryptedData" },
+  {   3, "signedCertificateRequest" },
+  { 0, NULL }
+};
+
+static const oer_choice_t Ieee1609Dot2Content_choice[] = {
+  {   0, &hf_IEEE1609dot2_unsecuredData, ASN1_EXTENSION_ROOT    , dissect_IEEE1609dot2_Opaque },
+  {   1, &hf_IEEE1609dot2_signedData, ASN1_EXTENSION_ROOT    , dissect_IEEE1609dot2_SignedData },
+  {   2, &hf_IEEE1609dot2_encryptedData, ASN1_EXTENSION_ROOT    , dissect_IEEE1609dot2_EncryptedData },
+  {   3, &hf_IEEE1609dot2_signedCertificateRequest, ASN1_EXTENSION_ROOT    , dissect_IEEE1609dot2_Opaque },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_Ieee1609Dot2Content(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_IEEE1609dot2_Ieee1609Dot2Content, Ieee1609Dot2Content_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const oer_sequence_t Ieee1609Dot2Data_sequence[] = {
+  { &hf_IEEE1609dot2_protocolVersion, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_Uint8 },
+  { &hf_IEEE1609dot2_content, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IEEE1609dot2_Ieee1609Dot2Content },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_Ieee1609Dot2Data(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_IEEE1609dot2_Ieee1609Dot2Data, Ieee1609Dot2Data_sequence);
+
+  return offset;
+}
+
+
+static const value_string IEEE1609dot2_HashedData_vals[] = {
+  {   0, "sha256HashedData" },
+  { 0, NULL }
+};
+
+static const oer_choice_t HashedData_choice[] = {
+  {   0, &hf_IEEE1609dot2_sha256HashedData, ASN1_EXTENSION_ROOT    , dissect_IEEE1609dot2_OCTET_STRING_SIZE_32 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_HashedData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_IEEE1609dot2_HashedData, HashedData_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const oer_sequence_t SignedDataPayload_sequence[] = {
+  { &hf_IEEE1609dot2_data   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_IEEE1609dot2_Ieee1609Dot2Data },
+  { &hf_IEEE1609dot2_extDataHash, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_IEEE1609dot2_HashedData },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_IEEE1609dot2_SignedDataPayload(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_IEEE1609dot2_SignedDataPayload, SignedDataPayload_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_IEEE1609dot2_Countersignature(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_IEEE1609dot2_Ieee1609Dot2Data(tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_IEEE1609dot2_ImplicitCertificate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_IEEE1609dot2_CertificateBase(tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_IEEE1609dot2_ExplicitCertificate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_IEEE1609dot2_CertificateBase(tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+/*--- PDUs ---*/
+
+static int dissect_Ieee1609Dot2Data_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_IEEE1609dot2_Ieee1609Dot2Data(tvb, offset, &asn1_ctx, tree, hf_IEEE1609dot2_Ieee1609Dot2Data_PDU);
+  return offset;
+}
+
+
+/*--- End of included file: packet-IEEE1609dot2-fn.c ---*/
+#line 36 "./asn1/ieee1609dot2/packet-IEEE1609dot2-template.c"
+
+
+/*--- proto_register_IEEE1609dot2 ----------------------------------------------*/
+void proto_register_IEEE1609dot2(void) {
+
+  /* List of fields */
+  static hf_register_info hf[] = {
+
+/*--- Included file: packet-IEEE1609dot2-hfarr.c ---*/
+#line 1 "./asn1/ieee1609dot2/packet-IEEE1609dot2-hfarr.c"
+    { &hf_IEEE1609dot2_Ieee1609Dot2Data_PDU,
+      { "Ieee1609Dot2Data", "IEEE1609dot2.Ieee1609Dot2Data_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_IEEE1609dot2_SequenceOfUint3_item,
+      { "Uint3", "IEEE1609dot2.Uint3",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_IEEE1609dot2_SequenceOfUint8_item,
+      { "Uint8", "IEEE1609dot2.Uint8",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_IEEE1609dot2_SequenceOfUint16_item,
+      { "Uint16", "IEEE1609dot2.Uint16",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_IEEE1609dot2_start,
+      { "start", "IEEE1609dot2.start",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "Time32", HFILL }},
+    { &hf_IEEE1609dot2_duration,
+      { "duration", "IEEE1609dot2.duration",
+        FT_UINT32, BASE_DEC, VALS(IEEE1609dot2_Duration_vals), 0,
+        NULL, HFILL }},
+    { &hf_IEEE1609dot2_microseconds,
+      { "microseconds", "IEEE1609dot2.microseconds",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "Uint16", HFILL }},
+    { &hf_IEEE1609dot2_milliseconds,
+      { "milliseconds", "IEEE1609dot2.milliseconds",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "Uint16", HFILL }},
+    { &hf_IEEE1609dot2_seconds,
+      { "seconds", "IEEE1609dot2.seconds",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "Uint16", HFILL }},
+    { &hf_IEEE1609dot2_minutes,
+      { "minutes", "IEEE1609dot2.minutes",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "Uint16", HFILL }},
+    { &hf_IEEE1609dot2_hours,
+      { "hours", "IEEE1609dot2.hours",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "Uint16", HFILL }},
+    { &hf_IEEE1609dot2_sixtyHours,
+      { "sixtyHours", "IEEE1609dot2.sixtyHours",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "Uint16", HFILL }},
+    { &hf_IEEE1609dot2_years,
+      { "years", "IEEE1609dot2.years",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "Uint16", HFILL }},
+    { &hf_IEEE1609dot2_circularRegion,
+      { "circularRegion", "IEEE1609dot2.circularRegion_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_IEEE1609dot2_rectangularRegion,
+      { "rectangularRegion", "IEEE1609dot2.rectangularRegion",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SequenceOfRectangularRegion", HFILL }},
+    { &hf_IEEE1609dot2_polygonalRegion,
+      { "polygonalRegion", "IEEE1609dot2.polygonalRegion",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_IEEE1609dot2_identifiedRegion,
+      { "identifiedRegion", "IEEE1609dot2.identifiedRegion",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SequenceOfIdentifiedRegion", HFILL }},
+    { &hf_IEEE1609dot2_center,
+      { "center", "IEEE1609dot2.center_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "TwoDLocation", HFILL }},
+    { &hf_IEEE1609dot2_radius,
+      { "radius", "IEEE1609dot2.radius",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "Uint16", HFILL }},
+    { &hf_IEEE1609dot2_northWest,
+      { "northWest", "IEEE1609dot2.northWest_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "TwoDLocation", HFILL }},
+    { &hf_IEEE1609dot2_southEast,
+      { "southEast", "IEEE1609dot2.southEast_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "TwoDLocation", HFILL }},
+    { &hf_IEEE1609dot2_SequenceOfRectangularRegion_item,
+      { "RectangularRegion", "IEEE1609dot2.RectangularRegion_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_IEEE1609dot2_PolygonalRegion_item,
+      { "TwoDLocation", "IEEE1609dot2.TwoDLocation_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_IEEE1609dot2_latitude,
+      { "latitude", "IEEE1609dot2.latitude",
+        FT_INT32, BASE_DEC, VALS(IEEE1609dot2_NinetyDegreeInt_vals), 0,
+        NULL, HFILL }},
+    { &hf_IEEE1609dot2_longitude,
+      { "longitude", "IEEE1609dot2.longitude",
+        FT_INT32, BASE_DEC, VALS(IEEE1609dot2_OneEightyDegreeInt_vals), 0,
+        NULL, HFILL }},
+    { &hf_IEEE1609dot2_countryOnly,
+      { "countryOnly", "IEEE1609dot2.countryOnly",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_IEEE1609dot2_countryAndRegions,
+      { "countryAndRegions", "IEEE1609dot2.countryAndRegions_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_IEEE1609dot2_countryAndSubregions,
+      { "countryAndSubregions", "IEEE1609dot2.countryAndSubregions_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_IEEE1609dot2_SequenceOfIdentifiedRegion_item,
+      { "IdentifiedRegion", "IEEE1609dot2.IdentifiedRegion",
+        FT_UINT32, BASE_DEC, VALS(IEEE1609dot2_IdentifiedRegion_vals), 0,
+        NULL, HFILL }},
+    { &hf_IEEE1609dot2_regions,
+      { "regions", "IEEE1609dot2.regions",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SequenceOfUint8", HFILL }},
+    { &hf_IEEE1609dot2_country,
+      { "country", "IEEE1609dot2.country",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "CountryOnly", HFILL }},
+    { &hf_IEEE1609dot2_regionAndSubregions,
+      { "regionAndSubregions", "IEEE1609dot2.regionAndSubregions",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SequenceOfRegionAndSubregions", HFILL }},
+    { &hf_IEEE1609dot2_region,
+      { "region", "IEEE1609dot2.region",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "Uint8", HFILL }},
+    { &hf_IEEE1609dot2_subregions,
+      { "subregions", "IEEE1609dot2.subregions",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SequenceOfUint16", HFILL }},
+    { &hf_IEEE1609dot2_SequenceOfRegionAndSubregions_item,
+      { "RegionAndSubregions", "IEEE1609dot2.RegionAndSubregions_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_IEEE1609dot2_elevation,
+      { "elevation", "IEEE1609dot2.elevation",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_IEEE1609dot2_ecdsaNistP256Signature,
+      { "ecdsaNistP256Signature", "IEEE1609dot2.ecdsaNistP256Signature_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EcdsaP256Signature", HFILL }},
+    { &hf_IEEE1609dot2_ecdsaBrainpoolP256r1Signature,
+      { "ecdsaBrainpoolP256r1Signature", "IEEE1609dot2.ecdsaBrainpoolP256r1Signature_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EcdsaP256Signature", HFILL }},
+    { &hf_IEEE1609dot2_r,
+      { "r", "IEEE1609dot2.r",
+        FT_UINT32, BASE_DEC, VALS(IEEE1609dot2_EccP256CurvePoint_vals), 0,
+        "EccP256CurvePoint", HFILL }},
+    { &hf_IEEE1609dot2_s,
+      { "s", "IEEE1609dot2.s",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING_SIZE_32", HFILL }},
+    { &hf_IEEE1609dot2_x_only,
+      { "x-only", "IEEE1609dot2.x_only",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING_SIZE_32", HFILL }},
+    { &hf_IEEE1609dot2_fill,
+      { "fill", "IEEE1609dot2.fill_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_IEEE1609dot2_compressed_y_0,
+      { "compressed-y-0", "IEEE1609dot2.compressed_y_0",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING_SIZE_32", HFILL }},
+    { &hf_IEEE1609dot2_compressed_y_1,
+      { "compressed-y-1", "IEEE1609dot2.compressed_y_1",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING_SIZE_32", HFILL }},
+    { &hf_IEEE1609dot2_uncompressed,
+      { "uncompressed", "IEEE1609dot2.uncompressed_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_IEEE1609dot2_x,
+      { "x", "IEEE1609dot2.x",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING_SIZE_32", HFILL }},
+    { &hf_IEEE1609dot2_y,
+      { "y", "IEEE1609dot2.y",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING_SIZE_32", HFILL }},
+    { &hf_IEEE1609dot2_v,
+      { "v", "IEEE1609dot2.v",
+        FT_UINT32, BASE_DEC, VALS(IEEE1609dot2_EccP256CurvePoint_vals), 0,
+        "EccP256CurvePoint", HFILL }},
+    { &hf_IEEE1609dot2_c,
+      { "c", "IEEE1609dot2.c",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING_SIZE_16", HFILL }},
+    { &hf_IEEE1609dot2_t,
+      { "t", "IEEE1609dot2.t",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING_SIZE_16", HFILL }},
+    { &hf_IEEE1609dot2_public,
+      { "public", "IEEE1609dot2.public_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "PublicEncryptionKey", HFILL }},
+    { &hf_IEEE1609dot2_symmetric,
+      { "symmetric", "IEEE1609dot2.symmetric",
+        FT_UINT32, BASE_DEC, VALS(IEEE1609dot2_SymmetricEncryptionKey_vals), 0,
+        "SymmetricEncryptionKey", HFILL }},
+    { &hf_IEEE1609dot2_supportedSymmAlg,
+      { "supportedSymmAlg", "IEEE1609dot2.supportedSymmAlg",
+        FT_UINT32, BASE_DEC, VALS(IEEE1609dot2_SymmAlgorithm_vals), 0,
+        "SymmAlgorithm", HFILL }},
+    { &hf_IEEE1609dot2_publicKey,
+      { "publicKey", "IEEE1609dot2.publicKey",
+        FT_UINT32, BASE_DEC, VALS(IEEE1609dot2_BasePublicEncryptionKey_vals), 0,
+        "BasePublicEncryptionKey", HFILL }},
+    { &hf_IEEE1609dot2_eciesNistP256,
+      { "eciesNistP256", "IEEE1609dot2.eciesNistP256",
+        FT_UINT32, BASE_DEC, VALS(IEEE1609dot2_EccP256CurvePoint_vals), 0,
+        "EccP256CurvePoint", HFILL }},
+    { &hf_IEEE1609dot2_eciesBrainpoolP256r1,
+      { "eciesBrainpoolP256r1", "IEEE1609dot2.eciesBrainpoolP256r1",
+        FT_UINT32, BASE_DEC, VALS(IEEE1609dot2_EccP256CurvePoint_vals), 0,
+        "EccP256CurvePoint", HFILL }},
+    { &hf_IEEE1609dot2_ecdsaNistP256,
+      { "ecdsaNistP256", "IEEE1609dot2.ecdsaNistP256",
+        FT_UINT32, BASE_DEC, VALS(IEEE1609dot2_EccP256CurvePoint_vals), 0,
+        "EccP256CurvePoint", HFILL }},
+    { &hf_IEEE1609dot2_ecdsaBrainpoolP256r1,
+      { "ecdsaBrainpoolP256r1", "IEEE1609dot2.ecdsaBrainpoolP256r1",
+        FT_UINT32, BASE_DEC, VALS(IEEE1609dot2_EccP256CurvePoint_vals), 0,
+        "EccP256CurvePoint", HFILL }},
+    { &hf_IEEE1609dot2_aes128Ccm,
+      { "aes128Ccm", "IEEE1609dot2.aes128Ccm",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING_SIZE_16", HFILL }},
+    { &hf_IEEE1609dot2_psid,
+      { "psid", "IEEE1609dot2.psid",
+        FT_UINT64, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_IEEE1609dot2_ssp,
+      { "ssp", "IEEE1609dot2.ssp",
+        FT_UINT32, BASE_DEC, VALS(IEEE1609dot2_ServiceSpecificPermissions_vals), 0,
+        "ServiceSpecificPermissions", HFILL }},
+    { &hf_IEEE1609dot2_SequenceOfPsidSsp_item,
+      { "PsidSsp", "IEEE1609dot2.PsidSsp_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_IEEE1609dot2_SequenceOfPsid_item,
+      { "Psid", "IEEE1609dot2.Psid",
+        FT_UINT64, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_IEEE1609dot2_opaque,
+      { "opaque", "IEEE1609dot2.opaque",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING_SIZE_0_MAX", HFILL }},
+    { &hf_IEEE1609dot2_sspRange,
+      { "sspRange", "IEEE1609dot2.sspRange",
+        FT_UINT32, BASE_DEC, VALS(IEEE1609dot2_SspRange_vals), 0,
+        NULL, HFILL }},
+    { &hf_IEEE1609dot2_SequenceOfPsidSspRange_item,
+      { "PsidSspRange", "IEEE1609dot2.PsidSspRange_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_IEEE1609dot2_opaque_01,
+      { "opaque", "IEEE1609dot2.opaque",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SequenceOfOctetString", HFILL }},
+    { &hf_IEEE1609dot2_all,
+      { "all", "IEEE1609dot2.all_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_IEEE1609dot2_SequenceOfOctetString_item,
+      { "SequenceOfOctetString item", "IEEE1609dot2.SequenceOfOctetString_item",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING_SIZE_0_MAX", HFILL }},
+    { &hf_IEEE1609dot2_jValue,
+      { "jValue", "IEEE1609dot2.jValue",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING_SIZE_4", HFILL }},
+    { &hf_IEEE1609dot2_value,
+      { "value", "IEEE1609dot2.value",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING_SIZE_9", HFILL }},
+    { &hf_IEEE1609dot2_data,
+      { "data", "IEEE1609dot2.data_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Ieee1609Dot2Data", HFILL }},
+    { &hf_IEEE1609dot2_extDataHash,
+      { "extDataHash", "IEEE1609dot2.extDataHash",
+        FT_UINT32, BASE_DEC, VALS(IEEE1609dot2_HashedData_vals), 0,
+        "HashedData", HFILL }},
+    { &hf_IEEE1609dot2_protocolVersion,
+      { "protocolVersion", "IEEE1609dot2.protocolVersion",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "Uint8", HFILL }},
+    { &hf_IEEE1609dot2_content,
+      { "content", "IEEE1609dot2.content",
+        FT_UINT32, BASE_DEC, VALS(IEEE1609dot2_Ieee1609Dot2Content_vals), 0,
+        "Ieee1609Dot2Content", HFILL }},
+    { &hf_IEEE1609dot2_unsecuredData,
+      { "unsecuredData", "IEEE1609dot2.unsecuredData",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "Opaque", HFILL }},
+    { &hf_IEEE1609dot2_signedData,
+      { "signedData", "IEEE1609dot2.signedData_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_IEEE1609dot2_encryptedData,
+      { "encryptedData", "IEEE1609dot2.encryptedData_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_IEEE1609dot2_signedCertificateRequest,
+      { "signedCertificateRequest", "IEEE1609dot2.signedCertificateRequest",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "Opaque", HFILL }},
+    { &hf_IEEE1609dot2_hashId,
+      { "hashId", "IEEE1609dot2.hashId",
+        FT_UINT32, BASE_DEC, VALS(IEEE1609dot2_HashAlgorithm_vals), 0,
+        "HashAlgorithm", HFILL }},
+    { &hf_IEEE1609dot2_tbsData,
+      { "tbsData", "IEEE1609dot2.tbsData_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ToBeSignedData", HFILL }},
+    { &hf_IEEE1609dot2_signer,
+      { "signer", "IEEE1609dot2.signer",
+        FT_UINT32, BASE_DEC, VALS(IEEE1609dot2_SignerIdentifier_vals), 0,
+        "SignerIdentifier", HFILL }},
+    { &hf_IEEE1609dot2_signature,
+      { "signature", "IEEE1609dot2.signature",
+        FT_UINT32, BASE_DEC, VALS(IEEE1609dot2_Signature_vals), 0,
+        NULL, HFILL }},
+    { &hf_IEEE1609dot2_digest,
+      { "digest", "IEEE1609dot2.digest",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "HashedId8", HFILL }},
+    { &hf_IEEE1609dot2_certificate,
+      { "certificate", "IEEE1609dot2.certificate",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SequenceOfCertificate", HFILL }},
+    { &hf_IEEE1609dot2_self,
+      { "self", "IEEE1609dot2.self_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_IEEE1609dot2_payload,
+      { "payload", "IEEE1609dot2.payload_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "SignedDataPayload", HFILL }},
+    { &hf_IEEE1609dot2_headerInfo,
+      { "headerInfo", "IEEE1609dot2.headerInfo_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_IEEE1609dot2_sha256HashedData,
+      { "sha256HashedData", "IEEE1609dot2.sha256HashedData",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING_SIZE_32", HFILL }},
+    { &hf_IEEE1609dot2_generationTime,
+      { "generationTime", "IEEE1609dot2.generationTime",
+        FT_UINT64, BASE_DEC, NULL, 0,
+        "Time64", HFILL }},
+    { &hf_IEEE1609dot2_expiryTime,
+      { "expiryTime", "IEEE1609dot2.expiryTime",
+        FT_UINT64, BASE_DEC, NULL, 0,
+        "Time64", HFILL }},
+    { &hf_IEEE1609dot2_generationLocation,
+      { "generationLocation", "IEEE1609dot2.generationLocation_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ThreeDLocation", HFILL }},
+    { &hf_IEEE1609dot2_p2pcdLearningRequest,
+      { "p2pcdLearningRequest", "IEEE1609dot2.p2pcdLearningRequest",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "HashedId3", HFILL }},
+    { &hf_IEEE1609dot2_missingCrlIdentifier,
+      { "missingCrlIdentifier", "IEEE1609dot2.missingCrlIdentifier_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_IEEE1609dot2_encryptionKey,
+      { "encryptionKey", "IEEE1609dot2.encryptionKey",
+        FT_UINT32, BASE_DEC, VALS(IEEE1609dot2_EncryptionKey_vals), 0,
+        NULL, HFILL }},
+    { &hf_IEEE1609dot2_cracaId,
+      { "cracaId", "IEEE1609dot2.cracaId",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "HashedId3", HFILL }},
+    { &hf_IEEE1609dot2_crlSeries,
+      { "crlSeries", "IEEE1609dot2.crlSeries",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_IEEE1609dot2_recipients,
+      { "recipients", "IEEE1609dot2.recipients",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SequenceOfRecipientInfo", HFILL }},
+    { &hf_IEEE1609dot2_ciphertext,
+      { "ciphertext", "IEEE1609dot2.ciphertext",
+        FT_UINT32, BASE_DEC, VALS(IEEE1609dot2_SymmetricCiphertext_vals), 0,
+        "SymmetricCiphertext", HFILL }},
+    { &hf_IEEE1609dot2_pskRecipInfo,
+      { "pskRecipInfo", "IEEE1609dot2.pskRecipInfo",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "PreSharedKeyRecipientInfo", HFILL }},
+    { &hf_IEEE1609dot2_symmRecipInfo,
+      { "symmRecipInfo", "IEEE1609dot2.symmRecipInfo_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "SymmRecipientInfo", HFILL }},
+    { &hf_IEEE1609dot2_certRecipInfo,
+      { "certRecipInfo", "IEEE1609dot2.certRecipInfo_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "PKRecipientInfo", HFILL }},
+    { &hf_IEEE1609dot2_signedDataRecipInfo,
+      { "signedDataRecipInfo", "IEEE1609dot2.signedDataRecipInfo_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "PKRecipientInfo", HFILL }},
+    { &hf_IEEE1609dot2_rekRecipInfo,
+      { "rekRecipInfo", "IEEE1609dot2.rekRecipInfo_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "PKRecipientInfo", HFILL }},
+    { &hf_IEEE1609dot2_SequenceOfRecipientInfo_item,
+      { "RecipientInfo", "IEEE1609dot2.RecipientInfo",
+        FT_UINT32, BASE_DEC, VALS(IEEE1609dot2_RecipientInfo_vals), 0,
+        NULL, HFILL }},
+    { &hf_IEEE1609dot2_recipientId,
+      { "recipientId", "IEEE1609dot2.recipientId",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "HashedId8", HFILL }},
+    { &hf_IEEE1609dot2_encKey,
+      { "encKey", "IEEE1609dot2.encKey",
+        FT_UINT32, BASE_DEC, VALS(IEEE1609dot2_SymmetricCiphertext_vals), 0,
+        "SymmetricCiphertext", HFILL }},
+    { &hf_IEEE1609dot2_encKey_01,
+      { "encKey", "IEEE1609dot2.encKey",
+        FT_UINT32, BASE_DEC, VALS(IEEE1609dot2_EncryptedDataEncryptionKey_vals), 0,
+        "EncryptedDataEncryptionKey", HFILL }},
+    { &hf_IEEE1609dot2_eciesNistP256_01,
+      { "eciesNistP256", "IEEE1609dot2.eciesNistP256_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EciesP256EncryptedKey", HFILL }},
+    { &hf_IEEE1609dot2_eciesBrainpoolP256r1_01,
+      { "eciesBrainpoolP256r1", "IEEE1609dot2.eciesBrainpoolP256r1_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EciesP256EncryptedKey", HFILL }},
+    { &hf_IEEE1609dot2_aes128ccm,
+      { "aes128ccm", "IEEE1609dot2.aes128ccm_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "AesCcmCiphertext", HFILL }},
+    { &hf_IEEE1609dot2_nonce,
+      { "nonce", "IEEE1609dot2.nonce",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING_SIZE_12", HFILL }},
+    { &hf_IEEE1609dot2_ccmCiphertext,
+      { "ccmCiphertext", "IEEE1609dot2.ccmCiphertext",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "Opaque", HFILL }},
+    { &hf_IEEE1609dot2_SequenceOfCertificate_item,
+      { "Certificate", "IEEE1609dot2.Certificate_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_IEEE1609dot2_version,
+      { "version", "IEEE1609dot2.version",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "Uint8", HFILL }},
+    { &hf_IEEE1609dot2_type,
+      { "type", "IEEE1609dot2.type",
+        FT_UINT32, BASE_DEC, VALS(IEEE1609dot2_CertificateType_vals), 0,
+        "CertificateType", HFILL }},
+    { &hf_IEEE1609dot2_issuer,
+      { "issuer", "IEEE1609dot2.issuer",
+        FT_UINT32, BASE_DEC, VALS(IEEE1609dot2_IssuerIdentifier_vals), 0,
+        "IssuerIdentifier", HFILL }},
+    { &hf_IEEE1609dot2_toBeSigned,
+      { "toBeSigned", "IEEE1609dot2.toBeSigned_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ToBeSignedCertificate", HFILL }},
+    { &hf_IEEE1609dot2_sha256AndDigest,
+      { "sha256AndDigest", "IEEE1609dot2.sha256AndDigest",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "HashedId8", HFILL }},
+    { &hf_IEEE1609dot2_self_01,
+      { "self", "IEEE1609dot2.self",
+        FT_UINT32, BASE_DEC, VALS(IEEE1609dot2_HashAlgorithm_vals), 0,
+        "HashAlgorithm", HFILL }},
+    { &hf_IEEE1609dot2_id,
+      { "id", "IEEE1609dot2.id",
+        FT_UINT32, BASE_DEC, VALS(IEEE1609dot2_CertificateId_vals), 0,
+        "CertificateId", HFILL }},
+    { &hf_IEEE1609dot2_validityPeriod,
+      { "validityPeriod", "IEEE1609dot2.validityPeriod_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_IEEE1609dot2_region_01,
+      { "region", "IEEE1609dot2.region",
+        FT_UINT32, BASE_DEC, VALS(IEEE1609dot2_GeographicRegion_vals), 0,
+        "GeographicRegion", HFILL }},
+    { &hf_IEEE1609dot2_assuranceLevel,
+      { "assuranceLevel", "IEEE1609dot2.assuranceLevel",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "SubjectAssurance", HFILL }},
+    { &hf_IEEE1609dot2_appPermissions,
+      { "appPermissions", "IEEE1609dot2.appPermissions",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SequenceOfPsidSsp", HFILL }},
+    { &hf_IEEE1609dot2_certIssuePermissions,
+      { "certIssuePermissions", "IEEE1609dot2.certIssuePermissions",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SequenceOfPsidGroupPermissions", HFILL }},
+    { &hf_IEEE1609dot2_certRequestPermissions,
+      { "certRequestPermissions", "IEEE1609dot2.certRequestPermissions",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SequenceOfPsidGroupPermissions", HFILL }},
+    { &hf_IEEE1609dot2_canRequestRollover,
+      { "canRequestRollover", "IEEE1609dot2.canRequestRollover_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_IEEE1609dot2_encryptionKey_01,
+      { "encryptionKey", "IEEE1609dot2.encryptionKey_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "PublicEncryptionKey", HFILL }},
+    { &hf_IEEE1609dot2_verifyKeyIndicator,
+      { "verifyKeyIndicator", "IEEE1609dot2.verifyKeyIndicator",
+        FT_UINT32, BASE_DEC, VALS(IEEE1609dot2_VerificationKeyIndicator_vals), 0,
+        "VerificationKeyIndicator", HFILL }},
+    { &hf_IEEE1609dot2_linkageData,
+      { "linkageData", "IEEE1609dot2.linkageData_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_IEEE1609dot2_name,
+      { "name", "IEEE1609dot2.name",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "Hostname", HFILL }},
+    { &hf_IEEE1609dot2_binaryId,
+      { "binaryId", "IEEE1609dot2.binaryId",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING_SIZE_1_64", HFILL }},
+    { &hf_IEEE1609dot2_none,
+      { "none", "IEEE1609dot2.none_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_IEEE1609dot2_iCert,
+      { "iCert", "IEEE1609dot2.iCert",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "IValue", HFILL }},
+    { &hf_IEEE1609dot2_linkage_value,
+      { "linkage-value", "IEEE1609dot2.linkage_value",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "LinkageValue", HFILL }},
+    { &hf_IEEE1609dot2_group_linkage_value,
+      { "group-linkage-value", "IEEE1609dot2.group_linkage_value_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "GroupLinkageValue", HFILL }},
+    { &hf_IEEE1609dot2_appPermissions_01,
+      { "appPermissions", "IEEE1609dot2.appPermissions",
+        FT_UINT32, BASE_DEC, VALS(IEEE1609dot2_SubjectPermissions_vals), 0,
+        "SubjectPermissions", HFILL }},
+    { &hf_IEEE1609dot2_minChainDepth,
+      { "minChainDepth", "IEEE1609dot2.minChainDepth",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "INTEGER", HFILL }},
+    { &hf_IEEE1609dot2_chainDepthRange,
+      { "chainDepthRange", "IEEE1609dot2.chainDepthRange",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "INTEGER", HFILL }},
+    { &hf_IEEE1609dot2_eeType,
+      { "eeType", "IEEE1609dot2.eeType",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "EndEntityType", HFILL }},
+    { &hf_IEEE1609dot2_SequenceOfPsidGroupPermissions_item,
+      { "PsidGroupPermissions", "IEEE1609dot2.PsidGroupPermissions_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_IEEE1609dot2_explicit,
+      { "explicit", "IEEE1609dot2.explicit",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SequenceOfPsidSspRange", HFILL }},
+    { &hf_IEEE1609dot2_verificationKey,
+      { "verificationKey", "IEEE1609dot2.verificationKey",
+        FT_UINT32, BASE_DEC, VALS(IEEE1609dot2_PublicVerificationKey_vals), 0,
+        "PublicVerificationKey", HFILL }},
+    { &hf_IEEE1609dot2_reconstructionValue,
+      { "reconstructionValue", "IEEE1609dot2.reconstructionValue",
+        FT_UINT32, BASE_DEC, VALS(IEEE1609dot2_EccP256CurvePoint_vals), 0,
+        "EccP256CurvePoint", HFILL }},
+    //{ &hf_IEEE1609dot2_EndEntityType_app,
+    //  { "app", "IEEE1609dot2.app",
+    //    FT_BOOLEAN, 8, NULL, 0x80,
+    //    NULL, HFILL }},
+    //{ &hf_IEEE1609dot2_EndEntityType_enrol,
+    //  { "enrol", "IEEE1609dot2.enrol",
+    //    FT_BOOLEAN, 8, NULL, 0x40,
+    //    NULL, HFILL }},
+
+/*--- End of included file: packet-IEEE1609dot2-hfarr.c ---*/
+#line 44 "./asn1/ieee1609dot2/packet-IEEE1609dot2-template.c"
+  };
+
+  /* List of subtrees */
+  static gint *ett[] = {
+
+/*--- Included file: packet-IEEE1609dot2-ettarr.c ---*/
+#line 1 "./asn1/ieee1609dot2/packet-IEEE1609dot2-ettarr.c"
+    &ett_IEEE1609dot2_SequenceOfUint3,
+    &ett_IEEE1609dot2_SequenceOfUint8,
+    &ett_IEEE1609dot2_SequenceOfUint16,
+    &ett_IEEE1609dot2_ValidityPeriod,
+    &ett_IEEE1609dot2_Duration,
+    &ett_IEEE1609dot2_GeographicRegion,
+    &ett_IEEE1609dot2_CircularRegion,
+    &ett_IEEE1609dot2_RectangularRegion,
+    &ett_IEEE1609dot2_SequenceOfRectangularRegion,
+    &ett_IEEE1609dot2_PolygonalRegion,
+    &ett_IEEE1609dot2_TwoDLocation,
+    &ett_IEEE1609dot2_IdentifiedRegion,
+    &ett_IEEE1609dot2_SequenceOfIdentifiedRegion,
+    &ett_IEEE1609dot2_CountryAndRegions,
+    &ett_IEEE1609dot2_CountryAndSubregions,
+    &ett_IEEE1609dot2_RegionAndSubregions,
+    &ett_IEEE1609dot2_SequenceOfRegionAndSubregions,
+    &ett_IEEE1609dot2_ThreeDLocation,
+    &ett_IEEE1609dot2_Signature,
+    &ett_IEEE1609dot2_EcdsaP256Signature,
+    &ett_IEEE1609dot2_EccP256CurvePoint,
+    &ett_IEEE1609dot2_T_uncompressed,
+    &ett_IEEE1609dot2_EciesP256EncryptedKey,
+    &ett_IEEE1609dot2_EncryptionKey,
+    &ett_IEEE1609dot2_PublicEncryptionKey,
+    &ett_IEEE1609dot2_BasePublicEncryptionKey,
+    &ett_IEEE1609dot2_PublicVerificationKey,
+    &ett_IEEE1609dot2_SymmetricEncryptionKey,
+    &ett_IEEE1609dot2_PsidSsp,
+    &ett_IEEE1609dot2_SequenceOfPsidSsp,
+    &ett_IEEE1609dot2_SequenceOfPsid,
+    &ett_IEEE1609dot2_ServiceSpecificPermissions,
+    &ett_IEEE1609dot2_PsidSspRange,
+    &ett_IEEE1609dot2_SequenceOfPsidSspRange,
+    &ett_IEEE1609dot2_SspRange,
+    &ett_IEEE1609dot2_SequenceOfOctetString,
+    &ett_IEEE1609dot2_GroupLinkageValue,
+    &ett_IEEE1609dot2_SignedDataPayload,
+    &ett_IEEE1609dot2_Ieee1609Dot2Data,
+    &ett_IEEE1609dot2_Ieee1609Dot2Content,
+    &ett_IEEE1609dot2_SignedData,
+    &ett_IEEE1609dot2_SignerIdentifier,
+    &ett_IEEE1609dot2_ToBeSignedData,
+    &ett_IEEE1609dot2_HashedData,
+    &ett_IEEE1609dot2_HeaderInfo,
+    &ett_IEEE1609dot2_MissingCrlIdentifier,
+    &ett_IEEE1609dot2_EncryptedData,
+    &ett_IEEE1609dot2_RecipientInfo,
+    &ett_IEEE1609dot2_SequenceOfRecipientInfo,
+    &ett_IEEE1609dot2_SymmRecipientInfo,
+    &ett_IEEE1609dot2_PKRecipientInfo,
+    &ett_IEEE1609dot2_EncryptedDataEncryptionKey,
+    &ett_IEEE1609dot2_SymmetricCiphertext,
+    &ett_IEEE1609dot2_AesCcmCiphertext,
+    &ett_IEEE1609dot2_SequenceOfCertificate,
+    &ett_IEEE1609dot2_CertificateBase,
+    &ett_IEEE1609dot2_IssuerIdentifier,
+    &ett_IEEE1609dot2_ToBeSignedCertificate,
+    &ett_IEEE1609dot2_CertificateId,
+    &ett_IEEE1609dot2_LinkageData,
+    &ett_IEEE1609dot2_EndEntityType,
+    &ett_IEEE1609dot2_PsidGroupPermissions,
+    &ett_IEEE1609dot2_SequenceOfPsidGroupPermissions,
+    &ett_IEEE1609dot2_SubjectPermissions,
+    &ett_IEEE1609dot2_VerificationKeyIndicator,
+
+/*--- End of included file: packet-IEEE1609dot2-ettarr.c ---*/
+#line 49 "./asn1/ieee1609dot2/packet-IEEE1609dot2-template.c"
+  };
+
+  /* Register protocol */
+  proto_IEEE1609dot2 = proto_register_protocol(PNAME, PSNAME, PFNAME);
+
+  /* Register fields and subtrees */
+  proto_register_field_array(proto_IEEE1609dot2, hf, array_length(hf));
+  proto_register_subtree_array(ett, array_length(ett));
+
+  register_dissector("IEEE1609dot2.data", dissect_Ieee1609Dot2Data_PDU, proto_IEEE1609dot2);
+}
+
+
+/*--- proto_reg_handoff_IEEE1609dot2 -------------------------------------------*/
+void proto_reg_handoff_IEEE1609dot2(void) {
+}

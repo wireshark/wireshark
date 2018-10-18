@@ -53,7 +53,7 @@ set(ASN1_SRC_DIRS
 	h501
 	hnbap
 	idmp
-	ieee1609dot2
+#	ieee1609dot2
 	ilp
 	inap
 	isdn-sup

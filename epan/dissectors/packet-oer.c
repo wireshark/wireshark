@@ -176,13 +176,13 @@ dissect_oer_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, 
 /* 10 Encoding of integer values */
 
 guint32
-dissect_oer_constrained_integer(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, guint32 min, guint32 max, guint32 *value, gboolean has_extension _U_)
+dissect_oer_constrained_integer(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, gint64 min, gint64 max, guint32 *value, gboolean has_extension _U_)
 {
     DEBUG_ENTRY("dissect_oer_constrained_integer");
     guint32 val = 0;
 
     /* XXX We need to hndle negative numbers ?*/
-    if (min > 0) {
+    if (min >= 0) {
         /* 10.2 There are two main cases:
          *      a) The effective value constraint has a lower bound, and that lower bound is zero or positive.
          */
@@ -217,12 +217,12 @@ dissect_oer_constrained_integer(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx,
 }
 
 guint32
-dissect_oer_constrained_integer_64b(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, guint64 min, guint64 max, guint64 *value, gboolean has_extension _U_)
+dissect_oer_constrained_integer_64b(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, gint64 min, guint64 max, guint64 *value, gboolean has_extension _U_)
 {
     guint64 val = 0;
 
     /* XXX Negative numbers ???*/
-    if (min > 0) {
+    if (min >= 0) {
         /* 10.2 There are two main cases:
         *      a) The effective value constraint has a lower bound, and that lower bound is zero or positive.
         */
@@ -263,13 +263,13 @@ dissect_oer_constrained_integer_64b(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *a
 }
 
 guint32
-dissect_oer_constrained_integer_64b_no_ub(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, guint64 min, guint64 max _U_, guint64 *value, gboolean has_extension _U_)
+dissect_oer_constrained_integer_64b_no_ub(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, gint64 min, guint64 max _U_, guint64 *value, gboolean has_extension _U_)
 {
     guint64 val = 0;
     guint32 length;
 
     /* Negative numbers ???*/
-    if (min > 0) {
+    if (min >= 0) {
 
         /* (the effective value constraint has either an upper bound greater than 2 exp 64-1 or no upper bound)
         * every value of the integer type shall be encoded as a length determinant (see 8.6)

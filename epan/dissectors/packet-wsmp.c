@@ -369,6 +369,9 @@ dissect_wsmp_v3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 oct)
     if((psid == 0x20) && (IEEE1609dot2_handle)){
         tvbuff_t * tvb_new = tvb_new_subset_remaining(tvb, offset);
         call_dissector(IEEE1609dot2_handle, tvb_new, pinfo, data_tree);
+    } else if ((psid == 0x8002) && (IEEE1609dot2_handle)) {
+        tvbuff_t * tvb_new = tvb_new_subset_remaining(tvb, offset);
+        call_dissector(IEEE1609dot2_handle, tvb_new, pinfo, data_tree);
     }
 
     return tvb_captured_length(tvb);

@@ -81,10 +81,10 @@ WS_DLL_PUBLIC guint32 dissect_oer_constrained_sequence_of(tvbuff_t *tvb, guint32
 
 WS_DLL_PUBLIC guint32 dissect_oer_integer(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, gint32 *value);
 
-WS_DLL_PUBLIC guint32 dissect_oer_constrained_integer(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, guint32 min, guint32 max, guint32 *value, gboolean has_extension);
+WS_DLL_PUBLIC guint32 dissect_oer_constrained_integer(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, gint64 min, gint64 max, guint32 *value, gboolean has_extension);
 
-WS_DLL_PUBLIC guint32 dissect_oer_constrained_integer_64b(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, guint64 min, guint64 max, guint64 *value, gboolean has_extension);
-WS_DLL_PUBLIC guint32 dissect_oer_constrained_integer_64b_no_ub(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, guint64 min, guint64 max, guint64 *value, gboolean has_extension);
+WS_DLL_PUBLIC guint32 dissect_oer_constrained_integer_64b(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, gint64 min, guint64 max, guint64 *value, gboolean has_extension);
+WS_DLL_PUBLIC guint32 dissect_oer_constrained_integer_64b_no_ub(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, gint64 min, guint64 max, guint64 *value, gboolean has_extension);
 
 //WS_DLL_PUBLIC guint32 dissect_oer_real(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, double *value);
 
