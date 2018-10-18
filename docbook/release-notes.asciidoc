@@ -92,6 +92,7 @@ Ruby Marshal format
 S101 Lawo Emberplus transport frame
 STCSIG (Spirent Test Center Signature decoding for Ethernet and FibreChannel, disabled by default)
 systemd Journal Export
+TDS (Sybase-specific portions of the protocol)
 TPM 2.0 protocol
 Ubiquiti Discovery Protocol (UBDP)
 XnAP (5G) protocol
