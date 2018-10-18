@@ -293,7 +293,7 @@ ENC_LITTLE_ENDIAN for Little-Endian-to-host-order.
 Accessors for IPv4 and IPv6 addresses:
 
 guint32 tvb_get_ipv4(tvbuff_t *tvb, const gint offset);
-void tvb_get_ipv6(tvbuff_t *tvb, const gint offset, struct e_in6_addr *addr);
+void tvb_get_ipv6(tvbuff_t *tvb, const gint offset, ws_in6_addr *addr);
 
 NOTE: IPv4 addresses are not to be converted to host byte order before
 being passed to "proto_tree_add_ipv4()".  You should use "tvb_get_ipv4()"
@@ -313,7 +313,7 @@ Accessors for GUID:
 
 void tvb_get_ntohguid(tvbuff_t *tvb, const gint offset, e_guid_t *guid);
 void tvb_get_letohguid(tvbuff_t *tvb, const gint offset, e_guid_t *guid);
-void tvb_get_guid(tvbuff_t *tvb, const gint offset, e_guid_t *guid, const guint representation);
+void tvb_get_guid(tvbuff_t *tvb, const gint offset, e_guid_t *guid, const guint encoding);
 
 String accessors:
 
@@ -367,8 +367,8 @@ tvb_get_nstringz0() works like tvb_get_nstringz(), but never returns -1 since
 the string is guaranteed to have a terminating NULL. If the string was truncated
 when copied into buffer, a NULL is placed at the end of buffer to terminate it.
 
-gchar *tvb_get_ts_23_038_7bits_string(wmem_allocator_t *scope,
-    tvbuff_t *tvb, const gint bit_offset, gint no_of_chars);
+gchar *tvb_get_ts_23_038_7bits_string(wmem_allocator_t *scope, tvbuff_t *tvb,
+                                      const gint bit_offset, gint no_of_chars);
 
 tvb_get_ts_23_038_7bits_string() returns a string of a given number of
 characters and encoded according to 3GPP TS 23.038 7 bits alphabet.
@@ -378,7 +378,7 @@ information).
 
 Byte Array Accessors:
 
-gchar *tvb_bytes_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint len);
+gchar *tvb_bytes_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, const gint len);
 
 Formats a bunch of data from a tvbuff as bytes, returning a pointer
 to the string with the data formatted as two hex digits for each byte.
@@ -387,7 +387,8 @@ depending on its scope (typically wmem_packet_scope which is freed after the fra
 The formatted string will contain the hex digits for at most the first 16 bytes of
 the data. If len is greater than 16 bytes, a trailing "..." will be added to the string.
 
-gchar *tvb_bytes_to_str_punct(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint len, gchar punct);
+gchar *tvb_bytes_to_str_punct(wmem_allocator_t *scope, tvbuff_t *tvb,
+                              const gint offset, const gint len, const gchar punct);
 
 This function is similar to tvb_bytes_to_str(...) except that 'punct' is inserted
 between the hex representation of each byte.
@@ -413,12 +414,12 @@ A pointer to the packet scope allocated string will be returned.
 Note: a tvbuff content of 0xf is considered a 'filler' and will end the conversion.
 
 Copying memory:
-guint8* tvb_memcpy(tvbuff_t *tvb, guint8* target, gint offset, gint length);
+void* tvb_memcpy(tvbuff_t *tvb, void* target, const gint offset, size_t length);
 
 Copies into the specified target the specified length's worth of data
 from the specified tvbuff, starting at the specified offset.
 
-guint8* tvb_memdup(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint length);
+void *tvb_memdup(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, size_t length);
 
 Returns a buffer containing a copy of the given TVB bytes. The buffer is
 allocated in the given wmem scope (see README.wmem for more information).
@@ -429,7 +430,7 @@ Pointer-retrieval:
  * no guarantee that the user will honor the 'length' and not overstep the
  * boundaries of the buffer.  Also see the warning in the Portability section.
  */
-guint8* tvb_get_ptr(tvbuff_t *tvb, gint offset, gint length);
+const guint8* tvb_get_ptr(tvbuff_t *tvb, const gint offset, const gint length);
 
 Length query:
 Get amount of captured data in the buffer (which is *NOT* necessarily the
