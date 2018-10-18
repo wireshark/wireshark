@@ -20353,13 +20353,17 @@ static const value_string owe_dh_parameter_group_vals[] = {
 
 static int
 dissect_owe_dh_parameter(tvbuff_t *tvb, packet_info *pinfo _U_,
-  proto_tree *tree, int offset, int len _U_)
+  proto_tree *tree, int offset, int len _U_, association_sanity_check_t* sanity_check)
 {
   if (len < 2) {
     expert_add_info_format(pinfo, tree, &ei_ieee80211_tag_length,
                            "OWE: Diffie-Hellman Parameter must be at least 2 "
                            "octets long");
     return offset + len;
+  }
+
+  if (sanity_check != NULL) {
+    sanity_check->owe_group = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
   }
 
   proto_tree_add_item(tree, hf_owe_dh_parameter_group, tvb, offset,
@@ -20614,7 +20618,7 @@ ieee80211_tag_element_id_extension(tvbuff_t *tvb, packet_info *pinfo, proto_tree
       dissect_future_channel_guidance(tvb, pinfo, tree, offset, ext_tag_len);
       break;
     case ETAG_OWE_DH_PARAMETER:
-      dissect_owe_dh_parameter(tvb, pinfo, tree, offset, ext_tag_len);
+      dissect_owe_dh_parameter(tvb, pinfo, tree, offset, ext_tag_len, field_data->sanity_check);
       break;
     case ETAG_HE_CAPABILITIES:
       dissect_he_capabilities(tvb, pinfo, tree, offset, ext_tag_len);
@@ -21825,6 +21829,7 @@ dissect_ieee80211_mgt(guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tree
       conversation = find_or_create_conversation(pinfo);
       conversation_data = get_or_create_conversation_data(conversation);
       conversation_data->last_akm_suite = association_sanity_check.last_akm_suite;
+      conversation_data->owe_group = association_sanity_check.owe_group;
       break;
 
 
@@ -21862,6 +21867,7 @@ dissect_ieee80211_mgt(guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tree
       conversation = find_or_create_conversation(pinfo);
       conversation_data = get_or_create_conversation_data(conversation);
       conversation_data->last_akm_suite = association_sanity_check.last_akm_suite;
+      conversation_data->owe_group = association_sanity_check.owe_group;
       break;
 
     case MGT_REASSOC_RESP:
@@ -24912,6 +24918,50 @@ static gint ett_wlan_rsna_eapol_keydes_data = -1;
 
 static const true_false_string keyinfo_key_type_tfs = { "Pairwise Key", "Group Key" };
 
+static guint16 get_mic_len_owe(guint16 group) {
+  switch(group) {
+    // FFC, len(p) <= 2048
+    case 1:
+    case 2:
+    case 5:
+    case 14:
+    case 22:
+    case 23:
+    case 24:
+    // ECC, len(p) <= 256
+    case 19:
+    case 25:
+    case 26:
+    case 27:
+    case 28:
+    case 31:
+      // HMAC-SHA-256
+      return 16;
+
+    // FFC, 2048 < len(p) <= 3072
+    case 15:
+    // ECC, 256 < len(p) <= 384
+    case 20:
+    case 29:
+      // HMAC-SHA-384
+      return 24;
+
+    // FCC, 3072 < len(p)
+    case 16:
+    case 17:
+    case 18:
+    // ECC, 384 < len(p)
+    case 21:
+    case 30:
+    case 32:
+      // HMAC-SHA-512
+      return 32;
+
+    default:
+      return 16;
+  }
+}
+
 static guint16 get_mic_len(guint32 akm_suite) {
   switch(akm_suite) {
     case 0x000FAC0C:
@@ -24958,15 +25008,29 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
   guint16 eapol_key_mic_len = 16; // Default MIC length
 
   conversation_t *conversation = find_conversation_pinfo(pinfo, 0);
+  ieee80211_packet_data_t *packet_data = (ieee80211_packet_data_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_wlan, 0);
 
   if (wlan_key_mic_len_enable) {
     eapol_key_mic_len = wlan_key_mic_len;
+  } else if (packet_data) {
+    eapol_key_mic_len = packet_data->mic_len;
   } else if (conversation) {
     ieee80211_conversation_data_t *conversation_data = (ieee80211_conversation_data_t*)conversation_get_proto_data(conversation, proto_wlan);
 
     if (conversation_data) {
-      eapol_key_mic_len = get_mic_len(conversation_data->last_akm_suite);
+      if (conversation_data->last_akm_suite == 0x000FAC12) {
+        /* For OWE the the length of MIC depends on the selected group */
+        eapol_key_mic_len = get_mic_len_owe(conversation_data->owe_group);
+      } else {
+        eapol_key_mic_len = get_mic_len(conversation_data->last_akm_suite);
+      }
     }
+  }
+
+  if (!packet_data) {
+    packet_data = wmem_new(wmem_file_scope(), ieee80211_packet_data_t);
+    packet_data->mic_len = eapol_key_mic_len;
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, 0, packet_data);
   }
 
   eapol_data_offset += eapol_key_mic_len;
