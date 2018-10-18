@@ -20,6 +20,7 @@
 #include <epan/expert.h>
 #include <epan/sminmpec.h>
 #include <epan/addr_resolv.h> /* Needed for BASE_ENTERPRISES */
+#include "packet-e164.h"
 #include "packet-e212.h"
 #include "packet-ntp.h"
 
@@ -449,11 +450,9 @@ static int hf_pfcp_user_id_flags_b2_msisdnf = -1;
 static int hf_pfcp_user_id_flags_b1_imeif = -1;
 static int hf_pfcp_user_id_flags_b0_imsif = -1;
 static int hf_pfcp_user_id_length_of_imsi = -1;
-static int hf_pfcp_user_id_imsi = -1;
 static int hf_pfcp_user_id_length_of_imei = -1;
 static int hf_pfcp_user_id_imei = -1;
 static int hf_pfcp_user_id_length_of_msisdn = -1;
-static int hf_pfcp_user_id_msisdn = -1;
 static int hf_pfcp_user_id_length_of_nai = -1;
 static int hf_pfcp_user_id_nai = -1;
 
@@ -4521,6 +4520,7 @@ static void dissect_pfcp_user_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     int offset = 0;
     guint64 flags_val;
     guint32 length_imsi, length_imei, length_msisdn, length_nai;
+    const gchar *mei_str;
 
     static const int * pfcp_user_id_flags[] = {
         &hf_pfcp_spare_b7_b3,
@@ -4541,7 +4541,7 @@ static void dissect_pfcp_user_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         proto_tree_add_item_ret_uint(tree, hf_pfcp_user_id_length_of_imsi, tvb, offset, 1, ENC_BIG_ENDIAN, &length_imsi);
         offset += 1;
         /* 7 to (a)    IMSI */
-        proto_tree_add_item(tree, hf_pfcp_user_id_imsi, tvb, offset, length_imsi, ENC_BIG_ENDIAN);
+        dissect_e212_imsi(tvb, pinfo, tree,  offset, length_imsi, FALSE);
         offset += length_imsi;
     }
 
@@ -4550,8 +4550,14 @@ static void dissect_pfcp_user_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         /* b   Length of IMEI */
         proto_tree_add_item_ret_uint(tree, hf_pfcp_user_id_length_of_imei, tvb, offset, 1, ENC_BIG_ENDIAN, &length_imei);
         offset += 1;
+
         /* (b+1) to c    IMEI */
-        proto_tree_add_item(tree, hf_pfcp_user_id_imei, tvb, offset, length_imei, ENC_BIG_ENDIAN);
+        /* Fetch the BCD encoded digits from tvb low half byte, formating the digits according to
+        * a default digit set of 0-9 returning "?" for overdecadic digits a pointer to the EP
+        * allocated string will be returned.
+        */
+        mei_str = tvb_bcd_dig_to_wmem_packet_str( tvb, offset, length_imei, NULL, FALSE);
+        proto_tree_add_string(tree, hf_pfcp_user_id_imei, tvb, offset, length_imei, mei_str);
         offset += length_imei;
     }
 
@@ -4561,7 +4567,7 @@ static void dissect_pfcp_user_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         proto_tree_add_item_ret_uint(tree, hf_pfcp_user_id_length_of_msisdn, tvb, offset, 1, ENC_BIG_ENDIAN, &length_msisdn);
         offset += 1;
         /* (d+1) to e    MSISDN */
-        proto_tree_add_item(tree, hf_pfcp_user_id_msisdn, tvb, offset, length_msisdn, ENC_BIG_ENDIAN);
+        dissect_e164_msisdn(tvb, tree, offset, length_msisdn, E164_ENC_BCD);
         offset += length_msisdn;
     }
 
@@ -4571,7 +4577,7 @@ static void dissect_pfcp_user_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         proto_tree_add_item_ret_uint(tree, hf_pfcp_user_id_length_of_nai, tvb, offset, 1, ENC_BIG_ENDIAN, &length_nai);
         offset += 1;
         /* (f+1) to g    NAI */
-        proto_tree_add_item(tree, hf_pfcp_user_id_nai, tvb, offset, length_nai, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_pfcp_user_id_nai, tvb, offset, length_nai, ENC_ASCII|ENC_NA);
         offset += length_nai;
     }
 
@@ -7559,11 +7565,6 @@ proto_register_pfcp(void)
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_pfcp_user_id_imsi,
-        { "IMSI", "pfcp.user_id.imsi",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }
-        },
         { &hf_pfcp_user_id_length_of_imei,
         { "Length of IMEI", "pfcp.user_id.length_of_imei",
             FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -7571,17 +7572,12 @@ proto_register_pfcp(void)
         },
         { &hf_pfcp_user_id_imei,
         { "IMEI", "pfcp.user_id.imei",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_pfcp_user_id_length_of_msisdn,
         { "Length of MSISDN", "pfcp.user_id.length_of_msisdn",
             FT_UINT8, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }
-        },
-        { &hf_pfcp_user_id_msisdn,
-        { "MSISDN", "pfcp.user_id.msisdn",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pfcp_user_id_length_of_nai,
@@ -7591,7 +7587,7 @@ proto_register_pfcp(void)
         },
         { &hf_pfcp_user_id_nai,
         { "NAI", "pfcp.user_id.nai",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
 
