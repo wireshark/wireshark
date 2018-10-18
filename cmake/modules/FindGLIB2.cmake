@@ -111,6 +111,11 @@ find_package_handle_standard_args( GLIB2
 
 if( GLIB2_FOUND )
 	set( GLIB2_LIBRARIES ${GLIB2_LIBRARY} ${GOBJECT_LIBRARY} )
+	# Include transitive dependencies for static linking.
+	if(UNIX AND CMAKE_FIND_LIBRARY_SUFFIXES STREQUAL ".a")
+		find_library(PCRE_LIBRARY pcre)
+		list(APPEND GLIB2_LIBRARIES -pthread ${PCRE_LIBRARY})
+	endif()
 	set( GLIB2_INCLUDE_DIRS ${GLIB2_MAIN_INCLUDE_DIR} ${GLIB2_INTERNAL_INCLUDE_DIR} )
 	if ( WIN32 AND GLIB2_FOUND )
 		set ( GLIB2_DLL_DIR "${GLIB2_HINTS}/bin"
