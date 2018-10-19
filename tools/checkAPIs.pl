@@ -1052,13 +1052,6 @@ my $debug = 0;
 # http://aspn.activestate.com/ASPN/Cookbook/Rx/Recipe/59811
 # They are in the public domain.
 
-# 1. A complicated regex which matches "classic C"-style comments.
-my $CComment = qr{ / [*] [^*]* [*]+ (?: [^/*] [^*]* [*]+ )* / }x;
-
-# 1.a A regex that matches C++/C99-and-later-style comments.
-# XXX handle comments after a statement and not just at the beginning of a line.
-my $CppComment = qr{ ^ \s* // (.*?) \n }xm;
-
 # 2. A regex which matches double-quoted strings.
 #    ?s added so that strings containing a 'line continuation'
 #    ( \ followed by a new-line) will match.
@@ -1066,13 +1059,6 @@ my $DoubleQuotedStr = qr{ (?: ["] (?s: \\. | [^\"\\])* ["]) }x;
 
 # 3. A regex which matches single-quoted strings.
 my $SingleQuotedStr = qr{ (?: \' (?: \\. | [^\'\\])* [']) }x;
-
-# 4. Now combine 1 through 3 to produce a regex which
-#    matches _either_ double or single quoted strings
-#    OR comments. We surround the comment-matching
-#    regex in capturing parenthesis to store the contents
-#    of the comment in $1.
-#    my $commentAndStringRegex = qr{(?:$DoubleQuotedStr|$SingleQuotedStr)|($CComment)|($CppComment)};
 
 #
 # MAIN
@@ -1207,8 +1193,10 @@ while ($_ = pop @filelist)
                 $errorCount++;
         }
 
-        # Remove all the C/C++ comments
-        $fileContents =~ s{ $CComment | $CppComment } []xog;
+        # Remove C/C++ comments
+        # The below pattern is modified (to keep newlines at the end of C++-style comments) from that at:
+        # https://perldoc.perl.org/perlfaq6.html#How-do-I-use-a-regular-expression-to-strip-C-style-comments-from-a-file?
+        $fileContents =~ s#/\*[^*]*\*+([^/*][^*]*\*+)*/|//([^\\]|[^\n][\n]?)*?\n|("(\\.|[^"\\])*"|'(\\.|[^'\\])*'|.[^/"'\\]*)#defined $3 ? $3 : "\n"#gse;
 
         # optionally check the hf entries (including those under #if 0)
         if ($check_hf) {
