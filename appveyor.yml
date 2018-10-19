@@ -58,7 +58,11 @@ test_script:
   - set WS_BIN_PATH=%CD%\run\%CONFIGURATION%
   - pytest -nauto -ra ..\test
 
-artifacts:
-  - path: Wireshark-*.exe
+# AppVeyor prevents to store artifacts exceeding 50 GB. Commenting out
+# their upload for now. They can be re-enabled on your own repo from the
+# configuration page:
+# https://ci.appveyor.com/project/<username>/wireshark/settings/artifacts
+# artifacts:
+#  - path: Wireshark-*.exe
 
 deploy: off
