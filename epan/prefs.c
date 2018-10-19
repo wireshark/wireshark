@@ -5207,7 +5207,6 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
     };
 
     unsigned int i;
-    char     *p;
     guint    uval;
     dissector_table_t sub_dissectors;
     dissector_handle_t handle, tpkt_handle;
@@ -5236,9 +5235,7 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
 
     for (i = 0; i < G_N_ELEMENTS(port_prefs); i++) {
         if (strcmp(pref_name, port_prefs[i].pref_name) == 0) {
-            /* XXX - give an error if it doesn't fit in a guint? */
-            uval = (guint)strtoul(value, &p, port_prefs[i].base);
-            if (p == value || *p != '\0')
+            if (!ws_basestrtou32(value, NULL, &uval, port_prefs[i].base))
                 return FALSE;        /* number was bad */
 
             module = prefs_find_module(port_prefs[i].module_name);
@@ -5327,8 +5324,7 @@ deprecated_port_pref(gchar *pref_name, const gchar *value)
         if (strcmp(pref_name, tpkt_subdissector_port_prefs[i].pref_name) == 0)
         {
             /* XXX - give an error if it doesn't fit in a guint? */
-            uval = (guint)strtoul(value, &p, tpkt_subdissector_port_prefs[i].base);
-            if (p == value || *p != '\0')
+            if (!ws_basestrtou32(value, NULL, &uval, tpkt_subdissector_port_prefs[i].base))
                 return FALSE;        /* number was bad */
 
             /* If the value is 0 or 102 (default TPKT port), don't add to the Decode As tables */
@@ -5359,11 +5355,10 @@ static prefs_set_pref_e
 set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
          gboolean return_range_errors)
 {
-    unsigned long int cval;
+    guint    cval;
     guint    uval;
     gboolean bval;
     gint     enum_val;
-    char     *p;
     gchar    *dotp, *last_dotp;
     static gchar *filter_label = NULL;
     static gboolean filter_enabled = FALSE;
@@ -5796,9 +5791,7 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
         switch (type) {
 
         case PREF_UINT:
-            /* XXX - give an error if it doesn't fit in a guint? */
-            uval = (guint)strtoul(value, &p, pref->info.base);
-            if (p == value || *p != '\0')
+            if (!ws_basestrtou32(value, NULL, &uval, pref->info.base))
                 return PREFS_SET_SYNTAX_ERR;        /* number was bad */
             if (*pref->varp.uint != uval) {
                 containing_module->prefs_changed_flags |= prefs_get_effect_flags(pref);
@@ -5814,9 +5807,7 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
             dissector_table_t sub_dissectors;
             dissector_handle_t handle;
 
-            /* XXX - give an error if it doesn't fit in a guint? */
-            uval = (guint)strtoul(value, &p, pref->info.base);
-            if (p == value || *p != '\0')
+            if (!ws_basestrtou32(value, NULL, &uval, pref->info.base))
                 return PREFS_SET_SYNTAX_ERR;        /* number was bad */
 
             if (*pref->varp.uint != uval) {
@@ -5936,7 +5927,8 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
 
         case PREF_COLOR:
         {
-            cval = strtoul(value, NULL, 16);
+            if (!ws_hexstrtou32(value, NULL, &cval))
+                return PREFS_SET_SYNTAX_ERR;        /* number was bad */
             if ((pref->varp.colorp->red != RED_COMPONENT(cval)) ||
                 (pref->varp.colorp->green != GREEN_COMPONENT(cval)) ||
                 (pref->varp.colorp->blue != BLUE_COMPONENT(cval))) {
