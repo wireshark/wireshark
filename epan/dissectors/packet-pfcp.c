@@ -7703,7 +7703,7 @@ proto_register_pfcp(void)
     };
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS_PFCP    47
+#define NUM_INDIVIDUAL_ELEMS_PFCP    49
     gint *ett[NUM_INDIVIDUAL_ELEMS_PFCP +
         (NUM_PFCP_IES - 1)];
 
@@ -7748,12 +7748,14 @@ proto_register_pfcp(void)
     ett[38] = &ett_pfcp_additional_usage_reports_information;
     ett[39] = &ett_pfcp_mac_address;
     ett[40] = &ett_pfcp_c_tag;
-    ett[41] = &ett_pfcp_s_tag;
-    ett[42] = &ett_pfcp_proxying;
-    ett[43] = &ett_pfcp_ethernet_filter_properties;
-    ett[44] = &ett_pfcp_user_id;
-    ett[45] = &ett_pfcp_ethernet_pdu_session_information;
-    ett[46] = &ett_pfcp_sdf_filter_id;
+    ett[41] = &ett_pfcp_c_tag_dei;
+    ett[42] = &ett_pfcp_s_tag;
+    ett[43] = &ett_pfcp_s_tag_dei;
+    ett[44] = &ett_pfcp_proxying;
+    ett[45] = &ett_pfcp_ethernet_filter_properties;
+    ett[46] = &ett_pfcp_user_id;
+    ett[47] = &ett_pfcp_ethernet_pdu_session_information;
+    ett[48] = &ett_pfcp_sdf_filter_id;
 
 
     static ei_register_info ei[] = {
