@@ -136,10 +136,10 @@ static int hf_osi_options_residual_error_prob_vs_cost = -1;
 static int hf_osi_options_rtd_pdu_discarded = -1;
 static int hf_osi_options_rfd_field = -1;
 
-static gint ott_osi_options       = -1;
-static gint ott_osi_qos           = -1;
-static gint ott_osi_route         = -1;
-static gint ott_osi_redirect      = -1;
+static gint ett_osi_options       = -1;
+static gint ett_osi_qos           = -1;
+static gint ett_osi_route         = -1;
+static gint ett_osi_redirect      = -1;
 
 static expert_field ei_osi_options_none = EI_INIT;
 static expert_field ei_osi_options_rfd_error_class = EI_INIT;
@@ -271,7 +271,7 @@ dissect_option_qos(const guint8 qos, proto_tree *tree, tvbuff_t *tvb, int offset
   proto_tree *osi_qos_tree;
 
   ti = proto_tree_add_item(tree, hf_osi_options_qos_maintenance, tvb, offset, 1, ENC_BIG_ENDIAN);
-  osi_qos_tree = proto_item_add_subtree(ti, ott_osi_qos);
+  osi_qos_tree = proto_item_add_subtree(ti, ett_osi_qos);
 
   if ( ((qos & OSI_OPT_QOS_MASK) >> 6) == OSI_OPT_QOS_GLOBAL_UNIQUE) { /* Analye BIT field to get all Values */
     proto_tree_add_item(osi_qos_tree, hf_osi_options_qos_reserved, tvb, offset, 1, ENC_NA);
@@ -310,7 +310,7 @@ dissect_option_route(guchar parm_type, int offset, guchar parm_len,
   else if ( parm_type == OSI_OPT_RECORD_OF_ROUTE ) {
     crr = tvb_get_guint8(tvb, offset);
     last_hop = tvb_get_guint8(tvb, offset + 1);
-    osi_route_tree = proto_tree_add_subtree(tree, tvb, offset, parm_len, ott_osi_route, NULL,
+    osi_route_tree = proto_tree_add_subtree(tree, tvb, offset, parm_len, ett_osi_route, NULL,
                              (crr == 0) ? "Partial Route Recording" : "Complete Route Recording");
 
     /* Complete Route Recording or Partial Route Recording */
@@ -409,7 +409,7 @@ dissect_option_atn_security_label(const guchar sub_type, guchar length,
   if ( tvb_memeql(tvb, ++offset , atn_security_registration_val, OSI_OPT_SECURITY_ATN_SR_LEN) )
     return;
 
-  atn_sl_tree = proto_tree_add_subtree(tree, tvb, offset, length, ott_osi_qos, NULL,
+  atn_sl_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_osi_qos, NULL,
                            val_to_str(sub_type, osi_opt_sec_atn_sr_vals, "Unknown (0x%x)"));
 
   offset += OSI_OPT_SECURITY_ATN_SR_LEN;
@@ -498,7 +498,7 @@ dissect_osi_options(guchar opt_len, tvbuff_t *tvb, int offset, proto_tree *tree,
   guint8      octet;
 
     osi_option_tree = proto_tree_add_subtree(tree, tvb, offset, opt_len,
-                             ott_osi_options, &ti, "### Option Section ###");
+                             ett_osi_options, &ti, "### Option Section ###");
     if ( 0 == opt_len ) {
        expert_add_info(pinfo, ti, &ei_osi_options_none);
        return;
@@ -622,11 +622,11 @@ proto_register_osi_options(void) {
       { &hf_osi_options_padding, { "Padding", "osi.options.padding", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
   };
 
-  static gint *ott[] = {
-    &ott_osi_options,
-    &ott_osi_qos,
-    &ott_osi_route,
-    &ott_osi_redirect
+  static gint *ett[] = {
+    &ett_osi_options,
+    &ett_osi_qos,
+    &ett_osi_route,
+    &ett_osi_redirect
   };
 
   static ei_register_info ei[] = {
@@ -637,7 +637,7 @@ proto_register_osi_options(void) {
   expert_module_t *expert_osi_options;
 
   proto_register_field_array(proto_osi, hf, array_length(hf));
-  proto_register_subtree_array(ott, array_length(ott));
+  proto_register_subtree_array(ett, array_length(ett));
   expert_osi_options = expert_register_protocol(proto_osi);
   expert_register_field_array(expert_osi_options, ei, array_length(ei));
 }
