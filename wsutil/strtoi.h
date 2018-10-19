@@ -61,6 +61,28 @@ WS_DLL_PUBLIC gboolean ws_hexstrtou32(const gchar* str, const gchar** endptr, gu
 WS_DLL_PUBLIC gboolean ws_hexstrtou16(const gchar* str, const gchar** endptr, guint16* cint);
 WS_DLL_PUBLIC gboolean ws_hexstrtou8 (const gchar* str, const gchar** endptr, guint8*  cint);
 
+/*
+ * \brief Convert a string in the specified base to an unsigned int, with
+ * error checks.
+ * \param str The string to convert
+ * \param endptr A pointer that will store a pointer to the first invalid
+ * character in str, allowing a number to be parsed even if there is trailing
+ * whitespace. If NULL, then the string is assumed to contain only valid
+ * characters (or it will error out).
+ * \param cint The converted integer
+ * \param base The base for the integer; 0 means "if it begins with 0x,
+ * it's hex, otherwise if it begins with 0, it's octal, otherwise it's
+ * decimal".
+ * \return TRUE if the conversion succeeds, FALSE otherwise.
+ * On error, errno is set to EINVAL for unrecognized input and ERANGE
+ * if the resulting number does not fit in the type.
+ */
+
+WS_DLL_PUBLIC gboolean ws_basestrtou64(const gchar* str, const gchar** endptr, guint64* cint, int base);
+WS_DLL_PUBLIC gboolean ws_basestrtou32(const gchar* str, const gchar** endptr, guint32* cint, int base);
+WS_DLL_PUBLIC gboolean ws_basestrtou16(const gchar* str, const gchar** endptr, guint16* cint, int base);
+WS_DLL_PUBLIC gboolean ws_basestrtou8 (const gchar* str, const gchar** endptr, guint8*  cint, int base);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

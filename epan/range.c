@@ -13,6 +13,7 @@
 
 #include "config.h"
 
+#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -22,7 +23,8 @@
 #include <epan/frame_data.h>
 
 #include <epan/range.h>
-#include <stdio.h>
+
+#include <wsutil/strtoi.h>
 
 /*
  * Size of the header of a range_t.
@@ -84,11 +86,11 @@ range_convert_str_work(wmem_allocator_t *scope, range_t **rangep, const gchar *e
    range_t       *range;
    guint         nranges;
    const gchar   *p;
-   char          *endp;
+   const char    *endp;
    gchar         c;
    guint         i;
    guint32       tmp;
-   unsigned long val;
+   guint32       val;
 
    if ( (rangep == NULL) || (es == NULL) )
       return CVT_SYNTAX_ERROR;
@@ -135,8 +137,8 @@ range_convert_str_work(wmem_allocator_t *scope, range_t **rangep, const gchar *e
       } else if (g_ascii_isdigit(c)) {
          /* Subrange starts with the specified number */
          errno = 0;
-         val = strtoul(p, &endp, 0);
-         if (p == endp) {
+         ws_basestrtou32(p, &endp, &val, 0);
+         if (errno == EINVAL) {
             /* That wasn't a valid number. */
             wmem_free(scope, range);
             return CVT_SYNTAX_ERROR;
@@ -181,8 +183,8 @@ range_convert_str_work(wmem_allocator_t *scope, range_t **rangep, const gchar *e
          } else if (g_ascii_isdigit(c)) {
             /* Subrange ends with the specified number. */
             errno = 0;
-            val = strtoul(p, &endp, 0);
-            if (p == endp) {
+            ws_basestrtou32(p, &endp, &val, 0);
+            if (errno == EINVAL) {
                /* That wasn't a valid number. */
                wmem_free(scope, range);
                return CVT_SYNTAX_ERROR;
