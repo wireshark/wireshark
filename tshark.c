@@ -2420,7 +2420,7 @@ tshark_epan_new(capture_file *cf)
 static gboolean
 capture(void)
 {
-  gboolean          ret;
+  volatile gboolean ret = TRUE;
   guint             i;
   GString          *str;
 #ifdef USE_TSHARK_SELECT
@@ -2532,13 +2532,15 @@ capture(void)
       if (ret == -1)
       {
         fprintf(stderr, "%s: %s\n", "select()", g_strerror(errno));
-        return TRUE;
+        ret = TRUE;
+        loop_running = FALSE;
       } else if (ret == 1) {
 #endif
         /* Call the real handler */
         if (!pipe_input.input_cb(pipe_input.source, pipe_input.user_data)) {
           g_log(NULL, G_LOG_LEVEL_DEBUG, "input pipe closed");
-          return FALSE;
+          ret = FALSE;
+          loop_running = FALSE;
         }
 #ifdef USE_TSHARK_SELECT
       }
@@ -2553,10 +2555,10 @@ capture(void)
             "\n"
             "More information and workarounds can be found at\n"
             "https://wiki.wireshark.org/KnownBugs/OutOfMemory\n");
-    exit(1);
+    abort();
   }
   ENDTRY;
-  return TRUE;
+  return ret;
 }
 
 /* capture child detected an error */
