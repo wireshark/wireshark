@@ -6386,7 +6386,7 @@ finfo_set_len(field_info *fi, const gint length)
 {
 	gint length_remaining;
 
-	DISSECTOR_ASSERT(length >= 0);
+	DISSECTOR_ASSERT_HINT(length >= 0, fi->hfinfo->abbrev);
 	length_remaining = tvb_captured_length_remaining(fi->ds_tvb, fi->start);
 	if (length > length_remaining)
 		fi->length = length_remaining;
