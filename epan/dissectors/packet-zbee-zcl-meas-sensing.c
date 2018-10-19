@@ -279,12 +279,17 @@ proto_register_zbee_zcl_illum_meas(void)
         { &hf_zbee_zcl_illum_meas_sensor_type,
             { "Sensor Type", "zbee_zcl_meas_sensing.illummeas.attr.sensor_type", FT_UINT8, BASE_HEX, VALS(zbee_zcl_illum_meas_sensor_type_names),
             0x00, NULL, HFILL } }
+    };
 
+    /* ZCL Illuminance Measurement subtrees */
+    gint *ett[] = {
+        &ett_zbee_zcl_illum_meas
     };
 
     /* Register the ZigBee ZCL Illuminance Measurement cluster protocol name and description */
     proto_zbee_zcl_illum_meas = proto_register_protocol("ZigBee ZCL Illuminance Meas.", "ZCL Illuminance Meas.", ZBEE_PROTOABBREV_ZCL_ILLUMMEAS);
     proto_register_field_array(proto_zbee_zcl_illum_meas, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZigBee ZCL Illuminance Measurement dissector. */
     register_dissector(ZBEE_PROTOABBREV_ZCL_ILLUMMEAS, dissect_zbee_zcl_illum_meas, proto_zbee_zcl_illum_meas);
@@ -491,9 +496,15 @@ proto_register_zbee_zcl_illum_level_sen(void)
             0x00, NULL, HFILL } }
     };
 
+    /* ZCL Illuminance Level Sensing subtrees */
+    gint *ett[] = {
+        &ett_zbee_zcl_illum_level_sen
+    };
+
     /* Register the ZigBee ZCL Illuminance Level Sensing cluster protocol name and description */
     proto_zbee_zcl_illum_level_sen = proto_register_protocol("ZigBee ZCL Illuminance Level Sensing", "ZCL Illuminance Level Sensing", ZBEE_PROTOABBREV_ZCL_ILLUMLEVELSEN);
     proto_register_field_array(proto_zbee_zcl_illum_level_sen, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZigBee ZCL Illuminance Level Sensing dissector. */
     register_dissector(ZBEE_PROTOABBREV_ZCL_ILLUMLEVELSEN, dissect_zbee_zcl_illum_level_sen, proto_zbee_zcl_illum_level_sen);
@@ -755,9 +766,15 @@ proto_register_zbee_zcl_temp_meas(void)
 
     };
 
+    /* ZCL Temperature Measurement subtrees */
+    gint *ett[] = {
+        &ett_zbee_zcl_temp_meas
+    };
+
     /* Register the ZigBee ZCL Temperature Measurement cluster protocol name and description */
     proto_zbee_zcl_temp_meas = proto_register_protocol("ZigBee ZCL Temperature Meas.", "ZCL Temperature Meas.", ZBEE_PROTOABBREV_ZCL_TEMPMEAS);
     proto_register_field_array(proto_zbee_zcl_temp_meas, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZigBee ZCL Temperature Measurement dissector. */
     register_dissector(ZBEE_PROTOABBREV_ZCL_TEMPMEAS, dissect_zbee_zcl_temp_meas, proto_zbee_zcl_temp_meas);
@@ -1079,9 +1096,15 @@ proto_register_zbee_zcl_press_meas(void)
 
     };
 
+    /* ZCL Pressure Measurement subtrees */
+    gint *ett[] = {
+        &ett_zbee_zcl_press_meas
+    };
+
     /* Register the ZigBee ZCL Pressure Measurement cluster protocol name and description */
     proto_zbee_zcl_press_meas = proto_register_protocol("ZigBee ZCL Pressure Meas.", "ZCL Pressure Meas.", ZBEE_PROTOABBREV_ZCL_PRESSMEAS);
     proto_register_field_array(proto_zbee_zcl_press_meas, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZigBee ZCL Pressure Measurement dissector. */
     register_dissector(ZBEE_PROTOABBREV_ZCL_PRESSMEAS, dissect_zbee_zcl_press_meas, proto_zbee_zcl_press_meas);
@@ -1342,9 +1365,15 @@ proto_register_zbee_zcl_flow_meas(void)
             0x00, NULL, HFILL } }
     };
 
+    /* ZCL Flow Measurement subtrees */
+    gint *ett[] = {
+        &ett_zbee_zcl_flow_meas
+    };
+
     /* Register the ZigBee ZCL Flow Measurement cluster protocol name and description */
     proto_zbee_zcl_flow_meas = proto_register_protocol("ZigBee ZCL Flow Meas.", "ZCL Flow Meas.", ZBEE_PROTOABBREV_ZCL_FLOWMEAS);
     proto_register_field_array(proto_zbee_zcl_flow_meas, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZigBee ZCL Flow Measurement dissector. */
     register_dissector(ZBEE_PROTOABBREV_ZCL_FLOWMEAS, dissect_zbee_zcl_flow_meas, proto_zbee_zcl_flow_meas);
@@ -1603,9 +1632,15 @@ proto_register_zbee_zcl_relhum_meas(void)
 
     };
 
+    /* ZCL Relative Humidity Measurement subtrees */
+    gint *ett[] = {
+        &ett_zbee_zcl_relhum_meas
+    };
+
     /* Register the ZigBee ZCL Relative Humidity Measurement cluster protocol name and description */
     proto_zbee_zcl_relhum_meas = proto_register_protocol("ZigBee ZCL Rel. Humidity Meas.", "ZCL Relative Humidity Meas.", ZBEE_PROTOABBREV_ZCL_RELHUMMEAS);
     proto_register_field_array(proto_zbee_zcl_relhum_meas, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZigBee ZCL Relative Humidity Measurement dissector. */
     register_dissector(ZBEE_PROTOABBREV_ZCL_RELHUMMEAS, dissect_zbee_zcl_relhum_meas, proto_zbee_zcl_relhum_meas);
