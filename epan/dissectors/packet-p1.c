@@ -11106,6 +11106,8 @@ void proto_register_p1(void) {
   /* Register our configuration options for P1, particularly our port */
 
   p1_module = prefs_register_protocol_subtree("OSI/X.400", proto_p1, NULL);
+  /* For reading older preference files with "x411." preferences */
+  prefs_register_module_alias("x411", p1_module);
 
   prefs_register_obsolete_preference(p1_module, "tcp.port");
 
@@ -11122,7 +11124,7 @@ void proto_register_p1(void) {
   register_ber_syntax_dissector("ORName", proto_p1, dissect_ORName_PDU);
 
 /*--- End of included file: packet-p1-syn-reg.c ---*/
-#line 378 "./asn1/p1/packet-p1-template.c"
+#line 380 "./asn1/p1/packet-p1-template.c"
 }
 
 
@@ -11286,7 +11288,7 @@ void proto_reg_handoff_p1(void) {
 
 
 /*--- End of included file: packet-p1-dis-tab.c ---*/
-#line 384 "./asn1/p1/packet-p1-template.c"
+#line 386 "./asn1/p1/packet-p1-template.c"
 
   /* APPLICATION CONTEXT */
 
