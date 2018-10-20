@@ -814,11 +814,12 @@ void parseDiagnosticInfo(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gi
 
     /* prevent a too high nesting depth */
     opcua_nested_count = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_opcua, 0));
-    if (++opcua_nested_count > MAX_NESTING_DEPTH)
+    if (opcua_nested_count >= MAX_NESTING_DEPTH)
     {
         expert_add_info(pinfo, ti, &ei_nesting_depth);
         return;
     }
+    opcua_nested_count++;
     p_add_proto_data(pinfo->pool, pinfo, proto_opcua, 0, GUINT_TO_POINTER(opcua_nested_count));
 
     /* parse encoding mask */
@@ -857,6 +858,9 @@ void parseDiagnosticInfo(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gi
 
     proto_item_set_end(ti, tvb, iOffset);
     *pOffset = iOffset;
+
+    opcua_nested_count--;
+    p_add_proto_data(pinfo->pool, pinfo, proto_opcua, 0, GUINT_TO_POINTER(opcua_nested_count));
 }
 
 void parseQualifiedName(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, const char *szFieldName)
@@ -932,11 +936,12 @@ void parseVariant(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOf
 
     /* prevent a too high nesting depth */
     opcua_nested_count = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_opcua, 0));
-    if (++opcua_nested_count > MAX_NESTING_DEPTH)
+    if (opcua_nested_count >= MAX_NESTING_DEPTH)
     {
         expert_add_info(pinfo, ti, &ei_nesting_depth);
         return;
     }
+    opcua_nested_count++;
     p_add_proto_data(pinfo->pool, pinfo, proto_opcua, 0, GUINT_TO_POINTER(opcua_nested_count));
 
     EncodingMask = tvb_get_guint8(tvb, iOffset);
@@ -1037,6 +1042,9 @@ void parseVariant(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOf
 
     proto_item_set_end(ti, tvb, iOffset);
     *pOffset = iOffset;
+
+    opcua_nested_count--;
+    p_add_proto_data(pinfo->pool, pinfo, proto_opcua, 0, GUINT_TO_POINTER(opcua_nested_count));
 }
 
 /** General parsing function for arrays of simple types.
@@ -1200,11 +1208,12 @@ void parseExtensionObject(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, g
 
     /* prevent a too high nesting depth */
     opcua_nested_count = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_opcua, 0));
-    if (++opcua_nested_count > MAX_NESTING_DEPTH)
+    if (opcua_nested_count >= MAX_NESTING_DEPTH)
     {
         expert_add_info(pinfo, ti, &ei_nesting_depth);
         return;
     }
+    opcua_nested_count++;
     p_add_proto_data(pinfo->pool, pinfo, proto_opcua, 0, GUINT_TO_POINTER(opcua_nested_count));
 
     /* add nodeid subtree */
@@ -1223,6 +1232,9 @@ void parseExtensionObject(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, g
 
     proto_item_set_end(ti, tvb, iOffset);
     *pOffset = iOffset;
+
+    opcua_nested_count--;
+    p_add_proto_data(pinfo->pool, pinfo, proto_opcua, 0, GUINT_TO_POINTER(opcua_nested_count));
 }
 
 void parseExpandedNodeId(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, const char *szFieldName)
