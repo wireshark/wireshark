@@ -1,0 +1,44 @@
+Workaround for CSA limitation, it currently does not correctly handle structure
+assignment. Escaping the pointer via function call is a workaround to hide the
+false positive (use-after-free). Change done with:
+sed -e 's#\*\(x[1-4]a\) = array;$#memcpy(\1, \&array, sizeof(array)); /* & */#'
+
+Link: https://bugs.llvm.org/show_bug.cgi?id=39356
+--- a/lemon.c
++++ b/lemon.c
+@@ -5076,7 +5076,7 @@ int Strsafe_insert(const char *data)
+       array.ht[h] = newnp;
+     }
+     free(x1a->tbl);
+-    *x1a = array;
++    memcpy(x1a, &array, sizeof(array)); /* *x1a = array; */
+   }
+   /* Insert the new data */
+   h = ph & (x1a->size-1);
+@@ -5244,7 +5244,7 @@ int Symbol_insert(struct symbol *data, const char *key)
+       array.ht[h] = newnp;
+     }
+     free(x2a->tbl);
+-    *x2a = array;
++    memcpy(x2a, &array, sizeof(array)); /* *x2a = array; */
+   }
+   /* Insert the new data */
+   h = ph & (x2a->size-1);
+@@ -5441,7 +5441,7 @@ int State_insert(struct state *data, struct config *key)
+       array.ht[h] = newnp;
+     }
+     free(x3a->tbl);
+-    *x3a = array;
++    memcpy(x3a, &array, sizeof(array)); /* *x3a = array; */
+   }
+   /* Insert the new data */
+   h = ph & (x3a->size-1);
+@@ -5580,7 +5580,7 @@ int Configtable_insert(struct config *data)
+       array.ht[h] = newnp;
+     }
+     free(x4a->tbl);
+-    *x4a = array;
++    memcpy(x4a, &array, sizeof(array)); /* *x4a = array; */
+   }
+   /* Insert the new data */
+   h = ph & (x4a->size-1);

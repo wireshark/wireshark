@@ -1,0 +1,33 @@
+Assertions to avoid false null-pointer dereferences.
+--- a/lemon.c
++++ b/lemon.c
+@@ -690,11 +690,13 @@ int acttab_insert(acttab *p, int makeItSafe){
+       fprintf(stderr,"malloc failed\n");
+       exit(1);
+     }
++    assert(oldAlloc < p->nActionAlloc);     /* hint for CSA */
+     for(i=oldAlloc; i<p->nActionAlloc; i++){
+       p->aAction[i].lookahead = -1;
+       p->aAction[i].action = -1;
+     }
+   }
++  assert(p->aAction);  /* Hint for CSA (for p->aAction[i] below) */
+ 
+   /* Scan the existing action table looking for an offset that is a
+   ** duplicate of the current transaction set.  Fall out of the loop
+@@ -1078,6 +1080,7 @@ void FindLinks(struct lemon *lemp)
+   ** which the link is attached. */
+   for(i=0; i<lemp->nstate; i++){
+     stp = lemp->sorted[i];
++    assert(stp);    /* Hint for CSA */
+     for(cfp=stp->cfp; cfp; cfp=cfp->next){
+       cfp->stp = stp;
+     }
+@@ -1684,6 +1687,7 @@ int main(int argc, char **argv)
+   /* Parse the input file */
+   Parse(&lem);
+   if( lem.errorcnt ) exit(lem.errorcnt);
++  assert(lem.rule);  /* Hint for CSA (no errors => rule found). */
+   if( lem.nrule==0 ){
+     fprintf(stderr,"Empty grammar.\n");
+     exit(1);

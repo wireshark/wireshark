@@ -1,0 +1,17 @@
+Fix memory leak in ReportTable, the data structure does not escape this
+function (directly or indirectly via another function), so freeing it seems the
+right thing to do.
+
+acttab_free was added upstream in commit 5c0b1c80aa, 2003-10-21 via
+"Convert lemon to use a single perfect hash table for storing the actions.
+This should make the resulting parser both smaller and faster. (CVS 1112)"
+--- a/lemon.c
++++ b/lemon.c
+@@ -4418,6 +4418,7 @@ void ReportTable(
+     }
+   }
+   fprintf(out, "};\n"); lineno++;
++  acttab_free(pActtab);
+ 
+   /* Output the yy_shift_ofst[] table */
+   n = lemp->nxstate;

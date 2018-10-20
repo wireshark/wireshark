@@ -1,0 +1,48 @@
+Make ParseInit and ParseFinalize static to fix -Wmissing-prototypes in
+dtd_grammar.c. Hide ParseFinalize to fix -Wunused-function since this feature
+is not used by Wireshark.
+
+Mark yymajor as _U_ since none of the lemon grammar files seem to use it in
+their %syntax_error directive, this fixes -Wunused-parameter
+--- a/lempar.c
++++ b/lempar.c
+@@ -319,7 +319,7 @@ static int yyGrowStack(yyParser *p){
+ 
+ /* Initialize a new parser that has already been allocated.
+ */
+-void ParseInit(void *yypRawParser ParseCTX_PDECL){
++static void ParseInit(void *yypRawParser ParseCTX_PDECL){
+   yyParser *yypParser = (yyParser*)yypRawParser;
+   ParseCTX_STORE
+ #ifdef YYTRACKMAXSTACKDEPTH
+@@ -426,7 +426,7 @@ static void yy_pop_parser_stack(yyParser *pParser){
+ /*
+ ** Clear all secondary memory allocations from the parser
+ */
+-void ParseFinalize(void *p){
++static void ParseFinalize(void *p){
+   yyParser *pParser = (yyParser*)p;
+   while( pParser->yytos>pParser->yystack ) yy_pop_parser_stack(pParser);
+ #if YYSTACKDEPTH<=0
+@@ -831,7 +831,7 @@ static void yy_parse_failed(
+ */
+ static void yy_syntax_error(
+   yyParser *yypParser,           /* The parser */
+-  int yymajor,                   /* The major type of the error token */
++  int yymajor _U_,               /* The major type of the error token */
+   ParseTOKENTYPE yyminor         /* The minor type of the error token */
+ ){
+   ParseARG_FETCH
+@@ -1060,6 +1060,7 @@ void Parse(
+   return;
+ }
+ 
++#if 0
+ /*
+ ** Return the fallback token corresponding to canonical token iToken, or
+ ** 0 if iToken has no fallback.
+@@ -1074,3 +1075,4 @@ int ParseFallback(int iToken){
+ #endif
+   return 0;
+ }
++#endif

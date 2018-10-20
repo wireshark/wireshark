@@ -1,0 +1,11 @@
+Avoid leaking pathbuf when path==0 by marking allocation failures as fatal.
+--- a/lemon.c
++++ b/lemon.c
+@@ -3413,6 +3413,7 @@ PRIVATE char *pathsearch(char *argv0, char *name, int modemask)
+     if( pathlist==0 ) pathlist = ".:/bin:/usr/bin";
+     pathbuf = (char *) malloc( lemonStrlen(pathlist) + 1 );
+     path = (char *)malloc( lemonStrlen(pathlist)+lemonStrlen(name)+2 );
++    MemoryCheck(pathbuf); MemoryCheck(path);  /* Fail on allocation failure. */
+     if( (pathbuf != 0) && (path!=0) ){
+       pathbufptr = pathbuf;
+       lemon_strcpy(pathbuf, pathlist);
