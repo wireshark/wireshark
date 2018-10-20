@@ -56,19 +56,13 @@ typedef struct imap_state {
 static gboolean
 check_imap_heur(tvbuff_t *tvb)
 {
-  const gchar *s;
-  gint i;
-
   if (!tvb_bytes_exist(tvb, 0, IMAP_HEUR_LEN)) {
     return TRUE;
   }
 
-  s = (const gchar *)tvb_get_ptr(tvb, 0, IMAP_HEUR_LEN);
-  for (i = 0; i < IMAP_HEUR_LEN; i++) {
-    if (!g_ascii_isprint(s[i])) {
-      return FALSE;
-    }
-  }
+  if (!tvb_ascii_isprint(tvb, 0, IMAP_HEUR_LEN))
+    return FALSE;
+
   return TRUE;
 }
 

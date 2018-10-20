@@ -732,6 +732,13 @@ WS_DLL_PUBLIC gint tvb_get_nstringz(tvbuff_t *tvb, const gint offset,
 WS_DLL_PUBLIC gint tvb_get_nstringz0(tvbuff_t *tvb, const gint offset,
     const guint bufsize, guint8 *buffer);
 
+/** Iterates over the provided portion of the tvb checking that each byte
+* is an ascii printable character.
+* Returns TRUE if all bytes are printable, FALSE otherwise
+*/
+WS_DLL_PUBLIC gboolean tvb_ascii_isprint(tvbuff_t *tvb, const gint offset,
+	const gint length);
+
 /**
  * Given a tvbuff, an offset into the tvbuff, and a length that starts
  * at that offset (which may be -1 for "all the way to the end of the

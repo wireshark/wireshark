@@ -3330,6 +3330,17 @@ tvb_get_nstringz0(tvbuff_t *tvb, const gint offset, const guint bufsize, guint8*
 	}
 }
 
+gboolean tvb_ascii_isprint(tvbuff_t *tvb, const gint offset, const gint length)
+{
+	const guint8* buf = tvb_get_ptr(tvb, offset, length);
+
+	for (int i = 0; i < length; i++, buf++)
+		if (!g_ascii_isprint(*buf))
+			return FALSE;
+
+	return TRUE;
+}
+
 
 static ws_mempbrk_pattern pbrk_crlf;
 /*

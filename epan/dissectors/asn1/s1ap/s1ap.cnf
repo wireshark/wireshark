@@ -243,7 +243,6 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 #.FN_BODY ENBname VAL_PTR = parameter_tvb
   tvbuff_t *parameter_tvb=NULL;
   int length;
-  int p_offset;
   gboolean is_ascii;
 
 %(DEFAULT_BODY)s
@@ -253,20 +252,13 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 
   length = tvb_reported_length(parameter_tvb);
 
-  is_ascii = TRUE;
-  for (p_offset=0; p_offset < length; p_offset++){
-    if(!g_ascii_isprint(tvb_get_guint8(parameter_tvb, p_offset ))){
-      is_ascii = FALSE;
-      break;
-    }
-  }
+  is_ascii = tvb_ascii_isprint(parameter_tvb, 0, length);
   if (is_ascii)
      proto_item_append_text(actx->created_item," (%%s)",tvb_format_text(parameter_tvb, 0, length));
 
 #.FN_BODY MMEname VAL_PTR = parameter_tvb
   tvbuff_t *parameter_tvb=NULL;
   int length;
-  int p_offset;
   gboolean is_ascii;
 
 %(DEFAULT_BODY)s
@@ -276,13 +268,7 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 
   length = tvb_reported_length(parameter_tvb);
 
-  is_ascii = TRUE;
-  for (p_offset=0; p_offset < length; p_offset++){
-    if(!g_ascii_isprint(tvb_get_guint8(parameter_tvb, p_offset ))){
-      is_ascii = FALSE;
-      break;
-    }
-  }
+  is_ascii = tvb_ascii_isprint(parameter_tvb, 0, length);
   if (is_ascii)
      proto_item_append_text(actx->created_item," (%%s)",tvb_format_text(parameter_tvb, 0, length));
 

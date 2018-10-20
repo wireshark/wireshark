@@ -1556,13 +1556,9 @@ dissect_dap_T_pagedResultsQueryReference(gboolean implicit_tag _U_, tvbuff_t *tv
 
 
 	if(out_tvb) {
-		len = tvb_reported_length(out_tvb);
 		/* now see if we can add a string representation */
-		for(i=0; i<len; i++)
-			if(!g_ascii_isprint(tvb_get_guint8(out_tvb, i)))
-				break;
-
-		if(i == len) {
+		len = tvb_reported_length(out_tvb);
+		if(tvb_ascii_isprint(out_tvb, 0, len)) {
 			if(actx->created_item) {
 
 				proto_item_append_text(actx->created_item," (");

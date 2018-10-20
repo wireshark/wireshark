@@ -450,7 +450,6 @@ ldap_conv_info_t *ldap_info;
 
   tvbuff_t  *next_tvb = NULL;
   gchar *string;
-  guint32 i, len;
   int old_offset = offset;
   gint *hf_id;
 
@@ -470,13 +469,7 @@ ldap_conv_info_t *ldap_info;
     /* do the default thing */
   %(DEFAULT_BODY)s
 
-    len = tvb_reported_length_remaining(next_tvb, 0);
-
-    for(i = 0; i < len; i++)
-      if(!g_ascii_isprint(tvb_get_guint8(next_tvb, i)))
-        break;
-
-    if(i == len) {
+    if(tvb_ascii_isprint(next_tvb, 0, tvb_reported_length(next_tvb))) {
       string = tvb_get_string_enc(wmem_packet_scope(), next_tvb, 0, tvb_reported_length_remaining(next_tvb, 0), ENC_ASCII|ENC_NA);
       proto_item_set_text(actx->created_item, "AttributeValue: %%s", string);
     }

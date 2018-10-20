@@ -394,7 +394,6 @@ static gboolean is_handshake(tvbuff_t *tvb, int offset) {
 static void dissect_erldp_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   gint offset = 0;
   guint8 tag;
-  gint i;
   gboolean is_challenge = FALSE;
   guint32 str_len;
   const guint8 *str;
@@ -412,11 +411,9 @@ static void dissect_erldp_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tre
       proto_tree_add_item(tree, hf_erldp_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
       if (tvb_bytes_exist(tvb, offset, 4)) {
-        for (i=0; i<4; i++)
-          if(!g_ascii_isprint(tvb_get_guint8(tvb, offset + i))) {
-            is_challenge = TRUE;
-            break;
-          }
+        if (!tvb_ascii_isprint(tvb, offset, 4)) {
+          is_challenge = TRUE;
+        }
       }
       if (is_challenge) {
         proto_tree_add_item(tree, hf_erldp_challenge, tvb, offset, 4, ENC_BIG_ENDIAN);
