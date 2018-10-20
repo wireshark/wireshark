@@ -2378,7 +2378,8 @@ console_log_level_set_cb(pref_t* pref, const gchar* value, unsigned int* changed
 {
     guint    uval;
 
-    uval = (guint)strtoul(value, NULL, 10);
+    if (!ws_strtou32(value, NULL, &uval))
+        return PREFS_SET_SYNTAX_ERR;        /* number was bad */
 
     if (*pref->varp.uint != uval) {
         *changed_flags = prefs_get_effect_flags(pref);
