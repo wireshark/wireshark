@@ -25,6 +25,7 @@
  * Quagga 0.99.24 changed to Zebra Protocol version 3.
  * FRRouting version 2 and 3 use Zebra Protocol version 4
  * FRRouting version 4 and 5 use Zebra Protocol version 5
+ * FRRouting version 6 uses Zebra Protocol version 6
  */
 
 #include "config.h"
@@ -83,9 +84,10 @@ static int hf_zebra_msg_tag = -1;
 static int hf_zebra_tag = -1;
 static int hf_zebra_maclen = -1;
 static int hf_zebra_haslinkparam = -1;
-/* FRRouting, Zebra API v4 and v5*/
+/* FRRouting, Zebra API v4, v5 and v6 */
 static int hf_zebra_command_v4 = -1;
 static int hf_zebra_command_v5 = -1;
+static int hf_zebra_command_v6 = -1;
 static int hf_zebra_type_v4 = -1;
 static int hf_zebra_type_v5 = -1;
 static int hf_zebra_ptmenable = -1;
@@ -524,6 +526,195 @@ static const value_string frr_zapi5_messages[] = {
 	{ 0,					NULL },
 };
 
+enum {
+	FRR_ZAPI6_INTERFACE_ADD,
+	FRR_ZAPI6_INTERFACE_DELETE,
+	FRR_ZAPI6_INTERFACE_ADDRESS_ADD,
+	FRR_ZAPI6_INTERFACE_ADDRESS_DELETE,
+	FRR_ZAPI6_INTERFACE_UP,
+	FRR_ZAPI6_INTERFACE_DOWN,
+	FRR_ZAPI6_INTERFACE_SET_MASTER,
+	FRR_ZAPI6_ROUTE_ADD,
+	FRR_ZAPI6_ROUTE_DELETE,
+	FRR_ZAPI6_ROUTE_NOTIFY_OWNER,
+	FRR_ZAPI6_REDISTRIBUTE_ADD,
+	FRR_ZAPI6_REDISTRIBUTE_DELETE,
+	FRR_ZAPI6_REDISTRIBUTE_DEFAULT_ADD,
+	FRR_ZAPI6_REDISTRIBUTE_DEFAULT_DELETE,
+	FRR_ZAPI6_ROUTER_ID_ADD,
+	FRR_ZAPI6_ROUTER_ID_DELETE,
+	FRR_ZAPI6_ROUTER_ID_UPDATE,
+	FRR_ZAPI6_HELLO,
+	FRR_ZAPI6_CAPABILITIES,
+	FRR_ZAPI6_NEXTHOP_REGISTER,
+	FRR_ZAPI6_NEXTHOP_UNREGISTER,
+	FRR_ZAPI6_NEXTHOP_UPDATE,
+	FRR_ZAPI6_INTERFACE_NBR_ADDRESS_ADD,
+	FRR_ZAPI6_INTERFACE_NBR_ADDRESS_DELETE,
+	FRR_ZAPI6_INTERFACE_BFD_DEST_UPDATE,
+	FRR_ZAPI6_IMPORT_ROUTE_REGISTER,
+	FRR_ZAPI6_IMPORT_ROUTE_UNREGISTER,
+	FRR_ZAPI6_IMPORT_CHECK_UPDATE,
+	FRR_ZAPI6_IPV4_ROUTE_IPV6_NEXTHOP_ADD,
+	FRR_ZAPI6_BFD_DEST_REGISTER,
+	FRR_ZAPI6_BFD_DEST_DEREGISTER,
+	FRR_ZAPI6_BFD_DEST_UPDATE,
+	FRR_ZAPI6_BFD_DEST_REPLAY,
+	FRR_ZAPI6_REDISTRIBUTE_ROUTE_ADD,
+	FRR_ZAPI6_REDISTRIBUTE_ROUTE_DEL,
+	FRR_ZAPI6_VRF_UNREGISTER,
+	FRR_ZAPI6_VRF_ADD,
+	FRR_ZAPI6_VRF_DELETE,
+	FRR_ZAPI6_VRF_LABEL,
+	FRR_ZAPI6_INTERFACE_VRF_UPDATE,
+	FRR_ZAPI6_BFD_CLIENT_REGISTER,
+	FRR_ZAPI6_BFD_CLIENT_DEREGISTER,
+	FRR_ZAPI6_INTERFACE_ENABLE_RADV,
+	FRR_ZAPI6_INTERFACE_DISABLE_RADV,
+	FRR_ZAPI6_IPV4_NEXTHOP_LOOKUP_MRIB,
+	FRR_ZAPI6_INTERFACE_LINK_PARAMS,
+	FRR_ZAPI6_MPLS_LABELS_ADD,
+	FRR_ZAPI6_MPLS_LABELS_DELETE,
+	FRR_ZAPI6_IPMR_ROUTE_STATS,
+	FRR_ZAPI6_LABEL_MANAGER_CONNECT,
+	FRR_ZAPI6_GET_LABEL_CHUNK,
+	FRR_ZAPI6_RELEASE_LABEL_CHUNK,
+	FRR_ZAPI6_FEC_REGISTER,
+	FRR_ZAPI6_FEC_UNREGISTER,
+	FRR_ZAPI6_FEC_UPDATE,
+	FRR_ZAPI6_ADVERTISE_DEFAULT_GW,
+	FRR_ZAPI6_ADVERTISE_SUBNET,
+	FRR_ZAPI6_ADVERTISE_ALL_VNI,
+	FRR_ZAPI6_LOCAL_ES_ADD,
+	FRR_ZAPI6_LOCAL_ES_DEL,
+	FRR_ZAPI6_VNI_ADD,
+	FRR_ZAPI6_VNI_DEL,
+	FRR_ZAPI6_L3VNI_ADD,
+	FRR_ZAPI6_L3VNI_DEL,
+	FRR_ZAPI6_REMOTE_VTEP_ADD,
+	FRR_ZAPI6_REMOTE_VTEP_DEL,
+	FRR_ZAPI6_MACIP_ADD,
+	FRR_ZAPI6_MACIP_DEL,
+	FRR_ZAPI6_IP_PREFIX_ROUTE_ADD,
+	FRR_ZAPI6_IP_PREFIX_ROUTE_DEL,
+	FRR_ZAPI6_REMOTE_MACIP_ADD,
+	FRR_ZAPI6_REMOTE_MACIP_DEL,
+	FRR_ZAPI6_PW_ADD,
+	FRR_ZAPI6_PW_DELETE,
+	FRR_ZAPI6_PW_SET,
+	FRR_ZAPI6_PW_UNSET,
+	FRR_ZAPI6_PW_STATUS_UPDATE,
+	FRR_ZAPI6_RULE_ADD,
+	FRR_ZAPI6_RULE_DELETE,
+	FRR_ZAPI6_RULE_NOTIFY_OWNER,
+	FRR_ZAPI6_TABLE_MANAGER_CONNECT,
+	FRR_ZAPI6_GET_TABLE_CHUNK,
+	FRR_ZAPI6_RELEASE_TABLE_CHUNK,
+	FRR_ZAPI6_IPSET_CREATE,
+	FRR_ZAPI6_IPSET_DESTROY,
+	FRR_ZAPI6_IPSET_ENTRY_ADD,
+	FRR_ZAPI6_IPSET_ENTRY_DELETE,
+	FRR_ZAPI6_IPSET_NOTIFY_OWNER,
+	FRR_ZAPI6_IPSET_ENTRY_NOTIFY_OWNER,
+	FRR_ZAPI6_IPTABLE_ADD,
+	FRR_ZAPI6_IPTABLE_DELETE,
+	FRR_ZAPI6_IPTABLE_NOTIFY_OWNER,
+};
+
+static const value_string frr_zapi6_messages[] = {
+	{ FRR_ZAPI6_INTERFACE_ADD,		"Add Interface" },
+	{ FRR_ZAPI6_INTERFACE_DELETE,		"Delete Interface" },
+	{ FRR_ZAPI6_INTERFACE_ADDRESS_ADD,	"Add Interface Address" },
+	{ FRR_ZAPI6_INTERFACE_ADDRESS_DELETE,	"Delete Interface Address" },
+	{ FRR_ZAPI6_INTERFACE_UP,		"Interface Up" },
+	{ FRR_ZAPI6_INTERFACE_DOWN,		"Interface Down" },
+	{ FRR_ZAPI6_ROUTE_ADD,			"Add Route" },
+	{ FRR_ZAPI6_ROUTE_DELETE,		"Delete Route" },
+	{ FRR_ZAPI6_REDISTRIBUTE_ADD,		"Add Redistribute" },
+	{ FRR_ZAPI6_REDISTRIBUTE_DELETE,	"Delete Redistribute" },
+	{ FRR_ZAPI6_REDISTRIBUTE_DEFAULT_ADD,	"Add Default Redistribute" },
+	{ FRR_ZAPI6_REDISTRIBUTE_DEFAULT_DELETE,"Delete Default Redistribute" },
+	{ FRR_ZAPI6_ROUTER_ID_ADD,		"Router ID Add" },
+	{ FRR_ZAPI6_ROUTER_ID_DELETE,		"Router ID Delete" },
+	{ FRR_ZAPI6_ROUTER_ID_UPDATE,		"Router ID Update" },
+	{ FRR_ZAPI6_HELLO,			"Hello" },
+	{ FRR_ZAPI6_CAPABILITIES,		"Capabilities" },
+	{ FRR_ZAPI6_NEXTHOP_REGISTER,		"Nexthop Register" },
+	{ FRR_ZAPI6_NEXTHOP_UNREGISTER,		"Nexthop Unregister" },
+	{ FRR_ZAPI6_NEXTHOP_UPDATE,		"Nexthop Update" },
+	{ FRR_ZAPI6_INTERFACE_NBR_ADDRESS_ADD,	"Interface Neighbor Address Add" },
+	{ FRR_ZAPI6_INTERFACE_NBR_ADDRESS_DELETE, "Interface Neighbor Address Delete" },
+	{ FRR_ZAPI6_INTERFACE_BFD_DEST_UPDATE,	"Interface BFD Destination Update" },
+	{ FRR_ZAPI6_IMPORT_ROUTE_REGISTER,	"Import Route Register" },
+	{ FRR_ZAPI6_IMPORT_ROUTE_UNREGISTER,	"Import Route Unregister" },
+	{ FRR_ZAPI6_IMPORT_CHECK_UPDATE,	"Import Check Update" },
+	{ FRR_ZAPI6_IPV4_ROUTE_IPV6_NEXTHOP_ADD,"Add IPv6 nexthop for IPv4 Route" },
+	{ FRR_ZAPI6_BFD_DEST_REGISTER,		"BFD Destination Register" },
+	{ FRR_ZAPI6_BFD_DEST_DEREGISTER,	"BFD Destination Deregister" },
+	{ FRR_ZAPI6_BFD_DEST_UPDATE,		"BFD Destination Update" },
+	{ FRR_ZAPI6_BFD_DEST_REPLAY,		"BFD Destination Replay" },
+	{ FRR_ZAPI6_REDISTRIBUTE_ROUTE_ADD,	"Add Redistribute Route" },
+	{ FRR_ZAPI6_REDISTRIBUTE_ROUTE_DEL,	"Delete Redistribute Route" },
+	{ FRR_ZAPI6_VRF_UNREGISTER,		"VRF Unregister" },
+	{ FRR_ZAPI6_VRF_ADD,			"VRF Add" },
+	{ FRR_ZAPI6_VRF_DELETE,			"VRF Delete" },
+	{ FRR_ZAPI6_VRF_LABEL,			"VRF Label" },
+	{ FRR_ZAPI6_INTERFACE_VRF_UPDATE,	"Interface VRF Update" },
+	{ FRR_ZAPI6_BFD_CLIENT_REGISTER,	"BFD Client Register" },
+	{ FRR_ZAPI6_BFD_CLIENT_DEREGISTER,	"BFD Client Deregister" },
+	{ FRR_ZAPI6_INTERFACE_ENABLE_RADV,	"Interface Enable Rouer Advertisement" },
+	{ FRR_ZAPI6_INTERFACE_DISABLE_RADV,	"Interface Disable Rouer Advertisement" },
+	{ FRR_ZAPI6_IPV4_NEXTHOP_LOOKUP_MRIB,	"IPv4 Nexthop Lookup Multicast RIB" },
+	{ FRR_ZAPI6_INTERFACE_LINK_PARAMS,	"Interface Link Paameters" },
+	{ FRR_ZAPI6_MPLS_LABELS_ADD,		"MPLS Lables Add" },
+	{ FRR_ZAPI6_MPLS_LABELS_DELETE,		"MPLS Lables Delete" },
+	{ FRR_ZAPI6_IPMR_ROUTE_STATS,		"IPMR Route Statics" },
+	{ FRR_ZAPI6_LABEL_MANAGER_CONNECT,	"Label Manager Connect" },
+	{ FRR_ZAPI6_GET_LABEL_CHUNK,		"Get Label Chunk" },
+	{ FRR_ZAPI6_RELEASE_LABEL_CHUNK,	"Release Label Chunk" },
+	{ FRR_ZAPI6_FEC_REGISTER,		"FEC Register" },
+	{ FRR_ZAPI6_FEC_UNREGISTER,		"FEC Unregister" },
+	{ FRR_ZAPI6_FEC_UPDATE,			"FEC Update" },
+	{ FRR_ZAPI6_ADVERTISE_DEFAULT_GW,	"Advertise Deffault Gateway" },
+	{ FRR_ZAPI6_ADVERTISE_SUBNET,		"Advertise Subnet" },
+	{ FRR_ZAPI6_ADVERTISE_ALL_VNI,		"Advertise all VNI" },
+	{ FRR_ZAPI6_LOCAL_ES_ADD,		"Local Ethernet Segment Add" },
+	{ FRR_ZAPI6_LOCAL_ES_DEL,		"Local Ethernet Segment Delete" },
+	{ FRR_ZAPI6_VNI_ADD,			"VNI Add" },
+	{ FRR_ZAPI6_VNI_DEL,			"VNI Delete" },
+	{ FRR_ZAPI6_L3VNI_ADD,			"L3VNI Add" },
+	{ FRR_ZAPI6_L3VNI_DEL,			"L3VNI Delete" },
+	{ FRR_ZAPI6_REMOTE_VTEP_ADD,		"Remote VTEP Add" },
+	{ FRR_ZAPI6_REMOTE_VTEP_DEL,		"Remote VTEP Delete" },
+	{ FRR_ZAPI6_MACIP_ADD,			"MAC/IP Add" },
+	{ FRR_ZAPI6_MACIP_DEL,			"MAC/IP Dleate" },
+	{ FRR_ZAPI6_IP_PREFIX_ROUTE_ADD,	"IP Prefix Route Add" },
+	{ FRR_ZAPI6_IP_PREFIX_ROUTE_DEL,	"IP Prefix Route Delete" },
+	{ FRR_ZAPI6_REMOTE_MACIP_ADD,		"Remote MAC/IP Add" },
+	{ FRR_ZAPI6_REMOTE_MACIP_DEL,		"Remote MAC/IP Delete" },
+	{ FRR_ZAPI6_PW_ADD,			"PseudoWire Add" },
+	{ FRR_ZAPI6_PW_DELETE,			"PseudoWire Delete" },
+	{ FRR_ZAPI6_PW_SET,			"PseudoWire Set" },
+	{ FRR_ZAPI6_PW_UNSET,			"PseudoWire Unset" },
+	{ FRR_ZAPI6_PW_STATUS_UPDATE,		"PseudoWire Status Update" },
+	{ FRR_ZAPI6_RULE_ADD,			"Rule Add" },
+	{ FRR_ZAPI6_RULE_DELETE,		"Rule Delete" },
+	{ FRR_ZAPI6_RULE_NOTIFY_OWNER,		"Rule Notify Owner" },
+	{ FRR_ZAPI6_TABLE_MANAGER_CONNECT,	"Table Manager Connect" },
+	{ FRR_ZAPI6_GET_TABLE_CHUNK,		"Get Table Chunk" },
+	{ FRR_ZAPI6_RELEASE_TABLE_CHUNK,	"Release Table Chunk" },
+	{ FRR_ZAPI6_IPSET_CREATE,		"IPSet Create" },
+	{ FRR_ZAPI6_IPSET_DESTROY,		"IPSet Destroy" },
+	{ FRR_ZAPI6_IPSET_ENTRY_ADD,		"IPSet Entry Add" },
+	{ FRR_ZAPI6_IPSET_ENTRY_DELETE,		"IPSet Entry Delete" },
+	{ FRR_ZAPI6_IPSET_NOTIFY_OWNER,		"IPSet Notify Oner" },
+	{ FRR_ZAPI6_IPSET_ENTRY_NOTIFY_OWNER,	"IPSet Entry Notify Owner" },
+	{ FRR_ZAPI6_IPTABLE_ADD,		"IPTable Add" },
+	{ FRR_ZAPI6_IPTABLE_DELETE,		"IPTable Delete" },
+	{ FRR_ZAPI6_IPTABLE_NOTIFY_OWNER,	"IPTable Notify Owner" },
+	{ 0,					NULL },
+};
+
 /* Zebra route's types. */
 #define ZEBRA_ROUTE_SYSTEM               0
 #define ZEBRA_ROUTE_KERNEL               1
@@ -626,6 +817,7 @@ static const value_string routes_v4[] = {
 #define FRR_ZAPI5_ROUTE_BABEL             22
 #define FRR_ZAPI5_ROUTE_SHARP             23
 #define FRR_ZAPI5_ROUTE_PBR               24
+#define FRR_ZAPI6_ROUTE_BFD               25
 
 static const value_string routes_v5[] = {
 	{ ZEBRA_ROUTE_SYSTEM,			"System Route" },
@@ -653,6 +845,7 @@ static const value_string routes_v5[] = {
 	{ FRR_ZAPI5_ROUTE_BABEL,		"BABEL Route" },
 	{ FRR_ZAPI5_ROUTE_SHARP,		"SHARPd Route" },
 	{ FRR_ZAPI5_ROUTE_PBR,			"PBR Route" },
+	{ FRR_ZAPI6_ROUTE_BFD,			"BFD Route" },
 	{ 0,					NULL },
 };
 
@@ -986,7 +1179,7 @@ zebra_route(proto_tree *tree, gboolean request, tvbuff_t *tvb, int offset,
 		    (version == 4 && (command == FRR_ZAPI4_IPV4_ROUTE_ADD ||
 				      command == FRR_ZAPI4_IPV4_ROUTE_DELETE ||
 				      command == FRR_ZAPI4_IPV6_ROUTE_ADD ||
-				      command == FRR_ZAPI4_IPV6_ROUTE_DELETE))){
+				      command == FRR_ZAPI4_IPV6_ROUTE_DELETE))) {
 			proto_tree_add_item(tree, hf_zebra_route_safi, tvb,
 					    offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
@@ -1560,8 +1753,11 @@ dissect_zebra_request(proto_tree *tree, gboolean request, tvbuff_t *tvb,
 		} else if (version == 4) {
 			proto_tree_add_uint(tree, hf_zebra_command_v4, tvb,
 					    offset, 2, command);
-		} else {
+		} else if (version == 5) {
 			proto_tree_add_uint(tree, hf_zebra_command_v5, tvb,
+					    offset, 2, command);
+		} else {
+			proto_tree_add_uint(tree, hf_zebra_command_v6, tvb,
 					    offset, 2, command);
 		}
 		offset += 2;
@@ -1747,7 +1943,7 @@ dissect_zebra_request(proto_tree *tree, gboolean request, tvbuff_t *tvb,
 		case FRR_ZAPI4_PW_STATUS_UPDATE:
 			break;
 		}
-	} else if (version >= 5) {
+	} else if (version == 5) {
 		switch (command) {
 		case FRR_ZAPI5_INTERFACE_ADD:
 		case FRR_ZAPI5_INTERFACE_UP:
@@ -1896,8 +2092,147 @@ dissect_zebra_request(proto_tree *tree, gboolean request, tvbuff_t *tvb,
 		case FRR_ZAPI5_IPTABLE_NOTIFY_OWNER:
 			break;
 		}
+	} else { /* version 6 */
+		switch (command) {
+		case FRR_ZAPI6_INTERFACE_ADD:
+		case FRR_ZAPI6_INTERFACE_UP:
+		case FRR_ZAPI6_INTERFACE_DOWN:
+		case FRR_ZAPI6_INTERFACE_DELETE:
+			if (request)
+				break; /* Request just subscribes to messages */
+			offset = zebra_interface(tree, tvb, offset, command,
+						 version);
+			break;
+		case FRR_ZAPI6_INTERFACE_ADDRESS_ADD:
+		case FRR_ZAPI6_INTERFACE_ADDRESS_DELETE:
+			offset = zebra_interface_address(tree, tvb, offset);
+			break;
+		case FRR_ZAPI6_ROUTE_ADD:
+		case FRR_ZAPI6_ROUTE_DELETE:
+		case FRR_ZAPI6_REDISTRIBUTE_ROUTE_ADD:
+		case FRR_ZAPI6_REDISTRIBUTE_ROUTE_DEL:
+			offset = zebra_route(tree, request, tvb, offset, len,
+					     ZEBRA_FAMILY_UNSPEC, command,
+					     version);
+			break;
+		case FRR_ZAPI6_REDISTRIBUTE_ADD:
+		case FRR_ZAPI6_REDISTRIBUTE_DEFAULT_ADD:
+			offset = zebra_redistribute(tree, tvb, offset, version);
+			break;
+		case FRR_ZAPI6_ROUTER_ID_UPDATE:
+			offset = zerba_router_update(tree, tvb, offset);
+			break;
+		case FRR_ZAPI6_ROUTER_ID_ADD:
+		case FRR_ZAPI6_ROUTER_ID_DELETE:
+		case FRR_ZAPI6_REDISTRIBUTE_DEFAULT_DELETE:
+			/* nothing to do */
+			break;
+		case FRR_ZAPI6_REDISTRIBUTE_DELETE:
+			proto_tree_add_item(tree, hf_zebra_type_v5, tvb, offset,
+					    1, ENC_BIG_ENDIAN);
+			offset += 1;
+			break;
+		case FRR_ZAPI6_HELLO:
+			offset = zebra_hello(tree, tvb, offset, left, version);
+			break;
+		case FRR_ZAPI6_CAPABILITIES:
+			offset = zebra_capabilties(tree, tvb, offset);
+			break;
+		case FRR_ZAPI6_NEXTHOP_REGISTER:
+		case FRR_ZAPI6_NEXTHOP_UNREGISTER:
+			offset = zebra_nexthop_register(tree, tvb, offset, len,
+							offset - init_offset);
+			break;
+		case FRR_ZAPI6_NEXTHOP_UPDATE:
+			offset = zebra_nexthop_update(tree, tvb, offset,
+						      version);
+			break;
+		case FRR_ZAPI6_INTERFACE_NBR_ADDRESS_ADD:
+		case FRR_ZAPI6_INTERFACE_NBR_ADDRESS_DELETE:
+		case FRR_ZAPI6_INTERFACE_BFD_DEST_UPDATE:
+		case FRR_ZAPI6_IMPORT_ROUTE_REGISTER:
+		case FRR_ZAPI6_IMPORT_ROUTE_UNREGISTER:
+		case FRR_ZAPI6_IMPORT_CHECK_UPDATE:
+		case FRR_ZAPI6_IPV4_ROUTE_IPV6_NEXTHOP_ADD:
+		case FRR_ZAPI6_BFD_DEST_REGISTER:
+		case FRR_ZAPI6_BFD_DEST_DEREGISTER:
+		case FRR_ZAPI6_BFD_DEST_UPDATE:
+		case FRR_ZAPI6_BFD_DEST_REPLAY:
+		case FRR_ZAPI6_VRF_UNREGISTER:
+			break;
+		case FRR_ZAPI6_VRF_ADD:
+			offset = zebra_vrf(tree, tvb, offset);
+			break;
+		case FRR_ZAPI6_VRF_DELETE:
+		case FRR_ZAPI6_VRF_LABEL:
+		case FRR_ZAPI6_INTERFACE_VRF_UPDATE:
+			break;
+		case FRR_ZAPI6_BFD_CLIENT_REGISTER:
+			proto_tree_add_item(tree, hf_zebra_pid, tvb, offset, 4,
+					    ENC_BIG_ENDIAN);
+			offset += 4;
+			break;
+		case FRR_ZAPI6_BFD_CLIENT_DEREGISTER:
+		case FRR_ZAPI6_INTERFACE_ENABLE_RADV:
+		case FRR_ZAPI6_INTERFACE_DISABLE_RADV:
+		case FRR_ZAPI6_IPV4_NEXTHOP_LOOKUP_MRIB:
+		case FRR_ZAPI6_INTERFACE_LINK_PARAMS:
+		case FRR_ZAPI6_MPLS_LABELS_ADD:
+		case FRR_ZAPI6_MPLS_LABELS_DELETE:
+		case FRR_ZAPI6_IPMR_ROUTE_STATS:
+			break;
+		case FRR_ZAPI6_LABEL_MANAGER_CONNECT:
+			offset = zebra_label_manager_connect(tree, tvb, offset);
+			break;
+		case FRR_ZAPI6_GET_LABEL_CHUNK:
+			offset =
+			    zebra_get_label_chunk(tree, request, tvb, offset);
+			break;
+		case FRR_ZAPI6_RELEASE_LABEL_CHUNK:
+		case FRR_ZAPI6_FEC_REGISTER:
+		case FRR_ZAPI6_FEC_UNREGISTER:
+		case FRR_ZAPI6_FEC_UPDATE:
+		case FRR_ZAPI6_ADVERTISE_DEFAULT_GW:
+		case FRR_ZAPI6_ADVERTISE_SUBNET:
+		case FRR_ZAPI6_ADVERTISE_ALL_VNI:
+		case FRR_ZAPI6_LOCAL_ES_ADD:
+		case FRR_ZAPI6_LOCAL_ES_DEL:
+		case FRR_ZAPI6_VNI_ADD:
+		case FRR_ZAPI6_VNI_DEL:
+		case FRR_ZAPI6_L3VNI_ADD:
+		case FRR_ZAPI6_L3VNI_DEL:
+		case FRR_ZAPI6_REMOTE_VTEP_ADD:
+		case FRR_ZAPI6_REMOTE_VTEP_DEL:
+		case FRR_ZAPI6_MACIP_ADD:
+		case FRR_ZAPI6_MACIP_DEL:
+		case FRR_ZAPI6_IP_PREFIX_ROUTE_ADD:
+		case FRR_ZAPI6_IP_PREFIX_ROUTE_DEL:
+		case FRR_ZAPI6_REMOTE_MACIP_ADD:
+		case FRR_ZAPI6_REMOTE_MACIP_DEL:
+		case FRR_ZAPI6_PW_ADD:
+		case FRR_ZAPI6_PW_DELETE:
+		case FRR_ZAPI6_PW_SET:
+		case FRR_ZAPI6_PW_UNSET:
+		case FRR_ZAPI6_PW_STATUS_UPDATE:
+		case FRR_ZAPI6_RULE_ADD:
+		case FRR_ZAPI6_RULE_DELETE:
+		case FRR_ZAPI6_RULE_NOTIFY_OWNER:
+		case FRR_ZAPI6_TABLE_MANAGER_CONNECT:
+		case FRR_ZAPI6_GET_TABLE_CHUNK:
+		case FRR_ZAPI6_RELEASE_TABLE_CHUNK:
+		case FRR_ZAPI6_IPSET_CREATE:
+		case FRR_ZAPI6_IPSET_DESTROY:
+		case FRR_ZAPI6_IPSET_ENTRY_ADD:
+		case FRR_ZAPI6_IPSET_ENTRY_DELETE:
+		case FRR_ZAPI6_IPSET_NOTIFY_OWNER:
+		case FRR_ZAPI6_IPSET_ENTRY_NOTIFY_OWNER:
+		case FRR_ZAPI6_IPTABLE_ADD:
+		case FRR_ZAPI6_IPTABLE_DELETE:
+		case FRR_ZAPI6_IPTABLE_NOTIFY_OWNER:
+			break;
+		}
 	}
-return offset;
+	return offset;
 }
 
 /*
@@ -1984,11 +2319,17 @@ dissect_zebra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 				col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
 						val_to_str(command, frr_zapi4_messages,
 							   "Command Type 0x%02d"));
-			} else {
+			} else if (version == 5) {
 				ti = proto_tree_add_uint(zebra_tree, hf_zebra_command_v5,
 							 tvb, offset, len, command);
 				col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
 						val_to_str(command, frr_zapi5_messages,
+							   "Command Type 0x%02d"));
+			} else {
+				ti = proto_tree_add_uint(zebra_tree, hf_zebra_command_v6,
+							 tvb, offset, len, command);
+				col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
+						val_to_str(command, frr_zapi6_messages,
 							   "Command Type 0x%02d"));
 			}
 			zebra_request_tree = proto_item_add_subtree(ti,
@@ -2192,7 +2533,7 @@ proto_register_zebra(void)
 		  { "Message has link parameters", "zebra.haslinkparam",
 		    FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		    "Interface message has link parameters", HFILL }},
-		/* FRRouting, Zebra API v4 and v5*/
+		/* FRRouting, Zebra API v4, v5 and v6 */
 		{ &hf_zebra_command_v4,
 		  { "Command",		"zebra.command",
 		    FT_UINT8, BASE_DEC, VALS(frr_zapi4_messages), 0x0,
@@ -2200,6 +2541,10 @@ proto_register_zebra(void)
 		{ &hf_zebra_command_v5,
 		  { "Command",		"zebra.command",
 		    FT_UINT8, BASE_DEC, VALS(frr_zapi5_messages), 0x0,
+		    "Zebra command", HFILL }},
+		{ &hf_zebra_command_v6,
+		  { "Command",		"zebra.command",
+		    FT_UINT8, BASE_DEC, VALS(frr_zapi6_messages), 0x0,
 		    "Zebra command", HFILL }},
 		{ &hf_zebra_type_v4,
 		  { "Type",		"zebra.type",
