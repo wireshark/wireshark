@@ -2062,7 +2062,7 @@ proto_register_tcap(void)
                                  10, &gtcap_RepetitionTimeout);
 
   prefs_register_uint_preference(tcap_module, "losttimeout",
-                                 "lost timeout",
+                                 "Lost timeout",
                                  "Maximal delay for message lost",
                                  10, &gtcap_LostTimeout);
 
