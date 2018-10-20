@@ -157,7 +157,7 @@ static expert_field ei_pdcp_lte_missing_udp_framing_tag = EI_INIT;
  */
 /* UAT entry structure. */
 typedef struct {
-   guint16 ueid;
+   guint32 ueid;
    gchar   *rrcCipherKeyString;
    gchar   *upCipherKeyString;
    gchar   *rrcIntegrityKeyString;

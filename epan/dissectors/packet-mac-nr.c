@@ -404,8 +404,8 @@ static const value_string rlc_bearer_type_vals[] = {
 
 /* Mapping type */
 typedef struct lcid_drb_mapping_t {
-    guint8            lcid;
-    guint8            drbid;
+    guint32           lcid;
+    guint32           drbid;
     rlc_bearer_type_t bearer_type;
 } lcid_drb_mapping_t;
 

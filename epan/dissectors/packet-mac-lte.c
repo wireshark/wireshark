@@ -1515,7 +1515,7 @@ static lcid_drb_mapping_t *lcid_drb_mappings = NULL;
 static guint num_lcid_drb_mappings = 0;
 
 UAT_VS_DEF(lcid_drb_mappings, lcid, lcid_drb_mapping_t, guint16, 3, "LCID 3")
-UAT_DEC_CB_DEF(lcid_drb_mappings, drbid, lcid_drb_mapping_t)
+UAT_SIGNED_DEC_CB_DEF(lcid_drb_mappings, drbid, lcid_drb_mapping_t)
 UAT_VS_DEF(lcid_drb_mappings, channel_type, lcid_drb_mapping_t, rlc_channel_type_t, rlcAM, "AM")
 
 /* UAT object */
