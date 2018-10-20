@@ -508,7 +508,7 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, 
 
 /*
  * DEC Macros,
- *   a decimal number contained in
+ *   a signed decimal number contained in (((rec_t*)rec)->(field_name))
  */
 #define UAT_DEC_CB_DEF(basename,field_name,rec_t) \
 static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, guint len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\
@@ -528,7 +528,7 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, 
 
 /*
  * HEX Macros,
- *   an hexadecimal number contained in
+ *   an unsigned hexadecimal number contained in (((rec_t*)rec)->(field_name))
  */
 #define UAT_HEX_CB_DEF(basename,field_name,rec_t) \
 static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, guint len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\
@@ -544,7 +544,7 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, 
 
 /*
  * BOOL Macros,
- *   an boolean value contained in
+ *   an boolean value contained in (((rec_t*)rec)->(field_name))
  */
 #define UAT_BOOL_CB_DEF(basename,field_name,rec_t) \
 static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, guint len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\
@@ -621,7 +621,7 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, 
 
 /*
  * Color Macros,
- *   an #RRGGBB color value contained in
+ *   an #RRGGBB color value contained in (((rec_t*)rec)->(field_name))
  */
 #define UAT_COLOR_CB_DEF(basename,field_name,rec_t) \
 static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, guint len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\
