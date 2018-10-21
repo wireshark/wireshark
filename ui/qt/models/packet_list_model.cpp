@@ -99,14 +99,11 @@ int PacketListModel::packetNumberToRow(int packet_num) const
 
 guint PacketListModel::recreateVisibleRows()
 {
-    int pos = visible_rows_.count();
-
     beginResetModel();
     visible_rows_.resize(0);
     number_to_row_.fill(0);
     endResetModel();
 
-    beginInsertRows(QModelIndex(), pos, pos);
     foreach (PacketListRecord *record, physical_rows_) {
         frame_data *fdata = record->frameData();
 
@@ -118,7 +115,10 @@ guint PacketListModel::recreateVisibleRows()
             number_to_row_[fdata->num] = visible_rows_.count();
         }
     }
-    endInsertRows();
+    if (!visible_rows_.isEmpty()) {
+        beginInsertRows(QModelIndex(), 0, visible_rows_.count() - 1);
+        endInsertRows();
+    }
     idle_dissection_row_ = 0;
     return visible_rows_.count();
 }
