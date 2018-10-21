@@ -155,6 +155,13 @@
     </widget>
    </item>
    <item>
+    <widget class="QCheckBox" name="displayAutoCompleteCheckBox">
+     <property name="text">
+      <string>Display autocompletion for filter text</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QLabel" name="label_5">

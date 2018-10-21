@@ -35,6 +35,7 @@ MainWindowPreferencesFrame::MainWindowPreferencesFrame(QWidget *parent) :
     pref_recent_df_entries_max_ = prefFromPrefPtr(&prefs.gui_recent_df_entries_max);
     pref_recent_files_count_max_ = prefFromPrefPtr(&prefs.gui_recent_files_count_max);
     pref_ask_unsaved_ = prefFromPrefPtr(&prefs.gui_ask_unsaved);
+    pref_autocomplete_filter_ = prefFromPrefPtr(&prefs.gui_autocomplete_filter);
     pref_toolbar_main_style_ = prefFromPrefPtr(&prefs.gui_toolbar_main_style);
 
     QStyleOption style_opt;
@@ -122,6 +123,7 @@ void MainWindowPreferencesFrame::updateWidgets()
     ui->maxRecentLineEdit->setText(QString::number(prefs_get_uint_value_real(pref_recent_files_count_max_, pref_stashed)));
 
     ui->confirmUnsavedCheckBox->setChecked(prefs_get_bool_value(pref_ask_unsaved_, pref_stashed));
+    ui->displayAutoCompleteCheckBox->setChecked(prefs_get_bool_value(pref_autocomplete_filter_, pref_stashed));
 
     ui->mainToolbarComboBox->setCurrentIndex(prefs_get_enum_value(pref_toolbar_main_style_, pref_stashed));
 
@@ -186,6 +188,11 @@ void MainWindowPreferencesFrame::on_maxRecentLineEdit_textEdited(const QString &
 void MainWindowPreferencesFrame::on_confirmUnsavedCheckBox_toggled(bool checked)
 {
     prefs_set_bool_value(pref_ask_unsaved_, checked, pref_stashed);
+}
+
+void MainWindowPreferencesFrame::on_displayAutoCompleteCheckBox_toggled(bool checked)
+{
+    prefs_set_bool_value(pref_autocomplete_filter_, checked, pref_stashed);
 }
 
 void MainWindowPreferencesFrame::on_mainToolbarComboBox_currentIndexChanged(int index)

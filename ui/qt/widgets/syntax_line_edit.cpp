@@ -306,7 +306,7 @@ void SyntaxLineEdit::completionKeyPressEvent(QKeyEvent *event)
     // ...otherwise process the key ourselves.
     SyntaxLineEdit::keyPressEvent(event);
 
-    if (!completer_ || !completion_model_) return;
+    if (!completer_ || !completion_model_ || !prefs.gui_autocomplete_filter) return;
 
     // Do nothing on bare shift.
     if ((event->modifiers() & Qt::ShiftModifier) && event->text().isEmpty()) return;

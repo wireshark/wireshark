@@ -165,6 +165,7 @@ typedef struct _e_prefs {
   gchar       *gui_fileopen_dir;
   guint        gui_fileopen_preview;
   gboolean     gui_ask_unsaved;
+  gboolean     gui_autocomplete_filter;
   gboolean     gui_find_wrap;
   gchar       *gui_window_title;
   gchar       *gui_prepend_window_title;
