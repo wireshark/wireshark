@@ -51,7 +51,7 @@ else()
 	endif()
 	foreach(THIS_FLAG IN LISTS lemon_cflags_test)
 		string(MAKE_C_IDENTIFIER "C${THIS_FLAG}_VALID" _flag_var)
-		check_c_linker_flag(${THIS_FLAG} ${_flag_var})
+		check_c_compiler_flag(${THIS_FLAG} ${_flag_var})
 		if(${_flag_var})
 			# Look for -Wfoo flags above in case it is cached, but
 			# actually disable the warning here with -Wno-foo.
