@@ -1,5 +1,17 @@
 #!/bin/sh
 
+#
+# Fix up ownership and permissions on /Library/Application Support/Wireshark;
+# for some reason, it's not being owned by root:wheel, and it's not
+# publicly readable and, for directories and executables, not publicly
+# searchable/executable.
+#
+# XXX - that may be a problem with the process of building the installer
+# package; if so, that's where it *should* be fixed.
+#
+chown -R root:wheel "/Library/Application Support/Wireshark"
+chmod -R a+rX "/Library/Application Support/Wireshark"
+
 CHMOD_BPF_PLIST="/Library/LaunchDaemons/org.wireshark.ChmodBPF.plist"
 BPF_GROUP="access_bpf"
 BPF_GROUP_NAME="BPF device access ACL"
