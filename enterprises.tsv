@@ -5,7 +5,7 @@
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2018-10-13)
+# (last updated 2018-10-20)
 
 0	Reserved
 1	NxNetworks
@@ -10493,7 +10493,7 @@
 10517	Toronto POlice Service
 10518	TrunkNet
 10519	Tsinghua Unisplendour Co., ltd
-10520	Tyco Electronics Power Systems
+10520	ABB Integrated DC Power	# formerly 'Tyco Electronics Power Systems'
 10521	VoicePlanet, Inc.
 10522	Voigt & Haeffner GmbH
 10523	Wanadoo Data
@@ -38585,7 +38585,7 @@
 38754	Jinon Corporation
 38755	Českomoravské informační systémy s.r.o.
 38756	TNG Technology Consulting
-38757	Sigtec Pty Ltd
+38757	Trapeze Group Asia Pacific Pty Ltd	# formerly 'Sigtec Pty Ltd'
 38758	GrandCapital Ltd.
 38759	Katholieke Hogeschool Limburg
 38760	Veselības ekonomikas centrs	# formerly 'ABC Software, Ltd'
@@ -39404,7 +39404,7 @@
 39573	Sauper Associates, Inc.
 39574	Guido Berhoerster
 39575	Global Patient Identifiers, Inc.
-39576	ElvenStar Productions
+39576	ElvenStar
 39577	GlobeOSS Sdn. Bhd.
 39578	Sven van den Heuvel GmbH
 39579	Hearst Business Media
@@ -52324,7 +52324,7 @@
 52511	hSenid Mobile Solutions
 52512	Quirem Medical B.V.
 52513	Synergy Medical BRG Inc
-52514	PIO Inc
+52514	PIO, Inc.
 52515	OXNET Lukasz Pulka
 52516	The National Diabetes and Obesity Research Institute
 52517	LAZIOcrea S.p.A.
@@ -52621,3 +52621,43 @@
 52808	Paragon Development System
 52809	Nayax Ltd.
 52810	MCC of Roshydromet
+52811	National museum "Kyiv art gallery"
+52812	TriNet
+52813	Fidesmo AB
+52814	Virginia Indigent Defense Commission
+52815	LANXESS AG
+52816	UNISYLVA
+52817	Ramsay Corporation
+52818	DITEC, a.s.
+52819	Win10isComing
+52820	Fyfe Software Inc.
+52821	Totalplay
+52822	Shenzhen AOTO Electronics Co., Ltd.
+52823	IT CONSULTING WOLFINGER
+52824	Tomas Dobrovolny
+52825	PGNiG Obrót Detaliczny sp. z o. o.
+52826	Latvijas Transportlidzeklu Apdrosinataju birojs
+52827	Unia
+52828	elaf
+52829	Sumber Energi Khatulistiwa
+52830	Tanner Ryan
+52831	IneControl
+52832	Westfield Cardiology
+52833	Crossfield Technology LLC
+52834	Joinnet Technology
+52835	Karsoft Technology
+52836	LEIPA Group GmbH
+52837	Pelatro Plc
+52838	Illuminate Technologies Ltd
+52839	digital sewa kendra fukaha tadiyawa haradoi
+52840	Bearmach LTD
+52841	Department for Environment, Food & Rural Affairs
+52842	Intevac Photonics, Inc.
+52843	CARD Services Utrecht
+52844	National Radio and Telecommunication Corporation
+52845	Mist Systems Inc.
+52846	Chunghwa System Integration Co., Ltd.
+52847	Van Walt Limited
+52848	JellWin Information Technology Co.,Ltd.
+52849	Technology Company Center, JSC
+52850	Quiet To Deep
