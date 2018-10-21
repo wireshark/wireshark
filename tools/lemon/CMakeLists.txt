@@ -7,11 +7,26 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 
+add_executable(lemon lemon.c)
+
 # To keep lemon.c as close to upstream as possible, deliberately ignore
 # some stylistic issues.
 set(lemon_cflags)
-if(NOT CMAKE_C_COMPILER_ID MATCHES "MSVC")
-	# Includes warnings from ENABLE_EXTRA_COMPILER_WARNINGS as well
+if(CMAKE_C_COMPILER_ID MATCHES "MSVC")
+	# Normal MSVC has no warnings, but VS Code Analysis finds a bunch
+	# (when ENABLE_CODE_ANALYSIS is set).
+	set(lemon_cflags
+		/wd6001     # Using uninitialized memory '*zBuf'.
+		/wd6011     # Dereferencing NULL pointer 'cp'.
+		/wd6308     # realloc may return NULL and leak original memory.
+		/wd6385     # Buffer overrun (read) in Parse, related to 'cp'
+		/wd6386     # Buffer overrun (write) in Parse, related to 'filebuf'
+		/wd6387     # strlen(argv[0]) could receive a NULL pointer.
+		/wd28182    # Dereferencing NULL pointer. 'ap2' contains the same NULL value as 'ap' did.
+		/wd28183    # passing 0 (from realloc) to memcpy
+		/wd28199    # Using possibly uninitialized memory
+	)
+else()
 	set(lemon_cflags_test
 		# GCC 8.2.1 is not smart enough to recognize "Fall thru ..."
 		-Wimplicit-fallthrough
@@ -45,11 +60,7 @@ if(NOT CMAKE_C_COMPILER_ID MATCHES "MSVC")
 		endif()
 	endforeach()
 endif()
-set_source_files_properties(lemon.c
-	PROPERTIES
-	COMPILE_OPTIONS "${lemon_cflags}"
-)
-add_executable(lemon lemon.c)
+target_compile_options(lemon PRIVATE ${lemon_cflags})
 
 #
 # Editor modelines  -  https://www.wireshark.org/tools/modelines.html
