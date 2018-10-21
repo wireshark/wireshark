@@ -30,7 +30,7 @@ void proto_register_pw_cesopsn(void);
 void proto_reg_handoff_pw_cesopsn(void);
 
 static gint proto = -1;
-static gint ett = -1;
+static gint ett_pw_cesopsn = -1;
 
 static int hf_cw = -1;
 static int hf_cw_bits03 = -1;
@@ -246,7 +246,7 @@ void dissect_pw_cesopsn( tvbuff_t * tvb_original
 		pwc_item_append_text_n_items(item,(int)payload_size,"octet");
 		{
 			proto_tree* tree2;
-			tree2 = proto_item_add_subtree(item, ett);
+			tree2 = proto_item_add_subtree(item, ett_pw_cesopsn);
 			{
 				tvbuff_t* tvb;
 				proto_item* item2;
@@ -255,7 +255,7 @@ void dissect_pw_cesopsn( tvbuff_t * tvb_original
 				pwc_item_append_cw(item2,tvb_get_ntohl(tvb, 0),FALSE);
 				{
 					proto_tree* tree3;
-					tree3 = proto_item_add_subtree(item, ett);
+					tree3 = proto_item_add_subtree(item, ett_pw_cesopsn);
 					{
 						proto_item* item3;
 						if (properties & PWC_CW_BAD_BITS03) /*display only if value is wrong*/
@@ -322,7 +322,7 @@ void dissect_pw_cesopsn( tvbuff_t * tvb_original
 		else
 		{
 			proto_tree* tree2;
-			tree2 = proto_item_add_subtree(item, ett);
+			tree2 = proto_item_add_subtree(item, ett_pw_cesopsn);
 			{
 				proto_item* item2;
 				tvbuff_t* tvb;
@@ -334,7 +334,7 @@ void dissect_pw_cesopsn( tvbuff_t * tvb_original
 					expert_add_info_format(pinfo, item2, &ei_payload_size_invalid_error,
 						"CESoPSN packet payload size must be multiple of 8");
 				}
-				tree2 = proto_item_add_subtree(item2, ett);
+				tree2 = proto_item_add_subtree(item2, ett_pw_cesopsn);
 				call_data_dissector(tvb, pinfo, tree2);
 				item2 = proto_tree_add_int(tree2, hf_payload_l, tvb, 0, 0
 					,(int)payload_size); /* allow filtering */
@@ -346,7 +346,7 @@ void dissect_pw_cesopsn( tvbuff_t * tvb_original
 		if (padding_size > 0)
 		{
 			proto_tree* tree2;
-			tree2 = proto_item_add_subtree(item, ett);
+			tree2 = proto_item_add_subtree(item, ett_pw_cesopsn);
 			{
 				tvbuff_t* tvb;
 				tvb = tvb_new_subset_length_caplen(tvb_original, PWC_SIZEOF_CW + payload_size, padding_size, -1);
@@ -415,7 +415,7 @@ void proto_register_pw_cesopsn(void)
 	};
 
 	static gint *ett_array[] = {
-		&ett
+		&ett_pw_cesopsn
 	};
 	static ei_register_info ei[] = {
 		{ &ei_packet_size_too_small, { "pwcesopsn.packet_size_too_small", PI_MALFORMED, PI_ERROR, "PW packet size is too small to carry sensible information", EXPFILL }},

@@ -29,7 +29,7 @@ void proto_register_pw_satop(void);
 void proto_reg_handoff_pw_satop(void);
 
 static gint proto = -1;
-static gint ett = -1;
+static gint ett_pw_satop = -1;
 
 static int hf_cw = -1;
 static int hf_cw_bits03 = -1;
@@ -244,7 +244,7 @@ void dissect_pw_satop(tvbuff_t * tvb_original
 		pwc_item_append_text_n_items(item,(int)payload_size,"octet");
 		{
 			proto_tree* tree2;
-			tree2 = proto_item_add_subtree(item, ett);
+			tree2 = proto_item_add_subtree(item, ett_pw_satop);
 			{
 				tvbuff_t* tvb;
 				proto_item* item2;
@@ -253,7 +253,7 @@ void dissect_pw_satop(tvbuff_t * tvb_original
 				pwc_item_append_cw(item2, tvb_get_ntohl(tvb, 0),FALSE);
 				{
 					proto_tree* tree3;
-					tree3 = proto_item_add_subtree(item2, ett);
+					tree3 = proto_item_add_subtree(item2, ett_pw_satop);
 					{
 						proto_item* item3;
 						if (properties & PWC_CW_BAD_BITS03) /*display only if value is wrong*/
@@ -317,7 +317,7 @@ void dissect_pw_satop(tvbuff_t * tvb_original
 		{
 
 			proto_tree* tree2;
-			tree2 = proto_item_add_subtree(item, ett);
+			tree2 = proto_item_add_subtree(item, ett_pw_satop);
 			{
 				proto_item* item2;
 				tvbuff_t* tvb;
@@ -347,7 +347,7 @@ void dissect_pw_satop(tvbuff_t * tvb_original
 						break;
 					}
 					proto_item_append_text(item2, "%s", s);
-					tree3 = proto_item_add_subtree(item2, ett);
+					tree3 = proto_item_add_subtree(item2, ett_pw_satop);
 					call_data_dissector(tvb, pinfo, tree3);
 					item2 = proto_tree_add_int(tree3, hf_payload_l, tvb, 0, 0
 						,(int)payload_size); /* allow filtering */
@@ -360,7 +360,7 @@ void dissect_pw_satop(tvbuff_t * tvb_original
 		if (padding_size > 0)
 		{
 			proto_tree* tree2;
-			tree2 = proto_item_add_subtree(item, ett);
+			tree2 = proto_item_add_subtree(item, ett_pw_satop);
 			{
 				tvbuff_t* tvb;
 				tvb = tvb_new_subset_length_caplen(tvb_original, PWC_SIZEOF_CW + payload_size, padding_size, -1);
@@ -433,7 +433,7 @@ void proto_register_pw_satop(void)
 	};
 
 	static gint *ett_array[] = {
-		&ett
+		&ett_pw_satop
 	};
 	static ei_register_info ei[] = {
 		{ &ei_cw_packet_size_too_small, { "pwsatop.packet_size_too_small", PI_MALFORMED, PI_ERROR, "PW packet size (%d) is too small to carry sensible information", EXPFILL }},
