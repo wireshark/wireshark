@@ -104,9 +104,12 @@ function(generate_fuzzer dissector_table name)
 	fuzzshark_set_common_options(${fuzzer_name})
 	target_compile_definitions(${fuzzer_name} PRIVATE
 		FUZZ_DISSECTOR_LIST=${FUZZ_DISABLED_DISSECTORS_MACRO}
-		FUZZ_DISSECTOR_TABLE="${dissector_table}"
 		FUZZ_DISSECTOR_TARGET="${name}"
 	)
+	if(NOT dissector_table STREQUAL "")
+		target_compile_definitions(${fuzzer_name} PRIVATE
+			FUZZ_DISSECTOR_TABLE="${dissector_table}")
+	endif()
 endfunction()
 
 # Add fuzzer targets for every dissector in list FUZZ_<table-var>_DISSECTORS,
