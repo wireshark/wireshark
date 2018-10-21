@@ -47,6 +47,7 @@
 #include <epan/prefs.h>
 #include "packet-rtps.h"
 #include <epan/addr_resolv.h>
+#include <epan/reassemble.h>
 
 void proto_register_rtps(void);
 void proto_reg_handoff_rtps(void);
@@ -471,6 +472,18 @@ static int hf_rtps_sm_rti_crc_result                            = -1;
 static int hf_rtps_data_tag_name                                = -1;
 static int hf_rtps_data_tag_value                               = -1;
 
+static int hf_rtps_fragments                                    = -1;
+static int hf_rtps_fragment                                     = -1;
+static int hf_rtps_fragment_overlap                             = -1;
+static int hf_rtps_fragment_overlap_conflict                    = -1;
+static int hf_rtps_fragment_multiple_tails                      = -1;
+static int hf_rtps_fragment_too_long_fragment                   = -1;
+static int hf_rtps_fragment_error                               = -1;
+static int hf_rtps_fragment_count                               = -1;
+static int hf_rtps_reassembled_in                               = -1;
+static int hf_rtps_reassembled_length                           = -1;
+static int hf_rtps_reassembled_data                             = -1;
+
 /* Subtree identifiers */
 static gint ett_rtps                            = -1;
 static gint ett_rtps_default_mapping            = -1;
@@ -544,7 +557,8 @@ static gint ett_rtps_topic_query_filter_params_tree             = -1;
 static gint ett_rtps_data_member                                = -1;
 static gint ett_rtps_data_tag_seq                               = -1;
 static gint ett_rtps_data_tag_item                              = -1;
-
+static gint ett_rtps_fragment                                   = -1;
+static gint ett_rtps_fragments                                  = -1;
 
 static expert_field ei_rtps_sm_octets_to_next_header_error = EI_INIT;
 static expert_field ei_rtps_port_invalid = EI_INIT;
@@ -562,6 +576,7 @@ static expert_field ei_rtps_sm_octets_to_next_header_not_zero = EI_INIT;
 /***************************************************************************/
 static guint rtps_max_batch_samples_dissected = 16;
 static gboolean enable_topic_info = FALSE;
+static gboolean enable_rtps_reassembly = FALSE;
 static dissector_table_t rtps_type_name_table;
 
 /***************************************************************************/
@@ -1646,6 +1661,24 @@ typedef struct _type_mapping {
 } type_mapping;
 
 static wmem_map_t * registry = NULL;
+static reassembly_table rtps_reassembly_table;
+
+static const fragment_items rtps_frag_items = {
+    &ett_rtps_fragment,
+    &ett_rtps_fragments,
+    &hf_rtps_fragments,
+    &hf_rtps_fragment,
+    &hf_rtps_fragment_overlap,
+    &hf_rtps_fragment_overlap_conflict,
+    &hf_rtps_fragment_multiple_tails,
+    &hf_rtps_fragment_too_long_fragment,
+    &hf_rtps_fragment_error,
+    &hf_rtps_fragment_count,
+    &hf_rtps_reassembled_in,
+    &hf_rtps_reassembled_length,
+    &hf_rtps_reassembled_data,
+    "RTPS fragments"
+};
 
 /* *********************************************************************** */
 /* Appends extra formatting for those submessages that have a status info
@@ -8525,7 +8558,8 @@ static void dissect_RTPS_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offse
    */
   int min_len;
   gint old_offset = offset;
-  guint32 frag_number = 0;
+  guint64 sample_seq_number = 0;
+  guint32 frag_number = 0, frag_size = 0, sample_size = 0;
   guint32 wid;                  /* Writer EntityID */
   gboolean from_builtin_writer;
   guint32 status_info = 0xffffffff;
@@ -8569,7 +8603,7 @@ static void dissect_RTPS_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offse
 
 
   /* Sequence number */
-  rtps_util_add_seq_number(tree, tvb, offset, encoding, "writerSeqNumber");
+  sample_seq_number = rtps_util_add_seq_number(tree, tvb, offset, encoding, "writerSeqNumber");
   offset += 8;
 
   /* Fragment number */
@@ -8581,11 +8615,11 @@ static void dissect_RTPS_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offse
   offset += 2;
 
   /* Fragment size */
-  proto_tree_add_item(tree, hf_rtps_data_frag_size, tvb, offset, 2, encoding);
+  proto_tree_add_item_ret_uint(tree, hf_rtps_data_frag_size, tvb, offset, 2, encoding, &frag_size);
   offset += 2;
 
   /* sampleSize */
-  proto_tree_add_item(tree, hf_rtps_data_frag_sample_size, tvb, offset, 4, encoding);
+  proto_tree_add_item_ret_uint(tree, hf_rtps_data_frag_sample_size, tvb, offset, 4, encoding, &sample_size);
   offset += 4;
 
   /* InlineQos */
@@ -8605,9 +8639,46 @@ static void dissect_RTPS_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offse
     from_builtin_writer =
       (((wid & 0xc2) == 0xc2) || ((wid & 0xc3) == 0xc3)) ? TRUE : FALSE;
 
-    dissect_serialized_data(tree, pinfo, tvb, offset,
-                        octets_to_next_header - (offset - old_offset) + 4,
-                        label, vendor_id, from_builtin_writer, NULL, frag_number);
+    if (enable_rtps_reassembly && !from_builtin_writer) {
+        tvbuff_t* new_tvb = NULL;
+        fragment_head *frag_msg = NULL;
+        gboolean more_fragments = (frag_number * frag_size < sample_size);
+        guint32 this_frag_size = more_fragments ? frag_size : (sample_size - ((frag_number - 1) * frag_size));
+        guint32 fragment_offset = frag_number == 1 ? 0 : (((frag_number - 1) * frag_size));
+        pinfo->fragmented = TRUE;
+        frag_msg = fragment_add_check(&rtps_reassembly_table,
+            tvb, offset, pinfo,
+            (guint32) sample_seq_number, /* ID for fragments belonging together */
+            NULL,
+            fragment_offset, /* fragment offset */
+            this_frag_size, /* fragment length */
+            more_fragments); /* More fragments? */
+
+        new_tvb = process_reassembled_data(tvb, offset, pinfo,
+            "Reassembled sample", frag_msg, &rtps_frag_items,
+            NULL, tree);
+
+        if (frag_msg) { /* Reassembled */
+            col_append_fstr(pinfo->cinfo, COL_INFO,
+                " [Reassembled]");
+        } else { /* Not last packet of reassembled Short Message */
+            col_append_fstr(pinfo->cinfo, COL_INFO,
+                " [RTPS fragment]");
+        }
+
+        if (new_tvb) {
+            dissect_serialized_data(tree, pinfo, new_tvb, 0,
+                sample_size, label, vendor_id, from_builtin_writer, guid, NOT_A_FRAGMENT);
+        } else {
+            dissect_serialized_data(tree, pinfo, tvb, offset,
+                octets_to_next_header - (offset - old_offset) + 4,
+                label, vendor_id, from_builtin_writer, NULL, frag_number);
+        }
+    } else {
+        dissect_serialized_data(tree, pinfo, tvb, offset,
+            octets_to_next_header - (offset - old_offset) + 4,
+            label, vendor_id, from_builtin_writer, NULL, frag_number);
+    }
   }
   append_status_info(pinfo, wid, status_info);
 }
@@ -12186,6 +12257,50 @@ void proto_register_rtps(void) {
         { "Value", "rtps.param.data_tag.value",
         FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
     },
+    { &hf_rtps_fragments,
+        { "Message fragments", "rtps.fragments",
+        FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
+    },
+    { &hf_rtps_fragment,
+        { "Message fragment", "rtps.fragment",
+        FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL }
+    },
+    { &hf_rtps_fragment_overlap,
+        { "Message fragment overlap", "rtps.fragment.overlap",
+        FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL }
+    },
+    { &hf_rtps_fragment_overlap_conflict,
+        { "Message fragment overlapping with conflicting data", "rtps.fragment.overlap.conflicts",
+        FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL }
+    },
+    { &hf_rtps_fragment_multiple_tails,
+        { "Message has multiple tail fragments", "rtps.fragment.multiple_tails",
+        FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL }
+    },
+    { &hf_rtps_fragment_too_long_fragment,
+        { "Message fragment too long", "rtps.fragment.too_long_fragment",
+        FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL }
+    },
+    { &hf_rtps_fragment_error,
+        { "Message defragmentation error", "rtps.fragment.error",
+        FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL }
+    },
+    { &hf_rtps_fragment_count,
+        { "Message fragment count", "rtps.fragment.count",
+        FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+    },
+    { &hf_rtps_reassembled_in,
+        { "Reassembled in", "rtps.reassembled.in",
+        FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL }
+    },
+    { &hf_rtps_reassembled_length,
+        { "Reassembled length", "rtps.reassembled.length",
+        FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+    },
+    { &hf_rtps_reassembled_data,
+        { "Reassembled RTPS data", "rtps.reassembled.data", FT_BYTES, BASE_NONE,
+        NULL, 0x0, "The reassembled payload", HFILL }
+    },
   };
 
   static gint *ett[] = {
@@ -12260,7 +12375,9 @@ void proto_register_rtps(void) {
     &ett_rtps_topic_query_filter_params_tree,
     &ett_rtps_data_member,
     &ett_rtps_data_tag_seq,
-    &ett_rtps_data_tag_item
+    &ett_rtps_data_tag_item,
+    &ett_rtps_fragment,
+    &ett_rtps_fragments
   };
 
   static ei_register_info ei[] = {
@@ -12302,6 +12419,11 @@ void proto_register_rtps(void) {
               "Shows the Topic Name and Type Name of the samples.",
               &enable_topic_info);
 
+  prefs_register_bool_preference(rtps_module, "enable_rtps_reassembly",
+      "Enable RTPS Reassembly",
+      "Enables the reassembly of DATA_FRAG submessages.",
+      &enable_rtps_reassembly);
+
   rtps_type_name_table = register_dissector_table("rtps.type_name", "RTPS Type Name",
           proto_rtps, FT_STRING, BASE_NONE);
 
@@ -12309,6 +12431,9 @@ void proto_register_rtps(void) {
 
   /* In order to get this dissector in LUA (aka "chained-dissector") */
   register_dissector("rtps", dissect_simple_rtps, proto_rtps);
+
+  reassembly_table_register(&rtps_reassembly_table,
+      &addresses_reassembly_table_functions);
 }
 
 
