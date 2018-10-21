@@ -12,6 +12,7 @@
 
 #include "config.h"
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include "packet-lbm.h"
 
 /* Magic number for message header to check if data is big-endian or little-endian. */
@@ -792,7 +793,6 @@ static int dissect_segment_ofstable(tvbuff_t * tvb, int offset, packet_info * pi
     proto_tree * subtree = NULL;
     int datalen = 0;
     int seglen = 0;
-    int datalen_remaining = 0;
     int ofs = 0;
     int field_count = 0;
     int idx;
@@ -817,9 +817,8 @@ static int dissect_segment_ofstable(tvbuff_t * tvb, int offset, packet_info * pi
         id_list[idx] = -1;
         ofs_list[idx] = -1;
     }
-    datalen_remaining = datalen;
     ofs = offset + L_LBMPDM_SEG_HDR_T;
-    for (idx = 0; (idx < field_count) && (datalen_remaining >= L_LBMPDM_OFFSET_ENTRY_T); idx++, ofs += L_LBMPDM_OFFSET_ENTRY_T)
+    for (idx = 0; idx < field_count; idx++, ofs += L_LBMPDM_OFFSET_ENTRY_T)
     {
         proto_item * offset_item = NULL;
         proto_tree * offset_tree = NULL;
@@ -830,6 +829,9 @@ static int dissect_segment_ofstable(tvbuff_t * tvb, int offset, packet_info * pi
         id_list[idx] = (gint32)tvb_get_guint32(tvb, ofs + O_LBMPDM_OFFSET_ENTRY_T_ID, encoding);
         proto_tree_add_item(offset_tree, hf_lbmpdm_offset_entry_offset, tvb, ofs + O_LBMPDM_OFFSET_ENTRY_T_OFFSET, L_LBMPDM_OFFSET_ENTRY_T_OFFSET, encoding);
         ofs_list[idx] = (gint32)tvb_get_guint32(tvb, ofs + O_LBMPDM_OFFSET_ENTRY_T_OFFSET, encoding);
+        if (id_list[idx] < 0 || ofs_list[idx] < 0) {
+            THROW(ReportedBoundsError);
+        }
         if (id_list[idx] > max_index)
         {
             max_index = id_list[idx];
