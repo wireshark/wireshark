@@ -1575,15 +1575,15 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
     <message>
         <source>Copy from</source>
-        <translation type="unfinished">Copia da</translation>
+        <translation>Copia da</translation>
     </message>
     <message>
         <source>Copy coloring rules from another profile.</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia regole di colorazione da un altro profilo.</translation>
     </message>
     <message>
         <source>Open </source>
-        <translation type="unfinished"></translation>
+        <translation>Apri </translation>
     </message>
     <message>
         <source>Double click to edit. Drag to move. Rules are processed in order until a match is found.</source>
@@ -1737,17 +1737,6 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
 </context>
 <context>
-    <name>CopyFromProfileButton</name>
-    <message>
-        <source>Copy from</source>
-        <translation type="vanished">Copia da</translation>
-    </message>
-    <message>
-        <source>Copy entries from another profile.</source>
-        <translation type="vanished">Copia voci da questo profilo.</translation>
-    </message>
-</context>
-<context>
     <name>DataPrinter</name>
     <message>
         <source>Copy Bytes as Hex + ASCII Dump</source>
@@ -1794,7 +1783,7 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
     <message>
         <source>Clear all dissection behaviors.</source>
-        <translation type="unfinished"></translation>
+        <translation>Cancella tutti i comportamenti delle decodifiche.</translation>
     </message>
     <message>
         <source>Decode As</source>
@@ -1802,7 +1791,7 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
     <message>
         <source>Open </source>
-        <translation type="unfinished"></translation>
+        <translation>Apri </translation>
     </message>
 </context>
 <context>
@@ -2479,7 +2468,7 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
     <message>
         <source>Open </source>
-        <translation type="unfinished"></translation>
+        <translation>Apri </translation>
     </message>
     <message>
         <source>New filter</source>
@@ -3503,11 +3492,11 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
     <message>
         <source>Copy from</source>
-        <translation type="unfinished">Copia da</translation>
+        <translation>Copia da</translation>
     </message>
     <message>
         <source>Copy graphs from another profile.</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia grafici da un altro profilo.</translation>
     </message>
     <message>
         <source>1 ms</source>
@@ -12396,11 +12385,11 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
     <message>
         <source>Copy from</source>
-        <translation type="unfinished">Copia da</translation>
+        <translation>Copia da</translation>
     </message>
     <message>
         <source>Copy entries from another profile.</source>
-        <translation type="unfinished">Copia voci da questo profilo.</translation>
+        <translation>Copia voci da un altro profilo.</translation>
     </message>
     <message>
         <source>Open </source>
@@ -12439,11 +12428,11 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
     <message>
         <source>Copy entries from another profile.</source>
-        <translation type="unfinished">Copia voci da questo profilo.</translation>
+        <translation>Copia voci da un altro profilo.</translation>
     </message>
     <message>
         <source>Copy from</source>
-        <translation type="unfinished">Copia da</translation>
+        <translation>Copia da</translation>
     </message>
     <message>
         <source>Unknown User Accessible Table</source>

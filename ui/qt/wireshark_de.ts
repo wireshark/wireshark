@@ -1575,15 +1575,15 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Copy from</source>
-        <translation type="unfinished">Kopieren von</translation>
+        <translation>Kopieren von</translation>
     </message>
     <message>
         <source>Copy coloring rules from another profile.</source>
-        <translation type="unfinished"></translation>
+        <translation>Einfärbungsregeln von einem anderen Profil kopieren.</translation>
     </message>
     <message>
         <source>Open </source>
-        <translation type="unfinished">Öffnen</translation>
+        <translation>Öffnen</translation>
     </message>
     <message>
         <source>Double click to edit. Drag to move. Rules are processed in order until a match is found.</source>
@@ -1737,17 +1737,6 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
 </context>
 <context>
-    <name>CopyFromProfileButton</name>
-    <message>
-        <source>Copy from</source>
-        <translation type="vanished">Kopieren von</translation>
-    </message>
-    <message>
-        <source>Copy entries from another profile.</source>
-        <translation type="vanished">Einträge von einem anderen Profil kopieren.</translation>
-    </message>
-</context>
-<context>
     <name>DataPrinter</name>
     <message>
         <source>Copy Bytes as Hex + ASCII Dump</source>
@@ -1794,7 +1783,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Clear all dissection behaviors.</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Dissektoreinstellungen zurücksetzen.</translation>
     </message>
     <message>
         <source>Decode As</source>
@@ -1802,7 +1791,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Open </source>
-        <translation type="unfinished">Öffnen</translation>
+        <translation>Öffnen</translation>
     </message>
 </context>
 <context>
@@ -2479,7 +2468,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Open </source>
-        <translation type="unfinished">Öffnen</translation>
+        <translation>Öffnen</translation>
     </message>
     <message>
         <source>New filter</source>
@@ -3503,11 +3492,11 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Copy from</source>
-        <translation type="unfinished">Kopieren von</translation>
+        <translation>Kopieren von</translation>
     </message>
     <message>
         <source>Copy graphs from another profile.</source>
-        <translation type="unfinished"></translation>
+        <translation>Graph von einem anderen Profil kopieren.</translation>
     </message>
     <message>
         <source>1 ms</source>
@@ -12401,11 +12390,11 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Copy from</source>
-        <translation type="unfinished">Kopieren von</translation>
+        <translation>Kopieren von</translation>
     </message>
     <message>
         <source>Copy entries from another profile.</source>
-        <translation type="unfinished">Einträge von einem anderen Profil kopieren.</translation>
+        <translation>Einträge von einem anderen Profil kopieren.</translation>
     </message>
     <message>
         <source>Open </source>
@@ -12444,11 +12433,11 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Copy entries from another profile.</source>
-        <translation type="unfinished">Einträge von einem anderen Profil kopieren.</translation>
+        <translation>Einträge von einem anderen Profil kopieren.</translation>
     </message>
     <message>
         <source>Copy from</source>
-        <translation type="unfinished">Kopieren von</translation>
+        <translation>Kopieren von</translation>
     </message>
     <message>
         <source>Unknown User Accessible Table</source>
