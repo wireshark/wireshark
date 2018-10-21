@@ -623,22 +623,19 @@ sub check_ett_registration($$)
 {
         my ($fileContentsRef, $filename) = @_;
         my @ett_declarations;
-        my %ett_registrations;
-        my @unRegisteredEtts;
+        my @ett_address_uses;
+        my %ett_uses;
+        my @unUsedEtts;
         my $errorCount = 0;
 
         # A pattern to match ett variable names.  Obviously this assumes that
-        # they start with ett_
+        # they start with `ett_`
         my $EttVarName = qr{ (?: ett_[a-z0-9_]+ (?:\[[0-9]+\])? ) }xi;
 
-        # Remove macro lines
-        my $fileContents = ${$fileContentsRef};
-        $fileContents =~ s { ^\s*\#.*$} []xogm;
-
         # Find all the ett_ variables declared in the file
-        @ett_declarations = ($fileContents =~ m{
-                ^\s*static              # assume declarations are on their own line
-                \s+
+        @ett_declarations = (${$fileContentsRef} =~ m{
+                ^                       # assume declarations are on their own line
+                (?:static\s+)?          # some declarations aren't static
                 g?int                   # could be int or gint
                 \s+
                 ($EttVarName)           # variable name
@@ -647,71 +644,41 @@ sub check_ett_registration($$)
         }xgiom);
 
         if (!@ett_declarations) {
-                print STDERR "Found no etts in ".$filename."\n";
+                # Only complain if the file looks like a dissector
+                #print STDERR "Found no etts in ".$filename."\n" if
+                #        (${$fileContentsRef} =~ m{proto_register_field_array}os);
                 return;
         }
+        #print "Found these etts in ".$filename.": ".join(' ', @ett_declarations)."\n\n";
 
-        #print "Found these etts in ".$filename.": ".join(',', @ett_declarations)."\n\n";
+        # Find all the uses of the *addresses* of ett variables in the file.
+        # (We assume if someone is using the address they're using it to
+        # register the ett.)
+        @ett_address_uses = (${$fileContentsRef} =~ m{
+                &\s*($EttVarName)
+        }xgiom);
 
-        # Find the array used for registering the etts
-        # Save off the block of code containing just the variables
-        my @reg_blocks;
-        @reg_blocks = ($fileContents =~ m{
-                static
-                \s+
-                g?int
-                \s*\*\s*                # it's an array of pointers
-                [a-z0-9_]+              # array name; usually (always?) "ett"
-                \s*\[\s*\]\s*           # array brackets
-                =
-                \s*\{
-                ((?:\s*&\s*             # address of the following variable
-                $EttVarName             # variable name
-                \s*,?                   # the comma is optional (for the last entry)
-                \s*)+)                  # match one or more variable names
-                \}
-                \s*
-                ;
-        }xgios);
-        #print "Found this ett registration block in ".$filename.": ".join(',', @reg_blocks)."\n";
-
-        if (@reg_blocks == 0) {
-                print STDERR "Hmm, found ".@reg_blocks." ett registration blocks in ".$filename."\n";
-                # For now...
+        if (!@ett_address_uses) {
+                print STDERR "Found no ett address uses in ".$filename."\n";
+                # Don't treat this as an error.
+                # It's more likely a problem with checkAPIs.
                 return;
         }
+        #print "Found these etts addresses used in ".$filename.": ".join(' ', @ett_address_uses)."\n\n";
 
-        while (@reg_blocks) {
-                my ($block) = @reg_blocks;
-                shift @reg_blocks;
+        # Convert to a hash for fast lookup
+        $ett_uses{$_}++ for (@ett_address_uses);
 
-                # Convert the list returned by the match into a hash of the
-                # form ett_variable_name -> 1.  Then combine this new hash with
-                # the hash from the last registration block.
-                # (Of course) using hashes makes the lookups much faster.
-                %ett_registrations = map { $_ => 1 } ($block =~ m{
-                        \s*&\s*                 # address of the following variable
-                        ($EttVarName)           # variable name
-                        \s*,?                   # the comma is optional (for the last entry)
-                }xgios, %ett_registrations);
-        }
-        #print "Found these ett registrations in ".$filename.": ";
-        #while( my ($k, $v) = each %ett_registrations ) {
-        #          print "$k\n";
-        #}
-
-        # Find which declared etts are not registered.
-        # XXX - using <@ett_declarations> and $_ instead of $ett_var makes this
-        # MUCH slower...  Why?
+        # Find which declared etts are not used.
         while (@ett_declarations) {
                 my ($ett_var) = @ett_declarations;
                 shift @ett_declarations;
 
-                push(@unRegisteredEtts, $ett_var) if (!$ett_registrations{$ett_var});
+                push(@unUsedEtts, $ett_var) if (not exists $ett_uses{$ett_var});
         }
 
-        if (@unRegisteredEtts) {
-                print STDERR "Error: found these unregistered ett variables in ".$filename.": ".join(',', @unRegisteredEtts)."\n";
+        if (@unUsedEtts) {
+                print STDERR "Error: found these unused ett variables in ".$filename.": ".join(' ', @unUsedEtts)."\n";
                 $errorCount++;
         }
 
@@ -1236,7 +1203,6 @@ while ($_ = pop @filelist)
         # Remove all the quoted strings
         $fileContents =~ s{ $DoubleQuotedStr | $SingleQuotedStr } []xog;
 
-        #$errorCount += check_ett_registration(\$fileContents, $filename);
         $errorCount += check_pref_var_dupes(\$fileContents, $filename);
 
         # Remove all blank lines
@@ -1244,6 +1210,8 @@ while ($_ = pop @filelist)
 
         # Remove all '#if 0'd' code
         remove_if0_code(\$fileContents, $filename);
+
+        $errorCount += check_ett_registration(\$fileContents, $filename);
 
         #checkAPIsCalledWithTvbGetPtr(\@TvbPtrAPIs, \$fileContents, \@foundAPIs);
         #if (@foundAPIs) {
