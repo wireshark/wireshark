@@ -40,3 +40,12 @@ then
 	mkdir -m u=rwx,g=rx,o=rx /etc/manpaths.d
 fi
 echo $WSMANPATH > /etc/manpaths.d/Wireshark
+
+#
+# Get rid of the old XQuartz fixer; we don't use X11, and haven't used
+# it since Wireshark 2.0, so we don't need it.
+#
+XQUARTZ_FIXER_PLIST="/Library/LaunchDaemons/org.wireshark.XQuartzFixer.plist"
+launchctl unload $XQUARTZ_FIXER_PLIST
+rm -rf /Library/Application Support/Wireshark/XQuartzFixer
+rm -f $XQUARTZ_FIXER_PLIST
