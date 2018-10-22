@@ -12,7 +12,7 @@
 # package; if so, that's where it *should* be fixed.
 #
 chown -R root:wheel "/Library/Application Support/Wireshark"
-chmod -R a+rX,go-w "/Library/Application Support/Wireshark"
+chmod -Rvv a+rX,go-w "/Library/Application Support/Wireshark"
 
 CHMOD_BPF_PLIST="/Library/LaunchDaemons/org.wireshark.ChmodBPF.plist"
 BPF_GROUP="access_bpf"
