@@ -42,7 +42,8 @@ do
 	fi
 done
 
-BASIC_LIST="qttools5-dev \
+BASIC_LIST="libglib2.0-dev \
+	qttools5-dev \
 	qttools5-dev-tools \
 	libqt5svg5-dev \
 	qtmultimedia5-dev \
