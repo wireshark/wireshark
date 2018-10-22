@@ -36,6 +36,7 @@ typedef struct mac_nr_info
     /* Extra info to display */
     guint16         rnti;
     guint16         ueid;
+    guint8          harqid;
 
     /* Will these be included in the ME PHR report? */
     guint8          phr_type2_othercell;
@@ -98,6 +99,9 @@ void set_mac_nr_proto_data(packet_info *pinfo, mac_nr_info *p_mac_nr_info);
 
 #define MAC_NR_PHR_TYPE2_OTHERCELL_TAG 0x05
 /* 1 byte, TRUE/FALSE */
+
+#define MAC_NR_HARQID                  0x06
+/* 1 byte */
 
 
 /* MAC PDU. Following this tag comes the actual MAC PDU (there is no length, the PDU

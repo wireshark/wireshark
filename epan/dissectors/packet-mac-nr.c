@@ -41,6 +41,7 @@ static int hf_mac_nr_context_direction = -1;
 static int hf_mac_nr_context_rnti = -1;
 static int hf_mac_nr_context_rnti_type = -1;
 static int hf_mac_nr_context_ueid = -1;
+static int hf_mac_nr_context_harqid = -1;
 static int hf_mac_nr_context_bcch_transport_channel = -1;
 static int hf_mac_nr_context_phr_type2_othercell = -1;
 
@@ -2423,6 +2424,11 @@ static int dissect_mac_nr(tvbuff_t *tvb, packet_info *pinfo,
         PROTO_ITEM_SET_GENERATED(ti);
     }
 
+    /* Harqid */
+    ti = proto_tree_add_boolean(context_tree, hf_mac_nr_context_harqid,
+                                tvb, 0, 0, p_mac_nr_info->harqid);
+    PROTO_ITEM_SET_GENERATED(ti);
+
     /* Type 2 other */
     ti = proto_tree_add_boolean(context_tree, hf_mac_nr_context_phr_type2_othercell,
                                 tvb, 0, 0, p_mac_nr_info->phr_type2_othercell);
@@ -2515,6 +2521,10 @@ static gboolean dissect_mac_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
                 case MAC_NR_UEID_TAG:
                     p_mac_nr_info->ueid = tvb_get_ntohs(tvb, offset);
                     offset += 2;
+                    break;
+                case MAC_NR_HARQID:
+                    p_mac_nr_info->harqid = tvb_get_guint8(tvb, offset);
+                    offset++;
                     break;
                 case MAC_NR_FRAME_SUBFRAME_TAG:
                     p_mac_nr_info->sysframeNumber = tvb_get_bits16(tvb, offset<<3, 12, ENC_BIG_ENDIAN);
@@ -2631,6 +2641,12 @@ void proto_register_mac_nr(void)
             { "UEId",
               "mac-nr.ueid", FT_UINT16, BASE_DEC, NULL, 0x0,
               "User Equipment Identifier associated with message", HFILL
+            }
+        },
+        { &hf_mac_nr_context_harqid,
+            { "HarqId",
+              "mac-nr.harqid", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "HARQ Identifier", HFILL
             }
         },
         { &hf_mac_nr_context_bcch_transport_channel,
