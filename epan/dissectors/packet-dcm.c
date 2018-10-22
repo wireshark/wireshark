@@ -1106,9 +1106,13 @@ dcm_export_create_tag_base(guint8 *buffer, guint32 bufflen, guint32 offset,
 
     switch (vr) {
     case DCM_VR_OB:
-    case DCM_VR_OW:
+    case DCM_VR_OD:
     case DCM_VR_OF:
+    case DCM_VR_OL:
+    case DCM_VR_OW:
     case DCM_VR_SQ:
+    case DCM_VR_UC:
+    case DCM_VR_UR:
     case DCM_VR_UT:
     case DCM_VR_UN:
         /* DICOM likes it complicated. Special handling for these types */
@@ -1730,15 +1734,15 @@ dissect_dcm_assoc_sopclass_extneg(tvbuff_t *tvb, proto_tree *tree, guint32 offse
     /*
      * The next field contains Service Class specific information identified by the SOP Class UID.
      */
-    if (0 == strcmp(sopclassuid_str, DCM_UID_SOP_CLASS_PATIENT_ROOT_QR_FIND) ||
-        0 == strcmp(sopclassuid_str, DCM_UID_SOP_CLASS_STUDY_ROOT_QR_FIND) ||
-        0 == strcmp(sopclassuid_str, DCM_UID_SOP_CLASS_PATIENT_STUDY_ONLY_QR_FIND) ||
-        0 == strcmp(sopclassuid_str, DCM_UID_SOP_CLASS_PATIENT_ROOT_QR_MOVE) ||
-        0 == strcmp(sopclassuid_str, DCM_UID_SOP_CLASS_STUDY_ROOT_QR_MOVE) ||
-        0 == strcmp(sopclassuid_str, DCM_UID_SOP_CLASS_PATIENT_STUDY_ONLY_QR_MOVE) ||
-        0 == strcmp(sopclassuid_str, DCM_UID_SOP_CLASS_PATIENT_ROOT_QR_GET) ||
-        0 == strcmp(sopclassuid_str, DCM_UID_SOP_CLASS_STUDY_ROOT_QR_GET) ||
-        0 == strcmp(sopclassuid_str, DCM_UID_SOP_CLASS_PATIENT_STUDY_ONLY_QR_GET))
+    if (0 == strcmp(sopclassuid_str, DCM_UID_SOP_CLASS_PATIENT_ROOT_QUERYRETRIEVE_INFORMATION_MODEL_FIND) ||
+        0 == strcmp(sopclassuid_str, DCM_UID_SOP_CLASS_STUDY_ROOT_QUERYRETRIEVE_INFORMATION_MODEL_FIND) ||
+        0 == strcmp(sopclassuid_str, DCM_UID_SOP_CLASS_PATIENTSTUDY_ONLY_QUERYRETRIEVE_INFORMATION_MODEL_FIND_RETIRED) ||
+        0 == strcmp(sopclassuid_str, DCM_UID_SOP_CLASS_PATIENT_ROOT_QUERYRETRIEVE_INFORMATION_MODEL_MOVE) ||
+        0 == strcmp(sopclassuid_str, DCM_UID_SOP_CLASS_STUDY_ROOT_QUERYRETRIEVE_INFORMATION_MODEL_MOVE) ||
+        0 == strcmp(sopclassuid_str, DCM_UID_SOP_CLASS_PATIENTSTUDY_ONLY_QUERYRETRIEVE_INFORMATION_MODEL_MOVE_RETIRED) ||
+        0 == strcmp(sopclassuid_str, DCM_UID_SOP_CLASS_PATIENT_ROOT_QUERYRETRIEVE_INFORMATION_MODEL_GET) ||
+        0 == strcmp(sopclassuid_str, DCM_UID_SOP_CLASS_STUDY_ROOT_QUERYRETRIEVE_INFORMATION_MODEL_GET) ||
+        0 == strcmp(sopclassuid_str, DCM_UID_SOP_CLASS_PATIENTSTUDY_ONLY_QUERYRETRIEVE_INFORMATION_MODEL_GET_RETIRED))
     {
         if (cnt<=0)
         {
@@ -1751,9 +1755,9 @@ dissect_dcm_assoc_sopclass_extneg(tvbuff_t *tvb, proto_tree *tree, guint32 offse
     }
 
     /* More sub-items are only allowed for the C-FIND SOP Classes. */
-    if (0 == strcmp(sopclassuid_str, DCM_UID_SOP_CLASS_PATIENT_ROOT_QR_FIND) ||
-        0 == strcmp(sopclassuid_str, DCM_UID_SOP_CLASS_STUDY_ROOT_QR_FIND) ||
-        0 == strcmp(sopclassuid_str, DCM_UID_SOP_CLASS_PATIENT_STUDY_ONLY_QR_FIND))
+    if (0 == strcmp(sopclassuid_str, DCM_UID_SOP_CLASS_PATIENT_ROOT_QUERYRETRIEVE_INFORMATION_MODEL_FIND) ||
+        0 == strcmp(sopclassuid_str, DCM_UID_SOP_CLASS_STUDY_ROOT_QUERYRETRIEVE_INFORMATION_MODEL_FIND) ||
+        0 == strcmp(sopclassuid_str, DCM_UID_SOP_CLASS_PATIENTSTUDY_ONLY_QUERYRETRIEVE_INFORMATION_MODEL_FIND_RETIRED))
     {
         if (cnt<=0)
         {
@@ -3008,7 +3012,7 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         if ((strcmp(vr, "OB") == 0) || (strcmp(vr, "OW") == 0) || (strcmp(vr, "OF") == 0) || (strcmp(vr, "OD") == 0) || (strcmp(vr, "OL") == 0) ||
             (strcmp(vr, "SQ") == 0) || (strcmp(vr, "UC") == 0) || (strcmp(vr, "UR") == 0) || (strcmp(vr, "UT") == 0) || (strcmp(vr, "UN") == 0)) {
-            /* Table 7.1-1 in the standard */
+            /* Part 5, Table 7.1-1 in the standard */
             /* Length is always 4 bytes: OB, OD, OF, OL, OW, SQ, UC, UR, UT or UN */
 
             is_vl_long = TRUE;
