@@ -2645,7 +2645,7 @@ void proto_register_mac_nr(void)
         },
         { &hf_mac_nr_context_harqid,
             { "HarqId",
-              "mac-nr.harqid", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "mac-nr.harqid", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
               "HARQ Identifier", HFILL
             }
         },
