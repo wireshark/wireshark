@@ -1402,6 +1402,7 @@ void proto_reg_handoff_rlc_nr(void)
     /* Add as a heuristic UDP dissector */
     heur_dissector_add("udp", dissect_rlc_nr_heur, "RLC-NR over UDP", "rlc_nr_udp", proto_rlc_nr, HEURISTIC_DISABLE);
 
+    pdcp_nr_handle = find_dissector("pdcp-nr");
     nr_rrc_bcch_bch = find_dissector_add_dependency("nr-rrc.bcch.bch", proto_rlc_nr);
 }
 
