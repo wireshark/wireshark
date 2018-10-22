@@ -42,10 +42,18 @@ fi
 echo $WSMANPATH > /etc/manpaths.d/Wireshark
 
 #
-# Get rid of the old XQuartz fixer; we don't use X11, and haven't used
-# it since Wireshark 2.0, so we don't need it.
+# If we still have the old XQuartz fixer, get rid of it; we don't use
+# X11, and haven't used it since Wireshark 2.0, so we don't need it.
 #
 XQUARTZ_FIXER_PLIST="/Library/LaunchDaemons/org.wireshark.XQuartzFixer.plist"
-launchctl unload $XQUARTZ_FIXER_PLIST
-rm -rf /Library/Application Support/Wireshark/XQuartzFixer
-rm -f $XQUARTZ_FIXER_PLIST
+if [ -e "$XQUARTZ_FIXER_PLIST ]
+then
+	launchctl unload $XQUARTZ_FIXER_PLIST
+	rm -rf /Library/Application Support/Wireshark/XQuartzFixer
+	rm -f $XQUARTZ_FIXER_PLIST
+fi
+
+#
+# And get rid of the *really* old XQuartz fixer while we're at it.
+#
+rm -rf /Library/StartupItems/XQuartzFixer
