@@ -2424,15 +2424,19 @@ static int dissect_mac_nr(tvbuff_t *tvb, packet_info *pinfo,
         PROTO_ITEM_SET_GENERATED(ti);
     }
 
-    /* Harqid */
-    ti = proto_tree_add_uint(context_tree, hf_mac_nr_context_harqid,
-                             tvb, 0, 0, p_mac_nr_info->harqid);
-    PROTO_ITEM_SET_GENERATED(ti);
+    if (p_mac_nr_info->rntiType == C_RNTI || p_mac_nr_info->rntiType == CS_RNTI) {
+        /* Harqid */
+        ti = proto_tree_add_uint(context_tree, hf_mac_nr_context_harqid,
+                                tvb, 0, 0, p_mac_nr_info->harqid);
+        PROTO_ITEM_SET_GENERATED(ti);
 
-    /* Type 2 other */
-    ti = proto_tree_add_boolean(context_tree, hf_mac_nr_context_phr_type2_othercell,
-                                tvb, 0, 0, p_mac_nr_info->phr_type2_othercell);
-    PROTO_ITEM_SET_GENERATED(ti);
+        if (p_mac_nr_info->direction == DIRECTION_UPLINK) {
+            /* Type 2 other */
+            ti = proto_tree_add_boolean(context_tree, hf_mac_nr_context_phr_type2_othercell,
+                                        tvb, 0, 0, p_mac_nr_info->phr_type2_othercell);
+            PROTO_ITEM_SET_GENERATED(ti);
+        }
+    }
 
 
     /* Dissect the MAC PDU itself. Format depends upon RNTI type. */
