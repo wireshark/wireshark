@@ -11,6 +11,9 @@
  */
 #include "packet-knxip.h"
 
+void proto_register_cemi(void);
+void proto_reg_handoff_cemi(void);
+
 /* cEMI Message Codes
 */
 #define CEMI_L_BUSMON_IND     0x2B
