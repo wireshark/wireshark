@@ -60,29 +60,31 @@ static const value_string tzsp_type[] = {
 /*               Note that these are not all the same as DLT_ values         */
 /* ************************************************************************* */
 
-#define TZSP_ENCAP_ETHERNET              1
-#define TZSP_ENCAP_TOKEN_RING            2
-#define TZSP_ENCAP_SLIP                  3
-#define TZSP_ENCAP_PPP                   4
-#define TZSP_ENCAP_FDDI                  5
-#define TZSP_ENCAP_RAW                   7   /* "Raw UO", presumably meaning "Raw IP" */
-#define TZSP_ENCAP_IEEE_802_11          18
-#define TZSP_ENCAP_IEEE_802_11_PRISM   119
-#define TZSP_ENCAP_IEEE_802_11_AVS     127
+#define TZSP_ENCAP_ETHERNET                1
+#define TZSP_ENCAP_TOKEN_RING              2
+#define TZSP_ENCAP_SLIP                    3
+#define TZSP_ENCAP_PPP                     4
+#define TZSP_ENCAP_FDDI                    5
+#define TZSP_ENCAP_RAW                     7   /* "Raw UO", presumably meaning "Raw IP" */
+#define TZSP_ENCAP_IEEE_802_11             18
+#define TZSP_ENCAP_IEEE_802_11_PRISM       119
+#define TZSP_ENCAP_IEEE_802_11_RADIOTAP    126
+#define TZSP_ENCAP_IEEE_802_11_AVS         127
 
 /*
  * Packet encapsulations.
  */
 static const value_string tzsp_encapsulation[] = {
-    {TZSP_ENCAP_ETHERNET,          "Ethernet"},
-    {TZSP_ENCAP_TOKEN_RING,        "Token Ring"},
-    {TZSP_ENCAP_SLIP,              "SLIP"},
-    {TZSP_ENCAP_PPP,               "PPP"},
-    {TZSP_ENCAP_FDDI,              "FDDI"},
-    {TZSP_ENCAP_RAW,               "Raw IP"},
-    {TZSP_ENCAP_IEEE_802_11,       "IEEE 802.11"},
-    {TZSP_ENCAP_IEEE_802_11_PRISM, "IEEE 802.11 with Prism headers"},
-    {TZSP_ENCAP_IEEE_802_11_AVS,   "IEEE 802.11 with AVS headers"},
+    {TZSP_ENCAP_ETHERNET,             "Ethernet"},
+    {TZSP_ENCAP_TOKEN_RING,           "Token Ring"},
+    {TZSP_ENCAP_SLIP,                 "SLIP"},
+    {TZSP_ENCAP_PPP,                  "PPP"},
+    {TZSP_ENCAP_FDDI,                 "FDDI"},
+    {TZSP_ENCAP_RAW,                  "Raw IP"},
+    {TZSP_ENCAP_IEEE_802_11,          "IEEE 802.11"},
+    {TZSP_ENCAP_IEEE_802_11_PRISM,    "IEEE 802.11 with Prism headers"},
+    {TZSP_ENCAP_IEEE_802_11_RADIOTAP, "IEEE 802.11 with radioTap headers"},
+    {TZSP_ENCAP_IEEE_802_11_AVS,      "IEEE 802.11 with AVS headers"},
     {0, NULL}
 };
 
@@ -97,6 +99,7 @@ static dissector_handle_t raw_ip_handle;
 static dissector_handle_t ieee_802_11_handle;
 static dissector_handle_t ieee_802_11_prism_handle;
 static dissector_handle_t ieee_802_11_avs_handle;
+static dissector_handle_t ieee_802_11_radiotap_handle;
 
 /* ************************************************************************* */
 /*                WLAN radio header fields                                    */
@@ -120,6 +123,13 @@ static int hf_unknown = -1;
 static int hf_original_length = -1;
 static int hf_sensormac = -1;
 
+static int hf_device_name = -1;
+static int hf_capture_location = -1;
+static int hf_time_stamp = -1;
+static int hf_packet_id = -1;
+
+
+
 /* ************************************************************************* */
 /*                          Generic header options                           */
 /* ************************************************************************* */
@@ -131,6 +141,11 @@ static int hf_sensormac = -1;
 #define TZSP_PACKET_ID            40  /* Unique ID of the packet */
 #define TZSP_HDR_ORIGINAL_LENGTH  41  /* Length of the packet before slicing. 2 bytes. */
 #define TZSP_HDR_SENSOR           60  /* Sensor MAC address packet was received on, 6 byte ethernet address.*/
+
+#define TZSP_DEVICE_NAME          80
+#define TZSP_CAPTURE_LOCATION     81
+#define TZSP_TIME_STAMP           82
+
 
 /* ************************************************************************* */
 /*                          Options for 802.11 radios                        */
@@ -149,7 +164,11 @@ static int hf_sensormac = -1;
 static const value_string option_tag_vals[] = {
     {TZSP_HDR_PAD,  "Pad"},
     {TZSP_HDR_END,  "End"},
+    {TZSP_PACKET_ID,  "packet ID"},
     {TZSP_HDR_ORIGINAL_LENGTH,  "Original Length"},
+    {TZSP_DEVICE_NAME,  "Device Name"},
+    {TZSP_CAPTURE_LOCATION,  "Capture Location"},
+    {TZSP_TIME_STAMP,  "Time Stamp"},
     {WLAN_RADIO_HDR_SIGNAL,     "Signal"},
     {WLAN_RADIO_HDR_NOISE,      "Silence"},
     {WLAN_RADIO_HDR_RATE,       "Rate"},
@@ -206,9 +225,27 @@ add_option_info(tvbuff_t *tvb, int pos, proto_tree *tree, proto_item *ti)
             }
             return pos;
 
+        case TZSP_PACKET_ID:
+            proto_tree_add_item(tag_tree, hf_packet_id, tvb, pos, 4, ENC_BIG_ENDIAN);
+            break;
+
         case TZSP_HDR_ORIGINAL_LENGTH:
             proto_tree_add_item(tag_tree, hf_original_length, tvb, pos, 2, ENC_BIG_ENDIAN);
             break;
+
+        case TZSP_DEVICE_NAME:
+            proto_tree_add_item(tag_tree, hf_device_name, tvb, pos, length, ENC_ASCII|ENC_NA);
+            break;
+
+        case TZSP_CAPTURE_LOCATION:
+            proto_tree_add_item(tag_tree, hf_capture_location, tvb, pos, length, ENC_ASCII|ENC_NA);
+            break;
+
+
+        case TZSP_TIME_STAMP:
+            proto_tree_add_item(tag_tree, hf_time_stamp, tvb, pos, length, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
+            break;
+
 
         case WLAN_RADIO_HDR_SIGNAL:
             proto_tree_add_item(tag_tree, hf_signal, tvb, pos, 1, ENC_BIG_ENDIAN);
@@ -356,6 +393,10 @@ dissect_tzsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
         case TZSP_ENCAP_IEEE_802_11_PRISM:
             call_dissector(ieee_802_11_prism_handle, next_tvb, pinfo, tree);
+            break;
+
+        case TZSP_ENCAP_IEEE_802_11_RADIOTAP:
+            call_dissector(ieee_802_11_radiotap_handle, next_tvb, pinfo, tree);
             break;
 
         case TZSP_ENCAP_IEEE_802_11_AVS:
@@ -519,7 +560,24 @@ proto_register_tzsp(void)
             NULL, 0, "Unknown", HFILL }},
         { &hf_sensormac, {
             "Sensor Address", "tzsp.sensormac", FT_ETHER, BASE_NONE,
-            NULL, 0, "Sensor MAC", HFILL }}
+            NULL, 0, "Sensor MAC", HFILL }},
+
+        { &hf_device_name, {
+            "Device Name", "tzsp.device_name", FT_STRING, STR_ASCII,
+            NULL, 0, "DeviceName", HFILL }},
+
+        { &hf_capture_location, {
+            "Capture Location", "tzsp.device_name", FT_STRING, STR_ASCII,
+            NULL, 0, "CaptureLocation", HFILL }},
+
+        {&hf_time_stamp, {
+            "Time Stamp", "tzsp.time_stamp",
+            FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
+            "TimeStamp", HFILL}},
+
+        { &hf_packet_id, {
+            "Packet Id", "tzsp.packet_id", FT_UINT32, BASE_DEC,
+            NULL, 0, "PacketId", HFILL }}
     };
 
     static gint *ett[] = {
@@ -548,6 +606,7 @@ proto_reg_handoff_tzsp(void)
     ieee_802_11_handle = find_dissector_add_dependency("wlan", proto_tzsp);
     ieee_802_11_prism_handle = find_dissector_add_dependency("prism", proto_tzsp);
     ieee_802_11_avs_handle = find_dissector_add_dependency("wlancap", proto_tzsp);
+    ieee_802_11_radiotap_handle = find_dissector_add_dependency("radiotap", proto_tzsp);
 
     /* Register this protocol as an encapsulation type. */
     dissector_add_uint("wtap_encap", WTAP_ENCAP_TZSP, tzsp_handle);
