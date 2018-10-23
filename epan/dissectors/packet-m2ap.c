@@ -16,7 +16,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Reference: 3GPP TS 36.443 v14.0.0
+ * Reference: 3GPP TS 36.443 v15.0.0
  */
 
 #include "config.h"
@@ -118,7 +118,9 @@ typedef enum _ProtocolIE_ID_enum {
   id_SC_PTM_Information =  45,
   id_Modification_PeriodExtended =  46,
   id_Repetition_PeriodExtended =  47,
-  id_MCH_Scheduling_PeriodExtended2 =  48
+  id_MCH_Scheduling_PeriodExtended2 =  48,
+  id_Subcarrier_SpacingMBMS =  49,
+  id_SubframeAllocationExtended =  50
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-m2ap-val.h ---*/
@@ -156,6 +158,8 @@ static int hf_m2ap_Modification_PeriodExtended_PDU = -1;  /* Modification_Period
 static int hf_m2ap_Common_Subframe_Allocation_Period_PDU = -1;  /* Common_Subframe_Allocation_Period */
 static int hf_m2ap_Repetition_PeriodExtended_PDU = -1;  /* Repetition_PeriodExtended */
 static int hf_m2ap_SC_PTM_Information_PDU = -1;   /* SC_PTM_Information */
+static int hf_m2ap_Subcarrier_SpacingMBMS_PDU = -1;  /* Subcarrier_SpacingMBMS */
+static int hf_m2ap_SubframeAllocationExtended_PDU = -1;  /* SubframeAllocationExtended */
 static int hf_m2ap_TimeToWait_PDU = -1;           /* TimeToWait */
 static int hf_m2ap_TMGI_PDU = -1;                 /* TMGI */
 static int hf_m2ap_TNL_Information_PDU = -1;      /* TNL_Information */
@@ -279,6 +283,9 @@ static int hf_m2ap_dataMCS = -1;                  /* INTEGER_0_28 */
 static int hf_m2ap_mchSchedulingPeriod = -1;      /* MCH_Scheduling_Period */
 static int hf_m2ap_mbmsCellList = -1;             /* MBMS_Cell_List */
 static int hf_m2ap_mbms_E_RAB_QoS_Parameters = -1;  /* MBMS_E_RAB_QoS_Parameters */
+static int hf_m2ap_oneFrameExtension = -1;        /* BIT_STRING_SIZE_2 */
+static int hf_m2ap_fourFrameExtension = -1;       /* BIT_STRING_SIZE_8 */
+static int hf_m2ap_choice_extension = -1;         /* ProtocolIE_Single_Container */
 static int hf_m2ap_pLMNidentity = -1;             /* PLMN_Identity */
 static int hf_m2ap_serviceID = -1;                /* OCTET_STRING_SIZE_3 */
 static int hf_m2ap_iPMCAddress = -1;              /* IPAddress */
@@ -357,6 +364,7 @@ static gint ett_m2ap_T_subframeAllocation = -1;
 static gint ett_m2ap_MCCHrelatedBCCH_ConfigPerMBSFNArea_Item = -1;
 static gint ett_m2ap_PMCH_Configuration = -1;
 static gint ett_m2ap_SC_PTM_Information = -1;
+static gint ett_m2ap_SubframeAllocationExtended = -1;
 static gint ett_m2ap_TMGI = -1;
 static gint ett_m2ap_TNL_Information = -1;
 static gint ett_m2ap_SessionStartRequest = -1;
@@ -578,6 +586,8 @@ static const value_string m2ap_ProtocolIE_ID_vals[] = {
   { id_Modification_PeriodExtended, "id-Modification-PeriodExtended" },
   { id_Repetition_PeriodExtended, "id-Repetition-PeriodExtended" },
   { id_MCH_Scheduling_PeriodExtended2, "id-MCH-Scheduling-PeriodExtended2" },
+  { id_Subcarrier_SpacingMBMS, "id-Subcarrier-SpacingMBMS" },
+  { id_SubframeAllocationExtended, "id-SubframeAllocationExtended" },
   { 0, NULL }
 };
 
@@ -1918,6 +1928,66 @@ dissect_m2ap_SFN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_
 }
 
 
+static const value_string m2ap_Subcarrier_SpacingMBMS_vals[] = {
+  {   0, "khz-7dot5" },
+  {   1, "khz-1dot25" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_m2ap_Subcarrier_SpacingMBMS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     2, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_m2ap_BIT_STRING_SIZE_2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     2, 2, FALSE, NULL, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_m2ap_BIT_STRING_SIZE_8(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     8, 8, FALSE, NULL, NULL);
+
+  return offset;
+}
+
+
+static const value_string m2ap_SubframeAllocationExtended_vals[] = {
+  {   0, "oneFrameExtension" },
+  {   1, "fourFrameExtension" },
+  {   2, "choice-extension" },
+  { 0, NULL }
+};
+
+static const per_choice_t SubframeAllocationExtended_choice[] = {
+  {   0, &hf_m2ap_oneFrameExtension, ASN1_EXTENSION_ROOT    , dissect_m2ap_BIT_STRING_SIZE_2 },
+  {   1, &hf_m2ap_fourFrameExtension, ASN1_EXTENSION_ROOT    , dissect_m2ap_BIT_STRING_SIZE_8 },
+  {   2, &hf_m2ap_choice_extension, ASN1_EXTENSION_ROOT    , dissect_m2ap_ProtocolIE_Single_Container },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_m2ap_SubframeAllocationExtended(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_m2ap_SubframeAllocationExtended, SubframeAllocationExtended_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
 static const value_string m2ap_TimeToWait_vals[] = {
   {   0, "v1s" },
   {   1, "v2s" },
@@ -3044,6 +3114,22 @@ static int dissect_SC_PTM_Information_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_Subcarrier_SpacingMBMS_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_m2ap_Subcarrier_SpacingMBMS(tvb, offset, &asn1_ctx, tree, hf_m2ap_Subcarrier_SpacingMBMS_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_SubframeAllocationExtended_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_m2ap_SubframeAllocationExtended(tvb, offset, &asn1_ctx, tree, hf_m2ap_SubframeAllocationExtended_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_TimeToWait_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -3613,6 +3699,14 @@ proto_register_m2ap(void) {
       { "SC-PTM-Information", "m2ap.SC_PTM_Information_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_m2ap_Subcarrier_SpacingMBMS_PDU,
+      { "Subcarrier-SpacingMBMS", "m2ap.Subcarrier_SpacingMBMS",
+        FT_UINT32, BASE_DEC, VALS(m2ap_Subcarrier_SpacingMBMS_vals), 0,
+        NULL, HFILL }},
+    { &hf_m2ap_SubframeAllocationExtended_PDU,
+      { "SubframeAllocationExtended", "m2ap.SubframeAllocationExtended",
+        FT_UINT32, BASE_DEC, VALS(m2ap_SubframeAllocationExtended_vals), 0,
+        NULL, HFILL }},
     { &hf_m2ap_TimeToWait_PDU,
       { "TimeToWait", "m2ap.TimeToWait",
         FT_UINT32, BASE_DEC, VALS(m2ap_TimeToWait_vals), 0,
@@ -4105,6 +4199,18 @@ proto_register_m2ap(void) {
       { "mbms-E-RAB-QoS-Parameters", "m2ap.mbms_E_RAB_QoS_Parameters_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_m2ap_oneFrameExtension,
+      { "oneFrameExtension", "m2ap.oneFrameExtension",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "BIT_STRING_SIZE_2", HFILL }},
+    { &hf_m2ap_fourFrameExtension,
+      { "fourFrameExtension", "m2ap.fourFrameExtension",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "BIT_STRING_SIZE_8", HFILL }},
+    { &hf_m2ap_choice_extension,
+      { "choice-extension", "m2ap.choice_extension_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ProtocolIE_Single_Container", HFILL }},
     { &hf_m2ap_pLMNidentity,
       { "pLMNidentity", "m2ap.pLMNidentity",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -4284,6 +4390,7 @@ proto_register_m2ap(void) {
     &ett_m2ap_MCCHrelatedBCCH_ConfigPerMBSFNArea_Item,
     &ett_m2ap_PMCH_Configuration,
     &ett_m2ap_SC_PTM_Information,
+    &ett_m2ap_SubframeAllocationExtended,
     &ett_m2ap_TMGI,
     &ett_m2ap_TNL_Information,
     &ett_m2ap_SessionStartRequest,
@@ -4419,6 +4526,8 @@ proto_reg_handoff_m2ap(void)
   dissector_add_uint("m2ap.extension", id_Repetition_PeriodExtended, create_dissector_handle(dissect_Repetition_PeriodExtended_PDU, proto_m2ap));
   dissector_add_uint("m2ap.extension", id_Modification_PeriodExtended, create_dissector_handle(dissect_Modification_PeriodExtended_PDU, proto_m2ap));
   dissector_add_uint("m2ap.extension", id_MCH_Scheduling_PeriodExtended2, create_dissector_handle(dissect_MCH_Scheduling_PeriodExtended2_PDU, proto_m2ap));
+  dissector_add_uint("m2ap.extension", id_SubframeAllocationExtended, create_dissector_handle(dissect_SubframeAllocationExtended_PDU, proto_m2ap));
+  dissector_add_uint("m2ap.extension", id_Subcarrier_SpacingMBMS, create_dissector_handle(dissect_Subcarrier_SpacingMBMS_PDU, proto_m2ap));
   dissector_add_uint("m2ap.proc.imsg", id_sessionStart, create_dissector_handle(dissect_SessionStartRequest_PDU, proto_m2ap));
   dissector_add_uint("m2ap.proc.sout", id_sessionStart, create_dissector_handle(dissect_SessionStartResponse_PDU, proto_m2ap));
   dissector_add_uint("m2ap.proc.uout", id_sessionStart, create_dissector_handle(dissect_SessionStartFailure_PDU, proto_m2ap));
