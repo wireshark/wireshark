@@ -504,6 +504,8 @@ void proto_reg_handoff_docsis_mgmt(void);
 #define CM_ON_BATTERY           9
 #define CM_ON_AC_POWER         10
 
+#define STATUS_EVENT            1
+
 #define EVENT_DESCR             2
 #define EVENT_DS_CH_ID          4
 #define EVENT_US_CH_ID          5
@@ -1017,13 +1019,16 @@ static int hf_docsis_cmstatus_e_t_t3_e = -1;
 static int hf_docsis_cmstatus_e_t_rng_s = -1;
 static int hf_docsis_cmstatus_e_t_cm_b = -1;
 static int hf_docsis_cmstatus_e_t_cm_a = -1;
-static int hf_docsis_cmstatus_ds_ch_id = -1;
-static int hf_docsis_cmstatus_us_ch_id = -1;
-static int hf_docsis_cmstatus_dsid = -1;
-static int hf_docsis_cmstatus_descr = -1;
+static int hf_docsis_cmstatus_status_event_ds_ch_id = -1;
+static int hf_docsis_cmstatus_status_event_us_ch_id = -1;
+static int hf_docsis_cmstatus_status_event_dsid = -1;
+static int hf_docsis_cmstatus_status_event_descr = -1;
 static int hf_docsis_cmstatus_tlv_data = -1;
 static int hf_docsis_cmstatus_type = -1;
 static int hf_docsis_cmstatus_length = -1;
+static int hf_docsis_cmstatus_status_event_tlv_data = -1;
+static int hf_docsis_cmstatus_status_event_type = -1;
+static int hf_docsis_cmstatus_status_event_length = -1;
 
 static int hf_docsis_cmctrl_tlv_mute = -1;
 static int hf_docsis_cmctrl_tlv_mute_timeout = -1;
@@ -1249,6 +1254,8 @@ static gint ett_docsis_dpvrsp = -1;
 static gint ett_docsis_cmstatus = -1;
 static gint ett_docsis_cmstatus_tlv = -1;
 static gint ett_docsis_cmstatus_tlvtlv = -1;
+static gint ett_docsis_cmstatus_status_event_tlv = -1;
+static gint ett_docsis_cmstatus_status_event_tlvtlv = -1;
 
 static gint ett_docsis_cmstatusack = -1;
 
@@ -2011,6 +2018,11 @@ static const value_string mdd_full_duplex_sub_band_vals[] = {
 };
 
 static const value_string cmstatus_tlv_vals[] = {
+  {STATUS_EVENT, "Status Event"},
+  {0, NULL}
+};
+
+static const value_string cmstatus_status_event_tlv_vals[] = {
   {EVENT_DS_CH_ID, "Downstream Channel ID"},
   {EVENT_US_CH_ID, "Upstream Channel ID"},
   {EVENT_DSID, "DSID"},
@@ -5627,36 +5639,36 @@ dissect_dpvrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
 }
 
 static void
-dissect_cmstatus_tlv (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree)
+dissect_cmstatus_status_event_tlv (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree)
 {
   proto_item *it, *tlv_item, *tlv_len_item;
-  proto_tree *tlv_tree;
+  proto_tree *tlv_tree, *tlvtlv_tree;
   guint16 pos = 0;
   guint8 type;
   guint32 length;
 
-  it = proto_tree_add_item(tree, hf_docsis_cmstatus_tlv_data, tvb, 0, tvb_reported_length(tvb), ENC_NA);
-  tlv_tree = proto_item_add_subtree (it, ett_docsis_cmstatus_tlv);
+  it = proto_tree_add_item(tree, hf_docsis_cmstatus_status_event_tlv_data, tvb, 0, tvb_reported_length(tvb), ENC_NA);
+  tlv_tree = proto_item_add_subtree (it, ett_docsis_cmstatus_status_event_tlv);
 
   while (tvb_reported_length_remaining(tvb, pos) > 0)
   {
     type = tvb_get_guint8 (tvb, pos);
-    tlv_tree = proto_tree_add_subtree(tlv_tree, tvb, pos, -1,
-                                            ett_docsis_cmstatus_tlvtlv, &tlv_item,
-                                            val_to_str(type, cmstatus_tlv_vals,
-                                                       "Unknown TLV (%u)"));
-    proto_tree_add_uint (tlv_tree, hf_docsis_cmstatus_type, tvb, pos, 1, type);
+    tlvtlv_tree = proto_tree_add_subtree(tlv_tree, tvb, pos, -1,
+                                            ett_docsis_cmstatus_status_event_tlvtlv, &tlv_item,
+                                            val_to_str(type, cmstatus_status_event_tlv_vals,
+                                                       "Unknown Status Event TLV (%u)"));
+    proto_tree_add_uint (tlvtlv_tree, hf_docsis_cmstatus_status_event_type, tvb, pos, 1, type);
     pos++;
-    tlv_len_item = proto_tree_add_item_ret_uint (tlv_tree, hf_docsis_cmstatus_length, tvb, pos, 1, ENC_NA, &length);
+    tlv_len_item = proto_tree_add_item_ret_uint (tlvtlv_tree, hf_docsis_cmstatus_status_event_length, tvb, pos, 1, ENC_NA, &length);
     pos++;
     proto_item_set_len(tlv_item, length + 2);
 
     switch (type)
     {
     case EVENT_DS_CH_ID:
-      if (length == 3)
+      if (length == 1)
       {
-        proto_tree_add_item (tlv_tree, hf_docsis_cmstatus_ds_ch_id, tvb, pos + 1, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tlvtlv_tree, hf_docsis_cmstatus_status_event_ds_ch_id, tvb, pos, 1, ENC_BIG_ENDIAN);
       }
       else
       {
@@ -5665,9 +5677,9 @@ dissect_cmstatus_tlv (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree)
       break;
 
     case EVENT_US_CH_ID:
-      if (length == 3)
+      if (length == 1)
       {
-        proto_tree_add_item (tlv_tree, hf_docsis_cmstatus_us_ch_id, tvb, pos + 1, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tlvtlv_tree, hf_docsis_cmstatus_status_event_us_ch_id, tvb, pos, 1, ENC_BIG_ENDIAN);
       }
       else
       {
@@ -5676,9 +5688,9 @@ dissect_cmstatus_tlv (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree)
       break;
 
     case EVENT_DSID:
-      if (length == 5)
+      if (length == 3)
       {
-        proto_tree_add_item (tlv_tree, hf_docsis_cmstatus_dsid, tvb, pos + 1, 3, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tlvtlv_tree, hf_docsis_cmstatus_status_event_dsid, tvb, pos, 3, ENC_BIG_ENDIAN);
       }
       else
       {
@@ -5687,15 +5699,53 @@ dissect_cmstatus_tlv (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree)
       break;
 
     case EVENT_DESCR:
-      if (length >= 3 && length <= 82)
+      if (length >= 1 && length <= 80)
       {
-        proto_tree_add_item (tlv_tree, hf_docsis_cmstatus_descr, tvb, pos + 1, length - 2, ENC_NA);
+        proto_tree_add_item (tlvtlv_tree, hf_docsis_cmstatus_status_event_descr, tvb, pos, length, ENC_NA);
       }
       else
       {
         expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", length);
       }
       break;
+    } /* switch */
+      pos += length;
+  } /* while */
+}
+
+static void
+dissect_cmstatus_tlv (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree)
+{
+  proto_item *it, *tlv_item;
+  proto_tree *tlv_tree, *tlvtlv_tree;
+  guint16 pos = 0;
+  guint8 type;
+  guint32 length;
+  tvbuff_t* next_tvb;
+
+  it = proto_tree_add_item(tree, hf_docsis_cmstatus_tlv_data, tvb, 0, tvb_reported_length(tvb), ENC_NA);
+  tlv_tree = proto_item_add_subtree (it, ett_docsis_cmstatus_tlv);
+
+  while (tvb_reported_length_remaining(tvb, pos) > 0)
+  {
+    type = tvb_get_guint8 (tvb, pos);
+    tlvtlv_tree = proto_tree_add_subtree(tlv_tree, tvb, pos, -1,
+                                            ett_docsis_cmstatus_tlvtlv, &tlv_item,
+                                            val_to_str(type, cmstatus_tlv_vals,
+                                                       "Unknown TLV (%u)"));
+    proto_tree_add_uint (tlvtlv_tree, hf_docsis_cmstatus_type, tvb, pos, 1, type);
+    pos++;
+    proto_tree_add_item_ret_uint (tlvtlv_tree, hf_docsis_cmstatus_length, tvb, pos, 1, ENC_NA, &length);
+    pos++;
+    proto_item_set_len(tlv_item, length + 2);
+
+    switch (type)
+    {
+    case STATUS_EVENT:
+      next_tvb = tvb_new_subset_length(tvb, pos, length);
+      dissect_cmstatus_status_event_tlv (next_tvb, pinfo, tlvtlv_tree);
+      break;
+
     } /* switch */
       pos += length;
   } /* while */
@@ -9092,17 +9142,17 @@ proto_register_docsis_mgmt (void)
     {&hf_docsis_cmstatus_e_t_cm_a,
      {"CM returned to A/C power", "docsis_cmstatus.cm_on_ac_power", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
-    {&hf_docsis_cmstatus_descr,
-     {"Description", "docsis_cmstatus.description",FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+    {&hf_docsis_cmstatus_status_event_descr,
+     {"Description", "docsis_cmstatus.status_event.description",FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
-    {&hf_docsis_cmstatus_ds_ch_id,
-     {"Downstream Channel ID", "docsis_cmstatus.ds_chid",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    {&hf_docsis_cmstatus_status_event_ds_ch_id,
+     {"Downstream Channel ID", "docsis_cmstatus.status_event.ds_chid",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
-    {&hf_docsis_cmstatus_us_ch_id,
-     {"Upstream Channel ID", "docsis_cmstatus.us_chid",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    {&hf_docsis_cmstatus_status_event_us_ch_id,
+     {"Upstream Channel ID", "docsis_cmstatus.status_event.us_chid",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
-    {&hf_docsis_cmstatus_dsid,
-     {"DSID", "docsis_cmstatus.dsid", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    {&hf_docsis_cmstatus_status_event_dsid,
+     {"DSID", "docsis_cmstatus.status_event.dsid", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
     {&hf_docsis_cmstatus_tlv_data,
      {"TLV Data", "docsis_cmstatus.tlv_data", FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL}
@@ -9113,6 +9163,16 @@ proto_register_docsis_mgmt (void)
     {&hf_docsis_cmstatus_length,
      {"Length", "docsis_cmstatus.length",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
+    {&hf_docsis_cmstatus_status_event_tlv_data,
+     {"Status Event TLV Data", "docsis_cmstatus.status_event.tlv_data", FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_cmstatus_status_event_type,
+     {"Status Event Type", "docsis_cmstatus.status_event.type",FT_UINT8, BASE_DEC, VALS(cmstatus_status_event_tlv_vals), 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_cmstatus_status_event_length,
+     {"Status Event Length", "docsis_cmstatus.status_event.length",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    },
+
     /* CM_CTRL_REQ */
     {&hf_docsis_cmctrl_tlv_mute,
      {"Upstream Channel RF Mute", "docsis_cmctrl.mute",
@@ -9649,6 +9709,8 @@ proto_register_docsis_mgmt (void)
     &ett_docsis_cmstatus,
     &ett_docsis_cmstatus_tlv,
     &ett_docsis_cmstatus_tlvtlv,
+    &ett_docsis_cmstatus_status_event_tlv,
+    &ett_docsis_cmstatus_status_event_tlvtlv,
     &ett_docsis_cmstatusack,
     &ett_docsis_cmctrlreq,
     &ett_docsis_cmctrlreq_tlv,
