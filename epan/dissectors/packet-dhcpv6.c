@@ -627,6 +627,7 @@ static const value_string lq_query_vals[] = {
 #define CL_OPTION_RFC868_SERVERS          0x0025 /* 37 */
 #define CL_OPTION_TIME_OFFSET             0x0026 /* 38 */
 #define CL_OPTION_IP_PREF                 0x0027 /* 39 */
+#define CL_OPTION_CCAP_CORES              0x003D /* 61 */
 
 /** CableLabs DOCSIS Project Vendor Specific Options */
 #define CL_OPTION_DOCS_CMTS_CAP 0x0401  /* 1025 */
@@ -660,6 +661,7 @@ static const value_string cl_vendor_subopt_values[] = {
     /*   37 */ { CL_OPTION_RFC868_SERVERS,          "Time Protocol Servers : " },
     /*   38 */ { CL_OPTION_TIME_OFFSET,             "Time Offset = " },
     /*   39 */ { CL_OPTION_IP_PREF,                 "IP preference : " },
+    /*   61 */ { CL_OPTION_CCAP_CORES,              "CCAP-CORES : " },
     /* 1025 */ { CL_OPTION_DOCS_CMTS_CAP,           "CMTS Capabilities Option : " },
     /* 1026 */ { CL_CM_MAC_ADDR,                    "CM MAC Address Option = " },
     /* 1027 */ { CL_EROUTER_CONTAINER_OPTION,       "eRouter Container Option : " },
@@ -763,8 +765,27 @@ static const value_string modem_capabilities_encoding [] = {
     { 40,      "Extended Upstream Transmit Power Capability" },
     { 41,      "Optional 802.1ad, 802.1ah, MPLS Classification Support" },
     { 42,      "D-ONU Capabilities Encoding" },
-    { 43,      "TBD" },
+    { 43,      "Reserved" },
     { 44,      "Energy Management Capabilities" },
+/* Added TLV5.45-62 from CL-SP-CANN-I18-180509 */
+    { 45,      "C-DOCSIS Capability Encoding" },
+    { 46,      "CM-STATUS-ACK" },
+    { 47,      "Energy Management Preferences" },
+    { 48,      "Extended Packet Length Support Capability" },
+    { 49,      "Multiple Receive OFDM Channel Support" },
+    { 50,      "Multiple Transmit OFDMA Channel Support" },
+    { 51,      "Downstream OFDM Profile Support" },
+    { 52,      "Downstream OFDM channel subcarrier QAM modulation support" },
+    { 53,      "Upstream OFDM channel subcarrier QAM modulation support" },
+    { 54,      "Downstream Lower Band Edge Support" },
+    { 55,      "Downstream Upper Band Edge Support" },
+    { 56,      "Upstream Upper Band Edge Support" },
+    { 57,      "DOCSIS Time Protocol Support" },
+    { 58,      "DOCSIS Time Protocol Performance Support" },
+    { 59,      "Pmax" },
+    { 60,      "Diplexer Downstream Lower Band Edge" },
+    { 61,      "Diplexer Downstream Upper Band Edge" },
+    { 62,      "Diplexer Upstream Upper Band Edge" },
     { 0, NULL },
 };
 static value_string_ext modem_capabilities_encoding_ext = VALUE_STRING_EXT_INIT(modem_capabilities_encoding);
@@ -1169,6 +1190,7 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
             case CL_OPTION_TFTP_SERVERS:
             case CL_OPTION_SYSLOG_SERVERS:
             case CL_OPTION_RFC868_SERVERS:
+            case CL_OPTION_CCAP_CORES:
                 field_len = 16;
                 opt_len = tlv_len;
                 subtree = proto_item_add_subtree(ti, ett_dhcpv6_vendor_option);
