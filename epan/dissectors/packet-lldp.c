@@ -370,7 +370,7 @@ static int hf_cisco_upoe_supported = -1;
 static int hf_cisco_upoe_altb_detection = -1;
 static int hf_cisco_upoe_req_spare_pair = -1;
 static int hf_cisco_upoe_pse_spare_pair_oper = -1;
-static int hf_cisco_aci_unknownc9 = -1;
+static int hf_cisco_aci_portstate = -1;
 static int hf_cisco_aci_noderole = -1;
 static int hf_cisco_aci_nodeid = -1;
 static int hf_cisco_aci_unknowncc = -1;
@@ -389,7 +389,7 @@ static int hf_cisco_aci_model = -1;
 static int hf_cisco_aci_nodename = -1;
 static int hf_cisco_aci_unknownd8 = -1;
 static int hf_cisco_aci_unknownd9 = -1;
-static int hf_cisco_aci_unknownda = -1;
+static int hf_cisco_aci_apicmode = -1;
 static int hf_hytec_tlv_subtype = -1;
 static int hf_hytec_group = -1;
 static int hf_hytec_identifier = -1;
@@ -719,27 +719,34 @@ static const value_string cisco_subtypes[] = {
 	/* UPOE: https://www.cisco.com/c/dam/en/us/solutions/collateral/workforce-experience/digital-building/digital-building-partner-guide.pdf */
 	{ 0x01, "4-wire Power-via-MDI (UPOE)" },
 	/* ACI */
-	{ 0xc9, "ACI Unknown-C9" },
-	{ 0xca, "ACI NodeRole(?)" },
-	{ 0xcb, "ACI NodeID" },
+	{ 0xc9, "ACI Port State" },
+	{ 0xca, "ACI Node Role" },
+	{ 0xcb, "ACI Node ID" },
 	{ 0xcc, "ACI Unknown-CC" },
 	{ 0xcd, "ACI Pod" },
 	{ 0xce, "ACI Fabricname" },
-	{ 0xcf, "ACI APIC-List" },
-	{ 0xd0, "ACI NodeIP" },
+	{ 0xcf, "ACI APIC List" },
+	{ 0xd0, "ACI Node IP" },
 	{ 0xd1, "ACI Unknown-D1" },
 	{ 0xd2, "ACI Version" },
 	{ 0xd3, "ACI Fabric VLAN" },
 	{ 0xd4, "ACI SerialNo" },
 	{ 0xd6, "ACI Model" },
-	{ 0xd7, "ACI Nodename" },
+	{ 0xd7, "ACI Node Name" },
 	{ 0xd8, "ACI Unknown-D8" },
-	{ 0xd9, "ACI Unknown-D9" },
-	{ 0xda, "ACI Unknown-DA" },
+	{ 0xd9, "ACI Unknown D9" },
+	{ 0xda, "ACI APIC-Mode" },
+	{ 0xdb, "ACI Unknown-DB" },
 	{ 0, NULL }
 };
 
 static const true_false_string tfs_desired_not_desired = { "Desired", "Not Desired" };
+
+static const value_string cisco_portstate_vals[] = {
+	{ 1,	"In Service" },
+	{ 2,	"Out of Service" },
+	{ 0, NULL }
+};
 
 /* Guessing here, the output of apic show commands only has leaf and spine, and
    those values are leaf=2, spine=3 (off by 1) */
@@ -747,6 +754,13 @@ static const value_string cisco_noderole_vals[] = {
 	{ 0,	"APIC" },
 	{ 1,	"Leaf" },
 	{ 2,	"Spine" },
+	{ 3,	"Unknown" },
+	{ 0, NULL }
+};
+
+static const value_string cisco_apicmode_vals[] = {
+	{ 0,	"Active" },
+	{ 1,	"Standby" },
 	{ 0, NULL }
 };
 
@@ -3458,7 +3472,7 @@ dissect_cisco_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		break;
 	/* ACI */
 	case 0xc9:
-		tf = proto_tree_add_item(tree, hf_cisco_aci_unknownc9, tvb, offset, length, ENC_NA);
+		tf = proto_tree_add_item(tree, hf_cisco_aci_portstate, tvb, offset, length, ENC_NA);
 		fi = PITEM_FINFO(tf);
 		value_str = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, fi->hfinfo->display);
 		proto_item_append_text(parent_item, ": %s", value_str);
@@ -3595,7 +3609,7 @@ dissect_cisco_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		length -= length;
 		break;
 	case 0xda:
-		tf = proto_tree_add_item(tree, hf_cisco_aci_unknownda, tvb, offset, length, ENC_NA);
+		tf = proto_tree_add_item(tree, hf_cisco_aci_apicmode, tvb, offset, length, ENC_NA);
 		fi = PITEM_FINFO(tf);
 		value_str = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, fi->hfinfo->display);
 		proto_item_append_text(parent_item, ": %s", value_str);
@@ -5634,12 +5648,12 @@ proto_register_lldp(void)
 			{ "PSE Spare Pair PoE", "lldp.cisco.upoe.pse_altb_oper", FT_BOOLEAN, 8,
 			TFS(&tfs_enabled_disabled), 0x08, "PSE ALT-B Pair Operational State", HFILL }
 		},
-		{ &hf_cisco_aci_unknownc9,
-			{ "Unknown 0xC9", "lldp.cisco.unknownc9", FT_BYTES, BASE_NONE,
-			NULL, 0x0, NULL, HFILL }
+		{ &hf_cisco_aci_portstate,
+			{ "Port State", "lldp.cisco.portstate", FT_UINT8, BASE_NONE,
+			VALS(cisco_portstate_vals), 0x0, NULL, HFILL }
 		},
 		{ &hf_cisco_aci_noderole,
-			{ "Node Role (?)", "lldp.cisco.noderole", FT_UINT8, BASE_DEC,
+			{ "Node Role", "lldp.cisco.noderole", FT_UINT8, BASE_DEC,
 			VALS(cisco_noderole_vals), 0x0, NULL, HFILL }
 		},
 		{ &hf_cisco_aci_nodeid,
@@ -5711,9 +5725,9 @@ proto_register_lldp(void)
 			{ "Unknown 0xD9", "lldp.cisco.unknownd9", FT_BYTES, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }
 		},
-		{ &hf_cisco_aci_unknownda,
-			{ "Unknown 0xDA", "lldp.cisco.unknownda", FT_BYTES, BASE_NONE,
-			NULL, 0x0, NULL, HFILL }
+		{ &hf_cisco_aci_apicmode,
+			{ "APIC Mode", "lldp.cisco.apicmode", FT_UINT8, BASE_NONE,
+			VALS(cisco_apicmode_vals), 0x0, NULL, HFILL }
 		},
 		{ &hf_hytec_tlv_subtype,
 			{ "Hytec Subtype",	"lldp.hytec.tlv_subtype", FT_UINT8, BASE_DEC,
