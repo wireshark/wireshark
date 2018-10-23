@@ -2250,10 +2250,10 @@ static void dissect_data_security_service( tvbuff_t* tvb, packet_info* pinfo, pr
 
     node = proto_tree_add_item( cemi_list, hf_cemi_scf, tvb, offset, 1, ENC_BIG_ENDIAN );
     list = proto_item_add_subtree( node, ett_cemi_scf );
-    node = proto_tree_add_item( list, hf_cemi_scf_t, tvb, offset, 1, ENC_BIG_ENDIAN );
-    node = proto_tree_add_item( list, hf_cemi_scf_sai, tvb, offset, 1, ENC_BIG_ENDIAN );
-    node = proto_tree_add_item( list, hf_cemi_scf_sbc, tvb, offset, 1, ENC_BIG_ENDIAN );
-    node = proto_tree_add_item( list, hf_cemi_scf_svc, tvb, offset, 1, ENC_BIG_ENDIAN );
+    proto_tree_add_item( list, hf_cemi_scf_t, tvb, offset, 1, ENC_BIG_ENDIAN );
+    proto_tree_add_item( list, hf_cemi_scf_sai, tvb, offset, 1, ENC_BIG_ENDIAN );
+    proto_tree_add_item( list, hf_cemi_scf_sbc, tvb, offset, 1, ENC_BIG_ENDIAN );
+    proto_tree_add_item( list, hf_cemi_scf_svc, tvb, offset, 1, ENC_BIG_ENDIAN );
 
     ++offset;
 
@@ -2386,8 +2386,8 @@ static void dissect_data_security_service( tvbuff_t* tvb, packet_info* pinfo, pr
           proto_item_append_text( item, " (%s)", info.output_text );
         }
 
-        node = proto_tree_add_data( tree, tvb2, 0, size2, NULL, NULL, "Embedded APDU", NULL, NULL );
-        node = proto_tree_add_data( tree, tvb2, size2, 4, NULL, NULL, "Message Authentication Code", NULL, NULL );
+        proto_tree_add_data( tree, tvb2, 0, size2, NULL, NULL, "Embedded APDU", NULL, NULL );
+        proto_tree_add_data( tree, tvb2, size2, 4, NULL, NULL, "Message Authentication Code", NULL, NULL );
 
         /* Dissect embedded APDU */
         {
@@ -2732,7 +2732,7 @@ static void dissect_simple_app_service( tvbuff_t* tvb, packet_info* pinfo, proto
         col_append_fstr( cinfo, COL_INFO, " N=%u", c );
         proto_item_append_text( cemi_node, ", N=%u", c );
       }
-      node = proto_tree_add_item( cemi_list, hf_cemi_adc_count, tvb, offset, 1, ENC_BIG_ENDIAN );
+      proto_tree_add_item( cemi_list, hf_cemi_adc_count, tvb, offset, 1, ENC_BIG_ENDIAN );
     }
     break;
 
