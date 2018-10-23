@@ -4571,7 +4571,7 @@ static void dissect_pfcp_user_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     }
 
     /* Bit 3 - MSIDNF: If this bit is set to "1", then the Length of MSISDN and MSISDN fields shall be present */
-    if ((flags_val & 0x2) == 2) {
+    if ((flags_val & 0x4) == 4) {
         /* d   Length of MSISDN */
         proto_tree_add_item_ret_uint(tree, hf_pfcp_user_id_length_of_msisdn, tvb, offset, 1, ENC_BIG_ENDIAN, &length_msisdn);
         offset += 1;
@@ -4581,7 +4581,7 @@ static void dissect_pfcp_user_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     }
 
     /* Bit 4 - NAIF: If this bit is set to "1", then the Length of NAI and NAI fields shall be present */
-    if ((flags_val & 0x2) == 2) {
+    if ((flags_val & 0x8) == 8) {
         /* f   Length of NAI */
         proto_tree_add_item_ret_uint(tree, hf_pfcp_user_id_length_of_nai, tvb, offset, 1, ENC_BIG_ENDIAN, &length_nai);
         offset += 1;
