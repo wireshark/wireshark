@@ -2425,8 +2425,8 @@ static int dissect_mac_nr(tvbuff_t *tvb, packet_info *pinfo,
     }
 
     /* Harqid */
-    ti = proto_tree_add_boolean(context_tree, hf_mac_nr_context_harqid,
-                                tvb, 0, 0, p_mac_nr_info->harqid);
+    ti = proto_tree_add_uint(context_tree, hf_mac_nr_context_harqid,
+                             tvb, 0, 0, p_mac_nr_info->harqid);
     PROTO_ITEM_SET_GENERATED(ti);
 
     /* Type 2 other */
@@ -2645,7 +2645,7 @@ void proto_register_mac_nr(void)
         },
         { &hf_mac_nr_context_harqid,
             { "HarqId",
-              "mac-nr.harqid", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+              "mac-nr.harqid", FT_UINT8, BASE_DEC, NULL, 0x0,
               "HARQ Identifier", HFILL
             }
         },
