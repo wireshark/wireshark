@@ -1691,6 +1691,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-spray.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-sprt.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-srp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-srt.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-srvloc.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-sscf-nni.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-sscop.c

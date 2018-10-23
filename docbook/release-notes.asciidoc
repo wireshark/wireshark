@@ -96,6 +96,7 @@ PROXY (v2) protocol
 Ruby Distributed protocol
 Ruby Marshal format
 S101 Lawo Emberplus transport frame
+Secure Reliable Transport protocol
 STCSIG (Spirent Test Center Signature decoding for Ethernet and FibreChannel, disabled by default)
 systemd Journal Export
 TeamSpeak 3 DNS
