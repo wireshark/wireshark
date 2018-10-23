@@ -537,15 +537,15 @@ dissect_wisun_netricity_lqiie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     switch (lqi) {
         case 0:
             // "-10 dB or lower (0x00)" [IEEE1901.2-2013]
-            proto_tree_add_uint_format_value(tree, hf_wisun_netricity_lqiie_lqi, tvb, offset, 1, lqi, "-10 dB or lower");
+            proto_tree_add_uint_format_value(tree, hf_wisun_netricity_lqiie_lqi, tvb, offset, 1, lqi, "0 (SNR -10 dB or lower)");
             break;
-        case 0xff:
+        case 255:
             // "A value of 255 MUST be used to indicate 'not measured'" [NTPS 1v04]
-            proto_tree_add_uint_format_value(tree, hf_wisun_netricity_lqiie_lqi, tvb, offset, 1, lqi, "not measured");
+            proto_tree_add_uint_format_value(tree, hf_wisun_netricity_lqiie_lqi, tvb, offset, 1, lqi, "255 (not measured)");
             break;
         default:
             // "where the value of -9.75 dB is represented as 0x01 and the value of 52.75 dB is represented as 0xFE" [IEEE1901.2-2013]
-            proto_tree_add_uint_format_value(tree, hf_wisun_netricity_lqiie_lqi, tvb, offset, 1, lqi, "%1.2f dB",
+            proto_tree_add_uint_format_value(tree, hf_wisun_netricity_lqiie_lqi, tvb, offset, 1, lqi, "%d (SNR %1.2f dB)", lqi,
                                              (lqi-1) * (52.75+9.75) / (0xfe - 0x01) - 9.75);
     }
     return 1;
