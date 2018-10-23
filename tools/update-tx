@@ -22,7 +22,7 @@ for i in ui/qt/*.ts ; do
 done
 
 # Get last translation for Transifex
-tx pull -f
+#tx pull -f
 
 # Regenerate last translation for repo
 for i in ui/qt/*.ts ; do
