@@ -6581,7 +6581,7 @@ dissect_isup_generic_name_parameter(tvbuff_t *parameter_tvb, proto_tree *paramet
 
   gen_name = tvb_get_string_enc(wmem_packet_scope(), parameter_tvb, 1, gen_name_length, ENC_ASCII);
   gen_name[gen_name_length] = '\0';
-  proto_tree_add_string(parameter_tree, hf_isup_generic_name_ia5, parameter_tvb, 2, gen_name_length, gen_name);
+  proto_tree_add_string(parameter_tree, hf_isup_generic_name_ia5, parameter_tvb, 1, gen_name_length, gen_name);
   proto_item_append_text(parameter_item, " : %s", gen_name);
 
   }
