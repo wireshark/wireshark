@@ -1,0 +1,14 @@
+Z39-50-OCLC-UserInformation
+{z39-50-userInformation local (1000) oclc (17) oclc-1 (1)} DEFINITIONS ::=
+
+BEGIN
+OCLC-UserInformation ::= SEQUENCE {
+        motd        [1] IMPLICIT VisibleString OPTIONAL, 
+            dblist      SEQUENCE OF DBName OPTIONAL, 
+            failReason  [3] IMPLICIT BOOLEAN OPTIONAL,
+          text        [2] IMPLICIT VisibleString OPTIONAL
+ }
+
+DBName ::= [2] IMPLICIT VisibleString
+END
+

@@ -128,6 +128,7 @@ set(ASN1_SRC_DIRS
 	x509if
 	x509sat
 	xnap
+	z3950
 	${CUSTOM_ASN1_SRC_DIR}
 )
 

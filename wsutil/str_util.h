@@ -77,7 +77,7 @@ gboolean isprint_utf8_string(const gchar *string, guint length);
  * @return       TRUE if the entire string is digits, otherwise FALSE
  */
 WS_DLL_PUBLIC
-gboolean isdigit_string(guchar *string);
+gboolean isdigit_string(const guchar *string);
 
 WS_DLL_PUBLIC
 int ws_xton(char ch);

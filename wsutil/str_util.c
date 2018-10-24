@@ -101,7 +101,7 @@ isprint_utf8_string(const gchar *str, guint length)
 
 /* Check if an entire string is digits. */
 gboolean
-isdigit_string(guchar *str)
+isdigit_string(const guchar *str)
 {
 	guint pos;
 

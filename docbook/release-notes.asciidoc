@@ -130,6 +130,7 @@ TPM 2.0
 Ubiquiti Discovery Protocol (UBDP)
 WireGuard
 XnAP (5G)
+Z39.50 Information Retrieval Protocol
 PCOM protocol
 --
 
