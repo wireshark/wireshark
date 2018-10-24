@@ -658,37 +658,19 @@ dissect_rtp_hdr_ext_ed137(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     nstime.nsecs = (usecs % 1000000) / 1000;
 
 /* Decodes and calculates relative/absolute time item */
-static void process_time_value(tvbuff_t *tvb, proto_tree *tree, int time_item, unsigned int hdrext_offset, gboolean time_relative, unsigned int time_value)
+static void process_time_value(tvbuff_t *tvb, proto_tree *tree, int time_item, unsigned int hdrext_offset, gboolean time_relative _U_, unsigned int time_value)
 {
-    /* Note: even there is relative/absolute flag, value is shown same way */
-    if (time_relative) {
-        /* Value is based on free running internal source */
-        unsigned int time_calc;
-        nstime_t tmp_time;
-        gchar *tmp;
+    /* Note: even there is relative/absolute flag, value is shown same way because it is relative value derived from relative/absolute start point */
+    unsigned int time_calc;
+    nstime_t tmp_time;
+    gchar *tmp;
 
-        /* Value is stored as count of 125 us ticks */
-        time_calc = time_value * 125;
-        NSTIME_INIT_USEC(tmp_time, time_calc);
-        tmp = rel_time_to_secs_str(NULL, &tmp_time);
+    /* Value is stored as count of 125 us ticks */
+    time_calc = time_value * 125;
+    NSTIME_INIT_USEC(tmp_time, time_calc);
+    tmp = rel_time_to_secs_str(wmem_packet_scope(), &tmp_time);
 
-        proto_tree_add_uint_format_value( tree, time_item, tvb, hdrext_offset, 3, time_value, "%s s", tmp);
-
-        wmem_free(NULL, tmp);
-    }
-    else {
-        /* Value is based on NTP */
-        unsigned int time_calc;
-        nstime_t tmp_time;
-        gchar *tmp;
-
-        /* Value is stored as count of 125 us ticks */
-        time_calc = time_value * 125;
-        NSTIME_INIT_USEC(tmp_time, time_calc);
-        tmp = rel_time_to_secs_str(NULL, &tmp_time);
-
-        proto_tree_add_uint_format_value( tree, time_item, tvb, hdrext_offset, 3, time_value, "%s s", tmp);
-    }
+    proto_tree_add_uint_format_value( tree, time_item, tvb, hdrext_offset, 3, time_value, "%s s", tmp);
 }
 
 /* Decodes and calculates value based on 125us tick*/
