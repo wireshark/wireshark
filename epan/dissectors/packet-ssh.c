@@ -837,7 +837,7 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
     offset +=len;
 
     /* padding */
-    proto_tree_add_item(key_ex_tree, hf_ssh_padding_string, tvb, offset, padding_length, ENC_NA);
+    proto_tree_add_item(tree, hf_ssh_padding_string, tvb, offset, padding_length, ENC_NA);
     offset+= padding_length;
 
     return offset;
