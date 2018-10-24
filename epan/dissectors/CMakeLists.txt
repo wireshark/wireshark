@@ -237,7 +237,6 @@ set(NCP2222_DISSECTOR_SRC
 source_group(dissectors-ncp2222 FILES ${NCP2222_DISSECTOR_SRC})
 
 set(DISSECTOR_PUBLIC_HEADERS
-	dissectors.h
 	file-rbm.h
 	packet-6lowpan.h
 	packet-a21.h
