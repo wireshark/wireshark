@@ -153,6 +153,7 @@ static int hf_ssh_kex_reserved = -1;
 
 /* Key exchange common elements */
 static int hf_ssh_hostkey_length = -1;
+static int hf_ssh_hostkey_type_length = -1;
 static int hf_ssh_hostkey_type = -1;
 static int hf_ssh_hostkey_data = -1;
 static int hf_ssh_hostkey_rsa_n = -1;
@@ -675,6 +676,7 @@ ssh_tree_add_hostkey(tvbuff_t *tvb, int offset, proto_tree *parent_tree, const c
                                   tree_title);
 
     proto_tree_add_uint(tree, hf_ssh_hostkey_length, tvb, last_offset, 4, key_len);
+    proto_tree_add_uint(tree, hf_ssh_hostkey_type_length, tvb, last_offset +4, 4, type_len);
     proto_tree_add_string(tree, hf_ssh_hostkey_type, tvb, offset, type_len, key_type);
     offset += type_len;
 
@@ -1433,6 +1435,11 @@ proto_register_ssh(void)
 
         { &hf_ssh_hostkey_length,
           { "Host key length",         "ssh.host_key.length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_hostkey_type_length,
+          { "Host key type length",         "ssh.host_key.type_length",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
