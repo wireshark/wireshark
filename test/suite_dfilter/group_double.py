@@ -6,63 +6,62 @@ import unittest
 
 from suite_dfilter import dfiltertest
 
-@unittest.skip("Need to find a replacement to NTP for those tests")
 class case_double(dfiltertest.DFTestCase):
 
-    trace_file = "ntp.pcap"
+    trace_file = "icmp.pcapng.gz"
 
     def test_eq_1(self):
-        dfilter = "ntp.rootdelay == 0.0626983642578125"
+        dfilter = "icmp.resptime == 492.204"
         self.assertDFilterCount(dfilter, 1)
 
     def test_eq_2(self):
-        dfilter = "ntp.rootdelay == 0.0626"
+        dfilter = "icmp.resptime == 492.205"
         self.assertDFilterCount(dfilter, 0)
 
     def test_gt_1(self):
-        dfilter = "ntp.rootdelay > 1.0626"
-        self.assertDFilterCount(dfilter, 0)
-
-    def test_gt_2(self):
-        dfilter = "ntp.rootdelay >  0.0626983642578125"
-        self.assertDFilterCount(dfilter, 0)
-
-    def test_gt_3(self):
-        dfilter = "ntp.rootdelay >  0.0026"
+        dfilter = "icmp.resptime > 492"
         self.assertDFilterCount(dfilter, 1)
 
+    def test_gt_2(self):
+        dfilter = "icmp.resptime > 492.203"
+        self.assertDFilterCount(dfilter, 1)
+
+    def test_gt_3(self):
+        dfilter = "icmp.resptime > 493"
+        self.assertDFilterCount(dfilter, 0)
+
     def test_ge_1(self):
-        dfilter = "ntp.rootdelay >= 1.0026"
+        dfilter = "icmp.resptime >= 493"
         self.assertDFilterCount(dfilter, 0)
 
     def test_ge_2(self):
-        dfilter = "ntp.rootdelay >=  0.0626983642578125"
+        dfilter = "icmp.resptime >= 492"
         self.assertDFilterCount(dfilter, 1)
 
     def test_ge_3(self):
-        dfilter = "ntp.rootdelay >=  0.0026"
+        dfilter = "icmp.resptime >= 492.204"
         self.assertDFilterCount(dfilter, 1)
 
     def test_lt_1(self):
-        dfilter = "ntp.rootdelay < 1.0026"
+        dfilter = "icmp.resptime < 493"
         self.assertDFilterCount(dfilter, 1)
 
     def test_lt_2(self):
-        dfilter = "ntp.rootdelay <  0.0626983642578125"
+        dfilter = "icmp.resptime < 492"
         self.assertDFilterCount(dfilter, 0)
 
     def test_lt_3(self):
-        dfilter = "ntp.rootdelay <  0.0026"
+        dfilter = "icmp.resptime < 492.204"
         self.assertDFilterCount(dfilter, 0)
 
     def test_le_1(self):
-        dfilter = "ntp.rootdelay <= 1.0026"
+        dfilter = "icmp.resptime <= 492.204"
         self.assertDFilterCount(dfilter, 1)
 
     def test_le_2(self):
-        dfilter = "ntp.rootdelay <=  0.0626983642578125"
+        dfilter = "icmp.resptime <= 493"
         self.assertDFilterCount(dfilter, 1)
 
     def test_le_3(self):
-        dfilter = "ntp.rootdelay <=  0.0026"
+        dfilter = "icmp.resptime <= 492"
         self.assertDFilterCount(dfilter, 0)
