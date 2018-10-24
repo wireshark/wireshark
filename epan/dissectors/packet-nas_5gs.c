@@ -9,7 +9,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 24.501 2.0.0
+ * References: 3GPP TS 24.501 15.1.0
  */
 
 #include "config.h"
@@ -206,10 +206,17 @@ static int hf_nas_5gs_sm_param_len = -1;
 static int hf_nas_5gs_sm_qos_rule_precedence = -1;
 static int hf_nas_5gs_sm_pal_cont = -1;
 static int hf_nas_5gs_sm_qfi = -1;
+static int hf_nas_5gs_sm_mapd_eps_b_cont_id = -1;
+static int hf_nas_5gs_sm_mapd_eps_b_cont_opt_code = -1;
+static int hf_nas_5gs_sm_mapd_eps_b_cont_DEB = -1;
+static int hf_nas_5gs_sm_mapd_eps_b_cont_E = -1;
+static int hf_nas_5gs_sm_mapd_eps_b_cont_num_eps_parms = -1;
+static int hf_nas_5gs_sm_mapd_eps_b_cont_E_mod = -1;
+static int hf_nas_5gs_sm_mapd_eps_b_cont_param_id = -1;
 
-static int nas_5gs_sm_unit_for_session_ambr_dl = -1;
+static int hf_nas_5gs_sm_unit_for_session_ambr_dl = -1;
 static int hf_nas_5gs_sm_session_ambr_dl = -1;
-static int nas_5gs_sm_unit_for_session_ambr_ul = -1;
+static int hf_nas_5gs_sm_unit_for_session_ambr_ul = -1;
 static int hf_nas_5gs_sm_session_ambr_ul = -1;
 static int hf_nas_5gs_sm_all_ssc_mode_b0 = -1;
 static int hf_nas_5gs_sm_all_ssc_mode_b1 = -1;
@@ -224,6 +231,8 @@ static int ett_nas_5gs_plain = -1;
 static int ett_nas_5gs_sec = -1;
 static int ett_nas_5gs_mm_part_sal = -1;
 static int ett_nas_5gs_mm_part_tal = -1;
+static int ett_nas_5gs_sm_mapd_eps_b_cont = -1;
+static int ett_nas_5gs_sm_mapd_eps_b_cont_params_list = -1;
 
 static int hf_nas_5gs_mm_suci = -1;
 static int hf_nas_5gs_mm_imei = -1;
@@ -245,6 +254,7 @@ static int hf_nas_5gs_tac = -1;
 
 static int hf_nas_5gs_mm_tal_t_li = -1;
 static int hf_nas_5gs_mm_tal_num_e = -1;
+static int hf_nas_5gs_sm_mapd_eps_b_cont_eps_param_cont = -1;
 
 static expert_field ei_nas_5gs_extraneous_data = EI_INIT;
 static expert_field ei_nas_5gs_unknown_pd = EI_INIT;
@@ -1641,8 +1651,7 @@ de_nas_5gs_mm_ue_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         NULL
     };
 
-    /* 0 Spare    0 Spare    0 Spare    0 Spare    0 Spare    0 Spare    0 Spare    S1 mode reg
-*/
+    /* 0 Spare    0 Spare    0 Spare    0 Spare    0 Spare    0 Spare    0 Spare    S1 mode reg */
     proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags, ENC_BIG_ENDIAN);
 
     return 1;
@@ -1701,11 +1710,11 @@ de_nas_5gs_mm_ul_data_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
 }
 
 /*
- * 9.10.4    5GS session management (5GSM) information elements
+ * 9.11.4    5GS session management (5GSM) information elements
  */
 
  /*
- *       9.10.4.1    5GSM capability
+ *       9.11.4.1    5GSM capability
  */
 
 static guint16
@@ -1733,7 +1742,7 @@ de_nas_5gs_sm_5gsm_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 }
 
 /*
- *     9.10.4.1    5GSM cause
+ *     9.11.4.2    5GSM cause
  */
 
 static const value_string nas_5gs_sm_cause_vals[] = {
@@ -1781,7 +1790,15 @@ de_nas_5gs_sm_5gsm_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 }
 
 /*
- * 9.10.4.3    Allowed SSC mode
+ * 9.11.4.3 Always-on PDU session indication
+ */
+
+/*
+ * 9.11.4.4 Always-on PDU session requested
+ */
+
+/*
+ * 9.11.4.5    Allowed SSC mode
  */
 
 static guint16
@@ -1805,26 +1822,173 @@ de_nas_5gs_sm_5gsm_allowed_ssc_mode(tvbuff_t *tvb, proto_tree *tree, packet_info
 }
 
 /*
- *     9.10.4.4    Extended protocol configuration options
+ *     9.11.4.6    Extended protocol configuration options
  */
 /* See subclause 10.5.6.3A in 3GPP TS 24.008 */
 
 /*
- *     9.10.4.5    Mapped EPS bearer contexts
+ * 9.11.4.7 Integrity protection maximum data rate
  */
+
+/*
+ *     9.11.4.8 Mapped EPS bearer contexts
+ */
+static const value_string nas_5gs_sm_mapd_eps_b_cont_opt_code_vals[] = {
+    { 0x0,  "Reserved" },
+    { 0x01, "Create new EPS bearer" },
+    { 0x02, "Delete existing EPS bearer" },
+    { 0x03, "Modify existing EPS bearer" },
+    { 0,    NULL }
+};
+
+static const value_string nas_5gs_sm_mapd_eps_b_cont_DEB_vals[] = {
+    { 0x0,  "the EPS bearer is not the default EPS bearer." },
+    { 0x01, "the EPS bearer is the default EPS bearer" },
+    { 0,    NULL }
+};
+
+static const value_string nas_5gs_sm_mapd_eps_b_cont_E_vals[] = {
+    { 0x0,  "parameters list is not included" },
+    { 0x01, "parameters list is included" },
+    { 0,    NULL }
+};
+
+static const value_string nas_5gs_sm_mapd_eps_b_cont_E_Modify_vals[] = {
+    { 0x0,  "previously provided parameters list extension" },
+    { 0x01, "previously provided parameters list replacement" },
+    { 0,    NULL }
+};
+
+static const value_string nas_5gs_sm_mapd_eps_b_cont_param_id_vals[] = {
+    { 0x01, "Mapped EPS QoS parameters" },
+    { 0x02, "Mapped extended EPS QoS parameters" },
+    { 0x03, "Traffic flow template" },
+    { 0x04, "APN-AMBR" },
+    { 0x05, "extended APN-AMBR" },
+    { 0,    NULL }
+};
 
 static guint16
 de_nas_5gs_sm_mapped_eps_b_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     guint32 offset, guint len,
     gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+
+    guint32 curr_offset;
+    proto_tree * sub_tree, *sub_tree1;
+    guint32 num_cont, length, opt_code, num_eps_parms, param_id;
+    proto_item * item;
+    guint i, curr_len;
+
+    curr_len = len;
+    curr_offset = offset;
+    num_cont = 1;
+
+    static const int * mapd_eps_b_cont_flags[] = {
+        &hf_nas_5gs_sm_mapd_eps_b_cont_opt_code,
+        &hf_nas_5gs_sm_mapd_eps_b_cont_DEB,
+        &hf_nas_5gs_sm_mapd_eps_b_cont_E,
+        &hf_nas_5gs_sm_mapd_eps_b_cont_num_eps_parms,
+        NULL
+     };
+
+    static const int * mapd_eps_b_cont_flags_modify[] = {
+        &hf_nas_5gs_sm_mapd_eps_b_cont_opt_code,
+        &hf_nas_5gs_sm_mapd_eps_b_cont_DEB,
+        &hf_nas_5gs_sm_mapd_eps_b_cont_E_mod,
+        &hf_nas_5gs_sm_mapd_eps_b_cont_num_eps_parms,
+        NULL
+    };
+
+    /* The IE contains a number of Mapped EPS bearer context */
+    while ((curr_offset - offset) < len) {
+        /* Figure 9.10.4.5.2: Mapped EPS bearer context */
+        sub_tree = proto_tree_add_subtree_format(tree, tvb, curr_offset, -1, ett_nas_5gs_sm_mapd_eps_b_cont, &item,
+            "Mapped EPS bearer context %u", num_cont);
+
+        /* EPS bearer identity */
+        proto_tree_add_item(sub_tree, hf_nas_5gs_sm_mapd_eps_b_cont_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+        curr_offset++;
+        curr_len--;
+
+        /* Length of Mapped EPS bearer context*/
+        proto_tree_add_item_ret_uint(sub_tree, hf_nas_5gs_sm_length, tvb, curr_offset, 2, ENC_BIG_ENDIAN, &length);
+        curr_offset += 2;
+        curr_len -= 2;
+
+        /*     8   7      6    5   4  3  2  1          */
+        /* operation code | DEB |  E | number of EPS params     */
+        proto_item_set_len(item, length + 3);
+
+        num_eps_parms = tvb_get_guint8(tvb, curr_offset);
+
+        opt_code = num_eps_parms & 0xc0;
+        num_eps_parms = num_eps_parms & 0x0f;
+
+        /* operation code = 3 Modify existing EPS bearer */
+        if (opt_code == 3) {
+            proto_tree_add_bitmask_list(sub_tree, tvb, curr_offset, 1, mapd_eps_b_cont_flags_modify, ENC_BIG_ENDIAN);
+
+        } else {
+            proto_tree_add_bitmask_list(sub_tree, tvb, curr_offset, 1, mapd_eps_b_cont_flags, ENC_BIG_ENDIAN);
+
+        }
+        curr_offset++;
+        curr_len--;
+        i = 1;
+
+        /* EPS parameters list */
+        while (num_eps_parms > 0) {
+
+            sub_tree1 = proto_tree_add_subtree_format(sub_tree, tvb, curr_offset, -1, ett_nas_5gs_sm_mapd_eps_b_cont_params_list, &item,
+                "EPS parameter %u", i);
+
+            /* EPS parameter identifier */
+            proto_tree_add_item_ret_uint(sub_tree1, hf_nas_5gs_sm_mapd_eps_b_cont_param_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &param_id);
+            curr_offset++;
+            curr_len--;
+
+            /*length of the EPS parameter contents field */
+            proto_tree_add_item_ret_uint(sub_tree1, hf_nas_5gs_sm_length, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &length);
+            curr_offset++;
+            curr_len--;
+
+            proto_item_set_len(item, length + 3);
+            /*content of the EPS parameter contents field */
+            switch (param_id) {
+            case 1:
+                /* 01H (Mapped EPS QoS parameters) */
+                de_esm_qos(tvb, sub_tree1, pinfo, curr_offset, length, NULL, 0);
+                break;
+
+                /* 02H (Mapped extended EPS QoS parameters) */
+                /* 03H (Traffic flow template)*/
+            case 3:
+                de_sm_tflow_temp(tvb, sub_tree1, pinfo, curr_offset, length, NULL, 0);
+                break;
+                /* 04H (APN-AMBR) */
+                /* 05H (extended APN-AMBR). */
+            default:
+                proto_tree_add_item(sub_tree1, hf_nas_5gs_sm_mapd_eps_b_cont_eps_param_cont, tvb, curr_offset, length, ENC_NA);
+                break;
+            }
+            curr_offset +=length;
+            curr_len -= length;
+            i++;
+            num_eps_parms--;
+
+        }
+
+        num_cont++;
+    }
 
     return len;
+
+
 }
 
 /*
- *     9.10.4.6    Maximum number of supported packet filters
+ *     9.11.4.9    Maximum number of supported packet filters
  */
 static guint16
 de_nas_5gs_sm_max_num_sup_pkt_flt(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
@@ -1837,7 +2001,7 @@ de_nas_5gs_sm_max_num_sup_pkt_flt(tvbuff_t *tvb, proto_tree *tree, packet_info *
 }
 
 /*
- *     9.10.4.7    PDU address
+ *     9.11.4.10    PDU address
  */
 
 static const value_string nas_5gs_sm_pdu_ses_type_vals[] = {
@@ -2226,7 +2390,7 @@ de_nas_5gs_sm_session_ambr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     const char *unit_str;
 
     /* Unit for Session-AMBR for downlink */
-    proto_tree_add_item_ret_uint(tree, nas_5gs_sm_unit_for_session_ambr_dl, tvb, offset, 1, ENC_BIG_ENDIAN, &unit);
+    proto_tree_add_item_ret_uint(tree, hf_nas_5gs_sm_unit_for_session_ambr_dl, tvb, offset, 1, ENC_BIG_ENDIAN, &unit);
     offset++;
 
     /* Session-AMBR for downlink (octets 4 and 5) */
@@ -2236,7 +2400,7 @@ de_nas_5gs_sm_session_ambr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
         ambr_val, "%u %s (%u)", ambr_val * mult, unit_str, ambr_val);
     offset += 2;
 
-    proto_tree_add_item_ret_uint(tree, nas_5gs_sm_unit_for_session_ambr_ul, tvb, offset, 1, ENC_NA, &unit);
+    proto_tree_add_item_ret_uint(tree, hf_nas_5gs_sm_unit_for_session_ambr_ul, tvb, offset, 1, ENC_NA, &unit);
     offset++;
     mult = get_ext_ambr_unit(unit, &unit_str);
     ambr_val = tvb_get_ntohs(tvb, offset);
@@ -5115,19 +5279,54 @@ proto_register_nas_5gs(void)
             FT_UINT8, BASE_DEC, NULL, 0x3f,
             NULL, HFILL }
         },
-        { &nas_5gs_sm_unit_for_session_ambr_dl,
-        { "Unit for Session-AMBR for downlink",   "nas_5gs.sm.unit_for_session_ambr_dl",
+        { &hf_nas_5gs_sm_mapd_eps_b_cont_id,
+        { "EPS bearer identity",   "nas_5gs.sm.mapd_eps_b_cont_id",
+            FT_UINT8, BASE_DEC, NULL, 0xf0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_mapd_eps_b_cont_opt_code,
+        { "Operation code",   "nas_5gs.sm.mapd_eps_b_cont_opt_code",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_sm_mapd_eps_b_cont_opt_code_vals), 0xc0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_mapd_eps_b_cont_DEB,
+        { "DEB bit",   "nas_5gs.sm.mapd_eps_b_cont_DEB",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_sm_mapd_eps_b_cont_DEB_vals), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_mapd_eps_b_cont_E,
+        { "E bit",   "nas_5gs.sm.mapd_eps_b_cont_E",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_sm_mapd_eps_b_cont_E_vals), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_mapd_eps_b_cont_E_mod,
+        { "E bit",   "nas_5gs.sm.mapd_eps_b_cont_E_mod",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_sm_mapd_eps_b_cont_E_Modify_vals), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_mapd_eps_b_cont_num_eps_parms,
+        { "Number of EPS parameters",   "nas_5gs.sm.mapd_eps_b_cont_num_eps_parms",
+            FT_UINT8, BASE_DEC, NULL, 0x0f,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_mapd_eps_b_cont_param_id,
+        { "EPS parameter identity",   "nas_5gs.sm.mapd_eps_b_cont_param_id",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_sm_mapd_eps_b_cont_param_id_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_unit_for_session_ambr_dl,
+         { "Unit for Session-AMBR for downlink",   "nas_5gs.sm.unit_for_session_ambr_dl",
+             FT_UINT8, BASE_DEC, VALS(nas_5gs_sm_unit_for_session_ambr_values), 0x0,
+             NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_unit_for_session_ambr_ul,
+        { "Unit for Session-AMBR for uplink",   "nas_5gs.sm.unit_for_session_ambr_ul",
             FT_UINT8, BASE_DEC, VALS(nas_5gs_sm_unit_for_session_ambr_values), 0x0,
             NULL, HFILL }
         },
         { &hf_nas_5gs_sm_session_ambr_dl,
         { "Session-AMBR for downlink",   "nas_5gs.sm.session_ambr_dl",
             FT_UINT16, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }
-        },
-        { &nas_5gs_sm_unit_for_session_ambr_ul,
-        { "Unit for Session-AMBR for uplink",   "nas_5gs.sm.unit_for_session_ambr_ul",
-            FT_UINT8, BASE_DEC, VALS(nas_5gs_sm_unit_for_session_ambr_values), 0x0,
             NULL, HFILL }
         },
         { &hf_nas_5gs_sm_session_ambr_ul,
@@ -5235,13 +5434,18 @@ proto_register_nas_5gs(void)
             FT_UINT8, BASE_DEC, VALS(nas_5gs_mm_tal_num_e), 0x1f,
             NULL, HFILL }
         },
+        { &hf_nas_5gs_sm_mapd_eps_b_cont_eps_param_cont,
+        { "EPS parameter contents",   "nas_5gs.sm.mapd_eps_b_cont_eps_param_cont",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
     };
 
     guint     i;
     guint     last_offset;
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS    9
+#define NUM_INDIVIDUAL_ELEMS    11
     gint *ett[NUM_INDIVIDUAL_ELEMS +
         NUM_NAS_5GS_COMMON_ELEM +
         NUM_NAS_5GS_MM_MSG + NUM_NAS_5GS_MM_ELEM +
@@ -5257,6 +5461,8 @@ proto_register_nas_5gs(void)
     ett[6] = &ett_nas_5gs_sec;
     ett[7] = &ett_nas_5gs_mm_part_sal;
     ett[8] = &ett_nas_5gs_mm_part_tal;
+    ett[9] = &ett_nas_5gs_sm_mapd_eps_b_cont;
+    ett[10] = &ett_nas_5gs_sm_mapd_eps_b_cont_params_list;
 
     last_offset = NUM_INDIVIDUAL_ELEMS;
 
