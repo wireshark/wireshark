@@ -65,6 +65,7 @@
 #include <wsutil/utf8_entities.h>
 #include "packet-docsis-tlv.h"
 #include <epan/reassemble.h>
+#include <epan/proto_data.h>
 
 void proto_register_docsis_mgmt(void);
 void proto_reg_handoff_docsis_mgmt(void);
@@ -557,6 +558,9 @@ void proto_reg_handoff_docsis_mgmt(void);
 
 #define FDX_SUB_BAND_ID 1
 #define FDX_SUB_BAND_OFFSET 2
+
+#define KEY_MGMT_VERSION 0
+#define KEY_MGMT_MULTIPART 1
 
 static int proto_docsis_mgmt = -1;
 static int proto_docsis_sync = -1;
@@ -1140,7 +1144,9 @@ static int hf_docsis_mgt_control = -1;
 static int hf_docsis_mgt_version = -1;
 static int hf_docsis_mgt_type = -1;
 static int hf_docsis_mgt_rsvd = -1;
-
+static int hf_docsis_mgt_multipart = -1;
+static int hf_docsis_mgt_multipart_number_of_fragments = -1;
+static int hf_docsis_mgt_multipart_fragment_sequence_number = -1;
 
 static int hf_docsis_tlv_fragments = -1;
 static int hf_docsis_tlv_fragment = -1;
@@ -2356,6 +2362,11 @@ subc_assign_range(char *buf, guint32 value)
     g_snprintf(buf, ITEM_LABEL_LENGTH, "%u - %u", value >> 16, value &0xFFFF);
 }
 
+static void
+multipart_number_of_fragments(char *buf, guint32 value)
+{
+    g_snprintf(buf, ITEM_LABEL_LENGTH, "%u (Actual Number of Fragments: %u)", value, value + 1);
+}
 
 static reassembly_table docsis_tlv_reassembly_table;
 static reassembly_table docsis_opt_tlv_reassembly_table;
@@ -6730,6 +6741,8 @@ dissect_optrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
   proto_item *it;
   proto_tree *opt_tree;
   address save_src, save_dst;
+  guint version, multipart, number_of_fragments, fragment_sequence_number;
+  tvbuff_t *tlv_tvb = NULL;
 
   guint32 downstream_channel_id, profile_identifier, status;
 
@@ -6744,41 +6757,21 @@ dissect_optrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
                               val_to_str(profile_identifier, profile_id_vals, "Unknown Profile ID (%u)"), profile_identifier,
                               val_to_str(status, opt_status_vals, "Unknown status (%u)"), status);
 
+  version = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_docsis_mgmt, KEY_MGMT_VERSION));
+  if (version > 4) {
+    multipart = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_docsis_mgmt, KEY_MGMT_MULTIPART));
+  } else {
+    multipart = 0;
+  }
 
   /* Reassemble TLV's */
   if (tvb_reported_length_remaining(tvb, 5) > 0) {
-    /*DOCSIS mac management messages do not have network (ip)  address. Use link (mac)  address instead. Same workflow as in wimax.*/
-    /* Save address pointers. */
-    copy_address_shallow(&save_src, &pinfo->src);
-    copy_address_shallow(&save_dst, &pinfo->dst);
-    /* Use dl_src and dl_dst in defragmentation. */
-    copy_address_shallow(&pinfo->src, &pinfo->dl_src);
-    copy_address_shallow(&pinfo->dst, &pinfo->dl_dst);
+    if (version > 4 && multipart) {
+      /*Fragmented data*/
+      number_of_fragments = (multipart >> 4);
+      fragment_sequence_number = (multipart & 0x0F);
 
-    fragment_head* fh = fragment_add_seq_next(&docsis_opt_tlv_reassembly_table, tvb, 5, pinfo, downstream_channel_id, NULL, tvb_reported_length_remaining(tvb, 5) , TRUE);
-
-    /* Restore address pointers. */
-    copy_address_shallow(&pinfo->src, &save_src);
-    copy_address_shallow(&pinfo->dst, &save_dst);
-
-
-    /*Check if complete: if top level tlvs are completely within packet, we assume the packet is complete*/
-    fragment_head *tmp_fh = fragment_get(&docsis_opt_tlv_reassembly_table, pinfo, downstream_channel_id, NULL);
-
-    /*Calculating offset*/
-    guint offset = 0;
-    guint tlvs_length = 0;
-    while (tmp_fh) {
-      offset += tmp_fh->len;
-      while (tlvs_length < offset) {
-        /* Assumes that the Type and Lengths fields are always present in a
-         * single buffer (the value can still be fragmented). */
-        tlvs_length += 3 + tvb_get_ntohs(tmp_fh->tvb_data, tlvs_length + 1);
-      }
-      tmp_fh = tmp_fh->next;
-    }
-
-    if (offset == tlvs_length) {
+      /*DOCSIS mac management messages do not have network (ip)  address. Use link (mac)  address instead. Same workflow as in wimax.*/
       /* Save address pointers. */
       copy_address_shallow(&save_src, &pinfo->src);
       copy_address_shallow(&save_dst, &pinfo->dst);
@@ -6786,23 +6779,26 @@ dissect_optrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
       copy_address_shallow(&pinfo->src, &pinfo->dl_src);
       copy_address_shallow(&pinfo->dst, &pinfo->dl_dst);
 
-      fh = fragment_end_seq_next(&docsis_opt_tlv_reassembly_table, pinfo, downstream_channel_id, NULL);
+      fragment_head* fh = fragment_add_seq_check(&docsis_opt_tlv_reassembly_table, tvb, 5, pinfo, downstream_channel_id, NULL,
+                                                fragment_sequence_number,
+                                                tvb_reported_length_remaining(tvb, 5),
+                                                (fragment_sequence_number != number_of_fragments));
 
       /* Restore address pointers. */
       copy_address_shallow(&pinfo->src, &save_src);
       copy_address_shallow(&pinfo->dst, &save_dst);
 
-    }
+      if (fh) {
+        tlv_tvb = process_reassembled_data(tvb, 5, pinfo, "Reassembled OPT TLV", fh, &docsis_tlv_frag_items,
+                                           NULL, opt_tree);
 
-    if (fh) {
-      tvbuff_t *tlv_tvb = NULL;
-
-      tlv_tvb = process_reassembled_data(tvb, 5, pinfo, "Reassembled OPT TLV", fh, &docsis_tlv_frag_items,
-                                                  NULL, opt_tree);
-
-      if (tlv_tvb && tvb_reported_length(tlv_tvb) > 0) {
-        dissect_optrsp_tlv(tlv_tvb, pinfo, opt_tree);
+        if (tlv_tvb && tvb_reported_length(tlv_tvb) > 0) {
+          dissect_optrsp_tlv(tlv_tvb, pinfo, opt_tree);
+        }
       }
+    } else { /*version > 4 && multipart*/
+      tlv_tvb = tvb_new_subset_remaining (tvb, 5);
+      dissect_optrsp_tlv(tlv_tvb, pinfo, opt_tree);
     }
   }
 
@@ -6836,6 +6832,7 @@ dissect_macmgmt (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* d
   proto_item *mgt_hdr_it;
   proto_tree *mgt_hdr_tree;
   tvbuff_t *payload_tvb;
+  guint8 multipart;
 
   col_set_str (pinfo->cinfo, COL_PROTOCOL, "DOCSIS MGMT");
 
@@ -6845,6 +6842,12 @@ dissect_macmgmt (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* d
   copy_address_shallow(&pinfo->src, &pinfo->dl_src);
   set_address_tvb (&pinfo->dl_dst, AT_ETHER, 6, tvb, 0);
   copy_address_shallow(&pinfo->dst, &pinfo->dl_dst);
+
+  static const int * multipart_field[] = {
+    &hf_docsis_mgt_multipart_number_of_fragments,
+    &hf_docsis_mgt_multipart_fragment_sequence_number,
+    NULL
+  };
 
   mgt_hdr_it = proto_tree_add_item (tree, proto_docsis_mgmt, tvb, 0, 20, ENC_NA);
   mgt_hdr_tree = proto_item_add_subtree (mgt_hdr_it, ett_docsis_mgmt);
@@ -6856,7 +6859,16 @@ dissect_macmgmt (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* d
   proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_control, tvb, 16, 1, ENC_BIG_ENDIAN);
   proto_tree_add_item_ret_uint (mgt_hdr_tree, hf_docsis_mgt_version, tvb, 17, 1, ENC_BIG_ENDIAN, &version);
   proto_tree_add_item_ret_uint (mgt_hdr_tree, hf_docsis_mgt_type, tvb, 18, 1, ENC_BIG_ENDIAN, &type);
-  proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_rsvd, tvb, 19, 1, ENC_BIG_ENDIAN);
+
+  p_add_proto_data(pinfo->pool, pinfo, proto_docsis_mgmt, KEY_MGMT_VERSION, GUINT_TO_POINTER(version));
+
+  if (version < 5) {
+    proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_rsvd, tvb, 19, 1, ENC_BIG_ENDIAN);
+  } else {
+    proto_tree_add_bitmask(mgt_hdr_tree, tvb, 19, hf_docsis_mgt_multipart, ett_sub_tlv, multipart_field, ENC_BIG_ENDIAN);
+    multipart = tvb_get_guint8 (tvb, 19);
+    p_add_proto_data(pinfo->pool, pinfo, proto_docsis_mgmt, KEY_MGMT_MULTIPART, GUINT_TO_POINTER(multipart));
+  }
 
   /* Code to Call subdissector */
   /* sub-dissectors are based on the type field */
@@ -9567,6 +9579,21 @@ proto_register_docsis_mgmt (void)
     {&hf_docsis_mgt_rsvd,
      {"Reserved", "docsis_mgmt.rsvd",
       FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_mgt_multipart,
+     {"Multipart", "docsis_mgmt.multipart",
+      FT_UINT8, BASE_HEX, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_mgt_multipart_number_of_fragments,
+     {"Multipart - Number of Fragments", "docsis_mgmt.multipart.number_of_fragments",
+      FT_UINT8, BASE_CUSTOM, CF_FUNC(multipart_number_of_fragments), 0xF0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_mgt_multipart_fragment_sequence_number,
+     {"Multipart - Fragment Sequence Number", "docsis_mgmt.multipart.fragment_sequence_number",
+      FT_UINT8, BASE_DEC, NULL, 0x0F,
       NULL, HFILL}
     },
     { &hf_docsis_tlv_fragment_overlap,
