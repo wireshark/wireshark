@@ -55,6 +55,7 @@ since version 2.6.0:
 * Coloring rules, IO graphs, Filter Buttons and protocol preference tables
   can now be copied from other profiles using a button in the corresponding
   configuration dialogs.
+* APT-X has been renamed to aptX.
 
 === Removed Features and Support
 
