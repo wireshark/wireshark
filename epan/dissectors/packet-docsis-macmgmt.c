@@ -5507,16 +5507,6 @@ dissect_dbcreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
                 "Dynamic Bonding Change Request: Tran-Id = %u", transid);
   col_set_fence(pinfo->cinfo, COL_INFO);
 
-
-  if(number_of_fragments > 1) {
-     pinfo->fragmented = TRUE;
-  }
-
-  /* Call Dissector for Appendix C TLV's */
-  next_tvb = tvb_new_subset_remaining (tvb, 4);
-  call_dissector (docsis_tlv_handle, next_tvb, pinfo, dbcreq_tree);
-
-
   if(number_of_fragments > 1) {
      pinfo->fragmented = TRUE;
 
@@ -5543,8 +5533,11 @@ dissect_dbcreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
        }
      }
 
+  } else {
+    /* Call Dissector for Appendix C TLV's */
+    next_tvb = tvb_new_subset_remaining (tvb, 4);
+    call_dissector (docsis_tlv_handle, next_tvb, pinfo, dbcreq_tree);
   }
-
 
   return tvb_captured_length(tvb);
 }
@@ -6128,7 +6121,7 @@ dissect_regrspmp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* 
 
   tvbuff_t *next_tvb;
 
-  col_set_str(pinfo->cinfo, COL_INFO, "REG-RSP-MP Message:");
+  col_set_str(pinfo->cinfo, COL_INFO, "REG-RSP-MP Message");
   /*Make sure embedded UCD does not overwrite REGRSPMP info*/
   col_set_fence(pinfo->cinfo, COL_INFO);
 
@@ -6140,13 +6133,9 @@ dissect_regrspmp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* 
   proto_tree_add_item_ret_uint (regrspmp_tree, hf_docsis_regrspmp_number_of_fragments, tvb, 3, 1, ENC_BIG_ENDIAN, &number_of_fragments);
   proto_tree_add_item_ret_uint (regrspmp_tree, hf_docsis_regrspmp_fragment_sequence_number, tvb, 4, 1, ENC_BIG_ENDIAN, &fragment_sequence_number);
 
-  if(number_of_fragments > 1) {
-     pinfo->fragmented = TRUE;
-  }
-
-  /* Call Dissector for Appendix C TLV's */
-  next_tvb = tvb_new_subset_remaining (tvb, 5);
-  call_dissector (docsis_tlv_handle, next_tvb, pinfo, regrspmp_tree);
+  col_add_fstr(pinfo->cinfo, COL_INFO, " (fragment %d):", fragment_sequence_number);
+  /*Make sure embedded UCD does not overwrite REGRSPMP info*/
+  col_set_fence(pinfo->cinfo, COL_INFO);
 
   if(number_of_fragments > 1) {
      pinfo->fragmented = TRUE;
@@ -6174,9 +6163,11 @@ dissect_regrspmp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* 
        }
      }
 
+  } else {
+    /* Call Dissector for Appendix C TLV's */
+    next_tvb = tvb_new_subset_remaining (tvb, 5);
+    call_dissector (docsis_tlv_handle, next_tvb, pinfo, regrspmp_tree);
   }
-
-
 
   return tvb_captured_length(tvb);
 }
