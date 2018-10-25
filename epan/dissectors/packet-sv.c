@@ -436,6 +436,7 @@ dissect_sv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* dat
 {
 	int offset = 0;
 	int old_offset;
+	guint sv_length = 0;
 	proto_item *item;
 	proto_tree *tree;
 	asn1_ctx_t asn1_ctx;
@@ -452,7 +453,7 @@ dissect_sv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* dat
 	proto_tree_add_item(tree, hf_sv_appid, tvb, offset, 2, ENC_BIG_ENDIAN);
 
 	/* Length */
-	proto_tree_add_item(tree, hf_sv_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint(tree, hf_sv_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN, &sv_length);
 
 	/* Reserved 1 */
 	proto_tree_add_item(tree, hf_sv_reserve1, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
@@ -461,7 +462,7 @@ dissect_sv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* dat
 	proto_tree_add_item(tree, hf_sv_reserve2, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
 
 	offset = 8;
-	while (tvb_reported_length_remaining(tvb, offset) > 0){
+	while ((tvb_reported_length_remaining(tvb, offset) > 0) && ((guint)offset < sv_length)) {
 		old_offset = offset;
 		offset = dissect_sv_SampledValues(FALSE, tvb, offset, &asn1_ctx , tree, -1);
 		if (offset == old_offset) {
@@ -595,7 +596,7 @@ void proto_register_sv(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-sv-hfarr.c ---*/
-#line 287 "./asn1/sv/packet-sv-template.c"
+#line 288 "./asn1/sv/packet-sv-template.c"
 	};
 
 	/* List of subtrees */
@@ -612,7 +613,7 @@ void proto_register_sv(void) {
     &ett_sv_ASDU,
 
 /*--- End of included file: packet-sv-ettarr.c ---*/
-#line 295 "./asn1/sv/packet-sv-template.c"
+#line 296 "./asn1/sv/packet-sv-template.c"
 	};
 
 	static ei_register_info ei[] = {
