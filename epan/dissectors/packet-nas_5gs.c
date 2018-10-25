@@ -1945,6 +1945,7 @@ de_nas_5gs_sm_mapped_eps_b_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 
             /* EPS parameter identifier */
             proto_tree_add_item_ret_uint(sub_tree1, hf_nas_5gs_sm_mapd_eps_b_cont_param_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &param_id);
+            proto_item_append_text(item, " - %s", val_to_str_const(param_id, nas_5gs_sm_mapd_eps_b_cont_param_id_vals, "Unknown"));
             curr_offset++;
             curr_len--;
 
@@ -1960,14 +1961,22 @@ de_nas_5gs_sm_mapped_eps_b_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
                 /* 01H (Mapped EPS QoS parameters) */
                 de_esm_qos(tvb, sub_tree1, pinfo, curr_offset, length, NULL, 0);
                 break;
-
+            case 2:
                 /* 02H (Mapped extended EPS QoS parameters) */
-                /* 03H (Traffic flow template)*/
+                de_esm_ext_eps_qos(tvb, sub_tree1, pinfo, curr_offset, length, NULL, 0);
+                break;
             case 3:
+                /* 03H (Traffic flow template)*/
                 de_sm_tflow_temp(tvb, sub_tree1, pinfo, curr_offset, length, NULL, 0);
                 break;
+            case 4:
                 /* 04H (APN-AMBR) */
+                de_esm_apn_aggr_max_br(tvb, sub_tree1, pinfo, curr_offset, length, NULL, 0);
+                break;
+            case 5:
                 /* 05H (extended APN-AMBR). */
+                de_esm_ext_apn_agr_max_br(tvb, sub_tree1, pinfo, curr_offset, length, NULL, 0);
+                break;
             default:
                 proto_tree_add_item(sub_tree1, hf_nas_5gs_sm_mapd_eps_b_cont_eps_param_cont, tvb, curr_offset, length, ENC_NA);
                 break;
@@ -1976,7 +1985,6 @@ de_nas_5gs_sm_mapped_eps_b_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
             curr_len -= length;
             i++;
             num_eps_parms--;
-
         }
 
         num_cont++;
@@ -2053,7 +2061,7 @@ de_nas_5gs_sm_pdu_address(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 }
 
 /*
- *     9.10.4.8    PDU session type
+ *     9.10.4.11    PDU session type
  */
 static const value_string nas_5gs_pdu_session_type_values[] = {
     { 0x1, "IPv4" },
@@ -2076,9 +2084,12 @@ de_nas_5gs_sm_pdu_session_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
     return 1;
 }
 
+/*
+ * 9.11.4.12 QoS flow descriptions
+ */
 
 /*
- *     9.10.4.9    QoS rules
+ *     9.12.4.13    QoS rules
  */
 
 static true_false_string tfs_nas_5gs_sm_dqr = {
@@ -2309,7 +2320,7 @@ de_nas_5gs_sm_qos_rules(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 }
 
 /*
- *      9.10.4.10    Session-AMBR
+ *      9.11.4.14    Session-AMBR
  */
 
 static const value_string nas_5gs_sm_unit_for_session_ambr_values[] = {
@@ -2411,7 +2422,7 @@ de_nas_5gs_sm_session_ambr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 }
 
 /*
- *      9.10.4.11    SM PDU DN request container
+ *      9.11.4.15    SM PDU DN request container
  */
 /* The SM PDU DN request container contains a DN-specific identity of the UE in the network access identifier (NAI) format */
 static guint16
@@ -2425,7 +2436,7 @@ de_nas_5gs_sm_pdu_dn_req_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
 }
 
 /*
- *      9.10.4.12    SSC mode
+ *      9.11.4.16    SSC mode
  */
 
 static const value_string nas_5gs_sc_mode_values[] = {
@@ -3686,14 +3697,20 @@ nas_5gs_sm_pdu_ses_est_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     ELEM_OPT_TV(0x59, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_5GSM_CAUSE, NULL);
     /*29    PDU address    PDU address 9.10.4.4    O    TLV    7 */
     ELEM_OPT_TLV(0x29, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_PDU_ADDRESS, NULL);
-    /*78    EAP message    EAP message 9.10.3.14    O    TLV-E    7-1503*/
-    ELEM_OPT_TLV_E(0x78, NAS_5GS_PDU_TYPE_COMMON, DE_NAS_5GS_CMN_EAP_MESSAGE, NULL);
     /*56    RQ timer value    GPRS timer 9.10.2.3    O    TV    2*/
     ELEM_OPT_TV(0x56, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER, " - RQ timer value");
-    /*7B    Extended protocol configuration options    Extended protocol configuration options 9.10.4.2    O    TLV-E    4-65538*/
-    ELEM_OPT_TLV_E(0x7B, NAS_PDU_TYPE_ESM, DE_ESM_EXT_PCO, NULL);
     /*22    S-NSSAI    S-NSSAI 9.10.3.37    O    TLV    3-6*/
     ELEM_OPT_TLV(0x22, NAS_5GS_PDU_TYPE_COMMON, DE_NAS_5GS_CMN_S_NSSAI, NULL);
+
+    /* 8-    Always-on PDU session indication    Always-on PDU session indication 9.11.4.3    O    TV    1 */
+
+    /* 7F    Mapped EPS bearer contexts    Mapped EPS bearer contexts 9.11.4.9    O    TLV-E    7-65538 */
+    ELEM_OPT_TLV_E(0x7F, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_MAPPED_EPS_B_CONT, NULL);
+    /*78    EAP message    EAP message 9.10.3.14    O    TLV-E    7-1503*/
+    ELEM_OPT_TLV_E(0x78, NAS_5GS_PDU_TYPE_COMMON, DE_NAS_5GS_CMN_EAP_MESSAGE, NULL);
+    /*79    Authorized QoS flow descriptions    QoS flow descriptions 9.11.4.12    O    TLV-E    6-65538 */
+    /*7B    Extended protocol configuration options    Extended protocol configuration options 9.10.4.2    O    TLV-E    4-65538*/
+    ELEM_OPT_TLV_E(0x7B, NAS_PDU_TYPE_ESM, DE_ESM_EXT_PCO, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_5gs_extraneous_data);
 

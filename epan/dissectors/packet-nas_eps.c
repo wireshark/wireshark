@@ -2790,7 +2790,7 @@ de_emm_ciph_key_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
  * 9.9.4.2 APN aggregate maximum bit rate
  */
 
-static guint16
+guint16
 de_esm_apn_aggr_max_br(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
                        guint32 offset, guint len _U_,
                        gchar *add_string _U_, int string_len _U_)
@@ -3800,7 +3800,7 @@ get_ext_ambr_unit(guint32 byte, const char **unit_str)
     return mult;
 }
 
-static guint16
+guint16
 de_esm_ext_apn_agr_max_br(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
                           guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
@@ -3884,7 +3884,7 @@ get_ext_eps_qos_unit(guint32 byte, const char **unit_str)
     return mult;
 }
 
-static guint16
+guint16
 de_esm_ext_eps_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
                    guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
