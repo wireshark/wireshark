@@ -49,6 +49,7 @@
 #define OUI_ERICSSON_MOBILE 0x0015E0    /* Ericsson Mobile Platforms */
 #define OUI_SONY_ERICSSON_5 0x001620    /* Sony Ericsson Mobile Communications AB */
 #define OUI_SONY_ERICSSON_6 0x0016B8    /* Sony Ericsson Mobile Communications AB */
+#define OUI_APPLE_AWDL      0x0017F2    /* Apple AWDL */
 #define OUI_SONY_ERICSSON_7 0x001813    /* Sony Ericsson Mobile Communications AB */
 #define OUI_BLUETOOTH       0x001958    /* Bluetooth SIG */
 #define OUI_SONY_ERICSSON_8 0x001963    /* Sony Ericsson Mobile Communications AB */

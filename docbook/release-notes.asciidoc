@@ -82,6 +82,7 @@ since version 2.6.0:
 --
 BLIP protocol for Couchbase Lite
 CDMA 2000
+Apple Wireless Direct Link (AWDL) protocol
 Cisco Meraki Discovery Protocol (MDP)
 DoIP (ISO 13400-2 Diagnostic communication over Internet Protocol)
 DXL protocol
