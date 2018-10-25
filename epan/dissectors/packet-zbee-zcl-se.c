@@ -4774,7 +4774,10 @@ VALUE_STRING_ARRAY(zbee_zcl_met_srv_tx_cmd_names);
 #define ZBEE_ZCL_FUNC_NOTI_FLAG_TUNNEL_MESSAGE_PENDING                          0x00200000
 #define ZBEE_ZCL_FUNC_NOTI_FLAG_GET_SNAPSHOT                                    0x00400000
 #define ZBEE_ZCL_FUNC_NOTI_FLAG_GET_SAMPLED_DATA                                0x00800000
-#define ZBEE_ZCL_FUNC_NOTI_FLAG_RESERVED_2                                      0xFF000000
+#define ZBEE_ZCL_FUNC_NOTI_FLAG_NEW_SUB_GHZ_CHANNEL_MASKS_AVAILABLE             0x01000000
+#define ZBEE_ZCL_FUNC_NOTI_FLAG_ENERGY_SCAN_PENDING                             0x02000000
+#define ZBEE_ZCL_FUNC_NOTI_FLAG_CHANNEL_CHANGE_PENDING                          0x04000000
+#define ZBEE_ZCL_FUNC_NOTI_FLAG_RESERVED_2                                      0xF8000000
 
 /* Notification Flags 2 */
 #define ZBEE_ZCL_NOTI_FLAG_2_PUBLISH_PRICE                                      0x00000001
@@ -4895,6 +4898,9 @@ static int hf_zbee_zcl_met_func_noti_flag_set_uncontrolled_flow_threshold = -1;
 static int hf_zbee_zcl_met_func_noti_flag_tunnel_message_pending = -1;
 static int hf_zbee_zcl_met_func_noti_flag_get_snapshot = -1;
 static int hf_zbee_zcl_met_func_noti_flag_get_sampled_data = -1;
+static int hf_zbee_zcl_met_func_noti_flag_new_sub_ghz_channel_masks_available = -1;
+static int hf_zbee_zcl_met_func_noti_flag_energy_scan_pending = -1;
+static int hf_zbee_zcl_met_func_noti_flag_channel_change_pending = -1;
 static int hf_zbee_zcl_met_func_noti_flag_reserved = -1;
 static int hf_zbee_zcl_met_noti_flags_2 = -1;
 static int hf_zbee_zcl_met_noti_flag_2_publish_price = -1;
@@ -5080,6 +5086,9 @@ dissect_zcl_met_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint1
                         &hf_zbee_zcl_met_func_noti_flag_tunnel_message_pending,
                         &hf_zbee_zcl_met_func_noti_flag_get_snapshot,
                         &hf_zbee_zcl_met_func_noti_flag_get_sampled_data,
+                        &hf_zbee_zcl_met_func_noti_flag_new_sub_ghz_channel_masks_available,
+                        &hf_zbee_zcl_met_func_noti_flag_energy_scan_pending,
+                        &hf_zbee_zcl_met_func_noti_flag_channel_change_pending,
                         &hf_zbee_zcl_met_func_noti_flag_reserved,
                         NULL
                 };
@@ -6072,6 +6081,18 @@ proto_register_zbee_zcl_met(void)
         { &hf_zbee_zcl_met_func_noti_flag_get_sampled_data,
             { "Get Sampled Data", "zbee_zcl_se.met.attr.func_noti_flag.get_sampled_data", FT_BOOLEAN, 32, NULL,
             ZBEE_ZCL_FUNC_NOTI_FLAG_GET_SAMPLED_DATA, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_func_noti_flag_new_sub_ghz_channel_masks_available,
+            { "New Sub-GHz Channel Masks Available", "zbee_zcl_se.met.attr.func_noti_flag.new_sub_ghz_channel_masks_available", FT_BOOLEAN, 32, NULL,
+            ZBEE_ZCL_FUNC_NOTI_FLAG_NEW_SUB_GHZ_CHANNEL_MASKS_AVAILABLE, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_func_noti_flag_energy_scan_pending,
+            { "Energy Scan Pending", "zbee_zcl_se.met.attr.func_noti_flag.energy_scan_pending", FT_BOOLEAN, 32, NULL,
+            ZBEE_ZCL_FUNC_NOTI_FLAG_ENERGY_SCAN_PENDING, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_func_noti_flag_channel_change_pending,
+            { "Channel Change Pending", "zbee_zcl_se.met.attr.func_noti_flag.channel_change_pending", FT_BOOLEAN, 32, NULL,
+            ZBEE_ZCL_FUNC_NOTI_FLAG_CHANNEL_CHANGE_PENDING, NULL, HFILL } },
 
         { &hf_zbee_zcl_met_func_noti_flag_reserved,
             { "Reserved", "zbee_zcl_se.met.attr.func_noti_flag.reserved", FT_UINT32, BASE_HEX, NULL,
