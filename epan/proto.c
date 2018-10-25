@@ -7651,10 +7651,14 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 		const value_string *start_values;
 		const value_string *current;
 
-		if (hfinfo->display & BASE_EXT_STRING)
-			start_values = VALUE_STRING_EXT_VS_P(((const value_string_ext*)hfinfo->strings));
-		else
+		if (hfinfo->display & BASE_EXT_STRING) {
+			if (hfinfo->display & BASE_VAL64_STRING)
+				start_values = VAL64_STRING_EXT_VS_P(((const val64_string_ext*)hfinfo->strings));
+			else
+				start_values = VALUE_STRING_EXT_VS_P(((const value_string_ext*)hfinfo->strings));
+		} else {
 			start_values = (const value_string*)hfinfo->strings;
+		}
 		current = start_values;
 
 		for (n=0; current; n++, current++) {
@@ -8727,8 +8731,12 @@ hf_try_val_to_str(guint32 value, const header_field_info *hfinfo)
 	if (hfinfo->display & BASE_RANGE_STRING)
 		return try_rval_to_str(value, (const range_string *) hfinfo->strings);
 
-	if (hfinfo->display & BASE_EXT_STRING)
-		return try_val_to_str_ext(value, (value_string_ext *) hfinfo->strings);
+	if (hfinfo->display & BASE_EXT_STRING) {
+		if (hfinfo->display & BASE_VAL64_STRING)
+			return try_val64_to_str_ext(value, (val64_string_ext *) hfinfo->strings);
+		else
+			return try_val_to_str_ext(value, (value_string_ext *) hfinfo->strings);
+	}
 
 	if (hfinfo->display & BASE_VAL64_STRING)
 		return try_val64_to_str(value, (const val64_string *) hfinfo->strings);
@@ -10066,7 +10074,11 @@ proto_registrar_dump_values(void)
 				if (hfinfo->display & BASE_RANGE_STRING) {
 					range = (const range_string *)hfinfo->strings;
 				} else if (hfinfo->display & BASE_EXT_STRING) {
-					vals = VALUE_STRING_EXT_VS_P((const value_string_ext *)hfinfo->strings);
+					if (hfinfo->display & BASE_VAL64_STRING) {
+						vals64 = VAL64_STRING_EXT_VS_P((const val64_string_ext *)hfinfo->strings);
+					} else {
+						vals = VALUE_STRING_EXT_VS_P((const value_string_ext *)hfinfo->strings);
+					}
 				} else if (hfinfo->display & BASE_VAL64_STRING) {
 					vals64 = (const val64_string *)hfinfo->strings;
 				} else if (hfinfo->display & BASE_UNIT_STRING) {
@@ -10083,17 +10095,31 @@ proto_registrar_dump_values(void)
 		/* Print value strings? */
 		if (vals) {
 			if (hfinfo->display & BASE_EXT_STRING) {
-				value_string_ext *vse_p = (value_string_ext *)hfinfo->strings;
-				if (!value_string_ext_validate(vse_p)) {
-					g_warning("Invalid value_string_ext ptr for: %s", hfinfo->abbrev);
-					continue;
+				if (hfinfo->display & BASE_VAL64_STRING) {
+					val64_string_ext *vse_p = (val64_string_ext *)hfinfo->strings;
+					if (!val64_string_ext_validate(vse_p)) {
+						g_warning("Invalid val64_string_ext ptr for: %s", hfinfo->abbrev);
+						continue;
+					}
+					try_val64_to_str_ext(0, vse_p); /* "prime" the extended val64_string */
+					ws_debug_printf("E\t%s\t%u\t%s\t%s\n",
+					       hfinfo->abbrev,
+					       VAL64_STRING_EXT_VS_NUM_ENTRIES(vse_p),
+					       VAL64_STRING_EXT_VS_NAME(vse_p),
+					       val64_string_ext_match_type_str(vse_p));
+				} else {
+					value_string_ext *vse_p = (value_string_ext *)hfinfo->strings;
+					if (!value_string_ext_validate(vse_p)) {
+						g_warning("Invalid value_string_ext ptr for: %s", hfinfo->abbrev);
+						continue;
+					}
+					try_val_to_str_ext(0, vse_p); /* "prime" the extended value_string */
+					ws_debug_printf("E\t%s\t%u\t%s\t%s\n",
+					       hfinfo->abbrev,
+					       VALUE_STRING_EXT_VS_NUM_ENTRIES(vse_p),
+					       VALUE_STRING_EXT_VS_NAME(vse_p),
+					       value_string_ext_match_type_str(vse_p));
 				}
-				try_val_to_str_ext(0, vse_p); /* "prime" the extended value_string */
-				ws_debug_printf("E\t%s\t%u\t%s\t%s\n",
-				       hfinfo->abbrev,
-				       VALUE_STRING_EXT_VS_NUM_ENTRIES(vse_p),
-				       VALUE_STRING_EXT_VS_NAME(vse_p),
-				       value_string_ext_match_type_str(vse_p));
 			}
 			vi = 0;
 			while (vals[vi].strptr) {

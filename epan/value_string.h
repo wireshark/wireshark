@@ -209,6 +209,59 @@ WS_DLL_PUBLIC
 const gchar *
 try_val_to_str_idx_ext(const guint32 val, value_string_ext *vse, gint *idx);
 
+/* EXTENDED 64-BIT VALUE TO STRING MATCHING */
+
+typedef struct _val64_string_ext val64_string_ext;
+typedef const val64_string *(*_val64_string_match2_t)(const guint64, val64_string_ext*);
+
+struct _val64_string_ext {
+    _val64_string_match2_t _vs_match2;
+    guint64                _vs_first_value; /* first value of the val64_string array       */
+    guint                  _vs_num_entries; /* number of entries in the val64_string array */
+                                            /*  (excluding final {0, NULL})                */
+    const val64_string    *_vs_p;           /* the value string array address              */
+    const gchar           *_vs_name;        /* vse "Name" (for error messages)             */
+};
+
+#define VAL64_STRING_EXT_VS_P(x)           (x)->_vs_p
+#define VAL64_STRING_EXT_VS_NUM_ENTRIES(x) (x)->_vs_num_entries
+#define VAL64_STRING_EXT_VS_NAME(x)        (x)->_vs_name
+
+WS_DLL_PUBLIC
+const val64_string *
+_try_val64_to_str_ext_init(const guint64 val, val64_string_ext *vse);
+#define VAL64_STRING_EXT_INIT(x) { _try_val64_to_str_ext_init, 0, G_N_ELEMENTS(x)-1, x, #x }
+
+WS_DLL_PUBLIC
+val64_string_ext *
+val64_string_ext_new(const val64_string *vs, guint vs_tot_num_entries, const gchar *vs_name);
+
+WS_DLL_PUBLIC
+void
+val64_string_ext_free(val64_string_ext *vse);
+
+WS_DLL_PUBLIC
+const gchar *
+val64_to_str_ext(const guint64 val, val64_string_ext *vse, const char *fmt)
+G_GNUC_PRINTF(3, 0);
+
+WS_DLL_PUBLIC
+gchar *
+val64_to_str_ext_wmem(wmem_allocator_t *scope, const guint64 val, val64_string_ext *vse, const char *fmt)
+G_GNUC_PRINTF(4, 0);
+
+WS_DLL_PUBLIC
+const gchar *
+val64_to_str_ext_const(const guint64 val, val64_string_ext *vs, const char *unknown_str);
+
+WS_DLL_PUBLIC
+const gchar *
+try_val64_to_str_ext(const guint64 val, val64_string_ext *vse);
+
+WS_DLL_PUBLIC
+const gchar *
+try_val64_to_str_idx_ext(const guint64 val, val64_string_ext *vse, gint *idx);
+
 /* STRING TO STRING MATCHING */
 
 typedef struct _string_string {
@@ -297,6 +350,14 @@ value_string_ext_validate(const value_string_ext *vse);
 WS_DLL_LOCAL
 const gchar *
 value_string_ext_match_type_str(const value_string_ext *vse);
+
+WS_DLL_LOCAL
+gboolean
+val64_string_ext_validate(const val64_string_ext *vse);
+
+WS_DLL_LOCAL
+const gchar *
+val64_string_ext_match_type_str(const val64_string_ext *vse);
 
 #ifdef __cplusplus
 }

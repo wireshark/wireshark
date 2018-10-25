@@ -1008,6 +1008,25 @@ macro for the 'strings' field in the header_field_info struct array,
 
 BASE_SPECIAL_VALS can also be used for val64_string.
 
+-- val64_string_ext
+
+val64_string_ext is like value_string_ext, except that the integer type
+used is a guint64 (instead of guint32).
+
+Use this macro to initialize the extended val64_string at compile time:
+
+static val64_string_ext val64stringname_ext = VAL64_STRING_EXT_INIT(val64stringname);
+
+Extended val64 strings can be created at run time by calling
+   val64_string_ext_new(<ptr to val64_string array>,
+                        <total number of entries in the val64_string_array>, /* include {0, NULL} entry */
+                        <val64_string_name>);
+
+For hf[] array FT_(U)INT* fields that need a 'val64stringname_ext' struct, the
+'strings' field would be set to '&val64stringname_ext'. Furthermore, the 'display'
+field must be ORed with both 'BASE_EXT_STRING' and 'BASE_VAL64_STRING'
+(e.g. BASE_DEC|BASE_EXT_STRING|BASE_VAL64_STRING).
+
 -- Unit string
 Some integer fields, of type FT_UINT* and float fields, of type FT_FLOAT
 or FT_DOUBLE, need units of measurement to help convey the field value.
