@@ -8639,7 +8639,7 @@ static void dissect_RTPS_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offse
     from_builtin_writer =
       (((wid & 0xc2) == 0xc2) || ((wid & 0xc3) == 0xc3)) ? TRUE : FALSE;
 
-    if (enable_rtps_reassembly && !from_builtin_writer) {
+    if (enable_rtps_reassembly) {
         tvbuff_t* new_tvb = NULL;
         fragment_head *frag_msg = NULL;
         gboolean more_fragments = (frag_number * frag_size < sample_size);
@@ -8649,7 +8649,7 @@ static void dissect_RTPS_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offse
         frag_msg = fragment_add_check(&rtps_reassembly_table,
             tvb, offset, pinfo,
             (guint32) sample_seq_number, /* ID for fragments belonging together */
-            NULL,
+            (void *) guid, /* make sure only fragments from the same writer are considered for reassembly */
             fragment_offset, /* fragment offset */
             this_frag_size, /* fragment length */
             more_fragments); /* More fragments? */
@@ -8657,6 +8657,8 @@ static void dissect_RTPS_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offse
         new_tvb = process_reassembled_data(tvb, offset, pinfo,
             "Reassembled sample", frag_msg, &rtps_frag_items,
             NULL, tree);
+
+        append_status_info(pinfo, wid, status_info);
 
         if (frag_msg) { /* Reassembled */
             col_append_fstr(pinfo->cinfo, COL_INFO,
@@ -8678,9 +8680,9 @@ static void dissect_RTPS_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offse
         dissect_serialized_data(tree, pinfo, tvb, offset,
             octets_to_next_header - (offset - old_offset) + 4,
             label, vendor_id, from_builtin_writer, NULL, frag_number);
+        append_status_info(pinfo, wid, status_info);
     }
   }
-  append_status_info(pinfo, wid, status_info);
 }
 
 /* *********************************************************************** */
