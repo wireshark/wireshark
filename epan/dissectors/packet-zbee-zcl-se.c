@@ -8105,9 +8105,36 @@ static int hf_zbee_zcl_pp_publish_debt_log_collection_time = -1;
 static int hf_zbee_zcl_pp_publish_debt_log_amount_collected = -1;
 static int hf_zbee_zcl_pp_publish_debt_log_debt_type = -1;
 static int hf_zbee_zcl_pp_publish_debt_log_outstanding_debt = -1;
+static int hf_zbee_zcl_pp_payment_control_configuration = -1;
+static int hf_zbee_zcl_pp_payment_control_configuration_disconnection_enabled = -1;
+static int hf_zbee_zcl_pp_payment_control_configuration_prepayment_enabled = -1;
+static int hf_zbee_zcl_pp_payment_control_configuration_credit_management_enabled = -1;
+static int hf_zbee_zcl_pp_payment_control_configuration_credit_display_enabled = -1;
+static int hf_zbee_zcl_pp_payment_control_configuration_account_base = -1;
+static int hf_zbee_zcl_pp_payment_control_configuration_contactor_fitted = -1;
+static int hf_zbee_zcl_pp_payment_control_configuration_standing_charge_configuration = -1;
+static int hf_zbee_zcl_pp_payment_control_configuration_emergency_standing_charge_configuration = -1;
+static int hf_zbee_zcl_pp_payment_control_configuration_debt_configuration = -1;
+static int hf_zbee_zcl_pp_payment_control_configuration_emergency_debt_configuration = -1;
+static int hf_zbee_zcl_pp_payment_control_configuration_reserved;
+
+static const int* payment_control_configuration_flags[] = {
+        &hf_zbee_zcl_pp_payment_control_configuration_disconnection_enabled,
+        &hf_zbee_zcl_pp_payment_control_configuration_prepayment_enabled,
+        &hf_zbee_zcl_pp_payment_control_configuration_credit_management_enabled,
+        &hf_zbee_zcl_pp_payment_control_configuration_credit_display_enabled,
+        &hf_zbee_zcl_pp_payment_control_configuration_account_base,
+        &hf_zbee_zcl_pp_payment_control_configuration_contactor_fitted,
+        &hf_zbee_zcl_pp_payment_control_configuration_standing_charge_configuration,
+        &hf_zbee_zcl_pp_payment_control_configuration_emergency_standing_charge_configuration,
+        &hf_zbee_zcl_pp_payment_control_configuration_debt_configuration,
+        &hf_zbee_zcl_pp_payment_control_configuration_emergency_debt_configuration,
+        &hf_zbee_zcl_pp_payment_control_configuration_reserved,
+        NULL
+};
 
 /* Initialize the subtree pointers */
-#define ZBEE_ZCL_SE_PP_NUM_INDIVIDUAL_ETT             1
+#define ZBEE_ZCL_SE_PP_NUM_INDIVIDUAL_ETT             2
 #define ZBEE_ZCL_SE_PP_NUM_PUBLISH_TOP_UP_LOG_ETT     30
 #define ZBEE_ZCL_SE_PP_NUM_PUBLISH_DEBT_LOG_ETT       30
 #define ZBEE_ZCL_SE_PP_NUM_TOTAL_ETT                  (ZBEE_ZCL_SE_PP_NUM_INDIVIDUAL_ETT + \
@@ -8115,6 +8142,7 @@ static int hf_zbee_zcl_pp_publish_debt_log_outstanding_debt = -1;
                                                        ZBEE_ZCL_SE_PP_NUM_PUBLISH_DEBT_LOG_ETT)
 
 static gint ett_zbee_zcl_pp = -1;
+static gint ett_zbee_zcl_pp_payment_control_configuration = -1;
 static gint ett_zbee_zcl_pp_publish_top_up_entry[ZBEE_ZCL_SE_PP_NUM_PUBLISH_TOP_UP_LOG_ETT];
 static gint ett_zbee_zcl_pp_publish_debt_log_entry[ZBEE_ZCL_SE_PP_NUM_PUBLISH_DEBT_LOG_ETT];
 
@@ -8141,7 +8169,12 @@ dissect_zcl_pp_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16
             proto_tree_add_item(tree, hf_zbee_zcl_pp_attr_reporting_status, tvb, *offset, 1, ENC_NA);
             *offset += 1;
             break;
-
+        case ZBEE_ZCL_ATTR_ID_PP_PAYMENT_CONTROL_CONFIGURATION:
+            proto_item_append_text(tree, ", Payment Control Configuration");
+            proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_pp_payment_control_configuration,
+                                   ett_zbee_zcl_pp_payment_control_configuration, payment_control_configuration_flags, ENC_LITTLE_ENDIAN);
+            *offset += 2;
+            break;
         default: /* Catch all */
             dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
             break;
@@ -8477,7 +8510,8 @@ dissect_zcl_pp_change_payment_mode(tvbuff_t *tvb, proto_tree *tree, guint *offse
     *offset += 4;
 
     /* Proposed Payment Control Configuration */
-    proto_tree_add_item(tree, hf_zbee_zcl_pp_change_payment_mode_proposed_payment_control_configuration, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_pp_change_payment_mode_proposed_payment_control_configuration,
+                           ett_zbee_zcl_pp_payment_control_configuration, payment_control_configuration_flags, ENC_LITTLE_ENDIAN);
     *offset += 2;
 
     /* Cut Off Value */
@@ -9165,11 +9199,49 @@ proto_register_zbee_zcl_pp(void)
         { &hf_zbee_zcl_pp_publish_debt_log_outstanding_debt,
             { "Outstanding Debt", "zbee_zcl_se.pp.publish_debt_log.outstanding_debt", FT_UINT32, BASE_DEC, NULL,
             0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_pp_payment_control_configuration,
+            { "Payment Control Configuration", "zbee_zcl_se.pp.attr.payment_control_configuration", FT_UINT16, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+        { &hf_zbee_zcl_pp_payment_control_configuration_disconnection_enabled,
+            { "Disconnection Enabled", "zbee_zcl_se.pp.attr.payment_control_configuration.disconnection_enabled", FT_BOOLEAN, 16, NULL,
+            0x0001, NULL, HFILL } },
+        { &hf_zbee_zcl_pp_payment_control_configuration_prepayment_enabled,
+            { "Prepayment Enabled", "zbee_zcl_se.pp.attr.payment_control_configuration.prepayment_enabled", FT_BOOLEAN, 16, NULL,
+            0x0002, NULL, HFILL } },
+        { &hf_zbee_zcl_pp_payment_control_configuration_credit_management_enabled,
+            { "Credit Management Enabled", "zbee_zcl_se.pp.attr.payment_control_configuration.credit_management_enabled", FT_BOOLEAN, 16, NULL,
+            0x0004, NULL, HFILL } },
+        { &hf_zbee_zcl_pp_payment_control_configuration_credit_display_enabled,
+            { "Credit Display Enabled", "zbee_zcl_se.pp.attr.payment_control_configuration.credit_display_enabled", FT_BOOLEAN, 16, NULL,
+            0x0010, NULL, HFILL } },
+        { &hf_zbee_zcl_pp_payment_control_configuration_account_base,
+            { "Account Base", "zbee_zcl_se.pp.attr.payment_control_configuration.account_base", FT_BOOLEAN, 16, NULL,
+            0x0040, NULL, HFILL } },
+        { &hf_zbee_zcl_pp_payment_control_configuration_contactor_fitted,
+            { "Contactor Fitted", "zbee_zcl_se.pp.attr.payment_control_configuration.contactor_fitted", FT_BOOLEAN, 16, NULL,
+            0x0080, NULL, HFILL } },
+        { &hf_zbee_zcl_pp_payment_control_configuration_standing_charge_configuration,
+            { "Standing Charge Configuration", "zbee_zcl_se.pp.attr.payment_control_configuration.standing_charge_configuration", FT_BOOLEAN, 16, NULL,
+            0x0100, NULL, HFILL } },
+        { &hf_zbee_zcl_pp_payment_control_configuration_emergency_standing_charge_configuration,
+            { "Emergency Standing Charge Configuration", "zbee_zcl_se.pp.attr.payment_control_configuration.emergency_standing_charge_configuration", FT_BOOLEAN, 16, NULL,
+            0x0200, NULL, HFILL } },
+        { &hf_zbee_zcl_pp_payment_control_configuration_debt_configuration,
+            { "Debt Configuration", "zbee_zcl_se.pp.attr.payment_control_configuration.debt_configuration", FT_BOOLEAN, 16, NULL,
+            0x0400, NULL, HFILL } },
+        { &hf_zbee_zcl_pp_payment_control_configuration_emergency_debt_configuration,
+            { "Emergency Debt Configuration", "zbee_zcl_se.pp.attr.payment_control_configuration.emergency_debt_configuration", FT_BOOLEAN, 16, NULL,
+            0x0800, NULL, HFILL } },
+        { &hf_zbee_zcl_pp_payment_control_configuration_reserved,
+            { "Reserved", "zbee_zcl_se.pp.attr.payment_control_configuration.reserved", FT_UINT16, BASE_HEX, NULL,
+            0xF028, NULL, HFILL } },
     };
 
     /* ZCL Prepayment subtrees */
     gint *ett[ZBEE_ZCL_SE_PP_NUM_TOTAL_ETT];
     ett[0] = &ett_zbee_zcl_pp;
+    ett[1] = &ett_zbee_zcl_pp_payment_control_configuration;
 
     guint j = ZBEE_ZCL_SE_PP_NUM_INDIVIDUAL_ETT;
 
