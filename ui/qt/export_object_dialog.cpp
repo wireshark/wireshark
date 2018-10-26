@@ -145,7 +145,11 @@ void ExportObjectDialog::saveCurrentEntry()
 {
     QDir path(wsApp->lastOpenDir());
 
-    QModelIndex current = eo_ui_->objectTree->currentIndex();
+    QModelIndex proxyIndex = eo_ui_->objectTree->currentIndex();
+    if (!proxyIndex.isValid())
+        return;
+
+    QModelIndex current = proxyModel_.mapToSource(proxyIndex);
     if (!current.isValid())
         return;
 
