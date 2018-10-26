@@ -406,7 +406,7 @@ my $StaticRegex             = qr/ static \s+                                    
 my $ConstRegex              = qr/ const  \s+                                                            /xs;
 my $Static_andor_ConstRegex = qr/ (?: $StaticRegex $ConstRegex | $StaticRegex | $ConstRegex)            /xs;
 my $ValueStringVarnameRegex = qr/ (?:value|val64|string|range|bytes)_string                             /xs;
-my $ValueStringRegex        = qr/ $Static_andor_ConstRegex ($ValueStringVarnameRegex) \ + [^;*]+ = [^;]+ [{] .+? [}] \s*? ;  /xs;
+my $ValueStringRegex        = qr/ $Static_andor_ConstRegex ($ValueStringVarnameRegex) \ + [^;*#]+ = [^;]+ [{] .+? [}] \s*? ;  /xs;
 my $EnumValRegex            = qr/ $Static_andor_ConstRegex enum_val_t \ + [^;*]+ = [^;]+ [{] .+? [}] \s*? ;  /xs;
 my $NewlineStringRegex      = qr/ ["] [^"]* \\n [^"]* ["] /xs;
 
