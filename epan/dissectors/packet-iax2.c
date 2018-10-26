@@ -514,6 +514,7 @@ static const val64_string codec_types[] = {
   {CODEC_MASK(AST_FORMAT_TESTLAW),   "Raw testing-law data (G.711)"},
   {0, NULL}
 };
+static val64_string_ext codec_types_ext = VAL64_STRING_EXT_INIT(codec_types);
 
 static const value_string iax_dataformats[] = {
   {AST_DATAFORMAT_NULL,      "N/A (analogue call?)"},
@@ -2535,7 +2536,7 @@ static void dissect_payload(tvbuff_t *tvb, guint32 offset,
 #endif
   } else {
       col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-                      val64_to_str(CODEC_MASK(codec), codec_types, "unknown (0x%04x)"));
+                      val64_to_str_ext(CODEC_MASK(codec), &codec_types_ext, "unknown (0x%04x)"));
   }
 
   nbytes = tvb_reported_length(sub_tvb);
@@ -2706,7 +2707,7 @@ proto_register_iax2(void)
 
     {&hf_iax2_voice_codec,
      {"CODEC", "iax2.voice.codec",
-      FT_UINT64, BASE_HEX | BASE_VAL64_STRING, VALS64(codec_types), 0x0,
+      FT_UINT64, BASE_HEX | BASE_EXT_STRING | BASE_VAL64_STRING, &codec_types_ext, 0x0,
       "CODEC gives the codec used to encode audio data",
       HFILL}},
 
@@ -2723,7 +2724,7 @@ proto_register_iax2(void)
 
     {&hf_iax2_video_codec,
      {"CODEC", "iax2.video.codec",
-      FT_UINT64, BASE_HEX | BASE_VAL64_STRING, VALS64(codec_types), 0,
+      FT_UINT64, BASE_HEX | BASE_EXT_STRING | BASE_VAL64_STRING, &codec_types_ext, 0,
       "The codec used to encode video data",
       HFILL}},
 
@@ -2874,7 +2875,7 @@ proto_register_iax2(void)
 
     {&hf_iax2_ies[IAX_IE_FORMAT],
      {"Desired codec format", "iax2.iax.format",
-      FT_UINT64, BASE_HEX | BASE_VAL64_STRING, VALS64(codec_types), 0x0,
+      FT_UINT64, BASE_HEX | BASE_EXT_STRING | BASE_VAL64_STRING, &codec_types_ext, 0x0,
       NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_LANGUAGE],
@@ -3094,7 +3095,7 @@ proto_register_iax2(void)
 
     {&hf_iax2_ies[IAX_IE_FORMAT2],
      {"64-bit codec format", "iax2.iax.format2",
-      FT_UINT64, BASE_HEX | BASE_VAL64_STRING, VALS64(codec_types), 0x0,
+      FT_UINT64, BASE_HEX | BASE_EXT_STRING | BASE_VAL64_STRING, &codec_types_ext, 0x0,
       NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_DATAFORMAT],
