@@ -1895,7 +1895,6 @@ static const value_string cpu_diag_eventid_fix_names[] = {
     { 0x596D,                               "The existing network configuration does not mach the system requirements or configuration" },
     { 0x5979,                               "Diagnostic message from DP interface: EXTF LED on" },
     { 0x597C,                               "DP Global Control command failed or moved" },
-    { 0x597C,                               "DP command Global Control failure or moved" },
     { 0x59A0,                               "The interrupt can not be associated in the CPU" },
     { 0x59A1,                               "Configuration error in the integrated technology" },
     { 0x59A3,                               "Error when downloading the integrated technology" },
