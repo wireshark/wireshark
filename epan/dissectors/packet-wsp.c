@@ -22,9 +22,6 @@
  * Session Initiation Request dissection
  * by Olivier Biot.
  *
- * TODO - Move parts of dissection before and other parts after "if (tree)",
- * for example skip almost all but content type in replies if tree is closed.
- *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
@@ -3869,7 +3866,7 @@ dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tree, dissector_handle_t dissector_handle)
 {
     proto_item        *ti;
-    proto_tree        *addresses_tree = NULL;
+    proto_tree        *addresses_tree;
     proto_tree        *addr_tree      = NULL;
     guint8             bearer_type;
     guint8             address_flags_len;
@@ -3897,11 +3894,8 @@ dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
     /*
      * Redirect addresses.
      */
-    if (tree) {
-        ti = proto_tree_add_item(tree, hf_redirect_addresses,
-                tvb, 0, -1, ENC_NA);
-        addresses_tree = proto_item_add_subtree(ti, ett_addresses);
-    }
+    ti = proto_tree_add_item(tree, hf_redirect_addresses, tvb, 0, -1, ENC_NA);
+    addresses_tree = proto_item_add_subtree(ti, ett_addresses);
 
     while (tvb_reported_length_remaining (tvb, offset) > 0) {
         idx++;
@@ -3982,11 +3976,8 @@ dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
                 goto unknown_address_type;
             }
             address_ipv4 = tvb_get_ipv4(tvb, offset);
-            if (tree) {
-                proto_tree_add_ipv4 (addr_tree,
-                    hf_address_ipv4_addr,
+            proto_tree_add_ipv4 (addr_tree, hf_address_ipv4_addr,
                     tvb, offset, 4, address_ipv4);
-            }
 
             /*
              * Create a conversation so that the
@@ -4018,11 +4009,8 @@ dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
                 goto unknown_address_type;
             }
             tvb_get_ipv6(tvb, offset, &address_ipv6);
-            if (tree) {
-                proto_tree_add_ipv6 (addr_tree,
-                    hf_address_ipv6_addr,
+            proto_tree_add_ipv6 (addr_tree, hf_address_ipv6_addr,
                     tvb, offset, 16, &address_ipv6);
-            }
 
             /*
              * Create a conversation so that the
@@ -4046,10 +4034,8 @@ dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
         unknown_address_type:
         default:
             if (address_len != 0) {
-                if (tree) {
-                    proto_tree_add_item (addr_tree, hf_address_addr,
-                            tvb, offset, address_len, ENC_NA);
-                }
+                proto_tree_add_item (addr_tree, hf_address_addr,
+                        tvb, offset, address_len, ENC_NA);
             }
             break;
         }
@@ -4668,27 +4654,22 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             val_to_str_ext (pdut, &wsp_vals_pdu_type_ext, "Unknown PDU type (0x%02x)"),
             pdut);
 
-    /* In the interest of speed, if "tree" is NULL, don't do any work not
-     * necessary to generate protocol tree items. */
-    if (tree) {
-        proto_ti = proto_tree_add_item(tree, proto_wsp,
-                tvb, 0, -1, ENC_NA);
-        wsp_tree = proto_item_add_subtree(proto_ti, ett_wsp);
-        proto_item_append_text(proto_ti, ", Method: %s (0x%02x)",
-                val_to_str_ext (pdut, &wsp_vals_pdu_type_ext, "Unknown (0x%02x)"),
-                pdut);
+    proto_ti = proto_tree_add_item(tree, proto_wsp, tvb, 0, -1, ENC_NA);
+    wsp_tree = proto_item_add_subtree(proto_ti, ett_wsp);
+    proto_item_append_text(proto_ti, ", Method: %s (0x%02x)",
+            val_to_str_ext (pdut, &wsp_vals_pdu_type_ext, "Unknown (0x%02x)"),
+            pdut);
 
-        /* Add common items: only TID and PDU Type */
+    /* Add common items: only TID and PDU Type */
 
-        /* If this is connectionless, then the TID Field is always first */
-        if (is_connectionless)
-        {
-            proto_tree_add_item (wsp_tree, hf_wsp_header_tid,
-                    tvb, 0, 1, ENC_LITTLE_ENDIAN);
-        }
-        proto_tree_add_item( wsp_tree, hf_wsp_header_pdu_type,
-                tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    /* If this is connectionless, then the TID Field is always first */
+    if (is_connectionless)
+    {
+        proto_tree_add_item (wsp_tree, hf_wsp_header_tid,
+                tvb, 0, 1, ENC_LITTLE_ENDIAN);
     }
+    proto_tree_add_item( wsp_tree, hf_wsp_header_pdu_type,
+            tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset++;
 
     /* Map extended methods to the main method now the Column info has been
@@ -4773,14 +4754,12 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         case WSP_PDU_DISCONNECT:
         case WSP_PDU_SUSPEND:
-            if (tree) {
-                count = 0;  /* Initialise count */
-                value = tvb_get_guintvar (tvb, offset, &count, pinfo, &ei_wsp_oversized_uintvar);
-                proto_tree_add_uint (wsp_tree,
-                        hf_wsp_server_session_id,
-                        tvb, offset, count, value);
-                proto_item_append_text(proto_ti, ", Session ID: %u", value);
-            }
+            count = 0;  /* Initialise count */
+            value = tvb_get_guintvar (tvb, offset, &count, pinfo,
+                    &ei_wsp_oversized_uintvar);
+            proto_tree_add_uint (wsp_tree, hf_wsp_server_session_id,
+                    tvb, offset, count, value);
+            proto_item_append_text(proto_ti, ", Session ID: %u", value);
             break;
 
         case WSP_PDU_GET:
@@ -4793,11 +4772,9 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             value = tvb_get_guintvar (tvb, offset, &count, pinfo, &ei_wsp_oversized_uintvar);
             nextOffset = offset + count;
             add_uri (wsp_tree, pinfo, tvb, offset, nextOffset, proto_ti);
-            if (tree) {
-                offset += value + count; /* VERIFY */
-                tmp_tvb = tvb_new_subset_remaining (tvb, offset);
-                add_headers (wsp_tree, tmp_tvb, hf_wsp_headers_section, pinfo);
-            }
+            offset += value + count; /* VERIFY */
+            tmp_tvb = tvb_new_subset_remaining (tvb, offset);
+            add_headers (wsp_tree, tmp_tvb, hf_wsp_headers_section, pinfo);
             break;
 
         case WSP_PDU_POST:
@@ -4813,9 +4790,8 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             add_uri (wsp_tree, pinfo, tvb, uriStart, offset, proto_ti);
             offset += uriLength;
 
-            if (tree)
-                proto_tree_add_uint (wsp_tree, hf_wsp_header_length,
-                        tvb, headerStart, count, headersLength);
+            proto_tree_add_uint (wsp_tree, hf_wsp_header_length,
+                    tvb, headerStart, count, headersLength);
 
             /* Stop processing POST PDU if length of headers is zero;
              * this should not happen as we expect at least Content-Type. */
@@ -4874,9 +4850,8 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         pinfo->match_string = contentTypeStr;
                         call_dissector_with_data(media_handle, tmp_tvb, pinfo, tree, NULL /* TODO: parameters */);
 #if 0
-                        if (tree) /* Only display if needed */
-                            add_post_data (wsp_tree, tmp_tvb,
-                                    contentType, contentTypeStr, pinfo);
+                        add_post_data (wsp_tree, tmp_tvb,
+                                contentType, contentTypeStr, pinfo);
 #endif
                     }
                 }
@@ -4892,12 +4867,11 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 const char *reply_status_str;
 
                 reply_status_str = val_to_str_ext_const (reply_status, &wsp_vals_status_ext, "(Unknown response status)");
-                if (tree) {
-                    proto_tree_add_item (wsp_tree, hf_wsp_header_status,
-                            tvb, offset, 1, ENC_LITTLE_ENDIAN);
-                    proto_item_append_text(proto_ti, ", Status: %s (0x%02x)",
-                            reply_status_str, reply_status);
-                }
+                proto_tree_add_item (wsp_tree, hf_wsp_header_status,
+                        tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                proto_item_append_text(proto_ti, ", Status: %s (0x%02x)",
+                        reply_status_str, reply_status);
+
                 stat_info->status_code = (gint) reply_status;
                 /* Append status code to INFO column */
                 col_append_fstr(pinfo->cinfo, COL_INFO,
@@ -4905,9 +4879,8 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                             reply_status_str, reply_status);
             }
             nextOffset = offset + 1 + count;
-            if (tree)
-                proto_tree_add_uint (wsp_tree, hf_wsp_header_length,
-                        tvb, offset + 1, count, headersLength);
+            proto_tree_add_uint (wsp_tree, hf_wsp_header_length,
+                    tvb, offset + 1, count, headersLength);
 
             if (headersLength == 0)
                 break;
@@ -4963,9 +4936,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         pinfo->match_string = contentTypeStr;
                         call_dissector_with_data(media_handle, tmp_tvb, pinfo, tree, NULL /* TODO: parameters */);
 #if 0
-                        if (tree) / * Only display if needed * /
-                            proto_tree_add_item (wsp_tree,
-                                hf_wsp_reply_data,
+                        proto_tree_add_item (wsp_tree, hf_wsp_reply_data,
                                 tmp_tvb, 0, -1, ENC_NA);
 #endif
                     }
@@ -5053,9 +5024,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         pinfo->match_string = contentTypeStr;
                         call_dissector_with_data(media_handle, tmp_tvb, pinfo, tree, NULL /* TODO: parameters */);
 #if 0
-                        if (tree) /* Only display if needed */
-                            proto_tree_add_item (wsp_tree,
-                                    hf_wsp_push_data,
+                        proto_tree_add_item (wsp_tree, hf_wsp_push_data,
                                     tmp_tvb, 0, -1, ENC_NA);
 #endif
                     }
@@ -5411,50 +5380,45 @@ add_post_data (proto_tree *tree, tvbuff_t *tvb, guint contentType,
     guint       valueStart    = 0;
     guint8      peek          = 0;
     proto_item *ti;
-    proto_tree *sub_tree      = NULL;
+    proto_tree *sub_tree;
 
     /* VERIFY ti = proto_tree_add_item (tree, hf_wsp_post_data,tvb,offset,-1,ENC_NA); */
-    if (tree) {
-        ti = proto_tree_add_item (tree, hf_wsp_post_data,
-                tvb, offset, -1, ENC_NA);
-        sub_tree = proto_item_add_subtree(ti, ett_post);
-    }
+    ti = proto_tree_add_item (tree, hf_wsp_post_data, tvb, offset, -1, ENC_NA);
+    sub_tree = proto_item_add_subtree(ti, ett_post);
 
     if ( (contentTypeStr == NULL && contentType == 0x12)
             || (contentTypeStr && (g_ascii_strcasecmp(contentTypeStr,
                         "application/x-www-form-urlencoded") == 0)) )
     {
-        if (tree) {
-            /*
-             * URL Encoded data.
-             * Iterate through post data.
-             */
-            for (offset = 0; offset < tvb_reported_length (tvb); offset++)
+        /*
+         * URL Encoded data.
+         * Iterate through post data.
+         */
+        for (offset = 0; offset < tvb_reported_length (tvb); offset++)
+        {
+            peek = tvb_get_guint8 (tvb, offset);
+            if (peek == '=')
             {
-                peek = tvb_get_guint8 (tvb, offset);
-                if (peek == '=')
-                {
-                    variableEnd = offset;
-                    valueStart = offset+1;
-                }
-                else if (peek == '&')
-                {
-                    if (variableEnd > 0)
-                    {
-                        add_post_variable (sub_tree, tvb, variableStart, variableEnd, valueStart, offset);
-                    }
-                    variableStart = offset+1;
-                    variableEnd = 0;
-                    valueStart = 0;
-                }
+                variableEnd = offset;
+                valueStart = offset+1;
             }
+            else if (peek == '&')
+            {
+                if (variableEnd > 0)
+                {
+                    add_post_variable (sub_tree, tvb, variableStart, variableEnd, valueStart, offset);
+                }
+                variableStart = offset+1;
+                variableEnd = 0;
+                valueStart = 0;
+            }
+        }
 
-            /* See if there's outstanding data */
-            if (variableEnd > 0)
-            {
-                add_post_variable (sub_tree, tvb, variableStart, variableEnd, valueStart, offset);
-            }
-        } /* if (tree) */
+        /* See if there's outstanding data */
+        if (variableEnd > 0)
+        {
+            add_post_variable (sub_tree, tvb, variableStart, variableEnd, valueStart, offset);
+        }
     }
     else if ((contentType == 0x22) || (contentType == 0x23) || (contentType == 0x24) ||
          (contentType == 0x25) || (contentType == 0x26) || (contentType == 0x33))
@@ -5542,15 +5506,11 @@ add_multipart_data (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
         nextOffset = add_content_type (mpart_tree, pinfo, tvb, offset,
                 &contentType, &contentTypeStr);
 
-        if (tree) {
-            /* Add content type to protocol summary line */
-            if (contentTypeStr) {
-                proto_item_append_text(ti, ", content-type: %s",
-                        contentTypeStr);
-            } else {
-                proto_item_append_text(ti, ", content-type: 0x%X",
-                        contentType);
-            }
+        /* Add content type to protocol summary line */
+        if (contentTypeStr) {
+            proto_item_append_text(ti, ", content-type: %s", contentTypeStr);
+        } else {
+            proto_item_append_text(ti, ", content-type: 0x%X", contentType);
         }
 
         HeadersLen -= (nextOffset - offset);
@@ -5585,9 +5545,8 @@ add_multipart_data (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
                 pinfo->match_string = contentTypeStr;
                 call_dissector_with_data(media_handle, tmp_tvb, pinfo, mpart_tree, NULL /* TODO: parameters */);
 #if 0
-                if (tree) /* Only display if needed */
-                    proto_tree_add_item (mpart_tree, hf_wsp_multipart_data,
-                            tvb, offset, DataLen, ENC_NA);
+                proto_tree_add_item (mpart_tree, hf_wsp_multipart_data,
+                        tvb, offset, DataLen, ENC_NA);
 #endif
             }
         }
