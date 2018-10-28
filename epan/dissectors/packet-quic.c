@@ -1132,37 +1132,116 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             proto_item_append_text(ti_ft, " Error code: 0x%04x", error_code);
         }
         break;
+        case FT_ACK_OLD:{
+            if (is_quic_draft_max(quic_info->version, 14)) {
+                guint64 ack_block_count;
+                guint32 lenvar;
+
+                col_append_fstr(pinfo->cinfo, COL_INFO, ", ACK");
+
+                proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ack_largest_acknowledged, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+                offset += lenvar;
+
+                proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ack_ack_delay, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+                offset += lenvar;
+
+                proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ack_ack_block_count, tvb, offset, -1, ENC_VARINT_QUIC, &ack_block_count, &lenvar);
+                offset += lenvar;
+
+                /* ACK Block */
+                /* First ACK Block Length */
+                proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ack_fab, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+                offset += lenvar;
+
+                /* Repeated "Ack Block Count" */
+                while(ack_block_count){
+
+                    /* Gap To Next Block */
+                    proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ack_gap, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+                    offset += lenvar;
+
+                    proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ack_ack_block, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+                    offset += lenvar;
+
+                    ack_block_count--;
+                }
+            }
+        }
+        break;
         case FT_ACK:{
-            guint64 ack_block_count;
-            guint32 lenvar;
+            if (is_quic_draft_max(quic_info->version, 14)) { /* FT_ACK_ECN_OLD */
+                guint64 ack_block_count;
+                guint32 lenvar;
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", ACK");
+                col_append_fstr(pinfo->cinfo, COL_INFO, ", AE");
 
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ack_largest_acknowledged, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
-            offset += lenvar;
-
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ack_ack_delay, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
-            offset += lenvar;
-
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ack_ack_block_count, tvb, offset, -1, ENC_VARINT_QUIC, &ack_block_count, &lenvar);
-            offset += lenvar;
-
-            /* ACK Block */
-            /* First ACK Block Length */
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ack_fab, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
-            offset += lenvar;
-
-            /* Repeated "Ack Block Count" */
-            while(ack_block_count){
-
-                /* Gap To Next Block */
-                proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ack_gap, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+                proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ae_largest_acknowledged, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
                 offset += lenvar;
 
-                proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ack_ack_block, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+                proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ae_ack_delay, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
                 offset += lenvar;
 
-                ack_block_count--;
+                proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ae_ect0_count, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+                offset += lenvar;
+
+                proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ae_ect1_count, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+                offset += lenvar;
+
+                proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ae_ecn_ce_count, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+                offset += lenvar;
+
+                proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ae_ack_block_count, tvb, offset, -1, ENC_VARINT_QUIC, &ack_block_count, &lenvar);
+                offset += lenvar;
+
+                /* ACK Block */
+                /* First ACK Block Length */
+                proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ae_fab, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+                offset += lenvar;
+
+                /* Repeated "Ack Block Count" */
+                while(ack_block_count){
+
+                    /* Gap To Next Block */
+                    proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ae_gap, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+                    offset += lenvar;
+
+                    proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ae_ack_block, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+                    offset += lenvar;
+
+                    ack_block_count--;
+                }
+            } else {
+                guint64 ack_block_count;
+                guint32 lenvar;
+
+                col_append_fstr(pinfo->cinfo, COL_INFO, ", ACK");
+
+                proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ack_largest_acknowledged, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+                offset += lenvar;
+
+                proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ack_ack_delay, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+                offset += lenvar;
+
+                proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ack_ack_block_count, tvb, offset, -1, ENC_VARINT_QUIC, &ack_block_count, &lenvar);
+                offset += lenvar;
+
+                /* ACK Block */
+                /* First ACK Block Length */
+                proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ack_fab, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+                offset += lenvar;
+
+                /* Repeated "Ack Block Count" */
+                while(ack_block_count){
+
+                    /* Gap To Next Block */
+                    proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ack_gap, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+                    offset += lenvar;
+
+                    proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ack_ack_block, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+                    offset += lenvar;
+
+                    ack_block_count--;
+                }
             }
         }
         break;
@@ -1274,15 +1353,6 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ae_ack_delay, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
             offset += lenvar;
 
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ae_ect0_count, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
-            offset += lenvar;
-
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ae_ect1_count, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
-            offset += lenvar;
-
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ae_ecn_ce_count, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
-            offset += lenvar;
-
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ae_ack_block_count, tvb, offset, -1, ENC_VARINT_QUIC, &ack_block_count, &lenvar);
             offset += lenvar;
 
@@ -1303,6 +1373,15 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
 
                 ack_block_count--;
             }
+
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ae_ect0_count, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+            offset += lenvar;
+
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ae_ect1_count, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+            offset += lenvar;
+
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ae_ecn_ce_count, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+            offset += lenvar;
         }
         break;
         default:
