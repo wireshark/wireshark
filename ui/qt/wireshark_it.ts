@@ -7712,6 +7712,10 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>Conferma file di cattura non salvati</translation>
     </message>
     <message>
+        <source>Display autocompletion for filter text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Main toolbar style:</source>
         <translation>Stile della barra degli strumenti principale:</translation>
     </message>

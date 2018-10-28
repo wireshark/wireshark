@@ -7653,6 +7653,10 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Display autocompletion for filter text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Main toolbar style:</source>
         <translation type="unfinished"></translation>
     </message>

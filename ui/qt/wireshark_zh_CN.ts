@@ -7691,6 +7691,10 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>确认未保存的捕获文件</translation>
     </message>
     <message>
+        <source>Display autocompletion for filter text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Main toolbar style:</source>
         <translation>主工具栏样式：</translation>
     </message>

@@ -7683,6 +7683,10 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Toujours Confirmer avant un fichier de capture non sauvegardé</translation>
     </message>
     <message>
+        <source>Display autocompletion for filter text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Main toolbar style:</source>
         <translation>Style de la barre d&apos;outils principale :</translation>
     </message>

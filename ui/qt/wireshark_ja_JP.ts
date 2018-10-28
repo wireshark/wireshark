@@ -7674,6 +7674,10 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>保存していないキャプチャファイルの確認</translation>
     </message>
     <message>
+        <source>Display autocompletion for filter text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Main toolbar style:</source>
         <translation>メニューツールバーのスタイル:</translation>
     </message>

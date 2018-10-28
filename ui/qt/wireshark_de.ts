@@ -7712,6 +7712,10 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>Bei ungesicherten Mitschnittdateien nachfragen</translation>
     </message>
     <message>
+        <source>Display autocompletion for filter text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Main toolbar style:</source>
         <translation>Stil Hauptleiste</translation>
     </message>
