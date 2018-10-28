@@ -1053,9 +1053,10 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
 
             col_append_fstr(pinfo->cinfo, COL_INFO, ", NCI");
 
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_nci_sequence, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_sequence);
-            offset += len_sequence;
-
+            if (is_quic_draft_max(quic_info->version, 14)) {
+                proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_nci_sequence, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_sequence);
+                offset += len_sequence;
+            }
             ti = proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type_nci_connection_id_length, tvb, offset, 1, ENC_BIG_ENDIAN, &nci_length);
             offset++;
 
@@ -1073,6 +1074,11 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
                 quic_connection_add_cid(quic_info, &cid, from_server);
             }
             offset += nci_length;
+
+            if (!is_quic_draft_max(quic_info->version, 14)) {
+                proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_nci_sequence, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_sequence);
+                offset += len_sequence;
+            }
 
             proto_tree_add_item(ft_tree, hf_quic_frame_type_nci_stateless_reset_token, tvb, offset, 16, ENC_NA);
             offset += 16;
