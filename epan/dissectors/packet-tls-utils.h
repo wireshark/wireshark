@@ -162,6 +162,8 @@ typedef enum {
 #define SSL_HND_QUIC_TP_DISABLE_MIGRATION                   9
 #define SSL_HND_QUIC_TP_INITIAL_MAX_STREAM_DATA_BIDI_REMOTE 10
 #define SSL_HND_QUIC_TP_INITIAL_MAX_STREAM_DATA_UNI         11
+#define SSL_HND_QUIC_TP_MAX_ACK_DELAY                       12
+#define SSL_HND_QUIC_TP_ORIGINAL_CONNECTION_ID              13
 
 /*
  * Lookup tables
@@ -882,6 +884,8 @@ typedef struct ssl_common_dissect {
         gint hs_ext_quictp_parameter_initial_max_uni_streams;
         gint hs_ext_quictp_parameter_initial_max_stream_data_bidi_remote;
         gint hs_ext_quictp_parameter_initial_max_stream_data_uni;
+        gint hs_ext_quictp_parameter_max_ack_delay;
+        gint hs_ext_quictp_parameter_ocid;
 
         gint esni_suite;
         gint esni_record_digest_length;
@@ -1111,7 +1115,7 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1,                                                 \
+        -1, -1, -1, -1, -1, -1,                                         \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
@@ -1996,6 +2000,16 @@ ssl_common_dissect_t name = {   \
       { "initial_max_stream_data_uni", prefix ".quic.parameter.initial_max_stream_data_uni", \
         FT_UINT32, BASE_DEC, NULL, 0x00,                                \
         "Initial stream maximum data for unidirectional streams parameter", HFILL } \
+    },                                                                  \
+    { & name .hf.hs_ext_quictp_parameter_max_ack_delay,                 \
+      { "max_ack_delay", prefix ".quic.parameter.max_ack_delay",        \
+        FT_UINT8, BASE_DEC, NULL, 0x00,                                 \
+        "Indicating the maximum amount of time in milliseconds by which it will delay sending of acknowledgments", HFILL } \
+    },                                                                  \
+    { & name .hf.hs_ext_quictp_parameter_ocid,                          \
+      { "original_connection_id", prefix ".quic.parameter.ocid",        \
+        FT_BYTES, BASE_NONE, NULL, 0x00,                                \
+        "The value of the Destination Connection ID field from the first Initial packet sent by the client", HFILL } \
     },                                                                  \
     { & name .hf.esni_suite,                                            \
       { "Cipher Suite", prefix ".esni.suite",                           \

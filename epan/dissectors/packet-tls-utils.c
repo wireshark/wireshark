@@ -1370,6 +1370,8 @@ const value_string quic_transport_parameter_id[] = {
     { SSL_HND_QUIC_TP_DISABLE_MIGRATION, "disable_migration" },
     { SSL_HND_QUIC_TP_INITIAL_MAX_STREAM_DATA_BIDI_REMOTE, "initial_max_stream_data_bidi_remote" },
     { SSL_HND_QUIC_TP_INITIAL_MAX_STREAM_DATA_UNI, "initial_max_stream_data_uni" },
+    { SSL_HND_QUIC_TP_MAX_ACK_DELAY, "max_ack_delay" },
+    { SSL_HND_QUIC_TP_ORIGINAL_CONNECTION_ID, "original_connection_id" },
     { 0, NULL }
 };
 
@@ -6602,6 +6604,8 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
      *     disable_migration(9),
      *     initial_max_stream_data_bidi_remote(10),
      *     initial_max_stream_data_uni(11),
+     *     max_ack_delay(12),
+     *     original_connection_id(13),
      *     (65535)
      *  } TransportParameterId;
      *
@@ -6802,6 +6806,17 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
                                     tvb, offset, 4, ENC_BIG_ENDIAN);
                 proto_item_append_text(parameter_tree, " %u", tvb_get_ntohl(tvb, offset));
                 offset += 4;
+            break;
+            case SSL_HND_QUIC_TP_MAX_ACK_DELAY:
+                proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_max_ack_delay,
+                                    tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_item_append_text(parameter_tree, " %u", tvb_get_guint8(tvb, offset));
+                offset += 1;
+            break;
+            case SSL_HND_QUIC_TP_ORIGINAL_CONNECTION_ID:
+                proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_ocid,
+                                    tvb, offset, parameter_length, ENC_NA);
+                offset += parameter_length;
             break;
             default:
                 offset += parameter_length;
