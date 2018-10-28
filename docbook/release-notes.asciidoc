@@ -56,6 +56,8 @@ since version 2.6.0:
   can now be copied from other profiles using a button in the corresponding
   configuration dialogs.
 * APT-X has been renamed to aptX.
+* When importing from hex dump, it's now possible to add an ExportPDU header with a payload name. This
+  calls the specific dissector directly without lower protocols.
 
 === Removed Features and Support
 

@@ -44,7 +44,8 @@ enum dummy_header_type
     HEADER_UDP,
     HEADER_TCP,
     HEADER_SCTP,
-    HEADER_SCTP_DATA
+    HEADER_SCTP_DATA,
+    HEADER_EXPORT_PDU
 };
 
 typedef struct
@@ -69,6 +70,7 @@ typedef struct
     guint dst_port;
     guint tag;
     guint ppi;
+    gchar* payload;
 
     guint max_frame_length;
 } text_import_info_t;

@@ -151,6 +151,10 @@ static guint16 hdr_data_chunk_sid  = 0;
 static guint16 hdr_data_chunk_ssn  = 0;
 static guint32 hdr_data_chunk_ppid = 0;
 
+/* Dummy ExportPdu header */
+static int hdr_export_pdu = FALSE;
+static gchar* hdr_export_pdu_payload = NULL;
+
 static gboolean has_direction = FALSE;
 static guint32 direction = 0;
 
@@ -288,6 +292,15 @@ typedef struct {
 
 static hdr_data_chunk_t HDR_DATA_CHUNK = {0, 0, 0, 0, 0, 0, 0};
 
+typedef struct {
+    guint16 tag_type;
+    guint16 payload_len;
+} hdr_export_pdu_t;
+
+static hdr_export_pdu_t HDR_EXPORT_PDU = {0, 0};
+
+#define EXPORT_PDU_END_OF_OPTIONS_SIZE 4
+
 /* Link-layer type; see net/bpf.h for details */
 static guint pcap_link_type = 1;   /* Default is DLT_EN10MB */
 
@@ -372,6 +385,10 @@ write_current_packet (void)
 
         /* Compute packet length */
         prefix_length = 0;
+        if (hdr_export_pdu) {
+            prefix_length += (int)sizeof(HDR_EXPORT_PDU) + (int)strlen(hdr_export_pdu_payload) + EXPORT_PDU_END_OF_OPTIONS_SIZE;
+            proto_length = prefix_length + curr_offset;
+        }
         if (hdr_data_chunk) { prefix_length += (int)sizeof(HDR_DATA_CHUNK); }
         if (hdr_sctp) { prefix_length += (int)sizeof(HDR_SCTP); }
         if (hdr_udp) { prefix_length += (int)sizeof(HDR_UDP); proto_length = prefix_length + curr_offset; }
@@ -493,6 +510,19 @@ write_current_packet (void)
         if (hdr_data_chunk) {
             memcpy(&packet_buf[prefix_index], &HDR_DATA_CHUNK, sizeof(HDR_DATA_CHUNK));
             /*prefix_index += (int)sizeof(HDR_DATA_CHUNK);*/
+        }
+
+        /* Write ExportPDU header */
+        if (hdr_export_pdu) {
+            guint64 payload_len = (guint)strlen(hdr_export_pdu_payload);
+            HDR_EXPORT_PDU.tag_type = g_htons(0x0c); // EXP_PDU_TAG_PROTO_NAME;
+            HDR_EXPORT_PDU.payload_len = g_htons(payload_len);
+            memcpy(&packet_buf[prefix_index], &HDR_EXPORT_PDU, sizeof(HDR_EXPORT_PDU));
+            prefix_index += sizeof(HDR_EXPORT_PDU);
+            memcpy(&packet_buf[prefix_index], hdr_export_pdu_payload, payload_len);
+            prefix_index += (guint)payload_len;
+            /* Add end-of-options tag */
+            memset(&packet_buf[prefix_index], 0x00, 4);
         }
 
         /* Write Ethernet trailer */
@@ -911,7 +941,7 @@ text_import(text_import_info_t *info)
 
     packet_buf = (guint8 *)g_malloc(sizeof(HDR_ETHERNET) + sizeof(HDR_IP) +
                                     sizeof(HDR_SCTP) + sizeof(HDR_DATA_CHUNK) +
-                                    IMPORT_MAX_PACKET);
+                                    sizeof(HDR_EXPORT_PDU) + IMPORT_MAX_PACKET);
 
     if (!packet_buf)
     {
@@ -946,6 +976,7 @@ text_import(text_import_info_t *info)
     hdr_tcp = FALSE;
     hdr_sctp = FALSE;
     hdr_data_chunk = FALSE;
+    hdr_export_pdu = FALSE;
 
     offset_base = (info->offset_type == OFFSET_NONE) ? 0 :
                   (info->offset_type == OFFSET_HEX) ? 16 :
@@ -1021,6 +1052,11 @@ text_import(text_import_info_t *info)
             hdr_ip_proto = 132;
             hdr_ethernet = TRUE;
             hdr_ethernet_proto = 0x800;
+            break;
+
+        case HEADER_EXPORT_PDU:
+            hdr_export_pdu = TRUE;
+            hdr_export_pdu_payload = info->payload;
             break;
 
         default:

@@ -518,8 +518,8 @@ dissector.
 _Dummy header_::
 When Ethernet encapsulation is selected you have to option to prepend dummy
 headers to the frames to import. These headers can provide artificial Ethernet,
-IP, UDP or TCP or SCTP headers and SCTP data chunks. When selecting a type of
-dummy header the applicable entries are enabled, others are grayed out and
+IP, UDP or TCP or SCTP headers, SCTP data chunks or ExportPDU. When selecting a
+type of dummy header the applicable entries are enabled, others are grayed out and
 default values are used.
 
 _Maximum frame length_::
