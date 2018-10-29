@@ -1277,6 +1277,28 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     break;
   case PROTOCOL_BINARY_DCP_EXPIRATION:
+    if (extlen) {
+        if (request) {
+            proto_tree_add_item(extras_tree, hf_extras_by_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
+            offset += 8;
+            proto_tree_add_item(extras_tree, hf_extras_rev_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
+            offset += 8;
+            if (extlen == 20) {
+                proto_tree_add_item(extras_tree, hf_extras_delete_time, tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+            } else {
+                // Handle legacy expiration packet (despite its lack of use)
+                proto_tree_add_item(extras_tree, hf_extras_nmeta, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+            }
+        } else {
+            illegal = TRUE;
+        }
+    } else if (request) {
+        /* Request must have extras */
+        missing = TRUE;
+    }
+    break;
   case PROTOCOL_BINARY_DCP_FLUSH:
     if (extlen) {
       if (request) {
