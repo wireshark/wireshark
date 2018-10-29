@@ -11736,14 +11736,15 @@ static const range_string protected_he_action_rvals[] = {
 };
 
 /*
- *  * This currently only works for SU, 20MHz, 40MHz and 80MHz and grouping 4 and 16.
- *   */
+ * This currently only works for SU, 20MHz, 40MHz and 80MHz and grouping 4 and 16.
+ */
 struct scidx_start_end {
   int start;
   int end;
 };
 
-static const struct scidx_start_end scidx_20MHz_Ng4[9] = {
+#define N_SCIDX_20MHZ_NG4 9
+static const struct scidx_start_end scidx_20MHz_Ng4[N_SCIDX_20MHZ_NG4] = {
   { -122, -96 },
   { -96, -68 },
   { -68, -40 },
@@ -11755,6 +11756,7 @@ static const struct scidx_start_end scidx_20MHz_Ng4[9] = {
   { 96, 122 }
 };
 
+#define N_SCIDX_20MHZ_NG16 9
 static const struct scidx_start_end scidx_20MHz_Ng16[9] = {
   { -122, -84 },
   { -96, -64 },
@@ -11767,7 +11769,8 @@ static const struct scidx_start_end scidx_20MHz_Ng16[9] = {
   { 84, 122 }
 };
 
-static const struct scidx_start_end scidx_40MHz_Ng4[18] = {
+#define N_SCIDX_40MHZ_NG4 18
+static const struct scidx_start_end scidx_40MHz_Ng4[N_SCIDX_40MHZ_NG4] = {
   { -500 + 256, -472 + 256 },
   { -476 + 256, -448 + 256 },
   { -488 + 256, -420 + 256 },
@@ -11788,7 +11791,8 @@ static const struct scidx_start_end scidx_40MHz_Ng4[18] = {
   {  472 - 256,  500 - 256 }
 };
 
-static const struct scidx_start_end scidx_40MHz_Ng16[18] = {
+#define N_SCIDX_40MHZ_NG16 18
+static const struct scidx_start_end scidx_40MHz_Ng16[N_SCIDX_40MHZ_NG16] = {
   { -500 + 256, -468 + 256 },
   { -484 + 256, -436 + 256 },
   { -452 + 256, -420 + 256 },
@@ -11809,7 +11813,8 @@ static const struct scidx_start_end scidx_40MHz_Ng16[18] = {
   {  468 - 256,  500 - 256 }
 };
 
-static const struct scidx_start_end scidx_80MHz_Ng4[37] = {
+#define N_SCIDX_80MHZ_NG4 37
+static const struct scidx_start_end scidx_80MHz_Ng4[N_SCIDX_80MHZ_NG4] = {
   { -500, -472 },
   { -476, -448 },
   { -448, -420 },
@@ -11849,7 +11854,8 @@ static const struct scidx_start_end scidx_80MHz_Ng4[37] = {
   {  472,  500 }
 };
 
-static const struct scidx_start_end scidx_80MHz_Ng16[37] = {
+#define N_SCIDX_80MHZ_NG16 37
+static const struct scidx_start_end scidx_80MHz_Ng16[N_SCIDX_80MHZ_NG16] = {
   { -500, -468 },
   { -484, -436 },
   { -452, -420 },
@@ -11908,34 +11914,40 @@ next_he_scidx(int scidx, int bw _U_, int grouping _U_, int feedback _U_,
   int incr = 4;
 
   /*
- *    * We need to check the correct bw value to determine if we have hit
- *       * the end of the range of SCIDXes.
- *          */
+   * We need to check the correct bw value to determine if we have hit
+   * the end of the range of SCIDXes.
+   */
   switch (bw) {
   case BW_20MHz:
     if (grouping == 0) {
-      if (scidx == scidx_20MHz_Ng4[ru_end_index].end)  /* we returned the max */
+      if (ru_end_index >= N_SCIDX_20MHZ_NG4 ||
+          scidx == scidx_20MHz_Ng4[ru_end_index].end)  /* we returned the max */
         return SCIDX_END_SENTINAL;
     } else {
-      if (scidx == scidx_20MHz_Ng16[ru_end_index].end)
+      if (ru_end_index >= N_SCIDX_20MHZ_NG16 ||
+          scidx == scidx_20MHz_Ng16[ru_end_index].end)
         return SCIDX_END_SENTINAL;
     }
     break;
   case BW_40MHz:
     if (grouping == 0) {
-      if (scidx == scidx_40MHz_Ng4[ru_end_index].end)
+      if (ru_end_index >= N_SCIDX_40MHZ_NG4 ||
+          scidx == scidx_40MHz_Ng4[ru_end_index].end)
         return SCIDX_END_SENTINAL;
     } else {
-      if (scidx == scidx_40MHz_Ng16[ru_end_index].end)
+      if (ru_end_index >= N_SCIDX_40MHZ_NG16 ||
+          scidx == scidx_40MHz_Ng16[ru_end_index].end)
         return SCIDX_END_SENTINAL;
     }
     break;
   case BW_80MHz:
     if (grouping == 0) {
-      if (scidx == scidx_80MHz_Ng4[ru_end_index].end)
+      if (ru_end_index >= N_SCIDX_80MHZ_NG4 ||
+          scidx == scidx_80MHz_Ng4[ru_end_index].end)
         return SCIDX_END_SENTINAL;
     } else {
-      if (scidx == scidx_80MHz_Ng16[ru_end_index].end)
+      if (ru_end_index >= N_SCIDX_80MHZ_NG16 ||
+          scidx == scidx_80MHz_Ng16[ru_end_index].end)
         return SCIDX_END_SENTINAL;
     }
     break;
@@ -11944,34 +11956,55 @@ next_he_scidx(int scidx, int bw _U_, int grouping _U_, int feedback _U_,
   }
 
   /*
- *    * Check if this is the first time though and figure out the starting
- *       * SCIDX.
- *          */
+   * Check if this is the first time though and figure out the starting
+   * SCIDX.
+   */
   if (scidx == (int)SCIDX_END_SENTINAL)
     switch (bw) {
     case BW_20MHz:
-      if (grouping == 0)
-        return scidx_20MHz_Ng4[ru_start_index].start;
-      else
-        return scidx_20MHz_Ng16[ru_start_index].start;
+      if (grouping == 0) {
+        if (ru_start_index >= N_SCIDX_20MHZ_NG4)
+          return SCIDX_END_SENTINAL;
+        else
+          return scidx_20MHz_Ng4[ru_start_index].start;
+      } else {
+        if (ru_start_index >= N_SCIDX_20MHZ_NG16)
+          return SCIDX_END_SENTINAL;
+        else
+          return scidx_20MHz_Ng16[ru_start_index].start;
+      }
     case BW_40MHz:
-      if (grouping == 0)
-        return scidx_40MHz_Ng4[ru_start_index].start;
-      else
-        return scidx_40MHz_Ng16[ru_start_index].start;
+      if (grouping == 0) {
+        if (ru_start_index >= N_SCIDX_40MHZ_NG4)
+          return SCIDX_END_SENTINAL;
+        else
+          return scidx_40MHz_Ng4[ru_start_index].start;
+      } else {
+        if (ru_start_index >= N_SCIDX_40MHZ_NG16)
+          return SCIDX_END_SENTINAL;
+        else
+          return scidx_40MHz_Ng16[ru_start_index].start;
+      }
     case BW_80MHz:
-      if (grouping == 0)
-        return scidx_80MHz_Ng4[ru_start_index].start;
-      else
-        return scidx_80MHz_Ng16[ru_start_index].start;;
+      if (grouping == 0) {
+        if (ru_start_index >= N_SCIDX_80MHZ_NG4)
+          return SCIDX_END_SENTINAL;
+        else
+          return scidx_80MHz_Ng4[ru_start_index].start;
+      } else {
+        if (ru_start_index >= N_SCIDX_80MHZ_NG16)
+          return SCIDX_END_SENTINAL;
+        else
+          return scidx_80MHz_Ng16[ru_start_index].start;
+      }
     case BW_160MHz:
       return SCIDX_END_SENTINAL;
   }
 
   /*
- *    * for BW_20MHz it is more complex, and the start and end sets have an
- *       * increment of 2, and around zero they go -4, -2, 2, 4 as well.
- *          */
+   * for BW_20MHz it is more complex, and the start and end sets have an
+   * increment of 2, and around zero they go -4, -2, 2, 4 as well.
+   */
   if (bw == BW_20MHz) {
     if (grouping == 0) {
       if (scidx == -122)
@@ -12008,9 +12041,9 @@ next_he_scidx(int scidx, int bw _U_, int grouping _U_, int feedback _U_,
 }
 
 /*
- *  * This might have a problem if there are not enough bits in the TVB.
- *   *  Will only handle a limited number of bits.
- *    */
+ * This might have a problem if there are not enough bits in the TVB.
+ * Will only handle a limited number of bits.
+ */
 static guint16
 he_get_bits(tvbuff_t *tvb, int bit_offset, int bit_len)
 {
