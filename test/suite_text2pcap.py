@@ -357,6 +357,9 @@ def run_text2pcap_capinfos_tshark(test, content, args):
     capinfo = get_capinfos_cmp_info(check_capinfos_info(test, testout_file))
 
     test.assertRun((config.cmd_tshark, '-q', '-z', 'expert,warn',
+        '-o', 'udp.check_checksum: TRUE',
+        '-o', 'tcp.check_checksum: TRUE',
+        '-o', 'sctp.checksum:TRUE',
         '-r', testout_file))
     capinfo['expert'] = test.processes[-1].stdout_str
     return capinfo;
