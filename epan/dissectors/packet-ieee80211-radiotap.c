@@ -400,8 +400,8 @@ struct _radiotap_info {
 	guint32 rate;
 	gint8 dbm_antsignal;
 	gint8 dbm_antnoise;
-	gint8 db_antsignal;
-	gint8 db_antnoise;
+	guint8 db_antsignal;
+	guint8 db_antnoise;
 	guint32 freq;
 	guint32 flags;
 	guint64 tsft;
@@ -1700,12 +1700,12 @@ dissect_radiotap_db_antsignal(tvbuff_t *tvb, packet_info *pinfo _U_,
 	proto_tree *tree, int offset, struct _radiotap_info *radiotap_info,
 	struct ieee_802_11_phdr *phdr)
 {
-	gint8 db = tvb_get_gint8(tvb, offset);
+	guint8 db = tvb_get_guint8(tvb, offset);
 
 	phdr->has_signal_db = TRUE;
 	phdr->signal_db = db;
-	col_add_fstr(pinfo->cinfo, COL_RSSI, "%d dB", db);
-	proto_tree_add_int(tree, hf_radiotap_db_antsignal, tvb, offset, 1, db);
+	col_add_fstr(pinfo->cinfo, COL_RSSI, "%u dB", db);
+	proto_tree_add_uint(tree, hf_radiotap_db_antsignal, tvb, offset, 1, db);
 	radiotap_info->db_antsignal = db;
 
 }
@@ -1715,12 +1715,12 @@ dissect_radiotap_db_antnoise(tvbuff_t *tvb, packet_info *pinfo _U_,
 	proto_tree *tree, int offset, struct _radiotap_info *radiotap_info,
 	struct ieee_802_11_phdr *phdr)
 {
-	gint db = tvb_get_gint8(tvb, offset);
+	guint db = tvb_get_guint8(tvb, offset);
 
 	phdr->has_noise_db = TRUE;
 	phdr->noise_db = db;
 	if (tree) {
-		proto_tree_add_int(tree, hf_radiotap_db_antnoise, tvb, offset,
+		proto_tree_add_uint(tree, hf_radiotap_db_antnoise, tvb, offset,
 				1, db);
 	}
 	radiotap_info->db_antnoise = db;

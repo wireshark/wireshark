@@ -861,8 +861,8 @@ dissect_wlan_radio_phdr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
   }
 
   if (phdr->has_signal_db) {
-    col_add_fstr(pinfo->cinfo, COL_RSSI, "%d dB", phdr->signal_db);
-    proto_tree_add_int(radio_tree, hf_wlan_radio_signal_db, tvb, 0, 0, phdr->signal_db);
+    col_add_fstr(pinfo->cinfo, COL_RSSI, "%u dB", phdr->signal_db);
+    proto_tree_add_uint(radio_tree, hf_wlan_radio_signal_db, tvb, 0, 0, phdr->signal_db);
   }
 
   if (phdr->has_signal_dbm) {
@@ -875,7 +875,7 @@ dissect_wlan_radio_phdr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
   }
 
   if (phdr->has_noise_db) {
-    proto_tree_add_int(radio_tree, hf_wlan_radio_noise_db, tvb, 0, 0, phdr->noise_db);
+    proto_tree_add_uint(radio_tree, hf_wlan_radio_noise_db, tvb, 0, 0, phdr->noise_db);
   }
 
   if (phdr->has_noise_dbm) {
@@ -1413,7 +1413,7 @@ void proto_register_ieee80211_radio(void)
       "Signal strength, as percentage of maximum RSSI", HFILL }},
 
     {&hf_wlan_radio_signal_db,
-     {"Signal strength (dB)", "wlan_radio.signal_db", FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_decibels, 0,
+     {"Signal strength (dB)", "wlan_radio.signal_db", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_decibels, 0,
       NULL, HFILL }},
 
     {&hf_wlan_radio_signal_dbm,
@@ -1425,7 +1425,7 @@ void proto_register_ieee80211_radio(void)
       NULL, HFILL }},
 
     {&hf_wlan_radio_noise_db,
-     {"Noise level (dB)", "wlan_radio.noise_db", FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_decibels, 0,
+     {"Noise level (dB)", "wlan_radio.noise_db", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_decibels, 0,
       NULL, HFILL }},
 
     {&hf_wlan_radio_noise_dbm,

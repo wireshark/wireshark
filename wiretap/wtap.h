@@ -822,8 +822,8 @@ struct ieee_802_11_phdr {
     guint8   noise_percent;               /* Noise level, as a percentage */
     gint8    signal_dbm;                  /* Signal level, in dBm */
     gint8    noise_dbm;                   /* Noise level, in dBm */
-    gint8    signal_db;                   /* Signal level, in dB from an arbitrary point */
-    gint8    noise_db;                    /* Noise level, in dB from an arbitrary point */
+    guint8   signal_db;                   /* Signal level, in dB from an arbitrary point */
+    guint8   noise_db;                    /* Noise level, in dB from an arbitrary point */
     guint64  tsf_timestamp;
     guint32  aggregate_flags;             /* A-MPDU flags */
     guint32  aggregate_id;                /* ID for A-MPDU reassembly */
