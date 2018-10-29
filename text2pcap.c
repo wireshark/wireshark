@@ -152,7 +152,7 @@ static guint32 hdr_ethernet_proto = 0;
 /* Dummy IP header */
 static int hdr_ip = FALSE;
 static int hdr_ipv6 = FALSE;
-static long hdr_ip_proto = 0;
+static long hdr_ip_proto = -1;
 
 /* Destination and source addresses for IP header */
 static guint32 hdr_ip_dest_addr = 0;
@@ -1512,7 +1512,6 @@ parse_options (int argc, char *argv[])
             break;
 
         case 'i':
-            hdr_ip = TRUE;
             hdr_ip_proto = strtol(optarg, &p, 10);
             if (p == optarg || *p != '\0' || hdr_ip_proto < 0 ||
                   hdr_ip_proto > 255) {
@@ -1829,6 +1828,11 @@ parse_options (int argc, char *argv[])
     }
     timecode_default = *now_tm;
     timecode_default.tm_isdst = -1; /* Unknown for now, depends on time given to the strptime() function */
+
+    if (hdr_ip_proto != -1 && !(hdr_ip || hdr_ipv6)) {
+        /* If -i <proto> option is specified without -4 or -6 then add the default IPv4 header */
+        hdr_ip = TRUE;
+    }
 
     if ((hdr_tcp || hdr_udp || hdr_sctp) && !(hdr_ip || hdr_ipv6)) {
         /*

@@ -484,3 +484,48 @@ class case_text2pcap_ipv6(subprocesstest.SubprocessTestCase):
             'ipv6': {'plen': '36', 'plen_tree': None}},
             self.run_text2pcap_ipv6("0000: 01 00 03 03 00 00 00 08\n",
                 ("-S", "2905,2905,3")))
+
+class case_text2pcap_i_proto(subprocesstest.SubprocessTestCase):
+    '''Test -i <proto> for IPv4 and IPv6'''
+    maxDiff = None
+
+    def test_text2pcap_i_icmp(self):
+        '''Test -i <proto> without -4 or -6'''
+        self.assertEqual({'encapsulation': 'Ethernet', 'packets': 1,
+            'datasize': 98, 'expert': ''},
+            run_text2pcap_capinfos_tshark(self,
+                "0000   08 00 bb b3 d7 3b 00 00 51 a7 d6 7d 00 04 51 e4\n" +
+                "0010   08 09 0a 0b 0c 0d 0e 0f 10 11 12 13 14 15 16 17\n" +
+                "0020   18 19 1a 1b 1c 1d 1e 1f 20 21 22 23 24 25 26 27\n" +
+                "0030   28 29 2a 2b 2c 2d 2e 2f 30 31 32 33 34 35 36 37\n",
+                ("-i", "1")))
+
+    def test_text2pcap_i_icmp_ipv4(self):
+        '''Test -i <proto> with IPv4 (-4) header'''
+        self.assertEqual({'encapsulation': 'Ethernet', 'packets': 1,
+            'datasize': 98, 'expert': ''},
+            run_text2pcap_capinfos_tshark(self,
+                "0000   08 00 bb b3 d7 3b 00 00 51 a7 d6 7d 00 04 51 e4\n" +
+                "0010   08 09 0a 0b 0c 0d 0e 0f 10 11 12 13 14 15 16 17\n" +
+                "0020   18 19 1a 1b 1c 1d 1e 1f 20 21 22 23 24 25 26 27\n" +
+                "0030   28 29 2a 2b 2c 2d 2e 2f 30 31 32 33 34 35 36 37\n",
+                ("-i", "1", "-4", "127.0.0.1,127.0.0.1")))
+
+    def test_text2pcap_i_icmpv6_ipv6(self):
+        '''Test -i <proto> with IPv6 (-6) header'''
+        self.assertEqual({'encapsulation': 'Ethernet', 'packets': 1,
+            'datasize': 86, 'expert': ''},
+            run_text2pcap_capinfos_tshark(self,
+                "0000   87 00 f2 62 00 00 00 00 fe 80 00 00 00 00 00 00\n" +
+                "0010   00 00 00 00 00 00 00 02 01 01 52 54 00 12 34 56\n",
+                ("-i", "58", "-6", "::1,::1")))
+
+    def test_text2pcap_i_sctp_ipv6(self):
+        '''Test -i <proto> with IPv6 (-6) header'''
+        self.assertEqual({'encapsulation': 'Ethernet', 'packets': 1,
+            'datasize': 90, 'expert': ''},
+            run_text2pcap_capinfos_tshark(self,
+                "0000   0b 59 0b 59 00 00 00 00 26 98 58 51 00 03 00 18\n" +
+                "0010   00 00 00 00 00 00 00 00 00 00 00 03 01 00 03 03\n" +
+                "0020   00 00 00 08\n",
+                ("-i", "132", "-6", "::1,::1")))
