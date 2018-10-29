@@ -72,11 +72,12 @@ static int hf_wlan_radio_channel = -1;
 static int hf_wlan_radio_frequency = -1;
 static int hf_wlan_radio_short_preamble = -1;
 static int hf_wlan_radio_signal_percent = -1;
-static int hf_wlan_radio_signal_dbm = -1;
 static int hf_wlan_radio_signal_db = -1;
+static int hf_wlan_radio_signal_dbm = -1;
 static int hf_wlan_radio_noise_percent = -1;
-static int hf_wlan_radio_noise_dbm = -1;
 static int hf_wlan_radio_noise_db = -1;
+static int hf_wlan_radio_noise_dbm = -1;
+static int hf_wlan_radio_snr = -1;
 static int hf_wlan_radio_timestamp = -1;
 static int hf_wlan_last_part_of_a_mpdu = -1;
 static int hf_wlan_a_mpdu_delim_crc_error = -1;
@@ -881,6 +882,15 @@ dissect_wlan_radio_phdr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
     proto_tree_add_int(radio_tree, hf_wlan_radio_noise_dbm, tvb, 0, 0, phdr->noise_dbm);
   }
 
+  if (phdr->has_signal_dbm && phdr->has_noise_dbm) {
+    proto_tree_add_int(radio_tree, hf_wlan_radio_snr, tvb, 0, 0, phdr->signal_dbm - phdr->noise_dbm);
+  }
+  /*
+   * XXX - are the signal and noise in dB from a fixed reference point
+   * guaranteed to use the *same* fixed reference point?  If so, we could
+   * calculate the SNR if they're both present, too.
+   */
+
   if (phdr->has_tsf_timestamp) {
     proto_tree_add_uint64(radio_tree, hf_wlan_radio_timestamp, tvb, 0, 0, phdr->tsf_timestamp);
   }
@@ -1420,6 +1430,10 @@ void proto_register_ieee80211_radio(void)
 
     {&hf_wlan_radio_noise_dbm,
      {"Noise level (dBm)", "wlan_radio.noise_dbm", FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0,
+      NULL, HFILL }},
+
+    {&hf_wlan_radio_snr,
+     {"Signal/noise ratio (dB)", "wlan_radio.noise_db", FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_decibels, 0,
       NULL, HFILL }},
 
     {&hf_wlan_radio_timestamp,
