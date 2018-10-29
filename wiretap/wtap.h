@@ -809,6 +809,8 @@ struct ieee_802_11_phdr {
     guint    has_noise_percent:1;
     guint    has_signal_dbm:1;
     guint    has_noise_dbm:1;
+    guint    has_signal_db:1;
+    guint    has_noise_db:1;
     guint    has_tsf_timestamp:1;
     guint    has_aggregate_info:1;        /* aggregate flags and ID */
     guint    has_zero_length_psdu_type:1; /* zero-length PSDU type */
@@ -820,6 +822,8 @@ struct ieee_802_11_phdr {
     guint8   noise_percent;               /* Noise level, as a percentage */
     gint8    signal_dbm;                  /* Signal level, in dBm */
     gint8    noise_dbm;                   /* Noise level, in dBm */
+    gint8    signal_db;                   /* Signal level, in dB from an arbitrary point */
+    gint8    noise_db;                    /* Noise level, in dB from an arbitrary point */
     guint64  tsf_timestamp;
     guint32  aggregate_flags;             /* A-MPDU flags */
     guint32  aggregate_id;                /* ID for A-MPDU reassembly */

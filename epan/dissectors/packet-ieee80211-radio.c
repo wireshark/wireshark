@@ -73,8 +73,10 @@ static int hf_wlan_radio_frequency = -1;
 static int hf_wlan_radio_short_preamble = -1;
 static int hf_wlan_radio_signal_percent = -1;
 static int hf_wlan_radio_signal_dbm = -1;
+static int hf_wlan_radio_signal_db = -1;
 static int hf_wlan_radio_noise_percent = -1;
 static int hf_wlan_radio_noise_dbm = -1;
+static int hf_wlan_radio_noise_db = -1;
 static int hf_wlan_radio_timestamp = -1;
 static int hf_wlan_last_part_of_a_mpdu = -1;
 static int hf_wlan_a_mpdu_delim_crc_error = -1;
@@ -478,12 +480,6 @@ dissect_wlan_radio_phdr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
     have_data_rate = TRUE;
   }
 
-  if (phdr->has_signal_dbm) {
-    col_add_fstr(pinfo->cinfo, COL_RSSI, "%d dBm", phdr->signal_dbm);
-  } else if (phdr->has_signal_percent) {
-    col_add_fstr(pinfo->cinfo, COL_RSSI, "%u%%", phdr->signal_percent);
-  }
-
   /* this is the first time we are looking at this frame during a
    * capture dissection, so we know the dissection is done in
    * frame order (subsequent dissections may be random access) */
@@ -863,6 +859,11 @@ dissect_wlan_radio_phdr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
     proto_tree_add_uint(radio_tree, hf_wlan_radio_signal_percent, tvb, 0, 0, phdr->signal_percent);
   }
 
+  if (phdr->has_signal_db) {
+    col_add_fstr(pinfo->cinfo, COL_RSSI, "%d dB", phdr->signal_db);
+    proto_tree_add_int(radio_tree, hf_wlan_radio_signal_db, tvb, 0, 0, phdr->signal_db);
+  }
+
   if (phdr->has_signal_dbm) {
     col_add_fstr(pinfo->cinfo, COL_RSSI, "%d dBm", phdr->signal_dbm);
     proto_tree_add_int(radio_tree, hf_wlan_radio_signal_dbm, tvb, 0, 0, phdr->signal_dbm);
@@ -870,6 +871,10 @@ dissect_wlan_radio_phdr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
 
   if (phdr->has_noise_percent) {
     proto_tree_add_uint(radio_tree, hf_wlan_radio_noise_percent, tvb, 0, 0, phdr->noise_percent);
+  }
+
+  if (phdr->has_noise_db) {
+    proto_tree_add_int(radio_tree, hf_wlan_radio_noise_db, tvb, 0, 0, phdr->noise_db);
   }
 
   if (phdr->has_noise_dbm) {
@@ -1397,12 +1402,20 @@ void proto_register_ieee80211_radio(void)
      {"Signal strength (percentage)", "wlan_radio.signal_percentage", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_percent, 0,
       "Signal strength, as percentage of maximum RSSI", HFILL }},
 
+    {&hf_wlan_radio_signal_db,
+     {"Signal strength (dB)", "wlan_radio.signal_db", FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_decibels, 0,
+      NULL, HFILL }},
+
     {&hf_wlan_radio_signal_dbm,
      {"Signal strength (dBm)", "wlan_radio.signal_dbm", FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0,
       NULL, HFILL }},
 
     {&hf_wlan_radio_noise_percent,
      {"Noise level (percentage)", "wlan_radio.noise_percentage", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_percent, 0,
+      NULL, HFILL }},
+
+    {&hf_wlan_radio_noise_db,
+     {"Noise level (dB)", "wlan_radio.noise_db", FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_decibels, 0,
       NULL, HFILL }},
 
     {&hf_wlan_radio_noise_dbm,
