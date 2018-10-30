@@ -358,6 +358,10 @@ static int hf_docsis_rcc_rcv_ch_ctr_freq_asgn = -1;
 static int hf_docsis_rcc_rcv_ch_prim_ds_ch_ind = -1;
 
 static int hf_docsis_tlv_rcc_id = -1;
+static int hf_docsis_tlv_rcc_srcc_prim_ds_chan_assign_ds_ch_id = -1;
+static int hf_docsis_tlv_rcc_srcc_ds_chan_assign_ds_ch_id = -1;
+static int hf_docsis_tlv_rcc_srcc_ds_prof_assign_dcid = -1;
+static int hf_docsis_tlv_rcc_srcc_ds_prof_asssign_prof_list_prof_id = -1;
 /* static int hf_docsis_tlv_rcc_rcv_mod_enc = -1; */
 /* static int hf_docsis_tlv_rcc_rcv_ch = -1; */
 /* static int hf_docsis_tlv_rcc_part_serv_ds_ch = -1; */
@@ -453,6 +457,11 @@ static gint ett_docsis_tlv_rcp_rcv_ch = -1;
 static gint ett_docsis_tlv_rcc = -1;
 static gint ett_docsis_tlv_rcc_rcv_mod_enc = -1;
 static gint ett_docsis_tlv_rcc_rcv_ch = -1;
+static gint ett_docsis_tlv_rcc_srcc = -1;
+static gint ett_docsis_tlv_rcc_srcc_prim_ds_assign = -1;
+static gint ett_docsis_tlv_rcc_srcc_ds_assign = -1;
+static gint ett_docsis_tlv_rcc_srcc_ds_prof_assign = -1;
+static gint ett_docsis_tlv_rcc_srcc_ds_prof_assign_prof_list = -1;
 static gint ett_docsis_tlv_rcc_err = -1;
 static gint ett_docsis_tlv_dsid = -1;
 static gint ett_docsis_tlv_dsid_ds_reseq = -1;
@@ -3842,6 +3851,137 @@ dissect_rcc_rcv_ch(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int sta
 }
 
 static void
+dissect_rcc_srcc_prim_ds_ch_assign(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
+{
+  proto_tree *rcc_srcc_prim_ds_assign_tree;
+  proto_item *rcc_srcc_prim_ds_assign_item;
+  int pos = start;
+  int i = 0;
+
+  rcc_srcc_prim_ds_assign_tree =
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_rcc_srcc_prim_ds_assign, &rcc_srcc_prim_ds_assign_item,
+                                  "..1 RCC SRCC Primary Downstream Channel Assignment (Length = %u)", len);
+  for (i=0; i< len; ++i)
+    {
+      proto_tree_add_item (rcc_srcc_prim_ds_assign_tree,
+                           hf_docsis_tlv_rcc_srcc_prim_ds_chan_assign_ds_ch_id, tvb, pos+i,
+                           1, ENC_BIG_ENDIAN);
+    }
+}
+
+static void
+dissect_rcc_srcc_ds_ch_assign(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
+{
+  proto_tree *rcc_srcc_ds_assign_tree;
+  proto_item *rcc_srcc_ds_assign_item;
+  int pos = start;
+  int i = 0;
+
+  rcc_srcc_ds_assign_tree =
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_rcc_srcc_ds_assign, &rcc_srcc_ds_assign_item,
+                                  "..2 RCC SRCC Downstream Channel Assignment (Length = %u)", len);
+  for (i=0; i< len; ++i)
+    {
+      proto_tree_add_item (rcc_srcc_ds_assign_tree,
+                           hf_docsis_tlv_rcc_srcc_ds_chan_assign_ds_ch_id, tvb, pos+i,
+                           1, ENC_BIG_ENDIAN);
+    }
+}
+
+static void
+dissect_rcc_srcc_ds_prof_assign_prof_list(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
+{
+  proto_tree *rcc_srcc_ds_prof_assign_prof_list_tree;
+  proto_item *rcc_srcc_ds_prof_assign_prof_list_item;
+  int pos = start;
+  int i = 0;
+
+  rcc_srcc_ds_prof_assign_prof_list_tree =
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_rcc_srcc_ds_prof_assign_prof_list, &rcc_srcc_ds_prof_assign_prof_list_item,
+                                  "....2 RCC SRCC Downstream Profile Assignment - Profile List (Length = %u)", len);
+  for (i=0; i< len; ++i)
+    {
+      proto_tree_add_item (rcc_srcc_ds_prof_assign_prof_list_tree,
+                           hf_docsis_tlv_rcc_srcc_ds_prof_asssign_prof_list_prof_id, tvb, pos+i,
+                           1, ENC_BIG_ENDIAN);
+    }
+}
+
+static void
+dissect_rcc_srcc_ds_prof_assign(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
+{
+  guint8 type, length;
+  proto_tree *rcc_srcc_ds_prof_assign_tree;
+  proto_item *rcc_srcc_ds_prof_assign_item;
+  int pos = start;
+
+  rcc_srcc_ds_prof_assign_tree =
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_rcc_srcc_ds_prof_assign, &rcc_srcc_ds_prof_assign_item,
+                                  "..3 RCC SRCC Downstream Profile Assignment(Length = %u)", len);
+  while (pos < (start + len))
+    {
+      type = tvb_get_guint8 (tvb, pos++);
+      length = tvb_get_guint8 (tvb, pos++);
+      switch (type)
+        {
+          case RCC_SRCC_DS_PROF_ASSIGN_DCID:
+            if (length == 1)
+              {
+                proto_tree_add_item (rcc_srcc_ds_prof_assign_tree,
+                                     hf_docsis_tlv_rcc_srcc_ds_prof_assign_dcid, tvb, pos,
+                                     length, ENC_BIG_ENDIAN);
+              }
+            else
+              {
+                expert_add_info_format(pinfo, rcc_srcc_ds_prof_assign_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
+              }
+            break;
+          case RCC_SRCC_DS_PROF_ASSIGN_PROF_LIST:
+            dissect_rcc_srcc_ds_prof_assign_prof_list(tvb, rcc_srcc_ds_prof_assign_tree, pos, length);
+            break;
+          default:
+            proto_tree_add_item (rcc_srcc_ds_prof_assign_tree, hf_docsis_tlv_unknown, tvb, pos, length, ENC_NA);
+            break;
+        }                       /* switch */
+      pos = pos + length;
+    }                           /* while */
+}
+
+static void
+dissect_rcc_srcc(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
+{
+  guint8 type, length;
+  proto_tree *rcc_srcc_tree;
+  proto_item *rcc_srcc_item;
+  int pos = start;
+
+  rcc_srcc_tree =
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_rcc_srcc, &rcc_srcc_item,
+                                  ".7 RCC Simplified Receive Channel Configuration (Length = %u)", len);
+  while (pos < (start + len))
+    {
+      type = tvb_get_guint8 (tvb, pos++);
+      length = tvb_get_guint8 (tvb, pos++);
+      switch (type)
+        {
+          case RCC_SRCC_PRIM_DS_CHAN_ASSIGN:
+            dissect_rcc_srcc_prim_ds_ch_assign(tvb, rcc_srcc_tree, pos, length);
+            break;
+          case RCC_SRCC_DS_CHAN_ASSIGN:
+            dissect_rcc_srcc_ds_ch_assign(tvb, rcc_srcc_tree, pos, length);
+            break;
+          case RCC_SRCC_DS_PROF_ASSIGN:
+            dissect_rcc_srcc_ds_prof_assign(tvb, pinfo, rcc_srcc_tree, pos, length);
+            break;
+          default:
+            proto_tree_add_item (rcc_srcc_tree, hf_docsis_tlv_unknown, tvb, pos, length, ENC_NA);
+            break;
+        }                       /* switch */
+      pos = pos + length;
+    }                           /* while */
+}
+
+static void
 dissect_rcc_err(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
@@ -3961,6 +4101,9 @@ dissect_rcc(tvbuff_t * tvb, packet_info * pinfo,
           case TLV_RCP_VEN_SPEC:
             vsif_tvb = tvb_new_subset_length (tvb, pos, length);
             call_dissector (docsis_vsif_handle, vsif_tvb, pinfo, rcc_tree);
+            break;
+          case TLV_RCC_SRCC:
+            dissect_rcc_srcc(tvb, pinfo, rcc_tree, pos, length);
             break;
           case TLV_RCC_ERR:
             dissect_rcc_err(tvb, pinfo, rcc_tree, pos, length);
@@ -6310,6 +6453,26 @@ proto_register_docsis_tlv (void)
       "RCC Error Encodings", HFILL}
     },
 #endif
+    {&hf_docsis_tlv_rcc_srcc_prim_ds_chan_assign_ds_ch_id,
+     {"Downstream Channel ID", "docsis_tlv.rcc.srcc.prim_ds_chann_assign.ds_ch_id",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_rcc_srcc_ds_chan_assign_ds_ch_id,
+     {"Downstream Channel ID", "docsis_tlv.rcc.srcc.ds_chann_assign.ds_ch_id",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_rcc_srcc_ds_prof_assign_dcid,
+     {"....1 DCID", "docsis_tlv.rcc.srcc.ds_prof_assign.prof_list.dcid",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_rcc_srcc_ds_prof_asssign_prof_list_prof_id,
+     {"Profile ID", "docsis_tlv.rcc.srcc.ds_prof_assign.prof_list.prof_id",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL}
+    },
     {&hf_docsis_tlv_rcc_err_mod_or_ch,
      {".1 Receive Modul or Receive Channel", "docsis_tlv.rcc.err.mod_or_ch",
       FT_UINT8, BASE_DEC, VALS (mod_or_ch_vals), 0x0,
@@ -6617,6 +6780,11 @@ proto_register_docsis_tlv (void)
     &ett_docsis_tlv_rcc,
     &ett_docsis_tlv_rcc_rcv_mod_enc,
     &ett_docsis_tlv_rcc_rcv_ch,
+    &ett_docsis_tlv_rcc_srcc,
+    &ett_docsis_tlv_rcc_srcc_prim_ds_assign,
+    &ett_docsis_tlv_rcc_srcc_ds_assign,
+    &ett_docsis_tlv_rcc_srcc_ds_prof_assign,
+    &ett_docsis_tlv_rcc_srcc_ds_prof_assign_prof_list,
     &ett_docsis_tlv_rcc_err,
     &ett_docsis_tlv_dsid,
     &ett_docsis_tlv_dsid_ds_reseq,

@@ -382,6 +382,22 @@
 #define TLV_RCP_VEN_SPEC 43
 #define TLV_RCC_ERR 254
 
+/* Define TLV_RCC sub-types
+ * These are subtypes of TLV_RCP (49), and not common with TLV_RCP (48)
+ */
+#define TLV_RCC_SRCC 7
+
+/* Define TLV_RCC_SRCC sub-types (49.7)
+ */
+#define RCC_SRCC_PRIM_DS_CHAN_ASSIGN 1
+#define RCC_SRCC_DS_CHAN_ASSIGN 2
+#define RCC_SRCC_DS_PROF_ASSIGN 3
+
+/* Define TLV_RCC_SRCC_DS_PROF_ASSIGN sub-types (49.7.3)
+ */
+#define RCC_SRCC_DS_PROF_ASSIGN_DCID 1
+#define RCC_SRCC_DS_PROF_ASSIGN_PROF_LIST 2
+
 /* Define TLV_RCP_RCV_MOD_ENC sub-types
  * These are subtypes of TLV_RCP_RCV_MOD_ENC (48.4)
  */
