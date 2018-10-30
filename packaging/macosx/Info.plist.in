@@ -235,6 +235,8 @@
 	<string>NSApplication</string>
 	<key>NSHighResolutionCapable</key>
 	<true/>
+	<key>NSRequiresAquaSystemAppearance</key>
+	<true/>
 	<key>LSMinimumSystemVersion</key>
 	<string>10.6</string>
 </dict>
