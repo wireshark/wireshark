@@ -178,6 +178,16 @@ expert_stat_draw(void *phs _U_)
     draw_items_for_severity(hs->ei_array[chat_level],  "Chats");
 }
 
+static void
+expert_tapdata_free(expert_tapdata_t* hs)
+{
+    for (int n = 0; n < max_level; n++) {
+        g_array_free(hs->ei_array[n], TRUE);
+    }
+    g_string_chunk_free(hs->text);
+    g_free(hs);
+}
+
 /* Create a new expert stats struct */
 static void expert_stat_init(const char *opt_arg, void *userdata _U_)
 {
@@ -242,11 +252,11 @@ static void expert_stat_init(const char *opt_arg, void *userdata _U_)
                                          expert_stat_reset,
                                          expert_stat_packet,
                                          expert_stat_draw,
-                                         NULL);
+                                         (tap_finish_cb)expert_tapdata_free);
     if (error_string) {
         printf("Expert tap error (%s)!\n", error_string->str);
         g_string_free(error_string, TRUE);
-        g_free(hs);
+        expert_tapdata_free(hs);
         exit(1);
     }
 }
