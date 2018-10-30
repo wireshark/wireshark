@@ -84,7 +84,7 @@ AStringListListModel(parent)
         if ( line.startsWith("------") )
             continue;
 
-        if ( line == "= Acknowledgements =" )
+        if ( line.contains("Acknowledgements") )
         {
             readAck = true;
             continue;
@@ -92,7 +92,7 @@ AStringListListModel(parent)
         else if ( rx.indexIn(line) != -1 )
             appendRow( QStringList() << rx.cap(1).trimmed() << rx.cap(2).trimmed());
 
-        if ( readAck )
+        if ( readAck && (!line.isEmpty() || !acknowledgement_.isEmpty()) )
             acknowledgement_.append(QString("%1\n").arg(line));
     }
     f_authors.close();
