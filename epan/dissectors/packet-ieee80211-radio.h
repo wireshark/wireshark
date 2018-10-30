@@ -34,7 +34,7 @@ struct wlan_radio {
 
   gint64 ifs; /* inter frame space in microseconds */
 
-  guint16 nav;
+  guint16 nav; /* Duration from the frame header */
   gint8 rssi;
 };
 

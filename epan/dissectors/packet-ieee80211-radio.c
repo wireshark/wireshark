@@ -97,6 +97,7 @@ static expert_field ei_wlan_radio_assumed_no_stbc = EI_INIT;
 static expert_field ei_wlan_radio_assumed_no_extension_streams = EI_INIT;
 static expert_field ei_wlan_radio_assumed_bcc_fec = EI_INIT;
 
+static int wlan_radio_tap = -1;
 static int wlan_radio_timeline_tap = -1;
 
 /* Settings */
@@ -1150,9 +1151,14 @@ dissect_wlan_radio_phdr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
         wlan_radio_info->ifs = wlan_radio_info->start_tsf - previous_frame.radio_info->end_tsf;
       }
       if (tvb_captured_length(tvb) >= 4) {
+        /*
+         * Duration/ID field.
+         */
         int nav = tvb_get_letohs(tvb, 2);
-        if ((nav & 0x8000) == 0)
+        if ((nav & 0x8000) == 0) {
+          /* Duration */
           wlan_radio_info->nav = nav;
+        }
       }
       if (phdr->has_signal_dbm) {
         wlan_radio_info->rssi = phdr->signal_dbm;
@@ -1212,6 +1218,7 @@ dissect_wlan_radio_phdr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
   if (phdr->has_zero_length_psdu_type)
     proto_tree_add_uint(radio_tree, hf_wlan_zero_length_psdu_type, tvb, 0, 0, phdr->zero_length_psdu_type);
 
+  tap_queue_packet(wlan_radio_tap, pinfo, phdr);
   if (wlan_radio_timeline_enabled) {
     tap_queue_packet(wlan_radio_timeline_tap, pinfo, wlan_radio_info);
   }
@@ -1556,6 +1563,7 @@ void proto_reg_handoff_ieee80211_radio(void)
   ieee80211_handle = find_dissector_add_dependency("wlan", proto_wlan_radio);
   ieee80211_noqos_handle = find_dissector_add_dependency("wlan_noqos", proto_wlan_radio);
 
+  wlan_radio_tap = register_tap("wlan_radio");
   wlan_radio_timeline_tap = register_tap("wlan_radio_timeline");
 }
 
