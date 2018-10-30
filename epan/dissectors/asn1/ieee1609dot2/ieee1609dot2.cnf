@@ -1,6 +1,10 @@
 # IEEE1609dot2.cnf
 # IEEE1609dot2 conformation file
 
+#.OPT
+OER
+#.END
+
 #.MODULE
 #.MODULE_IMPORT
 
@@ -15,6 +19,21 @@ Ieee1609Dot2Data
 
 #.OMIT_ASSIGNMENT
 # Get rid of unused code warnings
+Countersignature
+ExplicitCertificate
+HashedId4
+HashedId10
+HashedId32
+ImplicitCertificate
+KnownLatitude
+KnownLongitude
+LaId
+LinkageSeed
+SequenceOfPsid
+SequenceOfUint3
+Uint3
+UnknownLatitude
+UnknownLongitude
 
 #.TYPE_RENAME
 

@@ -592,7 +592,7 @@ proto_reg_handoff_wsmp(void)
     wsmp_handle = create_dissector_handle(dissect_wsmp, proto_wsmp);
     dissector_add_uint("ethertype", ETHERTYPE_WSMP, wsmp_handle);
 
-    IEEE1609dot2_handle = find_dissector_add_dependency("IEEE1609dot2.data", proto_wsmp);
+    IEEE1609dot2_handle = find_dissector_add_dependency("ieee1609dot2.data", proto_wsmp);
 }
 
 /*

@@ -26,40 +26,34 @@ void proto_register_IEEE1609dot2(void);
 void proto_reg_handoff_IEEE1609dot2(void);
 
 /* Initialize the protocol and registered fields */
-int proto_IEEE1609dot2 = -1;
-#include "packet-IEEE1609dot2-hf.c"
+int proto_ieee1609dot2 = -1;
+#include "packet-ieee1609dot2-hf.c"
 
 /* Initialize the subtree pointers */
-#include "packet-IEEE1609dot2-ett.c"
+#include "packet-ieee1609dot2-ett.c"
 
-#include "packet-IEEE1609dot2-fn.c"
+#include "packet-ieee1609dot2-fn.c"
 
 
-/*--- proto_register_IEEE1609dot2 ----------------------------------------------*/
-void proto_register_IEEE1609dot2(void) {
+/*--- proto_register_ieee1609dot2 ----------------------------------------------*/
+void proto_register_ieee1609dot2(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
-#include "packet-IEEE1609dot2-hfarr.c"
+#include "packet-ieee1609dot2-hfarr.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
-#include "packet-IEEE1609dot2-ettarr.c"
+#include "packet-ieee1609dot2-ettarr.c"
   };
 
   /* Register protocol */
-  proto_IEEE1609dot2 = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_ieee1609dot2 = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
   /* Register fields and subtrees */
-  proto_register_field_array(proto_IEEE1609dot2, hf, array_length(hf));
+  proto_register_field_array(proto_ieee1609dot2, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  register_dissector("IEEE1609dot2.data", dissect_Ieee1609Dot2Data_PDU, proto_IEEE1609dot2);
+  register_dissector("ieee1609dot2.data", dissect_Ieee1609Dot2Data_PDU, proto_ieee1609dot2);
 }
-
-
-/*--- proto_reg_handoff_IEEE1609dot2 -------------------------------------------*/
-void proto_reg_handoff_IEEE1609dot2(void) {
-}
-
