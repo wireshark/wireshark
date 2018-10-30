@@ -1121,8 +1121,8 @@ static const value_string dhcp_nbnt_vals[] = {
  *    EFI Byte Code (EFI BC, EBC) was 7 in RFC 4578, but is assigned 9 by IETF.
  *    EFI x64 was 9 in RFC 4578, but is assigned 7 by IETF.
  *
- * For confirmation, refer to RFC erratum 4625:
- *    https://www.rfc-editor.org/errata/eid4625
+ * For confirmation, refer to RFC erratum 4624:
+ *    https://www.rfc-editor.org/errata/eid4624
  */
 static const value_string dhcp_client_arch[] = {
 	{ 0x0000, "IA x86 PC" },
