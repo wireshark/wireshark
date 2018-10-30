@@ -188,14 +188,14 @@ bytestring_to_str(wmem_allocator_t *scope, const guint8 *ad, const guint32 len, 
 	gchar *buf_ptr;
 	int truncated = 0;
 
-	if (!punct)
-		return bytes_to_str(scope, ad, len);
+	if (len == 0)
+		return wmem_strdup(scope, "");
 
 	if (!ad)
 		REPORT_DISSECTOR_BUG("Null pointer passed to bytestring_to_str()");
 
-	if (len == 0)
-		return wmem_strdup(scope, "");
+	if (!punct)
+		return bytes_to_str(scope, ad, len);
 
 	buf=(gchar *)wmem_alloc(scope, MAX_BYTE_STR_LEN+3+1);
 	if (buflen > MAX_BYTE_STR_LEN/3) {	/* bd_len > 16 */
