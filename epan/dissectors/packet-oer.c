@@ -23,7 +23,7 @@
 #include "packet-oer.h"
 
 
-#define PNAME  "Ocetet Encoding Rules (ASN.1)"
+#define PNAME  "Octet Encoding Rules (ASN.1)"
 #define PSNAME "OER"
 #define PFNAME "oer"
 
@@ -619,7 +619,7 @@ dissect_oer_choice(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *
          */
         oct = tvb_get_guint8(tvb, offset);
         if ((oct & 0x80) == 0x80) {
-            dissect_oer_not_decoded_yet(tree, actx->pinfo, tvb, "Choise, Tag value > 0x7f not implemented yet");
+            dissect_oer_not_decoded_yet(tree, actx->pinfo, tvb, "Choice, Tag value > 0x7f not implemented yet");
         } else {
             /* Bits 7 to 1 of the first subsequent octet shall not be all set to 0.*/
             tag = oct;
@@ -655,7 +655,7 @@ dissect_oer_choice(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *
         choice++;
     }
 
-    dissect_oer_not_decoded_yet(tree, actx->pinfo, tvb, "Choise : No matching tag");
+    dissect_oer_not_decoded_yet(tree, actx->pinfo, tvb, "Choice : No matching tag");
 
     return tvb_reported_length(tvb);
 }
