@@ -6580,7 +6580,7 @@ static void dissect_serialized_data(proto_tree *tree, packet_info *pinfo, tvbuff
       case ENCAPSULATION_PL_CDR_BE:
           if (is_discovery_data) {
               dissect_parameter_sequence(rtps_parameter_sequence_tree, pinfo, tvb, offset,
-                  encapsulation_encoding, size, label, 0x0200, NULL, vendor_id, FALSE);
+                  encapsulation_encoding, size, "serializedData", 0x0200, NULL, vendor_id, FALSE);
           } else if (frag_number != NOT_A_FRAGMENT) {
               /* fragments should be dissected as raw bytes (not parametrized) */
               proto_tree_add_item(rtps_parameter_sequence_tree, hf_rtps_issue_data, tvb,
@@ -8559,7 +8559,7 @@ static void dissect_RTPS_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offse
   int min_len;
   gint old_offset = offset;
   guint64 sample_seq_number = 0;
-  guint32 frag_number = 0, frag_size = 0, sample_size = 0;
+  guint32 frag_number = 0, frag_size = 0, sample_size = 0, num_frags = 0;
   guint32 wid;                  /* Writer EntityID */
   gboolean from_builtin_writer;
   guint32 status_info = 0xffffffff;
@@ -8611,7 +8611,7 @@ static void dissect_RTPS_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offse
   offset += 4;
 
   /* Fragments in submessage */
-  proto_tree_add_item(tree, hf_rtps_data_frag_num_fragments, tvb, offset, 2, encoding);
+  proto_tree_add_item_ret_uint(tree, hf_rtps_data_frag_num_fragments, tvb, offset, 2, encoding, &num_frags);
   offset += 2;
 
   /* Fragment size */
@@ -8632,55 +8632,70 @@ static void dissect_RTPS_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offse
 
   /* SerializedData */
   {
-    const char *label = "serializedData";
+    char label[20];
+    g_snprintf(label, 9, "fragment");
     if ((flags & FLAG_RTPS_DATA_FRAG_K) != 0) {
-      label = "serializedKey";
+        g_snprintf(label, 14, "serializedKey");
     }
     from_builtin_writer =
       (((wid & 0xc2) == 0xc2) || ((wid & 0xc3) == 0xc3)) ? TRUE : FALSE;
 
+    guint32 frag_index_in_submessage = 0, this_frag_number = 0, this_frag_size = 0, fragment_offset = 0;
+    gboolean more_fragments = FALSE;
     if (enable_rtps_reassembly) {
-        tvbuff_t* new_tvb = NULL;
-        fragment_head *frag_msg = NULL;
-        gboolean more_fragments = (frag_number * frag_size < sample_size);
-        guint32 this_frag_size = more_fragments ? frag_size : (sample_size - ((frag_number - 1) * frag_size));
-        guint32 fragment_offset = frag_number == 1 ? 0 : (((frag_number - 1) * frag_size));
+      tvbuff_t* new_tvb = NULL;
+      fragment_head *frag_msg = NULL;
+      while(frag_index_in_submessage < num_frags) {
+        this_frag_number = frag_number + frag_index_in_submessage;
+        more_fragments = (this_frag_number * frag_size < sample_size);
+        this_frag_size = more_fragments ? frag_size : (sample_size - ((this_frag_number - 1) * frag_size));
+        fragment_offset = this_frag_number == 1 ? 0 : (((this_frag_number - 1) * frag_size));
         pinfo->fragmented = TRUE;
         frag_msg = fragment_add_check(&rtps_reassembly_table,
             tvb, offset, pinfo,
-            (guint32) sample_seq_number, /* ID for fragments belonging together */
-            (void *) guid, /* make sure only fragments from the same writer are considered for reassembly */
+            (guint32)sample_seq_number, /* ID for fragments belonging together */
+            (void *)guid, /* make sure only fragments from the same writer are considered for reassembly */
             fragment_offset, /* fragment offset */
             this_frag_size, /* fragment length */
             more_fragments); /* More fragments? */
 
-        new_tvb = process_reassembled_data(tvb, offset, pinfo,
+        new_tvb = process_reassembled_data(tvb, offset + (frag_index_in_submessage * frag_size), pinfo,
             "Reassembled sample", frag_msg, &rtps_frag_items,
             NULL, tree);
 
-        append_status_info(pinfo, wid, status_info);
-
-        if (frag_msg) { /* Reassembled */
-            col_append_fstr(pinfo->cinfo, COL_INFO,
-                " [Reassembled]");
-        } else { /* Not last packet of reassembled Short Message */
-            col_append_fstr(pinfo->cinfo, COL_INFO,
-                " [RTPS fragment]");
+        if (frag_index_in_submessage == 0) {
+          append_status_info(pinfo, wid, status_info);
+          if (frag_msg) { /* Reassembled */
+            col_append_fstr(pinfo->cinfo, COL_INFO, " [Reassembled]");
+          } else { /* Not last packet of reassembled Short Message */
+            col_append_fstr(pinfo->cinfo, COL_INFO," [RTPS fragment]");
+          }
         }
 
         if (new_tvb) {
+            g_snprintf(label, 19, "reassembled sample");
             dissect_serialized_data(tree, pinfo, new_tvb, 0,
                 sample_size, label, vendor_id, from_builtin_writer, guid, NOT_A_FRAGMENT);
+            break;
         } else {
-            dissect_serialized_data(tree, pinfo, tvb, offset,
-                octets_to_next_header - (offset - old_offset) + 4,
-                label, vendor_id, from_builtin_writer, NULL, frag_number);
+            g_snprintf(label, 15, "fragment [%d]", frag_index_in_submessage);
+            dissect_serialized_data(tree, pinfo, tvb, offset + (frag_index_in_submessage * frag_size),
+                this_frag_size, label, vendor_id, from_builtin_writer, NULL, this_frag_number);
         }
+        frag_index_in_submessage++;
+      }
     } else {
-        dissect_serialized_data(tree, pinfo, tvb, offset,
-            octets_to_next_header - (offset - old_offset) + 4,
-            label, vendor_id, from_builtin_writer, NULL, frag_number);
-        append_status_info(pinfo, wid, status_info);
+      while (frag_index_in_submessage < num_frags) {
+        this_frag_number = frag_number + frag_index_in_submessage;
+        more_fragments = (this_frag_number * frag_size < sample_size);
+        this_frag_size = more_fragments ? frag_size : (sample_size - ((this_frag_number - 1) * frag_size));
+        fragment_offset = frag_index_in_submessage * frag_size;
+        g_snprintf(label, 20, "fragment [%d]", frag_index_in_submessage);
+        dissect_serialized_data(tree, pinfo, tvb, offset + fragment_offset,
+            this_frag_size, label, vendor_id, from_builtin_writer, NULL, this_frag_number);
+        frag_index_in_submessage++;
+        }
+      append_status_info(pinfo, wid, status_info);
     }
   }
 }
