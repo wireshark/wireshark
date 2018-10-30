@@ -840,7 +840,7 @@ endif()
 
 include(CheckCLinkerFlag)
 
-if(NOT CMAKE_C_COMPILER_ID MATCHES "MSVC")
+if(NOT CMAKE_C_COMPILER_ID MATCHES "MSVC" AND NOT OSS_FUZZ)
 	#
 	# The -pie linker option produces a position-independent executable.
 	# Some Linux distributions have this enabled by default in the compiler,
