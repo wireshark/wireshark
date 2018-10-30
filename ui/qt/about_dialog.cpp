@@ -84,7 +84,7 @@ AStringListListModel(parent)
         if ( line.startsWith("------") )
             continue;
 
-        if ( line == "Acknowledgements" )
+        if ( line == "= Acknowledgements =" )
         {
             readAck = true;
             continue;
