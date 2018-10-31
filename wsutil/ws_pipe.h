@@ -73,6 +73,12 @@ static inline gboolean ws_pipe_valid(ws_pipe_t *ws_pipe)
  */
 WS_DLL_PUBLIC GPid ws_pipe_spawn_async (ws_pipe_t * ws_pipe, GPtrArray * args );
 
+/**
+ * @brief Stop a process started with ws_pipe_spawn_async
+ * @param ws_pipe The process PID, stdio descriptors, etc.
+ */
+WS_DLL_PUBLIC void ws_pipe_close(ws_pipe_t * ws_pipe);
+
 #ifdef _WIN32
 /**
  * @brief Wait for a set of handles using WaitForMultipleObjects. Windows only.

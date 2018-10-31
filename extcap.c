@@ -1199,10 +1199,7 @@ void extcap_if_cleanup(capture_options *capture_opts, gchar **errormsg)
 
         if (interface_opts->extcap_pid != WS_INVALID_PID)
         {
-#ifdef _WIN32
-            TerminateProcess(interface_opts->extcap_pid, 0);
-#endif
-            g_spawn_close_pid(interface_opts->extcap_pid);
+            ws_pipe_close((ws_pipe_t *) interface_opts->extcap_pipedata);
             interface_opts->extcap_pid = WS_INVALID_PID;
 
             g_free(interface_opts->extcap_pipedata);

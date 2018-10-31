@@ -282,8 +282,7 @@ static void mmdb_resolve_stop(gboolean lock_mutex) {
     ws_close(mmdbr_pipe.stdin_fd);
     fclose(mmdbr_stdout);
     MMDB_DEBUG("closing pid %d", mmdbr_pipe.pid);
-    g_spawn_close_pid(mmdbr_pipe.pid);
-    mmdbr_pipe.pid = WS_INVALID_PID;
+    ws_pipe_close(&mmdbr_pipe);
     mmdbr_stdout = NULL;
     if (lock_mutex)
         g_mutex_unlock(&mmdbr_pipe_mtx);
