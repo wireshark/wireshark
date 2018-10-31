@@ -7,8 +7,8 @@
 
 #line 1 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
 /* packet-IEEE1609dot2.c
- * Routines for HI2 (ETSI TS 101 671 V3.5.1 (2009-11))
- *  Erwin van Eijk 2010
+ * Routines for IEEE 1609.2
+ * Copyright 2018, Anders Broman <anders.broman@ericsson.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -111,7 +111,7 @@ static int hf_ieee1609dot2_data = -1;             /* Ieee1609Dot2Data */
 static int hf_ieee1609dot2_extDataHash = -1;      /* HashedData */
 static int hf_ieee1609dot2_protocolVersion = -1;  /* Uint8 */
 static int hf_ieee1609dot2_content = -1;          /* Ieee1609Dot2Content */
-static int hf_ieee1609dot2_unsecuredData = -1;    /* Opaque */
+static int hf_ieee1609dot2_unsecuredData = -1;    /* T_unsecuredData */
 static int hf_ieee1609dot2_signedData = -1;       /* SignedData */
 static int hf_ieee1609dot2_encryptedData = -1;    /* EncryptedData */
 static int hf_ieee1609dot2_signedCertificateRequest = -1;  /* Opaque */
@@ -1189,6 +1189,26 @@ dissect_ieee1609dot2_GroupLinkageValue(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 }
 
 
+
+static int
+dissect_ieee1609dot2_T_unsecuredData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 43 "./asn1/ieee1609dot2/ieee1609dot2.cnf"
+
+tvbuff_t *parameter_tvb=NULL;
+
+  offset = dissect_oer_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
+
+  if(parameter_tvb){
+    /* Call next dissector here */
+  }
+
+
+
+  return offset;
+}
+
+
 static const oer_sequence_t MissingCrlIdentifier_sequence[] = {
   { &hf_ieee1609dot2_cracaId, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_HashedId3 },
   { &hf_ieee1609dot2_crlSeries, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_CrlSeries },
@@ -1699,7 +1719,7 @@ static const value_string ieee1609dot2_Ieee1609Dot2Content_vals[] = {
 };
 
 static const oer_choice_t Ieee1609Dot2Content_choice[] = {
-  {   0, &hf_ieee1609dot2_unsecuredData, ASN1_EXTENSION_ROOT    , dissect_ieee1609dot2_Opaque },
+  {   0, &hf_ieee1609dot2_unsecuredData, ASN1_EXTENSION_ROOT    , dissect_ieee1609dot2_T_unsecuredData },
   {   1, &hf_ieee1609dot2_signedData, ASN1_EXTENSION_ROOT    , dissect_ieee1609dot2_SignedData },
   {   2, &hf_ieee1609dot2_encryptedData, ASN1_EXTENSION_ROOT    , dissect_ieee1609dot2_EncryptedData },
   {   3, &hf_ieee1609dot2_signedCertificateRequest, ASN1_EXTENSION_ROOT    , dissect_ieee1609dot2_Opaque },
@@ -2083,7 +2103,7 @@ void proto_register_ieee1609dot2(void) {
     { &hf_ieee1609dot2_unsecuredData,
       { "unsecuredData", "ieee1609dot2.unsecuredData",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "Opaque", HFILL }},
+        NULL, HFILL }},
     { &hf_ieee1609dot2_signedData,
       { "signedData", "ieee1609dot2.signedData_element",
         FT_NONE, BASE_NONE, NULL, 0,

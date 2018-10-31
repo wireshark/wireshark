@@ -39,5 +39,16 @@ UnknownLongitude
 
 #.FIELD_RENAME
 
+#.FN_BODY Ieee1609Dot2Content/unsecuredData
+
+tvbuff_t *parameter_tvb=NULL;
+
+  offset = dissect_oer_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
+
+  if(parameter_tvb){
+    /* Call next dissector here */
+  }
+
 #.END
 

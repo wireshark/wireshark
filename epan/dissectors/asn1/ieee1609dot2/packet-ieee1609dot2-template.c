@@ -1,6 +1,6 @@
 /* packet-IEEE1609dot2.c
- * Routines for HI2 (ETSI TS 101 671 V3.5.1 (2009-11))
- *  Erwin van Eijk 2010
+ * Routines for IEEE 1609.2
+ * Copyright 2018, Anders Broman <anders.broman@ericsson.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
