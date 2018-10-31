@@ -5876,52 +5876,52 @@ proto_register_bthci_cmd(void)
             NULL, HFILL }
         },
         { &hf_bthci_cmd_sco_packet_type_hv1,
-          { "HV1",        "bthci_cmd.sco_packet_type.hv1",
+          { "HV1 may be used",        "bthci_cmd.sco_packet_type.hv1",
             FT_BOOLEAN, 16, NULL, 0x0001,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_sco_packet_type_hv2,
-          { "HV2",        "bthci_cmd.sco_packet_type.hv2",
+          { "HV2 may be used",        "bthci_cmd.sco_packet_type.hv2",
             FT_BOOLEAN, 16, NULL, 0x0002,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_sco_packet_type_hv3,
-          { "HV3",        "bthci_cmd.sco_packet_type.hv3",
+          { "HV3 may be used",        "bthci_cmd.sco_packet_type.hv3",
             FT_BOOLEAN, 16, NULL, 0x0004,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_sco_packet_type_ev3,
-          { "EV3",        "bthci_cmd.sco_packet_type.ev3",
+          { "EV3 may be used",        "bthci_cmd.sco_packet_type.ev3",
             FT_BOOLEAN, 16, NULL, 0x0008,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_sco_packet_type_ev4,
-          { "EV4",        "bthci_cmd.sco_packet_type.ev4",
+          { "EV4 may be used",        "bthci_cmd.sco_packet_type.ev4",
             FT_BOOLEAN, 16, NULL, 0x0010,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_sco_packet_type_ev5,
-          { "EV5",        "bthci_cmd.sco_packet_type.ev5",
+          { "EV5 may be used",        "bthci_cmd.sco_packet_type.ev5",
             FT_BOOLEAN, 16, NULL, 0x0020,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_sco_packet_type_2ev3,
-          { "2-EV3",        "bthci_cmd.sco_packet_type.2ev3",
+          { "2-EV3 may NOT be used",        "bthci_cmd.sco_packet_type.2ev3",
             FT_BOOLEAN, 16, NULL, 0x0040,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_sco_packet_type_3ev3,
-          { "3-EV3",        "bthci_cmd.sco_packet_type.3ev3",
+          { "3-EV3 may NOT be used",        "bthci_cmd.sco_packet_type.3ev3",
             FT_BOOLEAN, 16, NULL, 0x0080,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_sco_packet_type_2ev5,
-          { "2-EV5",        "bthci_cmd.sco_packet_type.2ev5",
+          { "2-EV5 may NOT be used",        "bthci_cmd.sco_packet_type.2ev5",
             FT_BOOLEAN, 16, NULL, 0x0100,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_sco_packet_type_3ev5,
-          { "3-EV5",        "bthci_cmd.sco_packet_type.3ev5",
+          { "3-EV5 may NOT be used",        "bthci_cmd.sco_packet_type.3ev5",
             FT_BOOLEAN, 16, NULL, 0x0200,
             NULL, HFILL }
         },

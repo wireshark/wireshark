@@ -92,21 +92,6 @@ static int hf_bthci_evt_key_type = -1;
 static int hf_bthci_evt_max_slots = -1;
 static int hf_bthci_evt_clock_offset = -1;
 static int hf_bthci_evt_clock_offset_32 = -1;
-static int hf_bthci_evt_link_type_2dh1 = -1;
-static int hf_bthci_evt_link_type_3dh1 = -1;
-static int hf_bthci_evt_link_type_dm1 = -1;
-static int hf_bthci_evt_link_type_dh1 = -1;
-static int hf_bthci_evt_link_type_2dh3 = -1;
-static int hf_bthci_evt_link_type_3dh3 = -1;
-static int hf_bthci_evt_link_type_dm3 = -1;
-static int hf_bthci_evt_link_type_dh3 = -1;
-static int hf_bthci_evt_link_type_2dh5 = -1;
-static int hf_bthci_evt_link_type_3dh5 = -1;
-static int hf_bthci_evt_link_type_dm5 = -1;
-static int hf_bthci_evt_link_type_dh5 = -1;
-static int hf_bthci_evt_link_type_hv1 = -1;
-static int hf_bthci_evt_link_type_hv2 = -1;
-static int hf_bthci_evt_link_type_hv3 = -1;
 static int hf_bthci_evt_page_scan_mode = -1;
 static int hf_bthci_evt_page_scan_repetition_mode = -1;
 static int hf_bthci_evt_reserved = -1;
@@ -363,7 +348,6 @@ static int hf_bthci_evt_le_states_31 = -1;
 static int hf_bthci_evt_le_states_32 = -1;
 static int hf_bthci_evt_le_states_33 = -1;
 static int hf_bthci_evt_le_states_34 = -1;
-static int hf_usable_packet_types = -1;
 static int hf_changed_in_frame = -1;
 static int hf_command_in_frame = -1;
 static int hf_pending_in_frame = -1;
@@ -482,6 +466,27 @@ static int hf_bthci_evt_rf_rx_path_compensation = -1;
 static int hf_bthci_evt_sync_handle = -1;
 static int hf_bthci_evt_data_status = -1;
 static int hf_bthci_evt_advertising_handle = -1;
+static int hf_packet_type_acl = -1;
+static int hf_packet_type_acl_dh5 = -1;
+static int hf_packet_type_acl_dm5 = -1;
+static int hf_packet_type_acl_3dh5 = -1;
+static int hf_packet_type_acl_2dh5 = -1;
+static int hf_packet_type_acl_dh3 = -1;
+static int hf_packet_type_acl_dm3 = -1;
+static int hf_packet_type_acl_3dh3 = -1;
+static int hf_packet_type_acl_2dh3 = -1;
+static int hf_packet_type_acl_reserved_5_7 = -1;
+static int hf_packet_type_acl_dh1 = -1;
+static int hf_packet_type_acl_dm1 = -1;
+static int hf_packet_type_acl_3dh1 = -1;
+static int hf_packet_type_acl_2dh1 = -1;
+static int hf_packet_type_acl_reserved_0 = -1;
+static int hf_packet_type_sco = -1;
+static int hf_packet_type_sco_reserved_15_8 = -1;
+static int hf_packet_type_sco_hv3 = -1;
+static int hf_packet_type_sco_hv2 = -1;
+static int hf_packet_type_sco_hv1 = -1;
+static int hf_packet_type_sco_reserved_4_0 = -1;
 
 static const int *hfx_bthci_evt_le_features[] = {
     &hf_bthci_evt_le_features_encryption,
@@ -505,6 +510,33 @@ static const int *hfx_bthci_evt_le_features[] = {
     NULL
 };
 
+static const int *hfx_packet_type_acl[] = {
+    &hf_packet_type_acl_dh5,
+    &hf_packet_type_acl_dm5,
+    &hf_packet_type_acl_3dh5,
+    &hf_packet_type_acl_2dh5,
+    &hf_packet_type_acl_dh3,
+    &hf_packet_type_acl_dm3,
+    &hf_packet_type_acl_3dh3,
+    &hf_packet_type_acl_2dh3,
+    &hf_packet_type_acl_reserved_5_7,
+    &hf_packet_type_acl_dh1,
+    &hf_packet_type_acl_dm1,
+    &hf_packet_type_acl_3dh1,
+    &hf_packet_type_acl_2dh1,
+    &hf_packet_type_acl_reserved_0,
+    NULL
+};
+
+static const int *hfx_packet_type_sco[] = {
+    &hf_packet_type_sco_reserved_15_8,
+    &hf_packet_type_sco_hv3,
+    &hf_packet_type_sco_hv2,
+    &hf_packet_type_sco_hv1,
+    &hf_packet_type_sco_reserved_4_0,
+    NULL
+};
+
 static expert_field ei_event_undecoded = EI_INIT;
 static expert_field ei_event_unknown_event = EI_INIT;
 static expert_field ei_event_unexpected_event = EI_INIT;
@@ -512,6 +544,7 @@ static expert_field ei_event_unexpected_parameter = EI_INIT;
 static expert_field ei_event_unknown_command = EI_INIT;
 static expert_field ei_parameter_unexpected = EI_INIT;
 static expert_field ei_manufacturer_data_changed = EI_INIT;
+static expert_field ei_bad_link_type = EI_INIT;
 
 static dissector_table_t vendor_dissector_table;
 static dissector_table_t hci_vendor_table;
@@ -1198,6 +1231,7 @@ dissect_bthci_evt_connect_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
         chandle_session = (chandle_session_t *) wmem_new(wmem_file_scope(), chandle_session_t);
         chandle_session->connect_in_frame = k_frame_number;
         chandle_session->disconnect_in_frame = max_disconnect_in_frame;
+        chandle_session->link_type = BT_LINK_TYPE_ACL;
         wmem_tree_insert32_array(bluetooth_data->chandle_sessions, key, chandle_session);
 
         connection_mode = (connection_mode_t *) wmem_new(wmem_file_scope(), connection_mode_t);
@@ -1882,70 +1916,52 @@ static int
 dissect_bthci_evt_conn_packet_type_changed(tvbuff_t *tvb, int offset,
         packet_info *pinfo, proto_tree *tree, bluetooth_data_t *bluetooth_data)
 {
-    guint16     packet_types;
-    proto_tree *handle_tree;
-    proto_item *ti_ptype_subtree;
+    proto_item         *connection_handle_subtree;
+    guint32             connection_handle;
+    guint32             link_type = BT_LINK_TYPE_UNKNOWN;
+    wmem_tree_key_t     key[4];
+    guint32             interface_id;
+    guint32             adapter_id;
+    chandle_session_t  *chandle_session;
+    wmem_tree_t        *subtree;
+
 
     proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     send_hci_summary_status_tap(tvb_get_guint8(tvb, offset), pinfo, bluetooth_data);
     offset += 1;
 
-    proto_tree_add_item(tree, hf_bthci_evt_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    connection_handle_subtree = proto_tree_add_item(tree, hf_bthci_evt_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    connection_handle = tvb_get_letohs(tvb, offset) & 0x0FFF;
     offset += 2;
 
-    handle_tree = proto_tree_add_item(tree, hf_usable_packet_types, tvb, offset, 2, ENC_NA);
-    packet_types = tvb_get_letohs(tvb, offset);
-    ti_ptype_subtree = proto_item_add_subtree(handle_tree, ett_ptype_subtree);
+    interface_id      = bluetooth_data->interface_id;
+    adapter_id        = bluetooth_data->adapter_id;
 
-    proto_item_append_text(handle_tree, ": ");
-    if (packet_types & 0x0008)
-        proto_item_append_text(handle_tree, "DM1 ");
-    if (packet_types & 0x0010)
-        proto_item_append_text(handle_tree, "DH1 ");
-    if (packet_types & 0x0400)
-        proto_item_append_text(handle_tree, "DM3 ");
-    if (packet_types & 0x0800)
-        proto_item_append_text(handle_tree, "DH3 ");
-    if (packet_types & 0x4000)
-        proto_item_append_text(handle_tree, "DM5 ");
-    if (packet_types & 0x8000)
-        proto_item_append_text(handle_tree, "DH5 ");
-    if (packet_types & 0x0020)
-        proto_item_append_text(handle_tree, "HV1 ");
-    if (packet_types & 0x0040)
-        proto_item_append_text(handle_tree, "HV2 ");
-    if (packet_types & 0x0080)
-        proto_item_append_text(handle_tree, "HV3 ");
-    if (packet_types & 0x0002)
-        proto_item_append_text(handle_tree, "2-DH1 ");
-    if (packet_types & 0x0004)
-        proto_item_append_text(handle_tree, "3-DH1 ");
-    if (packet_types & 0x0100)
-        proto_item_append_text(handle_tree, "2-DH3 ");
-    if (packet_types & 0x0200)
-        proto_item_append_text(handle_tree, "3-DH3 ");
-    if (packet_types & 0x1000)
-        proto_item_append_text(handle_tree, "2-DH5 ");
-    if (packet_types & 0x2000)
-        proto_item_append_text(handle_tree, "3-DH5 ");
-    if (packet_types == 0)
-        proto_item_append_text(handle_tree, "does not support any packets");
+    key[0].length = 1;
+    key[0].key    = &interface_id;
+    key[1].length = 1;
+    key[1].key    = &adapter_id;
+    key[2].length = 1;
+    key[2].key    = &connection_handle;
+    key[3].length = 0;
+    key[3].key    = NULL;
 
-    proto_tree_add_item(ti_ptype_subtree, hf_bthci_evt_link_type_2dh1, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_ptype_subtree, hf_bthci_evt_link_type_3dh1, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_ptype_subtree, hf_bthci_evt_link_type_dm1,  tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_ptype_subtree, hf_bthci_evt_link_type_dh1,  tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_ptype_subtree, hf_bthci_evt_link_type_2dh3, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_ptype_subtree, hf_bthci_evt_link_type_3dh3, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_ptype_subtree, hf_bthci_evt_link_type_dm3,  tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_ptype_subtree, hf_bthci_evt_link_type_dh3,  tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_ptype_subtree, hf_bthci_evt_link_type_2dh5, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_ptype_subtree, hf_bthci_evt_link_type_3dh5, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_ptype_subtree, hf_bthci_evt_link_type_dm5,  tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_ptype_subtree, hf_bthci_evt_link_type_dh5,  tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_ptype_subtree, hf_bthci_evt_link_type_hv1,  tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_ptype_subtree, hf_bthci_evt_link_type_hv2,  tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(ti_ptype_subtree, hf_bthci_evt_link_type_hv3,  tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    subtree = (wmem_tree_t *) wmem_tree_lookup32_array(bluetooth_data->chandle_sessions, key);
+    chandle_session = (subtree) ? (chandle_session_t *) wmem_tree_lookup32_le(subtree, pinfo->num) : NULL;
+    if (chandle_session && chandle_session->connect_in_frame < pinfo->num)
+        link_type = chandle_session->link_type;
+
+    if (link_type == BT_LINK_TYPE_ACL) {
+        proto_tree_add_bitmask(tree, tvb, offset, hf_packet_type_acl, ett_ptype_subtree, hfx_packet_type_acl, ENC_LITTLE_ENDIAN);
+    } else if (link_type == BT_LINK_TYPE_SCO) {
+        proto_tree_add_bitmask(tree, tvb, offset, hf_packet_type_sco, ett_ptype_subtree, hfx_packet_type_sco, ENC_LITTLE_ENDIAN);
+    } else {
+        /* Unknown or wrong link type (Link Layer from BTLE), show mix or ACL and SCO */
+        expert_add_info(pinfo, connection_handle_subtree, &ei_bad_link_type);
+
+        proto_tree_add_bitmask(tree, tvb, offset, hf_packet_type_acl, ett_ptype_subtree, hfx_packet_type_acl, ENC_LITTLE_ENDIAN);
+        proto_tree_add_bitmask(tree, tvb, offset, hf_packet_type_sco, ett_ptype_subtree, hfx_packet_type_sco, ENC_LITTLE_ENDIAN);
+    }
     offset += 2;
 
     return offset;
@@ -2325,6 +2341,7 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
                 chandle_session = (chandle_session_t *) wmem_new(wmem_file_scope(), chandle_session_t);
                 chandle_session->connect_in_frame = k_frame_number;
                 chandle_session->disconnect_in_frame = max_disconnect_in_frame;
+                chandle_session->link_type = BT_LINK_TYPE_LL;
                 wmem_tree_insert32_array(bluetooth_data->chandle_sessions, key, chandle_session);
             }
 
@@ -2534,6 +2551,7 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
                 chandle_session = (chandle_session_t *) wmem_new(wmem_file_scope(), chandle_session_t);
                 chandle_session->connect_in_frame = k_frame_number;
                 chandle_session->disconnect_in_frame = max_disconnect_in_frame;
+                chandle_session->link_type = BT_LINK_TYPE_LL;
                 wmem_tree_insert32_array(bluetooth_data->chandle_sessions, key, chandle_session);
             }
 
@@ -5125,6 +5143,7 @@ dissect_bthci_evt_sync_connection_complete(tvbuff_t *tvb, int offset,
         chandle_session = (chandle_session_t *) wmem_new(wmem_file_scope(), chandle_session_t);
         chandle_session->connect_in_frame = frame_number;
         chandle_session->disconnect_in_frame = max_disconnect_in_frame;
+        chandle_session->link_type = BT_LINK_TYPE_SCO;
         wmem_tree_insert32_array(bluetooth_data->chandle_sessions, key, chandle_session);
 
         /* stream number */
@@ -6497,79 +6516,109 @@ proto_register_bthci_evt(void)
             FT_UINT8, BASE_HEX, VALS(bthci_cmd_page_scan_period_modes), 0x0,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_link_type_2dh1,
-          { "ACL Link Type 2-DH1",        "bthci_evt.link_type_2dh1",
-            FT_BOOLEAN, 16, NULL, 0x0002,
+        { &hf_packet_type_acl,
+          { "Packet Type for ACL",               "bthci_evt.packet_type",
+            FT_UINT16, BASE_HEX, NULL, 0,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_link_type_3dh1,
-          { "ACL Link Type 3-DH1",        "bthci_evt.link_type_3dh1",
-            FT_BOOLEAN, 16, NULL, 0x0004,
-            NULL, HFILL }
-        },
-        { &hf_bthci_evt_link_type_dm1,
-          { "ACL Link Type DM1",        "bthci_evt.link_type_dm1",
-            FT_BOOLEAN, 16, NULL, 0x0008,
-            NULL, HFILL }
-        },
-        { &hf_bthci_evt_link_type_dh1,
-          { "ACL Link Type DH1",        "bthci_evt.link_type_dh1",
-            FT_BOOLEAN, 16, NULL, 0x0010,
-            NULL, HFILL }
-        },
-        { &hf_bthci_evt_link_type_2dh3,
-          { "ACL Link Type 2-DH3",        "bthci_evt.link_type_2dh3",
-            FT_BOOLEAN, 16, NULL, 0x0100,
-            NULL, HFILL }
-        },
-        { &hf_bthci_evt_link_type_3dh3,
-          { "ACL Link Type 3-DH3",        "bthci_evt.link_type_3dh3",
-            FT_BOOLEAN, 16, NULL, 0x0200,
-            NULL, HFILL }
-        },
-        { &hf_bthci_evt_link_type_dm3,
-          { "ACL Link Type DM3",        "bthci_evt.link_type_dm3",
-            FT_BOOLEAN, 16, NULL, 0x0400,
-            NULL, HFILL }
-        },
-        { &hf_bthci_evt_link_type_dh3,
-          { "ACL Link Type DH3",        "bthci_evt.link_type_dh3",
-            FT_BOOLEAN, 16, NULL, 0x0800,
-            NULL, HFILL }
-        },
-        { &hf_bthci_evt_link_type_2dh5,
-          { "ACL Link Type 2-DH5",        "bthci_evt.link_type_2dh5",
-            FT_BOOLEAN, 16, NULL, 0x1000,
-            NULL, HFILL }
-        },
-        { &hf_bthci_evt_link_type_3dh5,
-          { "ACL Link Type 3-DH5",        "bthci_evt.link_type_3dh5",
-            FT_BOOLEAN, 16, NULL, 0x2000,
-            NULL, HFILL }
-        },
-        { &hf_bthci_evt_link_type_dm5,
-          { "ACL Link Type DM5",        "bthci_evt.link_type_dm5",
-            FT_BOOLEAN, 16, NULL, 0x4000,
-            NULL, HFILL }
-        },
-        { &hf_bthci_evt_link_type_dh5,
-          { "ACL Link Type DH5",        "bthci_evt.link_type_dh5",
+        { &hf_packet_type_acl_dh5,
+          { "DH5 may be used",                   "bthci_evt.packet_type.dh5",
             FT_BOOLEAN, 16, NULL, 0x8000,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_link_type_hv1,
-          { "SCO Link Type HV1",        "bthci_evt.link_type_hv1",
-            FT_BOOLEAN, 16, NULL, 0x0020,
+        { &hf_packet_type_acl_dm5,
+          { "DM5 may be used",                   "bthci_evt.packet_type.dm5",
+            FT_BOOLEAN, 16, NULL, 0x4000,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_link_type_hv2,
-          { "SCO Link Type HV2",        "bthci_evt.link_type_hv2",
+        { &hf_packet_type_acl_3dh5,
+          { "3-DH5 shall NOT be used",           "bthci_evt.packet_type.3dh5",
+            FT_BOOLEAN, 16, NULL, 0x2000,
+            NULL, HFILL }
+        },
+        { &hf_packet_type_acl_2dh5,
+          { "2-DH5 shall NOT be used",           "bthci_evt.packet_type.2dh5",
+            FT_BOOLEAN, 16, NULL, 0x1000,
+            NULL, HFILL }
+        },
+        { &hf_packet_type_acl_dh3,
+          { "DH3 may be used",                   "bthci_evt.packet_type.dh3",
+            FT_BOOLEAN, 16, NULL, 0x0800,
+            NULL, HFILL }
+        },
+        { &hf_packet_type_acl_dm3,
+          { "DM3 may be used",                   "bthci_evt.packet_type.dm3",
+            FT_BOOLEAN, 16, NULL, 0x0400,
+            NULL, HFILL }
+        },
+        { &hf_packet_type_acl_3dh3,
+          { "3-DH3 shall NOT be used",           "bthci_evt.packet_type.3dh3",
+            FT_BOOLEAN, 16, NULL, 0x0200,
+            NULL, HFILL }
+        },
+        { &hf_packet_type_acl_2dh3,
+          { "2-DH3 shall NOT be used",           "bthci_evt.packet_type.2dh3",
+            FT_BOOLEAN, 16, NULL, 0x0100,
+            NULL, HFILL }
+        },
+        { &hf_packet_type_acl_reserved_5_7,
+          { "Reserved",                          "bthci_evt.packet_type.reserved_5_7",
+            FT_UINT16, BASE_HEX, NULL, 0x00E0,
+            NULL, HFILL }
+        },
+        { &hf_packet_type_acl_dh1,
+          { "DH1 may be used",                   "bthci_evt.packet_type.dh1",
+            FT_BOOLEAN, 16, NULL, 0x0010,
+            NULL, HFILL }
+        },
+        { &hf_packet_type_acl_dm1,
+          { "DM1 may be used",                   "bthci_evt.packet_type.dm1",
+            FT_BOOLEAN, 16, NULL, 0x0008,
+            NULL, HFILL }
+        },
+        { &hf_packet_type_acl_3dh1,
+          { "3-DH1 shall NOT be used",           "bthci_evt.packet_type.3dh1",
+            FT_BOOLEAN, 16, NULL, 0x0004,
+            NULL, HFILL }
+        },
+        { &hf_packet_type_acl_2dh1,
+          { "2-DH1 shall NOT be used",           "bthci_evt.packet_type.2dh1",
+            FT_BOOLEAN, 16, NULL, 0x0002,
+            NULL, HFILL }
+        },
+        { &hf_packet_type_acl_reserved_0,
+          { "Reserved",                          "bthci_evt.packet_type.reserved_0",
+            FT_BOOLEAN, 16, NULL, 0x0001,
+            NULL, HFILL }
+        },
+        { &hf_packet_type_sco,
+          { "Packet Type for SCO",               "bthci_evt.packet_type",
+            FT_UINT16, BASE_HEX, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_packet_type_sco_reserved_15_8,
+          { "Reserved",                          "bthci_evt.packet_type.reserved_15_8",
+            FT_UINT16, BASE_HEX, NULL, 0xFF00,
+            NULL, HFILL }
+        },
+        { &hf_packet_type_sco_hv3,
+          { "HV3",                               "bthci_evt.packet_type.hv3",
+            FT_BOOLEAN, 16, NULL, 0x0080,
+            NULL, HFILL }
+        },
+        { &hf_packet_type_sco_hv2,
+          { "HV2",                               "bthci_evt.packet_type.hv2",
             FT_BOOLEAN, 16, NULL, 0x0040,
             NULL, HFILL }
         },
-        { &hf_bthci_evt_link_type_hv3,
-          { "SCO Link Type HV3",        "bthci_evt.link_type_hv3",
-            FT_BOOLEAN, 16, NULL, 0x0080,
+        { &hf_packet_type_sco_hv1,
+          { "HV1",                               "bthci_evt.packet_type.hv1",
+            FT_BOOLEAN, 16, NULL, 0x0020,
+            NULL, HFILL }
+        },
+        { &hf_packet_type_sco_reserved_4_0,
+          { "Reserved",                          "bthci_evt.packet_type.reserved_4_0",
+            FT_UINT16, BASE_HEX, NULL, 0x001F,
             NULL, HFILL }
         },
         { &hf_lmp_features,
@@ -7843,11 +7892,6 @@ proto_register_bthci_evt(void)
             FT_BOOLEAN, 8, NULL, 0x10,
             NULL, HFILL }
         },
-        { &hf_usable_packet_types,
-          { "Usable Packet Types",                            "bthci_evt.usable_packet_types",
-            FT_NONE, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }
-        },
         { &hf_changed_in_frame,
             { "Change in Frame",                              "bthci_evt.change_in_frame",
             FT_FRAMENUM, BASE_NONE, NULL, 0x0,
@@ -8487,7 +8531,8 @@ proto_register_bthci_evt(void)
         { &ei_event_unexpected_parameter, { "bthci_evt.expert.event.unexpected_parameter",      PI_PROTOCOL, PI_WARN,      "Unexpected parameter", EXPFILL }},
         { &ei_event_unknown_command,      { "bthci_evt.expert.event.unknown_command",           PI_PROTOCOL, PI_WARN,      "Unknown command", EXPFILL }},
         { &ei_parameter_unexpected,       { "bthci_evt.expert.parameter.unexpected",            PI_PROTOCOL, PI_WARN,      "Unexpected command parameter", EXPFILL }},
-        { &ei_manufacturer_data_changed,  { "bthci_evt.expert.event.manufacturer_data_changed", PI_PROTOCOL, PI_WARN,      "Manufacturer data changed", EXPFILL }}
+        { &ei_manufacturer_data_changed,  { "bthci_evt.expert.event.manufacturer_data_changed", PI_PROTOCOL, PI_WARN,      "Manufacturer data changed", EXPFILL }},
+        { &ei_bad_link_type,              { "bthci_evt.expert.bad_link_type",                   PI_PROTOCOL, PI_WARN,      "Bad Link type, should be ACL or SCO", EXPFILL }},
     };
 
     /* Setup protocol subtree array */
