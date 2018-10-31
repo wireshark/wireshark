@@ -194,26 +194,6 @@ init_pipe_args(int *argc) {
 gboolean
 sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, info_data_t* cap_data, void (*update_cb)(void))
 {
-    char ssnap[ARGV_NUMBER_LEN];
-    char scount[ARGV_NUMBER_LEN];
-    char sfilesize[ARGV_NUMBER_LEN];
-    char sfile_duration[ARGV_NUMBER_LEN];
-    char sfile_interval[ARGV_NUMBER_LEN];
-    char sring_num_files[ARGV_NUMBER_LEN];
-    char sautostop_files[ARGV_NUMBER_LEN];
-    char sautostop_filesize[ARGV_NUMBER_LEN];
-    char sautostop_duration[ARGV_NUMBER_LEN];
-#ifdef HAVE_PCAP_REMOTE
-    char sauth[256];
-#endif
-#ifdef HAVE_PCAP_SETSAMPLING
-    char ssampling[ARGV_NUMBER_LEN];
-#endif
-
-#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
-    char buffer_size[ARGV_NUMBER_LEN];
-#endif
-
 #ifdef _WIN32
     HANDLE sync_pipe_read;                  /* pipe used to send messages from child to parent */
     HANDLE sync_pipe_write;                 /* pipe used to send messages from child to parent */
@@ -272,36 +252,49 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, inf
 
     if (capture_opts->multi_files_on) {
         if (capture_opts->has_autostop_filesize) {
+            char sfilesize[ARGV_NUMBER_LEN];
             argv = sync_pipe_add_arg(argv, &argc, "-b");
             g_snprintf(sfilesize, ARGV_NUMBER_LEN, "filesize:%u",capture_opts->autostop_filesize);
             argv = sync_pipe_add_arg(argv, &argc, sfilesize);
         }
 
         if (capture_opts->has_file_duration) {
+            char sfile_duration[ARGV_NUMBER_LEN];
             argv = sync_pipe_add_arg(argv, &argc, "-b");
             g_snprintf(sfile_duration, ARGV_NUMBER_LEN, "duration:%f",capture_opts->file_duration);
             argv = sync_pipe_add_arg(argv, &argc, sfile_duration);
         }
 
         if (capture_opts->has_file_interval) {
+            char sfile_interval[ARGV_NUMBER_LEN];
             argv = sync_pipe_add_arg(argv, &argc, "-b");
             g_snprintf(sfile_interval, ARGV_NUMBER_LEN, "interval:%d",capture_opts->file_interval);
             argv = sync_pipe_add_arg(argv, &argc, sfile_interval);
         }
 
+        if (capture_opts->has_file_packets) {
+            char sfile_packets[ARGV_NUMBER_LEN];
+            argv = sync_pipe_add_arg(argv, &argc, "-b");
+            g_snprintf(sfile_packets, ARGV_NUMBER_LEN, "packets:%d",capture_opts->file_packets);
+            argv = sync_pipe_add_arg(argv, &argc, sfile_packets);
+        }
+
         if (capture_opts->has_ring_num_files) {
+            char sring_num_files[ARGV_NUMBER_LEN];
             argv = sync_pipe_add_arg(argv, &argc, "-b");
             g_snprintf(sring_num_files, ARGV_NUMBER_LEN, "files:%d",capture_opts->ring_num_files);
             argv = sync_pipe_add_arg(argv, &argc, sring_num_files);
         }
 
         if (capture_opts->has_autostop_files) {
+            char sautostop_files[ARGV_NUMBER_LEN];
             argv = sync_pipe_add_arg(argv, &argc, "-a");
             g_snprintf(sautostop_files, ARGV_NUMBER_LEN, "files:%d",capture_opts->autostop_files);
             argv = sync_pipe_add_arg(argv, &argc, sautostop_files);
         }
     } else {
         if (capture_opts->has_autostop_filesize) {
+            char sautostop_filesize[ARGV_NUMBER_LEN];
             argv = sync_pipe_add_arg(argv, &argc, "-a");
             g_snprintf(sautostop_filesize, ARGV_NUMBER_LEN, "filesize:%u",capture_opts->autostop_filesize);
             argv = sync_pipe_add_arg(argv, &argc, sautostop_filesize);
@@ -309,12 +302,14 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, inf
     }
 
     if (capture_opts->has_autostop_packets) {
+        char scount[ARGV_NUMBER_LEN];
         argv = sync_pipe_add_arg(argv, &argc, "-c");
         g_snprintf(scount, ARGV_NUMBER_LEN, "%d",capture_opts->autostop_packets);
         argv = sync_pipe_add_arg(argv, &argc, scount);
     }
 
     if (capture_opts->has_autostop_duration) {
+        char sautostop_duration[ARGV_NUMBER_LEN];
         argv = sync_pipe_add_arg(argv, &argc, "-a");
         g_snprintf(sautostop_duration, ARGV_NUMBER_LEN, "duration:%f",capture_opts->autostop_duration);
         argv = sync_pipe_add_arg(argv, &argc, sautostop_duration);
@@ -338,6 +333,7 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, inf
             argv = sync_pipe_add_arg(argv, &argc, interface_opts->cfilter);
         }
         if (interface_opts->has_snaplen) {
+            char ssnap[ARGV_NUMBER_LEN];
             argv = sync_pipe_add_arg(argv, &argc, "-s");
             g_snprintf(ssnap, ARGV_NUMBER_LEN, "%d", interface_opts->snaplen);
             argv = sync_pipe_add_arg(argv, &argc, ssnap);
@@ -358,6 +354,7 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, inf
 
 #ifdef CAN_SET_CAPTURE_BUFFER_SIZE
         if (interface_opts->buffer_size != DEFAULT_CAPTURE_BUFFER_SIZE) {
+            char buffer_size[ARGV_NUMBER_LEN];
             argv = sync_pipe_add_arg(argv, &argc, "-B");
             if(interface_opts->buffer_size == 0x00)
                 interface_opts->buffer_size = DEFAULT_CAPTURE_BUFFER_SIZE;
@@ -380,6 +377,7 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, inf
             argv = sync_pipe_add_arg(argv, &argc, "-r");
 
         if (interface_opts->auth_type == CAPTURE_AUTH_PWD) {
+            char sauth[256];
             argv = sync_pipe_add_arg(argv, &argc, "-A");
             g_snprintf(sauth, sizeof(sauth), "%s:%s",
                        interface_opts->auth_username,
@@ -390,6 +388,7 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, inf
 
 #ifdef HAVE_PCAP_SETSAMPLING
         if (interface_opts->sampling_method != CAPTURE_SAMP_NONE) {
+            char ssampling[ARGV_NUMBER_LEN];
             argv = sync_pipe_add_arg(argv, &argc, "-m");
             g_snprintf(ssampling, ARGV_NUMBER_LEN, "%s:%d",
                        interface_opts->sampling_method == CAPTURE_SAMP_BY_COUNT ? "count" :

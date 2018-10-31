@@ -262,10 +262,38 @@
           <bool>true</bool>
          </property>
          <layout class="QGridLayout" name="gridLayout">
-          <item row="1" column="1">
-           <widget class="QSpinBox" name="MBSpinBox">
+          <item row="0" column="3" rowspan="4">
+           <spacer name="horizontalSpacer_8">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="2" column="0">
+           <widget class="QCheckBox" name="MBCheckBox">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QCheckBox" name="SecsCheckBox">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QSpinBox" name="SecsSpinBox">
             <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If the selected file size is exceeded, capturing switches to the next file.&lt;/p&gt;&lt;p&gt;PLEASE NOTE: One option MUST be selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>If the selected file size is exceeded, capturing switches to the next file.
+PLEASE NOTE: One option MUST be selected.</string>
             </property>
             <property name="wrapping">
              <bool>true</bool>
@@ -284,30 +312,7 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="2">
-           <widget class="QComboBox" name="MBComboBox">
-            <property name="toolTip">
-             <string>If the selected file size is exceeded, capturing switches to the next file.
-PLEASE NOTE: One option MUST be selected.</string>
-            </property>
-            <item>
-             <property name="text">
-              <string>kilobytes</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>megabytes</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>gigabytes</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-          <item row="2" column="2">
+          <item row="3" column="2">
            <widget class="QComboBox" name="SecsComboBox">
             <property name="toolTip">
              <string>If the selected file size is exceeded, capturing switches to the next file.
@@ -331,10 +336,9 @@ PLEASE NOTE: One option MUST be selected.</string>
            </widget>
           </item>
           <item row="2" column="1">
-           <widget class="QSpinBox" name="SecsSpinBox">
+           <widget class="QSpinBox" name="MBSpinBox">
             <property name="toolTip">
-             <string>If the selected file size is exceeded, capturing switches to the next file.
-PLEASE NOTE: One option MUST be selected.</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If the selected file size is exceeded, capturing switches to the next file.&lt;/p&gt;&lt;p&gt;PLEASE NOTE: One option MUST be selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="wrapping">
              <bool>true</bool>
@@ -353,30 +357,56 @@ PLEASE NOTE: One option MUST be selected.</string>
             </property>
            </widget>
           </item>
-          <item row="0" column="3" rowspan="3">
-           <spacer name="horizontalSpacer_8">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+          <item row="2" column="2">
+           <widget class="QComboBox" name="MBComboBox">
+            <property name="toolTip">
+             <string>If the selected file size is exceeded, capturing switches to the next file.
+PLEASE NOTE: One option MUST be selected.</string>
             </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
+            <item>
+             <property name="text">
+              <string>kilobytes</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>megabytes</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>gigabytes</string>
+             </property>
+            </item>
+           </widget>
           </item>
           <item row="1" column="0">
-           <widget class="QCheckBox" name="MBCheckBox">
+           <widget class="QCheckBox" name="PktCheckBox">
             <property name="text">
              <string/>
             </property>
            </widget>
           </item>
-          <item row="2" column="0">
-           <widget class="QCheckBox" name="SecsCheckBox">
+          <item row="1" column="1">
+           <widget class="QSpinBox" name="PktSpinBox">
+            <property name="toolTip">
+             <string>Switch to the next file after the specified number of packets have been captured.</string>
+            </property>
+            <property name="buttonSymbols">
+             <enum>QAbstractSpinBox::PlusMinus</enum>
+            </property>
+            <property name="maximum">
+             <number>2147483647</number>
+            </property>
+            <property name="value">
+             <number>100000</number>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QLabel" name="PktLabel">
             <property name="text">
-             <string/>
+             <string>packets</string>
             </property>
            </widget>
           </item>

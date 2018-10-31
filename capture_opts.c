@@ -101,6 +101,8 @@ capture_opts_init(capture_options *capture_opts)
     capture_opts->file_duration                   = 60.0;             /* 1 min */
     capture_opts->has_file_interval               = FALSE;
     capture_opts->file_interval                   = 60;               /* 1 min */
+    capture_opts->has_file_packets                = FALSE;
+    capture_opts->file_packets                    = 0;
     capture_opts->has_ring_num_files              = FALSE;
     capture_opts->ring_num_files                  = RINGBUFFER_MIN_NUM_FILES;
 
@@ -243,6 +245,7 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
     g_log(log_domain, log_level, "MultiFilesOn        : %u", capture_opts->multi_files_on);
     g_log(log_domain, log_level, "FileDuration    (%u) : %.3f", capture_opts->has_file_duration, capture_opts->file_duration);
     g_log(log_domain, log_level, "FileInterval    (%u) : %u", capture_opts->has_file_interval, capture_opts->file_interval);
+    g_log(log_domain, log_level, "FilePackets     (%u) : %u", capture_opts->has_file_packets, capture_opts->file_packets);
     g_log(log_domain, log_level, "RingNumFiles    (%u) : %u", capture_opts->has_ring_num_files, capture_opts->ring_num_files);
 
     g_log(log_domain, log_level, "AutostopFiles   (%u) : %u", capture_opts->has_autostop_files, capture_opts->autostop_files);
@@ -295,6 +298,9 @@ set_autostop_criterion(capture_options *capture_opts, const char *autostoparg)
         capture_opts->multi_files_on = TRUE;
         capture_opts->has_autostop_files = TRUE;
         capture_opts->autostop_files = get_positive_int(p,"autostop files");
+    } else if (strcmp(autostoparg,"packets") == 0) {
+        capture_opts->has_autostop_packets = TRUE;
+        capture_opts->autostop_packets = get_positive_int(p,"packet count");
     } else {
         return FALSE;
     }
@@ -401,6 +407,9 @@ get_ring_arguments(capture_options *capture_opts, const char *arg)
     } else if (strcmp(arg,"interval") == 0) {
         capture_opts->has_file_interval = TRUE;
         capture_opts->file_interval = get_positive_int(p, "ring buffer interval");
+    } else if (strcmp(arg,"packets") == 0) {
+        capture_opts->has_file_packets = TRUE;
+        capture_opts->file_packets = get_positive_int(p, "ring buffer packet count");
     }
 
     *colonp = ':';    /* put the colon back */
@@ -805,6 +814,7 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
         break;
 #endif
     case 'c':        /* Capture n packets */
+        /* XXX Use set_autostop_criterion instead? */
         capture_opts->has_autostop_packets = TRUE;
         capture_opts->autostop_packets = get_positive_int(optarg_str_p, "packet count");
         break;

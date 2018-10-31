@@ -291,8 +291,7 @@ typedef struct _loop_data {
     /* common */
     gboolean  go;                  /**< TRUE as long as we're supposed to keep capturing */
     int       err;                 /**< if non-zero, error seen while capturing */
-    gint      packet_count;        /**< Number of packets we have already captured */
-    gint      packet_max;          /**< Number of packets we're supposed to capture - 0 means infinite */
+    gint      packets_captured;    /**< Number of packets we have already captured */
     guint     inpkts_to_sync_pipe; /**< Packets not already send out to the sync_pipe */
 #ifdef SIGINFO
     gboolean  report_packet_count; /**< Set by SIGINFO handler; print packet count */
@@ -301,8 +300,14 @@ typedef struct _loop_data {
     /* output file(s) */
     FILE     *pdh;
     int       save_file_fd;
-    guint64   bytes_written;
-    guint32   autostop_files;
+    guint64   bytes_written;       /**< Bytes written for the current file. */
+    /* autostop conditions */
+    int       packets_written;     /**< Packets written for the current file. */
+    int       file_count;
+    /* ring buffer conditions */
+    GTimer  *file_duration_timer;
+    time_t   next_interval_time;
+    int      interval_s;
 } loop_data;
 
 typedef struct _pcap_queue_element {
@@ -313,14 +318,6 @@ typedef struct _pcap_queue_element {
     } u;
     u_char             *pd;
 } pcap_queue_element;
-
-/* Conditions required by do_file_switch_or_stop */
-typedef struct _condition_data {
-    GTimer  *file_duration_timer;
-    time_t   next_interval_time;
-    int      interval_s;
-    unsigned autostop_files;
-} condition_data;
 
 /*
  * Standard secondary message for unexpected errors.
@@ -455,6 +452,7 @@ print_usage(FILE *output)
     fprintf(output, "  -a <autostop cond.> ...  duration:NUM - stop after NUM seconds\n");
     fprintf(output, "                           filesize:NUM - stop this file after NUM kB\n");
     fprintf(output, "                              files:NUM - stop after NUM files\n");
+    fprintf(output, "                            packets:NUM - stop after NUM packets\n");
     /*fprintf(output, "\n");*/
     fprintf(output, "Output (files):\n");
     fprintf(output, "  -w <filename>            name of file to save (def: tempfile)\n");
@@ -463,6 +461,7 @@ print_usage(FILE *output)
     fprintf(output, "                           interval:NUM - create time intervals of NUM secs\n");
     fprintf(output, "                           filesize:NUM - switch to next file after NUM kB\n");
     fprintf(output, "                              files:NUM - ringbuffer: replace after NUM files\n");
+    fprintf(output, "                            packets:NUM - ringbuffer: replace after NUM packets\n");
     fprintf(output, "  -n                       use pcapng format instead of pcap (default)\n");
     fprintf(output, "  -P                       use libpcap format instead of pcapng\n");
     fprintf(output, "  --capture-comment <comment>\n");
@@ -1097,7 +1096,7 @@ report_capture_count(gboolean reportit)
 {
     /* Don't print this if we're a capture child. */
     if (!capture_child && reportit) {
-        fprintf(stderr, "\rPackets captured: %d\n", global_ld.packet_count);
+        fprintf(stderr, "\rPackets captured: %d\n", global_ld.packets_captured);
         /* stderr could be line buffered */
         fflush(stderr);
     }
@@ -2275,7 +2274,7 @@ pcap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, int errms
              * instead stop with an error.
              */
             g_snprintf(errmsg, errmsgl, "Frame %u too long (%d bytes)",
-                       ld->packet_count+1, pcap_info->rechdr.hdr.incl_len);
+                       ld->packets_captured+1, pcap_info->rechdr.hdr.incl_len);
             break;
         }
 
@@ -2505,7 +2504,7 @@ pcapng_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, int err
             * instead stop with an error.
             */
             g_snprintf(errmsg, errmsgl, "Frame %u too long (%d bytes)",
-                    ld->packet_count+1, bh->block_total_length);
+                    ld->packets_captured+1, bh->block_total_length);
             break;
         }
 
@@ -3086,7 +3085,7 @@ capture_loop_dispatch(loop_data *ld,
     gint   packet_count_before;
     int    sel_ret;
 
-    packet_count_before = ld->packet_count;
+    packet_count_before = ld->packets_captured;
     if (pcap_src->from_cap_pipe) {
         /* dispatch from capture pipe */
 #ifdef LOG_CAPTURE_VERBOSE
@@ -3254,7 +3253,7 @@ capture_loop_dispatch(loop_data *ld,
     g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_dispatch: %d new packet%s", inpkts, plurality(inpkts, "", "s"));
 #endif
 
-    return ld->packet_count - packet_count_before;
+    return ld->packets_captured - packet_count_before;
 }
 
 #ifdef _WIN32
@@ -3462,8 +3461,7 @@ static time_t get_next_time_interval(int interval_s) {
 /* Do the work of handling either the file size or file duration capture
    conditions being reached, and switching files or stopping. */
 static gboolean
-do_file_switch_or_stop(capture_options *capture_opts,
-                       condition_data *conditions)
+do_file_switch_or_stop(capture_options *capture_opts)
 {
     guint             i;
     capture_src      *pcap_src;
@@ -3471,8 +3469,8 @@ do_file_switch_or_stop(capture_options *capture_opts,
     gboolean          successful;
 
     if (capture_opts->multi_files_on) {
-        if (conditions->autostop_files &&
-            ++global_ld.autostop_files >= conditions->autostop_files) {
+        if (capture_opts->has_autostop_files &&
+            ++global_ld.file_count >= capture_opts->autostop_files) {
             /* no files left: stop here */
             global_ld.go = FALSE;
             return FALSE;
@@ -3484,6 +3482,7 @@ do_file_switch_or_stop(capture_options *capture_opts,
 
             /* File switch succeeded: reset the conditions */
             global_ld.bytes_written = 0;
+            global_ld.packets_written = 0;
             pcap_src = g_array_index(global_ld.pcaps, capture_src *, 0);
             if (pcap_src->from_pcapng) {
                 /* Write the saved SHB and all IDBs to start of next file */
@@ -3554,11 +3553,11 @@ do_file_switch_or_stop(capture_options *capture_opts,
                 global_ld.go = FALSE;
                 return FALSE;
             }
-            if (conditions->file_duration_timer) {
-                g_timer_reset(conditions->file_duration_timer);
+            if (global_ld.file_duration_timer) {
+                g_timer_reset(global_ld.file_duration_timer);
             }
-            if (conditions->next_interval_time) {
-                conditions->next_interval_time = get_next_time_interval(conditions->interval_s);
+            if (global_ld.next_interval_time) {
+                global_ld.next_interval_time = get_next_time_interval(global_ld.interval_s);
             }
             fflush(global_ld.pdh);
             if (!quiet)
@@ -3611,7 +3610,6 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 #endif
     int               err_close;
     int               inpkts;
-    condition_data    conditions;
     GTimer           *autostop_duration_timer = NULL;
     gboolean          write_ok;
     gboolean          close_ok;
@@ -3627,19 +3625,18 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 
     /* init the loop data */
     global_ld.go                  = TRUE;
-    global_ld.packet_count        = 0;
+    global_ld.packets_captured    = 0;
 #ifdef SIGINFO
     global_ld.report_packet_count = FALSE;
 #endif
-    if (capture_opts->has_autostop_packets)
-        global_ld.packet_max      = capture_opts->autostop_packets;
-    else
-        global_ld.packet_max      = 0;        /* no limit */
     global_ld.inpkts_to_sync_pipe = 0;
     global_ld.err                 = 0;  /* no error seen yet */
     global_ld.pdh                 = NULL;
-    global_ld.autostop_files      = 0;
     global_ld.save_file_fd        = -1;
+    global_ld.file_count          = 0;
+    global_ld.file_duration_timer = NULL;
+    global_ld.next_interval_time  = 0;
+    global_ld.interval_s          = 0;
 
     /* We haven't yet gotten the capture statistics. */
     *stats_known      = FALSE;
@@ -3713,11 +3710,9 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
         report_new_capture_file(capture_opts->save_file);
     }
 
-    /* initialize capture stop (and alike) conditions */
-    memset(&conditions, 0, sizeof(conditions));
     if (capture_opts->has_file_interval) {
-        conditions.interval_s = capture_opts->file_interval;
-        conditions.next_interval_time = get_next_time_interval(conditions.interval_s);
+        global_ld.interval_s = capture_opts->file_interval;
+        global_ld.next_interval_time = get_next_time_interval(global_ld.interval_s);
     }
     /* create stop conditions */
     if (capture_opts->has_autostop_filesize) {
@@ -3731,11 +3726,8 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 
     if (capture_opts->multi_files_on) {
         if (capture_opts->has_file_duration) {
-            conditions.file_duration_timer = g_timer_new();
+            global_ld.file_duration_timer = g_timer_new();
         }
-
-        if (capture_opts->has_autostop_files)
-            conditions.autostop_files = capture_opts->autostop_files;
     }
 
     /* init the time values */
@@ -3809,8 +3801,8 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 #ifdef SIGINFO
         /* Were we asked to print packet counts by the SIGINFO handler? */
         if (global_ld.report_packet_count) {
-            fprintf(stderr, "%u packet%s captured\n", global_ld.packet_count,
-                    plurality(global_ld.packet_count, "", "s"));
+            fprintf(stderr, "%u packet%s captured\n", global_ld.packets_captured,
+                    plurality(global_ld.packets_captured, "", "s"));
             global_ld.report_packet_count = FALSE;
         }
 #endif
@@ -3825,14 +3817,6 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
         if (inpkts > 0) {
             global_ld.inpkts_to_sync_pipe += inpkts;
 
-            /* check capture size condition */
-            if (capture_opts->has_autostop_filesize &&
-                capture_opts->autostop_filesize > 0 &&
-                global_ld.bytes_written / 1000 >= capture_opts->autostop_filesize) {
-                /* Capture size limit reached, do we have another file? */
-                if (!do_file_switch_or_stop(capture_opts, &conditions))
-                    continue;
-            } /* cnd_autostop_size */
             if (capture_opts->output_to_pipe) {
                 fflush(global_ld.pdh);
             }
@@ -3882,16 +3866,16 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
             }
 
             /* check capture file duration condition */
-            if (conditions.file_duration_timer != NULL && g_timer_elapsed(conditions.file_duration_timer, NULL) >= capture_opts->file_duration) {
+            if (global_ld.file_duration_timer != NULL && g_timer_elapsed(global_ld.file_duration_timer, NULL) >= capture_opts->file_duration) {
                 /* duration limit reached, do we have another file? */
-                if (!do_file_switch_or_stop(capture_opts, &conditions))
+                if (!do_file_switch_or_stop(capture_opts))
                     continue;
             } /* cnd_file_duration */
 
             /* check capture file interval condition */
-            if (conditions.interval_s && time(NULL) >= conditions.next_interval_time) {
+            if (global_ld.interval_s && time(NULL) >= global_ld.next_interval_time) {
                 /* end of interval reached, do we have another file? */
-                if (!do_file_switch_or_stop(capture_opts, &conditions))
+                if (!do_file_switch_or_stop(capture_opts))
                     continue;
             } /* cnd_file_interval */
         }
@@ -3937,8 +3921,8 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 
 
     /* delete stop conditions */
-    if (conditions.file_duration_timer != NULL)
-        g_timer_destroy(conditions.file_duration_timer);
+    if (global_ld.file_duration_timer != NULL)
+        g_timer_destroy(global_ld.file_duration_timer);
     if (autostop_duration_timer != NULL)
         g_timer_destroy(autostop_duration_timer);
 
@@ -4210,10 +4194,13 @@ capture_loop_write_pcapng_cb(capture_src *pcap_src, const struct pcapng_block_he
                   "Wrote a packet of length %d captured on interface %u.",
                    bh->block_total_length, pcap_src->interface_id);
 #endif
-            global_ld.packet_count++;
+            global_ld.packets_captured++;
+            global_ld.packets_written++;
             pcap_src->received++;
+
             /* if the user told us to stop after x packets, do we already have enough? */
-            if ((global_ld.packet_max > 0) && (global_ld.packet_count >= global_ld.packet_max)) {
+            if (global_capture_opts.has_autostop_packets && global_ld.packets_captured >= global_capture_opts.autostop_packets) {
+                fflush(global_ld.pdh);
                 global_ld.go = FALSE;
             }
         }
@@ -4271,11 +4258,28 @@ capture_loop_write_packet_cb(u_char *pcap_src_p, const struct pcap_pkthdr *phdr,
                   "Wrote a packet of length %d captured on interface %u.",
                    phdr->caplen, pcap_src->interface_id);
 #endif
-            global_ld.packet_count++;
+            global_ld.packets_captured++;
+            global_ld.packets_written++;
             pcap_src->received++;
-            /* if the user told us to stop after x packets, do we already have enough? */
-            if ((global_ld.packet_max > 0) && (global_ld.packet_count >= global_ld.packet_max)) {
+
+            /* check -c NUM / -a packets:NUM */
+            if (global_capture_opts.has_autostop_packets && global_ld.packets_captured >= global_capture_opts.autostop_packets) {
+                fflush(global_ld.pdh);
                 global_ld.go = FALSE;
+                return;
+            }
+            /* check -b packets:NUM */
+            if (global_capture_opts.has_file_packets && global_ld.packets_written >= global_capture_opts.file_packets) {
+                do_file_switch_or_stop(&global_capture_opts);
+                return;
+            }
+            /* check -a filesize:NUM */
+            if (global_capture_opts.has_autostop_filesize &&
+                global_capture_opts.autostop_filesize > 0 &&
+                global_ld.bytes_written / 1000 >= global_capture_opts.autostop_filesize) {
+                /* Capture size limit reached, do we have another file? */
+                do_file_switch_or_stop(&global_capture_opts);
+                return;
             }
         }
     }
@@ -5034,9 +5038,10 @@ real_main(int argc, char *argv[])
             }
             if (!global_capture_opts.has_autostop_filesize &&
                 !global_capture_opts.has_file_duration &&
-                !global_capture_opts.has_file_interval) {
-                cmdarg_err("Ring buffer requested, but no maximum capture file size, duration"
-                           "or interval were specified.");
+                !global_capture_opts.has_file_interval &&
+                !global_capture_opts.has_file_packets) {
+                cmdarg_err("Ring buffer requested, but no maximum capture file size, duration "
+                           "interval, or packets were specified.");
 #if 0
                 /* XXX - this must be redesigned as the conditions changed */
                 global_capture_opts.multi_files_on = FALSE;

@@ -60,6 +60,7 @@ since version 2.6.0:
 * When importing from hex dump, it's now possible to add an ExportPDU header with a payload name. This
   calls the specific dissector directly without lower protocols.
 * sshdump and ciscodump can now use a proxy for the ssh connection.
+* Dumpcap now supports the `-a packets:NUM` and `-b packets:NUM` options.
 
 === Removed Features and Support
 

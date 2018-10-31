@@ -17,8 +17,8 @@ import sys
 
 def main():
     parser = argparse.ArgumentParser(description='Dump dhcp.pcap')
-    parser.add_argument('dump_type', choices=['cat', 'slow', 'raw'],
-        help='cat: Just dump the file. slow: Dump the file, pause, and dump its packet records. raw: Dump only the packet records.')
+    parser.add_argument('dump_type', choices=['cat', 'cat100', 'slow', 'raw'],
+        help='cat: Just dump the file. cat100: Dump 100 packet records. slow: Dump the file, pause, and dump its packet records. raw: Dump only the packet records.')
     args = parser.parse_args()
 
     dhcp_pcap = os.path.join(os.path.dirname(__file__), 'captures', 'dhcp.pcap')
@@ -27,12 +27,17 @@ def main():
     contents = dhcp_fd.read()
     if args.dump_type != 'raw':
         os.write(1, contents)
-    if args.dump_type == 'cat':
+    if args.dump_type == 'cat100':
+        # The capture contains 4 packets. Write 96 more.
+        for _ in range(24):
+            os.write(1, contents[24:])
+    if args.dump_type.startswith('cat'):
         sys.exit(0)
     if args.dump_type == 'slow':
         time.sleep(1.5)
     # slow, raw
     os.write(1, contents[24:])
+
     sys.exit(0)
 
 if __name__ == '__main__':

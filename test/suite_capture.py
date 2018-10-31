@@ -10,6 +10,7 @@
 '''Capture tests'''
 
 import config
+import glob
 import os
 import re
 import subprocess
@@ -17,6 +18,7 @@ import subprocesstest
 import sys
 import time
 import unittest
+import uuid
 
 capture_duration = 5
 
@@ -139,11 +141,6 @@ def check_capture_stdin(self, cmd=None):
     if (pipe_returncode == 0):
         self.checkPacketCount(8)
 
-def check_capture_2multi_10packets(self, cmd=None):
-    # This was present in the Bash version but was incorrect and not part of any suite.
-    # It's apparently intended to test file rotation.
-    self.skipTest('Not yet implemented')
-
 def check_capture_read_filter(self, cmd=None):
     if not config.canCapture():
         self.skipTest('Test requires capture privileges and an interface.')
@@ -206,6 +203,86 @@ def check_capture_snapshot_len(self, cmd=None):
     self.assertEqual(capture_returncode, 0)
     if (capture_returncode == 0):
         self.checkPacketCount(0, cap_file=testout2_file)
+
+def check_dumpcap_autostop_stdin(self, packets=None, filesize=None):
+    # Similar to check_capture_stdin.
+    cmd = config.cmd_dumpcap
+    capture_file = os.path.join(config.capture_dir, 'dhcp.pcap')
+    testout_file = self.filename_from_id(testout_pcap)
+    cat100_dhcp_cmd = subprocesstest.cat_dhcp_command('cat100')
+    condition='oops:invalid'
+
+    self.assertTrue(packets is not None or filesize is not None, 'Need one of packets or filesize')
+    self.assertFalse(packets is not None and filesize is not None, 'Need one of packets or filesize')
+
+    if packets is not None:
+        condition = 'packets:{}'.format(packets)
+    elif filesize is not None:
+        condition = 'filesize:{}'.format(filesize)
+
+    capture_cmd = subprocesstest.capture_command(cmd,
+        '-i', '-',
+        '-w', testout_file,
+        '-a', condition,
+        shell=True
+    )
+    pipe_proc = self.runProcess(cat100_dhcp_cmd + ' | ' + capture_cmd, shell=True)
+    pipe_returncode = pipe_proc.returncode
+    self.assertEqual(pipe_returncode, 0)
+    self.assertTrue(os.path.isfile(testout_file))
+    if (pipe_returncode != 0):
+        return
+
+    if packets is not None:
+        self.checkPacketCount(packets)
+    elif filesize is not None:
+        capturekb = os.path.getsize(testout_file) / 1000
+        self.assertGreaterEqual(capturekb, filesize)
+
+def check_dumpcap_ringbuffer_stdin(self, packets=None, filesize=None):
+    # Similar to check_capture_stdin.
+    cmd = config.cmd_dumpcap
+    capture_file = os.path.join(config.capture_dir, 'dhcp.pcap')
+    rb_unique = 'dhcp_rb_' + uuid.uuid4().hex[:6] # Random ID
+    testout_file = '{}.{}.pcapng'.format(self.id(), rb_unique)
+    testout_glob = '{}.{}_*.pcapng'.format(self.id(), rb_unique)
+    cat100_dhcp_cmd = subprocesstest.cat_dhcp_command('cat100')
+    condition='oops:invalid'
+
+    self.assertTrue(packets is not None or filesize is not None, 'Need one of packets or filesize')
+    self.assertFalse(packets is not None and filesize is not None, 'Need one of packets or filesize')
+
+    if packets is not None:
+        condition = 'packets:{}'.format(packets)
+    elif filesize is not None:
+        condition = 'filesize:{}'.format(filesize)
+
+    capture_cmd = subprocesstest.capture_command(cmd,
+        '-i', '-',
+        '-w', testout_file,
+        '-a', 'files:2',
+        '-b', condition,
+        shell=True
+    )
+    pipe_proc = self.runProcess(cat100_dhcp_cmd + ' | ' + capture_cmd, shell=True)
+    pipe_returncode = pipe_proc.returncode
+    self.assertEqual(pipe_returncode, 0)
+    if (pipe_returncode != 0):
+        return
+
+    rb_files = glob.glob(testout_glob)
+    for rbf in rb_files:
+        self.cleanup_files.append(rbf)
+
+    self.assertEqual(len(rb_files), 2)
+
+    for rbf in rb_files:
+        self.assertTrue(os.path.isfile(rbf))
+        if packets is not None:
+            self.checkPacketCount(packets, cap_file=rbf)
+        elif filesize is not None:
+            capturekb = os.path.getsize(rbf) / 1000
+            self.assertGreaterEqual(capturekb, filesize)
 
 class case_wireshark_capture(subprocesstest.SubprocessTestCase):
     def test_wireshark_capture_10_packets_to_file(self):
@@ -270,3 +347,24 @@ class case_dumpcap_capture(subprocesstest.SubprocessTestCase):
     def test_dumpcap_capture_snapshot_len(self):
         '''Capture truncated packets using Dumpcap'''
         check_capture_snapshot_len(self, cmd=config.cmd_dumpcap)
+
+class case_dumpcap_autostop(subprocesstest.SubprocessTestCase):
+    # duration, filesize, packets, files
+    def test_dumpcap_autostop_filesize(self):
+        '''Capture from stdin using Dumpcap until we reach a file size limit'''
+        check_dumpcap_autostop_stdin(self, filesize=15)
+
+    def test_dumpcap_autostop_packets(self):
+        '''Capture from stdin using Dumpcap until we reach a packet limit'''
+        check_dumpcap_autostop_stdin(self, packets=97) # Last prime before 100. Arbitrary.
+
+class case_dumpcap_ringbuffer(subprocesstest.SubprocessTestCase):
+    # duration, interval, filesize, packets, files
+    # Need a function that finds ringbuffer file names.
+    def test_dumpcap_ringbuffer_filesize(self):
+        '''Capture from stdin using Dumpcap and write multiple files until we reach a file size limit'''
+        check_dumpcap_ringbuffer_stdin(self, filesize=15)
+
+    def test_dumpcap_ringbuffer_packets(self):
+        '''Capture from stdin using Dumpcap and write multiple files until we reach a packet limit'''
+        check_dumpcap_ringbuffer_stdin(self, packets=47) # Last prime before 50. Arbitrary.

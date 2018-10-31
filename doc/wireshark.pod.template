@@ -242,14 +242,17 @@ where I<test> is one of:
 B<duration>:I<value> Stop writing to a capture file after I<value> seconds have
 elapsed. Floating point values (e.g. 0.5) are allowed.
 
+B<files>:I<value> Stop writing to capture files after I<value> number of files
+were written.
+
 B<filesize>:I<value> Stop writing to a capture file after it reaches a size of
 I<value> kB.  If this option is used together with the -b option, Wireshark
 will stop writing to the current capture file and switch to the next one if
 filesize is reached.  Note that the filesize is limited to a maximum value of
 2 GiB.
 
-B<files>:I<value> Stop writing to capture files after I<value> number of files
-were written.
+B<packets>:I<value> switch to the next file after it contains I<value>
+packets. Same as B<-c>E<lt>capture packet countE<gt>.
 
 =item -b  E<lt>capture ring buffer optionE<gt>
 
@@ -275,12 +278,6 @@ B<duration>:I<value> switch to the next file after I<value> seconds have
 elapsed, even if the current file is not completely filled up. Floating
 point values (e.g. 0.5) are allowed.
 
-B<interval>:I<value> switch to the next file when the time is an exact
-multiple of I<value> seconds
-
-B<filesize>:I<value> switch to the next file after it reaches a size of
-I<value> kB.  Note that the filesize is limited to a maximum value of 2 GiB.
-
 B<files>:I<value> begin again with the first file after I<value> number of
 files were written (form a ring buffer).  This value must be less than 100000.
 Caution should be used when using large numbers of files: some filesystems do
@@ -289,6 +286,15 @@ requires either B<duration>, B<interval> or B<filesize> to be specified to
 control when to go to the next file.  It should be noted that each B<-b>
 parameter takes exactly one criterion; to specify two criterion, each must be
 preceded by the B<-b> option.
+
+B<filesize>:I<value> switch to the next file after it reaches a size of
+I<value> kB.  Note that the filesize is limited to a maximum value of 2 GiB.
+
+B<interval>:I<value> switch to the next file when the time is an exact
+multiple of I<value> seconds
+
+B<packets>:I<value> switch to the next file after it contains I<value>
+packets.
 
 Example: B<-b filesize:1000 -b files:5> results in a ring buffer of five files
 of size one megabyte each.
@@ -317,7 +323,7 @@ the default capture buffer size is used instead.
 =item -c  E<lt>capture packet countE<gt>
 
 Set the maximum number of packets to read when capturing live
-data.
+data. Same as B<-a packets:>E<lt>capture packet countE<gt>.
 
 =item -C  E<lt>configuration profileE<gt>
 
