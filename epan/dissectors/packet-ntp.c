@@ -19,6 +19,7 @@
 #include <epan/expert.h>
 #include <epan/addr_resolv.h>
 #include <epan/tvbparse.h>
+#include <epan/conversation.h>
 
 #include "packet-ntp.h"
 
@@ -489,6 +490,18 @@ static const value_string authentication_types[] = {
 };
 
 
+typedef struct {
+	guint32 req_frame;
+	guint32 resp_frame;
+	nstime_t req_time;
+	guint32 seq;
+} ntp_trans_info_t;
+
+typedef struct {
+	wmem_tree_t *trans;
+} ntp_conv_info_t;
+
+
 /*
  * Maximum MAC length : 160 bits MAC + 32 bits Key ID
  */
@@ -516,6 +529,9 @@ static int hf_ntp_padding = -1;
 static int hf_ntp_key_type = -1;
 static int hf_ntp_key_index = -1;
 static int hf_ntp_key_signature = -1;
+static int hf_ntp_response_in = -1;
+static int hf_ntp_request_in = -1;
+static int hf_ntp_delta_time = -1;
 
 static int hf_ntp_ext = -1;
 static int hf_ntp_ext_flags = -1;
@@ -922,8 +938,67 @@ dissect_ntp_std(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree)
 	int i;
 	int macofs;
 	gint maclen;
+	conversation_t *conversation;
+	ntp_conv_info_t *ntp_conv;
+	ntp_trans_info_t *ntp_trans;
+	wmem_tree_key_t key[3];
+	guint64 flags;
+	guint32 seq;
 
-	proto_tree_add_bitmask(ntp_tree, tvb, 0, hf_ntp_flags, ett_ntp_flags, ntp_header_fields, ENC_NA);
+	conversation = find_or_create_conversation(pinfo);
+	ntp_conv = (ntp_conv_info_t *)conversation_get_proto_data(conversation, proto_ntp);
+	if (!ntp_conv) {
+		ntp_conv = wmem_new(wmem_file_scope(), ntp_conv_info_t);
+		ntp_conv->trans = wmem_tree_new(wmem_file_scope());
+		conversation_add_proto_data(conversation, proto_ntp, ntp_conv);
+	}
+
+	proto_tree_add_bitmask_ret_uint64(ntp_tree, tvb, 0, hf_ntp_flags, ett_ntp_flags,
+	                                  ntp_header_fields, ENC_NA, &flags);
+
+	seq = 0xffffffff;
+	key[0].length = 1;
+	key[0].key = &seq;
+	key[1].length = 1;
+	key[1].key = &pinfo->num;
+	key[2].length = 0;
+	key[2].key = NULL;
+	if ((flags & NTP_MODE_MASK) == NTP_MODE_CLIENT) {
+		if (!PINFO_FD_VISITED(pinfo)) {
+			ntp_trans = wmem_new(wmem_file_scope(), ntp_trans_info_t);
+			ntp_trans->req_frame = pinfo->num;
+			ntp_trans->resp_frame = 0;
+			ntp_trans->req_time = pinfo->abs_ts;
+			ntp_trans->seq = seq;
+			wmem_tree_insert32_array(ntp_conv->trans, key, (void *)ntp_trans);
+		} else {
+			ntp_trans = (ntp_trans_info_t *)wmem_tree_lookup32_array_le(ntp_conv->trans, key);
+			if (ntp_trans && ntp_trans->resp_frame != 0 && ntp_trans->seq == seq) {
+				proto_item *resp_it;
+
+				resp_it = proto_tree_add_uint(ntp_tree, hf_ntp_response_in, tvb, 0, 0, ntp_trans->resp_frame);
+				PROTO_ITEM_SET_GENERATED(resp_it);
+			}
+		}
+	} else if ((flags & NTP_MODE_MASK) == NTP_MODE_SERVER) {
+		ntp_trans = (ntp_trans_info_t *)wmem_tree_lookup32_array_le(ntp_conv->trans, key);
+		if (ntp_trans && ntp_trans->seq == seq) {
+			if (!PINFO_FD_VISITED(pinfo)) {
+				if (ntp_trans->resp_frame == 0) {
+					ntp_trans->resp_frame = pinfo->num;
+				}
+			} else if (ntp_trans->resp_frame == pinfo->num) {
+				proto_item *req_it;
+				nstime_t delta;
+
+				req_it = proto_tree_add_uint(ntp_tree, hf_ntp_request_in, tvb, 0, 0, ntp_trans->req_frame);
+				PROTO_ITEM_SET_GENERATED(req_it);
+				nstime_delta(&delta, &pinfo->abs_ts, &ntp_trans->req_time);
+				req_it = proto_tree_add_time(ntp_tree, hf_ntp_delta_time, tvb, 0, 0, &delta);
+				PROTO_ITEM_SET_GENERATED(req_it);
+			}
+		}
+	}
 
 	/* Stratum, 1byte field represents distance from primary source
 	 */
@@ -1053,6 +1128,11 @@ dissect_ntp_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree)
 	guint16 data_offset;
 	gint length_remaining;
 	gboolean auth_diss = FALSE;
+	conversation_t *conversation;
+	ntp_conv_info_t *ntp_conv;
+	ntp_trans_info_t *ntp_trans;
+	guint32 seq;
+	wmem_tree_key_t key[3];
 
 	tvbparse_t *tt;
 	tvbparse_elem_t *element;
@@ -1068,12 +1148,43 @@ dissect_ntp_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree)
 	proto_tree_add_bitmask(ntp_tree, tvb, 1, hf_ntpctrl_flags2, ett_ntpctrl_flags2, ntpctrl_flags, ENC_NA);
 	flags2 = tvb_get_guint8(tvb, 1);
 
-	proto_tree_add_item(ntp_tree, hf_ntpctrl_sequence,    tvb, 2, 2, ENC_BIG_ENDIAN);
+	conversation = find_or_create_conversation(pinfo);
+	ntp_conv = (ntp_conv_info_t *)conversation_get_proto_data(conversation, proto_ntp);
+	if (!ntp_conv) {
+		ntp_conv = wmem_new(wmem_file_scope(), ntp_conv_info_t);
+		ntp_conv->trans = wmem_tree_new(wmem_file_scope());
+		conversation_add_proto_data(conversation, proto_ntp, ntp_conv);
+	}
+
+	proto_tree_add_item_ret_uint(ntp_tree, hf_ntpctrl_sequence, tvb, 2, 2, ENC_BIG_ENDIAN, &seq);
+	key[0].length = 1;
+	key[0].key = &seq;
+	key[1].length = 1;
+	key[1].key = &pinfo->num;
+	key[2].length = 0;
+	key[2].key = NULL;
 	associd = tvb_get_ntohs(tvb, 6);
 	/*
 	 * further processing of status is only necessary in server responses
 	 */
 	if (flags2 & NTPCTRL_R_MASK) {
+		ntp_trans = (ntp_trans_info_t *)wmem_tree_lookup32_array_le(ntp_conv->trans, key);
+		if (ntp_trans && ntp_trans->seq == seq) {
+			if (!PINFO_FD_VISITED(pinfo)) {
+				if (ntp_trans->resp_frame == 0) {
+					ntp_trans->resp_frame = pinfo->num;
+				}
+			} else {
+				proto_item *req_it;
+				nstime_t delta;
+
+				req_it = proto_tree_add_uint(ntp_tree, hf_ntp_request_in, tvb, 0, 0, ntp_trans->req_frame);
+				PROTO_ITEM_SET_GENERATED(req_it);
+				nstime_delta(&delta, &pinfo->abs_ts, &ntp_trans->req_time);
+				req_it = proto_tree_add_time(ntp_tree, hf_ntp_delta_time, tvb, 0, 0, &delta);
+				PROTO_ITEM_SET_GENERATED(req_it);
+			}
+		}
 		if (flags2 & NTPCTRL_ERROR_MASK) {
 			/*
 			 * if error bit is set: dissect error status word
@@ -1150,6 +1261,22 @@ dissect_ntp_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree)
 	}
 	else
 	{
+		if (!PINFO_FD_VISITED(pinfo)) {
+			ntp_trans = wmem_new(wmem_file_scope(), ntp_trans_info_t);
+			ntp_trans->req_frame = pinfo->num;
+			ntp_trans->resp_frame = 0;
+			ntp_trans->req_time = pinfo->abs_ts;
+			ntp_trans->seq = seq;
+			wmem_tree_insert32_array(ntp_conv->trans, key, (void *)ntp_trans);
+		} else {
+			ntp_trans = (ntp_trans_info_t *)wmem_tree_lookup32_array_le(ntp_conv->trans, key);
+			if (ntp_trans && ntp_trans->resp_frame != 0 && ntp_trans->seq == seq) {
+				proto_item *resp_it;
+
+				resp_it = proto_tree_add_uint(ntp_tree, hf_ntp_response_in, tvb, 0, 0, ntp_trans->resp_frame);
+				PROTO_ITEM_SET_GENERATED(resp_it);
+			}
+		}
 		proto_tree_add_item(ntp_tree, hf_ntpctrl_status, tvb, 4, 2, ENC_BIG_ENDIAN);
 	}
 	proto_tree_add_item(ntp_tree, hf_ntpctrl_associd, tvb, 6, 2, ENC_BIG_ENDIAN);
@@ -1493,6 +1620,15 @@ proto_register_ntp(void)
 		{ &hf_ntp_key_signature, {
 			"Signature", "ntp.key_signature", FT_BYTES, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
+		{ &hf_ntp_response_in, {
+			"Response In", "ntp.response_in", FT_FRAMENUM, BASE_NONE,
+			FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0, NULL, HFILL }},
+		{ &hf_ntp_request_in, {
+			"Request In", "ntp.request_in", FT_FRAMENUM, BASE_NONE,
+			FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0, NULL, HFILL }},
+		{ &hf_ntp_delta_time, {
+			"Delta Time", "ntp.delta_time", FT_RELATIVE_TIME, BASE_NONE,
+			NULL, 0, "Time between request and response", HFILL }},
 
 		{ &hf_ntp_ext, {
 			"Extension", "ntp.ext", FT_NONE, BASE_NONE,
