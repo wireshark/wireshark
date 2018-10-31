@@ -279,7 +279,7 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, inf
 
         if (capture_opts->has_file_duration) {
             argv = sync_pipe_add_arg(argv, &argc, "-b");
-            g_snprintf(sfile_duration, ARGV_NUMBER_LEN, "duration:%d",capture_opts->file_duration);
+            g_snprintf(sfile_duration, ARGV_NUMBER_LEN, "duration:%f",capture_opts->file_duration);
             argv = sync_pipe_add_arg(argv, &argc, sfile_duration);
         }
 
@@ -316,7 +316,7 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, inf
 
     if (capture_opts->has_autostop_duration) {
         argv = sync_pipe_add_arg(argv, &argc, "-a");
-        g_snprintf(sautostop_duration, ARGV_NUMBER_LEN, "duration:%d",capture_opts->autostop_duration);
+        g_snprintf(sautostop_duration, ARGV_NUMBER_LEN, "duration:%f",capture_opts->autostop_duration);
         argv = sync_pipe_add_arg(argv, &argc, sautostop_duration);
     }
 

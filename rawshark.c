@@ -70,8 +70,6 @@
 #include "ui/util.h"
 #include "ui/dissect_opts.h"
 #include "ui/failure_message.h"
-#include "conditions.h"
-#include "capture_stop_conditions.h"
 #include <epan/epan_dissect.h>
 #include <epan/stat_tap_ui.h>
 #include <epan/timestamp.h>

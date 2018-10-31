@@ -290,7 +290,7 @@ typedef struct capture_options_tag {
     gboolean           multi_files_on;        /**< TRUE if ring buffer in use */
 
     gboolean           has_file_duration;     /**< TRUE if ring duration specified */
-    gint32             file_duration;         /**< Switch file after n seconds */
+    gdouble            file_duration;         /**< Switch file after n seconds */
     gboolean           has_file_interval;     /**< TRUE if ring interval specified */
     gint32             file_interval;         /**< Create time intervals of n seconds */
     gboolean           has_ring_num_files;    /**< TRUE if ring num_files specified */
@@ -306,10 +306,10 @@ typedef struct capture_options_tag {
     int                autostop_packets;      /**< Maximum packet count */
     gboolean           has_autostop_filesize; /**< TRUE if maximum capture file size
                                                    is specified */
-    guint32            autostop_filesize;     /**< Maximum capture file size */
+    guint32            autostop_filesize;     /**< Maximum capture file size in kB */
     gboolean           has_autostop_duration; /**< TRUE if maximum capture duration
                                                    is specified */
-    gint32             autostop_duration;     /**< Maximum capture duration */
+    gdouble            autostop_duration;     /**< Maximum capture duration */
 
     gchar             *capture_comment;       /** capture comment to write to the
                                                   output file */

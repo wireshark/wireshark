@@ -98,7 +98,7 @@ capture_opts_init(capture_options *capture_opts)
 
     capture_opts->multi_files_on                  = FALSE;
     capture_opts->has_file_duration               = FALSE;
-    capture_opts->file_duration                   = 60;               /* 1 min */
+    capture_opts->file_duration                   = 60.0;             /* 1 min */
     capture_opts->has_file_interval               = FALSE;
     capture_opts->file_interval                   = 60;               /* 1 min */
     capture_opts->has_ring_num_files              = FALSE;
@@ -111,7 +111,7 @@ capture_opts_init(capture_options *capture_opts)
     capture_opts->has_autostop_filesize           = FALSE;
     capture_opts->autostop_filesize               = 1000;             /* 1 MB */
     capture_opts->has_autostop_duration           = FALSE;
-    capture_opts->autostop_duration               = 60;               /* 1 min */
+    capture_opts->autostop_duration               = 60.0;             /* 1 min */
     capture_opts->capture_comment                 = NULL;
 
     capture_opts->output_to_pipe                  = FALSE;
@@ -241,14 +241,14 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
     g_log(log_domain, log_level, "ShowInfo            : %u", capture_opts->show_info);
 
     g_log(log_domain, log_level, "MultiFilesOn        : %u", capture_opts->multi_files_on);
-    g_log(log_domain, log_level, "FileDuration    (%u) : %u", capture_opts->has_file_duration, capture_opts->file_duration);
+    g_log(log_domain, log_level, "FileDuration    (%u) : %.3f", capture_opts->has_file_duration, capture_opts->file_duration);
     g_log(log_domain, log_level, "FileInterval    (%u) : %u", capture_opts->has_file_interval, capture_opts->file_interval);
     g_log(log_domain, log_level, "RingNumFiles    (%u) : %u", capture_opts->has_ring_num_files, capture_opts->ring_num_files);
 
     g_log(log_domain, log_level, "AutostopFiles   (%u) : %u", capture_opts->has_autostop_files, capture_opts->autostop_files);
     g_log(log_domain, log_level, "AutostopPackets (%u) : %u", capture_opts->has_autostop_packets, capture_opts->autostop_packets);
     g_log(log_domain, log_level, "AutostopFilesize(%u) : %u (KB)", capture_opts->has_autostop_filesize, capture_opts->autostop_filesize);
-    g_log(log_domain, log_level, "AutostopDuration(%u) : %u", capture_opts->has_autostop_duration, capture_opts->autostop_duration);
+    g_log(log_domain, log_level, "AutostopDuration(%u) : %.3f", capture_opts->has_autostop_duration, capture_opts->autostop_duration);
 }
 
 /*
@@ -287,7 +287,7 @@ set_autostop_criterion(capture_options *capture_opts, const char *autostoparg)
     }
     if (strcmp(autostoparg,"duration") == 0) {
         capture_opts->has_autostop_duration = TRUE;
-        capture_opts->autostop_duration = get_positive_int(p,"autostop duration");
+        capture_opts->autostop_duration = get_positive_double(p,"autostop duration");
     } else if (strcmp(autostoparg,"filesize") == 0) {
         capture_opts->has_autostop_filesize = TRUE;
         capture_opts->autostop_filesize = get_nonzero_guint32(p,"autostop filesize");
@@ -397,7 +397,7 @@ get_ring_arguments(capture_options *capture_opts, const char *arg)
         capture_opts->autostop_filesize = get_nonzero_guint32(p, "ring buffer filesize");
     } else if (strcmp(arg,"duration") == 0) {
         capture_opts->has_file_duration = TRUE;
-        capture_opts->file_duration = get_positive_int(p, "ring buffer duration");
+        capture_opts->file_duration = get_positive_double(p, "ring buffer duration");
     } else if (strcmp(arg,"interval") == 0) {
         capture_opts->has_file_interval = TRUE;
         capture_opts->file_interval = get_positive_int(p, "ring buffer interval");

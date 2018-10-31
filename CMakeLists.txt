@@ -2539,8 +2539,6 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 	)
 	set(dumpcap_FILES
 		capture_opts.c
-		capture_stop_conditions.c
-		conditions.c
 		dumpcap.c
 		ringbuffer.c
 		sync_pipe_write.c

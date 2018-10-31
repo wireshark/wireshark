@@ -82,9 +82,6 @@
 #include <capchild/capture_session.h>
 #include <capchild/capture_sync.h>
 
-#include "conditions.h"
-#include "capture_stop_conditions.h"
-
 #include "wsutil/tempfile.h"
 #include "log.h"
 #include "wsutil/file_util.h"
@@ -317,6 +314,14 @@ typedef struct _pcap_queue_element {
     u_char             *pd;
 } pcap_queue_element;
 
+/* Conditions required by do_file_switch_or_stop */
+typedef struct _condition_data {
+    GTimer  *file_duration_timer;
+    time_t   next_interval_time;
+    int      interval_s;
+    unsigned autostop_files;
+} condition_data;
+
 /*
  * Standard secondary message for unexpected errors.
  */
@@ -448,7 +453,7 @@ print_usage(FILE *output)
     fprintf(output, "Stop conditions:\n");
     fprintf(output, "  -c <packet count>        stop after n packets (def: infinite)\n");
     fprintf(output, "  -a <autostop cond.> ...  duration:NUM - stop after NUM seconds\n");
-    fprintf(output, "                           filesize:NUM - stop this file after NUM KB\n");
+    fprintf(output, "                           filesize:NUM - stop this file after NUM kB\n");
     fprintf(output, "                              files:NUM - stop after NUM files\n");
     /*fprintf(output, "\n");*/
     fprintf(output, "Output (files):\n");
@@ -456,7 +461,7 @@ print_usage(FILE *output)
     fprintf(output, "  -g                       enable group read access on the output file(s)\n");
     fprintf(output, "  -b <ringbuffer opt.> ... duration:NUM - switch to next file after NUM secs\n");
     fprintf(output, "                           interval:NUM - create time intervals of NUM secs\n");
-    fprintf(output, "                           filesize:NUM - switch to next file after NUM KB\n");
+    fprintf(output, "                           filesize:NUM - switch to next file after NUM kB\n");
     fprintf(output, "                              files:NUM - ringbuffer: replace after NUM files\n");
     fprintf(output, "  -n                       use pcapng format instead of pcap (default)\n");
     fprintf(output, "  -P                       use libpcap format instead of pcapng\n");
@@ -3447,15 +3452,18 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
     return TRUE;
 }
 
+static time_t get_next_time_interval(int interval_s) {
+    time_t next_time = time(NULL);
+    next_time -= next_time % interval_s;
+    next_time += interval_s;
+    return next_time;
+}
 
 /* Do the work of handling either the file size or file duration capture
    conditions being reached, and switching files or stopping. */
 static gboolean
 do_file_switch_or_stop(capture_options *capture_opts,
-                       condition *cnd_autostop_files,
-                       condition *cnd_autostop_size,
-                       condition *cnd_file_duration,
-                       condition *cnd_file_interval)
+                       condition_data *conditions)
 {
     guint             i;
     capture_src      *pcap_src;
@@ -3463,8 +3471,8 @@ do_file_switch_or_stop(capture_options *capture_opts,
     gboolean          successful;
 
     if (capture_opts->multi_files_on) {
-        if (cnd_autostop_files != NULL &&
-            cnd_eval(cnd_autostop_files, (guint64)++global_ld.autostop_files)) {
+        if (conditions->autostop_files &&
+            ++global_ld.autostop_files >= conditions->autostop_files) {
             /* no files left: stop here */
             global_ld.go = FALSE;
             return FALSE;
@@ -3546,12 +3554,12 @@ do_file_switch_or_stop(capture_options *capture_opts,
                 global_ld.go = FALSE;
                 return FALSE;
             }
-            if (cnd_autostop_size)
-                cnd_reset(cnd_autostop_size);
-            if (cnd_file_duration)
-                cnd_reset(cnd_file_duration);
-            if (cnd_file_interval)
-                cnd_reset(cnd_file_interval);
+            if (conditions->file_duration_timer) {
+                g_timer_reset(conditions->file_duration_timer);
+            }
+            if (conditions->next_interval_time) {
+                conditions->next_interval_time = get_next_time_interval(conditions->interval_s);
+            }
             fflush(global_ld.pdh);
             if (!quiet)
                 report_packet_count(global_ld.inpkts_to_sync_pipe);
@@ -3603,11 +3611,8 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 #endif
     int               err_close;
     int               inpkts;
-    condition        *cnd_file_duration     = NULL;
-    condition        *cnd_file_interval     = NULL;
-    condition        *cnd_autostop_files    = NULL;
-    condition        *cnd_autostop_size     = NULL;
-    condition        *cnd_autostop_duration = NULL;
+    condition_data    conditions;
+    GTimer           *autostop_duration_timer = NULL;
     gboolean          write_ok;
     gboolean          close_ok;
     gboolean          cfilter_error         = FALSE;
@@ -3709,31 +3714,28 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
     }
 
     /* initialize capture stop (and alike) conditions */
-    init_capture_stop_conditions();
+    memset(&conditions, 0, sizeof(conditions));
+    if (capture_opts->has_file_interval) {
+        conditions.interval_s = capture_opts->file_interval;
+        conditions.next_interval_time = get_next_time_interval(conditions.interval_s);
+    }
     /* create stop conditions */
     if (capture_opts->has_autostop_filesize) {
         if (capture_opts->autostop_filesize > (((guint32)INT_MAX + 1) / 1000)) {
             capture_opts->autostop_filesize = ((guint32)INT_MAX + 1) / 1000;
         }
-        cnd_autostop_size =
-            cnd_new(CND_CLASS_CAPTURESIZE, (guint64)capture_opts->autostop_filesize * 1000);
     }
-    if (capture_opts->has_autostop_duration)
-        cnd_autostop_duration =
-            cnd_new(CND_CLASS_TIMEOUT,(gint32)capture_opts->autostop_duration);
+    if (capture_opts->has_autostop_duration) {
+        autostop_duration_timer = g_timer_new();
+    }
 
     if (capture_opts->multi_files_on) {
-        if (capture_opts->has_file_duration)
-            cnd_file_duration =
-                cnd_new(CND_CLASS_TIMEOUT, capture_opts->file_duration);
+        if (capture_opts->has_file_duration) {
+            conditions.file_duration_timer = g_timer_new();
+        }
 
         if (capture_opts->has_autostop_files)
-            cnd_autostop_files =
-                cnd_new(CND_CLASS_CAPTURESIZE, (guint64)capture_opts->autostop_files);
-
-        if (capture_opts->has_file_interval)
-            cnd_file_interval =
-                cnd_new(CND_CLASS_INTERVAL, capture_opts->file_interval);
+            conditions.autostop_files = capture_opts->autostop_files;
     }
 
     /* init the time values */
@@ -3824,14 +3826,11 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
             global_ld.inpkts_to_sync_pipe += inpkts;
 
             /* check capture size condition */
-            if (cnd_autostop_size != NULL &&
-                cnd_eval(cnd_autostop_size, global_ld.bytes_written)) {
+            if (capture_opts->has_autostop_filesize &&
+                capture_opts->autostop_filesize > 0 &&
+                global_ld.bytes_written / 1000 >= capture_opts->autostop_filesize) {
                 /* Capture size limit reached, do we have another file? */
-                if (!do_file_switch_or_stop(capture_opts,
-                                            cnd_autostop_files,
-                                            cnd_autostop_size,
-                                            cnd_file_duration,
-                                            cnd_file_interval))
+                if (!do_file_switch_or_stop(capture_opts, &conditions))
                     continue;
             } /* cnd_autostop_size */
             if (capture_opts->output_to_pipe) {
@@ -3876,31 +3875,23 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
             }
 
             /* check capture duration condition */
-            if (cnd_autostop_duration != NULL && cnd_eval(cnd_autostop_duration)) {
+            if (autostop_duration_timer != NULL && g_timer_elapsed(autostop_duration_timer, NULL) >= capture_opts->autostop_duration) {
                 /* The maximum capture time has elapsed; stop the capture. */
                 global_ld.go = FALSE;
                 continue;
             }
 
             /* check capture file duration condition */
-            if (cnd_file_duration != NULL && cnd_eval(cnd_file_duration)) {
+            if (conditions.file_duration_timer != NULL && g_timer_elapsed(conditions.file_duration_timer, NULL) >= capture_opts->file_duration) {
                 /* duration limit reached, do we have another file? */
-                if (!do_file_switch_or_stop(capture_opts,
-                                            cnd_autostop_files,
-                                            cnd_autostop_size,
-                                            cnd_file_duration,
-                                            cnd_file_interval))
+                if (!do_file_switch_or_stop(capture_opts, &conditions))
                     continue;
             } /* cnd_file_duration */
 
             /* check capture file interval condition */
-            if (cnd_file_interval != NULL && cnd_eval(cnd_file_interval)) {
+            if (conditions.interval_s && time(NULL) >= conditions.next_interval_time) {
                 /* end of interval reached, do we have another file? */
-                if (!do_file_switch_or_stop(capture_opts,
-                                            cnd_autostop_files,
-                                            cnd_autostop_size,
-                                            cnd_file_duration,
-                                            cnd_file_interval))
+                if (!do_file_switch_or_stop(capture_opts, &conditions))
                     continue;
             } /* cnd_file_interval */
         }
@@ -3946,16 +3937,10 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 
 
     /* delete stop conditions */
-    if (cnd_file_duration != NULL)
-        cnd_delete(cnd_file_duration);
-    if (cnd_file_interval != NULL)
-        cnd_delete(cnd_file_interval);
-    if (cnd_autostop_files != NULL)
-        cnd_delete(cnd_autostop_files);
-    if (cnd_autostop_size != NULL)
-        cnd_delete(cnd_autostop_size);
-    if (cnd_autostop_duration != NULL)
-        cnd_delete(cnd_autostop_duration);
+    if (conditions.file_duration_timer != NULL)
+        g_timer_destroy(conditions.file_duration_timer);
+    if (autostop_duration_timer != NULL)
+        g_timer_destroy(autostop_duration_timer);
 
     /* did we have a pcap (input) error? */
     for (i = 0; i < capture_opts->ifaces->len; i++) {

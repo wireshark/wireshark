@@ -216,7 +216,7 @@ to a capture file.  The criterion is of the form I<test>B<:>I<value>,
 where I<test> is one of:
 
 B<duration>:I<value> Stop writing to a capture file after I<value> seconds
-have elapsed.
+have elapsed. Floating point values (e.g. 0.5) are allowed.
 
 B<filesize>:I<value> Stop writing to a capture file after it reaches a size of
 I<value> kB.  If this option is used together with the -b option, B<TShark>
@@ -250,7 +250,8 @@ The criterion is of the form I<key>B<:>I<value>,
 where I<key> is one of:
 
 B<duration>:I<value> switch to the next file after I<value> seconds have
-elapsed, even if the current file is not completely filled up.
+elapsed, even if the current file is not completely filled up. Floating
+point values (e.g. 0.5) are allowed.
 
 B<interval>:I<value> switch to the next file when the time is an exact
 multiple of I<value> seconds

@@ -90,6 +90,23 @@ get_nonzero_guint32(const char *string, const char *name)
   return number;
 }
 
+double
+get_positive_double(const char *string, const char *name)
+{
+  double number = g_ascii_strtod(string, NULL);
+
+  if (errno == EINVAL) {
+    cmdarg_err("The specified %s \"%s\" isn't a floating point number", name, string);
+    exit(1);
+  }
+  if (number < 0.0) {
+    cmdarg_err("The specified %s \"%s\" is a negative number", name, string);
+    exit(1);
+  }
+
+  return number;
+}
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
