@@ -110,7 +110,7 @@ void proto_reg_handoff_bthci_acl(void);
 static gint
 dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    proto_item               *bthci_acl_itam;
+    proto_item               *bthci_acl_item;
     proto_tree               *bthci_acl_tree;
     proto_item               *sub_item;
     proto_item               *length_item;
@@ -158,8 +158,8 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         return 0;
     bluetooth_data = (bluetooth_data_t *) data;
 
-    bthci_acl_itam = proto_tree_add_item(tree, proto_bthci_acl, tvb, offset, -1, ENC_NA);
-    bthci_acl_tree = proto_item_add_subtree(bthci_acl_itam, ett_bthci_acl);
+    bthci_acl_item = proto_tree_add_item(tree, proto_bthci_acl, tvb, offset, -1, ENC_NA);
+    bthci_acl_tree = proto_item_add_subtree(bthci_acl_item, ett_bthci_acl);
 
     switch (pinfo->p2p_dir) {
         case P2P_DIR_SENT:
@@ -500,7 +500,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     }
 
     if (acl_data->disconnect_in_frame == &invalid_session) {
-        expert_add_info(pinfo, bthci_acl_itam, &ei_invalid_session);
+        expert_add_info(pinfo, bthci_acl_item, &ei_invalid_session);
     }
 
     if (!pinfo->fd->flags.visited) {
