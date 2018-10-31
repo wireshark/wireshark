@@ -1127,7 +1127,7 @@ capture_opts_del_iface(capture_options *capture_opts, guint if_index)
     if (interface_opts->extcap_args)
         g_hash_table_unref(interface_opts->extcap_args);
     if (interface_opts->extcap_pid != WS_INVALID_PID)
-        g_spawn_close_pid(interface_opts->extcap_pid);
+        ws_pipe_close((ws_pipe_t *) interface_opts->extcap_pipedata);
     g_free(interface_opts->extcap_pipedata);
     g_free(interface_opts->extcap_control_in);
     g_free(interface_opts->extcap_control_out);

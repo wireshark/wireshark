@@ -230,8 +230,7 @@ static void mmdb_resolve_stop(void) {
     ws_close(mmdbr_pipe.stdin_fd);
     fclose(mmdbr_stdout);
     MMDB_DEBUG("closing pid %d", mmdbr_pipe.pid);
-    g_spawn_close_pid(mmdbr_pipe.pid);
-    mmdbr_pipe.pid = WS_INVALID_PID;
+    ws_pipe_close(&mmdbr_pipe);
     mmdbr_stdout = NULL;
 }
 
