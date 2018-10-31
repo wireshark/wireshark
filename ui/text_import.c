@@ -514,13 +514,13 @@ write_current_packet (void)
 
         /* Write ExportPDU header */
         if (hdr_export_pdu) {
-            guint64 payload_len = (guint)strlen(hdr_export_pdu_payload);
+            guint payload_len = (guint)strlen(hdr_export_pdu_payload);
             HDR_EXPORT_PDU.tag_type = g_htons(0x0c); // EXP_PDU_TAG_PROTO_NAME;
             HDR_EXPORT_PDU.payload_len = g_htons(payload_len);
             memcpy(&packet_buf[prefix_index], &HDR_EXPORT_PDU, sizeof(HDR_EXPORT_PDU));
             prefix_index += sizeof(HDR_EXPORT_PDU);
             memcpy(&packet_buf[prefix_index], hdr_export_pdu_payload, payload_len);
-            prefix_index += (guint)payload_len;
+            prefix_index += payload_len;
             /* Add end-of-options tag */
             memset(&packet_buf[prefix_index], 0x00, 4);
         }
