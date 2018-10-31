@@ -1440,7 +1440,7 @@ void proto_register_ieee80211_radio(void)
       NULL, HFILL }},
 
     {&hf_wlan_radio_snr,
-     {"Signal/noise ratio (dB)", "wlan_radio.snr", FT_INT8, BASE_DEC|BASE_UNIT_STRING, &units_decibels, 0,
+     {"Signal/noise ratio (dB)", "wlan_radio.snr", FT_INT32, BASE_DEC|BASE_UNIT_STRING, &units_decibels, 0,
       NULL, HFILL }},
 
     {&hf_wlan_radio_timestamp,
