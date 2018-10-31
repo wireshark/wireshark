@@ -91,7 +91,7 @@ static GPtrArray *mmdb_file_arr; // .mmdb files
 #define MMDB_DEBUG(...)
 #endif
 
-static void mmdb_resolve_stop(void);
+static void mmdb_resolve_stop(gboolean lock_mutex);
 
 // Hopefully scanning a few lines asynchronously has less overhead than
 // reading in a child thread.
@@ -190,7 +190,7 @@ read_mmdbr_stdout(void) {
         char *line = fgets(read_buf, read_buf_size, mmdbr_stdout);
         if (!line || ferror(mmdbr_stdout)) {
             MMDB_DEBUG("read error %s", g_strerror(errno));
-            mmdb_resolve_stop();
+            mmdb_resolve_stop(FALSE);
             break;
         }
 
@@ -211,7 +211,7 @@ read_mmdbr_stdout(void) {
             // Error during init.
             cur_addr[0] = '\0';
             init_lookup(&cur_lookup);
-            mmdb_resolve_stop();
+            mmdb_resolve_stop(FALSE);
         } else if (val_start && g_str_has_prefix(line, RES_COUNTRY_ISO_CODE)) {
             cur_lookup.found = TRUE;
             cur_lookup.country_iso = chunkify_string(val_start);
@@ -265,7 +265,7 @@ read_mmdbr_stdout(void) {
 /**
  * Stop our mmdbresolve process.
  */
-static void mmdb_resolve_stop(void) {
+static void mmdb_resolve_stop(gboolean lock_mutex) {
     char *request;
 
     while (mmdbr_request_q && (request = (char *) g_async_queue_try_pop(mmdbr_request_q)) != NULL) {
@@ -277,14 +277,16 @@ static void mmdb_resolve_stop(void) {
         return;
     }
 
-    g_mutex_lock(&mmdbr_pipe_mtx);
+    if (lock_mutex)
+        g_mutex_lock(&mmdbr_pipe_mtx);
     ws_close(mmdbr_pipe.stdin_fd);
     fclose(mmdbr_stdout);
     MMDB_DEBUG("closing pid %d", mmdbr_pipe.pid);
     g_spawn_close_pid(mmdbr_pipe.pid);
     mmdbr_pipe.pid = WS_INVALID_PID;
     mmdbr_stdout = NULL;
-    g_mutex_unlock(&mmdbr_pipe_mtx);
+    if (lock_mutex)
+        g_mutex_unlock(&mmdbr_pipe_mtx);
 
     g_thread_join(mmdbr_thread);
     mmdbr_thread = NULL;
@@ -319,7 +321,7 @@ static void mmdb_resolve_start(void) {
         return;
     }
 
-    mmdb_resolve_stop();
+    mmdb_resolve_stop(TRUE);
 
     if (mmdb_file_arr->len == 0) {
         MMDB_DEBUG("no GeoIP databases found");
@@ -403,7 +405,7 @@ static void maxmind_db_path_free_cb(void* p) {
 static void maxmind_db_cleanup(void) {
     guint i;
 
-    mmdb_resolve_stop();
+    mmdb_resolve_stop(TRUE);
 
     /* If we have old data, clear out the whole thing
      * and start again. TODO: Just update the ones that
@@ -480,7 +482,7 @@ maxmind_db_pref_init(module_t *nameres)
 
 void maxmind_db_pref_cleanup(void)
 {
-    mmdb_resolve_stop();
+    mmdb_resolve_stop(TRUE);
 }
 
 /**
