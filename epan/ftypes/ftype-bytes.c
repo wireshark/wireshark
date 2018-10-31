@@ -139,24 +139,44 @@ bytes_to_repr(fvalue_t *fv, ftrepr_t rtype, int field_display, char *buf, unsign
 		separator = '-';
 		break;
 	case SEP_SPACE:
+		separator = ' ';
+		break;
 	case SEP_COLON:
+		separator = ':';
+		break;
+	case SEP_NONE:
+		break;
 	case BASE_NONE:
 	default:
 		separator = ':';
 		break;
 	}
 
-	if (fv->value.bytes->len) {
-		buf = bytes_to_hexstr_punct(buf, fv->value.bytes->data, fv->value.bytes->len, separator);
-	}
-	else {
-		if (rtype == FTREPR_DFILTER) {
-			/* An empty byte array in a display filter is represented as "" */
-			*buf++ = '"';
-			*buf++ = '"';
+	if(FIELD_DISPLAY(field_display) != SEP_NONE){
+		if (fv->value.bytes->len) {
+			buf = bytes_to_hexstr_punct(buf, fv->value.bytes->data, fv->value.bytes->len, separator);
 		}
+		else {
+			if (rtype == FTREPR_DFILTER) {
+				/* An empty byte array in a display filter is represented as "" */
+				*buf++ = '"';
+				*buf++ = '"';
+			}
+		}
+		*buf = '\0';
+	}else{
+		if (fv->value.bytes->len) {
+			buf = bytes_to_hexstr(buf, fv->value.bytes->data, fv->value.bytes->len);
+		}
+		else {
+			if (rtype == FTREPR_DFILTER) {
+				/* An empty byte array in a display filter is represented as "" */
+				*buf++ = '"';
+				*buf++ = '"';
+			}
+		}
+		*buf = '\0';
 	}
-	*buf = '\0';
 }
 
 static void
