@@ -11,3 +11,4 @@ obj-*/doc/capinfos.1
 obj-*/doc/dumpcap.1
 obj-*/doc/rawshark.1
 obj-*/doc/reordercap.1
+obj-*/doc/mmdbresolve.1
