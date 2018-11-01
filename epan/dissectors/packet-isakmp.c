@@ -5830,6 +5830,27 @@ isakmp_cleanup_protocol(void) {
   g_hash_table_destroy(defrag_next_payload_hash);
 }
 
+static void
+isakmp_shutdown(void)
+{
+  guint i;
+  for (i = 0; i < num_ikev2_uat_data; i++) {
+    ikev2_uat_data_t* data = &ikev2_uat_data[i];
+    g_free(data->key.spii);
+    g_free(data->key.spir);
+    g_free(data->sk_ei);
+    g_free(data->sk_er);
+    g_free(data->sk_ai);
+    g_free(data->sk_ar);
+  }
+
+  for (i = 0; i < num_ikev1_uat_data; i++) {
+    ikev1_uat_data_key_t* data = &ikev1_uat_data[i];
+    g_free(data->icookie);
+    g_free(data->key);
+  }
+}
+
 UAT_BUFFER_CB_DEF(ikev1_users, icookie, ikev1_uat_data_key_t, icookie, icookie_len)
 UAT_BUFFER_CB_DEF(ikev1_users, key, ikev1_uat_data_key_t, key, key_len)
 
@@ -7239,6 +7260,7 @@ proto_register_isakmp(void)
   expert_register_field_array(expert_isakmp, ei, array_length(ei));
   register_init_routine(&isakmp_init_protocol);
   register_cleanup_routine(&isakmp_cleanup_protocol);
+  register_shutdown_routine(&isakmp_shutdown);
   reassembly_table_register(&isakmp_cisco_reassembly_table,
                         &addresses_reassembly_table_functions);
   reassembly_table_register(&isakmp_ike2_reassembly_table,
