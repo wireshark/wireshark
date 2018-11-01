@@ -194,7 +194,7 @@ static int dissect_packetlogger(tvbuff_t *tvb, packet_info *pinfo,
       break;
     default:
       call_data_dissector(next_tvb, pinfo, tree);
-      col_add_fstr (pinfo->cinfo, COL_INFO, "Unknown 0x%02x", pl_type);
+      col_add_fstr (pinfo->cinfo, COL_INFO, "%s", val_to_str(pl_type, type_vals, "Unknown 0x%02x"));
       break;
     }
   }
