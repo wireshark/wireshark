@@ -1187,23 +1187,25 @@ void extcap_if_cleanup(capture_options *capture_opts, gchar **errormsg)
             interface_opts->extcap_child_watch = 0;
         }
 
-        if (pipedata->stdout_fd > 0)
-        {
-            ws_close(pipedata->stdout_fd);
-        }
+        if (pipedata) {
+            if (pipedata->stdout_fd > 0)
+            {
+                ws_close(pipedata->stdout_fd);
+            }
 
-        if (pipedata->stderr_fd > 0)
-        {
-            ws_close(pipedata->stderr_fd);
-        }
+            if (pipedata->stderr_fd > 0)
+            {
+                ws_close(pipedata->stderr_fd);
+            }
 
-        if (interface_opts->extcap_pid != WS_INVALID_PID)
-        {
-            ws_pipe_close((ws_pipe_t *) interface_opts->extcap_pipedata);
-            interface_opts->extcap_pid = WS_INVALID_PID;
+            if (interface_opts->extcap_pid != WS_INVALID_PID)
+            {
+                ws_pipe_close(pipedata);
+                interface_opts->extcap_pid = WS_INVALID_PID;
 
-            g_free(interface_opts->extcap_pipedata);
-            interface_opts->extcap_pipedata = NULL;
+                g_free(pipedata);
+                interface_opts->extcap_pipedata = NULL;
+            }
         }
     }
 }
