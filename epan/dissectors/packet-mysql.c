@@ -2247,7 +2247,7 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 	conversation_t  *conversation;
 	int             offset = 0;
 	guint           packet_number;
-	gboolean        is_response, is_ssl = FALSE;
+	gboolean        is_response, is_tls = FALSE;
 	mysql_conn_data_t  *conn_data;
 #ifdef CTDEBUG
 	mysql_state_t conn_state_in, conn_state_out, frame_state;
@@ -2334,7 +2334,7 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 	}
 #endif
 
-	is_ssl = proto_is_frame_protocol(pinfo->layers, "tls");
+	is_tls = proto_is_frame_protocol(pinfo->layers, "tls");
 
 	if (is_response) {
 		if (packet_number == 0 && mysql_frame_data_p->state == UNDEFINED) {
@@ -2345,7 +2345,7 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 			offset = mysql_dissect_response(tvb, pinfo, offset, mysql_tree, conn_data, mysql_frame_data_p->state);
 		}
 	} else {
-		if (mysql_frame_data_p->state == LOGIN && (packet_number == 1 || (packet_number == 2 && is_ssl))) {
+		if (mysql_frame_data_p->state == LOGIN && (packet_number == 1 || (packet_number == 2 && is_tls))) {
 			col_set_str(pinfo->cinfo, COL_INFO, "Login Request");
 			offset = mysql_dissect_login(tvb, pinfo, offset, mysql_tree, conn_data);
 			if (conn_data->srv_caps & MYSQL_CAPS_CP) {
