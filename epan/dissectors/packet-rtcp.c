@@ -404,6 +404,48 @@ static const value_string rtcp_ssrc_values[] = {
     {   0,  NULL }
 };
 
+static const value_string rtcp_mcpt_subtype_vals[] = {
+    { 0x00,  "Floor Request" },
+    { 0x01,  "Floor Granted" },
+    { 0x02,  "Floor Taken" },
+    { 0x03,  "Floor Deny" },
+    { 0x04,  "Floor Release" },
+    { 0x05,  "Floor Idle" },
+    { 0x06,  "Floor Revoke" },
+    { 0x08,  "Floor Queue Position Request" },
+    { 0x09,  "Floor Queue Position Info" },
+    { 0x0a,  "Floor Ack" },
+
+    { 0x81,  "Floor Granted(ack req)" },
+    { 0x02,  "Floor Taken(ack req)" },
+    { 0x83,  "Floor Deny(ack req)" },
+    { 0x84,  "Floor Release(ack req)" },
+    { 0x85,  "Floor Idle(ack req)" },
+    { 0x89,  "Floor Queue Position Info(ack req)" },
+
+    { 0,  NULL }
+};
+
+static const value_string rtcp_mcpt_field_id_vals[] = {
+    { 102,  "Floor Priority" },
+    { 103,  "Duration" },
+    { 104,  "Reject Cause" },
+    { 105,  "Queue Info" },
+    { 106,  "Granted Party's Identity" },
+    { 108,  "Permission to Request the Floor" },
+    { 109,  "User ID" },
+    { 110,  "Queue Size" },
+    { 111,  "Message SequenceNumber" },
+    { 112,  "Queued User ID" },
+
+    { 113,  "Source" },
+    { 114,  "Track Info" },
+    { 115,  "Message Type" },
+    { 116,  "Floor Indicator" },
+
+    { 0,  NULL }
+};
+
 /* RTCP header fields                   */
 static int proto_rtcp = -1;
 static int hf_rtcp_version = -1;
@@ -654,6 +696,11 @@ static int hf_rtcp_psfb_ms_vsre_may_instances = -1;
 static int hf_rtcp_psfb_ms_vsre_quality_histogram = -1;
 static int hf_rtcp_psfb_ms_vsre_max_pixels = -1;
 
+static int hf_rtcp_mcptt_fld_id = -1;
+static int hf_rtcp_mcptt_fld_len = -1;
+static int hf_rtcp_mcptt_fld_val = -1;
+static int hf_rtcp_mcptt_granted_partys_id = -1;
+
 /* RTCP fields defining a sub tree */
 static gint ett_rtcp                    = -1;
 static gint ett_rtcp_sr                 = -1;
@@ -685,6 +732,7 @@ static gint ett_pse                     = -1;
 static gint ett_ms_vsr                  = -1;
 static gint ett_ms_vsr_entry            = -1;
 static gint ett_ms_ds                   = -1;
+static gint ett_rtcp_mcpt = -1;
 
 static expert_field ei_rtcp_bye_reason_not_padded = EI_INIT;
 static expert_field ei_rtcp_xr_block_length_bad = EI_INIT;
@@ -1648,11 +1696,11 @@ dissect_rtcp_fir( tvbuff_t *tvb, int offset, proto_tree *tree )
 
 static int
 dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree,
-                  unsigned int padding, unsigned int packet_len, guint rtcp_subtype,
+                  unsigned int padding, unsigned int packet_len, proto_item *subtype_item, guint rtcp_subtype,
                   guint32 app_length )
 {
-    unsigned int  counter;
-    char          ascii_name[5];
+
+    const guint8* ascii_name;
     guint         sdes_type;
     guint         item_len;
     proto_tree   *PoC1_tree;
@@ -1669,12 +1717,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
     packet_len -= 4;
 
     /* Application Name (ASCII) */
-    for( counter = 0; counter < 4; counter++ )
-        ascii_name[ counter ] = tvb_get_guint8( tvb, offset + counter );
-    /* g_strlcpy( ascii_name, pd + offset, 4 ); */
-    ascii_name[4] = '\0';
-    proto_tree_add_string( tree, hf_rtcp_name_ascii, tvb, offset, 4,
-                           ascii_name );
+    proto_tree_add_item_ret_string(tree, hf_rtcp_name_ascii, tvb, offset, 4, ENC_ASCII | ENC_NA, wmem_packet_scope(), &ascii_name);
 
     /* See if we can handle this application type */
     if ( g_ascii_strncasecmp(ascii_name, poc1_app_name_str,4 ) == 0 )
@@ -2208,6 +2251,42 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
         {
             /* fall back to just showing the data if it's the wrong length */
             proto_tree_add_item( tree, hf_rtcp_app_data, tvb, offset, packet_len, ENC_NA );
+        }
+        if ((int)(offset + packet_len) >= offset)
+            offset += packet_len;
+        return offset;
+    } else if (g_ascii_strncasecmp(ascii_name, "MCPT", 4) == 0) {
+
+        proto_tree *sub_tree;
+        guint32 mcptt_fld_id, mcptt_fld_len;
+
+        col_add_fstr(pinfo->cinfo, COL_INFO, "(%s) %s", ascii_name,
+            val_to_str(rtcp_subtype, rtcp_mcpt_subtype_vals, "unknown (%u)"));
+        proto_item_append_text(subtype_item, " %s", val_to_str(rtcp_subtype, rtcp_mcpt_subtype_vals, "unknown (%u)"));
+
+        sub_tree = proto_tree_add_subtree(tree, tvb, offset, packet_len, ett_rtcp_mcpt, NULL,
+            "Mission Critical Push To Talk(MCPTT)");
+        offset += 4;
+        packet_len -= 4;
+
+        /* Field ID 8 bits*/
+        proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mcptt_fld_id, tvb, offset, 1, ENC_BIG_ENDIAN, &mcptt_fld_id);
+        offset++;
+        packet_len--;
+        /* Length value */
+        proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mcptt_fld_len, tvb, offset, 1, ENC_BIG_ENDIAN, &mcptt_fld_len);
+        offset++;
+        packet_len--;
+
+        /* Field Value */
+        switch (mcptt_fld_id) {
+        case 106:
+            /* 8.2.3.6 Granted Party's Identity field 106 */
+            proto_tree_add_item(sub_tree, hf_rtcp_mcptt_granted_partys_id, tvb, offset, mcptt_fld_len, ENC_UTF_8 | ENC_NA);
+            break;
+        default:
+            proto_tree_add_item(sub_tree, hf_rtcp_mcptt_fld_val, tvb, offset, mcptt_fld_len, ENC_NA);
+            break;
         }
         if ((int)(offset + packet_len) >= offset)
             offset += packet_len;
@@ -3715,8 +3794,9 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
                 /* Subtype, 5 bits */
                 guint rtcp_subtype;
                 guint app_length;
+                proto_item* subtype_item;
                 rtcp_subtype = elem_count;
-                proto_tree_add_uint( rtcp_tree, hf_rtcp_subtype, tvb, offset, 1, elem_count );
+                subtype_item = proto_tree_add_uint( rtcp_tree, hf_rtcp_subtype, tvb, offset, 1, elem_count );
                 offset++;
                 /* Packet type, 8 bits */
                 proto_tree_add_item( rtcp_tree, hf_rtcp_pt, tvb, offset, 1, ENC_BIG_ENDIAN );
@@ -3724,7 +3804,7 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
                 /* Packet length in 32 bit words MINUS one, 16 bits */
                 app_length = tvb_get_ntohs( tvb, offset ) <<2;
                 offset = dissect_rtcp_length_field(rtcp_tree, tvb, offset);
-                offset = dissect_rtcp_app( tvb, pinfo, offset,rtcp_tree, padding_set, packet_length - 4, rtcp_subtype, app_length);
+                offset = dissect_rtcp_app( tvb, pinfo, offset,rtcp_tree, padding_set, packet_length - 4, subtype_item, rtcp_subtype, app_length);
             }
                 break;
             case RTCP_XR:
@@ -6800,7 +6880,26 @@ proto_register_rtcp(void)
                 NULL, HFILL
             }
         },
-
+        {&hf_rtcp_mcptt_fld_id,
+            { "Field Id", "rtcp.mcptt.fld_id",
+            FT_UINT32, BASE_DEC, VALS(rtcp_mcpt_field_id_vals), 0x0,
+            NULL, HFILL }
+        },
+        {&hf_rtcp_mcptt_fld_len,
+            { "Length", "rtcp.mcptt.fld_len",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_rtcp_mcptt_fld_val,
+        { "Field value", "rtcp.mcptt.fld_val",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_rtcp_mcptt_granted_partys_id,
+        { "Granted Party's Identity", "rtcp.mcptt.granted_partys_id",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
     };
 
     static gint *ett[] =
@@ -6834,7 +6933,8 @@ proto_register_rtcp(void)
         &ett_pse,
         &ett_ms_vsr,
         &ett_ms_vsr_entry,
-        &ett_ms_ds
+        &ett_ms_ds,
+        &ett_rtcp_mcpt
     };
 
     static ei_register_info ei[] = {
