@@ -7849,7 +7849,6 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 			 */
 			switch (FIELD_DISPLAY(hfinfo->display)) {
 				case BASE_NONE:
-				case SEP_NONE:
 				case SEP_DOT:
 				case SEP_DASH:
 				case SEP_COLON:
@@ -7857,7 +7856,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 					break;
 				default:
 					tmp_str = val_to_str_wmem(NULL, hfinfo->display, hf_display, "(Bit count: %d)");
-					g_error("Field '%s' (%s) is an byte array but is being displayed as %s instead of BASE_NONE, SEP_NONE, SEP_DOT, SEP_DASH, SEP_COLON, or SEP_SPACE\n",
+					g_error("Field '%s' (%s) is an byte array but is being displayed as %s instead of BASE_NONE, SEP_DOT, SEP_DASH, SEP_COLON, or SEP_SPACE\n",
 						hfinfo->name, hfinfo->abbrev, tmp_str);
 					wmem_free(NULL, tmp_str);
 			}

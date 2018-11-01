@@ -583,19 +583,18 @@ typedef enum {
 	SEP_DASH     = 9,   /**< hexadecimal bytes with a dash (-) between each byte */
 	SEP_COLON    = 10,  /**< hexadecimal bytes with a colon (:) between each byte */
 	SEP_SPACE    = 11,  /**< hexadecimal bytes with a space between each byte */
-	SEP_NONE     = 12,  /**< hexadecimal bytes with no separator between each byte */
 
 /* Address types */
-	BASE_NETMASK = 13,  /**< Used for IPv4 address that shouldn't be resolved (like for netmasks) */
+	BASE_NETMASK = 12,  /**< Used for IPv4 address that shouldn't be resolved (like for netmasks) */
 
 /* Port types */
-	BASE_PT_UDP  = 14,  /**< UDP port */
-	BASE_PT_TCP  = 15,  /**< TCP port */
-	BASE_PT_DCCP = 16,  /**< DCCP port */
-	BASE_PT_SCTP = 17,  /**< SCTP port */
+	BASE_PT_UDP  = 13,  /**< UDP port */
+	BASE_PT_TCP  = 14,  /**< TCP port */
+	BASE_PT_DCCP = 15,  /**< DCCP port */
+	BASE_PT_SCTP = 16,  /**< SCTP port */
 
 /* OUI types */
-	BASE_OUI     = 18   /**< OUI resolution */
+	BASE_OUI     = 17   /**< OUI resolution */
 
 } field_display_e;
 
