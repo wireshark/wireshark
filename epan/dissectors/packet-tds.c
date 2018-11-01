@@ -2097,7 +2097,6 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
     if(fieldnum != -1)
         proto_item_append_text(item, " %i", fieldnum);
 
-    proto_item_append_text(item, " (%s)", val_to_str(data_type, tds_data_type_names, "Invalid data type: %02X"));
     if (name && strlen(name) > 0) {
         proto_item *pi;
         pi = proto_tree_add_string(sub_tree, hf_tds_type_varbyte_column_name, tvb, 0, (gint) strlen(name),
