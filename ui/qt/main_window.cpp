@@ -318,6 +318,14 @@ MainWindow::MainWindow(QWidget *parent) :
 #ifdef HAVE_SOFTWARE_UPDATE
     update_action_ = new QAction(tr("Check for Updates" UTF8_HORIZONTAL_ELLIPSIS), main_ui_->menuHelp);
 #endif
+#if defined(HAVE_LIBNL) && defined(HAVE_NL80211)
+    wireless_frame_ = new WirelessFrame(this);
+    main_ui_->wirelessToolBar->addWidget(wireless_frame_);
+#else
+    removeToolBar(main_ui_->wirelessToolBar);
+    main_ui_->menuView->removeAction(main_ui_->actionViewWirelessToolbar);
+#endif
+
     setWindowIcon(wsApp->normalIcon());
     setTitlebarForCaptureFile();
     setMenusForCaptureFile();
@@ -421,12 +429,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
     main_ui_->displayFilterToolBar->addWidget(filter_expression_toolbar_);
 
-    wireless_frame_ = new WirelessFrame(this);
-    main_ui_->wirelessToolBar->addWidget(wireless_frame_);
+#if defined(HAVE_LIBNL) && defined(HAVE_NL80211)
     connect(wireless_frame_, SIGNAL(pushAdapterStatus(const QString&)),
             main_ui_->statusBar, SLOT(pushTemporaryStatus(const QString&)));
     connect (wireless_frame_, SIGNAL(showWirelessPreferences(QString)),
              this, SLOT(showPreferencesDialog(QString)));
+#endif
 
     main_ui_->goToFrame->hide();
     connect(main_ui_->goToFrame, SIGNAL(visibilityChanged(bool)),
@@ -749,7 +757,9 @@ QMenu *MainWindow::createPopupMenu()
     QMenu *menu = new QMenu();
     menu->addAction(main_ui_->actionViewMainToolbar);
     menu->addAction(main_ui_->actionViewFilterToolbar);
+#if defined(HAVE_LIBNL) && defined(HAVE_NL80211)
     menu->addAction(main_ui_->actionViewWirelessToolbar);
+#endif
 
     if (!main_ui_->menuInterfaceToolbars->actions().isEmpty()) {
         QMenu *submenu = menu->addMenu(main_ui_->menuInterfaceToolbars->title());
@@ -1990,7 +2000,9 @@ void MainWindow::initShowHideMainWidgets()
     show_hide_actions_->setExclusive(false);
     shmw_actions[main_ui_->actionViewMainToolbar] = main_ui_->mainToolBar;
     shmw_actions[main_ui_->actionViewFilterToolbar] = main_ui_->displayFilterToolBar;
+#if defined(HAVE_LIBNL) && defined(HAVE_NL80211)
     shmw_actions[main_ui_->actionViewWirelessToolbar] = main_ui_->wirelessToolBar;
+#endif
     shmw_actions[main_ui_->actionViewStatusBar] = main_ui_->statusBar;
     shmw_actions[main_ui_->actionViewPacketList] = packet_list_;
     shmw_actions[main_ui_->actionViewPacketDetails] = proto_tree_;
@@ -2444,7 +2456,9 @@ void MainWindow::setForCaptureInProgress(bool capture_in_progress, GArray *iface
 {
     setMenusForCaptureInProgress(capture_in_progress);
 
+#if defined(HAVE_LIBNL) && defined(HAVE_NL80211)
     wireless_frame_->setCaptureInProgress(capture_in_progress);
+#endif
 
 #ifdef HAVE_LIBPCAP
     packet_list_->setCaptureInProgress(capture_in_progress);

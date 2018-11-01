@@ -488,7 +488,9 @@ void MainWindow::layoutToolbars()
 
     main_ui_->mainToolBar->setVisible(recent.main_toolbar_show);
     main_ui_->displayFilterToolBar->setVisible(recent.filter_toolbar_show);
+#if defined(HAVE_LIBNL) && defined(HAVE_NL80211)
     main_ui_->wirelessToolBar->setVisible(recent.wireless_toolbar_show);
+#endif
     main_ui_->statusBar->setVisible(recent.statusbar_show);
 
     foreach (QAction *action, main_ui_->menuInterfaceToolbars->actions()) {
@@ -2393,9 +2395,11 @@ void MainWindow::showHideMainWidgets(QAction *action)
     } else if (widget == main_ui_->displayFilterToolBar) {
         recent.filter_toolbar_show = show;
         main_ui_->actionViewFilterToolbar->setChecked(show);
+#if defined(HAVE_LIBNL) && defined(HAVE_NL80211)
      } else if (widget == main_ui_->wirelessToolBar) {
         recent.wireless_toolbar_show = show;
         main_ui_->actionViewWirelessToolbar->setChecked(show);
+#endif
     } else if (widget == main_ui_->statusBar) {
         recent.statusbar_show = show;
         main_ui_->actionViewStatusBar->setChecked(show);

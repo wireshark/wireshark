@@ -58,7 +58,9 @@ class FunnelStatistics;
 class MainWelcome;
 class PacketList;
 class ProtoTree;
+#if defined(HAVE_LIBNL) && defined(HAVE_NL80211)
 class WirelessFrame;
+#endif
 class DragDropToolBar;
 
 class QAction;
@@ -146,7 +148,9 @@ private:
     DisplayFilterCombo *df_combo_box_;
     CaptureFile capture_file_;
     QFont mono_font_;
+#if defined(HAVE_LIBNL) && defined(HAVE_NL80211)
     WirelessFrame *wireless_frame_;
+#endif
     // XXX - packet_list_ and proto_tree_ should
     // probably be full-on values instead of pointers.
     PacketList *packet_list_;
