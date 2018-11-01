@@ -19,6 +19,7 @@
 #include <epan/epan.h>
 #include <epan/epan_dissect.h>
 #include <epan/to_str.h>
+#include <epan/to_str-int.h>
 #include <epan/expert.h>
 #include <epan/column.h>
 #include <epan/column-info.h>
@@ -2692,6 +2693,44 @@ gchar* get_node_field_value(field_info* fi, epan_dissect_t* edt)
             /* Return "1" so that the presence of a field of type
              * FT_NONE can be checked when using -T fields */
             return g_strdup("1");
+        case FT_UINT_BYTES:
+        case FT_BYTES:
+            {
+                gchar *ret;
+                guint8 *bytes = (guint8 *)fvalue_get(&fi->value);
+                if (bytes) {
+                    dfilter_string = (gchar *)wmem_alloc(NULL, 3*fvalue_length(&fi->value));
+                    switch (fi->hfinfo->display) {
+                    case SEP_DOT:
+                        ret = bytes_to_hexstr_punct(dfilter_string, bytes, fvalue_length(&fi->value), '.');
+                        break;
+                    case SEP_DASH:
+                        ret = bytes_to_hexstr_punct(dfilter_string, bytes, fvalue_length(&fi->value), '-');
+                        break;
+                    case SEP_COLON:
+                        ret = bytes_to_hexstr_punct(dfilter_string, bytes, fvalue_length(&fi->value), ':');
+                        break;
+                    case SEP_SPACE:
+                        ret = bytes_to_hexstr_punct(dfilter_string, bytes, fvalue_length(&fi->value), ' ');
+                        break;
+                    case BASE_NONE:
+                    default:
+                        ret = bytes_to_hexstr(dfilter_string, bytes, fvalue_length(&fi->value));
+                        break;
+                    }
+                    *ret = '\0';
+                    ret = g_strdup(dfilter_string);
+                    wmem_free(NULL, dfilter_string);
+                } else {
+                    if (fi->hfinfo->display & BASE_ALLOW_ZERO) {
+                        ret = g_strdup("<none>");
+                    } else {
+                        ret = g_strdup("<MISSING>");
+                    }
+                }
+                return ret;
+            }
+            break;
         default:
             dfilter_string = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, fi->hfinfo->display);
             if (dfilter_string != NULL) {

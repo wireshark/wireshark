@@ -93,7 +93,7 @@ class case_decrypt_dtls(subprocesstest.SubprocessTestCase):
                 '-Y', 'data',
             ),
             env=config.test_env)
-        self.assertTrue(self.grepOutput('69:74:20:77:6f:72:6b:20:21:0a'))
+        self.assertTrue(self.grepOutput('697420776f726b20210a'))
 
     def test_dtls_psk_aes128ccm8(self):
         '''DTLS 1.2 with PSK, AES-128-CCM-8'''
@@ -325,7 +325,7 @@ class case_decrypt_zigbee(subprocesstest.SubprocessTestCase):
                 '-Y', 'zbee_aps',
             ),
             env=config.test_env)
-        self.assertTrue(self.grepOutput('30:67:63:63:38:65:20:63:34:2e:64:6d:2e:74:76:20'))
+        self.assertTrue(self.grepOutput('3067636338652063342e646d2e747620'))
 
 class case_decrypt_ansi_c1222(subprocesstest.SubprocessTestCase):
     def test_ansi_c1222(self):
@@ -340,7 +340,7 @@ class case_decrypt_ansi_c1222(subprocesstest.SubprocessTestCase):
                 '-e', 'c1222.data',
             ),
             env=config.test_env)
-        self.assertTrue(self.grepOutput('00:10:4d:41:4e:55:46:41:43:54:55:52:45:52:20:53:4e:20:92'))
+        self.assertTrue(self.grepOutput('00104d414e55464143545552455220534e2092'))
 
 class case_decrypt_dvb_ci(subprocesstest.SubprocessTestCase):
     def test_dvb_ci(self):
@@ -356,7 +356,7 @@ class case_decrypt_dvb_ci(subprocesstest.SubprocessTestCase):
                 '-e', 'dvb-ci.cc.sac.padding',
             ),
             env=config.test_env)
-        self.assertTrue(self.grepOutput('80:00:00:00:00:00:00:00:00:00:00:00'))
+        self.assertTrue(self.grepOutput('800000000000000000000000'))
 
 class case_decrypt_ipsec(subprocesstest.SubprocessTestCase):
     def test_ipsec_esp(self):
@@ -370,7 +370,7 @@ class case_decrypt_ipsec(subprocesstest.SubprocessTestCase):
                 '-e', 'data.data',
             ),
             env=config.test_env)
-        self.assertTrue(self.grepOutput('08:09:0a:0b:0c:0d:0e:0f:10:11:12:13:14:15:16:17'))
+        self.assertTrue(self.grepOutput('08090a0b0c0d0e0f1011121314151617'))
 
 class case_decrypt_ike_isakmp(subprocesstest.SubprocessTestCase):
     def test_ikev1_certs(self):
@@ -395,7 +395,7 @@ class case_decrypt_ike_isakmp(subprocesstest.SubprocessTestCase):
                 '-e', 'isakmp.hash',
             ),
             env=config.test_env)
-        self.assertTrue(self.grepOutput('b5:25:21:f7:74:96:74:02:c9:f6:ce:e9:5f:d1:7e:5b'))
+        self.assertTrue(self.grepOutput('b52521f774967402c9f6cee95fd17e5b'))
 
     def test_ikev1_unencrypted(self):
         '''IKEv1 (ISAKMP) unencrypted phase 1'''
@@ -407,7 +407,7 @@ class case_decrypt_ike_isakmp(subprocesstest.SubprocessTestCase):
                 '-e', 'isakmp.hash',
             ),
             env=config.test_env)
-        self.assertTrue(self.grepOutput('40:04:3b:64:0f:43:73:25:0d:5a:c3:a1:fb:63:15:3c'))
+        self.assertTrue(self.grepOutput('40043b640f4373250d5ac3a1fb63153c'))
 
     def test_ikev2_3des_sha160(self):
         '''IKEv2 decryption test (3DES-CBC/SHA1_160)'''
@@ -418,7 +418,7 @@ class case_decrypt_ike_isakmp(subprocesstest.SubprocessTestCase):
                 '-e', 'isakmp.auth.data',
             ),
             env=config.test_env)
-        self.assertTrue(self.grepOutput('02:f7:a0:d5:f1:fd:c8:ea:81:03:98:18:c6:5b:b9:bd:09:af:9b:89:17:31:9b:88:7f:f9:ba:30:46:c3:44:c7'))
+        self.assertTrue(self.grepOutput('02f7a0d5f1fdc8ea81039818c65bb9bd09af9b8917319b887ff9ba3046c344c7'))
 
     def test_ikev2_aes128_ccm12(self):
         '''IKEv2 decryption test (AES-128-CCM-12) - with CBC-MAC verification'''
@@ -429,7 +429,7 @@ class case_decrypt_ike_isakmp(subprocesstest.SubprocessTestCase):
                 '-e', 'isakmp.auth.data',
             ),
             env=config.test_env)
-        self.assertTrue(self.grepOutput('c2:10:43:94:29:9e:1f:fe:79:08:ea:72:0a:d5:d1:37:17:a0:d4:54:e4:fa:0a:21:28:ea:68:94:11:f4:79:c4'))
+        self.assertTrue(self.grepOutput('c2104394299e1ffe7908ea720ad5d13717a0d454e4fa0a2128ea689411f479c4'))
 
     def test_ikev2_aes128_ccm12_2(self):
         '''IKEv2 decryption test (AES-128-CCM-12 using CTR mode, without checksum)'''
@@ -440,7 +440,7 @@ class case_decrypt_ike_isakmp(subprocesstest.SubprocessTestCase):
                 '-e', 'isakmp.auth.data',
             ),
             env=config.test_env)
-        self.assertTrue(self.grepOutput('aa:a2:81:c8:7b:4a:19:04:6c:57:27:1d:55:74:88:ca:41:3b:57:22:8c:b9:51:f5:fa:96:40:99:2a:02:85:b9'))
+        self.assertTrue(self.grepOutput('aaa281c87b4a19046c57271d557488ca413b57228cb951f5fa9640992a0285b9'))
 
     def test_ikev2_aes192ctr_sha512(self):
         '''IKEv2 decryption test (AES-192-CTR/SHA2-512)'''
@@ -451,7 +451,7 @@ class case_decrypt_ike_isakmp(subprocesstest.SubprocessTestCase):
                 '-e', 'isakmp.auth.data',
             ),
             env=config.test_env)
-        self.assertTrue(self.grepOutput('3e:c2:3d:cf:93:48:48:56:38:40:7c:75:45:47:ae:b3:08:52:90:08:2c:49:f5:83:fd:ba:e5:92:63:a2:0b:4a'))
+        self.assertTrue(self.grepOutput('3ec23dcf9348485638407c754547aeb3085290082c49f583fdbae59263a20b4a'))
 
     def test_ikev2_aes256cbc_sha256(self):
         '''IKEv2 decryption test (AES-256-CBC/SHA2-256)'''
@@ -462,7 +462,7 @@ class case_decrypt_ike_isakmp(subprocesstest.SubprocessTestCase):
                 '-e', 'isakmp.auth.data',
             ),
             env=config.test_env)
-        self.assertTrue(self.grepOutput('e1:a8:d5:50:06:42:01:a7:ec:02:4a:85:75:8d:06:73:c6:1c:5c:51:0a:c1:3b:cd:22:5d:63:27:f5:0d:a3:d3'))
+        self.assertTrue(self.grepOutput('e1a8d550064201a7ec024a85758d0673c61c5c510ac13bcd225d6327f50da3d3'))
 
     def test_ikev2_aes256ccm16(self):
         '''IKEv2 decryption test (AES-256-CCM-16)'''
@@ -473,7 +473,7 @@ class case_decrypt_ike_isakmp(subprocesstest.SubprocessTestCase):
                 '-e', 'isakmp.auth.data',
             ),
             env=config.test_env)
-        self.assertTrue(self.grepOutput('fa:2e:74:bd:c0:1e:30:fb:0b:3d:dc:97:23:c9:44:90:95:96:9d:a5:1f:69:e5:60:20:9d:2c:2b:79:40:21:0a'))
+        self.assertTrue(self.grepOutput('fa2e74bdc01e30fb0b3ddc9723c9449095969da51f69e560209d2c2b7940210a'))
 
     def test_ikev2_aes256gcm16(self):
         '''IKEv2 decryption test (AES-256-GCM-16)'''
@@ -484,7 +484,7 @@ class case_decrypt_ike_isakmp(subprocesstest.SubprocessTestCase):
                 '-e', 'isakmp.auth.data',
             ),
             env=config.test_env)
-        self.assertTrue(self.grepOutput('9a:b7:1f:14:ab:55:3c:ad:87:3a:1a:a7:0b:99:df:15:5d:ee:77:cd:cf:36:94:b3:b7:52:7a:cb:b9:71:2d:ed'))
+        self.assertTrue(self.grepOutput('9ab71f14ab553cad873a1aa70b99df155dee77cdcf3694b3b7527acbb9712ded'))
 
     def test_ikev2_aes256gcm8(self):
         '''IKEv2 decryption test (AES-256-GCM-8)'''
@@ -495,7 +495,7 @@ class case_decrypt_ike_isakmp(subprocesstest.SubprocessTestCase):
                 '-e', 'isakmp.auth.data',
             ),
             env=config.test_env)
-        self.assertTrue(self.grepOutput('4a:66:d8:22:d0:af:bc:22:ad:9a:92:a2:cf:42:87:c9:20:ad:8a:c3:b0:69:a4:a7:e7:5f:e0:a5:d4:99:f9:14'))
+        self.assertTrue(self.grepOutput('4a66d822d0afbc22ad9a92a2cf4287c920ad8ac3b069a4a7e75fe0a5d499f914'))
 
 class case_decrypt_http2(subprocesstest.SubprocessTestCase):
     def test_http2(self):
@@ -538,7 +538,7 @@ class case_decrypt_kerberos(subprocesstest.SubprocessTestCase):
             ),
             env=config.test_env)
         # keyvalue: ccda7d48219f73c3b28311c4ba7242b3
-        self.assertTrue(self.grepOutput('cc:da:7d:48:21:9f:73:c3:b2:83:11:c4:ba:72:42:b3'))
+        self.assertTrue(self.grepOutput('ccda7d48219f73c3b28311c4ba7242b3'))
 
 class case_decrypt_wireguard(subprocesstest.SubprocessTestCase):
     # The "foo_alt" keys are similar as "foo" except that some bits are changed.
