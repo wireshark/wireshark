@@ -4164,7 +4164,7 @@ proto_register_tls(void)
                           &addresses_ports_reassembly_table_functions);
     register_decode_as(&ssl_da);
 
-    /* XXX: this seems unused due to new "Follow SSL" method, remove? */
+    /* XXX: this seems unused due to new "Follow TLS" method, remove? */
     tls_tap = register_tap("tls");
     ssl_debug_printf("proto_register_ssl: registered tap %s:%d\n",
         "tls", tls_tap);

@@ -3570,7 +3570,7 @@ tls13_generate_keys(SslDecryptSession *ssl_session, const StringInfo *secret, gb
     }
 
     /* Continue the TLS session with new keys, but reuse old flow to keep things
-     * like "Follow SSL" working (by linking application data records). */
+     * like "Follow TLS" working (by linking application data records). */
     if (is_from_server) {
         decoder->flow = ssl_session->server ? ssl_session->server->flow : ssl_create_flow();
         ssl_session->server = decoder;
@@ -4586,7 +4586,7 @@ ssl_packet_from_server(SslSession *session, dissector_table_t table, packet_info
 /**
  * Remembers the decrypted TLS record fragment (TLSInnerPlaintext in TLS 1.3) to
  * avoid the need for a decoder in the second pass. Additionally, it remembers
- * sequence numbers (for reassembly and Follow SSL Stream).
+ * sequence numbers (for reassembly and Follow TLS Stream).
  *
  * @param proto The protocol identifier (proto_ssl or proto_dtls).
  * @param pinfo The packet where the record originates from.
