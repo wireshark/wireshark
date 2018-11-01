@@ -63,6 +63,7 @@ gboolean ws_pipe_spawn_sync(gchar *dirname, gchar *command, gint argc, gchar **a
 #endif
 
     argv = (gchar **) g_malloc0(sizeof(gchar *) * (argc + 2));
+    GString *spawn_string = g_string_new("");
 
 #ifdef _WIN32
     newpath = g_strdup_printf("%s;%s", g_strescape(get_progfile_dir(), NULL), oldpath);
@@ -74,8 +75,14 @@ gboolean ws_pipe_spawn_sync(gchar *dirname, gchar *command, gint argc, gchar **a
 #endif
 
     for (cnt = 0; cnt < argc; cnt++)
+    {
         argv[cnt + 1] = args[cnt];
+        g_string_append_printf(spawn_string, " %s", args[cnt]);
+    }
     argv[argc + 1] = NULL;
+
+    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "spawn params: %s", spawn_string->str);
+    g_string_free(spawn_string, TRUE);
 
 #ifdef _WIN32
 
@@ -212,9 +219,11 @@ gboolean ws_pipe_spawn_sync(gchar *dirname, gchar *command, gint argc, gchar **a
 
     if (status)
     {
-        if (command_output != NULL && local_output != NULL)
-            *command_output = g_strdup(local_output);
-
+        if (local_output != NULL) {
+            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "spawn output: %s", local_output);
+            if (command_output != NULL)
+                *command_output = g_strdup(local_output);
+        }
         result = TRUE;
     }
 
@@ -235,14 +244,13 @@ void ws_pipe_init(ws_pipe_t *ws_pipe)
 GPid ws_pipe_spawn_async(ws_pipe_t *ws_pipe, GPtrArray *args)
 {
     GPid pid = WS_INVALID_PID;
-
-#ifdef _WIN32
+    GString *spawn_args;
     gint cnt = 0;
     gchar **tmp = NULL;
 
-    GString *winargs = g_string_sized_new(200);
     gchar *quoted_arg;
 
+#ifdef _WIN32
     STARTUPINFO info;
     PROCESS_INFORMATION processInfo;
 
@@ -284,13 +292,15 @@ GPid ws_pipe_spawn_async(ws_pipe_t *ws_pipe, GPtrArray *args)
         return FALSE;
     }
 
+    spawn_args = g_string_sized_new(200);
+
     /* convert args array into a single string */
     /* XXX - could change sync_pipe_add_arg() instead */
     /* there is a drawback here: the length is internally limited to 1024 bytes */
     for (tmp = (gchar **)args->pdata, cnt = 0; *tmp && **tmp; ++cnt, ++tmp) {
-        if (cnt != 0) g_string_append_c(winargs, ' ');    /* don't prepend a space before the path!!! */
+        if (cnt != 0) g_string_append_c(spawn_args, ' ');    /* don't prepend a space before the path!!! */
         quoted_arg = protect_arg(*tmp);
-        g_string_append(winargs, quoted_arg);
+        g_string_append(spawn_args, quoted_arg);
         g_free(quoted_arg);
     }
 
@@ -304,7 +314,8 @@ GPid ws_pipe_spawn_async(ws_pipe_t *ws_pipe, GPtrArray *args)
     info.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
     info.wShowWindow = SW_HIDE;
 
-    if (win32_create_process(NULL, winargs->str, NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &info, &processInfo))
+    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "async spawn params: %s", spawn_args->str);
+    if (win32_create_process(NULL, spawn_args->str, NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &info, &processInfo))
     {
         ws_pipe->stdin_fd = _open_osfhandle((intptr_t)(child_stdin_wr), _O_BINARY);
         ws_pipe->stdout_fd = _open_osfhandle((intptr_t)(child_stdout_rd), _O_BINARY);
@@ -315,6 +326,21 @@ GPid ws_pipe_spawn_async(ws_pipe_t *ws_pipe, GPtrArray *args)
 
     g_setenv("PATH", oldpath, TRUE);
 #else
+
+    spawn_args = g_string_sized_new(200);
+
+    /* convert args array into a single string */
+    /* XXX - could change sync_pipe_add_arg() instead */
+    /* there is a drawback here: the length is internally limited to 1024 bytes */
+    for (tmp = (gchar **)args->pdata, cnt = 0; *tmp && **tmp; ++cnt, ++tmp) {
+        if (cnt != 0) g_string_append_c(spawn_args, ' ');    /* don't prepend a space before the path!!! */
+        quoted_arg = g_shell_quote(*tmp);
+        g_string_append(spawn_args, quoted_arg);
+        g_free(quoted_arg);
+    }
+
+    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "async spawn params: %s", spawn_args->str);
+
     GError *error = NULL;
     gboolean spawned = g_spawn_async_with_pipes(NULL, (gchar **)args->pdata, NULL,
                              (GSpawnFlags) G_SPAWN_DO_NOT_REAP_CHILD, NULL, NULL,
@@ -324,6 +350,8 @@ GPid ws_pipe_spawn_async(ws_pipe_t *ws_pipe, GPtrArray *args)
         g_free(error->message);
     }
 #endif
+
+    g_string_free(spawn_args, TRUE);
 
     ws_pipe->pid = pid;
 
