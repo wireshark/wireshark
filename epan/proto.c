@@ -7068,7 +7068,7 @@ void proto_heuristic_dissector_foreach(const protocol_t *protocol, GFunc func, g
 void
 proto_get_frame_protocols(const wmem_list_t *layers, gboolean *is_ip,
 			  gboolean *is_tcp, gboolean *is_udp,
-			  gboolean *is_sctp, gboolean *is_ssl,
+			  gboolean *is_sctp, gboolean *is_tls,
 			  gboolean *is_rtp,
 			  gboolean *is_lte_rlc)
 {
@@ -7093,8 +7093,8 @@ proto_get_frame_protocols(const wmem_list_t *layers, gboolean *is_ip,
 			*is_udp = TRUE;
 		} else if (is_sctp && !strcmp(proto_name, "sctp")) {
 			*is_sctp = TRUE;
-		} else if (is_ssl && !strcmp(proto_name, "ssl")) {
-			*is_ssl = TRUE;
+		} else if (is_tls && !strcmp(proto_name, "tls")) {
+			*is_tls = TRUE;
 		} else if (is_rtp && !strcmp(proto_name, "rtp")) {
 			*is_rtp = TRUE;
 		} else if (is_lte_rlc && !strcmp(proto_name, "rlc-lte")) {

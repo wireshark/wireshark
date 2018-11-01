@@ -1112,7 +1112,7 @@ void MainWindow::recentActionTriggered() {
 
 void MainWindow::setMenusForSelectedPacket()
 {
-    gboolean is_ip = FALSE, is_tcp = FALSE, is_udp = FALSE, is_sctp = FALSE, is_ssl = FALSE, is_rtp = FALSE, is_lte_rlc = FALSE, is_http = FALSE;
+    gboolean is_ip = FALSE, is_tcp = FALSE, is_udp = FALSE, is_sctp = FALSE, is_tls = FALSE, is_rtp = FALSE, is_lte_rlc = FALSE, is_http = FALSE;
 
     /* Making the menu context-sensitive allows for easier selection of the
        desired item and has the added benefit, with large captures, of
@@ -1171,7 +1171,7 @@ void MainWindow::setMenusForSelectedPacket()
         {
             proto_get_frame_protocols(capture_file_.capFile()->edt->pi.layers,
                                       &is_ip, &is_tcp, &is_udp, &is_sctp,
-                                      &is_ssl, &is_rtp, &is_lte_rlc);
+                                      &is_tls, &is_rtp, &is_lte_rlc);
             is_http = proto_is_frame_protocol(capture_file_.capFile()->edt->pi.layers, "http");
         }
     }
@@ -1219,7 +1219,7 @@ void MainWindow::setMenusForSelectedPacket()
 
     main_ui_->actionAnalyzeFollowTCPStream->setEnabled(is_tcp);
     main_ui_->actionAnalyzeFollowUDPStream->setEnabled(is_udp);
-    main_ui_->actionAnalyzeFollowTLSStream->setEnabled(is_ssl);
+    main_ui_->actionAnalyzeFollowTLSStream->setEnabled(is_tls);
     main_ui_->actionAnalyzeFollowHTTPStream->setEnabled(is_http);
 
     foreach (QAction *cc_action, cc_actions) {

@@ -2397,7 +2397,7 @@ WS_DLL_PUBLIC void proto_heuristic_dissector_foreach(const protocol_t *protocol,
  * unchanged. May be NULL.
  * @param is_sctp Set to TRUE if the layer list contains SCTP, otherwise
  * unchanged. May be NULL.
- * @param is_ssl Set to TRUE if the layer list contains SSL/TLS, otherwise
+ * @param is_tls Set to TRUE if the layer list contains SSL/TLS, otherwise
  * unchanged. May be NULL.
  * @param is_rtp Set to TRUE if the layer list contains RTP, otherwise
  * unchanged. May be NULL.
@@ -2406,7 +2406,7 @@ WS_DLL_PUBLIC void proto_heuristic_dissector_foreach(const protocol_t *protocol,
  */
 WS_DLL_PUBLIC void proto_get_frame_protocols(const wmem_list_t *layers,
       gboolean *is_ip, gboolean *is_tcp, gboolean *is_udp, gboolean *is_sctp,
-      gboolean *is_ssl, gboolean *is_rtp, gboolean *is_lte_rlc);
+      gboolean *is_tls, gboolean *is_rtp, gboolean *is_lte_rlc);
 
 /** Check whether a protocol, specified by name, is in a layer list.
  * @param layers Protocol layer list
