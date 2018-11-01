@@ -557,6 +557,7 @@ static int hf_mqtt_subscription_reserved = -1;
 /* MQTT v5.0 Properties */
 static int hf_mqtt_property_len = -1;
 static int hf_mqtt_property = -1;
+static int hf_mqtt_will_property = -1;
 static int hf_mqtt_property_id = -1;
 static int hf_mqtt_prop_num = -1;
 static int hf_mqtt_prop_max_qos = -1;
@@ -760,7 +761,7 @@ static void dissect_mqtt_reason_code(proto_tree *mqtt_tree, tvbuff_t *tvb, guint
 }
 
 /* MQTT v5.0: dissect the MQTT properties */
-static guint dissect_mqtt_properties(tvbuff_t *tvb, proto_tree *mqtt_tree, guint offset)
+static guint dissect_mqtt_properties(tvbuff_t *tvb, proto_tree *mqtt_tree, guint offset, int hf_property)
 {
   proto_tree *mqtt_prop_tree;
   proto_item *ti;
@@ -771,7 +772,9 @@ static guint dissect_mqtt_properties(tvbuff_t *tvb, proto_tree *mqtt_tree, guint
   const guint mqtt_prop_len = (gint)vbi;
 
   /* Add the MQTT branch to the main tree */
-  ti = proto_tree_add_item(mqtt_tree, hf_mqtt_property, tvb, offset, mqtt_prop_offset + mqtt_prop_len, ENC_NA);
+  /* hf_property is usually hf_mqtt_property, but can also be
+   * hf_mqtt_will_property when a Will is provided in a CONNECT packet */
+  ti = proto_tree_add_item(mqtt_tree, hf_property, tvb, offset, mqtt_prop_offset + mqtt_prop_len, ENC_NA);
   mqtt_prop_tree = proto_item_add_subtree(ti, ett_mqtt_property);
 
   proto_tree_add_item(mqtt_prop_tree, hf_mqtt_property_len, tvb, offset, mqtt_prop_offset, ENC_BIG_ENDIAN);
@@ -992,7 +995,7 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
       if (mqtt->runtime_proto_version == MQTT_PROTO_V50)
       {
-        offset += dissect_mqtt_properties(tvb, mqtt_tree, offset);
+        offset += dissect_mqtt_properties(tvb, mqtt_tree, offset, hf_mqtt_property);
       }
 
       proto_tree_add_item_ret_uint(mqtt_tree, hf_mqtt_client_id_len, tvb, offset, 2, ENC_BIG_ENDIAN, &mqtt_str_len);
@@ -1003,15 +1006,17 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
       if (mqtt_con_flags & MQTT_CONMASK_WILLFLAG)
       {
+        if (mqtt->runtime_proto_version == MQTT_PROTO_V50)
+        {
+          offset += dissect_mqtt_properties(tvb, mqtt_tree, offset, hf_mqtt_will_property);
+        }
+
         proto_tree_add_item_ret_uint(mqtt_tree, hf_mqtt_will_topic_len, tvb, offset, 2, ENC_BIG_ENDIAN, &mqtt_str_len);
         offset += 2;
 
         proto_tree_add_item(mqtt_tree, hf_mqtt_will_topic, tvb, offset, mqtt_str_len, ENC_UTF_8|ENC_NA);
         offset += mqtt_str_len;
-      }
 
-      if (mqtt_con_flags & MQTT_CONMASK_WILLFLAG)
-      {
         proto_tree_add_item_ret_uint(mqtt_tree, hf_mqtt_will_msg_len, tvb, offset, 2, ENC_BIG_ENDIAN, &mqtt_str_len);
         offset += 2;
 
@@ -1064,7 +1069,7 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
       if (mqtt->runtime_proto_version == MQTT_PROTO_V50)
       {
-        offset += dissect_mqtt_properties(tvb, mqtt_tree, offset);
+        offset += dissect_mqtt_properties(tvb, mqtt_tree, offset, hf_mqtt_property);
       }
       break;
 
@@ -1089,7 +1094,7 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
       if (mqtt->runtime_proto_version == MQTT_PROTO_V50)
       {
-        offset += dissect_mqtt_properties(tvb, mqtt_tree, offset);
+        offset += dissect_mqtt_properties(tvb, mqtt_tree, offset, hf_mqtt_property);
       }
 
       mqtt_payload_len = tvb_reported_length(tvb) - offset;
@@ -1113,7 +1118,7 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
       if (mqtt->runtime_proto_version == MQTT_PROTO_V50)
       {
-        offset += dissect_mqtt_properties(tvb, mqtt_tree, offset);
+        offset += dissect_mqtt_properties(tvb, mqtt_tree, offset, hf_mqtt_property);
       }
 
       while (offset < tvb_reported_length(tvb))
@@ -1149,6 +1154,11 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
       offset += 2;
       col_append_fstr(pinfo->cinfo, COL_INFO, " (id=%u)", mqtt_msgid);
 
+      if (mqtt->runtime_proto_version == MQTT_PROTO_V50)
+      {
+        offset += dissect_mqtt_properties(tvb, mqtt_tree, offset, hf_mqtt_property);
+      }
+
       while (offset < tvb_reported_length(tvb))
       {
         proto_tree_add_item_ret_uint(mqtt_tree, hf_mqtt_topic_len, tvb, offset, 2, ENC_BIG_ENDIAN, &mqtt_str_len);
@@ -1169,7 +1179,7 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
       if (mqtt->runtime_proto_version == MQTT_PROTO_V50)
       {
-        offset += dissect_mqtt_properties(tvb, mqtt_tree, offset);
+        offset += dissect_mqtt_properties(tvb, mqtt_tree, offset, hf_mqtt_property);
       }
 
       while (offset < tvb_reported_length(tvb))
@@ -1200,7 +1210,7 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         dissect_mqtt_reason_code(mqtt_tree, tvb, offset, mqtt_msg_type);
         offset += 1;
 
-        offset += dissect_mqtt_properties(tvb, mqtt_tree, offset);
+        offset += dissect_mqtt_properties(tvb, mqtt_tree, offset, hf_mqtt_property);
       }
       break;
 
@@ -1211,7 +1221,7 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
       if (mqtt->runtime_proto_version == MQTT_PROTO_V50)
       {
-        offset += dissect_mqtt_properties(tvb, mqtt_tree, offset);
+        offset += dissect_mqtt_properties(tvb, mqtt_tree, offset, hf_mqtt_property);
 
         while (offset < tvb_reported_length(tvb))
         {
@@ -1249,7 +1259,7 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
          */
         if (mqtt_msg_len >= 2)
         {
-          offset += dissect_mqtt_properties(tvb, mqtt_tree, offset);
+          offset += dissect_mqtt_properties(tvb, mqtt_tree, offset, hf_mqtt_property);
         }
       }
       break;
@@ -1528,6 +1538,10 @@ void proto_register_mqtt(void)
     /* Properties */
     { &hf_mqtt_property,
       { "Properties", "mqtt.properties",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_mqtt_will_property,
+      { "Will Properties", "mqtt.will_properties",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_mqtt_property_len,
