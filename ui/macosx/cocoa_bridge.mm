@@ -11,6 +11,7 @@
  */
 
 #include <ui/macosx/cocoa_bridge.h>
+#include <ui/macosx/macos_compat.h>
 
 #import <Cocoa/Cocoa.h>
 
@@ -20,8 +21,8 @@ void CocoaBridge::cleanOSGeneratedMenuItems()
     // Remove (don't allow) the "Show Tab Bar" menu item from the "View" menu, if
     // supported
 
-    if ([NSWindow respondsToSelector:@selector(allowsAutomaticWindowTabbing)])
-        NSWindow.allowsAutomaticWindowTabbing = NO;
+    if ([NSWindow respondsToSelector:@selector(setAllowsAutomaticWindowTabbing:)])
+        [NSWindow setAllowsAutomaticWindowTabbing: NO];
 #endif
 
     [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"NSFullScreenMenuItemEverywhere"];
