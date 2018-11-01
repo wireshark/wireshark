@@ -123,6 +123,14 @@ static header_field_info hfi_udp_pdu_size UDP_HFI_INIT =
 { "PDU Size", "udp.pdu.size", FT_UINT32, BASE_DEC, NULL, 0x0,
   "The size of this PDU", HFILL };
 
+static header_field_info hfi_udp_ts_relative UDP_HFI_INIT =
+{ "Time since first frame", "udp.time_relative", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+  "Time relative to first frame in this UDP stream", HFILL };
+
+static header_field_info hfi_udp_ts_delta UDP_HFI_INIT =
+{ "Time since previous frame", "udp.time_delta", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+  "Time delta from previous frame in this UDP stream", HFILL };
+
 static header_field_info hfi_udplite_checksum_coverage UDPLITE_HFI_INIT =
 { "Checksum coverage", "udp.checksum_coverage", FT_UINT16, BASE_DEC, NULL, 0x0,
   NULL, HFILL };
@@ -130,6 +138,7 @@ static header_field_info hfi_udplite_checksum_coverage UDPLITE_HFI_INIT =
 static gint ett_udp = -1;
 static gint ett_udp_checksum = -1;
 static gint ett_udp_process_info = -1;
+static gint ett_udp_timestamps = -1;
 
 static expert_field ei_udp_possible_traceroute = EI_INIT;
 static expert_field ei_udp_length_bad = EI_INIT;
@@ -165,10 +174,15 @@ static guint32 udp_stream_count;
 
 static gboolean try_heuristic_first = FALSE;
 
+static gboolean udp_calculate_ts = TRUE;
+static gboolean udplite_calculate_ts = TRUE;
+
 /* Per-packet-info for UDP */
 typedef struct
 {
     heur_dtbl_entry_t *heur_dtbl_entry;
+    nstime_t ts_delta;
+    gboolean ts_delta_valid;
 }   udp_p_info_t;
 
 static void
@@ -209,7 +223,7 @@ udp_both_prompt(packet_info *pinfo, gchar *result)
 
 /* Conversation and process code originally copied from packet-tcp.c */
 static struct udp_analysis *
-init_udp_conversation_data(void)
+init_udp_conversation_data(packet_info *pinfo)
 {
   struct udp_analysis *udpd;
 
@@ -223,6 +237,8 @@ init_udp_conversation_data(void)
   */
 
   udpd->stream = udp_stream_count++;
+  udpd->ts_first = pinfo->abs_ts;
+  udpd->ts_prev = pinfo->abs_ts;
 
   return udpd;
 }
@@ -246,7 +262,7 @@ get_udp_conversation_data(conversation_t *conv, packet_info *pinfo)
    * a new udpd structure for the conversation.
    */
   if (!udpd) {
-    udpd = init_udp_conversation_data();
+    udpd = init_udp_conversation_data(pinfo);
     conversation_add_proto_data(conv, hfi_udp->id, udpd);
   }
 
@@ -581,11 +597,14 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
   tvbuff_t *next_tvb;
   int low_port, high_port;
   gint len, reported_len;
-  udp_p_info_t *udp_p_info = NULL;
+  udp_p_info_t *udp_p_info;
   /* Save curr_layer_num as it might be changed by subdissector */
   guint8 curr_layer_num = pinfo->curr_layer_num;
   heur_dtbl_entry_t *hdtbl_entry;
   exp_pdu_data_t *exp_pdu_data;
+
+  /* populate per packet data variable */
+  udp_p_info = (udp_p_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, hfi_udp->id, pinfo->curr_layer_num);
 
   len = tvb_captured_length_remaining(tvb, offset);
   reported_len = tvb_reported_length_remaining(tvb, offset);
@@ -608,9 +627,8 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
   if (have_tap_listener(udp_follow_tap))
     tap_queue_packet(udp_follow_tap, pinfo, next_tvb);
 
-  if (pinfo->fd->flags.visited) {
-    udp_p_info = (udp_p_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, hfi_udp->id, pinfo->curr_layer_num);
-    if (udp_p_info) {
+  if (PINFO_FD_VISITED(pinfo)) {
+    if (udp_p_info && udp_p_info->heur_dtbl_entry != NULL) {
       call_heur_dissector_direct(udp_p_info->heur_dtbl_entry, next_tvb, pinfo, tree, NULL);
       handle_export_pdu_heuristic(pinfo, next_tvb, udp_p_info->heur_dtbl_entry);
       return;
@@ -630,9 +648,10 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
     if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, NULL)) {
       if (!udp_p_info) {
         udp_p_info = wmem_new0(wmem_file_scope(), udp_p_info_t);
-        udp_p_info->heur_dtbl_entry = hdtbl_entry;
         p_add_proto_data(wmem_file_scope(), pinfo, hfi_udp->id, curr_layer_num, udp_p_info);
       }
+
+      udp_p_info->heur_dtbl_entry = hdtbl_entry;
 
       handle_export_pdu_heuristic(pinfo, next_tvb, udp_p_info->heur_dtbl_entry);
       return;
@@ -678,9 +697,10 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
     if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, NULL)) {
       if (!udp_p_info) {
         udp_p_info = wmem_new0(wmem_file_scope(), udp_p_info_t);
-        udp_p_info->heur_dtbl_entry = hdtbl_entry;
         p_add_proto_data(wmem_file_scope(), pinfo, hfi_udp->id, curr_layer_num, udp_p_info);
       }
+
+      udp_p_info->heur_dtbl_entry = hdtbl_entry;
 
       handle_export_pdu_heuristic(pinfo, next_tvb, udp_p_info->heur_dtbl_entry);
       return;
@@ -870,6 +890,71 @@ capture_udp(const guchar *pd _U_, int offset _U_, int len _U_, capture_packet_in
 
   /* We've at least identified one type of packet, so this shouldn't be "other" */
   return TRUE;
+}
+
+/* Calculate the timestamps relative to this conversation */
+static void
+udp_compute_timestamps(packet_info *pinfo, struct udp_analysis *udp_data, int proto)
+{
+  if (!udp_data)
+      return;
+
+  /* get per packet date for UDP/UDP-Lite based on protocol id */
+  udp_p_info_t *udp_per_packet_data = (udp_p_info_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto, pinfo->curr_layer_num);
+
+  if(!udp_per_packet_data) {
+      udp_per_packet_data = wmem_new0(wmem_file_scope(), udp_p_info_t);
+      p_add_proto_data(wmem_file_scope(), pinfo, proto, pinfo->curr_layer_num, udp_per_packet_data);
+  }
+
+  nstime_delta(&udp_per_packet_data->ts_delta, &pinfo->abs_ts, &udp_data->ts_prev);
+  udp_per_packet_data->ts_delta_valid = TRUE;
+
+  udp_data->ts_prev = pinfo->abs_ts;
+}
+
+/* Add a subtree with the timestamps relative to this conversation */
+static void
+udp_print_timestamps(packet_info *pinfo, tvbuff_t *tvb, proto_tree *parent_tree, struct udp_analysis *udp_data, int proto)
+{
+  proto_item  *item;
+  proto_tree  *tree;
+  nstime_t    ts;
+
+  if (!udp_data)
+      return;
+
+  /* get per packet date for UDP/UDP-Lite based on protocol id */
+  udp_p_info_t *udp_per_packet_data = (udp_p_info_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto, pinfo->curr_layer_num);
+
+  tree = proto_tree_add_subtree(parent_tree, tvb, 0, 0, ett_udp_timestamps, &item, "Timestamps");
+  PROTO_ITEM_SET_GENERATED(item);
+
+  nstime_delta(&ts, &pinfo->abs_ts, &udp_data->ts_first);
+  item = proto_tree_add_time(tree, &hfi_udp_ts_relative, tvb, 0, 0, &ts);
+  PROTO_ITEM_SET_GENERATED(item);
+
+  if (udp_per_packet_data && udp_per_packet_data->ts_delta_valid) {
+      item = proto_tree_add_time(tree, &hfi_udp_ts_delta, tvb, 0, 0,
+          &udp_per_packet_data->ts_delta);
+      PROTO_ITEM_SET_GENERATED(item);
+  }
+}
+
+static void
+udp_handle_timestamps(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, struct udp_analysis *udp_data, guint32 ip_proto)
+{
+  int proto_id = (ip_proto == IP_PROTO_UDP ? hfi_udp->id : hfi_udplite->id);
+
+  /*
+   * Calculate the timestamps relative to this conversation (but only on the
+   * first run when frames are accessed sequentially)
+   */
+  if (!PINFO_FD_VISITED(pinfo))
+      udp_compute_timestamps(pinfo, udp_data, proto_id);
+
+  /* handle conversation timestamps */
+  udp_print_timestamps(pinfo, tvb, tree, udp_data, proto_id);
 }
 
 static void
@@ -1111,6 +1196,16 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
     return;
   }
 
+  /* Do we need to calculate timestamps relative to the udp-stream? */
+  /* Different boolean preferences have to be checked. */
+  /* If the protocol is UDP then the UDP preference */
+  if (!pinfo->flags.in_error_pkt &&
+      ((ip_proto == IP_PROTO_UDP && udp_calculate_ts)
+       /* Otherwise the UDP-Lite preference */
+       || (ip_proto == IP_PROTO_UDPLITE && udplite_calculate_ts))) {
+    udp_handle_timestamps(pinfo, tvb, udp_tree, udpd, ip_proto);
+  }
+
   /*
    * Call sub-dissectors.
    *
@@ -1173,6 +1268,8 @@ proto_register_udp(void)
     &hfi_udp_proc_dst_uname,
     &hfi_udp_proc_dst_cmd,
     &hfi_udp_pdu_size,
+    &hfi_udp_ts_relative,
+    &hfi_udp_ts_delta
   };
 
   static header_field_info *hfi_lite[] = {
@@ -1183,7 +1280,8 @@ proto_register_udp(void)
   static gint *ett[] = {
     &ett_udp,
     &ett_udp_checksum,
-    &ett_udp_process_info
+    &ett_udp_process_info,
+    &ett_udp_timestamps
   };
 
   static ei_register_info ei[] = {
@@ -1246,6 +1344,10 @@ proto_register_udp(void)
                                  "Collect process flow information",
                                  "Collect process flow information from IPFIX",
                                  &udp_process_info);
+  prefs_register_bool_preference(udp_module, "calculate_timestamps",
+                                 "Calculate conversation timestamps",
+                                 "Calculate timestamps relative to the first frame and the previous frame in the udp conversation",
+                                 &udp_calculate_ts);
 
   udplite_module = prefs_register_protocol(proto_udplite, NULL);
   prefs_register_bool_preference(udplite_module, "ignore_checksum_coverage",
@@ -1256,6 +1358,10 @@ proto_register_udp(void)
                                  "Validate the UDP-Lite checksum if possible",
                                  "Whether to validate the UDP-Lite checksum",
                                  &udplite_check_checksum);
+  prefs_register_bool_preference(udplite_module, "calculate_timestamps",
+                                  "Calculate conversation timestamps",
+                                  "Calculate timestamps relative to the first frame and the previous frame in the udp-lite conversation",
+                                  &udplite_calculate_ts);
 
   register_decode_as(&udp_da);
   register_conversation_table(proto_udp, FALSE, udpip_conversation_packet, udpip_hostlist_packet);
