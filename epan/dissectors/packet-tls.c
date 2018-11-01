@@ -1886,7 +1886,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
     /* try to retrieve and use decrypted alert/handshake/appdata record, if any. */
     decrypted = ssl_get_record_info(tvb, proto_tls, pinfo, tvb_raw_offset(tvb)+offset, curr_layer_num_ssl, &record);
     if (decrypted) {
-        add_new_data_source(pinfo, decrypted, "Decrypted SSL");
+        add_new_data_source(pinfo, decrypted, "Decrypted TLS");
         if (session->version == TLSV1DOT3_VERSION) {
             content_type = record->type;
             ti = proto_tree_add_uint(ssl_record_tree, hf_tls_record_content_type,
