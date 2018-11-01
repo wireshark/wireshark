@@ -225,7 +225,7 @@ ssl_proto_tree_add_segment_data(
         offset,
         length,
         NULL,
-        "%sSSL segment data (%u %s)",
+        "%sTLS segment data (%u %s)",
         prefix != NULL ? prefix : "",
         length,
         plurality(length, "byte", "bytes"));
@@ -1182,7 +1182,7 @@ again:
 
         if (msp->first_frame == pinfo->num) {
             prefix = "";
-            col_set_str(pinfo->cinfo, COL_INFO, "[SSL segment of a reassembled PDU]");
+            col_set_str(pinfo->cinfo, COL_INFO, "[TLS segment of a reassembled PDU]");
         } else {
             prefix = "Retransmitted ";
         }
@@ -1284,7 +1284,7 @@ again:
              * This is *not* the last segment. It is part of a PDU in the same
              * frame, so no another PDU can follow this one.
              * Do not reassemble TLS yet, it will be done in the final segment.
-             * Clear the Info column and avoid displaying [SSL segment of a
+             * Clear the Info column and avoid displaying [TLS segment of a
              * reassembled PDU], the payload dissector will typically set it.
              * (This is needed here for the second pass.)
              */
@@ -1522,7 +1522,7 @@ again:
              */
             col_set_str(pinfo->cinfo, COL_PROTOCOL,
                     val_to_str_const(session->version, ssl_version_short_names, "SSL"));
-            col_set_str(pinfo->cinfo, COL_INFO, "[SSL segment of a reassembled PDU]");
+            col_set_str(pinfo->cinfo, COL_INFO, "[TLS segment of a reassembled PDU]");
         }
 
         /*
