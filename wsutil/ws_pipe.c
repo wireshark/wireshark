@@ -335,9 +335,8 @@ void ws_pipe_close(ws_pipe_t * ws_pipe)
     if (ws_pipe->pid != WS_INVALID_PID) {
 #ifdef _WIN32
         TerminateProcess(ws_pipe->pid, 0);
-#else
-        g_spawn_close_pid(ws_pipe->pid);
 #endif
+        g_spawn_close_pid(ws_pipe->pid);
         ws_pipe->pid = WS_INVALID_PID;
     }
 }
