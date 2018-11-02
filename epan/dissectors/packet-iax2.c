@@ -480,7 +480,7 @@ static const value_string iax_ies_type[] = {
 };
 static value_string_ext iax_ies_type_ext = VALUE_STRING_EXT_INIT(iax_ies_type);
 
-#define CODEC_MASK(codec) (G_GUINT64_CONSTANT(1) << (codec))
+#define CODEC_MASK(codec) ((codec) == (guint32)-1 ? 0 : (G_GUINT64_CONSTANT(1) << (codec)))
 
 static const val64_string codec_types[] = {
   {CODEC_MASK(AST_FORMAT_G723_1),    "G.723.1 compression"},
