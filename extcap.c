@@ -1137,7 +1137,7 @@ void extcap_if_cleanup(capture_options *capture_opts, gchar **errormsg)
                 ws_read_string_from_pipe(ws_get_pipe_handle(pipedata->stderr_fd), buffer, STDERR_BUFFER_SIZE + 1);
                 if (strlen(buffer) > 0)
                 {
-                    pipedata->stderr_msg = g_strdup_printf("%s", buffer);
+                    pipedata->stderr_msg = g_strdup(buffer);
                     pipedata->exitcode = 1;
                 }
                 g_free(buffer);
