@@ -1145,7 +1145,7 @@ void extcap_if_cleanup(capture_options *capture_opts, gchar **errormsg)
 
 #ifndef _WIN32
             /* Final child watch may not have been called */
-            if (interface_opts->extcap_child_watch != 0)
+            if (interface_opts->extcap_child_watch > 0)
             {
                 extcap_child_watch_cb(pipedata->pid, 0, capture_opts);
                 /* it will have changed in extcap_child_watch_cb */
@@ -1161,7 +1161,7 @@ void extcap_if_cleanup(capture_options *capture_opts, gchar **errormsg)
 
             if (overwrite_exitcode || pipedata->exitcode != 0)
             {
-                if (pipedata->stderr_msg != 0)
+                if (pipedata->stderr_msg != NULL)
                 {
                     if (*errormsg == NULL)
                     {
