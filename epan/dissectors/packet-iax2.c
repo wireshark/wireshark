@@ -719,7 +719,8 @@ static guint iax_circuit_lookup(const address *address_p,
     new_key->addr.type = address_p->type;
     new_key->addr.len  = MIN(address_p->len, MAX_ADDRESS);
     new_key->addr.data = new_key->address_data;
-    memcpy(new_key->address_data, address_p->data, new_key->addr.len);
+    if (new_key->addr.len > 0)
+      memcpy(new_key->address_data, address_p->data, new_key->addr.len);
     new_key->ptype     = ptype;
     new_key->port      = port;
     new_key->callno    = callno;
