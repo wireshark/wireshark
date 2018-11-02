@@ -12,9 +12,9 @@ env:
  - PCAP=OFF
 matrix:
   exclude:
-  # Exclude gcc build (Need some work) with osx
-  - os: osx
-    compiler: gcc
+    # Exclude gcc build (Need some work) with osx
+    - os: osx
+      compiler: gcc
 addons:
   apt:
     update: true
