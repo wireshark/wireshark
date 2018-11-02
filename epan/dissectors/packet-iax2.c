@@ -27,6 +27,7 @@
 #include <epan/aftypes.h>
 #include <epan/tap.h>
 #include <epan/proto_data.h>
+#include <epan/to_str.h>
 
 #include <wsutil/str_util.h>
 
@@ -648,7 +649,7 @@ static gchar *key_to_str( const iax_circuit_key *key )
   }
   strp = str[i];
 
-  addrstr = address_to_str(NULL, &key->addr)
+  addrstr = address_to_str(NULL, &key->addr);
   g_snprintf(strp, 80, "{%s:%i,%i}",
              addrstr,
              key->port,
