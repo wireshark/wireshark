@@ -561,7 +561,7 @@ dissect_oer_sequence_of(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_t
         break;
     default:
         proto_tree_add_expert_format(parent_tree, actx->pinfo, &ei_oer_not_decoded_yet, tvb, offset, 1,
-            "sequence_of Occurance %u octets not handled", occ_len);
+            "sequence_of Occurence %u octets not handled", occ_len);
         return tvb_reported_length(tvb);
     }
 
