@@ -755,6 +755,18 @@ wg_keylog_read(void)
     }
 }
 
+static void*
+wg_key_uat_record_copy_cb(void *dest, const void *source, size_t len _U_)
+{
+    const wg_key_uat_record_t* o = (const wg_key_uat_record_t*)source;
+    wg_key_uat_record_t* d = (wg_key_uat_record_t*)dest;
+
+    d->key_type = o->key_type;
+    d->key = g_strdup(o->key);
+
+    return dest;
+}
+
 static gboolean
 wg_key_uat_record_update_cb(void *r, char **error)
 {
@@ -768,6 +780,13 @@ wg_key_uat_record_update_cb(void *r, char **error)
     }
 
     return TRUE;
+}
+
+static void
+wg_key_uat_record_free_cb(void *r)
+{
+    wg_key_uat_record_t *rec = (wg_key_uat_record_t *)r;
+    g_free(rec->key);
 }
 
 static void
@@ -1810,9 +1829,9 @@ proto_register_wg(void)
             &num_wg_key_records,            /* numitems_ptr */
             UAT_AFFECTS_DISSECTION,         /* affects dissection of packets, but not set of named fields */
             NULL,                           /* Help section (currently a wiki page) */
-            NULL,                           /* copy_cb */
+            wg_key_uat_record_copy_cb,      /* copy_cb */
             wg_key_uat_record_update_cb,    /* update_cb */
-            NULL,                           /* free_cb */
+            wg_key_uat_record_free_cb,      /* free_cb */
             wg_key_uat_apply,               /* post_update_cb */
             wg_key_uat_reset,               /* reset_cb */
             wg_key_uat_fields);
