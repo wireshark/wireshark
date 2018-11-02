@@ -130,6 +130,7 @@ static int hf_quic_frame_type_ae_ack_block_count = -1;
 static int hf_quic_frame_type_ae_fab = -1;
 static int hf_quic_frame_type_ae_gap = -1;
 static int hf_quic_frame_type_ae_ack_block = -1;
+static int hf_quic_frame_type_rci_sequence = -1;
 
 static expert_field ei_quic_connection_unknown = EI_INIT;
 static expert_field ei_quic_ft_unknown = EI_INIT;
@@ -1132,8 +1133,8 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             proto_item_append_text(ti_ft, " Error code: 0x%04x", error_code);
         }
         break;
-        case FT_ACK_OLD:{
-            if (is_quic_draft_max(quic_info->version, 14)) {
+        case FT_RETIRE_CONNECTION_ID:{
+            if (is_quic_draft_max(quic_info->version, 14)) { /* FT_ACK_OLD */
                 guint64 ack_block_count;
                 guint32 lenvar;
 
@@ -1165,6 +1166,10 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
 
                     ack_block_count--;
                 }
+            } else {
+                guint32 len_sequence;
+                proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_rci_sequence, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_sequence);
+                offset += len_sequence;
             }
         }
         break;
@@ -2904,6 +2909,13 @@ proto_register_quic(void)
           { "ACK Block", "quic.frame_type.ae.ack_block",
             FT_UINT64, BASE_DEC, NULL, 0x0,
             "Indicating the number of contiguous acknowledged packets preceding the largest packet number, as determined by the preceding Gap", HFILL }
+        },
+
+        /* RETIRE_CONNECTION_ID */
+        { &hf_quic_frame_type_rci_sequence,
+            { "Sequence", "quic.frame_type.rci.sequence",
+              FT_UINT64, BASE_DEC, NULL, 0x0,
+              "The sequence number of the connection ID being retired", HFILL }
         },
     };
 
