@@ -1894,7 +1894,7 @@ dissect_fullpacket(tvbuff_t *tvb, guint32 offset,
   case AST_FRAME_VIDEO:
     /* bit 6 of the csub is used to represent the rtp 'marker' bit */
     rtp_marker = csub & 0x40 ? TRUE:FALSE;
-    iax_packet -> codec = codec = uncompress_subclass((guint8)(csub & ~40));
+    iax_packet -> codec = codec = uncompress_subclass((guint8)(csub & ~0x40));
 
     if (packet_type_tree) {
       proto_item *item;
