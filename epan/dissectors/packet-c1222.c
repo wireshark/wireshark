@@ -760,6 +760,19 @@ encode_ber_len(guint8 *ptr, guint32 n, int maxsize)
 
 }
 
+static void*
+c1222_uat_data_copy_cb(void *dest, const void *source, size_t len _U_)
+{
+    const c1222_uat_data_t* o = (const c1222_uat_data_t*)source;
+    c1222_uat_data_t* d = (c1222_uat_data_t*)dest;
+
+    d->keynum = o->keynum;
+    d->keylen = o->keylen;
+    d->key = (guchar *)g_memdup(o->key, o->keylen);
+
+    return dest;
+}
+
 /**
  * Checks a new encryption table item for validity.
  *
@@ -781,6 +794,13 @@ c1222_uat_data_update_cb(void* n, char** err)
     return FALSE;
   }
   return TRUE;
+}
+
+static void
+c1222_uat_data_free_cb(void *r)
+{
+    c1222_uat_data_t *rec = (c1222_uat_data_t *)r;
+    g_free(rec->key);
 }
 
 /**
@@ -1545,7 +1565,7 @@ static int dissect_MESSAGE_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 
 
 /*--- End of included file: packet-c1222-fn.c ---*/
-#line 1029 "./asn1/c1222/packet-c1222-template.c"
+#line 1049 "./asn1/c1222/packet-c1222-template.c"
 
 /**
  * Dissects a a full (reassembled) C12.22 message.
@@ -1955,7 +1975,7 @@ void proto_register_c1222(void) {
         "OCTET_STRING_SIZE_CONSTR002", HFILL }},
 
 /*--- End of included file: packet-c1222-hfarr.c ---*/
-#line 1334 "./asn1/c1222/packet-c1222-template.c"
+#line 1354 "./asn1/c1222/packet-c1222-template.c"
   };
 
   /* List of subtrees */
@@ -1978,7 +1998,7 @@ void proto_register_c1222(void) {
     &ett_c1222_Calling_authentication_value_c1221_U,
 
 /*--- End of included file: packet-c1222-ettarr.c ---*/
-#line 1344 "./asn1/c1222/packet-c1222-template.c"
+#line 1364 "./asn1/c1222/packet-c1222-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -2034,9 +2054,9 @@ void proto_register_c1222(void) {
       &num_c1222_uat_data,              /* numitems_ptr */
       UAT_AFFECTS_DISSECTION,           /* affects dissection of packets, but not set of named fields */
       NULL,                             /* help */
-      NULL,                             /* copy callback */
+      c1222_uat_data_copy_cb,           /* copy callback */
       c1222_uat_data_update_cb,         /* update callback */
-      NULL,                             /* free callback */
+      c1222_uat_data_free_cb,           /* free callback */
       NULL,                             /* post update callback */
       NULL,                             /* reset callback */
       c1222_uat_flds);                  /* UAT field definitions */

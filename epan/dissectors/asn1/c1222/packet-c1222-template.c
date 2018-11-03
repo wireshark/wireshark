@@ -709,6 +709,19 @@ encode_ber_len(guint8 *ptr, guint32 n, int maxsize)
 
 }
 
+static void*
+c1222_uat_data_copy_cb(void *dest, const void *source, size_t len _U_)
+{
+    const c1222_uat_data_t* o = (const c1222_uat_data_t*)source;
+    c1222_uat_data_t* d = (c1222_uat_data_t*)dest;
+
+    d->keynum = o->keynum;
+    d->keylen = o->keylen;
+    d->key = (guchar *)g_memdup(o->key, o->keylen);
+
+    return dest;
+}
+
 /**
  * Checks a new encryption table item for validity.
  *
@@ -730,6 +743,13 @@ c1222_uat_data_update_cb(void* n, char** err)
     return FALSE;
   }
   return TRUE;
+}
+
+static void
+c1222_uat_data_free_cb(void *r)
+{
+    c1222_uat_data_t *rec = (c1222_uat_data_t *)r;
+    g_free(rec->key);
 }
 
 /**
@@ -1396,9 +1416,9 @@ void proto_register_c1222(void) {
       &num_c1222_uat_data,              /* numitems_ptr */
       UAT_AFFECTS_DISSECTION,           /* affects dissection of packets, but not set of named fields */
       NULL,                             /* help */
-      NULL,                             /* copy callback */
+      c1222_uat_data_copy_cb,           /* copy callback */
       c1222_uat_data_update_cb,         /* update callback */
-      NULL,                             /* free callback */
+      c1222_uat_data_free_cb,           /* free callback */
       NULL,                             /* post update callback */
       NULL,                             /* reset callback */
       c1222_uat_flds);                  /* UAT field definitions */
