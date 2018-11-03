@@ -56,7 +56,7 @@
 	{ "capture", no_argument, NULL, EXTCAP_OPT_CAPTURE}, \
 	{ "extcap-capture-filter", required_argument,	NULL, EXTCAP_OPT_CAPTURE_FILTER}, \
 	{ "fifo", required_argument, NULL, EXTCAP_OPT_FIFO}, \
-	{ "debug", required_argument, NULL, EXTCAP_OPT_DEBUG}, \
+	{ "debug", no_argument, NULL, EXTCAP_OPT_DEBUG}, \
 	{ "debug-file", required_argument, NULL, EXTCAP_OPT_DEBUG_FILE}
 
 typedef struct _extcap_parameters

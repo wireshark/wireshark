@@ -312,7 +312,7 @@ void extcap_init_custom_log(const char* filename)
 void extcap_config_debug(unsigned* count)
 {
     printf("arg {number=%u}{call=--debug}{display=Run in debug mode}"
-    "{type=boolean}{default=false}{tooltip=Print debug messages}{required=false}"
+    "{type=boolflag}{default=false}{tooltip=Print debug messages}{required=false}"
     "{group=Debug}\n", (*count)++);
     printf("arg {number=%u}{call=--debug-file}{display=Use a file for debug}"
     "{type=string}{tooltip=Set a file where the debug messages are written}{required=false}"
