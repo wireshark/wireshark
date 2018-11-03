@@ -19,7 +19,8 @@
 #include <string.h>
 
 ssh_session create_ssh_connection(const char* hostname, const guint16 port, const char* username,
-	const char* password, const char* sshkey_path, const char* sshkey_passphrase, char** err_info)
+	const char* password, const char* sshkey_path, const char* sshkey_passphrase, const char* proxycommand,
+	char** err_info)
 {
 	ssh_session sshs;
 
@@ -53,6 +54,13 @@ ssh_session create_ssh_connection(const char* hostname, const guint16 port, cons
 	if (ssh_options_set(sshs, SSH_OPTIONS_USER, username)) {
 		*err_info = g_strdup_printf("Can't set the username: %s", username);
 		goto failure;
+	}
+
+	if (proxycommand) {
+		if (ssh_options_set(sshs, SSH_OPTIONS_PROXYCOMMAND, proxycommand)) {
+			*err_info = g_strdup_printf("Can't set the ProxyCommand: %s", proxycommand);
+			goto failure;
+		}
 	}
 
 	g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Opening ssh connection to %s@%s:%u", username, hostname, port);

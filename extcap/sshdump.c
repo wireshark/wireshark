@@ -43,6 +43,7 @@ enum {
 	OPT_REMOTE_FILTER,
 	OPT_SSHKEY,
 	OPT_SSHKEY_PASSPHRASE,
+	OPT_PROXYCOMMAND,
 	OPT_REMOTE_COUNT,
 	OPT_REMOTE_SUDO,
 	OPT_REMOTE_NOPROM
@@ -176,8 +177,8 @@ static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_command
 }
 
 static int ssh_open_remote_connection(const char* hostname, const unsigned int port, const char* username, const char* password,
-	const char* sshkey, const char* sshkey_passphrase, const char* iface, const char* cfilter, const char* capture_command,
-	const gboolean use_sudo, gboolean noprom, const guint32 count, const char* fifo)
+	const char* sshkey, const char* sshkey_passphrase, const char* proxycommand, const char* iface, const char* cfilter,
+	const char* capture_command, const gboolean use_sudo, gboolean noprom, const guint32 count, const char* fifo)
 {
 	ssh_session sshs = NULL;
 	ssh_channel channel = NULL;
@@ -194,7 +195,7 @@ static int ssh_open_remote_connection(const char* hostname, const unsigned int p
 		}
 	}
 
-	sshs = create_ssh_connection(hostname, port, username, password, sshkey, sshkey_passphrase, &err_info);
+	sshs = create_ssh_connection(hostname, port, username, password, sshkey, sshkey_passphrase, proxycommand, &err_info);
 
 	if (!sshs) {
 		g_warning("Error creating connection: %s", err_info);
@@ -283,6 +284,9 @@ static int list_config(char *interface, unsigned int remote_port)
 	printf("arg {number=%u}{call=--sshkey-passphrase}{display=SSH key passphrase}"
 		"{type=password}{tooltip=Passphrase to unlock the SSH private key}{group=Authentication}\n",
 		inc++);
+	printf("arg {number=%u}{call=--proxycommand}{display=ProxyCommand}"
+		"{type=string}{tooltip=The command to use as proxy for the SSH connection}"
+		"{group=Authentication}\n", inc++);
 	printf("arg {number=%u}{call=--remote-interface}{display=Remote interface}"
 		"{type=string}{default=eth0}{tooltip=The remote network interface used for capture"
 		"}{group=Capture}\n", inc++);
@@ -336,6 +340,7 @@ int real_main(int argc, char **argv)
 	char* remote_capture_command = NULL;
 	char* sshkey = NULL;
 	char* sshkey_passphrase = NULL;
+	char* proxycommand = NULL;
 	char* remote_filter = NULL;
 	guint32 count = 0;
 	int ret = EXIT_FAILURE;
@@ -373,6 +378,7 @@ int real_main(int argc, char **argv)
 	extcap_help_add_option(extcap_conf, "--remote-password <password>", "the remote SSH password. If not specified, ssh-agent and ssh-key are used");
 	extcap_help_add_option(extcap_conf, "--sshkey <public key path>", "the path of the ssh key");
 	extcap_help_add_option(extcap_conf, "--sshkey-passphrase <public key passphrase>", "the passphrase to unlock public ssh");
+	extcap_help_add_option(extcap_conf, "--proxycommand <proxy command>", "the command to use as proxy the the ssh connection");
 	extcap_help_add_option(extcap_conf, "--remote-interface <iface>", "the remote capture interface (default: eth0)");
 	extcap_help_add_option(extcap_conf, "--remote-capture-command <capture command>", "the remote capture command");
 	extcap_help_add_option(extcap_conf, "--remote-sudo yes", "use sudo on the remote machine to capture");
@@ -435,6 +441,11 @@ int real_main(int argc, char **argv)
 			g_free(sshkey_passphrase);
 			sshkey_passphrase = g_strdup(optarg);
 			memset(optarg, 'X', strlen(optarg));
+			break;
+
+		case OPT_PROXYCOMMAND:
+			g_free(proxycommand);
+			proxycommand = g_strdup(optarg);
 			break;
 
 		case OPT_REMOTE_INTERFACE:
@@ -509,7 +520,7 @@ int real_main(int argc, char **argv)
 		}
 		filter = concat_filters(extcap_conf->capture_filter, remote_filter);
 		ret = ssh_open_remote_connection(remote_host, remote_port, remote_username,
-			remote_password, sshkey, sshkey_passphrase, remote_interface,
+			remote_password, sshkey, sshkey_passphrase, proxycommand, remote_interface,
 			filter, remote_capture_command, use_sudo, noprom, count, extcap_conf->fifo);
 		g_free(filter);
 	} else {
@@ -526,6 +537,7 @@ end:
 	g_free(remote_capture_command);
 	g_free(sshkey);
 	g_free(sshkey_passphrase);
+	g_free(proxycommand);
 	g_free(remote_filter);
 	extcap_base_cleanup(&extcap_conf);
 	return ret;

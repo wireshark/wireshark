@@ -34,11 +34,13 @@
 	{ "remote-filter", required_argument, NULL, OPT_REMOTE_FILTER}, \
 	{ "remote-count", required_argument, NULL, OPT_REMOTE_COUNT}, \
 	{ "sshkey", required_argument, NULL, OPT_SSHKEY}, \
-	{ "sshkey-passphrase", required_argument, NULL, OPT_SSHKEY_PASSPHRASE}
+	{ "sshkey-passphrase", required_argument, NULL, OPT_SSHKEY_PASSPHRASE}, \
+	{ "proxycommand", required_argument, NULL, OPT_PROXYCOMMAND}
 
 /* Create a ssh connection using all the possible authentication menthods */
 ssh_session create_ssh_connection(const char* hostname, const guint16 port, const char* username,
-	const char* password, const char* sshkey_path, const char* sshkey_passphrase, char** err_info);
+	const char* password, const char* sshkey_path, const char* sshkey_passphrase, const char* proxycommand,
+	char** err_info);
 
 /* Write a formatted message in the channel */
 int ssh_channel_printf(ssh_channel channel, const char* fmt, ...);
