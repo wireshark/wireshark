@@ -1,38 +1,84 @@
-language: cpp
+language: minimal
 sudo: required
 dist: trusty
-os:
-  - osx
-  - linux
-compiler:
-  - clang
-  - gcc
-env:
- - PCAP=ON
- - PCAP=OFF
 matrix:
-  exclude:
-    # Exclude gcc build (Need some work) with osx
-    - os: osx
-      compiler: gcc
-addons:
-  apt:
-    update: true
-    sources:
-    - ubuntu-toolchain-r-test
-    - llvm-toolchain-trusty-5.0
-    - sourceline: 'ppa:wireshark-dev/stable'
-    packages:
-    - g++-8
-    - clang-5.0
+  include:
+    - name: OSX (clang-9) with PCAP
+      os: osx
+      compiler: clang
+      env: PCAP=ON
+    - name: OSX (clang-9) without PCAP
+      os: osx
+      compiler: clang
+      env: PCAP=OFF
+    - name: OSX (xcode10.1 clang-10) with PCAP
+      os: osx
+      osx_image: xcode10.1
+      env: PCAP=ON
+    - name: OSX (xcode10.1 clang-10) without PCAP
+      os: osx
+      osx_image: xcode10.1
+      env: PCAP=OFF
+    - name: Linux (gcc-8) with PCAP
+      os: linux
+      addons:
+        apt:
+          update: true
+          sources:
+            - ubuntu-toolchain-r-test
+            - sourceline: 'ppa:wireshark-dev/stable'
+          packages: g++-8
+      env:
+        - CXX=g++-8
+        - CC=gcc-8
+        - PCAP=ON
+    - name: Linux (gcc-8) without PCAP
+      os: linux
+      addons:
+        apt:
+          update: true
+          sources:
+            - ubuntu-toolchain-r-test
+            - sourceline: 'ppa:wireshark-dev/stable'
+          packages: g++-8
+      env:
+        - CXX=g++-8
+        - CC=gcc-8
+        - PCAP=OFF
+    - name: Linux (clang-7) with PCAP
+      os: linux
+      addons:
+        apt:
+          update: true
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-trusty-7
+            - sourceline: 'ppa:wireshark-dev/stable'
+          packages: clang-7
+      env:
+        - CXX=clang++-7
+        - CC=clang-7
+        - PCAP=ON
+    - name: Linux (clang-7) without PCAP
+      os: linux
+      addons:
+        apt:
+          update: true
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-trusty-7
+            - sourceline: 'ppa:wireshark-dev/stable'
+          packages: clang-7
+      env:
+        - CXX=clang++-7
+        - CC=clang-7
+        - PCAP=OFF
 before_install:
   - echo $TRAVIS_OS_NAME
   # macos
   - if [ "$TRAVIS_OS_NAME" == "osx" ]; then ./tools/macos-setup-brew.sh; fi
   # linux
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then if [ "$CXX" == "g++" ]; then export CXX="g++-8" CC="gcc-8"; fi ; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo ./tools/debian-setup.sh --install-optional -qq; fi
-  - $CC --version
 before_script:
   - sudo gem install asciidoctor --no-ri --no-rdoc
   - mkdir build
