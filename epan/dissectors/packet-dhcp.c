@@ -913,7 +913,8 @@ static const enum_val_t dhcp_uuid_endian_vals[] = {
 	{ NULL, NULL, 0 }
 };
 
-#define DHCP_UDP_PORT_RANGE  "67-68"
+#define DHCP_UDP_PORT_RANGE  "67-68,4011"
+#define PROXYDHCP_UDP_PORT   4011
 
 #define BOOTP_BC	0x8000
 #define BOOTP_MBZ	0x7FFF
@@ -6351,6 +6352,7 @@ dissect_dhcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	int	      voff, eoff, tmpvoff; /* vendor offset, end offset */
 	guint32	      ip_addr;
 	gboolean      at_end;
+	gboolean      isProxyDhcp;
 	const char   *dhcp_type				     = NULL;
 	const guint8 *vendor_class_id			     = NULL;
 	guint16	      flags, secs;
@@ -6366,6 +6368,19 @@ dissect_dhcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	rfc3396_dns_domain_search_list.tvb_composite	     = NULL;
 	rfc3396_sip_server.total_number_of_block	     = 0;
 	rfc3396_sip_server.tvb_composite		     = NULL;
+
+	if (pinfo->srcport == PROXYDHCP_UDP_PORT ||
+	    pinfo->destport == PROXYDHCP_UDP_PORT) {
+		/* The "DHCP magic" is mandatory for proxyDHCP. Use it as a heuristic. */
+		if (!tvb_bytes_exist(tvb, VENDOR_INFO_OFFSET, 4) ||
+		    tvb_get_ntohl(tvb, VENDOR_INFO_OFFSET) != 0x63825363) {
+         /* Not a DHCP packet at all. */
+			return 0;
+		}
+		isProxyDhcp = TRUE;
+	} else {
+		isProxyDhcp = FALSE;
+	}
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BOOTP");
 	/*
@@ -6444,8 +6459,8 @@ dissect_dhcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 		 */
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "DHCP");
 
-		col_add_fstr(pinfo->cinfo, COL_INFO, "DHCP %-8s - Transaction ID 0x%x",
-			     dhcp_type, tvb_get_ntohl(tvb, 4));
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%sDHCP %-8s - Transaction ID 0x%x",
+			     isProxyDhcp ? "proxy" : "", dhcp_type, tvb_get_ntohl(tvb, 4));
 		tap_queue_packet( dhcp_bootp_tap, pinfo, dhcp_type);
 	}
 
