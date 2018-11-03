@@ -2267,11 +2267,11 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
                     break;
                 case 4:
                     proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_float, tvb, *offset + 1, 4, ENC_LITTLE_ENDIAN);
-                    proto_item_append_text(item, " (%lf)", tvb_get_letohieee_float(tvb, *offset));
+                    proto_item_append_text(item, " (%f)", tvb_get_letohieee_float(tvb, *offset));
                     break;
                 case 8:
                     proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_double, tvb, *offset + 1, 8, ENC_LITTLE_ENDIAN);
-                    proto_item_append_text(item, " (%lf)", tvb_get_letohieee_double(tvb, *offset));
+                    proto_item_append_text(item, " (%f)", tvb_get_letohieee_double(tvb, *offset));
                     break;
                 default:
                     expert_add_info(pinfo, length_item, &ei_tds_invalid_length);
