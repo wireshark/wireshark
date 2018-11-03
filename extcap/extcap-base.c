@@ -108,6 +108,8 @@ static void extcap_custom_log(const gchar *log_domain,
 
 uint8_t extcap_base_parse_options(extcap_parameters * extcap, int result, char * optargument)
 {
+    uint8_t ret = 1;
+
     switch (result) {
         case EXTCAP_OPT_DEBUG:
 #ifdef _WIN32
@@ -145,9 +147,11 @@ uint8_t extcap_base_parse_options(extcap_parameters * extcap, int result, char *
         case EXTCAP_OPT_FIFO:
             extcap->fifo = g_strdup(optargument);
             break;
+        default:
+            ret = 0;
     }
 
-    return 1;
+    return ret;
 }
 
 static void extcap_iface_print(gpointer data, gpointer userdata _U_)
