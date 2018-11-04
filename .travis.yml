@@ -40,4 +40,4 @@ before_script:
   - cmake -GNinja -DENABLE_PCAP=${PCAP} ..
 script:
   - ninja
-  - if [ "$PCAP" == "ON" ]; then ninja test-programs && ninja test; fi
+  - if [ "$PCAP" == "ON" ]; then ninja test-programs && ctest -j; fi
