@@ -4151,7 +4151,7 @@ opentable        2368/tcp # OpenTable [Brett_Goldstein] [Brett_Goldstein]
 opentable        2368/udp # OpenTable [Brett_Goldstein] [Brett_Goldstein]
 l3-hbmon         2370/tcp # L3-HBMon [Dolores_Scott] [Dolores_Scott] 2014-04-09
 l3-hbmon         2370/udp # L3-HBMon [Dolores_Scott] [Dolores_Scott] 2014-04-09
-hp-rda           2371/tcp # HP Remote Device Access [Hewlett_Packard_3] [Michael_Spratte][Steve_Roscio] 2014-04-09
+rda              2371/tcp # HP Remote Device Access [Hewlett_Packard_Enterprise_2] [Steve_Roscio][Paul_Vencel] 2018-11-02
 lanmessenger     2372/tcp # LanMessenger [Garrett_Padera] [Garrett_Padera] 2008-02-01
 lanmessenger     2372/udp # LanMessenger [Garrett_Padera] [Garrett_Padera] 2008-02-01
 remographlm      2373/tcp # Remograph License Manager [Per_Fahlberg] [Per_Fahlberg] 2009-01-21
@@ -11405,7 +11405,7 @@ speedtrace      33334/tcp # SpeedTrace TraceAgent [Holger_Heinrich] [Holger_Hein
 speedtrace-disc 33334/udp # SpeedTrace TraceAgent Discovery [Holger_Heinrich] [Holger_Heinrich] 2012-02-01
 traceroute      33434/tcp # traceroute use [IANA] [IANA]
 traceroute      33434/udp # traceroute use [IANA] [IANA]
-mtrace          33435/udp # IP Multicast Traceroute [IESG] [IETF_Chair] 2017-12-13 2018-07-31 [RFC-ietf-mboned-mtrace-v2-26]
+mtrace          33435/udp # IP Multicast Traceroute [IESG] [IETF_Chair] 2017-12-13 2018-07-31 [RFC8487]
 snip-slave      33656/tcp # SNIP Slave [Dr_Chris_Tucker] [Dr_Chris_Tucker] 2005-08
 snip-slave      33656/udp # SNIP Slave [Dr_Chris_Tucker] [Dr_Chris_Tucker] 2005-08
 turbonote-2     34249/tcp # TurboNote Relay Server Default Port [Peter_Hyde] [Peter_Hyde]

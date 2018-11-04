@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2018-10-27)
+(last updated 2018-11-03)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -1098,9 +1098,9 @@ Decimal
     David Lin
       ---none---
 271
-  TELECOM FINLAND
-    Petri Jokela
-      ---none---
+  Telia Company AB
+    Joni Rapanen
+      cainfo&telia.fi
 272
   BinTec Communications GmbH
     Elisabeth Hertlein
@@ -117700,7 +117700,7 @@ Decimal
 29537
   Velox
     Kaspar Brand
-      iana.pen.07&velox.ch
+      iana-pen&velox.ch
 29538
   Celeonet
     Florent Monthel
@@ -190823,8 +190823,8 @@ Decimal
       d.pradel&hawe.de
 47818
   Salzburg AG
-    Adnan Reh
-      adnan.reh&salzburg-ag.at
+    Bamberger Walter
+      walter.bamberger&salzburg-ag.at
 47819
   NTT DATA Italia
     Stefano Crespi
@@ -211042,7 +211042,7 @@ Decimal
     Anthony Iaccino
       it&premierccu.com
 52873
-  HealthLink Group Ltd.
+  HealthLink Group Limited
     John Carter
       john.carter&healthlink.net
 52874
@@ -211129,6 +211129,142 @@ Decimal
   chez14
     Christianto
       chez14&publik.christianto.net
+52895
+  China Academy of Information and Communications Technology
+    Jianwei Wang
+      wangjianwei&caict.ac.cn
+52896
+  360Globalnet Ltd
+    David Hogan
+      david.hogan&360globalnet.com
+52897
+  Computech bvba
+    Peter Verijke
+      peter&compu-tech.eu
+52898
+  Telenot Electronic GmbH
+    Frank Schierle
+      oidadmin&telenot.de
+52899
+  White Rabbit Security GmbH
+    Martin Bartosch
+      office&whiterabbitsecurity.com
+52900
+  Rouviere High School
+    Pascal JEAN
+      pjean2&ac-nice.fr
+52901
+  Linxdatacenter
+    ilya ilichov
+      systeembeheer&linxdatacenter.com
+52902
+  VI Company Services B.V.
+    Bas Roovers
+      bas&vicompany.nl
+52903
+  Turrillas Inc.
+    Francisco Turrillas
+      francisco&turrillas.net
+52904
+  Defiance Technolog Inc.
+    Dan Molik
+      dan&d3fy.net
+52905
+  JT Global
+    Toby Gasston
+      toby.gasston&jtglobal.com
+52906
+  Acumen Consulting
+    Robert Wagnon
+      rwagnon&acumen-corp.com
+52907
+  APROPLAN s.a
+    Thomas Lionel SMETS
+      tls&aproplan.com
+52908
+  Bank J.Van Breda & C°
+    Michel Joossens
+      informatica&bankvanbreda.be
+52909
+  Weichert Companies
+    Arthur Quintalino
+      aquintalino&wlninc.com
+52910
+  Tom Technology Limited
+    Thomas Lewis
+      thomaslewis&0xaa55.me
+52911
+  Pika Energy
+    Jacob Miller-Mack
+      jacob&pika-energy.com
+52912
+  AMTT (Beijing) Internet Technology Inc.
+    Heath Deng
+      snmp&amttgroup.com
+52913
+  RF-Tuote Oy
+    Ari-Pekka Lajunen
+      ari-pekka.lajunen&rf-tuote.fi
+52914
+  Acqueon Technologies Inc.
+    Mohideen Sheik
+      mohideens&acqueon.com
+52915
+  SCHENKER spol. s r.o.
+    Milan Dostál
+      milan.dostal&schenker.cz
+52916
+  Tramwaje Warszawskie Sp. z o.o.
+    Mariusz Grochowski
+      ditasi&tw.waw.pl
+52917
+  Thomas Fuchs
+    Thomas Fuchs
+      thomas.fuchs&thomas-fuchs.net
+52918
+  A3 SYSTEM sprl-bvba
+    Thomas Lionel SMETS
+      Thomas.Smets&a3-system.eu
+52919
+  GuangZhou KaiXin Communication System Co.,Ltd.
+    lijiaxiang
+      804580467&qq.com
+52920
+  MilleniumSign
+    Keshwarsingh Nadan
+      kn&millenium.net.mu
+52921
+  ayfie Group AS
+    Frank Gynnild
+      frank.gynnild&ayfie.com
+52922
+  Empa - Eawag
+    Cristofolini Silvano
+      pki-pen&empa.ch
+52923
+  Keyfactor
+    Laurin Kline
+      peninq&keyfactor.com
+52924
+  Brainbean Apps OU
+    Alexey Pelykh
+      alexey.pelykh&brainbeanapps.com
+52925
+  STRABAG SE
+    Network Administrator
+      networks.pki&strabag.com
+52926
+  alerta.io
+    Nicholas Satterly
+      nfsatterly&gmail.com
+52927
+  Nova Scotia Power
+    Haseeb Minhas
+      haseeb.minhas&onx.com
+52928
+  Volqanic Ltd
+    Peter Slavik
+      office&volqanic.com
 
 
 End of Document
