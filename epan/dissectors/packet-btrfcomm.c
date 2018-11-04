@@ -872,6 +872,26 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     return offset;
 }
 
+static void*
+uat_rfcomm_channels_copy_cb(void *dest, const void *source, size_t len _U_)
+{
+    const uat_rfcomm_channels_t* o = (const uat_rfcomm_channels_t*)source;
+    uat_rfcomm_channels_t* d = (uat_rfcomm_channels_t*)dest;
+
+    d->channel = o->channel;
+    d->payload_proto = o->payload_proto;
+    d->payload_proto_name = g_strdup(o->payload_proto_name);
+
+    return dest;
+}
+
+static void
+uat_rfcomm_channels_free_cb(void *r)
+{
+    uat_rfcomm_channels_t *rec = (uat_rfcomm_channels_t *)r;
+    g_free(rec->payload_proto_name);
+}
+
 void
 proto_register_btrfcomm(void)
 {
@@ -1147,9 +1167,9 @@ proto_register_btrfcomm(void)
             &num_rfcomm_channels,
             UAT_AFFECTS_DISSECTION,
             NULL,
+            uat_rfcomm_channels_copy_cb,
             NULL,
-            NULL,
-            NULL,
+            uat_rfcomm_channels_free_cb,
             NULL,
             NULL,
             uat_rfcomm_channels_fields);
