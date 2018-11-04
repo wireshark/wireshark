@@ -29,7 +29,7 @@
     </message>
     <message>
         <source>Search Authors</source>
-        <translation type="unfinished"></translation>
+        <translation>著者を検索</translation>
     </message>
     <message>
         <source>Folders</source>
@@ -37,7 +37,7 @@
     </message>
     <message>
         <source>Filter by path</source>
-        <translation type="unfinished"></translation>
+        <translation>パスでフィルタ</translation>
     </message>
     <message>
         <source>Plugins</source>
@@ -2231,6 +2231,14 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>オブジェクトを探索中</translation>
     </message>
     <message>
+        <source>Text Filter:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only display entries containing this string</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Export</source>
         <translation>エクスポート</translation>
     </message>
@@ -3867,6 +3875,14 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Direction indication:</source>
         <translation>方向指示:</translation>
+    </message>
+    <message>
+        <source>ExportPDU</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Payload</source>
+        <translation type="unfinished">ペイロード</translation>
     </message>
     <message>
         <source>Maximum frame length:</source>

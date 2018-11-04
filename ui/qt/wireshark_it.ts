@@ -2261,6 +2261,14 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>Ricerca oggetti</translation>
     </message>
     <message>
+        <source>Text Filter:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only display entries containing this string</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Export</source>
         <translation>Esporta</translation>
     </message>
@@ -3904,6 +3912,14 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     <message>
         <source>Direction indication:</source>
         <translation>Indicazione della direzione:</translation>
+    </message>
+    <message>
+        <source>ExportPDU</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Payload</source>
+        <translation type="unfinished">Payload</translation>
     </message>
     <message>
         <source>Maximum frame length:</source>
@@ -7713,7 +7729,7 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
     <message>
         <source>Display autocompletion for filter text</source>
-        <translation type="unfinished"></translation>
+        <translation>Visualizza il completamento automatico per il testo del filtro</translation>
     </message>
     <message>
         <source>Main toolbar style:</source>

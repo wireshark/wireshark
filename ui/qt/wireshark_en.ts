@@ -2256,6 +2256,14 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Text Filter:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only display entries containing this string</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Export</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3869,6 +3877,14 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Direction indication:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>ExportPDU</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Payload</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

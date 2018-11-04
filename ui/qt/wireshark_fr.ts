@@ -2236,6 +2236,14 @@ NOTE: Une option DOIT être sélectionnée.</translation>
         <translation>Chercher les objects</translation>
     </message>
     <message>
+        <source>Text Filter:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only display entries containing this string</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Export</source>
         <translation>Exporter</translation>
     </message>
@@ -3881,6 +3889,14 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     <message>
         <source>Direction indication:</source>
         <translation>Indication de direction:</translation>
+    </message>
+    <message>
+        <source>ExportPDU</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Payload</source>
+        <translation type="unfinished">Payload</translation>
     </message>
     <message>
         <source>Maximum frame length:</source>
