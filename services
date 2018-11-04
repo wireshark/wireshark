@@ -2080,7 +2080,7 @@ qip-login	2366/tcp/udp
 service-ctrl	2367/tcp/udp	# Service Control
 opentable	2368/tcp/udp	# OpenTable
 l3-hbmon	2370/tcp/udp	# L3-HBMon
-hp-rda		2371/tcp	# HP Remote Device Access
+rda		2371/tcp	# HP Remote Device Access
 lanmessenger	2372/tcp/udp	# LanMessenger
 remographlm	2373/tcp	# Remograph License Manager
 hydra		2374/tcp	# Hydra RPC
