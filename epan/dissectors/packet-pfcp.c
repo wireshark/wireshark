@@ -48,8 +48,8 @@ static int hf_pfcp_mp = -1;
 static int hf_pfcp2_ie = -1;
 static int hf_pfcp2_ie_len = -1;
 static int hf_pfcp2_enterprise_ie = -1;
-static int hf_pfcp_enterprice_id = -1;
-static int hf_pfcp_enterprice_data = -1;
+static int hf_pfcp_enterprise_id = -1;
+static int hf_pfcp_enterprise_data = -1;
 
 static int hf_pfcp_response_in = -1;
 static int hf_pfcp_response_to = -1;
@@ -5475,7 +5475,7 @@ dissect_pfcp_ies_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
             offset += 2;
 
             /* Bit 8 of Octet 1 is set, this indicates that the IE is defined by a vendor and the Enterprise ID is present */
-            proto_tree_add_item(ie_tree, hf_pfcp_enterprice_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(ie_tree, hf_pfcp_enterprise_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 
             /*
             * 5.6.3    Modifying the Rules of an Existing PFCP Session
@@ -5494,7 +5494,7 @@ dissect_pfcp_ies_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
                 /* give the whole IE to the subdissector */
                 ie_tvb = tvb_new_subset_length(tvb, offset - 4, length+4);
                 if (!dissector_try_uint_new(pfcp_enterprise_ies_dissector_table, enterprise_id, ie_tvb, pinfo, ie_tree, FALSE, ti)) {
-                    proto_tree_add_item(ie_tree, hf_pfcp_enterprice_data, ie_tvb, 6, -1, ENC_NA);
+                    proto_tree_add_item(ie_tree, hf_pfcp_enterprise_data, ie_tvb, 6, -1, ENC_NA);
                 }
             }
             offset += length;
@@ -5889,12 +5889,12 @@ proto_register_pfcp(void)
         FT_UINT24, BASE_DEC, NULL, 0xf0,
         NULL, HFILL }
         },
-        { &hf_pfcp_enterprice_id,
-        { "Enterprise ID",    "pfcp.enterprice_id",
+        { &hf_pfcp_enterprise_id,
+        { "Enterprise ID",    "pfcp.enterprise_id",
         FT_UINT16, BASE_ENTERPRISES, STRINGS_ENTERPRISES,
         0x0, NULL, HFILL } },
-        { &hf_pfcp_enterprice_data,
-        { "Enterprise IE Data",    "pfcp.enterprice_ie_data",
+        { &hf_pfcp_enterprise_data,
+        { "Enterprise IE Data",    "pfcp.enterprise_ie_data",
             FT_BYTES, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
