@@ -278,7 +278,7 @@ find_tcap_subdissector(tvbuff_t *tvb, asn1_ctx_t *actx, proto_tree *tree){
                 return TRUE;
         }else if(ansi_tcap_private.d.OperationCode == 1){
                 /* private */
-                if((ansi_tcap_private.d.OperationCode_private & 0x0900) == 0x0900){
+                if((ansi_tcap_private.d.OperationCode_private & 0xff00) == 0x0900){
                     /* This is abit of a hack as it assumes the private codes with a "family" of 0x09 is ANSI MAP
                     * See TODO above.
                     * N.S0005-0 v 1.0 TCAP Formats and Procedures 5-16 Application Services
