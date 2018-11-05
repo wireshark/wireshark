@@ -1034,10 +1034,8 @@ static gint ett_gtpv2_ies[NUM_GTPV2_IES];
 192    Remote User ID
 193    Remote UE IP information
 */
-#define GTPV2_IE_CIOT_OPT_SUPPORT_IND   194
-/*
-195    SCEF PDN Connection
-*/
+#define GTPV2_IE_CIOT_OPT_SUPPORT_IND       194
+#define GTPV2_IE_SCEF_PDN_CONNECTION        195
 #define GTPV2_IE_HEADER_COMP_CONF           196
 #define GTPV2_IE_EXTENDED_PCO               197
 #define GTPV2_IE_SERV_PLMN_RATE_CONTROL     198
@@ -6895,11 +6893,27 @@ dissect_gtpv2_ciot_opt_support_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 }
 
 /*
+ * 8.126 SCEF PDN Connection
+ */
+static void
+dissect_gtpv2_scef_pdn_connection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree  _U_, proto_item *item, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t * args)
+{
+   int         offset = 0;
+   proto_tree *grouped_tree;
+   tvbuff_t   *new_tvb;
+
+   proto_item_append_text(item, "[Grouped IE]");
+   grouped_tree = proto_item_add_subtree(item, ett_gtpv2_PDN_conn);
+   new_tvb = tvb_new_subset_length(tvb, offset, length);
+
+   dissect_gtpv2_ie_common(new_tvb, pinfo, grouped_tree, offset, message_type, args);
+
+}
+
+
+/*
  * 8.127 Header Compression Configuration
  */
-
-
-
 static void
 dissect_gtpv2_header_comp_comf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
 {
@@ -7200,7 +7214,7 @@ static const gtpv2_ie_t gtpv2_ies[] = {
                                                                              /* 192, 8.123 Remote User ID */
                                                                              /* 193, 8.124 Remote UE IP Information */
     {GTPV2_IE_CIOT_OPT_SUPPORT_IND, dissect_gtpv2_ciot_opt_support_ind},     /* 194, 8.125 CIoT Optimizations Support Indication */
-                                                                             /* 195, 8.126 SCEF PDN Connection */
+    {GTPV2_IE_SCEF_PDN_CONNECTION , dissect_gtpv2_scef_pdn_connection },     /* 195, 8.126 SCEF PDN Connection */
     {GTPV2_IE_HEADER_COMP_CONF, dissect_gtpv2_header_comp_comf},             /* 196, 8.127 Header Compression Configuration */
     {GTPV2_IE_EXTENDED_PCO, dissect_gtpv2_pco},                              /* 197, 8.128 Extended Protocol Configuration Options (ePCO) */
     {GTPV2_IE_SERV_PLMN_RATE_CONTROL, dissect_gtpv2_serv_plmn_rate_control}, /* 198, 8.129 Serving PLMN Rate Control */
