@@ -926,7 +926,7 @@ dissect_ntp_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, int off
 }
 
 static void
-dissect_ntp_std(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree)
+dissect_ntp_std(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, ntp_conv_info_t *ntp_conv)
 {
 	guint8 stratum;
 	guint8 ppoll;
@@ -940,20 +940,10 @@ dissect_ntp_std(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree)
 	int i;
 	int macofs;
 	gint maclen;
-	conversation_t *conversation;
-	ntp_conv_info_t *ntp_conv;
 	ntp_trans_info_t *ntp_trans;
 	wmem_tree_key_t key[3];
 	guint64 flags;
 	guint32 seq;
-
-	conversation = find_or_create_conversation(pinfo);
-	ntp_conv = (ntp_conv_info_t *)conversation_get_proto_data(conversation, proto_ntp);
-	if (!ntp_conv) {
-		ntp_conv = wmem_new(wmem_file_scope(), ntp_conv_info_t);
-		ntp_conv->trans = wmem_tree_new(wmem_file_scope());
-		conversation_add_proto_data(conversation, proto_ntp, ntp_conv);
-	}
 
 	proto_tree_add_bitmask_ret_uint64(ntp_tree, tvb, 0, hf_ntp_flags, ett_ntp_flags,
 	                                  ntp_header_fields, ENC_NA, &flags);
@@ -1120,7 +1110,7 @@ dissect_ntp_std(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree)
 }
 
 static void
-dissect_ntp_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree)
+dissect_ntp_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, ntp_conv_info_t *ntp_conv)
 {
 	guint8 flags2;
 	proto_tree *data_tree, *item_tree, *auth_tree;
@@ -1130,8 +1120,6 @@ dissect_ntp_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree)
 	guint16 data_offset;
 	gint length_remaining;
 	gboolean auth_diss = FALSE;
-	conversation_t *conversation;
-	ntp_conv_info_t *ntp_conv;
 	ntp_trans_info_t *ntp_trans;
 	guint32 seq;
 	wmem_tree_key_t key[3];
@@ -1149,14 +1137,6 @@ dissect_ntp_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree)
 	proto_tree_add_bitmask(ntp_tree, tvb, 0, hf_ntp_flags, ett_ntp_flags, ntp_header_fields, ENC_NA);
 	proto_tree_add_bitmask(ntp_tree, tvb, 1, hf_ntpctrl_flags2, ett_ntpctrl_flags2, ntpctrl_flags, ENC_NA);
 	flags2 = tvb_get_guint8(tvb, 1);
-
-	conversation = find_or_create_conversation(pinfo);
-	ntp_conv = (ntp_conv_info_t *)conversation_get_proto_data(conversation, proto_ntp);
-	if (!ntp_conv) {
-		ntp_conv = wmem_new(wmem_file_scope(), ntp_conv_info_t);
-		ntp_conv->trans = wmem_tree_new(wmem_file_scope());
-		conversation_add_proto_data(conversation, proto_ntp, ntp_conv);
-	}
 
 	proto_tree_add_item_ret_uint(ntp_tree, hf_ntpctrl_sequence, tvb, 2, 2, ENC_BIG_ENDIAN, &seq);
 	key[0].length = 1;
@@ -1435,10 +1415,14 @@ init_parser(void)
 }
 
 static void
-dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree)
+dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, ntp_conv_info_t *ntp_conv)
 {
 	guint32 impl, reqcode;
 	guint64 flags, auth_seq;
+	ntp_trans_info_t *ntp_trans;
+	wmem_tree_key_t key[3];
+	guint32 seq;
+
 	static const int *priv_flags[] = {
 		&hf_ntppriv_flags_r,
 		&hf_ntppriv_flags_more,
@@ -1455,10 +1439,55 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree)
 
 	proto_tree_add_bitmask_ret_uint64(ntp_tree, tvb, 0, hf_ntp_flags, ett_ntp_flags, priv_flags, ENC_NA, &flags);
 	proto_tree_add_bitmask_ret_uint64(ntp_tree, tvb, 1, hf_ntppriv_auth_seq, ett_ntppriv_auth_seq, auth_flags, ENC_NA, &auth_seq);
-
 	proto_tree_add_item_ret_uint(ntp_tree, hf_ntppriv_impl, tvb, 2, 1, ENC_NA, &impl);
-
 	proto_tree_add_item_ret_uint(ntp_tree, hf_ntppriv_reqcode, tvb, 3, 1, ENC_NA, &reqcode);
+
+	seq = 0xff000000 | impl;
+	key[0].length = 1;
+	key[0].key = &seq;
+	key[1].length = 1;
+	key[1].key = &pinfo->num;
+	key[2].length = 0;
+	key[2].key = NULL;
+
+	if (flags & NTPPRIV_R_MASK) {
+		/* response */
+		ntp_trans = (ntp_trans_info_t *)wmem_tree_lookup32_array_le(ntp_conv->trans, key);
+		if (ntp_trans && ntp_trans->seq == seq) {
+			if (!PINFO_FD_VISITED(pinfo)) {
+				if (ntp_trans->resp_frame == 0) {
+					ntp_trans->resp_frame = pinfo->num;
+				}
+			} else {
+				proto_item *req_it;
+				nstime_t delta;
+
+				req_it = proto_tree_add_uint(ntp_tree, hf_ntp_request_in, tvb, 0, 0, ntp_trans->req_frame);
+				PROTO_ITEM_SET_GENERATED(req_it);
+				nstime_delta(&delta, &pinfo->abs_ts, &ntp_trans->req_time);
+				req_it = proto_tree_add_time(ntp_tree, hf_ntp_delta_time, tvb, 0, 0, &delta);
+				PROTO_ITEM_SET_GENERATED(req_it);
+			}
+		}
+	} else {
+		/* request */
+		if (!PINFO_FD_VISITED(pinfo)) {
+			ntp_trans = wmem_new(wmem_file_scope(), ntp_trans_info_t);
+			ntp_trans->req_frame = pinfo->num;
+			ntp_trans->resp_frame = 0;
+			ntp_trans->req_time = pinfo->abs_ts;
+			ntp_trans->seq = seq;
+			wmem_tree_insert32_array(ntp_conv->trans, key, (void *)ntp_trans);
+		} else {
+			ntp_trans = (ntp_trans_info_t *)wmem_tree_lookup32_array_le(ntp_conv->trans, key);
+			if (ntp_trans && ntp_trans->resp_frame != 0 && ntp_trans->seq == seq) {
+				proto_item *resp_it;
+
+				resp_it = proto_tree_add_uint(ntp_tree, hf_ntp_response_in, tvb, 0, 0, ntp_trans->resp_frame);
+				PROTO_ITEM_SET_GENERATED(resp_it);
+			}
+		}
+	}
 
 	if (impl == XNTPD && (reqcode == MON_GETLIST || reqcode == MON_GETLIST_1)) {
 
@@ -1544,7 +1573,9 @@ dissect_ntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	proto_tree *ntp_tree;
 	proto_item *ti = NULL;
 	guint8 flags;
-	void (*dissector)(tvbuff_t *, packet_info *, proto_tree *);
+	conversation_t *conversation;
+	ntp_conv_info_t *ntp_conv;
+	void (*dissector)(tvbuff_t *, packet_info *, proto_tree *, ntp_conv_info_t *);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NTP");
 
@@ -1576,8 +1607,16 @@ dissect_ntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 		val_to_str_const((flags & NTP_VN_MASK) >> 3, ver_nums, "Unknown version"),
 		val_to_str_const(flags & NTP_MODE_MASK, info_mode_types, "Unknown"));
 
+	conversation = find_or_create_conversation(pinfo);
+	ntp_conv = (ntp_conv_info_t *)conversation_get_proto_data(conversation, proto_ntp);
+	if (!ntp_conv) {
+		ntp_conv = wmem_new(wmem_file_scope(), ntp_conv_info_t);
+		ntp_conv->trans = wmem_tree_new(wmem_file_scope());
+		conversation_add_proto_data(conversation, proto_ntp, ntp_conv);
+	}
+
 	/* Dissect according to mode */
-	(*dissector)(tvb, pinfo, ntp_tree);
+	(*dissector)(tvb, pinfo, ntp_tree, ntp_conv);
 	return tvb_captured_length(tvb);
 }
 
