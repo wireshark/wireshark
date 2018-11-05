@@ -114,6 +114,20 @@ static uat_t         *static_addr_uat  = NULL;
 static static_addr_t *static_addrs     = NULL;
 static guint          num_static_addrs = 0;
 
+static void*
+addr_uat_copy_cb(void *dest, const void *source, size_t len _U_)
+{
+    const static_addr_t* o = (const static_addr_t*)source;
+    static_addr_t* d = (static_addr_t*)dest;
+
+    d->eui64 = (guchar *)g_memdup(o->eui64, o->eui64_len);
+    d->eui64_len = o->eui64_len;
+    d->addr16 = o->addr16;
+    d->pan = o->pan;
+
+    return dest;
+}
+
 /* Sanity-checks a UAT record. */
 static gboolean
 addr_uat_update_cb(void *r, char **err)
@@ -136,6 +150,13 @@ addr_uat_update_cb(void *r, char **err)
     }
     return TRUE;
 } /* ieee802154_addr_uat_update_cb */
+
+static void
+addr_uat_free_cb(void *r)
+{
+    static_addr_t *rec = (static_addr_t *)r;
+    g_free(rec->eui64);
+}
 
 /* Field callbacks. */
 UAT_HEX_CB_DEF(addr_uat, addr16, static_addr_t)
@@ -5276,9 +5297,9 @@ void proto_register_ieee802154(void)
             &num_static_addrs,          /* numitems_ptr */
             UAT_AFFECTS_DISSECTION,     /* affects dissection of packets, but not set of named fields */
             NULL,                       /* help */
-            NULL,                       /* copy callback */
+            addr_uat_copy_cb,           /* copy callback */
             addr_uat_update_cb,         /* update callback */
-            NULL,                       /* free callback */
+            addr_uat_free_cb,           /* free callback */
             NULL,                       /* post update callback */
             NULL,                       /* reset callback */
             addr_uat_flds);             /* UAT field definitions */
