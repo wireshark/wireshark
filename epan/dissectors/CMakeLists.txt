@@ -120,6 +120,7 @@ set(CLEAN_ASN1_DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-kerberos.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-lcsap.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ldap.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-lnpdqp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-logotypecertextn.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-lpp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-lppa.c

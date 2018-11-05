@@ -1,0 +1,45 @@
+# lnpdqp.cnf
+# lnpdqp conformation file
+
+#.OPT
+#.END
+
+#.PDU
+ConnectionControlArg
+ProvideInstructionArg
+
+
+#.FN_BODY Digits VAL_PTR = &parameter_tvb
+    tvbuff_t *parameter_tvb = NULL;
+    guint8 type_of_dgt;
+    proto_tree *subtree;
+
+    type_of_dgt = tvb_get_guint8(tvb,offset);
+    switch(type_of_dgt){
+        case 2:
+            /* Calling Party Number */
+            hf_index = hf_lnpdqp_callingPartyANI;
+            break;
+        case 4:
+            /* Routing Number */
+            hf_index = hf_lnpdqp_networkRoutingNumber;
+            break;
+        case 7:
+            /* Local Access and Transport Area */
+            hf_index = hf_lnpdqp_originatingLATA;
+            break;
+        case 8:
+            /* Carrier */
+            hf_index = hf_lnpdqp_carrierID;
+            break;
+        default:
+            break;
+    }
+%(DEFAULT_BODY)s
+    if (parameter_tvb){
+        subtree = proto_item_add_subtree(actx->created_item, ett_lnpdqp_digits);
+        dissect_lnpdqp_digits_type(parameter_tvb,actx->pinfo,subtree, actx);
+    }
+
+#.TYPE_ATTR
+OriginatingStationType  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(lnpdqp_OriginatingStationType_vals)

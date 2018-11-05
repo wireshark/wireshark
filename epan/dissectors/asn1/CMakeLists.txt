@@ -60,6 +60,7 @@ set(ASN1_SRC_DIRS
 	kerberos
 	lcsap
 	ldap
+	lnpdqp
 	logotypecertextn
 	lpp
 	lppa
