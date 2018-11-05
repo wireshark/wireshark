@@ -4948,12 +4948,12 @@ proto_register_nas_5gs(void)
         },
         { &hf_nas_5gs_pdu_ses_sts_psi_1_b1,
         { "PSI(1)","nas_5gs.pdu_ses_sts_psi_1_b1",
-            FT_BOOLEAN, 8, NULL, 0x02,
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_pdu_ses_sts_psi), 0x02,
             NULL, HFILL }
         },
         { &hf_nas_5gs_pdu_ses_sts_psi_2_b2,
         { "PSI(2)","nas_5gs.pdu_ses_sts_psi_2_b2",
-            FT_BOOLEAN, 8, NULL, 0x04,
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_pdu_ses_sts_psi), 0x04,
             NULL, HFILL }
         },
         { &hf_nas_5gs_pdu_ses_sts_psi_3_b3,
@@ -5108,12 +5108,12 @@ proto_register_nas_5gs(void)
         },
         { &hf_nas_5gs_ul_data_sts_psi_1_b1,
         { "PSI(1)","nas_5gs.ul_data_sts_psi_1_b1",
-            FT_BOOLEAN, 8, NULL, 0x02,
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_ul_data_sts_psi), 0x02,
             NULL, HFILL }
         },
         { &hf_nas_5gs_ul_data_sts_psi_2_b2,
         { "PSI(2)","nas_5gs.ul_data_sts_psi_2_b2",
-            FT_BOOLEAN, 8, NULL, 0x04,
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_ul_data_sts_psi), 0x04,
             NULL, HFILL }
         },
         { &hf_nas_5gs_ul_data_sts_psi_3_b3,
