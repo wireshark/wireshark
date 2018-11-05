@@ -427,6 +427,7 @@ static const value_string priv_impl_types[] = {
 	{ 0,		NULL}
 };
 
+#define MON_GETLIST   20
 #define MON_GETLIST_1 42
 
 static const value_string priv_rc_types[] = {
@@ -604,6 +605,7 @@ static int hf_ntppriv_port = -1;
 static int hf_ntppriv_mode = -1;
 static int hf_ntppriv_version = -1;
 static int hf_ntppriv_v6_flag = -1;
+static int hf_ntppriv_unused = -1;
 static int hf_ntppriv_addr6 = -1;
 static int hf_ntppriv_daddr6 = -1;
 
@@ -1435,7 +1437,8 @@ init_parser(void)
 static void
 dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree)
 {
-	guint8 impl, reqcode;
+	guint32 impl, reqcode;
+	guint64 flags, auth_seq;
 	static const int *priv_flags[] = {
 		&hf_ntppriv_flags_r,
 		&hf_ntppriv_flags_more,
@@ -1450,19 +1453,17 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree)
 		NULL
 	};
 
-	proto_tree_add_bitmask(ntp_tree, tvb, 0, hf_ntp_flags, ett_ntp_flags, priv_flags, ENC_NA);
-	proto_tree_add_bitmask(ntp_tree, tvb, 0, hf_ntppriv_auth_seq, ett_ntppriv_auth_seq, auth_flags, ENC_NA);
+	proto_tree_add_bitmask_ret_uint64(ntp_tree, tvb, 0, hf_ntp_flags, ett_ntp_flags, priv_flags, ENC_NA, &flags);
+	proto_tree_add_bitmask_ret_uint64(ntp_tree, tvb, 1, hf_ntppriv_auth_seq, ett_ntppriv_auth_seq, auth_flags, ENC_NA, &auth_seq);
 
-	impl = tvb_get_guint8(tvb, 2);
-	proto_tree_add_uint(ntp_tree, hf_ntppriv_impl, tvb, 2, 1, impl);
+	proto_tree_add_item_ret_uint(ntp_tree, hf_ntppriv_impl, tvb, 2, 1, ENC_NA, &impl);
 
-	reqcode = tvb_get_guint8(tvb, 3);
-	proto_tree_add_uint(ntp_tree, hf_ntppriv_reqcode, tvb, 3, 1, reqcode);
+	proto_tree_add_item_ret_uint(ntp_tree, hf_ntppriv_reqcode, tvb, 3, 1, ENC_NA, &reqcode);
 
-	if (impl == XNTPD && reqcode == MON_GETLIST_1) {
+	if (impl == XNTPD && (reqcode == MON_GETLIST || reqcode == MON_GETLIST_1)) {
 
-		guint16 numitems;
-		guint16 itemsize;
+		guint64 numitems;
+		guint64 itemsize;
 		guint16 offset;
 		guint i;
 
@@ -1472,37 +1473,61 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree)
 		proto_tree* monlist_item_tree;
 
 		proto_tree_add_bits_item(ntp_tree, hf_ntppriv_errcode, tvb, 32, 4, ENC_BIG_ENDIAN);
-		proto_tree_add_bits_item(ntp_tree, hf_ntppriv_numitems, tvb, 36, 12, ENC_BIG_ENDIAN);
+		proto_tree_add_bits_ret_val(ntp_tree, hf_ntppriv_numitems, tvb, 36, 12, &numitems, ENC_BIG_ENDIAN);
 		proto_tree_add_bits_item(ntp_tree, hf_ntppriv_mbz, tvb, 48, 4, ENC_BIG_ENDIAN);
-		proto_tree_add_bits_item(ntp_tree, hf_ntppriv_itemsize, tvb, 52, 12, ENC_BIG_ENDIAN);
+		proto_tree_add_bits_ret_val(ntp_tree, hf_ntppriv_itemsize, tvb, 52, 12, &itemsize, ENC_BIG_ENDIAN);
 
-		numitems = tvb_get_letohs(tvb, 5) & 0x0FFF;
-		itemsize = tvb_get_letohs(tvb, 7) & 0x0FFF;
+		for (i = 0; i < (guint16)numitems; i++) {
 
-		for (i = 0; i < numitems; i++) {
-
-			offset = 8 + itemsize * i;
+			offset = 8 + (guint16)itemsize * i;
 
 			monlist_item = proto_tree_add_string_format(ntp_tree, hf_monlist_item, tvb, offset,
-				itemsize, "Monlist Item", "Monlist item: address: %s:%u",
-				tvb_ip_to_str(tvb, offset + 16), tvb_get_ntohs(tvb, offset + 28));
+				(gint)itemsize, "Monlist Item", "Monlist item: address: %s:%u",
+				tvb_ip_to_str(tvb, offset + 16), tvb_get_ntohs(tvb, offset + ((reqcode == MON_GETLIST_1) ? 28 : 20)));
 			monlist_item_tree = proto_item_add_subtree(monlist_item, ett_monlist_item);
 
 			proto_tree_add_item(monlist_item_tree, hf_ntppriv_avgint, tvb, offset, 4, ENC_BIG_ENDIAN);
-			proto_tree_add_item(monlist_item_tree, hf_ntppriv_lsint, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
-			proto_tree_add_item(monlist_item_tree, hf_ntppriv_restr, tvb, offset + 8, 4, ENC_BIG_ENDIAN);
-			proto_tree_add_item(monlist_item_tree, hf_ntppriv_count, tvb, offset + 12, 4, ENC_BIG_ENDIAN);
-			proto_tree_add_item(monlist_item_tree, hf_ntppriv_addr, tvb, offset + 16, 4, ENC_BIG_ENDIAN);
-			proto_tree_add_item(monlist_item_tree, hf_ntppriv_daddr, tvb, offset + 20, 4, ENC_BIG_ENDIAN);
-			proto_tree_add_item(monlist_item_tree, hf_ntppriv_flags, tvb, offset + 24, 4, ENC_BIG_ENDIAN);
-			proto_tree_add_item(monlist_item_tree, hf_ntppriv_port, tvb, offset + 28, 2, ENC_BIG_ENDIAN);
-			proto_tree_add_item(monlist_item_tree, hf_ntppriv_mode, tvb, offset + 30, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(monlist_item_tree, hf_ntppriv_version, tvb, offset + 31, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item_ret_uint(monlist_item_tree, hf_ntppriv_v6_flag, tvb, offset + 32, 4, ENC_BIG_ENDIAN, &v6_flag);
-
+			offset += 4;
+			proto_tree_add_item(monlist_item_tree, hf_ntppriv_lsint, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(monlist_item_tree, hf_ntppriv_restr, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(monlist_item_tree, hf_ntppriv_count, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			proto_tree_add_item(monlist_item_tree, hf_ntppriv_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			if (reqcode == MON_GETLIST_1) {
+				proto_tree_add_item(monlist_item_tree, hf_ntppriv_daddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+				offset += 4;
+				proto_tree_add_item(monlist_item_tree, hf_ntppriv_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
+				offset += 4;
+			}
+			proto_tree_add_item(monlist_item_tree, hf_ntppriv_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset += 2;
+			proto_tree_add_item(monlist_item_tree, hf_ntppriv_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset += 1;
+			proto_tree_add_item(monlist_item_tree, hf_ntppriv_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset += 1;
+			proto_tree_add_item_ret_uint(monlist_item_tree, hf_ntppriv_v6_flag, tvb, offset, 4, ENC_BIG_ENDIAN, &v6_flag);
+			offset += 4;
+			proto_tree_add_item(monlist_item_tree, hf_ntppriv_unused, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
 			if (v6_flag != 0) {
-				proto_tree_add_item(monlist_item_tree, hf_ntppriv_addr6, tvb, offset + 36, 16, ENC_NA);
-				proto_tree_add_item(monlist_item_tree, hf_ntppriv_daddr6, tvb, offset + 52, 16, ENC_NA);
+				proto_tree_add_item(monlist_item_tree, hf_ntppriv_addr6, tvb, offset, 16, ENC_NA);
+				offset += 16;
+				if (reqcode == MON_GETLIST_1)
+					proto_tree_add_item(monlist_item_tree, hf_ntppriv_daddr6, tvb, offset, 16, ENC_NA);
+			}
+		}
+		offset = (guint16)itemsize * (guint16)numitems;
+		if ((auth_seq & NTPPRIV_AUTH_MASK)) {
+			proto_tree_add_item(ntp_tree, hf_ntp_keyid, tvb, offset, 4, ENC_NA);
+			offset += 4;
+			if ((flags & NTPPRIV_R_MASK) == 0) {
+				/* request message */
+				gint len = tvb_reported_length_remaining(tvb, offset);
+				if (len)
+					proto_tree_add_item(ntp_tree, hf_ntp_mac, tvb, offset, len, ENC_NA);
 			}
 		}
 	}
@@ -1804,7 +1829,7 @@ proto_register_ntp(void)
 			"Monlist item", "ntp.priv.monlist.item",
 			FT_STRINGZ, BASE_NONE, NULL, 0x00, NULL, HFILL }},
 		{ &hf_ntppriv_itemsize, {
-			"Size of data item", "ntp.priv.monlist.itemsize", FT_UINT16, BASE_HEX,
+			"Size of data item", "ntp.priv.monlist.itemsize", FT_UINT16, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_avgint, {
 			"avgint", "ntp.priv.monlist.avgint", FT_UINT32, BASE_DEC,
@@ -1837,7 +1862,10 @@ proto_register_ntp(void)
 			"version", "ntp.priv.monlist.version", FT_UINT8, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_v6_flag, {
-			"ipv6", "ntp.priv.monlist.ipv6", FT_UINT32, BASE_DEC,
+			"ipv6", "ntp.priv.monlist.ipv6", FT_UINT32, BASE_HEX,
+			NULL, 0, NULL, HFILL }},
+		{ &hf_ntppriv_unused, {
+			"unused", "ntp.priv.monlist.unused", FT_UINT32, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_addr6, {
 			"ipv6 remote addr", "ntp.priv.monlist.addr6", FT_IPv6, BASE_NONE,
