@@ -787,6 +787,7 @@ static const value_string tkey_mode_vals[] = {
 #define TSSHFP_ALGO_DSA        (2)
 #define TSSHFP_ALGO_ECDSA      (3)
 #define TSSHFP_ALGO_ED25519    (4)
+#define TSSHFP_ALGO_XMSS       (5)
 
 #define TSSHFP_FTYPE_RESERVED  (0)
 #define TSSHFP_FTYPE_SHA1      (1)
@@ -798,6 +799,7 @@ static const value_string sshfp_algo_vals[] = {
   { TSSHFP_ALGO_DSA,      "DSA" },
   { TSSHFP_ALGO_ECDSA,    "ECDSA" },
   { TSSHFP_ALGO_ED25519,  "Ed25519" },
+  { TSSHFP_ALGO_XMSS,     "XMSS" }
   { 0, NULL }
 };
 
