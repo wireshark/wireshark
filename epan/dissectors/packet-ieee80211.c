@@ -502,8 +502,33 @@ typedef struct mimo_control
 #define TAG_VHT_TX_PWR_ENVELOPE      195  /* IEEE Std 802.11ac/D5.0 */
 #define TAG_CHANNEL_SWITCH_WRAPPER   196  /* IEEE Std 802.11ac */
 #define TAG_OPERATING_MODE_NOTIFICATION 199  /* IEEE Std 802.11ac */
+#define TAG_S1G_OPEN_LOOP_LINK_MARGIN_INDEX 207 /* IEEE Std 802.11ah */
+#define TAG_RPS                      208  /* IEEE Stf 802.11ah */
+#define TAG_PAGE_SLICE               209  /* IEEE Stf 802.11ah */
+#define TAG_AID_REQUEST              210  /* IEEE Stf 802.11ah */
+#define TAG_AID_RESPONSE             211  /* IEEE Stf 802.11ah */
+#define TAG_S1G_SECTOR_OPERATION     212  /* IEEE Stf 802.11ah */
+#define TAG_S1G_BEACON_COMPATIBILITY 213  /* IEEE Stf 802.11ah */
+#define TAG_SHORT_BEACON_INTERVAL    214  /* IEEE Stf 802.11ah */
+#define TAG_CHANGE_SEQUENCE          215  /* IEEE Stf 802.11ah */
 #define TAG_TWT                      216  /* IEEE Std 802.11ah */
+#define TAG_S1G_CAPABILITIES         217  /* IEEE Stf 802.11ah */
+#define TAG_SUBCHANNEL_SELECTIVE_TRANSMISSION 220  /* IEEE Stf 802.11ah */
 #define TAG_VENDOR_SPECIFIC_IE       221
+#define TAG_AUTHENTICATION_CONTROL   222  /* IEEE Stf 802.11ah */
+#define TAG_TSF_TIMER_ACCURACY       223  /* IEEE Stf 802.11ah */
+#define TAG_S1G_RELAY                224  /* IEEE Stf 802.11ah */
+#define TAG_REACHABLE_ADDRESS        225  /* IEEE Stf 802.11ah */
+#define TAG_S1G_RELAY_DISCOVERY      226  /* IEEE Stf 802.11ah */
+#define TAG_AID_ANNOUNCEMENT         228  /* IEEE Stf 802.11ah */
+#define TAG_PV1_PROBE_RESPONSE_OPTION 229  /* IEEE Stf 802.11ah */
+#define TAG_EL_OPERATION             230  /* IEEE Stf 802.11ah */
+#define TAG_SECTORIZED_GROUP_ID_LIST 231  /* IEEE Stf 802.11ah */
+#define TAG_S1G_OPERATION            232  /* IEEE Stf 802.11ah */
+#define TAG_HEADER_COMPRESSION       233  /* IEEE Stf 802.11ah */
+#define TAG_SST_OPERATION            234  /* IEEE Stf 802.11ah */
+#define TAG_MAD                      235  /* IEEE Stf 802.11ah */
+#define TAG_S1G_RELAY_ACTIVATION     236  /* IEEE Stf 802.11ah */
 #define TAG_CAG_NUMBER               237  /* IEEE Std 802.11ai */
 #define TAG_AP_CSN                   239  /* IEEE Std 802.11ai */
 #define TAG_FILS_INDICATION          240  /* IEEE Std 802.11ai */
@@ -676,8 +701,33 @@ static const value_string tag_num_vals[] = {
   { TAG_VHT_TX_PWR_ENVELOPE,                  "VHT Tx Power Envelope" },
   { TAG_CHANNEL_SWITCH_WRAPPER,               "Channel Switch Wrapper" },
   { TAG_OPERATING_MODE_NOTIFICATION,          "Operating Mode Notification" },
+  { TAG_S1G_OPEN_LOOP_LINK_MARGIN_INDEX,      "S1G Open-Loop Link Margin Index" },
+  { TAG_RPS,                                  "RPS" },
+  { TAG_PAGE_SLICE,                           "Page Slice" },
+  { TAG_AID_REQUEST,                          "AID Request" },
+  { TAG_AID_RESPONSE,                         "AID Response" },
+  { TAG_S1G_SECTOR_OPERATION,                 "Sector Operation" },
+  { TAG_S1G_BEACON_COMPATIBILITY,             "S1G Beacon Compatibility" },
+  { TAG_SHORT_BEACON_INTERVAL,                "Short Beacon Interval" },
+  { TAG_CHANGE_SEQUENCE,                      "Change Sequence" },
   { TAG_TWT,                                  "Target Wake Time" },
+  { TAG_S1G_CAPABILITIES,                     "S1G Capabilities" },
+  { TAG_SUBCHANNEL_SELECTIVE_TRANSMISSION,    "Subchannel Selective Transmission" },
   { TAG_VENDOR_SPECIFIC_IE,                   "Vendor Specific" },
+  { TAG_AUTHENTICATION_CONTROL,               "Authentication Control" },
+  { TAG_TSF_TIMER_ACCURACY,                   "TSF Timer Accuracy" },
+  { TAG_S1G_RELAY,                            "S1G Relay" },
+  { TAG_REACHABLE_ADDRESS,                    "Reachable Address" },
+  { TAG_S1G_RELAY_DISCOVERY,                  "S1G Relay Discovery" },
+  { TAG_AID_ANNOUNCEMENT,                     "AID Announcement" },
+  { TAG_PV1_PROBE_RESPONSE_OPTION,            "PV1 Probe Response Option" },
+  { TAG_EL_OPERATION,                         "EL Operation" },
+  { TAG_SECTORIZED_GROUP_ID_LIST,             "Sectorized Group ID List" },
+  { TAG_S1G_OPERATION,                        "S1G Operation" },
+  { TAG_HEADER_COMPRESSION,                   "Header Compression" },
+  { TAG_SST_OPERATION,                        "SST Operation" },
+  { TAG_MAD,                                  "MAD" },
+  { TAG_S1G_RELAY_ACTIVATION,                 "S1G Relay Activation" },
   { TAG_CAG_NUMBER,                           "CAG Number"},
   { TAG_AP_CSN,                               "AP-CSN"},
   { TAG_FILS_INDICATION,                      "FILS Indication"},
@@ -1075,6 +1125,7 @@ static const value_string frame_type_subtype_vals[] = {
   {DATA_QOS_CF_ACK_POLL_NOD,  "QoS CF-Ack + CF-Poll (No data)"},
 
   {EXTENSION_DMG_BEACON,      "DMG Beacon"},
+  {EXTENSION_S1G_BEACON,      "S1G Beacon"},
 
   {CTRL_POLL,                 "Poll"},
   {CTRL_SPR,                  "Service Period Request"},

@@ -240,6 +240,7 @@ gboolean is_broadcast_bssid(const address *bssid);
  * COMPOSE_FRAME_TYPE() values for extension frames.
  */
 #define EXTENSION_DMG_BEACON         0x30  /* Extension DMG beacon */
+#define EXTENSION_S1G_BEACON         0x31  /* Extension S1G beacon */
 
 typedef struct _wlan_stats {
   guint8 channel;
