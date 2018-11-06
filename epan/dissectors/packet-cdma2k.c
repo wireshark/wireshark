@@ -4234,6 +4234,7 @@ static void cdma2k_message_ADDR_FIELDS(proto_item *item,tvbuff_t *tvb,proto_tree
                     proto_item_append_text(item," : Invalid extMsIdType in Addressing Fields");
                     break;
             }
+            break;
 
         case 5:
             if(msIdLen > 4)
