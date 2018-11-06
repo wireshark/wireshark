@@ -1025,6 +1025,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-fw1.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-g723.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-gadu-gadu.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-gcsna.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-gdb.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-gdsdb.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-gearman.c
