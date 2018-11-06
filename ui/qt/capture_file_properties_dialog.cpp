@@ -161,6 +161,21 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
         << table_data_tmpl.arg(file_size_to_qstring(summary.file_length))
         << table_row_end;
 
+    out << table_row_begin
+        << table_vheader_tmpl.arg(tr("Hash (SHA256)"))
+        << table_data_tmpl.arg(summary.file_sha256)
+        << table_row_end;
+
+    out << table_row_begin
+        << table_vheader_tmpl.arg(tr("Hash (RIPEMD160)"))
+        << table_data_tmpl.arg(summary.file_rmd160)
+        << table_row_end;
+
+    out << table_row_begin
+        << table_vheader_tmpl.arg(tr("Hash (SHA1)"))
+        << table_data_tmpl.arg(summary.file_sha1)
+        << table_row_end;
+
     QString format_str = wtap_file_type_subtype_string(summary.file_type);
     if (summary.iscompressed) {
         format_str.append(tr(" (gzip compressed)"));

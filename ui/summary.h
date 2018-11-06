@@ -30,6 +30,8 @@ typedef struct iface_summary_info_tag {
   int       encap_type;            /**< wiretap encapsulation type */
 } iface_summary_info;
 
+#define HASH_STR_SIZE (65) /* Max hash size * 2 + '\0' */
+
 typedef struct _summary_tally {
   guint64      bytes;              /**< total bytes */
   double       start_time;         /**< seconds, with msec resolution */
@@ -50,8 +52,11 @@ typedef struct _summary_tally {
   guint64      filtered_bytes;     /**< total bytes in the filtered packets */
   double       filtered_start;     /**< time in seconds, with msec resolution */
   double       filtered_stop;      /**< time in seconds, with msec resolution */
-  const char  *filename;
+  const char  *filename;           /**< path of capture file */
   gint64       file_length;        /**< file length in bytes */
+  gchar        file_sha256[HASH_STR_SIZE];  /**< SHA256 hash of capture file */
+  gchar        file_rmd160[HASH_STR_SIZE];  /**< RIPEMD160 hash of capture file */
+  gchar        file_sha1[HASH_STR_SIZE];    /**< SHA1 hash of capture file */
   int          file_type;          /**< wiretap file type */
   int          iscompressed;       /**< TRUE if file is compressed */
   int          file_encap_type;    /**< wiretap encapsulation type for file */

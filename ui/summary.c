@@ -15,8 +15,17 @@
 #include <wiretap/pcapng.h>
 
 #include <epan/packet.h>
+#include <wsutil/file_util.h>
+#include <wsutil/wsgcrypt.h>
 #include "cfile.h"
 #include "ui/summary.h"
+
+// Strongest to weakest
+#define HASH_SIZE_SHA256 32
+#define HASH_SIZE_RMD160 20
+#define HASH_SIZE_SHA1   20
+
+#define HASH_BUF_SIZE (1024 * 1024)
 
 static void
 tally_frame_data(frame_data *cur_frame, summary_tally *sum_tally)
@@ -86,6 +95,15 @@ tally_frame_data(frame_data *cur_frame, summary_tally *sum_tally)
   }
 }
 
+static void
+hash_to_str(const unsigned char *hash, size_t length, char *str) {
+  int i;
+
+  for (i = 0; i < (int) length; i++) {
+    g_snprintf(str+(i*2), 3, "%02x", hash[i]);
+  }
+}
+
 void
 summary_fill_in(capture_file *cf, summary_tally *st)
 {
@@ -100,6 +118,11 @@ summary_fill_in(capture_file *cf, summary_tally *st)
   guint64 isb_ifdrop;
   char* if_string;
   wtapng_if_descr_filter_t* if_filter;
+
+  FILE  *fh;
+  char  *hash_buf;
+  gcry_md_hd_t hd;
+  size_t hash_bytes;
 
   st->packet_count_ts = 0;
   st->start_time = 0;
@@ -184,6 +207,31 @@ summary_fill_in(capture_file *cf, summary_tally *st)
     g_array_append_val(st->ifaces, iface);
   }
   g_free(idb_info);
+
+  g_strlcpy(st->file_sha256, "<unknown>", HASH_STR_SIZE);
+  g_strlcpy(st->file_rmd160, "<unknown>", HASH_STR_SIZE);
+  g_strlcpy(st->file_sha1, "<unknown>", HASH_STR_SIZE);
+
+  gcry_md_open(&hd, GCRY_MD_SHA256, 0);
+  if (hd) {
+    gcry_md_enable(hd, GCRY_MD_RMD160);
+    gcry_md_enable(hd, GCRY_MD_SHA1);
+  }
+  hash_buf = (char *)g_malloc(HASH_BUF_SIZE);
+
+  fh = ws_fopen(cf->filename, "rb");
+  if (fh && hash_buf && hd) {
+    while((hash_bytes = fread(hash_buf, 1, HASH_BUF_SIZE, fh)) > 0) {
+      gcry_md_write(hd, hash_buf, hash_bytes);
+    }
+    gcry_md_final(hd);
+    hash_to_str(gcry_md_read(hd, GCRY_MD_SHA256), HASH_SIZE_SHA256, st->file_sha256);
+    hash_to_str(gcry_md_read(hd, GCRY_MD_RMD160), HASH_SIZE_RMD160, st->file_rmd160);
+    hash_to_str(gcry_md_read(hd, GCRY_MD_SHA1), HASH_SIZE_SHA1, st->file_sha1);
+  }
+  if (fh) fclose(fh);
+  g_free(hash_buf);
+  gcry_md_close(hd);
 }
 
 #ifdef HAVE_LIBPCAP
