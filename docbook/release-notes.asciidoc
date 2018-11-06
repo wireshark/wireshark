@@ -78,6 +78,7 @@ since version 2.6.0:
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
+CDMA 2000
 Cisco Meraki Discovery Protocol (MDP)
 DoIP (ISO 13400-2 Diagnostic communication over Internet Protocol)
 DXL protocol

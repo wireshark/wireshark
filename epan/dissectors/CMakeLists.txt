@@ -765,6 +765,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cbor.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ccsds.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cdp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-cdma2k.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cell_broadcast.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cemi.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ceph.c
