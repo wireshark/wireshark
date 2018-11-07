@@ -608,6 +608,7 @@ static int hf_ntppriv_v6_flag = -1;
 static int hf_ntppriv_unused = -1;
 static int hf_ntppriv_addr6 = -1;
 static int hf_ntppriv_daddr6 = -1;
+static int hf_ntppriv_tstamp = -1;
 
 static gint ett_ntp = -1;
 static gint ett_ntp_flags = -1;
@@ -1548,17 +1549,15 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 					proto_tree_add_item(monlist_item_tree, hf_ntppriv_daddr6, tvb, offset, 16, ENC_NA);
 			}
 		}
-		offset = (guint16)itemsize * (guint16)numitems;
-		if ((auth_seq & NTPPRIV_AUTH_MASK)) {
-			proto_tree_add_item(ntp_tree, hf_ntp_keyid, tvb, offset, 4, ENC_NA);
-			offset += 4;
-			if ((flags & NTPPRIV_R_MASK) == 0) {
-				/* request message */
-				gint len = tvb_reported_length_remaining(tvb, offset);
-				if (len)
-					proto_tree_add_item(ntp_tree, hf_ntp_mac, tvb, offset, len, ENC_NA);
-			}
-		}
+	}
+	if ((flags & NTPPRIV_R_MASK) == 0 && (auth_seq & NTPPRIV_AUTH_MASK)) {
+		/* request message with authentication bit */
+		gint len;
+		proto_tree_add_item(ntp_tree, hf_ntppriv_tstamp, tvb, 184, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+		proto_tree_add_item(ntp_tree, hf_ntp_keyid, tvb, 192, 4, ENC_NA);
+		len = tvb_reported_length_remaining(tvb, 196);
+		if (len)
+			proto_tree_add_item(ntp_tree, hf_ntp_mac, tvb, 196, len, ENC_NA);
 	}
 }
 
@@ -1911,7 +1910,10 @@ proto_register_ntp(void)
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_daddr6, {
 			"ipv6 local addr", "ntp.priv.monlist.daddr6", FT_IPv6, BASE_NONE,
-			NULL, 0, NULL, HFILL }}
+			NULL, 0, NULL, HFILL }},
+		{ &hf_ntppriv_tstamp, {
+			"Authentication timestamp", "ntp.priv.tstamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC,
+			NULL, 0, NULL, HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_ntp,
