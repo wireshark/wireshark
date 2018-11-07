@@ -192,6 +192,75 @@ class case_tshark_dump_glossaries(subprocesstest.SubprocessTestCase):
         self.runProcess((config.cmd_tshark, '-G', 'plugins'), env=config.baseEnv())
         self.assertGreaterEqual(self.countOutput('dissector'), 10, 'Fewer than 10 dissector plugins found')
 
+class case_tshark_z_expert(subprocesstest.SubprocessTestCase):
+    def test_tshark_z_expert_all(self):
+        self.assertRun((config.cmd_tshark, '-q', '-z', 'expert',
+            '-r', os.path.join(config.capture_dir, 'http-ooo.pcap')))
+        self.assertTrue(self.grepOutput('Errors'))
+        self.assertTrue(self.grepOutput('Warns'))
+        self.assertTrue(self.grepOutput('Chats'))
+
+    def test_tshark_z_expert_error(self):
+        self.assertRun((config.cmd_tshark, '-q', '-z', 'expert,error',
+            '-r', os.path.join(config.capture_dir, 'http-ooo.pcap')))
+        self.assertTrue(self.grepOutput('Errors'))
+        self.assertFalse(self.grepOutput('Warns'))
+        self.assertFalse(self.grepOutput('Chats'))
+
+    def test_tshark_z_expert_warn(self):
+        self.assertRun((config.cmd_tshark, '-q', '-z', 'expert,warn',
+            '-r', os.path.join(config.capture_dir, 'http-ooo.pcap')))
+        self.assertTrue(self.grepOutput('Errors'))
+        self.assertTrue(self.grepOutput('Warns'))
+        self.assertFalse(self.grepOutput('Chats'))
+
+    def test_tshark_z_expert_note(self):
+        self.assertRun((config.cmd_tshark, '-q', '-z', 'expert,note',
+            '-r', os.path.join(config.capture_dir, 'http2-data-reassembly.pcap')))
+        self.assertTrue(self.grepOutput('Warns'))
+        self.assertTrue(self.grepOutput('Notes'))
+        self.assertFalse(self.grepOutput('Chats'))
+
+    def test_tshark_z_expert_chat(self):
+        self.assertRun((config.cmd_tshark, '-q', '-z', 'expert,chat',
+            '-r', os.path.join(config.capture_dir, 'http-ooo.pcap')))
+        self.assertTrue(self.grepOutput('Errors'))
+        self.assertTrue(self.grepOutput('Warns'))
+        self.assertTrue(self.grepOutput('Chats'))
+
+    def test_tshark_z_expert_comment(self):
+        self.assertRun((config.cmd_tshark, '-q', '-z', 'expert,comment',
+            '-r', os.path.join(config.capture_dir, 'sip.pcapng')))
+        self.assertTrue(self.grepOutput('Notes'))
+        self.assertTrue(self.grepOutput('Comments'))
+
+    def test_tshark_z_expert_invalid_filter(self):
+        invalid_filter = '__invalid_protocol'
+        self.assertRun((config.cmd_tshark, '-q', '-z', 'expert,' + invalid_filter,
+            '-r', os.path.join(config.capture_dir, 'http-ooo.pcap')),
+            expected_return=self.exit_command_line)
+        self.assertTrue(self.grepOutput('Filter "' + invalid_filter + '" is invalid'))
+
+    def test_tshark_z_expert_error_invalid_filter(self):
+        invalid_filter = '__invalid_protocol'
+        self.assertRun((config.cmd_tshark, '-q', '-z', 'expert,error,' + invalid_filter,
+            '-r', os.path.join(config.capture_dir, 'http-ooo.pcap')),
+            expected_return=self.exit_command_line)
+        self.assertTrue(self.grepOutput('Filter "' + invalid_filter + '" is invalid'))
+
+    def test_tshark_z_expert_filter(self):
+        self.assertRun((config.cmd_tshark, '-q', '-z', 'expert,udp', #udp is a filter
+            '-r', os.path.join(config.capture_dir, 'http-ooo.pcap')))
+        self.assertFalse(self.grepOutput('Errors'))
+        self.assertFalse(self.grepOutput('Warns'))
+        self.assertFalse(self.grepOutput('Chats'))
+
+    def test_tshark_z_expert_error_filter(self):
+        self.assertRun((config.cmd_tshark, '-q', '-z', 'expert,error,udp', #udp is a filter
+            '-r', os.path.join(config.capture_dir, 'http-ooo.pcap')))
+        self.assertFalse(self.grepOutput('Errors'))
+        self.assertFalse(self.grepOutput('Warns'))
+        self.assertFalse(self.grepOutput('Chats'))
 
 # Purposefully fail a test. Used for testing the test framework.
 # class case_fail_on_purpose(subprocesstest.SubprocessTestCase):

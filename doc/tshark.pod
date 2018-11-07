@@ -1178,7 +1178,7 @@ the number of packets/bytes in each direction as well as the total
 number of packets/bytes.  The table is sorted according to the total
 number of frames.
 
-=item B<-z> expert[I<,error|,warn|,note|,chat>][I<,filter>]
+=item B<-z> expert[I<,error|,warn|,note|,chat|,comment>][I<,filter>]
 
 Collects information about all expert info, and will display them in order,
 grouped by severity.
