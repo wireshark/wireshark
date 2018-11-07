@@ -127,7 +127,7 @@ The output must conform to the grammar specified for extcap, and it is specified
 in the doc/extcap.4 generated man page (in the build dir).
 
 Since Wireshark 2.9 this call is extended with `--extcap-version=x.x`, which will
-allways represent the calling Wireshark's version information. This can be used
+always represent the calling Wireshark's version information. This can be used
 to change behavior depending on the Wireshark version in question.
 
 .Example call for interface query
