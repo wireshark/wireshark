@@ -3500,7 +3500,7 @@ void proto_register_gsm_map(void) {
    * Register our configuration options, particularly our ssn:s
    * Set default SSNs
    */
-  range_convert_str(wmem_epan_scope(), &global_ssn_range, "6-9", MAX_SSN);
+  range_convert_str(wmem_epan_scope(), &global_ssn_range, "6-9,145,148-150", MAX_SSN);
 
   gsm_map_module = prefs_register_protocol(proto_gsm_map, proto_reg_handoff_gsm_map);
 
