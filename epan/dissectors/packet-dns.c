@@ -799,7 +799,7 @@ static const value_string sshfp_algo_vals[] = {
   { TSSHFP_ALGO_DSA,      "DSA" },
   { TSSHFP_ALGO_ECDSA,    "ECDSA" },
   { TSSHFP_ALGO_ED25519,  "Ed25519" },
-  { TSSHFP_ALGO_XMSS,     "XMSS" }
+  { TSSHFP_ALGO_XMSS,     "XMSS" },
   { 0, NULL }
 };
 
