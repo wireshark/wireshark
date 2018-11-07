@@ -1701,7 +1701,7 @@ dissect_oml_attrs(tvbuff_t *tvb, int base_offs, packet_info *pinfo,
 			break;
 		case NM_ATT_IPACC_PRIM_OML_CFG_LIST:
 			proto_tree_add_item(att_tree, hf_attr_ipa_prim_oml_ip,
-					    tvb, offset+1, 4, ENC_LITTLE_ENDIAN);
+					    tvb, offset+1, 4, ENC_BIG_ENDIAN);
 			proto_tree_add_item(att_tree, hf_attr_ipa_prim_oml_port,
 					    tvb, offset+1+4, 2, ENC_LITTLE_ENDIAN);
 			break;
