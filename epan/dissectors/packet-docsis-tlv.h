@@ -57,7 +57,7 @@
 #define TLV_ENABLE_TEST_MODES 40
 #define TLV_DS_CH_LIST 41
 #define TLV_MC_MAC_ADDRESS 42
-#define TLV_VENDOR_SPEC 43 /* Vendor Specific is actually 44 ? */
+#define TLV_VENDOR_SPEC 44
 #define TLV_DUT_FILTER 45
 #define TLV_TCC 46
 #define TLV_SID_CL 47
