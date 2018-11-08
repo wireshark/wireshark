@@ -716,11 +716,11 @@ dissect_srt_control_packet(tvbuff_t *tvb, packet_info* pinfo,
 
                 // We have either a single value, or end-range here.
                 if (prev & SRT_LOSS_SEQUENCE_FIRST) {
-                    // Was a range. Clear the state and display as range.
-                    prev = 0;
+                    // Was a range. Display as range and clear the state.
                     proto_tree_add_expert_format(tree, pinfo, &ei_srt_nak_seqno,
                                     tvb, pos-4, 8, "Loss sequence range: %u-%u",
                                     (prev & SRT_LOSS_SEQUENCE_MASK), val);
+                    prev = 0;
                 } else {
                     // No from, so this is a freestanding loss value
                     proto_tree_add_expert_format(tree, pinfo, &ei_srt_nak_seqno,
