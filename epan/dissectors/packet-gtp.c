@@ -338,8 +338,9 @@ static int hf_gtp_ext_hdr_nr_ran_cont_lost_pkt_rpt = -1;
 static int hf_gtp_ext_hdr_nr_ran_cont_high_retx_nr_pdcp_sn_ind = -1;
 static int hf_gtp_ext_hdr_nr_ran_cont_high_delivered_retx_nr_pdcp_sn_ind = -1;
 static int hf_gtp_ext_hdr_nr_ran_cont_cause_rpt = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_data_rate_ind = -1;
 static int hf_gtp_ext_hdr_nr_ran_cont_desrd_buff_sz_data_radio_bearer = -1;
-static int hf_gtp_ext_hdr_nr_ran_cont_min_desrd_buff_sz_ue = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_desrd_data_rate = -1;
 static int hf_gtp_ext_hdr_nr_ran_cont_num_lost_nru_seq_num = -1;
 static int hf_gtp_ext_hdr_nr_ran_cont_start_lost_nru_seq_num = -1;
 static int hf_gtp_ext_hdr_nr_ran_cont_end_lost_nru_seq_num = -1;
@@ -8814,6 +8815,7 @@ addRANContParameter(tvbuff_t *tvb, proto_tree *ran_cont_tree, gint offset)
        gboolean high_retx_nr_pdcp_sn_ind;
        gboolean high_del_retx_nr_pdcp_sn_ind;
        gboolean cause_rpt;
+       gboolean data_rate_ind;
        guint32 lost_NR_U_SN_range;
 
        proto_tree_add_item_ret_boolean(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_high_tx_nr_pdcp_sn_ind ,tvb, offset,1,ENC_BIG_ENDIAN, &high_tx_nr_pdcp_sn_ind );
@@ -8825,6 +8827,8 @@ addRANContParameter(tvbuff_t *tvb, proto_tree *ran_cont_tree, gint offset)
        proto_tree_add_item_ret_boolean(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_lost_pkt_rpt,tvb, offset,1,ENC_BIG_ENDIAN, &lost_packet_report);
        offset++;
 
+       proto_tree_add_item_ret_boolean(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_data_rate_ind,tvb, offset,1, ENC_BIG_ENDIAN, &data_rate_ind);
+
        proto_tree_add_item_ret_boolean(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_high_retx_nr_pdcp_sn_ind,tvb, offset,1, ENC_BIG_ENDIAN, &high_retx_nr_pdcp_sn_ind);
 
        proto_tree_add_item_ret_boolean(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_high_delivered_retx_nr_pdcp_sn_ind,tvb, offset,1,ENC_BIG_ENDIAN, &high_del_retx_nr_pdcp_sn_ind);
@@ -8835,8 +8839,10 @@ addRANContParameter(tvbuff_t *tvb, proto_tree *ran_cont_tree, gint offset)
        proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_desrd_buff_sz_data_radio_bearer,tvb, offset,4, ENC_BIG_ENDIAN);
        offset += 4;
 
-       proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_min_desrd_buff_sz_ue,tvb, offset,4, ENC_BIG_ENDIAN);
-       offset += 4;
+       if(data_rate_ind == TRUE){
+          proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_desrd_data_rate,tvb, offset,4, ENC_BIG_ENDIAN);
+          offset += 4;
+       }
 
        if(lost_packet_report == TRUE){
           proto_tree_add_item_ret_uint(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_num_lost_nru_seq_num,tvb, offset,1,ENC_BIG_ENDIAN, &lost_NR_U_SN_range);
@@ -9890,6 +9896,11 @@ proto_register_gtp(void)
            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01,
            NULL, HFILL}
         },
+        {&hf_gtp_ext_hdr_nr_ran_cont_data_rate_ind,
+         { "Data Rate Ind", "gtp.ext_hdr.nr_ran_cont.data_rate_ind",
+           FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x08,
+           NULL, HFILL}
+        },
         {&hf_gtp_ext_hdr_nr_ran_cont_desrd_buff_sz_data_radio_bearer,
          { "Desired buffer size for the data radio bearer", "gtp.ext_hdr.nr_ran_cont.desrd_buff_sz_data_radio_bearer",
            FT_UINT32, BASE_DEC, NULL, 0,
@@ -9900,8 +9911,8 @@ proto_register_gtp(void)
            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02,
            NULL, HFILL}
         },
-        {&hf_gtp_ext_hdr_nr_ran_cont_min_desrd_buff_sz_ue,
-         { "Minimum Desired buffer size for the UE", "gtp.ext_hdr.nr_ran_cont.min_desrd_buff_sz_ue",
+        {&hf_gtp_ext_hdr_nr_ran_cont_desrd_data_rate,
+         { "Desired data rate", "gtp.ext_hdr.nr_ran_cont.desrd_data_rate",
            FT_UINT32, BASE_DEC, NULL, 0,
            NULL, HFILL}
         },
