@@ -33,6 +33,7 @@
 #include <epan/ipproto.h>
 #include <epan/capture_dissectors.h>
 #include <epan/proto_data.h>
+#include <epan/afn.h>
 
 #include <wsutil/pint.h>
 
@@ -167,6 +168,24 @@ static expert_field ei_icmp_resp_not_found = EI_INIT;
 static expert_field ei_icmp_checksum = EI_INIT;
 static expert_field ei_icmp_ext_checksum = EI_INIT;
 
+/* Extended Echo - Probe */
+static int hf_icmp_ext_echo_seq_num = -1;
+static int hf_icmp_ext_echo_req_reserved = -1;
+static int hf_icmp_ext_echo_req_local = -1;
+static int hf_icmp_ext_echo_rsp_state = -1;
+static int hf_icmp_ext_echo_rsp_reserved = -1;
+static int hf_icmp_ext_echo_rsp_active = -1;
+static int hf_icmp_ext_echo_rsp_ipv4 = -1;
+static int hf_icmp_ext_echo_rsp_ipv6 = -1;
+static int hf_icmp_int_ident_name_string = -1;
+static int hf_icmp_int_ident_index = -1;
+static int hf_icmp_int_ident_afi = -1;
+static int hf_icmp_int_ident_addr_length = -1;
+static int hf_icmp_int_ident_reserved = -1;
+static int hf_icmp_int_ident_ipv4 = -1;
+static int hf_icmp_int_ident_ipv6 = -1;
+static int hf_icmp_int_ident_address = -1;
+
 static dissector_handle_t icmp_handle;
 
 
@@ -188,6 +207,8 @@ static dissector_handle_t icmp_handle;
 #define ICMP_MASKREQ      17
 #define ICMP_MASKREPLY    18
 #define ICMP_PHOTURIS     40
+#define ICMP_EXTECHO      42
+#define ICMP_EXTECHOREPLY 43
 
 /* ICMP UNREACHABLE */
 #define ICMP_NET_UNREACH         0	/* Network Unreachable */
@@ -246,6 +267,8 @@ static const value_string icmp_type_str[] = {
 	{39,		    "SKIP"},
 	{ICMP_PHOTURIS,	    "Photuris"},
 	{41,		    "Experimental mobility protocols"},
+	{ICMP_EXTECHO,	    "Extended Echo request"},
+	{ICMP_EXTECHOREPLY, "Extended Echo reply"},
 	{0, NULL}
 };
 
@@ -311,6 +334,42 @@ static const value_string photuris_code_str[] = {
 	{0, NULL}
 };
 
+static const value_string ext_echo_req_code_str[] = {
+	{0, "No error"},
+	{0, NULL}
+};
+
+static const value_string ext_echo_reply_code_str[] = {
+	{0, "No error"},
+	{1, "Malformed Query"},
+	{2, "No Such Interface"},
+	{3, "No Such Table Entry"},
+	{4, "Multiple Interfaces Satisfy Query"},
+	{0, NULL}
+};
+
+static const value_string ext_echo_reply_state_str[] = {
+	{0, "Reserved"},
+	{1, "Incomplete"},
+	{2, "Reachable"},
+	{3, "Stale"},
+	{4, "Delay"},
+	{5, "Probe"},
+	{6, "Failed"},
+	{0, NULL}
+};
+
+#define ICMP_EXT_ECHO_IDENT_NAME	1
+#define ICMP_EXT_ECHO_IDENT_INDEX	2
+#define ICMP_EXT_ECHO_IDENT_ADDRESS	3
+
+static const value_string ext_echo_ident_str[] = {
+	{ICMP_EXT_ECHO_IDENT_NAME,    "Identifies Interface By Name"},
+	{ICMP_EXT_ECHO_IDENT_INDEX,   "Identifies Interface By Index"},
+	{ICMP_EXT_ECHO_IDENT_ADDRESS, "Identifies Interface By Address"},
+	{0, NULL}
+};
+
 static const value_string mip_extensions[] = {
 	{ICMP_MIP_EXTENSION_PAD,  "One byte padding extension"}, /* RFC 2002 */
 	{ICMP_MIP_MOB_AGENT_ADV,  "Mobility Agent Advertisement Extension"},
@@ -323,6 +382,7 @@ static const value_string mip_extensions[] = {
 static const value_string icmp_ext_class_str[] = {
 	{1, "MPLS Label Stack Class"},
 	{2, "Interface Information Object"},
+	{3, "Interface Identification Object"},
 	{0, NULL}
 };
 
@@ -345,6 +405,8 @@ static const value_string interface_role_str[] = {
 #define INT_INFO_MTU                            0x01
 
 #define INTERFACE_INFORMATION_OBJECT_CLASS       2
+
+#define INTERFACE_IDENTIFICATION_OBJECT_CLASS    3
 
 #define MPLS_STACK_ENTRY_OBJECT_CLASS            1
 #define MPLS_EXTENDED_PAYLOAD_OBJECT_CLASS       0
@@ -750,7 +812,6 @@ dissect_interface_information_object(tvbuff_t * tvb, gint offset,
 
 	/*if ifIndex is set, next 32 bits are ifIndex */
 	if (if_index_flag) {
-
 		proto_tree_add_item(ext_object_tree, hf_icmp_int_info_index, tvb, offset, 4, ENC_NA);
 		offset += 4;
 	}
@@ -809,6 +870,76 @@ dissect_interface_information_object(tvbuff_t * tvb, gint offset,
 	return unknown_object;
 
 }				/*end dissect_interface_information_object */
+
+/* Dissect Interface Identification Object RFC 8335*/
+static gboolean
+dissect_interface_identification_object(tvbuff_t * tvb, gint offset,
+				     proto_tree * ext_object_tree,
+				     proto_item * tf_object)
+{
+	proto_item *ti;
+	guint16 obj_length;
+	guint8 c_type;
+	gboolean unknown_object;
+	guint32 afi;
+	guint32 addr_length;
+
+	unknown_object = FALSE;
+	/* Object length */
+	obj_length = tvb_get_ntohs(tvb, offset);
+
+	/* C-Type */
+	c_type = tvb_get_guint8(tvb, offset + 3);
+
+	proto_item_set_text(tf_object, "Interface Identification Object");
+	if (tvb_reported_length_remaining(tvb, offset) < 5) {
+		/* Not enough room in the packet ! return unknown_object = TRUE */
+		return TRUE;
+	}
+
+	ti = proto_tree_add_uint(ext_object_tree, hf_icmp_ext_c_type, tvb, offset + 3, 1, c_type);
+	proto_item_append_text(ti, " (%s)", val_to_str(c_type, ext_echo_ident_str, "Unknown C-Type %u"));
+	offset += 4;
+
+	switch(c_type) {
+		case ICMP_EXT_ECHO_IDENT_NAME:
+			proto_tree_add_item(ext_object_tree, hf_icmp_int_ident_name_string, tvb, offset, obj_length - 4, ENC_ASCII|ENC_NA);
+			offset += (obj_length - 4);
+			break;
+		case ICMP_EXT_ECHO_IDENT_INDEX:
+			proto_tree_add_item(ext_object_tree, hf_icmp_int_ident_index, tvb, offset, 4, ENC_NA);
+			offset += 4;
+			break;
+		case ICMP_EXT_ECHO_IDENT_ADDRESS:
+			proto_tree_add_item_ret_uint(ext_object_tree, hf_icmp_int_ident_afi, tvb, offset, 2, ENC_BIG_ENDIAN, &afi);
+			offset += 2;
+			proto_tree_add_item_ret_uint(ext_object_tree, hf_icmp_int_ident_addr_length, tvb, offset, 1, ENC_BIG_ENDIAN, &addr_length);
+			offset += 1;
+			proto_tree_add_item(ext_object_tree, hf_icmp_int_ident_reserved, tvb, offset, 1, ENC_NA);
+			offset += 1;
+			switch(afi){
+				case AFNUM_INET: /* IPv4 */
+					while(addr_length >= 4 && tvb_reported_length_remaining(tvb, offset) >= 4) {
+						proto_tree_add_item(ext_object_tree, hf_icmp_int_ident_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
+						offset += 4;
+						addr_length -= 4;
+					}
+					break;
+				case AFNUM_INET6: /* IPv6 */
+					while(addr_length >= 16 && tvb_reported_length_remaining(tvb, offset) >= 16) {
+						proto_tree_add_item(ext_object_tree, hf_icmp_int_ident_ipv6, tvb, offset, 16, ENC_NA);
+						offset += 16;
+						addr_length -= 16;
+					}
+					break;
+				default: /* Unknown ?! */
+					proto_tree_add_item(ext_object_tree, hf_icmp_int_ident_address, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
+			}
+	}
+
+	return unknown_object;
+
+}				/*end dissect_interface_identification_object */
 
 static void
 dissect_extensions(tvbuff_t * tvb, packet_info *pinfo, gint offset, proto_tree * tree)
@@ -926,6 +1057,13 @@ dissect_extensions(tvbuff_t * tvb, packet_info *pinfo, gint offset, proto_tree *
 		case MPLS_EXTENDED_PAYLOAD_OBJECT_CLASS:
 			unknown_object =
 			    dissect_mpls_extended_payload_object(tvb,
+								 offset,
+								 ext_object_tree,
+								 tf_object);
+			break;
+		case INTERFACE_IDENTIFICATION_OBJECT_CLASS:
+			unknown_object =
+			    dissect_interface_identification_object(tvb,
 								 offset,
 								 ext_object_tree,
 								 tf_object);
@@ -1311,6 +1449,16 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 		    val_to_str(icmp_code, photuris_code_str,
 			       "Unknown code: %u");
 		break;
+	case ICMP_EXTECHO:
+		code_str =
+		    val_to_str(icmp_code, ext_echo_req_code_str,
+			       "Unknown code: %u");
+		break;
+	case ICMP_EXTECHOREPLY:
+		code_str =
+		    val_to_str(icmp_code, ext_echo_reply_code_str,
+			       "Unknown code: %u");
+		break;
 	default:
 		code_str = NULL;
 		break;
@@ -1445,7 +1593,41 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 						 icmp_original_dgram_length * 4);
 			PROTO_ITEM_SET_GENERATED(ti);
 		}
+		break;
+
+	case ICMP_EXTECHO:
+		proto_tree_add_item(icmp_tree, hf_icmp_ident, tvb, 4, 2,
+				    ENC_BIG_ENDIAN);
+		proto_tree_add_item(icmp_tree, hf_icmp_ident_le, tvb, 4, 2,
+				    ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(icmp_tree, hf_icmp_ext_echo_seq_num, tvb, 6, 1,
+				    ENC_BIG_ENDIAN);
+		proto_tree_add_item(icmp_tree, hf_icmp_ext_echo_req_reserved, tvb, 7, 1,
+				    ENC_BIG_ENDIAN);
+		proto_tree_add_item(icmp_tree, hf_icmp_ext_echo_req_local, tvb, 7, 1,
+				    ENC_BIG_ENDIAN);
+		break;
+
+	case ICMP_EXTECHOREPLY:
+		proto_tree_add_item(icmp_tree, hf_icmp_ident, tvb, 4, 2,
+				    ENC_BIG_ENDIAN);
+		proto_tree_add_item(icmp_tree, hf_icmp_ident_le, tvb, 4, 2,
+				    ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(icmp_tree, hf_icmp_ext_echo_seq_num, tvb, 6, 1,
+				    ENC_BIG_ENDIAN);
+		proto_tree_add_item(icmp_tree, hf_icmp_ext_echo_rsp_state, tvb, 7, 1,
+				    ENC_BIG_ENDIAN);
+		proto_tree_add_item(icmp_tree, hf_icmp_ext_echo_rsp_reserved, tvb, 7, 1,
+				    ENC_BIG_ENDIAN);
+		proto_tree_add_item(icmp_tree, hf_icmp_ext_echo_rsp_active, tvb, 7, 1,
+				    ENC_BIG_ENDIAN);
+		proto_tree_add_item(icmp_tree, hf_icmp_ext_echo_rsp_ipv4, tvb, 7, 1,
+				    ENC_BIG_ENDIAN);
+		proto_tree_add_item(icmp_tree, hf_icmp_ext_echo_rsp_ipv6, tvb, 7, 1,
+				    ENC_BIG_ENDIAN);
+		break;
 	}
+
 
 	/* Decode the additional information in the packet.  */
 	switch (icmp_type) {
@@ -1640,6 +1822,12 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 	case ICMP_MASKREQ:
 	case ICMP_MASKREPLY:
 		proto_tree_add_item(icmp_tree, hf_icmp_address_mask, tvb, 8, 4, ENC_BIG_ENDIAN);
+		break;
+
+	case ICMP_EXTECHO:
+		if (tvb_reported_length(tvb) > 8) {
+			dissect_extensions(tvb, pinfo, 8, icmp_tree);
+		}
 		break;
 	}
 
@@ -2041,6 +2229,72 @@ void proto_register_icmp(void)
 		 {"Name", "icmp.int_info.name", FT_STRING, BASE_NONE, NULL,
 		  0x0,
 		  NULL, HFILL}},
+
+		{&hf_icmp_ext_echo_seq_num,
+		 {"Sequence number", "icmp.ext.echo.seq", FT_UINT8,
+		  BASE_DEC_HEX, NULL, 0x0,
+		  NULL, HFILL}},
+		{&hf_icmp_ext_echo_req_reserved,
+		 {"Reserved", "icmp.ext.echo.req.res", FT_UINT8,
+		  BASE_HEX, NULL, 0xFE,
+		  NULL, HFILL}},
+		{&hf_icmp_ext_echo_req_local,
+		 {"Local bit", "icmp.ext.echo.req.local", FT_BOOLEAN,
+		  8, TFS(&tfs_set_notset), 0x01,
+		  NULL, HFILL}},
+		{&hf_icmp_ext_echo_rsp_state,
+		 {"State", "icmp.ext.echo.rsp.state", FT_UINT8,
+		  BASE_DEC, VALS(ext_echo_reply_state_str), 0xE0,
+		  NULL, HFILL}},
+		{&hf_icmp_ext_echo_rsp_reserved,
+		 {"Reserved", "icmp.ext.echo.rsp.res", FT_UINT8,
+		  BASE_HEX, NULL, 0x18,
+		  NULL, HFILL}},
+		{&hf_icmp_ext_echo_rsp_active,
+		 {"Active bit", "icmp.ext.echo.rsp.active", FT_BOOLEAN,
+		  8, TFS(&tfs_set_notset), 0x04,
+		  NULL, HFILL}},
+		{&hf_icmp_ext_echo_rsp_ipv4,
+		 {"IPv4 bit", "icmp.ext.echo.rsp.ipv4", FT_BOOLEAN,
+		  8, TFS(&tfs_set_notset), 0x02,
+		  NULL, HFILL}},
+		{&hf_icmp_ext_echo_rsp_ipv6,
+		 {"IPv6 bit", "icmp.ext.echo.rsp.ipv6", FT_BOOLEAN,
+		  8, TFS(&tfs_set_notset), 0x01,
+		  NULL, HFILL}},
+		{&hf_icmp_int_ident_name_string,
+		 {"Name", "icmp.int_ident.name", FT_STRING,
+		  BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}},
+		{&hf_icmp_int_ident_index,
+		 {"Interface Index", "icmp.int_ident.index", FT_UINT32,
+		  BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}},
+		{&hf_icmp_int_ident_afi,
+		 {"Address Family Identifier", "icmp.int_ident.afi", FT_UINT16,
+		  BASE_DEC, VALS(afn_vals), 0x0,
+		  "Address Family of the interface address", HFILL}},
+		{&hf_icmp_int_ident_addr_length,
+		 {"Address Length", "icmp.int_ident.addr_length", FT_UINT8,
+		  BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}},
+		{&hf_icmp_int_ident_reserved,
+		 {"Reserved", "icmp.int_ident.reserved", FT_BYTES,
+		  BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}},
+		{&hf_icmp_int_ident_ipv4,
+		 {"Address", "icmp.int_ident.ipv4", FT_IPv4,
+		  BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}},
+		{&hf_icmp_int_ident_ipv6,
+		 {"Address", "icmp.int_ident.ipv6", FT_IPv6,
+		  BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}},
+		{&hf_icmp_int_ident_address,
+		 {"Address", "icmp.int_ident.address", FT_BYTES,
+		  BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}},
+
 	};
 
 	static gint *ett[] = {
