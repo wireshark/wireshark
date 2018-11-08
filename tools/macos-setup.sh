@@ -11,10 +11,6 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 shopt -s extglob
-#
-# To install autotools
-#
-AUTOTOOLS=1
 
 #
 # Get the major version of Darwin, so we can check the major macOS
@@ -45,7 +41,6 @@ fi
 current_curl_version=`curl --version | sed -n 's/curl \([0-9.]*\) .*/\1/p'`
 current_curl_major_version="`expr $current_curl_version : '\([0-9][0-9]*\).*'`"
 current_curl_minor_version="`expr $current_curl_version : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
-current_curl_dotdot_version="`expr $current_curl_version : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
 if [[ $current_curl_major_version -lt 7 ||
      ($current_curl_major_version -eq 7 &&
       $current_curl_minor_version -lt 54) ]]; then
@@ -143,7 +138,6 @@ if [ "$GNUTLS_VERSION" ]; then
     #
     GNUTLS_MAJOR_VERSION="`expr $GNUTLS_VERSION : '\([0-9][0-9]*\).*'`"
     GNUTLS_MINOR_VERSION="`expr $GNUTLS_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
-    GNUTLS_DOTDOT_VERSION="`expr $GNUTLS_VERSION : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
     NETTLE_VERSION=3.3
 
     #
@@ -506,7 +500,6 @@ install_cmake() {
         echo "Downloading and installing CMake:"
         CMAKE_MAJOR_VERSION="`expr $CMAKE_VERSION : '\([0-9][0-9]*\).*'`"
         CMAKE_MINOR_VERSION="`expr $CMAKE_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
-        CMAKE_DOTDOT_VERSION="`expr $CMAKE_VERSION : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
         CMAKE_MAJOR_MINOR_VERSION=$CMAKE_MAJOR_VERSION.$CMAKE_MINOR_VERSION
 
         #
@@ -700,9 +693,6 @@ install_glib() {
     if [ ! -f glib-$GLIB_VERSION-done ] ; then
         echo "Downloading, building, and installing GLib:"
         glib_dir=`expr $GLIB_VERSION : '\([0-9][0-9]*\.[0-9][0-9]*\).*'`
-        GLIB_MAJOR_VERSION="`expr $GLIB_VERSION : '\([0-9][0-9]*\).*'`"
-        GLIB_MINOR_VERSION="`expr $GLIB_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
-        GLIB_DOTDOT_VERSION="`expr $GLIB_VERSION : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
         #
         # Starting with GLib 2.28.8, xz-compressed tarballs are available.
         #
@@ -1391,9 +1381,6 @@ uninstall_sbc() {
 install_maxminddb() {
     if [ "$MAXMINDDB_VERSION" -a ! -f maxminddb-$MAXMINDDB_VERSION-done ] ; then
         echo "Downloading, building, and installing MaxMindDB API:"
-        MAXMINDDB_MAJOR_VERSION="`expr $MAXMINDDB_VERSION : '\([0-9][0-9]*\).*'`"
-        MAXMINDDB_MINOR_VERSION="`expr $MAXMINDDB_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
-        MAXMINDDB_DOTDOT_VERSION="`expr $MAXMINDDB_VERSION : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
         [ -f libmaxminddb-$MAXMINDDB_VERSION.tar.gz ] || curl -L -O https://github.com/maxmind/libmaxminddb/releases/download/$MAXMINDDB_VERSION/libmaxminddb-$MAXMINDDB_VERSION.tar.gz || exit 1
         $no_build && echo "Skipping installation" && return
         gzcat libmaxminddb-$MAXMINDDB_VERSION.tar.gz | tar xf - || exit 1
@@ -1468,7 +1455,6 @@ install_libssh() {
         echo "Downloading, building, and installing libssh:"
         LIBSSH_MAJOR_VERSION="`expr $LIBSSH_VERSION : '\([0-9][0-9]*\).*'`"
         LIBSSH_MINOR_VERSION="`expr $LIBSSH_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
-        LIBSSH_DOTDOT_VERSION="`expr $LIBSSH_VERSION : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
         LIBSSH_MAJOR_MINOR_VERSION=$LIBSSH_MAJOR_VERSION.$LIBSSH_MINOR_VERSION
         [ -f libssh-$LIBSSH_VERSION.tar.xz ] || curl -L -O https://www.libssh.org/files/$LIBSSH_MAJOR_MINOR_VERSION/libssh-$LIBSSH_VERSION.tar.xz
         $no_build && echo "Skipping installation" && return
@@ -2387,11 +2373,6 @@ do
     if [ -d "$i" ]
     then
         min_osx_target=`sw_vers -productVersion | sed 's/\([0-9]*\)\.\([0-9]*\)\.[0-9]*/\1.\2/'`
-
-        #
-        # That's also the OS whose SDK we'd be using.
-        #
-        sdk_target=$min_osx_target
         break
     fi
 done
@@ -2550,7 +2531,6 @@ then
                 # Yes, use it.
                 #
                 sdkpath="$sdksdir/$sdk"
-                qt_sdk_arg="-sdk $sdk"
                 break 2
             fi
         done
@@ -2563,7 +2543,6 @@ then
     fi
 
     SDKPATH="$sdkpath"
-    sdk_target=10.$sdk_real_version
     echo "Using the 10.$sdk_real_version SDK"
 
     #
@@ -2600,27 +2579,6 @@ then
     #
     SDKFLAGS="-isysroot $SDKPATH"
 
-    if [[ "$min_osx_target" == "10.5" ]]
-    then
-        #
-        # Libgcrypt 1.5.0 fails to compile due to some problem with an
-        # asm in rijndael.c, at least with i686-apple-darwin10-gcc-4.2.1
-        # (GCC) 4.2.1 (Apple Inc. build 5666) (dot 3) when building
-        # 32-bit.
-        #
-        # We try libgcrypt 1.4.3 instead, as that's what shows up in
-        # the version from the Leopard buildbot.
-        LIBGCRYPT_VERSION=1.4.3
-
-        #
-        # Build 32-bit while we're at it; Leopard has a bug that
-        # causes some BPF functions not to work with 64-bit userland
-        # code, so capturing won't work.
-        #
-        CFLAGS="$CFLAGS -arch i386"
-        CXXFLAGS="$CXXFLAGS -arch i386"
-        export LDFLAGS="$LDFLAGS -arch i386"
-    fi
 fi
 
 export CFLAGS
