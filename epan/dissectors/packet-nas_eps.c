@@ -6175,10 +6175,10 @@ get_nas_emm_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf
 
 static const value_string nas_eps_esm_bearer_id_vals[] = {
     { 0x0,  "No EPS bearer identity assigned"},
-    { 0x1,  "Reserved"},
-    { 0x2,  "Reserved"},
-    { 0x3,  "Reserved"},
-    { 0x4,  "Reserved"},
+    { 0x1,  "EPS bearer identity value 1"},
+    { 0x2,  "EPS bearer identity value 2"},
+    { 0x3,  "EPS bearer identity value 3"},
+    { 0x4,  "EPS bearer identity value 4"},
     { 0x5,  "EPS bearer identity value 5"},
     { 0x6,  "EPS bearer identity value 6"},
     { 0x7,  "EPS bearer identity value 7"},
@@ -6495,8 +6495,7 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
                 /* If pd is in plaintext this message probably isn't ciphered */
                 /* Use preferences settings to override this behavior */
                 if (!g_nas_eps_null_decipher ||
-                    ((pd != 7) && (pd != 15) &&
-                    (((pd&0x0f) != 2) || (((pd&0x0f) == 2) && ((pd&0xf0) > 0) && ((pd&0xf0) < 0x50))))) {
+                    ((pd != 7) && (pd != 15) && ((pd&0x0f) != 2))) {
                     col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Ciphered message");
                     proto_tree_add_item(nas_eps_tree, hf_nas_eps_ciphered_msg, tvb, offset, len-6, ENC_NA);
                     return tvb_captured_length(tvb);
