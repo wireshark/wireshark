@@ -4889,7 +4889,18 @@ static int hf_ieee80211_vs_aerohive_hostname_length = -1;
 static int hf_ieee80211_vs_aerohive_hostname = -1;
 static int hf_ieee80211_vs_aerohive_data = -1;
 
+static int hf_ieee80211_rsn_ie_gtk_keyid = -1;
+static int hf_ieee80211_rsn_ie_gtk_tx = -1;
+static int hf_ieee80211_rsn_ie_gtk_reserved1 = -1;
+static int hf_ieee80211_rsn_ie_gtk_reserved2 = -1;
+static int hf_ieee80211_rsn_ie_gtk_key = -1;
+
 static int hf_ieee80211_rsn_ie_pmkid = -1;
+
+static int hf_ieee80211_rsn_ie_igtk_keyid = -1;
+static int hf_ieee80211_rsn_ie_igtk_ipn = -1;
+static int hf_ieee80211_rsn_ie_igtk_key = -1;
+
 static int hf_ieee80211_rsn_ie_unknown = -1;
 
 static int hf_ieee80211_marvell_ie_type = -1;
@@ -13601,21 +13612,52 @@ dissect_vendor_ie_rsn(proto_item * item, proto_tree * tree, tvbuff_t * tvb, int 
 {
 
   switch(tvb_get_guint8(tvb, offset)){
+    case 1:
+    {
+      /* IEEE 802.11i / Key Data Encapsulation / Data Type=1 - GTK.
+       * This is only used within EAPOL-Key frame Key Data. */
+      offset += 1;
+
+      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_gtk_keyid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_gtk_tx, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_gtk_reserved1, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      offset += 1;
+      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_gtk_reserved2, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      offset += 1;
+      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_gtk_key, tvb, offset, tag_len - 3, ENC_NA);
+      offset += tag_len - 3;
+      proto_item_append_text(item, ": RSN GTK");
+      break;
+    }
     case 4:
     {
       /* IEEE 802.11i / Key Data Encapsulation / Data Type=4 - PMKID.
        * This is only used within EAPOL-Key frame Key Data. */
       offset += 1;
       proto_tree_add_item(tree, hf_ieee80211_rsn_ie_pmkid, tvb, offset, 16, ENC_NA);
+      proto_item_append_text(item, ": RSN PMKID");
+      break;
     }
-    break;
+    case 9:
+    {
+      /* IEEE 802.11i / Key Data Encapsulation / Data Type=9 - IGTK.
+       * This is only used within EAPOL-Key frame Key Data. */
+      offset += 1;
+
+      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_igtk_keyid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      offset += 2;
+      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_igtk_ipn, tvb, offset, 6, ENC_LITTLE_ENDIAN);
+      offset += 6;
+      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_igtk_key, tvb, offset, tag_len - 9, ENC_NA);
+      offset += tag_len - 9;
+      proto_item_append_text(item, ": RSN IGTK");
+      break;
+    }
     default:
       proto_tree_add_item(tree, hf_ieee80211_rsn_ie_unknown, tvb, offset, tag_len, ENC_NA);
-    break;
+      proto_item_append_text(item, ": RSN UNKNOWN");
+      break;
   }
-
-  proto_item_append_text(item, ": RSN");
-
 }
 
 typedef enum {
@@ -32932,8 +32974,48 @@ proto_register_ieee80211(void)
       FT_UINT16, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
+    {&hf_ieee80211_rsn_ie_gtk_key,
+     {"GTK", "wlan.rsn.ie.gtk.key",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_ie_gtk_keyid,
+     {"KeyID", "wlan.rsn.ie.gtk.keyid",
+      FT_UINT8, BASE_DEC, NULL, 0x03,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_ie_gtk_tx,
+     {"Tx", "wlan.rsn.ie.gtk.tx",
+      FT_UINT8, BASE_DEC, NULL, 0x04,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_ie_gtk_reserved1,
+     {"Reserved", "wlan.rsn.ie.gtk.reserved1",
+      FT_UINT8, BASE_HEX, NULL, 0xF8,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_ie_gtk_reserved2,
+     {"Reserved", "wlan.rsn.ie.gtk.reserved2",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
     {&hf_ieee80211_rsn_ie_pmkid,
-     {"RSN PMKID", "wlan.rsn.ie.pmkid",
+     {"PMKID", "wlan.rsn.ie.pmkid",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_ie_igtk_keyid,
+     {"KeyId", "wlan.rsn.ie.igtk.keyid",
+      FT_UINT16, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_ie_igtk_ipn,
+     {"IPN", "wlan.rsn.ie.igtk.ipn",
+      FT_UINT48, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_ie_igtk_key,
+     {"IGTK", "wlan.rsn.ie.igtk.key",
       FT_BYTES, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
