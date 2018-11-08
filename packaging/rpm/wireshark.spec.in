@@ -51,11 +51,12 @@ BuildRoot:	/tmp/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 %if 0%{?rhel}
 BuildRequires:	cmake3 >= 3.5
+BuildRequires:  python34
 %else
 BuildRequires:	cmake >= 3.5
+BuildRequires:  python3
 %endif
 BuildRequires:	gcc
-BuildRequires:	python3
 BuildRequires:	perl
 BuildRequires:	flex
 BuildRequires:	bison
