@@ -36,7 +36,7 @@ This function is used to unwrap an encrypted AES key.  One example of its use is
 in the WPA-2 protocol to get the group key.
 */
 UCHAR *
-AES_unwrap(UCHAR *kek, UINT16 key_len, UCHAR *cipher_text, UINT16 cipher_len)
+AES_unwrap(const UCHAR *kek, UINT16 key_len, const UCHAR *cipher_text, UINT16 cipher_len)
 {
 	UCHAR *output;
 	UCHAR a[8], b[16];
