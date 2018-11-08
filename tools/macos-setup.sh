@@ -1702,11 +1702,17 @@ uninstall_json_glib() {
 }
 
 install_python3() {
+    local macver=10.9
+    if [[ $DARWIN_MAJOR_VERSION -lt 13 ]]; then
+        # The 64-bit installer requires 10.9 (Mavericks), use the 64-bit/32-bit
+        # variant for 10.6 (Snow Leopard) and newer.
+        macver=10.6
+    fi
     if [ "$PYTHON3_VERSION" -a ! -f python3-$PYTHON3_VERSION-done ] ; then
         echo "Downloading and installing python3:"
-        [ -f python-$PYTHON3_VERSION-macosx10.9.pkg ] || curl -L -O https://www.python.org/ftp/python/$PYTHON3_VERSION/python-$PYTHON3_VERSION-macosx10.9.pkg || exit 1
+        [ -f python-$PYTHON3_VERSION-macosx$macver.pkg ] || curl -L -O https://www.python.org/ftp/python/$PYTHON3_VERSION/python-$PYTHON3_VERSION-macosx$macver.pkg || exit 1
         $no_build && echo "Skipping installation" && return
-        sudo installer -target / -pkg python-$PYTHON3_VERSION-macosx10.9.pkg || exit 1
+        sudo installer -target / -pkg python-$PYTHON3_VERSION-macosx$macver.pkg || exit 1
         touch python3-$PYTHON3_VERSION-done
     fi
 }
@@ -1738,6 +1744,7 @@ uninstall_python3() {
             # Get rid of the previously downloaded and unpacked version.
             #
             rm -f python-$installed_python3_version-macosx10.9.pkg
+            rm -f python-$installed_python3_version-macosx10.6.pkg
         fi
 
         installed_python3_version=""
