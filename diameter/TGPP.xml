@@ -1245,6 +1245,135 @@
 	</avp>
 </application>	<!-- 3GPP S9 -->
 
+<!--
+		Note: The AVP codes from 3206 to 3308 are reserved for TS 29.338
+		-->
+
+<application id="16777312" name="3GPP S6c" uri="http://www.3gpp.org/ftp/Specs/html-info/29338.htm">
+	<avp name="SC-Address" code="3300" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="SM-RP-UI" code="3301" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="TFR-Flags" code="3302" mandatory="mustnot" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="SM-Delivery-Failure-Cause" code="3303" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="SM-Enumerated-Delivery-Failure-Cause"/>
+				<gavp name="SM-Diagnostic-Info"/>
+			</grouped>
+		</avp>
+		<avp name="SM-Enumerated-Delivery-Failure-Cause" code="3304" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="MEMORY_CAPACITY_EXCEEDED" code="0"/>
+			<enum name="EQUIPMENT_PROTOCOL_ERROR" code="1"/>
+			<enum name="EQUIPMENT_NOT_SM-EQUIPPED" code="2"/>
+			<enum name="UNKNOWN_SERVICE_CENTRE " code="3"/>
+			<enum name="SC-CONGESTION" code="4"/>
+			<enum name="INVALID_SME-ADDRESS" code="5"/>
+			<enum name="USER_NOT_SC-USER" code="6"/>
+		</avp>
+		<avp name="SM-Diagnostic-Info" code="3305" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="SM-Delivery-Timer" code="3306" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="SM-Delivery-Start-Time" code="3307" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Time"/>
+		</avp>
+		<avp name="SM-RP-MTI" code="3308" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="SM_DELIVER" code="0"/>
+			<enum name="SM_STATUS_REPORT" code="1"/>
+		</avp>
+		<avp name="SM-RP-SMEA" code="3309" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="SRR-Flags" code="3310" mandatory="mustnot" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="SM-Delivery-Not-Intended" code="3311" mandatory="mustnot" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="ONLY_IMSI_REQUESTED" code="0"/>
+			<enum name="ONLY_MCC_MNC_REQUESTED" code="1"/>
+		</avp>
+		<avp name="MWD-Status" code="3312" mandatory="mustnot" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="MME-Absent-User-Diagnostic-SM" code="3313" mandatory="mustnot" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="MSC-Absent-User-Diagnostic-SM" code="3314" mandatory="mustnot" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="SGSN-Absent-User-Diagnostic-SM" code="3315" mandatory="mustnot" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="SM-Delivery-Outcome" code="3316" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="MME-SM-Delivery-Outcome"/>
+				<gavp name="MSC-SM-Delivery-Outcome"/>
+				<gavp name="SGSN-SM-Delivery-Outcome"/>
+				<gavp name="IP-SM-GW-SM-Delivery-Outcome"/>
+			</grouped>
+		</avp>
+		<avp name="MME-SM-Delivery-Outcome" code="3317" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="SM-Delivery-Cause"/>
+				<gavp name="Absent-User-Diagnostic-SM"/>
+			</grouped>
+		</avp>
+		<avp name="MSC-SM-Delivery-Outcome" code="3318" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="SM-Delivery-Cause"/>
+				<gavp name="Absent-User-Diagnostic-SM"/>
+			</grouped>
+		</avp>
+		<avp name="SGSN-SM-Delivery-Outcome" code="3319" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="SM-Delivery-Cause"/>
+				<gavp name="Absent-User-Diagnostic-SM"/>
+			</grouped>
+		</avp>
+		<avp name="IP-SM-GW-SM-Delivery-Outcome" code="3320" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="SM-Delivery-Cause"/>
+				<gavp name="Absent-User-Diagnostic-SM"/>
+			</grouped>
+		</avp>
+		<avp name="SM-Delivery-Cause" code="3321" mandatory="mustnot" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="SM-Delivery-Cause" code="0"/>
+			<enum name="ABSENT_USER" code="1"/>
+			<enum name="SUCCESSFUL_TRANSFER" code="2"/>
+		</avp>
+		<avp name="Absent-User-Diagnostic-SM" code="3322" mandatory="mustnot" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="RDR-Flags" code="3323" mandatory="mustnot" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+
+		<avp name="Maximum-UE-Availability-Time" code="3329" mandatory="mustnot" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Time"/>
+		</avp>
+		<avp name="Maximum-Retransmission-Time" code="3330" mandatory="mustnot" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Time"/>
+		</avp>
+		<avp name="Requested-Retransmission-Time" code="3331"  mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Time"/>
+		</avp>
+		<avp name="SMS-GMSC-Address" code="3332"  mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="SMS-GMSC-Alert-Event" code="3333" mandatory="mustnot" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+</application> <!-- 3GPP S6c -->
+
 <application id="16777335" name="3GPP MB2c" uri="http://www.3gpp.org/DynaReport/29468.htm">
 
 	<command name="GCS-Action" code="8388662" vendor-id="TGPP"/>
