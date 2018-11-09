@@ -27,6 +27,7 @@ typedef struct _diameter_req_ans_pair_t
 /* Info needed by AVP sub dissectors */
 typedef struct _diam_sub_dis_t {
 	guint32 application_id;
+	guint32 cmd_code;
 	guint32 feature_list_id;
 	gboolean dis_gouped;       /**< Set during dissection of grouped AVP */
 	guint32 vendor_id;

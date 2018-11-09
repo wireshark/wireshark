@@ -1239,6 +1239,8 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	}
 
 	cmd_item = proto_tree_add_item_ret_uint(diam_tree, hf_diameter_code, tvb, 5, 3, ENC_BIG_ENDIAN, &cmd);
+	diam_sub_dis_inf->cmd_code = cmd;
+
 
 	switch (version) {
 		case DIAMETER_V16: {

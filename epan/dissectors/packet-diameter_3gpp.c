@@ -494,6 +494,7 @@ static int hf_diameter_3gpp_ikev2_cause = -1;
 
 /* Dissector handles */
 static dissector_handle_t xml_handle;
+static dissector_handle_t gsm_sms_handle;
 
 /* Forward declarations */
 static int dissect_diameter_3gpp_ipv6addr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_);
@@ -2336,6 +2337,49 @@ dissect_diameter_3gpp_ran_nas_release_cause(tvbuff_t *tvb, packet_info *pinfo _U
     return offset;
 }
 
+/* AVP Code: 3301 SM-RP-UI */
+
+static int
+dissect_diameter_3gpp_sm_rp_ui(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    int length = tvb_reported_length(tvb);
+    diam_sub_dis_t *diam_sub_dis_inf = (diam_sub_dis_t*)data;
+    guint32 cmd = 0;
+
+    if (diam_sub_dis_inf) {
+        cmd = diam_sub_dis_inf->cmd_code;
+    }
+
+    if ((length > 0) && (cmd != 0)) {
+        switch (cmd){
+        case 8388645:
+            /* Command Code: 8388645 MO-Forward-Short-Message
+             * serving MME or SGSN or IP-SM-GW and the SMS-IWMSC to forward
+             * mobile originated short messages from a mobile user to a Service Centre
+             *
+             */
+            /*pinfo->link_dir = P2P_DIR_UL;*/
+            pinfo->p2p_dir = P2P_DIR_RECV;
+            call_dissector(gsm_sms_handle, tvb, pinfo, tree);
+            break;
+        case 8388646:
+            /* code="8388646 MT Forward Short Message
+             * SMS-GMSC and the serving MME or SGSN(transiting an SMS Router, if present)
+             * or IP-SM-GW to forward mobile terminated short messages.
+             */
+            pinfo->p2p_dir = P2P_DIR_SENT;
+            call_dissector(gsm_sms_handle, tvb, pinfo, tree);
+            break;
+        default:
+            break;
+        }
+    }
+
+    return length;
+
+}
+
+
 /* AVP Code: 3502 MBMS-Bearer-Event */
 static int
 dissect_diameter_3gpp_mbms_bearer_event(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
@@ -2628,6 +2672,9 @@ proto_reg_handoff_diameter_3gpp(void)
     /* AVP Code: 2819 RAN-NAS-Release-Cause */
     dissector_add_uint("diameter.3gpp", 2819, create_dissector_handle(dissect_diameter_3gpp_ran_nas_release_cause, proto_diameter_3gpp));
 
+    /* AVP Code: 3301 SM-RP-UI */
+    dissector_add_uint("diameter.3gpp", 3301, create_dissector_handle(dissect_diameter_3gpp_sm_rp_ui, proto_diameter_3gpp));
+
     /* AVP Code: 3502 MBMS-Bearer-Event */
     dissector_add_uint("diameter.3gpp", 3502, create_dissector_handle(dissect_diameter_3gpp_mbms_bearer_event, proto_diameter_3gpp));
 
@@ -2641,6 +2688,7 @@ proto_reg_handoff_diameter_3gpp(void)
     dissector_add_uint("diameter.3gpp", 3514, create_dissector_handle(dissect_diameter_3gpp_tmgi_deallocation_result, proto_diameter_3gpp));
 
     xml_handle = find_dissector_add_dependency("xml", proto_diameter_3gpp);
+    gsm_sms_handle = find_dissector_add_dependency("gsm_sms", proto_diameter_3gpp);
 }
 
 /*
