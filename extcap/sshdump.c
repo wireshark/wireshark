@@ -76,7 +76,7 @@ static int ssh_loop_read(ssh_channel channel, FILE* fp)
 			goto end;
 		}
 		if (nbytes == 0) {
-			goto end;
+			break;
 		}
 		if (fwrite(buffer, 1, nbytes, fp) != (guint)nbytes) {
 			g_warning("Error writing to fifo");
