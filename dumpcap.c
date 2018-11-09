@@ -4154,6 +4154,37 @@ capture_loop_get_errmsg(char *errmsg, size_t errmsglen, char *secondary_errmsg,
     }
 }
 
+/*
+ * We wrote one packet. Update some statistics and check if we've met any
+ * autostop or ring buffer conditions.
+ */
+static void
+capture_loop_wrote_one_packet(capture_src *pcap_src) {
+    global_ld.packets_captured++;
+    global_ld.packets_written++;
+    pcap_src->received++;
+
+    /* check -c NUM / -a packets:NUM */
+    if (global_capture_opts.has_autostop_packets && global_ld.packets_captured >= global_capture_opts.autostop_packets) {
+        fflush(global_ld.pdh);
+        global_ld.go = FALSE;
+        return;
+    }
+    /* check -b packets:NUM */
+    if (global_capture_opts.has_file_packets && global_ld.packets_written >= global_capture_opts.file_packets) {
+        do_file_switch_or_stop(&global_capture_opts);
+        return;
+    }
+    /* check -a filesize:NUM */
+    if (global_capture_opts.has_autostop_filesize &&
+        global_capture_opts.autostop_filesize > 0 &&
+        global_ld.bytes_written / 1000 >= global_capture_opts.autostop_filesize) {
+        /* Capture size limit reached, do we have another file? */
+        do_file_switch_or_stop(&global_capture_opts);
+        return;
+    }
+}
+
 /* one pcapng block was captured, process it */
 static void
 capture_loop_write_pcapng_cb(capture_src *pcap_src, const struct pcapng_block_header_s *bh, const u_char *pd)
@@ -4194,15 +4225,7 @@ capture_loop_write_pcapng_cb(capture_src *pcap_src, const struct pcapng_block_he
                   "Wrote a packet of length %d captured on interface %u.",
                    bh->block_total_length, pcap_src->interface_id);
 #endif
-            global_ld.packets_captured++;
-            global_ld.packets_written++;
-            pcap_src->received++;
-
-            /* if the user told us to stop after x packets, do we already have enough? */
-            if (global_capture_opts.has_autostop_packets && global_ld.packets_captured >= global_capture_opts.autostop_packets) {
-                fflush(global_ld.pdh);
-                global_ld.go = FALSE;
-            }
+            capture_loop_wrote_one_packet(pcap_src);
         }
     }
 }
@@ -4258,29 +4281,7 @@ capture_loop_write_packet_cb(u_char *pcap_src_p, const struct pcap_pkthdr *phdr,
                   "Wrote a packet of length %d captured on interface %u.",
                    phdr->caplen, pcap_src->interface_id);
 #endif
-            global_ld.packets_captured++;
-            global_ld.packets_written++;
-            pcap_src->received++;
-
-            /* check -c NUM / -a packets:NUM */
-            if (global_capture_opts.has_autostop_packets && global_ld.packets_captured >= global_capture_opts.autostop_packets) {
-                fflush(global_ld.pdh);
-                global_ld.go = FALSE;
-                return;
-            }
-            /* check -b packets:NUM */
-            if (global_capture_opts.has_file_packets && global_ld.packets_written >= global_capture_opts.file_packets) {
-                do_file_switch_or_stop(&global_capture_opts);
-                return;
-            }
-            /* check -a filesize:NUM */
-            if (global_capture_opts.has_autostop_filesize &&
-                global_capture_opts.autostop_filesize > 0 &&
-                global_ld.bytes_written / 1000 >= global_capture_opts.autostop_filesize) {
-                /* Capture size limit reached, do we have another file? */
-                do_file_switch_or_stop(&global_capture_opts);
-                return;
-            }
+            capture_loop_wrote_one_packet(pcap_src);
         }
     }
 }
