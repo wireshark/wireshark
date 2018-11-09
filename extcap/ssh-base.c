@@ -18,13 +18,11 @@
 #include <log.h>
 #include <string.h>
 
-ssh_session create_ssh_connection(const char* hostname, const unsigned int port, const char* username,
-	const char* password, const char* sshkey_path, const char* sshkey_passphrase, const char* proxycommand,
-	char** err_info)
+ssh_session create_ssh_connection(const ssh_params_t* ssh_params, char** err_info)
 {
 	ssh_session sshs;
-	gchar* user_set = NULL;
-	guint port_set;
+	gchar* username = NULL;
+	guint port;
 
 	/* Open session and set options */
 	sshs = ssh_new();
@@ -33,13 +31,13 @@ ssh_session create_ssh_connection(const char* hostname, const unsigned int port,
 		return NULL;
 	}
 
-	if (!hostname) {
+	if (!ssh_params->host) {
 		*err_info = g_strdup("Hostname needed");
 		goto failure;
 	}
 
-	if (ssh_options_set(sshs, SSH_OPTIONS_HOST, hostname)) {
-		*err_info = g_strdup_printf("Can't set the hostname: %s", hostname);
+	if (ssh_options_set(sshs, SSH_OPTIONS_HOST, ssh_params->host)) {
+		*err_info = g_strdup_printf("Can't set the host: %s", ssh_params->host);
 		goto failure;
 	}
 
@@ -50,33 +48,35 @@ ssh_session create_ssh_connection(const char* hostname, const unsigned int port,
 		goto failure;
 	}
 
-	if (port != 0) {
+	if (ssh_params->port != 0) {
+		port = ssh_params->port;
 		if (ssh_options_set(sshs, SSH_OPTIONS_PORT, &port)) {
-			*err_info = g_strdup_printf("Can't set the port: %d", port);
+			*err_info = g_strdup_printf("Can't set the port: %u", port);
 			goto failure;
 		}
 	}
 
-	if (proxycommand) {
-		if (ssh_options_set(sshs, SSH_OPTIONS_PROXYCOMMAND, proxycommand)) {
-			*err_info = g_strdup_printf("Can't set the ProxyCommand: %s", proxycommand);
+	if (ssh_params->proxycommand) {
+		if (ssh_options_set(sshs, SSH_OPTIONS_PROXYCOMMAND, ssh_params->proxycommand)) {
+			*err_info = g_strdup_printf("Can't set the ProxyCommand: %s", ssh_params->proxycommand);
 			goto failure;
 		}
 	}
 
-	if (username) {
-		if (ssh_options_set(sshs, SSH_OPTIONS_USER, username)) {
-			*err_info = g_strdup_printf("Can't set the username: %s", username);
+	if (ssh_params->username) {
+		if (ssh_options_set(sshs, SSH_OPTIONS_USER, ssh_params->username)) {
+			*err_info = g_strdup_printf("Can't set the username: %s", ssh_params->username);
 			goto failure;
 		}
 	}
 
-	ssh_options_get(sshs, SSH_OPTIONS_USER, &user_set);
-	ssh_options_get_port(sshs, &port_set);
+	ssh_options_get(sshs, SSH_OPTIONS_USER, &username);
+	ssh_options_get_port(sshs, &port);
 
-	g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Opening ssh connection to %s@%s:%u", user_set, hostname, port_set);
+	g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Opening ssh connection to %s@%s:%u", username,
+		ssh_params->host, port);
 
-	ssh_string_free_char(user_set);
+	ssh_string_free_char(username);
 
 	/* Connect to server */
 	if (ssh_connect(sshs) != SSH_OK) {
@@ -95,12 +95,12 @@ ssh_session create_ssh_connection(const char* hostname, const unsigned int port,
 #endif
 
 	/* If a public key path has been provided, try to authenticate using it */
-	if (sshkey_path) {
+	if (ssh_params->sshkey_path) {
 		ssh_key pkey = ssh_key_new();
 		int ret;
 
-		g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Connecting using public key in %s...", sshkey_path);
-		ret = ssh_pki_import_privkey_file(sshkey_path, sshkey_passphrase, NULL, NULL, &pkey);
+		g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Connecting using public key in %s...", ssh_params->sshkey_path);
+		ret = ssh_pki_import_privkey_file(ssh_params->sshkey_path, ssh_params->sshkey_passphrase, NULL, NULL, &pkey);
 
 		if (ret == SSH_OK) {
 			if (ssh_userauth_publickey(sshs, NULL, pkey) == SSH_AUTH_SUCCESS) {
@@ -122,9 +122,9 @@ ssh_session create_ssh_connection(const char* hostname, const unsigned int port,
 	g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "failed");
 
 	/* If a password has been provided and all previous attempts failed, try to use it */
-	if (password) {
+	if (ssh_params->password) {
 		g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Connecting using password...");
-		if (ssh_userauth_password(sshs, username, password) == SSH_AUTH_SUCCESS) {
+		if (ssh_userauth_password(sshs, ssh_params->username, ssh_params->password) == SSH_AUTH_SUCCESS) {
 			g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "done");
 			return sshs;
 		}
@@ -171,6 +171,24 @@ void ssh_cleanup(ssh_session* sshs, ssh_channel* channel)
 		ssh_free(*sshs);
 		*sshs = NULL;
 	}
+}
+
+ssh_params_t* ssh_params_new(void)
+{
+	return g_new0(ssh_params_t, 1);
+}
+
+void ssh_params_free(ssh_params_t* ssh_params)
+{
+	if (!ssh_params)
+		return;
+	g_free(ssh_params->host);
+	g_free(ssh_params->username);
+	g_free(ssh_params->password);
+	g_free(ssh_params->sshkey_path);
+	g_free(ssh_params->sshkey_passphrase);
+	g_free(ssh_params->proxycommand);
+	g_free(ssh_params);
 }
 
 /*

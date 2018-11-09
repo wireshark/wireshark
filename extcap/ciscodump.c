@@ -405,8 +405,7 @@ error:
 	return NULL;
 }
 
-static int ssh_open_remote_connection(const char* hostname, const unsigned int port, const char* username, const char* password,
-	const char* sshkey, const char* sshkey_passphrase, const char* proxycommand, const char* iface, const char* cfilter,
+static int ssh_open_remote_connection(const ssh_params_t* ssh_params, const char* iface, const char* cfilter,
 	const guint32 count, const char* fifo)
 {
 	ssh_session sshs;
@@ -426,7 +425,7 @@ static int ssh_open_remote_connection(const char* hostname, const unsigned int p
 		}
 	}
 
-	sshs = create_ssh_connection(hostname, port, username, password, sshkey, sshkey_passphrase, proxycommand, &err_info);
+	sshs = create_ssh_connection(ssh_params, &err_info);
 	if (!sshs) {
 		g_warning("Error creating connection: %s", err_info);
 		goto cleanup;
@@ -518,14 +517,8 @@ int real_main(int argc, char **argv)
 {
 	int result;
 	int option_idx = 0;
-	char* remote_host = NULL;
-	guint16 remote_port = 22;
-	char* remote_username = NULL;
-	char* remote_password = NULL;
+	ssh_params_t* ssh_params = ssh_params_new();
 	char* remote_interface = NULL;
-	char* sshkey = NULL;
-	char* sshkey_passphrase = NULL;
-	char* proxycommand = NULL;
 	char* remote_filter = NULL;
 	guint32 count = 0;
 	int ret = EXIT_FAILURE;
@@ -590,42 +583,42 @@ int real_main(int argc, char **argv)
 			goto end;
 
 		case OPT_REMOTE_HOST:
-			g_free(remote_host);
-			remote_host = g_strdup(optarg);
+			g_free(ssh_params->host);
+			ssh_params->host = g_strdup(optarg);
 			break;
 
 		case OPT_REMOTE_PORT:
-			if (!ws_strtou16(optarg, NULL, &remote_port) || remote_port == 0) {
+			if (!ws_strtou16(optarg, NULL, &ssh_params->port) || ssh_params->port == 0) {
 				g_warning("Invalid port: %s", optarg);
 				goto end;
 			}
 			break;
 
 		case OPT_REMOTE_USERNAME:
-			g_free(remote_username);
-			remote_username = g_strdup(optarg);
+			g_free(ssh_params->username);
+			ssh_params->username = g_strdup(optarg);
 			break;
 
 		case OPT_REMOTE_PASSWORD:
-			g_free(remote_password);
-			remote_password = g_strdup(optarg);
+			g_free(ssh_params->password);
+			ssh_params->password = g_strdup(optarg);
 			memset(optarg, 'X', strlen(optarg));
 			break;
 
 		case OPT_SSHKEY:
-			g_free(sshkey);
-			sshkey = g_strdup(optarg);
+			g_free(ssh_params->sshkey_path);
+			ssh_params->sshkey_path = g_strdup(optarg);
 			break;
 
 		case OPT_SSHKEY_PASSPHRASE:
-			g_free(sshkey_passphrase);
-			sshkey_passphrase = g_strdup(optarg);
+			g_free(ssh_params->sshkey_passphrase);
+			ssh_params->sshkey_passphrase = g_strdup(optarg);
 			memset(optarg, 'X', strlen(optarg));
 			break;
 
 		case OPT_PROXYCOMMAND:
-			g_free(proxycommand);
-			proxycommand = g_strdup(optarg);
+			g_free(ssh_params->proxycommand);
+			ssh_params->proxycommand = g_strdup(optarg);
 			break;
 
 		case OPT_REMOTE_INTERFACE:
@@ -671,7 +664,7 @@ int real_main(int argc, char **argv)
 	}
 
 	if (extcap_conf->show_config) {
-		ret = list_config(extcap_conf->interface, remote_port);
+		ret = list_config(extcap_conf->interface, ssh_params->port);
 		goto end;
 	}
 
@@ -684,7 +677,7 @@ int real_main(int argc, char **argv)
 #endif  /* _WIN32 */
 
 	if (extcap_conf->capture) {
-		if (!remote_host) {
+		if (!ssh_params->host) {
 			g_warning("Missing parameter: --remote-host");
 			goto end;
 		}
@@ -697,8 +690,7 @@ int real_main(int argc, char **argv)
 			g_warning("ERROR: count of packets must be specified (--remote-count)");
 			goto end;
 		}
-		ret = ssh_open_remote_connection(remote_host, remote_port, remote_username,
-			remote_password, sshkey, sshkey_passphrase, proxycommand, remote_interface,
+		ret = ssh_open_remote_connection(ssh_params, remote_interface,
 			remote_filter, count, extcap_conf->fifo);
 	} else {
 		g_debug("You should not come here... maybe some parameter missing?");
@@ -706,12 +698,8 @@ int real_main(int argc, char **argv)
 	}
 
 end:
-	g_free(remote_host);
-	g_free(remote_username);
-	g_free(remote_password);
+	ssh_params_free(ssh_params);
 	g_free(remote_interface);
-	g_free(sshkey);
-	g_free(sshkey_passphrase);
 	g_free(remote_filter);
 	extcap_base_cleanup(&extcap_conf);
 	return ret;
