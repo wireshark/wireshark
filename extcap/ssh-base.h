@@ -38,7 +38,7 @@
 	{ "proxycommand", required_argument, NULL, OPT_PROXYCOMMAND}
 
 /* Create a ssh connection using all the possible authentication menthods */
-ssh_session create_ssh_connection(const char* hostname, const guint16 port, const char* username,
+ssh_session create_ssh_connection(const char* hostname, const unsigned int port, const char* username,
 	const char* password, const char* sshkey_path, const char* sshkey_passphrase, const char* proxycommand,
 	char** err_info);
 
