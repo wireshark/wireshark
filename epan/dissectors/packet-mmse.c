@@ -487,6 +487,12 @@ get_value_length(tvbuff_t *tvb, guint offset, guint *byte_count, packet_info *pi
         field = tvb_get_guintvar(tvb, offset, byte_count, pinfo, &ei_mmse_oversized_uintvar);
         (*byte_count)++;
     }
+
+    /* The packet says there are this many bytes; ensure they're there.
+     * We do this here because several callers do math on the length we
+     * return here and may not catch an overflow.
+     */
+    tvb_ensure_bytes_exist(tvb, offset, field);
     return field;
 }
 
@@ -689,7 +695,7 @@ static void
 dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
         const char *message_type)
 {
-    guint        offset;
+    guint        offset, old_offset;
     guint8       field = 0;
     const char   *strval;
     guint        length;
@@ -711,6 +717,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
     proto_tree_add_uint(mmse_tree, hf_mmse_message_type, tvb, 0, 2, pdut);
 
     offset = 2;                 /* Skip Message-Type    */
+    old_offset = 1;
 
     /*
      * Cycle through MMS-headers
@@ -1209,6 +1216,11 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
                 break;
         }
         DebugLog(("\tEnd(case)\n"));
+
+        if (offset <= old_offset) {
+            REPORT_DISSECTOR_BUG("Offset isn't increasing (offset=%u, old offset=%u)", offset, old_offset);
+        }
+        old_offset = offset;
     }
 
     DebugLog(("\tEnd(switch)\n"));
