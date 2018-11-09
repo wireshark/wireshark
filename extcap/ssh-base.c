@@ -23,6 +23,8 @@ ssh_session create_ssh_connection(const char* hostname, const unsigned int port,
 	char** err_info)
 {
 	ssh_session sshs;
+	gchar* user_set = NULL;
+	guint port_set;
 
 	/* Open session and set options */
 	sshs = ssh_new();
@@ -41,19 +43,18 @@ ssh_session create_ssh_connection(const char* hostname, const unsigned int port,
 		goto failure;
 	}
 
+	/* Load the configurations already present in the system configuration file. */
+	/* They will be overwritten by the user-provided configurations. */
+	if (ssh_options_parse_config(sshs, NULL) != 0) {
+		*err_info = g_strdup("Unable to load the configuration file");
+		goto failure;
+	}
+
 	if (port != 0) {
 		if (ssh_options_set(sshs, SSH_OPTIONS_PORT, &port)) {
 			*err_info = g_strdup_printf("Can't set the port: %d", port);
 			goto failure;
 		}
-	}
-
-	if (!username)
-		username = g_get_user_name();
-
-	if (ssh_options_set(sshs, SSH_OPTIONS_USER, username)) {
-		*err_info = g_strdup_printf("Can't set the username: %s", username);
-		goto failure;
 	}
 
 	if (proxycommand) {
@@ -63,12 +64,23 @@ ssh_session create_ssh_connection(const char* hostname, const unsigned int port,
 		}
 	}
 
-	g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Opening ssh connection to %s@%s:%u", username, hostname, port);
+	if (username) {
+		if (ssh_options_set(sshs, SSH_OPTIONS_USER, username)) {
+			*err_info = g_strdup_printf("Can't set the username: %s", username);
+			goto failure;
+		}
+	}
+
+	ssh_options_get(sshs, SSH_OPTIONS_USER, &user_set);
+	ssh_options_get_port(sshs, &port_set);
+
+	g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Opening ssh connection to %s@%s:%u", user_set, hostname, port_set);
+
+	ssh_string_free_char(user_set);
 
 	/* Connect to server */
 	if (ssh_connect(sshs) != SSH_OK) {
-		*err_info = g_strdup_printf("Error connecting to %s@%s:%u (%s)", username, hostname, port,
-			ssh_get_error(sshs));
+		*err_info = g_strdup_printf("Connection error: %s", ssh_get_error(sshs));
 		goto failure;
 	}
 
