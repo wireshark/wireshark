@@ -198,20 +198,20 @@ static int ssh_open_remote_connection(const char* hostname, const unsigned int p
 	sshs = create_ssh_connection(hostname, port, username, password, sshkey, sshkey_passphrase, proxycommand, &err_info);
 
 	if (!sshs) {
-		g_warning("Error creating connection: %s", err_info);
+		g_warning("Error creating connection.");
 		goto cleanup;
 	}
 
 	channel = run_ssh_command(sshs, capture_command, use_sudo, noprom, iface, cfilter, count);
 
 	if (!channel) {
-		g_warning("Can't run ssh command");
+		g_warning("Can't run ssh command.");
 		goto cleanup;
 	}
 
 	/* read from channel and write into fp */
 	if (ssh_loop_read(channel, fp) != EXIT_SUCCESS) {
-		g_warning("Error in read loop");
+		g_warning("Error in read loop.");
 		ret = EXIT_FAILURE;
 		goto cleanup;
 	}
