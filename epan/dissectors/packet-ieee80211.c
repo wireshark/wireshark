@@ -82,6 +82,15 @@ void proto_register_ieee80211(void);
 void proto_reg_handoff_ieee80211(void);
 void proto_register_wlan_rsna_eapol(void);
 
+typedef struct {
+  DOT11DECRYPT_KEY_ITEM used_key;
+  guint keydata_len;
+  guint8 keydata[0]; /* dynamic size */
+} proto_eapol_keydata_t;
+
+#define PROTO_EAPOL_KEYDATA_OFFSET (offsetof(proto_eapol_keydata_t, keydata))
+#define PROTO_EAPOL_MAX_SIZE (DOT11DECRYPT_MAX_CAPLEN + PROTO_EAPOL_KEYDATA_OFFSET)
+
 extern value_string_ext eap_type_vals_ext; /* from packet-eap.c */
 
 #ifndef roundup2
@@ -234,6 +243,7 @@ typedef struct mimo_control
 #define IS_DMG_KEY 1
 #define IS_AP_KEY 2
 #define IS_CTRL_GRANT_OR_GRANT_ACK_KEY 2
+#define EAPOL_KEY 3
 /* ************************************************************************* */
 /*  Define some very useful macros that are used to analyze frame types etc. */
 /* ************************************************************************* */
@@ -3900,6 +3910,8 @@ static int hf_ieee80211_ccmp_extiv = -1;
 static int hf_ieee80211_wep_key = -1;
 static int hf_ieee80211_wep_icv = -1;
 static int hf_ieee80211_fc_analysis_pmk = -1;
+static int hf_ieee80211_fc_analysis_kck = -1;
+static int hf_ieee80211_fc_analysis_kek = -1;
 static int hf_ieee80211_fc_analysis_tk = -1;
 static int hf_ieee80211_fc_analysis_gtk = -1;
 
@@ -24221,8 +24233,17 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
       if (enable_decryption && !pinfo->fd->flags.visited) {
         const guint8 *enc_data = tvb_get_ptr(tvb, 0, hdr_len+reported_len);
         /* The processing will take care of 4-way handshake sessions for WPA and WPA2 decryption */
-        Dot11DecryptPacketProcess(&dot11decrypt_ctx, enc_data, hdr_len, hdr_len+reported_len, NULL, 0, NULL, TRUE);
-
+        proto_eapol_keydata_t *eapol;
+        eapol = (proto_eapol_keydata_t *)wmem_alloc(wmem_file_scope(), PROTO_EAPOL_MAX_SIZE);
+        gint ret = Dot11DecryptPacketProcess(&dot11decrypt_ctx, enc_data, hdr_len, hdr_len+reported_len,
+                                             eapol->keydata, &eapol->keydata_len, &eapol->used_key, TRUE);
+        if (ret == DOT11DECRYPT_RET_SUCCESS_HANDSHAKE && eapol->keydata_len > 0) {
+          /* XXX realloc data for eapol to actual size used? */
+          /* Save decrypted eapol keydata for rsna dissector */
+          p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, EAPOL_KEY, eapol);
+        } else {
+          wmem_free(wmem_file_scope(), eapol);
+        }
       }
       /*
        * No-data frames don't have a body.
@@ -25037,6 +25058,7 @@ static int hf_wlan_rsna_eapol_wpa_keydes_id = -1;
 static int hf_wlan_rsna_eapol_wpa_keydes_mic = -1;
 static int hf_wlan_rsna_eapol_wpa_keydes_data_len = -1;
 static int hf_wlan_rsna_eapol_wpa_keydes_data = -1;
+static int hf_wlan_rsna_eapol_wpa_keydes_padding = -1;
 
 static gint ett_keyinfo = -1;
 static gint ett_wlan_rsna_eapol_keydes_data = -1;
@@ -25105,6 +25127,22 @@ static guint16 get_mic_len(guint32 akm_suite) {
       // HMAC-SHA-1-128, AES-128-CMAC, HMAC-SHA-256
       return 16;
   }
+}
+
+static int
+keydata_padding_len(tvbuff_t *tvb)
+{
+  int keydata_len = tvb_reported_length(tvb);
+  int len_no_padding = keydata_len;
+  const guint8 *keydata = tvb_get_ptr(tvb, 0, keydata_len);
+  while (len_no_padding > 0 && (keydata[len_no_padding - 1] == 0x00)) {
+    len_no_padding--;
+  }
+  if (len_no_padding > 0 && keydata[len_no_padding - 1] == 0xdd) {
+    len_no_padding--;
+    return keydata_len - len_no_padding;
+  }
+  return 0;
 }
 
 static int
@@ -25226,6 +25264,7 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
 
   PROTO_ITEM_SET_GENERATED(ti);
 
+  guint16 keydes_version = tvb_get_ntohs(tvb, offset) & KEY_INFO_KEYDES_VERSION_MASK;
   proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_wlan_rsna_eapol_wpa_keydes_keyinfo,
                                     ett_keyinfo, wlan_rsna_eapol_wpa_keydes_keyinfo,
                                     ENC_BIG_ENDIAN, BMT_NO_APPEND);
@@ -25266,9 +25305,48 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
         !(keyinfo & KEY_INFO_KEY_TYPE_MASK)) {
       /* RSN: EAPOL-Key Key Data is encrypted.
        * WPA: Group Keys use encrypted Key Data.
-       * Cannot parse this without knowing the key.
+       * Decryption engine has already tried to decrypt this. If decrypted it's
+       * stored in EAPOL_KEY proto data.
        * IEEE 802.11i-2004 8.5.2.
        */
+      proto_eapol_keydata_t *eapol;
+      eapol = (proto_eapol_keydata_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_wlan, EAPOL_KEY);
+
+      if (eapol) {
+        int keydata_len = eapol->keydata_len;
+        tvbuff_t *next_tvb = tvb_new_child_real_data(tvb, eapol->keydata,
+                                                     keydata_len, keydata_len);
+
+        char out_buff[SHORT_STR];
+        keydes_tree = proto_item_add_subtree(ti, ett_wlan_rsna_eapol_keydes_data);
+
+        if (keydes_version == KEYDES_VER_TYPE1) {
+          add_new_data_source(pinfo, next_tvb, "Decrypted RC4 keydata");
+        } else if (keydes_version == KEYDES_VER_TYPE2) {
+          add_new_data_source(pinfo, next_tvb, "Decrypted AES keydata");
+          int padding_len = keydata_padding_len(next_tvb);
+          ieee_80211_add_tagged_parameters(next_tvb, 0, pinfo, keydes_tree,
+                                          keydata_len - padding_len,
+                                          -1, NULL);
+          if (padding_len) {
+            proto_tree_add_item(keydes_tree, hf_wlan_rsna_eapol_wpa_keydes_padding,
+                                next_tvb, keydata_len - padding_len,
+                                padding_len, ENC_NA);
+          }
+        } else {
+          /* TODO? */
+        }
+        /* Also add the PTK used to to decrypt and validate the keydata. */
+        bytes_to_hexstr(out_buff, eapol->used_key.KeyData.Wpa.Ptk, 16); /* KCK is stored in PTK at offset 0 */
+        out_buff[2*16] = '\0';
+        ti = proto_tree_add_string(keydes_tree, hf_ieee80211_fc_analysis_kck, tvb, 0, 0, out_buff);
+        PROTO_ITEM_SET_GENERATED(ti);
+
+        bytes_to_hexstr(out_buff, eapol->used_key.KeyData.Wpa.Ptk+16, 16); /* KEK is stored in PTK at offset 16 */
+        out_buff[2*16] = '\0';
+        ti = proto_tree_add_string(keydes_tree, hf_ieee80211_fc_analysis_kek, tvb, 0, 0, out_buff);
+        PROTO_ITEM_SET_GENERATED(ti);
+      }
     } else {
       keydes_tree = proto_item_add_subtree(ti, ett_wlan_rsna_eapol_keydes_data);
       ieee_80211_add_tagged_parameters(tvb, offset, pinfo, keydes_tree,
@@ -25867,6 +25945,16 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_fc_analysis_pmk,
      {"PMK", "wlan.analysis.pmk",
+      FT_STRING, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_fc_analysis_kck,
+     {"KCK", "wlan.analysis.kck",
+      FT_STRING, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_fc_analysis_kek,
+     {"KEK", "wlan.analysis.kek",
       FT_STRING, BASE_NONE, NULL, 0x0,
       NULL, HFILL }},
 
@@ -36955,6 +37043,11 @@ proto_register_wlan_rsna_eapol(void)
 
     {&hf_wlan_rsna_eapol_wpa_keydes_data,
      {"WPA Key Data", "wlan_rsna_eapol.keydes.data",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_wlan_rsna_eapol_wpa_keydes_padding,
+     {"WPA Key Data Padding", "wlan_rsna_eapol.keydes.padding",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       NULL, HFILL }},
   };

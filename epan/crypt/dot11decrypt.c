@@ -160,8 +160,10 @@ static INT Dot11DecryptRsna4WHandshake(
     const UCHAR *data,
     DOT11DECRYPT_SEC_ASSOCIATION *sa,
     INT offset,
-    const guint tot_len)
-    ;
+    const guint tot_len,
+    UCHAR *decrypt_data,
+    guint *decrypt_len,
+    PDOT11DECRYPT_KEY_ITEM key);
 /**
  * It checks whether the specified key is corrected or not.
  * @note
@@ -330,7 +332,10 @@ Dot11DecryptRc4KeyData(const guint8 *decryption_key, guint decryption_key_len,
 
 /* XXX - what if this doesn't get the key? */
 static INT
-Dot11DecryptDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8 *decryption_key, PDOT11DECRYPT_SEC_ASSOCIATION sa, guint eapol_len)
+Dot11DecryptDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8 *decryption_key,
+                                   PDOT11DECRYPT_SEC_ASSOCIATION sa, guint eapol_len,
+                                   guint8 *decrypted_data,
+                                   guint *decrypted_len)
 {
     guint8 key_version;
     const guint8 *key_data;
@@ -339,6 +344,8 @@ Dot11DecryptDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8 *decrypt
     guint16 key_len;           /* Actual group key length */
     static DOT11DECRYPT_KEY_ITEM dummy_key; /* needed in case Dot11DecryptRsnaMng() wants the key structure */
     DOT11DECRYPT_SEC_ASSOCIATION *tmp_sa;
+
+    *decrypted_len = 0;
 
     /* We skip verifying the MIC of the key. If we were implementing a WPA supplicant we'd want to verify, but for a sniffer it's not needed. */
 
@@ -388,6 +395,7 @@ Dot11DecryptDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8 *decrypt
         /* Per 802.11i, Draft 3.0 spec, section 8.5.2, p. 97, line 4-8, */
         /* group key is decrypted using RC4.  Concatenate the IV with the 16 byte EK (PTK+16) to get the decryption key */
         guint8 new_key[32];
+        guint8 *data;
 
         /* The WPA group key just contains the GTK bytes so deducing the type is straightforward   */
         /* Note - WPA M3 doesn't contain a group key so we'll only be here for the group handshake */
@@ -397,23 +405,29 @@ Dot11DecryptDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8 *decrypt
         memcpy(new_key, pEAPKey->key_iv, 16);
         memcpy(new_key+16, decryption_key, 16);
         DEBUG_DUMP("FullDecrKey:", new_key, 32);
-        decrypted_key = Dot11DecryptRc4KeyData(new_key, 32, key_data, key_bytes_len);
-        if (!decrypted_key) {
+        data = Dot11DecryptRc4KeyData(new_key, 32, key_data, key_bytes_len);
+        if (!data) {
             return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
         }
+        memcpy(decrypted_data, data, key_bytes_len);
+        decrypted_key = decrypted_data;
+        g_free(data);
     } else if (key_version == DOT11DECRYPT_WPA_KEY_VER_AES_CCMP){
         /* AES CCMP key */
 
         guint8 key_found;
         guint8 key_length;
         guint16 key_index;
-        guint8 *decrypted_data;
+        guint8 *data;
 
         /* Unwrap the key; the result is key_bytes_len in length */
-        decrypted_data = AES_unwrap(decryption_key, 16, key_data, key_bytes_len);
-        if (!decrypted_data) {
+        data = AES_unwrap(decryption_key, 16, key_data, key_bytes_len);
+        if (!data) {
             return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
         }
+        key_bytes_len -= 8; /* AES-WRAP adds 8 bytes */
+        memcpy(decrypted_data, data, key_bytes_len);
+        g_free(data);
 
         /* With WPA2 what we get after Broadcast Key decryption is an actual RSN structure.
            The key itself is stored as a GTK KDE
@@ -445,22 +459,18 @@ Dot11DecryptDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8 *decrypt
 
         if (key_found){
             if (decrypted_data[key_index+1] <= 6) {
-                g_free(decrypted_data);
                 return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
             }
             key_length = decrypted_data[key_index+1] - 6;
 
             if (key_index+8 >= key_bytes_len ||
                 key_length > key_bytes_len - key_index - 8) {
-                g_free(decrypted_data);
                 return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
             }
 
-            /* Skip over the GTK header info, and don't copy past the end of the encrypted data */
-            decrypted_key = (guint8 *)g_memdup(decrypted_data+key_index+8, key_length);
-            g_free(decrypted_data);
+            /* Skip over the GTK header info */
+            decrypted_key = decrypted_data + key_index + 8;
         } else {
-            g_free(decrypted_data);
             return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
         }
 
@@ -473,9 +483,10 @@ Dot11DecryptDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8 *decrypt
     key_len = (sa->wpa.key_ver==DOT11DECRYPT_WPA_KEY_VER_NOT_CCMP)?TKIP_GROUP_KEY_LEN:CCMP_GROUP_KEY_LEN;
     if (key_len > key_bytes_len) {
         /* the key required for this protocol is longer than the key that we just calculated */
-        g_free(decrypted_key);
         return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
     }
+
+    *decrypted_len = key_bytes_len;
 
     /* Decrypted key is now in szEncryptedKey with len of key_len */
     DEBUG_DUMP("Broadcast key:", decrypted_key, key_len);
@@ -488,7 +499,6 @@ Dot11DecryptDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8 *decrypt
     /* Dot11DecryptRsnaMng() function will extract the right piece of the GTK for decryption. (The first 16 bytes of the GTK are used for decryption.) */
     memset(sa->wpa.ptk, 0, sizeof(sa->wpa.ptk));
     memcpy(sa->wpa.ptk+32, decrypted_key, key_len);
-    g_free(decrypted_key);
     return DOT11DECRYPT_RET_SUCCESS_HANDSHAKE;
 }
 
@@ -517,7 +527,10 @@ static INT Dot11DecryptScanForKeys(
     const guint8 *data,
     const guint mac_header_len,
     const guint tot_len,
-    DOT11DECRYPT_SEC_ASSOCIATION_ID id
+    DOT11DECRYPT_SEC_ASSOCIATION_ID id,
+    UCHAR *decrypt_data,
+    guint *decrypt_len,
+    PDOT11DECRYPT_KEY_ITEM key
 )
 {
     guint tot_len_left;
@@ -623,8 +636,11 @@ static INT Dot11DecryptScanForKeys(
         }
 
         /* It could be a Pairwise Key exchange, check */
-        if (Dot11DecryptRsna4WHandshake(ctx, data, sa, offset, tot_len) == DOT11DECRYPT_RET_SUCCESS_HANDSHAKE)
+        if (Dot11DecryptRsna4WHandshake(ctx, data, sa, offset, tot_len,
+                                        decrypt_data, decrypt_len, key) == DOT11DECRYPT_RET_SUCCESS_HANDSHAKE)
+        {
             return DOT11DECRYPT_RET_SUCCESS_HANDSHAKE;
+        }
 
         if (mac_header_len + GROUP_KEY_PAYLOAD_LEN_MIN > tot_len) {
             DOT11DECRYPT_DEBUG_PRINT_LINE("Dot11DecryptScanForKeys", "Message too short for Group Key", DOT11DECRYPT_DEBUG_LEVEL_3);
@@ -670,7 +686,9 @@ static INT Dot11DecryptScanForKeys(
         }
 
         /* Try to extract the group key and install it in the SA */
-        return (Dot11DecryptDecryptWPABroadcastKey(pEAPKey, sta_sa->wpa.ptk+16, sa, tot_len-offset+1));
+        Dot11DecryptCopyKey(sta_sa, key); /* save key used for decrypting broadcast key */
+        return (Dot11DecryptDecryptWPABroadcastKey(pEAPKey, sta_sa->wpa.ptk+16, sa, tot_len-offset+1,
+                                                   decrypt_data, decrypt_len));
 
     } else if (tot_len_left >= 10 && memcmp(data+offset, tdls_header, 10) == 0) {
         const guint8 *initiator, *responder;
@@ -817,6 +835,9 @@ INT Dot11DecryptPacketProcess(
 
     DOT11DECRYPT_DEBUG_TRACE_START("Dot11DecryptPacketProcess");
 
+    if (decrypt_len) {
+        *decrypt_len = 0;
+    }
     if (ctx==NULL) {
         DOT11DECRYPT_DEBUG_PRINT_LINE("Dot11DecryptPacketProcess", "NULL context", DOT11DECRYPT_DEBUG_LEVEL_5);
         DOT11DECRYPT_DEBUG_TRACE_END("Dot11DecryptPacketProcess");
@@ -856,12 +877,19 @@ INT Dot11DecryptPacketProcess(
         return DOT11DECRYPT_RET_REQ_DATA;
     }
 
+    if (decrypt_data==NULL) {
+        DOT11DECRYPT_DEBUG_PRINT_LINE("Dot11DecryptPacketProcess", "no decrypt buffer, use local", DOT11DECRYPT_DEBUG_LEVEL_3);
+        decrypt_data=tmp_data;
+        decrypt_len=&tmp_len;
+    }
+
     /* check if data is encrypted (use the WEP bit in the Frame Control field) */
     if (DOT11DECRYPT_WEP(data[1])==0) {
         if (scanHandshake) {
             /* data is sent in cleartext, check if is an authentication message or end the process */
             DOT11DECRYPT_DEBUG_PRINT_LINE("Dot11DecryptPacketProcess", "Unencrypted data", DOT11DECRYPT_DEBUG_LEVEL_3);
-            return (Dot11DecryptScanForKeys(ctx, data, mac_header_len, tot_len, id));
+            return (Dot11DecryptScanForKeys(ctx, data, mac_header_len, tot_len, id,
+                                            decrypt_data, decrypt_len, key));
         }
         return DOT11DECRYPT_RET_NO_DATA_ENCRYPTED;
     } else {
@@ -876,12 +904,6 @@ INT Dot11DecryptPacketProcess(
 
         /* cache offset in the packet data (to scan encryption data) */
         offset = mac_header_len;
-
-        if (decrypt_data==NULL) {
-            DOT11DECRYPT_DEBUG_PRINT_LINE("Dot11DecryptPacketProcess", "no decrypt buffer, use local", DOT11DECRYPT_DEBUG_LEVEL_3);
-            decrypt_data=tmp_data;
-            decrypt_len=&tmp_len;
-        }
 
         /* create new header and data to modify */
         *decrypt_len = tot_len;
@@ -928,7 +950,8 @@ INT Dot11DecryptPacketProcess(
                    The group key handshake could be sent at any time the AP wants to change the key (such as when
                    it is using key rotation) and it also could be a rekey for the Pairwise key. So we must scan every packet. */
                 if (scanHandshake) {
-                    return (Dot11DecryptScanForKeys(ctx, decrypt_data, mac_header_len, *decrypt_len, id));
+                    return (Dot11DecryptScanForKeys(ctx, decrypt_data, mac_header_len, *decrypt_len, id,
+                                                    decrypt_data, decrypt_len, key));
                 } else {
                     return DOT11DECRYPT_RET_SUCCESS;
                 }
@@ -1365,7 +1388,10 @@ Dot11DecryptRsna4WHandshake(
     const UCHAR *data,
     DOT11DECRYPT_SEC_ASSOCIATION *sa,
     INT offset,
-    const guint tot_len)
+    const guint tot_len,
+    UCHAR *decrypt_data,
+    guint *decrypt_len,
+    PDOT11DECRYPT_KEY_ITEM key)
 {
     DOT11DECRYPT_KEY_ITEM *tmp_key, *tmp_pkt_key, pkt_key;
     DOT11DECRYPT_SEC_ASSOCIATION *tmp_sa;
@@ -1592,7 +1618,9 @@ Dot11DecryptRsna4WHandshake(
             if (broadcast_sa == NULL){
                 return DOT11DECRYPT_RET_REQ_DATA;
             }
-            return (Dot11DecryptDecryptWPABroadcastKey(pEAPKey, sa->wpa.ptk+16, broadcast_sa, tot_len-offset+1));
+            Dot11DecryptCopyKey(sa, key); /* save key used for decrypting broadcast key */
+            return (Dot11DecryptDecryptWPABroadcastKey(pEAPKey, sa->wpa.ptk+16, broadcast_sa, tot_len-offset+1,
+                                                       decrypt_data, decrypt_len));
         }
     }
 

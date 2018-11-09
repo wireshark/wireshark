@@ -181,7 +181,9 @@ extern "C" {
  * - DOT11DECRYPT_RET_UNSUCCESS: Generic unspecified error (decrypt_data
  *   and decrypt_length will be not modified).
  * - DOT11DECRYPT_RET_SUCCESS_HANDSHAKE: An eapol handshake packet was successfuly parsed
- *   and key information extracted
+ *   and key information extracted. The decrypted eapol keydata is copied to
+ *   decrypt_data with keydata len in decrypt_len. key param will contain ptk
+ *   used to decrypt eapol keydata.
  * - DOT11DECRYPT_RET_NO_VALID_HANDSHAKE: The handshake is invalid or was not used
  *   for some reason. For encrypted packets decryption was still successful.
  * @note
