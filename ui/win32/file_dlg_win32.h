@@ -114,34 +114,6 @@ gboolean win32_merge_file (HWND h_wnd, GString *file_name, GString *display_filt
  */
 void win32_export_file (HWND h_wnd, capture_file *cf, export_type_e export_type);
 
-/** Open the "Export raw bytes" dialog box.
- *
- * @param h_wnd HWND of the parent window.
- * @param cf capture_file Structure for the capture to be saved
- */
-void win32_export_raw_file (HWND h_wnd, capture_file *cf);
-
-/** Open the "Export SSL Session Keys" dialog box.
- *
- * @param h_wnd HWND of the parent window.
- */
-void win32_export_sslkeys_file (HWND h_wnd);
-
-/** Open the "Export Color Filters" dialog box
- *
- * @param h_wnd HWND of the parent window
- * @param cf capture_file Structure for the capture to be saved
- * @param filter_list the list to export
- */
-void win32_export_color_file(HWND h_wnd, capture_file *cf, gpointer filter_list);
-
-/** Open the "Import Color Filters" dialog box
- *
- * @param h_wnd HWND of the parent window
- * @param color_filters the calling widget
- */
-void win32_import_color_file(HWND h_wnd, gpointer color_filters);
-
 /** Open the "Save As" dialog box for stats_tree statistics window.
  *
  * @param h_wnd HWND of the parent window.
@@ -152,8 +124,6 @@ void win32_import_color_file(HWND h_wnd, gpointer color_filters);
  */
 gboolean win32_save_as_statstree(HWND h_wnd, GString *file_name,
 							int *file_type);
-
-void file_set_save_marked_sensitive();
 
 /* Open dialog defines */
 /* #define EWFD_FILTER_BTN    1000 */
@@ -205,12 +175,6 @@ void file_set_save_marked_sensitive();
 #define EWFD_FIRST_LAST_DISP 1018
 #define EWFD_RANGE_DISP      1019
 #define EWFD_IGNORED_DISP    1020
-
-/* Export raw dialog defines. */
-#define EWFD_EXPORTRAW_ST 1000
-
-/* Export SSL Session Keys dialog defines. */
-#define EWFD_EXPORTSSLKEYS_ST 1000
 
 /* Merge dialog defines.  Overlays Open dialog defines above. */
 #define EWFD_MERGE_PREPEND_BTN 1050

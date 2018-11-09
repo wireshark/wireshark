@@ -277,7 +277,6 @@ topic_action_url(topic_action_e action)
         url = user_guide_url("ChIOExportSection.html");
         break;
     case(HELP_EXPORT_BYTES_DIALOG):
-    case(HELP_EXPORT_BYTES_WIN32_DIALOG):
         url = user_guide_url("ChIOExportSection.html#ChIOExportSelectedDialog");
         break;
     case(HELP_EXPORT_OBJECT_LIST):
