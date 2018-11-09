@@ -41,6 +41,7 @@
 #include "packet-x509af.h"
 #include "packet-x509if.h"
 #include "packet-icmp.h"    /* same transaction_t used both both v4 and v6 */
+#include "packet-icmp-int.h"
 #include "packet-ieee802154.h"
 #include "packet-6lowpan.h"
 #include "packet-ip.h"
@@ -80,6 +81,7 @@ void proto_reg_handoff_icmpv6(void);
  * RFC 7112: Implications of Oversized IPv6 Header Chains
  * RFC 7400: 6LoWPAN-GHC: Generic Header Compression for IPv6 over Low-Power Wireless Personal Area Networks (6LoWPANs)
  * RFC 7731: MPL Control Message
+ * RFC 8335: PROBE: A Utility for Probing Interfaces
  * http://www.iana.org/assignments/icmpv6-parameters (last updated 2016-02-24)
  */
 
@@ -531,6 +533,16 @@ static int hf_icmpv6_mpl_seed_info_s = -1;
 static int hf_icmpv6_mpl_seed_info_seed_id = -1;
 static int hf_icmpv6_mpl_seed_info_sequence = -1;
 
+/* Extended Echo - Probe  (RFC8335)*/
+static int hf_icmpv6_ext_echo_seq_num = -1;
+static int hf_icmpv6_ext_echo_req_reserved = -1;
+static int hf_icmpv6_ext_echo_req_local = -1;
+static int hf_icmpv6_ext_echo_rsp_state = -1;
+static int hf_icmpv6_ext_echo_rsp_reserved = -1;
+static int hf_icmpv6_ext_echo_rsp_active = -1;
+static int hf_icmpv6_ext_echo_rsp_ipv4 = -1;
+static int hf_icmpv6_ext_echo_rsp_ipv6 = -1;
+
 /* Conversation related data */
 static int hf_icmpv6_resp_in = -1;
 static int hf_icmpv6_resp_to = -1;
@@ -650,6 +662,8 @@ static dissector_handle_t ipv6_handle;
 #define ICMP6_6LOWPANND_DAR             157
 #define ICMP6_6LOWPANND_DAC             158
 #define ICMP6_MPL_CONTROL               159
+#define ICMP6_EXTECHO                   160
+#define ICMP6_EXTECHOREPLY              161
 
 
 static const value_string icmpv6_type_val[] = {
@@ -692,6 +706,8 @@ static const value_string icmpv6_type_val[] = {
     { ICMP6_6LOWPANND_DAR,         "Duplicate Address Request"},                        /* [RFC6775] */
     { ICMP6_6LOWPANND_DAC,         "Duplicate Address Confirmation"},                   /* [RFC6775] */
     { ICMP6_MPL_CONTROL,           "MPL Control Message"},                              /* [RFC7731] */
+    { ICMP6_EXTECHO,               "Extended Echo request"},                            /* [RFC8335] */
+    { ICMP6_EXTECHOREPLY,          "Extended Echo reply"},                              /* [RFC8335] */
     { 200,                         "Private experimentation" },                         /* [RFC4443] */
     { 201,                         "Private experimentation" },                         /* [RFC4443] */
     { 255,                         "Reserved for expansion of ICMPv6 informational messages" }, /* [RFC4443] */
@@ -1295,6 +1311,31 @@ static const value_string rdnss_infinity[] = {
     { 0xffffffff, "Infinity" },
     { 0, NULL}
 };
+
+static const value_string ext_echo_req_code_str[] = {
+    { 0, "No error"},
+    { 0, NULL}
+};
+
+static const value_string ext_echo_reply_code_str[] = {
+    { 0, "No error"},
+    { 1, "Malformed Query"},
+    { 2, "No Such Interface"},
+    { 3, "No Such Table Entry"},
+    { 4, "Multiple Interfaces Satisfy Query"},
+    { 0, NULL}
+    };
+
+static const value_string ext_echo_reply_state_str[] = {
+    { 0, "Reserved"},
+    { 1, "Incomplete"},
+    { 2, "Reachable"},
+    { 3, "Stale"},
+    { 4, "Delay"},
+    { 5, "Probe"},
+    { 6, "Failed"},
+    { 0, NULL}
+    };
 
 /* whenever a ICMPv6 packet is seen by the tap listener */
 /* Add a new frame into the graph */
@@ -3961,6 +4002,12 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         case ICMP6_RPL_CONTROL:
             code_name = val_to_str(icmp6_code, rpl_code_val, "Unknown (%d)");
             break;
+        case ICMP6_EXTECHO:
+            code_name = val_to_str(icmp6_code, ext_echo_req_code_str, "Unknown (%d)");
+            break;
+        case ICMP6_EXTECHOREPLY:
+            code_name = val_to_str(icmp6_code, ext_echo_reply_code_str, "Unknown (%d)");
+            break;
     }
 
     if (code_name)
@@ -4561,6 +4608,46 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 offset = dissect_mpl_control(tvb, offset, pinfo, icmp6_tree, icmp6_type, icmp6_code);
                 break;
             }
+
+            case ICMP6_EXTECHO: /* Extended Echo - Probe - (RFC8335) */
+            {
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_echo_identifier, tvb, offset, 2,
+                                    ENC_BIG_ENDIAN);
+                offset += 2;
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_ext_echo_seq_num, tvb, offset, 1,
+                                    ENC_BIG_ENDIAN);
+                offset += 1;
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_ext_echo_req_reserved, tvb, offset, 1,
+                                    ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_ext_echo_req_local, tvb, offset, 1,
+                                    ENC_BIG_ENDIAN);
+                offset += 1;
+                offset = dissect_icmp_extension_structure(tvb, pinfo, offset, icmp6_tree);
+                break;
+            }
+
+            case ICMP6_EXTECHOREPLY:
+            {
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_echo_identifier, tvb, offset, 2,
+                                    ENC_BIG_ENDIAN);
+                offset += 2;
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_ext_echo_seq_num, tvb, offset, 1,
+                                    ENC_BIG_ENDIAN);
+                offset += 1;
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_ext_echo_rsp_state, tvb, offset, 1,
+                                    ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_ext_echo_rsp_reserved, tvb, offset, 1,
+                                    ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_ext_echo_rsp_active, tvb, offset, 1,
+                                    ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_ext_echo_rsp_ipv4, tvb, offset, 1,
+                                    ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_ext_echo_rsp_ipv6, tvb, offset, 1,
+                                    ENC_BIG_ENDIAN);
+                offset += 1;
+                break;
+            }
+
             default:
                 expert_add_info_format(pinfo, ti, &ei_icmpv6_undecoded_type,
                                        "Dissector for ICMPv6 Type (%d)"
@@ -5845,6 +5932,32 @@ proto_register_icmpv6(void)
         { &hf_icmpv6_da_raddr,
           { "Registered Address", "icmpv6.6lowpannd.da.reg_addr", FT_IPv6, BASE_NONE, NULL, 0x0,
             "Carries the host address, which was contained in the IPv6 Source field in the NS that contained the ARO option sent by the host", HFILL }},
+
+        /* Extended Echo - Probe - RFC8335 */
+        { &hf_icmpv6_ext_echo_seq_num,
+         { "Sequence number", "icmpv6.ext.echo.seq", FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+           NULL, HFILL}},
+        { &hf_icmpv6_ext_echo_req_reserved,
+         { "Reserved", "icmpv6.ext.echo.req.res", FT_UINT8, BASE_HEX, NULL, 0xFE,
+           NULL, HFILL}},
+        { &hf_icmpv6_ext_echo_req_local,
+         { "Local bit", "icmpv6.ext.echo.req.local", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01,
+           NULL, HFILL}},
+        { &hf_icmpv6_ext_echo_rsp_state,
+         { "State", "icmpv6.ext.echo.rsp.state", FT_UINT8, BASE_DEC, VALS(ext_echo_reply_state_str), 0xE0,
+           NULL, HFILL}},
+        { &hf_icmpv6_ext_echo_rsp_reserved,
+         { "Reserved", "icmpv6.ext.echo.rsp.res", FT_UINT8, BASE_HEX, NULL, 0x18,
+           NULL, HFILL}},
+        { &hf_icmpv6_ext_echo_rsp_active,
+         { "Active bit", "icmpv6.ext.echo.rsp.active", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04,
+           NULL, HFILL}},
+        { &hf_icmpv6_ext_echo_rsp_ipv4,
+         { "IPv4 bit", "icmpv6.ext.echo.rsp.ipv4", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02,
+           NULL, HFILL}},
+        { &hf_icmpv6_ext_echo_rsp_ipv6,
+         { "IPv6 bit", "icmpv6.ext.echo.rsp.ipv6", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01,
+           NULL, HFILL}},
 
         /* Conversation-related [generated] header fields */
         { &hf_icmpv6_resp_in,

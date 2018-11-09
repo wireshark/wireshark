@@ -39,6 +39,7 @@
 
 #include "packet-ip.h"
 #include "packet-icmp.h"
+#include "packet-icmp-int.h"
 
 void proto_register_icmp(void);
 void proto_reg_handoff_icmp(void);
@@ -941,8 +942,7 @@ dissect_interface_identification_object(tvbuff_t * tvb, gint offset,
 
 }				/*end dissect_interface_identification_object */
 
-static void
-dissect_extensions(tvbuff_t * tvb, packet_info *pinfo, gint offset, proto_tree * tree)
+gint dissect_icmp_extension_structure(tvbuff_t * tvb, packet_info *pinfo, gint offset, proto_tree * tree)
 {
 	guint8 version;
 	guint8 class_num;
@@ -965,7 +965,7 @@ dissect_extensions(tvbuff_t * tvb, packet_info *pinfo, gint offset, proto_tree *
 					"ICMP Multi-Part Extensions");
 
 	if (reported_length < 4 /* Common header */ ) {
-		return;
+		return offset;
 	}
 
 	ext_tree = proto_item_add_subtree(ti, ett_icmp_ext);
@@ -993,7 +993,7 @@ dissect_extensions(tvbuff_t * tvb, packet_info *pinfo, gint offset, proto_tree *
 	if (version != 1 && version != 2) {
 		/* Unsupported version */
 		proto_item_append_text(ti, " (unsupported version)");
-		return;
+		return offset;
 	}
 
 	/* Skip the common header */
@@ -1100,6 +1100,7 @@ dissect_extensions(tvbuff_t * tvb, packet_info *pinfo, gint offset, proto_tree *
 		offset = obj_end_offset;
 
 	}
+	return offset;
 }
 
 /* ======================================================================= */
@@ -1690,7 +1691,7 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 		if ((tvb_reported_length(tvb) > 8 + 128)
 		    && (tvb_get_ntohs(tvb, 8 + 2) <= 128
 			|| favor_icmp_mpls_ext)) {
-			dissect_extensions(tvb, pinfo, 8 + 128, icmp_tree);
+			dissect_icmp_extension_structure(tvb, pinfo, 8 + 128, icmp_tree);
 		}
 		break;
 	case ICMP_ECHOREPLY:
@@ -1826,7 +1827,7 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 
 	case ICMP_EXTECHO:
 		if (tvb_reported_length(tvb) > 8) {
-			dissect_extensions(tvb, pinfo, 8, icmp_tree);
+			dissect_icmp_extension_structure(tvb, pinfo, 8, icmp_tree);
 		}
 		break;
 	}
