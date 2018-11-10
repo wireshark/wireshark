@@ -4191,9 +4191,11 @@ capture_loop_write_pcapng_cb(capture_src *pcap_src, const struct pcapng_block_he
 {
     int          err;
 
-    if (!global_capture_opts.use_pcapng) {
-        return;
-    }
+    /*
+     * This should never be called if we're not writing pcapng.
+     */
+    g_assert(global_capture_opts.use_pcapng);
+
     /* We may be called multiple times from pcap_dispatch(); if we've set
        the "stop capturing" flag, ignore this packet, as we're not
        supposed to be saving any more packets. */
