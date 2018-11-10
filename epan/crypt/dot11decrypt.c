@@ -825,8 +825,8 @@ INT Dot11DecryptPacketProcess(
     gboolean scanHandshake)
 {
     DOT11DECRYPT_SEC_ASSOCIATION_ID id;
-    UCHAR tmp_data[DOT11DECRYPT_MAX_CAPLEN];
-    guint tmp_len;
+    DISSECTOR_ASSERT(decrypt_data);
+    DISSECTOR_ASSERT(decrypt_len);
 
 #ifdef DOT11DECRYPT_DEBUG
 #define MSGBUF_LEN 255
@@ -875,12 +875,6 @@ INT Dot11DecryptPacketProcess(
     if (Dot11DecryptGetSaAddress((const DOT11DECRYPT_MAC_FRAME_ADDR4 *)(data), &id) != DOT11DECRYPT_RET_SUCCESS) {
         DOT11DECRYPT_DEBUG_PRINT_LINE("Dot11DecryptPacketProcess", "STA/BSSID not found", DOT11DECRYPT_DEBUG_LEVEL_5);
         return DOT11DECRYPT_RET_REQ_DATA;
-    }
-
-    if (decrypt_data==NULL) {
-        DOT11DECRYPT_DEBUG_PRINT_LINE("Dot11DecryptPacketProcess", "no decrypt buffer, use local", DOT11DECRYPT_DEBUG_LEVEL_3);
-        decrypt_data=tmp_data;
-        decrypt_len=&tmp_len;
     }
 
     /* check if data is encrypted (use the WEP bit in the Frame Control field) */
@@ -950,11 +944,13 @@ INT Dot11DecryptPacketProcess(
                    The group key handshake could be sent at any time the AP wants to change the key (such as when
                    it is using key rotation) and it also could be a rekey for the Pairwise key. So we must scan every packet. */
                 if (scanHandshake) {
-                    return (Dot11DecryptScanForKeys(ctx, decrypt_data, mac_header_len, *decrypt_len, id,
-                                                    decrypt_data, decrypt_len, key));
-                } else {
-                    return DOT11DECRYPT_RET_SUCCESS;
+                    if (Dot11DecryptScanForKeys(ctx, decrypt_data, mac_header_len, *decrypt_len, id,
+                                                decrypt_data, decrypt_len, key) == DOT11DECRYPT_RET_SUCCESS_HANDSHAKE) {
+                        /* Keys found */
+                        return DOT11DECRYPT_RET_SUCCESS_HANDSHAKE;
+                    }
                 }
+                return DOT11DECRYPT_RET_SUCCESS; /* No keys found but decryption was successful */
             }
         }
     }

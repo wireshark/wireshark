@@ -221,7 +221,10 @@ ieee_80211_add_tagged_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                   proto_tree *tree, int tagged_parameters_len, int ftype,
                                   association_sanity_check_t *association_sanity_check);
 
-static tvbuff_t *try_decrypt(tvbuff_t *tvb, packet_info *pinfo, guint32 offset, guint32 len, guint8 *algorithm, guint32 *sec_header, guint32 *sec_trailer, PDOT11DECRYPT_KEY_ITEM used_key);
+static tvbuff_t *
+try_decrypt(tvbuff_t *tvb, packet_info *pinfo, guint offset, guint len, gboolean scan_keys,
+            guint8 *algorithm, guint32 *sec_header, guint32 *sec_trailer,
+            PDOT11DECRYPT_KEY_ITEM used_key);
 
 static int weak_iv(guchar *iv);
 
@@ -23224,6 +23227,17 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
   tvbuff_t   *next_tvb = NULL;
   wlan_hdr_t *whdr;
 
+#define PROTECTION_ALG_WEP  DOT11DECRYPT_KEY_TYPE_WEP
+#define PROTECTION_ALG_TKIP  DOT11DECRYPT_KEY_TYPE_TKIP
+#define PROTECTION_ALG_CCMP  DOT11DECRYPT_KEY_TYPE_CCMP
+#define PROTECTION_ALG_RSNA  PROTECTION_ALG_CCMP | PROTECTION_ALG_TKIP
+#define IS_TKIP(tvb, hdr_len)  (tvb_get_guint8(tvb, hdr_len + 1) == \
+  ((tvb_get_guint8(tvb, hdr_len) | 0x20) & 0x7f))
+#define IS_CCMP(tvb, hdr_len)  (tvb_get_guint8(tvb, hdr_len + 2) == 0)
+  guint8 algorithm=G_MAXUINT8;
+  guint32 sec_header=0;
+  guint32 sec_trailer=0;
+
   DOT11DECRYPT_KEY_ITEM  used_key;
 
   p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, IS_DMG_KEY, GINT_TO_POINTER(isDMG));
@@ -24230,21 +24244,6 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
         add_ff_mesh_control(msh_tree, tvb, pinfo, meshoff);
       }
 
-      if (enable_decryption && !pinfo->fd->flags.visited) {
-        const guint8 *enc_data = tvb_get_ptr(tvb, 0, hdr_len+reported_len);
-        /* The processing will take care of 4-way handshake sessions for WPA and WPA2 decryption */
-        proto_eapol_keydata_t *eapol;
-        eapol = (proto_eapol_keydata_t *)wmem_alloc(wmem_file_scope(), PROTO_EAPOL_MAX_SIZE);
-        gint ret = Dot11DecryptPacketProcess(&dot11decrypt_ctx, enc_data, hdr_len, hdr_len+reported_len,
-                                             eapol->keydata, &eapol->keydata_len, &eapol->used_key, TRUE);
-        if (ret == DOT11DECRYPT_RET_SUCCESS_HANDSHAKE && eapol->keydata_len > 0) {
-          /* XXX realloc data for eapol to actual size used? */
-          /* Save decrypted eapol keydata for rsna dissector */
-          p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, EAPOL_KEY, eapol);
-        } else {
-          wmem_free(wmem_file_scope(), eapol);
-        }
-      }
       /*
        * No-data frames don't have a body.
        */
@@ -24304,6 +24303,11 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
         }
       }
 
+      if (enable_decryption && !pinfo->fd->flags.visited) {
+        /* The processing will take care of 4-way handshake sessions for WPA and WPA2 decryption */
+        next_tvb = try_decrypt(tvb, pinfo, hdr_len, reported_len, TRUE,
+                               &algorithm, &sec_header, &sec_trailer, &used_key);
+      }
       break;
 
     case CONTROL_FRAME:
@@ -24329,18 +24333,12 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
     guint32     iv;
     guint8      key, keybyte;
 
-#define PROTECTION_ALG_WEP  DOT11DECRYPT_KEY_TYPE_WEP
-#define PROTECTION_ALG_TKIP  DOT11DECRYPT_KEY_TYPE_TKIP
-#define PROTECTION_ALG_CCMP  DOT11DECRYPT_KEY_TYPE_CCMP
-#define PROTECTION_ALG_RSNA  PROTECTION_ALG_CCMP | PROTECTION_ALG_TKIP
-    guint8 algorithm=G_MAXUINT8;
-#define IS_TKIP(tvb, hdr_len)  (tvb_get_guint8(tvb, hdr_len + 1) == \
-  ((tvb_get_guint8(tvb, hdr_len) | 0x20) & 0x7f))
-#define IS_CCMP(tvb, hdr_len)  (tvb_get_guint8(tvb, hdr_len + 2) == 0)
-    guint32 sec_header=0;
-    guint32 sec_trailer=0;
-
-    next_tvb = try_decrypt(tvb, pinfo, hdr_len, reported_len, &algorithm, &sec_header, &sec_trailer, &used_key);
+    if (next_tvb) {
+      /* Already decrypted when searching for keys above. No need to decrypt again */
+    } else {
+      next_tvb = try_decrypt(tvb, pinfo, hdr_len, reported_len, FALSE,
+                             &algorithm, &sec_header, &sec_trailer, &used_key);
+    }
 
     keybyte = tvb_get_guint8(tvb, hdr_len + 3);
     key = KEY_OCTET_WEP_KEY(keybyte);
@@ -25359,7 +25357,9 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
 
 /* It returns the algorithm used for decryption and the header and trailer lengths. */
 static tvbuff_t *
-try_decrypt(tvbuff_t *tvb, packet_info *pinfo, guint offset, guint len, guint8 *algorithm, guint32 *sec_header, guint32 *sec_trailer, PDOT11DECRYPT_KEY_ITEM used_key)
+try_decrypt(tvbuff_t *tvb, packet_info *pinfo, guint offset, guint len, gboolean scan_keys,
+            guint8 *algorithm, guint32 *sec_header, guint32 *sec_trailer,
+            PDOT11DECRYPT_KEY_ITEM used_key)
 {
   const guint8      *enc_data;
   tvbuff_t          *decr_tvb = NULL;
@@ -25373,9 +25373,9 @@ try_decrypt(tvbuff_t *tvb, packet_info *pinfo, guint offset, guint len, guint8 *
   enc_data = tvb_get_ptr(tvb, 0, len+offset);
 
   /*  process packet with Dot11Decrypt                              */
-  if (Dot11DecryptPacketProcess(&dot11decrypt_ctx, enc_data, offset, offset+len, dec_data, &dec_caplen,
-                            used_key, FALSE)==DOT11DECRYPT_RET_SUCCESS)
-  {
+  gint ret = Dot11DecryptPacketProcess(&dot11decrypt_ctx, enc_data, offset, offset+len,
+                                       dec_data, &dec_caplen, used_key, scan_keys);
+  if (ret == DOT11DECRYPT_RET_SUCCESS) {
     guint8 *tmp;
     *algorithm=used_key->KeyType;
     switch (*algorithm) {
@@ -25394,14 +25394,22 @@ try_decrypt(tvbuff_t *tvb, packet_info *pinfo, guint offset, guint len, guint8 *
       default:
         return NULL;
     }
-
     /* allocate buffer for decrypted payload                      */
     tmp = (guint8 *)wmem_memdup(pinfo->pool, dec_data+offset, dec_caplen-offset);
-
     len = dec_caplen-offset;
 
     /* decrypt successful, let's set up a new data tvb.              */
     decr_tvb = tvb_new_child_real_data(tvb, tmp, len, len);
+  } else if (ret == DOT11DECRYPT_RET_SUCCESS_HANDSHAKE && dec_caplen > 0) {
+      proto_eapol_keydata_t *eapol;
+      eapol = (proto_eapol_keydata_t *)wmem_alloc(wmem_file_scope(),
+                                                  dec_caplen + PROTO_EAPOL_KEYDATA_OFFSET);
+      memcpy(&eapol->used_key, used_key, sizeof(*used_key));
+      memcpy(eapol->keydata, dec_data, dec_caplen);
+      eapol->keydata_len = dec_caplen;
+
+      /* Save decrypted eapol keydata for rsna dissector */
+      p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, EAPOL_KEY, eapol);
   }
 
   return decr_tvb;

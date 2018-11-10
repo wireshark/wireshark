@@ -156,10 +156,8 @@ extern "C" {
  * @param data_off [IN] Payload offset (aka the MAC header length)
  * @param data_len [IN] Total length of the MAC header and the payload
  * @param decrypt_data [OUT] Pointer to a buffer that will contain
- *   decrypted data. If this parameter is set to NULL, decrypted data will
- *   be discarded. Must have room for at least DOT11DECRYPT_MAX_CAPLEN bytes.
- * @param decrypt_len [OUT] Length of decrypted data if decrypt_data
- *   is not NULL.
+ *   decrypted data. Must have room for at least DOT11DECRYPT_MAX_CAPLEN bytes.
+ * @param decrypt_len [OUT] Length of decrypted data.
  * @param key [OUT] Pointer to a preallocated key structure containing
  *   the key used during the decryption process (if done). If this parameter
  *   is set to NULL, the key will be not returned.
