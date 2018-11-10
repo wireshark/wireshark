@@ -690,6 +690,7 @@ int real_main(int argc, char **argv)
 			g_warning("ERROR: count of packets must be specified (--remote-count)");
 			goto end;
 		}
+		ssh_params->debug = extcap_conf->debug;
 		ret = ssh_open_remote_connection(ssh_params, remote_interface,
 			remote_filter, count, extcap_conf->fifo);
 	} else {

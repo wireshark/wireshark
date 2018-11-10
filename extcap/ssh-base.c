@@ -17,6 +17,13 @@
 #include <extcap/extcap-base.h>
 #include <log.h>
 #include <string.h>
+#include <libssh/callbacks.h>
+#include <ws_attributes.h>
+
+void extcap_log(int priority _U_, const char *function, const char *buffer, void *userdata _U_)
+{
+	g_debug("[%s] %s", function, buffer);
+}
 
 ssh_session create_ssh_connection(const ssh_params_t* ssh_params, char** err_info)
 {
@@ -46,6 +53,12 @@ ssh_session create_ssh_connection(const ssh_params_t* ssh_params, char** err_inf
 	if (ssh_options_parse_config(sshs, NULL) != 0) {
 		*err_info = g_strdup("Unable to load the configuration file");
 		goto failure;
+	}
+
+	if (ssh_params->debug) {
+		int debug_level = SSH_LOG_INFO;
+		ssh_options_set(sshs, SSH_OPTIONS_LOG_VERBOSITY, &debug_level);
+		ssh_set_log_callback(extcap_log);
 	}
 
 	if (ssh_params->port != 0) {

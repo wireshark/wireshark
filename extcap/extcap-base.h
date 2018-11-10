@@ -82,6 +82,7 @@ typedef struct _extcap_parameters
 	char * help_header;
 	GList * help_options;
 
+	gboolean debug;
 } extcap_parameters;
 
 void extcap_base_register_interface(extcap_parameters * extcap, const char * interface, const char * ifdescription, uint16_t dlt, const char * dltdescription );

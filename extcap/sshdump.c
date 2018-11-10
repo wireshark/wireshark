@@ -512,6 +512,7 @@ int real_main(int argc, char **argv)
 			goto end;
 		}
 		filter = concat_filters(extcap_conf->capture_filter, remote_filter);
+		ssh_params->debug = extcap_conf->debug;
 		ret = ssh_open_remote_connection(ssh_params, remote_interface,
 			filter, remote_capture_command, use_sudo, noprom, count, extcap_conf->fifo);
 		g_free(filter);

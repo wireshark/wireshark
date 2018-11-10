@@ -117,6 +117,7 @@ uint8_t extcap_base_parse_options(extcap_parameters * extcap, int result, char *
 #else
             setenv("G_MESSAGES_DEBUG", "all", 1);
 #endif
+            extcap->debug = TRUE;
             break;
         case EXTCAP_OPT_DEBUG_FILE:
             extcap_init_custom_log(optargument);

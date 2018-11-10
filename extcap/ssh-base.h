@@ -45,6 +45,7 @@ typedef struct _ssh_params {
 	gchar* sshkey_path;
 	gchar* sshkey_passphrase;
 	gchar* proxycommand;
+	gboolean debug;
 } ssh_params_t;
 
 /* Create a ssh connection using all the possible authentication menthods */
