@@ -223,6 +223,19 @@ enum layer_to_show {
 static gint     global_pdcp_nr_layer_to_show = (gint)ShowRLCLayer;
 
 
+/* Function to be called from outside this module (e.g. in a plugin) to get per-packet data */
+pdcp_nr_info *get_pdcp_nr_proto_data(packet_info *pinfo)
+{
+    return (pdcp_nr_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_pdcp_nr, 0);
+}
+
+/* Function to be called from outside this module (e.g. in a plugin) to set per-packet data */
+void set_pdcp_nr_proto_data(packet_info *pinfo, pdcp_nr_info *p_pdcp_nr_info)
+{
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_pdcp_nr, 0, p_pdcp_nr_info);
+}
+
+
 
 /**************************************************/
 /* Sequence number analysis                       */
@@ -686,6 +699,7 @@ static void show_pdcp_config(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree
         ti = proto_tree_add_uint(configuration_tree, hf_pdcp_nr_ueid, tvb, 0, 0,
                                  p_pdcp_info->ueid);
         PROTO_ITEM_SET_GENERATED(ti);
+        write_pdu_label_and_info(configuration_ti, pinfo, "UEId=%3u", p_pdcp_info->ueid);
     }
 
     /* Bearer type */
@@ -697,6 +711,17 @@ static void show_pdcp_config(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree
         ti = proto_tree_add_uint(configuration_tree, hf_pdcp_nr_bearer_id, tvb, 0, 0,
                                  p_pdcp_info->bearerId);
         PROTO_ITEM_SET_GENERATED(ti);
+    }
+
+    /* Show channel type in root/Info */
+    if (p_pdcp_info->bearerType == Bearer_DCCH) {
+        write_pdu_label_and_info(configuration_ti, pinfo, "   %s-%u  ",
+                                 (p_pdcp_info->plane == NR_SIGNALING_PLANE) ? "SRB" : "DRB",
+                                 p_pdcp_info->bearerId);
+    }
+    else {
+        write_pdu_label_and_info(configuration_ti, pinfo, "   %s",
+                                 val_to_str_const(p_pdcp_info->bearerType, bearer_type_vals, "Unknown"));
     }
 
     if (p_pdcp_info->plane == NR_USER_PLANE) {

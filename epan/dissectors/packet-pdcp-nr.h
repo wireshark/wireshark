@@ -62,6 +62,12 @@ typedef struct pdcp_nr_info
     guint16            pdu_length;
 } pdcp_nr_info;
 
+/* Functions to be called from outside this module (e.g. in a plugin, where pdcp_nr_info
+   isn't available) to get/set per-packet data */
+WS_DLL_PUBLIC
+pdcp_nr_info *get_pdcp_nr_proto_data(packet_info *pinfo);
+WS_DLL_PUBLIC
+void set_pdcp_nr_proto_data(packet_info *pinfo, pdcp_nr_info *p_pdcp_nr_info);
 
 
 /*****************************************************************/
