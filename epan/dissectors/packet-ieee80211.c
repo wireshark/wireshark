@@ -10620,9 +10620,8 @@ add_ff_action_vendor_specific(proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
   if (dissected <= 0)
   {
       call_data_dissector(vendor_tvb, pinfo, tree);
-      /* don't advance the dissector pointer as this will probably cause more malformed packets
-         if vendor is unknown. It also matches previous behavior (before dissection table implementation) */
-      dissected = 0;
+      /* Skip the whole TVB because we don't know its format */
+      dissected = tvb_reported_length_remaining(vendor_tvb, 0);
   }
 
   offset += dissected;
