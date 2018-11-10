@@ -81,83 +81,6 @@ static const mime_files_t magic_files[] = {
 
 #define	N_MAGIC_TYPES	(sizeof(magic_files) / sizeof(magic_files[0]))
 
-/*
- * Impose a not-too-large limit on the maximum file size, to avoid eating
- * up 99% of the (address space, swap partition, disk space for swap/page
- * files); if we were to return smaller chunks and let the dissector do
- * reassembly, it would *still* have to allocate a buffer the size of
- * the file, so it's not as if we'd neve try to allocate a buffer the
- * size of the file.
- */
-#define MAX_FILE_SIZE	G_MAXINT
-
-static gboolean
-mime_read_file(wtap *wth, FILE_T fh, wtap_rec *rec,
-    Buffer *buf, int *err, gchar **err_info)
-{
-	gint64 file_size;
-	int packet_size;
-
-	if ((file_size = wtap_file_size(wth, err)) == -1)
-		return FALSE;
-
-	if (file_size > MAX_FILE_SIZE) {
-		/*
-		 * Don't blow up trying to allocate space for an
-		 * immensely-large file.
-		 */
-		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("mime_file: File has %" G_GINT64_MODIFIER "d-byte packet, bigger than maximum of %u",
-				file_size, MAX_FILE_SIZE);
-		return FALSE;
-	}
-	packet_size = (int)file_size;
-
-	rec->rec_type = REC_TYPE_PACKET;
-	rec->presence_flags = 0; /* yes, we have no bananas^Wtime stamp */
-
-	rec->rec_header.packet_header.caplen = packet_size;
-	rec->rec_header.packet_header.len = packet_size;
-
-	rec->ts.secs = 0;
-	rec->ts.nsecs = 0;
-
-	return wtap_read_packet_bytes(fh, buf, packet_size, err, err_info);
-}
-
-static gboolean
-mime_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
-{
-	gint64 offset;
-
-	*err = 0;
-
-	offset = file_tell(wth->fh);
-
-	/* there is only ever one packet */
-	if (offset != 0)
-		return FALSE;
-
-	*data_offset = offset;
-
-	return mime_read_file(wth, wth->fh, &wth->rec, wth->rec_data, err, err_info);
-}
-
-static gboolean
-mime_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec, Buffer *buf, int *err, gchar **err_info)
-{
-	/* there is only one packet */
-	if (seek_off > 0) {
-		*err = 0;
-		return FALSE;
-	}
-
-	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-		return FALSE;
-
-	return mime_read_file(wth, wth->random_fh, rec, buf, err, err_info);
-}
-
 wtap_open_return_val
 mime_file_open(wtap *wth, int *err, gchar **err_info)
 {
@@ -206,8 +129,8 @@ mime_file_open(wtap *wth, int *err, gchar **err_info)
 	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_MIME;
 	wth->file_encap = WTAP_ENCAP_MIME;
 	wth->file_tsprec = WTAP_TSPREC_SEC;
-	wth->subtype_read = mime_read;
-	wth->subtype_seek_read = mime_seek_read;
+	wth->subtype_read = wtap_full_file_read;
+	wth->subtype_seek_read = wtap_full_file_seek_read;
 	wth->snapshot_length = 0;
 
 	return WTAP_OPEN_MINE;

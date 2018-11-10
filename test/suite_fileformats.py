@@ -15,6 +15,7 @@ import os.path
 import subprocesstest
 import sys
 import unittest
+import fixtures
 
 # XXX Currently unused. It would be nice to be able to use this below.
 time_output_args = ('-Tfields', '-e', 'frame.number', '-e', 'frame.time_epoch', '-e', 'frame.time_delta')
@@ -110,3 +111,16 @@ class case_fileformat_pcapng(subprocesstest.SubprocessTestCase):
             )
         self.assertTrue(self.diffOutput(capture_proc.stdout_str, baseline_str, 'tshark', baseline_file))
 
+
+@fixtures.mark_usefixtures('test_env')
+@fixtures.uses_fixtures
+class case_fileformat_mime(subprocesstest.SubprocessTestCase):
+    def test_mime_pcapng_gz(self, cmd_tshark, dirs):
+        '''Test that the full uncompressed contents is shown.'''
+        capture_file = os.path.join(dirs.capture_dir, 'icmp.pcapng.gz')
+        proc = self.runProcess((cmd_tshark,
+                '-r', capture_file,
+                '-Xread_format:MIME Files Format',
+                '-Tfields', '-e', 'frame.len', '-e', 'pcapng.block.length',
+            ))
+        self.assertEqual(proc.stdout_str.strip(), '480\t128,128,88,88,132,132,132,132')

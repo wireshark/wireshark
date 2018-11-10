@@ -1450,6 +1450,95 @@ wtap_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec, Buffer *buf,
 	return TRUE;
 }
 
+static gboolean
+wtap_full_file_read_file(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf, int *err, gchar **err_info)
+{
+	gint64 file_size;
+	int packet_size = 0;
+	const int block_size = 1024 * 1024;
+
+	if ((file_size = wtap_file_size(wth, err)) == -1)
+		return FALSE;
+
+	if (file_size > G_MAXINT) {
+		/*
+		 * Avoid allocating space for an immensely-large file.
+		 */
+		*err = WTAP_ERR_BAD_FILE;
+		*err_info = g_strdup_printf("%s: File has %" G_GINT64_MODIFIER "d-byte packet, bigger than maximum of %u",
+				wtap_encap_short_string(wth->file_encap), file_size, G_MAXINT);
+		return FALSE;
+	}
+
+	/*
+	 * Compressed files might expand to a larger size than the actual file
+	 * size. Try to read the full size and then read in smaller increments
+	 * to avoid frequent memory reallocations.
+	 */
+	int buffer_size = block_size * (1 + (int)file_size / block_size);
+	for (;;) {
+		if (buffer_size <= 0) {
+			*err = WTAP_ERR_BAD_FILE;
+			*err_info = g_strdup_printf("%s: Uncompressed file is bigger than maximum of %u",
+					wtap_encap_short_string(wth->file_encap), G_MAXINT);
+			return FALSE;
+		}
+		ws_buffer_assure_space(buf, buffer_size);
+		int nread = file_read(ws_buffer_start_ptr(buf) + packet_size, buffer_size - packet_size, fh);
+		if (nread < 0) {
+			*err = file_error(fh, err_info);
+			if (*err == 0)
+				*err = WTAP_ERR_BAD_FILE;
+			return FALSE;
+		}
+		packet_size += nread;
+		if (packet_size != buffer_size) {
+			/* EOF */
+			break;
+		}
+		buffer_size += block_size;
+	}
+
+	rec->rec_type = REC_TYPE_PACKET;
+	rec->presence_flags = 0; /* yes, we have no bananas^Wtime stamp */
+	rec->ts.secs = 0;
+	rec->ts.nsecs = 0;
+	rec->rec_header.packet_header.caplen = packet_size;
+	rec->rec_header.packet_header.len = packet_size;
+
+	return TRUE;
+}
+
+gboolean
+wtap_full_file_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
+{
+	gint64 offset = file_tell(wth->fh);
+
+	/* There is only one packet with the full file contents. */
+	if (offset != 0) {
+		*err = 0;
+		return FALSE;
+	}
+
+	*data_offset = offset;
+	return wtap_full_file_read_file(wth, wth->fh, &wth->rec, wth->rec_data, err, err_info);
+}
+
+gboolean
+wtap_full_file_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec, Buffer *buf, int *err, gchar **err_info)
+{
+	/* There is only one packet with the full file contents. */
+	if (seek_off > 0) {
+		*err = 0;
+		return FALSE;
+	}
+
+	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
+		return FALSE;
+
+	return wtap_full_file_read_file(wth, wth->random_fh, rec, buf, err, err_info);
+}
+
 /*
  * Initialize the library.
  */

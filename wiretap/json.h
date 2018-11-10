@@ -13,18 +13,6 @@
 
 #include "wtap.h"
 
-/*
- * Impose a not-too-large limit on the maximum file size, to avoid eating
- * up 99% of the (address space, swap partition, disk space for swap/page
- * files); if we were to return smaller chunks and let the dissector do
- * reassembly, it would *still* have to allocate a buffer the size of
- * the file, so it's not as if we'd neve try to allocate a buffer the
- * size of the file.
- *
- * For now, go for 50MB.
- */
-#define MAX_FILE_SIZE  (50*1024*1024)
-
 wtap_open_return_val json_open(wtap *wth, int *err, gchar **err_info);
 
 #endif
