@@ -1166,10 +1166,10 @@ dissect_routing6_srh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 */
 static int
-dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *_tree, void *data) {
+dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
     struct ws_rthdr    rt;
     guint              nxt, hdr_len, total_len;
-    proto_tree        *rt_tree, *tree;
+    proto_tree        *rt_tree, *root_tree;
     proto_item        *pi, *ti, *ti_hdr_len, *ti_type, *ti_segs;
     int                offset = 0;
     tvbuff_t          *next_tvb;
@@ -1178,9 +1178,9 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *_tree, void *dat
 
     col_append_sep_str(pinfo->cinfo, COL_INFO, " , ", "IPv6 routing");
 
-    tree = p_ipv6_pinfo_select_root(pinfo, _tree);
+    root_tree = p_ipv6_pinfo_select_root(pinfo, tree);
 
-    pi = proto_tree_add_item(tree, proto_ipv6_routing, tvb, offset, -1, ENC_NA);
+    pi = proto_tree_add_item(root_tree, proto_ipv6_routing, tvb, offset, -1, ENC_NA);
     rt_tree = proto_item_add_subtree(pi, ett_ipv6_routing_proto);
 
     proto_tree_add_item(rt_tree, hf_ipv6_routing_nxt, tvb, offset, 1, ENC_BIG_ENDIAN);
