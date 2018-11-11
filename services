@@ -4151,7 +4151,7 @@ opentable        2368/tcp # OpenTable [Brett_Goldstein] [Brett_Goldstein]
 opentable        2368/udp # OpenTable [Brett_Goldstein] [Brett_Goldstein]
 l3-hbmon         2370/tcp # L3-HBMon [Dolores_Scott] [Dolores_Scott] 2014-04-09
 l3-hbmon         2370/udp # L3-HBMon [Dolores_Scott] [Dolores_Scott] 2014-04-09
-rda              2371/tcp # HP Remote Device Access [Hewlett_Packard_Enterprise_2] [Steve_Roscio][Paul_Vencel] 2018-11-02
+rda              2371/tcp # Remote Device Access [Hewlett_Packard_Enterprise_2] [Steve_Roscio][Paul_Vencel] 2018-11-05
 lanmessenger     2372/tcp # LanMessenger [Garrett_Padera] [Garrett_Padera] 2008-02-01
 lanmessenger     2372/udp # LanMessenger [Garrett_Padera] [Garrett_Padera] 2008-02-01
 remographlm      2373/tcp # Remograph License Manager [Per_Fahlberg] [Per_Fahlberg] 2009-01-21
@@ -11473,6 +11473,7 @@ agpolicy        38203/tcp # AppGate Policy Server [Martin_Forssen] [Martin_Forss
 agpolicy        38203/udp # AppGate Policy Server [Martin_Forssen] [Martin_Forssen] 2004-11
 ng-control      38412/sctp # NG Control Plane (3GPP) [Luis_Lopes] [Luis_Lopes] 2017-05-18 2017-05-19
 xn-control      38422/sctp # Xn Control Plane (3GPP) [Luis_Lopes] [Luis_Lopes] 2017-05-18 2017-05-19
+e1-interface    38462/sctp # E1 signalling transport [Huawei_Technologies_France] [Yang_Xudong][Issam_Toufik] 2018-11-06
 f1-control      38472/sctp # F1 Control Plane (3GPP) [Luis_Lopes] [Luis_Lopes] 2017-06-23
 sruth           38800/tcp # Sruth is a service for the distribution of routinely-      generated but arbitrary files based on a publish/subscribe      distribution model and implemented using a peer-to-peer transport      mechanism [University_Corporation_for_Atmospheric_Research] [Steven_Emmerson] 2012-05-07
 secrmmsafecopya 38865/tcp # Security approval process for use of the secRMM SafeCopy program [Squadra_Technologies] [Anthony_LaMark] 2012-03-14
