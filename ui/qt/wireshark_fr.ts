@@ -902,6 +902,18 @@
         <translation>Longueur</translation>
     </message>
     <message>
+        <source>Hash (SHA256)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hash (RIPEMD160)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hash (SHA1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source> (gzip compressed)</source>
         <translation>(compressé gzip)</translation>
     </message>
@@ -1284,6 +1296,10 @@ NOTE: Une option DOIT être sélectionnée.</translation>
         <translation>gigaoctets</translation>
     </message>
     <message>
+        <source>Switch to the next file after the specified number of packets have been captured.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Après basculement de la capture vers le fichier suivant, si le nombre de fichiers donné est dépassé, le fichier le plus ancien sera supprimé.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -1415,10 +1431,7 @@ NOTE: Une option DOIT être sélectionnée.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Multiple files: No file limit given. You must specify a file size or interval at which is switched to the next capture file
- if you want to use multiple files.</source>
-        <oldsource>Multiple files: No file limit given. You must specify a file size or duration at which is switched to the next capture file
- if you want to use multiple files.</oldsource>
+        <source>Multiple files: No file limit given. You must specify a file size, interval, or number of packets for each file.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

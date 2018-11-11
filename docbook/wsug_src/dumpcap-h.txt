@@ -1,4 +1,4 @@
-Dumpcap (Wireshark) 2.9.0 (v2.9.0rc0-2423-gd06ad620)
+Dumpcap (Wireshark) 2.9.0 (v2.9.0rc0-2488-gfef9c0aa)
 Capture network packets and dump them into a pcapng or pcap file.
 See https://www.wireshark.org for more information.
 
@@ -30,6 +30,7 @@ Stop conditions:
   -a <autostop cond.> ...  duration:NUM - stop after NUM seconds
                            filesize:NUM - stop this file after NUM kB
                               files:NUM - stop after NUM files
+                            packets:NUM - stop after NUM packets
 Output (files):
   -w <filename>            name of file to save (def: tempfile)
   -g                       enable group read access on the output file(s)
@@ -37,6 +38,7 @@ Output (files):
                            interval:NUM - create time intervals of NUM secs
                            filesize:NUM - switch to next file after NUM kB
                               files:NUM - ringbuffer: replace after NUM files
+                            packets:NUM - ringbuffer: replace after NUM packets
   -n                       use pcapng format instead of pcap (default)
   -P                       use libpcap format instead of pcapng
   --capture-comment <comment>

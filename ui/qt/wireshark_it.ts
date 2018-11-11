@@ -925,6 +925,18 @@
         <translation>Lunghezza</translation>
     </message>
     <message>
+        <source>Hash (SHA256)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hash (RIPEMD160)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hash (SHA1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source> (gzip compressed)</source>
         <translation> (compresso con gzip)</translation>
     </message>
@@ -1307,6 +1319,10 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>gigabyte</translation>
     </message>
     <message>
+        <source>Switch to the next file after the specified number of packets have been captured.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dopo che la cattura è passata al file successivo e il numero di file prescelto è stato superato, il file più vecchio sarà rimosso.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -1438,11 +1454,15 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>File multipli: non è stato fornito un nome del file di cattura! Devi specificare un nome del file se vuoi usare file multipli.</translation>
     </message>
     <message>
+        <source>Multiple files: No file limit given. You must specify a file size, interval, or number of packets for each file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Multiple files: No file limit given. You must specify a file size or interval at which is switched to the next capture file
  if you want to use multiple files.</source>
         <oldsource>Multiple files: No file limit given. You must specify a file size or duration at which is switched to the next capture file
  if you want to use multiple files.</oldsource>
-        <translation>File multipli: non è stato fornito alcun limite di file. Devi specificare una dimensione del file o l&apos;intervallo trascorso il quale si passa al successivo file di cattura se vuoi utilizzare diversi file.</translation>
+        <translation type="vanished">File multipli: non è stato fornito alcun limite di file. Devi specificare una dimensione del file o l&apos;intervallo trascorso il quale si passa al successivo file di cattura se vuoi utilizzare diversi file.</translation>
     </message>
 </context>
 <context>
@@ -2262,11 +2282,11 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
     <message>
         <source>Text Filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtro di testo:</translation>
     </message>
     <message>
         <source>Only display entries containing this string</source>
-        <translation type="unfinished"></translation>
+        <translation>Visualizza solo le voci che contengono questa stringa</translation>
     </message>
     <message>
         <source>Export</source>
@@ -3915,11 +3935,11 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
     <message>
         <source>ExportPDU</source>
-        <translation type="unfinished"></translation>
+        <translation>EsportaPDU</translation>
     </message>
     <message>
         <source>Payload</source>
-        <translation type="unfinished">Payload</translation>
+        <translation>Payload</translation>
     </message>
     <message>
         <source>Maximum frame length:</source>
