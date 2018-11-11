@@ -936,9 +936,8 @@ failure_message_cont(const char *msg_format, va_list ap)
 
 static wtap_dumper *
 editcap_dump_open(const char *filename, guint32 snaplen,
-                  GArray* shb_hdrs,
-                  wtapng_iface_descriptions_t *idb_inf,
-                  GArray* nrb_hdrs, int *write_err)
+                  const wtapng_dump_params *ng_params,
+                  int *write_err)
 {
   wtap_dumper *pdh;
 
@@ -946,11 +945,11 @@ editcap_dump_open(const char *filename, guint32 snaplen,
     /* Write to the standard output. */
     pdh = wtap_dump_open_stdout_ng(out_file_type_subtype, out_frame_type,
                                    snaplen, FALSE /* compressed */,
-                                   shb_hdrs, idb_inf, nrb_hdrs, write_err);
+                                   ng_params, write_err);
   } else {
     pdh = wtap_dump_open_ng(filename, out_file_type_subtype, out_frame_type,
                             snaplen, FALSE /* compressed */,
-                            shb_hdrs, idb_inf, nrb_hdrs, write_err);
+                            ng_params, write_err);
   }
   return pdh;
 }
@@ -998,9 +997,7 @@ real_main(int argc, char *argv[])
     guint         max_packet_number  = 0;
     const wtap_rec              *rec;
     wtap_rec                     temp_rec;
-    wtapng_iface_descriptions_t *idb_inf = NULL;
-    GArray                      *shb_hdrs = NULL;
-    GArray                      *nrb_hdrs = NULL;
+    wtapng_dump_params           ng_params = WTAPNG_DUMP_PARAMS_INIT;
     char                        *shb_user_appl;
     gboolean                     do_mutation;
     guint32                      caplen;
@@ -1404,9 +1401,7 @@ real_main(int argc, char *argv[])
         goto clean_exit;
     }
 
-    shb_hdrs = wtap_file_get_shb_for_new_file(wth);
-    idb_inf = wtap_file_get_idb_info(wth);
-    nrb_hdrs = wtap_file_get_nrb_for_new_file(wth);
+    wtap_dump_params_init(&ng_params, wth);
 
     /*
      * Now, process the rest, if any ... we only write if there is an extra
@@ -1456,13 +1451,13 @@ real_main(int argc, char *argv[])
                 g_assert(filename);
 
                 /* If we don't have an application name add Editcap */
-                if (wtap_block_get_string_option_value(g_array_index(shb_hdrs, wtap_block_t, 0), OPT_SHB_USERAPPL, &shb_user_appl) != WTAP_OPTTYPE_SUCCESS) {
-                    wtap_block_add_string_option_format(g_array_index(shb_hdrs, wtap_block_t, 0), OPT_SHB_USERAPPL, "Editcap " VERSION);
+                if (wtap_block_get_string_option_value(g_array_index(ng_params.shb_hdrs, wtap_block_t, 0), OPT_SHB_USERAPPL, &shb_user_appl) != WTAP_OPTTYPE_SUCCESS) {
+                    wtap_block_add_string_option_format(g_array_index(ng_params.shb_hdrs, wtap_block_t, 0), OPT_SHB_USERAPPL, "Editcap " VERSION);
                 }
 
                 pdh = editcap_dump_open(filename,
                                         snaplen ? MIN(snaplen, wtap_snapshot_length(wth)) : wtap_snapshot_length(wth),
-                                        shb_hdrs, idb_inf, nrb_hdrs, &write_err);
+                                        &ng_params, &write_err);
 
                 if (pdh == NULL) {
                     cfile_dump_open_failure_message("editcap", filename,
@@ -1504,7 +1499,7 @@ real_main(int argc, char *argv[])
 
                         pdh = editcap_dump_open(filename,
                                                 snaplen ? MIN(snaplen, wtap_snapshot_length(wth)) : wtap_snapshot_length(wth),
-                                                shb_hdrs, idb_inf, nrb_hdrs, &write_err);
+                                                &ng_params, &write_err);
 
                         if (pdh == NULL) {
                             cfile_dump_open_failure_message("editcap", filename,
@@ -1535,7 +1530,7 @@ real_main(int argc, char *argv[])
 
                     pdh = editcap_dump_open(filename,
                                             snaplen ? MIN(snaplen, wtap_snapshot_length(wth)) : wtap_snapshot_length(wth),
-                                            shb_hdrs, idb_inf, nrb_hdrs, &write_err);
+                                            &ng_params, &write_err);
                     if (pdh == NULL) {
                         cfile_dump_open_failure_message("editcap", filename,
                                                         write_err,
@@ -1907,7 +1902,7 @@ real_main(int argc, char *argv[])
 
             pdh = editcap_dump_open(filename,
                                     snaplen ? MIN(snaplen, wtap_snapshot_length(wth)): wtap_snapshot_length(wth),
-                                    shb_hdrs, idb_inf, nrb_hdrs, &write_err);
+                                    &ng_params, &write_err);
             if (pdh == NULL) {
                 cfile_dump_open_failure_message("editcap", filename,
                                                 write_err,
@@ -1942,9 +1937,8 @@ real_main(int argc, char *argv[])
     }
 
 clean_exit:
-    wtap_block_array_free(shb_hdrs);
-    wtap_block_array_free(nrb_hdrs);
-    g_free(idb_inf);
+    g_free(ng_params.idb_inf);
+    wtap_dump_params_cleanup(&ng_params);
     if (wth != NULL)
         wtap_close(wth);
     wtap_cleanup();

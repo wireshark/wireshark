@@ -2233,12 +2233,12 @@ static int wtap_dump_file_close(wtap_dumper *wdh);
 
 static wtap_dumper *
 wtap_dump_init_dumper(int file_type_subtype, int encap, int snaplen, gboolean compressed,
-                      GArray* shb_hdrs, wtapng_iface_descriptions_t *idb_inf,
-                      GArray* nrb_hdrs, int *err)
+                      const wtapng_dump_params *ng_blocks, int *err)
 {
 	wtap_dumper *wdh;
 	wtap_block_t descr, file_int_data;
 	wtapng_if_descr_mandatory_t *descr_mand, *file_int_data_mand;
+	GArray *interfaces = ng_blocks && ng_blocks->idb_inf ? ng_blocks->idb_inf->interface_data : NULL;
 
 	/* Check whether we can open a capture file with that file type
 	   and that encapsulation. */
@@ -2251,17 +2251,17 @@ wtap_dump_init_dumper(int file_type_subtype, int encap, int snaplen, gboolean co
 		return NULL;	/* couldn't allocate it */
 
 	/* Set Section Header Block data */
-	wdh->shb_hdrs = shb_hdrs;
+	wdh->shb_hdrs = ng_blocks ? ng_blocks->shb_hdrs : NULL;
 	/* Set Name Resolution Block data */
-	wdh->nrb_hdrs = nrb_hdrs;
+	wdh->nrb_hdrs = ng_blocks ? ng_blocks->nrb_hdrs : NULL;
 	/* Set Interface Description Block data */
-	if ((idb_inf != NULL) && (idb_inf->interface_data->len > 0)) {
+	if (interfaces && interfaces->len) {
 		guint itf_count;
 
 		/* Note: this memory is owned by wtap_dumper and will become
 		 * invalid after wtap_dump_close. */
-		for (itf_count = 0; itf_count < idb_inf->interface_data->len; itf_count++) {
-			file_int_data = g_array_index(idb_inf->interface_data, wtap_block_t, itf_count);
+		for (itf_count = 0; itf_count < interfaces->len; itf_count++) {
+			file_int_data = g_array_index(interfaces, wtap_block_t, itf_count);
 			file_int_data_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(file_int_data);
 			descr = wtap_block_create(WTAP_BLOCK_IF_DESCR);
 			wtap_block_copy(descr, file_int_data);
@@ -2308,20 +2308,18 @@ wtap_dumper *
 wtap_dump_open(const char *filename, int file_type_subtype, int encap,
 	       int snaplen, gboolean compressed, int *err)
 {
-	return wtap_dump_open_ng(filename, file_type_subtype, encap,snaplen, compressed, NULL, NULL, NULL, err);
+	return wtap_dump_open_ng(filename, file_type_subtype, encap,snaplen, compressed, NULL, err);
 }
 
 wtap_dumper *
 wtap_dump_open_ng(const char *filename, int file_type_subtype, int encap,
-		  int snaplen, gboolean compressed, GArray* shb_hdrs, wtapng_iface_descriptions_t *idb_inf,
-		  GArray* nrb_hdrs, int *err)
+		  int snaplen, gboolean compressed, const wtapng_dump_params *ng_blocks, int *err)
 {
 	wtap_dumper *wdh;
 	WFILE_T fh;
 
 	/* Allocate and initialize a data structure for the output stream. */
-	wdh = wtap_dump_init_dumper(file_type_subtype, encap, snaplen, compressed,
-	    shb_hdrs, idb_inf, nrb_hdrs, err);
+	wdh = wtap_dump_init_dumper(file_type_subtype, encap, snaplen, compressed, ng_blocks, err);
 	if (wdh == NULL)
 		return NULL;
 
@@ -2352,16 +2350,15 @@ wtap_dump_open_tempfile(char **filenamep, const char *pfx,
 			int file_type_subtype, int encap,
 			int snaplen, gboolean compressed, int *err)
 {
-	return wtap_dump_open_tempfile_ng(filenamep, pfx, file_type_subtype, encap,snaplen, compressed, NULL, NULL, NULL, err);
+	return wtap_dump_open_tempfile_ng(filenamep, pfx, file_type_subtype, encap,snaplen, compressed, NULL, err);
 }
 
 wtap_dumper *
 wtap_dump_open_tempfile_ng(char **filenamep, const char *pfx,
 			   int file_type_subtype, int encap,
 			   int snaplen, gboolean compressed,
-			   GArray* shb_hdrs,
-			   wtapng_iface_descriptions_t *idb_inf,
-			   GArray* nrb_hdrs, int *err)
+			   const wtapng_dump_params *ng_blocks,
+			   int *err)
 {
 	int fd;
 	char *tmpname;
@@ -2372,8 +2369,7 @@ wtap_dump_open_tempfile_ng(char **filenamep, const char *pfx,
 	*filenamep = NULL;
 
 	/* Allocate and initialize a data structure for the output stream. */
-	wdh = wtap_dump_init_dumper(file_type_subtype, encap, snaplen, compressed,
-	    shb_hdrs, idb_inf, nrb_hdrs, err);
+	wdh = wtap_dump_init_dumper(file_type_subtype, encap, snaplen, compressed, ng_blocks, err);
 	if (wdh == NULL)
 		return NULL;
 
@@ -2413,20 +2409,18 @@ wtap_dumper *
 wtap_dump_fdopen(int fd, int file_type_subtype, int encap, int snaplen,
 		 gboolean compressed, int *err)
 {
-	return wtap_dump_fdopen_ng(fd, file_type_subtype, encap, snaplen, compressed, NULL, NULL, NULL, err);
+	return wtap_dump_fdopen_ng(fd, file_type_subtype, encap, snaplen, compressed, NULL, err);
 }
 
 wtap_dumper *
 wtap_dump_fdopen_ng(int fd, int file_type_subtype, int encap, int snaplen,
-		    gboolean compressed, GArray* shb_hdrs, wtapng_iface_descriptions_t *idb_inf,
-		    GArray* nrb_hdrs, int *err)
+		    gboolean compressed, const wtapng_dump_params *ng_blocks, int *err)
 {
 	wtap_dumper *wdh;
 	WFILE_T fh;
 
 	/* Allocate and initialize a data structure for the output stream. */
-	wdh = wtap_dump_init_dumper(file_type_subtype, encap, snaplen, compressed,
-	    shb_hdrs, idb_inf, nrb_hdrs, err);
+	wdh = wtap_dump_init_dumper(file_type_subtype, encap, snaplen, compressed, ng_blocks, err);
 	if (wdh == NULL)
 		return NULL;
 
@@ -2453,14 +2447,12 @@ wtap_dumper *
 wtap_dump_open_stdout(int file_type_subtype, int encap, int snaplen,
 		      gboolean compressed, int *err)
 {
-	return wtap_dump_open_stdout_ng(file_type_subtype, encap, snaplen, compressed, NULL, NULL, NULL, err);
+	return wtap_dump_open_stdout_ng(file_type_subtype, encap, snaplen, compressed, NULL, err);
 }
 
 wtap_dumper *
 wtap_dump_open_stdout_ng(int file_type_subtype, int encap, int snaplen,
-			 gboolean compressed, GArray* shb_hdrs,
-			 wtapng_iface_descriptions_t *idb_inf,
-			 GArray* nrb_hdrs, int *err)
+			 gboolean compressed, const wtapng_dump_params *ng_blocks, int *err)
 {
 	int new_fd;
 	wtap_dumper *wdh;
@@ -2491,8 +2483,7 @@ wtap_dump_open_stdout_ng(int file_type_subtype, int encap, int snaplen,
 	}
 #endif
 
-	wdh = wtap_dump_fdopen_ng(new_fd, file_type_subtype, encap, snaplen,
-	    compressed, shb_hdrs, idb_inf, nrb_hdrs, err);
+	wdh = wtap_dump_fdopen_ng(new_fd, file_type_subtype, encap, snaplen, compressed, ng_blocks, err);
 	if (wdh == NULL) {
 		/* Failed; close the new FD */
 		ws_close(new_fd);

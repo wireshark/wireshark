@@ -315,6 +315,29 @@ wtap_file_get_nrb_for_new_file(wtap *wth)
 	return nrb_hdrs;
 }
 
+void
+wtap_dump_params_init(wtapng_dump_params *params, wtap *wth)
+{
+	memset(params, 0, sizeof(*params));
+
+	if (wth == NULL)
+		return;
+
+	params->shb_hdrs = wtap_file_get_shb_for_new_file(wth);
+	params->idb_inf = wtap_file_get_idb_info(wth);
+	params->nrb_hdrs = wtap_file_get_nrb_for_new_file(wth);
+}
+
+void
+wtap_dump_params_cleanup(wtapng_dump_params *params)
+{
+	wtap_block_array_free(params->shb_hdrs);
+	/* params->idb_inf is currently expected to be freed by the caller. */
+	wtap_block_array_free(params->nrb_hdrs);
+
+	memset(params, 0, sizeof(*params));
+}
+
 /* Table of the encapsulation types we know about. */
 struct encap_type_info {
 	const char *name;

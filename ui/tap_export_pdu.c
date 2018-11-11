@@ -140,14 +140,18 @@ exp_pdu_open(exp_pdu_t *exp_pdu_tap_data, int fd, char *comment)
     exp_pdu_tap_data->shb_hdrs = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
     g_array_append_val(exp_pdu_tap_data->shb_hdrs, shb_hdr);
 
+    const wtapng_dump_params ng_params = {
+        .shb_hdrs = exp_pdu_tap_data->shb_hdrs,
+        .idb_inf = exp_pdu_tap_data->idb_inf,
+    };
     if (fd == 1) {
         exp_pdu_tap_data->wdh = wtap_dump_open_stdout_ng(WTAP_FILE_TYPE_SUBTYPE_PCAPNG,
                 WTAP_ENCAP_WIRESHARK_UPPER_PDU, WTAP_MAX_PACKET_SIZE_STANDARD, FALSE,
-                exp_pdu_tap_data->shb_hdrs, exp_pdu_tap_data->idb_inf, NULL, &err);
+                &ng_params, &err);
     } else {
         exp_pdu_tap_data->wdh = wtap_dump_fdopen_ng(fd, WTAP_FILE_TYPE_SUBTYPE_PCAPNG,
                 WTAP_ENCAP_WIRESHARK_UPPER_PDU, WTAP_MAX_PACKET_SIZE_STANDARD, FALSE,
-                exp_pdu_tap_data->shb_hdrs, exp_pdu_tap_data->idb_inf, NULL, &err);
+                &ng_params, &err);
     }
     if (exp_pdu_tap_data->wdh == NULL) {
         g_assert(err != 0);

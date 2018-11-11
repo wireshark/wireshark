@@ -3096,9 +3096,7 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
   gint64       data_offset;
   gboolean     filtering_tap_listeners;
   guint        tap_flags;
-  GArray                      *shb_hdrs = NULL;
-  wtapng_iface_descriptions_t *idb_inf = NULL;
-  GArray                      *nrb_hdrs = NULL;
+  wtapng_dump_params ng_params = WTAPNG_DUMP_PARAMS_INIT;
   wtap_rec     rec;
   Buffer       buf;
   epan_dissect_t *edt = NULL;
@@ -3106,16 +3104,6 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
 
   wtap_rec_init(&rec);
 
-  idb_inf = wtap_file_get_idb_info(cf->provider.wth);
-#ifdef PCAP_NG_DEFAULT
-  if (idb_inf->interface_data->len > 1) {
-    linktype = WTAP_ENCAP_PER_PACKET;
-  } else {
-    linktype = wtap_file_encap(cf->provider.wth);
-  }
-#else
-  linktype = wtap_file_encap(cf->provider.wth);
-#endif
   if (save_file != NULL) {
     /* Set up to write to the capture file. */
     snapshot_length = wtap_snapshot_length(cf->provider.wth);
@@ -3125,13 +3113,21 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
     }
     tshark_debug("tshark: snapshot_length = %d", snapshot_length);
 
-    shb_hdrs = wtap_file_get_shb_for_new_file(cf->provider.wth);
-    nrb_hdrs = wtap_file_get_nrb_for_new_file(cf->provider.wth);
+    wtap_dump_params_init(&ng_params, cf->provider.wth);
+#ifdef PCAP_NG_DEFAULT
+    if (ng_params.idb_inf->interface_data->len > 1) {
+      linktype = WTAP_ENCAP_PER_PACKET;
+    } else {
+      linktype = wtap_file_encap(cf->provider.wth);
+    }
+#else
+    linktype = wtap_file_encap(cf->provider.wth);
+#endif
 
     /* If we don't have an application name add Tshark */
-    if (wtap_block_get_string_option_value(g_array_index(shb_hdrs, wtap_block_t, 0), OPT_SHB_USERAPPL, &shb_user_appl) != WTAP_OPTTYPE_SUCCESS) {
+    if (wtap_block_get_string_option_value(g_array_index(ng_params.shb_hdrs, wtap_block_t, 0), OPT_SHB_USERAPPL, &shb_user_appl) != WTAP_OPTTYPE_SUCCESS) {
         /* this is free'd by wtap_block_free() later */
-        wtap_block_add_string_option_format(g_array_index(shb_hdrs, wtap_block_t, 0), OPT_SHB_USERAPPL, "TShark (Wireshark) %s", get_ws_vcs_version_info());
+        wtap_block_add_string_option_format(g_array_index(ng_params.shb_hdrs, wtap_block_t, 0), OPT_SHB_USERAPPL, "TShark (Wireshark) %s", get_ws_vcs_version_info());
     }
 
     if (linktype != WTAP_ENCAP_PER_PACKET &&
@@ -3151,15 +3147,15 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
         if (strcmp(save_file, "-") == 0) {
           /* Write to the standard output. */
           pdh = wtap_dump_open_stdout_ng(out_file_type, linktype,
-              snapshot_length, FALSE /* compressed */, shb_hdrs, idb_inf, nrb_hdrs, &err);
+              snapshot_length, FALSE /* compressed */, &ng_params, &err);
         } else {
           pdh = wtap_dump_open_ng(save_file, out_file_type, linktype,
-              snapshot_length, FALSE /* compressed */, shb_hdrs, idb_inf, nrb_hdrs, &err);
+              snapshot_length, FALSE /* compressed */, &ng_params, &err);
         }
     }
 
-    g_free(idb_inf);
-    idb_inf = NULL;
+    g_free(ng_params.idb_inf);
+    ng_params.idb_inf = NULL;
 
     if (pdh == NULL) {
       /* We couldn't set up to write to the capture file. */
@@ -3176,8 +3172,6 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
         goto out;
       }
     }
-    g_free(idb_inf);
-    idb_inf = NULL;
     pdh = NULL;
   }
 
@@ -3327,8 +3321,7 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
                                           err, err_info, framenum,
                                           out_file_type);
               wtap_dump_close(pdh, &err);
-              wtap_block_array_free(shb_hdrs);
-              wtap_block_array_free(nrb_hdrs);
+              wtap_dump_params_cleanup(&ng_params);
               exit(2);
             }
           }
@@ -3413,8 +3406,7 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
             cfile_write_failure_message("TShark", cf->filename, save_file,
                                         err, err_info, framenum, out_file_type);
             wtap_dump_close(pdh, &err);
-            wtap_block_array_free(shb_hdrs);
-            wtap_block_array_free(nrb_hdrs);
+            wtap_dump_params_cleanup(&ng_params);
             exit(2);
           }
         }
@@ -3503,8 +3495,7 @@ out:
   wtap_close(cf->provider.wth);
   cf->provider.wth = NULL;
 
-  wtap_block_array_free(shb_hdrs);
-  wtap_block_array_free(nrb_hdrs);
+  wtap_dump_params_cleanup(&ng_params);
 
   return success;
 }
