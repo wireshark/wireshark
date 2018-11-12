@@ -4466,11 +4466,11 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
          we *HAVE* to do that, otherwise we're overwriting the file
          from which we're reading the packets that we're writing!) */
       fname_new = g_strdup_printf("%s~", fname);
-      pdh = wtap_dump_open_ng(fname_new, save_format, encap, cf->snap,
-                              compressed, &ng_params, &err);
+      pdh = wtap_dump_open(fname_new, save_format, encap, cf->snap,
+                           compressed, &ng_params, &err);
     } else {
-      pdh = wtap_dump_open_ng(fname, save_format, encap, cf->snap,
-                              compressed, &ng_params, &err);
+      pdh = wtap_dump_open(fname, save_format, encap, cf->snap,
+                           compressed, &ng_params, &err);
     }
     /* XXX idb_inf is documented to be used until wtap_dump_close. */
     g_free(ng_params.idb_inf);
@@ -4720,11 +4720,11 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
        we *HAVE* to do that, otherwise we're overwriting the file
        from which we're reading the packets that we're writing!) */
     fname_new = g_strdup_printf("%s~", fname);
-    pdh = wtap_dump_open_ng(fname_new, save_format, encap, cf->snap,
-                            compressed, &ng_params, &err);
+    pdh = wtap_dump_open(fname_new, save_format, encap, cf->snap,
+                         compressed, &ng_params, &err);
   } else {
-    pdh = wtap_dump_open_ng(fname, save_format, encap, cf->snap,
-                            compressed, &ng_params, &err);
+    pdh = wtap_dump_open(fname, save_format, encap, cf->snap,
+                         compressed, &ng_params, &err);
   }
     /* XXX idb_inf is documented to be used until wtap_dump_close. */
   g_free(ng_params.idb_inf);

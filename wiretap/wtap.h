@@ -1891,10 +1891,6 @@ void wtap_dump_params_init(wtapng_dump_params *params, wtap *wth);
 WS_DLL_PUBLIC
 void wtap_dump_params_cleanup(wtapng_dump_params *params);
 
-WS_DLL_PUBLIC
-wtap_dumper* wtap_dump_open(const char *filename, int file_type_subtype, int encap,
-    int snaplen, gboolean compressed, int *err);
-
 /**
  * @brief Opens a new capture file for writing.
  *
@@ -1908,13 +1904,8 @@ wtap_dumper* wtap_dump_open(const char *filename, int file_type_subtype, int enc
  * @return The newly created dumper object, or NULL on failure.
  */
 WS_DLL_PUBLIC
-wtap_dumper* wtap_dump_open_ng(const char *filename, int file_type_subtype, int encap,
+wtap_dumper* wtap_dump_open(const char *filename, int file_type_subtype, int encap,
     int snaplen, gboolean compressed, const wtapng_dump_params *ng_blocks, int *err);
-
-WS_DLL_PUBLIC
-wtap_dumper* wtap_dump_open_tempfile(char **filenamep, const char *pfx,
-    int file_type_subtype, int encap, int snaplen, gboolean compressed,
-    int *err);
 
 /**
  * @brief Creates a dumper for a temporary file.
@@ -1931,13 +1922,9 @@ wtap_dumper* wtap_dump_open_tempfile(char **filenamep, const char *pfx,
  * @return The newly created dumper object, or NULL on failure.
  */
 WS_DLL_PUBLIC
-wtap_dumper* wtap_dump_open_tempfile_ng(char **filenamep, const char *pfx,
+wtap_dumper* wtap_dump_open_tempfile(char **filenamep, const char *pfx,
     int file_type_subtype, int encap, int snaplen, gboolean compressed,
     const wtapng_dump_params *ng_blocks, int *err);
-
-WS_DLL_PUBLIC
-wtap_dumper* wtap_dump_fdopen(int fd, int file_type_subtype, int encap, int snaplen,
-    gboolean compressed, int *err);
 
 /**
  * @brief Creates a dumper for an existing file descriptor.
@@ -1952,12 +1939,8 @@ wtap_dumper* wtap_dump_fdopen(int fd, int file_type_subtype, int encap, int snap
  * @return The newly created dumper object, or NULL on failure.
  */
 WS_DLL_PUBLIC
-wtap_dumper* wtap_dump_fdopen_ng(int fd, int file_type_subtype, int encap, int snaplen,
+wtap_dumper* wtap_dump_fdopen(int fd, int file_type_subtype, int encap, int snaplen,
                 gboolean compressed, const wtapng_dump_params *ng_blocks, int *err);
-
-WS_DLL_PUBLIC
-wtap_dumper* wtap_dump_open_stdout(int file_type_subtype, int encap, int snaplen,
-    gboolean compressed, int *err);
 
 /**
  * @brief Creates a dumper for the standard output.
@@ -1971,7 +1954,7 @@ wtap_dumper* wtap_dump_open_stdout(int file_type_subtype, int encap, int snaplen
  * @return The newly created dumper object, or NULL on failure.
  */
 WS_DLL_PUBLIC
-wtap_dumper* wtap_dump_open_stdout_ng(int file_type_subtype, int encap, int snaplen,
+wtap_dumper* wtap_dump_open_stdout(int file_type_subtype, int encap, int snaplen,
                 gboolean compressed, const wtapng_dump_params *ng_blocks, int *err);
 
 WS_DLL_PUBLIC

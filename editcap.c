@@ -943,13 +943,13 @@ editcap_dump_open(const char *filename, guint32 snaplen,
 
   if (strcmp(filename, "-") == 0) {
     /* Write to the standard output. */
-    pdh = wtap_dump_open_stdout_ng(out_file_type_subtype, out_frame_type,
-                                   snaplen, FALSE /* compressed */,
-                                   ng_params, write_err);
+    pdh = wtap_dump_open_stdout(out_file_type_subtype, out_frame_type,
+                                snaplen, FALSE /* compressed */,
+                                ng_params, write_err);
   } else {
-    pdh = wtap_dump_open_ng(filename, out_file_type_subtype, out_frame_type,
-                            snaplen, FALSE /* compressed */,
-                            ng_params, write_err);
+    pdh = wtap_dump_open(filename, out_file_type_subtype, out_frame_type,
+                         snaplen, FALSE /* compressed */,
+                         ng_params, write_err);
   }
   return pdh;
 }

@@ -145,11 +145,11 @@ exp_pdu_open(exp_pdu_t *exp_pdu_tap_data, int fd, char *comment)
         .idb_inf = exp_pdu_tap_data->idb_inf,
     };
     if (fd == 1) {
-        exp_pdu_tap_data->wdh = wtap_dump_open_stdout_ng(WTAP_FILE_TYPE_SUBTYPE_PCAPNG,
+        exp_pdu_tap_data->wdh = wtap_dump_open_stdout(WTAP_FILE_TYPE_SUBTYPE_PCAPNG,
                 WTAP_ENCAP_WIRESHARK_UPPER_PDU, WTAP_MAX_PACKET_SIZE_STANDARD, FALSE,
                 &ng_params, &err);
     } else {
-        exp_pdu_tap_data->wdh = wtap_dump_fdopen_ng(fd, WTAP_FILE_TYPE_SUBTYPE_PCAPNG,
+        exp_pdu_tap_data->wdh = wtap_dump_fdopen(fd, WTAP_FILE_TYPE_SUBTYPE_PCAPNG,
                 WTAP_ENCAP_WIRESHARK_UPPER_PDU, WTAP_MAX_PACKET_SIZE_STANDARD, FALSE,
                 &ng_params, &err);
     }

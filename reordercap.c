@@ -287,11 +287,11 @@ main(int argc, char *argv[])
 
     /* Open outfile (same filetype/encap as input file) */
     if (strcmp(outfile, "-") == 0) {
-      pdh = wtap_dump_open_stdout_ng(wtap_file_type_subtype(wth), wtap_file_encap(wth),
-                                     wtap_snapshot_length(wth), FALSE, &ng_params, &err);
+      pdh = wtap_dump_open_stdout(wtap_file_type_subtype(wth), wtap_file_encap(wth),
+                                  wtap_snapshot_length(wth), FALSE, &ng_params, &err);
     } else {
-      pdh = wtap_dump_open_ng(outfile, wtap_file_type_subtype(wth), wtap_file_encap(wth),
-                              wtap_snapshot_length(wth), FALSE, &ng_params, &err);
+      pdh = wtap_dump_open(outfile, wtap_file_type_subtype(wth), wtap_file_encap(wth),
+                           wtap_snapshot_length(wth), FALSE, &ng_params, &err);
     }
     g_free(ng_params.idb_inf);
     ng_params.idb_inf = NULL;

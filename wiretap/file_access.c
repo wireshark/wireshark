@@ -2306,14 +2306,7 @@ wtap_dump_init_dumper(int file_type_subtype, int encap, int snaplen, gboolean co
 
 wtap_dumper *
 wtap_dump_open(const char *filename, int file_type_subtype, int encap,
-	       int snaplen, gboolean compressed, int *err)
-{
-	return wtap_dump_open_ng(filename, file_type_subtype, encap,snaplen, compressed, NULL, err);
-}
-
-wtap_dumper *
-wtap_dump_open_ng(const char *filename, int file_type_subtype, int encap,
-		  int snaplen, gboolean compressed, const wtapng_dump_params *ng_blocks, int *err)
+	       int snaplen, gboolean compressed, const wtapng_dump_params *ng_blocks, int *err)
 {
 	wtap_dumper *wdh;
 	WFILE_T fh;
@@ -2348,17 +2341,9 @@ wtap_dump_open_ng(const char *filename, int file_type_subtype, int encap,
 wtap_dumper *
 wtap_dump_open_tempfile(char **filenamep, const char *pfx,
 			int file_type_subtype, int encap,
-			int snaplen, gboolean compressed, int *err)
-{
-	return wtap_dump_open_tempfile_ng(filenamep, pfx, file_type_subtype, encap,snaplen, compressed, NULL, err);
-}
-
-wtap_dumper *
-wtap_dump_open_tempfile_ng(char **filenamep, const char *pfx,
-			   int file_type_subtype, int encap,
-			   int snaplen, gboolean compressed,
-			   const wtapng_dump_params *ng_blocks,
-			   int *err)
+			int snaplen, gboolean compressed,
+			const wtapng_dump_params *ng_blocks,
+			int *err)
 {
 	int fd;
 	char *tmpname;
@@ -2407,14 +2392,7 @@ wtap_dump_open_tempfile_ng(char **filenamep, const char *pfx,
 
 wtap_dumper *
 wtap_dump_fdopen(int fd, int file_type_subtype, int encap, int snaplen,
-		 gboolean compressed, int *err)
-{
-	return wtap_dump_fdopen_ng(fd, file_type_subtype, encap, snaplen, compressed, NULL, err);
-}
-
-wtap_dumper *
-wtap_dump_fdopen_ng(int fd, int file_type_subtype, int encap, int snaplen,
-		    gboolean compressed, const wtapng_dump_params *ng_blocks, int *err)
+		 gboolean compressed, const wtapng_dump_params *ng_blocks, int *err)
 {
 	wtap_dumper *wdh;
 	WFILE_T fh;
@@ -2445,14 +2423,7 @@ wtap_dump_fdopen_ng(int fd, int file_type_subtype, int encap, int snaplen,
 
 wtap_dumper *
 wtap_dump_open_stdout(int file_type_subtype, int encap, int snaplen,
-		      gboolean compressed, int *err)
-{
-	return wtap_dump_open_stdout_ng(file_type_subtype, encap, snaplen, compressed, NULL, err);
-}
-
-wtap_dumper *
-wtap_dump_open_stdout_ng(int file_type_subtype, int encap, int snaplen,
-			 gboolean compressed, const wtapng_dump_params *ng_blocks, int *err)
+		      gboolean compressed, const wtapng_dump_params *ng_blocks, int *err)
 {
 	int new_fd;
 	wtap_dumper *wdh;
@@ -2483,7 +2454,7 @@ wtap_dump_open_stdout_ng(int file_type_subtype, int encap, int snaplen,
 	}
 #endif
 
-	wdh = wtap_dump_fdopen_ng(new_fd, file_type_subtype, encap, snaplen, compressed, ng_blocks, err);
+	wdh = wtap_dump_fdopen(new_fd, file_type_subtype, encap, snaplen, compressed, ng_blocks, err);
 	if (wdh == NULL) {
 		/* Failed; close the new FD */
 		ws_close(new_fd);

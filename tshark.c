@@ -3136,20 +3136,20 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
         if (strcmp(save_file, "-") == 0) {
           /* Write to the standard output. */
           pdh = wtap_dump_open_stdout(out_file_type, linktype,
-              snapshot_length, FALSE /* compressed */, &err);
+              snapshot_length, FALSE /* compressed */, NULL, &err);
         } else {
           pdh = wtap_dump_open(save_file, out_file_type, linktype,
-              snapshot_length, FALSE /* compressed */, &err);
+              snapshot_length, FALSE /* compressed */, NULL, &err);
         }
     }
     else {
         tshark_debug("tshark: writing format type %d, to %s", out_file_type, save_file);
         if (strcmp(save_file, "-") == 0) {
           /* Write to the standard output. */
-          pdh = wtap_dump_open_stdout_ng(out_file_type, linktype,
+          pdh = wtap_dump_open_stdout(out_file_type, linktype,
               snapshot_length, FALSE /* compressed */, &ng_params, &err);
         } else {
-          pdh = wtap_dump_open_ng(save_file, out_file_type, linktype,
+          pdh = wtap_dump_open(save_file, out_file_type, linktype,
               snapshot_length, FALSE /* compressed */, &ng_params, &err);
         }
     }

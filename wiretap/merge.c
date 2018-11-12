@@ -1020,12 +1020,12 @@ merge_files(const gchar* out_filename, const int file_type,
             .shb_hdrs = shb_hdrs,
             .idb_inf = idb_inf,
         };
-        pdh = wtap_dump_open_ng(out_filename, file_type, frame_type, snaplen,
-                                FALSE /* compressed */, &ng_params, err);
+        pdh = wtap_dump_open(out_filename, file_type, frame_type, snaplen,
+                             FALSE /* compressed */, &ng_params, err);
     }
     else {
         pdh = wtap_dump_open(out_filename, file_type, frame_type, snaplen,
-                             FALSE /* compressed */, err);
+                             FALSE /* compressed */, NULL, err);
     }
 
     if (pdh == NULL) {
@@ -1127,14 +1127,15 @@ merge_files_to_tempfile(gchar **out_filenamep, const char *pfx,
             .shb_hdrs = shb_hdrs,
             .idb_inf = idb_inf,
         };
-        pdh = wtap_dump_open_tempfile_ng(out_filenamep, pfx, file_type,
-                                         frame_type, snaplen,
-                                         FALSE /* compressed */,
-                                         &ng_params, err);
+        pdh = wtap_dump_open_tempfile(out_filenamep, pfx, file_type,
+                                      frame_type, snaplen,
+                                      FALSE /* compressed */,
+                                      &ng_params, err);
     }
     else {
         pdh = wtap_dump_open_tempfile(out_filenamep, pfx, file_type, frame_type,
-                                      snaplen, FALSE /* compressed */, err);
+                                      snaplen, FALSE /* compressed */,
+                                      NULL, err);
     }
 
     if (pdh == NULL) {
@@ -1231,12 +1232,12 @@ merge_files_to_stdout(const int file_type, const char *const *in_filenames,
             .shb_hdrs = shb_hdrs,
             .idb_inf = idb_inf,
         };
-        pdh = wtap_dump_open_stdout_ng(file_type, frame_type, snaplen,
-                                       FALSE /* compressed */, &ng_params, err);
+        pdh = wtap_dump_open_stdout(file_type, frame_type, snaplen,
+                                    FALSE /* compressed */, &ng_params, err);
     }
     else {
         pdh = wtap_dump_open_stdout(file_type, frame_type, snaplen,
-                                    FALSE /* compressed */, err);
+                                    FALSE /* compressed */, NULL, err);
     }
 
     if (pdh == NULL) {
