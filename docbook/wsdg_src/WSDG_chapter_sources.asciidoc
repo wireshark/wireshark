@@ -444,7 +444,7 @@ command line to launch Wireshark would be:
 
 [source,sh]
 ----
-$ WIRESHARK_RUN_FROM_BUILD_DIRECTORY=1 ./wireshark
+$ WIRESHARK_RUN_FROM_BUILD_DIRECTORY=1 ./run/wireshark
 ----
 
 There’s no need to run Wireshark as root user, you just won't be able to

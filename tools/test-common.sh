@@ -19,9 +19,9 @@ fi
 DATE=/bin/date
 BASE_NAME=$TEST_TYPE-`$DATE +%Y-%m-%d`-$$
 
-# Directory containing binaries.  Default current directory.
+# Directory containing binaries.  Default: cmake run directory.
 if [ -z "$WIRESHARK_BIN_DIR" ]; then
-    WIRESHARK_BIN_DIR=.
+    WIRESHARK_BIN_DIR=run
 fi
 
 # Temporary file directory and names.
