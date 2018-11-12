@@ -77,7 +77,7 @@ void proto_register_pkcs10(void) {
 void proto_reg_handoff_pkcs10(void) {
   dissector_handle_t csr_handle;
 
-/* #include "packet-pkcs10-dis-tab.c" */
+#include "packet-pkcs10-dis-tab.c"
 
   csr_handle = create_dissector_handle(dissect_CertificationRequest_PDU, proto_pkcs10);
   dissector_add_string("media_type", "application/pkcs10", csr_handle); /* RFC 5967 */

@@ -53,6 +53,7 @@ static int proto_pkcs10 = -1;
 
 /*--- Included file: packet-pkcs10-hf.c ---*/
 #line 1 "./asn1/pkcs10/packet-pkcs10-hf.c"
+static int hf_pkcs10_Attributes_PDU = -1;         /* Attributes */
 static int hf_pkcs10_CertificationRequest_PDU = -1;  /* CertificationRequest */
 static int hf_pkcs10_version = -1;                /* T_version */
 static int hf_pkcs10_subject = -1;                /* Name */
@@ -112,7 +113,7 @@ dissect_pkcs10_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_pkcs10_T_values_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 25 "./asn1/pkcs10/pkcs10.cnf"
+#line 29 "./asn1/pkcs10/pkcs10.cnf"
     offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 
@@ -207,6 +208,13 @@ dissect_pkcs10_CertificationRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 /*--- PDUs ---*/
 
+static int dissect_Attributes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_pkcs10_Attributes(FALSE, tvb, offset, &asn1_ctx, tree, hf_pkcs10_Attributes_PDU);
+  return offset;
+}
 static int dissect_CertificationRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -227,6 +235,10 @@ void proto_register_pkcs10(void) {
 
 /*--- Included file: packet-pkcs10-hfarr.c ---*/
 #line 1 "./asn1/pkcs10/packet-pkcs10-hfarr.c"
+    { &hf_pkcs10_Attributes_PDU,
+      { "Attributes", "pkcs10.Attributes",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
     { &hf_pkcs10_CertificationRequest_PDU,
       { "CertificationRequest", "pkcs10.CertificationRequest_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -311,7 +323,14 @@ void proto_register_pkcs10(void) {
 void proto_reg_handoff_pkcs10(void) {
   dissector_handle_t csr_handle;
 
-/* #include "packet-pkcs10-dis-tab.c" */
+
+/*--- Included file: packet-pkcs10-dis-tab.c ---*/
+#line 1 "./asn1/pkcs10/packet-pkcs10-dis-tab.c"
+  register_ber_oid_dissector("1.2.840.113549.1.9.9", dissect_Attributes_PDU, proto_pkcs10, "pkcs-9-at-extendedCertificateAttributes");
+
+
+/*--- End of included file: packet-pkcs10-dis-tab.c ---*/
+#line 81 "./asn1/pkcs10/packet-pkcs10-template.c"
 
   csr_handle = create_dissector_handle(dissect_CertificationRequest_PDU, proto_pkcs10);
   dissector_add_string("media_type", "application/pkcs10", csr_handle); /* RFC 5967 */

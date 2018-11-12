@@ -9,6 +9,10 @@ PKIX1Explicit88	pkix1explicit
 #.EXPORTS
 CertificationRequest
 
+#.REGISTER
+# From PKCS 9 / RFC 2985
+Attributes B "1.2.840.113549.1.9.9"  "pkcs-9-at-extendedCertificateAttributes"
+
 #.PDU
 CertificationRequest
 
