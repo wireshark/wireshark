@@ -155,7 +155,7 @@ message_hash_key_convo(packet_info *pinfo,
 	// msgtype:srcport:destport:messagenum
 
 	const gchar *msg_type = get_message_type(value_frame_flags);
-	gchar *hash_key = wmem_strdup_printf(wmem_packet_scope(), "%s:%u:%u:%lu",
+	gchar *hash_key = wmem_strdup_printf(wmem_packet_scope(), "%s:%u:%u:%" G_GINT64_MODIFIER "u",
 			msg_type, pinfo->srcport, pinfo->destport, value_message_num);
 
 	return hash_key;
