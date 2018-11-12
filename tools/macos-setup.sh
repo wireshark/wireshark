@@ -68,10 +68,10 @@ LZIP_VERSION=1.19
 # in some cases.
 #
 # So if you're on Lion, we choose version 3.5.2, otherwise we choose
-# version 3.7.2.
+# the latest stable version (currently 3.12.4).
 #
 if [[ $DARWIN_MAJOR_VERSION -gt 11 ]]; then
-    CMAKE_VERSION=${CMAKE_VERSION-3.7.2}
+    CMAKE_VERSION=${CMAKE_VERSION-3.12.4}
 else
     CMAKE_VERSION=${CMAKE_VERSION-3.5.2}
 fi
@@ -113,7 +113,7 @@ LIBGCRYPT_VERSION=1.7.7
 # packet data pane; see, for example, Qt bugs QTBUG-31937, QTBUG-41017,
 # and QTBUG-43464, all of which seem to be the same bug.
 #
-QT_VERSION=${QT_VERSION-5.9.5}
+QT_VERSION=${QT_VERSION-5.9.7}
 
 if [ "$QT_VERSION" ]; then
     QT_MAJOR_VERSION="`expr $QT_VERSION : '\([0-9][0-9]*\).*'`"
@@ -151,11 +151,11 @@ fi
 # features present in all three versions)
 LUA_VERSION=5.2.4
 SNAPPY_VERSION=1.1.4
-LIBXML2_VERSION=2.9.4
+LIBXML2_VERSION=2.9.7
 LZ4_VERSION=1.7.5
 SBC_VERSION=1.3
-CARES_VERSION=1.12.0
-LIBSSH_VERSION=0.7.4
+CARES_VERSION=1.15.0
+LIBSSH_VERSION=0.8.5
 # mmdbresolve
 MAXMINDDB_VERSION=1.3.2
 
