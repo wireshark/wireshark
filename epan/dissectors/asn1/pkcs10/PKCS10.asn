@@ -5,7 +5,7 @@
 --   - commented out import from InformationFramework
 --   - commented out AlgorithmIdentifier
 --   - commented out SubjectPublicKeyInfo
---   - commented out Attribute
+--   - simplified Attribute
 --   - added out import the above from PKIX1Explicit88
 --
 -- The copyright statement from the original description in RFC2986
@@ -57,7 +57,7 @@
 
 -- ADDED to avoid that it needs to be implemented here, and to have Name
 -- Directory Authentication Framework (X.509)
-    AlgorithmIdentifier, Name, SubjectPublicKeyInfo, Attribute
+    AlgorithmIdentifier, Name, SubjectPublicKeyInfo
         FROM PKIX1Explicit88 {iso(1) identified-organization(3) dod(6)
         internet(1) security(5) mechanisms(5) pkix(7) id-mod(0) id-pkix1-explicit(18)}
 
@@ -86,11 +86,15 @@
    CRIAttributes  ATTRIBUTE  ::= {
         ... -- add any locally defined attributes here -- }
 
--- COMMENTED OUT as not needed as imported from PKIX1Explicit88
+-- Simplified to make it easier to digest
 --    Attribute { ATTRIBUTE:IOSet } ::= SEQUENCE {
 --       type   ATTRIBUTE.&id({IOSet}),
 --       values SET SIZE(1..MAX) OF ATTRIBUTE.&Type({IOSet}{@type})
 --    }
+    Attribute       ::=     SEQUENCE {
+      type            OBJECT IDENTIFIER,
+      values  SET SIZE (1 .. MAX) OF ANY
+    }
 
    CertificationRequest ::= SEQUENCE {
         certificationRequestInfo CertificationRequestInfo,

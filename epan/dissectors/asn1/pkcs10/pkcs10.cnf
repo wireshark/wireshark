@@ -18,4 +18,10 @@ CertificationRequest
 
 #.FIELD_RENAME
 
+#.FN_PARS Attribute/type
+  FN_VARIANT = _str  HF_INDEX = hf_pkcs10_type  VAL_PTR = &actx->external.direct_reference
+
+#.FN_BODY Attribute/values/_item
+    offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
+
 #.END_OF_CNF

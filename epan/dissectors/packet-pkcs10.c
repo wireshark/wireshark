@@ -59,6 +59,9 @@ static int hf_pkcs10_subject = -1;                /* Name */
 static int hf_pkcs10_subjectPKInfo = -1;          /* SubjectPublicKeyInfo */
 static int hf_pkcs10_attributes = -1;             /* Attributes */
 static int hf_pkcs10_Attributes_item = -1;        /* Attribute */
+static int hf_pkcs10_type = -1;                   /* T_type */
+static int hf_pkcs10_values = -1;                 /* T_values */
+static int hf_pkcs10_values_item = -1;            /* T_values_item */
 static int hf_pkcs10_certificationRequestInfo = -1;  /* CertificationRequestInfo */
 static int hf_pkcs10_signatureAlgorithm = -1;     /* AlgorithmIdentifier */
 static int hf_pkcs10_signature = -1;              /* BIT_STRING */
@@ -72,6 +75,8 @@ static int hf_pkcs10_signature = -1;              /* BIT_STRING */
 #line 1 "./asn1/pkcs10/packet-pkcs10-ett.c"
 static gint ett_pkcs10_CertificationRequestInfo = -1;
 static gint ett_pkcs10_Attributes = -1;
+static gint ett_pkcs10_Attribute = -1;
+static gint ett_pkcs10_T_values = -1;
 static gint ett_pkcs10_CertificationRequest = -1;
 
 /*--- End of included file: packet-pkcs10-ett.c ---*/
@@ -95,8 +100,57 @@ dissect_pkcs10_T_version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 }
 
 
+
+static int
+dissect_pkcs10_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_pkcs10_type, &actx->external.direct_reference);
+
+  return offset;
+}
+
+
+
+static int
+dissect_pkcs10_T_values_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 25 "./asn1/pkcs10/pkcs10.cnf"
+    offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
+
+
+
+  return offset;
+}
+
+
+static const ber_sequence_t T_values_set_of[1] = {
+  { &hf_pkcs10_values_item  , BER_CLASS_ANY, 0, BER_FLAGS_NOOWNTAG, dissect_pkcs10_T_values_item },
+};
+
+static int
+dissect_pkcs10_T_values(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
+                                 T_values_set_of, hf_index, ett_pkcs10_T_values);
+
+  return offset;
+}
+
+
+static const ber_sequence_t Attribute_sequence[] = {
+  { &hf_pkcs10_type         , BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_pkcs10_T_type },
+  { &hf_pkcs10_values       , BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_pkcs10_T_values },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_pkcs10_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   Attribute_sequence, hf_index, ett_pkcs10_Attribute);
+
+  return offset;
+}
+
+
 static const ber_sequence_t Attributes_set_of[1] = {
-  { &hf_pkcs10_Attributes_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_pkix1explicit_Attribute },
+  { &hf_pkcs10_Attributes_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_pkcs10_Attribute },
 };
 
 static int
@@ -197,6 +251,18 @@ void proto_register_pkcs10(void) {
       { "Attribute", "pkcs10.Attribute_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_pkcs10_type,
+      { "type", "pkcs10.type",
+        FT_OID, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_pkcs10_values,
+      { "values", "pkcs10.values",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_pkcs10_values_item,
+      { "values item", "pkcs10.values_item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_pkcs10_certificationRequestInfo,
       { "certificationRequestInfo", "pkcs10.certificationRequestInfo_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -221,6 +287,8 @@ void proto_register_pkcs10(void) {
 #line 1 "./asn1/pkcs10/packet-pkcs10-ettarr.c"
     &ett_pkcs10_CertificationRequestInfo,
     &ett_pkcs10_Attributes,
+    &ett_pkcs10_Attribute,
+    &ett_pkcs10_T_values,
     &ett_pkcs10_CertificationRequest,
 
 /*--- End of included file: packet-pkcs10-ettarr.c ---*/
