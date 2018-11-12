@@ -40,21 +40,17 @@ Extensions      B "1.2.840.113549.1.9.14" "pkcs-9-at-extensionRequest"
 #.FN_BODY DirectoryString
 	offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
-#.FN_PARS Attribute/values
-  FN_VARIANT = _str  HF_INDEX = hf_pkix1explicit_object_identifier_id
+#.FN_PARS Attribute/type
+  FN_VARIANT = _str  HF_INDEX = hf_pkix1explicit_type  VAL_PTR = &actx->external.direct_reference
 
 #.FN_BODY Attribute/values/_item
-  if (actx->external.direct_ref_present) {
     offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
-  }
 
-#.FN_PARS AttributeTypeAndValue/value
-  FN_VARIANT = _str  HF_INDEX = hf_pkix1explicit_object_identifier_id
+#.FN_PARS AttributeTypeAndValue/type
+  FN_VARIANT = _str  HF_INDEX = hf_pkix1explicit_type_01  VAL_PTR = &actx->external.direct_reference
 
 #.FN_BODY AttributeTypeAndValue/value
-  if (actx->external.direct_ref_present) {
     offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
-  }
 
 #.FN_PARS Extension/extnId
   FN_VARIANT = _str  HF_INDEX = hf_pkix1explicit_object_identifier_id  VAL_PTR = &actx->external.direct_reference
