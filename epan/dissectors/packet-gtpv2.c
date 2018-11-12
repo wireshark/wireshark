@@ -2385,6 +2385,8 @@ static const value_string gtpv2_rat_type_vals[] = {
     {6, "EUTRAN"},
     {7, "Virtual"},
     {8, "EUTRAN-NB-IoT"},
+    {9, "LTE-M"},
+    {10, "NR"},
     {0, NULL}
 };
 static value_string_ext gtpv2_rat_type_vals_ext = VALUE_STRING_EXT_INIT(gtpv2_rat_type_vals);
