@@ -13,6 +13,12 @@
 
 /* A brief description of this file format is available at:
  *    http://www.tamos.com/htmlhelp/commview/logformat.htm
+ *
+ * Use
+ *
+ *    https://web.archive.org/web/20171022225753/http://www.tamos.com/htmlhelp/commview/logformat.htm
+ *
+ * if that doesn't display anything.
  */
 
 #include "config.h"
