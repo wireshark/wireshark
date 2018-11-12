@@ -25,6 +25,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/conversation.h>
 
 #include "packet-e164.h"
@@ -87,6 +88,13 @@ enum osmo_gsup_iei {
 	OSMO_GSUP_SESSION_ID_IE			= 0x30,
 	OSMO_GSUP_SESSION_STATE_IE		= 0x31,
 	OSMO_GSUP_SS_INFO_IE			= 0x35,
+	/* SM Service (see 3GPP TS 29.002, section 7.6.8) */
+	OSMO_GSUP_SM_RP_MR_IE			= 0x40,
+	OSMO_GSUP_SM_RP_DA_IE			= 0x41,
+	OSMO_GSUP_SM_RP_OA_IE			= 0x42,
+	OSMO_GSUP_SM_RP_UI_IE			= 0x43,
+	OSMO_GSUP_SM_RP_CAUSE_IE		= 0x44,
+	OSMO_GSUP_SM_RP_MMS_IE			= 0x45,
 };
 
 /*! GSUP message type */
@@ -120,6 +128,14 @@ enum osmo_gsup_message_type {
 	OSMO_GSUP_MSGT_PROC_SS_REQUEST		= 0x20,
 	OSMO_GSUP_MSGT_PROC_SS_ERROR		= 0x21,
 	OSMO_GSUP_MSGT_PROC_SS_RESULT		= 0x22,
+
+	OSMO_GSUP_MSGT_MO_FORWARD_SM_REQUEST	= 0x24,
+	OSMO_GSUP_MSGT_MO_FORWARD_SM_ERROR	= 0x25,
+	OSMO_GSUP_MSGT_MO_FORWARD_SM_RESULT	= 0x26,
+
+	OSMO_GSUP_MSGT_MT_FORWARD_SM_REQUEST	= 0x28,
+	OSMO_GSUP_MSGT_MT_FORWARD_SM_ERROR	= 0x29,
+	OSMO_GSUP_MSGT_MT_FORWARD_SM_RESULT	= 0x2a,
 };
 
 #define OSMO_GSUP_IS_MSGT_REQUEST(msgt) (((msgt) & 0b00000011) == 0b00)
@@ -141,6 +157,16 @@ enum osmo_gsup_session_state {
 	OSMO_GSUP_SESSION_STATE_BEGIN		= 0x01,
 	OSMO_GSUP_SESSION_STATE_CONTINUE	= 0x02,
 	OSMO_GSUP_SESSION_STATE_END		= 0x03,
+};
+
+/* Identity types for SM-RP-{OA|DA} */
+enum osmo_gsup_sms_sm_rp_oda_type {
+	OSMO_GSUP_SMS_SM_RP_ODA_NONE		= 0x00,
+	OSMO_GSUP_SMS_SM_RP_ODA_IMSI		= 0x01,
+	OSMO_GSUP_SMS_SM_RP_ODA_MSISDN		= 0x02,
+	OSMO_GSUP_SMS_SM_RP_ODA_SMSC_ADDR	= 0x03,
+	/* Special value for noSM-RP-DA and noSM-RP-OA */
+	OSMO_GSUP_SMS_SM_RP_ODA_NULL		= 0xff,
 };
 
 /***********************************************************************
@@ -174,11 +200,20 @@ static int hf_gsup_auts = -1;
 static int hf_gsup_res = -1;
 static int hf_gsup_session_id = -1;
 static int hf_gsup_session_state = -1;
+static int hf_gsup_sm_rp_mr = -1;
+static int hf_gsup_sm_rp_da_id_type = -1;
+static int hf_gsup_sm_rp_oa_id_type = -1;
+static int hf_gsup_sm_rp_cause = -1;
+static int hf_gsup_sm_rp_mms = -1;
 
 static gint ett_gsup = -1;
 static gint ett_gsup_ie = -1;
 
+static expert_field ei_sm_rp_da_invalid = EI_INIT;
+static expert_field ei_sm_rp_oa_invalid = EI_INIT;
+
 static dissector_handle_t gsm_map_handle;
+static dissector_handle_t gsm_sms_handle;
 
 static const value_string gsup_iei_types[] = {
 	{ OSMO_GSUP_IMSI_IE,		"IMSI" },
@@ -207,6 +242,12 @@ static const value_string gsup_iei_types[] = {
 	{ OSMO_GSUP_SESSION_ID_IE,	"Session Id" },
 	{ OSMO_GSUP_SESSION_STATE_IE,	"Session State" },
 	{ OSMO_GSUP_SS_INFO_IE,		"Supplementary Service Info"},
+	{ OSMO_GSUP_SM_RP_MR_IE,	"SM-RP-MR (Message Reference)" },
+	{ OSMO_GSUP_SM_RP_DA_IE,	"SM-RP-DA (Destination Address)" },
+	{ OSMO_GSUP_SM_RP_OA_IE,	"SM-RP-OA (Originating Address)" },
+	{ OSMO_GSUP_SM_RP_UI_IE,	"SM-RP-UI (SMS TPDU)" },
+	{ OSMO_GSUP_SM_RP_CAUSE_IE,	"SM-RP-Cause" },
+	{ OSMO_GSUP_SM_RP_MMS_IE,	"SM-RP-MMS (More Messages to Send)" },
 	{ 0, NULL }
 };
 
@@ -233,6 +274,12 @@ static const value_string gsup_msg_types[] = {
 	{ OSMO_GSUP_MSGT_PROC_SS_REQUEST,		"Supplementary Service Request" },
 	{ OSMO_GSUP_MSGT_PROC_SS_ERROR,			"Supplementary Service Error" },
 	{ OSMO_GSUP_MSGT_PROC_SS_RESULT,		"Supplementary Service Result" },
+	{ OSMO_GSUP_MSGT_MO_FORWARD_SM_REQUEST,		"MO-forwardSM Request" },
+	{ OSMO_GSUP_MSGT_MO_FORWARD_SM_ERROR,		"MO-forwardSM Error" },
+	{ OSMO_GSUP_MSGT_MO_FORWARD_SM_RESULT,		"MO-forwardSM Result" },
+	{ OSMO_GSUP_MSGT_MT_FORWARD_SM_REQUEST,		"MT-forwardSM Request" },
+	{ OSMO_GSUP_MSGT_MT_FORWARD_SM_ERROR,		"MT-forwardSM Error" },
+	{ OSMO_GSUP_MSGT_MT_FORWARD_SM_RESULT,		"MT-forwardSM Result" },
 	{ 0, NULL }
 };
 
@@ -253,6 +300,15 @@ static const value_string gsup_session_states[] = {
 	{ OSMO_GSUP_SESSION_STATE_BEGIN,	"BEGIN" },
 	{ OSMO_GSUP_SESSION_STATE_CONTINUE,	"CONTINUE" },
 	{ OSMO_GSUP_SESSION_STATE_END,		"END" },
+	{ 0, NULL }
+};
+
+static const value_string osmo_gsup_sms_sm_rp_oda_types[] = {
+	{ OSMO_GSUP_SMS_SM_RP_ODA_NONE,		"NONE" },
+	{ OSMO_GSUP_SMS_SM_RP_ODA_IMSI,		"IMSI" },
+	{ OSMO_GSUP_SMS_SM_RP_ODA_MSISDN,	"MSISDN" },
+	{ OSMO_GSUP_SMS_SM_RP_ODA_SMSC_ADDR,	"SMSC Address" },
+	{ OSMO_GSUP_SMS_SM_RP_ODA_NULL,		"noSM-RP-DA or noSM-RP-OA" },
 	{ 0, NULL }
 };
 
@@ -288,9 +344,122 @@ static void dissect_ss_info_ie(tvbuff_t *tvb, packet_info *pinfo, guint offset, 
 	}
 }
 
+static void dissect_sm_rp_da_ie(tvbuff_t *tvb, packet_info *pinfo, guint offset,
+				guint ie_len, proto_tree *tree)
+{
+	proto_item *ti;
+	guint8 id_type;
+
+	/* Identity type is mandatory */
+	if (ie_len < 1) {
+		expert_add_info_format(pinfo, NULL, &ei_sm_rp_da_invalid,
+			"Missing mandatory SM-RP-DA ID type (IE len < 1)");
+		return;
+	}
+
+	/* Parse ID type */
+	ti = proto_tree_add_item(tree, hf_gsup_sm_rp_da_id_type, tvb, offset, 1, ENC_NA);
+	id_type = tvb_get_guint8(tvb, offset);
+
+	switch (id_type) {
+	case OSMO_GSUP_SMS_SM_RP_ODA_IMSI:
+		dissect_e212_imsi(tvb, pinfo, tree,
+			offset + 1, ie_len - 1, FALSE);
+		break;
+	case OSMO_GSUP_SMS_SM_RP_ODA_MSISDN:
+	case OSMO_GSUP_SMS_SM_RP_ODA_SMSC_ADDR:
+		dissect_e164_msisdn(tvb, tree,
+			offset + 2, ie_len - 2, E164_ENC_BCD);
+		break;
+
+	/* Special case for noSM-RP-DA and noSM-RP-OA */
+	case OSMO_GSUP_SMS_SM_RP_ODA_NULL:
+		if (ie_len > 1) {
+			expert_add_info_format(pinfo, ti, &ei_sm_rp_da_invalid,
+				"Unexpected ID length=%u for noSM-RP-DA", ie_len - 1);
+			return;
+		}
+		break;
+
+	case OSMO_GSUP_SMS_SM_RP_ODA_NONE:
+	default:
+		expert_add_info_format(pinfo, ti, &ei_sm_rp_da_invalid,
+			"Unexpected SM-RP-DA ID (type=0x%02x)", id_type);
+		return;
+	}
+}
+
+static void dissect_sm_rp_oa_ie(tvbuff_t *tvb, packet_info *pinfo, guint offset,
+				guint ie_len, proto_tree *tree)
+{
+	proto_item *ti;
+	guint8 id_type;
+
+	/* Identity type is mandatory */
+	if (ie_len < 1) {
+		expert_add_info_format(pinfo, NULL, &ei_sm_rp_oa_invalid,
+			"Missing mandatory SM-RP-OA ID type (IE len < 1)");
+		return;
+	}
+
+	/* Parse ID type */
+	ti = proto_tree_add_item(tree, hf_gsup_sm_rp_oa_id_type, tvb, offset, 1, ENC_NA);
+	id_type = tvb_get_guint8(tvb, offset);
+
+	switch (id_type) {
+	case OSMO_GSUP_SMS_SM_RP_ODA_MSISDN:
+	case OSMO_GSUP_SMS_SM_RP_ODA_SMSC_ADDR:
+		dissect_e164_msisdn(tvb, tree,
+			offset + 2, ie_len - 2, E164_ENC_BCD);
+		break;
+
+	/* Special case for noSM-RP-DA and noSM-RP-OA */
+	case OSMO_GSUP_SMS_SM_RP_ODA_NULL:
+		if (ie_len > 1) {
+			expert_add_info_format(pinfo, ti, &ei_sm_rp_oa_invalid,
+				"Unexpected ID length=%u for noSM-RP-OA", ie_len - 1);
+			return;
+		}
+		break;
+
+	case OSMO_GSUP_SMS_SM_RP_ODA_NONE:
+	default:
+		expert_add_info_format(pinfo, ti, &ei_sm_rp_oa_invalid,
+			"Unexpected SM-RP-OA ID (type=0x%02x)", id_type);
+		return;
+	}
+}
+
+static void dissect_sm_rp_ui_ie(tvbuff_t *tvb, packet_info *pinfo, guint offset,
+				guint ie_len, proto_tree *tree, guint8 msg_type)
+{
+	tvbuff_t *ss_tvb;
+
+	/* Choose direction: RECV for MO, SENT for MT */
+	switch (msg_type) {
+	case OSMO_GSUP_MSGT_MO_FORWARD_SM_REQUEST:
+	case OSMO_GSUP_MSGT_MO_FORWARD_SM_ERROR:
+	case OSMO_GSUP_MSGT_MO_FORWARD_SM_RESULT:
+		pinfo->p2p_dir = P2P_DIR_RECV;
+		break;
+	case OSMO_GSUP_MSGT_MT_FORWARD_SM_REQUEST:
+	case OSMO_GSUP_MSGT_MT_FORWARD_SM_ERROR:
+	case OSMO_GSUP_MSGT_MT_FORWARD_SM_RESULT:
+		pinfo->p2p_dir = P2P_DIR_SENT;
+		break;
+	default:
+		/* Just to be sure */
+		DISSECTOR_ASSERT(0);
+		break;
+	}
+
+	ss_tvb = tvb_new_subset_length(tvb, offset, ie_len);
+	call_dissector(gsm_sms_handle, ss_tvb, pinfo, tree);
+}
+
 static gint
 dissect_gsup_tlvs(tvbuff_t *tvb, int base_offs, int length, packet_info *pinfo, proto_tree *tree,
-		  proto_item *gsup_ti)
+		  proto_item *gsup_ti, guint8 msg_type)
 {
 	int offset = base_offs;
 
@@ -319,7 +488,7 @@ dissect_gsup_tlvs(tvbuff_t *tvb, int base_offs, int length, packet_info *pinfo, 
 		/* Nested TLVs */
 		case OSMO_GSUP_AUTH_TUPLE_IE:
 		case OSMO_GSUP_PDP_INFO_IE:
-			dissect_gsup_tlvs(tvb, offset, len, pinfo, att_tree, gsup_ti);
+			dissect_gsup_tlvs(tvb, offset, len, pinfo, att_tree, gsup_ti, msg_type);
 			break;
 		/* Normal IEs */
 		case OSMO_GSUP_RAND_IE:
@@ -399,6 +568,24 @@ dissect_gsup_tlvs(tvbuff_t *tvb, int base_offs, int length, packet_info *pinfo, 
 		case OSMO_GSUP_SS_INFO_IE:
 			dissect_ss_info_ie(tvb, pinfo, offset, len, att_tree);
 			break;
+		case OSMO_GSUP_SM_RP_MR_IE:
+			proto_tree_add_item(att_tree, hf_gsup_sm_rp_mr, tvb, offset, len, ENC_NA);
+			break;
+		case OSMO_GSUP_SM_RP_DA_IE:
+			dissect_sm_rp_da_ie(tvb, pinfo, offset, len, att_tree);
+			break;
+		case OSMO_GSUP_SM_RP_OA_IE:
+			dissect_sm_rp_oa_ie(tvb, pinfo, offset, len, att_tree);
+			break;
+		case OSMO_GSUP_SM_RP_UI_IE:
+			dissect_sm_rp_ui_ie(tvb, pinfo, offset, len, att_tree, msg_type);
+			break;
+		case OSMO_GSUP_SM_RP_CAUSE_IE:
+			proto_tree_add_item(att_tree, hf_gsup_sm_rp_cause, tvb, offset, len, ENC_NA);
+			break;
+		case OSMO_GSUP_SM_RP_MMS_IE:
+			proto_tree_add_item(att_tree, hf_gsup_sm_rp_mms, tvb, offset, len, ENC_NA);
+			break;
 		case OSMO_GSUP_HLR_NUMBER_IE:
 		case OSMO_GSUP_PDP_TYPE_IE:
 		case OSMO_GSUP_PDP_QOS_IE:
@@ -442,7 +629,7 @@ dissect_gsup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 		offset++;
 
 		dissect_gsup_tlvs(tvb, offset, tvb_reported_length_remaining(tvb, offset), pinfo,
-				  gsup_tree, ti);
+				  gsup_tree, ti, msg_type);
 	}
 
 	return tvb_captured_length(tvb);
@@ -498,15 +685,39 @@ proto_register_gsup(void)
 		  FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL } },
 		{ &hf_gsup_session_state, { "Session State", "gsup.session_state",
 		  FT_UINT8, BASE_DEC, VALS(gsup_session_states), 0, NULL, HFILL } },
+		{ &hf_gsup_sm_rp_mr, { "SM-RP-MR (Message Reference)", "gsup.sm_rp_mr",
+		  FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
+		{ &hf_gsup_sm_rp_da_id_type, { "Address Type", "gsup.sm_rp_da.addr_type",
+		  FT_UINT8, BASE_DEC, VALS(osmo_gsup_sms_sm_rp_oda_types), 0, NULL, HFILL } },
+		{ &hf_gsup_sm_rp_oa_id_type, { "Address Type", "gsup.sm_rp_oa.addr_type",
+		  FT_UINT8, BASE_DEC, VALS(osmo_gsup_sms_sm_rp_oda_types), 0, NULL, HFILL } },
+		{ &hf_gsup_sm_rp_cause, { "SM-RP Cause", "gsup.sm_rp.cause",
+		  FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
+		{ &hf_gsup_sm_rp_mms, { "More Messages to Send", "gsup.sm_rp.mms",
+		  FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
 	};
 	static gint *ett[] = {
 		&ett_gsup,
 		&ett_gsup_ie,
 	};
 
+	expert_module_t *expert_gsup;
+
+	static ei_register_info ei[] = {
+		{ &ei_sm_rp_da_invalid,
+		  { "gsup.sm_rp_da.invalid", PI_PROTOCOL, PI_ERROR,
+		    "Malformed SM-RP-DA IE", EXPFILL } },
+		{ &ei_sm_rp_oa_invalid,
+		  { "gsup.sm_rp_oa.invalid", PI_PROTOCOL, PI_ERROR,
+		    "Malformed SM-RP-OA IE", EXPFILL } },
+	};
+
 	proto_gsup = proto_register_protocol("Osmocom General Subscriber Update Protocol", "gsup", "gsup");
 	proto_register_field_array(proto_gsup, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	expert_gsup = expert_register_protocol(proto_gsup);
+	expert_register_field_array(expert_gsup, ei, array_length(ei));
 }
 
 void
@@ -516,6 +727,7 @@ proto_reg_handoff_gsup(void)
 	gsup_handle = create_dissector_handle(dissect_gsup, proto_gsup);
 	dissector_add_uint_with_preference("ipa.osmo.protocol", IPAC_PROTO_EXT_GSUP, gsup_handle);
 	gsm_map_handle = find_dissector_add_dependency("gsm_map", proto_gsup);
+	gsm_sms_handle = find_dissector_add_dependency("gsm_sms", proto_gsup);
 }
 
 /*
