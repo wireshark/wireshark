@@ -95,6 +95,7 @@ enum osmo_gsup_iei {
 	OSMO_GSUP_SM_RP_UI_IE			= 0x43,
 	OSMO_GSUP_SM_RP_CAUSE_IE		= 0x44,
 	OSMO_GSUP_SM_RP_MMS_IE			= 0x45,
+	OSMO_GSUP_SM_ALERT_RSN_IE		= 0x46,
 };
 
 /*! GSUP message type */
@@ -136,6 +137,10 @@ enum osmo_gsup_message_type {
 	OSMO_GSUP_MSGT_MT_FORWARD_SM_REQUEST	= 0x28,
 	OSMO_GSUP_MSGT_MT_FORWARD_SM_ERROR	= 0x29,
 	OSMO_GSUP_MSGT_MT_FORWARD_SM_RESULT	= 0x2a,
+
+	OSMO_GSUP_MSGT_READY_FOR_SM_REQUEST	= 0x2c,
+	OSMO_GSUP_MSGT_READY_FOR_SM_ERROR	= 0x2d,
+	OSMO_GSUP_MSGT_READY_FOR_SM_RESULT	= 0x2e,
 };
 
 #define OSMO_GSUP_IS_MSGT_REQUEST(msgt) (((msgt) & 0b00000011) == 0b00)
@@ -167,6 +172,13 @@ enum osmo_gsup_sms_sm_rp_oda_type {
 	OSMO_GSUP_SMS_SM_RP_ODA_SMSC_ADDR	= 0x03,
 	/* Special value for noSM-RP-DA and noSM-RP-OA */
 	OSMO_GSUP_SMS_SM_RP_ODA_NULL		= 0xff,
+};
+
+/* SM Alert Reason values */
+enum osmo_gsup_sms_sm_alert_rsn_t {
+	OSMO_GSUP_SMS_SM_ALERT_RSN_NONE		= 0x00,
+	OSMO_GSUP_SMS_SM_ALERT_RSN_MS_PRESENT	= 0x01,
+	OSMO_GSUP_SMS_SM_ALERT_RSN_MEM_AVAIL	= 0x02,
 };
 
 /***********************************************************************
@@ -205,6 +217,7 @@ static int hf_gsup_sm_rp_da_id_type = -1;
 static int hf_gsup_sm_rp_oa_id_type = -1;
 static int hf_gsup_sm_rp_cause = -1;
 static int hf_gsup_sm_rp_mms = -1;
+static int hf_gsup_sm_alert_rsn = -1;
 
 static gint ett_gsup = -1;
 static gint ett_gsup_ie = -1;
@@ -248,6 +261,7 @@ static const value_string gsup_iei_types[] = {
 	{ OSMO_GSUP_SM_RP_UI_IE,	"SM-RP-UI (SMS TPDU)" },
 	{ OSMO_GSUP_SM_RP_CAUSE_IE,	"SM-RP-Cause" },
 	{ OSMO_GSUP_SM_RP_MMS_IE,	"SM-RP-MMS (More Messages to Send)" },
+	{ OSMO_GSUP_SM_ALERT_RSN_IE,	"SM Alert Reason" },
 	{ 0, NULL }
 };
 
@@ -280,6 +294,9 @@ static const value_string gsup_msg_types[] = {
 	{ OSMO_GSUP_MSGT_MT_FORWARD_SM_REQUEST,		"MT-forwardSM Request" },
 	{ OSMO_GSUP_MSGT_MT_FORWARD_SM_ERROR,		"MT-forwardSM Error" },
 	{ OSMO_GSUP_MSGT_MT_FORWARD_SM_RESULT,		"MT-forwardSM Result" },
+	{ OSMO_GSUP_MSGT_READY_FOR_SM_REQUEST,		"Ready for SM Request"},
+	{ OSMO_GSUP_MSGT_READY_FOR_SM_ERROR,		"Ready for SM Error"},
+	{ OSMO_GSUP_MSGT_READY_FOR_SM_RESULT,		"Ready for SM Result"},
 	{ 0, NULL }
 };
 
@@ -309,6 +326,13 @@ static const value_string osmo_gsup_sms_sm_rp_oda_types[] = {
 	{ OSMO_GSUP_SMS_SM_RP_ODA_MSISDN,	"MSISDN" },
 	{ OSMO_GSUP_SMS_SM_RP_ODA_SMSC_ADDR,	"SMSC Address" },
 	{ OSMO_GSUP_SMS_SM_RP_ODA_NULL,		"noSM-RP-DA or noSM-RP-OA" },
+	{ 0, NULL }
+};
+
+static const value_string osmo_gsup_sms_sm_alert_rsn_types[] = {
+	{ OSMO_GSUP_SMS_SM_ALERT_RSN_NONE,		"NONE" },
+	{ OSMO_GSUP_SMS_SM_ALERT_RSN_MS_PRESENT,	"MS Present" },
+	{ OSMO_GSUP_SMS_SM_ALERT_RSN_MEM_AVAIL,		"Memory Available (SMMA)" },
 	{ 0, NULL }
 };
 
@@ -586,6 +610,9 @@ dissect_gsup_tlvs(tvbuff_t *tvb, int base_offs, int length, packet_info *pinfo, 
 		case OSMO_GSUP_SM_RP_MMS_IE:
 			proto_tree_add_item(att_tree, hf_gsup_sm_rp_mms, tvb, offset, len, ENC_NA);
 			break;
+		case OSMO_GSUP_SM_ALERT_RSN_IE:
+			proto_tree_add_item(att_tree, hf_gsup_sm_alert_rsn, tvb, offset, len, ENC_NA);
+			break;
 		case OSMO_GSUP_HLR_NUMBER_IE:
 		case OSMO_GSUP_PDP_TYPE_IE:
 		case OSMO_GSUP_PDP_QOS_IE:
@@ -695,6 +722,8 @@ proto_register_gsup(void)
 		  FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
 		{ &hf_gsup_sm_rp_mms, { "More Messages to Send", "gsup.sm_rp.mms",
 		  FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+		{ &hf_gsup_sm_alert_rsn, { "SM Alert Reason", "gsup.sm_alert_rsn",
+		  FT_UINT8, BASE_DEC, VALS(osmo_gsup_sms_sm_alert_rsn_types), 0, NULL, HFILL } },
 	};
 	static gint *ett[] = {
 		&ett_gsup,
