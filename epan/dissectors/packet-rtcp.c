@@ -415,13 +415,14 @@ static const value_string rtcp_mcpt_subtype_vals[] = {
     { 0x08,  "Floor Queue Position Request" },
     { 0x09,  "Floor Queue Position Info" },
     { 0x0a,  "Floor Ack" },
+    { 0x0f,  "Floor Release Multi Talker " },
 
-    { 0x81,  "Floor Granted(ack req)" },
-    { 0x02,  "Floor Taken(ack req)" },
-    { 0x83,  "Floor Deny(ack req)" },
-    { 0x84,  "Floor Release(ack req)" },
-    { 0x85,  "Floor Idle(ack req)" },
-    { 0x89,  "Floor Queue Position Info(ack req)" },
+    { 0x11,  "Floor Granted(ack req)" },
+    { 0x12,  "Floor Taken(ack req)" },
+    { 0x13,  "Floor Deny(ack req)" },
+    { 0x14,  "Floor Release(ack req)" },
+    { 0x15,  "Floor Idle(ack req)" },
+    { 0x19,  "Floor Queue Position Info(ack req)" },
 
     { 0,  NULL }
 };
@@ -4299,7 +4300,7 @@ proto_register_rtcp(void)
                 FT_UINT8,
                 BASE_DEC,
                 NULL,
-                0x0,
+                0x1f,
                 NULL, HFILL
             }
         },
