@@ -698,7 +698,7 @@ extcap_pref_for_argument(const gchar *ifname, struct _extcap_arg *arg)
     struct preference *pref = NULL;
 
     GRegex *regex_name = g_regex_new("[-]+", (GRegexCompileFlags) 0, (GRegexMatchFlags) 0, NULL);
-    GRegex *regex_ifname = g_regex_new("(?![a-zA-Z1-9_]).", (GRegexCompileFlags) 0, (GRegexMatchFlags) 0, NULL);
+    GRegex *regex_ifname = g_regex_new("(?![a-zA-Z0-9_]).", (GRegexCompileFlags) 0, (GRegexMatchFlags) 0, NULL);
     if (regex_name && regex_ifname)
     {
         if (prefs_find_module("extcap"))
