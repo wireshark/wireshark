@@ -29,7 +29,7 @@ extern "C" {
  * what is contained in the packet trace file.
  *
  * WTAP_ENCAP_PER_PACKET is a value passed to "wtap_dump_open()" or
- * "wtap_dump_fd_open()" to indicate that there is no single encapsulation
+ * "wtap_dump_fdopen()" to indicate that there is no single encapsulation
  * type for all packets in the file; this may cause those routines to
  * fail if the capture file format being written can't support that.
  * It's also returned by "wtap_file_encap()" for capture files that
