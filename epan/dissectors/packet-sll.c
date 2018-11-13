@@ -75,7 +75,6 @@ static const value_string ltype_vals[] = {
 	{ LINUX_SLL_P_IRDA_LAP,	"IrDA LAP" },
 	{ LINUX_SLL_P_ISI,	"ISI" },
 	{ LINUX_SLL_P_IEEE802154,	"IEEE 802.15.4" },
-	{ LINUX_SLL_P_NETLINK,	"Netlink" },
 	{ 0,			NULL }
 };
 
@@ -145,7 +144,8 @@ static header_field_info hfi_sll_trailer SLL_HFI_INIT =
 
 static gint ett_sll = -1;
 
-static dissector_table_t sll_linux_dissector_table;
+static dissector_table_t sll_hatype_dissector_table;
+static dissector_table_t sll_ltype_dissector_table;
 static dissector_table_t gre_dissector_table;
 
 static void sll_prompt(packet_info *pinfo, gchar* result)
@@ -162,6 +162,7 @@ static gpointer sll_value(packet_info *pinfo)
 static gboolean
 capture_sll(const guchar *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
+	guint16 hatype;
 	guint16 protocol;
 
 	if (!BYTES_ARE_IN_FRAME(0, len, SLL_HEADER_SIZE))
@@ -173,6 +174,10 @@ capture_sll(const guchar *pd, int offset _U_, int len, capture_packet_info_t *cp
 		 * "proto" is *not* a length field, it's a Linux internal
 		 * protocol type.
 		 */
+		hatype = pntoh16(&pd[2]);
+		if (try_capture_dissector("sll.hatype", hatype, pd,
+		    SLL_HEADER_SIZE, len, cpinfo, pseudo_header))
+			return TRUE;
 		return try_capture_dissector("sll.ltype", protocol, pd, SLL_HEADER_SIZE, len, cpinfo, pseudo_header);
 	} else {
 		return try_capture_dissector("ethertype", protocol, pd, SLL_HEADER_SIZE, len, cpinfo, pseudo_header);
@@ -213,12 +218,18 @@ dissect_sll(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	hatype = tvb_get_ntohs(tvb, 2);
 	halen = tvb_get_ntohs(tvb, 4);
 
-	/* the netlink dissector can parse our entire header, we can
-	   pass it our complete tvb
-	   XXX - are there any other protocols that use the same header
-	   format as sll? if so, we should add a dissector table
-	   sll.hatpye */
-	if (hatype == LINUX_SLL_P_NETLINK) {
+	/*
+	 * XXX - special purpose hack.  Netlink packets have a hardware
+	 * address type of LINUX_SLL_ARPHRD_NETLINK, but the protocol
+	 * type value indicates the Netlink message type; we just hand
+	 * the netlink dissector our *entire* packet.
+	 *
+	 * That's different from link-layer types such as 802.11+radiotap,
+	 * where the payload follows the complete SLL header, and the
+	 * protocol field in the SLL header is irrelevant; for those,
+	 * we have the sll.hatype dissector table.
+	 */
+	if (hatype == LINUX_SLL_ARPHRD_NETLINK) {
 		return call_dissector(netlink_handle, tvb, pinfo, tree);
 	}
 
@@ -277,11 +288,13 @@ dissect_sll(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 		proto_tree_add_uint(fh_tree, &hfi_sll_ltype, tvb, 14, 2,
 		    protocol);
 
-		p_add_proto_data(pinfo->pool, pinfo, proto_sll, 0, GUINT_TO_POINTER((guint)protocol));
-
-		if(!dissector_try_uint(sll_linux_dissector_table, protocol,
-			next_tvb, pinfo, tree)) {
-			call_data_dissector(next_tvb, pinfo, tree);
+		if (!dissector_try_uint(sll_hatype_dissector_table, hatype,
+		    next_tvb, pinfo, tree)) {
+			p_add_proto_data(pinfo->pool, pinfo, proto_sll, 0, GUINT_TO_POINTER((guint)protocol));
+			if (!dissector_try_uint(sll_ltype_dissector_table,
+			    protocol, next_tvb, pinfo, tree)) {
+				call_data_dissector(next_tvb, pinfo, tree);
+			}
 		}
 	} else {
 		switch (hatype) {
@@ -346,7 +359,27 @@ proto_register_sll(void)
 
 	sll_handle = create_dissector_handle(dissect_sll, proto_sll);
 
-	sll_linux_dissector_table = register_dissector_table (
+	/*
+	 * Sigh.
+	 *
+	 * For some packets, the link-layer header *isn't* been stripped
+	 * off in a cooked capture; the hardware address type is the
+	 * device ARPTYPE, so, for those packets, we should call the
+	 * dissector for that value.
+	 *
+	 * We define a "sll.hatype" dissector table; we try dissecting
+	 * with that first, and then try the protocol type if nothing
+	 * is found in sll.hatype.
+	 */
+	sll_hatype_dissector_table = register_dissector_table (
+		"sll.hatype",
+		"Linux SLL ARPHRD_ type",
+		proto_sll, FT_UINT16,
+		BASE_DEC
+	);
+	register_capture_dissector_table("sll.hatype", "Linux SLL ARPHRD_ type");
+
+	sll_ltype_dissector_table = register_dissector_table (
 		"sll.ltype",
 		"Linux SLL protocol type",
 		proto_sll, FT_UINT16,
