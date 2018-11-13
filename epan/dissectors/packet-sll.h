@@ -26,14 +26,4 @@
 #define LINUX_SLL_P_ISI		0x00F5  /* Intelligent Service Interface */
 #define LINUX_SLL_P_IEEE802154	0x00f6	/* 802.15.4 on monitor inteface */
 
-/*
- * The LINUX_SLL_ values for ARPHRD_ types that get treated specially,
- * because their packets do *not* get the link-layer header stripped
- * in a cooked capture.
- *
- * https://github.com/torvalds/linux/blob/master/include/uapi/linux/if_arp.h
- */
-#define LINUX_SLL_ARPHRD_IEEE80211_RADIOTAP	803	/* IEEE 802.11 + radiotap header */
-#define LINUX_SLL_ARPHRD_NETLINK		824	/* Netlink header */
-
 #endif
