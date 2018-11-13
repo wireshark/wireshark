@@ -140,7 +140,7 @@ static gboolean infoprint;      /* if TRUE, print capture info after clearing in
 /** Stop a low-level capture (stops the capture child). */
 static void capture_loop_stop(void);
 /** Close a pipe, or socket if \a from_socket is TRUE */
-static void cap_pipe_close(int pipe_fd, gboolean from_socket _U_);
+static void cap_pipe_close(int pipe_fd, gboolean from_socket);
 
 #if !defined (__linux__)
 #ifndef HAVE_PCAP_BREAKLOOP
@@ -1450,13 +1450,14 @@ fail_invalid:
  * otherwise.
  */
 static void
-cap_pipe_close(int pipe_fd, gboolean from_socket _U_)
+cap_pipe_close(int pipe_fd, gboolean from_socket)
 {
 #ifdef _WIN32
     if (from_socket) {
         closesocket(pipe_fd);
     }
 #else
+    (void) from_socket; /* Mark unused, similar to Q_UNUSED */
     ws_close(pipe_fd);
 #endif
 }
@@ -1938,8 +1939,6 @@ pcap_pipe_open_live(int fd,
         goto error;
     }
 
-    pcap_src->cap_pipe_state = STATE_EXPECT_REC_HDR;
-    pcap_src->cap_pipe_err = PIPOK;
     pcap_src->cap_pipe_fd = fd;
     return;
 
@@ -2071,7 +2070,6 @@ pcapng_pipe_open_live(int fd,
         /* read the rest of the pcapng general block header */
         pcap_src->cap_pipe_bytes_read = sizeof(guint32);
         pcap_src->cap_pipe_bytes_to_read = sizeof(struct pcapng_block_header_s);
-        pcap_src->cap_pipe_err = PIPOK;
         pcap_src->cap_pipe_fd = fd;
         if (cap_pipe_read_data_bytes(pcap_src, errmsg, errmsgl)) {
             goto error;
@@ -2099,7 +2097,6 @@ pcapng_pipe_open_live(int fd,
         }
         pcap_src->cap_pipe_bytes_read = sizeof(struct pcapng_block_header_s);
         memcpy(pcap_src->cap_pipe_databuf, bh, sizeof(struct pcapng_block_header_s));
-        pcap_src->cap_pipe_err = PIPOK;
         pcap_src->cap_pipe_fd = fd;
     }
 #endif
@@ -2651,13 +2648,12 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 
     for (i = 0; i < capture_opts->ifaces->len; i++) {
         interface_opts = &g_array_index(capture_opts->ifaces, interface_options, i);
-        pcap_src = (capture_src *)g_malloc(sizeof (capture_src));
+        pcap_src = (capture_src *)g_malloc0(sizeof (capture_src));
         if (pcap_src == NULL) {
             g_snprintf(errmsg, (gulong) errmsg_len,
                    "Could not allocate memory.");
             return FALSE;
         }
-        memset(pcap_src, 0, sizeof(capture_src));
 #ifdef MUST_DO_SELECT
         pcap_src->pcap_fd = -1;
 #endif
@@ -3118,7 +3114,9 @@ capture_loop_dispatch(loop_data *ld,
              */
             inpkts = pcap_src->cap_pipe_dispatch(ld, pcap_src, errmsg, errmsg_len);
             if (inpkts < 0) {
-                ld->go = FALSE;
+                g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "%s: src %u pipe reached EOF or err, rcv: %u drop: %u flush: %u",
+                      G_STRFUNC, pcap_src->interface_id, pcap_src->received, pcap_src->dropped, pcap_src->flushed);
+                g_assert(pcap_src->cap_pipe_err != PIPOK);
             }
         }
     }
@@ -3580,18 +3578,18 @@ do_file_switch_or_stop(capture_options *capture_opts)
 static void *
 pcap_read_handler(void* arg)
 {
-    capture_src *pcap_src;
+    capture_src *pcap_src = (capture_src *)arg;
     char         errmsg[MSG_MAX_LENGTH+1];
-
-    pcap_src = (capture_src *)arg;
 
     g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Started thread for interface %d.",
           pcap_src->interface_id);
 
-    while (global_ld.go) {
+    /* If this is a pipe input it might finish early. */
+    while (global_ld.go && pcap_src->cap_pipe_err == PIPOK) {
         /* dispatch incoming packets */
         capture_loop_dispatch(&global_ld, errmsg, sizeof(errmsg), pcap_src);
     }
+
     g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Stopped thread for interface %d.",
           pcap_src->interface_id);
     g_thread_exit(NULL);
@@ -3808,6 +3806,18 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
             pcap_src = g_array_index(global_ld.pcaps, capture_src *, 0);
             inpkts = capture_loop_dispatch(&global_ld, errmsg,
                                            sizeof(errmsg), pcap_src);
+        }
+        /* Stop capturing if all of our sources are pipes and none of them are open. */
+        gboolean open_interfaces = FALSE;
+        for (i = 0; i < global_ld.pcaps->len; i++) {
+            pcap_src = g_array_index(global_ld.pcaps, capture_src *, i);
+            if (pcap_src->cap_pipe_err == PIPOK) {
+                /* True for both non-pipes and open pipes. */
+                open_interfaces = TRUE;
+            }
+        }
+        if (!open_interfaces) {
+            global_ld.go = FALSE;
         }
 #ifdef SIGINFO
         /* Were we asked to print packet counts by the SIGINFO handler? */
