@@ -10799,7 +10799,7 @@ void proto_register_rtps(void) {
 
     { &hf_rtps_param_app_ack_conf_virtual_writer_count,
       { "virtualWriterCount", "rtps.app_ack_conf.virtual_writer_count",
-        FT_INT32, BASE_DEC, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }
     },
 
