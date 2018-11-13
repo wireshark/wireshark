@@ -7,20 +7,23 @@
 #
 '''sharkd tests'''
 
-import config
 import json
-import os.path
 import subprocess
 import subprocesstest
-import sys
-import unittest
+import fixtures
 
-dhcp_pcap = os.path.join(config.capture_dir, 'dhcp.pcap')
 
+@fixtures.fixture(scope='session')
+def cmd_sharkd(program):
+    return program('sharkd')
+
+
+@fixtures.mark_usefixtures('test_env')
+@fixtures.uses_fixtures
 class case_sharkd(subprocesstest.SubprocessTestCase):
-    def test_sharkd_hello_no_pcap(self):
+    def test_sharkd_hello_no_pcap(self, cmd_sharkd):
         '''sharkd hello message, no capture file'''
-        sharkd_proc = self.startProcess((config.cmd_sharkd, '-'),
+        sharkd_proc = self.startProcess((cmd_sharkd, '-'),
             stdin=subprocess.PIPE
         )
 
@@ -36,14 +39,14 @@ class case_sharkd(subprocesstest.SubprocessTestCase):
         except:
             self.fail('Invalid JSON: "{}"'.format(sharkd_proc.stdout_str))
 
-    def test_sharkd_hello_dhcp_pcap(self):
+    def test_sharkd_hello_dhcp_pcap(self, cmd_sharkd, capture_file):
         '''sharkd hello message, simple capture file'''
-        sharkd_proc = self.startProcess((config.cmd_sharkd, '-'),
+        sharkd_proc = self.startProcess((cmd_sharkd, '-'),
             stdin=subprocess.PIPE
         )
 
         sharkd_commands = b'{"req":"load","file":'
-        sharkd_commands += json.dumps(dhcp_pcap).encode('utf8')
+        sharkd_commands += json.dumps(capture_file('dhcp.pcap')).encode('utf8')
         sharkd_commands += b'}\n'
         sharkd_commands += b'{"req":"status"}\n'
         sharkd_commands += b'{"req":"frames"}\n'

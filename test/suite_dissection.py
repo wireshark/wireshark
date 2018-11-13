@@ -17,14 +17,13 @@ import fixtures
 @fixtures.mark_usefixtures('test_env')
 @fixtures.uses_fixtures
 class case_dissect_http2(subprocesstest.SubprocessTestCase):
-    def test_http2_data_reassembly(self, cmd_tshark, features, dirs):
+    def test_http2_data_reassembly(self, cmd_tshark, features, dirs, capture_file):
         '''HTTP2 data reassembly'''
         if not features.have_nghttp2:
             self.skipTest('Requires nghttp2.')
-        capture_file = os.path.join(dirs.capture_dir, 'http2-data-reassembly.pcap')
         key_file = os.path.join(dirs.key_dir, 'http2-data-reassembly.keys')
         self.runProcess((cmd_tshark,
-                '-r', capture_file,
+                '-r', capture_file('http2-data-reassembly.pcap'),
                 '-o', 'tls.keylog_file: {}'.format(key_file),
                 '-d', 'tcp.port==8443,tls',
                 '-Y', 'http2.data.data matches "PNG" && http2.data.data matches "END"',
@@ -59,12 +58,11 @@ class case_dissect_tcp(subprocesstest.SubprocessTestCase):
     def test_tcp_out_of_order_twopass(self, cmd_tshark, dirs):
         self.check_tcp_out_of_order(cmd_tshark, dirs, extraArgs=['-2'])
 
-    def test_tcp_out_of_order_twopass_with_bug(self, cmd_tshark, dirs):
+    def test_tcp_out_of_order_twopass_with_bug(self, cmd_tshark, capture_file):
         # TODO fix the issue below, remove this and enable
         # "test_tcp_out_of_order_twopass"
-        capture_file = os.path.join(dirs.capture_dir, 'http-ooo.pcap')
         self.runProcess((cmd_tshark,
-                '-r', capture_file,
+                '-r', capture_file('http-ooo.pcap'),
                 '-otcp.reassemble_out_of_order:TRUE',
                 '-Y', 'http',
                 '-2',
@@ -81,11 +79,10 @@ class case_dissect_tcp(subprocesstest.SubprocessTestCase):
         self.assertTrue(self.grepOutput(r'^\s*11\s.*PUT /4 HTTP/1.1'))
         self.assertTrue(self.grepOutput(r'^\s*15\s.*PUT /5 HTTP/1.1'))
 
-    def test_tcp_out_of_order_data_after_syn(self, cmd_tshark, dirs):
+    def test_tcp_out_of_order_data_after_syn(self, cmd_tshark, capture_file):
         '''Test when the first non-empty segment is OoO.'''
-        capture_file = os.path.join(dirs.capture_dir, 'dns-ooo.pcap')
         proc = self.runProcess((cmd_tshark,
-                '-r', capture_file,
+                '-r', capture_file('dns-ooo.pcap'),
                 '-otcp.reassemble_out_of_order:TRUE',
                 '-Y', 'dns', '-Tfields', '-edns.qry.name',
             ))

@@ -9,27 +9,28 @@
 #
 '''File I/O tests'''
 
-import config
 import io
 import os.path
 import subprocesstest
 import sys
 import unittest
+import fixtures
 
 testout_pcap = 'testout.pcap'
 baseline_file = 'io-rawshark-dhcp-pcap.txt'
-baseline_fd = io.open(os.path.join(config.baseline_dir, baseline_file), 'r', encoding='UTF-8', errors='replace')
-baseline_str = baseline_fd.read()
-baseline_fd.close()
 
-def check_io_4_packets(self, cmd=None, from_stdin=False, to_stdout=False):
+
+@fixtures.fixture(scope='session')
+def io_baseline_str(dirs):
+    with open(os.path.join(dirs.baseline_dir, baseline_file), 'r') as f:
+        return f.read()
+
+
+def check_io_4_packets(self, capture_file, cmd=None, from_stdin=False, to_stdout=False):
     # Test direct->direct, stdin->direct, and direct->stdout file I/O.
     # Similar to suite_capture.check_capture_10_packets and
     # suite_capture.check_capture_stdin.
-    if cmd == config.cmd_wireshark and not config.canDisplay():
-        self.skipTest('Test requires a display.')
     self.assertIsNotNone(cmd)
-    capture_file = os.path.join(config.capture_dir, 'dhcp.pcap')
     testout_file = self.filename_from_id(testout_pcap)
     if from_stdin and to_stdout:
         # XXX If we support this, should we bother with separate stdin->direct
@@ -42,13 +43,12 @@ def check_io_4_packets(self, cmd=None, from_stdin=False, to_stdout=False):
         io_proc = self.runProcess(stdin_cmd, shell=True)
     elif to_stdout:
         # $DUT -r "${CAPTURE_DIR}dhcp.pcap" -w - > ./testout.pcap 2>./testout.txt
-        stdout_cmd = '"{0}" -r "{1}" -w - > "{2}"'.format(cmd, capture_file, testout_file)
+        stdout_cmd = '"{0}" -r "{1}" -w - > "{2}"'.format(cmd, capture_file('dhcp.pcap'), testout_file)
         io_proc = self.runProcess(stdout_cmd, shell=True)
     else: # direct->direct
         # $DUT -r "${CAPTURE_DIR}dhcp.pcap" -w ./testout.pcap > ./testout.txt 2>&1
-        capture_file = os.path.join(config.capture_dir, 'dhcp.pcap')
         io_proc = self.runProcess(subprocesstest.capture_command(cmd,
-            '-r', capture_file,
+            '-r', capture_file('dhcp.pcap'),
             '-w', testout_file,
         ))
     io_returncode = io_proc.returncode
@@ -57,33 +57,37 @@ def check_io_4_packets(self, cmd=None, from_stdin=False, to_stdout=False):
     if (io_returncode == 0):
         self.checkPacketCount(4)
 
+
+@fixtures.mark_usefixtures('test_env')
+@fixtures.uses_fixtures
 class case_tshark_io(subprocesstest.SubprocessTestCase):
-    def test_tshark_io_stdin_direct(self):
+    def test_tshark_io_stdin_direct(self, cmd_tshark, capture_file):
         '''Read from stdin and write direct using TShark'''
-        check_io_4_packets(self, cmd=config.cmd_tshark, from_stdin=True)
+        check_io_4_packets(self, capture_file, cmd=cmd_tshark, from_stdin=True)
 
-    def test_tshark_io_direct_stdout(self):
+    def test_tshark_io_direct_stdout(self, cmd_tshark, capture_file):
         '''Read direct and write to stdout using TShark'''
-        check_io_4_packets(self, cmd=config.cmd_tshark, to_stdout=True)
+        check_io_4_packets(self, capture_file, cmd=cmd_tshark, to_stdout=True)
 
-    def test_tshark_io_direct_direct(self):
+    def test_tshark_io_direct_direct(self, cmd_tshark, capture_file):
         '''Read direct and write direct using TShark'''
-        check_io_4_packets(self, cmd=config.cmd_tshark)
+        check_io_4_packets(self, capture_file, cmd=cmd_tshark)
 
-# The Bash version didn't test Wireshark or dumpcap
 
+@fixtures.mark_usefixtures('test_env')
+@fixtures.uses_fixtures
 class case_rawshark_io(subprocesstest.SubprocessTestCase):
     @unittest.skipUnless(sys.byteorder == 'little', 'Requires a little endian system')
-    def test_rawshark_io_stdin(self):
+    def test_rawshark_io_stdin(self, cmd_rawshark, capture_file, io_baseline_str):
         '''Read from stdin using Rawshark'''
         # tail -c +25 "${CAPTURE_DIR}dhcp.pcap" | $RAWSHARK -dencap:1 -R "udp.port==68" -nr - > $IO_RAWSHARK_DHCP_PCAP_TESTOUT 2> /dev/null
         # diff -u --strip-trailing-cr $IO_RAWSHARK_DHCP_PCAP_BASELINE $IO_RAWSHARK_DHCP_PCAP_TESTOUT > $DIFF_OUT 2>&1
-        capture_file = os.path.join(config.capture_dir, 'dhcp.pcap')
+        capture_file = capture_file('dhcp.pcap')
         testout_file = self.filename_from_id(testout_pcap)
         raw_dhcp_cmd = subprocesstest.cat_dhcp_command('raw')
-        rawshark_cmd = '{0} | "{1}" -r - -n -dencap:1 -R "udp.port==68"'.format(raw_dhcp_cmd, config.cmd_rawshark)
+        rawshark_cmd = '{0} | "{1}" -r - -n -dencap:1 -R "udp.port==68"'.format(raw_dhcp_cmd, cmd_rawshark)
         rawshark_proc = self.runProcess(rawshark_cmd, shell=True)
         rawshark_returncode = rawshark_proc.returncode
         self.assertEqual(rawshark_returncode, 0)
         if (rawshark_returncode == 0):
-            self.assertTrue(self.diffOutput(rawshark_proc.stdout_str, baseline_str, 'rawshark', baseline_file))
+            self.assertTrue(self.diffOutput(rawshark_proc.stdout_str, io_baseline_str, 'rawshark', baseline_file))

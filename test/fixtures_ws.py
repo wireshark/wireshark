@@ -114,6 +114,14 @@ def dirs():
     )
 
 
+@fixtures.fixture(scope='session')
+def capture_file(dirs):
+    '''Returns the path to a capture file.'''
+    def resolver(filename):
+        return os.path.join(dirs.capture_dir, filename)
+    return resolver
+
+
 @fixtures.fixture
 def home_path():
     '''Per-test home directory, removed when finished.'''

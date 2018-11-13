@@ -8,14 +8,14 @@
 #
 '''Follow Stream tests'''
 
-import config
-import os.path
 import subprocesstest
-import unittest
+import fixtures
 
 
+@fixtures.mark_usefixtures('test_env')
+@fixtures.uses_fixtures
 class case_follow_tcp(subprocesstest.SubprocessTestCase):
-    def test_follow_tcp_bad_conditions(self):
+    def test_follow_tcp_bad_conditions(self, cmd_tshark, capture_file):
         '''Checks whether Follow TCP correctly handles lots of edge cases.'''
         # Edge cases include:
         # 1. two sequential segments
@@ -27,11 +27,10 @@ class case_follow_tcp(subprocesstest.SubprocessTestCase):
         # 6. lost but acked segments
         # 7. lost 3/5 fragments, but acked
         # Not checked: lost and not acked (currently truncated, is that OK?)
-        capture_file = os.path.join(config.capture_dir, 'tcp-badsegments.pcap')
-        proc = self.runProcess([config.cmd_tshark,
-                                '-r', capture_file,
+        proc = self.runProcess((cmd_tshark,
+                                '-r', capture_file('tcp-badsegments.pcap'),
                                 '-qz', 'follow,tcp,hex,0',
-                                ], env=config.test_env)
+                                ))
 
         self.assertIn("""\
 ===================================================================

@@ -10,177 +10,180 @@
 '''Command line option tests'''
 
 import config
-import os.path
 import subprocess
 import subprocesstest
 import unittest
+import fixtures
 
 #glossaries = ('fields', 'protocols', 'values', 'decodes', 'defaultprefs', 'currentprefs')
 
 glossaries = ('decodes', 'values')
 testout_pcap = 'testout.pcap'
 
-class case_dumpcap_invalid_chars(subprocesstest.SubprocessTestCase):
+
+@fixtures.uses_fixtures
+class case_dumpcap_options(subprocesstest.SubprocessTestCase):
     # XXX Should we generate individual test functions instead of looping?
-    def test_dumpcap_invalid_chars(self):
+    def test_dumpcap_invalid_chars(self, cmd_dumpcap, base_env):
         '''Invalid dumpcap parameters'''
         for char_arg in 'CEFGHJKNOQRTUVWXYejloxz':
-            self.assertRun((config.cmd_dumpcap, '-' + char_arg),
+            self.assertRun((cmd_dumpcap, '-' + char_arg), env=base_env,
                            expected_return=self.exit_command_line)
 
-
-class case_dumpcap_valid_chars(subprocesstest.SubprocessTestCase):
     # XXX Should we generate individual test functions instead of looping?
-    def test_dumpcap_valid_chars(self):
+    def test_dumpcap_valid_chars(self, cmd_dumpcap, base_env):
         for char_arg in 'hv':
-            self.assertRun((config.cmd_dumpcap, '-' + char_arg))
+            self.assertRun((cmd_dumpcap, '-' + char_arg), env=base_env)
 
-
-class case_dumpcap_invalid_interface_chars(subprocesstest.SubprocessTestCase):
     # XXX Should we generate individual test functions instead of looping?
-    def test_dumpcap_interface_chars(self):
+    def test_dumpcap_interface_chars(self, cmd_dumpcap, base_env):
         '''Valid dumpcap parameters requiring capture permissions'''
         valid_returns = [self.exit_ok, self.exit_error]
         for char_arg in 'DL':
-            process = self.runProcess((config.cmd_dumpcap, '-' + char_arg))
+            process = self.runProcess((cmd_dumpcap, '-' + char_arg), env=base_env)
             self.assertIn(process.returncode, valid_returns)
 
 
+@fixtures.uses_fixtures
 class case_dumpcap_capture_clopts(subprocesstest.SubprocessTestCase):
-    def test_dumpcap_invalid_capfilter(self):
+    def test_dumpcap_invalid_capfilter(self, cmd_dumpcap, base_env):
         '''Invalid capture filter'''
         if not config.canCapture():
             self.skipTest('Test requires capture privileges and an interface.')
         invalid_filter = '__invalid_protocol'
         # $DUMPCAP -f 'jkghg' -w './testout.pcap' > ./testout.txt 2>&1
         testout_file = self.filename_from_id(testout_pcap)
-        self.runProcess((config.cmd_dumpcap, '-f', invalid_filter, '-w', testout_file ))
+        self.runProcess((cmd_dumpcap, '-f', invalid_filter, '-w', testout_file), env=base_env)
         self.assertTrue(self.grepOutput('Invalid capture filter "' + invalid_filter + '" for interface'))
 
-    def test_dumpcap_invalid_interface_name(self):
+    def test_dumpcap_invalid_interface_name(self, cmd_dumpcap, base_env):
         '''Invalid capture interface name'''
         if not config.canCapture():
             self.skipTest('Test requires capture privileges and an interface.')
         invalid_interface = '__invalid_interface'
         # $DUMPCAP -i invalid_interface -w './testout.pcap' > ./testout.txt 2>&1
         testout_file = self.filename_from_id(testout_pcap)
-        self.runProcess((config.cmd_dumpcap, '-i', invalid_interface, '-w', testout_file))
+        self.runProcess((cmd_dumpcap, '-i', invalid_interface, '-w', testout_file), env=base_env)
         self.assertTrue(self.grepOutput('The capture session could not be initiated'))
 
-    def test_dumpcap_invalid_interface_index(self):
+    def test_dumpcap_invalid_interface_index(self, cmd_dumpcap, base_env):
         '''Invalid capture interface index'''
         if not config.canCapture():
             self.skipTest('Test requires capture privileges and an interface.')
         invalid_index = '0'
         # $DUMPCAP -i 0 -w './testout.pcap' > ./testout.txt 2>&1
         testout_file = self.filename_from_id(testout_pcap)
-        self.runProcess((config.cmd_dumpcap, '-i', invalid_index, '-w', testout_file))
+        self.runProcess((cmd_dumpcap, '-i', invalid_index, '-w', testout_file), env=base_env)
         self.assertTrue(self.grepOutput('There is no interface with that adapter index'))
 
 
+@fixtures.mark_usefixtures('test_env')
+@fixtures.uses_fixtures
 class case_basic_clopts(subprocesstest.SubprocessTestCase):
-    def test_existing_file(self):
+    def test_existing_file(self, cmd_tshark, capture_file):
         # $TSHARK -r "${CAPTURE_DIR}dhcp.pcap" > ./testout.txt 2>&1
-        cap_file = os.path.join(config.capture_dir, 'dhcp.pcap')
-        self.assertRun((config.cmd_tshark, '-r', cap_file))
+        self.assertRun((cmd_tshark, '-r', capture_file('dhcp.pcap')))
 
-    def test_nonexistent_file(self):
+    def test_nonexistent_file(self, cmd_tshark, capture_file):
         # $TSHARK - r ThisFileDontExist.pcap > ./testout.txt 2 > &1
-        cap_file = os.path.join(config.capture_dir, '__ceci_nest_pas_une.pcap')
-        self.assertRun((config.cmd_tshark, '-r', cap_file),
+        self.assertRun((cmd_tshark, '-r', capture_file('__ceci_nest_pas_une.pcap')),
                        expected_return=self.exit_error)
 
 
-class case_tshark_invalid_chars(subprocesstest.SubprocessTestCase):
+@fixtures.mark_usefixtures('test_env')
+@fixtures.uses_fixtures
+class case_tshark_options(subprocesstest.SubprocessTestCase):
     # XXX Should we generate individual test functions instead of looping?
-    def test_tshark_invalid_chars(self):
+    def test_tshark_invalid_chars(self, cmd_tshark):
         '''Invalid tshark parameters'''
         for char_arg in 'ABCEFHJKMNORTUWXYZabcdefijkmorstuwyz':
-            self.assertRun((config.cmd_tshark, '-' + char_arg),
+            self.assertRun((cmd_tshark, '-' + char_arg),
                            expected_return=self.exit_command_line)
 
-
-class case_tshark_valid_chars(subprocesstest.SubprocessTestCase):
     # XXX Should we generate individual test functions instead of looping?
-    def test_tshark_valid_chars(self):
+    def test_tshark_valid_chars(self, cmd_tshark):
         for char_arg in 'Ghv':
-            self.assertRun((config.cmd_tshark, '-' + char_arg))
+            self.assertRun((cmd_tshark, '-' + char_arg))
 
-
-class case_tshark_invalid_interface_chars(subprocesstest.SubprocessTestCase):
     # XXX Should we generate individual test functions instead of looping?
-    def test_tshark_interface_chars(self):
+    def test_tshark_interface_chars(self, cmd_tshark):
         '''Valid tshark parameters requiring capture permissions'''
         valid_returns = [self.exit_ok, self.exit_error]
         for char_arg in 'DL':
-            process = self.runProcess((config.cmd_tshark, '-' + char_arg))
+            process = self.runProcess((cmd_tshark, '-' + char_arg))
             self.assertIn(process.returncode, valid_returns)
 
 
+@fixtures.mark_usefixtures('test_env')
+@fixtures.uses_fixtures
 class case_tshark_capture_clopts(subprocesstest.SubprocessTestCase):
-    def test_tshark_invalid_capfilter(self):
+    def test_tshark_invalid_capfilter(self, cmd_tshark):
         '''Invalid capture filter'''
         if not config.canCapture():
             self.skipTest('Test requires capture privileges and an interface.')
         invalid_filter = '__invalid_protocol'
         # $TSHARK -f 'jkghg' -w './testout.pcap' > ./testout.txt 2>&1
         testout_file = self.filename_from_id(testout_pcap)
-        self.runProcess((config.cmd_tshark, '-f', invalid_filter, '-w', testout_file ))
+        self.runProcess((cmd_tshark, '-f', invalid_filter, '-w', testout_file ))
         self.assertTrue(self.grepOutput('Invalid capture filter "' + invalid_filter + '" for interface'))
 
-    def test_tshark_invalid_interface_name(self):
+    def test_tshark_invalid_interface_name(self, cmd_tshark):
         '''Invalid capture interface name'''
         if not config.canCapture():
             self.skipTest('Test requires capture privileges and an interface.')
         invalid_interface = '__invalid_interface'
         # $TSHARK -i invalid_interface -w './testout.pcap' > ./testout.txt 2>&1
         testout_file = self.filename_from_id(testout_pcap)
-        self.runProcess((config.cmd_tshark, '-i', invalid_interface, '-w', testout_file))
+        self.runProcess((cmd_tshark, '-i', invalid_interface, '-w', testout_file))
         self.assertTrue(self.grepOutput('The capture session could not be initiated'))
 
-    def test_tshark_invalid_interface_index(self):
+    def test_tshark_invalid_interface_index(self, cmd_tshark):
         '''Invalid capture interface index'''
         if not config.canCapture():
             self.skipTest('Test requires capture privileges and an interface.')
         invalid_index = '0'
         # $TSHARK -i 0 -w './testout.pcap' > ./testout.txt 2>&1
         testout_file = self.filename_from_id(testout_pcap)
-        self.runProcess((config.cmd_tshark, '-i', invalid_index, '-w', testout_file))
+        self.runProcess((cmd_tshark, '-i', invalid_index, '-w', testout_file))
         self.assertTrue(self.grepOutput('There is no interface with that adapter index'))
 
 
+@fixtures.mark_usefixtures('test_env')
+@fixtures.uses_fixtures
 class case_tshark_name_resolution_clopts(subprocesstest.SubprocessTestCase):
-    def test_tshark_valid_name_resolution(self):
+    def test_tshark_valid_name_resolution(self, cmd_tshark):
         if not config.canCapture():
             self.skipTest('Test requires capture privileges and an interface.')
         # $TSHARK -N mnNtdv -a duration:1 > ./testout.txt 2>&1
-        self.assertRun((config.cmd_tshark, '-N', 'mnNtdv', '-a', 'duration: 1'))
+        self.assertRun((cmd_tshark, '-N', 'mnNtdv', '-a', 'duration: 1'))
 
     # XXX Add invalid name resolution.
 
+@fixtures.mark_usefixtures('test_env')
+@fixtures.uses_fixtures
 class case_tshark_unicode_clopts(subprocesstest.SubprocessTestCase):
-    def test_tshark_unicode_display_filter(self):
+    def test_tshark_unicode_display_filter(self, cmd_tshark, capture_file):
         '''Unicode (UTF-8) display filter'''
-        cap_file = os.path.join(config.capture_dir, 'http.pcap')
-        self.runProcess((config.cmd_tshark, '-r', cap_file, '-Y', 'tcp.flags.str == "·······AP···"'))
+        self.runProcess((cmd_tshark, '-r', capture_file('http.pcap'), '-Y', 'tcp.flags.str == "·······AP···"'))
         self.assertTrue(self.grepOutput('HEAD.*/v4/iuident.cab'))
 
 
+@fixtures.uses_fixtures
 class case_tshark_dump_glossaries(subprocesstest.SubprocessTestCase):
-    def test_tshark_dump_glossary(self):
+    def test_tshark_dump_glossary(self, cmd_tshark, base_env):
         for glossary in glossaries:
             try:
                 self.log_fd.truncate()
             except:
                 pass
-            self.assertRun((config.cmd_tshark, '-G', glossary))
+            self.assertRun((cmd_tshark, '-G', glossary), env=base_env)
             self.assertEqual(self.countOutput(count_stdout=False, count_stderr=True), 0, 'Found error output while printing glossary ' + glossary)
 
-    def test_tshark_glossary_valid_utf8(self):
+    def test_tshark_glossary_valid_utf8(self, cmd_tshark, base_env):
         for glossary in glossaries:
-            env = config.baseEnv()
+            env = base_env
             env['LANG'] = 'en_US.UTF-8'
-            g_contents = subprocess.check_output((config.cmd_tshark, '-G', glossary), env=env, stderr=subprocess.PIPE)
+            g_contents = subprocess.check_output((cmd_tshark, '-G', glossary), env=env, stderr=subprocess.PIPE)
             decoded = True
             try:
                 g_contents.decode('UTF-8')
@@ -188,82 +191,79 @@ class case_tshark_dump_glossaries(subprocesstest.SubprocessTestCase):
                 decoded = False
             self.assertTrue(decoded, '{} is not valid UTF-8'.format(glossary))
 
-    def test_tshark_glossary_plugin_count(self):
-        self.runProcess((config.cmd_tshark, '-G', 'plugins'), env=config.baseEnv())
+    def test_tshark_glossary_plugin_count(self, cmd_tshark, base_env):
+        self.runProcess((cmd_tshark, '-G', 'plugins'), env=base_env)
         self.assertGreaterEqual(self.countOutput('dissector'), 10, 'Fewer than 10 dissector plugins found')
 
+
+@fixtures.mark_usefixtures('test_env')
+@fixtures.uses_fixtures
 class case_tshark_z_expert(subprocesstest.SubprocessTestCase):
-    def test_tshark_z_expert_all(self):
-        self.assertRun((config.cmd_tshark, '-q', '-z', 'expert',
-            '-r', os.path.join(config.capture_dir, 'http-ooo.pcap')))
+    def test_tshark_z_expert_all(self, cmd_tshark, capture_file):
+        self.assertRun((cmd_tshark, '-q', '-z', 'expert',
+            '-r', capture_file('http-ooo.pcap')))
         self.assertTrue(self.grepOutput('Errors'))
         self.assertTrue(self.grepOutput('Warns'))
         self.assertTrue(self.grepOutput('Chats'))
 
-    def test_tshark_z_expert_error(self):
-        self.assertRun((config.cmd_tshark, '-q', '-z', 'expert,error',
-            '-r', os.path.join(config.capture_dir, 'http-ooo.pcap')))
+    def test_tshark_z_expert_error(self, cmd_tshark, capture_file):
+        self.assertRun((cmd_tshark, '-q', '-z', 'expert,error',
+            '-r', capture_file('http-ooo.pcap')))
         self.assertTrue(self.grepOutput('Errors'))
         self.assertFalse(self.grepOutput('Warns'))
         self.assertFalse(self.grepOutput('Chats'))
 
-    def test_tshark_z_expert_warn(self):
-        self.assertRun((config.cmd_tshark, '-q', '-z', 'expert,warn',
-            '-r', os.path.join(config.capture_dir, 'http-ooo.pcap')))
+    def test_tshark_z_expert_warn(self, cmd_tshark, capture_file):
+        self.assertRun((cmd_tshark, '-q', '-z', 'expert,warn',
+            '-r', capture_file('http-ooo.pcap')))
         self.assertTrue(self.grepOutput('Errors'))
         self.assertTrue(self.grepOutput('Warns'))
         self.assertFalse(self.grepOutput('Chats'))
 
-    def test_tshark_z_expert_note(self):
-        self.assertRun((config.cmd_tshark, '-q', '-z', 'expert,note',
-            '-r', os.path.join(config.capture_dir, 'http2-data-reassembly.pcap')))
+    def test_tshark_z_expert_note(self, cmd_tshark, capture_file):
+        self.assertRun((cmd_tshark, '-q', '-z', 'expert,note',
+            '-r', capture_file('http2-data-reassembly.pcap')))
         self.assertTrue(self.grepOutput('Warns'))
         self.assertTrue(self.grepOutput('Notes'))
         self.assertFalse(self.grepOutput('Chats'))
 
-    def test_tshark_z_expert_chat(self):
-        self.assertRun((config.cmd_tshark, '-q', '-z', 'expert,chat',
-            '-r', os.path.join(config.capture_dir, 'http-ooo.pcap')))
+    def test_tshark_z_expert_chat(self, cmd_tshark, capture_file):
+        self.assertRun((cmd_tshark, '-q', '-z', 'expert,chat',
+            '-r', capture_file('http-ooo.pcap')))
         self.assertTrue(self.grepOutput('Errors'))
         self.assertTrue(self.grepOutput('Warns'))
         self.assertTrue(self.grepOutput('Chats'))
 
-    def test_tshark_z_expert_comment(self):
-        self.assertRun((config.cmd_tshark, '-q', '-z', 'expert,comment',
-            '-r', os.path.join(config.capture_dir, 'sip.pcapng')))
+    def test_tshark_z_expert_comment(self, cmd_tshark, capture_file):
+        self.assertRun((cmd_tshark, '-q', '-z', 'expert,comment',
+            '-r', capture_file('sip.pcapng')))
         self.assertTrue(self.grepOutput('Notes'))
         self.assertTrue(self.grepOutput('Comments'))
 
-    def test_tshark_z_expert_invalid_filter(self):
+    def test_tshark_z_expert_invalid_filter(self, cmd_tshark, capture_file):
         invalid_filter = '__invalid_protocol'
-        self.assertRun((config.cmd_tshark, '-q', '-z', 'expert,' + invalid_filter,
-            '-r', os.path.join(config.capture_dir, 'http-ooo.pcap')),
+        self.assertRun((cmd_tshark, '-q', '-z', 'expert,' + invalid_filter,
+            '-r', capture_file('http-ooo.pcap')),
             expected_return=self.exit_command_line)
         self.assertTrue(self.grepOutput('Filter "' + invalid_filter + '" is invalid'))
 
-    def test_tshark_z_expert_error_invalid_filter(self):
+    def test_tshark_z_expert_error_invalid_filter(self, cmd_tshark, capture_file):
         invalid_filter = '__invalid_protocol'
-        self.assertRun((config.cmd_tshark, '-q', '-z', 'expert,error,' + invalid_filter,
-            '-r', os.path.join(config.capture_dir, 'http-ooo.pcap')),
+        self.assertRun((cmd_tshark, '-q', '-z', 'expert,error,' + invalid_filter,
+            '-r', capture_file('http-ooo.pcap')),
             expected_return=self.exit_command_line)
         self.assertTrue(self.grepOutput('Filter "' + invalid_filter + '" is invalid'))
 
-    def test_tshark_z_expert_filter(self):
-        self.assertRun((config.cmd_tshark, '-q', '-z', 'expert,udp', #udp is a filter
-            '-r', os.path.join(config.capture_dir, 'http-ooo.pcap')))
+    def test_tshark_z_expert_filter(self, cmd_tshark, capture_file):
+        self.assertRun((cmd_tshark, '-q', '-z', 'expert,udp',  # udp is a filter
+            '-r', capture_file('http-ooo.pcap')))
         self.assertFalse(self.grepOutput('Errors'))
         self.assertFalse(self.grepOutput('Warns'))
         self.assertFalse(self.grepOutput('Chats'))
 
-    def test_tshark_z_expert_error_filter(self):
-        self.assertRun((config.cmd_tshark, '-q', '-z', 'expert,error,udp', #udp is a filter
-            '-r', os.path.join(config.capture_dir, 'http-ooo.pcap')))
+    def test_tshark_z_expert_error_filter(self, cmd_tshark, capture_file):
+        self.assertRun((cmd_tshark, '-q', '-z', 'expert,error,udp',  # udp is a filter
+            '-r', capture_file('http-ooo.pcap')))
         self.assertFalse(self.grepOutput('Errors'))
         self.assertFalse(self.grepOutput('Warns'))
         self.assertFalse(self.grepOutput('Chats'))
-
-# Purposefully fail a test. Used for testing the test framework.
-# class case_fail_on_purpose(subprocesstest.SubprocessTestCase):
-#     def test_fail_on_purpose(self):
-#         self.runProcess(('echo', 'hello, world'))
-#         self.fail('Not implemented')
