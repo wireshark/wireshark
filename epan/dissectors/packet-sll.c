@@ -36,6 +36,7 @@
 #include "packet-gre.h"
 #include <epan/addr_resolv.h>
 #include <epan/etypes.h>
+#include <epan/arptypes.h>
 #include <epan/decode_as.h>
 #include <epan/proto_data.h>
 
@@ -220,16 +221,16 @@ dissect_sll(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
 	/*
 	 * XXX - special purpose hack.  Netlink packets have a hardware
-	 * address type of LINUX_SLL_ARPHRD_NETLINK, but the protocol
-	 * type value indicates the Netlink message type; we just hand
-	 * the netlink dissector our *entire* packet.
+	 * address type of ARPHRD_NETLINK, but the protocol type value
+	 * indicates the Netlink message type; we just hand the netlink
+	 * dissector our *entire* packet.
 	 *
 	 * That's different from link-layer types such as 802.11+radiotap,
 	 * where the payload follows the complete SLL header, and the
 	 * protocol field in the SLL header is irrelevant; for those,
 	 * we have the sll.hatype dissector table.
 	 */
-	if (hatype == LINUX_SLL_ARPHRD_NETLINK) {
+	if (hatype == ARPHRD_NETLINK) {
 		return call_dissector(netlink_handle, tvb, pinfo, tree);
 	}
 
