@@ -3598,6 +3598,48 @@ pcap_read_handler(void* arg)
     return (NULL);
 }
 
+/* Try to pop an item off the packet queue and if it exists, write it */
+static gboolean
+capture_loop_dequeue_packet(void) {
+    pcap_queue_element *queue_element;
+
+    g_async_queue_lock(pcap_queue);
+    queue_element = (pcap_queue_element *)g_async_queue_timeout_pop_unlocked(pcap_queue, WRITER_THREAD_TIMEOUT);
+    if (queue_element) {
+        if (queue_element->pcap_src->from_pcapng) {
+            pcap_queue_bytes -= queue_element->u.bh.block_total_length;
+        } else {
+            pcap_queue_bytes -= queue_element->u.phdr.caplen;
+        }
+        pcap_queue_packets -= 1;
+    }
+    g_async_queue_unlock(pcap_queue);
+    if (queue_element) {
+        if (queue_element->pcap_src->from_pcapng) {
+            g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO,
+                  "Dequeued a block of type 0x%08x of length %d captured on interface %d.",
+                  queue_element->u.bh.block_type, queue_element->u.bh.block_total_length,
+                  queue_element->pcap_src->interface_id);
+
+            capture_loop_write_pcapng_cb(queue_element->pcap_src,
+                                        &queue_element->u.bh,
+                                        queue_element->pd);
+        } else {
+            g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO,
+                "Dequeued a packet of length %d captured on interface %d.",
+                queue_element->u.phdr.caplen, queue_element->pcap_src->interface_id);
+
+            capture_loop_write_packet_cb((u_char *) queue_element->pcap_src,
+                                        &queue_element->u.phdr,
+                                        queue_element->pd);
+        }
+        g_free(queue_element->pd);
+        g_free(queue_element);
+        return TRUE;
+    }
+    return FALSE;
+}
+
 /* Do the low-level work of a capture.
    Returns TRUE if it succeeds, FALSE otherwise. */
 static gboolean
@@ -3755,40 +3797,9 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
     while (global_ld.go) {
         /* dispatch incoming packets */
         if (use_threads) {
-            pcap_queue_element *queue_element;
+            gboolean dequeued = capture_loop_dequeue_packet();
 
-            g_async_queue_lock(pcap_queue);
-            queue_element = (pcap_queue_element *)g_async_queue_timeout_pop_unlocked(pcap_queue, WRITER_THREAD_TIMEOUT);
-            if (queue_element) {
-                if (queue_element->pcap_src->from_pcapng) {
-                    pcap_queue_bytes -= queue_element->u.bh.block_total_length;
-                    pcap_queue_packets -= 1;
-                } else {
-                    pcap_queue_bytes -= queue_element->u.phdr.caplen;
-                    pcap_queue_packets -= 1;
-                }
-            }
-            g_async_queue_unlock(pcap_queue);
-            if (queue_element) {
-                if (queue_element->pcap_src->from_pcapng) {
-                    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO,
-                        "Dequeued a block of length %d captured on interface %d.",
-                        queue_element->u.bh.block_total_length, queue_element->pcap_src->interface_id);
-
-                    capture_loop_write_pcapng_cb(queue_element->pcap_src,
-                                                &queue_element->u.bh,
-                                                queue_element->pd);
-                } else {
-                    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO,
-                        "Dequeued a packet of length %d captured on interface %d.",
-                        queue_element->u.phdr.caplen, queue_element->pcap_src->interface_id);
-
-                    capture_loop_write_packet_cb((u_char *) queue_element->pcap_src,
-                                                &queue_element->u.phdr,
-                                                queue_element->pd);
-                }
-                g_free(queue_element->pd);
-                g_free(queue_element);
+            if (dequeued) {
                 inpkts = 1;
             } else {
                 inpkts = 0;
@@ -3883,7 +3894,6 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 
     g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Capture loop stopping ...");
     if (use_threads) {
-        pcap_queue_element *queue_element;
 
         for (i = 0; i < global_ld.pcaps->len; i++) {
             pcap_src = g_array_index(global_ld.pcaps, capture_src *, i);
@@ -3894,24 +3904,10 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
                   pcap_src->interface_id);
         }
         while (1) {
-            g_async_queue_lock(pcap_queue);
-            queue_element = (pcap_queue_element *)g_async_queue_try_pop_unlocked(pcap_queue);
-            if (queue_element) {
-                pcap_queue_bytes -= queue_element->u.phdr.caplen;
-                pcap_queue_packets -= 1;
-            }
-            g_async_queue_unlock(pcap_queue);
-            if (queue_element == NULL) {
+            gboolean dequeued = capture_loop_dequeue_packet();
+            if (!dequeued) {
                 break;
             }
-            g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO,
-                  "Dequeued a packet of length %d captured on interface %d.",
-                  queue_element->u.phdr.caplen, queue_element->pcap_src->interface_id);
-            capture_loop_write_packet_cb((u_char *)queue_element->pcap_src,
-                                         &queue_element->u.phdr,
-                                         queue_element->pd);
-            g_free(queue_element->pd);
-            g_free(queue_element);
             global_ld.inpkts_to_sync_pipe += 1;
             if (capture_opts->output_to_pipe) {
                 fflush(global_ld.pdh);
