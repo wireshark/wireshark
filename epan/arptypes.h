@@ -63,9 +63,10 @@ extern "C" {
 #define ARPHDR_HW_EXP2			256	/* HW_EXP2			*/
 
 /* Virtual ARP types for non ARP hardware used in Linux cooked mode. */
-#define ARPHRD_LOOPBACK	772		/* Loopback */
-#define ARPHRD_IPGRE	778		/* GRE over IP */
-#define ARPHRD_NETLINK	824		/* netlink */
+#define ARPHRD_LOOPBACK			772	/* Loopback */
+#define ARPHRD_IPGRE			778	/* GRE over IP */
+#define ARPHRD_IEEE80211_RADIOTAP	803	/* IEEE 802.11 + radiotap header */
+#define ARPHRD_NETLINK			824	/* netlink */
 
 #ifdef __cplusplus
 }

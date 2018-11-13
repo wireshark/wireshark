@@ -24,9 +24,9 @@
 #include <epan/prefs.h>
 #include <epan/addr_resolv.h>
 #include <epan/expert.h>
+#include <epan/arptypes.h>
 #include "packet-ieee80211.h"
 #include "packet-ieee80211-radiotap-iter.h"
-#include "packet-sll.h"
 
 void proto_register_radiotap(void);
 void proto_reg_handoff_radiotap(void);
@@ -4214,7 +4214,7 @@ void proto_reg_handoff_radiotap(void)
 	 * monitor-mode packets in Linux cooked captures, so dissect
 	 * those frames.
 	 */
-	dissector_add_uint("sll.hatype", LINUX_SLL_ARPHRD_IEEE80211_RADIOTAP,
+	dissector_add_uint("sll.hatype", ARPHRD_IEEE80211_RADIOTAP,
 			   radiotap_handle);
 
 	radiotap_cap_handle = create_capture_dissector_handle(capture_radiotap, proto_radiotap);
