@@ -149,9 +149,9 @@ wtap_open_return_val network_instruments_open(wtap *wth, int *err, gchar **err_i
     header_offset = file_header.offset_to_first_packet + ((guint)(file_header.offset_to_first_packet_high_byte)<<16);
 
     if (offset > header_offset) {
-    	/*
-    	 * The packet data begins before the file header ends.
-    	 */
+        /*
+         * The packet data begins before the file header ends.
+         */
         *err = WTAP_ERR_BAD_FILE;
         *err_info = g_strdup_printf("Observer: The first packet begins in the middle of the file header");
         return WTAP_OPEN_ERROR;
