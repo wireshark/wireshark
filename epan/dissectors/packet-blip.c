@@ -17,18 +17,11 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/tvbparse.h>
-#include <wsutil/wsjson.h>
-
-#include <wsutil/str_util.h>
-#include <wsutil/unicode-utils.h>
 #include <epan/conversation.h>
 
-#include <wiretap/wtap.h>
-#include <stdio.h>
+#ifdef HAVE_ZLIB
 #include <zlib.h>
-
-#include "packet-http.h"
+#endif
 
 #define BLIP_BODY_CHECKSUM_SIZE 4
 #define BLIP_INFLATE_BUFFER_SIZE 16384
@@ -208,32 +201,28 @@ handle_ack_message(tvbuff_t *tvb, _U_ packet_info *pinfo, _U_ proto_tree *blip_t
 	return tvb_captured_length(tvb);
 }
 
-static gchar*
-message_hash_key_decompress(packet_info *pinfo)
+#ifdef HAVE_ZLIB
+static gboolean
+z_stream_destroy_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_, void *user_data)
 {
-	// Derive the hash key to use
-	// srcport:destport
-
-	gchar *hash_key = wmem_strdup_printf(wmem_packet_scope(), "%u:%u", pinfo->srcport, pinfo->destport);
-
-	return hash_key;
+	z_stream *decompress_stream = (z_stream *)user_data;
+	inflateEnd(decompress_stream);
+	return FALSE;
 }
 
 static z_stream* get_decompress_stream(packet_info* pinfo)
 {
-	if(!decompress_streams) {
-		decompress_streams = wmem_map_new(wmem_file_scope(), g_str_hash, g_str_equal);
-	}
-
-	gchar* hash_key = message_hash_key_decompress(pinfo);
-	z_stream* decompress_stream = (z_stream*)wmem_map_lookup(decompress_streams, (void *) hash_key);
+	// Store compression state per srcport/destport.
+	// XXX why not store this in the conversation?
+	guint32 hash_key = (pinfo->srcport << 16) | pinfo->destport;
+	z_stream* decompress_stream = (z_stream*)wmem_map_lookup(decompress_streams, GUINT_TO_POINTER(hash_key));
 	if(decompress_stream) {
 		return decompress_stream;
 	}
 
-	gchar *hash_key_copy = wmem_strdup(wmem_file_scope(), hash_key);
 	decompress_stream = wmem_new0(wmem_file_scope(), z_stream);
-	wmem_map_insert(decompress_streams, hash_key_copy, decompress_stream);
+	wmem_register_callback(wmem_file_scope(), z_stream_destroy_cb, decompress_stream);
+	wmem_map_insert(decompress_streams, GUINT_TO_POINTER(hash_key), decompress_stream);
 	return decompress_stream;
 }
 
@@ -274,12 +263,12 @@ decompress(packet_info* pinfo, tvbuff_t* tvb, gint offset, gint length)
 	}
 
 	uLong bodyLength = decompress_stream->total_out - start;
-	guint8* poolBuffer = (guint8*)wmem_alloc(pinfo->pool, bodyLength);
-	memcpy(poolBuffer, decompress_buffer, bodyLength);
-	tvbuff_t* decompressedChild = tvb_new_real_data(poolBuffer, (guint)bodyLength, (gint)bodyLength);
+	guint8* poolBuffer = (guint8*)wmem_memdup(pinfo->pool, decompress_buffer, bodyLength);
+	tvbuff_t* decompressedChild = tvb_new_child_real_data(tvb, poolBuffer, (guint)bodyLength, (gint)bodyLength);
 	add_new_data_source(pinfo, decompressedChild, "Decompressed Payload");
 	return decompressedChild;
- }
+}
+#endif /* HAVE_ZLIB */
 
 static int
 dissect_blip(tvbuff_t *tvb, _U_ packet_info *pinfo, proto_tree *tree, _U_ void *data)
@@ -384,11 +373,16 @@ dissect_blip(tvbuff_t *tvb, _U_ packet_info *pinfo, proto_tree *tree, _U_ void *
 			return tvb_reported_length(tvb);
 		}
 
+#ifdef HAVE_ZLIB
 		tvb_to_use = decompress(pinfo, tvb, offset, tvb_reported_length_remaining(tvb, offset) - BLIP_BODY_CHECKSUM_SIZE);
 		if(!tvb_to_use) {
 			proto_tree_add_string(blip_tree, hf_blip_message_body, tvb, offset, tvb_reported_length_remaining(tvb, offset), "<Error decompressing message>");
 			return tvb_reported_length(tvb);
 		}
+#else /* ! HAVE_ZLIB */
+		proto_tree_add_string(blip_tree, hf_blip_message_body, tvb, offset, tvb_reported_length_remaining(tvb, offset), "<decompression support is not available>");
+		return tvb_reported_length(tvb);
+#endif /* ! HAVE_ZLIB */
 
 		offset = 0;
 	}
@@ -509,6 +503,9 @@ proto_register_blip(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	blip_handle = register_dissector("blip", dissect_blip, proto_blip);
+
+	decompress_streams = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
+
 }
 
 void
@@ -525,14 +522,14 @@ proto_reg_handoff_blip(void)
 }
 
 /*
- * Editor modelines
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
- * c-basic-offset: 2
+ * c-basic-offset: 8
  * tab-width: 8
- * indent-tabs-mode: nil
+ * indent-tabs-mode: t
  * End:
  *
- * ex: set shiftwidth=2 tabstop=8 expandtab:
- * :indentSize=2:tabSize=8:noTabs=true:
+ * ex: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
  */
