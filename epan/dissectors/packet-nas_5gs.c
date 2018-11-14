@@ -466,10 +466,12 @@ de_nas_5gs_mm_5gs_mobile_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         break;
     case 4:
         /*5G-S-TMSI*/
-        /* AMF Set ID    AMF Pointer */
         proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags_odd_even_tid, ENC_BIG_ENDIAN);
         offset++;
-        proto_tree_add_item(tree, hf_nas_5gs_amf_set_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+        /* AMF Set ID */
+        proto_tree_add_item(tree, hf_nas_5gs_amf_set_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset++;
+        /* AMF Pointer AMF Set ID (continued) */
         proto_tree_add_item(tree, hf_nas_5gs_amf_pointer, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
         proto_tree_add_item(tree, hf_nas_5gs_5g_tmsi, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -490,13 +492,13 @@ de_nas_5gs_mm_5gs_mobile_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
          * MNC digit 2    MNC digit 1
          */
         offset = dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, E212_NONE, TRUE);
-        /* AMF Region ID
-         * AMF Region ID (continued)
-         */
-        proto_tree_add_item(tree, hf_nas_5gs_amf_region_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-        /* AMF Set ID    AMF Pointer */
-        proto_tree_add_item(tree, hf_nas_5gs_amf_set_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+        /* AMF Region ID octet 7 */
+        proto_tree_add_item(tree, hf_nas_5gs_amf_region_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        /* AMF Set ID octet 8 */
+        proto_tree_add_item(tree, hf_nas_5gs_amf_set_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset++;
+        /* AMF AMF Pointer AMF Set ID (continued) */
         proto_tree_add_item(tree, hf_nas_5gs_amf_pointer, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
         proto_tree_add_item(tree, hf_nas_5gs_5g_tmsi, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -5393,17 +5395,17 @@ proto_register_nas_5gs(void)
         },
         { &hf_nas_5gs_amf_region_id,
         { "AMF Region ID",   "nas_5gs.amf_region_id",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_nas_5gs_amf_set_id,
         { "AMF Set ID",   "nas_5gs.amf_set_id",
-            FT_UINT8, BASE_DEC, NULL, 0xf0,
+            FT_UINT16, BASE_DEC, NULL, 0xff03,
             NULL, HFILL }
         },
         { &hf_nas_5gs_amf_pointer,
         { "AMF Pointer",   "nas_5gs.amf_pointer",
-            FT_UINT8, BASE_DEC, NULL, 0x0f,
+            FT_UINT8, BASE_DEC, NULL, 0xfc,
             NULL, HFILL }
         },
         { &hf_nas_5gs_5g_tmsi,
