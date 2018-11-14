@@ -846,10 +846,22 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 	curr_pos = packet_buf + 12;
 	/* Find the file header */
 	curr_pos = strstr(curr_pos, "<fileHeader");
+	if (!curr_pos) {
+		*err = WTAP_ERR_BAD_FILE;
+		*err_info = g_strdup("Could not parse \"<fileHeader\"");
+		result = WTAP_OPEN_ERROR;
+		goto end;
+	}
 	curr_pos = curr_pos + 11;
 
 	/* Find start time */
 	curr_pos = strstr(curr_pos, "<traceCollec beginTime=\"");
+	if (!curr_pos) {
+		*err = WTAP_ERR_BAD_FILE;
+		*err_info = g_strdup("Could not parse \"<traceCollec beginTime=\"");
+		result = WTAP_OPEN_ERROR;
+		goto end;
+	}
 	curr_pos = curr_pos + 24;
 
 	curr_pos = nettrace_parse_begin_time(curr_pos, &rec);
@@ -887,7 +899,10 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 		next_msg_pos = strstr(curr_pos, "</msg>");
 		if (!next_msg_pos){
 			/* Somethings wrong, bail out */
-			break;
+			*err = WTAP_ERR_BAD_FILE;
+			*err_info = g_strdup("Did not find \"</msg>\"");
+			result = WTAP_OPEN_ERROR;
+			goto end;
 		}
 		next_msg_pos = next_msg_pos + 6;
 		/* Check if we have a time stamp "changeTime"
@@ -903,6 +918,8 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 			next_pos = strstr(curr_pos, "\"");
 			name_str_len = (int)(next_pos - curr_pos);
 			if (name_str_len > 63) {
+				*err = WTAP_ERR_BAD_FILE;
+				*err_info = g_strdup("name_str_len > 63");
 				return WTAP_OPEN_ERROR;
 			}
 
