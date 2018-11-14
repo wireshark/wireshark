@@ -64,6 +64,9 @@ void proto_reg_handoff_lisp(void);
 #define LISP_ACT_FWD_NATIVE 1
 #define LISP_ACT_MREQ       2
 #define LISP_ACT_DROP       3
+#define LISP_ACT_DROP_PD    4
+#define LISP_ACT_DROP_AF    5
+#define LISP_ACT_FWD_UA     6
 
 #define DDT_NODE_REF        0
 #define DDT_MS_REF          1
@@ -440,7 +443,10 @@ const value_string mapping_actions[] = {
     { LISP_ACT_NONE,        "No-Action" },
     { LISP_ACT_FWD_NATIVE,  "Natively-Forward" },
     { LISP_ACT_MREQ,        "Send-Map-Request" },
-    { LISP_ACT_DROP,        "Drop" },
+    { LISP_ACT_DROP,        "Drop/No-Reason" },
+    { LISP_ACT_DROP_PD,     "Drop/Policy-Denied" },
+    { LISP_ACT_DROP_AF,     "Drop/Authentication-Failure" },
+    { LISP_ACT_FWD_UA,      "Forward-For-Unknown-Address" },
     { 0,                    NULL}
 };
 
