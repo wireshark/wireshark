@@ -349,6 +349,17 @@ cfile_write_failure_alert_box(const char *in_filename, const char *out_filename,
                         wtap_file_type_subtype_string(file_type_subtype));
             break;
 
+        case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
+            /*
+             * This is a problem with the particular frame we're writing and
+             * the file type and subtype we're writing; note that, and report
+             * the frame number and file type/subtype.
+             */
+            simple_error_message_box(
+                        "Frame %u%s has a network type that differs from the network type of earlier packets, which isn't supported in a \"%s\" file.",
+                        framenum, in_file_string,
+                        wtap_file_type_subtype_string(file_type_subtype));
+
         case WTAP_ERR_PACKET_TOO_LARGE:
             /*
              * This is a problem with the particular frame we're writing and

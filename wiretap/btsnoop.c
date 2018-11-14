@@ -311,6 +311,15 @@ static gboolean btsnoop_dump_h1(wtap_dumper *wdh,
     }
 
     /*
+     * Make sure this packet doesn't have a link-layer type that
+     * differs from the one for the file.
+     */
+    if (wdh->encap != rec->rec_header.packet_header.pkt_encap) {
+        *err = WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
+        return FALSE;
+    }
+
+    /*
      * Don't write out anything bigger than we can read.
      * (This will also fail on a caplen of 0, as it should.)
      */
@@ -352,6 +361,16 @@ static gboolean btsnoop_dump_h4(wtap_dumper *wdh,
     /* We can only write packet records. */
     if (rec->rec_type != REC_TYPE_PACKET) {
         *err = WTAP_ERR_UNWRITABLE_REC_TYPE;
+        return FALSE;
+    }
+
+
+    /*
+     * Make sure this packet doesn't have a link-layer type that
+     * differs from the one for the file.
+     */
+    if (wdh->encap != rec->rec_header.packet_header.pkt_encap) {
+        *err = WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
         return FALSE;
     }
 

@@ -316,6 +316,15 @@ static gboolean logcat_binary_dump(wtap_dumper *wdh,
         return FALSE;
     }
 
+    /*
+     * Make sure this packet doesn't have a link-layer type that
+     * differs from the one for the file.
+     */
+    if (wdh->encap != rec->rec_header.packet_header.pkt_encap) {
+        *err = WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
+        return FALSE;
+    }
+
     caplen = rec->rec_header.packet_header.caplen;
 
     /* Skip EXPORTED_PDU*/
