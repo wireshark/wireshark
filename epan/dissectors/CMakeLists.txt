@@ -82,6 +82,7 @@ set(CLEAN_ASN1_DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-atn-cpdlc.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-c1222.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-camel.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-cbrs-oids.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cdt.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-charging_ase.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cmip.c

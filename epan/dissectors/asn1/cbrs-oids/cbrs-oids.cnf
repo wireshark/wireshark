@@ -1,0 +1,11 @@
+# cbrs-oids.cnf
+# Citizens Broadband Radio Service - Object Identifiers confirmation file
+
+#.REGISTER
+ZONE      B "1.3.6.1.4.1.46609.1.2" "CBRS_PAL_ZONE"
+FREQUENCY B "1.3.6.1.4.1.46609.1.3" "CBRS_PAL_FREQUENCY"
+FCCID     B "1.3.6.1.4.1.46609.1.4" "CBRS_CBSD_FCCID"
+SERIAL    B "1.3.6.1.4.1.46609.1.5" "CBRS_CBSD_SERIAL"
+FRN       B "1.3.6.1.4.1.46609.1.6" "CBRS_SAS/OPERATOR_administrator_FRN"
+CPIRID    B "1.3.6.1.4.1.46609.1.7" "CBRS_installer_CPIR-ID"
+TEST      B "1.3.6.1.4.1.46609.1.8" "CBRS_TEST"

@@ -21,6 +21,7 @@ set(ASN1_SRC_DIRS
 	atn-ulcs
 	c1222
 	camel
+	cbrs-oids
 	cdt
 	charging_ase
 	cmip
