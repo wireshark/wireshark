@@ -334,11 +334,13 @@ typedef struct {
 
 static hdr_ipv6_t HDR_IPv6;
 
+/* https://tools.ietf.org/html/rfc2460#section-8.1 */
 static struct {                 /* pseudo header ipv6 for checksum calculation */
     struct  e_in6_addr src_addr6;
     struct  e_in6_addr dst_addr6;
-    guint32 protocol;
-    guint32 zero;
+    guint32 length;
+    guint8 zero[3];
+    guint8 next_header;
 } pseudoh6;
 
 
@@ -662,6 +664,17 @@ write_current_packet (gboolean cont)
             HDR_IP.hdr_checksum = 0;
             HDR_IP.hdr_checksum = in_checksum(&HDR_IP, sizeof(HDR_IP));
             write_bytes((const char *)&HDR_IP, sizeof(HDR_IP));
+
+            /* initialize pseudo header for checksum calculation */
+            pseudoh.src_addr    = HDR_IP.src_addr;
+            pseudoh.dest_addr   = HDR_IP.dest_addr;
+            pseudoh.zero        = 0;
+            pseudoh.protocol    = (guint8) hdr_ip_proto;
+            if (hdr_tcp) {
+                pseudoh.length      = g_htons(length - header_length + sizeof(HDR_TCP));
+            } else if (hdr_udp) {
+                pseudoh.length      = g_htons(length - header_length + sizeof(HDR_UDP));
+            }
         } else if (hdr_ipv6) {
             if (memcmp(isInbound ? &hdr_ipv6_dest_addr : &hdr_ipv6_src_addr, &NO_IPv6_ADDRESS, sizeof(ws_in6_addr)))
                 memcpy(&HDR_IPv6.ip6_src, isInbound ? &hdr_ipv6_dest_addr : &hdr_ipv6_src_addr, sizeof(ws_in6_addr));
@@ -678,18 +691,13 @@ write_current_packet (gboolean cont)
             /* initialize pseudo ipv6 header for checksum calculation */
             pseudoh6.src_addr6  = HDR_IPv6.ip6_src;
             pseudoh6.dst_addr6  = HDR_IPv6.ip6_dst;
-            pseudoh6.zero       = 0;
-            pseudoh6.protocol   = (guint8) hdr_ip_proto;
-            pseudoh.length      = g_htons(length - header_length + sizeof(HDR_UDP));
-        }
-
-        if (!hdr_ipv6) {
-            /* initialize pseudo header for checksum calculation */
-            pseudoh.src_addr    = HDR_IP.src_addr;
-            pseudoh.dest_addr   = HDR_IP.dest_addr;
-            pseudoh.zero        = 0;
-            pseudoh.protocol    = (guint8) hdr_ip_proto;
-            pseudoh.length      = g_htons(length - header_length + sizeof(HDR_UDP));
+            memset(pseudoh6.zero, 0, sizeof(pseudoh6.zero));
+            pseudoh6.next_header   = (guint8) hdr_ip_proto;
+            if (hdr_tcp) {
+                pseudoh6.length      = g_htons(length - header_length + sizeof(HDR_TCP));
+            } else if (hdr_udp) {
+                pseudoh6.length      = g_htons(length - header_length + sizeof(HDR_UDP));
+            }
         }
 
         /* Write UDP header */
@@ -700,7 +708,7 @@ write_current_packet (gboolean cont)
             /* initialize the UDP header */
             HDR_UDP.source_port = isInbound ? g_htons(hdr_dest_port): g_htons(hdr_src_port);
             HDR_UDP.dest_port = isInbound ? g_htons(hdr_src_port) : g_htons(hdr_dest_port);
-            HDR_UDP.length      = pseudoh.length;
+            HDR_UDP.length      = hdr_ipv6 ? pseudoh6.length : pseudoh.length;
             HDR_UDP.checksum = 0;
             /* Note: g_ntohs()/g_htons() macro arg may be eval'd twice so calc value before invoking macro */
             x16  = hdr_ipv6 ? in_checksum(&pseudoh6, sizeof(pseudoh6)) : in_checksum(&pseudoh, sizeof(pseudoh));
@@ -721,12 +729,6 @@ write_current_packet (gboolean cont)
             guint16 x16;
             guint32 u;
 
-             /* initialize pseudo header for checksum calculation */
-            pseudoh.src_addr    = HDR_IP.src_addr;
-            pseudoh.dest_addr   = HDR_IP.dest_addr;
-            pseudoh.zero        = 0;
-            pseudoh.protocol    = (guint8) hdr_ip_proto;
-            pseudoh.length      = g_htons(length - header_length + sizeof(HDR_TCP));
             /* initialize the TCP header */
             HDR_TCP.source_port = isInbound ? g_htons(hdr_dest_port): g_htons(hdr_src_port);
             HDR_TCP.dest_port = isInbound ? g_htons(hdr_src_port) : g_htons(hdr_dest_port);
@@ -744,7 +746,7 @@ write_current_packet (gboolean cont)
             HDR_TCP.window = g_htons(0x2000);
             HDR_TCP.checksum = 0;
             /* Note: g_ntohs()/g_htons() macro arg may be eval'd twice so calc value before invoking macro */
-            x16  = in_checksum(&pseudoh, sizeof(pseudoh));
+            x16  = hdr_ipv6 ? in_checksum(&pseudoh6, sizeof(pseudoh6)) : in_checksum(&pseudoh, sizeof(pseudoh));
             u    = g_ntohs(x16);
             x16  = in_checksum(&HDR_TCP, sizeof(HDR_TCP));
             u   += g_ntohs(x16);
