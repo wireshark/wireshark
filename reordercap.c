@@ -177,7 +177,7 @@ main(int argc, char *argv[])
     guint wrong_order_count = 0;
     gboolean write_output_regardless = TRUE;
     guint i;
-    wtapng_dump_params ng_params;
+    wtap_dump_params params;
     int                          ret = EXIT_SUCCESS;
 
     GPtrArray *frames;
@@ -283,23 +283,21 @@ main(int argc, char *argv[])
     }
     DEBUG_PRINT("file_type_subtype is %d\n", wtap_file_type_subtype(wth));
 
-    wtap_dump_params_init(&ng_params, wth);
+    wtap_dump_params_init(&params, wth);
 
     /* Open outfile (same filetype/encap as input file) */
     if (strcmp(outfile, "-") == 0) {
-      pdh = wtap_dump_open_stdout(wtap_file_type_subtype(wth), wtap_file_encap(wth),
-                                  wtap_snapshot_length(wth), FALSE, &ng_params, &err);
+      pdh = wtap_dump_open_stdout(wtap_file_type_subtype(wth), FALSE, &params, &err);
     } else {
-      pdh = wtap_dump_open(outfile, wtap_file_type_subtype(wth), wtap_file_encap(wth),
-                           wtap_snapshot_length(wth), FALSE, &ng_params, &err);
+      pdh = wtap_dump_open(outfile, wtap_file_type_subtype(wth), FALSE, &params, &err);
     }
-    g_free(ng_params.idb_inf);
-    ng_params.idb_inf = NULL;
+    g_free(params.idb_inf);
+    params.idb_inf = NULL;
 
     if (pdh == NULL) {
         cfile_dump_open_failure_message("reordercap", outfile, err,
                                         wtap_file_type_subtype(wth));
-        wtap_dump_params_cleanup(&ng_params);
+        wtap_dump_params_cleanup(&params);
         ret = OUTPUT_FILE_ERROR;
         goto clean_exit;
     }
@@ -366,11 +364,11 @@ main(int argc, char *argv[])
     /* Close outfile */
     if (!wtap_dump_close(pdh, &err)) {
         cfile_close_failure_message(outfile, err);
-        wtap_dump_params_cleanup(&ng_params);
+        wtap_dump_params_cleanup(&params);
         ret = OUTPUT_FILE_ERROR;
         goto clean_exit;
     }
-    wtap_dump_params_cleanup(&ng_params);
+    wtap_dump_params_cleanup(&params);
 
     /* Finally, close infile and release resources. */
     wtap_close(wth);

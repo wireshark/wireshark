@@ -443,13 +443,14 @@ static struct extcap_dumper extcap_dumper_open(char *fifo, int encap) {
         g_warning("Write to %s failed: %s", g_strerror(errno));
     }
 #else
-    wtapng_dump_params params;
+    wtap_dump_params params = WTAP_DUMP_PARAMS_INIT;
     int err = 0;
 
     wtap_init(FALSE);
 
-    wtap_dump_params_init(&params, NULL);
-    extcap_dumper.dumper.wtap = wtap_dump_open(fifo, WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC, encap, PACKET_LENGTH, FALSE, &params, &err);
+    params.encap = encap;
+    params.snaplen = PACKET_LENGTH;
+    extcap_dumper.dumper.wtap = wtap_dump_open(fifo, WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC, FALSE, &params, &err);
     if (!extcap_dumper.dumper.wtap) {
         cfile_dump_open_failure_message("androiddump", fifo, err, WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC);
         exit(EXIT_CODE_CANNOT_SAVE_WIRETAP_DUMP);

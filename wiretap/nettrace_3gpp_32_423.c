@@ -792,12 +792,14 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 
 	g_array_append_val(idb_inf->interface_data, int_data);
 
-	const wtapng_dump_params ng_params = {
+	const wtap_dump_params params = {
+		.encap = WTAP_ENCAP_WIRESHARK_UPPER_PDU,
+		.snaplen = WTAP_MAX_PACKET_SIZE_STANDARD,
 		.shb_hdrs = shb_hdrs,
 		.idb_inf = idb_inf,
 	};
-	wdh_exp_pdu = wtap_dump_fdopen(import_file_fd, WTAP_FILE_TYPE_SUBTYPE_PCAPNG, WTAP_ENCAP_WIRESHARK_UPPER_PDU,
-				       WTAP_MAX_PACKET_SIZE_STANDARD, FALSE, &ng_params, &exp_pdu_file_err);
+	wdh_exp_pdu = wtap_dump_fdopen(import_file_fd, WTAP_FILE_TYPE_SUBTYPE_PCAPNG,
+				       FALSE, &params, &exp_pdu_file_err);
 	if (wdh_exp_pdu == NULL) {
 		result = WTAP_OPEN_ERROR;
 		goto end;

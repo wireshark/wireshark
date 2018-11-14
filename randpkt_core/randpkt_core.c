@@ -654,23 +654,25 @@ gboolean randpkt_example_close(randpkt_example* example)
 
 int randpkt_example_init(randpkt_example* example, char* produce_filename, int produce_max_bytes)
 {
-	wtapng_dump_params params;
 	int err;
 
 	if (pkt_rand == NULL) {
 		pkt_rand = g_rand_new();
 	}
 
-	wtap_dump_params_init(&params, NULL);
+	const wtap_dump_params params = {
+		.encap = example->sample_wtap_encap,
+		.snaplen = produce_max_bytes,
+	};
 	if (strcmp(produce_filename, "-") == 0) {
 		/* Write to the standard output. */
 		example->dump = wtap_dump_open_stdout(WTAP_FILE_TYPE_SUBTYPE_PCAP,
-			example->sample_wtap_encap, produce_max_bytes, FALSE /* compressed */,
+			FALSE /* compressed */,
 			&params, &err);
 		example->filename = "the standard output";
 	} else {
 		example->dump = wtap_dump_open(produce_filename, WTAP_FILE_TYPE_SUBTYPE_PCAP,
-			example->sample_wtap_encap, produce_max_bytes, FALSE /* compressed */,
+			FALSE /* compressed */,
 			&params, &err);
 		example->filename = produce_filename;
 	}

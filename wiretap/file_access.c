@@ -2232,28 +2232,28 @@ static WFILE_T wtap_dump_file_fdopen(wtap_dumper *wdh, int fd);
 static int wtap_dump_file_close(wtap_dumper *wdh);
 
 static wtap_dumper *
-wtap_dump_init_dumper(int file_type_subtype, int encap, int snaplen, gboolean compressed,
-                      const wtapng_dump_params *ng_blocks, int *err)
+wtap_dump_init_dumper(int file_type_subtype, gboolean compressed,
+                      const wtap_dump_params *params, int *err)
 {
 	wtap_dumper *wdh;
 	wtap_block_t descr, file_int_data;
 	wtapng_if_descr_mandatory_t *descr_mand, *file_int_data_mand;
-	GArray *interfaces = ng_blocks && ng_blocks->idb_inf ? ng_blocks->idb_inf->interface_data : NULL;
+	GArray *interfaces = params->idb_inf ? params->idb_inf->interface_data : NULL;
 
 	/* Check whether we can open a capture file with that file type
 	   and that encapsulation. */
-	if (!wtap_dump_open_check(file_type_subtype, encap, compressed, err))
+	if (!wtap_dump_open_check(file_type_subtype, params->encap, compressed, err))
 		return NULL;
 
 	/* Allocate a data structure for the output stream. */
-	wdh = wtap_dump_alloc_wdh(file_type_subtype, encap, snaplen, compressed, err);
+	wdh = wtap_dump_alloc_wdh(file_type_subtype, params->encap, params->snaplen, compressed, err);
 	if (wdh == NULL)
 		return NULL;	/* couldn't allocate it */
 
 	/* Set Section Header Block data */
-	wdh->shb_hdrs = ng_blocks ? ng_blocks->shb_hdrs : NULL;
+	wdh->shb_hdrs = params->shb_hdrs;
 	/* Set Name Resolution Block data */
-	wdh->nrb_hdrs = ng_blocks ? ng_blocks->nrb_hdrs : NULL;
+	wdh->nrb_hdrs = params->nrb_hdrs;
 	/* Set Interface Description Block data */
 	if (interfaces && interfaces->len) {
 		guint itf_count;
@@ -2265,18 +2265,21 @@ wtap_dump_init_dumper(int file_type_subtype, int encap, int snaplen, gboolean co
 			file_int_data_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(file_int_data);
 			descr = wtap_block_create(WTAP_BLOCK_IF_DESCR);
 			wtap_block_copy(descr, file_int_data);
-			if ((encap != WTAP_ENCAP_PER_PACKET) && (encap != file_int_data_mand->wtap_encap)) {
+			if ((params->encap != WTAP_ENCAP_PER_PACKET) && (params->encap != file_int_data_mand->wtap_encap)) {
 				descr_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(descr);
-				descr_mand->wtap_encap = encap;
+				descr_mand->wtap_encap = params->encap;
 			}
 			g_array_append_val(wdh->interface_data, descr);
 		}
 	} else {
+		int snaplen;
+
 		// XXX IDBs should be optional.
 		descr = wtap_block_create(WTAP_BLOCK_IF_DESCR);
 		descr_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(descr);
-		descr_mand->wtap_encap = encap;
+		descr_mand->wtap_encap = params->encap;
 		descr_mand->time_units_per_second = 1000000; /* default microsecond resolution */
+		snaplen = params->snaplen;
 		if (snaplen == 0) {
 			/*
 			 * No snapshot length was specified.  Pick an
@@ -2291,7 +2294,7 @@ wtap_dump_init_dumper(int file_type_subtype, int encap, int snaplen, gboolean co
 			 * to allocate an unnecessarily huge chunk of
 			 * memory for a packet buffer.
 			 */
-			if (encap == WTAP_ENCAP_DBUS)
+			if (params->encap == WTAP_ENCAP_DBUS)
 				snaplen = 128*1024*1024;
 			else
 				snaplen = WTAP_MAX_PACKET_SIZE_STANDARD;
@@ -2305,14 +2308,14 @@ wtap_dump_init_dumper(int file_type_subtype, int encap, int snaplen, gboolean co
 }
 
 wtap_dumper *
-wtap_dump_open(const char *filename, int file_type_subtype, int encap,
-	       int snaplen, gboolean compressed, const wtapng_dump_params *ng_blocks, int *err)
+wtap_dump_open(const char *filename, int file_type_subtype,
+    gboolean compressed, const wtap_dump_params *params, int *err)
 {
 	wtap_dumper *wdh;
 	WFILE_T fh;
 
 	/* Allocate and initialize a data structure for the output stream. */
-	wdh = wtap_dump_init_dumper(file_type_subtype, encap, snaplen, compressed, ng_blocks, err);
+	wdh = wtap_dump_init_dumper(file_type_subtype, compressed, params, err);
 	if (wdh == NULL)
 		return NULL;
 
@@ -2340,10 +2343,8 @@ wtap_dump_open(const char *filename, int file_type_subtype, int encap,
 
 wtap_dumper *
 wtap_dump_open_tempfile(char **filenamep, const char *pfx,
-			int file_type_subtype, int encap,
-			int snaplen, gboolean compressed,
-			const wtapng_dump_params *ng_blocks,
-			int *err)
+    int file_type_subtype, gboolean compressed,
+    const wtap_dump_params *params, int *err)
 {
 	int fd;
 	char *tmpname;
@@ -2354,7 +2355,7 @@ wtap_dump_open_tempfile(char **filenamep, const char *pfx,
 	*filenamep = NULL;
 
 	/* Allocate and initialize a data structure for the output stream. */
-	wdh = wtap_dump_init_dumper(file_type_subtype, encap, snaplen, compressed, ng_blocks, err);
+	wdh = wtap_dump_init_dumper(file_type_subtype, compressed, params, err);
 	if (wdh == NULL)
 		return NULL;
 
@@ -2391,14 +2392,14 @@ wtap_dump_open_tempfile(char **filenamep, const char *pfx,
 }
 
 wtap_dumper *
-wtap_dump_fdopen(int fd, int file_type_subtype, int encap, int snaplen,
-		 gboolean compressed, const wtapng_dump_params *ng_blocks, int *err)
+wtap_dump_fdopen(int fd, int file_type_subtype, gboolean compressed,
+    const wtap_dump_params *params, int *err)
 {
 	wtap_dumper *wdh;
 	WFILE_T fh;
 
 	/* Allocate and initialize a data structure for the output stream. */
-	wdh = wtap_dump_init_dumper(file_type_subtype, encap, snaplen, compressed, ng_blocks, err);
+	wdh = wtap_dump_init_dumper(file_type_subtype, compressed, params, err);
 	if (wdh == NULL)
 		return NULL;
 
@@ -2422,8 +2423,8 @@ wtap_dump_fdopen(int fd, int file_type_subtype, int encap, int snaplen,
 }
 
 wtap_dumper *
-wtap_dump_open_stdout(int file_type_subtype, int encap, int snaplen,
-		      gboolean compressed, const wtapng_dump_params *ng_blocks, int *err)
+wtap_dump_open_stdout(int file_type_subtype, gboolean compressed,
+    const wtap_dump_params *params, int *err)
 {
 	int new_fd;
 	wtap_dumper *wdh;
@@ -2454,7 +2455,7 @@ wtap_dump_open_stdout(int file_type_subtype, int encap, int snaplen,
 	}
 #endif
 
-	wdh = wtap_dump_fdopen(new_fd, file_type_subtype, encap, snaplen, compressed, ng_blocks, err);
+	wdh = wtap_dump_fdopen(new_fd, file_type_subtype, compressed, params, err);
 	if (wdh == NULL) {
 		/* Failed; close the new FD */
 		ws_close(new_fd);

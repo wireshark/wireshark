@@ -4448,14 +4448,18 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
        or moving the capture file, we have to do it by writing the packets
        out in Wiretap. */
 
-    wtapng_dump_params ng_params;
+    wtap_dump_params params;
     int encap;
 
-    /* XXX: what free's ng_params.shb_hdr? */
-    wtap_dump_params_init(&ng_params, cf->provider.wth);
+    /* XXX: what free's params.shb_hdr? */
+    wtap_dump_params_init(&params, cf->provider.wth);
 
     /* Determine what file encapsulation type we should use. */
     encap = wtap_dump_file_encap_type(cf->linktypes);
+    params.encap = encap;
+
+    /* Use the snaplen from cf (XXX - does wtap_dump_params_init handle that?) */
+    params.snaplen = cf->snap;
 
     if (file_exists(fname)) {
       /* We're overwriting an existing file; write out to a new file,
@@ -4466,15 +4470,13 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
          we *HAVE* to do that, otherwise we're overwriting the file
          from which we're reading the packets that we're writing!) */
       fname_new = g_strdup_printf("%s~", fname);
-      pdh = wtap_dump_open(fname_new, save_format, encap, cf->snap,
-                           compressed, &ng_params, &err);
+      pdh = wtap_dump_open(fname_new, save_format, compressed, &params, &err);
     } else {
-      pdh = wtap_dump_open(fname, save_format, encap, cf->snap,
-                           compressed, &ng_params, &err);
+      pdh = wtap_dump_open(fname, save_format, compressed, &params, &err);
     }
     /* XXX idb_inf is documented to be used until wtap_dump_close. */
-    g_free(ng_params.idb_inf);
-    ng_params.idb_inf = NULL;
+    g_free(params.idb_inf);
+    params.idb_inf = NULL;
 
     if (pdh == NULL) {
       cfile_dump_open_failure_alert_box(fname, err, save_format);
@@ -4695,7 +4697,7 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
   int                          err;
   wtap_dumper                 *pdh;
   save_callback_args_t         callback_args;
-  wtapng_dump_params           ng_params;
+  wtap_dump_params             params;
   int                          encap;
 
   packet_range_process_init(range);
@@ -4705,11 +4707,15 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
      written, don't special-case the operation - read each packet
      and then write it out if it's one of the specified ones. */
 
-  /* XXX: what free's ng_params.shb_hdr? */
-  wtap_dump_params_init(&ng_params, cf->provider.wth);
+  /* XXX: what free's params.shb_hdr? */
+  wtap_dump_params_init(&params, cf->provider.wth);
 
   /* Determine what file encapsulation type we should use. */
   encap = wtap_dump_file_encap_type(cf->linktypes);
+  params.encap = encap;
+
+  /* Use the snaplen from cf (XXX - does wtap_dump_params_init handle that?) */
+  params.snaplen = cf->snap;
 
   if (file_exists(fname)) {
     /* We're overwriting an existing file; write out to a new file,
@@ -4720,15 +4726,13 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
        we *HAVE* to do that, otherwise we're overwriting the file
        from which we're reading the packets that we're writing!) */
     fname_new = g_strdup_printf("%s~", fname);
-    pdh = wtap_dump_open(fname_new, save_format, encap, cf->snap,
-                         compressed, &ng_params, &err);
+    pdh = wtap_dump_open(fname_new, save_format, compressed, &params, &err);
   } else {
-    pdh = wtap_dump_open(fname, save_format, encap, cf->snap,
-                         compressed, &ng_params, &err);
+    pdh = wtap_dump_open(fname, save_format, compressed, &params, &err);
   }
-    /* XXX idb_inf is documented to be used until wtap_dump_close. */
-  g_free(ng_params.idb_inf);
-  ng_params.idb_inf = NULL;
+  /* XXX idb_inf is documented to be used until wtap_dump_close. */
+  g_free(params.idb_inf);
+  params.idb_inf = NULL;
 
   if (pdh == NULL) {
     cfile_dump_open_failure_alert_box(fname, err, save_format);

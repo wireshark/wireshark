@@ -1422,26 +1422,27 @@ typedef struct addrinfo_lists {
 } addrinfo_lists_t;
 
 /**
- * Parameters for various wtap_dump_*_ng functions, controlling additional
- * blocks to be written. The structure itself is no longer used after returning
- * from wtap_dump_*_ng, but its fields must remain valid until wtap_dump_close
- * is called.
+ * Parameters for various wtap_dump_* functions, specifying per-file
+ * information. The structure itself is no longer used after returning
+ * from wtap_dump_*, but its pointer fields must remain valid until
+ * wtap_dump_close is called.
  *
  * @note The shb_hdr, idb_inf, and nrb_hdr arguments will be used until
  *     wtap_dump_close() is called, but will not be free'd by the dumper. If
  *     you created them, you must free them yourself after wtap_dump_close().
  *
- * @see wtapng_dump_params_init, wtapng_dump_params_cleanup.
+ * @see wtap_dump_params_init, wtap_dump_params_cleanup.
  */
-typedef struct wtapng_dump_params {
+typedef struct wtap_dump_params {
+    int         encap;                      /**< Per-file packet encapsulation, or WTAP_ENCAP_PER_PACKET */
+    int         snaplen;                    /**< Per-file snapshot length (what if it's per-interface?) */
     GArray     *shb_hdrs;                   /**< The section header block(s) information, or NULL. */
     wtapng_iface_descriptions_t *idb_inf;   /**< The interface description information, or NULL. */
     GArray     *nrb_hdrs;                   /**< The name resolution blocks(s) comment/custom_opts information, or NULL. */
-} wtapng_dump_params;
+} wtap_dump_params;
 
-/* Zero-initializer for wtapng_dump_params. */
-#define WTAPNG_DUMP_PARAMS_INIT {.idb_inf=0}
-
+/* Zero-initializer for wtap_dump_params. */
+#define WTAP_DUMP_PARAMS_INIT {.snaplen=0}
 
 struct wtap_dumper;
 
@@ -1873,39 +1874,37 @@ WS_DLL_PUBLIC
 gboolean wtap_dump_supports_comment_types(int filetype, guint32 comment_types);
 
 /**
- * Initialize the initial pcapng blocks based on an existing file. Its contents
- * must be freed according to the requirements of wtapng_dump_params.
+ * Initialize the per-file information based on an existing file. Its
+ * contents must be freed according to the requirements of wtap_dump_params.
  *
- * @param params The parameters for wtap_dump_*_ng to initialize.
+ * @param params The parameters for wtap_dump_* to initialize.
  * @param wth The wiretap session.
  */
 WS_DLL_PUBLIC
-void wtap_dump_params_init(wtapng_dump_params *params, wtap *wth);
+void wtap_dump_params_init(wtap_dump_params *params, wtap *wth);
 
 /**
- * Free memory associated with the wtapng_dump_params when it is no longer in
+ * Free memory associated with the wtap_dump_params when it is no longer in
  * use by wtap_dumper.
  *
- * @param params The parameters as initialized by wtapng_dump_params_init.
+ * @param params The parameters as initialized by wtap_dump_params_init.
  */
 WS_DLL_PUBLIC
-void wtap_dump_params_cleanup(wtapng_dump_params *params);
+void wtap_dump_params_cleanup(wtap_dump_params *params);
 
 /**
  * @brief Opens a new capture file for writing.
  *
  * @param filename The new file's name.
  * @param file_type_subtype The WTAP_FILE_TYPE_SUBTYPE_XXX file type.
- * @param encap The WTAP_ENCAP_XXX encapsulation type (WTAP_ENCAP_PER_PACKET for multi)
- * @param snaplen The maximum packet capture length.
  * @param compressed True if file should be compressed.
- * @param ng_blocks The initial pcapng blocks to be written, or NULL for non-pcapng.
+ * @param params The per-file information for this file.
  * @param[out] err Will be set to an error code on failure.
  * @return The newly created dumper object, or NULL on failure.
  */
 WS_DLL_PUBLIC
-wtap_dumper* wtap_dump_open(const char *filename, int file_type_subtype, int encap,
-    int snaplen, gboolean compressed, const wtapng_dump_params *ng_blocks, int *err);
+wtap_dumper* wtap_dump_open(const char *filename, int file_type_subtype,
+    gboolean compressed, const wtap_dump_params *params, int *err);
 
 /**
  * @brief Creates a dumper for a temporary file.
@@ -1914,33 +1913,29 @@ wtap_dumper* wtap_dump_open(const char *filename, int file_type_subtype, int enc
  *        pathname of the temporary file; it's allocated with g_malloc()
  * @param pfx A string to be used as the prefix for the temporary file name
  * @param file_type_subtype The WTAP_FILE_TYPE_SUBTYPE_XXX file type.
- * @param encap The WTAP_ENCAP_XXX encapsulation type (WTAP_ENCAP_PER_PACKET for multi)
- * @param snaplen The maximum packet capture length.
  * @param compressed True if file should be compressed.
- * @param ng_blocks The initial pcapng blocks to be written, or NULL for non-pcapng.
+ * @param params The per-file information for this file.
  * @param[out] err Will be set to an error code on failure.
  * @return The newly created dumper object, or NULL on failure.
  */
 WS_DLL_PUBLIC
 wtap_dumper* wtap_dump_open_tempfile(char **filenamep, const char *pfx,
-    int file_type_subtype, int encap, int snaplen, gboolean compressed,
-    const wtapng_dump_params *ng_blocks, int *err);
+    int file_type_subtype, gboolean compressed,
+    const wtap_dump_params *params, int *err);
 
 /**
  * @brief Creates a dumper for an existing file descriptor.
  *
  * @param fd The file descriptor for which the dumper should be created.
  * @param file_type_subtype The WTAP_FILE_TYPE_SUBTYPE_XXX file type.
- * @param encap The WTAP_ENCAP_XXX encapsulation type (WTAP_ENCAP_PER_PACKET for multi)
- * @param snaplen The maximum packet capture length.
  * @param compressed True if file should be compressed.
- * @param ng_blocks The initial pcapng blocks to be written, or NULL for non-pcapng.
+ * @param params The per-file information for this file.
  * @param[out] err Will be set to an error code on failure.
  * @return The newly created dumper object, or NULL on failure.
  */
 WS_DLL_PUBLIC
-wtap_dumper* wtap_dump_fdopen(int fd, int file_type_subtype, int encap, int snaplen,
-                gboolean compressed, const wtapng_dump_params *ng_blocks, int *err);
+wtap_dumper* wtap_dump_fdopen(int fd, int file_type_subtype,
+    gboolean compressed, const wtap_dump_params *params, int *err);
 
 /**
  * @brief Creates a dumper for the standard output.
@@ -1949,13 +1944,13 @@ wtap_dumper* wtap_dump_fdopen(int fd, int file_type_subtype, int encap, int snap
  * @param encap The WTAP_ENCAP_XXX encapsulation type (WTAP_ENCAP_PER_PACKET for multi)
  * @param snaplen The maximum packet capture length.
  * @param compressed True if file should be compressed.
- * @param ng_blocks The initial pcapng blocks to be written, or NULL for non-pcapng.
+ * @param params The per-file information for this file.
  * @param[out] err Will be set to an error code on failure.
  * @return The newly created dumper object, or NULL on failure.
  */
 WS_DLL_PUBLIC
-wtap_dumper* wtap_dump_open_stdout(int file_type_subtype, int encap, int snaplen,
-                gboolean compressed, const wtapng_dump_params *ng_blocks, int *err);
+wtap_dumper* wtap_dump_open_stdout(int file_type_subtype,
+    gboolean compressed, const wtap_dump_params *params, int *err);
 
 WS_DLL_PUBLIC
 gboolean wtap_dump(wtap_dumper *, const wtap_rec *, const guint8 *,

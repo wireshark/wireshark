@@ -1008,6 +1008,9 @@ merge_files(const gchar* out_filename, const int file_type,
         cb->callback_func(MERGE_EVENT_FRAME_TYPE_SELECTED, frame_type, in_files, in_file_count, cb->data);
 
     /* prepare the outfile */
+    wtap_dump_params params = WTAP_DUMP_PARAMS_INIT;
+    params.encap = frame_type;
+    params.snaplen = snaplen;
     if (file_type == WTAP_FILE_TYPE_SUBTYPE_PCAPNG) {
         shb_hdrs = create_shb_header(in_files, in_file_count, app_name);
         merge_debug("merge_files: SHB created");
@@ -1016,18 +1019,11 @@ merge_files(const gchar* out_filename, const int file_type,
         merge_debug("merge_files: IDB merge operation complete, got %u IDBs", idb_inf ? idb_inf->interface_data->len : 0);
 
         /* XXX other blocks like NRB are now discarded. */
-        const wtapng_dump_params ng_params = {
-            .shb_hdrs = shb_hdrs,
-            .idb_inf = idb_inf,
-        };
-        pdh = wtap_dump_open(out_filename, file_type, frame_type, snaplen,
-                             FALSE /* compressed */, &ng_params, err);
+        params.shb_hdrs = shb_hdrs;
+        params.idb_inf = idb_inf;
     }
-    else {
-        pdh = wtap_dump_open(out_filename, file_type, frame_type, snaplen,
-                             FALSE /* compressed */, NULL, err);
-    }
-
+    pdh = wtap_dump_open(out_filename, file_type, FALSE /* compressed */,
+                         &params, err);
     if (pdh == NULL) {
         merge_close_in_files(in_file_count, in_files);
         g_free(in_files);
@@ -1115,6 +1111,9 @@ merge_files_to_tempfile(gchar **out_filenamep, const char *pfx,
         cb->callback_func(MERGE_EVENT_FRAME_TYPE_SELECTED, frame_type, in_files, in_file_count, cb->data);
 
     /* prepare the outfile */
+    wtap_dump_params params = WTAP_DUMP_PARAMS_INIT;
+    params.encap = frame_type;
+    params.snaplen = snaplen;
     if (file_type == WTAP_FILE_TYPE_SUBTYPE_PCAPNG) {
         shb_hdrs = create_shb_header(in_files, in_file_count, app_name);
         merge_debug("merge_files: SHB created");
@@ -1123,21 +1122,11 @@ merge_files_to_tempfile(gchar **out_filenamep, const char *pfx,
         merge_debug("merge_files: IDB merge operation complete, got %u IDBs", idb_inf ? idb_inf->interface_data->len : 0);
 
         /* XXX other blocks like NRB are now discarded. */
-        const wtapng_dump_params ng_params = {
-            .shb_hdrs = shb_hdrs,
-            .idb_inf = idb_inf,
-        };
-        pdh = wtap_dump_open_tempfile(out_filenamep, pfx, file_type,
-                                      frame_type, snaplen,
-                                      FALSE /* compressed */,
-                                      &ng_params, err);
+        params.shb_hdrs = shb_hdrs;
+        params.idb_inf = idb_inf;
     }
-    else {
-        pdh = wtap_dump_open_tempfile(out_filenamep, pfx, file_type, frame_type,
-                                      snaplen, FALSE /* compressed */,
-                                      NULL, err);
-    }
-
+    pdh = wtap_dump_open_tempfile(out_filenamep, pfx, file_type,
+                                  FALSE /* compressed */, &params, err);
     if (pdh == NULL) {
         merge_close_in_files(in_file_count, in_files);
         g_free(in_files);
@@ -1220,6 +1209,9 @@ merge_files_to_stdout(const int file_type, const char *const *in_filenames,
         cb->callback_func(MERGE_EVENT_FRAME_TYPE_SELECTED, frame_type, in_files, in_file_count, cb->data);
 
     /* prepare the outfile */
+    wtap_dump_params params = WTAP_DUMP_PARAMS_INIT;
+    params.encap = frame_type;
+    params.snaplen = snaplen;
     if (file_type == WTAP_FILE_TYPE_SUBTYPE_PCAPNG) {
         shb_hdrs = create_shb_header(in_files, in_file_count, app_name);
         merge_debug("merge_files: SHB created");
@@ -1228,18 +1220,10 @@ merge_files_to_stdout(const int file_type, const char *const *in_filenames,
         merge_debug("merge_files: IDB merge operation complete, got %u IDBs", idb_inf ? idb_inf->interface_data->len : 0);
 
         /* XXX other blocks like NRB are now discarded. */
-        const wtapng_dump_params ng_params = {
-            .shb_hdrs = shb_hdrs,
-            .idb_inf = idb_inf,
-        };
-        pdh = wtap_dump_open_stdout(file_type, frame_type, snaplen,
-                                    FALSE /* compressed */, &ng_params, err);
+        params.shb_hdrs = shb_hdrs;
+        params.idb_inf = idb_inf;
     }
-    else {
-        pdh = wtap_dump_open_stdout(file_type, frame_type, snaplen,
-                                    FALSE /* compressed */, NULL, err);
-    }
-
+    pdh = wtap_dump_open_stdout(file_type, FALSE /* compressed */, &params, err);
     if (pdh == NULL) {
         merge_close_in_files(in_file_count, in_files);
         g_free(in_files);
