@@ -360,6 +360,7 @@ cfile_write_failure_alert_box(const char *in_filename, const char *out_filename,
                         "Frame %u%s has a network type that differs from the network type of earlier packets, which isn't supported in a \"%s\" file.",
                         framenum, in_file_string,
                         wtap_file_type_subtype_string(file_type_subtype));
+            break;
 
         case WTAP_ERR_PACKET_TOO_LARGE:
             /*
