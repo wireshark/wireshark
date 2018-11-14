@@ -141,13 +141,18 @@ def conf_path(home_path):
 
 
 @fixtures.fixture
-def base_env(home_path):
+def base_env(home_path, request):
     """A modified environment to ensure reproducible tests. Tests can modify
     this environment as they see fit."""
     env = os.environ.copy()
     env['TZ'] = 'UTC'
     home_env = 'APPDATA' if sys.platform.startswith('win32') else 'HOME'
     env[home_env] = home_path
+
+    # Remove this if test instances no longer inherit from SubprocessTestCase?
+    assert isinstance(request.instance, subprocesstest.SubprocessTestCase)
+    # Inject the test environment as default if it was not overridden.
+    request.instance.injected_test_env = env
     return env
 
 
