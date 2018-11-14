@@ -184,4 +184,3 @@ def test_env(base_env, conf_path, request):
     return env
 
 # XXX capture: capture_interface
-# XXX nameres: setUpHostFiles() / custom_profile_path / custom_profile_name
