@@ -1286,6 +1286,15 @@ static gboolean k12_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
         return FALSE;
     }
 
+    /*
+     * Make sure this packet doesn't have a link-layer type that
+     * differs from the one for the file.
+     */
+    if (wdh->encap != phdr->pkt_encap) {
+        *err = WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
+        return FALSE;
+    }
+
     if (k12->num_of_records == 0) {
         k12_t* file_data = (k12_t*)pseudo_header->k12.stuff;
         /* XXX: We'll assume that any fwrite errors in k12_dump_src_setting will    */

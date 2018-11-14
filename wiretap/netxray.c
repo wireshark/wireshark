@@ -1745,6 +1745,15 @@ netxray_dump_1_1(wtap_dumper *wdh,
 		return FALSE;
 	}
 
+	/*
+	 * Make sure this packet doesn't have a link-layer type that
+	 * differs from the one for the file.
+	 */
+	if (wdh->encap != phdr->pkt_encap) {
+		*err = WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
+		return FALSE;
+	}
+
 	/* The captured length field is 16 bits, so there's a hard
 	   limit of 65535. */
 	if (phdr->caplen > 65535) {
@@ -1921,6 +1930,15 @@ netxray_dump_2_0(wtap_dumper *wdh,
 	/* We can only write packet records. */
 	if (phdr->rec_type != REC_TYPE_PACKET) {
 		*err = WTAP_ERR_UNWRITABLE_REC_TYPE;
+		return FALSE;
+	}
+
+	/*
+	 * Make sure this packet doesn't have a link-layer type that
+	 * differs from the one for the file.
+	 */
+	if (wdh->encap != phdr->pkt_encap) {
+		*err = WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
 		return FALSE;
 	}
 
