@@ -1,4 +1,4 @@
-// WSDG Chapter Setup
+// WSDG Chapter Tests
 
 [[ChapterTests]]
 == Wireshark Tests
@@ -14,7 +14,7 @@ bugs as Wireshark grows and evolves.
 === Quick Start
 
 Before running any tests you should build the “test-programs” target. It
-is required for the “utittests” suite.
+is required for the “unittests” suite.
 
 The main testing script is `test.py`. It will attempt to test as much as
 possible by default, including packet capture. This means that you will
@@ -52,6 +52,10 @@ Capture tests depend on the permissions of the user running the test
 script. We assume that the test user has capture permissions on Windows
 and macOS and capture tests are enabled by default on those platforms.
 
+If the program or feature dependencies of a test are not satisfied, it will
+be skipped. This allows tests to be run even if, say, `dumpcap` is not built
+or if an old version of Libgcrypt is being used.
+
 === Suites, Cases, and Tests
 
 The `test.py` script uses Python's “unittest” module. Our tests are
@@ -63,6 +67,36 @@ classes in each module, and case class methods matching the pattern
 capture filter test in the TShark capture command line options test case
 in the command line options suite has the ID
 “suite_clopts.case_tshark_capture_clopts.test_tshark_invalid_capfilter”.
+
+[[ChTestsPytest]]
+=== pytest fixtures
+
+A test has typically additional dependencies, like the path to an
+executable, the path to a capture file, a configuration directory, the
+availability of an optional library, and so on. The Python unittest
+library is quite limited in expressing test dependencies, these are
+typically specified on the class instance itself (`self`) or via globals
+(like a `config` module).
+
+https://pytest.org/[pytest] is a better test framework which has full
+parallelization support (test-level instead of just suite-level),
+provides nicer test reports, and allows
+https://docs.pytest.org/en/latest/fixture.html[modular fixtures].
+Ideally the test suite should fully switch to pytest, but in meantime a
+compatibility layer is provided via the “fixtures” module.
+
+A fixture is a function decorated with `@fixtures.fixture` and can
+either call `fixtures.skip("reason")` to skip tests that depend on the
+fixture, or return/yield a value.
+Test functions (and other fixture functions) can receive the fixture
+value by using the name of the fixture function as function parameters.
+Common fixtures are available in `fixtures_ws.py` and includes
+`cmd_tshark` for the path to the `tshark` executable and `capture_file`
+for a factory function that produces the path to a capture file.
+
+Each unittest test case must be decorated with
+`@fixtures.uses_fixtures` to ensure that unittest test classes can
+actually request fixture dependencies.
 
 === Listing And Running Tests
 
@@ -125,9 +159,15 @@ whose name starts with “test_” constitutes an individual test.
 Success or failure conditions can be signalled using the
 “unittest.assertXXX()” or “subprocesstest.assertXXX()” methods.
 
+Test dependencies (such as programs, directories, or the environment
+variables) are injected through method parameters. Commonly used
+fixtures include `cmd_tshark` and `capture_file`. See also
+<<ChTestsPytest>>.
+
 The “config” module contains common configuration information which has
 been derived from the current environment or specified on the command
-line.
+line. This mechanism is deprecated in favor of fixtures and might be
+removed in the future.
 
 The “subprocesstest” class contains the following methods for running
 processes. Stdout and stderr is written to “<test id>.log”:
@@ -143,13 +183,14 @@ which reads a capture file using TShark and checks its exit code.
 
 [source,python]
 ----
-import config
 import subprocesstest
+import fixtures
 
+@fixtures.mark_usefixtures('test_env')
+@fixtures.uses_fixtures
 class case_basic_clopts(subprocesstest.SubprocessTestCase):
-    def test_existing_file(self):
-        cap_file = os.path.join(self.capture_dir, 'dhcp.pcap')
-        self.assertRun((config.cmd_tshark, '-r', cap_file))
+    def test_existing_file(self, cmd_tshark, capture_file):
+        self.assertRun((cmd_tshark, '-r', capture_file('dhcp.pcap')))
 ----
 
 Program output can be checked using “subprocesstest.grepOutput”
@@ -157,20 +198,19 @@ or “subprocesstest.countOutput”:
 
 [source,python]
 ----
-import config
 import subprocesstest
 
+@fixtures.mark_usefixtures('test_env')
+@fixtures.uses_fixtures
 class case_decrypt_80211(subprocesstest.SubprocessTestCase):
-    def test_80211_wpa_psk(self):
-        capture_file = os.path.join(config.capture_dir, 'wpa-Induction.pcap.gz')
-        self.runProcess((config.cmd_tshark,
+    def test_80211_wpa_psk(self, cmd_tshark, capture_file):
+        self.runProcess((cmd_tshark,
                 '-o', 'wlan.enable_decryption: TRUE',
                 '-Tfields',
                 '-e', 'http.request.uri',
-                '-r', capture_file,
+                '-r', capture_file('wpa-Induction.pcap.gz'),
                 '-Y', 'http',
-            ),
-            env=config.test_env)
+            ))
         self.assertTrue(self.grepOutput('favicon.ico'))
 ----
 

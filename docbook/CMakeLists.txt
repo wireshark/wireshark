@@ -264,6 +264,7 @@ set(WSDG_FILES
 	wsdg_src/WSDG_chapter_libraries.asciidoc
 	wsdg_src/WSDG_chapter_quick_setup.asciidoc
 	wsdg_src/WSDG_chapter_sources.asciidoc
+	wsdg_src/WSDG_chapter_tests.asciidoc
 	wsdg_src/WSDG_chapter_tools.asciidoc
 	wsdg_src/WSDG_chapter_userinterface.asciidoc
 	wsdg_src/WSDG_chapter_works.asciidoc
