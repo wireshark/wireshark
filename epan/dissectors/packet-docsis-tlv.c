@@ -441,6 +441,8 @@ static gint ett_docsis_tlv_snmpv3_kick = -1;
 static gint ett_docsis_tlv_ds_ch_list = -1;
 static gint ett_docsis_tlv_ds_ch_list_single = -1;
 static gint ett_docsis_tlv_ds_ch_list_range = -1;
+static gint ett_docsis_tlv_ext_field = -1;
+static gint ett_docsis_tlv_vendor_specific_cap = -1;
 static gint ett_docsis_tlv_dut_filter = -1;
 static gint ett_docsis_tlv_tcc = -1;
 static gint ett_docsis_tlv_tcc_ucd = -1;
@@ -2956,6 +2958,36 @@ dissect_ds_ch_list(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int sta
 }
 
 static void
+dissect_docsis_extension_field(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
+{
+  proto_tree *ext_field_tree;
+  proto_item *ext_field_item;
+  tvbuff_t *vsif_tvb;
+
+  ext_field_tree =
+  proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_ext_field, &ext_field_item,
+                                  "43 DOCSIS Extension Field (Length = %u)", len);
+
+  vsif_tvb = tvb_new_subset_length (tvb, start, len);
+  call_dissector (docsis_vsif_handle, vsif_tvb, pinfo, ext_field_tree);
+}
+
+static void
+dissect_vendor_specific_capabilities(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
+{
+  proto_tree *vend_spec_cap_tree;
+  proto_item *vend_spec_cap_item;
+  tvbuff_t *vsif_tvb;
+
+  vend_spec_cap_tree =
+  proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_vendor_specific_cap, &vend_spec_cap_item,
+                                  "44 Vendor Specific Capabilities (Length = %u)", len);
+
+  vsif_tvb = tvb_new_subset_length (tvb, start, len);
+  call_dissector (docsis_vsif_handle, vsif_tvb, pinfo, vend_spec_cap_tree);
+}
+
+static void
 dissect_tcc_err(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
@@ -4502,7 +4534,6 @@ dissect_docsis_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
   gint total_len;
   guint8 type, length;
   guint16 x;
-  tvbuff_t *vsif_tvb;
   gint previous_channel_id = -1;
 
   total_len = tvb_reported_length_remaining (tvb, 0);
@@ -4827,9 +4858,11 @@ dissect_docsis_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
                   expert_add_info_format(pinfo, it, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
                 }
               break;
+            case TLV_DOCSIS_EXTENSION_FIELD:
+              dissect_docsis_extension_field(tvb, pinfo, tlv_tree, pos, length);
+              break;
             case TLV_VENDOR_SPEC:
-              vsif_tvb = tvb_new_subset_length (tvb, pos, length);
-              call_dissector (docsis_vsif_handle, vsif_tvb, pinfo, tlv_tree);
+              dissect_vendor_specific_capabilities(tvb, pinfo, tlv_tree, pos, length);
               break;
             case TLV_DUT_FILTER:
               dissect_dut_filter(tvb, pinfo, tlv_tree, pos, length);
@@ -6764,6 +6797,8 @@ proto_register_docsis_tlv (void)
     &ett_docsis_tlv_ds_ch_list,
     &ett_docsis_tlv_ds_ch_list_single,
     &ett_docsis_tlv_ds_ch_list_range,
+    &ett_docsis_tlv_ext_field,
+    &ett_docsis_tlv_vendor_specific_cap,
     &ett_docsis_tlv_dut_filter,
     &ett_docsis_tlv_tcc,
     &ett_docsis_tlv_tcc_ucd,
