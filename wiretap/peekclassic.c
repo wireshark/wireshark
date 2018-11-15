@@ -153,6 +153,7 @@ wtap_open_return_val peekclassic_open(wtap *wth, int *err, gchar **err_info)
 {
 	peekclassic_header_t ep_hdr;
 	time_t reference_time;
+	int file_encap;
 	peekclassic_t *peekclassic;
 
 	/* Peek classic files do not start with a magic value large enough
@@ -231,11 +232,11 @@ wtap_open_return_val peekclassic_open(wtap *wth, int *err, gchar **err_info)
 			switch (ep_hdr.secondary.v567.mediaType) {
 
 			case 0:
-				wth->file_encap = WTAP_ENCAP_ETHERNET;
+				file_encap = WTAP_ENCAP_ETHERNET;
 				break;
 
 			case 1:
-				wth->file_encap = WTAP_ENCAP_TOKEN_RING;
+				file_encap = WTAP_ENCAP_TOKEN_RING;
 				break;
 
 			default:
@@ -255,7 +256,7 @@ wtap_open_return_val peekclassic_open(wtap *wth, int *err, gchar **err_info)
 				 * some radio information.  Presumably
 				 * this is from AiroPeek.
 				 */
-				wth->file_encap = WTAP_ENCAP_IEEE_802_11_WITH_RADIO;
+				file_encap = WTAP_ENCAP_IEEE_802_11_WITH_RADIO;
 				break;
 
 			default:
@@ -316,6 +317,7 @@ wtap_open_return_val peekclassic_open(wtap *wth, int *err, gchar **err_info)
 	peekclassic = (peekclassic_t *)g_malloc(sizeof(peekclassic_t));
 	wth->priv = (void *)peekclassic;
 	peekclassic->reference_time = reference_time;
+	wth->file_encap = file_encap;
 	switch (ep_hdr.master.version) {
 
 	case 5:
