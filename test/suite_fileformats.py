@@ -34,29 +34,29 @@ def fileformats_baseline_str(dirs):
 class case_fileformat_pcap(subprocesstest.SubprocessTestCase):
     def test_pcap_usec_stdin(self, cmd_tshark, capture_file, fileformats_baseline_str):
         '''Microsecond pcap direct vs microsecond pcap stdin'''
-        capture_proc = self.runProcess(subprocesstest.capture_command(cmd_tshark,
+        capture_proc = self.runProcess(' '.join((cmd_tshark,
                 '-r', '-',
                 '-Tfields',
                 '-e', 'frame.number', '-e', 'frame.time_epoch', '-e', 'frame.time_delta',
                 '<', capture_file('dhcp.pcap')
-                , shell=True),
+                )),
             shell=True)
         self.assertTrue(self.diffOutput(capture_proc.stdout_str, fileformats_baseline_str, 'tshark', baseline_file))
 
     def test_pcap_nsec_stdin(self, cmd_tshark, capture_file, fileformats_baseline_str):
         '''Microsecond pcap direct vs nanosecond pcap stdin'''
-        capture_proc = self.runProcess(subprocesstest.capture_command(cmd_tshark,
+        capture_proc = self.runProcess(' '.join((cmd_tshark,
                 '-r', '-',
                 '-Tfields',
                 '-e', 'frame.number', '-e', 'frame.time_epoch', '-e', 'frame.time_delta',
                 '<', capture_file('dhcp-nanosecond.pcap')
-                , shell=True),
+                )),
             shell=True)
         self.assertTrue(self.diffOutput(capture_proc.stdout_str, fileformats_baseline_str, 'tshark', baseline_file))
 
     def test_pcap_nsec_direct(self, cmd_tshark, capture_file, fileformats_baseline_str):
         '''Microsecond pcap direct vs nanosecond pcap direct'''
-        capture_proc = self.runProcess(subprocesstest.capture_command(cmd_tshark,
+        capture_proc = self.runProcess((cmd_tshark,
                 '-r', capture_file('dhcp-nanosecond.pcap'),
                 '-Tfields',
                 '-e', 'frame.number', '-e', 'frame.time_epoch', '-e', 'frame.time_delta',
@@ -70,18 +70,18 @@ class case_fileformat_pcap(subprocesstest.SubprocessTestCase):
 class case_fileformat_pcapng(subprocesstest.SubprocessTestCase):
     def test_pcapng_usec_stdin(self, cmd_tshark, capture_file, fileformats_baseline_str):
         '''Microsecond pcap direct vs microsecond pcapng stdin'''
-        capture_proc = self.runProcess(subprocesstest.capture_command(cmd_tshark,
+        capture_proc = self.runProcess(' '.join((cmd_tshark,
                 '-r', '-',
                 '-Tfields',
                 '-e', 'frame.number', '-e', 'frame.time_epoch', '-e', 'frame.time_delta'
                 '<', capture_file('dhcp.pcapng')
-                , shell=True),
+                )),
             shell=True)
         self.assertTrue(self.diffOutput(capture_proc.stdout_str, fileformats_baseline_str, 'tshark', baseline_file))
 
     def test_pcapng_usec_direct(self, cmd_tshark, capture_file, fileformats_baseline_str):
         '''Microsecond pcap direct vs microsecond pcapng direct'''
-        capture_proc = self.runProcess(subprocesstest.capture_command(cmd_tshark,
+        capture_proc = self.runProcess((cmd_tshark,
                 '-r', capture_file('dhcp.pcapng'),
                 '-Tfields',
                 '-e', 'frame.number', '-e', 'frame.time_epoch', '-e', 'frame.time_delta',
@@ -91,18 +91,18 @@ class case_fileformat_pcapng(subprocesstest.SubprocessTestCase):
 
     def test_pcapng_nsec_stdin(self, cmd_tshark, capture_file, fileformats_baseline_str):
         '''Microsecond pcap direct vs nanosecond pcapng stdin'''
-        capture_proc = self.runProcess(subprocesstest.capture_command(cmd_tshark,
+        capture_proc = self.runProcess(' '.join((cmd_tshark,
                 '-r', '-',
                 '-Tfields',
                 '-e', 'frame.number', '-e', 'frame.time_epoch', '-e', 'frame.time_delta'
                 '<', capture_file('dhcp-nanosecond.pcapng')
-                , shell=True),
+                )),
             shell=True)
         self.assertTrue(self.diffOutput(capture_proc.stdout_str, fileformats_baseline_str, 'tshark', baseline_file))
 
     def test_pcapng_nsec_direct(self, cmd_tshark, capture_file, fileformats_baseline_str):
         '''Microsecond pcap direct vs nanosecond pcapng direct'''
-        capture_proc = self.runProcess(subprocesstest.capture_command(cmd_tshark,
+        capture_proc = self.runProcess((cmd_tshark,
                 '-r', capture_file('dhcp-nanosecond.pcapng'),
                 '-Tfields',
                 '-e', 'frame.number', '-e', 'frame.time_epoch', '-e', 'frame.time_delta',

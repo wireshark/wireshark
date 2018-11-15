@@ -9,10 +9,8 @@
 #
 '''Command line option tests'''
 
-import config
 import subprocess
 import subprocesstest
-import unittest
 import fixtures
 
 #glossaries = ('fields', 'protocols', 'values', 'decodes', 'defaultprefs', 'currentprefs')
@@ -44,36 +42,31 @@ class case_dumpcap_options(subprocesstest.SubprocessTestCase):
             self.assertIn(process.returncode, valid_returns)
 
 
+@fixtures.mark_usefixtures('base_env')
 @fixtures.uses_fixtures
 class case_dumpcap_capture_clopts(subprocesstest.SubprocessTestCase):
-    def test_dumpcap_invalid_capfilter(self, cmd_dumpcap, base_env):
+    def test_dumpcap_invalid_capfilter(self, cmd_dumpcap, capture_interface):
         '''Invalid capture filter'''
-        if not config.canCapture():
-            self.skipTest('Test requires capture privileges and an interface.')
         invalid_filter = '__invalid_protocol'
         # $DUMPCAP -f 'jkghg' -w './testout.pcap' > ./testout.txt 2>&1
         testout_file = self.filename_from_id(testout_pcap)
-        self.runProcess((cmd_dumpcap, '-f', invalid_filter, '-w', testout_file), env=base_env)
+        self.runProcess((cmd_dumpcap, '-f', invalid_filter, '-w', testout_file))
         self.assertTrue(self.grepOutput('Invalid capture filter "' + invalid_filter + '" for interface'))
 
-    def test_dumpcap_invalid_interface_name(self, cmd_dumpcap, base_env):
+    def test_dumpcap_invalid_interface_name(self, cmd_dumpcap, capture_interface):
         '''Invalid capture interface name'''
-        if not config.canCapture():
-            self.skipTest('Test requires capture privileges and an interface.')
         invalid_interface = '__invalid_interface'
         # $DUMPCAP -i invalid_interface -w './testout.pcap' > ./testout.txt 2>&1
         testout_file = self.filename_from_id(testout_pcap)
-        self.runProcess((cmd_dumpcap, '-i', invalid_interface, '-w', testout_file), env=base_env)
+        self.runProcess((cmd_dumpcap, '-i', invalid_interface, '-w', testout_file))
         self.assertTrue(self.grepOutput('The capture session could not be initiated'))
 
-    def test_dumpcap_invalid_interface_index(self, cmd_dumpcap, base_env):
+    def test_dumpcap_invalid_interface_index(self, cmd_dumpcap, capture_interface):
         '''Invalid capture interface index'''
-        if not config.canCapture():
-            self.skipTest('Test requires capture privileges and an interface.')
         invalid_index = '0'
         # $DUMPCAP -i 0 -w './testout.pcap' > ./testout.txt 2>&1
         testout_file = self.filename_from_id(testout_pcap)
-        self.runProcess((cmd_dumpcap, '-i', invalid_index, '-w', testout_file), env=base_env)
+        self.runProcess((cmd_dumpcap, '-i', invalid_index, '-w', testout_file))
         self.assertTrue(self.grepOutput('There is no interface with that adapter index'))
 
 
@@ -106,8 +99,9 @@ class case_tshark_options(subprocesstest.SubprocessTestCase):
             self.assertRun((cmd_tshark, '-' + char_arg))
 
     # XXX Should we generate individual test functions instead of looping?
-    def test_tshark_interface_chars(self, cmd_tshark):
+    def test_tshark_interface_chars(self, cmd_tshark, cmd_dumpcap):
         '''Valid tshark parameters requiring capture permissions'''
+        # These options require dumpcap
         valid_returns = [self.exit_ok, self.exit_error]
         for char_arg in 'DL':
             process = self.runProcess((cmd_tshark, '-' + char_arg))
@@ -117,30 +111,24 @@ class case_tshark_options(subprocesstest.SubprocessTestCase):
 @fixtures.mark_usefixtures('test_env')
 @fixtures.uses_fixtures
 class case_tshark_capture_clopts(subprocesstest.SubprocessTestCase):
-    def test_tshark_invalid_capfilter(self, cmd_tshark):
+    def test_tshark_invalid_capfilter(self, cmd_tshark, capture_interface):
         '''Invalid capture filter'''
-        if not config.canCapture():
-            self.skipTest('Test requires capture privileges and an interface.')
         invalid_filter = '__invalid_protocol'
         # $TSHARK -f 'jkghg' -w './testout.pcap' > ./testout.txt 2>&1
         testout_file = self.filename_from_id(testout_pcap)
         self.runProcess((cmd_tshark, '-f', invalid_filter, '-w', testout_file ))
         self.assertTrue(self.grepOutput('Invalid capture filter "' + invalid_filter + '" for interface'))
 
-    def test_tshark_invalid_interface_name(self, cmd_tshark):
+    def test_tshark_invalid_interface_name(self, cmd_tshark, capture_interface):
         '''Invalid capture interface name'''
-        if not config.canCapture():
-            self.skipTest('Test requires capture privileges and an interface.')
         invalid_interface = '__invalid_interface'
         # $TSHARK -i invalid_interface -w './testout.pcap' > ./testout.txt 2>&1
         testout_file = self.filename_from_id(testout_pcap)
         self.runProcess((cmd_tshark, '-i', invalid_interface, '-w', testout_file))
         self.assertTrue(self.grepOutput('The capture session could not be initiated'))
 
-    def test_tshark_invalid_interface_index(self, cmd_tshark):
+    def test_tshark_invalid_interface_index(self, cmd_tshark, capture_interface):
         '''Invalid capture interface index'''
-        if not config.canCapture():
-            self.skipTest('Test requires capture privileges and an interface.')
         invalid_index = '0'
         # $TSHARK -i 0 -w './testout.pcap' > ./testout.txt 2>&1
         testout_file = self.filename_from_id(testout_pcap)
@@ -151,9 +139,7 @@ class case_tshark_capture_clopts(subprocesstest.SubprocessTestCase):
 @fixtures.mark_usefixtures('test_env')
 @fixtures.uses_fixtures
 class case_tshark_name_resolution_clopts(subprocesstest.SubprocessTestCase):
-    def test_tshark_valid_name_resolution(self, cmd_tshark):
-        if not config.canCapture():
-            self.skipTest('Test requires capture privileges and an interface.')
+    def test_tshark_valid_name_resolution(self, cmd_tshark, capture_interface):
         # $TSHARK -N mnNtdv -a duration:1 > ./testout.txt 2>&1
         self.assertRun((cmd_tshark, '-N', 'mnNtdv', '-a', 'duration: 1'))
 

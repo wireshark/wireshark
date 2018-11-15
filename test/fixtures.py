@@ -7,6 +7,7 @@
 # SPDX-License-Identifier: (GPL-2.0-or-later OR MIT)
 #
 
+import argparse
 import functools
 import inspect
 import sys
@@ -197,10 +198,13 @@ class _ExecutionScope(object):
 
     def cached_result(self, spec):
         '''Obtain the cached result for a previously executed fixture.'''
-        value, exc = self._find_scope(spec.scope).cache[spec.name]
+        entry = self._find_scope(spec.scope).cache.get(spec.name)
+        if not entry:
+            return None, False
+        value, exc = entry
         if exc:
             raise exc
-        return value
+        return value, True
 
     def _execute_one(self, spec, test_fn):
         # A fixture can only execute in the same or earlier scopes
@@ -265,7 +269,15 @@ class _FixtureRequest(object):
         if not spec:
             assert argname == 'request'
             return self
-        return self._context.cached_result(spec)
+        value, ok = self._context.cached_result(spec)
+        if not ok:
+            # If getfixturevalue is called directly from a setUp function, the
+            # fixture value might not have computed before, so evaluate it now.
+            # As the test function is not available, use None.
+            self._context.execute(spec, test_fn=None)
+            value, ok = self._context.cached_result(spec)
+            assert ok, 'Failed to execute fixture %s' % (spec,)
+        return value
 
     def destroy(self):
         self._context.destroy()
@@ -276,6 +288,11 @@ class _FixtureRequest(object):
     @property
     def instance(self):
         return self.function.__self__
+
+    @property
+    def config(self):
+        '''The pytest config object associated with this request.'''
+        return _config
 
 
 def _patch_unittest_testcase_class(cls):
@@ -304,8 +321,20 @@ def _patch_unittest_testcase_class(cls):
     cls._orig_tearDown, cls.tearDown = cls.tearDown, tearDown
 
 
+class _Config(object):
+    def __init__(self, args):
+        assert isinstance(args, argparse.Namespace)
+        self.args = args
+
+    def getoption(self, name, default):
+        '''Partial emulation for pytest Config.getoption.'''
+        name = name.lstrip('-').replace('-', '_')
+        return getattr(self.args, name, default)
+
+
 _fallback = None
 _session_context = None
+_config = None
 
 
 def init_fallback_fixtures_once():
@@ -317,10 +346,14 @@ def init_fallback_fixtures_once():
     # Register standard fixtures here as needed
 
 
-def create_session():
-    global _session_context
+def create_session(args=None):
+    '''Start a test session where args is from argparse.'''
+    global _session_context, _config
     assert not _use_native_pytest
     _session_context = _ExecutionScope('session', None)
+    if args is None:
+        args = argparse.Namespace()
+    _config = _Config(args)
 
 
 def destroy_session():

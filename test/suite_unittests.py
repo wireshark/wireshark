@@ -11,7 +11,6 @@
 #
 '''EPAN unit tests'''
 
-import config
 import difflib
 import os.path
 import re
@@ -53,7 +52,7 @@ class case_unittests(subprocesstest.SubprocessTestCase):
         '''fieldcount'''
         self.assertRun((cmd_tshark, '-G', 'fieldcount'), env=test_env)
 
-    def test_unit_ctest_coverage(self):
+    def test_unit_ctest_coverage(self, all_test_groups):
         '''Make sure CTest runs all of our tests.'''
         with open(os.path.join(os.path.dirname(__file__), '..', 'CMakeLists.txt')) as cml_fd:
             group_re = re.compile(r'set *\( *_test_group_list')
@@ -68,8 +67,8 @@ class case_unittests(subprocesstest.SubprocessTestCase):
                         break
                     cml_groups.append(cml_line.strip())
         cml_groups.sort()
-        if not config.all_groups == cml_groups:
-            diff = '\n'.join(list(difflib.unified_diff(config.all_groups, cml_groups, 'all test groups', 'CMakeLists.txt test groups')))
+        if not all_test_groups == cml_groups:
+            diff = '\n'.join(list(difflib.unified_diff(all_test_groups, cml_groups, 'all test groups', 'CMakeLists.txt test groups')))
             self.fail("CMakeLists.txt doesn't test all available groups:\n" + diff)
 
 

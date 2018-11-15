@@ -22,9 +22,51 @@ import subprocesstest
 
 
 @fixtures.fixture(scope='session')
-def program_path():
-    # XXX stop using config
-    return config.program_path
+def capture_interface(request, cmd_dumpcap):
+    '''
+    Name of capture interface. Tests will be skipped if dumpcap is not
+    available or if the capture interface is unknown.
+    '''
+    iface = request.config.getoption('--capture-interface', default=None)
+    disabled = request.config.getoption('--disable-capture', default=False)
+    if disabled:
+        fixtures.skip('Capture tests are disabled via --disable-capture')
+    if iface:
+        # If a non-empty interface is given, assume capturing is possible.
+        return iface
+    else:
+        if sys.platform == 'win32':
+            patterns = '.*(Ethernet|Network Connection|VMware|Intel)'
+        else:
+            patterns = None
+        if patterns:
+            try:
+                output = subprocess.check_output((cmd_dumpcap, '-D'),
+                                                 stderr=subprocess.DEVNULL,
+                                                 universal_newlines=True)
+                m = re.search(r'^(\d+)\. %s' % patterns, output, re.MULTILINE)
+                if m:
+                    return m.group(1)
+            except subprocess.CalledProcessError:
+                pass
+    fixtures.skip('Test requires capture privileges and an interface.')
+
+
+@fixtures.fixture(scope='session')
+def program_path(request):
+    '''
+    Path to the Wireshark binaries as set by the --program-path option, the
+    WS_BIN_PATH environment variable or (curdir)/run.
+    '''
+    paths = (
+        request.config.getoption('--program-path', default=None),
+        os.environ.get('WS_BIN_PATH'),
+        os.path.join(os.curdir, 'run'),
+    )
+    for path in paths:
+        if type(path) == str and os.path.isdir(path):
+            return path
+    raise AssertionError('Missing directory with Wireshark binaries')
 
 
 @fixtures.fixture(scope='session')
@@ -73,6 +115,14 @@ def cmd_text2pcap(program):
 @fixtures.fixture(scope='session')
 def cmd_wireshark(program):
     return program('wireshark')
+
+
+@fixtures.fixture(scope='session')
+def wireshark_command(cmd_wireshark):
+    if sys.platform not in ('win32', 'darwin'):
+        # TODO check DISPLAY for X11 on Linux or BSD?
+        fixtures.skip('Wireshark GUI tests requires DISPLAY')
+    return (cmd_wireshark, '-ogui.update.enabled:FALSE')
 
 
 @fixtures.fixture(scope='session')
@@ -182,5 +232,3 @@ def test_env(base_env, conf_path, request):
         # Inject the test environment as default if it was not overridden.
         request.instance.injected_test_env = env
     return env
-
-# XXX capture: capture_interface

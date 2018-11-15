@@ -27,23 +27,6 @@ import unittest
 # the command line.
 process_timeout = 300 # Seconds
 
-def capture_command(cmd, *args, **kwargs):
-    '''Convert the supplied arguments into a command suitable for SubprocessTestCase.
-
-    If shell is true, return a string. Otherwise, return a list of arguments.'''
-    shell = kwargs.pop('shell', False)
-    if shell:
-        cap_cmd = ['"' + cmd + '"']
-    else:
-        cap_cmd = [cmd]
-    if cmd == config.cmd_wireshark:
-        cap_cmd += ('-o', 'gui.update.enabled:FALSE', '-k')
-    cap_cmd += args
-    if shell:
-        return ' '.join(cap_cmd)
-    else:
-        return cap_cmd
-
 def cat_dhcp_command(mode):
     '''Create a command string for dumping dhcp.pcap to stdout'''
     # XXX Do this in Python in a thread?
@@ -196,10 +179,12 @@ class SubprocessTestCase(unittest.TestCase):
 
         capinfos_args must be a sequence.
         Default cap_file is <test id>.testout.pcap.'''
+        # XXX convert users to use a new fixture instead of this function.
+        cmd_capinfos = self._fixture_request.getfixturevalue('cmd_capinfos')
         if not cap_file:
             cap_file = self.filename_from_id('testout.pcap')
-        self.log_fd.write('\nOutput of {0} {1}:\n'.format(config.cmd_capinfos, cap_file))
-        capinfos_cmd = [config.cmd_capinfos]
+        self.log_fd.write('\nOutput of {0} {1}:\n'.format(cmd_capinfos, cap_file))
+        capinfos_cmd = [cmd_capinfos]
         if capinfos_args is not None:
             capinfos_cmd += capinfos_args
         capinfos_cmd.append(cap_file)

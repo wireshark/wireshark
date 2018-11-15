@@ -8,31 +8,34 @@
 #
 '''py.test configuration'''
 
-import os
-import sys
 import fixtures
-import config
 
-# XXX remove globals in config and create py.test-specific fixtures
-try:
-    _program_path = os.environ['WS_BIN_PATH']
-except KeyError:
-    print('Please set env var WS_BIN_PATH to the run directory with binaries')
-    sys.exit(1)
-if not config.setProgramPath(_program_path):
-    print('One or more required executables not found at {}\n'.format(_program_path))
-    sys.exit(1)
+def pytest_addoption(parser):
+    parser.addoption('--disable-capture', action='store_true',
+        help='Disable capture tests'
+    )
+    parser.addoption('--capture-interface',
+        help='Capture interface index or name.'
+    )
+    parser.addoption('--program-path', help='Path to Wireshark executables.')
+
+_all_test_groups = None
 
 # this is set only to please case_unittests.test_unit_ctest_coverage
 def pytest_collection_modifyitems(items):
     '''Find all test groups.'''
+    global _all_test_groups
     suites = []
     for item in items:
         name = item.nodeid.split("::")[0].replace(".py", "").replace("/", ".")
         if name not in suites:
             suites.append(name)
-    config.all_groups = list(sorted(suites))
+    _all_test_groups = sorted(suites)
 
 # Must enable pytest before importing fixtures_ws.
 fixtures.enable_pytest()
 from fixtures_ws import *
+
+@fixtures.fixture(scope='session')
+def all_test_groups():
+    return _all_test_groups

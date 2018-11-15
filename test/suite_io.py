@@ -47,7 +47,7 @@ def check_io_4_packets(self, capture_file, cmd=None, from_stdin=False, to_stdout
         io_proc = self.runProcess(stdout_cmd, shell=True)
     else: # direct->direct
         # $DUT -r "${CAPTURE_DIR}dhcp.pcap" -w ./testout.pcap > ./testout.txt 2>&1
-        io_proc = self.runProcess(subprocesstest.capture_command(cmd,
+        io_proc = self.runProcess((cmd,
             '-r', capture_file('dhcp.pcap'),
             '-w', testout_file,
         ))
