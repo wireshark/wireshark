@@ -17,6 +17,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  T_h323_message_body_vals@Base 1.9.1
  UnregRejectReason_vals@Base 1.9.1
  UnregRequestReason_vals@Base 1.9.1
+ _try_val64_to_str_ext_init@Base 2.9.0
  _try_val_to_str_ext_init@Base 1.9.1
  abs_time_secs_to_str@Base 1.99.0
  abs_time_to_str@Base 1.99.0
@@ -359,6 +360,18 @@ libwireshark.so.0 libwireshark0 #MINVER#
  dissect_nt_64bit_time_ex@Base 1.99.0
  dissect_nt_64bit_time_opt@Base 1.99.1
  dissect_nt_sid@Base 1.9.1
+ dissect_oer_bit_string@Base 2.9.0
+ dissect_oer_choice@Base 2.9.0
+ dissect_oer_constrained_integer@Base 2.9.0
+ dissect_oer_constrained_integer_64b@Base 2.9.0
+ dissect_oer_constrained_integer_64b_no_ub@Base 2.9.0
+ dissect_oer_constrained_sequence_of@Base 2.9.0
+ dissect_oer_enumerated@Base 2.9.0
+ dissect_oer_integer@Base 2.9.0
+ dissect_oer_null@Base 2.9.0
+ dissect_oer_octet_string@Base 2.9.0
+ dissect_oer_sequence@Base 2.9.0
+ dissect_oer_sequence_of@Base 2.9.0
  dissect_per_BMPString@Base 1.9.1
  dissect_per_GeneralString@Base 1.9.1
  dissect_per_IA5String@Base 1.9.1
@@ -801,6 +814,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  get_mptcp_stream_count@Base 2.0.0
  get_node_field_value@Base 1.12.0~rc1
  get_nonascii_unichar2_string@Base 2.3.0
+ get_pdcp_nr_proto_data@Base 2.9.0
  get_rose_ctx@Base 1.9.1
  get_rtd_num_tables@Base 1.99.8
  get_rtd_packet_func@Base 1.99.8
@@ -1426,6 +1440,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  set_fd_time@Base 1.9.1
  set_mac_lte_proto_data@Base 1.9.1
  set_mac_nr_proto_data@Base 2.5.2
+ set_pdcp_nr_proto_data@Base 2.9.0
  set_postdissector_wanted_hfids@Base 2.3.0
  set_resolution_synchrony@Base 2.9.0
  set_srt_table_param_data@Base 1.99.8
@@ -1624,7 +1639,9 @@ libwireshark.so.0 libwireshark0 #MINVER#
  try_str_to_str@Base 1.9.1
  try_str_to_str_idx@Base 1.9.1
  try_val64_to_str@Base 1.12.0~rc1
+ try_val64_to_str_ext@Base 2.9.0
  try_val64_to_str_idx@Base 1.12.0~rc1
+ try_val64_to_str_idx_ext@Base 2.9.0
  try_val_to_str@Base 1.9.1
  try_val_to_str_ext@Base 1.9.1
  try_val_to_str_idx@Base 1.9.1
@@ -1790,6 +1807,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  uat_fld_chk_enum@Base 1.9.1
  uat_fld_chk_num_dec@Base 1.9.1
  uat_fld_chk_num_hex@Base 1.9.1
+ uat_fld_chk_num_signed_dec@Base 2.9.0
  uat_fld_chk_proto@Base 1.9.1
  uat_fld_chk_range@Base 1.9.1
  uat_fld_chk_str@Base 1.9.1
@@ -1820,8 +1838,10 @@ libwireshark.so.0 libwireshark0 #MINVER#
  units_amp@Base 2.5.0
  units_bit_bits@Base 2.3.0
  units_bit_sec@Base 2.3.0
+ units_bpm@Base 2.9.0
  units_byte_bytes@Base 2.3.0
  units_byte_bytespsecond@Base 2.5.0
+ units_calorie@Base 2.9.0
  units_day_days@Base 2.3.0
  units_dbi@Base 2.3.0
  units_dbm@Base 2.3.0
@@ -1878,8 +1898,13 @@ libwireshark.so.0 libwireshark0 #MINVER#
  unsigned_time_secs_to_str@Base 2.1.0
  update_crc10_by_bytes_tvb@Base 1.99.0
  uri_str_to_bytes@Base 1.9.1
+ val64_string_ext_free@Base 2.9.0
+ val64_string_ext_new@Base 2.9.0
  val64_to_str@Base 1.12.0~rc1
  val64_to_str_const@Base 1.12.0~rc1
+ val64_to_str_ext@Base 2.9.0
+ val64_to_str_ext_const@Base 2.9.0
+ val64_to_str_ext_wmem@Base 2.9.0
  val_to_str@Base 1.9.1
  val_to_str_wmem@Base 1.99.2
  val_to_str_const@Base 1.9.1
