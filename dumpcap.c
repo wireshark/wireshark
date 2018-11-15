@@ -3817,17 +3817,19 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
             inpkts = capture_loop_dispatch(&global_ld, errmsg,
                                            sizeof(errmsg), pcap_src);
         }
-        /* Stop capturing if all of our sources are pipes and none of them are open. */
-        gboolean open_interfaces = FALSE;
-        for (i = 0; i < global_ld.pcaps->len; i++) {
-            pcap_src = g_array_index(global_ld.pcaps, capture_src *, i);
-            if (pcap_src->cap_pipe_err == PIPOK) {
-                /* True for both non-pipes and open pipes. */
-                open_interfaces = TRUE;
+        if (inpkts == 0) {
+            /* Stop capturing if all of our sources are pipes and none of them are open. */
+            gboolean open_interfaces = FALSE;
+            for (i = 0; i < global_ld.pcaps->len; i++) {
+                pcap_src = g_array_index(global_ld.pcaps, capture_src *, i);
+                if (pcap_src->cap_pipe_err == PIPOK) {
+                    /* True for both non-pipes and open pipes. */
+                    open_interfaces = TRUE;
+                }
             }
-        }
-        if (!open_interfaces) {
-            global_ld.go = FALSE;
+            if (!open_interfaces) {
+                global_ld.go = FALSE;
+            }
         }
 #ifdef SIGINFO
         /* Were we asked to print packet counts by the SIGINFO handler? */
