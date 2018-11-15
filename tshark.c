@@ -3108,15 +3108,7 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
     /* Set up to write to the capture file. */
     snapshot_length = wtap_snapshot_length(cf->provider.wth);
     wtap_dump_params_init(&ng_params, cf->provider.wth);
-#ifdef PCAP_NG_DEFAULT
-    if (ng_params.idb_inf->interface_data->len > 1) {
-      linktype = WTAP_ENCAP_PER_PACKET;
-    } else {
-      linktype = wtap_file_encap(cf->provider.wth);
-    }
-#else
     linktype = wtap_file_encap(cf->provider.wth);
-#endif
 
     /* If we don't have an application name add Tshark */
     if (wtap_block_get_string_option_value(g_array_index(ng_params.shb_hdrs, wtap_block_t, 0), OPT_SHB_USERAPPL, &shb_user_appl) != WTAP_OPTTYPE_SUCCESS) {
