@@ -3107,12 +3107,6 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
   if (save_file != NULL) {
     /* Set up to write to the capture file. */
     snapshot_length = wtap_snapshot_length(cf->provider.wth);
-    if (snapshot_length == 0) {
-      /* Snapshot length of input file not known. */
-      snapshot_length = WTAP_MAX_PACKET_SIZE_STANDARD;
-    }
-    tshark_debug("tshark: snapshot_length = %d", snapshot_length);
-
     wtap_dump_params_init(&ng_params, cf->provider.wth);
 #ifdef PCAP_NG_DEFAULT
     if (ng_params.idb_inf->interface_data->len > 1) {
