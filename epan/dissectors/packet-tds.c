@@ -2546,6 +2546,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
                 proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_null, tvb, *offset, 0, ENC_NA);
             }
             else {
+                const guint8 *strval = NULL;
                 switch(data_type) {
                     case TDS_DATA_TYPE_BIGVARBIN: /* VarBinary */
                     case TDS_DATA_TYPE_BIGBINARY: /* Binary */
@@ -2553,13 +2554,21 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
                         break;
                     case TDS_DATA_TYPE_BIGVARCHR: /* VarChar */
                     case TDS_DATA_TYPE_BIGCHAR:   /* Char */
-                        proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_string, tvb, *offset, length, ENC_ASCII|ENC_NA);
-                        proto_item_append_text(item, " (%s)", tvb_get_stringz_enc(wmem_packet_scope(), tvb, *offset, NULL, ENC_ASCII));
+                        proto_tree_add_item_ret_string(sub_tree, hf_tds_type_varbyte_data_string,
+                            tvb, *offset, length, ENC_ASCII|ENC_NA,
+                            wmem_packet_scope(), &strval);
+                        if (strval) {
+                            proto_item_append_text(item, " (%s)", strval);
+                        }
                         break;
                     case TDS_DATA_TYPE_NVARCHAR:  /* NVarChar */
                     case TDS_DATA_TYPE_NCHAR:     /* NChar */
-                        proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_string, tvb, *offset, length, ENC_UTF_16|ENC_LITTLE_ENDIAN);
-                        proto_item_append_text(item, " (%s)", tvb_get_stringz_enc(wmem_packet_scope(), tvb, *offset, NULL, ENC_UTF_16|ENC_LITTLE_ENDIAN));
+                        proto_tree_add_item_ret_string(sub_tree, hf_tds_type_varbyte_data_string,
+                            tvb, *offset, length, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+                            wmem_packet_scope(), &strval);
+                        if (strval) {
+                            proto_item_append_text(item, " (%s)", strval);
+                        }
                         break;
                 }
                 *offset += length;
@@ -4227,7 +4236,6 @@ static void
 dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv_info_t *tds_info)
 {
     guint offset, i, j, k, offset2, len, login_hf = 0;
-    char *val, *val2;
 
     proto_tree *login_tree;
     proto_tree *header_tree;
@@ -4327,18 +4335,25 @@ dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv
             if( i != 2) {
                 /* tds 7 is always unicode */
                 len *= 2;
-                proto_tree_add_item(login_tree, login_hf, tvb, offset2, len, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(login_tree, login_hf, tvb, offset2, len,
+                    ENC_UTF_16|ENC_LITTLE_ENDIAN);
             } else {
-                /* This field is the password.  We retrieve it from the packet
+                /* This field is the password.  It is an obfusticated Unicode
+                 * string. This code assumes that the password is composed of
+                 * the 8-bit subset of UCS-16. Retrieve it from the packet
                  * as a non-unicode string and then perform two operations on it
                  * to "decrypt" it.  Finally, we create a new string that consists
                  * of ASCII characters instead of unicode by skipping every other
                  * byte in the original string.
+                 *
+                 * Optionally, we could make an expert item to warn of non-ASCII
+                 * characters in the string.
                  */
 
+                guchar *val, *val2;
                 len *= 2;
-                val = (gchar*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset2, len, ENC_ASCII);
-                val2 = (char *)wmem_alloc(wmem_packet_scope(), len/2+1);
+                val  = (guchar *)tvb_memdup(wmem_packet_scope(), tvb, offset2, len);
+                val2 = (guchar *)wmem_alloc(wmem_packet_scope(), len/2+1);
 
                 for(j = 0, k = 0; j < len; j += 2, k++) {
                     val[j] ^= 0xA5;
