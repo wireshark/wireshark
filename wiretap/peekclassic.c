@@ -109,17 +109,28 @@ typedef struct peekclassic_utime {
 #define PEEKCLASSIC_V7_TIMESTAMP_OFFSET		8
 #define PEEKCLASSIC_V7_PKT_SIZE			16
 
-typedef struct peekclassic_encap_lookup {
-	guint16 protoNum;
-	int     encap;
-} peekclassic_encap_lookup_t;
+/*
+ * Flag bits.
+ */
+#define FLAGS_CONTROL_FRAME	0x01	/* Frame is a control frame */
+#define FLAGS_HAS_CRC_ERROR	0x02	/* Frame has aCRC error */
+#define FLAGS_HAS_FRAME_ERROR	0x04	/* Frame has a frame error */
+#define FLAGS_ROUTE_INFO	0x08	/* Frame has token ring routing information */
+#define FLAGS_FRAME_TOO_LONG	0x10	/* Frame too long */
+#define FLAGS_FRAME_TOO_SHORT	0x20	/* Frame too short (runt) */
+#define FLAGS_TRIGGER		0x40	/* Trigger packet (?) */
+#define FLAGS_SNAP		0x80	/* SNAP packet (SNAP header?) */
+
+/*
+ * Status bits.
+ */
+#define STATUS_SELECTED		0x01	/* Selected (in the *Peek GUI?) */
+#define STATUS_TRUNCATED	0x02	/* Truncated (?) */
+#define STATUS_APPLEPEEK	0x10	/* ApplePeek packet (?) */
+#define STATUS_SLICED		0x20	/* Sliced (cut short by snaplen?) */
+#define STATUS_HIDDEN		0x80	/* Hidden (in the *Peek GUI?) */
 
 static const unsigned int mac2unix = 2082844800u;
-static const peekclassic_encap_lookup_t peekclassic_encap[] = {
-	{ 1400, WTAP_ENCAP_ETHERNET }
-};
-#define NUM_PEEKCLASSIC_ENCAPS \
-	(sizeof (peekclassic_encap) / sizeof (peekclassic_encap[0]))
 
 typedef struct {
 	time_t reference_time;
@@ -311,11 +322,7 @@ wtap_open_return_val peekclassic_open(wtap *wth, int *err, gchar **err_info)
 	case 5:
 	case 6:
 		wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_PEEKCLASSIC_V56;
-		/*
-		 * XXX - can we get the file encapsulation from the
-		 * header in the same way we do for V7 files?
-		 */
-		wth->file_encap = WTAP_ENCAP_PER_PACKET;
+		wth->file_encap = file_encap;
 		wth->subtype_read = peekclassic_read_v56;
 		wth->subtype_seek_read = peekclassic_seek_read_v56;
 		break;
@@ -571,11 +578,10 @@ static gboolean peekclassic_read_packet_v56(wtap *wth, FILE_T fh,
 	guint16 destNum;
 	guint16 srcNum;
 #endif
-	guint16 protoNum;
 #if 0
+	guint16 protoNum;
 	char    protoStr[8];
 #endif
-	unsigned int i;
 
 	if (!wtap_read_bytes_or_eof(fh, ep_pkt, sizeof(ep_pkt), err, err_info))
 		return FALSE;
@@ -591,9 +597,7 @@ static gboolean peekclassic_read_packet_v56(wtap *wth, FILE_T fh,
 #if 0
 	destNum = pntoh16(&ep_pkt[PEEKCLASSIC_V56_DESTNUM_OFFSET]);
 	srcNum = pntoh16(&ep_pkt[PEEKCLASSIC_V56_SRCNUM_OFFSET]);
-#endif
 	protoNum = pntoh16(&ep_pkt[PEEKCLASSIC_V56_PROTONUM_OFFSET]);
-#if 0
 	memcpy(protoStr, &ep_pkt[PEEKCLASSIC_V56_PROTOSTR_OFFSET],
 	    sizeof protoStr);
 #endif
@@ -622,14 +626,7 @@ static gboolean peekclassic_read_packet_v56(wtap *wth, FILE_T fh,
 	rec->rec_header.packet_header.len      = length;
 	rec->rec_header.packet_header.caplen   = sliceLength;
 
-	rec->rec_header.packet_header.pkt_encap = WTAP_ENCAP_UNKNOWN;
-	for (i=0; i<NUM_PEEKCLASSIC_ENCAPS; i++) {
-		if (peekclassic_encap[i].protoNum == protoNum) {
-			rec->rec_header.packet_header.pkt_encap = peekclassic_encap[i].encap;
-		}
-	}
-
-	switch (rec->rec_header.packet_header.pkt_encap) {
+	switch (wth->file_encap) {
 
 	case WTAP_ENCAP_ETHERNET:
 		/* We assume there's no FCS in this frame. */

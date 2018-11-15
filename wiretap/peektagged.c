@@ -106,6 +106,8 @@ typedef struct peektagged_section_header {
  *
  * We're assuming here that the "remote Peek" flags from bug 9586 are
  * the same as the "Peek tagged" flags.
+ *
+ * Are these the same as in "Peek classic"?  The first three are.
  */
 #define FLAGS_CONTROL_FRAME     0x01    /* Frame is a control frame */
 #define FLAGS_HAS_CRC_ERROR     0x02    /* Frame has a CRC error */
