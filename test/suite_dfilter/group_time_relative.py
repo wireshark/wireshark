@@ -2,20 +2,24 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-from suite_dfilter import dfiltertest
+import unittest
+import fixtures
+from suite_dfilter.dfiltertest import *
 
-class case_time_relative(dfiltertest.DFTestCase):
+
+@fixtures.uses_fixtures
+class case_time_relative(unittest.TestCase):
     trace_file = "nfs.pcap"
 
-    def test_relative_time_1(self):
+    def test_relative_time_1(self, checkDFilterCount):
         dfilter = "frame.time_delta == 0.7"
-        self.assertDFilterCount(dfilter, 1)
+        checkDFilterCount(dfilter, 1)
 
-    def test_relative_time_2(self):
+    def test_relative_time_2(self, checkDFilterCount):
         dfilter = "frame.time_delta > 0.7"
-        self.assertDFilterCount(dfilter, 0)
+        checkDFilterCount(dfilter, 0)
 
-    def test_relative_time_3(self):
+    def test_relative_time_3(self, checkDFilterCount):
         dfilter = "frame.time_delta < 0.7"
-        self.assertDFilterCount(dfilter, 1)
+        checkDFilterCount(dfilter, 1)
 

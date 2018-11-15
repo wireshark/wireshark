@@ -2,31 +2,35 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-from suite_dfilter import dfiltertest
+import unittest
+import fixtures
+from suite_dfilter.dfiltertest import *
 
-class case_scanner(dfiltertest.DFTestCase):
+
+@fixtures.uses_fixtures
+class case_scanner(unittest.TestCase):
     trace_file = "http.pcap"
 
-    def test_dquote_1(self):
+    def test_dquote_1(self, checkDFilterCount):
         dfilter = 'http.request.method == "HEAD"'
-        self.assertDFilterCount(dfilter, 1)
+        checkDFilterCount(dfilter, 1)
 
-    def test_dquote_2(self):
+    def test_dquote_2(self, checkDFilterCount):
         dfilter = 'http.request.method == "\\x48EAD"'
-        self.assertDFilterCount(dfilter, 1)
+        checkDFilterCount(dfilter, 1)
 
-    def test_dquote_3(self):
+    def test_dquote_3(self, checkDFilterCount):
         dfilter = 'http.request.method == "\\x58EAD"'
-        self.assertDFilterCount(dfilter, 0)
+        checkDFilterCount(dfilter, 0)
 
-    def test_dquote_4(self):
+    def test_dquote_4(self, checkDFilterCount):
         dfilter = 'http.request.method == "\\110EAD"'
-        self.assertDFilterCount(dfilter, 1)
+        checkDFilterCount(dfilter, 1)
 
-    def test_dquote_5(self):
+    def test_dquote_5(self, checkDFilterCount):
         dfilter = 'http.request.method == "\\111EAD"'
-        self.assertDFilterCount(dfilter, 0)
+        checkDFilterCount(dfilter, 0)
 
-    def test_dquote_6(self):
+    def test_dquote_6(self, checkDFilterCount):
         dfilter = 'http.request.method == "\\HEAD"'
-        self.assertDFilterCount(dfilter, 1)
+        checkDFilterCount(dfilter, 1)

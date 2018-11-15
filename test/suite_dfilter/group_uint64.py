@@ -2,15 +2,19 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-from suite_dfilter import dfiltertest
+import unittest
+import fixtures
+from suite_dfilter.dfiltertest import *
 
-class case_uint64(dfiltertest.DFTestCase):
+
+@fixtures.uses_fixtures
+class case_uint64(unittest.TestCase):
     trace_file = "nfs.pcap"
 
-    def test_uint64_1(self):
+    def test_uint64_1(self, checkDFilterCount):
         dfilter = "nfs.fattr3.size == 264032"
-        self.assertDFilterCount(dfilter, 1)
+        checkDFilterCount(dfilter, 1)
 
-    def test_uint64_2(self):
+    def test_uint64_2(self, checkDFilterCount):
         dfilter = "nfs.fattr3.size == 264000"
-        self.assertDFilterCount(dfilter, 0)
+        checkDFilterCount(dfilter, 0)

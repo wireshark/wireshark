@@ -2,35 +2,46 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-import config
-import os.path
-import subprocesstest
-
-class DFTestCase(subprocesstest.SubprocessTestCase):
-    """Base class for all tests in this dfilter-test collection."""
+import subprocess
+import fixtures
 
 
-    def runDFilter(self, dfilter, expected_return=0):
-        # Create the tshark command
-        return self.assertRun((config.cmd_tshark,
+@fixtures.fixture
+def dfilter_cmd(cmd_tshark, capture_file, request):
+    def wrapped(dfilter):
+        return (
+            cmd_tshark,
             "-n",       # No name resolution
             "-r",       # Next arg is trace file to read
-            os.path.join(config.capture_dir, self.trace_file),
+            capture_file(request.instance.trace_file),
             "-Y",       # packet display filter (used to be -R)
             dfilter
-        ), expected_return=expected_return)
+        )
+    return wrapped
 
 
-    def assertDFilterCount(self, dfilter, expected_count):
+@fixtures.fixture
+def checkDFilterCount(dfilter_cmd, base_env):
+    def checkDFilterCount_real(dfilter, expected_count):
         """Run a display filter and expect a certain number of packets."""
+        output = subprocess.check_output(dfilter_cmd(dfilter),
+                                         universal_newlines=True,
+                                         stderr=subprocess.STDOUT,
+                                         env=base_env)
 
-        dfilter_proc = self.runDFilter(dfilter)
-
-        dfp_count = self.countOutput()
+        dfp_count = output.count("\n")
         msg = "Expected %d, got: %s" % (expected_count, dfp_count)
-        self.assertEqual(dfp_count, expected_count, msg)
+        assert dfp_count == expected_count, msg
+    return checkDFilterCount_real
 
-    def assertDFilterFail(self, dfilter):
-        """Run a display filter and expect tshark to fail"""
 
-        dfilter_proc = self.runDFilter(dfilter, expected_return=self.exit_error)
+@fixtures.fixture
+def checkDFilterFail(dfilter_cmd, base_env):
+    def checkDFilterFail_real(dfilter):
+        """Run a display filter and expect tshark to fail."""
+        exitcode = subprocess.call(dfilter_cmd(dfilter),
+                                   stdout=subprocess.DEVNULL,
+                                   stderr=subprocess.STDOUT,
+                                   env=base_env)
+        assert exitcode == 2, 'Expected process to fail, got %d' % (exitcode,)
+    return checkDFilterFail_real

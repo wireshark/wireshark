@@ -150,9 +150,9 @@ def base_env(home_path, request):
     env[home_env] = home_path
 
     # Remove this if test instances no longer inherit from SubprocessTestCase?
-    assert isinstance(request.instance, subprocesstest.SubprocessTestCase)
-    # Inject the test environment as default if it was not overridden.
-    request.instance.injected_test_env = env
+    if isinstance(request.instance, subprocesstest.SubprocessTestCase):
+        # Inject the test environment as default if it was not overridden.
+        request.instance.injected_test_env = env
     return env
 
 
@@ -178,9 +178,9 @@ def test_env(base_env, conf_path, request):
     env['WIRESHARK_QUIT_AFTER_CAPTURE'] = '1'
 
     # Remove this if test instances no longer inherit from SubprocessTestCase?
-    assert isinstance(request.instance, subprocesstest.SubprocessTestCase)
-    # Inject the test environment as default if it was not overridden.
-    request.instance.injected_test_env = env
+    if isinstance(request.instance, subprocesstest.SubprocessTestCase):
+        # Inject the test environment as default if it was not overridden.
+        request.instance.injected_test_env = env
     return env
 
 # XXX capture: capture_interface

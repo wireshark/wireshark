@@ -2,20 +2,24 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-from suite_dfilter import dfiltertest
+import unittest
+import fixtures
+from suite_dfilter.dfiltertest import *
 
-class case_stringz(dfiltertest.DFTestCase):
+
+@fixtures.uses_fixtures
+class case_stringz(unittest.TestCase):
     trace_file = "tftp.pcap"
 
-    def test_stringz_1(self):
+    def test_stringz_1(self, checkDFilterCount):
         dfilter = 'tftp.type == octet'
-        self.assertDFilterCount(dfilter, 1)
+        checkDFilterCount(dfilter, 1)
 
-    def test_stringz_2(self):
+    def test_stringz_2(self, checkDFilterCount):
         dfilter = 'tftp.type == "octet"'
-        self.assertDFilterCount(dfilter, 1)
+        checkDFilterCount(dfilter, 1)
 
-    def test_stringz_3(self):
+    def test_stringz_3(self, checkDFilterCount):
         dfilter = 'tftp.type == junk'
-        self.assertDFilterCount(dfilter, 0)
+        checkDFilterCount(dfilter, 0)
 
