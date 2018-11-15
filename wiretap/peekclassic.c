@@ -153,7 +153,6 @@ wtap_open_return_val peekclassic_open(wtap *wth, int *err, gchar **err_info)
 {
 	peekclassic_header_t ep_hdr;
 	time_t reference_time;
-	int file_encap;
 	peekclassic_t *peekclassic;
 
 	/* Peek classic files do not start with a magic value large enough
@@ -232,11 +231,11 @@ wtap_open_return_val peekclassic_open(wtap *wth, int *err, gchar **err_info)
 			switch (ep_hdr.secondary.v567.mediaType) {
 
 			case 0:
-				file_encap = WTAP_ENCAP_ETHERNET;
+				wth->file_encap = WTAP_ENCAP_ETHERNET;
 				break;
 
 			case 1:
-				file_encap = WTAP_ENCAP_TOKEN_RING;
+				wth->file_encap = WTAP_ENCAP_TOKEN_RING;
 				break;
 
 			default:
@@ -256,7 +255,7 @@ wtap_open_return_val peekclassic_open(wtap *wth, int *err, gchar **err_info)
 				 * some radio information.  Presumably
 				 * this is from AiroPeek.
 				 */
-				file_encap = WTAP_ENCAP_IEEE_802_11_WITH_RADIO;
+				wth->file_encap = WTAP_ENCAP_IEEE_802_11_WITH_RADIO;
 				break;
 
 			default:
@@ -322,14 +321,12 @@ wtap_open_return_val peekclassic_open(wtap *wth, int *err, gchar **err_info)
 	case 5:
 	case 6:
 		wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_PEEKCLASSIC_V56;
-		wth->file_encap = file_encap;
 		wth->subtype_read = peekclassic_read_v56;
 		wth->subtype_seek_read = peekclassic_seek_read_v56;
 		break;
 
 	case 7:
 		wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_PEEKCLASSIC_V7;
-		wth->file_encap = file_encap;
 		wth->subtype_read = peekclassic_read_v7;
 		wth->subtype_seek_read = peekclassic_seek_read_v7;
 		break;
