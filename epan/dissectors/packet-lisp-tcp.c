@@ -68,7 +68,6 @@ static int hf_lisp_tcp_message_eid_prefix_afi = -1;
 static int hf_lisp_tcp_message_eid_ipv4 = -1;
 static int hf_lisp_tcp_message_eid_ipv6 = -1;
 static int hf_lisp_tcp_message_eid_mac = -1;
-static int hf_lisp_tcp_message_eid_lcaf = -1;
 static int hf_lisp_tcp_message_rloc_afi = -1;
 static int hf_lisp_tcp_message_rloc_ipv4 = -1;
 static int hf_lisp_tcp_message_rloc_ipv6 = -1;
@@ -141,7 +140,6 @@ static guint
 dissect_lisp_tcp_message_eid_prefix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *message_tree,
         guint offset, proto_item *tim)
 {
-    proto_item *ti_lcaf_prefix;
     proto_tree *prefix_tree, *lcaf_tree;
     guint8 prefix_length;
     guint16 prefix_afi, addr_len = 0;
@@ -181,9 +179,7 @@ dissect_lisp_tcp_message_eid_prefix(tvbuff_t *tvb, packet_info *pinfo, proto_tre
             offset += INET6_ADDRLEN;
             break;
         case AFNUM_LCAF:
-            ti_lcaf_prefix = proto_tree_add_item(prefix_tree, hf_lisp_tcp_message_eid_lcaf, tvb, offset, addr_len, ENC_ASCII|ENC_NA);
-            proto_item_append_text(ti_lcaf_prefix, "%s", prefix);
-            lcaf_tree = proto_item_add_subtree(ti_lcaf_prefix, ett_lisp_tcp_lcaf);
+            lcaf_tree = proto_tree_add_subtree_format(prefix_tree, tvb, offset, addr_len, ett_lisp_tcp_lcaf, NULL, "Address: %s", prefix);
             dissect_lcaf(tvb, pinfo, lcaf_tree, offset, NULL);
             offset += addr_len;
             break;
@@ -642,9 +638,6 @@ proto_register_lisp_tcp(void)
         { &hf_lisp_tcp_message_eid_mac,
             { "Address", "lisp-tcp.message.eid.mac",
             FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-        { &hf_lisp_tcp_message_eid_lcaf,
-            { "Address", "lisp-tcp.message.eid.lcaf",
-            FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_lisp_tcp_message_rloc_afi,
             { "RLOC AFI", "lisp-tcp.message.rloc.afi",
             FT_UINT16, BASE_DEC, VALS(afn_vals), 0x0, NULL, HFILL }},
