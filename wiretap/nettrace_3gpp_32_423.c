@@ -742,7 +742,9 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 	gsize opt_len;
 	gchar *opt_str;
 	/* Info to build exported_pdu tags*/
-	exported_pdu_info_t  exported_pdu_info = { 0 };
+	exported_pdu_info_t  exported_pdu_info;
+
+	memset(&exported_pdu_info, 0x0, sizeof(exported_pdu_info_t));
 
 	import_file_fd = create_tempfile(&(file_info->tmpname), "Wireshark_PDU_", NULL);
 
