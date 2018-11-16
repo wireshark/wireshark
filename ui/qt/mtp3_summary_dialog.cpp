@@ -113,7 +113,7 @@ QString Mtp3SummaryDialog::summaryToHtml()
     QString format_str = wtap_file_type_subtype_string(summary.file_type);
     const char *compression_type_description = wtap_compression_type_description(summary.compression_type);
     if (compression_type_description != NULL) {
-        format_str += QString::asprintf(" (%s)", compression_type_description);
+        format_str += QString(" (%1)").arg(compression_type_description);
     }
     out << table_row_begin
         << table_vheader_tmpl.arg(tr("Format"))
