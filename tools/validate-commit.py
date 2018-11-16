@@ -96,6 +96,29 @@ def tools_dir():
 
 
 def verify_body(body):
+    old_lines = body.splitlines(True)
+    is_good = True
+    if len(old_lines) >= 2 and old_lines[1].strip():
+        print('ERROR: missing blank line after the first subject line.')
+        is_good = False
+    if len(old_lines[0]) > 80:
+        # Note that this is currently also checked by the commit-msg hook.
+        print('Warning: keep lines in the commit message under 80 characters.')
+        is_good = False
+    if not is_good:
+        print('''
+Please rewrite your commit message to our standards, matching this format:
+
+    component: a very brief summary of the change
+
+    A commit message should start with a brief summary, followed by a single
+    blank line and an optional longer description. If the change is specific to
+    a single protocol, start the summary line with the abbreviated name of the
+    protocol and a colon.
+
+    Use paragraphs to improve readability. Limit each line to 80 characters.
+
+''')
     fd, filename = tempfile.mkstemp()
     try:
         os.close(fd)
@@ -110,7 +133,7 @@ def verify_body(body):
             newbody = f.read()
     except OSError as ex:
         print('Warning: unable to invoke commit-msg hook: %s' % (ex,))
-        return True
+        return is_good
     except subprocess.CalledProcessError as ex:
         print('Bad commit message (reported by tools/commit-msg):')
         print(ex.output.strip())
@@ -118,7 +141,6 @@ def verify_body(body):
     finally:
         os.unlink(filename)
     if newbody != body:
-        old_lines = body.splitlines(True)
         new_lines = newbody.splitlines(True)
         diff = difflib.unified_diff(old_lines, new_lines,
                                     fromfile='OLD/.git/COMMIT_EDITMSG',
@@ -134,7 +156,7 @@ def verify_body(body):
         print('')
         print(''.join(diff))
         return False
-    return True
+    return is_good
 
 
 def main():
