@@ -436,10 +436,12 @@ static const value_string item_transportsizenames[] = {
 #define S7COMM_SYNTAXID_ALARM_ACKSET        0x19        /* Alarm acknowledge message dataset */
 #define S7COMM_SYNTAXID_ALARM_QUERYREQSET   0x1a        /* Alarm query request dataset */
 #define S7COMM_SYNTAXID_NOTIFY_INDSET       0x1c        /* Notify indication dataset */
+#define S7COMM_SYNTAXID_NCK                 0x82        /* Sinumerik NCK HMI access (current units) */
+#define S7COMM_SYNTAXID_NCK_METRIC          0x83        /* Sinumerik NCK HMI access metric units */
+#define S7COMM_SYNTAXID_NCK_INCH            0x84        /* Sinumerik NCK HMI access inch */
 #define S7COMM_SYNTAXID_DRIVEESANY          0xa2        /* seen on Drive ES Starter with routing over S7 */
 #define S7COMM_SYNTAXID_1200SYM             0xb2        /* Symbolic address mode of S7-1200 */
 #define S7COMM_SYNTAXID_DBREAD              0xb0        /* Kind of DB block read, seen only at an S7-400 */
-#define S7COMM_SYNTAXID_NCK                 0x82        /* Sinumerik NCK HMI access */
 
 static const value_string item_syntaxid_names[] = {
     { S7COMM_SYNTAXID_S7ANY,                "S7ANY" },
@@ -449,10 +451,12 @@ static const value_string item_syntaxid_names[] = {
     { S7COMM_SYNTAXID_ALARM_ACKSET,         "ALARM_ACK" },
     { S7COMM_SYNTAXID_ALARM_QUERYREQSET,    "ALARM_QUERYREQ" },
     { S7COMM_SYNTAXID_NOTIFY_INDSET,        "NOTIFY_IND" },
+    { S7COMM_SYNTAXID_NCK,                  "NCK" },
+    { S7COMM_SYNTAXID_NCK_METRIC,           "NCK_M" },
+    { S7COMM_SYNTAXID_NCK_INCH,             "NCK_I" },
     { S7COMM_SYNTAXID_DRIVEESANY,           "DRIVEESANY" },
     { S7COMM_SYNTAXID_1200SYM,              "1200SYM" },
     { S7COMM_SYNTAXID_DBREAD,               "DBREAD" },
-    { S7COMM_SYNTAXID_NCK,                  "NCK" },
     { 0,                                    NULL }
 };
 
@@ -2556,7 +2560,7 @@ s7comm_syntaxid_1200sym(tvbuff_t *tvb,
 /*******************************************************************************************************
  *
  * Addressdefinition for Sinumeric NCK access
- * type == 0x12, length == 8, syntax-ID == 0x82
+ * type == 0x12, length == 8, syntax-ID == 0x82 or == 0x83 or == 0x84
  *
  *******************************************************************************************************/
 static guint32
@@ -2661,7 +2665,10 @@ s7comm_decode_param_item(tvbuff_t *tvb,
     } else if (var_spec_type == 0x12 && var_spec_length >= 14 && var_spec_syntax_id == S7COMM_SYNTAXID_1200SYM) {
         /* TIA S7 1200 symbolic address mode */
         offset = s7comm_syntaxid_1200sym(tvb, offset, item_tree, var_spec_length);
-    } else if (var_spec_type == 0x12 && var_spec_length == 8 && var_spec_syntax_id == S7COMM_SYNTAXID_NCK) {
+    } else if (var_spec_type == 0x12 && var_spec_length == 8
+               && ((var_spec_syntax_id == S7COMM_SYNTAXID_NCK)
+                   || (var_spec_syntax_id == S7COMM_SYNTAXID_NCK_METRIC)
+                   || (var_spec_syntax_id == S7COMM_SYNTAXID_NCK_INCH))) {
         /* Sinumerik NCK access */
         offset = s7comm_syntaxid_nck(tvb, offset, item_tree);
     } else if (var_spec_type == 0x12 && var_spec_length == 10 && var_spec_syntax_id == S7COMM_SYNTAXID_DRIVEESANY) {
