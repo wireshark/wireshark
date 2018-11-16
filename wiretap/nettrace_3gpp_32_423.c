@@ -1046,7 +1046,8 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 							}
 						}
 					}
-					/* g_warning("scan_found:%u, %u.%u.%u.%u Port %u transport %s", scan_found, d1, d2, d3, d4, port, transp_str); */
+					/* Failed to parse address */
+					curr_pos = next_pos;
 				}
 			} else {
 				/* address not found*/
@@ -1073,9 +1074,10 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 				char transp_str[5];
 
 				curr_pos = curr_pos + 7;
-				/* Excample from one trace, unsure if it's generic...
+				/* Excample from traces, unsure if it's generic...
 				* {address == 192.168.73.1, port == 5062, transport == Udp}
 				* {address == [2001:1b70:8294:210a::78], port == 34189, transport == Tcp}
+				* {address == 2001:1B70:8294:210A::90, port == 7777, transport == TCP}
 				*/
 				scan_found = sscanf(curr_pos, "%*s %3u.%3u.%3u.%3u, %*s %*s %5u, %*s %*s %4s",
 					&d1, &d2, &d3, &d4, &port, transp_str);
@@ -1122,7 +1124,8 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 							}
 						}
 					}
-					/* g_warning("scan_found:%u, %u.%u.%u.%u Port %u transport %s", scan_found, d1, d2, d3, d4, port, transp_str); */
+					/* Failed to parse address */
+					curr_pos = next_pos;
 				}
 			}
 			else {
