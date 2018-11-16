@@ -1564,29 +1564,31 @@ real_main(int argc, char *argv[])
 
 #ifdef HAVE_LIBPCAP
   if (!global_capture_opts.saving_to_file) {
+#else
+  if (!output_file_name) {
+#endif
     /* We're not saving the capture to a file; if "-q" wasn't specified,
        we should print packet information */
     if (!quiet)
       print_packet_info = TRUE;
   } else {
+#ifdef HAVE_LIBPCAP
+    const char *save_file = global_capture_opts.save_file;
+#else
+    const char *save_file = output_file_name;
+#endif
     /* We're saving to a file; if we're writing to the standard output.
        and we'll also be writing dissected packets to the standard
        output, reject the request.  At best, we could redirect that
        to the standard error; we *can't* write both to the standard
        output and have either of them be useful. */
-    if (strcmp(global_capture_opts.save_file, "-") == 0 && print_packet_info) {
+    if (strcmp(save_file, "-") == 0 && print_packet_info) {
       cmdarg_err("You can't write both raw packet data and dissected packets"
           " to the standard output.");
       exit_status = INVALID_OPTION;
       goto clean_exit;
     }
   }
-#else
-  /* We're not saving the capture to a file; if "-q" wasn't specified,
-     we should print packet information */
-  if (!quiet)
-    print_packet_info = TRUE;
-#endif
 
 #ifndef HAVE_LIBPCAP
   if (capture_option_specified)
