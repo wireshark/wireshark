@@ -4375,6 +4375,10 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
         offset +=paging_len;
     }
 
+    if (offset == (gint)length) {
+        return;
+    }
+
     /*(u+1) Length of Extended Access Restriction Data */
     proto_tree_add_item_ret_uint(tree, hf_gtpv2_mm_context_ex_access_res_data_len, tvb, offset, 1, ENC_BIG_ENDIAN, &ex_access_res_data_len);
     offset += 1;
@@ -4389,6 +4393,10 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
         proto_tree_add_item(tree, hf_gtpv2_mm_context_ussrna, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_gtpv2_mm_context_nrsrna, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
+    }
+
+    if (offset == (gint)length) {
+        return;
     }
 
     /*(v+1) Length of UE additional security capability*/
