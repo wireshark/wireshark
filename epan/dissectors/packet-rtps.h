@@ -245,6 +245,8 @@ typedef struct _rtps_dissector_data {
 #define PID_BASE_TYPE_NAME                      (0x0076)
 #define PID_ENABLE_ENCRYPTION                   (0x0077)
 #define PID_ENABLE_AUTHENTICATION               (0x0078)
+#define PID_DOMAIN_ID                           (0x000f)
+#define PID_DOMAIN_TAG                          (0x4014)
 
 /* Vendor-specific: RTI */
 #define PID_PRODUCT_VERSION                     (0x8000)
@@ -259,7 +261,7 @@ typedef struct _rtps_dissector_data {
 #define PID_ACK_KIND                            (0x800b)
 #define PID_PEER_HOST_EPOCH                     (0x800e)
 #define PID_RELATED_ORIGINAL_WRITER_INFO        (0x800f)/* inline QoS */
-#define PID_DOMAIN_ID                           (0x800f)
+#define PID_RTI_DOMAIN_ID                       (0x800f)
 #define PID_RELATED_READER_GUID                 (0x8010)/* inline QoS */
 #define PID_TRANSPORT_INFO_LIST                 (0x8010)
 #define PID_SOURCE_GUID                         (0x8011)/* inline QoS */

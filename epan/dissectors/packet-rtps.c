@@ -77,6 +77,7 @@ static int hf_rtps_protocol_version_minor       = -1;
 static int hf_rtps_vendor_id                    = -1;
 
 static int hf_rtps_domain_id                    = -1;
+static int hf_rtps_domain_tag                   = -1;
 static int hf_rtps_participant_idx              = -1;
 static int hf_rtps_nature_type                  = -1;
 
@@ -933,6 +934,8 @@ static const value_string parameter_id_v2_vals[] = {
   { PID_DATA_TAGS,                      "PID_DATA_TAGS" },
   { PID_ENDPOINT_SECURITY_INFO,         "PID_ENDPOINT_SECURITY_INFO" },
   { PID_PARTICIPANT_SECURITY_INFO,      "PID_PARTICIPANT_SECURITY_INFO" },
+  { PID_DOMAIN_ID,                      "PID_DOMAIN_ID" },
+  { PID_DOMAIN_TAG,                     "PID_DOMAIN_TAG" },
 
   /* The following PID are deprecated */
   { PID_DEADLINE_OFFERED,               "PID_DEADLINE_OFFERED [deprecated]" },
@@ -974,7 +977,7 @@ static const value_string parameter_id_rti_vals[] = {
   { PID_DIRECT_COMMUNICATION,           "PID_DIRECT_COMMUNICATION" },
   { PID_TYPE_OBJECT,                    "PID_TYPE_OBJECT" },
   { PID_EXPECTS_VIRTUAL_HB,             "PID_EXPECTS_VIRTUAL_HB" },
-  { PID_DOMAIN_ID,                      "PID_DOMAIN_ID" },
+  { PID_RTI_DOMAIN_ID,                  "PID_RTI_DOMAIN_ID" },
   { PID_TOPIC_QUERY_PUBLICATION,        "PID_TOPIC_QUERY_PUBLICATION" },
   { PID_ENDPOINT_PROPERTY_CHANGE_EPOCH, "PID_ENDPOINT_PROPERTY_CHANGE_EPOCH" },
   { PID_REACHABILITY_LEASE_DURATION,    "PID_REACHABILITY_LEASE_DURATION" },
@@ -4672,11 +4675,13 @@ static gboolean dissect_parameter_sequence_rti_dds(proto_tree *rtps_parameter_tr
 
     /* 0...2...........7...............15.............23...............31
     * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    * | PID_DOMAIN_ID                 |            length             |
+    * | PID_DOMAIN_ID|PID_RTI_DOMAIN_ID|           length             |
     * +---------------+---------------+---------------+---------------+
     * | long   domain_id                                              |
     * +---------------+---------------+---------------+---------------+
     */
+
+    case PID_RTI_DOMAIN_ID:
     case PID_DOMAIN_ID: {
       if (is_inline_qos) { /* PID_RELATED_ORIGINAL_WRITER_INFO */
         ENSURE_LENGTH(16);
@@ -4693,6 +4698,22 @@ static gboolean dissect_parameter_sequence_rti_dds(proto_tree *rtps_parameter_tr
       proto_tree_add_item(rtps_parameter_tree, hf_rtps_domain_id, tvb, offset, 4, encoding);
       }
       break;
+    }
+
+     /* 0...2...........7...............15.............23...............31
+     * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     * | PID_DOMAIN_TAG                |            length             |
+     * +---------------+---------------+---------------+---------------+
+     * | long domain_tag.Length                                        |
+     * +---------------+---------------+---------------+---------------+
+     * | string domain_tag                                             |
+     * | ...                                                           |
+     * +---------------+---------------+---------------+---------------+
+     */
+    case PID_DOMAIN_TAG: {
+       ENSURE_LENGTH(4);
+       rtps_util_add_string(rtps_parameter_tree, tvb, offset, hf_rtps_domain_tag, encoding);
+       break;
     }
 
     case PID_EXTENDED: {
@@ -10060,6 +10081,17 @@ void proto_register_rtps(void) {
         NULL,
         0,
         "Domain ID",
+        HFILL }
+    },
+
+    { &hf_rtps_domain_tag, {
+        "domain_tag",
+        "rtps.domain_tag",
+        FT_STRINGZ,
+        BASE_NONE,
+        NULL,
+        0,
+        "Domain Tag ID",
         HFILL }
     },
 
