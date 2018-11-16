@@ -67,7 +67,7 @@ check_savability_t win32_check_save_as_with_comments(HWND parent, capture_file *
  * @param cf capture_file Structure for the capture to be saved
  * @param file_name File name. May be empty.
  * @param file_type Wiretap file type.
- * @param compressed Compress the file with gzip.
+ * @param compression_type Compression type to use, or uncompressed.
  * @param must_support_comments TRUE if the file format list should
  * include only file formats that support comments
  *
@@ -75,7 +75,7 @@ check_savability_t win32_check_save_as_with_comments(HWND parent, capture_file *
  */
 gboolean win32_save_as_file(HWND h_wnd, capture_file *cf,
                             GString *file_name, int *file_type,
-                            gboolean *compressed,
+                            wtap_compression_type *compression_type,
                             gboolean must_support_comments);
 
 /** Open the "Export Specified Packets" dialog box.
@@ -84,7 +84,7 @@ gboolean win32_save_as_file(HWND h_wnd, capture_file *cf,
  * @param cf capture_file Structure for the capture to be saved
  * @param file_name File name. May be empty.
  * @param file_type Wiretap file type.
- * @param compressed Compress the file with gzip.
+ * @param compression_type Compression type to use, or uncompressed.
  * @param range Range of packets to export.
  *
  * @return TRUE if packets were discarded when saving, FALSE otherwise
@@ -93,7 +93,7 @@ gboolean win32_export_specified_packets_file(HWND h_wnd,
                                          capture_file *cf,
                                          GString *file_name,
                                          int *file_type,
-                                         gboolean *compressed,
+                                         wtap_compression_type *compression_type,
                                          packet_range_t *range);
 
 

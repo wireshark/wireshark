@@ -942,12 +942,10 @@ editcap_dump_open(const char *filename, const wtap_dump_params *params,
 
   if (strcmp(filename, "-") == 0) {
     /* Write to the standard output. */
-    pdh = wtap_dump_open_stdout(out_file_type_subtype,
-                                FALSE /* compressed */,
+    pdh = wtap_dump_open_stdout(out_file_type_subtype, WTAP_UNCOMPRESSED,
                                 params, write_err);
   } else {
-    pdh = wtap_dump_open(filename, out_file_type_subtype,
-                         FALSE /* compressed */,
+    pdh = wtap_dump_open(filename, out_file_type_subtype, WTAP_UNCOMPRESSED,
                          params, write_err);
   }
   return pdh;

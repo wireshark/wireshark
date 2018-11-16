@@ -234,7 +234,7 @@ gboolean cf_has_unsaved_data(capture_file *cf);
  * @param cf the capture file to save to
  * @param fname the filename to save to
  * @param save_format the format of the file to save (libpcap, ...)
- * @param compressed whether to gzip compress the file
+ * @param compression_type type of compression to use when writing, if any
  * @param discard_comments TRUE if we should discard comments if the save
  * succeeds (because we saved in a format that doesn't support
  * comments)
@@ -243,7 +243,8 @@ gboolean cf_has_unsaved_data(capture_file *cf);
  * @return one of cf_write_status_t
  */
 cf_write_status_t cf_save_records(capture_file * cf, const char *fname,
-                                  guint save_format, gboolean compressed,
+                                  guint save_format,
+                                  wtap_compression_type compression_type,
                                   gboolean discard_comments,
                                   gboolean dont_reopen);
 
@@ -258,14 +259,14 @@ cf_write_status_t cf_save_records(capture_file * cf, const char *fname,
  * @param fname the filename to write to
  * @param range the range of packets to write
  * @param save_format the format of the file to write (libpcap, ...)
- * @param compressed whether to gzip compress the file
+ * @param compression_type type of compression to use when writing, if any
  * @return one of cf_write_status_t
  */
 cf_write_status_t cf_export_specified_packets(capture_file *cf,
                                               const char *fname,
                                               packet_range_t *range,
                                               guint save_format,
-                                              gboolean compressed);
+                                              wtap_compression_type compression_type);
 
 /**
  * Get a displayable name of the capture file.

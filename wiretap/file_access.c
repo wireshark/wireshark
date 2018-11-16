@@ -2222,17 +2222,19 @@ wtap_dump_supports_comment_types(int file_type_subtype, guint32 comment_types)
 	return FALSE;
 }
 
-static gboolean wtap_dump_open_check(int file_type_subtype, int encap, gboolean comressed, int *err);
+static gboolean wtap_dump_open_check(int file_type_subtype, int encap, gboolean compressed, int *err);
 static wtap_dumper* wtap_dump_alloc_wdh(int file_type_subtype, int encap, int snaplen,
-					gboolean compressed, int *err);
-static gboolean wtap_dump_open_finish(wtap_dumper *wdh, int file_type_subtype, gboolean compressed, int *err);
+					wtap_compression_type compression_type,
+					int *err);
+static gboolean wtap_dump_open_finish(wtap_dumper *wdh, int file_type_subtype,
+				      int *err);
 
 static WFILE_T wtap_dump_file_open(wtap_dumper *wdh, const char *filename);
 static WFILE_T wtap_dump_file_fdopen(wtap_dumper *wdh, int fd);
 static int wtap_dump_file_close(wtap_dumper *wdh);
 
 static wtap_dumper *
-wtap_dump_init_dumper(int file_type_subtype, gboolean compressed,
+wtap_dump_init_dumper(int file_type_subtype, wtap_compression_type compression_type,
                       const wtap_dump_params *params, int *err)
 {
 	wtap_dumper *wdh;
@@ -2241,12 +2243,16 @@ wtap_dump_init_dumper(int file_type_subtype, gboolean compressed,
 	GArray *interfaces = params->idb_inf ? params->idb_inf->interface_data : NULL;
 
 	/* Check whether we can open a capture file with that file type
-	   and that encapsulation. */
-	if (!wtap_dump_open_check(file_type_subtype, params->encap, compressed, err))
+	   and that encapsulation, and, if the compression type isn't
+	   "uncompressed", whether we can write a *compressed* file
+	   of that file type. */
+	if (!wtap_dump_open_check(file_type_subtype, params->encap,
+	    (compression_type != WTAP_UNCOMPRESSED), err))
 		return NULL;
 
 	/* Allocate a data structure for the output stream. */
-	wdh = wtap_dump_alloc_wdh(file_type_subtype, params->encap, params->snaplen, compressed, err);
+	wdh = wtap_dump_alloc_wdh(file_type_subtype, params->encap,
+	    params->snaplen, compression_type, err);
 	if (wdh == NULL)
 		return NULL;	/* couldn't allocate it */
 
@@ -2309,13 +2315,15 @@ wtap_dump_init_dumper(int file_type_subtype, gboolean compressed,
 
 wtap_dumper *
 wtap_dump_open(const char *filename, int file_type_subtype,
-    gboolean compressed, const wtap_dump_params *params, int *err)
+    wtap_compression_type compression_type, const wtap_dump_params *params,
+    int *err)
 {
 	wtap_dumper *wdh;
 	WFILE_T fh;
 
 	/* Allocate and initialize a data structure for the output stream. */
-	wdh = wtap_dump_init_dumper(file_type_subtype, compressed, params, err);
+	wdh = wtap_dump_init_dumper(file_type_subtype, compression_type, params,
+	    err);
 	if (wdh == NULL)
 		return NULL;
 
@@ -2330,7 +2338,7 @@ wtap_dump_open(const char *filename, int file_type_subtype,
 	}
 	wdh->fh = fh;
 
-	if (!wtap_dump_open_finish(wdh, file_type_subtype, compressed, err)) {
+	if (!wtap_dump_open_finish(wdh, file_type_subtype, err)) {
 		/* Get rid of the file we created; we couldn't finish
 		   opening it. */
 		wtap_dump_file_close(wdh);
@@ -2343,7 +2351,7 @@ wtap_dump_open(const char *filename, int file_type_subtype,
 
 wtap_dumper *
 wtap_dump_open_tempfile(char **filenamep, const char *pfx,
-    int file_type_subtype, gboolean compressed,
+    int file_type_subtype, wtap_compression_type compression_type,
     const wtap_dump_params *params, int *err)
 {
 	int fd;
@@ -2355,7 +2363,8 @@ wtap_dump_open_tempfile(char **filenamep, const char *pfx,
 	*filenamep = NULL;
 
 	/* Allocate and initialize a data structure for the output stream. */
-	wdh = wtap_dump_init_dumper(file_type_subtype, compressed, params, err);
+	wdh = wtap_dump_init_dumper(file_type_subtype, compression_type, params,
+	    err);
 	if (wdh == NULL)
 		return NULL;
 
@@ -2380,7 +2389,7 @@ wtap_dump_open_tempfile(char **filenamep, const char *pfx,
 	}
 	wdh->fh = fh;
 
-	if (!wtap_dump_open_finish(wdh, file_type_subtype, compressed, err)) {
+	if (!wtap_dump_open_finish(wdh, file_type_subtype, err)) {
 		/* Get rid of the file we created; we couldn't finish
 		   opening it. */
 		wtap_dump_file_close(wdh);
@@ -2392,14 +2401,15 @@ wtap_dump_open_tempfile(char **filenamep, const char *pfx,
 }
 
 wtap_dumper *
-wtap_dump_fdopen(int fd, int file_type_subtype, gboolean compressed,
+wtap_dump_fdopen(int fd, int file_type_subtype, wtap_compression_type compression_type,
     const wtap_dump_params *params, int *err)
 {
 	wtap_dumper *wdh;
 	WFILE_T fh;
 
 	/* Allocate and initialize a data structure for the output stream. */
-	wdh = wtap_dump_init_dumper(file_type_subtype, compressed, params, err);
+	wdh = wtap_dump_init_dumper(file_type_subtype, compression_type, params,
+	    err);
 	if (wdh == NULL)
 		return NULL;
 
@@ -2414,7 +2424,7 @@ wtap_dump_fdopen(int fd, int file_type_subtype, gboolean compressed,
 	}
 	wdh->fh = fh;
 
-	if (!wtap_dump_open_finish(wdh, file_type_subtype, compressed, err)) {
+	if (!wtap_dump_open_finish(wdh, file_type_subtype, err)) {
 		wtap_dump_file_close(wdh);
 		g_free(wdh);
 		return NULL;
@@ -2423,7 +2433,7 @@ wtap_dump_fdopen(int fd, int file_type_subtype, gboolean compressed,
 }
 
 wtap_dumper *
-wtap_dump_open_stdout(int file_type_subtype, gboolean compressed,
+wtap_dump_open_stdout(int file_type_subtype, wtap_compression_type compression_type,
     const wtap_dump_params *params, int *err)
 {
 	int new_fd;
@@ -2455,7 +2465,8 @@ wtap_dump_open_stdout(int file_type_subtype, gboolean compressed,
 	}
 #endif
 
-	wdh = wtap_dump_fdopen(new_fd, file_type_subtype, compressed, params, err);
+	wdh = wtap_dump_fdopen(new_fd, file_type_subtype, compression_type,
+	    params, err);
 	if (wdh == NULL) {
 		/* Failed; close the new FD */
 		ws_close(new_fd);
@@ -2499,7 +2510,8 @@ wtap_dump_open_check(int file_type_subtype, int encap, gboolean compressed, int 
 }
 
 static wtap_dumper *
-wtap_dump_alloc_wdh(int file_type_subtype, int encap, int snaplen, gboolean compressed, int *err)
+wtap_dump_alloc_wdh(int file_type_subtype, int encap, int snaplen,
+    wtap_compression_type compression_type, int *err)
 {
 	wtap_dumper *wdh;
 
@@ -2512,21 +2524,21 @@ wtap_dump_alloc_wdh(int file_type_subtype, int encap, int snaplen, gboolean comp
 	wdh->file_type_subtype = file_type_subtype;
 	wdh->snaplen = snaplen;
 	wdh->encap = encap;
-	wdh->compressed = compressed;
+	wdh->compression_type = compression_type;
 	wdh->wslua_data = NULL;
 	wdh->interface_data = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
 	return wdh;
 }
 
 static gboolean
-wtap_dump_open_finish(wtap_dumper *wdh, int file_type_subtype, gboolean compressed, int *err)
+wtap_dump_open_finish(wtap_dumper *wdh, int file_type_subtype, int *err)
 {
 	int fd;
 	gboolean cant_seek;
 
 	/* Can we do a seek on the file descriptor?
 	   If not, note that fact. */
-	if(compressed) {
+	if (wdh->compression_type != WTAP_UNCOMPRESSED) {
 		cant_seek = TRUE;
 	} else {
 		fd = ws_fileno((FILE *)wdh->fh);
@@ -2572,7 +2584,7 @@ void
 wtap_dump_flush(wtap_dumper *wdh)
 {
 #ifdef HAVE_ZLIB
-	if(wdh->compressed) {
+	if (wdh->compression_type == WTAP_GZIP_COMPRESSED) {
 		gzwfile_flush((GZWFILE_T)wdh->fh);
 	} else
 #endif
@@ -2647,7 +2659,7 @@ gboolean wtap_dump_get_needs_reload(wtap_dumper *wdh) {
 static WFILE_T
 wtap_dump_file_open(wtap_dumper *wdh, const char *filename)
 {
-	if(wdh->compressed) {
+	if (wdh->compression_type == WTAP_GZIP_COMPRESSED) {
 		return gzwfile_open(filename);
 	} else {
 		return ws_fopen(filename, "wb");
@@ -2666,7 +2678,7 @@ wtap_dump_file_open(wtap_dumper *wdh _U_, const char *filename)
 static WFILE_T
 wtap_dump_file_fdopen(wtap_dumper *wdh, int fd)
 {
-	if(wdh->compressed) {
+	if (wdh->compression_type == WTAP_GZIP_COMPRESSED) {
 		return gzwfile_fdopen(fd);
 	} else {
 		return ws_fdopen(fd, "wb");
@@ -2687,7 +2699,7 @@ wtap_dump_file_write(wtap_dumper *wdh, const void *buf, size_t bufsize, int *err
 	size_t nwritten;
 
 #ifdef HAVE_ZLIB
-	if (wdh->compressed) {
+	if (wdh->compression_type == WTAP_GZIP_COMPRESSED) {
 		nwritten = gzwfile_write((GZWFILE_T)wdh->fh, buf, (unsigned int) bufsize);
 		/*
 		 * gzwfile_write() returns 0 on error.
@@ -2721,7 +2733,7 @@ static int
 wtap_dump_file_close(wtap_dumper *wdh)
 {
 #ifdef HAVE_ZLIB
-	if(wdh->compressed)
+	if (wdh->compression_type == WTAP_GZIP_COMPRESSED)
 		return gzwfile_close((GZWFILE_T)wdh->fh);
 	else
 #endif
@@ -2732,7 +2744,7 @@ gint64
 wtap_dump_file_seek(wtap_dumper *wdh, gint64 offset, int whence, int *err)
 {
 #ifdef HAVE_ZLIB
-	if(wdh->compressed) {
+	if (wdh->compression_type != WTAP_UNCOMPRESSED) {
 		*err = WTAP_ERR_CANT_SEEK_COMPRESSED;
 		return -1;
 	} else
@@ -2753,7 +2765,7 @@ wtap_dump_file_tell(wtap_dumper *wdh, int *err)
 {
 	gint64 rval;
 #ifdef HAVE_ZLIB
-	if(wdh->compressed) {
+	if (wdh->compression_type != WTAP_UNCOMPRESSED) {
 		*err = WTAP_ERR_CANT_SEEK_COMPRESSED;
 		return -1;
 	} else

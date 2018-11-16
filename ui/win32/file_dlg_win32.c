@@ -315,7 +315,8 @@ win32_check_save_as_with_comments(HWND parent, capture_file *cf, int file_type)
 
 gboolean
 win32_save_as_file(HWND h_wnd, capture_file *cf, GString *file_name, int *file_type,
-                   gboolean *compressed, gboolean must_support_all_comments)
+                   wtap_compression_type *compression_type,
+                   gboolean must_support_all_comments)
 {
     guint32 required_comment_types;
     GArray *savable_file_types;
@@ -324,7 +325,7 @@ win32_save_as_file(HWND h_wnd, capture_file *cf, GString *file_name, int *file_t
     int    ofnsize = sizeof(OPENFILENAME);
     BOOL gsfn_ok;
 
-    if (!file_name || !file_type || !compressed)
+    if (!file_name || !file_type || !compression_type)
         return FALSE;
 
     if (file_name->len > 0) {
@@ -375,7 +376,7 @@ win32_save_as_file(HWND h_wnd, capture_file *cf, GString *file_name, int *file_t
         g_string_printf(file_name, "%s", utf_16to8(file_name16));
         /* What file format was specified? */
         *file_type = g_array_index(savable_file_types, int, ofn->nFilterIndex - 1);
-        *compressed = g_compressed;
+        *compression_type = g_compressed ? WTAP_GZIP_COMPRESSED : WTAP_UNCOMPRESSED;
     } else {
         /* User cancelled or closed the dialog, or an error occurred. */
         if (CommDlgExtendedError() != 0) {
@@ -451,7 +452,7 @@ gboolean
 win32_export_specified_packets_file(HWND h_wnd, capture_file *cf,
                                     GString *file_name,
                                     int *file_type,
-                                    gboolean *compressed,
+                                    wtap_compression_type *compression_type,
                                     packet_range_t *range) {
     GArray *savable_file_types;
     OPENFILENAME *ofn;
@@ -459,7 +460,7 @@ win32_export_specified_packets_file(HWND h_wnd, capture_file *cf,
     int    ofnsize = sizeof(OPENFILENAME);
     BOOL gsfn_ok;
 
-    if (!file_name || !file_type || !compressed || !range)
+    if (!file_name || !file_type || !compression_type || !range)
         return FALSE;
 
     if (file_name->len > 0) {
@@ -506,7 +507,7 @@ win32_export_specified_packets_file(HWND h_wnd, capture_file *cf,
         g_string_printf(file_name, "%s", utf_16to8(file_name16));
         /* What file format was specified? */
         *file_type = g_array_index(savable_file_types, int, ofn->nFilterIndex - 1);
-        *compressed = g_compressed;
+        *compression_type = g_compressed ? WTAP_GZIP_COMPRESSED : WTAP_UNCOMPRESSED;
     } else {
         /* User cancelled or closed the dialog, or an error occurred. */
         if (CommDlgExtendedError() != 0) {

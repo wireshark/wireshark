@@ -88,7 +88,7 @@ struct wtap_dumper {
     int                     file_type_subtype;
     int                     snaplen;
     int                     encap;
-    gboolean                compressed;
+    wtap_compression_type   compression_type;
     gboolean                needs_reload;   /* TRUE if the file requires re-loading after saving with wtap */
     gint64                  bytes_dumped;
 

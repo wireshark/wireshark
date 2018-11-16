@@ -68,7 +68,7 @@ public:
 
     int mergeType();
     int selectedFileType();
-    bool isCompressed();
+    wtap_compression_type compressionType();
 
 private:
     capture_file *cap_file_;
@@ -119,7 +119,7 @@ private:
 #else // Q_OS_WIN
     int file_type_;
     int merge_type_;
-    gboolean compressed_;
+    wtap_compression_type compression_type_;
 #endif // Q_OS_WIN
 
 signals:

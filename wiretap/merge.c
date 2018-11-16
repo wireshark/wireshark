@@ -1022,8 +1022,8 @@ merge_files(const gchar* out_filename, const int file_type,
         params.shb_hdrs = shb_hdrs;
         params.idb_inf = idb_inf;
     }
-    pdh = wtap_dump_open(out_filename, file_type, FALSE /* compressed */,
-                         &params, err);
+    pdh = wtap_dump_open(out_filename, file_type, WTAP_UNCOMPRESSED, &params,
+                         err);
     if (pdh == NULL) {
         merge_close_in_files(in_file_count, in_files);
         g_free(in_files);
@@ -1126,7 +1126,7 @@ merge_files_to_tempfile(gchar **out_filenamep, const char *pfx,
         params.idb_inf = idb_inf;
     }
     pdh = wtap_dump_open_tempfile(out_filenamep, pfx, file_type,
-                                  FALSE /* compressed */, &params, err);
+                                  WTAP_UNCOMPRESSED, &params, err);
     if (pdh == NULL) {
         merge_close_in_files(in_file_count, in_files);
         g_free(in_files);
@@ -1223,7 +1223,7 @@ merge_files_to_stdout(const int file_type, const char *const *in_filenames,
         params.shb_hdrs = shb_hdrs;
         params.idb_inf = idb_inf;
     }
-    pdh = wtap_dump_open_stdout(file_type, FALSE /* compressed */, &params, err);
+    pdh = wtap_dump_open_stdout(file_type, WTAP_UNCOMPRESSED, &params, err);
     if (pdh == NULL) {
         merge_close_in_files(in_file_count, in_files);
         g_free(in_files);

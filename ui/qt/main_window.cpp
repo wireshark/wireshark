@@ -1364,7 +1364,7 @@ bool MainWindow::saveCaptureFile(capture_file *cf, bool dont_reopen) {
                closes the current file and then opens and reloads the saved file,
                so make a copy and free it later. */
             file_name = cf->filename;
-            status = cf_save_records(cf, qUtf8Printable(file_name), cf->cd_t, cf->iscompressed,
+            status = cf_save_records(cf, qUtf8Printable(file_name), cf->cd_t, cf->compression_type,
                                      discard_comments, dont_reopen);
             switch (status) {
 
@@ -1400,7 +1400,7 @@ bool MainWindow::saveCaptureFile(capture_file *cf, bool dont_reopen) {
 bool MainWindow::saveAsCaptureFile(capture_file *cf, bool must_support_comments, bool dont_reopen) {
     QString file_name = "";
     int file_type;
-    gboolean compressed;
+    wtap_compression_type compression_type;
     cf_write_status_t status;
     gchar   *dirname;
     gboolean discard_comments = FALSE;
@@ -1447,11 +1447,11 @@ bool MainWindow::saveAsCaptureFile(capture_file *cf, bool must_support_comments,
             return false;
         }
         file_type = save_as_dlg.selectedFileType();
-        compressed = save_as_dlg.isCompressed();
+        compression_type = save_as_dlg.compressionType();
 
 #ifdef Q_OS_WIN
         // the Windows dialog does not fixup extensions, do it manually here.
-        fileAddExtension(file_name, file_type, compressed);
+        fileAddExtension(file_name, file_type, compression_type);
 #endif // Q_OS_WIN
 
 //#ifndef _WIN32
@@ -1464,7 +1464,7 @@ bool MainWindow::saveAsCaptureFile(capture_file *cf, bool must_support_comments,
 //#endif
 
         /* Attempt to save the file */
-        status = cf_save_records(cf, qUtf8Printable(file_name), file_type, compressed,
+        status = cf_save_records(cf, qUtf8Printable(file_name), file_type, compression_type,
                                  discard_comments, dont_reopen);
         switch (status) {
 
@@ -1500,7 +1500,7 @@ bool MainWindow::saveAsCaptureFile(capture_file *cf, bool must_support_comments,
 void MainWindow::exportSelectedPackets() {
     QString file_name = "";
     int file_type;
-    gboolean compressed;
+    wtap_compression_type compression_type;
     packet_range_t range;
     cf_write_status_t status;
     gchar   *dirname;
@@ -1574,10 +1574,10 @@ void MainWindow::exportSelectedPackets() {
         }
 
         file_type = esp_dlg.selectedFileType();
-        compressed = esp_dlg.isCompressed();
+        compression_type = esp_dlg.compressionType();
 #ifdef Q_OS_WIN
         // the Windows dialog does not fixup extensions, do it manually here.
-        fileAddExtension(file_name, file_type, compressed);
+        fileAddExtension(file_name, file_type, compression_type);
 #endif // Q_OS_WIN
 
 //#ifndef _WIN32
@@ -1590,7 +1590,7 @@ void MainWindow::exportSelectedPackets() {
 //#endif
 
         /* Attempt to save the file */
-        status = cf_export_specified_packets(capture_file_.capFile(), qUtf8Printable(file_name), &range, file_type, compressed);
+        status = cf_export_specified_packets(capture_file_.capFile(), qUtf8Printable(file_name), &range, file_type, compression_type);
         switch (status) {
 
         case CF_WRITE_OK:
@@ -1630,7 +1630,7 @@ void MainWindow::exportDissections(export_type_e export_type) {
 }
 
 #ifdef Q_OS_WIN
-void MainWindow::fileAddExtension(QString &file_name, int file_type, bool compressed) {
+void MainWindow::fileAddExtension(QString &file_name, int file_type, wtap_compression_type compression_type) {
     QString file_name_lower;
     GSList  *extensions_list;
     gboolean add_extension;
@@ -1678,7 +1678,7 @@ void MainWindow::fileAddExtension(QString &file_name, int file_type, bool compre
     if (add_extension) {
         if (wtap_default_file_extension(file_type) != NULL) {
             file_name += tr(".") + wtap_default_file_extension(file_type);
-            if (compressed) {
+            if (compression_type == WTAP_GZIP_COMPRESSED) {
                 file_name += ".gz";
             }
         }

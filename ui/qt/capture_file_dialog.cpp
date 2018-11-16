@@ -247,8 +247,8 @@ int CaptureFileDialog::selectedFileType() {
     return file_type_;
 }
 
-bool CaptureFileDialog::isCompressed() {
-    return compressed_;
+wtap_compression_type CaptureFileDialog::compressionType() {
+    return compression_type_;
 }
 
 int CaptureFileDialog::open(QString &file_name, unsigned int &type) {
@@ -271,7 +271,7 @@ check_savability_t CaptureFileDialog::saveAs(QString &file_name, bool must_suppo
     GString *fname = g_string_new(file_name.toUtf8().constData());
     gboolean wsf_status;
 
-    wsf_status = win32_save_as_file((HWND)parentWidget()->effectiveWinId(), cap_file_, fname, &file_type_, &compressed_, must_support_all_comments);
+    wsf_status = win32_save_as_file((HWND)parentWidget()->effectiveWinId(), cap_file_, fname, &file_type_, &compression_type_, must_support_all_comments);
     file_name = fname->str;
 
     g_string_free(fname, TRUE);
@@ -287,7 +287,7 @@ check_savability_t CaptureFileDialog::exportSelectedPackets(QString &file_name, 
     GString *fname = g_string_new(file_name.toUtf8().constData());
     gboolean wespf_status;
 
-    wespf_status = win32_export_specified_packets_file((HWND)parentWidget()->effectiveWinId(), cap_file_, fname, &file_type_, &compressed_, range);
+    wespf_status = win32_export_specified_packets_file((HWND)parentWidget()->effectiveWinId(), cap_file_, fname, &file_type_, &compression_type_, range);
     file_name = fname->str;
 
     g_string_free(fname, TRUE);
@@ -493,9 +493,9 @@ void CaptureFileDialog::fixFilenameExtension()
     }
 
     // Fixup the new suffix based on compression availability.
-    if (!isCompressed() && new_suffix.endsWith(".gz")) {
+    if (compressionType() != WTAP_GZIP_COMPRESSED && new_suffix.endsWith(".gz")) {
         new_suffix.chop(3);
-    } else if (isCompressed() && valid_extensions.contains(new_suffix + ".gz")) {
+    } else if (compressionType() == WTAP_GZIP_COMPRESSED && valid_extensions.contains(new_suffix + ".gz")) {
         new_suffix += ".gz";
     }
 
@@ -559,8 +559,8 @@ int CaptureFileDialog::selectedFileType() {
     return type_hash_.value(selectedNameFilter(), -1);
 }
 
-bool CaptureFileDialog::isCompressed() {
-    return compress_.isChecked();
+wtap_compression_type CaptureFileDialog::compressionType() {
+    return compress_.isChecked() ? WTAP_GZIP_COMPRESSED : WTAP_UNCOMPRESSED;
 }
 
 void CaptureFileDialog::addDisplayFilterEdit() {
@@ -585,7 +585,8 @@ void CaptureFileDialog::addFormatTypeSelector(QVBoxLayout &v_box) {
 
 void CaptureFileDialog::addGzipControls(QVBoxLayout &v_box) {
     compress_.setText(tr("Compress with g&zip"));
-    if (cap_file_->iscompressed && wtap_dump_can_compress(default_ft_)) {
+    if (cap_file_->compression_type == WTAP_GZIP_COMPRESSED &&
+        wtap_dump_can_compress(default_ft_)) {
         compress_.setChecked(true);
     } else {
         compress_.setChecked(false);

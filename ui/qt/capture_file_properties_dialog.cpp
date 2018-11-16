@@ -177,7 +177,7 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
         << table_row_end;
 
     QString format_str = wtap_file_type_subtype_string(summary.file_type);
-    if (summary.iscompressed) {
+    if (summary.compression_type == WTAP_GZIP_COMPRESSED) {
         format_str.append(tr(" (gzip compressed)"));
     }
     out << table_row_begin

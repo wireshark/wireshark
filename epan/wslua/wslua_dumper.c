@@ -208,7 +208,7 @@ WSLUA_CONSTRUCTOR Dumper_new(lua_State* L) {
     wtap_dump_params params = WTAP_DUMP_PARAMS_INIT;
 
     params.encap = encap;
-    d = wtap_dump_open(filename, filetype, FALSE, &params, &err);
+    d = wtap_dump_open(filename, filetype, WTAP_UNCOMPRESSED, &params, &err);
 
     if (! d ) {
         /* WSLUA_ERROR("Error while opening file for writing"); */
@@ -372,7 +372,7 @@ WSLUA_METHOD Dumper_new_for_current(lua_State* L) {
 
     encap = lua_pinfo->rec->rec_header.packet_header.pkt_encap;
     params.encap = encap;
-    d = wtap_dump_open(filename, filetype, FALSE, &params, &err);
+    d = wtap_dump_open(filename, filetype, WTAP_UNCOMPRESSED, &params, &err);
 
     if (! d ) {
         switch (err) {

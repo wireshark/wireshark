@@ -799,7 +799,8 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 		.idb_inf = idb_inf,
 	};
 	wdh_exp_pdu = wtap_dump_fdopen(import_file_fd, WTAP_FILE_TYPE_SUBTYPE_PCAPNG,
-				       FALSE, &params, &exp_pdu_file_err);
+				       WTAP_UNCOMPRESSED, &params,
+				       &exp_pdu_file_err);
 	if (wdh_exp_pdu == NULL) {
 		result = WTAP_OPEN_ERROR;
 		goto end;

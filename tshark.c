@@ -3115,11 +3115,11 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
     tshark_debug("tshark: writing format type %d, to %s", out_file_type, save_file);
     if (strcmp(save_file, "-") == 0) {
       /* Write to the standard output. */
-      pdh = wtap_dump_open_stdout(out_file_type, FALSE /* compressed */,
-                                  &params, &err);
+      pdh = wtap_dump_open_stdout(out_file_type, WTAP_UNCOMPRESSED, &params,
+                                  &err);
     } else {
-      pdh = wtap_dump_open(save_file, out_file_type, FALSE /* compressed */,
-                           &params, &err);
+      pdh = wtap_dump_open(save_file, out_file_type, WTAP_UNCOMPRESSED, &params,
+                           &err);
     }
 
     g_free(params.idb_inf);

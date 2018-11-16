@@ -1690,6 +1690,14 @@ void wtap_rec_init(wtap_rec *rec);
 WS_DLL_PUBLIC
 void wtap_rec_cleanup(wtap_rec *rec);
 
+/*
+ * Types of compression for a file, including "none".
+ */
+typedef enum {
+    WTAP_UNCOMPRESSED,
+    WTAP_GZIP_COMPRESSED
+} wtap_compression_type;
+
 /*** get various information snippets about the current file ***/
 
 /** Return an approximation of the amount of data we've read sequentially
@@ -1699,7 +1707,7 @@ gint64 wtap_read_so_far(wtap *wth);
 WS_DLL_PUBLIC
 gint64 wtap_file_size(wtap *wth, int *err);
 WS_DLL_PUBLIC
-gboolean wtap_iscompressed(wtap *wth);
+wtap_compression_type wtap_get_compression_type(wtap *wth);
 WS_DLL_PUBLIC
 guint wtap_snapshot_length(wtap *wth); /* per file */
 WS_DLL_PUBLIC
@@ -1897,14 +1905,15 @@ void wtap_dump_params_cleanup(wtap_dump_params *params);
  *
  * @param filename The new file's name.
  * @param file_type_subtype The WTAP_FILE_TYPE_SUBTYPE_XXX file type.
- * @param compressed True if file should be compressed.
+ * @param compression_type Type of compression to use when writing, if any
  * @param params The per-file information for this file.
  * @param[out] err Will be set to an error code on failure.
  * @return The newly created dumper object, or NULL on failure.
  */
 WS_DLL_PUBLIC
 wtap_dumper* wtap_dump_open(const char *filename, int file_type_subtype,
-    gboolean compressed, const wtap_dump_params *params, int *err);
+    wtap_compression_type compression_type, const wtap_dump_params *params,
+    int *err);
 
 /**
  * @brief Creates a dumper for a temporary file.
@@ -1913,14 +1922,14 @@ wtap_dumper* wtap_dump_open(const char *filename, int file_type_subtype,
  *        pathname of the temporary file; it's allocated with g_malloc()
  * @param pfx A string to be used as the prefix for the temporary file name
  * @param file_type_subtype The WTAP_FILE_TYPE_SUBTYPE_XXX file type.
- * @param compressed True if file should be compressed.
+ * @param compression_type Type of compression to use when writing, if any
  * @param params The per-file information for this file.
  * @param[out] err Will be set to an error code on failure.
  * @return The newly created dumper object, or NULL on failure.
  */
 WS_DLL_PUBLIC
 wtap_dumper* wtap_dump_open_tempfile(char **filenamep, const char *pfx,
-    int file_type_subtype, gboolean compressed,
+    int file_type_subtype, wtap_compression_type compression_type,
     const wtap_dump_params *params, int *err);
 
 /**
@@ -1928,14 +1937,15 @@ wtap_dumper* wtap_dump_open_tempfile(char **filenamep, const char *pfx,
  *
  * @param fd The file descriptor for which the dumper should be created.
  * @param file_type_subtype The WTAP_FILE_TYPE_SUBTYPE_XXX file type.
- * @param compressed True if file should be compressed.
+ * @param compression_type Type of compression to use when writing, if any
  * @param params The per-file information for this file.
  * @param[out] err Will be set to an error code on failure.
  * @return The newly created dumper object, or NULL on failure.
  */
 WS_DLL_PUBLIC
 wtap_dumper* wtap_dump_fdopen(int fd, int file_type_subtype,
-    gboolean compressed, const wtap_dump_params *params, int *err);
+    wtap_compression_type compression_type, const wtap_dump_params *params,
+    int *err);
 
 /**
  * @brief Creates a dumper for the standard output.
@@ -1943,14 +1953,15 @@ wtap_dumper* wtap_dump_fdopen(int fd, int file_type_subtype,
  * @param file_type_subtype The WTAP_FILE_TYPE_SUBTYPE_XXX file type.
  * @param encap The WTAP_ENCAP_XXX encapsulation type (WTAP_ENCAP_PER_PACKET for multi)
  * @param snaplen The maximum packet capture length.
- * @param compressed True if file should be compressed.
+ * @param compression_type Type of compression to use when writing, if any
  * @param params The per-file information for this file.
  * @param[out] err Will be set to an error code on failure.
  * @return The newly created dumper object, or NULL on failure.
  */
 WS_DLL_PUBLIC
 wtap_dumper* wtap_dump_open_stdout(int file_type_subtype,
-    gboolean compressed, const wtap_dump_params *params, int *err);
+    wtap_compression_type compression_type, const wtap_dump_params *params,
+    int *err);
 
 WS_DLL_PUBLIC
 gboolean wtap_dump(wtap_dumper *, const wtap_rec *, const guint8 *,

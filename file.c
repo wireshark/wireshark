@@ -547,9 +547,9 @@ cf_read(capture_file *cf, gboolean reloading)
   else
     cf_callback_invoke(cf_cb_file_read_started, cf);
 
-  /* Record whether the file is compressed.
+  /* Record the file's compression type.
      XXX - do we know this at open time? */
-  cf->iscompressed = wtap_iscompressed(cf->provider.wth);
+  cf->compression_type = wtap_get_compression_type(cf->provider.wth);
 
   /* The packet list window will be empty until the file is completly loaded */
   packet_list_freeze();
@@ -4228,9 +4228,9 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile)
 
   cf_callback_invoke(cf_cb_file_rescan_started, cf);
 
-  /* Record whether the file is compressed.
+  /* Record the file's compression type.
      XXX - do we know this at open time? */
-  cf->iscompressed = wtap_iscompressed(cf->provider.wth);
+  cf->compression_type = wtap_get_compression_type(cf->provider.wth);
 
   /* Find the size of the file. */
   size = wtap_file_size(cf->provider.wth, NULL);
@@ -4333,8 +4333,8 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile)
 
 cf_write_status_t
 cf_save_records(capture_file *cf, const char *fname, guint save_format,
-                gboolean compressed, gboolean discard_comments,
-                gboolean dont_reopen)
+                wtap_compression_type compression_type,
+                gboolean discard_comments, gboolean dont_reopen)
 {
   gchar           *err_info;
   gchar           *fname_new = NULL;
@@ -4364,7 +4364,7 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
 
   addr_lists = get_addrinfo_list();
 
-  if (save_format == cf->cd_t && compressed == cf->iscompressed
+  if (save_format == cf->cd_t && compression_type == cf->compression_type
       && !discard_comments && !cf->unsaved_changes
       && (wtap_addrinfo_list_empty(addr_lists) || !wtap_dump_has_name_resolution(save_format))) {
     /* We're saving in the format it's already in, and we're not discarding
@@ -4470,9 +4470,10 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
          we *HAVE* to do that, otherwise we're overwriting the file
          from which we're reading the packets that we're writing!) */
       fname_new = g_strdup_printf("%s~", fname);
-      pdh = wtap_dump_open(fname_new, save_format, compressed, &params, &err);
+      pdh = wtap_dump_open(fname_new, save_format, compression_type, &params,
+                           &err);
     } else {
-      pdh = wtap_dump_open(fname, save_format, compressed, &params, &err);
+      pdh = wtap_dump_open(fname, save_format, compression_type, &params, &err);
     }
     /* XXX idb_inf is documented to be used until wtap_dump_close. */
     g_free(params.idb_inf);
@@ -4691,7 +4692,7 @@ fail:
 cf_write_status_t
 cf_export_specified_packets(capture_file *cf, const char *fname,
                             packet_range_t *range, guint save_format,
-                            gboolean compressed)
+                            wtap_compression_type compression_type)
 {
   gchar                       *fname_new = NULL;
   int                          err;
@@ -4726,9 +4727,10 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
        we *HAVE* to do that, otherwise we're overwriting the file
        from which we're reading the packets that we're writing!) */
     fname_new = g_strdup_printf("%s~", fname);
-    pdh = wtap_dump_open(fname_new, save_format, compressed, &params, &err);
+    pdh = wtap_dump_open(fname_new, save_format, compression_type, &params,
+                         &err);
   } else {
-    pdh = wtap_dump_open(fname, save_format, compressed, &params, &err);
+    pdh = wtap_dump_open(fname, save_format, compression_type, &params, &err);
   }
   /* XXX idb_inf is documented to be used until wtap_dump_close. */
   g_free(params.idb_inf);

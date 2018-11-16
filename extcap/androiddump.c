@@ -450,7 +450,7 @@ static struct extcap_dumper extcap_dumper_open(char *fifo, int encap) {
 
     params.encap = encap;
     params.snaplen = PACKET_LENGTH;
-    extcap_dumper.dumper.wtap = wtap_dump_open(fifo, WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC, FALSE, &params, &err);
+    extcap_dumper.dumper.wtap = wtap_dump_open(fifo, WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC, WTAP_UNCOMPRESSED, &params, &err);
     if (!extcap_dumper.dumper.wtap) {
         cfile_dump_open_failure_message("androiddump", fifo, err, WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC);
         exit(EXIT_CODE_CANNOT_SAVE_WIRETAP_DUMP);

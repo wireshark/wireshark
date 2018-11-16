@@ -77,10 +77,13 @@ wtap_file_type_subtype(wtap *wth)
 	return wth->file_type_subtype;
 }
 
-gboolean
-wtap_iscompressed(wtap *wth)
+wtap_compression_type
+wtap_get_compression_type(wtap *wth)
 {
-	return file_iscompressed((wth->fh == NULL) ? wth->random_fh : wth->fh);
+	gboolean is_compressed;
+
+	is_compressed = file_iscompressed((wth->fh == NULL) ? wth->random_fh : wth->fh);
+	return is_compressed ? WTAP_GZIP_COMPRESSED : WTAP_UNCOMPRESSED;
 }
 
 guint

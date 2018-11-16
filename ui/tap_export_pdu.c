@@ -148,10 +148,10 @@ exp_pdu_open(exp_pdu_t *exp_pdu_tap_data, int fd, char *comment)
     };
     if (fd == 1) {
         exp_pdu_tap_data->wdh = wtap_dump_open_stdout(WTAP_FILE_TYPE_SUBTYPE_PCAPNG,
-                FALSE, &params, &err);
+                WTAP_UNCOMPRESSED, &params, &err);
     } else {
         exp_pdu_tap_data->wdh = wtap_dump_fdopen(fd, WTAP_FILE_TYPE_SUBTYPE_PCAPNG,
-                FALSE, &params, &err);
+                WTAP_UNCOMPRESSED, &params, &err);
     }
     if (exp_pdu_tap_data->wdh == NULL) {
         g_assert(err != 0);
