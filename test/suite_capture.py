@@ -9,7 +9,6 @@
 #
 '''Capture tests'''
 
-import config
 import glob
 import os
 import subprocess
@@ -24,20 +23,48 @@ capture_duration = 5
 testout_pcap = 'testout.pcap'
 snapshot_len = 96
 
-def start_pinging(self):
-    ping_procs = []
+@fixtures.fixture
+def traffic_generator():
+    '''
+    Traffic generator factory. Invoking it returns a tuple (start_func, cfilter)
+    where cfilter is a capture filter to match the generated traffic.
+    start_func can be invoked to start generating traffic and returns a function
+    which can be used to stop traffic generation early.
+    Currently calls ping www.wireshark.org for 60 seconds.
+    '''
+    # XXX replace this by something that generates UDP traffic to localhost?
+    # That would avoid external access which is forbidden by the Debian policy.
+    nprocs = 1
     if sys.platform.startswith('win32'):
-        # Fake '-i' with a subsecond interval.
-        for st in (0.1, 0.1, 0):
-            ping_procs.append(self.startProcess(config.args_ping))
-            time.sleep(st)
+        # XXX Check for psping? https://docs.microsoft.com/en-us/sysinternals/downloads/psping
+        args_ping = ('ping', '-n', '60', '-l', '100', 'www.wireshark.org')
+        nprocs = 3
+    elif sys.platform.startswith('linux') or sys.platform.startswith('freebsd'):
+        args_ping = ('ping', '-c', '240', '-s', '100', '-i', '0.25', 'www.wireshark.org')
+    elif sys.platform.startswith('darwin'):
+        args_ping = ('ping', '-c', '1', '-g', '1', '-G', '240', '-i', '0.25', 'www.wireshark.org')
     else:
-        ping_procs.append(self.startProcess(config.args_ping))
-    return ping_procs
-
-def stop_pinging(ping_procs):
-    for proc in ping_procs:
-        proc.kill()
+        # XXX Other BSDs, Solaris, etc
+        fixtures.skip('ping utility is unavailable - cannot generate traffic')
+    procs = []
+    def kill_processes():
+        for proc in procs:
+            proc.kill()
+        for proc in procs:
+            proc.wait()
+        procs.clear()
+    def start_processes():
+        for i in range(nprocs):
+            if i > 0:
+                # Fake subsecond interval if the ping utility lacks support.
+                time.sleep(0.1)
+            proc = subprocess.Popen(args_ping, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+            procs.append(proc)
+        return kill_processes
+    try:
+        yield start_processes, 'icmp || icmp6'
+    finally:
+        kill_processes()
 
 
 @fixtures.fixture(scope='session')
@@ -54,14 +81,12 @@ def capture_command(*cmd_args, shell=False):
 
 
 @fixtures.fixture
-def check_capture_10_packets(capture_interface, cmd_dumpcap):
+def check_capture_10_packets(capture_interface, cmd_dumpcap, traffic_generator):
+    start_traffic, cfilter = traffic_generator
     def check_capture_10_packets_real(self, cmd=None, to_stdout=False):
-        # Similar to suite_io.check_io_4_packets.
-        if not config.args_ping:
-            self.skipTest('Your platform ({}) does not have a defined ping command.'.format(sys.platform))
         self.assertIsNotNone(cmd)
         testout_file = self.filename_from_id(testout_pcap)
-        ping_procs = start_pinging(self)
+        stop_traffic = start_traffic()
         if to_stdout:
             capture_proc = self.runProcess(capture_command(cmd,
                 '-i', '"{}"'.format(capture_interface),
@@ -69,7 +94,7 @@ def check_capture_10_packets(capture_interface, cmd_dumpcap):
                 '-w', '-',
                 '-c', '10',
                 '-a', 'duration:{}'.format(capture_duration),
-                '-f', '"icmp || icmp6"',
+                '-f', '"{}"'.format(cfilter),
                 '>', testout_file,
                 shell=True
             ),
@@ -82,10 +107,10 @@ def check_capture_10_packets(capture_interface, cmd_dumpcap):
                 '-w', testout_file,
                 '-c', '10',
                 '-a', 'duration:{}'.format(capture_duration),
-                '-f', 'icmp || icmp6',
+                '-f', cfilter,
             ))
+        stop_traffic()
         capture_returncode = capture_proc.returncode
-        stop_pinging(ping_procs)
         if capture_returncode != 0:
             self.log_fd.write('{} -D output:\n'.format(cmd))
             self.runProcess((cmd, '-D'))
@@ -160,13 +185,12 @@ def check_capture_stdin(cmd_dumpcap):
 
 
 @fixtures.fixture
-def check_capture_read_filter(capture_interface):
+def check_capture_read_filter(capture_interface, traffic_generator):
+    start_traffic, cfilter = traffic_generator
     def check_capture_read_filter_real(self, cmd=None):
-        if not config.args_ping:
-            self.skipTest('Your platform ({}) does not have a defined ping command.'.format(sys.platform))
         self.assertIsNotNone(cmd)
-        ping_procs = start_pinging(self)
         testout_file = self.filename_from_id(testout_pcap)
+        stop_traffic = start_traffic()
         capture_proc = self.runProcess(capture_command(cmd,
             '-i', capture_interface,
             '-p',
@@ -175,10 +199,10 @@ def check_capture_read_filter(capture_interface):
             '-R', 'dcerpc.cn_call_id==123456', # Something unlikely.
             '-c', '10',
             '-a', 'duration:{}'.format(capture_duration),
-            '-f', 'icmp || icmp6',
+            '-f', cfilter,
         ))
+        stop_traffic()
         capture_returncode = capture_proc.returncode
-        stop_pinging(ping_procs)
         self.assertEqual(capture_returncode, 0)
 
         if (capture_returncode == 0):
@@ -186,12 +210,11 @@ def check_capture_read_filter(capture_interface):
     return check_capture_read_filter_real
 
 @fixtures.fixture
-def check_capture_snapshot_len(capture_interface, cmd_tshark):
+def check_capture_snapshot_len(capture_interface, cmd_tshark, traffic_generator):
+    start_traffic, cfilter = traffic_generator
     def check_capture_snapshot_len_real(self, cmd=None):
-        if not config.args_ping:
-            self.skipTest('Your platform ({}) does not have a defined ping command.'.format(sys.platform))
         self.assertIsNotNone(cmd)
-        ping_procs = start_pinging(self)
+        stop_traffic = start_traffic()
         testout_file = self.filename_from_id(testout_pcap)
         capture_proc = self.runProcess(capture_command(cmd,
             '-i', capture_interface,
@@ -199,10 +222,10 @@ def check_capture_snapshot_len(capture_interface, cmd_tshark):
             '-w', testout_file,
             '-s', str(snapshot_len),
             '-a', 'duration:{}'.format(capture_duration),
-            '-f', 'icmp || icmp6',
+            '-f', cfilter,
         ))
+        stop_traffic()
         capture_returncode = capture_proc.returncode
-        stop_pinging(ping_procs)
         self.assertEqual(capture_returncode, 0)
         self.assertTrue(os.path.isfile(testout_file))
 

@@ -23,8 +23,6 @@ import unittest
 # - Add a subprocesstest.SkipUnlessCapture decorator?
 # - Try to catch crashes? See the comments below in waitProcess.
 
-# XXX This should probably be in config.py and settable from
-# the command line.
 process_timeout = 300 # Seconds
 
 def cat_dhcp_command(mode):
@@ -33,7 +31,8 @@ def cat_dhcp_command(mode):
     sd_cmd = ''
     if sys.executable:
         sd_cmd = '"{}" '.format(sys.executable)
-    sd_cmd += os.path.join(config.this_dir, 'util_dump_dhcp_pcap.py ' + mode)
+    this_dir = os.path.dirname(__file__)
+    sd_cmd += os.path.join(this_dir, 'util_dump_dhcp_pcap.py ' + mode)
     return sd_cmd
 
 class LoggingPopen(subprocess.Popen):
@@ -256,9 +255,6 @@ class SubprocessTestCase(unittest.TestCase):
             # fixture (via a test method parameter or class decorator).
             assert not (env is None and hasattr(self, '_fixture_request')), \
                 "Decorate class with @fixtures.mark_usefixtures('test_env')"
-        if env is None:
-            # Avoid using the test user's real environment by default.
-            env = config.test_env
         proc = LoggingPopen(proc_args, stdin=stdin, env=env, shell=shell, log_fd=self.log_fd)
         self.processes.append(proc)
         return proc

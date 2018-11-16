@@ -17,7 +17,6 @@ import tempfile
 import types
 
 import fixtures
-import config
 import subprocesstest
 
 
@@ -126,15 +125,14 @@ def wireshark_command(cmd_wireshark):
 
 
 @fixtures.fixture(scope='session')
-def features(cmd_tshark):
+def features(cmd_tshark, make_env):
     '''Returns an object describing available features in tshark.'''
     try:
-        # XXX stop using config
         tshark_v = subprocess.check_output(
             (cmd_tshark, '--version'),
             stderr=subprocess.PIPE,
             universal_newlines=True,
-            env=config.baseEnv()
+            env=make_env()
         )
         tshark_v = re.sub(r'\s+', ' ', tshark_v)
     except subprocess.CalledProcessError as ex:
@@ -190,14 +188,28 @@ def conf_path(home_path):
     return conf_path
 
 
+@fixtures.fixture(scope='session')
+def make_env():
+    """A factory for a modified environment to ensure reproducible tests."""
+    def make_env_real(home=None):
+        env = os.environ.copy()
+        env['TZ'] = 'UTC'
+        home_env = 'APPDATA' if sys.platform.startswith('win32') else 'HOME'
+        if home:
+            env[home_env] = home
+        else:
+            # This directory is supposed not to be written and is used by
+            # "readonly" tests that do not read any other preferences.
+            env[home_env] = "/wireshark-tests-unused"
+        return env
+    return make_env_real
+
+
 @fixtures.fixture
-def base_env(home_path, request):
+def base_env(home_path, make_env, request):
     """A modified environment to ensure reproducible tests. Tests can modify
     this environment as they see fit."""
-    env = os.environ.copy()
-    env['TZ'] = 'UTC'
-    home_env = 'APPDATA' if sys.platform.startswith('win32') else 'HOME'
-    env[home_env] = home_path
+    env = make_env(home=home_path)
 
     # Remove this if test instances no longer inherit from SubprocessTestCase?
     if isinstance(request.instance, subprocesstest.SubprocessTestCase):
@@ -207,7 +219,7 @@ def base_env(home_path, request):
 
 
 @fixtures.fixture
-def test_env(base_env, conf_path, request):
+def test_env(base_env, conf_path, request, dirs):
     '''A process environment with a populated configuration directory.'''
     # Populate our UAT files
     uat_files = [
@@ -219,9 +231,16 @@ def test_env(base_env, conf_path, request):
         'ikev1_decryption_table',
         'ikev2_decryption_table',
     ]
+    # uat.c replaces backslashes...
+    key_dir_path = os.path.join(dirs.key_dir, '').replace('\\', '\\x5c')
     for uat in uat_files:
-        # XXX stop using config
-        config.setUpUatFile(conf_path, uat)
+        template_file = os.path.join(dirs.config_dir, uat + '.tmpl')
+        out_file = os.path.join(conf_path, uat)
+        with open(template_file, 'r') as f:
+            template_contents = f.read()
+        cf_contents = template_contents.replace('TEST_KEYS_DIR', key_dir_path)
+        with open(out_file, 'w') as f:
+            f.write(cf_contents)
 
     env = base_env
     env['WIRESHARK_RUN_FROM_BUILD_DIRECTORY'] = '1'
