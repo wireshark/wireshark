@@ -1,6 +1,6 @@
 /* packet-f5ethtrailer.h
  *
- * F5 Ethernet Trailer Copyright 2008-2017 F5 Networks
+ * F5 Ethernet Trailer Copyright 2008-2018 F5 Networks
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -206,7 +206,7 @@ static gboolean f5fileinfo_tap_pkt(
 
 
 #define F5FILEINFO_TAP_LISTEN(a) \
-	register_tap_listener("f5fileinfo", (a), NULL, TL_REQUIRES_NOTHING, f5fileinfo_tap_reset, f5fileinfo_tap_pkt, NULL)
+	register_tap_listener("f5fileinfo", (a), NULL, TL_REQUIRES_NOTHING, f5fileinfo_tap_reset, f5fileinfo_tap_pkt, NULL, NULL)
 
 
 #endif /* ifndef F5INFOTAP_SRC */
