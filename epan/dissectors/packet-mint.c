@@ -14,7 +14,11 @@
 /*
  * Motorola/Symbol WLAN proprietary protocol
  * http://www.awimobility.com/s.nl/ctype.KB/it.I/id.7761/KB.81/.f
+ * and
+ * http://www.michaelfmcnamara.com/files/motorola/WiNG_5X_How_To_NOC.pdf
  * looks like a mixture of lwapp/capwap and is-is/ospf
+ *
+ * MLCP: MiNT Link Creation Protocol
  */
 
 /* We don't want the tranported data to pollute the output until
@@ -38,11 +42,11 @@ void proto_reg_handoff_mint(void);
 #define PROTO_LONG_NAME "Media independent Network Transport"
 
 /* 0x8783 ETHERTYPE_MINT */
-/* 0x6000 */
+/* 24576 = 0x6000 */
+/* 24577 = 0x6001 */
 #define PORT_MINT_CONTROL_TUNNEL	24576
-/* 0x6001 */
 #define PORT_MINT_DATA_TUNNEL		24577
-#define PORT_MINT_RANGE				"24576-24577"
+#define PORT_MINT_RANGE			"24576-24577"
 
 static dissector_handle_t eth_handle;
 
@@ -57,46 +61,176 @@ static dissector_handle_t mint_control_handle;
 static dissector_handle_t mint_data_handle;
 static dissector_handle_t mint_eth_handle;
 
+/* Output of "service show mint ports" on controller */
+
 typedef enum {
-	MINT_TYPE_DATA_UC   = 0x01,
-	MINT_TYPE_DATA_BCMC = 0x02,
-	MINT_TYPE_CTRL_0x0c = 0x0c,
-	MINT_TYPE_CTRL_0x0e = 0x0e,
-	MINT_TYPE_CTRL_0x1e = 0x1e,
-	MINT_TYPE_ETH_0x22  = 0x22
+	MINT_PORT_DATA			=   1,
+	MINT_PORT_DATA_FLOOD		=   2,
+	MINT_PORT_FDB_UPDATE		=   3,
+	MINT_PORT_MDD			=   8,
+	MINT_PORT_RIM			=   9,
+	MINT_PORT_SMARTRF		=  10,
+	MINT_PORT_CONFIG		=  11,
+	MINT_PORT_ROUTER		=  12,
+	MINT_PORT_REDUNDANCY		=  13,
+	MINT_PORT_HOTSPOT		=  14,
+	MINT_PORT_PING			=  15,
+	MINT_PORT_STATS			=  16,
+	MINT_PORT_JOIN			=  18,
+	MINT_PORT_FILEXFR		=  19,
+	MINT_PORT_SECURITY		=  20,
+	MINT_PORT_BOOTSTRAP		=  21,
+	MINT_PORT_XPATH			=  22,
+	MINT_PORT_MCAST_RP		=  23,
+	MINT_PORT_MCAST_CTRL		=  24,
+	MINT_PORT_MCAST_DATA		=  25,
+	MINT_PORT_RADPROXY		=  26,
+	MINT_PORT_CLUSTER		=  27,
+	MINT_PORT_MIGRATION		=  28,
+	MINT_PORT_CLUSTER_SYNC		=  29,
+	MINT_PORT_NEIGHBOR		=  30,
+	MINT_PORT_GKEY			=  31,
+	MINT_PORT_MARP			=  32,
+	MINT_PORT_MPROXY		=  33,
+	MINT_PORT_MLCP			=  34,
+	MINT_PORT_TELNET		=  35,
+	MINT_PORT_RDBG_REQ		=  36,
+	MINT_PORT_RDBG_SRV0		=  37,
+	MINT_PORT_RDBG_SRV1		=  38,
+	MINT_PORT_RDBG_SRV2		=  39,
+	MINT_PORT_RDBG_SRV3		=  40,
+	MINT_PORT_RDBG_SRV4		=  41,
+	MINT_PORT_RDBG_SRV5		=  42,
+	MINT_PORT_RDBG_SRV6		=  43,
+	MINT_PORT_RDBG_SRV7		=  44,
+	MINT_PORT_TRACEROUTE		=  45,
+	MINT_PORT_STATS_LISTEN		=  46,
+	MINT_PORT_NOC_CONTROLLER	=  47,
+	MINT_PORT_NOC_CLIENT		=  48,
+	MINT_PORT_STATS_SERVER		=  49,
+	MINT_PORT_EXTVLAN		=  50,
+	MINT_PORT_RAD_DYNAMIC		=  51,
+	MINT_PORT_RFD_CLIENT		=  52,
+	MINT_PORT_RFD_SERVER		=  53,
+	MINT_PORT_NOC_SERVER		=  54,
+	MINT_PORT_NOC__CLIENT		=  55,
+	MINT_PORT_CP_STATS_CLIENT	=  56,
+	MINT_PORT_NX_URLINFO_SRVR	=  57,
+	MINT_PORT_NX_URLINFO_PRXY	=  58,
+	MINT_PORT_LDAP_PROXY		=  59,
+	MINT_PORT_ANALYTICS		=  60,
+	MINT_PORT_ADOPTION		=  61,
+	MINT_PORT_CLUSTER_ADOPT		=  62,
+	MINT_PORT_NOC_SITE		=  63,
+	MINT_PORT_DAD			=  64,
+	MINT_PORT_CCACHE		=  65,
+	MINT_PORT_GLB_ASSOC_LIST	=  66,
+	MINT_PORT_BONJOUR		= 131,
+	MINT_PORT_DPD2_EXTIF		= 132,
+	MINT_PORT_TROUBLE		= 133,
+	MINT_PORT_URLF_CLASSIFIER	= 134,
+	MINT_PORT_NF_PROXY		= 135,
+	MINT_PORT_WING_EXPRESS		= 136,
+	MINT_PORT_NSM_STAT_CLIENT	= 138,
+	MINT_PORT_DPD2_STATS_CLIENT	= 140,
+	MINT_PORT_BTIM_STATS_CLIENT	= 142
 } mint_packettype_t;
 
-static const value_string mint_packettype_vals[] = {
-	{ MINT_TYPE_DATA_UC,	"Unicast data"},
-	{ MINT_TYPE_DATA_BCMC,	"BC/MC data"},
-	{ MINT_TYPE_CTRL_0x0c,	"Ctrl_0x0c"},
-	{ MINT_TYPE_CTRL_0x0e,	"Ctrl_0x0e"},
-	{ MINT_TYPE_CTRL_0x1e,	"Ctrl_0x1e"},
-	{ MINT_TYPE_ETH_0x22,	"Eth_0x22"},
+static const value_string mint_port_vals[] = {
+	{ MINT_PORT_DATA,		"data/dgram" },
+	{ MINT_PORT_DATA_FLOOD,		"data-flood/dgram" },
+	{ MINT_PORT_FDB_UPDATE,		"fdb-update/dgram" },
+	{ MINT_PORT_MDD,		"mdd/dgram" },
+	{ MINT_PORT_RIM,		"rim/dgram" },
+	{ MINT_PORT_SMARTRF,		"smartrf/seqpkt" },
+	{ MINT_PORT_CONFIG,		"config/stream" },
+	{ MINT_PORT_ROUTER,		"router/dgram" },
+	{ MINT_PORT_REDUNDANCY,		"redundancy/seqpkt" },
+	{ MINT_PORT_HOTSPOT,		"hotspot/seqpkt" },
+	{ MINT_PORT_PING,		"ping/dgram" },
+	{ MINT_PORT_STATS,		"stats/dgram" },
+	{ MINT_PORT_JOIN,		"join/seqpkt" },
+	{ MINT_PORT_FILEXFR,		"filexfr/stream" },
+	{ MINT_PORT_SECURITY,		"security/seqpkt" },
+	{ MINT_PORT_BOOTSTRAP,		"bootstrap/seqpkt" },
+	{ MINT_PORT_XPATH,		"xpath/stream" },
+	{ MINT_PORT_MCAST_RP,		"mcast-rp/dgram" },
+	{ MINT_PORT_MCAST_CTRL,		"mcast-ctrl/seqpkt" },
+	{ MINT_PORT_MCAST_DATA,		"mcast-data/seqpkt" },
+	{ MINT_PORT_RADPROXY,		"radproxy/dgram" },
+	{ MINT_PORT_CLUSTER,		"cluster/seqpkt" },
+	{ MINT_PORT_MIGRATION,		"migration/stream" },
+	{ MINT_PORT_CLUSTER_SYNC,	"cluster-sync/stream" },
+	{ MINT_PORT_NEIGHBOR,		"neighbor/seqpkt" },
+	{ MINT_PORT_GKEY,		"gkey/dgram" },
+	{ MINT_PORT_MARP,		"marp/dgram" },
+	{ MINT_PORT_MPROXY,		"mproxy/seqpkt" },
+	{ MINT_PORT_MLCP,		"mlcp/dgram" },
+	{ MINT_PORT_TELNET,		"telnet/stream" },
+	{ MINT_PORT_RDBG_REQ,		"rdbg-req/seqpkt" },
+	{ MINT_PORT_RDBG_SRV0,		"rdbg-srv0/seqpkt" },
+	{ MINT_PORT_RDBG_SRV1,		"rdbg-srv1/seqpkt" },
+	{ MINT_PORT_RDBG_SRV2,		"rdbg-srv2/seqpkt" },
+	{ MINT_PORT_RDBG_SRV3,		"rdbg-srv3/seqpkt" },
+	{ MINT_PORT_RDBG_SRV4,		"rdbg-srv4/seqpkt" },
+	{ MINT_PORT_RDBG_SRV5,		"rdbg-srv5/seqpkt" },
+	{ MINT_PORT_RDBG_SRV6,		"rdbg-srv6/seqpkt" },
+	{ MINT_PORT_RDBG_SRV7,		"rdbg-srv7/seqpkt" },
+	{ MINT_PORT_TRACEROUTE,		"traceroute/seqpkt" },
+	{ MINT_PORT_STATS_LISTEN,	"stats-listen/seqpkt" },
+	{ MINT_PORT_NOC_CONTROLLER,	"noc-controller/seqpkt" },
+	{ MINT_PORT_NOC_CLIENT,		"noc-client/seqpkt" },
+	{ MINT_PORT_STATS_SERVER,	"stats-server/seqpkt" },
+	{ MINT_PORT_EXTVLAN,		"extvlan/dgram" },
+	{ MINT_PORT_RAD_DYNAMIC,	"rad-dynamic/seqpkt" },
+	{ MINT_PORT_RFD_CLIENT,		"rfd_client/stream" },
+	{ MINT_PORT_RFD_SERVER,		"rfd_server/stream" },
+	{ MINT_PORT_NOC_SERVER,		"noc_server/stream" },
+	{ MINT_PORT_NOC__CLIENT,	"noc_client/stream" },
+	{ MINT_PORT_CP_STATS_CLIENT,	"cp_stats_client/stream" },
+	{ MINT_PORT_NX_URLINFO_SRVR,	"nx_urlinfo_srvr/dgram" },
+	{ MINT_PORT_NX_URLINFO_PRXY,	"nx_urlinfo_prxy/dgram" },
+	{ MINT_PORT_LDAP_PROXY,		"ldap_proxy/stream" },
+	{ MINT_PORT_ANALYTICS,		"analytics/dgram" },
+	{ MINT_PORT_ADOPTION,		"adoption/seqpkt" },
+	{ MINT_PORT_CLUSTER_ADOPT,	"cluster-adopt/seqpkt" },
+	{ MINT_PORT_NOC_SITE,		"noc-site/stream" },
+	{ MINT_PORT_DAD,		"dad/stream" },
+	{ MINT_PORT_CCACHE,		"ccache/dgram" },
+	{ MINT_PORT_GLB_ASSOC_LIST,	"glb_assoc_list/dgram" },
+	{ MINT_PORT_BONJOUR,		"bonjour/dgram" },
+	{ MINT_PORT_DPD2_EXTIF,		"dpd2-extif/dgram" },
+	{ MINT_PORT_TROUBLE,		"trouble/dgram" },
+	{ MINT_PORT_TROUBLE,		"trouble/stream" },
+	{ MINT_PORT_URLF_CLASSIFIER,	"urlf_classifier/dgram" },
+	{ MINT_PORT_NF_PROXY,		"nf-proxy/dgram" },
+	{ MINT_PORT_WING_EXPRESS,	"wing_express/dgram" },
+	{ MINT_PORT_NSM_STAT_CLIENT,	"nsm-stat-client/stream" },
+	{ MINT_PORT_DPD2_STATS_CLIENT,	"dpd2-stats-client/stream" },
+	{ MINT_PORT_BTIM_STATS_CLIENT,	"btim-stats-client/stream" },
 
 	{ 0,    NULL }
 };
 
-
-static const value_string mint_0x0c_csnp_tlv_vals[] = {
+static const value_string mint_router_csnp_tlv_vals[] = {
 
 	{ 0,    NULL }
 };
 
-static const value_string mint_0x0c_helo_tlv_vals[] = {
+static const value_string mint_router_helo_tlv_vals[] = {
 	{ 1,	"MiNT ID" },
 	{ 8,	"IPv4 address" },
 
 	{ 0,    NULL }
 };
 
-static const value_string mint_0x0c_lsp_tlv_vals[] = {
+static const value_string mint_router_lsp_tlv_vals[] = {
 	{ 8,	"MiNT ID" },
 
 	{ 0,    NULL }
 };
 
-static const value_string mint_0x0c_psnp_tlv_vals[] = {
+static const value_string mint_router_psnp_tlv_vals[] = {
 
 	{ 0,    NULL }
 };
@@ -139,12 +273,12 @@ static header_field_info hfi_mint_header_dstid MINT_HF_INIT =
 	{ "Dst MiNT ID",	"mint.header.dstid", FT_BYTES, BASE_NONE, NULL,
 		0x0, NULL, HFILL };
 
-static header_field_info hfi_mint_header_srcdatatype MINT_HF_INIT =
-	{ "Src type",	"mint.header.srctype", FT_UINT16, BASE_DEC, VALS(mint_packettype_vals),
+static header_field_info hfi_mint_header_srcdataport MINT_HF_INIT =
+	{ "Src port",	"mint.header.srcport", FT_UINT16, BASE_DEC, VALS(mint_port_vals),
 		0x0, NULL, HFILL };
 
-static header_field_info hfi_mint_header_dstdatatype MINT_HF_INIT =
-	{ "Dst type",	"mint.header.dsttype", FT_UINT16, BASE_DEC, VALS(mint_packettype_vals),
+static header_field_info hfi_mint_header_dstdataport MINT_HF_INIT =
+	{ "Dst port",	"mint.header.dstport", FT_UINT16, BASE_DEC, VALS(mint_port_vals),
 		0x0, NULL, HFILL };
 
 /* MiNT Data */
@@ -177,91 +311,91 @@ static header_field_info hfi_mint_control_unknown1 MINT_HF_INIT =
 	{ "CtrlUnk1",	"mint.control.unknown1", FT_BYTES, BASE_NONE, NULL,
 		0x0, NULL, HFILL };
 
-/* MiNT Control type 0x0c */
-static header_field_info hfi_mint_control_0x0c_unknown1 MINT_HF_INIT =
-	{ "Unknown1",	"mint.control.0x0c.unknown1", FT_UINT8, BASE_HEX, NULL,
+/* Router */
+static header_field_info hfi_mint_router_unknown1 MINT_HF_INIT =
+	{ "Unknown1",	"mint.control.router.unknown1", FT_UINT8, BASE_HEX, NULL,
 		0x0, NULL, HFILL };
 
-static header_field_info hfi_mint_control_0x0c_unknown2 MINT_HF_INIT =
-	{ "Unknown2",	"mint.control.0x0c.unknown2", FT_UINT8, BASE_DEC, NULL,
+static header_field_info hfi_mint_router_unknown2 MINT_HF_INIT =
+	{ "Unknown2",	"mint.control.router.unknown2", FT_UINT8, BASE_DEC, NULL,
 		0x0, NULL, HFILL };
 
-static header_field_info hfi_mint_control_0x0c_unknown3 MINT_HF_INIT =
-	{ "Unknown3",	"mint.control.0x0c.unknown3", FT_UINT8, BASE_HEX, NULL,
+static header_field_info hfi_mint_router_unknown3 MINT_HF_INIT =
+	{ "Unknown3",	"mint.control.router.unknown3", FT_UINT8, BASE_HEX, NULL,
 		0x0, NULL, HFILL };
 
-static header_field_info hfi_mint_control_0x0c_header_length MINT_HF_INIT =
-	{ "Headerlength",	"mint.control.0x0c.header.length", FT_UINT8, BASE_HEX, NULL,
+static header_field_info hfi_mint_router_header_length MINT_HF_INIT =
+	{ "Headerlength",	"mint.control.router.header.length", FT_UINT8, BASE_HEX, NULL,
 		0x0, NULL, HFILL };
 
-static header_field_info hfi_mint_control_0x0c_message_type MINT_HF_INIT =
-	{ "Message type",	"mint.control.0x0c.message.type", FT_STRING, BASE_NONE, NULL,
+static header_field_info hfi_mint_router_message_type MINT_HF_INIT =
+	{ "Message type",	"mint.control.router.message.type", FT_STRING, BASE_NONE, NULL,
 		0x0, NULL, HFILL };
 
-static header_field_info hfi_mint_control_0x0c_header_sender MINT_HF_INIT =
-	{ "Sender ID",	"mint.control.0x0c.header.sender", FT_BYTES, BASE_NONE, NULL,
+static header_field_info hfi_mint_router_header_sender MINT_HF_INIT =
+	{ "Sender ID",	"mint.control.router.header.sender", FT_BYTES, BASE_NONE, NULL,
 		0x0, NULL, HFILL };
 
-static header_field_info hfi_mint_control_0x0c_header_unknown MINT_HF_INIT =
-	{ "Header unknown",	"mint.control.0x0c.header.unknown", FT_BYTES, BASE_NONE, NULL,
+static header_field_info hfi_mint_router_header_unknown MINT_HF_INIT =
+	{ "Header unknown",	"mint.control.router.header.unknown", FT_BYTES, BASE_NONE, NULL,
 		0x0, NULL, HFILL };
 
-static header_field_info hfi_mint_control_0x0c_type_unknown MINT_HF_INIT =
-	{ "TLV Type",	"mint.control.0x0c.tlvtype", FT_UINT8, BASE_DEC, NULL,
+static header_field_info hfi_mint_router_type_unknown MINT_HF_INIT =
+	{ "TLV Type",	"mint.control.router.tlvtype", FT_UINT8, BASE_DEC, NULL,
 		0x0, NULL, HFILL };
 
-static header_field_info hfi_mint_control_0x0c_type_csnp MINT_HF_INIT =
-	{ "TLV Type",	"mint.control.0x0c.tlvtype", FT_UINT8, BASE_DEC, VALS(mint_0x0c_csnp_tlv_vals),
+static header_field_info hfi_mint_router_type_csnp MINT_HF_INIT =
+	{ "TLV Type",	"mint.control.router.tlvtype", FT_UINT8, BASE_DEC, VALS(mint_router_csnp_tlv_vals),
 		0x0, NULL, HFILL };
 
-static header_field_info hfi_mint_control_0x0c_type_helo MINT_HF_INIT =
-	{ "TLV Type",	"mint.control.0x0c.tlvtype", FT_UINT8, BASE_DEC, VALS(mint_0x0c_helo_tlv_vals),
+static header_field_info hfi_mint_router_type_helo MINT_HF_INIT =
+	{ "TLV Type",	"mint.control.router.tlvtype", FT_UINT8, BASE_DEC, VALS(mint_router_helo_tlv_vals),
 		0x0, NULL, HFILL };
 
-static header_field_info hfi_mint_control_0x0c_type_lsp MINT_HF_INIT =
-	{ "TLV Type",	"mint.control.0x0c.tlvtype", FT_UINT8, BASE_DEC, VALS(mint_0x0c_lsp_tlv_vals),
+static header_field_info hfi_mint_router_type_lsp MINT_HF_INIT =
+	{ "TLV Type",	"mint.control.router.tlvtype", FT_UINT8, BASE_DEC, VALS(mint_router_lsp_tlv_vals),
 		0x0, NULL, HFILL };
 
-static header_field_info hfi_mint_control_0x0c_type_psnp MINT_HF_INIT =
-	{ "TLV Type",	"mint.control.0x0c.tlvtype", FT_UINT8, BASE_DEC, VALS(mint_0x0c_psnp_tlv_vals),
+static header_field_info hfi_mint_router_type_psnp MINT_HF_INIT =
+	{ "TLV Type",	"mint.control.router.tlvtype", FT_UINT8, BASE_DEC, VALS(mint_router_psnp_tlv_vals),
 		0x0, NULL, HFILL };
 
-static header_field_info hfi_mint_control_0x0c_length MINT_HF_INIT =
-	{ "TLV Length",	"mint.control.0x0c.tlvlength", FT_UINT8, BASE_DEC, NULL,
+static header_field_info hfi_mint_router_length MINT_HF_INIT =
+	{ "TLV Length",	"mint.control.router.tlvlength", FT_UINT8, BASE_DEC, NULL,
 		0x0, NULL, HFILL };
 
-static header_field_info hfi_mint_control_0x0c_array MINT_HF_INIT =
-	{ "Array indicator",	"mint.control.0x0c.array", FT_UINT8, BASE_DEC, NULL,
+static header_field_info hfi_mint_router_array MINT_HF_INIT =
+	{ "Array indicator",	"mint.control.router.array", FT_UINT8, BASE_DEC, NULL,
 		0x0, NULL, HFILL };
 
-static header_field_info hfi_mint_control_0x0c_element MINT_HF_INIT =
-	{ "Array element",	"mint.control.0x0c.element", FT_BYTES, BASE_NONE, NULL,
+static header_field_info hfi_mint_router_element MINT_HF_INIT =
+	{ "Array element",	"mint.control.router.element", FT_BYTES, BASE_NONE, NULL,
 		0x0, NULL, HFILL };
 
-static header_field_info hfi_mint_control_0x0c_value MINT_HF_INIT =
-	{ "TLV Value",	"mint.control.0x0c.tlvvalue", FT_BYTES, BASE_NONE, NULL,
+static header_field_info hfi_mint_router_value MINT_HF_INIT =
+	{ "TLV Value",	"mint.control.router.tlvvalue", FT_BYTES, BASE_NONE, NULL,
 		0x0, NULL, HFILL };
 
-/* MiNT Control type 0x1e */
-static header_field_info hfi_mint_control_0x1e_unknown MINT_HF_INIT =
-	{ "Unknown",	"mint.control.0x22.unknown", FT_BYTES, BASE_NONE, NULL,
+/* Neighbor */
+static header_field_info hfi_mint_neighbor_unknown MINT_HF_INIT =
+	{ "Unknown",	"mint.control.neighbor.unknown", FT_BYTES, BASE_NONE, NULL,
 		0x0, NULL, HFILL };
 
-/* MiNT Control type 0x22 */
-static header_field_info hfi_mint_control_0x22_message MINT_HF_INIT =
-	{ "Message",	"mint.control.0x22.message", FT_UINT16, BASE_HEX, NULL,
+/* MLCP */
+static header_field_info hfi_mint_mlcp_message MINT_HF_INIT =
+	{ "Message",	"mint.control.mlcp.message", FT_UINT16, BASE_HEX, NULL,
 		0x0, NULL, HFILL };
 
-static header_field_info hfi_mint_control_0x22_type MINT_HF_INIT =
-	{ "TLV Type",	"mint.control.0x22.tlvtype", FT_UINT8, BASE_DEC, VALS(mint_0x22_tlv_vals),
+static header_field_info hfi_mint_mlcp_type MINT_HF_INIT =
+	{ "TLV Type",	"mint.control.mlcp.tlvtype", FT_UINT8, BASE_DEC, VALS(mint_0x22_tlv_vals),
 		0x0, NULL, HFILL };
 
-static header_field_info hfi_mint_control_0x22_length MINT_HF_INIT =
-	{ "TLV Length",	"mint.control.0x22.tlvlength", FT_UINT8, BASE_DEC, NULL,
+static header_field_info hfi_mint_mlcp_length MINT_HF_INIT =
+	{ "TLV Length",	"mint.control.mlcp.tlvlength", FT_UINT8, BASE_DEC, NULL,
 		0x0, NULL, HFILL };
 
-static header_field_info hfi_mint_control_0x22_value MINT_HF_INIT =
-	{ "TLV Value",	"mint.control.0x22.tlvvalue", FT_BYTES, BASE_NONE, NULL,
+static header_field_info hfi_mint_mlcp_value MINT_HF_INIT =
+	{ "TLV Value",	"mint.control.mlcp.tlvvalue", FT_BYTES, BASE_NONE, NULL,
 		0x0, NULL, HFILL };
 
 /* End hfi elements */
@@ -301,17 +435,17 @@ dissect_mint_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree *mint_data_tree = NULL;
 	proto_tree *mint_ctrl_tree = NULL;
 	guint16 bytes_remaining;
-	guint16 packet_type;
+	guint16 mint_port;
 	guint8 type, length, header_length;
 	guint32 message_type;
 	guint8 element_length;
 	static header_field_info *display_hfi_tlv_vals;
 
-	packet_type = tvb_get_ntohs(tvb, offset + 12);
+	mint_port = tvb_get_ntohs(tvb, offset + 12);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
-	col_add_str(pinfo->cinfo, COL_INFO, val_to_str(packet_type,
-		mint_packettype_vals, "Type 0x%02x"));
+	col_add_str(pinfo->cinfo, COL_INFO, val_to_str(mint_port,
+		mint_port_vals, "Type %03d"));
 
 	ti = proto_tree_add_item(tree, hfi_mint, tvb,
 		offset, packet_length, ENC_NA);
@@ -331,17 +465,17 @@ dissect_mint_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree_add_item(mint_header_tree, &hfi_mint_header_srcid, tvb,
 		offset, 4, ENC_NA);
 	offset += 4;
-	proto_tree_add_item(mint_header_tree, &hfi_mint_header_dstdatatype, tvb,
+	proto_tree_add_item(mint_header_tree, &hfi_mint_header_dstdataport, tvb,
 		offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
-	proto_tree_add_item(mint_header_tree, &hfi_mint_header_srcdatatype, tvb,
+	proto_tree_add_item(mint_header_tree, &hfi_mint_header_srcdataport, tvb,
 		offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 	/* FIXME: This is probably not the right way to determine the packet type.
 	 *	  It's more likely something in mint_header_unknown1 but I haven't
 	 *        found out what. */
-	switch(packet_type) {
-	case MINT_TYPE_DATA_UC:
+	switch(mint_port) {
+	case MINT_PORT_DATA:
 		ti = proto_tree_add_item(mint_tree, &hfi_mint_data, tvb,
 			offset, packet_length - 16, ENC_NA);
 		mint_data_tree = proto_item_add_subtree(ti, ett_mint_data);
@@ -353,7 +487,7 @@ dissect_mint_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			offset += dissect_eth_frame(tvb, pinfo, tree,
 				offset, packet_length - offset);
 		break;
-	case MINT_TYPE_DATA_BCMC:
+	case MINT_PORT_DATA_FLOOD:
 		ti = proto_tree_add_item(mint_tree, &hfi_mint_data, tvb,
 			offset, packet_length - 16, ENC_NA);
 		mint_data_tree = proto_item_add_subtree(ti, ett_mint_data);
@@ -373,7 +507,7 @@ dissect_mint_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			offset += dissect_eth_frame(tvb, pinfo, tree,
 				offset, packet_length - offset);
 		break;
-	case MINT_TYPE_CTRL_0x0c:
+	case MINT_PORT_ROUTER:
 		ti = proto_tree_add_item(mint_tree, &hfi_mint_control, tvb,
 			offset, packet_length - 16, ENC_NA);
 		mint_ctrl_tree = proto_item_add_subtree(ti, ett_mint_ctrl);
@@ -381,50 +515,50 @@ dissect_mint_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			offset, 32, ENC_NA);
 		offset += 32;
 
-		proto_tree_add_item(mint_ctrl_tree, &hfi_mint_control_0x0c_unknown1, tvb,
+		proto_tree_add_item(mint_ctrl_tree, &hfi_mint_router_unknown1, tvb,
 			offset, 1, ENC_NA);
 		offset += 1;
-		proto_tree_add_item(mint_ctrl_tree, &hfi_mint_control_0x0c_unknown2, tvb,
+		proto_tree_add_item(mint_ctrl_tree, &hfi_mint_router_unknown2, tvb,
 			offset, 1, ENC_NA);
 		offset += 1;
-		proto_tree_add_item(mint_ctrl_tree, &hfi_mint_control_0x0c_unknown3, tvb,
+		proto_tree_add_item(mint_ctrl_tree, &hfi_mint_router_unknown3, tvb,
 			offset, 1, ENC_NA);
 		offset += 1;
 		header_length = tvb_get_guint8(tvb, offset);
-		proto_tree_add_item(mint_ctrl_tree, &hfi_mint_control_0x0c_header_length, tvb,
+		proto_tree_add_item(mint_ctrl_tree, &hfi_mint_router_header_length, tvb,
 			offset, 1, ENC_NA);
 		offset += 1;
 		message_type = tvb_get_ntohl(tvb, offset);
-		proto_tree_add_item(mint_ctrl_tree, &hfi_mint_control_0x0c_message_type, tvb,
+		proto_tree_add_item(mint_ctrl_tree, &hfi_mint_router_message_type, tvb,
 			offset, 4, ENC_NA);
 		offset += 4;
-		proto_tree_add_item(mint_ctrl_tree, &hfi_mint_control_0x0c_header_sender, tvb,
+		proto_tree_add_item(mint_ctrl_tree, &hfi_mint_router_header_sender, tvb,
 			offset, 4, ENC_NA);
 		offset += 4;
 		switch (message_type) {
 			case 0x43534E50: /* CSNP */
 				element_length = 12;
-				display_hfi_tlv_vals = &hfi_mint_control_0x0c_type_csnp;
+				display_hfi_tlv_vals = &hfi_mint_router_type_csnp;
 				break;
 			case 0x48454C4F: /* HELO */
 				element_length = 0;
-				display_hfi_tlv_vals = &hfi_mint_control_0x0c_type_helo;
+				display_hfi_tlv_vals = &hfi_mint_router_type_helo;
 				break;
 			case 0x4C535000: /* LSP */
 				element_length = 8;
-				display_hfi_tlv_vals = &hfi_mint_control_0x0c_type_lsp;
+				display_hfi_tlv_vals = &hfi_mint_router_type_lsp;
 				break;
 			case 0x50534E50: /* PSNP */
 				element_length = 4;
-				display_hfi_tlv_vals = &hfi_mint_control_0x0c_type_psnp;
+				display_hfi_tlv_vals = &hfi_mint_router_type_psnp;
 				break;
 			default:
 				element_length = 0;
-				display_hfi_tlv_vals = &hfi_mint_control_0x0c_type_unknown;
+				display_hfi_tlv_vals = &hfi_mint_router_type_unknown;
 		}
 		/* FIXME: This should go into the per message_type switch above */
 		if (header_length > 12) {
-			proto_tree_add_item(mint_ctrl_tree, &hfi_mint_control_0x0c_header_unknown, tvb,
+			proto_tree_add_item(mint_ctrl_tree, &hfi_mint_router_header_unknown, tvb,
 				offset, header_length - 12, ENC_NA);
 			offset += header_length - 12;
 		}
@@ -436,12 +570,12 @@ dissect_mint_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			length = tvb_get_guint8(tvb, offset);
 			/* FIXME: This is a hack - reliable array detection missing */
 			if (type == 1 && length == 128) {
-				proto_tree_add_item(mint_ctrl_tree, &hfi_mint_control_0x0c_array, tvb,
+				proto_tree_add_item(mint_ctrl_tree, &hfi_mint_router_array, tvb,
 					offset, 1, ENC_NA);
 				offset += 1;
 				length = tvb_get_guint8(tvb, offset);
 			}
-			proto_tree_add_item(mint_ctrl_tree, &hfi_mint_control_0x0c_length, tvb,
+			proto_tree_add_item(mint_ctrl_tree, &hfi_mint_router_length, tvb,
 				offset, 1, ENC_NA);
 			offset += 1;
 			if (offset + length > packet_length) {
@@ -451,17 +585,17 @@ dissect_mint_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			if (type == 1 && element_length) {
 				guint32 end_offset = offset + length;
 				for (; offset < end_offset; offset += element_length) {
-					proto_tree_add_item(mint_ctrl_tree, &hfi_mint_control_0x0c_element, tvb,
+					proto_tree_add_item(mint_ctrl_tree, &hfi_mint_router_element, tvb,
 						offset, element_length, ENC_NA);
 				}
 			} else {
-				proto_tree_add_item(mint_ctrl_tree, &hfi_mint_control_0x0c_value, tvb,
+				proto_tree_add_item(mint_ctrl_tree, &hfi_mint_router_value, tvb,
 					offset, length, ENC_NA);
 				offset += length;
 			}
 		}
 		break;
-	case MINT_TYPE_CTRL_0x1e:
+	case MINT_PORT_NEIGHBOR:
 		ti = proto_tree_add_item(mint_tree, &hfi_mint_control, tvb,
 			offset, packet_length - 16, ENC_NA);
 		mint_ctrl_tree = proto_item_add_subtree(ti, ett_mint_ctrl);
@@ -469,33 +603,33 @@ dissect_mint_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			offset, 32, ENC_NA);
 		offset += 32;
 		bytes_remaining = packet_length - offset;
-		proto_tree_add_item(mint_ctrl_tree, &hfi_mint_control_0x1e_unknown, tvb,
+		proto_tree_add_item(mint_ctrl_tree, &hfi_mint_neighbor_unknown, tvb,
 			offset, bytes_remaining, ENC_NA);
 		offset += bytes_remaining;
 		break;
-	case MINT_TYPE_ETH_0x22:
+	case MINT_PORT_MLCP:
 		ti = proto_tree_add_item(mint_tree, &hfi_mint_control, tvb,
 			offset, packet_length - 16, ENC_NA);
 		mint_ctrl_tree = proto_item_add_subtree(ti, ett_mint_ctrl);
 		proto_tree_add_item(mint_ctrl_tree, &hfi_mint_control_32zerobytes, tvb,
 			offset, 32, ENC_NA);
 		offset += 32;
-		proto_tree_add_item(mint_ctrl_tree, &hfi_mint_control_0x22_message, tvb,
+		proto_tree_add_item(mint_ctrl_tree, &hfi_mint_mlcp_message, tvb,
 			offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 		while (offset < packet_length - 2) {
-			proto_tree_add_item(mint_ctrl_tree, &hfi_mint_control_0x22_type, tvb,
+			proto_tree_add_item(mint_ctrl_tree, &hfi_mint_mlcp_type, tvb,
 				offset, 1, ENC_NA);
 			offset += 1;
 			length = tvb_get_guint8(tvb, offset);
-			proto_tree_add_item(mint_ctrl_tree, &hfi_mint_control_0x22_length, tvb,
+			proto_tree_add_item(mint_ctrl_tree, &hfi_mint_mlcp_length, tvb,
 				offset, 1, ENC_NA);
 			offset += 1;
 			if (offset + length > packet_length) {
 				/* print expert information */
 				break;
 			}
-			proto_tree_add_item(mint_ctrl_tree, &hfi_mint_control_0x22_value, tvb,
+			proto_tree_add_item(mint_ctrl_tree, &hfi_mint_mlcp_value, tvb,
 				offset, length, ENC_NA);
 			offset += length;
 		}
@@ -661,8 +795,8 @@ proto_register_mint(void)
 		&hfi_mint_header_unknown1,
 		&hfi_mint_header_srcid,
 		&hfi_mint_header_dstid,
-		&hfi_mint_header_srcdatatype,
-		&hfi_mint_header_dstdatatype,
+		&hfi_mint_header_srcdataport,
+		&hfi_mint_header_dstdataport,
 	/* MiNT Data */
 		&hfi_mint_data,
 		&hfi_mint_data_vlan,
@@ -672,30 +806,30 @@ proto_register_mint(void)
 		&hfi_mint_control,
 		&hfi_mint_control_32zerobytes,
 		&hfi_mint_control_unknown1,
-	/* MiNT Control 0x0c */
-		&hfi_mint_control_0x0c_message_type,
-		&hfi_mint_control_0x0c_header_sender,
-		&hfi_mint_control_0x0c_unknown1,
-		&hfi_mint_control_0x0c_unknown2,
-		&hfi_mint_control_0x0c_unknown3,
-		&hfi_mint_control_0x0c_header_length,
-		&hfi_mint_control_0x0c_header_unknown,
-		&hfi_mint_control_0x0c_type_unknown,
-		&hfi_mint_control_0x0c_type_csnp,
-		&hfi_mint_control_0x0c_type_helo,
-		&hfi_mint_control_0x0c_type_lsp,
-		&hfi_mint_control_0x0c_type_psnp,
-		&hfi_mint_control_0x0c_length,
-		&hfi_mint_control_0x0c_array,
-		&hfi_mint_control_0x0c_element,
-		&hfi_mint_control_0x0c_value,
-	/* MiNT Control 0x1e */
-		&hfi_mint_control_0x1e_unknown,
-	/* MiNT Control 0x22 */
-		&hfi_mint_control_0x22_message,
-		&hfi_mint_control_0x22_type,
-		&hfi_mint_control_0x22_length,
-		&hfi_mint_control_0x22_value,
+	/* Router */
+		&hfi_mint_router_message_type,
+		&hfi_mint_router_header_sender,
+		&hfi_mint_router_unknown1,
+		&hfi_mint_router_unknown2,
+		&hfi_mint_router_unknown3,
+		&hfi_mint_router_header_length,
+		&hfi_mint_router_header_unknown,
+		&hfi_mint_router_type_unknown,
+		&hfi_mint_router_type_csnp,
+		&hfi_mint_router_type_helo,
+		&hfi_mint_router_type_lsp,
+		&hfi_mint_router_type_psnp,
+		&hfi_mint_router_length,
+		&hfi_mint_router_array,
+		&hfi_mint_router_element,
+		&hfi_mint_router_value,
+	/* Neighbor */
+		&hfi_mint_neighbor_unknown,
+	/* MLCP */
+		&hfi_mint_mlcp_message,
+		&hfi_mint_mlcp_type,
+		&hfi_mint_mlcp_length,
+		&hfi_mint_mlcp_value,
 	};
 #endif
 
