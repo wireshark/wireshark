@@ -79,11 +79,14 @@ before_install:
   - if [ "$TRAVIS_OS_NAME" == "osx" ]; then ./tools/macos-setup-brew.sh; fi
   # linux
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo ./tools/debian-setup.sh --install-optional -qq; fi
-before_script:
   - sudo gem install asciidoctor --no-ri --no-rdoc
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install -y python3-pip; fi
+  - sudo pip3 install pytest pytest-xdist
+before_script:
   - mkdir build
   - cd build
   - cmake -GNinja -DENABLE_PCAP=${PCAP} ..
 script:
   - ninja
-  - if [ "$PCAP" == "ON" ]; then ninja test-programs && ctest -j; fi
+  - ninja test-programs
+  - pytest -nauto -ra -v ../test
