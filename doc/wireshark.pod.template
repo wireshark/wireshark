@@ -416,12 +416,13 @@ non-loopback interfaces, and choosing the first loopback interface if
 there are no non-loopback interfaces.  If there are no interfaces at all,
 B<Wireshark> reports an error and doesn't start the capture.
 
-Pipe names should be either the name of a FIFO (named pipe) or ``-'' to
+Pipe names should be either the name of a FIFO (named pipe) or "-" to
 read data from the standard input.  On Windows systems, pipe names must be
-of the form ``\\pipe\.\B<pipename>''.  Data read from pipes must be in
-standard pcap format.
+of the form "\\pipe\.\B<pipename>".  Data read from pipes must be in
+standard pcapng or pcap format. Pcapng data must have the same
+endianness as the capturing host.
 
-This option can occur multiple times.  When capturing from multiple
+This option can occur multiple times. When capturing from multiple
 interfaces, the capture file will be saved in pcapng format.
 
 =item -I
