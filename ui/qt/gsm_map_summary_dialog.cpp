@@ -107,8 +107,9 @@ QString GsmMapSummaryDialog::summaryToHtml()
         << table_row_end;
 
     QString format_str = wtap_file_type_subtype_string(summary.file_type);
-    if (summary.compression_type == WTAP_GZIP_COMPRESSED) {
-        format_str.append(tr(" (gzip compressed)"));
+    const char *compression_type_description = wtap_compression_type_description(summary.compression_type);
+    if (compression_type_description != NULL) {
+        format_str += QString::asprintf(" (%s)", compression_type_description);
     }
     out << table_row_begin
         << table_vheader_tmpl.arg(tr("Format"))

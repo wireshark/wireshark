@@ -583,10 +583,16 @@ print_stats(const gchar *filename, capture_info *cf_info)
   file_encap_string = wtap_encap_string(cf_info->file_encap);
 
   if (filename)           printf     ("File name:           %s\n", filename);
-  if (cap_file_type)      printf     ("File type:           %s%s\n",
-      file_type_string,
-      cf_info->compression_type == WTAP_GZIP_COMPRESSED ? " (gzip compressed)" : "");
-
+  if (cap_file_type) {
+    const char *compression_type_description;
+    compression_type_description = wtap_compression_type_description(cf_info->compression_type);
+    if (compression_type_description == NULL)
+      printf     ("File type:           %s\n",
+        file_type_string);
+    else
+      printf     ("File type:           %s (%s)\n",
+        file_type_string, compression_type_description);
+  }
   if (cap_file_encap) {
     printf      ("File encapsulation:  %s\n", file_encap_string);
     if (cf_info->file_encap == WTAP_ENCAP_PER_PACKET) {

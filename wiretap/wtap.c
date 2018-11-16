@@ -86,6 +86,18 @@ wtap_get_compression_type(wtap *wth)
 	return is_compressed ? WTAP_GZIP_COMPRESSED : WTAP_UNCOMPRESSED;
 }
 
+static const char *compression_type_descriptions[WTAP_NUM_COMPRESSION_TYPES] = {
+	NULL,	/* uncompressed */
+	"gzip compressed"
+};
+
+const char *
+wtap_compression_type_description(wtap_compression_type compression_type)
+{
+	g_assert(compression_type >= 0 && compression_type < WTAP_NUM_COMPRESSION_TYPES);
+	return compression_type_descriptions[compression_type];
+}
+
 guint
 wtap_snapshot_length(wtap *wth)
 {

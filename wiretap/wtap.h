@@ -1695,7 +1695,8 @@ void wtap_rec_cleanup(wtap_rec *rec);
  */
 typedef enum {
     WTAP_UNCOMPRESSED,
-    WTAP_GZIP_COMPRESSED
+    WTAP_GZIP_COMPRESSED,
+    WTAP_NUM_COMPRESSION_TYPES
 } wtap_compression_type;
 
 /*** get various information snippets about the current file ***/
@@ -1708,6 +1709,8 @@ WS_DLL_PUBLIC
 gint64 wtap_file_size(wtap *wth, int *err);
 WS_DLL_PUBLIC
 wtap_compression_type wtap_get_compression_type(wtap *wth);
+WS_DLL_PUBLIC
+const char *wtap_compression_type_description(wtap_compression_type compression_type);
 WS_DLL_PUBLIC
 guint wtap_snapshot_length(wtap *wth); /* per file */
 WS_DLL_PUBLIC

@@ -931,10 +931,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source> (gzip compressed)</source>
-        <translation>（gzip 压缩）</translation>
-    </message>
-    <message>
         <source>Format</source>
         <translation>格式</translation>
     </message>
@@ -3044,10 +3040,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Length</source>
         <translation>长度</translation>
-    </message>
-    <message>
-        <source> (gzip compressed)</source>
-        <translation> (gzip 压缩)</translation>
     </message>
     <message>
         <source>Format</source>
@@ -7855,10 +7847,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Length</source>
         <translation>长度</translation>
-    </message>
-    <message>
-        <source> (gzip compressed)</source>
-        <translation>(gzip 压缩)</translation>
     </message>
     <message>
         <source>Format</source>

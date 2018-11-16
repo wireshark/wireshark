@@ -937,10 +937,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source> (gzip compressed)</source>
-        <translation> (gzip-komprimiert)</translation>
-    </message>
-    <message>
         <source>Format</source>
         <translation>Format</translation>
     </message>
@@ -3067,10 +3063,6 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <source>Length</source>
         <translation>Länge</translation>
-    </message>
-    <message>
-        <source> (gzip compressed)</source>
-        <translation> (gzip komprimiert)</translation>
     </message>
     <message>
         <source>Format</source>
@@ -7883,10 +7875,6 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <source>Length</source>
         <translation>Länge</translation>
-    </message>
-    <message>
-        <source> (gzip compressed)</source>
-        <translation> (gzip-komprimiert)</translation>
     </message>
     <message>
         <source>Format</source>

@@ -917,10 +917,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source> (gzip compressed)</source>
-        <translation> (skompresowany gzip)</translation>
-    </message>
-    <message>
         <source>Format</source>
         <translation>Format</translation>
     </message>
@@ -3043,10 +3039,6 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <message>
         <source>Length</source>
         <translation>Długość</translation>
-    </message>
-    <message>
-        <source> (gzip compressed)</source>
-        <translation> (skompresowany gzip)</translation>
     </message>
     <message>
         <source>Format</source>
@@ -7857,10 +7849,6 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <message>
         <source>Length</source>
         <translation>Długość</translation>
-    </message>
-    <message>
-        <source> (gzip compressed)</source>
-        <translation>(skompresowany gzip)</translation>
     </message>
     <message>
         <source>Format</source>

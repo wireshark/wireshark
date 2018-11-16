@@ -914,10 +914,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source> (gzip compressed)</source>
-        <translation>(compressé gzip)</translation>
-    </message>
-    <message>
         <source>Format</source>
         <translation>Format</translation>
     </message>
@@ -3035,10 +3031,6 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     <message>
         <source>Length</source>
         <translation>Longueur</translation>
-    </message>
-    <message>
-        <source> (gzip compressed)</source>
-        <translation>(compressé gzip)</translation>
     </message>
     <message>
         <source>Format</source>
@@ -7847,10 +7839,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>Length</source>
         <translation>Longueur</translation>
-    </message>
-    <message>
-        <source> (gzip compressed)</source>
-        <translation>(compressé gzip)</translation>
     </message>
     <message>
         <source>Format</source>

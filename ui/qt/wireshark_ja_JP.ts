@@ -911,10 +911,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source> (gzip compressed)</source>
-        <translation> (gzip圧縮)</translation>
-    </message>
-    <message>
         <source>Format</source>
         <translation>形式</translation>
     </message>
@@ -3023,10 +3019,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Length</source>
         <translation>長さ</translation>
-    </message>
-    <message>
-        <source> (gzip compressed)</source>
-        <translation> (gzip圧縮)</translation>
     </message>
     <message>
         <source>Format</source>
@@ -7838,10 +7830,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Length</source>
         <translation>長さ</translation>
-    </message>
-    <message>
-        <source> (gzip compressed)</source>
-        <translation> (gzip圧縮)</translation>
     </message>
     <message>
         <source>Format</source>
