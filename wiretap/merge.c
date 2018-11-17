@@ -948,18 +948,15 @@ merge_process_packets(wtap_dumper *pdh, const int file_type,
     return status;
 }
 
-/*
- * Merges the files to an output file whose name is supplied as an argument,
- * based on given input, and invokes callback during execution. Returns
- * MERGE_OK on success, or a MERGE_ERR_XXX on failure.
- */
-merge_result
-merge_files(const gchar* out_filename, const int file_type,
-            const char *const *in_filenames, const guint in_file_count,
-            const gboolean do_append, const idb_merge_mode mode,
-            guint snaplen, const gchar *app_name, merge_progress_callback_t* cb,
-            int *err, gchar **err_info, guint *err_fileno,
-            guint32 *err_framenum)
+static merge_result
+merge_files_common(const gchar* out_filename, /* normal output mode */
+                   gchar **out_filenamep, const char *pfx, /* tempfile mode  */
+                   const int file_type, const char *const *in_filenames,
+                   const guint in_file_count, const gboolean do_append,
+                   const idb_merge_mode mode, guint snaplen,
+                   const gchar *app_name, merge_progress_callback_t* cb,
+                   int *err, gchar **err_info, guint *err_fileno,
+                   guint32 *err_framenum)
 {
     merge_in_file_t    *in_files = NULL;
     int                 frame_type = WTAP_ENCAP_PER_PACKET;
@@ -968,7 +965,6 @@ merge_files(const gchar* out_filename, const int file_type,
     GArray             *shb_hdrs = NULL;
     wtapng_iface_descriptions_t *idb_inf = NULL;
 
-    g_assert(out_filename != NULL);
     g_assert(in_file_count > 0);
     g_assert(in_filenames != NULL);
     g_assert(err != NULL);
@@ -1022,8 +1018,14 @@ merge_files(const gchar* out_filename, const int file_type,
         params.shb_hdrs = shb_hdrs;
         params.idb_inf = idb_inf;
     }
-    pdh = wtap_dump_open(out_filename, file_type, WTAP_UNCOMPRESSED, &params,
-                         err);
+    if (out_filename) {
+        pdh = wtap_dump_open(out_filename, file_type, WTAP_UNCOMPRESSED, &params, err);
+    } else if (out_filenamep) {
+        pdh = wtap_dump_open_tempfile(out_filenamep, pfx, file_type,
+                                      WTAP_UNCOMPRESSED, &params, err);
+    } else {
+        pdh = wtap_dump_open_stdout(file_type, WTAP_UNCOMPRESSED, &params, err);
+    }
     if (pdh == NULL) {
         merge_close_in_files(in_file_count, in_files);
         g_free(in_files);
@@ -1045,6 +1047,27 @@ merge_files(const gchar* out_filename, const int file_type,
     wtap_free_idb_info(idb_inf);
 
     return status;
+}
+
+/*
+ * Merges the files to an output file whose name is supplied as an argument,
+ * based on given input, and invokes callback during execution. Returns
+ * MERGE_OK on success, or a MERGE_ERR_XXX on failure.
+ */
+merge_result
+merge_files(const gchar* out_filename, const int file_type,
+            const char *const *in_filenames, const guint in_file_count,
+            const gboolean do_append, const idb_merge_mode mode,
+            guint snaplen, const gchar *app_name, merge_progress_callback_t* cb,
+            int *err, gchar **err_info, guint *err_fileno,
+            guint32 *err_framenum)
+{
+    g_assert(out_filename != NULL);
+
+    return merge_files_common(out_filename, NULL, NULL,
+                              file_type, in_filenames, in_file_count,
+                              do_append, mode, snaplen, app_name, cb, err,
+                              err_info, err_fileno, err_framenum);
 }
 
 /*
@@ -1061,93 +1084,15 @@ merge_files_to_tempfile(gchar **out_filenamep, const char *pfx,
                         int *err, gchar **err_info, guint *err_fileno,
                         guint32 *err_framenum)
 {
-    merge_in_file_t    *in_files = NULL;
-    int                 frame_type = WTAP_ENCAP_PER_PACKET;
-    merge_result        status = MERGE_OK;
-    wtap_dumper        *pdh;
-    GArray             *shb_hdrs = NULL;
-    wtapng_iface_descriptions_t *idb_inf = NULL;
-
     g_assert(out_filenamep != NULL);
-    g_assert(in_file_count > 0);
-    g_assert(in_filenames != NULL);
-    g_assert(err != NULL);
-    g_assert(err_info != NULL);
-    g_assert(err_fileno != NULL);
-    g_assert(err_framenum != NULL);
-
-    /* if a callback was given, it has to have a callback function ptr */
-    g_assert((cb != NULL) ? (cb->callback_func != NULL) : TRUE);
-
-    merge_debug("merge_files: begin");
 
     /* no temporary file name yet */
     *out_filenamep = NULL;
 
-    /* open the input files */
-    if (!merge_open_in_files(in_file_count, in_filenames, &in_files, cb,
-                             err, err_info, err_fileno)) {
-        merge_debug("merge_files: merge_open_in_files() failed with err=%d", *err);
-        *err_framenum = 0;
-        return MERGE_ERR_CANT_OPEN_INFILE;
-    }
-
-    if (snaplen == 0) {
-        /* Snapshot length not specified - default to the maximum. */
-        snaplen = WTAP_MAX_PACKET_SIZE_STANDARD;
-    }
-
-    /*
-     * This doesn't tell us that much. It tells us what to set the outfile's
-     * encap type to, but that's all - for example, it does *not* tells us
-     * whether the input files had the same number of IDBs, for the same exact
-     * interfaces, and only one IDB each, so it doesn't actually tell us
-     * whether we can merge IDBs into one or not.
-     */
-    frame_type = merge_select_frame_type(in_file_count, in_files);
-    merge_debug("merge_files: got frame_type=%d", frame_type);
-
-    if (cb)
-        cb->callback_func(MERGE_EVENT_FRAME_TYPE_SELECTED, frame_type, in_files, in_file_count, cb->data);
-
-    /* prepare the outfile */
-    wtap_dump_params params = WTAP_DUMP_PARAMS_INIT;
-    params.encap = frame_type;
-    params.snaplen = snaplen;
-    if (file_type == WTAP_FILE_TYPE_SUBTYPE_PCAPNG) {
-        shb_hdrs = create_shb_header(in_files, in_file_count, app_name);
-        merge_debug("merge_files: SHB created");
-
-        idb_inf = generate_merged_idb(in_files, in_file_count, mode);
-        merge_debug("merge_files: IDB merge operation complete, got %u IDBs", idb_inf ? idb_inf->interface_data->len : 0);
-
-        /* XXX other blocks like NRB are now discarded. */
-        params.shb_hdrs = shb_hdrs;
-        params.idb_inf = idb_inf;
-    }
-    pdh = wtap_dump_open_tempfile(out_filenamep, pfx, file_type,
-                                  WTAP_UNCOMPRESSED, &params, err);
-    if (pdh == NULL) {
-        merge_close_in_files(in_file_count, in_files);
-        g_free(in_files);
-        wtap_block_array_free(shb_hdrs);
-        wtap_free_idb_info(idb_inf);
-        *err_framenum = 0;
-        return MERGE_ERR_CANT_OPEN_OUTFILE;
-    }
-
-    if (cb)
-        cb->callback_func(MERGE_EVENT_READY_TO_MERGE, 0, in_files, in_file_count, cb->data);
-
-    status = merge_process_packets(pdh, file_type, in_files, in_file_count,
-                                   do_append, snaplen, cb, err, err_info,
-                                   err_fileno, err_framenum);
-
-    g_free(in_files);
-    wtap_block_array_free(shb_hdrs);
-    wtap_free_idb_info(idb_inf);
-
-    return status;
+    return merge_files_common(NULL, out_filenamep, pfx,
+                              file_type, in_filenames, in_file_count,
+                              do_append, mode, snaplen, app_name, cb, err,
+                              err_info, err_fileno, err_framenum);
 }
 
 /*
@@ -1163,88 +1108,10 @@ merge_files_to_stdout(const int file_type, const char *const *in_filenames,
                       int *err, gchar **err_info, guint *err_fileno,
                       guint32 *err_framenum)
 {
-    merge_in_file_t    *in_files = NULL;
-    int                 frame_type = WTAP_ENCAP_PER_PACKET;
-    merge_result        status = MERGE_OK;
-    wtap_dumper        *pdh;
-    GArray             *shb_hdrs = NULL;
-    wtapng_iface_descriptions_t *idb_inf = NULL;
-
-    g_assert(in_file_count > 0);
-    g_assert(in_filenames != NULL);
-    g_assert(err != NULL);
-    g_assert(err_info != NULL);
-    g_assert(err_fileno != NULL);
-    g_assert(err_framenum != NULL);
-
-    /* if a callback was given, it has to have a callback function ptr */
-    g_assert((cb != NULL) ? (cb->callback_func != NULL) : TRUE);
-
-    merge_debug("merge_files: begin");
-
-    /* open the input files */
-    if (!merge_open_in_files(in_file_count, in_filenames, &in_files, cb,
-                             err, err_info, err_fileno)) {
-        merge_debug("merge_files: merge_open_in_files() failed with err=%d", *err);
-        *err_framenum = 0;
-        return MERGE_ERR_CANT_OPEN_INFILE;
-    }
-
-    if (snaplen == 0) {
-        /* Snapshot length not specified - default to the maximum. */
-        snaplen = WTAP_MAX_PACKET_SIZE_STANDARD;
-    }
-
-    /*
-     * This doesn't tell us that much. It tells us what to set the outfile's
-     * encap type to, but that's all - for example, it does *not* tells us
-     * whether the input files had the same number of IDBs, for the same exact
-     * interfaces, and only one IDB each, so it doesn't actually tell us
-     * whether we can merge IDBs into one or not.
-     */
-    frame_type = merge_select_frame_type(in_file_count, in_files);
-    merge_debug("merge_files: got frame_type=%d", frame_type);
-
-    if (cb)
-        cb->callback_func(MERGE_EVENT_FRAME_TYPE_SELECTED, frame_type, in_files, in_file_count, cb->data);
-
-    /* prepare the outfile */
-    wtap_dump_params params = WTAP_DUMP_PARAMS_INIT;
-    params.encap = frame_type;
-    params.snaplen = snaplen;
-    if (file_type == WTAP_FILE_TYPE_SUBTYPE_PCAPNG) {
-        shb_hdrs = create_shb_header(in_files, in_file_count, app_name);
-        merge_debug("merge_files: SHB created");
-
-        idb_inf = generate_merged_idb(in_files, in_file_count, mode);
-        merge_debug("merge_files: IDB merge operation complete, got %u IDBs", idb_inf ? idb_inf->interface_data->len : 0);
-
-        /* XXX other blocks like NRB are now discarded. */
-        params.shb_hdrs = shb_hdrs;
-        params.idb_inf = idb_inf;
-    }
-    pdh = wtap_dump_open_stdout(file_type, WTAP_UNCOMPRESSED, &params, err);
-    if (pdh == NULL) {
-        merge_close_in_files(in_file_count, in_files);
-        g_free(in_files);
-        wtap_block_array_free(shb_hdrs);
-        wtap_free_idb_info(idb_inf);
-        *err_framenum = 0;
-        return MERGE_ERR_CANT_OPEN_OUTFILE;
-    }
-
-    if (cb)
-        cb->callback_func(MERGE_EVENT_READY_TO_MERGE, 0, in_files, in_file_count, cb->data);
-
-    status = merge_process_packets(pdh, file_type, in_files, in_file_count,
-                                   do_append, snaplen, cb, err, err_info,
-                                   err_fileno, err_framenum);
-
-    g_free(in_files);
-    wtap_block_array_free(shb_hdrs);
-    wtap_free_idb_info(idb_inf);
-
-    return status;
+    return merge_files_common(NULL, NULL, NULL,
+                              file_type, in_filenames, in_file_count,
+                              do_append, mode, snaplen, app_name, cb, err,
+                              err_info, err_fileno, err_framenum);
 }
 
 /*
