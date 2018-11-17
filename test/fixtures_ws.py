@@ -112,6 +112,11 @@ def cmd_text2pcap(program):
 
 
 @fixtures.fixture(scope='session')
+def cmd_editcap(program):
+    return program('editcap')
+
+
+@fixtures.fixture(scope='session')
 def cmd_wireshark(program):
     return program('wireshark')
 

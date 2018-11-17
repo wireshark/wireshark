@@ -157,6 +157,64 @@ class case_fileformat_pcapng_dsb(subprocesstest.SubprocessTestCase):
             (0x544c534b, len(dsb2_contents), dsb2_contents),
         ))
 
+    def test_pcapng_dsb_2(self, cmd_editcap, dirs, capture_file, check_pcapng_dsb_fields):
+        '''Insert a single DSB into a pcapng file.'''
+        key_file = os.path.join(dirs.key_dir, 'dhe1_keylog.dat')
+        outfile = self.filename_from_id('dhe1-dsb.pcapng')
+        self.runProcess((cmd_editcap,
+            '--inject-secrets', 'tls,%s' % key_file,
+            capture_file('dhe1.pcapng.gz'), outfile
+        ))
+        with open(key_file, 'rb') as f:
+            keylog_contents = f.read()
+        check_pcapng_dsb_fields(outfile, (
+            (0x544c534b, len(keylog_contents), keylog_contents),
+        ))
+
+    def test_pcapng_dsb_3(self, cmd_editcap, dirs, capture_file, check_pcapng_dsb_fields):
+        '''Insert two DSBs into a pcapng file.'''
+        key_file1 = os.path.join(dirs.key_dir, 'dhe1_keylog.dat')
+        key_file2 = os.path.join(dirs.key_dir, 'http2-data-reassembly.keys')
+        outfile = self.filename_from_id('dhe1-dsb.pcapng')
+        self.runProcess((cmd_editcap,
+            '--inject-secrets', 'tls,%s' % key_file1,
+            '--inject-secrets', 'tls,%s' % key_file2,
+            capture_file('dhe1.pcapng.gz'), outfile
+        ))
+        with open(key_file1, 'rb') as f:
+            keylog1_contents = f.read()
+        with open(key_file2, 'rb') as f:
+            keylog2_contents = f.read()
+        check_pcapng_dsb_fields(outfile, (
+            (0x544c534b, len(keylog1_contents), keylog1_contents),
+            (0x544c534b, len(keylog2_contents), keylog2_contents),
+        ))
+
+    def test_pcapng_dsb_4(self, cmd_editcap, dirs, capture_file, check_pcapng_dsb_fields):
+        '''Insert a single DSB into a pcapng file with existing DSBs.'''
+        dsb_keys1 = os.path.join(dirs.key_dir, 'tls12-dsb-1.keys')
+        dsb_keys2 = os.path.join(dirs.key_dir, 'tls12-dsb-2.keys')
+        key_file = os.path.join(dirs.key_dir, 'dhe1_keylog.dat')
+        outfile = self.filename_from_id('tls12-dsb-extra.pcapng')
+        self.runProcess((cmd_editcap,
+            '--inject-secrets', 'tls,%s' % key_file,
+            capture_file('tls12-dsb.pcapng'), outfile
+        ))
+        with open(dsb_keys1, 'r') as f:
+            dsb1_contents = f.read().encode('utf8')
+        with open(dsb_keys2, 'r') as f:
+            dsb2_contents = f.read().encode('utf8')
+        with open(key_file, 'rb') as f:
+            keylog_contents = f.read()
+        # New DSBs are inserted before the first record. Due to the current
+        # implementation, this is inserted before other (existing) DSBs. This
+        # might change in the future if it is deemed more logical.
+        check_pcapng_dsb_fields(outfile, (
+            (0x544c534b, len(keylog_contents), keylog_contents),
+            (0x544c534b, len(dsb1_contents), dsb1_contents),
+            (0x544c534b, len(dsb2_contents), dsb2_contents),
+        ))
+
 
 @fixtures.mark_usefixtures('test_env')
 @fixtures.uses_fixtures

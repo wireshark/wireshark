@@ -43,6 +43,7 @@
 #include <getopt.h>
 #endif
 
+#include <wiretap/secrets-types.h>
 #include <wiretap/wtap.h>
 
 #include "epan/etypes.h"
@@ -174,6 +175,13 @@ static gboolean               skip_radiotap             = FALSE;
 static int                    do_strict_time_adjustment = FALSE;
 static struct time_adjustment strict_time_adj           = {NSTIME_INIT_ZERO, 0}; /* strict time adjustment */
 static nstime_t               previous_time             = NSTIME_INIT_ZERO; /* previous time */
+
+static const struct {
+    const char *str;
+    guint32     id;
+} secrets_types[] = {
+    { "tls", SECRETS_TYPE_TLS },
+};
 
 static int find_dct2000_real_data(guint8 *buf);
 static void handle_chopping(chop_t chop, wtap_packet_header *out_phdr,
@@ -900,6 +908,25 @@ list_encap_types(FILE *stream) {
     g_free(encaps);
 }
 
+static void
+list_secrets_types(FILE *stream)
+{
+    for (guint i = 0; i < G_N_ELEMENTS(secrets_types); i++) {
+        fprintf(stream, "    %s\n", secrets_types[i].str);
+    }
+}
+
+static guint32
+lookup_secrets_type(const char *type)
+{
+    for (guint i = 0; i < G_N_ELEMENTS(secrets_types); i++) {
+        if (!strcmp(secrets_types[i].str, type)) {
+            return secrets_types[i].id;
+        }
+    }
+    return 0;
+}
+
 static int
 framenum_compare(gconstpointer a, gconstpointer b, gpointer user_data _U_)
 {
@@ -965,6 +992,7 @@ real_main(int argc, char *argv[])
         {"novlan", no_argument, NULL, 0x8100},
         {"skip-radiotap-header", no_argument, NULL, 0x8101},
         {"seed", required_argument, NULL, 0x8102},
+        {"inject-secrets", required_argument, NULL, 0x8103},
         {"help", no_argument, NULL, 'h'},
         {"version", no_argument, NULL, 'V'},
         {0, 0, 0, 0 }
@@ -992,6 +1020,8 @@ real_main(int argc, char *argv[])
     gchar        *fsuffix            = NULL;
     guint32       change_offset      = 0;
     guint         max_packet_number  = 0;
+    GArray       *dsb_types          = NULL;
+    GPtrArray    *dsb_filenames      = NULL;
     const wtap_rec              *rec;
     wtap_rec                     temp_rec;
     wtap_dump_params             params = WTAP_DUMP_PARAMS_INIT;
@@ -1070,6 +1100,36 @@ real_main(int argc, char *argv[])
                 goto clean_exit;
             }
             valid_seed = TRUE;
+            break;
+        }
+
+        case 0x8103: /* --inject-secrets */
+        {
+            guint32 secrets_type_id = 0;
+            const char *secrets_filename = NULL;
+            if (strcmp("help", optarg) == 0) {
+                list_secrets_types(stdout);
+                goto clean_exit;
+            }
+            gchar **splitted = g_strsplit(optarg, ",", 2);
+            if (splitted[0]) {
+                secrets_type_id = lookup_secrets_type(splitted[0]);
+                secrets_filename = splitted[1];
+            }
+
+            if (secrets_type_id == 0) {
+                fprintf(stderr, "editcap: \"%s\" isn't a valid secrets type\n", secrets_filename);
+                g_strfreev(splitted);
+                ret = INVALID_OPTION;
+                goto clean_exit;
+            }
+            if (!dsb_filenames) {
+                dsb_types = g_array_new(FALSE, FALSE, sizeof(guint32));
+                dsb_filenames = g_ptr_array_new_with_free_func(g_free);
+            }
+            g_array_append_val(dsb_types, secrets_type_id);
+            g_ptr_array_add(dsb_filenames, g_strdup(secrets_filename));
+            g_strfreev(splitted);
             break;
         }
 
@@ -1399,6 +1459,45 @@ real_main(int argc, char *argv[])
     }
 
     wtap_dump_params_init(&params, wth);
+
+    if (dsb_filenames) {
+        for (guint k = 0; k < dsb_filenames->len; k++) {
+            guint32 secrets_type_id = g_array_index(dsb_types, guint32, k);
+            const char *secrets_filename = (const char *)g_ptr_array_index(dsb_filenames, k);
+            char *data;
+            gsize data_len;
+            wtap_block_t block;
+            wtapng_dsb_mandatory_t *dsb;
+            GError *err = NULL;
+
+            if (!g_file_get_contents(secrets_filename, &data, &data_len, &err)) {
+                fprintf(stderr, "editcap: \"%s\" could not be read: %s\n", secrets_filename, err->message);
+                g_clear_error(&err);
+                ret = INVALID_OPTION;
+                goto clean_exit;
+            }
+            if (data_len == 0) {
+                fprintf(stderr, "editcap: \"%s\" is an empty file, ignoring\n", secrets_filename);
+                g_free(data);
+                continue;
+            }
+            if (data_len >= G_MAXINT) {
+                fprintf(stderr, "editcap: \"%s\" is too large, ignoring\n", secrets_filename);
+                g_free(data);
+                continue;
+            }
+
+            block = wtap_block_create(WTAP_BLOCK_DSB);
+            dsb = (wtapng_dsb_mandatory_t *)wtap_block_get_mandatory_data(block);
+            dsb->secrets_type = secrets_type_id;
+            dsb->secrets_len = (guint)data_len;
+            dsb->secrets_data = data;
+            if (params.dsbs_initial == NULL) {
+                params.dsbs_initial = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
+            }
+            g_array_append_val(params.dsbs_initial, block);
+        }
+    }
 
     /*
      * If an encapsulation type was specified, override the encapsulation
@@ -1935,6 +2034,10 @@ real_main(int argc, char *argv[])
     }
 
 clean_exit:
+    if (dsb_filenames) {
+        g_array_free(dsb_types, TRUE);
+        g_ptr_array_free(dsb_filenames, TRUE);
+    }
     g_free(params.idb_inf);
     wtap_dump_params_cleanup(&params);
     if (wth != NULL)
