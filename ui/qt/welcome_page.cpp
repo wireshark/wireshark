@@ -231,7 +231,7 @@ void WelcomePage::appInitialized()
         full_release = tr("You are running Wireshark ");
     }
     full_release += get_ws_vcs_version_info();
-    full_release += tr(".");
+    full_release += ".";
 #ifdef HAVE_SOFTWARE_UPDATE
     if (prefs.gui_update_enabled) {
         full_release += tr(" You receive automatic updates.");
