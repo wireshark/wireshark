@@ -1652,7 +1652,7 @@ void MainWindow::fileAddExtension(QString &file_name, int file_type, wtap_compre
         /* OK, see if the file has one of those extensions. */
         for (extension = extensions_list; extension != NULL;
              extension = g_slist_next(extension)) {
-            QString file_suffix = "." + (char *)extension->data;
+            QString file_suffix = QString(".") + (char *)extension->data;
             if (file_name_lower.endsWith(file_suffix)) {
                 /*
                  * The file name has one of the extensions for
@@ -1677,7 +1677,7 @@ void MainWindow::fileAddExtension(QString &file_name, int file_type, wtap_compre
     }
     if (add_extension) {
         if (wtap_default_file_extension(file_type) != NULL) {
-            file_name += "." + wtap_default_file_extension(file_type);
+            file_name += QString(".") + wtap_default_file_extension(file_type);
             if (compression_type == WTAP_GZIP_COMPRESSED) {
                 file_name += ".gz";
             }
