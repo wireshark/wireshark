@@ -321,6 +321,10 @@ wtap_dump_params_init(wtap_dump_params *params, wtap *wth)
 	params->shb_hdrs = wtap_file_get_shb_for_new_file(wth);
 	params->idb_inf = wtap_file_get_idb_info(wth);
 	params->nrb_hdrs = wtap_file_get_nrb_for_new_file(wth);
+	/* Assume that the input handle remains open until the dumper is closed.
+	 * Refer to the DSBs from the input file, wtap_dump will then copy DSBs
+	 * as they become available. */
+	params->dsbs_growing = wth ? wth->dsbs : NULL;
 }
 
 void
@@ -1233,6 +1237,7 @@ wtap_close(wtap *wth)
 	wtap_block_array_free(wth->shb_hdrs);
 	wtap_block_array_free(wth->nrb_hdrs);
 	wtap_block_array_free(wth->interface_data);
+	wtap_block_array_free(wth->dsbs);
 
 	g_free(wth);
 }

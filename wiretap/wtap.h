@@ -1377,6 +1377,15 @@ typedef struct wtapng_if_descr_mandatory_s {
                                                    *     pcapng ISB:s or equivalent(?)*/
 } wtapng_if_descr_mandatory_t;
 
+/**
+ * Decryption Secrets Block data.
+ */
+typedef struct wtapng_dsb_mandatory_s {
+    guint32                secrets_type;            /** Type of secrets stored in data (see secrets-types.h) */
+    guint32                secrets_len;             /** Length of the secrets data in bytes */
+    guint8                *secrets_data;            /** Buffer of secrets (not NUL-terminated) */
+} wtapng_dsb_mandatory_t;
+
 /* Interface description data - Option 11 structure */
 typedef struct wtapng_if_descr_filter_s {
     gchar                 *if_filter_str;         /**< NULL if not available
@@ -1430,6 +1439,8 @@ typedef struct addrinfo_lists {
  * @note The shb_hdr, idb_inf, and nrb_hdr arguments will be used until
  *     wtap_dump_close() is called, but will not be free'd by the dumper. If
  *     you created them, you must free them yourself after wtap_dump_close().
+ *     dsbs_initial will be freed by wtap_dump_close(),
+ *     dsbs_growing typically refers to another wth->dsbs.
  *
  * @see wtap_dump_params_init, wtap_dump_params_cleanup.
  */
@@ -1439,6 +1450,10 @@ typedef struct wtap_dump_params {
     GArray     *shb_hdrs;                   /**< The section header block(s) information, or NULL. */
     wtapng_iface_descriptions_t *idb_inf;   /**< The interface description information, or NULL. */
     GArray     *nrb_hdrs;                   /**< The name resolution blocks(s) comment/custom_opts information, or NULL. */
+    GArray     *dsbs_initial;               /**< The initial Decryption Secrets Block(s) to be written, or NULL. */
+    const GArray *dsbs_growing;             /**< DSBs that will be written while writing packets, or NULL.
+                                                 This array may grow since the dumper was opened and will subsequently
+                                                 be written before newer packets are written in wtap_dump. */
 } wtap_dump_params;
 
 /* Zero-initializer for wtap_dump_params. */
@@ -1663,6 +1678,14 @@ void wtap_set_cb_new_ipv4(wtap *wth, wtap_new_ipv4_callback_t add_new_ipv4);
 typedef void (*wtap_new_ipv6_callback_t) (const void *addrp, const gchar *name);
 WS_DLL_PUBLIC
 void wtap_set_cb_new_ipv6(wtap *wth, wtap_new_ipv6_callback_t add_new_ipv6);
+
+/**
+ * Set callback function to receive new decryption secrets for a particular
+ * secrets type (as defined in secrets-types.h). Currently pcapng-only.
+ */
+typedef void (*wtap_new_secrets_callback_t)(guint32 secrets_type, const void *secrets, guint size);
+WS_DLL_PUBLIC
+void wtap_set_cb_new_secrets(wtap *wth, wtap_new_secrets_callback_t add_new_secrets);
 
 /** Returns TRUE if read was successful. FALSE if failure. data_offset is
  * set to the offset in the file where the data for the read packet is
@@ -1891,6 +1914,8 @@ gboolean wtap_dump_supports_comment_types(int filetype, guint32 comment_types);
 /**
  * Initialize the per-file information based on an existing file. Its
  * contents must be freed according to the requirements of wtap_dump_params.
+ * If wth does not remain valid for the duration of the session, dsbs_growing
+ * MUST be cleared after this function.
  *
  * @param params The parameters for wtap_dump_* to initialize.
  * @param wth The wiretap session.

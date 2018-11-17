@@ -20,6 +20,7 @@
 #include <epan/show_exception.h>
 #include <epan/addr_resolv.h>
 #include <epan/wmem/wmem.h>
+#include <wiretap/secrets-types.h>
 
 #include <epan/dissectors/packet-pcap_pktdata.h>
 
@@ -120,6 +121,10 @@ static int hf_pcapng_record_ipv4 = -1;
 static int hf_pcapng_record_ipv6 = -1;
 static int hf_pcapng_record_name = -1;
 static int hf_pcapng_record_padding = -1;
+
+static int hf_pcapng_dsb_secrets_type = -1;
+static int hf_pcapng_dsb_secrets_length = -1;
+static int hf_pcapng_dsb_secrets_data = -1;
 
 static int hf_pcapng_darwin_process_id = -1;
 static int hf_pcapng_option_code_darwin_process_info = -1;
@@ -528,6 +533,11 @@ static const value_string flags_reception_type_vals[] = {
     { 0x02,  "Multicast" },
     { 0x03,  "Broadcast" },
     { 0x04,  "Promiscuous" },
+    { 0, NULL }
+};
+
+static const value_string dsb_secrets_types_vals[] = {
+    { SECRETS_TYPE_TLS, "TLS Key Log" },
     { 0, NULL }
 };
 
@@ -1571,6 +1581,30 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         offset += dissect_options(block_data_tree, pinfo, block_type, next_tvb, encoding, NULL);
 
         break;
+    case BLOCK_DSB:
+        {
+        guint32 secrets_length;
+
+        proto_tree_add_item(block_data_tree, hf_pcapng_dsb_secrets_type, tvb, offset, 4, encoding);
+        offset += 4;
+        proto_tree_add_item_ret_uint(block_data_tree, hf_pcapng_dsb_secrets_length, tvb, offset, 4, encoding, &secrets_length);
+        offset += 4;
+        proto_tree_add_item(block_data_tree, hf_pcapng_dsb_secrets_data, tvb, offset, secrets_length, encoding);
+        offset += secrets_length;
+
+        guint32 padlen = (4 - (secrets_length & 3)) & 3;
+        if (padlen) {
+            proto_tree_add_item(block_data_tree, hf_pcapng_record_padding, tvb, offset, padlen, ENC_NA);
+            offset += padlen;
+        }
+
+        if (block_data_length > 4 + 4 + secrets_length + padlen) {
+            next_tvb = tvb_new_subset_length(tvb, offset, block_data_length - 4 - 4 - secrets_length - padlen);
+            offset += dissect_options(block_data_tree, pinfo, block_type, next_tvb, encoding, NULL);
+        }
+        }
+
+        break;
     case BLOCK_DARWIN_PROCESS:
         proto_item_append_text(block_item, " %u", info->darwin_process_event_number);
         info->darwin_process_event_number += 1;
@@ -1584,7 +1618,6 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         break;
     case BLOCK_IRIG_TIMESTAMP:
     case BLOCK_ARINC_429:
-    case BLOCK_DSB:
     default:
         offset += block_data_length;
     }
@@ -2136,6 +2169,21 @@ proto_register_pcapng(void)
         { &hf_pcapng_record_name,
             { "Name",                                      "pcapng.records.record.data.name",
             FT_STRINGZ, STR_ASCII, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_pcapng_dsb_secrets_type,
+            { "Secrets Type",                              "pcapng.dsb.secrets_type",
+            FT_UINT32, BASE_HEX, VALS(dsb_secrets_types_vals), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_pcapng_dsb_secrets_length,
+            { "Secrets Type",                              "pcapng.dsb.secrets_length",
+            FT_UINT32, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_pcapng_dsb_secrets_data,
+            { "Secrets Data",                              "pcapng.dsb.secrets_data",
+            FT_BYTES, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_pcapng_darwin_process_id,

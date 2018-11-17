@@ -25,6 +25,7 @@
 #define BLOCK_TYPE_IRIG_TS          0x00000007 /* IRIG Timestamp Block */
 #define BLOCK_TYPE_ARINC_429        0x00000008 /* ARINC 429 in AFDX Encapsulation Information Block */
 #define BLOCK_TYPE_SYSTEMD_JOURNAL  0x00000009 /* systemd journal entry */
+#define BLOCK_TYPE_DSB              0x0000000A /* Decryption Secrets Block */
 #define BLOCK_TYPE_SYSDIG_EVENT     0x00000204 /* Sysdig Event Block */
 #define BLOCK_TYPE_SYSDIG_EVF       0x00000208 /* Sysdig Event Block with flags */
 

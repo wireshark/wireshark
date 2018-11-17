@@ -42,6 +42,7 @@ struct wtap {
     GArray                      *shb_hdrs;
     GArray                      *interface_data;        /**< An array holding the interface data from pcapng IDB:s or equivalent(?)*/
     GArray                      *nrb_hdrs;              /**< holds the Name Res Block's comment/custom_opts, or NULL */
+    GArray                      *dsbs;                  /**< An array of DSBs (of type wtap_block_t), or NULL if not supported. */
 
     void                        *priv;          /* this one holds per-file state and is free'd automatically by wtap_close() */
     void                        *wslua_data;    /* this one holds wslua state info and is not free'd */
@@ -102,6 +103,14 @@ struct wtap_dumper {
     GArray                  *shb_hdrs;
     GArray                  *nrb_hdrs;        /**< name resolution comment/custom_opt, or NULL */
     GArray                  *interface_data; /**< An array holding the interface data from pcapng IDB:s or equivalent(?) NULL if not present.*/
+    GArray                  *dsbs_initial;   /**< An array of initial DSBs (of type wtap_block_t) */
+
+    /*
+     * Additional blocks that might grow as data is being collected.
+     * Subtypes should write these blocks before writing new packet blocks.
+     */
+    const GArray            *dsbs_growing;          /**< A reference to an array of DSBs (of type wtap_block_t) */
+    guint                   dsbs_growing_written;   /**< Number of already processed DSBs in dsbs_growing. */
 };
 
 WS_DLL_PUBLIC gboolean wtap_dump_file_write(wtap_dumper *wdh, const void *buf,
@@ -319,14 +328,14 @@ wtap_full_file_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec, Buffer *buf,
 #endif /* __WTAP_INT_H__ */
 
 /*
- * Editor modelines
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
- * Local Variables:
- * c-basic-offset: 8
+ * Local variables:
+ * c-basic-offset: 4
  * tab-width: 8
- * indent-tabs-mode: t
+ * indent-tabs-mode: nil
  * End:
  *
- * ex: set shiftwidth=8 tabstop=8 noexpandtab:
- * :indentSize=8:tabSize=8:noTabs=false:
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
  */

@@ -25,6 +25,7 @@
 #include "merge.h"
 #include "wtap_opttypes.h"
 #include "pcapng.h"
+#include "wtap-int.h"
 
 #include <wsutil/filesystem.h>
 #include "wsutil/os_version_info.h"
@@ -832,6 +833,7 @@ merge_process_packets(wtap_dumper *pdh, const int file_type,
                       merge_in_file_t *in_files, const guint in_file_count,
                       const gboolean do_append, guint snaplen,
                       merge_progress_callback_t* cb,
+                      GArray *dsb_combined,
                       int *err, gchar **err_info, guint *err_fileno,
                       guint32 *err_framenum)
 {
@@ -911,6 +913,18 @@ merge_process_packets(wtap_dumper *pdh, const int file_type,
                 }
             }
         }
+        /*
+         * If any DSBs were read before this record, be sure to pass those now
+         * such that wtap_dump can pick it up.
+         */
+        if (dsb_combined && in_file->wth->dsbs) {
+            GArray *in_dsb = in_file->wth->dsbs;
+            for (guint i = in_file->dsbs_seen; i < in_dsb->len; i++) {
+                wtap_block_t wblock = g_array_index(in_dsb, wtap_block_t, i);
+                g_array_append_val(dsb_combined, wblock);
+                in_file->dsbs_seen++;
+            }
+        }
 
         if (!wtap_dump(pdh, rec, wtap_get_buf_ptr(in_file->wth), err, err_info)) {
             status = MERGE_ERR_CANT_WRITE_OUTFILE;
@@ -920,8 +934,6 @@ merge_process_packets(wtap_dumper *pdh, const int file_type,
 
     if (cb)
         cb->callback_func(MERGE_EVENT_DONE, count, in_files, in_file_count, cb->data);
-
-    merge_close_in_files(in_file_count, in_files);
 
     if (status == MERGE_OK || status == MERGE_USER_ABORTED) {
         if (!wtap_dump_close(pdh, err))
@@ -936,6 +948,12 @@ merge_process_packets(wtap_dumper *pdh, const int file_type,
         int close_err = 0;
         (void)wtap_dump_close(pdh, &close_err);
     }
+
+    /* Close the input files after the output file in case the latter still
+     * holds references to blocks in the input file (such as the DSB). Even if
+     * those DSBs are only written when wtap_dump is called and nothing bad will
+     * happen now, let's keep all pointers in pdh valid for correctness sake. */
+    merge_close_in_files(in_file_count, in_files);
 
     if (status == MERGE_OK || in_file == NULL) {
         *err_fileno = 0;
@@ -964,6 +982,7 @@ merge_files_common(const gchar* out_filename, /* normal output mode */
     wtap_dumper        *pdh;
     GArray             *shb_hdrs = NULL;
     wtapng_iface_descriptions_t *idb_inf = NULL;
+    GArray             *dsb_combined = NULL;
 
     g_assert(in_file_count > 0);
     g_assert(in_filenames != NULL);
@@ -1017,6 +1036,8 @@ merge_files_common(const gchar* out_filename, /* normal output mode */
         /* XXX other blocks like NRB are now discarded. */
         params.shb_hdrs = shb_hdrs;
         params.idb_inf = idb_inf;
+        dsb_combined = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
+        params.dsbs_growing = dsb_combined;
     }
     if (out_filename) {
         pdh = wtap_dump_open(out_filename, file_type, WTAP_UNCOMPRESSED, &params, err);
@@ -1031,6 +1052,9 @@ merge_files_common(const gchar* out_filename, /* normal output mode */
         g_free(in_files);
         wtap_block_array_free(shb_hdrs);
         wtap_free_idb_info(idb_inf);
+        if (dsb_combined) {
+            g_array_free(dsb_combined, TRUE);
+        }
         *err_framenum = 0;
         return MERGE_ERR_CANT_OPEN_OUTFILE;
     }
@@ -1039,12 +1063,15 @@ merge_files_common(const gchar* out_filename, /* normal output mode */
         cb->callback_func(MERGE_EVENT_READY_TO_MERGE, 0, in_files, in_file_count, cb->data);
 
     status = merge_process_packets(pdh, file_type, in_files, in_file_count,
-                                   do_append, snaplen, cb, err, err_info,
+                                   do_append, snaplen, cb, dsb_combined, err, err_info,
                                    err_fileno, err_framenum);
 
     g_free(in_files);
     wtap_block_array_free(shb_hdrs);
     wtap_free_idb_info(idb_inf);
+    if (dsb_combined) {
+        g_array_free(dsb_combined, TRUE);
+    }
 
     return status;
 }

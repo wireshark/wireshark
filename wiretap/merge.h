@@ -34,6 +34,7 @@ typedef struct merge_in_file_s {
     guint32         packet_num;     /* current packet number */
     gint64          size;           /* file size */
     GArray         *idb_index_map;  /* used for mapping the old phdr interface_id values to new during merge */
+    guint           dsbs_seen;      /* number of elements processed so far from wth->dsbs */
 } merge_in_file_t;
 
 /** Return values from merge_files(). */

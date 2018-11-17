@@ -2347,6 +2347,9 @@ wtap_dump_init_dumper(int file_type_subtype, wtap_compression_type compression_t
 		descr_mand->interface_statistics = NULL;
 		g_array_append_val(wdh->interface_data, descr);
 	}
+	/* Set Decryption Secrets Blocks */
+	wdh->dsbs_initial = params->dsbs_initial;
+	wdh->dsbs_growing = params->dsbs_growing;
 	return wdh;
 }
 
@@ -2653,6 +2656,7 @@ wtap_dump_close(wtap_dumper *wdh, int *err)
 	}
 	g_free(wdh->priv);
 	wtap_block_array_free(wdh->interface_data);
+	wtap_block_array_free(wdh->dsbs_initial);
 	g_free(wdh);
 	return ret;
 }

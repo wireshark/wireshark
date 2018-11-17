@@ -29,6 +29,7 @@
 #include "pcap-encap.h"
 #include "pcapng.h"
 #include "pcapng_module.h"
+#include "secrets-types.h"
 
 #if 0
 #define pcapng_debug(...) g_warning(__VA_ARGS__)
@@ -260,6 +261,7 @@ register_pcapng_block_type_handler(guint block_type, block_reader reader,
     case BLOCK_TYPE_NRB:
     case BLOCK_TYPE_ISB:
     case BLOCK_TYPE_EPB:
+    case BLOCK_TYPE_DSB:
     case BLOCK_TYPE_SYSDIG_EVENT:
     case BLOCK_TYPE_SYSTEMD_JOURNAL:
         /*
@@ -352,8 +354,9 @@ register_pcapng_block_type_handler(guint block_type, block_reader reader,
 #define BT_INDEX_NRB        3
 #define BT_INDEX_ISB        4
 #define BT_INDEX_EVT        5
+#define BT_INDEX_DSB        6
 
-#define NUM_BT_INDICES      6
+#define NUM_BT_INDICES      7
 
 typedef struct {
     option_handler_fn hfunc;
@@ -393,6 +396,10 @@ get_block_type_index(guint block_type, guint *bt_index)
         case BLOCK_TYPE_SYSDIG_EVENT:
         /* case BLOCK_TYPE_SYSDIG_EVF: */
             *bt_index = BT_INDEX_EVT;
+            break;
+
+        case BLOCK_TYPE_DSB:
+            *bt_index = BT_INDEX_DSB;
             break;
 
         default:
@@ -1057,6 +1064,56 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
     return TRUE;
 }
 
+static gboolean
+pcapng_read_decryption_secrets_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
+    wtapng_block_t *wblock, int *err, gchar **err_info)
+{
+    guint to_read;
+    pcapng_decryption_secrets_block_t dsb;
+    wtapng_dsb_mandatory_t *dsb_mand;
+
+    /* read block content */
+    if (!wtap_read_bytes(fh, &dsb, sizeof(dsb), err, err_info)) {
+        pcapng_debug("%s: failed to read DSB", G_STRFUNC);
+        return FALSE;
+    }
+
+    /* mandatory values */
+    wblock->block = wtap_block_create(WTAP_BLOCK_DSB);
+    dsb_mand = (wtapng_dsb_mandatory_t *)wtap_block_get_mandatory_data(wblock->block);
+    if (pn->byte_swapped) {
+      dsb_mand->secrets_type = GUINT32_SWAP_LE_BE(dsb.secrets_type);
+      dsb_mand->secrets_len = GUINT32_SWAP_LE_BE(dsb.secrets_len);
+    } else {
+      dsb_mand->secrets_type = dsb.secrets_type;
+      dsb_mand->secrets_len = dsb.secrets_len;
+    }
+    /* Sanity check: assume the secrets are not larger than 1 GiB */
+    if (dsb_mand->secrets_len > 1024 * 1024 * 1024) {
+      *err = WTAP_ERR_BAD_FILE;
+      *err_info = g_strdup_printf("%s: secrets block is too large: %u", G_STRFUNC, dsb_mand->secrets_len);
+      return FALSE;
+    }
+    dsb_mand->secrets_data = (char *)g_malloc0(dsb_mand->secrets_len);
+    if (!wtap_read_bytes(fh, dsb_mand->secrets_data, dsb_mand->secrets_len, err, err_info)) {
+        pcapng_debug("%s: failed to read DSB", G_STRFUNC);
+        return FALSE;
+    }
+
+    /* Skip past padding and discard options (not supported yet). */
+    to_read = bh->block_total_length - MIN_DSB_SIZE - dsb_mand->secrets_len;
+    if (!wtap_read_bytes(fh, NULL, to_read, err, err_info)) {
+        pcapng_debug("%s: failed to read DSB options", G_STRFUNC);
+        return FALSE;
+    }
+
+    /*
+     * We don't return these to the caller in pcapng_read().
+     */
+    wblock->internal = TRUE;
+
+    return TRUE;
+}
 
 static gboolean
 pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wtapng_block_t *wblock, int *err, gchar **err_info, gboolean enhanced)
@@ -2519,6 +2576,10 @@ pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn, wtapng_block_t *wblock, in
                 if (!pcapng_read_interface_statistics_block(fh, &bh, pn, wblock, err, err_info))
                     return PCAPNG_BLOCK_ERROR;
                 break;
+            case(BLOCK_TYPE_DSB):
+                if (!pcapng_read_decryption_secrets_block(fh, &bh, pn, wblock, err, err_info))
+                    return PCAPNG_BLOCK_ERROR;
+                break;
             case(BLOCK_TYPE_SYSDIG_EVENT):
             /* case(BLOCK_TYPE_SYSDIG_EVF): */
                 if (!pcapng_read_sysdig_event_block(fh, &bh, pn, wblock, err, err_info))
@@ -2579,6 +2640,14 @@ pcapng_process_idb(wtap *wth, pcapng_t *pcapng, wtapng_block_t *wblock)
     iface_info.tsprecision = wblock_if_descr_mand->tsprecision;
 
     g_array_append_val(pcapng->interfaces, iface_info);
+}
+
+/* Process a DSB that we have just read. */
+static void
+pcapng_process_dsb(wtap *wth, wtapng_block_t *wblock)
+{
+    /* Store DSB such that it can be saved by the dumper. */
+    g_array_append_val(wth->dsbs, wblock->block);
 }
 
 /* classic wtap: open capture file */
@@ -2659,6 +2728,10 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
     wth->subtype_seek_read = pcapng_seek_read;
     wth->subtype_close = pcapng_close;
     wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_PCAPNG;
+
+    /* Always initialize the list of Decryption Secret Blocks such that a
+     * wtap_dumper can refer to it right after opening the capture file. */
+    wth->dsbs = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
 
     /* Loop over all IDB:s that appear before any packets */
     while (1) {
@@ -2757,6 +2830,13 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
                 pcapng_debug("pcapng_read: block type BLOCK_TYPE_IDB");
                 pcapng_process_idb(wth, pcapng, &wblock);
                 wtap_block_free(wblock.block);
+                break;
+
+            case(BLOCK_TYPE_DSB):
+                /* Decryption secrets. */
+                pcapng_debug("pcapng_read: block type BLOCK_TYPE_DSB");
+                pcapng_process_dsb(wth, &wblock);
+                /* Do not free wblock.block, it is consumed by pcapng_process_dsb */
                 break;
 
             case(BLOCK_TYPE_NRB):
@@ -3435,6 +3515,49 @@ pcapng_write_systemd_journal_export_block(wtap_dumper *wdh, const wtap_rec *rec,
 
     return TRUE;
 
+}
+
+static gboolean
+pcapng_write_decryption_secrets_block(wtap_dumper *wdh, wtap_block_t sdata, int *err)
+{
+    pcapng_block_header_t bh;
+    pcapng_decryption_secrets_block_t dsb;
+    wtapng_dsb_mandatory_t *mand_data = (wtapng_dsb_mandatory_t *)wtap_block_get_mandatory_data(sdata);
+    guint pad_len = (4 - (mand_data->secrets_len & 3)) & 3;
+
+    /* write block header */
+    bh.block_type = BLOCK_TYPE_DSB;
+    bh.block_total_length = MIN_DSB_SIZE + mand_data->secrets_len + pad_len;
+    pcapng_debug("%s: Total len %u", G_STRFUNC, bh.block_total_length);
+
+    if (!wtap_dump_file_write(wdh, &bh, sizeof bh, err))
+        return FALSE;
+    wdh->bytes_dumped += sizeof bh;
+
+    /* write block fixed content */
+    dsb.secrets_type = mand_data->secrets_type;
+    dsb.secrets_len = mand_data->secrets_len;
+    if (!wtap_dump_file_write(wdh, &dsb, sizeof dsb, err))
+        return FALSE;
+    wdh->bytes_dumped += sizeof dsb;
+
+    if (!wtap_dump_file_write(wdh, mand_data->secrets_data, mand_data->secrets_len, err))
+        return FALSE;
+    wdh->bytes_dumped += mand_data->secrets_len;
+    if (pad_len) {
+        const guint32 zero_pad = 0;
+        if (!wtap_dump_file_write(wdh, &zero_pad, pad_len, err))
+            return FALSE;
+        wdh->bytes_dumped += pad_len;
+    }
+
+    /* write block footer */
+    if (!wtap_dump_file_write(wdh, &bh.block_total_length,
+                              sizeof bh.block_total_length, err))
+        return FALSE;
+    wdh->bytes_dumped += sizeof bh.block_total_length;
+
+    return TRUE;
 }
 
 /*
@@ -4258,6 +4381,20 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
     block_handler *handler;
 #endif
 
+    /* Write (optional) Decryption Secrets Blocks that were collected while
+     * reading packet blocks. */
+    if (wdh->dsbs_growing) {
+        for (guint i = wdh->dsbs_growing_written; i < wdh->dsbs_growing->len; i++) {
+            pcapng_debug("%s: writing DSB %u", G_STRFUNC, i);
+            wtap_block_t dsb = g_array_index(wdh->dsbs_growing, wtap_block_t, i);
+            if (!pcapng_write_decryption_secrets_block(wdh, dsb, err)) {
+                return FALSE;
+            }
+            ++wdh->dsbs_growing_written;
+        }
+    }
+
+
     pcapng_debug("%s: encap = %d (%s) rec type = %u", G_STRFUNC,
                   rec->rec_header.packet_header.pkt_encap,
                   wtap_encap_string(rec->rec_header.packet_header.pkt_encap),
@@ -4393,6 +4530,16 @@ pcapng_dump_open(wtap_dumper *wdh, int *err)
             return FALSE;
         }
 
+    }
+
+    /* Write (optional) fixed Decryption Secrets Blocks. */
+    if (wdh->dsbs_initial) {
+        for (i = 0; i < wdh->dsbs_initial->len; i++) {
+            wtap_block_t dsb = g_array_index(wdh->dsbs_initial, wtap_block_t, i);
+            if (!pcapng_write_decryption_secrets_block(wdh, dsb, err)) {
+                return FALSE;
+            }
+        }
     }
 
     return TRUE;

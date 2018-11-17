@@ -110,6 +110,53 @@ class case_fileformat_pcapng(subprocesstest.SubprocessTestCase):
             )
         self.assertTrue(self.diffOutput(capture_proc.stdout_str, fileformats_baseline_str, 'tshark', baseline_file))
 
+@fixtures.fixture
+def check_pcapng_dsb_fields(request, cmd_tshark):
+    '''Factory that checks whether the DSB within the capture file matches.'''
+    self = request.instance
+    def check_dsb_fields_real(outfile, fields):
+        proc = self.runProcess((cmd_tshark,
+                '-r', outfile,
+                '-Xread_format:MIME Files Format',
+                '-Tfields',
+                '-e', 'pcapng.dsb.secrets_type',
+                '-e', 'pcapng.dsb.secrets_length',
+                '-e', 'pcapng.dsb.secrets_data',
+                '-Y', 'pcapng.dsb.secrets_data'
+            ))
+        # Convert "t1,t2 l1,l2 v1,2" -> [(t1, l1, v1), (t2, l2, v2)]
+        output = proc.stdout_str.strip()
+        actual = list(zip(*[x.split(",") for x in output.split('\t')]))
+        def format_field(field):
+            t, l, v = field
+            v_hex = ''.join('%02x' % c for c in v)
+            return ('0x%08x' % t, str(l), v_hex)
+        fields = [format_field(field) for field in fields]
+        self.assertEqual(fields, actual)
+    return check_dsb_fields_real
+
+
+@fixtures.mark_usefixtures('base_env')
+@fixtures.uses_fixtures
+class case_fileformat_pcapng_dsb(subprocesstest.SubprocessTestCase):
+    def test_pcapng_dsb_1(self, cmd_tshark, dirs, capture_file, check_pcapng_dsb_fields):
+        '''Check that DSBs are preserved while rewriting files.'''
+        dsb_keys1 = os.path.join(dirs.key_dir, 'tls12-dsb-1.keys')
+        dsb_keys2 = os.path.join(dirs.key_dir, 'tls12-dsb-2.keys')
+        outfile = self.filename_from_id('tls12-dsb-same.pcapng')
+        self.runProcess((cmd_tshark,
+            '-r', capture_file('tls12-dsb.pcapng'),
+            '-w', outfile,
+        ))
+        with open(dsb_keys1, 'r') as f:
+            dsb1_contents = f.read().encode('utf8')
+        with open(dsb_keys2, 'r') as f:
+            dsb2_contents = f.read().encode('utf8')
+        check_pcapng_dsb_fields(outfile, (
+            (0x544c534b, len(dsb1_contents), dsb1_contents),
+            (0x544c534b, len(dsb2_contents), dsb2_contents),
+        ))
+
 
 @fixtures.mark_usefixtures('test_env')
 @fixtures.uses_fixtures

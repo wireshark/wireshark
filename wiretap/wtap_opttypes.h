@@ -133,6 +133,7 @@ typedef enum {
     WTAP_BLOCK_IF_DESCR,
     WTAP_BLOCK_NG_NRB,
     WTAP_BLOCK_IF_STATS,
+    WTAP_BLOCK_DSB,
     WTAP_BLOCK_END_OF_LIST
 } wtap_block_type_t;
 
