@@ -1630,57 +1630,104 @@ void MainWindow::exportDissections(export_type_e export_type) {
 }
 
 #ifdef Q_OS_WIN
+/*
+ * Ensure that:
+ *
+ * If the file is to be compressed:
+ *
+ *    if there is a set of extensions used by the file type to be used,
+ *    the file name has one of those extensions followed by the extension
+ *    for the compression type to be used;
+ *
+ *    otherwise, the file name has the extension for the compression type
+ *    to be used;
+ *
+ * otherwise:
+ *
+ *    if there is a set of extensions used by the file type to be used,
+ *    the file name has one of those extensions.
+ */
 void MainWindow::fileAddExtension(QString &file_name, int file_type, wtap_compression_type compression_type) {
     QString file_name_lower;
     GSList  *extensions_list;
-    gboolean add_extension;
+    const char *compressed_file_extension;
+    gboolean add_extension_for_file_type;
 
-    /*
-     * Append the default file extension if there's none given by
-     * the user or if they gave one that's not one of the valid
-     * extensions for the file type.
-     */
+    /* Lower-case the file name, so the extension matching is case-insensitive. */
     file_name_lower = file_name.toLower();
+
+    /* Get a list of all extensions used for this file type; don't
+       include the ones with compression type extensions, as we
+       only want to check for the extension for the compression
+       type we'll be using. */
     extensions_list = wtap_get_file_extensions_list(file_type, FALSE);
+
+    /* Get the extension for the compression type we'll be using, or
+       NULL if we won't be compressing it. */
+    compressed_file_extension =
+        (compression_type == WTAP_UNCOMPRESSED) ? NULL : ".gz";
+
     if (extensions_list != NULL) {
         GSList *extension;
 
-        /* We have one or more extensions for this file type.
+        /* This file type has one or more extensions.
            Start out assuming we need to add the default one. */
-        add_extension = TRUE;
+        add_extension_for_file_type = TRUE;
 
-        /* OK, see if the file has one of those extensions. */
+        /* OK, see if the file has one of those extensions, followed
+           by the appropriate compression type extension if it's to be
+           compressed. */
         for (extension = extensions_list; extension != NULL;
              extension = g_slist_next(extension)) {
             QString file_suffix = QString(".") + (char *)extension->data;
+            if (compressed_file_extension != NULL)
+                file_suffix += QString(".") + compressed_file_extension;
             if (file_name_lower.endsWith(file_suffix)) {
                 /*
-                 * The file name has one of the extensions for
-                 * this file type.
+                 * The file name has one of the extensions for this file
+                 * type, followed by a compression type extension if
+                 * appropriate, so we don't need to add an extension for
+                 * the file type or the compression type.
                  */
-                add_extension = FALSE;
-                break;
-            }
-            file_suffix += ".gz";
-            if (file_name_lower.endsWith(file_suffix)) {
-                /*
-                 * The file name has one of the extensions for
-                 * this file type.
-                 */
-                add_extension = FALSE;
+                add_extension_for_file_type = FALSE;
                 break;
             }
         }
     } else {
-        /* We have no extensions for this file type.  Don't add one. */
-        add_extension = FALSE;
-    }
-    if (add_extension) {
-        if (wtap_default_file_extension(file_type) != NULL) {
-            file_name += QString(".") + wtap_default_file_extension(file_type);
-            if (compression_type == WTAP_GZIP_COMPRESSED) {
-                file_name += ".gz";
+        /* We have no extensions for this file type.  Just check
+           to see if we need to add an extension for the compressed
+           file type.
+
+           Start out assuming we do. */
+        add_extension_for_file_type = TRUE;
+        if (compressed_file_extension != NULL) {
+            QString file_suffix = QString(".") + compressed_file_extension;
+            if (file_name_lower.endsWith(file_suffix)) {
+                /*
+                 * The file name has the appropriate compressed file extension,
+                 * so we don't need to add an extension for the compression
+                 * type.
+                 */
+                add_extension_for_file_type = FALSE;
             }
+        }
+    }
+
+    /*
+     * If we need to add an extension for the file type or compressed
+     * file type, do so.
+     */
+    if (add_extension_for_file_type) {
+        if (wtap_default_file_extension(file_type) != NULL) {
+            /* This file type has a default extension; append it. */
+            file_name += QString(".") + wtap_default_file_extension(file_type);
+        }
+        if (compression_type != WTAP_UNCOMPRESSED) {
+            /*
+             * The file is to be compressed, so append the extension for
+             * its compression type.
+             */
+            file_name += QString(".gz");
         }
     }
 }
