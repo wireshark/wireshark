@@ -1665,7 +1665,7 @@ void MainWindow::fileAddExtension(QString &file_name, int file_type, wtap_compre
     /* Get the extension for the compression type we'll be using, or
        NULL if we won't be compressing it. */
     compressed_file_extension =
-        (compression_type == WTAP_UNCOMPRESSED) ? NULL : ".gz";
+        (compression_type == WTAP_UNCOMPRESSED) ? NULL : "gz";
 
     if (extensions_list != NULL) {
         GSList *extension;
@@ -1727,7 +1727,7 @@ void MainWindow::fileAddExtension(QString &file_name, int file_type, wtap_compre
              * The file is to be compressed, so append the extension for
              * its compression type.
              */
-            file_name += QString(".gz");
+            file_name += QString(".") + compressed_file_extension;
         }
     }
 }
