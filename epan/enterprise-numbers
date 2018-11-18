@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2018-11-10)
+(last updated 2018-11-18)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -2030,9 +2030,9 @@ Decimal
     Nick Brown
       100022.767&compuserve.com
 504
-  Ellemtel Telecommunication Systems Laboratories
-    Richard G Bruvik
-      Richard.Bruvik&eua.ericsson.se
+  Ericsson AB - 4G5G (formerly 'Ellemtel Telecommunication Systems Laboratories')
+    Jack Song
+      jack.song&ericsson.com
 505
   Arizona Public Service
     Duane Booher
@@ -51163,8 +51163,8 @@ Decimal
       zjliu&otcaix.iscas.ac.cn
 12902
   Advanced Network Technology Laboratories Pte Ltd
-    Leonard Ye
-      lye&antlabs.com
+    Toh Teck Kang
+      tohtk&antlabs.com
 12903
   Bayshore Networks, Inc.
     Francis Cianfrocca
@@ -107519,8 +107519,8 @@ Decimal
       info&develer.com
 26992
   ENTEL S.A.
-    Fernando Castillo Y.
-      fycastillo&entel.cl
+    Francisco Turrillas
+      fturrillas&entel.cl
 26993
   Promwad Innovation Company
     Petronenko Denis
@@ -114679,8 +114679,8 @@ Decimal
       mbowden&bowdoin.edu
 28782
   Earmark Media Services
-    William Bloomfield
-      wb&earmarkmedia.com
+    Mark Kramer
+      pen&earmarkmedia.com
 28783
   Venafi
     Jesse Gardner
@@ -140536,7 +140536,7 @@ Decimal
 35246
   OS Qingdao University
     Difan Zhang
-      cheungtifan&gmail.com
+      alex&osqdu.org
 35247
   OpenDL Pty Ltd
     HONG CHEN
@@ -190660,7 +190660,7 @@ Decimal
 47777
   Fachschaftsvertretung der Fakultät für Informatik und Mathematik, Universität Passau
     FSinfo administrators
-      admins&fsinfo.fim.uni-passau.de
+      iana-contact&fsinfo.fim.uni-passau.de
 47778
   Cox Communications Inc. - Atlanta Technology
     Gemarl Perry
@@ -206976,7 +206976,7 @@ Decimal
 51856
   NeEhA Team
     Takaoka Haruki
-      odeko3520email6224&gmail.com
+      takaoka-haruki&neeha-jp.net
 51857
   ngVision Sp. z o.o.
     Radosław Bolforski
@@ -207979,8 +207979,8 @@ Decimal
       servizioit&ised.it
 52107
   Volkswagen Financial Services Digital Solutions GmbH
-    Carsten Gaschler
-      carsten.gaschler&vwfs.com
+    Carsten Kobierski
+      carsten.kobierski&vwfs.com
 52108
   Exponential-e Limited
     Eamonn McQuaid
@@ -208208,7 +208208,7 @@ Decimal
 52164
   Perkbox Limited
     Chieu Cao
-      admin&perkbox.co.uk
+      admin&perkbox.com
 52165
   ND PAPER LLC
     Jennifer Hamilton
@@ -211166,7 +211166,7 @@ Decimal
     Francisco Turrillas
       francisco&turrillas.net
 52904
-  Defiance Technolog Inc.
+  Defiance Technology Inc.
     Dan Molik
       dan&d3fy.net
 52905
@@ -211385,6 +211385,150 @@ Decimal
   NumaTech Ltd.
     Pavel Smolenskiy
       smolenskiy&numatech.ru
+52959
+  Drakontas LLC
+    OID Administrator
+      info&drakontas.com
+52960
+  AssistRx
+    Christopher Parker
+      Christopher.Parker&AssistRx.com 
+52961
+  Cohen & Company
+    Michael Tylicki
+      mtylicki&cohencpa.com
+52962
+  AVA Abfallverwertung Augsburg KU
+    Michael Stenzel
+      ca-admin&ava-augsburg.de
+52963
+  BRNET
+    Francisco José Bernal Fernández
+      soporte&brnet.es
+52964
+  OOO "Synergy Team"
+    Mikhail Drachev
+      m.drachev&synergy.msk.ru
+52965
+  Berale of Teldan Group
+    eyal knaan
+      eyal&berale.co.il
+52966
+  Itzos
+    Kjeld Loozen
+      kjeldloozen&itzos.nl
+52967
+  Mascaro Construction Company
+    Tony Clark
+      tclark&mascaroconstruction.com
+52968
+  Reimer IT Solutions
+    Kjeld Loozen
+      k.loozen&reimeritsolutions.nl
+52969
+  TRUSTPRO QTSP LTD
+    Mario Rossi
+      administration&trustpro.eu
+52970
+  Eleven Software
+    Susan Liles
+      accounting&elevensoftware.com
+52971
+  Art-k-tec Systems LLC
+    Nika Jones
+      nikaj-pen&art-k-tec.com
+52972
+  Matthias Staudacher
+    Matthias Staudacher
+      secure.home.oid&e.mail.de
+52973
+  August Storck KG
+    Oliver Meise
+      windows-support&de.storck.com
+52974
+  Alamo Psychiatric Care, P.A.
+    David Vargas
+      Alamopsychcare&sbcglobal.net
+52975
+  Salish Integrative Medicine, Inc.
+    Callie Hills
+      callie.hills&salishcancercenter.com
+52976
+  Pittol
+    Gabriel Luis Duarte Pittol
+      gldpittol&inf.ufrgs.br
+52977
+  ZMNH EDV
+    Rattai
+      srl&zmnh.uni-hamburg.de
+52978
+  Träfrakt Götaland AB
+    Pehr Sundblad
+      pehr.sundblad&trafrakt.se
+52979
+  Fujian Straits Information Technology Co., Ltd.
+    TANG JUN
+      tangjun&heidun.net
+52980
+  Nissin Systems Co.,Ltd.
+    IANA Administrator
+      iana&co-nss.co.jp
+52981
+  CPON TECHNOLOGIES HONGKONG CO LIMITED
+    Richard Wang 
+      richard.wang&cpontech.com
+52982
+  PNP SECURE INC.
+    JAE CHUN LEE
+      jclee&pnpsecure.com
+52983
+  West London NHS Trust
+    Jim Ying
+      dev-team&westlondon.nhs.uk
+52984
+  Albany Surgical, PC
+    Michael St. Angelo
+      mstangelo&albanysurgical.com
+52985
+  Omni Air International
+    Matthew Hunt
+      is&oai.aero
+52986
+  Mörks skogsmaskiner AB
+    Mats Mörk
+      morksskogsmaskiner&telia.com
+52987
+  TierPoint
+    Art Cancro
+      art.cancro&tierpoint.com
+52988
+  中天宽带技术有限公司 (Zhongtian Broadband Technology Co., Ltd.)
+    徐国庆 (Xu Guoqing)
+      xugq&chinaztt.com
+52989
+  Medical Training Institute Center INC
+    Micheal Daniels
+      mtdaniels&emsmedtraining.com
+52990
+  Heilongjiang Electric Power Dispatching Industry Co., Ltd.
+    Qi Li
+      coder_li&foxmail.com
+52991
+  DataOrbis
+    Devon Hunter
+      itadmin&dataorbis.com
+52992
+  Lahtis Entreprenad AB
+    Mattias Lahti
+      Lahtisentreprenadab&hotmail.com
+52993
+  ChocolateCoding
+    Johannes Müller
+      iana&chocolatecoding.com
+52994
+  drei01 Technology Business Services GmbH
+    Michael Linkenheil
+      linkenheil&drei01.de
 
 
 End of Document
