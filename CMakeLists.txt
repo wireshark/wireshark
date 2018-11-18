@@ -577,6 +577,18 @@ else() # ! MSVC
 		-Werror=implicit
 	)
 
+	#
+	# The universal zero initializer (in C: struct s x = { 0 };) for
+	# structures with multiple members is perfectly legal, but some older
+	# compilers warn about it. Silence those older compilers.
+	#
+	if((CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_LESS "4.7") OR
+	   (CMAKE_C_COMPILER_ID STREQUAL "Clang" AND CMAKE_C_COMPILER_VERSION VERSION_LESS "6.0") OR
+	   (CMAKE_C_COMPILER_ID STREQUAL "AppleClang" AND CMAKE_C_COMPILER_VERSION VERSION_LESS "10.0"))
+		list(APPEND WIRESHARK_C_ONLY_FLAGS -Wno-missing-field-initializers)
+	endif()
+
+
 	list(APPEND WIRESHARK_CXX_ONLY_FLAGS
 	)
 
