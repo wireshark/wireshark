@@ -43,19 +43,6 @@
  *      Lzip format: http://www.nongnu.org/lzip/
  */
 
-/*
- * List of extensions for compressed files.
- * If we add support for more compressed file types, this table
- * might be expanded to include routines to handle the various
- * compression types.
- */
-const char *compressed_file_extension_table[] = {
-#ifdef HAVE_ZLIB
-    "gz",
-#endif
-    NULL
-};
-
 /* #define GZBUFSIZE 8192 */
 #define GZBUFSIZE 4096
 

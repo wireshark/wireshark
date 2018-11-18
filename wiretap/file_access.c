@@ -78,30 +78,50 @@
 #include "systemd_journal.h"
 
 /*
- * Add an extension, and all compressed versions thereof, to a GSList
- * of extensions.
+ * Add an extension, and all compressed versions thereof if requested,
+ * to a GSList of extensions.
  */
 static GSList *
 add_extensions(GSList *extensions, const gchar *extension,
-    const char **compressed_file_extensions)
+    gboolean include_compressed)
 {
-	const char **compressed_file_extensionp;
-
 	/*
 	 * Add the specified extension.
 	 */
 	extensions = g_slist_prepend(extensions, g_strdup(extension));
 
-	/*
-	 * Now add the extensions for compressed-file versions of
-	 * that extension.
-	 */
-	for (compressed_file_extensionp = compressed_file_extensions;
-	    *compressed_file_extensionp != NULL;
-	    compressed_file_extensionp++) {
-		extensions = g_slist_prepend(extensions,
-		    g_strdup_printf("%s.%s", extension,
-		      *compressed_file_extensionp));
+	if (include_compressed) {
+		/*
+		 * We were asked to include the extensions for
+		 * compressed-file versions of that extension; do so.
+		 */
+		for (wtap_compression_type compression_type = WTAP_UNCOMPRESSED;
+		    compression_type < WTAP_NUM_COMPRESSION_TYPES;
+		    compression_type++) {
+			if (compression_type == WTAP_UNCOMPRESSED) {
+				/*
+				 * This isn't a compression type, so it has
+				 * no extension.
+				 */
+				continue;
+			}
+			if (!wtap_compression_type_supported(compression_type)) {
+				/*
+				 * We don't support this compression type,
+				 * so don't include its extension.
+				 */
+				continue;
+			}
+
+			/*
+			 * It's a supported compression type, so append its
+			 * extension to the extension we were handed, and
+			 * include that as an extension pair.
+			 */
+			extensions = g_slist_prepend(extensions,
+			    g_strdup_printf("%s.%s", extension,
+			      wtap_compressed_file_extension(compression_type)));
+		}
 	}
 
 	return extensions;
@@ -192,8 +212,7 @@ wtap_get_file_extension_type_name(int extension_type)
 }
 
 static GSList *
-add_extensions_for_file_extensions_type(int extension_type,
-    GSList *extensions, const char **compressed_file_extensions)
+add_extensions_for_file_extensions_type(int extension_type, GSList *extensions)
 {
 	gchar **extensions_set, **extensionp, *extension;
 
@@ -213,8 +232,7 @@ add_extensions_for_file_extensions_type(int extension_type,
 		 * Add the extension, and all compressed variants
 		 * of it.
 		 */
-		extensions = add_extensions(extensions, extension,
-		    compressed_file_extensions);
+		extensions = add_extensions(extensions, extension, TRUE);
 	}
 
 	g_strfreev(extensions_set);
@@ -241,7 +259,7 @@ wtap_get_file_extension_type_extensions(guint extension_type)
 	 * variants.
 	 */
 	extensions = add_extensions_for_file_extensions_type(extension_type,
-	    extensions, compressed_file_extension_table);
+	    extensions);
 
 	return extensions;
 }
@@ -283,7 +301,7 @@ wtap_get_all_capture_file_extensions_list(void)
 			 * extensions, with compressed variants.
 			 */
 			extensions = add_extensions_for_file_extensions_type(i,
-			    extensions, compressed_file_extension_table);
+			    extensions);
 		}
 	}
 
@@ -598,7 +616,6 @@ get_file_extension(const char *pathname)
 	gchar *filename;
 	gchar **components;
 	size_t ncomponents;
-	const char **compressed_file_extensionp;
 	gchar *extensionp;
 
 	/*
@@ -646,12 +663,31 @@ get_file_extension(const char *pathname)
 	 * files?
 	 */
 	extensionp = components[ncomponents - 1];
-	for (compressed_file_extensionp = compressed_file_extension_table;
-	    *compressed_file_extensionp != NULL;
-	    compressed_file_extensionp++) {
-		if (strcmp(extensionp, *compressed_file_extensionp) == 0) {
+	for (wtap_compression_type compression_type = WTAP_UNCOMPRESSED;
+	    compression_type < WTAP_NUM_COMPRESSION_TYPES;
+	    compression_type++) {
+		if (compression_type == WTAP_UNCOMPRESSED) {
 			/*
-			 * Yes, it's one of the compressed-file extensions.
+			 * This isn't a compression type, so it has no
+			 * extension.
+			 */
+			continue;
+		}
+		if (!wtap_compression_type_supported(compression_type)) {
+			/*
+			 * We don't support this compression type, so don't
+			 * include its extension.
+			 */
+			continue;
+		}
+
+		/*
+		 * Is the extension the extension corresponding to this
+		 * compression type?
+		 */
+		if (strcmp(extensionp, wtap_compressed_file_extension(compression_type)) == 0) {
+			/*
+			 * Yes, so it's one of the compressed-file extensions.
 			 * Is there an extension before that?
 			 */
 			if (ncomponents == 2) {
@@ -2030,19 +2066,19 @@ wtap_short_string_to_file_type_subtype(const char *short_name)
 
 static GSList *
 add_extensions_for_file_type_subtype(int file_type_subtype, GSList *extensions,
-    const char **compressed_file_extensions)
+    gboolean include_compressed)
 {
 	gchar **extensions_set, **extensionp;
 	gchar *extension;
 
 	/*
 	 * Add the default extension, and all compressed variants of
-	 * it, if there is a default extension.
+	 * it if requested, if there is a default extension.
 	 */
 	if (dump_open_table[file_type_subtype].default_file_extension != NULL) {
 		extensions = add_extensions(extensions,
 		    dump_open_table[file_type_subtype].default_file_extension,
-		    compressed_file_extensions);
+		    include_compressed);
 	}
 
 	if (dump_open_table[file_type_subtype].additional_file_extensions != NULL) {
@@ -2064,10 +2100,10 @@ add_extensions_for_file_type_subtype(int file_type_subtype, GSList *extensions,
 
 			/*
 			 * Add the extension, and all compressed variants
-			 * of it.
+			 * of it if requested.
 			 */
 			extensions = add_extensions(extensions, extension,
-			    compressed_file_extensions);
+			    include_compressed);
 		}
 
 		g_strfreev(extensions_set);
@@ -2087,9 +2123,6 @@ GSList *
 wtap_get_file_extensions_list(int file_type_subtype, gboolean include_compressed)
 {
 	GSList *extensions;
-	static const char *no_compressed_extensions[] = {
-		NULL
-	};
 
 	if (file_type_subtype < 0 || file_type_subtype >= wtap_num_file_types_subtypes)
 		return NULL;	/* not a valid file type */
@@ -2104,7 +2137,7 @@ wtap_get_file_extensions_list(int file_type_subtype, gboolean include_compressed
 	 * variants if include_compressed is true.
 	 */
 	extensions = add_extensions_for_file_type_subtype(file_type_subtype, extensions,
-	    include_compressed ? compressed_file_extension_table : no_compressed_extensions);
+	    include_compressed);
 
 	return extensions;
 }
@@ -2130,7 +2163,7 @@ wtap_get_all_file_extensions_list(void)
 
 	for (i = 0; i < WTAP_NUM_FILE_TYPES_SUBTYPES; i++) {
 		extensions = add_extensions_for_file_type_subtype(i, extensions,
-		    compressed_file_extension_table);
+		    TRUE);	/* include compressed-file extensions */
 	}
 
 	return extensions;

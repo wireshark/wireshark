@@ -1710,7 +1710,11 @@ gint64 wtap_file_size(wtap *wth, int *err);
 WS_DLL_PUBLIC
 wtap_compression_type wtap_get_compression_type(wtap *wth);
 WS_DLL_PUBLIC
+gboolean wtap_compression_type_supported(wtap_compression_type compression_type);
+WS_DLL_PUBLIC
 const char *wtap_compression_type_description(wtap_compression_type compression_type);
+WS_DLL_PUBLIC
+const char *wtap_compressed_file_extension(wtap_compression_type compression_type);
 WS_DLL_PUBLIC
 guint wtap_snapshot_length(wtap *wth); /* per file */
 WS_DLL_PUBLIC

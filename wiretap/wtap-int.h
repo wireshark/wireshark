@@ -251,12 +251,6 @@ extern gint wtap_num_file_types;
 #endif
 
 /*
- * Table of extensions for compressed file types we support.
- * Last pointer in the list is null.
- */
-extern const char *compressed_file_extension_table[];
-
-/*
  * Read a given number of bytes from a file into a buffer or, if
  * buf is NULL, just discard them.
  *
