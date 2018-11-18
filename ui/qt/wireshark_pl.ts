@@ -917,6 +917,10 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source> (gzip compressed)</source>
+        <translation type="vanished"> (skompresowany gzip)</translation>
+    </message>
+    <message>
         <source>Format</source>
         <translation>Format</translation>
     </message>
@@ -3039,6 +3043,10 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <message>
         <source>Length</source>
         <translation>Długość</translation>
+    </message>
+    <message>
+        <source> (gzip compressed)</source>
+        <translation type="vanished"> (skompresowany gzip)</translation>
     </message>
     <message>
         <source>Format</source>
@@ -7461,7 +7469,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>.</source>
-        <translation>.</translation>
+        <translation type="vanished">.</translation>
     </message>
     <message>
         <source>Do you want to save the changes you&apos;ve made%1?</source>
@@ -7849,6 +7857,10 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <message>
         <source>Length</source>
         <translation>Długość</translation>
+    </message>
+    <message>
+        <source> (gzip compressed)</source>
+        <translation type="vanished">(skompresowany gzip)</translation>
     </message>
     <message>
         <source>Format</source>
@@ -12681,10 +12693,6 @@ a:hover {
     <message>
         <source>You are running Wireshark </source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>.</source>
-        <translation type="unfinished">.</translation>
     </message>
     <message>
         <source> You receive automatic updates.</source>

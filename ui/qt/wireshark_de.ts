@@ -926,15 +926,19 @@
     </message>
     <message>
         <source>Hash (SHA256)</source>
-        <translation type="unfinished"></translation>
+        <translation>Hash (SHA256)</translation>
     </message>
     <message>
         <source>Hash (RIPEMD160)</source>
-        <translation type="unfinished"></translation>
+        <translation>Hash (RIPEMD160)</translation>
     </message>
     <message>
         <source>Hash (SHA1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Hash (SHA1)</translation>
+    </message>
+    <message>
+        <source> (gzip compressed)</source>
+        <translation type="vanished"> (gzip-komprimiert)</translation>
     </message>
     <message>
         <source>Format</source>
@@ -1316,7 +1320,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Switch to the next file after the specified number of packets have been captured.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zur nächsten Datei wechseln wenn die angegebene Anzahl an Paketen aufgezeichnet wurden.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1451,14 +1455,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Multiple files: No file limit given. You must specify a file size, interval, or number of packets for each file.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Multiple files: No file limit given. You must specify a file size or interval at which is switched to the next capture file
- if you want to use multiple files.</source>
-        <oldsource>Multiple files: No file limit given. You must specify a file size or duration at which is switched to the next capture file
- if you want to use multiple files.</oldsource>
-        <translation type="vanished">Dateisatz: Kein Limit angegeben. Wenn ein Dateisatz genutzt werden soll, muss eine Dateigröße oder eine Laufzeit angegeben werden, bei der zur nächsten Datei gewechselt wird</translation>
+        <translation>Dateisatz: Kein Limit angegeben. Es muss eine Dateigröße, ein Zeitintervall oder eine Paketanzahl definiert werden.</translation>
     </message>
 </context>
 <context>
@@ -3063,6 +3060,10 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <source>Length</source>
         <translation>Länge</translation>
+    </message>
+    <message>
+        <source> (gzip compressed)</source>
+        <translation type="vanished"> (gzip komprimiert)</translation>
     </message>
     <message>
         <source>Format</source>
@@ -7489,7 +7490,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>.</source>
-        <translation>.</translation>
+        <translation type="vanished">.</translation>
     </message>
     <message>
         <source>Do you want to save the changes you&apos;ve made%1?</source>
@@ -7875,6 +7876,10 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <source>Length</source>
         <translation>Länge</translation>
+    </message>
+    <message>
+        <source> (gzip compressed)</source>
+        <translation type="vanished"> (gzip-komprimiert)</translation>
     </message>
     <message>
         <source>Format</source>
@@ -12741,7 +12746,7 @@ text-decoration: underline;
     </message>
     <message>
         <source>.</source>
-        <translation>.</translation>
+        <translation type="vanished">.</translation>
     </message>
     <message>
         <source> You receive automatic updates.</source>

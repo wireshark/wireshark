@@ -5,7 +5,7 @@
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2018-11-10)
+# (last updated 2018-11-18)
 
 0	Reserved
 1	NxNetworks
@@ -511,7 +511,7 @@
 501	European Agency of Digital Trust	# formerly 'Programa SPRITEL'
 502	Adacom
 503	Metrodata Ltd
-504	Ellemtel Telecommunication Systems Laboratories
+504	Ericsson AB - 4G5G	# formerly 'Ellemtel Telecommunication Systems Laboratories'
 505	Arizona Public Service
 506	NETWIZ, Ltd.,
 507	Science and Engineering Research Council (SERC)
@@ -52714,7 +52714,7 @@
 52901	Linxdatacenter
 52902	VI Company Services B.V.
 52903	Turrillas Inc.
-52904	Defiance Technolog Inc.
+52904	Defiance Technology Inc.
 52905	JT Global
 52906	Acumen Consulting
 52907	APROPLAN s.a
@@ -52769,3 +52769,39 @@
 52956	Fronius International GmbH
 52957	ACTIVEMALL SRL
 52958	NumaTech Ltd.
+52959	Drakontas LLC
+52960	AssistRx
+52961	Cohen & Company
+52962	AVA Abfallverwertung Augsburg KU
+52963	BRNET
+52964	OOO "Synergy Team"
+52965	Berale of Teldan Group
+52966	Itzos
+52967	Mascaro Construction Company
+52968	Reimer IT Solutions
+52969	TRUSTPRO QTSP LTD
+52970	Eleven Software
+52971	Art-k-tec Systems LLC
+52972	Matthias Staudacher
+52973	August Storck KG
+52974	Alamo Psychiatric Care, P.A.
+52975	Salish Integrative Medicine, Inc.
+52976	Pittol
+52977	ZMNH EDV
+52978	Träfrakt Götaland AB
+52979	Fujian Straits Information Technology Co., Ltd.
+52980	Nissin Systems Co.,Ltd.
+52981	CPON TECHNOLOGIES HONGKONG CO LIMITED
+52982	PNP SECURE INC.
+52983	West London NHS Trust
+52984	Albany Surgical, PC
+52985	Omni Air International
+52986	Mörks skogsmaskiner AB
+52987	TierPoint
+52988	中天宽带技术有限公司 (Zhongtian Broadband Technology Co., Ltd.)
+52989	Medical Training Institute Center INC
+52990	Heilongjiang Electric Power Dispatching Industry Co., Ltd.
+52991	DataOrbis
+52992	Lahtis Entreprenad AB
+52993	ChocolateCoding
+52994	drei01 Technology Business Services GmbH
