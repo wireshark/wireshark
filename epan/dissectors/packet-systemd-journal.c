@@ -356,7 +356,7 @@ dissect_systemd_journal_line_entry(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
                 }
                 if (hf_idx == hf_sj_message) {
                     col_clear(pinfo->cinfo, COL_INFO);
-                    col_set_str(pinfo->cinfo, COL_INFO, tvb_format_text(tvb, eq_off, val_len));
+                    col_add_str(pinfo->cinfo, COL_INFO, (char *) tvb_get_string_enc(wmem_packet_scope(), tvb, eq_off, val_len, ENC_UTF_8));
                 }
                 found = TRUE;
             }
@@ -364,7 +364,7 @@ dissect_systemd_journal_line_entry(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 
         if (!found && eq_off > offset + 1) {
             proto_item *unk_ti = proto_tree_add_none_format(sje_tree, hf_sj_unkown_field, tvb, offset, line_len,
-                                                            "Unknown text field: %s", tvb_format_text(tvb, offset, eq_off - offset - 1));
+                                                            "Unknown text field: %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, eq_off - offset - 1, ENC_UTF_8));
             proto_tree *unk_tree = proto_item_add_subtree(unk_ti, ett_systemd_unknown_field);
             proto_tree_add_item(unk_tree, hf_sj_unkown_field_name, tvb, offset, eq_off - offset - 1, ENC_UTF_8|ENC_NA);
             proto_tree_add_item(unk_tree, hf_sj_unkown_field_value, tvb, eq_off, val_len, ENC_UTF_8|ENC_NA);
@@ -387,7 +387,7 @@ dissect_systemd_journal_line_entry(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
                         proto_tree_add_item(bin_tree, hf_sj_binary_data_len, tvb, offset + noeql_len + 1, 8, ENC_LITTLE_ENDIAN);
                         if (hf_idx == hf_sj_message) {
                             col_clear(pinfo->cinfo, COL_INFO);
-                            col_set_str(pinfo->cinfo, COL_INFO, tvb_format_text(tvb, data_off, (int) data_len));
+                            col_add_str(pinfo->cinfo, COL_INFO, tvb_format_text(tvb, data_off, (int) data_len));
                         }
                     } else {
                         proto_item *unk_ti = proto_tree_add_none_format(sje_tree, hf_sj_unkown_field, tvb, offset, line_len,
