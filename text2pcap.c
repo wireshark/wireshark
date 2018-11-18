@@ -626,12 +626,6 @@ write_current_packet (gboolean cont)
         /* Is direction indication on with an inbound packet? */
         gboolean isInbound = has_direction && (direction == 2);
 
-        /* if defined IPv6 we should rewrite hdr_ethernet_proto anyways */
-        if (hdr_ipv6) {
-            hdr_ethernet_proto = 0x86DD;
-            hdr_ip = FALSE;
-        }
-
         /* Compute packet length */
         length = curr_offset;
         if (hdr_sctp) {
@@ -1522,7 +1516,6 @@ parse_options (int argc, char *argv[])
                 return EXIT_FAILURE;
             }
             hdr_ethernet = TRUE;
-            hdr_ethernet_proto = 0x800;
             break;
 
         case 's':
@@ -1565,7 +1558,6 @@ parse_options (int argc, char *argv[])
 
             hdr_ip_proto = 132;
             hdr_ethernet = TRUE;
-            hdr_ethernet_proto = 0x800;
             break;
         case 'S':
             hdr_sctp = TRUE;
@@ -1607,7 +1599,6 @@ parse_options (int argc, char *argv[])
 
             hdr_ip_proto = 132;
             hdr_ethernet = TRUE;
-            hdr_ethernet_proto = 0x800;
             break;
 
         case 't':
@@ -1640,7 +1631,6 @@ parse_options (int argc, char *argv[])
             }
             hdr_ip_proto = 17;
             hdr_ethernet = TRUE;
-            hdr_ethernet_proto = 0x800;
             break;
 
         case 'T':
@@ -1669,7 +1659,6 @@ parse_options (int argc, char *argv[])
             }
             hdr_ip_proto = 6;
             hdr_ethernet = TRUE;
-            hdr_ethernet_proto = 0x800;
             break;
 
         case 'a':
@@ -1699,12 +1688,12 @@ parse_options (int argc, char *argv[])
             if (c == '6')
             {
                 hdr_ipv6 = TRUE;
-                hdr_ethernet_proto = 0x86DD;
+                hdr_ip   = FALSE;
             }
             else
             {
                 hdr_ip = TRUE;
-                hdr_ethernet_proto = 0x800;
+                hdr_ipv6 = FALSE;
             }
             hdr_ethernet = TRUE;
 
@@ -1848,6 +1837,14 @@ parse_options (int argc, char *argv[])
          * but none of IPv4 (-4) or IPv6 (-6) options then add an IPv4 header
          */
         hdr_ip = TRUE;
+    }
+
+    if (hdr_ip)
+    {
+        hdr_ethernet_proto = 0x0800;
+    } else if (hdr_ipv6)
+    {
+        hdr_ethernet_proto = 0x86DD;
     }
 
     /* Display summary of our state */
