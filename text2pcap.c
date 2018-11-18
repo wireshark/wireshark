@@ -1836,6 +1836,12 @@ parse_options (int argc, char *argv[])
         hdr_ip = TRUE;
     }
 
+    if (hdr_ip_proto == -1 && (hdr_ip || hdr_ipv6)) {
+        /* if -4 or -6 option is specified without an IP protocol then fail */
+        fprintf(stderr, "IP protocol requires a next layer protocol number\n");
+        return EXIT_FAILURE;
+    }
+
     if ((hdr_tcp || hdr_udp || hdr_sctp) && !(hdr_ip || hdr_ipv6)) {
         /*
          * If TCP (-T), UDP (-u) or SCTP (-s/-S) header options are specified
