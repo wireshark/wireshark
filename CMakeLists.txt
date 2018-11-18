@@ -7,6 +7,12 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 
+if(WIN32)
+	# Needed for GREATER_EQUAL operator
+	cmake_minimum_required(VERSION 3.7)
+else()
+	cmake_minimum_required(VERSION 3.5)
+endif()
 project(Wireshark C CXX)
 
 # Updated by make-version.pl
@@ -34,12 +40,6 @@ endif()
 set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
 
 message(STATUS "Generating build using CMake ${CMAKE_VERSION}")
-if(WIN32)
-	# Needed for GREATER_EQUAL operator
-	cmake_minimum_required(VERSION 3.7)
-else()
-	cmake_minimum_required(VERSION 3.5)
-endif()
 
 #Where to find local cmake scripts
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
