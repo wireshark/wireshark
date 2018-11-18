@@ -1412,6 +1412,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  scsi_ssc_vals_ext@Base 1.12.0~rc1
  scsistat_param@Base 2.5.0
  sctp_port_to_display@Base 1.99.2
+ secrets_wtap_callback@Base 2.9.0
  sequence_analysis_create_sai_with_addresses@Base 2.5.0
  sequence_analysis_dump_to_file@Base 2.5.0
  sequence_analysis_find_by_name@Base 2.5.0

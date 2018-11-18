@@ -41,6 +41,7 @@
 #include <epan/strutil.h>
 #include <epan/addr_resolv.h>
 #include <epan/color_filters.h>
+#include <epan/secrets.h>
 
 #include "cfile.h"
 #include "file.h"
@@ -323,6 +324,7 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_temp
 
   wtap_set_cb_new_ipv4(cf->provider.wth, add_ipv4_name);
   wtap_set_cb_new_ipv6(cf->provider.wth, (wtap_new_ipv6_callback_t) add_ipv6_name);
+  wtap_set_cb_new_secrets(cf->provider.wth, secrets_wtap_callback);
 
   return CF_OK;
 

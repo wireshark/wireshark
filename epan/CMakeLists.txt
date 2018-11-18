@@ -133,6 +133,7 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	rtd_table.h
 	rtp_pt.h
 	sctpppids.h
+	secrets.h
 	show_exception.h
 	slow_protocol_subtypes.h
 	sminmpec.h
@@ -221,6 +222,7 @@ set(LIBWIRESHARK_NONGENERATED_FILES
 	register.c
 	req_resp_hdrs.c
 	rtd_table.c
+	secrets.c
 	sequence_analysis.c
 	show_exception.c
 	srt_table.c

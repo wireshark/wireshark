@@ -55,6 +55,7 @@
 #include "reassemble.h"
 #include "srt_table.h"
 #include "stats_tree.h"
+#include "secrets.h"
 #include <dtd.h>
 
 #ifdef HAVE_PLUGINS
@@ -228,6 +229,7 @@ epan_init(register_cb cb, gpointer client_data, gboolean load_plugins)
 		prefs_init();
 		expert_init();
 		packet_init();
+		secrets_init();
 		conversation_init();
 		capture_dissector_init();
 		reassembly_tables_init();
@@ -316,6 +318,7 @@ epan_cleanup(void)
 	prefs_cleanup();
 	proto_cleanup();
 
+	secrets_cleanup();
 	conversation_filters_cleanup();
 	reassembly_table_cleanup();
 	tap_cleanup();

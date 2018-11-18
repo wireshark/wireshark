@@ -5189,7 +5189,7 @@ typedef struct ssl_master_key_match_group {
 } ssl_master_key_match_group_t;
 
 void
-tls_keylog_process_lines(const ssl_master_key_map_t *mk_map, const char *lines)
+tls_keylog_process_lines(const ssl_master_key_map_t *mk_map, const guint8 *data, guint datalen)
 {
     ssl_master_key_match_group_t mk_groups[] = {
         { "encrypted_pmk",  mk_map->pre_master },
@@ -5254,23 +5254,24 @@ tls_keylog_process_lines(const ssl_master_key_map_t *mk_map, const char *lines)
     if (!regex)
         return;
 
-    const char *next_line = lines;
-    while (next_line && next_line[0]) {
+    const char *next_line = (const char *)data;
+    const char *line_end = next_line + datalen;
+    while (next_line && next_line < line_end) {
         const char *line = next_line;
-        next_line = strchr(line, '\n');
+        next_line = (const char *)memchr(line, '\n', line_end - line);
         gssize linelen;
 
         if (next_line) {
             linelen = next_line - line;
             next_line++;    /* drop LF */
         } else {
-            linelen = (gssize)strlen(line);
+            linelen = (gssize)(line_end - line);
         }
         if (linelen > 0 && line[linelen - 1] == '\r') {
             linelen--;      /* drop CR */
         }
 
-        ssl_debug_printf("  checking keylog line: %s\n", line);
+        ssl_debug_printf("  checking keylog line: %.*s\n", (int)linelen, line);
         GMatchInfo *mi;
         if (g_regex_match_full(regex, line, linelen, 0, G_REGEX_MATCH_ANCHORED, &mi, NULL)) {
             gchar *hex_key, *hex_pre_ms_or_ms;
@@ -5370,7 +5371,7 @@ ssl_load_keyfile(const gchar *tls_keylog_filename, FILE **keylog_file,
             }
             break;
         }
-        tls_keylog_process_lines(mk_map, line);
+        tls_keylog_process_lines(mk_map, (guint8 *)line, (int)strlen(line));
     }
 }
 /** SSL keylog file handling. }}} */

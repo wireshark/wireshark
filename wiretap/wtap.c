@@ -1258,6 +1258,11 @@ void wtap_set_cb_new_ipv6(wtap *wth, wtap_new_ipv6_callback_t add_new_ipv6) {
 		wth->add_new_ipv6 = add_new_ipv6;
 }
 
+void wtap_set_cb_new_secrets(wtap *wth, wtap_new_secrets_callback_t add_new_secrets) {
+	if (wth)
+		wth->add_new_secrets = add_new_secrets;
+}
+
 gboolean
 wtap_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {

@@ -283,6 +283,16 @@ class case_decrypt_tls(subprocesstest.SubprocessTestCase):
             r'13||Request for /second, version TLSv1.3, Early data: yes\n',
         ], proc.stdout_str.splitlines())
 
+    def test_tls12_dsb(self, cmd_tshark, capture_file):
+        '''TLS 1.2 with master secrets in pcapng Decryption Secrets Blocks.'''
+        output = self.runProcess((cmd_tshark,
+                '-r', capture_file('tls12-dsb.pcapng'),
+                '-Tfields',
+                '-e', 'http.host',
+                '-e', 'http.response.code',
+                '-Y', 'http',
+            )).stdout_str.replace('\r\n', '\n')
+        self.assertEqual('example.com\t\n\t200\nexample.net\t\n\t200\n', output)
 
 
 @fixtures.mark_usefixtures('test_env')

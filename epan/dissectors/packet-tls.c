@@ -75,6 +75,8 @@
 #include <epan/exported_pdu.h>
 #include <epan/proto_data.h>
 #include <epan/decode_as.h>
+#include <epan/secrets.h>
+#include <wiretap/secrets-types.h>
 
 #include <wsutil/utf8_entities.h>
 #include <wsutil/str_util.h>
@@ -3754,6 +3756,12 @@ ssl_both_prompt(packet_info *pinfo, gchar *result)
     g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "both (%u%s%u)", srcport, UTF8_LEFT_RIGHT_ARROW, destport);
 }
 
+static void
+tls_secrets_block_callback(const void *secrets, guint size)
+{
+    tls_keylog_process_lines(&ssl_master_key_map, (const guint8 *)secrets, size);
+}
+
 /*********************************************************************
  *
  * Standard Wireshark Protocol Registration and housekeeping
@@ -4171,6 +4179,7 @@ proto_register_tls(void)
 
     register_follow_stream(proto_tls, "tls", tcp_follow_conv_filter, tcp_follow_index_filter, tcp_follow_address_filter,
                             tcp_port_to_display, ssl_follow_tap_listener);
+    secrets_register_type(SECRETS_TYPE_TLS, tls_secrets_block_callback);
 }
 
 static int dissect_tls_sct_ber(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)

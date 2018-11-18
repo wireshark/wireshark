@@ -69,6 +69,7 @@ struct wtap {
                                                 */
     wtap_new_ipv4_callback_t    add_new_ipv4;
     wtap_new_ipv6_callback_t    add_new_ipv6;
+    wtap_new_secrets_callback_t add_new_secrets;
     GPtrArray                   *fast_seek;
 };
 
