@@ -1399,6 +1399,7 @@ print_usage (FILE *output)
             "                         specify the exact type of encapsulation.\n"
             "                         Example: -l 7 for ARCNet packets.\n"
             "  -m <max-packet>        max packet length in output; default is %d\n"
+            "  -n                     use pcapng instead of pcap as output format.\n"
             "\n"
             "Prepend dummy header:\n"
             "  -e <l3pid>             prepend dummy Ethernet II header with specified L3PID\n"
@@ -1437,7 +1438,6 @@ print_usage (FILE *output)
             "  -h                     display this help and exit.\n"
             "  -d                     show detailed debug of parser states.\n"
             "  -q                     generate no output at all (automatically disables -d).\n"
-            "  -n                     use pcapng instead of pcap as output format.\n"
             "",
             WTAP_MAX_PACKET_SIZE_STANDARD);
 }
