@@ -1272,14 +1272,12 @@ static int list_config(char *interface) {
         printf("arg {number=%u}{call=--bt-forward-socket}{display=Forward Bluetooth Socket}{type=boolean}{default=false}\n", inc++);
         printf("arg {number=%u}{call=--bt-local-ip}{display=Bluetooth Local IP Address}{type=string}{default=127.0.0.1}\n", inc++);
         printf("arg {number=%u}{call=--bt-local-tcp-port}{display=Bluetooth Local TCP Port}{type=integer}{range=0,65535}{default=4330}{tooltip=Used to do \"adb forward tcp:LOCAL_TCP_PORT tcp:SERVER_TCP_PORT\"}\n", inc++);
-        printf("arg {number=%u}{call=--verbose}{display=Verbose/Debug output on console}{type=boolean}{default=false}\n", inc++);
         ret = EXIT_CODE_SUCCESS;
     } else  if (is_specified_interface(interface, INTERFACE_ANDROID_BLUETOOTH_HCIDUMP) ||
             is_specified_interface(interface, INTERFACE_ANDROID_BLUETOOTH_BTSNOOP_NET) ||
             is_specified_interface(interface, INTERFACE_ANDROID_TCPDUMP)) {
         printf("arg {number=%u}{call=--adb-server-ip}{display=ADB Server IP Address}{type=string}{default=127.0.0.1}\n", inc++);
         printf("arg {number=%u}{call=--adb-server-tcp-port}{display=ADB Server TCP Port}{type=integer}{range=0,65535}{default=5037}\n", inc++);
-        printf("arg {number=%u}{call=--verbose}{display=Verbose/Debug output on console}{type=boolean}{default=false}\n", inc++);
         ret = EXIT_CODE_SUCCESS;
     } else if (is_logcat_interface(interface)) {
         printf("arg {number=%u}{call=--adb-server-ip}{display=ADB Server IP Address}{type=string}{default=127.0.0.1}\n", inc++);
@@ -1287,14 +1285,12 @@ static int list_config(char *interface) {
         printf("arg {number=%u}{call=--logcat-text}{display=Use text logcat}{type=boolean}{default=false}\n", inc++);
         printf("arg {number=%u}{call=--logcat-ignore-log-buffer}{display=Ignore log buffer}{type=boolean}{default=false}\n", inc++);
         printf("arg {number=%u}{call=--logcat-custom-options}{display=Custom logcat parameters}{type=string}\n", inc++);
-        printf("arg {number=%u}{call=--verbose}{display=Verbose/Debug output on console}{type=boolean}{default=false}\n", inc++);
         ret = EXIT_CODE_SUCCESS;
     } else if (is_logcat_text_interface(interface)) {
         printf("arg {number=%u}{call=--adb-server-ip}{display=ADB Server IP Address}{type=string}{default=127.0.0.1}\n", inc++);
         printf("arg {number=%u}{call=--adb-server-tcp-port}{display=ADB Server TCP Port}{type=integer}{range=0,65535}{default=5037}\n", inc++);
         printf("arg {number=%u}{call=--logcat-ignore-log-buffer}{display=Ignore log buffer}{type=boolean}{default=false}\n", inc++);
         printf("arg {number=%u}{call=--logcat-custom-options}{display=Custom logcat parameters}{type=string}\n", inc++);
-        printf("arg {number=%u}{call=--verbose}{display=Verbose/Debug output on console}{type=boolean}{default=false}\n", inc++);
         ret = EXIT_CODE_SUCCESS;
     }
 
