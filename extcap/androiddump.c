@@ -508,14 +508,8 @@ static gboolean extcap_dumper_dump(struct extcap_dumper extcap_dumper,
         rec.rec_header.packet_header.caplen -= (guint32)sizeof(own_pcap_bluetooth_h4_header);
 
         buffer += sizeof(own_pcap_bluetooth_h4_header);
-        rec.rec_header.packet_header.pkt_encap = WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR;
     }
-    else if (extcap_dumper.encap == EXTCAP_ENCAP_ETHERNET) {
-        rec.rec_header.packet_header.pkt_encap = WTAP_ENCAP_ETHERNET;
-    }
-    else {
-        rec.rec_header.packet_header.pkt_encap = WTAP_ENCAP_WIRESHARK_UPPER_PDU;
-    }
+    rec.rec_header.packet_header.pkt_encap = extcap_dumper.encap;
 
     if (!wtap_dump(extcap_dumper.dumper.wtap, &rec, (const guint8 *) buffer, &err, &err_info)) {
         cfile_write_failure_message("androiddump", NULL, fifo, err, err_info,
