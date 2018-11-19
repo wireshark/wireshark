@@ -326,6 +326,8 @@
 #define TLV_TCC_INIT_TECH 7
 #define TLV_TCC_RNG_PARMS 8
 #define TLV_TCC_DYN_RNG_WIN 9
+#define TLV_TCC_P1_6HI 10
+#define TLV_TCC_ASSIGN_OFDMA_UP_DATA_PROF 11
 #define TLV_TCC_ERR 254
 
 /* Define TLV_TCC_RNG_PARMS sub-types

@@ -297,6 +297,8 @@ static int hf_docsis_tlv_tcc_rng_sid= -1;
 static int hf_docsis_tlv_tcc_init_tech= -1;
 /* static int hf_docsis_tlv_tcc_rng_parms= -1; */
 static int hf_docsis_tlv_tcc_dyn_rng_win= -1;
+static int hf_docsis_tlv_tcc_p_16hi = -1;
+static int hf_docsis_tlv_tcc_oudp_iuc = -1;
 /* static int hf_docsis_tlv_tcc_err = -1; */
 
 static int hf_docsis_rng_parms_us_ch_id = -1;
@@ -447,6 +449,7 @@ static gint ett_docsis_tlv_dut_filter = -1;
 static gint ett_docsis_tlv_tcc = -1;
 static gint ett_docsis_tlv_tcc_ucd = -1;
 static gint ett_docsis_tlv_tcc_rng_parms = -1;
+static gint ett_docsis_tlv_tcc_oudp = -1;
 static gint ett_docsis_tlv_tcc_err = -1;
 static gint ett_docsis_tlv_sid_cl = -1;
 static gint ett_docsis_tlv_sid_cl_enc = -1;
@@ -783,6 +786,17 @@ static const value_string fctype_fwd_vals[] = {
   {0, NULL},
 };
 
+static void
+fourth_db(char *buf, guint32 value)
+{
+    g_snprintf(buf, ITEM_LABEL_LENGTH, "%.2f dB", value/4.0);
+}
+
+static void
+fourth_dbmv(char *buf, guint32 value)
+{
+    g_snprintf(buf, ITEM_LABEL_LENGTH, "%.2f dBmV", value/4.0);
+}
 
 static reassembly_table ucd_reassembly_table;
 
@@ -1532,7 +1546,7 @@ dissect_eth_clsfr (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int st
 
   ethclsfr_tree =
     proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_clsfr_eth, &ethclsfr_item,
-                                  "10 Ethernet Classifiers (Length = %u)", len);
+                                  ".10 Ethernet Classifiers (Length = %u)", len);
 
   while (pos < (start + len))
     {
@@ -1653,7 +1667,7 @@ dissect_ip_classifier (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, in
 
   ipclsfr_tree =
     proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_clsfr_ip, &ipclsfr_item,
-                                  "9 IP Classifier (Length = %u)", len);
+                                  ".9 IP Classifier (Length = %u)", len);
 
   while (pos < (start + len))
     {
@@ -3045,7 +3059,7 @@ dissect_tcc_rng_parms(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int 
 
   rngparm_tree =
     proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_tcc_rng_parms, &rngparm_item,
-                                  "Ranging Parameters (Length = %u)", len);
+                                  ".8 Ranging Parameters (Length = %u)", len);
 
   while (pos < (start + len))
     {
@@ -3122,6 +3136,24 @@ dissect_tcc_rng_parms(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int 
 }
 
 static void
+dissect_tcc_oudp(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
+{
+  proto_tree *oudp_tree;
+  proto_item *oudp_item;
+  int pos = start;
+
+  oudp_tree =
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_tcc_oudp, &oudp_item,
+                                  ".11 Assigned OFDMA Upstream Data Profile (OUDP) IUC (Length = %u)", len);
+
+  while (pos < (start + len))
+    {
+      proto_tree_add_item (oudp_tree, hf_docsis_tlv_tcc_oudp_iuc, tvb, pos, 1, ENC_BIG_ENDIAN);
+      ++pos;
+    }
+}
+
+static void
 dissect_sid_cl_so_crit(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, guint16 len)
 {
   guint8 type, length;
@@ -3131,7 +3163,7 @@ dissect_sid_cl_so_crit(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int
 
   crit_tree =
     proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_sid_cl_so, &crit_item,
-                                  "SID Cluster Switchover Criteria (Length = %u)", len);
+                                  ".3 SID Cluster Switchover Criteria (Length = %u)", len);
 
   while (pos < (start + len))
     {
@@ -3205,7 +3237,7 @@ dissect_sid_cl_enc_map(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int
 
   map_tree =
     proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_sid_cl_enc_map, &map_item,
-                                  "SID-to-Channel Mapping (Length = %u)", len);
+                                  "..2 SID-to-Channel Mapping (Length = %u)", len);
 
   while (pos < (start + len))
     {
@@ -3267,7 +3299,7 @@ dissect_sid_cl_enc(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int sta
 
   enc_tree =
     proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_sid_cl_enc, &enc_item,
-                                  "SID Cluster Encoding (Length = %u)", len);
+                                  ".2 SID Cluster Encoding (Length = %u)", len);
 
   while (pos < (start + len))
     {
@@ -3440,7 +3472,7 @@ dissect_tcc(tvbuff_t * tvb, packet_info * pinfo,
 
               if (reassembled_ucd) {
                 tvbuff_t *ucd_tvb = NULL;
-                ucd_tvb = process_reassembled_data(tvb, pos , pinfo, "Reassembled UCD", reassembled_ucd, &ucd_frag_items,
+                ucd_tvb = process_reassembled_data(tvb, pos , pinfo, ".5 Reassembled UCD", reassembled_ucd, &ucd_frag_items,
                                                 NULL, reassembled_ucd_tree);
 
                 if (ucd_tvb && tvb_reported_length(ucd_tvb) > 0) {
@@ -3488,6 +3520,21 @@ dissect_tcc(tvbuff_t * tvb, packet_info * pinfo,
               {
                 expert_add_info_format(pinfo, tcc_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
+            break;
+          case TLV_TCC_P1_6HI:
+            if (length == 1)
+              {
+                proto_tree_add_item (tcc_tree,
+                                     hf_docsis_tlv_tcc_p_16hi, tvb, pos,
+                                     length, ENC_BIG_ENDIAN);
+              }
+            else
+              {
+                expert_add_info_format(pinfo, tcc_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
+              }
+            break;
+          case TLV_TCC_ASSIGN_OFDMA_UP_DATA_PROF:
+            dissect_tcc_oudp(tvb, tcc_tree, pos, length);
             break;
           case TLV_TCC_ERR:
             dissect_tcc_err(tvb, pinfo, tcc_tree, pos, length);
@@ -4158,7 +4205,7 @@ dissect_dsid_ds_reseq(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int 
 
   dsid_tree =
     proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_dsid_ds_reseq, &dsid_item,
-                                  "Resequencing DSID (Length = %u)", len);
+                                  ".3 Resequencing DSID (Length = %u)", len);
 
   while (pos < (start + len))
     {
@@ -4286,7 +4333,7 @@ dissect_dsid_mc(tvbuff_t * tvb, packet_info *pinfo, proto_tree *tree, int start,
 
   dsid_tree =
     proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_dsid_mc, NULL,
-                                  "Multicast Encodings (Length = %u)", len);
+                                  ".4 Multicast Encodings (Length = %u)", len);
 
   while (pos < (start + len))
     {
@@ -6202,8 +6249,18 @@ proto_register_docsis_tlv (void)
     },
     {&hf_docsis_tlv_tcc_dyn_rng_win,
      {".9 Dynamic Range Window", "docsis_tlv.tcc.dynrngwin",
-      FT_UINT8, BASE_DEC, NULL, 0x0,
+      FT_UINT8, BASE_CUSTOM, CF_FUNC(fourth_db), 0x0,
       "Dynamic Range Window", HFILL}
+    },
+    {&hf_docsis_tlv_tcc_p_16hi,
+     {".10 P1.6hi", "docsis_tlv.tcc.p16hi",
+      FT_UINT8, BASE_CUSTOM, CF_FUNC(fourth_dbmv), 0x0,
+      "P1.6hi", HFILL}
+    },
+    {&hf_docsis_tlv_tcc_oudp_iuc,
+     {"OUDP IUC", "docsis_tlv.tcc.oudp_iuc",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL}
     },
 #if 0
     {&hf_docsis_tlv_tcc_err,
@@ -6769,7 +6826,7 @@ proto_register_docsis_tlv (void)
        "The reassembled payload", HFILL}
     },
     { &hf_docsis_ucd_reassembled,
-     { "Reassembled UCD", "docsis_tlv.ucd.reassembled",
+     { ".5 Reassembled UCD", "docsis_tlv.ucd.reassembled",
        FT_BYTES, BASE_NONE, NULL, 0x0,
        "The reassembled UCD", HFILL}
     },
@@ -6803,6 +6860,7 @@ proto_register_docsis_tlv (void)
     &ett_docsis_tlv_tcc,
     &ett_docsis_tlv_tcc_ucd,
     &ett_docsis_tlv_tcc_rng_parms,
+    &ett_docsis_tlv_tcc_oudp,
     &ett_docsis_tlv_tcc_err,
     &ett_docsis_tlv_sid_cl,
     &ett_docsis_tlv_sid_cl_enc,
