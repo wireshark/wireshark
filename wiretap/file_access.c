@@ -95,17 +95,17 @@ add_extensions(GSList *extensions, const gchar *extension,
 		 * We were asked to include the extensions for
 		 * compressed-file versions of that extension; do so.
 		 */
-		for (wtap_compression_type compression_type = WTAP_UNCOMPRESSED;
-		    compression_type < WTAP_NUM_COMPRESSION_TYPES;
+		for (int compression_type = (int)WTAP_UNCOMPRESSED;
+		    compression_type < (int)WTAP_NUM_COMPRESSION_TYPES;
 		    compression_type++) {
-			if (compression_type == WTAP_UNCOMPRESSED) {
+			if (compression_type == (int)WTAP_UNCOMPRESSED) {
 				/*
 				 * This isn't a compression type, so it has
 				 * no extension.
 				 */
 				continue;
 			}
-			if (!wtap_compression_type_supported(compression_type)) {
+			if (!wtap_compression_type_supported((wtap_compression_type)compression_type)) {
 				/*
 				 * We don't support this compression type,
 				 * so don't include its extension.
@@ -120,7 +120,7 @@ add_extensions(GSList *extensions, const gchar *extension,
 			 */
 			extensions = g_slist_prepend(extensions,
 			    g_strdup_printf("%s.%s", extension,
-			      wtap_compressed_file_extension(compression_type)));
+			      wtap_compressed_file_extension((wtap_compression_type)compression_type)));
 		}
 	}
 
@@ -663,17 +663,17 @@ get_file_extension(const char *pathname)
 	 * files?
 	 */
 	extensionp = components[ncomponents - 1];
-	for (wtap_compression_type compression_type = WTAP_UNCOMPRESSED;
-	    compression_type < WTAP_NUM_COMPRESSION_TYPES;
+	for (int compression_type = (int)WTAP_UNCOMPRESSED;
+	    compression_type < (int)WTAP_NUM_COMPRESSION_TYPES;
 	    compression_type++) {
-		if (compression_type == WTAP_UNCOMPRESSED) {
+		if (compression_type == (int)WTAP_UNCOMPRESSED) {
 			/*
 			 * This isn't a compression type, so it has no
 			 * extension.
 			 */
 			continue;
 		}
-		if (!wtap_compression_type_supported(compression_type)) {
+		if (!wtap_compression_type_supported((wtap_compression_type)compression_type)) {
 			/*
 			 * We don't support this compression type, so don't
 			 * include its extension.
@@ -685,7 +685,7 @@ get_file_extension(const char *pathname)
 		 * Is the extension the extension corresponding to this
 		 * compression type?
 		 */
-		if (strcmp(extensionp, wtap_compressed_file_extension(compression_type)) == 0) {
+		if (strcmp(extensionp, wtap_compressed_file_extension((wtap_compression_type)compression_type)) == 0) {
 			/*
 			 * Yes, so it's one of the compressed-file extensions.
 			 * Is there an extension before that?
