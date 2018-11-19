@@ -46,9 +46,9 @@ WS_DLL_PUBLIC gboolean wsjson_unescape_json_string(const char *input, char *outp
  * Local variables:
  * c-basic-offset: 4
  * tab-width: 8
- * indent-tabs-mode: t
+ * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=4 tabstop=8 noexpandtab:
- * :indentSize=4:tabSize=8:noTabs=false:
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
  */
