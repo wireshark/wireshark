@@ -7,7 +7,7 @@
 
 /*
 Supported Platforms:
-    BIGIP 9.4.2 and later.
+    BIGIP 9.4.2 and later for the trailer, BIGIP 11.2.0 and later for fileinfo
 
 Usage:
 
@@ -329,6 +329,7 @@ static gint hf_fi_command          = -1;
 static gint hf_fi_version          = -1;
 static gint hf_fi_hostname         = -1;
 static gint hf_fi_platform         = -1;
+static gint hf_fi_platformname     = -1;
 static gint hf_fi_product          = -1;
 
 /* Wireshark preference to show RST cause in info column */
@@ -3272,6 +3273,74 @@ void proto_reg_handoff_f5ethtrailer(void)
  * method instead).
  */
 
+/* Platform ID to platform name mapping
+ *
+ * https://support.f5.com/kb/en-us/products/big-ip_ltm/releasenotes/product/relnote-ltm-11-6-0.html
+ * https://support.f5.com/csp/article/K9476
+ */
+
+static const string_string f5info_platform_strings[] = {
+	{ "A100", "VIPRION B4100 Blade" },
+	{ "A105", "VIPRION B4100N Blade" },
+	{ "A107", "VIPRION B4200 Blade" },
+	{ "A108", "VIPRION B4300 Blade" },
+	{ "A109", "VIPRION B2100 Blade" },
+	{ "A110", "VIPRION B4340N Blade" },
+	{ "A111", "VIPRION B4200N Blade" },
+	{ "A112", "VIPRION B2250 Blade" },
+	{ "A113", "VIPRION B2150 Blade" },
+	{ "A114", "VIPRION B4450 Blade" },
+	{ "C102", "BIG-IP 1600" },
+	{ "C103", "BIG-IP 3600" },
+	{ "C106", "BIG-IP 3900, Enterprise Manager 4000" },
+	{ "C109", "BIG-IP 5000s, 5050s, 5200v, 5250v" },
+	{ "C112", "BIG-IP 2000 Series (2000s, 2200s)" },
+	{ "C113", "BIG-IP 4000 Series (4000s, 4200v)" },
+	{ "C114", "BIG-IP 800 (LTM only)" },
+	{ "C115", "BIG-IP i4000 Series (i4600, i4800)" },
+	{ "C116", "BIG-IP i10000 Series (i10600, i10800)" },
+	{ "C117", "BIG-IP i2000 Series (i2600, i2800)" },
+	{ "C118", "BIG-IP i7000 Series (i7600, i7800)" },
+	{ "C119", "BIG-IP i5000 Series (i5600, i5800)" },
+	{ "C120", "Herculon i2800" },
+	{ "C121", "Herculon i5800" },
+	{ "C122", "Herculon i10800" },
+	{ "C123", "BIG-IP i11600, i11800" },
+	{ "C124", "BIG-IP i11400-DS, i11600-DS, i11800-DS" },
+	{ "C125", "BIG-IP i5820-DF" },
+	{ "C126", "BIG-IP i7820-DF" },
+	{ "D104", "BIG-IP 6900 Series (6900, 6900S, 6900F, 6900N)" },
+	{ "D106", "BIG-IP 8900" },
+	{ "D107", "BIG-IP 8950" },
+	{ "D110", "BIG-IP 7000 Series (7000s, 7050s, 7055, 7200v, 7250v, 7255)" },
+	{ "D111", "BIG-IP 12000 Series (12250v)" },
+	{ "D112", "BIG-IP 10050 Series (10150s-NEBS, 10350v (AC), 10350v-NEBS, 10350v-FIPS)" },
+	{ "D113", "BIG-IP 10000 Series (10000s, 10050s, 10055, 10200v, 10250v, 10255)" },
+	{ "E101", "BIG-IP 11000" },
+	{ "E102", "BIG-IP 11050, 11050 NEBS" },
+	{ "E103", "11050N" },
+	{ "Z100", "Virtual Edition (VE)" },
+	{ "Z101", "vCMP Guest" },
+
+	{ NULL, NULL }
+};
+
+	/* It currently looks like these do not apply. Kept for completeness only */
+#if 0
+	{ "C21",  "FirePass 1200" },
+	{ "D46",  "FirePass 4100" },
+	{ "D63",  "BIG-IP 6400-NEBS" },
+	{ "D101", "FirePass 4300" },
+	{ "D114", "VIPRION C2200 Chassis" },
+	{ "F100", "VIPRION C2400 Chassis" },
+	{ "J100", "VIPRION C4400 Chassis" },
+	{ "J101", "VIPRION C4400N Chassis" },
+	{ "J102", "VIPRION C4480 Chassis" },
+	{ "J103", "VIPRION C4480N Chassis" },
+	{ "S100", "VIPRION C4800 Chassis" },
+	{ "S101", "VIPRION C4800N Chassis" },
+#endif
+
 /*---------------------------------------------------------------------------*/
 /* Dissector for rendering the F5 tcpdump file properties packet.
  *
@@ -3291,7 +3360,7 @@ dissect_f5fileinfo(
 ) {
 	guint offset = 0;
 	const guint8 *object;
-	const guint8 *platform = NULL;
+	const gchar *platform = NULL;
 	gint objlen;
 	struct f5fileinfo_tap_data* tap_data;
 
@@ -3320,14 +3389,14 @@ dissect_f5fileinfo(
 			break;
 
 		if(strncmp(object, "CMD: ", 5) == 0) {
-			proto_tree_add_item(tree, hf_fi_command, tvb, offset+5, objlen-6, ENC_ASCII);
+			proto_tree_add_item(tree, hf_fi_command, tvb, offset+5, objlen-5, ENC_ASCII);
 			col_add_str(pinfo->cinfo, COL_INFO, &object[5]);
 		}
 		else if(strncmp(object, "VER: ", 5) == 0) {
 			guint i;
 			const guint8 *c;
 
-			proto_tree_add_item(tree, hf_fi_version, tvb, offset+5, objlen-6, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(tree, hf_fi_version, tvb, offset+5, objlen-5, ENC_ASCII|ENC_NA);
 			for(c=object;  *c && (*c < '0' || *c > '9');  c++);
 			for(i=0;  i<6 && *c;  c++) {
 				if(*c < '0' || *c > '9') {
@@ -3337,13 +3406,15 @@ dissect_f5fileinfo(
 			}
 		}
 		else if(strncmp(object, "HOST: ", 6) == 0)
-			proto_tree_add_item(tree, hf_fi_hostname, tvb, offset+6, objlen-7, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(tree, hf_fi_hostname, tvb, offset+6, objlen-6, ENC_ASCII|ENC_NA);
 		else if(strncmp(object, "PLAT: ", 6) == 0) {
-			proto_tree_add_item(tree, hf_fi_platform, tvb, offset+6, objlen-7, ENC_ASCII|ENC_NA);
-			platform = tvb_get_string_enc(wmem_packet_scope(), tvb, offset+6, objlen-7, ENC_ASCII);
+			proto_tree_add_item(tree, hf_fi_platform, tvb, offset+6, objlen-6, ENC_ASCII|ENC_NA);
+			platform = tvb_get_string_enc(wmem_packet_scope(), tvb, offset+6, objlen-6, ENC_ASCII);
+			proto_tree_add_string_format(tree, hf_fi_platformname, tvb, offset+6, objlen-6, "", "%s: %s",
+				platform, str_to_str(platform, f5info_platform_strings, "Unknown, please report"));
 		}
 		else if(strncmp(object, "PROD: ", 6) == 0)
-			proto_tree_add_item(tree, hf_fi_product, tvb, offset+6, objlen-7, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(tree, hf_fi_product, tvb, offset+6, objlen-6, ENC_ASCII|ENC_NA);
 
 		offset += objlen;
 	}
@@ -3370,6 +3441,10 @@ void proto_register_f5fileinfo(void)
 		  },
 		  { &hf_fi_platform,
 		    { "Platform", "f5fileinfo.platform", FT_STRINGZ, BASE_NONE,
+		      NULL, 0x0, NULL, HFILL }
+		  },
+		  { &hf_fi_platformname,
+		    { "Platform name", "f5fileinfo.platformname", FT_STRINGZ, BASE_NONE,
 		      NULL, 0x0, NULL, HFILL }
 		  },
 		  { &hf_fi_product,
