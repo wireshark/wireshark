@@ -100,6 +100,9 @@ libwsutil.so.0 libwsutil0 #MINVER#
  isdigit_string@Base 1.10.0
  isprint_string@Base 1.10.0
  isprint_utf8_string@Base 2.6.1
+ json_decode_string_inplace@Base 2.9.0
+ json_parse@Base 2.9.0
+ json_validate@Base 2.9.0
  linear2alaw@Base 1.12.0~rc1
  linear2ulaw@Base 1.12.0~rc1
  local_interfaces_to_list@Base 2.1.2
@@ -201,6 +204,3 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_utf8_char_len@Base 1.12.0~rc1
  ws_vadd_crash_info@Base 2.5.2
  ws_xton@Base 1.12.0~rc1
- wsjson_parse@Base 2.9.0
- wsjson_unescape_json_string@Base 2.9.0
- wsjson_is_valid_json@Base 2.9.0

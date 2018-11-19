@@ -42,7 +42,7 @@ wtap_open_return_val json_open(wtap *wth, int *err, gchar **err_info)
         return WTAP_OPEN_NOT_MINE;
     }
 
-    if (wsjson_is_valid_json(filebuf, bytes_read) == FALSE) {
+    if (json_validate(filebuf, bytes_read) == FALSE) {
         g_free(filebuf);
         return WTAP_OPEN_NOT_MINE;
     }

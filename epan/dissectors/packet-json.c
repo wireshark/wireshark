@@ -755,7 +755,7 @@ dissect_json_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 	guint len = tvb_captured_length(tvb);
 	const guint8* buf = tvb_get_string_enc(wmem_packet_scope(), tvb, 0, len, ENC_ASCII);
 
-	if (wsjson_is_valid_json(buf, len) == FALSE)
+	if (json_validate(buf, len) == FALSE)
 		return FALSE;
 
 	return (dissect_json(tvb, pinfo, tree, data) != 0);

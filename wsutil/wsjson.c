@@ -1,5 +1,5 @@
 /* wsjson.c
- * Utility to check if a payload is json using other libraries.
+ * JSON parsing functions.
  *
  * Copyright 2016, Dario Lombardo
  *
@@ -24,7 +24,8 @@
 #include <json-glib/json-glib.h>
 #endif
 
-gboolean wsjson_is_valid_json(const guint8* buf, const size_t len)
+gboolean
+json_validate(const guint8 *buf, const size_t len)
 {
     gboolean ret = TRUE;
 #ifdef HAVE_JSONGLIB
@@ -69,7 +70,8 @@ gboolean wsjson_is_valid_json(const guint8* buf, const size_t len)
     return ret;
 }
 
-int wsjson_parse(const char *buf, jsmntok_t *tokens, unsigned int max_tokens)
+int
+json_parse(const char *buf, jsmntok_t *tokens, unsigned int max_tokens)
 {
     jsmn_parser p;
 
@@ -77,8 +79,11 @@ int wsjson_parse(const char *buf, jsmntok_t *tokens, unsigned int max_tokens)
     return jsmn_parse(&p, buf, strlen(buf), tokens, max_tokens);
 }
 
-gboolean wsjson_unescape_json_string(const char *input, char *output)
+gboolean
+json_decode_string_inplace(char *text)
 {
+    const char *input = text;
+    char *output = text;
     while (*input) {
         char ch = *input++;
 

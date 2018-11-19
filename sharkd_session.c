@@ -79,12 +79,6 @@ struct sharkd_filter_item
 
 static GHashTable *filter_table = NULL;
 
-static gboolean
-json_unescape_str(char *input)
-{
-	return wsjson_unescape_json_string(input, input);
-}
-
 static const char *
 json_find_attr(const char *buf, const jsmntok_t *tokens, int count, const char *attr)
 {
@@ -4321,7 +4315,7 @@ sharkd_session_process(char *buf, const jsmntok_t *tokens, int count)
 		buf[tokens[i + 1].end] = '\0';
 
 		/* unescape only value, as keys are simple strings */
-		if (tokens[i + 1].type == JSMN_STRING && !json_unescape_str(&buf[tokens[i + 1].start]))
+		if (tokens[i + 1].type == JSMN_STRING && !json_decode_string_inplace(&buf[tokens[i + 1].start]))
 		{
 			fprintf(stderr, "sanity check(3b): [%d] cannot unescape string\n", i + 1);
 			return;
@@ -4416,7 +4410,7 @@ sharkd_session_main(void)
 		/* every command is line seperated JSON */
 		int ret;
 
-		ret = wsjson_parse(buf, NULL, 0);
+		ret = json_parse(buf, NULL, 0);
 		if (ret < 0)
 		{
 			fprintf(stderr, "invalid JSON -> closing\n");
@@ -4434,7 +4428,7 @@ sharkd_session_main(void)
 
 		memset(tokens, 0, ret * sizeof(jsmntok_t));
 
-		ret = wsjson_parse(buf, tokens, ret);
+		ret = json_parse(buf, tokens, ret);
 		if (ret < 0)
 		{
 			fprintf(stderr, "invalid JSON(2) -> closing\n");
