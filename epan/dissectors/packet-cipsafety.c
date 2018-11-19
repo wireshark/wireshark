@@ -481,6 +481,38 @@ void dissect_cipsafety_ssn(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _
    }
 }
 
+static void dissect_safety_supervisor_safety_reset(proto_tree* cmd_data_tree, tvbuff_t* tvb, int offset, packet_info* pinfo)
+{
+   guint32 reset_type;
+   proto_tree_add_item_ret_uint(cmd_data_tree, hf_cip_ssupervisor_reset_type, tvb, offset, 1, ENC_LITTLE_ENDIAN, &reset_type);
+
+   proto_tree_add_item(cmd_data_tree, hf_cip_ssupervisor_reset_password, tvb, offset + 1, 16, ENC_NA);
+   proto_item* pi = proto_tree_add_item(cmd_data_tree, hf_cip_ssupervisor_reset_tunid, tvb, offset + 17, 10, ENC_NA);
+   dissect_unid(tvb, pinfo, offset + 17, pi, "TUNID SSN",
+      hf_cip_ssupervisor_reset_tunid_tunid_ssn_timestamp,
+      hf_cip_ssupervisor_reset_tunid_tunid_ssn_date,
+      hf_cip_ssupervisor_reset_tunid_tunid_ssn_time,
+      hf_cip_ssupervisor_reset_tunid_macid,
+      ett_ssupervisor_reset_tunid,
+      ett_ssupervisor_reset_tunid_ssn);
+
+   /* Attribute bitmap only included on Reset Type 2 */
+   if (reset_type == 2)
+   {
+      pi = proto_tree_add_item(cmd_data_tree, hf_cip_ssupervisor_reset_attr_bitmap, tvb, offset + 27, 1, ENC_LITTLE_ENDIAN);
+
+      proto_tree* bitmap_tree = proto_item_add_subtree(pi, ett_cip_ssupervisor_reset_attr_bitmap);
+      proto_tree_add_item(bitmap_tree, hf_cip_ssupervisor_reset_attr_bitmap_macid, tvb, offset + 27, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(bitmap_tree, hf_cip_ssupervisor_reset_attr_bitmap_baudrate, tvb, offset + 27, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(bitmap_tree, hf_cip_ssupervisor_reset_attr_bitmap_tunid, tvb, offset + 27, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(bitmap_tree, hf_cip_ssupervisor_reset_attr_bitmap_password, tvb, offset + 27, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(bitmap_tree, hf_cip_ssupervisor_reset_attr_bitmap_cfunid, tvb, offset + 27, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(bitmap_tree, hf_cip_ssupervisor_reset_attr_bitmap_ocpunid, tvb, offset + 27, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(bitmap_tree, hf_cip_ssupervisor_reset_attr_bitmap_reserved, tvb, offset + 27, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(bitmap_tree, hf_cip_ssupervisor_reset_attr_bitmap_extended, tvb, offset + 27, 1, ENC_LITTLE_ENDIAN);
+   }
+}
+
 /************************************************
  *
  * Dissector for CIP Safety Supervisor Object
@@ -491,7 +523,7 @@ dissect_cip_s_supervisor_data( proto_tree *item_tree,
                                tvbuff_t *tvb, int offset, int item_length, packet_info *pinfo )
 {
    proto_item                *pi, *rrsc_item;
-   proto_tree                *rrsc_tree, *cmd_data_tree, *bitmap_tree;
+   proto_tree                *rrsc_tree, *cmd_data_tree;
    int                        req_path_size;
    int                        temp_data;
    guint8                     service, gen_status, add_stat_size;
@@ -624,7 +656,7 @@ dissect_cip_s_supervisor_data( proto_tree *item_tree,
             break;
          case SC_SSUPER_CONFIGURATION_LOCK:
             proto_tree_add_item(cmd_data_tree, hf_cip_ssupervisor_configure_lock_value,
-                         tvb, offset+2+req_path_size+1, 1, ENC_LITTLE_ENDIAN);
+                         tvb, offset+2+req_path_size, 1, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(cmd_data_tree, hf_cip_ssupervisor_configure_lock_password,
                          tvb, offset+2+req_path_size+1, 16, ENC_NA);
             pi = proto_tree_add_item(cmd_data_tree, hf_cip_ssupervisor_configure_lock_tunid,
@@ -639,48 +671,12 @@ dissect_cip_s_supervisor_data( proto_tree *item_tree,
             break;
          case SC_SSUPER_MODE_CHANGE:
             proto_tree_add_item(cmd_data_tree, hf_cip_ssupervisor_mode_change_value,
-                         tvb, offset+2+req_path_size+1, 1, ENC_LITTLE_ENDIAN);
+                         tvb, offset+2+req_path_size, 1, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(cmd_data_tree, hf_cip_ssupervisor_mode_change_password,
                          tvb, offset+2+req_path_size+1, 16, ENC_NA);
             break;
          case SC_SSUPER_SAFETY_RESET:
-            proto_tree_add_item(cmd_data_tree, hf_cip_ssupervisor_reset_type,
-                         tvb, offset+2+req_path_size+1, 1, ENC_LITTLE_ENDIAN);
-            temp_data = tvb_get_guint8( tvb, offset+2+req_path_size+1 );
-            proto_tree_add_item(cmd_data_tree, hf_cip_ssupervisor_reset_password,
-                         tvb, offset+2+req_path_size+1, 16, ENC_NA);
-            pi = proto_tree_add_item(cmd_data_tree, hf_cip_ssupervisor_reset_tunid,
-                         tvb, offset+2+req_path_size+17, 10, ENC_NA);
-            dissect_unid(tvb, pinfo, offset+2+req_path_size+17, pi, "TUNID SSN",
-                         hf_cip_ssupervisor_reset_tunid_tunid_ssn_timestamp,
-                         hf_cip_ssupervisor_reset_tunid_tunid_ssn_date,
-                         hf_cip_ssupervisor_reset_tunid_tunid_ssn_time,
-                         hf_cip_ssupervisor_reset_tunid_macid,
-                         ett_ssupervisor_reset_tunid,
-                         ett_ssupervisor_reset_tunid_ssn);
-            /* Attribute bitmap only included on Reset Type 2 */
-            if (temp_data == 2)
-            {
-               pi = proto_tree_add_item(cmd_data_tree, hf_cip_ssupervisor_reset_attr_bitmap,
-                         tvb, offset+2+req_path_size+27, 1, ENC_LITTLE_ENDIAN);
-               bitmap_tree = proto_item_add_subtree(pi, ett_cip_ssupervisor_reset_attr_bitmap);
-               proto_tree_add_item(bitmap_tree, hf_cip_ssupervisor_reset_attr_bitmap_macid,
-                         tvb, offset+2+req_path_size+27, 1, ENC_LITTLE_ENDIAN);
-               proto_tree_add_item(bitmap_tree, hf_cip_ssupervisor_reset_attr_bitmap_baudrate,
-                         tvb, offset+2+req_path_size+27, 1, ENC_LITTLE_ENDIAN);
-               proto_tree_add_item(bitmap_tree, hf_cip_ssupervisor_reset_attr_bitmap_tunid,
-                         tvb, offset+2+req_path_size+27, 1, ENC_LITTLE_ENDIAN);
-               proto_tree_add_item(bitmap_tree, hf_cip_ssupervisor_reset_attr_bitmap_password,
-                         tvb, offset+2+req_path_size+27, 1, ENC_LITTLE_ENDIAN);
-               proto_tree_add_item(bitmap_tree, hf_cip_ssupervisor_reset_attr_bitmap_cfunid,
-                         tvb, offset+2+req_path_size+27, 1, ENC_LITTLE_ENDIAN);
-               proto_tree_add_item(bitmap_tree, hf_cip_ssupervisor_reset_attr_bitmap_ocpunid,
-                         tvb, offset+2+req_path_size+27, 1, ENC_LITTLE_ENDIAN);
-               proto_tree_add_item(bitmap_tree, hf_cip_ssupervisor_reset_attr_bitmap_reserved,
-                         tvb, offset+2+req_path_size+27, 1, ENC_LITTLE_ENDIAN);
-               proto_tree_add_item(bitmap_tree, hf_cip_ssupervisor_reset_attr_bitmap_extended,
-                         tvb, offset+2+req_path_size+27, 1, ENC_LITTLE_ENDIAN);
-            }
+            dissect_safety_supervisor_safety_reset(cmd_data_tree, tvb, offset + 2 + req_path_size, pinfo);
             break;
          case SC_SSUPER_RESET_PASSWORD:
             proto_tree_add_item(cmd_data_tree, hf_cip_ssupervisor_reset_password_data_size,
