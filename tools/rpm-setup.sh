@@ -47,8 +47,6 @@ BASIC_LIST="gcc \
 	lua-devel \
 	lua \
 	desktop-file-utils \
-	fop \
-	asciidoc \
 	git \
 	git-review \
 	glib2-devel \
