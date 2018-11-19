@@ -2367,7 +2367,7 @@ dissect_http2_settings(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_
 
     while(tvb_reported_length_remaining(tvb, offset) > 0){
 
-        ti_settings = proto_tree_add_item(http2_tree, hf_http2_settings, tvb, offset, 5, ENC_NA);
+        ti_settings = proto_tree_add_item(http2_tree, hf_http2_settings, tvb, offset, 6, ENC_NA);
         settings_tree = proto_item_add_subtree(ti_settings, ett_http2_settings);
         proto_tree_add_item(settings_tree, hf_http2_settings_identifier, tvb, offset, 2, ENC_BIG_ENDIAN);
         settingsid = tvb_get_ntohs(tvb, offset);
