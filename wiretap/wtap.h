@@ -1958,8 +1958,6 @@ wtap_dumper* wtap_dump_fdopen(int fd, int file_type_subtype,
  * @brief Creates a dumper for the standard output.
  *
  * @param file_type_subtype The WTAP_FILE_TYPE_SUBTYPE_XXX file type.
- * @param encap The WTAP_ENCAP_XXX encapsulation type (WTAP_ENCAP_PER_PACKET for multi)
- * @param snaplen The maximum packet capture length.
  * @param compression_type Type of compression to use when writing, if any
  * @param params The per-file information for this file.
  * @param[out] err Will be set to an error code on failure.
