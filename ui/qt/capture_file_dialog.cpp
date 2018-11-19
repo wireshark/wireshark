@@ -456,7 +456,8 @@ QStringList CaptureFileDialog::buildFileOpenTypeList() {
     return filters;
 }
 
-// Replaces or appends an extension based on the current file filter.
+// Replaces or appends an extension based on the current file filter
+// and compression setting.
 // Used in dialogs that select a file to write.
 void CaptureFileDialog::fixFilenameExtension()
 {
