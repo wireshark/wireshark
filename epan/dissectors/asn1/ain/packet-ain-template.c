@@ -53,12 +53,19 @@ static int hf_ain_odd_even_indicator = -1;
 static int hf_ain_nature_of_address = -1;
 static int hf_ain_numbering_plan = -1;
 static int hf_ain_bcd_digits = -1;
+static int hf_ain_carrier_selection = -1;
+static int hf_ain_nature_of_carrier = -1;
+static int hf_ain_nr_digits = -1;
+static int hf_ain_carrier_bcd_digits = -1;
+static int hf_ain_amaslpid = -1;
 
 #include "packet-ain-hf.c"
 
 /* Initialize the subtree pointers */
 static int ett_ain = -1;
 static int ett_ain_digits = -1;
+static int ett_ain_carrierformat = -1;
+static int ett_ain_amaslpid = -1;
 
 #include "packet-ain-ett.c"
 
@@ -81,6 +88,38 @@ static int ain_opcode_type;
 static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_);
 static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_);
 static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx);
+
+static const value_string ain_np_vals[] = {
+    {   0, "Unknown or not applicable"},
+    {   1, "ISDN Numbering Plan (ITU Rec. E.164)"},
+    {   2, "Telephony Numbering (ITU-T Rec. E.164,E.163)"},
+    {   3, "Data Numbering (ITU-T Rec. X.121)"},
+    {   4, "Telex Numbering (ITU-T Rec. F.69)"},
+    {   5, "Maritime Mobile Numbering"},
+    {   6, "Land Mobile Numbering (ITU-T Rec. E.212)"},
+    {   7, "Private Numbering Plan"},
+    {   0, NULL }
+};
+
+static const value_string ain_carrier_selection_vals[] = {
+    {   0, "No indication"},
+    {   1, "Selected carrier identification code presubscribed and not input by calling party"},
+    {   2, "Selected carrier identification code presubscribed and input by calling party"},
+    {   3, "Selected carrier identification code presubscribed, no indication of whether input by calling party"},
+    {   4, "Selected carrier identification code not presubscribed and input by calling party"},
+    {   0, NULL }
+};
+
+static const value_string ain_nature_of_carrier_vals[] = {
+    {   0, "No NOC Provided"},
+    {   1, "local"},
+    {   2, "intraLATA toll"},
+    {   3, "interLATA"},
+    {   4, "local, intraLATA toll and interLATA"},
+    {   5, "local and intraLATA toll"},
+    {   6, "intraLATA toll and interLATA"},
+    {   0, NULL }
+};
 
 #include "packet-ain-table.c"
 
@@ -176,10 +215,30 @@ void proto_register_ain(void) {
     NULL, HFILL } },
     { &hf_ain_numbering_plan,
     { "Numbering plan",  "ain.numbering_plan",
-    FT_UINT8, BASE_DEC, NULL, 0x70,
+    FT_UINT8, BASE_DEC, VALS(ain_np_vals), 0x70,
     NULL, HFILL } },
     { &hf_ain_bcd_digits,
     { "BCD digits", "ain.bcd_digits",
+    FT_STRING, BASE_NONE, NULL, 0,
+    NULL, HFILL } },
+    { &hf_ain_carrier_selection,
+    { "Carrier Selection",  "ain.carrier_selection",
+    FT_UINT8, BASE_DEC, VALS(ain_carrier_selection_vals), 0x0,
+    NULL, HFILL } },
+    { &hf_ain_nature_of_carrier,
+    { "Nature of Carrier",  "ain.nature_of_carrier",
+    FT_UINT8, BASE_DEC, VALS(ain_nature_of_carrier_vals), 0xf0,
+    NULL, HFILL } },
+    { &hf_ain_nr_digits,
+    { "Number of Digits",  "ain.nature_of_carrier",
+    FT_UINT8, BASE_DEC, NULL, 0x0f,
+    NULL, HFILL } },
+    { &hf_ain_carrier_bcd_digits,
+    { "Carrier digits", "ain.carrier_bcd_digits",
+    FT_STRING, BASE_NONE, NULL, 0,
+    NULL, HFILL } },
+    { &hf_ain_amaslpid,
+    { "AMAslpID", "ain.amaslpid",
     FT_STRING, BASE_NONE, NULL, 0,
     NULL, HFILL } },
 
@@ -190,6 +249,8 @@ void proto_register_ain(void) {
     static gint *ett[] = {
         &ett_ain,
         &ett_ain_digits,
+        &ett_ain_carrierformat,
+        &ett_ain_amaslpid,
 #include "packet-ain-ettarr.c"
     };
 

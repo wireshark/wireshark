@@ -737,7 +737,7 @@ CallInfoFromResourceArg ::= SEQUENCE {
         }
         CODE private: 25610
         }
-        --Family Name is ìRequest / Notificationî
+        --Family Name is ‚ÄúRequest / Notification‚Äù
 
         TAnswerArg ::= SEQUENCE{
             userID                        UserID,
@@ -1086,7 +1086,7 @@ CallInfoFromResourceArg ::= SEQUENCE {
             aMAAlternateBillingNumber       AMAAlternateBillingNumber OPTIONAL,
             aMABusinessCustomerID           AMABusinessCustomerID OPTIONAL,
             aMALineNumberList               SEQUENCE SIZE(1..2) OF AMALineNumber OPTIONAL,
-            aMAslpID                        AMAslpID OPTIONAL,
+            aMAslpID                        [10] IMPLICIT AMAslpID,
             aMADigitsDialedWCList           SEQUENCE SIZE(1..5) OF AMADigitsDialedWC OPTIONAL,
             amp1                            Amp1 OPTIONAL,
             amp2                            Amp2 OPTIONAL,
@@ -1127,7 +1127,7 @@ CallInfoFromResourceArg ::= SEQUENCE {
             aMAAlternateBillingNumber       AMAAlternateBillingNumber OPTIONAL,
             aMABusinessCustomerID           AMABusinessCustomerID OPTIONAL,
             aMALineNumberList               SEQUENCE SIZE(1..2) OF AMALineNumber OPTIONAL,
-            aMAslpID                        AMAslpID OPTIONAL,
+            aMAslpID                        [10] IMPLICIT AMAslpID OPTIONAL,
             aMADigitsDialedWCList           SEQUENCE SIZE(1..5) OF AMADigitsDialedWC OPTIONAL,
             amp1                            Amp1 OPTIONAL,
             amp2                            Amp2 OPTIONAL,
@@ -1178,7 +1178,7 @@ CallInfoFromResourceArg ::= SEQUENCE {
             overflowBillingIndicator        OverflowBillingIndicator OPTIONAL,
             aMAAlternateBillingNumber       AMAAlternateBillingNumber OPTIONAL,
             aMALineNumberList               SEQUENCE SIZE(1..2) OF AMALineNumber OPTIONAL,
-            aMAslpID                        AMAslpID OPTIONAL,
+            aMAslpID                        [10] IMPLICIT AMAslpID OPTIONAL,
             aMADigitsDialedWCList           SEQUENCE SIZE(1..5) OF AMADigitsDialedWC OPTIONAL,
             amp1                            Amp1 OPTIONAL,
             amp2                            Amp2 OPTIONAL,
@@ -1213,7 +1213,7 @@ CallInfoFromResourceArg ::= SEQUENCE {
             aMAAlternateBillingNumber       AMAAlternateBillingNumber OPTIONAL,
             aMABusinessCustomerID           AMABusinessCustomerID OPTIONAL,
             aMALineNumberList               SEQUENCE SIZE(1..2) OF AMALineNumber OPTIONAL,
-            aMAslpID                        AMAslpID OPTIONAL,
+            aMAslpID                        [10] IMPLICIT AMAslpID OPTIONAL,
             aMADigitsDialedWCList           SEQUENCE SIZE(1..5) OF AMADigitsDialedWC OPTIONAL,
             amp1                            Amp1 OPTIONAL,
             amp2                            Amp2 OPTIONAL,
@@ -1241,7 +1241,7 @@ CallInfoFromResourceArg ::= SEQUENCE {
             aMAAlternateBillingNumber       AMAAlternateBillingNumber OPTIONAL,
             aMABusinessCustomerID           AMABusinessCustomerID OPTIONAL,
             aMALineNumberList               SEQUENCE SIZE(1..2) OF AMALineNumber OPTIONAL,
-            aMAslpID                        AMAslpID OPTIONAL,
+            aMAslpID                        [10] IMPLICIT AMAslpID OPTIONAL,
             aMADigitsDialedWCList           SEQUENCE SIZE(1..5) OF AMADigitsDialedWC OPTIONAL,
             amp1                            Amp1 OPTIONAL,
             amp2                            Amp2 OPTIONAL,
@@ -1296,7 +1296,7 @@ CallInfoFromResourceArg ::= SEQUENCE {
             aMAAlternateBillingNumber      AMAAlternateBillingNumber OPTIONAL,
             aMABusinessCustomerID          AMABusinessCustomerID OPTIONAL,
             aMALineNumberList              SEQUENCE SIZE(1..2) OF AMALineNumber OPTIONAL,
-            aMAslpID                       AMAslpID OPTIONAL,
+            aMAslpID                       [10] IMPLICIT AMAslpID OPTIONAL,
             aMAserviceProviderID           AMAServiceProviderID OPTIONAL,
             amp1                           Amp1 OPTIONAL,
             amp2                           Amp2 OPTIONAL,
@@ -1322,7 +1322,7 @@ CallInfoFromResourceArg ::= SEQUENCE {
             aMAAlternateBillingNumber       AMAAlternateBillingNumber OPTIONAL,
             aMABusinessCustomerID           AMABusinessCustomerID OPTIONAL,
             aMALineNumberList               SEQUENCE SIZE(1..2) OF AMALineNumber OPTIONAL,
-            aMAslpID                        AMAslpID OPTIONAL,
+            aMAslpID                        [10] IMPLICIT AMAslpID OPTIONAL,
             aMADigitsDialedWCList           SEQUENCE SIZE(1..5) OF AMADigitsDialedWC OPTIONAL,
             amp1                            Amp1 OPTIONAL,
             amp2                            Amp2 OPTIONAL,
@@ -1389,7 +1389,7 @@ CallInfoFromResourceArg ::= SEQUENCE {
             aMAAlternateBillingNumber       AMAAlternateBillingNumber OPTIONAL,
             aMABusinessCustomerID           AMABusinessCustomerID OPTIONAL,
             aMALineNumberList               SEQUENCE SIZE(1..2) OF AMALineNumber OPTIONAL,
-            aMAslpID                        AMAslpID OPTIONAL,
+            aMAslpID                        [10] IMPLICIT AMAslpID OPTIONAL,
             aMADigitsDialedWCList           SEQUENCE SIZE(1..5) OF AMADigitsDialedWC OPTIONAL,
             amp1                            Amp1 OPTIONAL,
             amp2                            Amp2 OPTIONAL,
@@ -1430,7 +1430,7 @@ CallInfoFromResourceArg ::= SEQUENCE {
             aMAAlternateBillingNumber       AMAAlternateBillingNumber OPTIONAL,
             aMABusinessCustomerID           AMABusinessCustomerID OPTIONAL,
             aMALineNumberList               SEQUENCE SIZE(1..2) OF AMALineNumber OPTIONAL,
-            aMAslpID                        AMAslpID OPTIONAL,
+            aMAslpID                        [10] IMPLICIT AMAslpID OPTIONAL,
             aMADigitsDialedWCList           SEQUENCE SIZE(1..5) OF AMADigitsDialedWC OPTIONAL,
             serviceProviderID               ServiceProviderID OPTIONAL,
             serviceContext                  ServiceContext OPTIONAL,
@@ -1478,7 +1478,7 @@ CallInfoFromResourceArg ::= SEQUENCE {
             aMAAlternateBillingNumber       AMAAlternateBillingNumber OPTIONAL,
             aMABusinessCustomerID           AMABusinessCustomerID OPTIONAL,
             aMALineNumberList               SEQUENCE SIZE(1..2) OF AMALineNumber OPTIONAL,
-            aMAslpID                        AMAslpID OPTIONAL,
+            aMAslpID                        [10] IMPLICIT AMAslpID OPTIONAL,
             aMADigitsDialedWCList           SEQUENCE SIZE(1..5) OF AMADigitsDialedWC OPTIONAL,
             amp1                            Amp1 OPTIONAL,
             amp2                            Amp2 OPTIONAL,
@@ -1534,7 +1534,7 @@ CallInfoFromResourceArg ::= SEQUENCE {
             aMAAlternateBillingNumber       AMAAlternateBillingNumber OPTIONAL,
             aMABusinessCustomerID           AMABusinessCustomerID OPTIONAL,
             aMALineNumberList               SEQUENCE SIZE(1..2) OF AMALineNumber OPTIONAL,
-            aMAslpID                        AMAslpID OPTIONAL,
+            aMAslpID                        [10] IMPLICIT AMAslpID OPTIONAL,
             aMADigitsDialedWCList           SEQUENCE SIZE(1..5) OF AMADigitsDialedWC OPTIONAL,
             amp1                            Amp1 OPTIONAL,
             amp2                            Amp2 OPTIONAL,
@@ -1592,7 +1592,7 @@ CallInfoFromResourceArg ::= SEQUENCE {
             aMAAlternateBillingNumber       AMAAlternateBillingNumber OPTIONAL,
             aMABusinessCustomerID           AMABusinessCustomerID OPTIONAL,
             aMALineNumberList               SEQUENCE SIZE(1..2) OF AMALineNumber OPTIONAL,
-            aMAslpID                        AMAslpID OPTIONAL,
+            aMAslpID                        [10] IMPLICIT AMAslpID OPTIONAL,
             aMADigitsDialedWCList           SEQUENCE SIZE(1..5) OF AMADigitsDialedWC OPTIONAL,
             amp1                            Amp1 OPTIONAL,
             amp2                            Amp2 OPTIONAL,
@@ -1695,7 +1695,7 @@ CallInfoFromResourceArg ::= SEQUENCE {
         ARGUMENT
         AcgOverflowArg
         CODE private: 26884
-        --Family Name is ìNetwork Managementî
+        --Family Name is ‚ÄúNetwork Management‚Äù
         }
 
         AcgOverflowArg ::= SEQUENCE{
@@ -1714,7 +1714,7 @@ CallInfoFromResourceArg ::= SEQUENCE {
         ERRORS{ applicationError
         }
         CODE private: 26886
-        --Family Name is ìNetwork Managementî
+        --Family Name is ‚ÄúNetwork Management‚Äù
         }
 
         ActivityTestArg ::= SEQUENCE{
@@ -1733,7 +1733,7 @@ CallInfoFromResourceArg ::= SEQUENCE {
         faultReport
         }
         CODE private: 26887
-        --Family Name is ìInformation Revisionî
+        --Family Name is ‚ÄúInformation Revision‚Äù
         }
 
         CallTypeRequestArg ::= SEQUENCE{
@@ -1747,7 +1747,7 @@ CallInfoFromResourceArg ::= SEQUENCE {
         ControlRequestArg
 
         CODE private: 26885
-        --Family Name is ìNetwork Managementî
+        --Family Name is ‚ÄúNetwork Management‚Äù
         }
 
         ControlRequestArg ::= SEQUENCE{
@@ -1770,7 +1770,7 @@ CallInfoFromResourceArg ::= SEQUENCE {
         ERRORS{ applicationError
         }
         CODE private: 26882
-        --Family Name is ìNetwork Managementî
+        --Family Name is ‚ÄúNetwork Management‚Äù
         }
 
         EchoRequestArg ::= SEQUENCE{
@@ -1785,7 +1785,7 @@ CallInfoFromResourceArg ::= SEQUENCE {
         ERRORS{ applicationError
         }
         CODE private: 27649
-        --Family Name is ìAMAî
+        --Family Name is ‚ÄúAMA‚Äù
         }
 
         FurnishAMAInformationArg ::= SEQUENCE{
@@ -1904,7 +1904,7 @@ CallInfoFromResourceArg ::= SEQUENCE {
         failureReport
         }
         CODE private: 26626
-        --Family Name is ìInformation Revisionî
+        --Family Name is ‚ÄúInformation Revision‚Äù
         }
 
         QueryRequestArg ::= SEQUENCE{
@@ -1997,7 +1997,7 @@ CallInfoFromResourceArg ::= SEQUENCE {
             amp2                           Amp2 OPTIONAL,
             extensionParameter             [84] IMPLICIT ExtensionParameter OPTIONAL,
             controlEncountered             ControlEncountered OPTIONAL,
-            aMAslpID                       AMAslpID OPTIONAL
+            aMAslpID                       [10] IMPLICIT AMAslpID OPTIONAL
         }
 
         updateRequest OPERATION ::= {

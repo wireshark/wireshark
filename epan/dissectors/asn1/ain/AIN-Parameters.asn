@@ -175,8 +175,8 @@
     --a) the number of rings the switch should
     -- generate prior to forwarding a call; or
     --b) the number of minutes the switch should
-    -- wait to generate a ìpingî ring for an MWI,
-    --i.e., number of minutes between ìpingî rings.
+    -- wait to generate a ‚Äúping‚Äù ring for an MWI,
+    --i.e., number of minutes between ‚Äúping‚Äù rings.
 
     UpdateGroup3::= SEQUENCE{
         service3 [1] IMPLICIT Service3,
@@ -430,7 +430,8 @@
 
     AMASequenceNumber ::= [89] IMPLICIT OCTET STRING(SIZE(2))
 
-    AMAslpID ::= [10] IMPLICIT OCTET STRING(SIZE(5))
+--    AMAslpID ::= [10] IMPLICIT OCTET STRING(SIZE(5))
+      AMAslpID ::=  OCTET STRING(SIZE(5))
 
     Amp1 ::= [11] IMPLICIT OCTET STRING(SIZE(6))
 
@@ -719,14 +720,14 @@
         tNoAnswer(5), --always "0"*
         termResourceAvailable(6), -- *
         tAnswer(7), -- *
-        networkBusy(8), --always ì0î*
-        oSuspended(9), --always ì0î
-        oDisconnectCalled(10), --always ì0î
-        oDisconnect(11), --always ì0î
-        oAbandon(12), --always ì0î
-        featureActivator(13), --always ì0î
-        switchHookFlash(14), --always ì0î
-        success(15), --always ì0î
+        networkBusy(8), --always ‚Äú0‚Äù*
+        oSuspended(9), --always ‚Äú0‚Äù
+        oDisconnectCalled(10), --always ‚Äú0‚Äù
+        oDisconnect(11), --always ‚Äú0‚Äù
+        oAbandon(12), --always ‚Äú0‚Äù
+        featureActivator(13), --always ‚Äú0‚Äù
+        switchHookFlash(14), --always ‚Äú0‚Äù
+        success(15), --always ‚Äú0‚Äù
         tDisconnect(16),
         timeout(17),
         originationAttempt(18),
@@ -830,7 +831,7 @@
         alternateTrunkGroup                     AlternateTrunkGroup,
         aMAAlternateBillingNumber               AMAAlternateBillingNumber,
         aMABusinessCustomerID                   AMABusinessCustomerID,
-        aMAslpID                                AMAslpID,
+        aMAslpID                                [10] IMPLICIT AMAslpID,
         amp1                                    Amp1,
         amp2                                    Amp2,
         answerIndicator                         AnswerIndicator,

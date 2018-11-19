@@ -67,6 +67,11 @@ static int hf_ain_odd_even_indicator = -1;
 static int hf_ain_nature_of_address = -1;
 static int hf_ain_numbering_plan = -1;
 static int hf_ain_bcd_digits = -1;
+static int hf_ain_carrier_selection = -1;
+static int hf_ain_nature_of_carrier = -1;
+static int hf_ain_nr_digits = -1;
+static int hf_ain_carrier_bcd_digits = -1;
+static int hf_ain_amaslpid = -1;
 
 
 /*--- Included file: packet-ain-hf.c ---*/
@@ -557,11 +562,13 @@ static int hf_ain_RequestMemorySlot_incoming = -1;
 static int hf_ain_RequestMemorySlot_outgoing = -1;
 
 /*--- End of included file: packet-ain-hf.c ---*/
-#line 58 "./asn1/ain/packet-ain-template.c"
+#line 63 "./asn1/ain/packet-ain-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_ain = -1;
 static int ett_ain_digits = -1;
+static int ett_ain_carrierformat = -1;
+static int ett_ain_amaslpid = -1;
 
 
 /*--- Included file: packet-ain-ett.c ---*/
@@ -742,7 +749,7 @@ static gint ett_ain_T_problem = -1;
 static gint ett_ain_InvokeId = -1;
 
 /*--- End of included file: packet-ain-ett.c ---*/
-#line 64 "./asn1/ain/packet-ain-template.c"
+#line 71 "./asn1/ain/packet-ain-template.c"
 
 static expert_field ei_ain_unknown_invokeData = EI_INIT;
 static expert_field ei_ain_unknown_returnResultData = EI_INIT;
@@ -763,6 +770,38 @@ static int ain_opcode_type;
 static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_);
 static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_);
 static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx);
+
+static const value_string ain_np_vals[] = {
+    {   0, "Unknown or not applicable"},
+    {   1, "ISDN Numbering Plan (ITU Rec. E.164)"},
+    {   2, "Telephony Numbering (ITU-T Rec. E.164,E.163)"},
+    {   3, "Data Numbering (ITU-T Rec. X.121)"},
+    {   4, "Telex Numbering (ITU-T Rec. F.69)"},
+    {   5, "Maritime Mobile Numbering"},
+    {   6, "Land Mobile Numbering (ITU-T Rec. E.212)"},
+    {   7, "Private Numbering Plan"},
+    {   0, NULL }
+};
+
+static const value_string ain_carrier_selection_vals[] = {
+    {   0, "No indication"},
+    {   1, "Selected carrier identification code presubscribed and not input by calling party"},
+    {   2, "Selected carrier identification code presubscribed and input by calling party"},
+    {   3, "Selected carrier identification code presubscribed, no indication of whether input by calling party"},
+    {   4, "Selected carrier identification code not presubscribed and input by calling party"},
+    {   0, NULL }
+};
+
+static const value_string ain_nature_of_carrier_vals[] = {
+    {   0, "No NOC Provided"},
+    {   1, "local"},
+    {   2, "intraLATA toll"},
+    {   3, "interLATA"},
+    {   4, "local, intraLATA toll and interLATA"},
+    {   5, "local and intraLATA toll"},
+    {   6, "intraLATA toll and interLATA"},
+    {   0, NULL }
+};
 
 
 /*--- Included file: packet-ain-table.c ---*/
@@ -845,7 +884,7 @@ static const value_string ain_err_code_string_vals[] = {
 
 
 /*--- End of included file: packet-ain-table.c ---*/
-#line 86 "./asn1/ain/packet-ain-template.c"
+#line 125 "./asn1/ain/packet-ain-template.c"
 
 
 /*--- Included file: packet-ain-fn.c ---*/
@@ -924,7 +963,6 @@ dissect_ain_AINDigits(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
   digit_str = tvb_bcd_dig_to_wmem_packet_str(parameter_tvb, 2, tvb_reported_length_remaining(parameter_tvb,2), NULL, FALSE);
   proto_tree_add_string(subtree, hf_ain_bcd_digits, parameter_tvb, 2, -1, digit_str);
-
 
 
 
@@ -1510,8 +1548,30 @@ dissect_ain_CollectedAddressInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_ain_CarrierFormat(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+#line 204 "./asn1/ain/ain.cnf"
+  tvbuff_t *parameter_tvb;
+  proto_tree *subtree;
+  const char *digit_str;
+
+    offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       &parameter_tvb);
+
+
+  if (!parameter_tvb)
+    return offset;
+
+  subtree = proto_item_add_subtree(actx->created_item, ett_ain_carrierformat);
+  /* Carrier Selection */
+  proto_tree_add_item(subtree, hf_ain_carrier_selection, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
+  /*  Nature of Carrier Number of Digits (always 4 )*/
+  proto_tree_add_item(subtree, hf_ain_nature_of_carrier, parameter_tvb, 1, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(subtree, hf_ain_nr_digits, parameter_tvb, 1, 1, ENC_BIG_ENDIAN);
+
+  /* 2nd Digit 1st Digit .. */
+  digit_str = tvb_bcd_dig_to_wmem_packet_str(parameter_tvb, 2, tvb_reported_length_remaining(parameter_tvb,2), NULL, FALSE);
+  proto_tree_add_string(subtree, hf_ain_carrier_bcd_digits, parameter_tvb, 2, -1, digit_str);
+
+
 
   return offset;
 }
@@ -3154,8 +3214,24 @@ dissect_ain_SEQUENCE_SIZE_1_2_OF_AMALineNumber(gboolean implicit_tag _U_, tvbuff
 
 static int
 dissect_ain_AMAslpID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_CON, 10, TRUE, dissect_ain_OCTET_STRING_SIZE_5);
+#line 225 "./asn1/ain/ain.cnf"
+  tvbuff_t *parameter_tvb;
+  proto_tree *subtree;
+  const char *digit_str;
+
+    offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       &parameter_tvb);
+
+
+  if (!parameter_tvb)
+    return offset;
+
+  subtree = proto_item_add_subtree(actx->created_item, ett_ain_amaslpid);
+
+  digit_str = tvb_bcd_dig_to_wmem_packet_str(parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb,0), NULL, FALSE);
+  proto_tree_add_string(subtree, hf_ain_amaslpid, parameter_tvb, 0, -1, digit_str);
+
+
 
   return offset;
 }
@@ -3492,7 +3568,7 @@ static const ber_sequence_t AnalyzeRouteArg_sequence[] = {
   { &hf_ain_aMAAlternateBillingNumber, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_AMAAlternateBillingNumber },
   { &hf_ain_aMABusinessCustomerID, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_AMABusinessCustomerID },
   { &hf_ain_aMALineNumberList, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_SEQUENCE_SIZE_1_2_OF_AMALineNumber },
-  { &hf_ain_aMAslpID        , BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_AMAslpID },
+  { &hf_ain_aMAslpID        , BER_CLASS_CON, 10, BER_FLAGS_IMPLTAG, dissect_ain_AMAslpID },
   { &hf_ain_aMADigitsDialedWCList, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_SEQUENCE_SIZE_1_5_OF_AMADigitsDialedWC },
   { &hf_ain_amp1            , BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_Amp1 },
   { &hf_ain_amp2            , BER_CLASS_CON, 109, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_Amp2 },
@@ -3583,7 +3659,7 @@ static const ber_sequence_t AuthorizeTerminationArg_sequence[] = {
   { &hf_ain_aMAAlternateBillingNumber, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_AMAAlternateBillingNumber },
   { &hf_ain_aMABusinessCustomerID, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_AMABusinessCustomerID },
   { &hf_ain_aMALineNumberList, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_SEQUENCE_SIZE_1_2_OF_AMALineNumber },
-  { &hf_ain_aMAslpID        , BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_AMAslpID },
+  { &hf_ain_aMAslpID        , BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ain_AMAslpID },
   { &hf_ain_aMADigitsDialedWCList, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_SEQUENCE_SIZE_1_5_OF_AMADigitsDialedWC },
   { &hf_ain_amp1            , BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_Amp1 },
   { &hf_ain_amp2            , BER_CLASS_CON, 109, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_Amp2 },
@@ -3654,7 +3730,7 @@ static const ber_sequence_t CollectInformationArg_sequence[] = {
   { &hf_ain_overflowBillingIndicator, BER_CLASS_CON, 38, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_OverflowBillingIndicator },
   { &hf_ain_aMAAlternateBillingNumber, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_AMAAlternateBillingNumber },
   { &hf_ain_aMALineNumberList, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_SEQUENCE_SIZE_1_2_OF_AMALineNumber },
-  { &hf_ain_aMAslpID        , BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_AMAslpID },
+  { &hf_ain_aMAslpID        , BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ain_AMAslpID },
   { &hf_ain_aMADigitsDialedWCList, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_SEQUENCE_SIZE_1_5_OF_AMADigitsDialedWC },
   { &hf_ain_amp1            , BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_Amp1 },
   { &hf_ain_amp2            , BER_CLASS_CON, 109, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_Amp2 },
@@ -3883,7 +3959,7 @@ static const ber_sequence_t ConnectToResourceArg_sequence[] = {
   { &hf_ain_aMAAlternateBillingNumber, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_AMAAlternateBillingNumber },
   { &hf_ain_aMABusinessCustomerID, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_AMABusinessCustomerID },
   { &hf_ain_aMALineNumberList, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_SEQUENCE_SIZE_1_2_OF_AMALineNumber },
-  { &hf_ain_aMAslpID        , BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_AMAslpID },
+  { &hf_ain_aMAslpID        , BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ain_AMAslpID },
   { &hf_ain_aMADigitsDialedWCList, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_SEQUENCE_SIZE_1_5_OF_AMADigitsDialedWC },
   { &hf_ain_amp1            , BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_Amp1 },
   { &hf_ain_amp2            , BER_CLASS_CON, 109, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_Amp2 },
@@ -3913,7 +3989,7 @@ static const ber_sequence_t ContinueArg_sequence[] = {
   { &hf_ain_aMAAlternateBillingNumber, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_AMAAlternateBillingNumber },
   { &hf_ain_aMABusinessCustomerID, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_AMABusinessCustomerID },
   { &hf_ain_aMALineNumberList, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_SEQUENCE_SIZE_1_2_OF_AMALineNumber },
-  { &hf_ain_aMAslpID        , BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_AMAslpID },
+  { &hf_ain_aMAslpID        , BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ain_AMAslpID },
   { &hf_ain_aMADigitsDialedWCList, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_SEQUENCE_SIZE_1_5_OF_AMADigitsDialedWC },
   { &hf_ain_amp1            , BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_Amp1 },
   { &hf_ain_amp2            , BER_CLASS_CON, 109, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_Amp2 },
@@ -4014,7 +4090,7 @@ static const ber_sequence_t CreateCallArg_sequence[] = {
   { &hf_ain_aMAAlternateBillingNumber, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_AMAAlternateBillingNumber },
   { &hf_ain_aMABusinessCustomerID, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_AMABusinessCustomerID },
   { &hf_ain_aMALineNumberList, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_SEQUENCE_SIZE_1_2_OF_AMALineNumber },
-  { &hf_ain_aMAslpID        , BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_AMAslpID },
+  { &hf_ain_aMAslpID        , BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ain_AMAslpID },
   { &hf_ain_aMAserviceProviderID, BER_CLASS_CON, 101, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_AMAServiceProviderID },
   { &hf_ain_amp1            , BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_Amp1 },
   { &hf_ain_amp2            , BER_CLASS_CON, 109, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_Amp2 },
@@ -4061,7 +4137,7 @@ static const ber_sequence_t DisconnectArg_sequence[] = {
   { &hf_ain_aMAAlternateBillingNumber, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_AMAAlternateBillingNumber },
   { &hf_ain_aMABusinessCustomerID, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_AMABusinessCustomerID },
   { &hf_ain_aMALineNumberList, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_SEQUENCE_SIZE_1_2_OF_AMALineNumber },
-  { &hf_ain_aMAslpID        , BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_AMAslpID },
+  { &hf_ain_aMAslpID        , BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ain_AMAslpID },
   { &hf_ain_aMADigitsDialedWCList, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_SEQUENCE_SIZE_1_5_OF_AMADigitsDialedWC },
   { &hf_ain_amp1            , BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_Amp1 },
   { &hf_ain_amp2            , BER_CLASS_CON, 109, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_Amp2 },
@@ -4156,7 +4232,7 @@ static const ber_sequence_t ForwardCallArg_sequence[] = {
   { &hf_ain_aMAAlternateBillingNumber, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_AMAAlternateBillingNumber },
   { &hf_ain_aMABusinessCustomerID, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_AMABusinessCustomerID },
   { &hf_ain_aMALineNumberList, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_SEQUENCE_SIZE_1_2_OF_AMALineNumber },
-  { &hf_ain_aMAslpID        , BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_AMAslpID },
+  { &hf_ain_aMAslpID        , BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ain_AMAslpID },
   { &hf_ain_aMADigitsDialedWCList, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_SEQUENCE_SIZE_1_5_OF_AMADigitsDialedWC },
   { &hf_ain_amp1            , BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_Amp1 },
   { &hf_ain_amp2            , BER_CLASS_CON, 109, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_Amp2 },
@@ -4193,7 +4269,7 @@ static const ber_sequence_t MergeCallArg_sequence[] = {
   { &hf_ain_aMAAlternateBillingNumber, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_AMAAlternateBillingNumber },
   { &hf_ain_aMABusinessCustomerID, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_AMABusinessCustomerID },
   { &hf_ain_aMALineNumberList, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_SEQUENCE_SIZE_1_2_OF_AMALineNumber },
-  { &hf_ain_aMAslpID        , BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_AMAslpID },
+  { &hf_ain_aMAslpID        , BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ain_AMAslpID },
   { &hf_ain_aMADigitsDialedWCList, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_SEQUENCE_SIZE_1_5_OF_AMADigitsDialedWC },
   { &hf_ain_serviceProviderID, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ain_ServiceProviderID },
   { &hf_ain_serviceContext  , BER_CLASS_CON, 83, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_ServiceContext },
@@ -4239,7 +4315,7 @@ static const ber_sequence_t OfferCallArg_sequence[] = {
   { &hf_ain_aMAAlternateBillingNumber, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_AMAAlternateBillingNumber },
   { &hf_ain_aMABusinessCustomerID, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_AMABusinessCustomerID },
   { &hf_ain_aMALineNumberList, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_SEQUENCE_SIZE_1_2_OF_AMALineNumber },
-  { &hf_ain_aMAslpID        , BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_AMAslpID },
+  { &hf_ain_aMAslpID        , BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ain_AMAslpID },
   { &hf_ain_aMADigitsDialedWCList, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_SEQUENCE_SIZE_1_5_OF_AMADigitsDialedWC },
   { &hf_ain_amp1            , BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_Amp1 },
   { &hf_ain_amp2            , BER_CLASS_CON, 109, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_Amp2 },
@@ -4293,7 +4369,7 @@ static const ber_sequence_t OriginateCallArg_sequence[] = {
   { &hf_ain_aMAAlternateBillingNumber, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_AMAAlternateBillingNumber },
   { &hf_ain_aMABusinessCustomerID, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_AMABusinessCustomerID },
   { &hf_ain_aMALineNumberList, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_SEQUENCE_SIZE_1_2_OF_AMALineNumber },
-  { &hf_ain_aMAslpID        , BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_AMAslpID },
+  { &hf_ain_aMAslpID        , BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ain_AMAslpID },
   { &hf_ain_aMADigitsDialedWCList, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_SEQUENCE_SIZE_1_5_OF_AMADigitsDialedWC },
   { &hf_ain_amp1            , BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_Amp1 },
   { &hf_ain_amp2            , BER_CLASS_CON, 109, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_Amp2 },
@@ -4436,7 +4512,7 @@ static const ber_sequence_t SendToResourceArg_sequence[] = {
   { &hf_ain_aMAAlternateBillingNumber, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_AMAAlternateBillingNumber },
   { &hf_ain_aMABusinessCustomerID, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_AMABusinessCustomerID },
   { &hf_ain_aMALineNumberList, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_SEQUENCE_SIZE_1_2_OF_AMALineNumber },
-  { &hf_ain_aMAslpID        , BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_AMAslpID },
+  { &hf_ain_aMAslpID        , BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ain_AMAslpID },
   { &hf_ain_aMADigitsDialedWCList, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_SEQUENCE_SIZE_1_5_OF_AMADigitsDialedWC },
   { &hf_ain_amp1            , BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_Amp1 },
   { &hf_ain_amp2            , BER_CLASS_CON, 109, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_Amp2 },
@@ -7526,7 +7602,7 @@ static const ber_sequence_t UpdateArg_sequence[] = {
   { &hf_ain_amp2            , BER_CLASS_CON, 109, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_Amp2 },
   { &hf_ain_extensionParameter, BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ain_ExtensionParameter },
   { &hf_ain_controlEncountered, BER_CLASS_CON, 127, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_ControlEncountered },
-  { &hf_ain_aMAslpID        , BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ain_AMAslpID },
+  { &hf_ain_aMAslpID        , BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ain_AMAslpID },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -7824,7 +7900,7 @@ static const ber_choice_t Parms_choice[] = {
   {   4, &hf_ain_alternateTrunkGroup, BER_CLASS_CON, 5, BER_FLAGS_NOOWNTAG, dissect_ain_AlternateTrunkGroup },
   {   5, &hf_ain_aMAAlternateBillingNumber, BER_CLASS_CON, 6, BER_FLAGS_NOOWNTAG, dissect_ain_AMAAlternateBillingNumber },
   {   6, &hf_ain_aMABusinessCustomerID, BER_CLASS_CON, 7, BER_FLAGS_NOOWNTAG, dissect_ain_AMABusinessCustomerID },
-  {   7, &hf_ain_aMAslpID        , BER_CLASS_CON, 10, BER_FLAGS_NOOWNTAG, dissect_ain_AMAslpID },
+  {   7, &hf_ain_aMAslpID        , BER_CLASS_CON, 10, BER_FLAGS_IMPLTAG, dissect_ain_AMAslpID },
   {   8, &hf_ain_amp1            , BER_CLASS_CON, 11, BER_FLAGS_NOOWNTAG, dissect_ain_Amp1 },
   {   9, &hf_ain_amp2            , BER_CLASS_CON, 109, BER_FLAGS_NOOWNTAG, dissect_ain_Amp2 },
   {  10, &hf_ain_answerIndicator , BER_CLASS_CON, 12, BER_FLAGS_NOOWNTAG, dissect_ain_AnswerIndicator },
@@ -8971,7 +9047,7 @@ static int dissect_PAR_failureReport_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
 
 
 /*--- End of included file: packet-ain-fn.c ---*/
-#line 88 "./asn1/ain/packet-ain-template.c"
+#line 127 "./asn1/ain/packet-ain-template.c"
 
 
 /*--- Included file: packet-ain-table2.c ---*/
@@ -9239,7 +9315,7 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
 
 
 /*--- End of included file: packet-ain-table2.c ---*/
-#line 90 "./asn1/ain/packet-ain-template.c"
+#line 129 "./asn1/ain/packet-ain-template.c"
 
 
 static int
@@ -9329,10 +9405,30 @@ void proto_register_ain(void) {
     NULL, HFILL } },
     { &hf_ain_numbering_plan,
     { "Numbering plan",  "ain.numbering_plan",
-    FT_UINT8, BASE_DEC, NULL, 0x70,
+    FT_UINT8, BASE_DEC, VALS(ain_np_vals), 0x70,
     NULL, HFILL } },
     { &hf_ain_bcd_digits,
     { "BCD digits", "ain.bcd_digits",
+    FT_STRING, BASE_NONE, NULL, 0,
+    NULL, HFILL } },
+    { &hf_ain_carrier_selection,
+    { "Carrier Selection",  "ain.carrier_selection",
+    FT_UINT8, BASE_DEC, VALS(ain_carrier_selection_vals), 0x0,
+    NULL, HFILL } },
+    { &hf_ain_nature_of_carrier,
+    { "Nature of Carrier",  "ain.nature_of_carrier",
+    FT_UINT8, BASE_DEC, VALS(ain_nature_of_carrier_vals), 0xf0,
+    NULL, HFILL } },
+    { &hf_ain_nr_digits,
+    { "Number of Digits",  "ain.nature_of_carrier",
+    FT_UINT8, BASE_DEC, NULL, 0x0f,
+    NULL, HFILL } },
+    { &hf_ain_carrier_bcd_digits,
+    { "Carrier digits", "ain.carrier_bcd_digits",
+    FT_STRING, BASE_NONE, NULL, 0,
+    NULL, HFILL } },
+    { &hf_ain_amaslpid,
+    { "AMAslpID", "ain.amaslpid",
     FT_STRING, BASE_NONE, NULL, 0,
     NULL, HFILL } },
 
@@ -11273,13 +11369,15 @@ void proto_register_ain(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ain-hfarr.c ---*/
-#line 187 "./asn1/ain/packet-ain-template.c"
+#line 246 "./asn1/ain/packet-ain-template.c"
     };
 
     /* List of subtrees */
     static gint *ett[] = {
         &ett_ain,
         &ett_ain_digits,
+        &ett_ain_carrierformat,
+        &ett_ain_amaslpid,
 
 /*--- Included file: packet-ain-ettarr.c ---*/
 #line 1 "./asn1/ain/packet-ain-ettarr.c"
@@ -11459,7 +11557,7 @@ void proto_register_ain(void) {
     &ett_ain_InvokeId,
 
 /*--- End of included file: packet-ain-ettarr.c ---*/
-#line 194 "./asn1/ain/packet-ain-template.c"
+#line 255 "./asn1/ain/packet-ain-template.c"
     };
 
     static ei_register_info ei[] = {
