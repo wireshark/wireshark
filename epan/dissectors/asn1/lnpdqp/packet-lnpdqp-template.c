@@ -32,6 +32,9 @@
 /* Exluding H bit */
 #define LNPDQP_ANSI_TCAP_OPCODE_PI 0x0301
 
+void proto_reg_handoff_lnpdqp(void);
+void proto_register_lnpdqp(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_lnpdqp = -1;
 

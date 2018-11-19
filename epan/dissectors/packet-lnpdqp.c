@@ -40,6 +40,9 @@
 /* Exluding H bit */
 #define LNPDQP_ANSI_TCAP_OPCODE_PI 0x0301
 
+void proto_reg_handoff_lnpdqp(void);
+void proto_register_lnpdqp(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_lnpdqp = -1;
 
@@ -71,7 +74,7 @@ static int hf_lnpdqp_calledPartyNumber = -1;      /* ServiceKey */
 static int hf_lnpdqp_oli = -1;                    /* OriginatingStationType */
 
 /*--- End of included file: packet-lnpdqp-hf.c ---*/
-#line 56 "./asn1/lnpdqp/packet-lnpdqp-template.c"
+#line 59 "./asn1/lnpdqp/packet-lnpdqp-template.c"
 
 static int ett_lnpdqp = -1;
 static int ett_lnpdqp_digitstype = -1;
@@ -84,7 +87,7 @@ static gint ett_lnpdqp_ProvideInstructionArg_U = -1;
 static gint ett_lnpdqp_ServiceKey = -1;
 
 /*--- End of included file: packet-lnpdqp-ett.c ---*/
-#line 61 "./asn1/lnpdqp/packet-lnpdqp-template.c"
+#line 64 "./asn1/lnpdqp/packet-lnpdqp-template.c"
 
 
 /* Type of Digits (octet 1, bits A-H) */
@@ -400,7 +403,7 @@ static int dissect_ProvideInstructionArg_PDU(tvbuff_t *tvb _U_, packet_info *pin
 
 
 /*--- End of included file: packet-lnpdqp-fn.c ---*/
-#line 221 "./asn1/lnpdqp/packet-lnpdqp-template.c"
+#line 224 "./asn1/lnpdqp/packet-lnpdqp-template.c"
 
 static int
 dissect_lnpdqp_cc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
@@ -527,7 +530,7 @@ void proto_register_lnpdqp(void) {
         "OriginatingStationType", HFILL }},
 
 /*--- End of included file: packet-lnpdqp-hfarr.c ---*/
-#line 319 "./asn1/lnpdqp/packet-lnpdqp-template.c"
+#line 322 "./asn1/lnpdqp/packet-lnpdqp-template.c"
   };
 
   /* List of subtrees */
@@ -544,7 +547,7 @@ void proto_register_lnpdqp(void) {
     &ett_lnpdqp_ServiceKey,
 
 /*--- End of included file: packet-lnpdqp-ettarr.c ---*/
-#line 328 "./asn1/lnpdqp/packet-lnpdqp-template.c"
+#line 331 "./asn1/lnpdqp/packet-lnpdqp-template.c"
   };
 
   /* Register protocol */
