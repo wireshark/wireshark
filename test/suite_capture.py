@@ -370,7 +370,7 @@ def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, capture_file):
             rb_unique = 'sections_rb_' + uuid.uuid4().hex[:6] # Random ID
             testout_glob = '{}.{}_*.pcapng'.format(self.id(), rb_unique)
             testout_file = '{}.{}.pcapng'.format(self.id(), rb_unique)
-            check_vals.append(check_val_d)
+            check_vals.append(check_val_d.copy())
             # check_vals[]['filename'] will be filled in below
         else:
             testout_file = self.filename_from_id(testout_pcapng)
@@ -396,7 +396,7 @@ def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, capture_file):
                 '-b', 'packets:53'
             )
             check_vals[0]['packet_count'] = 53
-            check_vals[0]['idb_count'] = 22
+            check_vals[0]['idb_count'] = 11
             check_vals[0]['ua_pt1_count'] = 1
             check_vals[1]['packet_count'] = 26
             check_vals[1]['idb_count'] = 22
@@ -422,7 +422,7 @@ def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, capture_file):
                 '-b', 'packets:53'
             )
             check_vals[0]['packet_count'] = 53
-            check_vals[0]['idb_count'] = 35
+            check_vals[0]['idb_count'] = 13
             check_vals[0]['ua_dc_count'] = 1
             check_vals[1]['packet_count'] = 35
             check_vals[1]['idb_count'] = 35
@@ -466,6 +466,13 @@ def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, capture_file):
         # many_interfaces.pcapng.1 : 64 packets written by "Passthrough test #1"
         # many_interfaces.pcapng.2 : 15 packets written by "Passthrough test #2"
         # many_interfaces.pcapng.3 : 9 packets written by "Passthrough test #3"
+        # Each has 11 interfaces.
+        idb_compare_eq = True
+        if multi_input and multi_output:
+            # Having multiple inputs forces the use of threads. In our
+            # case this means that non-packet block counts in the first
+            # file in is nondeterministic.
+            idb_compare_eq = False
         for check_val in check_vals:
             self.checkPacketCount(check_val['packet_count'], cap_file=check_val['filename'])
 
@@ -475,8 +482,13 @@ def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, capture_file):
                 '-X', 'read_format:MIME Files Format'
             ))
             # XXX Are there any other sanity checks we should run?
-            self.assertEqual(self.countOutput('Block: Interface Description Block',
-                proc=tshark_proc), check_val['idb_count'])
+            if idb_compare_eq:
+                self.assertEqual(self.countOutput('Block: Interface Description Block',
+                    proc=tshark_proc), check_val['idb_count'])
+            else:
+                self.assertGreaterEqual(self.countOutput('Block: Interface Description Block',
+                    proc=tshark_proc), check_val['idb_count'])
+                idb_compare_eq = True
             self.assertEqual(self.countOutput('Option: User Application = Passthrough test #1',
                 proc=tshark_proc), check_val['ua_pt1_count'])
             self.assertEqual(self.countOutput('Option: User Application = Passthrough test #2',
