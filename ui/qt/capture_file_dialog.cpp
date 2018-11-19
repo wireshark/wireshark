@@ -220,13 +220,22 @@ check_savability_t CaptureFileDialog::checkSaveAsWithComments(QWidget *
 #ifndef Q_OS_WIN
 void CaptureFileDialog::accept()
 {
-    // XXX also useful for Windows, but that uses a different dialog...
-    // Ensure that the filename has a valid extension before performing file
+    //
+    // If this is a dialog for writing files, we want to ensure that
+    // the filename has a valid extension before performing file
     // existence checks and before closing the dialog.
-    // HACK: ensure that the filename field does not have the focus, otherwise
-    // selectFile will not change the filename.
-    setFocus();
-    fixFilenameExtension();
+    // This isn't necessary for dialogs for reading files; the name
+    // has to exactly match the name of the file you want to open,
+    // and doesn't need to be, and shouldn't be, modified.
+    //
+    // XXX also useful for Windows, but that uses a different dialog...
+    //
+    if (acceptMode() == QFileDialog::AcceptSave) {
+        // HACK: ensure that the filename field does not have the focus,
+        // otherwise selectFile will not change the filename.
+        setFocus();
+        fixFilenameExtension();
+    }
     QFileDialog::accept();
 }
 #endif // ! Q_OS_WIN
@@ -448,6 +457,7 @@ QStringList CaptureFileDialog::buildFileOpenTypeList() {
 }
 
 // Replaces or appends an extension based on the current file filter.
+// Used in dialogs that select a file to write.
 void CaptureFileDialog::fixFilenameExtension()
 {
     QFileInfo fi(selectedFiles()[0]);
