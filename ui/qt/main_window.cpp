@@ -1662,10 +1662,10 @@ void MainWindow::fileAddExtension(QString &file_name, int file_type, wtap_compre
        type we'll be using. */
     extensions_list = wtap_get_file_extensions_list(file_type, FALSE);
 
-    /* Get the extension for the compression type we'll be using, or
-       NULL if we won't be compressing it. */
-    compressed_file_extension =
-        (compression_type == WTAP_UNCOMPRESSED) ? NULL : wtap_compressed_file_extension(compression_type);
+    /* Get the extension for the compression type we'll be using;
+       NULL is returned if the type isn't supported or compression
+       is not being done. */
+    compressed_file_extension = wtap_compression_type_extension(compression_type);
 
     if (extensions_list != NULL) {
         GSList *extension;

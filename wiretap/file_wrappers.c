@@ -43,6 +43,65 @@
  *      Lzip format: http://www.nongnu.org/lzip/
  */
 
+/*
+ * List of compression types supported.
+ */
+static struct compression_type {
+    wtap_compression_type  type;
+    const char            *extension;
+    const char            *description;
+} compression_types[] = {
+#ifdef HAVE_ZLIB
+    { WTAP_GZIP_COMPRESSED, "gz", "gzip compressed" },
+#endif
+    { WTAP_UNCOMPRESSED, NULL, NULL }
+};
+
+wtap_compression_type
+wtap_get_compression_type(wtap *wth)
+{
+	gboolean is_compressed;
+
+	is_compressed = file_iscompressed((wth->fh == NULL) ? wth->random_fh : wth->fh);
+	return is_compressed ? WTAP_GZIP_COMPRESSED : WTAP_UNCOMPRESSED;
+}
+
+const char *
+wtap_compression_type_description(wtap_compression_type compression_type)
+{
+	for (struct compression_type *p = compression_types;
+	    p->type != WTAP_UNCOMPRESSED; p++) {
+		if (p->type == compression_type)
+			return p->description;
+	}
+	return NULL;
+}
+
+const char *
+wtap_compression_type_extension(wtap_compression_type compression_type)
+{
+	for (struct compression_type *p = compression_types;
+	    p->type != WTAP_UNCOMPRESSED; p++) {
+		if (p->type == compression_type)
+			return p->extension;
+	}
+	return NULL;
+}
+
+GSList *
+wtap_get_all_compression_type_extensions_list(void)
+{
+	GSList *extensions;
+
+	extensions = NULL;	/* empty list, to start with */
+
+	for (struct compression_type *p = compression_types;
+	    p->type != WTAP_UNCOMPRESSED; p++)
+		extensions = g_slist_prepend(extensions, (gpointer)p->extension);
+
+	return extensions;
+}
+
 /* #define GZBUFSIZE 8192 */
 #define GZBUFSIZE 4096
 

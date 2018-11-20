@@ -77,67 +77,6 @@ wtap_file_type_subtype(wtap *wth)
 	return wth->file_type_subtype;
 }
 
-wtap_compression_type
-wtap_get_compression_type(wtap *wth)
-{
-	gboolean is_compressed;
-
-	is_compressed = file_iscompressed((wth->fh == NULL) ? wth->random_fh : wth->fh);
-	return is_compressed ? WTAP_GZIP_COMPRESSED : WTAP_UNCOMPRESSED;
-}
-
-/*
- * Indicate whether a given compression type is supported.
- */
-static const gboolean compression_type_supported[WTAP_NUM_COMPRESSION_TYPES] = {
-    TRUE,
-#ifdef HAVE_ZLIB
-    TRUE
-#else
-    FALSE
-#endif
-};
-
-gboolean
-wtap_compression_type_supported(wtap_compression_type compression_type)
-{
-	g_assert(compression_type >= 0 && compression_type < WTAP_NUM_COMPRESSION_TYPES);
-	return compression_type_supported[compression_type];
-}
-
-static const char *compression_type_descriptions[WTAP_NUM_COMPRESSION_TYPES] = {
-	NULL,	/* uncompressed */
-	"gzip compressed"
-};
-
-const char *
-wtap_compression_type_description(wtap_compression_type compression_type)
-{
-	g_assert(compression_type >= 0 && compression_type < WTAP_NUM_COMPRESSION_TYPES);
-	return compression_type_descriptions[compression_type];
-}
-
-/*
- * List of extensions for compressed files.
- * If we add support for more compressed file types, this table
- * might be expanded to include routines to handle the various
- * compression types.
- *
- * The entry is NULL for WTAP_UNCOMPRESSED, as it's not a compression type,
- * and thus has no suffix to indicate the compression type.
- */
-static const char *compressed_file_extensions[WTAP_NUM_COMPRESSION_TYPES] = {
-    NULL,
-    "gz"
-};
-
-const char *
-wtap_compressed_file_extension(wtap_compression_type compression_type)
-{
-	g_assert(compression_type >= 0 && compression_type < WTAP_NUM_COMPRESSION_TYPES);
-	return compressed_file_extensions[compression_type];
-}
-
 guint
 wtap_snapshot_length(wtap *wth)
 {
