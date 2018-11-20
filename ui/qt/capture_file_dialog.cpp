@@ -334,7 +334,7 @@ QString CaptureFileDialog::fileExtensionType(int et, bool extension_globs)
 {
     QString extension_type_name;
     QStringList all_wildcards;
-    QStringList nogz_wildcards;
+    QStringList no_compression_suffix_wildcards;
     GSList *extensions_list;
     GSList *extension;
 
@@ -346,15 +346,33 @@ QString CaptureFileDialog::fileExtensionType(int et, bool extension_globs)
 
     extensions_list = wtap_get_file_extension_type_extensions(et);
 
+    // Get the list of compression-type extensions.
+    GSList *compression_type_extensions = wtap_get_all_compression_type_extensions_list();
+
     /* Construct the list of patterns. */
     for (extension = extensions_list; extension != NULL;
          extension = g_slist_next(extension)) {
         QString bare_wc = QString("*.%1").arg((char *)extension->data);
         all_wildcards << bare_wc;
-        if (!bare_wc.endsWith(".gz")) {
-            nogz_wildcards << bare_wc;
+
+        // Does this end with a compression suffix?
+        bool ends_with_compression_suffix = false;
+        for (GSList *compression_type_extension = compression_type_extensions;
+            compression_type_extension != NULL;
+            compression_type_extension = g_slist_next(compression_type_extension)) {
+            QString suffix = QString(".") + (char *)compression_type_extension->data;
+            if (bare_wc.endsWith(suffix)) {
+                ends_with_compression_suffix = true;
+                break;
+            }
         }
+
+        // If it doesn't, add it to the list of wildcards-without-
+        // compression-suffixes.
+        if (!ends_with_compression_suffix)
+            no_compression_suffix_wildcards << bare_wc;
     }
+    g_slist_free(compression_type_extensions);
     wtap_free_extensions_list(extensions_list);
 
     // We set HideNameFilterDetails so that "All Files" and "All Capture
@@ -362,7 +380,7 @@ QString CaptureFileDialog::fileExtensionType(int et, bool extension_globs)
     // wildcards for individual file types so we add them twice.
     return QString("%1 (%2) (%3)")
             .arg(extension_type_name)
-            .arg(nogz_wildcards.join(" "))
+            .arg(no_compression_suffix_wildcards.join(" "))
             .arg(all_wildcards.join(" "));
 }
 
@@ -503,11 +521,29 @@ void CaptureFileDialog::fixFilenameExtension()
         }
     }
 
-    // Fixup the new suffix based on compression availability.
-    if (compressionType() != WTAP_GZIP_COMPRESSED && new_suffix.endsWith(".gz")) {
-        new_suffix.chop(3);
-    } else if (compressionType() == WTAP_GZIP_COMPRESSED && valid_extensions.contains(new_suffix + ".gz")) {
-        new_suffix += ".gz";
+    // Fixup the new suffix based on whether we're compressing or not.
+    if (compressionType() == WTAP_UNCOMPRESSED) {
+        // Not compressing; strip off any compression suffix
+        GSList *compression_type_extensions = wtap_get_all_compression_type_extensions_list();
+        for (GSList *compression_type_extension = compression_type_extensions;
+            compression_type_extension != NULL;
+            compression_type_extension = g_slist_next(compression_type_extension)) {
+            QString suffix = QString(".") + (char *)compression_type_extension->data;
+            if (new_suffix.endsWith(suffix)) {
+                //
+                // It ends with this compression suffix; chop it off.
+                //
+                new_suffix.chop(suffix.size());
+                break;
+            }
+        }
+        g_slist_free(compression_type_extensions);
+    } else {
+        // Compressing; append the appropriate compression suffix.
+        QString compressed_file_extension = QString(".") + wtap_compression_type_extension(compressionType());
+        if (valid_extensions.contains(new_suffix + compressed_file_extension)) {
+            new_suffix += compressed_file_extension;
+        }
     }
 
     if (!new_suffix.isEmpty() && old_suffix != new_suffix) {
