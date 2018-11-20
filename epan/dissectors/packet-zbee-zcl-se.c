@@ -7196,7 +7196,7 @@ decode_zcl_msg_start_time(gchar *s, guint32 value)
     else {
         gchar *start_time;
         time_t epoch_time = (time_t)value + ZBEE_ZCL_NSTIME_UTC_OFFSET;
-        start_time = abs_time_secs_to_str (NULL, epoch_time, ABSOLUTE_TIME_LOCAL, TRUE);
+        start_time = abs_time_secs_to_str (NULL, epoch_time, ABSOLUTE_TIME_UTC, TRUE);
         g_snprintf(s, ITEM_LABEL_LENGTH, "%s", start_time);
         wmem_free(NULL, start_time);
     }
@@ -7276,7 +7276,7 @@ proto_register_zbee_zcl_msg(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_msg_confirm_time,
-            { "Confirmation Time", "zbee_zcl_se.msg.message.confirm_time",  FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL,
+            { "Confirmation Time", "zbee_zcl_se.msg.message.confirm_time",  FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_msg_confirm_ctrl,
