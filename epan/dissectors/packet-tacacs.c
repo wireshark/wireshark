@@ -29,6 +29,7 @@
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/ws_printf.h> /* ws_debug_printf */
 
+#include "packet-tcp.h"
 #include "packet-tacacs.h"
 
 void proto_reg_handoff_tacacs(void);
@@ -38,6 +39,7 @@ void proto_reg_handoff_tacplus(void);
 void proto_register_tacplus(void);
 
 static void md5_xor( guint8 *data, const char *key, int data_len, guint8 *session_id, guint8 version, guint8 seq_no );
+static int  dissect_tacplus_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
 
 static int proto_tacacs = -1;
 static int hf_tacacs_version = -1;
@@ -861,8 +863,21 @@ parse_tacplus_keys( const char *keys_from_option )
 #endif
 }
 
+static guint
+get_tacplus_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
+{
+	return (guint)tvb_get_ntohl(tvb, offset+H_LENGTH_OFF) +  TAC_PLUS_HDR_SIZE;
+}
+
 static int
-dissect_tacplus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_tacplus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+	tcp_dissect_pdus(tvb, pinfo, tree, tacplus_preference_desegment, TAC_PLUS_HDR_SIZE, get_tacplus_message_len, dissect_tacplus_message, data);
+	return tvb_captured_length(tvb);
+}
+
+static int
+dissect_tacplus_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	tvbuff_t	*new_tvb=NULL;
 	proto_tree      *tacplus_tree, *body_tree;
@@ -876,13 +891,6 @@ dissect_tacplus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 	const char	*key=NULL;
 
 	len = tvb_get_ntohl(tvb, 8);
-
-	if(len > (guint)tvb_captured_length_remaining(tvb, 12) &&
-	   pinfo->can_desegment && tacplus_preference_desegment) {
-		pinfo->desegment_offset = 0;
-		pinfo->desegment_len = len;
-		return tvb_captured_length(tvb);
-	}
 
 	if( request ) {
 		key=find_key( &pinfo->dst, &pinfo->src );
