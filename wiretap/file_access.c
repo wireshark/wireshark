@@ -143,7 +143,6 @@ static const struct file_extension_info file_type_extensions_base[] = {
 	{ "Transport-Neutral Encapsulation Format", FALSE, "tnef" },
 	{ "JPEG/JFIF files", FALSE, "jpg;jpeg;jfif" },
 	{ "JavaScript Object Notation file", FALSE, "json" },
-	{ "Ruby Marshal Object", FALSE, "" }
 };
 
 #define	N_FILE_TYPE_EXTENSIONS	(sizeof file_type_extensions_base / sizeof file_type_extensions_base[0])
