@@ -20,6 +20,7 @@
 #include <wsutil/bits_count_ones.h>
 #include <wsutil/sign_ext.h>
 #include <wsutil/utf8_entities.h>
+#include <wsutil/json_dumper.h>
 
 #include <ftypes/ftypes-int.h>
 
@@ -46,10 +47,6 @@
 
 #include <wsutil/ws_printf.h> /* ws_debug_printf */
 #include <wsutil/crash_info.h>
-
-#ifdef HAVE_JSONGLIB
-#include <json-glib/json-glib.h>
-#endif
 
 /* Ptvcursor limits */
 #define SUBTREE_ONCE_ALLOCATION_NUMBER 8
@@ -10263,21 +10260,17 @@ proto_registrar_dump_fieldcount(void)
 	return (gpa_hfinfo.allocated_len > PROTO_PRE_ALLOC_HF_FIELDS_MEM);
 }
 
-#ifdef HAVE_JSONGLIB
-
-static JsonBuilder*
-elastic_add_base_mapping(JsonBuilder* builder)
+static void
+elastic_add_base_mapping(json_dumper *dumper)
 {
-	json_builder_set_member_name(builder, "template");
-	json_builder_add_string_value(builder, "packets-*");
+	json_dumper_set_member_name(dumper, "template");
+	json_dumper_value_string(dumper, "packets-*");
 
-	json_builder_set_member_name(builder, "settings");
-	json_builder_begin_object(builder);
-	json_builder_set_member_name(builder, "index.mapping.total_fields.limit");
-	json_builder_add_int_value(builder, 1000000);
-	json_builder_end_object(builder);
-
-	return builder;
+	json_dumper_set_member_name(dumper, "settings");
+	json_dumper_begin_object(dumper);
+	json_dumper_set_member_name(dumper, "index.mapping.total_fields.limit");
+	json_dumper_value_anyf(dumper, "%d", 1000000);
+	json_dumper_end_object(dumper);
 }
 
 gchar* ws_type_to_elastic(guint type _U_)
@@ -10358,14 +10351,9 @@ proto_registrar_dump_elastic(const gchar* filter)
 {
 	header_field_info *hfinfo;
 	header_field_info *parent_hfinfo;
-	JsonGenerator* generator;
-	JsonBuilder* builder;
-	JsonNode* root;
-	gsize length;
 	guint i;
 	gboolean open_object = TRUE;
 	const char* prev_proto = NULL;
-	gchar* data;
 	gchar* str;
 	gchar** protos = NULL;
 	gchar* proto;
@@ -10382,30 +10370,33 @@ proto_registrar_dump_elastic(const gchar* filter)
 	 * n.label -> where n is the indentation level and label the name of the object
 	 */
 
-	builder = json_builder_new();
-	json_builder_begin_object(builder); // 1.root
-	builder = elastic_add_base_mapping(builder);
+	json_dumper dumper = {
+		.output_file = stdout,
+		.flags = JSON_DUMPER_FLAGS_PRETTY_PRINT,
+	};
+	json_dumper_begin_object(&dumper); // 1.root
+	elastic_add_base_mapping(&dumper);
 
-	json_builder_set_member_name(builder, "mappings");
-	json_builder_begin_object(builder); // 2.mappings
-	json_builder_set_member_name(builder, "pcap_file");
+	json_dumper_set_member_name(&dumper, "mappings");
+	json_dumper_begin_object(&dumper); // 2.mappings
+	json_dumper_set_member_name(&dumper, "pcap_file");
 
-	json_builder_begin_object(builder); // 3.pcap_file
-	json_builder_set_member_name(builder, "dynamic");
-	json_builder_add_boolean_value(builder, FALSE);
+	json_dumper_begin_object(&dumper); // 3.pcap_file
+	json_dumper_set_member_name(&dumper, "dynamic");
+	json_dumper_value_anyf(&dumper, "false");
 
-	json_builder_set_member_name(builder, "properties");
-	json_builder_begin_object(builder); // 4.properties
-	json_builder_set_member_name(builder, "timestamp");
-	json_builder_begin_object(builder); // 5.timestamp
-	json_builder_set_member_name(builder, "type");
-	json_builder_add_string_value(builder, "date");
-	json_builder_end_object(builder); // 5.timestamp
+	json_dumper_set_member_name(&dumper, "properties");
+	json_dumper_begin_object(&dumper); // 4.properties
+	json_dumper_set_member_name(&dumper, "timestamp");
+	json_dumper_begin_object(&dumper); // 5.timestamp
+	json_dumper_set_member_name(&dumper, "type");
+	json_dumper_value_string(&dumper, "date");
+	json_dumper_end_object(&dumper); // 5.timestamp
 
-	json_builder_set_member_name(builder, "layers");
-	json_builder_begin_object(builder); // 5.layers
-	json_builder_set_member_name(builder, "properties");
-	json_builder_begin_object(builder); // 6.properties
+	json_dumper_set_member_name(&dumper, "layers");
+	json_dumper_begin_object(&dumper); // 5.layers
+	json_dumper_set_member_name(&dumper, "properties");
+	json_dumper_begin_object(&dumper); // 6.properties
 
 	for (i = 0; i < gpa_hfinfo.len; i++) {
 		if (gpa_hfinfo.hfi[i] == NULL)
@@ -10444,55 +10435,46 @@ proto_registrar_dump_elastic(const gchar* filter)
 			}
 
 			if (prev_proto && g_strcmp0(parent_hfinfo->abbrev, prev_proto)) {
-				json_builder_end_object(builder); // 8.properties
-				json_builder_end_object(builder); // 7.parent_hfinfo->abbrev
+				json_dumper_end_object(&dumper); // 8.properties
+				json_dumper_end_object(&dumper); // 7.parent_hfinfo->abbrev
 				open_object = TRUE;
 			}
 
 			prev_proto = parent_hfinfo->abbrev;
 
 			if (open_object) {
-				json_builder_set_member_name(builder, parent_hfinfo->abbrev);
-				json_builder_begin_object(builder); // 7.parent_hfinfo->abbrev
-				json_builder_set_member_name(builder, "properties");
-				json_builder_begin_object(builder); // 8.properties
+				json_dumper_set_member_name(&dumper, parent_hfinfo->abbrev);
+				json_dumper_begin_object(&dumper); // 7.parent_hfinfo->abbrev
+				json_dumper_set_member_name(&dumper, "properties");
+				json_dumper_begin_object(&dumper); // 8.properties
 				open_object = FALSE;
 			}
 			str = g_strdup(hfinfo->abbrev);
-			json_builder_set_member_name(builder, dot_to_underscore(str));
+			json_dumper_set_member_name(&dumper, dot_to_underscore(str));
 			g_free(str);
-			json_builder_begin_object(builder); // 9.hfinfo->abbrev
-			json_builder_set_member_name(builder, "type");
-			json_builder_add_string_value(builder, ws_type_to_elastic(hfinfo->type));
-			json_builder_end_object(builder); // 9.hfinfo->abbrev
+			json_dumper_begin_object(&dumper); // 9.hfinfo->abbrev
+			json_dumper_set_member_name(&dumper, "type");
+			json_dumper_value_string(&dumper, ws_type_to_elastic(hfinfo->type));
+			json_dumper_end_object(&dumper); // 9.hfinfo->abbrev
 		}
 	}
 
 	if (prev_proto) {
-		json_builder_end_object(builder); // 8.properties
-		json_builder_end_object(builder); // 7.parent_hfinfo->abbrev
+		json_dumper_end_object(&dumper); // 8.properties
+		json_dumper_end_object(&dumper); // 7.parent_hfinfo->abbrev
 	}
 
-	json_builder_end_object(builder); // 6.properties
-	json_builder_end_object(builder); // 5.layers
-	json_builder_end_object(builder); // 4.properties
-	json_builder_end_object(builder); // 3.pcap_file
-	json_builder_end_object(builder); // 2.mappings
-	DISSECTOR_ASSERT(json_builder_end_object(builder)); // 1.root
+	json_dumper_end_object(&dumper); // 6.properties
+	json_dumper_end_object(&dumper); // 5.layers
+	json_dumper_end_object(&dumper); // 4.properties
+	json_dumper_end_object(&dumper); // 3.pcap_file
+	json_dumper_end_object(&dumper); // 2.mappings
+	json_dumper_end_object(&dumper); // 1.root
+	gboolean ret = json_dumper_finish(&dumper);
+	DISSECTOR_ASSERT(ret);
 
-	generator = json_generator_new();
-	json_generator_set_pretty(generator, TRUE);
-	root = json_builder_get_root(builder);
-	json_generator_set_root(generator, root);
-	json_node_free(root);
-	g_object_unref(builder);
-	data = json_generator_to_data(generator, &length);
-	g_object_unref(generator);
-	ws_debug_printf("%s\n", data);
-	g_free(data);
 	g_strfreev(protos);
 }
-#endif
 
 /* Dumps the contents of the registration database to stdout. An independent
  * program can take this output and format it into nice tables or HTML or

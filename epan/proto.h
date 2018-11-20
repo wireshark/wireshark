@@ -2479,10 +2479,8 @@ WS_DLL_PUBLIC void proto_registrar_dump_protocols(void);
 /** Dumps a glossary of the field value strings or true/false strings to STDOUT */
 WS_DLL_PUBLIC void proto_registrar_dump_values(void);
 
-#ifdef HAVE_JSONGLIB
 /** Dumps a mapping file for loading tshark output into ElasticSearch */
 WS_DLL_PUBLIC void proto_registrar_dump_elastic(const gchar* filter);
-#endif
 
 /** Dumps the number of protocol and field registrations to STDOUT.
  @return FALSE if we pre-allocated enough fields, TRUE otherwise. */

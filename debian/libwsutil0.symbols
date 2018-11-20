@@ -101,6 +101,14 @@ libwsutil.so.0 libwsutil0 #MINVER#
  isprint_string@Base 1.10.0
  isprint_utf8_string@Base 2.6.1
  json_decode_string_inplace@Base 2.9.0
+ json_dumper_begin_array@Base 2.9.0
+ json_dumper_begin_object@Base 2.9.0
+ json_dumper_end_array@Base 2.9.0
+ json_dumper_end_object@Base 2.9.0
+ json_dumper_finish@Base 2.9.0
+ json_dumper_set_member_name@Base 2.9.0
+ json_dumper_value_anyf@Base 2.9.0
+ json_dumper_value_string@Base 2.9.0
  json_parse@Base 2.9.0
  json_validate@Base 2.9.0
  linear2alaw@Base 1.12.0~rc1

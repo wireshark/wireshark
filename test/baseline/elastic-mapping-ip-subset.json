@@ -1,0 +1,45 @@
+{
+  "template" : "packets-*",
+  "settings" : {
+    "index.mapping.total_fields.limit" : 1000000
+  },
+  "mappings" : {
+    "pcap_file" : {
+      "dynamic" : false,
+      "properties" : {
+        "timestamp" : {
+          "type" : "date"
+        },
+        "layers" : {
+          "properties" : {
+            "ip" : {
+              "properties" : {
+                "ip_version" : {
+                  "type" : "short"
+                },
+                "ip_tos_delay" : {
+                  "type" : "boolean"
+                },
+                "ip_len" : {
+                  "type" : "integer"
+                },
+                "ip_dst" : {
+                  "type" : "ip"
+                },
+                "ip_dst_host" : {
+                  "type" : "string"
+                },
+                "ip_geoip_lat" : {
+                  "type" : "float"
+                },
+                "ip_opt_padding" : {
+                  "type" : "byte"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

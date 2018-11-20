@@ -9,6 +9,8 @@
 #
 '''Command line option tests'''
 
+import json
+import os.path
 import subprocess
 import subprocesstest
 import fixtures
@@ -180,6 +182,21 @@ class case_tshark_dump_glossaries(subprocesstest.SubprocessTestCase):
     def test_tshark_glossary_plugin_count(self, cmd_tshark, base_env):
         self.runProcess((cmd_tshark, '-G', 'plugins'), env=base_env)
         self.assertGreaterEqual(self.countOutput('dissector'), 10, 'Fewer than 10 dissector plugins found')
+
+    def test_tshark_elastic_mapping(self, cmd_tshark, dirs, base_env):
+        def get_ip_props(obj):
+            return obj['mappings']['pcap_file']['properties']['layers']['properties']['ip']['properties']
+        baseline_file = os.path.join(dirs.baseline_dir, 'elastic-mapping-ip-subset.json')
+        with open(baseline_file) as f:
+            expected_obj = json.load(f)
+        keys_to_check = get_ip_props(expected_obj).keys()
+        proc = self.assertRun((cmd_tshark, '-G', 'elastic-mapping', '--elastic-mapping-filter', 'ip'))
+        actual_obj = json.loads(proc.stdout_str)
+        ip_props = get_ip_props(actual_obj)
+        for key in list(ip_props.keys()):
+            if key not in keys_to_check:
+                del ip_props[key]
+        self.assertEqual(actual_obj, expected_obj)
 
 
 @fixtures.mark_usefixtures('test_env')

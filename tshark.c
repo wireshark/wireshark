@@ -140,9 +140,7 @@
  */
 #define LONGOPT_COLOR (65536+1000)
 #define LONGOPT_NO_DUPLICATE_KEYS (65536+1001)
-#ifdef HAVE_JSONGLIB
 #define LONGOPT_ELASTIC_MAPPING_FILTER (65536+1002)
-#endif
 
 #if 0
 #define tshark_debug(...) g_warning(__VA_ARGS__)
@@ -439,10 +437,8 @@ print_usage(FILE *output)
   fprintf(output, "  --no-duplicate-keys      If -T json is specified, merge duplicate keys in an object\n");
   fprintf(output, "                           into a single key with as value a json array containing all\n");
   fprintf(output, "                           values\n");
-#ifdef HAVE_JSONGLIB
   fprintf(output, "  --elastic-mapping-filter <protocols> If -G elastic-mapping is specified, put only the\n");
   fprintf(output, "                           specified protocols within the mapping file\n");
-#endif
 
   fprintf(output, "\n");
   fprintf(output, "Miscellaneous:\n");
@@ -479,9 +475,7 @@ glossary_option_help(void)
   fprintf(output, "  -G column-formats        dump column format codes and exit\n");
   fprintf(output, "  -G decodes               dump \"layer type\"/\"decode as\" associations and exit\n");
   fprintf(output, "  -G dissector-tables      dump dissector table names, types, and properties\n");
-#ifdef HAVE_JSONGLIB
   fprintf(output, "  -G elastic-mapping       dump ElasticSearch mapping file\n");
-#endif
   fprintf(output, "  -G fieldcount            dump count of header fields and exit\n");
   fprintf(output, "  -G fields                dump fields glossary and exit\n");
   fprintf(output, "  -G ftypes                dump field type basic and descriptive names\n");
@@ -683,9 +677,7 @@ real_main(int argc, char *argv[])
     {"export-objects", required_argument, NULL, LONGOPT_EXPORT_OBJECTS},
     {"color", no_argument, NULL, LONGOPT_COLOR},
     {"no-duplicate-keys", no_argument, NULL, LONGOPT_NO_DUPLICATE_KEYS},
-#ifdef HAVE_JSONGLIB
     {"elastic-mapping-filter", required_argument, NULL, LONGOPT_ELASTIC_MAPPING_FILTER},
-#endif
     {0, 0, 0, 0 }
   };
   gboolean             arg_error = FALSE;
@@ -729,9 +721,7 @@ real_main(int argc, char *argv[])
   gchar               *volatile pdu_export_arg = NULL;
   char                *volatile exp_pdu_filename = NULL;
   exp_pdu_t            exp_pdu_tap_data;
-#ifdef HAVE_JSONGLIB
   const gchar*         elastic_mapping_filter = NULL;
-#endif
 
 /*
  * The leading + ensures that getopt_long() does not permute the argv[]
@@ -866,11 +856,9 @@ real_main(int argc, char *argv[])
     case 'X':
       ex_opt_add(optarg);
       break;
-#ifdef HAVE_JSONGLIB
     case LONGOPT_ELASTIC_MAPPING_FILTER:
       elastic_mapping_filter = optarg;
       break;
-#endif
     default:
       break;
     }
@@ -973,10 +961,8 @@ real_main(int argc, char *argv[])
         write_prefs(NULL);
       else if (strcmp(argv[2], "dissector-tables") == 0)
         dissector_dump_dissector_tables();
-#ifdef HAVE_JSONGLIB
       else if (strcmp(argv[2], "elastic-mapping") == 0)
         proto_registrar_dump_elastic(elastic_mapping_filter);
-#endif
       else if (strcmp(argv[2], "fieldcount") == 0) {
         /* return value for the test suite */
         exit_status = proto_registrar_dump_fieldcount();
