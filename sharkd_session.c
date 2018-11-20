@@ -473,6 +473,8 @@ sharkd_follower_visit_cb(const void *key _U_, void *value, void *user_data)
  * Process info request
  *
  * Output object with attributes:
+ *   (m) version - version number
+ *
  *   (m) columns - available column formats, array of object with attributes:
  *                  'name'   - column name
  *                  'format' - column format-name
@@ -501,15 +503,20 @@ sharkd_follower_visit_cb(const void *key _U_, void *value, void *user_data)
  *                  'name' - sequence analysis name
  *                  'tap'  - sharkd tap-name
  *
- *   (m) taps - available taps, array of object with attributes:
+ *   (m) taps    - available taps, array of object with attributes:
  *                  'name' - tap name
  *                  'tap'  - sharkd tap-name
  *
- *   (m) follow - available followers, array of object with attributes:
+ *   (m) follow  - available followers, array of object with attributes:
  *                  'name' - tap name
  *                  'tap'  - sharkd tap-name
  *
- *   (m) ftypes   - conversation table for FT_ number to string
+ *   (m) ftypes  - conversation table for FT_ number to string, array of FT_xxx strings.
+ *
+ *   (m) nstat   - available table-based taps, array of object with attributes:
+ *                  'name' - tap name
+ *                  'tap'  - sharkd tap-name
+ *
  */
 static void
 sharkd_session_process_info(void)
@@ -1599,6 +1606,7 @@ sharkd_session_process_tap_rtp_analyse_cb(void *tapdata)
  *   (m) type       - tap output type
  *   (m) proto      - protocol short name
  *   (o) filter     - filter string
+ *   (o) geoip      - whether GeoIP information is available, boolean
  *
  *   (o) convs      - array of object with attributes:
  *                  (m) saddr - source address
@@ -1611,6 +1619,7 @@ sharkd_session_process_tap_rtp_analyse_cb(void *tapdata)
  *                  (m) rxb   - RX bytes
  *                  (m) start - (relative) first packet time
  *                  (m) stop  - (relative) last packet time
+ *                  (o) filter - conversation filter
  *
  *   (o) hosts      - array of object with attributes:
  *                  (m) host - host address
@@ -2597,6 +2606,8 @@ sharkd_session_process_tap(char *buf, const jsmntok_t *tokens, int count)
 
 	sharkd_json_array_open(FALSE, "taps");
 	sharkd_retap();
+	// This dummy value exists to permit unconditionally adding ',' in the taps callback.
+	// XXX convert to json_dumper and remove this.
 	sharkd_json_value_anyf(FALSE, NULL, "null");
 	sharkd_json_array_close();
 
@@ -3025,6 +3036,8 @@ sharkd_session_process_frame_cb(epan_dissect_t *edt, proto_tree *tree, struct ep
 	}
 
 	sharkd_json_array_open(TRUE, "fol");
+	// This dummy entry allows sharkd_follower_visit_layers_cb() to always insert ',' before dumping item.
+	// XXX convert to json_dumper and remove the dummy entry.
 	sharkd_json_value_anyf(FALSE, NULL, "0");
 	follow_iterate_followers(sharkd_follower_visit_layers_cb, pi);
 	sharkd_json_array_close();
