@@ -2177,7 +2177,7 @@ proto_register_pcapng(void)
             NULL, HFILL }
         },
         { &hf_pcapng_dsb_secrets_length,
-            { "Secrets Type",                              "pcapng.dsb.secrets_length",
+            { "Secrets Length",                            "pcapng.dsb.secrets_length",
             FT_UINT32, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
