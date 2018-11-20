@@ -737,7 +737,7 @@ ip_fixed_option_header(proto_tree* tree, packet_info *pinfo, tvbuff_t *tvb, int 
     expert_add_info_format(pinfo, tf, &ei_ip_opt_len_invalid,
                             "%s (with option length = %u byte%s; should be %u)",
                             proto_get_protocol_short_name(find_protocol_by_id(proto)),
-                            len, plurality(len, "", "s"), optlen);
+                            optlen, plurality(optlen, "", "s"), len);
   }
 
   return field_tree;
