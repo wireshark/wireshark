@@ -334,8 +334,8 @@ static const true_false_string data_profile_update = {
 };
 
 static const true_false_string ncp_profile_select = {
-  "use even profile",
-  "use odd profile"
+  "use odd profile",
+  "use even profile"
 };
 
 static const true_false_string last_ncp_block = {
