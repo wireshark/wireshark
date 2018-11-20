@@ -71,7 +71,6 @@ ADDITIONAL_LIST="libnl-3-dev \
 	libspandsp-dev \
 	libxml2-dev \
 	git \
-	libjson-glib-dev \
 	ninja-build \
 	doxygen \
 	xsltproc"

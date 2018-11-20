@@ -20,19 +20,10 @@
 #include <wsutil/unicode-utils.h>
 #include "log.h"
 
-#ifdef HAVE_JSONGLIB
-#include <json-glib/json-glib.h>
-#endif
-
 gboolean
 json_validate(const guint8 *buf, const size_t len)
 {
     gboolean ret = TRUE;
-#ifdef HAVE_JSONGLIB
-    JsonParser *parser = json_parser_new();
-    ret = json_parser_load_from_data(parser, buf, len, NULL);
-    g_object_unref(parser);
-#else
     /* We expect no more than 1024 tokens */
     guint max_tokens = 1024;
     jsmntok_t* t;
@@ -66,7 +57,6 @@ json_validate(const guint8 *buf, const size_t len)
     }
 
     g_free(t);
-#endif
     return ret;
 }
 

@@ -79,7 +79,6 @@ $Win64Archives = @{
     "c-ares-1.14.0-win64ws.zip" = "91b1e1460bda513375910977a3410afd024575eebc528adecf3abea7814c0ef1";
     "gnutls-3.4.11-1.35-win64ws.zip" = "defc04f430f88e0c1217b98157e38b0e9fc8b4e7ad744c6dd0c24dd17648f9f4";
     "glib2-2.52.2-1.31-win64ws.zip" = "e19a7812db6715c632a5bbf96452ab474a4eaf0c6aaee999323ac7beb7ebe6db";
-    "json-glib-1.0.2-4.31-win64ws.zip" = "0b015b4f34384067f4b35cd04cbf745842f9122ae89185e57f8d6223f150bb44";
     "kfw-3-2-2-x64-ws.zip" = "91654ffe0b6d418b369c95bc060414a90f91627e55c19a3e753803c9deb2fe9a";
     "libgcrypt-1.8.3-win64ws.zip" = "53b1c636cb89de308ca4ea01b4990cf1deca7f6c2446189c7ff6e971137ffd76";
     "libsmi-svn-40773-win64ws.zip" = "571fcee71d741bf847c3247d4c2e1c42388ca6a9feebe08fc0d4ce053571d15d";
@@ -103,7 +102,6 @@ $Win32Archives = @{
     "c-ares-1.14.0-win32ws.zip" = "7355f3ad6d6ec05541c59e5b398b8dbd9a41bf6776b26d9656d8d54ecd58178e";
     "gnutls-3.4.11-1.36-win32ws.zip" = "10cd21d25b22cfba2566c8d6f5afbbd23d0f8faceb5bc167ccbb8fbb97d6873f";
     "glib2-2.52.2-1.34-win32ws.zip" = "28c426a7b64c1cd5b058c2f25685ddfaebca29083bd8f94fec2a8910ece6faf0";
-    "json-glib-1.0.2-4.37-win32ws.zip" = "c5120718ea04c5a966930f6d59a01cb53875a335ef4dad84b8feb411ba0c30f9";
     "kfw-3-2-2-i386-ws-vc6.zip" = "527deb2cf1c3ba0cf743f2b9b8011a22096b54f7ce62fc7ba31b520bbac0e802";
     "libgcrypt-1.8.3-win32ws.zip" = "409b72f2809019050cca91b9e670047c50a0752ff52999089178da54ef926393";
     "libsmi-svn-40773-win32ws.zip" = "44bc81edfeb8948322ca365fc632e419383907c305cc922e6b74fdbb13827958";
@@ -160,7 +158,6 @@ $CleanupItems = @(
     "glib2-2.*-win??ws"
     "gtk2"
     "gtk3"
-    "json-glib-1.0.2-*-win??ws"
     "kfw-3-2-2-final"
     "kfw-3-2-2-i386-ws-vc6"
     "kfw-3-2-2-x64-ws"

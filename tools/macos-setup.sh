@@ -87,7 +87,7 @@ NINJA_VERSION=${NINJA_VERSION-1.8.2}
 # The following libraries and tools are required even to build only TShark.
 #
 GETTEXT_VERSION=0.19.8.1
-GLIB_VERSION=2.37.6	# json-glib requires at least 2.37.6
+GLIB_VERSION=2.37.6
 PKG_CONFIG_VERSION=0.29.2
 #
 # libgpg-error is required for libgcrypt.
@@ -171,7 +171,6 @@ if [ "$SPANDSP_VERSION" ]; then
     LIBTIFF_VERSION=3.8.1
 fi
 BCG729_VERSION=1.0.2
-JSON_GLIB_VERSION=1.2.6
 PYTHON3_VERSION=3.7.1
 
 #
@@ -1651,42 +1650,6 @@ uninstall_bcg729() {
     fi
 }
 
-install_json_glib() {
-    if [ "$JSON_GLIB_VERSION" -a ! -f json_glib-$JSON_GLIB_VERSION-done ] ; then
-        echo "Downloading, building, and installing json-glib:"
-        [ -f json-glib-$JSON_GLIB_VERSION.tar.xz ] || curl -L -O https://ftp.gnome.org/pub/GNOME/sources/json-glib/1.2/json-glib-$JSON_GLIB_VERSION.tar.xz || exit 1
-        $no_build && echo "Skipping installation" && return
-        xzcat json-glib-$JSON_GLIB_VERSION.tar.xz | tar xf - || exit 1
-        cd json-glib-$JSON_GLIB_VERSION
-        ./configure || exit 1
-        make $MAKE_BUILD_OPTS || exit 1
-        $DO_MAKE_INSTALL || exit 1
-        cd ..
-        touch json_glib-$JSON_GLIB_VERSION-done
-    fi
-}
-
-uninstall_json_glib() {
-    if [ ! -z "$installed_json_glib_version" ] ; then
-        echo "Uninstalling json-glib:"
-        cd json_glib-$installed_json_glib_version
-        $DO_MAKE_UNINSTALL || exit 1
-        make distclean || exit 1
-        cd ..
-        rm json_glib-$installed_json_glib_version-done
-
-        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded and unpacked version.
-            #
-            rm -rf json_glib-$installed_json_glib_version
-            rm -rf json_glib-$installed_json_glib_version.tar.xz
-        fi
-
-        installed_json_glib_version=""
-    fi
-}
-
 install_python3() {
     local macver=10.9
     if [[ $DARWIN_MAJOR_VERSION -lt 13 ]]; then
@@ -1751,17 +1714,6 @@ install_all() {
             echo "Requested python3 version is $PYTHON3_VERSION"
         fi
         uninstall_python3 -r
-    fi
-
-    if [ ! -z "$installed_json_glib_version" -a \
-              "$installed_json_glib_version" != "$JSON_GLIB_VERSION" ] ; then
-        echo "Installed json-glib version is $installed_json_glib_version"
-        if [ -z "$JSON_GLIB_VERSION" ] ; then
-            echo "json-glib is not requested"
-        else
-            echo "Requested json-glib version is $JSON_GLIB_VERSION"
-        fi
-        uninstall_json_glib -r
     fi
 
     if [ ! -z "$installed_bcg729_version" -a \
@@ -2224,8 +2176,6 @@ install_all() {
 
     install_bcg729
 
-    install_json_glib
-
     install_python3
 }
 
@@ -2244,8 +2194,6 @@ uninstall_all() {
         # old configurations.
         #
         uninstall_python3
-
-        uninstall_json_glib
 
         uninstall_bcg729
 
@@ -2446,7 +2394,6 @@ then
     installed_libtiff_version=`ls tiff-*-done 2>/dev/null | sed 's/tiff-\(.*\)-done/\1/'`
     installed_spandsp_version=`ls spandsp-*-done 2>/dev/null | sed 's/spandsp-\(.*\)-done/\1/'`
     installed_bcg729_version=`ls bcg729-*-done 2>/dev/null | sed 's/bcg729-\(.*\)-done/\1/'`
-    installed_json_glib_version=`ls json_glib-*-done 2>/dev/null | sed 's/json_glib-\(.*\)-done/\1/'`
     installed_python3_version=`ls python3-*-done 2>/dev/null | sed 's/python3-\(.*\)-done/\1/'`
 
     cd $topdir

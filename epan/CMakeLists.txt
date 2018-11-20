@@ -376,7 +376,6 @@ target_link_libraries(epan
 		${SNAPPY_LIBRARIES}
 		${WIN_PSAPI_LIBRARY}
 		${LIBXML2_LIBRARIES}
-		${JSONGLIB_LIBRARIES}
 )
 
 target_include_directories(epan

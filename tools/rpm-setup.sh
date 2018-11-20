@@ -64,7 +64,6 @@ ADDITIONAL_LIST="libnl3-devel \
 	libsmi-devel \
 	snappy-devel \
 	lz4 \
-	json-glib-devel \
 	doxygen \
 	libxml2-devel \
 	spandsp-devel \

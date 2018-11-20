@@ -129,10 +129,6 @@ echo "lz4 is unavailable"
 add_package ADDITIONAL_LIST nghttp2 ||
 echo "nghttp2 is unavailable"
 
-# json-glib: NetBSD
-add_package ADDITIONAL_LIST json-glib ||
-echo "json-glib is unavailable"
-
 # spandsp: NetBSD
 add_package ADDITIONAL_LIST spandsp ||
 echo "spandsp is unavailable"
