@@ -111,6 +111,11 @@ add_extensions(GSList *extensions, const gchar *extension,
  * for which to filter.  Note that the first field can list more than
  * one type of file, because, for example, ".cap" is a popular
  * extension used by a number of capture file types.
+ *
+ * File types that *don't* have a file extension used for them should
+ * *not* be placed here; if there's nothing to put in the last field
+ * of the structure, don't put an entry here, not even one with an
+ * empty string for the extensions list.
  */
 static const struct file_extension_info file_type_extensions_base[] = {
 	{ "Wireshark/tcpdump/... - pcap", TRUE, "pcap;cap;dmp" },
