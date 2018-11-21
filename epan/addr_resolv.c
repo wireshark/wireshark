@@ -1131,6 +1131,100 @@ host_lookup6(const ws_in6_addr *addr)
  * -- Laurent.
  */
 
+/*
+ * Converts Ethernet addresses of the form aa:bb:cc or aa:bb:cc:dd:ee:ff/28. The
+ * octets must be exactly two hexadecimal characters and the mask must be either
+ * 28 or 36. Pre-condition: cp MUST be at least 21 bytes.
+ */
+static gboolean
+parse_ether_address_fast(const char *cp, ether_t *eth, unsigned int *mask,
+        const gboolean accept_mask)
+{
+    /* XXX copied from strutil.c */
+    /* a map from ASCII hex chars to their value */
+    static const gint8 str_to_nibble[256] = {
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+         0, 1, 2, 3, 4, 5, 6, 7, 8, 9,-1,-1,-1,-1,-1,-1,
+        -1,10,11,12,13,14,15,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,10,11,12,13,14,15,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1
+    };
+
+    if (cp[2] != ':' || cp[5] != ':') {
+        /* Unexpected separators. */
+        return FALSE;
+    }
+
+    int num0 = (str_to_nibble[(int)cp[0]] << 8) | str_to_nibble[(int)cp[1]];
+    int num1 = (str_to_nibble[(int)cp[3]] << 8) | str_to_nibble[(int)cp[4]];
+    int num2 = (str_to_nibble[(int)cp[6]] << 8) | str_to_nibble[(int)cp[7]];
+    if ((num0 | num1 | num2) < 0) {
+        /* Not hexadecimal numbers. */
+        return FALSE;
+    }
+
+    eth->addr[0] = num0;
+    eth->addr[1] = num1;
+    eth->addr[2] = num2;
+
+    if (cp[8] == '\0' && accept_mask) {
+        /* Indicate that this is a manufacturer ID (0 is not allowed as a mask). */
+        *mask = 0;
+        return TRUE;
+    } else if (cp[8] != ':') {
+        /* Format not handled by this fast path. */
+        return FALSE;
+    }
+
+    int num3 = (str_to_nibble[(int)cp[9]] << 8) | str_to_nibble[(int)cp[10]];
+    int num4 = (str_to_nibble[(int)cp[12]] << 8) | str_to_nibble[(int)cp[13]];
+    int num5 = (str_to_nibble[(int)cp[15]] << 8) | str_to_nibble[(int)cp[16]];
+    if ((num3 | num4 | num5) < 0 || cp[11] != ':' || cp[14] != ':') {
+        /* Not hexadecimal numbers or invalid separators. */
+        return FALSE;
+    }
+
+    eth->addr[3] = num3;
+    eth->addr[4] = num4;
+    eth->addr[5] = num5;
+    if (cp[17] == '\0') {
+        /* We got 6 bytes, so this is a MAC address (48 is not allowed as a mask). */
+        *mask = 48;
+        return TRUE;
+    } else if (cp[17] != '/' || cp[20] != '\0') {
+        /* Format not handled by this fast path. */
+        return FALSE;
+    }
+
+    int m1 = cp[18];
+    int m2 = cp[19];
+    if (m1 == '3' && m2 == '6') {   /* Mask /36 */
+        eth->addr[4] &= 0xf0;
+        eth->addr[5] = 0;
+        *mask = 36;
+        return TRUE;
+    }
+    if (m1 == '2' && m2 == '8') {   /* Mask /28 */
+        eth->addr[3] &= 0xf0;
+        eth->addr[4] = 0;
+        eth->addr[5] = 0;
+        *mask = 28;
+        return TRUE;
+    }
+    /* Unsupported mask */
+    return FALSE;
+}
 
 /*
  * If "accept_mask" is FALSE, cp must point to an address that consists
@@ -1257,8 +1351,12 @@ parse_ether_line(char *line, ether_t *eth, unsigned int *mask,
     if ((cp = strtok(line, " \t")) == NULL)
         return -1;
 
-    if (!parse_ether_address(cp, eth, mask, accept_mask))
-        return -1;
+    /* First try to match the common format for the large ethers file. */
+    if (!parse_ether_address_fast(cp, eth, mask, accept_mask)) {
+        /* Fallback for the well-known addresses (wka) file. */
+        if (!parse_ether_address(cp, eth, mask, accept_mask))
+            return -1;
+    }
 
     if ((cp = strtok(NULL, " \t")) == NULL)
         return -1;
