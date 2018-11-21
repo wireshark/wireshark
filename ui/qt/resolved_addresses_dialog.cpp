@@ -95,7 +95,7 @@ serv_port_hash_to_qstringlist(gpointer key, gpointer value, gpointer sl_ptr)
 {
     QStringList *string_list = (QStringList *) sl_ptr;
     serv_port_t *serv_port = (serv_port_t *)value;
-    int port = *(int*)key;
+    guint port = GPOINTER_TO_UINT(key);
 
     QStringList entries;
 
@@ -125,12 +125,12 @@ manuf_hash_to_qstringlist(gpointer key, gpointer value, gpointer sl_ptr)
 {
     QStringList *string_list = (QStringList *) sl_ptr;
     hashmanuf_t *manuf = (hashmanuf_t*)value;
-    int eth_as_gint = *(int*)key;
+    guint eth_as_guint = GPOINTER_TO_UINT(key);
 
     QString entry = QString("%1:%2:%3 %4")
-            .arg((eth_as_gint >> 16 & 0xff), 2, 16, QChar('0'))
-            .arg((eth_as_gint >>  8 & 0xff), 2, 16, QChar('0'))
-            .arg((eth_as_gint & 0xff), 2, 16, QChar('0'))
+            .arg((eth_as_guint >> 16 & 0xff), 2, 16, QChar('0'))
+            .arg((eth_as_guint >>  8 & 0xff), 2, 16, QChar('0'))
+            .arg((eth_as_guint & 0xff), 2, 16, QChar('0'))
             .arg(get_hash_manuf_resolved_name(manuf));
 
    *string_list << entry;

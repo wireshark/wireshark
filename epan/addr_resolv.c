@@ -198,9 +198,11 @@ typedef struct _vlan
     char              name[MAXVLANNAMELEN];
 } vlan_t;
 
+// Maps guint -> hashipxnet_t*
 static wmem_map_t *ipxnet_hash_table = NULL;
 static wmem_map_t *ipv4_hash_table = NULL;
 static wmem_map_t *ipv6_hash_table = NULL;
+// Maps guint -> hashvlan_t*
 static wmem_map_t *vlan_hash_table = NULL;
 static wmem_map_t *ss7pc_hash_table = NULL;
 
@@ -226,9 +228,11 @@ struct cb_serv_data {
     port_type    proto;
 };
 
+// Maps guint -> hashmanuf_t*
 static wmem_map_t *manuf_hashtable = NULL;
 static wmem_map_t *wka_hashtable = NULL;
 static wmem_map_t *eth_hashtable = NULL;
+// Maps guint -> serv_port_t*
 static wmem_map_t *serv_port_hashtable = NULL;
 static GHashTable *enterprises_hashtable = NULL;
 
@@ -541,18 +545,11 @@ static void
 add_service_name(port_type proto, const guint port, const char *service_name)
 {
     serv_port_t *serv_port_table;
-    int *key;
 
-    key = (int *)wmem_new(wmem_epan_scope(), int);
-    *key = port;
-
-    serv_port_table = (serv_port_t *)wmem_map_lookup(serv_port_hashtable, &port);
+    serv_port_table = (serv_port_t *)wmem_map_lookup(serv_port_hashtable, GUINT_TO_POINTER(port));
     if (serv_port_table == NULL) {
         serv_port_table = wmem_new0(wmem_epan_scope(), serv_port_t);
-        wmem_map_insert(serv_port_hashtable, key, serv_port_table);
-    }
-    else {
-        wmem_free(wmem_epan_scope(), key);
+        wmem_map_insert(serv_port_hashtable, GUINT_TO_POINTER(port), serv_port_table);
     }
 
     switch(proto) {
@@ -686,7 +683,7 @@ _serv_name_lookup(port_type proto, guint port, serv_port_t **value_ret)
 {
     serv_port_t *serv_port_table;
 
-    serv_port_table = (serv_port_t *)wmem_map_lookup(serv_port_hashtable, &port);
+    serv_port_table = (serv_port_t *)wmem_map_lookup(serv_port_hashtable, GUINT_TO_POINTER(port));
 
     if (value_ret != NULL)
         *value_ret = serv_port_table;
@@ -720,17 +717,14 @@ serv_name_lookup(port_type proto, guint port)
 {
     serv_port_t *serv_port_table = NULL;
     const char *name;
-    guint *key;
 
     name = _serv_name_lookup(proto, port, &serv_port_table);
     if (name != NULL)
         return name;
 
     if (serv_port_table == NULL) {
-        key = (guint *)wmem_new(wmem_epan_scope(), guint);
-        *key = port;
         serv_port_table = wmem_new0(wmem_epan_scope(), serv_port_t);
-        wmem_map_insert(serv_port_hashtable, key, serv_port_table);
+        wmem_map_insert(serv_port_hashtable, GUINT_TO_POINTER(port), serv_port_table);
     }
     if (serv_port_table->numeric == NULL) {
         serv_port_table->numeric = wmem_strdup_printf(wmem_epan_scope(), "%u", port);
@@ -744,7 +738,7 @@ initialize_services(void)
 {
     gboolean parse_file = TRUE;
     g_assert(serv_port_hashtable == NULL);
-    serv_port_hashtable = wmem_map_new(wmem_epan_scope(), g_int_hash, g_int_equal);
+    serv_port_hashtable = wmem_map_new(wmem_epan_scope(), g_direct_hash, g_direct_equal);
 
     /* Compute the pathname of the services file. */
     if (g_services_path == NULL) {
@@ -1352,13 +1346,12 @@ get_ethbyaddr(const guint8 *addr)
 static hashmanuf_t *
 manuf_hash_new_entry(const guint8 *addr, char* name, char* longname)
 {
-    int    *manuf_key;
+    guint manuf_key;
     hashmanuf_t *manuf_value;
     char *endp;
 
     /* manuf needs only the 3 most significant octets of the ethernet address */
-    manuf_key = (int *)wmem_new(wmem_epan_scope(), int);
-    *manuf_key = (int)((addr[0] << 16) + (addr[1] << 8) + addr[2]);
+    manuf_key = (addr[0] << 16) + (addr[1] << 8) + addr[2];
     manuf_value = wmem_new(wmem_epan_scope(), hashmanuf_t);
 
     memcpy(manuf_value->addr, addr, 3);
@@ -1381,7 +1374,7 @@ manuf_hash_new_entry(const guint8 *addr, char* name, char* longname)
     endp = bytes_to_hexstr_punct(manuf_value->hexaddr, addr, sizeof(manuf_value->addr), ':');
     *endp = '\0';
 
-    wmem_map_insert(manuf_hashtable, manuf_key, manuf_value);
+    wmem_map_insert(manuf_hashtable, GUINT_TO_POINTER(manuf_key), manuf_value);
     return manuf_value;
 }
 
@@ -1421,7 +1414,7 @@ add_manuf_name(const guint8 *addr, unsigned int mask, gchar *name, gchar *longna
 static hashmanuf_t *
 manuf_name_lookup(const guint8 *addr)
 {
-    gint32       manuf_key = 0;
+    guint32       manuf_key;
     guint8       oct;
     hashmanuf_t  *manuf_value;
 
@@ -1436,7 +1429,7 @@ manuf_name_lookup(const guint8 *addr)
 
 
     /* first try to find a "perfect match" */
-    manuf_value = (hashmanuf_t*)wmem_map_lookup(manuf_hashtable, &manuf_key);
+    manuf_value = (hashmanuf_t*)wmem_map_lookup(manuf_hashtable, GUINT_TO_POINTER(manuf_key));
     if (manuf_value != NULL) {
         return manuf_value;
     }
@@ -1448,7 +1441,7 @@ manuf_name_lookup(const guint8 *addr)
      * 0x02 locally administered bit */
     if ((manuf_key & 0x00010000) != 0) {
         manuf_key &= 0x00FEFFFF;
-        manuf_value = (hashmanuf_t*)wmem_map_lookup(manuf_hashtable, &manuf_key);
+        manuf_value = (hashmanuf_t*)wmem_map_lookup(manuf_hashtable, GUINT_TO_POINTER(manuf_key));
         if (manuf_value != NULL) {
             return manuf_value;
         }
@@ -1522,7 +1515,7 @@ initialize_ethers(void)
 
     /* hash table initialization */
     wka_hashtable   = wmem_map_new(wmem_epan_scope(), eth_addr_hash, eth_addr_cmp);
-    manuf_hashtable = wmem_map_new(wmem_epan_scope(), g_int_hash, g_int_equal);
+    manuf_hashtable = wmem_map_new(wmem_epan_scope(), g_direct_hash, g_direct_equal);
     eth_hashtable   = wmem_map_new(wmem_epan_scope(), eth_addr_hash, eth_addr_cmp);
 
     /* Compute the pathname of the ethers file. */
@@ -1895,14 +1888,10 @@ ipxnet_name_lookup(wmem_allocator_t *allocator, const guint addr)
     hashipxnet_t *tp;
     ipxnet_t *ipxnet;
 
-    tp = (hashipxnet_t *)wmem_map_lookup(ipxnet_hash_table, &addr);
+    tp = (hashipxnet_t *)wmem_map_lookup(ipxnet_hash_table, GUINT_TO_POINTER(addr));
     if (tp == NULL) {
-        int *key;
-
-        key = (int *)wmem_new(wmem_epan_scope(), int);
-        *key = addr;
         tp = wmem_new(wmem_epan_scope(), hashipxnet_t);
-        wmem_map_insert(ipxnet_hash_table, key, tp);
+        wmem_map_insert(ipxnet_hash_table, GUINT_TO_POINTER(addr), tp);
     } else {
         return wmem_strdup(allocator, tp->name);
     }
@@ -2014,7 +2003,7 @@ static void
 initialize_vlans(void)
 {
     g_assert(vlan_hash_table == NULL);
-    vlan_hash_table = wmem_map_new(wmem_epan_scope(), g_int_hash, g_int_equal);
+    vlan_hash_table = wmem_map_new(wmem_epan_scope(), g_direct_hash, g_direct_equal);
 
     /* Set g_pvlan_path here, but don't actually do anything
      * with it. It's used in get_vlannamebyid()
@@ -2038,14 +2027,10 @@ vlan_name_lookup(const guint id)
     hashvlan_t *tp;
     vlan_t *vlan;
 
-    tp = (hashvlan_t *)wmem_map_lookup(vlan_hash_table, &id);
+    tp = (hashvlan_t *)wmem_map_lookup(vlan_hash_table, GUINT_TO_POINTER(id));
     if (tp == NULL) {
-        int *key;
-
-        key = (int *)wmem_new(wmem_epan_scope(), int);
-        *key = id;
         tp = wmem_new(wmem_epan_scope(), hashvlan_t);
-        wmem_map_insert(vlan_hash_table, key, tp);
+        wmem_map_insert(vlan_hash_table, GUINT_TO_POINTER(id), tp);
     } else {
         return tp->name;
     }
@@ -2860,7 +2845,7 @@ host_name_lookup_init(void)
     guint i;
 
     g_assert(ipxnet_hash_table == NULL);
-    ipxnet_hash_table = wmem_map_new(wmem_epan_scope(), g_int_hash, g_int_equal);
+    ipxnet_hash_table = wmem_map_new(wmem_epan_scope(), g_direct_hash, g_direct_equal);
 
     g_assert(ipv4_hash_table == NULL);
     ipv4_hash_table = wmem_map_new(wmem_epan_scope(), g_direct_hash, g_direct_equal);
@@ -3175,7 +3160,7 @@ const gchar *
 get_manuf_name_if_known(const guint8 *addr)
 {
     hashmanuf_t *manuf_value;
-    int manuf_key;
+    guint manuf_key;
     guint8 oct;
 
     /* manuf needs only the 3 most significant octets of the ethernet address */
@@ -3187,7 +3172,7 @@ get_manuf_name_if_known(const guint8 *addr)
     oct = addr[2];
     manuf_key = manuf_key | oct;
 
-    manuf_value = (hashmanuf_t *)wmem_map_lookup(manuf_hashtable, &manuf_key);
+    manuf_value = (hashmanuf_t *)wmem_map_lookup(manuf_hashtable, GUINT_TO_POINTER(manuf_key));
     if ((manuf_value == NULL) || (manuf_value->status == HASHETHER_STATUS_UNRESOLVED)) {
         return NULL;
     }
@@ -3201,7 +3186,7 @@ uint_get_manuf_name_if_known(const guint manuf_key)
 {
     hashmanuf_t *manuf_value;
 
-    manuf_value = (hashmanuf_t *)wmem_map_lookup(manuf_hashtable, &manuf_key);
+    manuf_value = (hashmanuf_t *)wmem_map_lookup(manuf_hashtable, GUINT_TO_POINTER(manuf_key));
     if ((manuf_value == NULL) || (manuf_value->status == HASHETHER_STATUS_UNRESOLVED)) {
         return NULL;
     }
