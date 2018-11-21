@@ -33,9 +33,9 @@
  * - No text appears between the offset and the bytes (any bytes appearing after
  *   such text would be ignored)
  *
- * - The offset must be arithmetically correct, i.e. if the offset is 00000020, then
- *   exactly 32 bytes must have been read into this packet before this. If the offset
- *   is wrong, the packet is immediately terminated
+ * - The offset must be arithmetically correct, i.e. if the offset is 00000020,
+ *   then exactly 32 bytes must have been read into this packet before this.
+ *   If the offset is wrong, the packet is immediately terminated
  *
  * A packet start is signaled by a zero offset.
  *
@@ -51,7 +51,7 @@
  *
  * The output is a libpcap packet containing Ethernet frames by
  * default. This program takes options which allow the user to add
- * dummy Ethernet, IP and UDP or TCP headers to the packets in order
+ * dummy Ethernet, IP and UDP, TCP or SCTP headers to the packets in order
  * to allow dumps of L3 or higher protocols to be decoded.
  *
  * Considerable flexibility is built into this code to read hexdumps
@@ -1377,7 +1377,8 @@ print_usage (FILE *output)
             "                         used as the default for unspecified fields.\n"
             "  -D                     the text before the packet starts with an I or an O,\n"
             "                         indicating that the packet is inbound or outbound.\n"
-            "                         This is only stored if the output format is pcapng.\n"
+            "                         This is used when generating dummy headers.\n"
+            "                         The indication is only stored if the output format is pcapng.\n"
             "  -a                     enable ASCII text dump identification.\n"
             "                         The start of the ASCII text dump can be identified\n"
             "                         and excluded from the packet data, even if it looks\n"
@@ -1406,9 +1407,9 @@ print_usage (FILE *output)
             "  -4 <srcip>,<destip>    prepend dummy IPv4 header with specified\n"
             "                         dest and source address.\n"
             "                         Example: -4 10.0.0.1,10.0.0.2\n"
-            "  -6 <srcip>,<destip>    replace IPv6 header with specified\n"
+            "  -6 <srcip>,<destip>    prepend dummy IPv6 header with specified\n"
             "                         dest and source address.\n"
-            "                         Example: -6 fe80:0:0:0:202:b3ff:fe1e:8329,2001:0db8:85a3:0000:0000:8a2e:0370:7334\n"
+            "                         Example: -6 fe80::202:b3ff:fe1e:8329,2001:0db8:85a3::8a2e:0370:7334\n"
             "  -u <srcp>,<destp>      prepend dummy UDP header with specified\n"
             "                         source and destination ports (in DECIMAL).\n"
             "                         Automatically prepends Ethernet & IP headers as well.\n"

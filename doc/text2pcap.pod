@@ -28,6 +28,8 @@ S<[ B<-t> E<lt>timefmtE<gt> ]>
 S<[ B<-T> E<lt>srcportE<gt>,E<lt>destportE<gt> ]>
 S<[ B<-u> E<lt>srcportE<gt>,E<lt>destportE<gt> ]>
 S<[ B<-v> ]>
+S<[ B<-4> E<lt>srcipE<gt>,E<lt>destipE<gt> ]>
+S<[ B<-6> E<lt>srcipE<gt>,E<lt>destipE<gt> ]>
 E<lt>I<infile>E<gt>|-
 E<lt>I<outfile>E<gt>|-
 
@@ -115,8 +117,8 @@ multiple times to generate more debugging information.
 =item -D
 
 The text before the packet starts either with an I or O indicating that
-the packet is inbound or outbound.
-This is only stored if the output format is pcapng.
+the packet is inbound or outbound. This is used when generating dummy headers.
+The indication is only stored if the output format is pcapng.
 
 =item -e E<lt>l3pidE<gt>
 
@@ -246,8 +248,8 @@ Example: I<-4 10.0.0.1,10.0.0.2> to use 10.0.0.1 and 10.0.0.2 for all IP packets
 Prepend dummy IP header with specified IPv6 dest and source address.
 This option should be accompanied by one of the following options: -i, -s, -S, -T, -u
 Use this option to apply "custom" IP addresses.
-Example: I<-6 fe80:0:0:0:202:b3ff:fe1e:8329, 2001:0db8:85a3:0000:0000:8a2e:0370:7334> to
-use fe80:0:0:0:202:b3ff:fe1e:8329 and 2001:0db8:85a3:0000:0000:8a2e:0370:7334 for all IP packets.
+Example: I<-6 fe80::202:b3ff:fe1e:8329,2001:0db8:85a3::8a2e:0370:7334> to
+use fe80::202:b3ff:fe1e:8329 and 2001:0db8:85a3::8a2e:0370:7334 for all IP packets.
 
 =back
 
