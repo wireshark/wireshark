@@ -27,6 +27,11 @@ static int proto_pgsql = -1;
 static int hf_frontend = -1;
 static int hf_type = -1;
 static int hf_length = -1;
+static int hf_version_major = -1;
+static int hf_version_minor = -1;
+static int hf_supported_minor_version = -1;
+static int hf_number_nonsupported_options = -1;
+static int hf_nonsupported_option = -1;
 static int hf_parameter_name = -1;
 static int hf_parameter_value = -1;
 static int hf_query = -1;
@@ -136,6 +141,7 @@ static const value_string be_messages[] = {
     { 'H', "CopyOut response" },
     { 'd', "Copy data" },
     { 'c', "Copy completion" },
+    { 'v', "Negotiate protocol version" },
     { 0, NULL }
 };
 
@@ -326,6 +332,8 @@ static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
         switch (i) {
         /* Startup message */
         case 196608:
+            proto_tree_add_item(tree, hf_version_major, tvb, n-4, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_version_minor, tvb, n-2, 2, ENC_BIG_ENDIAN);
             while ((signed)length > 0) {
                 siz = tvb_strsize(tvb, n);
                 length -= siz;
@@ -407,6 +415,7 @@ static void dissect_pgsql_be_msg(guchar type, guint length, tvbuff_t *tvb,
     guchar c;
     gint i, siz;
     char *s, *t;
+    gint32 num_nonsupported_options;
     proto_item *ti;
     proto_tree *shrub;
     guint32 auth_type;
@@ -600,6 +609,20 @@ static void dissect_pgsql_be_msg(guchar type, guint length, tvbuff_t *tvb,
         if (siz > 0)
             proto_tree_add_item(tree, hf_val_data, tvb, n+4, siz, ENC_NA);
         break;
+
+    /* Negotiate Protocol Version */
+    case 'v':
+        proto_tree_add_item(tree, hf_supported_minor_version, tvb, n, 4, ENC_BIG_ENDIAN);
+        n += 4;
+        proto_tree_add_item_ret_int(tree, hf_number_nonsupported_options, tvb, n, 4, ENC_BIG_ENDIAN, &num_nonsupported_options);
+        n += 4;
+        while (num_nonsupported_options > 0) {
+            siz = tvb_strsize(tvb, n);
+            proto_tree_add_item(tree, hf_nonsupported_option, tvb, n, siz, ENC_ASCII|ENC_NA);
+            n += siz;
+            num_nonsupported_options--;
+        }
+        break;
     }
 }
 
@@ -780,6 +803,26 @@ proto_register_pgsql(void)
           { "Length", "pgsql.length", FT_UINT32, BASE_DEC, NULL, 0,
             "The length of the message (not including the type).",
             HFILL }
+        },
+        { &hf_version_major,
+          { "Protocol major version", "pgsql.version_major", FT_UINT16, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_version_minor,
+          { "Protocol minor version", "pgsql.version_minor", FT_UINT16, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_supported_minor_version,
+          { "Supported minor version", "pgsql.version_supported_minor", FT_UINT32, BASE_DEC, NULL, 0,
+            "Newest minor protocol version supported by the server for the major protocol version requested by the client.", HFILL }
+        },
+        { &hf_number_nonsupported_options,
+          { "Number nonsupported options", "pgsql.number_nonsupported_options", FT_INT32, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_nonsupported_option,
+          { "Nonsupported option", "pgsql.nonsupported_option", FT_STRINGZ, BASE_NONE, NULL, 0,
+            NULL, HFILL }
         },
         { &hf_parameter_name,
           { "Parameter name", "pgsql.parameter_name", FT_STRINGZ,
