@@ -522,15 +522,36 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
   }
 }
 
+static tftp_conv_info_t *
+tftp_info_for_conversation(conversation_t *conversation)
+{
+  tftp_conv_info_t *tftp_info;
+
+  tftp_info = (tftp_conv_info_t *)conversation_get_proto_data(conversation, proto_tftp);
+  if (!tftp_info) {
+    tftp_info = wmem_new(wmem_file_scope(), tftp_conv_info_t);
+    tftp_info->blocksize = 512; /* TFTP default block size */
+    tftp_info->source_file = NULL;
+    tftp_info->destination_file = NULL;
+    tftp_info->next_block_num = 1;
+    tftp_info->blocks_missing = FALSE;
+    tftp_info->next_tap_block_num = 1;
+    tftp_info->block_list = NULL;
+    tftp_info->file_length = 0;
+
+    conversation_add_proto_data(conversation, proto_tftp, tftp_info);
+  }
+  return tftp_info;
+}
+
 static gboolean
 dissect_embeddedtftp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   /* Used to dissect TFTP packets where one can not assume
      that the TFTP is the only protocol used by that port, and
      that TFTP may not be carried by UDP */
-  conversation_t   *conversation = NULL;
+  conversation_t   *conversation;
   guint16           opcode;
-  tftp_conv_info_t *tftp_info;
 
   /*
    * We need to verify it could be a TFTP message before creating a conversation
@@ -589,31 +610,14 @@ dissect_embeddedtftp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   }
 
   conversation = find_or_create_conversation(pinfo);
-
-  tftp_info = (tftp_conv_info_t *)conversation_get_proto_data(conversation, proto_tftp);
-  if (!tftp_info) {
-    tftp_info = wmem_new(wmem_file_scope(), tftp_conv_info_t);
-    tftp_info->blocksize = 512; /* TFTP default block size */
-    tftp_info->source_file = NULL;
-    tftp_info->destination_file = NULL;
-    tftp_info->next_block_num = 1;
-    tftp_info->blocks_missing = FALSE;
-    tftp_info->next_tap_block_num = 1;
-    tftp_info->block_list = NULL;
-    tftp_info->file_length = 0;
-
-    conversation_add_proto_data(conversation, proto_tftp, tftp_info);
-  }
-
-  dissect_tftp_message(tftp_info, tvb, pinfo, tree);
+  dissect_tftp_message(tftp_info_for_conversation(conversation), tvb, pinfo, tree);
   return TRUE;
 }
 
 static int
 dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-  conversation_t   *conversation = NULL;
-  tftp_conv_info_t *tftp_info;
+  conversation_t   *conversation;
 
   /*
    * The first TFTP packet goes to the TFTP port; the second one
@@ -656,21 +660,7 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         return 0;
     }
   }
-  tftp_info = (tftp_conv_info_t *)conversation_get_proto_data(conversation, proto_tftp);
-  if (!tftp_info) {
-    tftp_info = wmem_new(wmem_file_scope(), tftp_conv_info_t);
-    tftp_info->blocksize = 512; /* TFTP default block size */
-    tftp_info->source_file = NULL;
-    tftp_info->destination_file = NULL;
-    tftp_info->next_block_num = 1;
-    tftp_info->blocks_missing = FALSE;
-    tftp_info->next_tap_block_num = 1;
-    tftp_info->block_list = NULL;
-    tftp_info->file_length = 0;
-    conversation_add_proto_data(conversation, proto_tftp, tftp_info);
-  }
-
-  dissect_tftp_message(tftp_info, tvb, pinfo, tree);
+  dissect_tftp_message(tftp_info_for_conversation(conversation), tvb, pinfo, tree);
   return tvb_captured_length(tvb);
 }
 
