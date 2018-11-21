@@ -4017,6 +4017,7 @@ static int rtps_util_add_fragment_number_set(proto_tree *tree, packet_info *pinf
 static void rtps_util_store_type_mapping(packet_info *pinfo, tvbuff_t *tvb, gint offset,
         type_mapping * type_mapping_object, const gchar * value,
         gint topic_info_add_id, const guint encoding) {
+
   if (enable_topic_info && type_mapping_object) {
     switch (topic_info_add_id) {
       case TOPIC_INFO_ADD_GUID: {
@@ -4066,8 +4067,8 @@ static void rtps_util_store_type_mapping(packet_info *pinfo, tvbuff_t *tvb, gint
     }
     if ((type_mapping_object->fields_visited & TOPIC_INFO_ALL_SET) == TOPIC_INFO_ALL_SET &&
             !wmem_map_lookup(registry, &(type_mapping_object->guid))) {
-      if (((type_mapping_object->guid.entity_id & 0x02) == 0x02)){
-        /* If it is an application defined writer matches 0x02 */
+      if (((type_mapping_object->guid.entity_id & 0x02) == 0x02) || ((type_mapping_object->guid.entity_id & 0x04) == 0x04)){
+        /* If it is an application defined writer matches 0x02. Matches 0x04 if it is an application defined reader */
         type_mapping_object->dcps_publication_frame_number = pinfo->num;
         wmem_map_insert(registry, &(type_mapping_object->guid), type_mapping_object);
       }
@@ -6369,7 +6370,8 @@ static void dissect_APP_ACK_CONF(tvbuff_t *tvb,
   const guint encoding,
   int octets_to_next_header,
   proto_tree *tree,
-  proto_item *item)
+  proto_item *item,
+  endpoint_guid * guid)
   {
   /*
   * 0...2...........7...............15.............23...............31
@@ -6391,6 +6393,7 @@ static void dissect_APP_ACK_CONF(tvbuff_t *tvb,
   */
   gint original_offset; /* Offset to the readerEntityId */
   gint32 virtual_writer_count;
+  guint32 wid;
   proto_item *octet_item;
   proto_tree_add_bitmask_value(tree, tvb, offset + 1, hf_rtps_sm_flags, ett_rtps_flags, APP_ACK_CONF_FLAGS, flags);
 
@@ -6424,8 +6427,10 @@ static void dissect_APP_ACK_CONF(tvbuff_t *tvb,
     hf_rtps_sm_wrentity_id_kind,
     ett_rtps_wrentity,
     "writerEntityId",
-    NULL);
+    &wid);
   offset += 4;
+  guid->entity_id = wid;
+  rtps_util_topic_info_add_tree(tree, tvb, offset, guid);
 
 
   /* virtualWriterCount */
@@ -6632,7 +6637,8 @@ static void dissect_APP_ACK(tvbuff_t *tvb,
   const guint encoding,
   int octets_to_next_header,
   proto_tree *tree,
-  proto_item *item)
+  proto_item *item,
+  endpoint_guid * guid)
   {
   /*
   * 0...2...........7...............15.............23...............31
@@ -6683,8 +6689,10 @@ static void dissect_APP_ACK(tvbuff_t *tvb,
     hf_rtps_sm_rdentity_id_kind,
     ett_rtps_rdentity,
     "readerEntityId",
-    NULL);
+    &wid);
   offset += 4;
+  guid->entity_id = wid;
+  rtps_util_topic_info_add_tree(tree, tvb, offset, guid);
 
   /* writerEntityId */
   rtps_util_add_entity_id(tree,
@@ -6697,7 +6705,6 @@ static void dissect_APP_ACK(tvbuff_t *tvb,
     "writerEntityId",
     &wid);
   offset += 4;
-
 
   /* virtualWriterCount */
   proto_tree_add_item_ret_int(tree, hf_rtps_param_app_ack_virtual_writer_count, tvb, offset, 4, encoding, &virtual_writer_count);
@@ -9621,11 +9628,11 @@ static gboolean dissect_rtps_submessage_v2(tvbuff_t *tvb, packet_info *pinfo, gi
       break;
 
     case SUBMESSAGE_APP_ACK:
-      dissect_APP_ACK(tvb, pinfo, offset, flags, encoding, octets_to_next_header, rtps_submessage_tree, submessage_item);
+      dissect_APP_ACK(tvb, pinfo, offset, flags, encoding, octets_to_next_header, rtps_submessage_tree, submessage_item, guid);
       break;
 
     case SUBMESSAGE_APP_ACK_CONF:
-      dissect_APP_ACK_CONF(tvb, pinfo, offset, flags, encoding, octets_to_next_header, rtps_submessage_tree, submessage_item);
+      dissect_APP_ACK_CONF(tvb, pinfo, offset, flags, encoding, octets_to_next_header, rtps_submessage_tree, submessage_item, guid);
       break;
 
     case SUBMESSAGE_HEARTBEAT_SESSION:
