@@ -35,6 +35,7 @@
 #include <epan/prefs.h>
 #include <epan/tap.h>
 #include <epan/export_object.h>
+#include <epan/proto_data.h>
 
 void proto_register_tftp(void);
 
@@ -42,6 +43,8 @@ void proto_register_tftp(void);
 typedef struct _tftp_conv_info_t {
   guint16      blocksize;
   const guint8 *source_file, *destination_file;
+  gboolean     tsize_requested;
+  guint16      prev_opcode;
 
   /* Sequence analysis */
   guint        next_block_num;
@@ -69,7 +72,11 @@ static int hf_tftp_data = -1;
 static gint ett_tftp = -1;
 static gint ett_tftp_option = -1;
 
+static expert_field ei_tftp_error = EI_INIT;
+static expert_field ei_tftp_likely_tsize_probe = EI_INIT;
 static expert_field ei_tftp_blocksize_range = EI_INIT;
+
+#define LIKELY_TSIZE_PROBE_KEY 0
 
 static dissector_handle_t tftp_handle;
 
@@ -83,13 +90,14 @@ static range_t *global_tftp_port_range = NULL;
 /* minimum length is an ACK message of 4 bytes */
 #define MIN_HDR_LEN  4
 
-#define TFTP_RRQ        1
-#define TFTP_WRQ        2
-#define TFTP_DATA       3
-#define TFTP_ACK        4
-#define TFTP_ERROR      5
-#define TFTP_OACK       6
-#define TFTP_INFO     255
+#define TFTP_RRQ            1
+#define TFTP_WRQ            2
+#define TFTP_DATA           3
+#define TFTP_ACK            4
+#define TFTP_ERROR          5
+#define TFTP_OACK           6
+#define TFTP_INFO         255
+#define TFTP_NO_OPCODE 0xFFFF
 
 static const value_string tftp_opcode_vals[] = {
   { TFTP_RRQ,   "Read Request" },
@@ -102,6 +110,7 @@ static const value_string tftp_opcode_vals[] = {
   { 0,          NULL }
 };
 
+/* Error codes 0 through 7 are defined in RFC 1350. */
 #define TFTP_ERR_NOT_DEF      0
 #define TFTP_ERR_NOT_FOUND    1
 #define TFTP_ERR_NOT_ALLOWED  2
@@ -110,6 +119,8 @@ static const value_string tftp_opcode_vals[] = {
 #define TFTP_ERR_BAD_ID       5
 #define TFTP_ERR_EXISTS       6
 #define TFTP_ERR_NO_USER      7
+
+/* Error code 8 is defined in RFC 1782. */
 #define TFTP_ERR_OPT_FAIL     8
 
 static const value_string tftp_error_code_vals[] = {
@@ -262,6 +273,9 @@ tftp_dissect_options(tvbuff_t *tvb, packet_info *pinfo, int offset,
       } else {
         tftp_info->blocksize = blocksize;
       }
+    } else if (!g_ascii_strcasecmp((const char *)optionname, "tsize") &&
+               opcode == TFTP_RRQ) {
+      tftp_info->tsize_requested = TRUE;
     }
   }
 }
@@ -280,6 +294,40 @@ static void cleanup_tftp_blocks(tftp_conv_info_t *conv)
     conv->file_length = 0;
 }
 
+static gboolean
+error_is_likely_tsize_probe(guint16 error, const tftp_conv_info_t *tftp_info)
+{
+  /*
+   * The TFTP protocol does not define an explicit "close" for non-error
+   * conditions, but it is traditionally implemented as an ERROR packet with
+   * code zero (not defined) or 8 (option negotiation failed).  It is usually
+   * produced when a client did not intend to proceed with a transfer, but was
+   * just querying the transfer size ("tsize") through Option Negotiation.  The
+   * ERROR packet would be observed directly after an OACK (when the server
+   * supports Option Negotiation) or directly after DATA block #1 (when the
+   * server does not support Option Negotiation).
+   *
+   * Inspect the state of the connection to see whether the ERROR packet would
+   * most likely just be a request to close the connection after a transfer
+   * size query.
+   */
+  if (error != TFTP_ERR_OPT_FAIL && error != TFTP_ERR_NOT_DEF) {
+    return FALSE;
+  }
+
+  if (tftp_info->source_file != NULL && tftp_info->tsize_requested) {
+    /* There was an earlier RRQ requesting the transfer size. */
+    if (tftp_info->prev_opcode == TFTP_OACK) {
+      /* Response to RRQ when server supports Option Negotiation. */
+      return TRUE;
+    }
+    if (tftp_info->prev_opcode == TFTP_DATA && tftp_info->next_block_num == 2) {
+      /* Response to RRQ when server doesn't support Option Negotiation. */
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
 
 static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
                                  tvbuff_t *tvb, packet_info *pinfo,
@@ -294,6 +342,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
   guint       i1;
   guint16     error;
   tvbuff_t    *data_tvb = NULL;
+  gboolean    likely_tsize_probe;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "TFTP");
 
@@ -428,7 +477,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
 
       if (blocknum != tftp_info->next_tap_block_num) {
         /* Ignore.  Could be missing frames, or just clicking previous frame */
-        return;
+        break;
       }
 
       if (bytes > 0) {
@@ -451,7 +500,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
         /* If don't have a filename, won't tap file info */
         if ((tftp_info->source_file == NULL) && (tftp_info->destination_file == NULL)) {
             cleanup_tftp_blocks(tftp_info);
-            return;
+            break;
         }
 
         /* Create the eo_info to pass to the listener */
@@ -507,7 +556,22 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Message: %s",
                     tvb_format_stringzpad(tvb, offset, i1));
 
-    expert_add_info(pinfo, NULL, &ei_tftp_blocksize_range);
+    /*
+     * If the packet looks like an intentional "close" after a transfer-size
+     * probe, don't report it as an error.
+     */
+
+    if (!PINFO_FD_VISITED(pinfo)) {
+      likely_tsize_probe = error_is_likely_tsize_probe(error, tftp_info);
+      if (likely_tsize_probe) {
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_tftp, LIKELY_TSIZE_PROBE_KEY, GUINT_TO_POINTER(1));
+      }
+    } else {
+      likely_tsize_probe = GPOINTER_TO_UINT(p_get_proto_data(wmem_file_scope(), pinfo, proto_tftp,
+                                                             LIKELY_TSIZE_PROBE_KEY)) != 0;
+    }
+
+    expert_add_info(pinfo, tftp_tree, likely_tsize_probe ? &ei_tftp_likely_tsize_probe : &ei_tftp_error);
     break;
 
   case TFTP_OACK:
@@ -520,6 +584,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
     break;
 
   }
+  tftp_info->prev_opcode = opcode;
 }
 
 static tftp_conv_info_t *
@@ -533,6 +598,8 @@ tftp_info_for_conversation(conversation_t *conversation)
     tftp_info->blocksize = 512; /* TFTP default block size */
     tftp_info->source_file = NULL;
     tftp_info->destination_file = NULL;
+    tftp_info->tsize_requested = FALSE;
+    tftp_info->prev_opcode = TFTP_NO_OPCODE;
     tftp_info->next_block_num = 1;
     tftp_info->blocks_missing = FALSE;
     tftp_info->next_tap_block_num = 1;
@@ -730,6 +797,8 @@ proto_register_tftp(void)
   };
 
   static ei_register_info ei[] = {
+     { &ei_tftp_error, { "tftp.error", PI_RESPONSE_CODE, PI_WARN, "TFTP ERROR packet", EXPFILL }},
+     { &ei_tftp_likely_tsize_probe, { "tftp.likely_tsize_probe", PI_REQUEST_CODE, PI_CHAT, "Likely transfer size (tsize) probe", EXPFILL }},
      { &ei_tftp_blocksize_range, { "tftp.blocksize_range", PI_RESPONSE_CODE, PI_WARN, "TFTP blocksize out of range", EXPFILL }},
   };
 
