@@ -513,46 +513,19 @@ typedef struct {
     const gchar* name; /* Shallow copy */
 } subnet_entry_t;
 
-/*
- *  Miscellaneous functions
- */
+/* Maximum supported line length of hosts, services, manuf, etc. */
+#define MAX_LINELEN     1024
 
+/** Read a line without trailing (CR)LF. Returns -1 on failure.  */
 static int
-fgetline(char **buf, int *size, FILE *fp)
+fgetline(char *buf, int size, FILE *fp)
 {
-    int len;
-    int c;
-
-    if (fp == NULL || buf == NULL)
-        return -1;
-
-    if (*buf == NULL) {
-        if (*size == 0)
-            *size = BUFSIZ;
-
-        *buf = (char *)wmem_alloc(wmem_epan_scope(), *size);
+    if (fgets(buf, size, fp)) {
+        int len = (int)strcspn(buf, "\r\n");
+        buf[len] = '\0';
+        return len;
     }
-
-    g_assert(*buf);
-    g_assert(*size > 0);
-
-    if (feof(fp))
-        return -1;
-
-    len = 0;
-    while ((c = ws_getc_unlocked(fp)) != EOF && c != '\r' && c != '\n') {
-        if (len+1 >= *size) {
-            *buf = (char *)wmem_realloc(wmem_epan_scope(), *buf, *size += BUFSIZ);
-        }
-        (*buf)[len++] = c;
-    }
-
-    if (len == 0 && c == EOF)
-        return -1;
-
-    (*buf)[len] = '\0';
-
-    return len;
+    return -1;
 
 } /* fgetline */
 
@@ -679,8 +652,7 @@ static gboolean
 parse_services_file(const char * path)
 {
     FILE *serv_p;
-    static int     size = 0;
-    static char   *buf = NULL;
+    char    buf[MAX_LINELEN];
 
     /* services hash table initialization */
     serv_p = ws_fopen(path, "r");
@@ -688,7 +660,7 @@ parse_services_file(const char * path)
     if (serv_p == NULL)
         return FALSE;
 
-    while (fgetline(&buf, &size, serv_p) >= 0) {
+    while (fgetline(buf, sizeof(buf), serv_p) >= 0) {
         parse_service_line(buf);
     }
 
@@ -832,14 +804,13 @@ static gboolean
 parse_enterprises_file(const char * path)
 {
     FILE *fp;
-    static int size = 0;
-    static char *buf = NULL;
+    char    buf[MAX_LINELEN];
 
     fp = ws_fopen(path, "r");
     if (fp == NULL)
         return FALSE;
 
-    while (fgetline(&buf, &size, fp) >= 0) {
+    while (fgetline(buf, sizeof(buf), fp) >= 0) {
         parse_enterprises_line(buf);
     }
 
@@ -1337,13 +1308,12 @@ get_ethent(unsigned int *mask, const gboolean accept_mask)
 {
 
     static ether_t eth;
-    static int     size = 0;
-    static char   *buf = NULL;
+    char    buf[MAX_LINELEN];
 
     if (eth_p == NULL)
         return NULL;
 
-    while (fgetline(&buf, &size, eth_p) >= 0) {
+    while (fgetline(buf, sizeof(buf), eth_p) >= 0) {
         if (parse_ether_line(buf, &eth, mask, accept_mask) == 0) {
             return &eth;
         }
@@ -1849,13 +1819,12 @@ get_ipxnetent(void)
 {
 
     static ipxnet_t ipxnet;
-    static int     size = 0;
-    static char   *buf = NULL;
+    char    buf[MAX_LINELEN];
 
     if (ipxnet_p == NULL)
         return NULL;
 
-    while (fgetline(&buf, &size, ipxnet_p) >= 0) {
+    while (fgetline(buf, sizeof(buf), ipxnet_p) >= 0) {
         if (parse_ipxnets_line(buf, &ipxnet) == 0) {
             return &ipxnet;
         }
@@ -2008,13 +1977,12 @@ get_vlanent(void)
 {
 
     static vlan_t vlan;
-    static int     size = 0;
-    static char   *buf = NULL;
+    char    buf[MAX_LINELEN];
 
     if (vlan_p == NULL)
         return NULL;
 
-    while (fgetline(&buf, &size, vlan_p) >= 0) {
+    while (fgetline(buf, sizeof(buf), vlan_p) >= 0) {
         if (parse_vlan_line(buf, &vlan) == 0) {
             return &vlan;
         }
@@ -2103,8 +2071,7 @@ static gboolean
 read_hosts_file (const char *hostspath, gboolean store_entries)
 {
     FILE *hf;
-    char *line = NULL;
-    int size = 0;
+    char line[MAX_LINELEN];
     gchar *cp;
     union {
         guint32 ip4_addr;
@@ -2119,7 +2086,7 @@ read_hosts_file (const char *hostspath, gboolean store_entries)
     if ((hf = ws_fopen(hostspath, "r")) == NULL)
         return FALSE;
 
-    while (fgetline(&line, &size, hf) >= 0) {
+    while (fgetline(line, sizeof(line), hf) >= 0) {
         if ((cp = strchr(line, '#')))
             *cp = '\0';
 
@@ -2148,7 +2115,6 @@ read_hosts_file (const char *hostspath, gboolean store_entries)
             }
         }
     }
-    wmem_free(wmem_epan_scope(), line);
 
     fclose(hf);
     return entry_found ? TRUE : FALSE;
@@ -2275,8 +2241,7 @@ static gboolean
 read_subnets_file (const char *subnetspath)
 {
     FILE *hf;
-    char *line = NULL;
-    int size = 0;
+    char line[MAX_LINELEN];
     gchar *cp, *cp2;
     guint32 host_addr; /* IPv4 ONLY */
     guint8 mask_length;
@@ -2284,7 +2249,7 @@ read_subnets_file (const char *subnetspath)
     if ((hf = ws_fopen(subnetspath, "r")) == NULL)
         return FALSE;
 
-    while (fgetline(&line, &size, hf) >= 0) {
+    while (fgetline(line, sizeof(line), hf) >= 0) {
         if ((cp = strchr(line, '#')))
             *cp = '\0';
 
@@ -2315,7 +2280,6 @@ read_subnets_file (const char *subnetspath)
 
         subnet_entry_set(host_addr, mask_length, cp);
     }
-    wmem_free(wmem_epan_scope(), line);
 
     fclose(hf);
     return TRUE;
@@ -2535,8 +2499,7 @@ static gboolean
 read_ss7pcs_file(const char *ss7pcspath)
 {
     FILE *hf;
-    char *line = NULL;
-    int size = 0;
+    char line[MAX_LINELEN];
     gchar *cp;
     guint8 ni;
     guint32 pc;
@@ -2548,7 +2511,7 @@ read_ss7pcs_file(const char *ss7pcspath)
     if ((hf = ws_fopen(ss7pcspath, "r")) == NULL)
         return FALSE;
 
-    while (fgetline(&line, &size, hf) >= 0) {
+    while (fgetline(line, sizeof(line), hf) >= 0) {
         if ((cp = strchr(line, '#')))
             *cp = '\0';
 
@@ -2572,7 +2535,6 @@ read_ss7pcs_file(const char *ss7pcspath)
         entry_found = TRUE;
         add_ss7pc_name(ni, pc, cp);
     }
-    wmem_free(wmem_epan_scope(), line);
 
     fclose(hf);
     return entry_found ? TRUE : FALSE;
