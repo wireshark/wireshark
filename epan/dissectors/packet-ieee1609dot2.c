@@ -259,6 +259,8 @@ static gint ett_ieee1609dot2_VerificationKeyIndicator = -1;
 /*--- End of included file: packet-ieee1609dot2-ett.c ---*/
 #line 34 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
 
+static dissector_handle_t j2735_handle;
+
 
 /*--- Included file: packet-ieee1609dot2-fn.c ---*/
 #line 1 "./asn1/ieee1609dot2/packet-ieee1609dot2-fn.c"
@@ -1199,8 +1201,9 @@ tvbuff_t *parameter_tvb=NULL;
   offset = dissect_oer_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
 
-  if(parameter_tvb){
+  if((parameter_tvb)&& (j2735_handle)){
     /* Call next dissector here */
+    call_dissector(j2735_handle, parameter_tvb, actx->pinfo, tree);
   }
 
 
@@ -1797,7 +1800,7 @@ static int dissect_Ieee1609Dot2Data_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U
 
 
 /*--- End of included file: packet-ieee1609dot2-fn.c ---*/
-#line 36 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
+#line 38 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
 
 
 /*--- proto_register_ieee1609dot2 ----------------------------------------------*/
@@ -2390,7 +2393,7 @@ void proto_register_ieee1609dot2(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ieee1609dot2-hfarr.c ---*/
-#line 44 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
+#line 46 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
   };
 
   /* List of subtrees */
@@ -2463,7 +2466,7 @@ void proto_register_ieee1609dot2(void) {
     &ett_ieee1609dot2_VerificationKeyIndicator,
 
 /*--- End of included file: packet-ieee1609dot2-ettarr.c ---*/
-#line 49 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
+#line 51 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
   };
 
   /* Register protocol */
@@ -2474,4 +2477,11 @@ void proto_register_ieee1609dot2(void) {
   proto_register_subtree_array(ett, array_length(ett));
 
   register_dissector("ieee1609dot2.data", dissect_Ieee1609Dot2Data_PDU, proto_ieee1609dot2);
+}
+
+void
+proto_reg_handoff_IEEE1609dot2(void)
+{
+
+    j2735_handle = find_dissector_add_dependency("j2735", proto_ieee1609dot2);
 }

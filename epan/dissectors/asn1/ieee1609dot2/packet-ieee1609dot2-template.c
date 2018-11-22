@@ -32,6 +32,8 @@ int proto_ieee1609dot2 = -1;
 /* Initialize the subtree pointers */
 #include "packet-ieee1609dot2-ett.c"
 
+static dissector_handle_t j2735_handle;
+
 #include "packet-ieee1609dot2-fn.c"
 
 
@@ -56,4 +58,11 @@ void proto_register_ieee1609dot2(void) {
   proto_register_subtree_array(ett, array_length(ett));
 
   register_dissector("ieee1609dot2.data", dissect_Ieee1609Dot2Data_PDU, proto_ieee1609dot2);
+}
+
+void
+proto_reg_handoff_IEEE1609dot2(void)
+{
+
+    j2735_handle = find_dissector_add_dependency("j2735", proto_ieee1609dot2);
 }
