@@ -370,6 +370,10 @@ dissect_oer_octet_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_
      */
     offset = dissect_oer_length_determinant(tvb, offset, actx, tree, hf_oer_length_determinant, &length);
     actx->created_item = proto_tree_add_item(tree, hf_index, tvb, offset, length, ENC_NA);
+    if (value_tvb) {
+        *value_tvb = oer_tvb_new_subset_length(tvb, offset, length);
+    }
+
     offset = offset + length;
 
     return offset;
