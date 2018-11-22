@@ -147,6 +147,8 @@ static int quiet = FALSE;
 
 /* Dummy Ethernet header */
 static int hdr_ethernet = FALSE;
+static guint8 hdr_eth_dest_addr[6] = {0x0a, 0x02, 0x02, 0x02, 0x02, 0x02};
+static guint8 hdr_eth_src_addr[6]  = {0x0a, 0x02, 0x02, 0x02, 0x02, 0x01};
 static guint32 hdr_ethernet_proto = 0;
 
 /* Dummy IP header */
@@ -271,10 +273,7 @@ typedef struct {
     guint16 l3pid;
 } hdr_ethernet_t;
 
-static hdr_ethernet_t HDR_ETHERNET = {
-    {0x0a, 0x02, 0x02, 0x02, 0x02, 0x02},
-    {0x0a, 0x01, 0x01, 0x01, 0x01, 0x01},
-    0};
+static hdr_ethernet_t HDR_ETHERNET;
 
 typedef struct {
     guint8  ver_hdrlen;
@@ -638,6 +637,14 @@ write_current_packet (gboolean cont)
 
         /* Write Ethernet header */
         if (hdr_ethernet) {
+            if (isInbound)
+            {
+                memcpy(HDR_ETHERNET.dest_addr, hdr_eth_src_addr, 6);
+                memcpy(HDR_ETHERNET.src_addr, hdr_eth_dest_addr, 6);
+            } else {
+                memcpy(HDR_ETHERNET.dest_addr, hdr_eth_dest_addr, 6);
+                memcpy(HDR_ETHERNET.src_addr, hdr_eth_src_addr, 6);
+            }
             HDR_ETHERNET.l3pid = g_htons(hdr_ethernet_proto);
             write_bytes((const char *)&HDR_ETHERNET, sizeof(HDR_ETHERNET));
         }
