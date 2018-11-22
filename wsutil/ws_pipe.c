@@ -84,6 +84,8 @@ gboolean ws_pipe_spawn_sync(gchar *dirname, gchar *command, gint argc, gchar **a
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "spawn params: %s", spawn_string->str);
     g_string_free(spawn_string, TRUE);
 
+    guint64 start_time = g_get_monotonic_time();
+
 #ifdef _WIN32
 
     sa.nLength = sizeof(SECURITY_ATTRIBUTES);
@@ -216,6 +218,8 @@ gboolean ws_pipe_spawn_sync(gchar *dirname, gchar *command, gint argc, gchar **a
     if (status && exit_status != 0)
         status = FALSE;
 #endif
+
+    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "%s finished in %.3fms", argv[0], (g_get_monotonic_time() - start_time) / 1000.0);
 
     if (status)
     {
