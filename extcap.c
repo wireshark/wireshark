@@ -347,7 +347,7 @@ static gboolean extcap_foreach(GList * arguments,
                     continue;
                 }
 
-                if (ws_pipe_spawn_sync((gchar *) dirname, extcap_path->str, cnt, args, &command_output))
+                if (ws_pipe_spawn_sync(dirname, extcap_path->str, cnt, args, &command_output))
                 {
                     cb_info.output = command_output;
                     cb_info.extcap = extcap_path->str;
@@ -358,7 +358,7 @@ static gboolean extcap_foreach(GList * arguments,
                 {
                     gchar ** fb_args = extcap_convert_arguments_to_array(fallback_arguments);
 
-                    if (ws_pipe_spawn_sync((gchar *) dirname, extcap_path->str, g_list_length(fallback_arguments), fb_args, &command_output))
+                    if (ws_pipe_spawn_sync(dirname, extcap_path->str, g_list_length(fallback_arguments), fb_args, &command_output))
                     {
                         cb_info.output = command_output;
                         cb_info.extcap = extcap_path->str;

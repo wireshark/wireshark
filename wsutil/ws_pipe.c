@@ -33,7 +33,7 @@
 #include "wsutil/filesystem.h"
 #include "wsutil/ws_pipe.h"
 
-gboolean ws_pipe_spawn_sync(gchar *dirname, gchar *command, gint argc, gchar **args, gchar **command_output)
+gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command, gint argc, gchar **args, gchar **command_output)
 {
     gboolean status = FALSE;
     gboolean result = FALSE;
@@ -212,7 +212,7 @@ gboolean ws_pipe_spawn_sync(gchar *dirname, gchar *command, gint argc, gchar **a
     g_setenv("PATH", oldpath, TRUE);
 #else
 
-    status = g_spawn_sync(dirname, argv, NULL,
+    status = g_spawn_sync(working_directory, argv, NULL,
                           (GSpawnFlags) 0, NULL, NULL, &local_output, NULL, &exit_status, NULL);
 
     if (status && exit_status != 0)
