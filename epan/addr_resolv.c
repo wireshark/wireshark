@@ -1137,7 +1137,7 @@ host_lookup6(const ws_in6_addr *addr)
  * 28 or 36. Pre-condition: cp MUST be at least 21 bytes.
  */
 static gboolean
-parse_ether_address_fast(const char *cp, ether_t *eth, unsigned int *mask,
+parse_ether_address_fast(const guchar *cp, ether_t *eth, unsigned int *mask,
         const gboolean accept_mask)
 {
     /* XXX copied from strutil.c */
@@ -1160,16 +1160,17 @@ parse_ether_address_fast(const char *cp, ether_t *eth, unsigned int *mask,
         -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
         -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1
     };
+    const guint8 *str_to_nibble_usg = (const guint8 *)str_to_nibble;
 
     if (cp[2] != ':' || cp[5] != ':') {
         /* Unexpected separators. */
         return FALSE;
     }
 
-    int num0 = (str_to_nibble[(int)cp[0]] << 8) | str_to_nibble[(int)cp[1]];
-    int num1 = (str_to_nibble[(int)cp[3]] << 8) | str_to_nibble[(int)cp[4]];
-    int num2 = (str_to_nibble[(int)cp[6]] << 8) | str_to_nibble[(int)cp[7]];
-    if ((num0 | num1 | num2) < 0) {
+    guint8 num0 = (str_to_nibble_usg[cp[0]] << 4) | str_to_nibble_usg[cp[1]];
+    guint8 num1 = (str_to_nibble_usg[cp[3]] << 4) | str_to_nibble_usg[cp[4]];
+    guint8 num2 = (str_to_nibble_usg[cp[6]] << 4) | str_to_nibble_usg[cp[7]];
+    if (((num0 | num1 | num2) & 0x80)) {
         /* Not hexadecimal numbers. */
         return FALSE;
     }
@@ -1182,15 +1183,15 @@ parse_ether_address_fast(const char *cp, ether_t *eth, unsigned int *mask,
         /* Indicate that this is a manufacturer ID (0 is not allowed as a mask). */
         *mask = 0;
         return TRUE;
-    } else if (cp[8] != ':') {
+    } else if (cp[8] != ':' || !accept_mask) {
         /* Format not handled by this fast path. */
         return FALSE;
     }
 
-    int num3 = (str_to_nibble[(int)cp[9]] << 8) | str_to_nibble[(int)cp[10]];
-    int num4 = (str_to_nibble[(int)cp[12]] << 8) | str_to_nibble[(int)cp[13]];
-    int num5 = (str_to_nibble[(int)cp[15]] << 8) | str_to_nibble[(int)cp[16]];
-    if ((num3 | num4 | num5) < 0 || cp[11] != ':' || cp[14] != ':') {
+    guint8 num3 = (str_to_nibble_usg[cp[9]] << 4) | str_to_nibble_usg[cp[10]];
+    guint8 num4 = (str_to_nibble_usg[cp[12]] << 4) | str_to_nibble_usg[cp[13]];
+    guint8 num5 = (str_to_nibble_usg[cp[15]] << 4) | str_to_nibble_usg[cp[16]];
+    if (((num3 | num4 | num5) & 0x80) || cp[11] != ':' || cp[14] != ':') {
         /* Not hexadecimal numbers or invalid separators. */
         return FALSE;
     }
