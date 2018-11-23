@@ -1441,7 +1441,6 @@ get_diameter_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
 static gint
 check_diameter(tvbuff_t *tvb)
 {
-	guint32 diam_len;
 	guint8 flags;
 
 	/* Ensure we don't throw an exception trying to do these heuristics */
@@ -1450,14 +1449,6 @@ check_diameter(tvbuff_t *tvb)
 
 	/* Check if the Diameter version is 1 */
 	if (tvb_get_guint8(tvb, 0) != 1)
-		return NOT_DIAMETER;
-
-	/* Check if the message size is reasonable.
-	 * Diameter messages can technically be of any size; this limit
-	 * is just a practical one (feel free to tune it).
-	 */
-	diam_len = tvb_get_ntoh24(tvb, 1);
-	if (diam_len > 65534)
 		return NOT_DIAMETER;
 
 	/* Diameter minimum message length:
@@ -1474,7 +1465,7 @@ check_diameter(tvbuff_t *tvb)
 	 *
 	 * --> 36 bytes
 	 */
-	if (diam_len < 36)
+	if (tvb_get_ntoh24(tvb, 1) < 36)
 		return NOT_DIAMETER;
 
 	flags = tvb_get_guint8(tvb, 4);
