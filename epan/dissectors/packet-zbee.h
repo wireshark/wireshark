@@ -1169,6 +1169,7 @@
 #define ZBEE_PROTOABBREV_ZCL_PRE_PAYMENT       "zbee_zcl_se.pp"
 #define ZBEE_PROTOABBREV_ZCL_ENERGY_MANAGEMENT "zbee_zcl_se.em"
 #define ZBEE_PROTOABBREV_ZCL_CALENDAR          "zbee_zcl_se.calendar"
+#define ZBEE_PROTOABBREV_ZCL_DAILY_SCHEDULE    "zbee_zcl_se.daily_schedule"
 #define ZBEE_PROTOABBREV_ZCL_DEVICE_MANAGEMENT "zbee_zcl_se.dm"
 #define ZBEE_PROTOABBREV_ZCL_EVENTS            "zbee_zcl_se.events"
 #define ZBEE_PROTOABBREV_ZCL_MDU_PAIRING       "zbee_zcl_se.mdu_pairing"

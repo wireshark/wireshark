@@ -210,6 +210,7 @@
 #define ZBEE_ZCL_CID_EVENTS                         0x0709
 #define ZBEE_ZCL_CID_MDU_PAIRING                    0x070A
 #define ZBEE_ZCL_CID_SUB_GHZ                        0x070B
+#define ZBEE_ZCL_CID_DAILY_SCHEDULE                 0x070D
 
 /* ZCL Cluster IDs - Key Establishment */
 #define ZBEE_ZCL_CID_KE                             0x0800

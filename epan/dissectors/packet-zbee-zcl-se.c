@@ -10672,6 +10672,525 @@ proto_reg_handoff_zbee_zcl_calendar(void)
                          );
 } /*proto_reg_handoff_zbee_zcl_calendar*/
 
+/* ----------------------- Daily Schedule cluster ---------------------- */
+/* Attributes */
+#define zbee_zcl_daily_schedule_attr_names_VALUE_STRING_LIST(XXX) \
+/* Auxiliary Switch Label Attribute Set */ \
+    XXX(ZBEE_ZCL_ATTR_ID_DSH_AUX_SWITCH_1_LABEL,                0x0000, "Aux Switch 1 Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_DSH_AUX_SWITCH_2_LABEL,                0x0001, "Aux Switch 2 Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_DSH_AUX_SWITCH_3_LABEL,                0x0002, "Aux Switch 3 Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_DSH_AUX_SWITCH_4_LABEL,                0x0003, "Aux Switch 4 Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_DSH_AUX_SWITCH_5_LABEL,                0x0004, "Aux Switch 5 Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_DSH_AUX_SWITCH_6_LABEL,                0x0005, "Aux Switch 6 Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_DSH_AUX_SWITCH_7_LABEL,                0x0006, "Aux Switch 7 Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_DSH_AUX_SWITCH_8_LABEL,                0x0007, "Aux Switch 8 Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_DSH_CURRENT_AUX_LOAD_SWITCH_STATE,     0x0100, "Current Auxiliary Load Switch State" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_DSH_CURRENT_DELIVERED_TIER,            0x0101, "Current Delivered Tier" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_DSH_CURRENT_TIER_LABEL,                0x0102, "Current Tier Label" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_DSH_LINKY_PEAK_PERIOD_STATUS,          0x0103, "Linky Peak Period Status" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_DSH_PEAK_START_TIME,                   0x0104, "Peak Start Time" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_DSH_PEAK_END_TIME,                     0x0105, "Peak End Time" ) \
+    XXX(ZBEE_ZCL_ATTR_ID_DSH_CURRENT_TARIFF_LABEL,              0x0106, "Current Tariff Label" ) \
+
+VALUE_STRING_ENUM(zbee_zcl_daily_schedule_attr_names);
+VALUE_STRING_ARRAY(zbee_zcl_daily_schedule_attr_names);
+
+/* Server Commands Received */
+#define zbee_zcl_daily_schedule_srv_rx_cmd_names_VALUE_STRING_LIST(XXX) \
+    XXX(ZBEE_ZCL_CMD_ID_DSH_GET_SCHEDULE,                       0x00, "Get Schedule" ) \
+    XXX(ZBEE_ZCL_CMD_ID_DSH_GET_DAY_PROFILE,                    0x01, "Get Day Profile" ) \
+    XXX(ZBEE_ZCL_CMD_ID_DSH_GET_SCHEDULE_CANCELLATION,          0x05, "Get Schedule Cancellation" ) \
+
+VALUE_STRING_ENUM(zbee_zcl_daily_schedule_srv_rx_cmd_names);
+VALUE_STRING_ARRAY(zbee_zcl_daily_schedule_srv_rx_cmd_names);
+
+/* Server Commands Generated */
+#define zbee_zcl_daily_schedule_srv_tx_cmd_names_VALUE_STRING_LIST(XXX) \
+    XXX(ZBEE_ZCL_CMD_ID_DSH_PUBLISH_SCHEDULE,                   0x00, "Publish Schedule" ) \
+    XXX(ZBEE_ZCL_CMD_ID_DSH_PUBLISH_DAY_PROFILE,                0x01, "Publish Day Profile" ) \
+    XXX(ZBEE_ZCL_CMD_ID_DSH_CANCEL_SCHEDULE,                    0x05, "Cancel Schedule" ) \
+
+VALUE_STRING_ENUM(zbee_zcl_daily_schedule_srv_tx_cmd_names);
+VALUE_STRING_ARRAY(zbee_zcl_daily_schedule_srv_tx_cmd_names);
+
+/*************************/
+/* Function Declarations */
+/*************************/
+void proto_register_zbee_zcl_daily_schedule(void);
+void proto_reg_handoff_zbee_zcl_daily_schedule(void);
+
+/* Attribute Dissector Helpers */
+static void dissect_zcl_daily_schedule_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
+
+/* Command Dissector Helpers */
+static void dissect_zcl_daily_schedule_get_schedule(tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_daily_schedule_get_day_profile(tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_daily_schedule_publish_schedule(tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_daily_schedule_publish_day_profile(tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_daily_schedule_cancel_schedule(tvbuff_t *tvb, proto_tree *tree, guint *offset);
+
+/*************************/
+/* Global Variables      */
+/*************************/
+
+/* Initialize the protocol and registered fields */
+static int proto_zbee_zcl_daily_schedule = -1;
+
+static int hf_zbee_zcl_daily_schedule_srv_tx_cmd_id = -1;
+static int hf_zbee_zcl_daily_schedule_srv_rx_cmd_id = -1;
+static int hf_zbee_zcl_daily_schedule_attr_server_id = -1;
+/* Get Schedule cmd */
+static int hf_zbee_zcl_daily_schedule_type = -1;
+static int hf_zbee_zcl_daily_schedule_name = -1;
+static int hf_zbee_zcl_daily_schedule_start_time = -1;
+static int hf_zbee_zcl_daily_schedule_earliest_start_time = -1;
+static int hf_zbee_zcl_daily_schedule_command_index = -1;
+static int hf_zbee_zcl_daily_schedule_id = -1;
+static int hf_zbee_zcl_daily_schedule_time_reference = -1;
+static int hf_zbee_zcl_daily_schedule_provider_id = -1;
+static int hf_zbee_zcl_daily_schedule_issuer_event_id = -1;
+static int hf_zbee_zcl_daily_schedule_min_issuer_event_id = -1;
+static int hf_zbee_zcl_daily_schedule_number_of_schedules = -1;
+static int hf_zbee_zcl_daily_schedule_total_number_of_commands = -1;
+static int hf_zbee_zcl_daily_schedule_total_number_of_schedule_entries = -1;
+static int hf_zbee_zcl_daily_schedule_schedule_entry_start_time = -1;
+static int hf_zbee_zcl_daily_schedule_schedule_entry_price_tier = -1;
+static int hf_zbee_zcl_daily_schedule_schedule_entry_auxilary_load_switch_state = -1;
+
+/* Initialize the subtree pointers */
+static gint ett_zbee_zcl_daily_schedule = -1;
+
+#define zbee_zcl_daily_schedule_type_names_VALUE_STRING_LIST(XXX) \
+    XXX(ZBEE_ZCL_SCHEDULE_TYPE_LINKY_SCHEDULE,                           0x00, "Linky Schedule" ) \
+
+VALUE_STRING_ENUM(zbee_zcl_daily_schedule_type_names);
+VALUE_STRING_ARRAY(zbee_zcl_daily_schedule_type_names);
+
+#define zbee_zcl_daily_schedule_time_reference_names_VALUE_STRING_LIST(XXX) \
+    XXX(ZBEE_ZCL_SCHEDULE_TIME_REFERENCE_UTC_TIME,                     0x00, "UTC Time" ) \
+    XXX(ZBEE_ZCL_SCHEDULE_TIME_REFERENCE_STANDARD_TIME,                0x01, "Standard Time" ) \
+    XXX(ZBEE_ZCL_SCHEDULE_TIME_REFERENCE_LOCAL_TIME,                   0x02, "Local Time" )
+
+VALUE_STRING_ENUM(zbee_zcl_daily_schedule_time_reference_names);
+VALUE_STRING_ARRAY(zbee_zcl_daily_schedule_time_reference_names);
+
+/**
+ *ZigBee ZCL Daily Schedule cluster dissector for wireshark.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ */
+static int
+dissect_zbee_zcl_daily_schedule(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+    proto_tree        *payload_tree;
+    zbee_zcl_packet   *zcl;
+    guint             offset = 0;
+    guint8            cmd_id;
+    gint              rem_len;
+
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    zcl = (zbee_zcl_packet *)data;
+    cmd_id = zcl->cmd_id;
+
+    /*  Create a subtree for the ZCL Command frame, and add the command ID to it. */
+    if (zcl->direction == ZBEE_ZCL_FCF_TO_SERVER) {
+        /* Append the command name to the info column. */
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
+                        val_to_str_const(cmd_id, zbee_zcl_calendar_srv_rx_cmd_names, "Unknown Command"),
+                        zcl->tran_seqno);
+
+        /* Add the command ID. */
+        proto_tree_add_uint(tree, hf_zbee_zcl_daily_schedule_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
+
+        /* Check is this command has a payload, than add the payload tree */
+        rem_len = tvb_reported_length_remaining(tvb, ++offset);
+        if (rem_len > 0) {
+            payload_tree = proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_daily_schedule, NULL, "Payload");
+
+            /* Call the appropriate command dissector */
+            switch (cmd_id) {
+
+                case ZBEE_ZCL_CMD_ID_DSH_GET_SCHEDULE:
+                    dissect_zcl_daily_schedule_get_schedule(tvb, payload_tree, &offset);
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_DSH_GET_DAY_PROFILE:
+                    dissect_zcl_daily_schedule_get_day_profile(tvb, payload_tree, &offset);
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_DSH_GET_SCHEDULE_CANCELLATION:
+                    /* No Payload */
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
+    else { /* ZBEE_ZCL_FCF_TO_CLIENT */
+        /* Append the command name to the info column. */
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
+                        val_to_str_const(cmd_id, zbee_zcl_daily_schedule_srv_tx_cmd_names, "Unknown Command"),
+                        zcl->tran_seqno);
+
+        /* Add the command ID. */
+        proto_tree_add_uint(tree, hf_zbee_zcl_daily_schedule_srv_tx_cmd_id, tvb, offset, 1, cmd_id);
+
+        /* Check is this command has a payload, than add the payload tree */
+        rem_len = tvb_reported_length_remaining(tvb, ++offset);
+        if (rem_len > 0) {
+            payload_tree = proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_daily_schedule, NULL, "Payload");
+
+            /* Call the appropriate command dissector */
+            switch (cmd_id) {
+
+                case ZBEE_ZCL_CMD_ID_DSH_PUBLISH_SCHEDULE:
+                    dissect_zcl_daily_schedule_publish_schedule(tvb, payload_tree, &offset);
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_DSH_PUBLISH_DAY_PROFILE:
+                    dissect_zcl_daily_schedule_publish_day_profile(tvb, payload_tree, &offset);
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_DSH_CANCEL_SCHEDULE:
+                    dissect_zcl_daily_schedule_cancel_schedule(tvb, payload_tree, &offset);
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
+
+    return tvb_captured_length(tvb);
+} /*dissect_zbee_zcl_daily_schedule*/
+
+/**
+ *This function manages the Publish Calendar payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+ */
+static void
+dissect_zcl_daily_schedule_publish_schedule(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    nstime_t start_time;
+    guint msg_len;
+    guint8 *msg_data;
+
+    /* Provider Id */
+    proto_tree_add_item(tree, hf_zbee_zcl_daily_schedule_provider_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Issuer Event ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_daily_schedule_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Schedule ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_daily_schedule_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Start Time */
+    start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    start_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_daily_schedule_start_time, tvb, *offset, 4, &start_time);
+    *offset += 4;
+
+    /* Schedule Type */
+    proto_tree_add_item(tree, hf_zbee_zcl_daily_schedule_type, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Schedule Time Reference */
+    proto_tree_add_item(tree, hf_zbee_zcl_daily_schedule_time_reference, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Schedule Name */
+    msg_len = tvb_get_guint8(tvb, *offset); /* string length */
+    *offset += 1;
+    msg_data = tvb_get_string_enc(wmem_packet_scope(), tvb, *offset, msg_len, ENC_LITTLE_ENDIAN);
+    proto_tree_add_string(tree, hf_zbee_zcl_daily_schedule_name, tvb, *offset, msg_len, msg_data);
+    *offset += msg_len;
+} /*dissect_zcl_daily_schedule_publish_schedule*/
+
+/**
+ *This function manages the Publish Day Profile payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+ */
+static void
+dissect_zcl_daily_schedule_publish_day_profile(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    guint8   schedule_entries_count;
+    guint8   calendar_type;
+
+    /* Provider Id */
+    proto_tree_add_item(tree, hf_zbee_zcl_daily_schedule_provider_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Issuer Event ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_daily_schedule_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Issuer Calendar ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_daily_schedule_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Total Number of Schedule Entries */
+    schedule_entries_count = tvb_get_guint8(tvb, *offset);
+    proto_tree_add_item(tree, hf_zbee_zcl_daily_schedule_total_number_of_schedule_entries, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Command Index */
+    proto_tree_add_item(tree, hf_zbee_zcl_daily_schedule_command_index, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Number of Schedules */
+    proto_tree_add_item(tree, hf_zbee_zcl_daily_schedule_number_of_schedules, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Calendar Type */
+    calendar_type = tvb_get_guint8(tvb, *offset);
+    proto_tree_add_item(tree, hf_zbee_zcl_daily_schedule_type, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    for (gint i = 0; tvb_reported_length_remaining(tvb, *offset) >= 4 && i < schedule_entries_count; i++) {
+        /* Start Time */
+        proto_tree_add_item(tree, hf_zbee_zcl_daily_schedule_schedule_entry_start_time, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+        *offset += 2;
+
+        switch (calendar_type) {
+            /* Rate Start Time */
+            case ZBEE_ZCL_SCHEDULE_TYPE_LINKY_SCHEDULE:
+                /* Price Tier */
+                proto_tree_add_item(tree, hf_zbee_zcl_daily_schedule_schedule_entry_price_tier, tvb, *offset, 1, ENC_NA);
+                *offset += 1;
+                /* Auxiliary Load Switch State */
+                proto_tree_add_item(tree, hf_zbee_zcl_daily_schedule_schedule_entry_auxilary_load_switch_state, tvb, *offset, 1, ENC_NA);
+                *offset += 1;
+                break;
+        }
+    }
+} /*dissect_zcl_daily_schedule_publish_day_profile*/
+
+/**
+ *This function manages the Cancel Calendar payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+ */
+static void
+dissect_zcl_daily_schedule_cancel_schedule(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    /* Provider Id */
+    proto_tree_add_item(tree, hf_zbee_zcl_daily_schedule_provider_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Issuer Calendar ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_daily_schedule_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Schedule Type */
+    proto_tree_add_item(tree, hf_zbee_zcl_daily_schedule_type, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+} /*dissect_zcl_calendar_cancel*/
+
+/**
+ *This function manages the Get Calendar payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+ */
+static void
+dissect_zcl_daily_schedule_get_schedule(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    nstime_t earliest_start_time;
+
+    /* Provider Id */
+    proto_tree_add_item(tree, hf_zbee_zcl_daily_schedule_provider_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Earliest Start Time */
+    earliest_start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    earliest_start_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_daily_schedule_earliest_start_time, tvb, *offset, 4, &earliest_start_time);
+    *offset += 4;
+
+    /* Min Issuer Event ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_daily_schedule_min_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Number of Schedules */
+    proto_tree_add_item(tree, hf_zbee_zcl_daily_schedule_number_of_schedules, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Schedule Type */
+    proto_tree_add_item(tree, hf_zbee_zcl_daily_schedule_type, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+} /*dissect_zcl_daily_schedule_get_schedule*/
+
+/**
+ *This function manages the Get Day Profiles payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+ */
+static void
+dissect_zcl_daily_schedule_get_day_profile(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    /* Provider Id */
+    proto_tree_add_item(tree, hf_zbee_zcl_daily_schedule_provider_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Schedule ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_daily_schedule_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+} /*dissect_zcl_daily_schedule_get_day_profile*/
+
+/**
+ *This function is called by ZCL foundation dissector in order to decode
+ *
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param tvb pointer to buffer containing raw packet.
+ *@param offset pointer to buffer offset
+ *@param attr_id attribute identifier
+ *@param data_type attribute data type
+ */
+static void
+dissect_zcl_daily_schedule_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr)
+{
+    (void)attr_id;
+    /* Catch all */
+    dissect_zcl_attr_data(tvb, tree, offset, data_type, client_attr);
+} /*dissect_zcl_calendar_attr_data*/
+
+/**
+ *This function registers the ZCL Calendar dissector
+ *
+*/
+void
+proto_register_zbee_zcl_daily_schedule(void)
+{
+    static hf_register_info hf[] = {
+
+        { &hf_zbee_zcl_daily_schedule_attr_server_id,
+            { "Attribute", "zbee_zcl_se.daily_schedule.attr_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_daily_schedule_attr_names),
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_daily_schedule_srv_tx_cmd_id,
+            { "Command", "zbee_zcl_se.daily_schedule.cmd.srv_tx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_daily_schedule_srv_tx_cmd_names),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_daily_schedule_srv_rx_cmd_id,
+            { "Command", "zbee_zcl_se.daily_schedule.cmd.srv_rx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_daily_schedule_srv_rx_cmd_names),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_daily_schedule_type,
+          { "Schedule Type", "zbee_zcl_se.daily_schedule.type", FT_UINT8, BASE_HEX, VALS(zbee_zcl_daily_schedule_type_names),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_daily_schedule_start_time,
+            { "Start Time", "zbee_zcl_se.daily_schedule.start_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_daily_schedule_earliest_start_time,
+            { "Earliest Start Time", "zbee_zcl_se.daily_schedule.earliest_start_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_daily_schedule_time_reference,
+          { "Schedule Time Reference", "zbee_zcl_se.daily_schedule.time_reference", FT_UINT8, BASE_HEX, VALS(zbee_zcl_daily_schedule_time_reference_names),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_daily_schedule_name,
+            { "Schedule Name", "zbee_zcl_se.daily_schedule.name", FT_STRING, BASE_NONE, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_daily_schedule_command_index,
+            { "Command Index", "zbee_zcl_se.daily_schedule.command_index", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_daily_schedule_provider_id,
+            { "Provider ID", "zbee_zcl_se.daily_schedule.provider_id", FT_UINT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_daily_schedule_issuer_event_id,
+            { "Issuer Event ID", "zbee_zcl_se.daily_schedule.issuer_event_id", FT_UINT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_daily_schedule_min_issuer_event_id,
+            { "Min. Issuer Event ID", "zbee_zcl_se.daily_schedule.min_issuer_event_id", FT_UINT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_daily_schedule_id,
+            { "Schedule ID", "zbee_zcl_se.daily_schedule.id", FT_UINT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_daily_schedule_total_number_of_schedule_entries,
+            { "Total Number of Schedule Entries", "zbee_zcl_se.daily_schedule.total_number_of_schedule_entries", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_daily_schedule_number_of_schedules,
+            { "Number of Schedules", "zbee_zcl_se.daily_schedule.number_of_schedules", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_daily_schedule_total_number_of_commands,
+            { "Total Number of Commands", "zbee_zcl_se.daily_schedule.total_number_of_commands", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_daily_schedule_schedule_entry_start_time,
+            { "Start Time", "zbee_zcl_se.daily_schedule.schedule_entry.start_time", FT_UINT16, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_daily_schedule_schedule_entry_price_tier,
+            { "Price Tier", "zbee_zcl_se.daily_schedule.schedule_entry.price_tier", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_daily_schedule_schedule_entry_auxilary_load_switch_state,
+            { "Auxilary Load Switch State", "zbee_zcl_se.daily_schedule.schedule_entry.auxilary_load_switch_state", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+    };
+
+    /* ZCL Daily Schedule subtrees */
+    gint *ett[] = {
+        &ett_zbee_zcl_daily_schedule,
+    };
+
+    /* Register the ZigBee ZCL Calendar cluster protocol name and description */
+    proto_zbee_zcl_daily_schedule = proto_register_protocol("ZigBee ZCL Daily Schedule", "ZCL Daily Schedule", ZBEE_PROTOABBREV_ZCL_DAILY_SCHEDULE);
+    proto_register_field_array(proto_zbee_zcl_daily_schedule, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
+
+    /* Register the ZigBee ZCL Daily Schedule dissector. */
+    register_dissector(ZBEE_PROTOABBREV_ZCL_DAILY_SCHEDULE, dissect_zbee_zcl_daily_schedule, proto_zbee_zcl_daily_schedule);
+} /*proto_register_zbee_zcl_calendar*/
+
+void
+proto_reg_handoff_zbee_zcl_daily_schedule(void)
+{
+    zbee_zcl_init_cluster(  ZBEE_PROTOABBREV_ZCL_DAILY_SCHEDULE,
+                            proto_zbee_zcl_daily_schedule,
+                            ett_zbee_zcl_daily_schedule,
+                            ZBEE_ZCL_CID_DAILY_SCHEDULE,
+                            ZBEE_MFG_CODE_NONE,
+                            hf_zbee_zcl_daily_schedule_attr_server_id,
+                            -1,
+                            hf_zbee_zcl_daily_schedule_srv_rx_cmd_id,
+                            hf_zbee_zcl_daily_schedule_srv_tx_cmd_id,
+                            (zbee_zcl_fn_attr_data)dissect_zcl_daily_schedule_attr_data
+                         );
+} /*proto_reg_handoff_zbee_zcl_calendar*/
+
+
 /* ########################################################################## */
 /* #### (0x0708) DEVICE_MANAGEMENT CLUSTER ############################################## */
 /* ########################################################################## */
