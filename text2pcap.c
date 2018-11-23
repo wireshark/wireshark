@@ -143,7 +143,7 @@ static gboolean use_pcapng = FALSE;
 /* Debug level */
 static int debug = 0;
 /* Be quiet */
-static int quiet = FALSE;
+static gboolean quiet = FALSE;
 
 /* Dummy Ethernet header */
 static int hdr_ethernet = FALSE;
@@ -152,8 +152,8 @@ static guint8 hdr_eth_src_addr[6]  = {0x0a, 0x02, 0x02, 0x02, 0x02, 0x01};
 static guint32 hdr_ethernet_proto = 0;
 
 /* Dummy IP header */
-static int hdr_ip = FALSE;
-static int hdr_ipv6 = FALSE;
+static gboolean hdr_ip = FALSE;
+static gboolean hdr_ipv6 = FALSE;
 static long hdr_ip_proto = -1;
 
 /* Destination and source addresses for IP header */
@@ -164,25 +164,25 @@ static ws_in6_addr hdr_ipv6_src_addr  = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 static ws_in6_addr NO_IPv6_ADDRESS    = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
 
 /* Dummy UDP header */
-static int     hdr_udp       = FALSE;
+static gboolean hdr_udp = FALSE;
 static guint32 hdr_dest_port = 0;
 static guint32 hdr_src_port  = 0;
 
 /* Dummy TCP header */
-static int hdr_tcp = FALSE;
+static gboolean hdr_tcp = FALSE;
 
 /* TCP sequence numbers when has_direction is true */
 static guint32 tcp_in_seq_num = 0;
 static guint32 tcp_out_seq_num = 0;
 
 /* Dummy SCTP header */
-static int hdr_sctp = FALSE;
+static gboolean hdr_sctp = FALSE;
 static guint32 hdr_sctp_src  = 0;
 static guint32 hdr_sctp_dest = 0;
 static guint32 hdr_sctp_tag  = 0;
 
 /* Dummy DATA chunk header */
-static int hdr_data_chunk = FALSE;
+static gboolean hdr_data_chunk = FALSE;
 static guint8  hdr_data_chunk_type = 0;
 static guint8  hdr_data_chunk_bits = 0;
 static guint32 hdr_data_chunk_tsn  = 0;
@@ -191,7 +191,7 @@ static guint16 hdr_data_chunk_ssn  = 0;
 static guint32 hdr_data_chunk_ppid = 0;
 
 /* ASCII text dump identification */
-static int identify_ascii = FALSE;
+static gboolean identify_ascii = FALSE;
 
 static gboolean has_direction = FALSE;
 static guint32 direction = 0;
@@ -289,14 +289,6 @@ typedef struct {
     guint32 dest_addr;
 } hdr_ip_t;
 
-static hdr_ip_t HDR_IP = {0x45, 0, 0, 0x3412, 0, 0, 0xff, 0, 0,
-#if G_BYTE_ORDER == G_BIG_ENDIAN
-0x0a010101, 0x0a020202
-#else
-0x0101010a, 0x0202020a
-#endif
-};
-
 /* Fixed IP address values */
 #if G_BYTE_ORDER == G_BIG_ENDIAN
 #define IP_SRC 0x0a010101
@@ -305,6 +297,8 @@ static hdr_ip_t HDR_IP = {0x45, 0, 0, 0x3412, 0, 0, 0xff, 0, 0,
 #define IP_SRC 0x0101010a
 #define IP_DST 0x0202020a
 #endif
+
+static hdr_ip_t HDR_IP = {0x45, 0, 0, 0x3412, 0, 0, 0xff, 0, 0, IP_SRC, IP_DST};
 
 static struct {         /* pseudo header for checksum calculation */
     guint32 src_addr;
@@ -1490,7 +1484,7 @@ parse_options (int argc, char *argv[])
             break;
         case 'd': if (!quiet) debug++; break;
         case 'D': has_direction = TRUE; break;
-        case 'q': quiet = TRUE; debug = FALSE; break;
+        case 'q': quiet = TRUE; debug = 0; break;
         case 'l': pcap_link_type = (guint32)strtol(optarg, NULL, 0); break;
         case 'm': max_offset = (guint32)strtol(optarg, NULL, 0); break;
         case 'n': use_pcapng = TRUE; break;
@@ -1700,7 +1694,7 @@ parse_options (int argc, char *argv[])
             }
             else
             {
-                hdr_ip = TRUE;
+                hdr_ip   = TRUE;
                 hdr_ipv6 = FALSE;
             }
             hdr_ethernet = TRUE;
