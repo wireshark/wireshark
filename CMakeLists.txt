@@ -1804,6 +1804,7 @@ if(WIN32)
 				"${_dll_output_dir}"
 			VERBATIM
 		)
+		install(FILES ${OPTIONAL_DLLS} DESTINATION "${CMAKE_INSTALL_BINDIR}")
 	endif(OPTIONAL_DLLS)
 
 	add_dependencies(epan copy_cli_dlls)
@@ -2229,6 +2230,13 @@ if(BUILD_wireshark AND QT_FOUND)
 				"$<TARGET_FILE:wireshark>"
 		)
 		add_dependencies(copy_qt_dlls wireshark)
+
+		install(CODE "execute_process(COMMAND
+			\"${QT_WINDEPLOYQT_EXECUTABLE}\"
+			--no-compiler-runtime
+			\"\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}/Wireshark.exe\")"
+		)
+
 	endif(QT_WINDEPLOYQT_EXECUTABLE)
 endif()
 
