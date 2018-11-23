@@ -161,8 +161,17 @@ endif()
 # the Unix Makefile generator.
 #
 
-#Defines CMAKE_INSTALL_BINDIR, CMAKE_INSTALL_DATADIR, etc ...
+# Defines CMAKE_INSTALL_BINDIR, CMAKE_INSTALL_DATADIR, etc ...
+if(WIN32)
+	# Override some values on Windows, to match the existing
+	# convention of installing everything to a single root folder.
+	set(CMAKE_INSTALL_BINDIR ".")
+	set(CMAKE_INSTALL_LIBDIR ".")
+	set(CMAKE_INSTALL_INCLUDEDIR "include")
+	set(CMAKE_INSTALL_DATADIR ".")
+endif()
 include(GNUInstallDirs)
+
 # Make sure our executables can can load our libraries if we install into
 # a non-default directory on Unix-like systems other than macOS.
 # https://cmake.org/Wiki/CMake_RPATH_handling
@@ -2841,6 +2850,11 @@ set_source_files_properties(
 	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
 )
 
+if(WIN32)
+	set(INSTALL_FILES_DATADIR ".")
+else()
+	set(INSTALL_FILES_DATADIR "${CMAKE_INSTALL_DATADIR}/${CPACK_PACKAGE_NAME}")
+endif()
 install(
 	FILES
 		${INSTALL_FILES}
@@ -2849,7 +2863,7 @@ install(
 		GROUP_READ
 		WORLD_READ
 	DESTINATION
-		${CMAKE_INSTALL_DATADIR}/${CPACK_PACKAGE_NAME}
+		${INSTALL_FILES_DATADIR}
 )
 
 set(SHARK_PUBLIC_HEADERS
@@ -2906,7 +2920,7 @@ install(
 	DIRECTORY
 		${INSTALL_DIRS}
 	DESTINATION
-		${CMAKE_INSTALL_DATADIR}/${CPACK_PACKAGE_NAME}
+		${INSTALL_FILES_DATADIR}
 	FILE_PERMISSIONS
 		OWNER_WRITE OWNER_READ
 		GROUP_READ
@@ -2920,7 +2934,14 @@ install(
 	PATTERN "Makefile.*" EXCLUDE
 )
 
-set(CMAKE_INSTALL_MODULES_DIR "${CMAKE_INSTALL_LIBDIR}/${CPACK_PACKAGE_NAME}/cmake")
+if(WIN32)
+	# Note: CMake export mechanism misbehaves with a '.' in the
+	# path (incorrect relative path computation).
+	set(WIRESHARK_INSTALL_CMAKEDIR "cmake")
+else()
+	set(WIRESHARK_INSTALL_CMAKEDIR "${CMAKE_INSTALL_LIBDIR}/${CPACK_PACKAGE_NAME}/cmake")
+endif()
+
 install(
 	FILES
 		${CMAKE_MODULE_PATH}/FindGLIB2.cmake
@@ -2929,14 +2950,14 @@ install(
 		${CMAKE_MODULE_PATH}/LocatePythonModule.cmake
 		${CMAKE_MODULE_PATH}/UseMakePluginReg.cmake
 	DESTINATION
-		${CMAKE_INSTALL_MODULES_DIR}
+		${WIRESHARK_INSTALL_CMAKEDIR}
 )
 
 include(CMakePackageConfigHelpers)
 
 configure_package_config_file(WiresharkConfig.cmake.in
 	${CMAKE_BINARY_DIR}/WiresharkConfig.cmake
-	INSTALL_DESTINATION ${CMAKE_INSTALL_MODULES_DIR}
+	INSTALL_DESTINATION ${WIRESHARK_INSTALL_CMAKEDIR}
 	PATH_VARS
 		CMAKE_INSTALL_LIBDIR
 		CMAKE_INSTALL_INCLUDEDIR
@@ -2957,11 +2978,11 @@ if(NOT WIN32)
 			${CMAKE_BINARY_DIR}/WiresharkConfig.cmake
 			${CMAKE_BINARY_DIR}/WiresharkConfigVersion.cmake
 		DESTINATION
-			${CMAKE_INSTALL_MODULES_DIR}
+			${WIRESHARK_INSTALL_CMAKEDIR}
 	)
 
 	install(EXPORT WiresharkTargets
-		DESTINATION ${CMAKE_INSTALL_MODULES_DIR}
+		DESTINATION ${WIRESHARK_INSTALL_CMAKEDIR}
 	)
 endif()
 
