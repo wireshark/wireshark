@@ -69,8 +69,8 @@ Param(
 # trouble instead of trying to catch exceptions everywhere.
 $ErrorActionPreference = "Stop"
 
-$Win64CurrentTag = "2018-11-28"
-$Win32CurrentTag = "2018-11-28"
+$Win64CurrentTag = "2018-11-29"
+$Win32CurrentTag = "2018-11-29"
 
 # Archive file / SHA256
 $Win64Archives = @{
@@ -93,7 +93,7 @@ $Win64Archives = @{
     "spandsp-0.0.6-1-win64ws.zip" = "0e46c61a5a8dca562c36e88a8962a50c1ec1a9fcf89dd05996dac5a79e454527";
     "WinSparkle-0.5.7.zip" = "56d396ef0c4e8b0589ea74134e484376ca6459d972cd1ab1da6b9624d82e6d04";
     "WpdPack_4_1_2.zip" = "ea799cf2f26e4afb1892938070fd2b1ca37ce5cf75fec4349247df12b784edbd";
-    "zlib-1.2.11-ws.zip" = "8c963c0594c3c8cea64eb3e32ae9ef9a5af98553e56673bdef0901ff6c692028";
+    "zlib-1.2.11-1-ws.zip" = "2f54edfb848b4750f4eb1e0c35af0eaa4bd6ec5650f101016707b55d71da7549";
 }
 
 $Win32Archives = @{
@@ -116,7 +116,7 @@ $Win32Archives = @{
     "spandsp-0.0.6-1-win32ws.zip" = "3c25f2f4d641d4257ec9922f6db77346a8eed2e360e7d0e27b828ade19c4705b";
     "WinSparkle-0.5.7.zip" = "56d396ef0c4e8b0589ea74134e484376ca6459d972cd1ab1da6b9624d82e6d04";
     "WpdPack_4_1_2.zip" = "ea799cf2f26e4afb1892938070fd2b1ca37ce5cf75fec4349247df12b784edbd";
-    "zlib-1.2.11-ws.zip" = "8c963c0594c3c8cea64eb3e32ae9ef9a5af98553e56673bdef0901ff6c692028";
+    "zlib-1.2.11-1-ws.zip" = "2f54edfb848b4750f4eb1e0c35af0eaa4bd6ec5650f101016707b55d71da7549";
 }
 
 # Subdirectory to extract an archive to
@@ -158,6 +158,7 @@ $CleanupItems = @(
     "glib2-2.*-win??ws"
     "gtk2"
     "gtk3"
+    "json-glib-1.0.2-*-win??ws"
     "kfw-3-2-2-final"
     "kfw-3-2-2-i386-ws-vc6"
     "kfw-3-2-2-x64-ws"

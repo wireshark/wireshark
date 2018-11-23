@@ -996,10 +996,15 @@ endif()
 if(ENABLE_ZLIB)
 	if (WIN32)
 		# On Windows we build our own version of zlib, so add the paths
-		set(ZLIB_SRC_DIR "${_PROJECT_LIB_DIR}/zlib-1.2.11-ws")
-		set(SKIP_INSTALL_ALL True) # We copy the DLL ourselves.
+		set(ZLIB_SRC_DIR "${_PROJECT_LIB_DIR}/zlib-1.2.11-1-ws")
+		set(SKIP_INSTALL_STATIC True)
+		set(SKIP_INSTALL_HEADERS True)
+		set(SKIP_INSTALL_FILES True)
+		set(ZLIB_EXPORTS "WiresharkTargets")
 		add_subdirectory("${ZLIB_SRC_DIR}" "${CMAKE_BINARY_DIR}/zlib")
-		unset(SKIP_INSTALL_ALL)
+		unset(SKIP_INSTALL_STATIC)
+		unset(SKIP_INSTALL_HEADERS)
+		unset(SKIP_INSTALL_FILES)
 		set(ZLIB_INCLUDE_DIR  "${ZLIB_SRC_DIR}" "${CMAKE_BINARY_DIR}/zlib")
 		set(ZLIB_LIBRARY zlib)
 		set(ZLIB_DLL "zlib1.dll")
@@ -2968,21 +2973,17 @@ write_basic_package_version_file(
 	COMPATIBILITY AnyNewerVersion
 )
 
-# XXX On Windows wsutil depends on a CMake zlib target for which there are no
-# exports.
-if(NOT WIN32)
-	install(
-		FILES
-			${CMAKE_BINARY_DIR}/WiresharkConfig.cmake
-			${CMAKE_BINARY_DIR}/WiresharkConfigVersion.cmake
-		DESTINATION
-			${WIRESHARK_INSTALL_CMAKEDIR}
-	)
+install(
+	FILES
+		${CMAKE_BINARY_DIR}/WiresharkConfig.cmake
+		${CMAKE_BINARY_DIR}/WiresharkConfigVersion.cmake
+	DESTINATION
+		${WIRESHARK_INSTALL_CMAKEDIR}
+)
 
-	install(EXPORT WiresharkTargets
-		DESTINATION ${WIRESHARK_INSTALL_CMAKEDIR}
-	)
-endif()
+install(EXPORT WiresharkTargets
+	DESTINATION ${WIRESHARK_INSTALL_CMAKEDIR}
+)
 
 if (DOXYGEN_EXECUTABLE)
 	# API reference
