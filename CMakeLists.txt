@@ -1604,12 +1604,20 @@ set(TSHARK_TAP_SRC
 set(INSTALL_DIRS
 	diameter
 	dtds
-	${DATAFILE_DIR}/help
 	profiles
 	radius
 	tpncp
 	wimaxasncp
 )
+
+# FIXME: The help files are textfified on Windows into the staging dir.
+# The DATAFILE_DIR depends on CMAKE_CFG_INTDIR therefore it cannot be
+# added to an install() command with build systems supporting multiple
+# configurations in the build tree (e.g.: Visual Studio).
+if(NOT WIN32)
+	list(APPEND INSTALL_DIRS help)
+endif()
+
 
 set(INSTALL_FILES
 	cfilters
