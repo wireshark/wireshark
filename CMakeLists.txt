@@ -2851,14 +2851,9 @@ set(SHARK_PUBLIC_HEADERS
 	${CMAKE_BINARY_DIR}/ws_version.h
 )
 
-if(NOT WIN32)
-	install(
-		FILES
-			${SHARK_PUBLIC_HEADERS}
-		DESTINATION
-			${CMAKE_INSTALL_INCLUDEDIR}/${CPACK_PACKAGE_NAME}
-	)
-endif()
+install(FILES ${SHARK_PUBLIC_HEADERS}
+	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${CPACK_PACKAGE_NAME}
+)
 
 # Install icons and other desktop files for Freedesktop.org-compliant desktops.
 if((BUILD_wireshark AND QT_FOUND) AND NOT (WIN32 OR APPLE))
