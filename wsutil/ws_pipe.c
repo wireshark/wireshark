@@ -30,8 +30,90 @@
 #include <glib.h>
 #include <log.h>
 
+#ifdef __linux__
+#define HAS_G_SPAWN_LINUX_THREAD_SAFETY_BUG
+#include <fcntl.h>
+#include <sys/syscall.h>        /* for syscall and SYS_getdents64 */
+#include <wsutil/file_util.h>   /* for ws_open -> open to pacify checkAPIs.pl */
+#endif
+
 #include "wsutil/filesystem.h"
 #include "wsutil/ws_pipe.h"
+
+#ifdef HAS_G_SPAWN_LINUX_THREAD_SAFETY_BUG
+struct linux_dirent64 {
+    guint64        d_ino;    /* 64-bit inode number */
+    guint64        d_off;    /* 64-bit offset to next structure */
+    unsigned short d_reclen; /* Size of this dirent */
+    unsigned char  d_type;   /* File type */
+    char           d_name[]; /* Filename (null-terminated) */
+};
+
+/* Async-signal-safe string to integer conversion. */
+static gint
+filename_to_fd(const char *p)
+{
+    char c;
+    int fd = 0;
+    const int cutoff = G_MAXINT / 10;
+    const int cutlim = G_MAXINT % 10;
+
+    if (*p == '\0')
+        return -1;
+
+    while ((c = *p++) != '\0') {
+        if (!g_ascii_isdigit(c))
+            return -1;
+        c -= '0';
+
+        /* Check for overflow. */
+        if (fd > cutoff || (fd == cutoff && c > cutlim))
+            return -1;
+
+        fd = fd * 10 + c;
+    }
+
+    return fd;
+}
+
+static void
+close_non_standard_fds_linux(gpointer user_data _U_)
+{
+    /*
+     * GLib 2.14.2 and newer (up to at least GLib 2.58.1) on Linux with multiple
+     * threads can deadlock in the child process due to use of opendir (which
+     * is not async-signal-safe). To avoid this, disable the broken code path
+     * and manually close file descriptors using async-signal-safe code only.
+     * Use CLOEXEC to allow reporting of execve errors to the parent via a pipe.
+     * https://gitlab.gnome.org/GNOME/glib/issues/1014
+     * https://gitlab.gnome.org/GNOME/glib/merge_requests/490
+     */
+    int dir_fd = ws_open("/proc/self/fd", O_RDONLY | O_DIRECTORY);
+    if (dir_fd >= 0) {
+        char buf[4096];
+        int nread, fd;
+        struct linux_dirent64 *de;
+
+        while ((nread = (int) syscall(SYS_getdents64, dir_fd, buf, sizeof(buf))) > 0) {
+            for (int pos = 0; pos < nread; pos += de->d_reclen) {
+                de = (struct linux_dirent64 *)(buf + pos);
+                fd = filename_to_fd(de->d_name);
+                if (fd > STDERR_FILENO && fd != dir_fd) {
+                    /* Close all other (valid) file descriptors above stderr. */
+                    fcntl(fd, F_SETFD, FD_CLOEXEC);
+                }
+            }
+        }
+
+        close(dir_fd);
+    } else {
+        /* Slow fallback in case /proc is not mounted */
+        for (int fd = STDERR_FILENO + 1; fd < getdtablesize(); fd++) {
+            fcntl(fd, F_SETFD, FD_CLOEXEC);
+        }
+    }
+}
+#endif
 
 gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command, gint argc, gchar **args, gchar **command_output)
 {
@@ -212,8 +294,14 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
     g_setenv("PATH", oldpath, TRUE);
 #else
 
+    GSpawnFlags flags = (GSpawnFlags)0;
+    GSpawnChildSetupFunc child_setup = NULL;
+#ifdef HAS_G_SPAWN_LINUX_THREAD_SAFETY_BUG
+    flags = (GSpawnFlags)(flags | G_SPAWN_LEAVE_DESCRIPTORS_OPEN);
+    child_setup = close_non_standard_fds_linux;
+#endif
     status = g_spawn_sync(working_directory, argv, NULL,
-                          (GSpawnFlags) 0, NULL, NULL, &local_output, NULL, &exit_status, NULL);
+                          flags, child_setup, NULL, &local_output, NULL, &exit_status, NULL);
 
     if (status && exit_status != 0)
         status = FALSE;
@@ -346,8 +434,14 @@ GPid ws_pipe_spawn_async(ws_pipe_t *ws_pipe, GPtrArray *args)
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "async spawn params: %s", spawn_args->str);
 
     GError *error = NULL;
+    GSpawnFlags flags = G_SPAWN_DO_NOT_REAP_CHILD;
+    GSpawnChildSetupFunc child_setup = NULL;
+#ifdef HAS_G_SPAWN_LINUX_THREAD_SAFETY_BUG
+    flags = (GSpawnFlags)(flags | G_SPAWN_LEAVE_DESCRIPTORS_OPEN);
+    child_setup = close_non_standard_fds_linux;
+#endif
     gboolean spawned = g_spawn_async_with_pipes(NULL, (gchar **)args->pdata, NULL,
-                             (GSpawnFlags) G_SPAWN_DO_NOT_REAP_CHILD, NULL, NULL,
+                             flags, child_setup, NULL,
                              &pid, &ws_pipe->stdin_fd, &ws_pipe->stdout_fd, &ws_pipe->stderr_fd, &error);
     if (!spawned) {
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Error creating async pipe: %s", error->message);
