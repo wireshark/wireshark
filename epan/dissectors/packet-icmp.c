@@ -1510,52 +1510,37 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 	case ICMP_IREQREPLY:
 	case ICMP_MASKREQ:
 	case ICMP_MASKREPLY:
-		proto_tree_add_item(icmp_tree, hf_icmp_ident, tvb, 4, 2,
-				    ENC_BIG_ENDIAN);
-		proto_tree_add_item(icmp_tree, hf_icmp_ident_le, tvb, 4, 2,
-				    ENC_LITTLE_ENDIAN);
-		proto_tree_add_item(icmp_tree, hf_icmp_seq_num, tvb, 6, 2,
-				    ENC_BIG_ENDIAN);
-		proto_tree_add_item(icmp_tree, hf_icmp_seq_num_le, tvb, 6,
-				    2, ENC_LITTLE_ENDIAN);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-				" id=0x%04x, seq=%u/%u",
-				tvb_get_ntohs(tvb, 4), tvb_get_ntohs(tvb,
-								     6),
-				tvb_get_letohs(tvb, 6));
+		proto_tree_add_item(icmp_tree, hf_icmp_ident, tvb, 4, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(icmp_tree, hf_icmp_ident_le, tvb, 4, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(icmp_tree, hf_icmp_seq_num, tvb, 6, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(icmp_tree, hf_icmp_seq_num_le, tvb, 6, 2, ENC_LITTLE_ENDIAN);
+		col_append_fstr(pinfo->cinfo, COL_INFO, " id=0x%04x, seq=%u/%u",
+				tvb_get_ntohs(tvb, 4), tvb_get_ntohs(tvb, 6), tvb_get_letohs(tvb, 6));
 		if (iph != NULL) {
-			col_append_fstr(pinfo->cinfo, COL_INFO,
-					", ttl=%u",
-					iph->ip_ttl);
+			col_append_fstr(pinfo->cinfo, COL_INFO, ", ttl=%u", iph->ip_ttl);
 		}
 		break;
 
 	case ICMP_UNREACH:
-
 		/* If icmp_original_dgram_length > 0, then this packet is compliant with RFC 4884 and
 		 * interpret the 6th octet as length of the original datagram
 		 */
 		if (icmp_original_dgram_length > 0) {
-			proto_tree_add_item(icmp_tree, hf_icmp_length,
-						 tvb, 5, 1,
-						 ENC_BIG_ENDIAN);
+			proto_tree_add_item(icmp_tree, hf_icmp_unused, tvb, 4, 1, ENC_NA);
+			proto_tree_add_item(icmp_tree, hf_icmp_length, tvb, 5, 1, ENC_BIG_ENDIAN);
 			ti = proto_tree_add_uint(icmp_tree, hf_icmp_length_original_datagram,
-						 tvb, 5, 1,
-						 icmp_original_dgram_length * 4);
+						 tvb, 5, 1, icmp_original_dgram_length * 4);
 			PROTO_ITEM_SET_GENERATED(ti);
-		}
-
-
-		switch (icmp_code) {
-		case ICMP_FRAG_NEEDED:
-			proto_tree_add_item(icmp_tree, hf_icmp_unused, tvb, 4,
-					2, ENC_NA);
-			proto_tree_add_item(icmp_tree, hf_icmp_mtu, tvb, 6,
-					2, ENC_BIG_ENDIAN);
-			break;
-		default:
-			proto_tree_add_item(icmp_tree, hf_icmp_unused, tvb, 4,
-					4, ENC_NA);
+			if (icmp_code == ICMP_FRAG_NEEDED) {
+				proto_tree_add_item(icmp_tree, hf_icmp_mtu, tvb, 6, 2, ENC_BIG_ENDIAN);
+			} else {
+				proto_tree_add_item(icmp_tree, hf_icmp_unused, tvb, 6, 2, ENC_NA);
+			}
+		} else if (icmp_code == ICMP_FRAG_NEEDED) {
+			proto_tree_add_item(icmp_tree, hf_icmp_unused, tvb, 4, 2, ENC_NA);
+			proto_tree_add_item(icmp_tree, hf_icmp_mtu, tvb, 6, 2, ENC_BIG_ENDIAN);
+		} else {
+			proto_tree_add_item(icmp_tree, hf_icmp_unused, tvb, 4, 4, ENC_NA);
 		}
 		break;
 
@@ -1569,63 +1554,51 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 	case ICMP_PARAMPROB:
 		proto_tree_add_item(icmp_tree, hf_icmp_pointer, tvb, 4, 1, ENC_BIG_ENDIAN);
 		if (icmp_original_dgram_length > 0) {
-			proto_tree_add_item(icmp_tree, hf_icmp_length,
-						 tvb, 5, 1,
-						 ENC_BIG_ENDIAN);
+			proto_tree_add_item(icmp_tree, hf_icmp_unused, tvb, 4, 1, ENC_NA);
+			proto_tree_add_item(icmp_tree, hf_icmp_length, tvb, 5, 1, ENC_BIG_ENDIAN);
 			ti = proto_tree_add_uint(icmp_tree, hf_icmp_length_original_datagram,
-						 tvb, 5, 1,
-						 icmp_original_dgram_length * 4);
+						 tvb, 5, 1, icmp_original_dgram_length * 4);
 			PROTO_ITEM_SET_GENERATED(ti);
+			proto_tree_add_item(icmp_tree, hf_icmp_unused, tvb, 6, 2, ENC_NA);
+		} else {
+			proto_tree_add_item(icmp_tree, hf_icmp_unused, tvb, 4, 4, ENC_NA);
 		}
 		break;
 
 	case ICMP_REDIRECT:
-		proto_tree_add_item(icmp_tree, hf_icmp_redir_gw, tvb, 4, 4,
-				    ENC_BIG_ENDIAN);
+		proto_tree_add_item(icmp_tree, hf_icmp_redir_gw, tvb, 4, 4, ENC_BIG_ENDIAN);
 		break;
 
 	case ICMP_TIMXCEED:
 		if (icmp_original_dgram_length > 0) {
-			proto_tree_add_item(icmp_tree, hf_icmp_length,
-						 tvb, 5, 1,
-						 ENC_BIG_ENDIAN);
+			proto_tree_add_item(icmp_tree, hf_icmp_unused, tvb, 4, 1, ENC_NA);
+			proto_tree_add_item(icmp_tree, hf_icmp_length, tvb, 5, 1, ENC_BIG_ENDIAN);
 			ti = proto_tree_add_uint(icmp_tree, hf_icmp_length_original_datagram,
-						 tvb, 5, 1,
-						 icmp_original_dgram_length * 4);
+						 tvb, 5, 1, icmp_original_dgram_length * 4);
 			PROTO_ITEM_SET_GENERATED(ti);
+			proto_tree_add_item(icmp_tree, hf_icmp_unused, tvb, 6, 2, ENC_NA);
+		} else {
+			proto_tree_add_item(icmp_tree, hf_icmp_unused, tvb, 4, 4, ENC_NA);
 		}
 		break;
 
 	case ICMP_EXTECHO:
-		proto_tree_add_item(icmp_tree, hf_icmp_ident, tvb, 4, 2,
-				    ENC_BIG_ENDIAN);
-		proto_tree_add_item(icmp_tree, hf_icmp_ident_le, tvb, 4, 2,
-				    ENC_LITTLE_ENDIAN);
-		proto_tree_add_item(icmp_tree, hf_icmp_ext_echo_seq_num, tvb, 6, 1,
-				    ENC_BIG_ENDIAN);
-		proto_tree_add_item(icmp_tree, hf_icmp_ext_echo_req_reserved, tvb, 7, 1,
-				    ENC_BIG_ENDIAN);
-		proto_tree_add_item(icmp_tree, hf_icmp_ext_echo_req_local, tvb, 7, 1,
-				    ENC_BIG_ENDIAN);
+		proto_tree_add_item(icmp_tree, hf_icmp_ident, tvb, 4, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(icmp_tree, hf_icmp_ident_le, tvb, 4, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(icmp_tree, hf_icmp_ext_echo_seq_num, tvb, 6, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(icmp_tree, hf_icmp_ext_echo_req_reserved, tvb, 7, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(icmp_tree, hf_icmp_ext_echo_req_local, tvb, 7, 1, ENC_BIG_ENDIAN);
 		break;
 
 	case ICMP_EXTECHOREPLY:
-		proto_tree_add_item(icmp_tree, hf_icmp_ident, tvb, 4, 2,
-				    ENC_BIG_ENDIAN);
-		proto_tree_add_item(icmp_tree, hf_icmp_ident_le, tvb, 4, 2,
-				    ENC_LITTLE_ENDIAN);
-		proto_tree_add_item(icmp_tree, hf_icmp_ext_echo_seq_num, tvb, 6, 1,
-				    ENC_BIG_ENDIAN);
-		proto_tree_add_item(icmp_tree, hf_icmp_ext_echo_rsp_state, tvb, 7, 1,
-				    ENC_BIG_ENDIAN);
-		proto_tree_add_item(icmp_tree, hf_icmp_ext_echo_rsp_reserved, tvb, 7, 1,
-				    ENC_BIG_ENDIAN);
-		proto_tree_add_item(icmp_tree, hf_icmp_ext_echo_rsp_active, tvb, 7, 1,
-				    ENC_BIG_ENDIAN);
-		proto_tree_add_item(icmp_tree, hf_icmp_ext_echo_rsp_ipv4, tvb, 7, 1,
-				    ENC_BIG_ENDIAN);
-		proto_tree_add_item(icmp_tree, hf_icmp_ext_echo_rsp_ipv6, tvb, 7, 1,
-				    ENC_BIG_ENDIAN);
+		proto_tree_add_item(icmp_tree, hf_icmp_ident, tvb, 4, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(icmp_tree, hf_icmp_ident_le, tvb, 4, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(icmp_tree, hf_icmp_ext_echo_seq_num, tvb, 6, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(icmp_tree, hf_icmp_ext_echo_rsp_state, tvb, 7, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(icmp_tree, hf_icmp_ext_echo_rsp_reserved, tvb, 7, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(icmp_tree, hf_icmp_ext_echo_rsp_active, tvb, 7, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(icmp_tree, hf_icmp_ext_echo_rsp_ipv4, tvb, 7, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(icmp_tree, hf_icmp_ext_echo_rsp_ipv6, tvb, 7, 1, ENC_BIG_ENDIAN);
 		break;
 	}
 
