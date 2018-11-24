@@ -245,7 +245,8 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 				break;
 
 			case WTAP_ENCAP_BLUETOOTH_HCI:
-				pinfo->p2p_dir = pinfo->pseudo_header->bthci.sent;
+				pinfo->p2p_dir = pinfo->pseudo_header->bthci.sent ?
+					P2P_DIR_SENT : P2P_DIR_RECV;
 				break;
 
 			case WTAP_ENCAP_LAPB:
