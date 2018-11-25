@@ -206,7 +206,7 @@ local getfield =
     {
         STRING         = Field.new ("test.basic.string"),
         BOOLEAN        = Field.new ("test.basic.boolean"),
-	UINT8          = Field.new ("test.basic.uint8"),
+        UINT8          = Field.new ("test.basic.uint8"),
         UINT16         = Field.new ("test.basic.uint16"),
         INT24          = Field.new ("test.basic.uint24"),
         BYTES          = Field.new ("test.basic.bytes"),
