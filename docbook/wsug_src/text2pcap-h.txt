@@ -1,4 +1,4 @@
-Text2pcap (Wireshark) 2.9.0 (v2.9.0rc0-1249-ga108e49d)
+Text2pcap (Wireshark) 2.9.0 (v2.9.0rc0-2652-g1f3b7d15)
 Generate a capture file from an ASCII hexdump of packets.
 See https://www.wireshark.org for more information.
 
@@ -22,7 +22,8 @@ Input:
                          used as the default for unspecified fields.
   -D                     the text before the packet starts with an I or an O,
                          indicating that the packet is inbound or outbound.
-                         This is only stored if the output format is pcapng.
+                         This is used when generating dummy headers.
+                         The indication is only stored if the output format is pcapng.
   -a                     enable ASCII text dump identification.
                          The start of the ASCII text dump can be identified
                          and excluded from the packet data, even if it looks
@@ -38,6 +39,7 @@ Output:
                          specify the exact type of encapsulation.
                          Example: -l 7 for ARCNet packets.
   -m <max-packet>        max packet length in output; default is 262144
+  -n                     use pcapng instead of pcap as output format.
 
 Prepend dummy header:
   -e <l3pid>             prepend dummy Ethernet II header with specified L3PID
@@ -50,9 +52,9 @@ Prepend dummy header:
   -4 <srcip>,<destip>    prepend dummy IPv4 header with specified
                          dest and source address.
                          Example: -4 10.0.0.1,10.0.0.2
-  -6 <srcip>,<destip>    replace IPv6 header with specified
+  -6 <srcip>,<destip>    prepend dummy IPv6 header with specified
                          dest and source address.
-                         Example: -6 fe80:0:0:0:202:b3ff:fe1e:8329,2001:0db8:85a3:0000:0000:8a2e:0370:7334
+                         Example: -6 fe80::202:b3ff:fe1e:8329,2001:0db8:85a3::8a2e:0370:7334
   -u <srcp>,<destp>      prepend dummy UDP header with specified
                          source and destination ports (in DECIMAL).
                          Automatically prepends Ethernet & IP headers as well.
@@ -76,4 +78,3 @@ Miscellaneous:
   -h                     display this help and exit.
   -d                     show detailed debug of parser states.
   -q                     generate no output at all (automatically disables -d).
-  -n                     use pcapng instead of pcap as output format.

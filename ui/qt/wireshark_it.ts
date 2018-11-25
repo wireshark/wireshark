@@ -937,10 +937,6 @@
         <translation>Hash (SHA1)</translation>
     </message>
     <message>
-        <source> (gzip compressed)</source>
-        <translation type="vanished"> (compresso con gzip)</translation>
-    </message>
-    <message>
         <source>Format</source>
         <translation>Formato</translation>
     </message>
@@ -3060,10 +3056,6 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     <message>
         <source>Length</source>
         <translation>Lunghezza</translation>
-    </message>
-    <message>
-        <source> (gzip compressed)</source>
-        <translation type="vanished"> (compresso con gzip)</translation>
     </message>
     <message>
         <source>Format</source>
@@ -7489,10 +7481,6 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>Non puoi esportare pacchetti sul file di cattura attuale.</translation>
     </message>
     <message>
-        <source>.</source>
-        <translation type="vanished">.</translation>
-    </message>
-    <message>
         <source>Do you want to save the changes you&apos;ve made%1?</source>
         <oldsource>Do you want to save the captured packets</oldsource>
         <translation>Vuoi salvare le modifiche che hai apportato%1?</translation>
@@ -7876,10 +7864,6 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     <message>
         <source>Length</source>
         <translation>Lunghezza</translation>
-    </message>
-    <message>
-        <source> (gzip compressed)</source>
-        <translation type="vanished"> (compresso con gzip)</translation>
     </message>
     <message>
         <source>Format</source>
@@ -12738,10 +12722,6 @@ a:hover {
     <message>
         <source>You are running Wireshark </source>
         <translation>Stai eseguendo Wireshark </translation>
-    </message>
-    <message>
-        <source>.</source>
-        <translation type="vanished">.</translation>
     </message>
     <message>
         <source> You receive automatic updates.</source>

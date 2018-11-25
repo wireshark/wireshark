@@ -931,10 +931,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source> (gzip compressed)</source>
-        <translation type="vanished">（gzip 压缩）</translation>
-    </message>
-    <message>
         <source>Format</source>
         <translation>格式</translation>
     </message>
@@ -3044,10 +3040,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Length</source>
         <translation>长度</translation>
-    </message>
-    <message>
-        <source> (gzip compressed)</source>
-        <translation type="vanished"> (gzip 压缩)</translation>
     </message>
     <message>
         <source>Format</source>
@@ -7470,10 +7462,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>您不能将分组导出到当前捕获文件。</translation>
     </message>
     <message>
-        <source>.</source>
-        <translation type="vanished">.</translation>
-    </message>
-    <message>
         <source>Do you want to save the changes you&apos;ve made%1?</source>
         <oldsource>Do you want to save the captured packets</oldsource>
         <translation>您是否要保存已做出的更改%1？</translation>
@@ -7855,10 +7843,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Length</source>
         <translation>长度</translation>
-    </message>
-    <message>
-        <source> (gzip compressed)</source>
-        <translation type="vanished">(gzip 压缩)</translation>
     </message>
     <message>
         <source>Format</source>

@@ -911,10 +911,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source> (gzip compressed)</source>
-        <translation type="vanished"> (gzip圧縮)</translation>
-    </message>
-    <message>
         <source>Format</source>
         <translation>形式</translation>
     </message>
@@ -3023,10 +3019,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Length</source>
         <translation>長さ</translation>
-    </message>
-    <message>
-        <source> (gzip compressed)</source>
-        <translation type="vanished"> (gzip圧縮)</translation>
     </message>
     <message>
         <source>Format</source>
@@ -7453,10 +7445,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>現在のキャプチャファイルへパケットをエクスポートすることはできません</translation>
     </message>
     <message>
-        <source>.</source>
-        <translation type="vanished">.</translation>
-    </message>
-    <message>
         <source>Do you want to save the changes you&apos;ve made%1?</source>
         <oldsource>Do you want to save the captured packets</oldsource>
         <translation>%1 に作成した変更を保存したいですか？</translation>
@@ -7838,10 +7826,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Length</source>
         <translation>長さ</translation>
-    </message>
-    <message>
-        <source> (gzip compressed)</source>
-        <translation type="vanished"> (gzip圧縮)</translation>
     </message>
     <message>
         <source>Format</source>

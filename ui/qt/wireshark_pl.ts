@@ -917,10 +917,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source> (gzip compressed)</source>
-        <translation type="vanished"> (skompresowany gzip)</translation>
-    </message>
-    <message>
         <source>Format</source>
         <translation>Format</translation>
     </message>
@@ -3043,10 +3039,6 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <message>
         <source>Length</source>
         <translation>Długość</translation>
-    </message>
-    <message>
-        <source> (gzip compressed)</source>
-        <translation type="vanished"> (skompresowany gzip)</translation>
     </message>
     <message>
         <source>Format</source>
@@ -7468,10 +7460,6 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
         <translation>Nie można wyeksportować pakietów do aktualnego pliku.</translation>
     </message>
     <message>
-        <source>.</source>
-        <translation type="vanished">.</translation>
-    </message>
-    <message>
         <source>Do you want to save the changes you&apos;ve made%1?</source>
         <oldsource>Do you want to save the captured packets</oldsource>
         <translation>Czy chcesz zapisać zrobione zmiany %1?</translation>
@@ -7857,10 +7845,6 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <message>
         <source>Length</source>
         <translation>Długość</translation>
-    </message>
-    <message>
-        <source> (gzip compressed)</source>
-        <translation type="vanished">(skompresowany gzip)</translation>
     </message>
     <message>
         <source>Format</source>

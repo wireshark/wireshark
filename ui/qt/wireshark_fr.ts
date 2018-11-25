@@ -914,10 +914,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source> (gzip compressed)</source>
-        <translation type="vanished">(compressé gzip)</translation>
-    </message>
-    <message>
         <source>Format</source>
         <translation>Format</translation>
     </message>
@@ -3035,10 +3031,6 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     <message>
         <source>Length</source>
         <translation>Longueur</translation>
-    </message>
-    <message>
-        <source> (gzip compressed)</source>
-        <translation type="vanished">(compressé gzip)</translation>
     </message>
     <message>
         <source>Format</source>
@@ -7466,10 +7458,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Vous ne pouvez pas exporter les paquets de la capture en cours.</translation>
     </message>
     <message>
-        <source>.</source>
-        <translation type="vanished">.</translation>
-    </message>
-    <message>
         <source>Do you want to save the changes you&apos;ve made%1?</source>
         <oldsource>Do you want to save the captured packets</oldsource>
         <translation type="unfinished"></translation>
@@ -7847,10 +7835,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>Length</source>
         <translation>Longueur</translation>
-    </message>
-    <message>
-        <source> (gzip compressed)</source>
-        <translation type="vanished">(compressé gzip)</translation>
     </message>
     <message>
         <source>Format</source>

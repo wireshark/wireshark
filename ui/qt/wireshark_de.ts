@@ -937,10 +937,6 @@
         <translation>Hash (SHA1)</translation>
     </message>
     <message>
-        <source> (gzip compressed)</source>
-        <translation type="vanished"> (gzip-komprimiert)</translation>
-    </message>
-    <message>
         <source>Format</source>
         <translation>Format</translation>
     </message>
@@ -3060,10 +3056,6 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <source>Length</source>
         <translation>Länge</translation>
-    </message>
-    <message>
-        <source> (gzip compressed)</source>
-        <translation type="vanished"> (gzip komprimiert)</translation>
     </message>
     <message>
         <source>Format</source>
@@ -7489,10 +7481,6 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>Pakete können nicht in die aktuelle Mitschnittdatei exportiert werden.</translation>
     </message>
     <message>
-        <source>.</source>
-        <translation type="vanished">.</translation>
-    </message>
-    <message>
         <source>Do you want to save the changes you&apos;ve made%1?</source>
         <oldsource>Do you want to save the captured packets</oldsource>
         <translation>Wollen Sie die durchgeführten Änderungen speichern%1?</translation>
@@ -7876,10 +7864,6 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <source>Length</source>
         <translation>Länge</translation>
-    </message>
-    <message>
-        <source> (gzip compressed)</source>
-        <translation type="vanished"> (gzip-komprimiert)</translation>
     </message>
     <message>
         <source>Format</source>
@@ -12743,10 +12727,6 @@ text-decoration: underline;
     <message>
         <source>You are running Wireshark </source>
         <translation>Sie nutzen Wireshark </translation>
-    </message>
-    <message>
-        <source>.</source>
-        <translation type="vanished">.</translation>
     </message>
     <message>
         <source> You receive automatic updates.</source>
