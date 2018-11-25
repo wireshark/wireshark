@@ -43,6 +43,7 @@ static int hf_pcap_packet_origin_length = -1;
 static int hf_pcap_packet_data = -1;
 
 static expert_field ei_pcap_inc_larger_than_orig = EI_INIT;
+static expert_field ei_pcap_inc_larger_than_snap = EI_INIT;
 
 static gint ett_pcap = -1;
 static gint ett_pcap_header = -1;
@@ -88,6 +89,7 @@ dissect_pcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     volatile guint32 encoding;
     volatile guint   timestamp_scale_factor;
     const char      *magic;
+    guint32          snap_length;
     guint32          origin_length;
     guint32          length;
     guint32          link_type;
@@ -140,7 +142,7 @@ dissect_pcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     proto_tree_add_item(header_tree, hf_pcap_header_sigfigs, tvb, offset, 4, encoding);
     offset += 4;
 
-    proto_tree_add_item(header_tree, hf_pcap_header_snapshot_length, tvb, offset, 4, encoding);
+    proto_tree_add_item_ret_uint(header_tree, hf_pcap_header_snapshot_length, tvb, offset, 4, encoding, &snap_length);
     offset += 4;
 
     proto_tree_add_item(header_tree, hf_pcap_header_link_type, tvb, offset, 4, encoding);
@@ -169,6 +171,12 @@ dissect_pcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
         proto_tree_add_item_ret_uint(packet_tree, hf_pcap_packet_origin_length, tvb, offset, 4, encoding, &origin_length);
         offset += 4;
+
+        if (length > snap_length)
+        {
+            expert_add_info(pinfo, inc_len_item,
+                    &ei_pcap_inc_larger_than_snap);
+        }
 
         if (length > origin_length) {
             expert_add_info(pinfo, inc_len_item,
@@ -294,6 +302,10 @@ proto_register_file_pcap(void)
         { &ei_pcap_inc_larger_than_orig,
             { "pcap.inc_len_larger_than_orig_len", PI_MALFORMED, PI_ERROR,
                 "included length is larger than original length",
+                EXPFILL }},
+        { &ei_pcap_inc_larger_than_snap,
+            { "pcap.inc_len_larger_than_snap_len", PI_PROTOCOL, PI_WARN,
+                "included length is larger than snapshot length",
                 EXPFILL }}
     };
 
