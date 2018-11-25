@@ -54,7 +54,7 @@ end
 --     number of verifyFields() * (1 + number of fields) +
 --     number of verifyResults() * (1 + 2 * number of values)
 --
-local taptests = { [FRAME]=4, [OTHER]=333 }
+local taptests = { [FRAME]=4, [OTHER]=335 }
 
 local function getResults()
     print("\n-----------------------------\n")
@@ -582,11 +582,15 @@ function test_proto.dissector(tvbuf,pktinfo,root)
     testing(OTHER, "tree:add ether")
 
     local tvb = ByteArray.new("010203040506"):tvb("Ether")
+    local tvb0 = ByteArray.new("000000000000"):tvb("Ether0")
     local ether = testfield.basic.ETHER
     local ether_match_fields = {}
 
     execute ("ether", pcall (callTreeAdd, tree, ether, tvb:range(0,6)))
     addMatchFields(ether_match_fields, Address.ether('01:02:03:04:05:06'))
+
+    execute ("ether0", pcall (callTreeAdd, tree, ether, tvb0:range(0,6)))
+    addMatchFields(ether_match_fields, Address.ether('11:22:33'))
 
     verifyFields("basic.ETHER", ether_match_fields)
 
