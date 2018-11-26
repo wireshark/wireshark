@@ -392,8 +392,8 @@ static void capture_loop_write_packet_cb(u_char *pcap_src_p, const struct pcap_p
                                          const u_char *pd);
 static void capture_loop_queue_packet_cb(u_char *pcap_src_p, const struct pcap_pkthdr *phdr,
                                          const u_char *pd);
-static void capture_loop_write_pcapng_cb(capture_src *pcap_src, const struct pcapng_block_header_s *bh, const u_char *pd);
-static void capture_loop_queue_pcapng_cb(capture_src *pcap_src, const struct pcapng_block_header_s *bh, const u_char *pd);
+static void capture_loop_write_pcapng_cb(capture_src *pcap_src, const struct pcapng_block_header_s *bh, u_char *pd);
+static void capture_loop_queue_pcapng_cb(capture_src *pcap_src, const struct pcapng_block_header_s *bh, u_char *pd);
 static void capture_loop_get_errmsg(char *errmsg, size_t errmsglen,
                                     char *secondary_errmsg,
                                     size_t secondary_errmsglen,
@@ -2050,34 +2050,30 @@ pcapng_read_shb(capture_src *pcap_src,
  * Rewrite EPB and ISB interface IDs.
  */
 static gboolean
-pcapng_adjust_block(loop_data *ld, capture_src *pcap_src)
+pcapng_adjust_block(capture_src *pcap_src, const struct pcapng_block_header_s *bh, u_char *pd)
 {
-    pcapng_pipe_info_t *pcapng = &pcap_src->cap_pipe_info.pcapng;
-    struct pcapng_block_header_s *bh = &pcapng->bh;
-
     switch(bh->block_type) {
     case BLOCK_TYPE_SHB:
     {
-        g_rw_lock_writer_lock (&ld->saved_shb_idb_lock);
-        if (ld->pcapng_passthrough) {
+        if (global_ld.pcapng_passthrough) {
             /*
              * We have a single pcapng input. We pass the SHB through when
              * writing a single output file and for the first ring buffer
              * file. We need to save it for the second and subsequent ring
              * buffer files.
              */
-            g_free(ld->saved_shb);
-            ld->saved_shb = (guint8 *) g_memdup(pcap_src->cap_pipe_databuf, bh->block_total_length);
+            g_free(global_ld.saved_shb);
+            global_ld.saved_shb = (guint8 *) g_memdup(pd, bh->block_total_length);
 
             /*
              * We're dealing with one section at a time, so we can (and must)
              * get rid of our old IDBs.
              */
-            for (unsigned i = 0; i < ld->saved_idbs->len; i++) {
-                saved_idb_t *idb_source = &g_array_index(ld->saved_idbs, saved_idb_t, i);
+            for (unsigned i = 0; i < global_ld.saved_idbs->len; i++) {
+                saved_idb_t *idb_source = &g_array_index(global_ld.saved_idbs, saved_idb_t, i);
                 g_free(idb_source->idb);
             }
-            g_array_set_size(ld->saved_idbs, 0);
+            g_array_set_size(global_ld.saved_idbs, 0);
         } else {
             /*
              * We have a new SHB from this capture source. We need to keep
@@ -2086,7 +2082,7 @@ pcapng_adjust_block(loop_data *ld, capture_src *pcap_src)
              */
             for (unsigned i = 0; i < pcap_src->cap_pipe_info.pcapng.src_iface_to_global->len; i++) {
                 guint32 iface_id = g_array_index(pcap_src->cap_pipe_info.pcapng.src_iface_to_global, guint32, i);
-                saved_idb_t *idb_source = &g_array_index(ld->saved_idbs, saved_idb_t, iface_id);
+                saved_idb_t *idb_source = &g_array_index(global_ld.saved_idbs, saved_idb_t, iface_id);
                 g_assert(idb_source->interface_id == pcap_src->interface_id);
                 g_free(idb_source->idb);
                 memset(idb_source, 0, sizeof(saved_idb_t));
@@ -2094,8 +2090,6 @@ pcapng_adjust_block(loop_data *ld, capture_src *pcap_src)
                 g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "%s: deleted pcapng IDB %u", G_STRFUNC, iface_id);
             }
         }
-        g_rw_lock_writer_unlock (&ld->saved_shb_idb_lock);
-
         g_array_set_size(pcap_src->cap_pipe_info.pcapng.src_iface_to_global, 0);
     }
         break;
@@ -2108,28 +2102,26 @@ pcapng_adjust_block(loop_data *ld, capture_src *pcap_src)
         saved_idb_t idb_source = { 0 };
         idb_source.interface_id = pcap_src->interface_id;
         idb_source.idb_len = bh->block_total_length;
-        idb_source.idb = (guint8 *) g_memdup(pcap_src->cap_pipe_databuf, idb_source.idb_len);
-        g_rw_lock_writer_lock (&ld->saved_shb_idb_lock);
-        g_array_append_val(ld->saved_idbs, idb_source);
-        guint32 iface_id = ld->saved_idbs->len - 1;
-        g_rw_lock_writer_unlock (&ld->saved_shb_idb_lock);
+        idb_source.idb = (guint8 *) g_memdup(pd, idb_source.idb_len);
+        g_array_append_val(global_ld.saved_idbs, idb_source);
+        guint32 iface_id = global_ld.saved_idbs->len - 1;
         g_array_append_val(pcap_src->cap_pipe_info.pcapng.src_iface_to_global, iface_id);
-        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "%s: saved pcapng IDB %u -> %u from source %u",
+        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "%s: mapped pcapng IDB %u -> %u from source %u",
               G_STRFUNC, pcap_src->cap_pipe_info.pcapng.src_iface_to_global->len - 1, iface_id, pcap_src->interface_id);
     }
         break;
     case BLOCK_TYPE_EPB:
     case BLOCK_TYPE_ISB:
     {
-        if (ld->pcapng_passthrough) {
+        if (global_ld.pcapng_passthrough) {
             /* Our input and output interface IDs are the same. */
             break;
         }
         /* The interface ID is the first 32-bit field after the BH for both EPBs and ISBs. */
         guint32 iface_id;
-        memcpy(&iface_id, pcap_src->cap_pipe_databuf + sizeof(struct pcapng_block_header_s), 4);
+        memcpy(&iface_id, pd + sizeof(struct pcapng_block_header_s), 4);
         if (iface_id < pcap_src->cap_pipe_info.pcapng.src_iface_to_global->len) {
-            memcpy(pcap_src->cap_pipe_databuf + sizeof(struct pcapng_block_header_s),
+            memcpy(pd + sizeof(struct pcapng_block_header_s),
                    &g_array_index(pcap_src->cap_pipe_info.pcapng.src_iface_to_global, guint32, iface_id), 4);
         } else {
             g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "%s: pcapng EPB or ISB interface id %u > max %u", G_STRFUNC, iface_id, pcap_src->cap_pipe_info.pcapng.src_iface_to_global->len);
@@ -2628,10 +2620,6 @@ pcapng_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, int err
         return 0;
 
     case PD_DATA_READ:
-        if (!pcapng_adjust_block(ld, pcap_src)) {
-            g_snprintf(errmsg, errmsgl, "pcapng_pipe_dispatch block save failed");
-            return -1;
-        }
         if (use_threads) {
             capture_loop_queue_pcapng_cb(pcap_src, bh, pcap_src->cap_pipe_databuf);
         } else {
@@ -4316,7 +4304,7 @@ capture_loop_wrote_one_packet(capture_src *pcap_src) {
 
 /* one pcapng block was captured, process it */
 static void
-capture_loop_write_pcapng_cb(capture_src *pcap_src, const struct pcapng_block_header_s *bh, const u_char *pd)
+capture_loop_write_pcapng_cb(capture_src *pcap_src, const struct pcapng_block_header_s *bh, u_char *pd)
 {
     int          err;
 
@@ -4330,6 +4318,12 @@ capture_loop_write_pcapng_cb(capture_src *pcap_src, const struct pcapng_block_he
        supposed to be saving any more packets. */
     if (!global_ld.go) {
         pcap_src->flushed++;
+        return;
+    }
+
+    if (!pcapng_adjust_block(pcap_src, bh, pd)) {
+        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "%s failed to adjust pcapng block.", G_STRFUNC);
+        g_assert_not_reached();
         return;
     }
 
@@ -4490,7 +4484,7 @@ capture_loop_queue_packet_cb(u_char *pcap_src_p, const struct pcap_pkthdr *phdr,
 
 /* one pcapng block was captured, queue it */
 static void
-capture_loop_queue_pcapng_cb(capture_src *pcap_src, const struct pcapng_block_header_s *bh, const u_char *pd)
+capture_loop_queue_pcapng_cb(capture_src *pcap_src, const struct pcapng_block_header_s *bh, u_char *pd)
 {
     pcap_queue_element *queue_element;
     gboolean            limit_reached;
