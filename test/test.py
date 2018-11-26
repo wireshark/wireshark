@@ -16,6 +16,7 @@
 
 
 import argparse
+import codecs
 import os.path
 import sys
 import unittest
@@ -121,10 +122,9 @@ def main():
         print('\n'.join(list(cases)))
         sys.exit(0)
 
-    if sys.stdout.encoding != 'UTF-8':
-        import codecs
+    if codecs.lookup(sys.stdout.encoding).name != 'utf-8':
         import locale
-        sys.stderr.write('Warning: Output encoding is {0} and not UTF-8.\n'.format(sys.stdout.encoding))
+        sys.stderr.write('Warning: Output encoding is {0} and not utf-8.\n'.format(sys.stdout.encoding))
         sys.stdout = codecs.getwriter(locale.getpreferredencoding())(sys.stdout.buffer, 'backslashreplace')
         sys.stderr = codecs.getwriter(locale.getpreferredencoding())(sys.stderr.buffer, 'backslashreplace')
 
