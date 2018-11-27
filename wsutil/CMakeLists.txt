@@ -221,21 +221,6 @@ if(APPLE)
 	FIND_LIBRARY (APPLE_CORE_FOUNDATION_LIBRARY CoreFoundation)
 endif()
 
-set(wsutil_LIBS
-	${CMAKE_DL_LIBS}
-	${APPLE_CORE_FOUNDATION_LIBRARY}
-	${GMODULE2_LIBRARIES}
-	${GLIB2_LIBRARIES}
-	${GCRYPT_LIBRARIES}
-	${ZLIB_LIBRARIES}
-	${WIN_WSOCK32_LIBRARY}
-	${GNUTLS_LIBRARIES}
-)
-
-IF(WIN32)
-	set(wsutil_LIBS ${wsutil_LIBS} "iphlpapi.lib" "ws2_32.lib")
-ENDIF(WIN32)
-
 set_source_files_properties(
 	${WSUTIL_FILES}
 	PROPERTIES
@@ -290,7 +275,20 @@ add_custom_command(OUTPUT libwsutil.abi.tar.gz
 	COMMAND rm -rf ${ABICHECK_TMPDIR} ${CMAKE_CURRENT_BINARY_DIR}/abi_dumps
 	DEPENDS ${HEADERS} wsutil)
 
-target_link_libraries(wsutil ${wsutil_LIBS})
+target_link_libraries(wsutil
+	PUBLIC
+	${CMAKE_DL_LIBS}
+	${APPLE_CORE_FOUNDATION_LIBRARY}
+	${GMODULE2_LIBRARIES}
+	${GLIB2_LIBRARIES}
+	${GCRYPT_LIBRARIES}
+	${WIN_WSOCK32_LIBRARY}
+	${GNUTLS_LIBRARIES}
+)
+
+if(WIN32)
+	target_link_libraries(wsutil PRIVATE "iphlpapi.lib" "ws2_32.lib")
+endif(WIN32)
 
 install(TARGETS wsutil
 	EXPORT WiresharkTargets

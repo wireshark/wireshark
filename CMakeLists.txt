@@ -1677,22 +1677,8 @@ else()
 	set(INSTALL_FILES COPYING ${INSTALL_FILES})
 endif()
 
-set(LIBEPAN_LIBS
-		epan
-		${AIRPCAP_LIBRARIES}
-		${PCAP_LIBRARIES}
-		${CARES_LIBRARIES}
-		${KERBEROS_LIBRARIES}
-		${LUA_LIBRARIES}
-		${GEOIP_LIBRARIES}
-		${GCRYPT_LIBRARIES}
-		${GNUTLS_LIBRARIES}
-		${SMI_LIBRARIES}
+set(VERSION_INFO_LIBS
 		${ZLIB_LIBRARIES}
-		${LZ4_LIBRARIES}
-		${SNAPPY_LIBRARIES}
-		${M_LIBRARIES}
-		${WINSPARKLE_LIBRARIES}
 )
 
 if(WIN32)
@@ -2165,13 +2151,15 @@ if(BUILD_wireshark AND QT_FOUND)
 		${QT_LIBRARIES}
 		${GTHREAD2_LIBRARIES}
 		wscodecs
-		${LIBEPAN_LIBS}
+		epan
+		${VERSION_INFO_LIBS}
 		${APPLE_APPLICATION_SERVICES_LIBRARY}
 		${APPLE_APPKIT_LIBRARY}
 		${APPLE_CORE_FOUNDATION_LIBRARY}
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
 		${NL_LIBRARIES}
 		${WIN_VERSION_LIBRARY}
+		${WINSPARKLE_LIBRARIES}
 	)
 
 	add_executable(wireshark WIN32 MACOSX_BUNDLE ${wireshark_FILES} ${EXTRA_BUNDLE_FILES})
@@ -2284,9 +2272,11 @@ if(BUILD_tshark)
 		capchild
 		caputils
 		wiretap
-		${LIBEPAN_LIBS}
+		epan
+		${VERSION_INFO_LIBS}
 		${APPLE_CORE_FOUNDATION_LIBRARY}
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
+		${M_LIBRARIES}
 	)
 	set(tshark_FILES
 		capture_opts.c
@@ -2308,7 +2298,8 @@ if(BUILD_tfshark)
 	set(tfshark_LIBS
 		ui
 		wiretap
-		${LIBEPAN_LIBS}
+		epan
+		${VERSION_INFO_LIBS}
 		${APPLE_CORE_FOUNDATION_LIBRARY}
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
 	)
@@ -2330,7 +2321,8 @@ if(BUILD_rawshark AND PCAP_FOUND)
 		caputils
 		ui
 		wiretap
-		${LIBEPAN_LIBS}
+		epan
+		${VERSION_INFO_LIBS}
 		${APPLE_CORE_FOUNDATION_LIBRARY}
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
 	)
@@ -2351,7 +2343,8 @@ if(BUILD_sharkd)
 		ui
 		wscodecs
 		wiretap
-		${LIBEPAN_LIBS}
+		epan
+		${VERSION_INFO_LIBS}
 		${APPLE_CORE_FOUNDATION_LIBRARY}
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
 	)
@@ -2366,6 +2359,10 @@ if(BUILD_sharkd)
 	add_dependencies(sharkd version)
 	set_extra_executable_properties(sharkd "Executables")
 	target_link_libraries(sharkd ${sharkd_LIBS})
+	if(WIN32)
+		target_link_libraries(sharkd "ws2_32.lib")
+	endif(WIN32)
+
 	install(TARGETS sharkd RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
@@ -2373,7 +2370,8 @@ if(BUILD_dftest)
 	set(dftest_LIBS
 		ui
 		wiretap
-		${LIBEPAN_LIBS}
+		epan
+		${VERSION_INFO_LIBS}
 	)
 	set(dftest_FILES
 		dftest.c

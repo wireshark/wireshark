@@ -28,7 +28,8 @@ set(FUZZ_MEDIA_TYPE_DISSECTORS json)
 
 set(fuzzshark_LIBS
 	wiretap
-	${LIBEPAN_LIBS}
+	epan
+	${VERSION_INFO_LIBS}
 )
 if(OSS_FUZZ)
 	if("$ENV{LIB_FUZZING_ENGINE}" STREQUAL "")

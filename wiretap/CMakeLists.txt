@@ -106,13 +106,6 @@ set_source_files_properties(
 	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
 )
 
-set(wiretap_LIBS
-	${GLIB2_LIBRARIES}
-	${GMODULE2_LIBRARIES}
-	${ZLIB_LIBRARIES}
-	wsutil
-)
-
 add_library(wiretap
 	${WIRETAP_FILES}
 	${CMAKE_BINARY_DIR}/image/wiretap.rc
@@ -153,7 +146,13 @@ add_custom_command(OUTPUT libwiretap.abi.tar.gz
 	COMMAND rm -rf ${ABICHECK_TMPDIR} ${CMAKE_CURRENT_BINARY_DIR}/abi_dumps
 	DEPENDS ${HEADERS} wiretap)
 
-target_link_libraries(wiretap ${wiretap_LIBS})
+target_link_libraries(wiretap
+	PUBLIC
+	wsutil
+	${GLIB2_LIBRARIES}
+	PRIVATE
+	${ZLIB_LIBRARIES}
+)
 
 install(TARGETS wiretap
 	EXPORT WiresharkTargets
