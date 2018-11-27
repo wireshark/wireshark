@@ -879,7 +879,11 @@ decode_color_xy(gchar *s, guint16 value)
 static void
 decode_color_temperature(gchar *s, guint16 value)
 {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%d [Mired] (%d [K])", value, 1000000/value);
+    if (value == 0) {
+        g_snprintf(s, ITEM_LABEL_LENGTH, "%u [Mired]", value);
+    } else {
+        g_snprintf(s, ITEM_LABEL_LENGTH, "%u [Mired] (%u [K])", value, 1000000/value);
+    }
     return;
 } /*decode_color_temperature*/
 
