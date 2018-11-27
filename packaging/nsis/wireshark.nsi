@@ -1026,6 +1026,8 @@ SetOutPath '$INSTDIR\profiles\Bluetooth'
 File "${STAGING_DIR}\profiles\Bluetooth\colorfilters"
 SetOutPath '$INSTDIR\profiles\Classic'
 File "${STAGING_DIR}\profiles\Classic\colorfilters"
+SetOutPath '$INSTDIR\profiles\No Reassembly'
+File "${STAGING_DIR}\profiles\No Reassembly\preferences"
 SectionEnd
 
 !ifdef SMI_DIR

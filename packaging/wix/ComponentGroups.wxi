@@ -290,12 +290,18 @@
           <File Id="filClassic_colorfilters" KeyPath="yes" Source="$(var.Profiles.Dir)\Classic\colorfilters" />
         </Component>
       </Directory>
+      <Directory Id="dirNoReassembly" Name="No Reassembly">
+        <Component Id="cmpNoReassembly_preferences" Guid="*">
+          <File Id="filNoReassembly_preferences" KeyPath="yes" Source="$(var.Profiles.Dir)\No Reassembly\preferences" />
+        </Component>
+      </Directory>
     </DirectoryRef>
   </Fragment>
   <Fragment>
     <ComponentGroup Id="CG.Plugins.ConfigurationProfiles">
       <ComponentRef Id="cmpBluetooth_colorfilters" />
       <ComponentRef Id="cmpClassic_colorfilters" />
+      <ComponentRef Id="cmpNoReassembly_preferences" />
     </ComponentGroup>
   </Fragment>
 

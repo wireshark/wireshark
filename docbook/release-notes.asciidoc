@@ -61,6 +61,7 @@ since version 2.6.0:
   calls the specific dissector directly without lower protocols.
 * sshdump and ciscodump can now use a proxy for the ssh connection.
 * Dumpcap now supports the `-a packets:NUM` and `-b packets:NUM` options.
+* Wireshark now includes a “No Reassembly” configuration profile.
 
 === Removed Features and Support
 
