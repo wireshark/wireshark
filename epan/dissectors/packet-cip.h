@@ -460,6 +460,9 @@ typedef struct cip_connID_info {
    address ipaddress;
    guint16 port;
    guint8  type;
+
+   // Actual Packet Interval in microseconds.
+   guint32 api;
 } cip_connID_info_t;
 
 enum cip_safety_format_type {CIP_SAFETY_BASE_FORMAT, CIP_SAFETY_EXTENDED_FORMAT};
@@ -487,6 +490,8 @@ typedef struct cip_conn_info {
    cip_safety_epath_info_t safety;
    guint32                 ClassID;
    guint32                 ConnPoint;
+   guint32                 FwdOpenPathLenBytes;
+   void                    *pFwdOpenPathData;
 } cip_conn_info_t;
 
 typedef struct cip_req_info {

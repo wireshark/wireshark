@@ -511,7 +511,6 @@ static int hf_port_min_node_num = -1;
 static int hf_port_max_node_num = -1;
 static int hf_port_name = -1;
 static int hf_port_num_comm_object_entries = -1;
-static int hf_conn_path_class = -1;
 static int hf_path_len_usint = -1;
 static int hf_path_len_uint = -1;
 
@@ -6282,9 +6281,7 @@ dissect_cip_cm_fwd_open_req(cip_req_info_t *preq_info, proto_tree *cmd_tree, tvb
    guint32 O2TConnID, T2OConnID;
    guint8 TransportClass_trigger, O2TType, T2OType;
    cip_simple_request_info_t connection_path;
-   cip_safety_epath_info_t safety_fwdopen;
-
-   memset(&safety_fwdopen, 0x0, sizeof(safety_fwdopen));
+   cip_safety_epath_info_t safety_fwdopen = {0};
 
    dissect_cip_cm_timeout(cmd_tree, tvb, offset);
    proto_tree_add_item_ret_uint( cmd_tree, hf_cip_cm_ot_connid, tvb, offset+2, 4, ENC_LITTLE_ENDIAN, &O2TConnID);
@@ -6381,6 +6378,10 @@ dissect_cip_cm_fwd_open_req(cip_req_info_t *preq_info, proto_tree *cmd_tree, tvb
          preq_info->connInfo->safety = safety_fwdopen;
          preq_info->connInfo->ClassID = connection_path.iClass;
          preq_info->connInfo->ConnPoint = connection_path.iConnPoint;
+
+         preq_info->connInfo->FwdOpenPathLenBytes = conn_path_size;
+         preq_info->connInfo->pFwdOpenPathData = wmem_alloc(wmem_file_scope(), conn_path_size);
+         tvb_memcpy(tvb, preq_info->connInfo->pFwdOpenPathData, offset + 26 + net_param_offset + 6, conn_path_size);
       }
    }
 }
@@ -6388,13 +6389,11 @@ dissect_cip_cm_fwd_open_req(cip_req_info_t *preq_info, proto_tree *cmd_tree, tvb
 static void
 dissect_cip_cm_fwd_open_rsp_success(cip_req_info_t *preq_info, proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo)
 {
-   int temp_data;
    unsigned char app_rep_size;
    guint32 O2TConnID, T2OConnID;
    guint16 init_rollover_value = 0, init_timestamp_value = 0;
    proto_tree *pid_tree, *safety_tree;
-   cip_connection_triad_t target_triad;
-   memset(&target_triad, 0, sizeof(target_triad));
+   cip_connection_triad_t target_triad = {0};
 
    /* Display originator to target connection ID */
    O2TConnID = tvb_get_letohl( tvb, offset );
@@ -6410,12 +6409,12 @@ dissect_cip_cm_fwd_open_rsp_success(cip_req_info_t *preq_info, proto_tree *tree,
       &conn_triad);
 
    /* Display originator to target actual packet interval */
-   temp_data = tvb_get_letohl( tvb, offset+16 );
-   proto_tree_add_uint_format_value(tree, hf_cip_cm_ot_api, tvb, offset+16, 4, temp_data, "%dms (0x%08X)", temp_data / 1000, temp_data);
+   guint32 O2TAPI = tvb_get_letohl( tvb, offset+16 );
+   proto_tree_add_uint_format_value(tree, hf_cip_cm_ot_api, tvb, offset+16, 4, O2TAPI, "%dms (0x%08X)", O2TAPI / 1000, O2TAPI);
 
    /* Display originator to target actual packet interval */
-   temp_data = tvb_get_letohl( tvb, offset+20 );
-   proto_tree_add_uint_format_value(tree, hf_cip_cm_to_api, tvb, offset+20, 4, temp_data, "%dms (0x%08X)", temp_data / 1000, temp_data);
+   guint32 T2OAPI = tvb_get_letohl( tvb, offset+20 );
+   proto_tree_add_uint_format_value(tree, hf_cip_cm_to_api, tvb, offset+20, 4, T2OAPI, "%dms (0x%08X)", T2OAPI / 1000, T2OAPI);
 
    /* Display the application reply size */
    app_rep_size = tvb_get_guint8( tvb, offset+24 ) * 2;
@@ -6485,6 +6484,9 @@ dissect_cip_cm_fwd_open_rsp_success(cip_req_info_t *preq_info, proto_tree *tree,
             the ForwardOpen request */
          preq_info->connInfo->O2T.connID = O2TConnID;
          preq_info->connInfo->T2O.connID = T2OConnID;
+
+         preq_info->connInfo->O2T.api = O2TAPI;
+         preq_info->connInfo->T2O.api = T2OAPI;
          if (preq_info->connInfo->safety.safety_seg == TRUE)
          {
              preq_info->connInfo->safety.running_rollover_value = init_rollover_value;
@@ -8010,7 +8012,6 @@ static int
 dissect_cip_implicit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
    proto_item *ti;
-   proto_item *conn_path_class_item;
    proto_tree *cip_tree;
 
    guint32 ClassID = GPOINTER_TO_UINT(data);
@@ -8023,10 +8024,6 @@ dissect_cip_implicit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
    /* Create display subtree for the protocol */
    ti = proto_tree_add_item(tree, proto_cip, tvb, 0, length, ENC_NA);
    cip_tree = proto_item_add_subtree(ti, ett_cip);
-
-   /* Display Class ID from the Forward Open Connection Path. */
-   conn_path_class_item = proto_tree_add_uint(cip_tree, hf_conn_path_class, NULL, 0, 0, ClassID);
-   PROTO_ITEM_SET_GENERATED(conn_path_class_item);
 
    proto_tree_add_item(cip_tree, hf_cip_data, tvb, 0, length, ENC_NA);
 
@@ -8319,7 +8316,6 @@ proto_register_cip(void)
       { &hf_port_max_node_num, { "Maximum Node Number", "cip.port.max_node", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
       { &hf_port_name, { "Port Name", "cip.port.name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
       { &hf_port_num_comm_object_entries, { "Number of entries", "cip.port.num_comm_object_entries", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
-      { &hf_conn_path_class, { "CIP Connection Path Class", "cip.conn_path_class", FT_UINT16, BASE_HEX | BASE_EXT_STRING, &cip_class_names_vals_ext, 0, NULL, HFILL }},
       { &hf_path_len_usint, { "Path Length", "cip.path_len", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_word_words, 0, NULL, HFILL } },
       { &hf_path_len_uint, { "Path Length", "cip.path_len", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_word_words, 0, NULL, HFILL } },
 

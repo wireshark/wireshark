@@ -1477,8 +1477,7 @@ dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int 
    proto_item *complement_item, *crc_s5_item, *crc_s5_status_item;
    gboolean short_format = TRUE;
    gboolean compute_crc = ((safety_info != NULL) && (safety_info->compute_crc == TRUE));
-   cip_connection_triad_t connection_triad;
-   memset(&connection_triad, 0, sizeof(connection_triad));
+   cip_connection_triad_t connection_triad = {0};
 
    /* Make entries in Protocol column and Info column on summary display */
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "CIP Safety");
@@ -1958,7 +1957,7 @@ dissect_cipsafety(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 static int dissect_cipsafety_base_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
    cip_safety_info_t safety_info;
-   enip_conn_val_t eip_conn_info;
+   enip_conn_val_t eip_conn_info = {0};
    safety_info.eip_conn_info = &eip_conn_info;
    safety_info.compute_crc = FALSE;
 
@@ -1973,7 +1972,7 @@ static int dissect_cipsafety_base_data(tvbuff_t *tvb, packet_info *pinfo, proto_
 static int dissect_cipsafety_extended_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
    cip_safety_info_t safety_info;
-   enip_conn_val_t eip_conn_info;
+   enip_conn_val_t eip_conn_info = {0};
    safety_info.eip_conn_info = &eip_conn_info;
    safety_info.compute_crc = FALSE;
 
@@ -1988,7 +1987,7 @@ static int dissect_cipsafety_extended_data(tvbuff_t *tvb, packet_info *pinfo, pr
 static int dissect_cipsafety_base_time_coord(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
    cip_safety_info_t safety_info;
-   enip_conn_val_t eip_conn_info;
+   enip_conn_val_t eip_conn_info = {0};
    safety_info.eip_conn_info = &eip_conn_info;
    safety_info.compute_crc = FALSE;
 
@@ -2003,7 +2002,7 @@ static int dissect_cipsafety_base_time_coord(tvbuff_t *tvb, packet_info *pinfo, 
 static int dissect_cipsafety_extended_time_coord(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
    cip_safety_info_t safety_info;
-   enip_conn_val_t eip_conn_info;
+   enip_conn_val_t eip_conn_info = {0};
    safety_info.eip_conn_info = &eip_conn_info;
    safety_info.compute_crc = FALSE;
 
