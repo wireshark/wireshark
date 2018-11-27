@@ -81,6 +81,8 @@
 #define TLV_CMTS_MC_SESS_ENC 64
 #define TLV_L2VPN_MAC_AGING 65
 #define TLV_MGMT_EVENT_CTRL 66
+#define TLV_EM_MODE_INDICATOR 75
+#define TLV_EM_ID_LIST_FOR_CM 78
 #define TLV_END 255
 
 /* Define DOCSIS 1.0 Class Of Service Configuration Types

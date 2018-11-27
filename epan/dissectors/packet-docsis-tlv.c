@@ -404,6 +404,10 @@ static int hf_docsis_ch_asgn_rx_freq = -1;
 static int hf_docsis_cmts_mc_sess_enc_grp = -1;
 static int hf_docsis_cmts_mc_sess_enc_src = -1;
 
+static int hf_docsis_tlv_em_mode_ind = -1;
+
+static int hf_docsis_tlv_em_id_list_for_cm_em_id = -1;
+
 static int hf_docsis_tlv_unknown = -1;
 
 
@@ -475,6 +479,7 @@ static gint ett_docsis_tlv_dsid_mc_addr = -1;
 static gint ett_docsis_tlv_sec_assoc = -1;
 static gint ett_docsis_tlv_ch_asgn = -1;
 static gint ett_docsis_cmts_mc_sess_enc = -1;
+static gint ett_docsis_em_id_list_for_cm = -1;
 static gint ett_docsis_ucd_fragments = -1;
 static gint ett_docsis_ucd_fragment = -1;
 static gint ett_docsis_ucd_reassembled = -1;
@@ -783,6 +788,13 @@ static const value_string mc_dsid_fwd_vals[] = {
 static const value_string fctype_fwd_vals[] = {
   {0, "Isolation Packet PDU Header (FC_Type of 10) is not forwarded"},
   {1, "Isolation Packet PDU Header (FC_Type of 10) is forwarded"},
+  {0, NULL},
+};
+
+static const value_string em_mode_ind_vals[] = {
+  {0, "Do not operate in any Energy Management Mode"},
+  {1, "Operate in Energy Management 1x1 Mode"},
+  {2, "Operate in DOCSIS Light Sleep (DLS) Mode"},
   {0, NULL},
 };
 
@@ -3557,7 +3569,7 @@ dissect_ch_bl_rng(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int star
 
   chblrng_tree =
     proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_rcp_ch_bl_rng, &chblrng_item,
-                                  "Receive Module Channel Block Range (Length = %u)", len);
+                                  "..3 Receive Module Channel Block Range (Length = %u)", len);
 
   while (pos < (start + len))
     {
@@ -3607,7 +3619,7 @@ dissect_rcp_rcv_mod(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int st
 
   rcvmod_tree =
     proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_rcp_rcv_mod_enc, &rcvmod_item,
-                                  "Receive Module Capability (Length = %u)", len);
+                                  ".4 Receive Module Capability (Length = %u)", len);
 
   while (pos < (start + len))
     {
@@ -3817,7 +3829,7 @@ dissect_rcc_rcv_mod(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int st
 
   rcvmod_tree =
     proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_rcc_rcv_mod_enc, &rcvmod_item,
-                                  "Receive Module Assignment (Length = %u)", len);
+                                  ".4 Receive Module Assignment (Length = %u)", len);
 
   while (pos < (start + len))
     {
@@ -3872,7 +3884,7 @@ dissect_rcc_rcv_ch(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int sta
 
   rcvch_tree =
     proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_rcc_rcv_ch, &rcvch_item,
-                                  "Receive Channels (Length = %u)", len);
+                                  ".5 Receive Channels (Length = %u)", len);
 
   while (pos < (start + len))
     {
@@ -4070,7 +4082,7 @@ dissect_rcc_err(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start,
 
   err_tree =
     proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_rcc_rcv_ch, &err_item,
-                                  "RCC Error Encodings (Length = %u)", len);
+                                  ".254 RCC Error Encodings (Length = %u)", len);
 
   while (pos < (start + len))
     {
@@ -4284,7 +4296,7 @@ dissect_dsid_mc_addr(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int s
 
   dsid_tree =
     proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_dsid_mc_addr, &dsid_item,
-                                  "Client MAC Address Encodings (Length = %u)", len);
+                                  "..1 Client MAC Address Encodings (Length = %u)", len);
 
   while (pos < (start + len))
     {
@@ -4571,6 +4583,23 @@ dissect_cmts_mc_sess_enc(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, i
     }                           /* while */
 }
 
+static void
+dissect_em_id_list_for_cm(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
+{
+  proto_tree *em_id_list_tree;
+  proto_item *em_id_list_item;
+  int pos = start;
+
+  em_id_list_tree =
+    proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_em_id_list_for_cm, &em_id_list_item,
+                                  "78 Energy Management Identifier List for CM (Length = %u)", len);
+
+  while (pos < (start + len))
+    {
+      proto_tree_add_item (em_id_list_tree, hf_docsis_tlv_em_id_list_for_cm_em_id, tvb, pos, 2, ENC_NA);
+      pos+=2;
+    }
+}
 
 static int
 dissect_docsis_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
@@ -5004,6 +5033,19 @@ dissect_docsis_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
               break;
             case TLV_CMTS_MC_SESS_ENC:
               dissect_cmts_mc_sess_enc(tvb, pinfo, tlv_tree, pos, length);
+              break;
+            case TLV_EM_MODE_INDICATOR:
+              if (length == 1)
+                {
+                  proto_tree_add_item (tlv_tree, hf_docsis_tlv_em_mode_ind, tvb, pos, length, ENC_BIG_ENDIAN);
+                }
+              else
+                {
+                  expert_add_info_format(pinfo, it, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
+                }
+              break;
+            case TLV_EM_ID_LIST_FOR_CM:
+              dissect_em_id_list_for_cm(tvb, tlv_tree, pos, length);
               break;
             case TLV_END:
               break;
@@ -6765,6 +6807,16 @@ proto_register_docsis_tlv (void)
       FT_IPXNET, BASE_NONE, NULL, 0x0,
       "Source IP Address", HFILL}
     },
+    {&hf_docsis_tlv_em_mode_ind,
+      {"75 Energy Management Mode Indicator", "docsis_tlv.em_mode_ind",
+       FT_UINT8, BASE_DEC, VALS(em_mode_ind_vals), 0x0,
+       "Energy Management Mode Indicator", HFILL}
+    },
+    {&hf_docsis_tlv_em_id_list_for_cm_em_id,
+      {"Energy Management Identifier", "docsis_tlv.em_id_list_for_cm.em_id",
+       FT_UINT16, BASE_DEC, NULL, 0x0,
+       NULL, HFILL}
+    },
     {&hf_docsis_tlv_unknown,
       {"Unknown TLV", "docsis_tlv.unknown",
        FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -6886,6 +6938,7 @@ proto_register_docsis_tlv (void)
     &ett_docsis_tlv_sec_assoc,
     &ett_docsis_tlv_ch_asgn,
     &ett_docsis_cmts_mc_sess_enc,
+    &ett_docsis_em_id_list_for_cm,
     &ett_docsis_ucd_fragment,
     &ett_docsis_ucd_fragments,
     &ett_docsis_ucd_reassembled,
