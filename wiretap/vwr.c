@@ -2155,9 +2155,10 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, wtap_rec *record,
         end_time = e_time / NS_IN_US;                       /* convert to microseconds first */
 
         /* extract the 32 LSBs of the signature timestamp field */
-        m_ptr = &(rec[stats_offset+8+12]);
+        int m_ptr_offset = stats_offset + 8 + 12;
+        m_ptr = rec + m_ptr_offset;
         pay_off = 42;         /* 24 (MAC) + 8 (SNAP) + IP */
-        sig_off = find_signature(m_ptr, rec_size - 20, pay_off, flow_id, flow_seq);
+        sig_off = find_signature(m_ptr, rec_size - m_ptr_offset, pay_off, flow_id, flow_seq);
         if (m_ptr[sig_off] == 0xdd)
             sig_ts = get_signature_ts(m_ptr, sig_off, rec_size - vVW510021_W_STATS_TRAILER_LEN);
         else
