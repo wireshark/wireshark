@@ -517,6 +517,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
       if (bytes > 0) {
         /* Create a block for this block */
         GByteArray *block = g_byte_array_sized_new(bytes);
+        block->len = bytes;
         tvb_memcpy(data_tvb, block->data, 0, bytes);
 
         /* Add to the end of the list (does involve traversing whole list..) */
