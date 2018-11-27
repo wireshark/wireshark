@@ -2314,6 +2314,12 @@ dissect_pvfs2_getconfig_response(tvbuff_t *tvb, proto_tree *parent_tree,
 	/* Get pointer to server config data */
 	ptr = tvb_get_ptr(tvb, offset, total_config_bytes);
 
+	if (!ptr)
+	{
+		/* Not enough data. Bail out. */
+		return offset;
+	}
+
 	/* Check if all data is available */
 	length_remaining = tvb_captured_length_remaining(tvb, offset);
 
