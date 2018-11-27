@@ -137,9 +137,6 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
     HANDLE child_stdout_wr = NULL;
     HANDLE child_stderr_rd = NULL;
     HANDLE child_stderr_wr = NULL;
-
-    const gchar *oldpath = g_getenv("PATH");
-    gchar *newpath = NULL;
 #else
     gint exit_status = 0;
 #endif
@@ -148,9 +145,6 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
     GString *spawn_string = g_string_new("");
 
 #ifdef _WIN32
-    newpath = g_strdup_printf("%s;%s", g_strescape(get_progfile_dir(), NULL), oldpath);
-    g_setenv("PATH", newpath, TRUE);
-
     argv[0] = g_strescape(command, NULL);
 #else
     argv[0] = g_strdup(command);
@@ -290,8 +284,6 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
     }
     else
         status = FALSE;
-
-    g_setenv("PATH", oldpath, TRUE);
 #else
 
     GSpawnFlags flags = (GSpawnFlags)0;
@@ -354,12 +346,6 @@ GPid ws_pipe_spawn_async(ws_pipe_t *ws_pipe, GPtrArray *args)
     HANDLE child_stderr_rd = NULL;
     HANDLE child_stderr_wr = NULL;
 
-    const gchar *oldpath = g_getenv("PATH");
-    gchar *newpath = NULL;
-
-    newpath = g_strdup_printf("%s;%s", g_strescape(get_progfile_dir(), NULL), oldpath);
-    g_setenv("PATH", newpath, TRUE);
-
     sa.nLength = sizeof(SECURITY_ATTRIBUTES);
     sa.bInheritHandle = TRUE;
     sa.lpSecurityDescriptor = NULL;
@@ -415,8 +401,6 @@ GPid ws_pipe_spawn_async(ws_pipe_t *ws_pipe, GPtrArray *args)
         ws_pipe->threadId = processInfo.hThread;
         pid = processInfo.hProcess;
     }
-
-    g_setenv("PATH", oldpath, TRUE);
 #else
 
     spawn_args = g_string_sized_new(200);
