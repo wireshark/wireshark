@@ -544,7 +544,14 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
             /* Create a conversation between the MAC addresses */
             conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
             if (conversation == NULL) {
-                conversation = conversation_new(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
+                /* Create new conversation, need to switch dl_src & dl_dst if not a response
+                 * All conversations are based on Device MAC as addr1 */
+                if (is_response) {
+                   conversation = conversation_new(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
+                }
+                else {
+                   conversation = conversation_new(pinfo->num, &pinfo->dl_dst, &pinfo->dl_src, ENDPOINT_NONE, 0, 0, 0);
+                }
             }
 
             station_info = (stationInfo*)conversation_get_proto_data(conversation, proto_pn_dcp);
@@ -582,7 +589,14 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
             /* Create a conversation between the MAC addresses */
             conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
             if (conversation == NULL) {
-                conversation = conversation_new(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
+                /* Create new conversation, need to switch dl_src & dl_dst if not a response
+                 * All conversations are based on Device MAC as addr1 */
+                if (is_response) {
+                   conversation = conversation_new(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
+                }
+                else {
+                   conversation = conversation_new(pinfo->num, &pinfo->dl_dst, &pinfo->dl_src, ENDPOINT_NONE, 0, 0, 0);
+                }
             }
 
             station_info = (stationInfo*)conversation_get_proto_data(conversation, proto_pn_dcp);
@@ -606,7 +620,14 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
             /* Create a conversation between the MAC addresses */
             conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
             if (conversation == NULL) {
-                conversation = conversation_new(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
+                /* Create new conversation, need to switch dl_src & dl_dst if not a response
+                 * All conversations are based on Device MAC as addr1 */
+                if (is_response) {
+                   conversation = conversation_new(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
+                }
+                else {
+                   conversation = conversation_new(pinfo->num, &pinfo->dl_dst, &pinfo->dl_src, ENDPOINT_NONE, 0, 0, 0);
+                }
             }
 
             station_info = (stationInfo*)conversation_get_proto_data(conversation, proto_pn_dcp);

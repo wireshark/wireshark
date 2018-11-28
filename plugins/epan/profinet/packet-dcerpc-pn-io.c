@@ -7653,10 +7653,10 @@ dissect_ARBlockReq_block(tvbuff_t *tvb, int offset,
             /* Get current conversation endpoints using MAC addresses */
             conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_UDP, 0, 0, 0);
             if (conversation == NULL) {
-                /* If conversation is null, then create new conversation */
-                /* Connect Request is sent by controller and not by device. */
-                /* All conversations are based on Controller MAC as address */
-                conversation = conversation_new(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_UDP, 0, 0, 0);
+                /* Create new conversation, if no "Ident OK" frame as been dissected yet!
+                 * Need to switch dl_src & dl_dst, as current packet is sent by controller and not by device.
+                 * All conversations are based on Device MAC as addr1 */
+                conversation = conversation_new(pinfo->num, &pinfo->dl_dst, &pinfo->dl_src, ENDPOINT_NONE, 0, 0, 0);
             }
 
             /* Try to get apdu status switch information from the conversation */
@@ -8672,7 +8672,10 @@ dissect_DataDescription(tvbuff_t *tvb, int offset,
         /* Get current conversation endpoints using MAC addresses */
         conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
         if (conversation == NULL) {
-            conversation = conversation_new(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
+            /* Create new conversation, if no "Ident OK" frame as been dissected yet!
+             * Need to switch dl_src & dl_dst, as current packet is sent by controller and not by device.
+             * All conversations are based on Device MAC as addr1 */
+           conversation = conversation_new(pinfo->num, &pinfo->dl_dst, &pinfo->dl_src, ENDPOINT_NONE, 0, 0, 0);
         }
 
         station_info = (stationInfo*)conversation_get_proto_data(conversation, proto_pn_dcp);
@@ -8804,7 +8807,10 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
     /* Get current conversation endpoints using MAC addresses */
     conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
     if (conversation == NULL) {
-        conversation = conversation_new(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
+        /* Create new conversation, if no "Ident OK" frame as been dissected yet!
+        * Need to switch dl_src & dl_dst, as current packet is sent by controller and not by device.
+        * All conversations are based on Device MAC as addr1 */
+        conversation = conversation_new(pinfo->num, &pinfo->dl_dst, &pinfo->dl_src, ENDPOINT_NONE, 0, 0, 0);
     }
 
     station_info = (stationInfo*)conversation_get_proto_data(conversation, proto_pn_dcp);
@@ -10656,7 +10662,10 @@ dissect_ProfiSafeParameterRequest(tvbuff_t *tvb, int offset,
         /* Get current conversation endpoints using MAC addresses */
         conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
         if (conversation == NULL) {
-            conversation = conversation_new(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
+            /* Create new conversation, if no "Ident OK" frame as been dissected yet!
+             * Need to switch dl_src & dl_dst, as current packet is sent by controller and not by device.
+             * All conversations are based on Device MAC as addr1 */
+            conversation = conversation_new(pinfo->num, &pinfo->dl_dst, &pinfo->dl_src, ENDPOINT_NONE, 0, 0, 0);
         }
 
         station_info = (stationInfo*)conversation_get_proto_data(conversation, proto_pn_dcp);
@@ -10721,7 +10730,10 @@ dissect_RecordDataWrite(tvbuff_t *tvb, int offset,
     /* Get current conversation endpoints using MAC addresses */
     conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
     if (conversation == NULL) {
-        conversation = conversation_new(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
+        /* Create new conversation, if no "Ident OK" frame as been dissected yet!
+        * Need to switch dl_src & dl_dst, as current packet is sent by controller and not by device.
+        * All conversations are based on Device MAC as addr1 */
+        conversation = conversation_new(pinfo->num, &pinfo->dl_dst, &pinfo->dl_src, ENDPOINT_NONE, 0, 0, 0);
     }
 
     station_info = (stationInfo*)conversation_get_proto_data(conversation, proto_pn_dcp);
