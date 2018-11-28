@@ -14,13 +14,53 @@ used for troubleshooting, analysis, development and education.
 
 The following vulnerabilities have been fixed:
 
-* wssalink:2018-50[]
-A dissector went awry.
-//wsbuglink:xxxx[].
+* wssalink:2018-51[]
+The Wireshark dissection engine could crash.
+//wsbuglink:14466[].
 //cveidlink:2018-xxxx[].
-// Fixed in master: xxxx
-// Fixed in master-2.6: xxxx
-// Fixed in master-2.4: xxxx
+// Fixed in master: ec5adb0ce9
+// Fixed in master-2.6: f489f8f2c4
+// Fixed in master-2.4: dc4d209f39
+
+* wssalink:2018-52[]
+The DCOM dissector could crash.
+//wsbuglink:15130[].
+//cveidlink:2018-xxxx[].
+// Fixed in master: ec6ace066a
+// Fixed in master-2.6: 26c6460e3c
+// Fixed in master-2.4: c5a65115eb
+
+* wssalink:2018-53[]
+The LBMPDM dissector could crash.
+//wsbuglink:15132[].
+//cveidlink:2018-xxxx[].
+// Fixed in master: 5797f60274
+// Fixed in master-2.6: 1ec5a933e1
+// Fixed in master-2.4: 9c8645ec7b
+
+* wssalink:2018-54[]
+The MMSE dissector could go into an infinite loop.
+//wsbuglink:15250[].
+//cveidlink:2018-xxxx[].
+// Fixed in master: 1ddaf1a094
+// Fixed in master-2.6: 1dddeff985
+// Fixed in master-2.4: 3b7555d32d
+
+* wssalink:2018-55[]
+The IxVeriWave file parser could crash.
+//wsbuglink:15279[].
+//cveidlink:2018-xxxx[].
+// Fixed in master: 332df929a9
+// Fixed in master-2.6: bdc33cfaec
+// Fixed in master-2.4: d9b8b93f0e
+
+* wssalink:2018-56[]
+The PVFS dissector could crash.
+//wsbuglink:15280[].
+//cveidlink:2018-xxxx[].
+// Fixed in master: a8c93de0b0
+// Fixed in master-2.6: 457420a638
+// Fixed in master-2.4: 3e319db110
 
 The following bugs have been fixed:
 
@@ -28,7 +68,33 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark keeps leaving voicemails advertising timeshare condominiums in Fresno. (wsbuglink:0000[])
-// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.4.11rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do ./tools/gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.4.12rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do ./tools/gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
+
+* VoIP Calls dialog doesn't include RTP stream when preparing a filter. wsbuglink:13440[].
+
+* Wireshark installs on macOS with permissions for /Library/Application Support/Wireshark that are too restrictive. wsbuglink:14335[].
+
+* Closing Enabled Protocols dialog crashes wireshark. wsbuglink:14349[].
+
+* Encrypted Alerts corresponds to a wrong selection in the packet bytes pane. wsbuglink:14712[].
+
+* MATE unable to extract fields for PDU. wsbuglink:15208[].
+
+* Malformed Packet: SV. wsbuglink:15224[].
+
+* ISUP (ANSI) packets malformed in WS versions later than 2.4.8. wsbuglink:15236[].
+
+* Handover candidate enquire message not decoded. wsbuglink:15237[].
+
+* MLE security suite display incorrect. wsbuglink:15288[].
+
+* Message for incorrect IPv4 option lengths is incorrect. wsbuglink:15290[].
+
+* TACACS+ dissector does not properly reassemble large accounting messages. wsbuglink:15293[].
+
+* NLRI of S-PMSI A-D BGP route not being displayed. wsbuglink:15307[].
+
+// Left off at d9b8b93f0e
 
 === New and Updated Features
 
