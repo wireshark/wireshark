@@ -21,56 +21,56 @@ The following vulnerabilities have been fixed:
 
 * wssalink:2018-51[]
 The Wireshark dissection engine could crash.
-//wsbuglink:14466[].
-//cveidlink:2018-xxxx[].
+wsbuglink:14466[].
+cveidlink:2018-19625[].
 // Fixed in master: ec5adb0ce9
 // Fixed in master-2.6: f489f8f2c4
 // Fixed in master-2.4: dc4d209f39
 
 * wssalink:2018-52[]
 The DCOM dissector could crash.
-//wsbuglink:15130[].
-//cveidlink:2018-xxxx[].
+wsbuglink:15130[].
+cveidlink:2018-19626[].
 // Fixed in master: ec6ace066a
 // Fixed in master-2.6: 26c6460e3c
 // Fixed in master-2.4: c5a65115eb
 
 * wssalink:2018-53[]
 The LBMPDM dissector could crash.
-//wsbuglink:15132[].
-//cveidlink:2018-xxxx[].
+wsbuglink:15132[].
+cveidlink:2018-19623[].
 // Fixed in master: 5797f60274
 // Fixed in master-2.6: 1ec5a933e1
 // Fixed in master-2.4: 9c8645ec7b
 
 * wssalink:2018-54[]
 The MMSE dissector could go into an infinite loop.
-//wsbuglink:15250[].
-//cveidlink:2018-xxxx[].
+wsbuglink:15250[].
+cveidlink:2018-19622[].
 // Fixed in master: 1ddaf1a094
 // Fixed in master-2.6: 1dddeff985
 // Fixed in master-2.4: 3b7555d32d
 
 * wssalink:2018-55[]
 The IxVeriWave file parser could crash.
-//wsbuglink:15279[].
-//cveidlink:2018-xxxx[].
+wsbuglink:15279[].
+cveidlink:2018-19627[].
 // Fixed in master: 332df929a9
 // Fixed in master-2.6: bdc33cfaec
 // Fixed in master-2.4: d9b8b93f0e
 
 * wssalink:2018-56[]
 The PVFS dissector could crash.
-//wsbuglink:15280[].
-//cveidlink:2018-xxxx[].
+wsbuglink:15280[].
+cveidlink:2018-19624[].
 // Fixed in master: a8c93de0b0
 // Fixed in master-2.6: 457420a638
 // Fixed in master-2.4: 3e319db110
 
 * wssalink:2018-57[]
 The ZigBee ZCL dissector could crash.
-//wsbuglink:15281[].
-//cveidlink:2018-xxxx[].
+wsbuglink:15281[].
+cveidlink:2018-19628[].
 // Fixed in master: d53ff85d40
 // Fixed in master-2.6: 212b18825d
 // Fixed in master-2.4: n/a
@@ -138,8 +138,6 @@ The following bugs have been fixed:
 
 * NLRI of S-PMSI A-D BGP route not being displayed. wsbuglink:15307[].
 
-// Left off at bdc33cfaec
-
 === New and Updated Features
 
 There are no new features in this release.
@@ -157,22 +155,51 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
+BGP
+DCERPC
+DCOM
+DNS
+EAP
+GSM A BSSMAP
+ESP
+IEEE 802.11
+IEEE 802.11 Radiotap
+IPv4
+IPv6
+ISUP
+LBMPDM
+LISP
+MLE
+MMSE
+OpcUa
+PVFS
+SLL
+SSL/TLS
+SV
+TACACS+
+TCAP
+XRA
+Wi-SUN
+ZigBee ZCL
 --
 
 === New and Updated Capture File Support
 
-There is no new or updated capture file support in this release.
+//There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-//[commaize]
-//--
-//--
+[commaize]
+--
+3GPP TS 32.423 Trace
+IxVeriWave
+--
 
 === New and Updated Capture Interfaces support
 
-There is no new or updated capture file support in this release.
-//[commaize]
-//--
-//--
+//There is no new or updated capture file support in this release.
+[commaize]
+--
+sshdump
+--
 
 //=== Major API Changes
 
