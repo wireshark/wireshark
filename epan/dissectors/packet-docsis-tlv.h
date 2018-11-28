@@ -255,6 +255,7 @@
  * TLV_DOWN_SERVICE_FLOW (25)
  */
 #define SFW_MAX_DOWN_LAT 14
+#define SFW_DOWN_RESEQ 17
 
 /* Define Service Flow Error sub-subtypes
  * These are subtypes of

@@ -251,6 +251,7 @@ static int hf_docsis_tlv_sflow_grants_per_intvl = -1;
 static int hf_docsis_tlv_sflow_ip_tos_overwrite = -1;
 static int hf_docsis_tlv_sflow_ugs_timeref = -1;
 static int hf_docsis_tlv_sflow_max_down_latency = -1;
+static int hf_docsis_tlv_sflow_down_reseq = -1;
 
 static int hf_docsis_tlv_sflow_err_param = -1;
 static int hf_docsis_tlv_sflow_err_code = -1;
@@ -798,6 +799,12 @@ static const value_string em_mode_ind_vals[] = {
   {0, NULL},
 };
 
+static const value_string down_reseq_vals[] = {
+  {0, "The CMTS is required to associate this service flow with a resequencing DSID if the service flow is assigned to a downstream bonding group."},
+  {1, "The CMTS is required to not associate this service flow with a resequencing DSID."},
+  {0, NULL},
+};
+
 static void
 fourth_db(char *buf, guint32 value)
 {
@@ -1108,6 +1115,18 @@ dissect_downstream_sflow (tvbuff_t * tvb, packet_info* pinfo, proto_tree * sflow
             {
               proto_tree_add_item (sflow_tree,
                                    hf_docsis_tlv_sflow_max_down_latency, tvb,
+                                   pos, length, ENC_BIG_ENDIAN);
+            }
+          else
+            {
+              expert_add_info_format(pinfo, sflow_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
+            }
+          break;
+        case SFW_DOWN_RESEQ:
+          if (length == 1)
+            {
+              proto_tree_add_item (sflow_tree,
+                                   hf_docsis_tlv_sflow_down_reseq, tvb,
                                    pos, length, ENC_BIG_ENDIAN);
             }
           else
@@ -5840,6 +5859,11 @@ proto_register_docsis_tlv (void)
      {".15 Scheduling Type", "docsis_tlv.sflow.schedtype",
       FT_UINT32, BASE_HEX, VALS (sched_type_vals), 0x0,
       "Scheduling Type", HFILL}
+    },
+    {&hf_docsis_tlv_sflow_down_reseq,
+     {".17 Downstream Resequencing", "docsis_tlv.sflow.down_reseq",
+      FT_UINT8, BASE_DEC, VALS(down_reseq_vals), 0x0,
+      "Downstream Resequencing", HFILL}
     },
     {&hf_docsis_tlv_sflow_reqxmit_pol,
      {".16 Request/Transmission Policy", "docsis_tlv.sflow.reqxmitpol",
