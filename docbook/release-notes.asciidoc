@@ -19,64 +19,13 @@ used for troubleshooting, analysis, development and education.
 
 The following vulnerabilities have been fixed:
 
-* wssalink:2018-51[]
-The Wireshark dissection engine could crash.
-wsbuglink:14466[].
-cveidlink:2018-19625[].
-// Fixed in master: ec5adb0ce9
-// Fixed in master-2.6: f489f8f2c4
-// Fixed in master-2.4: dc4d209f39
-
-* wssalink:2018-52[]
-The DCOM dissector could crash.
-wsbuglink:15130[].
-cveidlink:2018-19626[].
-// Fixed in master: ec6ace066a
-// Fixed in master-2.6: 26c6460e3c
-// Fixed in master-2.4: c5a65115eb
-
-* wssalink:2018-53[]
-The LBMPDM dissector could crash.
-wsbuglink:15132[].
-cveidlink:2018-19623[].
-// Fixed in master: 5797f60274
-// Fixed in master-2.6: 1ec5a933e1
-// Fixed in master-2.4: 9c8645ec7b
-
-* wssalink:2018-54[]
-The MMSE dissector could go into an infinite loop.
-wsbuglink:15250[].
-cveidlink:2018-19622[].
-// Fixed in master: 1ddaf1a094
-// Fixed in master-2.6: 1dddeff985
-// Fixed in master-2.4: 3b7555d32d
-
-* wssalink:2018-55[]
-The IxVeriWave file parser could crash.
-wsbuglink:15279[].
-cveidlink:2018-19627[].
-// Fixed in master: 332df929a9
-// Fixed in master-2.6: bdc33cfaec
-// Fixed in master-2.4: d9b8b93f0e
-
-* wssalink:2018-56[]
-The PVFS dissector could crash.
-wsbuglink:15280[].
-cveidlink:2018-19624[].
-// Fixed in master: a8c93de0b0
-// Fixed in master-2.6: 457420a638
-// Fixed in master-2.4: 3e319db110
-
-* wssalink:2018-57[]
-The ZigBee ZCL dissector could crash.
-wsbuglink:15281[].
-cveidlink:2018-19628[].
-// Fixed in master: d53ff85d40
-// Fixed in master-2.6: 212b18825d
-// Fixed in master-2.4: n/a
-
-// Skipping. Minor memory leak.
-// * Buildbot crash output: fuzz-2018-05-25-28970.pcap. wsbuglink:14735[].
+* wssalink:2019-01[]
+A dissector went awry.
+// wsbuglink:xxxxx[].
+// cveidlink:2019-xxxx[].
+// Fixed in master: xxxx
+// Fixed in master-2.6: xxxx
+// Fixed in master-2.4: xxxx
 
 The following bugs have been fixed:
 
@@ -86,57 +35,6 @@ The following bugs have been fixed:
 //* Wireshark convinced you to switch seats on the plane while neglecting to tell you that its seat was noticeably moist.
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.6.6rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do ./tools/gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
-* VoIP Calls dialog doesn't include RTP stream when preparing a filter. wsbuglink:13440[].
-
-* Wireshark installs on macOS with permissions for /Library/Application Support/Wireshark that are too restrictive. wsbuglink:14335[].
-
-* Closing Enabled Protocols dialog crashes wireshark. wsbuglink:14349[].
-
-* Unable to Export Objects -> HTTP after sorting columns. wsbuglink:14545[].
-
-* DNS Response to NS query shows as malformed packet. wsbuglink:14574[].
-
-* Encrypted Alerts corresponds to a wrong selection in the packet bytes pane. wsbuglink:14712[].
-
-* Wireshark crashes/asserts with Qt 5.11.1 and assert/debugsymbols enabled. wsbuglink:15014[].
-
-* ESP will not decode since 2.6.2 - works fine in 2.4.6 or 2.4.8. wsbuglink:15056[].
-
-* text2pcap generates malformed packets when TCP, UDP or SCTP headers are added together with IPv6 header. wsbuglink:15194[].
-
-* Wireshark tries to decode EAP-SIM Pseudonym Identity. wsbuglink:15196[].
-
-* Infinite read loop when extcap exits with error and error message. wsbuglink:15205[].
-
-* MATE unable to extract fields for PDU. wsbuglink:15208[].
-
-* Malformed Packet: SV. wsbuglink:15224[].
-
-* OPC UA Max nesting depth exceeded for valid packet. wsbuglink:15226[].
-
-* TShark 2.6 does not print GeoIP information. wsbuglink:15230[].
-
-* ISUP (ANSI) packets malformed in WS versions later than 2.4.8. wsbuglink:15236[].
-
-* Handover candidate enquire message not decoded. wsbuglink:15237[].
-
-* TShark piping output in a cmd or PowerShell prompt stops working when GeoIP is enabled. wsbuglink:15248[].
-
-* ICMPv6 with routing header incorrectly placed. wsbuglink:15270[].
-
-* IEEE 802.11 Vendor Specific fixed fields display as malformed packets. wsbuglink:15273[].
-
-* text2pcap -4 and -6 option should require -i as well. wsbuglink:15275[].
-
-* text2pcap direction sensitivity does not affect dummy ethernet addresses. wsbuglink:15287[].
-
-* MLE security suite display incorrect. wsbuglink:15288[].
-
-* Message for incorrect IPv4 option lengths is incorrect. wsbuglink:15290[].
-
-* TACACS+ dissector does not properly reassemble large accounting messages. wsbuglink:15293[].
-
-* NLRI of S-PMSI A-D BGP route not being displayed. wsbuglink:15307[].
 
 === New and Updated Features
 
@@ -155,51 +53,22 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
-BGP
-DCERPC
-DCOM
-DNS
-EAP
-GSM A BSSMAP
-ESP
-IEEE 802.11
-IEEE 802.11 Radiotap
-IPv4
-IPv6
-ISUP
-LBMPDM
-LISP
-MLE
-MMSE
-OpcUa
-PVFS
-SLL
-SSL/TLS
-SV
-TACACS+
-TCAP
-XRA
-Wi-SUN
-ZigBee ZCL
 --
 
 === New and Updated Capture File Support
 
-//There is no new or updated capture file support in this release.
+There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-[commaize]
---
-3GPP TS 32.423 Trace
-IxVeriWave
---
+// [commaize]
+// --
+// --
 
 === New and Updated Capture Interfaces support
 
-//There is no new or updated capture file support in this release.
-[commaize]
---
-sshdump
---
+There is no new or updated capture file support in this release.
+// [commaize]
+// --
+// --
 
 //=== Major API Changes
 
