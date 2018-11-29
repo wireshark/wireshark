@@ -54,7 +54,7 @@ if( PCAP_FOUND )
   set( CMAKE_REQUIRED_LIBRARIES ${PCAP_LIBRARIES} )
 
   if(WIN32)
-    # Prepopulate some values. WinPcap and NPcap always have these and
+    # Prepopulate some values. WinPcap and Npcap always have these and
     # compilation checks on Windows can be slow.
     set(HAVE_PCAP_OPEN_DEAD TRUE)
     set(HAVE_PCAP_FREECODE TRUE)

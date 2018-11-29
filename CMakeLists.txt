@@ -351,10 +351,6 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 		add_definitions("/D_BIND_TO_CURRENT_CRT_VERSION=1")
 	endif()
 
-	# FIXME: WINPCAP_VERSION cannot be determined from source or executable.
-	set(WINPCAP_VERSION "4_1_3")
-	add_definitions("/DWINPCAP_VERSION=${WINPCAP_VERSION}")
-
 	set(LOCAL_CFLAGS
 		/MP
 	)

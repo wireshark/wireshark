@@ -13,6 +13,8 @@ SetCompressorDictSize 64 ; MB
 !include "common.nsh"
 !include 'LogicLib.nsh'
 !include "StrFunc.nsh"
+!include "WordFunc.nsh"
+
 ${StrRep}
 
 ; See http://nsis.sourceforge.net/Check_if_a_file_exists_at_compile_time for documentation
@@ -59,8 +61,8 @@ BrandingText "Wireshark${U+00ae} Installer"
 !define MUI_COMPONENTSPAGE_SMALLDESC
 !define MUI_FINISHPAGE_NOAUTOCLOSE
 !define MUI_WELCOMEPAGE_TEXT "This wizard will guide you through the installation of ${PROGRAM_NAME}.$\r$\n$\r$\nBefore starting the installation, make sure ${PROGRAM_NAME} is not running.$\r$\n$\r$\nClick 'Next' to continue."
-;!define MUI_FINISHPAGE_LINK "Install WinPcap to be able to capture packets from a network."
-;!define MUI_FINISHPAGE_LINK_LOCATION "https://www.winpcap.org"
+;!define MUI_FINISHPAGE_LINK "Install Npcap to be able to capture packets from a network."
+;!define MUI_FINISHPAGE_LINK_LOCATION "https://nmap.org/npcap/"
 
 ; NSIS shows Readme files by opening the Readme file with the default application for
 ; the file's extension. "README.win32" won't work in most cases, because extension "win32"
@@ -85,7 +87,7 @@ BrandingText "Wireshark${U+00ae} Installer"
 Page custom DisplayAdditionalTasksPage LeaveAdditionalTasksPage
 !endif
 !insertmacro MUI_PAGE_DIRECTORY
-Page custom DisplayWinPcapPage
+Page custom DisplayNpcapPage
 Page custom DisplayUSBPcapPage
 !insertmacro MUI_PAGE_INSTFILES
 !insertmacro MUI_PAGE_FINISH
@@ -106,7 +108,7 @@ Page custom DisplayUSBPcapPage
   ; Old Modern 1 UI: http://nsis.sourceforge.net/Docs/Modern%20UI/Readme.html
   ; To do: Upgrade to the Modern 2 UI:
   ;ReserveFile "AdditionalTasksPage.ini"
-  ReserveFile "WinPcapPage.ini"
+  ReserveFile "NpcapPage.ini"
   ReserveFile "USBPcapPage.ini"
   ReserveFile /plugin InstallOptions.dll
 
@@ -442,7 +444,7 @@ done:
 
   ;Extract InstallOptions INI files
   ;!insertmacro INSTALLOPTIONS_EXTRACT "AdditionalTasksPage.ini"
-  !insertmacro INSTALLOPTIONS_EXTRACT "WinpcapPage.ini"
+  !insertmacro INSTALLOPTIONS_EXTRACT "NpcapPage.ini"
   !insertmacro INSTALLOPTIONS_EXTRACT "USBPcapPage.ini"
 FunctionEnd
 
@@ -452,9 +454,9 @@ Function DisplayAdditionalTasksPage
 FunctionEnd
 !endif
 
-Function DisplayWinPcapPage
+Function DisplayNpcapPage
   !insertmacro MUI_HEADER_TEXT "Packet Capture" "Wireshark requires either Npcap or WinPcap to capture live network data."
-  !insertmacro INSTALLOPTIONS_DISPLAY "WinPcapPage.ini"
+  !insertmacro INSTALLOPTIONS_DISPLAY "NpcapPage.ini"
 FunctionEnd
 
 Function DisplayUSBPcapPage
@@ -466,7 +468,6 @@ FunctionEnd
 ; Installation execution commands
 ; ============================================================================
 
-Var WINPCAP_UNINSTALL ;declare variable for holding the value of a registry key
 Var USBPCAP_UNINSTALL ;declare variable for holding the value of a registry key
 ;Var WIRESHARK_UNINSTALL ;declare variable for holding the value of a registry key
 
@@ -872,24 +873,17 @@ Call Associate
 ; AdditionalTasks page
 ${Endif}
 
-; if running as a silent installer, don't try to install winpcap
-IfSilent SecRequired_skip_Winpcap
+; if running as a silent installer, don't try to install npcap
+IfSilent SecRequired_skip_Npcap
 
-; Install WinPcap (depending on winpcap page setting)
-ReadINIStr $0 "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "State"
-StrCmp $0 "0" SecRequired_skip_Winpcap
-; Uninstall old WinPcap first
-ReadRegStr $WINPCAP_UNINSTALL HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "UninstallString"
-IfErrors lbl_winpcap_notinstalled ;if RegKey is unavailable, WinPcap is not installed
-; from released version 3.1, WinPcap will uninstall an old version by itself
-;ExecWait '$WINPCAP_UNINSTALL' $0
-;DetailPrint "WinPcap uninstaller returned $0"
-lbl_winpcap_notinstalled:
+; Install Npcap (depending on npcap page setting)
+ReadINIStr $0 "$PLUGINSDIR\NpcapPage.ini" "Field 4" "State"
+StrCmp $0 "0" SecRequired_skip_Npcap
 SetOutPath $INSTDIR
-File "${WIRESHARK_LIB_DIR}\WinPcap_${WINPCAP_PACKAGE_VERSION}.exe"
-ExecWait '"$INSTDIR\WinPcap_${WINPCAP_PACKAGE_VERSION}.exe"' $0
-DetailPrint "WinPcap installer returned $0"
-SecRequired_skip_Winpcap:
+File "${WIRESHARK_LIB_DIR}\npcap-${NPCAP_PACKAGE_VERSION}.exe"
+ExecWait '"$INSTDIR\npcap-${NPCAP_PACKAGE_VERSION}.exe"' $0
+DetailPrint "Npcap installer returned $0"
+SecRequired_skip_Npcap:
 
 ; If running as a silent installer, don't try to install USBPcap
 IfSilent SecRequired_skip_USBPcap
@@ -897,8 +891,8 @@ IfSilent SecRequired_skip_USBPcap
 ReadINIStr $0 "$PLUGINSDIR\USBPcapPage.ini" "Field 4" "State"
 StrCmp $0 "0" SecRequired_skip_USBPcap
 SetOutPath $INSTDIR
-File "${WIRESHARK_LIB_DIR}\USBPcapSetup-${USBPCAP_DISPLAY_VERSION}.exe"
-ExecWait '"$INSTDIR\USBPcapSetup-${USBPCAP_DISPLAY_VERSION}.exe"' $0
+File "${WIRESHARK_LIB_DIR}\USBPcapSetup-${USBPCAP_PACKAGE_VERSION}.exe"
+ExecWait '"$INSTDIR\USBPcapSetup-${USBPCAP_PACKAGE_VERSION}.exe"' $0
 DetailPrint "USBPcap installer returned $0"
 ${If} $0 == "0"
     ${If} ${RunningX64}
@@ -1245,77 +1239,60 @@ FunctionEnd
 
 !endif ; QT_DIR
 
-!include "VersionCompare.nsh"
-
-Var WINPCAP_NAME ; DisplayName from WinPcap installation
-Var WINWINPCAP_VERSION ; DisplayVersion from WinPcap installation
 Var NPCAP_NAME ; DisplayName from Npcap installation
+Var WINPCAP_NAME ; DisplayName from WinPcap installation
+Var REG_NPCAP_DISPLAY_VERSION ; DisplayVersion from WinPcap installation
 Var USBPCAP_NAME ; DisplayName from USBPcap installation
 
 Function myShowCallback
 
     ClearErrors
     ; detect if WinPcap should be installed
-    WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "Text" "Install WinPcap ${PCAP_DISPLAY_VERSION}"
-    ReadRegStr $WINPCAP_NAME HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "DisplayName"
-    IfErrors 0 lbl_winpcap_installed ;if RegKey is available, WinPcap is already installed
-    ; check also if Npcap is installed
+    WriteINIStr "$PLUGINSDIR\NpcapPage.ini" "Field 4" "Text" "Install Npcap ${NPCAP_PACKAGE_VERSION}"
     ReadRegStr $NPCAP_NAME HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\NpcapInst" "DisplayName"
     IfErrors 0 lbl_npcap_installed
-    WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 2" "Text" "Neither of these are installed"
-    WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 2" "Flags" "DISABLED"
-    WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "(Use Add/Remove Programs first to uninstall any undetected old WinPcap versions)"
-    Goto lbl_winpcap_done
-
-lbl_winpcap_installed:
-    WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 2" "Text" "$WINPCAP_NAME"
-    ; Compare the installed build against the one we have.
-    ReadRegStr $WINWINPCAP_VERSION HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "DisplayVersion"
-    StrCmp $WINWINPCAP_VERSION "" lbl_winpcap_do_install ; WinPcap is really old(?) or installed improperly.
-    ${VersionCompare} $WINWINPCAP_VERSION "4.1.0.2980" $1 ; WinPcap 4.1.3
-    StrCmp $1 "2" lbl_winpcap_do_install
-
-;lbl_winpcap_dont_install:
-    ; The installed version is >= to what we have, so don't install
-    WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "State" "0"
-    WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "If selected, the currently installed $WINPCAP_NAME will be uninstalled first."
-    Goto lbl_winpcap_done
-
-;lbl_winpcap_dont_upgrade:
-    ; force the user to upgrade by hand
-    WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "State" "0"
-    WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "Flags" "DISABLED"
-    WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "If you wish to install WinPcap ${PCAP_DISPLAY_VERSION}, please uninstall $WINPCAP_NAME manually first."
-    WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Flags" "DISABLED"
-    Goto lbl_winpcap_done
+    ; check also if WinPcap is installed
+    ReadRegStr $WINPCAP_NAME HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "DisplayName"
+    IfErrors 0 lbl_winpcap_installed ;if RegKey is available, WinPcap is already installed
+    WriteINIStr "$PLUGINSDIR\NpcapPage.ini" "Field 2" "Text" "Neither of these are installed"
+    WriteINIStr "$PLUGINSDIR\NpcapPage.ini" "Field 2" "Flags" "DISABLED"
+    WriteINIStr "$PLUGINSDIR\NpcapPage.ini" "Field 5" "Text" "(Use Add/Remove Programs first to uninstall any undetected old WinPcap versions)"
+    Goto lbl_npcap_done
 
 lbl_npcap_installed:
     ReadRegDWORD $0 HKEY_LOCAL_MACHINE "SOFTWARE\Npcap" "WinPcapCompatible"
-    WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 1" "Text" "Currently installed Npcap version"
-    ${If} $0 == "0"
-        ; Npcap is installed without WinPcap API-compatible mode; WinPcap can be installed
-        WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 2" "Text" "$NPCAP_NAME is currently installed without WinPcap API-compatible mode"
-        WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "State" "0"
-        WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "If you still wish to install WinPcap ${PCAP_DISPLAY_VERSION}, please check this option."
-    ${Else}
-        ; Npcap is installed with WinPcap API-compatible mode; WinPcap must not be installed
-        WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 2" "Text" "$NPCAP_NAME"
-        WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "State" "0"
-        WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "Flags" "DISABLED"
-        WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "If you wish to install WinPcap ${PCAP_DISPLAY_VERSION}, please uninstall $NPCAP_NAME manually first."
-        WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Flags" "DISABLED"
-    ${EndIf}
-    Goto lbl_winpcap_done
+    WriteINIStr "$PLUGINSDIR\NpcapPage.ini" "Field 1" "Text" "Currently installed Npcap version"
+    WriteINIStr "$PLUGINSDIR\NpcapPage.ini" "Field 2" "Text" "$NPCAP_NAME"
 
-lbl_winpcap_do_install:
+    ; Compare the installed build against the one we have.
+    ReadRegStr $REG_NPCAP_DISPLAY_VERSION HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\NpcapInst" "DisplayVersion"
+    StrCmp $REG_NPCAP_DISPLAY_VERSION "" lbl_npcap_do_install ; Npcap wasn't installed improperly?
+    ${VersionConvert} $REG_NPCAP_DISPLAY_VERSION "" $R0 ; 0.99-r7 -> 0.99.114.7
+    ${VersionConvert} "${NPCAP_PACKAGE_VERSION}" "" $R1
+    ${VersionCompare} $R0 $R1 $1
+    StrCmp $1 "2" lbl_npcap_do_install
+
+    WriteINIStr "$PLUGINSDIR\NpcapPage.ini" "Field 4" "State" "0"
+    WriteINIStr "$PLUGINSDIR\NpcapPage.ini" "Field 4" "Flags" "DISABLED"
+    WriteINIStr "$PLUGINSDIR\NpcapPage.ini" "Field 5" "Text" "If you wish to install WinPcap, please uninstall $NPCAP_NAME manually first."
+    WriteINIStr "$PLUGINSDIR\NpcapPage.ini" "Field 5" "Flags" "DISABLED"
+    Goto lbl_npcap_done
+
+lbl_winpcap_installed:
+    WriteINIStr "$PLUGINSDIR\NpcapPage.ini" "Field 2" "Text" "$WINPCAP_NAME"
+    WriteINIStr "$PLUGINSDIR\NpcapPage.ini" "Field 4" "State" "0"
+    WriteINIStr "$PLUGINSDIR\NpcapPage.ini" "Field 5" "Text" "If selected, the currently installed $WINPCAP_NAME will be uninstalled first."
+    Goto lbl_npcap_done
+
+lbl_npcap_do_install:
     ; seems to be an old version, install newer one
-    WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "State" "1"
-    WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "The currently installed $WINPCAP_NAME will be uninstalled first."
+    WriteINIStr "$PLUGINSDIR\NpcapPage.ini" "Field 4" "State" "1"
+    WriteINIStr "$PLUGINSDIR\NpcapPage.ini" "Field 5" "Text" "The currently installed $NPCAP_NAME will be uninstalled first."
 
-lbl_winpcap_done:
+lbl_npcap_done:
 
     ; detect if USBPcap should be installed
-    WriteINIStr "$PLUGINSDIR\USBPcapPage.ini" "Field 4" "Text" "Install USBPcap ${USBPCAP_DISPLAY_VERSION}"
+    WriteINIStr "$PLUGINSDIR\USBPcapPage.ini" "Field 4" "Text" "Install USBPcap ${USBPCAP_PACKAGE_VERSION}"
     ${If} ${RunningX64}
         ${DisableX64FSRedirection}
         SetRegView 64
@@ -1335,7 +1312,7 @@ lbl_usbpcap_installed:
     WriteINIStr "$PLUGINSDIR\USBPcapPage.ini" "Field 2" "Text" "$USBPCAP_NAME"
     WriteINIStr "$PLUGINSDIR\USBPcapPage.ini" "Field 4" "State" "0"
     WriteINIStr "$PLUGINSDIR\USBPcapPage.ini" "Field 4" "Flags" "DISABLED"
-    WriteINIStr "$PLUGINSDIR\USBPcapPage.ini" "Field 5" "Text" "If you wish to install USBPcap ${USBPCAP_DISPLAY_VERSION}, please uninstall $USBPCAP_NAME manually first."
+    WriteINIStr "$PLUGINSDIR\USBPcapPage.ini" "Field 5" "Text" "If you wish to install USBPcap ${USBPCAP_PACKAGE_VERSION}, please uninstall $USBPCAP_NAME manually first."
     WriteINIStr "$PLUGINSDIR\USBPcapPage.ini" "Field 5" "Flags" "DISABLED"
     Goto lbl_usbpcap_done
 

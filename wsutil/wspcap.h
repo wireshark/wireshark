@@ -13,7 +13,7 @@
  *
  * This bug is fixed in the master branch of libpcap, so any libpcap
  * release with remote capture support will not have this problem, and
- * any future WinPcap/NPcap release based on current libpcap code will
+ * any future WinPcap/Npcap release based on current libpcap code will
  * not have this problem.
  *
  * Wireshark - Network traffic analyzer

@@ -24,7 +24,7 @@ set(NSIS_FILES
 	GetWindowsVersion.nsh
 	servicelib.nsh
 	AdditionalTasksPage.ini
-	WinPcapPage.ini
+	NpcapPage.ini
 	USBPcapPage.ini
 	${NSIS_GENERATED_FILES}
 	PARENT_SCOPE
@@ -45,16 +45,15 @@ else()
 endif()
 set (MMDBRESOLVE_EXE ${MAXMINDDB_FOUND})
 
-# Path to the WinPcap installer.
+# Path to the Npcap installer.
 # XXX Come up with a better variable, e.g. cache WIRESHARK_LIB_DIR in FindWSWinLibs.
 file(TO_NATIVE_PATH "${GLIB2_DLL_DIR}/../.." _wireshark_lib_dir)
 set(WIRESHARK_LIB_DIR "${_wireshark_lib_dir}")
 
-# Must match ${WIRESHARK_LIB_DIR}/WinPcap_X_Y_Z.exe
-set(WINPCAP_PACKAGE_VERSION ${WINPCAP_VERSION})
-string(REPLACE "_" "." PCAP_DISPLAY_VERSION "${WINPCAP_PACKAGE_VERSION}")
+# Must match ${WIRESHARK_LIB_DIR}/Npcap-X.Y.Z.exe
+set(NPCAP_PACKAGE_VERSION "0.99-r7")
 
-set(USBPCAP_DISPLAY_VERSION "1.2.0.4")
+set(USBPCAP_PACKAGE_VERSION "1.2.0.4")
 
 set(PRODUCT_VERSION ${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}.${PROJECT_PATCH_VERSION}.${PROJECT_BUILD_VERSION})
 

@@ -15,7 +15,7 @@ SetCompress off
 OutFile "${STAGING_DIR}\uninstall_installer.exe"
 RequestExecutionLevel user
 
-InstType "un.Default (keep Personal Settings and WinPcap)"
+InstType "un.Default (keep Personal Settings and Npcap)"
 InstType "un.All (remove all)"
 
 ; Uninstaller icon
@@ -339,20 +339,20 @@ RMDir "$APPDATA\${PROGRAM_NAME}"
 DeleteRegKey HKCU "Software\${PROGRAM_NAME}"
 SectionEnd
 
-;VAR un.WINPCAP_UNINSTALL
+;VAR un.NPCAP_UNINSTALL
 
-Section /o "Un.WinPcap" un.SecWinPcap
+Section /o "Un.Npcap" un.SecNpcap
 ;-------------------------------------------
 SectionIn 2
-ReadRegStr $1 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "UninstallString"
-;IfErrors un.lbl_winpcap_notinstalled ;if RegKey is unavailable, WinPcap is not installed
+ReadRegStr $1 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\NpcapInst" "UninstallString"
+;IfErrors un.lbl_npcap_notinstalled ;if RegKey is unavailable, Npcap is not installed
 ${If} $1 != ""
-    ;MessageBox MB_OK "WinPcap $1" /SD IDOK
+    ;MessageBox MB_OK "Npcap $1" /SD IDOK
     ExecWait '$1' $0
-    DetailPrint "WinPcap uninstaller returned $0"
+    DetailPrint "Npcap uninstaller returned $0"
     ;SetRebootFlag true
 ${EndIf}
-;un.lbl_winpcap_notinstalled:
+;un.lbl_npcap_notinstalled:
 SectionEnd
 
 Section "-Un.Finally"
@@ -373,7 +373,7 @@ SectionEnd
     !insertmacro MUI_DESCRIPTION_TEXT ${un.SecProfiles} "Uninstall all global configuration profiles."
     !insertmacro MUI_DESCRIPTION_TEXT ${un.SecGlobalSettings} "Uninstall global settings like: $INSTDIR\cfilters"
     !insertmacro MUI_DESCRIPTION_TEXT ${un.SecPersonalSettings} "Uninstall personal settings like your preferences file from your profile: $PROFILE."
-    !insertmacro MUI_DESCRIPTION_TEXT ${un.SecWinPcap} "Call WinPcap's uninstall program."
+    !insertmacro MUI_DESCRIPTION_TEXT ${un.SecNpcap} "Call Npcap's uninstall program."
     !insertmacro MUI_DESCRIPTION_TEXT ${un.SecUSBPcap} "Call USBPcap's uninstall program."
 !insertmacro MUI_UNFUNCTION_DESCRIPTION_END
 

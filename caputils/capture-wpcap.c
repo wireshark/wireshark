@@ -1012,16 +1012,22 @@ open_capture_device_local(capture_options *capture_opts,
 }
 
 /*
- * Append the version of WinPcap with which we were compiled to a GString.
+ * Neither WpdPack nor the Npcap SDK as of version 1.01 defines a version
+ * string anywhere. Hard-code one for now.
+ */
+#define WINPCAP_SDK_VERSION "4.1.2"
+
+/*
+ * Append the WinPcap or Npcap SDK version with which we were compiled to a GString.
  */
 void
 get_compiled_caplibs_version(GString *str)
 {
-	g_string_append(str, "with WinPcap (" G_STRINGIFY(WINPCAP_VERSION) ")");
+	g_string_append(str, "with WinPcap SDK (WpdPack) " WINPCAP_SDK_VERSION);
 }
 
 /*
- * Append the version of WinPcap with which we we're running to a GString.
+ * Append the version of Npcap with which we we're running to a GString.
  */
 void
 get_runtime_caplibs_version(GString *str)
