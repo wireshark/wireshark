@@ -3044,6 +3044,9 @@ gboolean
 ssl_generate_pre_master_secret(SslDecryptSession *ssl_session,
                                guint32 length, tvbuff_t *tvb, guint32 offset,
                                const gchar *ssl_psk,
+#ifdef HAVE_LIBGNUTLS
+                               GHashTable *key_hash,
+#endif
                                const ssl_master_key_map_t *mk_map)
 {
     /* check for required session data */
@@ -3159,10 +3162,13 @@ ssl_generate_pre_master_secret(SslDecryptSession *ssl_session,
         tvb_memcpy(tvb, encrypted_pre_master.data, offset+skip, encrlen);
 
 #ifdef HAVE_LIBGNUTLS
-        if (ssl_session->private_key) {
-            /* try to decrypt encrypted pre-master with RSA key */
-            if (ssl_decrypt_pre_master_secret(ssl_session,
-                &encrypted_pre_master, ssl_session->private_key))
+        /* Try to lookup an appropriate RSA private key to decrypt the Encrypted Pre-Master Secret. */
+        gcry_sexp_t pk = NULL;
+        if (ssl_session->cert_key_id) {
+            pk = (gcry_sexp_t)g_hash_table_lookup(key_hash, ssl_session->cert_key_id);
+        }
+        if (pk) {
+            if (ssl_decrypt_pre_master_secret(ssl_session, &encrypted_pre_master, pk))
                 return TRUE;
 
             ssl_debug_printf("%s: can't decrypt pre-master secret\n",
@@ -3592,8 +3598,8 @@ end:
 #ifdef HAVE_LIBGNUTLS
 /* Decrypt RSA pre-master secret using RSA private key. {{{ */
 static gboolean
-ssl_decrypt_pre_master_secret(SslDecryptSession*ssl_session,
-    StringInfo* encrypted_pre_master, gcry_sexp_t pk)
+ssl_decrypt_pre_master_secret(SslDecryptSession *ssl_session,
+    StringInfo *encrypted_pre_master, gcry_sexp_t pk)
 {
     size_t i;
     char *err;
@@ -4254,11 +4260,11 @@ skip_mac:
 
 
 
-#if defined(HAVE_LIBGNUTLS)
+#ifdef HAVE_LIBGNUTLS
 
 /* RSA private key file processing {{{ */
 static void
-ssl_find_private_key_by_pubkey(SslDecryptSession *ssl, GHashTable *key_hash,
+ssl_find_private_key_by_pubkey(SslDecryptSession *ssl,
                                gnutls_datum_t *subjectPublicKeyInfo)
 {
     gnutls_pubkey_t pubkey = NULL;
@@ -4293,16 +4299,21 @@ ssl_find_private_key_by_pubkey(SslDecryptSession *ssl, GHashTable *key_hash,
         goto end;
     }
 
-    ssl_print_data("lookup(KeyID)", key_id, key_id_len);
-    ssl->private_key = (gcry_sexp_t)g_hash_table_lookup(key_hash, key_id);
-    ssl_debug_printf("%s: lookup result: %p\n", G_STRFUNC, (void *) ssl->private_key);
+    if (key_id_len != sizeof(key_id)) {
+        ssl_debug_printf("%s: expected Key ID size %zu, got %zu\n",
+                G_STRFUNC, sizeof(key_id), key_id_len);
+        goto end;
+    }
+
+    ssl_print_data("Certificate.KeyID", key_id, key_id_len);
+    ssl->cert_key_id = (guint8 *)wmem_memdup(wmem_file_scope(), key_id, key_id_len);
 
 end:
     gnutls_pubkey_deinit(pubkey);
 }
 
 /* RSA private key file processing }}} */
-#endif /* ! defined(HAVE_LIBGNUTLS) */
+#endif  /* HAVE_LIBGNUTLS */
 
 /*--- Start of dissector-related code below ---*/
 
@@ -4371,8 +4382,8 @@ static void ssl_reset_session(SslSession *session, SslDecryptSession *ssl, gbool
             clear_flags |= SSL_SERVER_EXTENDED_MASTER_SECRET | SSL_NEW_SESSION_TICKET;
             ssl->server_random.data_len = 0;
             ssl->pre_master_secret.data_len = 0;
-#if defined(HAVE_LIBGNUTLS)
-            ssl->private_key = NULL;
+#ifdef HAVE_LIBGNUTLS
+            ssl->cert_key_id = NULL;
 #endif
             ssl->psk.data_len = 0;
         }
@@ -4496,15 +4507,16 @@ ssl_hash  (gconstpointer v)
     return hash;
 }
 
+#ifdef HAVE_LIBGNUTLS
 gboolean
-ssl_private_key_equal (gconstpointer v, gconstpointer v2)
+tls_private_key_equal (gconstpointer v, gconstpointer v2)
 {
     /* key ID length (SHA-1 hash, per GNUTLS_KEYID_USE_SHA1) */
     return !memcmp(v, v2, 20);
 }
 
 guint
-ssl_private_key_hash (gconstpointer v)
+tls_private_key_hash (gconstpointer v)
 {
     guint        l, hash = 0;
     const guint8 *cur = (const guint8 *)v;
@@ -4516,6 +4528,12 @@ ssl_private_key_hash (gconstpointer v)
 
     return hash;
 }
+void
+tls_private_key_free(gpointer data)
+{
+    rsa_private_key_free(data);
+}
+#endif
 /* Functions for TLS/DTLS sessions and RSA private keys hashtables. }}} */
 
 /* Handling of association between tls/dtls ports and clear text protocol. {{{ */
@@ -4809,12 +4827,6 @@ end:
     g_free(key_id);
 }
 /* }}} */
-#else
-void
-ssl_parse_key_list(const ssldecrypt_assoc_t *uats _U_, GHashTable *key_hash _U_, const char* dissector_table_name _U_, dissector_handle_t main_handle _U_, gboolean tcp _U_)
-{
-    report_failure("Can't load private key files, support is not compiled in.");
-}
 #endif
 
 
@@ -7862,7 +7874,7 @@ void
 ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
                      guint32 offset, guint32 offset_end, packet_info *pinfo,
                      SslSession *session, SslDecryptSession *ssl _U_,
-                     GHashTable *key_hash _U_, gboolean is_from_server, gboolean is_dtls)
+                     gboolean is_from_server, gboolean is_dtls)
 {
     /* opaque ASN.1Cert<1..2^24-1>;
      *
@@ -7990,7 +8002,7 @@ ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
             dissect_x509af_Certificate(FALSE, tvb, offset, &asn1_ctx, subtree, hf->hf.hs_certificate);
 #if defined(HAVE_LIBGNUTLS)
             if (is_from_server && ssl && certificate_index == 0) {
-                ssl_find_private_key_by_pubkey(ssl, key_hash, &subjectPublicKeyInfo);
+                ssl_find_private_key_by_pubkey(ssl, &subjectPublicKeyInfo);
                 /* Only attempt to get the RSA modulus for the first cert. */
                 asn1_ctx.private_data = NULL;
             }
@@ -8265,7 +8277,7 @@ void
 ssl_dissect_hnd_compress_certificate(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
                                       guint32 offset, guint32 offset_end, packet_info *pinfo,
                                       SslSession *session _U_, SslDecryptSession *ssl _U_,
-                                      GHashTable *key_hash _U_, gboolean is_from_server _U_, gboolean is_dtls _U_)
+                                      gboolean is_from_server _U_, gboolean is_dtls _U_)
 {
     guint32 compressed_certificate_message_length;
     /*

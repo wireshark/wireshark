@@ -434,7 +434,7 @@ typedef struct _SslDecryptSession {
     SslDecoder *server_new;
     SslDecoder *client_new;
 #if defined(HAVE_LIBGNUTLS)
-    gcry_sexp_t private_key;
+    guint8     *cert_key_id;   /**< SHA-1 Key ID of public key in certificate. */
 #endif
     StringInfo psk;
     StringInfo app_data_segment;
@@ -569,6 +569,9 @@ gboolean
 ssl_generate_pre_master_secret(SslDecryptSession *ssl_session,
                                guint32 length, tvbuff_t *tvb, guint32 offset,
                                const gchar *ssl_psk,
+#ifdef HAVE_LIBGNUTLS
+                               GHashTable *key_hash,
+#endif
                                const ssl_master_key_map_t *mk_map);
 
 /** Expand the pre_master_secret to generate all the session information
@@ -607,19 +610,19 @@ tls13_cipher *
 tls13_cipher_create(const char *label_prefix, int cipher_algo, int cipher_mode, int hash_algo, const StringInfo *secret, const gchar **error);
 
 
-/* Common part bitween SSL and DTLS dissectors */
+/* Common part between TLS and DTLS dissectors */
 /* Hash Functions for RSA private keys table */
 
+#ifdef HAVE_LIBGNUTLS
 extern gboolean
-ssl_private_key_equal (gconstpointer v, gconstpointer v2);
+tls_private_key_equal (gconstpointer v, gconstpointer v2);
 
 extern guint
-ssl_private_key_hash  (gconstpointer v);
+tls_private_key_hash  (gconstpointer v);
 
-/* private key table entries have a scope 'larger' then packet capture,
- * so we can't rely on wmem_file_scope function */
 extern void
-ssl_private_key_free(gpointer key);
+tls_private_key_free(gpointer key);
+#endif  /* HAVE_LIBGNUTLS */
 
 
 /* handling of association between tls/dtls ports and clear text protocol */
@@ -657,9 +660,11 @@ extern void
 ssl_load_keyfile(const gchar *ssl_keylog_filename, FILE **keylog_file,
                  const ssl_master_key_map_t *mk_map);
 
+#ifdef HAVE_LIBGNUTLS
 /* parse ssl related preferences (private keys and ports association strings) */
 extern void
 ssl_parse_key_list(const ssldecrypt_assoc_t * uats, GHashTable *key_hash, const char* dissector_table_name, dissector_handle_t main_handle, gboolean tcp);
+#endif
 
 /* store master secret into session data cache */
 extern void
@@ -1043,7 +1048,7 @@ extern void
 ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
                      guint32 offset, guint32 offset_end, packet_info *pinfo,
                      SslSession *session, SslDecryptSession *ssl,
-                     GHashTable *key_hash, gboolean is_from_server, gboolean is_dtls);
+                     gboolean is_from_server, gboolean is_dtls);
 
 extern void
 ssl_dissect_hnd_cert_req(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
@@ -1099,7 +1104,7 @@ extern void
 ssl_dissect_hnd_compress_certificate(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
                                      guint32 offset, guint32 offset_end, packet_info *pinfo,
                                      SslSession *session _U_, SslDecryptSession *ssl _U_,
-                                     GHashTable *key_hash _U_, gboolean is_from_server _U_, gboolean is_dtls _U_);
+                                     gboolean is_from_server _U_, gboolean is_dtls _U_);
 /* {{{ */
 #define SSL_COMMON_LIST_T(name) \
 ssl_common_dissect_t name = {   \

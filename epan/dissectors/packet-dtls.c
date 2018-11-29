@@ -55,9 +55,11 @@
 
 void proto_register_dtls(void);
 
+#ifdef HAVE_LIBGNUTLS
 /* DTLS User Access Table */
 static ssldecrypt_assoc_t *dtlskeylist_uats = NULL;
 static guint ndtlsdecrypt = 0;
+#endif
 
 /* we need to remember the top tree so that subdissectors we call are created
  * at the root and not deep down inside the DTLS decode
@@ -145,8 +147,12 @@ static expert_field ei_dtls_msg_len_diff_fragment = EI_INIT;
 static expert_field ei_dtls_heartbeat_payload_length = EI_INIT;
 
 static ssl_master_key_map_t dtls_master_key_map;
-static GHashTable         *dtls_key_hash             = NULL;
-static wmem_stack_t       *key_list_stack            = NULL;
+#ifdef HAVE_LIBGNUTLS
+static GHashTable      *dtls_key_hash   = NULL;
+static wmem_stack_t    *key_list_stack  = NULL;
+static uat_t           *dtlsdecrypt_uat = NULL;
+static const gchar     *dtls_keys_list  = NULL;
+#endif
 static reassembly_table    dtls_reassembly_table;
 static dissector_table_t   dtls_associations         = NULL;
 static dissector_handle_t  dtls_handle               = NULL;
@@ -155,8 +161,6 @@ static StringInfo          dtls_decrypted_data       = {NULL, 0};
 static gint                dtls_decrypted_data_avail = 0;
 static FILE               *dtls_keylog_file          = NULL;
 
-static uat_t *dtlsdecrypt_uat      = NULL;
-static const gchar *dtls_keys_list = NULL;
 static ssl_common_options_t dtls_options = { NULL, NULL};
 static const gchar *dtls_debug_file_name = NULL;
 
@@ -209,14 +213,17 @@ dtls_init(void)
 static void
 dtls_cleanup(void)
 {
+#ifdef HAVE_LIBGNUTLS
   if (key_list_stack != NULL) {
     wmem_destroy_stack(key_list_stack);
     key_list_stack = NULL;
   }
+#endif
   ssl_common_cleanup(&dtls_master_key_map, &dtls_keylog_file,
                      &dtls_decrypted_data, &dtls_compressed_data);
 }
 
+#ifdef HAVE_LIBGNUTLS
 /* parse dtls related preferences (private keys and ports association strings) */
 static void
 dtls_parse_uat(void)
@@ -240,8 +247,8 @@ dtls_parse_uat(void)
   }
 
   /* parse private keys string, load available keys and put them in key hash*/
-  dtls_key_hash = g_hash_table_new_full(ssl_private_key_hash,
-      ssl_private_key_equal, g_free, rsa_private_key_free);
+  dtls_key_hash = g_hash_table_new_full(tls_private_key_hash,
+      tls_private_key_equal, g_free, tls_private_key_free);
 
   ssl_set_debug(dtls_debug_file_name);
 
@@ -263,14 +270,12 @@ dtls_parse_uat(void)
   dissector_add_for_decode_as("udp.port", dtls_handle);
 }
 
-#if defined(HAVE_LIBGNUTLS)
 static void
 dtls_reset_uat(void)
 {
   g_hash_table_destroy(dtls_key_hash);
   dtls_key_hash = NULL;
 }
-#endif
 
 static void
 dtls_parse_old_keys(void)
@@ -301,6 +306,7 @@ dtls_parse_old_keys(void)
     g_strfreev(old_keys);
   }
 }
+#endif  /* HAVE_LIBGNUTLS */
 
 /*
  * DTLS Dissection Routines
@@ -1305,7 +1311,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
 
           case SSL_HND_CERTIFICATE:
             ssl_dissect_hnd_cert(&dissect_dtls_hf, sub_tvb, ssl_hand_tree, 0, length,
-                pinfo, session, ssl, dtls_key_hash, is_from_server, TRUE);
+                pinfo, session, ssl, is_from_server, TRUE);
             break;
 
           case SSL_HND_SERVER_KEY_EXCHG:
@@ -1335,6 +1341,9 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
             /* try to find master key from pre-master key */
             if (!ssl_generate_pre_master_secret(ssl, length, sub_tvb, 0,
                                                 dtls_options.psk,
+#ifdef HAVE_LIBGNUTLS
+                                                dtls_key_hash,
+#endif
                                                 &dtls_master_key_map)) {
                 ssl_debug_printf("dissect_dtls_handshake can't generate pre master secret\n");
             }
@@ -1980,17 +1989,17 @@ proto_register_dtls(void)
                                   "RSA keys list",
                                   "A table of RSA keys for DTLS decryption",
                                   dtlsdecrypt_uat);
-#endif /* HAVE_LIBGNUTLS */
-
-    prefs_register_filename_preference(dtls_module, "debug_file", "DTLS debug file",
-                                       "redirect dtls debug to file name; leave empty to disable debug, "
-                                       "use \"" SSL_DEBUG_USE_STDERR "\" to redirect output to stderr\n",
-                                       &dtls_debug_file_name, TRUE);
 
     prefs_register_string_preference(dtls_module, "keys_list", "RSA keys list (deprecated)",
                                      "Semicolon-separated list of private RSA keys used for DTLS decryption. "
                                      "Used by versions of Wireshark prior to 1.6",
                                      &dtls_keys_list);
+#endif  /* HAVE_LIBGNUTLS */
+
+    prefs_register_filename_preference(dtls_module, "debug_file", "DTLS debug file",
+                                       "redirect dtls debug to file name; leave empty to disable debug, "
+                                       "use \"" SSL_DEBUG_USE_STDERR "\" to redirect output to stderr\n",
+                                       &dtls_debug_file_name, TRUE);
     ssl_common_register_options(dtls_module, &dtls_options);
   }
 
@@ -2018,9 +2027,10 @@ proto_reg_handoff_dtls(void)
 {
   static gboolean initialized = FALSE;
 
-  /* add now dissector to default ports.*/
+#ifdef HAVE_LIBGNUTLS
   dtls_parse_uat();
   dtls_parse_old_keys();
+#endif
   exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_LAYER_7);
 
   if (initialized == FALSE) {
