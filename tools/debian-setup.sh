@@ -118,11 +118,9 @@ add_package ADDITIONAL_LIST libssh-gcrypt-dev ||
 add_package ADDITIONAL_LIST libssh-dev ||
 echo "libssh-gcrypt-dev and libssh-dev are unavailable" >&2
 
-# libgnutls-dev: Debian <= jessie, Ubuntu <= 16.04
 # libgnutls28-dev: Debian >= wheezy-backports, Ubuntu >= 12.04
 add_package ADDITIONAL_LIST libgnutls28-dev ">= 3.2.14-1" ||
-add_package ADDITIONAL_LIST libgnutls-dev ||
-echo "libgnutls28-dev and libgnutls-dev are unavailable" >&2
+echo "libgnutls28-dev is unavailable" >&2
 
 # mmdbresolve
 add_package ADDITIONAL_LIST libmaxminddb-dev ||

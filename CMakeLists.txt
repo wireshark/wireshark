@@ -979,7 +979,9 @@ endif()
 if(ENABLE_GNUTLS)
 	set(PACKAGELIST ${PACKAGELIST} GNUTLS)
 	# Minimum version needed.
-	set(GNUTLS_OPTIONS "2.12.0")
+	# 3.0.2 due to GNUTLS_PRIVKEY_IMPORT_COPY
+	# 3.2.0 to remain GPLv2-compatible.
+	set(GNUTLS_OPTIONS "3.2.0")
 endif()
 
 # Kerberos
