@@ -127,6 +127,7 @@ TPM 2.0
 Ubiquiti Discovery Protocol (UBDP)
 WireGuard
 XnAP (5G)
+PCOM protocol
 --
 
 === Updated Protocol Support

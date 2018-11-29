@@ -1502,6 +1502,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pcep.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pcli.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pcnfsd.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-pcomtcp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pcp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pdc.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pdcp-lte.c
