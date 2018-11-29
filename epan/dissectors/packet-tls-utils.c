@@ -3033,7 +3033,7 @@ end:
 static int
 ssl_decrypt_pre_master_secret(SslDecryptSession *ssl_session,
                               StringInfo *encrypted_pre_master,
-                              gcry_sexp_t pk);
+                              gnutls_privkey_t pk);
 #endif /* HAVE_LIBGNUTLS */
 
 static gboolean
@@ -3124,7 +3124,6 @@ ssl_generate_pre_master_secret(SslDecryptSession *ssl_session,
     }
     else
     {
-        StringInfo encrypted_pre_master;
         guint encrlen, skip;
         encrlen = length;
         skip = 0;
@@ -3157,15 +3156,16 @@ ssl_generate_pre_master_secret(SslDecryptSession *ssl_session,
             return FALSE;
         }
 
-        encrypted_pre_master.data = (guchar *)wmem_alloc(wmem_file_scope(), encrlen);
-        encrypted_pre_master.data_len = encrlen;
-        tvb_memcpy(tvb, encrypted_pre_master.data, offset+skip, encrlen);
+        StringInfo encrypted_pre_master = {
+            .data = (guchar *)tvb_memdup(wmem_packet_scope(), tvb, offset + skip, encrlen),
+            .data_len = encrlen,
+        };
 
 #ifdef HAVE_LIBGNUTLS
         /* Try to lookup an appropriate RSA private key to decrypt the Encrypted Pre-Master Secret. */
-        gcry_sexp_t pk = NULL;
+        gnutls_privkey_t pk = NULL;
         if (ssl_session->cert_key_id) {
-            pk = (gcry_sexp_t)g_hash_table_lookup(key_hash, ssl_session->cert_key_id);
+            pk = (gnutls_privkey_t)g_hash_table_lookup(key_hash, ssl_session->cert_key_id);
         }
         if (pk) {
             if (ssl_decrypt_pre_master_secret(ssl_session, &encrypted_pre_master, pk))
@@ -3599,11 +3599,8 @@ end:
 /* Decrypt RSA pre-master secret using RSA private key. {{{ */
 static gboolean
 ssl_decrypt_pre_master_secret(SslDecryptSession *ssl_session,
-    StringInfo *encrypted_pre_master, gcry_sexp_t pk)
+    StringInfo *encrypted_pre_master, gnutls_privkey_t pk)
 {
-    size_t i;
-    char *err;
-
     if (!encrypted_pre_master)
         return FALSE;
 
@@ -3615,32 +3612,34 @@ ssl_decrypt_pre_master_secret(SslDecryptSession *ssl_session,
                          val_to_str_ext_const(ssl_session->session.cipher,
                              &ssl_31_ciphersuite_ext, "unknown"));
         return FALSE;
-    } else if(ssl_session->cipher_suite->kex != KEX_RSA) {
+    } else if (ssl_session->cipher_suite->kex != KEX_RSA) {
          ssl_debug_printf("%s key exchange %d different from KEX_RSA (%d)\n",
                           G_STRFUNC, ssl_session->cipher_suite->kex, KEX_RSA);
         return FALSE;
     }
 
-    /* with tls key loading will fail if not rsa type, so no need to check*/
-    ssl_print_string("pre master encrypted",encrypted_pre_master);
+    ssl_print_string("pre master encrypted", encrypted_pre_master);
     ssl_debug_printf("%s: RSA_private_decrypt\n", G_STRFUNC);
-    i=rsa_decrypt_inplace(encrypted_pre_master->data_len,
-        encrypted_pre_master->data, pk, TRUE, &err);
-    if (i == 0) {
-        ssl_debug_printf("rsa_decrypt_inplace: %s\n", err);
-        g_free(err);
-    }
-
-    if (i!=48) {
-        ssl_debug_printf("%s wrong pre_master_secret length (%zd, expected "
-                         "%d)\n", G_STRFUNC, i, 48);
+    const gnutls_datum_t epms = { encrypted_pre_master->data, encrypted_pre_master->data_len };
+    gnutls_datum_t pms = { 0 };
+    // uses mechanism CKM_RSA_PKCS (corresponds to RSAES-PKCS1-v1_5)
+    int ret = gnutls_privkey_decrypt_data(pk, 0, &epms, &pms);
+    if (ret < 0) {
+        ssl_debug_printf("%s: decryption failed: %d (%s)\n", G_STRFUNC, ret, gnutls_strerror(ret));
         return FALSE;
     }
 
-    /* the decrypted data has been written into the pre_master key buffer */
-    ssl_session->pre_master_secret.data = encrypted_pre_master->data;
-    ssl_session->pre_master_secret.data_len=48;
-    ssl_print_string("pre master secret",&ssl_session->pre_master_secret);
+    if (pms.size != 48) {
+        ssl_debug_printf("%s wrong pre_master_secret length (%d, expected %d)\n",
+                         G_STRFUNC, pms.size, 48);
+        gnutls_free(pms.data);
+        return FALSE;
+    }
+
+    ssl_session->pre_master_secret.data = (guint8 *)wmem_memdup(wmem_file_scope(), pms.data, 48);
+    ssl_session->pre_master_secret.data_len = 48;
+    gnutls_free(pms.data);
+    ssl_print_string("pre master secret", &ssl_session->pre_master_secret);
 
     /* Remove the master secret if it was there.
        This forces keying material regeneration in
@@ -4291,6 +4290,11 @@ ssl_find_private_key_by_pubkey(SslDecryptSession *ssl,
         goto end;
     }
 
+    if (gnutls_pubkey_get_pk_algorithm(pubkey, NULL) != GNUTLS_PK_RSA) {
+        ssl_debug_printf("%s: Not a RSA public key - ignoring.\n", G_STRFUNC);
+        goto end;
+    }
+
     /* Generate a 20-byte SHA-1 hash. */
     r = gnutls_pubkey_get_key_id(pubkey, 0, key_id, &key_id_len);
     if (r < 0) {
@@ -4531,7 +4535,8 @@ tls_private_key_hash (gconstpointer v)
 void
 tls_private_key_free(gpointer data)
 {
-    rsa_private_key_free(data);
+    gnutls_privkey_t pkey = (gnutls_privkey_t)data;
+    gnutls_privkey_deinit(pkey);
 }
 #endif
 /* Functions for TLS/DTLS sessions and RSA private keys hashtables. }}} */
@@ -4746,8 +4751,8 @@ ssl_common_cleanup(ssl_master_key_map_t *mk_map, FILE **ssl_keylog_file,
 void
 ssl_parse_key_list(const ssldecrypt_assoc_t *uats, GHashTable *key_hash, const char* dissector_table_name, dissector_handle_t main_handle, gboolean tcp)
 {
-    gnutls_x509_privkey_t priv_key;
-    gcry_sexp_t        private_key;
+    gnutls_x509_privkey_t x509_priv_key;
+    gnutls_privkey_t   priv_key = NULL;
     FILE*              fp     = NULL;
     int                ret;
     size_t             key_id_len = 20;
@@ -4762,13 +4767,13 @@ ssl_parse_key_list(const ssldecrypt_assoc_t *uats, GHashTable *key_hash, const c
     }
 
     if ((gint)strlen(uats->password) == 0) {
-        priv_key = rsa_load_pem_key(fp, &err);
+        x509_priv_key = rsa_load_pem_key(fp, &err);
     } else {
-        priv_key = rsa_load_pkcs12(fp, uats->password, &err);
+        x509_priv_key = rsa_load_pkcs12(fp, uats->password, &err);
     }
     fclose(fp);
 
-    if (!priv_key) {
+    if (!x509_priv_key) {
         if (err) {
             report_failure("Can't load private key from %s: %s",
                            uats->keyfile, err);
@@ -4784,25 +4789,32 @@ ssl_parse_key_list(const ssldecrypt_assoc_t *uats, GHashTable *key_hash, const c
         g_free(err);
     }
 
+    gnutls_privkey_init(&priv_key);
+    ret = gnutls_privkey_import_x509(priv_key, x509_priv_key,
+            GNUTLS_PRIVKEY_IMPORT_AUTO_RELEASE|GNUTLS_PRIVKEY_IMPORT_COPY);
+    if (ret < 0) {
+        report_failure("Can't convert private key %s: %s",
+                uats->keyfile, gnutls_strerror(ret));
+        goto end;
+    }
+
     key_id = (guchar *) g_malloc0(key_id_len);
-    ret = gnutls_x509_privkey_get_key_id(priv_key, 0, key_id, &key_id_len);
+    ret = gnutls_x509_privkey_get_key_id(x509_priv_key, 0, key_id, &key_id_len);
     if (ret < 0) {
         report_failure("Can't calculate public key ID for %s: %s",
                 uats->keyfile, gnutls_strerror(ret));
         goto end;
     }
     ssl_print_data("KeyID", key_id, key_id_len);
-
-    private_key = rsa_privkey_to_sexp(priv_key, &err);
-    if (!private_key) {
-        ssl_debug_printf("%s\n", err);
-        g_free(err);
-        report_failure("Can't extract private key parameters for %s", uats->keyfile);
+    if (key_id_len != 20) {
+        report_failure("Expected Key ID size %u for %s, got %zu", 20,
+                uats->keyfile, key_id_len);
         goto end;
     }
 
-    g_hash_table_replace(key_hash, key_id, private_key);
+    g_hash_table_replace(key_hash, key_id, priv_key);
     key_id = NULL; /* used in key_hash, do not free. */
+    priv_key = NULL;
     ssl_debug_printf("ssl_init private key file %s successfully loaded.\n", uats->keyfile);
 
     handle = ssl_find_appdata_dissector(uats->protocol);
@@ -4823,7 +4835,8 @@ ssl_parse_key_list(const ssldecrypt_assoc_t *uats, GHashTable *key_hash, const c
     }
 
 end:
-    gnutls_x509_privkey_deinit(priv_key);
+    gnutls_x509_privkey_deinit(x509_priv_key);
+    gnutls_privkey_deinit(priv_key);
     g_free(key_id);
 }
 /* }}} */
