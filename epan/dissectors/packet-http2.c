@@ -1996,7 +1996,7 @@ dissect_body_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 {
     http2_data_stream_body_info_t *body_info = get_data_stream_body_info(pinfo);
     gchar *content_type = body_info->content_type;
-    http_message_info_t metadata_used_for_media_type_handle = { HTTP_OTHERS, body_info->content_type_parameters };
+    http_message_info_t metadata_used_for_media_type_handle = { HTTP_OTHERS, body_info->content_type_parameters, NULL };
 
     proto_tree_add_item(tree, hf_http2_data_data, tvb, start, length, encoding);
 

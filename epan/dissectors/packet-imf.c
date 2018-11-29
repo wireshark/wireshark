@@ -890,6 +890,7 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     message_info.type = HTTP_OTHERS;
     message_info.media_str = parameters;
+    message_info.data = NULL;
     dissector_try_string(media_type_dissector_table, content_type_str, next_tvb, pinfo, tree, (void*)&message_info);
   } else {
 

@@ -3338,7 +3338,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
     char    cseq_method[MAX_CSEQ_METHOD_SIZE] = "";
     char    call_id[MAX_CALL_ID_SIZE] = "";
     gchar  *media_type_str_lower_case = NULL;
-    http_message_info_t message_info = { HTTP_OTHERS, NULL };
+    http_message_info_t message_info = { SIP_DATA, NULL, NULL };
     char   *content_encoding_parameter_str = NULL;
     guint   resend_for_packet = 0;
     guint   request_for_response = 0;
@@ -4703,11 +4703,19 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
             if (!strcmp(media_type_str_lower_case, "application/sdp")) {
                 /* Resends don't count */
                 if (resend_for_packet == 0) {
+                    sdp_setup_info_t *setup_info = wmem_new(wmem_file_scope(), sdp_setup_info_t);
+
+                    setup_info->setup_proto = g_strdup("SIP");
+                    setup_info->hf_id       = hf_header_array[POS_CALL_ID];
+                    setup_info->hf_type     = SDP_TRACE_ID_HF_TYPE_STR;
+                    setup_info->trace_id    = wmem_strdup(wmem_file_scope(), call_id);
+                    message_info.data = setup_info;
+
                     if (line_type == REQUEST_LINE) {
                         DPRINT(("calling setup_sdp_transport() SDP_EXCHANGE_OFFER frame=%d",
                                 pinfo->num));
                         DINDENT();
-                        setup_sdp_transport(next_tvb, pinfo, SDP_EXCHANGE_OFFER, pinfo->num, sip_delay_sdp_changes);
+                        setup_sdp_transport(next_tvb, pinfo, SDP_EXCHANGE_OFFER, pinfo->num, sip_delay_sdp_changes, setup_info);
                         DENDENT();
                     } else if (line_type == STATUS_LINE) {
                         if (stat_info->response_code >= 400) {
@@ -4716,7 +4724,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                                     request_for_response, pinfo->num));
                             DINDENT();
                             /* SIP client request failed, so SDP offer should fail */
-                            setup_sdp_transport(next_tvb, pinfo, SDP_EXCHANGE_ANSWER_REJECT, request_for_response, sip_delay_sdp_changes);
+                            setup_sdp_transport(next_tvb, pinfo, SDP_EXCHANGE_ANSWER_REJECT, request_for_response, sip_delay_sdp_changes, setup_info);
                             DENDENT();
                         }
                         else if ((stat_info->response_code >= 200) && (stat_info->response_code <= 299)) {
@@ -4725,7 +4733,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                                     request_for_response, pinfo->num));
                             DINDENT();
                             /* SIP success request, so SDP offer should be accepted */
-                            setup_sdp_transport(next_tvb, pinfo, SDP_EXCHANGE_ANSWER_ACCEPT, request_for_response, sip_delay_sdp_changes);
+                            setup_sdp_transport(next_tvb, pinfo, SDP_EXCHANGE_ANSWER_ACCEPT, request_for_response, sip_delay_sdp_changes, setup_info);
                             DENDENT();
                         }
                     }

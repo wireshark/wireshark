@@ -13,11 +13,14 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#ifndef __PACKET_RTP_H__
+#define __PACKET_RTP_H__
+
 #include "epan/packet.h"
 #include "ws_symbol_export.h"
 
 #include "packet-btavdtp.h"
-
+#include "packet-sdp.h"
 
 #define RTP_MEDIA_AUDIO 1
 #define RTP_MEDIA_VIDEO 2
@@ -165,7 +168,7 @@ void rtp_dump_dyn_payload(rtp_dyn_payload_t *rtp_dyn_payload);
 #endif
 
 /* Info to save in RTP conversation / packet-info */
-#define MAX_RTP_SETUP_METHOD_SIZE 7
+#define MAX_RTP_SETUP_METHOD_SIZE 11
 struct _rtp_conversation_info
 {
 	gchar   method[MAX_RTP_SETUP_METHOD_SIZE + 1];
@@ -183,6 +186,7 @@ struct _rtp_conversation_info
 	struct srtp_info *srtp_info;    /* SRTP context */
 	bta2dp_codec_info_t *bta2dp_info;
 	btvdp_codec_info_t *btvdp_info;
+        sdp_setup_info_t *setup_info;
 };
 
 /* Add an RTP conversation with the given details */
@@ -206,10 +210,13 @@ void srtp_add_address(packet_info *pinfo,
                      guint32 setup_frame_number,
                      guint32 media_types,
                      rtp_dyn_payload_t *rtp_dyn_payload,
-                     struct srtp_info *srtp_info);
+                     struct srtp_info *srtp_info,
+                     sdp_setup_info_t *setup_info);
 
 /* Add an Bluetooth conversation with the given details */
 void
 bluetooth_add_address(packet_info *pinfo, address *addr, guint32 stream_number,
          const gchar *setup_method, guint32 setup_frame_number,
          guint32 media_types, void *data);
+
+#endif /*__PACKET_RTP_H__*/

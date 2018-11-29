@@ -545,7 +545,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
     proto_tree *subtree;
     proto_item *ti;
     gint offset = start, next_offset = 0;
-    http_message_info_t message_info = { input_message_info->type, NULL };
+    http_message_info_t message_info = { input_message_info->type, NULL, NULL };
     gint body_start, boundary_start, boundary_line_len;
 
     gchar *content_type_str = NULL;

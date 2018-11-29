@@ -906,6 +906,7 @@ static int dissect_spdy_data_payload(tvbuff_t *tvb,
     }
     message_info.type = si->message_type;
     message_info.media_str = media_str;
+    message_info.data = NULL;
     if (handle != NULL) {
       /*
        * We have a subdissector - call it.

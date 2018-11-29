@@ -27,6 +27,7 @@
 
 #include <wsutil/strtoi.h>
 
+#include "packet-http.h"
 #include "packet-sdp.h"
 
 /* un-comment the following as well as this line in conversation.c, to enable debug printing */
@@ -2205,7 +2206,7 @@ complete_descriptions(transport_info_t *transport_info, guint answer_offset)
  * are not freed, this is the responsibility of the caller.
  */
 static void
-apply_sdp_transport(packet_info *pinfo, transport_info_t *transport_info, int request_frame)
+apply_sdp_transport(packet_info *pinfo, transport_info_t *transport_info, int request_frame, sdp_setup_info_t *setup_info)
 {
     int establish_frame = 0;
 
@@ -2262,15 +2263,16 @@ apply_sdp_transport(packet_info *pinfo, transport_info_t *transport_info, int re
                    because that's where the RTP flow started, and thus conversation needs to check against */
                 srtp_add_address(pinfo, PT_UDP, &media_desc->conn_addr, media_desc->media_port, 0, "SDP", establish_frame,
                                  media_desc->media_types,
-                                 media_desc->media.rtp_dyn_payload, srtp_info);
+                                 media_desc->media.rtp_dyn_payload, srtp_info,
+                                 setup_info);
                 DENDENT();
             } else {
                 DPRINT(("calling rtp_add_address, channel=%d, media_port=%d",
                         i, media_desc->media_port));
                 DINDENT();
-                rtp_add_address(pinfo, PT_UDP, &media_desc->conn_addr, media_desc->media_port, 0, "SDP", establish_frame,
+                srtp_add_address(pinfo, PT_UDP, &media_desc->conn_addr, media_desc->media_port, 0, "SDP", establish_frame,
                                 media_desc->media_types,
-                                media_desc->media.rtp_dyn_payload);
+                                media_desc->media.rtp_dyn_payload, NULL, setup_info);
                 DENDENT();
             }
             /* SPRT might use the same port... */
@@ -2327,7 +2329,7 @@ apply_sdp_transport(packet_info *pinfo, transport_info_t *transport_info, int re
 
 void
 setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type exchange_type,
-    int request_frame, const gboolean delay)
+    int request_frame, const gboolean delay, sdp_setup_info_t *setup_info)
 {
     gint        offset = 0, next_offset, n;
     int         linelen;
@@ -2476,7 +2478,7 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
     if (!delay || ((exchange_type == SDP_EXCHANGE_ANSWER_ACCEPT) &&
         (transport_info->sdp_status == SDP_EXCHANGE_OFFER))) {
         /* Accepting answer to a previous offer (or delay pref is false). */
-        apply_sdp_transport(pinfo, transport_info, request_frame);
+        apply_sdp_transport(pinfo, transport_info, request_frame, setup_info);
 
         /* Free all media hash tables that were not assigned to a conversation
          * ('set_rtp' is false) */
@@ -2506,7 +2508,7 @@ void setup_sdp_transport_resend(int current_frame, int request_frame)
 }
 
 static int
-dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     proto_tree *sdp_tree;
     proto_item *ti, *sub_ti;
@@ -2523,6 +2525,14 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     media_description_t *media_desc = NULL;
     session_info_t session_info;
     sdp_packet_info  *sdp_pi;
+    sdp_setup_info_t *setup_info = NULL;
+
+    if (data) {
+        http_message_info_t *message_info = (http_message_info_t *)data;
+        if (message_info->type == SIP_DATA) {
+            setup_info = (sdp_setup_info_t *)message_info->data;
+        }
+    }
 
     DPRINT2(("----------------------- dissect_sdp ------------------------"));
 
@@ -2748,7 +2758,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
          * not an earlier request (transport_info == &local_transport_info).
          * Use 0 as request_frame since there is no (known) request.
          */
-        apply_sdp_transport(pinfo, transport_info, 0);
+        apply_sdp_transport(pinfo, transport_info, 0, setup_info);
     }
 
     /* Add information to the VoIP Calls dialog. */

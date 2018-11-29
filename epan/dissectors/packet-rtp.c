@@ -163,6 +163,9 @@ static dissector_table_t rtp_dyn_pt_dissector_table;
 static dissector_table_t rtp_hdr_ext_dissector_table;
 static dissector_table_t rtp_hdr_ext_rfc5285_dissector_table;
 
+/* Used for storing data to be retreived by the SDP dissector*/
+static int proto_sdp = -1;
+
 /* RTP header fields             */
 static int proto_rtp           = -1;
 static int hf_rtp_version      = -1;
@@ -1018,7 +1021,7 @@ void
 srtp_add_address(packet_info *pinfo, const port_type ptype, address *addr, int port, int other_port,
          const gchar *setup_method, guint32 setup_frame_number,
          guint32 media_types _U_, rtp_dyn_payload_t *rtp_dyn_payload,
-         struct srtp_info *srtp_info)
+         struct srtp_info *srtp_info, sdp_setup_info_t *setup_info)
 {
     address null_addr;
     conversation_t* p_conv;
@@ -1115,6 +1118,9 @@ srtp_add_address(packet_info *pinfo, const port_type ptype, address *addr, int p
     p_conv_data->frame_number = setup_frame_number;
     p_conv_data->media_types = media_types;
     p_conv_data->srtp_info = srtp_info;
+    if (setup_info) {
+        p_conv_data->setup_info = setup_info;
+    }
     p_conv_data->bta2dp_info = NULL;
     p_conv_data->btvdp_info = NULL;
 }
@@ -1125,7 +1131,7 @@ rtp_add_address(packet_info *pinfo, const port_type ptype, address *addr, int po
         const gchar *setup_method, guint32 setup_frame_number,
         guint32 media_types , rtp_dyn_payload_t *rtp_dyn_payload)
 {
-    srtp_add_address(pinfo, ptype, addr, port, other_port, setup_method, setup_frame_number, media_types, rtp_dyn_payload, NULL);
+    srtp_add_address(pinfo, ptype, addr, port, other_port, setup_method, setup_frame_number, media_types, rtp_dyn_payload, NULL, NULL);
 }
 
 static gboolean
@@ -2307,6 +2313,7 @@ get_conv_info(packet_info *pinfo, struct _rtp_info *rtp_info)
                 p_conv_packet_data->rtp_dyn_payload = p_conv_data->rtp_dyn_payload;
                 p_conv_packet_data->rtp_conv_info = p_conv_data->rtp_conv_info;
                 p_conv_packet_data->srtp_info = p_conv_data->srtp_info;
+                p_conv_packet_data->setup_info = p_conv_data->setup_info;
                 p_conv_packet_data->bta2dp_info = p_conv_data->bta2dp_info;
                 p_conv_packet_data->btvdp_info = p_conv_data->btvdp_info;
                 /* XXX: why is this file pool not pinfo->pool? */
@@ -2358,6 +2365,14 @@ show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             item = proto_tree_add_string(rtp_setup_tree, hf_rtp_setup_method,
                                          tvb, 0, 0, p_conv_data->method);
             PROTO_ITEM_SET_GENERATED(item);
+
+            if ((p_conv_data->setup_info) && (p_conv_data->setup_info->hf_id)) {
+                if (p_conv_data->setup_info->hf_type == SDP_TRACE_ID_HF_TYPE_STR ) {
+                    item = proto_tree_add_string(rtp_setup_tree, p_conv_data->setup_info->hf_id, tvb, 0, 0, p_conv_data->setup_info->trace_id);
+                    PROTO_ITEM_SET_GENERATED(item);
+                }
+
+            }
         }
 }
 
@@ -3026,6 +3041,7 @@ proto_reg_handoff_rtp(void)
     }
     dissector_add_uint("rtp.pt", rtp_rfc2198_pt, rtp_rfc2198_handle);
     rtp_saved_rfc2198_pt = rtp_rfc2198_pt;
+    proto_sdp = proto_get_id_by_filter_name("sdp");
 }
 
 /*
