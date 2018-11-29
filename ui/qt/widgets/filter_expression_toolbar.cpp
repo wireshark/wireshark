@@ -102,9 +102,9 @@ void FilterExpressionToolBar::filterExpressionsChanged()
 
     // Hiding and showing seems to be the only way to get the layout to
     // work correctly in some cases. See bug 14121 for details.
+    clear();
     setUpdatesEnabled(false);
     hide();
-    clear();
 
     // XXX Add a context menu for removing and changing buttons.
     filter_expression_iterate_expressions(filter_expression_add_action, &data);

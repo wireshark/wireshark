@@ -134,8 +134,6 @@ protected:
     virtual void dragEnterEvent(QDragEnterEvent *event);
     virtual void dropEvent(QDropEvent *event);
     virtual void changeEvent(QEvent* event);
-    virtual void resizeEvent(QResizeEvent *event);
-
 
 private:
     // XXX Move to FilterUtils
