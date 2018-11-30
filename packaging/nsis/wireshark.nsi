@@ -1256,7 +1256,7 @@ Function myShowCallback
     IfErrors 0 lbl_winpcap_installed ;if RegKey is available, WinPcap is already installed
     WriteINIStr "$PLUGINSDIR\NpcapPage.ini" "Field 2" "Text" "Neither of these are installed"
     WriteINIStr "$PLUGINSDIR\NpcapPage.ini" "Field 2" "Flags" "DISABLED"
-    WriteINIStr "$PLUGINSDIR\NpcapPage.ini" "Field 5" "Text" "(Use Add/Remove Programs first to uninstall any undetected old WinPcap versions)"
+    WriteINIStr "$PLUGINSDIR\NpcapPage.ini" "Field 5" "Text" "(Use Add/Remove Programs first to uninstall any undetected old Npcap or WinPcap versions)"
     Goto lbl_npcap_done
 
 lbl_npcap_installed:
@@ -1274,7 +1274,7 @@ lbl_npcap_installed:
 
     WriteINIStr "$PLUGINSDIR\NpcapPage.ini" "Field 4" "State" "0"
     WriteINIStr "$PLUGINSDIR\NpcapPage.ini" "Field 4" "Flags" "DISABLED"
-    WriteINIStr "$PLUGINSDIR\NpcapPage.ini" "Field 5" "Text" "If you wish to install WinPcap, please uninstall $NPCAP_NAME manually first."
+    WriteINIStr "$PLUGINSDIR\NpcapPage.ini" "Field 5" "Text" "If you wish to install Npcap, please uninstall $NPCAP_NAME manually first."
     WriteINIStr "$PLUGINSDIR\NpcapPage.ini" "Field 5" "Flags" "DISABLED"
     Goto lbl_npcap_done
 
