@@ -263,8 +263,7 @@ result in showing only the packets where this field exists. For example: the
 filter string: _tcp_ will show all packets containing the tcp protocol.
 
 There is a complete list of all filter fields available through the menu item
-menu:Help[Supported Protocols] in the page “Display Filter Fields” of the
-“Supported Protocols” dialog.
+menu:View[Internals,Supported Protocols].
 
 // XXX - add some more info here and a link to the statusbar info.
 
