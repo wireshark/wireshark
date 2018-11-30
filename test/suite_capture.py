@@ -454,19 +454,19 @@ def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, capture_file):
             ))
             # XXX Are there any other sanity checks we should run?
             if idb_compare_eq:
-                self.assertEqual(self.countOutput('Block: Interface Description Block',
+                self.assertEqual(self.countOutput(r'Block: Interface Description Block',
                     proc=tshark_proc), check_val['idb_count'])
             else:
-                self.assertGreaterEqual(self.countOutput('Block: Interface Description Block',
+                self.assertGreaterEqual(self.countOutput(r'Block: Interface Description Block',
                     proc=tshark_proc), check_val['idb_count'])
                 idb_compare_eq = True
-            self.assertEqual(self.countOutput('Option: User Application = Passthrough test #1',
+            self.assertEqual(self.countOutput(r'Option: User Application = Passthrough test #1',
                 proc=tshark_proc), check_val['ua_pt1_count'])
-            self.assertEqual(self.countOutput('Option: User Application = Passthrough test #2',
+            self.assertEqual(self.countOutput(r'Option: User Application = Passthrough test #2',
                 proc=tshark_proc), check_val['ua_pt2_count'])
-            self.assertEqual(self.countOutput('Option: User Application = Passthrough test #3',
+            self.assertEqual(self.countOutput(r'Option: User Application = Passthrough test #3',
                 proc=tshark_proc), check_val['ua_pt3_count'])
-            self.assertEqual(self.countOutput('Option: User Application = Dumpcap \(Wireshark\)',
+            self.assertEqual(self.countOutput(r'Option: User Application = Dumpcap \(Wireshark\)',
                 proc=tshark_proc), check_val['ua_dc_count'])
     return check_dumpcap_pcapng_sections_real
 
