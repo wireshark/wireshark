@@ -181,7 +181,6 @@ static int hf_zbee_zdp_complex = -1;
        int hf_zbee_zdp_lqi = -1;
 static int hf_zbee_zdp_scan_channel = -1;
        int hf_zbee_zdp_ieee_join_start_index = -1;
-       int hf_zbee_zdp_ieee_join_status = -1;
        int hf_zbee_zdp_ieee_join_update_id = -1;
        int hf_zbee_zdp_ieee_join_policy = -1;
        int hf_zbee_zdp_ieee_join_list_total = -1;
@@ -1839,10 +1838,6 @@ void proto_register_zbee_zdp(void)
 
         { &hf_zbee_zdp_ieee_join_start_index,
         { "Start Index",                "zbee_zdp.ieee_joining_list.start_index", FT_UINT8, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_zbee_zdp_ieee_join_status,
-        { "Status",                "zbee_zdp.ieee_joining_list.status", FT_UINT8, BASE_HEX, VALS(zbee_zdp_status_names), 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_ieee_join_update_id,

@@ -824,8 +824,7 @@ dissect_zbee_zdp_rsp_mgmt_ieee_join_list(tvbuff_t *tvb, packet_info *pinfo, prot
     guint32     i, status, list_total, list_count;
     guint       offset = 0;
 
-    proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_ieee_join_status, tvb, offset, 1, ENC_LITTLE_ENDIAN, &status);
-    offset += 1;
+    status = zdp_parse_status(tree, tvb, &offset);
     if (status == 0x00) {
         proto_tree_add_item(tree, hf_zbee_zdp_ieee_join_update_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset += 1;
