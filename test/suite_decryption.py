@@ -78,8 +78,10 @@ class case_decrypt_80211(subprocesstest.SubprocessTestCase):
 @fixtures.mark_usefixtures('test_env')
 @fixtures.uses_fixtures
 class case_decrypt_dtls(subprocesstest.SubprocessTestCase):
-    def test_dtls(self, cmd_tshark, capture_file):
+    def test_dtls_rsa(self, cmd_tshark, capture_file, features):
         '''DTLS'''
+        if not features.have_gnutls:
+            self.skipTest('Requires GnuTLS.')
         # https://wiki.wireshark.org/SampleCaptures?action=AttachFile&do=view&target=snakeoil.tgz
         self.assertRun((cmd_tshark,
                 '-r', capture_file('snakeoil-dtls.pcap'),
@@ -100,8 +102,10 @@ class case_decrypt_dtls(subprocesstest.SubprocessTestCase):
         wfm_count = self.countOutput('Works for me!.')
         self.assertTrue(dt_count == 7 and wfm_count == 2)
 
-    def test_dtls_udt(self, cmd_tshark, dirs, capture_file):
+    def test_dtls_udt(self, cmd_tshark, dirs, capture_file, features):
         '''UDT over DTLS 1.2 with RSA key'''
+        if not features.have_gnutls:
+            self.skipTest('Requires GnuTLS.')
         key_file = os.path.join(dirs.key_dir, 'udt-dtls.key')
         self.assertRun((cmd_tshark,
                 '-r', capture_file('udt-dtls.pcapng.gz'),
@@ -114,8 +118,10 @@ class case_decrypt_dtls(subprocesstest.SubprocessTestCase):
 @fixtures.mark_usefixtures('test_env')
 @fixtures.uses_fixtures
 class case_decrypt_tls(subprocesstest.SubprocessTestCase):
-    def test_tls(self, cmd_tshark, capture_file):
-        '''TLS using the server's private key'''
+    def test_tls_rsa(self, cmd_tshark, capture_file, features):
+        '''TLS using the server's private RSA key.'''
+        if not features.have_gnutls:
+            self.skipTest('Requires GnuTLS.')
         # https://wiki.wireshark.org/SampleCaptures?action=AttachFile&do=view&target=snakeoil2_070531.tgz
         self.assertRun((cmd_tshark,
                 '-r', capture_file('rsasnakeoil2.pcap'),
@@ -125,9 +131,11 @@ class case_decrypt_tls(subprocesstest.SubprocessTestCase):
             ))
         self.assertTrue(self.grepOutput('favicon.ico'))
 
-    def test_tls_rsa_pq(self, cmd_tshark, dirs, capture_file):
+    def test_tls_rsa_pq(self, cmd_tshark, dirs, capture_file, features):
         '''TLS using the server's private key with p < q
         (test whether libgcrypt is correctly called)'''
+        if not features.have_gnutls:
+            self.skipTest('Requires GnuTLS.')
         key_file = os.path.join(dirs.key_dir, 'rsa-p-lt-q.key')
         self.assertRun((cmd_tshark,
                 '-r', capture_file('rsa-p-lt-q.pcap'),
@@ -138,8 +146,10 @@ class case_decrypt_tls(subprocesstest.SubprocessTestCase):
             ))
         self.assertTrue(self.grepOutput('/'))
 
-    def test_tls_with_password(self, cmd_tshark, capture_file):
+    def test_tls_rsa_with_password(self, cmd_tshark, capture_file, features):
         '''TLS using the server's private key with password'''
+        if not features.have_gnutls:
+            self.skipTest('Requires GnuTLS.')
         self.assertRun((cmd_tshark,
                 '-r', capture_file('dmgr.pcapng'),
                 '-Tfields',
@@ -164,8 +174,10 @@ class case_decrypt_tls(subprocesstest.SubprocessTestCase):
             ))
         self.assertTrue(self.grepOutput(r'GET\s+/test\s+HTTP/1.0'))
 
-    def test_tls12_renegotiation(self, cmd_tshark, dirs, capture_file):
+    def test_tls12_renegotiation(self, cmd_tshark, dirs, capture_file, features):
         '''TLS 1.2 with renegotiation'''
+        if not features.have_gnutls:
+            self.skipTest('Requires GnuTLS.')
         key_file = os.path.join(dirs.key_dir, 'rsasnakeoil2.key')
         self.assertRun((cmd_tshark,
                 '-r', capture_file('tls-renegotiation.pcap'),
