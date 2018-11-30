@@ -830,7 +830,8 @@ proto_reg_handoff_quake2(void)
     dissector_handle_t quake2_handle;
     quake2_handle = create_dissector_handle(dissect_quake2, proto_quake2);
 
-    dissector_add_uint("udp.port", PORT_MASTER, quake2_handle);
+    dissector_add_uint_with_preference("udp.port", PORT_MASTER, quake2_handle);
+    apply_quake2_prefs();
 }
 
 /*

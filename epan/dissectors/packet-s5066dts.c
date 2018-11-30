@@ -1347,6 +1347,7 @@ void proto_reg_handoff_s5066dts(void)
     s5066dts_over_tcp_handle = create_dissector_handle(dissect_s5066dts_tcp, proto_s5066dts);
 
     dissector_add_for_decode_as_with_preference("tcp.port", s5066dts_over_tcp_handle);
+    apply_s5066dts_prefs();
 }
 
 /*

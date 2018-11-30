@@ -776,6 +776,7 @@ proto_reg_handoff_tftp(void)
   heur_dissector_add("stun", dissect_embeddedtftp_heur, "TFTP over TURN", "tftp_stun", proto_tftp, HEURISTIC_ENABLE);
 
   dissector_add_uint_range_with_preference("udp.port", UDP_PORT_TFTP_RANGE, tftp_handle);
+  apply_tftp_prefs();
 }
 
 /*

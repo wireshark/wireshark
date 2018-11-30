@@ -4222,6 +4222,7 @@ proto_reg_handoff_kafka(void)
 
     /* Replace range of ports with current */
     dissector_add_uint_range_with_preference("tcp.port", "", kafka_handle);
+    apply_kafka_prefs();
 }
 
 /*
