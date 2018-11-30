@@ -119,7 +119,7 @@ add_package ADDITIONAL_LIST libssh-dev ||
 echo "libssh-gcrypt-dev and libssh-dev are unavailable" >&2
 
 # libgnutls28-dev: Debian >= wheezy-backports, Ubuntu >= 12.04
-add_package ADDITIONAL_LIST libgnutls28-dev ">= 3.2.14-1" ||
+add_package ADDITIONAL_LIST libgnutls28-dev ||
 echo "libgnutls28-dev is unavailable" >&2
 
 # mmdbresolve
