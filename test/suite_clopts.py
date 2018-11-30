@@ -152,7 +152,7 @@ class case_tshark_name_resolution_clopts(subprocesstest.SubprocessTestCase):
 class case_tshark_unicode_clopts(subprocesstest.SubprocessTestCase):
     def test_tshark_unicode_display_filter(self, cmd_tshark, capture_file):
         '''Unicode (UTF-8) display filter'''
-        self.runProcess((cmd_tshark, '-r', capture_file('http.pcap'), '-Y', 'tcp.flags.str == "·······AP···"'))
+        self.assertRun((cmd_tshark, '-r', capture_file('http.pcap'), '-Y', 'tcp.flags.str == "·······AP···"'))
         self.assertTrue(self.grepOutput('HEAD.*/v4/iuident.cab'))
 
 
@@ -180,7 +180,7 @@ class case_tshark_dump_glossaries(subprocesstest.SubprocessTestCase):
             self.assertTrue(decoded, '{} is not valid UTF-8'.format(glossary))
 
     def test_tshark_glossary_plugin_count(self, cmd_tshark, base_env):
-        self.runProcess((cmd_tshark, '-G', 'plugins'), env=base_env)
+        self.assertRun((cmd_tshark, '-G', 'plugins'), env=base_env)
         self.assertGreaterEqual(self.countOutput('dissector'), 10, 'Fewer than 10 dissector plugins found')
 
     def test_tshark_elastic_mapping(self, cmd_tshark, dirs, base_env):

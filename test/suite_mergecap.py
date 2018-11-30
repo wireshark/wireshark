@@ -78,7 +78,7 @@ class case_mergecap_pcap(subprocesstest.SubprocessTestCase):
         '''Merge a single pcap file to pcap'''
         # $MERGECAP -vF pcap -w testout.pcap "${CAPTURE_DIR}dhcp.pcap" > testout.txt 2>&1
         testout_file = self.filename_from_id(testout_pcap)
-        mergecap_proc = self.runProcess((cmd_mergecap,
+        mergecap_proc = self.assertRun((cmd_mergecap,
             '-v',
             '-F', 'pcap',
             '-w', testout_file,
@@ -90,7 +90,7 @@ class case_mergecap_pcap(subprocesstest.SubprocessTestCase):
         '''Merge two pcap files to pcap'''
         # $MERGECAP -vF pcap -w testout.pcap "${CAPTURE_DIR}dhcp.pcap" "${CAPTURE_DIR}dhcp.pcap" > testout.txt 2>&1
         testout_file = self.filename_from_id(testout_pcap)
-        mergecap_proc = self.runProcess((cmd_mergecap,
+        mergecap_proc = self.assertRun((cmd_mergecap,
             '-v',
             '-F', 'pcap',
             '-w', testout_file,
@@ -102,7 +102,7 @@ class case_mergecap_pcap(subprocesstest.SubprocessTestCase):
         '''Merge three pcap files to pcap, two empty'''
         # $MERGECAP -vF pcap -w testout.pcap "${CAPTURE_DIR}empty.pcap" "${CAPTURE_DIR}dhcp.pcap" "${CAPTURE_DIR}empty.pcap" > testout.txt 2>&1
         testout_file = self.filename_from_id(testout_pcap)
-        mergecap_proc = self.runProcess((cmd_mergecap,
+        mergecap_proc = self.assertRun((cmd_mergecap,
             '-v',
             '-F', 'pcap',
             '-w', testout_file,
@@ -114,7 +114,7 @@ class case_mergecap_pcap(subprocesstest.SubprocessTestCase):
         '''Merge two pcap files to pcap, one with nanosecond timestamps'''
         # $MERGECAP -vF pcap -w testout.pcap "${CAPTURE_DIR}dhcp-nanosecond.pcap" "${CAPTURE_DIR}rsasnakeoil2.pcap" > testout.txt 2>&1
         testout_file = self.filename_from_id(testout_pcap)
-        mergecap_proc = self.runProcess((cmd_mergecap,
+        mergecap_proc = self.assertRun((cmd_mergecap,
             '-v',
             '-F', 'pcap',
             '-w', testout_file,
@@ -130,7 +130,7 @@ class case_mergecap_pcapng(subprocesstest.SubprocessTestCase):
         '''Merge a single pcap file to pcapng'''
         # $MERGECAP -v -w testout.pcap "${CAPTURE_DIR}dhcp.pcap" > testout.txt 2>&1
         testout_file = self.filename_from_id(testout_pcapng)
-        mergecap_proc = self.runProcess((cmd_mergecap,
+        mergecap_proc = self.assertRun((cmd_mergecap,
             '-v',
             '-w', testout_file,
             capture_file('dhcp.pcap'),
@@ -141,7 +141,7 @@ class case_mergecap_pcapng(subprocesstest.SubprocessTestCase):
         '''Merge two pcap files to pcapng'''
         # $MERGECAP -v -w testout.pcap "${CAPTURE_DIR}dhcp.pcap" "${CAPTURE_DIR}dhcp.pcap" > testout.txt 2>&1
         testout_file = self.filename_from_id(testout_pcapng)
-        mergecap_proc = self.runProcess((cmd_mergecap,
+        mergecap_proc = self.assertRun((cmd_mergecap,
             '-v',
             '-w', testout_file,
             capture_file('dhcp.pcap'), capture_file('dhcp.pcap'),
@@ -152,7 +152,7 @@ class case_mergecap_pcapng(subprocesstest.SubprocessTestCase):
         '''Merge two pcap files to pcapng, "none" merge mode'''
         # $MERGECAP -vI 'none' -w testout.pcap "${CAPTURE_DIR}dhcp.pcap" "${CAPTURE_DIR}dhcp.pcap" > testout.txt 2>&1
         testout_file = self.filename_from_id(testout_pcapng)
-        mergecap_proc = self.runProcess((cmd_mergecap,
+        mergecap_proc = self.assertRun((cmd_mergecap,
             '-v',
             '-I', 'none',
             '-w', testout_file,
@@ -164,7 +164,7 @@ class case_mergecap_pcapng(subprocesstest.SubprocessTestCase):
         '''Merge two pcap files to pcapng, "all" merge mode'''
         # $MERGECAP -vI 'all' -w testout.pcap "${CAPTURE_DIR}dhcp.pcap" "${CAPTURE_DIR}dhcp.pcap" > testout.txt 2>&1
         testout_file = self.filename_from_id(testout_pcapng)
-        mergecap_proc = self.runProcess((cmd_mergecap,
+        mergecap_proc = self.assertRun((cmd_mergecap,
             '-v',
             '-I', 'all',
             '-w', testout_file,
@@ -176,7 +176,7 @@ class case_mergecap_pcapng(subprocesstest.SubprocessTestCase):
         '''Merge two pcap files to pcapng, "any" merge mode'''
         # $MERGECAP -vI 'any' -w testout.pcap "${CAPTURE_DIR}dhcp.pcap" "${CAPTURE_DIR}dhcp.pcap" > testout.txt 2>&1
         testout_file = self.filename_from_id(testout_pcapng)
-        mergecap_proc = self.runProcess((cmd_mergecap,
+        mergecap_proc = self.assertRun((cmd_mergecap,
             '-v',
             '-I', 'any',
             '-w', testout_file,
@@ -188,7 +188,7 @@ class case_mergecap_pcapng(subprocesstest.SubprocessTestCase):
         '''Merge a single pcapng file to pcapng'''
         # $MERGECAP -v -w testout.pcap "${CAPTURE_DIR}dhcp.pcapng" > testout.txt 2>&1
         testout_file = self.filename_from_id(testout_pcapng)
-        mergecap_proc = self.runProcess((cmd_mergecap,
+        mergecap_proc = self.assertRun((cmd_mergecap,
             '-v',
             '-w', testout_file,
             capture_file('dhcp.pcapng'),
@@ -199,7 +199,7 @@ class case_mergecap_pcapng(subprocesstest.SubprocessTestCase):
         '''Merge one pcapng file with many interfaces to pcapng'''
         # $MERGECAP -v -w testout.pcap "${CAPTURE_DIR}many_interfaces.pcapng.1" > testout.txt 2>&1
         testout_file = self.filename_from_id(testout_pcapng)
-        mergecap_proc = self.runProcess((cmd_mergecap,
+        mergecap_proc = self.assertRun((cmd_mergecap,
             '-v',
             '-w', testout_file,
             capture_file('many_interfaces.pcapng.1'),
@@ -210,7 +210,7 @@ class case_mergecap_pcapng(subprocesstest.SubprocessTestCase):
         '''Merge multiple pcapng files with many interfaces to pcapng'''
         # $MERGECAP -v -w testout.pcap "${CAPTURE_DIR}"many_interfaces.pcapng* > testout.txt 2>&1
         testout_file = self.filename_from_id(testout_pcapng)
-        mergecap_proc = self.runProcess((cmd_mergecap,
+        mergecap_proc = self.assertRun((cmd_mergecap,
             '-v',
             '-w', testout_file,
             capture_file('many_interfaces.pcapng.1'),
@@ -223,7 +223,7 @@ class case_mergecap_pcapng(subprocesstest.SubprocessTestCase):
         '''Merge multiple pcapng files with many interfaces to pcapng, "none" merge mode'''
         # $MERGECAP -vI 'none' -w testout.pcap "${CAPTURE_DIR}"many_interfaces.pcapng* > testout.txt 2>&1
         testout_file = self.filename_from_id(testout_pcapng)
-        mergecap_proc = self.runProcess((cmd_mergecap,
+        mergecap_proc = self.assertRun((cmd_mergecap,
             '-v',
             '-I', 'none',
             '-w', testout_file,
@@ -251,7 +251,7 @@ class case_mergecap_pcapng(subprocesstest.SubprocessTestCase):
         # and use that generated pcap for our test
         # $MERGECAP -vI 'all' -w testout.pcap ./testin.pcap ./testin.pcap ./testin.pcap > testout.txt 2>&1
         testout_file = self.filename_from_id(testout_pcapng)
-        mergecap_proc = self.runProcess((cmd_mergecap,
+        mergecap_proc = self.assertRun((cmd_mergecap,
             '-v',
             '-I', 'all',
             '-w', testout_file,
@@ -278,7 +278,7 @@ class case_mergecap_pcapng(subprocesstest.SubprocessTestCase):
         # and use that generated pcap for our test
         # $MERGECAP -vI 'any' -w testout.pcap ./testin.pcap ./testin.pcap ./testin.pcap > testout.txt 2>&1
         testout_file = self.filename_from_id(testout_pcapng)
-        mergecap_proc = self.runProcess((cmd_mergecap,
+        mergecap_proc = self.assertRun((cmd_mergecap,
             '-v',
             '-I', 'any',
             '-w', testout_file,

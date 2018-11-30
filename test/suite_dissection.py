@@ -22,7 +22,7 @@ class case_dissect_http2(subprocesstest.SubprocessTestCase):
         if not features.have_nghttp2:
             self.skipTest('Requires nghttp2.')
         key_file = os.path.join(dirs.key_dir, 'http2-data-reassembly.keys')
-        self.runProcess((cmd_tshark,
+        self.assertRun((cmd_tshark,
                 '-r', capture_file('http2-data-reassembly.pcap'),
                 '-o', 'tls.keylog_file: {}'.format(key_file),
                 '-d', 'tcp.port==8443,tls',
@@ -35,7 +35,7 @@ class case_dissect_http2(subprocesstest.SubprocessTestCase):
 class case_dissect_tcp(subprocesstest.SubprocessTestCase):
     def check_tcp_out_of_order(self, cmd_tshark, dirs, extraArgs=[]):
         capture_file = os.path.join(dirs.capture_dir, 'http-ooo.pcap')
-        self.runProcess([cmd_tshark,
+        self.assertRun([cmd_tshark,
                 '-r', capture_file,
                 '-otcp.reassemble_out_of_order:TRUE',
                 '-Y', 'http',
@@ -61,7 +61,7 @@ class case_dissect_tcp(subprocesstest.SubprocessTestCase):
     def test_tcp_out_of_order_twopass_with_bug(self, cmd_tshark, capture_file):
         # TODO fix the issue below, remove this and enable
         # "test_tcp_out_of_order_twopass"
-        self.runProcess((cmd_tshark,
+        self.assertRun((cmd_tshark,
                 '-r', capture_file('http-ooo.pcap'),
                 '-otcp.reassemble_out_of_order:TRUE',
                 '-Y', 'http',
@@ -81,7 +81,7 @@ class case_dissect_tcp(subprocesstest.SubprocessTestCase):
 
     def test_tcp_out_of_order_data_after_syn(self, cmd_tshark, capture_file):
         '''Test when the first non-empty segment is OoO.'''
-        proc = self.runProcess((cmd_tshark,
+        proc = self.assertRun((cmd_tshark,
                 '-r', capture_file('dns-ooo.pcap'),
                 '-otcp.reassemble_out_of_order:TRUE',
                 '-Y', 'dns', '-Tfields', '-edns.qry.name',

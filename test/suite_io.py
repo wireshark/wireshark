@@ -40,22 +40,19 @@ def check_io_4_packets(self, capture_file, cmd=None, from_stdin=False, to_stdout
         # cat -B "${CAPTURE_DIR}dhcp.pcap" | $DUT -r - -w ./testout.pcap 2>./testout.txt
         cat_dhcp_cmd = subprocesstest.cat_dhcp_command('cat')
         stdin_cmd = '{0} | "{1}" -r - -w "{2}"'.format(cat_dhcp_cmd, cmd, testout_file)
-        io_proc = self.runProcess(stdin_cmd, shell=True)
+        io_proc = self.assertRun(stdin_cmd, shell=True)
     elif to_stdout:
         # $DUT -r "${CAPTURE_DIR}dhcp.pcap" -w - > ./testout.pcap 2>./testout.txt
         stdout_cmd = '"{0}" -r "{1}" -w - > "{2}"'.format(cmd, capture_file('dhcp.pcap'), testout_file)
-        io_proc = self.runProcess(stdout_cmd, shell=True)
+        io_proc = self.assertRun(stdout_cmd, shell=True)
     else: # direct->direct
         # $DUT -r "${CAPTURE_DIR}dhcp.pcap" -w ./testout.pcap > ./testout.txt 2>&1
-        io_proc = self.runProcess((cmd,
+        io_proc = self.assertRun((cmd,
             '-r', capture_file('dhcp.pcap'),
             '-w', testout_file,
         ))
-    io_returncode = io_proc.returncode
-    self.assertEqual(io_returncode, 0)
     self.assertTrue(os.path.isfile(testout_file))
-    if (io_returncode == 0):
-        self.checkPacketCount(4)
+    self.checkPacketCount(4)
 
 
 @fixtures.mark_usefixtures('test_env')
@@ -86,8 +83,5 @@ class case_rawshark_io(subprocesstest.SubprocessTestCase):
         testout_file = self.filename_from_id(testout_pcap)
         raw_dhcp_cmd = subprocesstest.cat_dhcp_command('raw')
         rawshark_cmd = '{0} | "{1}" -r - -n -dencap:1 -R "udp.port==68"'.format(raw_dhcp_cmd, cmd_rawshark)
-        rawshark_proc = self.runProcess(rawshark_cmd, shell=True)
-        rawshark_returncode = rawshark_proc.returncode
-        self.assertEqual(rawshark_returncode, 0)
-        if (rawshark_returncode == 0):
-            self.assertTrue(self.diffOutput(rawshark_proc.stdout_str, io_baseline_str, 'rawshark', baseline_file))
+        rawshark_proc = self.assertRun(rawshark_cmd, shell=True)
+        self.assertTrue(self.diffOutput(rawshark_proc.stdout_str, io_baseline_str, 'rawshark', baseline_file))

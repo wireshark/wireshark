@@ -107,7 +107,7 @@ class case_name_resolution(subprocesstest.SubprocessTestCase):
         check_name_resolution(self, True, False, True, True, 'custom-4-2-2-2')
 
     def test_hosts_any(self, cmd_tshark, capture_file):
-        self.runProcess((cmd_tshark,
+        self.assertRun((cmd_tshark,
                 '-r', capture_file('dns+icmp.pcapng.gz'),
                 '-qz', 'hosts',
                 ))
@@ -115,7 +115,7 @@ class case_name_resolution(subprocesstest.SubprocessTestCase):
         self.assertTrue(self.grepOutput('fe80::6233:4bff:fe13:c558\tCrunch.local'))
 
     def test_hosts_ipv4(self, cmd_tshark, capture_file):
-        self.runProcess((cmd_tshark,
+        self.assertRun((cmd_tshark,
                 '-r', capture_file('dns+icmp.pcapng.gz'),
                 '-qz', 'hosts,ipv4',
                 ))
@@ -123,7 +123,7 @@ class case_name_resolution(subprocesstest.SubprocessTestCase):
         self.assertFalse(self.grepOutput('fe80::6233:4bff:fe13:c558\tCrunch.local'))
 
     def test_hosts_ipv6(self, cmd_tshark, capture_file):
-        self.runProcess((cmd_tshark,
+        self.assertRun((cmd_tshark,
                 '-r', capture_file('dns+icmp.pcapng.gz'),
                 '-qz', 'hosts,ipv6',
                 ))

@@ -118,8 +118,7 @@ def check_capture_10_packets(capture_interface, cmd_dumpcap, traffic_generator):
             self.log_fd.write('{} -D output:\n'.format(cmd))
             self.runProcess((cmd, '-D'))
         self.assertEqual(capture_returncode, 0)
-        if (capture_returncode == 0):
-            self.checkPacketCount(10)
+        self.checkPacketCount(10)
     return check_capture_10_packets_real
 
 
@@ -142,7 +141,7 @@ def check_capture_fifo(cmd_dumpcap):
         fifo_proc = self.startProcess(
             ('{0} > {1}'.format(slow_dhcp_cmd, fifo_file)),
             shell=True)
-        capture_proc = self.runProcess(capture_command(cmd,
+        capture_proc = self.assertRun(capture_command(cmd,
             '-i', fifo_file,
             '-p',
             '-w', testout_file,
@@ -150,10 +149,7 @@ def check_capture_fifo(cmd_dumpcap):
         ))
         fifo_proc.kill()
         self.assertTrue(os.path.isfile(testout_file))
-        capture_returncode = capture_proc.returncode
-        self.assertEqual(capture_returncode, 0)
-        if (capture_returncode == 0):
-            self.checkPacketCount(8)
+        self.checkPacketCount(8)
     return check_capture_fifo_real
 
 
@@ -174,16 +170,13 @@ def check_capture_stdin(cmd_dumpcap):
         is_gui = type(cmd) != str and '-k' in cmd[0]
         if is_gui:
             capture_cmd += ' -o console.log.level:127'
-        pipe_proc = self.runProcess(slow_dhcp_cmd + ' | ' + capture_cmd, shell=True)
-        pipe_returncode = pipe_proc.returncode
-        self.assertEqual(pipe_returncode, 0)
+        pipe_proc = self.assertRun(slow_dhcp_cmd + ' | ' + capture_cmd, shell=True)
         if is_gui:
             self.assertTrue(self.grepOutput('Wireshark is up and ready to go'), 'No startup message.')
             self.assertTrue(self.grepOutput('Capture started'), 'No capture start message.')
             self.assertTrue(self.grepOutput('Capture stopped'), 'No capture stop message.')
         self.assertTrue(os.path.isfile(testout_file))
-        if (pipe_returncode == 0):
-            self.checkPacketCount(8)
+        self.checkPacketCount(8)
     return check_capture_stdin_real
 
 
@@ -194,7 +187,7 @@ def check_capture_read_filter(capture_interface, traffic_generator):
         self.assertIsNotNone(cmd)
         testout_file = self.filename_from_id(testout_pcap)
         stop_traffic = start_traffic()
-        capture_proc = self.runProcess(capture_command(cmd,
+        capture_proc = self.assertRun(capture_command(cmd,
             '-i', capture_interface,
             '-p',
             '-w', testout_file,
@@ -205,11 +198,7 @@ def check_capture_read_filter(capture_interface, traffic_generator):
             '-f', cfilter,
         ))
         stop_traffic()
-        capture_returncode = capture_proc.returncode
-        self.assertEqual(capture_returncode, 0)
-
-        if (capture_returncode == 0):
-            self.checkPacketCount(0)
+        self.checkPacketCount(0)
     return check_capture_read_filter_real
 
 @fixtures.fixture
@@ -219,7 +208,7 @@ def check_capture_snapshot_len(capture_interface, cmd_tshark, traffic_generator)
         self.assertIsNotNone(cmd)
         stop_traffic = start_traffic()
         testout_file = self.filename_from_id(testout_pcap)
-        capture_proc = self.runProcess(capture_command(cmd,
+        capture_proc = self.assertRun(capture_command(cmd,
             '-i', capture_interface,
             '-p',
             '-w', testout_file,
@@ -228,22 +217,17 @@ def check_capture_snapshot_len(capture_interface, cmd_tshark, traffic_generator)
             '-f', cfilter,
         ))
         stop_traffic()
-        capture_returncode = capture_proc.returncode
-        self.assertEqual(capture_returncode, 0)
         self.assertTrue(os.path.isfile(testout_file))
 
         # Use tshark to filter out all packets larger than 68 bytes.
         testout2_file = self.filename_from_id('testout2.pcap')
 
-        filter_proc = self.runProcess((cmd_tshark,
+        filter_proc = self.assertRun((cmd_tshark,
             '-r', testout_file,
             '-w', testout2_file,
             '-Y', 'frame.cap_len>{}'.format(snapshot_len),
         ))
-        filter_returncode = filter_proc.returncode
-        self.assertEqual(capture_returncode, 0)
-        if (capture_returncode == 0):
-            self.checkPacketCount(0, cap_file=testout2_file)
+        self.checkPacketCount(0, cap_file=testout2_file)
     return check_capture_snapshot_len_real
 
 
@@ -268,12 +252,8 @@ def check_dumpcap_autostop_stdin(cmd_dumpcap):
             '-w', testout_file,
             '-a', condition,
         ))
-        pipe_proc = self.runProcess(cat100_dhcp_cmd + ' | ' + capture_cmd, shell=True)
-        pipe_returncode = pipe_proc.returncode
-        self.assertEqual(pipe_returncode, 0)
+        pipe_proc = self.assertRun(cat100_dhcp_cmd + ' | ' + capture_cmd, shell=True)
         self.assertTrue(os.path.isfile(testout_file))
-        if (pipe_returncode != 0):
-            return
 
         if packets is not None:
             self.checkPacketCount(packets)
@@ -307,11 +287,7 @@ def check_dumpcap_ringbuffer_stdin(cmd_dumpcap):
             '-a', 'files:2',
             '-b', condition,
         ))
-        pipe_proc = self.runProcess(cat100_dhcp_cmd + ' | ' + capture_cmd, shell=True)
-        pipe_returncode = pipe_proc.returncode
-        self.assertEqual(pipe_returncode, 0)
-        if (pipe_returncode != 0):
-            return
+        pipe_proc = self.assertRun(cat100_dhcp_cmd + ' | ' + capture_cmd, shell=True)
 
         rb_files = glob.glob(testout_glob)
         for rbf in rb_files:
@@ -430,7 +406,7 @@ def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, capture_file):
 
         capture_cmd = capture_command(cmd_dumpcap, *capture_cmd_args)
 
-        capture_proc = self.runProcess(capture_cmd)
+        capture_proc = self.assertRun(capture_cmd)
         for fifo_proc in fifo_procs: fifo_proc.kill()
 
         rb_files = []
@@ -443,11 +419,6 @@ def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, capture_file):
         for rbf in rb_files:
             self.cleanup_files.append(rbf)
             self.assertTrue(os.path.isfile(rbf))
-
-        returncode = capture_proc.returncode
-        self.assertEqual(returncode, 0)
-        if (returncode != 0):
-            return
 
         # Output tests
 
@@ -476,7 +447,7 @@ def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, capture_file):
         for check_val in check_vals:
             self.checkPacketCount(check_val['packet_count'], cap_file=check_val['filename'])
 
-            tshark_proc = self.runProcess(capture_command(cmd_tshark,
+            tshark_proc = self.assertRun(capture_command(cmd_tshark,
                 '-r', check_val['filename'],
                 '-V',
                 '-X', 'read_format:MIME Files Format'

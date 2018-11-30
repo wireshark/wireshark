@@ -27,7 +27,7 @@ class case_follow_tcp(subprocesstest.SubprocessTestCase):
         # 6. lost but acked segments
         # 7. lost 3/5 fragments, but acked
         # Not checked: lost and not acked (currently truncated, is that OK?)
-        proc = self.runProcess((cmd_tshark,
+        proc = self.assertRun((cmd_tshark,
                                 '-r', capture_file('tcp-badsegments.pcap'),
                                 '-qz', 'follow,tcp,hex,0',
                                 ))
