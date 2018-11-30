@@ -164,6 +164,13 @@ static int hf_docsis_tlv_mcap_em = -1;
 static int hf_docsis_tlv_mcap_em_1x1 = -1;
 static int hf_docsis_tlv_mcap_em_light_sleep = -1;
 static int hf_docsis_tlv_mcap_cm_status_ack = -1;
+static int hf_docsis_tlv_mcap_em_pref = -1;
+static int hf_docsis_tlv_mcap_em_pref_1x1 = -1;
+static int hf_docsis_tlv_mcap_em_pref_dls = -1;
+static int hf_docsis_tlv_mcap_ext_pkt_len_sup_cap = -1;
+static int hf_docsis_tlv_mcap_ofdm_mult_recv_chan_sup = -1;
+static int hf_docsis_tlv_mcap_ofdma_mult_trans_chan_sup = -1;
+static int hf_docsis_tlv_mcap_down_ofdm_prof_sup = -1;
 
 static int hf_docsis_tlv_clsfr_ref = -1;
 static int hf_docsis_tlv_clsfr_id = -1;
@@ -432,6 +439,7 @@ static gint ett_docsis_tlv = -1;
 static gint ett_docsis_tlv_cos = -1;
 static gint ett_docsis_tlv_mcap = -1;
 static gint ett_docsis_tlv_mcap_em = -1;
+static gint ett_docsis_tlv_mcap_em_pref = -1;
 static gint ett_docsis_tlv_clsfr = -1;
 static gint ett_docsis_tlv_clsfr_ip = -1;
 static gint ett_docsis_tlv_clsfr_ip6 = -1;
@@ -2621,6 +2629,67 @@ dissect_modemcap (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int sta
             if (length == 1)
               {
                 proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_cm_status_ack, tvb,
+                                     pos, length, ENC_BIG_ENDIAN);
+              }
+            else
+              {
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
+              }
+            break;
+          case CAP_EM_PREF:
+            if (length == 4)
+              {
+                static const gint *em_pref[] = {
+                  &hf_docsis_tlv_mcap_em_pref_1x1,
+                  &hf_docsis_tlv_mcap_em_pref_dls,
+                  NULL
+                };
+
+                proto_tree_add_bitmask(mcap_tree, tvb, pos, hf_docsis_tlv_mcap_em_pref,
+                         ett_docsis_tlv_mcap_em_pref, em_pref, ENC_BIG_ENDIAN);
+              }
+            else
+              {
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
+              }
+            break;
+          case CAP_EXT_PKT_LEN_SUP_CAP:
+            if (length == 2)
+              {
+                proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_ext_pkt_len_sup_cap, tvb,
+                                     pos, length, ENC_BIG_ENDIAN);
+              }
+            else
+              {
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
+              }
+            break;
+          case CAP_OFDM_MULT_RECV_CHAN_SUP:
+            if (length == 1)
+              {
+                proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_ofdm_mult_recv_chan_sup, tvb,
+                                     pos, length, ENC_BIG_ENDIAN);
+              }
+            else
+              {
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
+              }
+            break;
+          case CAP_OFDMA_MULT_TRANS_CHAN_SUP:
+            if (length == 1)
+              {
+                proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_ofdma_mult_trans_chan_sup, tvb,
+                                     pos, length, ENC_BIG_ENDIAN);
+              }
+            else
+              {
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
+              }
+            break;
+          case CAP_DOWN_OFDM_PROF_SUP:
+            if (length == 1)
+              {
+                proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_down_ofdm_prof_sup, tvb,
                                      pos, length, ENC_BIG_ENDIAN);
               }
             else
@@ -5446,6 +5515,48 @@ proto_register_docsis_tlv (void)
       FT_UINT8, BASE_DEC, VALS(sup_unsup_vals), 0x0,
       "CM_STATUS_ACK", HFILL}
     },
+    {&hf_docsis_tlv_mcap_em_pref,
+     {".47 Energy Management Preference",
+      "docsis_tlv.mcap.em_pref",
+      FT_UINT32, BASE_HEX, NULL, 0x0,
+      "Energy Management Preference", HFILL}
+    },
+    {&hf_docsis_tlv_mcap_em_pref_1x1,
+     {"Energy Management 1x1 Feature",
+      "docsis_tlv.mcap.em_pref.1x1",
+      FT_BOOLEAN, 32, NULL, 0x1,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_mcap_em_pref_dls,
+     {"DOCSIS Light Sleep Mode",
+      "docsis_tlv.mcap.em_pref.dls",
+      FT_BOOLEAN, 32, NULL, 0x2,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_mcap_ext_pkt_len_sup_cap,
+     {".48 Extended Packet Length Support Capability",
+      "docsis_tlv.mcap.ext_pkt_len_sup_cap",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      "Extended Packet Length Support Capability", HFILL}
+    },
+    {&hf_docsis_tlv_mcap_ofdm_mult_recv_chan_sup,
+     {".49 OFDM Multiple Receive Channel Support",
+      "docsis_tlv.mcap.ofdm_mult_recv_chan_sup",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "OFDM Multiple Receive Channel Support", HFILL}
+    },
+    {&hf_docsis_tlv_mcap_ofdma_mult_trans_chan_sup,
+     {".50 OFDMA Multiple Transmit Channel Support",
+      "docsis_tlv.mcap.ofdma_mult_trans_chan_sup",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "OFDMA Multiple Transmit Channel Support", HFILL}
+    },
+    {&hf_docsis_tlv_mcap_down_ofdm_prof_sup,
+     {".51 Downstream OFDM Profile Support",
+      "docsis_tlv.mcap.down_ofdm_prof_sup",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "Downstream OFDM Profile Support", HFILL}
+    },
     {&hf_docsis_tlv_cm_mic,
      {"6 CM MIC", "docsis_tlv.cmmic",
       FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -6914,6 +7025,7 @@ proto_register_docsis_tlv (void)
     &ett_docsis_tlv_cos,
     &ett_docsis_tlv_mcap,
     &ett_docsis_tlv_mcap_em,
+    &ett_docsis_tlv_mcap_em_pref,
     &ett_docsis_tlv_clsfr,
     &ett_docsis_tlv_clsfr_ip,
     &ett_docsis_tlv_clsfr_ip6,

@@ -147,6 +147,11 @@
 #define CAP_EXT_US_TRNS_PWR 40
 #define CAP_EM 44
 #define CAP_CM_STATUS_ACK 46
+#define CAP_EM_PREF 47
+#define CAP_EXT_PKT_LEN_SUP_CAP 48
+#define CAP_OFDM_MULT_RECV_CHAN_SUP 49
+#define CAP_OFDMA_MULT_TRANS_CHAN_SUP 50
+#define CAP_DOWN_OFDM_PROF_SUP 51
 
 /* Define Classifier subtypes
  * These are subtypes of either:
