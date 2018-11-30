@@ -324,8 +324,8 @@ const value_string zbee_zdp_cluster_names[] = {
     { ZBEE_ZDP_RSP_MGMT_DIRECT_JOIN,              "Direct Join Response" },
     { ZBEE_ZDP_RSP_MGMT_PERMIT_JOIN,              "Permit Join Response" },
     { ZBEE_ZDP_RSP_MGMT_CACHE,                    "Cache Response" },
-    { ZBEE_ZDP_RSP_MGMT_NWKUPDATE,                "Network Update Notify" },
-    { ZBEE_ZDP_RSP_MGMT_NWKUPDATE_ENH,            "Network Enhanced Update Notify" },
+    { ZBEE_ZDP_NOT_MGMT_NWKUPDATE,                "Network Update Notify" },
+    { ZBEE_ZDP_NOT_MGMT_NWKUPDATE_ENH,            "Network Enhanced Update Notify" },
     { ZBEE_ZDP_RSP_MGMT_IEEE_JOIN_LIST,           "IEEE Joining List Response" },
     { 0, NULL }
 };
@@ -1315,9 +1315,9 @@ dissect_zbee_zdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         case ZBEE_ZDP_RSP_MGMT_CACHE:
             dissect_zbee_zdp_rsp_mgmt_cache(zdp_tvb, pinfo, zdp_tree);
             break;
-        case ZBEE_ZDP_RSP_MGMT_NWKUPDATE:
-        case ZBEE_ZDP_RSP_MGMT_NWKUPDATE_ENH:
-            dissect_zbee_zdp_rsp_mgmt_nwkupdate(zdp_tvb, pinfo, zdp_tree);
+        case ZBEE_ZDP_NOT_MGMT_NWKUPDATE:
+        case ZBEE_ZDP_NOT_MGMT_NWKUPDATE_ENH:
+            dissect_zbee_zdp_not_mgmt_nwkupdate(zdp_tvb, pinfo, zdp_tree);
             break;
         case ZBEE_ZDP_RSP_MGMT_IEEE_JOIN_LIST:
             dissect_zbee_zdp_rsp_mgmt_ieee_join_list(zdp_tvb, pinfo, zdp_tree);

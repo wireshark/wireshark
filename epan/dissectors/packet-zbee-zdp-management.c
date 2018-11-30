@@ -770,7 +770,7 @@ dissect_zbee_zdp_rsp_mgmt_cache(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
  *@param tree pointer to data tree Wireshark uses to display packet.
 */
 void
-dissect_zbee_zdp_rsp_mgmt_nwkupdate(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_zbee_zdp_not_mgmt_nwkupdate(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint       offset = 0;
     guint       i, j;
@@ -809,7 +809,7 @@ dissect_zbee_zdp_rsp_mgmt_nwkupdate(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
     /* Dump any leftover bytes. */
     zdp_dump_excess(tvb, offset, pinfo, tree);
-} /* dissect_zbee_zdp_rsp_mgmt_nwkupdate */
+} /* dissect_zbee_zdp_not_mgmt_nwkupdate */
 
 /**
  *ZigBee Device Profile dissector for the IEEE Joining List Response.
