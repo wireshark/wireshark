@@ -431,8 +431,6 @@ dissect_aodv_draft_01_v6_rreq(tvbuff_t *tvb, packet_info *pinfo,
                               proto_tree *aodv_tree, proto_item *ti)
 {
     int                offset = 1;
-    proto_item        *tj;
-    guint8             flags;
     guint8             hop_count;
     guint32            rreq_id;
     guint32            dest_seqno;
@@ -449,19 +447,8 @@ dissect_aodv_draft_01_v6_rreq(tvbuff_t *tvb, packet_info *pinfo,
         NULL
     };
 
-    flags = tvb_get_guint8(tvb, offset);
-    tj = proto_tree_add_bitmask(aodv_tree, tvb, offset, hf_aodv_flags,
-                   ett_aodv_flags, aodv_flags, ENC_NA);
-    if (flags & RREQ_JOIN)
-        proto_item_append_text(tj, " J");
-    if (flags & RREQ_REP)
-        proto_item_append_text(tj, " R");
-    if (flags & RREQ_GRATRREP)
-        proto_item_append_text(tj, " G");
-    if (flags & RREQ_DESTONLY)
-        proto_item_append_text(tj, " D");
-    if (flags & RREQ_UNKNSEQ)
-        proto_item_append_text(tj, " U");
+    proto_tree_add_bitmask_with_flags(aodv_tree, tvb, offset, hf_aodv_flags,
+                   ett_aodv_flags, aodv_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_TFS | BMT_NO_INT);
     offset += 2;        /* skip reserved byte */
 
     hop_count = tvb_get_guint8(tvb, offset);
@@ -520,8 +507,7 @@ dissect_aodv_draft_01_v6_rrep(tvbuff_t *tvb, packet_info *pinfo,
                               proto_tree *aodv_tree, proto_item *ti)
 {
     int                offset = 1;
-    proto_item        *tj;
-    guint8             flags;
+    guint16            flags;
     guint8             prefix_sz;
     guint8             hop_count;
     guint32            dest_seqno;
@@ -535,16 +521,12 @@ dissect_aodv_draft_01_v6_rrep(tvbuff_t *tvb, packet_info *pinfo,
         NULL
     };
 
-    flags = tvb_get_guint8(tvb, offset);
-    tj = proto_tree_add_bitmask(aodv_tree, tvb, offset, hf_aodv_flags,
-                   ett_aodv_flags, aodv_flags, ENC_NA);
-    if (flags & RREP_REP)
-        proto_item_append_text(tj, " R");
-    if (flags & RREP_ACK_REQ)
-        proto_item_append_text(tj, " A");
+    flags = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_bitmask_with_flags(aodv_tree, tvb, offset, hf_aodv_flags,
+                   ett_aodv_flags, aodv_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_TFS | BMT_NO_INT);
     offset += 1;
 
-    prefix_sz = tvb_get_guint8(tvb, offset) & 0x7F;
+    prefix_sz = flags & 0x7F;
     proto_tree_add_uint(aodv_tree, hf_aodv_prefix_sz, tvb, offset, 1,
                             prefix_sz);
     offset += 1;
@@ -602,9 +584,7 @@ dissect_aodv_draft_01_v6_rerr(tvbuff_t *tvb, packet_info *pinfo,
                               proto_tree *aodv_tree)
 {
     int         offset = 1;
-    proto_item *tj;
     proto_tree *aodv_unreach_dest_tree;
-    guint8      flags;
     guint8      dest_count;
     int         i;
     static const int * aodv_flags[] = {
@@ -612,11 +592,8 @@ dissect_aodv_draft_01_v6_rerr(tvbuff_t *tvb, packet_info *pinfo,
         NULL
     };
 
-    flags = tvb_get_guint8(tvb, offset);
-    tj = proto_tree_add_bitmask(aodv_tree, tvb, offset, hf_aodv_flags,
-                   ett_aodv_flags, aodv_flags, ENC_NA);
-    if (flags & RERR_NODEL)
-        proto_item_append_text(tj, " N");
+    proto_tree_add_bitmask_with_flags(aodv_tree, tvb, offset, hf_aodv_flags,
+                   ett_aodv_flags, aodv_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_TFS | BMT_NO_INT);
     offset += 2;        /* skip reserved byte */
 
     dest_count = tvb_get_guint8(tvb, offset);
