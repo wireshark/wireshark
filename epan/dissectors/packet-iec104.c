@@ -1932,6 +1932,7 @@ proto_reg_handoff_iec104(void)
 	iec104asdu_handle = create_dissector_handle(dissect_iec104asdu, proto_iec104asdu);
 
 	dissector_add_uint_with_preference("tcp.port", IEC104_PORT, iec104apci_handle);
+        apply_iec104_prefs();
 }
 
 /*

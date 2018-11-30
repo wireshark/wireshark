@@ -5778,6 +5778,7 @@ proto_reg_handoff_capwap(void)
 
     dissector_add_uint_with_preference("udp.port", UDP_PORT_CAPWAP_CONTROL, capwap_control_handle);
     dissector_add_uint_with_preference("udp.port", UDP_PORT_CAPWAP_DATA, capwap_data_handle);
+    apply_capwap_prefs();
 }
 /*
  * Editor modelines

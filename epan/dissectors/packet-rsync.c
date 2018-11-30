@@ -352,6 +352,7 @@ void
 proto_reg_handoff_rsync(void)
 {
     dissector_add_uint_with_preference("tcp.port", TCP_PORT_RSYNC, rsync_handle);
+    apply_rsync_prefs();
 }
 
 /*

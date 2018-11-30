@@ -828,7 +828,8 @@ proto_reg_handoff_quakeworld(void)
 	dissector_handle_t quakeworld_handle;
 
 	quakeworld_handle = create_dissector_handle(dissect_quakeworld, proto_quakeworld);
-	dissector_add_uint("udp.port", PORT_MASTER, quakeworld_handle);
+	dissector_add_uint_with_preference("udp.port", PORT_MASTER, quakeworld_handle);
+        apply_quakeworld_prefs();
 }
 
 /*

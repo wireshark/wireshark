@@ -991,6 +991,7 @@ proto_reg_handoff_beep(void)
 
   dissector_add_uint_with_preference("tcp.port", TCP_PORT_BEEP, beep_handle);
 
+  apply_beep_prefs();
 }
 
 /*

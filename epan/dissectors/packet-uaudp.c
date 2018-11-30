@@ -545,6 +545,7 @@ void proto_reg_handoff_uaudp(void)
     ua_term_to_sys_handle = find_dissector_add_dependency("ua_term_to_sys", proto_uaudp);
 
     dissector_add_uint_range_with_preference("udp.port", UAUDP_PORT_RANGE, uaudp_handle);
+    apply_uaudp_prefs();
 }
 
 /*

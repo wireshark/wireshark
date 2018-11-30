@@ -6243,6 +6243,7 @@ proto_reg_handoff_epl(void)
 
 	dissector_add_uint("ethertype", ETHERTYPE_EPL_V2, epl_handle);
 	dissector_add_uint_with_preference("udp.port", UDP_PORT_EPL, epl_udp_handle);
+        apply_prefs();
 
 	/* register frame init routine */
 	register_init_routine( setup_dissector );

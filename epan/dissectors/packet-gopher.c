@@ -70,10 +70,7 @@ static range_t *gopher_tcp_range = NULL;
 /* Returns TRUE if the packet is from a client */
 static gboolean
 is_client(packet_info *pinfo) {
-    if (value_is_in_range(gopher_tcp_range, pinfo->destport)) {
-        return TRUE;
-    }
-    return FALSE;
+    return value_is_in_range(gopher_tcp_range, pinfo->destport);
 }
 
 /* Name + Tab + Selector + Tab + Host + Tab + Port */
@@ -269,6 +266,7 @@ proto_reg_handoff_gopher(void)
 {
     gopher_handle = create_dissector_handle(dissect_gopher, proto_gopher);
     dissector_add_uint_range_with_preference("tcp.port", TCP_DEFAULT_RANGE, gopher_handle);
+    gopher_prefs_apply();
 }
 
 /*

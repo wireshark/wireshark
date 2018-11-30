@@ -2159,6 +2159,7 @@ proto_reg_handoff_mbtcp(void)
 {
     dissector_add_uint_with_preference("tcp.port", PORT_MBTCP, mbtcp_handle);
     dissector_add_uint_with_preference("udp.port", PORT_MBTCP, mbudp_handle);
+    apply_mbtcp_prefs();
 
     dissector_add_uint("mbtcp.prot_id", MODBUS_PROTOCOL_ID, modbus_handle);
 
@@ -2172,6 +2173,7 @@ proto_reg_handoff_mbrtu(void)
     /* Make sure to use Modbus RTU Preferences field to determine default TCP port */
     dissector_add_for_decode_as_with_preference("udp.port", mbrtu_udp_handle);
     dissector_add_for_decode_as_with_preference("tcp.port", mbrtu_handle);
+    apply_mbrtu_prefs();
 
     dissector_add_uint("mbtcp.prot_id", MODBUS_PROTOCOL_ID, modbus_handle);
     dissector_add_for_decode_as("rtacser.data", mbrtu_handle);
