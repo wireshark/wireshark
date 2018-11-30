@@ -471,32 +471,6 @@ dissect_zbee_zdp_req_mgmt_ieee_join_list(tvbuff_t *tvb, packet_info *pinfo, prot
     zdp_dump_excess(tvb, offset, pinfo, tree);
 } /* dissect_zbee_zdp_req_mgmt_ieee_join_list */
 
-/**
- *ZigBee Device Profile dissector for the unsolicited nwk update notify.
- *
- *@param tvb pointer to buffer containing raw packet.
- *@param pinfo pointer to packet information fields
- *@param tree pointer to data tree Wireshark uses to display packet.
-*/
-void
-dissect_zbee_zdp_req_mgmt_unsolicited_nwkupdate(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-    guint   offset = 0;
-
-    zdp_parse_chanmask(tree, tvb, &offset, hf_zbee_zdp_channel_page, hf_zbee_zdp_channel_mask);
-    proto_tree_add_item(tree, hf_zbee_zdp_tx_total, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    offset += 2;
-    proto_tree_add_item(tree, hf_zbee_zdp_tx_fail, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    offset += 2;
-    proto_tree_add_item(tree, hf_zbee_zdp_tx_retries, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    offset += 2;
-    proto_tree_add_item(tree, hf_zbee_zdp_period_time_results, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    offset += 1;
-
-    /* Dump any leftover bytes. */
-    zdp_dump_excess(tvb, offset, pinfo, tree);
-} /* dissect_zbee_zdp_req_mgmt_unsolicited_nwkupdate */
-
 /**************************************
  * MANAGEMENT RESPONSES
  **************************************
@@ -847,6 +821,33 @@ dissect_zbee_zdp_rsp_mgmt_ieee_join_list(tvbuff_t *tvb, packet_info *pinfo, prot
     /* Dump any leftover bytes. */
     zdp_dump_excess(tvb, offset, pinfo, tree);
 } /* dissect_zbee_zdp_rsp_mgmt_ieee_join_list */
+
+/**
+ *ZigBee Device Profile dissector for the unsolicited nwk update notify.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
+void
+dissect_zbee_zdp_not_mgmt_unsolicited_nwkupdate(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    guint   offset = 0;
+
+    zdp_parse_status(tree, tvb, &offset);
+    zdp_parse_chanmask(tree, tvb, &offset, hf_zbee_zdp_channel_page, hf_zbee_zdp_channel_mask);
+    proto_tree_add_item(tree, hf_zbee_zdp_tx_total, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(tree, hf_zbee_zdp_tx_fail, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(tree, hf_zbee_zdp_tx_retries, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(tree, hf_zbee_zdp_period_time_results, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    /* Dump any leftover bytes. */
+    zdp_dump_excess(tvb, offset, pinfo, tree);
+} /* dissect_zbee_zdp_not_mgmt_unsolicited_nwkupdate */
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

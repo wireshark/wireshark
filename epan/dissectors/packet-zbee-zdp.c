@@ -281,7 +281,6 @@ const value_string zbee_zdp_cluster_names[] = {
     { ZBEE_ZDP_REQ_MGMT_NWKUPDATE,                "Network Update Request" },
     { ZBEE_ZDP_REQ_MGMT_NWKUPDATE_ENH,            "Network Update Enhanced Request" },
     { ZBEE_ZDP_REQ_MGMT_IEEE_JOIN_LIST,           "IEEE Joining List Request" },
-    { ZBEE_ZDP_REQ_MGMT_UNSOLICITED_NWKUPDATE,    "Unsolicited Enhanced Network Update Notify" },
 
     { ZBEE_ZDP_RSP_NWK_ADDR,                      "Network Address Response" },
     { ZBEE_ZDP_RSP_IEEE_ADDR,                     "Extended Address Response" },
@@ -327,6 +326,7 @@ const value_string zbee_zdp_cluster_names[] = {
     { ZBEE_ZDP_NOT_MGMT_NWKUPDATE,                "Network Update Notify" },
     { ZBEE_ZDP_NOT_MGMT_NWKUPDATE_ENH,            "Network Enhanced Update Notify" },
     { ZBEE_ZDP_RSP_MGMT_IEEE_JOIN_LIST,           "IEEE Joining List Response" },
+    { ZBEE_ZDP_NOT_MGMT_UNSOLICITED_NWKUPDATE,    "Unsolicited Enhanced Network Update Notify" },
     { 0, NULL }
 };
 
@@ -1189,9 +1189,6 @@ dissect_zbee_zdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         case ZBEE_ZDP_REQ_MGMT_IEEE_JOIN_LIST:
             dissect_zbee_zdp_req_mgmt_ieee_join_list(zdp_tvb, pinfo, zdp_tree);
             break;
-        case ZBEE_ZDP_REQ_MGMT_UNSOLICITED_NWKUPDATE:
-            dissect_zbee_zdp_req_mgmt_unsolicited_nwkupdate(zdp_tvb, pinfo, zdp_tree);
-            break;
         case ZBEE_ZDP_RSP_NWK_ADDR:
             dissect_zbee_zdp_rsp_nwk_addr(zdp_tvb, pinfo, zdp_tree);
             break;
@@ -1321,6 +1318,9 @@ dissect_zbee_zdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             break;
         case ZBEE_ZDP_RSP_MGMT_IEEE_JOIN_LIST:
             dissect_zbee_zdp_rsp_mgmt_ieee_join_list(zdp_tvb, pinfo, zdp_tree);
+            break;
+        case ZBEE_ZDP_NOT_MGMT_UNSOLICITED_NWKUPDATE:
+            dissect_zbee_zdp_not_mgmt_unsolicited_nwkupdate(zdp_tvb, pinfo, zdp_tree);
             break;
         default:
             /* Invalid Cluster Identifier. */
