@@ -8796,6 +8796,14 @@ a:hover {
         <source>Browse</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Invalid Display Filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QObject::QObject</name>
