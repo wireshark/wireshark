@@ -1541,19 +1541,6 @@ message(STATUS "Warnings as errors: ${WERROR_COMMON_FLAGS}")
 
 feature_summary(WHAT ALL)
 
-link_directories(
-	${CMAKE_BINARY_DIR}/ui
-	${CMAKE_BINARY_DIR}/ui/qt
-	${CMAKE_BINARY_DIR}/capchild
-	${CMAKE_BINARY_DIR}/caputils
-	${CMAKE_BINARY_DIR}/codecs
-	${CMAKE_BINARY_DIR}/epan
-	${CMAKE_BINARY_DIR}/randpkt_core
-	${CMAKE_BINARY_DIR}/wiretap
-	${CMAKE_BINARY_DIR}/writecap
-	${CMAKE_BINARY_DIR}/wsutil
-)
-
 if(WIN32)
 	set(PLATFORM_UI_SRC
 		ui/win32/console_win32.c
