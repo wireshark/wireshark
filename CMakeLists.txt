@@ -2178,21 +2178,6 @@ if(BUILD_wireshark AND QT_FOUND)
 	add_executable(wireshark WIN32 MACOSX_BUNDLE ${wireshark_FILES} ${EXTRA_BUNDLE_FILES})
 	add_dependencies(wireshark version)
 	set(PROGLIST ${PROGLIST} wireshark)
-	if(CMAKE_VERSION VERSION_LESS "2.8.12"
-	    AND (CMAKE_CXX_COMPILER_ID STREQUAL "GNU"
-	    AND NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 5.0))
-		#
-		# https://doc.qt.io/qt-5/cmake-manual.html says that for CMake
-		# versions older than 2.8.12,
-		# Qt5<Module>_EXECUTABLE_COMPILE_FLAGS must be added such that
-		# -fPIC is included. We should not do add this to
-		# CMAKE_CXX_FLAGS though since it may end up before the -fPIE
-		# option. Instead, add it to the target COMPILE_FLAGS. This
-		# option is deprecated in newer CMake versions and not necessary
-		# either since Qt uses the INTERFACE_COMPILE_OPTIONS property.
-		#
-		set_target_properties(wireshark PROPERTIES COMPILE_FLAGS "${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
-	endif()
 	set_target_properties(wireshark PROPERTIES
 		LINK_FLAGS "${WS_LINK_FLAGS}"
 		FOLDER "Executables"
