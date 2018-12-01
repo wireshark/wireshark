@@ -41,7 +41,7 @@ for i in ui/qt/*.ts ; do
     lupdate -locations none -no-ui-lines ${LUPDATE_FILES} -ts "$i"
 done
 
-#Add new commit with last translaation update
+#Add new commit with last translation update
 #git commit -a -m "TX: Update Translations (sync)"
 
 #Push update translation on Gerrit
