@@ -1477,6 +1477,8 @@ find_conversation_pinfo(packet_info *pinfo, const guint options)
 		}
 	}
 
+	DENDENT();
+
 	return conv;
 }
 
@@ -1503,8 +1505,6 @@ find_or_create_conversation(packet_info *pinfo)
 		DENDENT();
 	}
 
-	DENDENT();
-
 	return conv;
 }
 
@@ -1522,8 +1522,6 @@ find_or_create_conversation_by_id(packet_info *pinfo, const endpoint_type etype,
 		conv = conversation_new_by_id(pinfo->num, etype, id, 0);
 		DENDENT();
 	}
-
-	DENDENT();
 
 	return conv;
 }
