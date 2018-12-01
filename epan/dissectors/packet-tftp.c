@@ -798,9 +798,9 @@ proto_register_tftp(void)
         "TFTP source file name", HFILL }},
 
     { &hf_tftp_destination_file,
-      { "DESTINATION File",   "tftp.destination_file",
+      { "Destination File",   "tftp.destination_file",
         FT_STRINGZ, BASE_NONE, NULL, 0x0,
-        "TFTP source file name", HFILL }},
+        "TFTP destination file name", HFILL }},
 
     { &hf_tftp_transfer_type,
       { "Type",               "tftp.type",
