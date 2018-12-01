@@ -10,6 +10,7 @@ trans.fr = ui/qt/wireshark_fr.ts
 trans.it = ui/qt/wireshark_it.ts
 trans.ja_JP = ui/qt/wireshark_ja_JP.ts
 trans.pl = ui/qt/wireshark_pl.ts
+trans.ru = ui/qt/wireshark_ru.ts
 trans.zh_CN = ui/qt/wireshark_zh_CN.ts
 type = QT
 
