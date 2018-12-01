@@ -408,6 +408,8 @@ typedef struct _SslSession {
 /* RFC 5246, section 8.1 says that the master secret is always 48 bytes */
 #define SSL_MASTER_SECRET_LENGTH        48
 
+struct cert_key_id; /* defined in epan/secrets.h */
+
 /* This holds state information for a SSL conversation */
 typedef struct _SslDecryptSession {
     guchar _master_secret[SSL_MASTER_SECRET_LENGTH];
@@ -434,7 +436,7 @@ typedef struct _SslDecryptSession {
     SslDecoder *server_new;
     SslDecoder *client_new;
 #if defined(HAVE_LIBGNUTLS)
-    guint8     *cert_key_id;   /**< SHA-1 Key ID of public key in certificate. */
+    struct cert_key_id *cert_key_id;   /**< SHA-1 Key ID of public key in certificate. */
 #endif
     StringInfo psk;
     StringInfo app_data_segment;
@@ -611,19 +613,6 @@ tls13_cipher_create(const char *label_prefix, int cipher_algo, int cipher_mode, 
 
 
 /* Common part between TLS and DTLS dissectors */
-/* Hash Functions for RSA private keys table */
-
-#ifdef HAVE_LIBGNUTLS
-extern gboolean
-tls_private_key_equal (gconstpointer v, gconstpointer v2);
-
-extern guint
-tls_private_key_hash  (gconstpointer v);
-
-extern void
-tls_private_key_free(gpointer key);
-#endif  /* HAVE_LIBGNUTLS */
-
 
 /* handling of association between tls/dtls ports and clear text protocol */
 extern void

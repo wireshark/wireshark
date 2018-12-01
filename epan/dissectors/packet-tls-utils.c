@@ -30,6 +30,7 @@
 #include <epan/asn1.h>
 #include <epan/proto_data.h>
 #include <epan/oids.h>
+#include <epan/secrets.h>
 
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
@@ -3033,7 +3034,7 @@ end:
 static int
 ssl_decrypt_pre_master_secret(SslDecryptSession *ssl_session,
                               StringInfo *encrypted_pre_master,
-                              gnutls_privkey_t pk);
+                              GHashTable *key_hash);
 #endif /* HAVE_LIBGNUTLS */
 
 static gboolean
@@ -3163,12 +3164,8 @@ ssl_generate_pre_master_secret(SslDecryptSession *ssl_session,
 
 #ifdef HAVE_LIBGNUTLS
         /* Try to lookup an appropriate RSA private key to decrypt the Encrypted Pre-Master Secret. */
-        gnutls_privkey_t pk = NULL;
         if (ssl_session->cert_key_id) {
-            pk = (gnutls_privkey_t)g_hash_table_lookup(key_hash, ssl_session->cert_key_id);
-        }
-        if (pk) {
-            if (ssl_decrypt_pre_master_secret(ssl_session, &encrypted_pre_master, pk))
+            if (ssl_decrypt_pre_master_secret(ssl_session, &encrypted_pre_master, key_hash))
                 return TRUE;
 
             ssl_debug_printf("%s: can't decrypt pre-master secret\n",
@@ -3599,8 +3596,10 @@ end:
 /* Decrypt RSA pre-master secret using RSA private key. {{{ */
 static gboolean
 ssl_decrypt_pre_master_secret(SslDecryptSession *ssl_session,
-    StringInfo *encrypted_pre_master, gnutls_privkey_t pk)
+    StringInfo *encrypted_pre_master, GHashTable *key_hash)
 {
+    int ret;
+
     if (!encrypted_pre_master)
         return FALSE;
 
@@ -3618,12 +3617,18 @@ ssl_decrypt_pre_master_secret(SslDecryptSession *ssl_session,
         return FALSE;
     }
 
+    gnutls_privkey_t pk = (gnutls_privkey_t)g_hash_table_lookup(key_hash, ssl_session->cert_key_id);
+
     ssl_print_string("pre master encrypted", encrypted_pre_master);
     ssl_debug_printf("%s: RSA_private_decrypt\n", G_STRFUNC);
     const gnutls_datum_t epms = { encrypted_pre_master->data, encrypted_pre_master->data_len };
     gnutls_datum_t pms = { 0 };
-    // uses mechanism CKM_RSA_PKCS (corresponds to RSAES-PKCS1-v1_5)
-    int ret = gnutls_privkey_decrypt_data(pk, 0, &epms, &pms);
+    if (pk) {
+        // Try to decrypt using the RSA keys table from (D)TLS preferences.
+        ret = gnutls_privkey_decrypt_data(pk, 0, &epms, &pms);
+    } else {
+        ret = GNUTLS_E_NO_CERTIFICATE_FOUND;
+    }
     if (ret < 0) {
         ssl_debug_printf("%s: decryption failed: %d (%s)\n", G_STRFUNC, ret, gnutls_strerror(ret));
         return FALSE;
@@ -4267,7 +4272,7 @@ ssl_find_private_key_by_pubkey(SslDecryptSession *ssl,
                                gnutls_datum_t *subjectPublicKeyInfo)
 {
     gnutls_pubkey_t pubkey = NULL;
-    guchar key_id[20];
+    cert_key_id_t key_id;
     size_t key_id_len = sizeof(key_id);
     int r;
 
@@ -4296,7 +4301,7 @@ ssl_find_private_key_by_pubkey(SslDecryptSession *ssl,
     }
 
     /* Generate a 20-byte SHA-1 hash. */
-    r = gnutls_pubkey_get_key_id(pubkey, 0, key_id, &key_id_len);
+    r = gnutls_pubkey_get_key_id(pubkey, 0, key_id.key_id, &key_id_len);
     if (r < 0) {
         ssl_debug_printf("%s: failed to extract key id from pubkey: %s\n",
                 G_STRFUNC, gnutls_strerror(r));
@@ -4309,8 +4314,9 @@ ssl_find_private_key_by_pubkey(SslDecryptSession *ssl,
         goto end;
     }
 
-    ssl_print_data("Certificate.KeyID", key_id, key_id_len);
-    ssl->cert_key_id = (guint8 *)wmem_memdup(wmem_file_scope(), key_id, key_id_len);
+    ssl_print_data("Certificate.KeyID", key_id.key_id, key_id_len);
+    ssl->cert_key_id = wmem_new(wmem_file_scope(), cert_key_id_t);
+    *ssl->cert_key_id = key_id;
 
 end:
     gnutls_pubkey_deinit(pubkey);
@@ -4510,35 +4516,6 @@ ssl_hash  (gconstpointer v)
 
     return hash;
 }
-
-#ifdef HAVE_LIBGNUTLS
-gboolean
-tls_private_key_equal (gconstpointer v, gconstpointer v2)
-{
-    /* key ID length (SHA-1 hash, per GNUTLS_KEYID_USE_SHA1) */
-    return !memcmp(v, v2, 20);
-}
-
-guint
-tls_private_key_hash (gconstpointer v)
-{
-    guint        l, hash = 0;
-    const guint8 *cur = (const guint8 *)v;
-
-    /* The public key' SHA-1 hash (which maps to a private key) has a uniform
-     * distribution, hence simply xor'ing them should be sufficient. */
-    for (l = 0; l < 20; l += 4, cur += 4)
-        hash ^= pntoh32(cur);
-
-    return hash;
-}
-void
-tls_private_key_free(gpointer data)
-{
-    gnutls_privkey_t pkey = (gnutls_privkey_t)data;
-    gnutls_privkey_deinit(pkey);
-}
-#endif
 /* Functions for TLS/DTLS sessions and RSA private keys hashtables. }}} */
 
 /* Handling of association between tls/dtls ports and clear text protocol. {{{ */

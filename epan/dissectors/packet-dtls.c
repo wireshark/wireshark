@@ -46,6 +46,7 @@
 #include <epan/exported_pdu.h>
 #include <epan/decode_as.h>
 #include <epan/proto_data.h>
+#include <epan/secrets.h>   /* for privkey_hash_table_new */
 #include <wsutil/str_util.h>
 #include <wsutil/strtoi.h>
 #include <wsutil/utf8_entities.h>
@@ -247,8 +248,7 @@ dtls_parse_uat(void)
   }
 
   /* parse private keys string, load available keys and put them in key hash*/
-  dtls_key_hash = g_hash_table_new_full(tls_private_key_hash,
-      tls_private_key_equal, g_free, tls_private_key_free);
+  dtls_key_hash = privkey_hash_table_new();
 
   ssl_set_debug(dtls_debug_file_name);
 

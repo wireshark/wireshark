@@ -46,6 +46,15 @@ enum secrets_scope {
 };
 #endif
 
+#ifdef HAVE_LIBGNUTLS
+/** Identifier for a RSA public key (a SHA-1 hash). */
+struct cert_key_id {
+    guint8 key_id[20];
+};
+typedef struct cert_key_id cert_key_id_t;
+#endif  /* HAVE_LIBGNUTLS */
+
+
 /**
  * Callback for the wiretap secrets provider (wtap_new_secrets_callback_t).
  */
@@ -65,4 +74,10 @@ typedef void (*secrets_block_callback_t)(const void *secrets, guint size);
  * @param cb Callback to be invoked for new secrets.
  */
 void secrets_register_type(guint32 secrets_type, secrets_block_callback_t cb);
+
+#ifdef HAVE_LIBGNUTLS
+/** Returns a new hash table, mapping cert_key_id_t -> gnutls_privkey_t. */
+GHashTable *privkey_hash_table_new(void);
+#endif  /* HAVE_LIBGNUTLS */
+
 #endif /* __SECRETS_H__ */

@@ -336,8 +336,7 @@ ssl_parse_uat(void)
         }
     }
     /* parse private keys string, load available keys and put them in key hash*/
-    ssl_key_hash = g_hash_table_new_full(tls_private_key_hash,
-            tls_private_key_equal, g_free, tls_private_key_free);
+    ssl_key_hash = privkey_hash_table_new();
 
 
     if (ntlsdecrypt > 0) {
