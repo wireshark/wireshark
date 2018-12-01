@@ -17,8 +17,7 @@ LUPDATE_FILES=($LUPDATE_FILES wireshark-qt.cpp)
 
 # Add line numbers
 for i in ui/qt/*.ts ; do
-    # shellcheck disable=SC2086
-    lupdate -locations absolute ${LUPDATE_FILES} -ts "$i"
+    lupdate -locations absolute "${LUPDATE_FILES[@]}" -ts "$i"
 done
 
 # Get last translation for Transifex
@@ -26,8 +25,7 @@ done
 
 # Regenerate last translation for repo
 for i in ui/qt/*.ts ; do
-    # shellcheck disable=SC2086
-    lupdate -locations absolute ${LUPDATE_FILES} -ts "$i"
+    lupdate -locations absolute "${LUPDATE_FILES[@]}" -ts "$i"
 done
 
 # Push last change tranlastion on Transifex
@@ -37,8 +35,7 @@ fi
 
 # Remove line numbers
 for i in ui/qt/*.ts ; do
-    # shellcheck disable=SC2086
-    lupdate -locations none -no-ui-lines ${LUPDATE_FILES} -ts "$i"
+    lupdate -locations none -no-ui-lines "${LUPDATE_FILES[@]}" -ts "$i"
 done
 
 #Add new commit with last translaation update
