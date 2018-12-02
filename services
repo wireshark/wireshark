@@ -3925,8 +3925,7 @@ netconf-ch-ssh	4334/tcp	# NETCONF Call Home (SSH)
 netconf-ch-tls	4335/tcp	# NETCONF Call Home (TLS)
 restconf-ch-tls	4336/tcp	# RESTCONF Call Home (TLS)
 gaia		4340/tcp/udp	# Gaia Connector Protocol
-lisp-data	4341/tcp/udp	# LISP Data Packets
-lisp-cons	4342/tcp	# LISP-CONS Control
+lisp-data	4341/udp	# LISP Data Packets
 lisp-control	4342/udp	# LISP Control Packets
 unicall		4343/tcp/udp	# UNICALL
 vinainstall	4344/tcp/udp	# VinaInstall
@@ -5229,6 +5228,7 @@ rexecj		8230/tcp/udp	# RexecJ Server
 hncp-udp-port	8231/udp	# HNCP
 hncp-dtls-port	8232/udp	# HNCP over DTLS
 synapse-nhttps	8243/tcp/udp	# Synapse Non Blocking HTTPS
+espeasy-p2p	8266/udp	# ESPeasy peer-2-peer communication
 robot-remote	8270/tcp	# Robot Framework Remote Library Interface
 pando-sec	8276/tcp/udp	# Pando Media Controlled Distribution
 synapse-nhttp	8280/tcp/udp	# Synapse Non Blocking HTTP
