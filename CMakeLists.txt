@@ -996,7 +996,7 @@ endif()
 if(ENABLE_ZLIB)
 	if (WIN32)
 		# On Windows we build our own version of zlib, so add the paths
-		set(ZLIB_SRC_DIR "${_PROJECT_LIB_DIR}/zlib-1.2.11-1-ws")
+		set(ZLIB_SRC_DIR "${_PROJECT_LIB_DIR}/zlib-1.2.11-2-ws")
 		set(SKIP_INSTALL_STATIC True)
 		set(SKIP_INSTALL_HEADERS True)
 		set(SKIP_INSTALL_FILES True)
