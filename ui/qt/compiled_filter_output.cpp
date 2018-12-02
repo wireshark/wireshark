@@ -12,7 +12,9 @@
 #include <ui_compiled_filter_output.h>
 #include "compiled_filter_output.h"
 
+#ifdef HAVE_LIBPCAP
 #include <wsutil/wspcap.h>
+#endif
 
 #include "capture_opts.h"
 #include <wiretap/wtap.h>
