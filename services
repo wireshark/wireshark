@@ -934,9 +934,9 @@ kshell            544/udp # krcmd
 appleqtcsrvr      545/tcp # appleqtcsrvr [Murali_Ranganathan] [Murali_Ranganathan]
 appleqtcsrvr      545/udp # appleqtcsrvr [Murali_Ranganathan] [Murali_Ranganathan]
 dhcpv6-client     546/tcp # DHCPv6 Client
-dhcpv6-client     546/udp # DHCPv6 Client [IESG] [IETF_Chair] 2018-05-21 [RFC-ietf-dhc-rfc3315bis-13]
+dhcpv6-client     546/udp # DHCPv6 Client [IESG] [IETF_Chair] 2018-05-21 [RFC8415]
 dhcpv6-server     547/tcp # DHCPv6 Server [IESG] [IETF_Chair] 2018-05-21 [RFC5460]
-dhcpv6-server     547/udp # DHCPv6 Server [IESG] [IETF_Chair] 2018-05-21 [RFC-ietf-dhc-rfc3315bis-13]
+dhcpv6-server     547/udp # DHCPv6 Server [IESG] [IETF_Chair] 2018-05-21 [RFC8415]
 afpovertcp        548/tcp # AFP over TCP [Leland_Wallace] [Leland_Wallace] Defined TXT keys: u=<username> p=<password> path=<path>
 afpovertcp        548/udp # AFP over TCP [Leland_Wallace] [Leland_Wallace] Defined TXT keys: u=<username> p=<password> path=<path>
 idfp              549/tcp # IDFP [Ramana_Kovi] [Ramana_Kovi]
@@ -7837,9 +7837,7 @@ netconf-ch-tls   4335/tcp # NETCONF Call Home (TLS) [IESG] [IETF_Chair] 2016-01-
 restconf-ch-tls  4336/tcp # RESTCONF Call Home (TLS) [IESG] [IETF_Chair] 2016-01-12 [RFC8071]
 gaia             4340/tcp # Gaia Connector Protocol [Philippe_Detournay] [Philippe_Detournay] 2007-11-12
 gaia             4340/udp # Gaia Connector Protocol [Philippe_Detournay] [Philippe_Detournay] 2007-11-12
-lisp-data        4341/tcp # LISP Data Packets [Dino_Farinacci] [Dino_Farinacci] 2007-11-12
 lisp-data        4341/udp # LISP Data Packets [IESG] [IETF_Chair] 2007-11-12 2012-04-26 [RFC6830]
-lisp-cons        4342/tcp # LISP-CONS Control
 lisp-control     4342/udp # LISP Control Packets [IESG] [IETF_Chair] 2007-05 2012-04-26 [RFC6830]
 unicall          4343/tcp # UNICALL [James_Powell_2] [James_Powell_2]
 unicall          4343/udp # UNICALL [James_Powell_2] [James_Powell_2]
@@ -10081,6 +10079,7 @@ hncp-udp-port    8231/udp # HNCP [IESG] [IETF_Chair] 2016-01-13 [RFC7788]
 hncp-dtls-port   8232/udp # HNCP over DTLS [IESG] [IETF_Chair] 2016-01-13 [RFC7788]
 synapse-nhttps   8243/tcp # Synapse Non Blocking HTTPS [Ruwan_Linton] [Ruwan_Linton] 2008-07-10
 synapse-nhttps   8243/udp # Synapse Non Blocking HTTPS [Ruwan_Linton] [Ruwan_Linton] 2008-07-10
+espeasy-p2p      8266/udp # ESPeasy peer-2-peer communication [ESPeasy] [Gijs_Noorlander] 2018-11-28
 robot-remote     8270/tcp # Robot Framework Remote Library Interface [Robot_Framework_Foundation] [Chris_Newman] 2017-01-26
 pando-sec        8276/tcp # Pando Media Controlled Distribution [Laird_Popkin] [Laird_Popkin] 2008-02-27
 pando-sec        8276/udp # Pando Media Controlled Distribution [Laird_Popkin] [Laird_Popkin] 2008-02-27
