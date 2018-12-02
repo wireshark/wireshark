@@ -983,8 +983,7 @@ bluetooth_add_address(packet_info *pinfo, address *addr, guint32 stream_number,
      */
     if (! p_conv_data) {
         /* Create conversation data */
-        p_conv_data = wmem_new(wmem_file_scope(), struct _rtp_conversation_info);
-        p_conv_data->rtp_dyn_payload = NULL;
+        p_conv_data = wmem_new0(wmem_file_scope(), struct _rtp_conversation_info);
 
         /* start this at 0x10000 so that we cope gracefully with the
          * first few packets being out of order (hence 0,65535,1,2,...)
@@ -996,10 +995,8 @@ bluetooth_add_address(packet_info *pinfo, address *addr, guint32 stream_number,
 
         if (media_types == RTP_MEDIA_AUDIO) {
             p_conv_data->bta2dp_info = (bta2dp_codec_info_t *) wmem_memdup(wmem_file_scope(), data, sizeof(bta2dp_codec_info_t));
-            p_conv_data->btvdp_info = NULL;
         } else if (media_types == RTP_MEDIA_VIDEO) {
             p_conv_data->btvdp_info = (btvdp_codec_info_t *) wmem_memdup(wmem_file_scope(), data, sizeof(btvdp_codec_info_t));
-            p_conv_data->bta2dp_info = NULL;
         }
     }
 
@@ -1084,8 +1081,7 @@ srtp_add_address(packet_info *pinfo, const port_type ptype, address *addr, int p
         DPRINT(("creating new conversation data"));
 
         /* Create conversation data */
-        p_conv_data = wmem_new(wmem_file_scope(), struct _rtp_conversation_info);
-        p_conv_data->rtp_dyn_payload = NULL;
+        p_conv_data = wmem_new0(wmem_file_scope(), struct _rtp_conversation_info);
 
         /* start this at 0x10000 so that we cope gracefully with the
          * first few packets being out of order (hence 0,65535,1,2,...)
@@ -1192,8 +1188,7 @@ dissect_rtp_heur_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         p_conv_data = (struct _rtp_conversation_info *)conversation_get_proto_data(p_conv, proto_rtp);
         if (! p_conv_data) {
             /* Create conversation data */
-            p_conv_data = wmem_new(wmem_file_scope(), struct _rtp_conversation_info);
-            p_conv_data->rtp_dyn_payload = NULL;
+            p_conv_data = wmem_new0(wmem_file_scope(), struct _rtp_conversation_info);
             p_conv_data->extended_seqno = 0x10000;
             p_conv_data->rtp_conv_info = wmem_new(wmem_file_scope(), rtp_private_conv_info);
             p_conv_data->rtp_conv_info->multisegment_pdus = wmem_tree_new(wmem_file_scope());
