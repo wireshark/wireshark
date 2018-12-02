@@ -2494,6 +2494,10 @@ static header_field_info hfi_nl80211_ifname NETLINK_NL80211_HFI_INIT =
     { "Interface Name", "nl80211.ifname", FT_STRINGZ, STR_ASCII,
       NULL, 0x00, NULL, HFILL };
 
+static header_field_info hfi_nl80211_mac NETLINK_NL80211_HFI_INIT =
+    { "MAC address", "nl80211.mac", FT_ETHER, BASE_NONE,
+      NULL, 0x00, NULL, HFILL };
+
 static int
 dissect_nl80211_generic(tvbuff_t *tvb, void *data, proto_tree *tree, _U_ int nla_type, int offset, int len)
 {
@@ -2764,6 +2768,7 @@ dissect_nl80211_attrs(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type,
         { WS_NL80211_ATTR_WIPHY_CHANNEL_TYPE, &hfi_nl80211_channel_type, NULL, NULL },
         { WS_NL80211_ATTR_IFNAME, &hfi_nl80211_ifname, NULL, NULL },
         { WS_NL80211_ATTR_IFTYPE, &hfi_nl80211_iftype, NULL, NULL },
+        { WS_NL80211_ATTR_MAC, &hfi_nl80211_mac, NULL, NULL },
         { WS_NL80211_ATTR_STA_PLINK_ACTION, &hfi_plink_actions, NULL, NULL },
         { WS_NL80211_ATTR_MPATH_INFO, &hfi_nl80211_mpath_info, NULL, NULL },
         { WS_NL80211_ATTR_REG_INITIATOR, &hfi_nl80211_reg_initiator, NULL, NULL },
@@ -2854,6 +2859,7 @@ proto_register_netlink_nl80211(void)
         &hfi_nl80211_attr_value16,
         &hfi_nl80211_attr_value32,
         &hfi_nl80211_ifname,
+        &hfi_nl80211_mac,
 /* Extracted using tools/generate-nl80211-fields.py */
 /* Definitions from linux/nl80211.h {{{ */
         &hfi_nl80211_commands,
