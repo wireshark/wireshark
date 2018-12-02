@@ -180,23 +180,10 @@ write_mmdbr_stdin_worker(gpointer sifd_data) {
     return NULL;
 }
 
-static ssize_t mmdbr_pipe_read_one(char *ch_p) {
-    ssize_t status = -1;
-    g_rw_lock_reader_lock(&mmdbr_pipe_mtx);
-    if (ws_pipe_valid(&mmdbr_pipe) && ws_pipe_data_available(mmdbr_pipe.stdout_fd)) {
-        status = ws_read(mmdbr_pipe.stdout_fd, ch_p, 1);
-    }
-    g_rw_lock_reader_unlock(&mmdbr_pipe_mtx);
-    return status;
-}
-
 // We need to read a series of lines from mmdbresolve's stdout. Trying to
-// use fgets is problematic because it blocks on Windows blocks. Doing so
-// in a thread is even worse since it locks the I/O stream and if the main
+// use fgets is problematic because it blocks on Windows. Doing so in a
+// thread is even worse since it locks the I/O stream and if the main
 // thread calls fclose while fgets is blocking, it will block as well.
-//
-// Read our input one character at a time and only after we've ensured
-// that data is available.
 #define MAX_MMDB_LINE_LEN 2000
 static gpointer
 read_mmdbr_stdout_worker(gpointer data _U_) {
@@ -212,11 +199,17 @@ read_mmdbr_stdout_worker(gpointer data _U_) {
     while (1) { // Start of line
         char cur_addr[WS_INET6_ADDRSTRLEN];
         char ch;
-        ssize_t status;
+        ssize_t resp_status;
 
         g_string_truncate(line_buf, 0);
 
-        while((status = mmdbr_pipe_read_one(&ch)) == 1) {
+        if (!mmdbr_pipe_valid()) {
+            // Should be due to mmdb_resolve_stop.
+            MMDB_DEBUG("invalid mmdbr stdout pipe. exiting thread.");
+            break;
+        }
+
+        while((resp_status = ws_read(mmdbr_pipe.stdout_fd, &ch, 1)) == 1) {
             if (ch == '\n') {
                 break;
             }
@@ -224,21 +217,14 @@ read_mmdbr_stdout_worker(gpointer data _U_) {
             g_string_append_c(line_buf, ch);
 
             if (line_buf->len > MAX_MMDB_LINE_LEN) {
-                MMDB_DEBUG("long line");
+                MMDB_DEBUG("long line. marking invalid.");
                 g_string_printf(line_buf, "%s", RES_INVALID_LINE);
             }
         }
 
-        if (status != 1) {
-            if (!mmdbr_pipe_valid()) {
-                // Should be due to mmdb_resolve_stop.
-                MMDB_DEBUG("invalid mmdbr stdout pipe. exiting thread.");
-                break;
-            }
-
-            MMDB_DEBUG("no pipe data");
-            g_usleep(MMDB_WAIT_TIME);
-            continue;
+        if (resp_status != 1) {
+            MMDB_DEBUG("read error %s. exiting thread.", g_strerror(errno));
+            break;
         }
 
         char *line = g_strstrip(line_buf->str);
