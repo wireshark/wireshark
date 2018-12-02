@@ -893,7 +893,7 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     /* just show the lines or highlight the rest of the buffer as message text */
 
-    item = proto_tree_add_item(tree, hf_imf_message_text, tvb, end_offset, -1 , ENC_NA);
+    item = proto_tree_add_item(tree, hf_imf_message_text, tvb, end_offset, tvb_reported_length_remaining(tvb, end_offset) , ENC_NA);
     text_tree = proto_item_add_subtree(item, ett_imf_message_text);
 
     start_offset = end_offset;
