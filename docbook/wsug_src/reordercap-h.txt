@@ -1,4 +1,4 @@
-Reordercap (Wireshark) 2.6.5 (v2.6.5rc0-25-g9da2c50b)
+Reordercap (Wireshark) 2.6.6 (v2.6.6rc0-1-gcaa6f541)
 Reorder timestamps of input file frames into output file.
 See https://www.wireshark.org for more information.
 
