@@ -57,6 +57,7 @@
 #define MAGIC_REQUEST         0x80
 #define MAGIC_RESPONSE        0x81
 #define MAGIC_RESPONSE_FLEX   0x18
+#define MAGIC_REQUEST_FLEX    0x08
 
  /* Response Status */
 #define PROTOCOL_BINARY_RESPONSE_SUCCESS            0x00
@@ -448,18 +449,26 @@ static int hf_xattr_value = -1;
 static int hf_xattrs = -1;
 
 static int hf_flex_extras = -1;
-static int hf_flex_frame_id_len = -1;
-static int hf_flex_frame_id = -1;
+static int hf_flex_extras_n = -1;
+static int hf_flex_frame_id_byte0 = -1;
+static int hf_flex_frame_id_req = -1;
+static int hf_flex_frame_id_res = -1;
+static int hf_flex_frame_id_req_esc = -1;
+static int hf_flex_frame_id_res_esc = -1;
 static int hf_flex_frame_len = -1;
-static int hf_flex_frame_id_esc = -1;
 static int hf_flex_frame_len_esc = -1;
 static int hf_flex_frame_tracing_duration = -1;
+static int hf_flex_frame_durability_req = -1;
+static int hf_flex_frame_durability_timeout = -1;
+static int hf_flex_frame_dcp_stream_id = -1;
 
 static expert_field ef_warn_shall_not_have_value = EI_INIT;
 static expert_field ef_warn_shall_not_have_extras = EI_INIT;
 static expert_field ef_warn_shall_not_have_key = EI_INIT;
 static expert_field ef_compression_error = EI_INIT;
-static expert_field ef_warn_unknown_flex_code = EI_INIT;
+static expert_field ef_warn_unknown_flex_unsupported = EI_INIT;
+static expert_field ef_warn_unknown_flex_id = EI_INIT;
+static expert_field ef_warn_unknown_flex_len = EI_INIT;
 
 static expert_field ei_value_missing = EI_INIT;
 static expert_field ef_warn_must_have_extras = EI_INIT;
@@ -491,14 +500,40 @@ static const value_string magic_vals[] = {
   { MAGIC_REQUEST,       "Request"  },
   { MAGIC_RESPONSE,      "Response" },
   { MAGIC_RESPONSE_FLEX, "Response with flexible framing extras" },
+  { MAGIC_REQUEST_FLEX, "Request with flexible framing extras" },
   { 0, NULL }
 };
 
-#define FLEX_ID_RX_TX_DURATION 0
-#define FLEX_ID_ESCAPE 0x0F
-static const value_string flex_frame_ids[] = {
-  { FLEX_ID_RX_TX_DURATION, "Server Recv->Send duration"  },
-  { FLEX_ID_ESCAPE, "Escape"  },
+#define FLEX_ESCAPE 0x0F
+
+/*
+  The flex extension identifiers are different for request/response
+  i.e. 0 in a response is not 0 in a request
+  Response IDs
+ */
+#define FLEX_RESPONSE_ID_RX_TX_DURATION 0
+
+/* Request IDs */
+#define FLEX_REQUEST_ID_REORDER 0
+#define FLEX_REQUEST_ID_DURABILITY 1
+#define FLEX_REQUEST_ID_DCP_STREAM_ID 2
+
+static const value_string flex_frame_response_ids[] = {
+  { FLEX_RESPONSE_ID_RX_TX_DURATION, "Server Recv->Send duration"},
+  { 0, NULL }
+};
+
+static const value_string flex_frame_request_ids[] = {
+  { FLEX_REQUEST_ID_REORDER, "Out of order Execution"},
+  { FLEX_REQUEST_ID_DURABILITY, "Durability Requirements"},
+  { FLEX_REQUEST_ID_DCP_STREAM_ID, "DCP Stream Identifier"},
+  { 0, NULL }
+};
+
+static const value_string flex_frame_durability_req[] = {
+  { 1, "Majority"},
+  { 2, "Majority and persist on active"},
+  { 3, "Persist to majority"},
   { 0, NULL }
 };
 
@@ -2087,23 +2122,106 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
 }
 
-/*
-  Add an escaped field for Flexible Framing Extras:
-  https://github.com/couchbase/kv_engine/blob/master/docs/BinaryProtocol.md
+static void flex_frame_duration_dissect(tvbuff_t* tvb,
+                                        proto_tree* frame_tree,
+                                        gint offset,
+                                        gint length) {
 
-  len or id can be escaped, i.e. the len/id is derived from more then 1 byte
-*/
-static guint16 add_escaped_field(tvbuff_t* tvb,
-                                 proto_tree* tree,
-                                 int hfid,
-                                 gint* offset) {
-    guint16 escaped_val = 0x0F + tvb_get_guint8(tvb, *offset);
-    char str[32];
-    g_snprintf(str, 32, "%" G_GUINT16_FORMAT , escaped_val);
-    proto_tree_add_string(tree, hfid, tvb, *offset, 1, str);
-    (*offset)++;
-    return escaped_val;
+  if (length != 2) {
+    proto_tree_add_expert_format(frame_tree,
+                                 NULL,
+                                 &ef_warn_unknown_flex_len,
+                                 tvb,
+                                 offset,
+                                 length,
+                                 "FlexFrame: RX/TX Duration with illegal length %d", length);
+  } else {
+    guint16 encoded_micros = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_double(frame_tree,
+                          hf_flex_frame_tracing_duration,
+                          tvb,
+                          offset,
+                          2,
+                          pow(encoded_micros, 1.74) / 2);
+  }
 }
+
+static void flex_frame_reorder_dissect(tvbuff_t* tvb,
+                                       proto_tree* frame_tree,
+                                       gint offset,
+                                       gint length) {
+  /* Expects no data, so just check len */
+  if (length != 0) {
+    proto_tree_add_expert_format(frame_tree,
+                                 NULL,
+                                 &ef_warn_unknown_flex_len,
+                                 tvb,
+                                 offset,
+                                 length,
+                                 "FlexFrame: Out Of Order with illegal length %d", length);
+  }
+}
+
+static void flex_frame_durability_dissect(tvbuff_t* tvb,
+                                          proto_tree* frame_tree,
+                                          gint offset,
+                                          gint length) {
+  if (!(length == 1 || length == 3)) {
+    proto_tree_add_expert_format(frame_tree,
+                                 NULL,
+                                 &ef_warn_unknown_flex_len,
+                                 tvb,
+                                 offset,
+                                 length,
+                                 "FlexFrame: Durability with illegal length %d", length);
+    return;
+  }
+  proto_tree_add_item(frame_tree, hf_flex_frame_durability_req, tvb, offset, 1, ENC_BIG_ENDIAN);
+  if (length == 3) {
+    offset++;
+    proto_tree_add_item(frame_tree, hf_flex_frame_durability_timeout, tvb, offset, 2, ENC_BIG_ENDIAN);
+  }
+}
+
+static void flex_frame_dcp_stream_id_dissect(tvbuff_t* tvb,
+                                             proto_tree* frame_tree,
+                                             gint offset,
+                                             gint length) {
+  if (length != 2) {
+    proto_tree_add_expert_format(frame_tree,
+                                 NULL,
+                                 &ef_warn_unknown_flex_len,
+                                 tvb,
+                                 offset,
+                                 length,
+                                 "FlexFrame: DCP Stream ID with illegal length %d", length);
+  } else {
+    guint16 sid = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_uint(frame_tree, hf_flex_frame_dcp_stream_id, tvb, offset, 2, sid);
+  }
+}
+
+typedef void (*flex_frame_by_id_dissect_fn)(tvbuff_t*,
+                                            proto_tree*,
+                                            gint,
+                                            gint);
+
+struct flex_frame_by_id_dissect {
+  guint32 id;
+  flex_frame_by_id_dissect_fn handler;
+};
+
+static const struct flex_frame_by_id_dissect flex_frame_response_dissect[] = {
+  {FLEX_RESPONSE_ID_RX_TX_DURATION, &flex_frame_duration_dissect},
+  {0, NULL }
+};
+
+static const struct flex_frame_by_id_dissect flex_frame_request_dissect[] = {
+  { FLEX_REQUEST_ID_REORDER, &flex_frame_reorder_dissect},
+  { FLEX_REQUEST_ID_DURABILITY, &flex_frame_durability_dissect},
+  { FLEX_REQUEST_ID_DCP_STREAM_ID, &flex_frame_dcp_stream_id_dissect},
+  { 0, NULL }
+};
 
 /*
   Flexible Framing Extras:
@@ -2113,72 +2231,116 @@ static void dissect_flexible_framing_extras(tvbuff_t* tvb,
                                             packet_info* pinfo,
                                             proto_tree* tree,
                                             gint offset,
-                                            guint8 flex_frame_extra_len) {
+                                            guint8 flex_frame_extra_len,
+                                            gboolean request) {
 
-  proto_item* flex_item = proto_tree_add_item(tree,
-                                              hf_flex_extras,
-                                              tvb,
-                                              offset,
-                                              flex_frame_extra_len,
-                                              ENC_NA);
+    /* select some request/response ID decoders */
+  const struct flex_frame_by_id_dissect* id_dissectors = flex_frame_response_dissect;
+  int info_id = hf_flex_frame_id_res;
+  int info_id_esc = hf_flex_frame_id_res_esc;
+  int info_len_id = hf_flex_frame_len;
+  if (request) {
+    id_dissectors = flex_frame_request_dissect;
+    info_id = hf_flex_frame_id_req;
+    info_id_esc = hf_flex_frame_id_req_esc;
+  }
+
+  /* This first item shows the entire extent of all frame extras.
+     If we have multiple frames, we will add them in the iteration */
+  proto_tree_add_uint(tree,
+                      hf_flex_extras,
+                      tvb,
+                      offset,
+                      flex_frame_extra_len,
+                      flex_frame_extra_len);
 
   /* iterate until we've consumed the flex_frame_extra_len */
   gint bytes_remaining = flex_frame_extra_len;
-  while(bytes_remaining > 0) {
-    guint8 id_and_len = tvb_get_guint8(tvb, offset);
-    /*id/len u16 as they may be escaped and derived from 2 bytes */
-    guint16 id = id_and_len >> 4;
-    guint16 len = id_and_len & 0x0F;
+  int frame_index = 0;
+
+  while (bytes_remaining > 0) {
+
+    /* FrameInfo starts with a 'tag' byte which is formed from 2 nibbles */
+    guint8 tag_byte = tvb_get_guint8(tvb, offset);
+
+    /* 0xff isn't defined yet in the spec as to what it should do */
+    if (tag_byte == 0xFF) {
+      proto_tree_add_expert_format(tree,
+                                   pinfo,
+                                   &ef_warn_unknown_flex_unsupported,
+                                   tvb,
+                                   offset,
+                                   1,
+                                   "Cannot decode 0xFF id/len byte");
+      return;
+    }
+
+    /* extract the nibbles into u16, if the id/len nibbles are escapes, their
+       true values come from following bytes and can be larger than u8 */
+    guint16 id = tag_byte >> 4;
+    guint16 len = tag_byte & 0x0F;
+
+    int id_size = 1;
+    /* Calculate the id/len and add to the tree */
+    if (id == FLEX_ESCAPE) {
+      id = id + tvb_get_guint8(tvb, offset + 1);
+      id_size++;
+      info_id = info_id_esc;
+    }
+
+    int len_size = 1;
+    if (len == FLEX_ESCAPE) {
+      len = len + tvb_get_guint8(tvb, offset + 1);
+      len_size++;
+      info_len_id = hf_flex_frame_len_esc;
+    }
+
+    /* add a new sub-tree for this FrameInfo */
+    proto_item* flex_item = proto_tree_add_string_format(tree,
+                                                         hf_flex_extras_n,
+                                                         tvb,
+                                                         offset,
+                                                         1 + len,
+                                                         NULL,
+                                                         "Flexible Frame %d",
+                                                         frame_index);
 
     proto_tree* frame_tree = proto_item_add_subtree(flex_item,
                                                     ett_flex_frame_extras);
 
-    static const gint* frame_id_len_fields[] = {
-      &hf_flex_frame_id,
-      &hf_flex_frame_len,
-      NULL
-    };
+    /* Now add the info under the sub-tree */
+    proto_tree_add_uint(frame_tree, info_id, tvb, offset, id_size, id);
+    proto_tree_add_uint(frame_tree, info_len_id, tvb, offset, len_size, len);
 
-    proto_item* frame = proto_tree_add_bitmask(frame_tree,
-                                               tvb,
-                                               offset,
-                                               hf_flex_frame_id_len,
-                                               ett_flex_frame_extras,
-                                               frame_id_len_fields,
-                                               ENC_BIG_ENDIAN);
-    offset++;
-    bytes_remaining--;
+    /* this is broken if both len and id are escaped, but we've returned earlier
+       for that case (with a warning) */
+    offset = offset + 1 + (len_size - 1) + (id_size - 1);
+    bytes_remaining = bytes_remaining - 1 - (len_size - 1) - (id_size - 1);;
 
-    /* Handle escaped id and/or len, this where 0xF is reserved to mean the rest
-       of id is in the next byte (same for len)
-       Final id or len is 0xF + the next byte value*/
-    if (id == 0x0F) {
-        id = add_escaped_field(tvb, frame_tree, hf_flex_frame_id_esc, &offset);
-        bytes_remaining--;
+    /* lookup a dissector function by id */
+    int index = 0, found = 0;
+    while (id_dissectors[index].handler) {
+      if (id_dissectors[index].id == id) {
+        id_dissectors[index].handler(tvb, frame_tree, offset, len);
+        found = 1;
+        break;
+      }
+      index++;
     }
 
-     if (len == 0x0F) {
-        len = add_escaped_field(tvb, frame_tree, hf_flex_frame_len_esc, &offset);
-        bytes_remaining--;
+    if (!found)  {
+      proto_tree_add_expert_format(frame_tree,
+                                   pinfo,
+                                   &ef_warn_unknown_flex_id,
+                                   tvb,
+                                   offset,
+                                   len,
+                                   "FlexFrame: no dissector function for %d", id);
     }
 
-    if (id == FLEX_ID_RX_TX_DURATION) {
-      // Decode the u16 time value into a double
-      guint16 encoded_micros = tvb_get_ntohs(tvb, offset);
-      proto_tree_add_double(frame_tree,
-                            hf_flex_frame_tracing_duration,
-                            tvb,
-                            offset,
-                            2,
-                            pow(encoded_micros, 1.74) / 2);
-    } else {
-        expert_add_info_format(pinfo,
-                               frame,
-                               &ef_warn_unknown_flex_code,
-                               "Unknown flexible ID");
-    }
     offset += len;
     bytes_remaining -= len;
+    frame_index++;
   }
 }
 
@@ -2234,8 +2396,8 @@ dissect_couchbase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
                   val_to_str(magic, magic_vals, "Unknown magic (0x%x)"),
                   opcode);
 
-  /* A response now has two magic values */
-  if (magic == MAGIC_RESPONSE_FLEX) {
+  /* Check for flex magic, which changes the header format */
+  if (magic == MAGIC_RESPONSE_FLEX || magic == MAGIC_REQUEST_FLEX) {
     /* 2 separate bytes for the flex_extras and keylen */
     flex_frame_extras = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(couchbase_tree, hf_flex_extras_length, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2304,7 +2466,12 @@ dissect_couchbase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 
   // Flex frame extras should be dissected for success and errors
   if (flex_frame_extras) {
-    dissect_flexible_framing_extras(tvb, pinfo, couchbase_tree, offset, flex_frame_extras);
+    dissect_flexible_framing_extras(tvb,
+                                    pinfo,
+                                    couchbase_tree,
+                                    offset,
+                                    flex_frame_extras,
+                                    magic == MAGIC_REQUEST_FLEX);
     offset += flex_frame_extras;
   }
 
@@ -2410,15 +2577,27 @@ proto_register_couchbase(void)
     { &hf_cas, { "CAS", "couchbase.cas", FT_UINT64, BASE_HEX, NULL, 0x0, "Data version check", HFILL } },
     { &hf_ttp, { "Time to Persist", "couchbase.ttp", FT_UINT32, BASE_DEC, NULL, 0x0, "Approximate time needed to persist the key (milliseconds)", HFILL } },
     { &hf_ttr, { "Time to Replicate", "couchbase.ttr", FT_UINT32, BASE_DEC, NULL, 0x0, "Approximate time needed to replicate the key (milliseconds)", HFILL } },
+
     { &hf_flex_keylength, { "Key Length", "couchbase.key.length", FT_UINT8, BASE_DEC, NULL, 0x0, "Length in bytes of the text key that follows the command extras", HFILL } },
     { &hf_flex_extras_length, { "Flexible Framing Extras Length", "couchbase.flex_extras", FT_UINT8, BASE_DEC, NULL, 0x0, "Length in bytes of the flexible framing extras that follows the response header", HFILL } },
-    { &hf_flex_extras, {"Flexible Framing Extras", "couchbase.flex_frame_extras", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-    { &hf_flex_frame_id_len, {"Flexible Frame Byte0", "couchbase.flex_frame.byte0", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-    { &hf_flex_frame_id, {"Flexible Frame ID", "couchbase.flex_frame.frame.id", FT_UINT8, BASE_DEC, VALS(flex_frame_ids), 0xF0, NULL, HFILL } },
-    { &hf_flex_frame_id_esc, {"Flexible Frame ID (escaped)", "couchbase.flex_frame.frame.id", FT_UINT16, BASE_DEC, VALS(flex_frame_ids), 0xF0, NULL, HFILL } },
-    { &hf_flex_frame_len, {"Flexible Frame Len", "couchbase.flex_frame.frame.len", FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL } },
-    { &hf_flex_frame_len_esc, {"Flexible Frame Len (escaped)", "couchbase.flex_frame.frame.len", FT_UINT16, BASE_DEC, NULL, 0x0F, NULL, HFILL } },
+    { &hf_flex_extras, {"Flexible Framing Extras", "couchbase.flex_frame_extras", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+    { &hf_flex_extras_n, {"Flexible Framing Extras", "couchbase.flex_frame_extras", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+
+    { &hf_flex_frame_id_byte0, {"Flexible Frame Byte0", "couchbase.flex_frame.byte0", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+
+    { &hf_flex_frame_id_req, {"Flexible Frame ID (request)", "couchbase.flex_frame.frame.id", FT_UINT8, BASE_DEC, VALS(flex_frame_request_ids), 0x0, NULL, HFILL } },
+    { &hf_flex_frame_id_res, {"Flexible Frame ID (response)", "couchbase.flex_frame.frame.id", FT_UINT8, BASE_DEC, VALS(flex_frame_response_ids), 0x0, NULL, HFILL } },
+    { &hf_flex_frame_id_req_esc, {"Flexible Frame ID esc (request)", "couchbase.flex_frame.frame.id", FT_UINT16, BASE_DEC, VALS(flex_frame_request_ids), 0x0, NULL, HFILL } },
+    { &hf_flex_frame_id_res_esc, {"Flexible Frame ID esc (response)", "couchbase.flex_frame.frame.id", FT_UINT16, BASE_DEC, VALS(flex_frame_response_ids), 0x0, NULL, HFILL } },
+
+
+    { &hf_flex_frame_len, {"Flexible Frame Len", "couchbase.flex_frame.frame.len", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+    { &hf_flex_frame_len_esc, {"Flexible Frame Len (esc)", "couchbase.flex_frame.frame.len", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+
     { &hf_flex_frame_tracing_duration, {"Server Recv->Send duration", "couchbase.flex_frame.frame.duration", FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_microseconds, 0, NULL, HFILL } },
+    { &hf_flex_frame_durability_req, {"Durability Requirement", "couchbase.flex_frame.frame.durability_req", FT_UINT8, BASE_DEC, VALS(flex_frame_durability_req), 0, NULL, HFILL } },
+    { &hf_flex_frame_durability_timeout, {"Durability Timeout", "couchbase.flex_frame.frame.durability_timeout", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+    { &hf_flex_frame_dcp_stream_id, {"DCP Stream Identifier", "couchbase.flex_frame.frame.dcp_stream_id", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
 
     { &hf_extras, { "Extras", "couchbase.extras", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_flags, { "Flags", "couchbase.extras.flags", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
@@ -2559,7 +2738,9 @@ proto_register_couchbase(void)
     { &ef_separator_not_found, { "couchbase.warn.separator_not_found", PI_UNDECODED, PI_WARN, "Separator not found", EXPFILL }},
     { &ef_illegal_value, { "couchbase.warn.illegal_value", PI_UNDECODED, PI_WARN, "Illegal value for command", EXPFILL }},
     { &ef_compression_error, { "couchbase.error.compression", PI_UNDECODED, PI_WARN, "Compression error", EXPFILL }},
-    { &ef_warn_unknown_flex_code, { "couchbase.warn.unknown_flexible_frame_id", PI_UNDECODED, PI_WARN, "Flexible Response ID warning", EXPFILL }}
+    { &ef_warn_unknown_flex_unsupported, { "couchbase.warn.unsupported_flexible_frame", PI_UNDECODED, PI_WARN, "Flexible Response ID warning", EXPFILL }},
+    { &ef_warn_unknown_flex_id, { "couchbase.warn.unknown_flexible_frame_id", PI_UNDECODED, PI_WARN, "Flexible Response ID warning", EXPFILL }},
+    { &ef_warn_unknown_flex_len, { "couchbase.warn.unknown_flexible_frame_len", PI_UNDECODED, PI_WARN, "Flexible Response ID warning", EXPFILL }}
 
   };
 
