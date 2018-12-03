@@ -1748,6 +1748,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tvb_get_string_time@Base 1.12.0~rc1
  tvb_get_stringz_enc@Base 1.9.1
  tvb_get_stringzpad@Base 1.12.0~rc1
+ tvb_get_token_len@Base 2.9.0
  tvb_get_ts_23_038_7bits_string@Base 1.12.0~rc1
  tvb_get_varint@Base 2.5.0
  tvb_memcpy@Base 1.9.1

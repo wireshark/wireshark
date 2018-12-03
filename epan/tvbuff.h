@@ -807,6 +807,26 @@ WS_DLL_PUBLIC gint tvb_skip_wsp_return(tvbuff_t *tvb, const gint offset);
 int tvb_skip_guint8(tvbuff_t *tvb, int offset, const int maxlength, const guint8 ch);
 
 /**
+* Given a tvbuff, an offset into the tvbuff, and a length that starts
+* at that offset (which may be -1 for "all the way to the end of the
+* tvbuff"), find the end of the token that starts at the
+* specified offset in the tvbuff, going no further than the specified
+* length.
+*
+* Return the length of the token, or, if we don't find a terminator:
+*
+*  if "deseg" is true, return -1;
+*
+*  if "deseg" is false, return the amount of data remaining in
+*  the buffer.
+*
+* Set "*next_offset" to the offset of the character past the
+* terminator, or past the end of the buffer if we don't find a line
+* terminator.  (It's not set if we return -1.)
+*/
+WS_DLL_PUBLIC int tvb_get_token_len(tvbuff_t *tvb, const gint offset, int len, gint *next_offset, const gboolean desegment);
+
+/**
  * Call strncmp after checking if enough chars left, returning 0 if
  * it returns 0 (meaning "equal") and -1 otherwise, otherwise return -1.
  */
