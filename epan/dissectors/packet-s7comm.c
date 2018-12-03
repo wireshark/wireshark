@@ -4798,7 +4798,7 @@ s7comm_decode_ud(tvbuff_t *tvb,
     proto_tree_add_item(param_tree, hf_s7comm_userdata_param_len, tvb, offset_temp, 1, ENC_BIG_ENDIAN);
     offset_temp += 1;
     /* 1 byte indicating request/response again, but useful in Push telegrams*/
-    proto_tree_add_item_ret_uint(param_tree, hf_s7comm_userdata_param_reqres2, tvb, offset, 1, ENC_BIG_ENDIAN, &reqres2);
+    proto_tree_add_item_ret_uint(param_tree, hf_s7comm_userdata_param_reqres2, tvb, offset_temp, 1, ENC_BIG_ENDIAN, &reqres2);
     offset_temp += 1;
     /* High nibble (following/request/response) */
     type = (tvb_get_guint8(tvb, offset_temp) & 0xf0) >> 4;
