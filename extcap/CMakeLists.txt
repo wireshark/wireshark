@@ -46,6 +46,11 @@ macro(set_extcap_executable_properties _executable)
 			LINK_FLAGS "${WS_LINK_FLAGS}"
 			RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/extcap
 		)
+		if(ENABLE_RPATH_ORIGIN)
+			set_target_properties(${_executable} PROPERTIES
+				INSTALL_RPATH "\$ORIGIN/../.."
+			)
+		endif()
 		if(ENABLE_APPLICATION_BUNDLE)
 			if(NOT CMAKE_CFG_INTDIR STREQUAL ".")
 				# Xcode
