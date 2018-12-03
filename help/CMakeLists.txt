@@ -59,13 +59,7 @@ foreach(_help_file ${HELP_FILES})
 	list(APPEND copy_help_files_depends "${_dst_file}")
 endforeach()
 
-if(WIN32)
-	set(HELP_FILES_DATADIR "help")
-else()
-	set(HELP_FILES_DATADIR "${CMAKE_INSTALL_DATADIR}/${CPACK_PACKAGE_NAME}/help")
-endif()
-
 add_custom_target(copy_help_files ALL DEPENDS ${copy_help_files_depends} )
 set_target_properties(copy_help_files PROPERTIES FOLDER "Copy Tasks")
 
-install(FILES ${HELP_FILES} DESTINATION ${HELP_FILES_DATADIR})
+install(FILES ${HELP_FILES} DESTINATION "${CMAKE_INSTALL_DATADIR}/help")

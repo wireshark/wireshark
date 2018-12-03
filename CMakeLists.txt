@@ -189,6 +189,12 @@ if(WIN32)
 	set(CMAKE_INSTALL_LIBDIR ".")
 	set(CMAKE_INSTALL_INCLUDEDIR "include")
 	set(CMAKE_INSTALL_DATADIR ".")
+else()
+	# By default INSTALL_DATADIR is set to INSTALL_DATAROOTDIR, set the
+	# proper value here.
+	set(CMAKE_INSTALL_DATADIR "share/${CPACK_PACKAGE_NAME}"
+		CACHE PATH "Read-only architecture-independent data"
+	)
 endif()
 include(GNUInstallDirs)
 
@@ -2772,11 +2778,6 @@ set_source_files_properties(
 	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
 )
 
-if(WIN32)
-	set(INSTALL_FILES_DATADIR ".")
-else()
-	set(INSTALL_FILES_DATADIR "${CMAKE_INSTALL_DATADIR}/${CPACK_PACKAGE_NAME}")
-endif()
 install(
 	FILES
 		${INSTALL_FILES}
@@ -2785,7 +2786,7 @@ install(
 		GROUP_READ
 		WORLD_READ
 	DESTINATION
-		${INSTALL_FILES_DATADIR}
+		${CMAKE_INSTALL_DATADIR}
 )
 
 set(SHARK_PUBLIC_HEADERS
@@ -2808,26 +2809,26 @@ install(FILES ${SHARK_PUBLIC_HEADERS}
 # Install icons and other desktop files for Freedesktop.org-compliant desktops.
 if((BUILD_wireshark AND QT_FOUND) AND NOT (WIN32 OR APPLE))
 	install(FILES wireshark-mime-package.xml
-		DESTINATION "${CMAKE_INSTALL_DATADIR}/mime/packages"
+		DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/mime/packages"
 		RENAME wireshark.xml
 	)
 	install(FILES wireshark.appdata.xml
-		DESTINATION "${CMAKE_INSTALL_DATADIR}/appdata"
+		DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/appdata"
 	)
 	if(BUILD_wireshark AND QT_FOUND)
 		install(FILES wireshark.desktop
-			DESTINATION "${CMAKE_INSTALL_DATADIR}/applications")
+			DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/applications")
 	endif()
 	foreach(size 16 24 32 48 64 128 256)
 		install(FILES image/wsicon${size}.png
-			DESTINATION "${CMAKE_INSTALL_DATADIR}/icons/hicolor/${size}x${size}/apps"
+			DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/${size}x${size}/apps"
 			RENAME wireshark.png)
 		install(FILES image/WiresharkDoc-${size}.png
-			DESTINATION "${CMAKE_INSTALL_DATADIR}/icons/hicolor/${size}x${size}/mimetypes"
+			DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/${size}x${size}/mimetypes"
 			RENAME application-wireshark-doc.png)
 	endforeach()
 	install(FILES image/wsicon.svg
-		DESTINATION "${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps"
+		DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/scalable/apps"
 		RENAME wireshark.svg)
 endif()
 
@@ -2842,7 +2843,7 @@ install(
 	DIRECTORY
 		${INSTALL_DIRS}
 	DESTINATION
-		${INSTALL_FILES_DATADIR}
+		${CMAKE_INSTALL_DATADIR}
 	FILE_PERMISSIONS
 		OWNER_WRITE OWNER_READ
 		GROUP_READ

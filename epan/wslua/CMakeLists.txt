@@ -132,19 +132,13 @@ add_custom_target(
 
 set_target_properties(wsluaauxiliary PROPERTIES FOLDER "Auxiliary")
 
-if(WIN32)
-	set(WIRESHARK_INSTALL_LUADIR "${CMAKE_INSTALL_DATADIR}")
-else()
-	set(WIRESHARK_INSTALL_LUADIR "${CMAKE_INSTALL_DATADIR}/${CPACK_PACKAGE_NAME}")
-endif()
-
 install(
 	FILES
 		console.lua
 		dtd_gen.lua
 		${CMAKE_CURRENT_BINARY_DIR}/init.lua
 	DESTINATION
-		${WIRESHARK_INSTALL_LUADIR}
+		${CMAKE_INSTALL_DATADIR}
 )
 
 add_library(wslua OBJECT
