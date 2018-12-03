@@ -328,6 +328,9 @@ static int hf_opaque = -1;
 static int hf_cas = -1;
 static int hf_ttp = -1;
 static int hf_ttr = -1;
+static int hf_collection_key_id = -1;
+static int hf_collection_key_logical = -1;
+
 static int hf_flex_extras_length = -1;
 static int hf_flex_keylength = -1;
 static int hf_extras = -1;
@@ -380,8 +383,9 @@ static int hf_extras_nmeta = -1;
 static int hf_extras_nru = -1;
 static int hf_extras_bytes_to_ack = -1;
 static int hf_extras_delete_time = -1;
-static int hf_extras_collection_len = -1;
+static int hf_extras_delete_unused = -1;
 static int hf_extras_system_event_id = -1;
+static int hf_extras_system_event_version = -1;
 static int hf_extras_pathlen = -1;
 static int hf_key = -1;
 static int hf_path = -1;
@@ -495,6 +499,7 @@ static gint ett_datatype = -1;
 static gint ett_xattrs = -1;
 static gint ett_xattr_pair = -1;
 static gint ett_flex_frame_extras = -1;
+static gint ett_collection_key = -1;
 
 static const value_string magic_vals[] = {
   { MAGIC_REQUEST,       "Request"  },
@@ -840,8 +845,10 @@ static const value_string feature_vals[] = {
 
 static const value_string dcp_system_event_id_vals [] = {
     {0, "CreateCollection"},
-    {1, "DeleteCollection"},
-    {2, "CollectionSeparatorChanged"},
+    {1, "DropCollection"},
+    {2, "FlushCollection"},
+    {3, "CreateScope"},
+    {4, "DropScope"},
     {0, NULL}
 };
 
@@ -1271,12 +1278,6 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 2;
         proto_tree_add_item(extras_tree, hf_extras_nru, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
-
-        // Add the collections_len when extlen == 32
-        if (extlen == 32) {
-          proto_tree_add_item(extras_tree, hf_extras_collection_len, tvb, offset, 1, ENC_BIG_ENDIAN);
-          offset += 1;
-        }
       } else {
         illegal = TRUE;
       }
@@ -1301,7 +1302,7 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         } else if (extlen == 21) {
           proto_tree_add_item(extras_tree, hf_extras_delete_time, tvb, offset, 4, ENC_BIG_ENDIAN);
           offset += 4;
-          proto_tree_add_item(extras_tree, hf_extras_collection_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+          proto_tree_add_item(extras_tree, hf_extras_delete_unused, tvb, offset, 1, ENC_BIG_ENDIAN);
           offset += 1;
         }
       } else if (extlen == 0) {
@@ -1366,11 +1367,13 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     break;
   case PROTOCOL_BINARY_DCP_SYSTEM_EVENT: {
-    if (request && extlen == 12) {
+    if (request && extlen == 13) {
       proto_tree_add_item(extras_tree, hf_extras_by_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
       offset += 8;
       proto_tree_add_item(extras_tree, hf_extras_system_event_id, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
+      proto_tree_add_item(extras_tree, hf_extras_system_event_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+      offset += 1;
     }
     break;
   }
@@ -1534,6 +1537,36 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
 }
 
+/*
+  Decode an unsigned leb128 int from a slice within a tvbuff_t
+  @param tvb buffer to read from
+  @param start index of the first byte of 'slice'
+  @param end index of the last byte of the buffer 'slice'
+  @param [out] value the decoded value
+  @returns next byte after the leb128 bytes or -1 if we failed to decode
+*/
+static gint
+dissect_unsigned_leb128(tvbuff_t *tvb, gint start, gint end, guint32* value) {
+    guint8 byte = tvb_get_guint8(tvb, start);
+    *value = byte & 0x7f;
+
+
+    if ((byte & 0x80) == 0x80) {
+        guint32 shift = 7;
+        gint index;
+        for (index = start+1; index < end; index++) {
+            byte = tvb_get_guint8(tvb, index);
+            *value |= (byte & 0x7f) << shift;
+            if ((byte & 0x80) == 0) {
+                break;
+            }
+            shift += 7;
+        }
+        return (index == end) ? -1 : index + 1;
+    }
+    return start + 1;
+}
+
 static void
 dissect_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             gint offset, int keylen, guint8 opcode, gboolean request)
@@ -1544,6 +1577,40 @@ dissect_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   if (keylen) {
     ti = proto_tree_add_item(tree, hf_key, tvb, offset, keylen, ENC_ASCII | ENC_NA);
+
+    /* assume collections are enabled and add a field for the CID */
+    guint32 cid = 0;
+    gint ok = dissect_unsigned_leb128(tvb, offset, offset + keylen, &cid);
+
+    /* Add collection info to a subtree */
+    proto_tree* cid_tree = proto_item_add_subtree(ti,
+                                                  ett_collection_key);
+
+    if (ok != -1) {
+      proto_tree_add_uint(cid_tree,
+                          hf_collection_key_id,
+                          tvb,
+                          offset,
+                          (ok - offset),
+                          cid);
+      proto_tree_add_item(cid_tree,
+                          hf_collection_key_logical,
+                          tvb,
+                          ok,
+                          keylen - (ok - offset),
+                          ENC_ASCII | ENC_NA);
+    } else {
+      /* cid decode issue, could just be a non-collection stream, don't warn
+         just add some info */
+      proto_tree_add_string_format(cid_tree,
+                                   hf_collection_key_logical,
+                                   tvb,
+                                   offset,
+                                   keylen,
+                                   NULL,
+                                   "Collection ID didn't decode, maybe no CID.");
+    }
+
     offset += keylen;
   }
 
@@ -2578,6 +2645,9 @@ proto_register_couchbase(void)
     { &hf_ttp, { "Time to Persist", "couchbase.ttp", FT_UINT32, BASE_DEC, NULL, 0x0, "Approximate time needed to persist the key (milliseconds)", HFILL } },
     { &hf_ttr, { "Time to Replicate", "couchbase.ttr", FT_UINT32, BASE_DEC, NULL, 0x0, "Approximate time needed to replicate the key (milliseconds)", HFILL } },
 
+    { &hf_collection_key_id, { "Collection ID", "couchbase.key.collection_id", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+    { &hf_collection_key_logical, { "Collection Logical Key", "couchbase.key.logical_key", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+
     { &hf_flex_keylength, { "Key Length", "couchbase.key.length", FT_UINT8, BASE_DEC, NULL, 0x0, "Length in bytes of the text key that follows the command extras", HFILL } },
     { &hf_flex_extras_length, { "Flexible Framing Extras Length", "couchbase.flex_extras", FT_UINT8, BASE_DEC, NULL, 0x0, "Length in bytes of the flexible framing extras that follows the response header", HFILL } },
     { &hf_flex_extras, {"Flexible Framing Extras", "couchbase.flex_frame_extras", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
@@ -2650,8 +2720,9 @@ proto_register_couchbase(void)
     { &hf_extras_nru, { "nru", "couchbase.extras.nru", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_bytes_to_ack, { "bytes_to_ack", "couchbase.extras.bytes_to_ack", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_delete_time, { "delete_time", "couchbase.extras.delete_time", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-    { &hf_extras_collection_len, { "collection_len", "couchbase.extras.collection_len", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+    { &hf_extras_delete_unused, { "unused", "couchbase.extras.delete_unused", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_system_event_id, { "system_event_id", "couchbase.extras.system_event_id", FT_UINT32, BASE_DEC, VALS(dcp_system_event_id_vals), 0x0, NULL, HFILL } },
+    { &hf_extras_system_event_version, { "system_event_version", "couchbase.extras.system_event_version", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 
     { &hf_failover_log, { "Failover Log", "couchbase.dcp.failover_log", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
     { &hf_failover_log_size, { "Size", "couchbase.dcp.failover_log.size", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
@@ -2741,7 +2812,6 @@ proto_register_couchbase(void)
     { &ef_warn_unknown_flex_unsupported, { "couchbase.warn.unsupported_flexible_frame", PI_UNDECODED, PI_WARN, "Flexible Response ID warning", EXPFILL }},
     { &ef_warn_unknown_flex_id, { "couchbase.warn.unknown_flexible_frame_id", PI_UNDECODED, PI_WARN, "Flexible Response ID warning", EXPFILL }},
     { &ef_warn_unknown_flex_len, { "couchbase.warn.unknown_flexible_frame_len", PI_UNDECODED, PI_WARN, "Flexible Response ID warning", EXPFILL }}
-
   };
 
   static gint *ett[] = {
@@ -2758,7 +2828,8 @@ proto_register_couchbase(void)
     &ett_hello_features,
     &ett_datatype,
     &ett_xattrs,
-    &ett_xattr_pair
+    &ett_xattr_pair,
+    &ett_collection_key
   };
 
   module_t *couchbase_module;
