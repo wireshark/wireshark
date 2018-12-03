@@ -24,6 +24,7 @@
 #include <epan/show_exception.h>
 #include <epan/addr_resolv.h>
 #include <epan/proto_data.h>
+#include <epan/conversation.h>
 
 #include <wsutil/strtoi.h>
 
@@ -2819,6 +2820,27 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     datalen = tvb_captured_length_remaining(tvb, offset);
     if (datalen > 0) {
         proto_tree_add_item(sdp_tree, hf_sdp_data, tvb, offset, datalen, ENC_NA);
+    }
+    /* Add Trace info */
+    conversation_t *sdp_conv;
+    wmem_array_t *sdp_conv_info_list;
+    sdp_conv = find_conversation_pinfo(pinfo, 0);
+    if (sdp_conv) {
+        guint i;
+        sdp_setup_info_t *stored_setup_info;
+        proto_item *item;
+        sdp_conv_info_list = (wmem_array_t *)conversation_get_proto_data(sdp_conv, proto_sdp);
+        if(sdp_conv_info_list){
+            for (i = 0; i < wmem_array_get_count(sdp_conv_info_list); i++) {
+                stored_setup_info = (sdp_setup_info_t *)wmem_array_index(sdp_conv_info_list, i);
+                if (stored_setup_info->hf_id) {
+                    if (stored_setup_info->hf_type == SDP_TRACE_ID_HF_TYPE_STR) {
+                        item = proto_tree_add_string(sdp_tree, stored_setup_info->hf_id, tvb, 0, 0, stored_setup_info->trace_id);
+                        PROTO_ITEM_SET_GENERATED(item);
+                    }
+                }
+            }
+        }
     }
     /* Report this packet to the tap */
     tap_queue_packet(sdp_tap, pinfo, sdp_pi);
