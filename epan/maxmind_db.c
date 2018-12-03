@@ -193,10 +193,16 @@ static ssize_t mmdbr_pipe_read_one(char *ch_p) {
 // We need to read a series of lines from mmdbresolve's stdout. Trying to
 // use fgets is problematic because it blocks on Windows blocks. Doing so
 // in a thread is even worse since it locks the I/O stream and if the main
-// thread calls fclose while fgets is blocking, it will block as well.
+// thread calls fclose while fgets is blocking, it will block as well. The
+// same happens for plain close+read.
 //
 // Read our input one character at a time and only after we've ensured
-// that data is available.
+// that data is available. If this is too inefficient we could try one
+// of the following:
+// - Use overlapped I/O, which implies adding ws_pipe_set_nonblock and
+//   ws_pipe_read_nonblock routines.
+// - Stash our worker thread handles on Windows and call CancelSynchronousIo
+//   before shutting down our threads.
 #define MAX_MMDB_LINE_LEN 2000
 static gpointer
 read_mmdbr_stdout_worker(gpointer data _U_) {
