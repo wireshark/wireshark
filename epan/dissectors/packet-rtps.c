@@ -350,6 +350,9 @@ static int hf_rtps_type_object_enum_constant_value              = -1;
 static int hf_rtps_type_object_element_shared                   = -1;
 static int hf_rtps_type_object_name                             = -1;
 static int hf_rtps_type_object_element_module_name              = -1;
+static int hf_rtps_uncompressed_serialized_length               = -1;
+static int hf_rtps_compression_plugin_class_id                  = -1;
+static int hf_rtps_compressed_serialized_type_object            = -1;
 static int hf_rtps_pl_cdr_member                                = -1;
 static int hf_rtps_pl_cdr_member_id                             = -1;
 static int hf_rtps_pl_cdr_member_length                         = -1;
@@ -990,6 +993,7 @@ static const value_string parameter_id_rti_vals[] = {
   { PID_REACHABILITY_LEASE_DURATION,    "PID_REACHABILITY_LEASE_DURATION" },
   { PID_VENDOR_BUILTIN_ENDPOINT_SET,    "PID_VENDOR_BUILTIN_ENDPOINT_SET" },
   { PID_ENDPOINT_SECURITY_ATTRIBUTES,   "PID_ENDPOINT_SECURITY_ATTRIBUTES" },
+  { PID_TYPE_OBJECT_LB,                 "PID_TYPE_OBJECT_LB" },
   { 0, NULL }
 };
 static const value_string parameter_id_toc_vals[] = {
@@ -4427,14 +4431,47 @@ static gboolean dissect_parameter_sequence_rti_dds(proto_tree *rtps_parameter_tr
                 VENDOR_BUILTIN_ENDPOINT_FLAGS, flags);
       break;
     }
+  /* 0...2...........7...............15.............23...............31
+   * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   * |    Unsigned long classId                                      |
+   * +---------------+---------------+---------------+---------------+
+   * |    Unsigned long uncompressedSerializedLength                 |
+   * +---------------+---------------+---------------+---------------+
+   * |    byteSeq compressedSerializedTypeObject                     |
+   * +---------------+---------------+---------------+---------------+
+   * classId:
+   *  value(0) RTI_OSAPI_COMPRESSION_CLASS_ID_NONE
+   *  value(1) RTI_OSAPI_COMPRESSION_CLASS_ID_ZLIB
+   *  value(2) RTI_OSAPI_COMPRESSION_CLASS_ID_BZIP2
+   *  value(-1) RTI_OSAPI_COMPRESSION_CLASS_ID_AUTO
+   */
+    case PID_TYPE_OBJECT_LB: {
+      const char* class_id_enum_names[] = {
+        "RTI_OSAPI_COMPRESSION_CLASS_ID_AUTO",
+        "RTI_OSAPI_COMPRESSION_CLASS_ID_NONE",
+        "RTI_OSAPI_COMPRESSION_CLASS_ID_ZLIB",
+        "RTI_OSAPI_COMPRESSION_CLASS_ID_BZIP2" };
+      gint compression_plugin_class_id;
+
+      ENSURE_LENGTH(8);
+      compression_plugin_class_id = tvb_get_guint32(tvb, offset, encoding);
+      proto_tree_add_int_format(rtps_parameter_tree, hf_rtps_compression_plugin_class_id, tvb, offset,
+        4, compression_plugin_class_id, "Compression plugin class id: %d (%s)",
+        compression_plugin_class_id, class_id_enum_names[1 + compression_plugin_class_id]);
+      offset += 4;
+      proto_tree_add_item(rtps_parameter_tree, hf_rtps_uncompressed_serialized_length, tvb, offset, 4, encoding);
+      offset += 8;
+      proto_tree_add_item(rtps_parameter_tree, hf_rtps_compressed_serialized_type_object, tvb, offset, param_length - 8, encoding);
+      break;
+    }
 
     case PID_ENDPOINT_SECURITY_ATTRIBUTES: {
       guint32 flags;
       ENSURE_LENGTH(4);
       flags = tvb_get_guint32(tvb, offset, encoding);
       proto_tree_add_bitmask_value(rtps_parameter_tree, tvb, offset,
-                hf_rtps_param_endpoint_security_attributes, ett_rtps_flags,
-                ENDPOINT_SECURITY_ATTRIBUTES, flags);
+        hf_rtps_param_endpoint_security_attributes, ett_rtps_flags,
+      ENDPOINT_SECURITY_ATTRIBUTES, flags);
       break;
     }
 
@@ -12433,6 +12470,18 @@ void proto_register_rtps(void) {
     },
     { &hf_rtps_reassembled_data,
         { "Reassembled RTPS data", "rtps.reassembled.data", FT_BYTES, BASE_NONE,
+        NULL, 0x0, "The reassembled payload", HFILL }
+    },
+    { &hf_rtps_compression_plugin_class_id,
+        { "Compression class Id", "rtps.param.compression_class_id", FT_INT32, BASE_DEC,
+        NULL, 0x0, "The reassembled payload", HFILL }
+    },
+    { &hf_rtps_uncompressed_serialized_length,
+        { "Uncompressed serialized length", "rtps.param.uncompressed_serialized_length", FT_UINT32, BASE_DEC,
+        NULL, 0x0, "The reassembled payload", HFILL }
+    },
+    { &hf_rtps_compressed_serialized_type_object,
+        { "Compressed serialized type object", "rtps.param.compressed_serialized_typeobject", FT_BYTES, BASE_NONE,
         NULL, 0x0, "The reassembled payload", HFILL }
     },
   };

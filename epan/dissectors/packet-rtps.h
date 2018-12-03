@@ -282,6 +282,7 @@ typedef struct _rtps_dissector_data {
 #define PID_DATA_TAGS                           (0x1003)
 #define PID_ENDPOINT_SECURITY_INFO              (0x1004)
 #define PID_PARTICIPANT_SECURITY_INFO           (0x1005)
+#define PID_TYPE_OBJECT_LB                      (0x8021)
 
 /* Vendor-specific: PT */
 #define PID_PRISMTECH_WRITER_INFO               (0x8001)
