@@ -3840,7 +3840,8 @@ static int rtps_util_add_bitmap(proto_tree *tree,
                         tvbuff_t *tvb,
                         gint       offset,
                         const guint encoding,
-                        const char *label) {
+                        const char *label,
+                        gboolean show_analysis) {
   gint32 num_bits;
   guint32 data;
   wmem_strbuf_t *temp_buff = wmem_strbuf_new_label(wmem_packet_scope());
@@ -3865,19 +3866,19 @@ static int rtps_util_add_bitmap(proto_tree *tree,
   proto_tree_add_item_ret_uint(bitmap_tree, hf_rtps_bitmap_num_bits, tvb, offset, 4, encoding, &num_bits);
   offset += 4;
   /* bitmap base 0 means that this is a preemptive ACKNACK */
-  if (first_seq_number == 0) {
+  if (first_seq_number == 0 && show_analysis) {
     ti = proto_tree_add_uint_format(bitmap_tree, hf_rtps_acknack_analysis, tvb, 0, 0,
         1, "Acknack Analysis: Preemptive ACKNACK");
     PROTO_ITEM_SET_GENERATED(ti);
   }
 
-  if (first_seq_number > 0 && num_bits == 0) {
+  if (first_seq_number > 0 && num_bits == 0 && show_analysis) {
     ti = proto_tree_add_uint_format(bitmap_tree, hf_rtps_acknack_analysis, tvb, 0, 0,
             2, "Acknack Analysis: Expecting sample %" G_GINT64_MODIFIER "u", first_seq_number);
     PROTO_ITEM_SET_GENERATED(ti);
   }
 
-  if (num_bits > 0) {
+  if (num_bits > 0 && show_analysis) {
     ti = proto_tree_add_uint_format(bitmap_tree, hf_rtps_acknack_analysis, tvb, 0, 0,
             3, "Acknack Analysis: Lost samples");
     PROTO_ITEM_SET_GENERATED(ti);
@@ -3919,7 +3920,7 @@ static int rtps_util_add_bitmap(proto_tree *tree,
   proto_item_set_len(ti_tree, offset-original_offset);
 
   /* Add analysis of the information */
-  if (num_bits > 0) {
+  if (num_bits > 0 && show_analysis) {
     proto_item_append_text(ti, "%s in range [%" G_GINT64_MODIFIER "u,%" G_GINT64_MODIFIER "u]",
         wmem_strbuf_get_str(analysis_buff), first_seq_number, first_seq_number + num_bits - 1);
   }
@@ -7640,7 +7641,7 @@ static void dissect_ACKNACK(tvbuff_t *tvb, packet_info *pinfo, gint offset, guin
   rtps_util_topic_info_add_tree(tree, tvb, offset, guid);
 
   /* Bitmap */
-  offset = rtps_util_add_bitmap(tree, tvb, offset, encoding, "readerSNState");
+  offset = rtps_util_add_bitmap(tree, tvb, offset, encoding, "readerSNState", TRUE);
 
   /* RTPS 1.0 didn't have count: make sure we don't decode it wrong
    * in this case
@@ -9147,7 +9148,7 @@ static void dissect_GAP(tvbuff_t *tvb, packet_info *pinfo, gint offset,
   offset += 8;
 
   /* Bitmap */
-  rtps_util_add_bitmap(tree, tvb, offset, encoding, "gapList");
+  rtps_util_add_bitmap(tree, tvb, offset, encoding, "gapList", FALSE);
 }
 
 
