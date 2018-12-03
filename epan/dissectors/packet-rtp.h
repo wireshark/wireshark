@@ -167,26 +167,26 @@ void rtp_dyn_payload_free(rtp_dyn_payload_t *rtp_dyn_payload);
 void rtp_dump_dyn_payload(rtp_dyn_payload_t *rtp_dyn_payload);
 #endif
 
-/* Info to save in RTP conversation / packet-info */
+/** Info to save in RTP conversation / packet-info */
 #define MAX_RTP_SETUP_METHOD_SIZE 11
 struct _rtp_conversation_info
 {
-	gchar   method[MAX_RTP_SETUP_METHOD_SIZE + 1];
-	guint32 frame_number;			/* the frame where this conversation is started */
-	guint32 media_types;
-	rtp_dyn_payload_t *rtp_dyn_payload;	/* the dynamic RTP payload info - see comments above */
+    gchar   method[MAX_RTP_SETUP_METHOD_SIZE + 1];
+    guint32 frame_number;                           /**> the frame where this conversation is started */
+    guint32 media_types;
+    rtp_dyn_payload_t *rtp_dyn_payload;             /**> the dynamic RTP payload info - see comments above */
 
-	guint32 extended_seqno;			/* the sequence number, extended to a 32-bit
-									 * int to guarantee it increasing monotonically
-									 */
+    guint32 extended_seqno;                         /**> the sequence number, extended to a 32-bit
+                                                     * int to guarantee it increasing monotonically
+                                                     */
 
-	struct _rtp_private_conv_info *rtp_conv_info; /* conversation info private
-	                                               * to the rtp dissector
-												   */
-	struct srtp_info *srtp_info;    /* SRTP context */
-	bta2dp_codec_info_t *bta2dp_info;
-	btvdp_codec_info_t *btvdp_info;
-        sdp_setup_info_t *setup_info;
+    struct _rtp_private_conv_info *rtp_conv_info;   /**> conversation info private
+                                                     * to the rtp dissector
+                                                     */
+    struct srtp_info *srtp_info;                    /* SRTP context */
+    bta2dp_codec_info_t *bta2dp_info;
+    btvdp_codec_info_t *btvdp_info;
+    wmem_array_t *rtp_sdp_setup_info_list;           /**> List with data from all SDP occurencies for this steram holding a call ID)*/
 };
 
 /* Add an RTP conversation with the given details */

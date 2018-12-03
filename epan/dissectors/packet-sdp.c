@@ -2837,6 +2837,9 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                     if (stored_setup_info->hf_type == SDP_TRACE_ID_HF_TYPE_STR) {
                         item = proto_tree_add_string(sdp_tree, stored_setup_info->hf_id, tvb, 0, 0, stored_setup_info->trace_id);
                         PROTO_ITEM_SET_GENERATED(item);
+                    } else if (stored_setup_info->hf_type == SDP_TRACE_ID_HF_TYPE_GUINT32) {
+                        item = proto_tree_add_uint(sdp_tree, stored_setup_info->hf_id, tvb, 0, 0, stored_setup_info->trace_id_num);
+                        PROTO_ITEM_SET_GENERATED(item);
                     }
                 }
             }

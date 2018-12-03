@@ -1026,6 +1026,10 @@ rtp_add_setup_info_if_no_duplicate(sdp_setup_info_t *setup_info, wmem_array_t *s
             if (strcmp(stored_setup_info->trace_id, setup_info->trace_id) == 0) {
                 return; /* Do not store the call id */
             }
+        } else if ((stored_setup_info->hf_type == SDP_TRACE_ID_HF_TYPE_GUINT32) && (setup_info->hf_type == SDP_TRACE_ID_HF_TYPE_GUINT32)) {
+            if (stored_setup_info->trace_id_num == setup_info->trace_id_num) {
+                return; /* Do not store the call id */
+            }
         }
     }
 
@@ -1042,7 +1046,7 @@ srtp_add_address(packet_info *pinfo, const port_type ptype, address *addr, int p
     address null_addr;
     conversation_t* p_conv, *sdp_conv;
     struct _rtp_conversation_info *p_conv_data;
-    wmem_array_t *sdp_conv_info_list = NULL;
+    wmem_array_t *rtp_conv_info_list = NULL;
 
     /*
      * If this isn't the first time this packet has been processed,
@@ -1068,25 +1072,14 @@ srtp_add_address(packet_info *pinfo, const port_type ptype, address *addr, int p
     p_conv = find_conversation(setup_frame_number, addr, &null_addr, conversation_pt_to_endpoint_type(ptype), port, other_port,
                    NO_ADDR_B | (!other_port ? NO_PORT_B : 0));
 
-    sdp_conv = find_conversation_pinfo(pinfo, 0);
-
-    if ((p_conv) && (setup_info)) {
-        /* If we have a converation allready from a different frame number it can be part of the (SDP)
-         * offer answer sequence or from another protocol or second call leg.
-         * Store the setup_info in the SDP Conversation.
+    if (p_conv) {
+        /*
+         * Check if the conversation has data associated with it.
          */
-        if(sdp_conv){
-            sdp_conv_info_list = (wmem_array_t *)conversation_get_proto_data(sdp_conv, proto_sdp);
-            if(sdp_conv_info_list){
-                /* Add info to the SDP conversation */
-                rtp_add_setup_info_if_no_duplicate(setup_info, sdp_conv_info_list);
-            } else {
-                sdp_conv_info_list = wmem_array_new(wmem_file_scope(), sizeof(sdp_setup_info_t));
-                wmem_array_append(sdp_conv_info_list, setup_info, 1);
-                conversation_add_proto_data(sdp_conv, proto_sdp, sdp_conv_info_list);
-            }
-        }
+        p_conv_data = (struct _rtp_conversation_info *)conversation_get_proto_data(p_conv, proto_rtp);
+        rtp_conv_info_list = p_conv_data->rtp_sdp_setup_info_list;
     }
+
     DENDENT();
     DPRINT(("did %sfind conversation", p_conv?"":"NOT "));
 
@@ -1097,17 +1090,6 @@ srtp_add_address(packet_info *pinfo, const port_type ptype, address *addr, int p
         p_conv = conversation_new(setup_frame_number, addr, &null_addr, conversation_pt_to_endpoint_type(ptype),
                                   (guint32)port, (guint32)other_port,
                       NO_ADDR2 | (!other_port ? NO_PORT2 : 0));
-        if ((sdp_conv) && (setup_info)) {
-            sdp_conv_info_list = (wmem_array_t *)conversation_get_proto_data(sdp_conv, proto_sdp);
-            if (sdp_conv_info_list) {
-                /* Add info to the SDP conversation */
-                rtp_add_setup_info_if_no_duplicate(setup_info, sdp_conv_info_list);
-            } else {
-                sdp_conv_info_list = wmem_array_new(wmem_file_scope(), sizeof(sdp_setup_info_t));
-                wmem_array_append(sdp_conv_info_list, setup_info, 1);
-                conversation_add_proto_data(sdp_conv, proto_sdp, sdp_conv_info_list);
-            }
-        }
     }
 
     /* Set dissector */
@@ -1164,11 +1146,27 @@ srtp_add_address(packet_info *pinfo, const port_type ptype, address *addr, int p
     p_conv_data->frame_number = setup_frame_number;
     p_conv_data->media_types = media_types;
     p_conv_data->srtp_info = srtp_info;
-    if (setup_info) {
-        p_conv_data->setup_info = setup_info;
-    }
     p_conv_data->bta2dp_info = NULL;
     p_conv_data->btvdp_info = NULL;
+
+    /* If we had a sdp setup info list put it back in the potentially new conversation*/
+    p_conv_data->rtp_sdp_setup_info_list = rtp_conv_info_list;
+    if (setup_info) {
+        /* If we have new setup info add it to the list*/
+        if (p_conv_data->rtp_sdp_setup_info_list) {
+            /* Add info to the SDP conversation */
+            rtp_add_setup_info_if_no_duplicate(setup_info, p_conv_data->rtp_sdp_setup_info_list);
+        } else {
+            p_conv_data->rtp_sdp_setup_info_list = wmem_array_new(wmem_file_scope(), sizeof(sdp_setup_info_t));
+            wmem_array_append(p_conv_data->rtp_sdp_setup_info_list, setup_info, 1);
+        }
+    }
+    sdp_conv = find_or_create_conversation(pinfo);
+    if (sdp_conv && p_conv_data->rtp_sdp_setup_info_list) {
+        /* Add the collected information to the SDP conversation */
+        conversation_add_proto_data(sdp_conv, proto_sdp, p_conv_data->rtp_sdp_setup_info_list);
+    }
+
 }
 
 /* Set up an RTP conversation */
@@ -2358,7 +2356,7 @@ get_conv_info(packet_info *pinfo, struct _rtp_info *rtp_info)
                 p_conv_packet_data->rtp_dyn_payload = p_conv_data->rtp_dyn_payload;
                 p_conv_packet_data->rtp_conv_info = p_conv_data->rtp_conv_info;
                 p_conv_packet_data->srtp_info = p_conv_data->srtp_info;
-                p_conv_packet_data->setup_info = p_conv_data->setup_info;
+                p_conv_packet_data->rtp_sdp_setup_info_list = p_conv_data->rtp_sdp_setup_info_list;
                 p_conv_packet_data->bta2dp_info = p_conv_data->bta2dp_info;
                 p_conv_packet_data->btvdp_info = p_conv_data->btvdp_info;
                 /* XXX: why is this file pool not pinfo->pool? */
@@ -2405,18 +2403,27 @@ show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         {
             /* Add details into subtree */
             proto_item* item = proto_tree_add_uint(rtp_setup_tree, hf_rtp_setup_frame,
-                                                   tvb, 0, 0, p_conv_data->frame_number);
+                tvb, 0, 0, p_conv_data->frame_number);
             PROTO_ITEM_SET_GENERATED(item);
             item = proto_tree_add_string(rtp_setup_tree, hf_rtp_setup_method,
-                                         tvb, 0, 0, p_conv_data->method);
+                tvb, 0, 0, p_conv_data->method);
             PROTO_ITEM_SET_GENERATED(item);
 
-            if ((p_conv_data->setup_info) && (p_conv_data->setup_info->hf_id)) {
-                if (p_conv_data->setup_info->hf_type == SDP_TRACE_ID_HF_TYPE_STR ) {
-                    item = proto_tree_add_string(rtp_setup_tree, p_conv_data->setup_info->hf_id, tvb, 0, 0, p_conv_data->setup_info->trace_id);
-                    PROTO_ITEM_SET_GENERATED(item);
+            if (p_conv_data->rtp_sdp_setup_info_list){
+                guint i;
+                sdp_setup_info_t *stored_setup_info;
+                for (i = 0; i < wmem_array_get_count(p_conv_data->rtp_sdp_setup_info_list); i++) {
+                    stored_setup_info = (sdp_setup_info_t *)wmem_array_index(p_conv_data->rtp_sdp_setup_info_list, i);
+                    if (stored_setup_info->hf_id) {
+                        if (stored_setup_info->hf_type == SDP_TRACE_ID_HF_TYPE_STR) {
+                            item = proto_tree_add_string(rtp_setup_tree, stored_setup_info->hf_id, tvb, 0, 0, stored_setup_info->trace_id);
+                            PROTO_ITEM_SET_GENERATED(item);
+                        } else if (stored_setup_info->hf_type == SDP_TRACE_ID_HF_TYPE_GUINT32) {
+                            item = proto_tree_add_uint(rtp_setup_tree, stored_setup_info->hf_id, tvb, 0, 0, stored_setup_info->trace_id_num);
+                            PROTO_ITEM_SET_GENERATED(item);
+                        }
+                    }
                 }
-
             }
         }
 }

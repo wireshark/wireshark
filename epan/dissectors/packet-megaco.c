@@ -45,6 +45,8 @@
 #include "packet-h245.h"
 #include "packet-h248.h"
 #include "packet-ip.h"
+#include "packet-http.h"
+#include "packet-sdp.h"
 
 void proto_register_megaco(void);
 void proto_reg_handoff_megaco(void);
@@ -437,7 +439,7 @@ export_megaco_pdu(packet_info *pinfo, tvbuff_t *tvb)
 *
 */
 static void
-dissect_megaco_descriptors(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint tvb_descriptors_start_offset, gint tvb_descriptors_end_offset, proto_tree *top_tree);
+dissect_megaco_descriptors(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint tvb_descriptors_start_offset, gint tvb_descriptors_end_offset, proto_tree *top_tree, guint32 context);
 static void
 dissect_megaco_digitmapdescriptor(tvbuff_t *tvb, proto_tree *tree, gint tvb_RBRKT, gint tvb_previous_offset);
 static void
@@ -447,7 +449,7 @@ dissect_megaco_errordescriptor(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tr
 static void
 dissect_megaco_TerminationStatedescriptor(tvbuff_t *tvb, proto_tree *tree, gint tvb_next_offset, gint tvb_current_offset);
 static void
-dissect_megaco_Localdescriptor(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint tvb_next_offset, gint tvb_current_offset);
+dissect_megaco_Localdescriptor(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint tvb_next_offset, gint tvb_current_offset, guint32 context);
 static void
 dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint tvb_next_offset, gint tvb_current_offset, proto_tree *top_tree);
 static void
@@ -1567,10 +1569,10 @@ nextcontext:
                 tempchar = tvb_get_guint8(tvb, tvb_command_start_offset);
 
                 if ( tempchar == 'E'|| tempchar == 'e'){
-                    dissect_megaco_descriptors(tvb, megaco_tree_command_line, pinfo, tvb_command_start_offset-1,tvb_descriptors_end_offset, tree);
+                    dissect_megaco_descriptors(tvb, megaco_tree_command_line, pinfo, tvb_command_start_offset-1,tvb_descriptors_end_offset, tree, ctx_id);
                 }
                 else {
-                    dissect_megaco_descriptors(tvb, megaco_tree_command_line, pinfo, tvb_descriptors_start_offset,tvb_descriptors_end_offset, tree);
+                    dissect_megaco_descriptors(tvb, megaco_tree_command_line, pinfo, tvb_descriptors_start_offset,tvb_descriptors_end_offset, tree, ctx_id);
                 }
             }
             RBRKT_counter = 0;
@@ -1735,7 +1737,7 @@ static gint find_megaco_mediaParm_names(tvbuff_t *tvb, int offset, guint header_
 
 static void
 dissect_megaco_mediadescriptor(tvbuff_t *tvb, proto_tree *megaco_tree_command_line,packet_info *pinfo,  gint tvb_last_RBRKT,
-                                gint tvb_previous_offset, gint start_offset, proto_tree *top_tree)
+                                gint tvb_previous_offset, gint start_offset, proto_tree *top_tree, guint32 context)
 {
 
     gint    tokenlen, tvb_LBRKT, tvb_RBRKT;
@@ -1771,13 +1773,13 @@ dissect_megaco_mediadescriptor(tvbuff_t *tvb, proto_tree *megaco_tree_command_li
         case MEGACO_LOCAL_TOKEN:
             tvb_current_offset = megaco_tvb_skip_wsp(tvb, tvb_LBRKT+1);
             dissect_megaco_Localdescriptor(tvb, megaco_mediadescriptor_tree, pinfo,
-                tvb_RBRKT, tvb_current_offset);
+                tvb_RBRKT, tvb_current_offset, context);
             tvb_current_offset = tvb_RBRKT;
             break;
         case MEGACO_REMOTE_TOKEN:
             tvb_current_offset = megaco_tvb_skip_wsp(tvb, tvb_LBRKT+1);
             dissect_megaco_Localdescriptor(tvb, megaco_mediadescriptor_tree, pinfo,
-                tvb_RBRKT, tvb_current_offset);
+                tvb_RBRKT, tvb_current_offset, context);
             tvb_current_offset = tvb_RBRKT;
             break;
         case MEGACO_LOCAL_CONTROL_TOKEN:
@@ -3015,10 +3017,22 @@ dissect_megaco_TerminationStatedescriptor(tvbuff_t *tvb, proto_tree *megaco_medi
 }
 
 static void
-dissect_megaco_Localdescriptor(tvbuff_t *tvb, proto_tree *megaco_mediadescriptor_tree,packet_info *pinfo, gint tvb_next_offset, gint tvb_current_offset)
+dissect_megaco_Localdescriptor(tvbuff_t *tvb, proto_tree *megaco_mediadescriptor_tree,packet_info *pinfo, gint tvb_next_offset, gint tvb_current_offset, guint32 context)
 {
     gint tokenlen;
     tvbuff_t *next_tvb;
+    http_message_info_t message_info = { SIP_DATA, NULL, NULL };
+
+    sdp_setup_info_t setup_info;
+
+    /* Only fill in the info when we have valid contex */
+    if ((context != 0) && (context < 0xfffffffe)) {
+        setup_info.setup_proto = g_strdup("MEGACO");
+        setup_info.hf_id = hf_megaco_Context;
+        setup_info.hf_type = SDP_TRACE_ID_HF_TYPE_GUINT32;
+        setup_info.trace_id_num = context;
+        message_info.data = &setup_info;
+    }
 
     proto_tree  *megaco_localdescriptor_tree;
     proto_item  *megaco_localdescriptor_item;
@@ -3030,7 +3044,7 @@ dissect_megaco_Localdescriptor(tvbuff_t *tvb, proto_tree *megaco_mediadescriptor
 
     if ( tokenlen > 3 ){
         next_tvb = tvb_new_subset_length(tvb, tvb_current_offset, tokenlen);
-        call_dissector(sdp_handle, next_tvb, pinfo, megaco_localdescriptor_tree);
+        call_dissector_with_data(sdp_handle, next_tvb, pinfo, megaco_localdescriptor_tree, &message_info);
     }
 }
 
@@ -3334,7 +3348,8 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
 }
 
 static void
-dissect_megaco_descriptors(tvbuff_t *tvb, proto_tree *megaco_command_tree, packet_info *pinfo, gint tvb_descriptors_start_offset, gint tvb_descriptors_end_offset, proto_tree *top_tree)
+dissect_megaco_descriptors(tvbuff_t *tvb, proto_tree *megaco_command_tree, packet_info *pinfo, gint tvb_descriptors_start_offset,
+    gint tvb_descriptors_end_offset, proto_tree *top_tree, guint32 context)
 {
     gint        tvb_len, token_index, tvb_offset, temp_offset;
     gint        tvb_current_offset,tvb_previous_offset,save_offset,tokenlen;
@@ -3420,7 +3435,7 @@ dissect_megaco_descriptors(tvbuff_t *tvb, proto_tree *megaco_command_tree, packe
             save_offset = tvb_previous_offset;
 
             tvb_previous_offset = megaco_tvb_skip_wsp(tvb, temp_offset +1);
-            dissect_megaco_mediadescriptor(tvb, descriptor_tree, pinfo, tvb_RBRKT, tvb_previous_offset, save_offset, top_tree);
+            dissect_megaco_mediadescriptor(tvb, descriptor_tree, pinfo, tvb_RBRKT, tvb_previous_offset, save_offset, top_tree, context);
             break;
         case MEGACO_SIGNALS_TOKEN:
             dissect_megaco_signaldescriptor(tvb, pinfo, descriptor_tree, tvb_RBRKT, tvb_previous_offset, top_tree);
