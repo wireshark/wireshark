@@ -171,6 +171,34 @@ static int hf_docsis_tlv_mcap_ext_pkt_len_sup_cap = -1;
 static int hf_docsis_tlv_mcap_ofdm_mult_recv_chan_sup = -1;
 static int hf_docsis_tlv_mcap_ofdma_mult_trans_chan_sup = -1;
 static int hf_docsis_tlv_mcap_down_ofdm_prof_sup = -1;
+static int hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup = -1;
+static int hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_reserved = -1;
+static int hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_qpsk = -1;
+static int hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_16qam = -1;
+static int hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_64qam = -1;
+static int hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_128qam = -1;
+static int hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_256qam = -1;
+static int hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_512qam = -1;
+static int hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_1024qam = -1;
+static int hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_2048qam = -1;
+static int hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_4096qam = -1;
+static int hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_8192qam = -1;
+static int hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_16384qam = -1;
+static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup = -1;
+static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_reserved = -1;
+static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_qpsk = -1;
+static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_8qam = -1;
+static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_16qam = -1;
+static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_32qam = -1;
+static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_64qam = -1;
+static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_128qam = -1;
+static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_256qam = -1;
+static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_512qam = -1;
+static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_1024qam = -1;
+static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_2048qam = -1;
+static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_4096qam = -1;
+static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_8192qam = -1;
+static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_16384qam = -1;
 
 static int hf_docsis_tlv_clsfr_ref = -1;
 static int hf_docsis_tlv_clsfr_id = -1;
@@ -440,6 +468,8 @@ static gint ett_docsis_tlv_cos = -1;
 static gint ett_docsis_tlv_mcap = -1;
 static gint ett_docsis_tlv_mcap_em = -1;
 static gint ett_docsis_tlv_mcap_em_pref = -1;
+static gint ett_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup = -1;
+static gint ett_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup = -1;
 static gint ett_docsis_tlv_clsfr = -1;
 static gint ett_docsis_tlv_clsfr_ip = -1;
 static gint ett_docsis_tlv_clsfr_ip6 = -1;
@@ -2691,6 +2721,62 @@ dissect_modemcap (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int sta
               {
                 proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_down_ofdm_prof_sup, tvb,
                                      pos, length, ENC_BIG_ENDIAN);
+              }
+            else
+              {
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
+              }
+            break;
+          case CAP_DOWN_OFDM_CHAN_SUBC_QAM_MOD_SUP:
+            if (length == 2)
+              {
+                static const gint *ofdm_qam_mod_sup[] = {
+                  &hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_reserved,
+                  &hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_qpsk,
+                  &hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_16qam,
+                  &hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_64qam,
+                  &hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_128qam,
+                  &hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_256qam,
+                  &hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_512qam,
+                  &hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_1024qam,
+                  &hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_2048qam,
+                  &hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_4096qam,
+                  &hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_8192qam,
+                  &hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_16384qam,
+                  NULL
+                };
+
+                proto_tree_add_bitmask(mcap_tree, tvb, pos, hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup,
+                         ett_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup, ofdm_qam_mod_sup, ENC_BIG_ENDIAN);
+              }
+            else
+              {
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
+              }
+            break;
+          case CAP_UP_OFDMA_CHAN_SUBC_QAM_MOD_SUP:
+            if (length == 2)
+              {
+                static const gint *ofdma_qam_mod_sup[] = {
+                  &hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_reserved,
+                  &hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_qpsk,
+                  &hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_8qam,
+                  &hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_16qam,
+                  &hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_32qam,
+                  &hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_64qam,
+                  &hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_128qam,
+                  &hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_256qam,
+                  &hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_512qam,
+                  &hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_1024qam,
+                  &hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_2048qam,
+                  &hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_4096qam,
+                  &hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_8192qam,
+                  &hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_16384qam,
+                  NULL
+                };
+
+                proto_tree_add_bitmask(mcap_tree, tvb, pos, hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup,
+                         ett_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup, ofdma_qam_mod_sup, ENC_BIG_ENDIAN);
               }
             else
               {
@@ -5557,6 +5643,174 @@ proto_register_docsis_tlv (void)
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Downstream OFDM Profile Support", HFILL}
     },
+    {&hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup,
+     {".52 Downstream OFDM channel subcarrier QAM modulation support",
+      "docsis_tlv.mcap.down_ofdm_chan_subc_qam_mod_sup",
+      FT_UINT16, BASE_HEX, NULL, 0x0,
+      "Downstream OFDM channel subcarrier QAM modulation support", HFILL}
+    },
+    {&hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_reserved,
+     {"Reserved",
+      "docsis_tlv.mcap.down_ofdm_chan_subc_qam_mod_sup.reserved",
+      FT_BOOLEAN, 16, NULL, 0x802B,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_qpsk,
+     {"QPSK",
+      "docsis_tlv.mcap.down_ofdm_chan_subc_qam_mod_sup.qpsk",
+      FT_BOOLEAN, 16, NULL, 0x0004,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_16qam,
+     {"16-QAM",
+      "docsis_tlv.mcap.down_ofdm_chan_subc_qam_mod_sup.16qam",
+      FT_BOOLEAN, 16, NULL, 0x0010,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_64qam,
+     {"64-QAM",
+      "docsis_tlv.mcap.down_ofdm_chan_subc_qam_mod_sup.64qam",
+      FT_BOOLEAN, 16, NULL, 0x0040,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_128qam,
+     {"128-QAM",
+      "docsis_tlv.mcap.down_ofdm_chan_subc_qam_mod_sup.128qam",
+      FT_BOOLEAN, 16, NULL, 0x0080,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_256qam,
+     {"256-QAM",
+      "docsis_tlv.mcap.down_ofdm_chan_subc_qam_mod_sup.256qam",
+      FT_BOOLEAN, 16, NULL, 0x0100,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_512qam,
+     {"512-QAM",
+      "docsis_tlv.mcap.down_ofdm_chan_subc_qam_mod_sup.512qam",
+      FT_BOOLEAN, 16, NULL, 0x0200,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_1024qam,
+     {"1024-QAM",
+      "docsis_tlv.mcap.down_ofdm_chan_subc_qam_mod_sup.1024qam",
+      FT_BOOLEAN, 16, NULL, 0x0400,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_2048qam,
+     {"2048-QAM",
+      "docsis_tlv.mcap.down_ofdm_chan_subc_qam_mod_sup.2048qam",
+      FT_BOOLEAN, 16, NULL, 0x0800,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_4096qam,
+     {"4096-QAM",
+      "docsis_tlv.mcap.down_ofdm_chan_subc_qam_mod_sup.4096qam",
+      FT_BOOLEAN, 16, NULL, 0x1000,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_8192qam,
+     {"8192-QAM",
+      "docsis_tlv.mcap.down_ofdm_chan_subc_qam_mod_sup.8192qam",
+      FT_BOOLEAN, 16, NULL, 0x2000,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup_16384qam,
+     {"16384-QAM",
+      "docsis_tlv.mcap.down_ofdm_chan_subc_qam_mod_sup.16384qam",
+      FT_BOOLEAN, 16, NULL, 0x4000,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup,
+     {".53 Upstream OFDMA channel subcarrier QAM modulation support",
+      "docsis_tlv.mcap.up_ofdma_chan_subc_qam_mod_sup",
+      FT_UINT16, BASE_HEX, NULL, 0x0,
+      "Upstream OFDMA channel subcarrier QAM modulation support", HFILL}
+    },
+    {&hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_reserved,
+     {"Reserved",
+      "docsis_tlv.mcap.up_ofdma_chan_subc_qam_mod_sup.reserved",
+      FT_BOOLEAN, 16, NULL, 0x8003,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_qpsk,
+     {"QPSK",
+      "docsis_tlv.mcap.up_ofdma_chan_subc_qam_mod_sup.qpsk",
+      FT_BOOLEAN, 16, NULL, 0x0004,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_8qam,
+     {"8-QAM",
+      "docsis_tlv.mcap.up_ofdma_chan_subc_qam_mod_sup.8qam",
+      FT_BOOLEAN, 16, NULL, 0x0008,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_16qam,
+     {"16-QAM",
+      "docsis_tlv.mcap.up_ofdma_chan_subc_qam_mod_sup.16qam",
+      FT_BOOLEAN, 16, NULL, 0x0010,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_32qam,
+     {"32-QAM",
+      "docsis_tlv.mcap.up_ofdma_chan_subc_qam_mod_sup.32qam",
+      FT_BOOLEAN, 16, NULL, 0x0020,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_64qam,
+     {"64-QAM",
+      "docsis_tlv.mcap.up_ofdma_chan_subc_qam_mod_sup.64qam",
+      FT_BOOLEAN, 16, NULL, 0x0040,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_128qam,
+     {"128-QAM",
+      "docsis_tlv.mcap.up_ofdma_chan_subc_qam_mod_sup.128qam",
+      FT_BOOLEAN, 16, NULL, 0x0080,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_256qam,
+     {"256-QAM",
+      "docsis_tlv.mcap.up_ofdma_chan_subc_qam_mod_sup.256qam",
+      FT_BOOLEAN, 16, NULL, 0x0100,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_512qam,
+     {"512-QAM",
+      "docsis_tlv.mcap.up_ofdma_chan_subc_qam_mod_sup.512qam",
+      FT_BOOLEAN, 16, NULL, 0x0200,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_1024qam,
+     {"1024-QAM",
+      "docsis_tlv.mcap.up_ofdma_chan_subc_qam_mod_sup.1024qam",
+      FT_BOOLEAN, 16, NULL, 0x0400,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_2048qam,
+     {"2048-QAM",
+      "docsis_tlv.mcap.up_ofdma_chan_subc_qam_mod_sup.2048qam",
+      FT_BOOLEAN, 16, NULL, 0x0800,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_4096qam,
+     {"4096-QAM",
+      "docsis_tlv.mcap.up_ofdma_chan_subc_qam_mod_sup.4096qam",
+      FT_BOOLEAN, 16, NULL, 0x1000,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_8192qam,
+     {"8192-QAM",
+      "docsis_tlv.mcap.up_ofdma_chan_subc_qam_mod_sup.8192qam",
+      FT_BOOLEAN, 16, NULL, 0x2000,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_16384qam,
+     {"16384-QAM",
+      "docsis_tlv.mcap.up_ofdma_chan_subc_qam_mod_sup.16384qam",
+      FT_BOOLEAN, 16, NULL, 0x4000,
+      NULL, HFILL}
+    },
     {&hf_docsis_tlv_cm_mic,
      {"6 CM MIC", "docsis_tlv.cmmic",
       FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -7026,6 +7280,8 @@ proto_register_docsis_tlv (void)
     &ett_docsis_tlv_mcap,
     &ett_docsis_tlv_mcap_em,
     &ett_docsis_tlv_mcap_em_pref,
+    &ett_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup,
+    &ett_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup,
     &ett_docsis_tlv_clsfr,
     &ett_docsis_tlv_clsfr_ip,
     &ett_docsis_tlv_clsfr_ip6,

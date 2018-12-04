@@ -152,6 +152,8 @@
 #define CAP_OFDM_MULT_RECV_CHAN_SUP 49
 #define CAP_OFDMA_MULT_TRANS_CHAN_SUP 50
 #define CAP_DOWN_OFDM_PROF_SUP 51
+#define CAP_DOWN_OFDM_CHAN_SUBC_QAM_MOD_SUP 52
+#define CAP_UP_OFDMA_CHAN_SUBC_QAM_MOD_SUP 53
 
 /* Define Classifier subtypes
  * These are subtypes of either:
