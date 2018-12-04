@@ -586,7 +586,7 @@ init_progfile_dir(const char *arg0
         if (getcwd(curdir, path_max) == NULL) {
             /*
              * It failed - give up, and just stick
-             * with DATAFILE_DIR.
+             * with DATA_DIR.
              */
             g_free(curdir);
             return g_strdup_printf("getcwd failed: %s\n",
@@ -771,7 +771,7 @@ get_progfile_dir(void)
  *
  * Otherwise, if the program was executed from the build directory, use the
  * directory in which the executable for this process resides. In all other
- * cases, use the DATAFILE_DIR value that was set at compile time.
+ * cases, use the DATA_DIR value that was set at compile time.
  *
  * XXX - if we ever make libwireshark a real library, used by multiple
  * applications (more than just TShark and versions of Wireshark with
@@ -864,7 +864,7 @@ get_datafile_dir(void)
          */
         datafile_dir = g_strdup(progfile_dir);
     } else {
-        datafile_dir = g_strdup(DATAFILE_DIR);
+        datafile_dir = g_strdup(DATA_DIR);
     }
 
 #endif
