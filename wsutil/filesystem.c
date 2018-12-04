@@ -54,6 +54,7 @@
 #define ENV_CONFIG_PATH_VAR  "WIRESHARK_CONFIG_DIR"
 
 char *persconffile_dir = NULL;
+char *datafile_dir = NULL;
 char *persdatafile_dir = NULL;
 char *persconfprofile = NULL;
 
@@ -796,8 +797,6 @@ get_progfile_dir(void)
 const char *
 get_datafile_dir(void)
 {
-    static const char *datafile_dir = NULL;
-
     if (datafile_dir != NULL)
         return datafile_dir;
 
@@ -817,13 +816,13 @@ get_datafile_dir(void)
         /*
          * Yes, we do; use that.
          */
-        datafile_dir = progfile_dir;
+        datafile_dir = g_strdup(progfile_dir);
     } else {
         /*
          * No, we don't.
          * Fall back on the default installation directory.
          */
-        datafile_dir = "C:\\Program Files\\Wireshark\\";
+        datafile_dir = g_strdup("C:\\Program Files\\Wireshark\\");
     }
 #else
 
@@ -863,9 +862,9 @@ get_datafile_dir(void)
          * directory during the build which also contains executables. A special
          * exception is macOS (when built with an app bundle).
          */
-        datafile_dir = progfile_dir;
+        datafile_dir = g_strdup(progfile_dir);
     } else {
-        datafile_dir = DATAFILE_DIR;
+        datafile_dir = g_strdup(DATAFILE_DIR);
     }
 
 #endif
@@ -2210,6 +2209,8 @@ free_progdirs(void)
 {
     g_free(persconffile_dir);
     persconffile_dir = NULL;
+    g_free(datafile_dir);
+    datafile_dir = NULL;
     g_free(persdatafile_dir);
     persdatafile_dir = NULL;
     g_free(persconfprofile);
