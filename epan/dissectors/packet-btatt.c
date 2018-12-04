@@ -30,6 +30,7 @@
 #include "packet-btsdp.h"
 #include "packet-http.h"
 #include "packet-usb-hid.h"
+#include "packet-btmesh.h"
 
 #define HANDLE_TVB -1
 
@@ -2133,6 +2134,7 @@ static dissector_handle_t http_handle;
 static dissector_handle_t usb_hid_boot_keyboard_input_report_handle;
 static dissector_handle_t usb_hid_boot_keyboard_output_report_handle;
 static dissector_handle_t usb_hid_boot_mouse_input_report_handle;
+static dissector_handle_t btmesh_proxy_handle;
 
 static dissector_table_t att_handle_dissector_table;
 
@@ -4582,13 +4584,13 @@ static int
 btatt_call_dissector_by_dissector_name_with_data(const char *dissector_name,
         tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	dissector_handle_t handle;
+    dissector_handle_t handle;
 
-	handle = find_dissector(dissector_name);
-	if (handle != NULL)
-		return call_dissector_with_data(handle, tvb, pinfo, tree, data);
-	else
-		REPORT_DISSECTOR_BUG("Dissector %s not registered", dissector_name);
+    handle = find_dissector(dissector_name);
+    if (handle != NULL)
+        return call_dissector_with_data(handle, tvb, pinfo, tree, data);
+    else
+        REPORT_DISSECTOR_BUG("Dissector %s not registered", dissector_name);
 }
 
 static gint
@@ -10350,11 +10352,48 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
 
         }
         break;
-    case 0x2A62: /* Pulse Oximetry Control Point */ /* APPROVED: NO */
     case 0x2ADB: /* Mesh Provisioning Data In */
     case 0x2ADC: /* Mesh Provisioning Data Out */
     case 0x2ADD: /* Mesh Proxy Data In */
     case 0x2ADE: /* Mesh Proxy Data Out */
+        if (btmesh_proxy_handle) {
+            btle_mesh_proxy_ctx_t *proxy_ctx;
+            proxy_ctx = wmem_new0(wmem_packet_scope(), btle_mesh_proxy_ctx_t);
+
+            proxy_ctx->interface_id = bluetooth_data->interface_id;
+            proxy_ctx->adapter_id = bluetooth_data->adapter_id;
+            proxy_ctx->chandle = 0; //TODO
+            proxy_ctx->bt_uuid = uuid.bt_uuid;
+            proxy_ctx->access_address = 0; //TODO
+
+            switch (att_data->opcode) {
+                case ATT_OPCODE_WRITE_COMMAND:
+                    proxy_ctx->proxy_side = E_BTMESH_PROXY_SIDE_CLIENT;
+
+                    break;
+                case ATT_OPCODE_HANDLE_VALUE_NOTIFICATION:
+                    proxy_ctx->proxy_side = E_BTMESH_PROXY_SIDE_SERVER;
+
+                    break;
+                default:
+                    proxy_ctx->proxy_side = E_BTMESH_PROXY_SIDE_UNKNOWN;
+
+                break;
+            }
+
+            call_dissector_with_data(btmesh_proxy_handle, tvb_new_subset_length(tvb, offset, length),
+                pinfo, proto_tree_get_root(tree), proxy_ctx);
+            offset += length;
+        } else {
+            if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+                break;
+
+            proto_tree_add_item(tree, hf_btatt_value, tvb, offset, -1, ENC_NA);
+            offset = tvb_captured_length(tvb);
+        }
+
+        break;
+    case 0x2A62: /* Pulse Oximetry Control Point */ /* APPROVED: NO */
     case 0x2AE0: /* Average Current */
     case 0x2AE1: /* Average Voltage */
     case 0x2AE2: /* Boolean */
@@ -17290,6 +17329,7 @@ proto_reg_handoff_btatt(void)
     usb_hid_boot_keyboard_input_report_handle  = find_dissector_add_dependency("usbhid.boot_report.keyboard.input", proto_btatt);
     usb_hid_boot_keyboard_output_report_handle = find_dissector_add_dependency("usbhid.boot_report.keyboard.output", proto_btatt);
     usb_hid_boot_mouse_input_report_handle     = find_dissector_add_dependency("usbhid.boot_report.mouse.input", proto_btatt);
+    btmesh_proxy_handle                        = find_dissector_add_dependency("btmesh.proxy", proto_btatt);
 
     dissector_add_uint("btl2cap.psm", BTL2CAP_PSM_ATT, btatt_handle);
     dissector_add_uint("btl2cap.cid", BTL2CAP_FIXED_CID_ATT, btatt_handle);

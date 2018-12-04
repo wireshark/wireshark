@@ -27,8 +27,6 @@ gint net_mic_size_chosen = 1;
 
 static int proto_btmesh = -1;
 
-
-
 /*-------------------------------------
  * UAT for BT Mesh
  *-------------------------------------
@@ -1250,7 +1248,7 @@ proto_register_btmesh(void)
             NULL, HFILL }
         },
         { &hf_btmesh_segment,
-        { "Sewgment", "btmesh.segment",
+        { "Segment", "btmesh.segment",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
@@ -1289,6 +1287,10 @@ proto_register_btmesh(void)
     expert_register_field_array(expert_btmesh, ei, array_length(ei));
 
     btmesh_module = prefs_register_protocol_subtree("Bluetooth", proto_btmesh, NULL);
+
+    prefs_register_static_text_preference(btmesh_module, "version",
+            "Bluetooth Mesh Profile v1.0",
+            "Version of protocol supported by this dissector.");
 
     btmesh_uat = uat_new("BTMesh Network keys",
         sizeof(uat_btmesh_record_t),    /* record size */

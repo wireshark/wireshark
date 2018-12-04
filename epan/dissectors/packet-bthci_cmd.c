@@ -834,7 +834,8 @@ static gint hf_btcommon_le_channel_map_37 = -1;
 static gint hf_btcommon_le_channel_map_38 = -1;
 static gint hf_btcommon_le_channel_map_39 = -1;
 static gint hf_btcommon_eir_ad_mesh_msg = -1;
-
+static gint hf_btcommon_eir_ad_mesh_pbadv = -1;
+static gint hf_btcommon_eir_ad_mesh_beacon = -1;
 
 static const int *hfx_btcommon_eir_ad_ips_flags[] = {
     &hf_btcommon_eir_ad_ips_flags_reserved,
@@ -926,6 +927,8 @@ static dissector_handle_t btcommon_ad_handle;
 static dissector_handle_t btcommon_le_channel_map_handle;
 static dissector_handle_t bthci_cmd_handle;
 static dissector_handle_t btmesh_handle;
+static dissector_handle_t btmesh_pbadv_handle;
+static dissector_handle_t btmesh_beacon_handle;
 
 static dissector_table_t  bluetooth_eir_ad_manufacturer_company_id;
 static dissector_table_t  bluetooth_eir_ad_tds_organization_id;
@@ -7894,13 +7897,32 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
             offset += 1;
 
             break;
-        case 0x2a:
+        case 0x29: /* PB-ADV */
+            if (btmesh_pbadv_handle) {
+                call_dissector(btmesh_pbadv_handle, tvb_new_subset_length(tvb, offset, length), pinfo, proto_tree_get_root(tree));
+            } else {
+                proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_mesh_pbadv, tvb, offset, length, ENC_NA);
+            }
+            offset += length;
+
+            break;
+        case 0x2a: /* Mesh Message */
             if (btmesh_handle) {
                 call_dissector(btmesh_handle, tvb_new_subset_length(tvb, offset, length), pinfo, proto_tree_get_root(tree));
             } else {
                 proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_mesh_msg, tvb, offset, length, ENC_NA);
             }
             offset += length;
+
+            break;
+        case 0x2b: /* Mesh Beacon */
+            if (btmesh_beacon_handle) {
+                call_dissector(btmesh_beacon_handle, tvb_new_subset_length(tvb, offset, length), pinfo, proto_tree_get_root(tree));
+            } else {
+                proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_mesh_beacon, tvb, offset, length, ENC_NA);
+            }
+            offset += length;
+
             break;
         case 0xFF: /* Manufacturer Specific */ {
             guint16  company_id;
@@ -9104,7 +9126,16 @@ proto_register_btcommon(void)
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
-
+	{ &hf_btcommon_eir_ad_mesh_pbadv,
+        { "Mesh PB-ADV message content",        "btcommon.eir_ad.entry.mesh_pbadv",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_eir_ad_mesh_beacon,
+        { "Mesh Beacon message content",        "btcommon.eir_ad.entry.mesh_beacon",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
     };
 
     static gint *ett[] = {
@@ -9155,6 +9186,8 @@ void
 proto_reg_handoff_btcommon(void)
 {
     btmesh_handle = find_dissector("btmesh.msg");
+    btmesh_pbadv_handle = find_dissector("btmesh.pbadv");
+    btmesh_beacon_handle = find_dissector("btmesh.beacon");
 }
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
