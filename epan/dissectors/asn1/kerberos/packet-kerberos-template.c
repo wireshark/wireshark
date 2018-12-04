@@ -89,6 +89,7 @@ typedef struct {
 	gboolean is_request;
 	guint32 etype;
 	guint32 padata_type;
+	guint32 is_enc_padata;
 	guint32 enctype;
 	kerberos_key_t key;
 	guint32 ad_type;

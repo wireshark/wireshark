@@ -157,7 +157,11 @@ guint32 msgtype;
 		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_S4U2Self);
 		break;
 	case KRB5_PADATA_S4U_X509_USER:
-		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_S4U_X509_USER);
+		if(!private_data->is_enc_padata) {
+			offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_S4U_X509_USER);
+		}else{
+			offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, NULL);
+		}
 		break;
 	case KRB5_PA_PROV_SRV_LOCATION:
 		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_krb5_PA_PROV_SRV_LOCATION);
@@ -409,6 +413,13 @@ AuthorizationData/_item/ad-type STRINGS=VALS(krb5_ad_types)
 	if (new_tvb) {
 		call_kerberos_callbacks(actx->pinfo, tree, new_tvb, KRB_CBTAG_PRIV_USER_DATA, (kerberos_callbacks*)actx->private_data);
 	}
+
+#.FN_HDR EncKDCRepPart/encrypted-pa-data
+	kerberos_private_data_t* private_data = kerberos_get_private_data(actx);
+	private_data->is_enc_padata = TRUE;
+
+#.FN_FTR EncKDCRepPart/encrypted-pa-data
+	private_data->is_enc_padata = FALSE;
 
 #.FN_HDR AS-REQ
 	kerberos_private_data_t* private_data = kerberos_get_private_data(actx);
