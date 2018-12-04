@@ -1373,6 +1373,17 @@ static int
 dissect_hartip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                    void *data)
 {
+  /* Simple hueristic check*/
+  const gchar * msg_str = try_val_to_str(tvb_get_guint8(tvb, 1), hartip_message_type_values);
+  if (!msg_str) {
+    return 0;
+  }
+
+  msg_str = try_val_to_str(tvb_get_guint8(tvb, 2), hartip_message_id_values);
+  if (!msg_str) {
+    return 0;
+  }
+
   tcp_dissect_pdus(tvb, pinfo, tree, hartip_desegment, HARTIP_HEADER_LENGTH,
                    get_dissect_hartip_len, dissect_hartip_pdu, data);
   return tvb_reported_length(tvb);
@@ -1383,6 +1394,17 @@ dissect_hartip_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                    void *data _U_)
 {
   gint offset = 0;
+
+  /* Simple hueristic check*/
+  const gchar * msg_str = try_val_to_str(tvb_get_guint8(tvb, 1), hartip_message_type_values);
+  if (!msg_str) {
+    return 0;
+  }
+
+  msg_str = try_val_to_str(tvb_get_guint8(tvb, 2), hartip_message_id_values);
+  if (!msg_str) {
+    return 0;
+  }
 
   while (tvb_reported_length_remaining(tvb, offset) >= HARTIP_HEADER_LENGTH)
     offset += dissect_hartip_common(tvb, pinfo, tree, offset);
