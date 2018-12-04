@@ -3376,6 +3376,10 @@ dissect_kerberos_AS_REP(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_kerberos_TGS_REQ(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 426 "./asn1/kerberos/kerberos.cnf"
+	kerberos_private_data_t* private_data = kerberos_get_private_data(actx);
+	private_data->is_request = TRUE;
+
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
                                       hf_index, BER_CLASS_APP, 12, FALSE, dissect_kerberos_KDC_REQ);
 
@@ -4121,6 +4125,7 @@ dissect_kerberos_KRB_ERROR(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 #line 419 "./asn1/kerberos/kerberos.cnf"
 	kerberos_private_data_t* private_data = kerberos_get_private_data(actx);
 	private_data->is_request = FALSE;
+
 
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
                                       hf_index, BER_CLASS_APP, 30, FALSE, dissect_kerberos_KRB_ERROR_U);

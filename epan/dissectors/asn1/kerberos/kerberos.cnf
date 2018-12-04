@@ -418,3 +418,7 @@ AuthorizationData/_item/ad-type STRINGS=VALS(krb5_ad_types)
 #.FN_HDR KRB-ERROR
 	kerberos_private_data_t* private_data = kerberos_get_private_data(actx);
 	private_data->is_request = FALSE;
+
+#.FN_HDR TGS-REQ
+	kerberos_private_data_t* private_data = kerberos_get_private_data(actx);
+	private_data->is_request = TRUE;
