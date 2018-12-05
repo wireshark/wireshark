@@ -1808,7 +1808,7 @@ dissect_sccp_global_title(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
                                 "Global Title 0x%x (%u byte%s)",
                                 gti, length, plurality(length,"", "s"));
 
-  /* Decode Transation Type (if present) */
+  /* Decode Transaction Type (if present) */
   if ((gti == AI_GTI_TT) ||
       ((decode_mtp3_standard != ANSI_STANDARD) &&
        ((gti == ITU_AI_GTI_TT_NP_ES) || (gti == ITU_AI_GTI_TT_NP_ES_NAI))) ||

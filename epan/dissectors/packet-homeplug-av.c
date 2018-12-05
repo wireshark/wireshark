@@ -4822,11 +4822,11 @@ proto_register_homeplug_av(void)
           FT_UINT64, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
       { &hf_homeplug_av_lnk_stats_rx_tb_pass,
-        { "Sum of Turbo Bit Error over successfully recevied PBs", "homeplug_av.lnk_stats.rx.tb_pass",
+        { "Sum of Turbo Bit Error over successfully received PBs", "homeplug_av.lnk_stats.rx.tb_pass",
           FT_UINT64, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
       { &hf_homeplug_av_lnk_stats_rx_tb_fail,
-        { "Sum of Turbo Bit Error over unsuccessfully recevied PBs", "homeplug_av.lnk_stats.rx.tb_fail",
+        { "Sum of Turbo Bit Error over unsuccessfully received PBs", "homeplug_av.lnk_stats.rx.tb_fail",
           FT_UINT64, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
       { &hf_homeplug_av_lnk_stats_rx_num_int,

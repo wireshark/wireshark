@@ -1290,7 +1290,7 @@ static const value_string nds_reply_errors[] = {
     { 0xfffffd5f, "(-673) Replica Not On" },
     { 0xfffffd5e, "(-674) Invalid Name Service" },
     { 0xfffffd5d, "(-675) Invalid Task" },
-    { 0xfffffd5c, "(-676) Invalide Connection Handle" },
+    { 0xfffffd5c, "(-676) Invalid Connection Handle" },
     { 0xfffffd5b, "(-677) Invalid Identity" },
     { 0xfffffd5a, "(-678) Duplicate ACL" },
     { 0xfffffd59, "(-679) Partition Already Exists" },
@@ -1327,7 +1327,7 @@ static const value_string nds_reply_errors[] = {
     { 0xfffffd3a, "(-710) Database Read Fail" },
     { 0xfffffd39, "(-711) Invalid Code Page" },
     { 0xfffffd38, "(-712) Invalid Escape Character" },
-    { 0xfffffd37, "(-713) Invalide Delimiters" },
+    { 0xfffffd37, "(-713) Invalid Delimiters" },
     { 0xfffffd36, "(-714) Not Implemented" },
     { 0xfffffd35, "(-715) Checksum Failure" },
     { 0xfffffd34, "(-716) Checksumming Not Supported" },
@@ -8488,7 +8488,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                     value1 = tvb_get_letohl(tvb, foffset);
                     if ((value1 & 0xf000) == 0xc000)
                     {
-                        proto_tree_add_string(ncp_tree, hf_nds_name_type, tvb, 0, 0, "Return Partion Name");
+                        proto_tree_add_string(ncp_tree, hf_nds_name_type, tvb, 0, 0, "Return Partition Name");
                     }
                     else
                     {

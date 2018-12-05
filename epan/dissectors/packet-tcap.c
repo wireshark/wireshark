@@ -3656,7 +3656,7 @@ proto_register_tcap(void)
 
   prefs_register_uint_preference(tcap_module, "repetitiontimeout",
                                  "Repetition timeout",
-                                 "Maximal delay for message repetion",
+                                 "Maximal delay for message repetition",
                                  10, &gtcap_RepetitionTimeout);
 
   prefs_register_uint_preference(tcap_module, "losttimeout",

@@ -1321,7 +1321,7 @@ de_mm_timer(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
  * [3] 10.5.4.4 Auxiliary states
  */
 
-static const value_string gsm_a_dtap_hold_auxilary_state_vals[] = {
+static const value_string gsm_a_dtap_hold_auxiliary_state_vals[] = {
     { 0x00, "Idle" },
     { 0x01, "Hold request" },
     { 0x02, "Call held" },
@@ -1329,7 +1329,7 @@ static const value_string gsm_a_dtap_hold_auxilary_state_vals[] = {
     { 0, NULL }
 };
 
-static const value_string gsm_a_dtap_multi_party_auxilary_state_vals[] = {
+static const value_string gsm_a_dtap_multi_party_auxiliary_state_vals[] = {
     { 0x00, "Idle" },
     { 0x01, "MPTY request" },
     { 0x02, "Call in MPTY" },
@@ -7874,12 +7874,12 @@ proto_register_gsm_a_dtap(void)
         },
         { &hf_gsm_a_dtap_hold_auxiliary_state,
           { "Hold auxiliary state", "gsm_a.dtap.hold_auxiliary_state",
-            FT_UINT8, BASE_DEC, VALS(gsm_a_dtap_hold_auxilary_state_vals), 0x0C,
+            FT_UINT8, BASE_DEC, VALS(gsm_a_dtap_hold_auxiliary_state_vals), 0x0C,
             NULL, HFILL }
         },
         { &hf_gsm_a_dtap_multi_party_auxiliary_state,
           { "Multi party auxiliary state", "gsm_a.dtap.multi_party_auxiliary_state",
-            FT_UINT8, BASE_DEC, VALS(gsm_a_dtap_multi_party_auxilary_state_vals), 0x03,
+            FT_UINT8, BASE_DEC, VALS(gsm_a_dtap_multi_party_auxiliary_state_vals), 0x03,
             NULL, HFILL }
         },
         { &hf_gsm_a_dtap_radio_channel_requirement,

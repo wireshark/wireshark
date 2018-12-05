@@ -7671,7 +7671,7 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
                             break;
                     default:
                         proto_tree_add_expert_format(subtree2, pinfo, &ei_bgp_prefix_sid_type_err, tvb, o + i + aoff, alen,
-                            "Unknwon BGP Prefix-SID TLV type: %u", prefix_sid_subtype);
+                            "Unknown BGP Prefix-SID TLV type: %u", prefix_sid_subtype);
                         q += 3 + prefix_sid_sublen;
                         break;
                     }

@@ -257,7 +257,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                                 ae + ISO15765_FC_BS_OFFSET, ISO15765_FC_BS_LEN, ENC_BIG_ENDIAN);
             proto_tree_add_item(iso15765_tree, hf_iso15765_fc_stmin, tvb,
                                 ae + ISO15765_FC_STMIN_OFFSET, ISO15765_FC_STMIN_LEN, ENC_BIG_ENDIAN);
-            col_append_fstr(pinfo->cinfo, COL_INFO, "(Status: %d, Block size:0x%x, Seperation time minimum: %d ms)",
+            col_append_fstr(pinfo->cinfo, COL_INFO, "(Status: %d, Block size:0x%x, Separation time minimum: %d ms)",
                             status, bs, stmin);
             break;
         }

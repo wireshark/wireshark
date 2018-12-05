@@ -34139,7 +34139,7 @@ proto_register_ieee80211(void)
     {&hf_he_qtp_response_quiet_period_interval,
      {"Quiet Period Interval", "wlan.ext_tag.quiet_time_period.response.interval",
       FT_UINT8, BASE_DEC, NULL, 0,
-      "Interval between the start of two consequtive quiet time periods", HFILL } },
+      "Interval between the start of two consecutive quiet time periods", HFILL } },
 
     {&hf_he_qtp_response_repetition_count,
      {"Repetition Count", "wlan.ext_tag.quiet_time_period.response.repetition_count",

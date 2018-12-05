@@ -8764,7 +8764,7 @@ void proto_register_dis(void)
                 NULL, HFILL }
             },
             { &hf_dis_pseudo_noise_modulation,
-              { "Psuedo noise modulation",  "dis.radio.mod_type.pseudo_noise_modulation",
+              { "Pseudo noise modulation",  "dis.radio.mod_type.pseudo_noise_modulation",
                 FT_BOOLEAN, 16, TFS(&dis_pseudo_noise_value),0x0002,
                 NULL, HFILL }
             },

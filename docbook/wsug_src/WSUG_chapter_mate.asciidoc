@@ -83,7 +83,7 @@ relevant information extracted from the frame; I'll use "frame" to refer to the
 "raw" information extracted by the various dissectors that pre-analyzed the frame.
 
 For every PDU, MATE checks if it belongs to an existing "Group of PDUs" (Gop).
-If it does, it assigns the PDU to that Gop and moves any new relevant atributes
+If it does, it assigns the PDU to that Gop and moves any new relevant attributes
 to the Gop's attribute list. How and when do PDUs belong to Gops is described
 in the configuration file as well.
 

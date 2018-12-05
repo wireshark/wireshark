@@ -223,7 +223,7 @@ static const value_string lltd_tlv_type_vals[] = {
     { 0x12,     "Device UUID" },
     { 0x13,     "Hardware ID" },
     { 0x14,     "QoS Characteristics" },
-    { 0x15,     "802.11 Phyiscal Medium" },
+    { 0x15,     "802.11 Physical Medium" },
     { 0x16,     "AP Association Table" },
     { 0x18,     "Detailed Icon Image" },
     { 0x19,     "Sees-List Working Set" },

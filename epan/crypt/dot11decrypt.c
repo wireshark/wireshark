@@ -722,7 +722,7 @@ static INT Dot11DecryptScanForKeys(
         }
         status=pntoh16(data+offset);
         if (status != 0 && status != 85) {
-            DOT11DECRYPT_DEBUG_PRINT_LINE("Dot11DecryptScanForKeys", "TDLS setup not successfull", DOT11DECRYPT_DEBUG_LEVEL_3);
+            DOT11DECRYPT_DEBUG_PRINT_LINE("Dot11DecryptScanForKeys", "TDLS setup not successful", DOT11DECRYPT_DEBUG_LEVEL_3);
             return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
         }
 

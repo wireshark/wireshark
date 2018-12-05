@@ -86,7 +86,7 @@ gluster_dump_reply_detail(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	const gchar *progname = NULL;
 
 	detail_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
-							ett_gluster_dump_detail, &detail_item, "Available Progam: ");
+							ett_gluster_dump_detail, &detail_item, "Available Program: ");
 
 	/* progname */
 	offset = dissect_rpc_string(tvb, detail_tree, hf_gluster_progname,

@@ -1105,7 +1105,7 @@ proto_register_nvme_rdma(void)
         { &hf_nvme_rdma_cmd_qid,
             { "Cmd Qid", "nvme-rdma.cmd.qid",
               FT_UINT16, BASE_HEX, NULL, 0x0,
-              "Qid on which comamnd is issued", HFILL }
+              "Qid on which command is issued", HFILL }
         },
     };
     static gint *ett[] = {

@@ -191,8 +191,8 @@ static const value_string cfun_fun_vals[] = {
 };
 
 static const value_string cfun_rst_vals[] = {
-    { 0,   "Do not reset the MT before setting it to the requsted power level" },
-    { 1,   "Reset the MT before setting it to the requsted power level" },
+    { 0,   "Do not reset the MT before setting it to the requested power level" },
+    { 1,   "Reset the MT before setting it to the requested power level" },
     { 0, NULL }
 };
 

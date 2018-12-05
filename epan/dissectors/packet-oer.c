@@ -537,7 +537,7 @@ dissect_oer_sequence_of(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_t
     proto_item *item;
     proto_tree *tree;
     guint32 old_offset = offset;
-    guint32 occ_len, occurence;
+    guint32 occ_len, occurrence;
     header_field_info *hfi;
 
     DEBUG_ENTRY("dissect_oer_sequence_of");
@@ -552,34 +552,34 @@ dissect_oer_sequence_of(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_t
 
     switch (occ_len) {
     case 1:
-        occurence = tvb_get_guint8(tvb, offset);
+        occurrence = tvb_get_guint8(tvb, offset);
         break;
     case 2:
-        occurence = tvb_get_ntohs(tvb, offset);
+        occurrence = tvb_get_ntohs(tvb, offset);
         break;
     case 3:
-        occurence = tvb_get_ntoh24(tvb, offset);
+        occurrence = tvb_get_ntoh24(tvb, offset);
         break;
     case 4:
-        occurence = tvb_get_ntohl(tvb, offset);
+        occurrence = tvb_get_ntohl(tvb, offset);
         break;
     default:
         proto_tree_add_expert_format(parent_tree, actx->pinfo, &ei_oer_not_decoded_yet, tvb, offset, 1,
-            "sequence_of Occurence %u octets not handled", occ_len);
+            "sequence_of Occurrence %u octets not handled", occ_len);
         return tvb_reported_length(tvb);
     }
 
     offset = offset + occ_len;
     hfi = proto_registrar_get_nth(hf_index);
     if (IS_FT_UINT(hfi->type)) {
-        item = proto_tree_add_uint(parent_tree, hf_index, tvb, old_offset, occ_len, occurence);
-        proto_item_append_text(item, (occurence == 1) ? " item" : " items");
+        item = proto_tree_add_uint(parent_tree, hf_index, tvb, old_offset, occ_len, occurrence);
+        proto_item_append_text(item, (occurrence == 1) ? " item" : " items");
     } else {
         item = proto_tree_add_item(parent_tree, hf_index, tvb, old_offset, 0, ENC_BIG_ENDIAN);
     }
     tree = proto_item_add_subtree(item, ett_index);
 
-    offset = dissect_oer_sequence_of_helper(tvb, offset, actx, tree, seq->func, *seq->p_id, occurence);
+    offset = dissect_oer_sequence_of_helper(tvb, offset, actx, tree, seq->func, *seq->p_id, occurrence);
 
 
     proto_item_set_len(item, offset - old_offset);

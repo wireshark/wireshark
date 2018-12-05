@@ -142,7 +142,7 @@ static const value_string dce_error_vals[] = {
     { 546545692, "No more dumps on this tape" },
     { 546586625, "interface incompatible" },
     { 546586626, "there is not a mounted tape" },
-    { 546586627, "multiple simulataneous mounts not permitted" },
+    { 546586627, "multiple simultaneous mounts not permitted" },
     { 546586628, "can't mount tape" },
     { 546586629, "error during tape dismount" },
     { 546586630, "tape I/O error" },

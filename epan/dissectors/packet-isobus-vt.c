@@ -795,7 +795,7 @@ static const value_string select_input_opject_response[] = {
 
 static const value_string draw_text_background[] = {
     { 0, "Opaque" },
-    { 1, "Transparant" },
+    { 1, "Transparent" },
     { 0, NULL }
 };
 

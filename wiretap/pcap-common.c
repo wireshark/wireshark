@@ -2112,7 +2112,7 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 	case WTAP_ENCAP_ETHERNET:
 		if (file_type == WTAP_FILE_TYPE_SUBTYPE_PCAP_NOKIA) {
 			/*
-			 * Nokia IPSO.  Psuedo header has already been read, but it's not considered
+			 * Nokia IPSO.  Pseudo header has already been read, but it's not considered
 			 * part of the packet size, so reread it to store the data for later (when saving)
 			 */
 			if (!pcap_read_nokia_pseudoheader(fh, &rec->rec_header.packet_header.pseudo_header, err, err_info))

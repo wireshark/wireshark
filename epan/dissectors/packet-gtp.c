@@ -3125,7 +3125,7 @@ static _gtp_mess_items umts_mess_items[] = {
             {GTP_EXT_RAT_TYPE, GTP_OPTIONAL},           /* RAT Type Optional 7.7.50 */
             {GTP_EXT_USR_LOC_INF, GTP_OPTIONAL},        /* User Location Information Optional 7.7.51 */
             {GTP_EXT_MS_TIME_ZONE, GTP_OPTIONAL},       /* MS Time Zone Optional 7.7.52 */
-            {GTP_EXT_ADD_TRS_INF, GTP_OPTIONAL},        /* Additonal Trace Info Optional 7.7.62 */
+            {GTP_EXT_ADD_TRS_INF, GTP_OPTIONAL},        /* Additional Trace Info Optional 7.7.62 */
             {GTP_EXT_DIRECT_TUNNEL_FLGS, GTP_OPTIONAL}, /* Direct Tunnel Flags     7.7.81 */
             {GTP_EXT_PRIV_EXT, GTP_OPTIONAL},
             {0, 0}
@@ -3482,7 +3482,7 @@ static _gtp_mess_items umts_mess_items[] = {
             {GTP_EXT_MS_TIME_ZONE, GTP_OPTIONAL},       /* MS Time Zone Optional 7.7.52 */
             {GTP_EXT_IMEISV, GTP_OPTIONAL},             /* IMEI(SV) Optional 7.7.53 */
             {GTP_EXT_MBMS_PROT_CONF_OPT, GTP_OPTIONAL}, /* MBMS Protocol Configuration Options Optional 7.7.58 */
-            {GTP_EXT_ADD_TRS_INF, GTP_OPTIONAL},        /* Additonal Trace Info Optional 7.7.62 */
+            {GTP_EXT_ADD_TRS_INF, GTP_OPTIONAL},        /* Additional Trace Info Optional 7.7.62 */
             {GTP_EXT_ENH_NSAPI, GTP_MANDATORY},         /* Enhanced NSAPI Mandatory 7.7.67 */
             {GTP_EXT_ADD_MBMS_TRS_INF, GTP_OPTIONAL},   /* Additional MBMS Trace Info Optional 7.7.68 */
             {GTP_EXT_PRIV_EXT, GTP_OPTIONAL},

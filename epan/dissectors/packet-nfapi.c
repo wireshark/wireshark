@@ -1615,7 +1615,7 @@ static void dissect_pnf_phy_instance_value(ptvcursor_t * ptvc, packet_info* pinf
 											hf_nfapi_uplink_channel_bandwidth_supported, ett_nfapi_uplink_bandwidth_support, ul_bandwidth_support_fields, ENC_BIG_ENDIAN, &test_value64);
 	if (test_value64 > 0x3F)
 	{
-		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid uplink channel bandwidht supported bits [0..0x3F]");
+		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid uplink channel bandwidth supported bits [0..0x3F]");
 	}
 	ptvcursor_advance(ptvc, 2);
 
@@ -10444,7 +10444,7 @@ void proto_register_nfapi(void)
 		{ &hf_nfapi_laa_end_partial_sf_flag,
 			{ "LAA end partial SF flag", "nfapi.laa.end.partial.sf.flag",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"Indicates if DCI format 1C is being used to signal LAA end partial SF (valid if end partial SF support configuraton is set)", HFILL }
+			"Indicates if DCI format 1C is being used to signal LAA end partial SF (valid if end partial SF support configuration is set)", HFILL }
 		},
 		{ &hf_nfapi_laa_end_partial_sf_configuration,
 			{ "LAA end partial SF configuration", "nfapi.laa.end.partial.sf.configuration",

@@ -922,7 +922,7 @@ static const value_string Info_Rec_Types[] = {
 };
 
 
-/* CDMA2K Encrytion Key Size */
+/* CDMA2K Encryption Key Size */
 static const value_string Enc_Key_Types[] = {
     { 0, "Reserved" },
     { 1, "64 Bits" },
@@ -949,10 +949,10 @@ static const value_string rl_Freq_Offset_Types[] = {
 /* CDMA2K Pilot Record Types */
 static const value_string Pilot_Rec_Types[] = {
     { 0, "1x Common Pilot With Transmit Diversity" },
-    { 1, "1x Auxillary Pilot" },
-    { 2, "1x Auxillary Pilot With Transmit Diversity" },
+    { 1, "1x Auxiliary Pilot" },
+    { 2, "1x Auxiliary Pilot With Transmit Diversity" },
     { 3, "3x Common Pilot" },
-    { 4, "3x Auxillary Pilot" },
+    { 4, "3x Auxiliary Pilot" },
     { 5, "Reserved" },
     { 6, "Reserved" },
     { 7, "Reserved" },
@@ -4872,7 +4872,7 @@ void proto_register_cdma2k(void)
             { &hf_cdma2k_Msg_Integrity_Sup,
             { "Msg Integrity Supported", "cdma2k.Msg_Integrity_Sup", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL } },
             { &hf_cdma2k_Gen_2g_Key,
-            { "Generate 2G Encrytion Key", "cdma2k.Gen_2g_Key", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+            { "Generate 2G Encryption Key", "cdma2k.Gen_2g_Key", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL } },
             { &hf_cdma2k_Register_In_Idle,
             { "Register In Idle State", "cdma2k.Register_In_Idle", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL } },
             { &hf_cdma2k_Plcm_Type_Incl,
@@ -4892,7 +4892,7 @@ void proto_register_cdma2k(void)
             { &hf_cdma2k_Pilot_Info_Req_Supported,
             { "Pilot Info Req Supported", "cdma2k.Pilot_Info_Req_Supported", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL } },
             { &hf_cdma2k_Enc_Supported,
-            { "Encrytion Fields Incl", "cdma2k.Enc_Supported", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+            { "Encryption Fields Incl", "cdma2k.Enc_Supported", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL } },
             { &hf_cdma2k_Sig_Encrypt_Sup,
             { "Signalling Encryption Supported", "cdma2k.Sig_Encrypt_Sup", FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
             { &hf_cdma2k_Ui_Encrypt_Sup,
@@ -4950,7 +4950,7 @@ void proto_register_cdma2k(void)
             { &hf_cdma2k_Fsch_Outercode_Offset,
             { "For Sch Outer Code Offset", "cdma2k.Fsch_Outercode_Offset", FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
             { &hf_cdma2k_Max_Add_Serv_Instance,
-            { "Max Additonal Service Identifiers", "cdma2k.Max_Add_Serv_Instance", FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
+            { "Max Additional Service Identifiers", "cdma2k.Max_Add_Serv_Instance", FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
             { &hf_cdma2k_Use_Ch_Cfg_Rrm,
             { "Channel Config Req Allowed", "cdma2k.Use_Ch_Cfg_Rrm", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL } },
             { &hf_cdma2k_Tx_Pwr_Limit_Incl,

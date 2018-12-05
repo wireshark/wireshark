@@ -2336,7 +2336,7 @@ proto_register_elf(void)
             NULL, HFILL }
         },
         { &hf_elf_symbol_table_shndx,
-            { "Releated Section Header Index",             "elf.symbol_table.shndx",
+            { "Related Section Header Index",             "elf.symbol_table.shndx",
             FT_UINT16, BASE_HEX | BASE_RANGE_STRING, RVALS(symbol_table_shndx_rvals), 0x00,
             NULL, HFILL }
         },

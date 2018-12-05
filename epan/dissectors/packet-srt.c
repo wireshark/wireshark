@@ -298,7 +298,7 @@ static const value_string srt_msgno_enctypes[] = {
 };
 
 static const true_false_string srt_msgno_rexmit = {
-    "Retransmited", /* 1 */
+    "Retransmitted", /* 1 */
     "Original"      /* 0 */
 };
 

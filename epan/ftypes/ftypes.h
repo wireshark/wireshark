@@ -138,7 +138,7 @@ enum ftrepr {
 
 typedef enum ftrepr ftrepr_t;
 
-/* Initialize the ftypes subsytem. Called once. */
+/* Initialize the ftypes subsystem. Called once. */
 void
 ftypes_initialize(void);
 

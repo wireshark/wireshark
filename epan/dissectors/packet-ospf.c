@@ -12,7 +12,7 @@
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
  * OSPF Extensions which introduce new Packet types
- * (e.g the External Atributes LSA) are not supported.
+ * (e.g the External Attributes LSA) are not supported.
  * Furthermore RFC2740 (OSPFv3 - OSPF for IPv6) is now supported
  *   - (c) 2001 Palle Lyckegaard <palle[AT]lyckegaard.dk>
  *

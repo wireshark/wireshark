@@ -9390,12 +9390,12 @@ proto_register_tds(void)
             NULL, HFILL }
         },
         { &hf_tdslogin_halogin,
-          { "High Availibility login", "tds.login.halogin",
+          { "High Availability login", "tds.login.halogin",
             FT_BOOLEAN, BASE_NONE, TFS(&tfs_yes_no), 0x0,
             NULL, HFILL }
         },
         { &hf_tdslogin_hasessionid,
-          { "High Availibility session id", "tds.login.hasessionid",
+          { "High Availability session id", "tds.login.hasessionid",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },

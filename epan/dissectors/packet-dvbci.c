@@ -1214,7 +1214,7 @@ static const value_string dvbci_cis_tpl_code[] = {
     { CISTPL_CFTABLE_ENTRY, "Configuration-table entry" },
     { CISTPL_DEVICE_OC, "Device information for Common Memory" },
     { CISTPL_DEVICE_OA, "Device information for Attribute Memory" },
-    { CISTPL_MANFID, "Manufacturer indentification string" },
+    { CISTPL_MANFID, "Manufacturer identification string" },
     { CISTPL_END, "End of chain" },
     { 0, NULL }
 };
@@ -1323,7 +1323,7 @@ static const value_string dvbci_res_class[] = {
 };
 static const value_string dvbci_app_type[] = {
     { APP_TYPE_CA,  "Conditional Access" },
-    { APP_TYPE_EPG, "Electronic Progam Guide" },
+    { APP_TYPE_EPG, "Electronic Program Guide" },
     { 0, NULL }
 };
 static const value_string dvbci_data_rate[] = {

@@ -4028,11 +4028,11 @@ proto_register_glusterfs(void)
 				0, NULL, HFILL }
 		},
 		{ &hf_glusterfs_iax_attributes,
-			{ "IATT atributes", "glusterfs.iax_attributes", FT_UINT64,
+			{ "IATT attributes", "glusterfs.iax_attributes", FT_UINT64,
 				BASE_HEX, NULL, 0, NULL, HFILL }
 		},
 		{ &hf_glusterfs_iax_attributes_mask,
-			{ "IATT atributes mask", "glusterfs.iax_attributes_mask", FT_UINT64,
+			{ "IATT attributes mask", "glusterfs.iax_attributes_mask", FT_UINT64,
 				BASE_HEX, NULL, 0, NULL, HFILL }
 		},
 		{ &hf_glusterfs_iax_flags,
