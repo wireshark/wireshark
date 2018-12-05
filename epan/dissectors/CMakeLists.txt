@@ -375,6 +375,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-h265.h
 	packet-h323.h
 	packet-h450-ros.h
+	packet-HI2Operations.h
 	packet-hpext.h
 	packet-http.h
 	packet-http2.h

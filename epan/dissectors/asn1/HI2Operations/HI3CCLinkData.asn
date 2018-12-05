@@ -1,0 +1,68 @@
+HI3CCLinkData
+{itu-t(0) identified-organization(4) etsi(0) securityDomain(2) lawfulIntercept(2) hi3(2) cclinkLI(4) version4(4)}
+
+DEFINITIONS IMPLICIT TAGS ::=
+
+BEGIN
+
+IMPORTS
+    -- from clause D.5
+    LawfulInterceptionIdentifier,
+    CommunicationIdentifier,
+    CC-Link-Identifier
+        FROM HI2Operations
+        {itu-t(0) identified-organization(4) etsi(0) securityDomain(2) lawfulIntercept(2) hi2(1) version8(8)};
+
+-- =============================
+-- Object Identifier Definitions
+-- =============================
+
+-- LawfulIntercept DomainId
+-- WS Allready in HI2... lawfulInterceptDomainId OBJECT IDENTIFIER ::= {itu-t(0) identified-organization(4) etsi(0) securityDomain(2) lawfulIntercept(2)}
+
+-- hi3 Domain
+hi3CCLinkId OBJECT IDENTIFIER ::= {lawfulInterceptDomainId hi3(2) ccLinkLI(4)}
+hi3CCLinkIdOperationId OBJECT IDENTIFIER ::= {hi3CCLinkId version4(4)}
+
+UUS1-Content    ::= SEQUENCE
+{
+    domainID                            [0] OBJECT IDENTIFIER (hi3CCLinkIdOperationId) OPTIONAL,
+        -- Once using FTP delivery mechanism
+    lawfullInterceptionIdentifier       [1] LawfulInterceptionIdentifier,
+    communicationIdentifier	            [2] CommunicationIdentifier,
+    cC-Link-Identifier                  [3] CC-Link-Identifier OPTIONAL,
+    direction-Indication                [4] Direction-Indication,
+    bearer-capability                   [5] OCTET STRING (SIZE(1..12)) OPTIONAL,
+        -- transport the Bearer capability information element (value part)
+        -- Protocol: EN 300 403-1 [6]
+    service-Information                 [7] Service-Information OPTIONAL,
+    ...
+}
+
+-- ==================
+-- PARAMETERS FORMATS
+-- ==================
+
+Direction-Indication    ::= ENUMERATED
+{
+    mono-mode(0),
+    cc-from-target(1),
+    cc-from-other-party(2),
+    ...,
+    direction-unknown(3)
+}
+
+Service-Information ::= SET
+{
+    high-layer-capability   [0] OCTET STRING (SIZE(1)) OPTIONAL,
+        -- HLC (octet 4 only)
+        -- Protocol: EN 300 403-1 [6]
+    tMR                     [1] OCTET STRING (SIZE(1)) OPTIONAL,
+        -- Transmission Medium Requirement
+        -- Protocol: ISUP EN 300 356 [5]
+    bearerServiceCode   [2] OCTET STRING (SIZE(1)) OPTIONAL,
+    teleServiceCode     [3] OCTET STRING (SIZE(1)) OPTIONAL
+        -- from MAP, TS GSM 09.02 [32], clause 14.7.9 and clause 14.7.10
+}
+
+END -- end of HI3CCLinkData

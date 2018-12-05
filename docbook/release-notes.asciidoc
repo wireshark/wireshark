@@ -95,6 +95,7 @@ GCSNA General Circuit Services Notification Application Protocol
 GLOW Lawo Emberplus Data format
 GSM-R protocol (User-to-User Information Element usage)
 GSUP (Osmocom Generic Subscriber Update Protocol)
+HI3CCLinkData
 Local Number Portability Database Query Protocol(ANSI)
 MsgPack protocol
 NGAP (5G) protocol

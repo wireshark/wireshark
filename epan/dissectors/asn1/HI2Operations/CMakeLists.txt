@@ -11,6 +11,7 @@ set( PROTOCOL_NAME HI2Operations )
 
 set( ASN_FILE_LIST
 	HI2Operations_ver11.asn
+	HI3CCLinkData.asn
 	UmtsHI2Operations.asn
 	TS101909201.asn
 	PCESP.asn
@@ -20,6 +21,7 @@ set( ASN_FILE_LIST
 set( EXTRA_DIST
 	${ASN_FILE_LIST}
 	packet-${PROTOCOL_NAME}-template.c
+	packet-${PROTOCOL_NAME}-template.h
 	${PROTOCOL_NAME}.cnf
 )
 
@@ -29,8 +31,5 @@ set( SRC_FILES
 )
 
 set( A2W_FLAGS -b )
-
-set( EXTRA_CNF
-)
 
 ASN2WRS()
