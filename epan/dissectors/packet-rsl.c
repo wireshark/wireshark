@@ -2090,7 +2090,9 @@ dissect_rsl_ie_uplik_meas(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     return ie_offset+length;
 }
 
-
+ /*
+  * 9.3.26 Cause
+  */
 static const value_string rsl_class_vals[] = {
     {  0x00,    "Normal event" },
     {  0x01,    "Normal event" },
@@ -2103,9 +2105,6 @@ static const value_string rsl_class_vals[] = {
     { 0,            NULL }
 };
 
- /*
-  * 9.3.26 Cause
-  */
 static int
 dissect_rsl_ie_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean is_mandatory)
 {
