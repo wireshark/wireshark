@@ -589,6 +589,9 @@
 	<avp name="Retry-Interval" code="541" mandatory="may"  may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 		<type type-name="Unsigned32"/>
 	</avp>
+	<avp name="MCPTT-Identifier" code="547" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="OctetString"/>
+	</avp>
 	<avp name="Content-Version" code="552" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 		<type type-name="Unsigned64"/>
 	</avp>
@@ -615,6 +618,9 @@
 	</avp>
 	<avp name="Extended-Min-Requested-BW-UL" code="561" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="MCVideo-Identifier" code="562" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="OctetString"/>
 	</avp>
 </application>	<!-- 3GPP Rx -->
 
