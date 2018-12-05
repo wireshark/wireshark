@@ -16,20 +16,21 @@
 #include <epan/dfilter/dfilter.h>
 #include <epan/column-info.h>
 
+#include <wsutil/utf8_entities.h>
+
 #include <ui/qt/widgets/syntax_line_edit.h>
 
 #include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/stock_icon.h>
 
 #include <QAbstractItemView>
 #include <QCompleter>
 #include <QKeyEvent>
+#include <QPainter>
 #include <QScrollBar>
 #include <QStringListModel>
+#include <QStyleOptionFrame>
 #include <limits>
-
-// To do:
-// - Add indicator icons for syntax states to make things more clear for
-//   color blind people?
 
 const int max_completion_items_ = 20;
 
@@ -348,6 +349,48 @@ void SyntaxLineEdit::focusOutEvent(QFocusEvent *event)
         return;
     }
     QLineEdit::focusOutEvent(event);
+}
+
+// Add indicator icons for syntax states in order to make things more clear for
+// color blind people.
+void SyntaxLineEdit::paintEvent(QPaintEvent *event)
+{
+    QLineEdit::paintEvent(event);
+
+    QString si_name;
+
+    switch (syntax_state_) {
+    case Invalid:
+        si_name = "x-filter-invalid";
+        break;
+    case Deprecated:
+        si_name = "x-filter-deprecated";
+        break;
+    default:
+        return;
+    }
+
+    QStyleOptionFrame opt;
+    initStyleOption(&opt);
+    QRect cr = style()->subElementRect(QStyle::SE_LineEditContents, &opt, this);
+    QRect sir = QRect(0, 0, 14, 14); // QIcon::paint scales, which is not what we want.
+
+    if (fontMetrics().width(text()) + cr.height() > cr.width() || cr.height() < sir.height()) {
+        // No space to draw
+        return;
+    }
+
+    QIcon state_icon = StockIcon(si_name);
+    if (state_icon.isNull()) {
+        return;
+    }
+
+    int si_off = (cr.height() - sir.height()) / 2;
+    sir.moveTop(si_off);
+    sir.moveRight(cr.right() - si_off);
+    QPainter painter(this);
+    painter.setOpacity(0.25);
+    state_icon.paint(&painter, sir);
 }
 
 void SyntaxLineEdit::insertFieldCompletion(const QString &completion_text)

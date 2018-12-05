@@ -318,6 +318,7 @@ void CaptureFilterEdit::checkFilter(const QString& filter)
 {
     setSyntaxState(Busy);
     popFilterSyntaxStatus();
+    setToolTip(QString());
     bool empty = filter.isEmpty();
 
     setConflict(false);
@@ -412,6 +413,7 @@ void CaptureFilterEdit::setFilterSyntaxState(QString filter, int state, QString 
         setSyntaxState((SyntaxState)state);
         if (!err_msg.isEmpty()) {
             emit pushFilterSyntaxStatus(err_msg);
+            setToolTip(err_msg);
         }
     }
 

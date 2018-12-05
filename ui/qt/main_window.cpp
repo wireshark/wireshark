@@ -376,8 +376,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(df_edit, SIGNAL(pushFilterSyntaxStatus(const QString&)),
             main_ui_->statusBar, SLOT(pushFilterStatus(const QString&)));
     connect(df_edit, SIGNAL(popFilterSyntaxStatus()), main_ui_->statusBar, SLOT(popFilterStatus()));
-    connect(df_edit, SIGNAL(pushFilterSyntaxWarning(const QString&)),
-            main_ui_->statusBar, SLOT(pushTemporaryStatus(const QString&)));
     connect(df_edit, SIGNAL(filterPackets(QString,bool)), this, SLOT(filterPackets(QString,bool)));
     connect(df_edit, SIGNAL(showPreferencesDialog(QString)),
             this, SLOT(showPreferencesDialog(QString)));

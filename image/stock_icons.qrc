@@ -45,8 +45,12 @@
         <file>stock_icons/14x14/x-filter-clear.active@2x.png</file>
         <file>stock_icons/14x14/x-filter-clear.selected.png</file>
         <file>stock_icons/14x14/x-filter-clear.selected@2x.png</file>
+        <file>stock_icons/14x14/x-filter-deprecated.png</file>
+        <file>stock_icons/14x14/x-filter-deprecated@2x.png</file>
         <file>stock_icons/14x14/x-filter-dropdown.png</file>
         <file>stock_icons/14x14/x-filter-dropdown@2x.png</file>
+        <file>stock_icons/14x14/x-filter-invalid.png</file>
+        <file>stock_icons/14x14/x-filter-invalid@2x.png</file>
         <file>stock_icons/14x14/x-filter-matching-bookmark.png</file>
         <file>stock_icons/14x14/x-filter-matching-bookmark@2x.png</file>
         <file>stock_icons/14x14/x-filter-matching-bookmark.active.png</file>

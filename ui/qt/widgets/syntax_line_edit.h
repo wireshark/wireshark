@@ -61,6 +61,7 @@ protected:
     void completionKeyPressEvent(QKeyEvent *event);
     void completionFocusInEvent(QFocusEvent *event);
     virtual void focusOutEvent(QFocusEvent *event);
+    virtual void paintEvent(QPaintEvent *event);
 
 private:
     SyntaxState syntax_state_;

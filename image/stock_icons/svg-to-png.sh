@@ -61,7 +61,9 @@ ICONS="
     x-filter-clear
     x-filter-clear.active
     x-filter-clear.selected
+    x-filter-deprecated
     x-filter-dropdown
+    x-filter-invalid
     x-filter-matching-bookmark
     x-filter-matching-bookmark.active
     x-filter-matching-bookmark.selected
@@ -119,7 +121,7 @@ for SIZE in 14x14 16x16 24x14 24x14 ; do
 done
 
 for QRC_FILE in $QRC_FILES ; do
-    echo "        <file>toolbar/${QRC_FILE}</file>"
+    echo "        <file>stock_icons/${QRC_FILE}</file>"
 done
 
 #

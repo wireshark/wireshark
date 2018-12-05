@@ -233,8 +233,10 @@ void DisplayFilterEdit::resizeEvent(QResizeEvent *)
 
 void DisplayFilterEdit::focusOutEvent(QFocusEvent *event)
 {
-    if (syntaxState() == Valid)
+    if (syntaxState() == Valid) {
         emit popFilterSyntaxStatus();
+        setToolTip(QString());
+    }
     SyntaxLineEdit::focusOutEvent(event);
 }
 
@@ -251,13 +253,15 @@ void DisplayFilterEdit::checkFilter(const QString& filter_text)
         clear_button_->setVisible(!filter_text.isEmpty());
     }
 
-    popFilterSyntaxStatus();
+    emit popFilterSyntaxStatus();
+    setToolTip(QString());
     checkDisplayFilter(filter_text);
 
     switch (syntaxState()) {
     case Deprecated:
     {
-        emit pushFilterSyntaxWarning(syntaxErrorMessage());
+        emit pushFilterSyntaxStatus(syntaxErrorMessage());
+        setToolTip(syntaxErrorMessage());
         break;
     }
     case Invalid:
@@ -265,6 +269,7 @@ void DisplayFilterEdit::checkFilter(const QString& filter_text)
         QString invalidMsg(tr("Invalid filter: "));
         invalidMsg.append(syntaxErrorMessage());
         emit pushFilterSyntaxStatus(invalidMsg);
+        setToolTip(invalidMsg);
         break;
     }
     default:

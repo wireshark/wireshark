@@ -72,7 +72,6 @@ private:
 signals:
     void pushFilterSyntaxStatus(const QString&);
     void popFilterSyntaxStatus();
-    void pushFilterSyntaxWarning(const QString&);
     void filterPackets(QString new_filter, bool force);
     void showPreferencesDialog(QString pane_name);
 };
