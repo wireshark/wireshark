@@ -259,7 +259,7 @@ rsa_load_pkcs12(FILE *fp, const gchar *cert_passwd, char **err)
             }
             bag_type = (gnutls_pkcs12_bag_type_t)ret;
             if (bag_type >= GNUTLS_BAG_UNKNOWN) {
-                *err = g_strdup_printf("gnutls_pkcs12_bag_get_type returnd unknown bag type %u",
+                *err = g_strdup_printf("gnutls_pkcs12_bag_get_type returned unknown bag type %u",
                                        ret);
                 goto done;
             }
@@ -275,7 +275,7 @@ rsa_load_pkcs12(FILE *fp, const gchar *cert_passwd, char **err)
                     }
                     bag_type = (gnutls_pkcs12_bag_type_t)ret;
                     if (bag_type >= GNUTLS_BAG_UNKNOWN) {
-                        *err = g_strdup_printf("gnutls_pkcs12_bag_get_type returnd unknown bag type %u",
+                        *err = g_strdup_printf("gnutls_pkcs12_bag_get_type returned unknown bag type %u",
                                                ret);
                         goto done;
                     }

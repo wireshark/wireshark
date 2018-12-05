@@ -261,7 +261,7 @@ dissect_nettl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
             break;
         default:
             col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNKNOWN");
-            col_add_fstr(pinfo->cinfo, COL_INFO, "Unsupported nettl subsytem: %d (%s)",
+            col_add_fstr(pinfo->cinfo, COL_INFO, "Unsupported nettl subsystem: %d (%s)",
                          pinfo->pseudo_header->nettl.subsys,
                          val_to_str_ext_const(pinfo->pseudo_header->nettl.subsys, &subsystem_ext, "Unknown"));
             call_data_dissector(tvb, pinfo, tree);

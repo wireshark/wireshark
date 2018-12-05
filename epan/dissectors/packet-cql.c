@@ -1107,7 +1107,7 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 				/* Now re-setup the tvb buffer to have the new data */
 				tvb = tvb_new_child_real_data(raw_tvb, decompressed_buffer, orig_size, orig_size);
 				add_new_data_source(pinfo, tvb, "Decompressed Data");
-				/* mark the decompression as successfull */
+				/* mark the decompression as successful */
 				compression_level = CQL_COMPRESSION_LZ4;
 				message_length= orig_size;
 			}

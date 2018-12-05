@@ -2508,7 +2508,7 @@ void proto_register_f5ethtrailer (void)
 		" tcp.port and udp.port).  Enabling this will allow filters that"
 		" reference those fields to also find data in the trailers but"
 		" will reduce performance.  After disabling, you should restart"
-		" Wireshark to get perfomance back.", &pop_other_fields);
+		" Wireshark to get performance back.", &pop_other_fields);
 #else
 	/* If we are not building with this, silently delete the preference */
 	prefs_register_obsolete_preference(f5ethtrailer_module,

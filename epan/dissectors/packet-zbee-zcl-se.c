@@ -8883,7 +8883,7 @@ static int hf_zbee_zcl_calendar_total_number_of_commands = -1;
 static int hf_zbee_zcl_calendar_schedule_entry_start_time = -1;
 static int hf_zbee_zcl_calendar_schedule_entry_price_tier = -1;
 static int hf_zbee_zcl_calendar_schedule_entry_friendly_credit_enable = -1;
-static int hf_zbee_zcl_calendar_schedule_entry_auxilary_load_switch_state = -1;
+static int hf_zbee_zcl_calendar_schedule_entry_auxiliary_load_switch_state = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_zbee_zcl_calendar = -1;
@@ -8895,7 +8895,7 @@ static gint ett_zbee_zcl_calendar_season_start_date = -1;
     XXX(ZBEE_ZCL_CALENDAR_TYPE_RECEIVED,                                 0x01, "Received Calendar" ) \
     XXX(ZBEE_ZCL_CALENDAR_TYPE_DELIVERED_AND_RECEIVED,                   0x02, "Delivered and Received Calendar" ) \
     XXX(ZBEE_ZCL_CALENDAR_TYPE_FRIENDLY_CREDIT,                          0x03, "Friendly Credit Calendar" ) \
-    XXX(ZBEE_ZCL_CALENDAR_TYPE_AUXILARY_LOAD_SWITCH,                     0x04, "Auxilary Load Switch Calendar" )
+    XXX(ZBEE_ZCL_CALENDAR_TYPE_AUXILIARY_LOAD_SWITCH,                    0x04, "Auxiliary Load Switch Calendar" )
 
 VALUE_STRING_ENUM(zbee_zcl_calendar_type_names);
 VALUE_STRING_ARRAY(zbee_zcl_calendar_type_names);
@@ -9324,10 +9324,10 @@ dissect_zcl_calendar_publish_day_profile(tvbuff_t *tvb, proto_tree *tree, guint 
                 *offset += 1;
                 break;
 
-            /* Auxilary Load Start Time */
-            case ZBEE_ZCL_CALENDAR_TYPE_AUXILARY_LOAD_SWITCH:
+            /* Auxiliary Load Start Time */
+            case ZBEE_ZCL_CALENDAR_TYPE_AUXILIARY_LOAD_SWITCH:
                 /* Price Tier */
-                proto_tree_add_item(tree, hf_zbee_zcl_calendar_schedule_entry_auxilary_load_switch_state, tvb, *offset, 1, ENC_NA);
+                proto_tree_add_item(tree, hf_zbee_zcl_calendar_schedule_entry_auxiliary_load_switch_state, tvb, *offset, 1, ENC_NA);
                 *offset += 1;
                 break;
         }
@@ -9695,8 +9695,8 @@ proto_register_zbee_zcl_calendar(void)
           { "Friendly Credit Enable", "zbee_zcl_se.calendar.schedule_entry.friendly_credit_enable", FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled),
             0x00, NULL, HFILL } },
 
-        { &hf_zbee_zcl_calendar_schedule_entry_auxilary_load_switch_state,
-            { "Auxilary Load Switch State", "zbee_zcl_se.calendar.schedule_entry.auxilary_load_switch_state", FT_UINT8, BASE_HEX, NULL,
+        { &hf_zbee_zcl_calendar_schedule_entry_auxiliary_load_switch_state,
+            { "Auxiliary Load Switch State", "zbee_zcl_se.calendar.schedule_entry.auxiliary_load_switch_state", FT_UINT8, BASE_HEX, NULL,
             0x00, NULL, HFILL } },
 
     };

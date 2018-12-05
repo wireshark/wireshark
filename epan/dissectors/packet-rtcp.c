@@ -5487,7 +5487,7 @@ proto_register_rtcp(void)
         {
             &hf_rtcp_xr_idms_spst,
             {
-                "Syncronization Packet Sender Type",
+                "Synchronization Packet Sender Type",
                 "rtcp.xr.idms.spst",
                 FT_UINT8,
                 BASE_DEC,

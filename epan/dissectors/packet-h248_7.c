@@ -44,7 +44,7 @@ static gint ett_h248_an_apf = -1;
 static gint ett_h248_an_apv = -1;
 
 static const value_string h248_an_prop_vals[] = {
-	{ 0, "Generic Announcment Package (an) (H.248.7)" },
+	{ 0, "Generic Announcement Package (an) (H.248.7)" },
 	{ 0, NULL }
 };
 

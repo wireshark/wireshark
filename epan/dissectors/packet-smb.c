@@ -21082,7 +21082,7 @@ proto_register_smb(void)
 	};
 
 	static ei_register_info ei[] = {
-		{ &ei_smb_mal_information_level, { "smb.information_level.malformed", PI_MALFORMED, PI_ERROR, "Information level structure goes past the end of the transation data.", EXPFILL }},
+		{ &ei_smb_mal_information_level, { "smb.information_level.malformed", PI_MALFORMED, PI_ERROR, "Information level structure goes past the end of the transaction data.", EXPFILL }},
 		{ &ei_smb_not_implemented, { "smb.not_implemented", PI_UNDECODED, PI_WARN, "Not Implemented yet", EXPFILL }},
 		{ &ei_smb_nt_transaction_setup, { "smb.nt_transaction_setup.unknown", PI_PROTOCOL, PI_NOTE, "Unknown NT Transaction Setup (matching request not seen)", EXPFILL }},
 		{ &ei_smb_posix_ace_type, { "smb.posix_acl.ace_type.unknown", PI_PROTOCOL, PI_WARN, "Unknown posix ace type", EXPFILL }},

@@ -3546,7 +3546,7 @@ proto_register_capwap_control(void)
               NULL, HFILL }
         },
         { &hf_capwap_header_padding,
-            { "Padding for 4 Byte Alignement", "capwap.header.padding",
+            { "Padding for 4 Byte Alignment", "capwap.header.padding",
               FT_BYTES, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },

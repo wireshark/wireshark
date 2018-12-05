@@ -54,7 +54,7 @@ Miscellaneous:
   -A generate all infos (default)
   -K disable displaying the capture comment
 
-Options are processed from left to right order with later options superceding
+Options are processed from left to right order with later options superseding
 or adding to earlier options.
 
 If no options are given the default is to display all infos in long report

@@ -4537,7 +4537,7 @@ netmon_fid_USBPORT_Endpoint_Descriptor(proto_tree *tree, tvbuff_t *tvb, int offs
 {
     proto_tree *endpoint_desc_tree;
 
-    endpoint_desc_tree = proto_tree_add_subtree(tree, tvb, offset, 7, ett_usbport_endpoint_desc, NULL, "Endpoint Decriptor");
+    endpoint_desc_tree = proto_tree_add_subtree(tree, tvb, offset, 7, ett_usbport_endpoint_desc, NULL, "Endpoint Descriptor");
     proto_tree_add_item(endpoint_desc_tree, hf_usbport_endpoint_desc_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
     proto_tree_add_item(endpoint_desc_tree, hf_usbport_endpoint_desc_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);

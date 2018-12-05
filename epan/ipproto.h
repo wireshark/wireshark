@@ -48,7 +48,7 @@
 #define IP_PROTO_LEAF1          25
 #define IP_PROTO_LEAF2          26
 #define IP_PROTO_RDP            27      /* Reliable Data Protocol - RFC908 */
-#define IP_PROTO_IRT            28      /* Internet Reliable Transation - RFC938 */
+#define IP_PROTO_IRT            28      /* Internet Reliable Transaction - RFC938 */
 #define IP_PROTO_TP             29      /* tp-4 w/ class negotiation - RFC905 */
 #define IP_PROTO_BULK           30      /* Bulk Data Transfer Protocol - RFC969 */
 #define IP_PROTO_MFE_NSP        31      /* MFE Network Services Protocol */
