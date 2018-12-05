@@ -3249,8 +3249,9 @@ static int hf_ieee80211_htc = -1;
 static int hf_ieee80211_htc_vht = -1;
 static int hf_ieee80211_htc_he = -1;
 static int hf_ieee80211_htc_he_ctrl_id = -1;
-static int hf_ieee80211_he_umrs_he_tb_ppdu_len = -1;
-static int hf_ieee80211_he_umrs_ru_allocation = -1;
+static int hf_ieee80211_he_a_control_padding = -1;
+static int hf_ieee80211_he_trs_he_tb_ppdu_len = -1;
+static int hf_ieee80211_he_trs_ru_allocation = -1;
 static int hf_ieee80211_he_dl_tx_power = -1;
 static int hf_ieee80211_he_ul_target_rssi = -1;
 static int hf_ieee80211_he_ul_mcs = -1;
@@ -5847,7 +5848,8 @@ static gint ett_htc_he_a_control = -1;
 static gint ett_mfb_subtree = -1;
 static gint ett_lac_subtree = -1;
 static gint ett_ieee80211_buffer_status_report = -1;
-static gint ett_ieee80211_ul_mu_response_schedule = -1;
+static gint ett_ieee80211_a_control_padding = -1;
+static gint ett_ieee80211_triggered_response_schedule = -1;
 static gint ett_ieee80211_control_om = -1;
 static gint ett_ieee80211_hla_control = -1;
 static gint ett_ieee80211_control_uph = -1;
@@ -16891,7 +16893,7 @@ dissect_ht_info_ie_1_0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
  * 802.11ax changes the reserved bit to differentiate between the HE version
  * and the VHT version, and adds different types of Aggregate Control info.
  */
-#define A_CONTROL_UMRS 0
+#define A_CONTROL_TRS 0
 #define A_CONTROL_OM   1
 #define A_CONTROL_HLA  2
 #define A_CONTROL_BSR  3
@@ -16901,7 +16903,7 @@ dissect_ht_info_ie_1_0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 #define A_CONTROL_BQR_REV 0x0A
 
 static const value_string a_control_control_id_vals[] = {
-  { A_CONTROL_UMRS, "UL MU response scheduling" },
+  { A_CONTROL_TRS,  "Triggered response scheduling" },
   { A_CONTROL_OM,   "Operating mode" },
   { A_CONTROL_HLA,  "HE link adaptation" },
   { A_CONTROL_BSR,  "Buffer status report" },
@@ -16928,30 +16930,48 @@ ul_target_rssi_base_custom(gchar *result, guint32 target_rssi)
 }
 
 static void
-dissect_a_control_umrs(proto_tree *tree, tvbuff_t *tvb, int offset,
+dissect_a_control_padding(proto_tree *tree, tvbuff_t *tvb, int offset,
   guint32 bits _U_, guint32 start_bit)
 {
-  proto_tree *umrs_tree = NULL;
+  proto_tree *trs_tree = NULL;
   guint the_bits = (tvb_get_letohl(tvb, offset) >> start_bit) & 0x03FFFFFF;
 
   /*
    * We isolated the bits and moved them to the bottom ... so display them
    */
-  umrs_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4,
-                                ett_ieee80211_ul_mu_response_schedule,
+  trs_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4,
+                                ett_ieee80211_a_control_padding,
+                                NULL, "Padding: 0x%0x", the_bits);
+
+  proto_tree_add_uint(trs_tree, hf_ieee80211_he_a_control_padding, tvb,
+                        offset, 4, the_bits);
+}
+
+static void
+dissect_a_control_trs(proto_tree *tree, tvbuff_t *tvb, int offset,
+  guint32 bits _U_, guint32 start_bit)
+{
+  proto_tree *trs_tree = NULL;
+  guint the_bits = (tvb_get_letohl(tvb, offset) >> start_bit) & 0x03FFFFFF;
+
+  /*
+   * We isolated the bits and moved them to the bottom ... so display them
+   */
+  trs_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4,
+                                ett_ieee80211_triggered_response_schedule,
                                 NULL, "UMRS Control: 0x%08x", the_bits);
 
-  proto_tree_add_uint(umrs_tree, hf_ieee80211_he_umrs_he_tb_ppdu_len, tvb,
+  proto_tree_add_uint(trs_tree, hf_ieee80211_he_trs_he_tb_ppdu_len, tvb,
                         offset, 4, the_bits);
-  proto_tree_add_uint(umrs_tree, hf_ieee80211_he_umrs_ru_allocation, tvb,
+  proto_tree_add_uint(trs_tree, hf_ieee80211_he_trs_ru_allocation, tvb,
                         offset, 4, the_bits);
-  proto_tree_add_uint(umrs_tree, hf_ieee80211_he_dl_tx_power, tvb,
+  proto_tree_add_uint(trs_tree, hf_ieee80211_he_dl_tx_power, tvb,
                         offset, 4, the_bits);
-  proto_tree_add_uint(umrs_tree, hf_ieee80211_he_ul_target_rssi, tvb,
+  proto_tree_add_uint(trs_tree, hf_ieee80211_he_ul_target_rssi, tvb,
                         offset, 4, the_bits);
-  proto_tree_add_uint(umrs_tree, hf_ieee80211_he_ul_mcs, tvb,
+  proto_tree_add_uint(trs_tree, hf_ieee80211_he_ul_mcs, tvb,
                         offset, 4, the_bits);
-  proto_tree_add_uint(umrs_tree, hf_ieee80211_he_ul_reserved, tvb,
+  proto_tree_add_uint(trs_tree, hf_ieee80211_he_ul_reserved, tvb,
                         offset, 4, the_bits);
 }
 
@@ -17148,14 +17168,23 @@ dissect_ht_control(proto_tree *tree, tvbuff_t *tvb, int offset)
       while (start_bit_offset < 32) {
         guint8 control_id = (htc >> start_bit_offset) & 0x0F;
         start_bit_offset += 4;
-        pi = proto_tree_add_uint(a_control_tree, hf_ieee80211_htc_he_ctrl_id,
+        if (control_id != 0 || start_bit_offset == 6) {
+          pi = proto_tree_add_uint(a_control_tree, hf_ieee80211_htc_he_ctrl_id,
                         tvb, offset, 4, control_id);
-        proto_item_append_text(pi, ": %s",
+          proto_item_append_text(pi, ": %s",
                         val_to_str(control_id, a_control_control_id_vals,
                                         "Reserved (%u)"));
+        }
         switch (control_id) {
-        case A_CONTROL_UMRS:
-          dissect_a_control_umrs(a_control_tree, tvb, offset, htc, start_bit_offset);
+        case A_CONTROL_TRS:
+          /*
+           * Padding looks like TRS ... so distinguish. If there are not
+           * enough bits left it must be padding
+           */
+          if (start_bit_offset == 6)
+            dissect_a_control_trs(a_control_tree, tvb, offset, htc, start_bit_offset);
+          else
+            dissect_a_control_padding(a_control_tree, tvb, offset, htc, start_bit_offset);
           start_bit_offset += 26;
           break;
         case A_CONTROL_OM:
@@ -22598,6 +22627,15 @@ static const int *he_trig_frm_bar_info_fields[] = {
 
 #define PRE_FEC_PADDING_FACTOR 0x3
 #define PE_DISAMBIGUITY 0x4
+
+static void
+ap_tx_power_custom(gchar *result, guint32 ap_tx_power)
+{
+  if (ap_tx_power > 60)
+    g_snprintf(result, ITEM_LABEL_LENGTH, "%s", "Reserved");
+  else
+    g_snprintf(result, ITEM_LABEL_LENGTH, "%d dBm", -20 + ap_tx_power);
+}
 
 static void
 ul_packet_extension_base_custom(gchar *result, guint32 ul_packet_extension)
@@ -33710,11 +33748,15 @@ proto_register_ieee80211(void)
      {"Control ID", "wlan.htc.he.a_control.ctrl_id",
       FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
-    {&hf_ieee80211_he_umrs_he_tb_ppdu_len,
+    {&hf_ieee80211_he_a_control_padding,
+     {"Padding", "wlan.htc.he.a_control.padding",
+      FT_UINT32, BASE_HEX, NULL, 0x00ffffff, NULL, HFILL }},
+
+    {&hf_ieee80211_he_trs_he_tb_ppdu_len,
      {"HE TB PPDU Length", "wlan.htc.he.a_control.umrs.he_tb_ppdu_len",
       FT_UINT32, BASE_DEC, NULL, 0x0000001f, NULL, HFILL }},
 
-    {&hf_ieee80211_he_umrs_ru_allocation,
+    {&hf_ieee80211_he_trs_ru_allocation,
      {"RU Allocation", "wlan.htc.he.a_control.umrs.ru_allocation",
       FT_UINT32, BASE_HEX, NULL, 0x00001fe0, NULL, HFILL }},
 
@@ -33903,8 +33945,9 @@ proto_register_ieee80211(void)
       FT_BOOLEAN, 64, NULL, 0x0000000008000000, NULL, HFILL }},
 
     {&hf_ieee80211_he_trigger_ap_tx_power,
-     {"AP TX Power", "wlan.trigger.he.ap_tx_power",
-      FT_UINT64, BASE_DEC, NULL, 0x00000003F0000000, NULL, HFILL }},
+     {"AP Tx Power", "wlan.trigger.he.ap_tx_power",
+      FT_UINT64, BASE_CUSTOM, CF_FUNC(ap_tx_power_custom),
+      0x00000003F0000000, NULL, HFILL }},
 
     {&hf_ieee80211_he_trigger_ul_packet_extension,
      {"Packet Extension", "wlan.trigger.he.packet_extension",
@@ -36399,7 +36442,8 @@ proto_register_ieee80211(void)
     &ett_htc_he_a_control,
     &ett_mfb_subtree,
     &ett_lac_subtree,
-    &ett_ieee80211_ul_mu_response_schedule,
+    &ett_ieee80211_a_control_padding,
+    &ett_ieee80211_triggered_response_schedule,
     &ett_ieee80211_control_om,
     &ett_ieee80211_hla_control,
     &ett_ieee80211_buffer_status_report,
