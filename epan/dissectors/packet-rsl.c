@@ -3447,20 +3447,25 @@ dissct_rsl_ipaccess_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
             return tvb_reported_length(tvb);
         }
 
-        ti = proto_tree_add_item(tree, hf_rsl_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
-        ie_tree = proto_item_add_subtree(ti, ett_ie_local_port);
-        offset += hlen;
 
         switch (tag) {
         case RSL_IE_CH_NO:
-            dissect_rsl_ie_ch_no(tvb, pinfo, ie_tree, offset, FALSE);
+            dissect_rsl_ie_ch_no(tvb, pinfo, tree, offset, FALSE);
             break;
         case RSL_IE_FRAME_NO:
-            dissect_rsl_ie_frame_no(tvb, pinfo, ie_tree, offset, FALSE);
+            dissect_rsl_ie_frame_no(tvb, pinfo, tree, offset, FALSE);
             break;
         case RSL_IE_MS_POW:
-            dissect_rsl_ie_ms_pow(tvb, pinfo, ie_tree, offset, FALSE);
+            dissect_rsl_ie_ms_pow(tvb, pinfo, tree, offset, FALSE);
             break;
+        default:
+            ti = proto_tree_add_item(tree, hf_rsl_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+            ie_tree = proto_item_add_subtree(ti, ett_ie_local_port);
+        }
+
+        offset += hlen;
+
+        switch (tag) {
         case RSL_IE_IPAC_REMOTE_IP:
             proto_tree_add_item(ie_tree, hf_rsl_remote_ip, tvb,
                                 offset, len, ENC_BIG_ENDIAN);
