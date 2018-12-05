@@ -27,7 +27,6 @@
 #include "packet-ber.h"
 #include "packet-isup.h"
 #include "packet-q931.h"
-#include "packet-HI2Operations.h"
 
 #define PNAME  "HI2Operations"
 #define PSNAME "HI2OPERATIONS"
@@ -367,7 +366,7 @@ static int hf_HI2Operations_cI = -1;              /* CellIdType */
 static int hf_HI2Operations_ssi = -1;             /* SSIType */
 
 /*--- End of included file: packet-HI2Operations-hf.c ---*/
-#line 34 "./asn1/HI2Operations/packet-HI2Operations-template.c"
+#line 33 "./asn1/HI2Operations/packet-HI2Operations-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -479,7 +478,7 @@ static gint ett_HI2Operations_TETRACGIType = -1;
 static gint ett_HI2Operations_TSIType = -1;
 
 /*--- End of included file: packet-HI2Operations-ett.c ---*/
-#line 37 "./asn1/HI2Operations/packet-HI2Operations-template.c"
+#line 36 "./asn1/HI2Operations/packet-HI2Operations-template.c"
 
 
 /*--- Included file: packet-HI2Operations-fn.c ---*/
@@ -548,7 +547,7 @@ dissect_HI2Operations_OCTET_STRING_SIZE_1_5(gboolean implicit_tag _U_, tvbuff_t 
 
 static int
 dissect_HI2Operations_T_e164_Format(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 79 "./asn1/HI2Operations/HI2Operations.cnf"
+#line 80 "./asn1/HI2Operations/HI2Operations.cnf"
   tvbuff_t *parameter_tvb=NULL;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -3800,7 +3799,7 @@ dissect_HI2Operations_Direction_Indication(gboolean implicit_tag _U_, tvbuff_t *
 
 static int
 dissect_HI2Operations_T_bearer_capability(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 88 "./asn1/HI2Operations/HI2Operations.cnf"
+#line 89 "./asn1/HI2Operations/HI2Operations.cnf"
   tvbuff_t *parameter_tvb;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -3858,7 +3857,7 @@ static const ber_sequence_t UUS1_Content_sequence[] = {
 
 static int
 dissect_HI2Operations_UUS1_Content(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 35 "./asn1/HI2Operations/HI2Operations.cnf"
+#line 36 "./asn1/HI2Operations/HI2Operations.cnf"
 
 /* Heuristic test to see if it's our content */
     gint8    tmp_class;
@@ -3928,7 +3927,7 @@ int dissect_HI2Operations_UUS1_Content_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
 
 
 /*--- End of included file: packet-HI2Operations-fn.c ---*/
-#line 39 "./asn1/HI2Operations/packet-HI2Operations-template.c"
+#line 38 "./asn1/HI2Operations/packet-HI2Operations-template.c"
 
 
 /*--- proto_register_HI2Operations ----------------------------------------------*/
@@ -5237,7 +5236,7 @@ void proto_register_HI2Operations(void) {
         "SSIType", HFILL }},
 
 /*--- End of included file: packet-HI2Operations-hfarr.c ---*/
-#line 47 "./asn1/HI2Operations/packet-HI2Operations-template.c"
+#line 46 "./asn1/HI2Operations/packet-HI2Operations-template.c"
   };
 
   /* List of subtrees */
@@ -5351,7 +5350,7 @@ void proto_register_HI2Operations(void) {
     &ett_HI2Operations_TSIType,
 
 /*--- End of included file: packet-HI2Operations-ettarr.c ---*/
-#line 52 "./asn1/HI2Operations/packet-HI2Operations-template.c"
+#line 51 "./asn1/HI2Operations/packet-HI2Operations-template.c"
   };
 
   /* Register protocol */

@@ -19,7 +19,6 @@
 #include "packet-ber.h"
 #include "packet-isup.h"
 #include "packet-q931.h"
-#include "packet-HI2Operations.h"
 
 #define PNAME  "HI2Operations"
 #define PSNAME "HI2OPERATIONS"
