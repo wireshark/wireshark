@@ -386,7 +386,6 @@ static char tempbuf[64];
 /*----------------------------------------------------------------------
  * Stuff for writing a PCap file
  */
-#define PCAP_SNAPLEN        0xffff
 
 /* Link-layer type; see http://www.tcpdump.org/linktypes.html for details */
 static guint32 pcap_link_type = 1;   /* Default is LINKTYPE_ETHERNET */
@@ -898,7 +897,7 @@ write_file_header (void)
                                                                "",
                                                                NULL,
                                                                pcap_link_type,
-                                                               PCAP_SNAPLEN,
+                                                               WTAP_MAX_PACKET_SIZE_STANDARD,
                                                                &bytes_written,
                                                                0,
                                                                9,
@@ -906,7 +905,7 @@ write_file_header (void)
         }
     } else {
         success = libpcap_write_file_header(output_file, pcap_link_type,
-                                            PCAP_SNAPLEN, FALSE,
+                                            WTAP_MAX_PACKET_SIZE_STANDARD, FALSE,
                                             &bytes_written, &err);
     }
     if (!success) {
