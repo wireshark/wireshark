@@ -3458,6 +3458,9 @@ dissct_rsl_ipaccess_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
         case RSL_IE_MS_POW:
             dissect_rsl_ie_ms_pow(tvb, pinfo, tree, offset, FALSE);
             break;
+        case RSL_IE_CAUSE:
+            dissect_rsl_ie_cause(tvb, pinfo, tree, offset, FALSE);
+            break;
         default:
             ti = proto_tree_add_item(tree, hf_rsl_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
             ie_tree = proto_item_add_subtree(ti, ett_ie_local_port);
