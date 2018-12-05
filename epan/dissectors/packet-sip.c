@@ -224,6 +224,7 @@ static gint hf_sip_p_acc_net_i_ucid_3gpp  = -1;
 static gint hf_sip_service_priority = -1;
 static gint hf_sip_icid_value = -1;
 static gint hf_sip_icid_gen_addr = -1;
+static gint hf_sip_call_id_gen = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_sip                       = -1;
@@ -4706,7 +4707,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                     sdp_setup_info_t setup_info;
 
                     setup_info.setup_proto = g_strdup("SIP");
-                    setup_info.hf_id       = hf_header_array[POS_CALL_ID];
+                    setup_info.hf_id       = hf_sip_call_id_gen;
                     setup_info.hf_type     = SDP_TRACE_ID_HF_TYPE_STR;
                     setup_info.trace_id = g_strdup(call_id);
                     message_info.data = &setup_info;
@@ -7207,7 +7208,13 @@ void proto_register_sip(void)
         { "icid-gen-addr",  "sip.icid_gen_addr",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
-        }
+        },
+        { &hf_sip_call_id_gen,
+        { "Call-ID",         "sip.call_id_generated",
+            FT_STRING, BASE_NONE,NULL,0x0,
+            "Use to catch call id across protocols", HFILL }
+        },
+
     };
 
     /* raw_sip header field(s) */
