@@ -52,6 +52,8 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_block_set_uint8_option_value@Base 2.1.2
  wtap_cleareof@Base 1.9.1
  wtap_close@Base 1.9.1
+ wtap_compression_type_description@Base 2.9.0
+ wtap_compression_type_extension@Base 2.9.0
  wtap_default_file_extension@Base 1.9.1
  wtap_deregister_file_type_subtype@Base 1.12.0~rc1
  wtap_deregister_open_info@Base 1.12.0~rc1
@@ -95,6 +97,7 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_free_idb_info@Base 1.99.9
  wtap_fstat@Base 1.9.1
  wtap_get_all_capture_file_extensions_list@Base 2.3.0
+ wtap_get_all_compression_type_extensions_list@Base 2.9.0
  wtap_get_all_file_extensions_list@Base 2.6.2
  wtap_get_buf_ptr@Base 2.5.1
  wtap_get_bytes_dumped@Base 1.9.1
