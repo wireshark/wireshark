@@ -223,7 +223,7 @@ Set the name of the network interface or pipe to use for live packet capture.
 +
 Network interface names should match one of the names listed in `wireshark -D`
 (described above). A number, as reported by `wireshark -D`, can also be used. If
-you’re using UNIX, `netstat -i` or `ifconfig -a` might also work to list
+you’re using UNIX, `netstat -i`, `ifconfig -a` or `ip link` might also work to list
 interface names, although not all versions of UNIX support the `-a` flag to
 `ifconfig`.
 +

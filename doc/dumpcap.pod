@@ -224,7 +224,7 @@ capture.
 Network interface names should match one of the names listed in
 "B<dumpcap -D>" (described above); a number, as reported by
 "B<dumpcap -D>", can also be used.  If you're using UNIX, "B<netstat
--i>" or "B<ifconfig -a>" might also work to list interface names,
+-i>", "B<ifconfig -a>" or "B<ip link>" might also work to list interface names,
 although not all versions of UNIX support the B<-a> option to B<ifconfig>.
 
 If no interface is specified, B<Dumpcap> searches the list of
