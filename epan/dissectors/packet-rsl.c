@@ -93,6 +93,7 @@ static int hf_rsl_rxlev_sub_up         = -1;
 static int hf_rsl_rxqual_full_up       = -1;
 static int hf_rsl_rxqual_sub_up        = -1;
 static int hf_rsl_class                = -1;
+static int hf_rsl_cause_value          = -1;
 static int hf_rsl_paging_grp           = -1;
 static int hf_rsl_paging_load          = -1;
 static int hf_rsl_sys_info_type        = -1;
@@ -2105,6 +2106,59 @@ static const value_string rsl_class_vals[] = {
     { 0,            NULL }
 };
 
+static const value_string rsl_cause_value_vals[] = {
+    {  0x00,    "radio interface failure" },
+    {  0x01,    "radio link failure" },
+    {  0x02,    "handover access failure" },
+    /* 0x03..0x06: "reserved for international use" */
+    {  0x07,    "O&M intervention" },
+    /* 0x08..0x0e: "reserved for international use" */
+    {  0x0f,    "normal event, unspecified" },
+    /* 0x10..0x17: "reserved for international use" */
+    /* 0x18..0x1f: "reserved for national use" */
+    {  0x20,    "equipment failure" },
+    {  0x21,    "radio resource not available" },
+    {  0x22,    "terrestrial channel failure" },
+    {  0x23,    "CCCH overload" },
+    {  0x24,    "ACCH overload" },
+    {  0x25,    "processor overload" },
+    /* 0x26: "reserved for international use" */
+    {  0x27,    "BTS not equiped" },
+    {  0x28,    "remote transcoder issue" },
+    /* 0x29..0x2b: "reserved for international use" */
+    /* 0x2c..0x2e: "reserved for national use" */
+    {  0x2f,    "resource not available, unspecified" },
+    {  0x30,    "requested transcoding/rate adaption not available" },
+    /* 0x31..0x37: "reserved for international use" */
+    /* 0x38..0x3e: "reserved for national use" */
+    {  0x3f,    "service or option not implemented, unspecified" },
+    {  0x40,    "encryption algorithm not implemented" },
+    /* 0x41..0x47: "reserved for international use" */
+    /* 0x48..0x4e: "reserved for national use" */
+    {  0x4f,    "service or option not implemented, unspecified" },
+    {  0x50,    "radio channel already activated/allocated" },
+    /* 0x51..0x57: "reserved for international use" */
+    /* 0x58..0x5e: "reserved for national use" */
+    {  0x5f,    "invalid message, unspecified" },
+    {  0x60,    "message discriminator error" },
+    {  0x61,    "message type error" },
+    {  0x62,    "message sequence error" },
+    {  0x63,    "general information element error" },
+    {  0x64,    "mandatory information element error" },
+    {  0x65,    "optional information element error" },
+    {  0x66,    "information element non-existent" },
+    {  0x67,    "information element length error" },
+    {  0x68,    "invalid information element contents" },
+    /* 0x69..0x6b: "reserved for international use" */
+    /* 0x6c..0x6e: "reserved for national use" */
+    {  0x6f,    "protocol error, unspecified" },
+    /* 0x70..0x77: "reserved for international use" */
+    /* 0x78..0x7e: "reserved for international use" */
+    {  0x7f,    "interworking, unspecified" },
+    { 0,            NULL }
+};
+static value_string_ext rsl_cause_value_vals_ext = VALUE_STRING_EXT_INIT(rsl_cause_value_vals);
+
 static int
 dissect_rsl_ie_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean is_mandatory)
 {
@@ -2137,11 +2191,15 @@ dissect_rsl_ie_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, in
     octet = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_rsl_extension_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_rsl_class, tvb, offset, 1, ENC_BIG_ENDIAN);
-    if ((octet & 0x80) == 0x80)
-    /* Cause Extension*/
+    if ((octet & 0x80) != 0x80) {
+        proto_tree_add_item(tree, hf_rsl_cause_value, tvb, offset, 1, ENC_BIG_ENDIAN);
+    } else {
+        /* TODO: Cause Extension*/
         offset++;
+    }
+    offset++;
 
-    /* Diagnostic(s) if any */
+    /* TODO: Diagnostic(s) if any */
     return ie_offset+length;
 }
 /*
@@ -4569,6 +4627,11 @@ void proto_register_rsl(void)
         { &hf_rsl_class,
           { "Class",           "gsm_abis_rsl.class",
             FT_UINT8, BASE_DEC, VALS(rsl_class_vals), 0x70,
+            NULL, HFILL }
+        },
+        { &hf_rsl_cause_value,
+          { "Cause Value",           "gsm_abis_rsl.cause_value",
+            FT_UINT8, BASE_DEC|BASE_EXT_STRING, &rsl_cause_value_vals_ext, 0x7f,
             NULL, HFILL }
         },
         { &hf_rsl_paging_grp,
