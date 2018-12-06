@@ -199,6 +199,30 @@ static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_2048qam = -1;
 static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_4096qam = -1;
 static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_8192qam = -1;
 static int hf_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup_16384qam = -1;
+static int hf_docsis_tlv_mcap_down_lower_band_edge_conf = -1;
+static int hf_docsis_tlv_mcap_down_lower_band_edge_conf_108 = -1;
+static int hf_docsis_tlv_mcap_down_lower_band_edge_conf_258 = -1;
+static int hf_docsis_tlv_mcap_down_upper_band_edge_conf = -1;
+static int hf_docsis_tlv_mcap_down_upper_band_edge_conf_1218 = -1;
+static int hf_docsis_tlv_mcap_down_upper_band_edge_conf_1794 = -1;
+static int hf_docsis_tlv_mcap_down_upper_band_edge_conf_1002 = -1;
+static int hf_docsis_tlv_mcap_dipl_up_upper_band_edge_conf = -1;
+static int hf_docsis_tlv_mcap_docsis_time_prot_mode = -1;
+static int hf_docsis_tlv_mcap_docsis_time_prot_perf_sup = -1;
+static int hf_docsis_tlv_mcap_pmax = -1;
+static int hf_docsis_tlv_mcap_dipl_down_lower_band_edge = -1;
+static int hf_docsis_tlv_mcap_dipl_down_lower_band_edge_108 = -1;
+static int hf_docsis_tlv_mcap_dipl_down_lower_band_edge_258 = -1;
+static int hf_docsis_tlv_mcap_dipl_down_upper_band_edge = -1;
+static int hf_docsis_tlv_mcap_dipl_down_upper_band_edge_1218 = -1;
+static int hf_docsis_tlv_mcap_dipl_down_upper_band_edge_1794 = -1;
+static int hf_docsis_tlv_mcap_dipl_down_upper_band_edge_1002 = -1;
+static int hf_docsis_tlv_mcap_dipl_up_upper_band_edge = -1;
+static int hf_docsis_tlv_mcap_dipl_up_upper_band_edge_42 = -1;
+static int hf_docsis_tlv_mcap_dipl_up_upper_band_edge_65 = -1;
+static int hf_docsis_tlv_mcap_dipl_up_upper_band_edge_85 = -1;
+static int hf_docsis_tlv_mcap_dipl_up_upper_band_edge_117 = -1;
+static int hf_docsis_tlv_mcap_dipl_up_upper_band_edge_204 = -1;
 
 static int hf_docsis_tlv_clsfr_ref = -1;
 static int hf_docsis_tlv_clsfr_id = -1;
@@ -400,6 +424,7 @@ static int hf_docsis_tlv_rcc_srcc_prim_ds_chan_assign_ds_ch_id = -1;
 static int hf_docsis_tlv_rcc_srcc_ds_chan_assign_ds_ch_id = -1;
 static int hf_docsis_tlv_rcc_srcc_ds_prof_assign_dcid = -1;
 static int hf_docsis_tlv_rcc_srcc_ds_prof_asssign_prof_list_prof_id = -1;
+static int hf_docsis_tlv_rcc_prim_down_chan = -1;
 /* static int hf_docsis_tlv_rcc_rcv_mod_enc = -1; */
 /* static int hf_docsis_tlv_rcc_rcv_ch = -1; */
 /* static int hf_docsis_tlv_rcc_part_serv_ds_ch = -1; */
@@ -470,6 +495,11 @@ static gint ett_docsis_tlv_mcap_em = -1;
 static gint ett_docsis_tlv_mcap_em_pref = -1;
 static gint ett_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup = -1;
 static gint ett_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup = -1;
+static gint ett_docsis_tlv_mcap_down_lower_band_edge_conf = -1;
+static gint ett_docsis_tlv_mcap_down_upper_band_edge_conf = -1;
+static gint ett_docsis_tlv_mcap_dipl_down_lower_band_edge = -1;
+static gint ett_docsis_tlv_mcap_dipl_down_upper_band_edge = -1;
+static gint ett_docsis_tlv_mcap_dipl_up_upper_band_edge = -1;
 static gint ett_docsis_tlv_clsfr = -1;
 static gint ett_docsis_tlv_clsfr_ip = -1;
 static gint ett_docsis_tlv_clsfr_ip6 = -1;
@@ -840,6 +870,34 @@ static const value_string em_mode_ind_vals[] = {
 static const value_string down_reseq_vals[] = {
   {0, "The CMTS is required to associate this service flow with a resequencing DSID if the service flow is assigned to a downstream bonding group."},
   {1, "The CMTS is required to not associate this service flow with a resequencing DSID."},
+  {0, NULL},
+};
+
+static const value_string dipl_up_upper_band_edge_conf_vals[] = {
+  {0, "Upstream Frequency Range up to 42 MHz"},
+  {1, "Upstream Frequency Range up to 65 MHz"},
+  {2, "Upstream Frequency Range up to 85 MHz"},
+  {3, "Upstream Frequency Range up to 117 MHz"},
+  {4, "Upstream Frequency Range up to 204 MHz"},
+  {0, NULL},
+};
+
+static const value_string docsis_time_prot_mode_vals[] = {
+  {0, "DTP operation is not supported"},
+  {1, "DTP Slave capable only"},
+  {2, "DTP Master capable only"},
+  {3, "DTP Master or Slave capable"},
+  {0, NULL},
+};
+
+static const value_string docsis_time_prot_perf_sup_vals[] = {
+  {0, "DTP mode is not supported"},
+  {1, "DTP support for DTP Level 1"},
+  {2, "DTP support for DTP Level 2"},
+  {3, "DTP support for DTP Level 3"},
+  {4, "DTP support for DTP Level 4"},
+  {5, "DTP support for DTP Level 5"},
+  {6, "DTP supported but with no specified performance"},
   {0, NULL},
 };
 
@@ -2783,6 +2841,140 @@ dissect_modemcap (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int sta
                 expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
+          case CAP_DOWN_LOWER_BAND_EDGE_CONF:
+            if (length == 1)
+              {
+                static const gint *down_lower_band_edge_conf[] = {
+                  &hf_docsis_tlv_mcap_down_lower_band_edge_conf_108,
+                  &hf_docsis_tlv_mcap_down_lower_band_edge_conf_258,
+                  NULL
+                };
+
+                proto_tree_add_bitmask(mcap_tree, tvb, pos, hf_docsis_tlv_mcap_down_lower_band_edge_conf,
+                         ett_docsis_tlv_mcap_down_lower_band_edge_conf, down_lower_band_edge_conf, ENC_BIG_ENDIAN);
+              }
+            else
+              {
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
+              }
+            break;
+          case CAP_DOWN_UPPER_BAND_EDGE_CONF:
+            if (length == 1)
+              {
+                static const gint *down_upper_band_edge_conf[] = {
+                  &hf_docsis_tlv_mcap_down_upper_band_edge_conf_1218,
+                  &hf_docsis_tlv_mcap_down_upper_band_edge_conf_1794,
+                  &hf_docsis_tlv_mcap_down_upper_band_edge_conf_1002,
+                  NULL
+                };
+
+                proto_tree_add_bitmask(mcap_tree, tvb, pos, hf_docsis_tlv_mcap_down_upper_band_edge_conf,
+                         ett_docsis_tlv_mcap_down_upper_band_edge_conf, down_upper_band_edge_conf, ENC_BIG_ENDIAN);
+              }
+            else
+              {
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
+              }
+            break;
+          case CAP_DIPL_UP_UPPER_BAND_EDGE_CONF:
+            if (length == 1)
+              {
+                proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_dipl_up_upper_band_edge_conf, tvb,
+                                     pos, length, ENC_BIG_ENDIAN);
+              }
+            else
+              {
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
+              }
+            break;
+          case CAP_DOCSIS_TIME_PROT_MODE:
+            if (length == 1)
+              {
+                proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_docsis_time_prot_mode, tvb,
+                                     pos, length, ENC_BIG_ENDIAN);
+              }
+            else
+              {
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
+              }
+            break;
+          case CAP_DOCSIS_TIME_PROT_PERF_SUP:
+            if (length == 1)
+              {
+                proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_docsis_time_prot_perf_sup, tvb,
+                                     pos, length, ENC_BIG_ENDIAN);
+              }
+            else
+              {
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
+              }
+            break;
+          case CAP_PMAX:
+            if (length == 2)
+              {
+                proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_pmax, tvb,
+                                     pos, length, ENC_BIG_ENDIAN);
+              }
+            else
+              {
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
+              }
+            break;
+          case CAP_DIPL_DOWN_LOWER_BAND_EDGE:
+            if (length == 1)
+              {
+                static const gint *dipl_down_lower_band_edge[] = {
+                  &hf_docsis_tlv_mcap_dipl_down_lower_band_edge_108,
+                  &hf_docsis_tlv_mcap_dipl_down_lower_band_edge_258,
+                  NULL
+                };
+
+                proto_tree_add_bitmask(mcap_tree, tvb, pos, hf_docsis_tlv_mcap_dipl_down_lower_band_edge,
+                         ett_docsis_tlv_mcap_dipl_down_lower_band_edge, dipl_down_lower_band_edge, ENC_BIG_ENDIAN);
+              }
+            else
+              {
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
+              }
+            break;
+         case CAP_DIPL_DOWN_UPPER_BAND_EDGE:
+            if (length == 1)
+              {
+                static const gint *dipl_down_upper_band_edge[] = {
+                  &hf_docsis_tlv_mcap_dipl_down_upper_band_edge_1218,
+                  &hf_docsis_tlv_mcap_dipl_down_upper_band_edge_1794,
+                  &hf_docsis_tlv_mcap_dipl_down_upper_band_edge_1002,
+                  NULL
+                };
+
+                proto_tree_add_bitmask(mcap_tree, tvb, pos, hf_docsis_tlv_mcap_dipl_down_upper_band_edge,
+                         ett_docsis_tlv_mcap_dipl_down_upper_band_edge, dipl_down_upper_band_edge, ENC_BIG_ENDIAN);
+              }
+            else
+              {
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
+              }
+            break;
+          case CAP_DIPL_UP_UPPER_BAND_EDGE:
+            if (length == 1)
+              {
+                static const gint *dipl_up_upper_band_edge[] = {
+                  &hf_docsis_tlv_mcap_dipl_up_upper_band_edge_42,
+                  &hf_docsis_tlv_mcap_dipl_up_upper_band_edge_65,
+                  &hf_docsis_tlv_mcap_dipl_up_upper_band_edge_85,
+                  &hf_docsis_tlv_mcap_dipl_up_upper_band_edge_117,
+                  &hf_docsis_tlv_mcap_dipl_up_upper_band_edge_204,
+                  NULL
+                };
+
+                proto_tree_add_bitmask(mcap_tree, tvb, pos, hf_docsis_tlv_mcap_dipl_up_upper_band_edge,
+                         ett_docsis_tlv_mcap_dipl_up_upper_band_edge, dipl_up_upper_band_edge, ENC_BIG_ENDIAN);
+              }
+            else
+              {
+                expert_add_info_format(pinfo, mcap_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
+              }
+            break;
           default:
             proto_tree_add_item (mcap_tree, hf_docsis_tlv_unknown, tvb, pos, length, ENC_NA);
             break;
@@ -4370,6 +4562,18 @@ dissect_rcc(tvbuff_t * tvb, packet_info * pinfo,
           case TLV_RCC_SRCC:
             dissect_rcc_srcc(tvb, pinfo, rcc_tree, pos, length);
             break;
+          case TLV_RCC_PRIM_DOWN_CHAN:
+            if (length == 1)
+              {
+                proto_tree_add_item (rcc_tree,
+                                     hf_docsis_tlv_rcc_prim_down_chan, tvb, pos,
+                                     length, ENC_NA);
+              }
+            else
+              {
+                expert_add_info_format(pinfo, rcc_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
+              }
+            break;
           case TLV_RCC_ERR:
             dissect_rcc_err(tvb, pinfo, rcc_tree, pos, length);
             break;
@@ -5811,6 +6015,150 @@ proto_register_docsis_tlv (void)
       FT_BOOLEAN, 16, NULL, 0x4000,
       NULL, HFILL}
     },
+    {&hf_docsis_tlv_mcap_down_lower_band_edge_conf,
+     {".54 Downstream Lower Band Edge Configuration",
+      "docsis_tlv.mcap.down_lower_band_edge_conf",
+      FT_UINT8, BASE_HEX, NULL, 0x0,
+      "Downstream Lower Band Edge Configuration", HFILL}
+    },
+    {&hf_docsis_tlv_mcap_down_lower_band_edge_conf_108,
+     {"Downstream Frequency Range starting from 108 MHz",
+      "docsis_tlv.mcap.down_lower_band_edge_conf.108mhz",
+      FT_BOOLEAN, 8, NULL, 0x01,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_mcap_down_lower_band_edge_conf_258,
+     {"Downstream Frequency Range starting from 258 MHz",
+      "docsis_tlv.mcap.down_lower_band_edge_conf.258mhz",
+      FT_BOOLEAN, 8, NULL, 0x02,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_mcap_down_upper_band_edge_conf,
+     {".55 Downstream Upper Band Edge Configuration",
+      "docsis_tlv.mcap.down_upper_band_edge_conf",
+      FT_UINT8, BASE_HEX, NULL, 0x0,
+      "Downstream Upper Band Edge Configuration", HFILL}
+    },
+    {&hf_docsis_tlv_mcap_down_upper_band_edge_conf_1218,
+     {"Downstream Frequency Range up to 1218 MHz",
+      "docsis_tlv.mcap.down_upper_band_edge_conf.1218mhz",
+      FT_BOOLEAN, 8, NULL, 0x01,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_mcap_down_upper_band_edge_conf_1794,
+     {"Downstream Frequency Range up to 1794 MHz",
+      "docsis_tlv.mcap.down_upper_band_edge_conf.1794mhz",
+      FT_BOOLEAN, 8, NULL, 0x02,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_mcap_down_upper_band_edge_conf_1002,
+     {"Downstream Frequency Range up to 1002 MHz",
+      "docsis_tlv.mcap.down_upper_band_edge_conf.1002mhz",
+      FT_BOOLEAN, 8, NULL, 0x04,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_mcap_dipl_up_upper_band_edge_conf,
+     {".56 Diplexer Upstream Upper Band Edge Configuration",
+      "docsis_tlv.mcap.dipl_up_upper_band_edge_conf",
+      FT_UINT8, BASE_DEC, VALS(dipl_up_upper_band_edge_conf_vals), 0x0,
+      "Diplexer Upstream Upper Band Edge Configuration", HFILL}
+    },
+    {&hf_docsis_tlv_mcap_docsis_time_prot_mode,
+     {".57 DOCSIS Time Protocol Mode",
+      "docsis_tlv.mcap.docsis_time_prot_mode",
+      FT_UINT8, BASE_DEC, VALS(docsis_time_prot_mode_vals), 0x0,
+      "DOCSIS Time Protocol Mode", HFILL}
+    },
+    {&hf_docsis_tlv_mcap_docsis_time_prot_perf_sup,
+     {".58 DOCSIS Time Protocol Performance Support",
+      "docsis_tlv.mcap.docsis_time_prot_perf_sup",
+      FT_UINT8, BASE_DEC, VALS(docsis_time_prot_perf_sup_vals), 0x0,
+      "DOCSIS Time Protocol Performance Support", HFILL}
+    },
+    {&hf_docsis_tlv_mcap_pmax,
+     {".59 Pmax",
+      "docsis_tlv.mcap.pmax",
+      FT_UINT16, BASE_CUSTOM, CF_FUNC(fourth_dbmv), 0x0,
+      "Pmax", HFILL}
+    },
+    {&hf_docsis_tlv_mcap_dipl_down_lower_band_edge,
+     {".60 Diplexer Downstream Lower Band Edge",
+      "docsis_tlv.mcap.dipl_down_lower_band_edge",
+      FT_UINT8, BASE_HEX, NULL, 0x0,
+      "Diplexer Downstream Lower Band Edge", HFILL}
+    },
+    {&hf_docsis_tlv_mcap_dipl_down_lower_band_edge_108,
+     {"Downstream Frequency Range starting from 108 MHz",
+      "docsis_tlv.mcap.dipl_down_lower_band_edge.108mhz",
+      FT_BOOLEAN, 8, NULL, 0x01,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_mcap_dipl_down_lower_band_edge_258,
+     {"Downstream Frequency Range starting from 258 MHz",
+      "docsis_tlv.mcap.dipl_down_lower_band_edge.258mhz",
+      FT_BOOLEAN, 8, NULL, 0x02,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_mcap_dipl_down_upper_band_edge,
+     {".61 Diplexer Downstream Upper Band Edge",
+      "docsis_tlv.mcap.dipl_down_upper_band_edge",
+      FT_UINT8, BASE_HEX, NULL, 0x0,
+      "Diplexer Downstream Upper Band Edge", HFILL}
+    },
+    {&hf_docsis_tlv_mcap_dipl_down_upper_band_edge_1218,
+     {"Downstream Frequency Range up to 1218 MHz",
+      "docsis_tlv.mcap.dipl_down_upper_band_edge.1218mhz",
+      FT_BOOLEAN, 8, NULL, 0x01,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_mcap_dipl_down_upper_band_edge_1794,
+     {"Downstream Frequency Range up to 1794 MHz",
+      "docsis_tlv.mcap.dipl_down_upper_band_edge.1794mhz",
+      FT_BOOLEAN, 8, NULL, 0x02,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_mcap_dipl_down_upper_band_edge_1002,
+     {"Downstream Frequency Range up to 1002 MHz",
+      "docsis_tlv.mcap.dipl_down_upper_band_edge.1002mhz",
+      FT_BOOLEAN, 8, NULL, 0x04,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_mcap_dipl_up_upper_band_edge,
+     {".62 Diplexer Upstream Upper Band Edge",
+      "docsis_tlv.mcap.dipl_up_upper_band_edge",
+      FT_UINT8, BASE_HEX, NULL, 0x0,
+      "Diplexer Upstream Upper Band Edge", HFILL}
+    },
+    {&hf_docsis_tlv_mcap_dipl_up_upper_band_edge_42,
+     {"Upstream Frequency Range up to 42 MHz",
+      "docsis_tlv.mcap.dipl_up_upper_band_edge.42mhz",
+      FT_BOOLEAN, 8, NULL, 0x01,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_mcap_dipl_up_upper_band_edge_65,
+     {"Upstream Frequency Range up to 65 MHz",
+      "docsis_tlv.mcap.dipl_up_upper_band_edge.65mhz",
+      FT_BOOLEAN, 8, NULL, 0x02,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_mcap_dipl_up_upper_band_edge_85,
+     {"Upstream Frequency Range up to 85 MHz",
+      "docsis_tlv.mcap.dipl_up_upper_band_edge.85mhz",
+      FT_BOOLEAN, 8, NULL, 0x04,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_mcap_dipl_up_upper_band_edge_117,
+     {"Upstream Frequency Range up to 117 MHz",
+      "docsis_tlv.mcap.dipl_up_upper_band_edge.117mhz",
+      FT_BOOLEAN, 8, NULL, 0x08,
+      NULL, HFILL}
+    },
+    {&hf_docsis_tlv_mcap_dipl_up_upper_band_edge_204,
+     {"Upstream Frequency Range up to 204 MHz",
+      "docsis_tlv.mcap.dipl_up_upper_band_edge.204mhz",
+      FT_BOOLEAN, 8, NULL, 0x10,
+      NULL, HFILL}
+    },
     {&hf_docsis_tlv_cm_mic,
      {"6 CM MIC", "docsis_tlv.cmmic",
       FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -6994,6 +7342,11 @@ proto_register_docsis_tlv (void)
       FT_UINT8, BASE_DEC, NULL, 0x0,
       NULL, HFILL}
     },
+    {&hf_docsis_tlv_rcc_prim_down_chan,
+     {".8 Primary Downstream Channel", "docsis_tlv.rcc.prim_down_chan",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL}
+    },
     {&hf_docsis_tlv_rcc_err_mod_or_ch,
      {".1 Receive Modul or Receive Channel", "docsis_tlv.rcc.err.mod_or_ch",
       FT_UINT8, BASE_DEC, VALS (mod_or_ch_vals), 0x0,
@@ -7282,6 +7635,11 @@ proto_register_docsis_tlv (void)
     &ett_docsis_tlv_mcap_em_pref,
     &ett_docsis_tlv_mcap_ofdm_chan_subc_qam_mod_sup,
     &ett_docsis_tlv_mcap_ofdma_chan_subc_qam_mod_sup,
+    &ett_docsis_tlv_mcap_down_lower_band_edge_conf,
+    &ett_docsis_tlv_mcap_down_upper_band_edge_conf,
+    &ett_docsis_tlv_mcap_dipl_down_lower_band_edge,
+    &ett_docsis_tlv_mcap_dipl_down_upper_band_edge,
+    &ett_docsis_tlv_mcap_dipl_up_upper_band_edge,
     &ett_docsis_tlv_clsfr,
     &ett_docsis_tlv_clsfr_ip,
     &ett_docsis_tlv_clsfr_ip6,

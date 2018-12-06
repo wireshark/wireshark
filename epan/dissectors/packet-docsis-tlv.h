@@ -154,6 +154,15 @@
 #define CAP_DOWN_OFDM_PROF_SUP 51
 #define CAP_DOWN_OFDM_CHAN_SUBC_QAM_MOD_SUP 52
 #define CAP_UP_OFDMA_CHAN_SUBC_QAM_MOD_SUP 53
+#define CAP_DOWN_LOWER_BAND_EDGE_CONF 54
+#define CAP_DOWN_UPPER_BAND_EDGE_CONF 55
+#define CAP_DIPL_UP_UPPER_BAND_EDGE_CONF 56
+#define CAP_DOCSIS_TIME_PROT_MODE 57
+#define CAP_DOCSIS_TIME_PROT_PERF_SUP 58
+#define CAP_PMAX 59
+#define CAP_DIPL_DOWN_LOWER_BAND_EDGE 60
+#define CAP_DIPL_DOWN_UPPER_BAND_EDGE 61
+#define CAP_DIPL_UP_UPPER_BAND_EDGE 62
 
 /* Define Classifier subtypes
  * These are subtypes of either:
@@ -399,6 +408,7 @@
  * These are subtypes of TLV_RCP (49), and not common with TLV_RCP (48)
  */
 #define TLV_RCC_SRCC 7
+#define TLV_RCC_PRIM_DOWN_CHAN 8
 
 /* Define TLV_RCC_SRCC sub-types (49.7)
  */
