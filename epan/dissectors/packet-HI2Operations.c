@@ -547,7 +547,7 @@ dissect_HI2Operations_OCTET_STRING_SIZE_1_5(gboolean implicit_tag _U_, tvbuff_t 
 
 static int
 dissect_HI2Operations_T_e164_Format(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 80 "./asn1/HI2Operations/HI2Operations.cnf"
+#line 79 "./asn1/HI2Operations/HI2Operations.cnf"
   tvbuff_t *parameter_tvb=NULL;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -3799,7 +3799,7 @@ dissect_HI2Operations_Direction_Indication(gboolean implicit_tag _U_, tvbuff_t *
 
 static int
 dissect_HI2Operations_T_bearer_capability(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 89 "./asn1/HI2Operations/HI2Operations.cnf"
+#line 88 "./asn1/HI2Operations/HI2Operations.cnf"
   tvbuff_t *parameter_tvb;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -3857,7 +3857,7 @@ static const ber_sequence_t UUS1_Content_sequence[] = {
 
 static int
 dissect_HI2Operations_UUS1_Content(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 36 "./asn1/HI2Operations/HI2Operations.cnf"
+#line 35 "./asn1/HI2Operations/HI2Operations.cnf"
 
 /* Heuristic test to see if it's our content */
     gint8    tmp_class;
