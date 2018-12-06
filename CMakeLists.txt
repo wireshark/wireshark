@@ -563,7 +563,6 @@ else() # ! MSVC
 		# -O<X> and -g get set by the CMAKE_BUILD_TYPE
 		-Wall
 		-Wextra
-		-Wextra-semi
 		-Wendif-labels
 		-Wpointer-arith
 		-Wformat-security
@@ -641,6 +640,7 @@ else() # ! MSVC
 
 
 	list(APPEND WIRESHARK_CXX_ONLY_FLAGS
+		-Wextra-semi
 	)
 
 	#
