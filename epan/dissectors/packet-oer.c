@@ -123,6 +123,8 @@ dissect_oer_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, 
         length = &len;
     }
 
+    *length = 0;
+
     /* 8.6.3 There are two forms of length determinant - a short form and a long form...
      * 8.6.4 The short form of length determinant consists of a single octet. Bit 8 of this octet shall be set to '0',
      * and bits 7 to 1 of this octet shall contain the length (0 to 127) encoded as an unsigned binary integer into 7 bits.
@@ -669,7 +671,7 @@ dissect_oer_choice(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *
 guint32
 dissect_oer_UTF8String(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len _U_, int max_len _U_, gboolean has_extension _U_)
 {
-    guint32 length;
+    guint32 length = 0;
     /* 27.3 For every other character string type, the encoding shall consist of a length determinant
      * (see 8.6) followed by the series of octets specified in 27.4.
      */
