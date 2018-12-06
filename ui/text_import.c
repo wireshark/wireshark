@@ -56,8 +56,9 @@
  * hexdump line is dropped (including mail forwarding '>'). The offset
  * can be any hex number of four digits or greater.
  *
- * This converter cannot read a single packet greater than 64KiB-1. Packet
- * snaplength is automatically set to 64KiB-1.
+ * This converter cannot read a single packet greater than
+ * WTAP_MAX_PACKET_SIZE_STANDARD.  The snapshot length is automatically
+ * set to WTAP_MAX_PACKET_SIZE_STANDARD.
  */
 
 #include "config.h"
@@ -163,7 +164,7 @@ static guint32 direction = 0;
 /* This is where we store the packet currently being built */
 static guint8 *packet_buf;
 static guint32 curr_offset = 0;
-static guint32 max_offset = IMPORT_MAX_PACKET;
+static guint32 max_offset = WTAP_MAX_PACKET_SIZE_STANDARD;
 static guint32 packet_start = 0;
 static void start_new_packet (void);
 
@@ -941,7 +942,7 @@ text_import(text_import_info_t *info)
 
     packet_buf = (guint8 *)g_malloc(sizeof(HDR_ETHERNET) + sizeof(HDR_IP) +
                                     sizeof(HDR_SCTP) + sizeof(HDR_DATA_CHUNK) +
-                                    sizeof(HDR_EXPORT_PDU) + IMPORT_MAX_PACKET);
+                                    sizeof(HDR_EXPORT_PDU) + WTAP_MAX_PACKET_SIZE_STANDARD);
 
     if (!packet_buf)
     {
