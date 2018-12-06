@@ -4668,6 +4668,14 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
          * There's a message body starting at "offset".
          * Set the length of the header item.
          */
+        sdp_setup_info_t setup_info;
+
+        setup_info.setup_proto = g_strdup("SIP");
+        setup_info.hf_id = hf_sip_call_id_gen;
+        setup_info.hf_type = SDP_TRACE_ID_HF_TYPE_STR;
+        setup_info.trace_id = g_strdup(call_id);
+        message_info.data = &setup_info;
+
         proto_item_set_end(th, tvb, offset);
         if(content_encoding_parameter_str != NULL &&
             (!strncmp(content_encoding_parameter_str, "gzip", 4) ||
@@ -4704,14 +4712,6 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
             if (!strcmp(media_type_str_lower_case, "application/sdp")) {
                 /* Resends don't count */
                 if (resend_for_packet == 0) {
-                    sdp_setup_info_t setup_info;
-
-                    setup_info.setup_proto = g_strdup("SIP");
-                    setup_info.hf_id       = hf_sip_call_id_gen;
-                    setup_info.hf_type     = SDP_TRACE_ID_HF_TYPE_STR;
-                    setup_info.trace_id = g_strdup(call_id);
-                    message_info.data = &setup_info;
-
                     if (line_type == REQUEST_LINE) {
                         DPRINT(("calling setup_sdp_transport() SDP_EXCHANGE_OFFER frame=%d",
                                 pinfo->num));
