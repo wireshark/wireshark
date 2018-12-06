@@ -214,6 +214,7 @@ dissect_wsmp_psid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int o
     guint32 psidLen = 0;
 
     oct = tvb_get_guint8(tvb, offset);
+    *psid = 0;
 
     if ((oct & 0xF0) == 0xF0) {
         psidLen = 255;
