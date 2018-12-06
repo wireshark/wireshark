@@ -407,6 +407,7 @@
 /* Define TLV_RCC sub-types
  * These are subtypes of TLV_RCP (49), and not common with TLV_RCP (48)
  */
+#define TLV_RCC_PARTIAL_SERV_DOWN_CHAN 6
 #define TLV_RCC_SRCC 7
 #define TLV_RCC_PRIM_DOWN_CHAN 8
 
