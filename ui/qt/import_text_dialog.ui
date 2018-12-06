@@ -484,7 +484,7 @@
      <item>
       <widget class="SyntaxLineEdit" name="maxLengthLineEdit">
        <property name="toolTip">
-        <string>The maximum size of the frames to write to the import capture file (max 64000)</string>
+        <string>The maximum size of the frames to write to the import capture file (max 256kiB)</string>
        </property>
       </widget>
      </item>
