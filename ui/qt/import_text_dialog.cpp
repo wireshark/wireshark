@@ -243,7 +243,7 @@ int ImportTextDialog::exec() {
         }
     }
     if (import_info_.max_frame_length == 0) {
-        import_info_.max_frame_length = IMPORT_MAX_PACKET;
+        import_info_.max_frame_length = WTAP_MAX_PACKET_SIZE_STANDARD;
     }
 
     convertTextFile();
@@ -469,7 +469,7 @@ void ImportTextDialog::on_ppiLineEdit_textChanged(const QString &ppi_str)
 
 void ImportTextDialog::on_maxLengthLineEdit_textChanged(const QString &max_frame_len_str)
 {
-    check_line_edit(ti_ui_->maxLengthLineEdit, max_len_ok_, max_frame_len_str, 10, IMPORT_MAX_PACKET, true, &import_info_.max_frame_length);
+    check_line_edit(ti_ui_->maxLengthLineEdit, max_len_ok_, max_frame_len_str, 10, WTAP_MAX_PACKET_SIZE_STANDARD, true, &import_info_.max_frame_length);
 }
 
 void ImportTextDialog::on_buttonBox_helpRequested()
