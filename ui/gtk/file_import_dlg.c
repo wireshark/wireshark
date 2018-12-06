@@ -761,8 +761,8 @@ setup_file_import(GtkWidget *main_w)
 
         text_import_info->max_frame_length = (guint)strtol(gtk_entry_get_text(GTK_ENTRY(framelen_te)), NULL, 10);
         if (text_import_info->max_frame_length == 0) {
-            text_import_info->max_frame_length = IMPORT_MAX_PACKET;
-        } else if (text_import_info->max_frame_length > IMPORT_MAX_PACKET) {
+            text_import_info->max_frame_length = WTAP_MAX_PACKET_SIZE_STANDARD;
+        } else if (text_import_info->max_frame_length > WTAP_MAX_PACKET_SIZE_STANDARD) {
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "The maximum frame length (%u) is too long.",
                 text_import_info->max_frame_length);
             g_free(text_import_info->import_text_filename);

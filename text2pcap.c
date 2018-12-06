@@ -71,8 +71,9 @@
  * hexdump line is dropped (including mail forwarding '>'). The offset
  * can be any hex number of four digits or greater.
  *
- * This converter cannot read a single packet greater than 64KiB-1. Packet
- * snaplength is automatically set to 64KiB-1.
+ * This converter cannot read a single packet greater than
+ * WTAP_MAX_PACKET_SIZE_STANDARD.  The snapshot length is automatically
+ * set to WTAP_MAX_PACKET_SIZE_STANDARD.
  */
 
 #include <config.h>

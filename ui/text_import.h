@@ -37,8 +37,6 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#define IMPORT_MAX_PACKET WTAP_MAX_PACKET_SIZE_STANDARD
-
 /* The parameter interface */
 
 enum offset_type
