@@ -386,10 +386,18 @@ print_usage(FILE *output)
 
   /*fprintf(output, "\n");*/
   fprintf(output, "Output:\n");
+#ifdef PCAP_NG_DEFAULT
+  fprintf(output, "  -w <outfile|->           write packets to a pcapng-format file named \"outfile\"\n");
+#else
   fprintf(output, "  -w <outfile|->           write packets to a pcap-format file named \"outfile\"\n");
+#endif
   fprintf(output, "                           (or to the standard output for \"-\")\n");
   fprintf(output, "  -C <config profile>      start with specified configuration profile\n");
+#ifdef PCAP_NG_DEFAULT
   fprintf(output, "  -F <output file type>    set the output file type, default is pcapng\n");
+#else
+  fprintf(output, "  -F <output file type>    set the output file type, default is pcap\n");
+#endif
   fprintf(output, "                           an empty \"-F\" option will list the file types\n");
   fprintf(output, "  -V                       add output of packet tree        (Packet Details)\n");
   fprintf(output, "  -O <protocols>           Only show packet details of these protocols, comma\n");

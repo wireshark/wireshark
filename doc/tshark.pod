@@ -79,8 +79,8 @@ B<TShark> is a network protocol analyzer.  It lets you capture packet
 data from a live network, or read packets from a previously saved
 capture file, either printing a decoded form of those packets to the
 standard output or writing the packets to a file.  B<TShark>'s native
-capture file format is B<pcap> format, which is also the format used
-by B<tcpdump> and various other tools.
+capture file format is B<pcapng> format, which is also the format used
+by B<wireshark> and various other tools.
 
 Without any options set, B<TShark> will work much like B<tcpdump>.  It
 will use the pcap library to capture traffic from the first available
@@ -948,8 +948,8 @@ example,
 
 will save host name resolution records along with captured packets.
 
-Future versions of Wireshark may automatically change the capture format to
-B<pcapng> as needed.
+Future versions of B<Tshark> may automatically change the capture format
+to B<pcapng> as needed.
 
 The argument is a string that may contain the following letter:
 

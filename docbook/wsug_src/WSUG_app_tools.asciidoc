@@ -215,7 +215,7 @@ There may be some occasions when you wish to convert a hex dump of some network
 traffic into a libpcap file.
 
 `text2pcap` is a program that reads in an ASCII hex dump and writes the data
-described into a libpcap-style capture file. text2pcap can read hexdumps with
+described into a pcap or pcapng capture file. `text2pcap` can read hexdumps with
 multiple packets in them, and build a capture file of multiple packets.
 `text2pcap` is also capable of generating dummy Ethernet, IP, UDP, TCP or SCTP
 headers, in order to build fully processable packet dumps from hexdumps of
@@ -253,7 +253,7 @@ capture with multiple packets. Packets may be preceded by a timestamp. These
 are interpreted according to the format given on the command line. If not, the
 first packet is timestamped with the current time the conversion takes place.
 Multiple packets are written with timestamps differing by one microsecond each.
-In general, short of these restrictions, text2pcap
+In general, short of these restrictions, `text2pcap`
 is pretty liberal about reading in hexdumps and has been tested with a variety
 of mangled outputs (including being forwarded through email multiple times, with
 limited line wrap etc.)

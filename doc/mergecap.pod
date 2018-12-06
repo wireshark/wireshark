@@ -25,11 +25,12 @@ E<lt>I<infile>E<gt> [E<lt>I<infile>E<gt> I<...>]
 
 B<Mergecap> is a program that combines multiple saved capture files into
 a single output file specified by the B<-w> argument.  B<Mergecap> knows
-how to read B<pcap> capture files, including those of B<tcpdump>,
-B<Wireshark>, and other tools that write captures in that format.
+how to read B<pcap> and B<pcapng> capture files, including those of
+B<tcpdump>, B<Wireshark> and other tools that write captures in those
+formats.
 
-By default, B<Mergecap> writes the capture file in B<pcap> format, and writes
-all of the packets from the input capture files to the output file.
+By default, B<Mergecap> writes the capture file in B<pcapng> format, and
+writes all of the packets from the input capture files to the output file.
 
 B<Mergecap> is able to detect, read and write the same capture files that
 are supported by B<Wireshark>.
@@ -77,8 +78,7 @@ file are already in chronological order.
 
 Sets the file format of the output capture file. B<Mergecap> can write
 the file in several formats; B<mergecap -F> provides a list of the
-available output formats. The default is to use the file format of the
-first input file.
+available output formats.  By default this is the B<pcapng> format.
 
 =item -h
 
