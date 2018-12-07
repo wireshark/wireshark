@@ -6062,6 +6062,9 @@ gchar *dissect_radius_user_loc(proto_tree * tree, tvbuff_t * tvb, packet_info* p
             offset+=3;
             proto_tree_add_item(tree, hf_gtp_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset+=2;
+            /* The CI is of fixed length with 2 octets and it can be coded using a full
+             * hexadecimal representation
+             */
             proto_tree_add_item(tree, hf_gtp_cgi_ci, tvb, offset, 2, ENC_BIG_ENDIAN);
             break;
         case 1:
@@ -6069,10 +6072,15 @@ gchar *dissect_radius_user_loc(proto_tree * tree, tvbuff_t * tvb, packet_info* p
              * Area Identity (SAI) of where the user currently is registered.
              * SAI is defined in sub-clause 9.2.3.9 of 3GPP TS 25.413 [7].
              */
+            /* PLMN identity    M   9.2.3.55
+             * 9.2.3.55 PLMN identity    M   OCTET STRING (SIZE (3))
+             */
             dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, E212_SAI, TRUE);
             offset+=3;
+            /* LAC  M   OCTET STRING (SIZE(2))  0000 and FFFE not allowed.*/
             proto_tree_add_item(tree, hf_gtp_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset+=2;
+            /* SAC  M   OCTET STRING (SIZE(2)) */
             proto_tree_add_item(tree, hf_gtp_sai_sac, tvb, offset, 2, ENC_BIG_ENDIAN);
             break;
         case 2:
@@ -6085,7 +6093,10 @@ gchar *dissect_radius_user_loc(proto_tree * tree, tvbuff_t * tvb, packet_info* p
             offset+=3;
             proto_tree_add_item(tree, hf_gtp_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset+=2;
-            proto_tree_add_item(tree, hf_gtp_rai_rac, tvb, offset, 2, ENC_BIG_ENDIAN);
+            /* Routing Area Code (RAC) which is a fixed length code (of 1 octet)
+             * identifying a routing area within a location area.
+             */
+            proto_tree_add_item(tree, hf_gtp_rai_rac, tvb, offset, 1, ENC_BIG_ENDIAN);
             break;
         case 128:
             /* Geographic Location field included and it holds the Tracking
@@ -6154,6 +6165,7 @@ dissect_gtp_uli(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tr
             offset+=3;
             proto_tree_add_item(tree, hf_gtp_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset+=2;
+            /* The CI is of fixed length with 2 octets and it can be coded using a full hexadecimal representation */
             proto_tree_add_item(tree, hf_gtp_cgi_ci, tvb, offset, 2, ENC_BIG_ENDIAN);
             break;
         case 1:
@@ -9466,12 +9478,12 @@ proto_register_gtp(void)
         },
         {&hf_gtp_cgi_ci,
          { "Cell ID (CI)", "gtp.cgi_ci",
-           FT_UINT8, BASE_DEC, NULL, 0,
+           FT_UINT16, BASE_DEC, NULL, 0,
            NULL, HFILL}
         },
         {&hf_gtp_sai_sac,
          { "Service Area Code (SAC)", "gtp.sai_sac",
-           FT_UINT8, BASE_DEC, NULL, 0,
+           FT_UINT16, BASE_DEC, NULL, 0,
            NULL, HFILL}
         },
         {&hf_gtp_rai_rac,
