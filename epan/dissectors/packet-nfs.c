@@ -4682,26 +4682,35 @@ dissect_access_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 	guint32	    e_check, e_rights;
 	gboolean    nfsv3	  = ((version == 3) ? TRUE : FALSE);
 	gboolean    nfsv4	  = ((version == 4) ? TRUE : FALSE);
+	gboolean    have_acc_supp = TRUE;
 	proto_tree *access_tree;
 	proto_item *ditem;
 
-	/* Retrieve the access mask from the call */
+	/* Retrieve the access mask from the call if available. It
+	   will not be available if the packet containing the call is
+	   missing or truncated. */
 	acc_req = (guint32 *)civ->private_data;
-	/* Should never happen because ONC-RPC requires the call in order to dissect the reply. */
-	if (acc_req == NULL) {
-		/* XXX, when nfsv4 return offset+8? */
-		return offset+4;
-	}
 	if (nfsv4) {
 		acc_supp = tvb_get_ntohl(tvb, offset+0);
-	} else {
+	} else if (acc_req) {
 		acc_supp = *acc_req;
+	} else {
+		have_acc_supp = FALSE;
 	}
 	/*  V3/V4 - Get access rights mask and create a subtree for it */
 	acc_rights = tvb_get_ntohl(tvb, (nfsv3 ? offset+0: offset+4));
+	if (!have_acc_supp) {
+		/* The v3 access call isn't available. Using acc_rights for
+		   acc_supp ensures mask_allowed will be correct */
+		acc_supp = acc_rights;
+	}
 
 	/* Create access masks: not_supported, denied, and allowed */
-	mask_not_supp = *acc_req ^ acc_supp;
+	if (acc_req && have_acc_supp)
+		mask_not_supp = *acc_req ^ acc_supp;
+	else
+		mask_not_supp = 0;
+
 	e_check = acc_supp;
 	e_rights = acc_supp & acc_rights;  /* guard against broken implementations */
 	mask_denied =  e_check ^ e_rights;
