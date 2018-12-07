@@ -10864,7 +10864,6 @@ static void dof_register(void)
     uat_t *secmode_uat;
     uat_t *seckey_uat;
     uat_t *identsecret_uat;
-    char *uat_load_err;
     expert_module_t *expert_security;
 
     dsp_option_dissectors = register_dissector_table("dof.dsp.options", "DSP Protocol Options", proto_2008_1_dsp, FT_UINT32, BASE_DEC);
@@ -10959,10 +10958,6 @@ static void dof_register(void)
     prefs_register_uat_preference(dof_module, "custom_dof_identsecret_list", "DPS Identity Secrets",
                                   "A table of secrets for different identities.",
                                   identsecret_uat);
-
-    uat_load(secmode_uat, NULL, &uat_load_err);
-    uat_load(seckey_uat, NULL, &uat_load_err);
-    uat_load(identsecret_uat, NULL, &uat_load_err);
 }
 
 static void dof_handoff(void)
