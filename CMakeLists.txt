@@ -2721,6 +2721,11 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 	find_program(RPMBUILD_EXECUTABLE rpmbuild)
 	find_program(DPKG_BUILDPACKAGE_EXECUTABLE dpkg-buildpackage)
 	find_program(GIT_EXECUTABLE git)
+	# Should we add appimaged's monitored directories
+	# as HINTS?
+	# https://github.com/AppImage/appimaged
+	find_program(LINUXDEPLOYQT_EXECUTABLE linuxdeployqt)
+	find_program(APPIMAGETOOL_EXECUTABLE appimagetool)
 endif()
 
 function(_SET_GITVERSION_CMAKE_VARIABLE OUTPUT_VARIABLE)
@@ -2822,6 +2827,54 @@ if(DPKG_BUILDPACKAGE_EXECUTABLE)
 	add_custom_target(deb-package
 		COMMAND ${DPKG_BUILDPACKAGE_EXECUTABLE} -us -uc
 		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+	)
+endif()
+
+if(LINUXDEPLOYQT_EXECUTABLE AND APPIMAGETOOL_EXECUTALBE)
+	# The documentation at https://github.com/probonopd/linuxdeployqt
+	# says that you need to set CMAKE_BUILD_TYPE=Release and
+	# CMAKE_INSTALL_PREFIX=/usr. I (gcc) also had to set
+	# CMAKE_INSTALL_LIBDIR=/usr/lib.
+	if (CMAKE_BUILD_TYPE STREQUAL "Release" AND CMAKE_INSTALL_PREFIX STREQUAL "/usr" AND CMAKE_INSTALL_LIBDIR STREQUAL "/usr/lib" )
+		add_custom_target(appimage-prerequisites)
+		add_dependencies(appimage-prerequisites ${PROGLIST})
+	else()
+		add_custom_target(appimage-prerequisites
+			COMMAND echo "CMAKE_BUILD_TYPE isn't Release or CMAKE_INSTALL_PREFIX isn't /usr or CMAKE_INSTALL_LIBDIR isn't /usr/lib."
+			COMMAND false
+		)
+	endif()
+	set (_ai_appdir "${CMAKE_BINARY_DIR}/packaging/appimage/appdir")
+	add_custom_target(appimage-appdir
+		COMMAND ${CMAKE_COMMAND} -E make_directory "${_ai_appdir}"
+		COMMAND env DESTDIR=${_ai_appdir}
+			${CMAKE_COMMAND} --build . --target install
+		DEPENDS appimage-prerequisites
+	)
+	set(_exe_args)
+	foreach(_prog ${PROGLIST})
+		# XXX Is this the correct path?
+		list(APPEND _exe_args "-executable=${_ai_appdir}/usr/bin/${_prog}")
+	endforeach()
+	# linuxdeployqt currently clobbers AppRun:
+	# https://github.com/probonopd/linuxdeployqt/issues/159
+	# When that's fixed we will no longer need appimagetool. Until
+	# then, we need to prep and package in two steps:
+	# https://github.com/probonopd/linuxdeployqt/wiki/Custom-wrapper-script-instead-of-AppRun
+	add_custom_target(appimage-prep
+		COMMAND ${LINUXDEPLOYQT_EXECUTABLE}
+			"${_ai_appdir}/usr/share/applications/wireshark.desktop"
+			${_exe_args}
+		COMMAND rm -f "${_ai_appdir}/AppRun"
+		COMMAND install
+			"${CMAKE_SOURCE_DIR}/packaging/appimage/AppRun"
+			"${_ai_appdir}/AppRun"
+		DEPENDS appimage-appdir
+	)
+	add_custom_target(appimage
+		COMMAND env VERSION=${PROJECT_VERSION} ${APPIMAGETOOL_EXECUTABLE} appdir
+		WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/packaging/appimage"
+		DEPENDS appimage-prep
 	)
 endif()
 
@@ -3134,6 +3187,7 @@ if(SHELLCHECK_EXECUTABLE)
 	add_custom_command(TARGET shellcheck POST_BUILD
 		COMMAND shellcheck --external-sources
 			image/stock_icons/svg-to-png.sh
+			packaging/appimage/AppRun
 			packaging/macosx/osx-app.sh.in
 			packaging/macosx/osx-dmg.sh.in
 			tools/compress-pngs.sh

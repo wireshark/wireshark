@@ -64,6 +64,7 @@ since version 2.6.0:
 * Dumpcap now supports the `-a packets:NUM` and `-b packets:NUM` options.
 * Wireshark now includes a “No Reassembly” configuration profile.
 * Wireshark now supports the Russian language.
+* The build system now supports AppImage packages.
 
 === Removed Features and Support
 
