@@ -1077,7 +1077,9 @@ srtp_add_address(packet_info *pinfo, const port_type ptype, address *addr, int p
          * Check if the conversation has data associated with it.
          */
         p_conv_data = (struct _rtp_conversation_info *)conversation_get_proto_data(p_conv, proto_rtp);
-        rtp_conv_info_list = p_conv_data->rtp_sdp_setup_info_list;
+        if (p_conv_data) {
+            rtp_conv_info_list = p_conv_data->rtp_sdp_setup_info_list;
+        }
     }
 
     DENDENT();
