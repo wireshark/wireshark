@@ -387,10 +387,18 @@ print_usage(FILE *output)
 
   /*fprintf(output, "\n");*/
   fprintf(output, "Output:\n");
+#ifdef PCAP_NG_DEFAULT
+  fprintf(output, "  -w <outfile|->           write packets to a pcapng-format file named \"outfile\"\n");
+#else
   fprintf(output, "  -w <outfile|->           write packets to a pcap-format file named \"outfile\"\n");
+#endif
   fprintf(output, "                           (or to the standard output for \"-\")\n");
   fprintf(output, "  -C <config profile>      start with specified configuration profile\n");
+#ifdef PCAP_NG_DEFAULT
   fprintf(output, "  -F <output file type>    set the output file type, default is pcapng\n");
+#else
+  fprintf(output, "  -F <output file type>    set the output file type, default is pcap\n");
+#endif
   fprintf(output, "                           an empty \"-F\" option will list the file types\n");
   fprintf(output, "  -V                       add output of packet tree        (Packet Details)\n");
   fprintf(output, "  -O <protocols>           Only show packet details of these protocols, comma\n");
@@ -438,7 +446,7 @@ print_usage(FILE *output)
   fprintf(output, "                           (Note that attributes are nonstandard)\n");
   fprintf(output, "  --no-duplicate-keys      If -T json is specified, merge duplicate keys in an object\n");
   fprintf(output, "                           into a single key with as value a json array containing all\n");
-  fprintf(output, "                           values");
+  fprintf(output, "                           values\n");
 
   fprintf(output, "\n");
   fprintf(output, "Miscellaneous:\n");

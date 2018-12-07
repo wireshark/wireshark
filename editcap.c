@@ -804,8 +804,12 @@ print_usage(FILE *output)
     fprintf(output, "  -i <seconds per file>  split the packet output to different files based on\n");
     fprintf(output, "                         uniform time intervals with a maximum of\n");
     fprintf(output, "                         <seconds per file> each.\n");
-    fprintf(output, "  -F <capture type>      set the output file type; default is pcapng. An empty\n");
-    fprintf(output, "                         \"-F\" option will list the file types.\n");
+#ifdef PCAP_NG_DEFAULT
+    fprintf(output, "  -F <capture type>      set the output file type; default is pcapng.\n");
+#else
+    fprintf(output, "  -F <capture type>      set the output file type; default is pcap.\n");
+#endif
+    fprintf(output, "                         An empty \"-F\" option will list the file types.\n");
     fprintf(output, "  -T <encap type>        set the output file encapsulation type; default is the\n");
     fprintf(output, "                         same as the input file. An empty \"-T\" option will\n");
     fprintf(output, "                         list the encapsulation types.\n");
