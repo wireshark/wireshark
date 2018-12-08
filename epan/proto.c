@@ -10273,7 +10273,8 @@ elastic_add_base_mapping(json_dumper *dumper)
 	json_dumper_end_object(dumper);
 }
 
-gchar* ws_type_to_elastic(guint type _U_)
+static gchar*
+ws_type_to_elastic(guint type _U_)
 {
 	switch(type) {
 		case FT_UINT16:
