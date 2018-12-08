@@ -612,10 +612,15 @@ else() # ! MSVC
 	# structures with multiple members is perfectly legal, but some older
 	# compilers warn about it. Silence those older compilers.
 	#
-	if((CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_LESS "4.7") OR
+	if((CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_LESS "5.1") OR
 	   (CMAKE_C_COMPILER_ID STREQUAL "Clang" AND CMAKE_C_COMPILER_VERSION VERSION_LESS "6.0") OR
 	   (CMAKE_C_COMPILER_ID STREQUAL "AppleClang" AND CMAKE_C_COMPILER_VERSION VERSION_LESS "10.0"))
-		list(APPEND WIRESHARK_C_ONLY_FLAGS -Wno-missing-field-initializers)
+		if(NOT CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_VERSION VERSION_LESS "4.7")
+			list(APPEND WIRESHARK_C_ONLY_FLAGS -Wno-missing-field-initializers)
+		endif()
+		# Silence warnings for initialization of nested structs like
+		# struct { struct { int a, b; } s; int c; } v = { 0 };
+		list(APPEND WIRESHARK_C_ONLY_FLAGS -Wno-missing-braces)
 	endif()
 
 
