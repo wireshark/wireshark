@@ -3931,8 +3931,9 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>Maximale Framelänge:</translation>
     </message>
     <message>
-        <source>The maximum size of the frames to write to the import capture file (max 64000)</source>
-        <translation>Die maximale Framegröße beim Schreiben in die Mitschnittdatei (max 64000)</translation>
+        <source>The maximum size of the frames to write to the import capture file (max 256kiB)</source>
+        <oldsource>The maximum size of the frames to write to the import capture file (max 64000)</oldsource>
+        <translation type="unfinished">Die maximale Framegröße beim Schreiben in die Mitschnittdatei (max 64000)</translation>
     </message>
     <message>
         <source>Encapsulation</source>

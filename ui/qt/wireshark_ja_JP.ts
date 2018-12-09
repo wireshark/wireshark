@@ -3894,8 +3894,9 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>最大フレーム長:</translation>
     </message>
     <message>
-        <source>The maximum size of the frames to write to the import capture file (max 64000)</source>
-        <translation>インポートするキャプチャファイルへ書き込む最大のフレームサイズ（最大64000)</translation>
+        <source>The maximum size of the frames to write to the import capture file (max 256kiB)</source>
+        <oldsource>The maximum size of the frames to write to the import capture file (max 64000)</oldsource>
+        <translation type="unfinished">インポートするキャプチャファイルへ書き込む最大のフレームサイズ（最大64000)</translation>
     </message>
     <message>
         <source>Encapsulation</source>

@@ -1,4 +1,4 @@
-TShark (Wireshark) 2.9.0 (v2.9.0rc0-1249-ga108e49d)
+TShark (Wireshark) 2.9.0 (v2.9.0rc0-2779-g5762fc61)
 Dump and analyze network traffic.
 See https://www.wireshark.org for more information.
 
@@ -53,7 +53,7 @@ Processing:
   --disable-heuristic <short_name>
                            disable dissection of heuristic protocol
 Output:
-  -w <outfile|->           write packets to a pcap-format file named "outfile"
+  -w <outfile|->           write packets to a pcapng-format file named "outfile"
                            (or to the standard output for "-")
   -C <config profile>      start with specified configuration profile
   -F <output file type>    set the output file type, default is pcapng

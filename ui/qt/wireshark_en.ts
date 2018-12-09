@@ -3897,10 +3897,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>The maximum size of the frames to write to the import capture file (max 64000)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Encapsulation</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4022,6 +4018,10 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>IPv4</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The maximum size of the frames to write to the import capture file (max 256kiB)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

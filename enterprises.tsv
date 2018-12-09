@@ -5,7 +5,7 @@
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2018-12-01)
+# (last updated 2018-12-08)
 
 0	Reserved
 1	NxNetworks
@@ -3972,7 +3972,7 @@
 3970	FragRage Network
 3971	IMECOM
 3972	Apsion
-3973	Aelita Software Group
+3973	Quest Software Inc.
 3974	Custom Internetworking Inc.
 3975	Boston Communications Group, Inc.
 3976	LinkData Solutions (Pty) Limited
@@ -35085,7 +35085,7 @@
 35251	AWIND Inc
 35252	SAM Electronics
 35253	AixSolve GmbH
-35254	ZON Multimédia
+35254	NOS Comunicações	# formerly 'ZON Multimédia'
 35255	Mind Candy Ltd
 35256	Iondale Information Services Limited
 35257	Brisa Inovação e Tecnologia, SA
@@ -38564,7 +38564,7 @@
 38733	VoiceRite, Inc.
 38734	Padilha com
 38735	Stephen Perryman
-38736	Promise Regional Medical Center - Hutchinson
+38736	Hutchinson Regional Medical Center	# formerly 'Promise Regional Medical Center - Hutchinson'
 38737	MyOwnFile BV
 38738	NL Technologies
 38739	Nebras Technology
@@ -52883,3 +52883,55 @@
 53070	MIPS
 53071	NGN System Inc.
 53072	Prime Syntax
+53073	cocoon-it Projektbüro
+53074	SPG Co., Ltd
+53075	Vinetech.,LTD
+53076	IT Craft YSA GmbH
+53077	Copernicus Science Centre
+53078	Advanced Information Management
+53079	Huuuge Games Sp. z o.o.
+53080	Hanssons åkeri i Fjugesta AB
+53081	Philip Couling
+53082	Paedagogische Hochschule Bern
+53083	Fiber Optika Technologies Pvt Ltd
+53084	Proxima Software di Vanini Mirco
+53085	Urology Associates of Central MO
+53086	Dr. Basel Refai, MD
+53087	Authindicators Group (aka Brand Indicators for Message Identification Working Group)
+53088	Hendrik Oenings Enterprise
+53089	The Steel Construction Institute
+53090	Burke, Inc.
+53091	University of Arkansas System - Division of Agriculture
+53092	Bank ZENIT, PJSC
+53093	Contilla GmbH
+53094	Shenzhen Boruide Technology Co., Ltd.
+53095	Greenway Health, LLC
+53096	AAR CORP.
+53097	Data Alliance
+53098	PT. Aplikanusa Lintasarta
+53099	DEKRA Testing and Certification, S.A.U.
+53100	Nexora AG
+53101	JMT åkeri AB
+53102	SUMIT
+53103	DASTAG
+53104	Ferncast GmbH
+53105	Athenitas Softworks, LLC
+53106	Victoria College
+53107	Hong Leong Bank Berhad
+53108	Individual Entrepreneur Savenkov V.O.
+53109	Formula Student Germany GmbH
+53110	Centre of Advanced Computing & Telecommunications
+53111	ChocolateCoding
+53112	Berner Fachhochschule
+53113	STDERR.PL
+53114	Foot and Ankle Associates of Maine, P.A.
+53115	Sinclair Technologies, a division of Norsat International Inc.
+53116	Virgin Mobile UK
+53117	CUTTER Systems s.r.o.
+53118	Pierre Lind
+53119	Lindenberg Software
+53120	[IS]2
+53121	Vestel Elektronik Sanayi ve Ticaret AS
+53122	LOMACO
+53123	Gastroenterology Center, PA
+53124	Åkeri Per H Öberg AB
