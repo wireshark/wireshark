@@ -1941,12 +1941,12 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="compiled_filter_output.cpp" line="51"/>
+        <location filename="compiled_filter_output.cpp" line="53"/>
         <source>Copy</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="compiled_filter_output.cpp" line="52"/>
+        <location filename="compiled_filter_output.cpp" line="54"/>
         <source>Copy filter text to the clipboard.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4439,7 +4439,8 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="470"/>
-        <source>The maximum size of the frames to write to the import capture file (max 64000)</source>
+        <source>The maximum size of the frames to write to the import capture file (max 256kiB)</source>
+        <oldsource>The maximum size of the frames to write to the import capture file (max 64000)</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>

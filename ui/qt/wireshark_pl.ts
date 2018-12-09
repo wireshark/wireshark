@@ -1945,12 +1945,12 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
         <translation>Skompilowany filtr wyjścia</translation>
     </message>
     <message>
-        <location filename="compiled_filter_output.cpp" line="51"/>
+        <location filename="compiled_filter_output.cpp" line="53"/>
         <source>Copy</source>
         <translation>Kopiuj</translation>
     </message>
     <message>
-        <location filename="compiled_filter_output.cpp" line="52"/>
+        <location filename="compiled_filter_output.cpp" line="54"/>
         <source>Copy filter text to the clipboard.</source>
         <translation>Skopiuj filtr do schowka.</translation>
     </message>
@@ -4456,8 +4456,9 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="470"/>
-        <source>The maximum size of the frames to write to the import capture file (max 64000)</source>
-        <translation>Maksymalny rozmiar ramki do zapisu w importowanym pliku (max 64000)</translation>
+        <source>The maximum size of the frames to write to the import capture file (max 256kiB)</source>
+        <oldsource>The maximum size of the frames to write to the import capture file (max 64000)</oldsource>
+        <translation type="unfinished">Maksymalny rozmiar ramki do zapisu w importowanym pliku (max 64000)</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="238"/>
