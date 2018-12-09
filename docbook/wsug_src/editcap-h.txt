@@ -1,4 +1,4 @@
-Editcap (Wireshark) 2.6.6 (v2.6.6rc0-1-gcaa6f541)
+Editcap (Wireshark) 2.6.6 (v2.6.6rc0-17-g6267211c)
 Edit and/or translate the format of capture files.
 See https://www.wireshark.org for more information.
 
@@ -77,8 +77,8 @@ Output File(s):
   -i <seconds per file>  split the packet output to different files based on
                          uniform time intervals with a maximum of
                          <seconds per file> each.
-  -F <capture type>      set the output file type; default is pcapng. An empty
-                         "-F" option will list the file types.
+  -F <capture type>      set the output file type; default is pcapng.
+                         An empty "-F" option will list the file types.
   -T <encap type>        set the output file encapsulation type; default is the
                          same as the input file. An empty "-T" option will
                          list the encapsulation types.

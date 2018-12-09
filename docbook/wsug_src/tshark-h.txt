@@ -1,4 +1,4 @@
-TShark (Wireshark) 2.6.6 (v2.6.6rc0-1-gcaa6f541)
+TShark (Wireshark) 2.6.6 (v2.6.6rc0-17-g6267211c)
 Dump and analyze network traffic.
 See https://www.wireshark.org for more information.
 
@@ -53,7 +53,7 @@ Processing:
   --disable-heuristic <short_name>
                            disable dissection of heuristic protocol
 Output:
-  -w <outfile|->           write packets to a pcap-format file named "outfile"
+  -w <outfile|->           write packets to a pcapng-format file named "outfile"
                            (or to the standard output for "-")
   -C <config profile>      start with specified configuration profile
   -F <output file type>    set the output file type, default is pcapng
@@ -105,6 +105,7 @@ Output:
   --no-duplicate-keys      If -T json is specified, merge duplicate keys in an object
                            into a single key with as value a json array containing all
                            values
+
 Miscellaneous:
   -h                       display this help and exit
   -v                       display version info and exit
