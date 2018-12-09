@@ -3627,7 +3627,8 @@ ssl_decrypt_pre_master_secret(SslDecryptSession *ssl_session,
         // Try to decrypt using the RSA keys table from (D)TLS preferences.
         ret = gnutls_privkey_decrypt_data(pk, 0, &epms, &pms);
     } else {
-        ret = GNUTLS_E_NO_CERTIFICATE_FOUND;
+        // Try to decrypt using a hardware token.
+        ret = secrets_rsa_decrypt(ssl_session->cert_key_id, epms.data, epms.size, &pms.data, &pms.size);
     }
     if (ret < 0) {
         ssl_debug_printf("%s: decryption failed: %d (%s)\n", G_STRFUNC, ret, gnutls_strerror(ret));

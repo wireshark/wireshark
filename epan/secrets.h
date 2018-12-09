@@ -78,6 +78,21 @@ void secrets_register_type(guint32 secrets_type, secrets_block_callback_t cb);
 #ifdef HAVE_LIBGNUTLS
 /** Returns a new hash table, mapping cert_key_id_t -> gnutls_privkey_t. */
 GHashTable *privkey_hash_table_new(void);
+
+/**
+ * Tries to decrypt the given buffer using a private key identified by key_id.
+ * The private key was loaded through the 'rsa_keys' UAT.
+ *
+ * @param key_id Identifier for the public key.
+ * @param encr Encrypted input.
+ * @param encr_len Size of encrypted input.
+ * @param out Decrypted contents on success, free with g_free.
+ * @param out_len Size of decrypted contents on success.
+ * @return 0 if a private key was available and decryption succeeded, a negative
+ * error code otherwise.
+ */
+WS_DLL_PUBLIC int
+secrets_rsa_decrypt(const cert_key_id_t *key_id, const guint8 *encr, int encr_len, guint8 **out, int *out_len);
 #endif  /* HAVE_LIBGNUTLS */
 
 #endif /* __SECRETS_H__ */

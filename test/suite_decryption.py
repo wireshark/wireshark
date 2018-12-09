@@ -146,6 +146,20 @@ class case_decrypt_tls(subprocesstest.SubprocessTestCase):
             ))
         self.assertTrue(self.grepOutput('/'))
 
+    def test_tls_rsa_privkeys_uat(self, cmd_tshark, dirs, capture_file, features):
+        '''Check TLS decryption works using the rsa_keys UAT.'''
+        if not features.have_gnutls:
+            self.skipTest('Requires GnuTLS.')
+        key_file = os.path.join(dirs.key_dir, 'rsa-p-lt-q.key')
+        proc = self.assertRun((cmd_tshark,
+                '-r', capture_file('rsa-p-lt-q.pcap'),
+                '-o', 'uat:rsa_keys:"{}",""'.format(key_file.replace('\\', '\\x5c')),
+                '-Tfields',
+                '-e', 'http.request.uri',
+                '-Y', 'http',
+            ))
+        self.assertIn('/', proc.stdout_str)
+
     def test_tls_rsa_with_password(self, cmd_tshark, capture_file, features):
         '''TLS using the server's private key with password'''
         if not features.have_gnutls:
