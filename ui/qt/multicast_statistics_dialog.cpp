@@ -276,6 +276,9 @@ void MulticastStatisticsDialog::tapDraw(mcaststream_tapinfo_t *tapinfo)
     MulticastStatisticsDialog *ms_dlg = dynamic_cast<MulticastStatisticsDialog *>((MulticastStatisticsDialog*)tapinfo->user_data);
     if (!ms_dlg || !ms_dlg->statsTreeWidget()) return;
 
+    //Clear the tree because the list always starts from the beginning
+    ms_dlg->statsTreeWidget()->clear();
+
     // Add missing rows and update stats
     int cur_row = 0;
     for (GList *cur = g_list_first(tapinfo->strinfo_list); cur; cur = g_list_next(cur)) {
