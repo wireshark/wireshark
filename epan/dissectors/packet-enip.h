@@ -92,9 +92,9 @@ typedef struct {
 } enip_request_info_t;
 
 typedef struct enip_conn_val {
-   cip_connection_triad_t triad;
    guint32 O2TConnID;
    guint32 T2OConnID;
+   cip_connection_triad_t triad;
    guint8  TransportClass_trigger;
    guint32 open_frame;
    guint32 open_reply_frame;
