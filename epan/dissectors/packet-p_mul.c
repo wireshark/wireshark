@@ -151,6 +151,7 @@ static gint ett_msg_fragments = -1;
 
 static expert_field ei_more_data = EI_INIT;
 static expert_field ei_checksum_bad = EI_INIT;
+static expert_field ei_illegal_seq_no = EI_INIT;
 static expert_field ei_tot_miss_seq_no = EI_INIT;
 static expert_field ei_miss_seq_no = EI_INIT;
 static expert_field ei_analysis_ack_missing = EI_INIT;
@@ -353,6 +354,11 @@ static p_mul_seq_val *register_p_mul_id (packet_info *pinfo, address *addr, guin
 
   if (pinfo->flags.in_error_pkt) {
     /* No analysis of error packets */
+    return NULL;
+  }
+
+  if (pdu_type == Data_PDU && seq_no == 0) {
+    /* Illegal sequence number for Data PDU */
     return NULL;
   }
 
@@ -865,7 +871,10 @@ static int dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   case Data_PDU:
     /* Sequence Number of PDUs */
     seq_no = tvb_get_ntohs (tvb, offset);
-    proto_tree_add_item (p_mul_tree, hf_seq_no, tvb, offset, 2, ENC_BIG_ENDIAN);
+    en = proto_tree_add_item (p_mul_tree, hf_seq_no, tvb, offset, 2, ENC_BIG_ENDIAN);
+    if (seq_no == 0) {
+      expert_add_info(pinfo, en, &ei_illegal_seq_no);
+    }
     proto_item_append_text (ti, ", Seq no: %u", seq_no);
     break;
 
@@ -1536,6 +1545,7 @@ void proto_register_p_mul (void)
       { &ei_miss_seq_range, { "p_mul.missing_seq_range.invalid", PI_UNDECODED, PI_WARN, "Invalid missing sequence range", EXPFILL }},
       { &ei_miss_seq_no, { "p_mul.missing_seq_no.invalid", PI_UNDECODED, PI_WARN, "Invalid missing seq number", EXPFILL }},
       { &ei_tot_miss_seq_no, { "p_mul.no_missing_seq_no.expert", PI_RESPONSE_CODE, PI_NOTE, "Missing seq numbers", EXPFILL }},
+      { &ei_illegal_seq_no, { "p_mul.seq_no.illegal", PI_PROTOCOL, PI_WARN, "Illegal seq number", EXPFILL }},
       { &ei_length, { "p_mul.length.invalid", PI_MALFORMED, PI_WARN, "Incorrect length field", EXPFILL }},
       { &ei_more_data, { "p_mul.more_data", PI_MALFORMED, PI_WARN, "More data in packet", EXPFILL }},
   };
