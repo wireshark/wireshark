@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<application id="16777227"	name="Ericsson MSI"			uri="none"/>
 <application id="16777228"	name="Ericsson Zx"			uri="none"/>
 <application id="16777232"	name="Ericsson Charging-CIP"		uri="none"/>
 <application id="16777233"	name="Ericsson Mm"			uri="none"/>
@@ -7,10 +8,9 @@
 <application id="16777301"	name="Ericsson Charging-DCIP"		uri="none"/>
 <application id="16777304"	name="Ericsson Sy"			uri="none"/>
 <application id="16777315"	name="Ericsson Diameter Signalling Controller Application (DSC)" uri="none"/>
-<application id="16777227"	name="Ericsson MSI"			uri="none"/>
 <application id="16777327"	name="Ericsson Sx"			uri="none"/>
 
-<vendor vendor-id="Ericsson"			code="193"	name="Ericsson">
+<vendor vendor-id="Ericsson" code="193" name="Ericsson">
 <!-- *********** Last updated 2007-04-12 ************ -->
 	<avp name="Acc-Service-Type" code="261" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
 	   <type type-name="Enumerated"/>
