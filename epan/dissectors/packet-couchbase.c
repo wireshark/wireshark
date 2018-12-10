@@ -279,6 +279,10 @@
 #define PROTOCOL_BINARY_DCP_BUFFER_ACKNOWLEDGEMENT  0x5d
 #define PROTOCOL_BINARY_DCP_CONTROL                 0x5e
 #define PROTOCOL_BINARY_DCP_SYSTEM_EVENT            0x5f
+#define PROTOCOL_BINARY_DCP_PREPARE                 0x60
+#define PROTOCOL_BINARY_DCP_SEQNO_ACK               0x61
+#define PROTOCOL_BINARY_DCP_COMMIT                  0x62
+#define PROTOCOL_BINARY_DCP_ABORT                   0x63
 
 #define PROTOCOL_BINARY_CMD_GET_RANDOM_KEY          0xb6
 #define PROTOCOL_BINARY_CMD_SEQNO_PERSISTENCE       0xb7
@@ -378,6 +382,12 @@ static int hf_extras_initial = -1;
 static int hf_extras_unknown = -1;
 static int hf_extras_by_seqno = -1;
 static int hf_extras_rev_seqno = -1;
+static int hf_extras_by_seqno_mem = -1;
+static int hf_extras_by_seqno_disk = -1;
+static int hf_extras_prepared_seqno = -1;
+static int hf_extras_commit_seqno = -1;
+static int hf_extras_abort_seqno = -1;
+static int hf_extras_deleted = -1;
 static int hf_extras_lock_time = -1;
 static int hf_extras_nmeta = -1;
 static int hf_extras_nru = -1;
@@ -703,6 +713,10 @@ static const value_string opcode_vals[] = {
   { PROTOCOL_BINARY_DCP_BUFFER_ACKNOWLEDGEMENT,     "DCP Buffer Acknowledgement"},
   { PROTOCOL_BINARY_DCP_CONTROL,                    "DCP Control"              },
   { PROTOCOL_BINARY_DCP_SYSTEM_EVENT,               "DCP System Event"         },
+  { PROTOCOL_BINARY_DCP_PREPARE,                    "DCP Prepare"              },
+  { PROTOCOL_BINARY_DCP_SEQNO_ACK,                  "DCP Seqno Acknowledgement"},
+  { PROTOCOL_BINARY_DCP_COMMIT,                     "DCP Commit"               },
+  { PROTOCOL_BINARY_DCP_ABORT,                      "DCP Abort"                },
   { PROTOCOL_BINARY_CMD_STOP_PERSISTENCE,           "Stop Persistence"         },
   { PROTOCOL_BINARY_CMD_START_PERSISTENCE,          "Start Persistence"        },
   { PROTOCOL_BINARY_CMD_SET_PARAM,                  "Set Parameter"            },
@@ -1374,6 +1388,87 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       offset += 4;
       proto_tree_add_item(extras_tree, hf_extras_system_event_version, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset += 1;
+    }
+    break;
+  }
+  case PROTOCOL_BINARY_DCP_PREPARE: {
+    if (extlen) {
+      if (request) {
+        static const int * extra_flags[] = {
+          NULL
+        };
+        proto_tree_add_item(extras_tree, hf_extras_by_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+        proto_tree_add_item(extras_tree, hf_extras_rev_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+        proto_tree_add_bitmask(extras_tree, tvb, offset, hf_extras_flags, ett_extras_flags, extra_flags, ENC_BIG_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(extras_tree, hf_extras_expiration, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(extras_tree, hf_extras_lock_time, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(extras_tree, hf_extras_nru, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        proto_tree_add_item(extras_tree, hf_extras_deleted, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        proto_tree_add_item(extras_tree, hf_flex_frame_durability_timeout, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+        proto_tree_add_item(extras_tree, hf_flex_frame_durability_req, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+      } else {
+        illegal = TRUE;
+      }
+    } else if (request) {
+      /* Request must have extras */
+      missing = TRUE;
+    }
+    break;
+  }
+  case PROTOCOL_BINARY_DCP_SEQNO_ACK: {
+    if (extlen) {
+      if (request) {
+        proto_tree_add_item(extras_tree, hf_extras_by_seqno_mem, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+        proto_tree_add_item(extras_tree, hf_extras_by_seqno_disk, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+      } else {
+        illegal = TRUE;
+      }
+    } else if (request) {
+      /* Request must have extras */
+      missing = TRUE;
+    }
+    break;
+  }
+  case PROTOCOL_BINARY_DCP_COMMIT: {
+    if (extlen) {
+      if (request) {
+        proto_tree_add_item(extras_tree, hf_extras_prepared_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+        proto_tree_add_item(extras_tree, hf_extras_commit_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+      } else {
+        illegal = TRUE;
+      }
+    } else if (request) {
+      /* Request must have extras */
+      missing = TRUE;
+    }
+    break;
+  }
+  case PROTOCOL_BINARY_DCP_ABORT: {
+    if (extlen) {
+      if (request) {
+        proto_tree_add_item(extras_tree, hf_extras_prepared_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+        proto_tree_add_item(extras_tree, hf_extras_abort_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+      } else {
+        illegal = TRUE;
+      }
+    } else if (request) {
+      /* Request must have extras */
+      missing = TRUE;
     }
     break;
   }
@@ -2714,10 +2809,16 @@ proto_register_couchbase(void)
     { &hf_extras_snap_start_seqno, { "Snapshot Start Sequence Number", "couchbase.extras.snap_start_seqno", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_snap_end_seqno, { "Snapshot End Sequence Number", "couchbase.extras.snap_start_seqno", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_by_seqno, { "by_seqno", "couchbase.extras.by_seqno", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+    { &hf_extras_by_seqno_mem, { "by_seqno (memory)", "couchbase.extras.by_seqno_mem", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+    { &hf_extras_by_seqno_disk, { "by_seqno (disk)", "couchbase.extras.by_seqno_disk", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+    { &hf_extras_prepared_seqno, { "by_seqno (prepared)", "couchbase.extras.by_seqno_prepared", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+    { &hf_extras_commit_seqno, { "by_seqno (commit)", "couchbase.extras.by_seqno_commit", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+    { &hf_extras_abort_seqno, { "by_seqno (abort)", "couchbase.extras.by_seqno_abort", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_rev_seqno, { "rev_seqno", "couchbase.extras.rev_seqno", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_lock_time, { "lock_time", "couchbase.extras.lock_time", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_nmeta, { "nmeta", "couchbase.extras.nmeta", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_nru, { "nru", "couchbase.extras.nru", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+    { &hf_extras_deleted, { "deleted", "couchbase.extras.deleted", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_bytes_to_ack, { "bytes_to_ack", "couchbase.extras.bytes_to_ack", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_delete_time, { "delete_time", "couchbase.extras.delete_time", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_delete_unused, { "unused", "couchbase.extras.delete_unused", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
