@@ -13,688 +13,688 @@
     <name>AboutDialog</name>
     <message>
         <source>About Wireshark</source>
-        <translation type="unfinished"></translation>
+        <translation>Wiresharkについて</translation>
     </message>
     <message>
         <source>Wireshark</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark</translation>
     </message>
     <message>
         <source>&lt;span size=\&quot;x-large\&quot; weight=\&quot;bold\&quot;&gt;Network Protocol Analyzer&lt;/span&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;span size=\&quot;x-large\&quot; weight=\&quot;bold\&quot;&gt;ネットワークプロトコルアナライザ&lt;/span&gt;</translation>
     </message>
     <message>
         <source>Authors</source>
-        <translation type="unfinished"></translation>
+        <translation>作者</translation>
     </message>
     <message>
         <source>Search Authors</source>
-        <translation type="unfinished"></translation>
+        <translation>著者を検索</translation>
     </message>
     <message>
         <source>Folders</source>
-        <translation type="unfinished"></translation>
+        <translation>フォルダ</translation>
     </message>
     <message>
         <source>Filter by path</source>
-        <translation type="unfinished"></translation>
+        <translation>パスでフィルタ</translation>
     </message>
     <message>
         <source>Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>プラグイン</translation>
     </message>
     <message>
         <source>No plugins found.</source>
-        <translation type="unfinished"></translation>
+        <translation>プラグインが見つかりません</translation>
     </message>
     <message>
         <source>Search Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>プラグインを検索</translation>
     </message>
     <message>
         <source>Filter by type:</source>
-        <translation type="unfinished"></translation>
+        <translation>種類でフィルタ:</translation>
     </message>
     <message>
         <source>Keyboard Shortcuts</source>
-        <translation type="unfinished"></translation>
+        <translation>キーボードショートカット</translation>
     </message>
     <message>
         <source>Search Shortcuts</source>
-        <translation type="unfinished"></translation>
+        <translation>ショートカットを検索</translation>
     </message>
     <message>
         <source>Acknowledgments</source>
-        <translation type="unfinished"></translation>
+        <translation>確認</translation>
     </message>
     <message>
         <source>License</source>
-        <translation type="unfinished"></translation>
+        <translation>ライセンス</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>コピー</translation>
     </message>
     <message>
         <source>Copy Row(s)</source>
-        <translation type="unfinished"></translation>
+        <translation>列をコピー</translation>
     </message>
 </context>
 <context>
     <name>AddressEditorFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>フレーム</translation>
     </message>
     <message>
         <source>Name Resolution Preferences…</source>
-        <translation type="unfinished"></translation>
+        <translation>名前解決設定…</translation>
     </message>
     <message>
         <source>Address:</source>
-        <translation type="unfinished"></translation>
+        <translation>アドレス:</translation>
     </message>
     <message>
         <source>Name:</source>
-        <translation type="unfinished"></translation>
+        <translation>名前:</translation>
     </message>
     <message>
         <source>Can&apos;t assign %1 to %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 を %2 に割り当てることができません</translation>
     </message>
 </context>
 <context>
     <name>AdvancedPrefsModel</name>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>名前</translation>
     </message>
     <message>
         <source>Status</source>
-        <translation type="unfinished"></translation>
+        <translation>状態</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation>種類</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished"></translation>
+        <translation>値</translation>
     </message>
 </context>
 <context>
     <name>ApplyLineEdit</name>
     <message>
         <source>Apply changes</source>
-        <translation type="unfinished"></translation>
+        <translation>変更を適用</translation>
     </message>
 </context>
 <context>
     <name>AuthorListModel</name>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>名前</translation>
     </message>
     <message>
         <source>Email</source>
-        <translation type="unfinished"></translation>
+        <translation>電子メール</translation>
     </message>
 </context>
 <context>
     <name>BluetoothAttServerAttributesDialog</name>
     <message>
         <source>Bluetooth ATT Server Attributes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bluetooth ATTサーバ属性</translation>
     </message>
     <message>
         <source>Handle</source>
-        <translation type="unfinished"></translation>
+        <translation>ハンドル</translation>
     </message>
     <message>
         <source>UUID</source>
-        <translation type="unfinished"></translation>
+        <translation>UUID</translation>
     </message>
     <message>
         <source>UUID Name</source>
-        <translation type="unfinished"></translation>
+        <translation>UUID名</translation>
     </message>
     <message>
         <source>All Interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>すべてのインターフェース</translation>
     </message>
     <message>
         <source>All Devices</source>
-        <translation type="unfinished"></translation>
+        <translation>すべてのデバイス</translation>
     </message>
     <message>
         <source>Remove duplicates</source>
-        <translation type="unfinished"></translation>
+        <translation>重複を削除</translation>
     </message>
     <message>
         <source>Copy Cell</source>
-        <translation type="unfinished"></translation>
+        <translation>セルをコピー</translation>
     </message>
     <message>
         <source>Copy Rows</source>
-        <translation type="unfinished"></translation>
+        <translation>行をコピー</translation>
     </message>
     <message>
         <source>Copy All</source>
-        <translation type="unfinished"></translation>
+        <translation>すべてをコピー</translation>
     </message>
     <message>
         <source>Save as image</source>
-        <translation type="unfinished"></translation>
+        <translation>画像として保存</translation>
     </message>
     <message>
         <source>Mark/Unmark Row</source>
-        <translation type="unfinished"></translation>
+        <translation>マーク/マーク解除</translation>
     </message>
     <message>
         <source>CtrlM</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+M</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
-        <translation type="unfinished"></translation>
+        <translation>セルをマーク/マーク解除</translation>
     </message>
     <message>
         <source>Save Table Image</source>
-        <translation type="unfinished"></translation>
+        <translation>表の画像として保存</translation>
     </message>
     <message>
         <source>PNG Image (*.png)</source>
-        <translation type="unfinished"></translation>
+        <translation>PNG画像 (*.png)</translation>
     </message>
 </context>
 <context>
     <name>BluetoothDeviceDialog</name>
     <message>
         <source>Bluetooth Device</source>
-        <translation type="unfinished"></translation>
+        <translation>Bluetooth機器</translation>
     </message>
     <message>
         <source>BD_ADDR</source>
-        <translation type="unfinished"></translation>
+        <translation>BD_ADDR</translation>
     </message>
     <message>
         <source>OUI</source>
-        <translation type="unfinished"></translation>
+        <translation>OUI</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>名前</translation>
     </message>
     <message>
         <source>Class of Device</source>
-        <translation type="unfinished"></translation>
+        <translation>機器のクラス</translation>
     </message>
     <message>
         <source>LMP Version</source>
-        <translation type="unfinished"></translation>
+        <translation>LMPバージョン</translation>
     </message>
     <message>
         <source>LMP Subverion</source>
-        <translation type="unfinished"></translation>
+        <translation>LMPサブバージョン</translation>
     </message>
     <message>
         <source>Manufacturer</source>
-        <translation type="unfinished"></translation>
+        <translation>製造者</translation>
     </message>
     <message>
         <source>HCI Version</source>
-        <translation type="unfinished"></translation>
+        <translation>HCIバージョン</translation>
     </message>
     <message>
         <source>HCI Revision</source>
-        <translation type="unfinished"></translation>
+        <translation>HCIリビジョン</translation>
     </message>
     <message>
         <source>Scan</source>
-        <translation type="unfinished"></translation>
+        <translation>スキャン</translation>
     </message>
     <message>
         <source>Authentication</source>
-        <translation type="unfinished"></translation>
+        <translation>認証</translation>
     </message>
     <message>
         <source>Encryption</source>
-        <translation type="unfinished"></translation>
+        <translation>暗号化</translation>
     </message>
     <message>
         <source>ACL MTU</source>
-        <translation type="unfinished"></translation>
+        <translation>ACL MTU</translation>
     </message>
     <message>
         <source>ACL Total Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>ACL 全パケット</translation>
     </message>
     <message>
         <source>SCO MTU</source>
-        <translation type="unfinished"></translation>
+        <translation>SCO MTU</translation>
     </message>
     <message>
         <source>SCO Total Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>SCO 全パケット</translation>
     </message>
     <message>
         <source>LE ACL MTU</source>
-        <translation type="unfinished"></translation>
+        <translation>LE ACL MTU</translation>
     </message>
     <message>
         <source>LE ACL Total Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>LE ACL 全パケット</translation>
     </message>
     <message>
         <source>Inquiry Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>問い合わせモード</translation>
     </message>
     <message>
         <source>Page Timeout</source>
-        <translation type="unfinished"></translation>
+        <translation>ページタイムアウト</translation>
     </message>
     <message>
         <source>Simple Pairing Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>シンプルペアリングモード</translation>
     </message>
     <message>
         <source>Voice Setting</source>
-        <translation type="unfinished"></translation>
+        <translation>音声設定</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished"></translation>
+        <translation>値</translation>
     </message>
     <message>
         <source>Changes</source>
-        <translation type="unfinished"></translation>
+        <translation>変更</translation>
     </message>
     <message>
         <source>%1 changes</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 変更</translation>
     </message>
     <message>
         <source>Copy Cell</source>
-        <translation type="unfinished"></translation>
+        <translation>セルをコピー</translation>
     </message>
     <message>
         <source>Copy Rows</source>
-        <translation type="unfinished"></translation>
+        <translation>行をコピー</translation>
     </message>
     <message>
         <source>Copy All</source>
-        <translation type="unfinished"></translation>
+        <translation>すべてをコピー</translation>
     </message>
     <message>
         <source>Save as image</source>
-        <translation type="unfinished"></translation>
+        <translation>画像として保存</translation>
     </message>
     <message>
         <source>Mark/Unmark Row</source>
-        <translation type="unfinished"></translation>
+        <translation>行をマーク/マーク解除</translation>
     </message>
     <message>
         <source>CtrlM</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+M</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
-        <translation type="unfinished"></translation>
+        <translation>セルをマーク/マーク解除</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>不明</translation>
     </message>
     <message>
         <source>Bluetooth Device - %1%2</source>
-        <translation type="unfinished"></translation>
+        <translation>Bluetooth機器 - %1%2</translation>
     </message>
     <message>
         <source>enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>有効</translation>
     </message>
     <message>
         <source>disabled</source>
-        <translation type="unfinished"></translation>
+        <translation>無効</translation>
     </message>
     <message>
         <source>%1 ms (%2 slots)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 ミリ秒 (%2 スロット)</translation>
     </message>
     <message>
         <source>Save Table Image</source>
-        <translation type="unfinished"></translation>
+        <translation>表の画像を保存</translation>
     </message>
     <message>
         <source>PNG Image (*.png)</source>
-        <translation type="unfinished"></translation>
+        <translation>PNG画像 (*.png)</translation>
     </message>
 </context>
 <context>
     <name>BluetoothDevicesDialog</name>
     <message>
         <source>Bluetooth Devices</source>
-        <translation type="unfinished"></translation>
+        <translation>Bluetoothデバイス</translation>
     </message>
     <message>
         <source>BD_ADDR</source>
-        <translation type="unfinished"></translation>
+        <translation>BD_ADDR</translation>
     </message>
     <message>
         <source>OUI</source>
-        <translation type="unfinished"></translation>
+        <translation>OUI</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>名前</translation>
     </message>
     <message>
         <source>LMP Version</source>
-        <translation type="unfinished"></translation>
+        <translation>LMPバージョン</translation>
     </message>
     <message>
         <source>LMP Subversion</source>
-        <translation type="unfinished"></translation>
+        <translation>LMPサブバージョン</translation>
     </message>
     <message>
         <source>Manufacturer</source>
-        <translation type="unfinished"></translation>
+        <translation>製造元</translation>
     </message>
     <message>
         <source>HCI Version</source>
-        <translation type="unfinished"></translation>
+        <translation>HCIバージョン</translation>
     </message>
     <message>
         <source>HCI Revision</source>
-        <translation type="unfinished"></translation>
+        <translation>HCIリビジョン</translation>
     </message>
     <message>
         <source>Is Local Adapter</source>
-        <translation type="unfinished"></translation>
+        <translation>ローカルアダプタである</translation>
     </message>
     <message>
         <source>All Interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>すべてのインターフェース</translation>
     </message>
     <message>
         <source>Show information steps</source>
-        <translation type="unfinished"></translation>
+        <translation>情報ステップを表示</translation>
     </message>
     <message>
         <source>%1 items; Right click for more option; Double click for device details</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 アイテム; 右クリックしてより多くのオプション; ダブルクリックしてデバイスの詳細</translation>
     </message>
     <message>
         <source>Copy Cell</source>
-        <translation type="unfinished"></translation>
+        <translation>セルをコピー</translation>
     </message>
     <message>
         <source>Copy Rows</source>
-        <translation type="unfinished"></translation>
+        <translation>行をコピー</translation>
     </message>
     <message>
         <source>Copy All</source>
-        <translation type="unfinished"></translation>
+        <translation>すべてをコピー</translation>
     </message>
     <message>
         <source>Save as image</source>
-        <translation type="unfinished"></translation>
+        <translation>画像として保存</translation>
     </message>
     <message>
         <source>Mark/Unmark Row</source>
-        <translation type="unfinished"></translation>
+        <translation>行をマーク/マーク解除</translation>
     </message>
     <message>
         <source>CtrlM</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+M</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
-        <translation type="unfinished"></translation>
+        <translation>セルをマーク/マーク解除</translation>
     </message>
     <message>
         <source>true</source>
-        <translation type="unfinished"></translation>
+        <translation>true</translation>
     </message>
     <message>
         <source>Save Table Image</source>
-        <translation type="unfinished"></translation>
+        <translation>表の画像を保存</translation>
     </message>
     <message>
         <source>PNG Image (*.png)</source>
-        <translation type="unfinished"></translation>
+        <translation>PNG画像 (*.png)</translation>
     </message>
 </context>
 <context>
     <name>BluetoothHciSummaryDialog</name>
     <message>
         <source>Bluetooth HCI Summary</source>
-        <translation type="unfinished"></translation>
+        <translation>Bluetooth HCI概要</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>名前</translation>
     </message>
     <message>
         <source>OGF</source>
-        <translation type="unfinished"></translation>
+        <translation>OGF</translation>
     </message>
     <message>
         <source>OCF</source>
-        <translation type="unfinished"></translation>
+        <translation>OCF</translation>
     </message>
     <message>
         <source>Opcode</source>
-        <translation type="unfinished"></translation>
+        <translation>Opcode</translation>
     </message>
     <message>
         <source>Event</source>
-        <translation type="unfinished"></translation>
+        <translation>イベント</translation>
     </message>
     <message>
         <source>Subevent</source>
-        <translation type="unfinished"></translation>
+        <translation>サブイベント</translation>
     </message>
     <message>
         <source>Status</source>
-        <translation type="unfinished"></translation>
+        <translation>状態</translation>
     </message>
     <message>
         <source>Reason</source>
-        <translation type="unfinished"></translation>
+        <translation>原因</translation>
     </message>
     <message>
         <source>Hardware Error</source>
-        <translation type="unfinished"></translation>
+        <translation>ハードウエアエラー</translation>
     </message>
     <message>
         <source>Occurrence</source>
-        <translation type="unfinished"></translation>
+        <translation>出現位置</translation>
     </message>
     <message>
         <source>Link Control Commands</source>
-        <translation type="unfinished"></translation>
+        <translation>リンクコントロールコマンド</translation>
     </message>
     <message>
         <source>0x01</source>
-        <translation type="unfinished"></translation>
+        <translation>0x01</translation>
     </message>
     <message>
         <source>0</source>
-        <translation type="unfinished"></translation>
+        <translation>0</translation>
     </message>
     <message>
         <source>Link Policy Commands</source>
-        <translation type="unfinished"></translation>
+        <translation>リンクポリシーコマンド</translation>
     </message>
     <message>
         <source>0x02</source>
-        <translation type="unfinished"></translation>
+        <translation>0x02</translation>
     </message>
     <message>
         <source>Controller &amp; Baseband Commands</source>
-        <translation type="unfinished"></translation>
+        <translation>コントローラーとベースバンドコマンド</translation>
     </message>
     <message>
         <source>0x03</source>
-        <translation type="unfinished"></translation>
+        <translation>0x03</translation>
     </message>
     <message>
         <source>Informational Parameters</source>
-        <translation type="unfinished"></translation>
+        <translation>情報パラメタ</translation>
     </message>
     <message>
         <source>0x04</source>
-        <translation type="unfinished"></translation>
+        <translation>0x04</translation>
     </message>
     <message>
         <source>Status Parameters</source>
-        <translation type="unfinished"></translation>
+        <translation>状態パラメタ</translation>
     </message>
     <message>
         <source>0x05</source>
-        <translation type="unfinished"></translation>
+        <translation>0x05</translation>
     </message>
     <message>
         <source>Testing Commands</source>
-        <translation type="unfinished"></translation>
+        <translation>テストコマンド</translation>
     </message>
     <message>
         <source>0x06</source>
-        <translation type="unfinished"></translation>
+        <translation>0x06</translation>
     </message>
     <message>
         <source>LE Controller Commands</source>
-        <translation type="unfinished"></translation>
+        <translation>LEコントローラーコマンド</translation>
     </message>
     <message>
         <source>0x08</source>
-        <translation type="unfinished"></translation>
+        <translation>0x08</translation>
     </message>
     <message>
         <source>Bluetooth Logo Testing Commands</source>
-        <translation type="unfinished"></translation>
+        <translation>Bluetoothロゴテストコマンド</translation>
     </message>
     <message>
         <source>0x3E</source>
-        <translation type="unfinished"></translation>
+        <translation>0x3E</translation>
     </message>
     <message>
         <source>Vendor-Specific Commands</source>
-        <translation type="unfinished"></translation>
+        <translation>ベンダ固有コマンド</translation>
     </message>
     <message>
         <source>0x3F</source>
-        <translation type="unfinished"></translation>
+        <translation>0x3F</translation>
     </message>
     <message>
         <source>Unknown OGF</source>
-        <translation type="unfinished"></translation>
+        <translation>不明なOGF</translation>
     </message>
     <message>
         <source>Events</source>
-        <translation type="unfinished"></translation>
+        <translation>イベント</translation>
     </message>
     <message>
         <source>Hardware Errors</source>
-        <translation type="unfinished"></translation>
+        <translation>ハードウエアエラー</translation>
     </message>
     <message>
         <source>Results filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>結果フィルタ:</translation>
     </message>
     <message>
         <source>Display filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタ:</translation>
     </message>
     <message>
         <source>All Interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>すべてのインターフェース</translation>
     </message>
     <message>
         <source>All Adapters</source>
-        <translation type="unfinished"></translation>
+        <translation>すべてのアダプタ</translation>
     </message>
     <message>
         <source>Copy Cell</source>
-        <translation type="unfinished"></translation>
+        <translation>セルをコピー</translation>
     </message>
     <message>
         <source>Copy Rows</source>
-        <translation type="unfinished"></translation>
+        <translation>行をコピー</translation>
     </message>
     <message>
         <source>Copy All</source>
-        <translation type="unfinished"></translation>
+        <translation>すべてをコピー</translation>
     </message>
     <message>
         <source>Save as image</source>
-        <translation type="unfinished"></translation>
+        <translation>画像として保存</translation>
     </message>
     <message>
         <source>Mark/Unmark Row</source>
-        <translation type="unfinished"></translation>
+        <translation>行をマーク/マーク解除</translation>
     </message>
     <message>
         <source>Ctrl+M</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+M</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
-        <translation type="unfinished"></translation>
+        <translation>セルをマーク/マーク解除</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>不明</translation>
     </message>
     <message>
         <source>Adapter %1</source>
-        <translation type="unfinished"></translation>
+        <translation>アダプタ %1</translation>
     </message>
     <message>
         <source>Frame %1</source>
-        <translation type="unfinished"></translation>
+        <translation>フレーム %1</translation>
     </message>
     <message>
         <source>Pending</source>
-        <translation type="unfinished"></translation>
+        <translation>保留</translation>
     </message>
     <message>
         <source>Save Table Image</source>
-        <translation type="unfinished"></translation>
+        <translation>表の画像を保存</translation>
     </message>
     <message>
         <source>PNG Image (*.png)</source>
-        <translation type="unfinished"></translation>
+        <translation>PNG画像 (*.png)</translation>
     </message>
 </context>
 <context>
     <name>ByteViewTab</name>
     <message>
         <source>Packet bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットバイト列</translation>
     </message>
 </context>
 <context>
     <name>ByteViewText</name>
     <message>
         <source>Show bytes as hexadecimal</source>
-        <translation type="unfinished"></translation>
+        <translation>16進数でバイト列を表示</translation>
     </message>
     <message>
         <source>Show text based on packet</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットをテキストベースで表示</translation>
     </message>
 </context>
 <context>
     <name>CaptureFile</name>
     <message>
         <source> [closing]</source>
-        <translation type="unfinished"></translation>
+        <translation> [閉じています]</translation>
     </message>
     <message>
         <source> [closed]</source>
-        <translation type="unfinished"></translation>
+        <translation> [閉じました]</translation>
     </message>
 </context>
 <context>
@@ -721,1548 +721,1553 @@
     </message>
     <message>
         <source>This capture file contains comments.</source>
-        <translation type="unfinished"></translation>
+        <translation>このキャプチャファイルにはコメントが含まれています。</translation>
     </message>
     <message>
         <source>The file format you chose doesn&apos;t support comments. Do you want to save the capture in a format that supports comments or discard the comments and save in the format you chose?</source>
-        <translation type="unfinished"></translation>
+        <translation>選択したファイル形式はコメントに対応していません。コメントに対応した形式で保存しますか？もしくはコメントを破棄して選んだ形式で保存しますか？</translation>
     </message>
     <message>
         <source>Discard comments and save</source>
-        <translation type="unfinished"></translation>
+        <translation>コメントを破棄して保存</translation>
     </message>
     <message>
         <source>Save in another format</source>
-        <translation type="unfinished"></translation>
+        <translation>別の形式で保存</translation>
     </message>
     <message>
         <source>No file format in which it can be saved supports comments. Do you want to discard the comments and save in the format you chose?</source>
-        <translation type="unfinished"></translation>
+        <translation>コメントに対応したファイル形式ではありません。コメントを破棄して選んだ形式で保存しますか？</translation>
     </message>
     <message>
         <source>All Files (</source>
-        <translation type="unfinished"></translation>
+        <translation>すべてのファイル (</translation>
     </message>
     <message>
         <source>All Capture Files</source>
-        <translation type="unfinished"></translation>
+        <translation>すべてのキャプチャファイル</translation>
     </message>
     <message>
         <source>Format:</source>
-        <translation type="unfinished"></translation>
+        <translation>形式:</translation>
     </message>
     <message>
         <source>Size:</source>
-        <translation type="unfinished"></translation>
+        <translation>サイズ:</translation>
     </message>
     <message>
         <source>Start / elapsed:</source>
-        <translation type="unfinished"></translation>
+        <translation>開始 / 経過:</translation>
     </message>
     <message>
         <source>Prepend packets</source>
-        <translation type="unfinished"></translation>
+        <translation>前にパケットを挿入</translation>
     </message>
     <message>
         <source>Insert packets from the selected file before the current file. Packet timestamps will be ignored.</source>
-        <translation type="unfinished"></translation>
+        <translation>現在のファイルの前に選択したファイルからパケットを挿入します。パケットのタイムスタンプは無視されます</translation>
     </message>
     <message>
         <source>Merge chronologically</source>
-        <translation type="unfinished"></translation>
+        <translation>時系列で結合</translation>
     </message>
     <message>
         <source>Insert packets in chronological order.</source>
-        <translation type="unfinished"></translation>
+        <translation>時系列順でパケットを挿入します</translation>
     </message>
     <message>
         <source>Append packets</source>
-        <translation type="unfinished"></translation>
+        <translation>後にパケットを追加</translation>
     </message>
     <message>
         <source>Insert packets from the selected file after the current file. Packet timestamps will be ignored.</source>
-        <translation type="unfinished"></translation>
+        <translation>現在のファイルの後に選択したファイルからパケットを挿入します パケットのタイムスタンプは無視されます</translation>
     </message>
     <message>
         <source>Read filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>読込フィルタ:</translation>
     </message>
     <message>
         <source>Automatically detect file type</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイル種別を自動的に検出</translation>
     </message>
     <message>
         <source>Compress with g&amp;zip</source>
-        <translation type="unfinished"></translation>
+        <translation>gzip形式で圧縮(&amp;z)</translation>
     </message>
     <message>
         <source>Open Capture File</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャファイルを開く</translation>
     </message>
     <message>
         <source>Save Capture File As</source>
-        <translation type="unfinished"></translation>
+        <translation>としてキャプチャファイルを保存</translation>
     </message>
     <message>
         <source>Save as:</source>
-        <translation type="unfinished"></translation>
+        <translation>として保存:</translation>
     </message>
     <message>
         <source>Export Specified Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>指定したパケットをエクスポート</translation>
     </message>
     <message>
         <source>Export as:</source>
-        <translation type="unfinished"></translation>
+        <translation>としてエクスポート:</translation>
     </message>
     <message>
         <source>Merge Capture File</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャファイルを結合</translation>
     </message>
     <message>
         <source>directory</source>
-        <translation type="unfinished"></translation>
+        <translation>ディレクトリ</translation>
     </message>
     <message>
         <source>unknown file format</source>
-        <translation type="unfinished"></translation>
+        <translation>不明なファイルフォーマット</translation>
     </message>
     <message>
         <source>error opening file</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイルオープンエラー</translation>
     </message>
     <message numerus="yes">
         <source>%1, error after %Ln data record(s)</source>
         <oldsource>%1, error after %Ln record(s)</oldsource>
-        <translation type="unfinished">
-            <numerusform>%1, error after %Ln data record</numerusform>
+        <translation>
+            <numerusform>%Ln レコードの後に %1 データエラー </numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%1, timed out at %Ln data record(s)</source>
-        <translation type="unfinished">
-            <numerusform>%1, timed out at %Ln data record</numerusform>
+        <translation>
+            <numerusform>%Ln データレコードの後に %1, タイムアウト </numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%1, %Ln data record(s)</source>
-        <translation type="unfinished">
-            <numerusform>%1, %Ln data record</numerusform>
+        <translation>
+            <numerusform>%1, %Ln データレコード</numerusform>
         </translation>
     </message>
     <message>
         <source>unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>不明</translation>
     </message>
 </context>
 <context>
     <name>CaptureFilePropertiesDialog</name>
     <message>
         <source>Details</source>
-        <translation type="unfinished"></translation>
+        <translation>詳細</translation>
     </message>
     <message>
         <source>Capture file comments</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャファイルコメント</translation>
     </message>
     <message>
         <source>Refresh</source>
-        <translation type="unfinished"></translation>
+        <translation>更新</translation>
     </message>
     <message>
         <source>Copy To Clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>クリップボードにコピー</translation>
     </message>
     <message>
         <source>Save Comments</source>
-        <translation type="unfinished"></translation>
+        <translation>コメントを保存</translation>
     </message>
     <message>
         <source>Capture File Properties</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャファイルプロパティ</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>不明</translation>
     </message>
     <message>
         <source>File</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイル</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>名前</translation>
     </message>
     <message>
         <source>Length</source>
-        <translation type="unfinished"></translation>
+        <translation>長さ</translation>
     </message>
     <message>
         <source> (gzip compressed)</source>
-        <translation type="unfinished"></translation>
+        <translation> (gzip圧縮)</translation>
     </message>
     <message>
         <source>Format</source>
-        <translation type="unfinished"></translation>
+        <translation>形式</translation>
     </message>
     <message>
         <source>Encapsulation</source>
-        <translation type="unfinished"></translation>
+        <translation>カプセル化</translation>
     </message>
     <message>
         <source>Snapshot length</source>
-        <translation type="unfinished"></translation>
+        <translation>スナップショット長</translation>
     </message>
     <message>
         <source>Time</source>
-        <translation type="unfinished"></translation>
+        <translation>時間</translation>
     </message>
     <message>
         <source>First packet</source>
-        <translation type="unfinished"></translation>
+        <translation>最初のパケット</translation>
     </message>
     <message>
         <source>Last packet</source>
-        <translation type="unfinished"></translation>
+        <translation>最後のパケット</translation>
     </message>
     <message>
         <source>Elapsed</source>
-        <translation type="unfinished"></translation>
+        <translation>経過時間</translation>
     </message>
     <message>
         <source>Capture</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャ</translation>
     </message>
     <message>
         <source>Hardware</source>
-        <translation type="unfinished"></translation>
+        <translation>ハードウエア</translation>
     </message>
     <message>
         <source>OS</source>
-        <translation type="unfinished"></translation>
+        <translation>OS</translation>
     </message>
     <message>
         <source>Application</source>
-        <translation type="unfinished"></translation>
+        <translation>アプリケーション</translation>
     </message>
     <message>
         <source>Interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>インターフェース</translation>
     </message>
     <message>
         <source>Interface</source>
-        <translation type="unfinished"></translation>
+        <translation>インターフェース</translation>
     </message>
     <message>
         <source>Dropped packets</source>
-        <translation type="unfinished"></translation>
+        <translation>欠落したパケット</translation>
     </message>
     <message>
         <source>Capture filter</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャフィルタ</translation>
     </message>
     <message>
         <source>Link type</source>
-        <translation type="unfinished"></translation>
+        <translation>リンク種別</translation>
     </message>
     <message>
         <source>Packet size limit</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットサイズ制限</translation>
     </message>
     <message>
         <source>none</source>
-        <translation type="unfinished"></translation>
+        <translation>なし</translation>
     </message>
     <message>
         <source>%1 bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 バイト</translation>
     </message>
     <message>
         <source>Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>統計</translation>
     </message>
     <message>
         <source>Measurement</source>
-        <translation type="unfinished"></translation>
+        <translation>測定</translation>
     </message>
     <message>
         <source>Captured</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャ</translation>
     </message>
     <message>
         <source>Displayed</source>
-        <translation type="unfinished"></translation>
+        <translation>表示</translation>
     </message>
     <message>
         <source>Marked</source>
-        <translation type="unfinished"></translation>
+        <translation>マーク済</translation>
     </message>
     <message>
         <source>Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット数</translation>
     </message>
     <message>
         <source>Time span, s</source>
-        <translation type="unfinished"></translation>
+        <translation>時間間隔,秒</translation>
     </message>
     <message>
         <source>Average pps</source>
-        <translation type="unfinished"></translation>
+        <translation>平均パケット毎秒</translation>
     </message>
     <message>
         <source>Average packet size, B</source>
-        <translation type="unfinished"></translation>
+        <translation>平均パケットサイズ,バイト</translation>
     </message>
     <message>
         <source>Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>バイト数</translation>
     </message>
     <message>
         <source>Average bytes/s</source>
-        <translation type="unfinished"></translation>
+        <translation>平均バイト数毎秒</translation>
     </message>
     <message>
         <source>Average bits/s</source>
-        <translation type="unfinished"></translation>
+        <translation>平均ビット数毎秒</translation>
     </message>
     <message>
         <source>File Comment</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイルコメント</translation>
     </message>
     <message>
         <source>Packet Comments</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットコメント</translation>
     </message>
     <message>
         <source>&lt;p&gt;Frame %1: </source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;フレーム %1: </translation>
     </message>
     <message>
         <source>Created by Wireshark %1
 
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark %1 によって作成されました
+
+</translation>
     </message>
 </context>
 <context>
     <name>CaptureFilterCombo</name>
     <message>
         <source>Capture filter selector</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャフィルタ選択</translation>
     </message>
 </context>
 <context>
     <name>CaptureFilterEdit</name>
     <message>
         <source>Capture filter entry</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャフィルタエントリ</translation>
     </message>
     <message>
         <source>Manage saved bookmarks.</source>
-        <translation type="unfinished"></translation>
+        <translation>保存したブックマークを管理</translation>
     </message>
     <message>
         <source>Apply this filter string to the display.</source>
-        <translation type="unfinished"></translation>
+        <translation>このフィルタ文字列を表示に適用</translation>
     </message>
     <message>
         <source>Multiple filters selected. Override them here or leave this blank to preserve them.</source>
         <extracomment>This is a very long concept that needs to fit into a short space.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>複数のフィルタが選択されています。選択を上書きするかあるいは空白のままにしておいてください</translation>
     </message>
     <message>
         <source>&lt;p&gt;The interfaces you have selected have different capture filters. Typing a filter here will override them. Doing nothing will preserve them.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;選択したインターフェースには異なるキャプチャフィルタがあります。ここにフィルタを入力すれば上書きされます。なにもしなければ保存します&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Enter a capture filter %1</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャフィルタ %1 を入力</translation>
     </message>
     <message>
         <source>Save this filter</source>
-        <translation type="unfinished"></translation>
+        <translation>このフィルタを保存</translation>
     </message>
     <message>
         <source>Remove this filter</source>
-        <translation type="unfinished"></translation>
+        <translation>このフィルタを削除</translation>
     </message>
     <message>
         <source>Manage Capture Filters</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャフィルタを管理</translation>
     </message>
 </context>
 <context>
     <name>CaptureInterfacesDialog</name>
     <message>
         <source>Input</source>
-        <translation type="unfinished"></translation>
+        <translation>入力</translation>
     </message>
     <message>
         <source>Interface</source>
-        <translation type="unfinished"></translation>
+        <translation>インターフェース</translation>
     </message>
     <message>
         <source>Traffic</source>
-        <translation type="unfinished"></translation>
+        <translation>トラフィック</translation>
     </message>
     <message>
         <source>Link-layer Header</source>
-        <translation type="unfinished"></translation>
+        <translation>リンク層ヘッダ</translation>
     </message>
     <message>
         <source>Promiscuous</source>
-        <translation type="unfinished"></translation>
+        <translation>プロミスキャス</translation>
     </message>
     <message>
         <source>Snaplen (B)</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャ長(バイト)</translation>
     </message>
     <message>
         <source>Buffer (MB)</source>
-        <translation type="unfinished"></translation>
+        <translation>バッファ(メガバイト)</translation>
     </message>
     <message>
         <source>Monitor Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>モニタモード</translation>
     </message>
     <message>
         <source>Capture Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャフィルタ</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>これを有効にした方がよいでしょう。通常ネットワークカードは自身のアドレスに送られたトラフィックのみキャプチャします。もし、ネットワークカードのすべてのトラフィックをキャプチャしたいのでしたら、このオプションをマークしてください。FAQにスイッチングハブのネットワークからパケットをキャプチャする詳細があります。</translation>
     </message>
     <message>
         <source>Enable promiscuous mode on all interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>すべてのインターフェースにおいてプロミスキャスモードを有効化します</translation>
     </message>
     <message>
         <source>Show and hide interfaces, add comments, and manage pipes and remote interfaces.</source>
-        <translation type="unfinished"></translation>
+        <translation>インターフェースを表示/非表示、コメントの追加、およびパイプとリモートインターフェースを管理します</translation>
     </message>
     <message>
         <source>Manage Interfaces…</source>
-        <translation type="unfinished"></translation>
+        <translation>インターフェース管理…</translation>
     </message>
     <message>
         <source>Capture filter for selected interfaces:</source>
-        <translation type="unfinished"></translation>
+        <translation>選択したインターフェースのキャプチャフィルタ:</translation>
     </message>
     <message>
         <source>Compile BPFs</source>
-        <translation type="unfinished"></translation>
+        <translation>BPF形式をコンパイル</translation>
     </message>
     <message>
         <source>Output</source>
-        <translation type="unfinished"></translation>
+        <translation>出力</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter the file name to which captured data will be written. By default, a temporary file will be used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;キャプチャしたデータを記録するファイル名を入力してください。デフォルトでは一時ファイルが利用されます&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Capture to a permanent file</source>
-        <translation type="unfinished"></translation>
+        <translation>保存ファイルにキャプチャ</translation>
     </message>
     <message>
         <source>Browse…</source>
-        <translation type="unfinished"></translation>
+        <translation>参照…</translation>
     </message>
     <message>
         <source>File:</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイル:</translation>
     </message>
     <message>
         <source>Output format:</source>
-        <translation type="unfinished"></translation>
+        <translation>出力形式:</translation>
     </message>
     <message>
         <source>pcapng</source>
-        <translation type="unfinished"></translation>
+        <translation>pcapng</translation>
     </message>
     <message>
         <source>pcap</source>
-        <translation type="unfinished"></translation>
+        <translation>pcap形式</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Instead of using a single capture file, multiple files will be created.&lt;/p&gt;&lt;p&gt;The generated file names will contain an incrementing number and the start time of the capture.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;1つのキャプチャファイルを用いる代わりに複数のファイルが作成されます。&lt;/p&gt;&lt;p&gt;生成されたファイル名は連番とキャプチャ開始時間を含みます&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Create a new file automatically after…</source>
-        <translation type="unfinished"></translation>
+        <translation>…後に自動的に新ファイルを作成</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If the selected file size is exceeded, capturing switches to the next file.&lt;/p&gt;&lt;p&gt;PLEASE NOTE: One option MUST be selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;もし選択したファイルサイズを超過した場合 キャプチャは次のファイルに切り替わります。&lt;/p&gt;&lt;p&gt;注意:一つのオプションが選択されなければいけません&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>If the selected file size is exceeded, capturing switches to the next file.
 PLEASE NOTE: One option MUST be selected.</source>
-        <translation type="unfinished"></translation>
+        <translation>もし選択したファイルサイズを超過した場合 キャプチャは次のファイルに切り替わります
+注意:一つのオプションは必ず選択しなければいけません</translation>
     </message>
     <message>
         <source>kilobytes</source>
-        <translation type="unfinished"></translation>
+        <translation>キロバイト</translation>
     </message>
     <message>
         <source>megabytes</source>
-        <translation type="unfinished"></translation>
+        <translation>メガバイト</translation>
     </message>
     <message>
         <source>gigabytes</source>
-        <translation type="unfinished"></translation>
+        <translation>ギガバイト</translation>
     </message>
     <message>
         <source>seconds</source>
-        <translation type="unfinished"></translation>
+        <translation>秒</translation>
     </message>
     <message>
         <source>minutes</source>
-        <translation type="unfinished"></translation>
+        <translation>分</translation>
     </message>
     <message>
         <source>hours</source>
-        <translation type="unfinished"></translation>
+        <translation>時</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;キャプチャが次のファイルに切り替えられた後、与えられたファイル数を超過したら、最も古いファイルが消されます&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Use a ring buffer with </source>
-        <translation type="unfinished"></translation>
+        <translation>リングバッファを用いる</translation>
     </message>
     <message>
         <source>files</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイル</translation>
     </message>
     <message>
         <source>Options</source>
-        <translation type="unfinished"></translation>
+        <translation>オプション</translation>
     </message>
     <message>
         <source>Display Options</source>
-        <translation type="unfinished"></translation>
+        <translation>表示オプション</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Using this option will show the captured packets immediately on the main screen. Please note: this will slow down capturing, so increased packet drops might appear.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;このオプションを用いるとメイン画面ですぐにパケットキャプチャを表示します。注意:この操作はキャプチャを遅くするので、よりパケットをドロップするかもしれません。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Update list of packets in real-time</source>
-        <translation type="unfinished"></translation>
+        <translation>実時間でパケット一覧を更新</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This will scroll the &amp;quot;Packet List&amp;quot; automatically to the latest captured packet, when the &amp;quot;Update list of packets in real-time&amp;quot; option is used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;実際の時間でパケット一覧を更新オプションを用いるとパケット一覧画面はスクロールして最新のパケットを表示します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Automatically scroll during live capture</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャ中に自動スクロール</translation>
     </message>
     <message>
         <source>Name Resolution</source>
-        <translation type="unfinished"></translation>
+        <translation>名前解決</translation>
     </message>
     <message>
         <source>Perform MAC layer name resolution while capturing.</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャ中にMAC層の名前解決を行います</translation>
     </message>
     <message>
         <source>Resolve MAC Addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>MACアドレス解決</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perform network layer name resolution while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;キャプチャ中にネットワーク層の名前解決を実施&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Resolve network names</source>
-        <translation type="unfinished"></translation>
+        <translation>ネットワーク名を解決</translation>
     </message>
     <message>
         <source>Perform transport layer name resolution while capturing.</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャ中にトランスポート層の名前解決を行います</translation>
     </message>
     <message>
         <source>Resolve transport names</source>
-        <translation type="unfinished"></translation>
+        <translation>トランスポート層の名前を解決</translation>
     </message>
     <message>
         <source>Stop capture automatically after…</source>
-        <translation type="unfinished"></translation>
+        <translation>…後に自動的にキャプチャを停止</translation>
     </message>
     <message>
         <source>Stop capturing after the specified number of packets have been captured.</source>
-        <translation type="unfinished"></translation>
+        <translation>指定したパケット数がキャプチャされた後にキャプチャを停止します</translation>
     </message>
     <message>
         <source>Stop capturing after the specified amount of data has been captured.</source>
-        <translation type="unfinished"></translation>
+        <translation>指定したデータ量がキャプチャされたらキャプチャを停止</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified amount of data has been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;指定したデータ量がキャプチャされたらキャプチャを停止&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>packets</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット</translation>
     </message>
     <message>
         <source>Stop capturing after the specified amount of time has passed.</source>
-        <translation type="unfinished"></translation>
+        <translation>指定時間が経過した後キャプチャを停止します</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of packets have been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;指定した数のパケットがキャプチャされた後キャプチャを停止します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of files have been created.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;指定した数のファイルを作成した後キャプチャを停止します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Capture Interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャインターフェース</translation>
     </message>
     <message>
         <source>Start</source>
-        <translation type="unfinished"></translation>
+        <translation>開始</translation>
     </message>
     <message>
         <source>Leave blank to use a temporary file</source>
-        <translation type="unfinished"></translation>
+        <translation>一時ファイルを使うため空白にしておきます</translation>
     </message>
     <message>
         <source>Specify a Capture File</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャファイルを指定してください</translation>
     </message>
     <message>
         <source>%1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: %2</translation>
     </message>
     <message>
         <source>Addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>アドレス</translation>
     </message>
     <message>
         <source>Address</source>
-        <translation type="unfinished"></translation>
+        <translation>アドレス</translation>
     </message>
     <message>
         <source>no addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>アドレスがありません</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished"></translation>
+        <translation>エラー</translation>
     </message>
     <message>
         <source>Multiple files: Requested filesize too large. The filesize cannot be greater than 2 GiB.</source>
-        <translation type="unfinished"></translation>
+        <translation>複数ファイル: 要求したファイルサイズが大きすぎます。ファイルサイズは2GBより大きくすることはできません。</translation>
     </message>
     <message>
         <source>Multiple files: No capture file name given. You must specify a filename if you want to use multiple files.</source>
-        <translation type="unfinished"></translation>
+        <translation>複数ファイル: キャプチャファイル名がありません。複数ファイルを利用するにはファイル名を指定しなければなりません。</translation>
     </message>
     <message>
         <source>Multiple files: No file limit given. You must specify a file size or interval at which is switched to the next capture file
  if you want to use multiple files.</source>
-        <translation type="unfinished"></translation>
+        <translation>複数ファイル: ファイルの限度が与えられていません。複数ファイルを利用して次のキャプチャファイルに切り替えるファイルサイズか時間を指定しなければなりません。</translation>
     </message>
 </context>
 <context>
     <name>CapturePreferencesFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>フレーム</translation>
     </message>
     <message>
         <source>Default interface</source>
-        <translation type="unfinished"></translation>
+        <translation>デフォルトインターフェース</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>これを有効にした方がよいでしょう。通常ネットワークカードは自身のアドレスに送られたトラフィックのみキャプチャします。もし、ネットワークカードが&quot;見る&quot;ことのできるすべてのトラフィックをキャプチャしたいのでしたら、このオプションをマークしてください。FAQにスイッチングハブのネットワークからパケットをキャプチャする詳細があります。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Capture packets in promiscuous mode</source>
-        <translation type="unfinished"></translation>
+        <translation>プロミスキャスモードでパケットをキャプチャ</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Capture packets in the next-generation capture file format.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;次世代のキャプチャファイル形式でパケットをキャプチャします&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Capture packets in pcapng format</source>
-        <translation type="unfinished"></translation>
+        <translation>pcapng形式でパケットをキャプチャ</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Update the list of packets while capture is in progress. This can result in dropped packets on high-speed networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;キャプチャが進んでいる間パケット一覧を更新します。これにより、高速ネットワークにおいてはパケットが欠落することがありえます。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Update list of packets in real time</source>
-        <translation type="unfinished"></translation>
+        <translation>実時間でパケット一覧を更新</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Keep the packet list scrolled to the bottom while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;キャプチャ中にパケット一覧を一番下にスクロールし続けます&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Automatic scrolling in live capture</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャ中に自動スクロール</translation>
     </message>
     <message>
         <source>Disable external capture interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>外部のキャプチャインターフェースを無効化</translation>
     </message>
 </context>
 <context>
     <name>ColoringRulesDelegate</name>
     <message>
         <source>the &quot;@&quot; symbol will be ignored.</source>
-        <translation type="unfinished"></translation>
+        <translation>この &quot;@&quot; シンボルは無視されます</translation>
     </message>
 </context>
 <context>
     <name>ColoringRulesDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;ヒント&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Add a new coloring rule.</source>
-        <translation type="unfinished"></translation>
+        <translation>新しい色付けルールを追加します</translation>
     </message>
     <message>
         <source>Delete this coloring rule.</source>
-        <translation type="unfinished"></translation>
+        <translation>この色付けルールを削除します</translation>
     </message>
     <message>
         <source>Duplicate this coloring rule.</source>
-        <translation type="unfinished"></translation>
+        <translation>この色付けルールを複製します</translation>
     </message>
     <message>
         <source>Set the foreground color for this rule.</source>
-        <translation type="unfinished"></translation>
+        <translation>このルールに対して前景色を設定します</translation>
     </message>
     <message>
         <source>Foreground</source>
-        <translation type="unfinished"></translation>
+        <translation>前景色</translation>
     </message>
     <message>
         <source>Set the background color for this rule.</source>
-        <translation type="unfinished"></translation>
+        <translation>このルールに対して背景色を設定します</translation>
     </message>
     <message>
         <source>Background</source>
-        <translation type="unfinished"></translation>
+        <translation>背景色</translation>
     </message>
     <message>
         <source>Set the display filter using this rule.</source>
-        <translation type="unfinished"></translation>
+        <translation>このルールを使って表示フィルタを設定</translation>
     </message>
     <message>
         <source>Apply as filter</source>
-        <translation type="unfinished"></translation>
+        <translation>フィルタとして適用</translation>
     </message>
     <message>
         <source>Coloring Rules %1</source>
-        <translation type="unfinished"></translation>
+        <translation>色付けルール %1</translation>
     </message>
     <message>
         <source>Import</source>
-        <translation type="unfinished"></translation>
+        <translation>インポート</translation>
     </message>
     <message>
         <source>Select a file and add its filters to the end of the list.</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイルを選択してリストの末尾にフィルタを追加します</translation>
     </message>
     <message>
         <source>Export</source>
-        <translation type="unfinished"></translation>
+        <translation>エクスポート</translation>
     </message>
     <message>
         <source>Save filters in a file.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Your coloring rules file contains unknown rules</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. They have been disabled.</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイルにフィルタを保存します</translation>
     </message>
     <message>
         <source>Double click to edit. Drag to move. Rules are processed in order until a match is found.</source>
-        <translation type="unfinished"></translation>
+        <translation>ダブルクリックして編集します。ドラッグして動かします。ルールは一致が見つかるまで順番に処理されます</translation>
     </message>
     <message>
         <source>Import Coloring Rules</source>
-        <translation type="unfinished"></translation>
+        <translation>色付けルールをインポート</translation>
     </message>
     <message>
         <source>Export %1 Coloring Rules</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 色付けルールをエクスポート</translation>
+    </message>
+    <message>
+        <source>Your coloring rules file contains unknown rules</source>
+        <translation>あなたの色付けルールのファイルは未知のルールを含んでいます。</translation>
+    </message>
+    <message>
+        <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. They have been disabled.</source>
+        <translation>Wiresharkは１つかそれ以上の色分けルールを認識しません。それらは無効とされました。</translation>
     </message>
 </context>
 <context>
     <name>ColoringRulesModel</name>
     <message>
         <source>Unable to save coloring rules: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>色付けルールを保存できません: %1</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>名前</translation>
     </message>
     <message>
         <source>Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>フィルタ</translation>
     </message>
 </context>
 <context>
     <name>ColumnEditorFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>フレーム</translation>
     </message>
     <message>
         <source>Title:</source>
-        <translation type="unfinished"></translation>
+        <translation>題名:</translation>
     </message>
     <message>
         <source>Type:</source>
-        <translation type="unfinished"></translation>
+        <translation>種別:</translation>
     </message>
     <message>
         <source>Fields:</source>
-        <translation type="unfinished"></translation>
+        <translation>フィールド:</translation>
     </message>
     <message>
         <source>Occurrence:</source>
-        <translation type="unfinished"></translation>
+        <translation>出現位置:</translation>
     </message>
     <message>
         <source>Missing fields.</source>
-        <translation type="unfinished"></translation>
+        <translation>見つからないフィールド</translation>
     </message>
     <message>
         <source>Invalid fields.</source>
-        <translation type="unfinished"></translation>
+        <translation>無効なフィールド</translation>
     </message>
     <message>
         <source>Invalid occurrence value.</source>
-        <translation type="unfinished"></translation>
+        <translation>無効なオカレンス値</translation>
     </message>
 </context>
 <context>
     <name>ColumnPreferencesFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>フレーム</translation>
     </message>
     <message>
         <source>Displayed</source>
-        <translation type="unfinished"></translation>
+        <translation>表示</translation>
     </message>
     <message>
         <source>Title</source>
-        <translation type="unfinished"></translation>
+        <translation>題名</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation>種別</translation>
     </message>
     <message>
         <source>Fields</source>
-        <translation type="unfinished"></translation>
+        <translation>フィールド名</translation>
     </message>
     <message>
         <source>Field Occurrence</source>
-        <translation type="unfinished"></translation>
+        <translation>フィールド出現位置</translation>
     </message>
 </context>
 <context>
     <name>CompiledFilterOutput</name>
     <message>
         <source>Compiled Filter Output</source>
-        <translation type="unfinished"></translation>
+        <translation>コンパイル済フィルタ出力</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>コピー</translation>
     </message>
     <message>
         <source>Copy filter text to the clipboard.</source>
-        <translation type="unfinished"></translation>
+        <translation>フィルタテキストをクリップボードにコピーします</translation>
     </message>
 </context>
 <context>
     <name>ConversationDialog</name>
     <message>
         <source>Follow Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>ストリームを追跡</translation>
     </message>
     <message>
         <source>Follow a TCP or UDP stream.</source>
-        <translation type="unfinished"></translation>
+        <translation>TCPかUDPストリームを追跡</translation>
     </message>
     <message>
         <source>Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>グラフ</translation>
     </message>
     <message>
         <source>Graph a TCP conversation.</source>
-        <translation type="unfinished"></translation>
+        <translation>TCP対話をグラフ化します</translation>
     </message>
 </context>
 <context>
     <name>ConversationHashTablesDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <source>Dissector Tables</source>
-        <translation type="unfinished"></translation>
+        <translation>ダイセクター表</translation>
     </message>
 </context>
 <context>
     <name>DataPrinter</name>
     <message>
         <source>Copy Bytes as Hex + ASCII Dump</source>
-        <translation type="unfinished"></translation>
+        <translation>16進数およびASCIIダンプ形式としてバイト列をコピー</translation>
     </message>
     <message>
         <source>Copy packet bytes as a hex and ASCII dump.</source>
-        <translation type="unfinished"></translation>
+        <translation>16進数およびASCIIダンプ形式としてパケットバイト列をコピー</translation>
     </message>
     <message>
         <source>Copy packet bytes as a hex dump.</source>
-        <translation type="unfinished"></translation>
+        <translation>16進数ダンプとしてパケットバイト列をコピー</translation>
     </message>
     <message>
         <source>Copy only the printable text in the packet.</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット内の印刷可能なテキストだけをコピー</translation>
     </message>
     <message>
         <source>Copy packet bytes as a stream of hex.</source>
-        <translation type="unfinished"></translation>
+        <translation>16進数ストリームとしてパケットバイト列をコピー</translation>
     </message>
     <message>
         <source>Copy packet bytes as application/octet-stream MIME data.</source>
-        <translation type="unfinished"></translation>
+        <translation>MIMEデータ(application/octet-stream形式)としてパケットバイト列をコピー</translation>
     </message>
     <message>
         <source>Copy packet bytes as an escaped string.</source>
-        <translation type="unfinished"></translation>
+        <translation>エスケープされた文字列としてパケットバイト列をコピー</translation>
     </message>
 </context>
 <context>
     <name>DecodeAsDialog</name>
     <message>
         <source>Change the dissection behavior for a protocol.</source>
-        <translation type="unfinished"></translation>
+        <translation>プロトコルに対するダイセクターの振る舞いを変更します</translation>
     </message>
     <message>
         <source>Remove this dissection behavior.</source>
-        <translation type="unfinished"></translation>
+        <translation>このダイセクターの振る舞いを削除します</translation>
     </message>
     <message>
         <source>Copy this dissection behavior.</source>
-        <translation type="unfinished"></translation>
+        <translation>このダイセクターの振る舞いをコピーします</translation>
     </message>
     <message>
         <source>Decode As</source>
-        <translation type="unfinished"></translation>
+        <translation>としてデコード</translation>
     </message>
 </context>
 <context>
     <name>DecodeAsModel</name>
     <message>
         <source>Match using this field</source>
-        <translation type="unfinished"></translation>
+        <translation>このフィールドを使って照合</translation>
     </message>
     <message>
         <source>Current&quot;Decode As&quot; behavior</source>
-        <translation type="unfinished"></translation>
+        <translation>現在の &quot;...としてデコード&quot; の振る舞い</translation>
     </message>
     <message>
         <source>Default &quot;Decode As&quot; behavior</source>
-        <translation type="unfinished"></translation>
+        <translation>デフォルトの &quot;...としてデコード &quot; の振る舞い</translation>
     </message>
     <message>
         <source>Change behavior when the protocol field matches this value</source>
-        <translation type="unfinished"></translation>
+        <translation>プロトコルフィールドがこの値に一致した際の振る舞いを変更</translation>
     </message>
     <message>
         <source>String</source>
-        <translation type="unfinished"></translation>
+        <translation>文字列</translation>
     </message>
     <message>
         <source>Integer, base </source>
-        <translation type="unfinished"></translation>
+        <translation>整数型, 基数</translation>
     </message>
     <message>
         <source>unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>不明</translation>
     </message>
     <message>
         <source>&lt;none&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;none&gt;</translation>
     </message>
     <message>
         <source>GUID</source>
-        <translation type="unfinished"></translation>
+        <translation>GUID</translation>
     </message>
     <message>
         <source>Field</source>
-        <translation type="unfinished"></translation>
+        <translation>フィールド</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished"></translation>
+        <translation>値</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation>種別</translation>
     </message>
     <message>
         <source>Default</source>
-        <translation type="unfinished"></translation>
+        <translation>デフォルト</translation>
     </message>
     <message>
         <source>Current</source>
-        <translation type="unfinished"></translation>
+        <translation>現在</translation>
     </message>
 </context>
 <context>
     <name>DisplayFilterCombo</name>
     <message>
         <source>Display filter selector</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタの選択</translation>
     </message>
     <message>
         <source>Select from previously used filters.</source>
-        <translation type="unfinished"></translation>
+        <translation>前に使ったフィルタから選択</translation>
     </message>
 </context>
 <context>
     <name>DisplayFilterEdit</name>
     <message>
         <source>Display filter entry</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタエントリ</translation>
     </message>
     <message>
         <source>Manage saved bookmarks.</source>
-        <translation type="unfinished"></translation>
+        <translation>保存したブックマークを管理</translation>
     </message>
     <message>
         <source>Apply this filter string to the display.</source>
-        <translation type="unfinished"></translation>
+        <translation>このフィルタ文字列を表示に適用</translation>
     </message>
     <message>
         <source>Apply a display filter %1 &lt;%2/&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタ %1 &lt;%2/&gt; を適用</translation>
     </message>
     <message>
         <source>Enter a display filter %1</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタ %1 を入力します</translation>
     </message>
     <message>
         <source>Apply a read filter %1</source>
-        <translation type="unfinished"></translation>
+        <translation>読込フィルタ %1 を適用</translation>
     </message>
     <message>
         <source>Invalid filter: </source>
-        <translation type="unfinished"></translation>
+        <translation>無効なフィルタ</translation>
     </message>
     <message>
         <source>Save this filter</source>
-        <translation type="unfinished"></translation>
+        <translation>このフィルタを保存</translation>
     </message>
     <message>
         <source>Remove this filter</source>
-        <translation type="unfinished"></translation>
+        <translation>このフィルタを削除</translation>
     </message>
     <message>
         <source>Manage Display Filters</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタを管理</translation>
     </message>
     <message>
         <source>Manage Filter Expressions</source>
-        <translation type="unfinished"></translation>
+        <translation>フィルタ書式を管理</translation>
     </message>
 </context>
 <context>
     <name>DisplayFilterExpressionDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <source>Select a field to start building a display filter.</source>
-        <translation type="unfinished"></translation>
+        <translation>フィールドを選択して表示フィルタの構築を開始します。</translation>
     </message>
     <message>
         <source>Field Name</source>
-        <translation type="unfinished"></translation>
+        <translation>フィールド名</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the list of field names.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;フィールド名の一覧を検索します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Search:</source>
-        <translation type="unfinished"></translation>
+        <translation>検索:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Relations can be used to restrict fields to specific values. Each relation does the following:&lt;/p&gt;&lt;table border=&quot;0&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;&quot; cellspacing=&quot;2&quot; cellpadding=&quot;0&quot;&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;is present&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Match any packet that contains this field&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;==, !=, etc.&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Compare the field to a specific value.&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;contains, matches&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Check the field against a string (contains) or a regular expression (matches)&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;in&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Compare the field to a specific set of values&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;
 
 </source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;リレーションはフィールドを指定した値に制限するために使うことができます。それぞれのリレーションは以下のように動きます:&lt;/p&gt;&lt;table border=&quot;0&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;&quot; cellspacing=&quot;2&quot; cellpadding=&quot;0&quot;&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;is present&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;このフィールドに含まれるいずれかのパケットに適合&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;==, !=, etc.&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;フィールドを指定した値と比較&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;contains, matches&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;文字列でフィールドをチェック(contains) または 正規表現 (matches)&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;in&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;フィールドを指定した一連の値と比較&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;
+
+</translation>
     </message>
     <message>
         <source>Relation</source>
-        <translation type="unfinished"></translation>
+        <translation>リレーション</translation>
     </message>
     <message>
         <source>Match against this value.</source>
-        <translation type="unfinished"></translation>
+        <translation>この値に合致します</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished"></translation>
+        <translation>値</translation>
     </message>
     <message>
         <source>If the field you have selected has a known set of valid values they will be listed here.</source>
-        <translation type="unfinished"></translation>
+        <translation>選択したフィールドに有効な値があるとここに一覧表示されます</translation>
     </message>
     <message>
         <source>Predefined Values</source>
-        <translation type="unfinished"></translation>
+        <translation>事前に定義された値</translation>
     </message>
     <message>
         <source>If the field you have selected covers a range of bytes (e.g. you have selected a protocol) you can restrict the match to a range of bytes here.</source>
-        <translation type="unfinished"></translation>
+        <translation>選択したフィールドがバイト範囲に収まる場合（プロトコルを選んだときなど）、ここで合致するバイトの範囲制限できます</translation>
     </message>
     <message>
         <source>Range (offset:length)</source>
-        <translation type="unfinished"></translation>
+        <translation>範囲 (位置:長さ)</translation>
     </message>
     <message>
         <source>No display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタなし</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;ヒント&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Display Filter Expression</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタ式</translation>
     </message>
     <message>
         <source>Select a field name to get started</source>
-        <translation type="unfinished"></translation>
+        <translation>開始するフィールド名を選択</translation>
     </message>
     <message>
         <source>Click OK to insert this filter</source>
-        <translation type="unfinished"></translation>
+        <translation>OKをクリックしてこのフィルタを挿入</translation>
     </message>
 </context>
 <context>
     <name>DissectorTablesDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <source>Search:</source>
-        <translation type="unfinished"></translation>
+        <translation>検索:</translation>
     </message>
     <message>
         <source>Dissector Tables</source>
-        <translation type="unfinished"></translation>
+        <translation>ダイセクター表</translation>
     </message>
 </context>
 <context>
     <name>DissectorTablesProxyModel</name>
     <message>
         <source>Table Type</source>
-        <translation type="unfinished"></translation>
+        <translation>表の種別</translation>
     </message>
     <message>
         <source>String</source>
-        <translation type="unfinished"></translation>
+        <translation>文字列</translation>
     </message>
     <message>
         <source>Dissector</source>
-        <translation type="unfinished"></translation>
+        <translation>ダイセクター</translation>
     </message>
     <message>
         <source>Integer</source>
-        <translation type="unfinished"></translation>
+        <translation>整数型</translation>
     </message>
     <message>
         <source>Protocol</source>
-        <translation type="unfinished"></translation>
+        <translation>プロトコル</translation>
     </message>
     <message>
         <source>Short Name</source>
-        <translation type="unfinished"></translation>
+        <translation>短い名前</translation>
     </message>
     <message>
         <source>Table Name</source>
-        <translation type="unfinished"></translation>
+        <translation>表の名前</translation>
     </message>
     <message>
         <source>Selector Name</source>
-        <translation type="unfinished"></translation>
+        <translation>セレクタ名</translation>
     </message>
 </context>
 <context>
     <name>EnabledProtocolsDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;Disabling a protocol prevents higher layer protocols from being displayed&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;プロトコルを無効にすることで上位レイヤのプロトコルが表示されるのを防ぎます&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Search:</source>
-        <translation type="unfinished"></translation>
+        <translation>検索:</translation>
     </message>
     <message>
         <source>Enable All</source>
-        <translation type="unfinished"></translation>
+        <translation>すべて有効</translation>
     </message>
     <message>
         <source>Disable All</source>
-        <translation type="unfinished"></translation>
+        <translation>すべて無効</translation>
     </message>
     <message>
         <source>Invert</source>
-        <translation type="unfinished"></translation>
+        <translation>反転</translation>
     </message>
     <message>
         <source>Enabled Protocols</source>
-        <translation type="unfinished"></translation>
+        <translation>有効にしたプロトコル</translation>
     </message>
 </context>
 <context>
     <name>EnabledProtocolsModel</name>
     <message>
         <source>Protocol</source>
-        <translation type="unfinished"></translation>
+        <translation>プロトコル</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translation>記述</translation>
     </message>
 </context>
 <context>
     <name>ExpertInfoDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;ヒント&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Limit to Display Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタに制限</translation>
     </message>
     <message>
         <source>Group by summary</source>
-        <translation type="unfinished"></translation>
+        <translation>概要ごとにグループ</translation>
     </message>
     <message>
         <source>Search expert summaries.</source>
-        <translation type="unfinished"></translation>
+        <translation>エキスパートサマリを検索します</translation>
     </message>
     <message>
         <source>Search:</source>
-        <translation type="unfinished"></translation>
+        <translation>検索:</translation>
     </message>
     <message>
         <source>Show…</source>
-        <translation type="unfinished"></translation>
+        <translation>表示…</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished"></translation>
+        <translation>エラー</translation>
     </message>
     <message>
         <source>Show error packets.</source>
-        <translation type="unfinished"></translation>
+        <translation>エラーパケットを表示します</translation>
     </message>
     <message>
         <source>Warning</source>
-        <translation type="unfinished"></translation>
+        <translation>警告</translation>
     </message>
     <message>
         <source>Show warning packets.</source>
-        <translation type="unfinished"></translation>
+        <translation>警告パケットを表示します</translation>
     </message>
     <message>
         <source>Note</source>
-        <translation type="unfinished"></translation>
+        <translation>注意</translation>
     </message>
     <message>
         <source>Show note packets.</source>
-        <translation type="unfinished"></translation>
+        <translation>注意パケットを表示します</translation>
     </message>
     <message>
         <source>Chat</source>
-        <translation type="unfinished"></translation>
+        <translation>チャット</translation>
     </message>
     <message>
         <source>Show chat packets.</source>
-        <translation type="unfinished"></translation>
+        <translation>チャットパケットを表示します</translation>
     </message>
     <message>
         <source>Comment</source>
-        <translation type="unfinished">コメント</translation>
+        <translation>コメント</translation>
     </message>
     <message>
         <source>Show comment packets.</source>
-        <translation type="unfinished"></translation>
+        <translation>コメントパケットを表示します</translation>
     </message>
     <message>
         <source>Expert Information</source>
-        <translation type="unfinished"></translation>
+        <translation>エキスパート情報</translation>
     </message>
     <message>
         <source>Collapse All</source>
-        <translation type="unfinished"></translation>
+        <translation>すべて閉じる</translation>
     </message>
     <message>
         <source>Expand All</source>
-        <translation type="unfinished"></translation>
+        <translation>すべて展開</translation>
     </message>
     <message>
         <source>Capture file closed.</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャファイルを閉じました</translation>
     </message>
     <message>
         <source>No display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタなし</translation>
     </message>
     <message>
         <source>No display filter set.</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタが設定されていません</translation>
     </message>
     <message>
         <source>Limit information to &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>情報を &quot;%1&quot;に制限します</translation>
     </message>
     <message>
         <source>Display filter: &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタ: &quot;%1&quot;</translation>
     </message>
 </context>
 <context>
     <name>ExpertInfoProxyModel</name>
     <message>
         <source>Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット</translation>
     </message>
     <message>
         <source>Severity</source>
-        <translation type="unfinished"></translation>
+        <translation>重要度</translation>
     </message>
     <message>
         <source>Summary</source>
-        <translation type="unfinished"></translation>
+        <translation>概要</translation>
     </message>
     <message>
         <source>Group</source>
-        <translation type="unfinished"></translation>
+        <translation>グループ</translation>
     </message>
     <message>
         <source>Protocol</source>
-        <translation type="unfinished"></translation>
+        <translation>プロトコル</translation>
     </message>
     <message>
         <source>Count</source>
-        <translation type="unfinished"></translation>
+        <translation>回数</translation>
     </message>
 </context>
 <context>
     <name>ExportDissectionDialog</name>
     <message>
         <source>Export Packet Dissections</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット解析をエクスポート</translation>
     </message>
     <message>
         <source>Export As:</source>
-        <translation type="unfinished"></translation>
+        <translation>としてエクスポート:</translation>
     </message>
     <message>
         <source>Plain text (*.txt)</source>
-        <translation type="unfinished"></translation>
+        <translation>プレインテキスト (*.txt)</translation>
     </message>
     <message>
         <source>Comma Separated Values - summary (*.csv)</source>
-        <translation type="unfinished"></translation>
+        <translation>カンマ区切りテキスト - 概要 (*.csv)</translation>
     </message>
     <message>
         <source>PSML - summary (*.psml, *.xml)</source>
-        <translation type="unfinished"></translation>
+        <translation>PSML形式 - 概要 (*.psml, *.xml)</translation>
     </message>
     <message>
         <source>PDML - details (*.pdml, *.xml)</source>
-        <translation type="unfinished"></translation>
+        <translation>PSML形式 - 詳細 (*.psml, *.xml)</translation>
     </message>
     <message>
         <source>JSON (*.json)</source>
-        <translation type="unfinished"></translation>
+        <translation>JSON形式 (*.json)</translation>
     </message>
     <message>
         <source>C Arrays - bytes (*.c, *.h)</source>
-        <translation type="unfinished"></translation>
+        <translation>C言語配列 - バイト列 (*.c, *.h)</translation>
     </message>
 </context>
 <context>
     <name>ExportObjectDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <source>Searching for objects</source>
-        <translation type="unfinished"></translation>
+        <translation>オブジェクトを探索中</translation>
     </message>
     <message>
         <source>Export</source>
-        <translation type="unfinished"></translation>
+        <translation>エクスポート</translation>
     </message>
     <message>
         <source>%1 object list</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 オブジェクト一覧</translation>
     </message>
     <message>
         <source>Save Object As</source>
-        <translation type="unfinished"></translation>
+        <translation>としてオブジェクトを保存</translation>
     </message>
     <message>
         <source>Save All Objects In</source>
-        <translation type="unfinished"></translation>
+        <translation>すべてのオブジェクトを保存</translation>
     </message>
     <message>
         <source>Object Export</source>
-        <translation type="unfinished"></translation>
+        <translation>オブジェクトをエクスポート</translation>
     </message>
     <message>
         <source>Some files could not be saved.</source>
-        <translation type="unfinished"></translation>
+        <translation>いくつかのファイルは保存できませんでした。</translation>
     </message>
 </context>
 <context>
     <name>ExportObjectModel</name>
     <message>
         <source>Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット</translation>
     </message>
     <message>
         <source>Hostname</source>
-        <translation type="unfinished"></translation>
+        <translation>ホスト名</translation>
     </message>
     <message>
         <source>Content Type</source>
-        <translation type="unfinished"></translation>
+        <translation>コンテントタイプ</translation>
     </message>
     <message>
         <source>Size</source>
-        <translation type="unfinished"></translation>
+        <translation>サイズ</translation>
     </message>
     <message>
         <source>Filename</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイル名</translation>
     </message>
 </context>
 <context>
     <name>ExportPDUDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <source>Display filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタ:</translation>
     </message>
 </context>
 <context>
     <name>ExtcapArgumentFileSelection</name>
     <message>
         <source>All Files (</source>
-        <translation type="unfinished"></translation>
+        <translation>すべてのファイル(</translation>
     </message>
     <message>
         <source>Open File</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイルを開く</translation>
     </message>
 </context>
 <context>
     <name>ExtcapOptionsDialog</name>
     <message>
         <source>Save parameter on capture start</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャ開始時にパラメタを保存します</translation>
     </message>
     <message>
         <source>Interface Options</source>
-        <translation type="unfinished"></translation>
+        <translation>インターフェース オプション</translation>
     </message>
     <message>
         <source>Start</source>
-        <translation type="unfinished"></translation>
+        <translation>開始</translation>
     </message>
     <message>
         <source>Extcap Help cannot be found</source>
-        <translation type="unfinished"></translation>
+        <translation>Extcap ヘルプを見つけることができません</translation>
     </message>
     <message>
         <source>The help for the extcap interface %1 cannot be found. Given file: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>extcap インターフェース %1 に対するヘルプを見つけることができません。与えられたファイル: %2</translation>
     </message>
 </context>
 <context>
     <name>FieldFilterEdit</name>
     <message>
         <source>Display filter entry</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタエントリ</translation>
     </message>
     <message>
         <source>Enter a field %1</source>
-        <translation type="unfinished"></translation>
+        <translation>フィールド %1 を入力</translation>
     </message>
     <message>
         <source>Invalid filter: </source>
-        <translation type="unfinished"></translation>
+        <translation>無効なフィルタ: </translation>
     </message>
 </context>
 <context>
     <name>FileSetDialog</name>
     <message>
         <source>No files in Set</source>
-        <translation type="unfinished"></translation>
+        <translation>セットにファイルがありません</translation>
     </message>
     <message>
         <source>No capture loaded</source>
-        <translation type="unfinished"></translation>
+        <translation>何もキャプチャが読み込まれていません</translation>
     </message>
     <message numerus="yes">
         <source>%Ln File(s) in Set</source>
@@ -2273,319 +2278,319 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <source>Directory:</source>
-        <translation type="unfinished"></translation>
+        <translation>ディレクトリ:</translation>
     </message>
 </context>
 <context>
     <name>FilesetEntryModel</name>
     <message>
         <source>Open this capture file</source>
-        <translation type="unfinished"></translation>
+        <translation>このキャプチャファイルを開く</translation>
     </message>
     <message>
         <source>Filename</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイル名</translation>
     </message>
     <message>
         <source>Created</source>
-        <translation type="unfinished"></translation>
+        <translation>作成日</translation>
     </message>
     <message>
         <source>Modified</source>
-        <translation type="unfinished"></translation>
+        <translation>修正日</translation>
     </message>
     <message>
         <source>Size</source>
-        <translation type="unfinished"></translation>
+        <translation>サイズ</translation>
     </message>
 </context>
 <context>
     <name>FilterDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>名前</translation>
     </message>
     <message>
         <source>Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>フィルタ</translation>
     </message>
     <message>
         <source>Create a new filter.</source>
-        <translation type="unfinished"></translation>
+        <translation>新規フィルタを作成します</translation>
     </message>
     <message>
         <source>Remove this filter.</source>
-        <translation type="unfinished"></translation>
+        <translation>このプロファイルを削除します</translation>
     </message>
     <message>
         <source>Copy this filter.</source>
-        <translation type="unfinished"></translation>
+        <translation>このプロファイルをコピーします</translation>
     </message>
     <message>
         <source>Capture Filters</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャフィルタ</translation>
     </message>
     <message>
         <source>Display Filters</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタ</translation>
     </message>
     <message>
         <source>New filter</source>
-        <translation type="unfinished"></translation>
+        <translation>新規フィルタ</translation>
     </message>
     <message>
         <source>New capture filter</source>
         <extracomment>This text is automatically filled in when a new filter is created</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>新規キャプチャフィルタ</translation>
     </message>
     <message>
         <source>New display filter</source>
         <extracomment>This text is automatically filled in when a new filter is created</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>新規表示フィルタ</translation>
     </message>
 </context>
 <context>
     <name>FilterExpressionFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>フレーム</translation>
     </message>
     <message>
         <source>Filter Buttons Preferences…</source>
-        <translation type="unfinished"></translation>
+        <translation>フィルタボタン設定…</translation>
     </message>
     <message>
         <source>Label:</source>
-        <translation type="unfinished"></translation>
+        <translation>ラベル:</translation>
     </message>
     <message>
         <source>Enter a description for the filter button</source>
-        <translation type="unfinished"></translation>
+        <translation>フィルタボタンの記述を入力</translation>
     </message>
     <message>
         <source>Filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>フィルタ:</translation>
     </message>
     <message>
         <source>Enter a filter expression to be applied</source>
-        <translation type="unfinished"></translation>
+        <translation>適用されるフィルタ書式を入力</translation>
     </message>
     <message>
         <source>Comment:</source>
-        <translation type="unfinished"></translation>
+        <translation>コメント:</translation>
     </message>
     <message>
         <source>Enter a comment for the filter button</source>
-        <translation type="unfinished"></translation>
+        <translation>フィルタボタンのコメントを入力</translation>
     </message>
     <message>
         <source>Missing label.</source>
-        <translation type="unfinished"></translation>
+        <translation>見つからないラベル</translation>
     </message>
     <message>
         <source>Missing filter expression.</source>
-        <translation type="unfinished"></translation>
+        <translation>見つからないフィルタ式</translation>
     </message>
     <message>
         <source>Invalid filter expression.</source>
-        <translation type="unfinished"></translation>
+        <translation>無効なフィルタ式</translation>
     </message>
 </context>
 <context>
     <name>FindLineEdit</name>
     <message>
         <source>Textual Find</source>
-        <translation type="unfinished"></translation>
+        <translation>テキストで検索</translation>
     </message>
     <message>
         <source>Regular Expression Find</source>
-        <translation type="unfinished"></translation>
+        <translation>正規表現で検索</translation>
     </message>
 </context>
 <context>
     <name>FirewallRulesDialog</name>
     <message>
         <source>Create rules for</source>
-        <translation type="unfinished"></translation>
+        <translation>…に対してルールを作成</translation>
     </message>
     <message>
         <source>Inbound</source>
-        <translation type="unfinished"></translation>
+        <translation>入力</translation>
     </message>
     <message>
         <source>Deny</source>
-        <translation type="unfinished"></translation>
+        <translation>否定</translation>
     </message>
     <message>
         <source>Firewall ACL Rules</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイアウォール ACL ルール</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>コピー</translation>
     </message>
     <message>
         <source>IPv4 source address.</source>
-        <translation type="unfinished"></translation>
+        <translation>IPv4 送信元アドレス</translation>
     </message>
     <message>
         <source>IPv4 destination address.</source>
-        <translation type="unfinished"></translation>
+        <translation>IPv4 宛先アドレス</translation>
     </message>
     <message>
         <source>Source port.</source>
-        <translation type="unfinished"></translation>
+        <translation>送信元ポート.</translation>
     </message>
     <message>
         <source>Destination port.</source>
-        <translation type="unfinished"></translation>
+        <translation>宛先ポート.</translation>
     </message>
     <message>
         <source>IPv4 source address and port.</source>
-        <translation type="unfinished"></translation>
+        <translation>IPv4 送信元アドレスとポート</translation>
     </message>
     <message>
         <source>IPv4 destination address and port.</source>
-        <translation type="unfinished"></translation>
+        <translation>IPv4 宛先アドレスとポート</translation>
     </message>
     <message>
         <source>MAC source address.</source>
-        <translation type="unfinished"></translation>
+        <translation>MAC 送信元アドレス</translation>
     </message>
     <message>
         <source>MAC destination address.</source>
-        <translation type="unfinished"></translation>
+        <translation>MAC宛先アドレス</translation>
     </message>
     <message>
         <source>Text file (*.txt);;All Files (</source>
-        <translation type="unfinished"></translation>
+        <translation>テキストファイル (*.txt);;すべてのファイル (</translation>
     </message>
     <message>
         <source>Warning</source>
-        <translation type="unfinished"></translation>
+        <translation>警告</translation>
     </message>
     <message>
         <source>Unable to save %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1を保存できません</translation>
     </message>
 </context>
 <context>
     <name>FolderListModel</name>
     <message>
         <source>&quot;File&quot; dialogs</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;ファイル&quot; ダイアログ</translation>
     </message>
     <message>
         <source>capture files</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャファイル</translation>
     </message>
     <message>
         <source>Temp</source>
-        <translation type="unfinished"></translation>
+        <translation>一時的</translation>
     </message>
     <message>
         <source>untitled capture files</source>
-        <translation type="unfinished"></translation>
+        <translation>名称未設定キャプチャファイル</translation>
     </message>
     <message>
         <source>Personal configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>個人設定</translation>
     </message>
     <message>
         <source>dfilters, preferences, ethers, </source>
-        <translation type="unfinished"></translation>
+        <translation>dfilters, preferences, ethers, </translation>
     </message>
     <message>
         <source>Global configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>グローバル設定</translation>
     </message>
     <message>
         <source>dfilters, preferences, manuf, </source>
-        <translation type="unfinished"></translation>
+        <translation>dfilters, preferences, manuf, </translation>
     </message>
     <message>
         <source>System</source>
-        <translation type="unfinished"></translation>
+        <translation>システム</translation>
     </message>
     <message>
         <source>ethers, ipxnets</source>
-        <translation type="unfinished"></translation>
+        <translation>ethers, ipxnets</translation>
     </message>
     <message>
         <source>Program</source>
-        <translation type="unfinished"></translation>
+        <translation>プログラム</translation>
     </message>
     <message>
         <source>program files</source>
-        <translation type="unfinished"></translation>
+        <translation>program files</translation>
     </message>
     <message>
         <source>Personal Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>パーソナルプラグイン</translation>
     </message>
     <message>
         <source>binary plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>binary plugins</translation>
     </message>
     <message>
         <source>Global Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>グローバルプラグイン</translation>
     </message>
     <message>
         <source>Personal Lua Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>個人Luaプラグイン</translation>
     </message>
     <message>
         <source>lua scripts</source>
-        <translation type="unfinished"></translation>
+        <translation>lua scripts</translation>
     </message>
     <message>
         <source>Global Lua Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>グローバルLuaプラグイン</translation>
     </message>
     <message>
         <source>Extcap path</source>
-        <translation type="unfinished"></translation>
+        <translation>Extcap path</translation>
     </message>
     <message>
         <source>Extcap Plugins search path</source>
-        <translation type="unfinished"></translation>
+        <translation>Extcap プラグイン検索パス</translation>
     </message>
     <message>
         <source>MaxMind DB path</source>
-        <translation type="unfinished"></translation>
+        <translation>MaxMind DB パス</translation>
     </message>
     <message>
         <source>MaxMind DB database search path</source>
-        <translation type="unfinished"></translation>
+        <translation>MaxMind DB データベース検索パス</translation>
     </message>
     <message>
         <source>MIB/PIB path</source>
-        <translation type="unfinished"></translation>
+        <translation>MIB/PIB パス</translation>
     </message>
     <message>
         <source>SMI MIB/PIB search path</source>
-        <translation type="unfinished"></translation>
+        <translation>SMI MIB/PIB 検索パス</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>名前</translation>
     </message>
     <message>
         <source>Location</source>
-        <translation type="unfinished"></translation>
+        <translation>場所</translation>
     </message>
     <message>
         <source>Typical Files</source>
-        <translation type="unfinished"></translation>
+        <translation>典型的なファイル</translation>
     </message>
 </context>
 <context>
@@ -2604,55 +2609,55 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>ASCII</source>
-        <translation type="unfinished"></translation>
+        <translation>ASCII形式</translation>
     </message>
     <message>
         <source>C Arrays</source>
-        <translation type="unfinished"></translation>
+        <translation>C言語配列形式</translation>
     </message>
     <message>
         <source>EBCDIC</source>
-        <translation type="unfinished"></translation>
+        <translation>EBCDIC形式</translation>
     </message>
     <message>
         <source>Hex Dump</source>
-        <translation type="unfinished"></translation>
+        <translation>16進数ダンプ形式</translation>
     </message>
     <message>
         <source>UTF-8</source>
-        <translation type="unfinished"></translation>
+        <translation>UTF-8形式</translation>
     </message>
     <message>
         <source>UTF-16</source>
-        <translation type="unfinished"></translation>
+        <translation>UTF-16</translation>
     </message>
     <message>
         <source>YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>YAML形式</translation>
     </message>
     <message>
         <source>Raw</source>
-        <translation type="unfinished"></translation>
+        <translation>Raw(無加工)形式</translation>
     </message>
     <message>
         <source>Filter Out This Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>このストリームを除外します</translation>
     </message>
     <message>
         <source>Print</source>
-        <translation type="unfinished"></translation>
+        <translation>印刷</translation>
     </message>
     <message>
         <source>Save as</source>
-        <translation type="unfinished"></translation>
+        <translation>として保存</translation>
     </message>
     <message>
         <source>Back</source>
-        <translation type="unfinished"></translation>
+        <translation>戻る</translation>
     </message>
     <message>
         <source>Packet %1. </source>
-        <translation type="unfinished"></translation>
+        <translation>パケット %1</translation>
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt; pkt(s), </source>
@@ -2674,284 +2679,284 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source> Click to select.</source>
-        <translation type="unfinished"></translation>
+        <translation>クリックして選択します</translation>
     </message>
     <message>
         <source>Regex Find:</source>
-        <translation type="unfinished"></translation>
+        <translation>正規表現検索:</translation>
     </message>
     <message>
         <source>Save Stream Content As</source>
-        <translation type="unfinished"></translation>
+        <translation>としてストリーム内容を保存</translation>
     </message>
     <message>
         <source>[Stream output truncated]</source>
-        <translation type="unfinished"></translation>
+        <translation>[ストリーム出力が切り詰められました]</translation>
     </message>
     <message>
         <source>No capture file.</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャファイルがありません</translation>
     </message>
     <message>
         <source>Please make sure you have a capture file opened.</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャファイルを開いていないか確認してください</translation>
     </message>
     <message>
         <source>Error following stream.</source>
-        <translation type="unfinished"></translation>
+        <translation>ストリーム追跡のエラー</translation>
     </message>
     <message>
         <source>Capture file invalid.</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャファイルが無効です</translation>
     </message>
     <message>
         <source>Please make sure you have a %1 packet selected.</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット %1 を選択したか確認してください</translation>
     </message>
     <message>
         <source>Error creating filter for this stream.</source>
-        <translation type="unfinished"></translation>
+        <translation>このストリームのフィルタ作成エラー</translation>
     </message>
     <message>
         <source>A transport or network layer header is needed.</source>
-        <translation type="unfinished"></translation>
+        <translation>トランスポート層かネットワーク層のヘッダーが必要です。</translation>
     </message>
     <message numerus="yes">
         <source>%Ln total stream(s).</source>
-        <translation type="unfinished">
-            <numerusform>%Ln stream.</numerusform>
+        <translation>
+            <numerusform>%Ln 全ストリーム</numerusform>
         </translation>
     </message>
     <message>
         <source>Entire conversation (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>全体の対話 (%1)</translation>
     </message>
     <message>
         <source>Follow %1 Stream (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 ストリーム (%2)を追跡</translation>
     </message>
     <message>
         <source>File closed.</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイルを閉じました。</translation>
     </message>
     <message>
         <source>Follow Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>ストリームを追跡</translation>
     </message>
     <message>
         <source>Hint.</source>
-        <translation type="unfinished"></translation>
+        <translation>ヒント</translation>
     </message>
     <message>
         <source>Show and save data as</source>
-        <translation type="unfinished"></translation>
+        <translation>としてデータを表示して保存する</translation>
     </message>
     <message>
         <source>Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>ストリーム</translation>
     </message>
     <message>
         <source>Find:</source>
-        <translation type="unfinished"></translation>
+        <translation>検索:</translation>
     </message>
     <message>
         <source>Find &amp;Next</source>
-        <translation type="unfinished"></translation>
+        <translation>次を検索(&amp;N)</translation>
     </message>
 </context>
 <context>
     <name>FontColorPreferencesFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>フレーム</translation>
     </message>
     <message>
         <source>Main window font:</source>
-        <translation type="unfinished"></translation>
+        <translation>メインウインドウのフォント:</translation>
     </message>
     <message>
         <source>Select Font</source>
-        <translation type="unfinished"></translation>
+        <translation>フォントの選択</translation>
     </message>
     <message>
         <source>Colors:</source>
-        <translation type="unfinished"></translation>
+        <translation>色:</translation>
     </message>
     <message>
         <source>Sample ignored packet text</source>
-        <translation type="unfinished"></translation>
+        <translation>無視されたパケットテキストのサンプル</translation>
     </message>
     <message>
         <source>Sample marked packet text</source>
-        <translation type="unfinished"></translation>
+        <translation>マークされたパケットテキストのサンプル</translation>
     </message>
     <message>
         <source>Sample &quot;Follow Stream&quot; client text</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;ストリーム追跡&quot;クライアントテキストのサンプル</translation>
     </message>
     <message>
         <source>Sample &quot;Follow Stream&quot; server text</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;ストリーム追跡&quot;サーバテキストのサンプル</translation>
     </message>
     <message>
         <source>Sample valid filter</source>
-        <translation type="unfinished"></translation>
+        <translation>有効フィルタのサンプル</translation>
     </message>
     <message>
         <source>Sample invalid filter</source>
-        <translation type="unfinished"></translation>
+        <translation>無効フィルタのサンプル</translation>
     </message>
     <message>
         <source>Sample warning filter</source>
-        <translation type="unfinished"></translation>
+        <translation>非推奨フィルタのサンプル</translation>
     </message>
     <message>
         <source>Font</source>
-        <translation type="unfinished"></translation>
+        <translation>フォント</translation>
     </message>
 </context>
 <context>
     <name>FunnelStringDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
 </context>
 <context>
     <name>FunnelTextDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter some text or a regular expression. It will be highlighted above.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;何かテキストや正規表現を入力してください。上に強調表示されます。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Highlight:</source>
-        <translation type="unfinished"></translation>
+        <translation>強調表示:</translation>
     </message>
 </context>
 <context>
     <name>GsmMapSummaryDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <source>GSM MAP Summary</source>
-        <translation type="unfinished"></translation>
+        <translation>GSM MAP概要</translation>
     </message>
     <message>
         <source>File</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイル</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>名前</translation>
     </message>
     <message>
         <source>Length</source>
-        <translation type="unfinished"></translation>
+        <translation>長さ</translation>
     </message>
     <message>
         <source> (gzip compressed)</source>
-        <translation type="unfinished"></translation>
+        <translation> (gzip圧縮)</translation>
     </message>
     <message>
         <source>Format</source>
-        <translation type="unfinished"></translation>
+        <translation>フォーマット</translation>
     </message>
     <message>
         <source>Snapshot length</source>
-        <translation type="unfinished"></translation>
+        <translation>スナップショット長</translation>
     </message>
     <message>
         <source>Data</source>
-        <translation type="unfinished"></translation>
+        <translation>データ</translation>
     </message>
     <message>
         <source>First packet</source>
-        <translation type="unfinished"></translation>
+        <translation>最初のパケット</translation>
     </message>
     <message>
         <source>Last packet</source>
-        <translation type="unfinished"></translation>
+        <translation>最後のパケット</translation>
     </message>
     <message>
         <source>Elapsed</source>
-        <translation type="unfinished"></translation>
+        <translation>経過</translation>
     </message>
     <message>
         <source>Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット</translation>
     </message>
     <message>
         <source>Invokes</source>
-        <translation type="unfinished"></translation>
+        <translation>インボーク</translation>
     </message>
     <message>
         <source>Total number of Invokes</source>
-        <translation type="unfinished"></translation>
+        <translation>インボークの総数</translation>
     </message>
     <message>
         <source>Average number of Invokes per second</source>
-        <translation type="unfinished"></translation>
+        <translation>平均インボーク数毎秒</translation>
     </message>
     <message>
         <source>Total number of bytes for Invokes</source>
-        <translation type="unfinished"></translation>
+        <translation>インボークの全バイト数</translation>
     </message>
     <message>
         <source>Average number of bytes per Invoke</source>
-        <translation type="unfinished"></translation>
+        <translation>平均バイト数毎インボーク</translation>
     </message>
     <message>
         <source>Return Results</source>
-        <translation type="unfinished"></translation>
+        <translation>リターン結果</translation>
     </message>
     <message>
         <source>Total number of Return Results</source>
-        <translation type="unfinished"></translation>
+        <translation>リターン結果の総数</translation>
     </message>
     <message>
         <source>Average number of Return Results per second</source>
-        <translation type="unfinished"></translation>
+        <translation>平均リターン結果数毎秒</translation>
     </message>
     <message>
         <source>Total number of bytes for Return Results</source>
-        <translation type="unfinished"></translation>
+        <translation>リターン結果の全バイト数</translation>
     </message>
     <message>
         <source>Average number of bytes per Return Result</source>
-        <translation type="unfinished"></translation>
+        <translation>平均バイト数毎リターン結果</translation>
     </message>
     <message>
         <source>Totals</source>
-        <translation type="unfinished"></translation>
+        <translation>総数</translation>
     </message>
     <message>
         <source>Total number of GSM MAP messages</source>
-        <translation type="unfinished"></translation>
+        <translation>GSM MAPメッセージの総数</translation>
     </message>
     <message>
         <source>Average number of GSM MAP messages per second</source>
-        <translation type="unfinished"></translation>
+        <translation>平均GSM MAPメッセージ数毎秒</translation>
     </message>
     <message>
         <source>Total number of bytes for GSM MAP messages</source>
-        <translation type="unfinished"></translation>
+        <translation>GSM MAPメッセージの全バイト数</translation>
     </message>
     <message>
         <source>Average number of bytes per GSM MAP message</source>
-        <translation type="unfinished"></translation>
+        <translation>GSM MAPメッセージの平均バイト数</translation>
     </message>
 </context>
 <context>
     <name>IOGraphDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
@@ -2984,1791 +2989,1820 @@ PLEASE NOTE: One option MUST be selected.</source>
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+
+&lt;h3&gt;価値のあり、すばらしく、時間を節約するキーボードショートカット&lt;/h3&gt;
+&lt;table&gt;&lt;tbody&gt;
+
+&lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;拡大&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;縮小&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;x&lt;/th&gt;&lt;td&gt;X軸の拡大&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;X&lt;/th&gt;&lt;td&gt;X軸の縮小&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;y&lt;/th&gt;&lt;td&gt;Y軸の拡大&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Y&lt;/th&gt;&lt;td&gt;Y軸の縮小&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;初期状態にグラフをリセット&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;右に10ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;左に10ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;上に10ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;下に10ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;右に1ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;左に1ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;上に1ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;下に1ピクセル移動&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;カーソル下のパケットへ移動&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;マウスドラッグ/ズーム&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;キャプチャ/セッション&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Space&lt;/th&gt;&lt;td&gt;クロスヘア&lt;/td&gt;&lt;/th&gt;
+
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Add a new graph.</source>
-        <translation type="unfinished"></translation>
+        <translation>新規グラフを追加します</translation>
     </message>
     <message>
         <source>Remove this graph.</source>
-        <translation type="unfinished"></translation>
+        <translation>このグラフを削除します</translation>
     </message>
     <message>
         <source>Duplicate this graph.</source>
-        <translation type="unfinished"></translation>
+        <translation>このグラフを複製します</translation>
     </message>
     <message>
         <source>Mouse</source>
-        <translation type="unfinished"></translation>
+        <translation>マウス</translation>
     </message>
     <message>
         <source>Drag using the mouse button.</source>
-        <translation type="unfinished"></translation>
+        <translation>マウスボタンを使ってドラッグします</translation>
     </message>
     <message>
         <source>drags</source>
-        <translation type="unfinished"></translation>
+        <translation>ドラッグ</translation>
     </message>
     <message>
         <source>Select using the mouse button.</source>
-        <translation type="unfinished"></translation>
+        <translation>マウスボタンを使って選択します</translation>
     </message>
     <message>
         <source>zooms</source>
-        <translation type="unfinished"></translation>
+        <translation>ズーム</translation>
     </message>
     <message>
         <source>Interval</source>
-        <translation type="unfinished"></translation>
+        <translation>インターバル</translation>
     </message>
     <message>
         <source>Time of day</source>
-        <translation type="unfinished"></translation>
+        <translation>時刻</translation>
     </message>
     <message>
         <source>Log scale</source>
-        <translation type="unfinished"></translation>
+        <translation>ログのスケール</translation>
     </message>
     <message>
         <source>Reset</source>
-        <translation type="unfinished"></translation>
+        <translation>リセット</translation>
     </message>
     <message>
         <source>Reset Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>グラフをリセット</translation>
     </message>
     <message>
         <source>Reset the graph to its initial state.</source>
-        <translation type="unfinished"></translation>
+        <translation>グラフを初期状態にリセットします</translation>
     </message>
     <message>
         <source>0</source>
-        <translation type="unfinished"></translation>
+        <translation>0</translation>
     </message>
     <message>
         <source>Zoom In</source>
-        <translation type="unfinished"></translation>
+        <translation>拡大</translation>
     </message>
     <message>
         <source>+</source>
-        <translation type="unfinished"></translation>
+        <translation>+</translation>
     </message>
     <message>
         <source>Zoom Out</source>
-        <translation type="unfinished"></translation>
+        <translation>縮小</translation>
     </message>
     <message>
         <source>-</source>
-        <translation type="unfinished"></translation>
+        <translation>-</translation>
     </message>
     <message>
         <source>Move Up 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>上に10ピクセル移動</translation>
     </message>
     <message>
         <source>Up</source>
-        <translation type="unfinished"></translation>
+        <translation>上</translation>
     </message>
     <message>
         <source>Move Left 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>左に10ピクセル移動</translation>
     </message>
     <message>
         <source>Left</source>
-        <translation type="unfinished"></translation>
+        <translation>左</translation>
     </message>
     <message>
         <source>Move Right 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>右に10ピクセル移動</translation>
     </message>
     <message>
         <source>Right</source>
-        <translation type="unfinished"></translation>
+        <translation>右</translation>
     </message>
     <message>
         <source>Move Down 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>下に10ピクセル移動</translation>
     </message>
     <message>
         <source>Down</source>
-        <translation type="unfinished"></translation>
+        <translation>下</translation>
     </message>
     <message>
         <source>Move Up 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>上に1ピクセル移動</translation>
     </message>
     <message>
         <source>Shift+Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+上</translation>
     </message>
     <message>
         <source>Move Left 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>左に1ピクセル移動</translation>
     </message>
     <message>
         <source>Shift+Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+左</translation>
     </message>
     <message>
         <source>Move Right 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>1ピクセル右に移動</translation>
     </message>
     <message>
         <source>Shift+Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+右</translation>
     </message>
     <message>
         <source>Move Down 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>下に1ピクセル移動</translation>
     </message>
     <message>
         <source>Move down 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>下に1ピクセル移動</translation>
     </message>
     <message>
         <source>Shift+Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+下</translation>
     </message>
     <message>
         <source>Go To Packet Under Cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>カーソルの位置のパケットに移動</translation>
     </message>
     <message>
         <source>Go to packet currently under the cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>現在カーソルの位置のパケットに移動</translation>
     </message>
     <message>
         <source>G</source>
-        <translation type="unfinished"></translation>
+        <translation>G</translation>
     </message>
     <message>
         <source>Drag / Zoom</source>
-        <translation type="unfinished"></translation>
+        <translation>ドラッグ / ズーム</translation>
     </message>
     <message>
         <source>Toggle mouse drag / zoom behavior</source>
-        <translation type="unfinished"></translation>
+        <translation>マウスのドラッグ/ズームの動作を切り替えます</translation>
     </message>
     <message>
         <source>Z</source>
-        <translation type="unfinished"></translation>
+        <translation>Z</translation>
     </message>
     <message>
         <source>Capture / Session Time Origin</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャ/セッション時間の起点</translation>
     </message>
     <message>
         <source>Toggle capture / session time origin</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャ/セッション時間の起点を切り替え</translation>
     </message>
     <message>
         <source>T</source>
-        <translation type="unfinished"></translation>
+        <translation>T</translation>
     </message>
     <message>
         <source>Crosshairs</source>
-        <translation type="unfinished"></translation>
+        <translation>十字カーソル</translation>
     </message>
     <message>
         <source>Toggle crosshairs</source>
-        <translation type="unfinished"></translation>
+        <translation>十字カーソルの表示を切り替えます</translation>
     </message>
     <message>
         <source>Space</source>
-        <translation type="unfinished"></translation>
+        <translation>スペース</translation>
     </message>
     <message>
         <source>Zoom In X Axis</source>
-        <translation type="unfinished"></translation>
+        <translation>X軸を拡大</translation>
     </message>
     <message>
         <source>X</source>
-        <translation type="unfinished"></translation>
+        <translation>X</translation>
     </message>
     <message>
         <source>Zoom Out X Axis</source>
-        <translation type="unfinished"></translation>
+        <translation>X軸を縮小</translation>
     </message>
     <message>
         <source>Shift+X</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+X</translation>
     </message>
     <message>
         <source>Zoom In Y Axis</source>
-        <translation type="unfinished"></translation>
+        <translation>Y軸を拡大</translation>
     </message>
     <message>
         <source>Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Y</translation>
     </message>
     <message>
         <source>Zoom Out Y Axis</source>
-        <translation type="unfinished"></translation>
+        <translation>Y軸を縮小</translation>
     </message>
     <message>
         <source>Shift+Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+Y</translation>
     </message>
     <message>
         <source>IO Graphs</source>
-        <translation type="unfinished"></translation>
+        <translation>入出力グラフ</translation>
     </message>
     <message>
         <source>Save As</source>
-        <translation type="unfinished"></translation>
+        <translation>として保存</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>コピー</translation>
     </message>
     <message>
         <source>1 ms</source>
-        <translation type="unfinished"></translation>
+        <translation>1ミリ秒</translation>
     </message>
     <message>
         <source>10 ms</source>
-        <translation type="unfinished"></translation>
+        <translation>10ミリ秒</translation>
     </message>
     <message>
         <source>100 ms</source>
-        <translation type="unfinished"></translation>
+        <translation>100ミリ秒</translation>
     </message>
     <message>
         <source>1 sec</source>
-        <translation type="unfinished"></translation>
+        <translation>1秒</translation>
     </message>
     <message>
         <source>10 sec</source>
-        <translation type="unfinished"></translation>
+        <translation>10秒</translation>
     </message>
     <message>
         <source>1 min</source>
-        <translation type="unfinished"></translation>
+        <translation>1分</translation>
     </message>
     <message>
         <source>10 min</source>
-        <translation type="unfinished"></translation>
+        <translation>10分</translation>
     </message>
     <message>
         <source>Time (s)</source>
-        <translation type="unfinished"></translation>
+        <translation>時間(秒)</translation>
     </message>
     <message>
         <source>Wireshark IO Graphs: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark入出力グラフ: %1</translation>
     </message>
     <message>
         <source>All packets</source>
-        <translation type="unfinished"></translation>
+        <translation>すべてのパケット</translation>
     </message>
     <message>
         <source>TCP errors</source>
-        <translation type="unfinished"></translation>
+        <translation>TCPエラー</translation>
     </message>
     <message>
         <source>Hover over the graph for details.</source>
-        <translation type="unfinished"></translation>
+        <translation>詳細はグラフの上にマウスをのせてください</translation>
     </message>
     <message>
         <source>No packets in interval</source>
-        <translation type="unfinished"></translation>
+        <translation>この間隔にパケットはありません</translation>
     </message>
     <message>
         <source>Click to select packet</source>
-        <translation type="unfinished"></translation>
+        <translation>クリックしてパケットを選んでください</translation>
     </message>
     <message>
         <source>Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット</translation>
     </message>
     <message>
         <source>%1 (%2s%3).</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (%2s%3).</translation>
     </message>
     <message>
         <source>Release to zoom, x = %1 to %2, y = %3 to %4</source>
-        <translation type="unfinished"></translation>
+        <translation>離してズーム, x = %1 から %2, y = %3 から %4</translation>
     </message>
     <message>
         <source>Unable to select range.</source>
-        <translation type="unfinished"></translation>
+        <translation>範囲を選択できません</translation>
     </message>
     <message>
         <source>Click to select a portion of the graph.</source>
-        <translation type="unfinished"></translation>
+        <translation>クリックしてグラフの割合を選びます</translation>
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>
-        <translation type="unfinished"></translation>
+        <translation>PDF形式 (*.pdf)</translation>
     </message>
     <message>
         <source>Portable Network Graphics (*.png)</source>
-        <translation type="unfinished"></translation>
+        <translation>PNG形式 (*.png)</translation>
     </message>
     <message>
         <source>Windows Bitmap (*.bmp)</source>
-        <translation type="unfinished"></translation>
+        <translation>Windowsビットマップ形式 (*.bmp)</translation>
     </message>
     <message>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation type="unfinished"></translation>
+        <translation>JPEG形式 (*.jpeg *.jpg)</translation>
     </message>
     <message>
         <source>Comma Separated Values (*.csv)</source>
-        <translation type="unfinished"></translation>
+        <translation>カンマ区切りテキスト形式 (*.csv)</translation>
     </message>
     <message>
         <source>Save Graph As</source>
-        <translation type="unfinished"></translation>
+        <translation>としてグラフを保存</translation>
     </message>
 </context>
 <context>
     <name>Iax2AnalysisDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Forward&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Reverse&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Forward&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Reverse&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Forward</source>
-        <translation type="unfinished"></translation>
+        <translation>進む</translation>
     </message>
     <message>
         <source>Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット</translation>
     </message>
     <message>
         <source>Delta (ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>間隔 (ms)</translation>
     </message>
     <message>
         <source>Jitter (ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>ジッタ (ms)</translation>
     </message>
     <message>
         <source>Bandwidth</source>
-        <translation type="unfinished"></translation>
+        <translation>帯域</translation>
     </message>
     <message>
         <source>Status</source>
-        <translation type="unfinished"></translation>
+        <translation>状態</translation>
     </message>
     <message>
         <source>Length</source>
-        <translation type="unfinished"></translation>
+        <translation>長さ</translation>
     </message>
     <message>
         <source>Reverse</source>
-        <translation type="unfinished"></translation>
+        <translation>反転</translation>
     </message>
     <message>
         <source>Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>グラフ</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward jitter values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;順方向ジッタ値を表示または非表示&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Forward Jitter</source>
-        <translation type="unfinished"></translation>
+        <translation>順方向ジッタ</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward difference values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;順方向差異値を表示もしくは非表示にします&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Forward Difference</source>
-        <translation type="unfinished"></translation>
+        <translation>順方向差値</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse jitter values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;逆方向ジッタ値を表示もしくは非表示にします&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Reverse Jitter</source>
-        <translation type="unfinished"></translation>
+        <translation>逆方向ジッタ</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse difference values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;逆方向差値を表示もしくは非表示にします&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Reverse Difference</source>
-        <translation type="unfinished"></translation>
+        <translation>逆方向差値</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;ヒント&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>音声</translation>
     </message>
     <message>
         <source>Save the audio data for both channels.</source>
-        <translation type="unfinished"></translation>
+        <translation>両チャンネルの音声データを保存します</translation>
     </message>
     <message>
         <source>Forward Stream Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>順方向ストリーム音声</translation>
     </message>
     <message>
         <source>Save the forward stream audio data.</source>
-        <translation type="unfinished"></translation>
+        <translation>順方向ストリーム音声データを保存します</translation>
     </message>
     <message>
         <source>Reverse Stream Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>逆方向ストリーム音声</translation>
     </message>
     <message>
         <source>Save the reverse stream audio data.</source>
-        <translation type="unfinished"></translation>
+        <translation>逆方向ストリーム音声データを保存します</translation>
     </message>
     <message>
         <source>CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>CSV形式</translation>
     </message>
     <message>
         <source>Save both tables as CSV.</source>
-        <translation type="unfinished"></translation>
+        <translation>CSV形式として両方の表を保存します</translation>
     </message>
     <message>
         <source>Forward Stream CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>順方向ストリーム CSV</translation>
     </message>
     <message>
         <source>Save the forward table as CSV.</source>
-        <translation type="unfinished"></translation>
+        <translation>順方向の表をCSVとして保存します</translation>
     </message>
     <message>
         <source>Reverse Stream CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>逆方向ストリームCSV</translation>
     </message>
     <message>
         <source>Save the reverse table as CSV.</source>
-        <translation type="unfinished"></translation>
+        <translation>逆方向の表をCSVとして保存します</translation>
     </message>
     <message>
         <source>Save Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>グラフを保存</translation>
     </message>
     <message>
         <source>Save the graph image.</source>
-        <translation type="unfinished"></translation>
+        <translation>グラフ画像を保存します</translation>
     </message>
     <message>
         <source>Go to Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットに移動</translation>
     </message>
     <message>
         <source>Select the corresponding packet in the packet list.</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット一覧から関連するパケットを選択します</translation>
     </message>
     <message>
         <source>G</source>
-        <translation type="unfinished"></translation>
+        <translation>G</translation>
     </message>
     <message>
         <source>Next Problem Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>次の問題パケット</translation>
     </message>
     <message>
         <source>Go to the next problem packet</source>
-        <translation type="unfinished"></translation>
+        <translation>次の問題パケットへ移動します</translation>
     </message>
     <message>
         <source>N</source>
-        <translation type="unfinished"></translation>
+        <translation>N</translation>
     </message>
     <message>
         <source>IAX2 Stream Analysis</source>
-        <translation type="unfinished"></translation>
+        <translation>IAX2ストリーム分析</translation>
     </message>
     <message>
         <source>Unable to save RTP data.</source>
-        <translation type="unfinished"></translation>
+        <translation>RTPデータを保存できません。</translation>
     </message>
     <message>
         <source>Please select an IAX2 packet.</source>
-        <translation type="unfinished"></translation>
+        <translation>1つのIAX2パケットを選んでください</translation>
     </message>
     <message>
         <source> G: Go to packet, N: Next problem packet</source>
-        <translation type="unfinished"></translation>
+        <translation> G: パケットに移動, N: 次の問題パケット</translation>
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>
-        <translation type="unfinished"></translation>
+        <translation>PDF形式 (*.pdf)</translation>
     </message>
     <message>
         <source>Portable Network Graphics (*.png)</source>
-        <translation type="unfinished"></translation>
+        <translation>PNG形式 (*.png)</translation>
     </message>
     <message>
         <source>Windows Bitmap (*.bmp)</source>
-        <translation type="unfinished"></translation>
+        <translation>Windowsビットマップ形式 (*.bmp)</translation>
     </message>
     <message>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation type="unfinished"></translation>
+        <translation>JPEG形式 (*.jpeg *.jpg)</translation>
     </message>
     <message>
         <source>Save Graph As</source>
-        <translation type="unfinished"></translation>
+        <translation>としてグラフを保存</translation>
     </message>
     <message>
         <source>Can&apos;t save in a file: Wrong length of captured packets.</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイルに保存できません:キャプチャされたパケットの長さが違います</translation>
     </message>
     <message>
         <source>Can&apos;t save in a file: File I/O problem.</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイルに保存できません:ファイル入出力問題です</translation>
     </message>
     <message>
         <source>Save forward stream audio</source>
-        <translation type="unfinished"></translation>
+        <translation>順方向ストリーム音声を保存</translation>
     </message>
     <message>
         <source>Save reverse stream audio</source>
-        <translation type="unfinished"></translation>
+        <translation>逆方向のストリーム音声を保存</translation>
     </message>
     <message>
         <source>Save audio</source>
-        <translation type="unfinished"></translation>
+        <translation>音声を保存</translation>
     </message>
     <message>
         <source>Sun Audio (*.au)</source>
-        <translation type="unfinished"></translation>
+        <translation>Sunオーディオ形式 (*.au)</translation>
     </message>
     <message>
         <source>;;Raw (*.raw)</source>
-        <translation type="unfinished"></translation>
+        <translation>;;Raw(無加工)形式 (*.raw)</translation>
     </message>
     <message>
         <source>Warning</source>
-        <translation type="unfinished"></translation>
+        <translation>警告</translation>
     </message>
     <message>
         <source>Unable to save in that format</source>
-        <translation type="unfinished"></translation>
+        <translation>そのフォーマットで保存できません</translation>
     </message>
     <message>
         <source>Unable to save %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1を保存できません</translation>
     </message>
     <message>
         <source>Saving %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 を保存中</translation>
     </message>
     <message>
         <source>Save forward stream CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>順方向ストリームCSVを保存</translation>
     </message>
     <message>
         <source>Save reverse stream CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>逆方向ストリームCSVを保存</translation>
     </message>
     <message>
         <source>Save CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>CSVを保存</translation>
     </message>
     <message>
         <source>Comma-separated values (*.csv)</source>
-        <translation type="unfinished"></translation>
+        <translation>カンマ区切りテキスト形式 (*.csv)</translation>
     </message>
 </context>
 <context>
     <name>ImportTextDialog</name>
     <message>
         <source>Import From</source>
-        <translation type="unfinished"></translation>
+        <translation>インポート</translation>
     </message>
     <message>
         <source>File:</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイル:</translation>
     </message>
     <message>
         <source>Set name of text file to import</source>
-        <translation type="unfinished"></translation>
+        <translation>インポートするテキストファイルの名前を指定します</translation>
     </message>
     <message>
         <source>Browse for text file to import</source>
-        <translation type="unfinished"></translation>
+        <translation>インポートするテキストファイルを参照します</translation>
     </message>
     <message>
         <source>Browse…</source>
-        <translation type="unfinished"></translation>
+        <translation>参照…</translation>
     </message>
     <message>
         <source>Offsets in the text file are in octal notation</source>
-        <translation type="unfinished"></translation>
+        <translation>テキストファイルのオフセットは8進数表記です</translation>
     </message>
     <message>
         <source>Octal</source>
-        <translation type="unfinished"></translation>
+        <translation>8進数</translation>
     </message>
     <message>
         <source>Offsets:</source>
-        <translation type="unfinished"></translation>
+        <translation>オフセット:</translation>
     </message>
     <message>
         <source>Offsets in the text file are in hexadecimal notation</source>
-        <translation type="unfinished"></translation>
+        <translation>テキストファイルのオフセットは16進数表記です</translation>
     </message>
     <message>
         <source>Hexadecimal</source>
-        <translation type="unfinished"></translation>
+        <translation>16進数</translation>
     </message>
     <message>
         <source>Offsets in the text file are in decimal notation</source>
-        <translation type="unfinished"></translation>
+        <translation>テキストファイルのオフセットは10進数表記です</translation>
     </message>
     <message>
         <source>Decimal</source>
-        <translation type="unfinished"></translation>
+        <translation>10進数</translation>
     </message>
     <message>
         <source>The text file has no offset</source>
-        <translation type="unfinished"></translation>
+        <translation>テキストファイルにはオフセットがありません</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>なし</translation>
     </message>
     <message>
         <source>The format in which to parse timestamps in the text file (eg. %H:%M:%S.). Format specifiers are based on strptime(3)</source>
-        <translation type="unfinished"></translation>
+        <translation>テキストファイルのタイムスタンプを解析する形式（例 %H:%M:%S）。形式仕様はstrptime(3)に基づきます</translation>
     </message>
     <message>
         <source>Timestamp format:</source>
-        <translation type="unfinished"></translation>
+        <translation>タイムスタンプ形式:</translation>
     </message>
     <message>
         <source>Whether or not the file contains information indicating the direction (inbound or outbound) of the packet.</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイルにパケットの向き（入力や出力）を示す情報が含まれていてもいなくても</translation>
     </message>
     <message>
         <source>Direction indication:</source>
-        <translation type="unfinished"></translation>
+        <translation>方向指示:</translation>
     </message>
     <message>
         <source>Encapsulation</source>
-        <translation type="unfinished"></translation>
+        <translation>カプセル化</translation>
     </message>
     <message>
         <source>Encapsulation Type:</source>
-        <translation type="unfinished"></translation>
+        <translation>カプセル化種別:</translation>
     </message>
     <message>
         <source>Encapsulation type of the frames in the import capture file</source>
-        <translation type="unfinished"></translation>
+        <translation>インポートしたキャプチャファイルのフレームのカプセル化の種別</translation>
     </message>
     <message>
         <source>The UDP, TCP or SCTP source port for each frame</source>
-        <translation type="unfinished"></translation>
+        <translation>フレーム毎のUDP/TCP/SCTP送信元ポート</translation>
     </message>
     <message>
         <source>The SCTP DATA payload protocol identifier for each frame</source>
-        <translation type="unfinished"></translation>
+        <translation>フレーム毎のSCTPデータペイロードのプロトコル識別子</translation>
     </message>
     <message>
         <source>The UDP, TCP or SCTP destination port for each frame</source>
-        <translation type="unfinished"></translation>
+        <translation>フレーム毎のUDP/TCP/SCTP宛先ポート</translation>
     </message>
     <message>
         <source>Prefix each frame with an Ethernet header</source>
-        <translation type="unfinished"></translation>
+        <translation>各フレームの前にEthernetヘッダを付加します</translation>
     </message>
     <message>
         <source>Ethernet</source>
-        <translation type="unfinished"></translation>
+        <translation>Ethernet</translation>
     </message>
     <message>
         <source>Prefix each frame with an Ethernet, IPv4 and SCTP header</source>
-        <translation type="unfinished"></translation>
+        <translation>各フレームの前にEthernet/IPv4/SCTPヘッダを付加します</translation>
     </message>
     <message>
         <source>SCTP</source>
-        <translation type="unfinished"></translation>
+        <translation>SCTP</translation>
     </message>
     <message>
         <source>PPI:</source>
-        <translation type="unfinished"></translation>
+        <translation>PPI:</translation>
     </message>
     <message>
         <source>Protocol (dec):</source>
-        <translation type="unfinished"></translation>
+        <translation>プロトコル(10進数):</translation>
     </message>
     <message>
         <source>Leave frames unchanged</source>
-        <translation type="unfinished"></translation>
+        <translation>フレームを変更しない</translation>
     </message>
     <message>
         <source>No dummy header</source>
-        <translation type="unfinished"></translation>
+        <translation>ダミーヘッダなし</translation>
     </message>
     <message>
         <source>Tag:</source>
-        <translation type="unfinished"></translation>
+        <translation>タグ:</translation>
     </message>
     <message>
         <source>Prefix each frame with an Ethernet, IPv4 and UDP header</source>
-        <translation type="unfinished"></translation>
+        <translation>各フレームの前にEthernet/IPv4/UDPヘッダを付加します</translation>
     </message>
     <message>
         <source>UDP</source>
-        <translation type="unfinished"></translation>
+        <translation>UDP</translation>
     </message>
     <message>
         <source>Source port:</source>
-        <translation type="unfinished"></translation>
+        <translation>送信元ポート:</translation>
     </message>
     <message>
         <source>The Ethertype value of each frame</source>
-        <translation type="unfinished"></translation>
+        <translation>各フレームのイーサタイプの値</translation>
     </message>
     <message>
         <source>Prefix each frame with an Ethernet, IPv4 and TCP header</source>
-        <translation type="unfinished"></translation>
+        <translation>各フレームの前にEthernet/IPv4/TCPヘッダを付加します</translation>
     </message>
     <message>
         <source>TCP</source>
-        <translation type="unfinished"></translation>
+        <translation>TCP</translation>
     </message>
     <message>
         <source>The SCTP verification tag for each frame</source>
-        <translation type="unfinished"></translation>
+        <translation>各フレームのSCTP検証タグ</translation>
     </message>
     <message>
         <source>Destination port:</source>
-        <translation type="unfinished"></translation>
+        <translation>宛先ポート:</translation>
     </message>
     <message>
         <source>Ethertype (hex):</source>
-        <translation type="unfinished"></translation>
+        <translation>イーサタイプ(16進数):</translation>
     </message>
     <message>
         <source>The IPv4 protocol ID for each frame</source>
-        <translation type="unfinished"></translation>
+        <translation>各フレームのIPv4プロトコル識別子</translation>
     </message>
     <message>
         <source>Prefix each frame with an Ethernet, IPv4 and SCTP (DATA) header</source>
-        <translation type="unfinished"></translation>
+        <translation>各フレームの前にEthernet/IPv4/SCTP(DATA）ヘッダを付加します</translation>
     </message>
     <message>
         <source>SCTP (Data)</source>
-        <translation type="unfinished"></translation>
+        <translation>SCTP(データ)</translation>
     </message>
     <message>
         <source>Prefix each frame with an Ethernet and IPv4 header</source>
-        <translation type="unfinished"></translation>
+        <translation>各フレームの前にEthernet/IPv4ヘッダを付加します</translation>
     </message>
     <message>
         <source>IPv4</source>
-        <translation type="unfinished"></translation>
+        <translation>IPv4</translation>
     </message>
     <message>
         <source>Maximum frame length:</source>
-        <translation type="unfinished"></translation>
+        <translation>最大フレーム長:</translation>
     </message>
     <message>
-        <source>The maximum size of the frames to write to the import capture file (max 256kiB)</source>
-        <translation type="unfinished"></translation>
+        <source>The maximum size of the frames to write to the import capture file (max 64000)</source>
+        <translation>インポートするキャプチャファイルへ書き込む最大のフレームサイズ（最大64000)</translation>
     </message>
     <message>
         <source>Import From Hex Dump</source>
-        <translation type="unfinished"></translation>
+        <translation>16進数ダンプからインポート</translation>
     </message>
     <message>
         <source>Import</source>
-        <translation type="unfinished"></translation>
+        <translation>インポート</translation>
     </message>
     <message>
         <source>Import Text File</source>
-        <translation type="unfinished"></translation>
+        <translation>テキストファイルをインポート</translation>
     </message>
     <message>
         <source>Example: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>例: %1</translation>
     </message>
     <message>
         <source>&lt;i&gt;(Wrong date format)&lt;/i&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;i&gt;(誤ったデータ形式)&lt;/i&gt;</translation>
     </message>
     <message>
         <source>&lt;i&gt;(No format will be applied)&lt;/i&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;i&gt;(どの形式も適用されません)&lt;/i&gt;</translation>
     </message>
 </context>
 <context>
     <name>InterfaceFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>フレーム</translation>
     </message>
     <message>
         <source>No interfaces found</source>
-        <translation type="unfinished"></translation>
+        <translation>インターフェースが見つかりません</translation>
     </message>
     <message>
         <source>Wired</source>
-        <translation type="unfinished"></translation>
+        <translation>有線</translation>
     </message>
     <message>
         <source>AirPCAP</source>
-        <translation type="unfinished"></translation>
+        <translation>AirPCAP</translation>
     </message>
     <message>
         <source>Pipe</source>
-        <translation type="unfinished"></translation>
+        <translation>パイプ</translation>
     </message>
     <message>
         <source>STDIN</source>
-        <translation type="unfinished"></translation>
+        <translation>標準入力</translation>
     </message>
     <message>
         <source>Bluetooth</source>
-        <translation type="unfinished"></translation>
+        <translation>Bluetooth</translation>
     </message>
     <message>
         <source>Wireless</source>
-        <translation type="unfinished"></translation>
+        <translation>ワイヤレス</translation>
     </message>
     <message>
         <source>Dial-Up</source>
-        <translation type="unfinished"></translation>
+        <translation>ダイヤルアップ</translation>
     </message>
     <message>
         <source>USB</source>
-        <translation type="unfinished"></translation>
+        <translation>USB</translation>
     </message>
     <message>
         <source>External Capture</source>
-        <translation type="unfinished"></translation>
+        <translation>外部キャプチャ</translation>
     </message>
     <message>
         <source>Virtual</source>
-        <translation type="unfinished"></translation>
+        <translation>仮想</translation>
     </message>
     <message>
         <source>Remote interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>リモートインターフェース</translation>
     </message>
     <message>
         <source>Show hidden interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>非表示のインターフェースを表示する</translation>
     </message>
     <message>
         <source>External capture interfaces disabled.</source>
-        <translation type="unfinished"></translation>
+        <translation>外部のキャプチャインターフェース無効化</translation>
     </message>
 </context>
 <context>
     <name>InterfaceSortFilterModel</name>
     <message>
         <source>No interfaces to be displayed. %1 interfaces hidden.</source>
-        <translation type="unfinished"></translation>
+        <translation>インターフェースは表示されません。 %1 インターフェース非表示</translation>
     </message>
 </context>
 <context>
     <name>InterfaceToolbar</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>フレーム</translation>
     </message>
     <message>
         <source>Select interface</source>
-        <translation type="unfinished"></translation>
+        <translation>インターフェースを選択</translation>
     </message>
     <message>
         <source>Interface</source>
-        <translation type="unfinished"></translation>
+        <translation>インターフェース</translation>
     </message>
 </context>
 <context>
     <name>InterfaceToolbarLineEdit</name>
     <message>
         <source>Apply changes</source>
-        <translation type="unfinished"></translation>
+        <translation>変更を適用</translation>
     </message>
 </context>
 <context>
     <name>InterfaceTreeModel</name>
     <message>
         <source>No Interfaces found.</source>
-        <translation type="unfinished"></translation>
+        <translation>インターフェースが見つかりません</translation>
     </message>
     <message>
         <source>Show</source>
-        <translation type="unfinished"></translation>
+        <translation>表示</translation>
     </message>
     <message>
         <source>Interface Name</source>
-        <translation type="unfinished"></translation>
+        <translation>インターフェース名</translation>
     </message>
     <message>
         <source>Friendly Name</source>
-        <translation type="unfinished"></translation>
+        <translation>フレンドリ名</translation>
     </message>
     <message>
         <source>Local Pipe Path</source>
-        <translation type="unfinished"></translation>
+        <translation>ローカルパイプパス</translation>
     </message>
     <message>
         <source>Comment</source>
-        <translation type="unfinished">コメント</translation>
+        <translation>コメント</translation>
     </message>
     <message>
         <source>Link-Layer Header</source>
-        <translation type="unfinished"></translation>
+        <translation>データリンク層ヘッダ</translation>
     </message>
     <message>
         <source>Promiscuous</source>
-        <translation type="unfinished"></translation>
+        <translation>プロミスキャス</translation>
     </message>
     <message>
         <source>Snaplen (B)</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャ長(バイト)</translation>
     </message>
     <message>
         <source>Buffer (MB)</source>
-        <translation type="unfinished"></translation>
+        <translation>バッファ(メガバイト)</translation>
     </message>
     <message>
         <source>Monitor Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>モニターモード</translation>
     </message>
     <message>
         <source>Capture Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャフィルタ</translation>
     </message>
     <message>
         <source>Addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>アドレス</translation>
     </message>
     <message>
         <source>Address</source>
-        <translation type="unfinished"></translation>
+        <translation>アドレス</translation>
     </message>
     <message>
         <source>Extcap interface: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Extcap インターフェース: %1</translation>
     </message>
     <message>
         <source>No addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>アドレスなし</translation>
     </message>
     <message>
         <source>No capture filter</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャフィルタなし</translation>
     </message>
     <message>
         <source>Capture filter</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャフィルタ</translation>
     </message>
 </context>
 <context>
     <name>LBMLBTRMTransportDialog</name>
     <message>
         <source>LBT-RM Transport Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>LBT-RMトランスポート統計</translation>
     </message>
     <message>
         <source>Sources</source>
-        <translation type="unfinished"></translation>
+        <translation>送信元</translation>
     </message>
     <message>
         <source>Address/Transport</source>
-        <translation type="unfinished"></translation>
+        <translation>アドレス/転送</translation>
     </message>
     <message>
         <source>Data frames</source>
-        <translation type="unfinished"></translation>
+        <translation>データフレーム数</translation>
     </message>
     <message>
         <source>Data bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>データバイト数</translation>
     </message>
     <message>
         <source>Data frames/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>データフレーム数/バイト数</translation>
     </message>
     <message>
         <source>Data rate</source>
-        <translation type="unfinished"></translation>
+        <translation>データ速度</translation>
     </message>
     <message>
         <source>RX data frames</source>
-        <translation type="unfinished"></translation>
+        <translation>受信データフレーム数</translation>
     </message>
     <message>
         <source>RX data bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>受信データバイト数</translation>
     </message>
     <message>
         <source>RX data frames/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>受信データフレーム数/バイト数</translation>
     </message>
     <message>
         <source>RX data rate</source>
-        <translation type="unfinished"></translation>
+        <translation>受信データ速度</translation>
     </message>
     <message>
         <source>NCF frames</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFフレーム数</translation>
     </message>
     <message>
         <source>NCF count</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFカウント</translation>
     </message>
     <message>
         <source>NCF bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFバイト数</translation>
     </message>
     <message>
         <source>NCF frames/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFフレーム数/バイト数</translation>
     </message>
     <message>
         <source>NCF count/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFカウント/バイト数</translation>
     </message>
     <message>
         <source>NCF frames/count</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFフレーム数/カウント</translation>
     </message>
     <message>
         <source>NCF frames/count/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFフレーム数/カウント/バイト数</translation>
     </message>
     <message>
         <source>NCF rate</source>
-        <translation type="unfinished"></translation>
+        <translation>NCF速度</translation>
     </message>
     <message>
         <source>SM frames</source>
-        <translation type="unfinished"></translation>
+        <translation>SMフレーム数</translation>
     </message>
     <message>
         <source>SM bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>SMバイト数</translation>
     </message>
     <message>
         <source>SM frames/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>SMフレーム数/バイト数</translation>
     </message>
     <message>
         <source>SM rate</source>
-        <translation type="unfinished"></translation>
+        <translation>SM速度</translation>
     </message>
     <message>
         <source>Show</source>
-        <translation type="unfinished"></translation>
+        <translation>表示</translation>
     </message>
     <message>
         <source>Data</source>
-        <translation type="unfinished"></translation>
+        <translation>データ</translation>
     </message>
     <message>
         <source>RX Data</source>
-        <translation type="unfinished"></translation>
+        <translation>受信データ</translation>
     </message>
     <message>
         <source>NCF</source>
         <extracomment>Nak ConFirmation</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>NCF</translation>
     </message>
     <message>
         <source>SM</source>
         <extracomment>Session Message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>SM</translation>
     </message>
     <message>
         <source>sequence numbers for transport</source>
-        <translation type="unfinished"></translation>
+        <translation>トランスポートシーケンス番号</translation>
     </message>
     <message>
         <source>XXXXX:XXX.XXX.XXX.XXX:XXXXX:XXXXXXXX:XXX.XXX.XXX.XXX:XXXXX</source>
-        <translation type="unfinished"></translation>
+        <translation>XXXXX:XXX.XXX.XXX.XXX:XXXXX:XXXXXXXX:XXX.XXX.XXX.XXX:XXXXX</translation>
     </message>
     <message>
         <source>SQN</source>
-        <translation type="unfinished"></translation>
+        <translation>SQN</translation>
     </message>
     <message>
         <source>Count</source>
-        <translation type="unfinished"></translation>
+        <translation>カウント</translation>
     </message>
     <message>
         <source>Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>フレーム</translation>
     </message>
     <message>
         <source>SQN/Reason</source>
-        <translation type="unfinished"></translation>
+        <translation>SQN/理由</translation>
     </message>
     <message>
         <source>Receivers</source>
-        <translation type="unfinished"></translation>
+        <translation>受信元</translation>
     </message>
     <message>
         <source>NAK frames</source>
-        <translation type="unfinished"></translation>
+        <translation>NAKフレーム数</translation>
     </message>
     <message>
         <source>NAK count</source>
-        <translation type="unfinished"></translation>
+        <translation>NAKカウント</translation>
     </message>
     <message>
         <source>NAK bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>NAKバイト数</translation>
     </message>
     <message>
         <source>NAK rate</source>
-        <translation type="unfinished"></translation>
+        <translation>NAK速度</translation>
     </message>
     <message>
         <source>NAK sequence numbers for transport</source>
-        <translation type="unfinished"></translation>
+        <translation>トランスポートNAKシーケンス番号</translation>
     </message>
     <message>
         <source>Display filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタ:</translation>
     </message>
     <message>
         <source>Regenerate statistics using this display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>この表示フィルタを用いて統計を再作成</translation>
     </message>
     <message>
         <source>Apply</source>
-        <translation type="unfinished"></translation>
+        <translation>適用</translation>
     </message>
     <message>
         <source>Copy as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>CSVとしてコピー</translation>
     </message>
     <message>
         <source>Copy the tree as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>ツリーをCSVとしてコピー</translation>
     </message>
     <message>
         <source>Copy as YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>YAMLとしてコピー</translation>
     </message>
     <message>
         <source>Copy the tree as YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>ツリーをYAMLとしてコピー</translation>
     </message>
     <message>
         <source>Show the data frames column</source>
-        <translation type="unfinished"></translation>
+        <translation>データフレーム数の列を表示</translation>
     </message>
     <message>
         <source>Show the data bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>データバイト数の列を表示</translation>
     </message>
     <message>
         <source>Show the data frames/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>データフレーム数/バイト数の列を表示</translation>
     </message>
     <message>
         <source>Show the RX data frames column</source>
-        <translation type="unfinished"></translation>
+        <translation>受信データフレーム数の列を表示</translation>
     </message>
     <message>
         <source>Show the RX data bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>受信データバイト数の列を表示</translation>
     </message>
     <message>
         <source>Show the RX data frames/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>受信データフレーム数/バイト数の列を表示</translation>
     </message>
     <message>
         <source>Show the NCF frames column</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFフレーム数の列を表示</translation>
     </message>
     <message>
         <source>Show the NCF bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFバイト数の列を表示</translation>
     </message>
     <message>
         <source>Show the NCF count column</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFカウントの列を表示</translation>
     </message>
     <message>
         <source>Show the data rate column</source>
-        <translation type="unfinished"></translation>
+        <translation>データ速度の列を表示</translation>
     </message>
     <message>
         <source>Show the RX data rate column</source>
-        <translation type="unfinished"></translation>
+        <translation>受信データ速度の列を表示</translation>
     </message>
     <message>
         <source>Show the NCF frames/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFフレーム数/バイト数の列を表示</translation>
     </message>
     <message>
         <source>Show the NCF count/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFカウント/バイト数の列を表示を表示</translation>
     </message>
     <message>
         <source>Show the NCF frames/count column</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFフレーム数/カウントの列を表示</translation>
     </message>
     <message>
         <source>Show the NCF frames/count/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFフレーム数/カウント/バイト数の列を表示</translation>
     </message>
     <message>
         <source>Show the NCF rate column</source>
-        <translation type="unfinished"></translation>
+        <translation>NCF速度の列を表示</translation>
     </message>
     <message>
         <source>Show the SM frames column</source>
-        <translation type="unfinished"></translation>
+        <translation>SMフレーム数の列を表示</translation>
     </message>
     <message>
         <source>Show the SM bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>SMバイト数の列を表示</translation>
     </message>
     <message>
         <source>Show the SM frames/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>SMフレーム数/バイト数の列を表示</translation>
     </message>
     <message>
         <source>Show the SM rate column</source>
-        <translation type="unfinished"></translation>
+        <translation>SM速度の列を表示</translation>
     </message>
     <message>
         <source>Auto-resize columns to content</source>
-        <translation type="unfinished"></translation>
+        <translation>内容にあわせて列を自動調整</translation>
     </message>
     <message>
         <source>Resize columns to content size</source>
-        <translation type="unfinished"></translation>
+        <translation>内容の大きさにあわせて列を調整</translation>
     </message>
     <message>
         <source>LBT-RM Statistics failed to attach to tap</source>
-        <translation type="unfinished"></translation>
+        <translation>LBT-RM統計はタップ割り当てに失敗しました</translation>
     </message>
 </context>
 <context>
     <name>LBMLBTRUTransportDialog</name>
     <message>
         <source>LBT-RU Transport Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>LBT-RUトランスポート統計</translation>
     </message>
     <message>
         <source>Sources</source>
-        <translation type="unfinished"></translation>
+        <translation>送信元</translation>
     </message>
     <message>
         <source>Address/Transport/Client</source>
-        <translation type="unfinished"></translation>
+        <translation>アドレス/トランスポート/クライアント</translation>
     </message>
     <message>
         <source>Data frames</source>
-        <translation type="unfinished"></translation>
+        <translation>データフレーム数</translation>
     </message>
     <message>
         <source>Data bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>データバイト数</translation>
     </message>
     <message>
         <source>Data frames/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>データフレーム数/バイト数</translation>
     </message>
     <message>
         <source>Data rate</source>
-        <translation type="unfinished"></translation>
+        <translation>データ速度</translation>
     </message>
     <message>
         <source>RX data frames</source>
-        <translation type="unfinished"></translation>
+        <translation>受信データフレーム数</translation>
     </message>
     <message>
         <source>RX data bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>受信データバイト数</translation>
     </message>
     <message>
         <source>RX data frames/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>受信データフレーム数/バイト数</translation>
     </message>
     <message>
         <source>RX data rate</source>
-        <translation type="unfinished"></translation>
+        <translation>受信データ速度</translation>
     </message>
     <message>
         <source>NCF frames</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFフレーム数</translation>
     </message>
     <message>
         <source>NCF count</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFカウント</translation>
     </message>
     <message>
         <source>NCF bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFバイト数</translation>
     </message>
     <message>
         <source>NCF frames/count</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFフレーム数/カウント</translation>
     </message>
     <message>
         <source>NCF frames/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFフレーム数/バイト数</translation>
     </message>
     <message>
         <source>NCF count/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFカウント/バイト数</translation>
     </message>
     <message>
         <source>NCF frames/count/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFフレーム数/カウント/バイト数</translation>
     </message>
     <message>
         <source>NCF rate</source>
-        <translation type="unfinished"></translation>
+        <translation>NCF速度</translation>
     </message>
     <message>
         <source>SM frames</source>
-        <translation type="unfinished"></translation>
+        <translation>SMフレーム数</translation>
     </message>
     <message>
         <source>SM bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>SMバイト数</translation>
     </message>
     <message>
         <source>SM frames/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>SMフレーム数/バイト数</translation>
     </message>
     <message>
         <source>SM rate</source>
-        <translation type="unfinished"></translation>
+        <translation>SM速度</translation>
     </message>
     <message>
         <source>RST frames</source>
-        <translation type="unfinished"></translation>
+        <translation>RSTフレーム数</translation>
     </message>
     <message>
         <source>RST bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>RSTバイト数</translation>
     </message>
     <message>
         <source>RST frames/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>RSTフレーム数/バイト数</translation>
     </message>
     <message>
         <source>RST rate</source>
-        <translation type="unfinished"></translation>
+        <translation>RST速度</translation>
     </message>
     <message>
         <source>Show</source>
-        <translation type="unfinished"></translation>
+        <translation>表示</translation>
     </message>
     <message>
         <source>Data SQN</source>
-        <translation type="unfinished"></translation>
+        <translation>データSQN</translation>
     </message>
     <message>
         <source>RX Data SQN</source>
-        <translation type="unfinished"></translation>
+        <translation>受信データSQN</translation>
     </message>
     <message>
         <source>NCF SQN</source>
-        <translation type="unfinished"></translation>
+        <translation>NCF SQN</translation>
     </message>
     <message>
         <source>SM SQN</source>
-        <translation type="unfinished"></translation>
+        <translation>SM SQN</translation>
     </message>
     <message>
         <source>RST reason</source>
-        <translation type="unfinished"></translation>
+        <translation>RST 原因</translation>
     </message>
     <message>
         <source>details for transport</source>
-        <translation type="unfinished"></translation>
+        <translation>トランスポートの詳細</translation>
     </message>
     <message>
         <source>XXXXX:XXX.XXX.XXX.XXX:XXXXX:XXXXXXXX:XXX.XXX.XXX.XXX:XXXXX</source>
-        <translation type="unfinished"></translation>
+        <translation>XXXXX:XXX.XXX.XXX.XXX:XXXXX:XXXXXXXX:XXX.XXX.XXX.XXX:XXXXX</translation>
     </message>
     <message>
         <source>SQN</source>
-        <translation type="unfinished"></translation>
+        <translation>SQN</translation>
     </message>
     <message>
         <source>Count</source>
-        <translation type="unfinished"></translation>
+        <translation>カウント</translation>
     </message>
     <message>
         <source>Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>フレーム</translation>
     </message>
     <message>
         <source>Reason</source>
-        <translation type="unfinished"></translation>
+        <translation>原因</translation>
     </message>
     <message>
         <source>SQN/Reason</source>
-        <translation type="unfinished"></translation>
+        <translation>SQN/原因</translation>
     </message>
     <message>
         <source>Receivers</source>
-        <translation type="unfinished"></translation>
+        <translation>受信元</translation>
     </message>
     <message>
         <source>Address/Transport</source>
-        <translation type="unfinished"></translation>
+        <translation>アドレス/トランスポート</translation>
     </message>
     <message>
         <source>NAK frames</source>
-        <translation type="unfinished"></translation>
+        <translation>NAKフレーム数</translation>
     </message>
     <message>
         <source>NAK count</source>
-        <translation type="unfinished"></translation>
+        <translation>NAKカウント</translation>
     </message>
     <message>
         <source>NAK bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>NAKバイト数</translation>
     </message>
     <message>
         <source>NAK frames/count</source>
-        <translation type="unfinished"></translation>
+        <translation>NAKフレーム数/カウント</translation>
     </message>
     <message>
         <source>NAK count/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>NAKカウント/バイト数</translation>
     </message>
     <message>
         <source>NAK frames/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>NAKフレーム数/バイト数</translation>
     </message>
     <message>
         <source>NAK frames/count/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>NAKフレーム数/カウント/バイト数</translation>
     </message>
     <message>
         <source>NAK rate</source>
-        <translation type="unfinished"></translation>
+        <translation>NAK速度</translation>
     </message>
     <message>
         <source>ACK frames</source>
-        <translation type="unfinished"></translation>
+        <translation>ACKフレーム数</translation>
     </message>
     <message>
         <source>ACK bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>ACKバイト数</translation>
     </message>
     <message>
         <source>ACK frames/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>ACKフレーム数/バイト数</translation>
     </message>
     <message>
         <source>ACK rate</source>
-        <translation type="unfinished"></translation>
+        <translation>ACK速度</translation>
     </message>
     <message>
         <source>CREQ frames</source>
-        <translation type="unfinished"></translation>
+        <translation>CREQフレーム数</translation>
     </message>
     <message>
         <source>CREQ bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>CREQバイト数</translation>
     </message>
     <message>
         <source>CREQ frames/bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>CREQフレーム数/バイト数</translation>
     </message>
     <message>
         <source>CREQ rate</source>
-        <translation type="unfinished"></translation>
+        <translation>CREQ速度</translation>
     </message>
     <message>
         <source>NAK SQN</source>
-        <translation type="unfinished"></translation>
+        <translation>NAK SQN</translation>
     </message>
     <message>
         <source>ACK SQN</source>
-        <translation type="unfinished"></translation>
+        <translation>ACK SQN</translation>
     </message>
     <message>
         <source>CREQ request</source>
-        <translation type="unfinished"></translation>
+        <translation>CREQリクエスト</translation>
     </message>
     <message>
         <source>Display filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタ:</translation>
     </message>
     <message>
         <source>Regenerate statistics using this display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>この表示フィルタを使って統計を再作成</translation>
     </message>
     <message>
         <source>Apply</source>
-        <translation type="unfinished"></translation>
+        <translation>適用</translation>
     </message>
     <message>
         <source>Copy as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>CSVとしてコピー</translation>
     </message>
     <message>
         <source>Copy the tree as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>CSVとしてツリーをコピー</translation>
     </message>
     <message>
         <source>Copy as YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>YAMLとしてコピー</translation>
     </message>
     <message>
         <source>Copy the tree as YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>YAMLとしてツリーをコピー</translation>
     </message>
     <message>
         <source>Show the data frames column</source>
-        <translation type="unfinished"></translation>
+        <translation>データフレーム数を列に表示</translation>
     </message>
     <message>
         <source>Show the data bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>データバイト数を列に表示</translation>
     </message>
     <message>
         <source>Show the data frames/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>データフレーム数/バイト数を列に表示</translation>
     </message>
     <message>
         <source>Show the data rate column</source>
-        <translation type="unfinished"></translation>
+        <translation>データ速度を列に表示</translation>
     </message>
     <message>
         <source>Show the RX data frames column</source>
-        <translation type="unfinished"></translation>
+        <translation>受信データフレーム数を列に表示</translation>
     </message>
     <message>
         <source>Show the RX data bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>受信データバイト数を列に表示</translation>
     </message>
     <message>
         <source>Show the RX data frames/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>受信データフレーム数/バイト数を列に表示</translation>
     </message>
     <message>
         <source>Show the RX data rate column</source>
-        <translation type="unfinished"></translation>
+        <translation>受信データ速度を列に表示</translation>
     </message>
     <message>
         <source>Show the NCF frames column</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFフレーム数を列に表示</translation>
     </message>
     <message>
         <source>Show the NCF count column</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFカウントを列に表示</translation>
     </message>
     <message>
         <source>Show the NCF bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFバイト数を列に表示</translation>
     </message>
     <message>
         <source>Show the NCF frames/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFフレーム数/バイト数を列に表示</translation>
     </message>
     <message>
         <source>Show the NCF count/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFカウント/バイト数を列に表示</translation>
     </message>
     <message>
         <source>Show the NCF frames/count column</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFフレーム数/カウントを列に表示</translation>
     </message>
     <message>
         <source>Show the NCF frames/count/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>NCFフレーム数/カウント/バイト数を列を表示</translation>
     </message>
     <message>
         <source>Show the SM frames column</source>
-        <translation type="unfinished"></translation>
+        <translation>SMフレーム数を列に表示</translation>
     </message>
     <message>
         <source>Show the SM bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>SMバイト数を列に表示</translation>
     </message>
     <message>
         <source>Show the SM frames/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>SMフレーム数/バイト数を列に表示</translation>
     </message>
     <message>
         <source>Show the SM rate column</source>
-        <translation type="unfinished"></translation>
+        <translation>SM速度を列に表示</translation>
     </message>
     <message>
         <source>Show the RST frames column</source>
-        <translation type="unfinished"></translation>
+        <translation>RSTフレーム数を列に表示</translation>
     </message>
     <message>
         <source>Show the RST bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>RSTバイト数を列に表示</translation>
     </message>
     <message>
         <source>Show the RST frames/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>RSTフレーム数/バイト数を列に表示</translation>
     </message>
     <message>
         <source>Show the RST rate column</source>
-        <translation type="unfinished"></translation>
+        <translation>RST速度を列に表示</translation>
     </message>
     <message>
         <source>Show the NAK frames column</source>
-        <translation type="unfinished"></translation>
+        <translation>NAKフレーム数を列に表示</translation>
     </message>
     <message>
         <source>Show the NAK count column</source>
-        <translation type="unfinished"></translation>
+        <translation>NAKカウントを列に表示</translation>
     </message>
     <message>
         <source>Show the NAK bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>NAKバイト数を列に表示</translation>
     </message>
     <message>
         <source>Show the NAK frames/count column</source>
-        <translation type="unfinished"></translation>
+        <translation>NAKフレーム数/カウントを列に表示</translation>
     </message>
     <message>
         <source>Show the NAK count/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>NAKカウント/バイト数を列に表示</translation>
     </message>
     <message>
         <source>Show the NAK frames/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>NAKフレーム数/バイト数を列に表示</translation>
     </message>
     <message>
         <source>Show the NAK frames/count/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>NAKフレーム数/カウント/バイト数を列に表示</translation>
     </message>
     <message>
         <source>Show the NAK rate column</source>
-        <translation type="unfinished"></translation>
+        <translation>NAK速度を列に表示</translation>
     </message>
     <message>
         <source>Show the ACK frames column</source>
-        <translation type="unfinished"></translation>
+        <translation>ACKフレーム数を列に表示</translation>
     </message>
     <message>
         <source>Show the ACK bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>ACKバイト内容を列に表示</translation>
     </message>
     <message>
         <source>Show the ACK frames/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>ACKフレーム数/バイト数を列に表示</translation>
     </message>
     <message>
         <source>Show the ACK rate column</source>
-        <translation type="unfinished"></translation>
+        <translation>ACK速度を列に表示</translation>
     </message>
     <message>
         <source>Show the CREQ frames column</source>
-        <translation type="unfinished"></translation>
+        <translation>CREQフレーム数を列に表示</translation>
     </message>
     <message>
         <source>Show the CREQ bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>CREQバイト数を列に表示</translation>
     </message>
     <message>
         <source>Show the CREQ frames/bytes column</source>
-        <translation type="unfinished"></translation>
+        <translation>CREQフレーム数/バイト数を列に表示</translation>
     </message>
     <message>
         <source>Show the CREQ rate column</source>
-        <translation type="unfinished"></translation>
+        <translation>CREQ速度を列に表示</translation>
     </message>
     <message>
         <source>Auto-resize columns to content</source>
-        <translation type="unfinished"></translation>
+        <translation>内容に合わせて列を自動調整</translation>
     </message>
     <message>
         <source>Resize columns to content size</source>
-        <translation type="unfinished"></translation>
+        <translation>内容の大きさに合わせて列を調整</translation>
     </message>
     <message>
         <source>Show the NCF rate column</source>
-        <translation type="unfinished"></translation>
+        <translation>NCF速度を列に表示</translation>
     </message>
     <message>
         <source>LBT-RU Statistics failed to attach to tap</source>
-        <translation type="unfinished"></translation>
+        <translation>LBT-RU統計はタップへの割り当てに失敗しました</translation>
     </message>
 </context>
 <context>
     <name>LBMStreamDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <source>Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>ストリーム</translation>
     </message>
     <message>
         <source>Endpoint A</source>
-        <translation type="unfinished"></translation>
+        <translation>終端 A</translation>
     </message>
     <message>
         <source>Endpoint B</source>
-        <translation type="unfinished"></translation>
+        <translation>終端 B</translation>
     </message>
     <message>
         <source>Messages</source>
-        <translation type="unfinished"></translation>
+        <translation>メッセージ</translation>
     </message>
     <message>
         <source>Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>バイト</translation>
     </message>
     <message>
         <source>First Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>最初のフレーム</translation>
     </message>
     <message>
         <source>Last Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>最後のフレーム</translation>
     </message>
     <message>
         <source>Display filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタ:</translation>
     </message>
     <message>
         <source>Regenerate statistics using this display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタを用いて統計を再作成</translation>
     </message>
     <message>
         <source>Apply</source>
-        <translation type="unfinished"></translation>
+        <translation>適用</translation>
     </message>
     <message>
         <source>Copy as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>CSVとしてコピー</translation>
     </message>
     <message>
         <source>Copy the tree as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>ツリーをCSVとしてコピー</translation>
     </message>
     <message>
         <source>Copy as YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>YAMLとしてコピー</translation>
     </message>
     <message>
         <source>Copy the tree as YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>ツリーをYAMLとしてコピー</translation>
     </message>
     <message>
         <source>LBM Stream failed to attach to tap</source>
-        <translation type="unfinished"></translation>
+        <translation>LVMストリームをタップに割り当てるのに失敗しました</translation>
     </message>
 </context>
 <context>
@@ -4790,77 +4824,77 @@ PLEASE NOTE: One option MUST be selected.</source>
     <name>LayoutPreferencesFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>フレーム</translation>
     </message>
     <message>
         <source>Pane 1:</source>
-        <translation type="unfinished"></translation>
+        <translation>表示部1:</translation>
     </message>
     <message>
         <source>Packet List</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット一覧</translation>
     </message>
     <message>
         <source>Packet Details</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット詳細</translation>
     </message>
     <message>
         <source>Packet Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットバイト列</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>なし</translation>
     </message>
     <message>
         <source>Pane 2:</source>
-        <translation type="unfinished"></translation>
+        <translation>表示部2:</translation>
     </message>
     <message>
         <source>Pane 3:</source>
-        <translation type="unfinished"></translation>
+        <translation>表示部3:</translation>
     </message>
     <message>
         <source>Packet List settings:</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット一覧設定:</translation>
     </message>
     <message>
         <source>Show packet separator</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットの仕切りを表示</translation>
     </message>
     <message>
         <source>Status Bar settings:</source>
-        <translation type="unfinished"></translation>
+        <translation>ステータスバー設定:</translation>
     </message>
     <message>
         <source>Show selected packet number</source>
-        <translation type="unfinished"></translation>
+        <translation>選択したパケット番号を表示</translation>
     </message>
     <message>
         <source>Show file load time</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイル読込時間を表示</translation>
     </message>
 </context>
 <context>
     <name>LteMacStatisticsDialog</name>
     <message>
         <source>LTE Mac Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>LTE MAC統計</translation>
     </message>
     <message>
         <source>Include SR frames in filter</source>
-        <translation type="unfinished"></translation>
+        <translation>フィルタにあるSRフレームを含める</translation>
     </message>
     <message>
         <source>Include RACH frames in filter</source>
-        <translation type="unfinished"></translation>
+        <translation>フィルタのRACHフレームを含める</translation>
     </message>
 </context>
 <context>
     <name>LteRlcGraphDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
@@ -4889,571 +4923,600 @@ PLEASE NOTE: One option MUST be selected.</source>
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+
+&lt;h3&gt;価値のあり、すばらしく、時間を節約するキーボードショートカット&lt;/h3&gt;
+&lt;table&gt;&lt;tbody&gt;
+
+&lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;拡大&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;縮小&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;x&lt;/th&gt;&lt;td&gt;X軸を拡大&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;X&lt;/th&gt;&lt;td&gt;X軸を縮小&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;y&lt;/th&gt;&lt;td&gt;Y軸を拡大&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Y&lt;/th&gt;&lt;td&gt;Y軸を縮小&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;初期状態にグラフをリセット&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;右に10ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;左に10ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;上に10ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;下に10ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;右に1ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;左に1ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;上に1ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;下に1ピクセル移動&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;カーソル下のパケットへ移動&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;マウスドラッグ/ズーム(切替)&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;キャプチャ/セッション(切替)&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Space&lt;/th&gt;&lt;td&gt;クロスヘア(切替)&lt;/td&gt;&lt;/th&gt;
+
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Mouse</source>
-        <translation type="unfinished"></translation>
+        <translation>マウス</translation>
     </message>
     <message>
         <source>Drag using the mouse button.</source>
-        <translation type="unfinished"></translation>
+        <translation>マウスボタンを使ってドラッグします</translation>
     </message>
     <message>
         <source>drags</source>
-        <translation type="unfinished"></translation>
+        <translation>ドラッグ</translation>
     </message>
     <message>
         <source>Select using the mouse button.</source>
-        <translation type="unfinished"></translation>
+        <translation>マウスボタンを使って選択します</translation>
     </message>
     <message>
         <source>zooms</source>
-        <translation type="unfinished"></translation>
+        <translation>ズーム</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Reset the graph to its initial state.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;グラフを初期状態にリセットします&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Reset</source>
-        <translation type="unfinished"></translation>
+        <translation>リセット</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Switch the direction of the connection (view the opposite flow).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;接続の向きを切り替えます (反対側のフローを表示します)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Switch Direction</source>
-        <translation type="unfinished"></translation>
+        <translation>向きを切替</translation>
     </message>
     <message>
         <source>Reset Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>グラフをリセット</translation>
     </message>
     <message>
         <source>Reset the graph to its initial state.</source>
-        <translation type="unfinished"></translation>
+        <translation>グラフを初期状態にリセットします</translation>
     </message>
     <message>
         <source>0</source>
-        <translation type="unfinished"></translation>
+        <translation>0</translation>
     </message>
     <message>
         <source>Zoom In</source>
-        <translation type="unfinished"></translation>
+        <translation>拡大</translation>
     </message>
     <message>
         <source>+</source>
-        <translation type="unfinished"></translation>
+        <translation>+</translation>
     </message>
     <message>
         <source>Zoom Out</source>
-        <translation type="unfinished"></translation>
+        <translation>縮小</translation>
     </message>
     <message>
         <source>-</source>
-        <translation type="unfinished"></translation>
+        <translation>-</translation>
     </message>
     <message>
         <source>Move Up 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>上に10ピクセル移動</translation>
     </message>
     <message>
         <source>Up</source>
-        <translation type="unfinished"></translation>
+        <translation>上</translation>
     </message>
     <message>
         <source>Move Left 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>左に10ピクセル移動</translation>
     </message>
     <message>
         <source>Left</source>
-        <translation type="unfinished"></translation>
+        <translation>左</translation>
     </message>
     <message>
         <source>Move Right 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>右に10ピクセル移動</translation>
     </message>
     <message>
         <source>Right</source>
-        <translation type="unfinished"></translation>
+        <translation>右</translation>
     </message>
     <message>
         <source>Move Down 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>下に10ピクセル移動</translation>
     </message>
     <message>
         <source>Down</source>
-        <translation type="unfinished"></translation>
+        <translation>下</translation>
     </message>
     <message>
         <source>Move Up 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>上に1ピクセル移動</translation>
     </message>
     <message>
         <source>Shift+Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+上</translation>
     </message>
     <message>
         <source>Move Left 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>左に1ピクセル移動</translation>
     </message>
     <message>
         <source>Shift+Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+左</translation>
     </message>
     <message>
         <source>Move Right 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>1ピクセル右に移動</translation>
     </message>
     <message>
         <source>Shift+Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+右</translation>
     </message>
     <message>
         <source>Move Down 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>下に1ピクセル移動</translation>
     </message>
     <message>
         <source>Move down 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>下に1ピクセル移動</translation>
     </message>
     <message>
         <source>Shift+Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+下</translation>
     </message>
     <message>
         <source>Drag / Zoom</source>
-        <translation type="unfinished"></translation>
+        <translation>ドラッグ / ズーム</translation>
     </message>
     <message>
         <source>Toggle mouse drag / zoom behavior</source>
-        <translation type="unfinished"></translation>
+        <translation>マウスのドラッグ/ズームの動作を切り替え</translation>
     </message>
     <message>
         <source>Z</source>
-        <translation type="unfinished"></translation>
+        <translation>Z</translation>
     </message>
     <message>
         <source>Crosshairs</source>
-        <translation type="unfinished"></translation>
+        <translation>十字カーソル</translation>
     </message>
     <message>
         <source>Toggle crosshairs</source>
-        <translation type="unfinished"></translation>
+        <translation>十字カーソルの表示を切り替え</translation>
     </message>
     <message>
         <source>Space</source>
-        <translation type="unfinished"></translation>
+        <translation>スペース</translation>
     </message>
     <message>
         <source>Move Up 100 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>上に100ピクセル移動</translation>
     </message>
     <message>
         <source>PgUp</source>
-        <translation type="unfinished"></translation>
+        <translation>ページアップ</translation>
     </message>
     <message>
         <source>PgDown</source>
-        <translation type="unfinished"></translation>
+        <translation>ページダウン</translation>
     </message>
     <message>
         <source>Go To Packet Under Cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>カーソル位置パケットに移動</translation>
     </message>
     <message>
         <source>Go to packet currently under the cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>現在のカーソル位置のパケットに移動</translation>
     </message>
     <message>
         <source>G</source>
-        <translation type="unfinished"></translation>
+        <translation>G</translation>
     </message>
     <message>
         <source>Zoom In X Axis</source>
-        <translation type="unfinished"></translation>
+        <translation>X軸を拡大</translation>
     </message>
     <message>
         <source>X</source>
-        <translation type="unfinished"></translation>
+        <translation>X</translation>
     </message>
     <message>
         <source>Zoom Out Y Axis</source>
-        <translation type="unfinished"></translation>
+        <translation>Y軸を縮小</translation>
     </message>
     <message>
         <source>Shift+Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+Y</translation>
     </message>
     <message>
         <source>Zoom In Y Axis</source>
-        <translation type="unfinished"></translation>
+        <translation>Y軸を拡大</translation>
     </message>
     <message>
         <source>Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Y</translation>
     </message>
     <message>
         <source>Zoom Out X Axis</source>
-        <translation type="unfinished"></translation>
+        <translation>X軸を縮小</translation>
     </message>
     <message>
         <source>Shift+X</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+X</translation>
     </message>
     <message>
         <source>Switch direction (swap between UL and DL)</source>
-        <translation type="unfinished"></translation>
+        <translation>向きを切替(ULとDLを入替)</translation>
     </message>
     <message>
         <source>D</source>
-        <translation type="unfinished"></translation>
+        <translation>D</translation>
     </message>
     <message>
         <source>Time</source>
-        <translation type="unfinished"></translation>
+        <translation>時間</translation>
     </message>
     <message>
         <source>Sequence Number</source>
-        <translation type="unfinished"></translation>
+        <translation>シーケンス番号</translation>
     </message>
     <message>
         <source>LTE RLC Graph (UE=%1 chan=%2%3 %4 - %5)</source>
-        <translation type="unfinished"></translation>
+        <translation>LTE RLCグラフ (UE=%1 chan=%2%3 %4 - %5)</translation>
     </message>
     <message>
         <source>LTE RLC Graph - no channel selected</source>
-        <translation type="unfinished"></translation>
+        <translation>LTE RLCグラフ - チャンネルが選択されていません</translation>
     </message>
     <message>
         <source>Save As</source>
-        <translation type="unfinished"></translation>
+        <translation>として保存</translation>
     </message>
     <message>
         <source>%1 %2 (%3s seq %4 len %5)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 %2 (%3s シーケンス %4 長さ %5)</translation>
     </message>
     <message>
         <source>Click to select packet</source>
-        <translation type="unfinished"></translation>
+        <translation>クリックしてパケットを選びます</translation>
     </message>
     <message>
         <source>Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット</translation>
     </message>
     <message>
         <source>Release to zoom, x = %1 to %2, y = %3 to %4</source>
-        <translation type="unfinished"></translation>
+        <translation>離してズーム, x = %1 から %2, y = %3 から %4</translation>
     </message>
     <message>
         <source>Unable to select range.</source>
-        <translation type="unfinished"></translation>
+        <translation>範囲を選択できません</translation>
     </message>
     <message>
         <source>Click to select a portion of the graph.</source>
-        <translation type="unfinished"></translation>
+        <translation>クリックしてグラフの割合を選びます</translation>
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>
-        <translation type="unfinished"></translation>
+        <translation>PDF形式 (*.pdf)</translation>
     </message>
     <message>
         <source>Portable Network Graphics (*.png)</source>
-        <translation type="unfinished"></translation>
+        <translation>PNG形式 (*.png)</translation>
     </message>
     <message>
         <source>Windows Bitmap (*.bmp)</source>
-        <translation type="unfinished"></translation>
+        <translation>ビットマップ形式 (*.bmp)</translation>
     </message>
     <message>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation type="unfinished"></translation>
+        <translation>JPEG形式 (*.jpeg *.jpg)</translation>
     </message>
     <message>
         <source>Save Graph As</source>
-        <translation type="unfinished"></translation>
+        <translation>としてグラフを保存</translation>
     </message>
 </context>
 <context>
     <name>LteRlcStatisticsDialog</name>
     <message>
         <source>LTE RLC Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>LTE RLC統計</translation>
     </message>
     <message>
         <source>Include SR frames in filter</source>
-        <translation type="unfinished"></translation>
+        <translation>フィルタにあるSRフレームを含める</translation>
     </message>
     <message>
         <source>Include RACH frames in filter</source>
-        <translation type="unfinished"></translation>
+        <translation>フィルタにあるRACHフレームを含める</translation>
     </message>
     <message>
         <source>Use RLC frames only from MAC frames</source>
-        <translation type="unfinished"></translation>
+        <translation>MACフレームからRLCフレームのみ</translation>
     </message>
     <message>
         <source>UL Frames</source>
-        <translation type="unfinished"></translation>
+        <translation>ULフレーム数</translation>
     </message>
     <message>
         <source>UL Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>ULバイト数</translation>
     </message>
     <message>
         <source>UL MB/s</source>
-        <translation type="unfinished"></translation>
+        <translation>ULメガバイト毎秒</translation>
     </message>
     <message>
         <source>UL ACKs</source>
-        <translation type="unfinished"></translation>
+        <translation>UL ACK数</translation>
     </message>
     <message>
         <source>UL NACKs</source>
-        <translation type="unfinished"></translation>
+        <translation>UL NACK数</translation>
     </message>
     <message>
         <source>UL Missing</source>
-        <translation type="unfinished"></translation>
+        <translation>UL 欠落</translation>
     </message>
     <message>
         <source>DL Frames</source>
-        <translation type="unfinished"></translation>
+        <translation>DL フレーム数</translation>
     </message>
     <message>
         <source>DL Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>DL バイト数</translation>
     </message>
     <message>
         <source>DL MB/s</source>
-        <translation type="unfinished"></translation>
+        <translation>DL メガバイト毎秒</translation>
     </message>
     <message>
         <source>DL ACKs</source>
-        <translation type="unfinished"></translation>
+        <translation>DL ACK数</translation>
     </message>
     <message>
         <source>DL NACKs</source>
-        <translation type="unfinished"></translation>
+        <translation>DL NACK数</translation>
     </message>
     <message>
         <source>DL Missing</source>
-        <translation type="unfinished"></translation>
+        <translation>DL 欠落</translation>
     </message>
 </context>
 <context>
     <name>MainStatusBar</name>
     <message>
         <source>Ready to load or capture</source>
-        <translation type="unfinished"></translation>
+        <translation>読み込みもしくはキャプチャの準備</translation>
     </message>
     <message>
         <source>Ready to load file</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイル読み込み準備</translation>
     </message>
     <message>
         <source>Open the Capture File Properties dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャファイルプロパティ画面を開く</translation>
     </message>
     <message>
         <source> is the highest expert information level</source>
-        <translation type="unfinished"></translation>
+        <translation>は最高位のエキスパート情報レベルです</translation>
     </message>
     <message>
         <source>ERROR</source>
-        <translation type="unfinished"></translation>
+        <translation>エラー</translation>
     </message>
     <message>
         <source>WARNING</source>
-        <translation type="unfinished"></translation>
+        <translation>警告</translation>
     </message>
     <message>
         <source>NOTE</source>
-        <translation type="unfinished"></translation>
+        <translation>注意</translation>
     </message>
     <message>
         <source>CHAT</source>
-        <translation type="unfinished"></translation>
+        <translation>チャット</translation>
     </message>
     <message>
         <source>No expert information</source>
-        <translation type="unfinished"></translation>
+        <translation>エキスパート情報はありません</translation>
     </message>
     <message>
         <source>, 1 byte</source>
-        <translation type="unfinished"></translation>
+        <translation>, 1 バイト</translation>
     </message>
     <message>
         <source>, %1 bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>, %1 バイト</translation>
     </message>
     <message>
         <source>Byte %1</source>
-        <translation type="unfinished"></translation>
+        <translation>バイト %1</translation>
     </message>
     <message>
         <source>Bytes %1-%2</source>
-        <translation type="unfinished"></translation>
+        <translation>バイト %1-%2</translation>
     </message>
     <message>
         <source>Profile: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>プロファイル: %1</translation>
     </message>
     <message>
         <source>Selected Packet: %1 %2 </source>
-        <translation type="unfinished"></translation>
+        <translation>選択したパケット: %1 %2 </translation>
     </message>
     <message>
         <source>Packets: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット: %1</translation>
     </message>
     <message>
         <source>Packets: %1 %4 Displayed: %2 (%3%)</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット数: %1 %4 表示: %2 (%3%)</translation>
     </message>
     <message>
         <source> %1 Marked: %2 (%3%)</source>
-        <translation type="unfinished"></translation>
+        <translation> %1 マーク: %2 (%3%)</translation>
     </message>
     <message>
         <source> %1 Dropped: %2 (%3%)</source>
-        <translation type="unfinished"></translation>
+        <translation> %1 欠落: %2 (%3%)</translation>
     </message>
     <message>
         <source> %1 Ignored: %2 (%3%)</source>
-        <translation type="unfinished"></translation>
+        <translation> %1 無視: %2 (%3%)</translation>
     </message>
     <message>
         <source> %1  Load time: %2:%3.%4</source>
-        <translation type="unfinished"></translation>
+        <translation> %1  読込時間: %2:%3.%4</translation>
     </message>
     <message>
         <source>No Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットなし</translation>
     </message>
     <message>
         <source>Switch to</source>
-        <translation type="unfinished"></translation>
+        <translation>切替</translation>
     </message>
     <message>
         <source>Manage Profiles</source>
-        <translation type="unfinished"></translation>
+        <translation>プロファイルの管理</translation>
     </message>
     <message>
         <source>New</source>
-        <translation type="unfinished"></translation>
+        <translation>新規</translation>
     </message>
     <message>
         <source>Edit</source>
-        <translation type="unfinished"></translation>
+        <translation>編集</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>削除</translation>
     </message>
 </context>
 <context>
     <name>MainWelcome</name>
     <message>
         <source>Show in Finder</source>
-        <translation type="unfinished"></translation>
+        <translation>ファインダで表示</translation>
     </message>
     <message>
         <source>Show in Folder</source>
-        <translation type="unfinished"></translation>
+        <translation>フォルダで表示</translation>
     </message>
     <message>
         <source>All interfaces shown</source>
-        <translation type="unfinished"></translation>
+        <translation>すべての表示されたインターフェース</translation>
     </message>
     <message numerus="yes">
         <source>%n interface(s) shown, %1 hidden</source>
         <oldsource>%Ln interface(s) shown</oldsource>
-        <translation type="unfinished">
-            <numerusform>%n interface shown, %1 hidden</numerusform>
+        <translation>
+            <numerusform>%n インターフェース表示, %1 非表示</numerusform>
         </translation>
     </message>
     <message>
         <source>You are sniffing the glue that holds the Internet together using Wireshark </source>
-        <translation type="unfinished"></translation>
+        <translation>あなたはWiresharkを使ってインターネットを互いに紐づける膠をキャプチャしています</translation>
     </message>
     <message>
         <source>You are running Wireshark </source>
-        <translation type="unfinished"></translation>
+        <translation>Wiresharkを起動中です</translation>
     </message>
     <message>
         <source>.</source>
-        <translation type="unfinished"></translation>
+        <translation>.</translation>
     </message>
     <message>
         <source> You receive automatic updates.</source>
-        <translation type="unfinished"></translation>
+        <translation>自動アップデートを受信します</translation>
     </message>
     <message>
         <source> You have disabled automatic updates.</source>
-        <translation type="unfinished"></translation>
+        <translation>自動アップデートを無効にしました</translation>
     </message>
     <message>
         <source>not found</source>
-        <translation type="unfinished"></translation>
+        <translation>見つかりません</translation>
     </message>
     <message>
         <source>Copy file path</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイルパスをコピー</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>削除</translation>
     </message>
     <message>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation>フォーム</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:large;&quot;&gt;Welcome to Wireshark&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:large;&quot;&gt;Wiresharkへようこそ&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Open a file on your file system&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;ファイルシステムのファイルを開く&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;h2&gt;Open&lt;/h2&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;h2&gt;開く&lt;/h2&gt;</translation>
     </message>
     <message>
         <source>Recent capture files</source>
-        <translation type="unfinished"></translation>
+        <translation>最近のキャプチャファイル</translation>
     </message>
     <message>
         <source>Capture files that have been opened previously</source>
-        <translation type="unfinished"></translation>
+        <translation>以前に開いたキャプチャファイル</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Capture live packets from your network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;ネットワークから現在通信中のパケットをキャプチャします。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;h2&gt;Capture&lt;/h2&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;h2&gt;キャプチャ&lt;/h2&gt;</translation>
     </message>
     <message>
         <source>…using this filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>…このフィルタを利用:</translation>
     </message>
     <message>
         <source>Interface list</source>
-        <translation type="unfinished"></translation>
+        <translation>インターフェース一覧</translation>
     </message>
     <message>
         <source>List of available capture interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>利用可能なキャプチャインターフェース一覧</translation>
     </message>
     <message>
         <source>&lt;h2&gt;Learn&lt;/h2&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;h2&gt;学習&lt;/h2&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head&gt;
@@ -5487,82 +5550,112 @@ a:hover {
 
 &lt;/tr&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head&gt;
+&lt;style&gt;
+a:link {
+  color: inherit;
+  text-decoration: none;
+}
+a:hover {
+  color: inherit;
+  text-decoration: underline;
+}
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;table&gt;&lt;tr&gt;
+&lt;th&gt;&lt;a href=&quot;https://www.wireshark.org/docs/wsug_html_chunked/&quot;&gt;ユーザーズガイド&lt;/a&gt;&lt;/th&gt;
+
+&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
+
+&lt;th&gt;&lt;a href=&quot;https://wiki.wireshark.org/&quot;&gt;Wiki&lt;/a&gt;&lt;/th&gt;
+
+&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
+
+&lt;th&gt;&lt;a href=&quot;https://ask.wireshark.org/&quot;&gt;質問と回答&lt;/a&gt;&lt;/th&gt;
+
+&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
+
+&lt;th&gt;&lt;a href=&quot;https://www.wireshark.org/lists/&quot;&gt;メーリングリスト&lt;/a&gt;&lt;/th&gt;
+
+&lt;/tr&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
     <name>MainWindow</name>
     <message>
         <source> before opening another file</source>
-        <translation type="unfinished"></translation>
+        <translation>別のファイルを開く前に</translation>
     </message>
     <message>
         <source>Invalid Display Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>無効な表示フィルタ</translation>
     </message>
     <message>
         <source>Loading</source>
-        <translation type="unfinished"></translation>
+        <translation>ロード中</translation>
     </message>
     <message>
         <source>Reloading</source>
-        <translation type="unfinished"></translation>
+        <translation>再読み込み中</translation>
     </message>
     <message>
         <source>Rescanning</source>
-        <translation type="unfinished"></translation>
+        <translation>再スキャニング中</translation>
     </message>
     <message>
         <source>Merging files</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイルを結合</translation>
     </message>
     <message>
         <source>Saving %1</source>
-        <translation type="unfinished"></translation>
+        <translation>保存中 %1</translation>
     </message>
     <message>
         <source>%1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: %2</translation>
     </message>
     <message>
         <source>No interface selected</source>
-        <translation type="unfinished"></translation>
+        <translation>インターフェースが選択されていません</translation>
     </message>
     <message>
         <source>Invalid capture filter</source>
-        <translation type="unfinished"></translation>
+        <translation>無効なキャプチャフィルタ</translation>
     </message>
     <message>
         <source>Clear Menu</source>
-        <translation type="unfinished"></translation>
+        <translation>メニューをクリア</translation>
     </message>
     <message>
         <source> before starting a new capture</source>
-        <translation type="unfinished"></translation>
+        <translation>新規キャプチャを開始する前に</translation>
     </message>
     <message>
         <source>Please wait while Wireshark is initializing</source>
-        <translation type="unfinished"></translation>
+        <translation>Wiresharkが初期化している間お待ちください</translation>
     </message>
     <message>
         <source> before closing the file</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイルを閉じる前に</translation>
     </message>
     <message>
         <source>Export Selected Packet Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>選択したパケットバイト列をエクスポート</translation>
     </message>
     <message>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
-        <translation type="unfinished"></translation>
+        <translation>Raw(無加工)データ形式 (*.bin *.dat *.raw);;すべてのファイル(</translation>
     </message>
     <message>
         <source>No Keys</source>
-        <translation type="unfinished"></translation>
+        <translation>キーはありません</translation>
     </message>
     <message>
         <source>There are no SSL Session Keys to save.</source>
-        <translation type="unfinished"></translation>
+        <translation>保存するSSLセッション鍵はありません</translation>
     </message>
     <message numerus="yes">
         <source>Export SSL Session Keys (%Ln key(s))</source>
@@ -5573,2554 +5666,2556 @@ a:hover {
     </message>
     <message>
         <source>SSL Session Keys (*.keys *.txt);;All Files (</source>
-        <translation type="unfinished"></translation>
+        <translation>SSLセッション鍵 (*.keys *.txt);;すべてのファイル (</translation>
     </message>
     <message>
         <source>Couldn&apos;t copy text. Try another item.</source>
-        <translation type="unfinished"></translation>
+        <translation>テキストをコピーできません 別の項目を試してみてください</translation>
     </message>
     <message>
         <source>Are you sure you want to remove all packet comments?</source>
-        <translation type="unfinished"></translation>
+        <translation>本当にすべてのパケットコメントを削除してよいですか？</translation>
     </message>
     <message>
         <source>Unable to build conversation filter.</source>
-        <translation type="unfinished"></translation>
+        <translation>会話フィルタを作成できません</translation>
     </message>
     <message>
         <source> before reloading the file</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイルを再読み込みする前に</translation>
     </message>
     <message>
         <source>No filter available. Try another </source>
-        <translation type="unfinished"></translation>
+        <translation>フィルタが利用できません 別のものを試してください</translation>
     </message>
     <message>
         <source>Error compiling filter for this conversation.</source>
-        <translation type="unfinished"></translation>
+        <translation>この対話の間のフィルタ翻訳エラー</translation>
     </message>
     <message>
         <source>No previous/next packet in conversation.</source>
-        <translation type="unfinished"></translation>
+        <translation>対話の前/次のパケットがありません</translation>
     </message>
     <message>
         <source>No Interface Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>インターフェースが選択されていません</translation>
     </message>
     <message>
         <source> before restarting the capture</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャを再スタートする前に</translation>
     </message>
     <message>
         <source>Wiki Page for %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 の Wikiページ</translation>
     </message>
     <message>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;ワイヤーシャークWikiはコミュニティによって運営されています &lt;/p&gt;&lt;p&gt;いま見ているページはすばらしかったり、不完全だったり、間違っていたり、存在しないかもしれません。&lt;/p&gt;&lt;p&gt;Wikiに移動しますか？&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Filter Button Preferences...</source>
-        <translation type="unfinished"></translation>
+        <translation>フィルタボタン設定…</translation>
     </message>
     <message>
         <source>Edit</source>
-        <translation type="unfinished"></translation>
+        <translation>編集</translation>
     </message>
     <message>
         <source>Disable</source>
-        <translation type="unfinished"></translation>
+        <translation>無効</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>削除</translation>
     </message>
     <message>
         <source>Wireshark</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark</translation>
     </message>
     <message>
         <source>Packet:</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット:</translation>
     </message>
     <message>
         <source>900000000</source>
-        <translation type="unfinished"></translation>
+        <translation>900000000</translation>
     </message>
     <message>
         <source>Go to packet</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットに移動</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>キャンセル</translation>
     </message>
     <message>
         <source>&amp;File</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイル(&amp;F)</translation>
     </message>
     <message>
         <source>Open Recent</source>
-        <translation type="unfinished"></translation>
+        <translation>最近使ったファイルを開く</translation>
     </message>
     <message>
         <source>File Set</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイルセット</translation>
     </message>
     <message>
         <source>Export Packet Dissections</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット解析をエクスポート</translation>
     </message>
     <message>
         <source>Export Objects</source>
-        <translation type="unfinished"></translation>
+        <translation>オブジェクトをエクスポート</translation>
     </message>
     <message>
         <source>&amp;Capture</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャ(&amp;C)</translation>
     </message>
     <message>
         <source>&amp;Help</source>
-        <translation type="unfinished"></translation>
+        <translation>ヘルプ(&amp;H)</translation>
     </message>
     <message>
         <source>Manual pages</source>
-        <translation type="unfinished"></translation>
+        <translation>マニュアルページ</translation>
     </message>
     <message>
         <source>&amp;Go</source>
-        <translation type="unfinished"></translation>
+        <translation>移動(&amp;G)</translation>
     </message>
     <message>
         <source>&amp;View</source>
-        <translation type="unfinished"></translation>
+        <translation>表示(&amp;V)</translation>
     </message>
     <message>
         <source>Interface Toolbars</source>
-        <translation type="unfinished"></translation>
+        <translation>インターフェースツールバー</translation>
     </message>
     <message>
         <source>&amp;Zoom</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;ズーム</translation>
     </message>
     <message>
         <source>&amp;Time Display Format</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;時刻表示形式</translation>
     </message>
     <message>
         <source>Name Resolution</source>
-        <translation type="unfinished"></translation>
+        <translation>名前解決</translation>
     </message>
     <message>
         <source>Colorize Conversation</source>
-        <translation type="unfinished"></translation>
+        <translation>対話に色をつける</translation>
     </message>
     <message>
         <source>Internals</source>
-        <translation type="unfinished"></translation>
+        <translation>内部</translation>
     </message>
     <message>
         <source>Additional Toolbars</source>
-        <translation type="unfinished"></translation>
+        <translation>追加のツールバー</translation>
     </message>
     <message>
         <source>&amp;Analyze</source>
-        <translation type="unfinished"></translation>
+        <translation>分析(&amp;A)</translation>
     </message>
     <message>
         <source>Apply as Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>フィルタとして適用</translation>
     </message>
     <message>
         <source>Prepare a Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>フィルタを準備</translation>
     </message>
     <message>
         <source>SCTP</source>
-        <translation type="unfinished"></translation>
+        <translation>SCTP</translation>
     </message>
     <message>
         <source>Follow</source>
-        <translation type="unfinished"></translation>
+        <translation>追跡</translation>
     </message>
     <message>
         <source>Conversation Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>対話フィルタ</translation>
     </message>
     <message>
         <source>&amp;Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>統計(&amp;S)</translation>
     </message>
     <message>
         <source>TCP Stream Graphs</source>
-        <translation type="unfinished"></translation>
+        <translation>TCPストリームグラフ</translation>
     </message>
     <message>
         <source>BACnet</source>
-        <translation type="unfinished"></translation>
+        <translation>BACnet</translation>
     </message>
     <message>
         <source>HTTP</source>
-        <translation type="unfinished"></translation>
+        <translation>HTTP</translation>
     </message>
     <message>
         <source>29West</source>
-        <translation type="unfinished"></translation>
+        <translation>29West</translation>
     </message>
     <message>
         <source>Topics</source>
-        <translation type="unfinished"></translation>
+        <translation>トピック</translation>
     </message>
     <message>
         <source>Queues</source>
-        <translation type="unfinished"></translation>
+        <translation>キュー</translation>
     </message>
     <message>
         <source>UIM</source>
-        <translation type="unfinished"></translation>
+        <translation>UIM</translation>
     </message>
     <message>
         <source>Service Response Time</source>
-        <translation type="unfinished"></translation>
+        <translation>サービス応答時間</translation>
     </message>
     <message>
         <source>Telephon&amp;y</source>
-        <translation type="unfinished"></translation>
+        <translation>電話(&amp;y)</translation>
     </message>
     <message>
         <source>RTSP</source>
-        <translation type="unfinished"></translation>
+        <translation>RTSP</translation>
     </message>
     <message>
         <source>RTP</source>
-        <translation type="unfinished"></translation>
+        <translation>RTP</translation>
     </message>
     <message>
         <source>ANSI</source>
-        <translation type="unfinished"></translation>
+        <translation>ANSI</translation>
     </message>
     <message>
         <source>GSM</source>
-        <translation type="unfinished"></translation>
+        <translation>GSM</translation>
     </message>
     <message>
         <source>LTE</source>
-        <translation type="unfinished"></translation>
+        <translation>LTE</translation>
     </message>
     <message>
         <source>MTP3</source>
-        <translation type="unfinished"></translation>
+        <translation>MTP3</translation>
     </message>
     <message>
         <source>Osmux</source>
-        <translation type="unfinished"></translation>
+        <translation>Osmux</translation>
     </message>
     <message>
         <source>&amp;Edit</source>
-        <translation type="unfinished"></translation>
+        <translation>編集(&amp;E)</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>コピー</translation>
     </message>
     <message>
         <source>&amp;Wireless</source>
-        <translation type="unfinished"></translation>
+        <translation>無線(&amp;W)</translation>
     </message>
     <message>
         <source>&amp;Tools</source>
-        <translation type="unfinished"></translation>
+        <translation>ツール(&amp;T)</translation>
     </message>
     <message>
         <source>Main Toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>メインツールバー</translation>
     </message>
     <message>
         <source>Display Filter Toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタツールバー</translation>
     </message>
     <message>
         <source>Wireless Toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>無線ツールバー</translation>
     </message>
     <message>
         <source>Open</source>
-        <translation type="unfinished"></translation>
+        <translation>開く</translation>
     </message>
     <message>
         <source>Open a capture file</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャファイルを開きます</translation>
     </message>
     <message>
         <source>Quit</source>
-        <translation type="unfinished"></translation>
+        <translation>終了</translation>
     </message>
     <message>
         <source>Quit Wireshark</source>
-        <translation type="unfinished"></translation>
+        <translation>Wiresharkを終了します</translation>
     </message>
     <message>
         <source>&amp;Start</source>
-        <translation type="unfinished"></translation>
+        <translation>開始(&amp;S)</translation>
     </message>
     <message>
         <source>Start capturing packets</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットキャプチャを開始します</translation>
     </message>
     <message>
         <source>S&amp;top</source>
-        <translation type="unfinished"></translation>
+        <translation>停止(&amp;t)</translation>
     </message>
     <message>
         <source>Stop capturing packets</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットキャプチャを停止します</translation>
     </message>
     <message>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>閉じる</translation>
     </message>
     <message>
         <source>Close this capture file</source>
-        <translation type="unfinished"></translation>
+        <translation>このキャプチャファイルを閉じます</translation>
     </message>
     <message>
         <source>No files found</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイルが見つかりませんでした</translation>
     </message>
     <message>
         <source>&amp;Contents</source>
-        <translation type="unfinished"></translation>
+        <translation>目次(&amp;C)</translation>
     </message>
     <message>
         <source>Help contents</source>
-        <translation type="unfinished"></translation>
+        <translation>ヘルプ目次</translation>
     </message>
     <message>
         <source>Wireshark Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Wiresharkフィルタ</translation>
     </message>
     <message>
         <source>TShark</source>
-        <translation type="unfinished"></translation>
+        <translation>Tshark</translation>
     </message>
     <message>
         <source>RawShark</source>
-        <translation type="unfinished"></translation>
+        <translation>RawShark</translation>
     </message>
     <message>
         <source>Dumpcap</source>
-        <translation type="unfinished"></translation>
+        <translation>Dumpcap</translation>
     </message>
     <message>
         <source>Mergecap</source>
-        <translation type="unfinished"></translation>
+        <translation>Mergecap</translation>
     </message>
     <message>
         <source>Editcap</source>
-        <translation type="unfinished"></translation>
+        <translation>Mergecap</translation>
     </message>
     <message>
         <source>Text2cap</source>
-        <translation type="unfinished"></translation>
+        <translation>Text2cap</translation>
     </message>
     <message>
         <source>Website</source>
-        <translation type="unfinished"></translation>
+        <translation>ウェブサイト</translation>
     </message>
     <message>
         <source>FAQ&apos;s</source>
-        <translation type="unfinished"></translation>
+        <translation>FAQ&apos;s</translation>
     </message>
     <message>
         <source>Downloads</source>
-        <translation type="unfinished"></translation>
+        <translation>ダウンロード</translation>
     </message>
     <message>
         <source>Wiki</source>
-        <translation type="unfinished"></translation>
+        <translation>Wiki</translation>
     </message>
     <message>
         <source>Sample Captures</source>
-        <translation type="unfinished"></translation>
+        <translation>サンプルキャプチャ</translation>
     </message>
     <message>
         <source>&amp;About Wireshark</source>
-        <translation type="unfinished"></translation>
+        <translation>wiresharkについて</translation>
     </message>
     <message>
         <source>Ask (Q&amp;&amp;A)</source>
-        <translation type="unfinished"></translation>
+        <translation>問い合わせ (Q&amp;&amp;A)</translation>
     </message>
     <message>
         <source>Next Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>次のパケット</translation>
     </message>
     <message>
         <source>Go to the next packet</source>
-        <translation type="unfinished"></translation>
+        <translation>次のパケットに移動します</translation>
     </message>
     <message>
         <source>Previous Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>前のパケット</translation>
     </message>
     <message>
         <source>Go to the previous packet</source>
-        <translation type="unfinished"></translation>
+        <translation>前のパケットに移動します</translation>
     </message>
     <message>
         <source>Next Packet in Conversation</source>
-        <translation type="unfinished"></translation>
+        <translation>対話の次のパケット</translation>
     </message>
     <message>
         <source>Go to the next packet in this conversation</source>
-        <translation type="unfinished"></translation>
+        <translation>この対話の次のパケットに移動します</translation>
     </message>
     <message>
         <source>Previous Packet in Conversation</source>
-        <translation type="unfinished"></translation>
+        <translation>対話の前のパケット</translation>
     </message>
     <message>
         <source>Go to the previous packet in this conversation</source>
-        <translation type="unfinished"></translation>
+        <translation>この対話の前のパケットに移動します</translation>
     </message>
     <message>
         <source>Next Packet In History</source>
-        <translation type="unfinished"></translation>
+        <translation>ヒストリの次のパケット</translation>
     </message>
     <message>
         <source>Go to the next packet in your selection history</source>
-        <translation type="unfinished"></translation>
+        <translation>選択したヒストリの前のパケットへ移動します</translation>
     </message>
     <message>
         <source>Previous Packet In History</source>
-        <translation type="unfinished"></translation>
+        <translation>ヒストリの前のパケット</translation>
     </message>
     <message>
         <source>Go to the previous packet in your selection history</source>
-        <translation type="unfinished"></translation>
+        <translation>選択したヒストリの前のパケットへ移動します</translation>
     </message>
     <message>
         <source>First Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>最初のパケット</translation>
     </message>
     <message>
         <source>Go to the first packet</source>
-        <translation type="unfinished"></translation>
+        <translation>最初のパケットに移動します</translation>
     </message>
     <message>
         <source>Last Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>最後のパケット</translation>
     </message>
     <message>
         <source>Go to the last packet</source>
-        <translation type="unfinished"></translation>
+        <translation>最後のパケットに移動します</translation>
     </message>
     <message>
         <source>E&amp;xpand Subtrees</source>
-        <translation type="unfinished"></translation>
+        <translation>サブツリーを展開(&amp;x)</translation>
     </message>
     <message>
         <source>Expand the current packet detail</source>
-        <translation type="unfinished"></translation>
+        <translation>現在のパケット詳細を展開します</translation>
     </message>
     <message>
         <source>Collapse Subtrees</source>
-        <translation type="unfinished"></translation>
+        <translation>サブツリーを閉じる</translation>
     </message>
     <message>
         <source>Collapse the current packet detail</source>
-        <translation type="unfinished"></translation>
+        <translation>現在のパケット詳細を閉じます</translation>
     </message>
     <message>
         <source>&amp;Expand All</source>
-        <translation type="unfinished"></translation>
+        <translation>すべて展開(&amp;E)</translation>
     </message>
     <message>
         <source>Expand packet details</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット詳細を展開</translation>
     </message>
     <message>
         <source>Collapse &amp;All</source>
-        <translation type="unfinished"></translation>
+        <translation>すべて閉じる(&amp;A)</translation>
     </message>
     <message>
         <source>Collapse all packet details</source>
-        <translation type="unfinished"></translation>
+        <translation>すべてのパケット詳細を閉じます</translation>
     </message>
     <message>
         <source>Go to Packet…</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットに移動…</translation>
     </message>
     <message>
         <source>Go to specified packet</source>
-        <translation type="unfinished"></translation>
+        <translation>指定したパケットへ移動します</translation>
     </message>
     <message>
         <source>&amp;Merge…</source>
-        <translation type="unfinished"></translation>
+        <translation>結合…(&amp;M)</translation>
     </message>
     <message>
         <source>Merge one or more files</source>
-        <translation type="unfinished"></translation>
+        <translation>１つそれ以上のファイルを結合します</translation>
     </message>
     <message>
         <source>&amp;Import from Hex Dump…</source>
-        <translation type="unfinished"></translation>
+        <translation>16進数ダンプからインポート…(&amp;I)</translation>
     </message>
     <message>
         <source>Import a file</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイルをインポート</translation>
     </message>
     <message>
         <source>&amp;Save</source>
-        <translation type="unfinished"></translation>
+        <translation>保存(&amp;S)</translation>
     </message>
     <message>
         <source>Save this capture file</source>
-        <translation type="unfinished"></translation>
+        <translation>このキャプチャファイルを保存します</translation>
     </message>
     <message>
         <source>Save &amp;As…</source>
-        <translation type="unfinished"></translation>
+        <translation>…として保存(&amp;A)</translation>
     </message>
     <message>
         <source>Save as a different file</source>
-        <translation type="unfinished"></translation>
+        <translation>異なるファイルとして保存</translation>
     </message>
     <message>
         <source>Export Specified Packets…</source>
-        <translation type="unfinished"></translation>
+        <translation>指定したパケットをエクスポート…</translation>
     </message>
     <message>
         <source>Export specified packets</source>
-        <translation type="unfinished"></translation>
+        <translation>指定したパケットをエクスポート…</translation>
     </message>
     <message>
         <source>Export Packet &amp;Bytes…</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットバイト列をエクスポート…(&amp;B)</translation>
     </message>
     <message>
         <source>Export SSL Session Keys…</source>
-        <translation type="unfinished"></translation>
+        <translation>SSLセッション鍵をエクスポート…</translation>
     </message>
     <message>
         <source>&amp;Print…</source>
-        <translation type="unfinished"></translation>
+        <translation>印刷(&amp;P)…</translation>
     </message>
     <message>
         <source>List Files</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイル一覧</translation>
     </message>
     <message>
         <source>Next File</source>
-        <translation type="unfinished"></translation>
+        <translation>次のファイル</translation>
     </message>
     <message>
         <source>Previous File</source>
-        <translation type="unfinished"></translation>
+        <translation>前のファイル</translation>
     </message>
     <message>
         <source>&amp;Reload</source>
-        <translation type="unfinished"></translation>
+        <translation>再読込(&amp;R)</translation>
     </message>
     <message>
         <source>Reload this file</source>
-        <translation type="unfinished"></translation>
+        <translation>このファイルを再読み込み</translation>
     </message>
     <message>
         <source>Reload as File Format/Capture</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイルフォーマット/キャプチャとして再読み込みします</translation>
     </message>
     <message>
         <source>&amp;Options…</source>
-        <translation type="unfinished"></translation>
+        <translation>オプション…(&amp;O)</translation>
     </message>
     <message>
         <source>Options</source>
-        <translation type="unfinished"></translation>
+        <translation>オプション</translation>
     </message>
     <message>
         <source>Capture options</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャオプション</translation>
     </message>
     <message>
         <source>Capture &amp;Filters…</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャフィルタ…(&amp;F)</translation>
     </message>
     <message>
         <source>Capture filters</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャフィルタ</translation>
     </message>
     <message>
         <source>Refresh Interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>インターフェースを更新</translation>
     </message>
     <message>
         <source>Refresh interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>インターフェースを更新</translation>
     </message>
     <message>
         <source>&amp;Restart</source>
-        <translation type="unfinished"></translation>
+        <translation>再キャプチャ(&amp;R)</translation>
     </message>
     <message>
         <source>Restart current capture</source>
-        <translation type="unfinished"></translation>
+        <translation>現在のキャプチャを再スタートします</translation>
     </message>
     <message>
         <source>As Plain &amp;Text…</source>
-        <translation type="unfinished"></translation>
+        <translation>プレインテキストとして…(&amp;T)</translation>
     </message>
     <message>
         <source>As CSV…</source>
-        <translation type="unfinished"></translation>
+        <translation>CSVとして…</translation>
     </message>
     <message>
         <source>As &quot;C&quot; Arrays…</source>
-        <translation type="unfinished"></translation>
+        <translation>C言語配列として…</translation>
     </message>
     <message>
         <source>As PSML XML…</source>
-        <translation type="unfinished"></translation>
+        <translation>PSML XMLとして…</translation>
     </message>
     <message>
         <source>As PDML XML…</source>
-        <translation type="unfinished"></translation>
+        <translation>PDML XMLとして…</translation>
     </message>
     <message>
         <source>As JSON…</source>
-        <translation type="unfinished"></translation>
+        <translation>JSONとして…</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translation>記述</translation>
     </message>
     <message>
         <source>Copy this item&apos;s description</source>
-        <translation type="unfinished"></translation>
+        <translation>この項目の記述をコピーします</translation>
     </message>
     <message>
         <source>All Visible Items</source>
-        <translation type="unfinished"></translation>
+        <translation>すべての見えている項目</translation>
     </message>
     <message>
         <source>All Visible Selected Tree Items</source>
-        <translation type="unfinished"></translation>
+        <translation>すべての見えている選択されたツリー項目</translation>
     </message>
     <message>
         <source>Field Name</source>
-        <translation type="unfinished"></translation>
+        <translation>フィールド名</translation>
     </message>
     <message>
         <source>Copy this item&apos;s field name</source>
-        <translation type="unfinished"></translation>
+        <translation>この項目のフィールド名をコピーします</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished"></translation>
+        <translation>値</translation>
     </message>
     <message>
         <source>Copy this item&apos;s value</source>
-        <translation type="unfinished"></translation>
+        <translation>この項目の値をコピーします</translation>
     </message>
     <message>
         <source>As Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>フィルタとして</translation>
     </message>
     <message>
         <source>Copy this item as a display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>この項目を表示フィルタとしてコピーします</translation>
     </message>
     <message>
         <source>&amp;Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>選択済(&amp;S)</translation>
     </message>
     <message>
         <source>&amp;Not Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>未選択(&amp;N)</translation>
     </message>
     <message>
         <source>Not Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>選択されていません</translation>
     </message>
     <message>
         <source>…&amp;and Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>…かつ選択内容と一致(&amp;a)</translation>
     </message>
     <message>
         <source>…and Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>…かつ選択内容と一致</translation>
     </message>
     <message>
         <source>…&amp;or Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>…または選択内容と一致(&amp;o)</translation>
     </message>
     <message>
         <source>…or Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>…または選択内容と一致</translation>
     </message>
     <message>
         <source>…a&amp;nd not Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>…かつ選択内容と不一致(&amp;n)</translation>
     </message>
     <message>
         <source>…and not Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>…かつ選択内容と不一致</translation>
     </message>
     <message>
         <source>…o&amp;r not Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>…または選択内容と不一致(&amp;r)</translation>
     </message>
     <message>
         <source>…or not Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>…または選択内容と不一致</translation>
     </message>
     <message>
         <source>Display Filters…</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタ…</translation>
     </message>
     <message>
         <source>Display Filter &amp;Macros…</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタマクロ…(&amp;M)</translation>
     </message>
     <message>
         <source>Apply as Column</source>
-        <translation type="unfinished"></translation>
+        <translation>列として適用</translation>
     </message>
     <message>
         <source>Create a packet list column from the selected field.</source>
-        <translation type="unfinished"></translation>
+        <translation>選択したフィールドからパケット一覧の列を作成します</translation>
     </message>
     <message>
         <source>&amp;Find Packet…</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットの検索…(&amp;F)</translation>
     </message>
     <message>
         <source>Find a packet</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットを検索します</translation>
     </message>
     <message>
         <source>Find Ne&amp;xt</source>
-        <translation type="unfinished"></translation>
+        <translation>次を検索(&amp;x)</translation>
     </message>
     <message>
         <source>Find the next packet</source>
-        <translation type="unfinished"></translation>
+        <translation>次のパケットを検索します</translation>
     </message>
     <message>
         <source>Find Pre&amp;vious</source>
-        <translation type="unfinished"></translation>
+        <translation>前を検索(&amp;v)</translation>
     </message>
     <message>
         <source>Find the previous packet</source>
-        <translation type="unfinished"></translation>
+        <translation>前のパケットを検索します</translation>
     </message>
     <message>
         <source>&amp;Mark/Unmark Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットをマーク/マーク解除(&amp;M)</translation>
     </message>
     <message>
         <source>Mark or unmark this packet</source>
-        <translation type="unfinished"></translation>
+        <translation>このパケットをマーク/マーク解除します</translation>
     </message>
     <message>
         <source>Mark All Displayed</source>
-        <translation type="unfinished"></translation>
+        <translation>表示されているものをすべてマークします</translation>
     </message>
     <message>
         <source>Mark all displayed packets</source>
-        <translation type="unfinished"></translation>
+        <translation>すべての表示されているパケットをマークします</translation>
     </message>
     <message>
         <source>Unmark All Displayed</source>
-        <translation type="unfinished"></translation>
+        <translation>表示されているものすべてをマーク解除します</translation>
     </message>
     <message>
         <source>Unmark all displayed packets</source>
-        <translation type="unfinished"></translation>
+        <translation>すべての表示されているパケットをマーク解除します</translation>
     </message>
     <message>
         <source>Next Mark</source>
-        <translation type="unfinished"></translation>
+        <translation>次のマーク</translation>
     </message>
     <message>
         <source>Go to the next marked packet</source>
-        <translation type="unfinished"></translation>
+        <translation>次にマークされたパケットに移動します</translation>
     </message>
     <message>
         <source>Previous Mark</source>
-        <translation type="unfinished"></translation>
+        <translation>前のマーク</translation>
     </message>
     <message>
         <source>Go to the previous marked packet</source>
-        <translation type="unfinished"></translation>
+        <translation>前にマークされたパケットに移動します</translation>
     </message>
     <message>
         <source>&amp;Ignore/Unignore Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットを無視/無視を解除(&amp;I)</translation>
     </message>
     <message>
         <source>Ignore or unignore this packet</source>
-        <translation type="unfinished"></translation>
+        <translation>このパケットを無視するか無視しないようにします</translation>
     </message>
     <message>
         <source>Ignore All Displayed</source>
-        <translation type="unfinished"></translation>
+        <translation>表示されているものすべてを無視します</translation>
     </message>
     <message>
         <source>Ignore all displayed packets</source>
-        <translation type="unfinished"></translation>
+        <translation>すべての表示されたパケットを無視します</translation>
     </message>
     <message>
         <source>Unignore All Displayed</source>
-        <translation type="unfinished"></translation>
+        <translation>すべての表示されたパケットの無視を解除</translation>
     </message>
     <message>
         <source>Unignore all displayed packets</source>
-        <translation type="unfinished"></translation>
+        <translation>すべての表示されたパケットの無視を解除します</translation>
     </message>
     <message>
         <source>Set/Unset Time Reference</source>
-        <translation type="unfinished"></translation>
+        <translation>時間参照を設定/設定解除します</translation>
     </message>
     <message>
         <source>Set or unset a time reference for this packet</source>
-        <translation type="unfinished"></translation>
+        <translation>このパケットの時間参照を設定または設定解除します</translation>
     </message>
     <message>
         <source>Unset All Time References</source>
-        <translation type="unfinished"></translation>
+        <translation>すべての時間参照を設定解除</translation>
     </message>
     <message>
         <source>Remove all time references</source>
-        <translation type="unfinished"></translation>
+        <translation>すべての時間参照を削除</translation>
     </message>
     <message>
         <source>Next Time Reference</source>
-        <translation type="unfinished"></translation>
+        <translation>次の時間参照</translation>
     </message>
     <message>
         <source>Go to the next time reference</source>
-        <translation type="unfinished"></translation>
+        <translation>次の時間参照へ移動します</translation>
     </message>
     <message>
         <source>Previous Time Reference</source>
-        <translation type="unfinished"></translation>
+        <translation>前の時間参照</translation>
     </message>
     <message>
         <source>Go to the previous time reference</source>
-        <translation type="unfinished"></translation>
+        <translation>前の時間参照へ移動</translation>
     </message>
     <message>
         <source>Time Shift…</source>
-        <translation type="unfinished"></translation>
+        <translation>時間調整…</translation>
     </message>
     <message>
         <source>Shift or change packet timestamps</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットのタイムスタンプをずらすもしくは変更します</translation>
     </message>
     <message>
         <source>Packet Comment…</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットコメント…</translation>
     </message>
     <message>
         <source>Add or change a packet comment</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットのコメントを追加または変更します</translation>
     </message>
     <message>
         <source>Delete All Packet Comments</source>
-        <translation type="unfinished"></translation>
+        <translation>すべてのパケットコメントを削除</translation>
     </message>
     <message>
         <source>Remove all packet comments in the capture file</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャファイルにあるすべてのパケットを削除します</translation>
     </message>
     <message>
         <source>Configuration Profiles…</source>
-        <translation type="unfinished"></translation>
+        <translation>設定プロファイル…</translation>
     </message>
     <message>
         <source>Configuration profiles</source>
-        <translation type="unfinished"></translation>
+        <translation>設定プロファイル</translation>
     </message>
     <message>
         <source>Manage your configuration profiles</source>
-        <translation type="unfinished"></translation>
+        <translation>設定プロファイルを管理します</translation>
     </message>
     <message>
         <source>&amp;Preferences…</source>
-        <translation type="unfinished"></translation>
+        <translation>設定…(&amp;P)</translation>
     </message>
     <message>
         <source>Manage Wireshark&apos;s preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>Wiresharkの設定を管理します</translation>
     </message>
     <message>
         <source>Capture File Properties</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャファイルプロパティ</translation>
     </message>
     <message>
         <source>Capture file properties</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャファイルプロパティ</translation>
     </message>
     <message>
         <source>&amp;Protocol Hierarchy</source>
-        <translation type="unfinished"></translation>
+        <translation>プロトコル階層(&amp;P)</translation>
     </message>
     <message>
         <source>Show a summary of protocols present in the capture file.</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャファイルの現在のプロトコル概要を表示します</translation>
     </message>
     <message>
         <source>Capinfos</source>
-        <translation type="unfinished"></translation>
+        <translation>Capinfos</translation>
     </message>
     <message>
         <source>Reordercap</source>
-        <translation type="unfinished"></translation>
+        <translation>Reordercap</translation>
     </message>
     <message>
         <source>Time Sequence (Stevens)</source>
-        <translation type="unfinished"></translation>
+        <translation>タイムシーケンス (Stevens)</translation>
     </message>
     <message>
         <source>TCP time sequence graph (Stevens)</source>
-        <translation type="unfinished"></translation>
+        <translation>TCP タイムシーケンスグラフ (Stevens)</translation>
     </message>
     <message>
         <source>Throughput</source>
-        <translation type="unfinished"></translation>
+        <translation>スループット</translation>
     </message>
     <message>
         <source>TCP througput</source>
-        <translation type="unfinished"></translation>
+        <translation>TCPスループット</translation>
     </message>
     <message>
         <source>Round Trip Time</source>
-        <translation type="unfinished"></translation>
+        <translation>往復遅延時間</translation>
     </message>
     <message>
         <source>TCP round trip time</source>
-        <translation type="unfinished"></translation>
+        <translation>TCP往復遅延時間</translation>
     </message>
     <message>
         <source>Window Scaling</source>
-        <translation type="unfinished"></translation>
+        <translation>ウインドウスケーリング</translation>
     </message>
     <message>
         <source>TCP window scaling</source>
-        <translation type="unfinished"></translation>
+        <translation>TCPウインドウスケーリング</translation>
     </message>
     <message>
         <source>TCP Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>TCPストリーム</translation>
     </message>
     <message>
         <source>UDP Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>UDPストリーム</translation>
     </message>
     <message>
         <source>SSL Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>SSLストリーム</translation>
     </message>
     <message>
         <source>HTTP Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>HTTPストリーム</translation>
     </message>
     <message>
         <source>Time Sequence (tcptrace)</source>
-        <translation type="unfinished"></translation>
+        <translation>タイムシーケンス(tcptrace)</translation>
     </message>
     <message>
         <source>TCP time sequence graph (tcptrace)</source>
-        <translation type="unfinished"></translation>
+        <translation>TCPタイムシーケンスグラフ(tcptrace)</translation>
     </message>
     <message>
         <source>Analyse this Association</source>
-        <translation type="unfinished"></translation>
+        <translation>このアソシエーションを分析</translation>
     </message>
     <message>
         <source>Show All Associations</source>
-        <translation type="unfinished"></translation>
+        <translation>すべてのアソシエーションを表示</translation>
     </message>
     <message>
         <source>Flow Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>フローグラフ</translation>
     </message>
     <message>
         <source>Flow sequence diagram</source>
-        <translation type="unfinished"></translation>
+        <translation>フローシーケンス図</translation>
     </message>
     <message>
         <source>ANCP</source>
-        <translation type="unfinished"></translation>
+        <translation>ANCP</translation>
     </message>
     <message>
         <source>ANCP statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>ANCP統計</translation>
     </message>
     <message>
         <source>Packets sorted by Instance ID</source>
-        <translation type="unfinished"></translation>
+        <translation>インスタンスID順パケット</translation>
     </message>
     <message>
         <source>BACapp statistics sorted by instance ID</source>
-        <translation type="unfinished"></translation>
+        <translation>インスタンスID順に並べたBACapp統計</translation>
     </message>
     <message>
         <source>Packets sorted by IP</source>
-        <translation type="unfinished"></translation>
+        <translation>IP順パケット</translation>
     </message>
     <message>
         <source>BACapp statistics sorted by IP</source>
-        <translation type="unfinished"></translation>
+        <translation>IP順に並べたBACapp統計</translation>
     </message>
     <message>
         <source>Packets sorted by object type</source>
-        <translation type="unfinished"></translation>
+        <translation>オブジェクト種別順パケット</translation>
     </message>
     <message>
         <source>BACapp statistics sorted by object type</source>
-        <translation type="unfinished"></translation>
+        <translation>オブジェクト種別順に並べたBACapp統計</translation>
     </message>
     <message>
         <source>Packets sorted by service</source>
-        <translation type="unfinished"></translation>
+        <translation>サービス順パケット</translation>
     </message>
     <message>
         <source>BACapp statistics sorted by service</source>
-        <translation type="unfinished"></translation>
+        <translation>サービス順に並べたBACapp統計</translation>
     </message>
     <message>
         <source>Collectd</source>
-        <translation type="unfinished"></translation>
+        <translation>収集</translation>
     </message>
     <message>
         <source>Collectd statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>収集統計</translation>
     </message>
     <message>
         <source>DNS</source>
-        <translation type="unfinished"></translation>
+        <translation>DNS</translation>
     </message>
     <message>
         <source>DNS statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>DNS統計</translation>
     </message>
     <message>
         <source>HART-IP</source>
-        <translation type="unfinished"></translation>
+        <translation>HART-IP</translation>
     </message>
     <message>
         <source>HART-IP statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>HART-IP統計</translation>
     </message>
     <message>
         <source>HPFEEDS</source>
-        <translation type="unfinished"></translation>
+        <translation>HPFEEDS</translation>
     </message>
     <message>
         <source>hpfeeds statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>hpfeeds統計</translation>
     </message>
     <message>
         <source>HTTP2</source>
-        <translation type="unfinished"></translation>
+        <translation>HTTP2</translation>
     </message>
     <message>
         <source>HTTP2 statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>HTTP2統計</translation>
     </message>
     <message>
         <source>Packet Counter</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットカウンタ</translation>
     </message>
     <message>
         <source>HTTP packet counter</source>
-        <translation type="unfinished"></translation>
+        <translation>HTTPパケットカウンタ</translation>
     </message>
     <message>
         <source>Requests</source>
-        <translation type="unfinished"></translation>
+        <translation>要求</translation>
     </message>
     <message>
         <source>HTTP requests</source>
-        <translation type="unfinished"></translation>
+        <translation>HTTP要求</translation>
     </message>
     <message>
         <source>Load Distribution</source>
-        <translation type="unfinished"></translation>
+        <translation>負荷分散</translation>
     </message>
     <message>
         <source>HTTP load distribution</source>
-        <translation type="unfinished"></translation>
+        <translation>HTTP負荷分散</translation>
     </message>
     <message>
         <source>Request Sequences</source>
-        <translation type="unfinished"></translation>
+        <translation>リクエストシーケンス</translation>
     </message>
     <message>
         <source>HTTP Request Sequences</source>
-        <translation type="unfinished"></translation>
+        <translation>HTTPリクエストシーケンス</translation>
     </message>
     <message>
         <source>Packet Lengths</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット長</translation>
     </message>
     <message>
         <source>Packet length statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット長統計</translation>
     </message>
     <message>
         <source>Sametime</source>
-        <translation type="unfinished"></translation>
+        <translation>Sametime</translation>
     </message>
     <message>
         <source>Sametime statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Sametime統計</translation>
     </message>
     <message>
         <source>&amp;ISUP Messages</source>
-        <translation type="unfinished"></translation>
+        <translation>ISUPメッセージ(&amp;I)</translation>
     </message>
     <message>
         <source>ISUP message statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>ISUPメッセージ統計</translation>
     </message>
     <message>
         <source>Osmux packet counts</source>
-        <translation type="unfinished"></translation>
+        <translation>Osmux パケット数</translation>
     </message>
     <message>
         <source>RTSP packet counts</source>
-        <translation type="unfinished"></translation>
+        <translation>RTSPパケット数</translation>
     </message>
     <message>
         <source>SM&amp;PP Operations</source>
-        <translation type="unfinished"></translation>
+        <translation>SMPP操作(&amp;P)</translation>
     </message>
     <message>
         <source>SMPP operation statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>SMPP操作統計</translation>
     </message>
     <message>
         <source>&amp;UCP Messages</source>
-        <translation type="unfinished"></translation>
+        <translation>UCPメッセージ(&amp;U)</translation>
     </message>
     <message>
         <source>UCP message statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>UCPメッセージ統計</translation>
     </message>
     <message>
         <source>Decode &amp;As…</source>
-        <translation type="unfinished"></translation>
+        <translation>…としてデコード(&amp;A)</translation>
     </message>
     <message>
         <source>Change the way packets are dissected</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットが解析される方法を変更します</translation>
     </message>
     <message>
         <source>Reload Lua Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Luaプラグイン再読込</translation>
     </message>
     <message>
         <source>Reload Lua plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Luaプラグインを再読込します</translation>
     </message>
     <message>
         <source>Advertisements by Topic</source>
-        <translation type="unfinished"></translation>
+        <translation>トピック毎の通知</translation>
     </message>
     <message>
         <source>Advertisements by Source</source>
-        <translation type="unfinished"></translation>
+        <translation>送信元毎の通知</translation>
     </message>
     <message>
         <source>Advertisements by Transport</source>
-        <translation type="unfinished"></translation>
+        <translation>トランスポート毎の通知</translation>
     </message>
     <message>
         <source>Queries by Topic</source>
-        <translation type="unfinished"></translation>
+        <translation>トピック毎のクエリ</translation>
     </message>
     <message>
         <source>Queries by Receiver</source>
-        <translation type="unfinished"></translation>
+        <translation>受信者毎のクエリ</translation>
     </message>
     <message>
         <source>Wildcard Queries by Pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>パターン毎のワイルドカードクエリ</translation>
     </message>
     <message>
         <source>Wildcard Queries by Receiver</source>
-        <translation type="unfinished"></translation>
+        <translation>受信者毎のワイルドカードクエリ</translation>
     </message>
     <message>
         <source>Advertisements by Queue</source>
-        <translation type="unfinished"></translation>
+        <translation>キュー毎の通知</translation>
     </message>
     <message>
         <source>Queries by Queue</source>
-        <translation type="unfinished"></translation>
+        <translation>キュー毎のクエリ</translation>
     </message>
     <message>
         <source>Streams</source>
-        <translation type="unfinished"></translation>
+        <translation>ストリーム</translation>
     </message>
     <message>
         <source>LBT-RM</source>
-        <translation type="unfinished"></translation>
+        <translation>LBT-RM</translation>
     </message>
     <message>
         <source>LBT-RU</source>
-        <translation type="unfinished"></translation>
+        <translation>LBT-RU</translation>
     </message>
     <message>
         <source>Filter this Association</source>
-        <translation type="unfinished"></translation>
+        <translation>このアソシエーションをフィルタします</translation>
     </message>
     <message>
         <source>Export PDUs to File…</source>
-        <translation type="unfinished"></translation>
+        <translation>PDUをファイルにエクスポート…</translation>
     </message>
     <message>
         <source>&amp;I/O Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>入出力グラフ(&amp;I)</translation>
     </message>
     <message>
         <source>Create graphs based on display filter fields</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタのフィールドに基づいてグラフを作成します</translation>
     </message>
     <message>
         <source>&amp;Main Toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>メインツールバー(&amp;M)</translation>
     </message>
     <message>
         <source>Show or hide the main toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>メインツールバーを表示もしくは非表示にします</translation>
     </message>
     <message>
         <source>&amp;Filter Toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>フィルタツールバー(&amp;F)</translation>
     </message>
     <message>
         <source>Show or hide the display filter toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタツールバーを表示もしくは非表示にします</translation>
     </message>
     <message>
         <source>Conversations</source>
-        <translation type="unfinished"></translation>
+        <translation>対話</translation>
     </message>
     <message>
         <source>Conversations at different protocol levels</source>
-        <translation type="unfinished"></translation>
+        <translation>異なるプロトコルレベルの対話</translation>
     </message>
     <message>
         <source>Endpoints</source>
-        <translation type="unfinished"></translation>
+        <translation>終端</translation>
     </message>
     <message>
         <source>Endpoints at different protocol levels</source>
-        <translation type="unfinished"></translation>
+        <translation>異なるプロトコルレベルの終端</translation>
     </message>
     <message>
         <source>Colorize Packet List</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット一覧を色付けする</translation>
     </message>
     <message>
         <source>Draw packets using your coloring rules</source>
-        <translation type="unfinished"></translation>
+        <translation>色付けルールを用いてパケットを描画します</translation>
     </message>
     <message>
         <source>&amp;Zoom In</source>
-        <translation type="unfinished"></translation>
+        <translation>拡大(&amp;Z)</translation>
     </message>
     <message>
         <source>Enlarge the main window text</source>
-        <translation type="unfinished"></translation>
+        <translation>メインウインドウのテキストを拡大します</translation>
     </message>
     <message>
         <source>Zoom Out</source>
-        <translation type="unfinished"></translation>
+        <translation>縮小</translation>
     </message>
     <message>
         <source>Shrink the main window text</source>
-        <translation type="unfinished"></translation>
+        <translation>メインウインドウのテキストを縮小します</translation>
     </message>
     <message>
         <source>Normal Size</source>
-        <translation type="unfinished"></translation>
+        <translation>標準サイズ</translation>
     </message>
     <message>
         <source>Return the main window text to its normal size</source>
-        <translation type="unfinished"></translation>
+        <translation>メインウインドウのテキストを標準サイズに戻します</translation>
     </message>
     <message>
         <source>Reset Layout</source>
-        <translation type="unfinished"></translation>
+        <translation>レイアウトをリセット</translation>
     </message>
     <message>
         <source>Reset appearance layout to default size</source>
-        <translation type="unfinished"></translation>
+        <translation>外観のレイアウトをデフォルトサイズにリセットします</translation>
     </message>
     <message>
         <source>Resize Columns</source>
-        <translation type="unfinished"></translation>
+        <translation>列幅を再調整</translation>
     </message>
     <message>
         <source>Resize packet list columns to fit contents</source>
-        <translation type="unfinished"></translation>
+        <translation>列の内容に合わせてパケット一覧の列幅を調整します</translation>
     </message>
     <message>
         <source>Date and Time of Day (1970-01-01 01:02:03.123456)</source>
-        <translation type="unfinished"></translation>
+        <translation>日時 (1973-06-14 01:02:03.123456)</translation>
     </message>
     <message>
         <source>Show packet times as the date and time of day.</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット時間を日付と時刻で表示します。</translation>
     </message>
     <message>
         <source>Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</source>
-        <translation type="unfinished"></translation>
+        <translation>年、通年日、時刻 (1970/001 01:02:03.123456)</translation>
     </message>
     <message>
         <source>Show packet times as the year, day of the year and time of day.</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット時間を年、通年日、時刻で表示します</translation>
     </message>
     <message>
         <source>Time of Day (01:02:03.123456)</source>
-        <translation type="unfinished"></translation>
+        <translation>時刻 (01:02:03.123456)</translation>
     </message>
     <message>
         <source>Seconds Since 1970-01-01</source>
-        <translation type="unfinished"></translation>
+        <translation>1970年1月1日からの秒数</translation>
     </message>
     <message>
         <source>Show packet times as the seconds since the UNIX / POSIX epoch (1970-01-01).</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットの時間をUNIX/POSIX起源(1970-01-01)以来の秒数で表示します</translation>
     </message>
     <message>
         <source>Seconds Since Beginning of Capture</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャ開始からの秒数</translation>
     </message>
     <message>
         <source>Seconds Since Previous Captured Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>前にキャプチャされたパケットからの秒数</translation>
     </message>
     <message>
         <source>Show packet times as the seconds since the previous captured packet.</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット時間を前にキャプチャされたパケットからの秒数で表示します</translation>
     </message>
     <message>
         <source>Seconds Since Previous Displayed Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>前に表示されたパケットからの秒数</translation>
     </message>
     <message>
         <source>Show packet times as the seconds since the previous displayed packet.</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット時間を前に表示されたパケットからの秒数で表示します</translation>
     </message>
     <message>
         <source>UTC Date and Time of Day (1970-01-01 01:02:03.123456)</source>
-        <translation type="unfinished"></translation>
+        <translation>UTC日時 (1973-06-14 01:02:03.123456)</translation>
     </message>
     <message>
         <source>Show packet times as the UTC date and time of day.</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット時間をUTC日付および時刻で表示します</translation>
     </message>
     <message>
         <source>UTC Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</source>
-        <translation type="unfinished"></translation>
+        <translation>UTC年、通年日、時刻 (1970/001 01:02:03.123456)</translation>
     </message>
     <message>
         <source>Show packet times as the UTC year, day of the year and time of day.</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット時間をUTC年、通年日、時刻で表示します</translation>
     </message>
     <message>
         <source>UTC Time of Day (01:02:03.123456)</source>
-        <translation type="unfinished"></translation>
+        <translation>UTC時刻 (01:02:03.123456)</translation>
     </message>
     <message>
         <source>Show packet times as the UTC time of day.</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット時間をUTC時刻として表示します</translation>
     </message>
     <message>
         <source>Automatic (from capture file)</source>
-        <translation type="unfinished"></translation>
+        <translation>自動(キャプチャファイルから)</translation>
     </message>
     <message>
         <source>Use the time precision indicated in the capture file.</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャファイルに記述された時間精度を利用します</translation>
     </message>
     <message>
         <source>Seconds</source>
-        <translation type="unfinished"></translation>
+        <translation>秒</translation>
     </message>
     <message>
         <source>Tenths of a second</source>
-        <translation type="unfinished"></translation>
+        <translation>×10秒</translation>
     </message>
     <message>
         <source>Hundredths of a second</source>
-        <translation type="unfinished"></translation>
+        <translation>×100秒</translation>
     </message>
     <message>
         <source>Milliseconds</source>
-        <translation type="unfinished"></translation>
+        <translation>ミリ秒</translation>
     </message>
     <message>
         <source>Microseconds</source>
-        <translation type="unfinished"></translation>
+        <translation>マイクロ秒</translation>
     </message>
     <message>
         <source>Nanoseconds</source>
-        <translation type="unfinished"></translation>
+        <translation>ナノ秒</translation>
     </message>
     <message>
         <source>Display Seconds With Hours and Minutes</source>
-        <translation type="unfinished"></translation>
+        <translation>時分秒表示</translation>
     </message>
     <message>
         <source>Display seconds with hours and minutes</source>
-        <translation type="unfinished"></translation>
+        <translation>時分秒で表示します</translation>
     </message>
     <message>
         <source>Resolve &amp;Physical Addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>物理アドレスを解決(&amp;P)</translation>
     </message>
     <message>
         <source>Show names for known MAC addresses. Lookups use a local database.</source>
-        <translation type="unfinished"></translation>
+        <translation>既知のMACアドレスの名前を表示します ローカルデータベースを参照します</translation>
     </message>
     <message>
         <source>Resolve &amp;Network Addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>ネットワークアドレスを解決(&amp;N)</translation>
     </message>
     <message>
         <source>Show names for known IPv4, IPv6, and IPX addresses. Lookups can generate network traffic.</source>
-        <translation type="unfinished"></translation>
+        <translation>既知のIPv4、IPv6およびIPXアドレスの名前を表示します 解決にはネットワークトラフィックを生成します</translation>
     </message>
     <message>
         <source>Resolve &amp;Transport Addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>トランスポート層アドレスを解決(&amp;T)</translation>
     </message>
     <message>
         <source>Show names for known TCP, UDP, and SCTP services. Lookups can generate traffic on some systems.</source>
-        <translation type="unfinished"></translation>
+        <translation>既知のTCP UDPおよびSCTPサービスの名前を表示します システムによっては解決にトラフィックを生成します</translation>
     </message>
     <message>
         <source>Wire&amp;less Toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>無線ツールバー(&amp;l)</translation>
     </message>
     <message>
         <source>Show or hide the wireless toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>無線ツールバーを表示または非表示にします</translation>
     </message>
     <message>
         <source>&amp;Status Bar</source>
-        <translation type="unfinished"></translation>
+        <translation>ステータスバー(&amp;S)</translation>
     </message>
     <message>
         <source>Show or hide the status bar</source>
-        <translation type="unfinished"></translation>
+        <translation>ステータスバーを表示または非表示にします</translation>
     </message>
     <message>
         <source>Packet &amp;List</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット一覧(&amp;L)</translation>
     </message>
     <message>
         <source>Show or hide the packet list</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット一覧を表示または非表示にします</translation>
     </message>
     <message>
         <source>Packet &amp;Details</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット詳細(&amp;D)</translation>
     </message>
     <message>
         <source>Show or hide the packet details</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット詳細を表示または非表示にします</translation>
     </message>
     <message>
         <source>Packet &amp;Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットバイト列(&amp;B)</translation>
     </message>
     <message>
         <source>Show or hide the packet bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットバイト列を表示または非表示にします</translation>
     </message>
     <message>
         <source>Conversation Hash Tables</source>
-        <translation type="unfinished"></translation>
+        <translation>対話ハッシュ表</translation>
     </message>
     <message>
         <source>Show each conversation hash table</source>
-        <translation type="unfinished"></translation>
+        <translation>各々の会話ハッシュ表を表示します</translation>
     </message>
     <message>
         <source>Dissector Tables</source>
-        <translation type="unfinished"></translation>
+        <translation>ダイセクター表</translation>
     </message>
     <message>
         <source>Show each dissector table and its entries</source>
-        <translation type="unfinished"></translation>
+        <translation>各々のダイセクター表とその入力を表示します</translation>
     </message>
     <message>
         <source>Supported Protocols</source>
-        <translation type="unfinished"></translation>
+        <translation>サポートされているプロトコル</translation>
     </message>
     <message>
         <source>Show the currently supported protocols and display filter fields</source>
-        <translation type="unfinished"></translation>
+        <translation>サポートされているプロトコルと表示フィルタフィールドを表示します</translation>
     </message>
     <message>
         <source>MAP Summary</source>
-        <translation type="unfinished"></translation>
+        <translation>MAP概要</translation>
     </message>
     <message>
         <source>GSM MAP summary statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>GSM MAP 概要統計</translation>
     </message>
     <message>
         <source>MAC Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>MAC統計</translation>
     </message>
     <message>
         <source>LTE MAC statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>LTE MAC統計</translation>
     </message>
     <message>
         <source>RLC Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>RLC統計</translation>
     </message>
     <message>
         <source>LTE RLC statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>LTE RLC統計</translation>
     </message>
     <message>
         <source>RLC Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>RLCグラフ</translation>
     </message>
     <message>
         <source>LTE RLC graph</source>
-        <translation type="unfinished"></translation>
+        <translation>LTE RLCグラフ</translation>
     </message>
     <message>
         <source>MTP3 Summary</source>
-        <translation type="unfinished"></translation>
+        <translation>MTP3概要</translation>
     </message>
     <message>
         <source>MTP3 summary statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>MTP3概要統計</translation>
     </message>
     <message>
         <source>&amp;VoIP Calls</source>
-        <translation type="unfinished"></translation>
+        <translation>VoIP通話(&amp;V)</translation>
     </message>
     <message>
         <source>All VoIP Calls</source>
-        <translation type="unfinished"></translation>
+        <translation>すべてのVoIP通話</translation>
     </message>
     <message>
         <source>SIP &amp;Flows</source>
-        <translation type="unfinished"></translation>
+        <translation>SIPフロー(&amp;F)</translation>
     </message>
     <message>
         <source>SIP Flows</source>
-        <translation type="unfinished"></translation>
+        <translation>SIPフロー</translation>
     </message>
     <message>
         <source>RTP Streams</source>
-        <translation type="unfinished"></translation>
+        <translation>RTPストリーム</translation>
     </message>
     <message>
         <source>&amp;Coloring Rules…</source>
-        <translation type="unfinished"></translation>
+        <translation>色付けルール…(&amp;C)</translation>
     </message>
     <message>
         <source>Edit the packet list coloring rules.</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット一覧の色付けルールを編集します</translation>
     </message>
     <message>
         <source>Bluetooth ATT Server Attributes</source>
-        <translation type="unfinished"></translation>
+        <translation>Bluetooth ATTサーバ属性</translation>
     </message>
     <message>
         <source>Bluetooth Devices</source>
-        <translation type="unfinished"></translation>
+        <translation>Bluetoothデバイス</translation>
     </message>
     <message>
         <source>Bluetooth HCI Summary</source>
-        <translation type="unfinished"></translation>
+        <translation>Bluetooth HCI概要</translation>
     </message>
     <message>
         <source>Show Packet in New &amp;Window</source>
-        <translation type="unfinished"></translation>
+        <translation>新規ウインドウでパケットを表示(&amp;W)</translation>
     </message>
     <message>
         <source>Show this packet in a separate window.</source>
-        <translation type="unfinished"></translation>
+        <translation>個別のウィンドウでこのパケットを表示</translation>
     </message>
     <message>
         <source>Show Linked Packet in New Window</source>
-        <translation type="unfinished"></translation>
+        <translation>新規ウインドウでリンクされたパケットを表示</translation>
     </message>
     <message>
         <source>Show the linked packet in a separate window.</source>
-        <translation type="unfinished"></translation>
+        <translation>個別のウインドウでリンクされたパケットを表示します</translation>
     </message>
     <message>
         <source>Auto Scroll in Li&amp;ve Capture</source>
-        <translation type="unfinished"></translation>
+        <translation>生のキャプチャを自動スクロール(&amp;v)</translation>
     </message>
     <message>
         <source>Automatically scroll to the last packet during a live capture.</source>
-        <translation type="unfinished"></translation>
+        <translation>生キャプチャ中の最後のパケットを自動スクロールします</translation>
     </message>
     <message>
         <source>Expert Information</source>
-        <translation type="unfinished"></translation>
+        <translation>エキスパート情報</translation>
     </message>
     <message>
         <source>Show expert notifications</source>
-        <translation type="unfinished"></translation>
+        <translation>エキスパート通知を表示します</translation>
     </message>
     <message>
         <source>&amp;Expression…</source>
-        <translation type="unfinished"></translation>
+        <translation>書式…(&amp;E)</translation>
     </message>
     <message>
         <source>Expression…</source>
-        <translation type="unfinished"></translation>
+        <translation>書式…</translation>
     </message>
     <message>
         <source>Add an expression to the display filter.</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタの書式を追加します</translation>
     </message>
     <message>
         <source>REGISTER_STAT_GROUP_UNSORTED</source>
-        <translation type="unfinished"></translation>
+        <translation>REGISTER_STAT_GROUP_UNSORTED </translation>
     </message>
     <message>
         <source>Start of &quot;REGISTER_STAT_GROUP_UNSORTED&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;RREGISTER_STAT_GROUP_UNSORTED&quot;Rの開始</translation>
     </message>
     <message>
         <source>No ANSI statistics registered</source>
-        <translation type="unfinished"></translation>
+        <translation>ANSI統計は登録されていません</translation>
     </message>
     <message>
         <source>No GSM statistics registered</source>
-        <translation type="unfinished"></translation>
+        <translation>GSM統計が登録されていません</translation>
     </message>
     <message>
         <source>No LTE statistics registered</source>
-        <translation type="unfinished"></translation>
+        <translation>LTE統計が登録されていません</translation>
     </message>
     <message>
         <source>No MTP3 statistics registered</source>
-        <translation type="unfinished"></translation>
+        <translation>MTP3統計が登録されていません</translation>
     </message>
     <message>
         <source>Resolved Addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>解決したアドレス</translation>
     </message>
     <message>
         <source>Show each table of resolved addresses as copyable text.</source>
-        <translation type="unfinished"></translation>
+        <translation>コピー可能なテキストとして解決したアドレスの表を表示します</translation>
     </message>
     <message>
         <source>Color &amp;1</source>
-        <translation type="unfinished"></translation>
+        <translation>色 &amp;1</translation>
     </message>
     <message>
         <source>Mark the current conversation with its own color.</source>
-        <translation type="unfinished"></translation>
+        <translation>独自の色で現在の対話をマークします</translation>
     </message>
     <message>
         <source>Color &amp;2</source>
-        <translation type="unfinished"></translation>
+        <translation>色 &amp;2</translation>
     </message>
     <message>
         <source>Color &amp;3</source>
-        <translation type="unfinished"></translation>
+        <translation>色 &amp;3</translation>
     </message>
     <message>
         <source>Color &amp;4</source>
-        <translation type="unfinished"></translation>
+        <translation>色 &amp;4</translation>
     </message>
     <message>
         <source>Color &amp;5</source>
-        <translation type="unfinished"></translation>
+        <translation>色 &amp;5</translation>
     </message>
     <message>
         <source>Color &amp;6</source>
-        <translation type="unfinished"></translation>
+        <translation>色 &amp;6</translation>
     </message>
     <message>
         <source>Color &amp;7</source>
-        <translation type="unfinished"></translation>
+        <translation>色 &amp;7</translation>
     </message>
     <message>
         <source>Color &amp;8</source>
-        <translation type="unfinished"></translation>
+        <translation>色 &amp;8</translation>
     </message>
     <message>
         <source>Color &amp;9</source>
-        <translation type="unfinished"></translation>
+        <translation>色 &amp;9</translation>
     </message>
     <message>
         <source>Color 1&amp;0</source>
-        <translation type="unfinished"></translation>
+        <translation>色 1&amp;0</translation>
     </message>
     <message>
         <source>New Coloring Rule…</source>
-        <translation type="unfinished"></translation>
+        <translation>新規対話ルール…</translation>
     </message>
     <message>
         <source>Create a new coloring rule based on this field.</source>
-        <translation type="unfinished"></translation>
+        <translation>この対話に基づいた新しい色付けルールを作成します</translation>
     </message>
     <message>
         <source>Reset Colorization</source>
-        <translation type="unfinished"></translation>
+        <translation>色付けをリセット</translation>
     </message>
     <message>
         <source>Reset colorized conversations.</source>
-        <translation type="unfinished"></translation>
+        <translation>対話の色付けをリセットします</translation>
     </message>
     <message>
         <source>Stream Analysis</source>
-        <translation type="unfinished"></translation>
+        <translation>ストリーム分析</translation>
     </message>
     <message>
         <source>RTP Stream Analysis</source>
-        <translation type="unfinished"></translation>
+        <translation>RTPストリーム分析</translation>
     </message>
     <message>
         <source>IAX2 Stream Analysis</source>
-        <translation type="unfinished"></translation>
+        <translation>IAX2ストリーム分析</translation>
     </message>
     <message>
         <source>Edit Resolved Name</source>
-        <translation type="unfinished"></translation>
+        <translation>解決した名前を編集</translation>
     </message>
     <message>
         <source>Manually edit a name resolution entry.</source>
-        <translation type="unfinished"></translation>
+        <translation>名前解決エントリを手動で編集します</translation>
     </message>
     <message>
         <source>Enabled Protocols…</source>
-        <translation type="unfinished"></translation>
+        <translation>有効化したプロトコル…</translation>
     </message>
     <message>
         <source>Enable and disable specific protocols</source>
-        <translation type="unfinished"></translation>
+        <translation>指定プロトコルを有効および無効化します</translation>
     </message>
     <message>
         <source>Show Packet Bytes…</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットバイト列を表示…</translation>
     </message>
     <message>
         <source>Wiki Protocol Page</source>
-        <translation type="unfinished"></translation>
+        <translation>Wikiプロトコルページ</translation>
     </message>
     <message>
         <source>Open the Wireshark wiki page for this protocol.</source>
-        <translation type="unfinished"></translation>
+        <translation>このプロトコルについてのWireshark Wikiページを開きます</translation>
     </message>
     <message>
         <source>Filter Field Reference</source>
-        <translation type="unfinished"></translation>
+        <translation>フィルタフィールドリファレンス</translation>
     </message>
     <message>
         <source>Open the display filter reference page for this filter field.</source>
-        <translation type="unfinished"></translation>
+        <translation>このフィルタフィールドについての表示フィルタリファレンスを開きます</translation>
     </message>
     <message>
         <source>Go to Linked Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>リンクされたパケットへ移動</translation>
     </message>
     <message>
         <source>Go to the packet referenced by the selected field.</source>
-        <translation type="unfinished"></translation>
+        <translation>選択されたフィールドによって参照されたパケットへ移動します</translation>
     </message>
     <message>
         <source>UDP Multicast Streams</source>
-        <translation type="unfinished"></translation>
+        <translation>UDPマルチキャストストリーム</translation>
     </message>
     <message>
         <source>Show UTP multicast stream statistics.</source>
-        <translation type="unfinished"></translation>
+        <translation>UTPマルチキャストストリーム統計を表示します</translation>
     </message>
     <message>
         <source>WLAN Traffic</source>
-        <translation type="unfinished"></translation>
+        <translation>無線LANトラフィック</translation>
     </message>
     <message>
         <source>Show IEEE 802.11 wireless LAN statistics.</source>
-        <translation type="unfinished"></translation>
+        <translation>IEEE802.11無線LAN統計を表示します</translation>
     </message>
     <message>
         <source>Add a filter button</source>
-        <translation type="unfinished"></translation>
+        <translation>フィルタボタンを追加</translation>
     </message>
     <message>
         <source>Add a display filter button.</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタボタンを追加します</translation>
     </message>
     <message>
         <source>Firewall ACL Rules</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイアウォール ACL ルール</translation>
     </message>
     <message>
         <source>Create firewall ACL rules</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイアウォール ACL ルールを作成します</translation>
     </message>
     <message>
         <source>&amp;Full Screen</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;フルスクリーン</translation>
     </message>
     <message>
         <source>Check for Updates</source>
-        <translation type="unfinished"></translation>
+        <translation>更新を確認…</translation>
     </message>
     <message>
         <source>Show or hide the toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>ツールバーを表示または非表示</translation>
     </message>
     <message>
         <source> before quitting</source>
-        <translation type="unfinished"></translation>
+        <translation>終了前</translation>
     </message>
     <message>
         <source>Unable to drop files during capture.</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャ中にファイルをドロップできません</translation>
     </message>
     <message>
         <source>Save packets before merging?</source>
-        <translation type="unfinished"></translation>
+        <translation>結合する前にパケットを保存しますか？</translation>
     </message>
     <message>
         <source>A temporary capture file can&apos;t be merged.</source>
-        <translation type="unfinished"></translation>
+        <translation>一時的なキャプチャファイルは結合することができません</translation>
     </message>
     <message>
         <source>Save changes in &quot;%1&quot; before merging?</source>
-        <translation type="unfinished"></translation>
+        <translation>結合する前に &quot;%1&quot; に変更を保存しますか？</translation>
     </message>
     <message>
         <source>Changes must be saved before the files can be merged.</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイルを結合する前に変更を保存する必要があります</translation>
     </message>
     <message>
         <source>Invalid Read Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>無効な読込フィルタ</translation>
     </message>
     <message>
         <source>The filter expression %1 isn&apos;t a valid read filter. (%2).</source>
-        <translation type="unfinished"></translation>
+        <translation>フィルタ式 %1 は有効な読込みフィルタではありません(%2)</translation>
     </message>
     <message>
         <source> before importing a capture</source>
-        <translation type="unfinished"></translation>
+        <translation>新しいキャプチャファイルをインポートする前に</translation>
     </message>
     <message>
         <source>Unable to export to &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; をエクスポートすることができません</translation>
     </message>
     <message>
         <source>You cannot export packets to the current capture file.</source>
-        <translation type="unfinished"></translation>
+        <translation>現在のキャプチャファイルへパケットをエクスポートすることはできません</translation>
     </message>
     <message>
         <source>.</source>
-        <translation type="unfinished"></translation>
+        <translation>.</translation>
     </message>
     <message>
         <source>Do you want to stop the capture and save the captured packets%1?</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャを停止してキャプチャしたパケットを保存しますか？%1</translation>
     </message>
     <message>
         <source>Your captured packets will be lost if you don&apos;t save them.</source>
-        <translation type="unfinished"></translation>
+        <translation>保存しない場合キャプチャしたパケットは失われます</translation>
     </message>
     <message>
         <source>Do you want to save the changes you&apos;ve made%1?</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 に作成した変更を保存したいですか？</translation>
     </message>
     <message>
         <source>Your changes will be lost if you don&apos;t save them.</source>
-        <translation type="unfinished"></translation>
+        <translation>保存しない場合変更は失われます</translation>
     </message>
     <message>
         <source>Do you want to save the captured packets%1?</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャしたパケットを保存しますか？%1</translation>
     </message>
     <message>
         <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャスタイルに行った変更を保存しますか</translation>
     </message>
     <message>
         <source>Save before Continue</source>
-        <translation type="unfinished"></translation>
+        <translation>続ける前に保存</translation>
     </message>
     <message>
         <source>Stop and Save</source>
-        <translation type="unfinished"></translation>
+        <translation>停止して保存</translation>
     </message>
     <message>
         <source>Stop and Quit &amp;without Saving</source>
-        <translation type="unfinished"></translation>
+        <translation>保存せずに停止して終了</translation>
     </message>
     <message>
         <source>Continue &amp;without Saving</source>
-        <translation type="unfinished"></translation>
+        <translation>保存せずに続ける</translation>
     </message>
     <message>
         <source>Stop and Continue &amp;without Saving</source>
-        <translation type="unfinished"></translation>
+        <translation>保存せずに停止して続ける</translation>
     </message>
     <message>
         <source>Quit &amp;without Saving</source>
-        <translation type="unfinished"></translation>
+        <translation>保存せずに終了</translation>
     </message>
     <message>
         <source>The Wireshark Network Analyzer</source>
-        <translation type="unfinished"></translation>
+        <translation>ワイヤーシャークネットワークアナライザ</translation>
     </message>
     <message>
         <source>Capturing from %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 からキャプチャ中</translation>
     </message>
 </context>
 <context>
     <name>MainWindowPreferencesFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>フレーム</translation>
     </message>
     <message>
         <source>Checking this will save the size, position, and maximized state of the main window.</source>
-        <translation type="unfinished"></translation>
+        <translation>これを選択することでメインウィンドウのサイズ、位置、および最大化した状態が保存されます</translation>
     </message>
     <message>
         <source>Remember main window size and placement</source>
-        <translation type="unfinished"></translation>
+        <translation>メインウィンドウのサイズと位置を記憶</translation>
     </message>
     <message>
         <source>Open files in</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイルを開く</translation>
     </message>
     <message>
         <source>This folder:</source>
-        <translation type="unfinished"></translation>
+        <translation>このフォルダ:（（</translation>
     </message>
     <message>
         <source>Browse…</source>
-        <translation type="unfinished"></translation>
+        <translation>ブラウズ...</translation>
     </message>
     <message>
         <source>The most recently used folder</source>
-        <translation type="unfinished"></translation>
+        <translation>一番最近に使ったフォルダ</translation>
     </message>
     <message>
         <source>Show up to</source>
-        <translation type="unfinished"></translation>
+        <translation>ここまで表示</translation>
     </message>
     <message>
         <source>filter entries</source>
-        <translation type="unfinished"></translation>
+        <translation>フィルタエントリ</translation>
     </message>
     <message>
         <source>recent files</source>
-        <translation type="unfinished"></translation>
+        <translation>最近のファイル</translation>
     </message>
     <message>
         <source>Confirm unsaved capture files</source>
-        <translation type="unfinished"></translation>
+        <translation>保存していないキャプチャファイルの確認</translation>
     </message>
     <message>
         <source>Main toolbar style:</source>
-        <translation type="unfinished"></translation>
+        <translation>メニューツールバーのスタイル:</translation>
     </message>
     <message>
         <source>Icons only</source>
-        <translation type="unfinished"></translation>
+        <translation>アイコンのみ</translation>
     </message>
     <message>
         <source>Text only</source>
-        <translation type="unfinished"></translation>
+        <translation>テキストのみ</translation>
     </message>
     <message>
         <source>Icons &amp; Text</source>
-        <translation type="unfinished"></translation>
+        <translation>アイコンとテキスト</translation>
     </message>
     <message>
         <source>Language: </source>
-        <translation type="unfinished"></translation>
+        <translation>言語:</translation>
     </message>
     <message>
         <source>Use system setting</source>
-        <translation type="unfinished"></translation>
+        <translation>システム設定を利用</translation>
     </message>
     <message>
         <source>Open Files In</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイルを開く</translation>
     </message>
 </context>
 <context>
     <name>ManageInterfacesDialog</name>
     <message>
         <source>Manage Interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>インターフェースの管理</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Click the checkbox to hide or show a hidden interface.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>チェックボックスをクリックしてインターフェースは、表示したり非表示にできます</translation>
     </message>
     <message>
         <source>Local Interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>ローカルインターフェース</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add a pipe to capture from or remove an existing pipe from the list.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;一覧からキャプチャするパイプを追加したり、既存のパイプを削除します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Pipes</source>
-        <translation type="unfinished"></translation>
+        <translation>パイプ</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add a new pipe using default settings.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;デフォルトの設定で新規のパイプを追加します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove the selected pipe from the list.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;一覧から選択したパイプを削除します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Remote Interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>リモートインターフェース</translation>
     </message>
     <message>
         <source>Show</source>
-        <translation type="unfinished"></translation>
+        <translation>表示</translation>
     </message>
     <message>
         <source>Host / Device URL</source>
-        <translation type="unfinished"></translation>
+        <translation>ホスト/デバイスURL</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add a remote host and its interfaces&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;リモートホストとそのインターフェースを追加します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove the selected host from the list.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;一覧から選択したホストを削除します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Remote Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>リモート設定</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>This version of Wireshark does not save pipe settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>このバージョンの Wireshark はパイプの設定を保存しません</translation>
     </message>
     <message>
         <source>This version of Wireshark does not save remote settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>このバージョンの Wireshark はリモートの設定を保存しません</translation>
     </message>
     <message>
         <source>This version of Wireshark does not support remote interfaces.</source>
-        <translation type="unfinished"></translation>
+        <translation>このバージョンの Wireshark はリモートインターフェイスをサポートしていません</translation>
     </message>
     <message>
         <source>New Pipe</source>
-        <translation type="unfinished"></translation>
+        <translation>新規パイプ</translation>
     </message>
 </context>
 <context>
     <name>ModulePreferencesScrollArea</name>
     <message>
         <source>ScrollArea</source>
-        <translation type="unfinished"></translation>
+        <translation>スクロールエリア</translation>
     </message>
 </context>
 <context>
     <name>Mtp3SummaryDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <source>MTP3 Summary</source>
-        <translation type="unfinished"></translation>
+        <translation>MTP3概要</translation>
     </message>
     <message>
         <source>File</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイル</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>名前</translation>
     </message>
     <message>
         <source>Length</source>
-        <translation type="unfinished"></translation>
+        <translation>長さ</translation>
     </message>
     <message>
         <source> (gzip compressed)</source>
-        <translation type="unfinished"></translation>
+        <translation> (gzip圧縮)</translation>
     </message>
     <message>
         <source>Format</source>
-        <translation type="unfinished"></translation>
+        <translation>フォーマット</translation>
     </message>
     <message>
         <source>Snapshot length</source>
-        <translation type="unfinished"></translation>
+        <translation>スナップショット長</translation>
     </message>
     <message>
         <source>Data</source>
-        <translation type="unfinished"></translation>
+        <translation>データ</translation>
     </message>
     <message>
         <source>First packet</source>
-        <translation type="unfinished"></translation>
+        <translation>最初のパケット</translation>
     </message>
     <message>
         <source>Last packet</source>
-        <translation type="unfinished"></translation>
+        <translation>最後のパケット</translation>
     </message>
     <message>
         <source>Elapsed</source>
-        <translation type="unfinished"></translation>
+        <translation>経過</translation>
     </message>
     <message>
         <source>Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット</translation>
     </message>
     <message>
         <source>Service Indicator (SI) Totals</source>
-        <translation type="unfinished"></translation>
+        <translation>サービスインジケータ(SI)合計</translation>
     </message>
     <message>
         <source>SI</source>
-        <translation type="unfinished"></translation>
+        <translation>SI</translation>
     </message>
     <message>
         <source>MSUs</source>
-        <translation type="unfinished"></translation>
+        <translation>MSUs</translation>
     </message>
     <message>
         <source>MSUs/s</source>
-        <translation type="unfinished"></translation>
+        <translation>MSUs/秒</translation>
     </message>
     <message>
         <source>Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>バイト数</translation>
     </message>
     <message>
         <source>Bytes/MSU</source>
-        <translation type="unfinished"></translation>
+        <translation>バイト/MSU</translation>
     </message>
     <message>
         <source>Bytes/s</source>
-        <translation type="unfinished"></translation>
+        <translation>バイト/秒</translation>
     </message>
     <message>
         <source>Totals</source>
-        <translation type="unfinished"></translation>
+        <translation>合計</translation>
     </message>
     <message>
         <source>Total MSUs</source>
-        <translation type="unfinished"></translation>
+        <translation>MSU合計</translation>
     </message>
     <message>
         <source>Total Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>合計バイト数</translation>
     </message>
     <message>
         <source>Average Bytes/MSU</source>
-        <translation type="unfinished"></translation>
+        <translation>平均バイト/MSU</translation>
     </message>
     <message>
         <source>Average Bytes/s</source>
-        <translation type="unfinished"></translation>
+        <translation>平均バイト/秒</translation>
     </message>
 </context>
 <context>
     <name>MulticastStatisticsDialog</name>
     <message>
         <source>UDP Multicast Streams</source>
-        <translation type="unfinished"></translation>
+        <translation>UDPマルチキャストストリーム</translation>
     </message>
     <message>
         <source>Source Address</source>
-        <translation type="unfinished"></translation>
+        <translation>送信元アドレス</translation>
     </message>
     <message>
         <source>Source Port</source>
-        <translation type="unfinished"></translation>
+        <translation>送信元ポート</translation>
     </message>
     <message>
         <source>Destination Address</source>
-        <translation type="unfinished"></translation>
+        <translation>宛先アドレス</translation>
     </message>
     <message>
         <source>Destination Port</source>
-        <translation type="unfinished"></translation>
+        <translation>宛先ポート</translation>
     </message>
     <message>
         <source>Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット</translation>
     </message>
     <message>
         <source>Packets/s</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット/秒</translation>
     </message>
     <message>
         <source>Avg BW (bps)</source>
-        <translation type="unfinished"></translation>
+        <translation>平均帯域(ビット毎秒)</translation>
     </message>
     <message>
         <source>Max BW (bps)</source>
-        <translation type="unfinished"></translation>
+        <translation>最大帯域(ビット毎秒)</translation>
     </message>
     <message>
         <source>Max Burst</source>
-        <translation type="unfinished"></translation>
+        <translation>最大バースト</translation>
     </message>
     <message>
         <source>Burst Alarms</source>
-        <translation type="unfinished"></translation>
+        <translation>バースト警告</translation>
     </message>
     <message>
         <source>Max Buffers (B)</source>
-        <translation type="unfinished"></translation>
+        <translation>最大バッファ(B)</translation>
     </message>
     <message>
         <source>Buffer Alarms</source>
-        <translation type="unfinished"></translation>
+        <translation>バッファ警告</translation>
     </message>
     <message>
         <source>Burst measurement interval (ms):</source>
-        <translation type="unfinished"></translation>
+        <translation>バースト計測間隔(ms):</translation>
     </message>
     <message>
         <source>Burst alarm threshold (packets):</source>
-        <translation type="unfinished"></translation>
+        <translation>バースト警告閾値(パケット数):</translation>
     </message>
     <message>
         <source>Buffer alarm threshold (B):</source>
-        <translation type="unfinished"></translation>
+        <translation>バッファ警告閾値(B):</translation>
     </message>
     <message>
         <source>Stream empty speed (Kb/s):</source>
-        <translation type="unfinished"></translation>
+        <translation>ストリーム排出速度 (キロバイト/秒):</translation>
     </message>
     <message>
         <source>Total empty speed (Kb/s):</source>
-        <translation type="unfinished"></translation>
+        <translation>総排出速度 (キロバイト/秒):</translation>
     </message>
     <message>
         <source>The burst interval must be between 1 and 1000. </source>
-        <translation type="unfinished"></translation>
+        <translation>バースト間隔は1から1000の間でなくてはいけません</translation>
     </message>
     <message>
         <source>The burst alarm threshold isn&apos;t valid. </source>
-        <translation type="unfinished"></translation>
+        <translation>バースト警告閾値が有効ではありません</translation>
     </message>
     <message>
         <source>The buffer alarm threshold isn&apos;t valid. </source>
-        <translation type="unfinished"></translation>
+        <translation>バッファ警告閾値が有効ではありません</translation>
     </message>
     <message>
         <source>The stream empty speed should be between 1 and 10000000. </source>
-        <translation type="unfinished"></translation>
+        <translation>ストリーム空き速度は1から10000000の間でなくてはいけません</translation>
     </message>
     <message>
         <source>The total empty speed should be between 1 and 10000000. </source>
-        <translation type="unfinished"></translation>
+        <translation>総排出速度は1から10000000の間であるべきです</translation>
     </message>
     <message>
         <source>%1 streams, avg bw: %2bps, max bw: %3bps, max burst: %4 / %5ms, max buffer: %6B</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 ストリーム, 平均帯域: %2bps, 最大帯域: %3bps, 最大バースト: %4 / %5ms, 最大バッファ: %6B</translation>
     </message>
 </context>
 <context>
     <name>PacketCommentDialog</name>
     <message>
         <source>Packet %1 Comment</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット %1 コメント</translation>
     </message>
 </context>
 <context>
     <name>PacketDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Packet %1</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット %1</translation>
     </message>
     <message>
         <source>[%1 closed] </source>
-        <translation type="unfinished"></translation>
+        <translation>[%1 を綴じました] </translation>
     </message>
     <message>
         <source>Byte %1</source>
-        <translation type="unfinished"></translation>
+        <translation>バイト %1</translation>
     </message>
     <message>
         <source>Bytes %1-%2</source>
-        <translation type="unfinished"></translation>
+        <translation>バイト %1-%2</translation>
     </message>
 </context>
 <context>
     <name>PacketFormatGroupBox</name>
     <message>
         <source>GroupBox</source>
-        <translation type="unfinished"></translation>
+        <translation>グループボックス</translation>
     </message>
     <message>
         <source>Packet Format</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットフォーマット</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Packet summary lines similar to the packet list&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;パケット一覧のようなパケット概要行&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Summary line</source>
-        <translation type="unfinished"></translation>
+        <translation>概要行</translation>
     </message>
     <message>
         <source>Include column headings</source>
-        <translation type="unfinished"></translation>
+        <translation>ヘッダ列を含む</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Packet details similar to the protocol tree&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;プロトコルツリーのようなパケット詳細&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Details:</source>
-        <translation type="unfinished"></translation>
+        <translation>詳細:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export only top-level packet detail items&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;最上位のパケット詳細の項目のみエクスポート&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>All co&amp;llapsed</source>
-        <translation type="unfinished"></translation>
+        <translation>すべて閉じる(&amp;l)</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Expand and collapse packet details as they are currently displayed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;現在表示されてるようにパケット詳細画面を開いたり閉じたりします&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>As displa&amp;yed</source>
-        <translation type="unfinished"></translation>
+        <translation>表示された通り(&amp;y)</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export all packet detail items&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;すべてのパケット項目をエクスポート&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>All e&amp;xpanded</source>
-        <translation type="unfinished"></translation>
+        <translation>すべて展開(&amp;x)</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export a hexdump of the packet data similar to the packet bytes view&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;パケットバイト列表示のようなパケットデータの16進数ダンプをエクスポート&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>バイト列</translation>
     </message>
 </context>
 <context>
     <name>PacketList</name>
     <message>
         <source>Summary as Text</source>
-        <translation type="unfinished"></translation>
+        <translation>テキストとしての概要</translation>
     </message>
     <message>
         <source>Align Left</source>
-        <translation type="unfinished"></translation>
+        <translation>左揃え</translation>
     </message>
     <message>
         <source>Align Center</source>
-        <translation type="unfinished"></translation>
+        <translation>中央揃え</translation>
     </message>
     <message>
         <source>Align Right</source>
-        <translation type="unfinished"></translation>
+        <translation>右揃え</translation>
     </message>
     <message>
         <source>Column Preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>列の設定</translation>
     </message>
     <message>
         <source>Edit Column</source>
-        <translation type="unfinished"></translation>
+        <translation>列の編集</translation>
     </message>
     <message>
         <source>Resize To Contents</source>
-        <translation type="unfinished"></translation>
+        <translation>内容にあわせて列幅を揃える</translation>
     </message>
     <message>
         <source>Resolve Names</source>
-        <translation type="unfinished"></translation>
+        <translation>名前を解決</translation>
     </message>
     <message>
         <source>Remove This Column</source>
-        <translation type="unfinished"></translation>
+        <translation>この列を削除</translation>
     </message>
     <message>
         <source>Frame %1: %2
 
 </source>
-        <translation type="unfinished"></translation>
+        <translation>フレーム %1: %2
+
+</translation>
     </message>
     <message>
         <source>[ Comment text exceeds %1. Stopping. ]</source>
-        <translation type="unfinished"></translation>
+        <translation>[ コメントテキスト超過 %1 停止中 ]</translation>
     </message>
 </context>
 <context>
     <name>PacketListModel</name>
     <message>
         <source>Dissecting</source>
-        <translation type="unfinished"></translation>
+        <translation>解析中</translation>
     </message>
     <message>
         <source>Sorting &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>ソート中 &quot;%1&quot;</translation>
     </message>
 </context>
 <context>
     <name>PacketRangeGroupBox</name>
     <message>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation>フォーム</translation>
     </message>
     <message>
         <source>Packet Range</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットの範囲</translation>
     </message>
     <message>
         <source>-</source>
-        <translation type="unfinished"></translation>
+        <translation>-</translation>
     </message>
     <message>
         <source>Displayed</source>
-        <translation type="unfinished"></translation>
+        <translation>表示されたパケット</translation>
     </message>
     <message>
         <source>&amp;Marked packets only</source>
-        <translation type="unfinished"></translation>
+        <translation>マークされたパケットのみ(&amp;M)</translation>
     </message>
     <message>
         <source>&amp;Range:</source>
-        <translation type="unfinished"></translation>
+        <translation>範囲(&amp;R):</translation>
     </message>
     <message>
         <source>Remove &amp;ignored packets</source>
-        <translation type="unfinished"></translation>
+        <translation>無視されたパケットを削除(&amp;i)</translation>
     </message>
     <message>
         <source>First &amp;to last marked</source>
-        <translation type="unfinished"></translation>
+        <translation>最初のマークから最後にマークされたものまで(&amp;t)</translation>
     </message>
     <message>
         <source>&amp;All packets</source>
-        <translation type="unfinished"></translation>
+        <translation>すべてのパケット(&amp;A)</translation>
     </message>
     <message>
         <source>&amp;Selected packets only</source>
-        <translation type="unfinished"></translation>
+        <translation>選択されたパケットのみ(&amp;t)</translation>
     </message>
     <message>
         <source>Captured</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャされたパケット</translation>
     </message>
 </context>
 <context>
     <name>PathChooserDelegate</name>
     <message>
         <source>Browse</source>
-        <translation type="unfinished"></translation>
+        <translation>参照</translation>
     </message>
     <message>
         <source>Open Pipe</source>
-        <translation type="unfinished"></translation>
+        <translation>パイプを開く</translation>
     </message>
 </context>
 <context>
     <name>PluginListModel</name>
     <message>
         <source>extcap</source>
-        <translation type="unfinished"></translation>
+        <translation>extcap</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>名前</translation>
     </message>
     <message>
         <source>Version</source>
-        <translation type="unfinished"></translation>
+        <translation>バージョン</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation>種別</translation>
     </message>
     <message>
         <source>Path</source>
-        <translation type="unfinished"></translation>
+        <translation>パス</translation>
     </message>
 </context>
 <context>
     <name>PreferenceEditorFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>フレーム</translation>
     </message>
     <message>
         <source>…</source>
-        <translation type="unfinished"></translation>
+        <translation>…</translation>
     </message>
     <message>
         <source>a preference</source>
-        <translation type="unfinished"></translation>
+        <translation>設定</translation>
     </message>
     <message>
         <source>Open %1 preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 設定を開く</translation>
     </message>
     <message>
         <source>Invalid value.</source>
-        <translation type="unfinished"></translation>
+        <translation>無効な値</translation>
     </message>
 </context>
 <context>
     <name>PreferencesDialog</name>
     <message>
         <source>Search:</source>
-        <translation type="unfinished"></translation>
+        <translation>検索:</translation>
     </message>
     <message>
         <source>Preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>設定</translation>
     </message>
 </context>
 <context>
@@ -8128,660 +8223,660 @@ a:hover {
     <message>
         <source>Advanced</source>
         <extracomment>Names of special preferences handled by the GUI</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>高度設定</translation>
     </message>
     <message>
         <source>Appearance</source>
-        <translation type="unfinished"></translation>
+        <translation>外観</translation>
     </message>
     <message>
         <source>Layout</source>
-        <translation type="unfinished"></translation>
+        <translation>レイアウト</translation>
     </message>
     <message>
         <source>Columns</source>
-        <translation type="unfinished"></translation>
+        <translation>列</translation>
     </message>
     <message>
         <source>Font and Colors</source>
-        <translation type="unfinished"></translation>
+        <translation>フォントと色</translation>
     </message>
     <message>
         <source>Capture</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャ</translation>
     </message>
     <message>
         <source>Expert</source>
-        <translation type="unfinished"></translation>
+        <translation>エキスパート</translation>
     </message>
     <message>
         <source>Filter Buttons</source>
-        <translation type="unfinished"></translation>
+        <translation>フィルタボタン</translation>
     </message>
 </context>
 <context>
     <name>PrintDialog</name>
     <message>
         <source>Packet Format</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット形式</translation>
     </message>
     <message>
         <source>Print each packet on a new page</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットごとに新ページで印刷</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use the &amp;quot;+&amp;quot; and &amp;quot;-&amp;quot; keys to zoom the preview in and out. Use the &amp;quot;0&amp;quot; key to reset the zoom level.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&quot;+&quot;キーと &quot;-&quot;キーでプレビューをズームします &quot;0&quot;キーでズームをリセットします &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;+ and - zoom, 0 resets&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;+ と - でズーム 0 でリセット&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Packet Range</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット範囲</translation>
     </message>
     <message>
         <source>&amp;Print</source>
-        <translation type="unfinished"></translation>
+        <translation>印刷(&amp;P)</translation>
     </message>
     <message>
         <source>Print</source>
-        <translation type="unfinished"></translation>
+        <translation>印刷</translation>
     </message>
     <message>
         <source>Page &amp;Setup</source>
-        <translation type="unfinished"></translation>
+        <translation>ページ設定(&amp;S)</translation>
     </message>
     <message>
         <source>%1 %2 total packets, %3 shown</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 %2 全パケット, %3 表示</translation>
     </message>
     <message>
         <source>Print Error</source>
-        <translation type="unfinished"></translation>
+        <translation>印刷エラー</translation>
     </message>
     <message>
         <source>Unable to print to %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 に印刷することができません</translation>
     </message>
 </context>
 <context>
     <name>ProfileDialog</name>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>名前</translation>
     </message>
     <message>
         <source>Create a new profile using default settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>デフォルトの設定を用いて新規プロファイルを作成します</translation>
     </message>
     <message>
         <source>Remove this profile. System provided profiles cannot be removed.</source>
-        <translation type="unfinished"></translation>
+        <translation>このプロファイルを削除します。システムが提供したプロファイルは削除できません。</translation>
     </message>
     <message>
         <source>Copy this profile.</source>
-        <translation type="unfinished"></translation>
+        <translation>このプロファイルをコピーします</translation>
     </message>
     <message>
         <source>Configuration Profiles</source>
-        <translation type="unfinished"></translation>
+        <translation>設定プロファイル</translation>
     </message>
     <message>
         <source>Will be reset to default values</source>
-        <translation type="unfinished"></translation>
+        <translation>デフォルト値にリセットされます</translation>
     </message>
     <message>
         <source>Created from %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 から作成</translation>
     </message>
     <message>
         <source>(system provided)</source>
-        <translation type="unfinished"></translation>
+        <translation>(システム提供)</translation>
     </message>
     <message>
         <source>Created from default settings</source>
-        <translation type="unfinished"></translation>
+        <translation>デフォルト設定から作成</translation>
     </message>
     <message>
         <source>Renamed from %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 の名前を変更</translation>
     </message>
     <message>
         <source>Go to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 に移動</translation>
     </message>
     <message>
         <source>This is a system provided profile.</source>
-        <translation type="unfinished"></translation>
+        <translation>これはシステム提供プロファイルです</translation>
     </message>
     <message>
         <source>A profile already exists with this name.</source>
-        <translation type="unfinished"></translation>
+        <translation>この名前のプロファイルは既に存在します</translation>
     </message>
     <message>
         <source>A profile already exists with this name</source>
-        <translation type="unfinished"></translation>
+        <translation>既存プロファイル名</translation>
     </message>
     <message>
         <source>The profile will be reset to default values.</source>
-        <translation type="unfinished"></translation>
+        <translation>プロファイルはデフォルト値にリセットされます。</translation>
     </message>
     <message>
         <source>Profile Error</source>
-        <translation type="unfinished"></translation>
+        <translation>プロファイルエラー</translation>
     </message>
 </context>
 <context>
     <name>ProgressFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>フレーム</translation>
     </message>
 </context>
 <context>
     <name>ProtoTree</name>
     <message>
         <source>Packet details</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット詳細</translation>
     </message>
     <message>
         <source>Colorize with Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>フィルタで色付け</translation>
     </message>
 </context>
 <context>
     <name>ProtocolHierarchyDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <source>Protocol</source>
-        <translation type="unfinished"></translation>
+        <translation>プロトコル</translation>
     </message>
     <message>
         <source>Percent Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット数割合</translation>
     </message>
     <message>
         <source>Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット数</translation>
     </message>
     <message>
         <source>Percent Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>バイト数割合</translation>
     </message>
     <message>
         <source>Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>バイト</translation>
     </message>
     <message>
         <source>Bits/s</source>
-        <translation type="unfinished"></translation>
+        <translation>ビット/秒</translation>
     </message>
     <message>
         <source>End Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>終端パケット数</translation>
     </message>
     <message>
         <source>End Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>終端バイト数</translation>
     </message>
     <message>
         <source>End Bits/s</source>
-        <translation type="unfinished"></translation>
+        <translation>終端ビット毎秒</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;ヒント&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Copy as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>CSVとしてコピー</translation>
     </message>
     <message>
         <source>Copy stream list as CSV.</source>
-        <translation type="unfinished"></translation>
+        <translation>CSVとしてストリーム一覧をコピーします</translation>
     </message>
     <message>
         <source>Copy as YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>YAMLとしてコピー</translation>
     </message>
     <message>
         <source>Copy stream list as YAML.</source>
-        <translation type="unfinished"></translation>
+        <translation>YAMLとしてストリーム一覧をコピーします</translation>
     </message>
     <message>
         <source>Protocol Hierarchy Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>プロトコル階層統計</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>コピー</translation>
     </message>
     <message>
         <source>as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>CSVとして</translation>
     </message>
     <message>
         <source>as YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>YAMLとして</translation>
     </message>
     <message>
         <source>No display filter.</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタがありません</translation>
     </message>
     <message>
         <source>Display filter: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタ: %1</translation>
     </message>
 </context>
 <context>
     <name>ProtocolPreferencesMenu</name>
     <message>
         <source>Protocol Preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>プロトコル設定</translation>
     </message>
     <message>
         <source>No protocol preferences available</source>
-        <translation type="unfinished"></translation>
+        <translation>プロトコル設定が利用できません</translation>
     </message>
     <message>
         <source>Disable %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1を無効化する</translation>
     </message>
     <message>
         <source>%1 has no preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>%1には設定がありません</translation>
     </message>
     <message>
         <source>Open %1 preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 設定を開く</translation>
     </message>
 </context>
 <context>
     <name>QObject</name>
     <message>
-        <source>Apply as Filter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Prepare a Filter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Find</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Colorize</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Look Up</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copy</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>UNKNOWN</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Selected</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Not Selected</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>A </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>B </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Any </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>default</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>DLT %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Average Throughput (bits/s)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Round Trip Time (ms)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Segment Length (B)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Sequence Number (B)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Time (s)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Window Size (B)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Error</source>
-        <translation type="unfinished"></translation>
+        <translation>エラー</translation>
     </message>
     <message>
         <source>No remote interfaces found.</source>
-        <translation type="unfinished"></translation>
+        <translation>リモートインターフェースは見つかりません</translation>
     </message>
     <message>
         <source>PCAP not found</source>
-        <translation type="unfinished"></translation>
+        <translation>PCAPは見つかりません</translation>
     </message>
     <message>
         <source>Unknown error</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>New coloring rule</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unknown</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Default</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Changed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Has this preference been changed?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Default value is empty</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Conversation</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Bars show the relative timeline for each conversation.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Edit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Browse</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Wrong sequence number</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Payload changed to PT=%1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Incorrect timestamp</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Marker missing?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>TM</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>UM</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>AM</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Predef</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unknown (%1)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>CCCH</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>SRB-%1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>DRB-%1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>UE Id</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Mode</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Priority</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>[no capture file]</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No entries.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>%1 entries.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Base station</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;Broadcast&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;Hidden&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>BSSID</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Beacons</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Data Pkts</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Protection</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Pkts Sent</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Pkts Received</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Comment</source>
-        <translation type="unfinished">コメント</translation>
-    </message>
-    <message>
-        <source>C-RNTI</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>SPS-RNTI</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>RNTI</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>UEId</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>UL Frames</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>UL Bytes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>UL MB/s</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>UL Padding %</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>UL Re TX</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>DL Frames</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>DL Bytes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>DL MB/s</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>DL Padding %</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>DL CRC Failed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>DL ReTX</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>LCID 1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>LCID 2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>LCID 3</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>LCID 4</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>LCID 5</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>LCID 6</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>LCID 7</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>LCID 8</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>LCID 9</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>LCID 10</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Don&apos;t show this message again.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Multiple problems found</source>
-        <translation type="unfinished"></translation>
+        <translation>未知のエラー</translation>
     </message>
     <message>
         <source>%1 (%L2%)</source>
-        <translation type="unfinished"></translation>
+        <translation>1 (%L2%)</translation>
+    </message>
+    <message>
+        <source>Conversation</source>
+        <translation>対話</translation>
+    </message>
+    <message>
+        <source>Bars show the relative timeline for each conversation.</source>
+        <translation>各対話ごとの相対的な時間線を棒で示します</translation>
+    </message>
+    <message>
+        <source>default</source>
+        <translation>デフォルト</translation>
+    </message>
+    <message>
+        <source>DLT %1</source>
+        <translation>DLT %1</translation>
+    </message>
+    <message>
+        <source>[no capture file]</source>
+        <translation>[キャプチャファイルなし]</translation>
+    </message>
+    <message>
+        <source>Unknown</source>
+        <translation>不明</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation>デフォルト</translation>
+    </message>
+    <message>
+        <source>Changed</source>
+        <translation>変更済</translation>
+    </message>
+    <message>
+        <source>Has this preference been changed?</source>
+        <translation>この設定を変更されましたか？</translation>
+    </message>
+    <message>
+        <source>Default value is empty</source>
+        <translation>デフォルト値は空です</translation>
+    </message>
+    <message>
+        <source>New coloring rule</source>
+        <translation>新規色付けルール</translation>
     </message>
     <message>
         <source>Endpoint</source>
-        <translation type="unfinished"></translation>
+        <translation>終端</translation>
+    </message>
+    <message>
+        <source>TM</source>
+        <translation>TM</translation>
+    </message>
+    <message>
+        <source>UM</source>
+        <translation>UM</translation>
+    </message>
+    <message>
+        <source>AM</source>
+        <translation>AM</translation>
+    </message>
+    <message>
+        <source>Predef</source>
+        <translation>規定</translation>
+    </message>
+    <message>
+        <source>Unknown (%1)</source>
+        <translation>未知 (%1)</translation>
+    </message>
+    <message>
+        <source>CCCH</source>
+        <translation>CCCH</translation>
+    </message>
+    <message>
+        <source>SRB-%1</source>
+        <translation>SRB-%1</translation>
+    </message>
+    <message>
+        <source>DRB-%1</source>
+        <translation>DRB-%1</translation>
+    </message>
+    <message>
+        <source>UE Id</source>
+        <translation>UE Id</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>名前</translation>
+    </message>
+    <message>
+        <source>Mode</source>
+        <translation>モード</translation>
+    </message>
+    <message>
+        <source>Priority</source>
+        <translation>優先度</translation>
+    </message>
+    <message>
+        <source>Wrong sequence number</source>
+        <translation>誤ったシーケンス番号</translation>
+    </message>
+    <message>
+        <source>Payload changed to PT=%1</source>
+        <translation>ペイロードがPT=%1に変更されました</translation>
+    </message>
+    <message>
+        <source>Incorrect timestamp</source>
+        <translation>不正なタイムスタンプ</translation>
+    </message>
+    <message>
+        <source>Marker missing?</source>
+        <translation>マーカー欠如？</translation>
+    </message>
+    <message>
+        <source>No entries.</source>
+        <translation>エントリなし</translation>
+    </message>
+    <message>
+        <source>%1 entries.</source>
+        <translation>%1 エントリ</translation>
+    </message>
+    <message>
+        <source>Apply as Filter</source>
+        <translation>フィルタとして適用</translation>
+    </message>
+    <message>
+        <source>Prepare a Filter</source>
+        <translation>フィルタを準備</translation>
+    </message>
+    <message>
+        <source>Find</source>
+        <translation>検索</translation>
+    </message>
+    <message>
+        <source>Colorize</source>
+        <translation>色をつける</translation>
+    </message>
+    <message>
+        <source>Look Up</source>
+        <translation>探す</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation>コピー</translation>
+    </message>
+    <message>
+        <source>UNKNOWN</source>
+        <translation>不明</translation>
+    </message>
+    <message>
+        <source>Selected</source>
+        <translation>選択済み</translation>
+    </message>
+    <message>
+        <source>Not Selected</source>
+        <translation>選択されていません</translation>
+    </message>
+    <message>
+        <source>A </source>
+        <translation>A </translation>
+    </message>
+    <message>
+        <source>B </source>
+        <translation>B </translation>
+    </message>
+    <message>
+        <source>Any </source>
+        <translation>すべて </translation>
+    </message>
+    <message>
+        <source>Don&apos;t show this message again.</source>
+        <translation>このメッセージは再度表示されません</translation>
+    </message>
+    <message>
+        <source>Multiple problems found</source>
+        <translation>複数の問題が見つかりました</translation>
+    </message>
+    <message>
+        <source>Base station</source>
+        <translation>ベースステーション</translation>
+    </message>
+    <message>
+        <source>&lt;Broadcast&gt;</source>
+        <translation>&lt;ブロードキャスト&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;Hidden&gt;</source>
+        <translation>&lt;非表示&gt;</translation>
+    </message>
+    <message>
+        <source>BSSID</source>
+        <translation>BSSID</translation>
+    </message>
+    <message>
+        <source>Beacons</source>
+        <translation>ビーコン</translation>
+    </message>
+    <message>
+        <source>Data Pkts</source>
+        <translation>データパケット</translation>
+    </message>
+    <message>
+        <source>Protection</source>
+        <translation>保護</translation>
+    </message>
+    <message>
+        <source>Address</source>
+        <translation>アドレス</translation>
+    </message>
+    <message>
+        <source>Pkts Sent</source>
+        <translation>送信パケット</translation>
+    </message>
+    <message>
+        <source>Pkts Received</source>
+        <translation>受信パケット</translation>
+    </message>
+    <message>
+        <source>Comment</source>
+        <translation>コメント</translation>
+    </message>
+    <message>
+        <source>C-RNTI</source>
+        <translation>C-RNTI</translation>
+    </message>
+    <message>
+        <source>SPS-RNTI</source>
+        <translation>SPS-RNTI</translation>
+    </message>
+    <message>
+        <source>RNTI</source>
+        <translation>RNTI</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation>種別</translation>
+    </message>
+    <message>
+        <source>UEId</source>
+        <translation>UEId</translation>
+    </message>
+    <message>
+        <source>UL Frames</source>
+        <translation>UL フレーム</translation>
+    </message>
+    <message>
+        <source>UL Bytes</source>
+        <translation>UL バイト</translation>
+    </message>
+    <message>
+        <source>UL MB/s</source>
+        <translation>ULメガバイト/秒</translation>
+    </message>
+    <message>
+        <source>UL Padding %</source>
+        <translation>ULパディング%</translation>
+    </message>
+    <message>
+        <source>UL Re TX</source>
+        <translation>UL Re TX</translation>
+    </message>
+    <message>
+        <source>DL Frames</source>
+        <translation>DLフレーム</translation>
+    </message>
+    <message>
+        <source>DL Bytes</source>
+        <translation>DLバイト数</translation>
+    </message>
+    <message>
+        <source>DL MB/s</source>
+        <translation>DLメガバイト/秒</translation>
+    </message>
+    <message>
+        <source>DL Padding %</source>
+        <translation>DLパディング%</translation>
+    </message>
+    <message>
+        <source>DL CRC Failed</source>
+        <translation>DL CRC失敗</translation>
+    </message>
+    <message>
+        <source>DL ReTX</source>
+        <translation>DL ReTX</translation>
+    </message>
+    <message>
+        <source>LCID 1</source>
+        <translation>LCID 1</translation>
+    </message>
+    <message>
+        <source>LCID 2</source>
+        <translation>LCID 2</translation>
+    </message>
+    <message>
+        <source>LCID 3</source>
+        <translation>LCID 3</translation>
+    </message>
+    <message>
+        <source>LCID 4</source>
+        <translation>LCID 4</translation>
+    </message>
+    <message>
+        <source>LCID 5</source>
+        <translation>LCID 5</translation>
+    </message>
+    <message>
+        <source>LCID 6</source>
+        <translation>LCID 6</translation>
+    </message>
+    <message>
+        <source>LCID 7</source>
+        <translation>LCID 7</translation>
+    </message>
+    <message>
+        <source>LCID 8</source>
+        <translation>LCID 8</translation>
+    </message>
+    <message>
+        <source>LCID 9</source>
+        <translation>LCID 9</translation>
+    </message>
+    <message>
+        <source>LCID 10</source>
+        <translation>LCID 10</translation>
+    </message>
+    <message>
+        <source>Average Throughput (bits/s)</source>
+        <translation>平均スループット(ビット毎秒)</translation>
+    </message>
+    <message>
+        <source>Round Trip Time (ms)</source>
+        <translation>往復遅延時間(ミリ秒)</translation>
+    </message>
+    <message>
+        <source>Segment Length (B)</source>
+        <translation>セグメント長(バイト)</translation>
+    </message>
+    <message>
+        <source>Sequence Number (B)</source>
+        <translation>シーケンス番号(バイト)</translation>
+    </message>
+    <message>
+        <source>Time (s)</source>
+        <translation>時間(秒)</translation>
+    </message>
+    <message>
+        <source>Window Size (B)</source>
+        <translation>ウインドウサイズ(バイト)</translation>
+    </message>
+    <message>
+        <source>Edit</source>
+        <translation>編集</translation>
+    </message>
+    <message>
+        <source>Browse</source>
+        <translation>参照</translation>
     </message>
     <message>
         <source>Invalid Display Filter</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">無効な表示フィルタ</translation>
     </message>
     <message>
         <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
@@ -8792,101 +8887,101 @@ a:hover {
     <name>QObject::QObject</name>
     <message>
         <source>CCCH</source>
-        <translation type="unfinished"></translation>
+        <translation>CCCH</translation>
     </message>
 </context>
 <context>
     <name>RemoteCaptureDialog</name>
     <message>
         <source>Remote Interface</source>
-        <translation type="unfinished"></translation>
+        <translation>リモートインターフェース</translation>
     </message>
     <message>
         <source>Host:</source>
-        <translation type="unfinished"></translation>
+        <translation>ホスト:</translation>
     </message>
     <message>
         <source>Port:</source>
-        <translation type="unfinished"></translation>
+        <translation>ポート:</translation>
     </message>
     <message>
         <source>Authentication</source>
-        <translation type="unfinished"></translation>
+        <translation>認証</translation>
     </message>
     <message>
         <source>Null authentication</source>
-        <translation type="unfinished"></translation>
+        <translation>ヌル認証</translation>
     </message>
     <message>
         <source>Password authentication</source>
-        <translation type="unfinished"></translation>
+        <translation>パスワード認証</translation>
     </message>
     <message>
         <source>Username:</source>
-        <translation type="unfinished"></translation>
+        <translation>ユーザ名:</translation>
     </message>
     <message>
         <source>Password:</source>
-        <translation type="unfinished"></translation>
+        <translation>パスワード:</translation>
     </message>
     <message>
         <source>Clear list</source>
-        <translation type="unfinished"></translation>
+        <translation>一覧消去</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished"></translation>
+        <translation>エラー</translation>
     </message>
     <message>
         <source>No remote interfaces found.</source>
-        <translation type="unfinished"></translation>
+        <translation>リモートインターフェースは見つかりませんでした</translation>
     </message>
     <message>
         <source>PCAP not found</source>
-        <translation type="unfinished"></translation>
+        <translation>PCAPは見つかりません</translation>
     </message>
 </context>
 <context>
     <name>RemoteSettingsDialog</name>
     <message>
         <source>Remote Capture Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>リモートキャプチャ設定</translation>
     </message>
     <message>
         <source>Capture Options</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャオプション</translation>
     </message>
     <message>
         <source>Do not capture own RPCAP traffic</source>
-        <translation type="unfinished"></translation>
+        <translation>自分のRPCAPトラフィックはキャプチャしません</translation>
     </message>
     <message>
         <source>Use UDP for data transfer</source>
-        <translation type="unfinished"></translation>
+        <translation>データ伝送にUDPを使用</translation>
     </message>
     <message>
         <source>Sampling Options</source>
-        <translation type="unfinished"></translation>
+        <translation>サンプリングオプション</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>なし</translation>
     </message>
     <message>
         <source>1 of</source>
-        <translation type="unfinished"></translation>
+        <translation>1 の</translation>
     </message>
     <message>
         <source>packets</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット</translation>
     </message>
     <message>
         <source>1 every </source>
-        <translation type="unfinished"></translation>
+        <translation>1 毎</translation>
     </message>
     <message>
         <source>milliseconds</source>
-        <translation type="unfinished"></translation>
+        <translation>ミリ秒</translation>
     </message>
 </context>
 <context>
@@ -8978,572 +9073,590 @@ a:hover {
     </message>
     <message>
         <source>[no file]</source>
-        <translation type="unfinished"></translation>
+        <translation>[ファイルがありません]</translation>
     </message>
     <message>
         <source>Resolved Addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>解決したアドレス</translation>
     </message>
     <message>
         <source>Show</source>
-        <translation type="unfinished"></translation>
+        <translation>表示</translation>
     </message>
     <message>
         <source># Resolved addresses found in %1</source>
-        <translation type="unfinished"></translation>
+        <translation># %1 に解決したアドレスが見つかりました</translation>
     </message>
     <message>
         <source># Comments
 #
 # </source>
-        <translation type="unfinished"></translation>
+        <translation># コメント
+#
+# </translation>
     </message>
     <message>
         <source># Hosts
 #
 # </source>
-        <translation type="unfinished"></translation>
+        <translation># ホスト
+#
+# </translation>
     </message>
     <message>
         <source># IPv4 Hash Table
 #
 # </source>
-        <translation type="unfinished"></translation>
+        <translation>IPv4 ハッシュ表
+#
+# </translation>
     </message>
     <message>
         <source>
 
 </source>
-        <translation type="unfinished"></translation>
+        <translation>
+
+</translation>
     </message>
     <message>
         <source># IPv6 Hash Table
 #
 # </source>
-        <translation type="unfinished"></translation>
+        <translation># IPv6 ハッシュ表
+#
+# </translation>
     </message>
     <message>
         <source># Services
 #
 # </source>
-        <translation type="unfinished"></translation>
+        <translation># サービス
+#
+# </translation>
     </message>
     <message>
         <source># Ethernet addresses
 #
 # </source>
-        <translation type="unfinished"></translation>
+        <translation># Ethernet アドレス
+#
+# </translation>
     </message>
     <message>
         <source># Ethernet manufacturers
 #
 # </source>
-        <translation type="unfinished"></translation>
+        <translation># Ethernet 製造元
+#
+# </translation>
     </message>
     <message>
         <source># Well known Ethernet addresses
 #
 # </source>
-        <translation type="unfinished"></translation>
+        <translation># 既知のEthernetアドレス
+#
+# </translation>
     </message>
 </context>
 <context>
     <name>ResponseTimeDelayDialog</name>
     <message>
         <source>%1 Response Time Delay Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 応答時間遅延統計</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation>種別</translation>
     </message>
     <message>
         <source>Messages</source>
-        <translation type="unfinished"></translation>
+        <translation>メッセージ</translation>
     </message>
     <message>
         <source>Min SRT</source>
-        <translation type="unfinished"></translation>
+        <translation>最小SRT</translation>
     </message>
     <message>
         <source>Max SRT</source>
-        <translation type="unfinished"></translation>
+        <translation>最大SRT</translation>
     </message>
     <message>
         <source>Avg SRT</source>
-        <translation type="unfinished"></translation>
+        <translation>平均SRT</translation>
     </message>
     <message>
         <source>Min in Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>フレーム内の最小</translation>
     </message>
     <message>
         <source>Max in Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>フレーム内の最大</translation>
     </message>
     <message>
         <source>Open Requests</source>
-        <translation type="unfinished"></translation>
+        <translation>オープン要求</translation>
     </message>
     <message>
         <source>Discarded Responses</source>
-        <translation type="unfinished"></translation>
+        <translation>破棄された応答</translation>
     </message>
     <message>
         <source>Repeated Requests</source>
-        <translation type="unfinished"></translation>
+        <translation>繰り返された要求</translation>
     </message>
     <message>
         <source>Repeated Responses</source>
-        <translation type="unfinished"></translation>
+        <translation>繰り返された応答</translation>
     </message>
 </context>
 <context>
     <name>RpcServiceResponseTimeDialog</name>
     <message>
         <source>&lt;small&gt;&lt;i&gt;Select a program and version and enter a filter if desired, then press Apply.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;プログラムとバージョンを選んで臨んだフィルタを入力して、適用をクリックしてください。&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Version:</source>
-        <translation type="unfinished"></translation>
+        <translation>バージョン:</translation>
     </message>
     <message>
         <source>Program:</source>
-        <translation type="unfinished"></translation>
+        <translation>プログラム:</translation>
     </message>
     <message>
         <source>DCE-RPC Service Response Times</source>
-        <translation type="unfinished"></translation>
+        <translation>DCE-RPCサービス応答時間</translation>
     </message>
     <message>
         <source>ONC-RPC Service Response Times</source>
-        <translation type="unfinished"></translation>
+        <translation>ONC-RPCサービス応答時間</translation>
     </message>
 </context>
 <context>
     <name>RtpAnalysisDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Forward&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Reverse&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>dium; font-weight:600;&quot;&gt;進む&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;戻る&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Forward</source>
-        <translation type="unfinished"></translation>
+        <translation>進む</translation>
     </message>
     <message>
         <source>Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット</translation>
     </message>
     <message>
         <source>Sequence</source>
-        <translation type="unfinished"></translation>
+        <translation>シーケンス</translation>
     </message>
     <message>
         <source>Delta (ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>間隔 (ms)</translation>
     </message>
     <message>
         <source>Jitter (ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>ジッタ (ms)</translation>
     </message>
     <message>
         <source>Skew</source>
-        <translation type="unfinished"></translation>
+        <translation>Skew</translation>
     </message>
     <message>
         <source>Bandwidth</source>
-        <translation type="unfinished"></translation>
+        <translation>帯域</translation>
     </message>
     <message>
         <source>Marker</source>
-        <translation type="unfinished"></translation>
+        <translation>マーカー</translation>
     </message>
     <message>
         <source>Status</source>
-        <translation type="unfinished"></translation>
+        <translation>状態</translation>
     </message>
     <message>
         <source>Reverse</source>
-        <translation type="unfinished"></translation>
+        <translation>反転</translation>
     </message>
     <message>
         <source>Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>グラフ</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward jitter values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;順方向ジッタ値を表示もしくは非表示にします&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Forward Jitter</source>
-        <translation type="unfinished"></translation>
+        <translation>順方向ジッタ</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward difference values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;順方向差異の値を表示もしくは非表示にします&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Forward Difference</source>
-        <translation type="unfinished"></translation>
+        <translation>順方向の差異</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward delta values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;順方向間隔の値を表示もしくは非表示にします&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Forward Delta</source>
-        <translation type="unfinished"></translation>
+        <translation>順方向の間隔</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse jitter values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;逆方向ジッタ値を表示もしくは非表示にします&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Reverse Jitter</source>
-        <translation type="unfinished"></translation>
+        <translation>逆方向ジッタ</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse difference values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;逆方向の差異の値を表示もしくは非表示にします&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Reverse Difference</source>
-        <translation type="unfinished"></translation>
+        <translation>逆方向の差異</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse delta values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;逆方向の間隔値を表示もしくは非表示にします&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Reverse Delta</source>
-        <translation type="unfinished"></translation>
+        <translation>逆方向の間隔</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>lt;small&gt;&lt;i&gt;ヒント&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Unsynchronized Forward and Reverse Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>非同期の順方向と逆方向の音声</translation>
     </message>
     <message>
         <source>Save the unsynchronized audio data for both channels.</source>
-        <translation type="unfinished"></translation>
+        <translation>両方のチャンネルの非同期の音声データを保存します</translation>
     </message>
     <message>
         <source>Unsynchronized Forward Stream Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>非同期の順方向音声ストリーム</translation>
     </message>
     <message>
         <source>Save the unsynchronized forward stream audio data.</source>
-        <translation type="unfinished"></translation>
+        <translation>非同期の順方向音声ストリームデータを保存します</translation>
     </message>
     <message>
         <source>Unsynchronized Reverse Stream Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>非同期の逆方向音声ストリーム</translation>
     </message>
     <message>
         <source>Save the unsynchronized reverse stream audio data.</source>
-        <translation type="unfinished"></translation>
+        <translation>非同期の逆方向音声ストリームデータを保存します</translation>
     </message>
     <message>
         <source>CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>CSV</translation>
     </message>
     <message>
         <source>Save both tables as CSV.</source>
-        <translation type="unfinished"></translation>
+        <translation>両方の表をCSVとして保存します</translation>
     </message>
     <message>
         <source>Forward Stream CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>順方向のストリームCSV</translation>
     </message>
     <message>
         <source>Save the forward table as CSV.</source>
-        <translation type="unfinished"></translation>
+        <translation>順方向の表をCSVとして保存します</translation>
     </message>
     <message>
         <source>Reverse Stream CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>逆方向のストリームCSV</translation>
     </message>
     <message>
         <source>Save the reverse table as CSV.</source>
-        <translation type="unfinished"></translation>
+        <translation>逆方向のテーブルをCSVとして保存します</translation>
     </message>
     <message>
         <source>Save Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>グラフを保存</translation>
     </message>
     <message>
         <source>Save the graph image.</source>
-        <translation type="unfinished"></translation>
+        <translation>グラフの画像を保存します</translation>
     </message>
     <message>
         <source>Go to Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットに移動</translation>
     </message>
     <message>
         <source>Select the corresponding packet in the packet list.</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット一覧から関係するパケットを選択します</translation>
     </message>
     <message>
         <source>G</source>
-        <translation type="unfinished"></translation>
+        <translation>G</translation>
     </message>
     <message>
         <source>Next Problem Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>次の問題パケット</translation>
     </message>
     <message>
         <source>Go to the next problem packet</source>
-        <translation type="unfinished"></translation>
+        <translation>次の問題パケットに移動します</translation>
     </message>
     <message>
         <source>N</source>
-        <translation type="unfinished"></translation>
+        <translation>N</translation>
     </message>
     <message>
         <source>Stream Synchronized Forward and Reverse Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>順方向と逆方向の音声の同期されたストリーム</translation>
     </message>
     <message>
         <source>Save the audio data for both channels synchronized to start of earlier stream.</source>
-        <translation type="unfinished"></translation>
+        <translation>より前のストリームの開始に同期された両方のチャンネルの音声データを保存します</translation>
     </message>
     <message>
         <source>Stream Synchronized Forward Stream Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>順方向の音声ストリームに同期されたストリーム</translation>
     </message>
     <message>
         <source>Save the forward stream audio data synchronized to start of earlier stream.</source>
-        <translation type="unfinished"></translation>
+        <translation>前のストリームの開始に同期された順方向音声ストリームデータを保存します</translation>
     </message>
     <message>
         <source>Stream Synchronized Reverse Stream Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>逆方向の音声ストリームに同期されたストリーム</translation>
     </message>
     <message>
         <source>Save the reverse stream audio data synchronized to start of earlier stream.</source>
-        <translation type="unfinished"></translation>
+        <translation>前のストリームの開始に同期された逆方向音声ストリームデータを保存します</translation>
     </message>
     <message>
         <source>File Synchronized Forward and Reverse Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>順方向と逆方向の音声が同期されたファイル</translation>
     </message>
     <message>
         <source>Save the audio data for both channels synchronized to start of file.</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイルの開始に同期された両方のチャンネルの音声データを保存します</translation>
     </message>
     <message>
         <source>File Synchronized Forward Stream Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>同期された順方向の音声ストリームファイル</translation>
     </message>
     <message>
         <source>Save the forward stream audio data synchronized to start of file.</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイルの開始に同期された順方向音声ストリームデータを保存します</translation>
     </message>
     <message>
         <source>File Synchronized Reverse Stream Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>同期された逆方向の音声ストリームファイル</translation>
     </message>
     <message>
         <source>Save the reverse stream audio data synchronized to start of file.</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイルの開始に同期された逆方向音声ストリームデータを保存します</translation>
     </message>
     <message>
         <source>RTP Stream Analysis</source>
-        <translation type="unfinished"></translation>
+        <translation>RTPストリーム分析</translation>
     </message>
     <message>
         <source>Unable to save RTP data.</source>
-        <translation type="unfinished"></translation>
+        <translation>RTPデータを保存することができません</translation>
     </message>
     <message>
         <source>No streams found.</source>
-        <translation type="unfinished"></translation>
+        <translation>ストリームが見つかりませんでした</translation>
     </message>
     <message>
         <source>%1 streams found.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 ストリームが見つかりました</translation>
     </message>
     <message>
         <source> G: Go to packet, N: Next problem packet</source>
-        <translation type="unfinished"></translation>
+        <translation> G: パケットに移動, N: 次の問題パケット</translation>
     </message>
     <message>
         <source>No Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>音声がありません</translation>
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>
-        <translation type="unfinished"></translation>
+        <translation>PDF形式 (*.pdf)</translation>
     </message>
     <message>
         <source>Portable Network Graphics (*.png)</source>
-        <translation type="unfinished"></translation>
+        <translation>PNG形式 (*.png)</translation>
     </message>
     <message>
         <source>Windows Bitmap (*.bmp)</source>
-        <translation type="unfinished"></translation>
+        <translation>Windowsビットマップ形式 (*.bmp)</translation>
     </message>
     <message>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation type="unfinished"></translation>
+        <translation>JPEG形式 (*.jpeg *.jpg)</translation>
     </message>
     <message>
         <source>Save Graph As</source>
-        <translation type="unfinished"></translation>
+        <translation>としてグラフを保存</translation>
     </message>
     <message>
         <source>Can&apos;t save in a file: Wrong length of captured packets.</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイルに保存できません: キャプチャしたパケットの長さが違います</translation>
     </message>
     <message>
         <source>Can&apos;t save in a file: RTP data with padding.</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイルに保存できません: パディングを含むRTPデータ</translation>
     </message>
     <message>
         <source>Can&apos;t save in a file: Not all data in all packets was captured.</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイルに保存できません: 全パケット中すべてでないデータがキャプチャされました</translation>
     </message>
     <message>
         <source>Can&apos;t save in a file: File I/O problem.</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイルに保存できません: ファイル入出力問題</translation>
     </message>
     <message>
         <source>Warning</source>
-        <translation type="unfinished"></translation>
+        <translation>警告</translation>
     </message>
     <message>
         <source>Can&apos;t synchronize when only one channel is selected</source>
-        <translation type="unfinished"></translation>
+        <translation>1つのチャンネルだけしか選択されてないとき同期できません</translation>
     </message>
     <message>
         <source>Save forward stream audio</source>
-        <translation type="unfinished"></translation>
+        <translation>順方向ストリーム音声を保存</translation>
     </message>
     <message>
         <source>Save reverse stream audio</source>
-        <translation type="unfinished"></translation>
+        <translation>逆方向ストリーム音声を保存</translation>
     </message>
     <message>
         <source>Save forward and reverse stream audio</source>
-        <translation type="unfinished"></translation>
+        <translation>順方向と逆方向の音声ストリームを保存します</translation>
     </message>
     <message>
         <source>Sun Audio (*.au)</source>
-        <translation type="unfinished"></translation>
+        <translation>Sun音声形式 (*.au)</translation>
     </message>
     <message>
         <source>Raw (*.raw)</source>
-        <translation type="unfinished"></translation>
+        <translation>無加工形式 (*.raw)</translation>
     </message>
     <message>
         <source>Unable to save in that format</source>
-        <translation type="unfinished"></translation>
+        <translation>その形式では保存できません</translation>
     </message>
     <message>
         <source>Unable to save %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1を保存できません</translation>
     </message>
     <message>
         <source>Saving %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 保存中</translation>
     </message>
     <message>
         <source>Can save audio with 8000 Hz clock rate only</source>
-        <translation type="unfinished"></translation>
+        <translation>8000Hzクロック速度のみオーディオを保存できます</translation>
     </message>
     <message>
         <source>Save forward stream CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>順方向ストリームをCSVで保存</translation>
     </message>
     <message>
         <source>Save reverse stream CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>逆方向のストリームをCSVで保存</translation>
     </message>
     <message>
         <source>Save CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>CSVを保存</translation>
     </message>
     <message>
         <source>Comma-separated values (*.csv)</source>
-        <translation type="unfinished"></translation>
+        <translation>カンマ区切りテキスト形式 (*.csv)</translation>
     </message>
     <message>
         <source>There is no &quot;rtp.ssrc&quot; field in this version of Wireshark.</source>
-        <translation type="unfinished"></translation>
+        <translation>このバージョンのWiresharkには &quot;rtp.ssrc&quot; フィールドはありません</translation>
     </message>
     <message>
         <source>Please select an RTPv2 packet with an SSRC value</source>
-        <translation type="unfinished"></translation>
+        <translation>SSRC値をもつ１つのRTPv2パケットを選んでください</translation>
     </message>
     <message>
         <source>SSRC value not found.</source>
-        <translation type="unfinished"></translation>
+        <translation>SSRC値が見つかりませんでした</translation>
     </message>
 </context>
 <context>
     <name>RtpAudioStream</name>
     <message>
         <source>RTP stream is empty or codec is unsupported.</source>
-        <translation type="unfinished"></translation>
+        <translation>RTPストリームが空かコーデックがサポートされていません</translation>
     </message>
     <message>
         <source>%1 does not support PCM at %2. Preferred format is %3</source>
-        <translation type="unfinished"></translation>
+        <translation>%2において %1 はPCMをサポートしません。推奨フォーマットは %3</translation>
     </message>
 </context>
 <context>
     <name>RtpPlayerDialog</name>
     <message>
         <source>RTP Player</source>
-        <translation type="unfinished"></translation>
+        <translation>RTPプレイヤー</translation>
     </message>
     <message>
         <source>Source Address</source>
-        <translation type="unfinished"></translation>
+        <translation>送信元アドレス</translation>
     </message>
     <message>
         <source>Source Port</source>
-        <translation type="unfinished"></translation>
+        <translation>送信元ポート</translation>
     </message>
     <message>
         <source>Destination Address</source>
-        <translation type="unfinished"></translation>
+        <translation>宛先アドレス</translation>
     </message>
     <message>
         <source>Destination Port</source>
-        <translation type="unfinished"></translation>
+        <translation>宛先ポート</translation>
     </message>
     <message>
         <source>SSRC</source>
-        <translation type="unfinished"></translation>
+        <translation>SSRC</translation>
     </message>
     <message>
         <source>Setup Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>セットアップフレーム</translation>
     </message>
     <message>
         <source>Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット</translation>
     </message>
     <message>
         <source>Time Span (s)</source>
-        <translation type="unfinished"></translation>
+        <translation>時間間隔(s)</translation>
     </message>
     <message>
         <source>Sample Rate (Hz)</source>
-        <translation type="unfinished"></translation>
+        <translation>サンプリングレート(Hz)</translation>
     </message>
     <message>
         <source>Payloads</source>
-        <translation type="unfinished"></translation>
+        <translation>ペイロード</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
@@ -9568,31 +9681,52 @@ a:hover {
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+
+&lt;h3&gt;価値のあるすばらしく時間を説zy九できるキーボードショートカット&lt;/h3&gt;
+&lt;table&gt;&lt;tbody&gt;
+
+&lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;拡大&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;縮小&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;初期状態へリセット&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;右に10ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;左に10ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;右に1ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;左に1ピクセル移動&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;カーソル下のパケットへ移動&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;マウスドラッグとズームを切替&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;キャプチャとセッション時間基準を切替&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Space&lt;/th&gt;&lt;td&gt;十字表示を切替&lt;/td&gt;&lt;/th&gt;
+
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;No audio&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;音声なし&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Output Device:</source>
-        <translation type="unfinished"></translation>
+        <translation>出力デバイス:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Jitter Buffer:</source>
-        <translation type="unfinished"></translation>
+        <translation>ジッタバッファ:</translation>
     </message>
     <message>
         <source>The simulated jitter buffer in milliseconds.</source>
-        <translation type="unfinished"></translation>
+        <translation>ミリ秒で試算したジッタバッファ</translation>
     </message>
     <message>
         <source>Playback Timing:</source>
-        <translation type="unfinished"></translation>
+        <translation>再生タイミング:</translation>
     </message>
     <message>
         <source>&lt;strong&gt;Jitter Buffer&lt;/strong&gt;: Use jitter buffer to simulate the RTP stream as heard by the end user.
@@ -9600,756 +9734,760 @@ a:hover {
 &lt;strong&gt;RTP Timestamp&lt;/strong&gt;: Use RTP Timestamp instead of the arriving packet time. This will not reproduce the RTP stream as the user heard it, but is useful when the RTP is being tunneled and the original packet timing is missing.
 &lt;br/&gt;
 &lt;strong&gt;Uninterrupted Mode&lt;/strong&gt;: Ignore the RTP Timestamp. Play the stream as it is completed. This is useful when the RTP timestamp is missing.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;strong&gt;ジッタバッファ&lt;/strong&gt;: ジッタバッファを用いてエンドユーザに聞こえたようなRTPストリームをシミュレート試算できます
+&lt;br/&gt;
+&lt;strong&gt;RTP タイムスタンプ&lt;/strong&gt;: やってくるパケットの時間の代わりにRTPタイムスタンプを利用します。これはRTPストリームをユーザが聞こえたようには再生しませんが、RTPがトンネルされていたり、元のパケットタイミングが失われている場合に有用です。
+&lt;br/&gt;
+&lt;strong&gt;Uninterrupted Mode&lt;/strong&gt;: RTPタイムスタンプを無視します。ストリームを完成させたかのようにして再生します。これはRTPタイムスタンプがない場合に有効です。</translation>
     </message>
     <message>
         <source>Jitter Buffer</source>
-        <translation type="unfinished"></translation>
+        <translation>ジッタバッファ</translation>
     </message>
     <message>
         <source>RTP Timestamp</source>
-        <translation type="unfinished"></translation>
+        <translation>RTPタイムスタンプ</translation>
     </message>
     <message>
         <source>Uninterrupted Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>非割込みモード</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;View the timestamps as time of day (checked) or seconds since beginning of capture (unchecked).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;時刻表示(チェックされています）でタイムスタンプを表示するかパケットキャプチャ開始してからの秒数（チェックされていません）で表示します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Time of Day</source>
-        <translation type="unfinished"></translation>
+        <translation>時刻</translation>
     </message>
     <message>
         <source>Reset Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>グラフをリセット</translation>
     </message>
     <message>
         <source>Reset the graph to its initial state.</source>
-        <translation type="unfinished"></translation>
+        <translation>グラフを初期状態にリセットします</translation>
     </message>
     <message>
         <source>0</source>
-        <translation type="unfinished"></translation>
+        <translation>0</translation>
     </message>
     <message>
         <source>Zoom In</source>
-        <translation type="unfinished"></translation>
+        <translation>拡大</translation>
     </message>
     <message>
         <source>+</source>
-        <translation type="unfinished"></translation>
+        <translation>+</translation>
     </message>
     <message>
         <source>Zoom Out</source>
-        <translation type="unfinished"></translation>
+        <translation>縮小</translation>
     </message>
     <message>
         <source>-</source>
-        <translation type="unfinished"></translation>
+        <translation>-</translation>
     </message>
     <message>
         <source>Move Left 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>左に10ピクセル移動</translation>
     </message>
     <message>
         <source>Left</source>
-        <translation type="unfinished"></translation>
+        <translation>左</translation>
     </message>
     <message>
         <source>Move Right 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>右に10ピクセル移動</translation>
     </message>
     <message>
         <source>Right</source>
-        <translation type="unfinished"></translation>
+        <translation>右</translation>
     </message>
     <message>
         <source>Move Left 1 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>左に1ピクセル移動</translation>
     </message>
     <message>
         <source>Shift+Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+左</translation>
     </message>
     <message>
         <source>Move Right 1 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>右に1ピクセル移動</translation>
     </message>
     <message>
         <source>Shift+Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+右</translation>
     </message>
     <message>
         <source>Go To Packet Under Cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>カーソル位置のパケットに移動</translation>
     </message>
     <message>
         <source>Go to packet currently under the cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>現在カーソル位置のパケットに移動します</translation>
     </message>
     <message>
         <source>G</source>
-        <translation type="unfinished"></translation>
+        <translation>G</translation>
     </message>
     <message>
         <source>Drag / Zoom</source>
-        <translation type="unfinished"></translation>
+        <translation>ドラッグ/ズーム</translation>
     </message>
     <message>
         <source>Toggle mouse drag / zoom behavior</source>
-        <translation type="unfinished"></translation>
+        <translation>マウスのドラッグ/ズームの動作を切り替えます</translation>
     </message>
     <message>
         <source>Z</source>
-        <translation type="unfinished"></translation>
+        <translation>Z</translation>
     </message>
     <message>
         <source>Capture / Session Time Origin</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャ/セッション時間起点</translation>
     </message>
     <message>
         <source>Toggle capture / session time origin</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャ/セッション時間起点を切り替えます</translation>
     </message>
     <message>
         <source>T</source>
-        <translation type="unfinished"></translation>
+        <translation>T</translation>
     </message>
     <message>
         <source>Crosshairs</source>
-        <translation type="unfinished"></translation>
+        <translation>十字カーソル</translation>
     </message>
     <message>
         <source>Toggle crosshairs</source>
-        <translation type="unfinished"></translation>
+        <translation>十字カーソルの表示切り替え</translation>
     </message>
     <message>
         <source>Space</source>
-        <translation type="unfinished"></translation>
+        <translation>スペース</translation>
     </message>
     <message>
         <source>No devices available</source>
-        <translation type="unfinished"></translation>
+        <translation>デバイスが利用できません</translation>
     </message>
     <message>
         <source>Play Streams</source>
-        <translation type="unfinished"></translation>
+        <translation>ストリームを再生</translation>
     </message>
     <message>
         <source>Out of Sequence</source>
-        <translation type="unfinished"></translation>
+        <translation>シーケンス外</translation>
     </message>
     <message>
         <source>Jitter Drops</source>
-        <translation type="unfinished"></translation>
+        <translation>ジッタ欠落</translation>
     </message>
     <message>
         <source>Wrong Timestamps</source>
-        <translation type="unfinished"></translation>
+        <translation>タイムスタンプが誤っている</translation>
     </message>
     <message>
         <source>Inserted Silence</source>
-        <translation type="unfinished"></translation>
+        <translation>無音が挿入されている</translation>
     </message>
     <message>
         <source>%1. Press &quot;G&quot; to go to packet %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1. &quot;G&quot; を押してパケット %2 へ移動</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>不明</translation>
     </message>
 </context>
 <context>
     <name>RtpStreamDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <source>Source Address</source>
-        <translation type="unfinished"></translation>
+        <translation>送信元アドレス</translation>
     </message>
     <message>
         <source>Source Port</source>
-        <translation type="unfinished"></translation>
+        <translation>送信元ポート</translation>
     </message>
     <message>
         <source>Destination Address</source>
-        <translation type="unfinished"></translation>
+        <translation>宛先アドレス</translation>
     </message>
     <message>
         <source>Destination Port</source>
-        <translation type="unfinished"></translation>
+        <translation>宛先ポート</translation>
     </message>
     <message>
         <source>SSRC</source>
-        <translation type="unfinished"></translation>
+        <translation>SSRC</translation>
     </message>
     <message>
         <source>Payload</source>
-        <translation type="unfinished"></translation>
+        <translation>ペイロード</translation>
     </message>
     <message>
         <source>Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット</translation>
     </message>
     <message>
         <source>Lost</source>
-        <translation type="unfinished"></translation>
+        <translation>欠落</translation>
     </message>
     <message>
         <source>Max Delta (ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>最大間隔(ms)</translation>
     </message>
     <message>
         <source>Max Jitter</source>
-        <translation type="unfinished"></translation>
+        <translation>最大ジッタ</translation>
     </message>
     <message>
         <source>Mean Jitter</source>
-        <translation type="unfinished"></translation>
+        <translation>平均ジッタ</translation>
     </message>
     <message>
         <source>Status</source>
-        <translation type="unfinished"></translation>
+        <translation>状態</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;ヒント&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Find Reverse</source>
-        <translation type="unfinished"></translation>
+        <translation>逆方向を検索</translation>
     </message>
     <message>
         <source>Find the reverse stream matching the selected forward stream.</source>
-        <translation type="unfinished"></translation>
+        <translation>選択した順方向のストリームに合致する逆方向のストリームを探します</translation>
     </message>
     <message>
         <source>R</source>
-        <translation type="unfinished"></translation>
+        <translation>R</translation>
     </message>
     <message>
         <source>Mark Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットをマーク</translation>
     </message>
     <message>
         <source>Mark the packets of the selected stream(s).</source>
-        <translation type="unfinished"></translation>
+        <translation>選択したストリームのパケットをマークします</translation>
     </message>
     <message>
         <source>M</source>
-        <translation type="unfinished"></translation>
+        <translation>M</translation>
     </message>
     <message>
         <source>Select None</source>
-        <translation type="unfinished"></translation>
+        <translation>選択なし</translation>
     </message>
     <message>
         <source>Undo stream selection.</source>
-        <translation type="unfinished"></translation>
+        <translation>ストリームの選択を取消します</translation>
     </message>
     <message>
         <source>Go To Setup</source>
-        <translation type="unfinished"></translation>
+        <translation>セットアップに移動</translation>
     </message>
     <message>
         <source>Go to the setup packet for this stream.</source>
-        <translation type="unfinished"></translation>
+        <translation>このストリームに対するセットアップパケットへ移動します</translation>
     </message>
     <message>
         <source>G</source>
-        <translation type="unfinished"></translation>
+        <translation>G</translation>
     </message>
     <message>
         <source>Prepare Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>フィルタを準備</translation>
     </message>
     <message>
         <source>Prepare a filter matching the selected stream(s).</source>
-        <translation type="unfinished"></translation>
+        <translation>選択したストリームに合致するフィルタを準備します</translation>
     </message>
     <message>
         <source>P</source>
-        <translation type="unfinished"></translation>
+        <translation>P</translation>
     </message>
     <message>
         <source>Export As RTPDump</source>
-        <translation type="unfinished"></translation>
+        <translation>RTPDumpとしてエクスポート</translation>
     </message>
     <message>
         <source>Export the stream payload as rtpdump</source>
-        <translation type="unfinished"></translation>
+        <translation>rtpdumpとしてストリームペイロードをエクスポート</translation>
     </message>
     <message>
         <source>E</source>
-        <translation type="unfinished"></translation>
+        <translation>E</translation>
     </message>
     <message>
         <source>Analyze</source>
-        <translation type="unfinished"></translation>
+        <translation>分析</translation>
     </message>
     <message>
         <source>Open the analysis window for the selected stream(s)</source>
-        <translation type="unfinished"></translation>
+        <translation>選択したストリームに対して分析ウインドウを開きます</translation>
     </message>
     <message>
         <source>Copy as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>CSVとしてコピー</translation>
     </message>
     <message>
         <source>Copy stream list as CSV.</source>
-        <translation type="unfinished"></translation>
+        <translation>CSVとしてストリーム一覧をコピーします</translation>
     </message>
     <message>
         <source>Copy as YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>YAMLとしてコピー</translation>
     </message>
     <message>
         <source>Copy stream list as YAML.</source>
-        <translation type="unfinished"></translation>
+        <translation>YAMLとしてストリーム一覧をコピーします</translation>
     </message>
     <message>
         <source>RTP Streams</source>
-        <translation type="unfinished"></translation>
+        <translation>RTPストリーム</translation>
     </message>
     <message>
         <source>Export</source>
-        <translation type="unfinished"></translation>
+        <translation>エクスポート</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>コピー</translation>
     </message>
     <message>
         <source>as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>CSVとして</translation>
     </message>
     <message>
         <source>as YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>YAMLとして</translation>
     </message>
     <message>
         <source>%1 streams</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 ストリーム</translation>
     </message>
     <message>
         <source>, %1 selected, %2 total packets</source>
-        <translation type="unfinished"></translation>
+        <translation>, %1 選択, %2 全パケット</translation>
     </message>
     <message>
         <source>Save RTPDump As</source>
-        <translation type="unfinished"></translation>
+        <translation>RRPDumpとして保存</translation>
     </message>
 </context>
 <context>
     <name>SCTPAllAssocsDialog</name>
     <message>
         <source>Wireshark - SCTP Associations</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark - SCTPアソシエーション</translation>
     </message>
     <message>
         <source>ID</source>
-        <translation type="unfinished"></translation>
+        <translation>ID</translation>
     </message>
     <message>
         <source>Port 1</source>
-        <translation type="unfinished"></translation>
+        <translation>ポート 1</translation>
     </message>
     <message>
         <source>Port 2</source>
-        <translation type="unfinished"></translation>
+        <translation>ポート 2</translation>
     </message>
     <message>
         <source>Number of Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット数</translation>
     </message>
     <message>
         <source>Number of DATA Chunks</source>
-        <translation type="unfinished"></translation>
+        <translation>データのチャンク数</translation>
     </message>
     <message>
         <source>Number of Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>バイト数</translation>
     </message>
     <message>
         <source>Filter Selected Association</source>
-        <translation type="unfinished"></translation>
+        <translation>選択したアソシエーションをフィルタ</translation>
     </message>
     <message>
         <source>Analyze</source>
-        <translation type="unfinished"></translation>
+        <translation>分析</translation>
     </message>
     <message>
         <source>Reset Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>グラフをリセット</translation>
     </message>
     <message>
         <source>Reset the graph to its initial state.</source>
-        <translation type="unfinished"></translation>
+        <translation>グラフを初期状態にリセットします</translation>
     </message>
     <message>
         <source>0</source>
-        <translation type="unfinished"></translation>
+        <translation>0</translation>
     </message>
     <message>
         <source>Zoom In</source>
-        <translation type="unfinished"></translation>
+        <translation>拡大</translation>
     </message>
     <message>
         <source>+</source>
-        <translation type="unfinished"></translation>
+        <translation>+</translation>
     </message>
     <message>
         <source>Zoom Out</source>
-        <translation type="unfinished"></translation>
+        <translation>縮小</translation>
     </message>
     <message>
         <source>-</source>
-        <translation type="unfinished"></translation>
+        <translation>-</translation>
     </message>
     <message>
         <source>Move Up 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>上に10ピクセル移動</translation>
     </message>
     <message>
         <source>Up</source>
-        <translation type="unfinished"></translation>
+        <translation>上</translation>
     </message>
     <message>
         <source>Move Left 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>左に10ピクセル移動</translation>
     </message>
     <message>
         <source>Left</source>
-        <translation type="unfinished"></translation>
+        <translation>左</translation>
     </message>
     <message>
         <source>Move Right 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>右に10ピクセル移動</translation>
     </message>
     <message>
         <source>Right</source>
-        <translation type="unfinished"></translation>
+        <translation>右</translation>
     </message>
     <message>
         <source>Move Down 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>下に10ピクセル移動</translation>
     </message>
     <message>
         <source>Down</source>
-        <translation type="unfinished"></translation>
+        <translation>下</translation>
     </message>
     <message>
         <source>Move Up 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>上に1ピクセル移動</translation>
     </message>
     <message>
         <source>Shift+Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+Up</translation>
     </message>
     <message>
         <source>Move Left 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>左に1ピクセル移動</translation>
     </message>
     <message>
         <source>Shift+Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+Left</translation>
     </message>
     <message>
         <source>Move Right 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>右に1ピクセル移動</translation>
     </message>
     <message>
         <source>Shift+Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+Right</translation>
     </message>
     <message>
         <source>Move Down 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>下に1ピクセル移動</translation>
     </message>
     <message>
         <source>Shift+Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+Down</translation>
     </message>
     <message>
         <source>Next Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>次のストリーム</translation>
     </message>
     <message>
         <source>Go to the next stream in the capture</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャ内の次のストリームへ移動します</translation>
     </message>
     <message>
         <source>PgUp</source>
-        <translation type="unfinished"></translation>
+        <translation>ページアップ</translation>
     </message>
     <message>
         <source>Previous Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>前のストリーム</translation>
     </message>
     <message>
         <source>Go to the previous stream in the capture</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャ内の前のストリームへ移動します</translation>
     </message>
     <message>
         <source>PgDown</source>
-        <translation type="unfinished"></translation>
+        <translation>ページダウン</translation>
     </message>
     <message>
         <source>Switch Direction</source>
-        <translation type="unfinished"></translation>
+        <translation>向きを切替</translation>
     </message>
     <message>
         <source>Switch direction (swap TCP endpoints)</source>
-        <translation type="unfinished"></translation>
+        <translation>向きを切り替え(TCPの終端を入替)</translation>
     </message>
     <message>
         <source>D</source>
-        <translation type="unfinished"></translation>
+        <translation>D</translation>
     </message>
     <message>
         <source>Go To Packet Under Cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>カーソル位置にあるパケットへ移動</translation>
     </message>
     <message>
         <source>Go to packet currently under the cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>現在のカーソル位置にあるパケットへ移動します</translation>
     </message>
     <message>
         <source>G</source>
-        <translation type="unfinished"></translation>
+        <translation>G</translation>
     </message>
     <message>
         <source>Drag / Zoom</source>
-        <translation type="unfinished"></translation>
+        <translation>ドラッグ/ズーム</translation>
     </message>
     <message>
         <source>Toggle mouse drag / zoom behavior</source>
-        <translation type="unfinished"></translation>
+        <translation>マウスのドラッグ/ズームの動作を切替えます</translation>
     </message>
     <message>
         <source>Z</source>
-        <translation type="unfinished"></translation>
+        <translation>Z</translation>
     </message>
     <message>
         <source>Relative / Absolute Sequence Numbers</source>
-        <translation type="unfinished"></translation>
+        <translation>相対的/絶対的シーケンス番号を切替</translation>
     </message>
     <message>
         <source>Toggle relative / absolute sequence numbers</source>
-        <translation type="unfinished"></translation>
+        <translation>相対的/絶対的シーケンス番号を切り替えます</translation>
     </message>
     <message>
         <source>S</source>
-        <translation type="unfinished"></translation>
+        <translation>S</translation>
     </message>
     <message>
         <source>Capture / Session Time Origin</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャ/セッション時間起点</translation>
     </message>
     <message>
         <source>Toggle capture / session time origin</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャ/セッション時間起点を切り替えます</translation>
     </message>
     <message>
         <source>T</source>
-        <translation type="unfinished"></translation>
+        <translation>T</translation>
     </message>
     <message>
         <source>Crosshairs</source>
-        <translation type="unfinished"></translation>
+        <translation>十字カーソル</translation>
     </message>
     <message>
         <source>Toggle crosshairs</source>
-        <translation type="unfinished"></translation>
+        <translation>十字カーソルの表示を切り替えます</translation>
     </message>
     <message>
         <source>Space</source>
-        <translation type="unfinished"></translation>
+        <translation>スペース</translation>
     </message>
     <message>
         <source>Round Trip Time</source>
-        <translation type="unfinished"></translation>
+        <translation>往復遅延時間</translation>
     </message>
     <message>
         <source>Switch to the Round Trip Time graph</source>
-        <translation type="unfinished"></translation>
+        <translation>往復遅延時間グラフに切り替えます</translation>
     </message>
     <message>
         <source>1</source>
-        <translation type="unfinished"></translation>
+        <translation>1</translation>
     </message>
     <message>
         <source>Throughput</source>
-        <translation type="unfinished"></translation>
+        <translation>スループット</translation>
     </message>
     <message>
         <source>Switch to the Throughput graph</source>
-        <translation type="unfinished"></translation>
+        <translation>スループットグラフに切り替えます</translation>
     </message>
     <message>
         <source>2</source>
-        <translation type="unfinished"></translation>
+        <translation>2</translation>
     </message>
     <message>
         <source>Time / Sequence (Stevens)</source>
-        <translation type="unfinished"></translation>
+        <translation>時間/シーケンス (Stevens)</translation>
     </message>
     <message>
         <source>Switch to the Stevens-style Time / Sequence graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Stevens形式の時間/シーケンスグラフに切り替えます</translation>
     </message>
     <message>
         <source>3</source>
-        <translation type="unfinished"></translation>
+        <translation>3</translation>
     </message>
     <message>
         <source>Window Scaling</source>
-        <translation type="unfinished"></translation>
+        <translation>ウインドウスケーリング</translation>
     </message>
     <message>
         <source>Switch to the Window Scaling graph</source>
-        <translation type="unfinished"></translation>
+        <translation>ウインドウスケーリンググラフに切り替えます</translation>
     </message>
     <message>
         <source>5</source>
-        <translation type="unfinished"></translation>
+        <translation>5</translation>
     </message>
     <message>
         <source>Time / Sequence (tcptrace)</source>
-        <translation type="unfinished"></translation>
+        <translation>時間/シーケンス(tcptrace)</translation>
     </message>
     <message>
         <source>Switch to the tcptrace-style Time / Sequence graph</source>
-        <translation type="unfinished"></translation>
+        <translation>tcptrace形式の時間/シーケンスグラフに切り替えます</translation>
     </message>
     <message>
         <source>4</source>
-        <translation type="unfinished"></translation>
+        <translation>4</translation>
     </message>
 </context>
 <context>
     <name>SCTPAssocAnalyseDialog</name>
     <message>
         <source>Wireshark - Analyse Association</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark - アソシエーションの分析</translation>
     </message>
     <message>
         <source>TabWidget</source>
-        <translation type="unfinished"></translation>
+        <translation>TabWidget</translation>
     </message>
     <message>
         <source>Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>統計</translation>
     </message>
     <message>
         <source>Chunk Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>チャンク統計</translation>
     </message>
     <message>
         <source>Filter Association</source>
-        <translation type="unfinished"></translation>
+        <translation>アソシエーションをフィルタ</translation>
     </message>
     <message>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>閉じる</translation>
     </message>
     <message>
         <source>Number of Data Chunks from EP2 to EP1: </source>
-        <translation type="unfinished"></translation>
+        <translation>EP2からEP1へのデータチャンク数:</translation>
     </message>
     <message>
         <source>Checksum Type:</source>
-        <translation type="unfinished"></translation>
+        <translation>チェックサム種別:</translation>
     </message>
     <message>
         <source>Number of Data Chunks from EP1 to EP2: </source>
-        <translation type="unfinished"></translation>
+        <translation>EP1からEP2へのデータチャンク数:</translation>
     </message>
     <message>
         <source>Number of Data Bytes from EP1 to EP2:</source>
-        <translation type="unfinished"></translation>
+        <translation>EP1からEP2へのデータバイト数:</translation>
     </message>
     <message>
         <source>Number of Data Bytes from EP2 to EP1: </source>
-        <translation type="unfinished"></translation>
+        <translation>EP2からEP1へのデータバイト数:</translation>
     </message>
     <message>
         <source>TextLabel</source>
-        <translation type="unfinished"></translation>
+        <translation>テキストラベル</translation>
     </message>
     <message>
         <source>Endpoint 1</source>
-        <translation type="unfinished"></translation>
+        <translation>終端 1</translation>
     </message>
     <message>
         <source>Graph TSN</source>
-        <translation type="unfinished"></translation>
+        <translation>TSNグラフ</translation>
     </message>
     <message>
         <source>Graph Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>バイト数グラフ</translation>
     </message>
     <message>
         <source>Complete list of IP Addresses as provided in the INIT Chunk</source>
-        <translation type="unfinished"></translation>
+        <translation>INITチャンクで提供されたIPアドレスの完全な一覧</translation>
     </message>
     <message>
         <source>Requested Number of Inbound Streams:</source>
-        <translation type="unfinished"></translation>
+        <translation>内向きストリームの要求数:</translation>
     </message>
     <message>
         <source>Port:</source>
-        <translation type="unfinished"></translation>
+        <translation>ポート:</translation>
     </message>
     <message>
         <source>Sent Verification Tag:</source>
-        <translation type="unfinished"></translation>
+        <translation>送信された検証タグ:</translation>
     </message>
     <message>
         <source>Minimum Number of Inbound Streams:</source>
-        <translation type="unfinished"></translation>
+        <translation>内向きストリームの最小数:</translation>
     </message>
     <message>
         <source>Minimum Number of Outbound Streams:</source>
-        <translation type="unfinished"></translation>
+        <translation>外向きストリームの最小数:</translation>
     </message>
     <message>
         <source>Graph Arwnd</source>
-        <translation type="unfinished"></translation>
+        <translation>Arwndグラフ</translation>
     </message>
     <message>
         <source>Endpoint 2</source>
-        <translation type="unfinished"></translation>
+        <translation>終端 2</translation>
     </message>
     <message>
         <source>Provided Number of Outbound Streams:</source>
-        <translation type="unfinished"></translation>
+        <translation>外向きストリームの提供数:</translation>
     </message>
     <message>
         <source>Complete list of IP Addresses as provided in the INIT-ACK Chunk</source>
-        <translation type="unfinished"></translation>
+        <translation>INIT-ACKチャンクで提供されたIPアドレスの完全な一覧</translation>
     </message>
     <message>
         <source>Graph a_rwnd</source>
-        <translation type="unfinished"></translation>
+        <translation>a_rwndグラフ</translation>
     </message>
     <message>
         <source>SCTP Analyse Association: %1 Port1 %2 Port2 %3</source>
-        <translation type="unfinished"></translation>
+        <translation>SCTP分析アソシエーション: %1 ポート1 %2 ポート2 %3</translation>
     </message>
     <message>
         <source>No Association found for this packet.</source>
-        <translation type="unfinished"></translation>
+        <translation>このパケットに対するアソシエーションは見つかりませんでした</translation>
     </message>
     <message>
         <source>Warning</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">警告</translation>
     </message>
     <message>
         <source>Could not find SCTP Association with id: %1</source>
@@ -10357,472 +10495,472 @@ a:hover {
     </message>
     <message>
         <source>Complete list of IP-Addresses as provided in the INIT-Chunk</source>
-        <translation type="unfinished"></translation>
+        <translation>INITチャンクで提供されたIPアドレスの完全な一覧</translation>
     </message>
     <message>
         <source>Complete list of IP-Addresses as provided in the INITACK-Chunk</source>
-        <translation type="unfinished"></translation>
+        <translation>INITACKチャンクで提供されたIPアドレスの完全な一覧</translation>
     </message>
     <message>
         <source>List of used IP-Addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>使用されたIPアドレス一覧</translation>
     </message>
     <message>
         <source>Used Number of Inbound Streams:</source>
-        <translation type="unfinished"></translation>
+        <translation>内向きストリームの使用数:</translation>
     </message>
     <message>
         <source>Used Number of Outbound Streams:</source>
-        <translation type="unfinished"></translation>
+        <translation>外向きストリームの使用数:</translation>
     </message>
 </context>
 <context>
     <name>SCTPChunkStatisticsDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <source>Association</source>
-        <translation type="unfinished"></translation>
+        <translation>アソシエーション</translation>
     </message>
     <message>
         <source>Endpoint 1</source>
-        <translation type="unfinished"></translation>
+        <translation>終端 1</translation>
     </message>
     <message>
         <source>Endpoint 2</source>
-        <translation type="unfinished"></translation>
+        <translation>終端 2</translation>
     </message>
     <message>
         <source>Save Chunk Type Order</source>
-        <translation type="unfinished"></translation>
+        <translation>チャンク種別の順序を保存</translation>
     </message>
     <message>
         <source>Hide Chunk Type</source>
-        <translation type="unfinished"></translation>
+        <translation>チャンク種別を隠す</translation>
     </message>
     <message>
         <source>Remove the chunk type from the table</source>
-        <translation type="unfinished"></translation>
+        <translation>表からチャンク種別を削除します</translation>
     </message>
     <message>
         <source>Chunk Type Preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>チャンク種別設定</translation>
     </message>
     <message>
         <source>Go to the chunk type preferences dialog to show or hide other chunk types</source>
-        <translation type="unfinished"></translation>
+        <translation>チャンク種別の設定画面に移動して表示もしくは他のチャンク種別を隠します</translation>
     </message>
     <message>
         <source>Show All Registered Chunk Types</source>
-        <translation type="unfinished"></translation>
+        <translation>すべての登録されたチャンク種別を表示</translation>
     </message>
     <message>
         <source>Show all chunk types with defined names</source>
-        <translation type="unfinished"></translation>
+        <translation>定義された名前ですべてのチャンク種別を表示します</translation>
     </message>
     <message>
         <source>SCTP Chunk Statistics: %1 Port1 %2 Port2 %3</source>
-        <translation type="unfinished"></translation>
+        <translation>SCTP断片統計: %1 ポート1 %2 ポート2 %3</translation>
     </message>
 </context>
 <context>
     <name>SCTPGraphArwndDialog</name>
     <message>
         <source>SCTP Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>SCTPグラフ</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Reset to full size</source>
-        <translation type="unfinished"></translation>
+        <translation>最大サイズにリセット</translation>
     </message>
     <message>
         <source>Save Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>グラフを保存</translation>
     </message>
     <message>
         <source>goToPacket</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットに移動</translation>
     </message>
     <message>
         <source>Go to Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットに移動</translation>
     </message>
     <message>
         <source>SCTP Data and Adv. Rec. Window over Time: %1 Port1 %2 Port2 %3</source>
-        <translation type="unfinished"></translation>
+        <translation>時間あたりのSCTPデータとアドバタイズされた受信ウインドウ: %1 ポート1 %2 ポート2 %3</translation>
     </message>
     <message>
         <source>No Data Chunks sent</source>
-        <translation type="unfinished"></translation>
+        <translation>何のデータチャンクも送られていません</translation>
     </message>
     <message>
         <source>Arwnd</source>
-        <translation type="unfinished"></translation>
+        <translation>Arwnd</translation>
     </message>
     <message>
         <source>time [secs]</source>
-        <translation type="unfinished"></translation>
+        <translation>時間 [秒]</translation>
     </message>
     <message>
         <source>Advertised Receiver Window [Bytes]</source>
-        <translation type="unfinished"></translation>
+        <translation>アドバタイズされた受信ウインドウ [バイト数]</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;Graph %1: a_rwnd=%2 Time=%3 secs &lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;グラフ %1: a_rwnd=%2 時間=%3 秒 &lt;/i&gt;&lt;/small&gt;</translation>
     </message>
 </context>
 <context>
     <name>SCTPGraphByteDialog</name>
     <message>
         <source>SCTP Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>SCTPグラフ</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Reset to full size</source>
-        <translation type="unfinished"></translation>
+        <translation>最大サイズにリセット</translation>
     </message>
     <message>
         <source>Save Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>グラフを保存</translation>
     </message>
     <message>
         <source>goToPacket</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットに移動</translation>
     </message>
     <message>
         <source>Go to Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットに移動</translation>
     </message>
     <message>
         <source>SCTP Data and Adv. Rec. Window over Time: %1 Port1 %2 Port2 %3</source>
-        <translation type="unfinished"></translation>
+        <translation>時間あたりのSCTPデータとアドバタイズされた受信ウインドウ: %1 ポート1 %2 ポート2 %3</translation>
     </message>
     <message>
         <source>No Data Chunks sent</source>
-        <translation type="unfinished"></translation>
+        <translation>何のデータチャンクも送られていません</translation>
     </message>
     <message>
         <source>Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>バイト</translation>
     </message>
     <message>
         <source>time [secs]</source>
-        <translation type="unfinished"></translation>
+        <translation>時間[秒数]</translation>
     </message>
     <message>
         <source>Received Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>受信バイト数</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;Graph %1: Received bytes=%2 Time=%3 secs &lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;グラフ %1: 受信バイト数=%2 時間=%3 秒 &lt;/i&gt;&lt;/small&gt;</translation>
     </message>
 </context>
 <context>
     <name>SCTPGraphDialog</name>
     <message>
         <source>SCTP Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>SCTPグラフ</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Only SACKs</source>
-        <translation type="unfinished"></translation>
+        <translation>SACKのみ</translation>
     </message>
     <message>
         <source>Only TSNs</source>
-        <translation type="unfinished"></translation>
+        <translation>TSNのみ</translation>
     </message>
     <message>
         <source>Show both</source>
-        <translation type="unfinished"></translation>
+        <translation>両方を表示</translation>
     </message>
     <message>
         <source>Reset to full size</source>
-        <translation type="unfinished"></translation>
+        <translation>最大サイズにリセット</translation>
     </message>
     <message>
         <source>Save Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>グラフを保存</translation>
     </message>
     <message>
         <source>goToPacket</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットに移動</translation>
     </message>
     <message>
         <source>Go to Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットに移動します</translation>
     </message>
     <message>
         <source>SCTP TSNs and SACKs over Time: %1 Port1 %2 Port2 %3</source>
-        <translation type="unfinished"></translation>
+        <translation>時間当たりのSCTP TSN数とSACK数: %1 ポート1 %2 ポート2 %3</translation>
     </message>
     <message>
         <source>No Data Chunks sent</source>
-        <translation type="unfinished"></translation>
+        <translation>何のデータチャンクも送られていません</translation>
     </message>
     <message>
         <source>CumTSNAck</source>
-        <translation type="unfinished"></translation>
+        <translation>CumTSNAck</translation>
     </message>
     <message>
         <source>Gap Ack</source>
-        <translation type="unfinished"></translation>
+        <translation>Gap Ack</translation>
     </message>
     <message>
         <source>NR Gap Ack</source>
-        <translation type="unfinished"></translation>
+        <translation>NR Gap Ack</translation>
     </message>
     <message>
         <source>Duplicate Ack</source>
-        <translation type="unfinished"></translation>
+        <translation>重複ACK</translation>
     </message>
     <message>
         <source>TSN</source>
-        <translation type="unfinished"></translation>
+        <translation>TSN</translation>
     </message>
     <message>
         <source>time [secs]</source>
-        <translation type="unfinished"></translation>
+        <translation>時間[秒数]</translation>
     </message>
     <message>
         <source>TSNs</source>
-        <translation type="unfinished"></translation>
+        <translation>TSNs</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;%1: %2 Time: %3 secs &lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;%1: %2 時間: %3 秒 &lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>
-        <translation type="unfinished"></translation>
+        <translation>PDF形式 (*.pdf)</translation>
     </message>
     <message>
         <source>Portable Network Graphics (*.png)</source>
-        <translation type="unfinished"></translation>
+        <translation>PNG形式 (*.png)</translation>
     </message>
     <message>
         <source>Windows Bitmap (*.bmp)</source>
-        <translation type="unfinished"></translation>
+        <translation>Windowsビットマップ形式 (*.bmp)</translation>
     </message>
     <message>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation type="unfinished"></translation>
+        <translation>JPEG形式 (*.jpeg *.jpg)</translation>
     </message>
     <message>
         <source>Save Graph As</source>
-        <translation type="unfinished"></translation>
+        <translation>としてグラフを保存</translation>
     </message>
 </context>
 <context>
     <name>ScsiServiceResponseTimeDialog</name>
     <message>
         <source>&lt;small&gt;&lt;i&gt;Select a command and enter a filter if desired, then press Apply.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;コマンドを選択して望んだフィルタを入力したら適用を押してください&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Command:</source>
-        <translation type="unfinished"></translation>
+        <translation>コマンド:</translation>
     </message>
     <message>
         <source>SCSI Service Response Times</source>
-        <translation type="unfinished"></translation>
+        <translation>SCSIサービス応答時間</translation>
     </message>
 </context>
 <context>
     <name>SearchFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>フレーム</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the Info column of the packet list (summary pane), decoded packet display labels (tree view pane) or the ASCII-converted packet data (hex view pane).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;パケット一覧(概要部分)やデコードされたパケット表示ラベル(ツリー表示部分)やアスキー変換されたパケットデータ(16進数表示部分)を検索します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Packet list</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット一覧</translation>
     </message>
     <message>
         <source>Packet details</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット詳細</translation>
     </message>
     <message>
         <source>Packet bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットバイト列</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search for strings containing narrow (UTF-8 and ASCII) or wide (UTF-16) characters.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;ナロー文字列 (UTF-8とASCII)もしくはワイド(UTF-16)文字を検索&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Narrow &amp; Wide</source>
-        <translation type="unfinished"></translation>
+        <translation>ナローとワイド</translation>
     </message>
     <message>
         <source>Narrow (UTF-8 / ASCII)</source>
-        <translation type="unfinished"></translation>
+        <translation>ナロー(UTF-8/ASCII)</translation>
     </message>
     <message>
         <source>Wide (UTF-16)</source>
-        <translation type="unfinished"></translation>
+        <translation>ワイド(UTF-16)</translation>
     </message>
     <message>
         <source>Case sensitive</source>
-        <translation type="unfinished"></translation>
+        <translation>大文字小文字を区別</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search for data using display filter syntax (e.g. ip.addr==10.1.1.1), a hexadecimal string (e.g. fffffda5), a plain string (e.g. My String) or a regular expression (e.g. colou?r).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;表示フィルタ構文(例 ip.addr==10.1.1.1),16数文字列(例 ffffda5),平文文字列(例 My String)もしくは正規表現(例 colou?r)を用いてデータを検索しますt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタ</translation>
     </message>
     <message>
         <source>Hex value</source>
-        <translation type="unfinished"></translation>
+        <translation>16進数値</translation>
     </message>
     <message>
         <source>String</source>
-        <translation type="unfinished"></translation>
+        <translation>文字列</translation>
     </message>
     <message>
         <source>Regular Expression</source>
-        <translation type="unfinished"></translation>
+        <translation>正規表現</translation>
     </message>
     <message>
         <source>Find</source>
-        <translation type="unfinished"></translation>
+        <translation>検索</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>キャンセル</translation>
     </message>
     <message>
         <source>Invalid filter.</source>
-        <translation type="unfinished"></translation>
+        <translation>無効なフィルタです</translation>
     </message>
     <message>
         <source>That filter doesn&apos;t test anything.</source>
-        <translation type="unfinished"></translation>
+        <translation>そのフィルタは何も検査しません</translation>
     </message>
     <message>
         <source>That&apos;s not a valid hex string.</source>
-        <translation type="unfinished"></translation>
+        <translation>有効な16進数文字列ではありません</translation>
     </message>
     <message>
         <source>You didn&apos;t specify any text for which to search.</source>
-        <translation type="unfinished"></translation>
+        <translation>検索するためのテキストを指定しませんでした</translation>
     </message>
     <message>
         <source>No valid character set selected. Please report this to the development team.</source>
-        <translation type="unfinished"></translation>
+        <translation>有効な文字セットが選択されていません どうかこれを開発チームに報告してください</translation>
     </message>
     <message>
         <source>No valid search type selected. Please report this to the development team.</source>
-        <translation type="unfinished"></translation>
+        <translation>有効な検索形式が選択されていません どうか開発チームにこれを報告してください</translation>
     </message>
     <message>
         <source>No valid search area selected. Please report this to the development team.</source>
-        <translation type="unfinished"></translation>
+        <translation>有効な検索範囲が選択されていません。どうかこれを開発チームに報告してください</translation>
     </message>
     <message>
         <source>No packet contained those bytes.</source>
-        <translation type="unfinished"></translation>
+        <translation>そのようなバイト列を含むパケットはありませんでした</translation>
     </message>
     <message>
         <source>No packet contained that string in its Info column.</source>
-        <translation type="unfinished"></translation>
+        <translation>情報列にその文字列を含むパケットはありませんでした</translation>
     </message>
     <message>
         <source>No packet contained that string in its dissected display.</source>
-        <translation type="unfinished"></translation>
+        <translation>解析された表示にその文字列を含むパケットはありませんでした</translation>
     </message>
     <message>
         <source>No packet contained that string in its converted data.</source>
-        <translation type="unfinished"></translation>
+        <translation>コンバートされたデータにその文字列を含むパケットはありませんでした</translation>
     </message>
     <message>
         <source>No packet matched that filter.</source>
-        <translation type="unfinished"></translation>
+        <translation>フィルタに一致するパケットはありませんでした</translation>
     </message>
 </context>
 <context>
     <name>SequenceDialog</name>
     <message>
         <source>Call Flow</source>
-        <translation type="unfinished"></translation>
+        <translation>Callフロー</translation>
     </message>
     <message>
         <source>Flow</source>
-        <translation type="unfinished"></translation>
+        <translation>フロー</translation>
     </message>
     <message>
         <source>Time</source>
-        <translation type="unfinished"></translation>
+        <translation>時間</translation>
     </message>
     <message>
         <source>Comment</source>
-        <translation type="unfinished">コメント</translation>
+        <translation>コメント</translation>
     </message>
     <message>
         <source>Save As</source>
-        <translation type="unfinished"></translation>
+        <translation>として保存</translation>
     </message>
     <message>
         <source>No data</source>
-        <translation type="unfinished"></translation>
+        <translation>データなし</translation>
     </message>
     <message numerus="yes">
         <source>%Ln node(s)</source>
-        <translation type="unfinished">
-            <numerusform>%Ln node</numerusform>
+        <translation>
+            <numerusform>%Ln ノード</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln item(s)</source>
-        <translation type="unfinished">
-            <numerusform>%Ln item</numerusform>
+        <translation>
+            <numerusform>%Ln 項目</numerusform>
         </translation>
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>
-        <translation type="unfinished"></translation>
+        <translation>PDF形式 (*.pdf)</translation>
     </message>
     <message>
         <source>Portable Network Graphics (*.png)</source>
-        <translation type="unfinished"></translation>
+        <translation>PNG形式 (*.png)</translation>
     </message>
     <message>
         <source>Windows Bitmap (*.bmp)</source>
-        <translation type="unfinished"></translation>
+        <translation>Windowsビットマップ形式 (*.bmp)</translation>
     </message>
     <message>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation type="unfinished"></translation>
+        <translation>JPEG形式 (*.jpeg *.jpg)</translation>
     </message>
     <message>
         <source>ASCII (*.txt)</source>
-        <translation type="unfinished"></translation>
+        <translation>アスキー形式 (*.txt)</translation>
     </message>
     <message>
         <source>Save Graph As</source>
-        <translation type="unfinished"></translation>
+        <translation>としてグラフを保存</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
@@ -10849,466 +10987,489 @@ a:hover {
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+
+&lt;h3&gt;価値のあり、素晴らしく時間を節約できるキーボードショートカット&lt;/h3&gt;
+&lt;table&gt;&lt;tbody&gt;
+
+&lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;拡大&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;縮小&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;グラフを初期状態にリセット&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;右に10ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;左に10ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;上に10ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;下に10ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;右に1ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;左に1ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;上に1ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;下に1ピクセル移動&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;カーソルのあるパケットへ移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;n&lt;/th&gt;&lt;td&gt;次のパケットへ移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;p&lt;/th&gt;&lt;td&gt;前のパケットへ移動&lt;/td&gt;&lt;/th&gt;
+
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;ヒント&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show flows matching the current display filter&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;現在の表示フィルタに合致したフローのみ表示します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Limit to display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタに制限</translation>
     </message>
     <message>
         <source>Flow type:</source>
-        <translation type="unfinished"></translation>
+        <translation>フロー種別:</translation>
     </message>
     <message>
         <source>Addresses:</source>
-        <translation type="unfinished"></translation>
+        <translation>アドレス:</translation>
     </message>
     <message>
         <source>Any</source>
-        <translation type="unfinished"></translation>
+        <translation>すべて</translation>
     </message>
     <message>
         <source>Network</source>
-        <translation type="unfinished"></translation>
+        <translation>ネットワーク</translation>
     </message>
     <message>
         <source>Reset</source>
-        <translation type="unfinished"></translation>
+        <translation>リセット</translation>
     </message>
     <message>
         <source>Reset Diagram</source>
-        <translation type="unfinished"></translation>
+        <translation>ダイアグラムをリセット</translation>
     </message>
     <message>
         <source>Reset the diagram to its initial state.</source>
-        <translation type="unfinished"></translation>
+        <translation>ダイアグラムを初期状態にリセットします</translation>
     </message>
     <message>
         <source>0</source>
-        <translation type="unfinished"></translation>
+        <translation>0</translation>
     </message>
     <message>
         <source>Zoom In</source>
-        <translation type="unfinished"></translation>
+        <translation>拡大</translation>
     </message>
     <message>
         <source>+</source>
-        <translation type="unfinished"></translation>
+        <translation>+</translation>
     </message>
     <message>
         <source>Zoom Out</source>
-        <translation type="unfinished"></translation>
+        <translation>縮小</translation>
     </message>
     <message>
         <source>-</source>
-        <translation type="unfinished"></translation>
+        <translation>-</translation>
     </message>
     <message>
         <source>Move Up 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>上に10ピクセル移動</translation>
     </message>
     <message>
         <source>Up</source>
-        <translation type="unfinished"></translation>
+        <translation>上</translation>
     </message>
     <message>
         <source>Move Left 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>左に10ピクセル移動</translation>
     </message>
     <message>
         <source>Left</source>
-        <translation type="unfinished"></translation>
+        <translation>左</translation>
     </message>
     <message>
         <source>Move Right 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>右に10ピクセル移動</translation>
     </message>
     <message>
         <source>Right</source>
-        <translation type="unfinished"></translation>
+        <translation>右</translation>
     </message>
     <message>
         <source>Move Down 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>下に10ピクセル移動</translation>
     </message>
     <message>
         <source>Down</source>
-        <translation type="unfinished"></translation>
+        <translation>下</translation>
     </message>
     <message>
         <source>Move Up 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>上に1ピクセル移動</translation>
     </message>
     <message>
         <source>Shift+Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+Up</translation>
     </message>
     <message>
         <source>Move Left 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>左に1ピクセル移動</translation>
     </message>
     <message>
         <source>Shift+Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+Left</translation>
     </message>
     <message>
         <source>Move Right 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>右に1ピクセル移動</translation>
     </message>
     <message>
         <source>Shift+Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+Right</translation>
     </message>
     <message>
         <source>Move Down 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>下に1ピクセル移動</translation>
     </message>
     <message>
         <source>Shift+Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+Down</translation>
     </message>
     <message>
         <source>Go To Packet Under Cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>カーソル位置のパケットに移動</translation>
     </message>
     <message>
         <source>Go to packet currently under the cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>現在のカーソル位置にあるパケットに移動します</translation>
     </message>
     <message>
         <source>G</source>
-        <translation type="unfinished"></translation>
+        <translation>G</translation>
     </message>
     <message>
         <source>All Flows</source>
-        <translation type="unfinished"></translation>
+        <translation>すべてのフロー</translation>
     </message>
     <message>
         <source>Show flows for all packets</source>
-        <translation type="unfinished"></translation>
+        <translation>すべてのパケットのフローを表示します</translation>
     </message>
     <message>
         <source>1</source>
-        <translation type="unfinished"></translation>
+        <translation>1</translation>
     </message>
     <message>
         <source>TCP Flows</source>
-        <translation type="unfinished"></translation>
+        <translation>TCPフロー</translation>
     </message>
     <message>
         <source>Show only TCP flow information</source>
-        <translation type="unfinished"></translation>
+        <translation>TCPフロー情報のみ表示します</translation>
     </message>
     <message>
         <source>Go To Next Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>次のパケットに移動</translation>
     </message>
     <message>
         <source>Go to the next packet</source>
-        <translation type="unfinished"></translation>
+        <translation>次のパケットに移動します</translation>
     </message>
     <message>
         <source>N</source>
-        <translation type="unfinished"></translation>
+        <translation>N</translation>
     </message>
     <message>
         <source>Go To Previous Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>前のパケットに移動</translation>
     </message>
     <message>
         <source>Go to the previous packet</source>
-        <translation type="unfinished"></translation>
+        <translation>前のパケットに移動します</translation>
     </message>
     <message>
         <source>P</source>
-        <translation type="unfinished"></translation>
+        <translation>P</translation>
     </message>
 </context>
 <context>
     <name>ShortcutListModel</name>
     <message>
         <source>Shortcut</source>
-        <translation type="unfinished"></translation>
+        <translation>ショートカット</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>名前</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translation>記述</translation>
     </message>
 </context>
 <context>
     <name>ShowPacketBytesDialog</name>
     <message numerus="yes">
         <source>Frame %1, %2, %Ln byte(s).</source>
-        <translation type="unfinished">
-            <numerusform>Frame %1, %2, %Ln byte.</numerusform>
+        <translation>
+            <numerusform>フレーム %1, %2, %Ln バイト</numerusform>
         </translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>なし</translation>
     </message>
     <message>
         <source>Base64</source>
-        <translation type="unfinished"></translation>
+        <translation>ベース64形式</translation>
     </message>
     <message>
         <source>Compressed</source>
-        <translation type="unfinished"></translation>
+        <translation>圧縮済</translation>
     </message>
     <message>
         <source>Quoted-Printable</source>
-        <translation type="unfinished"></translation>
+        <translation>節に分けて印刷可能</translation>
     </message>
     <message>
         <source>ROT13</source>
-        <translation type="unfinished"></translation>
+        <translation>ROT13形式</translation>
     </message>
     <message>
         <source>ASCII</source>
-        <translation type="unfinished"></translation>
+        <translation>アスキー文字形式</translation>
     </message>
     <message>
         <source>ASCII &amp; Control</source>
-        <translation type="unfinished"></translation>
+        <translation>アスキー文字と制御文字形式</translation>
     </message>
     <message>
         <source>C Array</source>
-        <translation type="unfinished"></translation>
+        <translation>C言語配列形式</translation>
     </message>
     <message>
         <source>EBCDIC</source>
-        <translation type="unfinished"></translation>
+        <translation>EBCDIC形式</translation>
     </message>
     <message>
         <source>Hex Dump</source>
-        <translation type="unfinished"></translation>
+        <translation>16進数ダンプ形式</translation>
     </message>
     <message>
         <source>HTML</source>
-        <translation type="unfinished"></translation>
+        <translation>HTML形式</translation>
     </message>
     <message>
         <source>Image</source>
-        <translation type="unfinished"></translation>
+        <translation>画像形式</translation>
     </message>
     <message>
         <source>ISO 8859-1</source>
-        <translation type="unfinished"></translation>
+        <translation>ISO 8859-1形式</translation>
     </message>
     <message>
         <source>Raw</source>
-        <translation type="unfinished"></translation>
+        <translation>Raw(無加工)形式</translation>
     </message>
     <message>
         <source>UTF-8</source>
-        <translation type="unfinished"></translation>
+        <translation>UTF-8形式</translation>
     </message>
     <message>
         <source>YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>YAML形式</translation>
     </message>
     <message>
         <source>Print</source>
-        <translation type="unfinished"></translation>
+        <translation>印刷</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>コピー</translation>
     </message>
     <message>
         <source>Save as</source>
-        <translation type="unfinished"></translation>
+        <translation>として保存</translation>
     </message>
     <message numerus="yes">
         <source>Displaying %Ln byte(s).</source>
-        <translation type="unfinished">
-            <numerusform>Displaying %Ln byte.</numerusform>
+        <translation>
+            <numerusform>%Ln バイトを表示中</numerusform>
         </translation>
     </message>
     <message>
         <source>Regex Find:</source>
-        <translation type="unfinished"></translation>
+        <translation>正規表現検索:</translation>
     </message>
     <message>
         <source>Save Selected Packet Bytes As</source>
-        <translation type="unfinished"></translation>
+        <translation>として選択したパケットバイト列を保存</translation>
     </message>
     <message>
         <source>Show Packet Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットバイト列を表示</translation>
     </message>
     <message>
         <source>Hint.</source>
-        <translation type="unfinished"></translation>
+        <translation>ヒント</translation>
     </message>
     <message>
         <source>Decode as</source>
-        <translation type="unfinished"></translation>
+        <translation>としてでコード</translation>
     </message>
     <message>
         <source>Show as</source>
-        <translation type="unfinished"></translation>
+        <translation>として表示</translation>
     </message>
     <message>
         <source>Start</source>
-        <translation type="unfinished"></translation>
+        <translation>開始</translation>
     </message>
     <message>
         <source>End</source>
-        <translation type="unfinished"></translation>
+        <translation>終了</translation>
     </message>
     <message>
         <source>Find:</source>
-        <translation type="unfinished"></translation>
+        <translation>検索:</translation>
     </message>
     <message>
         <source>Find &amp;Next</source>
-        <translation type="unfinished"></translation>
+        <translation>次を検索</translation>
     </message>
 </context>
 <context>
     <name>ShowPacketBytesTextEdit</name>
     <message>
         <source>Show Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>選択されたものを表示</translation>
     </message>
     <message>
         <source>Show All</source>
-        <translation type="unfinished">すべて表示</translation>
+        <translation>すべてを表示</translation>
     </message>
 </context>
 <context>
     <name>SplashOverlay</name>
     <message>
         <source>Initializing dissectors</source>
-        <translation type="unfinished"></translation>
+        <translation>ダイセクターを初期化中</translation>
     </message>
     <message>
         <source>Initializing tap listeners</source>
-        <translation type="unfinished"></translation>
+        <translation>タップリスナを初期化中</translation>
     </message>
     <message>
         <source>Initializing external capture plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>外部キャプチャプラグインを初期化</translation>
     </message>
     <message>
         <source>Registering dissectors</source>
-        <translation type="unfinished"></translation>
+        <translation>ダイセクターを登録中</translation>
     </message>
     <message>
         <source>Registering plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>プラグインを登録中</translation>
     </message>
     <message>
         <source>Handing off dissectors</source>
-        <translation type="unfinished"></translation>
+        <translation>ダイセクターを除去中</translation>
     </message>
     <message>
         <source>Handing off plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>プラグインを除去中</translation>
     </message>
     <message>
         <source>Loading Lua plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Luaプラグインを読込中</translation>
     </message>
     <message>
         <source>Removing Lua plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Luaプラグインを削除中</translation>
     </message>
     <message>
         <source>Loading module preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>モジュール設定を読込中</translation>
     </message>
     <message>
         <source>Finding local interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>ローカルインターフェースを見つけています</translation>
     </message>
     <message>
         <source>(Unknown action)</source>
-        <translation type="unfinished"></translation>
+        <translation>(不明な動作)</translation>
     </message>
 </context>
 <context>
     <name>StatsTreeDialog</name>
     <message>
         <source>Configuration not found</source>
-        <translation type="unfinished"></translation>
+        <translation>設定が見つかりませんでした</translation>
     </message>
     <message>
         <source>Unable to find configuration for %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 に対する設定を見つけることができません</translation>
     </message>
 </context>
 <context>
     <name>SupportedProtocolsDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the list of field names.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;フィールド名の一覧を検索します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Search:</source>
-        <translation type="unfinished"></translation>
+        <translation>検索:</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;Gathering protocol information…&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;プロトコル情報を集めています…&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Supported Protocols</source>
-        <translation type="unfinished"></translation>
+        <translation>サポートされたプロトコル</translation>
     </message>
     <message>
         <source>%1 protocols, %2 fields.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 プロトコル, %2 フィールド</translation>
     </message>
 </context>
 <context>
     <name>SupportedProtocolsModel</name>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>名前</translation>
     </message>
     <message>
         <source>Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>フィルタ</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation>種別</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translation>記述</translation>
     </message>
 </context>
 <context>
     <name>SyntaxLineEdit</name>
     <message>
         <source>&quot;%1&quot; may have unexpected results (see the User&apos;s Guide)</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; は予期せぬ結果となる可能性があります (ユーザーズガイド参照)</translation>
     </message>
 </context>
 <context>
     <name>TCPStreamDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
@@ -11351,980 +11512,1019 @@ a:hover {
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+
+&lt;h3&gt;価値のありすばらしく時間を節約するキーボードショートカット&lt;/h3&gt;
+&lt;table&gt;&lt;tbody&gt;
+
+&lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;拡大&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;縮小&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;x&lt;/th&gt;&lt;td&gt;X軸を拡大&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;X&lt;/th&gt;&lt;td&gt;X軸を縮小&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;y&lt;/th&gt;&lt;td&gt;Y軸を拡大&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Y&lt;/th&gt;&lt;td&gt;Y軸を縮小&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;初期状態にグラフをリセット&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;右に10ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;左に10ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;上に10ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;下に10ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;右に1ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;左に1ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;上に1ピクセル移動&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;下に1ピクセル移動&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Pg Up&lt;/i&gt;&lt;/th&gt;&lt;td&gt;新規ストリーム&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Pg Dn&lt;/i&gt;&lt;/th&gt;&lt;td&gt;前のストリーム&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;d&lt;/th&gt;&lt;td&gt;方向を切替 (TCP端末を切替)&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;カーソル下のパケットへ移動&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;マウスドラッグとズームを切替&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;s&lt;/th&gt;&lt;td&gt;相対と絶対シーケンス番号を切替&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;キャプチャとセッション時間基準を切替&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Space&lt;/th&gt;&lt;td&gt;十字を切替&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;1&lt;/th&gt;&lt;td&gt;往復遅延時間グラフ&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;2&lt;/th&gt;&lt;td&gt;スループットグラフ&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;3&lt;/th&gt;&lt;td&gt;スティーブン形式時間シーケンスグラフ&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;4&lt;/th&gt;&lt;td&gt;tcptrace形式時間シーケンスグラフ&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;5&lt;/th&gt;&lt;td&gt;ウインドウスケーリンググラフ&lt;/td&gt;&lt;/th&gt;
+
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;Mouse over for shortcuts&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;マウスをあわせるとショートカットが確認できます&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation>種別</translation>
     </message>
     <message>
         <source>MA Window (s)</source>
-        <translation type="unfinished"></translation>
+        <translation>MA ウインドウ (s)</translation>
     </message>
     <message>
         <source>Allow SACK segments as well as data packets to be selected by clicking on the graph</source>
-        <translation type="unfinished"></translation>
+        <translation>グラフをクリックすることで選択されたデータパケットとSACKセグメントを許可します</translation>
     </message>
     <message>
         <source>Select SACKs</source>
-        <translation type="unfinished"></translation>
+        <translation>SACKを選択</translation>
     </message>
     <message>
         <source>Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>ストリーム</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Switch the direction of the connection (view the opposite flow).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;接続の向きを切り替えます (反対側のフローを表示します)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Switch Direction</source>
-        <translation type="unfinished"></translation>
+        <translation>向きを切り替え</translation>
     </message>
     <message>
         <source>Mouse</source>
-        <translation type="unfinished"></translation>
+        <translation>マウス</translation>
     </message>
     <message>
         <source>Drag using the mouse button.</source>
-        <translation type="unfinished"></translation>
+        <translation>マウスボタンを使ってドラッグします</translation>
     </message>
     <message>
         <source>drags</source>
-        <translation type="unfinished"></translation>
+        <translation>ドラッグ</translation>
     </message>
     <message>
         <source>Select using the mouse button.</source>
-        <translation type="unfinished"></translation>
+        <translation>マウスボタンを使うことを選択します</translation>
     </message>
     <message>
         <source>zooms</source>
-        <translation type="unfinished"></translation>
+        <translation>ズーム</translation>
     </message>
     <message>
         <source>Display Round Trip Time vs Sequence Number</source>
-        <translation type="unfinished"></translation>
+        <translation>往復遅延時間対シーケンス番号を表示</translation>
     </message>
     <message>
         <source>RTT By Sequence Number</source>
-        <translation type="unfinished"></translation>
+        <translation>シーケンス番号毎の往復遅延時間</translation>
     </message>
     <message>
         <source>Display graph of Segment Length vs Time</source>
-        <translation type="unfinished"></translation>
+        <translation>セグメント長と時間のグラフを表示します</translation>
     </message>
     <message>
         <source>Segment Length</source>
-        <translation type="unfinished"></translation>
+        <translation>セグメント長</translation>
     </message>
     <message>
         <source>Display graph of Mean Transmitted Bytes vs Time</source>
-        <translation type="unfinished"></translation>
+        <translation>平均送信バイトと時間のグラフを表示します</translation>
     </message>
     <message>
         <source>Throughput</source>
-        <translation type="unfinished"></translation>
+        <translation>スループット</translation>
     </message>
     <message>
         <source>Display graph of Mean ACKed Bytes vs Time</source>
-        <translation type="unfinished"></translation>
+        <translation>平均のACKされたバイト数と時間のグラフを表示します</translation>
     </message>
     <message>
         <source>Goodput</source>
-        <translation type="unfinished"></translation>
+        <translation>Goodput</translation>
     </message>
     <message>
         <source>Display graph of Receive Window Size vs Time</source>
-        <translation type="unfinished"></translation>
+        <translation>受信ウインドウサイズと時間のグラフを表示します</translation>
     </message>
     <message>
         <source>Rcv Win</source>
-        <translation type="unfinished"></translation>
+        <translation>受信ウインドウ</translation>
     </message>
     <message>
         <source>Display graph of Outstanding Bytes vs Time</source>
-        <translation type="unfinished"></translation>
+        <translation>未出力バイトと時間のグラフを表示します</translation>
     </message>
     <message>
         <source>Bytes Out</source>
-        <translation type="unfinished"></translation>
+        <translation>出力バイト</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Reset the graph to its initial state.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;グラフを初期状態にリセットします&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Reset</source>
-        <translation type="unfinished"></translation>
+        <translation>リセット</translation>
     </message>
     <message>
         <source>Reset Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>グラフをリセット</translation>
     </message>
     <message>
         <source>Reset the graph to its initial state.</source>
-        <translation type="unfinished"></translation>
+        <translation>グラフを初期状態にリセットします</translation>
     </message>
     <message>
         <source>0</source>
-        <translation type="unfinished"></translation>
+        <translation>0</translation>
     </message>
     <message>
         <source>Zoom In</source>
-        <translation type="unfinished"></translation>
+        <translation>拡大</translation>
     </message>
     <message>
         <source>+</source>
-        <translation type="unfinished"></translation>
+        <translation>+</translation>
     </message>
     <message>
         <source>Zoom Out</source>
-        <translation type="unfinished"></translation>
+        <translation>縮小</translation>
     </message>
     <message>
         <source>-</source>
-        <translation type="unfinished"></translation>
+        <translation>-</translation>
     </message>
     <message>
         <source>Move Up 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>上に10ピクセル移動</translation>
     </message>
     <message>
         <source>Up</source>
-        <translation type="unfinished"></translation>
+        <translation>上</translation>
     </message>
     <message>
         <source>Move Left 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>左に10ピクセル移動</translation>
     </message>
     <message>
         <source>Left</source>
-        <translation type="unfinished"></translation>
+        <translation>左</translation>
     </message>
     <message>
         <source>Move Right 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>右に10ピクセル移動</translation>
     </message>
     <message>
         <source>Right</source>
-        <translation type="unfinished"></translation>
+        <translation>右</translation>
     </message>
     <message>
         <source>Move Down 10 Pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>下に10ピクセル移動</translation>
     </message>
     <message>
         <source>Down</source>
-        <translation type="unfinished"></translation>
+        <translation>下</translation>
     </message>
     <message>
         <source>Move Up 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>上に1ピクセル移動</translation>
     </message>
     <message>
         <source>Shift+Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+Up</translation>
     </message>
     <message>
         <source>Move Left 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>左に1ピクセル移動</translation>
     </message>
     <message>
         <source>Shift+Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+Left</translation>
     </message>
     <message>
         <source>Move Right 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>右に1ピクセル移動</translation>
     </message>
     <message>
         <source>Shift+Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+Right</translation>
     </message>
     <message>
         <source>Move Down 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>下に1ピクセル移動</translation>
     </message>
     <message>
         <source>Shift+Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+Down</translation>
     </message>
     <message>
         <source>Next Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>次のストリーム</translation>
     </message>
     <message>
         <source>Go to the next stream in the capture</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャにある次のストリームへ移動します</translation>
     </message>
     <message>
         <source>PgUp</source>
-        <translation type="unfinished"></translation>
+        <translation>ページアップ</translation>
     </message>
     <message>
         <source>Previous Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>前のストリーム</translation>
     </message>
     <message>
         <source>Go to the previous stream in the capture</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャにある前のストリームへ移動します</translation>
     </message>
     <message>
         <source>PgDown</source>
-        <translation type="unfinished"></translation>
+        <translation>ページダウン</translation>
     </message>
     <message>
         <source>Switch direction (swap TCP endpoints)</source>
-        <translation type="unfinished"></translation>
+        <translation>向きを切り替え(TCP終端を入替)</translation>
     </message>
     <message>
         <source>D</source>
-        <translation type="unfinished"></translation>
+        <translation>D</translation>
     </message>
     <message>
         <source>Go To Packet Under Cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>カーソル位置のパケットへ移動</translation>
     </message>
     <message>
         <source>Go to packet currently under the cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>現在のカーソル位置にあるパケットへ移動します</translation>
     </message>
     <message>
         <source>G</source>
-        <translation type="unfinished"></translation>
+        <translation>G</translation>
     </message>
     <message>
         <source>Drag / Zoom</source>
-        <translation type="unfinished"></translation>
+        <translation>ドラッグ/ズーム</translation>
     </message>
     <message>
         <source>Toggle mouse drag / zoom behavior</source>
-        <translation type="unfinished"></translation>
+        <translation>マウスのドラッグ/ズームの動作を切り替えます</translation>
     </message>
     <message>
         <source>Z</source>
-        <translation type="unfinished"></translation>
+        <translation>Z</translation>
     </message>
     <message>
         <source>Relative / Absolute Sequence Numbers</source>
-        <translation type="unfinished"></translation>
+        <translation>相対的/絶対的シーケンス番号</translation>
     </message>
     <message>
         <source>Toggle relative / absolute sequence numbers</source>
-        <translation type="unfinished"></translation>
+        <translation>相対的/絶対的シーケンス番号を切り替えます</translation>
     </message>
     <message>
         <source>S</source>
-        <translation type="unfinished"></translation>
+        <translation>S</translation>
     </message>
     <message>
         <source>Capture / Session Time Origin</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャ/セッション時間起点</translation>
     </message>
     <message>
         <source>Toggle capture / session time origin</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャ/セッション時間起点を切り替えます</translation>
     </message>
     <message>
         <source>T</source>
-        <translation type="unfinished"></translation>
+        <translation>T</translation>
     </message>
     <message>
         <source>Crosshairs</source>
-        <translation type="unfinished"></translation>
+        <translation>十字カーソル</translation>
     </message>
     <message>
         <source>Toggle crosshairs</source>
-        <translation type="unfinished"></translation>
+        <translation>十字カーソルの表示を切り替えます</translation>
     </message>
     <message>
         <source>Space</source>
-        <translation type="unfinished"></translation>
+        <translation>スペース</translation>
     </message>
     <message>
         <source>Round Trip Time</source>
-        <translation type="unfinished"></translation>
+        <translation>往復遅延時間</translation>
     </message>
     <message>
         <source>Switch to the Round Trip Time graph</source>
-        <translation type="unfinished"></translation>
+        <translation>往復遅延グラフに切り替えます</translation>
     </message>
     <message>
         <source>1</source>
-        <translation type="unfinished"></translation>
+        <translation>1</translation>
     </message>
     <message>
         <source>Switch to the Throughput graph</source>
-        <translation type="unfinished"></translation>
+        <translation>スループットグラフに切り替えます</translation>
     </message>
     <message>
         <source>2</source>
-        <translation type="unfinished"></translation>
+        <translation>2</translation>
     </message>
     <message>
         <source>Time / Sequence (Stevens)</source>
-        <translation type="unfinished"></translation>
+        <translation>時間/シーケンス(Stevens)</translation>
     </message>
     <message>
         <source>Switch to the Stevens-style Time / Sequence graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Stevens形式の時間/シーケンスグラフに切り替えます</translation>
     </message>
     <message>
         <source>3</source>
-        <translation type="unfinished"></translation>
+        <translation>3</translation>
     </message>
     <message>
         <source>Window Scaling</source>
-        <translation type="unfinished"></translation>
+        <translation>ウインドウスケーリング</translation>
     </message>
     <message>
         <source>Switch to the Window Scaling graph</source>
-        <translation type="unfinished"></translation>
+        <translation>ウインドウスケーリンググラフに切り替えます</translation>
     </message>
     <message>
         <source>5</source>
-        <translation type="unfinished"></translation>
+        <translation>5</translation>
     </message>
     <message>
         <source>Time / Sequence (tcptrace)</source>
-        <translation type="unfinished"></translation>
+        <translation>時間/シーケンス(tcptrace)</translation>
     </message>
     <message>
         <source>Switch to the tcptrace-style Time / Sequence graph</source>
-        <translation type="unfinished"></translation>
+        <translation>tcptrace形式の時間/シーケンスグラフに切り替えます</translation>
     </message>
     <message>
         <source>4</source>
-        <translation type="unfinished"></translation>
+        <translation>4</translation>
     </message>
     <message>
         <source>Zoom In X Axis</source>
-        <translation type="unfinished"></translation>
+        <translation>X軸を拡大</translation>
     </message>
     <message>
         <source>X</source>
-        <translation type="unfinished"></translation>
+        <translation>X</translation>
     </message>
     <message>
         <source>Zoom Out X Axis</source>
-        <translation type="unfinished"></translation>
+        <translation>X軸を縮小</translation>
     </message>
     <message>
         <source>Shift+X</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+X</translation>
     </message>
     <message>
         <source>Zoom In Y Axis</source>
-        <translation type="unfinished"></translation>
+        <translation>Y軸を拡大</translation>
     </message>
     <message>
         <source>Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Y</translation>
     </message>
     <message>
         <source>Zoom Out Y Axis</source>
-        <translation type="unfinished"></translation>
+        <translation>Y軸を縮小</translation>
     </message>
     <message>
         <source>Shift+Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+Y</translation>
     </message>
     <message>
         <source>Save As</source>
-        <translation type="unfinished"></translation>
+        <translation>として保存</translation>
     </message>
     <message>
         <source>No Capture Data</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャデータがありません</translation>
     </message>
     <message>
         <source>%1 %2 pkts, %3 %4 %5 pkts, %6 </source>
-        <translation type="unfinished"></translation>
+        <translation>%1 %2 pkts, %3 %4 %5 pkts, %6 </translation>
     </message>
     <message>
         <source>Sequence Numbers (Stevens)</source>
-        <translation type="unfinished"></translation>
+        <translation>シーケンス番号 (Stevens)</translation>
     </message>
     <message>
         <source>Sequence Numbers (tcptrace)</source>
-        <translation type="unfinished"></translation>
+        <translation>シーケンス番号 (tcptrace)</translation>
     </message>
     <message>
         <source> (MA)</source>
-        <translation type="unfinished"></translation>
+        <translation> (MA)</translation>
     </message>
     <message>
         <source> (%1 Segment MA)</source>
-        <translation type="unfinished"></translation>
+        <translation> (%1 セグメント MA)</translation>
     </message>
     <message>
         <source> [not enough data]</source>
-        <translation type="unfinished"></translation>
+        <translation> [十分なデータがありません]</translation>
     </message>
     <message>
         <source> for %1:%2 %3 %4:%5</source>
-        <translation type="unfinished"></translation>
+        <translation>for %1:%2 %3 %4:%5</translation>
     </message>
     <message>
         <source>%1 %2 (%3s len %4 seq %5 ack %6 win %7)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 %2 (%3s len %4 seq %5 ack %6 win %7)</translation>
     </message>
     <message>
         <source>Click to select packet</source>
-        <translation type="unfinished"></translation>
+        <translation>クリックしてパケットを選んでください</translation>
     </message>
     <message>
         <source>Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット</translation>
     </message>
     <message>
         <source>Release to zoom, x = %1 to %2, y = %3 to %4</source>
-        <translation type="unfinished"></translation>
+        <translation>離してズーム, x = %1 から %2, y = %3 から %4</translation>
     </message>
     <message>
         <source>Unable to select range.</source>
-        <translation type="unfinished"></translation>
+        <translation>範囲を選択できません</translation>
     </message>
     <message>
         <source>Click to select a portion of the graph.</source>
-        <translation type="unfinished"></translation>
+        <translation>クリックしてグラフの割合を選びます</translation>
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>
-        <translation type="unfinished"></translation>
+        <translation>PDF形式 (*.pdf)</translation>
     </message>
     <message>
         <source>Portable Network Graphics (*.png)</source>
-        <translation type="unfinished"></translation>
+        <translation>PNG形式 (*.png)</translation>
     </message>
     <message>
         <source>Windows Bitmap (*.bmp)</source>
-        <translation type="unfinished"></translation>
+        <translation>Winodwsビットマップ形式 (*.bmp)</translation>
     </message>
     <message>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation type="unfinished"></translation>
+        <translation>JPEG形式 (*.jpeg *.jpg)</translation>
     </message>
     <message>
         <source>Save Graph As</source>
-        <translation type="unfinished"></translation>
+        <translation>としてグラフを保存</translation>
     </message>
 </context>
 <context>
     <name>TapParameterDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <source>Item</source>
-        <translation type="unfinished"></translation>
+        <translation>項目</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;ヒント&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Display filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタ:</translation>
     </message>
     <message>
         <source>Regenerate statistics using this display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタを用いて統計を再生成します</translation>
     </message>
     <message>
         <source>Apply</source>
-        <translation type="unfinished"></translation>
+        <translation>適用</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>コピー</translation>
     </message>
     <message>
         <source>Copy a text representation of the tree to the clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>ツリーのテキスト表記をクリップボードにコピーします</translation>
     </message>
     <message>
         <source>Save as…</source>
-        <translation type="unfinished"></translation>
+        <translation>…として保存</translation>
     </message>
     <message>
         <source>Save the displayed data in various formats</source>
-        <translation type="unfinished"></translation>
+        <translation>様々な形式で表示データを保存します</translation>
     </message>
     <message>
         <source>Save as</source>
-        <translation type="unfinished"></translation>
+        <translation>として保存</translation>
     </message>
     <message>
         <source>Save Statistics As</source>
-        <translation type="unfinished"></translation>
+        <translation>として統計を保存</translation>
     </message>
     <message>
         <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
-        <translation type="unfinished"></translation>
+        <translation>プレインテキストファイル(*.txt);;カンマ区切りテキスト(*.csv);;XMLドキュメント(*.xml);;YAMLドキュメント (*.yaml)</translation>
     </message>
     <message>
         <source>Plain text file (*.txt)</source>
-        <translation type="unfinished"></translation>
+        <translation>プレインテキストファイル(*.txt)</translation>
     </message>
     <message>
         <source>Error saving file %1</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイル保存エラー %1</translation>
     </message>
 </context>
 <context>
     <name>TimeShiftDialog</name>
     <message>
         <source>Shift all packets by</source>
-        <translation type="unfinished"></translation>
+        <translation>すべてのパケットを調整します</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[-][[hh:]mm:]ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[-][[hh:]mm:]ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Set the time for packet</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット番号</translation>
     </message>
     <message>
         <source>to</source>
-        <translation type="unfinished"></translation>
+        <translation>の時間を設定</translation>
     </message>
     <message>
         <source>…then set packet</source>
-        <translation type="unfinished"></translation>
+        <translation>…そしてパケット番号</translation>
     </message>
     <message>
         <source>and extrapolate the time for all other packets</source>
-        <translation type="unfinished"></translation>
+        <translation>そして、他のすべてのパケットの時間を推定します</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Undo all shifts</source>
-        <translation type="unfinished"></translation>
+        <translation>すべての調整を元に戻す</translation>
     </message>
     <message>
         <source>Time Shift</source>
-        <translation type="unfinished"></translation>
+        <translation>時間調整</translation>
     </message>
     <message>
         <source>Frame numbers must be between 1 and %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>フレーム番号は 1 から %1 の間でないといけません</translation>
     </message>
     <message>
         <source>Invalid frame number.</source>
-        <translation type="unfinished"></translation>
+        <translation>フレーム番号が無効です</translation>
     </message>
     <message>
         <source>Time shifting is not available capturing packets.</source>
-        <translation type="unfinished"></translation>
+        <translation>時間調整はパケットキャプチャ中に利用できません</translation>
     </message>
 </context>
 <context>
     <name>TrafficTableDialog</name>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show resolved addresses and port names rather than plain values. The corresponding name resolution preference must be enabled.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;そのままの値より解決したアドレスととポート名を表示します 対応する名前解決設定が有効にされている必要があります&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Name resolution</source>
-        <translation type="unfinished"></translation>
+        <translation>名前解決</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show conversations matching the current display filter&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;現在の表示フィルタに合致した対話のみ表示します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Limit to display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタに制限</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show absolute times in the start time column.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;開始時間列に絶対的な時間を表示します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Absolute start time</source>
-        <translation type="unfinished"></translation>
+        <translation>絶対的開始時間</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add and remove conversation types.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;対話タイプを追加または削除します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>%1 Types</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 タイプ</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>コピー</translation>
     </message>
     <message>
         <source>as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>CSV形式として</translation>
     </message>
     <message>
         <source>Copy all values of this page to the clipboard in CSV (Comma Separated Values) format.</source>
-        <translation type="unfinished"></translation>
+        <translation>このページのすべての値をクリップボードにCSV(カンマ区切りテキスト)形式でコピー</translation>
     </message>
     <message>
         <source>as YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>YAML形式として</translation>
     </message>
     <message>
         <source>Copy all values of this page to the clipboard in the YAML data serialization format.</source>
-        <translation type="unfinished"></translation>
+        <translation>このページのすべての値をクリップボードにYAMLデータシリアル化形式でコピーします</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>不明</translation>
     </message>
 </context>
 <context>
     <name>UatDialog</name>
     <message>
         <source>Create a new entry.</source>
-        <translation type="unfinished"></translation>
+        <translation>新規エントリを作成します</translation>
     </message>
     <message>
         <source>Remove this entry.</source>
-        <translation type="unfinished"></translation>
+        <translation>この入力を削除します</translation>
     </message>
     <message>
         <source>Copy this entry.</source>
-        <translation type="unfinished"></translation>
+        <translation>この入力をコピーします</translation>
     </message>
     <message>
         <source>Move entry up.</source>
-        <translation type="unfinished"></translation>
+        <translation>エントリを上に移動</translation>
     </message>
     <message>
         <source>Move entry down.</source>
-        <translation type="unfinished"></translation>
+        <translation>エントリを下に移動</translation>
     </message>
     <message>
         <source>Clear all entries.</source>
-        <translation type="unfinished"></translation>
+        <translation>すべてのエントリをクリア</translation>
     </message>
     <message>
         <source>Unknown User Accessible Table</source>
-        <translation type="unfinished"></translation>
+        <translation>ユーザがアクセスできる表が不明</translation>
     </message>
     <message>
         <source>Open </source>
-        <translation type="unfinished"></translation>
+        <translation>開く </translation>
     </message>
 </context>
 <context>
     <name>UatFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>フレーム</translation>
     </message>
     <message>
         <source>Create a new entry.</source>
-        <translation type="unfinished"></translation>
+        <translation>新規エントリを作成</translation>
     </message>
     <message>
         <source>Remove this entry.</source>
-        <translation type="unfinished"></translation>
+        <translation>このエントリを削除</translation>
     </message>
     <message>
         <source>Copy this entry.</source>
-        <translation type="unfinished"></translation>
+        <translation>このエントリをコピー</translation>
     </message>
     <message>
         <source>Move entry up.</source>
-        <translation type="unfinished"></translation>
+        <translation>エントリを上に移動</translation>
     </message>
     <message>
         <source>Move entry down.</source>
-        <translation type="unfinished"></translation>
+        <translation>エントリをしたに移動</translation>
     </message>
     <message>
         <source>Clear all entries.</source>
-        <translation type="unfinished"></translation>
+        <translation>すべてのエントリをクリア</translation>
     </message>
     <message>
         <source>Unknown User Accessible Table</source>
-        <translation type="unfinished"></translation>
+        <translation>不明なユーザアクセス票</translation>
     </message>
     <message>
         <source>Open </source>
-        <translation type="unfinished"></translation>
+        <translation>開く</translation>
     </message>
 </context>
 <context>
     <name>VoipCallsDialog</name>
     <message>
         <source>VoIP Calls</source>
-        <translation type="unfinished"></translation>
+        <translation>VoIP通話</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Time of Day</source>
-        <translation type="unfinished"></translation>
+        <translation>時刻</translation>
     </message>
     <message>
         <source>Select &amp;All</source>
-        <translation type="unfinished"></translation>
+        <translation>すべてを選択(&amp;A)</translation>
     </message>
     <message>
         <source>Select all calls</source>
-        <translation type="unfinished"></translation>
+        <translation>すべての通話を選択します</translation>
     </message>
     <message>
         <source>Copy as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>CSVとしてコピー</translation>
     </message>
     <message>
         <source>Copy stream list as CSV.</source>
-        <translation type="unfinished"></translation>
+        <translation>CSVとしてストリーム一覧をコピーします</translation>
     </message>
     <message>
         <source>Copy as YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>YAMLとしてコピー</translation>
     </message>
     <message>
         <source>Copy stream list as YAML.</source>
-        <translation type="unfinished"></translation>
+        <translation>YAMLとしてストリーム一覧をコピーします</translation>
     </message>
     <message>
         <source>SIP Flows</source>
-        <translation type="unfinished"></translation>
+        <translation>SIPフロー</translation>
     </message>
     <message>
         <source>Prepare Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>フィルタを準備</translation>
     </message>
     <message>
         <source>Flow Sequence</source>
-        <translation type="unfinished"></translation>
+        <translation>フロー順序</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>コピー</translation>
     </message>
     <message>
         <source>as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>CSVとして</translation>
     </message>
     <message>
         <source>as YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>YAMLとして</translation>
     </message>
     <message>
         <source>No Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>音声なし</translation>
     </message>
 </context>
 <context>
     <name>VoipCallsInfoModel</name>
     <message>
         <source>On</source>
-        <translation type="unfinished"></translation>
+        <translation>On</translation>
     </message>
     <message>
         <source>Off</source>
-        <translation type="unfinished"></translation>
+        <translation>Off</translation>
     </message>
     <message>
         <source>Tunneling: %1  Fast Start: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>トンネリング: %1  高速開始: %2</translation>
     </message>
     <message>
         <source>Start Time</source>
-        <translation type="unfinished"></translation>
+        <translation>開始時間</translation>
     </message>
     <message>
         <source>Stop Time</source>
-        <translation type="unfinished"></translation>
+        <translation>停止時間</translation>
     </message>
     <message>
         <source>Initial Speaker</source>
-        <translation type="unfinished"></translation>
+        <translation>初期話者</translation>
     </message>
     <message>
         <source>From</source>
-        <translation type="unfinished"></translation>
+        <translation>送信元</translation>
     </message>
     <message>
         <source>To</source>
-        <translation type="unfinished"></translation>
+        <translation>宛先</translation>
     </message>
     <message>
         <source>Protocol</source>
-        <translation type="unfinished"></translation>
+        <translation>プロトコル</translation>
     </message>
     <message>
         <source>Duration</source>
-        <translation type="unfinished"></translation>
+        <translation>時間</translation>
     </message>
     <message>
         <source>Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット</translation>
     </message>
     <message>
         <source>State</source>
-        <translation type="unfinished"></translation>
+        <translation>状態</translation>
     </message>
     <message>
         <source>Comments</source>
-        <translation type="unfinished"></translation>
+        <translation>コメント</translation>
     </message>
 </context>
 <context>
     <name>WirelessFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>フレーム</translation>
     </message>
     <message>
         <source>Interface</source>
-        <translation type="unfinished"></translation>
+        <translation>インターフェース</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set the 802.11 channel.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;802.11チャンネルを設定します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Channel</source>
-        <translation type="unfinished"></translation>
+        <translation>チャンネル</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;When capturing, show all frames, ones that have a valid frame check sequence (FCS), or ones with an invalid FCS.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;キャプチャ中にすべてのフレーム、フレームチェックシーケンス(FCS)が有効なフレーム、もしくはFCSが無効なフレームを表示します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>FCS Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>FCSフィルタ</translation>
     </message>
     <message>
         <source>All Frames</source>
-        <translation type="unfinished"></translation>
+        <translation>すべてのフレーム</translation>
     </message>
     <message>
         <source>Valid Frames</source>
-        <translation type="unfinished"></translation>
+        <translation>有効フレーム</translation>
     </message>
     <message>
         <source>Invalid Frames</source>
-        <translation type="unfinished"></translation>
+        <translation>無効フレーム</translation>
     </message>
     <message>
         <source>Wireless controls are not supported in this version of Wireshark.</source>
-        <translation type="unfinished"></translation>
+        <translation>無線の制御はこのバージョンのWiresharkではサポートされていません</translation>
     </message>
     <message>
         <source>External Helper</source>
-        <translation type="unfinished"></translation>
+        <translation>外部ヘルパー</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the IEEE 802.11 preferences, including decryption keys.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;復号化鍵を含むIEEE802.11設定を表示します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>802.11 Preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>802.11設定</translation>
     </message>
     <message>
         <source>AirPcap Control Panel</source>
-        <translation type="unfinished"></translation>
+        <translation>AirPcapコントロールパネル</translation>
     </message>
     <message>
         <source>Open the AirPcap Control Panel</source>
-        <translation type="unfinished"></translation>
+        <translation>AirPcapコントロールパネルを開く</translation>
     </message>
     <message>
         <source>Unable to set channel or offset.</source>
-        <translation type="unfinished"></translation>
+        <translation>チャンネルもしくはオフセットを設定できません</translation>
     </message>
     <message>
         <source>Unable to set FCS validation behavior.</source>
-        <translation type="unfinished"></translation>
+        <translation>FCSの確認動作を設定できません</translation>
     </message>
 </context>
 <context>
     <name>WiresharkApplication</name>
     <message>
         <source>Dell Backup and Recovery Found</source>
-        <translation type="unfinished"></translation>
+        <translation>Dell Backup and Recovery が見つかりました</translation>
     </message>
     <message>
         <source>You appear to be running Dell Backup and Recovery 1.8.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dell Backup and Recovery 1.8 が起動しています</translation>
     </message>
     <message>
         <source>DBAR can make many applications crash &lt;a href=&quot;https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036&quot;&gt;including Wireshark&lt;/a&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>DBARは &lt;a href=&quot;https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036&quot;&gt;Wiresharkを含めて&lt;/a&gt;多くのアプリケーションのクラッシュを起こします</translation>
     </message>
     <message>
         <source>Offending DLL: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>問題DLL: %1</translation>
     </message>
 </context>
 <context>
     <name>WiresharkDialog</name>
     <message>
         <source>Failed to attach to tap &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>タップ &quot;%1&quot; の紐づけに失敗しました</translation>
     </message>
 </context>
 <context>
     <name>WlanStatisticsDialog</name>
     <message>
         <source>Wireless LAN Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>無線LAN統計</translation>
     </message>
     <message>
         <source>Channel</source>
-        <translation type="unfinished"></translation>
+        <translation>チャンネル</translation>
     </message>
     <message>
         <source>SSID</source>
-        <translation type="unfinished"></translation>
+        <translation>SSID</translation>
     </message>
     <message>
         <source>Percent Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>パケット割合</translation>
     </message>
     <message>
         <source>Percent Retry</source>
-        <translation type="unfinished"></translation>
+        <translation>再送率</translation>
     </message>
     <message>
         <source>Retry</source>
-        <translation type="unfinished"></translation>
+        <translation>再送</translation>
     </message>
     <message>
         <source>Probe Reqs</source>
-        <translation type="unfinished"></translation>
+        <translation>プルーブ要求</translation>
     </message>
     <message>
         <source>Probe Resp</source>
-        <translation type="unfinished"></translation>
+        <translation>プルーブ応答</translation>
     </message>
     <message>
         <source>Auths</source>
-        <translation type="unfinished"></translation>
+        <translation>認証</translation>
     </message>
     <message>
         <source>Deauths</source>
-        <translation type="unfinished"></translation>
+        <translation>非認証</translation>
     </message>
     <message>
         <source>Other</source>
-        <translation type="unfinished"></translation>
+        <translation>その他</translation>
     </message>
 </context>
 </TS>
