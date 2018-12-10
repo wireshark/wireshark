@@ -33,6 +33,8 @@
 #define SC_SSUPER_RESET_PASSWORD          0x55
 #define SC_SSUPER_PROPOSE_TUNID           0x56
 #define SC_SSUPER_APPLY_TUNID             0x57
+#define SC_SSUPER_PROPOSE_TUNID_LIST      0x58
+#define SC_SSUPER_APPLY_TUNID_LIST        0x59
 
 typedef struct cip_safety_info {
    enum enip_connid_type conn_type;

@@ -281,6 +281,8 @@ static gint ett_svalidator_rrsc           = -1;
 static gint ett_svalidator_cmd_data       = -1;
 static gint ett_svalidator_type           = -1;
 
+static const unit_name_string units_safety_128us = { " (128 us increment)", " (128 us increments)" };
+
 static expert_field ei_cipsafety_tbd2_not_complemented = EI_INIT;
 static expert_field ei_cipsafety_tbd_not_copied = EI_INIT;
 static expert_field ei_cipsafety_run_idle_not_complemented = EI_INIT;
@@ -362,6 +364,8 @@ static const value_string cip_sc_vals_ssupervisor[] = {
    { SC_SSUPER_RESET_PASSWORD,         "Reset Password" },
    { SC_SSUPER_PROPOSE_TUNID,          "Propose TUNID" },
    { SC_SSUPER_APPLY_TUNID,            "Apply TUNID" },
+   { SC_SSUPER_PROPOSE_TUNID_LIST,     "Propose TUNID List" },
+   { SC_SSUPER_APPLY_TUNID_LIST,       "Apply TUNID List" },
 
    { 0,                       NULL }
 };
@@ -410,6 +414,8 @@ static const value_string cip_ssupervisor_device_status_type_vals[] = {
    { 6,        "Critical Fault"   },
    { 7,        "Configuring"   },
    { 8,        "Waiting for TUNID"   },
+   { 51,       "Waiting for TUNID with Torque Permitted" },
+   { 52,       "Executing with Torque Permitted" },
 
    { 0,        NULL          }
 };
@@ -2779,27 +2785,27 @@ proto_register_cipsafety(void)
           FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
       },
       { &hf_cip_svalidator_time_coord_msg_min_mult_size,
-        { "Time Coord Msg Min Multiplier Size", "cipsafety.svalidator.time_coord_msg_min_mult.size",
+        { "Time Coord Msg Min Multiplier Array Size", "cipsafety.svalidator.time_coord_msg_min_mult.size",
           FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
       },
       { &hf_cip_svalidator_time_coord_msg_min_mult_item,
-        { "Time Coord Msg Min Multiplier Item", "cipsafety.svalidator.time_coord_msg_min_mult.item",
-          FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
+        { "Time Coord Msg Min Multiplier", "cipsafety.svalidator.time_coord_msg_min_mult.item",
+          FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_safety_128us, 0, NULL, HFILL }
       },
       { &hf_cip_svalidator_network_time_multiplier_size,
-        { "Network Time Expectation Multiplier Size", "cipsafety.svalidator.network_time_multiplier.size",
+        { "Network Time Expectation Multiplier Array Size", "cipsafety.svalidator.network_time_multiplier.size",
           FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
       },
       { &hf_cip_svalidator_network_time_multiplier_item,
-        { "Network Time Expectation Multiplier Item", "cipsafety.svalidator.network_time_multiplier.item",
-          FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
+        { "Network Time Expectation Multiplier", "cipsafety.svalidator.network_time_multiplier.item",
+          FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_safety_128us, 0, NULL, HFILL }
       },
       { &hf_cip_svalidator_timeout_multiplier_size,
-        { "Timeout Multiplier Size", "cipsafety.svalidator.timeout_multiplier.size",
+        { "Timeout Multiplier Array Size", "cipsafety.svalidator.timeout_multiplier.size",
           FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
       },
       { &hf_cip_svalidator_timeout_multiplier_item,
-        { "Timeout Multiplier Item", "cipsafety.svalidator.timeout_multiplier.item",
+        { "Timeout Multiplier", "cipsafety.svalidator.timeout_multiplier.item",
           FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
       },
       { &hf_cip_svalidator_max_consumer_num,
@@ -2835,11 +2841,11 @@ proto_register_cipsafety(void)
           FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
       },
       { &hf_cip_svalidator_prod_cons_fault_count_size,
-        { "Producer/Consumer Counter Size", "cipsafety.svalidator.prod_cons_fault_count.size",
+        { "Producer/Consumer Counter Array Size", "cipsafety.svalidator.prod_cons_fault_count.size",
           FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
       },
       { &hf_cip_svalidator_prod_cons_fault_count_item,
-        { "Producer/Consumer Counter Item", "cipsafety.svalidator.prod_cons_fault_count.item",
+        { "Producer/Consumer Fault Counter", "cipsafety.svalidator.prod_cons_fault_count.item",
           FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
       }
    };
