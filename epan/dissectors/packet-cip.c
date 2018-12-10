@@ -6401,9 +6401,11 @@ dissect_cip_cm_fwd_open_req(cip_req_info_t *preq_info, proto_tree *cmd_tree, tvb
    mark_cip_connection(pinfo, tvb, cmd_tree);
 }
 
-static void
+static int
 dissect_cip_cm_fwd_open_rsp_success(cip_req_info_t *preq_info, proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo)
 {
+   int parsed_len = 26;
+
    unsigned char app_rep_size;
    guint32 O2TConnID, T2OConnID;
    guint16 init_rollover_value = 0, init_timestamp_value = 0;
@@ -6488,7 +6490,7 @@ dissect_cip_cm_fwd_open_rsp_success(cip_req_info_t *preq_info, proto_tree *tree,
    /* See if we've captured the ForwardOpen request.  If so some of the conversation data has already been
       populated and we just need to update it. */
    if (pinfo->fd->flags.visited)
-      return;
+      return parsed_len + app_rep_size;
 
    if ((preq_info != NULL) && (preq_info->connInfo != NULL))
    {
@@ -6512,6 +6514,8 @@ dissect_cip_cm_fwd_open_rsp_success(cip_req_info_t *preq_info, proto_tree *tree,
          }
       }
    }
+
+   return parsed_len + app_rep_size;
 }
 
 static void display_previous_request_path(cip_req_info_t *preq_info, proto_tree *item_tree, tvbuff_t *tvb, packet_info *pinfo, proto_item* msp_item, gboolean is_msp_item)
@@ -6551,7 +6555,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
    int req_path_size, conn_path_size, temp_data;
    unsigned char service, gen_status, add_stat_size;
    unsigned short add_status;
-   unsigned char app_rep_size, route_path_size;
+   unsigned char route_path_size;
    int i, msg_req_siz;
    cip_req_info_t *preq_info;
    cip_req_info_t *pembedded_req_info;
@@ -6715,10 +6719,14 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
       }
 
       /* If there is any command specific data create a sub-tree for it */
-      if( ( item_length-4-add_stat_size ) != 0 )
+      int data_len = item_length - 4 - add_stat_size;
+      if (data_len > 0)
       {
+         int parsed_len = 0;
+         offset += (4 + add_stat_size);
+
          proto_item *cmd_item;
-         cmd_data_tree = proto_tree_add_subtree( item_tree, tvb, offset+4+add_stat_size, item_length-4-add_stat_size,
+         cmd_data_tree = proto_tree_add_subtree( item_tree, tvb, offset, data_len,
                                                  ett_cm_cmd_data, &cmd_item, "Command Specific Data" );
 
          if( gen_status == CI_GRC_SUCCESS || gen_status == CI_GRC_SERVICE_ERROR )
@@ -6728,61 +6736,56 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
            {
            case SC_CM_FWD_OPEN:
            case SC_CM_LARGE_FWD_OPEN:
-              dissect_cip_cm_fwd_open_rsp_success(preq_info, cmd_data_tree, tvb, offset+4+add_stat_size, pinfo);
+              parsed_len = dissect_cip_cm_fwd_open_rsp_success(preq_info, cmd_data_tree, tvb, offset, pinfo);
               break;
            case SC_CM_FWD_CLOSE:
            {
                /* Forward close response (Success) */
                cip_connection_triad_t conn_triad;
-               dissect_connection_triad(tvb, offset + 4 + add_stat_size, cmd_data_tree,
+               dissect_connection_triad(tvb, offset, cmd_data_tree,
                   hf_cip_cm_conn_serial_num, hf_cip_cm_vendor, hf_cip_cm_orig_serial_num,
                   &conn_triad);
 
                /* Display the application reply size */
-               app_rep_size = tvb_get_guint8( tvb, offset+4+add_stat_size+8 ) * 2;
-               proto_tree_add_item(cmd_data_tree, hf_cip_cm_app_reply_size, tvb, offset+4+add_stat_size+8, 1, ENC_LITTLE_ENDIAN);
+               guint16 app_rep_size = tvb_get_guint8( tvb, offset+8 ) * 2;
+               proto_tree_add_item(cmd_data_tree, hf_cip_cm_app_reply_size, tvb, offset+8, 1, ENC_LITTLE_ENDIAN);
 
                /* Display the Reserved byte */
-               proto_tree_add_item(cmd_data_tree, hf_cip_reserved8, tvb, offset+4+add_stat_size+9, 1, ENC_LITTLE_ENDIAN);
+               proto_tree_add_item(cmd_data_tree, hf_cip_reserved8, tvb, offset+9, 1, ENC_LITTLE_ENDIAN);
                if (app_rep_size > 0)
                {
-                  if (tvb_reported_length_remaining(tvb, offset + 4 + add_stat_size + 10) <= app_rep_size)
+                  if (tvb_reported_length_remaining(tvb, offset + 10) <= app_rep_size)
                   {
                      expert_add_info(pinfo, cmd_item, &ei_mal_fwd_close_missing_data);
                      break;
                   }
-                  proto_tree_add_item(cmd_data_tree, hf_cip_cm_app_reply_data, tvb, offset+4+add_stat_size+10,app_rep_size, ENC_NA);
+                  proto_tree_add_item(cmd_data_tree, hf_cip_cm_app_reply_data, tvb, offset+10,app_rep_size, ENC_NA);
                }
 
                enip_close_cip_connection( pinfo, &conn_triad);
                mark_cip_connection(pinfo, tvb, cmd_data_tree);
 
+               parsed_len = 10 + app_rep_size;
             } /* End of if forward close response */
-            break;
-            case SC_CM_UNCON_SEND:
-            {
-               /* Unconnected send response (Success) */
-               /* Display service response data */
-               proto_tree_add_item(cmd_data_tree, hf_cip_data, tvb, offset+4+add_stat_size, item_length-4-add_stat_size, ENC_NA);
-            }
             break;
             case SC_CM_GET_CONN_OWNER:
             {
                /* Get Connection owner response (Success) */
+               proto_tree_add_item( cmd_data_tree, hf_cip_cm_gco_conn, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+               proto_tree_add_item( cmd_data_tree, hf_cip_cm_gco_coo_conn, tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
+               proto_tree_add_item( cmd_data_tree, hf_cip_cm_gco_roo_conn, tvb, offset+2, 1, ENC_LITTLE_ENDIAN);
+               proto_tree_add_item( cmd_data_tree, hf_cip_cm_gco_last_action, tvb, offset+3, 1, ENC_LITTLE_ENDIAN);
 
-               proto_tree_add_item( cmd_data_tree, hf_cip_cm_gco_conn, tvb, offset+4+add_stat_size, 1, ENC_LITTLE_ENDIAN);
-               proto_tree_add_item( cmd_data_tree, hf_cip_cm_gco_coo_conn, tvb, offset+4+add_stat_size+1, 1, ENC_LITTLE_ENDIAN);
-               proto_tree_add_item( cmd_data_tree, hf_cip_cm_gco_roo_conn, tvb, offset+4+add_stat_size+2, 1, ENC_LITTLE_ENDIAN);
-               proto_tree_add_item( cmd_data_tree, hf_cip_cm_gco_last_action, tvb, offset+4+add_stat_size+3, 1, ENC_LITTLE_ENDIAN);
-
-               dissect_connection_triad(tvb, offset + 4 + add_stat_size + 4, cmd_data_tree,
+               dissect_connection_triad(tvb, offset + 4, cmd_data_tree,
                   hf_cip_cm_conn_serial_num, hf_cip_cm_vendor, hf_cip_cm_orig_serial_num,
                   NULL);
+
+               parsed_len = 12;
             }
             break;
+            case SC_CM_UNCON_SEND:  // Unconnected send response (Success)
             default:
-               /* Add data */
-               proto_tree_add_item(cmd_data_tree, hf_cip_data, tvb, offset+4+add_stat_size, item_length-4-add_stat_size, ENC_NA);
+               parsed_len = 0;
                break;
             }
          }
@@ -6797,12 +6800,12 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
             {
                /* Forward open and forward close error response look the same */
                cip_connection_triad_t conn_triad;
-               dissect_connection_triad(tvb, offset + 4 + add_stat_size, cmd_data_tree,
+               dissect_connection_triad(tvb, offset, cmd_data_tree,
                   hf_cip_cm_conn_serial_num, hf_cip_cm_vendor, hf_cip_cm_orig_serial_num,
                   &conn_triad);
 
-               proto_tree_add_item(cmd_data_tree, hf_cip_cm_remain_path_size, tvb, offset+4+add_stat_size+8, 1, ENC_LITTLE_ENDIAN);
-               proto_tree_add_item(cmd_data_tree, hf_cip_reserved8, tvb, offset+4+add_stat_size+9, 1, ENC_LITTLE_ENDIAN);
+               proto_tree_add_item(cmd_data_tree, hf_cip_cm_remain_path_size, tvb, offset+8, 1, ENC_LITTLE_ENDIAN);
+               proto_tree_add_item(cmd_data_tree, hf_cip_reserved8, tvb, offset+9, 1, ENC_LITTLE_ENDIAN);
 
                /* With an error reply the connection will either never be established or it has since already closed
                   That means the conversation should end too */
@@ -6812,20 +6815,27 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
                   /* Remove any connection information */
                   preq_info->connInfo = NULL;
                }
+
+               parsed_len = 10;
                break;
             }
             case SC_CM_UNCON_SEND:
                /* Unconnected send response (Unsuccess) */
-               proto_tree_add_item(cmd_data_tree, hf_cip_cm_remain_path_size, tvb, offset+4+add_stat_size, 1, ENC_LITTLE_ENDIAN);
-               proto_tree_add_item(cmd_data_tree, hf_cip_reserved8, tvb, offset+4+add_stat_size+1, 1, ENC_LITTLE_ENDIAN);
+               proto_tree_add_item(cmd_data_tree, hf_cip_cm_remain_path_size, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+               proto_tree_add_item(cmd_data_tree, hf_cip_reserved8, tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
+               parsed_len = 2;
                break;
             default:
-               /* Add data */
-               proto_tree_add_item(cmd_data_tree, hf_cip_data, tvb, offset+4+add_stat_size, item_length-4-add_stat_size, ENC_NA);
+               parsed_len = 0;
                break;
             }
          } /* end of if-else( CI_CRC_SUCCESS ) */
 
+         int remain_len = tvb_reported_length_remaining(tvb, offset + parsed_len);
+         if (remain_len > 0)
+         {
+            proto_tree_add_item(cmd_data_tree, hf_cip_data, tvb, offset + parsed_len, remain_len, ENC_NA);
+         }
       } /* End of if command-specific data present */
 
    } /* End of if reply */
