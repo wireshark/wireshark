@@ -296,6 +296,7 @@
 #define PHS_MASK 9
 #define PHS_SUP_SIZE 10
 #define PHS_VERIFICATION 11
+#define PHS_DBC_ACTION 13
 #define PHS_VENDOR_SPEC 43
 
 /* Define PHS Error sub-subtypes
@@ -507,6 +508,7 @@
  */
 #define CMTS_MC_SESS_ENC_GRP 1
 #define CMTS_MC_SESS_ENC_SRC 2
+#define CMTS_MC_SESS_ENC_CMIM 3
 
 extern value_string_ext docsis_conf_code_ext;
 

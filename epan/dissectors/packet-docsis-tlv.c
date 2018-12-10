@@ -327,6 +327,7 @@ static int hf_docsis_tlv_phs_phsm = -1;
 /* static int hf_docsis_tlv_phs_phsv = -1; */
 static int hf_docsis_tlv_phs_phsi = -1;
 static int hf_docsis_tlv_phs_phss = -1;
+static int hf_docsis_tlv_phs_dbc_action = -1;
 static int hf_docsis_tlv_phs_vendorspec = -1;
 
 static int hf_docsis_tlv_phs_err_param = -1;
@@ -395,7 +396,7 @@ static int hf_docsis_tlv_rcp_freq_spc = -1;
 /* static int hf_docsis_tlv_rcp_ven_spec = -1; */
 
 static int hf_docsis_rcv_mod_enc_idx = -1;
-/* static int hf_docsis_rcv_mod_enc_adj_ch = -1; */
+static int hf_docsis_rcv_mod_enc_adj_ch = -1;
 /* static int hf_docsis_rcv_mod_enc_ch_bl_rng = -1; */
 static int hf_docsis_rcv_mod_enc_ctr_freq_asgn = -1;
 static int hf_docsis_rcv_mod_enc_rsq_ch_subs_cap = -1;
@@ -465,6 +466,7 @@ static int hf_docsis_ch_asgn_rx_freq = -1;
 
 static int hf_docsis_cmts_mc_sess_enc_grp = -1;
 static int hf_docsis_cmts_mc_sess_enc_src = -1;
+static int hf_docsis_cmts_mc_sess_enc_cmim = -1;
 
 static int hf_docsis_tlv_em_mode_ind = -1;
 
@@ -640,6 +642,12 @@ static const value_string action_vals[] = {
   {1, "Set PHS Rule"},
   {2, "Delete PHS Rule"},
   {3, "Delete all PHS Rules"},
+  {0, NULL},
+};
+
+static const value_string dbc_action_vals[] = {
+  {0, "Add PHS Rule"},
+  {1, "Delete PHS Rule"},
   {0, NULL},
 };
 
@@ -1132,6 +1140,17 @@ dissect_phs (tvbuff_t * tvb, packet_info *pinfo, proto_tree * tree, int start, g
             if (length == 1)
               {
                 proto_tree_add_item (phs_tree, hf_docsis_tlv_phs_phsf, tvb, pos,
+                                     length, ENC_NA);
+              }
+            else
+              {
+                expert_add_info_format(pinfo, phs_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
+              }
+            break;
+          case PHS_DBC_ACTION:
+            if (length == 1)
+              {
+                proto_tree_add_item (phs_tree, hf_docsis_tlv_phs_dbc_action, tvb, pos,
                                      length, ENC_NA);
               }
             else
@@ -4040,6 +4059,18 @@ dissect_rcp_rcv_mod(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int st
                 expert_add_info_format(pinfo, rcvmod_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
+          case RCV_MOD_ENC_ADJ_CH:
+            if (length == 1)
+              {
+                proto_tree_add_item (rcvmod_tree,
+                                     hf_docsis_rcv_mod_enc_adj_ch, tvb, pos,
+                                     length, ENC_BIG_ENDIAN);
+              }
+            else
+              {
+                expert_add_info_format(pinfo, rcvmod_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
+              }
+            break;
           case RCV_MOD_ENC_CH_BL_RNG:
             dissect_ch_bl_rng(tvb, pinfo, rcvmod_tree, pos, length);
             break;
@@ -4088,7 +4119,7 @@ dissect_rcp_rcv_ch(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int sta
 
   rcvch_tree =
     proto_tree_add_subtree_format(tree, tvb, start, len, ett_docsis_tlv_rcp_rcv_ch, &rcvch_item,
-                                  "Receive Channels (Length = %u)", len);
+                                  ".5 Receive Channels (Length = %u)", len);
 
   while (pos < (start + len))
     {
@@ -5009,6 +5040,11 @@ dissect_cmts_mc_sess_enc(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, i
               {
                 expert_add_info_format(pinfo, mc_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
+            break;
+          case CMTS_MC_SESS_ENC_CMIM:
+            proto_tree_add_item (mc_tree,
+                                     hf_docsis_cmts_mc_sess_enc_cmim, tvb, pos,
+                                     length, ENC_NA);
             break;
           default:
             dissect_unknown_tlv (tvb, pinfo, mc_tree, pos - 2, length + 2);
@@ -6824,6 +6860,11 @@ proto_register_docsis_tlv (void)
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "PHS Size", HFILL}
     },
+    {&hf_docsis_tlv_phs_dbc_action,
+     {".13 PHS Dynamic Bonding Change Action", "docsis_tlv.phs.dbc_action",
+      FT_UINT8, BASE_DEC, VALS (dbc_action_vals), 0x0,
+      "PHS Dynamic Bonding Change Action", HFILL}
+    },
 #if 0
     {&hf_docsis_tlv_phs_phsv,
      {".11 PHS Verify", "docsis_tlv.phs.phsv",
@@ -7227,12 +7268,12 @@ proto_register_docsis_tlv (void)
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Receive Module Index", HFILL}
     },
-#if 0
     {&hf_docsis_rcv_mod_enc_adj_ch,
      {"..2 Adjacent Channels", "docsis_tlv.rcp.rcv_mod_enc.adj_ch",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Adjacent Channels", HFILL}
     },
+#if 0
     {&hf_docsis_rcv_mod_enc_ch_bl_rng,
      {"..3 Channel Block Range", "docsis_tlv.rcp.rcv_mod_enc.ch_bl_rng",
       FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -7610,6 +7651,11 @@ proto_register_docsis_tlv (void)
      {".2 Source IP Address", "docsis_tlv.cmts_mc_sess_enc.src",
       FT_IPXNET, BASE_NONE, NULL, 0x0,
       "Source IP Address", HFILL}
+    },
+    {&hf_docsis_cmts_mc_sess_enc_cmim,
+     {".3 CMIM", "docsis_tlv.cmts_mc_sess_enc.cmim",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "CMIM", HFILL}
     },
     {&hf_docsis_tlv_em_mode_ind,
       {"75 Energy Management Mode Indicator", "docsis_tlv.em_mode_ind",
