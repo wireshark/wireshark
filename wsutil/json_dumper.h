@@ -49,6 +49,7 @@ extern "C" {
 typedef struct json_dumper {
     FILE   *output_file;    /**< Output file, must be set. */
 #define JSON_DUMPER_FLAGS_PRETTY_PRINT  (1 << 0)    /* Enable pretty printing. */
+#define JSON_DUMPER_DOT_TO_UNDERSCORE   (1 << 1)    /* Convert dots to underscores in keys */
     int     flags;
     /* for internal use, initialize with zeroes. */
     int     current_depth;

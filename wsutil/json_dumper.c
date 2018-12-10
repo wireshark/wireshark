@@ -37,7 +37,7 @@ enum json_dumper_change {
 };
 
 static void
-json_puts_string(FILE *fp, const char *str)
+json_puts_string(FILE *fp, const char *str, gboolean dot_to_underscore)
 {
     if (!str) {
         fputs("null", fp);
@@ -58,7 +58,10 @@ json_puts_string(FILE *fp, const char *str)
             if (str[i] == '\\' || str[i] == '"') {
                 fputc('\\', fp);
             }
-            fputc(str[i], fp);
+            if (dot_to_underscore && str[i] == '.')
+                fputc('_', fp);
+            else
+                fputc(str[i], fp);
         }
     }
     fputc('"', fp);
@@ -200,7 +203,7 @@ json_dumper_set_member_name(json_dumper *dumper, const char *name)
     }
 
     prepare_token(dumper);
-    json_puts_string(dumper->output_file, name);
+    json_puts_string(dumper->output_file, name, dumper->flags & JSON_DUMPER_DOT_TO_UNDERSCORE);
     fputc(':', dumper->output_file);
     if ((dumper->flags & JSON_DUMPER_FLAGS_PRETTY_PRINT)) {
         fputc(' ', dumper->output_file);
@@ -256,7 +259,7 @@ json_dumper_value_string(json_dumper *dumper, const char *value)
     }
 
     prepare_token(dumper);
-    json_puts_string(dumper->output_file, value);
+    json_puts_string(dumper->output_file, value, FALSE);
 
     dumper->state[dumper->current_depth] = JSON_DUMPER_TYPE_VALUE;
 }
