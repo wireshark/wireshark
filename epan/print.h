@@ -17,8 +17,9 @@
 
 #include <epan/epan.h>
 #include <epan/packet.h>
-
 #include <epan/print_stream.h>
+
+#include <wsutil/json_dumper.h>
 
 #include "ws_symbol_export.h"
 
@@ -91,7 +92,7 @@ WS_DLL_PUBLIC GSList *proto_node_group_children_by_unique(proto_node *node);
 // Groups children by json key (children with the same json key get put in the same group
 WS_DLL_PUBLIC GSList *proto_node_group_children_by_json_key(proto_node *node);
 
-WS_DLL_PUBLIC void write_json_preamble(FILE *fh);
+WS_DLL_PUBLIC json_dumper write_json_preamble(FILE *fh);
 WS_DLL_PUBLIC void write_json_proto_tree(output_fields_t* fields,
                                          print_dissections_e print_dissections,
                                          gboolean print_hex_data,
@@ -100,8 +101,8 @@ WS_DLL_PUBLIC void write_json_proto_tree(output_fields_t* fields,
                                          epan_dissect_t *edt,
                                          column_info *cinfo,
                                          proto_node_children_grouper_func node_children_grouper,
-                                         FILE *fh);
-WS_DLL_PUBLIC void write_json_finale(FILE *fh);
+                                         json_dumper *dumper);
+WS_DLL_PUBLIC void write_json_finale(json_dumper *dumper);
 
 WS_DLL_PUBLIC void write_ek_proto_tree(output_fields_t* fields,
                                        gboolean print_summary,

@@ -21,6 +21,7 @@
 #include <wsutil/tempfile.h>
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/json_dumper.h>
 #include <version_info.h>
 
 #include <wiretap/merge.h>
@@ -2629,6 +2630,7 @@ typedef struct {
   FILE *fh;
   epan_dissect_t edt;
   print_args_t *print_args;
+  json_dumper jdumper;
 } write_packet_callback_args_t;
 
 static gboolean
@@ -2940,7 +2942,8 @@ write_json_packet(capture_file *cf, frame_data *fdata, wtap_rec *rec,
   /* Write out the information in that tree. */
   write_json_proto_tree(NULL, args->print_args->print_dissections,
                         args->print_args->print_hex, NULL, PF_NONE,
-                        &args->edt, &cf->cinfo, proto_node_group_children_by_unique, args->fh);
+                        &args->edt, &cf->cinfo, proto_node_group_children_by_unique,
+                        &args->jdumper);
 
   epan_dissect_reset(&args->edt);
 
@@ -2958,7 +2961,7 @@ cf_write_json_packets(capture_file *cf, print_args_t *print_args)
   if (fh == NULL)
     return CF_PRINT_OPEN_ERROR; /* attempt to open destination failed */
 
-  write_json_preamble(fh);
+  callback_args.jdumper = write_json_preamble(fh);
   if (ferror(fh)) {
     fclose(fh);
     return CF_PRINT_WRITE_ERROR;
@@ -2992,7 +2995,7 @@ cf_write_json_packets(capture_file *cf, print_args_t *print_args)
     return CF_PRINT_WRITE_ERROR;
   }
 
-  write_json_finale(fh);
+  write_json_finale(&callback_args.jdumper);
   if (ferror(fh)) {
     fclose(fh);
     return CF_PRINT_WRITE_ERROR;

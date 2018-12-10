@@ -114,6 +114,7 @@
 
 #include <wsutil/str_util.h>
 #include <wsutil/utf8_entities.h>
+#include <wsutil/json_dumper.h>
 
 #include "extcap.h"
 
@@ -192,6 +193,8 @@ static pf_flags protocolfilter_flags = PF_NONE;
 
 static gboolean no_duplicate_keys = FALSE;
 static proto_node_children_grouper_func node_children_grouper = proto_node_group_children_by_unique;
+
+static json_dumper jdumper;
 
 /* The line separator used between packets, changeable via the -S option */
 static const char *separator = "";
@@ -3559,11 +3562,11 @@ write_preamble(capture_file *cf)
 
   case WRITE_JSON:
   case WRITE_JSON_RAW:
-    write_json_preamble(stdout);
+    jdumper = write_json_preamble(stdout);
     return !ferror(stdout);
 
   case WRITE_EK:
-    return !ferror(stdout);
+    return TRUE;
 
   default:
     g_assert_not_reached();
@@ -3916,7 +3919,7 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
     if (print_details) {
       write_json_proto_tree(output_fields, print_dissections_expanded,
                             print_hex, protocolfilter, protocolfilter_flags,
-                            edt, &cf->cinfo, node_children_grouper, stdout);
+                            edt, &cf->cinfo, node_children_grouper, &jdumper);
       return !ferror(stdout);
     }
     break;
@@ -3927,7 +3930,7 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
     if (print_details) {
       write_json_proto_tree(output_fields, print_dissections_none, TRUE,
                             protocolfilter, protocolfilter_flags,
-                            edt, &cf->cinfo, node_children_grouper, stdout);
+                            edt, &cf->cinfo, node_children_grouper, &jdumper);
       return !ferror(stdout);
     }
     break;
@@ -3972,11 +3975,11 @@ write_finale(void)
 
   case WRITE_JSON:
   case WRITE_JSON_RAW:
-    write_json_finale(stdout);
+    write_json_finale(&jdumper);
     return !ferror(stdout);
 
   case WRITE_EK:
-    return !ferror(stdout);
+    return TRUE;
 
   default:
     g_assert_not_reached();
