@@ -91,6 +91,7 @@
 #define TRILL_VERSION            13
 #define VLAN_GROUP               14
 #define SEGMENT_ROUTING_ALG      19
+#define NODE_MSD                 23            /* rfc8491 */
 
 
 /*Sub-TLVs under Group Address TLV*/
@@ -109,6 +110,11 @@
 
 /* Segment routing Algorithm */
 #define ISIS_SR_ALG_SPF             0
+#define ISIS_SR_ALG_SSPF            1
+
+/* IGP MSD Type (rfc8491) */
+#define ISIS_IGP_MSD_TYPE_RESERVED  0
+#define ISIS_IGP_MSD_TYPE_MPLS      1
 
 const range_string mtid_strings[] = {
   {    0,    0, "Standard topology" },
@@ -363,6 +369,8 @@ static int hf_isis_lsp_clv_sr_cap_range = -1;
 static int hf_isis_lsp_clv_sr_cap_sid = -1;
 static int hf_isis_lsp_clv_sr_cap_label = -1;
 static int hf_isis_lsp_clv_sr_alg = -1;
+static int hf_isis_lsp_clv_igp_msd_type = -1;
+static int hf_isis_lsp_clv_igp_msd_value = -1;
 static int hf_isis_lsp_area_address = -1;
 static int hf_isis_lsp_instance_identifier = -1;
 static int hf_isis_lsp_supported_itid = -1;
@@ -432,6 +440,7 @@ static gint ett_isis_lsp_clv_te_node_cap_desc = -1;
 static gint ett_isis_lsp_clv_sr_cap = -1;
 static gint ett_isis_lsp_clv_sr_sid_label = -1;
 static gint ett_isis_lsp_clv_sr_alg = -1;
+static gint ett_isis_lsp_clv_node_msd = -1;
 static gint ett_isis_lsp_clv_trill_version = -1;
 static gint ett_isis_lsp_clv_trees = -1;
 static gint ett_isis_lsp_clv_root_id = -1;
@@ -498,7 +507,14 @@ static const true_false_string tfs_external_internal = { "External", "Internal" 
 static const true_false_string tfs_ipv6_ipv4 = { "IPv6", "IPv4" };
 
 static const value_string isis_lsp_sr_alg_vals[] = {
-    { ISIS_SR_ALG_SPF, "Shortest Path First (SPF)" },
+    { ISIS_SR_ALG_SPF,      "Shortest Path First (SPF)" },
+    { ISIS_SR_ALG_SSPF,     "Strict Shortest Path First (SPF)" },
+    { 0, NULL }
+};
+
+static const value_string isis_lsp_igp_msd_types[] = {
+    { ISIS_IGP_MSD_TYPE_RESERVED,   "Reserved" },
+    { ISIS_IGP_MSD_TYPE_MPLS,       "Base MPLS Imposition MSD" },
     { 0, NULL }
 };
 
@@ -517,6 +533,7 @@ static const value_string isis_lsp_ext_is_reachability_code_vals[] = {
     { 12, "IPv6 Interface Address" },
     { 13, "IPv6 Neighbor Address" },
     { 14, "Extended Administrative Group" },
+    { 15, "Link Maximum SID Depth" },
     { 18, "TE Default metric" },
     { 19, "Link-attributes" },
     { 20, "Link Protection Type" },
@@ -1334,6 +1351,19 @@ dissect_isis_trill_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
         while (i < sublen) {
             proto_tree_add_item(rt_tree, hf_isis_lsp_clv_sr_alg, tvb, offset+i, 1, ENC_NA);
             i++;
+        }
+        return(0);
+
+    case NODE_MSD:
+        rt_tree = proto_tree_add_subtree_format(tree, tvb, offset-2, sublen+2,
+                                                ett_isis_lsp_clv_node_msd,
+                                                NULL, "Node Maximum SID Depth (t=%u, l=%u)",
+                                                subtype, sublen);
+        while (sublen >= 2) {
+            proto_tree_add_item(rt_tree, hf_isis_lsp_clv_igp_msd_type, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(rt_tree, hf_isis_lsp_clv_igp_msd_value, tvb, offset+1, 1, ENC_NA);
+            sublen -= 2;
+            offset += 2;
         }
         return(0);
 
@@ -2703,6 +2733,7 @@ dissect_sub_clv_tlv_22_22_23_141_222_223(tvbuff_t *tvb, packet_info* pinfo, prot
     int sub_tlv_offset = 0;
     int i = 0;
     guint  clv_code, clv_len;
+    int local_offset, local_len;
 
     sub_tlv_offset  = offset;
     while (i < subclvs_len) {
@@ -2746,6 +2777,17 @@ dissect_sub_clv_tlv_22_22_23_141_222_223(tvbuff_t *tvb, packet_info* pinfo, prot
             break;
             case 13:
                 proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_ipv6_neighbor_address, tvb, sub_tlv_offset+13+i, 16, ENC_NA);
+            break;
+            case 15:
+                /* Link MSD */
+                local_offset = sub_tlv_offset + 13 + i;
+                local_len = clv_len;
+                while (local_len >= 2) {
+                    proto_tree_add_item(subtree, hf_isis_lsp_clv_igp_msd_type, tvb, local_offset, 1, ENC_NA);
+                    proto_tree_add_item(subtree, hf_isis_lsp_clv_igp_msd_value, tvb, local_offset+1, 1, ENC_NA);
+                    local_len -= 2;
+                    local_offset += 2;
+                }
             break;
             case 18:
                 proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_traffic_engineering_default_metric,
@@ -4568,7 +4610,7 @@ proto_register_isis_lsp(void)
               NULL, HFILL }
         },
         { &hf_isis_lsp_ext_is_reachability_subclvs_len,
-            { "SubCLV Length", "isis.lsp.ext_is_reachability.subclvs_length",
+            { "Sub-TLV Length", "isis.lsp.ext_is_reachability.subclvs_length",
               FT_UINT8, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
@@ -4802,6 +4844,19 @@ proto_register_isis_lsp(void)
             FT_UINT8, BASE_DEC, VALS(isis_lsp_sr_alg_vals), 0x0,
             NULL, HFILL }
         },
+
+        /* rfc8491 */
+        { &hf_isis_lsp_clv_igp_msd_type,
+          { "MSD Type", "isis.lsp.igp_msd_type",
+            FT_UINT8, BASE_DEC, VALS(isis_lsp_igp_msd_types), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_isis_lsp_clv_igp_msd_value,
+          { "MSD Value", "isis.lsp.igp_msd_value",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
         { &hf_isis_lsp_area_address,
             { "Area address", "isis.lsp.area_address",
               FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -4966,6 +5021,7 @@ proto_register_isis_lsp(void)
         &ett_isis_lsp_clv_sr_cap,
         &ett_isis_lsp_clv_sr_sid_label,
         &ett_isis_lsp_clv_sr_alg,
+        &ett_isis_lsp_clv_node_msd,
         &ett_isis_lsp_sl_flags,
         &ett_isis_lsp_sl_sub_tlv,
         &ett_isis_lsp_sl_sub_tlv_flags,
