@@ -380,6 +380,8 @@ static expert_field ei_mal_eip_security_preshared_keys = EI_INIT;
 static expert_field ei_mal_eip_security_active_certs = EI_INIT;
 static expert_field ei_mal_eip_security_trusted_auths = EI_INIT;
 static expert_field ei_mal_eip_cert_capability_flags = EI_INIT;
+static expert_field ei_mal_cpf_item_length_mismatch = EI_INIT;
+static expert_field ei_mal_cpf_item_minimum_size = EI_INIT;
 
 static dissector_table_t   subdissector_srrd_table;
 static dissector_table_t   subdissector_io_table;
@@ -2654,6 +2656,16 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
 
    while ( item_count-- )
    {
+       // Verify that we have the minimum CPF Item size.
+       if (tvb_reported_length_remaining(tvb, offset) < 4)
+       {
+           expert_add_info_format(pinfo, count_item, &ei_mal_cpf_item_minimum_size,
+               "%s, but Remaining Data Length is %d",
+               expert_get_summary(&ei_mal_cpf_item_minimum_size), tvb_reported_length_remaining(tvb, offset));
+
+           break;
+       }
+
       /* Add item type tree to item count tree*/
       guint32 item_type_id;
       proto_item* type_item = proto_tree_add_item_ret_uint( count_tree, hf_enip_cpf_typeid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &item_type_id );
@@ -2664,6 +2676,15 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
       guint32 item_length;
       proto_tree_add_item_ret_uint( item_tree, hf_enip_cpf_length, tvb, offset, 2, ENC_LITTLE_ENDIAN, &item_length);
       offset += 2;
+
+      // Check if the declared item length is more bytes than we have available. But, don't exit early
+      //    so maybe it will be more obvious where the problem is.
+      if ((int)item_length > tvb_reported_length_remaining(tvb, offset))
+      {
+          expert_add_info_format(pinfo, type_item, &ei_mal_cpf_item_length_mismatch,
+              "%s: Item Length %d, Remaining Data Length: %d",
+              expert_get_summary(&ei_mal_cpf_item_length_mismatch), item_length, tvb_reported_length_remaining(tvb, offset));
+      }
 
       // offset now starts at the data field after the Item Length field. The name of this
       //    field varies depending on the item type.
@@ -4392,6 +4413,8 @@ proto_register_enip(void)
       { &ei_mal_eip_security_active_certs, { "cip.malformed.eip_security.active_certs", PI_MALFORMED, PI_ERROR, "Malformed EIP Security Active Device Certificates", EXPFILL }},
       { &ei_mal_eip_security_trusted_auths, { "cip.malformed.eip_security.trusted_auths", PI_MALFORMED, PI_ERROR, "Malformed EIP Security Trusted Authorities", EXPFILL }},
       { &ei_mal_eip_cert_capability_flags, { "cip.malformed.eip_cert.capability_flags", PI_MALFORMED, PI_ERROR, "Malformed EIP Certificate Management Capability Flags", EXPFILL }},
+      { &ei_mal_cpf_item_length_mismatch, { "enip.malformed.cpf_item_length_mismatch", PI_MALFORMED, PI_ERROR, "CPF Item Length Mismatch", EXPFILL } },
+      { &ei_mal_cpf_item_minimum_size, { "enip.malformed.cpf_item_minimum_size", PI_MALFORMED, PI_ERROR, "CPF Item Minimum Size is 4", EXPFILL } },
    };
 
    /* Setup list of header fields for DLR  See Section 1.6.1 for details*/
