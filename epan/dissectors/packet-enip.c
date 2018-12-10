@@ -164,6 +164,7 @@ static int hf_enip_response_in = -1;
 static int hf_enip_response_to = -1;
 static int hf_enip_time = -1;
 static int hf_enip_fwd_open_in = -1;
+static int hf_cip_connection = -1;
 static int hf_cip_io_data = -1;
 
 /* Parsed Attributes */
@@ -1033,7 +1034,7 @@ static gchar* cip_connection_conv_filter(packet_info *pinfo)
  * Connection management
  */
 static wmem_map_t *enip_conn_hashtable = NULL;
-static guint32 enip_unique_connid = 1;
+static guint32 enip_unique_connid;
 
 static gint
 enip_conn_equal(gconstpointer v, gconstpointer w)
@@ -2190,6 +2191,11 @@ attribute_info_t enip_attribute_vals[99] = {
    {0x5F, FALSE, 4, 3, "CA Certificate",  cip_dissector_func,   NULL, dissect_eip_cert_ca_cert},
 };
 
+static void enip_init_protocol(void)
+{
+   enip_unique_connid = 0;
+}
+
 // offset - Starts at the "Encapsulation Protocol Version" field.
 static void dissect_item_list_identity(packet_info* pinfo, tvbuff_t* tvb, int offset, proto_tree* item_tree)
 {
@@ -2339,6 +2345,9 @@ static void display_connection_information(packet_info* pinfo, tvbuff_t* tvb, pr
    PROTO_ITEM_SET_GENERATED(pi);
 
    pi = proto_tree_add_uint_format_value(conn_info_tree, hf_cip_cm_to_api, tvb, 0, 0, conn_info->T2Oapi, "%dms (0x%08X)", conn_info->T2Oapi / 1000, conn_info->T2Oapi);
+   PROTO_ITEM_SET_GENERATED(pi);
+
+   pi = proto_tree_add_uint(conn_info_tree, hf_cip_connection, tvb, 0, 0, conn_info->connid);
    PROTO_ITEM_SET_GENERATED(pi);
 
    pi = proto_tree_add_uint(conn_info_tree, hf_enip_fwd_open_in, tvb, 0, 0, conn_info->open_frame);
@@ -3545,6 +3554,12 @@ proto_register_enip(void)
       // Generated API data.
       { &hf_cip_cm_ot_api, { "O->T API", "cip.cm.otapi", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
       { &hf_cip_cm_to_api, { "T->O API", "cip.cm.toapi", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
+
+      { &hf_cip_connection,
+        { "CIP Connection Index", "cip.connection",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL } },
+
       { &hf_cip_io_data,
         { "Data", "cipio.data",
           FT_BYTES, BASE_NONE|BASE_ALLOW_ZERO, NULL, 0x0,
@@ -4648,6 +4663,8 @@ proto_register_enip(void)
 
    enip_request_hashtable = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), enip_request_hash, enip_request_equal);
    enip_conn_hashtable = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), enip_conn_hash, enip_conn_equal);
+
+   register_init_routine(&enip_init_protocol);
 
    /* Register the protocol name and description */
    proto_dlr = proto_register_protocol("Device Level Ring", "DLR", "dlr");

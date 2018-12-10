@@ -519,6 +519,8 @@ static int hf_32bitheader_roo = -1;
 static int hf_32bitheader_coo = -1;
 static int hf_32bitheader_run_idle = -1;
 
+static int hf_cip_connection = -1;
+
 /* Initialize the subtree pointers */
 static gint ett_cip = -1;
 static gint ett_cip_class_generic = -1;
@@ -6272,6 +6274,17 @@ static void dissect_connection_triad(tvbuff_t *tvb, int offset, proto_tree *tree
    }
 }
 
+// Mark this message as belonging to a specific CIP connection index.
+static void mark_cip_connection(packet_info* pinfo, tvbuff_t* tvb, proto_tree* tree)
+{
+    enip_conn_val_t* conn_val = (enip_conn_val_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_CONNECTION_INFO);
+    if (conn_val)
+    {
+        proto_item* pi = proto_tree_add_uint(tree, hf_cip_connection, tvb, 0, 0, conn_val->connid);
+        PROTO_ITEM_SET_GENERATED(pi);
+    }
+}
+
 static void
 dissect_cip_cm_fwd_open_req(cip_req_info_t *preq_info, proto_tree *cmd_tree, tvbuff_t *tvb, int offset, gboolean large_fwd_open, packet_info *pinfo)
 {
@@ -6384,6 +6397,8 @@ dissect_cip_cm_fwd_open_req(cip_req_info_t *preq_info, proto_tree *cmd_tree, tvb
          tvb_memcpy(tvb, preq_info->connInfo->pFwdOpenPathData, offset + 26 + net_param_offset + 6, conn_path_size);
       }
    }
+
+   mark_cip_connection(pinfo, tvb, cmd_tree);
 }
 
 static void
@@ -6467,6 +6482,8 @@ dissect_cip_cm_fwd_open_rsp_success(cip_req_info_t *preq_info, proto_tree *tree,
             proto_tree_add_item(tree, hf_cip_cm_app_reply_data, tvb, offset+40, app_rep_size-14, ENC_NA );
       }
    }
+
+   mark_cip_connection(pinfo, tvb, tree);
 
    /* See if we've captured the ForwardOpen request.  If so some of the conversation data has already been
       populated and we just need to update it. */
@@ -6738,6 +6755,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
                }
 
                enip_close_cip_connection( pinfo, &conn_triad);
+               mark_cip_connection(pinfo, tvb, cmd_data_tree);
 
             } /* End of if forward close response */
             break;
@@ -6861,6 +6879,9 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
             /* Add the EPATH */
             epath_tree = proto_tree_add_subtree(cmd_data_tree, tvb, offset+2+req_path_size+12, conn_path_size, ett_path, &pi, "Connection Path: ");
             dissect_epath(tvb, pinfo, epath_tree, pi, offset + 2 + req_path_size + 12, conn_path_size, FALSE, FALSE, &conn_path, NULL, DISPLAY_CONNECTION_PATH, NULL, FALSE);
+
+            mark_cip_connection(pinfo, tvb, cmd_data_tree);
+
             break;
          }
          case SC_CM_UNCON_SEND:
@@ -8323,6 +8344,8 @@ proto_register_cip(void)
       { &hf_32bitheader_roo, { "ROO", "cip.32bitheader.roo", FT_UINT32, BASE_HEX, NULL, 0xC, "Ready for Ownership of Outputs", HFILL } },
       { &hf_32bitheader_coo, { "COO", "cip.32bitheader.coo", FT_UINT32, BASE_HEX, NULL, 0x2, "Claim Output Ownership", HFILL } },
       { &hf_32bitheader_run_idle, { "Run/Idle", "cip.32bitheader.run_idle", FT_UINT32, BASE_HEX, VALS(cip_run_idle_vals), 0x1, NULL, HFILL } },
+
+      { &hf_cip_connection, { "CIP Connection Index", "cip.connection", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
    };
 
    static hf_register_info hf_cm[] = {
