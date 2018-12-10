@@ -48,6 +48,7 @@ static int hf_rsl_rach_slot_cnt        = -1;
 static int hf_rsl_rach_busy_cnt        = -1;
 static int hf_rsl_rach_acc_cnt         = -1;
 static int hf_rsl_req_ref_ra           = -1;
+static int hf_rsl_req_ref_ra_est_cause = -1;
 static int hf_rsl_req_ref_T1prim       = -1;
 static int hf_rsl_req_ref_T3           = -1;
 static int hf_rsl_req_ref_T2           = -1;
@@ -181,6 +182,7 @@ static int ett_ie_paging_load = -1;
 static int ett_ie_access_delay = -1;
 static int ett_ie_rach_load = -1;
 static int ett_ie_req_ref = -1;
+static int ett_ie_req_ref_ra = -1;
 static int ett_ie_rel_mode = -1;
 static int ett_ie_resource_inf = -1;
 static int ett_ie_rlm_cause = -1;
@@ -1794,8 +1796,9 @@ dissect_rsl_ie_rach_load(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 static int
 dissect_rsl_ie_req_ref(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean is_mandatory)
 {
-    proto_tree *ie_tree;
+    proto_tree *ie_tree, *ra_tree;
     guint8      ie_id;
+    proto_item *ti;
 
     if (is_mandatory == FALSE) {
         ie_id = tvb_get_guint8(tvb, offset);
@@ -1808,7 +1811,9 @@ dissect_rsl_ie_req_ref(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
     /* Element identifier */
     proto_tree_add_item(ie_tree, hf_rsl_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    proto_tree_add_item(ie_tree, hf_rsl_req_ref_ra, tvb, offset, 1, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(ie_tree, hf_rsl_req_ref_ra, tvb, offset, 1, ENC_BIG_ENDIAN);
+    ra_tree = proto_item_add_subtree(ti, ett_ie_req_ref_ra);
+    proto_tree_add_item(ra_tree, hf_rsl_req_ref_ra_est_cause, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     proto_tree_add_item(ie_tree, hf_rsl_req_ref_T1prim, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(ie_tree, hf_rsl_req_ref_T3, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -4287,6 +4292,77 @@ static const value_string rsl_ipacc_rtp_csd_fmt_ir_vals[] = {
     { 0, NULL }
 };
 
+/* GSM 04.08 9.1.8 Channel request, ESTABLISHMENT CAUSE */
+static void
+req_ref_ra_est_cause_convert(gchar *result, guint32 ra)
+{
+    gchar *str;
+
+    switch (ra & 0xe0) { /* 3 bit Establishment Cause codes */
+    case 0x00:
+        str = "Location updating and the network does not set NECI bit to 1";
+        goto found;
+    case 0x80:
+        str = "Answer to paging: 'Any Channel', or ('TCH/F' or 'TCH/H or TCH/F') if MS is 'Full rate only'";
+        goto found;
+    case 0xa0:
+        str = "Emergency call";
+        goto found;
+    case 0xc0:
+        str = "Call re-establishment; TCH/F was in use, or TCH/H was in use but the network does not set NECI bit to 1";
+        goto found;
+    case 0xe0:
+        str = "Originating call and TCH/F is needed, or originating call and the network does not set NECI bit to 1,"
+              " or procedures that can be completed with a SDCCH and the network does not set NECI bit to 1";
+        goto found;
+    }
+
+    switch (ra & 0xf0) { /* 4 bit Establishment Cause codes */
+    case 0x00:
+        str = "Location updating and the network sets NECI bit to 1";
+        goto found;
+    case 0x10:
+        str = "Answer to paging: 'SDCCH' / Other procedures which can be completed with an SDCCH and the network sets NECI bit to 1";
+        goto found;
+    case 0x20:
+        str = "Answer to paging: MS is dual rate capable and requests 'TCH/F' only";
+        goto found;
+    case 0x30:
+        str = "Answer to paging: MS is dual rate capable and requests 'TCH/H or TCH/F'";
+        goto found;
+    case 0x40:
+        str = "Originating speech call from dual-rate mobile station when TCH/H is sufficient and the network sets NECI bit to 1";
+        goto found;
+    case 0x50:
+        str = "Originating data call from dual-rate mobile station when TCH/H is sufficient and the network sets NECI bit to 1";
+        goto found;
+    case 0x70:
+        str = "Reserved for future use. An SDCCH may be allocated";
+        goto found;
+    }
+
+    switch (ra & 0xf8) { /* 5 bit Establishment Cause codes */
+    case 0x60:
+        str = "Reserved for future use. An SDCCH may be allocated";
+        goto found;
+    }
+
+    switch (ra & 0xfc) { /* 6 bit Establishment Cause codes */
+    case 0x68:
+        str = "Call re-establishment; TCH/H was in use and the network sets NECI bit to 1";
+        goto found;
+    case 0x6c:
+        str = "Call re-establishment; TCH/H + TCH/H was in use and the network sets NECI bit to 1";
+        goto found;
+    }
+
+    g_snprintf(result, ITEM_LABEL_LENGTH, "unknown ra %u", ra);
+    return;
+
+found:
+    g_snprintf(result, ITEM_LABEL_LENGTH, "%s", str);
+}
+
 static int
 dissect_rsl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -4383,6 +4459,11 @@ void proto_register_rsl(void)
         { &hf_rsl_req_ref_ra,
           { "Random Access Information (RA)", "gsm_abis_rsl.req_ref_ra",
             FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_rsl_req_ref_ra_est_cause,
+          { "Channel Request Establishment Cause", "gsm_abis_rsl.req_ref_ra.est_cause",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(req_ref_ra_est_cause_convert), 0x0,
             NULL, HFILL }
         },
         { &hf_rsl_req_ref_T1prim,
@@ -4879,6 +4960,7 @@ void proto_register_rsl(void)
         &ett_ie_access_delay,
         &ett_ie_rach_load,
         &ett_ie_req_ref,
+        &ett_ie_req_ref_ra,
         &ett_ie_rel_mode,
         &ett_ie_resource_inf,
         &ett_ie_rlm_cause,
