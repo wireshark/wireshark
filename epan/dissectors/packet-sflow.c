@@ -287,6 +287,48 @@ static const value_string sflow_5_counters_record_type[] = {
     { 0, NULL}
 };
 
+/* sFlow v5 interface formats */
+#define SFLOW_5_INT_FORMAT 0xC0000000
+#define SFLOW_5_INT_VALUE  0x3FFFFFFF
+
+#define SFLOW_5_INT_FORMAT_IFINDEX  0
+#define SFLOW_5_INT_FORMAT_DISCARD  1
+#define SFLOW_5_INT_FORMAT_MULTIPLE 2
+
+static const value_string interface_format[] = {
+    { SFLOW_5_INT_FORMAT_IFINDEX,       "ifindex"},
+    { SFLOW_5_INT_FORMAT_DISCARD,       "packet discarded"},
+    { SFLOW_5_INT_FORMAT_MULTIPLE,      "multiple interfaces"},
+    { 0, NULL}
+};
+
+static const value_string interface_discard[] = {
+    {   0, "Net Unreachable"},
+    {   1, "Host Unreachable"},
+    {   2, "Protocol Unreachable"},
+    {   3, "Port Unreachable"},
+    {   4, "Fragmentation Needed and Don't Fragment was Set"},
+    {   5, "Source Route Failed"},
+    {   6, "Destination Network Unknown"},
+    {   7, "Destination Host Unknown"},
+    {   8, "Source Host Isolated"},
+    {   9, "Communication with Destination Network is Administratively Prohibited"},
+    {  10, "Communication with Destination Host is Administratively Prohibited"},
+    {  11, "Destination Network Unreachable for Type of Service"},
+    {  12, "Destination Host Unreachable for Type of Service"},
+    {  13, "Communication Administratively Prohibited"},
+    {  14, "Host Precedence Violation"},
+    {  15, "Precedence cutoff in effect"},
+    { 256, "unknown"},
+    { 257, "ttl exceeded"},
+    { 258, "ACL"},
+    { 259, "no buffer space"},
+    { 260, "RED"},
+    { 261, "traffic shaping/rate limiting"},
+    { 262, "packet too big (for protocols that don't support fragmentation)"},
+    { 0, NULL}
+};
+
 /* ethernet counters.  These will be preceded by generic counters. */
 struct ethernet_counters {
     guint32 dot3StatsAlignmentErrors;
@@ -481,7 +523,11 @@ static int hf_sflow_flow_sample_input_interface = -1;
 static int hf_sflow_counters_sample_sampling_interval = -1;
 static int hf_sflow_5_extended_url_host_length = -1;
 static int hf_sflow_245_ip_tcp_flag_syn = -1;
-static int hf_sflow_flow_sample_output_interface = -1;
+static int hf_sflow_24_flow_sample_output_interface = -1;
+static int hf_sflow_5_flow_sample_output_interface = -1;
+static int hf_sflow_5_flow_sample_output_interface_form = -1;
+static int hf_sflow_5_flow_sample_output_interface_val = -1;
+static int hf_sflow_5_flow_sample_output_interface_val_discard = -1;
 static int hf_sflow_245_length_of_ip_packet = -1;
 static int hf_sflow_counters_sample_counters_type = -1;
 static int hf_sflow_5_extended_mpls_tunnel_id = -1;
@@ -529,10 +575,10 @@ static int hf_sflow_5_extended_80211_rx_packet_duration = -1;
 static int hf_sflow_5_extended_80211_tx_packet_duration = -1;
 static int hf_sflow_245_ipv4_reliability = -1;
 static int hf_sflow_5_extended_80211_tx_power = -1;
-static int hf_sflow_flow_sample_multiple_outputs = -1;
+static int hf_sflow_24_flow_sample_multiple_outputs = -1;
 static int hf_sflow_5_extended_user_source_user_string_length = -1;
 static int hf_sflow_5_extended_80211_payload_length = -1;
-static int hf_sflow_flow_sample_output_interface_format = -1;
+static int hf_sflow_24_flow_sample_output_interface_format = -1;
 static int hf_sflow_245_ethernet_packet_type = -1;
 static int hf_sflow_counters_sample_expanded_source_id_type = -1;
 static int hf_sflow_245_ip_source_port = -1;
@@ -561,7 +607,7 @@ static int hf_sflow_counters_sample_source_id_index = -1;
 static int hf_sflow_counters_sample_counters_records = -1;
 static int hf_sflow_5_extended_mpls_tunnel_cos_value = -1;
 static int hf_sflow_5_extended_mpls_vc_id = -1;
-static int hf_sflow_flow_sample_output_interface_value = -1;
+static int hf_sflow_24_flow_sample_output_interface_value = -1;
 static int hf_sflow_5_extended_user_destination_user = -1;
 static int hf_sflow_245_as_type = -1;
 static int hf_sflow_counters_sample_index = -1;
@@ -609,6 +655,7 @@ static gint ett_sflow_245_gw_as_dst_seg = -1;
 static gint ett_sflow_245_gw_community = -1;
 static gint ett_sflow_245_sampled_header = -1;
 static gint ett_sflow_lag_port_state_flags = -1;
+static gint ett_sflow_5_output_interface = -1;
 
 static expert_field ei_sflow_invalid_address_type = EI_INIT;
 
@@ -1445,12 +1492,12 @@ dissect_sflow_24_flow_sample(tvbuff_t *tvb, packet_info *pinfo,
     output = tvb_get_ntohl(tvb, offset + 24);
     if (output & 0x80000000) {
         output & 0x7fffffff ?
-            proto_tree_add_uint_format_value(tree, hf_sflow_flow_sample_multiple_outputs, tvb, offset + 24, 4,
+            proto_tree_add_uint_format_value(tree, hf_sflow_24_flow_sample_multiple_outputs, tvb, offset + 24, 4,
                 output & 0x7fffffff, "%u interfaces", output & 0x7fffffff) :
-            proto_tree_add_uint_format_value(tree, hf_sflow_flow_sample_multiple_outputs, tvb, offset + 24, 4,
+            proto_tree_add_uint_format_value(tree, hf_sflow_24_flow_sample_multiple_outputs, tvb, offset + 24, 4,
                 0x80000000, "unknown number");
     } else {
-        proto_tree_add_item(tree, hf_sflow_flow_sample_output_interface, tvb, offset + 24, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_sflow_24_flow_sample_output_interface, tvb, offset + 24, 4, ENC_BIG_ENDIAN);
     }
     offset += 28;
 
@@ -1939,7 +1986,9 @@ dissect_sflow_5_flow_sample(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, gint offset, proto_item *parent) {
 
     guint32 sequence_number, sampling_rate,
-            output, records, i;
+            output, records, i, output_format;
+    proto_item *ti;
+    proto_tree *output_interface_tree;
 
     sequence_number = tvb_get_ntohl(tvb, offset);
     proto_tree_add_item(tree, hf_sflow_flow_sample_sequence_number, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1959,15 +2008,24 @@ dissect_sflow_5_flow_sample(tvbuff_t *tvb, packet_info *pinfo,
     offset += 4;
     proto_tree_add_item(tree, hf_sflow_flow_sample_input_interface, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    output = tvb_get_ntohl(tvb, offset);
-    if (output & 0x80000000) {
-        output & 0x7fffffff ?
-            proto_tree_add_uint_format_value(tree, hf_sflow_flow_sample_multiple_outputs, tvb, offset, 4,
-                output & 0x7fffffff, "%u interfaces", output & 0x7fffffff) :
-            proto_tree_add_uint_format_value(tree, hf_sflow_flow_sample_multiple_outputs, tvb, offset, 4,
-                0x80000000, "unknown number");
-    } else {
-        proto_tree_add_item(tree, hf_sflow_flow_sample_output_interface, tvb, offset, 4, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item_ret_uint(tree, hf_sflow_5_flow_sample_output_interface, tvb, offset, 4, ENC_BIG_ENDIAN, &output);
+    output_interface_tree = proto_item_add_subtree(ti, ett_sflow_5_output_interface);
+    output_format = output >> 30;
+    proto_tree_add_item(output_interface_tree, hf_sflow_5_flow_sample_output_interface_form, tvb, offset, 4, ENC_BIG_ENDIAN);
+    switch(output_format) {
+        case SFLOW_5_INT_FORMAT_DISCARD:
+            proto_tree_add_item(output_interface_tree, hf_sflow_5_flow_sample_output_interface_val_discard, tvb, offset, 4, ENC_BIG_ENDIAN);
+            break;
+        case SFLOW_5_INT_FORMAT_MULTIPLE:
+            ti =proto_tree_add_item(output_interface_tree, hf_sflow_5_flow_sample_output_interface_val, tvb, offset, 4, ENC_BIG_ENDIAN);
+            if (output == 0x80000000) {
+                proto_item_append_text(ti, " unknown number of interfaces greater than 1");
+            }
+            break;
+        case SFLOW_5_INT_FORMAT_IFINDEX:
+        default:
+            proto_tree_add_item(output_interface_tree, hf_sflow_5_flow_sample_output_interface_val, tvb, offset, 4, ENC_BIG_ENDIAN);
+            break;
     }
     offset += 4;
     records = tvb_get_ntohl(tvb, offset);
@@ -2010,9 +2068,9 @@ dissect_sflow_5_expanded_flow_sample(tvbuff_t *tvb, packet_info *pinfo,
     offset += 4;
     proto_tree_add_item(tree, hf_sflow_flow_sample_input_interface_value, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(tree, hf_sflow_flow_sample_output_interface_format, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_sflow_24_flow_sample_output_interface_format, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(tree, hf_sflow_flow_sample_output_interface_value, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_sflow_24_flow_sample_output_interface_value, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
     records = tvb_get_ntohl(tvb, offset);
     proto_tree_add_item(tree, hf_sflow_flow_sample_flow_record, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -3318,14 +3376,39 @@ proto_register_sflow(void) {
           FT_UINT32, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
-      { &hf_sflow_flow_sample_multiple_outputs,
+      { &hf_sflow_24_flow_sample_multiple_outputs,
         { "Multiple outputs", "sflow.flow_sample.multiple_outputs",
           FT_UINT32, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
-      { &hf_sflow_flow_sample_output_interface,
+      { &hf_sflow_24_flow_sample_output_interface_format,
+        { "Output interface format", "sflow.flow_sample.output_interface.format",
+          FT_UINT32, BASE_DEC, NULL, 0x7fffffff,
+          NULL, HFILL }
+      },
+      { &hf_sflow_24_flow_sample_output_interface,
         { "Output interface (ifIndex)", "sflow.flow_sample.output_interface",
           FT_UINT32, BASE_DEC, NULL, 0x7fffffff,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_flow_sample_output_interface,
+        { "Output interface", "sflow.flow_sample.output_interface",
+          FT_UINT32, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_flow_sample_output_interface_form,
+        { "Output interface format", "sflow.flow_sample.output_interface_format",
+          FT_UINT32, BASE_DEC, VALS(interface_format), SFLOW_5_INT_FORMAT,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_flow_sample_output_interface_val,
+        { "Output interface value", "sflow.flow_sample.output_interface_value",
+          FT_UINT32, BASE_DEC, NULL, SFLOW_5_INT_VALUE,
+          NULL, HFILL }
+      },
+      { &hf_sflow_5_flow_sample_output_interface_val_discard,
+        { "Output interface value", "sflow.flow_sample.output_interface_value",
+          FT_UINT32, BASE_DEC, VALS(interface_discard), SFLOW_5_INT_VALUE,
           NULL, HFILL }
       },
       { &hf_sflow_enterprise,
@@ -3358,12 +3441,7 @@ proto_register_sflow(void) {
           FT_UINT32, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
-      { &hf_sflow_flow_sample_output_interface_format,
-        { "Output interface format", "sflow.flow_sample.output_interface_format",
-          FT_UINT32, BASE_DEC, NULL, 0x0,
-          NULL, HFILL }
-      },
-      { &hf_sflow_flow_sample_output_interface_value,
+      { &hf_sflow_24_flow_sample_output_interface_value,
         { "Output interface value", "sflow.flow_sample.output_interface_value",
           FT_UINT32, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
@@ -3591,6 +3669,7 @@ proto_register_sflow(void) {
         &ett_sflow_245_gw_community,
         &ett_sflow_245_sampled_header,
         &ett_sflow_lag_port_state_flags,
+        &ett_sflow_5_output_interface,
     };
 
     static ei_register_info ei[] = {
