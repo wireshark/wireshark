@@ -5276,6 +5276,11 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                 total_length += (1 + labnum*3) + length;
                 proto_tree_add_ipv6(prefix_tree, hf_addr6, tvb, offset, length, &ip6addr);
                 break;
+            case SAFNUM_MCAST_VPN:
+                total_length = decode_mcast_vpn_nlri(tree, tvb, offset, afi);
+                if (total_length < 0)
+                    return -1;
+                break;
             case SAFNUM_ENCAPSULATION:
                 plen =  tvb_get_guint8(tvb, offset);
                 if (plen != 128){
