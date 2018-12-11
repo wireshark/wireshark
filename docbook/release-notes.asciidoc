@@ -60,10 +60,10 @@ since version 2.6.0:
 * APT-X has been renamed to aptX.
 * When importing from hex dump, it's now possible to add an ExportPDU header with a payload name. This
   calls the specific dissector directly without lower protocols.
-* sshdump and ciscodump can now use a proxy for the ssh connection.
+* The sshdump and ciscodump extcap interfaces can now use a proxy for the SSH connection.
 * Dumpcap now supports the `-a packets:NUM` and `-b packets:NUM` options.
 * Wireshark now includes a “No Reassembly” configuration profile.
-* Add Russian translation
+* Wireshark now supports the Russian language.
 
 === Removed Features and Support
 
@@ -71,50 +71,54 @@ since version 2.6.0:
 * Wireshark requires Qt 5.2 or later. Qt 4 is no longer supported.
 * Wireshark requires GLib 2.32 or later.
 * Building Wireshark requires CMake. Autotools is no longer supported.
-* The tshark -z compare option was removed.
+* TShark’s `-z compare` option was removed.
 
 //=== Removed Dissectors
 
-//=== New File Format Decoding Support
+=== New File Format Decoding Support
+
+[commaize]
+--
+Ruby Marshal format
+--
 
 === New Protocol Support
 
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
-BLIP protocol for Couchbase Lite
+Apple Wireless Direct Link (AWDL)
+BLIP Couchbase Mobile (BLIP)
 CDMA 2000
-Apple Wireless Direct Link (AWDL) protocol
 Cisco Meraki Discovery Protocol (MDP)
-DoIP (ISO 13400-2 Diagnostic communication over Internet Protocol)
-DXL protocol
-E1AP (5G) protocol
+Distributed Ruby (DRb)
+DXL
+E1AP (5G)
 EVS (3GPP TS 26.445 A.2 EVS RTP)
 Exablaze trailers
-GCSNA General Circuit Services Notification Application Protocol
+General Circuit Services Notification Application Protocol (GCSNA)
 GLOW Lawo Emberplus Data format
-GSM-R protocol (User-to-User Information Element usage)
-GSUP (Osmocom Generic Subscriber Update Protocol)
+GSM-R (User-to-User Information Element usage)
 HI3CCLinkData
-Local Number Portability Database Query Protocol(ANSI)
-MsgPack protocol
-NGAP (5G) protocol
-NR (5G) PDCP protocol
+ISO 13400-2 Diagnostic communication over Internet Protocol (DoIP)
+ITU-t X.696 Octet Encoding Rules (OER)
+Local Number Portability Database Query Protocol (ANSI)
+MsgPack
+NGAP (5G)
+NR (5G) PDCP
+Osmocom Generic Subscriber Update Protocol (GSUP)
 PKCS#10 (RFC2986 Certification Request Syntax)
-PROXY (v2) protocol
-Ruby Distributed protocol
-Ruby Marshal format
+PROXY (v2)
 S101 Lawo Emberplus transport frame
-Secure Reliable Transport protocol
-STCSIG (Spirent Test Center Signature decoding for Ethernet and FibreChannel, disabled by default)
+Secure Reliable Transport Protocol (SRT)
+Spirent Test Center Signature decoding for Ethernet and FibreChannel (STCSIG, disabled by default)
+Sybase-specific portions of TDS
 systemd Journal Export
 TeamSpeak 3 DNS
-TDS (Sybase-specific portions of the protocol)
-TPM 2.0 protocol
+TPM 2.0
 Ubiquiti Discovery Protocol (UBDP)
-XnAP (5G) protocol
-ITU-t X.696 Octet Encoding Rules (OER)
-WireGuard protocol
+WireGuard
+XnAP (5G)
 --
 
 === Updated Protocol Support
