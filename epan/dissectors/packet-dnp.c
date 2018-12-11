@@ -2146,10 +2146,10 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
               dnp3_al_obj_quality(tvb, data_pos, al_ptflags, point_tree, point_item, BIN_IN);
               data_pos += 1;
 
-              /* Get relative time, and convert to ns_time */
+              /* Get relative time in ms, and convert to ns_time */
               al_relms = tvb_get_letohs(tvb, data_pos);
               al_reltime.secs = al_relms / 1000;
-              al_reltime.nsecs = (al_relms % 1000) * 1000;
+              al_reltime.nsecs = (al_relms % 1000) * 1000000;
               /* Now add to CTO time */
               nstime_sum(&al_abstime, al_cto, &al_reltime);
               proto_tree_add_time(point_tree, hf_dnp3_al_rel_timestamp, tvb, data_pos, 2, &al_reltime);
