@@ -19,6 +19,7 @@ S<[ B<-h> ]>
 S<[ B<-i> E<lt>protoE<gt> ]>
 S<[ B<-l> E<lt>typenumE<gt> ]>
 S<[ B<-n> ]>
+S<[ B<-N> E<lt>intf-nameE<gt> ]>
 S<[ B<-m> E<lt>max-packetE<gt> ]>
 S<[ B<-o> hex|oct|dec ]>
 S<[ B<-q> ]>
@@ -171,6 +172,11 @@ TCP packets.
 =item -n
 
 Write the file in pcapng format rather than pcap format.
+
+=item -N E<lt>intf-nameE<gt>
+
+Specify a name for the interface included when writing a pcapng format
+file. By default no name is defined.
 
 =item -o hex|oct|dec
 

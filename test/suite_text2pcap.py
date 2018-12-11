@@ -540,3 +540,20 @@ class case_text2pcap_i_proto(subprocesstest.SubprocessTestCase):
                 "0010   00 00 00 00 00 00 00 00 00 00 00 03 01 00 03 03\n" +
                 "0020   00 00 00 08\n",
                 ("-i", "132", "-6", "::1,::1")))
+
+
+@fixtures.mark_usefixtures('base_env')
+@fixtures.uses_fixtures
+class case_text2pcap_other_options(subprocesstest.SubprocessTestCase):
+    '''Test other command line options'''
+    def test_text2pcap_option_N(self, cmd_text2pcap, cmd_tshark, capture_file):
+        '''Test -N <intf-name> option'''
+        testin_file = self.filename_from_id(testin_txt)
+        testout_file = self.filename_from_id(testout_pcapng)
+
+        with open(testin_file, 'w') as f:
+            f.write("0000 00\n")
+            f.close()
+        self.assertRun((cmd_text2pcap, "-n", "-N", "your-interface-name", testin_file, testout_file))
+        proc = self.assertRun((cmd_tshark, "-r", testout_file, "-Tfields", "-eframe.interface_name", "-c1"))
+        self.assertEqual(proc.stdout_str.rstrip(), "your-interface-name")

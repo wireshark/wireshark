@@ -137,6 +137,9 @@
 /* File format */
 static gboolean use_pcapng = FALSE;
 
+/* Interface name */
+static char *interface_name = NULL;
+
 /* Debug level */
 static int debug = 0;
 /* Be quiet */
@@ -886,7 +889,7 @@ write_file_header (void)
         if (success) {
             success = pcapng_write_interface_description_block(output_file,
                                                                NULL,
-                                                               NULL,
+                                                               interface_name,
                                                                NULL,
                                                                "",
                                                                NULL,
@@ -1389,6 +1392,7 @@ print_usage (FILE *output)
             "                         Example: -l 7 for ARCNet packets.\n"
             "  -m <max-packet>        max packet length in output; default is %d\n"
             "  -n                     use pcapng instead of pcap as output format.\n"
+            "  -N <intf-name>         assign name to the interface in the pcapng file.\n"
             "\n"
             "Prepend dummy header:\n"
             "  -e <l3pid>             prepend dummy Ethernet II header with specified L3PID\n"
@@ -1450,7 +1454,7 @@ parse_options (int argc, char *argv[])
     ws_init_version_info("Text2pcap (Wireshark)", NULL, NULL, NULL);
 
     /* Scan CLI parameters */
-    while ((c = getopt_long(argc, argv, "aDdhqe:i:l:m:no:u:s:S:t:T:v4:6:", long_options, NULL)) != -1) {
+    while ((c = getopt_long(argc, argv, "aDdhqe:i:l:m:nN:o:u:s:S:t:T:v4:6:", long_options, NULL)) != -1) {
         switch (c) {
         case 'h':
             show_help_header("Generate a capture file from an ASCII hexdump of packets.");
@@ -1463,6 +1467,7 @@ parse_options (int argc, char *argv[])
         case 'l': pcap_link_type = (guint32)strtol(optarg, NULL, 0); break;
         case 'm': max_offset = (guint32)strtol(optarg, NULL, 0); break;
         case 'n': use_pcapng = TRUE; break;
+        case 'N': interface_name = optarg; break;
         case 'o':
             if (optarg[0] != 'h' && optarg[0] != 'o' && optarg[0] != 'd') {
                 fprintf(stderr, "Bad argument for '-o': %s\n", optarg);
