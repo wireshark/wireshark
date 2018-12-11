@@ -4610,7 +4610,7 @@ proto_register_isis_lsp(void)
               NULL, HFILL }
         },
         { &hf_isis_lsp_ext_is_reachability_subclvs_len,
-            { "Sub-TLV Length", "isis.lsp.ext_is_reachability.subclvs_length",
+            { "SubCLV Length", "isis.lsp.ext_is_reachability.subclvs_length",
               FT_UINT8, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
