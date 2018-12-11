@@ -3,6 +3,7 @@
  *
  * Copyright 2011, Florian Fainelli <florian[AT]openwrt.org>
  * Copyright 2016, Nora Sandler <nsandler[AT]securityinnovation.com>
+ * Copyright 2018, Sergey Rak <sergrak[AT]iotecha.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald[AT]wireshark.org>
@@ -24,7 +25,9 @@ static int proto_homeplug_av                     = -1;
 
 static int hf_homeplug_av_mmhdr                  = -1;
 static int hf_homeplug_av_mmhdr_mmver            = -1;
-static int hf_homeplug_av_mmhdr_mmtype           = -1;
+static int hf_homeplug_av_mmhdr_mmtype_general   = -1;
+static int hf_homeplug_av_mmhdr_mmtype_qualcomm  = -1;
+static int hf_homeplug_av_mmhdr_mmtype_st        = -1;
 static int hf_homeplug_av_mmhdr_mmtype_lsb       = -1;
 static int hf_homeplug_av_mmhdr_mmtype_msb       = -1;
 static int hf_homeplug_av_mmhdr_fmi              = -1;
@@ -517,6 +520,199 @@ static int hf_homeplug_av_tone_map_carrier       = -1;
 static int hf_homeplug_av_tone_map_carrier_lo    = -1;
 static int hf_homeplug_av_tone_map_carrier_hi    = -1;
 
+static int hf_homeplug_av_cc_assoc_reqtype       = -1;
+static int hf_homeplug_av_cc_assoc_cco_cap       = -1;
+static int hf_homeplug_av_cc_assoc_proxy_net_cap = -1;
+static int hf_homeplug_av_cc_assoc_result        = -1;
+static int hf_homeplug_av_cc_assoc_nid           = -1;
+static int hf_homeplug_av_cc_assoc_snid          = -1;
+static int hf_homeplug_av_cc_assoc_tei           = -1;
+static int hf_homeplug_av_cc_assoc_lease_time    = -1;
+
+static int hf_homeplug_av_cc_set_tei_map_ind_mode    = -1;
+static int hf_homeplug_av_cc_set_tei_map_ind_num     = -1;
+static int hf_homeplug_av_cc_set_tei_map_ind_tei     = -1;
+static int hf_homeplug_av_cc_set_tei_map_ind_mac     = -1;
+static int hf_homeplug_av_cc_set_tei_map_ind_status  = -1;
+
+static int hf_homeplug_av_cm_unassoc_sta_nid     = -1;
+static int hf_homeplug_av_cm_unassoc_sta_cco_cap = -1;
+
+/* HPAV/GP fields*/
+static int hf_homeplug_av_gp_cm_slac_parm_apptype       = -1;
+static int hf_homeplug_av_gp_cm_slac_parm_sectype       = -1;
+static int hf_homeplug_av_gp_cm_slac_parm_runid         = -1;
+static int hf_homeplug_av_gp_cm_slac_parm_cipher_size   = -1;
+static int hf_homeplug_av_gp_cm_slac_parm_cipher        = -1;
+static int hf_homeplug_av_gp_cm_slac_parm_sound_target  = -1;
+static int hf_homeplug_av_gp_cm_slac_parm_sound_count   = -1;
+static int hf_homeplug_av_gp_cm_slac_parm_time_out      = -1;
+static int hf_homeplug_av_gp_cm_slac_parm_resptype      = -1;
+static int hf_homeplug_av_gp_cm_slac_parm_forwarding_sta= -1;
+
+static int hf_homeplug_av_gp_cm_atten_profile_ind_pev_mac    = -1;
+static int hf_homeplug_av_gp_cm_atten_profile_ind_num_groups = -1;
+static int hf_homeplug_av_gp_cm_atten_profile_ind_aag        = -1;
+
+static int hf_homeplug_av_gp_cm_atten_char_apptype       = -1;
+static int hf_homeplug_av_gp_cm_atten_char_sectype       = -1;
+static int hf_homeplug_av_gp_cm_atten_char_source_mac    = -1;
+static int hf_homeplug_av_gp_cm_atten_char_runid         = -1;
+static int hf_homeplug_av_gp_cm_atten_char_source_id     = -1;
+static int hf_homeplug_av_gp_cm_atten_char_resp_id       = -1;
+static int hf_homeplug_av_gp_cm_atten_char_numsounds     = -1;
+static int hf_homeplug_av_gp_cm_atten_char_numgroups     = -1;
+static int hf_homeplug_av_gp_cm_atten_char_aag           = -1;
+static int hf_homeplug_av_gp_cm_atten_char_profile       = -1;
+static int hf_homeplug_av_gp_cm_atten_char_cms_data      = -1;
+static int hf_homeplug_av_gp_cm_atten_char_result        = -1;
+
+static int hf_homeplug_av_gp_cm_start_atten_char_time_out      = -1;
+static int hf_homeplug_av_gp_cm_start_atten_char_resptype      = -1;
+static int hf_homeplug_av_gp_cm_start_atten_char_forwarding_sta= -1;
+static int hf_homeplug_av_gp_cm_start_atten_char_runid         = -1;
+static int hf_homeplug_av_gp_cm_start_atten_char_numsounds     = -1;
+
+static int hf_homeplug_av_gp_cm_mnbc_sound_apptype       = -1;
+static int hf_homeplug_av_gp_cm_mnbc_sound_sectype       = -1;
+static int hf_homeplug_av_gp_cm_mnbc_sound_sender_id     = -1;
+static int hf_homeplug_av_gp_cm_mnbc_sound_countdown     = -1;
+static int hf_homeplug_av_gp_cm_mnbc_sound_runid         = -1;
+static int hf_homeplug_av_gp_cm_mnbc_sound_rsvd          = -1;
+static int hf_homeplug_av_gp_cm_mnbc_sound_rnd           = -1;
+
+static int hf_homeplug_av_gp_cm_validate_signaltype       = -1;
+static int hf_homeplug_av_gp_cm_validate_timer            = -1;
+static int hf_homeplug_av_gp_cm_validate_result           = -1;
+static int hf_homeplug_av_gp_cm_validate_togglenum        = -1;
+
+static int hf_homeplug_av_gp_cm_slac_match_apptype       = -1;
+static int hf_homeplug_av_gp_cm_slac_match_sectype       = -1;
+static int hf_homeplug_av_gp_cm_slac_match_length        = -1;
+static int hf_homeplug_av_gp_cm_slac_match_pev_id        = -1;
+static int hf_homeplug_av_gp_cm_slac_match_pev_mac       = -1;
+static int hf_homeplug_av_gp_cm_slac_match_evse_id       = -1;
+static int hf_homeplug_av_gp_cm_slac_match_evse_mac      = -1;
+static int hf_homeplug_av_gp_cm_slac_match_runid         = -1;
+static int hf_homeplug_av_gp_cm_slac_match_rsvd          = -1;
+static int hf_homeplug_av_gp_cm_slac_match_nid           = -1;
+static int hf_homeplug_av_gp_cm_slac_match_nmk           = -1;
+
+static int hf_homeplug_av_gp_cm_slac_user_data_broadcast_tlv_type  = -1;
+static int hf_homeplug_av_gp_cm_slac_user_data_tlv                 = -1;
+static int hf_homeplug_av_gp_cm_slac_user_data_tlv_type            = -1;
+static int hf_homeplug_av_gp_cm_slac_user_data_tlv_length          = -1;
+static int hf_homeplug_av_gp_cm_slac_user_data_tlv_str_bytes       = -1;
+static int hf_homeplug_av_gp_cm_slac_user_data_tlv_oui             = -1;
+static int hf_homeplug_av_gp_cm_slac_user_data_tlv_subtype         = -1;
+static int hf_homeplug_av_gp_cm_slac_user_data_tlv_info_str        = -1;
+/* End of HPAV/GP fields*/
+
+/* ST/IoTecha fields */
+static int hf_homeplug_av_st_iotecha_header_rsvd       = -1;
+static int hf_homeplug_av_st_iotecha_header_mmever     = -1;
+static int hf_homeplug_av_st_iotecha_header_mver       = -1;
+
+static int hf_homeplug_av_st_iotecha_auth_nmk          = -1;
+static int hf_homeplug_av_st_iotecha_status_byte       = -1;
+
+static int hf_homeplug_av_st_iotecha_linkstatus_status  = -1;
+static int hf_homeplug_av_st_iotecha_linkstatus_devmode = -1;
+
+static int hf_homeplug_av_st_iotecha_stp_discover_tlv                = -1;
+static int hf_homeplug_av_st_iotecha_stp_discover_tlv_type           = -1;
+static int hf_homeplug_av_st_iotecha_stp_discover_tlv_length         = -1;
+static int hf_homeplug_av_st_iotecha_stp_discover_tlv_value_bytes    = -1;
+static int hf_homeplug_av_st_iotecha_stp_discover_tlv_value_string   = -1;
+
+static int hf_homeplug_av_st_iotecha_gain_ask           = -1;
+static int hf_homeplug_av_st_iotecha_gain_new           = -1;
+static int hf_homeplug_av_st_iotecha_gain_prev          = -1;
+
+static int hf_homeplug_av_st_iotecha_mac_address        = -1;
+
+static int hf_homeplug_av_st_iotecha_tei_count          = -1;
+static int hf_homeplug_av_st_iotecha_tei                = -1;
+
+static int hf_homeplug_av_st_iotecha_tei_snap_tei                = -1;
+static int hf_homeplug_av_st_iotecha_tei_snap_addr_count         = -1;
+static int hf_homeplug_av_st_iotecha_tei_snap_mac_address_flag   = -1;
+
+static int hf_homeplug_av_st_iotecha_bss_list_count      = -1;
+static int hf_homeplug_av_st_iotecha_bss_entry           = -1;
+static int hf_homeplug_av_st_iotecha_bss_type            = -1;
+static int hf_homeplug_av_st_iotecha_bss_value_bytes     = -1;
+
+static int hf_homeplug_av_st_iotecha_chanqual_req_type            = -1;
+static int hf_homeplug_av_st_iotecha_chanqual_substatus           = -1;
+static int hf_homeplug_av_st_iotecha_chanqual_mac_local           = -1;
+static int hf_homeplug_av_st_iotecha_chanqual_mac_remote          = -1;
+static int hf_homeplug_av_st_iotecha_chanqual_source              = -1;
+static int hf_homeplug_av_st_iotecha_chanqual_response_type       = -1;
+static int hf_homeplug_av_st_iotecha_chanqual_tmi_count           = -1;
+static int hf_homeplug_av_st_iotecha_chanqual_tmi                 = -1;
+static int hf_homeplug_av_st_iotecha_chanqual_int                 = -1;
+static int hf_homeplug_av_st_iotecha_chanqual_int_count           = -1;
+static int hf_homeplug_av_st_iotecha_chanqual_int_et              = -1;
+static int hf_homeplug_av_st_iotecha_chanqual_int_tmi             = -1;
+static int hf_homeplug_av_st_iotecha_chanqual_tmi_attached        = -1;
+static int hf_homeplug_av_st_iotecha_chanqual_fec_type            = -1;
+static int hf_homeplug_av_st_iotecha_chanqual_cbld                = -1;
+static int hf_homeplug_av_st_iotecha_chanqual_cbld_data_low       = -1;
+static int hf_homeplug_av_st_iotecha_chanqual_cbld_data_high      = -1;
+
+static int hf_homeplug_av_st_iotecha_mfct_crc                 = -1;
+static int hf_homeplug_av_st_iotecha_mfct_total_length        = -1;
+static int hf_homeplug_av_st_iotecha_mfct_offset              = -1;
+static int hf_homeplug_av_st_iotecha_mfct_length              = -1;
+static int hf_homeplug_av_st_iotecha_mfct_data                = -1;
+static int hf_homeplug_av_st_iotecha_mfct_timeout             = -1;
+static int hf_homeplug_av_st_iotecha_mfct_request_type        = -1;
+static int hf_homeplug_av_st_iotecha_mfct_reboot              = -1;
+static int hf_homeplug_av_st_iotecha_mfct_item_offset         = -1;
+static int hf_homeplug_av_st_iotecha_mfct_item_total_length   = -1;
+static int hf_homeplug_av_st_iotecha_mfct_name                = -1;
+static int hf_homeplug_av_st_iotecha_mfct_value               = -1;
+static int hf_homeplug_av_st_iotecha_mfct_result              = -1;
+
+static int hf_homeplug_av_st_iotecha_stp_fup_mac_da = -1;
+static int hf_homeplug_av_st_iotecha_stp_fup_mac_sa = -1;
+static int hf_homeplug_av_st_iotecha_stp_fup_mtype  = -1;
+
+static int hf_homeplug_av_st_iotecha_cpstate_state         = -1;
+static int hf_homeplug_av_st_iotecha_cpstate_pwm_duty      = -1;
+static int hf_homeplug_av_st_iotecha_cpstate_pwm_freq      = -1;
+static int hf_homeplug_av_st_iotecha_cpstate_volatge       = -1;
+static int hf_homeplug_av_st_iotecha_cpstate_adc_bitmask   = -1;
+static int hf_homeplug_av_st_iotecha_cpstate_adc_voltage_1 = -1;
+static int hf_homeplug_av_st_iotecha_cpstate_adc_voltage_2 = -1;
+static int hf_homeplug_av_st_iotecha_cpstate_adc_voltage_3 = -1;
+
+static int hf_homeplug_av_st_iotecha_user_message_info     = -1;
+static int hf_homeplug_av_st_iotecha_user_message_details  = -1;
+
+static int hf_homeplug_av_st_iotecha_test_type      = -1;
+static int hf_homeplug_av_st_iotecha_num_sound      = -1;
+static int hf_homeplug_av_st_iotecha_data_ind_addr  = -1;
+static int hf_homeplug_av_st_iotecha_agc_lock       = -1;
+static int hf_homeplug_av_st_iotecha_db_agc_val     = -1;
+
+static int hf_homeplug_av_st_iotecha_test_status    = -1;
+static int hf_homeplug_av_st_iotecha_suppress_data  = -1;
+
+// STP_TEST_CHAN_ATTEN_DATA
+static int hf_homeplug_av_st_iotecha_sound_remain  = -1;
+static int hf_homeplug_av_st_iotecha_ntb_time      = -1;
+static int hf_homeplug_av_st_iotecha_rsvd1         = -1;
+static int hf_homeplug_av_st_iotecha_rsvd2         = -1;
+static int hf_homeplug_av_st_iotecha_num_segments  = -1;
+static int hf_homeplug_av_st_iotecha_segment       = -1;
+static int hf_homeplug_av_st_iotecha_num_chan      = -1;
+static int hf_homeplug_av_st_iotecha_chan_start    = -1;
+
+/* End of ST/IoTecha fields */
+
+/* Subtrees ett */
 static gint ett_homeplug_av                      = -1;
 static gint ett_homeplug_av_mmhdr                = -1;
 static gint ett_homeplug_av_mmtype               = -1;
@@ -601,155 +797,567 @@ static gint ett_homeplug_av_tone_map_tx_cnf      = -1;
 static gint ett_homeplug_av_tone_map_rx_cnf      = -1;
 static gint ett_homeplug_av_tone_map_carriers    = -1;
 static gint ett_homeplug_av_tone_map_carrier     = -1;
+/* HPGP */
+static gint ett_homeplug_av_gp_cm_atten_char_profile = -1;
+static gint ett_homeplug_av_gp_cm_slac_user_data_tlv = -1;
+
+/* ST/IoTecha specific subtrees */
+static gint ett_homeplug_av_st_iotecha_header            = -1;
+static gint ett_homeplug_av_st_iotecha_type_length_value = -1;
+static gint ett_homeplug_av_st_iotecha_chanqual_int      = -1;
+static gint ett_homeplug_av_st_iotecha_chanqual_cbld     = -1;
+static gint ett_homeplug_av_st_iotecha_bss_entry         = -1;
+/* End of ST/IoTecha specific subtrees */
+
+/* Saving vendor specific subtree */
+static proto_tree *ti_vendor = 0;
 
 #define HOMEPLUG_AV_MMHDR_LEN                   3 /* MM version (1) + MM type (2) */
 
 #define HOMEPLUG_AV_PUBLIC_FRAG_COUNT_MASK  0x0F
 #define HOMEPLUG_AV_PUBLIC_FRAG_INDEX_MASK  0xF0
 
-#define HOMEPLUG_AV_MMTYPE_CC_DISC_LIST_REQ 0x0014
-#define HOMEPLUG_AV_MMTYPE_CC_DISC_LIST_CNF 0x0015
-#define HOMEPLUG_AV_MMTYPE_CM_ENC_PLD_IND   0x6004
-#define HOMEPLUG_AV_MMTYPE_CM_ENC_PLD_RSP   0x6005
-#define HOMEPLUG_AV_MMTYPE_CM_SET_KEY_REQ   0x6008
-#define HOMEPLUG_AV_MMTYPE_CM_SET_KEY_CNF   0x6009
-#define HOMEPLUG_AV_MMTYPE_CM_GET_KEY_REQ   0x600C
-#define HOMEPLUG_AV_MMTYPE_CM_GET_KEY_CNF   0x600D
-#define HOMEPLUG_AV_MMTYPE_CM_BRG_INFO_REQ  0x6020
-#define HOMEPLUG_AV_MMTYPE_CM_BRG_INFO_CNF  0x6021
-#define HOMEPLUG_AV_MMTYPE_CM_NW_INFO_REQ   0x6038
-#define HOMEPLUG_AV_MMTYPE_CM_NW_INFO_CNF   0x6039
-#define HOMEPLUG_AV_MMTYPE_CM_NW_STATS_REQ  0x6048
-#define HOMEPLUG_AV_MMTYPE_CM_NW_STATS_CNF  0x6049
-#define HOMEPLUG_AV_MMTYPE_GET_SW_REQ       0xA000
-#define HOMEPLUG_AV_MMTYPE_GET_SW_CNF       0xA001
-#define HOMEPLUG_AV_MMTYPE_WR_MEM_REQ       0xA004
-#define HOMEPLUG_AV_MMTYPE_WR_MEM_CNF       0xA005
-#define HOMEPLUG_AV_MMTYPE_RD_MEM_REQ       0xA008
-#define HOMEPLUG_AV_MMTYPE_RD_MEM_CNF       0xA009
-#define HOMEPLUG_AV_MMTYPE_ST_MAC_REQ       0xA00C
-#define HOMEPLUG_AV_MMTYPE_ST_MAC_CNF       0xA00D
-#define HOMEPLUG_AV_MMTYPE_GET_NVM_REQ      0xA010
-#define HOMEPLUG_AV_MMTYPE_GET_NVM_CNF      0xA011
-#define HOMEPLUG_AV_MMTYPE_RS_DEV_REQ       0xA01C
-#define HOMEPLUG_AV_MMTYPE_RS_DEV_CNF       0xA01D
-#define HOMEPLUG_AV_MMTYPE_WR_MOD_REQ       0xA020
-#define HOMEPLUG_AV_MMTYPE_WR_MOD_CNF       0xA021
-#define HOMEPLUG_AV_MMTYPE_WR_MOD_IND       0xA022
-#define HOMEPLUG_AV_MMTYPE_RD_MOD_REQ       0xA024
-#define HOMEPLUG_AV_MMTYPE_RD_MOD_CNF       0xA025
-#define HOMEPLUG_AV_MMTYPE_NVM_MOD_REQ      0xA028
-#define HOMEPLUG_AV_MMTYPE_NVM_MOD_CNF      0xA029
-#define HOMEPLUG_AV_MMTYPE_WD_RPT_REQ       0xA02C
-#define HOMEPLUG_AV_MMTYPE_WD_RPT_IND       0xA02E
-#define HOMEPLUG_AV_MMTYPE_LNK_STATS_REQ    0xA030
-#define HOMEPLUG_AV_MMTYPE_LNK_STATS_CNF    0xA031
-#define HOMEPLUG_AV_MMTYPE_SNIFFER_REQ      0xA034
-#define HOMEPLUG_AV_MMTYPE_SNIFFER_CNF      0xA035
-#define HOMEPLUG_AV_MMTYPE_SNIFFER_IND      0xA036
-#define HOMEPLUG_AV_MMTYPE_NW_INFO_REQ      0xA038
-#define HOMEPLUG_AV_MMTYPE_NW_INFO_CNF      0xA039
-#define HOMEPLUG_AV_MMTYPE_CP_RPT_REQ       0xA040
-#define HOMEPLUG_AV_MMTYPE_CP_RPT_IND       0xA042
-#define HOMEPLUG_AV_MMTYPE_FR_LBK_REQ       0xA048
-#define HOMEPLUG_AV_MMTYPE_FR_LBK_CNF       0xA049
-#define HOMEPLUG_AV_MMTYPE_LBK_STAT_REQ     0xA04C
-#define HOMEPLUG_AV_MMTYPE_LBK_STAT_CNF     0xA04D
-#define HOMEPLUG_AV_MMTYPE_SET_KEY_REQ      0xA050
-#define HOMEPLUG_AV_MMTYPE_SET_KEY_CNF      0xA051
-#define HOMEPLUG_AV_MMTYPE_MFG_STRING_REQ   0xA054
-#define HOMEPLUG_AV_MMTYPE_MFG_STRING_CNF   0xA055
-#define HOMEPLUG_AV_MMTYPE_RD_CBLOCK_REQ    0xA058
-#define HOMEPLUG_AV_MMTYPE_RD_CBLOCK_CNF    0xA059
-#define HOMEPLUG_AV_MMTYPE_SET_SDRAM_REQ    0xA05C
-#define HOMEPLUG_AV_MMTYPE_SET_SDRAM_CNF    0xA05D
-#define HOMEPLUG_AV_MMTYPE_HOST_ACTION_IND  0xA062
-#define HOMEPLUG_AV_MMTYPE_HOST_ACTION_RSP  0xA063
-#define HOMEPLUG_AV_MMTYPE_OP_ATTR_REQ      0xA068
-#define HOMEPLUG_AV_MMTYPE_OP_ATTR_CNF      0xA069
-#define HOMEPLUG_AV_MMTYPE_GET_ENET_PHY_REQ 0xA06C
-#define HOMEPLUG_AV_MMTYPE_GET_ENET_PHY_CNF 0xA06D
-#define HOMEPLUG_AV_MMTYPE_TONE_MAP_TX_REQ  0xA070
-#define HOMEPLUG_AV_MMTYPE_TONE_MAP_TX_CNF  0xA071
-#define HOMEPLUG_AV_MMTYPE_TONE_MAP_RX_REQ  0xA090
-#define HOMEPLUG_AV_MMTYPE_TONE_MAP_RX_CNF  0xA091
+/* MME Values */
+/* General MME Types */
+typedef enum {
+    /* Station - Central Coordinator*/
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_BACKUP_APPOINT_REQ        = 0x0004,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_BACKUP_APPOINT_CNF        = 0x0005,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_LINK_INFO_REQ             = 0x0008,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_LINK_INFO_CNF             = 0x0009,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_LINK_INFO_IND             = 0x000A,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_LINK_INFO_RSP             = 0x000B,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_HANDOVER_REQ              = 0x000C,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_HANDOVER_CNF              = 0x000D,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_HANDOVER_INFO_IND         = 0x0012,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_HANDOVER_INFO_RSP         = 0x0013,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_DISCOVER_LIST_REQ         = 0x0014,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_DISCOVER_LIST_CNF         = 0x0015,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_DISCOVER_LIST_IND         = 0x0016,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_LINK_NEW_REQ              = 0x0018,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_LINK_NEW_CNF              = 0x0019,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_LINK_MOD_REQ              = 0x001C,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_LINK_MOD_CNF              = 0x001D,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_LINK_SQZ_REQ              = 0x0020,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_LINK_SQZ_CNF              = 0x0021,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_LINK_REL_REQ              = 0x0024,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_LINK_REL_IND              = 0x0026,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_DETECTC_REPORT_REQ        = 0x0028,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_DETECTC_REPORT_CNF        = 0x0029,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_WHO_RU_REQ                = 0x002C,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_WHO_RU_CNF                = 0x002D,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_ASSOC_REQ                 = 0x0030,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_ASSOC_CNF                 = 0x0031,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_LEAVE_REQ                 = 0x0034,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_LEAVE_CNF                 = 0x0035,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_LEAVE_IND                 = 0x0036,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_LEAVE_RSP                 = 0x0037,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_SET_TEI_MAP_REQ           = 0x0038,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_SET_TEI_MAP_IND           = 0x003A,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_RELAY_REQ                 = 0x003C,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_RELAY_IND                 = 0x003E,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_BEACON_RELIABILITY_REQ    = 0x0040,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_BEACON_RELIABILITY_CNF    = 0x0041,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_ALLOC_MOVE_REQ            = 0x0044,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_ALLOC_MOVE_CNF            = 0x0045,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_ACCESS_NEW_REQ            = 0x0048,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_ACCESS_NEW_CNF            = 0x0049,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_ACCESS_NEW_IND            = 0x004A,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_ACCESS_NEW_RSP            = 0x004B,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_ACCESS_REL_REQ            = 0x004C,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_ACCESS_REL_CNF            = 0x004D,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_ACCESS_REL_IND            = 0x004E,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_ACCESS_REL_RSP            = 0x004F,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_DCPPC_IND                 = 0x0052,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_DCPPC_RSP                 = 0x0053,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_HP1_DET_REQ               = 0x0054,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_HP1_DET_CNF               = 0x0055,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CC_BLE_UPDATE_IND            = 0x005A,
+    /* HPGP Specific*/
+    HOMEPLUG_AV_GP_MMTYPE_GENERAL_CC_BCAST_REPEAT_IND           = 0x005E,
+    HOMEPLUG_AV_GP_MMTYPE_GENERAL_CC_BCAST_REPEAT_RSP           = 0x005F,
+    HOMEPLUG_AV_GP_MMTYPE_GENERAL_CC_MH_LINK_NEW_REQ            = 0x0060,
+    HOMEPLUG_AV_GP_MMTYPE_GENERAL_CC_MH_LINK_NEW_CNF            = 0x0061,
+    HOMEPLUG_AV_GP_MMTYPE_GENERAL_CC_ISP_DETECTION_REPORT_IND   = 0x0066,
+    HOMEPLUG_AV_GP_MMTYPE_GENERAL_CC_ISP_START_RESYNC_REQ       = 0x0068,
+    HOMEPLUG_AV_GP_MMTYPE_GENERAL_CC_ISP_FINISH_RESYNC_REQ      = 0x006C,
+    HOMEPLUG_AV_GP_MMTYPE_GENERAL_CC_ISP_DETECTED_RESYNC_IND    = 0x0072,
+    HOMEPLUG_AV_GP_MMTYPE_GENERAL_CC_ISP_TRANSMIT_RESYNC_REQ    = 0x0074,
+    HOMEPLUG_AV_GP_MMTYPE_GENERAL_CC_POWERSAVE_REQ              = 0x0078,
+    HOMEPLUG_AV_GP_MMTYPE_GENERAL_CC_POWERSAVE_CNF              = 0x0079,
+    HOMEPLUG_AV_GP_MMTYPE_GENERAL_CC_POWERSAVE_EXIT_REQ         = 0x007C,
+    HOMEPLUG_AV_GP_MMTYPE_GENERAL_CC_POWERSAVE_EXIT_CNF         = 0x007D,
+    HOMEPLUG_AV_GP_MMTYPE_GENERAL_CC_POWERSAVE_LIST_REQ         = 0x0080,
+    HOMEPLUG_AV_GP_MMTYPE_GENERAL_CC_POWERSAVE_LIST_CNF         = 0x0081,
+    HOMEPLUG_AV_GP_MMTYPE_GENERAL_CC_POWERSAVE_STOP_REQ         = 0x0084,
+    HOMEPLUG_AV_GP_MMTYPE_GENERAL_CC_POWERSAVE_STOP_CNF         = 0x0085,
+    /* Proxy Coordinator */
+    HOMEPLUG_AV_MMTYPE_GENERAL_CP_PROXY_APPOINT_REQ         = 0x2000,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CP_PROXY_APPOINT_CNF         = 0x2001,
+    HOMEPLUG_AV_MMTYPE_GENERAL_PH_PROXY_APPOINT_IND         = 0x2006,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CP_PROXY_WAKE_REQ            = 0x2008,
+    /* CCo - CCo */
+    HOMEPLUG_AV_MMTYPE_GENERAL_NN_INL_REQ                   = 0x4000,
+    HOMEPLUG_AV_MMTYPE_GENERAL_NN_INL_CNF                   = 0x4001,
+    HOMEPLUG_AV_MMTYPE_GENERAL_NN_NEW_NET_REQ               = 0x4004,
+    HOMEPLUG_AV_MMTYPE_GENERAL_NN_NEW_NET_CNF               = 0x4005,
+    HOMEPLUG_AV_MMTYPE_GENERAL_NN_NEW_NET_IND               = 0x4006,
+    HOMEPLUG_AV_MMTYPE_GENERAL_NN_ADD_ALLOC_REQ             = 0x4008,
+    HOMEPLUG_AV_MMTYPE_GENERAL_NN_ADD_ALLOC_CNF             = 0x4009,
+    HOMEPLUG_AV_MMTYPE_GENERAL_NN_ADD_ALLOC_IND             = 0x400A,
+    HOMEPLUG_AV_MMTYPE_GENERAL_NN_REL_ALLOC_REQ             = 0x400C,
+    HOMEPLUG_AV_MMTYPE_GENERAL_NN_REL_ALLOC_CNF             = 0x400D,
+    HOMEPLUG_AV_MMTYPE_GENERAL_NN_REL_NET_IND               = 0x4012,
+    /* Station - Station */
+    HOMEPLUG_AV_MMTYPE_GENERAL_CM_UNASSOCIATED_STA_IND      = 0x6002,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CM_ENCRYPTED_PAYLOAD_IND     = 0x6006,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CM_ENCRYPTED_PAYLOAD_RSP     = 0x6007,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CM_SET_KEY_REQ               = 0x6008,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CM_SET_KEY_CNF               = 0x6009,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CM_GET_KEY_REQ               = 0x600C,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CM_GET_KEY_CNF               = 0x600D,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CM_SC_JOIN_REQ               = 0x6010,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CM_SC_JOIN_CNF               = 0x6011,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CM_SC_CHAN_EST_IND           = 0x6016,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CM_TM_UPDATE_IND             = 0x601A,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CM_AMP_MAP_REQ               = 0x601C,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CM_AMP_MAP_CNF               = 0x601D,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CM_BRG_INFO_REQ              = 0x6020,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CM_BRG_INFO_CNF              = 0x6021,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CM_CONN_NEW_REQ              = 0x6024,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CM_CONN_NEW_CNF              = 0x6025,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CM_CONN_REL_IND              = 0x602A,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CM_CONN_REL_RSP              = 0x602B,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CM_CONN_MOD_REQ              = 0x602C,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CM_CONN_MOD_CNF              = 0x602D,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CM_CONN_INFO_REQ             = 0x6030,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CM_CONN_INFO_CNF             = 0x6031,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CM_STA_CAP_REQ               = 0x6034,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CM_STA_CAP_CNF               = 0x6035,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CM_NW_INFO_REQ               = 0x6038,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CM_NW_INFO_CNF               = 0x6039,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CM_GET_BEACON_REQ            = 0x603C,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CM_GET_BEACON_CNF            = 0x603D,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CM_HFID_REQ                  = 0x6040,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CM_HFID_CNF                  = 0x6041,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CM_MME_ERROR_IND             = 0x6046,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CM_NW_STATS_REQ              = 0x6048,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CM_NW_STATS_CNF              = 0x6049,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CM_LINK_STATS_REQ            = 0x604C,
+    HOMEPLUG_AV_MMTYPE_GENERAL_CM_LINK_STATS_CNF            = 0x604D,
+    /* HPGP Specific*/
+    HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_ROUTE_INFO_REQ             = 0x6050,
+    HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_ROUTE_INFO_CNF             = 0x6051,
+    HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_ROUTE_INFO_IND             = 0x6052,
+    HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_UNREACHABLE_IND            = 0x6056,
+    HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_MH_CONN_NEW_REQ            = 0x6058,
+    HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_MH_CONN_NEW_CNF            = 0x6059,
+    HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_EXTENDED_TONEMASK_REQ      = 0x605C,
+    HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_EXTENDED_TONEMASK_CNF      = 0x605D,
+    HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_STA_INDENTIFY_REQ          = 0x6060,
+    HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_STA_INDENTIFY_CNF          = 0x6061,
+    HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_STA_INDENTIFY_IND          = 0x6062,
+    HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_STA_INDENTIFY_RSP          = 0x6063,
+    HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_SLAC_PARM_REQ              = 0x6064,
+    HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_SLAC_PARM_CNF              = 0x6065,
+    HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_START_ATTEN_CHAR_IND       = 0x606A,
+    HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_ATTEN_CHAR_IND             = 0x606E,
+    HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_ATTEN_CHAR_RSP             = 0x606F,
+    HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_PKCS_CERT_REQ              = 0x6070,
+    HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_PKCS_CERT_CNF              = 0x6071,
+    HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_PKCS_CERT_IND              = 0x6072,
+    HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_PKCS_CERT_RSP              = 0x6073,
+    HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_MNBC_SOUND_IND             = 0x6076,
+    HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_VALIDATE_REQ               = 0x6078,
+    HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_VALIDATE_CNF               = 0x6079,
+    HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_SLAC_MATCH_REQ             = 0x607C,
+    HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_SLAC_MATCH_CNF             = 0x607D,
+    HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_SLAC_USER_DATA_REQ         = 0x6080,
+    HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_SLAC_USER_DATA_CNF         = 0x6081,
+    HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_ATTEN_PROFILE_IND          = 0x6086,
+} homeplug_av_mmetypes_general_type;
 
-static const value_string homeplug_av_mmtype_vals[] = {
-    /* Public MMEs */
-    { HOMEPLUG_AV_MMTYPE_CC_DISC_LIST_REQ,  "Central Coordination Discovery List Request" },
-    { HOMEPLUG_AV_MMTYPE_CC_DISC_LIST_CNF,  "Central Coordination Discovery List Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_CM_ENC_PLD_IND,    "Encrypted Payload Indicate" },
-    { HOMEPLUG_AV_MMTYPE_CM_ENC_PLD_RSP,    "Encrypted Payload Respons" },
-    { HOMEPLUG_AV_MMTYPE_CM_SET_KEY_REQ,    "Set Key Request" },
-    { HOMEPLUG_AV_MMTYPE_CM_SET_KEY_CNF,    "Set Key Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_CM_GET_KEY_REQ,    "Get Key Request" },
-    { HOMEPLUG_AV_MMTYPE_CM_GET_KEY_CNF,    "Get Key Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_CM_BRG_INFO_REQ,   "Get Bridge Informations Request" },
-    { HOMEPLUG_AV_MMTYPE_CM_BRG_INFO_CNF,   "Get Bridge Informations Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_CM_NW_INFO_REQ,    "Get Network Informations Request" },
-    { HOMEPLUG_AV_MMTYPE_CM_NW_INFO_CNF,    "Get Network Informations Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_CM_NW_STATS_REQ,   "Get Network Statistics Request" },
-    { HOMEPLUG_AV_MMTYPE_CM_NW_STATS_CNF,   "Get Network Statistics Confirmation" },
+/* QCA MME Types */
+typedef enum {
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_GET_SW_REQ        = 0xA000,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_GET_SW_CNF        = 0xA001,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_WR_MEM_REQ        = 0xA004,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_WR_MEM_CNF        = 0xA005,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_RD_MEM_REQ        = 0xA008,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_RD_MEM_CNF        = 0xA009,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_ST_MAC_REQ        = 0xA00C,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_ST_MAC_CNF        = 0xA00D,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_GET_NVM_REQ       = 0xA010,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_GET_NVM_CNF       = 0xA011,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_RS_DEV_REQ        = 0xA01C,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_RS_DEV_CNF        = 0xA01D,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_WR_MOD_REQ        = 0xA020,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_WR_MOD_CNF        = 0xA021,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_WR_MOD_IND        = 0xA022,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_RD_MOD_REQ        = 0xA024,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_RD_MOD_CNF        = 0xA025,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_NVM_MOD_REQ       = 0xA028,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_NVM_MOD_CNF       = 0xA029,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_WD_RPT_REQ        = 0xA02C,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_WD_RPT_IND        = 0xA02E,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_LNK_STATS_REQ     = 0xA030,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_LNK_STATS_CNF     = 0xA031,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_SNIFFER_REQ       = 0xA034,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_SNIFFER_CNF       = 0xA035,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_SNIFFER_IND       = 0xA036,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_NW_INFO_REQ       = 0xA038,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_NW_INFO_CNF       = 0xA039,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_CP_RPT_REQ        = 0xA040,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_CP_RPT_IND        = 0xA042,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_FR_LBK_REQ        = 0xA048,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_FR_LBK_CNF        = 0xA049,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_LBK_STAT_REQ      = 0xA04C,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_LBK_STAT_CNF      = 0xA04D,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_SET_KEY_REQ       = 0xA050,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_SET_KEY_CNF       = 0xA051,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_MFG_STRING_REQ    = 0xA054,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_MFG_STRING_CNF    = 0xA055,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_RD_CBLOCK_REQ     = 0xA058,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_RD_CBLOCK_CNF     = 0xA059,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_SET_SDRAM_REQ     = 0xA05C,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_SET_SDRAM_CNF     = 0xA05D,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_HOST_ACTION_IND   = 0xA062,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_HOST_ACTION_RSP   = 0xA063,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_OP_ATTR_REQ       = 0xA068,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_OP_ATTR_CNF       = 0xA069,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_GET_ENET_PHY_REQ  = 0xA06C,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_GET_ENET_PHY_CNF  = 0xA06D,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_TONE_MAP_TX_REQ   = 0xA070,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_TONE_MAP_TX_CNF   = 0xA071,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_TONE_MAP_RX_REQ   = 0xA090,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_TONE_MAP_RX_CNF   = 0xA091,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_LINK_STATUS_REQ   = 0xA0B8,
+    HOMEPLUG_AV_MMTYPE_QUALCOMM_LINK_STATUS_CNF   = 0xA0B9,
+} homeplug_av_mmetypes_qualcomm_type;
 
-    /* Intellon vendor-specific MMEs */
-    { HOMEPLUG_AV_MMTYPE_GET_SW_REQ,        "Get Device/SW Version Request" },
-    { HOMEPLUG_AV_MMTYPE_GET_SW_CNF,        "Get Device/SW Version Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_WR_MEM_REQ,        "Write MAC Memory Request" },
-    { HOMEPLUG_AV_MMTYPE_WR_MEM_CNF,        "Write MAC Memory Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_RD_MEM_REQ,        "Read MAC Memory Request" },
-    { HOMEPLUG_AV_MMTYPE_RD_MEM_CNF,        "Read MAC Memory Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_ST_MAC_REQ,        "Start MAC Request" },
-    { HOMEPLUG_AV_MMTYPE_ST_MAC_CNF,        "Start MAC Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_GET_NVM_REQ,       "Get NVM Parameters Request" },
-    { HOMEPLUG_AV_MMTYPE_GET_NVM_CNF,       "Get NVM Parameters Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_RS_DEV_REQ,        "Reset Device Request" },
-    { HOMEPLUG_AV_MMTYPE_RS_DEV_CNF,        "Reset Device Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_WR_MOD_REQ,        "Write Module Data Request" },
-    { HOMEPLUG_AV_MMTYPE_WR_MOD_CNF,        "Write Module Data Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_WR_MOD_IND,        "Write Module Data Indicate" },
-    { HOMEPLUG_AV_MMTYPE_RD_MOD_REQ,        "Read Module Data Request" },
-    { HOMEPLUG_AV_MMTYPE_RD_MOD_CNF,        "Read Module Data Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_NVM_MOD_REQ,       "Write Module Data to NVM Request" },
-    { HOMEPLUG_AV_MMTYPE_NVM_MOD_CNF,       "Write Module Data to NVM Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_WD_RPT_REQ,        "Get Watchdog Report Request" },
-    { HOMEPLUG_AV_MMTYPE_WD_RPT_IND,        "Get Watchdog Report Indicate" },
-    { HOMEPLUG_AV_MMTYPE_LNK_STATS_REQ,     "Link Statistics Request" },
-    { HOMEPLUG_AV_MMTYPE_LNK_STATS_CNF,     "Link Statistics Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_SNIFFER_REQ,       "Sniffer Request" },
-    { HOMEPLUG_AV_MMTYPE_SNIFFER_CNF,       "Sniffer Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_SNIFFER_IND,       "Sniffer Indicate" },
-    { HOMEPLUG_AV_MMTYPE_NW_INFO_REQ,       "Network Info Request" },
-    { HOMEPLUG_AV_MMTYPE_NW_INFO_CNF,       "Network Info Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_CP_RPT_REQ,        "Check Points Request" },
-    { HOMEPLUG_AV_MMTYPE_CP_RPT_IND,        "Check Points Indicate" },
-    { HOMEPLUG_AV_MMTYPE_FR_LBK_REQ,        "Loopback Request" },
-    { HOMEPLUG_AV_MMTYPE_FR_LBK_CNF,        "Loopback Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_LBK_STAT_REQ,      "Loopback Status Request" },
-    { HOMEPLUG_AV_MMTYPE_LBK_STAT_CNF,      "Loopback Status Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_SET_KEY_REQ,       "Set Encryption Key Request" },
-    { HOMEPLUG_AV_MMTYPE_SET_KEY_CNF,       "Set Encryption Key Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_MFG_STRING_REQ,    "Get Manufacturer String Request" },
-    { HOMEPLUG_AV_MMTYPE_MFG_STRING_CNF,    "Get Manufacturer String Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_RD_CBLOCK_REQ,     "Read Configuration Block Request" },
-    { HOMEPLUG_AV_MMTYPE_RD_CBLOCK_CNF,     "Read Configuration Block Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_SET_SDRAM_REQ,     "Set SDRAM Configuration Request" },
-    { HOMEPLUG_AV_MMTYPE_SET_SDRAM_CNF,     "Set SDRAM Configuration Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_HOST_ACTION_IND,   "Embedded Host Action Required Indication" },
-    { HOMEPLUG_AV_MMTYPE_HOST_ACTION_RSP,   "Embedded Host Action Required Respons" },
-    { HOMEPLUG_AV_MMTYPE_OP_ATTR_REQ,       "Get Device Attributes Request" },
-    { HOMEPLUG_AV_MMTYPE_OP_ATTR_CNF,       "Get Device Attributes Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_GET_ENET_PHY_REQ,  "Get Ethernet PHY Settings Request" },
-    { HOMEPLUG_AV_MMTYPE_GET_ENET_PHY_CNF,  "Get Ethernet PHY Settings Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_TONE_MAP_TX_REQ,   "Tone Map Tx Characteristics Request" },
-    { HOMEPLUG_AV_MMTYPE_TONE_MAP_TX_CNF,   "Tone Map Tx Characteristics Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_TONE_MAP_RX_REQ,   "Tone Map Rx Characteristics Request" },
-    { HOMEPLUG_AV_MMTYPE_TONE_MAP_RX_CNF,   "Tone Map Rx Characteristics Confirmation" },
+/* ST/IoTecha MME Types */
+typedef enum {
+    HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_AUTH_SET_NMK_REQ             = 0x8000,
+    HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_AUTH_SET_NMK_CNF             = 0x8001,
+    HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_LINK_STATUS_REQ              = 0x8004,
+    HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_LINK_STATUS_CNF              = 0x8005,
+    HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_LINK_STATUS_IND              = 0x8006,
+    HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_DISCOVER_LOCAL_REQ           = 0x8008,
+    HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_DISCOVER_LOCAL_CNF           = 0x8009,
+    HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_SET_MAXGAIN_REQ              = 0x800C,
+    HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_SET_MAXGAIN_CNF              = 0x800D,
+    HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_DISCOVER_REQ                 = 0xA000,
+    HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_DISCOVER_CNF                 = 0xA001,
+    HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_GET_TEI_LIST_REQ             = 0xA00C,
+    HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_GET_TEI_LIST_CNF             = 0xA00D,
+    HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_GET_TEI_SNAPSHOT_REQ         = 0xA010,
+    HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_GET_TEI_SNAPSHOT_CNF         = 0xA011,
+    HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_GET_BSS_LIST_REQ             = 0xA014,
+    HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_GET_BSS_LIST_CNF             = 0xA015,
+    HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_CHANQUAL_REPORT_REQ          = 0xA018,
+    HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_CHANQUAL_REPORT_CNF          = 0xA019,
+    HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_CHANQUAL_REPORT_IND          = 0xA01A,
+    HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_TEST_CHAN_ATTEN_START_RX_REQ = 0xA100,
+    HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_TEST_CHAN_ATTEN_START_RX_CNF = 0xA101,
+    HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_TEST_CHAN_ATTEN_DATA_IND     = 0xA106,
+    HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_TEST_CHAN_ATTEN_START_TX_REQ = 0xA108,
+    HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_TEST_CHAN_ATTEN_START_TX_CNF = 0xA109,
+    HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_TEST_SOUND_QUIET_IND         = 0xA10E,
+    HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_MFCT_UPDATE_STAGE_REQ        = 0xA200,
+    HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_MFCT_UPDATE_STAGE_CNF        = 0xA201,
+    HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_MFCT_UPDATE_FINISH_REQ       = 0xA204,
+    HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_MFCT_UPDATE_FINISH_CNF       = 0xA205,
+    HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_MFCT_GET_ITEM_REQ            = 0xA208,
+    HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_MFCT_GET_ITEM_CNF            = 0xA209,
+    HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_MFCT_GET_KEYLIST_REQ         = 0xA20C,
+    HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_MFCT_GET_KEYLIST_CNF         = 0xA20D,
+    HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_FUP_REQ                      = 0xA210,
+    HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_RESERVED_REQ                 = 0xA214,
+    HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_CPSTATE_IND                  = 0xA22E,
+    HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_USER_MESSAGE_IND             = 0xA232,
+} homeplug_av_mmetypes_st_iotecha_type;
+
+/* Vendors OUI */
+#define HOMEPLUG_AV_OUI_NONE               0
+#define HOMEPLUG_AV_OUI_QCA                0x00B052
+#define HOMEPLUG_AV_OUI_ST_IOTECHA         0x0080E1
+
+static const value_string homeplug_av_vendors_oui_vals[] = {
+    { HOMEPLUG_AV_OUI_QCA,              "Qualcomm Atheros" },
+    { HOMEPLUG_AV_OUI_ST_IOTECHA,       "ST/IoTecha" },
     { 0, NULL }
 };
-static value_string_ext homeplug_av_mmtype_vals_ext = VALUE_STRING_EXT_INIT(homeplug_av_mmtype_vals);
+
+/* Packet names */
+/* Public MMEs */
+static const value_string homeplug_av_mmtype_general_vals[] = {
+    /* Station - Central Coordinator*/
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_BACKUP_APPOINT_REQ             , "CC_BACKUP_APPOINT.REQ" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_BACKUP_APPOINT_CNF             , "CC_BACKUP_APPOINT.CNF" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_LINK_INFO_REQ                  , "CC_LINK_INFO.REQ" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_LINK_INFO_CNF                  , "CC_LINK_INFO.CNF" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_LINK_INFO_IND                  , "CC_LINK_INFO.IND" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_LINK_INFO_RSP                  , "CC_LINK_INFO.RSP" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_HANDOVER_REQ                   , "CC_HANDOVER.REQ" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_HANDOVER_CNF                   , "CC_HANDOVER.CNF" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_HANDOVER_INFO_IND              , "CC_HANDOVER_INFO.IND" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_HANDOVER_INFO_RSP              , "CC_HANDOVER_INFO.RSP" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_DISCOVER_LIST_REQ              , "CC_DISCOVER_LIST.REQ (Central Coordination Discovery List Request)" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_DISCOVER_LIST_CNF              , "CC_DISCOVER_LIST.CNF (Central Coordination Discovery List Confirmation)" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_DISCOVER_LIST_IND              , "CC_DISCOVER_LIST.IND" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_LINK_NEW_REQ                   , "CC_LINK_NEW.REQ" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_LINK_NEW_CNF                   , "CC_LINK_NEW.CNF" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_LINK_MOD_REQ                   , "CC_LINK_MOD.REQ" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_LINK_MOD_CNF                   , "CC_LINK_MOD.CNF" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_LINK_SQZ_REQ                   , "CC_LINK_SQZ.REQ" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_LINK_SQZ_CNF                   , "CC_LINK_SQZ.CNF" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_LINK_REL_REQ                   , "CC_LINK_REL.REQ" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_LINK_REL_IND                   , "CC_LINK_REL.IND" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_DETECTC_REPORT_REQ             , "CC_DETECTC_REPORT.REQ" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_DETECTC_REPORT_CNF             , "CC_DETECTC_REPORT.CNF" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_WHO_RU_REQ                     , "CC_WHO_RU.REQ" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_WHO_RU_CNF                     , "CC_WHO_RU.CNF" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_ASSOC_REQ                      , "CC_ASSOC.REQ" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_ASSOC_CNF                      , "CC_ASSOC.CNF" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_LEAVE_REQ                      , "CC_LEAVE.REQ" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_LEAVE_CNF                      , "CC_LEAVE.CNF" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_LEAVE_IND                      , "CC_LEAVE.IND" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_LEAVE_RSP                      , "CC_LEAVE.RSP" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_SET_TEI_MAP_REQ                , "CC_SET_TEI_MAP.REQ" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_SET_TEI_MAP_IND                , "CC_SET_TEI_MAP.IND" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_RELAY_REQ                      , "CC_RELAY.REQ" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_RELAY_IND                      , "CC_RELAY.IND" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_BEACON_RELIABILITY_REQ         , "CC_BEACON_RELIABILITY.REQ" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_BEACON_RELIABILITY_CNF         , "CC_BEACON_RELIABILITY.CNF" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_ALLOC_MOVE_REQ                 , "CC_ALLOC_MOVE.REQ" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_ALLOC_MOVE_CNF                 , "CC_ALLOC_MOVE.CNF" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_ACCESS_NEW_REQ                 , "CC_ACCESS_NEW.REQ" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_ACCESS_NEW_CNF                 , "CC_ACCESS_NEW.CNF" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_ACCESS_NEW_IND                 , "CC_ACCESS_NEW.IND" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_ACCESS_NEW_RSP                 , "CC_ACCESS_NEW.RSP" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_ACCESS_REL_REQ                 , "CC_ACCESS_REL.REQ" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_ACCESS_REL_CNF                 , "CC_ACCESS_REL.CNF" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_ACCESS_REL_IND                 , "CC_ACCESS_REL.IND" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_ACCESS_REL_RSP                 , "CC_ACCESS_REL.RSP" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_DCPPC_IND                      , "CC_DCPPC.IND" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_DCPPC_RSP                      , "CC_DCPPC.RSP" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_HP1_DET_REQ                    , "CC_HP1_DET.REQ" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_HP1_DET_CNF                    , "CC_HP1_DET.CNF" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CC_BLE_UPDATE_IND                 , "CC_BLE_UPDATE.IND" },
+    /* HPGP Specific*/
+    { HOMEPLUG_AV_GP_MMTYPE_GENERAL_CC_BCAST_REPEAT_IND            , "CC_BCAST_REPEAT.IND" },
+    { HOMEPLUG_AV_GP_MMTYPE_GENERAL_CC_BCAST_REPEAT_RSP            , "CC_BCAST_REPEAT.RSP" },
+    { HOMEPLUG_AV_GP_MMTYPE_GENERAL_CC_MH_LINK_NEW_REQ             , "CC_MH_LINK_NEW.REQ" },
+    { HOMEPLUG_AV_GP_MMTYPE_GENERAL_CC_MH_LINK_NEW_CNF             , "CC_MH_LINK_NEW.CNF" },
+    { HOMEPLUG_AV_GP_MMTYPE_GENERAL_CC_ISP_DETECTION_REPORT_IND    , "CC_ISP_DETECTION_REPORT.IND" },
+    { HOMEPLUG_AV_GP_MMTYPE_GENERAL_CC_ISP_START_RESYNC_REQ        , "CC_ISP_START_RESYNC.REQ" },
+    { HOMEPLUG_AV_GP_MMTYPE_GENERAL_CC_ISP_FINISH_RESYNC_REQ       , "CC_ISP_FINISH_RESYNC.REQ" },
+    { HOMEPLUG_AV_GP_MMTYPE_GENERAL_CC_ISP_DETECTED_RESYNC_IND     , "CC_ISP_DETECTED_RESYNC.IND" },
+    { HOMEPLUG_AV_GP_MMTYPE_GENERAL_CC_ISP_TRANSMIT_RESYNC_REQ     , "CC_ISP_TRANSMIT_RESYNC.REQ" },
+    { HOMEPLUG_AV_GP_MMTYPE_GENERAL_CC_POWERSAVE_REQ               , "CC_POWERSAVE.REQ" },
+    { HOMEPLUG_AV_GP_MMTYPE_GENERAL_CC_POWERSAVE_CNF               , "CC_POWERSAVE.CNF" },
+    { HOMEPLUG_AV_GP_MMTYPE_GENERAL_CC_POWERSAVE_EXIT_REQ          , "CC_POWERSAVE_EXIT.REQ" },
+    { HOMEPLUG_AV_GP_MMTYPE_GENERAL_CC_POWERSAVE_EXIT_CNF          , "CC_POWERSAVE_EXIT.CNF" },
+    { HOMEPLUG_AV_GP_MMTYPE_GENERAL_CC_POWERSAVE_LIST_REQ          , "CC_POWERSAVE_LIST.REQ" },
+    { HOMEPLUG_AV_GP_MMTYPE_GENERAL_CC_POWERSAVE_LIST_CNF          , "CC_POWERSAVE_LIST.CNF" },
+    { HOMEPLUG_AV_GP_MMTYPE_GENERAL_CC_POWERSAVE_STOP_REQ          , "CC_POWERSAVE_STOP.REQ" },
+    { HOMEPLUG_AV_GP_MMTYPE_GENERAL_CC_POWERSAVE_STOP_CNF          , "CC_POWERSAVE_STOP.CNF" },
+    /* Proxy Coordinator */
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CP_PROXY_APPOINT_REQ              , "CP_PROXY_APPOINT.REQ" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CP_PROXY_APPOINT_CNF              , "CP_PROXY_APPOINT.CNF" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_PH_PROXY_APPOINT_IND              , "PH_PROXY_APPOINT.IND" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CP_PROXY_WAKE_REQ                 , "CP_PROXY_WAKE.REQ" },
+    /* CCo - CCo */
+    { HOMEPLUG_AV_MMTYPE_GENERAL_NN_INL_REQ                        , "NN_INL.REQ" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_NN_INL_CNF                        , "NN_INL.CNF" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_NN_NEW_NET_REQ                    , "NN_NEW_NET.REQ" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_NN_NEW_NET_CNF                    , "NN_NEW_NET.CNF" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_NN_NEW_NET_IND                    , "NN_NEW_NET.IND" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_NN_ADD_ALLOC_REQ                  , "NN_ADD_ALLOC.REQ" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_NN_ADD_ALLOC_CNF                  , "NN_ADD_ALLOC.CNF" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_NN_ADD_ALLOC_IND                  , "NN_ADD_ALLOC.IND" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_NN_REL_ALLOC_REQ                  , "NN_REL_ALLOC.REQ" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_NN_REL_ALLOC_CNF                  , "NN_REL_ALLOC.CNF" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_NN_REL_NET_IND                    , "NN_REL_NET.IND" },
+    /* Station - Station */
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CM_UNASSOCIATED_STA_IND           , "CM_UNASSOCIATED_STA.IND" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CM_ENCRYPTED_PAYLOAD_IND          , "CM_ENCRYPTED_PAYLOAD.IND (Encrypted Payload Indicate)" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CM_ENCRYPTED_PAYLOAD_RSP          , "CM_ENCRYPTED_PAYLOAD.RSP (Encrypted Payload Respons)" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CM_SET_KEY_REQ                    , "CM_SET_KEY.REQ (Set Key Request)" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CM_SET_KEY_CNF                    , "CM_SET_KEY.CNF (Set Key Confirmation)" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CM_GET_KEY_REQ                    , "CM_GET_KEY.REQ (Get Key Request)" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CM_GET_KEY_CNF                    , "CM_GET_KEY.CNF (Get Key Confirmation)" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CM_SC_JOIN_REQ                    , "CM_SC_JOIN.REQ" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CM_SC_JOIN_CNF                    , "CM_SC_JOIN.CNF" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CM_SC_CHAN_EST_IND                , "CM_SC_CHAN_EST.IND" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CM_TM_UPDATE_IND                  , "CM_TM_UPDATE.IND" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CM_AMP_MAP_REQ                    , "CM_AMP_MAP.REQ" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CM_AMP_MAP_CNF                    , "CM_AMP_MAP.CNF" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CM_BRG_INFO_REQ                   , "CM_BRG_INFO.REQ (Get Bridge Informations Request)" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CM_BRG_INFO_CNF                   , "CM_BRG_INFO.CNF (Get Bridge Informations Confirmation)" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CM_CONN_NEW_REQ                   , "CM_CONN_NEW.REQ" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CM_CONN_NEW_CNF                   , "CM_CONN_NEW.CNF" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CM_CONN_REL_IND                   , "CM_CONN_REL.IND" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CM_CONN_REL_RSP                   , "CM_CONN_REL.RSP" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CM_CONN_MOD_REQ                   , "CM_CONN_MOD.REQ" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CM_CONN_MOD_CNF                   , "CM_CONN_MOD.CNF" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CM_CONN_INFO_REQ                  , "CM_CONN_INFO.REQ" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CM_CONN_INFO_CNF                  , "CM_CONN_INFO.CNF" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CM_STA_CAP_REQ                    , "CM_STA_CAP.REQ" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CM_STA_CAP_CNF                    , "CM_STA_CAP.CNF" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CM_NW_INFO_REQ                    , "CM_NW_INFO.REQ (Get Network Informations Request)" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CM_NW_INFO_CNF                    , "CM_NW_INFO.CNF (Get Network Informations Confirmation)" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CM_GET_BEACON_REQ                 , "CM_GET_BEACON.REQ" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CM_GET_BEACON_CNF                 , "CM_GET_BEACON.CNF" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CM_HFID_REQ                       , "CM_HFID.REQ" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CM_HFID_CNF                       , "CM_HFID.CNF" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CM_MME_ERROR_IND                  , "CM_MME_ERROR.IND" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CM_NW_STATS_REQ                   , "CM_NW_STATS.REQ (Get Network Statistics Request)" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CM_NW_STATS_CNF                   , "CM_NW_STATS.CNF (Get Network Statistics Confirmation)" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CM_LINK_STATS_REQ                 , "CM_LINK_STATS.REQ" },
+    { HOMEPLUG_AV_MMTYPE_GENERAL_CM_LINK_STATS_CNF                 , "CM_LINK_STATS.CNF" },
+    /* HPGP Specific*/
+    { HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_ROUTE_INFO_REQ              , "CM_ROUTE_INFO.REQ" },
+    { HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_ROUTE_INFO_CNF              , "CM_ROUTE_INFO.CNF" },
+    { HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_ROUTE_INFO_IND              , "CM_ROUTE_INFO.IND" },
+    { HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_UNREACHABLE_IND             , "CM_UNREACHABLE.IND" },
+    { HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_MH_CONN_NEW_REQ             , "CM_MH_CONN_NEW.REQ" },
+    { HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_MH_CONN_NEW_CNF             , "CM_MH_CONN_NEW.CNF" },
+    { HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_EXTENDED_TONEMASK_REQ       , "CM_EXTENDED_TONEMASK.REQ" },
+    { HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_EXTENDED_TONEMASK_CNF       , "CM_EXTENDED_TONEMASK.CNF" },
+    { HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_STA_INDENTIFY_REQ           , "CM_STA_INDENTIFY.REQ" },
+    { HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_STA_INDENTIFY_CNF           , "CM_STA_INDENTIFY_CNF" },
+    { HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_STA_INDENTIFY_IND           , "CM_STA_INDENTIFY.IND" },
+    { HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_STA_INDENTIFY_RSP           , "CM_STA_INDENTIFY.RSP" },
+    { HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_SLAC_PARM_REQ               , "CM_SLAC_PARM.REQ" },
+    { HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_SLAC_PARM_CNF               , "CM_SLAC_PARM.CNF" },
+    { HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_START_ATTEN_CHAR_IND        , "CM_START_ATTEN_CHAR.IND" },
+    { HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_ATTEN_CHAR_IND              , "CM_ATTEN_CHAR.IND" },
+    { HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_ATTEN_CHAR_RSP              , "CM_ATTEN_CHAR.RSP" },
+    { HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_PKCS_CERT_REQ               , "CM_PKCS_CERT.REQ" },
+    { HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_PKCS_CERT_CNF               , "CM_PKCS_CERT.CNF" },
+    { HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_PKCS_CERT_IND               , "CM_PKCS_CERT.IND" },
+    { HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_PKCS_CERT_RSP               , "CM_PKCS_CERT.RSP" },
+    { HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_MNBC_SOUND_IND              , "CM_MNBC_SOUND.IND" },
+    { HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_VALIDATE_REQ                , "CM_VALIDATE.REQ" },
+    { HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_VALIDATE_CNF                , "CM_VALIDATE.CNF" },
+    { HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_SLAC_MATCH_REQ              , "CM_SLAC_MATCH.REQ" },
+    { HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_SLAC_MATCH_CNF              , "CM_SLAC_MATCH.CNF" },
+    { HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_SLAC_USER_DATA_REQ          , "CM_SLAC_USER_DATA.REQ" },
+    { HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_SLAC_USER_DATA_CNF          , "CM_SLAC_USER_DATA.CNF" },
+    { HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_ATTEN_PROFILE_IND           , "CM_ATTEN_PROFILE.IND" },
+    { 0, NULL }
+};
+
+/* QCA vendor-specific MMEs */
+static const value_string homeplug_av_mmtype_qualcomm_vals[] = {
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_GET_SW_REQ,        "GET_SW.REQ (Get Device/SW Version Request)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_GET_SW_CNF,        "GET_SW.CNF (Get Device/SW Version Confirmation)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_WR_MEM_REQ,        "WR_MEM.REQ (Write MAC Memory Request)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_WR_MEM_CNF,        "WR_MEM.CNF (Write MAC Memory Confirmation)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_RD_MEM_REQ,        "RD_MEM.REQ (Read MAC Memory Request)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_RD_MEM_CNF,        "RD_MEM.CNF (Read MAC Memory Confirmation)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_ST_MAC_REQ,        "ST_MAC.REQ (Start MAC Request)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_ST_MAC_CNF,        "ST_MAC.CNF (Start MAC Confirmation)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_GET_NVM_REQ,       "GET_NVM.REQ (Get NVM Parameters Request)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_GET_NVM_CNF,       "GET_NVM.CNF (Get NVM Parameters Confirmation)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_RS_DEV_REQ,        "RS_DEV.REQ (Reset Device Request)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_RS_DEV_CNF,        "RS_DEV.CNF (Reset Device Confirmation)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_WR_MOD_REQ,        "WR_MOD.REQ (Write Module Data Request)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_WR_MOD_CNF,        "WR_MOD.CNF (Write Module Data Confirmation)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_WR_MOD_IND,        "WR_MOD.IND (Write Module Data Indicate)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_RD_MOD_REQ,        "RD_MOD.REQ (Read Module Data Request)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_RD_MOD_CNF,        "RD_MOD.CNF (Read Module Data Confirmation)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_NVM_MOD_REQ,       "NVM_MOD.REQ (Write Module Data to NVM Request)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_NVM_MOD_CNF,       "NVM_MOD.CNF (Write Module Data to NVM Confirmation)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_WD_RPT_REQ,        "WD_RPT.REQ (Get Watchdog Report Request)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_WD_RPT_IND,        "WD_RPT.IND (Get Watchdog Report Indicate)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_LNK_STATS_REQ,     "LNK_STATS.REQ (Link Statistics Request)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_LNK_STATS_CNF,     "LNK_STATS.CNF (Link Statistics Confirmation)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_SNIFFER_REQ,       "SNIFFER.REQ (Sniffer Request)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_SNIFFER_CNF,       "SNIFFER.CNF (Sniffer Confirmation)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_SNIFFER_IND,       "SNIFFER.IND (Sniffer Indicate)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_NW_INFO_REQ,       "NW_INFO.REQ (Network Info Request)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_NW_INFO_CNF,       "NW_INFO.CNF (Network Info Confirmation)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_CP_RPT_REQ,        "CP_RPT.REQ (Check Points Request)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_CP_RPT_IND,        "CP_RPT.IND (Check Points Indicate)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_FR_LBK_REQ,        "FR_LBK.REQ (Loopback Request)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_FR_LBK_CNF,        "FR_LBK.CNF (Loopback Confirmation)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_LBK_STAT_REQ,      "LBK_STAT.REQ (Loopback Status Request)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_LBK_STAT_CNF,      "LBK_STAT.CNF (Loopback Status Confirmation)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_SET_KEY_REQ,       "SET_KEY.REQ (Set Encryption Key Request)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_SET_KEY_CNF,       "SET_KEY.CNF (Set Encryption Key Confirmation)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_MFG_STRING_REQ,    "MFG_STRING.REQ (Get Manufacturer String Request)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_MFG_STRING_CNF,    "MFG_STRING.CNF (Get Manufacturer String Confirmation)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_RD_CBLOCK_REQ,     "RD_CBLOCK.REQ (Read Configuration Block Request)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_RD_CBLOCK_CNF,     "RD_CBLOCK.CNF (Read Configuration Block Confirmation)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_SET_SDRAM_REQ,     "SET_SDRAM.REQ (Set SDRAM Configuration Request)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_SET_SDRAM_CNF,     "SET_SDRAM.CNF (Set SDRAM Configuration Confirmation)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_HOST_ACTION_IND,   "HOST_ACTION.IND (Embedded Host Action Required Indication)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_HOST_ACTION_RSP,   "HOST_ACTION.RSP (Embedded Host Action Required Respons)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_OP_ATTR_REQ,       "OP_ATTR.REQ (Get Device Attributes Request)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_OP_ATTR_CNF,       "OP_ATTR.CNF (Get Device Attributes Confirmation)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_GET_ENET_PHY_REQ,  "GET_ENET_PHY.REQ (Get Ethernet PHY Settings Request)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_GET_ENET_PHY_CNF,  "GET_ENET_PHY.CNF (Get Ethernet PHY Settings Confirmation)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_TONE_MAP_TX_REQ,   "TONE_MAP_TX.REQ (Tone Map Tx Characteristics Request)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_TONE_MAP_TX_CNF,   "TONE_MAP_TX.CNF (Tone Map Tx Characteristics Confirmation)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_TONE_MAP_RX_REQ,   "TONE_MAP_RX.REQ (Tone Map Rx Characteristics Request)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_TONE_MAP_RX_CNF,   "TONE_MAP_RX.CNF (Tone Map Rx Characteristics Confirmation)" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_LINK_STATUS_REQ,   "LINK_STATUS.REQ" },
+    { HOMEPLUG_AV_MMTYPE_QUALCOMM_LINK_STATUS_CNF,   "LINK_STATUS.CNF" },
+    { 0, NULL }
+};
+
+/* ST/IoTecha vendor-specific MMEs */
+static const value_string homeplug_av_mmtype_st_iotecha_vals[] = {
+    { HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_AUTH_SET_NMK_REQ ,             "STP_AUTH_SET_NMK.REQ" },
+    { HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_AUTH_SET_NMK_CNF ,             "STP_AUTH_SET_NMK.CNF" },
+    { HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_LINK_STATUS_REQ ,              "STP_LINK_STATUS.REQ" },
+    { HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_LINK_STATUS_CNF ,              "STP_LINK_STATUS.CNF" },
+    { HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_LINK_STATUS_IND ,              "STP_LINK_STATUS.IND" },
+    { HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_DISCOVER_LOCAL_REQ ,           "STP_DISCOVER_LOCAL.REQ" },
+    { HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_DISCOVER_LOCAL_CNF ,           "STP_DISCOVER_LOCAL.CNF" },
+    { HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_SET_MAXGAIN_REQ ,              "STP_SET_MAXGAIN.REQ" },
+    { HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_SET_MAXGAIN_CNF ,              "STP_SET_MAXGAIN.CNF" },
+    { HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_DISCOVER_REQ ,                 "STP_DISCOVER.REQ" },
+    { HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_DISCOVER_CNF ,                 "STP_DISCOVER.CNF" },
+    { HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_GET_TEI_LIST_REQ ,             "STP_GET_TEI_LIST.REQ" },
+    { HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_GET_TEI_LIST_CNF ,             "STP_GET_TEI_LIST.CNF" },
+    { HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_GET_TEI_SNAPSHOT_REQ ,         "STP_GET_TEI_SNAPSHOT.REQ" },
+    { HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_GET_TEI_SNAPSHOT_CNF ,         "STP_GET_TEI_SNAPSHOT.CNF" },
+    { HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_GET_BSS_LIST_REQ ,             "STP_GET_BSS_LIST.REQ" },
+    { HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_GET_BSS_LIST_CNF ,             "STP_GET_BSS_LIST.CNF" },
+    { HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_CHANQUAL_REPORT_REQ ,          "STP_CHANQUAL_REPORT.REQ" },
+    { HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_CHANQUAL_REPORT_CNF ,          "STP_CHANQUAL_REPORT.CNF" },
+    { HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_CHANQUAL_REPORT_IND ,          "STP_CHANQUAL_REPORT.IND" },
+    { HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_TEST_CHAN_ATTEN_START_RX_REQ , "STP_TEST_CHAN_ATTEN_START_RX.REQ" },
+    { HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_TEST_CHAN_ATTEN_START_RX_CNF , "STP_TEST_CHAN_ATTEN_START_RX.CNF" },
+    { HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_TEST_CHAN_ATTEN_DATA_IND ,     "STP_TEST_CHAN_ATTEN_DATA.IND" },
+    { HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_TEST_CHAN_ATTEN_START_TX_REQ , "STP_TEST_CHAN_ATTEN_START_TX.REQ" },
+    { HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_TEST_CHAN_ATTEN_START_TX_CNF , "STP_TEST_CHAN_ATTEN_START_TX.CNF" },
+    { HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_TEST_SOUND_QUIET_IND ,         "STP_TEST_SOUND_QUIET.IND" },
+    { HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_MFCT_UPDATE_STAGE_REQ ,        "STP_MFCT_UPDATE_STAGE.REQ" },
+    { HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_MFCT_UPDATE_STAGE_CNF ,        "STP_MFCT_UPDATE_STAGE.CNF" },
+    { HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_MFCT_UPDATE_FINISH_REQ ,       "STP_MFCT_UPDATE_FINISH.REQ" },
+    { HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_MFCT_UPDATE_FINISH_CNF ,       "STP_MFCT_UPDATE_FINISH.CNF" },
+    { HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_MFCT_GET_ITEM_REQ ,            "STP_MFCT_GET_ITEM.REQ" },
+    { HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_MFCT_GET_ITEM_CNF ,            "STP_MFCT_GET_ITEM.CNF" },
+    { HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_MFCT_GET_KEYLIST_REQ ,         "STP_MFCT_GET_KEYLIST.REQ" },
+    { HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_MFCT_GET_KEYLIST_CNF ,         "STP_MFCT_GET_KEYLIST.CNF" },
+    { HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_FUP_REQ ,                      "STP_FUP.REQ" },
+    { HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_RESERVED_REQ ,                 "STP_RESERVED.REQ (IoTecha HPGP Analyzer Raw Data)" },
+    { HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_CPSTATE_IND ,                  "STP_CPSTATE.IND" },
+    { HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_USER_MESSAGE_IND ,             "STP_USER_MESSAGE.IND" },
+    { 0, NULL }
+};
+
+/* ext MMType vals */
+static value_string_ext homeplug_av_mmtype_general_vals_ext = VALUE_STRING_EXT_INIT(homeplug_av_mmtype_general_vals);
+static value_string_ext homeplug_av_mmtype_qualcomm_vals_ext = VALUE_STRING_EXT_INIT(homeplug_av_mmtype_qualcomm_vals);
+static value_string_ext homeplug_av_mmtype_st_iotecha_vals_ext = VALUE_STRING_EXT_INIT(homeplug_av_mmtype_st_iotecha_vals);
 
 /* Versions */
-#define HOMEPLUG_AV_MMVER_MASK 0x01
+#define HOMEPLUG_AV_MMVER_MASK      0x01
 #define HOMEPLUG_AV_MMVER_1_0       0x00
 #define HOMEPLUG_AV_MMVER_1_1       0x01
 
@@ -1453,6 +2061,341 @@ static const value_string homeplug_av_coupling_vals[] = {
     { 0, NULL }
 };
 
+static const value_string homeplug_av_cc_assoc_result_vals[] = {
+    { 0x00, "Success" },
+    { 0x01, "Failure due to temporary resourse exhaustion, try again later" },
+    { 0x02, "Failure due to permanent resourse exhaustion" },
+    { 0x03, "Failure" },
+    { 0, NULL }
+};
+
+static const value_string homeplug_av_cc_assoc_reqtype_vals[] = {
+    { 0x00, "New request" },
+    { 0x01, "Renewal request" },
+    { 0, NULL }
+};
+
+static const value_string homeplug_av_cc_assoc_proxy_net_cap_vals[] = {
+    { 0x00, "Doesn't support Proxy Networking" },
+    { 0x01, "Supports Proxy Networking" },
+    { 0, NULL }
+};
+
+/* HPGP Values */
+
+#define HOMEPLUG_AV_GP_APPTYPE_PEV_EVSE_ASSOC 0x00
+
+#define HOMEPLUG_AV_GP_SECURITY_TYPE_NONE 0x00
+#define HOMEPLUG_AV_GP_SECURITY_TYPE_PUBLIC_KEY 0x01
+
+static const value_string homeplug_av_gp_cm_slac_parm_sectype_vals[] = {
+    { HOMEPLUG_AV_GP_SECURITY_TYPE_NONE, "No Security" },
+    { HOMEPLUG_AV_GP_SECURITY_TYPE_PUBLIC_KEY, "Public Key Signature" },
+    { 0, NULL }
+};
+
+static const value_string homeplug_av_gp_cm_slac_parm_resptype_vals[] = {
+    { 0x00, "Not Transmited to other GP STA's HLE" },
+    { 0x01, "Transmited to another GP STA's HLE" },
+    { 0, NULL }
+};
+
+#define HOMEPLUG_AV_GP_SIGNAL_TYPE_PEV_S2_TOGGLES 0x00
+
+static const value_string homeplug_av_gp_cm_validate_signaltype_vals[] = {
+    { HOMEPLUG_AV_GP_SIGNAL_TYPE_PEV_S2_TOGGLES, "PEV S2 toggles on CPLT line" },
+    { 0, NULL }
+};
+
+static const value_string homeplug_av_gp_cm_validate_result_vals[] = {
+    { 0x00, "Not Ready" },
+    { 0x01, "Ready" },
+    { 0x02, "Success" },
+    { 0x03, "Failure" },
+    { 0x04, "Not required" },
+    { 0, NULL }
+};
+
+/* We need third octet */
+#define HOMEPLUG_AV_GP_CM_SLAC_USER_DATA_BROADCAST_MASK (((guint32)0xFF) << 16)
+
+static const value_string homeplug_av_gp_cm_slac_user_data_broadcast_vals[] = {
+    { 0x00, "Unicast" },
+    { 0x01, "AVLN Broadcast" },
+    { 0x02, "Multi-network broadcast" },
+    { 0, NULL }
+};
+
+#define HOMEPLUG_AV_GP_CM_SLAC_USER_DATA_TLV_HEADER_SIZE 2
+#define HOMEPLUG_AV_GP_CM_SLAC_USER_DATA_TLV_TYPE_MASK (((1<<7)-1)<<9)
+#define HOMEPLUG_AV_GP_CM_SLAC_USER_DATA_TLV_LENGTH_MASK ((1<<9)-1)
+
+#define HOMEPLUG_AV_GP_CM_SLAC_USER_DATA_TLV_TYPE_VENDOR_RESERVED 0x1F
+
+static const value_string homeplug_av_gp_cm_slac_user_data_tlv_types_vals[] = {
+    { HOMEPLUG_AV_GP_CM_SLAC_USER_DATA_TLV_TYPE_VENDOR_RESERVED, "Vender Reserved" },
+    { 0, NULL }
+};
+
+typedef enum {
+    HOMEPLUG_AV_CC_SET_TEI_MAP_IND_MODE_FULL_ENTRIES_UPATE = 0x00,
+    HOMEPLUG_AV_CC_SET_TEI_MAP_IND_MODE_ADD_NEW_ENTRIES    = 0x01,
+    HOMEPLUG_AV_CC_SET_TEI_MAP_IND_MODE_REMOVE_ENTRIES     = 0x02
+} homeplug_av_cc_set_tei_map_ind_mode_types;
+
+static const value_string homeplug_av_cc_set_tei_map_ind_mode_vals[] = {
+    { HOMEPLUG_AV_CC_SET_TEI_MAP_IND_MODE_FULL_ENTRIES_UPATE, "Update Entire STA" },
+    { HOMEPLUG_AV_CC_SET_TEI_MAP_IND_MODE_ADD_NEW_ENTRIES,    "Add new STA entries" },
+    { HOMEPLUG_AV_CC_SET_TEI_MAP_IND_MODE_REMOVE_ENTRIES,     "Remove existing STA entries" },
+    { 0, NULL }
+};
+
+typedef enum {
+    HOMEPLUG_AV_CC_SET_TEI_MAP_IND_STATUS_NOT_AUTHENTICATED   = 0x00,
+    HOMEPLUG_AV_CC_SET_TEI_MAP_IND_STATUS_AUTHENTICATED       = 0x01,
+} homeplug_av_cc_set_tei_map_ind_status_types;
+
+static const value_string homeplug_av_cc_set_tei_map_ind_status_vals[] = {
+    { HOMEPLUG_AV_CC_SET_TEI_MAP_IND_STATUS_NOT_AUTHENTICATED,  "Not Authenticated" },
+    { HOMEPLUG_AV_CC_SET_TEI_MAP_IND_STATUS_AUTHENTICATED,      "Authenticated" },
+    { 0, NULL }
+};
+
+#define HOMEPLUG_AV_GP_CM_ATTEN_CHAR_AAG_FORMAT "Avg. Attenuation of group #%d (dB): %d"
+
+/* ST/IoTecha specific values */
+
+static const value_string homeplug_av_st_iotecha_linkstatus_status_vals[] = {
+    { 0x00, "No Link" },
+    { 0x01, "Link with atleast 1 device" },
+    { 0, NULL }
+};
+
+static const value_string homeplug_av_st_iotecha_linkstatus_devmode_vals[] = {
+    { 0x00, "Unavailable" },
+    { 0x01, "UNAS STA" },
+    { 0x02, "ASSC STA" },
+    { 0x03, "AUTH STA" },
+    { 0x04, "UNAS BM" },
+    { 0x05, "ASSC BM" },
+    { 0x06, "AUTH BM" },
+    { 0, NULL }
+};
+
+#define HOMEPLUG_AV_ST_IOTECHA_STP_DISCOVER_TLV_HEADER_SIZE 2
+#define HOMEPLUG_AV_ST_IOTECHA_STP_DISCOVER_TLV_TYPE_MASK (((1<<6)-1)<<10)
+#define HOMEPLUG_AV_ST_IOTECHA_STP_DISCOVER_TLV_LENGTH_MASK  ((1<<10)-1)
+
+typedef enum {
+    HOMEPLUG_AV_ST_IOTECHA_STP_DISCOVER_TLV_TYPE_NULL                 = 0x00,
+    HOMEPLUG_AV_ST_IOTECHA_STP_DISCOVER_TLV_TYPE_DEVICE_NAME          = 0x01,
+    HOMEPLUG_AV_ST_IOTECHA_STP_DISCOVER_TLV_TYPE_DEVICE_TYPE          = 0x02,
+    HOMEPLUG_AV_ST_IOTECHA_STP_DISCOVER_TLV_TYPE_BUILD_ID             = 0x03,
+    HOMEPLUG_AV_ST_IOTECHA_STP_DISCOVER_TLV_TYPE_RESERVED             = 0x04,
+    HOMEPLUG_AV_ST_IOTECHA_STP_DISCOVER_TLV_TYPE_DEVICE_UID           = 0x05,
+    HOMEPLUG_AV_ST_IOTECHA_STP_DISCOVER_TLV_TYPE_MAC_ADDRESS          = 0x06,
+    HOMEPLUG_AV_ST_IOTECHA_STP_DISCOVER_TLV_TYPE_HARDWARE_NAME        = 0x07,
+    HOMEPLUG_AV_ST_IOTECHA_STP_DISCOVER_TLV_TYPE_HARDWARE_VERSION     = 0x08,
+    HOMEPLUG_AV_ST_IOTECHA_STP_DISCOVER_TLV_TYPE_LINUX_KERNEL_VERSION = 0x09,
+    HOMEPLUG_AV_ST_IOTECHA_STP_DISCOVER_TLV_TYPE_LINUX_USER_VERSION   = 0x0A,
+} homeplug_av_st_iotecha_stp_discover_tlv_types;
+
+static const value_string homeplug_av_st_iotecha_stp_discover_tlv_type_vals[] = {
+    { HOMEPLUG_AV_ST_IOTECHA_STP_DISCOVER_TLV_TYPE_NULL,                 "NULL" },
+    { HOMEPLUG_AV_ST_IOTECHA_STP_DISCOVER_TLV_TYPE_DEVICE_NAME,          "Device name" },
+    { HOMEPLUG_AV_ST_IOTECHA_STP_DISCOVER_TLV_TYPE_DEVICE_TYPE,          "Device type" },
+    { HOMEPLUG_AV_ST_IOTECHA_STP_DISCOVER_TLV_TYPE_BUILD_ID,             "Build ID" },
+    { HOMEPLUG_AV_ST_IOTECHA_STP_DISCOVER_TLV_TYPE_RESERVED,             "Reserved" },
+    { HOMEPLUG_AV_ST_IOTECHA_STP_DISCOVER_TLV_TYPE_DEVICE_UID,           "Device UID" },
+    { HOMEPLUG_AV_ST_IOTECHA_STP_DISCOVER_TLV_TYPE_MAC_ADDRESS,          "MAC Address" },
+    { HOMEPLUG_AV_ST_IOTECHA_STP_DISCOVER_TLV_TYPE_HARDWARE_NAME,        "Hardware name" },
+    { HOMEPLUG_AV_ST_IOTECHA_STP_DISCOVER_TLV_TYPE_HARDWARE_VERSION,     "Hardware version" },
+    { HOMEPLUG_AV_ST_IOTECHA_STP_DISCOVER_TLV_TYPE_LINUX_KERNEL_VERSION, "Linux Kernel version" },
+    { HOMEPLUG_AV_ST_IOTECHA_STP_DISCOVER_TLV_TYPE_LINUX_USER_VERSION,   "Linux User version" },
+    { 0, NULL }
+};
+
+typedef enum {
+    HOMEPLUG_AV_ST_IOTECHA_STP_GET_BSS_TYPE_NULL                    = 0x00,
+    HOMEPLUG_AV_ST_IOTECHA_STP_GET_BSS_TYPE_BEGIN_BSS               = 0x01,
+    HOMEPLUG_AV_ST_IOTECHA_STP_GET_BSS_TYPE_LOCAL_BSS               = 0x02,
+    HOMEPLUG_AV_ST_IOTECHA_STP_GET_BSS_TYPE_RESERVED                = 0x03,
+    HOMEPLUG_AV_ST_IOTECHA_STP_GET_BSS_TYPE_REMOTE_BSS              = 0x04,
+    HOMEPLUG_AV_ST_IOTECHA_STP_GET_BSS_TYPE_SNID                    = 0x05,
+    HOMEPLUG_AV_ST_IOTECHA_STP_GET_BSS_TYPE_NID                     = 0x06,
+    HOMEPLUG_AV_ST_IOTECHA_STP_GET_BSS_TYPE_NET_MODE                = 0x07,
+    HOMEPLUG_AV_ST_IOTECHA_STP_GET_BSS_TYPE_BEACON_AGE              = 0x08,
+    HOMEPLUG_AV_ST_IOTECHA_STP_GET_BSS_TYPE_BEACON_FC_RELIABILITY   = 0x09,
+    HOMEPLUG_AV_ST_IOTECHA_STP_GET_BSS_TYPE_BEACON_PLD_RELIABILITY  = 0x0A,
+    HOMEPLUG_AV_ST_IOTECHA_STP_GET_BSS_TYPE_SIGNAL_LEVEL            = 0x0B,
+    HOMEPLUG_AV_ST_IOTECHA_STP_GET_BSS_TYPE_SIGNAL_LEVEL_TOS        = 0x0C,
+    HOMEPLUG_AV_ST_IOTECHA_STP_GET_BSS_TYPE_SIGNAL_LEVEL_MIN        = 0x0D,
+    HOMEPLUG_AV_ST_IOTECHA_STP_GET_BSS_TYPE_SIGNAL_LEVEL_TOS_MIN    = 0x0E,
+    HOMEPLUG_AV_ST_IOTECHA_STP_GET_BSS_TYPE_SIGNAL_LEVEL_MAX        = 0x0F,
+    HOMEPLUG_AV_ST_IOTECHA_STP_GET_BSS_TYPE_SIGNAL_LEVEL_TOS_MAX    = 0x10,
+    HOMEPLUG_AV_ST_IOTECHA_STP_GET_BSS_TYPE_NET_HYB_MODE            = 0x11,
+    HOMEPLUG_AV_ST_IOTECHA_STP_GET_BSS_TYPE_TEI                     = 0x12,
+    HOMEPLUG_AV_ST_IOTECHA_STP_GET_BSS_TYPE_END_BSS                 = 0xFF,
+} homeplug_av_st_iotecha_stp_get_bss_tlv_types;
+
+static const value_string homeplug_av_st_iotecha_stp_get_bss_tlv_type_vals[] = {
+    { HOMEPLUG_AV_ST_IOTECHA_STP_GET_BSS_TYPE_NULL,                  "NULL" },
+    { HOMEPLUG_AV_ST_IOTECHA_STP_GET_BSS_TYPE_BEGIN_BSS,             "Start of BSS descriptor" },
+    { HOMEPLUG_AV_ST_IOTECHA_STP_GET_BSS_TYPE_LOCAL_BSS,             "Local BSS Manager" },
+    { HOMEPLUG_AV_ST_IOTECHA_STP_GET_BSS_TYPE_RESERVED,              "Reserved Data" },
+    { HOMEPLUG_AV_ST_IOTECHA_STP_GET_BSS_TYPE_REMOTE_BSS,            "Remote BSS" },
+    { HOMEPLUG_AV_ST_IOTECHA_STP_GET_BSS_TYPE_SNID,                  "Short Network ID" },
+    { HOMEPLUG_AV_ST_IOTECHA_STP_GET_BSS_TYPE_NID,                   "Network ID" },
+    { HOMEPLUG_AV_ST_IOTECHA_STP_GET_BSS_TYPE_NET_MODE,              "Network Mode" },
+    { HOMEPLUG_AV_ST_IOTECHA_STP_GET_BSS_TYPE_BEACON_AGE,            "Beacon Age" },
+    { HOMEPLUG_AV_ST_IOTECHA_STP_GET_BSS_TYPE_BEACON_FC_RELIABILITY, "Beacon Frame Control reliability" },
+    { HOMEPLUG_AV_ST_IOTECHA_STP_GET_BSS_TYPE_BEACON_PLD_RELIABILITY,"Beacon Payload reliability" },
+    { HOMEPLUG_AV_ST_IOTECHA_STP_GET_BSS_TYPE_SIGNAL_LEVEL,          "Signal Level" },
+    { HOMEPLUG_AV_ST_IOTECHA_STP_GET_BSS_TYPE_SIGNAL_LEVEL_TOS,      "Signal Level Time of Sample" },
+    { HOMEPLUG_AV_ST_IOTECHA_STP_GET_BSS_TYPE_SIGNAL_LEVEL_MIN,      "Min Signal Level" },
+    { HOMEPLUG_AV_ST_IOTECHA_STP_GET_BSS_TYPE_SIGNAL_LEVEL_TOS_MIN,  "Min Signal Level Time of Sample" },
+    { HOMEPLUG_AV_ST_IOTECHA_STP_GET_BSS_TYPE_SIGNAL_LEVEL_MAX,      "Max Signal Level" },
+    { HOMEPLUG_AV_ST_IOTECHA_STP_GET_BSS_TYPE_SIGNAL_LEVEL_TOS_MAX,  "Max Signal Level Time of Sample" },
+    { HOMEPLUG_AV_ST_IOTECHA_STP_GET_BSS_TYPE_NET_HYB_MODE,          "Network Hybrid Mode" },
+    { HOMEPLUG_AV_ST_IOTECHA_STP_GET_BSS_TYPE_TEI,                   "TEI of BM" },
+    { HOMEPLUG_AV_ST_IOTECHA_STP_GET_BSS_TYPE_END_BSS,               "End of BSS descriptor" },
+    { 0, NULL }
+};
+
+static const value_string homeplug_av_st_iotecha_mac_address_flag_vals[] = {
+    { 0x00, "Unknown" },
+    { 0x01, "Local MAC" },
+    { 0x02, "Local Bridged MAC" },
+    { 0x04, "Remote MAC" },
+    { 0x08, "Remote Bridged MAC" },
+    { 0, NULL }
+};
+
+static const value_string homeplug_av_st_iotecha_chanqual_tei_source_vals[] = {
+    { 0x01, "Local Tei" },
+    { 0x02, "Remote Tei" },
+    { 0, NULL }
+};
+
+static const value_string homeplug_av_st_iotecha_chanqual_substatus_vals[] = {
+    { 0x01, "Subscribed" },
+    { 0x02, "Unsubscribed" },
+    { 0x03, "Invalid Request Type" },
+    { 0, NULL }
+};
+
+static const value_string homeplug_av_st_iotecha_chanqual_responsetype_vals[] = {
+    { 0x00, "Default Tone map transmitted in ICE" },
+    { 0x01, "Others" },
+    { 0, NULL }
+};
+
+static const value_string homeplug_av_st_iotecha_chanqual_tmi_vals[] = {
+    { 0xFE, "Not Available For Particular Interval" },
+    { 0xFF, "Unusable Interval" },
+    { 0, NULL }
+};
+
+#define HOMEPLUG_AV_ST_IOTECHA_CHANQUAL_CBLD_DATA_MASK_LOW  0x0F
+#define HOMEPLUG_AV_ST_IOTECHA_CHANQUAL_CBLD_DATA_MASK_HIGH 0xF0
+/* (1154/2) */
+#define HOMEPLUG_AV_ST_IOTECHA_CHANQUAL_CBLD_DATA_COUNT 577
+static const value_string homeplug_av_st_iotecha_chanqual_cbld_data_vals[] = {
+    { 0x00, "Empty" },
+    { 0x01, "Bitload of 1" },
+    { 0x02, "Bitload of 2" },
+    { 0x03, "Bitload of 3" },
+    { 0x04, "Bitload of 4" },
+    { 0x05, "Bitload of 5" },
+    { 0x06, "Bitload of 6" },
+    { 0x07, "Bitload of 7" },
+    { 0x08, "Bitload of 8" },
+    { 0x09, "Bitload of 9" },
+    { 0x0A, "Bitload of 10" },
+    { 0x0F, "Unusable" },
+    { 0, NULL }
+};
+
+static const value_string homeplug_av_st_iotecha_chanqual_reqtype_vals[] = {
+    { 0x01, "Subscribe" },
+    { 0x02, "Unsubscribe" },
+    { 0, NULL }
+};
+
+static const value_string homeplug_av_st_iotecha_mfct_request_type_vals[] = {
+    { 0x00, "Commit" },
+    { 0x02, "Abort" },
+    { 0, NULL }
+};
+
+static const value_string homeplug_av_st_iotecha_mfct_result_vals[] = {
+    { 0x00, "Success" },
+    { 0x03, "Parameter Not Found" },
+    { 0x04, "Permission Error" },
+    { 0x05, "Insufficient space in parameter region" },
+    { 0x06, "Internal Error" },
+    { 0, NULL }
+};
+
+static const value_string homeplug_av_st_iotecha_stp_fwup_mtype_vals[] = {
+    { 0x00, "Start Request" },
+    { 0x01, "Start Confirmation" },
+    { 0x02, "Data Index" },
+    { 0x03, "Data Response" },
+    { 0, NULL }
+};
+
+static const value_string homeplug_av_st_iotecha_stp_cpstate_state_vals[] = {
+    { 0x00, "Invalid"},
+    { 0x01, "A"},
+    { 0x02, "Ambiguous (A-B)"},
+    { 0x03, "B"},
+    { 0x04, "Ambiguous (B-C)"},
+    { 0x05, "C"},
+    { 0x06, "Ambiguous (C-D)"},
+    { 0x07, "D"},
+    { 0x08, "Ambiguous (D-E)"},
+    { 0x09, "E"},
+    { 0x0A, "F"},
+    { 0, NULL }
+};
+
+static const value_string homeplug_av_st_iotecha_test_type_vals[] = {
+    { 0x00, "Power"},
+    { 0x01, "Error"},
+    { 0, NULL }
+};
+
+static const value_string homeplug_av_st_iotecha_agc_lock_vals[] = {
+    { 0x00, "Disabled"},
+    { 0x01, "Enabled"},
+    { 0, NULL }
+};
+
+static const value_string homeplug_av_st_iotecha_test_status_vals[] = {
+    { 0x00, "Test running"},
+    { 0x01, "Failed to start test"},
+    { 0x02, "Test reset"},
+    { 0, NULL }
+};
+
+static const value_string homeplug_av_st_iotecha_supress_data_vals[] = {
+    { 0x00, "Disabled"},
+    { 0x01, "Enabled"},
+    { 0, NULL }
+};
+
+static void
+adc_bitmask_base(gchar *buf, guint8 value) {
+    g_snprintf(buf, ITEM_LABEL_LENGTH, "%s, %s, %s (%d)",
+               (value & 0x01) ? "true" : "false",
+               (value & 0x02) ? "true" : "false",
+               (value & 0x04) ? "true" : "false",
+               value);
+}
+
+/* End of ST/IoTecha specific values */
+
 #define TVB_LEN_GREATEST  1
 #define TVB_LEN_UNDEF     0
 #define TVB_LEN_SHORTEST -1
@@ -1474,15 +2417,30 @@ static inline unsigned int homeplug_av_mmtype_msb_is_vendor(guint8 msb)
             (HOMEPLUG_AV_MMTYPE_MSB_VENDOR << HOMEPLUG_AV_MMTYPE_MSB_SHIFT));
 }
 
+static inline unsigned int homeplug_av_mmtype_msb_is_manufacturer(guint8 msb)
+{
+    return ((msb & (HOMEPLUG_AV_MMTYPE_MSB_MANUF << HOMEPLUG_AV_MMTYPE_MSB_SHIFT)) ==
+            (HOMEPLUG_AV_MMTYPE_MSB_MANUF << HOMEPLUG_AV_MMTYPE_MSB_SHIFT));
+}
+
+static inline guint8 homeplug_av_get_mmhdr_size(guint8 mmv) {
+    /* Header in HomePlug AV 1.1 is 2 bytes larger (Fragmentation information) */
+    return (mmv ? 5 : 3);
+}
+
 /* Dissection of MMHDR */
 static void
-dissect_homeplug_av_mmhdr(ptvcursor_t *cursor, guint8 *homeplug_av_mmver, guint16 *homeplug_av_mmtype)
+dissect_homeplug_av_mmhdr(ptvcursor_t *cursor, guint8 *homeplug_av_mmver, guint16 *homeplug_av_mmtype, guint32 *homeplug_av_oui)
 {
     proto_item *ti;
     proto_tree *ti_mmtype;
-    proto_tree *ti_vendor;
+    /* Save in static variable */
+    /* proto_tree *ti_vendor; */
     proto_tree *ti_public;
     guint8 lsb, msb, mmv;
+    guint32 offset;
+
+    offset = 0;
 
     mmv = tvb_get_guint8(ptvcursor_tvbuff(cursor),
                          ptvcursor_current_offset(cursor));
@@ -1494,23 +2452,44 @@ dissect_homeplug_av_mmhdr(ptvcursor_t *cursor, guint8 *homeplug_av_mmver, guint1
     *homeplug_av_mmver = mmv;
     *homeplug_av_mmtype = (msb << 8) | lsb;
 
-    /* Header in HomePlug AV 1.1 is 2 bytes larger (Fragmentation information) */
-    if (mmv)
+    if (homeplug_av_mmtype_msb_is_vendor(msb)
+        || homeplug_av_mmtype_msb_is_manufacturer(msb))
     {
-        ti = ptvcursor_add_no_advance(cursor, hf_homeplug_av_mmhdr, 5, ENC_NA);
-    }
-    else
-    {
-        ti = ptvcursor_add_no_advance(cursor, hf_homeplug_av_mmhdr, 3, ENC_NA);
+        /* read three bytes of OUI */
+        *homeplug_av_oui = tvb_get_guint24(ptvcursor_tvbuff(cursor),
+                                           ptvcursor_current_offset(cursor)+homeplug_av_get_mmhdr_size(mmv),
+                                           ENC_NA);
     }
 
-    if (!ptvcursor_tree(cursor))
+    if (!ptvcursor_tree(cursor)) {
+        /* advance even there is no tree to be able to extract data in packet specific dissectors */
+        offset += homeplug_av_get_mmhdr_size(mmv);
+        if (homeplug_av_mmtype_msb_is_vendor(msb)
+            || homeplug_av_mmtype_msb_is_manufacturer(msb)) {
+            offset += 3;
+        }
+        ptvcursor_advance(cursor, offset);
         return;
+    }
+
+    /* Header in HomePlug AV 1.1 is 2 bytes larger (Fragmentation information) */
+    ti = ptvcursor_add_no_advance(cursor, hf_homeplug_av_mmhdr, homeplug_av_get_mmhdr_size(*homeplug_av_mmver), ENC_NA);
 
     ptvcursor_push_subtree(cursor, ti, ett_homeplug_av_mmhdr);
     {
         ptvcursor_add(cursor, hf_homeplug_av_mmhdr_mmver, 1, ENC_BIG_ENDIAN);
-        ti_mmtype = ptvcursor_add_no_advance(cursor, hf_homeplug_av_mmhdr_mmtype, 2, ENC_LITTLE_ENDIAN);
+
+        switch (*homeplug_av_oui) {
+        case HOMEPLUG_AV_OUI_QCA:
+            ti_mmtype = ptvcursor_add_no_advance(cursor, hf_homeplug_av_mmhdr_mmtype_qualcomm, 2, ENC_LITTLE_ENDIAN);
+            break;
+        case HOMEPLUG_AV_OUI_ST_IOTECHA:
+            ti_mmtype = ptvcursor_add_no_advance(cursor, hf_homeplug_av_mmhdr_mmtype_st,       2, ENC_LITTLE_ENDIAN);
+            break;
+        default:
+            ti_mmtype = ptvcursor_add_no_advance(cursor, hf_homeplug_av_mmhdr_mmtype_general,  2, ENC_LITTLE_ENDIAN);
+            break;
+        }
 
         ptvcursor_push_subtree(cursor, ti_mmtype, ett_homeplug_av_mmtype);
         {
@@ -1536,9 +2515,9 @@ dissect_homeplug_av_mmhdr(ptvcursor_t *cursor, guint8 *homeplug_av_mmver, guint1
     ptvcursor_pop_subtree(cursor);
 
     /* Vendor management frame */
-    if (homeplug_av_mmtype_msb_is_vendor(msb))
+    if (homeplug_av_mmtype_msb_is_vendor(msb) || homeplug_av_mmtype_msb_is_manufacturer(msb))
     {
-        ti_vendor = ptvcursor_add_no_advance(cursor, hf_homeplug_av_vendor, -1, ENC_NA);
+        ti_vendor = ptvcursor_add_no_advance(cursor, hf_homeplug_av_vendor, 3, ENC_NA);
 
         ptvcursor_push_subtree(cursor, ti_vendor, ett_homeplug_av_vendor);
         {
@@ -2184,7 +3163,7 @@ dissect_homeplug_av_cm_set_key_req(ptvcursor_t *cursor)
         ptvcursor_add(cursor, hf_homeplug_av_nw_info_cco_cap, 1, ENC_BIG_ENDIAN);
         ptvcursor_add(cursor, hf_homeplug_av_nw_info_nid, 7, ENC_NA);
         ptvcursor_add(cursor, hf_homeplug_av_nw_info_peks, 1, ENC_BIG_ENDIAN);
-        ptvcursor_add(cursor, hf_homeplug_av_cm_set_key_req_nw_key, -1, ENC_NA);
+        ptvcursor_add(cursor, hf_homeplug_av_cm_set_key_req_nw_key, 16, ENC_NA);
     }
     ptvcursor_pop_subtree(cursor);
 }
@@ -2354,7 +3333,7 @@ dissect_homeplug_av_nw_stats_cnf(ptvcursor_t *cursor)
     ptvcursor_pop_subtree(cursor);
 }
 
-/* Intellon specific vendor MMEs */
+/* Intellon - Qualcomm specific MME Types */
 static void
 dissect_homeplug_av_get_sw_cnf(ptvcursor_t *cursor)
 {
@@ -3636,184 +4615,1352 @@ dissect_homeplug_av_tone_map_rx_cnf(ptvcursor_t *cursor, guint8 homeplug_av_mmve
     ptvcursor_pop_subtree(cursor);
 }
 
-static void
-dissect_homeplug_av_mme(ptvcursor_t *cursor, guint8 homeplug_av_mmver, guint16 homeplug_av_mmtype)
-{
 
-    switch (homeplug_av_mmtype) {
-        /* Public MMEs */
-    case HOMEPLUG_AV_MMTYPE_CC_DISC_LIST_CNF:
+static void
+dissect_homeplug_av_cc_assoc_req(ptvcursor_t *cursor) {
+
+    if (!ptvcursor_tree(cursor))
+        return;
+
+    ptvcursor_add(cursor, hf_homeplug_av_cc_assoc_reqtype, 1, ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_cc_assoc_nid, 7, ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_cc_assoc_cco_cap, 1, ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_cc_assoc_proxy_net_cap, 1, ENC_NA);
+}
+
+static void
+dissect_homeplug_av_cc_assoc_cnf(ptvcursor_t *cursor) {
+
+    if (!ptvcursor_tree(cursor))
+        return;
+
+    ptvcursor_add(cursor, hf_homeplug_av_cc_assoc_result, 1, ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_cc_assoc_nid, 7, ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_cc_assoc_snid, 1, ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_cc_assoc_tei, 1, ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_cc_assoc_lease_time, 2, ENC_LITTLE_ENDIAN);
+}
+
+static void
+dissect_homeplug_av_cc_set_tei_map_ind(ptvcursor_t *cursor) {
+    guint8 numberOfSTA = 0;
+    guint iter = 0;
+
+    if (!ptvcursor_tree(cursor))
+        return;
+
+    ptvcursor_add(cursor, hf_homeplug_av_cc_set_tei_map_ind_mode, 1, ENC_NA);
+
+    numberOfSTA = tvb_get_guint8( ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+    ptvcursor_add(cursor, hf_homeplug_av_cc_set_tei_map_ind_num, 1, ENC_NA);
+
+    for ( iter = 0; iter < numberOfSTA; ++iter ) {
+        ptvcursor_add(cursor, hf_homeplug_av_cc_set_tei_map_ind_tei, 1, ENC_NA);
+        ptvcursor_add(cursor, hf_homeplug_av_cc_set_tei_map_ind_mac, 6, ENC_NA);
+        ptvcursor_add(cursor, hf_homeplug_av_cc_set_tei_map_ind_status, 1, ENC_NA);
+    }
+}
+
+static void
+dissect_homeplug_av_cm_unassociated_sta_ind(ptvcursor_t *cursor) {
+
+    if (!ptvcursor_tree(cursor))
+        return;
+
+    ptvcursor_add(cursor, hf_homeplug_av_cm_unassoc_sta_nid, 7, ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_cm_unassoc_sta_cco_cap, 1, ENC_NA);
+}
+
+/* HPAV/GP dissect functions */
+static void
+dissect_homeplug_av_gp_cm_slac_parm_req(ptvcursor_t *cursor) {
+
+    guint8 sectype,cipher_size;
+    guint16 Counter;
+
+    if (!ptvcursor_tree(cursor))
+        return;
+
+    ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_parm_apptype, 1, ENC_NA);
+    sectype = tvb_get_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+    ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_parm_sectype, 1, ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_parm_runid, 8, ENC_NA);
+    if (sectype == HOMEPLUG_AV_GP_SECURITY_TYPE_PUBLIC_KEY) {
+        cipher_size = tvb_get_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+        ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_parm_cipher_size, 1, ENC_NA);
+        for (Counter = 0; Counter < cipher_size; ++Counter) {
+            ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_parm_cipher, 2, ENC_LITTLE_ENDIAN);
+        }
+    }
+}
+
+static void
+dissect_homeplug_av_gp_cm_slac_parm_cnf(ptvcursor_t *cursor) {
+
+    guint8 sectype;
+
+    if (!ptvcursor_tree(cursor))
+        return;
+
+    ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_parm_sound_target, 6, ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_parm_sound_count, 1, ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_parm_time_out, 1, ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_parm_resptype, 1, ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_parm_forwarding_sta, 6, ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_parm_apptype, 1, ENC_NA);
+    sectype = tvb_get_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+    ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_parm_sectype, 1, ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_parm_runid, 8, ENC_NA);
+    if (sectype == HOMEPLUG_AV_GP_SECURITY_TYPE_PUBLIC_KEY) {
+        ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_parm_cipher, 2, ENC_LITTLE_ENDIAN);
+    }
+}
+
+static void
+dissect_homeplug_av_gp_cm_atten_profile_ind(ptvcursor_t *cursor) {
+
+    guint8 group_size;
+    guint16 Counter;
+
+    if (!ptvcursor_tree(cursor))
+        return;
+
+    ptvcursor_add(cursor, hf_homeplug_av_gp_cm_atten_profile_ind_pev_mac, 6, ENC_NA);
+    group_size = tvb_get_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+    ptvcursor_add(cursor, hf_homeplug_av_gp_cm_atten_profile_ind_num_groups, 1, ENC_NA);
+    /* Skip reserved */
+    ptvcursor_advance(cursor, 1);
+    for (Counter = 0; Counter < group_size; ++Counter) {
+        ptvcursor_add(cursor, hf_homeplug_av_gp_cm_atten_profile_ind_aag, 1, ENC_NA);
+    }
+}
+
+static void
+dissect_homeplug_av_gp_cm_atten_char_ind(ptvcursor_t *cursor, packet_info *pinfo) {
+
+    guint8 sectype, numgroups, val;
+    guint16 Counter_groups;
+    proto_item *it;
+    gfloat avg;
+
+    avg = 0.0f;
+
+    if (!ptvcursor_tree(cursor)) {
+        ptvcursor_advance(cursor, 1);
+        sectype = tvb_get_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+        ptvcursor_advance(cursor, 1);
+        if (sectype != HOMEPLUG_AV_GP_SECURITY_TYPE_PUBLIC_KEY) {
+            ptvcursor_advance(cursor, 6+8+17+17+1);
+            numgroups = tvb_get_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+            ptvcursor_advance(cursor, 1);
+            for (Counter_groups = 0; Counter_groups < numgroups; ++Counter_groups) {
+                val = tvb_get_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+                avg += val;
+                ptvcursor_advance(cursor,1);
+            }
+            avg /= numgroups;
+            col_append_fstr(pinfo->cinfo, COL_INFO, " (Groups = %d, Avg. Attenuation = %.2f dB)", numgroups, avg);
+        }
+        return;
+    }
+
+    ptvcursor_add(cursor, hf_homeplug_av_gp_cm_atten_char_apptype, 1, ENC_NA);
+    sectype = tvb_get_guint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
+
+    ptvcursor_add(cursor, hf_homeplug_av_gp_cm_atten_char_sectype, 1, ENC_NA);
+
+    if (sectype == HOMEPLUG_AV_GP_SECURITY_TYPE_PUBLIC_KEY) {
+        ptvcursor_add(cursor, hf_homeplug_av_gp_cm_atten_char_cms_data, -1, ENC_NA);
+    } else {
+        ptvcursor_add(cursor, hf_homeplug_av_gp_cm_atten_char_source_mac, 6, ENC_NA);
+        ptvcursor_add(cursor, hf_homeplug_av_gp_cm_atten_char_runid, 8, ENC_NA);
+        ptvcursor_add(cursor, hf_homeplug_av_gp_cm_atten_char_source_id, 17, ENC_NA);
+        ptvcursor_add(cursor, hf_homeplug_av_gp_cm_atten_char_resp_id, 17, ENC_NA);
+
+        ptvcursor_add(cursor, hf_homeplug_av_gp_cm_atten_char_numsounds, 1, ENC_NA);
+
+        numgroups = tvb_get_guint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
+
+        it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_gp_cm_atten_char_profile, numgroups+1 , ENC_NA);
+
+        ptvcursor_push_subtree(cursor, it, ett_homeplug_av_gp_cm_atten_char_profile);
+        {
+            ptvcursor_add(cursor, hf_homeplug_av_gp_cm_atten_char_numgroups, 1, ENC_NA);
+            for (Counter_groups = 0; Counter_groups < numgroups; ++Counter_groups) {
+                val = tvb_get_guint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
+                proto_tree_add_uint_format( ptvcursor_tree(cursor),
+                                            hf_homeplug_av_gp_cm_atten_char_aag,
+                                            ptvcursor_tvbuff(cursor),
+                                            ptvcursor_current_offset(cursor), 1, val,
+                                            HOMEPLUG_AV_GP_CM_ATTEN_CHAR_AAG_FORMAT, Counter_groups + 1, val );
+                ptvcursor_advance(cursor, 1);
+            }
+        }
+        ptvcursor_pop_subtree(cursor);
+    }
+
+}
+
+static void
+dissect_homeplug_av_gp_cm_atten_char_rsp(ptvcursor_t *cursor) {
+
+    guint8 sectype;
+
+    if (!ptvcursor_tree(cursor))
+        return;
+
+    ptvcursor_add(cursor, hf_homeplug_av_gp_cm_atten_char_apptype, 1, ENC_NA);
+    sectype = tvb_get_guint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
+
+    ptvcursor_add(cursor, hf_homeplug_av_gp_cm_atten_char_sectype, 1, ENC_NA);
+
+    if (sectype == HOMEPLUG_AV_GP_SECURITY_TYPE_PUBLIC_KEY) {
+        ptvcursor_add(cursor, hf_homeplug_av_gp_cm_atten_char_cms_data, -1, ENC_NA);
+    } else {
+        ptvcursor_add(cursor, hf_homeplug_av_gp_cm_atten_char_source_mac, 6, ENC_NA);
+        ptvcursor_add(cursor, hf_homeplug_av_gp_cm_atten_char_runid, 8, ENC_NA);
+        ptvcursor_add(cursor, hf_homeplug_av_gp_cm_atten_char_source_id, 17, ENC_NA);
+        ptvcursor_add(cursor, hf_homeplug_av_gp_cm_atten_char_resp_id, 17, ENC_NA);
+        ptvcursor_add(cursor, hf_homeplug_av_gp_cm_atten_char_result, 1, ENC_NA);
+    }
+}
+
+static void
+dissect_homeplug_av_gp_cm_start_atten_char_ind(ptvcursor_t *cursor) {
+
+    guint8 sectype;
+
+    if (!ptvcursor_tree(cursor))
+        return;
+
+    ptvcursor_add(cursor, hf_homeplug_av_gp_cm_atten_char_apptype, 1, ENC_NA);
+    sectype = tvb_get_guint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
+
+    ptvcursor_add(cursor, hf_homeplug_av_gp_cm_atten_char_sectype, 1, ENC_NA);
+
+    if (sectype == HOMEPLUG_AV_GP_SECURITY_TYPE_PUBLIC_KEY) {
+        ptvcursor_add(cursor, hf_homeplug_av_gp_cm_atten_char_cms_data, -1, ENC_NA);
+    } else {
+        ptvcursor_add(cursor, hf_homeplug_av_gp_cm_start_atten_char_numsounds, 1, ENC_NA);
+        ptvcursor_add(cursor, hf_homeplug_av_gp_cm_start_atten_char_time_out, 1, ENC_NA);
+        ptvcursor_add(cursor, hf_homeplug_av_gp_cm_start_atten_char_resptype, 1, ENC_NA);
+        ptvcursor_add(cursor, hf_homeplug_av_gp_cm_start_atten_char_forwarding_sta, 6, ENC_NA);
+        ptvcursor_add(cursor, hf_homeplug_av_gp_cm_start_atten_char_runid, 8, ENC_NA);
+    }
+}
+
+static void
+dissect_homeplug_av_gp_cm_mnbc_sound_ind(ptvcursor_t *cursor) {
+
+    guint8 apptype,sectype;
+
+    if (!ptvcursor_tree(cursor))
+        return;
+
+    apptype = tvb_get_guint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
+    ptvcursor_add(cursor, hf_homeplug_av_gp_cm_mnbc_sound_apptype, 1, ENC_NA);
+
+    sectype = tvb_get_guint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
+    ptvcursor_add(cursor, hf_homeplug_av_gp_cm_mnbc_sound_sectype, 1, ENC_NA);
+
+    if (sectype == HOMEPLUG_AV_GP_SECURITY_TYPE_PUBLIC_KEY) {
+        ptvcursor_add(cursor, hf_homeplug_av_gp_cm_atten_char_cms_data, -1, ENC_NA);
+    } else {
+        switch (apptype) {
+        case HOMEPLUG_AV_GP_APPTYPE_PEV_EVSE_ASSOC:
+            ptvcursor_add(cursor, hf_homeplug_av_gp_cm_mnbc_sound_sender_id, 17, ENC_NA);
+            ptvcursor_add(cursor, hf_homeplug_av_gp_cm_mnbc_sound_countdown, 1, ENC_NA);
+            ptvcursor_add(cursor, hf_homeplug_av_gp_cm_mnbc_sound_runid, 8, ENC_NA);
+            ptvcursor_add(cursor, hf_homeplug_av_gp_cm_mnbc_sound_rsvd, 8, ENC_NA);
+            ptvcursor_add(cursor, hf_homeplug_av_gp_cm_mnbc_sound_rnd, 16, ENC_NA);
+            break;
+        }
+    }
+}
+
+static void
+dissect_homeplug_av_gp_cm_validate_req(ptvcursor_t *cursor) {
+
+    guint8 signaltype;
+
+    if (!ptvcursor_tree(cursor))
+        return;
+
+    signaltype = tvb_get_guint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
+    ptvcursor_add(cursor, hf_homeplug_av_gp_cm_validate_signaltype, 1, ENC_NA);
+    switch (signaltype) {
+    case HOMEPLUG_AV_GP_SIGNAL_TYPE_PEV_S2_TOGGLES:
+        ptvcursor_add(cursor, hf_homeplug_av_gp_cm_validate_timer, 1, ENC_NA);
+        ptvcursor_add(cursor, hf_homeplug_av_gp_cm_validate_result, 1, ENC_NA);
+        break;
+    }
+}
+
+static void
+dissect_homeplug_av_gp_cm_validate_cnf(ptvcursor_t *cursor) {
+
+    guint8 signaltype;
+
+    if (!ptvcursor_tree(cursor))
+        return;
+
+    signaltype = tvb_get_guint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
+    ptvcursor_add(cursor, hf_homeplug_av_gp_cm_validate_signaltype, 1, ENC_NA);
+    switch (signaltype) {
+    case HOMEPLUG_AV_GP_SIGNAL_TYPE_PEV_S2_TOGGLES:
+        ptvcursor_add(cursor, hf_homeplug_av_gp_cm_validate_togglenum, 1, ENC_NA);
+        ptvcursor_add(cursor, hf_homeplug_av_gp_cm_validate_result, 1, ENC_NA);
+        break;
+    }
+}
+
+static void
+dissect_homeplug_av_gp_cm_slac_match_req(ptvcursor_t *cursor) {
+
+    /* guint8 apptype;
+       guint16 length; */
+    guint8 sectype;
+
+    if (!ptvcursor_tree(cursor))
+        return;
+
+    /* apptype = tvb_get_guint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor)); */
+    ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_match_apptype, 1, ENC_NA);
+
+    sectype = tvb_get_guint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
+    ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_match_sectype, 1, ENC_NA);
+
+    /* length = tvb_get_guint16(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor), ENC_LITTLE_ENDIAN); */
+    ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_match_length, 2, ENC_LITTLE_ENDIAN);
+
+    if (sectype == HOMEPLUG_AV_GP_SECURITY_TYPE_PUBLIC_KEY) {
+        ptvcursor_add(cursor, hf_homeplug_av_gp_cm_atten_char_cms_data, -1, ENC_NA);
+    } else {
+        ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_match_pev_id, 17, ENC_NA);
+        ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_match_pev_mac, 6, ENC_NA);
+        ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_match_evse_id, 17, ENC_NA);
+        ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_match_evse_mac, 6, ENC_NA);
+        ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_match_runid, 8, ENC_NA);
+        ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_match_rsvd, 8, ENC_NA);
+    }
+}
+
+static void
+dissect_homeplug_av_gp_cm_slac_match_cnf(ptvcursor_t *cursor) {
+
+    /* guint8 apptype;
+       guint16 length; */
+    guint8 sectype;
+
+    if (!ptvcursor_tree(cursor))
+        return;
+
+    //apptype = tvb_get_guint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
+    ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_match_apptype, 1, ENC_NA);
+
+    sectype = tvb_get_guint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
+    ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_match_sectype, 1, ENC_NA);
+
+    //length = tvb_get_guint16(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor), ENC_LITTLE_ENDIAN);
+    ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_match_length, 2, ENC_LITTLE_ENDIAN);
+
+    if (sectype == HOMEPLUG_AV_GP_SECURITY_TYPE_PUBLIC_KEY) {
+        ptvcursor_add(cursor, hf_homeplug_av_gp_cm_atten_char_cms_data, -1, ENC_NA);
+    } else {
+        ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_match_pev_id, 17, ENC_NA);
+        ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_match_pev_mac, 6, ENC_NA);
+        ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_match_evse_id, 17, ENC_NA);
+        ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_match_evse_mac, 6, ENC_NA);
+        ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_match_runid, 8, ENC_NA);
+        ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_match_rsvd, 8, ENC_NA);
+        ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_match_nid, 7, ENC_NA);
+        ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_match_rsvd,1, ENC_NA);
+        ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_match_nmk,16, ENC_NA);
+    }
+}
+static void
+dissect_homeplug_av_gp_cm_slac_user_data(ptvcursor_t *cursor) {
+
+    guint16 Type, Length,TypeLen;
+    proto_item *it;
+
+    if (!ptvcursor_tree(cursor))
+        return;
+
+    ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_user_data_broadcast_tlv_type, 3, ENC_LITTLE_ENDIAN);
+
+    for (;;) {
+        /* Get Length and Type from TLV Header */
+        TypeLen = tvb_get_guint16(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor),ENC_LITTLE_ENDIAN);
+        Length = TypeLen & HOMEPLUG_AV_GP_CM_SLAC_USER_DATA_TLV_LENGTH_MASK;
+        Type = TypeLen & HOMEPLUG_AV_GP_CM_SLAC_USER_DATA_TLV_TYPE_MASK;
+        /* If type and length is null_type - don't add anything and exit */
+        if (TypeLen == 0)
+            break;
+        it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_gp_cm_slac_user_data_tlv, HOMEPLUG_AV_GP_CM_SLAC_USER_DATA_TLV_HEADER_SIZE, ENC_LITTLE_ENDIAN);
+        ptvcursor_push_subtree(cursor, it, ett_homeplug_av_gp_cm_slac_user_data_tlv);
+        {
+            ptvcursor_add_no_advance(cursor, hf_homeplug_av_gp_cm_slac_user_data_tlv_type, HOMEPLUG_AV_GP_CM_SLAC_USER_DATA_TLV_TYPE_MASK, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_user_data_tlv_length, HOMEPLUG_AV_GP_CM_SLAC_USER_DATA_TLV_LENGTH_MASK, ENC_LITTLE_ENDIAN);
+            if (Type == HOMEPLUG_AV_GP_CM_SLAC_USER_DATA_TLV_TYPE_VENDOR_RESERVED) {
+                ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_user_data_tlv_oui, 3, ENC_LITTLE_ENDIAN);
+                ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_user_data_tlv_subtype, 1, ENC_NA);
+                ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_user_data_tlv_info_str, Length - 3 - 1, ENC_NA);
+            } else {
+                ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_user_data_tlv_str_bytes, Length, ENC_NA);
+            }
+        }
+        ptvcursor_pop_subtree(cursor);
+    }
+
+}
+
+/* End of HPAV/GP dissect functions */
+
+/* ST/IoTecha dissect functions */
+
+/* General parts */
+static void
+dissect_homeplug_av_st_iotecha_header(ptvcursor_t *cursor) {
+
+    proto_tree *tree;
+
+    if (!ptvcursor_tree(cursor)) {
+        ptvcursor_advance(cursor, 5);
+        return;
+    }
+    /* if we saved vendor subtree */
+    if (ti_vendor) {
+        /* Save current position */
+        tree = ptvcursor_tree(cursor);
+        /* Go back to vendor subtree */
+        ptvcursor_set_subtree(cursor, ti_vendor, ett_homeplug_av_public);
+        /* Add info */
+        ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_header_mmever, 1, ENC_NA);
+        ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_header_rsvd, 3, ENC_NA);
+        /* Extending length of tree item */
+        proto_tree_set_appendix(ti_vendor, ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor) - 4, 4);
+        /* Now back to current position */
+        ptvcursor_set_tree(cursor,tree);
+    } else {
+        /* else - just add fields as is */
+        ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_header_mmever, 1, ENC_NA);
+        ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_header_rsvd, 3, ENC_NA);
+    }
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_header_mver, 1, ENC_NA);
+}
+
+static void
+dissect_homeplug_av_st_iotecha_status_standard(ptvcursor_t *cursor) {
+
+    if (!ptvcursor_tree(cursor))
+        return;
+
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_status_byte, 1, ENC_NA);
+}
+
+/* Specific messages */
+
+static void
+dissect_homeplug_av_st_iotecha_stp_discover_tlv(ptvcursor_t *cursor) {
+
+    guint16 Type, Length,TypeLen;
+    proto_item *it;
+
+    if (!ptvcursor_tree(cursor))
+        return;
+
+    for (;;) {
+        /* Get Length and Type from TLV Header */
+        TypeLen = tvb_get_guint16(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor),ENC_LITTLE_ENDIAN);
+        Length = TypeLen & HOMEPLUG_AV_ST_IOTECHA_STP_DISCOVER_TLV_LENGTH_MASK;
+        Type = TypeLen & HOMEPLUG_AV_ST_IOTECHA_STP_DISCOVER_TLV_TYPE_MASK;
+        /* If type is null_type - don't add anything and exit */
+        if (Type == HOMEPLUG_AV_ST_IOTECHA_STP_DISCOVER_TLV_TYPE_NULL)
+            break;
+        it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_st_iotecha_stp_discover_tlv, HOMEPLUG_AV_ST_IOTECHA_STP_DISCOVER_TLV_HEADER_SIZE, ENC_LITTLE_ENDIAN);
+        ptvcursor_push_subtree(cursor, it, ett_homeplug_av_st_iotecha_type_length_value);
+        {
+            ptvcursor_add_no_advance(cursor, hf_homeplug_av_st_iotecha_stp_discover_tlv_type, HOMEPLUG_AV_ST_IOTECHA_STP_DISCOVER_TLV_HEADER_SIZE, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_stp_discover_tlv_length, HOMEPLUG_AV_ST_IOTECHA_STP_DISCOVER_TLV_HEADER_SIZE, ENC_LITTLE_ENDIAN);
+            if (Type == HOMEPLUG_AV_ST_IOTECHA_STP_DISCOVER_TLV_TYPE_DEVICE_TYPE) {
+                ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_stp_discover_tlv_value_bytes, Length, ENC_NA);
+            } else {
+                ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_stp_discover_tlv_value_string, Length, ENC_ASCII|ENC_NA);
+            }
+        }
+        ptvcursor_pop_subtree(cursor);
+    }
+}
+
+static void
+dissect_homeplug_av_st_iotecha_stp_get_bss_tlv(ptvcursor_t *cursor, guint8 count) {
+
+    guint8 Type;
+    guint16 Counter, Length;
+    proto_item *it;
+
+    if (!ptvcursor_tree(cursor))
+        return;
+
+    for (Counter = 0; Counter < count; ++Counter) {
+        Type = tvb_get_guint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
+        if (Type == HOMEPLUG_AV_ST_IOTECHA_STP_GET_BSS_TYPE_BEGIN_BSS) {
+            it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_st_iotecha_bss_entry, 0, ENC_NA);
+            ptvcursor_push_subtree(cursor, it, ett_homeplug_av_st_iotecha_bss_entry);
+            {
+                while (Type != HOMEPLUG_AV_ST_IOTECHA_STP_GET_BSS_TYPE_END_BSS) {
+                    Type = tvb_get_guint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
+                    it = ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_bss_type, 1, ENC_NA);
+                    Length = tvb_get_guint16(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor), ENC_LITTLE_ENDIAN);
+                    /* If no data - skip fields */
+                    if (Length) {
+                        proto_item_append_text(it," Length: %d",Length);
+                        ptvcursor_advance(cursor, 2);
+                        switch (Type) {
+                        default:
+                            ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_bss_value_bytes, Length, ENC_NA);
+                            break;
+                        }
+
+                    } else {
+                        ptvcursor_advance(cursor, 2);
+                    }
+                }
+            }
+            ptvcursor_pop_subtree(cursor);
+        }
+    }
+}
+
+static void
+dissect_homeplug_av_st_iotecha_stp_auth_set_nmk_req(ptvcursor_t *cursor) {
+
+    if (!ptvcursor_tree(cursor))
+        return;
+
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_auth_nmk, 16, ENC_NA);
+}
+
+static void
+dissect_homeplug_av_st_iotecha_stp_set_maxgain_req(ptvcursor_t *cursor) {
+
+    if (!ptvcursor_tree(cursor))
+        return;
+
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_gain_ask, 1, ENC_NA);
+}
+
+static void
+dissect_homeplug_av_st_iotecha_stp_set_maxgain_cnf(ptvcursor_t *cursor) {
+
+    if (!ptvcursor_tree(cursor))
+        return;
+
+    dissect_homeplug_av_st_iotecha_status_standard(cursor);
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_gain_new, 1, ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_gain_prev, 1, ENC_NA);
+}
+
+static void
+dissect_homeplug_av_st_iotecha_linkstatus(ptvcursor_t *cursor) {
+
+    if (!ptvcursor_tree(cursor))
+        return;
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_linkstatus_status, 1, ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_linkstatus_devmode, 1, ENC_NA);
+
+}
+
+static void
+dissect_homeplug_av_st_iotecha_discover(ptvcursor_t *cursor) {
+
+    if (!ptvcursor_tree(cursor))
+        return;
+
+    dissect_homeplug_av_st_iotecha_stp_discover_tlv(cursor);
+}
+
+static void
+dissect_homeplug_av_st_iotecha_stp_get_tei_list_cnf(ptvcursor_t *cursor) {
+
+    guint8 TeiCount;
+    guint8 Counter;
+
+    if (!ptvcursor_tree(cursor))
+        return;
+
+    TeiCount = tvb_get_guint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_tei_count, 1, ENC_NA);
+    for (Counter = 0; Counter < TeiCount; ++Counter) {
+        ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_tei, 1, ENC_NA);
+    }
+}
+
+static void
+dissect_homeplug_av_st_iotecha_stp_get_tei_snapshot_req(ptvcursor_t *cursor) {
+
+    if (!ptvcursor_tree(cursor))
+        return;
+
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_tei, 1, ENC_NA);
+}
+
+static void
+dissect_homeplug_av_st_iotecha_stp_get_tei_snapshot_cnf(ptvcursor_t *cursor) {
+
+    guint8 AddrCount;
+    guint8 Counter;
+
+    if (!ptvcursor_tree(cursor))
+        return;
+
+    AddrCount = tvb_get_guint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_tei_snap_addr_count, 1, ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_tei_snap_tei, 1, ENC_NA);
+    for (Counter = 0; Counter < AddrCount; ++Counter) {
+        ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_mac_address, 6, ENC_NA);
+        ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_tei_snap_mac_address_flag, 2, ENC_LITTLE_ENDIAN);
+    }
+}
+
+static void
+dissect_homeplug_av_st_iotecha_stp_get_bss_list_cnf(ptvcursor_t *cursor) {
+
+    guint8 Count;
+
+    if (!ptvcursor_tree(cursor))
+        return;
+
+    Count  = tvb_get_guint8( ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_bss_list_count, 1, ENC_NA);
+    dissect_homeplug_av_st_iotecha_stp_get_bss_tlv(cursor, Count);
+}
+
+static void
+dissect_homeplug_av_st_iotecha_stp_get_chanqual_report_req(ptvcursor_t *cursor) {
+
+    if (!ptvcursor_tree(cursor))
+        return;
+
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_chanqual_req_type, 1, ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_mac_address, 6, ENC_NA);
+}
+
+static void
+dissect_homeplug_av_st_iotecha_stp_get_chanqual_report_cnf(ptvcursor_t *cursor) {
+
+    if (!ptvcursor_tree(cursor))
+        return;
+
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_chanqual_substatus, 1, ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_mac_address, 6, ENC_NA);
+}
+
+static void
+dissect_homeplug_av_st_iotecha_stp_get_chanqual_report_ind(ptvcursor_t *cursor) {
+
+    proto_item *it;
+    guint8 tmi_count, int_count;
+    guint16 Counter;
+
+    if (!ptvcursor_tree(cursor))
+        return;
+
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_mac_address, 6, ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_chanqual_mac_local, 6, ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_chanqual_mac_remote, 6, ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_chanqual_source, 1, ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_chanqual_response_type, 1, ENC_NA);
+    /* TMI */
+    tmi_count  = tvb_get_guint8( ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_chanqual_tmi_count, 1, ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_chanqual_tmi, tmi_count, ENC_NA);
+    /* Intervals */
+    int_count = tvb_get_guint8( ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_chanqual_int_count, 1, ENC_NA);
+
+    it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_st_iotecha_chanqual_int,
+                                  int_count*3, ENC_NA);
+    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_st_iotecha_chanqual_int);
+    {
+        for (Counter = 0; Counter < int_count; ++Counter) {
+            ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_chanqual_int_et, 2, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_chanqual_int_tmi, 1, ENC_NA);
+        }
+    }
+    ptvcursor_pop_subtree(cursor);
+    /* TMI Attached */
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_chanqual_tmi_attached, 1, ENC_NA);
+    /* Reserved 1 */
+    ptvcursor_advance(cursor,1);
+    /* FEC */
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_chanqual_fec_type, 1, ENC_NA);
+    /* Reserved 2 */
+    ptvcursor_advance(cursor,1);
+    /* CBLD */
+    it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_st_iotecha_chanqual_cbld, -1, ENC_NA);
+    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_st_iotecha_chanqual_cbld);
+    {
+        for (Counter = 0; Counter < HOMEPLUG_AV_ST_IOTECHA_CHANQUAL_CBLD_DATA_COUNT; ++Counter) {
+            ptvcursor_add_no_advance(cursor, hf_homeplug_av_st_iotecha_chanqual_cbld_data_low, 1, ENC_NA);
+            ptvcursor_add_no_advance(cursor, hf_homeplug_av_st_iotecha_chanqual_cbld_data_high, 1, ENC_NA);
+            ptvcursor_advance(cursor, 1);
+        }
+    }
+    ptvcursor_pop_subtree(cursor);
+
+}
+
+static void
+dissect_homeplug_av_st_iotecha_stp_mfct_update_stage_req(ptvcursor_t *cursor) {
+
+    guint16 Length;
+
+    if (!ptvcursor_tree(cursor))
+        return;
+
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_mfct_crc, 2, ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_mfct_total_length, 2, ENC_LITTLE_ENDIAN);
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_mfct_offset, 2, ENC_LITTLE_ENDIAN);
+
+    Length = tvb_get_guint16(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor),ENC_LITTLE_ENDIAN);
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_mfct_length, 2, ENC_LITTLE_ENDIAN);
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_mfct_data, Length, ENC_NA);
+}
+
+static void
+dissect_homeplug_av_st_iotecha_stp_mfct_update_stage_cnf(ptvcursor_t *cursor) {
+
+    if (!ptvcursor_tree(cursor))
+        return;
+
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_mfct_crc, 2, ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_mfct_timeout, 4, ENC_LITTLE_ENDIAN);
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_mfct_offset, 2, ENC_LITTLE_ENDIAN);
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_mfct_result, 1, ENC_NA);
+}
+
+static void
+dissect_homeplug_av_st_iotecha_stp_mfct_update_finish_req(ptvcursor_t *cursor) {
+
+    if (!ptvcursor_tree(cursor))
+        return;
+
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_mfct_request_type, 1, ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_mfct_reboot, 1, ENC_NA);
+}
+
+static void
+dissect_homeplug_av_st_iotecha_stp_mfct_get_item_req(ptvcursor_t *cursor) {
+
+    gint name_size;
+
+    if (!ptvcursor_tree(cursor))
+        return;
+
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_mfct_item_offset, 4, ENC_LITTLE_ENDIAN);
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_mfct_item_total_length, 4, ENC_LITTLE_ENDIAN);
+    tvb_get_const_stringz(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor), &name_size);
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_mfct_name, name_size-1, ENC_ASCII|ENC_NA);
+    /* Skip terminator */
+    ptvcursor_advance(cursor, 1);
+}
+
+static void
+dissect_homeplug_av_st_iotecha_stp_mfct_get_item_cnf(ptvcursor_t *cursor) {
+
+    gint name_size;
+
+    if (!ptvcursor_tree(cursor))
+        return;
+
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_mfct_item_offset, 4, ENC_LITTLE_ENDIAN);
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_mfct_item_total_length, 4, ENC_LITTLE_ENDIAN);
+    tvb_get_const_stringz(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor), &name_size);
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_mfct_name, name_size - 1, ENC_ASCII|ENC_NA);
+    /* Skip terminator */
+    ptvcursor_advance(cursor,1);
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_mfct_value, -1, ENC_NA);
+}
+
+static void
+dissect_homeplug_av_st_iotecha_stp_mfct_get_keylist_cnf(ptvcursor_t *cursor) {
+
+    gint name_size;
+
+    if (!ptvcursor_tree(cursor))
+        return;
+
+    while (tvb_reported_length_remaining(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor)) > 1 )
+    {
+        if ((tvb_get_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor)) == '\0')
+            && (tvb_get_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor) + 1) == '\0'))
+            break;
+        tvb_get_const_stringz(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor), &name_size);
+        ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_mfct_name, name_size - 1, ENC_ASCII|ENC_NA);
+        /* Skip terminator */
+        ptvcursor_advance(cursor,1);
+    }
+}
+
+static void
+dissect_homeplug_av_st_iotecha_stp_fup_req(ptvcursor_t *cursor) {
+
+    if (!ptvcursor_tree(cursor))
+        return;
+
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_stp_fup_mac_da, 6, ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_stp_fup_mac_sa, 6, ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_stp_fup_mtype, 1, ENC_NA);
+}
+
+static void
+dissect_homeplug_av_st_iotecha_stp_cpstate_ind(ptvcursor_t *cursor, packet_info *pinfo) {
+
+    guint8 bitmask;
+    guint8 cp_state;
+    guint8 pwm_duty;
+
+    cp_state = tvb_get_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+    pwm_duty = tvb_get_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor)+1);
+    col_add_fstr(pinfo->cinfo, COL_INFO, "CP State Change: %s, %d%%", val_to_str_const(cp_state, homeplug_av_st_iotecha_stp_cpstate_state_vals, "Unknown"), pwm_duty);
+
+    if (!ptvcursor_tree(cursor))
+        return;
+
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_cpstate_state, 1, ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_cpstate_pwm_duty, 1, ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_cpstate_pwm_freq, 2, ENC_LITTLE_ENDIAN);
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_cpstate_volatge, 2, ENC_LITTLE_ENDIAN);
+    bitmask = tvb_get_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+    if (bitmask)
+        ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_cpstate_adc_bitmask, 1, ENC_NA);
+    else
+        ptvcursor_advance(cursor, 1);
+
+
+    if (bitmask & 0x01)
+        ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_cpstate_adc_voltage_1, 2, ENC_LITTLE_ENDIAN);
+    else
+        ptvcursor_advance(cursor, 2);
+
+    if (bitmask & 0x02)
+        ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_cpstate_adc_voltage_2, 2, ENC_LITTLE_ENDIAN);
+    else
+        ptvcursor_advance(cursor, 2);
+
+    if (bitmask & 0x04)
+        ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_cpstate_adc_voltage_3, 2, ENC_LITTLE_ENDIAN);
+    else
+        ptvcursor_advance(cursor, 2);
+
+}
+
+static void
+dissect_homeplug_av_st_iotecha_stp_user_message_ind(ptvcursor_t *cursor, packet_info *pinfo) {
+
+    gint null_offset;
+
+
+    ptvcursor_advance(cursor, 4); // not used fields
+    ptvcursor_advance(cursor, 4); // not used fields
+
+    null_offset = tvb_find_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor) + 1, -1, 0);
+
+    if (null_offset > -1) {
+        col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
+                        tvb_get_const_stringz(ptvcursor_tvbuff(cursor),
+                                              ptvcursor_current_offset(cursor),
+                                              NULL));
+    }
+
+    if (!ptvcursor_tree(cursor))
+        return;
+
+    if (null_offset > -1) {
+        ptvcursor_add(cursor,
+                      hf_homeplug_av_st_iotecha_user_message_info,
+                      null_offset - ptvcursor_current_offset(cursor),
+                      ENC_ASCII|ENC_NA);
+    }
+
+    null_offset = tvb_find_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor) + 1, -1, 0);
+
+    if (null_offset > -1) {
+        ptvcursor_add(cursor,
+                      hf_homeplug_av_st_iotecha_user_message_details,
+                      null_offset - ptvcursor_current_offset(cursor),
+                      ENC_ASCII|ENC_NA);
+    }
+
+}
+
+static void
+dissect_homeplug_av_st_iotecha_stp_test_chan_atten_start_rx_req(ptvcursor_t *cursor) {
+
+    if (!ptvcursor_tree(cursor))
+        return;
+
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_test_type, 1, ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_num_sound, 1, ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_data_ind_addr, 6, ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_agc_lock, 1, ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_db_agc_val, 1, ENC_NA);
+}
+
+static void
+dissect_homeplug_av_st_iotecha_stp_test_chan_atten_start_rx_cnf(ptvcursor_t *cursor) {
+    if (!ptvcursor_tree(cursor))
+        return;
+
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_test_status, 1, ENC_NA);
+}
+
+static void
+dissect_homeplug_av_st_iotecha_stp_test_chan_atten_start_tx_req(ptvcursor_t *cursor) {
+    if (!ptvcursor_tree(cursor))
+        return;
+
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_test_type, 1, ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_num_sound, 1, ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_data_ind_addr, 6, ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_suppress_data, 1, ENC_NA);
+}
+
+static void
+dissect_homeplug_av_st_iotecha_stp_test_chan_atten_start_tx_cnf(ptvcursor_t *cursor) {
+    if (!ptvcursor_tree(cursor))
+        return;
+
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_test_status, 1, ENC_NA);
+}
+
+static void
+dissect_homeplug_av_st_iotecha_stp_test_chan_atten_data_ind(ptvcursor_t *cursor) {
+    if (!ptvcursor_tree(cursor))
+        return;
+
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_sound_remain, 1, ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_ntb_time, 4, ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_db_agc_val, 1, ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_rsvd1, 3, ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_rsvd2, 4, ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_num_segments, 1, ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_segment, 1, ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_num_chan, 2, ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_chan_start, 2, ENC_NA);
+}
+/* End of ST/IoTecha dissect functions */
+
+
+static void
+dissect_homeplug_av_mme_general(ptvcursor_t *cursor,
+                                guint8 homeplug_av_mmver,
+                                guint16 homeplug_av_mmtype,
+                                packet_info *pinfo) {
+    (void)homeplug_av_mmver;
+    /* Public MMEs */
+    switch ((homeplug_av_mmetypes_general_type)homeplug_av_mmtype)
+    {
+    case HOMEPLUG_AV_MMTYPE_GENERAL_CC_DISCOVER_LIST_CNF:
         dissect_homeplug_av_cc_disc_list_cnf(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_CM_ENC_PLD_IND:
+    case HOMEPLUG_AV_MMTYPE_GENERAL_CM_ENCRYPTED_PAYLOAD_IND:
         dissect_homeplug_av_cm_enc_pld_ind(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_CM_ENC_PLD_RSP:
+    case HOMEPLUG_AV_MMTYPE_GENERAL_CM_ENCRYPTED_PAYLOAD_RSP:
         dissect_homeplug_av_cm_enc_pld_rsp(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_CM_SET_KEY_REQ:
+    case HOMEPLUG_AV_MMTYPE_GENERAL_CM_SET_KEY_REQ:
         dissect_homeplug_av_cm_set_key_req(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_CM_SET_KEY_CNF:
+    case HOMEPLUG_AV_MMTYPE_GENERAL_CM_SET_KEY_CNF:
         dissect_homeplug_av_cm_set_key_cnf(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_CM_GET_KEY_REQ:
+    case HOMEPLUG_AV_MMTYPE_GENERAL_CM_GET_KEY_REQ:
         dissect_homeplug_av_cm_get_key_req(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_CM_GET_KEY_CNF:
+    case HOMEPLUG_AV_MMTYPE_GENERAL_CM_GET_KEY_CNF:
         dissect_homeplug_av_cm_get_key_cnf(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_CM_BRG_INFO_CNF:
+    case HOMEPLUG_AV_MMTYPE_GENERAL_CM_BRG_INFO_CNF:
         dissect_homeplug_av_get_brg_infos_cnf(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_CM_NW_INFO_CNF:
+    case HOMEPLUG_AV_MMTYPE_GENERAL_CM_NW_INFO_CNF:
         dissect_homeplug_av_nw_infos_cnf(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_CM_NW_STATS_CNF:
+    case HOMEPLUG_AV_MMTYPE_GENERAL_CM_NW_STATS_CNF:
         dissect_homeplug_av_nw_stats_cnf(cursor);
         break;
+    case HOMEPLUG_AV_MMTYPE_GENERAL_CC_ASSOC_REQ:
+        dissect_homeplug_av_cc_assoc_req(cursor);
+        break;
+    case HOMEPLUG_AV_MMTYPE_GENERAL_CC_ASSOC_CNF:
+        dissect_homeplug_av_cc_assoc_cnf(cursor);
+        break;
+    case HOMEPLUG_AV_MMTYPE_GENERAL_CM_UNASSOCIATED_STA_IND:
+        dissect_homeplug_av_cm_unassociated_sta_ind(cursor);
+        break;
+    case HOMEPLUG_AV_MMTYPE_GENERAL_CC_SET_TEI_MAP_IND:
+        dissect_homeplug_av_cc_set_tei_map_ind(cursor);
+        break;
+        /* HPGP */
+    case HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_SLAC_PARM_REQ:
+        dissect_homeplug_av_gp_cm_slac_parm_req(cursor);
+        break;
+    case HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_SLAC_PARM_CNF:
+        dissect_homeplug_av_gp_cm_slac_parm_cnf(cursor);
+        break;
+    case HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_ATTEN_PROFILE_IND:
+        dissect_homeplug_av_gp_cm_atten_profile_ind(cursor);
+        break;
+    case HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_ATTEN_CHAR_IND:
+        dissect_homeplug_av_gp_cm_atten_char_ind(cursor, pinfo);
+        break;
+    case HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_ATTEN_CHAR_RSP:
+        dissect_homeplug_av_gp_cm_atten_char_rsp(cursor);
+        break;
+    case HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_START_ATTEN_CHAR_IND:
+        dissect_homeplug_av_gp_cm_start_atten_char_ind(cursor);
+        break;
+    case HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_MNBC_SOUND_IND:
+        dissect_homeplug_av_gp_cm_mnbc_sound_ind(cursor);
+        break;
+    case HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_VALIDATE_REQ:
+        dissect_homeplug_av_gp_cm_validate_req(cursor);
+        break;
+    case HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_VALIDATE_CNF:
+        dissect_homeplug_av_gp_cm_validate_cnf(cursor);
+        break;
+    case HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_SLAC_MATCH_REQ:
+        dissect_homeplug_av_gp_cm_slac_match_req(cursor);
+        break;
+    case HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_SLAC_MATCH_CNF:
+        dissect_homeplug_av_gp_cm_slac_match_cnf(cursor);
+        break;
+    case HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_SLAC_USER_DATA_REQ:
+    case HOMEPLUG_AV_GP_MMTYPE_GENERAL_CM_SLAC_USER_DATA_CNF:
+        dissect_homeplug_av_gp_cm_slac_user_data(cursor);
+        break;
+    default:
+        break;
+    };
+}
 
-        /* Intellon Vendor-specific MMEs */
-    case HOMEPLUG_AV_MMTYPE_GET_SW_CNF:
+static void
+dissect_homeplug_av_mme_qualcomm(ptvcursor_t *cursor, guint8 homeplug_av_mmver, guint16 homeplug_av_mmtype) {
+    switch ((homeplug_av_mmetypes_qualcomm_type)homeplug_av_mmtype) {
+    case HOMEPLUG_AV_MMTYPE_QUALCOMM_GET_SW_CNF:
         dissect_homeplug_av_get_sw_cnf(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_WR_MEM_REQ:
+    case HOMEPLUG_AV_MMTYPE_QUALCOMM_WR_MEM_REQ:
         dissect_homeplug_av_wr_mem_req(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_WR_MEM_CNF:
+    case HOMEPLUG_AV_MMTYPE_QUALCOMM_WR_MEM_CNF:
         dissect_homeplug_av_wr_mem_cnf(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_RD_MEM_REQ:
+    case HOMEPLUG_AV_MMTYPE_QUALCOMM_RD_MEM_REQ:
         dissect_homeplug_av_rd_mem_req(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_RD_MEM_CNF:
+    case HOMEPLUG_AV_MMTYPE_QUALCOMM_RD_MEM_CNF:
         dissect_homeplug_av_rd_mem_cnf(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_ST_MAC_REQ:
+    case HOMEPLUG_AV_MMTYPE_QUALCOMM_ST_MAC_REQ:
         dissect_homeplug_av_st_mac_req(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_ST_MAC_CNF:
+    case HOMEPLUG_AV_MMTYPE_QUALCOMM_ST_MAC_CNF:
         dissect_homeplug_av_st_mac_cnf(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_GET_NVM_CNF:
+    case HOMEPLUG_AV_MMTYPE_QUALCOMM_GET_NVM_CNF:
         dissect_homeplug_av_get_nvm_cnf(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_RS_DEV_CNF:
+    case HOMEPLUG_AV_MMTYPE_QUALCOMM_RS_DEV_CNF:
         dissect_homeplug_av_rs_dev_cnf(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_WR_MOD_REQ:
+    case HOMEPLUG_AV_MMTYPE_QUALCOMM_WR_MOD_REQ:
         dissect_homeplug_av_wr_mod_req(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_WR_MOD_CNF:
+    case HOMEPLUG_AV_MMTYPE_QUALCOMM_WR_MOD_CNF:
         dissect_homeplug_av_wr_mod_cnf(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_WR_MOD_IND:
+    case HOMEPLUG_AV_MMTYPE_QUALCOMM_WR_MOD_IND:
         dissect_homeplug_av_wr_mod_ind(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_RD_MOD_REQ:
+    case HOMEPLUG_AV_MMTYPE_QUALCOMM_RD_MOD_REQ:
         dissect_homeplug_av_rd_mod_req(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_RD_MOD_CNF:
+    case HOMEPLUG_AV_MMTYPE_QUALCOMM_RD_MOD_CNF:
         dissect_homeplug_av_rd_mod_cnf(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_NVM_MOD_REQ:
+    case HOMEPLUG_AV_MMTYPE_QUALCOMM_NVM_MOD_REQ:
         dissect_homeplug_av_mod_nvm_req(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_NVM_MOD_CNF:
+    case HOMEPLUG_AV_MMTYPE_QUALCOMM_NVM_MOD_CNF:
         dissect_homeplug_av_mod_nvm_cnf(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_WD_RPT_REQ:
+    case HOMEPLUG_AV_MMTYPE_QUALCOMM_WD_RPT_REQ:
         dissect_homeplug_av_wd_rpt_req(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_WD_RPT_IND:
+    case HOMEPLUG_AV_MMTYPE_QUALCOMM_WD_RPT_IND:
         dissect_homeplug_av_wd_rpt_ind(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_LNK_STATS_REQ:
+    case HOMEPLUG_AV_MMTYPE_QUALCOMM_LNK_STATS_REQ:
         dissect_homeplug_av_lnk_stats_req(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_LNK_STATS_CNF:
+    case HOMEPLUG_AV_MMTYPE_QUALCOMM_LNK_STATS_CNF:
         dissect_homeplug_av_lnk_stats_cnf(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_SNIFFER_REQ:
+    case HOMEPLUG_AV_MMTYPE_QUALCOMM_SNIFFER_REQ:
         dissect_homeplug_av_sniffer_req(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_SNIFFER_CNF:
+    case HOMEPLUG_AV_MMTYPE_QUALCOMM_SNIFFER_CNF:
         dissect_homeplug_av_sniffer_cnf(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_SNIFFER_IND:
+    case HOMEPLUG_AV_MMTYPE_QUALCOMM_SNIFFER_IND:
         dissect_homeplug_av_sniffer_ind(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_NW_INFO_CNF:
+    case HOMEPLUG_AV_MMTYPE_QUALCOMM_NW_INFO_CNF:
         dissect_homeplug_av_nw_info_cnf(cursor, homeplug_av_mmver);
         break;
-    case HOMEPLUG_AV_MMTYPE_CP_RPT_REQ:
+    case HOMEPLUG_AV_MMTYPE_QUALCOMM_CP_RPT_REQ:
         dissect_homeplug_av_cp_rpt_req(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_CP_RPT_IND:
+    case HOMEPLUG_AV_MMTYPE_QUALCOMM_CP_RPT_IND:
         dissect_homeplug_av_cp_rpt_ind(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_FR_LBK_REQ:
+    case HOMEPLUG_AV_MMTYPE_QUALCOMM_FR_LBK_REQ:
         dissect_homeplug_av_fr_lbk_req(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_FR_LBK_CNF:
+    case HOMEPLUG_AV_MMTYPE_QUALCOMM_FR_LBK_CNF:
         dissect_homeplug_av_fr_lbk_cnf(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_LBK_STAT_CNF:
+    case HOMEPLUG_AV_MMTYPE_QUALCOMM_LBK_STAT_CNF:
         dissect_homeplug_av_lbk_stat_cnf(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_SET_KEY_REQ:
+    case HOMEPLUG_AV_MMTYPE_QUALCOMM_SET_KEY_REQ:
         dissect_homeplug_av_set_key_req(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_SET_KEY_CNF:
+    case HOMEPLUG_AV_MMTYPE_QUALCOMM_SET_KEY_CNF:
         dissect_homeplug_av_set_key_cnf(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_MFG_STRING_CNF:
+    case HOMEPLUG_AV_MMTYPE_QUALCOMM_MFG_STRING_CNF:
         dissect_homeplug_av_mfg_string_cnf(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_RD_CBLOCK_CNF:
+    case HOMEPLUG_AV_MMTYPE_QUALCOMM_RD_CBLOCK_CNF:
         dissect_homeplug_av_rd_cblock_cnf(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_SET_SDRAM_REQ:
+    case HOMEPLUG_AV_MMTYPE_QUALCOMM_SET_SDRAM_REQ:
         dissect_homeplug_av_set_sdram_req(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_SET_SDRAM_CNF:
+    case HOMEPLUG_AV_MMTYPE_QUALCOMM_SET_SDRAM_CNF:
         dissect_homeplug_av_set_sdram_cnf(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_HOST_ACTION_IND:
+    case HOMEPLUG_AV_MMTYPE_QUALCOMM_HOST_ACTION_IND:
         dissect_homeplug_av_host_action_ind(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_HOST_ACTION_RSP:
+    case HOMEPLUG_AV_MMTYPE_QUALCOMM_HOST_ACTION_RSP:
         dissect_homeplug_av_host_action_rsp(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_OP_ATTR_REQ:
+    case HOMEPLUG_AV_MMTYPE_QUALCOMM_OP_ATTR_REQ:
         dissect_homeplug_av_op_attr_req(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_OP_ATTR_CNF:
+    case HOMEPLUG_AV_MMTYPE_QUALCOMM_OP_ATTR_CNF:
         dissect_homeplug_av_op_attr_cnf(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_GET_ENET_PHY_REQ:
+    case HOMEPLUG_AV_MMTYPE_QUALCOMM_GET_ENET_PHY_REQ:
         dissect_homeplug_av_get_enet_phy_req(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_GET_ENET_PHY_CNF:
+    case HOMEPLUG_AV_MMTYPE_QUALCOMM_GET_ENET_PHY_CNF:
         dissect_homeplug_av_get_enet_phy_cnf(cursor);
         break;
-    case HOMEPLUG_AV_MMTYPE_TONE_MAP_RX_REQ:
+    case HOMEPLUG_AV_MMTYPE_QUALCOMM_TONE_MAP_RX_REQ:
         dissect_homeplug_av_tone_map_rx_req(cursor, homeplug_av_mmver);
         break;
-    case HOMEPLUG_AV_MMTYPE_TONE_MAP_RX_CNF:
+    case HOMEPLUG_AV_MMTYPE_QUALCOMM_TONE_MAP_RX_CNF:
         dissect_homeplug_av_tone_map_rx_cnf(cursor, homeplug_av_mmver);
         break;
-    case HOMEPLUG_AV_MMTYPE_TONE_MAP_TX_REQ:
+    case HOMEPLUG_AV_MMTYPE_QUALCOMM_TONE_MAP_TX_REQ:
         dissect_homeplug_av_tone_map_tx_req(cursor, homeplug_av_mmver);
         break;
-    case HOMEPLUG_AV_MMTYPE_TONE_MAP_TX_CNF:
+    case HOMEPLUG_AV_MMTYPE_QUALCOMM_TONE_MAP_TX_CNF:
         dissect_homeplug_av_tone_map_tx_cnf(cursor, homeplug_av_mmver);
         break;
     default:
         break;
     }
+}
 
-    return;
+static void
+dissect_homeplug_av_mme_st_iotecha(ptvcursor_t *cursor,
+                                   guint8 homeplug_av_mmver,
+                                   guint16 homeplug_av_mmtype,
+                                   packet_info *pinfo) {
+    (void)homeplug_av_mmver;
+    /* Parse head of the message */
+    dissect_homeplug_av_st_iotecha_header(cursor);
+    /* Parse the rest */
+    switch ((homeplug_av_mmetypes_st_iotecha_type)homeplug_av_mmtype) {
+    case HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_AUTH_SET_NMK_REQ:
+        dissect_homeplug_av_st_iotecha_stp_auth_set_nmk_req(cursor);
+        break;
+    case HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_TEST_CHAN_ATTEN_START_RX_REQ:
+        dissect_homeplug_av_st_iotecha_stp_test_chan_atten_start_rx_req(cursor);
+        break;
+    case HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_TEST_CHAN_ATTEN_START_TX_REQ:
+        dissect_homeplug_av_st_iotecha_stp_test_chan_atten_start_tx_req(cursor);
+        break;
+    case HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_TEST_CHAN_ATTEN_START_RX_CNF:
+        dissect_homeplug_av_st_iotecha_stp_test_chan_atten_start_rx_cnf(cursor);
+        break;
+    case HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_TEST_CHAN_ATTEN_START_TX_CNF:
+        dissect_homeplug_av_st_iotecha_stp_test_chan_atten_start_tx_cnf(cursor);
+        break;
+    case HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_TEST_CHAN_ATTEN_DATA_IND:
+        dissect_homeplug_av_st_iotecha_stp_test_chan_atten_data_ind(cursor);
+        break;
+    case HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_AUTH_SET_NMK_CNF:
+        /* NOT SURE */
+    case HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_MFCT_UPDATE_FINISH_CNF:
+        /* General message with status byte */
+        dissect_homeplug_av_st_iotecha_status_standard(cursor);
+        break;
+    case HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_LINK_STATUS_IND:
+    case HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_LINK_STATUS_CNF:
+        dissect_homeplug_av_st_iotecha_linkstatus(cursor);
+        break;
+    case HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_DISCOVER_CNF:
+    case HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_DISCOVER_LOCAL_CNF:
+        dissect_homeplug_av_st_iotecha_discover(cursor);
+        break;
+    case HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_SET_MAXGAIN_REQ:
+        dissect_homeplug_av_st_iotecha_stp_set_maxgain_req(cursor);
+        break;
+    case HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_SET_MAXGAIN_CNF:
+        dissect_homeplug_av_st_iotecha_stp_set_maxgain_cnf(cursor);
+        break;
+    case HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_GET_TEI_LIST_CNF:
+        dissect_homeplug_av_st_iotecha_stp_get_tei_list_cnf(cursor);
+        break;
+    case HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_GET_TEI_SNAPSHOT_REQ:
+        dissect_homeplug_av_st_iotecha_stp_get_tei_snapshot_req(cursor);
+        break;
+    case HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_GET_TEI_SNAPSHOT_CNF:
+        dissect_homeplug_av_st_iotecha_stp_get_tei_snapshot_cnf(cursor);
+        break;
+    case HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_GET_BSS_LIST_CNF:
+        dissect_homeplug_av_st_iotecha_stp_get_bss_list_cnf(cursor);
+        break;
+    case HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_CHANQUAL_REPORT_REQ:
+        dissect_homeplug_av_st_iotecha_stp_get_chanqual_report_req(cursor);
+        break;
+    case HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_CHANQUAL_REPORT_CNF:
+        dissect_homeplug_av_st_iotecha_stp_get_chanqual_report_cnf(cursor);
+        break;
+    case HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_CHANQUAL_REPORT_IND:
+        dissect_homeplug_av_st_iotecha_stp_get_chanqual_report_ind(cursor);
+        break;
+    case HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_MFCT_UPDATE_STAGE_REQ:
+        dissect_homeplug_av_st_iotecha_stp_mfct_update_stage_req(cursor);
+        break;
+    case HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_MFCT_UPDATE_STAGE_CNF:
+        dissect_homeplug_av_st_iotecha_stp_mfct_update_stage_cnf(cursor);
+        break;
+    case HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_MFCT_UPDATE_FINISH_REQ:
+        dissect_homeplug_av_st_iotecha_stp_mfct_update_finish_req(cursor);
+        break;
+    case HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_MFCT_GET_ITEM_REQ:
+        dissect_homeplug_av_st_iotecha_stp_mfct_get_item_req(cursor);
+        break;
+    case HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_MFCT_GET_ITEM_CNF:
+        dissect_homeplug_av_st_iotecha_stp_mfct_get_item_cnf(cursor);
+        break;
+    case HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_MFCT_GET_KEYLIST_CNF:
+        dissect_homeplug_av_st_iotecha_stp_mfct_get_keylist_cnf(cursor);
+        break;
+    case HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_FUP_REQ:
+        dissect_homeplug_av_st_iotecha_stp_fup_req(cursor);
+        break;
+    case HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_CPSTATE_IND:
+        dissect_homeplug_av_st_iotecha_stp_cpstate_ind(cursor, pinfo);
+        break;
+    case HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_USER_MESSAGE_IND:
+        dissect_homeplug_av_st_iotecha_stp_user_message_ind(cursor, pinfo);
+        break;
+    case HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_GET_BSS_LIST_REQ:
+    case HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_GET_TEI_LIST_REQ:
+    case HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_LINK_STATUS_REQ:
+    case HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_DISCOVER_LOCAL_REQ:
+    case HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_DISCOVER_REQ:
+    case HOMEPLUG_AV_MMTYPE_ST_IOTECHA_STP_MFCT_GET_KEYLIST_REQ:
+        /* Requests only with header go here */
+        break;
+    default:
+        break;
+    }
+}
+
+static void
+dissect_homeplug_av_mme(ptvcursor_t *cursor,
+                        guint8 homeplug_av_mmver,
+                        guint16 homeplug_av_mmtype,
+                        guint32 homeplug_av_oui,
+                        packet_info *pinfo)
+{
+    if (!homeplug_av_oui) {
+        dissect_homeplug_av_mme_general(cursor, homeplug_av_mmver, homeplug_av_mmtype, pinfo);
+    } else   {
+        switch (homeplug_av_oui) {
+        case HOMEPLUG_AV_OUI_QCA:
+            dissect_homeplug_av_mme_qualcomm(cursor, homeplug_av_mmver, homeplug_av_mmtype);
+            break;
+        case HOMEPLUG_AV_OUI_ST_IOTECHA:
+            dissect_homeplug_av_mme_st_iotecha(cursor, homeplug_av_mmver, homeplug_av_mmtype, pinfo);
+            break;
+        }
+    }
+}
+
+static void
+info_column_filler_initial(guint8 homeplug_av_mmver,
+                           guint16 homeplug_av_mmtype,
+                           guint32 homeplug_av_oui,
+                           packet_info *pinfo) {
+    (void)homeplug_av_mmver;
+
+    /* if packet is vendor specific - display vendor OUI */
+    if (homeplug_av_oui) {
+        col_append_sep_str(pinfo->cinfo, COL_INFO, ", ",
+                           val_to_str(homeplug_av_oui, homeplug_av_vendors_oui_vals, "OUI:0x%x"));
+    }
+
+    /* Info depends on type and oui */
+    switch (homeplug_av_oui)
+    {
+    case HOMEPLUG_AV_OUI_ST_IOTECHA:
+        col_append_sep_str(pinfo->cinfo, COL_INFO, ", ",
+                           val_to_str_ext(homeplug_av_mmtype,
+                                          &homeplug_av_mmtype_st_iotecha_vals_ext,
+                                          "Unknown 0x%x"));
+        break;
+    case HOMEPLUG_AV_OUI_QCA:
+        col_append_sep_str(pinfo->cinfo, COL_INFO, ", ",
+                           val_to_str_ext(homeplug_av_mmtype,
+                                          &homeplug_av_mmtype_qualcomm_vals_ext,
+                                          "Unknown 0x%x"));
+        break;
+
+    case HOMEPLUG_AV_OUI_NONE:
+        /* if oui is unknown, trying to describe as general MME */
+        col_append_sep_str(pinfo->cinfo, COL_INFO, ", ",
+                           val_to_str_ext(homeplug_av_mmtype,
+                                          &homeplug_av_mmtype_general_vals_ext,
+                                          "Unknown 0x%x"));
+        break;
+
+    default:
+        break;
+    }
 }
 
 static int
@@ -3824,9 +5971,13 @@ dissect_homeplug_av(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     ptvcursor_t *cursor;
     guint8       homeplug_av_mmver;
     guint16      homeplug_av_mmtype;
+    guint32      homeplug_av_oui;
+
+    homeplug_av_oui = 0;
+    ti_vendor = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "HomePlug AV");
-    col_set_str(pinfo->cinfo, COL_INFO, "MAC Management");
+    col_set_str(pinfo->cinfo, COL_INFO, "");
 
     ti = proto_tree_add_item(tree, proto_homeplug_av, tvb, 0, -1, ENC_NA);
     homeplug_av_tree = proto_item_add_subtree(ti, ett_homeplug_av);
@@ -3836,14 +5987,15 @@ dissect_homeplug_av(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     /* Check if we have enough data to process the header */
     if (check_tvb_length(cursor, HOMEPLUG_AV_MMHDR_LEN) != TVB_LEN_SHORTEST) {
 
-        dissect_homeplug_av_mmhdr(cursor, &homeplug_av_mmver, &homeplug_av_mmtype);
+        dissect_homeplug_av_mmhdr(cursor, &homeplug_av_mmver, &homeplug_av_mmtype, &homeplug_av_oui);
 
-        col_append_sep_str(pinfo->cinfo, COL_INFO, ", ",
-                           val_to_str_ext(homeplug_av_mmtype, &homeplug_av_mmtype_vals_ext, "Unknown 0x%x"));
+        info_column_filler_initial(homeplug_av_mmver, homeplug_av_mmtype, homeplug_av_oui, pinfo);
 
-        dissect_homeplug_av_mme(cursor, homeplug_av_mmver, homeplug_av_mmtype);
+        dissect_homeplug_av_mme(cursor, homeplug_av_mmver, homeplug_av_mmtype, homeplug_av_oui, pinfo);
+
     }
 
+    ti_vendor = 0;
     ptvcursor_free(cursor);
     return tvb_captured_length(tvb);
 }
@@ -3865,9 +6017,17 @@ proto_register_homeplug_av(void)
           { "Version", "homeplug_av.mmhdr.mmver",
             FT_UINT8, BASE_DEC, VALS(homeplug_av_mmver_vals), HOMEPLUG_AV_MMVER_MASK, NULL, HFILL }
         },
-        { &hf_homeplug_av_mmhdr_mmtype,
+        { &hf_homeplug_av_mmhdr_mmtype_general,
           { "Type", "homeplug_av.mmhdr.mmtype",
-            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &homeplug_av_mmtype_vals_ext, 0x0000, NULL, HFILL }
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &homeplug_av_mmtype_general_vals_ext, 0x0000, NULL, HFILL }
+        },
+        { &hf_homeplug_av_mmhdr_mmtype_qualcomm,
+          { "Type", "homeplug_av.mmhdr.mmtype.qualcomm",
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &homeplug_av_mmtype_qualcomm_vals_ext, 0x0000, NULL, HFILL }
+        },
+        { &hf_homeplug_av_mmhdr_mmtype_st,
+          { "Type", "homeplug_av.mmhdr.mmtype.st",
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &homeplug_av_mmtype_st_iotecha_vals_ext, 0x0000, NULL, HFILL }
         },
         { &hf_homeplug_av_mmhdr_mmtype_lsb,
           { "LSB", "homeplug_av.mmhdr.mmtype.lsb",
@@ -4490,7 +6650,7 @@ proto_register_homeplug_av(void)
         },
         { &hf_homeplug_av_vendor_oui,
           { "OUI", "homeplug_av.vendor.oui",
-            FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }
+            FT_UINT24, BASE_HEX, VALS(homeplug_av_vendors_oui_vals), 0x00, NULL, HFILL }
         },
         /* Get Device/SW Version */
         { &hf_homeplug_av_get_sw_cnf,
@@ -5525,7 +7685,653 @@ proto_register_homeplug_av(void)
         { &hf_homeplug_av_tone_map_carrier_hi,
           { "Modulation (High carrier)", "homeplug_av.tone_map_cnf.carrier.hi",
             FT_UINT8, BASE_HEX, VALS(homeplug_av_tone_map_vals), HOMEPLUG_AV_TONE_MAP_MASK << 4, NULL, HFILL }
+        },
+        /* CC_ASSOC.* */
+        { &hf_homeplug_av_cc_assoc_reqtype,
+          { "Request Type", "homeplug_av.cc_assoc.reqtype",
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_cc_assoc_reqtype_vals), 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_cc_assoc_nid,
+          { "Network ID", "homeplug_av.cc_assoc.nid",
+            FT_BYTES, SEP_COLON, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_cc_assoc_cco_cap,
+          { "CCo Capability", "homeplug_av.cc_assoc.cco_cap",
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_avln_status_vals), HOMEPLUG_AV_AVLN_STATUS_MASK, NULL, HFILL }
+        },
+        { &hf_homeplug_av_cc_assoc_proxy_net_cap,
+          { "Proxy Network Capability", "homeplug_av.cc_assoc.proxy_cap",
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_cc_assoc_proxy_net_cap_vals), 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_cc_assoc_result,
+          { "Result", "homeplug_av.cc_assoc.result",
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_cc_assoc_result_vals), 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_cc_assoc_snid,
+          { "Short Network ID", "homeplug_av.cc_assoc.snid",
+            FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_cc_assoc_tei,
+          { "TEI", "homeplug_av.cc_assoc.tei",
+            FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_cc_assoc_lease_time ,
+          { "Lease time (min)", "homeplug_av.cc_assoc.lease_time",
+            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+        },
+        /* CM_UNASSOCIATED_STA_IND */
+        { &hf_homeplug_av_cm_unassoc_sta_nid,
+          { "Network ID", "homeplug_av.cm_unassoc_sta.nid",
+            FT_BYTES, SEP_COLON, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_cm_unassoc_sta_cco_cap,
+          { "CCo Capability", "homeplug_av.cm_unassoc_sta.cco_cap",
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_avln_status_vals), HOMEPLUG_AV_AVLN_STATUS_MASK, NULL, HFILL }
+        },
+        /* CC_SET_TEI_MAP_IND */
+        { &hf_homeplug_av_cc_set_tei_map_ind_mode,
+          { "Mode", "homeplug_av.cc_set_tei_map_ind.mode",
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_cc_set_tei_map_ind_mode_vals), 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_cc_set_tei_map_ind_num,
+          { "Number of entries", "homeplug_av.cc_set_tei_map_ind.num",
+            FT_UINT8, BASE_DEC_HEX, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_cc_set_tei_map_ind_tei,
+          { "TEI", "homeplug_av.cc_set_tei_map_ind.tei",
+            FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_cc_set_tei_map_ind_mac,
+          { "MAC Address", "homeplug_av.cc_set_tei_map_ind.mac",
+            FT_ETHER, BASE_NONE, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_cc_set_tei_map_ind_status,
+          { "Status", "homeplug_av.cc_set_tei_map_ind.status",
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_cc_set_tei_map_ind_status_vals), 0x00, NULL, HFILL }
+        },
+        /* HPGP */
+        /* CM_SLAC_PARM.* */
+        { &hf_homeplug_av_gp_cm_slac_parm_apptype,
+          { "Application type", "homeplug_av.gp.cm_slac_parm.apptype",
+            FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_slac_parm_sectype,
+          { "Security in M-Sound Message", "homeplug_av.gp.cm_slac_parm.sectype",
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_gp_cm_slac_parm_sectype_vals), 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_slac_parm_runid,
+          { "Run ID", "homeplug_av.gp.cm_slac_parm.runid",
+            FT_BYTES, SEP_COLON, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_slac_parm_cipher_size,
+          { "Cipher Suite Set Size", "homeplug_av.gp.cm_slac_parm.cipher_size",
+            FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_slac_parm_cipher,
+          { "Cipher Suite", "homeplug_av.gp.cm_slac_parm.cipher",
+            FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_slac_parm_sound_target,
+          { "M-Sound Target", "homeplug_av.gp.cm_slac_parm.sound_target",
+            FT_BYTES, SEP_COLON, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_slac_parm_sound_count,
+          { "M-Sound Count", "homeplug_av.gp.cm_slac_parm.sound_count",
+            FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_slac_parm_time_out,
+          { "M-Sound MPDU Time Out (N*100 msec)", "homeplug_av.gp.cm_slac_parm.time_out",
+            FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_slac_parm_resptype,
+          { "Response type", "homeplug_av.gp.cm_slac_parm.resptype",
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_gp_cm_slac_parm_resptype_vals), 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_slac_parm_forwarding_sta,
+          { "Forwarded to MAC", "homeplug_av.gp.cm_slac_parm.forwarding_sta",
+            FT_ETHER, BASE_NONE, NULL, 0x00, NULL, HFILL }
+        },
+        /* CM_ATTEN_PROFILE_IND */
+        { &hf_homeplug_av_gp_cm_atten_profile_ind_pev_mac,
+          { "PEV MAC Address", "homeplug_av.gp.cm_atten_profile_ind.pev_mac",
+            FT_ETHER, BASE_NONE, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_atten_profile_ind_num_groups,
+          { "Number of Groups", "homeplug_av.gp.cm_atten_profile_ind.groups_count",
+            FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_atten_profile_ind_aag,
+          { "Average Attenuation of group (dB)", "homeplug_av.gp.cm_atten_profile_ind.aag",
+            FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+        },
+        /* CM_ATTEN_CHAR */
+        { &hf_homeplug_av_gp_cm_atten_char_result,
+          { "Result", "homeplug_av.gp.cm_atten_char.result",
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_generic_status_vals), 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_atten_char_apptype,
+          { "Application type", "homeplug_av.gp.cm_atten_char.apptype",
+            FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_atten_char_sectype,
+          { "Security", "homeplug_av.gp.cm_atten_char.sectype",
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_gp_cm_slac_parm_sectype_vals), 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_atten_char_source_mac,
+          { "Source MAC", "homeplug_av.gp.cm_atten_char.source_mac",
+            FT_ETHER, BASE_NONE, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_atten_char_runid,
+          { "Run ID", "homeplug_av.gp.cm_atten_char.runid",
+            FT_BYTES, SEP_COLON, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_atten_char_source_id,
+          { "Source ID", "homeplug_av.gp.cm_atten_char.source_id",
+            FT_BYTES, SEP_COLON, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_atten_char_resp_id,
+          { "Response ID", "homeplug_av.gp.cm_atten_char.resp_id",
+            FT_BYTES, SEP_COLON, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_atten_char_numgroups,
+          { "Number of Groups", "homeplug_av.gp.cm_atten_char.groups_count",
+            FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_atten_char_numsounds,
+          { "Number of Sounds", "homeplug_av.gp.cm_atten_char.sounds_count",
+            FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_atten_char_aag,
+          { "Average Attenuation of group (dB)", "homeplug_av.gp.cm_atten_char.aag",
+            FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_atten_char_profile,
+          { "Signal level attenuation profile", "homeplug_av.gp.cm_atten_char.profile",
+            FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_atten_char_cms_data,
+          { "CMS Data", "homeplug_av.gp.cm_atten_char.cms_data",
+            FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
+        },
+        /* CM_START_ATTEN_CHAR */
+        { &hf_homeplug_av_gp_cm_start_atten_char_time_out,
+          { "M-Sound MPDU Time Out (N*100 msec)", "homeplug_av.gp.cm_start_atten_char.time_out",
+            FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_start_atten_char_resptype,
+          { "Response type", "homeplug_av.gp.cm_start_atten_char.resptype",
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_gp_cm_slac_parm_resptype_vals), 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_start_atten_char_forwarding_sta,
+          { "Forwarded to MAC", "homeplug_av.gp.cm_start_atten_char.sound_forwarding_sta",
+            FT_ETHER, BASE_NONE, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_start_atten_char_runid,
+          { "Run ID", "homeplug_av.gp.cm_start_atten_char.runid",
+            FT_BYTES, SEP_COLON, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_start_atten_char_numsounds,
+          { "Number of Sounds", "homeplug_av.gp.cm_start_atten_char.sounds_count",
+            FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
+        },
+        /* CM_MNBC_SOUND */
+        { &hf_homeplug_av_gp_cm_mnbc_sound_apptype,
+          { "Application type", "homeplug_av.gp.cm_mnbc_sound.apptype",
+            FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_mnbc_sound_sectype,
+          { "Security", "homeplug_av.gp.cm_mnbc_sound.sectype",
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_gp_cm_slac_parm_sectype_vals), 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_mnbc_sound_sender_id,
+          { "Sender ID", "homeplug_av.gp.cm_mnbc_sound.sender_id",
+            FT_BYTES, SEP_COLON, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_mnbc_sound_countdown,
+          { "Remaining Number of Sounds", "homeplug_av.gp.cm_mnbc_sound.countdown",
+            FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_mnbc_sound_runid,
+          { "Run ID", "homeplug_av.gp.cm_mnbc_sound.runid",
+            FT_BYTES, SEP_COLON, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_mnbc_sound_rsvd,
+          { "Reserved", "homeplug_av.gp.cm_mnbc_sound.reserved",
+            FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_mnbc_sound_rnd,
+          { "Random number", "homeplug_av.gp.cm_mnbc_sound.rnd",
+            FT_BYTES, SEP_SPACE, NULL, 0x00, NULL, HFILL }
+        },
+        /* CM_VALIDATE */
+        { &hf_homeplug_av_gp_cm_validate_signaltype,
+          { "Signal type", "homeplug_av.gp.cm_validate.signaltype",
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_gp_cm_validate_signaltype_vals), 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_validate_timer,
+          { "Timer (N*100 ms)", "homeplug_av.gp.cm_validate.timer",
+            FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_validate_result,
+          { "Result", "homeplug_av.gp.cm_validate.result",
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_gp_cm_validate_result_vals), 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_validate_togglenum,
+          { "Number of detected toggles", "homeplug_av.gp.cm_validate.togglenum",
+            FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+        },
+        /* CM_SLAC_MATCH */
+        { &hf_homeplug_av_gp_cm_slac_match_apptype,
+          { "Application type", "homeplug_av.gp.cm_slac_match.apptype",
+            FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_slac_match_sectype,
+          { "Security", "homeplug_av.gp.cm_slac_match.sectype",
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_gp_cm_slac_parm_sectype_vals), 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_slac_match_length,
+          { "Length", "homeplug_av.gp.cm_slac_match.length",
+            FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_slac_match_pev_id,
+          { "PEV ID", "homeplug_av.gp.cm_slac_match.pev_id",
+            FT_BYTES, SEP_COLON, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_slac_match_pev_mac,
+          { "PEV MAC", "homeplug_av.gp.cm_slac_match.pev_mac",
+            FT_ETHER, BASE_NONE, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_slac_match_evse_id,
+          { "EVSE ID", "homeplug_av.gp.cm_slac_match.evse_id",
+            FT_BYTES, SEP_COLON, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_slac_match_evse_mac,
+          { "EVSE MAC", "homeplug_av.gp.cm_slac_match.evse_mac",
+            FT_ETHER, BASE_NONE, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_slac_match_runid,
+          { "Run ID", "homeplug_av.gp.cm_slac_match.runid",
+            FT_BYTES, SEP_COLON, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_slac_match_rsvd,
+          { "Reserved", "homeplug_av.gp.cm_slac_match.rsvd",
+            FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_slac_match_nid,
+          { "Network ID", "homeplug_av.gp.cm_slac_match.nid",
+            FT_BYTES, SEP_COLON, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_slac_match_nmk,
+          { "Network Membership Key (NMK)", "homeplug_av.gp.cm_slac_match.nmk",
+            FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }
+        },
+        /* CM_SLAC_USER_DATA */
+        { &hf_homeplug_av_gp_cm_slac_user_data_broadcast_tlv_type,
+          { "Broadcast TLV", "homeplug_av.gp.cm_slac_user_data.broadcast",
+            FT_UINT24, BASE_HEX, VALS(homeplug_av_gp_cm_slac_user_data_broadcast_vals), HOMEPLUG_AV_GP_CM_SLAC_USER_DATA_BROADCAST_MASK, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_slac_user_data_tlv,
+          { "TLV", "homeplug_av.gp.cm_slac_user_data.tlv",
+            FT_UINT16, BASE_HEX, NULL, HOMEPLUG_AV_GP_CM_SLAC_USER_DATA_TLV_TYPE_MASK, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_slac_user_data_tlv_type,
+          { "Type", "homeplug_av.gp.cm_slac_user_data.tlv.type",
+            FT_UINT16, BASE_HEX, VALS(homeplug_av_gp_cm_slac_user_data_tlv_types_vals), HOMEPLUG_AV_GP_CM_SLAC_USER_DATA_TLV_TYPE_MASK, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_slac_user_data_tlv_length,
+          { "Length", "homeplug_av.gp.cm_slac_user_data.tlv.length",
+            FT_UINT16, BASE_HEX, NULL, HOMEPLUG_AV_GP_CM_SLAC_USER_DATA_TLV_LENGTH_MASK, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_slac_user_data_tlv_str_bytes,
+          { "Data", "homeplug_av.gp.cm_slac_user_data.tlv.str",
+            FT_BYTES, SEP_SPACE, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_slac_user_data_tlv_oui,
+          { "OUI", "homeplug_av.gp.cm_slac_user_data.tlv.oui",
+            FT_UINT24, BASE_HEX, VALS(homeplug_av_vendors_oui_vals), 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_slac_user_data_tlv_subtype,
+          { "Subtype", "homeplug_av.gp.cm_slac_user_data.tlv.subtype",
+            FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_gp_cm_slac_user_data_tlv_info_str,
+          { "Data", "homeplug_av.gp.cm_slac_user_data.tlv.info_str",
+            FT_BYTES, SEP_SPACE, NULL, 0x00, NULL, HFILL }
+        },
+        /* ST/IoTecha specific fields */
+        { &hf_homeplug_av_st_iotecha_header_rsvd,
+          { "Reserved", "homeplug_av.st_iotecha.rsvd",
+            FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_header_mmever,
+          { "MME version", "homeplug_av.st_iotecha.mmever",
+            FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_header_mver,
+          { "Message version", "homeplug_av.st_iotecha.mver",
+            FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_auth_nmk,
+          { "NMK", "homeplug_av.st_iotecha.auth.nmk",
+            FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_status_byte,
+          { "Status", "homeplug_av.st_iotecha.auth.status",
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_generic_status_vals), 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_linkstatus_status,
+          { "Link status", "homeplug_av.st_iotecha.linkstatus.status",
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_st_iotecha_linkstatus_status_vals), 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_linkstatus_devmode,
+          { "DevMode", "homeplug_av.st_iotecha.linkstatus.devmode",
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_st_iotecha_linkstatus_devmode_vals), 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_stp_discover_tlv,
+          { "ST/IoTecha TLV", "homeplug_av.st_iotecha.stp_discover.tlv",
+            FT_UINT16, BASE_HEX, VALS(homeplug_av_st_iotecha_stp_discover_tlv_type_vals), HOMEPLUG_AV_ST_IOTECHA_STP_DISCOVER_TLV_TYPE_MASK, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_stp_discover_tlv_type,
+          { "Type", "homeplug_av.st_iotecha.stp_discover.tlv.type",
+            FT_UINT16, BASE_HEX, VALS(homeplug_av_st_iotecha_stp_discover_tlv_type_vals), HOMEPLUG_AV_ST_IOTECHA_STP_DISCOVER_TLV_TYPE_MASK, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_stp_discover_tlv_length,
+          { "Length", "homeplug_av.st_iotecha.stp_discover.tlv.length",
+            FT_UINT16, BASE_DEC, NULL, HOMEPLUG_AV_ST_IOTECHA_STP_DISCOVER_TLV_LENGTH_MASK, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_stp_discover_tlv_value_bytes,
+          { "Value", "homeplug_av.st_iotecha.stp_discover.tlv.value",
+            FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_stp_discover_tlv_value_string,
+          { "Value", "homeplug_av.st_iotecha.stp_discover.tlv.value_string",
+            FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_gain_ask,
+          { "Requested Max Gain", "homeplug_av.st_iotecha.gainmax.ask",
+            FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_gain_new,
+          { "New (Current) Max Gain", "homeplug_av.st_iotecha.gainmax.new",
+            FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_gain_prev,
+          { "Previous Max Gain", "homeplug_av.st_iotecha.gainmax.prev",
+            FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_tei_count,
+          { "Count of TEI", "homeplug_av.st_iotecha.tei.count",
+            FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_tei,
+          { "TEI", "homeplug_av.st_iotecha.tei",
+            FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_tei_snap_addr_count,
+          { "Number of remote address entities", "homeplug_av.st_iotecha.tei.snapshot.count",
+            FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_tei_snap_tei,
+          { "Associated TEI", "homeplug_av.st_iotecha.tei.snapshot.tei",
+            FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_mac_address,
+          { "MAC Address", "homeplug_av.st_iotecha.macaddress",
+            FT_ETHER, BASE_NONE, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_tei_snap_mac_address_flag,
+          { "Flags", "homeplug_av.st_iotecha.tei.snapshot.flags",
+            FT_UINT16, BASE_HEX, VALS(homeplug_av_st_iotecha_mac_address_flag_vals), 0x0F, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_bss_list_count,
+          { "BSS Entries Count", "homeplug_av.st_iotecha.bss.count",
+            FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_bss_entry,
+          { "BSS Entry", "homeplug_av.st_iotecha.bss.entry",
+            FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_bss_type,
+          { "Type", "homeplug_av.st_iotecha.bss.entry.type",
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_st_iotecha_stp_get_bss_tlv_type_vals), 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_bss_value_bytes,
+          { "Value", "homeplug_av.st_iotecha.bss.entry.value",
+            FT_BYTES, SEP_COLON | BASE_ALLOW_ZERO, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_chanqual_req_type,
+          { "Request Type", "homeplug_av.st_iotecha.chanqual.reqtype",
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_st_iotecha_chanqual_reqtype_vals), 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_chanqual_substatus,
+          { "Subscription Status", "homeplug_av.st_iotecha.chanqual.substatus",
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_st_iotecha_chanqual_substatus_vals), 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_chanqual_mac_local,
+          { "MAC of local node", "homeplug_av.st_iotecha.chanqual.mac.local",
+            FT_ETHER, BASE_NONE, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_chanqual_mac_remote,
+          { "MAC of remote node", "homeplug_av.st_iotecha.chanqual.mac.remote",
+            FT_ETHER, BASE_NONE, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_chanqual_source,
+          { "Source of this report", "homeplug_av.st_iotecha.chanqual.source",
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_st_iotecha_chanqual_tei_source_vals), 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_chanqual_response_type,
+          { "Response Type", "homeplug_av.st_iotecha.chanqual.responsetype",
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_st_iotecha_chanqual_responsetype_vals), 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_chanqual_tmi_count,
+          { "Size of TMI List", "homeplug_av.st_iotecha.chanqual.tmi.count",
+            FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_chanqual_tmi,
+          { "TMI List", "homeplug_av.st_iotecha.chanqual.chanqual.tmi",
+            FT_BYTES, SEP_SPACE, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_chanqual_int,
+          { "Intervals List", "homeplug_av.st_iotecha.int",
+            FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_chanqual_int_count,
+          { "Size of Interval List", "homeplug_av.st_iotecha.chanqual.int.count",
+            FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_chanqual_int_et,
+          { "End Time of interval", "homeplug_av.st_iotecha.chanqual.int.et",
+            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_chanqual_int_tmi,
+          { "Interval", "homeplug_av.st_iotecha.chanqual.int.tmi",
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_st_iotecha_chanqual_tmi_vals), 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_chanqual_tmi_attached,
+          { "TMI of the attached Tone Map", "homeplug_av.st_iotecha.chanqual.tmi_atteched",
+            FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_chanqual_fec_type,
+          { "FEC Type/Code Rate", "homeplug_av.st_iotecha.chanqual.fec",
+            FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_chanqual_cbld,
+          { "Carrier Bid Loading Data Nibbles", "homeplug_av.st_iotecha.chanqual.cbld",
+            FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_chanqual_cbld_data_low,
+          { "CBLD Low", "homeplug_av.st_iotecha.chanqual.cbld.data.low",
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_st_iotecha_chanqual_cbld_data_vals), HOMEPLUG_AV_ST_IOTECHA_CHANQUAL_CBLD_DATA_MASK_LOW, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_chanqual_cbld_data_high,
+          { "CBLD High", "homeplug_av.st_iotecha.chanqual.cbld.data.high",
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_st_iotecha_chanqual_cbld_data_vals), HOMEPLUG_AV_ST_IOTECHA_CHANQUAL_CBLD_DATA_MASK_HIGH, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_mfct_crc,
+          { "CRC plus last CRC", "homeplug_av.st_iotecha.mfct.crc",
+            FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_mfct_total_length,
+          { "Total length", "homeplug_av.st_iotecha.mfct.total_length",
+            FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_mfct_offset,
+          { "Offset", "homeplug_av.st_iotecha.mfct.offset",
+            FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_mfct_length,
+          { "Length", "homeplug_av.st_iotecha.mfct.length",
+            FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_mfct_data,
+          { "Update Data", "homeplug_av.st_iotecha.mfct.length",
+            FT_BYTES, SEP_SPACE, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_mfct_timeout,
+          { "Time duration before abort", "homeplug_av.st_iotecha.mfct.timeout",
+            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_mfct_request_type,
+          { "Request Type", "homeplug_av.st_iotecha.mfct.request_type",
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_st_iotecha_mfct_request_type_vals), 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_mfct_result,
+          { "Result", "homeplug_av.st_iotecha.mfct.result",
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_st_iotecha_mfct_result_vals), 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_mfct_reboot,
+          { "Reboot when complete", "homeplug_av.st_iotecha.mfct.reboot",
+            FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_mfct_name,
+          { "Parameter name", "homeplug_av.st_iotecha.mfct.name",
+            FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_mfct_value,
+          { "Value", "homeplug_av.st_iotecha.mfct.value",
+            FT_BYTES, SEP_SPACE, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_mfct_item_offset,
+          { "Offset", "homeplug_av.st_iotecha.mfct.item.offset",
+            FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_mfct_item_total_length,
+          { "Total length", "homeplug_av.st_iotecha.mfct.item.total_length",
+            FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_stp_fup_mac_da,
+          { "MAC DA", "homeplug_av.st_iotecha.stp_fup.mac_da",
+            FT_ETHER, BASE_NONE, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_stp_fup_mac_sa,
+          { "MAC SA", "homeplug_av.st_iotecha.stp_fup.mac_sa",
+            FT_ETHER, BASE_NONE, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_stp_fup_mtype,
+          { "Message Type", "homeplug_av.st_iotecha.stp_fup.mtype",
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_st_iotecha_stp_fwup_mtype_vals), 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_cpstate_state,
+          { "CP State", "homeplug_av.st_iotecha.cpstate.state",
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_st_iotecha_stp_cpstate_state_vals), 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_cpstate_pwm_duty,
+          { "PWM Duty Cycle", "homeplug_av.st_iotecha.cpstate.pwm_duty",
+            FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_cpstate_pwm_freq,
+          { "PWM Frequency", "homeplug_av.st_iotecha.cpstate.pwm_freq",
+            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_cpstate_volatge,
+          { "CP Voltage", "homeplug_av.st_iotecha.cpstate.cp_volatge",
+            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_cpstate_adc_bitmask,
+          { "ADC Channels", "homeplug_av.st_iotecha.cpstate.adc_bitmask",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(adc_bitmask_base), 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_cpstate_adc_voltage_1,
+          { "ADC Channel 1 (mV)", "homeplug_av.st_iotecha.cpstate.adc_channel_1",
+            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_cpstate_adc_voltage_2,
+          { "ADC Channel 2 (mV)", "homeplug_av.st_iotecha.cpstate.adc_channel_2",
+            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_cpstate_adc_voltage_3,
+          { "ADC Channel 3 (mV)", "homeplug_av.st_iotecha.cpstate.adc_channel_3",
+            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_user_message_info,
+          { "Message", "homeplug_av.st_iotecha.user_message",
+            FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_user_message_details,
+          { "Details", "homeplug_av.st_iotecha.user_message_details",
+            FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_test_type,
+          { "Test Type", "homeplug_av.st_iotecha.test_type",
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_st_iotecha_test_type_vals), 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_num_sound,
+          { "Number of soundings", "homeplug_av.st_iotecha.num_sound",
+            FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_data_ind_addr,
+          { "MAC addr", "homeplug_av.st_iotecha.data_ind_addr",
+            FT_ETHER, BASE_NONE, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_agc_lock,
+          { "AgcLock", "homeplug_av.st_iotecha.agc_lock",
+            FT_UINT8, BASE_DEC, VALS(homeplug_av_st_iotecha_agc_lock_vals), 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_db_agc_val,
+          { "DbAgcVal", "homeplug_av.st_iotecha.db_agc_val",
+            FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_test_status,
+          { "Status", "homeplug_av.st_iotecha.test_status",
+            FT_UINT8, BASE_HEX, VALS(homeplug_av_st_iotecha_test_status_vals), 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_suppress_data,
+          { "Supress data", "homeplug_av.st_iotecha.suppress_data",
+            FT_UINT8, BASE_DEC, VALS(homeplug_av_st_iotecha_supress_data_vals), 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_sound_remain,
+          { "Counter of sound remain", "homeplug_av.st_iotecha.sound_remain",
+            FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_ntb_time,
+          { "NTB time", "homeplug_av.st_iotecha.ntb_time",
+            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_rsvd1,
+          { "Reserved", "homeplug_av.st_iotecha.rsvd1",
+            FT_UINT24, BASE_DEC, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_rsvd2,
+          { "Reserved", "homeplug_av.st_iotecha.rsvd2",
+            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_num_segments,
+          { "Number of msg segments", "homeplug_av.st_iotecha.num_segments",
+            FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_segment,
+          { "Index of curr segment", "homeplug_av.st_iotecha.segment",
+            FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_num_chan,
+          { "Number of channels", "homeplug_av.st_iotecha.num_chan",
+            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_homeplug_av_st_iotecha_chan_start,
+          { "Carrier map index of ChanData", "homeplug_av.st_iotecha.chan_start",
+            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
         }
+        /* End of ST/IoTecha specific fields */
     };
 
     static gint *ett[] = {
@@ -5612,7 +8418,16 @@ proto_register_homeplug_av(void)
         &ett_homeplug_av_tone_map_tx_cnf,
         &ett_homeplug_av_tone_map_rx_cnf,
         &ett_homeplug_av_tone_map_carriers,
-        &ett_homeplug_av_tone_map_carrier
+        &ett_homeplug_av_tone_map_carrier,
+        /* HPGP*/
+        &ett_homeplug_av_gp_cm_atten_char_profile,
+        &ett_homeplug_av_gp_cm_slac_user_data_tlv,
+        /* ST/IoTecha subtrees */
+        &ett_homeplug_av_st_iotecha_header,
+        &ett_homeplug_av_st_iotecha_type_length_value,
+        &ett_homeplug_av_st_iotecha_chanqual_int,
+        &ett_homeplug_av_st_iotecha_chanqual_cbld,
+        &ett_homeplug_av_st_iotecha_bss_entry
     };
 
 
