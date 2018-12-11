@@ -2055,7 +2055,7 @@ QualificationRequest ::= [PRIVATE 18] SET {
 QualificationRequestRes ::= [PRIVATE 18] SET {
 	systemMyTypeCode						[22] IMPLICIT SystemMyTypeCode,
 	-- (VLR or HLR) M 6.5.2.147
-	analogRedirectRecord					[225] IMPLICIT AnalogRedirectRecord,
+	analogRedirectRecord						[225] IMPLICIT AnalogRedirectRecord OPTIONAL,
 	-- O 6.5.2.bc
 	authorizationDenied						[13] IMPLICIT AuthorizationDenied OPTIONAL,
 	-- O 6.5.2.13 a
@@ -2065,75 +2065,75 @@ QualificationRequestRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.bh
 	controlChannelMode						[199] IMPLICIT ControlChannelMode OPTIONAL,
 	-- O 6 .5.2.ac h
-	deniedAuthorizationPeriod				[167] IMPLICIT DeniedAuthorizationPeriod OPTIONAL,
+	deniedAuthorizationPeriod					[167] IMPLICIT DeniedAuthorizationPeriod OPTIONAL,
 	-- O 6.5.2.53 c
 	digits-carrier 							[4] IMPLICIT Digits OPTIONAL,
 	-- (Carrier) O 6.5.2.58 d
 	digits-dest 							[4] IMPLICIT Digits OPTIONAL,
 	-- (Destination) O 6.5.2.58 e
-	mscid									[21] IMPLICIT MSCID OPTIONAL,
+	mscid								[21] IMPLICIT MSCID OPTIONAL,
 	-- (HLR) O 6.5.2.82 f
 --	Profile **Macro** O 6.5.2.97 g	
-	authenticationCapability				[78] IMPLICIT AuthenticationCapability OPTIONAL,
+	authenticationCapability					[78] IMPLICIT AuthenticationCapability OPTIONAL,
 	-- O 6.5.2.8 a
-	callingFeaturesIndicator				[25] IMPLICIT CallingFeaturesIndicator OPTIONAL,
+	callingFeaturesIndicator					[25] IMPLICIT CallingFeaturesIndicator OPTIONAL,
 	-- O 6.5.2.20 b
 	carrierDigits							[86] IMPLICIT CarrierDigits OPTIONAL,
 	-- O 6.5.2.28 c
-	cdmaServiceOptionList					[176] IMPLICIT CDMAServiceOptionList OPTIONAL,
+	cdmaServiceOptionList						[176] IMPLICIT CDMAServiceOptionList OPTIONAL,
 	-- O 6.5.2.g f, g
 	controlNetworkID						[307] IMPLICIT ControlNetworkID OPTIONAL,
 	-- O 6.5.2.ek u
-	dmh-AccountCodeDigits					[140] IMPLICIT DMH-AccountCodeDigits OPTIONAL,
+	dmh-AccountCodeDigits						[140] IMPLICIT DMH-AccountCodeDigits OPTIONAL,
 	-- O 6.5.2.59 d
-	dmh-AlternateBillingDigits				[141] IMPLICIT DMH-AlternateBillingDigits OPTIONAL,
+	dmh-AlternateBillingDigits					[141] IMPLICIT DMH-AlternateBillingDigits OPTIONAL,
 	-- O 6.5.2.60 d
 	dmh-BillingDigits						[142] IMPLICIT DMH-BillingDigits OPTIONAL,
 	-- O 6.5.2.61 d
-	geographicAuthorization					[143] IMPLICIT GeographicAuthorization OPTIONAL,
+	geographicAuthorization						[143] IMPLICIT GeographicAuthorization OPTIONAL,
 	-- O 6.5.2.68 e
 	meidValidated							[401] IMPLICIT MEIDValidated OPTIONAL,
 	-- O 3.2.2.98
-	messageWaitingNotificationCount			[92] IMPLICIT MessageWaitingNotificationCount OPTIONAL,
+	messageWaitingNotificationCount					[92] IMPLICIT MessageWaitingNotificationCount OPTIONAL,
 	-- O 6.5.2.78 f
-	messageWaitingNotificationType			[145] IMPLICIT MessageWaitingNotificationType OPTIONAL,
+	messageWaitingNotificationType					[145] IMPLICIT MessageWaitingNotificationType OPTIONAL,
 	-- O 6.5.2.79 g
-	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
+	mobileDirectoryNumber						[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
 	--  O 6.5.2.80 d
-	mobilePositionCapability				[335] IMPLICIT MobilePositionCapability OPTIONAL,
+	mobilePositionCapability					[335] IMPLICIT MobilePositionCapability OPTIONAL,
 	-- O 6.5.2.fm t TIA/EIA/J-STD-036-A
-	originationIndicator					[23] IMPLICIT OriginationIndicator OPTIONAL,
+	originationIndicator						[23] IMPLICIT OriginationIndicator OPTIONAL,
 	-- O 6.5.2.89 h
 	originationTriggers						[98] IMPLICIT OriginationTriggers OPTIONAL,
 	-- O 6.5.2.90 i
 	pACAIndicator							[146] IMPLICIT PACAIndicator OPTIONAL,
 	-- O 6.5.2.91 j
-	preferredLanguageIndicator				[147] IMPLICIT PreferredLanguageIndicator OPTIONAL,
+	preferredLanguageIndicator					[147] IMPLICIT PreferredLanguageIndicator OPTIONAL,
 	-- O 6.5.2.96 k
 	restrictionDigits						[227] IMPLICIT RestrictionDigits OPTIONAL,
 	-- O 6.5.2.113 l
 	routingDigits							[150] IMPLICIT RoutingDigits OPTIONAL,
 	-- O 6.5.2.114 m
-	sms-OriginationRestrictions				[115] IMPLICIT SMS-OriginationRestrictions OPTIONAL,
+	sms-OriginationRestrictions					[115] IMPLICIT SMS-OriginationRestrictions OPTIONAL,
 	-- O 6.5.2.136 n
-	sms-TerminationRestrictions				[117] IMPLICIT SMS-TerminationRestrictions OPTIONAL,
+	sms-TerminationRestrictions					[117] IMPLICIT SMS-TerminationRestrictions OPTIONAL,
 	-- O 6.5.2.138 o
-	spinipin								[154] IMPLICIT SPINIPIN OPTIONAL,
+	spinipin							[154] IMPLICIT SPINIPIN OPTIONAL,
 	-- O 6.5.2.139 p
 	spiniTriggers							[155] IMPLICIT SPINITriggers OPTIONAL,
 	-- O 6.5.2.140 q
-	terminationRestrictionCode				[24] IMPLICIT TerminationRestrictionCode OPTIONAL,
+	terminationRestrictionCode					[24] IMPLICIT TerminationRestrictionCode OPTIONAL,
 	-- O 6.5.2.157 r
 	terminationTriggers						[122] IMPLICIT TerminationTriggers OPTIONAL,
 	-- O 6.5.2.159 s
 	triggerAddressList						[276] IMPLICIT TriggerAddressList OPTIONAL,
 	-- O 6.5.2.de t
-	callingPartyCategory					[355] IMPLICIT CallingPartyCategory OPTIONAL,
+	callingPartyCategory						[355] IMPLICIT CallingPartyCategory OPTIONAL,
 	-- O 6.5.2.gl z
-	lirMode									[369] IMPLICIT LIRMode OPTIONAL,
+	lirMode								[369] IMPLICIT LIRMode OPTIONAL,
 	-- O 6.5.2.gz z
 -- END MACRO
-	serviceRedirectionInfo					[238] IMPLICIT ServiceRedirectionInfo OPTIONAL,
+	serviceRedirectionInfo						[238] IMPLICIT ServiceRedirectionInfo OPTIONAL,
 	-- O 6.5.2.bq h, i
 	roamingIndication						[239] IMPLICIT RoamingIndication OPTIONAL
 	-- O 6.5.2.br
@@ -2141,9 +2141,9 @@ QualificationRequestRes ::= [PRIVATE 18] SET {
 
 -- 6.4.2.33 RandomVariableRequest
 RandomVariableRequest ::= [PRIVATE 18] SET {
-	mscid									[21] IMPLICIT MSCID,
+	mscid								[21] IMPLICIT MSCID,
 	-- (Serving MSC) M 6.5.2.82
-	randc									[67] IMPLICIT RANDC,
+	randc								[67] IMPLICIT RANDC,
 	-- M 6.5.2.100
 	servingCellID							[2] IMPLICIT ServingCellID
 	-- M 6.5.2.117
@@ -2159,31 +2159,31 @@ RandomVariableRequestRes ::= [PRIVATE 18] SET {
 
 -- 6.4.2.34 RedirectionDirective
 RedirectionDirective ::= [PRIVATE 18] SET {
-	billingID								[1] IMPLICIT BillingID,
+	billingID							[1] IMPLICIT BillingID,
 	-- (Originating) M 6.5.2.16
 	digits-dest 							[4] IMPLICIT Digits OPTIONAL,
 	-- (Destination) M 6.5.2.58
-	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber,
+	electronicSerialNumber						[9] IMPLICIT ElectronicSerialNumber,
 	-- M 6.5.2.63
-	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber,
+	mobileIdentificationNumber					[8] IMPLICIT MobileIdentificationNumber,
 	-- M 6.5.2.81
 	systemMyTypeCode						[22] IMPLICIT SystemMyTypeCode,
 	-- (MSC) M 6.5.2.147
 	digits-carrier 							[4] IMPLICIT Digits OPTIONAL,
 	-- (Carrier) O 6.5.2.58 a
-	dmh-AccountCodeDigits					[140] IMPLICIT DMH-AccountCodeDigits OPTIONAL,
+	dmh-AccountCodeDigits						[140] IMPLICIT DMH-AccountCodeDigits OPTIONAL,
 	-- O 6.5.2.59 b
-	dmh-AlternateBillingDigits				[141] IMPLICIT DMH-AlternateBillingDigits OPTIONAL,
+	dmh-AlternateBillingDigits					[141] IMPLICIT DMH-AlternateBillingDigits OPTIONAL,
 	-- O 6.5.2.60 b
 	dmh-BillingDigits						[142] IMPLICIT DMH-BillingDigits OPTIONAL,
 	-- O 6.5.2.61 d
-	mSCIdentificationNumber					[94] IMPLICIT MSCIdentificationNumber OPTIONAL, 
+	mSCIdentificationNumber						[94] IMPLICIT MSCIdentificationNumber OPTIONAL, 
 	--O 6.5.2.83 c
-	redirectingNumberString					[101] IMPLICIT RedirectingNumberString OPTIONAL,
+	redirectingNumberString						[101] IMPLICIT RedirectingNumberString OPTIONAL,
 	-- O 6.5.2.108 d
-	redirectingSubaddress					[102] IMPLICIT RedirectingSubaddress OPTIONAL,
+	redirectingSubaddress						[102] IMPLICIT RedirectingSubaddress OPTIONAL,
 	-- O 6.5.2.109 d
-	senderIdentificationNumber				[103] IMPLICIT SenderIdentificationNumber OPTIONAL
+	senderIdentificationNumber					[103] IMPLICIT SenderIdentificationNumber OPTIONAL
 	-- O 6.5.2.116 e	
 	}
 
