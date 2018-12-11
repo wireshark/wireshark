@@ -234,6 +234,7 @@ real_main(int argc, char *argv[])
 {
   GString            *comp_info_str;
   GString            *runtime_info_str;
+  char               *appname;
   char               *init_progfile_dir_error;
   int                 opt;
   static const struct option long_options[] = {
@@ -271,13 +272,16 @@ real_main(int argc, char *argv[])
   /* Get the run-time version information string */
   runtime_info_str = get_runtime_version_info(NULL);
 
+  /* Get the application name with version info */
+  appname = g_strdup_printf("mergecap (Wireshark) %s", get_ws_vcs_version_info());
+
   /* Add it to the information to be reported on a crash. */
-  ws_add_crash_info("Mergecap (Wireshark) %s\n"
+  ws_add_crash_info("%s\n"
        "\n"
        "%s"
        "\n"
        "%s",
-    get_ws_vcs_version_info(), comp_info_str->str, runtime_info_str->str);
+    appname, comp_info_str->str, runtime_info_str->str);
   g_string_free(comp_info_str, TRUE);
   g_string_free(runtime_info_str, TRUE);
 
@@ -416,13 +420,13 @@ real_main(int argc, char *argv[])
     status = merge_files_to_stdout(file_type,
                                    (const char *const *) &argv[optind],
                                    in_file_count, do_append, mode, snaplen,
-                                   "mergecap", verbose ? &cb : NULL,
+                                   appname, verbose ? &cb : NULL,
                                    &err, &err_info, &err_fileno, &err_framenum);
   } else {
     /* merge the files to the outfile */
     status = merge_files(out_filename, file_type,
                          (const char *const *) &argv[optind], in_file_count,
-                         do_append, mode, snaplen, "mergecap", verbose ? &cb : NULL,
+                         do_append, mode, snaplen, appname, verbose ? &cb : NULL,
                          &err, &err_info, &err_fileno, &err_framenum);
   }
 
