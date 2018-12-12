@@ -159,10 +159,11 @@ file(TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}" _outfile_dir)
 file(TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}" _nsis_include_dir)
 
 # Variables we can't set via config.nsh.
-set(NSIS_DEFINES
-	-DSTAGING_DIR=${_staging_dir}
-	-DOUTFILE_DIR=${_outfile_dir}
-	-DNSIS_INCLUDE_DIR=${_nsis_include_dir}
+set(NSIS_OPTIONS
+	/DSTAGING_DIR=${_staging_dir}
+	/DOUTFILE_DIR=${_outfile_dir}
+	/DNSIS_INCLUDE_DIR=${_nsis_include_dir}
+	/V4
 	PARENT_SCOPE
 )
 
@@ -176,7 +177,7 @@ macro( ADD_NSIS_UNINSTALLER_TARGET )
 	add_custom_command(OUTPUT ${DATAFILE_DIR}/uninstall.exe
 		DEPENDS ${_nsis_source_dir}/uninstall.nsi
 			${_nsis_source_dir}/common.nsh
-		COMMAND ${MAKENSIS_EXECUTABLE} ${NSIS_DEFINES}
+		COMMAND ${MAKENSIS_EXECUTABLE} ${NSIS_OPTIONS}
 			uninstall.nsi
 		COMMAND ${DATAFILE_DIR}/uninstall_installer.exe
 		COMMAND ${CMAKE_COMMAND} -E remove ${DATAFILE_DIR}/uninstall_installer.exe
@@ -210,7 +211,7 @@ macro( ADD_NSIS_PACKAGE_TARGET )
 	# Dump the installer into ${CMAKE_CURRENT_SOURCE_DIR}/packaging/nsis
 	# Note that executables and DLLs *must* be built separately
 	add_custom_target(nsis_package
-		COMMAND ${MAKENSIS_EXECUTABLE} ${NSIS_DEFINES}
+		COMMAND ${MAKENSIS_EXECUTABLE} ${NSIS_OPTIONS}
 			wireshark.nsi
 		WORKING_DIRECTORY ${_nsis_source_dir}
 	)
