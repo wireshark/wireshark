@@ -30,6 +30,7 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/privileges.h>
+#include <wsutil/unicode-utils.h>
 #include <version_info.h>
 #include <wiretap/wtap_opttypes.h>
 
@@ -160,8 +161,8 @@ failure_message_cont(const char *msg_format, va_list ap)
 /********************************************************************/
 /* Main function.                                                   */
 /********************************************************************/
-int
-main(int argc, char *argv[])
+static int
+real_main(int argc, char *argv[])
 {
     GString *comp_info_str;
     GString *runtime_info_str;
@@ -378,6 +379,23 @@ clean_exit:
     free_progdirs();
     return ret;
 }
+
+#ifdef _WIN32
+int
+wmain(int argc, wchar_t *wc_argv[])
+{
+    char **argv;
+
+    argv = arg_list_utf_16to8(argc, wc_argv);
+    return real_main(argc, argv);
+}
+#else
+int
+main(int argc, char *argv[])
+{
+    return real_main(argc, argv);
+}
+#endif
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
