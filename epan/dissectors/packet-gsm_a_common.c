@@ -758,6 +758,7 @@ static expert_field ei_gsm_a_unknown_pdu_type = EI_INIT;
 static expert_field ei_gsm_a_no_element_dissector = EI_INIT;
 static expert_field ei_gsm_a_format_not_supported = EI_INIT;
 static expert_field ei_gsm_a_mobile_identity_type = EI_INIT;
+static expert_field ei_gsm_a_ie_length_too_short = EI_INIT;
 
 sccp_assoc_info_t* sccp_assoc;
 
@@ -2423,8 +2424,10 @@ de_ms_cm_2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 #define AVAILABLE_BITS_CHECK(n) \
     bits_left = ((len + offset) << 3) - bit_offset; \
     if (bits_left < (n)) { \
-        if (bits_left) \
+        if (bits_left > 0) \
             proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, bits_left, ENC_BIG_ENDIAN); \
+        else if (bits_left < 0) \
+            proto_tree_add_expert(tree, pinfo, &ei_gsm_a_ie_length_too_short, tvb, offset, len); \
         return len; \
     }
 
@@ -2436,7 +2439,8 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
     guint8      length;
     proto_tree *subtree;
     proto_item *item;
-    guint32     bits_left, target_bit_offset, old_bit_offset;
+    gint32      bits_left;
+    guint32     target_bit_offset, old_bit_offset;
     guint64     multi_bnd_sup_fields, rsupport, multislotCapability;
     guint64     msMeasurementCapability, msPosMethodCapPresent;
     guint64     ecsdMultiSlotCapability, eightPskStructPresent, eightPskStructRfPowerCapPresent;
@@ -4682,6 +4686,7 @@ proto_register_gsm_a_common(void)
         { &ei_gsm_a_no_element_dissector, { "gsm_a.no_element_dissector", PI_PROTOCOL, PI_WARN, "No element dissector, rest of dissection may be incorrect", EXPFILL }},
         { &ei_gsm_a_format_not_supported, { "gsm_a.format_not_supported", PI_PROTOCOL, PI_WARN, "Format not supported", EXPFILL }},
         { &ei_gsm_a_mobile_identity_type, { "gsm_a.ie.mobileid.type.unknown", PI_PROTOCOL, PI_WARN, "Format unknown", EXPFILL }},
+        { &ei_gsm_a_ie_length_too_short, { "gsm_a.ie.length_too_short", PI_PROTOCOL, PI_ERROR, "IE length too short", EXPFILL }}
     };
 
     expert_module_t* expert_a_common;
