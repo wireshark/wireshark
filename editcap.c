@@ -987,6 +987,7 @@ real_main(int argc, char *argv[])
 {
     GString      *comp_info_str;
     GString      *runtime_info_str;
+    char         *appname;
     char         *init_progfile_dir_error;
     wtap         *wth = NULL;
     int           i, j, read_err, write_err;
@@ -1048,13 +1049,16 @@ real_main(int argc, char *argv[])
     /* Get the run-time version information string */
     runtime_info_str = get_runtime_version_info(NULL);
 
+    /* Get the application name with version info */
+    appname = g_strdup_printf("Editcap (Wireshark) %s", get_ws_vcs_version_info());
+
     /* Add it to the information to be reported on a crash. */
-    ws_add_crash_info("Editcap (Wireshark) %s\n"
+    ws_add_crash_info("%s\n"
          "\n"
          "%s"
          "\n"
          "%s",
-      get_ws_vcs_version_info(), comp_info_str->str, runtime_info_str->str);
+      appname, comp_info_str->str, runtime_info_str->str);
     g_string_free(comp_info_str, TRUE);
     g_string_free(runtime_info_str, TRUE);
 
@@ -1560,9 +1564,9 @@ real_main(int argc, char *argv[])
             }
             g_assert(filename);
 
-            /* If we don't have an application name add Editcap */
+            /* If we don't have an application name add one */
             if (wtap_block_get_string_option_value(g_array_index(params.shb_hdrs, wtap_block_t, 0), OPT_SHB_USERAPPL, &shb_user_appl) != WTAP_OPTTYPE_SUCCESS) {
-                wtap_block_add_string_option_format(g_array_index(params.shb_hdrs, wtap_block_t, 0), OPT_SHB_USERAPPL, "Editcap " VERSION);
+                wtap_block_add_string_option_format(g_array_index(params.shb_hdrs, wtap_block_t, 0), OPT_SHB_USERAPPL, "%s", appname);
             }
 
             pdh = editcap_dump_open(filename, &params, &write_err);
