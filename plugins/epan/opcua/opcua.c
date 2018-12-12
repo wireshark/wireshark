@@ -95,6 +95,7 @@ enum MessageType
     MSG_HELLO = 0,
     MSG_ACKNOWLEDGE,
     MSG_ERROR,
+    MSG_REVERSEHELLO,
     MSG_MESSAGE,
     MSG_OPENSECURECHANNEL,
     MSG_CLOSESECURECHANNEL,
@@ -107,6 +108,7 @@ static const char* g_szMessageTypes[] =
     "Hello message",
     "Acknowledge message",
     "Error message",
+    "Reverse Hello message",
     "UA Secure Conversation Message",
     "OpenSecureChannel message",
     "CloseSecureChannel message",
@@ -164,6 +166,11 @@ static int dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     {
         msgtype = MSG_ERROR;
         pfctParse = parseError;
+    }
+    else if (tvb_memeql(tvb, 0, "RHE", 3) == 0)
+    {
+        msgtype = MSG_REVERSEHELLO;
+        pfctParse = parseReverseHello;
     }
     else if (tvb_memeql(tvb, 0, "MSG", 3) == 0)
     {
