@@ -65,6 +65,8 @@ since version 2.6.0:
 * Wireshark now includes a “No Reassembly” configuration profile.
 * Wireshark now supports the Russian language.
 * The build system now supports AppImage packages.
+* The Windows installers now ship with Qt 5.12.0. Previously they
+  shipped with Qt 5.9.7.
 
 === Removed Features and Support
 
