@@ -61,7 +61,7 @@ void registerTransportLayerTypes(int proto)
         {&hf_opcua_transport_sbs,      {"SendBufferSize",                "opcua.transport.sbs",      FT_UINT32, BASE_DEC,  NULL,   0x0,    NULL, HFILL}},
         {&hf_opcua_transport_mms,      {"MaxMessageSize",                "opcua.transport.mms",      FT_UINT32, BASE_DEC,  NULL,   0x0,    NULL, HFILL}},
         {&hf_opcua_transport_mcc,      {"MaxChunkCount",                 "opcua.transport.mcc",      FT_UINT32, BASE_DEC,  NULL,   0x0,    NULL, HFILL}},
-        {&hf_opcua_transport_endpoint, {"EndPointUrl",                   "opcua.transport.endpoint", FT_STRING, BASE_NONE, NULL,   0x0,    NULL, HFILL}},
+        {&hf_opcua_transport_endpoint, {"EndpointUrl",                   "opcua.transport.endpoint", FT_STRING, BASE_NONE, NULL,   0x0,    NULL, HFILL}},
         {&hf_opcua_transport_suri,     {"ServerUri",                     "opcua.transport.suri",     FT_STRING, BASE_NONE, NULL,   0x0,    NULL, HFILL}},
         {&hf_opcua_transport_error,    {"Error",                         "opcua.transport.error",    FT_UINT32, BASE_HEX,  NULL,   0x0,    NULL, HFILL}},
         {&hf_opcua_transport_reason,   {"Reason",                        "opcua.transport.reason",   FT_STRING, BASE_NONE, NULL,   0x0,    NULL, HFILL}},
