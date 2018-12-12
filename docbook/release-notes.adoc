@@ -36,6 +36,7 @@ since version 3.1.0:
 
 * You can once again mark and unmark packets using the middle mouse button. This feature
   went missing around 2009 or so.
+* On macOS, Wireshark can now be installed by dropping it onto the Applications folder.
 
 The following features are new (or have been significantly updated)
 since version 3.0.0:

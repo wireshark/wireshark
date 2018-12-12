@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Created using `productbuild -\-synthesize -\-package org.wireshark.path_helper.pkg.pkg /tmp/install-distribution.xml`
+See also: https://github.com/open-eid/osx-installer/blob/master/distribution.xml
+https://developer.apple.com/library/mac/documentation/DeveloperTools/Reference/DistributionDefinitionRef/
+https://developer.apple.com/library/mac/documentation/DeveloperTools/Reference/InstallerJavaScriptRef/
+-->
+<installer-gui-script minSpecVersion="1">
+    <title>Add Wireshark to the system PATH</title>
+    <welcome language="en" mime-type="text/html"><![CDATA[<html><body><br />
+<p style="margin: 0px; font: 13px 'Lucida Grande'">This package will add Wireshark and its associated utilities to the system PATH and MANPATH. Wireshark must be installed in /Applications.</p></body></html>]]></welcome>
+    <pkg-ref id="org.wireshark.path_helper.pkg"/>
+    <options customize="never" require-scripts="false"/>
+    <choices-outline>
+        <line choice="default">
+            <line choice="org.wireshark.path_helper.pkg"/>
+        </line>
+    </choices-outline>
+    <choice id="default"/>
+    <choice id="org.wireshark.path_helper.pkg" visible="false">
+        <pkg-ref id="org.wireshark.path_helper.pkg"/>
+    </choice>
+    <pkg-ref id="org.wireshark.path_helper.pkg" version="1.0" onConclusion="none">install.path_helper.pkg</pkg-ref>
+</installer-gui-script>
