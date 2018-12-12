@@ -20409,12 +20409,15 @@ dissect_ess_report(tvbuff_t *tvb, packet_info *pinfo _U_,
                                     ess_info_field_headers,
                                     ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
   if (bss_trans_thresh == 63)
-    proto_tree_add_int_format(tree, hf_he_ess_report_recommend_transition_thresh, tvb,
-                        offset, 1, bss_trans_thresh, " (%ddBm)",
-                        -100 + bss_trans_thresh);
-  else
     proto_tree_add_int_format(tree, hf_he_ess_report_recommend_transition_thresh,
-                        tvb, offset, 1, bss_trans_thresh, " (No recommendation)");
+                        tvb, offset, 1, bss_trans_thresh,
+                        "Recommended BSS Transition Threshold: %d (No recommendation)",
+                        bss_trans_thresh);
+  else
+    proto_tree_add_int_format(tree, hf_he_ess_report_recommend_transition_thresh, tvb,
+                        offset, 1, bss_trans_thresh,
+                        "Recommended BSS Transition Threshold: %d (%ddBm)",
+                        bss_trans_thresh, -100 + bss_trans_thresh);
 }
 
 /*
@@ -36229,7 +36232,7 @@ proto_register_ieee80211(void)
 
     {&hf_he_ess_report_recommend_transition_thresh,
      {"Recommended BSS Transition Threshold", "wlan.ext_tag.ess_report.ess_info.thresh",
-     FT_UINT8, BASE_DEC, NULL, 0xFC, NULL, HFILL }},
+     FT_INT8, BASE_DEC, NULL, 0xFC, NULL, HFILL }},
 
     {&hf_he_uora_field,
      {"UL OFDMA-based Random Access Parameter SET", "wlan.ext_tag.uora_parameter_set.field",
