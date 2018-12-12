@@ -29,7 +29,6 @@
 
 #ifdef _WIN32
 	#include <io.h>
-	#include <wsutil/unicode-utils.h> // arg_list_utf_16to8
 #endif
 
 #include <wsutil/socket.h>

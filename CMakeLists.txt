@@ -2304,6 +2304,7 @@ if(BUILD_tshark)
 		${M_LIBRARIES}
 	)
 	set(tshark_FILES
+		cli_main.c
 		capture_opts.c
 		tshark-tap-register.c
 		tshark.c
@@ -2329,6 +2330,7 @@ if(BUILD_tfshark)
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
 	)
 	set(tfshark_FILES
+		cli_main.c
 		tfshark.c
 		${TSHARK_TAP_SRC}
 		${SHARK_COMMON_SRC}
@@ -2352,6 +2354,7 @@ if(BUILD_rawshark AND PCAP_FOUND)
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
 	)
 	set(rawshark_FILES
+		cli_main.c
 		${SHARK_COMMON_SRC}
 		rawshark.c
 	)
@@ -2374,6 +2377,10 @@ if(BUILD_sharkd)
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
 	)
 	set(sharkd_FILES
+		#
+		# XXX - currently doesn't work on Windows if it uses
+		# cli_main.c and has real_main().
+		#
 		sharkd.c
 		sharkd_daemon.c
 		sharkd_session.c
@@ -2419,6 +2426,7 @@ if(BUILD_randpkt)
 		${ZLIB_LIBRARIES}
 	)
 	set(randpkt_FILES
+		cli_main.c
 		randpkt.c
 		version_info.c
 	)
@@ -2441,6 +2449,7 @@ if(BUILD_text2pcap)
 		${ZLIB_LIBRARIES}
 	)
 	set(text2pcap_FILES
+		cli_main.c
 		text2pcap.c
 		version_info.c
 	)
@@ -2464,6 +2473,7 @@ if(BUILD_mergecap)
 		${CMAKE_DL_LIBS}
 	)
 	set(mergecap_FILES
+		cli_main.c
 		mergecap.c
 		version_info.c
 	)
@@ -2483,6 +2493,7 @@ if(BUILD_reordercap)
 		${CMAKE_DL_LIBS}
 	)
 	set(reordercap_FILES
+		cli_main.c
 		reordercap.c
 		version_info.c
 	)
@@ -2504,6 +2515,7 @@ if(BUILD_capinfos)
 		${CMAKE_DL_LIBS}
 	)
 	set(capinfos_FILES
+		cli_main.c
 		capinfos.c
 		version_info.c
 	)
@@ -2524,6 +2536,7 @@ if(BUILD_captype)
 		${CMAKE_DL_LIBS}
 	)
 	set(captype_FILES
+		cli_main.c
 		captype.c
 		version_info.c
 	)
@@ -2544,6 +2557,7 @@ if(BUILD_editcap)
 		${CMAKE_DL_LIBS}
 	)
 	set(editcap_FILES
+		cli_main.c
 		editcap.c
 		version_info.c
 	)
@@ -2571,6 +2585,7 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 		${NL_LIBRARIES}
 	)
 	set(dumpcap_FILES
+		cli_main.c
 		capture_opts.c
 		dumpcap.c
 		ringbuffer.c
@@ -2924,6 +2939,7 @@ install(
 
 set(SHARK_PUBLIC_HEADERS
 	cfile.h
+	cli_main.h
 	file.h
 	globals.h
 	log.h

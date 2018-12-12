@@ -101,6 +101,7 @@
 #include <string.h>
 #include <wsutil/file_util.h>
 #include <wsutil/crash_info.h>
+#include <cli_main.h>
 #include <version_info.h>
 #include <wsutil/inet_addr.h>
 
@@ -131,10 +132,6 @@
 #include "text2pcap.h"
 
 #include "wiretap/wtap.h"
-
-#ifdef _WIN32
-#include <wsutil/unicode-utils.h>
-#endif /* _WIN32 */
 
 /*--- Options --------------------------------------------------------------------*/
 
@@ -1874,7 +1871,7 @@ parse_options (int argc, char *argv[])
     return EXIT_SUCCESS;
 }
 
-static int
+int
 real_main(int argc, char *argv[])
 {
     int ret = EXIT_SUCCESS;
@@ -1945,23 +1942,6 @@ clean_exit:
     }
     return ret;
 }
-
-#ifdef _WIN32
-int
-wmain(int argc, wchar_t *wc_argv[])
-{
-    char **argv;
-
-    argv = arg_list_utf_16to8(argc, wc_argv);
-    return real_main(argc, argv);
-}
-#else
-int
-main(int argc, char *argv[])
-{
-    return real_main(argc, argv);
-}
-#endif
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

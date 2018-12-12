@@ -37,6 +37,8 @@
 #include <wsutil/file_util.h>
 #include <wsutil/privileges.h>
 #include <wsutil/strnatcmp.h>
+
+#include <cli_main.h>
 #include <version_info.h>
 
 #ifdef HAVE_PLUGINS
@@ -46,10 +48,6 @@
 #include <wsutil/report_message.h>
 
 #include <wiretap/merge.h>
-
-#ifdef _WIN32
-#include <wsutil/unicode-utils.h>
-#endif /* _WIN32 */
 
 #include "ui/failure_message.h"
 
@@ -229,7 +227,7 @@ merge_callback(merge_event event, int num,
   return FALSE;
 }
 
-static int
+int
 real_main(int argc, char *argv[])
 {
   GString            *comp_info_str;
@@ -478,23 +476,6 @@ clean_exit:
   free_progdirs();
   return (status == MERGE_OK) ? 0 : 2;
 }
-
-#ifdef _WIN32
-int
-wmain(int argc, wchar_t *wc_argv[])
-{
-  char **argv;
-
-  argv = arg_list_utf_16to8(argc, wc_argv);
-  return real_main(argc, argv);
-}
-#else
-int
-main(int argc, char *argv[])
-{
-  return real_main(argc, argv);
-}
-#endif
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

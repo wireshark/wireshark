@@ -96,6 +96,7 @@ if(BUILD_androiddump)
 		)
 	endif()
 	set(androiddump_FILES
+		../cli_main.c
 		androiddump.c
 		extcap-base.c
 	)
@@ -117,6 +118,7 @@ if(BUILD_sshdump AND LIBSSH_FOUND)
 		${LIBSSH_LIBRARIES}
 	)
 	set(sshdump_FILES
+		../cli_main.c
 		sshdump.c
 		extcap-base.c
 		ssh-base.c
@@ -142,6 +144,7 @@ if(BUILD_ciscodump AND LIBSSH_FOUND)
 		${LIBSSH_LIBRARIES}
 	)
 	set(ciscodump_FILES
+		../cli_main.c
 		ciscodump.c
 		extcap-base.c
 		ssh-base.c
@@ -190,6 +193,7 @@ if(BUILD_udpdump)
 		writecap
 	)
 	set(udpdump_FILES
+		../cli_main.c
 		udpdump.c
 		extcap-base.c
 	)
@@ -212,6 +216,7 @@ if(BUILD_randpktdump)
 		${CMAKE_DL_LIBS}
 	)
 	set(randpktdump_FILES
+		../cli_main.c
 		extcap-base.c
 		randpktdump.c
 	)

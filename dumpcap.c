@@ -43,6 +43,7 @@
 #include <wsutil/cmdarg_err.h>
 #include <wsutil/crash_info.h>
 #include <wsutil/strtoi.h>
+#include <cli_main.h>
 #include <version_info.h>
 
 #ifndef HAVE_GETOPT_LONG
@@ -64,10 +65,6 @@
 #endif /* _WIN32 */
 
 #include "writecap/pcapio.h"
-
-#ifdef _WIN32
-#include <wsutil/unicode-utils.h>
-#endif
 
 #ifndef _WIN32
 #include <sys/un.h>
@@ -4613,7 +4610,7 @@ get_dumpcap_runtime_info(GString *str)
 }
 
 /* And now our feature presentation... [ fade to music ] */
-static int
+int
 real_main(int argc, char *argv[])
 {
     GString          *comp_info_str;
@@ -5384,23 +5381,6 @@ real_main(int argc, char *argv[])
     }
     return 0; /* never here, make compiler happy */
 }
-
-#ifdef _WIN32
-int
-wmain(int argc, wchar_t *wc_argv[])
-{
-  char **argv;
-
-  argv = arg_list_utf_16to8(argc, wc_argv);
-  return real_main(argc, argv);
-}
-#else
-int
-main(int argc, char *argv[])
-{
-  return real_main(argc, argv);
-}
-#endif
 
 static void
 console_log_handler(const char *log_domain, GLogLevelFlags log_level,

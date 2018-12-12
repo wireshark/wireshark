@@ -53,6 +53,7 @@
 #include <wsutil/plugins.h>
 #include <wsutil/privileges.h>
 #include <wsutil/report_message.h>
+#include <wsutil/clopts_common.h>
 
 #include "globals.h"
 #include <epan/packet.h>
@@ -73,7 +74,6 @@
 #include <epan/epan_dissect.h>
 #include <epan/stat_tap_ui.h>
 #include <epan/timestamp.h>
-#include <wsutil/unicode-utils.h>
 #include "epan/column-utils.h"
 #include "epan/proto.h"
 #include <epan/tap.h>
@@ -82,7 +82,7 @@
 #include <wiretap/libpcap.h>
 #include <wiretap/pcap-encap.h>
 
-#include <wsutil/clopts_common.h>
+#include <cli_main.h>
 #include <version_info.h>
 
 #include "caputils/capture-pcap-util.h"
@@ -403,7 +403,7 @@ set_link_type(const char *lt_arg) {
     return FALSE;
 }
 
-static int
+int
 real_main(int argc, char *argv[])
 {
     GString             *comp_info_str;
@@ -827,23 +827,6 @@ clean_exit:
     wtap_cleanup();
     return ret;
 }
-
-#ifdef _WIN32
-int
-wmain(int argc, wchar_t *wc_argv[])
-{
-    char **argv;
-
-    argv = arg_list_utf_16to8(argc, wc_argv);
-    return real_main(argc, argv);
-}
-#else
-int
-main(int argc, char *argv[])
-{
-    return real_main(argc, argv);
-}
-#endif
 
 /**
  * Read data from a raw pipe.  The "raw" data consists of a libpcap

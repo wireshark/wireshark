@@ -52,6 +52,7 @@
 #include <wsutil/file_util.h>
 #include <wsutil/privileges.h>
 #include <wsutil/report_message.h>
+#include <cli_main.h>
 #include <version_info.h>
 #include <wiretap/wtap_opttypes.h>
 #include <wiretap/pcapng.h>
@@ -104,7 +105,6 @@
 #include "caputils/capture_ifinfo.h"
 #ifdef _WIN32
 #include "caputils/capture-wpcap.h"
-#include <wsutil/unicode-utils.h>
 #endif /* _WIN32 */
 #include <capchild/capture_session.h>
 #include <capchild/capture_sync.h>
@@ -670,7 +670,7 @@ must_do_dissection(dfilter_t *rfcode, dfilter_t *dfcode,
       tap_listeners_require_dissection() || dissect_color;
 }
 
-static int
+int
 real_main(int argc, char *argv[])
 {
   GString             *comp_info_str;
@@ -2254,23 +2254,6 @@ clean_exit:
   dfilter_free(dfcode);
   return exit_status;
 }
-
-#ifdef _WIN32
-int
-wmain(int argc, wchar_t *wc_argv[])
-{
-  char **argv;
-
-  argv = arg_list_utf_16to8(argc, wc_argv);
-  return real_main(argc, argv);
-}
-#else
-int
-main(int argc, char *argv[])
-{
-  return real_main(argc, argv);
-}
-#endif
 
 /*#define USE_BROKEN_G_MAIN_LOOP*/
 

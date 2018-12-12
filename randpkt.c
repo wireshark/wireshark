@@ -17,10 +17,10 @@
 #include <stdlib.h>
 #include <wsutil/clopts_common.h>
 #include <wsutil/cmdarg_err.h>
-#include <wsutil/unicode-utils.h>
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/privileges.h>
+#include <cli_main.h>
 
 #ifdef HAVE_PLUGINS
 #include <wsutil/plugins.h>
@@ -99,7 +99,7 @@ usage(gboolean is_error)
 	fprintf(output, "\nIf type is not specified, a random packet will be chosen\n\n");
 }
 
-static int
+int
 real_main(int argc, char **argv)
 {
 	char                   *init_progfile_dir_error;
@@ -245,23 +245,6 @@ clean_exit:
 	wtap_cleanup();
 	return ret;
 }
-
-#ifdef _WIN32
-int
-wmain(int argc, wchar_t **wc_argv)
-{
-	char **argv;
-
-	argv = arg_list_utf_16to8(argc, wc_argv);
-	return real_main(argc, argv);
-}
-#else
-int
-main(int argc, char **argv)
-{
-	return real_main(argc, argv);
-}
-#endif
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

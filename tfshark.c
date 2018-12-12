@@ -39,6 +39,7 @@
 #include <wsutil/file_util.h>
 #include <wsutil/privileges.h>
 #include <wsutil/report_message.h>
+#include <cli_main.h>
 #include <version_info.h>
 
 #include "globals.h"
@@ -65,10 +66,6 @@
 
 #include <wiretap/wtap-int.h>
 #include <wiretap/file_wrappers.h>
-
-#ifdef _WIN32
-#include <wsutil/unicode-utils.h>
-#endif /* _WIN32 */
 
 #include "log.h"
 #include <epan/funnel.h>
@@ -303,7 +300,7 @@ get_tfshark_runtime_version_info(GString *str)
   epan_get_runtime_version_info(str);
 }
 
-static int
+int
 real_main(int argc, char *argv[])
 {
   GString             *comp_info_str;
@@ -1004,23 +1001,6 @@ clean_exit:
   wtap_cleanup();
   return exit_status;
 }
-
-#ifdef _WIN32
-int
-wmain(int argc, wchar_t *wc_argv[])
-{
-  char **argv;
-
-  argv = arg_list_utf_16to8(argc, wc_argv);
-  return real_main(argc, argv);
-}
-#else
-int
-main(int argc, char *argv[])
-{
-  return real_main(argc, argv);
-}
-#endif
 
 static const nstime_t *
 tfshark_get_frame_ts(struct packet_provider_data *prov, guint32 frame_num)

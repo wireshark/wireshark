@@ -18,6 +18,8 @@
 #include <wsutil/strtoi.h>
 #include <wsutil/filesystem.h>
 
+#include <cli_main.h>
+
 #define RANDPKT_EXTCAP_INTERFACE "randpkt"
 #define RANDPKTDUMP_VERSION_MAJOR "0"
 #define RANDPKTDUMP_VERSION_MINOR "1"
@@ -317,23 +319,6 @@ end:
 
 	return ret;
 }
-
-#ifdef _WIN32
-int
-wmain(int argc, wchar_t *wc_argv[])
-{
-    char **argv;
-
-    argv = arg_list_utf_16to8(argc, wc_argv);
-    return real_main(argc, argv);
-}
-#else
-int
-main(int argc, char *argv[])
-{
-    return real_main(argc, argv);
-}
-#endif
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

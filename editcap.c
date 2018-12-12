@@ -54,7 +54,6 @@
 #endif
 
 #ifdef _WIN32
-#include <wsutil/unicode-utils.h>
 #include <process.h>    /* getpid */
 #include <winsock2.h>
 #endif
@@ -74,6 +73,7 @@
 #include <wsutil/report_message.h>
 #include <wsutil/strnatcmp.h>
 #include <wsutil/str_util.h>
+#include <cli_main.h>
 #include <version_info.h>
 #include <wsutil/pint.h>
 #include <wsutil/strtoi.h>
@@ -982,7 +982,7 @@ editcap_dump_open(const char *filename, const wtap_dump_params *params,
   return pdh;
 }
 
-static int
+int
 real_main(int argc, char *argv[])
 {
     GString      *comp_info_str;
@@ -2054,23 +2054,6 @@ clean_exit:
     free_progdirs();
     return ret;
 }
-
-#ifdef _WIN32
-int
-wmain(int argc, wchar_t *wc_argv[])
-{
-    char **argv;
-
-    argv = arg_list_utf_16to8(argc, wc_argv);
-    return real_main(argc, argv);
-}
-#else
-int
-main(int argc, char *argv[])
-{
-    return real_main(argc, argv);
-}
-#endif
 
 /* Skip meta-information read from file to return offset of real
  * protocol data */

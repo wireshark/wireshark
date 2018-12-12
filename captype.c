@@ -33,6 +33,7 @@
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/privileges.h>
+#include <cli_main.h>
 #include <version_info.h>
 
 #ifdef HAVE_PLUGINS
@@ -41,10 +42,6 @@
 
 #include <wsutil/report_message.h>
 #include <wsutil/str_util.h>
-
-#ifdef _WIN32
-#include <wsutil/unicode-utils.h>
-#endif /* _WIN32 */
 
 #ifndef HAVE_GETOPT_LONG
 #include "wsutil/wsgetopt.h"
@@ -81,7 +78,7 @@ failure_message_cont(const char *msg_format, va_list ap)
   fprintf(stderr, "\n");
 }
 
-static int
+int
 real_main(int argc, char *argv[])
 {
   GString *comp_info_str;
@@ -204,23 +201,6 @@ real_main(int argc, char *argv[])
   free_progdirs();
   return overall_error_status;
 }
-
-#ifdef _WIN32
-int
-wmain(int argc, wchar_t *wc_argv[])
-{
-  char **argv;
-
-  argv = arg_list_utf_16to8(argc, wc_argv);
-  return real_main(argc, argv);
-}
-#else
-int
-main(int argc, char *argv[])
-{
-  return real_main(argc, argv);
-}
-#endif
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

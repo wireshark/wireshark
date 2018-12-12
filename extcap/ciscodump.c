@@ -23,6 +23,8 @@
 #include <string.h>
 #include <fcntl.h>
 
+#include <cli_main.h>
+
 #define CISCODUMP_VERSION_MAJOR "1"
 #define CISCODUMP_VERSION_MINOR "0"
 #define CISCODUMP_VERSION_RELEASE "0"
@@ -705,23 +707,6 @@ end:
 	extcap_base_cleanup(&extcap_conf);
 	return ret;
 }
-
-#ifdef _WIN32
-int
-wmain(int argc, wchar_t *wc_argv[])
-{
-    char **argv;
-
-    argv = arg_list_utf_16to8(argc, wc_argv);
-    return real_main(argc, argv);
-}
-#else
-int
-main(int argc, char *argv[])
-{
-    return real_main(argc, argv);
-}
-#endif
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
