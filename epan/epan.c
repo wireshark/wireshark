@@ -715,6 +715,9 @@ epan_get_compiled_version_info(GString *str)
 	g_string_append(str, ", ");
 #ifdef HAVE_LIBGNUTLS
 	g_string_append(str, "with GnuTLS " LIBGNUTLS_VERSION);
+#ifdef HAVE_GNUTLS_PKCS11
+	g_string_append(str, " and PKCS #11 support");
+#endif /* HAVE_GNUTLS_PKCS11 */
 #else
 	g_string_append(str, "without GnuTLS");
 #endif /* HAVE_LIBGNUTLS */

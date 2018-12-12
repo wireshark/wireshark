@@ -18,6 +18,7 @@ then
 	printf "Usage: %s [--install-optional] [--install-deb-deps] [...other options...]\\n" "$0"
 	printf "\\t--install-optional: install optional software as well\\n"
 	printf "\\t--install-deb-deps: install packages required to build the .deb file\\n"
+	printf "\\t--install-test-deps: install packages required to run all tests\\n"
 	printf "\\t[other]: other options are passed as-is to apt\\n"
 	exit 1
 fi
@@ -29,17 +30,24 @@ then
 	exit 1
 fi
 
-for op
-do
-	if [ "$op" = "--install-optional" ]
-	then
-		ADDITIONAL=1
-	elif [ "$op" = "--install-deb-deps" ]
-	then
-		DEBDEPS=1
-	else
-		OPTIONS="$OPTIONS $op"
-	fi
+ADDITIONAL=0
+DEBDEPS=0
+TESTDEPS=0
+for arg; do
+	case $arg in
+		--install-optional)
+			ADDITIONAL=1
+			;;
+		--install-deb-deps)
+			DEBDEPS=1
+			;;
+		--install-test-deps)
+			TESTDEPS=1
+			;;
+		*)
+			OPTIONS="$OPTIONS $arg"
+			;;
+	esac
 done
 
 BASIC_LIST="libglib2.0-dev \
@@ -83,6 +91,8 @@ DEBDEPS_LIST="debhelper \
 	libxml2-utils \
 	quilt"
 
+TESTDEPS_LIST=
+
 # Adds package $2 to list variable $1 if the package is found.
 # If $3 is given, then this version requirement must be satisfied.
 add_package() {
@@ -122,7 +132,7 @@ echo "libssh-gcrypt-dev and libssh-dev are unavailable" >&2
 add_package ADDITIONAL_LIST libgnutls28-dev ||
 echo "libgnutls28-dev is unavailable" >&2
 
-# mmdbresolve
+# Debian >= jessie-backports, Ubuntu >= 16.04
 add_package ADDITIONAL_LIST libmaxminddb-dev ||
 echo "libmaxminddb-dev is unavailable" >&2
 
@@ -131,6 +141,18 @@ echo "libmaxminddb-dev is unavailable" >&2
 add_package DEBDEPS_LIST libsystemd-dev ||
 add_package DEBDEPS_LIST libsystemd-journal-dev ||
 echo "libsystemd-dev is unavailable"
+
+# softhsm2 2.0.0: Ubuntu 16.04
+# softhsm2 2.2.0: Debian >= jessie-backports, Ubuntu 18.04
+# softhsm2 >= 2.4.0: Debian >= buster, Ubuntu >= 18.10
+if ! add_package TESTDEPS_LIST softhsm2 '>= 2.3.0'; then
+	if add_package TESTDEPS_LIST softhsm2; then
+		# If SoftHSM 2.3.0 is unavailble, install p11tool.
+		TESTDEPS_LIST="$TESTDEPS_LIST gnutls-bin"
+	else
+		echo "softhsm2 is unavailable" >&2
+	fi
+fi
 
 ACTUAL_LIST=$BASIC_LIST
 
@@ -143,6 +165,11 @@ fi
 if [ $DEBDEPS ]
 then
 	ACTUAL_LIST="$ACTUAL_LIST $DEBDEPS_LIST"
+fi
+
+if [ $TESTDEPS ]
+then
+	ACTUAL_LIST="$ACTUAL_LIST $TESTDEPS_LIST"
 fi
 
 apt-get update || exit 2

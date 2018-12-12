@@ -29,6 +29,9 @@ install:
   # Py2 fails the test_tshark_unicode_display_filter test, so use Py3.
   - set PATH=C:\Python37-x64;C:\Python37-x64\Scripts;%PATH%
   - pip install pytest pytest-xdist
+  - ps: |   # For pkcs11 tests.
+      Invoke-WebRequest -Uri https://github.com/disig/SoftHSM2-for-Windows/releases/download/v2.5.0/SoftHSM2-2.5.0.msi -OutFile $Env:WIRESHARK_BASE_DIR\SoftHSM2-2.5.0.msi
+      & msiexec /qn /i $Env:WIRESHARK_BASE_DIR\SoftHSM2-2.5.0.msi
 
 # Note: the NSIS installer lacks debug dlls for Debug builds.
 configuration: RelWithDebInfo

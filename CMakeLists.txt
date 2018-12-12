@@ -990,7 +990,7 @@ if(ENABLE_SMI)
 	set(PACKAGELIST ${PACKAGELIST} SMI)
 endif()
 
-# GNU SSL/TLS support
+# Support for TLS decryption using RSA private keys.
 if(ENABLE_GNUTLS)
 	set(PACKAGELIST ${PACKAGELIST} GNUTLS)
 	# Minimum version needed.
@@ -1166,6 +1166,22 @@ endif()
 if(HAVE_LIBLUA)
 	set(HAVE_LUA_H 1)
 	set(HAVE_LUA 1)
+endif()
+if(GNUTLS_FOUND AND NOT GNUTLS_VERSION VERSION_LESS "3.4.0")
+	# While all Linux and Windows builds have PKCS #11 support enabled,
+	# macos-setup.sh explicitly disables it using --without-p11-kit.
+	#
+	# Require at least GnuTLS 3.4.0 such that public keys can be calculated
+	# from PKCS #11 private keys.
+	include(CheckSymbolExists)
+	cmake_push_check_state()
+	if(WIN32)
+		set(CMAKE_REQUIRED_DEFINITIONS -Dssize_t=int)
+	endif()
+	set(CMAKE_REQUIRED_INCLUDES ${GNUTLS_INCLUDE_DIRS})
+	set(CMAKE_REQUIRED_LIBRARIES ${GNUTLS_LIBRARIES})
+	check_symbol_exists(gnutls_pkcs11_obj_list_import_url4 gnutls/pkcs11.h HAVE_GNUTLS_PKCS11)
+	cmake_pop_check_state()
 endif()
 if(HAVE_LIBKERBEROS)
 	set(HAVE_KERBEROS 1)

@@ -112,6 +112,9 @@
 /* Define to use GnuTLS library */
 #cmakedefine HAVE_LIBGNUTLS 1
 
+/* Define to 1 if GnuTLS was built with pkcs11 support. */
+#cmakedefine HAVE_GNUTLS_PKCS11 1
+
 /* Enable libnl support */
 #cmakedefine HAVE_LIBNL 1
 

@@ -51,6 +51,19 @@ static guint uat_num_rsa_privkeys;
 static void register_rsa_uats(void);
 #endif  /* HAVE_LIBGNUTLS */
 
+#ifdef HAVE_GNUTLS_PKCS11
+/** PINs for PKCS #11 keys in rsa_privkeys. Must be cleared after rsa_privkeys. */
+static GSList *rsa_privkeys_pkcs11_pins;
+
+typedef struct {
+    char *library_path;     /**< PKCS #11 library path. */
+} pkcs11_lib_record_t;
+
+static uat_t *pkcs11_libs_uat;
+static pkcs11_lib_record_t *uat_pkcs11_libs;
+static guint uat_num_pkcs11_libs;
+#endif  /* HAVE_GNUTLS_PKCS11 */
+
 void
 secrets_init(void)
 {
@@ -69,6 +82,10 @@ secrets_cleanup(void)
 #ifdef HAVE_LIBGNUTLS
     g_hash_table_destroy(rsa_privkeys);
     rsa_privkeys = NULL;
+#ifdef HAVE_GNUTLS_PKCS11
+    g_slist_free_full(rsa_privkeys_pkcs11_pins, g_free);
+    rsa_privkeys_pkcs11_pins = NULL;
+#endif  /* HAVE_GNUTLS_PKCS11 */
 #endif  /* HAVE_LIBGNUTLS */
 }
 
@@ -124,6 +141,182 @@ rsa_privkey_add(const cert_key_id_t *key_id, gnutls_privkey_t pkey)
     g_debug("Adding RSA private, Key ID %08x%08x%08x%08x%08x", g_htonl(dw[0]),
             g_htonl(dw[1]), g_htonl(dw[2]), g_htonl(dw[3]), g_htonl(dw[4]));
 }
+
+#ifdef HAVE_GNUTLS_PKCS11
+/** Provides a fixed PIN to the caller (or failure if the fixed PIN is NULL). */
+static int
+set_pin_callback(void *userdata, int attempt _U_,
+                 const char *token_url _U_, const char *token_label _U_,
+                 unsigned int flags, char *pin, size_t pin_max)
+{
+    const char *fixed_pin = (const char *)userdata;
+    size_t fixed_pin_len = fixed_pin ? strlen(fixed_pin) : 0;
+
+    /* Fail if the PIN was not provided, wrong or too long. */
+    if (!fixed_pin || (flags & GNUTLS_PIN_WRONG) || fixed_pin_len >= pin_max) {
+        return GNUTLS_E_PKCS11_PIN_ERROR;
+    }
+
+    memcpy(pin, fixed_pin, fixed_pin_len + 1);
+    return 0;
+}
+
+/**
+ * Load private RSA keys from a PKCS #11 token. Returns zero on success and a
+ * negative error code on failure.
+ */
+static int
+pkcs11_load_keys_from_token(const char *token_uri, const char *pin, char **err)
+{
+    gnutls_pkcs11_obj_t *list = NULL;
+    unsigned int nlist = 0;
+    int ret;
+    /* An empty/NULL PIN means that none is necessary. */
+    char *fixed_pin = pin && pin[0] ? g_strdup(pin) : NULL;
+    gboolean pin_in_use = FALSE;
+
+    /* Set PIN via a global callback since import_url can prompt for one. */
+    gnutls_pkcs11_set_pin_function(set_pin_callback, fixed_pin);
+
+    /* This might already result in callback for the PIN. */
+    ret = gnutls_pkcs11_obj_list_import_url4(&list, &nlist, token_uri,
+            GNUTLS_PKCS11_OBJ_FLAG_PRIVKEY|GNUTLS_PKCS11_OBJ_FLAG_LOGIN);
+    if (ret < 0) {
+        *err = g_strdup_printf("Failed to iterate through objects for %s: %s", token_uri, gnutls_strerror(ret));
+        goto cleanup;
+    }
+
+    for (unsigned j = 0; j < nlist; j++) {
+        char *obj_uri = NULL;
+        gnutls_privkey_t privkey = NULL;
+        gnutls_pubkey_t pubkey = NULL;
+        cert_key_id_t key_id;
+        size_t size;
+
+        if (gnutls_pkcs11_obj_get_type(list[j]) != GNUTLS_PKCS11_OBJ_PRIVKEY) {
+            /* Should not happen since we requested private keys only. */
+            goto cont;
+        }
+
+        ret = gnutls_pkcs11_obj_export_url(list[j], GNUTLS_PKCS11_URL_GENERIC, &obj_uri);
+        if (ret < 0) {
+            /* Should not happen either if the object is valid. */
+            goto cont;
+        }
+
+        ret = gnutls_privkey_init(&privkey);
+        if (ret < 0) {
+            /* Out of memory? */
+            goto cont;
+        }
+
+        /* Set the PIN to be used during decryption. */
+        gnutls_privkey_set_pin_function(privkey, set_pin_callback, fixed_pin);
+
+        /* Can prompt for PIN. Can also invoke the token function set by
+         * gnutls_pkcs11_set_token_function (if not set, it will just fail
+         * immediately rather than retrying). */
+        ret = gnutls_privkey_import_url(privkey, obj_uri, 0);
+        if (ret < 0) {
+            /* Bad PIN or some other system error? */
+            g_debug("Failed to import private key %s: %s", obj_uri, gnutls_strerror(ret));
+            goto cont;
+        }
+
+        if (gnutls_privkey_get_pk_algorithm(privkey, NULL) != GNUTLS_PK_RSA) {
+            g_debug("Skipping private key %s, not RSA.", obj_uri);
+            goto cont;
+        }
+
+        ret = gnutls_pubkey_init(&pubkey);
+        if (ret < 0) {
+            /* Out of memory? */
+            goto cont;
+        }
+
+        /* This requires GnuTLS 3.4.0 and will fail on older versions. */
+        ret = gnutls_pubkey_import_privkey(pubkey, privkey, 0, 0);
+        if (ret < 0) {
+            g_debug("Failed to import public key %s: %s", obj_uri, gnutls_strerror(ret));
+            goto cont;
+        }
+
+        size = sizeof(key_id);
+        ret = gnutls_pubkey_get_key_id(pubkey, GNUTLS_KEYID_USE_SHA1, key_id.key_id, &size);
+        if (ret < 0 || size != sizeof(key_id)) {
+            g_debug("Failed to calculate Key ID for %s: %s", obj_uri, gnutls_strerror(ret));
+            goto cont;
+        }
+
+        /* Remember the private key. */
+        rsa_privkey_add(&key_id, privkey);
+        privkey = NULL;
+        pin_in_use = TRUE;
+
+cont:
+        gnutls_privkey_deinit(privkey);
+        gnutls_pubkey_deinit(pubkey);
+        gnutls_free(obj_uri);
+        gnutls_pkcs11_obj_deinit(list[j]);
+    }
+    gnutls_free(list);
+    if (pin_in_use) {
+        /* Remember PINs such they can be freed later. */
+        rsa_privkeys_pkcs11_pins = g_slist_prepend(rsa_privkeys_pkcs11_pins, fixed_pin);
+        fixed_pin = NULL;
+    }
+    ret = 0;
+
+cleanup:
+    /* Forget about the PIN. */
+    gnutls_pkcs11_set_pin_function(NULL, NULL);
+    g_free(fixed_pin);
+    return ret;
+}
+
+/** Load all libraries specified in a UAT. */
+static void
+uat_pkcs11_libs_load_all(void)
+{
+    int ret;
+    GString *err = NULL;
+
+    for (guint i = 0; i < uat_num_pkcs11_libs; i++) {
+        const pkcs11_lib_record_t *rec = &uat_pkcs11_libs[i];
+        const char *libname = rec->library_path;
+        /* Note: should return success for already loaded libraries.  */
+        ret = gnutls_pkcs11_add_provider(libname, NULL);
+        if (ret) {
+            if (!err) {
+                err = g_string_new("Error loading PKCS #11 libraries:");
+            }
+            g_string_append_printf(err, "\n%s: %s", libname, gnutls_strerror(ret));
+        }
+    }
+    if (err) {
+        report_failure("%s", err->str);
+        g_string_free(err, TRUE);
+    }
+}
+
+UAT_FILENAME_CB_DEF(pkcs11_libs_uats, library_path, pkcs11_lib_record_t)
+
+static void *
+uat_pkcs11_lib_copy_str_cb(void *dest, const void *source, size_t len _U_)
+{
+    pkcs11_lib_record_t *d = (pkcs11_lib_record_t *)dest;
+    const pkcs11_lib_record_t *s = (const pkcs11_lib_record_t *)source;
+    d->library_path = g_strdup(s->library_path);
+    return dest;
+}
+
+static void
+uat_pkcs11_lib_free_str_cb(void *record)
+{
+    pkcs11_lib_record_t *rec = (pkcs11_lib_record_t *)record;
+    g_free(rec->library_path);
+}
+#endif  /* HAVE_GNUTLS_PKCS11 */
 
 UAT_FILENAME_CB_DEF(rsa_privkeys_uats, uri, rsa_privkey_record_t)
 UAT_CSTRING_CB_DEF(rsa_privkeys_uats, password, rsa_privkey_record_t)
@@ -202,6 +395,10 @@ uat_rsa_privkeys_post_update(void)
 {
     /* Clear previous keys. */
     g_hash_table_remove_all(rsa_privkeys);
+#ifdef HAVE_GNUTLS_PKCS11
+    g_slist_free_full(rsa_privkeys_pkcs11_pins, g_free);
+    rsa_privkeys_pkcs11_pins = NULL;
+#endif  /* HAVE_GNUTLS_PKCS11 */
     GString *errors = NULL;
 
     for (guint i = 0; i < uat_num_rsa_privkeys; i++) {
@@ -210,6 +407,9 @@ uat_rsa_privkeys_post_update(void)
         char *err = NULL;
 
         if (g_str_has_prefix(token_uri, "pkcs11:")) {
+#ifdef HAVE_GNUTLS_PKCS11
+            pkcs11_load_keys_from_token(token_uri, rec->password, &err);
+#endif  /* HAVE_GNUTLS_PKCS11 */
         } else {
             load_rsa_keyfile(token_uri, rec->password, &err);
         }
@@ -236,6 +436,27 @@ uat_rsa_privkeys_post_update(void)
 static void
 register_rsa_uats(void)
 {
+#ifdef HAVE_GNUTLS_PKCS11
+    static uat_field_t uat_pkcs11_libs_fields[] = {
+        UAT_FLD_FILENAME_OTHER(pkcs11_libs_uats, library_path, "Library Path", NULL, "PKCS #11 provider library file"),
+        UAT_END_FIELDS
+    };
+    pkcs11_libs_uat = uat_new("PKCS #11 Provider Libraries",
+            sizeof(pkcs11_lib_record_t),
+            "pkcs11_libs",                  /* filename */
+            FALSE,                          /* from_profile */
+            &uat_pkcs11_libs,               /* data_ptr */
+            &uat_num_pkcs11_libs,           /* numitems_ptr */
+            0,                              /* does not directly affect dissection */
+            NULL,                           /* Help section (currently a wiki page) */
+            uat_pkcs11_lib_copy_str_cb,     /* copy_cb */
+            NULL,                           /* update_cb */
+            uat_pkcs11_lib_free_str_cb,     /* free_cb */
+            uat_pkcs11_libs_load_all,       /* post_update_cb */
+            NULL,                           /* reset_cb */
+            uat_pkcs11_libs_fields);
+#endif  /* HAVE_GNUTLS_PKCS11 */
+
     static uat_field_t uat_rsa_privkeys_fields[] = {
         UAT_FLD_FILENAME_OTHER(rsa_privkeys_uats, uri, "Keyfile or Token URI", NULL, "RSA Key File or PKCS #11 URI for token"),
         UAT_FLD_FILENAME_OTHER(rsa_privkeys_uats, password, "Password", NULL, "RSA Key File password or PKCS #11 Token PIN"),
