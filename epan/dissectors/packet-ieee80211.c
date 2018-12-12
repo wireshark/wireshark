@@ -24344,7 +24344,7 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
         }
       }
 
-      if (enable_decryption && !pinfo->fd->flags.visited) {
+      if (enable_decryption && !pinfo->fd->flags.visited && (len == reported_len)) {
         /* The processing will take care of 4-way handshake sessions for WPA and WPA2 decryption */
         next_tvb = try_decrypt(tvb, pinfo, hdr_len, reported_len, TRUE,
                                &algorithm, &sec_header, &sec_trailer, &used_key);
@@ -24376,7 +24376,7 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
 
     if (next_tvb) {
       /* Already decrypted when searching for keys above. No need to decrypt again */
-    } else {
+    } else if (len == reported_len) {
       next_tvb = try_decrypt(tvb, pinfo, hdr_len, reported_len, FALSE,
                              &algorithm, &sec_header, &sec_trailer, &used_key);
     }
