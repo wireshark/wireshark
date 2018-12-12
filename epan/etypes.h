@@ -47,6 +47,7 @@ extern "C" {
  * Public Assignments" link on the page at
  *
  *	http://standards.ieee.org/regauth/ethertype/index.shtml
+ *      http://standards-oui.ieee.org/ethertype/eth.txt
  *
  * goes to, but it is redirected to the second of those - i.e., both
  * of the IEEE URLs ultimately go to the same page.)
@@ -567,6 +568,10 @@ extern "C" {
 
 #ifndef ETHERTYPE_ECP
 #define ETHERTYPE_ECP			0x8940	/* Edge Control Protocol */
+#endif
+
+#ifndef ETHERTYPE_GEONETWORKING
+#define ETHERTYPE_GEONETWORKING		0x8947	/* GeoNetworking as defined in ETSI EN 302 636-4-1. */
 #endif
 
 #ifndef ETHERTYPE_NSH
