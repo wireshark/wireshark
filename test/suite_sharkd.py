@@ -228,8 +228,6 @@ class case_sharkd(subprocesstest.SubprocessTestCase):
                             }
                         ],
                     },
-                    # XXX remove the last null element, it is not part of the interface.
-                    None
                 ]
             },
         ))
@@ -323,8 +321,7 @@ class case_sharkd(subprocesstest.SubprocessTestCase):
             {"req": "frame", "frame": 2},
         ), (
             {"err": 0},
-            # XXX remove the first 0 element, it is not part of the interface.
-            {"err": 0, "fol": [0, ["UDP", "udp.stream eq 1"]]},
+            {"err": 0, "fol": [["UDP", "udp.stream eq 1"]]},
         ))
 
     def test_sharkd_req_frame_proto(self, check_sharkd_session, capture_file):
