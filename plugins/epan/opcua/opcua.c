@@ -190,6 +190,14 @@ static int dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     else
     {
         msgtype = MSG_INVALID;
+
+        /* Clear out stuff in the info column */
+        col_set_str(pinfo->cinfo, COL_INFO, g_szMessageTypes[msgtype]);
+
+        /* add empty item to make filtering by 'opcua' work */
+        proto_tree_add_item(tree, proto_opcua, tvb, 0, -1, ENC_NA);
+
+        return tvb_reported_length(tvb);
     }
 
     /* Clear out stuff in the info column */
