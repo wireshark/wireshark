@@ -67,12 +67,13 @@ protected:
 private:
 
     void resetInterfaceTreeDisplay();
+    bool haveCapturePermissions() const;
 
     Ui::InterfaceFrame *ui;
 
-    InterfaceSortFilterModel proxyModel;
-    InterfaceTreeModel sourceModel;
-    InfoProxyModel infoModel;
+    InterfaceSortFilterModel proxy_model_;
+    InterfaceTreeModel source_model_;
+    InfoProxyModel info_model_;
 
     QMap<int, QString> ifTypeDescription;
 

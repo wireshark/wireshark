@@ -34,54 +34,19 @@
 # to be commited to the repository when this is done.
 #
 
-# Defaults
-set_ds_store=false
-ds_store_root="root.ds_store"
-app_bundle="Wireshark.app"
-rw_name="RWwireshark.dmg"
-volume_name="Wireshark"
-src_dir="."
-tmp_dir="/tmp/dmg-$$"
-auto_open_opt=
-packagemaker=$( type -p packagemaker || type -p PackageMaker )
-
-if [ -z "$packagemaker" ] ; then
-	if [ -f /Applications/Xcode.app/Contents/Applications/PackageMaker.app/Contents/MacOS/PackageMaker ]
-	then
-		#
-		# Xcode 4 and later, with the "Auxiliary Tools for Xcode"
-		# download from developer.apple.com.  (There are no such
-		# downloads for Mavericks or later, but PackageMaker from
-		# the Late July 2012 download for Mountain Lion appears to
-		# work on Yosemite.)
-		#
-		packagemaker=/Applications/Xcode.app//Contents/Applications/PackageMaker.app/Contents/MacOS/PackageMaker
-	elif [ -f /Applications/Xcode.app/Developer/Tools/packagemaker ]
-	then
-		packagemaker=/Applications/Xcode.app/Developer/Tools/packagemaker
-	elif [ -f /Applications/Xcode.app/Developer/usr/bin/packagemaker ]
-	then
-		packagemaker=/Applications/Xcode.app/Developer/usr/bin/packagemaker
-	elif [ -f /Developer/Tools/packagemaker ]
-	then
-		packagemaker=/Developer/Tools/packagemaker
-	elif [ -f /Developer/usr/bin/packagemaker ]
-	then
-		packagemaker=/Developer/usr/bin/packagemaker
-	elif [ -f /usr/bin/packagemaker ]
-	then
-		packagemaker=/usr/bin/packagemaker
-	elif [ -f /usr/local/bin/packagemaker ]
-	then
-		packagemaker=/usr/local/bin/packagemaker
-	fi
-fi
-
-if [ -z "$packagemaker" ]
-then
-	echo "$0: couldn't find PackageMaker" 1>&2
+# Set during configuration
+version="@VERSION@"
+if [ -z "$version" ] ; then
+	echo "VERSION not set"
 	exit 1
 fi
+
+# Defaults
+app_bundle="Wireshark.app"
+rw_name="RWwireshark $version.dmg"
+volume_name="Wireshark $version"
+src_dir="."
+tmp_dir="/tmp/dmg-$$"
 
 # Help message
 #----------------------------------------------------------
@@ -96,14 +61,15 @@ USAGE
 OPTIONS
 	-h,--help
 		Display this help message.
-	-s
-		Set a new apperance (do not actually create a bundle).
 	-b,--app-bundle
 		Set the path to the Wireshark.app that should be copied
 		in the dmg.
 	-S,--source-directory
 		If this is an out-of-tree build, set this to the path
 		to the packaging/macosx source directory.
+
+Icons are positioned and the background image is set in
+arrange_dmg.applescript.
 "
 }
 
@@ -114,8 +80,6 @@ do
 	  	-h|--help)
 			help
 			exit 0 ;;
-	  	-s)
-			set_ds_store=true ;;
 	  	-b|--app-bundle)
 			app_bundle="$2"
 			shift 1 ;;
@@ -128,7 +92,6 @@ do
 	esac
 	shift 1
 done
-
 
 # Safety checks
 if [ ! -e "$app_bundle" ]; then
@@ -151,46 +114,7 @@ case $( file "$ws_bin" ) in
 		exit 1
 		;;
 esac
-
-# Set the version
-version="@VERSION@"
-if [ -z "$version" ] ; then
-	echo "VERSION not set"
-	exit 1
-fi
-
-echo -e "\\nCREATE WIRESHARK PACKAGE\\n"
-pkg_title="$volume_name $version $architecture"
-pkg_file="$pkg_title.pkg"
-rm -rf "$pkg_file"
-$packagemaker --doc "Wireshark_package.pmdoc" \
-    --title "$pkg_title" \
-    --id "org.wireshark.pkg.Wireshark" \
-    --version "$version" \
-    --target @MIN_MACOS_VERSION@ \
-    --verbose || exit 1
-
-if [ -n "$CODE_SIGN_IDENTITY" ] ; then
-	pkg_file_unsigned="$pkg_title UNSIGNED.pkg"
-
-	echo -e "Signing $pkg_file"
-	mv "$pkg_file" "$pkg_file_unsigned" || exit 1
-	productsign \
-		--sign "Developer ID Installer: $CODE_SIGN_IDENTITY" \
-		--timestamp \
-		"$pkg_file_unsigned" "$pkg_file" || exit 1
-	# TN2206, "Checking Gatekeeper Conformance"
-	spctl --assess --type install "$pkg_file" || exit 1
-	pkgutil --check-signature "$pkg_file" || exit 1
-	shasum "$pkg_file"
-	shasum -a 256 "$pkg_file"
-	rm -rf "$pkg_file_unsigned"
-else
-	echo "Code signing not performed (no identity)"
-fi
-
-# To do: Notarize our package.
-# https://developer.apple.com/documentation/security/notarizing_your_app_before_distribution/customizing_the_notarization_workflow?language=objc
+pkg_title="$volume_name $architecture"
 
 echo -e "\\nCREATE WIRESHARK DISK IMAGE\\n"
 img_name="$pkg_title.dmg"
@@ -200,20 +124,19 @@ rm -rf "$tmp_dir"
 mkdir "$tmp_dir" || exit 1
 
 echo -e "Copying files to temp directory"
-# Copy the installer package
-cp "$pkg_file" "$tmp_dir"/ || exit 1
-# Copy the readme
-cp "../packaging/macosx/Read_me_first.rtf" "$tmp_dir/Read me first.rtf" || exit 1
+# Copy the application bundle
+cp -r "$app_bundle" "$tmp_dir"/ || exit 1
+ln -sn "/Applications" "$tmp_dir"/
 
-# If the appearance settings are not to be modified we just copy them
-if [ ${set_ds_store} = "false" ]; then
-	# Copy the .DS_Store file which contains information about
-	# window size, appearance, etc.  Most of this can be set
-	# with Apple script but involves user intervention so we
-	# just keep a copy of the correct settings and use that instead.
-	cp "$src_dir/$ds_store_root" "$tmp_dir/.DS_Store" || exit 1
-	auto_open_opt=-noautoopen
-fi
+# Copy the readme
+cp "../packaging/macosx/Read_me_first.html" "$tmp_dir/Read me first.html" || exit 1
+
+# Copy the background image
+mkdir "$tmp_dir/.assets" || exit 1
+cp "$src_dir/dmg_background.png" "$tmp_dir/.assets/" || exit 1
+
+# Create top-level package symlinks
+ln -sn "$app_bundle/Contents/Resources/Extras/"*.pkg "$tmp_dir/"
 
 # Create a new RW image from the temp directory.
 echo -e "Creating a temporary disk image"
@@ -225,46 +148,19 @@ rm -rf "$tmp_dir"
 
 # Mount the created image.
 #MOUNT_DIR="/Volumes/$volume_name"
-DEV_NAME=$( /usr/bin/hdiutil attach -readwrite -noverify $auto_open_opt "$rw_name" | grep -E '^/dev/' | sed 1q | awk '{print $1}' )
+DEV_NAME=$( /usr/bin/hdiutil attach -readwrite -noverify -noautoopen "$rw_name" | grep -E '^/dev/' | sed 1q | awk '{print $1}' )
+
+# Set icon positions and background image
+# Work around 'Finder got an error: Can’t get disk "Wireshark 3.1.1". (-1728)'
+sleep 5
+osascript ../packaging/macosx/arrange_dmg.applescript || exit 1
 
 # Have the disk image window open automatically when mounted.
-bless -openfolder /Volumes/$volume_name
+bless -openfolder "/Volumes/$volume_name"
 
 # `hdiutil detach` sometimes fails with "Resource busy", possibly due to Spotlight.
 # Give it a chance to finish up here and pass `-force` to hdiutil below.
 sleep 5
-
-# In case the apperance has to be modified, mount the image and apply the base settings to it via Applescript
-if [ ${set_ds_store} = "true" ]; then
-	/usr/bin/osascript dmg_set_style.scpt
-
-	open "/Volumes/$volume_name"
-	# BUG: one needs to move and close the window manually for the
-	# changes in appearance to be retained...
-        echo "
-        **************************************
-        *  Please move the disk image window *
-        *    to the center of the screen     *
-        *   then close it and press enter    *
-        **************************************
-        "
-	read -r -e _
-
-	# .DS_Store files aren't written till the disk is unmounted, or finder is restarted.
-	hdiutil detach "$DEV_NAME" -force
-	auto_open_opt=-noautoopen
-	DEV_NAME=$( /usr/bin/hdiutil attach -readwrite -noverify $auto_open_opt  "$rw_name" | grep -E '^/dev/' | sed 1q | awk '{print $1}' )
-	echo
-	cp /Volumes/$volume_name/.DS_Store ./$ds_store_root
-	SetFile -a v ./$ds_store_root
-	echo "New $ds_store_root written. Re-run $0 without the -s option to use them"
-
-	# Unmount the disk image.
-	hdiutil detach "$DEV_NAME" -force
-	rm -f "$rw_name"
-
-	exit 0
-fi
 
 # Unmount the disk image.
 hdiutil detach "$DEV_NAME"

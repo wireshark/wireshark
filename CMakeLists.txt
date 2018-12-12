@@ -1495,10 +1495,9 @@ set(CFG_OUT_FILES
 	image/wiretap.rc
 	image/wireshark.exe.manifest
 	packaging/macosx/Info.plist
+	packaging/macosx/arrange_dmg.applescript
 	packaging/macosx/osx-app.sh
 	packaging/macosx/osx-dmg.sh
-	packaging/macosx/Read_me_first.rtf
-	packaging/macosx/Wireshark_package.pmdoc/index.xml
 	packaging/source/git-export-release.sh
 	wireshark.pc
 )
@@ -2711,6 +2710,109 @@ if (MAXMINDDB_FOUND)
 endif()
 
 if(ENABLE_APPLICATION_BUNDLE)
+	set (install_chmodbpf_component_pkg "${CMAKE_BINARY_DIR}/install.ChmodBPF.pkg")
+	add_custom_command(OUTPUT "${install_chmodbpf_component_pkg}"
+		COMMAND pkgbuild
+			--identifier org.wireshark.ChmodBPF.pkg
+			--version 1.1
+			--root "${CMAKE_SOURCE_DIR}/packaging/macosx/ChmodBPF/root"
+			--scripts "${CMAKE_SOURCE_DIR}/packaging/macosx/ChmodBPF/install-scripts"
+			${install_chmodbpf_component_pkg}
+		DEPENDS
+			"${CMAKE_SOURCE_DIR}/packaging/macosx/ChmodBPF/root/Library/Application Support/Wireshark/ChmodBPF/ChmodBPF"
+			"${CMAKE_SOURCE_DIR}/packaging/macosx/ChmodBPF/root/Library/LaunchDaemons/org.wireshark.ChmodBPF.plist"
+			"${CMAKE_SOURCE_DIR}/packaging/macosx/ChmodBPF/install-scripts/postinstall"
+	)
+	set (install_chmodbpf_pkg "${CMAKE_BINARY_DIR}/run/Wireshark.app/Contents/Resources/Extras/Install ChmodBPF.pkg")
+	add_custom_command(OUTPUT "${install_chmodbpf_pkg}"
+		COMMAND productbuild
+			--identifier org.wireshark.install.ChmodBPF.product
+			--version 1.1
+			--distribution "${CMAKE_SOURCE_DIR}/packaging/macosx/ChmodBPF/install-distribution.xml"
+			--package-path "${CMAKE_BINARY_DIR}"
+			${install_chmodbpf_pkg}
+		DEPENDS
+			"${CMAKE_SOURCE_DIR}/packaging/macosx/ChmodBPF/install-distribution.xml"
+			${install_chmodbpf_component_pkg}
+	)
+
+	set (uninstall_chmodbpf_component_pkg "${CMAKE_BINARY_DIR}/uninstall.ChmodBPF.pkg")
+	add_custom_command(OUTPUT "${uninstall_chmodbpf_component_pkg}"
+		COMMAND pkgbuild
+			--identifier org.wireshark.uninstall.ChmodBPF.pkg
+			--version 1.1
+			--nopayload
+			--scripts "${CMAKE_SOURCE_DIR}/packaging/macosx/ChmodBPF/uninstall-scripts"
+			${uninstall_chmodbpf_component_pkg}
+		DEPENDS
+			"${CMAKE_SOURCE_DIR}/packaging/macosx/ChmodBPF/uninstall-scripts/postinstall"
+	)
+	set (uninstall_chmodbpf_pkg "${CMAKE_BINARY_DIR}/run/Wireshark.app/Contents/Resources/Extras/Uninstall ChmodBPF.pkg")
+	add_custom_command(OUTPUT "${uninstall_chmodbpf_pkg}"
+		COMMAND productbuild
+			--identifier org.wireshark.uninstall.ChmodBPF.product
+			--version 1.1
+			--distribution "${CMAKE_SOURCE_DIR}/packaging/macosx/ChmodBPF/uninstall-distribution.xml"
+			--package-path "${CMAKE_BINARY_DIR}"
+			${uninstall_chmodbpf_pkg}
+		DEPENDS
+			"${CMAKE_SOURCE_DIR}/packaging/macosx/ChmodBPF/uninstall-distribution.xml"
+			${uninstall_chmodbpf_component_pkg}
+	)
+
+	add_custom_target(chmodbpf DEPENDS ${install_chmodbpf_pkg} ${uninstall_chmodbpf_pkg})
+
+	set (install_path_helper_component_pkg "${CMAKE_BINARY_DIR}/install.path_helper.pkg")
+	add_custom_command(OUTPUT "${install_path_helper_component_pkg}"
+		COMMAND pkgbuild
+			--identifier org.wireshark.path_helper.pkg
+			--version 1.0
+			--root "${CMAKE_SOURCE_DIR}/packaging/macosx/path_helper/root/etc"
+			--install-location /private/etc
+			${install_path_helper_component_pkg}
+		DEPENDS
+			"${CMAKE_SOURCE_DIR}/packaging/macosx/path_helper/root/etc/paths.d/Wireshark"
+			"${CMAKE_SOURCE_DIR}/packaging/macosx/path_helper/root/etc/manpaths.d/Wireshark"
+	)
+	set (install_path_helper_pkg "${CMAKE_BINARY_DIR}/run/Wireshark.app/Contents/Resources/Extras/Add Wireshark to the system path.pkg")
+	add_custom_command(OUTPUT "${install_path_helper_pkg}"
+		COMMAND productbuild
+			--identifier org.wireshark.install.path_helper.product
+			--version 1.0
+			--distribution "${CMAKE_SOURCE_DIR}/packaging/macosx/path_helper/install-distribution.xml"
+			--package-path "${CMAKE_BINARY_DIR}"
+			${install_path_helper_pkg}
+		DEPENDS
+			"${CMAKE_SOURCE_DIR}/packaging/macosx/path_helper/install-distribution.xml"
+			${install_path_helper_component_pkg}
+	)
+
+	set (uninstall_path_helper_component_pkg "${CMAKE_BINARY_DIR}/uninstall.path_helper.pkg")
+	add_custom_command(OUTPUT "${uninstall_path_helper_component_pkg}"
+		COMMAND pkgbuild
+			--identifier org.wireshark.uninstall.path_helper.pkg
+			--version 1.0
+			--nopayload
+			--scripts "${CMAKE_SOURCE_DIR}/packaging/macosx/path_helper/uninstall-scripts"
+			${uninstall_path_helper_component_pkg}
+		DEPENDS
+			"${CMAKE_SOURCE_DIR}/packaging/macosx/path_helper/uninstall-scripts/postinstall"
+	)
+	set (uninstall_path_helper_pkg "${CMAKE_BINARY_DIR}/run/Wireshark.app/Contents/Resources/Extras/Remove Wireshark from the system path.pkg")
+	add_custom_command(OUTPUT "${uninstall_path_helper_pkg}"
+		COMMAND productbuild
+			--identifier org.wireshark.uninstall.path_helper.product
+			--version 1.0
+			--distribution "${CMAKE_SOURCE_DIR}/packaging/macosx/path_helper/uninstall-distribution.xml"
+			--package-path "${CMAKE_BINARY_DIR}"
+			${uninstall_path_helper_pkg}
+		DEPENDS
+			${CMAKE_SOURCE_DIR}/packaging/macosx/path_helper/uninstall-distribution.xml
+			${uninstall_path_helper_component_pkg}
+	)
+
+	add_custom_target(path_helper DEPENDS ${install_path_helper_pkg} ${uninstall_path_helper_pkg})
+
 	add_custom_target(app_bundle)
 	set_target_properties(app_bundle PROPERTIES FOLDER "Copy Tasks")
 	add_custom_command(TARGET app_bundle
@@ -2718,37 +2820,31 @@ if(ENABLE_APPLICATION_BUNDLE)
 		COMMAND "${CMAKE_BINARY_DIR}/packaging/macosx/osx-app.sh"
 		WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/run"
 	)
-	add_dependencies(app_bundle ${PROGLIST})
+	add_dependencies(app_bundle ${PROGLIST} chmodbpf path_helper)
 
 	add_custom_target(dmg_package_prep DEPENDS app_bundle)
 
-	ADD_CUSTOM_COMMAND(
-		OUTPUT ${CMAKE_BINARY_DIR}/packaging/macosx/PkgInfo
-		COMMAND ${CMAKE_COMMAND} -E echo APPLWshk > ${CMAKE_BINARY_DIR}/packaging/macosx/PkgInfo
-	)
+	if( ASCIIDOCTOR_FOUND )
+		ADD_CUSTOM_COMMAND(
+		OUTPUT
+			packaging/macosx/Read_me_first.html
+		COMMAND ${ASCIIDOCTOR_EXECUTABLE}
+			--backend html
+			--out-file packaging/macosx/Read_me_first.html
+			--attribute include-dir=${CMAKE_SOURCE_DIR}/docbook
+			--attribute min-macos-version=${MIN_MACOS_VERSION}
+			${CMAKE_CURRENT_SOURCE_DIR}/packaging/macosx/Read_me_first.adoc
+		DEPENDS
+			${CMAKE_CURRENT_SOURCE_DIR}/packaging/macosx/Read_me_first.adoc
+		)
+		add_custom_target(read_me_first_html DEPENDS packaging/macosx/Read_me_first.html )
+		add_dependencies(dmg_package_prep read_me_first_html)
+	endif()
 
 	ADD_CUSTOM_TARGET( dmg_package
-		COMMAND ${CMAKE_COMMAND} -E copy_directory
-					${CMAKE_SOURCE_DIR}/packaging/macosx/ChmodBPF
-					${CMAKE_BINARY_DIR}/run/ChmodBPF
-		COMMAND ${CMAKE_COMMAND} -E copy_directory
-					${CMAKE_SOURCE_DIR}/packaging/macosx/Scripts
-					${CMAKE_BINARY_DIR}/run/Scripts
-		COMMAND ${CMAKE_COMMAND} -E copy_directory
-					${CMAKE_SOURCE_DIR}/packaging/macosx/utility-launcher
-					${CMAKE_BINARY_DIR}/run/utility-launcher
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different
 					${CMAKE_SOURCE_DIR}/COPYING
 					${CMAKE_BINARY_DIR}/run/COPYING.txt
-		COMMAND ${CMAKE_COMMAND} -E copy_directory
-					${CMAKE_SOURCE_DIR}/packaging/macosx/Wireshark_package.pmdoc
-					${CMAKE_BINARY_DIR}/run/Wireshark_package.pmdoc
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different
-					${CMAKE_BINARY_DIR}/packaging/macosx/Wireshark_package.pmdoc/index.xml
-					${CMAKE_BINARY_DIR}/run/Wireshark_package.pmdoc/index.xml
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different
-					${CMAKE_SOURCE_DIR}/packaging/macosx/dmg_background.png
-					${CMAKE_BINARY_DIR}/run/dmg_background.png
 		COMMAND bash -x ${CMAKE_BINARY_DIR}/packaging/macosx/osx-dmg.sh
 			--source-directory ${CMAKE_SOURCE_DIR}/packaging/macosx
 		# Unlike nsis_package_prep + nsis_package, we can add a direct

@@ -263,6 +263,13 @@ FolderListModel::FolderListModel(QObject * parent):
     foreach(QString path, smiPaths)
         appendRow( QStringList() << tr("MIB/PIB path") << path.trimmed() << tr("SMI MIB/PIB search path"));
 #endif
+
+#ifdef Q_OS_MAC
+    /* Mac Extras */
+    QString extras_path = wsApp->applicationDirPath() + "/../Resources/Extras";
+    appendRow( QStringList() << tr("macOS Extras") << QDir::cleanPath(extras_path) << tr("Extra macOS packages"));
+
+#endif
 }
 
 QStringList FolderListModel::headerColumns() const

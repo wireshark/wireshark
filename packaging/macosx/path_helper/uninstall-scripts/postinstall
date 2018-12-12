@@ -1,0 +1,8 @@
+#!/bin/sh
+
+#
+# Remove the Wireshark paths.d and manpaths.d entries.
+#
+
+rm -f /private/etc/paths.d/Wireshark
+rm -f /private/etc/manpaths.d/Wireshark

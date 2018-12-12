@@ -13,6 +13,7 @@ used for troubleshooting, analysis, development and education.
 
 == What’s New
 
+* On macOS, Wireshark can now be installed by dropping it onto the Applications folder.
 * The macOS installer now ships with Qt 5.12.5. It previously
   shipped with Qt 5.12.3.
 
