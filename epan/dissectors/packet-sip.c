@@ -4097,6 +4097,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                     case POS_CALL_ID :
                     {
                         char *value = tvb_get_string_enc(wmem_packet_scope(), tvb, value_offset, value_len, ENC_UTF_8|ENC_NA);
+                        proto_item *gen_item;
 
                         /* Store the Call-id */
                         g_strlcpy(call_id, value, MAX_CALL_ID_SIZE);
@@ -4107,6 +4108,11 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                                                     hf_header_array[hf_index], tvb,
                                                     offset, next_offset - offset,
                                                     value);
+                        gen_item = proto_tree_add_string(hdr_tree,
+                                                    hf_sip_call_id_gen, tvb,
+                                                    offset, next_offset - offset,
+                                                    value);
+                        PROTO_ITEM_SET_GENERATED(gen_item);
                         sip_proto_set_format_text(hdr_tree, sip_element_item, tvb, offset, linelen);
                     }
                     break;
