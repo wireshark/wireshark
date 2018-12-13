@@ -30,7 +30,6 @@
 
 #include <wsutil/clopts_common.h>
 #include <wsutil/cmdarg_err.h>
-#include <wsutil/crash_info.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/privileges.h>
 #ifdef HAVE_PLUGINS
@@ -380,8 +379,6 @@ int main(int argc, char *qt_argv[])
 #endif
 #endif
     gchar               *err_msg = NULL;
-    GString             *comp_info_str = NULL;
-    GString             *runtime_info_str = NULL;
 
     QString              dfilter, read_filter;
 #ifdef HAVE_LIBPCAP
@@ -496,11 +493,8 @@ int main(int argc, char *qt_argv[])
 #endif /* _WIN32 */
 
     /* Get the compile-time version information string */
-    comp_info_str = get_compiled_version_info(get_wireshark_qt_compiled_info,
-                                              get_gui_compiled_info);
-
-    /* Assemble the run-time version information string */
-    runtime_info_str = get_runtime_version_info(get_wireshark_runtime_info);
+    ws_init_version_info("Wireshark", get_wireshark_qt_compiled_info,
+                         get_gui_compiled_info, get_wireshark_runtime_info);
 
     /* Create the user profiles directory */
     if (create_profiles_dir(&rf_path) == -1) {
@@ -522,7 +516,7 @@ int main(int argc, char *qt_argv[])
         g_free(rf_path);
     }
 
-    commandline_early_options(argc, argv, comp_info_str, runtime_info_str);
+    commandline_early_options(argc, argv);
 
 #ifdef _WIN32
     reset_library_path();
@@ -553,16 +547,6 @@ int main(int argc, char *qt_argv[])
 
     QString cf_name;
     unsigned int in_file_type = WTAP_TYPE_AUTO;
-
-    /* Add it to the information to be reported on a crash. */
-    ws_add_crash_info("Wireshark %s\n"
-           "\n"
-           "%s"
-           "\n"
-           "%s",
-        get_ws_vcs_version_info(), comp_info_str->str, runtime_info_str->str);
-    g_string_free(comp_info_str, TRUE);
-    g_string_free(runtime_info_str, TRUE);
 
 #ifdef _WIN32
     /* Start windows sockets */

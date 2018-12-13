@@ -47,7 +47,6 @@
 
 #include <wsutil/clopts_common.h>
 #include <wsutil/cmdarg_err.h>
-#include <wsutil/crash_info.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/privileges.h>
@@ -475,7 +474,7 @@ glossary_option_help(void)
 
   output = stdout;
 
-  fprintf(output, "TShark (Wireshark) %s\n", get_ws_vcs_version_info());
+  fprintf(output, "%s\n", get_appname_and_version());
 
   fprintf(output, "\n");
   fprintf(output, "Usage: tshark -G [report]\n");
@@ -673,8 +672,6 @@ must_do_dissection(dfilter_t *rfcode, dfilter_t *dfcode,
 int
 real_main(int argc, char *argv[])
 {
-  GString             *comp_info_str;
-  GString             *runtime_info_str;
   char                *init_progfile_dir_error;
   int                  opt;
   static const struct option long_options[] = {
@@ -799,22 +796,10 @@ real_main(int argc, char *argv[])
 #endif /* HAVE_LIBPCAP */
 #endif /* _WIN32 */
 
-  /* Get the compile-time version information string */
-  comp_info_str = get_compiled_version_info(get_tshark_compiled_version_info,
-                                            epan_get_compiled_version_info);
-
-  /* Get the run-time version information string */
-  runtime_info_str = get_runtime_version_info(get_tshark_runtime_version_info);
-
-  /* Add it to the information to be reported on a crash. */
-  ws_add_crash_info("TShark (Wireshark) %s\n"
-         "\n"
-         "%s"
-         "\n"
-         "%s",
-      get_ws_vcs_version_info(), comp_info_str->str, runtime_info_str->str);
-  g_string_free(comp_info_str, TRUE);
-  g_string_free(runtime_info_str, TRUE);
+  /* Initialize the version information. */
+  ws_init_version_info("TShark (Wireshark)", get_tshark_compiled_version_info,
+                       epan_get_compiled_version_info,
+                       get_tshark_runtime_version_info);
 
   /* Fail sometimes. Useful for testing fuzz scripts. */
   /* if (g_random_int_range(0, 100) < 5) abort(); */
@@ -1188,10 +1173,7 @@ real_main(int argc, char *argv[])
       break;
 
     case 'h':        /* Print help and exit */
-      printf("TShark (Wireshark) %s\n"
-             "Dump and analyze network traffic.\n"
-             "See https://www.wireshark.org for more information.\n",
-             get_ws_vcs_version_info());
+      show_help_header("Dump and analyze network traffic.");
       print_usage(stdout);
       exit_status = EXIT_SUCCESS;
       goto clean_exit;
@@ -1370,12 +1352,7 @@ real_main(int argc, char *argv[])
         break;
     }
     case 'v':         /* Show version and exit */
-      comp_info_str = get_compiled_version_info(get_tshark_compiled_version_info,
-                                                epan_get_compiled_version_info);
-      runtime_info_str = get_runtime_version_info(get_tshark_runtime_version_info);
-      show_version("TShark (Wireshark)", comp_info_str, runtime_info_str);
-      g_string_free(comp_info_str, TRUE);
-      g_string_free(runtime_info_str, TRUE);
+      show_version();
       /* We don't really have to cleanup here, but it's a convenient way to test
        * start-up and shut-down of the epan library without any UI-specific
        * cruft getting in the way. Makes the results of running
@@ -3089,7 +3066,7 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
     /* If we don't have an application name add Tshark */
     if (wtap_block_get_string_option_value(g_array_index(params.shb_hdrs, wtap_block_t, 0), OPT_SHB_USERAPPL, &shb_user_appl) != WTAP_OPTTYPE_SUCCESS) {
         /* this is free'd by wtap_block_free() later */
-        wtap_block_add_string_option_format(g_array_index(params.shb_hdrs, wtap_block_t, 0), OPT_SHB_USERAPPL, "TShark (Wireshark) %s", get_ws_vcs_version_info());
+        wtap_block_add_string_option_format(g_array_index(params.shb_hdrs, wtap_block_t, 0), OPT_SHB_USERAPPL, "%s", get_appname_and_version());
     }
 
     tshark_debug("tshark: writing format type %d, to %s", out_file_type, save_file);

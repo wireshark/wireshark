@@ -32,7 +32,6 @@
 
 #include <wsutil/clopts_common.h>
 #include <wsutil/cmdarg_err.h>
-#include <wsutil/crash_info.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/privileges.h>
@@ -230,9 +229,6 @@ merge_callback(merge_event event, int num,
 int
 real_main(int argc, char *argv[])
 {
-  GString            *comp_info_str;
-  GString            *runtime_info_str;
-  char               *appname;
   char               *init_progfile_dir_error;
   int                 opt;
   static const struct option long_options[] = {
@@ -264,24 +260,8 @@ real_main(int argc, char *argv[])
   create_app_running_mutex();
 #endif /* _WIN32 */
 
-  /* Get the compile-time version information string */
-  comp_info_str = get_compiled_version_info(NULL, NULL);
-
-  /* Get the run-time version information string */
-  runtime_info_str = get_runtime_version_info(NULL);
-
-  /* Get the application name with version info */
-  appname = g_strdup_printf("mergecap (Wireshark) %s", get_ws_vcs_version_info());
-
-  /* Add it to the information to be reported on a crash. */
-  ws_add_crash_info("%s\n"
-       "\n"
-       "%s"
-       "\n"
-       "%s",
-    appname, comp_info_str->str, runtime_info_str->str);
-  g_string_free(comp_info_str, TRUE);
-  g_string_free(runtime_info_str, TRUE);
+  /* Initialize the version information. */
+  ws_init_version_info("Mergecap (Wireshark)", NULL, NULL, NULL);
 
   /*
    * Get credential information for later use.
@@ -325,10 +305,7 @@ real_main(int argc, char *argv[])
       break;
 
     case 'h':
-      printf("Mergecap (Wireshark) %s\n"
-             "Merge two or more capture files into one.\n"
-             "See https://www.wireshark.org for more information.\n",
-             get_ws_vcs_version_info());
+      show_help_header("Merge two or more capture files into one.");
       print_usage(stdout);
       goto clean_exit;
       break;
@@ -353,11 +330,7 @@ real_main(int argc, char *argv[])
       break;
 
     case 'V':
-      comp_info_str = get_compiled_version_info(NULL, NULL);
-      runtime_info_str = get_runtime_version_info(NULL);
-      show_version("Mergecap (Wireshark)", comp_info_str, runtime_info_str);
-      g_string_free(comp_info_str, TRUE);
-      g_string_free(runtime_info_str, TRUE);
+      show_version();
       goto clean_exit;
       break;
 
@@ -418,13 +391,15 @@ real_main(int argc, char *argv[])
     status = merge_files_to_stdout(file_type,
                                    (const char *const *) &argv[optind],
                                    in_file_count, do_append, mode, snaplen,
-                                   appname, verbose ? &cb : NULL,
+                                   get_appname_and_version(),
+                                   verbose ? &cb : NULL,
                                    &err, &err_info, &err_fileno, &err_framenum);
   } else {
     /* merge the files to the outfile */
     status = merge_files(out_filename, file_type,
                          (const char *const *) &argv[optind], in_file_count,
-                         do_append, mode, snaplen, appname, verbose ? &cb : NULL,
+                         do_append, mode, snaplen, get_appname_and_version(),
+                         verbose ? &cb : NULL,
                          &err, &err_info, &err_fileno, &err_framenum);
   }
 

@@ -21,7 +21,6 @@
 #include <epan/epan.h>
 
 #include <wsutil/cmdarg_err.h>
-#include <wsutil/crash_info.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/privileges.h>
 #include <wsutil/report_message.h>
@@ -180,8 +179,6 @@ fuzz_prefs_apply(void)
 static int
 fuzz_init(int argc _U_, char **argv)
 {
-	GString             *comp_info_str;
-	GString             *runtime_info_str;
 	char                *init_progfile_dir_error;
 
 	char                *err_msg = NULL;
@@ -238,23 +235,9 @@ fuzz_init(int argc _U_, char **argv)
 	if (init_progfile_dir_error != NULL)
 		fprintf(stderr, "fuzzshark: Can't get pathname of oss-fuzzshark program: %s.\n", init_progfile_dir_error);
 
-	/* Get the compile-time version information string */
-	comp_info_str = get_compiled_version_info(NULL, epan_get_compiled_version_info);
-
-	/* Get the run-time version information string */
-	runtime_info_str = get_runtime_version_info(epan_get_runtime_version_info);
-
-	/* Add it to the information to be reported on a crash. */
-	ws_add_crash_info("OSS Fuzzshark (Wireshark) %s\n"
-	     "\n"
-	     "%s"
-	     "\n"
-	     "%s",
-	     get_ws_vcs_version_info(),
-	     comp_info_str->str,
-	     runtime_info_str->str);
-	g_string_free(comp_info_str, TRUE);
-	g_string_free(runtime_info_str, TRUE);
+	/* Initialize the version information. */
+	ws_init_version_info("OSS Fuzzshark (Wireshark)", NULL,
+	    epan_get_compiled_version_info, epan_get_runtime_version_info);
 
 	init_report_message(failure_warning_message, failure_warning_message,
 	     open_failure_message, read_failure_message, write_failure_message);

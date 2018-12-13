@@ -26,7 +26,6 @@
 #endif
 
 #include <wsutil/cmdarg_err.h>
-#include <wsutil/crash_info.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/privileges.h>
@@ -164,8 +163,6 @@ failure_message_cont(const char *msg_format, va_list ap)
 int
 real_main(int argc, char *argv[])
 {
-    GString *comp_info_str;
-    GString *runtime_info_str;
     char *init_progfile_dir_error;
     wtap *wth = NULL;
     wtap_dumper *pdh = NULL;
@@ -196,21 +193,8 @@ real_main(int argc, char *argv[])
 
     cmdarg_err_init(failure_warning_message, failure_message_cont);
 
-    /* Get the compile-time version information string */
-    comp_info_str = get_compiled_version_info(NULL, NULL);
-
-    /* Get the run-time version information string */
-    runtime_info_str = get_runtime_version_info(NULL);
-
-    /* Add it to the information to be reported on a crash. */
-    ws_add_crash_info("Reordercap (Wireshark) %s\n"
-         "\n"
-         "%s"
-         "\n"
-         "%s",
-      get_ws_vcs_version_info(), comp_info_str->str, runtime_info_str->str);
-    g_string_free(comp_info_str, TRUE);
-    g_string_free(runtime_info_str, TRUE);
+    /* Initialize the version information. */
+    ws_init_version_info("Reordercap (Wireshark)", NULL, NULL, NULL);
 
     /*
      * Get credential information for later use.
@@ -241,18 +225,11 @@ real_main(int argc, char *argv[])
                 write_output_regardless = FALSE;
                 break;
             case 'h':
-                printf("Reordercap (Wireshark) %s\n"
-                       "Reorder timestamps of input file frames into output file.\n"
-                       "See https://www.wireshark.org for more information.\n",
-                       get_ws_vcs_version_info());
+                show_help_header("Reorder timestamps of input file frames into output file.");
                 print_usage(stdout);
                 goto clean_exit;
             case 'v':
-                comp_info_str = get_compiled_version_info(NULL, NULL);
-                runtime_info_str = get_runtime_version_info(NULL);
-                show_version("Reordercap (Wireshark)", comp_info_str, runtime_info_str);
-                g_string_free(comp_info_str, TRUE);
-                g_string_free(runtime_info_str, TRUE);
+                show_version();
                 goto clean_exit;
             case '?':
                 print_usage(stderr);

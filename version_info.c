@@ -37,8 +37,53 @@
 #include <wsutil/cpu_info.h>
 #include <wsutil/copyright_info.h>
 #include <wsutil/os_version_info.h>
+#include <wsutil/crash_info.h>
 #include <wsutil/ws_printf.h> /* ws_debug_printf */
 #include <wsutil/plugins.h>
+
+static char *appname_with_version;
+static char *comp_info;
+static char *runtime_info;
+
+void
+ws_init_version_info(const char *appname,
+    void (*prepend_compile_time_info)(GString *),
+    void (*append_compile_time_info)(GString *),
+    void (*additional_run_time_info)(GString *))
+{
+	GString *comp_info_str, *runtime_info_str;
+
+	/*
+	 * Combine the supplied application name string with the
+	 * version - including the VCS version, for a build from
+	 * a checkout.
+	 */
+	appname_with_version = g_strdup_printf("%s %s",
+	    appname, get_ws_vcs_version_info());
+
+	/* Get the compile-time version information string */
+	comp_info_str = get_compiled_version_info(prepend_compile_time_info,
+	    append_compile_time_info);
+
+	/* Get the run-time version information string */
+	runtime_info_str = get_runtime_version_info(additional_run_time_info);
+
+	comp_info = g_string_free(comp_info_str, FALSE);
+	runtime_info = g_string_free(runtime_info_str, FALSE);
+
+	/* Add this information to the information to be reported on a crash. */
+	ws_add_crash_info("%s\n"
+	    "\n"
+	    "%s\n"
+	    "%s",
+	    appname_with_version, comp_info, runtime_info);
+}
+
+const char *
+get_appname_and_version(void)
+{
+	return appname_with_version;
+}
 
 /*
  * If the string doesn't end with a newline, append one.
@@ -413,21 +458,6 @@ get_runtime_version_info(void (*additional_info)(GString *))
 	return str;
 }
 
-void
-show_version(const gchar *prog_name_str, GString *comp_info_str,
-	     GString *runtime_info_str)
-{
-	ws_debug_printf("%s %s\n"
-	       "\n"
-	       "%s"
-	       "\n"
-	       "%s"
-	       "\n"
-	       "%s",
-	       prog_name_str, get_ws_vcs_version_info(), get_copyright_info(),
-	       comp_info_str->str, runtime_info_str->str);
-}
-
 /*
  * Return a version number string for Wireshark, including, for builds
  * from a tree checked out from Wireshark's version control system,
@@ -452,6 +482,27 @@ get_ws_version_number(int *major, int *minor, int *micro)
 		*minor = VERSION_MINOR;
 	if (micro)
 		*micro = VERSION_MICRO;
+}
+
+void
+show_version(void)
+{
+	ws_debug_printf("%s\n"
+	       "\n"
+	       "%s\n"
+	       "%s\n"
+	       "%s",
+	       appname_with_version, get_copyright_info(),
+	       comp_info, runtime_info);
+}
+
+void
+show_help_header(const char *description)
+{
+	ws_debug_printf("%s\n"
+		"%s\n"
+		"See https://www.wireshark.org for more information.\n",
+		appname_with_version, description);
 }
 
 /*

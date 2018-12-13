@@ -34,7 +34,6 @@
 
 #include <wsutil/clopts_common.h>
 #include <wsutil/cmdarg_err.h>
-#include <wsutil/crash_info.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/privileges.h>
@@ -228,7 +227,7 @@ glossary_option_help(void)
 
   output = stdout;
 
-  fprintf(output, "TFShark (Wireshark) %s\n", get_ws_vcs_version_info());
+  fprintf(output, "%s\n", get_appname_and_version());
 
   fprintf(output, "\n");
   fprintf(output, "Usage: tfshark -G [report]\n");
@@ -303,8 +302,6 @@ get_tfshark_runtime_version_info(GString *str)
 int
 real_main(int argc, char *argv[])
 {
-  GString             *comp_info_str;
-  GString             *runtime_info_str;
   char                *init_progfile_dir_error;
   int                  opt;
   static const struct option long_options[] = {
@@ -383,21 +380,10 @@ real_main(int argc, char *argv[])
 
   initialize_funnel_ops();
 
-  /* Get the compile-time version information string */
-  comp_info_str = get_compiled_version_info(NULL, epan_get_compiled_version_info);
-
-  /* Get the run-time version information string */
-  runtime_info_str = get_runtime_version_info(get_tfshark_runtime_version_info);
-
-  /* Add it to the information to be reported on a crash. */
-  ws_add_crash_info("TFShark (Wireshark) %s\n"
-         "\n"
-         "%s"
-         "\n"
-         "%s",
-      get_ws_vcs_version_info(), comp_info_str->str, runtime_info_str->str);
-  g_string_free(comp_info_str, TRUE);
-  g_string_free(runtime_info_str, TRUE);
+  /* Initialize the version information. */
+  ws_init_version_info("TFShark (Wireshark)", NULL,
+                       epan_get_compiled_version_info,
+                       get_tfshark_runtime_version_info);
 
   /*
    * In order to have the -X opts assigned before the wslua machine starts
@@ -620,10 +606,7 @@ real_main(int argc, char *argv[])
       break;
 
     case 'h':        /* Print help and exit */
-      printf("TFShark (Wireshark) %s\n"
-             "Dump and analyze network traffic.\n"
-             "See https://www.wireshark.org for more information.\n",
-             get_ws_vcs_version_info());
+      show_help_header("Analyze file structure.");
       print_usage(stdout);
       goto clean_exit;
       break;
@@ -736,11 +719,7 @@ real_main(int argc, char *argv[])
       }
       break;
     case 'v':         /* Show version and exit */
-      comp_info_str = get_compiled_version_info(NULL, epan_get_compiled_version_info);
-      runtime_info_str = get_runtime_version_info(get_tfshark_runtime_version_info);
-      show_version("TFShark (Wireshark)", comp_info_str, runtime_info_str);
-      g_string_free(comp_info_str, TRUE);
-      g_string_free(runtime_info_str, TRUE);
+      show_version();
       goto clean_exit;
     case 'O':        /* Only output these protocols */
       /* already processed; just ignore it now */

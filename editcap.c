@@ -62,7 +62,6 @@
 # include "wsutil/strptime.h"
 #endif
 
-#include <wsutil/crash_info.h>
 #include <wsutil/clopts_common.h>
 #include <wsutil/cmdarg_err.h>
 #include <wsutil/filesystem.h>
@@ -985,9 +984,6 @@ editcap_dump_open(const char *filename, const wtap_dump_params *params,
 int
 real_main(int argc, char *argv[])
 {
-    GString      *comp_info_str;
-    GString      *runtime_info_str;
-    char         *appname;
     char         *init_progfile_dir_error;
     wtap         *wth = NULL;
     int           i, j, read_err, write_err;
@@ -1043,24 +1039,8 @@ real_main(int argc, char *argv[])
     create_app_running_mutex();
 #endif /* _WIN32 */
 
-    /* Get the compile-time version information string */
-    comp_info_str = get_compiled_version_info(NULL, NULL);
-
-    /* Get the run-time version information string */
-    runtime_info_str = get_runtime_version_info(NULL);
-
-    /* Get the application name with version info */
-    appname = g_strdup_printf("Editcap (Wireshark) %s", get_ws_vcs_version_info());
-
-    /* Add it to the information to be reported on a crash. */
-    ws_add_crash_info("%s\n"
-         "\n"
-         "%s"
-         "\n"
-         "%s",
-      appname, comp_info_str->str, runtime_info_str->str);
-    g_string_free(comp_info_str, TRUE);
-    g_string_free(runtime_info_str, TRUE);
+    /* Initialize the version information. */
+    ws_init_version_info("Editcap (Wireshark)", NULL, NULL, NULL);
 
     /*
      * Get credential information for later use.
@@ -1282,10 +1262,7 @@ real_main(int argc, char *argv[])
             break;
 
         case 'h':
-            printf("Editcap (Wireshark) %s\n"
-                   "Edit and/or translate the format of capture files.\n"
-                   "See https://www.wireshark.org for more information.\n",
-               get_ws_vcs_version_info());
+            show_help_header("Edit and/or translate the format of capture files.");
             print_usage(stdout);
             goto clean_exit;
             break;
@@ -1345,11 +1322,7 @@ real_main(int argc, char *argv[])
             break;
 
         case 'V':
-            comp_info_str = get_compiled_version_info(NULL, NULL);
-            runtime_info_str = get_runtime_version_info(NULL);
-            show_version("Editcap (Wireshark)", comp_info_str, runtime_info_str);
-            g_string_free(comp_info_str, TRUE);
-            g_string_free(runtime_info_str, TRUE);
+            show_version();
             goto clean_exit;
             break;
 
@@ -1566,7 +1539,7 @@ real_main(int argc, char *argv[])
 
             /* If we don't have an application name add one */
             if (wtap_block_get_string_option_value(g_array_index(params.shb_hdrs, wtap_block_t, 0), OPT_SHB_USERAPPL, &shb_user_appl) != WTAP_OPTTYPE_SUCCESS) {
-                wtap_block_add_string_option_format(g_array_index(params.shb_hdrs, wtap_block_t, 0), OPT_SHB_USERAPPL, "%s", appname);
+                wtap_block_add_string_option_format(g_array_index(params.shb_hdrs, wtap_block_t, 0), OPT_SHB_USERAPPL, "%s", get_appname_and_version());
             }
 
             pdh = editcap_dump_open(filename, &params, &write_err);

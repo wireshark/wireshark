@@ -119,7 +119,7 @@ exp_pdu_open(exp_pdu_t *exp_pdu_tap_data, int fd, char *comment)
      * UTF-8 string containing the name of the application used to create
      * this section.
      */
-    wtap_block_add_string_option_format(shb_hdr, OPT_SHB_USERAPPL, "Wireshark %s", get_ws_vcs_version_info());
+    wtap_block_add_string_option_format(shb_hdr, OPT_SHB_USERAPPL, "%s", get_appname_and_version());
 
     /* Create fake IDB info */
     exp_pdu_tap_data->idb_inf = g_new(wtapng_iface_descriptions_t,1);

@@ -25,7 +25,6 @@
 
 #include <wsutil/clopts_common.h>
 #include <wsutil/cmdarg_err.h>
-#include <wsutil/crash_info.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/privileges.h>
@@ -103,8 +102,6 @@ print_current_user(void) {
 int
 main(int argc, char *argv[])
 {
-  GString             *comp_info_str;
-  GString             *runtime_info_str;
   char                *init_progfile_dir_error;
 
   char                *err_msg = NULL;
@@ -131,21 +128,10 @@ main(int argc, char *argv[])
             init_progfile_dir_error);
   }
 
-  /* Get the compile-time version information string */
-  comp_info_str = get_compiled_version_info(NULL, epan_get_compiled_version_info);
-
-  /* Get the run-time version information string */
-  runtime_info_str = get_runtime_version_info(epan_get_runtime_version_info);
-
-  /* Add it to the information to be reported on a crash. */
-  ws_add_crash_info("Sharkd (Wireshark) %s\n"
-         "\n"
-         "%s"
-         "\n"
-         "%s",
-      get_ws_vcs_version_info(), comp_info_str->str, runtime_info_str->str);
-  g_string_free(comp_info_str, TRUE);
-  g_string_free(runtime_info_str, TRUE);
+  /* Initialize the version information. */
+  ws_init_version_info("Sharkd (Wireshark)", NULL,
+                       epan_get_compiled_version_info,
+                       epan_get_runtime_version_info);
 
   if (sharkd_init(argc, argv) < 0)
   {

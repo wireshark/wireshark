@@ -60,7 +60,6 @@
 #include <wiretap/wtap.h>
 
 #include <wsutil/cmdarg_err.h>
-#include <wsutil/crash_info.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/privileges.h>
 #include <cli_main.h>
@@ -1403,8 +1402,6 @@ hash_to_str(const unsigned char *hash, size_t length, char *str) {
 int
 real_main(int argc, char *argv[])
 {
-  GString *comp_info_str;
-  GString *runtime_info_str;
   char  *init_progfile_dir_error;
   wtap  *wth;
   int    err;
@@ -1431,21 +1428,8 @@ real_main(int argc, char *argv[])
   /* Get the decimal point. */
   decimal_point = g_strdup(localeconv()->decimal_point);
 
-  /* Get the compile-time version information string */
-  comp_info_str = get_compiled_version_info(NULL, NULL);
-
-  /* Get the run-time version information string */
-  runtime_info_str = get_runtime_version_info(NULL);
-
-  /* Add it to the information to be reported on a crash. */
-  ws_add_crash_info("Capinfos (Wireshark) %s\n"
-         "\n"
-         "%s"
-         "\n"
-         "%s",
-      get_ws_vcs_version_info(), comp_info_str->str, runtime_info_str->str);
-  g_string_free(comp_info_str, TRUE);
-  g_string_free(runtime_info_str, TRUE);
+  /* Initialize the version information. */
+  ws_init_version_info("Capinfos (Wireshark)", NULL, NULL, NULL);
 
 #ifdef _WIN32
   create_app_running_mutex();
@@ -1629,20 +1613,13 @@ real_main(int argc, char *argv[])
         break;
 
       case 'h':
-        printf("Capinfos (Wireshark) %s\n"
-               "Print various information (infos) about capture files.\n"
-               "See https://www.wireshark.org for more information.\n",
-               get_ws_vcs_version_info());
+        show_help_header("Print various information (infos) about capture files.");
         print_usage(stdout);
         goto exit;
         break;
 
       case 'v':
-        comp_info_str = get_compiled_version_info(NULL, NULL);
-        runtime_info_str = get_runtime_version_info(NULL);
-        show_version("Capinfos (Wireshark)", comp_info_str, runtime_info_str);
-        g_string_free(comp_info_str, TRUE);
-        g_string_free(runtime_info_str, TRUE);
+        show_version();
         goto exit;
         break;
 

@@ -47,7 +47,6 @@
 #include <epan/epan.h>
 
 #include <wsutil/cmdarg_err.h>
-#include <wsutil/crash_info.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/plugins.h>
@@ -406,8 +405,6 @@ set_link_type(const char *lt_arg) {
 int
 real_main(int argc, char *argv[])
 {
-    GString             *comp_info_str;
-    GString             *runtime_info_str;
     char                *init_progfile_dir_error;
     int                  opt, i;
 
@@ -442,19 +439,10 @@ real_main(int argc, char *argv[])
 
     cmdarg_err_init(rawshark_cmdarg_err, rawshark_cmdarg_err_cont);
 
-    /* Get the compile-time version information string */
-    comp_info_str = get_compiled_version_info(NULL, epan_get_compiled_version_info);
-
-    /* Get the run-time version information string */
-    runtime_info_str = get_runtime_version_info(NULL);
-
-    /* Add it to the information to be reported on a crash. */
-    ws_add_crash_info("Rawshark (Wireshark) %s\n"
-           "\n"
-           "%s"
-           "\n"
-           "%s",
-        get_ws_vcs_version_info(), comp_info_str->str, runtime_info_str->str);
+    /* Initialize the version information. */
+    ws_init_version_info("Rawshark (Wireshark)", NULL,
+                         epan_get_compiled_version_info,
+                         NULL);
 
 #ifdef _WIN32
     create_app_running_mutex();
@@ -553,10 +541,7 @@ real_main(int argc, char *argv[])
                 g_ptr_array_add(disp_fields, g_strdup(optarg));
                 break;
             case 'h':        /* Print help and exit */
-                printf("Rawshark (Wireshark) %s\n"
-                       "Dump and analyze network traffic.\n"
-                       "See https://www.wireshark.org for more information.\n",
-                       get_ws_vcs_version_info());
+                show_help_header("Dump and analyze network traffic.");
                 print_usage(stdout);
                 goto clean_exit;
                 break;
@@ -691,7 +676,7 @@ real_main(int argc, char *argv[])
                 break;
             case 'v':        /* Show version and exit */
             {
-                show_version("Rawshark (Wireshark)", comp_info_str, runtime_info_str);
+                show_version();
                 goto clean_exit;
             }
             default:
@@ -819,8 +804,6 @@ real_main(int argc, char *argv[])
 
 clean_exit:
     g_free(pipe_name);
-    g_string_free(comp_info_str, TRUE);
-    g_string_free(runtime_info_str, TRUE);
     epan_free(cfile.epan);
     epan_cleanup();
     extcap_cleanup();

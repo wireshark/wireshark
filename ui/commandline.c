@@ -63,11 +63,8 @@ commandline_print_usage(gboolean for_help_option) {
 #endif
 
     if (for_help_option) {
+        show_help_header("Interactively dump and analyze network traffic.");
         output = stdout;
-        fprintf(output, "Wireshark %s\n"
-            "Interactively dump and analyze network traffic.\n"
-            "See https://www.wireshark.org for more information.\n",
-            get_ws_vcs_version_info());
     } else {
         output = stderr;
     }
@@ -204,8 +201,7 @@ static void print_no_capture_support_error(void)
 }
 #endif
 
-void commandline_early_options(int argc, char *argv[],
-    GString *comp_info_str, GString *runtime_info_str)
+void commandline_early_options(int argc, char *argv[])
 {
     int opt;
 #ifdef HAVE_LIBPCAP
@@ -305,7 +301,7 @@ void commandline_early_options(int argc, char *argv[],
 #ifdef _WIN32
                 create_console();
 #endif
-                show_version("Wireshark", comp_info_str, runtime_info_str);
+                show_version();
 #ifdef _WIN32
                 destroy_console();
 #endif

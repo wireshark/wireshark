@@ -100,7 +100,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <wsutil/file_util.h>
-#include <wsutil/crash_info.h>
 #include <cli_main.h>
 #include <version_info.h>
 #include <wsutil/inet_addr.h>
@@ -872,20 +871,17 @@ write_file_header (void)
     gboolean success;
 
     if (use_pcapng) {
-        char *appname;
         char *comment;
 
-        appname = g_strdup_printf("text2pcap (Wireshark) %s", get_ws_vcs_version_info());
         comment = g_strdup_printf("Generated from input file %s.", input_filename);
         success = pcapng_write_session_header_block(output_file,
                                                     comment,
                                                     NULL,    /* HW */
                                                     NULL,    /* OS */
-                                                    appname,
+                                                    get_appname_and_version(),
                                                     -1,      /* section_length */
                                                     &bytes_written,
                                                     &err);
-        g_free(appname);
         g_free(comment);
         if (success) {
             success = pcapng_write_interface_description_block(output_file,
@@ -1441,8 +1437,6 @@ print_usage (FILE *output)
 static int
 parse_options (int argc, char *argv[])
 {
-    GString *comp_info_str;
-    GString *runtime_info_str;
     int   c;
     char *p;
     static const struct option long_options[] = {
@@ -1452,30 +1446,14 @@ parse_options (int argc, char *argv[])
     };
     struct tm *now_tm;
 
-    /* Get the compile-time version information string */
-    comp_info_str = get_compiled_version_info(NULL, NULL);
-
-    /* get the run-time version information string */
-    runtime_info_str = get_runtime_version_info(NULL);
-
-    /* Add it to the information to be reported on a crash. */
-    ws_add_crash_info("Text2pcap (Wireshark) %s\n"
-         "\n"
-         "%s"
-         "\n"
-         "%s",
-      get_ws_vcs_version_info(), comp_info_str->str, runtime_info_str->str);
-    g_string_free(comp_info_str, TRUE);
-    g_string_free(runtime_info_str, TRUE);
+    /* Initialize the version information. */
+    ws_init_version_info("Text2pcap (Wireshark)", NULL, NULL, NULL);
 
     /* Scan CLI parameters */
     while ((c = getopt_long(argc, argv, "aDdhqe:i:l:m:no:u:s:S:t:T:v4:6:", long_options, NULL)) != -1) {
         switch (c) {
         case 'h':
-            printf("Text2pcap (Wireshark) %s\n"
-                   "Generate a capture file from an ASCII hexdump of packets.\n"
-                   "See https://www.wireshark.org for more information.\n",
-                   get_ws_vcs_version_info());
+            show_help_header("Generate a capture file from an ASCII hexdump of packets.");
             print_usage(stdout);
             exit(0);
             break;
@@ -1665,11 +1643,7 @@ parse_options (int argc, char *argv[])
             break;
 
         case 'v':
-            comp_info_str = get_compiled_version_info(NULL, NULL);
-            runtime_info_str = get_runtime_version_info(NULL);
-            show_version("Text2pcap (Wireshark)", comp_info_str, runtime_info_str);
-            g_string_free(comp_info_str, TRUE);
-            g_string_free(runtime_info_str, TRUE);
+            show_version();
             exit(0);
             break;
 

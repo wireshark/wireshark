@@ -41,7 +41,6 @@
 #include <errno.h>
 
 #include <wsutil/cmdarg_err.h>
-#include <wsutil/crash_info.h>
 #include <wsutil/strtoi.h>
 #include <cli_main.h>
 #include <version_info.h>
@@ -3028,18 +3027,16 @@ capture_loop_init_pcapng_output(capture_options *capture_opts, loop_data *ld)
         GString *cpu_info_str = g_string_new("");
         get_cpu_info(cpu_info_str);
 
-        char *appname = g_strdup_printf("Dumpcap (Wireshark) %s", get_ws_vcs_version_info());
         successful = pcapng_write_session_header_block(ld->pdh,
                                                        (const char *)capture_opts->capture_comment,   /* Comment */
                                                        cpu_info_str->str,           /* HW */
                                                        os_info_str->str,            /* OS */
-                                                       appname,
+                                                       get_appname_and_version(),
                                                        -1,                          /* section_length */
                                                        &ld->bytes_written,
                                                        &err);
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "%s: wrote dumpcap SHB %d", G_STRFUNC, successful);
         g_string_free(cpu_info_str, TRUE);
-        g_free(appname);
     }
 
     for (unsigned i = 0; successful && (i < ld->saved_idbs->len); i++) {
@@ -4613,8 +4610,6 @@ get_dumpcap_runtime_info(GString *str)
 int
 real_main(int argc, char *argv[])
 {
-    GString          *comp_info_str;
-    GString          *runtime_info_str;
     int               opt;
     static const struct option long_options[] = {
         {"help", no_argument, NULL, 'h'},
@@ -4655,21 +4650,9 @@ real_main(int argc, char *argv[])
 
     cmdarg_err_init(dumpcap_cmdarg_err, dumpcap_cmdarg_err_cont);
 
-    /* Get the compile-time version information string */
-    comp_info_str = get_compiled_version_info(NULL, get_dumpcap_compiled_info);
-
-    /* Get the run-time version information string */
-    runtime_info_str = get_runtime_version_info(get_dumpcap_runtime_info);
-
-    /* Add it to the information to be reported on a crash. */
-    ws_add_crash_info("Dumpcap (Wireshark) %s\n"
-           "\n"
-           "%s"
-           "\n"
-           "%s",
-        get_ws_vcs_version_info(), comp_info_str->str, runtime_info_str->str);
-    g_string_free(comp_info_str, TRUE);
-    g_string_free(runtime_info_str, TRUE);
+    /* Initialize the version information. */
+    ws_init_version_info("Dumpcap (Wireshark)", NULL, get_dumpcap_compiled_info,
+                         get_dumpcap_runtime_info);
 
 #ifdef _WIN32
     create_app_running_mutex();
@@ -4961,19 +4944,12 @@ real_main(int argc, char *argv[])
     while ((opt = getopt_long(argc, argv, OPTSTRING, long_options, NULL)) != -1) {
         switch (opt) {
         case 'h':        /* Print help and exit */
-            printf("Dumpcap (Wireshark) %s\n"
-                   "Capture network packets and dump them into a pcapng or pcap file.\n"
-                   "See https://www.wireshark.org for more information.\n",
-                   get_ws_vcs_version_info());
+            show_help_header("Capture network packets and dump them into a pcapng or pcap file.");
             print_usage(stdout);
             exit_main(0);
             break;
         case 'v':        /* Show version and exit */
-            comp_info_str = get_compiled_version_info(NULL, get_dumpcap_compiled_info);
-            runtime_info_str = get_runtime_version_info(get_dumpcap_runtime_info);
-            show_version("Dumpcap (Wireshark)", comp_info_str, runtime_info_str);
-            g_string_free(comp_info_str, TRUE);
-            g_string_free(runtime_info_str, TRUE);
+            show_version();
             exit_main(0);
             break;
         /*** capture option specific ***/

@@ -858,7 +858,7 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 	* UTF-8 string containing the name of the application used to create
 	* this section.
 	*/
-	wtap_block_add_string_option_format(shb_hdr, OPT_SHB_USERAPPL, "Wireshark %s", get_ws_vcs_version_info());
+	wtap_block_add_string_option_format(shb_hdr, OPT_SHB_USERAPPL, "%s", get_appname_and_version());
 
 	/* Add header to the array */
 	g_array_append_val(shb_hdrs, shb_hdr);
