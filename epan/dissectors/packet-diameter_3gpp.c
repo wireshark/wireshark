@@ -422,6 +422,9 @@ static gint diameter_3gpp_feature_list_ett = -1;
 static gint diameter_3gpp_uar_flags_ett = -1;
 static gint diameter_3gpp_tmgi_ett  = -1;
 static gint diameter_3gpp_cms_ett = -1;
+
+static int hf_diameter_3gpp_secondary_rat_type = -1;
+
 static gint diameter_3gpp_qos_subscribed_ett = -1;
 static gint diameter_3gpp_ulr_flags_ett = -1;
 static gint diameter_3gpp_ula_flags_ett = -1;
@@ -1394,6 +1397,26 @@ dissect_diameter_3gpp_location_estimate(tvbuff_t *tvb, packet_info *pinfo, proto
     dissect_geographical_description(tvb, pinfo, tree);
 
     return tvb_reported_length(tvb);
+}
+
+
+/* AVP Code: 1304 Secondary-RAT-Type
+* 3GPP TS 32.299
+*/
+static const value_string diameter_3gpp_secondary_rat_type_vals[] = {
+    { 0, "5G NR" },
+    { 0, NULL }
+};
+
+static int
+dissect_diameter_3gpp_secondary_rat_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    int offset = 0;
+    int length = tvb_reported_length(tvb);
+
+    proto_tree_add_item(tree, hf_diameter_3gpp_secondary_rat_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    return length;
 }
 
 /* Helper function returning the main bitrates in kbps */
@@ -2573,6 +2596,9 @@ proto_reg_handoff_diameter_3gpp(void)
     /* AVP Code: 1242 location estimate */
     dissector_add_uint("diameter.3gpp", 1242, create_dissector_handle(dissect_diameter_3gpp_location_estimate, proto_diameter_3gpp));
 
+    /* AVP Code: 1304 Secondary-RAT-Type */
+    dissector_add_uint("diameter.3gpp", 1304, create_dissector_handle(dissect_diameter_3gpp_secondary_rat_type, proto_diameter_3gpp));
+
     /* AVP Code: 1404 QoS-Subscribed */
     dissector_add_uint("diameter.3gpp", 1404, create_dissector_handle(dissect_diameter_3ggp_qos_susbscribed, proto_diameter_3gpp));
 
@@ -3539,6 +3565,11 @@ proto_register_diameter_3gpp(void)
         { &hf_diameter_3gpp_cms_end_user_serv_status,
             { "End User Service Denied", "diameter.3gpp.cms.end_user_serv_status",
             FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x80000000,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_secondary_rat_type,
+            { "Secondary RAT Type", "diameter.3gpp.secondary_rat_type",
+            FT_UINT8, BASE_DEC, VALS(diameter_3gpp_secondary_rat_type_vals), 0x00,
             NULL, HFILL }
         },
         { &hf_diameter_3gpp_qos_subscribed,

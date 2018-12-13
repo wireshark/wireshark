@@ -4951,6 +4951,25 @@
 		</avp>
 
 		<!-- Note: The AVP codes from 1289 to 1399 are reserved for TS 32.299 -->
+		<avp name="RAN-End-Timestamp" code="1301" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Time"/>
+		</avp>
+		<avp name="RAN-Secondary-RAT-Usage-Report" code="1302" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Secondary-RAT-Type"/>
+				<gavp name="RAN-Start-Timestamp"/>
+				<gavp name="RAN-End-Timestamp"/>
+				<gavp name="Accounting-Input-Octets"/>
+				<gavp name="Accounting-Output-Octets"/>
+				<gavp name="3GPP-Charging-Id"/>
+			</grouped>
+		</avp>
+		<avp name="RAN-Start-Timestamp" code="1303" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Time"/>
+		</avp>
+		<avp name="Secondary-RAT-Type" code="1304" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
 
 		<!-- 3GPP TS 29.272 V9.1.0 (2009-12 -->
 		<avp name="Subscription-Data" code="1400" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
