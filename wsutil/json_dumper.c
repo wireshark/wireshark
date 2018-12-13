@@ -23,9 +23,10 @@ enum json_dumper_element_type {
     JSON_DUMPER_TYPE_VALUE = 1,
     JSON_DUMPER_TYPE_OBJECT = 2,
     JSON_DUMPER_TYPE_ARRAY = 3,
+    JSON_DUMPER_TYPE_BASE64 = 4,
 };
-#define JSON_DUMPER_TYPE(state)         ((enum json_dumper_element_type)((state) & 3))
-#define JSON_DUMPER_HAS_NAME            (1 << 2)
+#define JSON_DUMPER_TYPE(state)         ((enum json_dumper_element_type)((state) & 7))
+#define JSON_DUMPER_HAS_NAME            (1 << 3)
 
 #define JSON_DUMPER_FLAGS_ERROR     (1 << 16)   /* Output flag: an error occurred. */
 #define JSON_DUMPER_FLAGS_NO_DEBUG  (1 << 17)   /* Input flag: disable debug prints (intended for speeding up fuzzing). */
@@ -35,6 +36,7 @@ enum json_dumper_change {
     JSON_DUMPER_END,
     JSON_DUMPER_SET_NAME,
     JSON_DUMPER_SET_VALUE,
+    JSON_DUMPER_WRITE_BASE64,
     JSON_DUMPER_FINISH,
 };
 
@@ -137,9 +139,15 @@ json_dumper_check_state(json_dumper *dumper, enum json_dumper_change change, enu
                 ok = (prev_state & JSON_DUMPER_HAS_NAME);
             } else if (prev_type == JSON_DUMPER_TYPE_ARRAY) {
                 ok = TRUE;
+            } else if (prev_type == JSON_DUMPER_TYPE_BASE64) {
+                ok = FALSE;
             } else {
                 ok = JSON_DUMPER_TYPE(dumper->state[depth]) == JSON_DUMPER_TYPE_NONE;
             }
+            break;
+        case JSON_DUMPER_WRITE_BASE64:
+            ok = (prev_type == JSON_DUMPER_TYPE_BASE64) &&
+                (type == JSON_DUMPER_TYPE_NONE || type == JSON_DUMPER_TYPE_BASE64);
             break;
         case JSON_DUMPER_FINISH:
             ok = depth == 0;
@@ -323,4 +331,62 @@ json_dumper_finish(json_dumper *dumper)
     fputc('\n', dumper->output_file);
     dumper->state[0] = 0;
     return TRUE;
+}
+
+void
+json_dumper_begin_base64(json_dumper *dumper)
+{
+    if (!json_dumper_check_state(dumper, JSON_DUMPER_BEGIN, JSON_DUMPER_TYPE_BASE64)) {
+        return;
+    }
+
+    dumper->base64_state = 0;
+    dumper->base64_save = 0;
+
+    prepare_token(dumper);
+
+    fputc('"', dumper->output_file);
+
+    dumper->state[dumper->current_depth] = JSON_DUMPER_TYPE_BASE64;
+    ++dumper->current_depth;
+    dumper->state[dumper->current_depth] = 0;
+}
+
+void
+json_dumper_write_base64(json_dumper* dumper, const guchar *data, size_t len)
+{
+    if (!json_dumper_check_state(dumper, JSON_DUMPER_WRITE_BASE64, JSON_DUMPER_TYPE_BASE64)) {
+        return;
+    }
+
+    #define CHUNK_SIZE 1024
+    gchar buf[(CHUNK_SIZE / 3 + 1) * 4 + 4];
+
+    while (len > 0) {
+        gsize chunk_size = len < CHUNK_SIZE ? len : CHUNK_SIZE;
+        gsize output_size = g_base64_encode_step(data, chunk_size, FALSE, buf, &dumper->base64_state, &dumper->base64_save);
+        fwrite(buf, 1, output_size, dumper->output_file);
+        data += chunk_size;
+        len -= chunk_size;
+    }
+
+    dumper->state[dumper->current_depth] = JSON_DUMPER_TYPE_BASE64;
+}
+
+void
+json_dumper_end_base64(json_dumper *dumper)
+{
+    if (!json_dumper_check_state(dumper, JSON_DUMPER_END, JSON_DUMPER_TYPE_BASE64)) {
+        return;
+    }
+
+    gchar buf[4];
+    gsize wrote;
+
+    wrote = g_base64_encode_close(FALSE, buf, &dumper->base64_state, &dumper->base64_save);
+    fwrite(buf, 1, wrote, dumper->output_file);
+
+    fputc('"', dumper->output_file);
+
+    --dumper->current_depth;
 }

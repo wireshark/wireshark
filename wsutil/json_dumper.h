@@ -35,6 +35,10 @@ extern "C" {
  *  json_dumper_begin_array(&dumper);
  *  json_dumper_value_anyf(&dumper, "true");
  *  json_dumper_value_anyf(&dumper, "1.0");
+ *  json_dumper_begin_base64(&dumper);
+ *  json_dumper_write_base64(&dumper, (const guchar *)"abcd", 4);
+ *  json_dumper_write_base64(&dumper, (const guchar *)"1234", 4);
+ *  json_dumper_end_base64(&dumper);
  *  json_dumper_begin_object(&dumper);
  *  json_dumper_end_object(&dumper);
  *  json_dumper_begin_array(&dumper);
@@ -53,6 +57,8 @@ typedef struct json_dumper {
     int     flags;
     /* for internal use, initialize with zeroes. */
     int     current_depth;
+    gint    base64_state;
+    gint    base64_save;
     guint8  state[JSON_DUMPER_MAX_DEPTH];
 } json_dumper;
 
@@ -80,6 +86,15 @@ json_dumper_value_string(json_dumper *dumper, const char *value);
 WS_DLL_PUBLIC void
 json_dumper_value_anyf(json_dumper *dumper, const char *format, ...)
 G_GNUC_PRINTF(2, 3);
+
+WS_DLL_PUBLIC void
+json_dumper_begin_base64(json_dumper *dumper);
+
+WS_DLL_PUBLIC void
+json_dumper_end_base64(json_dumper *dumper);
+
+WS_DLL_PUBLIC void
+json_dumper_write_base64(json_dumper *dumper, const guchar *data, size_t len);
 
 /**
  * Finishes dumping data. Returns TRUE if everything is okay and FALSE if
