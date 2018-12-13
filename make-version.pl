@@ -73,7 +73,7 @@ my $set_release = 0;
 my %version_pref = (
 	"version_major" => 2,
 	"version_minor" => 9,
-	"version_micro" => 0,
+	"version_micro" => 1,
 	"version_build" => 0,
 
 	"enable"        => 1,
@@ -84,12 +84,12 @@ my %version_pref = (
 	"format"        => "git %Y%m%d%H%M%S",
 
 	# Normal development builds
-	#"pkg_enable" => 1,
-	#"pkg_format" => "-%#",
+	"pkg_enable" => 1,
+	"pkg_format" => "-%#",
 
 	# Development releases
-	"pkg_enable" => 0,
-	"pkg_format" => "",
+	#"pkg_enable" => 0,
+	#"pkg_format" => "",
 	);
 my $srcdir = ".";
 my $info_cmd = "";

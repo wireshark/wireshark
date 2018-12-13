@@ -37,6 +37,11 @@ Dumpcap might not quit if Wireshark or TShark crashes.
 === New and Updated Features
 
 The following features are new (or have been significantly updated)
+since version 2.9.0:
+
+* Nothing yet.
+
+The following features are new (or have been significantly updated)
 since version 2.6.0:
 
 * The Windows .exe installers now ship with Npcap instead of WinPcap.
