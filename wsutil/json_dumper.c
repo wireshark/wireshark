@@ -2,6 +2,7 @@
  * Routines for serializing data as JSON.
  *
  * Copyright 2018, Peter Wu <peter@lekensteyn.nl>
+ * Copyright (C) 2016 Jakub Zawadzki
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -27,6 +28,7 @@ enum json_dumper_element_type {
 #define JSON_DUMPER_HAS_NAME            (1 << 2)
 
 #define JSON_DUMPER_FLAGS_ERROR     (1 << 16)   /* Output flag: an error occurred. */
+#define JSON_DUMPER_FLAGS_NO_DEBUG  (1 << 17)   /* Input flag: disable debug prints (intended for speeding up fuzzing). */
 
 enum json_dumper_change {
     JSON_DUMPER_BEGIN,
@@ -68,6 +70,34 @@ json_puts_string(FILE *fp, const char *str, gboolean dot_to_underscore)
 }
 
 /**
+ * Called when a programming error is encountered where the JSON manipulation
+ * state got corrupted. This could happen when pairing the wrong begin/end
+ * calls, when writing multiple values for the same object, etc.
+ */
+static void
+json_dumper_bad(json_dumper *dumper, enum json_dumper_change change,
+        enum json_dumper_element_type type, const char *what)
+{
+    unsigned states[3];
+    int depth = dumper->current_depth;
+    /* Do not use add/subtract from depth to avoid signed overflow. */
+    int adj = -1;
+    for (int i = 0; i < 3; i++, adj++) {
+        if (depth >= -adj && depth < JSON_DUMPER_MAX_DEPTH - adj) {
+            states[i] = dumper->state[depth + adj];
+        } else {
+            states[i] = 0xbad;
+        }
+    }
+    if ((dumper->flags & JSON_DUMPER_FLAGS_NO_DEBUG)) {
+        /* Console output can be slow, disable log calls to speed up fuzzing. */
+        return;
+    }
+    g_warning("Bad json_dumper state: %s; change=%d type=%d depth=%d prev/curr/next state=%02x %02x %02x",
+            what, change, type, dumper->current_depth, states[0], states[1], states[2]);
+}
+
+/**
  * Checks that the dumper state is valid for a new change. Any error will be
  * sticky and prevent further dumps from succeeding.
  */
@@ -75,6 +105,7 @@ static gboolean
 json_dumper_check_state(json_dumper *dumper, enum json_dumper_change change, enum json_dumper_element_type type)
 {
     if ((dumper->flags & JSON_DUMPER_FLAGS_ERROR)) {
+        json_dumper_bad(dumper, change, type, "previous corruption detected");
         return FALSE;
     }
 
@@ -82,6 +113,7 @@ json_dumper_check_state(json_dumper *dumper, enum json_dumper_change change, enu
     if (depth < 0 || depth >= JSON_DUMPER_MAX_DEPTH) {
         /* Corrupted state, no point in continuing. */
         dumper->flags |= JSON_DUMPER_FLAGS_ERROR;
+        json_dumper_bad(dumper, change, type, "depth corruption");
         return FALSE;
     }
 
@@ -115,6 +147,7 @@ json_dumper_check_state(json_dumper *dumper, enum json_dumper_change change, enu
     }
     if (!ok) {
         dumper->flags |= JSON_DUMPER_FLAGS_ERROR;
+        json_dumper_bad(dumper, change, type, "illegal transition");
     }
     return ok;
 }

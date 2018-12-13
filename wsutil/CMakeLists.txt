@@ -291,7 +291,7 @@ CHECKAPI(
 	NAME
 	  wsutil
 	SWITCHES
-	  --group termoutput:1 --summary-group termoutput --build
+	  --group termoutput:2 --summary-group termoutput --build
 	SOURCES
 	  ${WSUTIL_COMMON_FILES}
 )
