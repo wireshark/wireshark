@@ -870,11 +870,12 @@ static void dissect_rrc_lte_nr(tvbuff_t *tvb, gint offset,
     tag = tvb_get_guint8(tvb, offset++);
     switch (tag) {
         case 0x12:    /* UE_Id_LCId */
-
+        {
             /* Dedicated channel info */
 
             /* Length will fit in one byte here */
-            offset++;
+            guint len = tvb_get_guint8(tvb, offset++);
+            guint len_offset = offset;
 
             logicalChannelType = Channel_DCCH;
 
@@ -907,7 +908,16 @@ static void dissect_rrc_lte_nr(tvbuff_t *tvb, gint offset,
                     /* Unexpected channel type */
                     return;
             }
+
+            /* Optional Carrier Type */
+            if (((offset-len_offset) < len) && tvb_get_guint8(tvb, offset)==0x20) {
+                offset++;
+                /* TODO: could show in tree, but for now skip */
+                offset += (1+tvb_get_guint8(tvb, offset));
+            }
+
             break;
+        }
 
         case 0x1a:     /* Cell_LCId */
 
