@@ -1,6 +1,6 @@
 language: minimal
 sudo: required
-dist: trusty
+dist: xenial
 matrix:
   include:
     - name: OSX (clang-9) with PCAP
@@ -26,7 +26,6 @@ matrix:
           update: true
           sources:
             - ubuntu-toolchain-r-test
-            - sourceline: 'ppa:wireshark-dev/stable'
           packages: g++-8
       env:
         - CXX=g++-8
@@ -39,39 +38,22 @@ matrix:
           update: true
           sources:
             - ubuntu-toolchain-r-test
-            - sourceline: 'ppa:wireshark-dev/stable'
           packages: g++-8
       env:
         - CXX=g++-8
         - CC=gcc-8
         - PCAP=OFF
-    - name: Linux (clang-7) with PCAP
+    - name: Linux (clang) with PCAP
       os: linux
-      addons:
-        apt:
-          update: true
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-trusty-7
-            - sourceline: 'ppa:wireshark-dev/stable'
-          packages: clang-7
       env:
-        - CXX=clang++-7
-        - CC=clang-7
+        - CXX=clang++
+        - CC=clang
         - PCAP=ON
-    - name: Linux (clang-7) without PCAP
+    - name: Linux (clang) without PCAP
       os: linux
-      addons:
-        apt:
-          update: true
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-trusty-7
-            - sourceline: 'ppa:wireshark-dev/stable'
-          packages: clang-7
       env:
-        - CXX=clang++-7
-        - CC=clang-7
+        - CXX=clang++
+        - CC=clang
         - PCAP=OFF
 before_install:
   - echo $TRAVIS_OS_NAME
