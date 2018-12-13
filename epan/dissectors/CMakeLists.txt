@@ -349,6 +349,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-fmp.h
 	packet-frame.h
 	packet-ftam.h
+	packet-geonw.h
 	packet-giop.h
 	packet-gluster.h
 	packet-gmr1_common.h
@@ -1035,6 +1036,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-gearman.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ged125.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-geneve.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-geonw.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-gfp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-gift.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-giop.c

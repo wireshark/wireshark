@@ -96,6 +96,7 @@ Ruby Marshal format
 [commaize]
 --
 Apple Wireless Direct Link (AWDL)
+Basic Transport Protocol (BTP)
 BLIP Couchbase Mobile (BLIP)
 CDMA 2000
 Cisco Meraki Discovery Protocol (MDP)
@@ -105,6 +106,7 @@ E1AP (5G)
 EVS (3GPP TS 26.445 A.2 EVS RTP)
 Exablaze trailers
 General Circuit Services Notification Application Protocol (GCSNA)
+GeoNetworking (GeoNw)
 GLOW Lawo Emberplus Data format
 GSM-R (User-to-User Information Element usage)
 HI3CCLinkData
