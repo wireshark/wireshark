@@ -78,7 +78,7 @@ typedef struct if_stat_cache_s if_stat_cache_t;
  * @param capture_opts A structure containing options for the capture.
  * @return A pointer to the statistics state data.
  */
-extern if_stat_cache_t * capture_stat_start(capture_options *capture_opts);
+extern WS_RETNONNULL if_stat_cache_t * capture_stat_start(capture_options *capture_opts);
 
 /**
  * Fetch capture statistics, similar to pcap_stats().

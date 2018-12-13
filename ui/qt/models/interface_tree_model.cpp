@@ -405,7 +405,6 @@ void InterfaceTreeModel::stopStatistic()
 void InterfaceTreeModel::updateStatistic(unsigned int idx)
 {
 #ifdef HAVE_LIBPCAP
-    guint diff;
     if ( ! global_capture_opts.all_ifaces || global_capture_opts.all_ifaces->len <= (guint) idx )
         return;
 
@@ -420,12 +419,10 @@ void InterfaceTreeModel::updateStatistic(unsigned int idx)
         // We crash (on macOS at least) if we try to do this from ::showEvent.
         stat_cache_ = capture_stat_start(&global_capture_opts);
     }
-    if ( !stat_cache_ )
-        return;
 
     struct pcap_stat stats;
+    unsigned diff = 0;
 
-    diff = 0;
     if ( capture_stats(stat_cache_, device->name, &stats) )
     {
         if ( (int)(stats.ps_recv - device->last_packets) >= 0 )
