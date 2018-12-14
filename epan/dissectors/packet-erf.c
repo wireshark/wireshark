@@ -780,6 +780,7 @@ static const erf_meta_hf_template_t erf_meta_tags[] = {
   { ERF_META_TAG_reset,             { "Metadata Reset",                     "reset",             FT_BYTES,         BASE_NONE,         NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_event_time,        { "Event Time",                         "event_time",        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_host_id,           { "Host ID",                            "host_id",           FT_UINT64,        BASE_HEX,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_attribute,         { "Attribute",                          "attribute",         FT_STRING,        BASE_NONE,         NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_fcs_len,           { "FCS Length (bits)",                  "fcs_len",           FT_UINT32,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_mask_ipv4,         { "Subnet Mask (IPv4)",                 "mask_ipv4",         FT_IPv4,          BASE_NETMASK,      NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_mask_cidr,         { "Subnet Mask (CIDR)",                 "mask_cidr",         FT_UINT32,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
@@ -833,6 +834,8 @@ static const erf_meta_hf_template_t erf_meta_tags[] = {
   { ERF_META_TAG_ext_hdrs_added,    { "Extension Headers Added",            "ext_hdrs_added",    FT_BYTES,         BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_ext_hdrs_removed,  { "Extension Headers Removed",          "ext_hdrs_removed",  FT_BYTES,         BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_relative_snaplen,  { "Relative Snap Length",               "relative_snaplen",  FT_UINT32,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_temperature,       { "Temperature",                        "temperature",       FT_FLOAT,         BASE_NONE|BASE_UNIT_STRING, &units_degree_celsius, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_power,             { "Power Consumption",                  "power",             FT_FLOAT,         BASE_NONE|BASE_UNIT_STRING, &units_watt, 0x0, NULL, HFILL } },
 
   { ERF_META_TAG_if_num,            { "Interface Number",                   "if_num",            FT_UINT32,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_if_vc,             { "Interface Virtual Circuit",          "if_vc",             FT_UINT32,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
@@ -1785,7 +1788,7 @@ entropy_from_entropy_header_value(guint8 entropy_hdr_value)
   /*  255 is 8.0 */
   /* 1 represent any value less than 2/32 */
   /* 0 represents not calculated */
-  return (float)((entropy_hdr_value == 0)?0.0: (((float)entropy_hdr_value+1) / 32.0));
+  return (float)((entropy_hdr_value == 0)?0.0f: (((float)entropy_hdr_value+1) / 32.0f));
 }
 
 static void
@@ -1801,7 +1804,7 @@ dissect_entropy_ex_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
     entropy = entropy_from_entropy_header_value(entropy_hdr_value);
 
     pi = proto_tree_add_float_format_value(tree, hf_erf_ehdr_entropy_entropy, tvb, 0, 0, entropy,
-      "%.2f %s", entropy, entropy == 0.0 ? "(not calculated)":"bits");
+      "%.2f %s", (double) entropy, entropy == 0.0f ? "(not calculated)":"bits");
     entropy_value_tree = proto_item_add_subtree(pi, ett_erf_entropy_value);
     proto_tree_add_uint(entropy_value_tree, hf_erf_ehdr_entropy_entropy_raw, tvb, 0, 0, entropy_hdr_value);
 
@@ -2759,6 +2762,7 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       gboolean    dissected = TRUE;
       guint32     value32;
       guint64     value64;
+      float       float_value;
       gchar      *tmp = NULL;
 
       tag_ft = tag_info->tag_template->hfinfo.type;
@@ -2784,7 +2788,14 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       case ERF_META_TAG_if_rx_power:
       case ERF_META_TAG_if_tx_power:
         value32 = tvb_get_ntohl(tvb, offset + 4);
-        tag_pi = proto_tree_add_int_format_value(section_tree, tag_info->hf_value, tvb, offset + 4, taglength, (gint32) value32, "%.2fdBm", (float)((gint32) value32)/100.0);
+        tag_pi = proto_tree_add_int_format_value(section_tree, tag_info->hf_value, tvb, offset + 4, taglength, (gint32) value32, "%.2fdBm", (double)((gint32) value32)/100.0);
+        break;
+
+      case ERF_META_TAG_temperature:
+      case ERF_META_TAG_power:
+        value32 = tvb_get_ntohl(tvb, offset + 4);
+        float_value = (float)((gint32) value32)/1000.0f;
+        tag_pi = proto_tree_add_float(section_tree, tag_info->hf_value, tvb, offset + 4, taglength, float_value);
         break;
 
       case ERF_META_TAG_loc_lat:
@@ -2895,10 +2906,10 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       {
         float entropy;
         value32 = tvb_get_ntohl(tvb, offset + 4);
-        entropy = entropy_from_entropy_header_value(value32);
+        entropy = entropy_from_entropy_header_value((guint8) value32);
 
         tag_pi = proto_tree_add_float_format_value(section_tree, tag_info->hf_value, tvb, 0, 0, entropy,
-          "%.2f %s", entropy, entropy == 0.0 ? "(not calculated)":"bits");
+          "%.2f %s", (double) entropy, entropy == 0.0f ? "(not calculated)":"bits");
         break;
       }
 
