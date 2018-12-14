@@ -93,6 +93,7 @@ static int hf_catapult_dct2000_lte_nas_rrc_establish_cause = -1;
 static int hf_catapult_dct2000_lte_nas_rrc_priority = -1;
 static int hf_catapult_dct2000_lte_nas_rrc_release_cause = -1;
 
+static int hf_catapult_dct2000_nr_nas_s1ap_opcode = -1;
 
 /* UMTS RLC fields */
 static int hf_catapult_dct2000_rbid = -1;
@@ -264,6 +265,17 @@ static const value_string lte_nas_rrc_opcode_vals[] = {
     { LTE_NAS_RRC_RELEASE_IND,     "Release-Ind"},
     { 0,     NULL}
 };
+
+
+#define NAS_S1AP_DATA_REQ       0x00
+#define NAS_S1AP_DATA_IND       0x01
+
+static const value_string nas_s1ap_opcode_vals[] = {
+    { NAS_S1AP_DATA_REQ,        "Data-Req"},
+    { NAS_S1AP_DATA_IND,        "Data-Ind"},
+    { 0,     NULL}
+};
+
 
 /* Distinguish between similar 4G or 5G protocols */
 enum LTE_or_NR {
@@ -2443,6 +2455,37 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         }
     }
 
+    /* NR NAS for S1AP */
+    else if (strcmp(protocol_name, "nas_s1ap_r15_5gnr") == 0) {
+        guint8 opcode = tvb_get_guint8(tvb, offset);
+        if (opcode <= NAS_S1AP_DATA_IND) {
+            /* Opcode tag (only interested in ones that carry NAS PDU) */
+            proto_tree_add_item(tree, hf_catapult_dct2000_nr_nas_s1ap_opcode,
+                                tvb, offset++, 1, ENC_BIG_ENDIAN);
+
+            /* Skip overall length */
+            offset += skipASNLength(tvb_get_guint8(tvb, offset));
+
+            /* UE Id. Skip tag and fixed length */
+            offset += 2;
+            proto_tree_add_item(tree, hf_catapult_dct2000_ueid,
+                                tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+
+            /* NAS PDU tag is 2 bytes */
+            guint16 data_tag = tvb_get_ntohs(tvb, offset);
+            if (data_tag == 0x0021) {
+                offset += 2;
+                /* Also skip length */
+                offset += 2;
+                protocol_handle = find_dissector("nas-5gs");
+
+                /* N.B. Ignoring some optional fields after the NAS PDU */
+            }
+        }
+    }
+
+
     /* Note that the first item of pinfo->pseudo_header->dct2000 will contain
        the pseudo-header needed (in some cases) by the Wireshark dissector that
        this packet data will be handed off to. */
@@ -3324,6 +3367,12 @@ void proto_register_catapult_dct2000(void)
         { &hf_catapult_dct2000_lte_nas_rrc_release_cause,
             { "Priority",
               "dct2000.lte.nas-rrc.priority", FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_catapult_dct2000_nr_nas_s1ap_opcode,
+            { "NAS S1AP Opcode",
+              "dct2000.nas-s1ap.opcode", FT_UINT8, BASE_DEC, VALS(nas_s1ap_opcode_vals), 0x0,
               NULL, HFILL
             }
         },
