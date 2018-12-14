@@ -163,7 +163,7 @@ $packagemaker --doc "Wireshark_package.pmdoc" \
     --title "$pkg_title" \
     --id "org.wireshark.pkg.Wireshark" \
     --version "$version" \
-    --target 10.5 \
+    --target @MIN_MACOS_VERSION@ \
     --verbose || exit 1
 
 if [ -n "$CODE_SIGN_IDENTITY" ] ; then
@@ -191,7 +191,7 @@ echo -e "Copying files to temp directory"
 # Copy the installer package
 cp "$pkg_file" "$tmp_dir"/ || exit 1
 # Copy the readme
-cp "$src_dir/Read_me_first.rtf" "$tmp_dir/Read me first.rtf" || exit 1
+cp "../packaging/macos/Read_me_first.rtf" "$tmp_dir/Read me first.rtf" || exit 1
 
 # If the appearance settings are not to be modified we just copy them
 if [ ${set_ds_store} = "false" ]; then

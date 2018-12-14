@@ -419,25 +419,13 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 	set(CMAKE_CXX_FLAGS "${_flags} ${CMAKE_CXX_FLAGS}")
 
 else() # ! MSVC
-	if(CMAKE_OSX_DEPLOYMENT_TARGET)
-		if(APPLE)
-			if(CMAKE_OSX_DEPLOYMENT_TARGET STREQUAL "10.0")
-				message(FATAL_ERROR "We don't support building for Mac OS X 10.0")
-			elseif(CMAKE_OSX_DEPLOYMENT_TARGET STREQUAL "10.1")
-				message(FATAL_ERROR "We don't support building for Mac OS X 10.1")
-			elseif(CMAKE_OSX_DEPLOYMENT_TARGET STREQUAL "10.2")
-				message(FATAL_ERROR "We don't support building for Mac OS X 10.2")
-			elseif(CMAKE_OSX_DEPLOYMENT_TARGET STREQUAL "10.4" OR CMAKE_OSX_DEPLOYMENT_TARGET STREQUAL "10.5")
-				#
-				# Only 32-bit builds are supported.  10.5
-				# (and 10.4?) had a bug that causes some BPF
-				# functions not to work with 64-bit userland
-				# code, so capturing won't work.
-				#
-				set(CMAKE_C_FLAGS "-m32 ${CMAKE_C_FLAGS}")
-				set(CMAKE_CXX_FLAGS "-m32 ${CMAKE_CXX_FLAGS}")
-				set(WS_LINK_FLAGS "-m32 ${WS_LINK_FLAGS}")
+	if(APPLE)
+		set(MIN_MACOS_VERSION 10.6) # Arbitrary.
+		if(CMAKE_OSX_DEPLOYMENT_TARGET)
+			if(CMAKE_OSX_DEPLOYMENT_TARGET VERSION_LESS MIN_MACOS_VERSION)
+				message(FATAL_ERROR "We don't support building for macOS < ${MIN_MACOS_VERSION}")
 			endif()
+			set(MIN_MACOS_VERSION ${CMAKE_OSX_DEPLOYMENT_TARGET})
 			message(STATUS "Building for Mac OS X/OS X/macOS ${CMAKE_OSX_DEPLOYMENT_TARGET}")
 		else()
 			message(FATAL_ERROR "CMAKE_OSX_DEPLOYMENT_TARGET only applies when building for macOS")
@@ -1234,6 +1222,7 @@ endif()
 if(SNAPPY_FOUND)
 	set(HAVE_SNAPPY 1)
 endif()
+
 if (Qt5Widgets_FOUND)
 	if (Qt5Widgets_VERSION VERSION_LESS 5.2)
 		message(FATAL_ERROR "Qt 5.2 or later is required.")
@@ -1291,6 +1280,21 @@ if (Qt5Widgets_FOUND)
 			HINTS "${QT_BIN_PATH}"
 			DOC "Path to the macdeployqt utility."
 		)
+		# https://doc.qt.io/qt-5.11/supported-platforms-and-configurations.html
+		if(Qt5Widgets_VERSION VERSION_GREATER_EQUAL "5.12.0")
+			set(MIN_MACOS_VERSION 10.12)
+		elseif(Qt5Widgets_VERSION VERSION_GREATER_EQUAL "5.10.0")
+			set(MIN_MACOS_VERSION 10.11)
+		elseif(Qt5Widgets_VERSION VERSION_GREATER_EQUAL "5.9.0")
+			set(MIN_MACOS_VERSION 10.10)
+		elseif(Qt5Widgets_VERSION VERSION_GREATER_EQUAL "5.8.0")
+			set(MIN_MACOS_VERSION 10.9)
+		elseif(Qt5Widgets_VERSION VERSION_GREATER_EQUAL "5.5.0")
+			set(MIN_MACOS_VERSION 10.8)
+		endif()
+		if(CMAKE_OSX_DEPLOYMENT_TARGET AND CMAKE_OSX_DEPLOYMENT_TARGET VERSION_LESS MIN_MACOS_VERSION)
+			message(FATAL_ERROR "Qt version ${Qt5Widgets_VERSION} requires CMAKE_OSX_DEPLOYMENT_TARGET (${CMAKE_OSX_DEPLOYMENT_TARGET}) >= ${MIN_MACOS_VERSION}")
+		endif()
 	endif()
 
 endif()
@@ -1519,6 +1523,7 @@ set(CFG_OUT_FILES
 	packaging/macosx/Info.plist
 	packaging/macosx/osx-app.sh
 	packaging/macosx/osx-dmg.sh
+	packaging/macosx/Read_me_first.rtf
 	packaging/macosx/Wireshark_package.pmdoc/index.xml
 	wireshark.pc
 )

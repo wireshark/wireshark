@@ -238,6 +238,6 @@
 	<key>NSRequiresAquaSystemAppearance</key>
 	<true/>
 	<key>LSMinimumSystemVersion</key>
-	<string>10.6</string>
+	<string>@MIN_MACOS_VERSION@</string>
 </dict>
 </plist>
