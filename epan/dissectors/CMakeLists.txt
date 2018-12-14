@@ -118,6 +118,7 @@ set(CLEAN_ASN1_DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ilp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-inap.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-isdn-sup.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-its.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-kerberos.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-lcsap.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ldap.c
@@ -404,6 +405,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-isis-clv.h
 	packet-isl.h
 	packet-isup.h
+	packet-its.h
 	packet-iwarp-ddp-rdmap.h
 	packet-juniper.h
 	packet-jxta.h

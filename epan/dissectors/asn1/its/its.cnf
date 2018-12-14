@@ -1,0 +1,1183 @@
+# its.cnf
+# Intelligent Transport Systems (ITS)
+
+#.OPT
+PER
+UNALIGNED
+#.END
+
+#.EXPORTS
+
+#.OMIT_ASSIGNMENT
+# Get rid of unused code warnings
+TisTpgTransactionsPdu
+DENM
+CAM
+SSEM
+SREM
+IVIM
+MAPEM
+SPATEM
+EV-RSR
+EvcsnPdu
+
+# Could be Language but size of Language bit string is 10 and DriverLanguage max is 15...
+DriverLanguage
+ChargingPower
+StatusResponseCode
+CurrentVehicleConfiguration
+TpgLocation
+CS5
+MessageFrame
+IVI
+DSRCmsgID
+#.NO_EMIT
+
+#.MODULE
+CAM-PDU-Descriptions					cam
+DENM-PDU-Descriptions					denm
+EVCSN-PDU-Descriptions					evcsn
+EV-RechargingSpotReservation-PDU-Descriptions		evrsr
+IVIM-PDU-Descriptions					ivim
+TIS-TPG-Transactions-Descriptions			tistpg
+SPATEM-PDU-Descriptions					spatem
+MAPEM-PDU-Descriptions					mapem
+SREM-PDU-Descriptions					srem
+SSEM-PDU-Descriptions					ssem
+AVIAEINumberingAndDataStructures			anads
+ITS-Container						its
+ElectronicRegistrationIdentificationVehicleDataModule	erivdm
+CITSapplMgmtIDs						csmid
+EfcDsrcApplication					dsrc_app
+IVI							ivi
+DSRC							dsrc
+#.END
+
+#.PDU
+CoopAwareness
+DecentralizedEnvironmentalNotificationMessage
+EVChargingSpotNotificationPOIMessage
+EV-RSR-MessageBody
+TisTpgTransaction
+IviStructure
+SPAT
+MapData
+SignalRequestMessage
+SignalStatusMessage
+ItsPduHeader
+# AddGrpC regional extension
+ConnectionManeuverAssist-addGrpC
+ConnectionTrajectory-addGrpC
+Control-addGrpC
+IntersectionState-addGrpC
+MapData-addGrpC
+Position3D-addGrpC
+RestrictionUserType-addGrpC
+SignalStatusPackage-addGrpC
+
+#.TYPE_RENAME
+
+# GicPart
+GicPart/relevanceZoneIds          T_GicPartRelevanceZoneIds
+GicPart/detectionZoneIds          T_GicPartDetectionZoneIds
+GicPart/driverAwarenessZoneIds    T_GicPartDriverAwarenessZoneIds
+GicPart/extraText                 T_GicPartExtraText
+
+TcPart/relevanceZoneIds           T_TcPartRelevanceZoneIds
+TcPart/detectionZoneIds           T_TcPartDetectionZoneIds
+TcPart/driverAwarenessZoneIds     T_TcPartDriverAwarenessZoneIds
+TcPart/text                       T_TcPartText
+
+TractorCharacteristics/equalTo    T_TractorCharactEqualTo
+TractorCharacteristics/notEqualTo T_TractorCharactNotEqualTo
+
+TrailerCharacteristics/equalTo    T_TrailerCharactEqualTo
+TrailerCharacteristics/notEqualTo T_TrailerCharactNotEqualTo
+
+SPAT/regional                     T_SPATRegional
+SignalRequestMessage/regional     T_SRMRegional
+SignalStatusMessage/regional      T_SSMRegional
+MapData/regional                  T_MAPRegional
+AdvisorySpeed/regional            T_AdvisorySpeedRegional
+ComputedLane/regional             T_ComputedLaneRegional
+ConnectionManeuverAssist/regional T_ConnectionManeuverAssistRegional
+GenericLane/regional              T_GenericLaneRegional
+IntersectionGeometry/regional     T_IntersectionGeometryRegional
+IntersectionState/regional        T_IntersectionStateRegional
+LaneDataAttribute/regional        T_LaneDataAttributeRegional
+MovementEvent/regional            T_MovementEventRegional
+MovementState/regional            T_MovementStateRegional
+NodeAttributeSetXY/regional       T_NodeAttributeSetXYRegional
+Position3D/regional               T_Position3DRegional
+RequestorDescription/regional     T_RequestorDescriptionRegional
+RestrictionUserType/regional      T_RestrictionUserTypeRegional
+RoadSegment/regional              T_RoadSegmentRegional
+SignalRequestPackage/regional     T_SignalRequestPackageRegional
+SignalRequest/regional            T_SignalRequestRegional
+SignalStatusPackage/regional      T_SignalStatusPackageRegional
+SignalStatus/regional             T_SignalStatusRegional
+#.END
+
+#.FIELD_RENAME
+TisTpgDRM/location                drmLocation
+TisTpgTRM/location                trmLocation
+TisTpgTCM/location                tcmLocation
+
+TisTpgVDRM/management             vdrmManagement
+TisTpgDRM/management              drmManagement
+TisTpgEOFM/management             eofmManagement
+TisTpgTCM/management              tcmManagement
+TisTpgVDPM/management             vdpmManagement
+TisTpgTRM/management              trmManagement
+TisTpgSNM/management              snmManagement
+
+TisTpgDRM/situation               drmSituation
+TisTpgTRM/situation               trmSituation
+TisTpgTCM/situation               tcmSituation
+
+Distance/value                    dValue
+DistanceOrDuration/value          dodValue
+Weight/value                      wValue
+AnyCatalogue/value                acValue
+VcCode/value                      vcValue
+
+Ext1/content                      e1Content
+Ext2/content                      e2Content
+VarLengthNumber/content           vlnContent
+
+Ext2/extension                    e1Extension
+Ext1/extension                    e2Extension
+VarLengthNumber/extension         vlnExtension
+
+RSCode/layoutComponentId          rscLayoutComponentId
+Text/layoutComponentId            tLayoutComponentId
+LayoutComponent/layoutComponentId lcLayoutComponentId
+
+ISO14823Code/pictogramCode        icPictogramCode
+AnyCatalogue/pictogramCode        acPictogramCode
+
+VcCode/validity                   vcValidity
+LaneInformation/validity          liValidity
+
+RoadSegmentReferenceID/id         rsrId
+RoadSegment/id                    rsId
+RequestorDescription/id           rdId
+SignalRequesterInfo/id            sriId
+IntersectionGeometry/id           igId
+IntersectionState/id              isId
+SignalRequest/id                  srId
+SignalStatus/id                   ssId
+IntersectionReferenceID/id        irId
+RestrictionClassAssignment/id     scaId
+
+AdvisorySpeed/confidence          asConfidence
+TimeChangeDetails/confidence      tcdConfidence
+
+SPAT/intersections                spatIntersections
+MapData/intersections             mdIntersections
+
+RequestorPositionVector/position  rpvPosition
+RequestorDescription/position     rdPosition
+
+SPAT/regional                     spatRegional
+SignalRequestMessage/regional     srmRegional
+SignalStatusMessage/regional      ssmRegional
+MapData/regional                  mapRegional
+AdvisorySpeed/regional            asRegional
+ComputedLane/regional             clRegional
+ConnectionManeuverAssist/regional cmaRegional
+GenericLane/regional              glRegional
+IntersectionGeometry/regional     igRegional
+IntersectionState/regional        isRegional
+LaneDataAttribute/regional        ldaRegional
+MovementEvent/regional            meRegional
+MovementState/regional            msRegional
+NodeAttributeSetXY/regional       nasxyRegional
+Position3D/regional               p3dRegional
+RequestorDescription/regional     rdRegional
+RestrictionUserType/regional      rutRegional
+RoadSegment/regional              rsRegional
+SignalRequestPackage/regional     srpRegional
+SignalRequest/regional            srRegional
+SignalStatusPackage/regional      sspRegional
+SignalStatus/regional             ssRegional
+
+LaneAttributes/regional           laRegional
+NodeOffsetPointXY/regional        nopxyRegional
+RequestorType/regional            rtRegional
+
+SignalRequestPackage/request      srpRequest
+SignalRequesterInfo/request       sriRequest
+RequestorType/request             rtRequest
+
+RegulatorySpeedLimit/speed        rslSpeed
+TransmissionAndSpeed/speed        tasSpeed
+RequestorPositionVector/speed     rpvSpeed
+AdvisorySpeed/speed               asSpeed
+
+IntersectionState/status          isStatus
+SignalStatusPackage/status        sspStatus
+SignalStatusMessage/status        ssmStatus
+
+SPAT/timeStamp                    spatTimeStamp
+SignalRequestMessage/timeStamp    srmTimeStamp
+SignalStatusMessage/timeStamp     ssmTimeStamp
+MapData/timeStamp                 mdTimeStamp
+IntersectionState/timeStamp       isTimeStamp
+
+AdvisorySpeed/type                asType
+RegulatorySpeedLimit/type         rslType
+RequestorDescription/type         rdType
+
+TcPart/detectionZoneIds           tpDetectionZoneIds
+TcPart/driverAwarenessZoneIds     tpDriverAwarenessZoneIds
+TcPart/relevanceZoneIds           tpRelevanceZoneIds
+
+GicPart/detectionZoneIds          gpDetectionZoneIds
+GicPart/driverAwarenessZoneIds    gpDriverAwarenessZoneIds
+GicPart/relevanceZoneIds          gpRelevanceZoneIds
+
+TractorCharacteristics/equalTo    toEqualTo
+TractorCharacteristics/notEqualTo toNotEqualTo
+
+TrailerCharacteristics/equalTo    teEqualTo
+TrailerCharacteristics/notEqualTo teNotEqualTo
+
+Node-XY-20b/x                     n20bX
+Node-XY-22b/x                     n22bX
+Node-XY-24b/x                     n24bX
+Node-XY-26b/x                     n26bX
+Node-XY-28b/x                     n28bX
+Node-XY-32b/x                     n32bX
+
+Node-XY-20b/y                     n20bY
+Node-XY-22b/y                     n22bY
+Node-XY-24b/y                     n24bY
+Node-XY-26b/y                     n26bY
+Node-XY-28b/y                     n28bY
+Node-XY-32b/y                     n32bY
+
+
+#.END
+
+#.MAKE_DEFINES
+ItsPduHeader/messageID
+#.END
+
+#.MAKE_ENUM
+RegionId
+CauseCodeType
+
+#.FN_HDR CoopAwareness
+  actx->private_data = (void*)wmem_new0(wmem_packet_scope(), its_private_data_t);
+  col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "CAM");
+  col_set_str(actx->pinfo->cinfo, COL_INFO, "CAM");
+#.END
+
+#.FN_HDR DecentralizedEnvironmentalNotificationMessage
+  actx->private_data = (void*)wmem_new0(wmem_packet_scope(), its_private_data_t);
+  col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "DENM");
+  col_set_str(actx->pinfo->cinfo, COL_INFO, "DENM");
+#.END
+
+#.FN_HDR EVChargingSpotNotificationPOIMessage
+  actx->private_data = (void*)wmem_new0(wmem_packet_scope(), its_private_data_t);
+  col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "EVCSN");
+  col_set_str(actx->pinfo->cinfo, COL_INFO, "EVCSN");
+#.END
+
+#.FN_HDR EV-RSR-MessageBody
+  actx->private_data = (void*)wmem_new0(wmem_packet_scope(), its_private_data_t);
+  col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "EV-RSR");
+  col_set_str(actx->pinfo->cinfo, COL_INFO, "EV-RSR");
+#.END
+
+#.FN_HDR TisTpgTransaction
+  actx->private_data = (void*)wmem_new0(wmem_packet_scope(), its_private_data_t);
+  col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "TISTPG");
+  col_set_str(actx->pinfo->cinfo, COL_INFO, "TISTPG");
+#.END
+
+#.FN_HDR IviStructure
+  actx->private_data = (void*)wmem_new0(wmem_packet_scope(), its_private_data_t);
+  col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "IVIM");
+  col_set_str(actx->pinfo->cinfo, COL_INFO, "IVIM");
+#.END
+
+#.FN_HDR SignalStatusMessage
+  its_private_data_t *regext = wmem_new0(wmem_packet_scope(), its_private_data_t);
+  actx->private_data = (void*)regext;
+  col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "SSEM");
+  col_set_str(actx->pinfo->cinfo, COL_INFO, "SSEM");
+  regext->type = Reg_SignalStatusMessage;
+#.END
+
+#.FN_HDR SignalRequestMessage
+  its_private_data_t *regext = wmem_new0(wmem_packet_scope(), its_private_data_t);
+  actx->private_data = (void*)regext;
+  col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "SREM");
+  col_set_str(actx->pinfo->cinfo, COL_INFO, "SREM");
+  regext->type = Reg_SignalRequestMessage;
+#.END
+
+#.FN_HDR MapData
+  its_private_data_t *regext = wmem_new0(wmem_packet_scope(), its_private_data_t);
+  actx->private_data = (void*)regext;
+  col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "MAPEM");
+  col_set_str(actx->pinfo->cinfo, COL_INFO, "MAPEM");
+  regext->type = Reg_MapData;
+#.END
+
+#.FN_HDR SPAT
+  its_private_data_t *regext = wmem_new0(wmem_packet_scope(), its_private_data_t);
+  actx->private_data = (void*)regext;
+  col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "SPATEM");
+  col_set_str(actx->pinfo->cinfo, COL_INFO, "SPATEM");
+  regext->type = Reg_SPAT;
+#.END
+
+
+#.FN_HDR ConnectionManeuverAssist-addGrpC
+  actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
+#.END
+
+
+#.FN_HDR ConnectionTrajectory-addGrpC
+  actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
+#.END
+
+
+#.FN_HDR Control-addGrpC
+  actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
+#.END
+
+
+#.FN_HDR IntersectionState-addGrpC
+  actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
+#.END
+
+
+#.FN_HDR MapData-addGrpC
+  actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
+#.END
+
+
+#.FN_HDR Position3D-addGrpC
+  actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
+#.END
+
+
+#.FN_HDR RestrictionUserType-addGrpC
+  actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
+#.END
+
+
+#.FN_HDR SignalStatusPackage-addGrpC
+  actx->private_data = wmem_new0(wmem_packet_scope(), its_private_data_t);
+#.END
+
+
+#.FN_HDR AdvisorySpeed
+  enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
+  ((its_private_data_t*)actx->private_data)->type = Reg_AdvisorySpeed;
+#.END
+#.FN_FTR AdvisorySpeed
+  ((its_private_data_t*)actx->private_data)->type = save;
+#.END
+
+
+#.FN_HDR ComputedLane
+  enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
+  ((its_private_data_t*)actx->private_data)->type = Reg_ComputedLane;
+#.END
+#.FN_FTR ComputedLane
+  ((its_private_data_t*)actx->private_data)->type = save;
+#.END
+
+
+#.FN_HDR ConnectionManeuverAssist
+  enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
+  ((its_private_data_t*)actx->private_data)->type = Reg_ConnectionManeuverAssist;
+#.END
+#.FN_FTR ConnectionManeuverAssist
+  ((its_private_data_t*)actx->private_data)->type = save;
+#.END
+
+
+#.FN_HDR GenericLane
+  enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
+  ((its_private_data_t*)actx->private_data)->type = Reg_GenericLane;
+#.END
+#.FN_FTR GenericLane
+  ((its_private_data_t*)actx->private_data)->type = save;
+#.END
+
+
+#.FN_HDR IntersectionGeometry
+  enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
+  ((its_private_data_t*)actx->private_data)->type = Reg_IntersectionGeometry;
+#.END
+#.FN_FTR IntersectionGeometry
+  ((its_private_data_t*)actx->private_data)->type = save;
+#.END
+
+
+#.FN_HDR IntersectionState
+  enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
+  ((its_private_data_t*)actx->private_data)->type = Reg_IntersectionState;
+#.END
+#.FN_FTR IntersectionState
+  ((its_private_data_t*)actx->private_data)->type = save;
+#.END
+
+
+#.FN_HDR LaneAttributes
+  enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
+  ((its_private_data_t*)actx->private_data)->type = Reg_LaneAttributes;
+#.END
+#.FN_FTR LaneAttributes
+  ((its_private_data_t*)actx->private_data)->type = save;
+#.END
+
+
+#.FN_HDR LaneDataAttribute
+  enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
+  ((its_private_data_t*)actx->private_data)->type = Reg_LaneDataAttribute;
+#.END
+#.FN_FTR LaneDataAttribute
+  ((its_private_data_t*)actx->private_data)->type = save;
+#.END
+
+
+#.FN_HDR MovementEvent
+  enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
+  ((its_private_data_t*)actx->private_data)->type = Reg_MovementEvent;
+#.END
+#.FN_FTR MovementEvent
+  ((its_private_data_t*)actx->private_data)->type = save;
+#.END
+
+
+#.FN_HDR MovementState
+  enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
+  ((its_private_data_t*)actx->private_data)->type = Reg_MovementState;
+#.END
+#.FN_FTR MovementState
+  ((its_private_data_t*)actx->private_data)->type = save;
+#.END
+
+
+#.FN_HDR NodeAttributeSetXY
+  enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
+  ((its_private_data_t*)actx->private_data)->type = Reg_NodeAttributeSetXY;
+#.END
+#.FN_FTR NodeAttributeSetXY
+  ((its_private_data_t*)actx->private_data)->type = save;
+#.END
+
+
+#.FN_HDR NodeOffsetPointXY
+  enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
+  ((its_private_data_t*)actx->private_data)->type = Reg_NodeOffsetPointXY;
+#.END
+#.FN_FTR NodeOffsetPointXY
+  ((its_private_data_t*)actx->private_data)->type = save;
+#.END
+
+
+#.FN_HDR Position3D
+  enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
+  ((its_private_data_t*)actx->private_data)->type = Reg_Position3D;
+#.END
+#.FN_FTR Position3D
+  ((its_private_data_t*)actx->private_data)->type = save;
+#.END
+
+
+#.FN_HDR RequestorDescription
+  enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
+  ((its_private_data_t*)actx->private_data)->type = Reg_RequestorDescription;
+#.END
+#.FN_FTR RequestorDescription
+  ((its_private_data_t*)actx->private_data)->type = save;
+#.END
+
+
+#.FN_HDR RequestorType
+  enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
+  ((its_private_data_t*)actx->private_data)->type = Reg_RequestorType;
+#.END
+#.FN_FTR RequestorType
+  ((its_private_data_t*)actx->private_data)->type = save;
+#.END
+
+
+#.FN_HDR RestrictionUserType
+  enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
+  ((its_private_data_t*)actx->private_data)->type = Reg_RestrictionUserType;
+#.END
+#.FN_FTR RestrictionUserType
+  ((its_private_data_t*)actx->private_data)->type = save;
+#.END
+
+
+#.FN_HDR RoadSegment
+  enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
+  ((its_private_data_t*)actx->private_data)->type = Reg_RoadSegment;
+#.END
+#.FN_FTR RoadSegment
+  ((its_private_data_t*)actx->private_data)->type = save;
+#.END
+
+
+#.FN_HDR SignalRequestPackage
+  enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
+  ((its_private_data_t*)actx->private_data)->type = Reg_SignalRequestPackage;
+#.END
+#.FN_FTR SignalRequestPackage
+  ((its_private_data_t*)actx->private_data)->type = save;
+#.END
+
+
+#.FN_HDR SignalRequest
+  enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
+  ((its_private_data_t*)actx->private_data)->type = Reg_SignalRequest;
+#.END
+#.FN_FTR SignalRequest
+  ((its_private_data_t*)actx->private_data)->type = save;
+#.END
+
+
+#.FN_HDR SignalStatusPackage
+  enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
+  ((its_private_data_t*)actx->private_data)->type = Reg_SignalStatusPackage;
+#.END
+#.FN_FTR SignalStatusPackage
+  ((its_private_data_t*)actx->private_data)->type = save;
+#.END
+
+
+#.FN_HDR SignalStatus
+  enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
+  ((its_private_data_t*)actx->private_data)->type = Reg_SignalStatus;
+#.END
+#.FN_FTR SignalStatus
+  ((its_private_data_t*)actx->private_data)->type = save;
+#.END
+
+
+#.FN_HDR SignalControlZone
+  enum regext_type_enum save = ((its_private_data_t*)actx->private_data)->type;
+  ((its_private_data_t*)actx->private_data)->type = Reg_SignalControlZone;
+#.END
+#.FN_FTR SignalControlZone
+  ((its_private_data_t*)actx->private_data)->type = save;
+#.END
+
+#.FN_PARS RegionId VAL_PTR = &((its_private_data_t*)actx->private_data)->region_id
+
+#.FN_PARS ItsPduHeader/protocolVersion VAL_PTR = &((its_header_t*)actx->private_data)->version
+#.FN_PARS ItsPduHeader/messageID VAL_PTR = &((its_header_t*)actx->private_data)->msgId
+#.FN_PARS StationID VAL_PTR = actx->private_data?&((its_header_t*)actx->private_data)->stationId:NULL
+
+#.FN_BODY ItsPduHeader
+  guint8 version = tvb_get_guint8(tvb, 0);
+  if ((offset = dissector_try_uint(its_version_subdissector_table, version, tvb, actx->pinfo, tree))) {
+    return offset;
+  }
+  // Lets try it that way, regarless of version value...
+  its_header_t *hdr = wmem_new0(wmem_packet_scope(), its_header_t);
+  actx->private_data = (void*)hdr;
+%(DEFAULT_BODY)s
+  tap_queue_packet(its_tap, actx->pinfo, actx->private_data);
+  tvbuff_t *next_tvb = tvb_new_subset_length(tvb, (offset+7)>>3, -1);
+  if (!dissector_try_uint(its_msgid_subdissector_table, (hdr->version << 16)+hdr->msgId, next_tvb, actx->pinfo, tree)) {
+    call_data_dissector(next_tvb, actx->pinfo, tree);
+  }
+#.END
+
+#.ASSIGN_VALUE_TO_TYPE  # ISO_TS_19091_DSRC ASN.1 does not have constants assigned to types
+
+#RegionId
+noRegion     RegionId
+addGrpA      RegionId
+addGrpB      RegionId
+addGrpC      RegionId
+
+#.END
+
+#.REGISTER
+# Not used due to "protocol" detection issue: we shall register for its subdissector not dsrc
+#.END
+
+#.FN_PARS RegionalExtension/regExtValue FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_regextval_pdu
+
+#.FN_BODY ChargingSpotType VAL_PTR=&parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    const gint *fields0[] = { // CHECKED
+      &hf_evcsn_ChargingSpotType_standardChargeMode1,
+      &hf_evcsn_ChargingSpotType_standardChargeMode2,
+      &hf_evcsn_ChargingSpotType_standardOrFastChargeMode3,
+      &hf_evcsn_ChargingSpotType_fastChargeWithExternalCharger,
+      NULL
+    };
+    const gint *fields1[] = { // CHECKED
+      &hf_evcsn_ChargingSpotType_quickDrop,
+      &hf_evcsn_ChargingSpotType_inductiveChargeWhileStationary,
+      &hf_evcsn_ChargingSpotType_inductiveChargeWhileDriving,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_evcsn_ChargingSpotType);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields0, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 1, 1, fields1, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY SupportedPaymentTypes VAL_PTR=&parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    const gint *fields[] = { // CHECKED
+      &hf_evrsr_SupportedPaymentTypes_contract,
+      &hf_evrsr_SupportedPaymentTypes_externalIdentification,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_evrsr_SupportedPaymentTypes);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY PMD VAL_PTR=&parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    const gint *fields[] = {
+      &hf_ivi_PMD_national_holiday,
+      &hf_ivi_PMD_even_days,
+      &hf_ivi_PMD_odd_days,
+      &hf_ivi_PMD_market_day,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ivi_PMD);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 2, fields, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY TpgAutomation VAL_PTR=&parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    const gint *fields[] = { // CHECKED
+      &hf_tistpg_TpgAutomation_fullAutomated,
+      &hf_tistpg_TpgAutomation_semiAutomated,
+      &hf_tistpg_TpgAutomation_manual,
+      &hf_tistpg_TpgAutomation_reserved,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_tistpg_TpgAutomation);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY AccelerationControl VAL_PTR=&parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    const gint *fields[] = { // CHECKED
+      &hf_its_AccelerationControl_brakePedalEngaged,
+      &hf_its_AccelerationControl_gasPedalEngaged,
+      &hf_its_AccelerationControl_emergencyBrakeEngaged,
+      &hf_its_AccelerationControl_collisionWarningEngaged,
+      &hf_its_AccelerationControl_accEngaged,
+      &hf_its_AccelerationControl_cruiseControlEngaged,
+      &hf_its_AccelerationControl_speedLimiterEngaged,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_its_AccelerationControl);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY LaneAttributes-Barrier VAL_PTR=&parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    const gint *fields0[] = { // CHECKED
+      &hf_dsrc_LaneAttributes_Barrier_median_RevocableLane,
+      &hf_dsrc_LaneAttributes_Barrier_median,
+      &hf_dsrc_LaneAttributes_Barrier_whiteLineHashing,
+      &hf_dsrc_LaneAttributes_Barrier_stripedLines,
+      &hf_dsrc_LaneAttributes_Barrier_doubleStripedLines,
+      &hf_dsrc_LaneAttributes_Barrier_trafficCones,
+      &hf_dsrc_LaneAttributes_Barrier_constructionBarrier,
+      &hf_dsrc_LaneAttributes_Barrier_trafficChannels,
+      NULL
+    };
+    const gint *fields1[] = { // CHECKED
+      &hf_dsrc_LaneAttributes_Barrier_lowCurbs,
+      &hf_dsrc_LaneAttributes_Barrier_highCurbs,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_dsrc_LaneAttributes_Barrier);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields0, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 1, 1, fields1, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY TisProfile VAL_PTR=&parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    const gint *fields[] = { // CHECKED
+      &hf_tistpg_TisProfile_reserved,
+      &hf_tistpg_TisProfile_profileOne,
+      &hf_tistpg_TisProfile_profileTwo,
+      &hf_tistpg_TisProfile_profileThree,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_tistpg_TisProfile);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY LaneAttributes-Vehicle VAL_PTR=&parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    const gint *fields[] = { // CHECKED
+      &hf_dsrc_LaneAttributes_Vehicle_isVehicleRevocableLane,
+      &hf_dsrc_LaneAttributes_Vehicle_isVehicleFlyOverLane,
+      &hf_dsrc_LaneAttributes_Vehicle_hovLaneUseOnly,
+      &hf_dsrc_LaneAttributes_Vehicle_restrictedToBusUse,
+      &hf_dsrc_LaneAttributes_Vehicle_restrictedToTaxiUse,
+      &hf_dsrc_LaneAttributes_Vehicle_restrictedFromPublicUse,
+      &hf_dsrc_LaneAttributes_Vehicle_hasIRbeaconCoverage,
+      &hf_dsrc_LaneAttributes_Vehicle_permissionOnRequest,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_dsrc_LaneAttributes_Vehicle);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY LightBarSirenInUse VAL_PTR=&parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    const gint *fields[] = { // CHECKED
+      &hf_its_LightBarSirenInUse_lightBarActivated,
+      &hf_its_LightBarSirenInUse_sirenActivated,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_its_LightBarSirenInUse);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY LaneAttributes-TrackedVehicle VAL_PTR=&parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    const gint *fields[] = { // CHECKED
+      &hf_dsrc_LaneAttributes_TrackedVehicle_spec_RevocableLane,
+      &hf_dsrc_LaneAttributes_TrackedVehicle_spec_commuterRailRoadTrack,
+      &hf_dsrc_LaneAttributes_TrackedVehicle_spec_lightRailRoadTrack,
+      &hf_dsrc_LaneAttributes_TrackedVehicle_spec_heavyRailRoadTrack,
+      &hf_dsrc_LaneAttributes_TrackedVehicle_spec_otherRailType,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_dsrc_LaneAttributes_TrackedVehicle);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY DayOfWeek VAL_PTR=&parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    const gint *fields[] = { // CHECKED
+      &hf_ivi_DayOfWeek_unused,
+      &hf_ivi_DayOfWeek_monday,
+      &hf_ivi_DayOfWeek_tuesday,
+      &hf_ivi_DayOfWeek_wednesday,
+      &hf_ivi_DayOfWeek_thursday,
+      &hf_ivi_DayOfWeek_friday,
+      &hf_ivi_DayOfWeek_saturday,
+      &hf_ivi_DayOfWeek_sunday,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ivi_DayOfWeek);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY EnergyStorageType VAL_PTR=&parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    const gint *fields[] = { // CHECKED
+      &hf_its_EnergyStorageType_hydrogenStorage,
+      &hf_its_EnergyStorageType_electricEnergyStorage,
+      &hf_its_EnergyStorageType_liquidPropaneGas,
+      &hf_its_EnergyStorageType_compressedNaturalGas,
+      &hf_its_EnergyStorageType_diesel,
+      &hf_its_EnergyStorageType_gasoline,
+      &hf_its_EnergyStorageType_ammonia,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_its_EnergyStorageType);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY EmergencyPriority VAL_PTR=&parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    const gint *fields[] = { // CHECKED
+      &hf_its_EmergencyPriority_requestForRightOfWay,
+      &hf_its_EmergencyPriority_requestForFreeCrossingAtATrafficLight,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_its_EmergencyPriority);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY IntersectionStatusObject VAL_PTR=&parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    const gint *fields0[] = { // CHECKED
+      &hf_dsrc_IntersectionStatusObject_manualControlIsEnabled,
+      &hf_dsrc_IntersectionStatusObject_stopTimeIsActivated,
+      &hf_dsrc_IntersectionStatusObject_failureFlash,
+      &hf_dsrc_IntersectionStatusObject_preemptIsActive,
+      &hf_dsrc_IntersectionStatusObject_signalPriorityIsActive,
+      &hf_dsrc_IntersectionStatusObject_fixedTimeOperation,
+      &hf_dsrc_IntersectionStatusObject_trafficDependentOperation,
+      &hf_dsrc_IntersectionStatusObject_standbyOperation,
+      NULL
+    };
+    const gint *fields1[] = { // CHECKED
+      &hf_dsrc_IntersectionStatusObject_failureMode,
+      &hf_dsrc_IntersectionStatusObject_off,
+      &hf_dsrc_IntersectionStatusObject_recentMAPmessageUpdate,
+      &hf_dsrc_IntersectionStatusObject_recentChangeInMAPassignedLanesIDsUsed,
+      &hf_dsrc_IntersectionStatusObject_noValidMAPisAvailableAtThisTime,
+      &hf_dsrc_IntersectionStatusObject_noValidSPATisAvailableAtThisTime,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_dsrc_IntersectionStatusObject);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields0, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 1, 1, fields1, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY AllowedManeuvers VAL_PTR=&parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    const gint *fields0[] = { // CHECKED
+      &hf_dsrc_AllowedManeuvers_maneuverStraightAllowed,
+      &hf_dsrc_AllowedManeuvers_maneuverLeftAllowed,
+      &hf_dsrc_AllowedManeuvers_maneuverRightAllowed,
+      &hf_dsrc_AllowedManeuvers_maneuverUTurnAllowed,
+      &hf_dsrc_AllowedManeuvers_maneuverLeftTurnOnRedAllowed,
+      &hf_dsrc_AllowedManeuvers_maneuverRightTurnOnRedAllowed,
+      &hf_dsrc_AllowedManeuvers_maneuverLaneChangeAllowed,
+      &hf_dsrc_AllowedManeuvers_maneuverNoStoppingAllowed,
+      NULL
+    };
+    const gint *fields1[] = { // CHECKED
+      &hf_dsrc_AllowedManeuvers_yieldAllwaysRequired,
+      &hf_dsrc_AllowedManeuvers_goWithHalt,
+      &hf_dsrc_AllowedManeuvers_caution,
+      &hf_dsrc_AllowedManeuvers_reserved1,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_dsrc_AllowedManeuvers);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields0, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 1, 1, fields1, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY LaneAttributes-Crosswalk VAL_PTR=&parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    const gint *fields0[] = { // CHECKED
+      &hf_dsrc_LaneAttributes_Crosswalk_crosswalkRevocableLane,
+      &hf_dsrc_LaneAttributes_Crosswalk_bicyleUseAllowed,
+      &hf_dsrc_LaneAttributes_Crosswalk_isXwalkFlyOverLane,
+      &hf_dsrc_LaneAttributes_Crosswalk_fixedCycleTime,
+      &hf_dsrc_LaneAttributes_Crosswalk_biDirectionalCycleTimes,
+      &hf_dsrc_LaneAttributes_Crosswalk_hasPushToWalkButton,
+      &hf_dsrc_LaneAttributes_Crosswalk_audioSupport,
+      &hf_dsrc_LaneAttributes_Crosswalk_rfSignalRequestPresent,
+      NULL
+    };
+    const gint *fields1[] = { // CHECKED
+      &hf_dsrc_LaneAttributes_Crosswalk_unsignalizedSegmentsPresent,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_dsrc_LaneAttributes_Crosswalk);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields0, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 1, 1, fields1, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY LaneDirection VAL_PTR=&parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    const gint *fields[] = { // CHECKED
+      &hf_dsrc_LaneDirection_ingressPath,
+      &hf_dsrc_LaneDirection_egressPath,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_dsrc_LaneDirection);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY LaneAttributes-Bike VAL_PTR=&parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    const gint *fields[] = { // CHECKED
+      &hf_dsrc_LaneAttributes_Bike_bikeRevocableLane,
+      &hf_dsrc_LaneAttributes_Bike_pedestrianUseAllowed,
+      &hf_dsrc_LaneAttributes_Bike_isBikeFlyOverLane,
+      &hf_dsrc_LaneAttributes_Bike_fixedCycleTime,
+      &hf_dsrc_LaneAttributes_Bike_biDirectionalCycleTimes,
+      &hf_dsrc_LaneAttributes_Bike_isolatedByBarrier,
+      &hf_dsrc_LaneAttributes_Bike_unsignalizedSegmentsPresent,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_dsrc_LaneAttributes_Bike);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY LaneAttributes-Parking VAL_PTR=&parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    const gint *fields[] = { // CHECKED
+      &hf_dsrc_LaneAttributes_Parking_parkingRevocableLane,
+      &hf_dsrc_LaneAttributes_Parking_parallelParkingInUse,
+      &hf_dsrc_LaneAttributes_Parking_headInParkingInUse,
+      &hf_dsrc_LaneAttributes_Parking_doNotParkZone,
+      &hf_dsrc_LaneAttributes_Parking_parkingForBusUse,
+      &hf_dsrc_LaneAttributes_Parking_parkingForTaxiUse,
+      &hf_dsrc_LaneAttributes_Parking_noPublicParkingUse,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_dsrc_LaneAttributes_Parking);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY ExteriorLights VAL_PTR=&parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    const gint *fields[] = { // CHECKED
+      &hf_its_ExteriorLights_lowBeamHeadlightsOn,
+      &hf_its_ExteriorLights_highBeamHeadlightsOn,
+      &hf_its_ExteriorLights_leftTurnSignalOn,
+      &hf_its_ExteriorLights_rightTurnSignalOn,
+      &hf_its_ExteriorLights_daytimeRunningLightsOn,
+      &hf_its_ExteriorLights_reverseLightOn,
+      &hf_its_ExteriorLights_fogLightOn,
+      &hf_its_ExteriorLights_parkingLightsOn,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_its_ExteriorLights);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY LaneAttributes-Striping VAL_PTR=&parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    const gint *fields[] = { // CHECKED
+      &hf_dsrc_LaneAttributes_Striping_stripeToConnectingLanesRevocableLane,
+      &hf_dsrc_LaneAttributes_Striping_stripeDrawOnLeft,
+      &hf_dsrc_LaneAttributes_Striping_stripeDrawOnRight,
+      &hf_dsrc_LaneAttributes_Striping_stripeToConnectingLanesLeft,
+      &hf_dsrc_LaneAttributes_Striping_stripeToConnectingLanesRight,
+      &hf_dsrc_LaneAttributes_Striping_stripeToConnectingLanesAhead,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_dsrc_LaneAttributes_Striping);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY LaneSharing VAL_PTR=&parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    const gint *fields0[] = { // CHECKED
+      &hf_dsrc_LaneSharing_overlappingLaneDescriptionProvided,
+      &hf_dsrc_LaneSharing_multipleLanesTreatedAsOneLane,
+      &hf_dsrc_LaneSharing_otherNonMotorizedTrafficTypes,
+      &hf_dsrc_LaneSharing_individualMotorizedVehicleTraffic,
+      &hf_dsrc_LaneSharing_busVehicleTraffic,
+      &hf_dsrc_LaneSharing_taxiVehicleTraffic,
+      &hf_dsrc_LaneSharing_pedestriansTraffic,
+      &hf_dsrc_LaneSharing_cyclistVehicleTraffic,
+      NULL
+    };
+    const gint *fields1[] = { // CHECKED
+      &hf_dsrc_LaneSharing_trackedVehicleTraffic,
+      &hf_dsrc_LaneSharing_pedestrianTraffic,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_dsrc_LaneSharing);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields0, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 1, 1, fields1, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY TransitVehicleStatus VAL_PTR=&parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    const gint *fields[] = { // CHECKED
+      &hf_dsrc_TransitVehicleStatus_loading,
+      &hf_dsrc_TransitVehicleStatus_anADAuse,
+      &hf_dsrc_TransitVehicleStatus_aBikeLoad,
+      &hf_dsrc_TransitVehicleStatus_doorOpen,
+      &hf_dsrc_TransitVehicleStatus_charging,
+      &hf_dsrc_TransitVehicleStatus_atStopLine,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_dsrc_TransitVehicleStatus);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY LaneAttributes-Sidewalk VAL_PTR=&parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    const gint *fields[] = { // CHECKED
+      &hf_dsrc_LaneAttributes_Sidewalk_sidewalk_RevocableLane,
+      &hf_dsrc_LaneAttributes_Sidewalk_bicyleUseAllowed,
+      &hf_dsrc_LaneAttributes_Sidewalk_isSidewalkFlyOverLane,
+      &hf_dsrc_LaneAttributes_Sidewalk_walkBikes,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_dsrc_LaneAttributes_Sidewalk);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY PositionOfOccupants VAL_PTR=&parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    const gint *fields0[] = { // CHECKED
+      &hf_its_PositionOfOccupants_row1LeftOccupied,
+      &hf_its_PositionOfOccupants_row1RightOccupied,
+      &hf_its_PositionOfOccupants_row1MidOccupied,
+      &hf_its_PositionOfOccupants_row1NotDetectable,
+      &hf_its_PositionOfOccupants_row1NotPresent,
+      &hf_its_PositionOfOccupants_row2LeftOccupied,
+      &hf_its_PositionOfOccupants_row2RightOccupied,
+      &hf_its_PositionOfOccupants_row2MidOccupied,
+      NULL
+    };
+    const gint *fields1[] = { // CHECKED
+      &hf_its_PositionOfOccupants_row2NotDetectable,
+      &hf_its_PositionOfOccupants_row2NotPresent,
+      &hf_its_PositionOfOccupants_row3LeftOccupied,
+      &hf_its_PositionOfOccupants_row3RightOccupied,
+      &hf_its_PositionOfOccupants_row3MidOccupied,
+      &hf_its_PositionOfOccupants_row3NotDetectable,
+      &hf_its_PositionOfOccupants_row3NotPresent,
+      &hf_its_PositionOfOccupants_row4LeftOccupied,
+      NULL
+    };
+    const gint *fields2[] = { // CHECKED
+      &hf_its_PositionOfOccupants_row4RightOccupied,
+      &hf_its_PositionOfOccupants_row4MidOccupied,
+      &hf_its_PositionOfOccupants_row4NotDetectable,
+      &hf_its_PositionOfOccupants_row4NotPresent,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_its_PositionOfOccupants);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields0, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 1, 1, fields1, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 2, 1, fields2, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY SpecialTransportType VAL_PTR=&parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    const gint *fields[] = { // CHECKED
+      &hf_its_SpecialTransportType_heavyLoad,
+      &hf_its_SpecialTransportType_excessWidth,
+      &hf_its_SpecialTransportType_excessLength,
+      &hf_its_SpecialTransportType_excessHeight,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_its_SpecialTransportType);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY TypeOfReceptacle VAL_PTR=&parameter_tvb LEN_PTR=&len
+  tvbuff_t *parameter_tvb = NULL;
+  int len;
+%(DEFAULT_BODY)s
+  /* TODO Provide values?
+   * See ETSI TS 101 556-1 V1.1.1 Annex B Description for data elements
+   * Table B.2: Coding of the type of receptacle field
+   *
+   * Code  Charging     Standard plug /      Type of  Nb of   Maximum  Maximum
+   *       spot type    cable                current  phases  Voltage  Current
+   * -------------------------------------------------------------------------
+   * 0000  Socket       IEC 62196-2 type 1     AC     Single   240V     16A
+   * 0001  Socket       IEC 62196-2 type 1     AC     Single   240V     32A
+   * 0010  Socket       IEC 62196-2 type 1     AC     Single   240V     80A
+   * 0011  Socket       IEC 62196-2 type 1     AC     Single   120V     12A
+   * 0100  Socket       IEC 62196-2 type 1     AC     Single   120V     16A
+   * 0101  Socket       Standard Household     AC     Single   250V     16A
+   * 0110  Socket       Standard Household     AC     Single   480V     16A
+   * 0111  Socket       IEC 62196-2 type 2     AC     Single   230V     16A
+   * 1000  Socket       IEC 62196-2 type 2     AC     Single   250V     32A
+   * 1001  Socket       IEC 62196-2 type 2     AC     Single   480V     32A
+   * 1010  Socket       IEC 62196-2 type 2     AC     Single   400V     32/250A
+   * 1011  Socket       IEC 62196-2 type 3A    AC     Single   250V     32A
+   * 1100  Socket       IEC 62196-2 type 3B    AC     Single   480V     32A
+   * 1101  Socket       Reserved for Future    AC     Single  1000V     400A
+                        IEC 62196-3
+   * 1110  Cable for    Reserved
+           DC charging
+   * 1111  Cable for    Reserved
+           DC charging
+   */
+
+#.NO_EMIT WITH_VALS
+#.END
+
+#.NO_EMIT ONLY_VALS
+#.END
+
+#.NO_EMIT WITHOUT_VALS
+# Just keep the vals. hf are made manually and used in cause/subcause decoding
+PostCrashSubCauseCode
+VehicleBreakdownSubCauseCode
+DangerousSituationSubCauseCode
+DangerousEndOfQueueSubCauseCode
+RescueAndRecoveryWorkInProgressSubCauseCode
+SignalViolationSubCauseCode
+CollisionRiskSubCauseCode
+HazardousLocation-AnimalOnTheRoadSubCauseCode
+HazardousLocation-ObstacleOnTheRoadSubCauseCode
+HazardousLocation-SurfaceConditionSubCauseCode
+HazardousLocation-DangerousCurveSubCauseCode
+EmergencyVehicleApproachingSubCauseCode
+HumanProblemSubCauseCode
+StationaryVehicleSubCauseCode
+SlowVehicleSubCauseCode
+AdverseWeatherCondition-PrecipitationSubCauseCode
+AdverseWeatherCondition-VisibilitySubCauseCode
+AdverseWeatherCondition-AdhesionSubCauseCode
+AdverseWeatherCondition-ExtremeWeatherConditionSubCauseCode
+WrongWayDrivingSubCauseCode
+HumanPresenceOnTheRoadSubCauseCode
+AccidentSubCauseCode
+TrafficConditionSubCauseCode
+#.END
+
+#.FN_PARS CauseCodeType VAL_PTR = &((its_private_data_t*)actx->private_data)->cause_code
+
+#.FN_BODY SubCauseCodeType
+  // Overwrite hf_index
+  hf_index = *find_subcause_from_cause((CauseCodeType_enum) ((its_private_data_t*)actx->private_data)->cause_code);
+%(DEFAULT_BODY)s
+

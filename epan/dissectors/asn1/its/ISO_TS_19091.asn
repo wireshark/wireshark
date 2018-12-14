@@ -1,0 +1,2078 @@
+-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-- ISO TS 19091
+--
+-- This ASN.1 was generated: 30.08.2016
+--
+-- This document contains the data element needed for the encoding the SPAT, MapData, SignalRequestMessage, SignalStatusMessage message
+-- as defined in ISO TS 19091 and SAEJ2735
+--
+-- It includes the addendunm extensions for Addgrp-C (e.g. Europe)
+--
+-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+-- ^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-
+--
+-- module: DSRC
+--
+-- ^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-
+DSRC { iso (1) standard (0) signalizedIntersection (19091) profilec(2) dsrc (2) version (1) }
+
+DEFINITIONS AUTOMATIC TAGS::= BEGIN
+
+IMPORTS
+StationID, Longitude, Latitude, SpeedConfidence FROM ITS-Container { itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) ts (102894) cdd (2) version (1) }
+Reg-SPAT,Reg-SignalRequestMessage, Reg-SignalStatusMessage, Reg-MapData, Reg-AdvisorySpeed, Reg-ComputedLane, Reg-ConnectionManeuverAssist,
+Reg-GenericLane, Reg-IntersectionGeometry, Reg-IntersectionState, Reg-LaneAttributes, Reg-LaneDataAttribute, Reg-MovementEvent, Reg-MovementState,
+Reg-NodeAttributeSetXY, Reg-NodeOffsetPointXY,Reg-Position3D, Reg-RequestorDescription, Reg-RequestorType, Reg-RestrictionUserType, Reg-RoadSegment,
+Reg-SignalControlZone, Reg-SignalRequestPackage, Reg-SignalRequest, Reg-SignalStatusPackage, Reg-SignalStatus FROM REGION { iso (1) standard (0) signalizedIntersection (19091) profilec(2) region (1) version (1)}
+Iso3833VehicleType FROM ElectronicRegistrationIdentificationVehicleDataModule { iso(1) standard(0) iso24534 (24534) vehicleData (1) version (1) };
+
+-- -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+--
+-- Start of entries from table Messages...
+-- This table typicaly contains message entries.
+-- -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+--
+
+-- PATCH Moved on top so that definition precedes usage
+MESSAGE-ID-AND-TYPE ::= CLASS {
+   &id    DSRCmsgID UNIQUE,
+   &Type
+   } WITH SYNTAX {&Type IDENTIFIED BY &id}
+
+MessageFrame ::= SEQUENCE {
+   messageId   MESSAGE-ID-AND-TYPE.&id({MessageTypes}),
+   value       MESSAGE-ID-AND-TYPE.&Type({MessageTypes}{@.messageId}),
+   ...
+   }
+
+MessageTypes MESSAGE-ID-AND-TYPE ::= {
+   { MapData               IDENTIFIED BY mapData               } |
+   { SPAT                  IDENTIFIED BY signalPhaseAndTimingMessage } |
+   { SignalRequestMessage  IDENTIFIED BY signalRequestMessage  } |
+   { SignalStatusMessage   IDENTIFIED BY signalStatusMessage   },
+   ... -- Expansion to be used only by the SAE J2735 DSRC TC
+   }
+
+
+-- Regional extensions support
+REG-EXT-ID-AND-TYPE ::= CLASS {
+   &id     RegionId UNIQUE,
+   &Type
+   } WITH SYNTAX {&Type IDENTIFIED BY &id}
+
+RegionalExtension {REG-EXT-ID-AND-TYPE : Set} ::= SEQUENCE {
+   regionId     REG-EXT-ID-AND-TYPE.&id( {Set} ),
+   regExtValue  REG-EXT-ID-AND-TYPE.&Type( {Set}{@regionId} )
+   }
+
+SPAT ::= SEQUENCE {
+   timeStamp     MinuteOfTheYear OPTIONAL,
+   name          DescriptiveName OPTIONAL,
+                 -- human readable name for this collection
+                 -- to be used only in debug mode
+
+   intersections IntersectionStateList,
+                 -- sets of SPAT data (one per intersection)
+
+   -- If PrioritizationResponse data is required, it is found
+   -- in the RegionalSPAT entry below
+
+   regional      SEQUENCE (SIZE(1..4)) OF
+                 RegionalExtension {{Reg-SPAT}} OPTIONAL,
+   ...
+   }
+
+SignalRequestMessage ::= SEQUENCE {
+   timeStamp       MinuteOfTheYear  OPTIONAL,
+   second          DSecond,
+   sequenceNumber  MsgCount         OPTIONAL,
+
+   requests        SignalRequestList OPTIONAL,
+                   -- Request Data for one or more signalized
+                   -- intersections that support SRM dialogs
+
+   requestor       RequestorDescription,
+                   -- Requesting Device and other User Data
+                   -- contains vehicle ID (if from a vehicle)
+                   -- as well as type data and current position
+                   -- and may contain additional transit data
+
+   regional        SEQUENCE (SIZE(1..4)) OF
+                   RegionalExtension {{Reg-SignalRequestMessage}} OPTIONAL,
+   ...
+}
+
+SignalStatusMessage ::= SEQUENCE {
+   timeStamp       MinuteOfTheYear  OPTIONAL,
+   second          DSecond,
+   sequenceNumber  MsgCount         OPTIONAL,
+
+   -- Status Data for one of more signalized intersections
+   status          SignalStatusList,
+
+   regional        SEQUENCE (SIZE(1..4)) OF
+                   RegionalExtension {{Reg-SignalStatusMessage}} OPTIONAL,
+   ...
+}
+
+MapData ::= SEQUENCE {
+   timeStamp         MinuteOfTheYear OPTIONAL,
+   msgIssueRevision  MsgCount,
+   layerType         LayerType OPTIONAL,
+   layerID           LayerID  OPTIONAL,
+   intersections     IntersectionGeometryList OPTIONAL,
+                     -- All Intersection definitions
+   roadSegments      RoadSegmentList OPTIONAL,
+                     -- All roadway descriptions
+
+   dataParameters    DataParameters OPTIONAL,
+                     -- Any meta data regarding the map contents
+
+   restrictionList   RestrictionClassList OPTIONAL,
+                     -- Any restriction ID tables which have
+                     -- established for these map entries
+   regional          SEQUENCE (SIZE(1..4)) OF
+                     RegionalExtension {{Reg-MapData}} OPTIONAL,
+
+   -- NOTE:
+   -- Other map data will be added here as it is defined
+   -- Examples of the type of content to be added include
+   -- curve warnings, construction routes, etc.
+   ...
+}
+
+
+-- -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+--
+-- Start of entries from table Data_Frames...
+-- This table typicaly contains data frame entries.
+-- -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+--
+
+AdvisorySpeed ::= SEQUENCE {
+   type        AdvisorySpeedType,
+               -- the type of advisory which this is.
+   speed       SpeedAdvice OPTIONAL,
+               -- See Section 11 for converting and translating speed
+               -- expressed in mph into units of m/s
+               -- This element is optional ONLY when superceded
+               -- by the presence of a regional speed element found in
+               -- Reg-AdvisorySpeed entry
+   confidence  SpeedConfidence OPTIONAL,
+               -- A confidence value for the above speed
+   distance    ZoneLength OPTIONAL,
+               -- Unit = 1 meter,
+               -- The distance indicates the region for which the advised speed
+               -- is recommended, it is specified upstream from the stop bar
+               -- along the connected egressing lane
+   class       RestrictionClassID OPTIONAL,
+               -- the vehicle types to which it applies
+               -- when absent, the AdvisorySpeed applies to
+               -- all motor vehicle types
+   regional    SEQUENCE (SIZE(1..4)) OF
+               RegionalExtension {{Reg-AdvisorySpeed}} OPTIONAL,
+   ...
+   }
+
+AdvisorySpeedList ::= SEQUENCE (SIZE(1..16)) OF AdvisorySpeed
+
+ComputedLane ::= SEQUENCE {
+   -- Data needed to created a computed lane
+   referenceLaneId    LaneID,
+                         -- the lane ID upon which this
+                         -- computed lane will be based
+   -- Lane Offset in X and Y direction
+   offsetXaxis        CHOICE {
+                         small   DrivenLineOffsetSm,
+                         large   DrivenLineOffsetLg
+                         },
+   offsetYaxis        CHOICE {
+                         small   DrivenLineOffsetSm,
+                         large   DrivenLineOffsetLg
+                         },
+                         -- A path X offset value for translations of the
+                         -- path's points when creating translated lanes.
+                         -- The values found in the reference lane are
+                         -- all offset based on the X and Y values from
+                         -- the coordinates of the reference lane's
+                         -- initial path point.
+   -- Lane Rotation
+   rotateXY           Angle OPTIONAL,
+                         -- A path rotation value for the entire lane
+                         -- Observe that this rotates the existing orientation
+                         -- of the referenced lane, it does not replace it.
+                         -- Rotation occurs about the initial path point.
+   -- Lane Path Scale (zooming)
+   scaleXaxis         Scale-B12 OPTIONAL,
+   scaleYaxis         Scale-B12 OPTIONAL,
+                         -- value for translations or zooming of the path's
+                         -- points. The values found in the reference lane
+                         -- are all expanded or contracted based on the X
+                         -- and Y and width values from the coordinates of
+                         -- the reference lane's initial path point.
+                         -- The Z axis remains untouched.
+   regional  SEQUENCE (SIZE(1..4)) OF
+             RegionalExtension {{Reg-ComputedLane}} OPTIONAL,
+   ...
+   }
+ConnectsToList ::= SEQUENCE (SIZE(1..16)) OF Connection
+
+ConnectingLane ::= SEQUENCE {
+   lane      LaneID,   -- Index of the connecting lane
+   maneuver  AllowedManeuvers OPTIONAL
+                       -- The Maneuver between
+                       -- the enclosing lane and this lane
+                       -- at the stop line to connect them
+   }
+
+
+Connection ::= SEQUENCE {
+   -- The subject lane connecting to this lane is:
+   connectingLane     ConnectingLane,
+                      -- The index of the connecting lane and also
+                      -- the maneuver from the current lane to it
+   remoteIntersection IntersectionReferenceID OPTIONAL,
+                      -- This entry is only used when the
+                      -- indicated connecting lane belongs
+                      -- to another intersection layout. This
+                      -- provides a means to create meshes of lanes
+
+   -- SPAT mapping details at the stop line are:
+   signalGroup        SignalGroupID OPTIONAL,
+                      -- The matching signal group send by
+                      -- the SPAT message for this lane/maneuver.
+                      -- Shall be present unless the connectingLane
+                      -- has no signal group (is un-signalized)
+   userClass          RestrictionClassID OPTIONAL,
+                      -- The Restriction Class of users this applies to
+                      -- The use of some lane/maneuver and SignalGroupID
+                      -- pairings are restricted to selected users.
+                      -- When absent, the SignalGroupID applies to all
+
+   -- Movement assist details are given by:
+   connectionID       LaneConnectionID OPTIONAL
+                      -- An optional connection index used to
+                      -- relate this lane connection to any dynamic
+                      -- clearance data in the SPAT. Note that
+                      -- the index may be shared with other
+                      -- connections if the clearance data is common
+   }
+
+
+ConnectionManeuverAssist ::= SEQUENCE {
+   connectionID         LaneConnectionID,
+                        -- the common connectionID used by all lanes to which
+                        -- this data applies
+                        -- (this value traces to ConnectsTo entries in lanes)
+   -- Expected Clearance Information
+   queueLength          ZoneLength OPTIONAL,
+                        -- Unit = 1 meter, 0 = no queue
+                        -- The distance from the stop line to the back
+                        -- edge of the last vehicle in the queue,
+                        -- as measured along the lane center line.
+   availableStorageLength ZoneLength OPTIONAL,
+                        -- Unit = 1 meter, 0 = no space remains
+                        -- Distance (e.g. beginning from the downstream
+                        -- stop-line up to a given distance) with a high
+                        -- probability for successfully executing the
+                        -- connecting maneuver between the two lanes
+                        -- during the current cycle.
+                        -- Used for enhancing the awareness of vehicles
+                        -- to anticipate if they can pass the stop line
+                        -- of the lane. Used for optimizing the green wave,
+                        -- due to knowledge of vehicles waiting in front
+                        -- of a red light (downstream).
+                        -- The element nextTime in TimeChangeDetails
+                        -- in the containing data frame contains the next
+                        -- timemark at which an active phase is expected,
+                        -- a form of storage flush interval.
+   waitOnStop           WaitOnStopline OPTIONAL,
+                        -- If "true", the vehicles on this specific connecting
+                        -- maneuver have to stop on the stop-line and not
+                        -- to enter the collision area
+   pedBicycleDetect     PedestrianBicycleDetect OPTIONAL,
+                        -- true if ANY ped or bicycles are detected crossing
+                        -- the above lanes. Set to false ONLY if there is a
+                        -- high certainty that there are none present,
+                        -- otherwise element is not sent.
+   regional  SEQUENCE (SIZE(1..4)) OF
+             RegionalExtension {{Reg-ConnectionManeuverAssist}} OPTIONAL,
+   ...
+   }
+
+DataParameters ::= SEQUENCE {
+   processMethod     IA5String(SIZE(1..255)) OPTIONAL,
+   processAgency     IA5String(SIZE(1..255)) OPTIONAL,
+   lastCheckedDate   IA5String(SIZE(1..255)) OPTIONAL,
+   geoidUsed         IA5String(SIZE(1..255)) OPTIONAL,
+   ...
+   }
+
+EnabledLaneList ::= SEQUENCE (SIZE(1..16)) OF LaneID
+   -- The unique ID numbers for each
+   -- lane object which is 'active'
+   -- as part of the dynamic map contents.
+
+GenericLane ::= SEQUENCE {
+   laneID           LaneID,
+                    -- The unique ID number assigned
+                    -- to this lane object
+   name             DescriptiveName OPTIONAL,
+                    -- often for debug use only
+                    -- but at times used to name ped crossings
+   ingressApproach  ApproachID OPTIONAL, -- inbound
+   egressApproach   ApproachID OPTIONAL, -- outbound
+                    -- Approach IDs to which this lane belongs
+   laneAttributes   LaneAttributes,
+                    -- All Attribute information about
+                    -- the basic selected lane type
+                    -- Directions of use, Geometric co-sharing
+                    -- and Type Specific Attributes
+                    -- These Attributes are 'lane - global' that is,
+                    -- they are true for the entire length of the lane
+   maneuvers        AllowedManeuvers OPTIONAL,
+                    -- the permitted maneuvers for this lane
+   nodeList         NodeListXY,
+                    -- Lane spatial path information as well as
+                    -- various Attribute information along the node path
+                    -- Attributes found here are more general and may
+                    -- come and go over the length of the lane.
+   connectsTo       ConnectsToList OPTIONAL,
+                    -- a list of other lanes and their signal group IDs
+                    -- each connecting lane and its signal group ID
+                    -- is given, therefore this element provides the
+                    -- information formerly in "signalGroups" in prior
+                    -- editions.
+   overlays         OverlayLaneList OPTIONAL,
+                    -- A list of any lanes which have spatial paths that
+                    -- overlay (run on top of, and not simply cross)
+                    -- the path of this lane when used
+   regional  SEQUENCE (SIZE(1..4)) OF
+             RegionalExtension {{Reg-GenericLane}} OPTIONAL,
+   ...
+   }
+
+IntersectionAccessPoint ::= CHOICE {
+   lane       LaneID,
+   approach   ApproachID,
+   connection LaneConnectionID,
+   ...
+   }
+
+IntersectionGeometry ::= SEQUENCE {
+   name        DescriptiveName OPTIONAL,
+                            -- For debug use only
+   id          IntersectionReferenceID,
+                            -- A globally unique value set,
+                            -- consisting of a regionID and
+                            -- intersection ID assignment
+   revision    MsgCount,
+
+   -- Required default values about lane descriptions follow
+   refPoint    Position3D,  -- The reference from which subsequent
+                            -- data points are offset until a new
+                            -- point is used.
+   laneWidth   LaneWidth OPTIONAL,
+                            -- Reference width used by all subsequent
+                            -- lanes unless a new width is given
+   speedLimits SpeedLimitList OPTIONAL,
+                            -- Reference regulatory speed limits
+                            -- used by all subsequent
+                            -- lanes unless a new speed is given
+                            -- See Section 11 for converting and
+                            -- translating speed expressed in mph
+                            -- into units of m/s
+   -- Complete details regarding each lane type in this intersection
+   laneSet     LaneList,    -- Data about one or more lanes
+                            -- (all lane data is found here)
+
+   -- Data describing how to use and request preemption and
+   -- priority services from this intersection (if supported)
+   -- NOTE Additonal data may be added in the next release of the
+   -- standard at this point to handle this concept
+   preemptPriorityData PreemptPriorityList OPTIONAL,
+                           -- data about one or more regional
+                           -- preempt or priority zones
+
+   regional     SEQUENCE (SIZE(1..4)) OF
+                RegionalExtension {{Reg-IntersectionGeometry}} OPTIONAL,
+   ...
+   }
+
+IntersectionGeometryList ::= SEQUENCE (SIZE(1..32)) OF IntersectionGeometry
+
+IntersectionReferenceID ::= SEQUENCE {
+   region  RoadRegulatorID OPTIONAL,
+           -- a globally unique regional assignment value
+           -- typical assigned to a regional DOT authority
+           -- the value zero shall be used for testing needs
+   id      IntersectionID
+           -- a unique mapping to the intersection
+           -- in question within the above region of use
+   }
+
+IntersectionState ::= SEQUENCE {
+   name         DescriptiveName OPTIONAL,
+                -- human readable name for intersection
+                -- to be used only in debug mode
+   id           IntersectionReferenceID,
+                -- A globally unique value set, consisting of a
+                -- regionID and intersection ID assignment
+                -- provides a unique mapping to the
+                -- intersection MAP in question
+                -- which provides complete location
+                -- and approach/move/lane data
+   revision     MsgCount,
+   status       IntersectionStatusObject,
+                -- general status of the controller(s)
+   moy          MinuteOfTheYear OPTIONAL,
+                -- Minute of current UTC year
+                -- used only with messages to be archived
+   timeStamp    DSecond OPTIONAL,
+                -- the mSec point in the current UTC minute that
+                -- this message was constructed
+   enabledLanes EnabledLaneList OPTIONAL,
+                -- a list of lanes where the RevocableLane bit
+                -- has been set which are now active and
+                -- therefore part of the current intersection
+   states       MovementList,
+                -- Each Movement is given in turn
+                -- and contains its signal phase state,
+                -- mapping to the lanes it applies to, and
+                -- point in time it will end, and it
+                -- may contain both active and future states
+   maneuverAssistList  ManeuverAssistList OPTIONAL,
+                -- Assist data
+
+   regional     SEQUENCE (SIZE(1..4)) OF
+                RegionalExtension {{Reg-IntersectionState}} OPTIONAL,
+   ...
+   }
+
+IntersectionStateList ::= SEQUENCE (SIZE(1..32)) OF  IntersectionState
+
+LaneAttributes ::= SEQUENCE {
+   directionalUse  LaneDirection,      -- directions of lane use
+   sharedWith      LaneSharing,        -- co-users of the lane path
+   laneType        LaneTypeAttributes, -- specific lane type data
+   regional        RegionalExtension {{Reg-LaneAttributes}} OPTIONAL
+   }
+
+LaneDataAttribute ::= CHOICE {
+    -- Segment attribute types and the data needed for each
+    pathEndPointAngle        DeltaAngle,
+                             -- adjusts final point/width slant
+                             -- of the lane to align with the stop line
+    laneCrownPointCenter     RoadwayCrownAngle,
+                             -- sets the canter of the road bed
+                             -- from centerline point
+    laneCrownPointLeft       RoadwayCrownAngle,
+                             -- sets the canter of the road bed
+                             -- from left edge
+    laneCrownPointRight      RoadwayCrownAngle,
+                             -- sets the canter of the road bed
+                             -- from right edge
+    laneAngle                MergeDivergeNodeAngle,
+                             -- the angle or direction of another lane
+                             -- this is required to support Japan style
+                             -- when a merge point angle is required
+    speedLimits              SpeedLimitList,
+                             -- Reference regulatory speed limits
+                             -- used by all segments
+
+    -- Add others as needed, in regional space
+    regional  SEQUENCE (SIZE(1..4)) OF
+              RegionalExtension {{Reg-LaneDataAttribute}},
+    ...
+    }
+
+LaneDataAttributeList ::= SEQUENCE (SIZE(1..8)) OF LaneDataAttribute
+
+LaneList ::= SEQUENCE (SIZE(1..255)) OF GenericLane
+
+LaneSharing ::= BIT STRING {
+    -- With bits as defined:
+    overlappingLaneDescriptionProvided  (0),
+    -- Assert when another lane object is present to describe the
+    -- path of the overlapping shared lane
+    -- this construct is not used for lane objects which simply cross
+    multipleLanesTreatedAsOneLane       (1),
+    -- Assert if the lane object path and width details represents
+    -- multiple lanes within it that are not further described
+
+    -- Various modes and type of traffic that may share this lane:
+    otherNonMotorizedTrafficTypes       (2), -- horse drawn etc.
+    individualMotorizedVehicleTraffic   (3),
+    busVehicleTraffic                   (4),
+    taxiVehicleTraffic                  (5),
+    pedestriansTraffic                  (6),
+    cyclistVehicleTraffic               (7),
+    trackedVehicleTraffic               (8),
+    pedestrianTraffic                   (9)
+    } (SIZE (10))
+    -- All zeros would indicate 'not shared' and 'not overlapping'
+
+LaneTypeAttributes ::= CHOICE {
+   vehicle        LaneAttributes-Vehicle,        -- motor vehicle lanes
+   crosswalk      LaneAttributes-Crosswalk,      -- pedestrian crosswalks
+   bikeLane       LaneAttributes-Bike,           -- bike lanes
+   sidewalk       LaneAttributes-Sidewalk,       -- pedestrian sidewalk paths
+   median         LaneAttributes-Barrier,        -- medians & channelization
+   striping       LaneAttributes-Striping,       -- roadway markings
+   trackedVehicle LaneAttributes-TrackedVehicle, -- trains and trolleys
+   parking        LaneAttributes-Parking,        -- parking and stopping lanes
+   ...
+   }
+
+ManeuverAssistList ::= SEQUENCE (SIZE(1..16)) OF ConnectionManeuverAssist
+
+MovementEventList ::= SEQUENCE (SIZE(1..16)) OF MovementEvent
+
+MovementEvent ::= SEQUENCE {
+   eventState   MovementPhaseState,
+                -- Consisting of:
+                -- Phase state (the basic 11 states)
+                -- Directional, protected, or permissive state
+
+   timing       TimeChangeDetails OPTIONAL,
+                -- Timing Data in UTC time stamps for event
+                -- includes start and min/max end times of phase
+                -- confidence and estimated next occurrence
+
+   speeds       AdvisorySpeedList OPTIONAL,
+                -- various speed advisories for use by
+                -- general and specific types of vehicles
+                -- supporting green-wave and other flow needs
+                -- See Section 11 for converting and translating
+                -- speed expressed in mph into units of m/s
+
+   regional     SEQUENCE (SIZE(1..4)) OF
+                RegionalExtension {{Reg-MovementEvent}} OPTIONAL,
+   ...
+   }
+
+MovementList ::= SEQUENCE (SIZE(1..255)) OF MovementState
+
+MovementState ::= SEQUENCE {
+   movementName       DescriptiveName OPTIONAL,
+                      -- uniquely defines movement by name
+                      -- human readable name for intersection
+                      -- to be used only in debug mode
+   signalGroup        SignalGroupID,
+                      -- the group id is used to map to lists
+                      -- of lanes (and their descriptions)
+                      -- which this MovementState data applies to
+                      -- see comments in the Remarks for usage details
+   state-time-speed   MovementEventList,
+                      -- Consisting of sets of movement data with:
+                      -- a)  SignalPhaseState
+                      -- b)  TimeChangeDetails,  and
+                      -- c)  AdvisorySpeeds      (optional )
+                      -- Note one or more of the movement events may be for
+                      -- a future time and that this allows conveying multiple
+                      -- predictive phase and movement timing for various uses
+                      -- for the current signal group
+   maneuverAssistList ManeuverAssistList OPTIONAL,
+                      -- This information may also be placed in the
+                      -- IntersectionState when common information applies to
+                      -- different lanes in the same way
+   regional           SEQUENCE (SIZE(1..4)) OF
+                      RegionalExtension {{Reg-MovementState}} OPTIONAL,
+   ...
+   }
+
+NodeAttributeSetXY ::= SEQUENCE {
+   localNode    NodeAttributeXYList OPTIONAL,
+                -- Attribute states which pertain to this node point
+   disabled     SegmentAttributeXYList OPTIONAL,
+                -- Attribute states which are disabled at this node point
+   enabled      SegmentAttributeXYList OPTIONAL,
+                -- Attribute states which are enabled at this node point
+                -- and which remain enabled until disabled or the lane ends
+   data         LaneDataAttributeList OPTIONAL,
+                -- Attributes which require an additional data values
+                -- some of these are local to the node point, while others
+                -- persist with the provided values until changed
+                -- and this is indicated in each entry
+   dWidth       Offset-B10 OPTIONAL,
+                -- A value added to the current lane width
+                -- at this node and from this node onwards, in 1cm steps
+                -- lane width between nodes are a linear taper between pts
+                -- the value of zero shall not be sent here
+   dElevation   Offset-B10 OPTIONAL,
+                -- A value added to the current Elevation
+                -- at this node from this node onwards, in 10cm steps
+                -- elevations between nodes are a linear taper between pts
+                -- the value of zero shall not be sent here
+   regional     SEQUENCE (SIZE(1..4)) OF
+                RegionalExtension {{Reg-NodeAttributeSetXY}} OPTIONAL,
+   ...
+   }
+
+NodeAttributeXYList ::= SEQUENCE (SIZE(1..8)) OF NodeAttributeXY
+
+NodeAttributeXY ::= ENUMERATED {
+   -- Various values which pertain only to the current node point
+
+   -- General Items
+   reserved,
+   stopLine,             -- point where a mid-path stop line exists
+                         -- See also 'do not block' for segments
+
+   -- Path finish details
+   roundedCapStyleA,      -- Used to control final path rounded end shape
+                          -- with edge of curve at final point in a circle
+   roundedCapStyleB,      -- Used to control final path rounded end shape
+                          -- with edge of curve extending 50% of width past
+                          -- final point in a circle
+
+   -- Topography Points (items with no concept of a distance along the path)
+   mergePoint,           -- Japan merge with 1 or more lanes
+   divergePoint,         -- Japan diverge with 1 or more lanes
+   downstreamStopLine,   -- Japan style downstream intersection
+                                   -- (a 2nd intersection) stop line
+   downstreamStartNode,  -- Japan style downstream intersection
+                                   -- (a 2nd intersection) start node
+
+   -- Pedestrian Support Attributes
+   closedToTraffic,      -- where a pedestrian may NOT go
+                         -- to be used during construction events
+   safeIsland,           -- a pedestrian safe stopping point
+                         -- also called a traffic island
+                         -- This usage described a point feature on a path,
+                         -- other entries can describe a path
+   curbPresentAtStepOff, -- the sidewalk to street curb is NOT
+                         -- angled where it meets the edge of the
+                         -- roadway (user must step up/down)
+
+   -- Lane geometry details  (see standard for defined shapes)
+   hydrantPresent,       -- Or other services access
+   ...
+   }
+
+Node-LLmD-64b ::= SEQUENCE {
+   lon  Longitude,
+   lat  Latitude
+   }
+
+   Node-XY-20b ::= SEQUENCE {
+   x  Offset-B10,
+   y  Offset-B10
+   }
+
+Node-XY-22b ::= SEQUENCE {
+   x  Offset-B11,
+   y  Offset-B11
+   }
+
+
+Node-XY-24b ::= SEQUENCE {
+   x  Offset-B12,
+   y  Offset-B12
+   }
+
+
+Node-XY-26b ::= SEQUENCE {
+   x  Offset-B13,
+   y  Offset-B13
+   }
+
+
+Node-XY-28b ::= SEQUENCE {
+   x  Offset-B14,
+   y  Offset-B14
+   }
+
+
+Node-XY-32b ::= SEQUENCE {
+   x  Offset-B16,
+   y  Offset-B16
+   }
+
+NodeListXY ::= CHOICE {
+   nodes     NodeSetXY,
+             -- a lane made up of two or more
+             -- XY node points and any attributes
+             -- defined in those nodes
+   computed  ComputedLane,
+             -- a lane path computed by translating
+             -- the data defined by another lane
+   ...
+   }
+
+NodeOffsetPointXY ::= CHOICE {
+   -- Nodes with X,Y content
+   node-XY1         Node-XY-20b,    -- node is within   5.11m of last node
+   node-XY2         Node-XY-22b,    -- node is within  10.23m of last node
+   node-XY3         Node-XY-24b,    -- node is within  20.47m of last node
+   node-XY4         Node-XY-26b,    -- node is within  40.96m of last node
+   node-XY5         Node-XY-28b,    -- node is within  81.91m of last node
+   node-XY6         Node-XY-32b,    -- node is within 327.67m of last node
+   node-LatLon      Node-LLmD-64b,  -- node is a full 32b Lat/Lon range
+   regional         RegionalExtension {{Reg-NodeOffsetPointXY}}
+                                    -- node which follows is of a
+                                    -- regional definition type
+   }
+
+NodeSetXY ::= SEQUENCE (SIZE(2..63)) OF NodeXY
+
+NodeXY ::= SEQUENCE {
+   delta       NodeOffsetPointXY,
+               -- A choice of which X,Y offset value to use
+               -- this includes various delta values as well a regional choices
+   attributes  NodeAttributeSetXY OPTIONAL,
+               -- Any optional Attributes which are needed
+               -- This includes changes to the current lane width and elevation
+   ...
+}
+
+OverlayLaneList ::= SEQUENCE (SIZE(1..5)) OF LaneID
+   -- The unique ID numbers for any lane object which have
+   -- spatial paths that overlay (run on top of, and not
+   -- simply cross with) the current lane.
+   -- Such as a train path that overlays a motor vehicle
+   -- lane object for a roadway segment.
+
+Position3D ::= SEQUENCE {
+   lat        Latitude,                -- in 1/10th micro degrees
+   long       Longitude,               -- in 1/10th micro degrees
+   elevation  Elevation  OPTIONAL,     -- in 10 cm units
+   regional   SEQUENCE (SIZE(1..4)) OF
+              RegionalExtension {{Reg-Position3D}} OPTIONAL,
+   ...
+   }
+
+PreemptPriorityList ::= SEQUENCE (SIZE(1..32)) OF SignalControlZone
+
+RegulatorySpeedLimit ::= SEQUENCE {
+   type        SpeedLimitType,
+               -- The type of regulatory speed which follows
+   speed       Velocity
+               -- The speed in units of 0.02 m/s
+               -- See Section 11 for converting and translating
+               -- speed expressed in mph into units of m/s
+   }
+
+RequestorDescription ::= SEQUENCE {
+   id                VehicleID,
+                     -- The ID used in the BSM or CAM of the requestor
+                     -- This ID is presumed not to change
+                     -- during the exchange
+   type              RequestorType OPTIONAL,
+                     -- Information regarding all type and class data
+                     -- about the requesting vehicle
+   position          RequestorPositionVector OPTIONAL,
+                     -- The location of the requesting vehicle
+   name              DescriptiveName OPTIONAL,
+                     -- A human readable name for debugging use
+   -- Support for Transit requests
+   routeName         DescriptiveName OPTIONAL,
+                     -- A string for transit operations use
+   transitStatus     TransitVehicleStatus OPTIONAL,
+                     -- current vehicle state (loading, etc.)
+   transitOccupancy  TransitVehicleOccupancy OPTIONAL,
+                     -- current vehicle occupancy
+   transitSchedule   DeltaTime OPTIONAL,
+                     -- current vehicle schedule adherence
+
+   regional          SEQUENCE (SIZE(1..4)) OF
+                     RegionalExtension {{Reg-RequestorDescription}} OPTIONAL,
+   ...
+   }
+
+RequestorPositionVector ::= SEQUENCE {
+   position           Position3D,
+   heading            Angle OPTIONAL,
+   speed              TransmissionAndSpeed OPTIONAL,
+   ...
+   }
+
+RequestorType ::= SEQUENCE {
+   -- Defines who is requesting
+   role         BasicVehicleRole, -- Basic role of this user at this time
+   subrole      RequestSubRole OPTIONAL, -- A local list with role based items
+
+   -- Defines what kind of request (a level of importance in the Priority Scheme)
+   request      RequestImportanceLevel OPTIONAL, -- A local list with request items
+
+   -- Additional classification details
+   iso3883      Iso3833VehicleType OPTIONAL,
+   hpmsType     VehicleType OPTIONAL,  -- HPMS classification types
+
+   regional     RegionalExtension {{Reg-RequestorType}} OPTIONAL,
+   ...
+   }
+
+RestrictionClassAssignment ::= SEQUENCE {
+   id       RestrictionClassID,
+            -- the unique value (within an intersection or local region)
+            -- that is assigned to this group of users
+   users    RestrictionUserTypeList
+            -- The list of user types/classes
+            -- to which this restriction ID applies
+   }
+
+RestrictionClassList ::= SEQUENCE (SIZE(1..254)) OF RestrictionClassAssignment
+
+RestrictionUserTypeList ::= SEQUENCE (SIZE(1..16)) OF  RestrictionUserType
+
+RestrictionUserType ::= CHOICE {
+   basicType   RestrictionAppliesTo,
+               -- a set of the most commonly used types
+   regional    SEQUENCE (SIZE(1..4)) OF
+               RegionalExtension {{Reg-RestrictionUserType}},
+   ...
+   }
+
+RoadLaneSetList ::= SEQUENCE (SIZE(1..255)) OF GenericLane
+
+RoadSegmentReferenceID ::= SEQUENCE {
+   region  RoadRegulatorID OPTIONAL,
+           -- a globally unique regional assignment value
+           -- typically assigned to a regional DOT authority
+           -- the value zero shall be used for testing needs
+   id      RoadSegmentID
+           -- a unique mapping to the road segment
+           -- in question within the above region of use
+           -- during its period of assignment and use
+           -- note that unlike intersectionID values,
+           -- this value can be reused by the region
+   }
+
+RoadSegment ::= SEQUENCE {
+   name        DescriptiveName OPTIONAL,
+   id          RoadSegmentReferenceID,
+                           -- a globally unique value for the segment
+   revision    MsgCount,
+   -- Required default values about the descriptions to follow
+   refPoint    Position3D, -- the reference from which subsequent
+                           -- data points are offset until a new
+                           -- point is used.
+   laneWidth   LaneWidth OPTIONAL,
+                            -- Reference width used by all subsequent
+                            -- lanes unless a new width is given
+   speedLimits SpeedLimitList OPTIONAL,
+                            -- Reference regulatory speed limits
+                            -- used by all subsequent
+                            -- lanes unless a new speed is given
+                            -- See Section 11 for converting and
+                            -- translating speed expressed in mph
+                            -- into units of m/s
+
+   -- Data describing disruptions in the RoadSegment
+   -- such as work zones etc will be added here;
+   -- in the US the SAE ITIS codes would be used here
+   -- The details regarding each lane type in the RoadSegment
+   roadLaneSet RoadLaneSetList,
+
+   regional    SEQUENCE (SIZE(1..4)) OF
+               RegionalExtension {{Reg-RoadSegment}} OPTIONAL,
+   ...
+   }
+
+RoadSegmentList ::= SEQUENCE (SIZE(1..32)) OF RoadSegment
+
+SegmentAttributeXYList ::= SEQUENCE (SIZE(1..8)) OF SegmentAttributeXY
+
+SignalControlZone ::=  SEQUENCE {
+  zone  RegionalExtension {{Reg-SignalControlZone}},
+  ...
+  }
+
+SignalRequesterInfo ::= SEQUENCE {
+   -- These three items serve to uniquely identify the requester
+   -- and the specific request to all parties
+   id             VehicleID,
+   request        RequestID,
+   sequenceNumber MsgCount,
+   role           BasicVehicleRole OPTIONAL,
+
+   typeData       RequestorType OPTIONAL,
+                  -- Used when addition data besides the role
+                  -- is needed, at which point the role entry
+                  -- above is not sent.
+   ...
+   }
+
+SignalRequestList ::= SEQUENCE (SIZE(1..32)) OF SignalRequestPackage
+
+SignalRequestPackage ::= SEQUENCE {
+   request        SignalRequest,
+                  -- The specific request to the intersection
+                  -- contains IntersectionID, request type,
+                  -- requested action (approach/lane request)
+
+   -- The Estimated Time of Arrival (ETA) when the service is requested
+   minute         MinuteOfTheYear OPTIONAL,
+   second         DSecond OPTIONAL,
+   duration       DSecond OPTIONAL,
+                  -- The duration value is used to provide a short interval that
+                  -- extends the ETA so that the requesting vehicle can arrive at
+                  -- the point of service with uncertainty or with some desired
+                  -- duration of service. This concept can be used to avoid needing
+                  -- to frequently update the request.
+                  -- The requester must update the ETA and duration values if the
+                  -- period of services extends beyond the duration time.
+                  -- It should be assumed that if the vehicle does not clear the
+                  -- intersection when the duration is reached, the request will
+                  -- be cancelled and the intersection will revert to
+                  -- normal operation.
+
+   regional       SEQUENCE (SIZE(1..4)) OF
+                  RegionalExtension {{Reg-SignalRequestPackage}} OPTIONAL,
+   ...
+   }
+
+SignalRequest ::= SEQUENCE {
+   -- the unique ID of the target intersection
+   id            IntersectionReferenceID,
+
+   -- The unique requestID used by the requestor
+   requestID     RequestID,
+
+   -- The type of request or cancel for priority or preempt use
+   -- when a prior request is canceled, only the requestID is needed
+   requestType   PriorityRequestType,
+
+   -- In typical use either an approach or a lane number would
+   -- be given, this indicates the requested
+   -- path through the intersection to the degree it is known.
+   inBoundLane   IntersectionAccessPoint,
+                 -- desired entry approach or lane
+   outBoundLane  IntersectionAccessPoint OPTIONAL,
+                 -- desired exit approach or lane
+                 -- the values zero is used to indicate
+                 -- intent to stop within the intersection
+   regional      SEQUENCE (SIZE(1..4)) OF
+                 RegionalExtension {{Reg-SignalRequest}} OPTIONAL,
+   ...
+   }
+
+SignalStatusList ::= SEQUENCE (SIZE(1..32)) OF SignalStatus
+
+SignalStatusPackageList ::= SEQUENCE (SIZE(1..32)) OF SignalStatusPackage
+
+SignalStatusPackage ::= SEQUENCE {
+   -- The party that made the initial SRM request
+   requester    SignalRequesterInfo OPTIONAL,
+   -- The lanes or approaches used in the request
+   inboundOn    IntersectionAccessPoint, -- estimated lane / approach of vehicle
+   outboundOn   IntersectionAccessPoint OPTIONAL,
+
+   -- The Estimated Time of Arrival (ETA) when the service is requested
+   -- This data echos the data of the request
+   minute       MinuteOfTheYear OPTIONAL,
+   second       DSecond OPTIONAL,
+      duration     DSecond OPTIONAL,
+
+   -- the SRM status for this request
+   status       PrioritizationResponseStatus,
+                -- Status of request, this may include rejection
+
+   regional     SEQUENCE (SIZE(1..4)) OF
+                RegionalExtension {{Reg-SignalStatusPackage}} OPTIONAL,
+   ...
+   }
+
+SignalStatus ::= SEQUENCE {
+   sequenceNumber MsgCount,
+                  -- changed whenever the below contents have change
+   id             IntersectionReferenceID,
+                  -- this provides a unique mapping to the
+                  -- intersection map in question
+                  -- which provides complete location
+                  -- and approach/movement/lane data
+                  -- as well as zones for priority/preemption
+   sigStatus      SignalStatusPackageList,
+                  -- a list of detailed status containing all
+                  -- priority or preemption state data, both
+                  -- active and pending, and who requested it
+                  -- requests which are denied are also listed
+                  -- here for a short period of time
+   regional       SEQUENCE (SIZE(1..4)) OF
+                  RegionalExtension {{Reg-SignalStatus}} OPTIONAL,
+   ...
+   }
+
+SpeedLimitList ::= SEQUENCE (SIZE(1..9)) OF RegulatorySpeedLimit
+
+SpeedLimitType ::= ENUMERATED {
+    unknown,                    -- Speed limit type not available
+    maxSpeedInSchoolZone,       -- Only sent when the limit is active
+    maxSpeedInSchoolZoneWhenChildrenArePresent, -- Sent at any time
+    maxSpeedInConstructionZone, -- Used for work zones, incident zones, etc.
+                                -- where a reduced speed is present
+    vehicleMinSpeed,
+    vehicleMaxSpeed,            -- Regulatory speed limit for general traffic
+    vehicleNightMaxSpeed,
+
+    truckMinSpeed,
+    truckMaxSpeed,
+    truckNightMaxSpeed,
+
+    vehiclesWithTrailersMinSpeed,
+    vehiclesWithTrailersMaxSpeed,
+    vehiclesWithTrailersNightMaxSpeed,
+    ...
+    }
+
+TimeChangeDetails ::= SEQUENCE {
+   startTime   TimeMark           OPTIONAL,
+               -- When this phase 1st started
+   minEndTime  TimeMark,
+               -- Expected shortest end time
+   maxEndTime  TimeMark           OPTIONAL,
+               -- Expected longest end time
+
+   likelyTime  TimeMark           OPTIONAL,
+               -- Best predicted value based on other data
+   confidence  TimeIntervalConfidence OPTIONAL,
+               -- Applies to above time element only
+
+   nextTime    TimeMark           OPTIONAL
+               -- A rough estimate of time when
+               -- this phase may next occur again
+               -- used to support various ECO driving power
+               -- management needs.
+   }
+
+TimeMark ::= INTEGER (0..36001)
+   -- Tenths of a second in the current or next hour
+   -- In units of 1/10th second from UTC time
+   -- A range of 0~36000 covers one hour
+   -- The values 35991..36000 are used when a leap second occurs
+   -- The value 36001 is used to indicate time >3600 seconds
+   -- 36002 is to be used when value undefined or unknown
+   -- Note that this is NOT expressed in GPS time
+   -- or in local time
+
+TransmissionAndSpeed ::= SEQUENCE {
+   transmisson   TransmissionState,
+   speed         Velocity
+   }
+
+VehicleID ::= CHOICE {
+   entityID     TemporaryID,
+   stationID    StationID
+   }
+
+
+-- -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+--
+-- Start of entries from table Data_Elements...
+-- This table typicaly contains data element entries.
+-- -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+--
+
+AdvisorySpeedType ::= ENUMERATED {
+    none       (0),
+    greenwave  (1),
+    ecoDrive   (2),
+    transit    (3),
+    ...
+    } -- Note: subject to further growth
+
+AllowedManeuvers ::= BIT STRING {
+    -- With bits as defined:
+    -- Allowed maneuvers at path end (stop line)
+    -- All maneuvers with bits not set are therefore prohibited !
+    -- A value of zero shall be used for unknown, indicating no Maneuver
+    maneuverStraightAllowed      (0),
+                                  -- a Straight movement is allowed in this lane
+    maneuverLeftAllowed          (1),
+                                 -- a Left Turn movement is allowed in this lane
+    maneuverRightAllowed         (2),
+                                 -- a Right Turn movement is allowed in this lane
+    maneuverUTurnAllowed         (3),
+                                 -- a U turn movement is allowed in this lane
+    maneuverLeftTurnOnRedAllowed (4),
+                                 -- a Stop, and then proceed when safe movement
+                                 -- is allowed in this lane
+    maneuverRightTurnOnRedAllowed (5),
+                                 -- a Stop, and then proceed when safe movement
+                                 -- is allowed in this lane
+    maneuverLaneChangeAllowed    (6),
+                                 -- a movement which changes to an outer lane
+                                 -- on the egress side is allowed in this lane
+                                 -- (example: left into either outbound lane)
+    maneuverNoStoppingAllowed    (7),
+                                 -- the vehicle should not stop at the stop line
+                                 -- (example: a flashing green arrow)
+    yieldAllwaysRequired         (8),
+                                 -- the allowed movements above are not protected
+                                 -- (example: an permanent yellow condition)
+    goWithHalt                   (9),
+                                 -- after making a full stop, may proceed
+    caution                      (10),
+                                 -- proceed past stop line with caution
+    reserved1                    (11)
+                                 -- used to align to 12 Bit Field
+
+   } (SIZE(12))
+
+Angle ::= INTEGER (0..28800)
+   -- LSB of 0.0125 degrees
+   -- A range of 0 to 359.9875 degrees
+
+ApproachID ::= INTEGER (0..15) -- zero to be used when valid value is unknown
+
+BasicVehicleRole ::= ENUMERATED {
+    -- Values used in the EU and in the US
+    basicVehicle     (0), -- Light duty passenger vehicle type
+    publicTransport  (1), -- Used in EU for Transit us
+    specialTransport (2), -- Used in EU (e.g. heavy load)
+    dangerousGoods   (3), -- Used in EU for any HAZMAT
+    roadWork         (4), -- Used in EU for State and Local DOT uses
+    roadRescue       (5), -- Used in EU and in the US to include tow trucks.
+    emergency        (6), -- Used in EU for Police, Fire and Ambulance units
+    safetyCar        (7), -- Used in EU for Escort vehicles
+    -- Begin US unique numbering
+    none-unknown     (8), -- added to follow current SAE style guidelines
+    truck            (9), -- Heavy trucks with additional BSM rights and obligations
+    motorcycle      (10), --
+    roadSideSource  (11), -- For infrastructure generated calls such as
+                          -- fire house, rail infrastructure, roadwork site, etc.
+    police          (12), --
+    fire            (13), --
+    ambulance       (14), -- (does not include private para-transit etc.)
+    dot             (15), -- all roadwork vehicles
+    transit         (16), -- all transit vehicles
+    slowMoving      (17), -- to also include oversize etc.
+    stopNgo         (18), -- to include trash trucks, school buses and others
+                          -- that routinely disturb the free flow of traffic
+    cyclist         (19), --
+    pedestrian      (20), -- also includes those with mobility limitations
+    nonMotorized    (21), -- other, horse drawn, etc.
+    military        (22), --
+    ...
+    }
+
+DeltaAngle ::= INTEGER (-150..150)
+   -- With an angle range from
+   -- negative 150 to positive 150
+   -- in one degree steps where zero is directly
+   -- along the axis or the lane center line as defined by the
+   -- two closest points
+
+DeltaTime ::= INTEGER (-122 .. 121)
+   -- Supporting a range of +/- 20 minute in steps of 10 seconds
+   -- the value of -121 shall be used when more than -20 minutes
+   -- the value of +120 shall be used when more than +20 minutes
+   -- the value -122 shall be used when the value is unavailable
+
+DescriptiveName ::= IA5String (SIZE(1..63))
+
+DrivenLineOffsetLg ::= INTEGER (-32767..32767)
+   -- LSB units are 1 cm.
+
+DrivenLineOffsetSm ::= INTEGER (-2047..2047)
+   -- LSB units are 1 cm.
+
+DSecond ::= INTEGER (0..65535) -- units of milliseconds
+
+DSRCmsgID ::= INTEGER (0..32767)
+   mapData                           DSRCmsgID ::=   18 -- MAP, intersections
+   signalPhaseAndTimingMessage       DSRCmsgID ::=   19 -- SPAT
+   signalRequestMessage              DSRCmsgID ::=   29 -- SRM
+   signalStatusMessage               DSRCmsgID ::=   30 -- SSM
+
+Elevation ::= INTEGER (-4096..61439)
+  -- In units of 10 cm steps above or below the reference ellipsoid
+  -- Providing a range of -409.5 to + 6143.9 meters
+  -- The value -4096 shall be used when Unknown is to be sent
+
+IntersectionID ::= INTEGER (0..65535)
+   -- The values zero through 255 are allocated for testing purposes
+   -- Note that the value assigned to an intersection will be
+   -- unique within a given regional ID only
+
+IntersectionStatusObject ::= BIT STRING {
+    manualControlIsEnabled                (0),
+      -- Timing reported is per programmed values, etc. but person
+      -- at cabinet can manually request that certain intervals are
+      -- terminated early (e.g. green).
+    stopTimeIsActivated                   (1),
+      -- And all counting/timing has stopped.
+    failureFlash                          (2),
+      -- Above to be used for any detected hardware failures,
+      -- e.g. conflict monitor as well as for police flash
+    preemptIsActive                       (3),
+    signalPriorityIsActive                (4),
+
+   -- Additional states
+    fixedTimeOperation                    (5),
+      -- Schedule of signals is based on time only
+      -- (i.e. the state can be calculated)
+    trafficDependentOperation             (6),
+      -- Operation is based on different levels of traffic parameters
+      -- (requests, duration of gaps or more complex parameters)
+    standbyOperation                      (7),
+      -- Controller: partially switched off or partially amber flashing
+    failureMode                           (8),
+      -- Controller has a problem or failure in operation
+    off                                   (9),
+      -- Controller is switched off
+
+   -- Related to MAP and SPAT bindings
+    recentMAPmessageUpdate                (10),
+      -- Map revision with content changes
+    recentChangeInMAPassignedLanesIDsUsed (11),
+      -- Change in MAP's assigned lanes used (lane changes)
+      -- Changes in the active lane list description
+    noValidMAPisAvailableAtThisTime       (12),
+      -- MAP (and various lanes indexes) not available
+    noValidSPATisAvailableAtThisTime      (13)
+      -- SPAT system is not working at this time
+
+    -- Bits 14,15 reserved at this time and shall be zero
+    } (SIZE(16))
+
+
+LaneAttributes-Barrier ::= BIT STRING {
+   -- With bits as defined:
+   median-RevocableLane     (0),
+                            -- this lane may be activated or not based
+                            -- on the current SPAT message contents
+                            -- if not asserted, the lane is ALWAYS present
+   median                   (1),
+   whiteLineHashing         (2),
+   stripedLines             (3),
+   doubleStripedLines       (4),
+   trafficCones             (5),
+   constructionBarrier      (6),
+   trafficChannels          (7),
+   lowCurbs                 (8),
+   highCurbs                (9)
+   -- Bits 10~15 reserved and set to zero
+   } (SIZE (16))
+
+LaneAttributes-Bike ::= BIT STRING {
+   -- With bits as defined:
+   bikeRevocableLane       (0),
+                           -- this lane may be activated or not based
+                           -- on the current SPAT message contents
+                           -- if not asserted, the lane is ALWAYS present
+   pedestrianUseAllowed    (1),
+                           -- The path allows pedestrian traffic,
+                           -- if not set, this mode is prohibited
+   isBikeFlyOverLane       (2),
+                           -- path of lane is not at grade
+   fixedCycleTime          (3),
+                           -- the phases use preset times
+                           -- i.e. there is not a 'push to cross' button
+   biDirectionalCycleTimes (4),
+                           -- ped walk phases use different SignalGroupID
+                           -- for each direction. The first SignalGroupID
+                           -- in the first Connection represents 'inbound'
+                           -- flow (the direction of travel towards the first
+                           -- node point) while second SignalGroupID in the
+                           -- next Connection entry represents the 'outbound'
+                           -- flow. And use of RestrictionClassID entries
+                           -- in the Connect follow this same pattern in pairs.
+   isolatedByBarrier       (5),
+   unsignalizedSegmentsPresent  (6)
+                           -- The lane path consists of one of more segments
+                           -- which are not part of a signal group ID
+
+   -- Bits 7~15 reserved and set to zero
+   } (SIZE (16))
+
+LaneAttributes-Crosswalk ::= BIT STRING {
+   -- With bits as defined:
+   -- MUTCD provides no suitable "types" to use here
+   crosswalkRevocableLane  (0),
+                           -- this lane may be activated or not based
+                           -- on the current SPAT message contents
+                           -- if not asserted, the lane is ALWAYS present
+   bicyleUseAllowed        (1),
+                           -- The path allows bicycle traffic,
+                           -- if not set, this mode is prohibited
+   isXwalkFlyOverLane      (2),
+                           -- path of lane is not at grade
+   fixedCycleTime          (3),
+                           -- ped walk phases use preset times
+                           -- i.e. there is not a 'push to cross' button
+   biDirectionalCycleTimes (4),
+                           -- ped walk phases use different SignalGroupID
+                           -- for each direction. The first SignalGroupID
+                           -- in the first Connection represents 'inbound'
+                           -- flow (the direction of travel towards the first
+                           -- node point) while second SignalGroupID in the
+                           -- next Connection entry represents the 'outbound'
+                           -- flow. And use of RestrictionClassID entries
+                           -- in the Connect follow this same pattern in pairs.
+   hasPushToWalkButton     (5),
+                           -- Has a demand input
+   audioSupport            (6),
+                           -- audio crossing cues present
+   rfSignalRequestPresent  (7),
+                           -- Supports RF push to walk technologies
+   unsignalizedSegmentsPresent  (8)
+                           -- The lane path consists of one of more segments
+                           -- which are not part of a signal group ID
+   -- Bits 9~15 reserved and set to zero
+   } (SIZE (16))
+
+LaneAttributes-Parking ::= BIT STRING {
+    -- With bits as defined:
+    -- Parking use details, note that detailed restrictions such as
+    -- allowed hours are sent by way of ITIS codes in the TIM message
+    parkingRevocableLane         (0),
+                                 -- this lane may be activated or not based
+                                 -- on the current SPAT message contents
+                                 -- if not asserted, the lane is ALWAYS present
+    parallelParkingInUse         (1),
+    headInParkingInUse           (2),
+    doNotParkZone                (3),
+                                 -- used to denote fire hydrants as well as
+                                 -- short disruptions in a parking zone
+    parkingForBusUse             (4),
+    parkingForTaxiUse            (5),
+    noPublicParkingUse           (6)
+                                 -- private parking, as in front of
+                                 -- private property
+   -- Bits 7~15 reserved and set to zero
+   } (SIZE (16))
+
+LaneAttributes-Sidewalk ::= BIT STRING {
+   -- With bits as defined:
+   sidewalk-RevocableLane  (0),
+                           -- this lane may be activated or not based
+                           -- on the current SPAT message contents
+                           -- if not asserted, the lane is ALWAYS present
+   bicyleUseAllowed        (1),
+                           -- The path allows bicycle traffic,
+                           -- if not set, this mode is prohibited
+   isSidewalkFlyOverLane   (2),
+                           -- path of lane is not at grade
+   walkBikes               (3)
+                           -- bike traffic must dismount and walk
+   -- Bits 4~15 reserved and set to zero
+   } (SIZE (16))
+
+
+LaneAttributes-Striping ::= BIT STRING {
+   -- With bits as defined:
+    stripeToConnectingLanesRevocableLane      (0),
+       -- this lane may be activated or not activated based
+       -- on the current SPAT message contents
+       -- if not asserted, the lane is ALWAYS present
+    stripeDrawOnLeft                          (1),
+    stripeDrawOnRight                         (2),
+        -- which side of lane to mark
+    stripeToConnectingLanesLeft               (3),
+    stripeToConnectingLanesRight              (4),
+    stripeToConnectingLanesAhead              (5)
+        -- the stripe type should be
+        -- presented to the user visually
+        -- to reflect stripes in the
+        -- intersection for the type of
+        -- movement indicated
+   -- Bits 6~15 reserved and set to zero
+   } (SIZE (16))
+
+
+LaneAttributes-TrackedVehicle ::= BIT STRING {
+   -- With bits as defined:
+   spec-RevocableLane         (0),
+                               -- this lane may be activated or not based
+                               -- on the current SPAT message contents
+                               -- if not asserted, the lane is ALWAYS present
+   spec-commuterRailRoadTrack (1),
+   spec-lightRailRoadTrack    (2),
+   spec-heavyRailRoadTrack    (3),
+   spec-otherRailType         (4)
+   -- Bits 5~15 reserved and set to zero
+   } (SIZE (16))
+
+
+LaneAttributes-Vehicle ::= BIT STRING {
+   -- With bits as defined:
+   isVehicleRevocableLane       (0),
+                                 -- this lane may be activated or not based
+                                 -- on the current SPAT message contents
+                                 -- if not asserted, the lane is ALWAYS present
+   isVehicleFlyOverLane         (1),
+                                 -- path of lane is not at grade
+   hovLaneUseOnly               (2),
+   restrictedToBusUse           (3),
+   restrictedToTaxiUse          (4),
+   restrictedFromPublicUse      (5),
+   hasIRbeaconCoverage          (6),
+   permissionOnRequest          (7) -- e.g. to inform about a lane for e-cars
+
+   } (SIZE (8,...))
+
+LaneConnectionID ::= INTEGER (0..255)
+
+LaneDirection ::= BIT STRING {
+   -- With bits as defined:
+   -- Allowed directions of travel in the lane object
+   -- All lanes are described from the stop line outwards
+   ingressPath     (0),
+                   -- travel from rear of path to front
+                   -- is allowed
+   egressPath      (1)
+                   -- travel from front of path to rear
+                   -- is allowed
+   -- Notes:  No Travel, i.e. the lane object type does not support
+   --         travel (medians, curbs, etc.) is indicated by not
+   --         asserting any bit value
+   --         Bi-Directional Travel (such as a ped crosswalk) is
+   --         indicated by asserting both of the bits
+   } (SIZE (2))
+
+LaneID ::= INTEGER (0..255)
+   -- the value 0 shall be used when the lane ID is
+   -- not available or not known
+   -- the value 255 is reserved for future use
+
+LayerID ::= INTEGER (0..100)
+
+LayerType ::= ENUMERATED {
+     none,
+     mixedContent, -- two or more of the below types
+     generalMapData,
+     intersectionData,
+     curveData,
+     roadwaySectionData,
+     parkingAreaData,
+     sharedLaneData,
+     ...
+     }
+
+LaneWidth ::= INTEGER (0..32767) -- units of 1 cm
+
+MergeDivergeNodeAngle ::= INTEGER (-180..180)
+   -- In units of 1.5 degrees from north
+   -- the value -180 shall be used to represent
+   -- data is not available or unknown
+
+MinuteOfTheYear ::= INTEGER (0..527040)
+   -- the value 527040 shall be used for invalid
+
+MovementPhaseState ::= ENUMERATED {
+    -- Note that based on the regions and the operating mode not every
+    -- phase will be used in all transportation modes and that not
+    -- every phase will be used in all transportation modes
+
+    unavailable (0),
+      -- This state is used for unknown or error
+    dark (1),
+      -- The signal head is dark (unlit)
+
+   -- Reds
+    stop-Then-Proceed (2),
+      -- Often called 'flashing red' in US
+      -- Driver Action:
+      --   Stop vehicle at stop line.
+      --   Do not proceed unless it is safe.
+      -- Note that the right to proceed either right or left when
+      -- it is safe may be contained in the lane description to
+      -- handle what is called a 'right on red'
+    stop-And-Remain (3),
+      -- e.g. called 'red light' in US
+      -- Driver Action:
+      --   Stop vehicle at stop line.
+      --   Do not proceed.
+      -- Note that the right to proceed either right or left when
+      -- it is safe may be contained in the lane description to
+      -- handle what is called a 'right on red'
+
+   -- Greens
+    pre-Movement (4),
+      -- Not used in the US, red+yellow partly in EU
+      -- Driver Action:
+      --   Stop vehicle.
+      --   Prepare to proceed (pending green)
+      --   (Prepare for transition to green/go)
+    permissive-Movement-Allowed (5),
+      -- Often called 'permissive green' in US
+      -- Driver Action:
+      --   Proceed with caution,
+      --   must yield to all conflicting traffic
+      -- Conflicting traffic may be present
+      -- in the intersection conflict area
+    protected-Movement-Allowed (6),
+      -- Often called 'protected green' in US
+      -- Driver Action:
+      --   Proceed, tossing caution to the wind,
+      --   in indicated (allowed) direction.
+
+   -- Yellows / Ambers
+   -- The vehicle is not allowed to cross the stop bar if it is possible
+   -- to stop without danger.
+    permissive-clearance (7),
+      -- Often called 'permissive yellow' in US
+      -- Driver Action:
+      --   Prepare to stop.
+      --   Proceed if unable to stop,
+      --   Clear Intersection.
+      -- Conflicting traffic may be present
+      -- in the intersection conflict area
+    protected-clearance (8),
+      -- Often called 'protected yellow' in US
+      -- Driver Action:
+      --   Prepare to stop.
+      --   Proceed if unable to stop,
+      --   in indicated direction (to connected lane)
+      --   Clear Intersection.
+
+    caution-Conflicting-Traffic (9)
+      -- Often called 'flashing yellow' in US
+      -- Often used for extended periods of time
+      -- Driver Action:
+      --   Proceed with caution,
+      -- Conflicting traffic may be present
+      -- in the intersection conflict area
+    }
+    -- The above number assignments are not used with UPER encoding
+    -- and are only to be used with DER or implicit encoding
+
+MsgCount ::= INTEGER (0..127)
+
+Offset-B10 ::= INTEGER (-512..511)
+   -- a range of +- 5.11 meters
+
+Offset-B11 ::= INTEGER (-1024..1023)
+   -- a range of +- 10.23 meters
+
+Offset-B12 ::= INTEGER (-2048..2047)
+   -- a range of +- 20.47 meters
+
+Offset-B13 ::= INTEGER (-4096..4095)
+   -- a range of +- 40.95 meters
+
+Offset-B14 ::= INTEGER (-8192..8191)
+   -- a range of +- 81.91 meters
+
+Offset-B16 ::= INTEGER (-32768..32767)
+   -- a range of +- 327.68 meters
+
+PedestrianBicycleDetect ::= BOOLEAN
+                 -- true if ANY Pedestrians or Bicyclists are
+                 -- detected crossing the target lane or lanes
+
+PrioritizationResponseStatus ::= ENUMERATED {
+   unknown           (0),
+                      -- Unknown state
+   requested         (1),
+                      -- This prioritization request was detected
+                      -- by the traffic controller
+   processing        (2),
+                      -- Checking request
+                      -- (request is in queue, other requests are prior)
+   watchOtherTraffic (3),
+                      -- Cannot give full permission,
+                      -- therefore watch for other traffic
+                      -- Note that other requests may be present
+   granted           (4),
+                      -- Intervention was successful
+                      -- and now prioritization is active
+   rejected          (5),
+                      -- The prioritization or preemption request was
+                      -- rejected by the traffic controller
+   maxPresence       (6),
+                      -- The Request has exceeded maxPresence time
+                      -- Used when the controller has determined that
+                      -- the requester should then back off and
+                      -- request an alternative.
+   reserviceLocked   (7),
+                      -- Prior conditions have resulted in a reservice
+                      -- locked event: the controller requires the
+                      -- passage of time before another similar request
+                      -- will be accepted
+   ...
+}
+
+PriorityRequestType ::= ENUMERATED {
+     priorityRequestTypeReserved (0),
+     priorityRequest             (1),
+     priorityRequestUpdate       (2),
+     priorityCancellation        (3),
+     ...
+     }
+
+RegionId ::= INTEGER (0..255)
+   noRegion     RegionId ::= 0  -- Use default supplied stubs
+   addGrpA      RegionId ::= 1  -- USA
+   addGrpB      RegionId ::= 2  -- Japan
+   addGrpC      RegionId ::= 3  -- EU
+   -- NOTE: new registered regional IDs will be added here
+   -- The values 128 and above are for local region use
+
+RequestID ::= INTEGER (0..255)
+
+RequestImportanceLevel ::= ENUMERATED {
+    requestImportanceLevelUnKnown  (0),
+    requestImportanceLevel1        (1), -- The least important request
+    requestImportanceLevel2        (2), -- The values here shall be assigned
+    requestImportanceLevel3        (3), -- Meanings based on regional needs
+    requestImportanceLevel4        (4), -- for each of the basic roles which
+    requestImportanceLevel5        (5), -- are defined elsewhere
+    requestImportanceLevel6        (6),
+    requestImportanceLevel7        (7),
+    requestImportanceLevel8        (8),
+    requestImportanceLevel9        (9),
+    requestImportanceLevel10      (10),
+    requestImportanceLevel11      (11),
+    requestImportanceLevel12      (12),
+    requestImportanceLevel13      (13),
+    requestImportanceLevel14      (14), -- The most important request
+    requestImportanceReserved     (15)  -- Reserved for future use
+    }
+
+RequestSubRole ::= ENUMERATED {
+    requestSubRoleUnKnown    (0),
+    requestSubRole1          (1), -- The first type of sub role
+    requestSubRole2          (2), -- The values here shall be assigned
+    requestSubRole3          (3), -- Meanings based on regional needs
+    requestSubRole4          (4), -- to refine and expand the basic
+    requestSubRole5          (5), -- roles which are defined elsewhere
+    requestSubRole6          (6),
+    requestSubRole7          (7),
+    requestSubRole8          (8),
+    requestSubRole9          (9),
+    requestSubRole10        (10),
+    requestSubRole11        (11),
+    requestSubRole12        (12),
+    requestSubRole13        (13),
+    requestSubRole14        (14), -- The last type of sub role
+    requestSubRoleReserved  (15)  -- Reserved for future use
+    }
+
+RestrictionAppliesTo ::= ENUMERATED {
+    none,              -- applies to nothing
+    equippedTransit,   -- buses etc.
+    equippedTaxis,
+    equippedOther,     -- other vehicle types with
+                       -- necessary signal phase state
+                       -- reception equipment
+    emissionCompliant, -- regional variants with more
+                       -- definitive items also exist
+    equippedBicycle,
+    weightCompliant,
+    heightCompliant,
+    -- Items dealing with traveler needs serviced by the infrastructure
+    -- These end users (which are not vehicles) are presumed to be suitably equipped
+    pedestrians,
+    slowMovingPersons,
+    wheelchairUsers,
+    visualDisabilities,
+    audioDisabilities,  -- hearing
+    otherUnknownDisabilities,
+    ...
+    }
+
+RestrictionClassID ::= INTEGER (0..255)
+   -- An index value to identify data about classes of users
+   -- the value used varies with each intersection's
+   -- needs and is defined in the map to the assigned
+   -- classes of supported users.
+
+RoadRegulatorID ::= INTEGER (0..65535)
+   -- The value zero shall be used for testing only
+
+RoadSegmentID ::= INTEGER (0..65535)
+   -- The values zero to 255 shall be used for testing only
+   -- Note that the value assigned to an RoadSegment will be
+   -- unique within a given regional ID only during its use
+
+RoadwayCrownAngle ::= INTEGER (-128..127)
+    -- In LSB units of 0.3 degrees of angle
+    -- over a range of -38.1 to + 38.1 degrees
+    -- The value -128 shall be used for unknown
+    -- The value zero shall be used for angles
+    -- which are between -0.15 and +0.15
+
+Scale-B12 ::= INTEGER (-2048..2047)  -- in steps of 0.05 percent
+
+SignalGroupID ::= INTEGER (0..255)
+    -- The value 0 shall be used when the ID is
+    -- not available or not known
+    -- the value 255 is reserved to indicate a
+    -- permanent green movement state
+    -- therefore a simple 8 phase signal controller
+    -- device might use 1..9 as its groupIDs
+
+SegmentAttributeXY ::= ENUMERATED {
+   -- Various values which can be Enabled and Disabled for a lane segment
+
+   -- General Items
+   reserved                  ,
+   doNotBlock                ,  -- segment where a vehicle
+                                -- may not come to a stop
+   whiteLine                 ,  -- segment where lane crossing not allowed
+                                -- such as the final few meters of a lane
+
+   -- Porous Lane states, merging, turn outs, parking etc.
+
+   mergingLaneLeft           ,  -- indicates porous lanes
+   mergingLaneRight          ,
+
+   curbOnLeft                ,  -- indicates presence of curbs
+   curbOnRight               ,
+
+   loadingzoneOnLeft         ,  -- loading or drop off zones
+   loadingzoneOnRight        ,
+
+   turnOutPointOnLeft        ,  -- opening to adjacent street/alley/road
+   turnOutPointOnRight       ,
+
+   adjacentParkingOnLeft     , -- side of road parking
+   adjacentParkingOnRight    ,
+
+   -- Bike Lane Needs
+   adjacentBikeLaneOnLeft    , -- presence of marked bike lanes
+   adjacentBikeLaneOnRight   ,
+   sharedBikeLane            , -- right of way is shared with bikes
+                               -- who may occupy entire lane width
+   bikeBoxInFront            ,
+
+   -- Transit Needs
+   transitStopOnLeft         , -- any form of bus/transit loading
+                               -- with pull in-out access to lane on left
+   transitStopOnRight        , -- any form of bus/transit loading
+                               -- with pull in-out access to lane on right
+   transitStopInLane         , -- any form of bus/transit loading
+                               -- in mid path of the lane
+   sharedWithTrackedVehicle  , -- lane is shared with train or trolley
+                               -- not used for crossing tracks
+
+
+   -- Pedestrian Support Attributes
+   safeIsland                , -- begin/end a safety island in path
+   lowCurbsPresent           , -- for ADA support
+   rumbleStripPresent        , -- for ADA support
+   audibleSignalingPresent   , -- for ADA support
+   adaptiveTimingPresent     , -- for ADA support
+   rfSignalRequestPresent    , -- Supports RF push to walk technologies
+   partialCurbIntrusion      , -- path is blocked by a median or curb
+                               -- but at least 1 meter remains open for use
+                               -- and at-grade passage
+
+   -- Lane geometry details  (see standard for defined shapes)
+   taperToLeft               , -- Used to control final path shape
+   taperToRight              , -- Used to control final path shape
+   taperToCenterLine         , -- Used to control final path shape
+
+   -- Parking Lane and Curb Attributes
+   parallelParking           , --
+   headInParking             , -- Parking at an angle with the street
+   freeParking               , -- no restriction on use of parking
+   timeRestrictionsOnParking , -- Parking is not permitted at all times
+                               -- typically used when the 'parking' lane
+                               -- becomes a driving lane at times
+   costToPark                , -- Used where parking has a cost
+   midBlockCurbPresent       , -- a protruding curb near lane edge
+   unEvenPavementPresent     , -- a disjoint height at lane edge
+   ...
+   }
+
+SpeedAdvice ::= INTEGER (0..500)
+    -- LSB units are 0.1 m/s^2
+    -- the value 499 shall be used for values at or greater than 49.9 m/s
+    -- the value 500 shall be used to indicate that speed is unavailable
+
+
+TemporaryID ::= OCTET STRING (SIZE(4))
+
+TimeIntervalConfidence ::= INTEGER (0..15)
+   -- Value   Probability
+   --   0         21%
+   --   1         36%
+   --   2         47%
+   --   3         56%
+   --   4         62%
+   --   5         68%
+   --   6         73%
+   --   7         77%
+   --   8         81%
+   --   9         85%
+   --   10        88%
+   --   11        91%
+   --   12        94%
+   --   13        96%
+   --   14        98%
+   --   15        100%
+
+TransitVehicleOccupancy ::= ENUMERATED {
+    occupancyUnknown    (0),
+    occupancyEmpty      (1),
+    occupancyVeryLow    (2),
+    occupancyLow        (3),
+    occupancyMed        (4),
+    occupancyHigh       (5),
+    occupancyNearlyFull (6),
+    occupancyFull       (7)
+    }
+
+TransitVehicleStatus ::= BIT STRING {
+    loading     (0), -- parking and unable to move at this time
+    anADAuse    (1), -- an ADA access is in progress (wheelchairs, kneeling, etc.)
+    aBikeLoad   (2), -- loading of a bicycle is in progress
+    doorOpen    (3), -- a vehicle door is open for passenger access
+    charging    (4), -- a vehicle is connected to charging point
+    atStopLine  (5)  -- a vehicle is at the stop line for the lane it is in
+    } (SIZE(8))
+
+TransmissionState ::= ENUMERATED {
+   neutral      (0), -- Neutral
+   park         (1), -- Park
+   forwardGears (2), -- Forward gears
+   reverseGears (3), -- Reverse gears
+   reserved1    (4),
+   reserved2    (5),
+   reserved3    (6),
+   unavailable  (7)  -- not-equipped or unavailable value,
+   -- Any related speed is relative to the vehicle reference frame used
+   }
+
+VehicleType ::= ENUMERATED {
+   none                 (0),  -- Not Equipped, Not known or unavailable
+   unknown              (1),  -- Does not fit any other category
+   special              (2),  -- Special use
+   moto                 (3),  -- Motorcycle
+   car                  (4),  -- Passenger car
+   carOther             (5),  -- Four tire single units
+   bus                  (6),  -- Buses
+   axleCnt2             (7),  -- Two axle, six tire single units
+   axleCnt3             (8),  -- Three axle, single units
+   axleCnt4             (9),  -- Four or more axle, single unit
+   axleCnt4Trailer      (10), -- Four or less axle, single trailer
+   axleCnt5Trailer      (11), -- Five or less axle, single trailer
+   axleCnt6Trailer      (12), -- Six or more axle, single trailer
+   axleCnt5MultiTrailer (13), -- Five or less axle, multi-trailer
+   axleCnt6MultiTrailer (14), -- Six axle, multi-trailer
+   axleCnt7MultiTrailer (15),  -- Seven or more axle, multi-trailer
+   ...
+   }
+
+Velocity ::= INTEGER (0..8191) -- Units of 0.02 m/s
+    -- The value 8191 indicates that
+    -- velocity is unavailable
+
+WaitOnStopline ::= BOOLEAN --
+         -- True or False
+         -- If "true", the vehicles on this specific connecting
+         -- maneuver have to stop on the stop-line
+         -- and not to enter the collision area
+
+ZoneLength ::= INTEGER (0..10000)
+    -- Unit = 1 meter, 0 = unknown,
+    -- The value 10000 to be used for Distances >=10000 m
+    -- (e.g. from known point to another point along a
+    -- known path, often against traffic flow direction
+    -- when used for measuring queues)
+
+END
+
+-- ^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-
+--
+-- module: AddGrpC
+--
+-- ^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-
+AddGrpC { 	iso (1) standard (0) signalizedIntersection (19091) profilec(2) addgrpc (0) version (1) }
+
+
+DEFINITIONS AUTOMATIC TAGS::= BEGIN
+
+IMPORTS
+NodeOffsetPointXY, NodeSetXY, PrioritizationResponseStatus, SignalGroupID, DeltaTime, LaneID FROM DSRC
+Altitude, StationID, DeltaAltitude FROM ITS-Container { itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) ts (102894) cdd (2) version (1) };
+
+
+ConnectionManeuverAssist-addGrpC ::=  SEQUENCE {
+	itsStationPositions		ItsStationPositionList	OPTIONAL,
+	rsuGNSSOffset			NodeOffsetPointXY		OPTIONAL,
+	...
+}
+
+ConnectionTrajectory-addGrpC	::= SEQUENCE {
+	nodes				NodeSetXY,
+	...
+}
+
+Control-addGrpC ::=  SEQUENCE {
+	ptvRequest			PtvRequestType,
+	...
+}
+
+IntersectionState-addGrpC ::=  SEQUENCE {
+	activePrioritizations		PrioritizationResponseList	OPTIONAL,
+	...
+}
+
+MapData-addGrpC ::=  SEQUENCE {
+	signalHeadLocations		SignalHeadLocationList	OPTIONAL,
+	...
+}
+
+Position3D-addGrpC ::=  SEQUENCE {
+	altitude			Altitude,
+	...
+}
+
+PrioritizationResponseList ::=  SEQUENCE SIZE(1..10) OF PrioritizationResponse
+
+PrioritizationResponse ::=  SEQUENCE {
+	stationID		StationID,
+	priorState			PrioritizationResponseStatus,
+	 signalGroup		SignalGroupID,
+	...
+}
+
+RestrictionUserType-addGrpC ::=  SEQUENCE {
+	emission			EmissionType OPTIONAL,
+	...
+}
+
+SignalHeadLocationList ::=  SEQUENCE (SIZE(1..64)) OF  SignalHeadLocation
+
+SignalHeadLocation ::=  SEQUENCE {
+	nodeXY			NodeOffsetPointXY,
+	nodeZ				DeltaAltitude,
+	signalGroupID	SignalGroupID,
+	...
+}
+
+SignalStatusPackage-addGrpC ::= SEQUENCE {
+	synchToSchedule	DeltaTime OPTIONAL,
+	...
+}
+
+
+ItsStationPositionList::=  SEQUENCE SIZE(1..5) OF ItsStationPosition
+
+ItsStationPosition ::=  SEQUENCE {
+	stationID			StationID,
+	laneID			LaneID				OPTIONAL,
+	nodeXY			NodeOffsetPointXY	OPTIONAL,
+	timeReference	TimeReference	OPTIONAL,
+	...
+}
+EmissionType ::= ENUMERATED {
+	euro1,
+	euro2,
+	euro3,
+	euro4,
+	euro5,
+	euro6,
+	...
+}
+
+PtvRequestType	::= ENUMERATED {
+	preRequest,
+	mainRequest,
+	doorCloseRequest,
+	cancelRequest,
+	emergencyRequest,
+	...
+}
+
+TimeReference ::= INTEGER { oneMilliSec(1) } (0..65535)
+
+END
+
+
+
+-- ^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-
+--
+-- module: REGION
+--
+-- ^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-
+REGION  { 	iso (1) standard (0) signalizedIntersection (19091) profilec(2) region (1) version (1) }
+
+DEFINITIONS AUTOMATIC TAGS::= BEGIN
+
+IMPORTS
+addGrpC, REG-EXT-ID-AND-TYPE	FROM DSRC
+ConnectionManeuverAssist-addGrpC, ConnectionTrajectory-addGrpC, IntersectionState-addGrpC, Control-addGrpC,  Position3D-addGrpC, RestrictionUserType-addGrpC,
+SignalStatusPackage-addGrpC, MapData-addGrpC  FROM AddGrpC {iso (1) standard (0) signalizedIntersection (19091) profilec(2) addgrpc (0) version (1)};
+
+Reg-AdvisorySpeed					REG-EXT-ID-AND-TYPE ::= { ... }
+
+Reg-ComputedLane					REG-EXT-ID-AND-TYPE ::= { ... }
+
+Reg-ConnectionManeuverAssist	REG-EXT-ID-AND-TYPE ::= {
+	{ConnectionManeuverAssist-addGrpC	IDENTIFIED BY addGrpC} ,
+	...
+}
+
+Reg-GenericLane           REG-EXT-ID-AND-TYPE ::= {
+	{ConnectionTrajectory-addGrpC	IDENTIFIED BY addGrpC} ,
+	...
+}
+
+Reg-IntersectionGeometry  REG-EXT-ID-AND-TYPE ::= { ...  }
+
+Reg-IntersectionState     REG-EXT-ID-AND-TYPE ::= {
+	{IntersectionState-addGrpC IDENTIFIED BY addGrpC} ,
+	...
+}
+
+Reg-LaneAttributes        		REG-EXT-ID-AND-TYPE ::= { ...  }
+
+Reg-LaneDataAttribute     	REG-EXT-ID-AND-TYPE ::= { ... }
+
+Reg-MapData								REG-EXT-ID-AND-TYPE ::= {
+  	 {MapData-addGrpC  IDENTIFIED BY addGrpC},
+   	...
+}
+
+Reg-MovementEvent         	REG-EXT-ID-AND-TYPE ::= { ... }
+
+Reg-MovementState         	REG-EXT-ID-AND-TYPE ::= { ...  }
+
+Reg-NodeAttributeSetLL    	REG-EXT-ID-AND-TYPE ::= { ...  }
+
+Reg-NodeAttributeSetXY    	REG-EXT-ID-AND-TYPE ::= {
+	{Control-addGrpC	IDENTIFIED BY addGrpC} ,
+	 ...
+}
+
+Reg-NodeOffsetPointLL     	REG-EXT-ID-AND-TYPE ::= { ...  }
+
+Reg-NodeOffsetPointXY     	REG-EXT-ID-AND-TYPE ::= { ... }
+
+Reg-Position3D            		REG-EXT-ID-AND-TYPE ::= {
+	{Position3D-addGrpC IDENTIFIED BY addGrpC} ,
+	...
+}
+
+Reg-RequestorDescription  	REG-EXT-ID-AND-TYPE ::= { ...  }
+
+Reg-RequestorType         	REG-EXT-ID-AND-TYPE ::= { ...  }
+
+Reg-RestrictionUserType   	REG-EXT-ID-AND-TYPE ::= {
+	{RestrictionUserType-addGrpC IDENTIFIED BY addGrpC} ,
+	...
+}
+
+Reg-RoadSegment						REG-EXT-ID-AND-TYPE ::= { ...  }
+
+Reg-SignalControlZone				REG-EXT-ID-AND-TYPE ::= { ...  }
+
+Reg-SignalRequest					REG-EXT-ID-AND-TYPE ::= { ...  }
+
+Reg-SignalRequestMessage			REG-EXT-ID-AND-TYPE ::= { ... }
+
+Reg-SignalRequestPackage			REG-EXT-ID-AND-TYPE ::= { ...  }
+
+Reg-SignalStatus					REG-EXT-ID-AND-TYPE ::= { ...  }
+
+Reg-SignalStatusMessage				REG-EXT-ID-AND-TYPE ::= { ... }
+
+Reg-SignalStatusPackage   	REG-EXT-ID-AND-TYPE ::= {
+	{ SignalStatusPackage-addGrpC IDENTIFIED BY addGrpC} ,
+	...
+}
+
+Reg-SPAT                            REG-EXT-ID-AND-TYPE ::= { ... }
+
+END
+
+
+

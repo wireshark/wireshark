@@ -58,6 +58,7 @@ set(ASN1_SRC_DIRS
 	ilp
 	inap
 	isdn-sup
+	its
 	kerberos
 	lcsap
 	ldap

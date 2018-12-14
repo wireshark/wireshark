@@ -110,6 +110,7 @@ GeoNetworking (GeoNw)
 GLOW Lawo Emberplus Data format
 GSM-R (User-to-User Information Element usage)
 HI3CCLinkData
+Intelligent Transport Systems (ITS) application level
 ISO 13400-2 Diagnostic communication over Internet Protocol (DoIP)
 ITU-t X.696 Octet Encoding Rules (OER)
 Local Number Portability Database Query Protocol (ANSI)

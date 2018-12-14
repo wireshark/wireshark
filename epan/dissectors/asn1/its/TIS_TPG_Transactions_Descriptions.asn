@@ -1,0 +1,348 @@
+-- TIS-TPG Transactions message definitions
+-- ASN.1 Start Definition
+
+TIS-TPG-Transactions-Descriptions {
+itu-t (0) identified-organization (4) etsi (0) itsDomain (5)
+wg1 (1) i2vApplications (101556) tpms (2) transactions (1) version (1)}
+DEFINITIONS AUTOMATIC TAGS ::=
+
+BEGIN
+
+IMPORTS
+ItsPduHeader, CauseCode, ReferencePosition, Speed, Heading, TimestampIts, StationID, PhoneNumber, OpeningDaysHours, DigitalMap  -- PATCH
+FROM ITS-Container {
+ itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) ts (102894) cdd (2) version (1)
+};
+
+
+
+-- Root Message PDU: TisTpgTransactionsPdu
+
+TisTpgTransactionsPdu ::= SEQUENCE {
+	header ItsPduHeader,
+	tisTpgTransaction TisTpgTransaction
+}
+
+TisTpgTransaction ::= CHOICE {
+	drm	TisTpgDRM,
+	snm	TisTpgSNM,
+	trm	TisTpgTRM,
+	tcm	TisTpgTCM,
+	vdrm TisTpgVDRM,
+	vdpm TisTpgVDPM,
+	eofm TisTpgEOFM
+}
+
+-- TisTpgDRM
+
+TisTpgDRM ::= SEQUENCE {
+ management TisTpgDRM-Management,
+ situation TisTpgDRM-Situation,
+ location TisTpgDRM-Location,
+ ...
+}
+
+TisTpgDRM-Management ::= SEQUENCE {
+ generationTime	TimestampIts,
+ vehicleType UNVehicleClassifcation,
+ costumerContract CustomerContract OPTIONAL,
+ tisProfile	TisProfile,
+ ...
+}
+
+TisTpgDRM-Situation ::= SEQUENCE {
+ causeCode	CauseCode,
+ ...
+}
+
+TisTpgDRM-Location ::= SEQUENCE {
+ vehiclePosition ReferencePosition,
+ vehicleSpeed Speed,
+ vehicleHeading Heading,
+ requestedPosition ReferencePosition OPTIONAL,
+ searchRange SearchRange OPTIONAL,
+ searchCondition SearchCondition OPTIONAL,
+ ...
+}
+
+-- TisTpgSNM
+
+TisTpgSNM ::= SEQUENCE {
+ management TisTpgSNM-Management,
+ tpgContainer TpgNotifContainer
+}
+
+TisTpgSNM-Management ::= SEQUENCE {
+ generationTime	TimestampIts,
+ totalTpgStations TotalTpgStations,
+ ...
+}
+
+-- TisTpgTRM
+
+TisTpgTRM ::= SEQUENCE {
+ management TisTpgTRM-Management,
+ situation TisTpgTRM-Situation OPTIONAL,
+ location TisTpgTRM-Location OPTIONAL,
+ ...
+}
+
+TisTpgTRM-Management ::= SEQUENCE {
+ generationTime	TimestampIts,
+ vehicleType UNVehicleClassifcation,
+ tpgStationID StationID,
+ reservationStatus ReservationStatus,
+ costumercontract CustomerContract OPTIONAL,
+ reservationID ReservationID OPTIONAL,
+ ...
+}
+
+TisTpgTRM-Situation ::= SEQUENCE {
+ estArrivalTime TimestampIts,
+ proposedPairingID PairingID OPTIONAL
+}
+
+TisTpgTRM-Location ::= SEQUENCE {
+ vehiclePosition ReferencePosition,
+ vehicleSpeed Speed,
+ vehicleHeading Heading,
+ ...
+}
+
+-- TisTpgTCM
+
+TisTpgTCM ::= SEQUENCE {
+ management TisTpgTCM-Management,
+ situation TisTpgTCM-Situation OPTIONAL,
+ location TisTpgTCM-Location OPTIONAL,
+ ...
+}
+
+TisTpgTCM-Management ::= SEQUENCE {
+ generationTime	TimestampIts,
+ tpgStationID StationID,
+ reservationStatus ReservationStatus,
+ reservedTpg INTEGER(1..65535)	OPTIONAL,
+ costumercontract CustomerContract OPTIONAL,
+ reservationID	ReservationID OPTIONAL,
+ tpgAutomationLevel	TpgAutomation OPTIONAL,
+ ...
+}
+
+TisTpgTCM-Situation::= SEQUENCE {
+ pairingID PairingID OPTIONAL,
+ reservationTimeLimit TimestampIts,
+ cancellationCondition CancellationCondition OPTIONAL,
+ ...
+}
+
+TisTpgTCM-Location::= SEQUENCE {
+ tpgLocation ReferencePosition OPTIONAL,
+ address UTF8String(SIZE(1..128)) OPTIONAL,
+ ...
+}
+
+-- TisTpgVDRM
+
+TisTpgVDRM ::= SEQUENCE {
+ management TisTpgVDRM-Management,
+ ...
+}
+
+TisTpgVDRM-Management ::= SEQUENCE {
+ generationTime	TimestampIts,
+ fillingStatus FillingStatus,
+ automationLevel TpgAutomation,
+ pairingID	PairingID OPTIONAL,
+ ...
+}
+
+-- TisTpgVDPM
+
+TisTpgVDPM ::= SEQUENCE {
+ management TisTpgVDPM-Management,
+ placardTable PlacardTable,
+ vehicleSpecificData VehicleSpecificData OPTIONAL,
+ ...
+}
+
+TisTpgVDPM-Management ::= SEQUENCE {
+ generationTime	TimestampIts,
+ tisProfile	TisProfile	OPTIONAL,
+ language Language,
+ vehicleType UNVehicleClassifcation,
+ tyreTempCondition TyreTempCondition,
+ fillingStatus FillingStatus,
+ pairingID PairingID OPTIONAL,
+ ...
+}
+
+VehicleSpecificData ::= SEQUENCE {
+ currentVehicleConfiguration PressureConfiguration,
+ frontLeftTyreData TyreData,
+ frontRightTyreData TyreData,
+ rearLeftTyreData TyreData,
+ rearRightTyreData TyreData,
+ spareTyreData TyreData,
+ ...
+}
+
+-- TisTpgEOFM
+
+TisTpgEOFM ::= SEQUENCE {
+ management TisTpgEOFM-Management,
+ ...
+}
+
+TisTpgEOFM-Management ::= SEQUENCE {
+ generationTime	TimestampIts,
+ fillingStatus FillingStatus,
+ numberOfAppliedPressure NumberOfAppliedPressure,
+ appliedTyrePressures AppliedTyrePressures OPTIONAL,
+ pairingID	PairingID OPTIONAL,
+ ...
+}
+
+PlacardTable ::= SEQUENCE(SIZE(0..15)) OF TyreSetVariant
+
+TyreSetVariant ::= SEQUENCE
+{
+	variantID TyreSetVariantID,
+	frontAxleDimension TyreSidewallInformation OPTIONAL,
+	rearAxleDimension TyreSidewallInformation OPTIONAL,
+	pressureVariantsList PressureVariantsList
+}
+
+PressureVariantsList ::= SEQUENCE(SIZE(1..15)) OF PressureVariant
+
+PressureVariant ::= SEQUENCE
+{
+	pressureConfiguration PressureConfiguration,
+	frontAxlePressure AxlePlacardPressure,
+	rearAxlePressure AxlePlacardPressure
+}
+
+TyreData ::= SEQUENCE
+{
+	currentTyrePressure CHOICE {
+	  tyrePressureValue TyrePressure,
+	  unavailable NULL
+	} OPTIONAL,
+	tyreSidewallInformation CHOICE {
+	  tyreSidewallInformationValue TyreSidewallInformation,
+	  unavailable NULL
+	} OPTIONAL,
+	currentInsideAirTemperature CHOICE {
+	  tyreAirTemperatureValue TyreAirTemperature,
+	  unavailable NULL
+	} OPTIONAL,
+	recommendedTyrePressure CHOICE {
+	  axlePlacardPressureValue AxlePlacardPressure,
+	  unavailable NULL
+	} OPTIONAL,
+	tin CHOICE {
+	 tinValue TIN,
+	 unavailable NULL
+	} OPTIONAL,
+	sensorState CHOICE {
+	  sensorStateValue SensorState,
+	  unavailable NULL
+	} OPTIONAL,
+	...
+}
+
+AppliedTyrePressure ::=  CHOICE {
+ tyrePressureValue TyrePressure,
+ unavailable NULL
+}
+
+TpgStationData ::= SEQUENCE {
+ tpgStationID StationID,
+ tpgAutomationLevel TpgAutomation,
+ tpgNumber TpgNumber,
+ tpgProvider TpgProvider,
+ tpgLocation ReferencePosition,
+ accessibility Accessibility,
+ address UTF8String(SIZE(1..128))  OPTIONAL,
+ phoneNumber PhoneNumber OPTIONAL,
+ digitalMap DigitalMap OPTIONAL,
+ openingDaysHours OpeningDaysHours OPTIONAL,
+ bookingInfo BookingInfo OPTIONAL,
+ availableTpgNumber AvailableTpgNumber OPTIONAL,
+ cancellationCondition CancellationCondition OPTIONAL,
+ ...
+}
+
+TyreSidewallInformation ::= BIT STRING (SIZE (60))
+
+CurrentVehicleConfiguration ::= BIT STRING (SIZE (9))
+
+AxlePlacardPressure ::= INTEGER { zero (0), fiveKPa (1) } (0..255)
+
+SensorState ::= INTEGER { malfunction(65534), unavailable(65535) } (0..65535)
+
+TyrePressure ::= INTEGER { invalid (0), lessThanOneBar (1), oneBar (2), oneBarPlusTwoAndHalfKPa (3), inflation (254), overflow(255)  } (0..255)
+
+DriverLanguage ::= INTEGER {english (0), german (1), french (2), italian (3), spanish (4) } (0..15)
+
+TyreTempCondition ::= ENUMERATED {pressure-cold (0),pressure-warm (1), unavailable (2), ...  }
+
+TyreAirTemperature ::= INTEGER { invalid (0), lessThanMinus50Celsius(1), minus50Celsius(2), minus49Celsius(3), zeroCelsius(52), overflowThreshold1(240), overflowThreshold2(241), overflowThreshold3(242), overflowThreshold4(243), overflowThreshold5(244), overflowThreshold6(245), overflowThreshold7(246), overflowThreshold8(247), overflowThreshold9(248), overflowThreshold10(249), overflowThreshold11(250), overflowThreshold12(251), overflowThreshold13(252), overflowThreshold14(253), overflowThreshold15(254), overflowThreshold16(255) } (0..255)
+
+TIN ::= BIT STRING (SIZE(64))
+
+PressureConfiguration ::= BIT STRING (SIZE (9))
+
+CustomerContract ::= IA5String(SIZE(1..32))
+
+ReservationStatus ::= ENUMERATED { reservationOK (0), noReservationService (1), noTpmsAvailable (2), ...}
+
+PairingID ::= INTEGER(0..9999)
+
+AppliedTyrePressures ::= SEQUENCE (SIZE(1..5)) OF AppliedTyrePressure
+
+SearchRange ::= INTEGER(0..255)
+
+TotalTpgStations ::= INTEGER(0..65535)
+
+TpgNotifContainer ::= SEQUENCE (SIZE(1..8)) OF TpgStationData
+
+-- DigitalMap ::= SEQUENCE (SIZE(1..256)) OF ReferencePosition PATCH
+
+TpgNumber ::= INTEGER(1..65535)
+
+TpgProvider ::= UTF8String (SIZE(1..32))
+
+TpgLocation ::= ReferencePosition
+
+Accessibility ::= UTF8String (SIZE(1..32))
+
+-- PhoneNumber ::= NumericString (SIZE(1..16)) PATCH
+
+-- OpeningDaysHours ::= UTF8String PATCH
+
+BookingInfo ::= UTF8String
+
+AvailableTpgNumber ::= INTEGER(1..65535)
+
+CancellationCondition ::= UTF8String (SIZE(1..32))
+
+TpgAutomation ::= BIT STRING  {fullAutomated(0), semiAutomated(1), manual(2), reserved (3)} (SIZE(4))
+
+FillingStatus ::= INTEGER {requestVehicleData(0), sendVehicleData(1), started(2), fillingProcessFailed (3), fillingProcessCompleted (4) } (0..7)
+
+NumberOfAppliedPressure ::= INTEGER {oneAppliedPressure(1), twoAppliedPressure (2)} (1..5)
+
+UNVehicleClassifcation ::= INTEGER {reserved(0), categoryL1(1), categoryL2(2), categoryL3(3), categoryL4(4), categoryL5(5), categoryL6(6), categoryL7(7), categoryL8(8)} (0..63)
+
+SearchCondition ::= INTEGER {nearest(0), quickest(1), paylessRoad(2)} (0..7)
+
+TisProfile ::= BIT STRING  {reserved(0),profileOne(1), profileTwo(2), profileThree(3)} (SIZE(8))
+
+ReservationID ::= UTF8String (SIZE(1..32))
+
+Language ::= BIT STRING (SIZE (10))
+
+TyreSetVariantID ::= INTEGER (0..15)
+
+END
