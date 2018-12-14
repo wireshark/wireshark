@@ -572,7 +572,7 @@ geonw_addr_resolve(hashgeonw_t *tp) {
     const char *string = try_val_to_str(val, itss_type_small_names);
     if (string == NULL) {
         guint32_to_str_buf(val, rname, MAXNAMELEN-2);
-        l1 = (unsigned) strlen(rname);
+        l1 = (guint8) strlen(rname);
     }
     else {
         l1 = (guint8) g_strlcpy(rname, string, MAXNAMELEN-2);
@@ -584,7 +584,7 @@ geonw_addr_resolve(hashgeonw_t *tp) {
     string = try_val_to_str(val, E164_ISO3166_country_code_short_value);
     if (string == NULL) {
         guint32_to_str_buf(val, rname, MAXNAMELEN-12);
-        l2 = (unsigned) strlen(rname);
+        l2 = (guint8) strlen(rname);
     }
     else {
         l2 = (guint8) g_strlcpy(rname, string, MAXNAMELEN-l1-3);
