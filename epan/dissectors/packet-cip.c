@@ -6518,6 +6518,119 @@ dissect_cip_cm_fwd_open_rsp_success(cip_req_info_t *preq_info, proto_tree *tree,
    return parsed_len + app_rep_size;
 }
 
+static void dissect_cip_cm_unconnected_send_req(proto_tree* cmd_data_tree, tvbuff_t* tvb, int offset, packet_info* pinfo)
+{
+   /* Display timeout fields */
+   dissect_cip_cm_timeout(cmd_data_tree, tvb, offset);
+
+   /* Message request size */
+   guint16 msg_req_siz = tvb_get_letohs(tvb, offset + 2);
+   proto_tree_add_item(cmd_data_tree, hf_cip_cm_msg_req_size, tvb, offset + 2, 2, ENC_LITTLE_ENDIAN);
+
+   /* Message Request */
+   proto_tree* temp_tree = proto_tree_add_subtree(cmd_data_tree, tvb, offset + 4, msg_req_siz, ett_cm_mes_req, NULL, "Message Request");
+
+   /*
+   ** We call ourselves again to dissect embedded packet
+   */
+
+   col_append_str(pinfo->cinfo, COL_INFO, ": ");
+
+   tvbuff_t* next_tvb = tvb_new_subset_length(tvb, offset + 4, msg_req_siz);
+   cip_req_info_t* preq_info = (cip_req_info_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_cip, 0);
+   cip_req_info_t* pembedded_req_info = NULL;
+   if (preq_info)
+   {
+      if (preq_info->pData == NULL)
+      {
+         pembedded_req_info = wmem_new0(wmem_file_scope(), cip_req_info_t);
+         preq_info->pData = pembedded_req_info;
+      }
+      else
+      {
+         pembedded_req_info = (cip_req_info_t*)preq_info->pData;
+      }
+   }
+   dissect_cip_data(temp_tree, next_tvb, 0, pinfo, pembedded_req_info, NULL, FALSE);
+
+   if (msg_req_siz % 2)
+   {
+      /* Pad byte */
+      proto_tree_add_item(cmd_data_tree, hf_cip_pad8, tvb, offset + 4 + msg_req_siz, 1, ENC_LITTLE_ENDIAN);
+      msg_req_siz++;  /* include the padding */
+   }
+
+   /* Route Path Size */
+   guint16 route_path_size = tvb_get_guint8(tvb, offset + 4 + msg_req_siz) * 2;
+   proto_tree_add_item(cmd_data_tree, hf_cip_cm_route_path_size, tvb, offset + 4 + msg_req_siz, 1, ENC_LITTLE_ENDIAN);
+
+   /* Display the Reserved byte */
+   proto_tree_add_item(cmd_data_tree, hf_cip_reserved8, tvb, offset + 5 + msg_req_siz, 1, ENC_LITTLE_ENDIAN);
+
+   /* Route Path */
+   proto_item* temp_item;
+   proto_tree* epath_tree = proto_tree_add_subtree(cmd_data_tree, tvb, offset + 6 + msg_req_siz, route_path_size, ett_path, &temp_item, "Route Path: ");
+   dissect_epath(tvb, pinfo, epath_tree, temp_item, offset + 6 + msg_req_siz, route_path_size, FALSE, FALSE, NULL, NULL, NO_DISPLAY, NULL, FALSE);
+}
+
+static void dissect_cip_cm_fwd_close_req(proto_tree* cmd_data_tree, tvbuff_t* tvb, int offset, packet_info* pinfo)
+{
+   cip_simple_request_info_t conn_path;
+
+   dissect_cip_cm_timeout(cmd_data_tree, tvb, offset);
+
+   cip_connection_triad_t conn_triad;
+   dissect_connection_triad(tvb, offset + 2, cmd_data_tree,
+      hf_cip_cm_conn_serial_num, hf_cip_cm_vendor, hf_cip_cm_orig_serial_num,
+      &conn_triad);
+
+   if (!pinfo->fd->flags.visited)
+      enip_mark_connection_triad(pinfo, &conn_triad);
+
+   /* Add the path size */
+   guint16 conn_path_size = tvb_get_guint8(tvb, offset + 10) * 2;
+   proto_tree_add_item(cmd_data_tree, hf_cip_cm_conn_path_size, tvb, offset + 10, 1, ENC_LITTLE_ENDIAN);
+
+   /* Display the Reserved byte */
+   proto_tree_add_item(cmd_data_tree, hf_cip_reserved8, tvb, offset + 11, 1, ENC_LITTLE_ENDIAN);
+
+   /* Add the EPATH */
+   proto_item *pi;
+   proto_tree* epath_tree = proto_tree_add_subtree(cmd_data_tree, tvb, offset + 12, conn_path_size, ett_path, &pi, "Connection Path: ");
+   dissect_epath(tvb, pinfo, epath_tree, pi, offset + 12, conn_path_size, FALSE, FALSE, &conn_path, NULL, DISPLAY_CONNECTION_PATH, NULL, FALSE);
+
+   mark_cip_connection(pinfo, tvb, cmd_data_tree);
+}
+
+static int dissect_cip_cm_fwd_close_rsp_success(proto_tree* cmd_data_tree, tvbuff_t* tvb, int offset, packet_info* pinfo, proto_item* cmd_item)
+{
+   cip_connection_triad_t conn_triad;
+   dissect_connection_triad(tvb, offset, cmd_data_tree,
+      hf_cip_cm_conn_serial_num, hf_cip_cm_vendor, hf_cip_cm_orig_serial_num,
+      &conn_triad);
+
+   /* Display the application reply size */
+   guint16 app_rep_size = tvb_get_guint8(tvb, offset + 8) * 2;
+   proto_tree_add_item(cmd_data_tree, hf_cip_cm_app_reply_size, tvb, offset + 8, 1, ENC_LITTLE_ENDIAN);
+
+   /* Display the Reserved byte */
+   proto_tree_add_item(cmd_data_tree, hf_cip_reserved8, tvb, offset + 9, 1, ENC_LITTLE_ENDIAN);
+   if (app_rep_size > 0)
+   {
+      if (tvb_reported_length_remaining(tvb, offset + 10) <= app_rep_size)
+      {
+         expert_add_info(pinfo, cmd_item, &ei_mal_fwd_close_missing_data);
+         return 0;
+      }
+      proto_tree_add_item(cmd_data_tree, hf_cip_cm_app_reply_data, tvb, offset + 10, app_rep_size, ENC_NA);
+   }
+
+   enip_close_cip_connection(pinfo, &conn_triad);
+   mark_cip_connection(pinfo, tvb, cmd_data_tree);
+
+   return 10 + app_rep_size;
+}
+
 static void display_previous_request_path(cip_req_info_t *preq_info, proto_tree *item_tree, tvbuff_t *tvb, packet_info *pinfo, proto_item* msp_item, gboolean is_msp_item)
 {
    if (preq_info && preq_info->IOILen && preq_info->pIOI)
@@ -6550,15 +6663,13 @@ static void display_previous_request_path(cip_req_info_t *preq_info, proto_tree 
 static void
 dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_length, packet_info *pinfo )
 {
-   proto_item *pi, *rrsc_item, *status_item, *temp_item;
-   proto_tree *rrsc_tree, *cmd_data_tree, *status_tree, *add_status_tree, *temp_tree, *epath_tree;
-   int req_path_size, conn_path_size, temp_data;
+   proto_item *rrsc_item, *status_item;
+   proto_tree *rrsc_tree, *cmd_data_tree;
+   int req_path_size, temp_data;
    unsigned char service, gen_status, add_stat_size;
    unsigned short add_status;
-   unsigned char route_path_size;
-   int i, msg_req_siz;
+   int i;
    cip_req_info_t *preq_info;
-   cip_req_info_t *pembedded_req_info;
 
    service = tvb_get_guint8( tvb, offset );
 
@@ -6588,7 +6699,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
              )
          )
       {
-         pembedded_req_info = (cip_req_info_t*)preq_info->pData;
+         cip_req_info_t* pembedded_req_info = (cip_req_info_t*)preq_info->pData;
 
          if ( pembedded_req_info )
          {
@@ -6663,7 +6774,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
       if (gen_status == CI_GRC_FAILURE)
       {
          /* Dissect object specific error codes */
-         status_tree = proto_tree_add_subtree(item_tree, tvb, offset+2, 1, ett_status_item, &status_item, "Status: " );
+         proto_tree* status_tree = proto_tree_add_subtree(item_tree, tvb, offset+2, 1, ett_status_item, &status_item, "Status: " );
 
          /* Add general status */
          proto_tree_add_item(status_tree, hf_cip_cm_genstat, tvb, offset+2, 1, ENC_LITTLE_ENDIAN );
@@ -6709,7 +6820,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
                /* Add additional status */
                if (add_stat_size > 1)
                {
-                  add_status_tree = proto_tree_add_subtree( status_tree, tvb, offset+4, add_stat_size, ett_cm_add_status_item, NULL, "Additional Status" );
+                  proto_tree* add_status_tree = proto_tree_add_subtree( status_tree, tvb, offset+4, add_stat_size, ett_cm_add_status_item, NULL, "Additional Status" );
 
                   for( i=0; i < add_stat_size-2; i += 2 )
                      proto_tree_add_item(add_status_tree, hf_cip_cm_add_status, tvb, offset+4+i, 2, ENC_LITTLE_ENDIAN );
@@ -6739,35 +6850,8 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
               parsed_len = dissect_cip_cm_fwd_open_rsp_success(preq_info, cmd_data_tree, tvb, offset, pinfo);
               break;
            case SC_CM_FWD_CLOSE:
-           {
-               /* Forward close response (Success) */
-               cip_connection_triad_t conn_triad;
-               dissect_connection_triad(tvb, offset, cmd_data_tree,
-                  hf_cip_cm_conn_serial_num, hf_cip_cm_vendor, hf_cip_cm_orig_serial_num,
-                  &conn_triad);
-
-               /* Display the application reply size */
-               guint16 app_rep_size = tvb_get_guint8( tvb, offset+8 ) * 2;
-               proto_tree_add_item(cmd_data_tree, hf_cip_cm_app_reply_size, tvb, offset+8, 1, ENC_LITTLE_ENDIAN);
-
-               /* Display the Reserved byte */
-               proto_tree_add_item(cmd_data_tree, hf_cip_reserved8, tvb, offset+9, 1, ENC_LITTLE_ENDIAN);
-               if (app_rep_size > 0)
-               {
-                  if (tvb_reported_length_remaining(tvb, offset + 10) <= app_rep_size)
-                  {
-                     expert_add_info(pinfo, cmd_item, &ei_mal_fwd_close_missing_data);
-                     break;
-                  }
-                  proto_tree_add_item(cmd_data_tree, hf_cip_cm_app_reply_data, tvb, offset+10,app_rep_size, ENC_NA);
-               }
-
-               enip_close_cip_connection( pinfo, &conn_triad);
-               mark_cip_connection(pinfo, tvb, cmd_data_tree);
-
-               parsed_len = 10 + app_rep_size;
-            } /* End of if forward close response */
-            break;
+              parsed_len = dissect_cip_cm_fwd_close_rsp_success(cmd_data_tree, tvb, offset, pinfo, cmd_item);
+              break;
             case SC_CM_GET_CONN_OWNER:
             {
                /* Get Connection owner response (Success) */
@@ -6864,107 +6948,28 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
             dissect_cip_cm_fwd_open_req(preq_info, cmd_data_tree, tvb, offset+2+req_path_size, TRUE, pinfo);
             break;
          case SC_CM_FWD_CLOSE:
-         {
-            cip_simple_request_info_t conn_path;
-
-            /* Forward Close Request */
-
-            dissect_cip_cm_timeout( cmd_data_tree, tvb, offset+2+req_path_size);
-
-            cip_connection_triad_t conn_triad;
-            dissect_connection_triad(tvb, offset + 2 + req_path_size + 2, cmd_data_tree,
-               hf_cip_cm_conn_serial_num, hf_cip_cm_vendor, hf_cip_cm_orig_serial_num,
-               &conn_triad);
-
-            if (!pinfo->fd->flags.visited)
-               enip_mark_connection_triad(pinfo, &conn_triad);
-
-            /* Add the path size */
-            conn_path_size = tvb_get_guint8( tvb, offset+2+req_path_size+10 )*2;
-            proto_tree_add_item(cmd_data_tree, hf_cip_cm_conn_path_size, tvb, offset+2+req_path_size+10, 1, ENC_LITTLE_ENDIAN);
-
-            /* Display the Reserved byte */
-            proto_tree_add_item(cmd_data_tree, hf_cip_reserved8, tvb, offset+2+req_path_size+11, 1, ENC_LITTLE_ENDIAN);
-
-            /* Add the EPATH */
-            epath_tree = proto_tree_add_subtree(cmd_data_tree, tvb, offset+2+req_path_size+12, conn_path_size, ett_path, &pi, "Connection Path: ");
-            dissect_epath(tvb, pinfo, epath_tree, pi, offset + 2 + req_path_size + 12, conn_path_size, FALSE, FALSE, &conn_path, NULL, DISPLAY_CONNECTION_PATH, NULL, FALSE);
-
-            mark_cip_connection(pinfo, tvb, cmd_data_tree);
-
+            dissect_cip_cm_fwd_close_req(cmd_data_tree, tvb, offset + 2 + req_path_size, pinfo);
             break;
-         }
          case SC_CM_UNCON_SEND:
-         {
-            /* Unconnected send */
-            tvbuff_t *next_tvb;
-
-            /* Display timeout fields */
-            dissect_cip_cm_timeout( cmd_data_tree, tvb, offset+2+req_path_size);
-
-            /* Message request size */
-            msg_req_siz = tvb_get_letohs( tvb, offset+2+req_path_size+2 );
-            proto_tree_add_item(cmd_data_tree, hf_cip_cm_msg_req_size, tvb, offset+2+req_path_size+2, 2, ENC_LITTLE_ENDIAN);
-
-            /* Message Request */
-            temp_tree = proto_tree_add_subtree( cmd_data_tree, tvb, offset+2+req_path_size+4, msg_req_siz, ett_cm_mes_req, NULL, "Message Request" );
-
-            /*
-            ** We call ourselves again to dissect embedded packet
-            */
-
-            col_append_str( pinfo->cinfo, COL_INFO, ": ");
-
-            next_tvb = tvb_new_subset_length(tvb, offset+2+req_path_size+4, msg_req_siz);
-            preq_info = (cip_req_info_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_cip, 0 );
-            pembedded_req_info = NULL;
-            if ( preq_info )
-            {
-               if ( preq_info->pData == NULL )
-               {
-                  pembedded_req_info = wmem_new0(wmem_file_scope(), cip_req_info_t);
-                  preq_info->pData = pembedded_req_info;
-               }
-               else
-               {
-                  pembedded_req_info = (cip_req_info_t*)preq_info->pData;
-               }
-            }
-            dissect_cip_data( temp_tree, next_tvb, 0, pinfo, pembedded_req_info, NULL, FALSE );
-
-            if( msg_req_siz % 2 )
-            {
-              /* Pad byte */
-              proto_tree_add_item(cmd_data_tree, hf_cip_pad8, tvb, offset+2+req_path_size+4+msg_req_siz, 1, ENC_LITTLE_ENDIAN);
-              msg_req_siz++;  /* include the padding */
-            }
-
-            /* Route Path Size */
-            route_path_size = tvb_get_guint8( tvb, offset+2+req_path_size+4+msg_req_siz )*2;
-            proto_tree_add_item(cmd_data_tree, hf_cip_cm_route_path_size, tvb, offset+2+req_path_size+4+msg_req_siz, 1, ENC_LITTLE_ENDIAN);
-
-            /* Display the Reserved byte */
-            proto_tree_add_item(cmd_data_tree, hf_cip_reserved8, tvb, offset+2+req_path_size+5+msg_req_siz, 1, ENC_LITTLE_ENDIAN);
-
-            /* Route Path */
-            epath_tree = proto_tree_add_subtree(cmd_data_tree, tvb, offset+2+req_path_size+6+msg_req_siz, route_path_size, ett_path, &temp_item, "Route Path: ");
-            dissect_epath(tvb, pinfo, epath_tree, temp_item, offset+2+req_path_size+6+msg_req_siz, route_path_size, FALSE, FALSE, NULL, NULL, NO_DISPLAY, NULL, FALSE);
-         }
-         break;
+            dissect_cip_cm_unconnected_send_req(cmd_data_tree, tvb, offset + 2 + req_path_size, pinfo);
+            break;
          case SC_CM_GET_CONN_OWNER:
+         {
             /* Get Connection Owner Request */
 
             /* Display the Reserved byte */
             proto_tree_add_item(cmd_data_tree, hf_cip_reserved8, tvb, offset+2+req_path_size, 1, ENC_LITTLE_ENDIAN);
 
             /* Add path size */
-            conn_path_size = tvb_get_guint8( tvb, offset+2+req_path_size+1 )*2;
+            guint16 conn_path_size = tvb_get_guint8( tvb, offset+2+req_path_size+1 )*2;
             proto_tree_add_item(cmd_data_tree, hf_cip_cm_conn_path_size, tvb, offset+2+req_path_size+1, 1, ENC_LITTLE_ENDIAN);
 
             /* Add the epath */
-            epath_tree = proto_tree_add_subtree(cmd_data_tree, tvb, offset+2+req_path_size+2, conn_path_size, ett_path, &pi, "Connection Path: ");
+            proto_item* pi;
+            proto_tree* epath_tree = proto_tree_add_subtree(cmd_data_tree, tvb, offset+2+req_path_size+2, conn_path_size, ett_path, &pi, "Connection Path: ");
             dissect_epath(tvb, pinfo, epath_tree, pi, offset+2+req_path_size+2, conn_path_size, FALSE, FALSE, NULL, NULL, NO_DISPLAY, NULL, FALSE);
             break;
+         }
          default:
             /* Add data */
             proto_tree_add_item(cmd_data_tree, hf_cip_data, tvb, offset+2+req_path_size, item_length-req_path_size-2, ENC_NA);
