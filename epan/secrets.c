@@ -121,7 +121,8 @@ rsa_privkey_add(const cert_key_id_t *key_id, gnutls_privkey_t pkey)
     void *ht_key = g_memdup(key_id->key_id, sizeof(cert_key_id_t));
     const guint32 *dw = (const guint32 *)key_id->key_id;
     g_hash_table_insert(rsa_privkeys, ht_key, pkey);
-    g_debug("Adding key %08x%08x%08x%08x%08x", dw[0], dw[1], dw[2], dw[3], dw[4]);
+    g_debug("Adding RSA private, Key ID %08x%08x%08x%08x%08x", g_htonl(dw[0]),
+            g_htonl(dw[1]), g_htonl(dw[2]), g_htonl(dw[3]), g_htonl(dw[4]));
 }
 
 UAT_FILENAME_CB_DEF(rsa_privkeys_uats, uri, rsa_privkey_record_t)
