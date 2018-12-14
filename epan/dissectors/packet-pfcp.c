@@ -4017,7 +4017,11 @@ dissect_pfcp_user_plane_ip_resource_infomation(tvbuff_t *tvb, packet_info *pinfo
     }
     if ((upiri_flags_val & 0x20) == 0x20) {
         /* k to (l)   Network Instance */
-        offset = decode_pfcp_network_instance(tvb, pinfo, tree, item, offset, length - offset);
+        guint16 ni_len = length - offset;
+        if ((upiri_flags_val & 0x40) == 0x40) {
+            ni_len--;
+        }
+        offset = decode_pfcp_network_instance(tvb, pinfo, tree, item, offset, ni_len);
     }
     if ((upiri_flags_val & 0x40) == 0x40) {
         /* r   Source Interface */
