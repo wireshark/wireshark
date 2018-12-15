@@ -19,7 +19,7 @@
  * This utility reads in an ASCII hexdump of this common format:
  *
  * 00000000  00 E0 1E A7 05 6F 00 10 5A A0 B9 12 08 00 46 00 .....o..Z.....F.
- * 00000010  03 68 00 00 00 00 0A 2E EE 33 0F 19 08 7F 0F 19 .h.......3.....
+ * 00000010  03 68 00 00 00 00 0A 2E EE 33 0F 19 08 7F 0F 19 .h.......3......
  * 00000020  03 80 94 04 00 00 10 01 16 A2 0A 00 03 50 00 0C .............P..
  * 00000030  01 01 0F 19 03 80 11 01 1E 61 00 0C 03 01 0F 19 .........a......
  *
@@ -196,7 +196,7 @@ static gboolean identify_ascii = FALSE;
 static gboolean has_direction = FALSE;
 static guint32 direction = 0;
 
-/*--- Local date -----------------------------------------------------------------*/
+/*--- Local data -----------------------------------------------------------------*/
 
 /* This is where we store the packet currently being built */
 static guint8  packet_buf[WTAP_MAX_PACKET_SIZE_STANDARD];
@@ -291,14 +291,16 @@ typedef struct {
 
 /* Fixed IP address values */
 #if G_BYTE_ORDER == G_BIG_ENDIAN
+#define IP_ID  0x1234
 #define IP_SRC 0x0a010101
 #define IP_DST 0x0a020202
 #else
+#define IP_ID  0x3412
 #define IP_SRC 0x0101010a
 #define IP_DST 0x0202020a
 #endif
 
-static hdr_ip_t HDR_IP = {0x45, 0, 0, 0x3412, 0, 0, 0xff, 0, 0, IP_SRC, IP_DST};
+static hdr_ip_t HDR_IP = {0x45, 0, 0, IP_ID, 0, 0, 0xff, 0, 0, IP_SRC, IP_DST};
 
 static struct {         /* pseudo header for checksum calculation */
     guint32 src_addr;
