@@ -74,9 +74,10 @@ IF(GNUTLS_FOUND)
     set ( GNUTLS_DLL_DIR "${GNUTLS_HINTS}/bin"
       CACHE PATH "Path to the GnuTLS DLLs"
     )
+    # Note: 32-bit glib2-2.52.2-1.34-win32ws needs libgcc_s_sjlj-1.dll too.
     file( GLOB _gnutls_dlls RELATIVE "${GNUTLS_DLL_DIR}"
       "${GNUTLS_DLL_DIR}/libgmp-*.dll"
-      #"${GNUTLS_DLL_DIR}/libgcc_s_*.dll"
+      "${GNUTLS_DLL_DIR}/libgcc_s_*.dll"
       "${GNUTLS_DLL_DIR}/libffi-*.dll"
       "${GNUTLS_DLL_DIR}/libgnutls-*.dll"
       "${GNUTLS_DLL_DIR}/libhogweed-*.dll"

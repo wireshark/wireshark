@@ -103,13 +103,16 @@ if( GLIB2_FOUND )
 			CACHE PATH "Path to GLib 2 DLLs"
 		)
 		# XXX Are GIO and GObject really necessary?
+		# libglib and libgio in glib2-2.52.2-1.34-win32ws depend on
+		# libgcc_s_sjlj-1.dll, now included with gnutls-3.6.3-1-win32ws.
+		# (64-bit GLib does not depend on libgcc_s).
 		file( GLOB _glib2_dlls RELATIVE "${GLIB2_DLL_DIR}"
 			"${GLIB2_DLL_DIR}/libglib-*.dll"
 			"${GLIB2_DLL_DIR}/libgio-*.dll"
 			"${GLIB2_DLL_DIR}/libgmodule-*.dll"
 			"${GLIB2_DLL_DIR}/libgobject-*.dll"
 			"${GLIB2_DLL_DIR}/libintl-*.dll"
-			"${GLIB2_DLL_DIR}/libgcc_s_*.dll"
+			#"${GLIB2_DLL_DIR}/libgcc_s_*.dll"
 		)
 		set ( GLIB2_DLLS ${_glib2_dlls}
 			# We're storing filenames only. Should we use STRING instead?
