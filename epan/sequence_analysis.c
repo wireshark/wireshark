@@ -166,7 +166,7 @@ sequence_analysis_info_new(void)
 
     /* SEQ_ANALYSIS_DEBUG("adding new item"); */
     sainfo->items = g_queue_new();
-    sainfo->ht= g_hash_table_new(g_int_hash, g_int_equal);
+    sainfo->ht= g_hash_table_new(g_direct_hash, g_direct_equal);
     return sainfo;
 }
 

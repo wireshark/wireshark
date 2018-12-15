@@ -348,7 +348,7 @@ add_to_graph(voip_calls_tapinfo_t *tapinfo, packet_info *pinfo, epan_dissect_t *
     gai->display=FALSE;
 
     g_queue_push_tail(tapinfo->graph_analysis->items, gai);
-    g_hash_table_insert(tapinfo->graph_analysis->ht, &gai->frame_number, gai);
+    g_hash_table_insert(tapinfo->graph_analysis->ht, GUINT_TO_POINTER(gai->frame_number), gai);
 }
 
 /****************************************************************************/
@@ -361,7 +361,7 @@ static int append_to_frame_graph(voip_calls_tapinfo_t *tapinfo, guint32 frame_nu
     gchar *comment = NULL;
 
     if(tapinfo->graph_analysis && NULL!=tapinfo->graph_analysis->ht)
-        gai=(seq_analysis_item_t *)g_hash_table_lookup(tapinfo->graph_analysis->ht, &frame_num);
+        gai=(seq_analysis_item_t *)g_hash_table_lookup(tapinfo->graph_analysis->ht, GUINT_TO_POINTER(frame_num));
     if(gai) {
         frame_label = gai->frame_label;
         comment = gai->comment;
@@ -390,7 +390,7 @@ static int change_frame_graph(voip_calls_tapinfo_t *tapinfo, guint32 frame_num, 
     gchar *comment = NULL;
 
     if(tapinfo->graph_analysis && NULL!=tapinfo->graph_analysis->ht)
-        gai=(seq_analysis_item_t *)g_hash_table_lookup(tapinfo->graph_analysis->ht, &frame_num);
+        gai=(seq_analysis_item_t *)g_hash_table_lookup(tapinfo->graph_analysis->ht, GUINT_TO_POINTER(frame_num));
     if(gai) {
         frame_label = gai->frame_label;
         comment = gai->comment;
@@ -474,7 +474,7 @@ static void insert_to_graph_t38(voip_calls_tapinfo_t *tapinfo, packet_info *pinf
             gai = (seq_analysis_item_t *)list->data;
             if (gai->frame_number > frame_num) {
                 g_queue_insert_before(tapinfo->graph_analysis->items, list, new_gai);
-                g_hash_table_insert(tapinfo->graph_analysis->ht, &new_gai->frame_number, new_gai);
+                g_hash_table_insert(tapinfo->graph_analysis->ht, GUINT_TO_POINTER(new_gai->frame_number), new_gai);
                 inserted = TRUE;
                 break;
             }
@@ -484,7 +484,7 @@ static void insert_to_graph_t38(voip_calls_tapinfo_t *tapinfo, packet_info *pinf
 
         if (!inserted) {
             g_queue_push_tail(tapinfo->graph_analysis->items, new_gai);
-            g_hash_table_insert(tapinfo->graph_analysis->ht, &new_gai->frame_number, new_gai);
+            g_hash_table_insert(tapinfo->graph_analysis->ht, GUINT_TO_POINTER(new_gai->frame_number), new_gai);
         }
     }
 }
@@ -705,14 +705,14 @@ rtp_draw(void *tap_offset_ptr)
         /* using the setup frame number of the RTP stream, we get the call number that it belongs to*/
         /* voip_calls_graph_list = g_list_first(tapinfo->graph_analysis->list); */
         if(tapinfo->graph_analysis){
-            gai = (seq_analysis_item_t *)g_hash_table_lookup(tapinfo->graph_analysis->ht, &rtp_listinfo->setup_frame_number);
+            gai = (seq_analysis_item_t *)g_hash_table_lookup(tapinfo->graph_analysis->ht, GUINT_TO_POINTER(rtp_listinfo->setup_frame_number));
         }
         if(gai != NULL) {
             const char *comment_fmt = "%s, %u packets. Duration: %u.%03us SSRC: 0x%X";
             /* Found the setup frame*/
             conv_num = gai->conv_num;
             /* if RTP was already in the Graph, just update the comment information */
-            gai = (seq_analysis_item_t *)g_hash_table_lookup(tapinfo->graph_analysis->ht, &rtp_listinfo->start_fd->num);
+            gai = (seq_analysis_item_t *)g_hash_table_lookup(tapinfo->graph_analysis->ht, GUINT_TO_POINTER(rtp_listinfo->start_fd->num));
             if (gai != NULL) {
                 duration = (guint32)(nstime_to_msec(&rtp_listinfo->stop_rel_time) - nstime_to_msec(&rtp_listinfo->start_rel_time));
                 g_free(gai->comment);
@@ -744,7 +744,7 @@ rtp_draw(void *tap_offset_ptr)
                 new_gai->display=FALSE;
                 new_gai->line_style = 2;  /* the arrow line will be 2 pixels width */
                 g_queue_push_tail(tapinfo->graph_analysis->items, new_gai);
-                g_hash_table_insert(tapinfo->graph_analysis->ht, &rtp_listinfo->start_fd, new_gai);
+                g_hash_table_insert(tapinfo->graph_analysis->ht, GUINT_TO_POINTER(rtp_listinfo->start_fd->num), new_gai);
             }
         }
         rtp_streams_list = g_list_next(rtp_streams_list);
