@@ -2099,6 +2099,9 @@ void MainWindow::on_actionEditTimeShift_triggered()
             &ts_dialog, SLOT(setCaptureFile(capture_file*)));
     connect(&ts_dialog, SIGNAL(timeShifted()), packet_list_, SLOT(applyTimeShift()));
     ts_dialog.exec();
+    if (capture_file_.capFile()->unsaved_changes) {
+        updateForUnsavedChanges();
+    }
 }
 
 void MainWindow::on_actionEditPacketComment_triggered()

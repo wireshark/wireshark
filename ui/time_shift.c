@@ -293,6 +293,7 @@ time_shift_all(capture_file *cf, const gchar *offset_text)
             continue;   /* Shouldn't happen */
         modify_time_perform(fd, neg ? SHIFT_NEG : SHIFT_POS, &offset, SHIFT_KEEPOFFSET);
     }
+    cf->unsaved_changes = TRUE;
     packet_list_queue_draw();
 
     return NULL;
@@ -338,6 +339,7 @@ time_shift_settime(capture_file *cf, guint packet_num, const gchar *time_text)
         modify_time_perform(fd, SHIFT_POS, &diff_time, SHIFT_SETTOZERO);
     }
 
+    cf->unsaved_changes = TRUE;
     packet_list_queue_draw();
     return NULL;
 }
@@ -421,6 +423,7 @@ time_shift_adjtime(capture_file *cf, guint packet1_num, const gchar *time1_text,
         modify_time_perform(fd, SHIFT_POS, &d3t, SHIFT_SETTOZERO);
     }
 
+    cf->unsaved_changes = TRUE;
     packet_list_queue_draw();
     return NULL;
 }
