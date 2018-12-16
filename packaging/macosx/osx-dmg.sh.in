@@ -191,7 +191,7 @@ echo -e "Copying files to temp directory"
 # Copy the installer package
 cp "$pkg_file" "$tmp_dir"/ || exit 1
 # Copy the readme
-cp "../packaging/macos/Read_me_first.rtf" "$tmp_dir/Read me first.rtf" || exit 1
+cp "../packaging/macosx/Read_me_first.rtf" "$tmp_dir/Read me first.rtf" || exit 1
 
 # If the appearance settings are not to be modified we just copy them
 if [ ${set_ds_store} = "false" ]; then
