@@ -271,7 +271,7 @@ print_plugin_description(const char *name, const char *version,
                          const char *description, const char *filename,
                          void *user_data _U_)
 {
-    ws_debug_printf("%s\t%s\t%s\t%s\n", name, version, description, filename);
+    ws_debug_printf("%-16s\t%s\t%s\t%s\n", name, version, description, filename);
 }
 
 void
