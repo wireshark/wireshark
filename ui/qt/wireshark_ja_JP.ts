@@ -4465,7 +4465,7 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="import_text_dialog.ui" line="470"/>
         <source>The maximum size of the frames to write to the import capture file (max 256kiB)</source>
         <oldsource>The maximum size of the frames to write to the import capture file (max 64000)</oldsource>
-        <translation type="unfinished">インポートするキャプチャファイルへ書き込む最大のフレームサイズ（最大64000)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="238"/>
@@ -10125,32 +10125,32 @@ a:hover {
         <translation>総排出速度 (キロバイト/秒):</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="347"/>
+        <location filename="multicast_statistics_dialog.cpp" line="350"/>
         <source>The burst interval must be between 1 and 1000. </source>
         <translation>バースト間隔は1から1000の間でなくてはいけません</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="356"/>
+        <location filename="multicast_statistics_dialog.cpp" line="359"/>
         <source>The burst alarm threshold isn&apos;t valid. </source>
         <translation>バースト警告閾値が有効ではありません</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="365"/>
+        <location filename="multicast_statistics_dialog.cpp" line="368"/>
         <source>The buffer alarm threshold isn&apos;t valid. </source>
         <translation>バッファ警告閾値が有効ではありません</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="374"/>
+        <location filename="multicast_statistics_dialog.cpp" line="377"/>
         <source>The stream empty speed should be between 1 and 10000000. </source>
         <translation>ストリーム空き速度は1から10000000の間でなくてはいけません</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="383"/>
+        <location filename="multicast_statistics_dialog.cpp" line="386"/>
         <source>The total empty speed should be between 1 and 10000000. </source>
         <translation>総排出速度は1から10000000の間であるべきです</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="397"/>
+        <location filename="multicast_statistics_dialog.cpp" line="400"/>
         <source>%1 streams, avg bw: %2bps, max bw: %3bps, max burst: %4 / %5ms, max buffer: %6B</source>
         <translation>%1 ストリーム, 平均帯域: %2bps, 最大帯域: %3bps, 最大バースト: %4 / %5ms, 最大バッファ: %6B</translation>
     </message>

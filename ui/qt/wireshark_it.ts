@@ -4475,7 +4475,7 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <location filename="import_text_dialog.ui" line="470"/>
         <source>The maximum size of the frames to write to the import capture file (max 256kiB)</source>
         <oldsource>The maximum size of the frames to write to the import capture file (max 64000)</oldsource>
-        <translation type="unfinished">Dimensione massima dei frame da scrivere sul file di importazione della cattura (max 64000)</translation>
+        <translation>La dimensione massima dei frame da scrivere sul file di importazione della cattura (max 256kiB)</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="238"/>
@@ -10135,32 +10135,32 @@ a:hover {
         <translation>Velocità di svuotamento totale (Kb/s):</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="347"/>
+        <location filename="multicast_statistics_dialog.cpp" line="350"/>
         <source>The burst interval must be between 1 and 1000. </source>
         <translation>L&apos;intervallo di burst deve essere compreso tra 1 e 1000.</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="356"/>
+        <location filename="multicast_statistics_dialog.cpp" line="359"/>
         <source>The burst alarm threshold isn&apos;t valid. </source>
         <translation>La soglia di allarme di burst non è valida.</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="365"/>
+        <location filename="multicast_statistics_dialog.cpp" line="368"/>
         <source>The buffer alarm threshold isn&apos;t valid. </source>
         <translation>La soglia di allarme di buffer non è valida.</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="374"/>
+        <location filename="multicast_statistics_dialog.cpp" line="377"/>
         <source>The stream empty speed should be between 1 and 10000000. </source>
         <translation>La velocità di svuotamento del flusso dovrebbe essere compresa tra 1 e 10000000.</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="383"/>
+        <location filename="multicast_statistics_dialog.cpp" line="386"/>
         <source>The total empty speed should be between 1 and 10000000. </source>
         <translation>La velocità di svuotamento totale dovrebbe essere compresa tra 1 e 10000000.</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="397"/>
+        <location filename="multicast_statistics_dialog.cpp" line="400"/>
         <source>%1 streams, avg bw: %2bps, max bw: %3bps, max burst: %4 / %5ms, max buffer: %6B</source>
         <translation>%1 flussi, banda media: %2bps, banda max: %3bps, burst max: %4 / %5ms, buffer max: %6B</translation>
     </message>

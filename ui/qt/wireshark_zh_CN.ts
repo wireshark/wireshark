@@ -4452,7 +4452,7 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="import_text_dialog.ui" line="470"/>
         <source>The maximum size of the frames to write to the import capture file (max 256kiB)</source>
         <oldsource>The maximum size of the frames to write to the import capture file (max 64000)</oldsource>
-        <translation type="unfinished">写入导入捕获文件的最大帧长度 (最大 64000)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="238"/>
@@ -10108,32 +10108,32 @@ text-decoration: underline;
         <translation>总清空速度 (Kb/s:</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="347"/>
+        <location filename="multicast_statistics_dialog.cpp" line="350"/>
         <source>The burst interval must be between 1 and 1000. </source>
         <translation>突发间隔必须介于 1 与 1000 之间。</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="356"/>
+        <location filename="multicast_statistics_dialog.cpp" line="359"/>
         <source>The burst alarm threshold isn&apos;t valid. </source>
         <translation>突发警报门槛无效。</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="365"/>
+        <location filename="multicast_statistics_dialog.cpp" line="368"/>
         <source>The buffer alarm threshold isn&apos;t valid. </source>
         <translation>缓冲区警报门槛无效。</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="374"/>
+        <location filename="multicast_statistics_dialog.cpp" line="377"/>
         <source>The stream empty speed should be between 1 and 10000000. </source>
         <translation>流清空速度应该介于 1 与 10000000 之间。</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="383"/>
+        <location filename="multicast_statistics_dialog.cpp" line="386"/>
         <source>The total empty speed should be between 1 and 10000000. </source>
         <translation>总清空速度应该介于 1 与 10000000 之间。</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="397"/>
+        <location filename="multicast_statistics_dialog.cpp" line="400"/>
         <source>%1 streams, avg bw: %2bps, max bw: %3bps, max burst: %4 / %5ms, max buffer: %6B</source>
         <translation>%1 流，平均带宽: %2bps，最大带宽: %3bps，最大突发: %4 / %5ms，最大缓冲区: %6B</translation>
     </message>

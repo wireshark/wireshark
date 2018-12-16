@@ -4458,7 +4458,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
         <location filename="import_text_dialog.ui" line="470"/>
         <source>The maximum size of the frames to write to the import capture file (max 256kiB)</source>
         <oldsource>The maximum size of the frames to write to the import capture file (max 64000)</oldsource>
-        <translation type="unfinished">Maksymalny rozmiar ramki do zapisu w importowanym pliku (max 64000)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="238"/>
@@ -10122,32 +10122,32 @@ text-decoration: underline;
         <translation>Całkowita prędkość pustki (Kb/s):</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="347"/>
+        <location filename="multicast_statistics_dialog.cpp" line="350"/>
         <source>The burst interval must be between 1 and 1000. </source>
         <translation>Interwał impulsu musi być pomiędzy 1 a 1000.</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="356"/>
+        <location filename="multicast_statistics_dialog.cpp" line="359"/>
         <source>The burst alarm threshold isn&apos;t valid. </source>
         <translation>Próg alarmu impulsu nie jest poprawny.</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="365"/>
+        <location filename="multicast_statistics_dialog.cpp" line="368"/>
         <source>The buffer alarm threshold isn&apos;t valid. </source>
         <translation>Próg alarmu bufora nie jest poprawny.</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="374"/>
+        <location filename="multicast_statistics_dialog.cpp" line="377"/>
         <source>The stream empty speed should be between 1 and 10000000. </source>
         <translation>Prędkość pustki strumienia powinna być pomiędzy 1 a 10000000.</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="383"/>
+        <location filename="multicast_statistics_dialog.cpp" line="386"/>
         <source>The total empty speed should be between 1 and 10000000. </source>
         <translation>Całkowita prędkość pustki powinna być pomiędzy 1 a 10000000.</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="397"/>
+        <location filename="multicast_statistics_dialog.cpp" line="400"/>
         <source>%1 streams, avg bw: %2bps, max bw: %3bps, max burst: %4 / %5ms, max buffer: %6B</source>
         <translation>%1 strumieni, średni transfer: %2bps, max transfer: %3bps, max impuls: %4 / %5ms, max bufor: %6B</translation>
     </message>

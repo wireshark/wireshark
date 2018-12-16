@@ -4475,7 +4475,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <location filename="import_text_dialog.ui" line="470"/>
         <source>The maximum size of the frames to write to the import capture file (max 256kiB)</source>
         <oldsource>The maximum size of the frames to write to the import capture file (max 64000)</oldsource>
-        <translation type="unfinished">Die maximale Framegröße beim Schreiben in die Mitschnittdatei (max 64000)</translation>
+        <translation>Die maximale Framegröße beim Schreiben in die Mitschnittdatei (max 256kiB)</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="238"/>
@@ -10135,32 +10135,32 @@ text-decoration: underline;
         <translation>Entleerungsrate Gesamt-Puffer (Kb/s):</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="347"/>
+        <location filename="multicast_statistics_dialog.cpp" line="350"/>
         <source>The burst interval must be between 1 and 1000. </source>
         <translation>Das Burstintervall muss zwischen 1 und 1000 liegen. </translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="356"/>
+        <location filename="multicast_statistics_dialog.cpp" line="359"/>
         <source>The burst alarm threshold isn&apos;t valid. </source>
         <translation>Der Burst Alarmschwellwert ist ungültig.</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="365"/>
+        <location filename="multicast_statistics_dialog.cpp" line="368"/>
         <source>The buffer alarm threshold isn&apos;t valid. </source>
         <translation>Der Puffer Alarmschwellwert ist ungültig. </translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="374"/>
+        <location filename="multicast_statistics_dialog.cpp" line="377"/>
         <source>The stream empty speed should be between 1 and 10000000. </source>
         <translation>Die Entleerungsrate für den Stream-Puffer muss zwischen 1 und 10000000 liegen.</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="383"/>
+        <location filename="multicast_statistics_dialog.cpp" line="386"/>
         <source>The total empty speed should be between 1 and 10000000. </source>
         <translation>Die Entleerungsrate für den Gesamt-Puffer muss zwischen 1 und 10000000 liegen.</translation>
     </message>
     <message>
-        <location filename="multicast_statistics_dialog.cpp" line="397"/>
+        <location filename="multicast_statistics_dialog.cpp" line="400"/>
         <source>%1 streams, avg bw: %2bps, max bw: %3bps, max burst: %4 / %5ms, max buffer: %6B</source>
         <translation>%1 Streams, Durchschnittliche Bandbreite: %2bps, Max Bandbreite: %3bps, Max Burst: %4 / %5ms, Max Puffer: %6B</translation>
     </message>
