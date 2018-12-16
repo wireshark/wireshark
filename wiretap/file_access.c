@@ -2399,6 +2399,8 @@ wtap_dump_open_tempfile(char **filenamep, const char *pfx,
     const wtap_dump_params *params, int *err)
 {
 	int fd;
+	const char *ext;
+	char sfx[16];
 	char *tmpname;
 	wtap_dumper *wdh;
 	WFILE_T fh;
@@ -2412,8 +2414,16 @@ wtap_dump_open_tempfile(char **filenamep, const char *pfx,
 	if (wdh == NULL)
 		return NULL;
 
+	/* Choose an appropriate suffix for the file */
+	ext = wtap_default_file_extension(file_type_subtype);
+	if (ext == NULL)
+		ext = "tmp";
+	sfx[0] = '.';
+	sfx[1] = '\0';
+	g_strlcat(sfx, ext, 16);
+
 	/* Choose a random name for the file */
-	fd = create_tempfile(&tmpname, pfx, ".pcapng");
+	fd = create_tempfile(&tmpname, pfx, sfx);
 	if (fd == -1) {
 		*err = errno;
 		g_free(wdh);
