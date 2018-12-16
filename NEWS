@@ -1,4 +1,4 @@
-Wireshark 2.9.0 Release Notes
+Wireshark 2.9.1 Release Notes
 
  This is an experimental release intended to test new features for
  Wireshark 3.0.
@@ -20,6 +20,11 @@ Wireshark 2.9.0 Release Notes
    Dumpcap might not quit if Wireshark or TShark crashes. (Bug 1419[1])
 
   New and Updated Features
+
+   The following features are new (or have been significantly updated)
+   since version 2.9.0:
+
+     • Nothing yet.
 
    The following features are new (or have been significantly updated)
    since version 2.6.0:
@@ -99,22 +104,23 @@ Wireshark 2.9.0 Release Notes
 
   New Protocol Support
 
-   Apple Wireless Direct Link (AWDL), BLIP Couchbase Mobile (BLIP), CDMA
-   2000, Cisco Meraki Discovery Protocol (MDP), Distributed Ruby (DRb),
-   DXL, E1AP (5G), EVS (3GPP TS 26.445 A.2 EVS RTP), Exablaze trailers,
-   General Circuit Services Notification Application Protocol (GCSNA),
+   Apple Wireless Direct Link (AWDL), Basic Transport Protocol (BTP),
+   BLIP Couchbase Mobile (BLIP), CDMA 2000, Cisco Meraki Discovery
+   Protocol (MDP), Distributed Ruby (DRb), DXL, E1AP (5G), EVS (3GPP TS
+   26.445 A.2 EVS RTP), Exablaze trailers, General Circuit Services
+   Notification Application Protocol (GCSNA), GeoNetworking (GeoNw),
    GLOW Lawo Emberplus Data format, GSM-R (User-to-User Information
    Element usage), HI3CCLinkData, ISO 13400-2 Diagnostic communication
    over Internet Protocol (DoIP), ITU-t X.696 Octet Encoding Rules
    (OER), Local Number Portability Database Query Protocol (ANSI),
    MsgPack, NGAP (5G), NR (5G) PDCP, Osmocom Generic Subscriber Update
-   Protocol (GSUP), PKCS#10 (RFC2986 Certification Request Syntax),
-   PROXY (v2), S101 Lawo Emberplus transport frame, Secure Reliable
-   Transport Protocol (SRT), Spirent Test Center Signature decoding for
-   Ethernet and FibreChannel (STCSIG, disabled by default),
-   Sybase-specific portions of TDS, systemd Journal Export, TeamSpeak 3
-   DNS, TPM 2.0, Ubiquiti Discovery Protocol (UBDP), WireGuard, and XnAP
-   (5G)
+   Protocol (GSUP), PCOM protocol, PKCS#10 (RFC2986 Certification
+   Request Syntax), PROXY (v2), S101 Lawo Emberplus transport frame,
+   Secure Reliable Transport Protocol (SRT), Spirent Test Center
+   Signature decoding for Ethernet and FibreChannel (STCSIG, disabled by
+   default), Sybase-specific portions of TDS, systemd Journal Export,
+   TeamSpeak 3 DNS, TPM 2.0, Ubiquiti Discovery Protocol (UBDP),
+   WireGuard, and XnAP (5G)
 
   Updated Protocol Support
 
@@ -175,7 +181,7 @@ Wireshark 2.9.0 Release Notes
 
   A complete FAQ is available on the Wireshark web site[11].
 
-  Last updated 2018-12-12 23:05:55 UTC
+  Last updated 2018-12-16 08:12:36 UTC
 
  References
 

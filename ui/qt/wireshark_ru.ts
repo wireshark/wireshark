@@ -3944,11 +3944,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>Максимальная длина кадра:</translation>
     </message>
     <message>
-        <source>The maximum size of the frames to write to the import capture file (max 256kiB)</source>
-        <oldsource>The maximum size of the frames to write to the import capture file (max 64000)</oldsource>
-        <translation type="unfinished">Максимальный размер кадров для записи в импортируемый файл захвата (максимум 64000)</translation>
-    </message>
-    <message>
         <source>Encapsulation</source>
         <translation>Инкапсуляция</translation>
     </message>
@@ -4071,6 +4066,10 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>IPv4</source>
         <translation>IPv4</translation>
+    </message>
+    <message>
+        <source>The maximum size of the frames to write to the import capture file (max 256kiB)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Import From Hex Dump</source>

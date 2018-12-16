@@ -3907,11 +3907,6 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
         <translation>Maksymalny rozmiar ramki:</translation>
     </message>
     <message>
-        <source>The maximum size of the frames to write to the import capture file (max 256kiB)</source>
-        <oldsource>The maximum size of the frames to write to the import capture file (max 64000)</oldsource>
-        <translation type="unfinished">Maksymalny rozmiar ramki do zapisu w importowanym pliku (max 64000)</translation>
-    </message>
-    <message>
         <source>Encapsulation</source>
         <translation>Enkapsulacja</translation>
     </message>
@@ -4034,6 +4029,10 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <message>
         <source>IPv4</source>
         <translation>IPv4</translation>
+    </message>
+    <message>
+        <source>The maximum size of the frames to write to the import capture file (max 256kiB)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Import From Hex Dump</source>

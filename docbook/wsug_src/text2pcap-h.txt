@@ -1,4 +1,4 @@
-Text2pcap (Wireshark) 2.9.0 (v2.9.0rc0-2652-g1f3b7d15)
+Text2pcap (Wireshark) 2.9.1 (v2.9.1rc0-32-g22bd32bd)
 Generate a capture file from an ASCII hexdump of packets.
 See https://www.wireshark.org for more information.
 
@@ -40,6 +40,7 @@ Output:
                          Example: -l 7 for ARCNet packets.
   -m <max-packet>        max packet length in output; default is 262144
   -n                     use pcapng instead of pcap as output format.
+  -N <intf-name>         assign name to the interface in the pcapng file.
 
 Prepend dummy header:
   -e <l3pid>             prepend dummy Ethernet II header with specified L3PID

@@ -1,4 +1,4 @@
-Dumpcap (Wireshark) 2.9.0 (v2.9.0rc0-2488-gfef9c0aa)
+Dumpcap (Wireshark) 2.9.1 (v2.9.1rc0-32-g22bd32bd)
 Capture network packets and dump them into a pcapng or pcap file.
 See https://www.wireshark.org for more information.
 

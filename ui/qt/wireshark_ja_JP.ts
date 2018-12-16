@@ -3894,11 +3894,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>最大フレーム長:</translation>
     </message>
     <message>
-        <source>The maximum size of the frames to write to the import capture file (max 256kiB)</source>
-        <oldsource>The maximum size of the frames to write to the import capture file (max 64000)</oldsource>
-        <translation type="unfinished">インポートするキャプチャファイルへ書き込む最大のフレームサイズ（最大64000)</translation>
-    </message>
-    <message>
         <source>Encapsulation</source>
         <translation>カプセル化</translation>
     </message>
@@ -4021,6 +4016,10 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>IPv4</source>
         <translation>IPv4</translation>
+    </message>
+    <message>
+        <source>The maximum size of the frames to write to the import capture file (max 256kiB)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Import From Hex Dump</source>
