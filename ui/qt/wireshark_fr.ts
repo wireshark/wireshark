@@ -3787,8 +3787,8 @@ NOTE: Une option DOIT être sélectionnée.</translation>
         <translation>Longueur maximale de la trame:</translation>
     </message>
     <message>
-        <source>The maximum size of the frames to write to the import capture file (max 64000)</source>
-        <translation>La taille maximale des trames&apos;écrire dans le fichier de capture d&apos;import (max 64000)</translation>
+        <source>The maximum size of the frames to write to the import capture file (max 256kiB)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Import From Hex Dump</source>
