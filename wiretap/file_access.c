@@ -1699,7 +1699,15 @@ wtap_register_file_type_subtypes(const struct file_type_subtype_info* fi, const 
 {
 	struct file_type_subtype_info* finfo;
 
-	if (!fi || !fi->name || !fi->short_name || subtype > wtap_num_file_types_subtypes) {
+	/*
+	 * Check for required fields (name and short_name). If an existing file
+	 * type is overridden (as opposed as creating a new registration),
+	 * prevent internal subtypes from being overridden by Lua plugins.
+	 */
+	if (!fi || !fi->name || !fi->short_name ||
+			(subtype != WTAP_FILE_TYPE_SUBTYPE_UNKNOWN &&
+			(subtype <= (int)G_N_ELEMENTS(dump_open_table_base) ||
+			subtype > wtap_num_file_types_subtypes))) {
 		g_error("no file type info or invalid file type to register");
 		return subtype;
 	}

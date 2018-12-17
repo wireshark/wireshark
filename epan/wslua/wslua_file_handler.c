@@ -42,6 +42,9 @@ static int push_error_handler(lua_State* L, const gchar* funcname) {
 }
 
 
+/* Keep track of registered FileHandlers such that reloading plugins works. */
+static GSList *registered_file_handlers;
+
 /* During file routines, we cannot allow the FileHandler to get deregistered, since
    that would change the GArray's in file_access.c and hilarity would ensue. So we
    set this to true right before pcall(), and back to false afterwards */
@@ -74,11 +77,11 @@ static gboolean in_routine = FALSE;
         return retval; \
     } \
     /* now guard against deregistering during pcall() */ \
-    in_routine = TRUE;
+    in_routine = TRUE
 
 #define END_FILEHANDLER_ROUTINE() \
     /* now allow deregistering again */ \
-    in_routine = TRUE;
+    in_routine = FALSE
 
 
 /* LUA_ERRGCMM is in Lua 5.2 only - making it 9 disables it */
@@ -328,7 +331,7 @@ wslua_filehandler_seek_read(wtap *wth, gint64 seek_off,
              * Return values for FileHandler:seek_read():
              * Boolean true for successful parsing, false/nil on error.
              * Numbers (including zero) are interpreted as success for
-             * compatibility to match FileHandker:seek semantics.
+             * compatibility to match FileHandler:seek semantics.
              * (Other values are unspecified/undocumented, but happen to be
              * treated as success.)
              */
@@ -717,6 +720,16 @@ WSLUA_FUNCTION wslua_register_filehandler(lua_State* L) {
     if (!verify_filehandler_complete(fh))
         return luaL_error(L,"this FileHandler is not complete enough to register");
 
+    /* If a Lua file handler is reloaded, try to reuse the previous subtype.
+     * XXX wtap_register_file_type_subtypes will abort the program if a builtin
+     * file handler is overridden, so plugin authors should not try that.
+     */
+    int file_type = wtap_short_string_to_file_type_subtype(fh->finfo.short_name);
+    if (file_type == -1) {
+        /* File type was not registered before, create a new one. */
+        file_type = WTAP_FILE_TYPE_SUBTYPE_UNKNOWN;
+    }
+
     if (fh->is_writer) {
         if (fh->extensions && fh->extensions[0]) {
             char *extension = g_strdup(fh->extensions);
@@ -735,7 +748,7 @@ WSLUA_FUNCTION wslua_register_filehandler(lua_State* L) {
         fh->finfo.dump_open = wslua_filehandler_dump_open;
     }
 
-    fh->file_type = wtap_register_file_type_subtypes(&(fh->finfo),fh->file_type);
+    fh->file_type = wtap_register_file_type_subtypes(&(fh->finfo), file_type);
 
     if (fh->is_reader) {
         struct open_info oi = { NULL, OPEN_INFO_HEURISTIC, NULL, NULL, NULL, NULL };
@@ -752,24 +765,16 @@ WSLUA_FUNCTION wslua_register_filehandler(lua_State* L) {
     }
 
     fh->registered = TRUE;
+    registered_file_handlers = g_slist_prepend(registered_file_handlers, fh);
 
     lua_pushnumber(L, fh->file_type);
 
     WSLUA_RETURN(1); /* the new type number for this file reader/write */
 }
 
-WSLUA_FUNCTION wslua_deregister_filehandler(lua_State* L) {
-    /* Deregister the FileHandler from Wireshark/tshark, so it no longer gets used for reading/writing/display.
-       This function cannot be called inside the reading/writing callback functions. */
-#define WSLUA_ARG_register_filehandler_FILEHANDLER 1 /* the FileHandler object to be deregistered */
-    FileHandler fh = checkFileHandler(L,WSLUA_ARG_register_filehandler_FILEHANDLER);
-
-    if (in_routine)
-        return luaL_error(L,"A FileHandler cannot be deregistered during reading/writing callback functions");
-
-    if (!fh->registered)
-        return 0;
-
+static void
+wslua_deregister_filehandler_work(FileHandler fh)
+{
     /* undo writing stuff, even if it wasn't a writer */
     fh->finfo.can_write_encap = NULL;
     if (fh->finfo.wslua_info) {
@@ -788,11 +793,27 @@ WSLUA_FUNCTION wslua_deregister_filehandler(lua_State* L) {
     }
 
     fh->registered = FALSE;
+}
+
+WSLUA_FUNCTION wslua_deregister_filehandler(lua_State* L) {
+    /* Deregister the FileHandler from Wireshark/tshark, so it no longer gets used for reading/writing/display.
+       This function cannot be called inside the reading/writing callback functions. */
+#define WSLUA_ARG_register_filehandler_FILEHANDLER 1 /* the FileHandler object to be deregistered */
+    FileHandler fh = checkFileHandler(L,WSLUA_ARG_register_filehandler_FILEHANDLER);
+
+    if (in_routine)
+        return luaL_error(L,"A FileHandler cannot be deregistered during reading/writing callback functions");
+
+    if (!fh->registered)
+        return 0;
+
+    wslua_deregister_filehandler_work(fh);
+    registered_file_handlers = g_slist_remove(registered_file_handlers, fh);
 
     return 0;
 }
 
-/* The folllowing macros generate setter functions for Lua, for the following Lua
+/* The following macros generate setter functions for Lua, for the following Lua
    function references in _wslua_filehandler struct:
     int read_open_ref;
     int read_ref;
@@ -1012,7 +1033,11 @@ int FileHandler_register(lua_State* L) {
 }
 
 int wslua_deregister_filehandlers(lua_State* L _U_) {
-    /* TODO: Implement */
+    for (GSList *it = registered_file_handlers; it; it = it->next) {
+        wslua_deregister_filehandler_work((FileHandler)it->data);
+    }
+    g_slist_free(registered_file_handlers);
+    registered_file_handlers = NULL;
     return 0;
 }
 
