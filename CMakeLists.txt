@@ -943,7 +943,7 @@ if(ENABLE_AIRPCAP)
 	set(PACKAGELIST ${PACKAGELIST} AIRPCAP)
 endif()
 
-if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+if(BUILD_sdjournal)
 	set(PACKAGELIST ${PACKAGELIST} Systemd)
 endif()
 
