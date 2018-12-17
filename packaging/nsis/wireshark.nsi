@@ -1280,8 +1280,8 @@ lbl_npcap_installed:
 
 lbl_winpcap_installed:
     WriteINIStr "$PLUGINSDIR\NpcapPage.ini" "Field 2" "Text" "$WINPCAP_NAME"
-    WriteINIStr "$PLUGINSDIR\NpcapPage.ini" "Field 4" "State" "0"
-    WriteINIStr "$PLUGINSDIR\NpcapPage.ini" "Field 5" "Text" "If selected, the currently installed $WINPCAP_NAME will be uninstalled first."
+    WriteINIStr "$PLUGINSDIR\NpcapPage.ini" "Field 4" "State" "1"
+    WriteINIStr "$PLUGINSDIR\NpcapPage.ini" "Field 5" "Text" "The currently installed $WINPCAP_NAME will be uninstalled first."
     Goto lbl_npcap_done
 
 lbl_npcap_do_install:
