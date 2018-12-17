@@ -17,7 +17,6 @@ X2AP-PDU
 #.MAKE_ENUM
 ProtocolIE-ID
 ProcedureCode
-TriggeringMessage
 
 #.USE_VALS_EXT
 CauseRadioNetwork
@@ -80,11 +79,6 @@ ProtocolIE-ContainerPairList
 #.FN_BODY  ProcedureCode  VAL_PTR = &x2ap_data->procedure_code
   struct x2ap_private_data *x2ap_data = x2ap_get_private_data(actx->pinfo);
 %(DEFAULT_BODY)s
-
-#.FN_BODY TriggeringMessage VAL_PTR = &x2ap_data->triggering_message
-  struct x2ap_private_data *x2ap_data = x2ap_get_private_data(actx->pinfo);
-%(DEFAULT_BODY)s
-#.END
 
 #.FN_PARS InitiatingMessage/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_InitiatingMessageValue
 
@@ -257,9 +251,9 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
     return offset;
   subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_MeNBtoSgNBContainer);
   if ((x2ap_data->procedure_code == id_sgNBReconfigurationCompletion &&
-       x2ap_data->triggering_message == initiating_message) ||
+       x2ap_data->message_type == INITIATING_MESSAGE) ||
       (x2ap_data->procedure_code == id_sgNBinitiatedSgNBModification &&
-       x2ap_data->triggering_message == successful_outcome)) {
+       x2ap_data->message_type == SUCCESSFUL_OUTCOME)) {
     dissect_nr_rrc_RRCReconfigurationComplete_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
   } else {
     dissect_nr_rrc_CG_ConfigInfo_PDU(parameter_tvb, actx->pinfo, subtree, NULL);

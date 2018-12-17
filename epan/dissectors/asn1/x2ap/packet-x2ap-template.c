@@ -148,10 +148,16 @@ typedef enum {
   RRC_CONTAINER_TYPE_NR_UE_MEAS_REPORT
 } rrc_container_type_e;
 
+enum{
+  INITIATING_MESSAGE,
+  SUCCESSFUL_OUTCOME,
+  UNSUCCESSFUL_OUTCOME
+};
+
 struct x2ap_private_data {
   guint32 procedure_code;
   guint32 protocol_ie_id;
-  guint32 triggering_message;
+  guint32 message_type;
   rrc_container_type_e rrc_container_type;
 };
 
@@ -263,6 +269,7 @@ static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, pro
 {
   struct x2ap_private_data *x2ap_data = x2ap_get_private_data(pinfo);
 
+  x2ap_data->message_type = INITIATING_MESSAGE;
   return (dissector_try_uint_new(x2ap_proc_imsg_dissector_table, x2ap_data->procedure_code, tvb, pinfo, tree, FALSE, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
@@ -270,6 +277,7 @@ static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, pro
 {
   struct x2ap_private_data *x2ap_data = x2ap_get_private_data(pinfo);
 
+  x2ap_data->message_type = SUCCESSFUL_OUTCOME;
   return (dissector_try_uint_new(x2ap_proc_sout_dissector_table, x2ap_data->procedure_code, tvb, pinfo, tree, FALSE, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
@@ -277,6 +285,7 @@ static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, p
 {
   struct x2ap_private_data *x2ap_data = x2ap_get_private_data(pinfo);
 
+  x2ap_data->message_type = UNSUCCESSFUL_OUTCOME;
   return (dissector_try_uint_new(x2ap_proc_uout_dissector_table, x2ap_data->procedure_code, tvb, pinfo, tree, FALSE, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
