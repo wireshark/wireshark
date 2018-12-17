@@ -502,7 +502,6 @@ static int hf_gtpv2_iksrvcc = -1;
 static int hf_gtpv2_nsapi08 = -1;
 static int hf_gtpv2_voice_domain_and_ue_usage_setting = -1;
 static int hf_gtpv2_ue_radio_capability_for_paging_information = -1;
-static int hf_gtpv2_ue_additional_security_cap = -1;
 static int hf_gtpv2_upd_source_port_number = -1;
 static int hf_gtpv2_uplink_used_ue_ambr = -1;
 static int hf_gtpv2_tmsi_bytes = -1;
@@ -668,6 +667,7 @@ static gint ett_gtpv2_mm_context_auth_qui = -1;
 static gint ett_gtpv2_mm_context_auth_tri = -1;
 static gint ett_gtpv2_mm_context_net_cap = -1;
 static gint ett_gtpv2_ms_network_capability = -1;
+static gint ett_gtpv2_mm_context_sc = -1;
 static gint ett_gtpv2_vd_pref = -1;
 static gint ett_gtpv2_access_rest_data = -1;
 static gint ett_gtpv2_qua = -1;
@@ -4203,7 +4203,7 @@ static void
 dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
 {
     proto_item *qua_item, *qui_item;
-    proto_tree *flag_tree, *qua_tree, *qui_tree;
+    proto_tree *flag_tree, *qua_tree, *qui_tree, *sc_tree;
     gint        offset;
     guint8      tmp, nhi, drxi, nr_qua, nr_qui, uamb_ri, osci, samb_ri, vdp_len;
     guint32     dword, paging_len, ue_add_sec_cap_len, bit_offset, ex_access_res_data_len;
@@ -4399,14 +4399,18 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
         return;
     }
 
+    /*
+    * The UE additional security capability coding is specified in clause 9.9.3.53 of 3GPP TS 24.301 [23].
+    * If Length of UE additional security capability is zero, then the field UE additional security capability in octets "(v+2) to x" shall not be present.
+    */
     /*(v+1) Length of UE additional security capability*/
     proto_tree_add_item_ret_uint(tree, hf_gtpv2_mm_context_ue_add_sec_cap_len, tvb, offset, 1, ENC_BIG_ENDIAN, &ue_add_sec_cap_len);
     offset += 1;
 
     /*(v+2) to y UE additional security capability*/
     if(ue_add_sec_cap_len > 0){
-        proto_tree_add_item(tree, hf_gtpv2_ue_additional_security_cap, tvb, offset, ue_add_sec_cap_len, ENC_NA);
-        offset +=ue_add_sec_cap_len;
+        sc_tree = proto_tree_add_subtree(tree, tvb, offset, ue_add_sec_cap_len, ett_gtpv2_mm_context_sc, NULL, "UE additional Security Capability");
+        offset += de_emm_ue_add_sec_cap(tvb, sc_tree, NULL, offset, ue_add_sec_cap_len, NULL, 0);
     }
 
     if (offset < (gint)length){
@@ -9885,7 +9889,6 @@ void proto_register_gtpv2(void)
       { &hf_gtpv2_downlink_used_ue_ambr, { "Downlink Used UE AMBR", "gtpv2.downlink_used_ue_ambr", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_kbps, 0x0, NULL, HFILL }},
       { &hf_gtpv2_voice_domain_and_ue_usage_setting, { "Voice Domain Preference and UE's Usage Setting", "gtpv2.voice_domain_and_ue_usage_setting", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_gtpv2_ue_radio_capability_for_paging_information,{ "UE Radio Capability for Paging information", "gtpv2.UE_Radio_Capability_for_Paging_information", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-      { &hf_gtpv2_ue_additional_security_cap,{ "UE additional security capability", "gtpv2.ue_additional_security_cap", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
       { &hf_gtpv2_authentication_quadruplets, { "Authentication Quadruplets", "gtpv2.authentication_quadruplets", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_gtpv2_authentication_quintuplets, { "Authentication Quintuplets", "gtpv2.authentication_quintuplets", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_gtpv2_mm_context_nh, { "NH (Next Hop)", "gtpv2.mm_context_nh", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -10133,7 +10136,7 @@ void proto_register_gtpv2(void)
     };
 
     /* Setup protocol subtree array */
-#define GTPV2_NUM_INDIVIDUAL_ELEMS    61
+#define GTPV2_NUM_INDIVIDUAL_ELEMS    62
     static gint *ett_gtpv2_array[GTPV2_NUM_INDIVIDUAL_ELEMS + NUM_GTPV2_IES];
 
     ett_gtpv2_array[0] = &ett_gtpv2;
@@ -10178,25 +10181,26 @@ void proto_register_gtpv2(void)
     ett_gtpv2_array[39] = &ett_gtpv2_mm_context_auth_tri;
     ett_gtpv2_array[40] = &ett_gtpv2_mm_context_net_cap;
     ett_gtpv2_array[41] = &ett_gtpv2_ms_network_capability;
-    ett_gtpv2_array[42] = &ett_gtpv2_vd_pref;
-    ett_gtpv2_array[43] = &ett_gtpv2_access_rest_data;
-    ett_gtpv2_array[44] = &ett_gtpv2_qua;
-    ett_gtpv2_array[45] = &ett_gtpv2_qui;
-    ett_gtpv2_array[46] = &ett_gtpv2_preaa_tais;
-    ett_gtpv2_array[47] = &ett_gtpv2_preaa_menbs;
-    ett_gtpv2_array[48] = &ett_gtpv2_preaa_henbs;
-    ett_gtpv2_array[49] = &ett_gtpv2_preaa_ecgis;
-    ett_gtpv2_array[50] = &ett_gtpv2_preaa_rais;
-    ett_gtpv2_array[51] = &ett_gtpv2_preaa_sais;
-    ett_gtpv2_array[52] = &ett_gtpv2_preaa_cgis;
-    ett_gtpv2_array[53] = &ett_gtpv2_load_control_inf;
-    ett_gtpv2_array[54] = &ett_gtpv2_eci;
-    ett_gtpv2_array[55] = &ett_gtpv2_twan_flags;
-    ett_gtpv2_array[56] = &ett_gtpv2_ciot_support_ind;
-    ett_gtpv2_array[57] = &ett_gtpv2_rohc_profile_flags;
-    ett_gtpv2_array[58] = &ett_gtpv2_secondary_rat_usage_data_report;
-    ett_gtpv2_array[59] = &ett_gtpv2_pres_rep_area_info;
-    ett_gtpv2_array[60] = &ett_gtpv2_preaa_ext_menbs;
+    ett_gtpv2_array[42] = &ett_gtpv2_mm_context_sc;
+    ett_gtpv2_array[43] = &ett_gtpv2_vd_pref;
+    ett_gtpv2_array[44] = &ett_gtpv2_access_rest_data;
+    ett_gtpv2_array[45] = &ett_gtpv2_qua;
+    ett_gtpv2_array[46] = &ett_gtpv2_qui;
+    ett_gtpv2_array[47] = &ett_gtpv2_preaa_tais;
+    ett_gtpv2_array[48] = &ett_gtpv2_preaa_menbs;
+    ett_gtpv2_array[49] = &ett_gtpv2_preaa_henbs;
+    ett_gtpv2_array[50] = &ett_gtpv2_preaa_ecgis;
+    ett_gtpv2_array[51] = &ett_gtpv2_preaa_rais;
+    ett_gtpv2_array[52] = &ett_gtpv2_preaa_sais;
+    ett_gtpv2_array[53] = &ett_gtpv2_preaa_cgis;
+    ett_gtpv2_array[54] = &ett_gtpv2_load_control_inf;
+    ett_gtpv2_array[55] = &ett_gtpv2_eci;
+    ett_gtpv2_array[56] = &ett_gtpv2_twan_flags;
+    ett_gtpv2_array[57] = &ett_gtpv2_ciot_support_ind;
+    ett_gtpv2_array[58] = &ett_gtpv2_rohc_profile_flags;
+    ett_gtpv2_array[59] = &ett_gtpv2_secondary_rat_usage_data_report;
+    ett_gtpv2_array[60] = &ett_gtpv2_pres_rep_area_info;
+    ett_gtpv2_array[61] = &ett_gtpv2_preaa_ext_menbs;
     last_offset = GTPV2_NUM_INDIVIDUAL_ELEMS;
 
     for (i=0; i < NUM_GTPV2_IES; i++, last_offset++)
