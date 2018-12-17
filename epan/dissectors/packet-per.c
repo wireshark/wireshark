@@ -203,6 +203,8 @@ dissect_per_open_type_internal(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, 
 		if (fragmented_length) {
 			val_tvb = pdu_tvb;
 		} else {
+			if (!pdu_length)
+				return end_offset;
 			val_tvb = tvb_new_octet_aligned(pdu_tvb, pdu_offset, pdu_length * 8);
 			/* Add new data source if the offet was unaligned */
 			if ((pdu_offset & 7) != 0) {
