@@ -322,7 +322,7 @@ static int hf_pfcp_dl_data_notification_delay = -1;
 static int hf_pfcp_packet_count = -1;
 static int hf_pfcp_dl_data_service_inf_flags = -1;
 static int hf_pfcp_dl_data_service_inf_b0_ppi = -1;
-static int hf_pfcp_dl_data_service_inf_b1_qffi = -1;
+static int hf_pfcp_dl_data_service_inf_b1_qfii = -1;
 static int hf_pfcp_ppi = -1;
 
 static int hf_pfcp_pfcpsmreq_flags = -1;
@@ -2077,11 +2077,11 @@ dissect_pfcp_dl_data_service_inf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
     static const int * pfcp_dl_data_service_inf_flags[] = {
         &hf_pfcp_spare_b7_b2,
-        &hf_pfcp_dl_data_service_inf_b1_qffi,
+        &hf_pfcp_dl_data_service_inf_b1_qfii,
         &hf_pfcp_dl_data_service_inf_b0_ppi,
         NULL
     };
-    /* Octet 5  Spare   QFFI    PPI */
+    /* Octet 5  Spare   QFII    PPI */
     proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, offset, hf_pfcp_dl_data_service_inf_flags,
         ett_pfcp_dl_data_service_inf, pfcp_dl_data_service_inf_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT | BMT_NO_TFS, &flags);
     offset += 1;
@@ -7041,8 +7041,8 @@ proto_register_pfcp(void)
             FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x01,
             NULL, HFILL }
         },
-        { &hf_pfcp_dl_data_service_inf_b1_qffi,
-        { "QFFI(QoS Flow Identifier)", "pfcp.dl_data_service_inf.qffi",
+        { &hf_pfcp_dl_data_service_inf_b1_qfii,
+        { "QFII(QoS Flow Identifier)", "pfcp.dl_data_service_inf.qfii",
             FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x02,
             NULL, HFILL }
         },
