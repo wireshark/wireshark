@@ -389,7 +389,12 @@ static int our_loadfilex(lua_State *L, const char *filename, const char *mode) {
     }
     if (c != EOF)
         lf.buff[lf.n++] = c;  /* 'c' is the first character of the stream */
+#if LUA_VERSION_NUM >= 502
     status = lua_load(L, getF, &lf, lua_tostring(L, -1), mode);
+#else
+    (void) mode; /* Mark unused, similar to Q_UNUSED */
+    status = lua_load(L, getF, &lf, lua_tostring(L, -1));
+#endif
     readstatus = ferror(lf.f);
     if (filename) fclose(lf.f);  /* close file (even in case of errors) */
     if (readstatus) {
