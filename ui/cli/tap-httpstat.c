@@ -268,7 +268,7 @@ httpstat_draw(void *psp  )
 	httpstat_t *sp = (httpstat_t *)psp;
 	printf("\n");
 	printf("===================================================================\n");
-	if (! sp->filter[0])
+	if (! sp->filter || ! sp->filter[0])
 		printf("HTTP Statistics\n");
 	else
 		printf("HTTP Statistics with filter %s\n", sp->filter);
