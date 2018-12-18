@@ -879,7 +879,7 @@ write_file_header (void)
         char *comment;
 
         comment = g_strdup_printf("Generated from input file %s.", input_filename);
-        success = pcapng_write_session_header_block(output_file,
+        success = pcapng_write_section_header_block(output_file,
                                                     comment,
                                                     NULL,    /* HW */
                                                     NULL,    /* OS */

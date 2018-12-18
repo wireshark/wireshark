@@ -303,7 +303,7 @@ pcapng_write_block(FILE* pfile,
 }
 
 gboolean
-pcapng_write_session_header_block(FILE* pfile,
+pcapng_write_section_header_block(FILE* pfile,
                                   const char *comment,
                                   const char *hw,
                                   const char *os,

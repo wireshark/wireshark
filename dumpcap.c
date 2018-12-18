@@ -3027,7 +3027,7 @@ capture_loop_init_pcapng_output(capture_options *capture_opts, loop_data *ld)
         GString *cpu_info_str = g_string_new("");
         get_cpu_info(cpu_info_str);
 
-        successful = pcapng_write_session_header_block(ld->pdh,
+        successful = pcapng_write_section_header_block(ld->pdh,
                                                        (const char *)capture_opts->capture_comment,   /* Comment */
                                                        cpu_info_str->str,           /* HW */
                                                        os_info_str->str,            /* OS */

@@ -209,7 +209,7 @@ static int sdj_start_export(const int start_from_entries, const gboolean start_f
 
 	appname = g_strdup_printf(SDJOURNAL_EXTCAP_INTERFACE " (Wireshark) %s.%s.%s",
 		SDJOURNAL_VERSION_MAJOR, SDJOURNAL_VERSION_MINOR, SDJOURNAL_VERSION_RELEASE);
-	success = pcapng_write_session_header_block(fp,
+	success = pcapng_write_section_header_block(fp,
 							NULL,    /* Comment */
 							NULL,    /* HW */
 							NULL,    /* OS */
