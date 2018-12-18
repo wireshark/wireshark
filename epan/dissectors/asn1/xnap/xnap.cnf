@@ -11,7 +11,6 @@ ALIGNED
 GlobalNG-RANNode-ID TYPE_PREFIX
 ProtocolIE-ID
 ProcedureCode
-TriggeringMessage
 
 #.USE_VALS_EXT
 ProcedureCode
@@ -64,11 +63,6 @@ ReferenceID
 #.FN_BODY ProcedureCode VAL_PTR = &xnap_data->procedure_code
   struct xnap_private_data *xnap_data = xnap_get_private_data(actx->pinfo);
 %(DEFAULT_BODY)s
-
-#.FN_BODY TriggeringMessage VAL_PTR = &xnap_data->triggering_message
-  struct xnap_private_data *xnap_data = xnap_get_private_data(actx->pinfo);
-%(DEFAULT_BODY)s
-#.END
 
 #.FN_PARS InitiatingMessage/value FN_VARIANT=_pdu_new TYPE_REF_FN=dissect_InitiatingMessageValue
 #.FN_HDR InitiatingMessage/value

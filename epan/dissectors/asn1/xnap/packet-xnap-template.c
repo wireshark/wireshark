@@ -132,7 +132,6 @@ struct xnap_private_data {
   xnap_message_type message_type;
   guint32 procedure_code;
   guint32 protocol_ie_id;
-  guint32 triggering_message;
 };
 
 static struct xnap_private_data*
