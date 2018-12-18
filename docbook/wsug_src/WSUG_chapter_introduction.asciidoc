@@ -153,16 +153,27 @@ is single-threaded and won’t benefit much from multi-core systems.
 
 ==== Microsoft Windows
 
-* The current version of Wireshark should support any version of Windows that is
-  still within its http://windows.microsoft.com/en-us/windows/lifecycle[extended
-  support lifetime]. At the time of writing this includes Windows 10, 8, 7, Vista,
-  Server 2016, Server 2012 R2, Server 2012, Server 2008 R2, and Server 2008.
+Wireshark should support any version of Windows that is still within its
+https://windows.microsoft.com/en-us/windows/lifecycle[extended support
+lifetime]. At the time of writing this includes Windows 10, 8, 7,
+Server 2019,
+Server 2016,
+Server 2012 R2,
+Server 2012,
+and Server 2008 R2.
+It also requires the following:
+
+* The Universal C Runtime. This is included with Windows 10 and Windows
+  Server 2019 and is installed automatically on earlier versions if
+  Microsoft Windows Update is enabled. Otherwise you must install
+  https://support.microsoft.com/kb/2999226[KB2999226] or
+  https://support.microsoft.com/kb/3118401[KB3118401].
 
 * Any modern 64-bit AMD64/x86-64 or 32-bit x86 processor.
 
-* 400 MB available RAM. Larger capture files require more RAM.
+* 500 MB available RAM. Larger capture files require more RAM.
 
-* 300 MB available disk space. Capture files require additional disk space.
+* 500 MB available disk space. Capture files require additional disk space.
 
 * 1024 {multiplication} 768 (1280 {multiplication} 1024 or higher
   recommended) resolution with at least 16-bit color. 8-bit color should
@@ -186,8 +197,8 @@ Older versions of Windows which are outside Microsoft’s extended lifecycle
 support window are no longer supported. It is often difficult or impossible to
 support these systems due to circumstances beyond our control, such as third
 party libraries on which we depend or due to necessary features that are only
-present in newer versions of Windows (such as hardened security or memory
-management).
+present in newer versions of Windows such as hardened security or memory
+management.
 
 Wireshark 1.12 was the last release branch to support Windows Server
 2003. Wireshark 1.10 was the last branch to officially support Windows

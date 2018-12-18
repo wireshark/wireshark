@@ -515,10 +515,24 @@ File "${VCREDIST_EXE}"
 ; http://asawicki.info/news_1597_installing_visual_c_redistributable_package_from_command_line.html
 ExecWait '"$INSTDIR\vcredist_${TARGET_MACHINE}.exe" /install /quiet /norestart' $0
 DetailPrint "vcredist_${TARGET_MACHINE} returned $0"
-IntCmp $0 3010 redistReboot redistNoReboot
-redistReboot:
-SetRebootFlag true
-redistNoReboot:
+
+; https://docs.microsoft.com/en-us/windows/desktop/Msi/error-codes
+!define ERROR_SUCCESS 0
+!define ERROR_SUCCESS_REBOOT_INITIATED 1641
+!define ERROR_SUCCESS_REBOOT_REQUIRED 3010
+${Switch} $0
+  ${Case} ${ERROR_SUCCESS}
+    ${Break}
+  ${Case} ${ERROR_SUCCESS_REBOOT_INITIATED} ; Shouldn't happen.
+  ${Case} ${ERROR_SUCCESS_REBOOT_REQUIRED}
+    SetRebootFlag true
+    ${Break}
+  ${Default}
+      MessageBox MB_OK "The Visual C++ Redistributable installer failed with error $0.$\nPlease make sure you have KB2999226 or KB3118401 installed.$\nUnable to continue installation." /SD IDOK
+      Abort
+    ${Break}
+${EndSwitch}
+
 Delete "$INSTDIR\vcredist_${TARGET_MACHINE}.exe"
 
 
