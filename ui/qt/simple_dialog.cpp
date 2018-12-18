@@ -163,7 +163,19 @@ SimpleDialog::SimpleDialog(QWidget *parent, ESD_TYPE_E type, int btn_mask, const
     QString message;
 
     vmessage = g_strdup_vprintf(msg_format, ap);
+#ifdef _WIN32
+    //
+    // On Windows, filename strings inside Wireshark are UTF-8 strings,
+    // so error messages containing file names are UTF-8 strings.  Convert
+    // from UTF-8, not from the local code page.
+    //
+    message = QString().fromUtf8(vmessage, -1);
+#else
+    //
+    // On UN*X, who knows?  Assume the locale's encoding.
+    //
     message = QTextCodec::codecForLocale()->toUnicode(vmessage);
+#endif
     g_free(vmessage);
 
     MessagePair msg_pair = splitMessage(message);
