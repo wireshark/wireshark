@@ -56,7 +56,7 @@ before_test:
 
 test_script:
   - set WS_BIN_PATH=%CD%\run\%CONFIGURATION%
-  - pytest -nauto -ra ..\test
+  - pytest -nauto ..\test
 
 on_finish:
   - ps: |
