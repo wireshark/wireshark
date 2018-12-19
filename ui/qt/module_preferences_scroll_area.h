@@ -48,10 +48,10 @@ private slots:
     void enumComboBoxCurrentIndexChanged(int index);
     void stringLineEditTextEdited(const QString &new_str);
     void rangeSyntaxLineEditTextEdited(const QString &new_str);
-    void uatPushButtonPressed();
-    void saveFilenamePushButtonPressed();
-    void openFilenamePushButtonPressed();
-    void dirnamePushButtonPressed();
+    void uatPushButtonClicked();
+    void saveFilenamePushButtonClicked();
+    void openFilenamePushButtonClicked();
+    void dirnamePushButtonClicked();
 };
 
 #endif // MODULE_PREFERENCES_SCROLL_AREA_H
