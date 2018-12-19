@@ -299,16 +299,16 @@ ModulePreferencesScrollArea::ModulePreferencesScrollArea(module_t *module, QWidg
 
         switch (prefs_get_type(pref)) {
         case PREF_UAT:
-            connect(pb, SIGNAL(pressed()), this, SLOT(uatPushButtonPressed()));
+            connect(pb, SIGNAL(clicked()), this, SLOT(uatPushButtonClicked()));
             break;
         case PREF_SAVE_FILENAME:
-            connect(pb, SIGNAL(pressed()), this, SLOT(saveFilenamePushButtonPressed()));
+            connect(pb, SIGNAL(clicked()), this, SLOT(saveFilenamePushButtonClicked()));
             break;
         case PREF_OPEN_FILENAME:
-            connect(pb, SIGNAL(pressed()), this, SLOT(openFilenamePushButtonPressed()));
+            connect(pb, SIGNAL(clicked()), this, SLOT(openFilenamePushButtonClicked()));
             break;
         case PREF_DIRNAME:
-            connect(pb, SIGNAL(pressed()), this, SLOT(dirnamePushButtonPressed()));
+            connect(pb, SIGNAL(clicked()), this, SLOT(dirnamePushButtonClicked()));
             break;
         }
     }
@@ -467,7 +467,7 @@ void ModulePreferencesScrollArea::rangeSyntaxLineEditTextEdited(const QString &n
     }
 }
 
-void ModulePreferencesScrollArea::uatPushButtonPressed()
+void ModulePreferencesScrollArea::uatPushButtonClicked()
 {
     QPushButton *uat_pb = qobject_cast<QPushButton*>(sender());
     if (!uat_pb) return;
@@ -479,7 +479,7 @@ void ModulePreferencesScrollArea::uatPushButtonPressed()
     uat_dlg.exec();
 }
 
-void ModulePreferencesScrollArea::saveFilenamePushButtonPressed()
+void ModulePreferencesScrollArea::saveFilenamePushButtonClicked()
 {
     QPushButton *filename_pb = qobject_cast<QPushButton*>(sender());
     if (!filename_pb) return;
@@ -496,7 +496,7 @@ void ModulePreferencesScrollArea::saveFilenamePushButtonPressed()
     }
 }
 
-void ModulePreferencesScrollArea::openFilenamePushButtonPressed()
+void ModulePreferencesScrollArea::openFilenamePushButtonClicked()
 {
     QPushButton *filename_pb = qobject_cast<QPushButton*>(sender());
     if (!filename_pb) return;
@@ -512,7 +512,7 @@ void ModulePreferencesScrollArea::openFilenamePushButtonPressed()
     }
 }
 
-void ModulePreferencesScrollArea::dirnamePushButtonPressed()
+void ModulePreferencesScrollArea::dirnamePushButtonClicked()
 {
     QPushButton *dirname_pb = qobject_cast<QPushButton*>(sender());
     if (!dirname_pb) return;
