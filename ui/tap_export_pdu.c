@@ -81,7 +81,7 @@ export_pdu_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const 
 }
 
 int
-exp_pdu_open(exp_pdu_t *exp_pdu_tap_data, int fd, char *comment)
+exp_pdu_open(exp_pdu_t *exp_pdu_tap_data, int fd, const char *comment)
 {
 
     int   err;
@@ -104,7 +104,6 @@ exp_pdu_open(exp_pdu_t *exp_pdu_tap_data, int fd, char *comment)
 
     /* options */
     wtap_block_add_string_option(shb_hdr, OPT_COMMENT, comment, strlen(comment));
-    g_free(comment);
 
     /*
      * UTF-8 string containing the name of the operating system used to create

@@ -1999,10 +1999,10 @@ real_main(int argc, char *argv[])
       /* Activate the export PDU tap */
       comment = g_strdup_printf("Dump of PDUs from %s", cf_name);
       err = exp_pdu_open(&exp_pdu_tap_data, exp_fd, comment);
+      g_free(comment);
       if (err != 0) {
           cfile_dump_open_failure_message("TShark", exp_pdu_filename, err,
                                           WTAP_FILE_TYPE_SUBTYPE_PCAPNG);
-          g_free(comment);
           exit_status = INVALID_EXPORT;
           goto clean_exit;
       }
