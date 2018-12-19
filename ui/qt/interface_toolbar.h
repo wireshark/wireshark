@@ -61,10 +61,10 @@ private slots:
     void startReaderThread(QString ifname, void *control_in);
     void updateWidgets();
 
-    void onControlButtonPressed();
-    void onLogButtonPressed();
-    void onHelpButtonPressed();
-    void onRestoreButtonPressed();
+    void onControlButtonClicked();
+    void onLogButtonClicked();
+    void onHelpButtonClicked();
+    void onRestoreButtonClicked();
     void onCheckBoxChanged(int state);
     void onComboBoxChanged(int idx);
     void onLineEditChanged();

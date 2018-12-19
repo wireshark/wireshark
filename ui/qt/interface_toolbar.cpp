@@ -183,11 +183,11 @@ QWidget *InterfaceToolbar::createButton(iface_toolbar_control *control)
     {
         case INTERFACE_ROLE_CONTROL:
             setDefaultValue(control->num, (gchar *)control->display);
-            connect(button, SIGNAL(pressed()), this, SLOT(onControlButtonPressed()));
+            connect(button, SIGNAL(clicked()), this, SLOT(onControlButtonClicked()));
             break;
 
         case INTERFACE_ROLE_HELP:
-            connect(button, SIGNAL(pressed()), this, SLOT(onHelpButtonPressed()));
+            connect(button, SIGNAL(clicked()), this, SLOT(onHelpButtonClicked()));
             if (help_link_.isEmpty())
             {
                 // No help URL provided
@@ -196,11 +196,11 @@ QWidget *InterfaceToolbar::createButton(iface_toolbar_control *control)
             break;
 
         case INTERFACE_ROLE_LOGGER:
-            connect(button, SIGNAL(pressed()), this, SLOT(onLogButtonPressed()));
+            connect(button, SIGNAL(clicked()), this, SLOT(onLogButtonClicked()));
             break;
 
         case INTERFACE_ROLE_RESTORE:
-            connect(button, SIGNAL(pressed()), this, SLOT(onRestoreButtonPressed()));
+            connect(button, SIGNAL(clicked()), this, SLOT(onRestoreButtonClicked()));
             break;
 
         default:
@@ -604,7 +604,7 @@ void InterfaceToolbar::controlSend(QString ifname, int num, int command, const Q
     }
 }
 
-void InterfaceToolbar::onControlButtonPressed()
+void InterfaceToolbar::onControlButtonClicked()
 {
     const QString &ifname = ui->interfacesComboBox->currentText();
     QPushButton *button = static_cast<QPushButton *>(sender());
@@ -650,7 +650,7 @@ void InterfaceToolbar::onLineEditChanged()
     interface_[ifname].value_changed[num] = true;
 }
 
-void InterfaceToolbar::onLogButtonPressed()
+void InterfaceToolbar::onLogButtonClicked()
 {
     const QString &ifname = ui->interfacesComboBox->currentText();
     QPushButton *button = static_cast<QPushButton *>(sender());
@@ -670,7 +670,7 @@ void InterfaceToolbar::onLogButtonPressed()
     interface_[ifname].log_dialog[num]->activateWindow();
 }
 
-void InterfaceToolbar::onHelpButtonPressed()
+void InterfaceToolbar::onHelpButtonClicked()
 {
     QUrl help_url(help_link_);
 
@@ -824,7 +824,7 @@ void InterfaceToolbar::sendChangedValues(QString ifname)
     }
 }
 
-void InterfaceToolbar::onRestoreButtonPressed()
+void InterfaceToolbar::onRestoreButtonClicked()
 {
     const QString &ifname = ui->interfacesComboBox->currentText();
 
