@@ -703,6 +703,7 @@ real_main(int argc, char *argv[])
   gchar               *err_str;
 #else
   gboolean             capture_option_specified = FALSE;
+  int                  max_packet_count = 0;
 #endif
   gboolean             quiet = FALSE;
 #ifdef PCAP_NG_DEFAULT
@@ -1091,6 +1092,8 @@ real_main(int argc, char *argv[])
          * file.
          */
         output_file_name = g_strdup(optarg);
+      } else if (opt == 'c') {
+        max_packet_count = get_positive_int(optarg, "packet count");
       } else {
         capture_option_specified = TRUE;
         arg_error = TRUE;
@@ -2021,7 +2024,7 @@ real_main(int argc, char *argv[])
           global_capture_opts.has_autostop_packets ? global_capture_opts.autostop_packets : 0,
           global_capture_opts.has_autostop_filesize ? global_capture_opts.autostop_filesize : 0);
 #else
-      success = process_cap_file(&cfile, output_file_name, out_file_type, out_file_name_res, 0, 0);
+      success = process_cap_file(&cfile, output_file_name, out_file_type, out_file_name_res, max_packet_count, 0);
 #endif
     }
     CATCH(OutOfMemoryError) {
