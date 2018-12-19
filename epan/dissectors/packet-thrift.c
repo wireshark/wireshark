@@ -62,6 +62,8 @@ static int hf_thrift_str_len = -1;
 static int hf_thrift_method = -1;
 static int hf_thrift_seq_id = -1;
 static int hf_thrift_type = -1;
+static int hf_thrift_key_type = -1;
+static int hf_thrift_value_type = -1;
 static int hf_thrift_fid = -1;
 static int hf_thrift_i16 = -1;
 static int hf_thrift_i32 = -1;
@@ -482,9 +484,9 @@ dissect_thrift_map(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, int 
     int start_offset = offset;
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_thrift, &ti, "Map");
-    ktype_pi = proto_tree_add_item_ret_uint(sub_tree, hf_thrift_type, tvb, offset, 1, ENC_BIG_ENDIAN, &ktype);
+    ktype_pi = proto_tree_add_item_ret_uint(sub_tree, hf_thrift_key_type, tvb, offset, 1, ENC_BIG_ENDIAN, &ktype);
     offset++;
-    vtype_pi = proto_tree_add_item_ret_uint(sub_tree, hf_thrift_type, tvb, offset, 1, ENC_BIG_ENDIAN, &vtype);
+    vtype_pi = proto_tree_add_item_ret_uint(sub_tree, hf_thrift_value_type, tvb, offset, 1, ENC_BIG_ENDIAN, &vtype);
     offset++;
     proto_tree_add_item_ret_uint(sub_tree, hf_thrift_num_map_item, tvb, offset, 4, ENC_BIG_ENDIAN, &map_len);
     offset += 4;
@@ -817,6 +819,16 @@ void proto_register_thrift(void) {
         },
         { &hf_thrift_type,
         { "Type", "thrift.type",
+        FT_UINT8, BASE_DEC, VALS(thrift_type_vals), 0x0,
+        NULL, HFILL }
+        },
+        { &hf_thrift_key_type,
+        { "Key Type", "thrift.type",
+        FT_UINT8, BASE_DEC, VALS(thrift_type_vals), 0x0,
+        NULL, HFILL }
+        },
+        { &hf_thrift_value_type,
+        { "Value Type", "thrift.type",
         FT_UINT8, BASE_DEC, VALS(thrift_type_vals), 0x0,
         NULL, HFILL }
         },
