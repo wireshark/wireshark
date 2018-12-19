@@ -41,7 +41,7 @@ char *exp_pdu_pre_open(const char *tap_name, const char *filter,
 *
 * @return 0 on success or a wtap error code.
 */
-int exp_pdu_open(exp_pdu_t *data, int fd, char *comment);
+int exp_pdu_open(exp_pdu_t *data, int fd, const char *comment);
 
 /* Stops the PDUs export. */
 int exp_pdu_close(exp_pdu_t *exp_pdu_tap_data);
