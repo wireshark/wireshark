@@ -275,6 +275,7 @@ static int hf_http2_header_name_length = -1;
 static int hf_http2_header_name = -1;
 static int hf_http2_header_value_length = -1;
 static int hf_http2_header_value = -1;
+static int hf_http2_header_unescaped = -1;
 static int hf_http2_header_repr = -1;
 static int hf_http2_header_index = -1;
 static int hf_http2_header_table_size_update = -1;
@@ -1603,6 +1604,7 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset,
     const gchar *method_header_value = NULL;
     const gchar *path_header_value = NULL;
     http2_header_stream_info_t* header_stream_info;
+    gchar *header_unescaped = NULL;
 
     if (!http2_hdrcache_map) {
         http2_hdrcache_map = wmem_map_new(wmem_file_scope(), http2_hdrcache_hash, http2_hdrcache_equal);
@@ -1819,6 +1821,14 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset,
         proto_tree_add_item_ret_string(header_tree, hf_http2_header_value, header_tvb, hoffset, header_value_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &header_value);
         // check if field is http2 header https://tools.ietf.org/html/rfc7541#appendix-A
         try_add_named_header_field(header_tree, header_tvb, hoffset, header_value_length, header_name, header_value);
+
+        /* Add header unescaped. */
+        header_unescaped = g_uri_unescape_string(header_value, NULL);
+        if (header_unescaped != NULL) {
+            ti = proto_tree_add_string(header_tree, hf_http2_header_unescaped, header_tvb, hoffset, header_value_length, header_unescaped);
+            PROTO_ITEM_SET_GENERATED(ti);
+            g_free(header_unescaped);
+        }
         hoffset += header_value_length;
 
         /* Only track HEADER and CONTINUATION frames part there of. Don't look at PUSH_PROMISE and trailing CONTINUATION.
@@ -3070,6 +3080,11 @@ proto_register_http2(void)
         },
         { &hf_http2_header_value,
             { "Value", "http2.header.value",
+              FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_http2_header_unescaped,
+            { "Unescaped", "http2.header.unescaped",
               FT_STRING, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
