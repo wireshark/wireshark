@@ -673,11 +673,11 @@ LteRlcStatisticsDialog::LteRlcStatisticsDialog(QWidget &parent, CaptureFile &cf,
     launchULGraph_ = new QPushButton(QString("Launch UL Graph"));
     launchULGraph_->setEnabled(false);
     filter_controls_grid->addWidget(launchULGraph_);
-    connect(launchULGraph_, SIGNAL(pressed()), this, SLOT(launchULGraphButtonClicked()));
+    connect(launchULGraph_, SIGNAL(clicked()), this, SLOT(launchULGraphButtonClicked()));
     launchDLGraph_ = new QPushButton(QString("Launch DL Graph"));
     launchDLGraph_->setEnabled(false);
     filter_controls_grid->addWidget(launchDLGraph_);
-    connect(launchDLGraph_, SIGNAL(pressed()), this, SLOT(launchDLGraphButtonClicked()));
+    connect(launchDLGraph_, SIGNAL(clicked()), this, SLOT(launchDLGraphButtonClicked()));
 
     showSRFilterCheckBox_ = new QCheckBox(tr("Include SR frames in filter"));
     filter_controls_grid->addWidget(showSRFilterCheckBox_);

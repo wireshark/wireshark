@@ -49,7 +49,7 @@ QWidget* PathChooserDelegate::createEditor(QWidget *parent, const QStyleOptionVi
     pathEditor->setFocusProxy(lineEdit);
     pathEditor->setFocusPolicy(lineEdit->focusPolicy());
 
-    connect(btnBrowse, SIGNAL(pressed()), this, SLOT(browse_button_clicked()));
+    connect(btnBrowse, SIGNAL(clicked()), this, SLOT(browse_button_clicked()));
     return pathEditor;
 }
 
