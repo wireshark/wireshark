@@ -95,13 +95,24 @@ def tools_dir():
     return os.path.join(srcdir, 'tools')
 
 
+def extract_subject(subject):
+    '''Extracts the original subject (ignoring the Revert prefix).'''
+    subject = subject.rstrip('\r\n')
+    prefix = 'Revert "'
+    suffix = '"'
+    while subject.startswith(prefix) and subject.endswith(suffix):
+        subject = subject[len(prefix):-len(suffix)]
+    return subject
+
+
 def verify_body(body):
     old_lines = body.splitlines(True)
     is_good = True
     if len(old_lines) >= 2 and old_lines[1].strip():
         print('ERROR: missing blank line after the first subject line.')
         is_good = False
-    if len(old_lines[0]) > 80:
+    cleaned_subject = extract_subject(old_lines[0])
+    if len(cleaned_subject) > 80:
         # Note that this is currently also checked by the commit-msg hook.
         print('Warning: keep lines in the commit message under 80 characters.')
         is_good = False

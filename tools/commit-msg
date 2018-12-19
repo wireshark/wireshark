@@ -185,10 +185,12 @@ _gen_ChangeId() {
 
 reject_long_message() {
 	read -r firstline < "$MSG"
-	if [ ${#firstline} -gt 80 ]
-	then
+	if [ ${#firstline} -gt 80 ]; then
 		printf "\n\nERROR: First line in the commit message must not exceed 80 characters\n\n"
-		exit 1
+		# Allow slightly longer lines in case commits are reverted.
+		if [ ${#firstline} -gt 100 ]; then
+			exit 1
+		fi
 	fi
 }
 
