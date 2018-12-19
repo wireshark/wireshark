@@ -30,9 +30,7 @@ if running_superuser then
     setmetatable(disabled_lib,{ __index = function() error("this package ".. hint) end } );
 
     dofile = function() error("dofile " .. hint) end
-    ws_dofile = function() error("ws_dofile " .. hint) end
     loadfile = function() error("loadfile " .. hint) end
-    ws_loadfile = function() error("ws_loadfile " .. hint) end
     loadlib = function() error("loadlib " .. hint) end
     require = function() error("require " .. hint) end
     os = disabled_lib
@@ -140,5 +138,5 @@ datafile_path = Dir.global_config_path
 persconffile_path = Dir.personal_config_path
 
 
-ws_dofile(DATA_DIR.."console.lua")
---ws_dofile(DATA_DIR.."dtd_gen.lua")
+dofile(DATA_DIR.."console.lua")
+--dofile(DATA_DIR.."dtd_gen.lua")
