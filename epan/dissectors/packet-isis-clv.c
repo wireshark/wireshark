@@ -26,6 +26,17 @@ static const value_string algorithm_vals[] = {
     { 0,  NULL }
 };
 
+static const value_string mt_id_vals[] = {
+    { 0, "IPv4 Unicast" },
+    { 1, "IPv4 In-Band Management" },
+    { 2, "IPv6 Unicast" },
+    { 3, "IPv4 Multicast" },
+    { 4, "IPv6 Multicast" },
+    { 5, "IPv6 In-Band Management" },
+    { 4095, "Development, Experimental or Proprietary" },
+    { 0,  NULL }
+};
+
 /*
  * Name: isis_dissect_area_address_clv()
  *
@@ -256,27 +267,7 @@ isis_dissect_mt_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int off
         /* fetch two bytes */
         mt_block=tvb_get_ntohs(tvb, offset);
 
-        /* mask out the lower 12 bits */
-        switch(mt_block&0x0fff) {
-        case 0:
-            mt_desc="IPv4 unicast";
-            break;
-        case 1:
-            mt_desc="In-Band Management";
-            break;
-        case 2:
-            mt_desc="IPv6 unicast";
-            break;
-        case 3:
-            mt_desc="Multicast";
-            break;
-        case 4095:
-            mt_desc="Development, Experimental or Proprietary";
-            break;
-        default:
-            mt_desc="Reserved for IETF Consensus";
-            break;
-        }
+        mt_desc = val_to_str(mt_block&0x0fff, mt_id_vals, "Unknown");
         proto_tree_add_uint_format ( tree, tree_id, tvb, offset, 2,
             mt_block,
             "%s Topology (0x%03x)%s%s",

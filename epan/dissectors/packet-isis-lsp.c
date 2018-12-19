@@ -18,7 +18,6 @@
 
 #include "config.h"
 
-#include <stdio.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include "packet-osi.h"
@@ -299,6 +298,7 @@ static int hf_isis_lsp_ipv6_reachability_distribution_internal = -1;
 static int hf_isis_lsp_ipv6_reachability_subtlv = -1;
 static int hf_isis_lsp_ipv6_reachability_metric = -1;
 static int hf_isis_lsp_ipv6_reachability_prefix_length = -1;
+static int hf_isis_lsp_prefix_attr_flags = -1;
 static int hf_isis_lsp_prefix_attr_flags_x = -1;
 static int hf_isis_lsp_prefix_attr_flags_r = -1;
 static int hf_isis_lsp_prefix_attr_flags_n = -1;
@@ -444,6 +444,7 @@ static gint ett_isis_lsp_part_of_clv_ext_ip_reachability = -1;
 static gint ett_isis_lsp_clv_ipv6_reachability = -1; /* CLV 236 */
 static gint ett_isis_lsp_part_of_clv_ipv6_reachability = -1;
 static gint ett_isis_lsp_prefix_sid_flags = -1;
+static gint ett_isis_lsp_prefix_attr_flags = -1;
 static gint ett_isis_lsp_clv_mt = -1;
 static gint ett_isis_lsp_clv_mt_is = -1;
 static gint ett_isis_lsp_part_of_clv_mt_is = -1;
@@ -516,8 +517,13 @@ static const int * prefix_sid_flags[] = {
     NULL,
 };
 
-static const true_false_string tfs_notsupported_supported = { "Not Supported", "Supported" };
-static const true_false_string tfs_external_internal = { "External", "Internal" };
+static const int * prefix_attr_flags[] = {
+    &hf_isis_lsp_prefix_attr_flags_x,
+    &hf_isis_lsp_prefix_attr_flags_r,
+    &hf_isis_lsp_prefix_attr_flags_n,
+    NULL,
+};
+
 static const true_false_string tfs_ipv6_ipv4 = { "IPv6", "IPv4" };
 
 static const value_string isis_lsp_sr_alg_vals[] = {
@@ -749,11 +755,10 @@ dissect_lsp_ip_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *t
  * Output:
  *   void
  */
-static gchar *
-dissect_ipreach_subclv(tvbuff_t *tvb, proto_tree *tree, int offset, int clv_code, int clv_len)
+static void
+dissect_ipreach_subclv(tvbuff_t *tvb, proto_tree *tree, proto_item *tree_item, int offset, int clv_code, int clv_len)
 {
     guint8 flags;
-    gchar  *ti_text = NULL;
 
     switch (clv_code) {
     case 1:
@@ -790,20 +795,18 @@ dissect_ipreach_subclv(tvbuff_t *tvb, proto_tree *tree, int offset, int clv_code
     case 4:
         /* Prefix Attribute Flags */
         flags = tvb_get_guint8(tvb, offset);
-        proto_tree_add_boolean(tree, hf_isis_lsp_prefix_attr_flags_x, tvb, offset, 1, flags);
-        proto_tree_add_boolean(tree, hf_isis_lsp_prefix_attr_flags_r, tvb, offset, 1, flags);
-        proto_tree_add_boolean(tree, hf_isis_lsp_prefix_attr_flags_n, tvb, offset, 1, flags);
-        ti_text = (gchar *)wmem_alloc(wmem_packet_scope(), 64);
-        snprintf(ti_text, 64, "Flags:%c%c%c",
-                 ((flags & ISIS_LSP_PFX_ATTR_FLAG_X) != 0) ? 'X' : '-',
-                 ((flags & ISIS_LSP_PFX_ATTR_FLAG_R) != 0) ? 'R' : '-',
-                 ((flags & ISIS_LSP_PFX_ATTR_FLAG_N) != 0) ? 'N' : '-');
+        proto_tree_add_bitmask(tree, tvb, offset, hf_isis_lsp_prefix_attr_flags,
+                               ett_isis_lsp_prefix_attr_flags, prefix_attr_flags, ENC_BIG_ENDIAN);
+        if (tree_item) {
+            proto_item_append_text(tree_item, ": Flags:%c%c%c",
+                                   ((flags & ISIS_LSP_PFX_ATTR_FLAG_X) != 0) ? 'X' : '-',
+                                   ((flags & ISIS_LSP_PFX_ATTR_FLAG_R) != 0) ? 'R' : '-',
+                                   ((flags & ISIS_LSP_PFX_ATTR_FLAG_N) != 0) ? 'N' : '-');
+        }
         break;
     default :
         break;
     }
-
-    return ti_text;
 }
 
 
@@ -851,7 +854,6 @@ dissect_lsp_ext_ip_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tre
     guint      clv_code, clv_len;
     gint       clv_offset;
     gchar      *prefix_str;
-    gchar      *ti_text;
 
     while (length > 0) {
         ctrl_info = tvb_get_guint8(tvb, offset+4);
@@ -903,10 +905,7 @@ dissect_lsp_ext_ip_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tre
                  * therefore we need to skip 3 bytes
                  * (total subtlv len, subtlv type, subtlv len)
                  */
-                ti_text = dissect_ipreach_subclv(tvb, subclv_tree, clv_offset+2, clv_code, clv_len);
-                if (ti_text) {
-                    proto_item_append_text(ti_subclvs, ": %s", ti_text);
-                }
+                dissect_ipreach_subclv(tvb, subclv_tree, ti_subclvs, clv_offset+2, clv_code, clv_len);
                 i += clv_len + 2;
             }
             len += 1 + subclvs_len;
@@ -1530,7 +1529,6 @@ dissect_lsp_ipv6_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree 
     guint             clv_code, clv_len;
     gint              clv_offset;
     gchar             *prefix_str;
-    gchar             *ti_text;
 
     if (!tree) return;
 
@@ -1586,10 +1584,7 @@ dissect_lsp_ipv6_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree 
                 proto_item_append_text(ti_subclvs, ": %s (c=%u, l=%u)",
                                        val_to_str(clv_code, isis_lsp_ext_ip_reachability_code_vals, "Unknown"), clv_code, clv_len);
 
-                ti_text = dissect_ipreach_subclv(tvb, subtree2, clv_offset+2, clv_code, clv_len);
-                if (ti_text) {
-                    proto_item_append_text(ti_subclvs, ": %s", ti_text);
-                }
+                dissect_ipreach_subclv(tvb, subtree2, ti_subclvs, clv_offset+2, clv_code, clv_len);
                 i += clv_len + 2;
             }
             len += 1 + subclvs_len;
@@ -4551,6 +4546,11 @@ proto_register_isis_lsp(void)
         },
 
         /* rfc7794 */
+        { &hf_isis_lsp_prefix_attr_flags,
+            { "Flags", "isis.lsp.prefix_attribute.flags",
+              FT_UINT8, BASE_HEX, NULL, 0x0,
+              NULL, HFILL }
+        },
         { &hf_isis_lsp_prefix_attr_flags_x,
             { "External Prefix", "isis.lsp.prefix_attribute.flags.x",
               FT_BOOLEAN, 8, TFS(&tfs_set_notset), ISIS_LSP_PFX_ATTR_FLAG_X,
@@ -4809,17 +4809,17 @@ proto_register_isis_lsp(void)
         },
         { &hf_isis_lsp_ip_reachability_delay_metric_support,
             { "Delay Metric", "isis.lsp.ip_reachability.delay_metric_support",
-              FT_BOOLEAN, 8, TFS(&tfs_notsupported_supported), 0x80,
+              FT_BOOLEAN, 8, TFS(&tfs_not_supported_supported), 0x80,
               NULL, HFILL }
         },
         { &hf_isis_lsp_ip_reachability_expense_metric_support,
             { "Expense Metric", "isis.lsp.ip_reachability.expense_metric_support",
-              FT_BOOLEAN, 8, TFS(&tfs_notsupported_supported), 0x80,
+              FT_BOOLEAN, 8, TFS(&tfs_not_supported_supported), 0x80,
               NULL, HFILL }
         },
         { &hf_isis_lsp_ip_reachability_error_metric_support,
             { "Error Metric", "isis.lsp.ip_reachability.error_metric_support",
-              FT_BOOLEAN, 8, TFS(&tfs_notsupported_supported), 0x80,
+              FT_BOOLEAN, 8, TFS(&tfs_not_supported_supported), 0x80,
               NULL, HFILL }
         },
         { &hf_isis_lsp_mt_cap_spsourceid,
@@ -4839,17 +4839,17 @@ proto_register_isis_lsp(void)
         },
         { &hf_isis_lsp_eis_neighbors_delay_metric_supported,
             { "Delay Metric", "isis.lsp.eis_neighbors_delay_metric.supported",
-              FT_BOOLEAN, 8, TFS(&tfs_notsupported_supported), 0x80,
+              FT_BOOLEAN, 8, TFS(&tfs_not_supported_supported), 0x80,
               NULL, HFILL }
         },
         { &hf_isis_lsp_eis_neighbors_expense_metric_supported,
             { "Expense Metric", "isis.lsp.eis_neighbors.expense_metric_supported",
-              FT_BOOLEAN, 8, TFS(&tfs_notsupported_supported), 0x80,
+              FT_BOOLEAN, 8, TFS(&tfs_not_supported_supported), 0x80,
               NULL, HFILL }
         },
         { &hf_isis_lsp_eis_neighbors_error_metric_supported,
             { "Error Metric", "isis.lsp.eis_neighbors.error_metric_supported",
-              FT_BOOLEAN, 8, TFS(&tfs_notsupported_supported), 0x80,
+              FT_BOOLEAN, 8, TFS(&tfs_not_supported_supported), 0x80,
               NULL, HFILL }
         },
         { &hf_isis_lsp_unrsv_bw_priority_level,
@@ -5120,6 +5120,7 @@ proto_register_isis_lsp(void)
         &ett_isis_lsp_clv_ext_ip_reachability, /* CLV 135 */
         &ett_isis_lsp_part_of_clv_ext_ip_reachability,
         &ett_isis_lsp_prefix_sid_flags,
+        &ett_isis_lsp_prefix_attr_flags,
         &ett_isis_lsp_clv_ipv6_reachability, /* CLV 236 */
         &ett_isis_lsp_part_of_clv_ipv6_reachability,
         &ett_isis_lsp_clv_mt,

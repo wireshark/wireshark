@@ -59,6 +59,7 @@ WS_DLL_PUBLIC const true_false_string tfs_command_response;
 WS_DLL_PUBLIC const true_false_string tfs_response_command;
 WS_DLL_PUBLIC const true_false_string tfs_capable_not_capable;
 WS_DLL_PUBLIC const true_false_string tfs_supported_not_supported;
+WS_DLL_PUBLIC const true_false_string tfs_not_supported_supported;
 WS_DLL_PUBLIC const true_false_string tfs_used_notused;
 WS_DLL_PUBLIC const true_false_string tfs_high_low;
 WS_DLL_PUBLIC const true_false_string tfs_high_normal;
@@ -108,6 +109,7 @@ WS_DLL_PUBLIC const true_false_string tfs_uplink_downlink;
 WS_DLL_PUBLIC const true_false_string tfs_s2c_c2s;
 WS_DLL_PUBLIC const true_false_string tfs_c2s_s2c;
 WS_DLL_PUBLIC const true_false_string tfs_open_closed;
+WS_DLL_PUBLIC const true_false_string tfs_external_internal;
 
 #ifdef __cplusplus
 }
