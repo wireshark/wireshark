@@ -7,9 +7,6 @@
   <?define PlatformProgramFilesFolder = "ProgramFilesFolder" ?>
   <?endif?>
 
-  <?define VCRedist.Version = "VC141" ?>
-  <?define VCRedist.Dir ="C:\Program Files (x86)\Common Files\Merge Modules\" ?>
-
   <?define Staging.Dir ="$(var.BuildOutputDir)" ?>
   <?define Plugins.Dir ="$(var.Staging.Dir)\plugins" ?>
   <?define Profiles.Dir ="$(var.Staging.Dir)\profiles" ?>

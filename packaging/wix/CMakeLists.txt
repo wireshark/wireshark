@@ -172,6 +172,7 @@ if (MAXMINDDB_FOUND)
 endif()
 
 set(WIX_CANDLE_DEFINES
+	-v
 	-sw1076
 	-dPlatform=${TARGET_MACHINE}
 	-dWiresharkName=${CMAKE_PROJECT_NAME}
@@ -198,6 +199,7 @@ set(WIX_CANDLE_DEFINES
 
 # The NSIS CMakeFile sets the program name + version slightly differently.
 set(WIX_LIGHT_DEFINES
+	-v
 	-out ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}-${WIRESHARK_TARGET_PLATFORM}-${PROJECT_VERSION}.msi
 	-sw1076
 	-ext WixUIExtension
@@ -206,6 +208,7 @@ set(WIX_LIGHT_DEFINES
 )
 
 set(WIX_HEAT_FLAGS
+	-v
 	-ag
 	-nologo
 	-srd
