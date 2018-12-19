@@ -250,9 +250,9 @@ wspstat_init(const char *opt_arg, void *userdata _U_)
 		/* error, we failed to attach to the tap. clean up */
 		g_free(sp->pdu_stats);
 		g_free(sp->filter);
-		g_free(sp);
 		g_hash_table_foreach( sp->hash, (GHFunc) wsp_free_hash_table, NULL ) ;
 		g_hash_table_destroy( sp->hash );
+		g_free(sp);
 		fprintf(stderr, "tshark: Couldn't register wsp,stat tap: %s\n",
 				error_string->str);
 		g_string_free(error_string, TRUE);
