@@ -3888,7 +3888,7 @@ dissect_pfcp_failed_rule_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
     proto_tree_add_item_ret_uint(tree, hf_pfcp_failed_rule_id_type, tvb, offset, 1, ENC_BIG_ENDIAN, &rule_type);
     offset++;
 
-    proto_item_append_text(item, "%s", val_to_str_const(rule_type, pfcp_failed_rule_id_type_vals, "Unknown"));
+    proto_item_append_text(item, "%s: ", val_to_str_const(rule_type, pfcp_failed_rule_id_type_vals, "Unknown"));
 
     /* 6 to p  Rule ID value
     * The length and the value of the Rule ID value field shall be set as specified for the
