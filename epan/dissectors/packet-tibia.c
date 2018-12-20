@@ -1258,7 +1258,7 @@ dissect_game_packet(struct tibia_convo *convo, tvbuff_t *tvb, int offset, packet
             if (len % 8 != 0)
                 return -1;
 
-            guint8 *decrypted_buffer = (guint8*)g_malloc(len);
+            guint8 *decrypted_buffer = (guint8*)wmem_alloc(pinfo->pool, len);
 
             for (guint8 *dstblock = decrypted_buffer; offset < end; offset += 8) {
                 decrypt_xtea_le_ecb(dstblock, tvb_get_ptr(tvb, offset, 8), convo->xtea_key, 32);
@@ -1266,7 +1266,6 @@ dissect_game_packet(struct tibia_convo *convo, tvbuff_t *tvb, int offset, packet
             }
 
             tvb = tvb_new_child_real_data(tvb, decrypted_buffer, len, len);
-            tvb_set_free_cb(tvb, g_free);
             add_new_data_source(pinfo, tvb, "Decrypted Game Data");
 
             offset = 0;
