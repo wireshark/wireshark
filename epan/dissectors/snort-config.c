@@ -751,6 +751,7 @@ static gboolean parse_rule(SnortConfig_t *snort_config, char *line, const char *
     options_start = strstr(line, "(");
     if (options_start == NULL) {
         snort_debug_printf("start of options not found\n");
+        g_free(rule);
         return FALSE;
     }
     options_index = (int)(options_start-line) + 1;
