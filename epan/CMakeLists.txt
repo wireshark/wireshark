@@ -295,19 +295,6 @@ set_target_properties(epan PROPERTIES
 	VERSION "0.0.0" SOVERSION 0
 )
 
-if(ENABLE_APPLICATION_BUNDLE)
-	if(NOT CMAKE_CFG_INTDIR STREQUAL ".")
-		# Xcode
-		set_target_properties(epan PROPERTIES
-			LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/$<CONFIG>/Wireshark.app/Contents/Frameworks
-		)
-	else()
-		set_target_properties(epan PROPERTIES
-			LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/Wireshark.app/Contents/Frameworks
-		)
-	endif()
-endif()
-
 ABICHECK(libwireshark)
 
 set(TOP_LEVEL_HEADERS ${CMAKE_BINARY_DIR}/config.h)
