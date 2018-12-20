@@ -2252,25 +2252,25 @@ RegistrationCancellationRes ::= [PRIVATE 18] SET {
 -- RegistrationNotification INVOKE Parameters
 
 RegistrationNotification ::= [PRIVATE 18] SET {
-	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber, 
+	electronicSerialNumber						[9] IMPLICIT ElectronicSerialNumber, 
 	-- M 6.5.2.63
---	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber,
+--	mobileIdentificationNumber					[8] IMPLICIT MobileIdentificationNumber,
 	-- M 6.5.2.81
-	msid									MSID OPTIONAL,
+	msid								MSID OPTIONAL,
 	-- M 6.5.2.bu
-	meid									[390] IMPLICIT MEID OPTIONAL,
+	meid								[390] IMPLICIT MEID OPTIONAL,
 	--
-	mscid									[21] IMPLICIT MSCID,
+	mscid								[21] IMPLICIT MSCID,
 	--(Serving MSC) M 6.5.2.82
-	qualificationInformationCode			[17] IMPLICIT QualificationInformationCode,
+	qualificationInformationCode					[17] IMPLICIT QualificationInformationCode,
 	-- M 6.5.2.99
 	systemMyTypeCode						[22] IMPLICIT SystemMyTypeCode,
 	-- (Serving MSC or VLR) M 6.5.2.147
 	availabilityType						[90] IMPLICIT AvailabilityType OPTIONAL,
 	-- O 6.5.2.15 a
-	borderCellAccess						[50] IMPLICIT BorderCellAccess OPTIONAL,
+	borderCellAccess						[58] IMPLICIT BorderCellAccess OPTIONAL,
 	-- O 6.5.2.17 b
-	cdmaNetworkIdentification				[232] IMPLICIT CDMANetworkIdentification OPTIONAL,
+	cdmaNetworkIdentification					[232] IMPLICIT CDMANetworkIdentification OPTIONAL,
 	-- (Serving) O 6.5.2.bk
 	controlChannelData						[55] IMPLICIT ControlChannelData OPTIONAL,
 	-- O 6.5.2.51 b
@@ -2280,23 +2280,23 @@ RegistrationNotification ::= [PRIVATE 18] SET {
 	-- (VLR) O 6.5.2.64 c
 	locationAreaID							[33] IMPLICIT LocationAreaID OPTIONAL,
 	-- O 6.5.2.77 d
-	msc-Address								[284] IMPLICIT MSC-Address OPTIONAL,
+	msc-Address							[284] IMPLICIT MSC-Address OPTIONAL,
 	-- O 6.5.2.dnC l
-	mSCIdentificationNumber					[94] IMPLICIT MSCIdentificationNumber OPTIONAL,
+	mSCIdentificationNumber						[94] IMPLICIT MSCIdentificationNumber OPTIONAL,
 	-- O 2.152 t
-	pc-ssn									[32] IMPLICIT PC-SSN OPTIONAL, 
+	pc-ssn								[32] IMPLICIT PC-SSN OPTIONAL, 
 	--(Serving MSC or VLR) O 6.5.2.93 e
-	receivedSignalQuality					[72] IMPLICIT ReceivedSignalQuality OPTIONAL,
+	receivedSignalQuality						[72] IMPLICIT ReceivedSignalQuality OPTIONAL,
 	-- O 6.5.2.106 b
-	reportType								[44] IMPLICIT ReportType OPTIONAL,
+	reportType							[44] IMPLICIT ReportType OPTIONAL,
 	-- O 6.5.2.112 f
-	serviceRedirectionCause					[237] IMPLICIT ServiceRedirectionCause OPTIONAL,
+	serviceRedirectionCause						[237] IMPLICIT ServiceRedirectionCause OPTIONAL,
 	-- O 6.5.2.bp
-	senderIdentificationNumber				[103] IMPLICIT SenderIdentificationNumber OPTIONAL,
+	senderIdentificationNumber					[103] IMPLICIT SenderIdentificationNumber OPTIONAL,
 	-- O 6.5.2.116 g
-	sms-Address								[104] IMPLICIT	SMS-Address OPTIONAL,
+	sms-Address							[104] IMPLICIT	SMS-Address OPTIONAL,
 	-- O 6.5.2.123 h
-	sms-MessageWaitingIndicator				[118] IMPLICIT SMS-MessageWaitingIndicator OPTIONAL,
+	sms-MessageWaitingIndicator					[118] IMPLICIT SMS-MessageWaitingIndicator OPTIONAL,
 	-- O 6.5.2.129 i
 	systemAccessData						[56] IMPLICIT SystemAccessData OPTIONAL,
 	-- O 6.5.2.144 b
@@ -2306,12 +2306,12 @@ RegistrationNotification ::= [PRIVATE 18] SET {
 	-- O 6.5.2.146 k
 	terminalType							[47] IMPLICIT TerminalType OPTIONAL, 
 	-- O 6.5.2.154 j
-	transactionCapability					[123] IMPLICIT TransactionCapability OPTIONAL,
+	transactionCapability						[123] IMPLICIT TransactionCapability OPTIONAL,
 	-- O 6.5.2.160 j
 	winCapability							[280] IMPLICIT WINCapability OPTIONAL,
 	-- O 6.5.2.di l
 	...,
-	mpcAddress								[370] IMPLICIT MPCAddress OPTIONAL,
+	mpcAddress							[370] IMPLICIT MPCAddress OPTIONAL,
 	-- O 6.5.2.ha z, ab
 	mpcAddressList							[381] IMPLICIT MPCAddressList OPTIONAL
 	-- O 6.5.2.hm aa, ab	 
@@ -2320,7 +2320,7 @@ RegistrationNotification ::= [PRIVATE 18] SET {
 RegistrationNotificationRes ::= [PRIVATE 18] SET {
 	systemMyTypeCode						[22] IMPLICIT SystemMyTypeCode,
 	-- (VLR or HLR) M 6.5.2.147
-	analogRedirectRecord					[225] IMPLICIT AnalogRedirectRecord OPTIONAL,
+	analogRedirectRecord						[225] IMPLICIT AnalogRedirectRecord OPTIONAL,
 	-- O 6.5.2.bd
 	authorizationDenied						[13] IMPLICIT AuthorizationDenied OPTIONAL,
 	-- O 6.5.2.13 a
@@ -5273,11 +5273,11 @@ BillingID ::= OCTET STRING
 
 -- 6.5.2.17
 -- 1 0 0 1 1 1 1 1 (0x9f)
--- 0 0 1 1 1 0 1 0 (0x32)(50)
+-- 0 0 1 1 1 0 1 0 (0x3a)(58)
 BorderCellAccess ::= ENUMERATED{
-	not-used					( 0 ),
-	border-Cell-Access			( 1 )
-	}
+    not-used            ( 0 ),
+    border-Cell-Access  ( 1 )
+    }
 
 -- 6.5.2.18
 -- 1 0 0 1 1 1 1 1 (0x9f)
