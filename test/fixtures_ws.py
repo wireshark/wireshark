@@ -74,7 +74,7 @@ def program(program_path):
         dotexe = ''
         if sys.platform.startswith('win32'):
             dotexe = '.exe'
-        path = os.path.normpath(os.path.join(program_path, name + dotexe))
+        path = os.path.abspath(os.path.join(program_path, name + dotexe))
         if not os.access(path, os.X_OK):
             fixtures.skip('Program %s is not available' % (name,))
         return path
@@ -257,3 +257,21 @@ def test_env(base_env, conf_path, request, dirs):
         # Inject the test environment as default if it was not overridden.
         request.instance.injected_test_env = env
     return env
+
+
+@fixtures.fixture
+def unicode_env(home_path, make_env):
+    '''A Wireshark configuration directory with Unicode in its path.'''
+    home_env = 'APPDATA' if sys.platform.startswith('win32') else 'HOME'
+    uni_home = os.path.join(home_path, 'unicode-Ф-€-中-testcases')
+    env = make_env(home=uni_home)
+    if sys.platform == 'win32':
+        pluginsdir = os.path.join(uni_home, 'Wireshark', 'plugins')
+    else:
+        pluginsdir = os.path.join(uni_home, '.local/lib/wireshark/plugins')
+    os.makedirs(pluginsdir)
+    return types.SimpleNamespace(
+        path=lambda *args: os.path.join(uni_home, *args),
+        env=env,
+        pluginsdir=pluginsdir
+    )

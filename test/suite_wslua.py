@@ -11,6 +11,8 @@
 
 import filecmp
 import os.path
+import shutil
+import subprocess
 import subprocesstest
 import unittest
 import fixtures
@@ -276,3 +278,39 @@ class case_wslua(subprocesstest.SubprocessTestCase):
     def test_wslua_tvb_no_tree(self, check_lua_script):
         '''wslua tvb without a tree'''
         check_lua_script(self, 'tvb.lua', dns_port_pcap, True)
+
+
+@fixtures.uses_fixtures
+class case_wslua_unicode(subprocesstest.SubprocessTestCase):
+    def test_wslua_unicode(self, cmd_tshark, features, dirs, capture_file, unicode_env):
+        '''Check handling of unicode paths.'''
+        if not features.have_lua:
+            self.skipTest('Test requires Lua scripting support.')
+
+        # Prepare test environment, put files in the right places.
+        uni_script = os.path.join(unicode_env.pluginsdir, 'script-Ф-€-中.lua')
+        shutil.copy(os.path.join(dirs.lua_dir, 'unicode.lua'), uni_script)
+        with open(unicode_env.path('load-Ф-€-中.lua'), 'w', encoding='utf8') as f:
+            f.write('return "Contents of Ф-€-中"\n')
+        uni_pcap = unicode_env.path('file-Ф-€-中.pcap')
+        shutil.copy(capture_file('empty.pcap'), uni_pcap)
+
+        # Run process from a Unicode path as working directory.
+        proc = subprocess.Popen((cmd_tshark, '-r', uni_pcap), env=unicode_env.env,
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE,
+                                cwd=unicode_env.path())
+        stdout, stderr = proc.communicate(timeout=60)
+        stdout_str = stdout.decode('utf8', 'replace')
+        stderr_str = stderr.decode('utf8', 'replace')
+        print("-- Begin stdout")
+        print(stdout_str)
+        print("-- End stdout")
+        if stderr_str:
+            print("-- Begin stderr")
+            print(stderr_str)
+            print("-- End stderr")
+        self.assertIn('All tests passed!', stdout_str)
+        assert stderr_str == ""
+        with open(unicode_env.path('written-by-lua-Ф-€-中.txt'), encoding='utf8') as f:
+            assert f.read() == 'Feedback from Lua: Ф-€-中\n'

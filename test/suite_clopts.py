@@ -198,6 +198,13 @@ class case_tshark_dump_glossaries(subprocesstest.SubprocessTestCase):
                 del ip_props[key]
         self.assertEqual(actual_obj, expected_obj)
 
+    def test_tshark_unicode_folders(self, cmd_tshark, unicode_env):
+        '''Folders output with unicode'''
+        proc = self.assertRun((cmd_tshark, '-G', 'folders'), env=unicode_env.env)
+        out = proc.stdout_str
+        pluginsdir = [x.split('\t', 1)[1] for x in out.splitlines() if x.startswith('Personal Lua Plugins:')]
+        self.assertEqual([unicode_env.pluginsdir], pluginsdir)
+
 
 @fixtures.mark_usefixtures('test_env')
 @fixtures.uses_fixtures
