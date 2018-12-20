@@ -703,7 +703,7 @@ real_main(int argc, char *argv[])
   gchar               *err_str;
 #else
   gboolean             capture_option_specified = FALSE;
-  int                  max_packet_count = 0;
+  volatile int         max_packet_count = 0;
 #endif
   gboolean             quiet = FALSE;
 #ifdef PCAP_NG_DEFAULT
