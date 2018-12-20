@@ -313,9 +313,13 @@ AboutDialog::AboutDialog(QWidget *parent) :
     message += "<p>" + html_escape(comp_info_str) + "</p>\n\n";
     message += "<p>" + html_escape(runtime_info_str) + "</p>\n\n";
     message += "<p>Wireshark is Open Source Software released under the GNU General Public License.</p>\n\n";
-    message += "<p>Check the man page and http://www.wireshark.org for more information.</p>\n\n";
+    message += "<p>Check the man page and ";
+    message += "<a href=http://www.wireshark.org>http://www.wireshark.org</a> ";
+    message += "for more information.</p>\n\n";
 
-    ui->label_wireshark->setText(message);
+    ui->pte_wireshark->setFrameStyle(QFrame::NoFrame);
+    ui->pte_wireshark->viewport()->setAutoFillBackground(false);
+    ui->pte_wireshark->setHtml(message);
 
 /* Check if it is a dev release... (VERSION_MINOR is odd in dev release) */
 #if VERSION_MINOR & 1
