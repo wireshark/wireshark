@@ -315,10 +315,6 @@ AboutDialog::AboutDialog(QWidget *parent) :
     message += "<p>Wireshark is Open Source Software released under the GNU General Public License.</p>\n\n";
     message += "<p>Check the man page and http://www.wireshark.org for more information.</p>\n\n";
 
-    ui->label_wireshark->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-    ui->label_wireshark->setTextFormat(Qt::RichText);
-    ui->label_wireshark->setWordWrap(true);
-    ui->label_wireshark->setTextInteractionFlags(Qt::TextSelectableByMouse);
     ui->label_wireshark->setText(message);
 
 /* Check if it is a dev release... (VERSION_MINOR is odd in dev release) */
