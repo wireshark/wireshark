@@ -320,12 +320,6 @@ set_target_properties(epan PROPERTIES
 	VERSION ${FULL_SO_VERSION} SOVERSION 11
 )
 
-if(ENABLE_APPLICATION_BUNDLE)
-	set_target_properties(epan PROPERTIES
-		LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/Wireshark.app/Contents/Frameworks
-	)
-endif()
-
 ABICHECK(libwireshark)
 
 set(TOP_LEVEL_HEADERS ${CMAKE_BINARY_DIR}/config.h)

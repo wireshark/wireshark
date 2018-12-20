@@ -125,12 +125,6 @@ set_target_properties(wiretap PROPERTIES
 	FOLDER "DLLs"
 )
 
-if(ENABLE_APPLICATION_BUNDLE)
-	set_target_properties(wiretap PROPERTIES
-		LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/Wireshark.app/Contents/Frameworks
-	)
-endif()
-
 ABICHECK(libwiretap)
 
 add_custom_command(OUTPUT libwiretap.abi.tar.gz

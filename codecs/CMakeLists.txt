@@ -64,12 +64,6 @@ set_target_properties(wscodecs PROPERTIES
   FOLDER "DLLs"
 )
 
-if(ENABLE_APPLICATION_BUNDLE)
-  set_target_properties(wscodecs PROPERTIES
-    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/Wireshark.app/Contents/Frameworks
-  )
-endif()
-
 target_link_libraries(wscodecs ${wscodecs_LIBS})
 
 install(TARGETS wscodecs
