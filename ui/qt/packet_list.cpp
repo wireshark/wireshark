@@ -999,16 +999,16 @@ void PacketList::writeRecent(FILE *rf) {
     gint col, width, col_fmt;
     gchar xalign;
 
-    fprintf (rf, "%s:", RECENT_KEY_COL_WIDTH);
+    fprintf (rf, "%s:\n", RECENT_KEY_COL_WIDTH);
     for (col = 0; col < prefs.num_cols; col++) {
         if (col > 0) {
-            fprintf (rf, ",");
+            fprintf (rf, ",\n");
         }
         col_fmt = get_column_format(col);
         if (col_fmt == COL_CUSTOM) {
-            fprintf (rf, " \"%%Cus:%s\",", get_column_custom_fields(col));
+            fprintf (rf, "        \"%%Cus:%s\",", get_column_custom_fields(col));
         } else {
-            fprintf (rf, " %s,", col_format_to_string(col_fmt));
+            fprintf (rf, "        %s,", col_format_to_string(col_fmt));
         }
         width = recent_get_column_width (col);
         xalign = recent_get_column_xalign (col);
