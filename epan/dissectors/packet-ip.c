@@ -261,6 +261,7 @@ static expert_field ei_ip_ttl_lncb = EI_INIT;
 static expert_field ei_ip_ttl_too_small = EI_INIT;
 static expert_field ei_ip_cipso_tag = EI_INIT;
 static expert_field ei_ip_bogus_ip_version = EI_INIT;
+static expert_field ei_ip_bogus_header_length = EI_INIT;
 
 static dissector_handle_t ip_handle;
 static dissector_table_t ip_option_table;
@@ -1918,9 +1919,10 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
     col_add_fstr(pinfo->cinfo, COL_INFO,
                  "Bogus IP header length (%u, must be at least %u)",
                  hlen, IPH_MIN_LEN);
-
-    proto_tree_add_uint_bits_format_value(ip_tree, hf_ip_hdr_len, tvb, (offset<<3)+4, 4, hlen,
-                                 "%u bytes (bogus, must be at least %u)", hlen, IPH_MIN_LEN);
+    tf = proto_tree_add_uint_bits_format_value(ip_tree, hf_ip_hdr_len, tvb, (offset<<3)+4, 4, hlen,
+                                               "%u bytes (%u)", hlen, hlen>>2);
+    expert_add_info_format(pinfo, tf, &ei_ip_bogus_header_length,
+                           "Bogus IP header length (%u, must be at least %u)", hlen, IPH_MIN_LEN);
     return tvb_captured_length(tvb);
   }
 
@@ -2911,6 +2913,7 @@ proto_register_ip(void)
      { &ei_ip_ttl_too_small, { "ip.ttl.too_small", PI_SEQUENCE, PI_NOTE, "Time To Live", EXPFILL }},
      { &ei_ip_cipso_tag, { "ip.cipso.malformed", PI_SEQUENCE, PI_ERROR, "Malformed CIPSO tag", EXPFILL }},
      { &ei_ip_bogus_ip_version, { "ip.bogus_ip_version", PI_PROTOCOL, PI_ERROR, "Bogus IP version", EXPFILL }},
+     { &ei_ip_bogus_header_length, { "ip.bogus_header_length", PI_PROTOCOL, PI_ERROR, "Bogus IP header length", EXPFILL }},
   };
 
   /* Decode As handling */

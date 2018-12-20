@@ -393,6 +393,7 @@ static expert_field ei_tcp_checksum_bad = EI_INIT;
 static expert_field ei_tcp_urgent_pointer_non_zero = EI_INIT;
 static expert_field ei_tcp_suboption_malformed = EI_INIT;
 static expert_field ei_tcp_nop = EI_INIT;
+static expert_field ei_tcp_bogus_header_length = EI_INIT;
 
 /* static expert_field ei_mptcp_analysis_unexpected_idsn = EI_INIT; */
 static expert_field ei_mptcp_analysis_echoed_key_mismatch = EI_INIT;
@@ -6197,9 +6198,10 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         col_append_fstr(pinfo->cinfo, COL_INFO, ", bogus TCP header length (%u, must be at least %u)",
                         tcph->th_hlen, TCPH_MIN_LEN);
         if (tree) {
-            proto_tree_add_uint_format_value(tcp_tree, hf_tcp_hdr_len, tvb, offset + 12, 1, tcph->th_hlen,
-                                       "%u bytes (bogus, must be at least %u)", tcph->th_hlen,
-                                       TCPH_MIN_LEN);
+            tf = proto_tree_add_uint_bits_format_value(tcp_tree, hf_tcp_hdr_len, tvb, (offset + 12) << 3, 4, tcph->th_hlen,
+                                                       "%u bytes (%u)", tcph->th_hlen, tcph->th_hlen >> 2);
+            expert_add_info_format(pinfo, tf, &ei_tcp_bogus_header_length,
+                                   "Bogus TCP header length (%u, must be at least %u)", tcph->th_hlen, TCPH_MIN_LEN);
         }
         return offset+12;
     }
@@ -7529,6 +7531,7 @@ proto_register_tcp(void)
         { &ei_tcp_urgent_pointer_non_zero, { "tcp.urgent_pointer.non_zero", PI_PROTOCOL, PI_NOTE, "The urgent pointer field is nonzero while the URG flag is not set", EXPFILL }},
         { &ei_tcp_suboption_malformed, { "tcp.suboption_malformed", PI_MALFORMED, PI_ERROR, "suboption would go past end of option", EXPFILL }},
         { &ei_tcp_nop, { "tcp.nop", PI_PROTOCOL, PI_WARN, "4 NOP in a row - a router may have removed some options", EXPFILL }},
+        { &ei_tcp_bogus_header_length, { "tcp.bogus_header_length", PI_PROTOCOL, PI_ERROR, "Bogus TCP Header length", EXPFILL }},
     };
 
     static ei_register_info mptcp_ei[] = {
