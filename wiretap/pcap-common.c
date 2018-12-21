@@ -464,6 +464,9 @@ static const struct {
 	/* DisplayPort AUX channel monitor */
 	{ 275,		WTAP_ENCAP_DPAUXMON },
 
+	/* Elektrobit High Speed Capture and Replay */
+	{ 279,		WTAP_ENCAP_EBHSCR },
+
 	/*
 	 * To repeat:
 	 *

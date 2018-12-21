@@ -954,7 +954,10 @@ static struct encap_type_info encap_table_base[] = {
 	{ "RFC 7468 file", "rfc7468" },
 
 	/* WTAP_ENCAP_SYSTEMD_JOURNAL */
-	{ "systemd journal", "sdjournal" }
+	{ "systemd journal", "sdjournal" },
+
+	/* WTAP_ENCAP_EBHSCR */
+	{ "EBHSCR", "ebhscr" },
 };
 
 WS_DLL_LOCAL
