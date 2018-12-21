@@ -108,10 +108,11 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, DisplayFilterEditType type
                 "  margin-left: 1px;"
                 "}"
                 );
-        connect(clear_button_, SIGNAL(clicked()), this, SLOT(clearFilter()));
+        connect(clear_button_, &StockIconToolButton::clicked, this, &DisplayFilterEdit::clearFilter);
     }
 
-    connect(this, SIGNAL(textChanged(const QString&)), this, SLOT(checkFilter(const QString&)));
+    connect(this, &DisplayFilterEdit::textChanged, this,
+            static_cast<void (DisplayFilterEdit::*)(const QString &)>(&DisplayFilterEdit::checkFilter));
 
     if (type_ == DisplayFilterToApply) {
         apply_button_ = new StockIconToolButton(this, "x-filter-apply");
@@ -126,8 +127,8 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, DisplayFilterEditType type
                 "  padding: 0 0 0 0;"
                 "}"
                 );
-        connect(apply_button_, SIGNAL(clicked()), this, SLOT(applyDisplayFilter()));
-        connect(this, SIGNAL(returnPressed()), this, SLOT(applyDisplayFilter()));
+        connect(apply_button_, &StockIconToolButton::clicked, this, &DisplayFilterEdit::applyDisplayFilter);
+        connect(this, &DisplayFilterEdit::returnPressed, this, &DisplayFilterEdit::applyDisplayFilter);
     }
 
     int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
@@ -155,8 +156,8 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, DisplayFilterEditType type
             .arg(cbsz.width() + apsz.width() + frameWidth + 1)
                   );
 
-    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(updateBookmarkMenu()));
-    connect(wsApp, SIGNAL(displayFilterListChanged()), this, SLOT(updateBookmarkMenu()));
+    connect(wsApp, &WiresharkApplication::appInitialized, this, &DisplayFilterEdit::updateBookmarkMenu);
+    connect(wsApp, &WiresharkApplication::displayFilterListChanged, this, &DisplayFilterEdit::updateBookmarkMenu);
 
 }
 
@@ -318,13 +319,13 @@ void DisplayFilterEdit::updateBookmarkMenu()
     bb_menu->clear();
 
     save_action_ = bb_menu->addAction(tr("Save this filter"));
-    connect(save_action_, SIGNAL(triggered(bool)), this, SLOT(saveFilter()));
+    connect(save_action_, &QAction::triggered, this, &DisplayFilterEdit::saveFilter);
     remove_action_ = bb_menu->addAction(tr("Remove this filter"));
-    connect(remove_action_, SIGNAL(triggered(bool)), this, SLOT(removeFilter()));
+    connect(remove_action_, &QAction::triggered, this, &DisplayFilterEdit::removeFilter);
     QAction *manage_action = bb_menu->addAction(tr("Manage Display Filters"));
-    connect(manage_action, SIGNAL(triggered(bool)), this, SLOT(showFilters()));
+    connect(manage_action, &QAction::triggered, this, &DisplayFilterEdit::showFilters);
     QAction *expr_action = bb_menu->addAction(tr("Manage Filter Expressions"));
-    connect(expr_action, SIGNAL(triggered(bool)), this, SLOT(showExpressionPrefs()));
+    connect(expr_action, &QAction::triggered, this, &DisplayFilterEdit::showExpressionPrefs);
     bb_menu->addSeparator();
 
     for (GList *df_item = get_filter_list_first(DFILTER_LIST); df_item; df_item = g_list_next(df_item)) {
@@ -338,7 +339,7 @@ void DisplayFilterEdit::updateBookmarkMenu()
 
         QAction *prep_action = bb_menu->addAction(prep_text);
         prep_action->setData(df_def->strval);
-        connect(prep_action, SIGNAL(triggered(bool)), this, SLOT(applyOrPrepareFilter()));
+        connect(prep_action, &QAction::triggered, this, &DisplayFilterEdit::applyOrPrepareFilter);
     }
 
     checkFilter();

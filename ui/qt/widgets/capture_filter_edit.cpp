@@ -146,7 +146,7 @@ CaptureFilterEdit::CaptureFilterEdit(QWidget *parent, bool plain) :
                     "}"
                     "QToolButton::menu-indicator { image: none; }"
             );
-        connect(bookmark_button_, SIGNAL(clicked()), this, SLOT(bookmarkClicked()));
+        connect(bookmark_button_, &StockIconToolButton::clicked, this, &CaptureFilterEdit::bookmarkClicked);
     }
 
     if (!plain_) {
@@ -162,10 +162,11 @@ CaptureFilterEdit::CaptureFilterEdit(QWidget *parent, bool plain) :
                 "  margin-left: 1px;"
                 "}"
                 );
-        connect(clear_button_, SIGNAL(clicked()), this, SLOT(clearFilter()));
+        connect(clear_button_, &StockIconToolButton::clicked, this, &CaptureFilterEdit::clearFilter);
     }
 
-    connect(this, SIGNAL(textChanged(const QString&)), this, SLOT(checkFilter(const QString&)));
+    connect(this, &CaptureFilterEdit::textChanged, this,
+            static_cast<void (CaptureFilterEdit::*)(const QString &)>(&CaptureFilterEdit::checkFilter));
 
 #if 0
     // Disable the apply button for now
@@ -182,10 +183,10 @@ CaptureFilterEdit::CaptureFilterEdit(QWidget *parent, bool plain) :
                 "  padding: 0 0 0 0;"
                 "}"
                 );
-        connect(apply_button_, SIGNAL(clicked()), this, SLOT(applyCaptureFilter()));
+        connect(apply_button_, &StockIconToolButton::clicked, this, &CaptureFilterEdit::applyCaptureFilter);
     }
 #endif
-    connect(this, SIGNAL(returnPressed()), this, SLOT(applyCaptureFilter()));
+    connect(this, &CaptureFilterEdit::returnPressed, this, &CaptureFilterEdit::applyCaptureFilter);
 
     int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
     QSize bksz;
@@ -209,19 +210,21 @@ CaptureFilterEdit::CaptureFilterEdit(QWidget *parent, bool plain) :
 
     QComboBox *cf_combo = qobject_cast<QComboBox *>(parent);
     if (cf_combo) {
-        connect(cf_combo, SIGNAL(activated(QString)), this, SIGNAL(textEdited(QString)));
+        connect(cf_combo, static_cast<void (QComboBox::*)(const QString &)>(&QComboBox::activated),
+                this, &CaptureFilterEdit::textEdited);
     }
 
     QThread *syntax_thread = new QThread;
     syntax_worker_ = new CaptureFilterSyntaxWorker;
     syntax_worker_->moveToThread(syntax_thread);
-    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(updateBookmarkMenu()));
-    connect(wsApp, SIGNAL(captureFilterListChanged()), this, SLOT(updateBookmarkMenu()));
-    connect(syntax_thread, SIGNAL(started()), syntax_worker_, SLOT(start()));
-    connect(syntax_thread, SIGNAL(started()), this, SLOT(checkFilter()));
-    connect(syntax_worker_, SIGNAL(syntaxResult(QString,int,QString)),
-            this, SLOT(setFilterSyntaxState(QString,int,QString)));
-    connect(syntax_thread, SIGNAL(finished()), syntax_worker_, SLOT(deleteLater()));
+    connect(wsApp, &WiresharkApplication::appInitialized, this, &CaptureFilterEdit::updateBookmarkMenu);
+    connect(wsApp, &WiresharkApplication::captureFilterListChanged, this, &CaptureFilterEdit::updateBookmarkMenu);
+    connect(syntax_thread, &QThread::started, syntax_worker_, &CaptureFilterSyntaxWorker::start);
+    connect(syntax_thread, &QThread::started, this,
+            static_cast<void (CaptureFilterEdit::*)()>(&CaptureFilterEdit::checkFilter));
+    connect(syntax_worker_, &CaptureFilterSyntaxWorker::syntaxResult,
+            this, &CaptureFilterEdit::setFilterSyntaxState);
+    connect(syntax_thread, &QThread::finished, syntax_worker_, &CaptureFilterSyntaxWorker::deleteLater);
     syntax_thread->start();
     updateBookmarkMenu();
 }
@@ -379,11 +382,11 @@ void CaptureFilterEdit::updateBookmarkMenu()
     bb_menu->clear();
 
     save_action_ = bb_menu->addAction(tr("Save this filter"));
-    connect(save_action_, SIGNAL(triggered(bool)), this, SLOT(saveFilter()));
+    connect(save_action_, &QAction::triggered, this, &CaptureFilterEdit::saveFilter);
     remove_action_ = bb_menu->addAction(tr("Remove this filter"));
-    connect(remove_action_, SIGNAL(triggered(bool)), this, SLOT(removeFilter()));
+    connect(remove_action_, &QAction::triggered, this, &CaptureFilterEdit::removeFilter);
     QAction *manage_action = bb_menu->addAction(tr("Manage Capture Filters"));
-    connect(manage_action, SIGNAL(triggered(bool)), this, SLOT(showFilters()));
+    connect(manage_action, &QAction::triggered, this, &CaptureFilterEdit::showFilters);
     bb_menu->addSeparator();
 
     for (GList *cf_item = get_filter_list_first(CFILTER_LIST); cf_item; cf_item = g_list_next(cf_item)) {
@@ -397,7 +400,7 @@ void CaptureFilterEdit::updateBookmarkMenu()
 
         QAction *prep_action = bb_menu->addAction(prep_text);
         prep_action->setData(cf_def->strval);
-        connect(prep_action, SIGNAL(triggered(bool)), this, SLOT(prepareFilter()));
+        connect(prep_action, &QAction::triggered, this, &CaptureFilterEdit::prepareFilter);
     }
 
     checkFilter();
