@@ -98,6 +98,10 @@
 #define ITS_WKP_CRL        2015
 #define ITS_WKP_CERTIF_REQ 2016
 
+// ETSI TS 102 965 (V1.2.1)
+#define AID_CAM 36
+#define AID_DENM 37
+
 /*
  * Prototypes
  */
@@ -407,6 +411,11 @@ void proto_reg_handoff_its(void)
             dissector_add_uint(subdissector[sdIdx], ports[pIdx], its_handle_);
         }
     }
+
+    dissector_add_uint("geonw.sec.v1.msg_type", ITS_DENM, its_handle_);
+    dissector_add_uint("geonw.sec.v1.msg_type", ITS_CAM, its_handle_);
+    dissector_add_uint("geonw.sec.v2.app_id", AID_DENM, its_handle_);
+    dissector_add_uint("geonw.sec.v2.app_id", AID_CAM, its_handle_);
 
     dissector_add_uint("its.msg_id", ITS_DENM,              create_dissector_handle( dissect_denm_DecentralizedEnvironmentalNotificationMessage_PDU, proto_its_denm ));
     dissector_add_uint("its.msg_id", ITS_CAM,               create_dissector_handle( dissect_cam_CoopAwareness_PDU, proto_its_cam ));

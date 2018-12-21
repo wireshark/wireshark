@@ -106,6 +106,10 @@
 #define ITS_WKP_CRL        2015
 #define ITS_WKP_CERTIF_REQ 2016
 
+// ETSI TS 102 965 (V1.2.1)
+#define AID_CAM 36
+#define AID_DENM 37
+
 /*
  * Prototypes
  */
@@ -1261,7 +1265,7 @@ static int hf_evrsr_SupportedPaymentTypes_contract = -1;
 static int hf_evrsr_SupportedPaymentTypes_externalIdentification = -1;
 
 /*--- End of included file: packet-its-hf.c ---*/
-#line 147 "./asn1/its/packet-its-template.c"
+#line 151 "./asn1/its/packet-its-template.c"
 
 // CauseCode/SubCauseCode management
 static int hf_its_trafficConditionSubCauseCode = -1;
@@ -1703,7 +1707,7 @@ static gint ett_evrsr_RechargingType = -1;
 static gint ett_evrsr_SupportedPaymentTypes = -1;
 
 /*--- End of included file: packet-its-ett.c ---*/
-#line 177 "./asn1/its/packet-its-template.c"
+#line 181 "./asn1/its/packet-its-template.c"
 
 // Deal with cause/subcause code management
 struct { CauseCodeType_enum cause; int* hf; } cause_to_subcause[] = {
@@ -12806,7 +12810,7 @@ static int dissect_evrsr_EV_RSR_MessageBody_PDU(tvbuff_t *tvb _U_, packet_info *
 
 
 /*--- End of included file: packet-its-fn.c ---*/
-#line 219 "./asn1/its/packet-its-template.c"
+#line 223 "./asn1/its/packet-its-template.c"
 
 static int
 dissect_its_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
@@ -17135,7 +17139,7 @@ void proto_register_its(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-its-hfarr.c ---*/
-#line 255 "./asn1/its/packet-its-template.c"
+#line 259 "./asn1/its/packet-its-template.c"
 
     { &hf_its_roadworksSubCauseCode,
       { "roadworksSubCauseCode", "its.subCauseCode",
@@ -17649,7 +17653,7 @@ void proto_register_its(void)
     &ett_evrsr_SupportedPaymentTypes,
 
 /*--- End of included file: packet-its-ettarr.c ---*/
-#line 357 "./asn1/its/packet-its-template.c"
+#line 361 "./asn1/its/packet-its-template.c"
     };
 
     proto_its = proto_register_protocol("Intelligent Transport Systems", "ITS", "its");
@@ -17703,6 +17707,11 @@ void proto_reg_handoff_its(void)
             dissector_add_uint(subdissector[sdIdx], ports[pIdx], its_handle_);
         }
     }
+
+    dissector_add_uint("geonw.sec.v1.msg_type", ITS_DENM, its_handle_);
+    dissector_add_uint("geonw.sec.v1.msg_type", ITS_CAM, its_handle_);
+    dissector_add_uint("geonw.sec.v2.app_id", AID_DENM, its_handle_);
+    dissector_add_uint("geonw.sec.v2.app_id", AID_CAM, its_handle_);
 
     dissector_add_uint("its.msg_id", ITS_DENM,              create_dissector_handle( dissect_denm_DecentralizedEnvironmentalNotificationMessage_PDU, proto_its_denm ));
     dissector_add_uint("its.msg_id", ITS_CAM,               create_dissector_handle( dissect_cam_CoopAwareness_PDU, proto_its_cam ));

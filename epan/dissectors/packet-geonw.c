@@ -46,6 +46,10 @@
  * Intelligent Transport Systems (ITS); GeoNetworking;
  * Port Numbers for the Basic Transport Protocol (BTP)
  *
+ * ETSI TS 103 097 v1.1.1, v1.2.1 and v1.3.1
+ * Intelligent Transport Systems (ITS); Security;
+ * Security header and certificate formats
+ *
  */
 
 #include <config.h>
@@ -267,6 +271,8 @@ static expert_field ei_geonw_out_of_range       = EI_INIT;
 static expert_field ei_geonw_payload_len        = EI_INIT;
 
 static dissector_table_t geonw_subdissector_table;
+static dissector_table_t sgeonw_v1_subdissector_table;
+static dissector_table_t sgeonw_v2_subdissector_table;
 static dissector_table_t btpa_subdissector_table;
 static dissector_table_t btpb_subdissector_table;
 
@@ -286,6 +292,7 @@ static const value_string ch_header_type_names[] = {
     { 0x00, NULL}
 };
 
+static dissector_handle_t ieee1609dot2_handle;
 static dissector_handle_t geonw_handle;
 static dissector_handle_t btpa_handle;
 static dissector_handle_t btpb_handle;
@@ -830,6 +837,1283 @@ struct geonw_analysis {
     guint16           sequence_number;
 };
 
+/*
+ * Secured geonetworking
+ */
+
+static int hf_geonw_sec = -1;
+static int hf_sgeonw_version = -1;
+static int hf_sgeonw_profile = -1;
+static int hf_sgeonw_hdr = -1;
+static int hf_sgeonw_pl = -1;
+static int hf_sgeonw_trl = -1;
+static int hf_sgeonw_var_len = -1;
+static int hf_sgeonw_var_len_det = -1;
+static int hf_sgeonw_var_len_val = -1;
+static int hf_sgeonw_header_field = -1;
+static int hf_sgeonw_header_field_type_v1 = -1;
+static int hf_sgeonw_header_field_type_v2 = -1;
+static int hf_sgeonw_opaque = -1;
+
+static int hf_sgeonw_payload_field = -1;
+static int hf_sgeonw_payload_field_type = -1;
+
+static int hf_sgeonw_trailer_field = -1;
+static int hf_sgeonw_trailer_field_type = -1;
+
+static int hf_sgeonw_certificate = -1;
+static int hf_sgeonw_encryption_parameter = -1;
+static int hf_sgeonw_signature = -1;
+static int hf_sgeonw_subject_info = -1;
+static int hf_sgeonw_subject_attribute = -1;
+
+static int hf_sgeonw_intx = -1;
+static int hf_sgeonw_time64 = -1;
+static int hf_sgeonw_conf = -1;
+static int hf_sgeonw_time32 = -1;
+static int hf_sgeonw_lat = -1;
+static int hf_sgeonw_lon = -1;
+static int hf_sgeonw_elev = -1;
+static int hf_sgeonw_hashedid3 = -1;
+static int hf_sgeonw_hashedid8 = -1;
+static int hf_sgeonw_duration = -1;
+static int hf_sgeonw_duration_unit = -1;
+static int hf_sgeonw_duration_value = -1;
+static int hf_sgeonw_encryption_parameter_nonce = -1;
+
+static int hf_sgeonw_msg_id = -1;
+static int hf_sgeonw_app_id = -1;
+
+static int ett_geonw_sec = -1;
+static int ett_sgeonw_hdr = -1;
+static int ett_sgeonw_field = -1;
+static int ett_sgeonw_var_len = -1;
+static int ett_sgeonw_intx = -1;
+static int ett_sgeonw_duration = -1;
+static int ett_sgeonw_encryption_parameter = -1;
+static int ett_sgeonw_signature = -1;
+static int ett_sgeonw_subject_info = -1;
+static int ett_sgeonw_subject_attribute = -1;
+
+static expert_field ei_sgeonw_len_unsupported     = EI_INIT;
+static expert_field ei_sgeonw_len_too_long        = EI_INIT;
+static expert_field ei_sgeonw_subj_info_too_long  = EI_INIT;
+static expert_field ei_sgeonw_ssp_too_long        = EI_INIT;
+static expert_field ei_sgeonw_bogus               = EI_INIT;
+
+typedef enum {
+    generation_time = 0,
+    generation_time_confidence = 1,
+    expiration = 2,
+    generation_location = 3,
+    request_unrecognized_certificate = 4,
+    message_type = 5,
+    signer_info = 128,
+    recipient_info = 129,
+    encryption_parameters = 130,
+
+    last_hdr_type = (2<<8)-1
+} HeaderFieldType;
+
+static const value_string header_field_type_v1_names[] = {
+    { generation_time,                  "Generation time" },
+    { generation_time_confidence,       "Generation time confidence" },
+    { expiration,                       "Expiration" },
+    { generation_location,              "Generation location" },
+    { request_unrecognized_certificate, "Request unrecognized certificate" },
+    { message_type,                     "Message type" },
+    { signer_info,                      "Signer info" },
+    { recipient_info,                   "Recipient info" },
+    { encryption_parameters,            "Encryption parameters" },
+    { 0x00, NULL}
+};
+
+static const value_string header_field_type_v2_names[] = {
+    { generation_time,                  "Generation time" },
+    { generation_time_confidence,       "Generation time standard deviation" },
+    { expiration,                       "Expiration" },
+    { generation_location,              "Generation location" },
+    { request_unrecognized_certificate, "Request unrecognized certificate" },
+    { message_type,                     "ITS Application ID" }, // Change in definition
+    { signer_info,                      "Signer info" },
+    { recipient_info,                   "Encryption parameters" }, // Change in definition
+    { encryption_parameters,            "Recipient info" }, // Change in definition
+    { 0x00, NULL}
+};
+
+typedef enum  {
+    unsecured = 0,
+    signed_pl = 1,
+    encrypted = 2,
+    signed_external = 3,
+    signed_and_encrypted = 4,
+
+    last_pl_type = (2<<8)-1
+} PayloadType;
+
+static const value_string payload_field_type_names[] = {
+    { unsecured,            "Unsecured" },
+    { signed_pl,            "Signed" },
+    { encrypted,            "Encrypted" },
+    { signed_external,      "Signed external" },
+    { signed_and_encrypted, "Signed and encrypted" },
+    { 0, NULL },
+};
+
+typedef enum {
+    signature = 1,
+
+    last_trl_type = (2<<8)-1
+} TrailerFieldType;
+
+static const value_string trailer_field_type_names[] = {
+    { signature, "signature" },
+    { 0, NULL },
+};
+
+static int hf_sgeonw_signer_info = -1;
+static int hf_sgeonw_signer_info_type = -1;
+
+typedef enum {
+    self = 0,
+    certificate_digest_with_ecdsap256 = 1,
+    certificate = 2,
+    certificate_chain = 3,
+    certificate_digest_with_other_algorithm = 4,
+
+    //reserved(240..255),
+
+    last_sif_type = (2<<8)-1
+} SignerInfoType;
+
+static const value_string signer_info_type_names[] = {
+    { self,                                    "Self signed" },
+    { certificate_digest_with_ecdsap256,       "Certificate digest with ecdsap256" },
+    { certificate,                             "Certificate" },
+    { certificate_chain,                       "Certificate chain" },
+    { certificate_digest_with_other_algorithm, "Certificate digest with other algorithm" },
+    { 0, NULL },
+};
+
+static int hf_sgeonw_public_key = -1;
+static int ett_sgeonw_public_key = -1;
+static int hf_sgeonw_public_key_algorithm = -1;
+static int hf_sgeonw_ecdsasignature_s = -1;
+
+typedef enum {
+    ecdsa_nistp256_with_sha256 = 0,
+    ecies_nistp256 = 1,
+
+    // reserved(240..255),
+
+    last_pubkey_algo = (2<<8)-1
+} PublicKeyAlgorithm;
+
+static const value_string public_key_algorithm_names[] = {
+    { ecdsa_nistp256_with_sha256, "ECDSA nistp256 with SHA256" },
+    { ecies_nistp256,             "ECIES nistp256" },
+    { 0, NULL },
+};
+
+static const int etsits103097_table_2[] = {
+    32, // ecdsa_nistp256_with_sha256(0)
+    32 // ecies_nistp256(1)
+};
+
+static int hf_sgeonw_symmetric_algorithm = -1;
+
+typedef enum {
+    aes_128_ccm = 0,
+    // reserved(240..255),
+    last_sym_algo = (2<<8)-1
+} SymmetricAlgorithm;
+
+static const value_string symmetric_algorithm_names[] = {
+    { aes_128_ccm, "aes_128_ccm" },
+    { 0, NULL },
+};
+
+static const int etsits103097_table_4[] = {
+    16 // aes_128_ccm(0)
+};
+
+static int hf_sgeonw_region_type = -1;
+static int hf_sgeonw_radius = -1;
+
+typedef enum {
+    none = 0,
+    circle = 1,
+    rectangle = 2,
+    polygon = 3,
+    id = 4,
+
+    // reserved(240..255),
+
+    last_regiontype = (2<<8)-1
+} RegionType;
+
+static const value_string region_type_names[] = {
+    { none, "none" },
+    { circle, "circle" },
+    { rectangle, "rectangle" },
+    { polygon, "polygon" },
+    { id, "id" },
+    { 0, NULL },
+};
+
+static int hf_sgeonw_region_dictionary = -1;
+static int hf_sgeonw_region_identifier = -1;
+static int hf_sgeonw_local_region = -1;
+
+typedef enum {
+    iso_3166_1 = 0,
+    un_stats = 1,
+
+    last_regiondictionary = (2<<8)-1
+} RegionDictionary;
+
+static const value_string region_dictionary_names[] = {
+    { iso_3166_1, "Numeric country codes as in ISO 3166-1" },
+    { un_stats,   "Defined by UN Statistics Division" },
+    { 0, NULL },
+};
+
+static int hf_sgeonw_subject_type = -1;
+
+typedef enum {
+    enrollment_credential = 0,
+    authorization_ticket = 1,
+    authorization_authority = 2,
+    enrollment_authority = 3,
+    root_ca = 4,
+    crl_signer = 5,
+
+    last_subjecttype = (2<<8)-1
+} SubjectType;
+
+static const value_string subject_type_names[] = {
+    { enrollment_credential,   "enrollment_credential" },
+    { authorization_ticket,    "authorization_ticket" },
+    { authorization_authority, "authorization_authority" },
+    { enrollment_authority,    "enrollment_authority" },
+    { root_ca,                 "root_ca" },
+    { crl_signer,              "crl_signer" },
+
+    { 0, NULL },
+};
+
+static int hf_sgeonw_subject_attribute_type_v1 = -1;
+static int hf_sgeonw_subject_attribute_type_v2 = -1;
+
+typedef enum {
+    verification_key = 0,
+    encryption_key = 1,
+    assurance_level = 2,
+    reconstruction_value = 3,
+    its_aid_list = 32,
+    its_aid_ssp_list = 33,
+    priority_its_aid_list = 34,
+    priority_ssp_list = 35,
+
+    last_subjectattributetype = (2<<8)-1
+} SubjectAttributeType;
+
+static const value_string subject_attribute_type_v1_names[] = {
+    { verification_key, "verification_key" },
+    { encryption_key, "encryption_key" },
+    { assurance_level, "assurance_level" },
+    { reconstruction_value, "reconstruction_value" },
+    { its_aid_list, "its_aid_list" },
+    { its_aid_ssp_list, "its_aid_ssp_list" },
+    { priority_its_aid_list, "priority_its_aid_list" },
+    { priority_ssp_list, "priority_ssp_list" },
+    { 0, NULL },
+};
+
+static const value_string subject_attribute_type_v2_names[] = {
+    { verification_key, "verification_key" },
+    { encryption_key, "encryption_key" },
+    { assurance_level, "assurance_level" },
+    { reconstruction_value, "reconstruction_value" },
+    { its_aid_list, "its_aid_list" },
+    { its_aid_ssp_list, "its_aid_ssp_list" },
+    { 0, NULL },
+};
+
+static int hf_sgeonw_validity_restriction_type = -1;
+
+typedef enum {
+    time_end = 0,
+    time_start_and_end = 1,
+    time_start_and_duration = 2,
+    region = 3,
+
+    last_validityrestrictiontype = (2<<8)-1
+} ValidityRestrictionType;
+
+static const value_string validity_restriction_type_names[] = {
+    { time_end, "time_end" },
+    { time_start_and_end, "time_start_and_end" },
+    { time_start_and_duration, "time_start_and_duration" },
+    { region, "region" },
+
+    { 0, NULL },
+};
+
+static int hf_sgeonw_eccpoint = -1;
+static int ett_sgeonw_eccpoint = -1;
+static int hf_sgeonw_eccpoint_type = -1;
+static int hf_sgeonw_eccpoint_x = -1;
+static int hf_sgeonw_eccpoint_y = -1;
+
+typedef enum {
+    x_coordinate_only = 0,
+    compressed_lsb_y_0 = 2,
+    compressed_lsb_y_1 = 3,
+    uncompressed = 4,
+
+    last_eccpointtype = (2<<8)-1
+} EccPointType;
+
+static const value_string eccpoint_type_names[] = {
+    { x_coordinate_only, "x_coordinate_only" },
+    { compressed_lsb_y_0, "compressed_lsb_y_0" },
+    { compressed_lsb_y_1, "compressed_lsb_y_1" },
+    { uncompressed, "uncompressed" },
+
+    { 0, NULL },
+};
+
+// Dissects a length and returns the value
+// XXX The encoding of the length shall use at most 7 bits set to 1. We support only 3... 0xfffffff should be enough though to encode a length
+static guint32
+dissect_sec_var_len(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree)
+{
+    guint32 tmp_val;
+    guint32 var_len;
+    guint32 mask;
+    gint start = *offset;
+    proto_item *ti;
+    proto_tree *subtree;
+
+    // Determine length
+    var_len = tvb_get_guint8(tvb, *offset);
+    *offset+=1;
+    mask = 0x80;
+    while(mask && (var_len & mask)) {
+        tmp_val = tvb_get_guint8(tvb, *offset);
+        *offset += 1;
+        var_len = ((var_len & ~mask) << 8) + tmp_val;
+        mask <<= 7;
+    }
+    ti = proto_tree_add_item(tree, hf_sgeonw_var_len, tvb, start, (*offset) - start, ENC_NA); // Length cannot be determined now
+    subtree = proto_item_add_subtree(ti, ett_sgeonw_var_len);
+    proto_tree_add_bits_item(subtree, hf_sgeonw_var_len_det, tvb, start << 3, (*offset) - start, ENC_NA);
+    proto_tree_add_uint_bits_format_value(subtree, hf_sgeonw_var_len_val, tvb, (start << 3) + (*offset) - start, (((*offset) - start) << 3) - ((*offset) - start),var_len,"%u",var_len);
+    // EI Error if !mask (more than 32 bits)
+    if (!mask)
+        expert_add_info(pinfo, ti, &ei_sgeonw_len_unsupported);
+    return var_len;
+}
+
+// IntX
+static int
+dissect_sec_intx(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree, int hf, guint32 *ret)
+{
+    //guint8 var_len = 1;
+    guint64 tmp_val;
+    guint64 mask;
+    gint start = *offset;
+    proto_item *ti;
+    proto_tree *subtree;
+
+    // Determine length
+    tmp_val = tvb_get_guint8(tvb, *offset);
+    *offset+=1;
+    mask = 0x80;
+    while(mask && (tmp_val & mask)) {
+        tmp_val &= ~mask;
+        tmp_val <<= 8;
+        tmp_val += tvb_get_guint8(tvb, *offset);
+        *offset += 1;
+        mask <<= 7;
+        //var_len++;
+    }
+    // EI Error if !mask
+    //ti = proto_tree_add_item(tree, hf_sgeonw_intx, tvb, start, var_len, ENC_NA);
+    ti = proto_tree_add_item(tree, hf_sgeonw_intx, tvb, start, (*offset) - start, ENC_NA); // Length cannot be determined now
+    subtree = proto_item_add_subtree(ti, ett_sgeonw_intx);
+    proto_tree_add_bits_item(subtree, hf_sgeonw_var_len_det, tvb, start << 3, (*offset) - start, ENC_NA);
+    if (((*offset) - start) > 4) {
+        proto_tree_add_uint64_bits_format_value(subtree, hf, tvb, (start << 3) + (*offset) - start, (((*offset) - start) << 3) - ((*offset) - start),tmp_val,"%lu",tmp_val);
+    }
+    else {
+        proto_tree_add_uint_bits_format_value(subtree, hf, tvb, (start << 3) + (*offset) - start, (((*offset) - start) << 3) - ((*offset) - start),(guint32)tmp_val,"%u",(guint32)tmp_val);
+    }
+    // The encoding of the length shall use at most 7 bits set to 1.
+    if (!mask)
+        expert_add_info(pinfo, ti, &ei_sgeonw_len_too_long);
+    if (ret) {
+        DISSECTOR_ASSERT(!(tmp_val & 0xffffffff00000000));
+        *ret = (guint32) tmp_val;
+    }
+
+    return (*offset) - start;
+}
+
+static int
+dissect_sec_eccpoint(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree, PublicKeyAlgorithm algorithm)
+{
+    guint32 tmp_val;
+    guint32 param_len;
+    guint32 start = *offset;
+    proto_item *ti;
+    proto_tree *subtree;
+    int field_size = etsits103097_table_2[algorithm];
+
+    ti = proto_tree_add_item(tree, hf_sgeonw_eccpoint, tvb, *offset, 0, ENC_NA);
+    subtree = proto_item_add_subtree(ti, ett_sgeonw_eccpoint);
+    proto_tree_add_item_ret_uint(subtree, hf_sgeonw_eccpoint_type, tvb, *offset, 1, ENC_BIG_ENDIAN, &tmp_val);
+    // Opaque[field_size]
+    proto_tree_add_item(subtree, hf_sgeonw_eccpoint_x, tvb, 1+(*offset), field_size, ENC_NA);
+    *offset += field_size+1;
+    switch(tmp_val) {
+        case x_coordinate_only:
+        case compressed_lsb_y_0:
+        case compressed_lsb_y_1:
+            break;
+        case uncompressed:
+            // Opaque[field_size]
+            proto_tree_add_item(subtree, hf_sgeonw_eccpoint_y, tvb, *offset, field_size, ENC_NA);
+            *offset += field_size;
+            break;
+        default:
+            // Opaque<var>
+            param_len = dissect_sec_var_len(tvb, offset, pinfo, subtree);
+            proto_tree_add_item(subtree, hf_sgeonw_opaque, tvb, *offset, param_len, ENC_NA);
+            *offset += param_len;
+    }
+    proto_item_set_end(ti, tvb, *offset);
+    return (*offset) - start;
+}
+
+static int
+dissect_sec_publickey(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree)
+{
+    guint32 tmp_val;
+    guint32 param_len;
+    gint start = *offset;
+    proto_item *part_item;
+    proto_tree *part_tree;
+
+    part_item = proto_tree_add_item(tree, hf_sgeonw_public_key, tvb, *offset, 0, ENC_NA); // Length cannot be determined now
+    part_tree = proto_item_add_subtree(part_item, ett_sgeonw_public_key);
+    proto_tree_add_item_ret_uint(part_tree, hf_sgeonw_public_key_algorithm, tvb, *offset, 1, ENC_BIG_ENDIAN, &tmp_val);
+    *offset += 1;
+    switch(tmp_val) {
+        case ecdsa_nistp256_with_sha256:
+            // EccPoint
+            dissect_sec_eccpoint(tvb, offset, pinfo, part_tree, (PublicKeyAlgorithm) tmp_val);
+            break;
+        case ecies_nistp256:
+            // SymAlgo + EccPoint
+            proto_tree_add_item(part_tree, hf_sgeonw_symmetric_algorithm, tvb, *offset, 1, ENC_BIG_ENDIAN);
+            dissect_sec_eccpoint(tvb, offset, pinfo, part_tree, (PublicKeyAlgorithm) tmp_val);
+            break;
+        default:
+            // Opaque
+            param_len = dissect_sec_var_len(tvb, offset, pinfo, part_tree);
+            proto_tree_add_item(part_tree, hf_sgeonw_opaque, tvb, *offset, param_len, ENC_NA);
+            *offset += param_len;
+    }
+    proto_item_set_end(part_item, tvb, *offset);
+    return (*offset) - start;
+}
+
+static int
+dissect_sec_encryption_parameters(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree)
+{
+    guint32 tmp_val;
+    guint32 param_len;
+    guint32 start = *offset;
+    proto_item *part_item;
+    proto_tree *part_tree;
+
+    part_item = proto_tree_add_item(tree, hf_sgeonw_encryption_parameter, tvb, *offset, 0, ENC_NA); // Length cannot be determined now
+    part_tree = proto_item_add_subtree(part_item, ett_sgeonw_encryption_parameter);
+    proto_tree_add_item_ret_uint(part_tree, hf_sgeonw_symmetric_algorithm, tvb, *offset, 1, ENC_BIG_ENDIAN, &tmp_val);
+    *offset += 1;
+    switch(tmp_val) {
+        case ecdsa_nistp256_with_sha256:
+            // Opaque[12]
+            proto_tree_add_item(part_tree, hf_sgeonw_encryption_parameter_nonce, tvb, *offset, 12, ENC_NA);
+            *offset += 12;
+            break;
+        default:
+            // Opaque
+            param_len = dissect_sec_var_len(tvb, offset, pinfo, part_tree);
+            proto_tree_add_item(part_tree, hf_sgeonw_opaque, tvb, *offset, param_len, ENC_NA);
+            *offset += param_len;
+    }
+    proto_item_set_end(part_item, tvb, *offset);
+    return (*offset) - start;
+}
+
+static int
+dissect_sec_ecdsasignature(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree, PublicKeyAlgorithm algorithm)
+{
+    guint32 start = *offset;
+    int field_size = etsits103097_table_2[algorithm];
+
+    dissect_sec_eccpoint(tvb, offset, pinfo, tree, algorithm);
+    proto_tree_add_item(tree, hf_sgeonw_ecdsasignature_s, tvb, *offset, field_size, ENC_NA);
+    *offset += field_size;
+    return (*offset) - start;
+}
+
+static int
+dissect_sec_signature(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree)
+{
+    gint start = *offset;
+    guint32 param_len;
+    guint32 tmp_val;
+    proto_item *part_item;
+    proto_tree *part_tree;
+
+    part_item = proto_tree_add_item(tree, hf_sgeonw_signature, tvb, *offset, 0, ENC_NA); // Length cannot be determined now
+    part_tree = proto_item_add_subtree(part_item, ett_sgeonw_signature);
+    proto_tree_add_item_ret_uint(part_tree, hf_sgeonw_public_key_algorithm, tvb, *offset, 1, ENC_BIG_ENDIAN, &tmp_val);
+    *offset += 1;
+    switch(tmp_val) {
+        case ecdsa_nistp256_with_sha256:
+            // EcdsaSignature
+            // XXX Subtree
+            dissect_sec_ecdsasignature(tvb, offset, pinfo, part_tree, ecdsa_nistp256_with_sha256);
+            break;
+        default:
+            // Opaque
+            param_len = dissect_sec_var_len(tvb, offset, pinfo, part_tree);
+            proto_tree_add_item(part_tree, hf_sgeonw_opaque, tvb, *offset, param_len, ENC_NA);
+            *offset += param_len;
+    }
+    proto_item_set_end(part_item, tvb, *offset);
+    return (*offset) - start;
+}
+
+inline static int
+dissect_sec_2dlocation(tvbuff_t *tvb, gint *offset, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_sgeonw_lat, tvb, *offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_sgeonw_lon, tvb, 4+*offset, 4, ENC_BIG_ENDIAN);
+    *offset += 8;
+
+    return 8;
+}
+
+
+static int
+dissect_sec_subject_info(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree)
+{
+    guint32 param_len;
+    gint start = *offset;
+    proto_item *ti;
+    proto_item *part_item;
+    proto_tree *part_tree;
+
+    part_item = proto_tree_add_item(tree, hf_sgeonw_subject_info, tvb, *offset, 0, ENC_NA); // Length cannot be determined now
+    part_tree = proto_item_add_subtree(part_item, ett_sgeonw_subject_info);
+    proto_tree_add_item(part_tree, hf_sgeonw_subject_type, tvb, *offset, 1, ENC_BIG_ENDIAN);
+    *offset += 1;
+    param_len = dissect_sec_var_len(tvb, offset, pinfo, part_tree);
+    ti = proto_tree_add_item(part_tree, hf_sgeonw_opaque, tvb, *offset, param_len, ENC_NA);
+    // Expert info: shall be at most 255 bytes long
+    if (param_len > 255)
+        expert_add_info(pinfo, ti, &ei_sgeonw_subj_info_too_long);
+    *offset += param_len;
+    proto_item_set_end(part_item, tvb, *offset);
+
+    return (*offset) - start;
+}
+
+static int
+dissect_sec_itsaidssp(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree)
+{
+    gint start = *offset;
+    guint32 param_len;
+    proto_item *ti;
+
+    // XXX provide its-aid named values.
+    dissect_sec_intx(tvb, offset, pinfo, tree, hf_sgeonw_app_id, NULL);
+    param_len = dissect_sec_var_len(tvb, offset, pinfo, tree);
+    ti = proto_tree_add_item(tree, hf_sgeonw_opaque, tvb, *offset, param_len, ENC_NA);
+    // Expert info: shall be at most 31 bytes long
+    if (param_len > 31)
+        expert_add_info(pinfo, ti, &ei_sgeonw_ssp_too_long);
+    *offset += param_len;
+
+    return (*offset) - start;
+}
+
+static int hf_sgeonw_priority = -1;
+
+static int
+dissect_sec_itsaidpriority(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree)
+{
+    gint start = *offset;
+
+    // XXX provide its-aid named values.
+    dissect_sec_intx(tvb, offset, pinfo, tree, hf_sgeonw_app_id, NULL);
+    proto_tree_add_item(tree, hf_sgeonw_priority, tvb, *offset, 1, ENC_BIG_ENDIAN);
+    *offset += 1;
+
+    return (*offset) - start;
+}
+
+static int
+dissect_sec_itsaidpriorityssp(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree)
+{
+    gint start = *offset;
+    guint32 param_len;
+    proto_item *ti;
+
+    // XXX provide its-aid named values.
+    dissect_sec_intx(tvb, offset, pinfo, tree, hf_sgeonw_app_id, NULL);
+    proto_tree_add_item(tree, hf_sgeonw_priority, tvb, *offset, 1, ENC_BIG_ENDIAN);
+    *offset += 1;
+    param_len = dissect_sec_var_len(tvb, offset, pinfo, tree);
+    ti = proto_tree_add_item(tree, hf_sgeonw_opaque, tvb, *offset, param_len, ENC_NA);
+    // Expert info: shall be at most 31 bytes long
+    if (param_len > 31)
+        expert_add_info(pinfo, ti, &ei_sgeonw_ssp_too_long);
+    *offset += param_len;
+
+    return (*offset) - start;
+}
+
+static int hf_sgeonw_subject_assurance = -1;
+static int ett_sgeonw_subject_assurance = -1;
+static int hf_sgeonw_subject_assurance_assurance = -1;
+static int hf_sgeonw_subject_assurance_reserved = -1;
+static int hf_sgeonw_subject_assurance_confidence = -1;
+
+static int
+dissect_sec_subject_attributes(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree, guint8 version)
+{
+    gint start = *offset;
+    guint32 tmp_val;
+    guint32 param_len;
+    proto_item *ti;
+    proto_item *part_item;
+    proto_tree *subtree;
+
+    part_item = proto_tree_add_item(tree, hf_sgeonw_subject_attribute, tvb, *offset, 0, ENC_NA);
+    subtree = proto_item_add_subtree(part_item, ett_sgeonw_subject_attribute);
+    ti = proto_tree_add_item_ret_uint(subtree, version == 1 ? hf_sgeonw_subject_attribute_type_v1 : hf_sgeonw_subject_attribute_type_v2, tvb, *offset, 1, ENC_BIG_ENDIAN, &tmp_val);
+    *offset += 1;
+    switch (tmp_val) {
+        case verification_key:
+        case encryption_key:
+            dissect_sec_publickey(tvb,offset,pinfo,subtree);
+            break;
+        case assurance_level:
+            ti = proto_tree_add_item(subtree, hf_sgeonw_subject_assurance, tvb, *offset, 1, ENC_NA);
+            subtree = proto_item_add_subtree(ti, ett_sgeonw_subject_assurance);
+            proto_tree_add_item(subtree, hf_sgeonw_subject_assurance_assurance, tvb, *offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(subtree, hf_sgeonw_subject_assurance_reserved, tvb, *offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(subtree, hf_sgeonw_subject_assurance_confidence, tvb, *offset, 1, ENC_BIG_ENDIAN);
+            *offset += 1;
+            break;
+        case reconstruction_value:
+            dissect_sec_eccpoint(tvb,offset,pinfo,subtree,ecdsa_nistp256_with_sha256); // XXX Which algorithm? hack as only one algo defined
+            break;
+        case its_aid_list:
+            tmp_val = dissect_sec_var_len(tvb, offset, pinfo, subtree);
+            while (tmp_val > 0) {
+                param_len = dissect_sec_intx(tvb,offset,pinfo, subtree, hf_sgeonw_app_id, NULL);
+                if(tmp_val < param_len) {
+                    expert_add_info(pinfo, ti, &ei_sgeonw_bogus);
+                    return *offset - start;
+                }
+                tmp_val -= param_len;
+            }
+            break;
+        case its_aid_ssp_list:
+            tmp_val = dissect_sec_var_len(tvb, offset, pinfo, subtree);
+            while (tmp_val > 0) {
+                param_len = dissect_sec_itsaidssp(tvb, offset, pinfo, subtree);
+                if(tmp_val < param_len) {
+                    expert_add_info(pinfo, ti, &ei_sgeonw_bogus);
+                    return *offset - start;
+                }
+                tmp_val -= param_len;
+            }
+            break;
+        case priority_its_aid_list:
+            tmp_val = dissect_sec_var_len(tvb, offset, pinfo, subtree);
+            while (tmp_val > 0) {
+                param_len = dissect_sec_itsaidpriority(tvb, offset, pinfo, subtree);
+                if(tmp_val < param_len) {
+                    expert_add_info(pinfo, ti, &ei_sgeonw_bogus);
+                    return *offset - start;
+                }
+                tmp_val -= param_len;
+            }
+            break;
+        case priority_ssp_list:
+            tmp_val = dissect_sec_var_len(tvb, offset, pinfo, subtree);
+            while (tmp_val > 0) {
+                param_len = dissect_sec_itsaidpriorityssp(tvb, offset, pinfo, subtree);
+                if(tmp_val < param_len) {
+                    expert_add_info(pinfo, ti, &ei_sgeonw_bogus);
+                    return *offset - start;
+                }
+                tmp_val -= param_len;
+            }
+            break;
+        default:
+            // Opaque
+            param_len = dissect_sec_var_len(tvb, offset, pinfo, subtree);
+            proto_tree_add_item(subtree, hf_sgeonw_opaque, tvb, *offset, param_len, ENC_NA);
+            *offset += param_len;
+    }
+    proto_item_set_end(part_item, tvb, *offset);
+
+    return (*offset) - start;
+}
+
+static int
+dissect_sec_circularregion(tvbuff_t *tvb, gint *offset, proto_tree *tree)
+{
+    dissect_sec_2dlocation(tvb, offset, tree);
+    // uint16
+    proto_tree_add_item(tree, hf_sgeonw_radius, tvb, *offset, 2, ENC_BIG_ENDIAN);
+    *offset += 2;
+
+    return 10;
+}
+
+static int
+dissect_sec_rectangularregion(tvbuff_t *tvb, gint *offset, proto_tree *tree)
+{
+    dissect_sec_2dlocation(tvb, offset, tree);
+    dissect_sec_2dlocation(tvb, offset, tree);
+
+    return 16;
+}
+
+static int
+dissect_sec_polygonalregion(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree)
+{
+    gint start = *offset;
+    guint32 param_len;
+    guint32 tmp_val;
+
+    tmp_val = dissect_sec_var_len(tvb, offset, pinfo, tree);
+    while (tmp_val) {
+        param_len = dissect_sec_2dlocation(tvb, offset, tree);
+        if(tmp_val < param_len)
+            // XXX EI Error!
+            return *offset - start;
+        tmp_val -= param_len;
+    }
+
+    return (*offset) - start;
+}
+
+static int
+dissect_sec_identifiedregion(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree)
+{
+    gint start = *offset;
+
+    proto_tree_add_item(tree, hf_sgeonw_region_dictionary, tvb, *offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_sgeonw_region_identifier, tvb, *offset, 2, ENC_BIG_ENDIAN);
+    *offset += 3;
+    dissect_sec_intx(tvb, offset, pinfo, tree, hf_sgeonw_local_region, NULL);
+
+    return (*offset) - start;
+}
+
+static int
+dissect_sec_geographicregion(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree)
+{
+    gint start = *offset;
+    guint32 param_len;
+    guint32 tmp_val;
+
+    proto_tree_add_item_ret_uint(tree, hf_sgeonw_region_type, tvb, *offset, 1, ENC_BIG_ENDIAN, &tmp_val);
+    *offset += 1;
+    switch (tmp_val) {
+        case none:
+            break;
+        case circle:
+            dissect_sec_circularregion(tvb,offset,tree);
+            break;
+        case rectangle:
+            dissect_sec_rectangularregion(tvb,offset,tree);
+            break;
+        case polygon:
+            dissect_sec_polygonalregion(tvb, offset, pinfo, tree);
+            break;
+        case id:
+            dissect_sec_identifiedregion(tvb, offset, pinfo, tree);
+            break;
+        default:
+            // Opaque
+            param_len = dissect_sec_var_len(tvb, offset, pinfo, tree);
+            proto_tree_add_item(tree, hf_sgeonw_opaque, tvb, *offset, param_len, ENC_NA);
+            *offset += param_len;
+    }
+
+    return (*offset) - start;
+}
+
+static const value_string sgeonw_duration_unit_names[] = {
+  { 0, "Seconds" },
+  { 1, "Minutes" },
+  { 2, "Hours" },
+  { 3, "60 Hours block" },
+  { 4, "Years" },
+  { 0, NULL }
+};
+
+static int
+dissect_sec_validity_restrictions(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree)
+{
+    gint start = *offset;
+    guint32 tmp_val;
+    guint32 param_len;
+    proto_item *ti;
+    proto_tree *subtree;
+
+    proto_tree_add_item_ret_uint(tree, hf_sgeonw_validity_restriction_type, tvb, *offset, 1, ENC_BIG_ENDIAN, &tmp_val);
+    *offset += 1;
+    switch (tmp_val) {
+        case time_end:
+            // Time32
+            proto_tree_add_item(tree, hf_sgeonw_time32, tvb, *offset, 4, ENC_BIG_ENDIAN);
+            *offset += 4;
+            break;
+        case time_start_and_end:
+            // Time32
+            proto_tree_add_item(tree, hf_sgeonw_time32, tvb, *offset, 4, ENC_BIG_ENDIAN);
+            *offset += 4;
+            // Time32
+            proto_tree_add_item(tree, hf_sgeonw_time32, tvb, *offset, 4, ENC_BIG_ENDIAN);
+            *offset += 4;
+            break;
+        case time_start_and_duration:
+            // Time32
+            proto_tree_add_item(tree, hf_sgeonw_time32, tvb, *offset, 4, ENC_BIG_ENDIAN);
+            *offset += 4;
+            // Duration
+            ti = proto_tree_add_item(tree, hf_sgeonw_duration, tvb, *offset, 2, ENC_NA);
+            subtree = proto_item_add_subtree(ti, ett_sgeonw_duration);
+            proto_tree_add_item(subtree, hf_sgeonw_duration_unit, tvb, *offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(subtree, hf_sgeonw_duration_value, tvb, *offset, 2, ENC_BIG_ENDIAN);
+            *offset += 2;
+            break;
+        case region:
+            dissect_sec_geographicregion(tvb, offset, pinfo, tree);
+            break;
+        default:
+            // Opaque
+            param_len = dissect_sec_var_len(tvb, offset, pinfo, tree);
+            proto_tree_add_item(tree, hf_sgeonw_opaque, tvb, *offset, param_len, ENC_NA);
+            *offset += param_len;
+    }
+    return (*offset) - start;
+}
+
+static int dissect_sec_signer_info(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree, guint8 version);
+
+static int hf_sgeonw_certification_version = -1;
+
+static int
+dissect_sec_certificate(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree, guint8 version)
+{
+    guint32 tmp_val;
+    guint32 param_len;
+    gint start = *offset;
+
+    proto_tree_add_item_ret_uint(tree, hf_sgeonw_certification_version, tvb, *offset, 1, ENC_BIG_ENDIAN, &tmp_val);
+    *offset += 1;
+    /* XXX EI tmp_val == version */
+    if (version == 1) {
+        tmp_val = dissect_sec_var_len(tvb, offset, pinfo, tree);
+        while (tmp_val > 0) {
+            param_len = dissect_sec_signer_info(tvb, offset, pinfo, tree, version);
+            tmp_val -= param_len;
+        }
+    }
+    else {
+        dissect_sec_signer_info(tvb, offset, pinfo, tree, version);
+    }
+    dissect_sec_subject_info(tvb, offset, pinfo, tree);
+    tmp_val = dissect_sec_var_len(tvb, offset, pinfo, tree);
+    while (tmp_val > 0) {
+        param_len = dissect_sec_subject_attributes(tvb, offset, pinfo, tree, version);
+        tmp_val -= param_len;
+    }
+    tmp_val = dissect_sec_var_len(tvb, offset, pinfo, tree);
+    while (tmp_val > 0) {
+        param_len = dissect_sec_validity_restrictions(tvb, offset, pinfo, tree);
+        tmp_val -= param_len;
+    }
+    dissect_sec_signature(tvb, offset, pinfo, tree);
+
+    return (*offset) - start;
+}
+
+static int
+dissect_sec_signer_info(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree, guint8 version)
+{
+    gint start = *offset;
+    guint32 tmp_val;
+    guint32 param_len;
+    proto_item *ti;
+    proto_tree *subtree;
+    proto_item *tinner;
+    proto_tree *insidetree;
+
+    tmp_val = tvb_get_guint8(tvb, *offset);
+    if (tmp_val == self) {
+        // No additional data shall be given
+        proto_tree_add_item(tree, hf_sgeonw_signer_info_type, tvb, *offset, 1, ENC_BIG_ENDIAN);
+        *offset += 1;
+    }
+    else {
+        ti = proto_tree_add_item(tree, hf_sgeonw_signer_info, tvb, *offset, 0, ENC_NA);
+        subtree = proto_item_add_subtree(ti, ett_sgeonw_field);
+        proto_tree_add_item(subtree, hf_sgeonw_signer_info_type, tvb, *offset, 1, ENC_BIG_ENDIAN);
+        *offset += 1;
+        switch(tmp_val) {
+            case certificate_digest_with_ecdsap256:
+                // HashedId8
+                proto_tree_add_item(subtree, hf_sgeonw_hashedid8, tvb, *offset, 8, ENC_NA);
+                *offset += 8;
+                break;
+            case certificate:
+                // Certificate
+                tinner = proto_tree_add_item(subtree, hf_sgeonw_certificate, tvb, *offset, 0, ENC_NA);
+                insidetree = proto_item_add_subtree(tinner, ett_sgeonw_field);
+                dissect_sec_certificate(tvb, offset, pinfo, insidetree, version);
+                proto_item_set_end(tinner, tvb, *offset);
+                break;
+            case certificate_chain:
+                // variable-length vector of type Certificate
+                tmp_val = dissect_sec_var_len(tvb, offset, pinfo, subtree);
+                while (tmp_val > 0) {
+                    tinner = proto_tree_add_item(subtree, hf_sgeonw_certificate, tvb, *offset, 0, ENC_NA);
+                    insidetree = proto_item_add_subtree(tinner, ett_sgeonw_field);
+                    param_len = dissect_sec_certificate(tvb, offset, pinfo, insidetree, version);
+                    proto_item_set_end(tinner, tvb, *offset);
+                    tmp_val -= param_len;
+                }
+                break;
+            case certificate_digest_with_other_algorithm:
+                // HashedId8
+                proto_tree_add_item(subtree, hf_sgeonw_public_key_algorithm, tvb, *offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(subtree, hf_sgeonw_hashedid8, tvb, 1+(*offset), 8, ENC_NA);
+                *offset += 9;
+                break;
+            default:
+                // Opaque
+                param_len = dissect_sec_var_len(tvb, offset, pinfo, subtree);
+                proto_tree_add_item(subtree, hf_sgeonw_opaque, tvb, *offset, param_len, ENC_NA);
+                *offset += param_len;
+        }
+        proto_item_set_end(ti, tvb, *offset);
+    }
+    return (*offset) - start;
+}
+
+
+static int hf_sgeonw_encrypted_key = -1;
+static int hf_sgeonw_auth_tag = -1;
+
+// This structure defines how to transmit an EciesNistP256-encrypted symmetric key as defined in IEEE
+// Std 1363a-2004.
+// EciesNistP256EncryptedKey structure shall be preceded by an according
+// EncryptionParameters structure.
+static int
+dissect_sec_eciesnistp256entryptedkey(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree, PublicKeyAlgorithm pub_alg, SymmetricAlgorithm symm_alg, guint8 version)
+{
+    gint start = *offset;
+    guint8 symm_key_len = etsits103097_table_4[symm_alg];
+
+    dissect_sec_eccpoint(tvb, offset, pinfo, tree, pub_alg);
+    proto_tree_add_item(tree, hf_sgeonw_encrypted_key, tvb, *offset, symm_key_len, ENC_NA);
+    *offset += symm_key_len;
+    proto_tree_add_item(tree, hf_sgeonw_auth_tag, tvb, *offset, version==1?20:16, ENC_NA);
+    *offset += version==1?20:16;
+
+    return (*offset) - start;
+}
+
+
+static int
+dissect_sec_recipient_info(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree, guint8 version)
+{
+    gint start = *offset;
+    guint32 tmp_val;
+    guint32 param_len;
+
+    proto_tree_add_item(tree, hf_sgeonw_hashedid8, tvb, *offset, 8, ENC_NA);
+    proto_tree_add_item_ret_uint(tree, hf_sgeonw_public_key_algorithm, tvb, 8+*offset, 1, ENC_BIG_ENDIAN, &tmp_val);
+    *offset += 9;
+    switch (tmp_val) {
+        case ecies_nistp256:
+            // EciesNistP256EncryptedKey
+            // XXX SymmetricAlgorithm should be provided by preceding EncryptionParameter...
+            dissect_sec_eciesnistp256entryptedkey(tvb, offset, pinfo, tree, (PublicKeyAlgorithm)tmp_val, aes_128_ccm, version);
+            break;
+        default:
+            // Opaque
+            param_len = dissect_sec_var_len(tvb, offset, pinfo, tree);
+            proto_tree_add_item(tree, hf_sgeonw_opaque, tvb, *offset, param_len, ENC_NA);
+            *offset += param_len;
+    }
+
+    return (*offset) - start;
+}
+
+
+static int
+dissect_sec_payload(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *part_tree, guint8 version, guint32 msg_id, proto_tree *top_tree)
+{
+    gint start = *offset;
+    guint32 tmp_val;
+    guint32 param_len;
+    proto_tree *field_tree;
+    proto_item *ti;
+
+    tmp_val = tvb_get_guint8(tvb, *offset);
+    if (tmp_val == signed_external) {
+        proto_tree_add_item(part_tree, hf_sgeonw_payload_field_type, tvb, *offset, 1, ENC_BIG_ENDIAN);
+        *offset += 1;
+    }
+    else {
+        ti = proto_tree_add_item(part_tree, hf_sgeonw_payload_field, tvb, *offset, 0, ENC_NA);
+        field_tree = proto_item_add_subtree(ti, ett_sgeonw_field);
+        proto_tree_add_item(field_tree, hf_sgeonw_payload_field_type, tvb, *offset, 1, ENC_BIG_ENDIAN);
+        *offset += 1;
+        switch(tmp_val) {
+            case unsecured:
+            case signed_pl:
+                param_len = dissect_sec_var_len(tvb, offset, pinfo, field_tree);
+                if (param_len) {
+                    tvbuff_t *next_tvb = tvb_new_subset_length(tvb, *offset, param_len);
+                    // Subdissector for the payload
+                    if (((version != 1) || (!dissector_try_uint(sgeonw_v1_subdissector_table, msg_id, next_tvb, pinfo, top_tree))) &&
+                        ((version != 2) || (!dissector_try_uint(sgeonw_v2_subdissector_table, msg_id, next_tvb, pinfo, top_tree)))) {
+                        call_data_dissector(next_tvb, pinfo, top_tree);
+                    }
+                }
+                *offset += param_len;
+                break;
+            case encrypted:
+            case signed_and_encrypted:
+                // XXX Decrypt. Use of ieee1609dot2 to be investigated?
+                param_len = dissect_sec_var_len(tvb, offset, pinfo, field_tree);
+                proto_tree_add_item(field_tree, hf_sgeonw_opaque, tvb, *offset, param_len, ENC_NA);
+                *offset += param_len;
+                break;
+            default:
+                // Opaque
+                param_len = dissect_sec_var_len(tvb, offset, pinfo, field_tree);
+                proto_tree_add_item(field_tree, hf_sgeonw_opaque, tvb, *offset, param_len, ENC_NA);
+                *offset += param_len;
+        }
+        proto_item_set_end(ti, tvb, *offset);
+    }
+
+    return (*offset) - start;
+}
+
+
+static int
+dissect_secured_message(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, proto_tree *top_tree, void *data _U_)
+{
+    guint32 msg_id; // Or Application ID, depending on version
+    guint8 version;
+    guint32 var_len;
+    proto_item *ti;
+    guint32 tmp_val;
+    guint32 param_len;
+    proto_item *secmsg_item;
+    proto_item *part_item;
+    proto_tree *part_tree;
+    proto_tree *field_tree;
+    gint sec_start = offset;
+
+    // Secured message subtree
+    secmsg_item = proto_tree_add_item(tree, hf_geonw_sec, tvb, offset, 0, ENC_NA); // Length cannot be determined now
+    proto_tree *secmsg_tree = proto_item_add_subtree(secmsg_item, ett_geonw_sec);
+
+    ti = proto_tree_add_item_ret_uint(secmsg_tree, hf_sgeonw_version, tvb, offset, 1, ENC_BIG_ENDIAN, &tmp_val);
+    version = (guint8) tmp_val;
+    offset+=1;
+
+    if (version == 3) {
+        call_dissector(ieee1609dot2_handle, tvb, pinfo, secmsg_tree);
+        // XXX If unsecure or only signed, get psid to call subdissector!
+        return tvb_captured_length(tvb);
+    }
+    if ((version < 1) || (version > 2))
+        return 1;
+    if (version == 1) {
+        proto_tree_add_item_ret_uint(secmsg_tree, hf_sgeonw_profile, tvb, offset, 1, ENC_BIG_ENDIAN, &tmp_val);
+        offset += 1;
+    }
+    // Header Fields
+    part_item = proto_tree_add_item(secmsg_tree, hf_sgeonw_hdr, tvb, offset, 0, ENC_NA); // Length cannot be determined now
+    part_tree = proto_item_add_subtree(part_item, ett_sgeonw_hdr);
+
+    var_len = dissect_sec_var_len(tvb, &offset, pinfo, part_tree);
+    while (var_len > 0) {
+
+        guint32 start = offset;
+
+        ti = proto_tree_add_item(part_tree, hf_sgeonw_header_field, tvb, offset, 0, ENC_NA);
+        field_tree = proto_item_add_subtree(ti, ett_sgeonw_field);
+        proto_tree_add_item_ret_uint(field_tree, version==1?hf_sgeonw_header_field_type_v1:hf_sgeonw_header_field_type_v2, tvb, offset, 1, ENC_BIG_ENDIAN, &tmp_val);
+        offset += 1;
+        switch(tmp_val) {
+            case generation_time:
+                // Time64
+                proto_tree_add_item(field_tree, hf_sgeonw_time64, tvb, offset, 8, ENC_BIG_ENDIAN);
+                offset += 8;
+                break;
+            case generation_time_confidence:
+                // Time64WithStandardDeviation
+                proto_tree_add_item(field_tree, hf_sgeonw_time64, tvb, offset, 8, ENC_BIG_ENDIAN);
+                proto_tree_add_item(field_tree, hf_sgeonw_conf, tvb, offset+8, 1, ENC_BIG_ENDIAN);
+                offset += 9;
+                break;
+            case expiration:
+                // Time32
+                proto_tree_add_item(field_tree, hf_sgeonw_time32, tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+                break;
+            case generation_location:
+                // ThreeDLocation
+                proto_tree_add_item(field_tree, hf_sgeonw_lat, tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(field_tree, hf_sgeonw_lon, tvb, offset+4, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(field_tree, hf_sgeonw_elev, tvb, offset+8, 2, ENC_BIG_ENDIAN);
+                // XXX 0x0000 to 0xEFFF: positive numbers with a range from 0 to +6 143,9 meters. All numbers above +6 143,9 are
+                //  also represented by 0xEFFF.
+                //  0xF001 to 0xFFFF: negative numbers with a range from -409,5 to -0,1 meters. All numbers below -409,5 are
+                //  also represented by 0xF001.
+                //  0xF000: an unknown elevation
+                offset += 10;
+                break;
+            case request_unrecognized_certificate:
+                // HashedId3
+                param_len = dissect_sec_var_len(tvb, &offset, pinfo, field_tree);
+                // XXX Expert info if param_len != 3 * K?
+                proto_item_set_len(ti, (offset-start) + param_len);
+                while (param_len) {
+                    proto_tree_add_item(field_tree, hf_sgeonw_hashedid3, tvb, offset, param_len, ENC_NA);
+                    offset += 3;
+                    param_len -= 3;
+                }
+                break;
+            case message_type:
+                if (version == 1) {
+                    proto_tree_add_item_ret_uint(field_tree, hf_sgeonw_msg_id, tvb, offset, 2, ENC_BIG_ENDIAN, &msg_id);
+                    offset += 2;
+                }
+                else {
+                    dissect_sec_intx(tvb, &offset, pinfo, field_tree, hf_sgeonw_app_id, &msg_id);
+                }
+                break;
+            case signer_info:
+                // SignerInfo
+                dissect_sec_signer_info(tvb, &offset, pinfo, field_tree, version);
+                break;
+            case recipient_info:
+                // RecipientInfo
+                param_len = dissect_sec_var_len(tvb, &offset, pinfo, field_tree);
+                proto_item_set_len(ti, (offset-start) + param_len);
+                while (param_len) {
+                    param_len -= dissect_sec_recipient_info(tvb, &offset, pinfo, field_tree, version);
+                }
+                offset += param_len;
+                break;
+            case encryption_parameters:
+                // EncryptionParameters
+                dissect_sec_encryption_parameters(tvb, &offset, pinfo, field_tree);
+                break;
+            default:
+                // Opaque
+                param_len = dissect_sec_var_len(tvb, &offset, pinfo, field_tree);
+                proto_item_set_len(ti, (offset-start) + param_len);
+                proto_tree_add_item(field_tree, hf_sgeonw_opaque, tvb, offset, param_len, ENC_NA);
+                offset += param_len;
+        }
+        proto_item_set_end(ti, tvb, offset);
+        /* EI var_len >= (offset-start) */
+        var_len -= (offset - start);
+    }
+    proto_item_set_end(part_item, tvb, offset);
+
+    // Payload
+    part_item = proto_tree_add_item(secmsg_tree, hf_sgeonw_pl, tvb, offset, 0, ENC_NA); // Length cannot be determined now
+    part_tree = proto_item_add_subtree(part_item, ett_sgeonw_hdr);
+
+    // Change in version 2: only one payload element here!
+    if (version == 1) {
+        var_len = dissect_sec_var_len(tvb, &offset, pinfo, part_tree);
+        while (var_len > 0) {
+
+            guint32 start = offset;
+
+            dissect_sec_payload(tvb, &offset, pinfo, part_tree, version, msg_id, top_tree);
+            if (var_len < (offset-start))
+                // XXX EI error!
+                return 0;
+            var_len -= (offset - start);
+        }
+    }
+    else {
+        dissect_sec_payload(tvb, &offset, pinfo, part_tree, version, msg_id, top_tree);
+    }
+    proto_item_set_end(part_item, tvb, offset);
+
+    // Trailer
+    part_item = proto_tree_add_item(secmsg_tree, hf_sgeonw_trl, tvb, offset, 0, ENC_NA); // Length cannot be determined now
+    part_tree = proto_item_add_subtree(part_item, ett_sgeonw_hdr);
+
+    var_len = dissect_sec_var_len(tvb, &offset, pinfo, part_tree);
+    while (var_len > 0) {
+
+        guint32 start = offset;
+
+        ti = proto_tree_add_item(part_tree, hf_sgeonw_trailer_field, tvb, offset, 0, ENC_NA);
+        field_tree = proto_item_add_subtree(ti, ett_sgeonw_field);
+        proto_tree_add_item_ret_uint(field_tree, hf_sgeonw_trailer_field_type, tvb, offset, 1, ENC_BIG_ENDIAN, &tmp_val);
+        offset += 1;
+        switch(tmp_val) {
+            case signature:
+                // Signature
+                dissect_sec_signature(tvb, &offset, pinfo, field_tree);
+                break;
+            default:
+                // Opaque
+                param_len = dissect_sec_var_len(tvb, &offset, pinfo, field_tree);
+                proto_tree_add_item(field_tree, hf_sgeonw_opaque, tvb, offset, param_len, ENC_NA);
+                offset += param_len;
+        }
+        proto_item_set_end(ti, tvb, offset);
+        /* XXX EI var_len >= (offset-start) */
+        var_len -= (offset - start);
+    }
+    proto_item_set_end(part_item, tvb, offset);
+    proto_item_set_end(secmsg_item, tvb, offset);
+
+    return offset - sec_start;
+}
+
 // The actual dissector
 // XXX COL_INFO to be improved
 static int
@@ -936,8 +2220,7 @@ dissect_geonw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     offset += 1;
 
     if (bh_next_header == BH_NH_SECURED_PKT) {
-        // XXX Try to decrypt?
-        ti = proto_tree_add_item(tree, proto_geonw, tvb, 0, -1, ENC_NA);
+        dissect_secured_message(tvb, offset, pinfo, geonw_tree, tree, NULL);
         return tvb_captured_length(tvb);
     }
 
@@ -1988,7 +3271,178 @@ proto_register_geonw(void)
         { "GeoNetworking Analysis Flags",     "geonw.analysis.flags", FT_NONE, BASE_NONE, NULL, 0x0,
             "This frame has some of the GeoNetworking analysis flags set", HFILL }},
 
+        // Secures packets
+        { &hf_geonw_sec,
+         { "Secured Packet", "geonw.sec", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        { &hf_sgeonw_version,
+          { "Version", "geonw.sec.version",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_sgeonw_profile,
+          { "Profile", "geonw.sec.profile",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_sgeonw_hdr,
+         { "Header fields", "geonw.sec.hdr", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        { &hf_sgeonw_pl,
+         { "Payload fields", "geonw.sec.pl", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        { &hf_sgeonw_trl,
+         { "Trailer fields", "geonw.sec.trl", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        { &hf_sgeonw_public_key,
+         { "Public key", "geonw.sec.pub_key", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        { &hf_sgeonw_certificate,
+            { "Certificate", "geonw.sec.certif", FT_NONE, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }},
+
+        { &hf_sgeonw_var_len,
+            { "Var length", "geonw.sec.var_len", FT_NONE, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }},
+
+        { &hf_sgeonw_var_len_det,
+          { "Var length determinant", "geonw.sec.var_len.det",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_sgeonw_var_len_val,
+          { "Var length value", "geonw.sec.var_len.value",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_sgeonw_intx,
+         { "IntX", "geonw.sec.intx", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        { &hf_sgeonw_header_field,
+         { "Header field", "geonw.sec.hdr_field", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        { &hf_sgeonw_payload_field,
+         { "Payload field", "geonw.sec.pl_field", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        { &hf_sgeonw_trailer_field,
+         { "Trailer field", "geonw.sec.trl_field", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        { &hf_sgeonw_signer_info,
+         { "Signer info", "geonw.sec.signer_info", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        { &hf_sgeonw_eccpoint,
+            { "ECC Point", "geonw.sec.eccpoint", FT_NONE, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }},
+
+        { &hf_sgeonw_duration,
+            { "Duration", "geonw.sec.duration", FT_NONE, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }},
+
+        { &hf_sgeonw_subject_assurance,
+            { "Subject assurance", "geonw.sec.subj_assur", FT_NONE, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }},
+
+        { &hf_sgeonw_encryption_parameter,
+            { "Encryption parameter", "geonw.sec.encrypt_param", FT_NONE, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }},
+
+        { &hf_sgeonw_signature,
+            { "Signature", "geonw.sec.signature", FT_NONE, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }},
+
+        { &hf_sgeonw_subject_info,
+            { "Subject info", "geonw.sec.subj_info", FT_NONE, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }},
+
+        { &hf_sgeonw_subject_attribute,
+            { "Subject attribute", "geonw.sec.subj_attr", FT_NONE, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }},
+
+        { &hf_sgeonw_opaque,
+         { "Opaque", "geonw.sec.opaque", FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        { &hf_sgeonw_encrypted_key,
+         { "Encrypted key", "geonw.sec.enc_key", FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        { &hf_sgeonw_auth_tag,
+         { "Authentication tag", "geonw.sec.auth_tag", FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        { &hf_sgeonw_ecdsasignature_s,
+         { "s", "geonw.sec.signature.s", FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        { &hf_sgeonw_eccpoint_x,
+         { "x", "geonw.sec.eccpoint.x", FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        { &hf_sgeonw_eccpoint_y,
+         { "y", "geonw.sec.eccpoint.y", FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        { &hf_sgeonw_hashedid8,
+         { "Hashed ID 8", "geonw.sec.hashedid8", FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        //{ &hf_sgeonw_intx,
+         //{ "IntX", "geonw.sec.intx", FT_BYTES, BASE_NONE, NULL, 0x0,
+           //NULL, HFILL }},
+
+        { &hf_sgeonw_encryption_parameter_nonce,
+         { "Nonce", "geonw.sec.nonce", FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        { &hf_sgeonw_header_field_type_v1, { "Header field type", "geonw.sec.hdr_fld_type", FT_UINT8, BASE_DEC, VALS(header_field_type_v1_names), 0x0, NULL, HFILL }},
+        { &hf_sgeonw_header_field_type_v2, { "Header field type", "geonw.sec.hdr_fld_type", FT_UINT8, BASE_DEC, VALS(header_field_type_v2_names), 0x0, NULL, HFILL }},
+        { &hf_sgeonw_payload_field_type, { "Payload field type", "geonw.sec.pl_fld_type", FT_UINT8, BASE_DEC, VALS(payload_field_type_names), 0x0, NULL, HFILL }},
+        { &hf_sgeonw_trailer_field_type, { "Trailer field type", "geonw.sec.trl_fld_type", FT_UINT8, BASE_DEC, VALS(trailer_field_type_names), 0x0, NULL, HFILL }},
+        { &hf_sgeonw_public_key_algorithm, { "Public key algorithm", "geonw.sec.pubkeyalgo", FT_UINT8, BASE_DEC, VALS(public_key_algorithm_names), 0x0, NULL, HFILL }},
+        { &hf_sgeonw_eccpoint_type, { "EccPoint type", "geonw.sec.eccpoint_type", FT_UINT8, BASE_DEC, VALS(eccpoint_type_names), 0x0, NULL, HFILL }},
+        { &hf_sgeonw_signer_info_type, { "Signer info type", "geonw.sec.signer_info_type", FT_UINT8, BASE_DEC, VALS(signer_info_type_names), 0x0, NULL, HFILL }},
+        { &hf_sgeonw_validity_restriction_type, { "Validity restriction type", "geonw.sec.val_rest_type", FT_UINT8, BASE_DEC, VALS(validity_restriction_type_names), 0x0, NULL, HFILL }},
+        { &hf_sgeonw_subject_type, { "Subject type", "geonw.sec.subject_type", FT_UINT8, BASE_DEC, VALS(subject_type_names), 0x0, NULL, HFILL }},
+        { &hf_sgeonw_subject_attribute_type_v1, { "Subject attribute", "geonw.sec.subject_attr", FT_UINT8, BASE_DEC, VALS(subject_attribute_type_v1_names), 0x0, NULL, HFILL }},
+        { &hf_sgeonw_subject_attribute_type_v2, { "Subject attribute", "geonw.sec.subject_attr", FT_UINT8, BASE_DEC, VALS(subject_attribute_type_v2_names), 0x0, NULL, HFILL }},
+        { &hf_sgeonw_symmetric_algorithm, { "Symmetric algorithm", "geonw.sec.symalgo", FT_UINT8, BASE_DEC, VALS(symmetric_algorithm_names), 0x0, NULL, HFILL }},
+        { &hf_sgeonw_region_type, { "Region type", "geonw.sec.regiontype", FT_UINT8, BASE_DEC, VALS(region_type_names), 0x0, NULL, HFILL }},
+        { &hf_sgeonw_region_dictionary, { "Region dictionary", "geonw.sec.regiondict", FT_UINT8, BASE_DEC, VALS(region_dictionary_names), 0x0, NULL, HFILL }},
+
+        { &hf_sgeonw_region_identifier, { "Region identifier", "geonw.sec.regionid", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_sgeonw_local_region, { "Local region", "geonw.sec.local_region", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_sgeonw_certification_version, { "Certification version", "geonw.sec.certif.version", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_sgeonw_time64, { "Time64", "geonw.sec.time64", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_sgeonw_conf, { "Confidence", "geonw.sec.confidence", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_sgeonw_time32, { "Time32", "geonw.sec.time32", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_sgeonw_lat, { "Latitude", "geonw.sec.lat", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_sgeonw_lon, { "Longiture", "geonw.sec.lon", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_sgeonw_elev, { "Elevation", "geonw.sec.elev", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_sgeonw_hashedid3, { "Hashed ID 3", "geonw.sec.hashedid3", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_sgeonw_duration_unit, { "Unit", "geonw.sec.duration.unit", FT_UINT16, BASE_DEC, VALS(sgeonw_duration_unit_names), 0xe000, NULL, HFILL }},
+        { &hf_sgeonw_duration_value, { "Value", "geonw.sec.duration.value", FT_UINT16, BASE_DEC, NULL, 0x1fff, NULL, HFILL }},
+        { &hf_sgeonw_radius, { "Radius", "geonw.sec.radius", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_sgeonw_priority, { "Priority", "geonw.sec.priority", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_sgeonw_subject_assurance_assurance, { "Subject assurance", "geonw.sec.subj_assur.assurance", FT_UINT8, BASE_DEC, NULL, 0xe0, NULL, HFILL }},
+        { &hf_sgeonw_subject_assurance_reserved, { "Reserved", "geonw.sec.subj_assur.reserved", FT_UINT8, BASE_DEC, NULL, 0x1c, NULL, HFILL }},
+        { &hf_sgeonw_subject_assurance_confidence, { "Subject assurance", "geonw.sec.subj_assur.confidence", FT_UINT8, BASE_DEC, NULL, 0x03, NULL, HFILL }},
+        { &hf_sgeonw_msg_id, { "Message ID", "geonw.sec.msg_id", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_sgeonw_app_id, { "Application ID", "geonw.sec.app_id", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
     };
+
     static ei_register_info ei[] = {
         { &ei_geonw_nz_reserved, { "geonw.reserved_not_zero", PI_PROTOCOL, PI_WARN, "Incorrect, should be 0", EXPFILL }},
         { &ei_geonw_version_err, { "geonw.bogus_version", PI_MALFORMED, PI_ERROR, "Bogus GeoNetworking Version", EXPFILL }},
@@ -2000,6 +3454,11 @@ proto_register_geonw(void)
         { &ei_geonw_resp_not_found, { "geonw.resp_not_found", PI_SEQUENCE, PI_WARN, "Response not found", EXPFILL }},
         { &ei_geonw_out_of_range, { "geonw.position_oor", PI_MALFORMED, PI_WARN, "Position out of range", EXPFILL }},
         { &ei_geonw_payload_len, { "geonw.bogus_geonw_length", PI_PROTOCOL, PI_ERROR, "Bogus GeoNetworking length", EXPFILL }},
+        { &ei_sgeonw_len_unsupported, { "geonw.sec.len_unsup", PI_MALFORMED, PI_ERROR, "Length not supported", EXPFILL }},
+        { &ei_sgeonw_len_too_long, { "geonw.sec.bogus_len", PI_MALFORMED, PI_ERROR, "Length of int shall be at most 7 bits long", EXPFILL }},
+        { &ei_sgeonw_subj_info_too_long, { "geonw.sec.bogus_sinfo", PI_MALFORMED, PI_ERROR, "Subject info length shall be at most 255", EXPFILL }},
+        { &ei_sgeonw_ssp_too_long, { "geonw.sec.bogus_ssp", PI_MALFORMED, PI_ERROR, "Service specific permission length shall be at most 31", EXPFILL }},
+        { &ei_sgeonw_bogus, { "geonw.sec.bogus", PI_MALFORMED, PI_ERROR, "Malformed message (check length)", EXPFILL }},
     };
     static gint *ett[] = {
         &ett_geonw,
@@ -2014,6 +3473,20 @@ proto_register_geonw(void)
         &ett_geonw_de_add,
         &ett_geonw_lsrq_add,
         &ett_geonw_analysis,
+
+        &ett_geonw_sec,  // Secured packet
+        &ett_sgeonw_hdr, // Parts (header, payload or trailer) subtree
+        &ett_sgeonw_field, // Field subtree
+        &ett_sgeonw_var_len, // Variable length subtree
+        &ett_sgeonw_intx,
+        &ett_sgeonw_duration,
+        &ett_sgeonw_eccpoint,
+        &ett_sgeonw_subject_assurance,
+        &ett_sgeonw_public_key,
+        &ett_sgeonw_encryption_parameter,
+        &ett_sgeonw_signature,
+        &ett_sgeonw_subject_info,
+        &ett_sgeonw_subject_attribute,
     };
 
     expert_module_t* expert_geonw;
@@ -2032,6 +3505,12 @@ proto_register_geonw(void)
 
     geonw_subdissector_table = register_dissector_table("geonw.ch.nh",
         "GeoNetworking Next Header", proto_geonw, FT_UINT8, BASE_HEX);
+
+    sgeonw_v1_subdissector_table = register_dissector_table("geonw.sec.v1.msg_type",
+        "Secured GeoNetworking version 1 payload message type", proto_geonw, FT_UINT16, BASE_HEX);
+
+    sgeonw_v2_subdissector_table = register_dissector_table("geonw.sec.v2.app_id",
+        "Secured GeoNetworking version 2 payload application identifier", proto_geonw, FT_UINT16, BASE_HEX);
 
     geonw_address_type = address_type_dissector_register("AT_GEONW", "GeoNetworking address", geonw_to_str, geonw_str_len, NULL, geonw_col_filter_str, geonw_len, geonw_name_resolution_str, geonw_name_resolution_len);
 
@@ -2059,6 +3538,8 @@ proto_reg_handoff_geonw(void)
     dissector_add_uint("geonw.ch.nh", 3, ipv6_handle);
 
     geonw_tap = register_tap("geonw");
+
+    ieee1609dot2_handle = find_dissector("ieee1609dot2.data");
 }
 
 /*
