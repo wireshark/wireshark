@@ -39,7 +39,7 @@ Dumpcap might not quit if Wireshark or TShark crashes.
 The following features are new (or have been significantly updated)
 since version 2.9.0:
 
-* Wireshark now supports the Swedish language.
+* Wireshark now supports the Swedish and Ukrainian language.
 
 The following features are new (or have been significantly updated)
 since version 2.6.0:
