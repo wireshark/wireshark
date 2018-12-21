@@ -7,6 +7,7 @@
         <file>ja_JP.svg</file>
         <file>pl.svg</file>
         <file>ru.svg</file>
+        <file>sv.svg</file>
         <file>zh_CN.svg</file>
     </qresource>
 </RCC>
