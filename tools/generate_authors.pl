@@ -52,12 +52,6 @@ We use Lua BitOp, written by Mike Pall, for bitwise operations
 on numbers in Lua. The Lua BitOp home page can be found at
 http://bitop.luajit.org/
 
-Henrik Brix Andersen <brix[AT]gimp.org> gave permission for his
-webbrowser calling routine to be used.
-
-Christophe Devine <c.devine[AT]cr0.net> gave permission for his
-SHA1 routines to be used.
-
 snax <snax[AT]shmoo.com> gave permission to use his(?) weak key
 detection code from Airsnort.
 
@@ -68,6 +62,10 @@ Martin Pool <mbp[AT]sourcefrog.net>.
 
 Emanuel Eichhammer <support[AT]qcustomplot.com> granted permission
 to use QCustomPlot.
+
+Insecure.Com LLC ("The Nmap Project") has granted the Wireshark
+Foundation permission to distribute Npcap with our Windows
+installers.
 ";
 
 my $git_log_text = "
