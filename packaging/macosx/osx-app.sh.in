@@ -33,6 +33,8 @@
 # and "share" directories under the installation directory.
 #
 
+shopt -s extglob
+
 # Defaults
 strip=false
 exclude_prefixes="/System/|/Library/|/usr/lib/|/usr/X11/|/opt/X11/|@rpath|@executable_path"
@@ -133,7 +135,12 @@ resdir=`pwd`
 #
 bundle_binary_list=`find $pkgexec -type f -perm -0555 -print`
 
-echo -e "\nFixing up $bundle...\n"
+echo -e "\\nFixing up $bundle..."
+
+echo -e "\\nPrepopulating our libraries"
+
+# Copy only <library>.<SOVERSION>.dylib.
+cp -v +([^.]).+([[:digit:]]).dylib "$pkglib"
 
 # Find out libs we need from Fink, MacPorts, or from a custom install
 # (i.e. $LIBPREFIX), then loop until no changes.
@@ -141,7 +148,7 @@ a=1
 nfiles=0
 endl=true
 while $endl; do
-	echo -e "Looking for dependencies. Round" $a
+	echo -e "\\nLooking for dependencies. Round $a"
 	#
 	# To find dependencies, we:
 	#
