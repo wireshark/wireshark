@@ -309,6 +309,8 @@ static int hf_docsis_tlv_sflow_tol_grant_jitter = -1;
 static int hf_docsis_tlv_sflow_grants_per_intvl = -1;
 static int hf_docsis_tlv_sflow_ip_tos_overwrite = -1;
 static int hf_docsis_tlv_sflow_ugs_timeref = -1;
+static int hf_docsis_tlv_sflow_cont_req_backoff_window_mult = -1;
+static int hf_docsis_tlv_sflow_num_of_bytes_requested_mult = -1;
 static int hf_docsis_tlv_sflow_max_down_latency = -1;
 static int hf_docsis_tlv_sflow_down_reseq = -1;
 
@@ -563,6 +565,7 @@ static gint ett_docsis_ucd_reassembled = -1;
 
 
 static expert_field ei_docsis_tlv_tlvlen_bad = EI_INIT;
+static expert_field ei_docsis_tlv_tlvval_bad = EI_INIT;
 
 static const true_false_string on_off_tfs = {
   "On",
@@ -1403,24 +1406,43 @@ dissect_upstream_sflow (tvbuff_t * tvb, packet_info* pinfo, proto_tree * sflow_t
                 expert_add_info_format(pinfo, sflow_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
               }
             break;
-          case SFW_IP_TOS_OVERWRITE:
-            if (length == 2)
-              {
-                proto_tree_add_item (sflow_tree,
-                                     hf_docsis_tlv_sflow_ip_tos_overwrite, tvb,
-                                     pos, length, ENC_BIG_ENDIAN);
-              }
-            else
-              {
-                expert_add_info_format(pinfo, sflow_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
-              }
-            break;
           case SFW_UG_TIME_REF:
             if (length == 4)
               {
                 proto_tree_add_item (sflow_tree,
                                      hf_docsis_tlv_sflow_ugs_timeref, tvb, pos,
                                      length, ENC_BIG_ENDIAN);
+              }
+            else
+              {
+                expert_add_info_format(pinfo, sflow_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
+              }
+            break;
+          case SFW_CONTENTION_REQ_BACKOFF_WINDOW_MULT:
+            if (length == 1)
+              {
+                proto_tree_add_item (sflow_tree,
+                                     hf_docsis_tlv_sflow_cont_req_backoff_window_mult, tvb, pos,
+                                     length, ENC_BIG_ENDIAN);
+              }
+            else
+              {
+                expert_add_info_format(pinfo, sflow_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
+              }
+            break;
+          case SFW_NUM_OF_BYTES_REQUESTED_MULT:
+            if (length == 1)
+              {
+                proto_tree_add_item (sflow_tree,
+                                     hf_docsis_tlv_sflow_num_of_bytes_requested_mult, tvb, pos,
+                                     length, ENC_BIG_ENDIAN);
+                                guint8 multiplier_val = tvb_get_guint8 (tvb, pos);
+                                if (multiplier_val != 1 && multiplier_val != 2 && multiplier_val != 4 &&
+                                    multiplier_val != 8 && multiplier_val != 16)
+                                    {
+                                      expert_add_info_format(pinfo, sflow_item, &ei_docsis_tlv_tlvval_bad,
+                                                             "Wrong TLV value: %u (should be equal to 1,2,4,8 or 16)", multiplier_val);
+                                    }
               }
             else
               {
@@ -1586,6 +1608,18 @@ dissect_sflow (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int start,
               {
                 proto_tree_add_item (sflow_tree,
                                      hf_docsis_tlv_sflow_timeout_admitted, tvb,
+                                     pos, length, ENC_BIG_ENDIAN);
+              }
+            else
+              {
+                expert_add_info_format(pinfo, sflow_item, &ei_docsis_tlv_tlvlen_bad, "Wrong TLV length: %u", length);
+              }
+            break;
+          case SFW_IP_TOS_OVERWRITE:
+            if (length == 2)
+              {
+                proto_tree_add_item (sflow_tree,
+                                     hf_docsis_tlv_sflow_ip_tos_overwrite, tvb,
                                      pos, length, ENC_BIG_ENDIAN);
               }
             else
@@ -6761,6 +6795,16 @@ proto_register_docsis_tlv (void)
       FT_UINT32, BASE_DEC, NULL, 0x0,
       "UGS Time Reference", HFILL}
     },
+    {&hf_docsis_tlv_sflow_cont_req_backoff_window_mult,
+     {".25 Multiplier to Contention Request Backoff Window", "docsis_tlv.sflow.cont_req_backoff_window_mult",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "Multiplier to Contention Request Backoff Window", HFILL}
+    },
+    {&hf_docsis_tlv_sflow_num_of_bytes_requested_mult,
+     {".26 Multiplier to Number of Bytes Requested", "docsis_tlv.sflow.num_of_bytes_requested_mult",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "Multiplier to Number of Bytes Requested", HFILL}
+    },
     {&hf_docsis_tlv_sflow_peak_traffic_rate,
      {".27 Peak Traffic Rate", "docsis_tlv.sflow.peak_traffic_rate",
       FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -7821,6 +7865,7 @@ proto_register_docsis_tlv (void)
 
   static ei_register_info ei[] = {
     {&ei_docsis_tlv_tlvlen_bad, { "docsis_tlv.tlvlenbad", PI_MALFORMED, PI_ERROR, "Bad TLV length", EXPFILL}},
+    {&ei_docsis_tlv_tlvval_bad, { "docsis_tlv.tlvvalbad", PI_PROTOCOL, PI_WARN, "Wrong TLV value", EXPFILL}},
   };
 
   expert_module_t* expert_docsis_tlv;
