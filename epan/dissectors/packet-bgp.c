@@ -7270,38 +7270,58 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
                                                          "Next hop network address (%d byte%s)",
                                                          nexthop_len, plurality(nexthop_len, "", "s"));
 
-                /*
-                 * The addresses don't contain lengths, so if we
-                 * don't understand the address family type, we
-                 * cannot parse the subsequent addresses as we
-                 * don't know how long they are.
+                /* RFC 8514 defines that the Next Hop field of the MP_REACH_NLRI attribute of the route MUST
+                 * be set to the same IP address as the one carried in the Originating Router's IP Address field.
+                 * Therefore we have to get the upper layer protocol for MCAST-VPN saf.
                  */
-                switch (af) {
-                    default:
-                    proto_tree_add_expert(subtree3, pinfo, &ei_bgp_unknown_afi, tvb, o + i + aoff + 4, nexthop_len);
-                    break;
 
-                    case AFNUM_INET:
-                    case AFNUM_INET6:
-                    case AFNUM_L2VPN:
-                    case AFNUM_L2VPN_OLD:
-                    case AFNUM_BGP_LS:
+                if ( saf == SAFNUM_MCAST_VPN ) {
+                    if (proto_is_frame_protocol(pinfo->layers, "ip") && nexthop_len == 4) {
+                        proto_tree_add_string(subtree3, hf_bgp_update_path_attribute_mp_reach_nlri_next_hop, tvb,
+                                             o + i + aoff + 4, nexthop_len, tvb_ip_to_str(tvb, o + i + aoff + 4));
+                    } else if (proto_is_frame_protocol(pinfo->layers, "ipv6") && nexthop_len == 16) {
+                        proto_tree_add_string(subtree3, hf_bgp_update_path_attribute_mp_reach_nlri_next_hop, tvb,
+                                             o + i + aoff + 4, nexthop_len, tvb_ip6_to_str(tvb, o + i + aoff + 4));
+                    } else {
+                        proto_tree_add_string(subtree3, hf_bgp_update_path_attribute_mp_reach_nlri_next_hop, tvb,
+                                             o + i + aoff + 4, nexthop_len, tvb_bytes_to_str(wmem_packet_scope(),
+                                             tvb, o + i + aoff + 4, nexthop_len));
+                    }
+                } else {
+                    /*
+                     * The addresses don't contain lengths, so if we
+                     * don't understand the address family type, we
+                     * cannot parse the subsequent addresses as we
+                     * don't know how long they are.
+                     */
 
-                        j = 0;
-                        while (j < nexthop_len) {
-                            advance = mp_addr_to_str(af, saf, tvb, o + i + aoff + 4 + j,
-                                                     junk_emstr, nexthop_len) ;
-                            if (advance == 0) /* catch if this is a unknown AFI type*/
-                                break;
-                            if (j + advance > nexthop_len)
-                                break;
-                            proto_tree_add_string(subtree3, hf_bgp_update_path_attribute_mp_reach_nlri_next_hop, tvb,
-                                                 o + i + aoff + 4 + j, advance, wmem_strbuf_get_str(junk_emstr));
-
-                            j += advance;
-                        }
+                    switch (af) {
+                        default:
+                        proto_tree_add_expert(subtree3, pinfo, &ei_bgp_unknown_afi, tvb, o + i + aoff + 4, nexthop_len);
                         break;
-                } /* switch (af) */
+
+                        case AFNUM_INET:
+                        case AFNUM_INET6:
+                        case AFNUM_L2VPN:
+                        case AFNUM_L2VPN_OLD:
+                        case AFNUM_BGP_LS:
+
+                            j = 0;
+                            while (j < nexthop_len) {
+                                advance = mp_addr_to_str(af, saf, tvb, o + i + aoff + 4 + j,
+                                                         junk_emstr, nexthop_len) ;
+                                if (advance == 0) /* catch if this is a unknown AFI type*/
+                                    break;
+                                if (j + advance > nexthop_len)
+                                    break;
+                                proto_tree_add_string(subtree3, hf_bgp_update_path_attribute_mp_reach_nlri_next_hop, tvb,
+                                                     o + i + aoff + 4 + j, advance, wmem_strbuf_get_str(junk_emstr));
+
+                                j += advance;
+                            }
+                            break;
+                    } /* switch (af) */
+                }
 
                 aoff_save = aoff;
                 tlen -= nexthop_len + 4;
