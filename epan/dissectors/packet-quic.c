@@ -1968,8 +1968,6 @@ dissect_quic_retry_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
 {
     guint       offset = 0;
     guint32     version;
-    guint32     len_payload_length;
-    guint64     payload_length;
     quic_cid_t  dcid = {.len=0}, scid = {.len=0};
     guint32     odcil = 0;
     guint       retry_token_len;
@@ -1980,18 +1978,9 @@ dissect_quic_retry_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
 
     offset = dissect_quic_long_header_common(tvb, pinfo, quic_tree, offset, quic_packet, &version, &dcid, &scid);
 
-    if (is_quic_draft_max(version, 13)) {
-        proto_tree_add_item_ret_varint(quic_tree, hf_quic_length, tvb, offset, -1, ENC_VARINT_QUIC, &payload_length, &len_payload_length);
-        offset += len_payload_length;
-        // PKN is encrypted, but who cares about draft -13 anyway.
-        proto_tree_add_item(quic_tree, hf_quic_packet_number, tvb, offset, 1, ENC_NA);
-        offset += 1;
-        proto_tree_add_item_ret_uint(quic_tree, hf_quic_odcil_draft13, tvb, offset, 1, ENC_NA, &odcil);
-    } else {
-        proto_tree_add_item_ret_uint(quic_tree, hf_quic_odcil, tvb, offset, 1, ENC_NA, &odcil);
-        if (odcil) {
-            odcil += 3;
-        }
+    proto_tree_add_item_ret_uint(quic_tree, hf_quic_odcil, tvb, offset, 1, ENC_NA, &odcil);
+    if (odcil) {
+        odcil += 3;
     }
     offset += 1;
     proto_tree_add_item(quic_tree, hf_quic_odcid, tvb, offset, odcil, ENC_NA);
