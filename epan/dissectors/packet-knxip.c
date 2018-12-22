@@ -474,6 +474,7 @@ guint8 knx_decryption_key_count;
 */
 static void dissect_knxip( guint8 level, tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree );
 void proto_reg_handoff_knxip( void );
+void proto_register_knxip( void );
 
 /* Add raw data to list view, tree view, and parent folder
 */
