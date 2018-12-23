@@ -63,7 +63,7 @@ Martin Pool <mbp[AT]sourcefrog.net>.
 Emanuel Eichhammer <support[AT]qcustomplot.com> granted permission
 to use QCustomPlot.
 
-Insecure.Com LLC ("The Nmap Project") has granted the Wireshark
+Insecure.Com LLC (\"The Nmap Project\") has granted the Wireshark
 Foundation permission to distribute Npcap with our Windows
 installers.
 ";
