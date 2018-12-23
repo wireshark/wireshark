@@ -83,13 +83,13 @@ void CacheProxyModel::setSourceModel(QAbstractItemModel *newSourceModel)
     if (newSourceModel) {
         cache.clear();
         QIdentityProxyModel::setSourceModel(newSourceModel);
-        connect(newSourceModel, SIGNAL(modelReset()),
-                this, SLOT(resetCacheModel()));
+        connect(newSourceModel, &QAbstractItemModel::modelReset,
+                this, &CacheProxyModel::resetCacheModel);
     } else {
         if (sourceModel()) {
             // Prevent further updates to source model from invalidating cache.
-            disconnect(sourceModel(), SIGNAL(modelReset()),
-                    this, SLOT(resetCacheModel()));
+            disconnect(sourceModel(), &QAbstractItemModel::modelReset,
+                    this, &CacheProxyModel::resetCacheModel);
         }
         QIdentityProxyModel::setSourceModel(&cache);
     }

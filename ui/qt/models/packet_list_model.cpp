@@ -56,8 +56,8 @@ PacketListModel::PacketListModel(QObject *parent, capture_file *cf) :
     new_visible_rows_.reserve(1000);
     number_to_row_.reserve(reserved_packets_);
 
-    connect(this, SIGNAL(maxLineCountChanged(QModelIndex)),
-            this, SLOT(emitItemHeightChanged(QModelIndex)),
+    connect(this, &PacketListModel::maxLineCountChanged,
+            this, &PacketListModel::emitItemHeightChanged,
             Qt::QueuedConnection);
     idle_dissection_timer_ = new QElapsedTimer();
 }

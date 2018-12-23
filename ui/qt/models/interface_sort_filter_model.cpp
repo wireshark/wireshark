@@ -51,7 +51,7 @@ void InterfaceSortFilterModel::setStoreOnChange(bool storeOnChange)
     _storeOnChange = storeOnChange;
     if ( storeOnChange )
     {
-        connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(resetPreferenceData()));
+        connect(wsApp, &WiresharkApplication::preferencesChanged, this, &InterfaceSortFilterModel::resetPreferenceData);
         resetPreferenceData();
     }
 }

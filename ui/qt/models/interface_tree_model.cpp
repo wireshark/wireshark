@@ -45,8 +45,8 @@ InterfaceTreeModel::InterfaceTreeModel(QObject *parent) :
     ,stat_cache_(NULL)
 #endif
 {
-    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(interfaceListChanged()));
-    connect(wsApp, SIGNAL(localInterfaceListChanged()), this, SLOT(interfaceListChanged()));
+    connect(wsApp, &WiresharkApplication::appInitialized, this, &InterfaceTreeModel::interfaceListChanged);
+    connect(wsApp, &WiresharkApplication::localInterfaceListChanged, this, &InterfaceTreeModel::interfaceListChanged);
 }
 
 InterfaceTreeModel::~InterfaceTreeModel(void)

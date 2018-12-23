@@ -49,7 +49,7 @@ QWidget *UatDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &
             EditorFileDialog* fileDialog = new EditorFileDialog(index, EditorFileDialog::Directory, parent, QString(field->title), filename_old);
 
             //Use signals to accept data from cell
-            connect(fileDialog, SIGNAL(acceptEdit(const QModelIndex &)), this, SLOT(applyFilename(const QModelIndex&)));
+            connect(fileDialog, &EditorFileDialog::acceptEdit, this, &UatDelegate::applyFilename);
             return fileDialog;
         }
 
@@ -64,7 +64,7 @@ QWidget *UatDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &
             fileDialog->setOption(QFileDialog::DontConfirmOverwrite);
 
             //Use signals to accept data from cell
-            connect(fileDialog, SIGNAL(acceptEdit(const QModelIndex &)), this, SLOT(applyFilename(const QModelIndex &)));
+            connect(fileDialog, &EditorFileDialog::acceptEdit, this, &UatDelegate::applyFilename);
             return fileDialog;
         }
 
@@ -77,7 +77,7 @@ QWidget *UatDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &
             EditorColorDialog *colorDialog = new EditorColorDialog(index, color, parent);
 
             //Use signals to accept data from cell
-            connect(colorDialog, SIGNAL(acceptEdit(const QModelIndex &)), this, SLOT(applyColor(const QModelIndex &)));
+            connect(colorDialog, &EditorColorDialog::acceptEdit, this, &UatDelegate::applyColor);
             return colorDialog;
         }
 

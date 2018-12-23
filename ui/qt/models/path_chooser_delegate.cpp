@@ -50,7 +50,7 @@ QWidget* PathChooserDelegate::createEditor(QWidget *parent, const QStyleOptionVi
     pathEditor->setFocusProxy(lineEdit);
     pathEditor->setFocusPolicy(lineEdit->focusPolicy());
 
-    connect(btnBrowse, SIGNAL(clicked()), this, SLOT(browse_button_clicked()));
+    connect(btnBrowse, &QPushButton::clicked, this, &PathChooserDelegate::browseButtonClicked);
     return pathEditor;
 }
 
@@ -64,7 +64,7 @@ void PathChooserDelegate::updateEditorGeometry(QWidget *editor, const QStyleOpti
     editor->setGeometry(rect);
 }
 
-void PathChooserDelegate::browse_button_clicked()
+void PathChooserDelegate::browseButtonClicked()
 {
     char *open_dir = NULL;
 

@@ -27,7 +27,7 @@ protected:
     void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &idx) const;
 
 private slots:
-    void browse_button_clicked();
+    void browseButtonClicked();
 };
 
 #endif /* PATH_CHOOSER_DELEGATE_H_ */
