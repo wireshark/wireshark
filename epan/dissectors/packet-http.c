@@ -73,6 +73,7 @@ static int hf_http_request_version = -1;
 static int hf_http_response_version = -1;
 static int hf_http_response_code = -1;
 static int hf_http_response_code_desc = -1;
+static int hf_http_response_for_uri = -1;
 static int hf_http_response_phrase = -1;
 static int hf_http_authorization = -1;
 static int hf_http_proxy_authenticate = -1;
@@ -1451,6 +1452,19 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			}
 			if (next && next->res_framenum) {
 				pi = proto_tree_add_uint(http_tree, hf_http_next_response_in, tvb, 0, 0, next->res_framenum);
+				PROTO_ITEM_SET_GENERATED(pi);
+			}
+
+			/*
+			 * add the request URI to the response to allow filtering responses filtered by URI
+			 */
+			if (conv_data && (conv_data->full_uri || conv_data->request_uri)) {
+				if (conv_data->full_uri) {
+					pi = proto_tree_add_string(http_tree, hf_http_response_for_uri, tvb, 0, 0, conv_data->full_uri);
+				}
+				else {
+					pi = proto_tree_add_string(http_tree, hf_http_response_for_uri, tvb, 0, 0, conv_data->request_uri);
+				}
 				PROTO_ITEM_SET_GENERATED(pi);
 			}
 
@@ -3745,6 +3759,10 @@ proto_register_http(void)
 	      { "Status Code Description", "http.response.code.desc",
 		FT_STRING, BASE_NONE, NULL, 0x0,
 		"HTTP Response Status Code Description", HFILL }},
+	    { &hf_http_response_for_uri,
+	      { "Request URI",	"http.response_for.uri",
+		FT_STRING, STR_UNICODE, NULL, 0x0,
+		"HTTP Response For-URI", HFILL }},
 		{ &hf_http_response_phrase,
 		  { "Response Phrase", "http.response.phrase",
 	    FT_STRING, BASE_NONE, NULL, 0x0,
