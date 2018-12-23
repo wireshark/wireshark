@@ -690,8 +690,10 @@ gdoi		848/tcp/udp	# GDOI
 domain-s	853/tcp/udp	# DNS query-response protocol run over TLS/DTLS
 dlep		854/tcp/udp	# Dynamic Link Exchange Protocol (DLEP)
 iscsi		860/tcp/udp	# iSCSI
-owamp-control	861/tcp/udp	# OWAMP-Control
-twamp-control	862/tcp/udp	# Two-way Active Measurement Protocol (TWAMP) Control
+owamp-control	861/tcp		# OWAMP-Control
+owamp-test	861/udp		# OWAMP-Test
+twamp-control	862/tcp		# TWAMP-Control
+twamp-test	862/udp		# TWAMP-Test Receiver Port
 rsync		873/tcp/udp
 iclcnet-locate	886/tcp/udp	# ICL coNETion locate server
 iclcnet-svinfo	887/tcp/udp	# ICL coNETion server info

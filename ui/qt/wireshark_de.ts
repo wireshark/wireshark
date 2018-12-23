@@ -3825,7 +3825,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>The maximum size of the frames to write to the import capture file (max 256kiB)</source>
-        <translation type="unfinished"></translation>
+        <translation>Die maximale Framegröße beim Schreiben in die Mitschnittdatei (max 256kiB)</translation>
     </message>
     <message>
         <source>Import From Hex Dump</source>
@@ -8889,11 +8889,11 @@ text-decoration: underline;
     </message>
     <message>
         <source>Invalid Display Filter</source>
-        <translation type="unfinished">Ungültiger Anzeigefilter</translation>
+        <translation>Ungültiger Anzeigefilter</translation>
     </message>
     <message>
         <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Filterausdruck %1 ist kein gültiger Anzeigefilter. (%2).</translation>
     </message>
 </context>
 <context>
@@ -10500,11 +10500,11 @@ text-decoration: underline;
     </message>
     <message>
         <source>Warning</source>
-        <translation type="unfinished">Warnungen</translation>
+        <translation>Warnung</translation>
     </message>
     <message>
         <source>Could not find SCTP Association with id: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Es konnten keine SCTP Associationen mit ID %1 gefunden werden:</translation>
     </message>
     <message>
         <source>Complete list of IP-Addresses as provided in the INIT-Chunk</source>
