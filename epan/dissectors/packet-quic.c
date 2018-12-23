@@ -267,10 +267,13 @@ static inline guint8 quic_draft_version(guint32 version) {
     }
     return 0;
 }
+
+#if 0
 static inline gboolean is_quic_draft_max(guint32 version, guint8 max_version) {
     guint8 draft_version = quic_draft_version(version);
     return draft_version && draft_version <= max_version;
 }
+#endif
 
 static inline guint8 is_gquic_version(guint32 version) {
     return version == 0x51303434; /* Q044 is the first release to use IETF QUIC (draft-12) packet header */
