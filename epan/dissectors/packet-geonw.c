@@ -1245,10 +1245,12 @@ dissect_sec_intx(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tr
     subtree = proto_item_add_subtree(ti, ett_sgeonw_intx);
     proto_tree_add_bits_item(subtree, hf_sgeonw_var_len_det, tvb, start << 3, (*offset) - start, ENC_NA);
     if (((*offset) - start) > 4) {
-        proto_tree_add_uint64_bits_format_value(subtree, hf, tvb, (start << 3) + (*offset) - start, (((*offset) - start) << 3) - ((*offset) - start),tmp_val,"%lu",tmp_val);
+        proto_tree_add_uint64_bits_format_value(subtree, hf, tvb, (start << 3) + (*offset) - start,
+            (((*offset) - start) << 3) - ((*offset) - start), tmp_val, "%" G_GUINT64_FORMAT, tmp_val);
     }
     else {
-        proto_tree_add_uint_bits_format_value(subtree, hf, tvb, (start << 3) + (*offset) - start, (((*offset) - start) << 3) - ((*offset) - start),(guint32)tmp_val,"%u",(guint32)tmp_val);
+        proto_tree_add_uint_bits_format_value(subtree, hf, tvb, (start << 3) + (*offset) - start,
+            (((*offset) - start) << 3) - ((*offset) - start), (guint32)tmp_val, "%u", (guint32)tmp_val);
     }
     // The encoding of the length shall use at most 7 bits set to 1.
     if (!mask)
