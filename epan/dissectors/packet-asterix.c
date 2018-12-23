@@ -1488,9 +1488,15 @@ static gint hf_065_040_NOGO = -1;
 static gint hf_065_040_OVL = -1;
 static gint hf_065_040_TSV = -1;
 static gint hf_065_040_PSS = -1;
+static gint hf_065_040_STTN = -1;
 static gint hf_065_050 = -1;
 static gint hf_065_050_REP = -1;
 static gint hf_065_RE = -1;
+static gint hf_065_RE_SRP = -1;
+static gint hf_065_RE_SRP_Latitude = -1;
+static gint hf_065_RE_SRP_Longitude = -1;
+static gint hf_065_RE_ARL = -1;
+static gint hf_065_RE_ARL_ARL = -1;
 static gint hf_065_SP = -1;
 
 
@@ -2910,9 +2916,15 @@ static gint ett_065_040_NOGO = -1;
 static gint ett_065_040_OVL = -1;
 static gint ett_065_040_TSV = -1;
 static gint ett_065_040_PSS = -1;
+static gint ett_065_040_STTN = -1;
 static gint ett_065_050 = -1;
 static gint ett_065_050_REP = -1;
 static gint ett_065_RE = -1;
+static gint ett_065_RE_SRP = -1;
+static gint ett_065_RE_SRP_Latitude = -1;
+static gint ett_065_RE_SRP_Longitude = -1;
+static gint ett_065_RE_ARL = -1;
+static gint ett_065_RE_ARL_ARL = -1;
 static gint ett_065_SP = -1;
 
 static dissector_handle_t asterix_handle;
@@ -8509,9 +8521,10 @@ static const enum_val_t I063_versions[] = {
 
 /* Message Type */
 static const value_string valstr_065_000_MT[] = {
-    { 0, "SDPS Status" },
-    { 1, "End of Batch" },
-    { 2, "Service Status Report" },
+    { 0, "Undefined" },
+    { 1, "SDPS Status" },
+    { 2, "End of Batch" },
+    { 3, "Service Status Report" },
     { 0, NULL }
 };
 
@@ -8528,10 +8541,10 @@ static const FieldPart *I065_020_PARTS[] = { &I065_020_BTN, NULL };
 
 /* SDPS Configuration and Status */
 static const value_string valstr_065_040_NOGO[] = {
-    { 0, "operational" },
-    { 1, "degraded" },
-    { 2, "not currently connected" },
-    { 3, "unknown" },
+    { 0, "Operational" },
+    { 1, "Degraded" },
+    { 2, "Not currently connected" },
+    { 3, "Unknown" },
     { 0, NULL }
 };
 
@@ -8543,15 +8556,21 @@ static const value_string valstr_065_040_OVL[] = {
 
 static const value_string valstr_065_040_TSV[] = {
     { 0, "Default" },
-    { 1, "Invalid Time Source" },
+    { 1, "Invalid time source" },
     { 0, NULL }
 };
 
 static const value_string valstr_065_040_PSS[] = {
-    { 0, "not applicable" },
+    { 0, "Not applicable" },
     { 1, "SDPS-1 selected" },
     { 2, "SDPS-2 selected" },
     { 3, "SDPS-3 selected" },
+    { 0, NULL }
+};
+
+static const value_string valstr_065_040_STTN[] = {
+    { 0, "Toggle OFF" },
+    { 1, "Toggle ON" },
     { 0, NULL }
 };
 
@@ -8559,7 +8578,9 @@ static const FieldPart I065_040_NOGO = { 2, 1.0, FIELD_PART_UINT, &hf_065_040_NO
 static const FieldPart I065_040_OVL = { 1, 1.0, FIELD_PART_UINT, &hf_065_040_OVL, NULL };
 static const FieldPart I065_040_TSV = { 1, 1.0, FIELD_PART_UINT, &hf_065_040_TSV, NULL };
 static const FieldPart I065_040_PSS = { 2, 1.0, FIELD_PART_UINT, &hf_065_040_PSS, NULL };
-static const FieldPart *I065_040_PARTS[] = { &I065_040_NOGO, &I065_040_OVL, &I065_040_TSV, &I065_040_PSS, &IXXX_2bit_spare, NULL };
+static const FieldPart I065_040_STTN = { 1, 1.0, FIELD_PART_UINT, &hf_065_040_STTN, NULL };
+static const FieldPart *I065_040_PARTS_v1_3[] = { &I065_040_NOGO, &I065_040_OVL, &I065_040_TSV, &I065_040_PSS, &IXXX_2bit_spare, NULL };
+static const FieldPart *I065_040_PARTS_v1_4[] = { &I065_040_NOGO, &I065_040_OVL, &I065_040_TSV, &I065_040_PSS, &I065_040_STTN, &IXXX_1bit_spare, NULL };
 
 /* Service Status Report */
 static const value_string valstr_065_050_REP[] = {
@@ -8585,6 +8606,16 @@ static const value_string valstr_065_050_REP[] = {
 static const FieldPart I065_050_REP = { 8, 1.0, FIELD_PART_UINT, &hf_065_050_REP, NULL };
 static const FieldPart *I065_050_PARTS[] = { &I065_050_REP, NULL };
 
+/* Position of the System Reference Point */
+static const FieldPart I065_RE_SRP_Latitude = { 32, 180.0/1073741824.0, FIELD_PART_FLOAT, &hf_065_RE_SRP_Latitude, NULL };
+static const FieldPart I065_RE_SRP_Longitude = { 32, 180.0/1073741824.0, FIELD_PART_FLOAT, &hf_065_RE_SRP_Longitude, NULL };
+
+static const FieldPart *I065_RE_SRP_PARTS[] = { &I065_RE_SRP_Latitude, &I065_RE_SRP_Longitude, NULL };
+
+/* ASTERIX Record Length */
+static const FieldPart I065_RE_ARL_ARL = { 16, 1.0, FIELD_PART_UINT, &hf_065_RE_ARL_ARL, NULL };
+static const FieldPart *I065_RE_ARL_PARTS[] = { &I065_RE_ARL_ARL, NULL };
+
 /* Items */
 DIAG_OFF_PEDANTIC
 static const AsterixField I065_000 = { FIXED, 1, 0, 0, &hf_065_000, I065_000_PARTS, { NULL } };
@@ -8592,19 +8623,26 @@ static const AsterixField I065_010 = { FIXED, 2, 0, 0, &hf_065_010, IXXX_SAC_SIC
 static const AsterixField I065_015 = { FIXED, 1, 0, 0, &hf_065_015, I065_015_PARTS, { NULL } };
 static const AsterixField I065_020 = { FIXED, 1, 0, 0, &hf_065_020, I065_020_PARTS, { NULL } };
 static const AsterixField I065_030 = { FIXED, 3, 0, 0, &hf_065_030, IXXX_TOD, { NULL } };
-static const AsterixField I065_040 = { FIXED, 1, 0, 0, &hf_065_040, I065_040_PARTS, { NULL } };
+static const AsterixField I065_040_v1_3 = { FIXED, 1, 0, 0, &hf_065_040, I065_040_PARTS_v1_3, { NULL } };
+static const AsterixField I065_040_v1_4 = { FIXED, 1, 0, 0, &hf_065_040, I065_040_PARTS_v1_4, { NULL } };
 static const AsterixField I065_050 = { FIXED, 1, 0, 0, &hf_065_050, I065_050_PARTS, { NULL } };
-static const AsterixField I065_RE = { RE, 0, 0, 1, &hf_065_RE, NULL, { NULL } };
+static const AsterixField I065_RE_SRP = { FIXED, 4, 0, 0, &hf_065_RE_SRP, I065_RE_SRP_PARTS, { NULL } };
+static const AsterixField I065_RE_ARL = { FIXED, 2, 0, 0, &hf_065_RE_ARL, I065_RE_ARL_PARTS, { NULL } };
+static const AsterixField I065_RE = { RE, 0, 0, 1, &hf_065_RE, NULL, { &I065_RE_SRP, &I065_RE_ARL, NULL } };
 static const AsterixField I065_SP = { SP, 0, 0, 1, &hf_065_SP, NULL, { NULL } };
 
-static const AsterixField *I065_v1_3_uap[] = { &I065_010, &I065_000, &I065_015, &I065_030, &I065_020, &I065_040, &I065_050,
+static const AsterixField *I065_v1_3_uap[] = { &I065_010, &I065_000, &I065_015, &I065_030, &I065_020, &I065_040_v1_3, &I065_050,
+                                               &IX_SPARE, &IX_SPARE, &IX_SPARE, &IX_SPARE, &IX_SPARE, &I065_RE,  &I065_SP, NULL };
+static const AsterixField *I065_v1_4_uap[] = { &I065_010, &I065_000, &I065_015, &I065_030, &I065_020, &I065_040_v1_4, &I065_050,
                                                &IX_SPARE, &IX_SPARE, &IX_SPARE, &IX_SPARE, &IX_SPARE, &I065_RE,  &I065_SP, NULL };
 static const AsterixField **I065_v1_3[] = { I065_v1_3_uap, NULL };
-static const AsterixField ***I065[] = { I065_v1_3 };
+static const AsterixField **I065_v1_4[] = { I065_v1_4_uap, NULL };
+static const AsterixField ***I065[] = { I065_v1_4, I065_v1_3 };
 DIAG_ON_PEDANTIC
 
 static const enum_val_t I065_versions[] = {
-    { "I065_v1_3", "Version 1.3", 0 },
+    { "I065_v1_4", "Version 1.4", 0 },
+    { "I065_v1_3", "Version 1.3", 1 },
     { NULL, NULL, 0 }
 };
 
@@ -10917,9 +10955,15 @@ void proto_register_asterix (void)
         { &hf_065_040_OVL, { "OVL", "asterix.065_040_OVL", FT_UINT8, BASE_DEC, VALS(valstr_065_040_OVL), 0x20, NULL, HFILL } },
         { &hf_065_040_TSV, { "TSV", "asterix.065_040_TSV", FT_UINT8, BASE_DEC, VALS(valstr_065_040_TSV), 0x10, NULL, HFILL } },
         { &hf_065_040_PSS, { "PSS", "asterix.065_040_PSS", FT_UINT8, BASE_DEC, VALS(valstr_065_040_PSS), 0x0c, NULL, HFILL } },
+        { &hf_065_040_STTN, { "STTN", "asterix.065_040_STTN", FT_UINT8, BASE_DEC, VALS(valstr_065_040_STTN), 0x02, NULL, HFILL } },
         { &hf_065_050, { "050, Service Status Report", "asterix.065_050", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_065_050_REP, { "REP", "asterix.065_050_REP", FT_UINT8, BASE_DEC, VALS(valstr_065_050_REP), 0x0, NULL, HFILL } },
         { &hf_065_RE, { "Reserved Expansion Field", "asterix.065_RE", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_065_RE_SRP, { "SRP, Position of the System Reference Point (WGS-84)", "asterix.065_RE_SRP", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_065_RE_SRP_Latitude, { "Latitude [deg]", "asterix.065_RE_SRP_Latitude", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_065_RE_SRP_Longitude, { "Longitude [deg]", "asterix.065_RE_SRP_Longitude", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_065_RE_ARL, { "ARL, ASTERIX Record Length", "asterix.065_RE_ARL", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_065_RE_ARL_ARL, { "ARL", "asterix.065_RE_ARL_ARL", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_065_SP, { "Special Purpose Field", "asterix.065_SP", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
     };
 
@@ -12341,9 +12385,15 @@ void proto_register_asterix (void)
         &ett_065_040_OVL,
         &ett_065_040_TSV,
         &ett_065_040_PSS,
+        &ett_065_040_STTN,
         &ett_065_050,
         &ett_065_050_REP,
         &ett_065_RE,
+        &ett_065_RE_SRP,
+        &ett_065_RE_SRP_Latitude,
+        &ett_065_RE_SRP_Longitude,
+        &ett_065_RE_ARL,
+        &ett_065_RE_ARL_ARL,
         &ett_065_SP
     };
 
