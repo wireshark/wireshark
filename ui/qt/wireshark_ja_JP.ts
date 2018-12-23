@@ -11073,7 +11073,7 @@ a:hover {
         <translation>このメッセージは再度表示されません</translation>
     </message>
     <message>
-        <location filename="simple_dialog.cpp" line="295"/>
+        <location filename="simple_dialog.cpp" line="307"/>
         <source>Multiple problems found</source>
         <translation>複数の問題が見つかりました</translation>
     </message>

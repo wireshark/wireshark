@@ -1372,10 +1372,10 @@ dlep              854/tcp # Dynamic Link Exchange Protocol (DLEP) [IESG] [IETF_C
 dlep              854/udp # Dynamic Link Exchange Protocol (DLEP) [IESG] [IETF_Chair] 2017-04-03 [RFC8175]
 iscsi             860/tcp # iSCSI [IESG] [IETF_Chair] 2013-08-27 [RFC7143]
 iscsi             860/udp # iSCSI [IESG] [IETF_Chair] 2013-08-27 [RFC7143]
-owamp-control     861/tcp # OWAMP-Control [RFC4656]
-owamp-control     861/udp # OWAMP-Control [RFC4656]
-twamp-control     862/tcp # Two-way Active Measurement Protocol (TWAMP) Control [RFC5357]
-twamp-control     862/udp # Two-way Active Measurement Protocol (TWAMP) Control [RFC5357]
+owamp-control     861/tcp # OWAMP-Control [IESG] [IETF_Chair] [RFC4656]
+owamp-test        861/udp # OWAMP-Test [IESG] [IETF_Chair] 2018-12-21 [RFC-ietf-ippm-port-twamp-test-04]
+twamp-control     862/tcp # TWAMP-Control [IESG] [IETF_Chair] [RFC5357]
+twamp-test        862/udp # TWAMP-Test Receiver Port [IESG] [IETF_Chair] 2018-12-21 [RFC-ietf-ippm-port-twamp-test-04]
 rsync             873/tcp # rsync [Andrew_Tridgell] [Andrew_Tridgell]
 rsync             873/udp # rsync [Andrew_Tridgell] [Andrew_Tridgell]
 iclcnet-locate    886/tcp # ICL coNETion locate server [Bob_Lyon] [Bob_Lyon]
@@ -1902,8 +1902,8 @@ de-server        1256/tcp # de-server [Jeff_Burdette] [Jeff_Burdette]
 de-server        1256/udp # de-server [Jeff_Burdette] [Jeff_Burdette]
 shockwave2       1257/tcp # Shockwave 2 [Dave_Simmons] [Dave_Simmons]
 shockwave2       1257/udp # Shockwave 2 [Dave_Simmons] [Dave_Simmons]
-opennl           1258/tcp # Open Network Library
-opennl           1258/udp # Open Network Library
+opennl           1258/tcp # Open Network Library [Phil_Frisbie] [Phil_Frisbie]
+opennl           1258/udp # Open Network Library [Phil_Frisbie] [Phil_Frisbie]
 opennl-voice     1259/tcp # Open Network Library Voice [Phil_Frisbie] [Phil_Frisbie]
 opennl-voice     1259/udp # Open Network Library Voice [Phil_Frisbie] [Phil_Frisbie]
 ibm-ssd          1260/tcp # ibm-ssd [Barry_Whyte] [Barry_Whyte]
@@ -4865,7 +4865,7 @@ tcim-control     2729/udp # TCIM Control [Dean_Skelton] [Dean_Skelton]
 nec-raidplus     2730/tcp # NEC RaidPlus [Yusuke_Asai] [Yusuke_Asai]
 nec-raidplus     2730/udp # NEC RaidPlus [Yusuke_Asai] [Yusuke_Asai]
 fyre-messanger   2731/tcp # Fyre Messanger [Robert_Waters] [Robert_Waters]
-fyre-messanger   2731/udp # Fyre Messagner [Robert_Waters] [Robert_Waters]
+fyre-messanger   2731/udp # Fyre Messanger [Robert_Waters] [Robert_Waters]
 g5m              2732/tcp # G5M [Graham_Klyne] [Graham_Klyne]
 g5m              2732/udp # G5M [Graham_Klyne] [Graham_Klyne]
 signet-ctf       2733/tcp # Signet CTF [Greg_Broiles] [Greg_Broiles]
@@ -6788,7 +6788,7 @@ bmc-data-coll    3695/udp # BMC Data Collection [Portnoy_Boxman] [Portnoy_Boxman
 telnetcpcd       3696/tcp # Telnet Com Port Control [Thomas_J_Pinkl] [Thomas_J_Pinkl] 2003-02
 telnetcpcd       3696/udp # Telnet Com Port Control [Thomas_J_Pinkl] [Thomas_J_Pinkl] 2003-02
 nw-license       3697/tcp # NavisWorks License System [Tim_Wiegand] [Tim_Wiegand] 2003-02
-nw-license       3697/udp # NavisWorks Licnese System [Tim_Wiegand] [Tim_Wiegand] 2003-02
+nw-license       3697/udp # NavisWorks License System [Tim_Wiegand] [Tim_Wiegand] 2003-02
 sagectlpanel     3698/tcp # SAGECTLPANEL [Mark_Gamble] [Mark_Gamble] 2003-02
 sagectlpanel     3698/udp # SAGECTLPANEL [Mark_Gamble] [Mark_Gamble] 2003-02
 kpn-icw          3699/tcp # Internet Call Waiting [B_J_Kortekaas] [B_J_Kortekaas] 2003-02
@@ -6846,7 +6846,7 @@ blizwow          3724/udp # World of Warcraft [Domain_Tech] [Domain_Tech] 2005-0
 na-er-tip        3725/tcp # Netia NA-ER Port [Jean_Pierre_Garcia] [Jean_Pierre_Garcia] 2003-04
 na-er-tip        3725/udp # Netia NA-ER Port [Jean_Pierre_Garcia] [Jean_Pierre_Garcia] 2003-04
 array-manager    3726/tcp # Xyratex Array Manager [David_A_Lethe] [David_A_Lethe] 2003-04
-array-manager    3726/udp # Xyartex Array Manager [David_A_Lethe] [David_A_Lethe] 2003-04
+array-manager    3726/udp # Xyratex Array Manager [David_A_Lethe] [David_A_Lethe] 2003-04
 e-mdu            3727/tcp # Ericsson Mobile Data Unit
 e-mdu            3727/udp # Ericsson Mobile Data Unit
 e-woa            3728/tcp # Ericsson Web on Air [Marco_Casole] [Marco_Casole] 2003-04
@@ -6893,7 +6893,7 @@ webdata          3748/udp # webData [Michael_Whiteley] [Michael_Whiteley] 2003-0
 cimtrak          3749/tcp # CimTrak [Robert_E_Johnson_II] [Robert_E_Johnson_II] 2003-04
 cimtrak          3749/udp # CimTrak [Robert_E_Johnson_II] [Robert_E_Johnson_II] 2003-04
 cbos-ip-port     3750/tcp # CBOS/IP ncapsalation port [Thomas_Dannemiller] [Thomas_Dannemiller] 2003-04
-cbos-ip-port     3750/udp # CBOS/IP ncapsalatoin port [Thomas_Dannemiller] [Thomas_Dannemiller] 2003-04
+cbos-ip-port     3750/udp # CBOS/IP ncapsalation port [Thomas_Dannemiller] [Thomas_Dannemiller] 2003-04
 gprs-cube        3751/tcp # CommLinx GPRS Cube [Peter_Johnson] [Peter_Johnson] 2003-04
 gprs-cube        3751/udp # CommLinx GPRS Cube [Peter_Johnson] [Peter_Johnson] 2003-04
 vipremoteagent   3752/tcp # Vigil-IP RemoteAgent [Bryan_Alvord] [Bryan_Alvord] 2003-04
@@ -7089,7 +7089,7 @@ msfw-control     3847/udp # MS Firewall Control [Oren_Trutner] [Oren_Trutner] 20
 item             3848/tcp # IT Environmental Monitor [Keith_Wright] [Keith_Wright] 2003-08
 item             3848/udp # IT Environmental Monitor [Keith_Wright] [Keith_Wright] 2003-08
 spw-dnspreload   3849/tcp # SPACEWAY DNS Preload [Daniel_Friedman] [Daniel_Friedman] 2003-08
-spw-dnspreload   3849/udp # SPACEWAY DNS Prelaod [Daniel_Friedman] [Daniel_Friedman] 2003-08
+spw-dnspreload   3849/udp # SPACEWAY DNS Preload [Daniel_Friedman] [Daniel_Friedman] 2003-08
 qtms-bootstrap   3850/tcp # QTMS Bootstrap Protocol [Phil_Willis] [Phil_Willis] 2003-08
 qtms-bootstrap   3850/udp # QTMS Bootstrap Protocol [Phil_Willis] [Phil_Willis] 2003-08
 spectraport      3851/tcp # SpectraTalk Port [Madhav_Karhade] [Madhav_Karhade] 2003-08
@@ -7230,7 +7230,7 @@ agcat            3915/udp # Auto-Graphics Cataloging [Paul_Cope] [Paul_Cope] 200
 wysdmc           3916/tcp # WysDM Controller [Jim_McDonald_2] [Jim_McDonald_2] 2003-11
 wysdmc           3916/udp # WysDM Controller [Jim_McDonald_2] [Jim_McDonald_2] 2003-11
 aftmux           3917/tcp # AFT multiplex port [Alfred_Schmidt] [Alfred_Schmidt] 2003-11
-aftmux           3917/udp # AFT multiples port [Alfred_Schmidt] [Alfred_Schmidt] 2003-11
+aftmux           3917/udp # AFT multiplex port [Alfred_Schmidt] [Alfred_Schmidt] 2003-11
 pktcablemmcops   3918/tcp # PacketCableMultimediaCOPS [Eric_Rosenfeld] [Eric_Rosenfeld] 2003-11
 pktcablemmcops   3918/udp # PacketCableMultimediaCOPS [Eric_Rosenfeld] [Eric_Rosenfeld] 2003-11
 hyperip          3919/tcp # HyperIP [Network_Executive_Software_Inc] [Nancy_Golio] 2003-11 2017-01-25
@@ -7273,8 +7273,8 @@ dvbservdsc       3937/tcp # DVB Service Discovery [Bert_van_Willigen][Peter_MacA
 dvbservdsc       3937/udp # DVB Service Discovery [Bert_van_Willigen][Peter_MacAvock] [Bert_van_Willigen][Peter_MacAvock] 2003-11
 dbcontrol-agent  3938/tcp # Oracle dbControl Agent poIANA assigned this well-formed service name as a replacement for "dbcontrol_agent". [Todd_Guay] [Todd_Guay] 2003-11
 dbcontrol_agent  3938/tcp # Oracle dbControl Agent po [Todd_Guay] [Todd_Guay] 2003-11 This entry is an alias to "dbcontrol-agent".This entry is now historic, not usable for use with manycommon service discovery mechanisms.
-dbcontrol-agent  3938/udp # Oracel dbControl Agent poIANA assigned this well-formed service name as a replacement for "dbcontrol_agent". [Todd_Guay] [Todd_Guay] 2003-11
-dbcontrol_agent  3938/udp # Oracel dbControl Agent po [Todd_Guay] [Todd_Guay] 2003-11 This entry is an alias to "dbcontrol-agent".This entry is now historic, not usable for use with manycommon service discovery mechanisms.
+dbcontrol-agent  3938/udp # Oracle dbControl Agent poIANA assigned this well-formed service name as a replacement for "dbcontrol_agent". [Todd_Guay] [Todd_Guay] 2003-11
+dbcontrol_agent  3938/udp # Oracle dbControl Agent po [Todd_Guay] [Todd_Guay] 2003-11 This entry is an alias to "dbcontrol-agent".This entry is now historic, not usable for use with manycommon service discovery mechanisms.
 aamp             3939/tcp # Anti-virus Application Management Port [In_sik_Choi] [In_sik_Choi] 2002-02
 aamp             3939/udp # Anti-virus Application Management Port [In_sik_Choi] [In_sik_Choi] 2002-02
 xecp-node        3940/tcp # XeCP Node Service [Brent_McCullough] [Brent_McCullough] 2003-11
@@ -9652,7 +9652,7 @@ pon-ictp         7202/tcp # Inter-Channel Termination Protocol (ICTP) for multi-
 PS-Server        7215/tcp # Communication ports for PaperStream Server services [PFU_Systems_Inc.] [Hari_Asuri] 2016-02-26
 PS-Capture-Pro   7216/tcp # PaperStream Capture Professional [PFU_Systems_Inc.] [Hari_Asuri] 2016-02-26
 ramp             7227/tcp # Registry A & M Protocol [John_Havard] [John_Havard] 2003-11
-ramp             7227/udp # Registry A $ M Protocol [John_Havard] [John_Havard] 2003-11
+ramp             7227/udp # Registry A & M Protocol [John_Havard] [John_Havard] 2003-11
 citrixupp        7228/tcp # Citrix Universal Printing Port [Gary_Barton] [Gary_Barton] 2011-02-24
 citrixuppg       7229/tcp # Citrix UPP Gateway [Gary_Barton] [Gary_Barton] 2011-02-24
 aspcoordination  7235/udp # ASP Coordination Protocol [Wi-Fi_Alliance_2] [Mick_Conley] 2013-12-31
@@ -10777,7 +10777,7 @@ xoraya          11876/tcp # X2E Xoraya Multichannel protocol [Hannes_K] [Hannes_
 xoraya          11876/udp # X2E Xoraya Multichannel protocol [Hannes_K] [Hannes_K] 2010-09-13
 x2e-disc        11877/udp # X2E service discovery protocol [Hannes_K] [Hannes_K] 2010-09-13
 sysinfo-sp      11967/tcp # SysInfo Service Protocol [Mike_Cooper] [Mike_Cooper] 2003-03
-sysinfo-sp      11967/udp # SysInfo Sercice Protocol [Mike_Cooper] [Mike_Cooper] 2003-03
+sysinfo-sp      11967/udp # SysInfo Service Protocol [Mike_Cooper] [Mike_Cooper] 2003-03
 wmereceiving    11997/sctp # WorldMailExpress [Greg_Foutz] [Greg_Foutz] 2006-03
 wmedistribution 11998/sctp # WorldMailExpress [Greg_Foutz] [Greg_Foutz] 2006-03
 wmereporting    11999/sctp # WorldMailExpress [Greg_Foutz] [Greg_Foutz] 2006-03
@@ -11422,7 +11422,7 @@ profinet-rtm    34963/udp # PROFInet RT Multicast [Peter_Wenzel] [Peter_Wenzel] 
 profinet-cm     34964/tcp # PROFInet Context Manager [Peter_Wenzel] [Peter_Wenzel] 2004-11
 profinet-cm     34964/udp # PROFInet Context Manager [Peter_Wenzel] [Peter_Wenzel] 2004-11
 ethercat        34980/tcp # EtherCAT Port [Martin_Rostan] [Martin_Rostan] 2003-11
-ethercat        34980/udp # EhterCAT Port [Martin_Rostan] [Martin_Rostan] 2003-11
+ethercat        34980/udp # EtherCAT Port [Martin_Rostan] [Martin_Rostan] 2003-11
 heathview       35000/tcp # HeathView [Heathwest_Systems_Limited] [Andrew_Porrer] 2013-03-21
 rt-viewer       35001/tcp # ReadyTech Viewer [ReadyTech_Corporation] [Kevin_Woodward] 2013-09-13
 rt-viewer       35001/udp # ReadyTech Viewer [ReadyTech_Corporation] [Kevin_Woodward] 2013-09-13

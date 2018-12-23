@@ -11083,7 +11083,7 @@ a:hover {
         <translation>Non mostrare più questo messaggio.</translation>
     </message>
     <message>
-        <location filename="simple_dialog.cpp" line="295"/>
+        <location filename="simple_dialog.cpp" line="307"/>
         <source>Multiple problems found</source>
         <translation>Rilevati diversi problemi</translation>
     </message>

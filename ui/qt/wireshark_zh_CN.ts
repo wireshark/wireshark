@@ -11055,7 +11055,7 @@ text-decoration: underline;
         <translation>不再显示此消息。</translation>
     </message>
     <message>
-        <location filename="simple_dialog.cpp" line="295"/>
+        <location filename="simple_dialog.cpp" line="307"/>
         <source>Multiple problems found</source>
         <translation type="unfinished"></translation>
     </message>

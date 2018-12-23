@@ -10973,7 +10973,7 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="simple_dialog.cpp" line="295"/>
+        <location filename="simple_dialog.cpp" line="307"/>
         <source>Multiple problems found</source>
         <translation type="unfinished"></translation>
     </message>
