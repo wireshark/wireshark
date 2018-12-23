@@ -64,7 +64,6 @@ static int hf_quic_short_reserved = -1;
 static int hf_quic_payload = -1;
 static int hf_quic_protected_payload = -1;
 static int hf_quic_remaining_payload = -1;
-static int hf_quic_odcil_draft13 = -1;
 static int hf_quic_odcil = -1;
 static int hf_quic_odcid = -1;
 static int hf_quic_retry_token = -1;
@@ -2448,11 +2447,6 @@ proto_register_quic(void)
             "Remaining payload in a packet (possibly PKN followed by encrypted payload)", HFILL }
         },
 
-        { &hf_quic_odcil_draft13,
-          { "Original Destination Connection ID Length", "quic.odcil_draft13",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }
-        },
         { &hf_quic_odcil,
           { "Original Destination Connection ID Length", "quic.odcil",
             FT_UINT8, BASE_DEC, VALS(quic_cid_len_vals), 0x0f,
