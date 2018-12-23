@@ -8373,10 +8373,10 @@ static const FieldPart *I063_015_PARTS[] = { &I063_015_SI, NULL };
 
 /* Sensor Configuration and Status */
 static const value_string valstr_063_060_CON[] = {
-    { 0, "operational"},
-    { 1, "degraded"},
-    { 2, "initialization"},
-    { 3, "not currently connected"},
+    { 0, "Operational"},
+    { 1, "Degraded"},
+    { 2, "Initialization"},
+    { 3, "Not currently connected"},
     { 0, NULL}
 };
 
@@ -8435,8 +8435,8 @@ static const value_string valstr_063_060_MSC[] = {
 };
 
 static const value_string valstr_063_060_TSV[] = {
-    { 0, "valid"},
-    { 1, "invalid"},
+    { 0, "Valid"},
+    { 1, "Invalid"},
     { 0, NULL}
 };
 
@@ -8503,14 +8503,14 @@ static const AsterixField I063_092 = { FIXED, 2, 0, 0, &hf_063_092, I063_092_PAR
 static const AsterixField I063_RE = { RE, 0, 0, 1, &hf_063_RE, NULL, { NULL } };
 static const AsterixField I063_SP = { SP, 0, 0, 1, &hf_063_SP, NULL, { NULL } };
 
-static const AsterixField *I063_v1_3_uap[] = { &I063_010, &I063_015, &I063_030, &I063_050, &I063_060, &I063_070, &I063_080,
+static const AsterixField *I063_v1_4_uap[] = { &I063_010, &I063_015, &I063_030, &I063_050, &I063_060, &I063_070, &I063_080,
                                                &I063_081, &I063_090, &I063_091, &I063_092, &IX_SPARE, &I063_RE,  &I063_SP, NULL };
-static const AsterixField **I063_v1_3[] = { I063_v1_3_uap, NULL };
-static const AsterixField ***I063[] = { I063_v1_3 };
+static const AsterixField **I063_v1_4[] = { I063_v1_4_uap, NULL };
+static const AsterixField ***I063[] = { I063_v1_4 };
 DIAG_ON_PEDANTIC
 
 static const enum_val_t I063_versions[] = {
-    { "I063_v1_3", "Version 1.3", 0 },
+    { "I063_v1_4", "Version 1.4", 0 },
     { NULL, NULL, 0 }
 };
 
@@ -10933,7 +10933,7 @@ void proto_register_asterix (void)
         { &hf_063_081, { "081, SSR / Mode S Azimuth Bias", "asterix.063_081", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_063_081_SAB, {"SAB", "asterix.063_081_SAB", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_063_090, { "090, PSR Range Gain and Bias", "asterix.063_090", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-        { &hf_063_090_PRG, {"PRG", "asterix.063_090_SRG", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_063_090_PRG, {"PRG", "asterix.063_090_PRG", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_063_090_PRB, {"PRB", "asterix.063_090_PRB", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_063_091, { "091, PSR Azimuth Bias", "asterix.063_091", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_063_091_PAB, {"PAB", "asterix.063_091_PAB", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
