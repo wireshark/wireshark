@@ -5,7 +5,7 @@
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2018-12-14)
+# (last updated 2018-12-23)
 
 0	Reserved
 1	NxNetworks
@@ -1509,7 +1509,7 @@
 1501	The Aerospace Corporation Michael
 1502	Orckit Communications Ltd.
 1503	Tertio Limited
-1504	Comsoft Solutions GmbH	# formerly 'COMSOFT GmbH'
+1504	Frequentis Comsoft GmbH	# formerly 'Comsoft Solutions GmbH'
 1505	Power Center Software LLC
 1506	Technologic, Inc.
 1507	Vertex Data Science Limited
@@ -3160,7 +3160,7 @@
 3156	Secant
 3157	NetraCorp, LLC
 3158	MASPRO DENKOH Corp.
-3159	Utimaco Safeware AG
+3159	Utimaco GmbH
 3160	Financial Information System Center (FISC)
 3161	Xybx Inc.
 3162	Relational Data Systems
@@ -23366,7 +23366,7 @@
 23519	Regal-Beloit Corporation
 23521	Amherst County Public Schools
 23522	Volicon, Inc.
-23523	MT Consulting S.A.
+23523	MT-C S.A.
 23524	Weberhofer GmbH
 23525	Aleksey Barabanov
 23526	Auster Sistemas & Soluções de Informática Ltda.
@@ -43215,7 +43215,7 @@
 43390	BEIJING FOREVER COMMUNICATION ELECTRONICS CO.,LTD
 43391	UTT Co., Ltd.
 43392	Agile Digital Engineering Pty Ltd
-43393	S-Net
+43393	S-Net GmbH
 43394	Intrinium, Inc
 43395	The City of Amsterdam
 43396	earthlab (daichi makino)
@@ -52677,7 +52677,7 @@
 52864	AMENIDY, Inc.
 52865	IMD Ingenieurbuero fuer Microcomputertechnik
 52866	JellWin Information Technology Co.,Ltd.
-52867	Dundee and Foot Ankle Center
+52867	Dundee Foot and Ankle Center
 52868	O-NET Communications (Shenzhen) Limited
 52869	Abstruse Systems
 52870	TXS GmbH
@@ -52961,10 +52961,52 @@
 53148	xRAN Forum
 53149	Wessanen N.V.
 53150	FAR-EASTERN GRIDS COMPANY
-53151	北京中创为南京量子通信技术有限公司 (Beijing Zhongchuang is Nanjing Quantum Communication Technology Co., Ltd.)
+53151	Beijing Zhongchuangwei Nanjing Quantum Communication Technology Co., Ltd.
 53152	IMEX Co.,Ltd.
 53153	EM Clarity Pty Ltd
 53154	Selection
 53155	DSR Corporation
 53156	Telegra GmbH
 53157	Asahi CE & Europe Services, s.r.o.
+53158	KORUS Consulting
+53159	Aksel Sp. z o.o.
+53160	McMinnville Foot and Ankle Specialists
+53161	Warrior Invictus Holding Company, Inc
+53162	Whoolud Networks
+53163	SentinelOne
+53164	Unisys Österreich
+53165	Junek and Junek Pty Ltd
+53166	COMaction
+53167	Keck - IT-Consulting
+53168	Concordia Station in Antarctica
+53169	SCISYS Group PLC
+53170	Dox EMR
+53171	Department of Defense Education Activity
+53172	Tschetschpi PC Services
+53173	University Medicine and Cardiology
+53174	VITEC
+53175	雅泰歌思（上海）通讯科技有限公司 (Yatai Gesi (Shanghai) Communication Technology Co., Ltd.)
+53176	A3K
+53177	autorion
+53178	Iowa Cancer Specialists, P.C.
+53179	SystemsAdmin.pro
+53180	ControlAware LLC
+53181	Sun-Maid Growers of California
+53182	MARcom Technologies Inc.
+53183	QalifSolutions
+53184	Reg.Ru
+53185	KA-RaceIng e.V.
+53186	FEDERAL STATE BUDGETARY INSTITUTION "FEDERAL CENTER OF Cerebrovascular Pathology and Stress" MINISTRY OF HEALTH OF THE RUSSIAN FEDERATION
+53187	MAJMAU ENGLISH SCHOOL
+53188	Queen Margaret's School
+53189	Share IT Limited
+53190	LittleMouseCloud
+53191	Telmex Colombia S.A.
+53192	Socially Determined, Inc.
+53193	UVEX WINTER HOLDING GmbH & Co. KG
+53194	Goodbaby International
+53195	NM Rocha
+53196	IDFloke
+53197	National Institute of Technology Karnataka, Surathkal
+53198	Foosoft srl
+53199	TEMA TELECOMUNICAZIONI Srl
