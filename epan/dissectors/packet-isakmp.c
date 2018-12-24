@@ -3761,8 +3761,7 @@ dissect_resp_lifetime_ipsec_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
 /* Returns the number of bytes consumed by this attribute. */
 static int
-dissect_ike_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, decrypt_data_t *decr
-)
+dissect_ike_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, decrypt_data_t *decr)
 {
   guint headerlen, value_len, attr_type;
   proto_item *attr_item;
@@ -3785,22 +3784,22 @@ dissect_ike_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
     case IKE_ATTR_ENCRYPTION_ALGORITHM:
       proto_tree_add_item(attr_tree, hf_isakmp_ike_attr_encryption_algorithm, tvb, offset, value_len, ENC_BIG_ENDIAN);
       proto_item_append_text(attr_item, ": %s", val_to_str(tvb_get_ntohs(tvb, offset), ike_attr_enc_algo, "Unknown %d"));
-      decr->ike_encr_alg = tvb_get_ntohs(tvb, offset);
+      if (decr) decr->ike_encr_alg = tvb_get_ntohs(tvb, offset);
       break;
     case IKE_ATTR_HASH_ALGORITHM:
       proto_tree_add_item(attr_tree, hf_isakmp_ike_attr_hash_algorithm, tvb, offset, value_len, ENC_BIG_ENDIAN);
       proto_item_append_text(attr_item, ": %s", val_to_str(tvb_get_ntohs(tvb, offset), ike_attr_hash_algo, "Unknown %d"));
-      decr->ike_hash_alg = tvb_get_ntohs(tvb, offset);
+      if (decr) decr->ike_hash_alg = tvb_get_ntohs(tvb, offset);
       break;
     case IKE_ATTR_AUTHENTICATION_METHOD:
       proto_tree_add_item(attr_tree, hf_isakmp_ike_attr_authentication_method, tvb, offset, value_len, ENC_BIG_ENDIAN);
       proto_item_append_text(attr_item, ": %s", val_to_str(tvb_get_ntohs(tvb, offset), ike_attr_authmeth, "Unknown %d"));
-      decr->is_psk = tvb_get_ntohs(tvb, offset) == 0x01 ? TRUE : FALSE;
+      if (decr) decr->is_psk = tvb_get_ntohs(tvb, offset) == 0x01 ? TRUE : FALSE;
       break;
     case IKE_ATTR_GROUP_DESCRIPTION:
       proto_tree_add_item(attr_tree, hf_isakmp_ike_attr_group_description, tvb, offset, value_len, ENC_BIG_ENDIAN);
       proto_item_append_text(attr_item, ": %s", val_to_str(tvb_get_ntohs(tvb, offset), dh_group, "Unknown %d"));
-      decr->group = tvb_get_ntohs(tvb, offset);
+      if (decr) decr->group = tvb_get_ntohs(tvb, offset);
       break;
     case IKE_ATTR_GROUP_TYPE:
       proto_tree_add_item(attr_tree, hf_isakmp_ike_attr_group_type, tvb, offset, value_len, ENC_BIG_ENDIAN);
@@ -3834,7 +3833,7 @@ dissect_ike_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
     case IKE_ATTR_KEY_LENGTH:
       proto_tree_add_item(attr_tree, hf_isakmp_ike_attr_key_length, tvb, offset, value_len, ENC_BIG_ENDIAN);
       proto_item_append_text(attr_item, ": %d", tvb_get_ntohs(tvb, offset));
-      decr->ike_encr_keylen = tvb_get_ntohs(tvb, offset);
+      if (decr) decr->ike_encr_keylen = tvb_get_ntohs(tvb, offset);
       break;
     case IKE_ATTR_FIELD_SIZE:
       proto_tree_add_item(attr_tree, hf_isakmp_ike_attr_field_size, tvb, offset, value_len, ENC_NA);
@@ -3970,12 +3969,14 @@ dissect_transform(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, pro
     offset += 2;
 
     if (protocol_id == 1 && transform_id == 1) {
-      /* Allow detection of missing IKE transform attributes:
-       * Make sure their values are not carried over from another transform
-       * dissected previously. */
-      decr->ike_encr_alg = 0;
-      decr->ike_encr_keylen = 0;
-      decr->ike_hash_alg = 0;
+      if (decr) {
+        /* Allow detection of missing IKE transform attributes:
+         * Make sure their values are not carried over from another transform
+         * dissected previously. */
+        decr->ike_encr_alg = 0;
+        decr->ike_encr_keylen = 0;
+        decr->ike_hash_alg = 0;
+      }
       while (offset < offset_end) {
         offset += dissect_ike_attribute(tvb, pinfo, tree, offset, decr);
       }
