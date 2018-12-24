@@ -43,7 +43,7 @@ private:
     QString regex_;
     bool emptyAllowed_;
 
-    StockIconToolButton *applyButton;
+    StockIconToolButton *apply_button_;
 
     bool isValidText(QString &, bool ignoreEmptyCheck = false);
     void handleValidation(QString newText);

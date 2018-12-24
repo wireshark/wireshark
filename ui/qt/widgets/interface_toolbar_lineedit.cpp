@@ -40,10 +40,10 @@ InterfaceToolbarLineEdit::InterfaceToolbarLineEdit(QWidget *parent, QString vali
 
     updateStyleSheet(isValid());
 
-    connect(this, SIGNAL(textChanged(const QString &)), this, SLOT(validateText()));
-    connect(this, SIGNAL(textEdited(const QString &)), this, SLOT(validateEditedText()));
-    connect(this, SIGNAL(returnPressed()), this, SLOT(applyEditedText()));
-    connect(apply_button_, SIGNAL(clicked()), this, SLOT(applyEditedText()));
+    connect(this, &InterfaceToolbarLineEdit::textChanged, this, &InterfaceToolbarLineEdit::validateText);
+    connect(this, &InterfaceToolbarLineEdit::textEdited, this, &InterfaceToolbarLineEdit::validateEditedText);
+    connect(this, &InterfaceToolbarLineEdit::returnPressed, this, &InterfaceToolbarLineEdit::applyEditedText);
+    connect(apply_button_, &StockIconToolButton::clicked, this, &InterfaceToolbarLineEdit::applyEditedText);
 }
 
 void InterfaceToolbarLineEdit::validateText()

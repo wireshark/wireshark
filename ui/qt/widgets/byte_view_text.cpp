@@ -97,7 +97,7 @@ void ByteViewText::createContextMenu()
     }
 
     ctx_menu_.addActions(format_actions->actions());
-    connect(format_actions, SIGNAL(triggered(QAction*)), this, SLOT(setHexDisplayFormat(QAction*)));
+    connect(format_actions, &QActionGroup::triggered, this, &ByteViewText::setHexDisplayFormat);
 
     ctx_menu_.addSeparator();
 
@@ -122,7 +122,7 @@ void ByteViewText::createContextMenu()
     }
 
     ctx_menu_.addActions(encoding_actions->actions());
-    connect(encoding_actions, SIGNAL(triggered(QAction*)), this, SLOT(setCharacterEncoding(QAction*)));
+    connect(encoding_actions, &QActionGroup::triggered, this, &ByteViewText::setCharacterEncoding);
 }
 
 bool ByteViewText::isEmpty() const

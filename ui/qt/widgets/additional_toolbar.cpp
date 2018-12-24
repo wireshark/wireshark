@@ -100,14 +100,14 @@ AdditionalToolbarWidgetAction::AdditionalToolbarWidgetAction(ext_toolbar_t * ite
 : QWidgetAction(parent),
   toolbar_item(item)
 {
-    connect(wsApp, SIGNAL(captureActive(int)), this, SLOT(captureActive(int)));
+    connect(wsApp, &WiresharkApplication::captureActive, this, &AdditionalToolbarWidgetAction::captureActive);
 }
 
 AdditionalToolbarWidgetAction::AdditionalToolbarWidgetAction(const AdditionalToolbarWidgetAction & copy_object)
 :  QWidgetAction(copy_object.parent()),
    toolbar_item(copy_object.toolbar_item)
 {
-    connect(wsApp, SIGNAL(captureActive(int)), this, SLOT(captureActive(int)));
+    connect(wsApp, &WiresharkApplication::captureActive, this, &AdditionalToolbarWidgetAction::captureActive);
 }
 
 
@@ -187,7 +187,7 @@ QWidget * AdditionalToolbarWidgetAction::createButton(ext_toolbar_t * item, QWid
 
     QPushButton * button = new QPushButton(item->name, parent);
     button->setText(item->name);
-    connect(button, SIGNAL(clicked()), this, SLOT(onButtonClicked()));
+    connect(button, &QPushButton::clicked, this, &AdditionalToolbarWidgetAction::onButtonClicked);
 
     ext_toolbar_register_update_cb(item, (ext_toolbar_action_cb)&toolbar_button_cb, (void *)button);
 
@@ -233,7 +233,7 @@ QWidget * AdditionalToolbarWidgetAction::createBoolean(ext_toolbar_t * item, QWi
     checkbox->setText(item->name);
     setCheckable(true);
     checkbox->setCheckState(defValue.compare("true", Qt::CaseInsensitive) == 0 ? Qt::Checked : Qt::Unchecked);
-    connect(checkbox, SIGNAL(stateChanged(int)), this, SLOT(onCheckBoxChecked(int)));
+    connect(checkbox, &QCheckBox::stateChanged, this, &AdditionalToolbarWidgetAction::onCheckBoxChecked);
 
     ext_toolbar_register_update_cb(item, (ext_toolbar_action_cb)&toolbar_boolean_cb, (void *)checkbox);
 
@@ -313,7 +313,7 @@ QWidget * AdditionalToolbarWidgetAction::createTextEditor(ext_toolbar_t * item, 
 
     frame->layout()->addWidget(strEdit);
 
-    connect(strEdit, SIGNAL(textApplied()), this, SLOT(sendTextToCallback()));
+    connect(strEdit, &ApplyLineEdit::textApplied, this, &AdditionalToolbarWidgetAction::sendTextToCallback);
 
     ext_toolbar_register_update_cb(item, (ext_toolbar_action_cb)&toolbar_string_cb, (void *)strEdit);
 
@@ -475,7 +475,8 @@ QWidget * AdditionalToolbarWidgetAction::createSelector(ext_toolbar_t * item, QW
 
     frame->layout()->addWidget(myBox);
 
-    connect(myBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onSelectionInWidgetChanged(int)));
+    connect(myBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &AdditionalToolbarWidgetAction::onSelectionInWidgetChanged);
 
     ext_toolbar_register_update_cb(item, (ext_toolbar_action_cb)&toolbar_selector_cb, (void *)myBox);
 

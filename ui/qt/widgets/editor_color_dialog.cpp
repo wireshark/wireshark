@@ -21,7 +21,7 @@ EditorColorDialog::EditorColorDialog(const QModelIndex& index, const QColor& ini
     , index_(index)
     , current_(initial)
 {
-    connect(color_button_, SIGNAL(clicked()), this, SLOT(applyColor()));
+    connect(color_button_, &QPushButton::clicked, this, &EditorColorDialog::applyColor);
 }
 
 // QAbstractItemView installs QAbstractItemDelegate's event filter after

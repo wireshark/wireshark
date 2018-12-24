@@ -30,12 +30,12 @@ void FindLineEdit::contextMenuEvent(QContextMenuEvent *event)
     action = menu->addAction(tr("Textual Find"));
     action->setCheckable(true);
     action->setChecked(!use_regex_);
-    connect(action, SIGNAL(triggered()), this, SLOT(setUseTextual()));
+    connect(action, &QAction::triggered, this, &FindLineEdit::setUseTextual);
 
     action = menu->addAction(tr("Regular Expression Find"));
     action->setCheckable(true);
     action->setChecked(use_regex_);
-    connect(action, SIGNAL(triggered()), this, SLOT(setUseRegex()));
+    connect(action, &QAction::triggered, this, &FindLineEdit::setUseRegex);
 #endif
 
     menu->exec(event->globalPos());

@@ -19,18 +19,18 @@
 
 ApplyLineEdit::ApplyLineEdit(QString linePlaceholderText, QWidget * parent)
 : QLineEdit(parent),
-  applyButton(0)
+  apply_button_(0)
 {
     emptyAllowed_ = false;
     regex_ = QString();
 
-    applyButton = new StockIconToolButton(parent, "x-filter-apply");
-    applyButton->setCursor(Qt::ArrowCursor);
-    applyButton->setEnabled(false);
-    applyButton->setToolTip(tr("Apply changes"));
-    applyButton->setIconSize(QSize(24, 14));
-    applyButton->setMaximumWidth(30);
-    applyButton->setStyleSheet(
+    apply_button_ = new StockIconToolButton(parent, "x-filter-apply");
+    apply_button_->setCursor(Qt::ArrowCursor);
+    apply_button_->setEnabled(false);
+    apply_button_->setToolTip(tr("Apply changes"));
+    apply_button_->setIconSize(QSize(24, 14));
+    apply_button_->setMaximumWidth(30);
+    apply_button_->setStyleSheet(
             "QToolButton {"
             "  border: none;"
             "  background: transparent;" // Disables platform style on Windows.
@@ -40,16 +40,16 @@ ApplyLineEdit::ApplyLineEdit(QString linePlaceholderText, QWidget * parent)
 
 #ifdef Q_OS_MAC
     setAttribute(Qt::WA_MacSmallSize, true);
-    applyButton->setAttribute(Qt::WA_MacSmallSize, true);
+    apply_button_->setAttribute(Qt::WA_MacSmallSize, true);
 #endif
 
     setPlaceholderText(linePlaceholderText);
 
-    connect(this, SIGNAL(textEdited(const QString&)), this, SLOT(onTextEdited(const QString&)));
-    connect(this, SIGNAL(textChanged(const QString&)), this, SLOT(onTextChanged(const QString&)));
+    connect(this, &ApplyLineEdit::textEdited, this, &ApplyLineEdit::onTextEdited);
+    connect(this, &ApplyLineEdit::textChanged, this, &ApplyLineEdit::onTextChanged);
 
-    connect(this, SIGNAL(returnPressed()), this, SLOT(onSubmitContent()));
-    connect(applyButton, SIGNAL(clicked()), this, SLOT(onSubmitContent()));
+    connect(this, &ApplyLineEdit::returnPressed, this, &ApplyLineEdit::onSubmitContent);
+    connect(apply_button_, &StockIconToolButton::clicked, this, &ApplyLineEdit::onSubmitContent);
 
     handleValidation(QString(linePlaceholderText));
 
@@ -104,7 +104,7 @@ bool ApplyLineEdit::isValidText(QString & text, bool ignoreEmptyCheck)
 void ApplyLineEdit::onTextEdited(const QString & text)
 {
     QString newText = QString(text);
-    applyButton->setEnabled(isValidText(newText));
+    apply_button_->setEnabled(isValidText(newText));
     handleValidation(newText);
 }
 
@@ -125,7 +125,7 @@ void ApplyLineEdit::handleValidation(QString newText)
             "}"
             )
             .arg(frameWidth + 1)
-            .arg(applyButton->sizeHint().width() + frameWidth)
+            .arg(apply_button_->sizeHint().width() + frameWidth)
             .arg(isValidText(newText, true) ? QString("") : ColorUtils::fromColorT(prefs.gui_text_invalid).name());
 
     setStyleSheet(style_sheet);
@@ -134,13 +134,13 @@ void ApplyLineEdit::handleValidation(QString newText)
 void ApplyLineEdit::resizeEvent(QResizeEvent *)
 {
     int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
-    QSize apsz = applyButton->sizeHint();
+    QSize apsz = apply_button_->sizeHint();
 
-    applyButton->move((contentsRect().right() + pos().x()) - ( frameWidth + apsz.width() ) - 2,
+    apply_button_->move((contentsRect().right() + pos().x()) - ( frameWidth + apsz.width() ) - 2,
                         contentsRect().top() + pos().y());
 
-    applyButton->setMinimumHeight(height());
-    applyButton->setMaximumHeight(height());
+    apply_button_->setMinimumHeight(height());
+    apply_button_->setMaximumHeight(height());
 }
 
 void ApplyLineEdit::onSubmitContent()
@@ -150,7 +150,7 @@ void ApplyLineEdit::onSubmitContent()
         return;
 
     /* Freeze apply button to signal the text has been sent. Will be unfreezed, if the text in the textbox changes again */
-    applyButton->setEnabled(false);
+    apply_button_->setEnabled(false);
 
     emit textApplied();
 }

@@ -66,8 +66,8 @@ void SyntaxLineEdit::setCompleter(QCompleter *c)
     // Completion items are not guaranteed to be sorted (recent filters +
     // fields), so no setModelSorting.
     completer_->setMaxVisibleItems(max_completion_items_);
-    QObject::connect(completer_, SIGNAL(activated(QString)),
-                     this, SLOT(insertFieldCompletion(QString)));
+    QObject::connect(completer_, static_cast<void (QCompleter::*)(const QString &)>(&QCompleter::activated),
+                     this, &SyntaxLineEdit::insertFieldCompletion);
 }
 
 void SyntaxLineEdit::setSyntaxState(SyntaxState state) {

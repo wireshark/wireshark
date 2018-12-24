@@ -64,17 +64,18 @@ CaptureFilterCombo::CaptureFilterCombo(QWidget *parent, bool plain) :
             "}"
             );
 
-    connect(this, SIGNAL(interfacesChanged()), cf_edit_, SLOT(checkFilter()));
-    connect(cf_edit_, SIGNAL(pushFilterSyntaxStatus(const QString&)),
-            this, SIGNAL(pushFilterSyntaxStatus(const QString&)));
-    connect(cf_edit_, SIGNAL(popFilterSyntaxStatus()),
-            this, SIGNAL(popFilterSyntaxStatus()));
-    connect(cf_edit_, SIGNAL(captureFilterSyntaxChanged(bool)),
-            this, SIGNAL(captureFilterSyntaxChanged(bool)));
-    connect(cf_edit_, SIGNAL(startCapture()), this, SIGNAL(startCapture()));
-    connect(cf_edit_, SIGNAL(startCapture()), this, SLOT(saveAndRebuildFilterList()));
-    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(rebuildFilterList()));
-    connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(rebuildFilterList()));
+    connect(this, &CaptureFilterCombo::interfacesChanged, cf_edit_,
+            static_cast<void (CaptureFilterEdit::*)()>(&CaptureFilterEdit::checkFilter));
+    connect(cf_edit_, &CaptureFilterEdit::pushFilterSyntaxStatus,
+            this, &CaptureFilterCombo::pushFilterSyntaxStatus);
+    connect(cf_edit_, &CaptureFilterEdit::popFilterSyntaxStatus,
+            this, &CaptureFilterCombo::popFilterSyntaxStatus);
+    connect(cf_edit_, &CaptureFilterEdit::captureFilterSyntaxChanged,
+            this, &CaptureFilterCombo::captureFilterSyntaxChanged);
+    connect(cf_edit_, &CaptureFilterEdit::startCapture, this, &CaptureFilterCombo::startCapture);
+    connect(cf_edit_, &CaptureFilterEdit::startCapture, this, &CaptureFilterCombo::saveAndRebuildFilterList);
+    connect(wsApp, &WiresharkApplication::appInitialized, this, &CaptureFilterCombo::rebuildFilterList);
+    connect(wsApp, &WiresharkApplication::preferencesChanged, this, &CaptureFilterCombo::rebuildFilterList);
 
     rebuildFilterList();
     clearEditText();

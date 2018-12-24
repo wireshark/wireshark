@@ -53,10 +53,10 @@ FilterExpressionToolBar::FilterExpressionToolBar(QWidget * parent) :
     connect(this, &DragDropToolBar::actionMoved, this, &FilterExpressionToolBar::onActionMoved);
     connect(this, &DragDropToolBar::newFilterDropped, this, &FilterExpressionToolBar::onFilterDropped);
 
-    connect(wsApp, SIGNAL(appInitialized()),
-            this, SLOT(filterExpressionsChanged()));
-    connect(wsApp, SIGNAL(filterExpressionsChanged()),
-            this, SLOT(filterExpressionsChanged()));
+    connect(wsApp, &WiresharkApplication::appInitialized,
+            this, &FilterExpressionToolBar::filterExpressionsChanged);
+    connect(wsApp, &WiresharkApplication::filterExpressionsChanged,
+            this, &FilterExpressionToolBar::filterExpressionsChanged);
 
 }
 
@@ -69,23 +69,23 @@ void FilterExpressionToolBar::onCustomMenuHandler(const QPoint& pos)
     QMenu * filterMenu = new QMenu(this);
 
     QAction *actFilter = filterMenu->addAction(tr("Filter Button Preferences..."));
-    connect(actFilter, SIGNAL(triggered()), this, SLOT(toolBarShowPreferences()));
+    connect(actFilter, &QAction::triggered, this, &FilterExpressionToolBar::toolBarShowPreferences);
     actFilter->setProperty(dfe_property_label_, filterAction->property(dfe_property_label_));
     actFilter->setProperty(dfe_property_expression_, filterAction->property(dfe_property_expression_));
     actFilter->setData(filterAction->data());
     filterMenu->addSeparator();
     QAction * actEdit = filterMenu->addAction(tr("Edit"));
-    connect(actEdit, SIGNAL(triggered()), this, SLOT(editFilter()));
+    connect(actEdit, &QAction::triggered, this, &FilterExpressionToolBar::editFilter);
     actEdit->setProperty(dfe_property_label_, filterAction->property(dfe_property_label_));
     actEdit->setProperty(dfe_property_expression_, filterAction->property(dfe_property_expression_));
     actEdit->setData(filterAction->data());
     QAction * actDisable = filterMenu->addAction(tr("Disable"));
-    connect(actDisable, SIGNAL(triggered()), this, SLOT(disableFilter()));
+    connect(actDisable, &QAction::triggered, this, &FilterExpressionToolBar::disableFilter);
     actDisable->setProperty(dfe_property_label_, filterAction->property(dfe_property_label_));
     actDisable->setProperty(dfe_property_expression_, filterAction->property(dfe_property_expression_));
     actDisable->setData(filterAction->data());
     QAction * actRemove = filterMenu->addAction(tr("Remove"));
-    connect(actRemove, SIGNAL(triggered()), this, SLOT(removeFilter()));
+    connect(actRemove, &QAction::triggered, this, &FilterExpressionToolBar::removeFilter);
     actRemove->setProperty(dfe_property_label_, filterAction->property(dfe_property_label_));
     actRemove->setProperty(dfe_property_expression_, filterAction->property(dfe_property_expression_));
     actRemove->setData(filterAction->data());
@@ -264,7 +264,7 @@ gboolean FilterExpressionToolBar::filter_expression_add_action(const void *key _
         data->toolbar->addWidget(sep);
     }
     data->toolbar->addAction(dfb_action);
-    connect(dfb_action, SIGNAL(triggered()), data->toolbar, SLOT(filterClicked()));
+    connect(dfb_action, &QAction::triggered, data->toolbar, &FilterExpressionToolBar::filterClicked);
     data->actions_added = true;
     return FALSE;
 }

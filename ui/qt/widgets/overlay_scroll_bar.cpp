@@ -77,10 +77,10 @@ OverlayScrollBar::OverlayScrollBar(Qt::Orientation orientation, QWidget *parent)
     child_sb_.setStyle(child_style_);
 
     // XXX Do we need to connect anything else?
-    connect(this, SIGNAL(rangeChanged(int,int)), this, SLOT(setChildRange(int,int)));
-    connect(this, SIGNAL(valueChanged(int)), &child_sb_, SLOT(setValue(int)));
+    connect(this, &OverlayScrollBar::rangeChanged, this, &OverlayScrollBar::setChildRange);
+    connect(this, &OverlayScrollBar::valueChanged, &child_sb_, &QScrollBar::setValue);
 
-    connect(&child_sb_, SIGNAL(valueChanged(int)), this, SLOT(setValue(int)));
+    connect(&child_sb_, &QScrollBar::valueChanged, this, &OverlayScrollBar::setValue);
 }
 
 OverlayScrollBar::~OverlayScrollBar()

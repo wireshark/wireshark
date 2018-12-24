@@ -34,7 +34,7 @@ EditorFileDialog::EditorFileDialog(const QModelIndex& index, enum FileMode mode,
         setText(directory);
 
     file_dialog_button_->setText(UTF8_HORIZONTAL_ELLIPSIS);
-    connect(file_dialog_button_, SIGNAL(clicked()), this, SLOT(applyFilename()));
+    connect(file_dialog_button_, &QPushButton::clicked, this, &EditorFileDialog::applyFilename);
 }
 
 void EditorFileDialog::setOption(QFileDialog::Option option, bool on)
