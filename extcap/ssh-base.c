@@ -20,7 +20,7 @@
 #include <libssh/callbacks.h>
 #include <ws_attributes.h>
 
-void extcap_log(int priority _U_, const char *function, const char *buffer, void *userdata _U_)
+static void extcap_log(int priority _U_, const char *function, const char *buffer, void *userdata _U_)
 {
 	g_debug("[%s] %s", function, buffer);
 }
