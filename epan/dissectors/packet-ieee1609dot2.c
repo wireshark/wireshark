@@ -30,8 +30,8 @@
 #define PSNAME "IEEE1609dot2"
 #define PFNAME "ieee1609dot2"
 
-void proto_register_IEEE1609dot2(void);
-void proto_reg_handoff_IEEE1609dot2(void);
+void proto_register_ieee1609dot2(void);
+void proto_reg_handoff_ieee1609dot2(void);
 
 /* Initialize the protocol and registered fields */
 int proto_ieee1609dot2 = -1;
