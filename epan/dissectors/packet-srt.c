@@ -465,7 +465,7 @@ static void format_text_reorder_32(proto_tree* tree, tvbuff_t* tvb, int hfinfo, 
 /* Code to actually dissect the packets
  *
  */
-void
+static void
 dissect_srt_control_packet(tvbuff_t *tvb, packet_info* pinfo,
                            proto_tree *tree, proto_item *srt_item)
 {
