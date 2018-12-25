@@ -66,7 +66,7 @@ void proto_register_HI2Operations(void) {
 /*--- proto_reg_handoff_HI2Operations -------------------------------------------*/
 void proto_reg_handoff_HI2Operations(void) {
 
-    heur_dissector_add("q931_user", dissect_HI2Operations_UUS1_Content_PDU, "HI3CCLinkData", "hi3cclinkdata",
+    heur_dissector_add("q931_user", dissect_UUS1_Content_PDU, "HI3CCLinkData", "hi3cclinkdata",
         proto_HI2Operations, HEURISTIC_ENABLE);
 
 }

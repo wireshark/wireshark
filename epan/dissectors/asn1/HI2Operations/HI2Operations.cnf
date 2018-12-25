@@ -10,7 +10,6 @@ HI3CCLinkData	hi3cclinkdata
 #.MODULE_IMPORT
 
 #.EXPORTS
-UUS1-Content_PDU
 
 #.REGISTER
 

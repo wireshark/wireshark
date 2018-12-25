@@ -41,7 +41,7 @@ int proto_HI2Operations = -1;
 /*--- Included file: packet-HI2Operations-hf.c ---*/
 #line 1 "./asn1/HI2Operations/packet-HI2Operations-hf.c"
 static int hf_HI2Operations_IRIsContent_PDU = -1;  /* IRIsContent */
-static int hf_HI2Operations_HI2Operations_UUS1_Content_PDU = -1;  /* UUS1_Content */
+static int hf_HI2Operations_UUS1_Content_PDU = -1;  /* UUS1_Content */
 static int hf_HI2Operations_iRIContent = -1;      /* IRIContent */
 static int hf_HI2Operations_iRISequence = -1;     /* IRISequence */
 static int hf_HI2Operations_IRISequence_item = -1;  /* IRIContent */
@@ -547,7 +547,7 @@ dissect_HI2Operations_OCTET_STRING_SIZE_1_5(gboolean implicit_tag _U_, tvbuff_t 
 
 static int
 dissect_HI2Operations_T_e164_Format(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 79 "./asn1/HI2Operations/HI2Operations.cnf"
+#line 78 "./asn1/HI2Operations/HI2Operations.cnf"
   tvbuff_t *parameter_tvb=NULL;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -3799,7 +3799,7 @@ dissect_HI2Operations_Direction_Indication(gboolean implicit_tag _U_, tvbuff_t *
 
 static int
 dissect_HI2Operations_T_bearer_capability(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 88 "./asn1/HI2Operations/HI2Operations.cnf"
+#line 87 "./asn1/HI2Operations/HI2Operations.cnf"
   tvbuff_t *parameter_tvb;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -3857,7 +3857,7 @@ static const ber_sequence_t UUS1_Content_sequence[] = {
 
 static int
 dissect_HI2Operations_UUS1_Content(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 35 "./asn1/HI2Operations/HI2Operations.cnf"
+#line 34 "./asn1/HI2Operations/HI2Operations.cnf"
 
 /* Heuristic test to see if it's our content */
     gint8    tmp_class;
@@ -3917,11 +3917,11 @@ static int dissect_IRIsContent_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
   offset = dissect_HI2Operations_IRIsContent(FALSE, tvb, offset, &asn1_ctx, tree, hf_HI2Operations_IRIsContent_PDU);
   return offset;
 }
-int dissect_HI2Operations_UUS1_Content_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+static int dissect_UUS1_Content_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  offset = dissect_HI2Operations_UUS1_Content(FALSE, tvb, offset, &asn1_ctx, tree, hf_HI2Operations_HI2Operations_UUS1_Content_PDU);
+  offset = dissect_HI2Operations_UUS1_Content(FALSE, tvb, offset, &asn1_ctx, tree, hf_HI2Operations_UUS1_Content_PDU);
   return offset;
 }
 
@@ -3942,7 +3942,7 @@ void proto_register_HI2Operations(void) {
       { "IRIsContent", "HI2Operations.IRIsContent",
         FT_UINT32, BASE_DEC, VALS(HI2Operations_IRIsContent_vals), 0,
         NULL, HFILL }},
-    { &hf_HI2Operations_HI2Operations_UUS1_Content_PDU,
+    { &hf_HI2Operations_UUS1_Content_PDU,
       { "UUS1-Content", "HI2Operations.UUS1_Content_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
@@ -5369,7 +5369,7 @@ void proto_register_HI2Operations(void) {
 /*--- proto_reg_handoff_HI2Operations -------------------------------------------*/
 void proto_reg_handoff_HI2Operations(void) {
 
-    heur_dissector_add("q931_user", dissect_HI2Operations_UUS1_Content_PDU, "HI3CCLinkData", "hi3cclinkdata",
+    heur_dissector_add("q931_user", dissect_UUS1_Content_PDU, "HI3CCLinkData", "hi3cclinkdata",
         proto_HI2Operations, HEURISTIC_ENABLE);
 
 }
