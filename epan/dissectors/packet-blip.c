@@ -23,6 +23,9 @@
 #include <zlib.h>
 #endif
 
+void proto_reg_handoff_blip(void);
+void proto_register_blip(void);
+
 #define BLIP_BODY_CHECKSUM_SIZE 4
 #define BLIP_INFLATE_BUFFER_SIZE 16384
 
