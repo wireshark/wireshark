@@ -3396,7 +3396,18 @@ prefs_register_modules(void)
                                    &prefs.gui_interfaces_remote_display);
 
     register_string_like_preference(gui_module, "interfaces_hidden_types", "Hide interface types in list",
-        "Hide the given interface types in the startup list",
+        "Hide the given interface types in the startup list.\n"
+        "A commma-separated string of interface type values (e.g. 5,9).\n"
+         "0 = Wired,\n"
+         "1 = AirPCAP,\n"
+         "2 = Pipe,\n"
+         "3 = STDIN,\n"
+         "4 = Bluetooth,\n"
+         "5 = Wireless,\n"
+         "6 = Dial-Up,\n"
+         "7 = USB,\n"
+         "8 = External Capture,\n"
+         "9 = Virtual",
         &prefs.gui_interfaces_hide_types, PREF_STRING, NULL, TRUE);
 
     /* Console

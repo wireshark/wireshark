@@ -17,17 +17,21 @@ extern "C" {
 
 #include <glib.h>
 
+/*
+ * Explicitly set the interface_type enum values as these values are exposed
+ * in the preferences gui.interfaces_hidden_types string.
+ */
 typedef enum {
-	IF_WIRED,
-	IF_AIRPCAP,
-	IF_PIPE,
-	IF_STDIN,
-	IF_BLUETOOTH,
-	IF_WIRELESS,
-	IF_DIALUP,
-	IF_USB,
-	IF_EXTCAP,
-	IF_VIRTUAL
+	IF_WIRED	= 0,
+	IF_AIRPCAP	= 1,
+	IF_PIPE		= 2,
+	IF_STDIN	= 3,
+	IF_BLUETOOTH	= 4,
+	IF_WIRELESS	= 5,
+	IF_DIALUP	= 6,
+	IF_USB		= 7,
+	IF_EXTCAP	= 8,
+	IF_VIRTUAL	= 9
 } interface_type;
 
 /*
