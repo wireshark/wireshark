@@ -306,19 +306,26 @@ json_dumper_value_string(json_dumper *dumper, const char *value)
 }
 
 void
-json_dumper_value_anyf(json_dumper *dumper, const char *format, ...)
+json_dumper_value_va_list(json_dumper *dumper, const char *format, va_list ap)
 {
-    va_list ap;
     if (!json_dumper_check_state(dumper, JSON_DUMPER_SET_VALUE, JSON_DUMPER_TYPE_VALUE)) {
         return;
     }
 
     prepare_token(dumper);
-    va_start(ap, format);
     vfprintf(dumper->output_file, format, ap);
-    va_end(ap);
 
     dumper->state[dumper->current_depth] = JSON_DUMPER_TYPE_VALUE;
+}
+
+void
+json_dumper_value_anyf(json_dumper *dumper, const char *format, ...)
+{
+    va_list ap;
+
+    va_start(ap, format);
+    json_dumper_value_va_list(dumper, format, ap);
+    va_end(ap);
 }
 
 gboolean

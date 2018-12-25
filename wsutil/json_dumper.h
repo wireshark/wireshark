@@ -87,6 +87,14 @@ WS_DLL_PUBLIC void
 json_dumper_value_anyf(json_dumper *dumper, const char *format, ...)
 G_GNUC_PRINTF(2, 3);
 
+/**
+ * Dump literal values (like json_dumper_value_anyf), but taking a va_list
+ * as parameter. String values MUST be properly quoted by the caller, no
+ * escaping occurs. Do not use with untrusted data.
+ */
+WS_DLL_PUBLIC void
+json_dumper_value_va_list(json_dumper *dumper, const char *format, va_list ap);
+
 WS_DLL_PUBLIC void
 json_dumper_begin_base64(json_dumper *dumper);
 
