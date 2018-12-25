@@ -74,7 +74,8 @@ oer_tvb_new_subset_length(tvbuff_t *tvb, const gint backing_offset, const gint b
     return tvb_new_subset_length(tvb, backing_offset, (length_remaining > backing_length) ? backing_length : length_remaining);
 }
 
-void dissect_oer_not_decoded_yet(proto_tree* tree, packet_info* pinfo, tvbuff_t *tvb, const char* reason)
+static void
+dissect_oer_not_decoded_yet(proto_tree* tree, packet_info* pinfo, tvbuff_t *tvb, const char* reason)
 {
     proto_tree_add_expert_format(tree, pinfo, &ei_oer_undecoded, tvb, 0, 0, "something unknown here [%s]", reason);
     col_append_fstr(pinfo->cinfo, COL_INFO, "[UNKNOWN OER: %s]", reason);
