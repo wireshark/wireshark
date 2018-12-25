@@ -176,18 +176,18 @@ enum PacketBoundary
  */
 enum UDTMessageType
 {
-    UMSG_HANDSHAKE = 0, //< Connection Handshake. Control: see @a CHandShake.
-    UMSG_KEEPALIVE = 1, //< Keep-alive.
-    UMSG_ACK = 2, //< Acknowledgement. Control: past-the-end sequence number up to which packets have been received.
-    UMSG_LOSSREPORT = 3, //< Negative Acknowledgement (NACK). Control: Loss list.
-    UMSG_CGWARNING = 4, //< Congestion warning.
-    UMSG_SHUTDOWN = 5, //< Shutdown.
-    UMSG_ACKACK = 6, //< Acknowledgement of Acknowledgement. Add info: The ACK sequence number
-    UMSG_DROPREQ = 7, //< Message Drop Request. Add info: Message ID. Control Info: (first, last) number of the message.
-    UMSG_PEERERROR = 8, //< Signal from the Peer side. Add info: Error code.
+    UMSG_HANDSHAKE = 0, // Connection Handshake. Control: see @a CHandShake.
+    UMSG_KEEPALIVE = 1, // Keep-alive.
+    UMSG_ACK = 2, // Acknowledgement. Control: past-the-end sequence number up to which packets have been received.
+    UMSG_LOSSREPORT = 3, // Negative Acknowledgement (NACK). Control: Loss list.
+    UMSG_CGWARNING = 4, // Congestion warning.
+    UMSG_SHUTDOWN = 5, // Shutdown.
+    UMSG_ACKACK = 6, // Acknowledgement of Acknowledgement. Add info: The ACK sequence number
+    UMSG_DROPREQ = 7, // Message Drop Request. Add info: Message ID. Control Info: (first, last) number of the message.
+    UMSG_PEERERROR = 8, // Signal from the Peer side. Add info: Error code.
     /* ... add extra code types here */
     UMSG_END_OF_TYPES,
-    UMSG_EXT = 0x7FFF //< For the use of user-defined control packets.
+    UMSG_EXT = 0x7FFF // For the use of user-defined control packets.
 };
 
 // Adapted constants
