@@ -1099,6 +1099,7 @@ static guint32 get_len_packet_number(guint8 puflags){
     return 6;
 }
 
+static
 gboolean is_gquic_unencrypt(tvbuff_t *tvb, packet_info *pinfo, guint offset, guint16 len_pkn, gquic_info_data_t *gquic_info){
     guint8 frame_type;
     guint8 num_ranges, num_revived, num_blocks = 0, num_timestamp;
@@ -1988,7 +1989,7 @@ dissect_gquic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tr
 
 }
 
-int
+static int
 dissect_gquic_unencrypt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, guint offset, guint8 len_pkn, gquic_info_data_t *gquic_info){
     proto_item *ti_prflags;
     proto_tree *prflags_tree;
