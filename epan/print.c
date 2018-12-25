@@ -351,14 +351,13 @@ write_ek_proto_tree(output_fields_t* fields,
 {
     write_json_data data;
     char ts[30];
-    time_t t = time(NULL);
-    struct tm  *timeinfo;
+    struct tm *timeinfo;
 
     g_assert(edt);
     g_assert(fh);
 
     /* Create the output */
-    timeinfo = localtime(&t);
+    timeinfo = localtime(&edt->pi.abs_ts.secs);
     if (timeinfo != NULL)
         strftime(ts, sizeof ts, "%Y-%m-%d", timeinfo);
     else
@@ -700,8 +699,7 @@ write_json_proto_tree(output_fields_t* fields,
                       FILE *fh)
 {
     char ts[30];
-    time_t t = time(NULL);
-    struct tm * timeinfo;
+    struct tm *timeinfo;
     write_json_data data;
 
     if (!json_is_first) {
@@ -710,7 +708,7 @@ write_json_proto_tree(output_fields_t* fields,
         json_is_first = FALSE;
     }
 
-    timeinfo = localtime(&t);
+    timeinfo = localtime(&edt->pi.abs_ts.secs);
     if (timeinfo != NULL) {
         strftime(ts, sizeof ts, "%Y-%m-%d", timeinfo);
     } else {
