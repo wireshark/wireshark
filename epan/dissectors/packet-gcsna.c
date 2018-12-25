@@ -15,6 +15,9 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 
+void proto_reg_handoff_gcsna(void);
+void proto_register_gcsna(void);
+
  /* gcsna Handle for the dissection */
 static dissector_handle_t gcsna_handle;
 static dissector_handle_t cdma2k_handle;
