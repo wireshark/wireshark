@@ -499,7 +499,6 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
               command_token = wmem_ascii_strdown(wmem_packet_scope(), command_token, commandlen);
 
               folderlen = linelen - (uid_next_token - offset);
-              folder_offset = uid_next_token;
               folder_tokenlen = tvb_get_token_len(tvb, uid_next_token, folderlen, &folder_next_token, FALSE);
             }
           } else {
