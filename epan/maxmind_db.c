@@ -220,6 +220,8 @@ read_mmdbr_stdout_worker(gpointer data _U_) {
         char ch;
         ssize_t status;
 
+        cur_addr[0] = '\0';
+
         g_string_truncate(line_buf, 0);
 
         while((status = mmdbr_pipe_read_one(&ch)) == 1) {
