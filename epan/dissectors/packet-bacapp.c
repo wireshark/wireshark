@@ -2144,7 +2144,7 @@ fProcessId(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
  * @param pinfo the packet info of the current data
  * @param tree the tree to append this item to
  * @param offset the offset in the tvb
- * @param value_string enum of string values when applicable
+ * @param vs enum of string values when applicable
  * @param split_val enum index
  * @param type present value datatype enum
  * @return modified offset
