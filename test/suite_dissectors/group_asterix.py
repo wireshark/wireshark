@@ -14,7 +14,7 @@ import inspect
 # Wireshark modules
 import fixtures
 import subprocesstest
-import suite_dissectors.dissectorstest
+from suite_dissectors.dissectorstest import *
 
 
 @fixtures.mark_usefixtures('test_env')
