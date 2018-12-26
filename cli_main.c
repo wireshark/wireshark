@@ -1,7 +1,7 @@
 /*
  * Compile and link this with all CLI programs where the main routine
- * should get UTF-8 arguments on Windows.  In those programs, declare
- * the main program as real_main() rather than main().
+ * should get UTF-8 arguments on Windows.  In those programs, include the
+ * cli_main.h header to rename main to real_main on Windows.
  *
  * This is used in software licensed under the GPLv2, and its license MUST
  * be compatible with that license.
@@ -62,12 +62,11 @@ wmain(int argc, wchar_t *wc_argv[])
 		argv[i] = utf8_string;
 	}
 	argv[i] = NULL;
-	return real_main(argc, argv);
-}
-#else /* _WIN32 */
-int
-main(int argc, char *argv[])
-{
+	/*
+	 * The original "main" routine was renamed to "real_main" via a macro in
+	 * the cli_main.h header file since either "main" or "wmain" can be
+	 * defined on Windows, but not both.
+	 */
 	return real_main(argc, argv);
 }
 #endif

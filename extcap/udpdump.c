@@ -356,7 +356,7 @@ static void run_listener(const char* fifo, const guint16 port, const char* proto
 	g_free(buf);
 }
 
-int real_main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
 	int option_idx = 0;
 	int result;

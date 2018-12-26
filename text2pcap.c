@@ -1853,7 +1853,7 @@ parse_options (int argc, char *argv[])
 }
 
 int
-real_main(int argc, char *argv[])
+main(int argc, char *argv[])
 {
     int ret = EXIT_SUCCESS;
 

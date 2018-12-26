@@ -4656,7 +4656,7 @@ get_dumpcap_runtime_info(GString *str)
 
 /* And now our feature presentation... [ fade to music ] */
 int
-real_main(int argc, char *argv[])
+main(int argc, char *argv[])
 {
     int               opt;
     static const struct option long_options[] = {

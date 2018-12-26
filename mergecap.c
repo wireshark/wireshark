@@ -227,7 +227,7 @@ merge_callback(merge_event event, int num,
 }
 
 int
-real_main(int argc, char *argv[])
+main(int argc, char *argv[])
 {
   char               *init_progfile_dir_error;
   int                 opt;

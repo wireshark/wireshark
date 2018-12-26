@@ -121,7 +121,7 @@ static int list_config(char *interface)
 	return EXIT_SUCCESS;
 }
 
-int real_main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
 	int option_idx = 0;
 	int result;

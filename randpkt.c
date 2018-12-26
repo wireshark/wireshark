@@ -100,7 +100,7 @@ usage(gboolean is_error)
 }
 
 int
-real_main(int argc, char **argv)
+main(int argc, char *argv[])
 {
 	char                   *init_progfile_dir_error;
 	int			opt;

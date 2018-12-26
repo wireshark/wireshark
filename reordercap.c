@@ -161,7 +161,7 @@ failure_message_cont(const char *msg_format, va_list ap)
 /* Main function.                                                   */
 /********************************************************************/
 int
-real_main(int argc, char *argv[])
+main(int argc, char *argv[])
 {
     char *init_progfile_dir_error;
     wtap *wth = NULL;

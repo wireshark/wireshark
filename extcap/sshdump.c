@@ -329,7 +329,7 @@ static char* concat_filters(const char* extcap_filter, const char* remote_filter
 	return g_strdup_printf("(%s) and (%s)", extcap_filter, remote_filter);
 }
 
-int real_main(int argc, char **argv)
+int main(int argc, char *argv[])
 {
 	int result;
 	int option_idx = 0;

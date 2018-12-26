@@ -515,7 +515,7 @@ static int list_config(char *interface, unsigned int remote_port)
 	return EXIT_SUCCESS;
 }
 
-int real_main(int argc, char **argv)
+int main(int argc, char *argv[])
 {
 	int result;
 	int option_idx = 0;

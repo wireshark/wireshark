@@ -2480,7 +2480,7 @@ static int capture_android_tcpdump(char *interface, char *fifo,
     return EXIT_CODE_SUCCESS;
 }
 
-int real_main(int argc, char **argv) {
+int main(int argc, char *argv[]) {
     int              ret = EXIT_CODE_GENERIC;
     int              option_idx = 0;
     int              result;

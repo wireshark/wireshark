@@ -300,7 +300,7 @@ get_tfshark_runtime_version_info(GString *str)
 }
 
 int
-real_main(int argc, char *argv[])
+main(int argc, char *argv[])
 {
   char                *init_progfile_dir_error;
   int                  opt;

@@ -670,7 +670,7 @@ must_do_dissection(dfilter_t *rfcode, dfilter_t *dfcode,
 }
 
 int
-real_main(int argc, char *argv[])
+main(int argc, char *argv[])
 {
   char                *init_progfile_dir_error;
   int                  opt;
