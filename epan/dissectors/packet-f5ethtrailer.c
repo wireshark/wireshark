@@ -1262,26 +1262,6 @@ static struct f5eth_analysis_data_t *new_f5eth_analysis_data_t(void)
 } /* new_f5eth_analysis_data_t() */
 
 
-/*-----------------------------------------------------------------------------------------------*/
-/** \brief Retrieves the analysis data structure from the packet info.  If it doesn't exist, it
- *  creates one and attaches it.
- *
- *   @param pinfo  A pointer to the packet info to look at for the analysis data.
- *   @return       A pointer to the analysis data structure retrieved or created.  NULL if error.
- */
-static struct f5eth_analysis_data_t *get_f5eth_analysis_data(packet_info *pinfo)
-{
-	struct f5eth_analysis_data_t *analysis_data;
-
-	analysis_data = (struct f5eth_analysis_data_t*)p_get_proto_data(wmem_file_scope(), pinfo,
-		proto_f5ethtrailer, 0);
-	if(analysis_data == NULL) {
-		analysis_data = new_f5eth_analysis_data_t();
-		p_add_proto_data(wmem_file_scope(), pinfo, proto_f5ethtrailer, 0, analysis_data);
-	}
-	return(analysis_data);
-} /* get_f5eth_analysis_data() */
-
 /* Functions for find a subtree of a particular type of the current tree. */
 
 /** Structure used as the anonymous data in the proto_tree_children_foreach() function */
@@ -1399,9 +1379,12 @@ static gboolean ip_tap_pkt(
 	epan_dissect_t *edt _U_,
 	const void *data
 ) {
-	struct f5eth_analysis_data_t *ad = get_f5eth_analysis_data(pinfo);
+	struct f5eth_analysis_data_t *ad;
 	const ws_ip4 *iph;
 
+	ad = (struct f5eth_analysis_data_t*)p_get_proto_data(wmem_file_scope(), pinfo,
+		proto_f5ethtrailer, 0);
+	if(ad == NULL) return(FALSE);	/* No F5 information */
 	if(ad->ip_visited == 1) return(FALSE);
 	ad->ip_visited = 1;
 
@@ -1433,9 +1416,12 @@ static gboolean ipv6_tap_pkt(
 	epan_dissect_t *edt _U_,
 	const void *data
 ) {
-	struct f5eth_analysis_data_t *ad = get_f5eth_analysis_data(pinfo);
+	struct f5eth_analysis_data_t *ad;
 	const struct ws_ip6_hdr *ipv6h;
 
+	ad = (struct f5eth_analysis_data_t*)p_get_proto_data(wmem_file_scope(), pinfo,
+		proto_f5ethtrailer, 0);
+	if(ad == NULL) return(FALSE);	/* No F5 information */
 	if(ad->ip_visited == 1) return(FALSE);
 	ad->ip_visited = 1;
 
@@ -1470,9 +1456,12 @@ static gboolean tcp_tap_pkt(
 	epan_dissect_t *edt _U_,
 	const void *data
 ) {
-	struct f5eth_analysis_data_t *ad = get_f5eth_analysis_data(pinfo);
+	struct f5eth_analysis_data_t *ad;
 	const tcp_info_t *tcph;
 
+	ad = (struct f5eth_analysis_data_t*)p_get_proto_data(wmem_file_scope(), pinfo,
+		proto_f5ethtrailer, 0);
+	if(ad == NULL) return(FALSE);	/* No F5 information */
 	if(ad->tcp_visited == 1) return(FALSE);
 	ad->tcp_visited = 1;
 
@@ -2765,9 +2754,13 @@ dissect_f5ethtrailer(
 
 	if(pref_perform_analysis) {
 		/* Get the analysis data information for this packet */
-		ad = get_f5eth_analysis_data(pinfo);
-
-		if(ad != NULL && ad->analysis_done == 0) {
+		ad = (struct f5eth_analysis_data_t*)p_get_proto_data(wmem_file_scope(), pinfo,
+			proto_f5ethtrailer, 0);
+		if(ad == NULL) {
+			ad = new_f5eth_analysis_data_t();
+			p_add_proto_data(wmem_file_scope(), pinfo, proto_f5ethtrailer, 0, ad);
+		}
+		if(ad->analysis_done == 0) {
 			ad->pkt_ingress = tdata->ingress;
 			if(tdata->flows_set == 1) {
 				ad->pkt_has_flow = tdata->flow == 0 ? 0 : 1;
