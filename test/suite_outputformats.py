@@ -16,6 +16,7 @@ from matchers import *
 
 @fixtures.fixture
 def check_outputformat(cmd_tshark, dirs, capture_file):
+    ''' Check a capture file against a sample, in json format. '''
     def check_outputformat_real(self, pcap_file, format_option, format_file, multiline=False):
         self.maxDiff = 1000000
         tshark_proc = self.assertRun((cmd_tshark, '-r', capture_file(pcap_file), '-T', format_option,))
