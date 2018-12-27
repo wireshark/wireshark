@@ -200,8 +200,8 @@ collectd_time_to_nstime (guint64 t)
 static void
 collectd_stats_tree_init (stats_tree *st)
 {
-	st_collectd_packets = stats_tree_create_node (st, "Packets", 0, FALSE);
-	st_collectd_values = stats_tree_create_node (st, "Values", 0, TRUE);
+	st_collectd_packets = stats_tree_create_node (st, "Packets", 0, STAT_DT_INT, FALSE);
+	st_collectd_values = stats_tree_create_node (st, "Values", 0, STAT_DT_INT, TRUE);
 
 	st_collectd_values_hosts = stats_tree_create_pivot (st, "By host",
 							   st_collectd_values);

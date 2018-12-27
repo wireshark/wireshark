@@ -99,11 +99,11 @@ static const gchar *st_str_ipv4 = "IPv4 Statistics/All Addresses";
 static const gchar *st_str_ipv6 = "IPv6 Statistics/All Addresses";
 
 static void ipv4_hosts_stats_tree_init(stats_tree *st) {
-	st_node_ipv4 = stats_tree_create_node(st, st_str_ipv4, 0, TRUE);
+	st_node_ipv4 = stats_tree_create_node(st, st_str_ipv4, 0, STAT_DT_INT, TRUE);
 }
 
 static void ipv6_hosts_stats_tree_init(stats_tree *st) {
-	st_node_ipv6 = stats_tree_create_node(st, st_str_ipv6, 0, TRUE);
+	st_node_ipv6 = stats_tree_create_node(st, st_str_ipv6, 0, STAT_DT_INT, TRUE);
 }
 
 static int ip_hosts_stats_tree_packet(stats_tree *st, packet_info *pinfo, int st_node, const gchar *st_str) {
@@ -137,11 +137,11 @@ static void ip_srcdst_stats_tree_init(stats_tree *st,
 				const gchar *st_str_src, int *st_node_src_ptr,
 				const gchar *st_str_dst, int *st_node_dst_ptr) {
 	/* create one tree branch for source */
-	*st_node_src_ptr = stats_tree_create_node(st, st_str_src, 0, TRUE);
+	*st_node_src_ptr = stats_tree_create_node(st, st_str_src, 0, STAT_DT_INT, TRUE);
 	/* set flag so this branch will always be sorted to top of tree */
 	stat_node_set_flags(st, st_str_src, 0, FALSE, ST_FLG_SORT_TOP);
 	/* creat another top level node for destination branch */
-	*st_node_dst_ptr = stats_tree_create_node(st, st_str_dst, 0, TRUE);
+	*st_node_dst_ptr = stats_tree_create_node(st, st_str_dst, 0, STAT_DT_INT, TRUE);
 	/* set flag so this branch will not be expanded by default */
 	stat_node_set_flags(st, st_str_dst, 0, FALSE, ST_FLG_DEF_NOEXPAND);
 }
@@ -210,11 +210,11 @@ static const gchar *st_str_ipv4_dsts = "IPv4 Statistics/Destinations and Ports";
 static const gchar *st_str_ipv6_dsts = "IPv6 Statistics/Destinations and Ports";
 
 static void ipv4_dsts_stats_tree_init(stats_tree *st) {
-	st_node_ipv4_dsts = stats_tree_create_node(st, st_str_ipv4_dsts, 0, TRUE);
+	st_node_ipv4_dsts = stats_tree_create_node(st, st_str_ipv4_dsts, 0, STAT_DT_INT, TRUE);
 }
 
 static void ipv6_dsts_stats_tree_init(stats_tree *st) {
-	st_node_ipv6_dsts = stats_tree_create_node(st, st_str_ipv6_dsts, 0, TRUE);
+	st_node_ipv6_dsts = stats_tree_create_node(st, st_str_ipv6_dsts, 0, STAT_DT_INT, TRUE);
 }
 
 static int dsts_stats_tree_packet(stats_tree *st, packet_info *pinfo, int st_node, const gchar *st_str) {

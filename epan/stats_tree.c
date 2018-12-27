@@ -156,9 +156,19 @@ reset_stat_node(stat_node *node)
     burst_bucket *bucket;
 
     node->counter = 0;
-    node->total = 0;
-    node->minvalue = G_MAXINT;
-    node->maxvalue = G_MININT;
+    switch (node->datatype)
+    {
+    case STAT_DT_INT:
+        node->total.int_total = 0;
+        node->minvalue.int_min = G_MAXINT;
+        node->maxvalue.int_max = G_MININT;
+        break;
+    case STAT_DT_FLOAT:
+        node->total.float_total = 0;
+        node->minvalue.float_min = G_MAXFLOAT;
+        node->maxvalue.float_max = G_MINFLOAT;
+        break;
+    }
     node->st_flags = 0;
 
     while (node->bh) {
@@ -206,9 +216,19 @@ stats_tree_reinit(void *p)
 
     st->root.children = NULL;
     st->root.counter = 0;
-    st->root.total = 0;
-    st->root.minvalue = G_MAXINT;
-    st->root.maxvalue = G_MININT;
+    switch (st->root.datatype)
+    {
+    case STAT_DT_INT:
+        st->root.total.int_total = 0;
+        st->root.minvalue.int_min = G_MAXINT;
+        st->root.maxvalue.int_max = G_MININT;
+        break;
+    case STAT_DT_FLOAT:
+        st->root.total.float_total = 0;
+        st->root.minvalue.float_min = G_MAXFLOAT;
+        st->root.maxvalue.float_max = G_MINFLOAT;
+        break;
+    }
     st->root.st_flags = 0;
 
     st->root.bh = (burst_bucket*)g_malloc0(sizeof(burst_bucket));
@@ -317,8 +337,17 @@ stats_tree_new(stats_tree_cfg *cfg, tree_pres *pr, const char *filter)
     st->start = -1.0;
     st->elapsed = 0.0;
 
-    st->root.minvalue = G_MAXINT;
-    st->root.maxvalue = G_MININT;
+    switch (st->root.datatype)
+    {
+    case STAT_DT_INT:
+        st->root.minvalue.int_min = G_MAXINT;
+        st->root.maxvalue.int_max = G_MININT;
+        break;
+    case STAT_DT_FLOAT:
+        st->root.minvalue.float_min = G_MAXFLOAT;
+        st->root.maxvalue.float_max = G_MINFLOAT;
+        break;
+    }
 
     st->root.bh = (burst_bucket*)g_malloc0(sizeof(burst_bucket));
     st->root.bt = st->root.bh;
@@ -429,15 +458,25 @@ stats_tree_presentation(void (*registry_iterator)(gpointer,gpointer,gpointer),
 *    as_named_node: whether or not it has to be registered in the root namespace
 */
 static stat_node*
-new_stat_node(stats_tree *st, const gchar *name, int parent_id,
+new_stat_node(stats_tree *st, const gchar *name, int parent_id, stat_node_datatype datatype,
           gboolean with_hash, gboolean as_parent_node)
 {
 
     stat_node *node = (stat_node *)g_malloc0(sizeof(stat_node));
     stat_node *last_chld = NULL;
 
-    node->minvalue = G_MAXINT;
-    node->maxvalue = G_MININT;
+    node->datatype = datatype;
+    switch (datatype)
+    {
+    case STAT_DT_INT:
+        node->minvalue.int_min = G_MAXINT;
+        node->maxvalue.int_max = G_MININT;
+        break;
+    case STAT_DT_FLOAT:
+        node->minvalue.float_min = G_MAXFLOAT;
+        node->maxvalue.float_max = G_MINFLOAT;
+        break;
+    }
     node->st_flags = parent_id?0:ST_FLG_ROOTCHILD;
 
     node->bh = (burst_bucket*)g_malloc0(sizeof(burst_bucket));
@@ -496,9 +535,9 @@ new_stat_node(stats_tree *st, const gchar *name, int parent_id,
 /***/
 
 extern int
-stats_tree_create_node(stats_tree *st, const gchar *name, int parent_id, gboolean with_hash)
+stats_tree_create_node(stats_tree *st, const gchar *name, int parent_id, stat_node_datatype datatype, gboolean with_hash)
 {
-    stat_node *node = new_stat_node(st,name,parent_id,with_hash,TRUE);
+    stat_node *node = new_stat_node(st,name,parent_id,datatype,with_hash,TRUE);
 
     if (node)
         return node->id;
@@ -509,9 +548,9 @@ stats_tree_create_node(stats_tree *st, const gchar *name, int parent_id, gboolea
 /* XXX: should this be a macro? */
 extern int
 stats_tree_create_node_by_pname(stats_tree *st, const gchar *name,
-                const gchar *parent_name, gboolean with_children)
+                const gchar *parent_name, stat_node_datatype datatype, gboolean with_children)
 {
-    return stats_tree_create_node(st,name,stats_tree_parent_id_by_name(st,parent_name),with_children);
+    return stats_tree_create_node(st,name,stats_tree_parent_id_by_name(st,parent_name),datatype,with_children);
 }
 
 /* Internal function to update the burst calculation data - add entry to bucket */
@@ -607,8 +646,8 @@ update_burst_calc(stat_node *node, gint value)
  * using parent_name as parent node.
  * with_hash=TRUE to indicate that the created node will have a parent
  */
-extern int
-stats_tree_manip_node(manip_node_mode mode, stats_tree *st, const char *name,
+int
+stats_tree_manip_node_int(manip_node_mode mode, stats_tree *st, const char *name,
               int parent_id, gboolean with_hash, gint value)
 {
     stat_node *node = NULL;
@@ -625,25 +664,27 @@ stats_tree_manip_node(manip_node_mode mode, stats_tree *st, const char *name,
     }
 
     if ( node == NULL )
-        node = new_stat_node(st,name,parent_id,with_hash,with_hash);
+        node = new_stat_node(st,name,parent_id,STAT_DT_INT,with_hash,with_hash);
 
     switch (mode) {
         case MN_INCREASE:
             node->counter += value;
             update_burst_calc(node, value);
             break;
-        case MN_SET: node->counter = value; break;
+        case MN_SET:
+            node->counter = value;
+            break;
         case MN_AVERAGE:
             node->counter++;
             update_burst_calc(node, 1);
             /* fall through */ /*to average code */
         case MN_AVERAGE_NOTICK:
-            node->total += value;
-            if (node->minvalue > value) {
-                node->minvalue = value;
+            node->total.int_total += value;
+            if (node->minvalue.int_min > value) {
+                node->minvalue.int_min = value;
             }
-            if (node->maxvalue < value) {
-                node->maxvalue = value;
+            if (node->maxvalue.int_max < value) {
+                node->maxvalue.int_max = value;
             }
             node->st_flags |= ST_FLG_AVERAGE;
             break;
@@ -661,6 +702,59 @@ stats_tree_manip_node(manip_node_mode mode, stats_tree *st, const char *name,
         return -1;
 }
 
+/*
+* Increases by delta the counter of the node whose name is given
+* if the node does not exist yet it's created (with counter=1)
+* using parent_name as parent node.
+* with_hash=TRUE to indicate that the created node will have a parent
+*/
+int
+stats_tree_manip_node_float(manip_node_mode mode, stats_tree *st, const char *name,
+    int parent_id, gboolean with_hash, gfloat value)
+{
+    stat_node *node = NULL;
+    stat_node *parent = NULL;
+
+    g_assert(parent_id >= 0 && parent_id < (int)st->parents->len);
+
+    parent = (stat_node *)g_ptr_array_index(st->parents, parent_id);
+
+    if (parent->hash) {
+        node = (stat_node *)g_hash_table_lookup(parent->hash, name);
+    }
+    else {
+        node = (stat_node *)g_hash_table_lookup(st->names, name);
+    }
+
+    if (node == NULL)
+        node = new_stat_node(st, name, parent_id, STAT_DT_FLOAT, with_hash, with_hash);
+
+    switch (mode) {
+    case MN_AVERAGE:
+        node->counter++;
+        update_burst_calc(node, 1);
+        /* fall through */ /*to average code */
+    case MN_AVERAGE_NOTICK:
+        node->total.float_total += value;
+        if (node->minvalue.float_min > value) {
+            node->minvalue.float_min = value;
+        }
+        if (node->maxvalue.float_max < value) {
+            node->maxvalue.float_max = value;
+        }
+        node->st_flags |= ST_FLG_AVERAGE;
+        break;
+    default:
+        //only average is currently supported
+        g_assert_not_reached();
+        break;
+    }
+
+    if (node)
+        return node->id;
+    else
+        return -1;
+}
 
 extern char*
 stats_tree_get_abbr(const char *opt_arg)
@@ -746,12 +840,12 @@ stats_tree_create_range_node(stats_tree *st, const gchar *name, int parent_id, .
 {
     va_list list;
     gchar *curr_range;
-    stat_node *rng_root = new_stat_node(st, name, parent_id, FALSE, TRUE);
+    stat_node *rng_root = new_stat_node(st, name, parent_id, STAT_DT_INT, FALSE, TRUE);
     stat_node *range_node = NULL;
 
     va_start( list, parent_id );
     while (( curr_range = va_arg(list, gchar*) )) {
-        range_node = new_stat_node(st, curr_range, rng_root->id, FALSE, FALSE);
+        range_node = new_stat_node(st, curr_range, rng_root->id, STAT_DT_INT, FALSE, FALSE);
         range_node->rng = get_range(curr_range);
     }
     va_end( list );
@@ -765,14 +859,14 @@ stats_tree_create_range_node_string(stats_tree *st, const gchar *name,
                     gchar** str_ranges)
 {
     int i;
-    stat_node *rng_root = new_stat_node(st, name, parent_id, FALSE, TRUE);
+    stat_node *rng_root = new_stat_node(st, name, parent_id, STAT_DT_INT, FALSE, TRUE);
     stat_node *range_node = NULL;
 
     for (i = 0; i < num_str_ranges - 1; i++) {
-        range_node = new_stat_node(st, str_ranges[i], rng_root->id, FALSE, FALSE);
+        range_node = new_stat_node(st, str_ranges[i], rng_root->id, STAT_DT_INT, FALSE, FALSE);
         range_node->rng = get_range(str_ranges[i]);
     }
-    range_node = new_stat_node(st, str_ranges[i], rng_root->id, FALSE, FALSE);
+    range_node = new_stat_node(st, str_ranges[i], rng_root->id, STAT_DT_INT, FALSE, FALSE);
     range_node->rng = get_range(str_ranges[i]);
     if (range_node->rng->floor == range_node->rng->ceil) {
         range_node->rng->ceil = G_MAXINT;
@@ -802,11 +896,11 @@ stats_tree_range_node_with_pname(stats_tree *st, const gchar *name,
     gchar *curr_range;
     stat_node *range_node = NULL;
     int parent_id = stats_tree_parent_id_by_name(st,parent_name);
-    stat_node *rng_root = new_stat_node(st, name, parent_id, FALSE, TRUE);
+    stat_node *rng_root = new_stat_node(st, name, parent_id, STAT_DT_INT, FALSE, TRUE);
 
     va_start( list, parent_name );
     while (( curr_range = va_arg(list, gchar*) )) {
-        range_node = new_stat_node(st, curr_range, rng_root->id, FALSE, FALSE);
+        range_node = new_stat_node(st, curr_range, rng_root->id, STAT_DT_INT, FALSE, FALSE);
         range_node->rng = get_range(curr_range);
     }
     va_end( list );
@@ -841,12 +935,12 @@ stats_tree_tick_range(stats_tree *st, const gchar *name, int parent_id,
         g_assert_not_reached();
 
     /* update stats for container node. counter should already be ticked so we only update total and min/max */
-    node->total += value_in_range;
-    if (node->minvalue > value_in_range) {
-        node->minvalue = value_in_range;
+    node->total.int_total += value_in_range;
+    if (node->minvalue.int_min > value_in_range) {
+        node->minvalue.int_min = value_in_range;
     }
-    if (node->maxvalue < value_in_range) {
-        node->maxvalue = value_in_range;
+    if (node->maxvalue.int_max < value_in_range) {
+        node->maxvalue.int_max = value_in_range;
     }
     node->st_flags |= ST_FLG_AVERAGE;
 
@@ -856,12 +950,12 @@ stats_tree_tick_range(stats_tree *st, const gchar *name, int parent_id,
 
         if ( value_in_range >= stat_floor && value_in_range <= stat_ceil ) {
             child->counter++;
-            child->total += value_in_range;
-            if (child->minvalue > value_in_range) {
-                child->minvalue = value_in_range;
+            child->total.int_total += value_in_range;
+            if (child->minvalue.int_min > value_in_range) {
+                child->minvalue.int_min = value_in_range;
             }
-            if (child->maxvalue < value_in_range) {
-                child->maxvalue = value_in_range;
+            if (child->maxvalue.int_max < value_in_range) {
+                child->maxvalue.int_max = value_in_range;
             }
             child->st_flags |= ST_FLG_AVERAGE;
             update_burst_calc(child, 1);
@@ -875,7 +969,7 @@ stats_tree_tick_range(stats_tree *st, const gchar *name, int parent_id,
 extern int
 stats_tree_create_pivot(stats_tree *st, const gchar *name, int parent_id)
 {
-    stat_node *node = new_stat_node(st,name,parent_id,TRUE,TRUE);
+    stat_node *node = new_stat_node(st,name,parent_id,STAT_DT_INT,TRUE,TRUE);
 
     if (node)
         return node->id;
@@ -890,7 +984,7 @@ stats_tree_create_pivot_by_pname(stats_tree *st, const gchar *name,
     int parent_id = stats_tree_parent_id_by_name(st,parent_name);
     stat_node *node;
 
-    node = new_stat_node(st,name,parent_id,TRUE,TRUE);
+    node = new_stat_node(st,name,parent_id,STAT_DT_INT,TRUE,TRUE);
 
     if (node)
         return node->id;
@@ -905,7 +999,7 @@ stats_tree_tick_pivot(stats_tree *st, int pivot_id, const gchar *pivot_value)
 
     parent->counter++;
     update_burst_calc(parent, 1);
-    stats_tree_manip_node( MN_INCREASE, st, pivot_value, pivot_id, FALSE, 1);
+    stats_tree_manip_node_int( MN_INCREASE, st, pivot_value, pivot_id, FALSE, 1);
 
     return pivot_id;
 }
@@ -1007,15 +1101,64 @@ stats_tree_get_values_from_node (const stat_node* node)
 
     values[COL_NAME] = (node->st_flags&ST_FLG_ROOTCHILD)?stats_tree_get_displayname(node->name):g_strdup(node->name);
     values[COL_COUNT] = g_strdup_printf("%u",node->counter);
-    values[COL_AVERAGE] = ((node->st_flags&ST_FLG_AVERAGE)||node->rng)?
-                (node->counter?g_strdup_printf("%.2f",((float)node->total)/node->counter):g_strdup("-")):
-                g_strdup("");
-    values[COL_MIN] = ((node->st_flags&ST_FLG_AVERAGE)||node->rng)?
-                (node->counter?g_strdup_printf("%u",node->minvalue):g_strdup("-")):
-                g_strdup("");
-    values[COL_MAX] = ((node->st_flags&ST_FLG_AVERAGE)||node->rng)?
-                (node->counter?g_strdup_printf("%u",node->maxvalue):g_strdup("-")):
-                g_strdup("");
+    if (((node->st_flags&ST_FLG_AVERAGE) || node->rng)) {
+        if (node->counter) {
+            switch (node->datatype)
+            {
+            case STAT_DT_INT:
+                values[COL_AVERAGE] = g_strdup_printf("%.2f", ((float)node->total.int_total) / node->counter);
+                break;
+            case STAT_DT_FLOAT:
+                values[COL_AVERAGE] = g_strdup_printf("%.2f", node->total.float_total / node->counter);
+                break;
+            }
+        } else {
+            values[COL_AVERAGE] = g_strdup("-");
+        }
+    } else {
+        values[COL_AVERAGE] = g_strdup("");
+    }
+
+    if (((node->st_flags&ST_FLG_AVERAGE) || node->rng)) {
+        if (node->counter) {
+            switch (node->datatype)
+            {
+            case STAT_DT_INT:
+                values[COL_MIN] = g_strdup_printf("%u", node->minvalue.int_min);
+                break;
+            case STAT_DT_FLOAT:
+                values[COL_MIN] = g_strdup_printf("%f", node->minvalue.float_min);
+                break;
+            }
+        }
+        else {
+            values[COL_MIN] = g_strdup("-");
+        }
+    }
+    else {
+        values[COL_MIN] = g_strdup("");
+    }
+
+    if (((node->st_flags&ST_FLG_AVERAGE) || node->rng)) {
+        if (node->counter) {
+            switch (node->datatype)
+            {
+            case STAT_DT_INT:
+                values[COL_MAX] = g_strdup_printf("%u", node->maxvalue.int_max);
+                break;
+            case STAT_DT_FLOAT:
+                values[COL_MAX] = g_strdup_printf("%f", node->maxvalue.float_max);
+                break;
+            }
+        }
+        else {
+            values[COL_MAX] = g_strdup("-");
+        }
+    }
+    else {
+        values[COL_MAX] = g_strdup("");
+    }
+
     values[COL_RATE] = (node->st->elapsed)?g_strdup_printf("%.4f",((float)node->counter)/node->st->elapsed):g_strdup("");
     values[COL_PERCENT] = ((node->parent)&&(node->parent->counter))?
                 g_strdup_printf("%.2f%%",(node->counter*100.0)/node->parent->counter):
@@ -1037,7 +1180,7 @@ stats_tree_sort_compare (const stat_node *a, const stat_node *b, gint sort_colum
                     gboolean sort_descending)
 {
     int result = 0;
-    float avg_a, avg_b;
+    float avg_a = 0, avg_b = 0;
 
     if  (prefs.st_sort_rng_nameonly&&(a->rng&&b->rng)) {
         /* always sort ranges by range name */
@@ -1068,17 +1211,42 @@ stats_tree_sort_compare (const stat_node *a, const stat_node *b, gint sort_colum
             break;
 
         case COL_AVERAGE:
-            avg_a = a->counter ? ((float)a->total)/a->counter : 0;
-            avg_b = b->counter ? ((float)b->total)/b->counter : 0;
+            switch (a->datatype)
+            {
+            case STAT_DT_INT:
+                avg_a = a->counter ? ((float)a->total.int_total)/a->counter : 0;
+                avg_b = b->counter ? ((float)b->total.int_total)/b->counter : 0;
+                break;
+            case STAT_DT_FLOAT:
+                avg_a = a->counter ? ((float)a->total.float_total) / a->counter : 0;
+                avg_b = b->counter ? ((float)b->total.float_total) / b->counter : 0;
+                break;
+            }
             result = (avg_a>avg_b) ? 1 : ( (avg_a<avg_b) ? -1 : 0);
             break;
 
         case COL_MIN:
-            result = a->minvalue - b->minvalue;
+            switch (a->datatype)
+            {
+            case STAT_DT_INT:
+                result = a->minvalue.int_min - b->minvalue.int_min;
+                break;
+            case STAT_DT_FLOAT:
+                result = (a->minvalue.float_min>b->minvalue.int_min) ? 1 : ((a->minvalue.float_min<b->minvalue.int_min) ? -1 : 0);
+                break;
+            }
             break;
 
         case COL_MAX:
-            result = a->maxvalue - b->maxvalue;
+            switch (a->datatype)
+            {
+            case STAT_DT_INT:
+                result = a->maxvalue.int_max - b->maxvalue.int_max;
+                break;
+            case STAT_DT_FLOAT:
+                result = (a->maxvalue.float_max>b->maxvalue.float_max) ? 1 : ((a->maxvalue.float_max<b->maxvalue.float_max) ? -1 : 0);
+                break;
+            }
             break;
 
         case COL_BURSTRATE:

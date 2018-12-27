@@ -3364,7 +3364,7 @@ proto_register_http2(void)
 
 static void http2_stats_tree_init(stats_tree* st)
 {
-    st_node_http2 = stats_tree_create_node(st, st_str_http2, 0, TRUE);
+    st_node_http2 = stats_tree_create_node(st, st_str_http2, 0, STAT_DT_INT, TRUE);
     st_node_http2_type = stats_tree_create_pivot(st, st_str_http2_type, st_node_http2);
 
 }

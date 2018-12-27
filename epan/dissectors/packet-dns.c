@@ -4152,33 +4152,33 @@ dissect_dns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
 static void dns_stats_tree_init(stats_tree* st)
 {
-  st_node_packets = stats_tree_create_node(st, st_str_packets, 0, TRUE);
+  st_node_packets = stats_tree_create_node(st, st_str_packets, 0, STAT_DT_INT, TRUE);
   st_node_packet_qr = stats_tree_create_pivot(st, st_str_packet_qr, st_node_packets);
   st_node_packet_qtypes = stats_tree_create_pivot(st, st_str_packet_qtypes, st_node_packets);
   st_node_packet_qclasses = stats_tree_create_pivot(st, st_str_packet_qclasses, st_node_packets);
   st_node_packet_rcodes = stats_tree_create_pivot(st, st_str_packet_rcodes, st_node_packets);
   st_node_packet_opcodes = stats_tree_create_pivot(st, st_str_packet_opcodes, st_node_packets);
-  st_node_packets_avg_size = stats_tree_create_node(st, st_str_packets_avg_size, 0, FALSE);
-  st_node_query_stats = stats_tree_create_node(st, st_str_query_stats, 0, TRUE);
-  st_node_query_qname_len = stats_tree_create_node(st, st_str_query_qname_len, st_node_query_stats, FALSE);
-  st_node_query_domains = stats_tree_create_node(st, st_str_query_domains, st_node_query_stats, TRUE);
-  st_node_query_domains_l1 = stats_tree_create_node(st, st_str_query_domains_l1, st_node_query_domains, FALSE);
-  st_node_query_domains_l2 = stats_tree_create_node(st, st_str_query_domains_l2, st_node_query_domains, FALSE);
-  st_node_query_domains_l3 = stats_tree_create_node(st, st_str_query_domains_l3, st_node_query_domains, FALSE);
-  st_node_query_domains_lmore = stats_tree_create_node(st, st_str_query_domains_lmore, st_node_query_domains, FALSE);
-  st_node_response_stats = stats_tree_create_node(st, st_str_response_stats, 0, TRUE);
+  st_node_packets_avg_size = stats_tree_create_node(st, st_str_packets_avg_size, 0, STAT_DT_INT, FALSE);
+  st_node_query_stats = stats_tree_create_node(st, st_str_query_stats, 0, STAT_DT_INT, TRUE);
+  st_node_query_qname_len = stats_tree_create_node(st, st_str_query_qname_len, st_node_query_stats, STAT_DT_INT, FALSE);
+  st_node_query_domains = stats_tree_create_node(st, st_str_query_domains, st_node_query_stats, STAT_DT_INT, TRUE);
+  st_node_query_domains_l1 = stats_tree_create_node(st, st_str_query_domains_l1, st_node_query_domains, STAT_DT_INT, FALSE);
+  st_node_query_domains_l2 = stats_tree_create_node(st, st_str_query_domains_l2, st_node_query_domains, STAT_DT_INT, FALSE);
+  st_node_query_domains_l3 = stats_tree_create_node(st, st_str_query_domains_l3, st_node_query_domains, STAT_DT_INT, FALSE);
+  st_node_query_domains_lmore = stats_tree_create_node(st, st_str_query_domains_lmore, st_node_query_domains, STAT_DT_INT, FALSE);
+  st_node_response_stats = stats_tree_create_node(st, st_str_response_stats, 0, STAT_DT_INT, TRUE);
   st_node_response_nquestions = stats_tree_create_node(st, st_str_response_nquestions,
-    st_node_response_stats, FALSE);
+    st_node_response_stats, STAT_DT_INT, FALSE);
   st_node_response_nanswers = stats_tree_create_node(st, st_str_response_nanswers,
-    st_node_response_stats, FALSE);
+    st_node_response_stats, STAT_DT_INT, FALSE);
   st_node_response_nauthorities = stats_tree_create_node(st, st_str_response_nauthorities,
-    st_node_response_stats, FALSE);
+    st_node_response_stats, STAT_DT_INT, FALSE);
   st_node_response_nadditionals = stats_tree_create_node(st, st_str_response_nadditionals,
-    st_node_response_stats, FALSE);
-  st_node_service_stats = stats_tree_create_node(st, st_str_service_stats, 0, TRUE);
-  st_node_service_unsolicited = stats_tree_create_node(st, st_str_service_unsolicited, st_node_service_stats, FALSE);
-  st_node_service_retransmission = stats_tree_create_node(st, st_str_service_retransmission, st_node_service_stats, FALSE);
-  st_node_service_rrt = stats_tree_create_node(st, st_str_service_rrt, st_node_service_stats, FALSE);
+    st_node_response_stats, STAT_DT_INT, FALSE);
+  st_node_service_stats = stats_tree_create_node(st, st_str_service_stats, 0, STAT_DT_INT, TRUE);
+  st_node_service_unsolicited = stats_tree_create_node(st, st_str_service_unsolicited, st_node_service_stats, STAT_DT_INT, FALSE);
+  st_node_service_retransmission = stats_tree_create_node(st, st_str_service_retransmission, st_node_service_stats, STAT_DT_INT, FALSE);
+  st_node_service_rrt = stats_tree_create_node(st, st_str_service_rrt, st_node_service_stats, STAT_DT_INT, FALSE);
 }
 
 static int dns_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* edt _U_, const void* p)
@@ -4195,12 +4195,12 @@ static int dns_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_di
           val_to_str(pi->packet_rcode, rcode_vals, "Unknown rcode (%d)"));
   stats_tree_tick_pivot(st, st_node_packet_opcodes,
           val_to_str(pi->packet_opcode, opcode_vals, "Unknown opcode (%d)"));
-  avg_stat_node_add_value(st, st_str_packets_avg_size, 0, FALSE,
+  avg_stat_node_add_value_int(st, st_str_packets_avg_size, 0, FALSE,
           pi->payload_size);
 
   /* split up stats for queries and responses */
   if (pi->packet_qr == 0) {
-    avg_stat_node_add_value(st, st_str_query_qname_len, 0, FALSE, pi->qname_len);
+    avg_stat_node_add_value_int(st, st_str_query_qname_len, 0, FALSE, pi->qname_len);
     switch(pi->qname_labels) {
       case 1:
         tick_stat_node(st, st_str_query_domains_l1, 0, FALSE);
@@ -4216,24 +4216,24 @@ static int dns_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_di
         break;
     }
   } else {
-    avg_stat_node_add_value(st, st_str_response_nquestions, 0, FALSE, pi->nquestions);
-    avg_stat_node_add_value(st, st_str_response_nanswers, 0, FALSE, pi->nanswers);
-    avg_stat_node_add_value(st, st_str_response_nauthorities, 0, FALSE, pi->nauthorities);
-    avg_stat_node_add_value(st, st_str_response_nadditionals, 0, FALSE, pi->nadditionals);
+    avg_stat_node_add_value_int(st, st_str_response_nquestions, 0, FALSE, pi->nquestions);
+    avg_stat_node_add_value_int(st, st_str_response_nanswers, 0, FALSE, pi->nanswers);
+    avg_stat_node_add_value_int(st, st_str_response_nauthorities, 0, FALSE, pi->nauthorities);
+    avg_stat_node_add_value_int(st, st_str_response_nadditionals, 0, FALSE, pi->nadditionals);
     if (pi->unsolicited) {
       tick_stat_node(st, st_str_service_unsolicited, 0, FALSE);
     } else {
-        avg_stat_node_add_value(st, st_str_response_nquestions, 0, FALSE, pi->nquestions);
-        avg_stat_node_add_value(st, st_str_response_nanswers, 0, FALSE, pi->nanswers);
-        avg_stat_node_add_value(st, st_str_response_nauthorities, 0, FALSE, pi->nauthorities);
-        avg_stat_node_add_value(st, st_str_response_nadditionals, 0, FALSE, pi->nadditionals);
+        avg_stat_node_add_value_int(st, st_str_response_nquestions, 0, FALSE, pi->nquestions);
+        avg_stat_node_add_value_int(st, st_str_response_nanswers, 0, FALSE, pi->nanswers);
+        avg_stat_node_add_value_int(st, st_str_response_nauthorities, 0, FALSE, pi->nauthorities);
+        avg_stat_node_add_value_int(st, st_str_response_nadditionals, 0, FALSE, pi->nadditionals);
         if (pi->unsolicited) {
           tick_stat_node(st, st_str_service_unsolicited, 0, FALSE);
         } else {
           if (pi->retransmission)
             tick_stat_node(st, st_str_service_retransmission, 0, FALSE);
           else
-            avg_stat_node_add_value(st, st_str_service_rrt, 0, FALSE, (guint32)(pi->rrt.secs * 1000000 + pi->rrt.nsecs/1000));
+            avg_stat_node_add_value_int(st, st_str_service_rrt, 0, FALSE, (guint32)(pi->rrt.secs * 1000000 + pi->rrt.nsecs/1000));
         }
     }
   }

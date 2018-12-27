@@ -168,16 +168,16 @@ static int st_node_other = -1;
 static void
 rtsp_stats_tree_init(stats_tree* st)
 {
-    st_node_packets     = stats_tree_create_node(st, st_str_packets, 0, TRUE);
+    st_node_packets     = stats_tree_create_node(st, st_str_packets, 0, STAT_DT_INT, TRUE);
     st_node_requests    = stats_tree_create_pivot(st, st_str_requests, st_node_packets);
-    st_node_responses   = stats_tree_create_node(st, st_str_responses, st_node_packets, TRUE);
-    st_node_resp_broken = stats_tree_create_node(st, st_str_resp_broken, st_node_responses, TRUE);
-    st_node_resp_100    = stats_tree_create_node(st, st_str_resp_100,    st_node_responses, TRUE);
-    st_node_resp_200    = stats_tree_create_node(st, st_str_resp_200,    st_node_responses, TRUE);
-    st_node_resp_300    = stats_tree_create_node(st, st_str_resp_300,    st_node_responses, TRUE);
-    st_node_resp_400    = stats_tree_create_node(st, st_str_resp_400,    st_node_responses, TRUE);
-    st_node_resp_500    = stats_tree_create_node(st, st_str_resp_500,    st_node_responses, TRUE);
-    st_node_other       = stats_tree_create_node(st, st_str_other, st_node_packets, FALSE);
+    st_node_responses   = stats_tree_create_node(st, st_str_responses, st_node_packets, STAT_DT_INT, TRUE);
+    st_node_resp_broken = stats_tree_create_node(st, st_str_resp_broken, st_node_responses, STAT_DT_INT, TRUE);
+    st_node_resp_100    = stats_tree_create_node(st, st_str_resp_100,    st_node_responses, STAT_DT_INT, TRUE);
+    st_node_resp_200    = stats_tree_create_node(st, st_str_resp_200,    st_node_responses, STAT_DT_INT, TRUE);
+    st_node_resp_300    = stats_tree_create_node(st, st_str_resp_300,    st_node_responses, STAT_DT_INT, TRUE);
+    st_node_resp_400    = stats_tree_create_node(st, st_str_resp_400,    st_node_responses, STAT_DT_INT, TRUE);
+    st_node_resp_500    = stats_tree_create_node(st, st_str_resp_500,    st_node_responses, STAT_DT_INT, TRUE);
+    st_node_other       = stats_tree_create_node(st, st_str_other, st_node_packets, STAT_DT_INT, FALSE);
 }
 
 /* RTSP/Packet Counter stats packet function */

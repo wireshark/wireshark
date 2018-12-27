@@ -2840,7 +2840,7 @@ static void add_contents_qir(lbmr_contents_t * contents, const char * queue, con
 
 static void lbmr_topic_ads_topic_stats_tree_init(stats_tree * tree)
 {
-    lbmr_stats_tree_handle_topic_ads_topic = stats_tree_create_node(tree, lbmr_stat_tree_name_topic_ads_topic, 0, TRUE);
+    lbmr_stats_tree_handle_topic_ads_topic = stats_tree_create_node(tree, lbmr_stat_tree_name_topic_ads_topic, 0, STAT_DT_INT, TRUE);
 }
 
 static int lbmr_topic_ads_topic_stats_tree_packet(stats_tree * tree, packet_info * pinfo, epan_dissect_t * edt _U_, const void * data)
@@ -2867,7 +2867,7 @@ static int lbmr_topic_ads_topic_stats_tree_packet(stats_tree * tree, packet_info
 
 static void lbmr_topic_ads_source_stats_tree_init(stats_tree * tree)
 {
-    lbmr_stats_tree_handle_topic_ads_source = stats_tree_create_node(tree, lbmr_stat_tree_name_topic_ads_source, 0, TRUE);
+    lbmr_stats_tree_handle_topic_ads_source = stats_tree_create_node(tree, lbmr_stat_tree_name_topic_ads_source, 0, STAT_DT_INT, TRUE);
 }
 
 static int lbmr_topic_ads_source_stats_tree_packet(stats_tree * tree, packet_info * pinfo, epan_dissect_t * edt _U_, const void * data)
@@ -2893,7 +2893,7 @@ static int lbmr_topic_ads_source_stats_tree_packet(stats_tree * tree, packet_inf
 
 static void lbmr_topic_ads_transport_stats_tree_init(stats_tree * tree)
 {
-    lbmr_stats_tree_handle_topic_ads_transport = stats_tree_create_node(tree, lbmr_stat_tree_name_topic_ads_transport, 0, TRUE);
+    lbmr_stats_tree_handle_topic_ads_transport = stats_tree_create_node(tree, lbmr_stat_tree_name_topic_ads_transport, 0, STAT_DT_INT, TRUE);
 }
 
 static int lbmr_topic_ads_transport_stats_tree_packet(stats_tree * tree, packet_info * pinfo _U_, epan_dissect_t * edt _U_, const void * data)
@@ -2917,7 +2917,7 @@ static int lbmr_topic_ads_transport_stats_tree_packet(stats_tree * tree, packet_
 
 static void lbmr_topic_queries_topic_stats_tree_init(stats_tree * tree)
 {
-    lbmr_stats_tree_handle_topic_queries_topic = stats_tree_create_node(tree, lbmr_stat_tree_name_topic_queries_topic, 0, TRUE);
+    lbmr_stats_tree_handle_topic_queries_topic = stats_tree_create_node(tree, lbmr_stat_tree_name_topic_queries_topic, 0, STAT_DT_INT, TRUE);
 }
 
 static int lbmr_topic_queries_topic_stats_tree_packet(stats_tree * tree, packet_info * pinfo, epan_dissect_t * edt _U_, const void * data)
@@ -2939,7 +2939,7 @@ static int lbmr_topic_queries_topic_stats_tree_packet(stats_tree * tree, packet_
 
 static void lbmr_topic_queries_receiver_stats_tree_init(stats_tree * tree)
 {
-    lbmr_stats_tree_handle_topic_queries_receiver = stats_tree_create_node(tree, lbmr_stat_tree_name_topic_queries_receiver, 0, TRUE);
+    lbmr_stats_tree_handle_topic_queries_receiver = stats_tree_create_node(tree, lbmr_stat_tree_name_topic_queries_receiver, 0, STAT_DT_INT, TRUE);
 }
 
 static int lbmr_topic_queries_receiver_stats_tree_packet(stats_tree * tree, packet_info * pinfo, epan_dissect_t * edt _U_, const void * data)
@@ -2961,7 +2961,7 @@ static int lbmr_topic_queries_receiver_stats_tree_packet(stats_tree * tree, pack
 
 static void lbmr_topic_queries_pattern_stats_tree_init(stats_tree * tree)
 {
-    lbmr_stats_tree_handle_topic_queries_pattern = stats_tree_create_node(tree, lbmr_stat_tree_name_topic_queries_pattern, 0, TRUE);
+    lbmr_stats_tree_handle_topic_queries_pattern = stats_tree_create_node(tree, lbmr_stat_tree_name_topic_queries_pattern, 0, STAT_DT_INT, TRUE);
 }
 
 static int lbmr_topic_queries_pattern_stats_tree_packet(stats_tree * tree, packet_info * pinfo, epan_dissect_t * edt _U_, const void * data)
@@ -2987,7 +2987,7 @@ static int lbmr_topic_queries_pattern_stats_tree_packet(stats_tree * tree, packe
 
 static void lbmr_topic_queries_pattern_receiver_stats_tree_init(stats_tree * tree)
 {
-    lbmr_stats_tree_handle_topic_queries_pattern_receiver = stats_tree_create_node(tree, lbmr_stat_tree_name_topic_queries_pattern_receiver, 0, TRUE);
+    lbmr_stats_tree_handle_topic_queries_pattern_receiver = stats_tree_create_node(tree, lbmr_stat_tree_name_topic_queries_pattern_receiver, 0, STAT_DT_INT, TRUE);
 }
 
 static int lbmr_topic_queries_pattern_receiver_stats_tree_packet(stats_tree * tree, packet_info * pinfo, epan_dissect_t * edt _U_, const void * data)
@@ -3013,7 +3013,7 @@ static int lbmr_topic_queries_pattern_receiver_stats_tree_packet(stats_tree * tr
 
 static void lbmr_queue_ads_queue_stats_tree_init(stats_tree * tree)
 {
-    lbmr_stats_tree_handle_queue_ads_queue = stats_tree_create_node(tree, lbmr_stat_tree_name_queue_ads_queue, 0, TRUE);
+    lbmr_stats_tree_handle_queue_ads_queue = stats_tree_create_node(tree, lbmr_stat_tree_name_queue_ads_queue, 0, STAT_DT_INT, TRUE);
 }
 
 static int lbmr_queue_ads_queue_stats_tree_packet(stats_tree * tree, packet_info * pinfo, epan_dissect_t * edt _U_, const void * data)
@@ -3037,7 +3037,7 @@ static int lbmr_queue_ads_queue_stats_tree_packet(stats_tree * tree, packet_info
 
 static void lbmr_queue_ads_source_stats_tree_init(stats_tree * tree)
 {
-    lbmr_stats_tree_handle_queue_ads_source = stats_tree_create_node(tree, lbmr_stat_tree_name_queue_ads_source, 0, TRUE);
+    lbmr_stats_tree_handle_queue_ads_source = stats_tree_create_node(tree, lbmr_stat_tree_name_queue_ads_source, 0, STAT_DT_INT, TRUE);
 }
 
 static int lbmr_queue_ads_source_stats_tree_packet(stats_tree * tree, packet_info * pinfo, epan_dissect_t * edt _U_, const void * data)
@@ -3061,7 +3061,7 @@ static int lbmr_queue_ads_source_stats_tree_packet(stats_tree * tree, packet_inf
 
 static void lbmr_queue_queries_queue_stats_tree_init(stats_tree * tree)
 {
-    lbmr_stats_tree_handle_queue_queries_queue = stats_tree_create_node(tree, lbmr_stat_tree_name_queue_queries_queue, 0, TRUE);
+    lbmr_stats_tree_handle_queue_queries_queue = stats_tree_create_node(tree, lbmr_stat_tree_name_queue_queries_queue, 0, STAT_DT_INT, TRUE);
 }
 
 static int lbmr_queue_queries_queue_stats_tree_packet(stats_tree * tree, packet_info * pinfo, epan_dissect_t * edt _U_, const void * data)
@@ -3083,7 +3083,7 @@ static int lbmr_queue_queries_queue_stats_tree_packet(stats_tree * tree, packet_
 
 static void lbmr_queue_queries_receiver_stats_tree_init(stats_tree * tree)
 {
-    lbmr_stats_tree_handle_queue_queries_receiver = stats_tree_create_node(tree, lbmr_stat_tree_name_queue_queries_receiver, 0, TRUE);
+    lbmr_stats_tree_handle_queue_queries_receiver = stats_tree_create_node(tree, lbmr_stat_tree_name_queue_queries_receiver, 0, STAT_DT_INT, TRUE);
 }
 
 static int lbmr_queue_queries_receiver_stats_tree_packet(stats_tree * tree, packet_info * pinfo, epan_dissect_t * edt _U_, const void * data)

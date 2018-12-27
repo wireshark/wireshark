@@ -590,11 +590,11 @@ dissect_ancp_adj_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ancp_tree,
 static void
 ancp_stats_tree_init(stats_tree *st)
 {
-    st_node_packets = stats_tree_create_node(st, st_str_packets, 0, TRUE);
+    st_node_packets = stats_tree_create_node(st, st_str_packets, 0, STAT_DT_INT, TRUE);
     st_node_packet_types = stats_tree_create_pivot(st, st_str_packet_types,
             st_node_packets);
     st_node_adj_pack_types = stats_tree_create_node(st, st_str_adj_pack_types,
-            st_node_packets, TRUE);
+            st_node_packets, STAT_DT_INT, TRUE);
 }
 
 static int

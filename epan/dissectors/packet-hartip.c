@@ -322,11 +322,11 @@ static int st_node_errors = -1;
 static void
 hartip_stats_tree_init(stats_tree* st)
 {
-  st_node_packets   = stats_tree_create_node(st, st_str_packets, 0, TRUE);
+  st_node_packets   = stats_tree_create_node(st, st_str_packets, 0, STAT_DT_INT, TRUE);
   st_node_requests  = stats_tree_create_pivot(st, st_str_requests, st_node_packets);
-  st_node_responses = stats_tree_create_node(st, st_str_responses, st_node_packets, TRUE);
-  st_node_publish   = stats_tree_create_node(st, st_str_publish, st_node_packets, TRUE);
-  st_node_errors    = stats_tree_create_node(st, st_str_errors, st_node_packets, TRUE);
+  st_node_responses = stats_tree_create_node(st, st_str_responses, st_node_packets, STAT_DT_INT, TRUE);
+  st_node_publish   = stats_tree_create_node(st, st_str_publish, st_node_packets, STAT_DT_INT, TRUE);
+  st_node_errors    = stats_tree_create_node(st, st_str_errors, st_node_packets, STAT_DT_INT, TRUE);
 }
 
 static int

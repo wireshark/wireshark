@@ -633,9 +633,9 @@ static const gchar *st_str_virtdist_novirt = "Flow without virtual server name";
 static void f5eth_tmmdist_stats_tree_init(
 	stats_tree *st
 ) {
-	st_node_tmmpktdist = stats_tree_create_node(st, st_str_tmmdist_pkts, 0, TRUE);
+	st_node_tmmpktdist = stats_tree_create_node(st, st_str_tmmdist_pkts, 0, STAT_DT_INT, TRUE);
 	stat_node_set_flags(st, st_str_tmmdist_pkts, 0, TRUE, ST_FLG_SORT_TOP);
-	st_node_tmmbytedist = stats_tree_create_node(st, st_str_tmmdist_bytes, 0, TRUE);
+	st_node_tmmbytedist = stats_tree_create_node(st, st_str_tmmdist_bytes, 0, STAT_DT_INT, TRUE);
 } /* f5eth_tmmdist_stats_tree_init() */
 
 #define PER_TMM_STAT_NAME_BUF_LEN (sizeof("slot SSS,tmm TTT"))
@@ -741,18 +741,18 @@ static int f5eth_tmmdist_stats_tree_packet(
 static void f5eth_virtdist_stats_tree_init(
 	stats_tree *st
 ) {
-	st_node_virtpktdist = stats_tree_create_node(st, st_str_virtdist_pkts, 0, TRUE);
+	st_node_virtpktdist = stats_tree_create_node(st, st_str_virtdist_pkts, 0, STAT_DT_INT, TRUE);
 	stat_node_set_flags(st, st_str_virtdist_pkts, 0, TRUE, ST_FLG_SORT_TOP);
-	st_node_virtbytedist = stats_tree_create_node(st, st_str_virtdist_bytes, 0, TRUE);
+	st_node_virtbytedist = stats_tree_create_node(st, st_str_virtdist_bytes, 0, STAT_DT_INT, TRUE);
 
-	stats_tree_create_node(st, st_str_virtdist_noflow, st_node_virtpktdist, TRUE);
+	stats_tree_create_node(st, st_str_virtdist_noflow, st_node_virtpktdist, STAT_DT_INT, TRUE);
 	stat_node_set_flags(st, st_str_virtdist_noflow, st_node_virtpktdist, TRUE, ST_FLG_SORT_TOP);
-	stats_tree_create_node(st, st_str_virtdist_novirt, st_node_virtpktdist, TRUE);
+	stats_tree_create_node(st, st_str_virtdist_novirt, st_node_virtpktdist, STAT_DT_INT, TRUE);
 	stat_node_set_flags(st, st_str_virtdist_novirt, st_node_virtpktdist, TRUE, ST_FLG_SORT_TOP);
 
-	stats_tree_create_node(st, st_str_virtdist_noflow, st_node_virtbytedist, TRUE);
+	stats_tree_create_node(st, st_str_virtdist_noflow, st_node_virtbytedist, STAT_DT_INT, TRUE);
 	stat_node_set_flags(st, st_str_virtdist_noflow, st_node_virtbytedist, TRUE, ST_FLG_SORT_TOP);
-	stats_tree_create_node(st, st_str_virtdist_novirt, st_node_virtbytedist, TRUE);
+	stats_tree_create_node(st, st_str_virtdist_novirt, st_node_virtbytedist, STAT_DT_INT, TRUE);
 	stat_node_set_flags(st, st_str_virtdist_novirt, st_node_virtbytedist, TRUE, ST_FLG_SORT_TOP);
 } /* f5eth_virtdist_stats_tree_init() */
 

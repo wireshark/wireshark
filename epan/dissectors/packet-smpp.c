@@ -1094,10 +1094,10 @@ static dissector_handle_t gsm_sms_handle;
 static void
 smpp_stats_tree_init(stats_tree* st)
 {
-    st_smpp_ops = stats_tree_create_node(st, "SMPP Operations", 0, TRUE);
-    st_smpp_req = stats_tree_create_node(st, "SMPP Requests", st_smpp_ops, TRUE);
-    st_smpp_res = stats_tree_create_node(st, "SMPP Responses", st_smpp_ops, TRUE);
-    st_smpp_res_status = stats_tree_create_node(st, "SMPP Response Status", 0, TRUE);
+    st_smpp_ops = stats_tree_create_node(st, "SMPP Operations", 0, STAT_DT_INT, TRUE);
+    st_smpp_req = stats_tree_create_node(st, "SMPP Requests", st_smpp_ops, STAT_DT_INT, TRUE);
+    st_smpp_res = stats_tree_create_node(st, "SMPP Responses", st_smpp_ops, STAT_DT_INT, TRUE);
+    st_smpp_res_status = stats_tree_create_node(st, "SMPP Response Status", 0, STAT_DT_INT, TRUE);
 
 }
 

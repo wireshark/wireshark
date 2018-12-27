@@ -1052,9 +1052,19 @@ sharkd_session_process_tap_stats_node_cb(const stat_node *n)
 		sharkd_json_value_anyf(TRUE, "count", "%d", node->counter);
 		if (node->counter && ((node->st_flags & ST_FLG_AVERAGE) || node->rng))
 		{
-			sharkd_json_value_anyf(TRUE, "avg", "%.2f", ((float)node->total) / node->counter);
-			sharkd_json_value_anyf(TRUE, "min", "%d", node->minvalue);
-			sharkd_json_value_anyf(TRUE, "max", "%d", node->maxvalue);
+			switch(node->datatype)
+			{
+			case STAT_DT_INT:
+				sharkd_json_value_anyf(TRUE, "avg", "%.2f", ((float)node->total.int_total) / node->counter);
+				sharkd_json_value_anyf(TRUE, "min", "%d", node->minvalue.int_min);
+				sharkd_json_value_anyf(TRUE, "max", "%d", node->maxvalue.int_max);
+				break;
+			case STAT_DT_FLOAT:
+				sharkd_json_value_anyf(TRUE, "avg", "%.2f", node->total.float_total / node->counter);
+				sharkd_json_value_anyf(TRUE, "min", "%f", node->minvalue.float_min);
+				sharkd_json_value_anyf(TRUE, "max", "%f", node->maxvalue.float_max);
+				break;
+			}
 		}
 
 		if (node->st->elapsed)

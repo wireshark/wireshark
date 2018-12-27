@@ -6174,8 +6174,8 @@ static void
 bacapp_packet_stats_tree_init(stats_tree* st)
 {
     st_node_packets_by_ip = stats_tree_create_pivot(st, st_str_packets_by_ip, 0);
-    st_node_packets_by_ip_src = stats_tree_create_node(st, st_str_packets_by_ip_src, st_node_packets_by_ip, TRUE);
-    st_node_packets_by_ip_dst = stats_tree_create_node(st, st_str_packets_by_ip_dst, st_node_packets_by_ip, TRUE);
+    st_node_packets_by_ip_src = stats_tree_create_node(st, st_str_packets_by_ip_src, st_node_packets_by_ip, STAT_DT_INT, TRUE);
+    st_node_packets_by_ip_dst = stats_tree_create_node(st, st_str_packets_by_ip_dst, st_node_packets_by_ip, STAT_DT_INT, TRUE);
 }
 
 static gchar *

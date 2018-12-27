@@ -1499,7 +1499,8 @@ libwireshark.so.0 libwireshark0 #MINVER#
  stats_tree_get_displayname@Base 1.12.0~rc1
  stats_tree_get_values_from_node@Base 1.12.0~rc1
  stats_tree_is_default_sort_DESC@Base 1.12.0~rc1
- stats_tree_manip_node@Base 1.9.1
+ stats_tree_manip_node_float@Base 2.9.0
+ stats_tree_manip_node_int@Base 2.9.0
  stats_tree_new@Base 1.9.1
  stats_tree_node_to_str@Base 1.9.1
  stats_tree_packet@Base 1.9.1

@@ -456,10 +456,10 @@ static int st_node_resps_by_srv_addr = -1;
 static void
 http_reqs_stats_tree_init(stats_tree* st)
 {
-	st_node_reqs = stats_tree_create_node(st, st_str_reqs, 0, TRUE);
-	st_node_reqs_by_srv_addr = stats_tree_create_node(st, st_str_reqs_by_srv_addr, st_node_reqs, TRUE);
-	st_node_reqs_by_http_host = stats_tree_create_node(st, st_str_reqs_by_http_host, st_node_reqs, TRUE);
-	st_node_resps_by_srv_addr = stats_tree_create_node(st, st_str_resps_by_srv_addr, 0, TRUE);
+	st_node_reqs = stats_tree_create_node(st, st_str_reqs, 0, STAT_DT_INT, TRUE);
+	st_node_reqs_by_srv_addr = stats_tree_create_node(st, st_str_reqs_by_srv_addr, st_node_reqs, STAT_DT_INT, TRUE);
+	st_node_reqs_by_http_host = stats_tree_create_node(st, st_str_reqs_by_http_host, st_node_reqs, STAT_DT_INT, TRUE);
+	st_node_resps_by_srv_addr = stats_tree_create_node(st, st_str_resps_by_srv_addr, 0, STAT_DT_INT, TRUE);
 }
 
 /* HTTP/Load Distribution stats packet function */
@@ -521,7 +521,7 @@ static const gchar *st_str_requests_by_host = "HTTP Requests by HTTP Host";
 static void
 http_req_stats_tree_init(stats_tree* st)
 {
-	st_node_requests_by_host = stats_tree_create_node(st, st_str_requests_by_host, 0, TRUE);
+	st_node_requests_by_host = stats_tree_create_node(st, st_str_requests_by_host, 0, STAT_DT_INT, TRUE);
 }
 
 /* HTTP/Requests stats packet function */
@@ -575,16 +575,16 @@ static int st_node_other = -1;
 static void
 http_stats_tree_init(stats_tree* st)
 {
-	st_node_packets = stats_tree_create_node(st, st_str_packets, 0, TRUE);
+	st_node_packets = stats_tree_create_node(st, st_str_packets, 0, STAT_DT_INT, TRUE);
 	st_node_requests = stats_tree_create_pivot(st, st_str_requests, st_node_packets);
-	st_node_responses = stats_tree_create_node(st, st_str_responses, st_node_packets, TRUE);
-	st_node_resp_broken = stats_tree_create_node(st, st_str_resp_broken, st_node_responses, TRUE);
-	st_node_resp_100    = stats_tree_create_node(st, st_str_resp_100,    st_node_responses, TRUE);
-	st_node_resp_200    = stats_tree_create_node(st, st_str_resp_200,    st_node_responses, TRUE);
-	st_node_resp_300    = stats_tree_create_node(st, st_str_resp_300,    st_node_responses, TRUE);
-	st_node_resp_400    = stats_tree_create_node(st, st_str_resp_400,    st_node_responses, TRUE);
-	st_node_resp_500    = stats_tree_create_node(st, st_str_resp_500,    st_node_responses, TRUE);
-	st_node_other = stats_tree_create_node(st, st_str_other, st_node_packets,FALSE);
+	st_node_responses = stats_tree_create_node(st, st_str_responses, st_node_packets, STAT_DT_INT, TRUE);
+	st_node_resp_broken = stats_tree_create_node(st, st_str_resp_broken, st_node_responses, STAT_DT_INT, TRUE);
+	st_node_resp_100    = stats_tree_create_node(st, st_str_resp_100,    st_node_responses, STAT_DT_INT, TRUE);
+	st_node_resp_200    = stats_tree_create_node(st, st_str_resp_200,    st_node_responses, STAT_DT_INT, TRUE);
+	st_node_resp_300    = stats_tree_create_node(st, st_str_resp_300,    st_node_responses, STAT_DT_INT, TRUE);
+	st_node_resp_400    = stats_tree_create_node(st, st_str_resp_400,    st_node_responses, STAT_DT_INT, TRUE);
+	st_node_resp_500    = stats_tree_create_node(st, st_str_resp_500,    st_node_responses, STAT_DT_INT, TRUE);
+	st_node_other = stats_tree_create_node(st, st_str_other, st_node_packets, STAT_DT_INT, FALSE);
 }
 
 /* HTTP/Packet Counter stats packet function */
@@ -687,7 +687,7 @@ http_seq_stats_tree_init(stats_tree* st)
 	refstats_uri_to_node_id_hash = wmem_map_new(wmem_file_scope(), wmem_str_hash, g_str_equal);
 
 	/* Add the root node and its mappings */
-	st_node_requests_by_referer = stats_tree_create_node(st, st_str_request_sequences, root_node_id, TRUE);
+	st_node_requests_by_referer = stats_tree_create_node(st, st_str_request_sequences, root_node_id, STAT_DT_INT, TRUE);
 	node_id_p = GINT_TO_POINTER(st_node_requests_by_referer);
 	uri = wmem_strdup(wmem_file_scope(), st_str_request_sequences);
 

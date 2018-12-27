@@ -53,16 +53,27 @@ struct _burst_bucket {
 };
 
 struct _stat_node {
-	gchar*			name;
-	int			id;
+	gchar*				name;
+	int					id;
+	stat_node_datatype	datatype;
 
 	/** the counter it keeps */
 	gint			counter;
 	/** total of all values submitted - for computing averages */
-	gint64			total;
-	gint			minvalue;
-	gint			maxvalue;
-	int				st_flags;
+	union {
+		gint64	int_total;
+		gdouble	float_total;
+	} total;
+	union {
+		gint	int_min;
+		gfloat	float_min;
+	} minvalue;
+	union {
+		gint	int_max;
+		gfloat	float_max;
+	} maxvalue;
+
+	gint			st_flags;
 
 	/** fields for burst rate calculation */
 	gint			bcount;
