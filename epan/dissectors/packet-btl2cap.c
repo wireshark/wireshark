@@ -1243,7 +1243,7 @@ dissect_configrequest(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree_add_item(tree, hf_btl2cap_flags_continuation, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
-    if (tvb_reported_length_remaining(tvb, offset) > 0) {
+    {
         psm_data_t        *psm_data;
         config_data_t     *config_data;
         wmem_tree_key_t    key[6];
@@ -1300,7 +1300,16 @@ dissect_configrequest(tvbuff_t *tvb, int offset, packet_info *pinfo,
         } else {
             config_data = NULL;
         }
-        offset = dissect_options(tvb, offset, pinfo, tree, length - 4, config_data);
+        if (config_data != NULL) {
+            /* Reset config_data that might have been set by an earlier
+             * Configure Request that failed.
+             */
+            config_data->mode     = L2CAP_BASIC_MODE;
+            config_data->txwindow = 0;
+        }
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            offset = dissect_options(tvb, offset, pinfo, tree, length - 4, config_data);
+        }
     }
 
     return offset;

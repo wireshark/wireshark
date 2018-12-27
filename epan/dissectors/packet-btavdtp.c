@@ -277,6 +277,7 @@ static int hf_btavdtp_vendor_id                                            = -1;
 static int hf_btavdtp_vendor_specific_codec_id                             = -1;
 static int hf_btavdtp_vendor_specific_value                                = -1;
 static int hf_btavdtp_vendor_specific_apt_codec_id                         = -1;
+static int hf_btavdtp_vendor_specific_ldac_codec_id                        = -1;
 static int hf_btavdtp_capabilities                                         = -1;
 static int hf_btavdtp_service                                              = -1;
 static int hf_btavdtp_service_multiplexing_entry                           = -1;
@@ -335,7 +336,7 @@ static const enum_val_t pref_a2dp_codec[] = {
 /* XXX: Not supported in Wireshark yet  { "atrac",      "ATRAC",                                  CODEC_ATRAC },*/
     { "aptx",        "aptX",         CODEC_APT_X },
     { "aptx-hd",     "aptX HD",      CODEC_APT_X_HD },
-/* XXX: Not supported in Wireshark yet  { "ldac",        "LDAC",         CODEC_LDAC },*/
+    { "ldac",        "LDAC",         CODEC_LDAC },
     { NULL, NULL, 0 }
 };
 
@@ -382,6 +383,56 @@ static int  hf_aptx_cumulative_duration          = -1;
 static int  hf_aptx_diff                          = -1;
 static gint ett_aptx                              = -1;
 static dissector_handle_t aptx_handle;
+
+/* LDAC Codec */
+static int  proto_ldac                            = -1;
+static int  hf_ldac_fragmented                    = -1;
+static int  hf_ldac_starting_packet               = -1;
+static int  hf_ldac_last_packet                   = -1;
+static int  hf_ldac_rfa                           = -1;
+static int  hf_ldac_number_of_frames              = -1;
+
+static int hf_ldac_syncword                       = -1;
+static int hf_ldac_sampling_frequency             = -1;
+static int hf_ldac_channel_config_index           = -1;
+static int hf_ldac_frame_length_h                 = -1;
+static int hf_ldac_frame_length_l                 = -1;
+static int hf_ldac_frame_status                   = -1;
+
+static int hf_ldac_expected_data_speed            = -1;
+
+static int  hf_ldac_data                          = -1;
+static gint ett_ldac                              = -1;
+static gint ett_ldac_list                         = -1;
+static expert_field ei_ldac_syncword = EI_INIT;
+static expert_field ei_ldac_truncated_or_bad_length = EI_INIT;
+static dissector_handle_t ldac_handle;
+#define LDAC_CCI_MONO   0x0
+#define LDAC_CCI_DUAL   0x1
+#define LDAC_CCI_STEREO 0x2
+static const value_string ldac_channel_config_index_vals[] = {
+    { LDAC_CCI_MONO,  "Mono"},
+    { LDAC_CCI_DUAL,  "Dual Channel"},
+    { LDAC_CCI_STEREO,  "Stereo"},
+    { 0, NULL }
+};
+
+#define LDAC_FSID_044       0x0
+#define LDAC_FSID_048       0x1
+#define LDAC_FSID_088       0x2
+#define LDAC_FSID_096       0x3
+#define LDAC_FSID_176       0x4
+#define LDAC_FSID_192       0x5
+
+static const value_string ldac_sampling_frequency_vals[] = {
+    { LDAC_FSID_044,  "44.1 kHz"},
+    { LDAC_FSID_048,  "48.0 kHz"},
+    { LDAC_FSID_088,  "88.2 kHz"},
+    { LDAC_FSID_096,  "96.0 kHz"},
+    { LDAC_FSID_176,  "176.4 kHz"},
+    { LDAC_FSID_192,  "192.0 kHz"},
+    { 0, NULL }
+};
 
 
 static const value_string message_type_vals[] = {
@@ -556,6 +607,10 @@ static const value_string content_protection_type_vals[] = {
 static const value_string vendor_apt_codec_vals[] = {
     { CODECID_APT_X,     "aptX" },
     { CODECID_APT_X_HD,  "aptX HD" },
+    { 0, NULL }
+};
+
+static const value_string vendor_ldac_codec_vals[] = {
     { 0x00AA,  "LDAC" },
     { 0, NULL }
 };
@@ -626,6 +681,7 @@ void proto_register_btvdp(void);
 void proto_reg_handoff_btvdp(void);
 void proto_register_btvdp_content_protection_header_scms_t(void);
 void proto_register_aptx(void);
+void proto_register_ldac(void);
 
 
 static const char *
@@ -1011,10 +1067,12 @@ dissect_codec(tvbuff_t *tvb, packet_info *pinfo, proto_item *service_item, proto
                                 proto_tree_add_item(tree, hf_btavdtp_vendor_specific_value, tvb, offset + 6, losc - 6, ENC_NA);
                             }
                             break;
-                        case 0x012D: /* Sony Corporation */
-                            proto_tree_add_item(tree, hf_btavdtp_vendor_specific_apt_codec_id, tvb, offset + 4, 2, ENC_LITTLE_ENDIAN);
+                        case 0x012D: /* Sony Corporation. */
+                            proto_tree_add_item(tree, hf_btavdtp_vendor_specific_ldac_codec_id, tvb, offset + 4, 2, ENC_LITTLE_ENDIAN);
                             value = tvb_get_letohs(tvb, offset + 4);
+
                             if (value == 0x00AA) { /* LDAC Codec */
+                                int value2;
                                 proto_tree_add_item(tree, hf_btavdtp_vendor_specific_ldac_rfa1, tvb, offset + 6, 1, ENC_NA);
                                 proto_tree_add_item(tree, hf_btavdtp_vendor_specific_ldac_sampling_frequency_44100, tvb, offset + 6, 1, ENC_NA);
                                 proto_tree_add_item(tree, hf_btavdtp_vendor_specific_ldac_sampling_frequency_48000, tvb, offset + 6, 1, ENC_NA);
@@ -1028,37 +1086,34 @@ dissect_codec(tvbuff_t *tvb, packet_info *pinfo, proto_item *service_item, proto
                                 proto_tree_add_item(tree, hf_btavdtp_vendor_specific_ldac_channel_mode_stereo, tvb, offset + 7, 1, ENC_NA);
 
                                 col_append_fstr(pinfo->cinfo, COL_INFO, " (%s -",
-                                    val_to_str_const(value, vendor_apt_codec_vals, "unknown codec"));
+                                    val_to_str_const(value, vendor_ldac_codec_vals, "unknown codec"));
                                 proto_item_append_text(service_item, " (%s -",
-                                    val_to_str_const(value, vendor_apt_codec_vals, "unknown codec"));
+                                    val_to_str_const(value, vendor_ldac_codec_vals, "unknown codec"));
 
-                                value = tvb_get_letohs(tvb, offset + 6);
-                                if (value) {
-                                    col_append_fstr(pinfo->cinfo, COL_INFO, "%s%s%s%s%s%s%s,%s%s%s%s)",
-                                        (value & 0x0020) ? " 44100" : "",
-                                        (value & 0x0010) ? " 48000" : "",
-                                        (value & 0x0008) ? " 88200" : "",
-                                        (value & 0x0004) ? " 96000" : "",
-                                        (value & 0x0002) ? " 176400" : "",
-                                        (value & 0x0001) ? " 192000" : "",
-                                        (value & 0x003F) ? "" : "not set ",
-                                        (value & 0x0400) ? " Mono" : "",
-                                        (value & 0x0200) ? " DualChannel" : "",
-                                        (value & 0x0100) ? " Stereo" : "",
-                                        (value & 0x0700) ? "" : "not set ");
+                                value = tvb_get_guint8(tvb, offset + 6);
+                                value2 = tvb_get_guint8(tvb, offset + 7);
+                                if (value != 0 && value2 != 0) {
+                                    col_append_fstr(pinfo->cinfo, COL_INFO, "%s%s%s%s%s%s,%s%s%s)",
+                                        (value & 0x20) ? " 44100" : "",
+                                        (value & 0x10) ? " 48000" : "",
+                                        (value & 0x08) ? " 88200" : "",
+                                        (value & 0x04) ? " 96000" : "",
+                                        (value & 0x02) ? "176400" : "",
+                                        (value & 0x01) ? "192000" : "",
+                                        (value2 & 0x04) ? " Mono" : "",
+                                        (value2 & 0x02) ? " DualChannel" : "",
+                                        (value2 & 0x01) ? " Stereo" : "");
 
-                                    proto_item_append_text(service_item, "%s%s%s%s%s%s%s,%s%s%s%s)",
-                                        (value & 0x0020) ? " 44100" : "",
-                                        (value & 0x0010) ? " 48000" : "",
-                                        (value & 0x0008) ? " 88200" : "",
-                                        (value & 0x0004) ? " 96000" : "",
-                                        (value & 0x0002) ? " 176400" : "",
-                                        (value & 0x0001) ? " 192000" : "",
-                                        (value & 0x003F) ? "" : "not set ",
-                                        (value & 0x0400) ? " Mono" : "",
-                                        (value & 0x0200) ? " DualChannel" : "",
-                                        (value & 0x0100) ? " Stereo" : "",
-                                        (value & 0x0700) ? "" : "not set ");
+                                    proto_item_append_text(service_item, "%s%s%s%s%s%s,%s%s%s)",
+                                        (value & 0x20) ? " 44100" : "",
+                                        (value & 0x10) ? " 48000" : "",
+                                        (value & 0x08) ? " 88200" : "",
+                                        (value & 0x04) ? " 96000" : "",
+                                        (value & 0x02) ? "176400" : "",
+                                        (value & 0x01) ? "192000" : "",
+                                        (value2 & 0x04) ? " Mono" : "",
+                                        (value2 & 0x02) ? " DualChannel" : "",
+                                        (value2 & 0x01) ? " Stereo" : "");
                                 } else {
                                     col_append_fstr(pinfo->cinfo, COL_INFO, " none)");
                                     proto_item_append_text(service_item, " none)");
@@ -2827,6 +2882,11 @@ proto_register_btavdtp(void)
             FT_UINT8, BASE_HEX, NULL, 0xC0,
             NULL, HFILL }
         },
+        { &hf_btavdtp_vendor_specific_ldac_codec_id,
+            { "Codec",                          "btavdtp.codec.vendor.codec_id",
+            FT_UINT16, BASE_HEX, VALS(vendor_ldac_codec_vals), 0x00,
+            NULL, HFILL }
+        },
         { &hf_btavdtp_vendor_specific_ldac_sampling_frequency_44100,
             { "Sampling Frequency 44100 Hz",    "btavdtp.codec.ldac.sampling_frequency.44100",
             FT_BOOLEAN, 8, NULL, 0x20,
@@ -3112,6 +3172,233 @@ proto_register_aptx(void)
     aptx_handle = register_dissector("aptx", dissect_aptx, proto_aptx);
 }
 
+static gint
+dissect_ldac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    proto_item  *ti;
+    proto_tree  *ldac_tree;
+    proto_item  *pitem;
+    proto_tree  *rtree;
+    gint        offset = 0;
+    guint8      number_of_frames;
+    guint8      syncword;
+    guint8      byte;
+    guint8      cci;
+    guint       frequency;
+    gint        available;
+    gint        ldac_channels;
+    gint        counter = 1;
+    gint        frame_length;
+    gint        frame_sample_size;
+    gint        expected_speed_data;
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "LDAC");
+
+    ti = proto_tree_add_item(tree, proto_ldac, tvb, offset, -1, ENC_NA);
+    ldac_tree = proto_item_add_subtree(ti, ett_ldac);
+
+    proto_tree_add_item(ldac_tree, hf_ldac_fragmented,       tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ldac_tree, hf_ldac_starting_packet,  tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ldac_tree, hf_ldac_last_packet,      tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ldac_tree, hf_ldac_rfa,              tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ldac_tree, hf_ldac_number_of_frames, tvb, offset, 1, ENC_BIG_ENDIAN);
+    number_of_frames = tvb_get_guint8(tvb, offset) & 0x0F;
+    offset += 1;
+
+    while (tvb_reported_length_remaining(tvb, offset) > 0) {
+        available = tvb_reported_length_remaining(tvb, offset);
+
+        syncword = tvb_get_guint8(tvb, offset);
+        if (syncword != 0xAA) {
+            rtree = proto_tree_add_subtree_format(ldac_tree, tvb, offset, 1,
+                    ett_ldac_list, NULL, "Frame: %3u/%3u", counter, number_of_frames);
+            pitem = proto_tree_add_item(rtree, hf_ldac_syncword, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            expert_add_info(pinfo, pitem, &ei_ldac_syncword);
+            break;
+        }
+
+        if (available > 1)  {
+            byte = tvb_get_guint8(tvb, offset + 1);
+            frequency = (byte & 0xE0) >> 5;
+            cci = (byte & 0x18)>> 3;
+            frame_length = byte & 0x07;
+            frame_length <<= 6;
+        } else {
+            frequency = 0;
+            cci = 0;
+        }
+
+        if (available > 2)  {
+            byte = tvb_get_guint8(tvb, offset + 2);
+            frame_length |= (byte & 0xFC) >> 2;
+            frame_length +=1;
+        } else {
+            frame_length = 0;
+        }
+
+        rtree = proto_tree_add_subtree_format(ldac_tree, tvb, offset,
+                3 + frame_length > available ? available : 3 + frame_length,
+                ett_ldac_list, NULL, "Frame: %3u/%3u", counter, number_of_frames);
+
+        if (3 + frame_length > available) {
+            expert_add_info(pinfo, rtree, &ei_ldac_truncated_or_bad_length);
+        }
+
+        pitem = proto_tree_add_item(rtree, hf_ldac_syncword, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+
+        if (cci == LDAC_CCI_MONO)
+            ldac_channels = 1;
+        else
+            ldac_channels = 2;
+
+        switch (frequency) {
+            case LDAC_FSID_044:
+                frequency = 44100;
+                frame_sample_size = 128;
+                break;
+            case LDAC_FSID_048:
+                frequency = 48000;
+                frame_sample_size = 128;
+                break;
+            case LDAC_FSID_088:
+                frequency = 88200;
+                frame_sample_size = 256;
+                break;
+            case LDAC_FSID_096:
+                frequency = 96000;
+                frame_sample_size = 256;
+                break;
+            case LDAC_FSID_176:
+                frequency = 176400;
+                frame_sample_size = 512;
+                break;
+            case LDAC_FSID_192:
+                frequency = 192000;
+                frame_sample_size = 512;
+                break;
+            default:
+                frequency = 0;
+                frame_sample_size = 1;
+        }
+
+        proto_tree_add_item(rtree, hf_ldac_sampling_frequency, tvb, offset, 1, ENC_BIG_ENDIAN);
+        pitem = proto_tree_add_item(rtree, hf_ldac_channel_config_index, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_item_append_text(pitem, ", Number of channels : %d", ldac_channels);
+        proto_tree_add_item(rtree, hf_ldac_frame_length_h,  tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        proto_tree_add_item(rtree, hf_ldac_frame_length_l,  tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rtree, hf_ldac_frame_status,  tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+
+        proto_tree_add_item(rtree, hf_ldac_data, tvb, offset, frame_length, ENC_NA);
+        offset += frame_length;
+
+        expected_speed_data = (8*(frame_length+3) * frequency) / (frame_sample_size*1000);
+        pitem = proto_tree_add_uint(rtree, hf_ldac_expected_data_speed, tvb, offset, 0, expected_speed_data);
+        proto_item_append_text(pitem, " kbits/sec");
+        PROTO_ITEM_SET_GENERATED(pitem);
+        counter += 1;
+    }
+
+    col_append_fstr(pinfo->cinfo, COL_INFO, " Frames=%u", number_of_frames);
+
+    return offset;
+}
+void
+proto_register_ldac(void)
+{
+    expert_module_t* expert_ldac;
+
+    static hf_register_info hf[] = {
+        { &hf_ldac_fragmented,
+            { "Fragmented",                      "ldac.fragmented",
+            FT_BOOLEAN, 8, NULL, 0x80,
+            NULL, HFILL }
+        },
+        { &hf_ldac_starting_packet,
+            { "Starting Packet",                 "ldac.starting_packet",
+            FT_BOOLEAN, 8, NULL, 0x40,
+            NULL, HFILL }
+        },
+        { &hf_ldac_last_packet,
+            { "Last Packet",                     "ldac.last_packet",
+            FT_BOOLEAN, 8, NULL, 0x20,
+            NULL, HFILL }
+        },
+        { &hf_ldac_rfa,
+            { "RFA",                             "ldac.rfa",
+            FT_BOOLEAN, 8, NULL, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_ldac_number_of_frames,
+            { "Number of Frames",                "ldac.number_of_frames",
+            FT_UINT8, BASE_DEC, NULL, 0x0F,
+            NULL, HFILL }
+        },
+        { &hf_ldac_syncword,
+            { "Sync Word",                       "ldac.syncword",
+            FT_UINT8, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ldac_sampling_frequency,
+            { "Sampling Frequency",              "ldac.sampling_frequency",
+            FT_UINT8, BASE_HEX, VALS(ldac_sampling_frequency_vals), 0xE0,
+            NULL, HFILL }
+        },
+        { &hf_ldac_channel_config_index,
+            { "Channel Config Index",            "ldac.channel_config_index",
+            FT_UINT8, BASE_HEX, VALS(ldac_channel_config_index_vals), 0x18,
+            NULL, HFILL }
+        },
+        { &hf_ldac_frame_length_h,
+            { "Frame Length Index(H)",           "ldac.frame_length_index_H",
+              FT_UINT8, BASE_HEX, NULL, 0x07,
+            NULL, HFILL }
+        },
+        { &hf_ldac_frame_length_l,
+            { "Frame Length Index(L)",           "ldac.frame_length_index_L",
+              FT_UINT8, BASE_HEX, NULL, 0xFC,
+            NULL, HFILL }
+        },
+        { &hf_ldac_frame_status,
+            { "Frame Status",                    "ldac.frame_status",
+            FT_UINT8, BASE_DEC, NULL, 0x03,
+            NULL, HFILL }
+        },
+        { &hf_ldac_expected_data_speed,
+            { "Bitrate",             "ldac.expected_speed_data",
+            FT_UINT32, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ldac_data,
+            { "Frame Data",                      "ldac.data",
+            FT_NONE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+    };
+
+    static gint *ett[] = {
+        &ett_ldac,
+        &ett_ldac_list,
+    };
+
+    static ei_register_info ei[] = {
+        { &ei_ldac_syncword, { "ldac.syncword.unexpected", PI_PROTOCOL, PI_WARN, "Unexpected syncword", EXPFILL }},
+        { &ei_ldac_truncated_or_bad_length, { "ldac.data.truncated", PI_PROTOCOL, PI_WARN, "Either bad frame length or data truncated", EXPFILL }},
+    };
+
+    proto_ldac = proto_register_protocol("LDAC Codec", "LDAC", "ldac");
+
+    proto_register_field_array(proto_ldac, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
+    expert_ldac = expert_register_protocol(proto_ldac);
+    expert_register_field_array(expert_ldac, ei, array_length(ei));
+
+    ldac_handle = register_dissector("ldac", dissect_ldac, proto_ldac);
+
+}
 
 static gint
 dissect_bta2dp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
@@ -3204,6 +3491,9 @@ dissect_bta2dp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         if ((sep_data.vendor_id == 0x004F && sep_data.vendor_codec == CODECID_APT_X) ||
                 (sep_data.vendor_id == 0x00D7 && sep_data.vendor_codec == CODECID_APT_X_HD))
             codec_dissector = aptx_handle;
+
+        if (sep_data.vendor_id == 0x012D && sep_data.vendor_codec == 0x00AA)
+            codec_dissector = ldac_handle;
     }
 
     if (sep_data.content_protection_type > 0) {
@@ -3240,6 +3530,9 @@ dissect_bta2dp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         case CODEC_APT_X:
         case CODEC_APT_X_HD:
             codec_dissector = aptx_handle;
+            break;
+        case CODEC_LDAC:
+            codec_dissector = ldac_handle;
             break;
     }
 
