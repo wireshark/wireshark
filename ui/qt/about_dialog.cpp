@@ -356,12 +356,10 @@ AboutDialog::AboutDialog(QWidget *parent) :
     pluginTypeModel->setColumnToFilter(2);
     ui->tblPlugins->setModel(pluginTypeModel);
     ui->tblPlugins->setRootIsDecorated(false);
-#ifdef HAVE_LUA
     UrlLinkDelegate *plugin_delegate = new UrlLinkDelegate(this);
-    QString pattern = QString("^%1$").arg(wslua_plugin_type_name());
-    plugin_delegate->setColCheck(2, pattern);
+    script_pattern = QString("\\.(lua|py)$");
+    plugin_delegate->setColCheck(3, script_pattern);
     ui->tblPlugins->setItemDelegateForColumn(3, plugin_delegate);
-#endif
     ui->cmbType->addItems(pluginModel->typeNames());
     ui->tblPlugins->setContextMenuPolicy(Qt::CustomContextMenu);
     ui->tblPlugins->setTextElideMode(Qt::ElideMiddle);
@@ -566,21 +564,18 @@ void AboutDialog::copyActionTriggered(bool copyRow)
     clipBoard->setText(clipdata);
 }
 
-#ifdef HAVE_LUA
 void AboutDialog::on_tblPlugins_doubleClicked(const QModelIndex &index)
 {
-    const int type_col = 2;
     const int path_col = 3;
     if (index.column() != path_col) {
         return;
     }
     const int row = index.row();
     const QAbstractItemModel *model = index.model();
-    if (model->index(row, type_col).data().toString() == wslua_plugin_type_name()) {
+    if (model->index(row, path_col).data().toString().contains(QRegExp(script_pattern))) {
         QDesktopServices::openUrl(QUrl::fromLocalFile(model->index(row, path_col).data().toString()));
     }
 }
-#endif
 
 /*
  * Editor modelines
