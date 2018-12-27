@@ -121,7 +121,7 @@ capture_input_new_packets(capture_session *cap_session, int to_read);
  * Capture child told us how many dropped packets it counted.
  */
 extern void
-capture_input_drops(capture_session *cap_session, guint32 dropped);
+capture_input_drops(capture_session *cap_session, guint32 dropped, char* interface_name);
 
 /**
  * Capture child told us that an error has occurred while starting the capture.

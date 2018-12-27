@@ -5550,17 +5550,16 @@ report_capture_error(const char *error_msg, const char *secondary_error_msg)
 static void
 report_packet_drops(guint32 received, guint32 pcap_drops, guint32 drops, guint32 flushed, guint32 ps_ifdrop, gchar *name)
 {
-    char tmp[SP_DECISIZE+1+1];
     guint32 total_drops = pcap_drops + drops + flushed;
 
-    g_snprintf(tmp, sizeof(tmp), "%u", total_drops);
-
     if (capture_child) {
+        char* tmp = g_strdup_printf("%u:%s", total_drops, name);
+
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
             "Packets received/dropped on interface '%s': %u/%u (pcap:%u/dumpcap:%u/flushed:%u/ps_ifdrop:%u)",
             name, received, total_drops, pcap_drops, drops, flushed, ps_ifdrop);
-        /* XXX: Need to provide interface id, changes to consumers required. */
         pipe_write_block(2, SP_DROPS, tmp);
+        g_free(tmp);
     } else {
         fprintf(stderr,
             "Packets received/dropped on interface '%s': %u/%u (pcap:%u/dumpcap:%u/flushed:%u/ps_ifdrop:%u) (%.1f%%)\n",

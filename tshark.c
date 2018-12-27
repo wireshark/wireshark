@@ -2777,7 +2777,7 @@ report_counts_siginfo(int signum _U_)
 
 /* capture child detected any packet drops? */
 void
-capture_input_drops(capture_session *cap_session _U_, guint32 dropped)
+capture_input_drops(capture_session *cap_session _U_, guint32 dropped, char* interface_name)
 {
   if (print_packet_counts) {
     /* We're printing packet counts to stderr.
@@ -2788,7 +2788,11 @@ capture_input_drops(capture_session *cap_session _U_, guint32 dropped)
   if (dropped != 0) {
     /* We're printing packet counts to stderr.
        Send a newline so that we move to the line after the packet count. */
-    fprintf(stderr, "%u packet%s dropped\n", dropped, plurality(dropped, "", "s"));
+    if (interface_name != NULL) {
+      fprintf(stderr, "%u packet%s dropped from %s\n", dropped, plurality(dropped, "", "s"), interface_name);
+    } else {
+      fprintf(stderr, "%u packet%s dropped\n", dropped, plurality(dropped, "", "s"));
+    }
   }
 }
 

@@ -527,9 +527,13 @@ capture_input_new_packets(capture_session *cap_session, int to_read)
 /* Capture child told us how many dropped packets it counted.
  */
 void
-capture_input_drops(capture_session *cap_session, guint32 dropped)
+capture_input_drops(capture_session *cap_session, guint32 dropped, char* interface_name)
 {
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_INFO, "%u packet%s dropped", dropped, plurality(dropped, "", "s"));
+    if (interface_name != NULL) {
+        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_INFO, "%u packet%s dropped from %s", dropped, plurality(dropped, "", "s"), interface_name);
+    } else {
+        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_INFO, "%u packet%s dropped", dropped, plurality(dropped, "", "s"));
+    }
 
     g_assert(cap_session->state == CAPTURE_RUNNING);
 
