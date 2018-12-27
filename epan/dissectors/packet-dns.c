@@ -83,7 +83,7 @@ static const guint8* st_str_response_nadditionals = "no. of additionals";
 static const guint8* st_str_service_stats = "Service Stats";
 static const guint8* st_str_service_unsolicited = "no. of unsolicited responses";
 static const guint8* st_str_service_retransmission = "no. of retransmissions";
-static const guint8* st_str_service_rrt = "request-response time (" UTF8_MICRO_SIGN "s)";
+static const guint8* st_str_service_rrt = "request-response time (secs)";
 
 static int st_node_packets = -1;
 static int st_node_packet_qr = -1;
@@ -4178,7 +4178,7 @@ static void dns_stats_tree_init(stats_tree* st)
   st_node_service_stats = stats_tree_create_node(st, st_str_service_stats, 0, STAT_DT_INT, TRUE);
   st_node_service_unsolicited = stats_tree_create_node(st, st_str_service_unsolicited, st_node_service_stats, STAT_DT_INT, FALSE);
   st_node_service_retransmission = stats_tree_create_node(st, st_str_service_retransmission, st_node_service_stats, STAT_DT_INT, FALSE);
-  st_node_service_rrt = stats_tree_create_node(st, st_str_service_rrt, st_node_service_stats, STAT_DT_INT, FALSE);
+  st_node_service_rrt = stats_tree_create_node(st, st_str_service_rrt, st_node_service_stats, STAT_DT_FLOAT, FALSE);
 }
 
 static int dns_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* edt _U_, const void* p)
@@ -4233,7 +4233,7 @@ static int dns_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_di
           if (pi->retransmission)
             tick_stat_node(st, st_str_service_retransmission, 0, FALSE);
           else
-            avg_stat_node_add_value_int(st, st_str_service_rrt, 0, FALSE, (guint32)(pi->rrt.secs * 1000000 + pi->rrt.nsecs/1000));
+            avg_stat_node_add_value_float(st, st_str_service_rrt, 0, FALSE, (gfloat)(pi->rrt.secs + pi->rrt.nsecs/1000000000.0));
         }
     }
   }
