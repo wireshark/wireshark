@@ -520,7 +520,7 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype,
 	edt->pi.cinfo = cinfo;
 	edt->pi.presence_flags = 0;
 	edt->pi.num = fd->num;
-	if (fd->flags.has_ts) {
+	if (fd->has_ts) {
 		edt->pi.presence_flags |= PINFO_HAS_TS;
 		edt->pi.abs_ts = fd->abs_ts;
 	}
@@ -560,9 +560,9 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype,
 	frame_delta_abs_time(edt->session, fd, fd->frame_ref_num, &edt->pi.rel_ts);
 
 	/* pkt comment use first user, later from rec */
-	if (fd->flags.has_user_comment)
+	if (fd->has_user_comment)
 		frame_dissector_data.pkt_comment = epan_get_user_comment(edt->session, fd);
-	else if (fd->flags.has_phdr_comment)
+	else if (fd->has_phdr_comment)
 		frame_dissector_data.pkt_comment = rec->opt_comment;
 	else
 		frame_dissector_data.pkt_comment = NULL;
@@ -589,7 +589,7 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype,
 	}
 	ENDTRY;
 
-	fd->flags.visited = 1;
+	fd->visited = 1;
 }
 
 /* Creates the top-most tvbuff and calls dissect_file() */
@@ -629,9 +629,9 @@ dissect_file(epan_dissect_t *edt, wtap_rec *rec,
 
 	TRY {
 		/* pkt comment use first user, later from rec */
-		if (fd->flags.has_user_comment)
+		if (fd->has_user_comment)
 			file_dissector_data.pkt_comment = epan_get_user_comment(edt->session, fd);
-		else if (fd->flags.has_phdr_comment)
+		else if (fd->has_phdr_comment)
 			file_dissector_data.pkt_comment = rec->opt_comment;
 		else
 			file_dissector_data.pkt_comment = NULL;
@@ -657,7 +657,7 @@ dissect_file(epan_dissect_t *edt, wtap_rec *rec,
 	}
 	ENDTRY;
 
-	fd->flags.visited = 1;
+	fd->visited = 1;
 }
 
 /*********************** code added for sub-dissector lookup *********************/

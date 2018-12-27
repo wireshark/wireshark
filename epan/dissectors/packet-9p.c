@@ -1084,7 +1084,7 @@ static void conv_set_fid_nocopy(packet_info *pinfo, guint32 fid, const char *pat
 {
 	struct _9p_hashval *val;
 
-	if (pinfo->fd->flags.visited || fid == _9P_NOFID)
+	if (pinfo->fd->visited || fid == _9P_NOFID)
 		return;
 
 	/* get or create&insert fid tree */
@@ -1104,7 +1104,7 @@ static void conv_set_fid(packet_info *pinfo, guint32 fid, const gchar *path, gsi
 {
 	char *str;
 
-	if (pinfo->fd->flags.visited || fid == _9P_NOFID || len == 0)
+	if (pinfo->fd->visited || fid == _9P_NOFID || len == 0)
 		return;
 
 	str = (char*)wmem_alloc(wmem_file_scope(), len);
@@ -1138,7 +1138,7 @@ static void conv_set_tag(packet_info *pinfo, guint16 tag, enum _9p_msg_t msgtype
 	struct _9p_hashval *val;
 	struct _9p_taginfo *taginfo;
 
-	if (pinfo->fd->flags.visited || tag == _9P_NOTAG)
+	if (pinfo->fd->visited || tag == _9P_NOTAG)
 		return;
 
 	val = _9p_hash_new_val(sizeof(struct _9p_taginfo));
@@ -1161,7 +1161,7 @@ static inline struct _9p_taginfo *conv_get_tag(packet_info *pinfo, guint16 tag)
 	struct _9p_hashval *val;
 
 	/* get tag only makes sense on first pass, as tree isn't built like fid */
-	if (pinfo->fd->flags.visited || tag == _9P_NOTAG)
+	if (pinfo->fd->visited || tag == _9P_NOTAG)
 		return NULL;
 
 	/* check that length matches? */
@@ -1172,7 +1172,7 @@ static inline struct _9p_taginfo *conv_get_tag(packet_info *pinfo, guint16 tag)
 
 static inline void conv_free_tag(packet_info *pinfo, guint16 tag)
 {
-	if (pinfo->fd->flags.visited || tag == _9P_NOTAG)
+	if (pinfo->fd->visited || tag == _9P_NOTAG)
 		return;
 
 	_9p_hash_free(pinfo, tag, _9P_NOFID);
@@ -1246,7 +1246,7 @@ static int dissect_9P_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		proto_tree_add_item(ninep_tree, hf_9P_maxsize, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
-		if (!pinfo->fd->flags.visited) {
+		if (!pinfo->fd->visited) {
 			_9p_len = tvb_get_letohs(tvb, offset);
 			tvb_s = tvb_get_string_enc(wmem_packet_scope(), tvb, offset+2, _9p_len, ENC_UTF_8|ENC_NA);
 
@@ -1316,7 +1316,7 @@ static int dissect_9P_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 		offset += _9p_dissect_string(tvb, ninep_tree, offset, hf_9P_uname, ett_9P_uname);
 
-		if(!pinfo->fd->flags.visited) {
+		if(!pinfo->fd->visited) {
 			_9p_len = tvb_get_letohs(tvb, offset);
 			tvb_s = tvb_get_string_enc(wmem_packet_scope(), tvb, offset+2, _9p_len, ENC_UTF_8|ENC_NA);
 			conv_set_fid(pinfo, fid, tvb_s, _9p_len+1);
@@ -1336,7 +1336,7 @@ static int dissect_9P_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		ti = proto_tree_add_item(ninep_tree, hf_9P_fid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		fid_path = conv_get_fid(pinfo, fid);
 		proto_item_append_text(ti, " (%s)", fid_path);
-		if (!pinfo->fd->flags.visited) {
+		if (!pinfo->fd->visited) {
 			tmppath = wmem_strbuf_sized_new(wmem_packet_scope(), 0, MAXPATHLEN);
 			wmem_strbuf_append(tmppath, fid_path);
 		}
@@ -1351,7 +1351,7 @@ static int dissect_9P_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		offset += 2;
 
 		for(i = 0 ; i < u16; i++) {
-			if (!pinfo->fd->flags.visited) {
+			if (!pinfo->fd->visited) {
 				_9p_len = tvb_get_letohs(tvb, offset);
 				tvb_s = tvb_get_string_enc(wmem_packet_scope(), tvb, offset+2, _9p_len, ENC_UTF_8|ENC_NA);
 				wmem_strbuf_append_c(tmppath, '/');
@@ -1369,7 +1369,7 @@ static int dissect_9P_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 			expert_add_info(pinfo, ti, &ei_9P_first_250);
 		}
 
-		if (!pinfo->fd->flags.visited) {
+		if (!pinfo->fd->visited) {
 			conv_set_fid(pinfo, fid, wmem_strbuf_get_str(tmppath), wmem_strbuf_get_len(tmppath)+1);
 		}
 
@@ -1428,7 +1428,7 @@ static int dissect_9P_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		proto_item_append_text(ti, " (%s)", fid_path);
 		offset += 4;
 
-		if (!pinfo->fd->flags.visited) {
+		if (!pinfo->fd->visited) {
 			_9p_len = tvb_get_letohs(tvb, offset);
 			tmppath = wmem_strbuf_sized_new(wmem_packet_scope(), 0, MAXPATHLEN);
 			wmem_strbuf_append(tmppath, fid_path);
@@ -1461,7 +1461,7 @@ static int dissect_9P_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		proto_item_append_text(ti, " (%s)", fid_path);
 		offset += 4;
 
-		if (!pinfo->fd->flags.visited) {
+		if (!pinfo->fd->visited) {
 			_9p_len = tvb_get_letohs(tvb, offset);
 			tmppath = wmem_strbuf_sized_new(wmem_packet_scope(), 0, MAXPATHLEN);
 			wmem_strbuf_append(tmppath, fid_path);
@@ -1806,7 +1806,7 @@ static int dissect_9P_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		proto_item_append_text(ti, " (%s)", fid_path);
 		offset += 4;
 
-		if (!pinfo->fd->flags.visited) {
+		if (!pinfo->fd->visited) {
 			_9p_len = tvb_get_letohs(tvb, offset);
 			tmppath = wmem_strbuf_sized_new(wmem_packet_scope(), 0, MAXPATHLEN);
 			wmem_strbuf_append(tmppath, conv_get_fid(pinfo, dfid));

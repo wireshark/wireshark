@@ -118,10 +118,10 @@ dissect_file_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 					   0, 0, frame_len, "Record Length: %u byte%s (%u bits)",
 					   frame_len, frame_plurality, frame_len * 8);
 
-		ti = proto_tree_add_boolean(fh_tree, hf_file_marked, tvb, 0, 0,pinfo->fd->flags.marked);
+		ti = proto_tree_add_boolean(fh_tree, hf_file_marked, tvb, 0, 0,pinfo->fd->marked);
 		PROTO_ITEM_SET_GENERATED(ti);
 
-		ti = proto_tree_add_boolean(fh_tree, hf_file_ignored, tvb, 0, 0,pinfo->fd->flags.ignored);
+		ti = proto_tree_add_boolean(fh_tree, hf_file_ignored, tvb, 0, 0,pinfo->fd->ignored);
 		PROTO_ITEM_SET_GENERATED(ti);
 
 		if(pinfo->fd->pfd != 0){
@@ -146,7 +146,7 @@ dissect_file_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 #endif
 	}
 
-	if (pinfo->fd->flags.ignored) {
+	if (pinfo->fd->ignored) {
 		/* Ignored package, stop handling here */
 		col_set_str(pinfo->cinfo, COL_INFO, "<Ignored>");
 		proto_tree_add_boolean_format(tree, hf_file_ignored, tvb, 0, -1, TRUE, "This record is marked as ignored");
@@ -272,10 +272,10 @@ dissect_file_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 	}
 
 	/* Attempt to (re-)calculate color filters (if any). */
-	if (pinfo->fd->flags.need_colorize) {
+	if (pinfo->fd->need_colorize) {
 		color_filter = color_filters_colorize_packet(file_data->color_edt);
 		pinfo->fd->color_filter = color_filter;
-		pinfo->fd->flags.need_colorize = 0;
+		pinfo->fd->need_colorize = 0;
 	} else {
 		color_filter = pinfo->fd->color_filter;
 	}

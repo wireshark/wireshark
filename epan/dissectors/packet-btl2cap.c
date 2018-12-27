@@ -682,7 +682,7 @@ dissect_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo,
         offset += 1;
     }
 
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         wmem_tree_key_t    key[6];
         guint32            k_interface_id;
         guint32            k_adapter_id;
@@ -836,7 +836,7 @@ dissect_le_credit_based_connrequest(tvbuff_t *tvb, int offset, packet_info *pinf
     proto_tree_add_item(command_tree, hf_btl2cap_initial_credits, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         wmem_tree_key_t    key[6];
         guint32            k_interface_id;
         guint32            k_adapter_id;
@@ -982,7 +982,7 @@ dissect_le_credit_based_connresponse(tvbuff_t *tvb, int offset, packet_info *pin
     offset += 2;
 
 
-    if (pinfo->fd->flags.visited == 0) {
+    if (pinfo->fd->visited == 0) {
         psm_data_t        *psm_data;
         wmem_tree_key_t    key[6];
         guint32            k_interface_id;
@@ -1532,7 +1532,7 @@ dissect_connresponse(tvbuff_t *tvb, int offset, packet_info *pinfo,
                         val_to_str_const(result, result_vals, "Unknown"), scid);
     }
 
-    if (pinfo->fd->flags.visited == 0) {
+    if (pinfo->fd->visited == 0) {
         psm_data_t        *psm_data;
         wmem_tree_key_t    key[6];
         guint32            k_interface_id;
@@ -1732,7 +1732,7 @@ dissect_disconnrequestresponse(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree_add_item(command_tree, hf_btl2cap_scid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         psm_data_t        *psm_data;
         wmem_tree_key_t    key[6];
         guint32            k_interface_id;
@@ -2008,7 +2008,7 @@ dissect_le_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     btl2cap_frame_data_t *btl2cap_frame_data = NULL;
     fragment_head *frag_btl2cap_le_sdu = NULL;
 
-    if ((!pinfo->fd->flags.visited) && (config_data) && !is_retransmit) {
+    if ((!pinfo->fd->visited) && (config_data) && !is_retransmit) {
         btl2cap_frame_data = wmem_new0(wmem_file_scope(), btl2cap_frame_data_t);
         if (config_data->segmentation_started == 1) {
             config_data->segment_len_rem = config_data->segment_len_rem - length;
@@ -2205,7 +2205,7 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     "SDU length less than length of first packet (%u < %u)", sdulen, length);
         }
 
-        if (!pinfo->fd->flags.visited) {
+        if (!pinfo->fd->visited) {
             mfp              = wmem_new(wmem_file_scope(), sdu_reassembly_t);
             mfp->first_frame = pinfo->num;
             mfp->last_frame  = 0;
@@ -2233,7 +2233,7 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     if (segment == 0x02 || segment == 0x03) {
         mfp = (sdu_reassembly_t *)wmem_tree_lookup32_le(config_data->start_fragments, pinfo->num);
-        if (!pinfo->fd->flags.visited) {
+        if (!pinfo->fd->visited) {
             if (mfp != NULL && !mfp->last_frame && (mfp->tot_len>=mfp->cur_off + length)) {
                 tvb_memcpy(tvb, mfp->reassembled + mfp->cur_off, offset, length);
                 mfp->cur_off += length;

@@ -1812,7 +1812,7 @@ ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         /* Get the address. */
         packet->src16 = tvb_get_letohs(tvb, offset);
 
-        if (!pinfo->fd->flags.visited) {
+        if (!pinfo->fd->visited) {
             /* If we know our extended source address from previous packets,
                 * provide a pointer to it in a hint for upper layers */
             addr16.addr = packet->src16;
@@ -3401,7 +3401,7 @@ dissect_ieee802154_disassoc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         } /* switch */
     }
 
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         /* Update the address tables */
         if ( packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT ) {
             ieee802154_long_addr_invalidate(packet->dst64, pinfo->num);

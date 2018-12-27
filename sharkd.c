@@ -544,7 +544,7 @@ sharkd_dissect_request(guint32 framenum, guint32 frame_ref_num, guint32 prev_dis
 
   if (dissect_flags & SHARKD_DISSECT_FLAG_COLOR) {
     color_filters_prime_edt(&edt);
-    fdata->flags.need_colorize = 1;
+    fdata->need_colorize = 1;
   }
 
   if (cinfo)
@@ -554,7 +554,7 @@ sharkd_dissect_request(guint32 framenum, guint32 frame_ref_num, guint32 prev_dis
    * XXX - need to catch an OutOfMemoryError exception and
    * attempt to recover from it.
    */
-  fdata->flags.ref_time = (framenum == frame_ref_num);
+  fdata->ref_time = (framenum == frame_ref_num);
   fdata->frame_ref_num = frame_ref_num;
   fdata->prev_dis_num = prev_dis_num;
   epan_dissect_run(&edt, cfile.cd_t, &rec,
@@ -604,7 +604,7 @@ sharkd_dissect_columns(frame_data *fdata, guint32 frame_ref_num, guint32 prev_di
 
   if (dissect_color) {
     color_filters_prime_edt(&edt);
-    fdata->flags.need_colorize = 1;
+    fdata->need_colorize = 1;
   }
 
   if (cinfo)
@@ -614,7 +614,7 @@ sharkd_dissect_columns(frame_data *fdata, guint32 frame_ref_num, guint32 prev_di
    * XXX - need to catch an OutOfMemoryError exception and
    * attempt to recover from it.
    */
-  fdata->flags.ref_time = (fdata->num == frame_ref_num);
+  fdata->ref_time = (fdata->num == frame_ref_num);
   fdata->frame_ref_num = frame_ref_num;
   fdata->prev_dis_num = prev_dis_num;
   epan_dissect_run(&edt, cfile.cd_t, &rec,
@@ -676,7 +676,7 @@ sharkd_retap(void)
     if (!wtap_seek_read(cfile.provider.wth, fdata->file_off, &rec, &buf, &err, &err_info))
       break;
 
-    fdata->flags.ref_time = FALSE;
+    fdata->ref_time = FALSE;
     fdata->frame_ref_num = (framenum != 1) ? 1 : 0;
     fdata->prev_dis_num = framenum - 1;
     epan_dissect_run_with_taps(&edt, cfile.cd_t, &rec,
@@ -745,7 +745,7 @@ sharkd_filter(const char *dftext, guint8 **result)
     /* frame_data_set_before_dissect */
     epan_dissect_prime_with_dfilter(&edt, dfcode);
 
-    fdata->flags.ref_time = FALSE;
+    fdata->ref_time = FALSE;
     fdata->frame_ref_num = (framenum != 1) ? 1 : 0;
     fdata->prev_dis_num = prev_dis_num;
     epan_dissect_run(&edt, cfile.cd_t, &rec,

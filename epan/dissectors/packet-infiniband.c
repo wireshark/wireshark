@@ -3317,7 +3317,7 @@ static void save_conversation_info(packet_info *pinfo, guint8 *local_gid, guint8
 {
     /* the following saves information about the conversation this packet defines,
        so there's no point in doing it more than once per packet */
-    if (!pinfo->fd->flags.visited)
+    if (!pinfo->fd->visited)
     {
         connection_context *connection;
         conversation_infiniband_data *proto_data;
@@ -3630,7 +3630,7 @@ static void update_conversation_info(packet_info *pinfo,
 {
     /* the following saves information about the conversation this packet defines,
        so there's no point in doing it more than once per packet */
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         /* get the previously saved context for this connection */
         connection_context *connection;
 

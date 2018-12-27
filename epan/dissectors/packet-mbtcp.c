@@ -1536,7 +1536,7 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_tree_add_item(modbus_tree, hf_modbus_functioncode, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* Conversation support */
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         conversation_t       *conversation = NULL;
         modbus_conversation  *modbus_conv_data = NULL;
 

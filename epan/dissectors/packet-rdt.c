@@ -223,7 +223,7 @@ void rdt_add_address(packet_info *pinfo,
     /* If this isn't the first time this packet has been processed,
        we've already done this work, so we don't need to do it
       again. */
-    if (pinfo->fd->flags.visited)
+    if (pinfo->fd->visited)
     {
         return;
     }

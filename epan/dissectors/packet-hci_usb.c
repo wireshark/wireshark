@@ -161,7 +161,7 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     bluetooth_data->adapter_disconnect_in_frame = &max_disconnect_in_frame;
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
-    if (!pinfo->fd->flags.visited && usb_conv_info->endpoint <= 0x02 &&
+    if (!pinfo->fd->visited && usb_conv_info->endpoint <= 0x02 &&
             tvb_captured_length(tvb) == tvb_reported_length(tvb)) {
         fragment_info_t  *fragment_info;
 

@@ -224,7 +224,7 @@ dissect_brdwlk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                                 2, pkt_cnt);
         }
         dropped_packets = FALSE;
-        if (pinfo->fd->flags.visited) {
+        if (pinfo->fd->visited) {
             /*
              * This isn't the first pass, so we can't use the global
              * "packet_count" variable to determine whether there were

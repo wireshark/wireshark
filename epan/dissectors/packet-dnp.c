@@ -3405,7 +3405,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
       static guint al_fragment_aging = 64; /* sequence numbers only 6 bit */
       fragment_head *frag_al = NULL;
       pinfo->fragmented = TRUE;
-      if (!pinfo->fd->flags.visited)
+      if (!pinfo->fd->visited)
       {
         frag_al = fragment_add_seq_single_aging(&al_reassembly_table,
             al_tvb, 0, pinfo, tr_seq, NULL,

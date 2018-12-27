@@ -665,7 +665,7 @@ gboolean RtpAnalysisDialog::tapPacket(void *tapinfo_ptr, packet_info *pinfo, epa
     if (!rtpinfo) return FALSE;
 
     /* we ignore packets that are not displayed */
-    if (pinfo->fd->flags.passed_dfilter == 0)
+    if (pinfo->fd->passed_dfilter == 0)
         return FALSE;
     /* also ignore RTP Version != 2 */
     else if (rtpinfo->info_version != 2)

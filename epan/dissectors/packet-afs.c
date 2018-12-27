@@ -2747,7 +2747,7 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
 	/* only allocate a new hash element when it's a request */
 	opcode = 0;
-	if(!pinfo->fd->flags.visited){
+	if(!pinfo->fd->visited){
 		if ( !request_val && !reply) {
 			new_request_key = wmem_new(wmem_file_scope(), struct afs_request_key);
 			*new_request_key = request_key;

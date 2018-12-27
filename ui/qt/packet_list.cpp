@@ -1784,13 +1784,13 @@ void PacketList::drawFarOverlay()
         for (int row = 0; row < pl_rows; row++) {
 
             frame_data *fdata = packet_list_model_->getRowFdata(row);
-            if (fdata->flags.marked || fdata->flags.ref_time || fdata->flags.ignored) {
+            if (fdata->marked || fdata->ref_time || fdata->ignored) {
                 int new_line = row * o_height / pl_rows;
                 int tick_width = o_width / 3;
                 // Marked or ignored: left side, time refs: right side.
                 // XXX Draw ignored ticks in the middle?
-                int x1 = fdata->flags.ref_time ? o_width - tick_width : 1;
-                int x2 = fdata->flags.ref_time ? o_width - 1 : tick_width;
+                int x1 = fdata->ref_time ? o_width - tick_width : 1;
+                int x2 = fdata->ref_time ? o_width - 1 : tick_width;
 
                 painter.drawLine(x1, new_line, x2, new_line);
                 have_marked_image = true;

@@ -1359,7 +1359,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
   /* Sequence number analysis */
   if (g_esp_do_sequence_analysis) {
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
       check_esp_sequence_info(spi, sequence_number, pinfo);
     }
     show_esp_sequence_info(spi, sequence_number,

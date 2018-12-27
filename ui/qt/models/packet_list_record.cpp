@@ -164,7 +164,7 @@ void PacketListRecord::dissect(capture_file *cap_file, bool dissect_color)
     /* Re-color when the coloring rules are changed via the UI. */
     if (dissect_color) {
         color_filters_prime_edt(&edt);
-        fdata_->flags.need_colorize = 1;
+        fdata_->need_colorize = 1;
     }
     if (dissect_columns)
         col_custom_prime_edt(&edt, cinfo);

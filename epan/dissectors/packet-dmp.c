@@ -1355,7 +1355,7 @@ static void register_dmp_id (packet_info *pinfo, guint8 reason)
 
   dmp_key = wmem_new (wmem_file_scope(), dmp_id_key);
 
-  if (!pinfo->fd->flags.visited &&
+  if (!pinfo->fd->visited &&
       (dmp.msg_type == REPORT || dmp.msg_type == NOTIF))
   {
     /* Try to match corresponding message */
@@ -1388,7 +1388,7 @@ static void register_dmp_id (packet_info *pinfo, guint8 reason)
 
   dmp_data = (dmp_id_val *) wmem_map_lookup (dmp_id_hash_table, dmp_key);
 
-  if (!pinfo->fd->flags.visited) {
+  if (!pinfo->fd->visited) {
     if (dmp_data) {
       if (dmp.msg_type == ACK) {
         /* Only save this data if positive ack */
@@ -1481,7 +1481,7 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
       }
     } else if (dmp.checksum && !dmp.id_val->msg_resend_count) {
       en = proto_tree_add_item (analysis_tree, hf_analysis_ack_missing, tvb, offset, 0, ENC_NA);
-      if (pinfo->fd->flags.visited) {
+      if (pinfo->fd->visited) {
         /* We do not know this on first visit and we do not want to
            add a entry in the "Expert Severity Info" for this note */
         expert_add_info(pinfo, en, &ei_analysis_ack_missing);

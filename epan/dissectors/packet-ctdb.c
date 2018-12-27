@@ -897,7 +897,7 @@ dissect_ctdb_req_control(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 	}
 
 	/* setup request/response matching */
-	if(!pinfo->fd->flags.visited){
+	if(!pinfo->fd->visited){
 		wmem_tree_key_t tkey[4];
 
 		ctdb_control=wmem_new(wmem_file_scope(), ctdb_control_t);
@@ -961,7 +961,7 @@ dissect_ctdb_reply_control(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 		return offset;
 	}
 
-	if(!pinfo->fd->flags.visited){
+	if(!pinfo->fd->visited){
 		ctdb_control->response_in = pinfo->num;
 	}
 
@@ -1087,7 +1087,7 @@ dissect_ctdb_req_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 	offset+=datalen;
 
 	/* setup request/response matching */
-	if(!pinfo->fd->flags.visited){
+	if(!pinfo->fd->visited){
 		wmem_tree_key_t tkey[3];
 
 		ctdb_trans=wmem_new(wmem_file_scope(), ctdb_trans_t);

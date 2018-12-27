@@ -897,7 +897,7 @@ server_state_machine_v5( socks_hash_entry_t *hash_info, tvbuff_t *tvb,
             /* save server udp port and create udp conversation */
             hash_info->udp_port =  tvb_get_ntohs(tvb, offset);
 
-            if (!pinfo->fd->flags.visited)
+            if (!pinfo->fd->visited)
                 new_udp_conversation( hash_info, pinfo);
 
             break;
@@ -1080,7 +1080,7 @@ dissect_socks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
         col_append_str(pinfo->cinfo, COL_INFO, ", Traceroute Req");
 
     /* run state machine if needed */
-    if ((!pinfo->fd->flags.visited) &&
+    if ((!pinfo->fd->visited) &&
         (!((hash_info->clientState == clientDone) &&
            (hash_info->serverState == serverDone)))) {
 

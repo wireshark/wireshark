@@ -360,7 +360,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
     subtree = (wmem_tree_t *) wmem_tree_lookup32_array(chandle_tree, key);
     chandle_data = (subtree) ? (chandle_data_t *) wmem_tree_lookup32_le(subtree, pinfo->num) : NULL;
-    if (!pinfo->fd->flags.visited && !chandle_data) {
+    if (!pinfo->fd->visited && !chandle_data) {
         key[0].length = 1;
         key[0].key = &interface_id;
         key[1].length = 1;
@@ -378,7 +378,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         chandle_data->start_fragments = wmem_tree_new(wmem_file_scope());
 
         wmem_tree_insert32_array(chandle_tree, key, chandle_data);
-    } else if (pinfo->fd->flags.visited && !chandle_data) {
+    } else if (pinfo->fd->visited && !chandle_data) {
         DISSECTOR_ASSERT_HINT(0, "Impossible: no previously session saved");
     }
 
@@ -426,7 +426,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         gint                  len;
 
         if (!(pb_flag & 0x01)) { /* first fragment */
-            if (!pinfo->fd->flags.visited) {
+            if (!pinfo->fd->visited) {
                 mfp = (multi_fragment_pdu_t *) wmem_new(wmem_file_scope(), multi_fragment_pdu_t);
                 mfp->first_frame = pinfo->num;
                 mfp->last_frame  = 0;
@@ -451,7 +451,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         }
         if (pb_flag == 0x01) { /* continuation fragment */
             mfp = (multi_fragment_pdu_t *)wmem_tree_lookup32_le(chandle_data->start_fragments, pinfo->num);
-            if (!pinfo->fd->flags.visited) {
+            if (!pinfo->fd->visited) {
                 len = tvb_captured_length_remaining(tvb, offset);
                 if (mfp != NULL && !mfp->last_frame && (mfp->tot_len >= mfp->cur_off + len)) {
                     tvb_memcpy(tvb, (guint8 *) mfp->reassembled + mfp->cur_off, offset, len);
@@ -503,7 +503,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         expert_add_info(pinfo, bthci_acl_item, &ei_invalid_session);
     }
 
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         address *addr;
 
         addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_src, sizeof(address));

@@ -326,7 +326,7 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
       lun = tvb_get_guint8(tvb, offset+1);
     }
 
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         proto_data = wmem_new(wmem_file_scope(), fcp_proto_data_t);
         proto_data->lun = lun;
         p_add_proto_data(wmem_file_scope(), pinfo, proto_fcp, 0, proto_data);
@@ -356,7 +356,7 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
     }
 
     /* populate the exchange struct */
-    if(!pinfo->fd->flags.visited){
+    if(!pinfo->fd->visited){
         if(fchdr->fctl&FC_FCTL_EXCHANGE_FIRST){
             request_data->itlq->first_exchange_frame=pinfo->num;
             request_data->itlq->fc_time = pinfo->abs_ts;
@@ -474,7 +474,7 @@ dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, prot
         request_data->response_frame = pinfo->num;
 
         /* populate the exchange struct */
-        if(!pinfo->fd->flags.visited){
+        if(!pinfo->fd->visited){
             if(fchdr->fctl&FC_FCTL_EXCHANGE_FIRST){
                 request_data->itlq->first_exchange_frame=pinfo->num;
                 request_data->itlq->fc_time = pinfo->abs_ts;
@@ -662,7 +662,7 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     /* Lun is only populated by FCP_IU_CMD, and subsequent packets assume the same lun.
        The only way that consistently works is to save the lun on the first pass when packets
        are guaranteed to be parsed consecutively */
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         proto_data = wmem_new(wmem_file_scope(), fcp_proto_data_t);
         proto_data->lun = fchdr->lun;
         p_add_proto_data(wmem_file_scope(), pinfo, proto_fcp, 0, proto_data);

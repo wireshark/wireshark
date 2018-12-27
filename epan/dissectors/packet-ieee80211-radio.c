@@ -485,7 +485,7 @@ dissect_wlan_radio_phdr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
   /* this is the first time we are looking at this frame during a
    * capture dissection, so we know the dissection is done in
    * frame order (subsequent dissections may be random access) */
-  if (!pinfo->fd->flags.visited) {
+  if (!pinfo->fd->visited) {
     wlan_radio_info = wmem_new0(wmem_file_scope(), struct wlan_radio);
     p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan_radio, 0, wlan_radio_info);
 
@@ -1114,7 +1114,7 @@ dissect_wlan_radio_phdr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
     }
     }
 
-    if (!pinfo->fd->flags.visited && have_duration && phdr->has_tsf_timestamp) {
+    if (!pinfo->fd->visited && have_duration && phdr->has_tsf_timestamp) {
       if (current_aggregate) {
         current_aggregate->duration = agg_preamble + prior_duration + duration;
         if (previous_frame.radio_info && previous_frame.radio_info->aggregate == current_aggregate)
@@ -1223,7 +1223,7 @@ dissect_wlan_radio_phdr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
     tap_queue_packet(wlan_radio_timeline_tap, pinfo, wlan_radio_info);
   }
 
-  if (!pinfo->fd->flags.visited) {
+  if (!pinfo->fd->visited) {
     previous_frame.radio_info = wlan_radio_info;
   }
 }

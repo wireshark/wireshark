@@ -1609,7 +1609,7 @@ smb_trans_defragment(proto_tree *tree _U_, packet_info *pinfo, tvbuff_t *tvb,
 		return NULL;
 	}
 
-	if (!pinfo->fd->flags.visited) {
+	if (!pinfo->fd->visited) {
 		fd_head = fragment_add(&smb_trans_reassembly_table, tvb, offset,
 				       pinfo, si->sip->frame_req, NULL,
 				       pos, count, more_frags);
@@ -2675,7 +2675,7 @@ dissect_negprot_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 
 	tr = proto_tree_add_subtree(tree, tvb, offset, bc, ett_smb_dialects, NULL, "Requested Dialects");
 
-	if (!pinfo->fd->flags.visited && si->sip) {
+	if (!pinfo->fd->visited && si->sip) {
 		dialects = wmem_new(wmem_file_scope(), struct negprot_dialects);
 		dialects->num = 0;
 		si->sip->extra_info_type = SMB_EI_DIALECTS;
@@ -2709,7 +2709,7 @@ dissect_negprot_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 			len, str);
 		COUNT_BYTES(len);
 
-		if (!pinfo->fd->flags.visited && dialects && (dialects->num < MAX_DIALECTS)) {
+		if (!pinfo->fd->visited && dialects && (dialects->num < MAX_DIALECTS)) {
 			dialects->name[dialects->num++] = wmem_strdup(wmem_file_scope(), str);
 		}
 	}
@@ -3059,7 +3059,7 @@ dissect_old_dir_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 	dn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &dn_len,
 		FALSE, FALSE, &bc);
 
-	if ((!pinfo->fd->flags.visited) && si->sip) {
+	if ((!pinfo->fd->visited) && si->sip) {
 		si->sip->extra_info_type = SMB_EI_FILENAME;
 		si->sip->extra_info = wmem_strdup(wmem_file_scope(), dn);
 	}
@@ -3303,7 +3303,7 @@ dissect_smb_tid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 	tr = proto_item_add_subtree(it, ett_smb_tid);
 	offset += 2;
 
-	if ((!pinfo->fd->flags.visited) && is_created) {
+	if ((!pinfo->fd->visited) && is_created) {
 		tid_info = wmem_new(wmem_file_scope(), smb_tid_info_t);
 		tid_info->opened_in = pinfo->num;
 		tid_info->closed_in = 0;
@@ -3323,7 +3323,7 @@ dissect_smb_tid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 		return offset;
 	}
 
-	if ((!pinfo->fd->flags.visited) && is_closed) {
+	if ((!pinfo->fd->visited) && is_closed) {
 		tid_info->closed_in = pinfo->num;
 	}
 
@@ -3659,7 +3659,7 @@ dissect_open_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	/* store it for the fid->name/openframe/closeframe matching in
 	* dissect_smb_fid()   called from the response.
 	*/
-	if ((!pinfo->fd->flags.visited) && si->sip && fn) {
+	if ((!pinfo->fd->visited) && si->sip && fn) {
 		fsi			= wmem_new0(wmem_file_scope(), smb_fid_saved_info_t);
 		fsi->filename		= wmem_strdup(wmem_file_scope(), fn);
 
@@ -3892,7 +3892,7 @@ dissect_smb_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 	tr = proto_item_add_subtree(it, ett_smb_fid);
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", FID: 0x%04x", fid);
 
-	if ((!pinfo->fd->flags.visited) && is_created) {
+	if ((!pinfo->fd->visited) && is_created) {
 		fid_info = wmem_new(wmem_file_scope(), smb_fid_info_t);
 		fid_info->opened_in = pinfo->num;
 		fid_info->closed_in = 0;
@@ -3936,7 +3936,7 @@ dissect_smb_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 	/* Store the fid in the transaction structure and remember if
 	   it was in the request or in the reply we saw it
 	 */
-	if (sip && (!is_generated) && (!pinfo->fd->flags.visited)) {
+	if (sip && (!is_generated) && (!pinfo->fd->visited)) {
 		sip->fid = fid;
 		if (si->request) {
 			sip->fid_seen_in_request = TRUE;
@@ -3945,7 +3945,7 @@ dissect_smb_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 		}
 	}
 
-	if ((!pinfo->fd->flags.visited) && is_closed) {
+	if ((!pinfo->fd->visited) && is_closed) {
 		fid_info->closed_in = pinfo->num;
 	}
 
@@ -4220,7 +4220,7 @@ dissect_create_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* store it for the fid->name/openframe/closeframe matching in
 	* dissect_smb_fid()   called from the response.
 	*/
-	if ((!pinfo->fd->flags.visited) && si->sip && fn) {
+	if ((!pinfo->fd->visited) && si->sip && fn) {
 		fsi			= wmem_new0(wmem_file_scope(), smb_fid_saved_info_t);
 		fsi->filename		= wmem_strdup(wmem_file_scope(), fn);
 		fsi->file_attributes	= file_attributes;
@@ -4287,7 +4287,7 @@ dissect_delete_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len,
 		FALSE, FALSE, &bc);
 
-	if ((!pinfo->fd->flags.visited) && si->sip) {
+	if ((!pinfo->fd->visited) && si->sip) {
 		si->sip->extra_info_type = SMB_EI_FILENAME;
 		si->sip->extra_info = wmem_strdup(wmem_file_scope(), fn);
 	}
@@ -4363,7 +4363,7 @@ dissect_rename_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	END_OF_SMB
 
 	/* save the offset/len for this transaction */
-	if (si->sip && !pinfo->fd->flags.visited) {
+	if (si->sip && !pinfo->fd->visited) {
 		rni = (smb_rename_saved_info_t *)wmem_alloc(wmem_file_scope(), sizeof(smb_rename_saved_info_t));
 		rni->old_name = wmem_strdup(wmem_file_scope(), old_name);
 		rni->new_name = wmem_strdup(wmem_file_scope(), new_name);
@@ -4590,7 +4590,7 @@ dissect_read_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	offset += 2;
 
 	/* save the offset/len for this transaction */
-	if (si->sip && !pinfo->fd->flags.visited) {
+	if (si->sip && !pinfo->fd->visited) {
 		rwi = wmem_new(wmem_file_scope(), rw_info_t);
 		rwi->offset = ofs;
 		rwi->len = cnt;
@@ -4827,7 +4827,7 @@ dissect_write_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 				(cnt == 1) ? "" : "s", ofs);
 
 	/* save the offset/len for this transaction */
-	if (si->sip && !pinfo->fd->flags.visited) {
+	if (si->sip && !pinfo->fd->visited) {
 		rwi	    = (rw_info_t *)wmem_alloc(wmem_file_scope(), sizeof(rw_info_t));
 		rwi->offset = ofs;
 		rwi->len    = cnt;
@@ -6063,7 +6063,7 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	BYTE_COUNT;
 
 	/* store the locking data for the response */
-	if ((!pinfo->fd->flags.visited) && si->sip) {
+	if ((!pinfo->fd->visited) && si->sip) {
 		ld = (smb_locking_saved_info_t *)wmem_alloc(wmem_file_scope(), sizeof(smb_locking_saved_info_t));
 		ld->type	 = lt;
 		ld->oplock_level = ol;
@@ -6505,7 +6505,7 @@ dissect_open_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
 	/* Copied this portion of code from create_andx_request
 	   to guarantee that fsi and si->sip are always correctly filled out */
-	if ((!pinfo->fd->flags.visited) && si->sip && fn) {
+	if ((!pinfo->fd->visited) && si->sip && fn) {
 		smb_fid_saved_info_t *fsi;
 
 		fsi = wmem_new0(wmem_file_scope(), smb_fid_saved_info_t);
@@ -6826,7 +6826,7 @@ dissect_read_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 				maxcnt, (maxcnt == 1) ? "" : "s", ofs);
 
 	/* save the offset/len for this transaction */
-	if (si->sip && !pinfo->fd->flags.visited) {
+	if (si->sip && !pinfo->fd->visited) {
 		rwi = (rw_info_t *)wmem_alloc(wmem_file_scope(), sizeof(rw_info_t));
 		rwi->offset = ofs;
 		rwi->len = maxcnt;
@@ -7093,7 +7093,7 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 				datalen, (datalen == 1) ? "" : "s", ofs);
 
 	/* save the offset/len for this transaction */
-	if (si->sip && !pinfo->fd->flags.visited) {
+	if (si->sip && !pinfo->fd->visited) {
 		rwi	    = (rw_info_t *)wmem_alloc(wmem_file_scope(), sizeof(rw_info_t));
 		rwi->offset = ofs;
 		rwi->len    = datalen;
@@ -7132,7 +7132,7 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 			bc -= 2;
 			datalen -= 2;
 		}
-		if (!pinfo->fd->flags.visited) {
+		if (!pinfo->fd->visited) {
 			/* In case we did not see the TreeConnect call,
 			   store this TID here as well as a IPC TID
 			   so we know that future Read/Writes to this
@@ -7460,7 +7460,7 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 			}
 
 			/* If we have found a uid->acct_name mapping, store it */
-			if (!pinfo->fd->flags.visited && si->sip) {
+			if (!pinfo->fd->visited && si->sip) {
 				int idx = 0;
 				if ((ntlmssph = (const ntlmssp_header_t *)fetch_tapped_data(ntlmssp_tap_id, idx + 1 )) != NULL) {
 					if (ntlmssph && (ntlmssph->type == 3)) {
@@ -7664,7 +7664,7 @@ dissect_session_setup_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 	WORD_COUNT;
 
-	if (!pinfo->fd->flags.visited && si->sip && si->sip->extra_info &&
+	if (!pinfo->fd->visited && si->sip && si->sip->extra_info &&
 	    (si->sip->extra_info_type == SMB_EI_UID)) {
 		smb_uid_t *smb_uid;
 
@@ -7964,7 +7964,7 @@ dissect_tree_connect_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	/* store it for the tid->name/openframe/closeframe matching in
 	 * dissect_smb_tid()   called from the response.
 	 */
-	if ((!pinfo->fd->flags.visited) && si->sip && an) {
+	if ((!pinfo->fd->visited) && si->sip && an) {
 		si->sip->extra_info_type = SMB_EI_TIDNAME;
 		si->sip->extra_info = wmem_strdup(wmem_file_scope(), an);
 	}
@@ -8094,7 +8094,7 @@ dissect_tree_connect_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 	/* Now when we know the service type, store it so that we know it for later commands down
 	   this tree */
-	if (!pinfo->fd->flags.visited) {
+	if (!pinfo->fd->visited) {
 		/* Remove any previous entry for this TID */
 		if (g_hash_table_lookup(si->ct->tid_service, GUINT_TO_POINTER(si->tid))) {
 			g_hash_table_remove(si->ct->tid_service, GUINT_TO_POINTER(si->tid));
@@ -9214,7 +9214,7 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 		ntd.subcmd = subcmd;
 		if (!si->unidir && sip) {
-			if (!pinfo->fd->flags.visited) {
+			if (!pinfo->fd->visited) {
 				/*
 				 * Allocate a new smb_nt_transact_info_t
 				 * structure.
@@ -10428,7 +10428,7 @@ dissect_nt_create_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	/* store it for the fid->name/openframe/closeframe matching in
 	 * dissect_smb_fid()   called from the response.
 	 */
-	if ((!pinfo->fd->flags.visited) && si->sip && fn) {
+	if ((!pinfo->fd->visited) && si->sip && fn) {
 		smb_fid_saved_info_t *fsi;
 
 		fsi			 = wmem_new(wmem_file_scope(), smb_fid_saved_info_t);
@@ -11057,7 +11057,7 @@ dissect_ff2_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, in
 	if ((si->sip != NULL) && (si->sip->extra_info_type == SMB_EI_T2I)) {
 		t2i = (smb_transact2_info_t *)si->sip->extra_info;
 		if (t2i != NULL) {
-			if (!pinfo->fd->flags.visited)
+			if (!pinfo->fd->visited)
 				t2i->resume_keys = (mask & FF2_RESUME);
 		}
 	}
@@ -11207,7 +11207,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		/* Find First2 information level */
 		CHECK_BYTE_COUNT_TRANS(2);
 		si->info_level = tvb_get_letohs(tvb, offset);
-		if ((t2i != NULL) && !pinfo->fd->flags.visited)
+		if ((t2i != NULL) && !pinfo->fd->visited)
 			t2i->info_level = si->info_level;
 		proto_tree_add_uint(tree, hf_smb_ff2_information_level, tvb, offset, 2, si->info_level);
 		COUNT_BYTES_TRANS(2);
@@ -11245,7 +11245,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		/* Find First2 information level */
 		CHECK_BYTE_COUNT_TRANS(2);
 		si->info_level = tvb_get_letohs(tvb, offset);
-		if ((t2i != NULL) && !pinfo->fd->flags.visited)
+		if ((t2i != NULL) && !pinfo->fd->visited)
 			t2i->info_level = si->info_level;
 		proto_tree_add_uint(tree, hf_smb_ff2_information_level, tvb, offset, 2, si->info_level);
 		COUNT_BYTES_TRANS(2);
@@ -11275,7 +11275,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		/* level of interest */
 		CHECK_BYTE_COUNT_TRANS(2);
 		si->info_level = tvb_get_letohs(tvb, offset);
-		if ((t2i != NULL) && !pinfo->fd->flags.visited)
+		if ((t2i != NULL) && !pinfo->fd->visited)
 			t2i->info_level = si->info_level;
 		proto_tree_add_uint(tree, hf_smb_qfsi_information_level, tvb, offset, 2, si->info_level);
 		COUNT_BYTES_TRANS(2);
@@ -11289,7 +11289,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		/* level of interest */
 		CHECK_BYTE_COUNT_TRANS(4);
 		si->info_level = tvb_get_letohs(tvb, offset+2);
-		if ((t2i != NULL) && !pinfo->fd->flags.visited)
+		if ((t2i != NULL) && !pinfo->fd->visited)
 			t2i->info_level = si->info_level;
 		proto_tree_add_uint(tree, hf_smb_sfsi_information_level, tvb, offset+2, 2, si->info_level);
 		COUNT_BYTES_TRANS(4);
@@ -11303,7 +11303,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		/* level of interest */
 		CHECK_BYTE_COUNT_TRANS(2);
 		si->info_level = tvb_get_letohs(tvb, offset);
-		if ((t2i != NULL) && !pinfo->fd->flags.visited)
+		if ((t2i != NULL) && !pinfo->fd->visited)
 			t2i->info_level = si->info_level;
 		proto_tree_add_uint(tree, hf_smb_qpi_loi, tvb, offset, 2, si->info_level);
 		COUNT_BYTES_TRANS(2);
@@ -11337,7 +11337,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		/* level of interest */
 		CHECK_BYTE_COUNT_TRANS(2);
 		si->info_level = tvb_get_letohs(tvb, offset);
-		if ((t2i != NULL) && !pinfo->fd->flags.visited)
+		if ((t2i != NULL) && !pinfo->fd->visited)
 			t2i->info_level = si->info_level;
 		proto_tree_add_uint(tree, hf_smb_spi_loi, tvb, offset, 2, si->info_level);
 		COUNT_BYTES_TRANS(2);
@@ -11370,7 +11370,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		/* level of interest */
 		CHECK_BYTE_COUNT_TRANS(2);
 		si->info_level = tvb_get_letohs(tvb, offset);
-		if ((t2i != NULL) && !pinfo->fd->flags.visited)
+		if ((t2i != NULL) && !pinfo->fd->visited)
 			t2i->info_level = si->info_level;
 		proto_tree_add_uint(tree, hf_smb_qpi_loi, tvb, offset, 2, si->info_level);
 		COUNT_BYTES_TRANS(2);
@@ -11394,7 +11394,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		/* level of interest */
 		CHECK_BYTE_COUNT_TRANS(2);
 		si->info_level = tvb_get_letohs(tvb, offset);
-		if ((t2i != NULL) && !pinfo->fd->flags.visited)
+		if ((t2i != NULL) && !pinfo->fd->visited)
 			t2i->info_level = si->info_level;
 		proto_tree_add_uint(tree, hf_smb_spi_loi, tvb, offset, 2, si->info_level);
 		COUNT_BYTES_TRANS(2);
@@ -11463,7 +11463,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		/* Find Notify information level */
 		CHECK_BYTE_COUNT_TRANS(2);
 		si->info_level = tvb_get_letohs(tvb, offset);
-		if ((t2i != NULL) && !pinfo->fd->flags.visited)
+		if ((t2i != NULL) && !pinfo->fd->visited)
 			t2i->info_level = si->info_level;
 		proto_tree_add_uint(tree, hf_smb_fn_information_level, tvb, offset, 2, si->info_level);
 		COUNT_BYTES_TRANS(2);
@@ -14051,7 +14051,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 							   "Unknown (0x%02x)"));
 
 				if (!si->unidir) {
-					if (!pinfo->fd->flags.visited && si->sip) {
+					if (!pinfo->fd->visited && si->sip) {
 						/*
 						 * Allocate a new
 						 * smb_transact2_info_t
@@ -14201,7 +14201,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			}
 
 			if (!si->unidir) {
-				if (!pinfo->fd->flags.visited && si->sip) {
+				if (!pinfo->fd->visited && si->sip) {
 					/*
 					 * Allocate a new smb_transact_info_t
 					 * structure.
@@ -17794,7 +17794,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 
 		si->unidir = TRUE;  /*we don't expect an answer to this one*/
 
-		if (!pinfo->fd->flags.visited) {
+		if (!pinfo->fd->visited) {
 			/* try to find which original call we match and if we
 			   find it add us to the matched table. Don't touch
 			   anything else since we don't want this one to mess
@@ -17868,7 +17868,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 	} else { /* normal bidirectional request or response */
 		si->unidir = FALSE;
 
-		if (!pinfo->fd->flags.visited) {
+		if (!pinfo->fd->visited) {
 			/* first see if we find an unmatched smb "equal" to
 			   the current one
 			*/
@@ -18163,7 +18163,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 	 * having a response that means that the share was mapped and we
 	 * need to track it
 	 */
-	if (!pinfo->fd->flags.visited && (si->cmd == 0x75) && !si->request) {
+	if (!pinfo->fd->visited && (si->cmd == 0x75) && !si->request) {
 		offset = dissect_smb_tid(tvb, pinfo, htree, offset, (guint16)si->tid, TRUE, FALSE, si);
 	} else {
 		offset = dissect_smb_tid(tvb, pinfo, htree, offset, (guint16)si->tid, FALSE, FALSE, si);

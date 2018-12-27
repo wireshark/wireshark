@@ -5117,7 +5117,7 @@ dissect_tn5250(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
   if (!tn5250_info)
     return 0;
 
-  pinfo->fd->flags.encoding = PACKET_CHAR_ENC_CHAR_EBCDIC;
+  pinfo->fd->encoding = PACKET_CHAR_ENC_CHAR_EBCDIC;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "TN5250");
 

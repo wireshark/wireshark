@@ -340,7 +340,7 @@ static gint32 get_msg_num(guint32 psn, guint32 frag_size,
             if (psn >= p_request->psn && psn < epsn) {
                 /* Current fragment belongs to this request */
                 p_rdma_conv_info->segment_info = p_segment_info;
-                if (!pinfo->fd->flags.visited) {
+                if (!pinfo->fd->visited) {
                     p_request->rbytes += frag_size;
                 }
                 return msg_num + psn - p_request->psn;
@@ -380,7 +380,7 @@ static void add_request_info(rdma_conv_info_t *p_rdma_conv_info, packet_info *pi
 
     /* Get current segment */
     p_segment_info = find_segment_info(p_rdma_conv_info, gp_infiniband_info->reth_remote_key);
-    if (p_segment_info && !pinfo->fd->flags.visited) {
+    if (p_segment_info && !pinfo->fd->visited) {
         /* Add request to segment */
         p_request = (request_t *)wmem_alloc(wmem_file_scope(), sizeof(request_t));
         p_request->psn    = gp_infiniband_info->packet_seq_num;
@@ -1046,7 +1046,7 @@ process_rdma_list(tvbuff_t *tvb, guint offset, wmem_array_t *p_list,
         if (fd_head == NULL) {
             if (p_segment_info == NULL) {
                 return NULL;
-            } else if (p_rdma_chunk->type == RDMA_REPLY_CHUNK && !setup && !pinfo->fd->flags.visited) {
+            } else if (p_rdma_chunk->type == RDMA_REPLY_CHUNK && !setup && !pinfo->fd->visited) {
                 /*
                  * The RPC reply has no data when having a reply chunk but it needs
                  * to reassemble all fragments (more_frags = FALSE) in this frame
@@ -1316,7 +1316,7 @@ dissect_rpcrdma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
              */
             write_size = get_rdma_list_size(rdma_lists.p_write_list, pinfo);
 
-            if (write_size > 0 && !pinfo->fd->flags.visited) {
+            if (write_size > 0 && !pinfo->fd->visited) {
                 /* Initialize array of write chunk offsets */
                 gp_rdma_write_offsets = wmem_array_new(wmem_packet_scope(), sizeof(gint));
                 TRY {
@@ -1333,7 +1333,7 @@ dissect_rpcrdma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
                     g_rpcrdma_reduced = FALSE;
                 }
                 ENDTRY;
-            } else if (write_size > 0 && pinfo->fd->flags.visited) {
+            } else if (write_size > 0 && pinfo->fd->visited) {
                 /*
                  * Reassembly is done on the second pass (visited = 1)
                  * This is done because dissecting the upper layer(s) again
@@ -1346,14 +1346,14 @@ dissect_rpcrdma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
                      * All fragments were added during the first pass,
                      * reassembly just needs to be completed here
                      */
-                    save_visited = pinfo->fd->flags.visited;
-                    pinfo->fd->flags.visited = 0;
+                    save_visited = pinfo->fd->visited;
+                    pinfo->fd->visited = 0;
                     fd_head = fragment_end_seq_next(&rpcordma_reassembly_table, pinfo, p_segment_info->msgid, NULL);
                     if (fd_head) {
                         /* Add the fragment head to the packet cache */
                         p_add_proto_data(wmem_file_scope(), pinfo, proto_rpcordma, 0, fd_head);
                     }
-                    pinfo->fd->flags.visited = save_visited;
+                    pinfo->fd->visited = save_visited;
                 }
             }
 

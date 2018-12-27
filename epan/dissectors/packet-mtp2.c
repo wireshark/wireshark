@@ -1003,7 +1003,7 @@ dissect_mtp2_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
   /* if this is the first time, do the reassemble things
    * else just check for reassembled data */
-  if (pinfo->fd->flags.visited == FALSE) {
+  if (pinfo->fd->visited == FALSE) {
     /* if there was a flag in this tvb, the data found before the 1st flag
      * have to be treated differently than the data found after the last flag
      * this means we need to use different reass_seq_num when adding them to the reass. handler */

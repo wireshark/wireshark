@@ -258,7 +258,7 @@ static void add_msproxy_conversation( packet_info *pinfo,
 	conversation_t *conversation;
 	redirect_entry_t *new_conv_info;
 
-	if (pinfo->fd->flags.visited) {
+	if (pinfo->fd->visited) {
 		/*
 		 * We've already processed this frame once, so we
 		 * should already have done this.

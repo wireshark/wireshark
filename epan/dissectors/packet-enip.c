@@ -831,7 +831,7 @@ enip_match_request( packet_info *pinfo, proto_tree *tree, enip_request_key_t *pr
 
    request_info = NULL;
    request_val = (enip_request_val_t *)wmem_map_lookup( enip_request_hashtable, prequest_key );
-   if (!pinfo->fd->flags.visited)
+   if (!pinfo->fd->visited)
    {
       if ( prequest_key && prequest_key->requesttype == ENIP_REQUEST_PACKET )
       {
@@ -1074,7 +1074,7 @@ enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
    enip_conv_info_t *enip_info;
    address           dest_address;
 
-   if (pinfo->fd->flags.visited)
+   if (pinfo->fd->visited)
       return;
 
    // Don't create connections for Null Forward Opens.
@@ -1222,7 +1222,7 @@ enip_close_cip_connection(packet_info *pinfo, const cip_connection_triad_t* tria
    enip_conn_key_t  conn_key;
    enip_conn_val_t *conn_val;
 
-   if (pinfo->fd->flags.visited)
+   if (pinfo->fd->visited)
       return;
 
    conn_key.triad              = *triad;
@@ -2758,7 +2758,7 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
 
             case CONNECTION_TRANSPORT:  // 2nd item for: Connected messages (both Class 0/1 and Class 3)
                // Save the connection info for the conversation filter
-               if (!pinfo->fd->flags.visited && conn_info)
+               if (!pinfo->fd->visited && conn_info)
                {
                   p_add_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_CONNECTION_INFO, conn_info);
                }

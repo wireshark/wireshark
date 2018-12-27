@@ -454,7 +454,7 @@ dissect_acr122(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             break;
         }
 
-        if (!pinfo->fd->flags.visited) {
+        if (!pinfo->fd->visited) {
             command_data = wmem_new(wmem_file_scope(), command_data_t);
             command_data->bus_id = bus_id;
             command_data->device_address = device_address;
@@ -484,7 +484,7 @@ dissect_acr122(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
                 command = command_data->command;
                 command_frame_number = command_data->command_frame_number;
-                if (!pinfo->fd->flags.visited && command_data->response_frame_number == 0) {
+                if (!pinfo->fd->visited && command_data->response_frame_number == 0) {
                     command_data->response_frame_number = pinfo->num;
                 }
             }

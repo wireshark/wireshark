@@ -226,7 +226,7 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     conversation_add_proto_data(conversation, proto_reload_framing, reload_framing_info);
   }
 
-  if (!pinfo->fd->flags.visited) {
+  if (!pinfo->fd->visited) {
     if ((reload_frame = (reload_frame_t *)
            wmem_tree_lookup32_array(reload_framing_info->transaction_pdus, transaction_id_key)) == NULL) {
       transaction_id_key[2].key    = key_save;

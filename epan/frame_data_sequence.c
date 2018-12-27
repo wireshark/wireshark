@@ -320,7 +320,7 @@ find_and_mark_frame_depended_upon(gpointer data, gpointer user_data)
 
   if (dependent_frame && frames) {
     dependent_fd = frame_data_sequence_find(frames, dependent_frame);
-    dependent_fd->flags.dependent_of_displayed = 1;
+    dependent_fd->dependent_of_displayed = 1;
   }
 }
 

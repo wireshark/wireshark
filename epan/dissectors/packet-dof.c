@@ -5383,7 +5383,7 @@ static int dof_dissect_dpp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
             {
                 col_append_fstr(pinfo->cinfo, COL_INFO, "DNP/DPP Negotiation");
 
-                if (pinfo->fd->flags.visited &&
+                if (pinfo->fd->visited &&
                     api_data->transport_session->negotiation_required &&
                     ((api_data->transport_session->negotiation_complete_at == 0) || (api_data->transport_session->negotiation_complete_at_ts.secs - api_data->transport_session->session_start_ts.secs > 10)))
                 {

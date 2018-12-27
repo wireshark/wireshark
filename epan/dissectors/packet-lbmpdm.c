@@ -881,7 +881,7 @@ static int dissect_segment_defn(tvbuff_t * tvb, int offset, packet_info * pinfo,
     lbmpdm_definition_field_t * last_fixed_required_field = NULL;
 
     seglen = lbmpdm_get_segment_length(tvb, offset, encoding, &remaining_datalen);
-    if (pinfo->fd->flags.visited == 0)
+    if (pinfo->fd->visited == 0)
     {
         add_definition = TRUE;
     }

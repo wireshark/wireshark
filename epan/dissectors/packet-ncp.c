@@ -843,7 +843,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* First time through we will record the initial connection and task
          * values
          */
-        if (!pinfo->fd->flags.visited) {
+        if (!pinfo->fd->visited) {
             if (conversation != NULL) {
                 /* find the record telling us the
                  * request made that caused this
@@ -885,7 +885,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             }
         }
     } else {
-        if (!pinfo->fd->flags.visited) {
+        if (!pinfo->fd->visited) {
             if (conversation != NULL) {
                 /* find the record telling us the
                  * request made that caused this

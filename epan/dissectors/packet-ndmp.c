@@ -1255,7 +1255,7 @@ dissect_scsi_open_request(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			hf_ndmp_scsi_device, offset, NULL);
 
 
-	if(!pinfo->fd->flags.visited){
+	if(!pinfo->fd->visited){
 		/* new scsi device addressed, create a new itl structure */
 		get_itl_nexus(pinfo, TRUE);
 	}
@@ -1560,7 +1560,7 @@ dissect_tape_open_request(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree_add_item(tree, hf_ndmp_tape_open_mode, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
-	if(!pinfo->fd->flags.visited){
+	if(!pinfo->fd->visited){
 		/* new scsi device addressed, create a new itl structure */
 		get_itl_nexus(pinfo, TRUE);
 	}
@@ -3063,7 +3063,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 			 */
 			if ( !(ndmp_rm & RPC_RM_LASTFRAG))
 			{
-				if ( !(pinfo->fd->flags.visited))
+				if ( !(pinfo->fd->visited))
 				{
 					nfi=wmem_new(wmem_file_scope(), ndmp_frag_info);
 					nfi->first_seq = seq;
@@ -3096,7 +3096,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 			 */
 			if ( !(ndmp_rm & RPC_RM_LASTFRAG))
 			{
-				if ( !(pinfo->fd->flags.visited))
+				if ( !(pinfo->fd->visited))
 				{
 					nfi=wmem_new(wmem_file_scope(), ndmp_frag_info);
 					nfi->first_seq = seq;
@@ -3213,7 +3213,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	ndmp_conv_data->task=NULL;
 	switch(nh.type){
 	case NDMP_MESSAGE_REQUEST:
-		if(!pinfo->fd->flags.visited){
+		if(!pinfo->fd->visited){
 			ndmp_conv_data->task=wmem_new(wmem_file_scope(), ndmp_task_data_t);
 			ndmp_conv_data->task->request_frame=pinfo->num;
 			ndmp_conv_data->task->response_frame=0;
@@ -3233,7 +3233,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	case NDMP_MESSAGE_REPLY:
 		ndmp_conv_data->task=(ndmp_task_data_t *)wmem_map_lookup(ndmp_conv_data->tasks, GUINT_TO_POINTER(nh.rep_seq));
 
-		if(ndmp_conv_data->task && !pinfo->fd->flags.visited){
+		if(ndmp_conv_data->task && !pinfo->fd->visited){
 			ndmp_conv_data->task->response_frame=pinfo->num;
 			if(ndmp_conv_data->task->itlq){
 				ndmp_conv_data->task->itlq->last_exchange_frame=pinfo->num;

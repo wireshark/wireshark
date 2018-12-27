@@ -948,7 +948,7 @@ bluetooth_add_address(packet_info *pinfo, address *addr, guint32 stream_number,
      * we've already done this work, so we don't need to do it
      * again.
      */
-    if ((pinfo->fd->flags.visited) || (rtp_handle == NULL))
+    if ((pinfo->fd->visited) || (rtp_handle == NULL))
     {
         return;
     }
@@ -1053,7 +1053,7 @@ srtp_add_address(packet_info *pinfo, const port_type ptype, address *addr, int p
      * we've already done this work, so we don't need to do it
      * again.
      */
-    if ((pinfo->fd->flags.visited) || (rtp_handle == NULL) || (rtp_rfc4571_handle == NULL))
+    if ((pinfo->fd->visited) || (rtp_handle == NULL) || (rtp_rfc4571_handle == NULL))
     {
         return;
     }
@@ -1522,7 +1522,7 @@ dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         g_debug("\tRTP Must Desegment: tvb_len=%d ds_len=%d %d frag_len=%d ds_off=%d",
             tvb_reported_length(newtvb),
             pinfo->desegment_len,
-            pinfo->fd->flags.visited,
+            pinfo->fd->visited,
             frag_len,
             deseg_offset);
 #endif

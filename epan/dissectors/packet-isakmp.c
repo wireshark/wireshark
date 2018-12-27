@@ -4368,7 +4368,7 @@ dissect_ikev2_fragmentation(tvbuff_t *tvb, int offset, proto_tree *tree,
   }
 
   /* During the first pass, store in the conversation the next_payload */
-  if (!pinfo->fd->flags.visited && (fragment_number == 1)) {
+  if (!pinfo->fd->visited && (fragment_number == 1)) {
     /* Create/update conversation with message_id -> next_payload */
     conversation_t* p_conv = find_or_create_conversation(pinfo);
     ikev2_fragmentation_state_t *p_state = wmem_new0(wmem_file_scope(), ikev2_fragmentation_state_t);
@@ -4394,7 +4394,7 @@ dissect_ikev2_fragmentation(tvbuff_t *tvb, int offset, proto_tree *tree,
   /* If this is the last fragment, need to know what the payload type for the reassembled message is,
      which was included in the first fragment */
   if (fragment_number == total_fragments) {
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
       /* On first pass, get it from the conversation info */
       conversation_t *p_conv = find_conversation_pinfo(pinfo, 0);
       if (p_conv != NULL) {

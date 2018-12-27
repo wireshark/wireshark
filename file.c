@@ -1158,11 +1158,11 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
    * TODO: actually detect that situation or maybe apply other optimizations? */
   if (edt->tree && color_filters_used()) {
     color_filters_prime_edt(edt);
-    fdata->flags.need_colorize = 1;
+    fdata->need_colorize = 1;
   }
 #endif
 
-  if (!fdata->flags.visited) {
+  if (!fdata->visited) {
     /* This is the first pass, so prime the epan_dissect_t with the
        hfids postdissectors want on the first pass. */
     prime_epan_dissect_with_postdissector_wanted_hfids(edt);
@@ -1175,9 +1175,9 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 
   /* If we don't have a display filter, set "passed_dfilter" to 1. */
   if (dfcode != NULL) {
-    fdata->flags.passed_dfilter = dfilter_apply_edt(dfcode, edt) ? 1 : 0;
+    fdata->passed_dfilter = dfilter_apply_edt(dfcode, edt) ? 1 : 0;
 
-    if (fdata->flags.passed_dfilter) {
+    if (fdata->passed_dfilter) {
       /* This frame passed the display filter but it may depend on other
        * (potentially not displayed) frames.  Find those frames and mark them
        * as depended upon.
@@ -1185,9 +1185,9 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
       g_slist_foreach(edt->pi.dependent_frames, find_and_mark_frame_depended_upon, cf->provider.frames);
     }
   } else
-    fdata->flags.passed_dfilter = 1;
+    fdata->passed_dfilter = 1;
 
-  if (fdata->flags.passed_dfilter || fdata->flags.ref_time)
+  if (fdata->passed_dfilter || fdata->ref_time)
     cf->displayed_count++;
 
   if (add_to_packet_list) {
@@ -1195,7 +1195,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     packet_list_append(cinfo, fdata);
   }
 
-  if (fdata->flags.passed_dfilter || fdata->flags.ref_time)
+  if (fdata->passed_dfilter || fdata->ref_time)
   {
     frame_data_set_after_dissect(fdata, &cf->cum_bytes);
     cf->provider.prev_dis = fdata;
@@ -1810,7 +1810,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
     }
 
     /* Frame dependencies from the previous dissection/filtering are no longer valid. */
-    fdata->flags.dependent_of_displayed = 0;
+    fdata->dependent_of_displayed = 0;
 
     if (!cf_read_record(cf, fdata))
       break; /* error reading the frame */
@@ -1818,7 +1818,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
     /* If the previous frame is displayed, and we haven't yet seen the
        selected frame, remember that frame - it's the closest one we've
        yet seen before the selected frame. */
-    if (prev_frame_num != -1 && !selected_frame_seen && prev_frame->flags.passed_dfilter) {
+    if (prev_frame_num != -1 && !selected_frame_seen && prev_frame->passed_dfilter) {
       preceding_frame_num = prev_frame_num;
       preceding_frame = prev_frame;
     }
@@ -1832,13 +1832,13 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
        seen displayed after the selected frame, remember this frame -
        it's the closest one we've yet seen at or after the selected
        frame. */
-    if (fdata->flags.passed_dfilter && selected_frame_seen && following_frame_num == -1) {
+    if (fdata->passed_dfilter && selected_frame_seen && following_frame_num == -1) {
       following_frame_num = fdata->num;
       following_frame = fdata;
     }
     if (fdata == selected_frame) {
       selected_frame_seen = TRUE;
-      if (fdata->flags.passed_dfilter)
+      if (fdata->passed_dfilter)
           selected_frame_num = fdata->num;
     }
 
@@ -1995,7 +1995,7 @@ ref_time_packets(capture_file *cf)
         cf->provider.ref = fdata;
       /* if this frames is marked as a reference time frame, reset
         firstsec and firstusec to this frame */
-    if (fdata->flags.ref_time)
+    if (fdata->ref_time)
         cf->provider.ref = fdata;
 
     /* If we don't have the time stamp of the previous displayed packet,
@@ -2020,7 +2020,7 @@ ref_time_packets(capture_file *cf)
 
     /* If this frame is displayed, get the time elapsed between the
      previous displayed packet and this packet. */
-    if ( fdata->flags.passed_dfilter ) {
+    if ( fdata->passed_dfilter ) {
         fdata->prev_dis_num = cf->provider.prev_dis->num;
         cf->provider.prev_dis = fdata;
     }
@@ -2028,11 +2028,11 @@ ref_time_packets(capture_file *cf)
     /*
      * Byte counts
      */
-    if ( (fdata->flags.passed_dfilter) || (fdata->flags.ref_time) ) {
+    if ( (fdata->passed_dfilter) || (fdata->ref_time) ) {
         /* This frame either passed the display filter list or is marked as
         a time reference frame.  All time reference frames are displayed
         even if they don't pass the display filter */
-        if (fdata->flags.ref_time) {
+        if (fdata->ref_time) {
             /* if this was a TIME REF frame we should reset the cum_bytes field */
             cf->cum_bytes = fdata->pkt_len;
             fdata->cum_bytes = cf->cum_bytes;
@@ -3520,7 +3520,7 @@ cf_find_packet_marked(capture_file *cf, search_direction dir)
 static match_result
 match_marked(capture_file *cf _U_, frame_data *fdata, void *criterion _U_)
 {
-  return fdata->flags.marked ? MR_MATCHED : MR_NOTMATCHED;
+  return fdata->marked ? MR_MATCHED : MR_NOTMATCHED;
 }
 
 gboolean
@@ -3532,7 +3532,7 @@ cf_find_packet_time_reference(capture_file *cf, search_direction dir)
 static match_result
 match_time_reference(capture_file *cf _U_, frame_data *fdata, void *criterion _U_)
 {
-  return fdata->flags.ref_time ? MR_MATCHED : MR_NOTMATCHED;
+  return fdata->ref_time ? MR_MATCHED : MR_NOTMATCHED;
 }
 
 static gboolean
@@ -3653,7 +3653,7 @@ find_packet(capture_file *cf,
     count++;
 
     /* Is this packet in the display? */
-    if (fdata && fdata->flags.passed_dfilter) {
+    if (fdata && fdata->passed_dfilter) {
       /* Yes.  Does it match the search criterion? */
       result = (*match_function)(cf, fdata, criterion);
       if (result == MR_ERROR) {
@@ -3720,7 +3720,7 @@ cf_goto_frame(capture_file *cf, guint fnumber)
     statusbar_push_temporary_msg("There is no packet number %u.", fnumber);
     return FALSE;   /* we failed to go to that packet */
   }
-  if (!fdata->flags.passed_dfilter) {
+  if (!fdata->passed_dfilter) {
     /* that packet currently isn't displayed */
     /* XXX - add it to the set of displayed packets? */
     statusbar_push_temporary_msg("Packet number %u isn't displayed.", fnumber);
@@ -3824,8 +3824,8 @@ cf_unselect_packet(capture_file *cf)
 void
 cf_mark_frame(capture_file *cf, frame_data *frame)
 {
-  if (! frame->flags.marked) {
-    frame->flags.marked = TRUE;
+  if (! frame->marked) {
+    frame->marked = TRUE;
     if (cf->count > cf->marked_count)
       cf->marked_count++;
   }
@@ -3837,8 +3837,8 @@ cf_mark_frame(capture_file *cf, frame_data *frame)
 void
 cf_unmark_frame(capture_file *cf, frame_data *frame)
 {
-  if (frame->flags.marked) {
-    frame->flags.marked = FALSE;
+  if (frame->marked) {
+    frame->marked = FALSE;
     if (cf->marked_count > 0)
       cf->marked_count--;
   }
@@ -3850,8 +3850,8 @@ cf_unmark_frame(capture_file *cf, frame_data *frame)
 void
 cf_ignore_frame(capture_file *cf, frame_data *frame)
 {
-  if (! frame->flags.ignored) {
-    frame->flags.ignored = TRUE;
+  if (! frame->ignored) {
+    frame->ignored = TRUE;
     if (cf->count > cf->ignored_count)
       cf->ignored_count++;
   }
@@ -3863,8 +3863,8 @@ cf_ignore_frame(capture_file *cf, frame_data *frame)
 void
 cf_unignore_frame(capture_file *cf, frame_data *frame)
 {
-  if (frame->flags.ignored) {
-    frame->flags.ignored = FALSE;
+  if (frame->ignored) {
+    frame->ignored = FALSE;
     if (cf->ignored_count > 0)
       cf->ignored_count--;
   }
@@ -3933,11 +3933,11 @@ cf_get_packet_comment(capture_file *cf, const frame_data *fd)
   char *comment;
 
   /* fetch user comment */
-  if (fd->flags.has_user_comment)
+  if (fd->has_user_comment)
     return g_strdup(cap_file_provider_get_user_comment(&cf->provider, fd));
 
   /* fetch phdr comment */
-  if (fd->flags.has_phdr_comment) {
+  if (fd->has_phdr_comment) {
     wtap_rec rec; /* Record metadata */
     Buffer buf;   /* Record data */
 
@@ -4046,12 +4046,12 @@ save_record(capture_file *cf, frame_data *fdata, wtap_rec *rec,
 
   /* Make changes based on anything that the user has done but that
      hasn't been saved yet. */
-  if (fdata->flags.has_user_comment)
+  if (fdata->has_user_comment)
     pkt_comment = cap_file_provider_get_user_comment(&cf->provider, fdata);
   else
     pkt_comment = rec->opt_comment;
   new_rec.opt_comment  = g_strdup(pkt_comment);
-  new_rec.has_comment_changed = fdata->flags.has_user_comment ? TRUE : FALSE;
+  new_rec.has_comment_changed = fdata->has_user_comment ? TRUE : FALSE;
   /* XXX - what if times have been shifted? */
 
   /* and save the packet */
@@ -4662,8 +4662,8 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
       for (framenum = 1; framenum <= cf->count; framenum++) {
         fdata = frame_data_sequence_find(cf->provider.frames, framenum);
 
-        fdata->flags.has_phdr_comment = FALSE;
-        fdata->flags.has_user_comment = FALSE;
+        fdata->has_phdr_comment = FALSE;
+        fdata->has_user_comment = FALSE;
       }
 
       if (cf->provider.frames_user_comments) {

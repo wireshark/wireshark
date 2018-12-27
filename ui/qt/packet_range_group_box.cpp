@@ -108,7 +108,7 @@ void PacketRangeGroupBox::updateCounts() {
         pr_ui_->selectedCapturedLabel->setEnabled(false);
         pr_ui_->selectedDisplayedLabel->setEnabled(false);
     }
-    if ((range_->remove_ignored && can_select && range_->cf->current_frame->flags.ignored) || selected_num < 1) {
+    if ((range_->remove_ignored && can_select && range_->cf->current_frame->ignored) || selected_num < 1) {
         pr_ui_->selectedCapturedLabel->setText("0");
         pr_ui_->selectedDisplayedLabel->setText("0");
     } else {
@@ -222,7 +222,7 @@ void PacketRangeGroupBox::updateCounts() {
         displayed_ignored_cnt = range_->displayed_ignored_cnt;
         break;
     case(range_process_selected):
-        ignored_cnt = (can_select && range_->cf->current_frame->flags.ignored) ? 1 : 0;
+        ignored_cnt = (can_select && range_->cf->current_frame->ignored) ? 1 : 0;
         displayed_ignored_cnt = ignored_cnt;
         break;
     case(range_process_marked):

@@ -232,7 +232,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		/* First of all, if it's the first time we see this packet
 		 * then check whether we are in the middle of reassembly or not
 		 */
-		if( (!pinfo->fd->flags.visited)
+		if( (!pinfo->fd->visited)
 		&&  (gss_info->do_reassembly)
 		&&  (gssapi_reassembly) ){
 			fi=(gssapi_frag_info_t *)wmem_tree_lookup32(gss_info->frags, gss_info->first_frame);
@@ -261,7 +261,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		/* We have seen this packet before.
 		 * Is this blob part of reassembly or a normal blob ?
 		 */
-		if( (pinfo->fd->flags.visited)
+		if( (pinfo->fd->visited)
 		&&  (gssapi_reassembly) ){
 			fi=(gssapi_frag_info_t *)wmem_tree_lookup32(gss_info->frags, pinfo->num);
 			if(fi){
@@ -352,7 +352,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		   * doesn't dereference it or free what it points to.)
 		   */
 		  oidvalue = (gssapi_oid_value *)p_get_proto_data(wmem_file_scope(), pinfo, proto_gssapi, 0);
-		  if (!oidvalue && !pinfo->fd->flags.visited)
+		  if (!oidvalue && !pinfo->fd->visited)
 		  {
 		    /* No handle attached to this frame, but it's the first */
 		    /* pass, so it'd be attached to the conversation. */
@@ -401,7 +401,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * instead for simplicity we assume there will not be several
 		 * such authentication at once on a single tcp session
 		 */
-		if( (!pinfo->fd->flags.visited)
+		if( (!pinfo->fd->visited)
 		&&  (oidvalue)
 		&&  (tvb_captured_length(gss_tvb)==tvb_reported_length(gss_tvb))
 		&&  (len1>(guint32)tvb_captured_length_remaining(gss_tvb, oid_start_offset))

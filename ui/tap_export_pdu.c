@@ -54,10 +54,10 @@ export_pdu_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const 
 
     rec.rec_header.packet_header.pkt_encap = exp_pdu_tap_data->pkt_encap;
 
-    if (pinfo->fd->flags.has_user_comment) {
+    if (pinfo->fd->has_user_comment) {
         rec.opt_comment = g_strdup(epan_get_user_comment(edt->session, pinfo->fd));
         rec.has_comment_changed = TRUE;
-    } else if (pinfo->fd->flags.has_phdr_comment) {
+    } else if (pinfo->fd->has_phdr_comment) {
         rec.opt_comment = g_strdup(pinfo->rec->opt_comment);
     }
 

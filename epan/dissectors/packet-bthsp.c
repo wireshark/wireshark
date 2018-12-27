@@ -486,7 +486,7 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 /* TODO: Save bthsp.at_cmd, bthsp.at_cmd.type, frame_time  and frame_num here in
 
-                if (role == ROLE_HS && pinfo->fd->flags.visited == 0) {
+                if (role == ROLE_HS && pinfo->fd->visited == 0) {
 
     at_cmd_db = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
@@ -763,7 +763,7 @@ dissect_bthsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     }
 
     /* save fragments */
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         frame_number = pinfo->num - 1;
 
         key[0].length = 1;

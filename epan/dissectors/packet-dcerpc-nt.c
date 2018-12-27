@@ -660,7 +660,7 @@ void dcerpc_smb_store_pol_pkts(e_ctx_hnd *policy_hnd, packet_info *pinfo,
 	 * has been completely constructed.  If we've already seen this
 	 * frame, there's nothing to do.
 	 */
-	if (pinfo->fd->flags.visited)
+	if (pinfo->fd->visited)
 		return;
 
 	if (is_null_pol(policy_hnd))
@@ -731,7 +731,7 @@ static void dcerpc_store_polhnd_type(e_ctx_hnd *policy_hnd, packet_info *pinfo,
 	 * has been completely constructed.  If we've already seen this
 	 * frame, there's nothing to do.
 	 */
-	if (pinfo->fd->flags.visited)
+	if (pinfo->fd->visited)
 		return;
 
 	if (is_null_pol(policy_hnd))
@@ -760,7 +760,7 @@ void dcerpc_store_polhnd_name(e_ctx_hnd *policy_hnd, packet_info *pinfo,
 	 * has been completely constructed.  If we've already seen this
 	 * frame, there's nothing to do.
 	 */
-	if (pinfo->fd->flags.visited)
+	if (pinfo->fd->visited)
 		return;
 
 	if (is_null_pol(policy_hnd))
@@ -1057,7 +1057,7 @@ PIDL_dissect_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	 * actual object  so just show it as <...> for the time being.
 	 */
 	if((param&PIDL_POLHND_OPEN)
-	&& !pinfo->fd->flags.visited
+	&& !pinfo->fd->visited
 	&& !di->conformant_run){
 		char *pol_string=NULL;
 		const char *pol_name=NULL;
@@ -1074,7 +1074,7 @@ PIDL_dissect_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	}
 
 	/* Track this policy handle for the response */
-	if(!pinfo->fd->flags.visited
+	if(!pinfo->fd->visited
 	&& !di->conformant_run){
 		dcerpc_call_value *dcv;
 

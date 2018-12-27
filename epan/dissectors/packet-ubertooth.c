@@ -1689,7 +1689,7 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         }
 
         /* Save request info (command_data) */
-        if (!pinfo->fd->flags.visited && command != 21) {
+        if (!pinfo->fd->visited && command != 21) {
             key[2].length = 1;
             key[2].key = &k_frame_number;
             key[3].length = 0;

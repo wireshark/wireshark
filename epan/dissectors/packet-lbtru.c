@@ -1406,7 +1406,7 @@ static int dissect_lbtru(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
         copy_address_shallow(&receiver_address, &(pinfo->src));
         receiver_port = pinfo->srcport;
     }
-    if (pinfo->fd->flags.visited == 0)
+    if (pinfo->fd->visited == 0)
     {
         transport = lbtru_transport_add(&source_address, source_port, session_id, pinfo->num);
     }
@@ -1416,7 +1416,7 @@ static int dissect_lbtru(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     }
     if (transport != NULL)
     {
-        if (pinfo->fd->flags.visited == 0)
+        if (pinfo->fd->visited == 0)
         {
             client = lbtru_client_transport_add(transport, &receiver_address, receiver_port, pinfo->num);
             if (client != NULL)

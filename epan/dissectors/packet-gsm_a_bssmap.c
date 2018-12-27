@@ -3693,7 +3693,7 @@ be_aoip_trans_lay_add(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
         break;
     }
 
-    if ((!pinfo->fd->flags.visited) && rtp_port != 0) {
+    if ((!pinfo->fd->visited) && rtp_port != 0) {
         rtp_add_address(pinfo, PT_UDP, &rtp_dst_addr, rtp_port, 0, "BSS MAP", pinfo->num, FALSE, 0);
         rtcp_add_address(pinfo, &rtp_dst_addr, rtp_port+1, 0, "BSS MAP", pinfo->num);
     }

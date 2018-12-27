@@ -1176,7 +1176,7 @@ process_packet_second_pass(capture_file *cf, epan_dissect_t *edt,
   if (edt) {
     epan_dissect_reset(edt);
   }
-  return passed || fdata->flags.dependent_of_displayed;
+  return passed || fdata->dependent_of_displayed;
 }
 
 static gboolean

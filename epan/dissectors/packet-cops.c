@@ -1034,7 +1034,7 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             wmem_map_insert(cops_conv_info->pdus_tree, GUINT_TO_POINTER(handle_value), pdus_array);
         }
 
-        if (!pinfo->fd->flags.visited) {
+        if (!pinfo->fd->visited) {
             /*
              * XXX - yes, we're setting all the fields in this
              * structure, but there's padding between op_code
@@ -1084,7 +1084,7 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         if (pdus_array == NULL) /* There's no request with this handle value */
             return offset;
 
-        if (!pinfo->fd->flags.visited) {
+        if (!pinfo->fd->visited) {
             for (i=0; i < pdus_array->len; i++) {
                 cops_call = (cops_call_t*)g_ptr_array_index(pdus_array, i);
 

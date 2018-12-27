@@ -2964,7 +2964,7 @@ dissect_pvfs_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	if (mode == TCP_MODE_UNEXP)
 	{
 		/* Add entry to tracking table for PVFS_SERV_IO request */
-		if ((server_op == PVFS_SERV_IO) && !pinfo->fd->flags.visited)
+		if ((server_op == PVFS_SERV_IO) && !pinfo->fd->visited)
 			val = pvfs2_io_tracking_new_with_tag(tag, pinfo->num);
 	}
 	else
@@ -2977,7 +2977,7 @@ dissect_pvfs_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		val = (pvfs2_io_tracking_value_t *)wmem_map_lookup(pvfs2_io_tracking_value_table, &key);
 
 		/* If this frame contains a known PVFS_SERV_IO tag, track it */
-		if (val && !pinfo->fd->flags.visited)
+		if (val && !pinfo->fd->visited)
 		{
 			/* If response HAS NOT been seen, mark this frame as response */
 			if (val->response_frame_num == 0)

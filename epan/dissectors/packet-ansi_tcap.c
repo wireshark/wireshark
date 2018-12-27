@@ -235,7 +235,7 @@ save_invoke_data(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U_){
   src = address_to_str(wmem_packet_scope(), &(pinfo->src));
   dst = address_to_str(wmem_packet_scope(), &(pinfo->dst));
 
-  if ((!pinfo->fd->flags.visited)&&(ansi_tcap_private.TransactionID_str)){
+  if ((!pinfo->fd->visited)&&(ansi_tcap_private.TransactionID_str)){
 
           /* Only do this once XXX I hope it's the right thing to do */
           /* The hash string needs to contain src and dest to distiguish differnt flows */

@@ -401,7 +401,7 @@ void LBMStreamDialog::resetTap(void * tap_data)
 
 gboolean LBMStreamDialog::tapPacket(void * tap_data, packet_info * pinfo, epan_dissect_t *, const void * stream_info)
 {
-    if (pinfo->fd->flags.passed_dfilter == 1)
+    if (pinfo->fd->passed_dfilter == 1)
     {
         const lbm_uim_stream_tap_info_t * tapinfo = (const lbm_uim_stream_tap_info_t *)stream_info;
         LBMStreamDialogInfo * info = (LBMStreamDialogInfo *)tap_data;

@@ -771,7 +771,7 @@ SpoolssGetPrinterData_q(tvbuff_t *tvb, int offset,
  		tvb, offset, pinfo, tree, di, drep, sizeof(guint16),
 		hf_printerdata_value, TRUE, &value_name);
 	/* GetPrinterData() stores the printerdata in se_data */
-	if(!pinfo->fd->flags.visited){
+	if(!pinfo->fd->visited){
 		if(!dcv->se_data && value_name){
 			dcv->se_data = wmem_strdup(wmem_file_scope(), value_name);
 		}
@@ -854,7 +854,7 @@ SpoolssGetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 		hf_printerdata_value, TRUE, &value_name);
 
 	/* GetPrinterDataEx() stores the key/value in se_data */
-	if(!pinfo->fd->flags.visited){
+	if(!pinfo->fd->visited){
 		if(!dcv->se_data){
 			dcv->se_data = wmem_strdup_printf(wmem_file_scope(),
 				"%s==%s",
@@ -942,7 +942,7 @@ SpoolssSetPrinterData_q(tvbuff_t *tvb, int offset,
 		hf_printerdata_value, TRUE, &value_name);
 
 	/* GetPrinterDataEx() stores the key/value in se_data */
-	if(!pinfo->fd->flags.visited){
+	if(!pinfo->fd->visited){
 		if(!dcv->se_data){
 			dcv->se_data = wmem_strdup(wmem_file_scope(),
 				value_name?value_name:"");
@@ -2465,7 +2465,7 @@ SpoolssOpenPrinterEx_q(tvbuff_t *tvb, int offset,
 	name = (char *)dcv->private_data;
 
 	/* OpenPrinterEx() stores the key/value in se_data */
-	if(!pinfo->fd->flags.visited){
+	if(!pinfo->fd->visited){
 		if(!dcv->se_data){
 			dcv->se_data = wmem_strdup(wmem_file_scope(),
 				name?name:"");
@@ -2538,7 +2538,7 @@ SpoolssOpenPrinterEx_r(tvbuff_t *tvb, int offset,
 		} else {
 			pol_name = "Unknown OpenPrinterEx() handle";
 		}
-		if(!pinfo->fd->flags.visited){
+		if(!pinfo->fd->visited){
 			dcerpc_store_polhnd_name(&policy_hnd, pinfo, pol_name);
 		}
 
@@ -3018,7 +3018,7 @@ SpoolssReplyOpenPrinter_q(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, di, drep, sizeof(guint16),
 		hf_servername, TRUE, &name);
 	/* ReplyOpenPrinter() stores the printername in se_data */
-	if(!pinfo->fd->flags.visited){
+	if(!pinfo->fd->visited){
 		if(!dcv->se_data){
 			if(name){
 				dcv->se_data = wmem_strdup(wmem_file_scope(), name);
@@ -3075,7 +3075,7 @@ SpoolssReplyOpenPrinter_r(tvbuff_t *tvb, int offset,
 		} else {
 			pol_name = "Unknown ReplyOpenPrinter() handle";
 		}
-		if(!pinfo->fd->flags.visited){
+		if(!pinfo->fd->visited){
 			dcerpc_store_polhnd_name(&policy_hnd, pinfo, pol_name);
 		}
 
@@ -3108,7 +3108,7 @@ SpoolssGetPrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		tvb, offset, pinfo, tree, di, drep, hf_level, &level);
 
 	/* GetPrinter() stores the level in se_data */
-	if(!pinfo->fd->flags.visited){
+	if(!pinfo->fd->visited){
 			dcv->se_data = GINT_TO_POINTER((int)level);
 	}
 
@@ -3441,7 +3441,7 @@ SpoolssEnumForms_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		tvb, offset, pinfo, tree, di, drep, hf_level, &level);
 
 	/* EnumForms() stores the level in se_data */
-	if(!pinfo->fd->flags.visited){
+	if(!pinfo->fd->visited){
 			dcv->se_data = GINT_TO_POINTER((int)level);
 	}
 
@@ -3566,7 +3566,7 @@ SpoolssAddPrinterEx_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		} else {
 			pol_name = "Unknown AddPrinterEx() handle";
 		}
-		if(!pinfo->fd->flags.visited){
+		if(!pinfo->fd->visited){
 			dcerpc_store_polhnd_name(&policy_hnd, pinfo, pol_name);
 		}
 
@@ -3731,7 +3731,7 @@ SpoolssEnumPrinters_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		tvb, offset, pinfo, tree, di, drep, hf_level, &level);
 
 	/* GetPrinter() stores the level in se_data */
-	if(!pinfo->fd->flags.visited){
+	if(!pinfo->fd->visited){
 		dcv->se_data = GINT_TO_POINTER((int)level);
 	}
 
@@ -3948,7 +3948,7 @@ SpoolssAddForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
 
 	/* AddForm() stores the level in se_data */
-	if(!pinfo->fd->flags.visited){
+	if(!pinfo->fd->visited){
 			dcv->se_data = GUINT_TO_POINTER((int)level);
 	}
 
@@ -4114,7 +4114,7 @@ SpoolssGetForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		tvb, offset, pinfo, tree, di, drep, hf_form_level, &level);
 
 	/* GetForm() stores the level in se_data */
-	if(!pinfo->fd->flags.visited){
+	if(!pinfo->fd->visited){
 			dcv->se_data = GUINT_TO_POINTER((int)level);
 	}
 
@@ -4409,7 +4409,7 @@ SpoolssEnumJobs_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		tvb, offset, pinfo, tree, di, drep, hf_level, &level);
 
 	/* EnumJobs() stores the level in se_data */
-	if(!pinfo->fd->flags.visited){
+	if(!pinfo->fd->visited){
 			dcv->se_data = GUINT_TO_POINTER((int)level);
 	}
 
@@ -4552,7 +4552,7 @@ SpoolssGetJob_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		tvb, offset, pinfo, tree, di, drep, hf_level, &level);
 
 	/* GetJob() stores the level in se_data */
-	if(!pinfo->fd->flags.visited){
+	if(!pinfo->fd->visited){
 			dcv->se_data = GUINT_TO_POINTER((int)level);
 	}
 
@@ -5271,7 +5271,7 @@ SpoolssEnumPrinterDrivers_q(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, di, drep, hf_level, &level);
 
 	/* EnumPrinterDrivers() stores the level in se_data */
-	if(!pinfo->fd->flags.visited){
+	if(!pinfo->fd->visited){
 			dcv->se_data = GUINT_TO_POINTER((int)level);
 	}
 
@@ -5384,7 +5384,7 @@ SpoolssGetPrinterDriver2_q(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, di, drep, hf_level, &level);
 
 	/* GetPrinterDriver2() stores the level in se_data */
-	if(!pinfo->fd->flags.visited){
+	if(!pinfo->fd->visited){
 			dcv->se_data = GUINT_TO_POINTER((int)level);
 	}
 

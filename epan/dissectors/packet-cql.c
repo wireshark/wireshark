@@ -1041,7 +1041,7 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 	offset += 4;
 
 	/* Track the request/response. */
-	if (!pinfo->fd->flags.visited) {
+	if (!pinfo->fd->visited) {
 		if (server_to_client == 0) {
 			/* This is a request, add it to this stream tracking */
 			cql_trans = cql_transaction_add_request(cql_conv, pinfo, stream, 0);

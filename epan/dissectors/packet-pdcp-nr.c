@@ -495,7 +495,7 @@ static void checkBearerSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
     guint32                        snLimit                = 0;
 
     /* If find stat_report_in_frame already, use that and get out */
-    if (pinfo->fd->flags.visited) {
+    if (pinfo->fd->visited) {
         p_report_in_frame =
             (pdcp_sequence_report_in_frame*)wmem_map_lookup(pdcp_nr_sequence_analysis_report_hash,
                                                             get_report_hash_key(sequenceNumber,

@@ -1306,7 +1306,7 @@ char *mechanism = NULL;
    * type and mechanism, if you can unbind and rebind with a
    * different type and/or mechanism.
    */
-  if(!actx->pinfo->fd->flags.visited) {
+  if(!actx->pinfo->fd->visited) {
     mechanism = tvb_get_string_enc(wmem_file_scope(), parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb,0), ENC_UTF_8|ENC_NA);
     ldap_info->first_auth_frame = 0; /* not known until we see the bind reply */
     /*
@@ -3200,7 +3200,7 @@ dissect_ldap_ProtocolOp(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
     switch(ProtocolOp) {
 
     case LDAP_RES_SEARCH_ENTRY:
-      if (!actx->pinfo->fd->flags.visited)
+      if (!actx->pinfo->fd->visited)
         ldap_info->num_results++;
 
       proto_item_append_text(tree, " [%d result%s]",

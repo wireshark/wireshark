@@ -747,7 +747,7 @@ static int dissect_spdy_data_payload(tvbuff_t *tvb,
       next_tvb = tvb_new_subset_length(tvb, offset, frame->length);
       is_single_chunk = num_data_frames == 0 &&
           (frame->flags & SPDY_FLAG_FIN) != 0;
-      if (!pinfo->fd->flags.visited) {
+      if (!pinfo->fd->visited) {
         if (!is_single_chunk) {
           if (spdy_assemble_entity_bodies) {
             copied_data = (guint8 *)tvb_memdup(wmem_file_scope(),next_tvb, 0, frame->length);
@@ -1322,7 +1322,7 @@ static int dissect_spdy_header_payload(
    * If we expect data on this stream, we need to remember the content
    * type and content encoding.
    */
-  if (content_type != NULL && !pinfo->fd->flags.visited) {
+  if (content_type != NULL && !pinfo->fd->visited) {
     gchar *content_type_params = spdy_parse_content_type(content_type);
     spdy_save_stream_info(conv_data, stream_id,
                           (hdr_status == NULL) ? HTTP_REQUEST : HTTP_RESPONSE,

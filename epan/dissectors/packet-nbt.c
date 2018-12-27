@@ -1632,7 +1632,7 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
          * so that it can attempt to find it in case it starts
          * somewhere in the middle of a segment.
          */
-        if(!pinfo->fd->flags.visited){
+        if(!pinfo->fd->visited){
             /* 'Only' SMB is transported ontop of this  so make sure
              * there is an SMB header there ...
              */

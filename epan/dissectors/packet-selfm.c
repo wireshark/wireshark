@@ -2414,7 +2414,7 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree, void* d
     msg_type = tvb_get_ntohs(selfm_tvb, offset);
 
     /* On first pass through the packets we have 4 tasks to complete - they are each noted below */
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         conversation_t       *conversation;
         fm_conversation      *fm_conv_data;
 

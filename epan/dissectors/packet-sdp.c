@@ -2347,7 +2347,7 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
     DPRINT2(("-------------------- setup_sdp_transport -------------------"));
 
     /* Only do this once during first pass */
-    if (pinfo->fd->flags.visited) {
+    if (pinfo->fd->visited) {
         DPRINT(("already visited"));
         return;
     }
@@ -2543,7 +2543,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
     memset(&sdp_data, 0, sizeof(sdp_data));
 
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         transport_info = (transport_info_t*)wmem_tree_lookup32( sdp_transport_reqs, pinfo->num );
 
         if (transport_info == NULL) {
@@ -2751,7 +2751,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
     /* For messages not part of the Offer/Answer model, assume that the SDP is
      * immediately effective (apply it now). */
-    if ((!pinfo->fd->flags.visited) && (transport_info == &local_transport_info)) {
+    if ((!pinfo->fd->visited) && (transport_info == &local_transport_info)) {
         /* XXX - This is a placeholder for higher layer protocols that haven't implemented the proper
          * OFFER/ANSWER functionality using setup_sdp_transport().  Once all of the higher layers
          * use setup_sdp_transport(), this should be removed

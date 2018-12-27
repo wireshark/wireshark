@@ -82,20 +82,20 @@ static void packet_range_calc(packet_range_t *range) {
             if (range->cf->current_frame == packet) {
                 range->selected_packet = framenum;
             }
-            if (packet->flags.passed_dfilter) {
+            if (packet->passed_dfilter) {
                 range->displayed_cnt++;
             }
-            if (packet->flags.passed_dfilter ||
-                packet->flags.dependent_of_displayed) {
+            if (packet->passed_dfilter ||
+                packet->dependent_of_displayed) {
                 range->displayed_plus_dependents_cnt++;
             }
-            if (packet->flags.marked) {
-                if (packet->flags.ignored) {
+            if (packet->marked) {
+                if (packet->ignored) {
                     range->ignored_marked_cnt++;
                 }
-                if (packet->flags.passed_dfilter) {
+                if (packet->passed_dfilter) {
                     range->displayed_marked_cnt++;
-                    if (packet->flags.ignored) {
+                    if (packet->ignored) {
                         range->displayed_ignored_marked_cnt++;
                     }
                     if (displayed_mark_low == 0) {
@@ -113,9 +113,9 @@ static void packet_range_calc(packet_range_t *range) {
                    mark_high = framenum;
                 }
             }
-            if (packet->flags.ignored) {
+            if (packet->ignored) {
                 range->ignored_cnt++;
-                if (packet->flags.passed_dfilter) {
+                if (packet->passed_dfilter) {
                     range->displayed_ignored_cnt++;
                 }
             }
@@ -128,7 +128,7 @@ static void packet_range_calc(packet_range_t *range) {
                 framenum <= mark_high)
             {
                 range->mark_range_cnt++;
-                if (packet->flags.ignored) {
+                if (packet->ignored) {
                     range->ignored_mark_range_cnt++;
                 }
             }
@@ -136,9 +136,9 @@ static void packet_range_calc(packet_range_t *range) {
             if (framenum >= displayed_mark_low &&
                 framenum <= displayed_mark_high)
             {
-                if (packet->flags.passed_dfilter) {
+                if (packet->passed_dfilter) {
                     range->displayed_mark_range_cnt++;
-                    if (packet->flags.ignored) {
+                    if (packet->ignored) {
                         range->displayed_ignored_mark_range_cnt++;
                     }
                 }
@@ -197,12 +197,12 @@ static void packet_range_calc_user(packet_range_t *range) {
 
             if (value_is_in_range(range->user_range, framenum)) {
                 range->user_range_cnt++;
-                if (packet->flags.ignored) {
+                if (packet->ignored) {
                     range->ignored_user_range_cnt++;
                 }
-                if (packet->flags.passed_dfilter) {
+                if (packet->passed_dfilter) {
                     range->displayed_user_range_cnt++;
-                    if (packet->flags.ignored) {
+                    if (packet->ignored) {
                         range->displayed_ignored_user_range_cnt++;
                     }
                 }
@@ -260,7 +260,7 @@ gboolean packet_range_process_all(packet_range_t *range) {
 /* do we have to process this packet? */
 range_process_e packet_range_process_packet(packet_range_t *range, frame_data *fdata) {
 
-    if (range->remove_ignored && fdata->flags.ignored) {
+    if (range->remove_ignored && fdata->ignored) {
         return range_process_next;
     }
 
@@ -279,7 +279,7 @@ range_process_e packet_range_process_packet(packet_range_t *range, frame_data *f
         range->selected_done = TRUE;
         break;
     case(range_process_marked):
-        if (fdata->flags.marked == FALSE) {
+        if (fdata->marked == FALSE) {
           return range_process_next;
         }
         break;
@@ -287,14 +287,14 @@ range_process_e packet_range_process_packet(packet_range_t *range, frame_data *f
         if (range->marked_range_left == 0) {
           return range_processing_finished;
         }
-        if (fdata->flags.marked == TRUE) {
+        if (fdata->marked == TRUE) {
           range->marked_range_active = TRUE;
         }
         if (range->marked_range_active == FALSE ) {
           return range_process_next;
         }
         if (!range->process_filtered ||
-          (range->process_filtered && fdata->flags.passed_dfilter == TRUE))
+          (range->process_filtered && fdata->passed_dfilter == TRUE))
         {
           range->marked_range_left--;
         }
@@ -312,8 +312,8 @@ range_process_e packet_range_process_packet(packet_range_t *range, frame_data *f
      * Try next, but only if we're not including dependent packets and this
      * packet happens to be a dependency on something that is displayed.
      */
-    if ((range->process_filtered && fdata->flags.passed_dfilter == FALSE) &&
-        !(range->include_dependents && fdata->flags.dependent_of_displayed)) {
+    if ((range->process_filtered && fdata->passed_dfilter == FALSE) &&
+        !(range->include_dependents && fdata->dependent_of_displayed)) {
         return range_process_next;
     }
 

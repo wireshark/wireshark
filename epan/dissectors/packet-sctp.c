@@ -1245,7 +1245,7 @@ sctp_tsn(packet_info *pinfo,  tvbuff_t *tvb, proto_item *tsn_item,
 
   is_retransmission = (t->first_transmit.framenum != framenum);
 
-  if ( (! pinfo->fd->flags.visited ) && is_retransmission ) {
+  if ( (! pinfo->fd->visited ) && is_retransmission ) {
     retransmit_t **r;
     int i;
 

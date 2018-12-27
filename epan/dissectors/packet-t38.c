@@ -245,7 +245,7 @@ void t38_add_address(packet_info *pinfo,
          * we've already done this work, so we don't need to do it
          * again.
          */
-        if ((pinfo->fd->flags.visited) || (t38_udp_handle == NULL))
+        if ((pinfo->fd->visited) || (t38_udp_handle == NULL))
         {
                 return;
         }
@@ -325,7 +325,7 @@ force_reassemble_seq(reassembly_table *table, packet_info *pinfo, guint32 id)
 	fd_head = fragment_get(table, pinfo, id, NULL);
 
 	/* have we already seen this frame ?*/
-	if (pinfo->fd->flags.visited) {
+	if (pinfo->fd->visited) {
 		if (fd_head != NULL && fd_head->flags & FD_DEFRAGMENTED) {
 			return fd_head;
 		} else {

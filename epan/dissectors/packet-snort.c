@@ -709,7 +709,7 @@ static void snort_show_alert(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
 
     /* May need to move to reassembled frame to show there instead of here */
 
-    if (snort_alert_in_reassembled_frame && pinfo->fd->flags.visited && (tree != NULL)) {
+    if (snort_alert_in_reassembled_frame && pinfo->fd->visited && (tree != NULL)) {
         guint reassembled_frame = get_reassembled_in_frame(tree);
 
         if (reassembled_frame && (reassembled_frame != pinfo->num)) {
@@ -1143,7 +1143,7 @@ snort_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     }
     else {
         /* We expect alerts from Snort.  Pass frame into snort on first pass. */
-        if (!pinfo->fd->flags.visited && current_session.working) {
+        if (!pinfo->fd->visited && current_session.working) {
             int write_err = 0;
             gchar *err_info;
             wtap_rec rec;

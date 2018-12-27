@@ -33,8 +33,8 @@
    if both packets' times are reference times, we compare the
    times of the packets. */
 #define COMPARE_TS_REAL(time1, time2) \
-                ((fdata1->flags.ref_time && !fdata2->flags.ref_time) ? -1 : \
-                 (!fdata1->flags.ref_time && fdata2->flags.ref_time) ? 1 : \
+                ((fdata1->ref_time && !fdata2->ref_time) ? -1 : \
+                 (!fdata1->ref_time && fdata2->ref_time) ? 1 : \
                  ((time1).secs < (time2).secs) ? -1 : \
                  ((time1).secs > (time2).secs) ? 1 : \
                  ((time1).nsecs < (time2).nsecs) ? -1 :\
@@ -158,14 +158,14 @@ frame_data_init(frame_data *fdata, guint32 num, const wtap_rec *rec,
   fdata->num = num;
   fdata->file_off = offset;
   fdata->subnum = 0;
-  fdata->flags.passed_dfilter = 0;
-  fdata->flags.dependent_of_displayed = 0;
-  fdata->flags.encoding = PACKET_CHAR_ENC_CHAR_ASCII;
-  fdata->flags.visited = 0;
-  fdata->flags.marked = 0;
-  fdata->flags.ref_time = 0;
-  fdata->flags.ignored = 0;
-  fdata->flags.has_ts = (rec->presence_flags & WTAP_HAS_TS) ? 1 : 0;
+  fdata->passed_dfilter = 0;
+  fdata->dependent_of_displayed = 0;
+  fdata->encoding = PACKET_CHAR_ENC_CHAR_ASCII;
+  fdata->visited = 0;
+  fdata->marked = 0;
+  fdata->ref_time = 0;
+  fdata->ignored = 0;
+  fdata->has_ts = (rec->presence_flags & WTAP_HAS_TS) ? 1 : 0;
   switch (rec->rec_type) {
 
   case REC_TYPE_PACKET:
@@ -194,13 +194,13 @@ frame_data_init(frame_data *fdata, guint32 num, const wtap_rec *rec,
     break;
   }
 
-  /* To save some memory, we coerce it into a gint16 */
-  g_assert(rec->tsprec <= G_MAXINT16);
-  fdata->tsprec = (gint16)rec->tsprec;
+  /* To save some memory, we coerce it into 4 bits */
+  g_assert(rec->tsprec <= 0xF);
+  fdata->tsprec = (unsigned int)rec->tsprec;
   fdata->abs_ts = rec->ts;
-  fdata->flags.has_phdr_comment = (rec->opt_comment != NULL);
-  fdata->flags.has_user_comment = 0;
-  fdata->flags.need_colorize = 0;
+  fdata->has_phdr_comment = (rec->opt_comment != NULL);
+  fdata->has_user_comment = 0;
+  fdata->need_colorize = 0;
   fdata->color_filter = NULL;
   fdata->shift_offset.secs = 0;
   fdata->shift_offset.nsecs = 0;
@@ -222,7 +222,7 @@ frame_data_set_before_dissect(frame_data *fdata,
 
   /* if this frames is marked as a reference time frame,
      set reference frame this frame */
-  if(fdata->flags.ref_time)
+  if(fdata->ref_time)
     *frame_ref = fdata;
 
   /* Get the time elapsed between the first packet and this packet. */
@@ -247,7 +247,7 @@ frame_data_set_after_dissect(frame_data *fdata,
   /* This frame either passed the display filter list or is marked as
      a time reference frame.  All time reference frames are displayed
      even if they don't pass the display filter */
-  if(fdata->flags.ref_time){
+  if(fdata->ref_time){
     /* if this was a TIME REF frame we should reset the cul bytes field */
     *cum_bytes = fdata->pkt_len;
     fdata->cum_bytes = *cum_bytes;
@@ -261,7 +261,7 @@ frame_data_set_after_dissect(frame_data *fdata,
 void
 frame_data_reset(frame_data *fdata)
 {
-  fdata->flags.visited = 0;
+  fdata->visited = 0;
   fdata->subnum = 0;
 
   if (fdata->pfd) {

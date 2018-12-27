@@ -6270,7 +6270,7 @@ static gint dissect_parameter_sequence(proto_tree *tree, packet_info *pinfo, tvb
   gboolean   dissect_return_value = FALSE;
   type_mapping * type_mapping_object = NULL;
   const gchar * param_name = NULL;
-  if (!pinfo->fd->flags.visited)
+  if (!pinfo->fd->visited)
     type_mapping_object = wmem_new(wmem_file_scope(), type_mapping);
 
   rtps_parameter_sequence_tree = proto_tree_add_subtree_format(tree, tvb, offset, size,

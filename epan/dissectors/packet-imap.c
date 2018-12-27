@@ -120,7 +120,7 @@ imap_match_request(packet_info *pinfo, proto_tree *tree, imap_request_key_t *req
 
   request_info = NULL;
   request_val = (imap_request_val_t *)wmem_map_lookup(imap_requests, request_key);
-  if (!pinfo->fd->flags.visited)
+  if (!pinfo->fd->visited)
   {
     if (is_request)
     {

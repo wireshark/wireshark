@@ -3778,7 +3778,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   key[2].length = 0;
   key[2].key = NULL;
 
-  if (!pinfo->fd->flags.visited) {
+  if (!pinfo->fd->visited) {
     if (!(flags&F_RESPONSE)) {
       /* This is a request */
       gboolean new_transaction = FALSE;

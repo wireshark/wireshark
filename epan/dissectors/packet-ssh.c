@@ -605,7 +605,7 @@ ssh_dissect_ssh1(tvbuff_t *tvb, packet_info *pinfo,
             val_to_str(msg_code, ssh1_msg_vals, "Unknown (%u)"));
         offset += 1;
         len = plen -1;
-        if (!pinfo->fd->flags.visited) {
+        if (!pinfo->fd->visited) {
             if (peer_data->frame_key_start == 0)
                 peer_data->frame_key_start = pinfo->num;
             peer_data->frame_key_end = pinfo->num;

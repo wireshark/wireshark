@@ -208,14 +208,14 @@ test_simple_fragment_add_seq(void)
 
     /* adding the same fragment again should do nothing, even with different
      * offset etc */
-    pinfo.fd->flags.visited = 1;
+    pinfo.fd->visited = 1;
     fd_head=fragment_add_seq(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
                              0, 60, TRUE, 0);
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
     ASSERT_EQ_POINTER(NULL,fd_head);
 
     /* start another pdu (just to confuse things) */
-    pinfo.fd->flags.visited = 0;
+    pinfo.fd->visited = 0;
     pinfo.num = 2;
     fd_head=fragment_add_seq(&test_reassembly_table, tvb, 15, &pinfo, 13, NULL,
                              0, 60, TRUE, 0);
@@ -281,7 +281,7 @@ test_simple_fragment_add_seq(void)
 
     /* what happens if we revisit the packets now? */
     fdh0 = fd_head;
-    pinfo.fd->flags.visited = 1;
+    pinfo.fd->visited = 1;
     pinfo.num = 1;
     fd_head=fragment_add_seq(&test_reassembly_table, tvb, 10, &pinfo, 12, NULL,
                              0, 50, TRUE, 0);
@@ -1277,7 +1277,7 @@ test_simple_fragment_add_seq_next(void)
 
     /* adding the same fragment again should do nothing, even with different
      * offset etc */
-    pinfo.fd->flags.visited = 1;
+    pinfo.fd->visited = 1;
     fd_head=fragment_add_seq_next(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
                                   60, TRUE);
     ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
@@ -1285,7 +1285,7 @@ test_simple_fragment_add_seq_next(void)
     ASSERT_EQ_POINTER(NULL,fd_head);
 
     /* start another pdu (just to confuse things) */
-    pinfo.fd->flags.visited = 0;
+    pinfo.fd->visited = 0;
     pinfo.num = 2;
     fd_head=fragment_add_seq_next(&test_reassembly_table, tvb, 15, &pinfo, 13, NULL,
                                   60, TRUE);
@@ -1380,7 +1380,7 @@ test_missing_data_fragment_add_seq_next(void)
 
 
     /* check what happens when we revisit the packets */
-    pinfo.fd->flags.visited = TRUE;
+    pinfo.fd->visited = TRUE;
     pinfo.num = 1;
 
     fd_head=fragment_add_seq_next(&test_reassembly_table, tvb, 10, &pinfo, 12, NULL,
@@ -1439,7 +1439,7 @@ test_missing_data_fragment_add_seq_next_2(void)
     ASSERT_EQ_POINTER(NULL,fd_head);
 
     /* check what happens when we revisit the packets */
-    pinfo.fd->flags.visited = TRUE;
+    pinfo.fd->visited = TRUE;
     pinfo.num = 11;
 
     fd_head=fragment_add_seq_next(&test_reassembly_table, tvb, 10, &pinfo, 24, NULL,
@@ -1490,7 +1490,7 @@ test_missing_data_fragment_add_seq_next_3(void)
     ASSERT_EQ_POINTER(NULL,fd_head->next);
 
     /* revisiting the packet ought to produce the same result. */
-    pinfo.fd->flags.visited = TRUE;
+    pinfo.fd->visited = TRUE;
 
     pinfo.num = 20;
     fd_head=fragment_add_seq_next(&test_reassembly_table, tvb, 5, &pinfo, 30, NULL,
@@ -1555,7 +1555,7 @@ main(int argc _U_, char **argv _U_)
 
     /* other test stuff */
     pinfo.fd = &fd;
-    fd.flags.visited = 0;
+    fd.visited = 0;
     set_address(&pinfo.src,AT_IPv4,4,src);
     set_address(&pinfo.dst,AT_IPv4,4,dst);
 
@@ -1567,7 +1567,7 @@ main(int argc _U_, char **argv _U_)
         ASSERT(test_reassembly_table.fragment_table != NULL);
         ASSERT(test_reassembly_table.reassembled_table != NULL);
 
-        pinfo.fd->flags.visited = FALSE;
+        pinfo.fd->visited = FALSE;
 
         tests[i]();
 

@@ -528,7 +528,7 @@ adwin_request_response_handling(tvbuff_t *tvb, packet_info *pinfo,
 
 		conversation_add_proto_data(conversation, proto_adwin, adwin_info);
 	}
-	if (!pinfo->fd->flags.visited) {
+	if (!pinfo->fd->visited) {
 		if (direction == ADWIN_REQUEST) {
 			/* This is a request */
 			adwin_trans = wmem_new(wmem_file_scope(), adwin_transaction_t);

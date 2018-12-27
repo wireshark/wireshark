@@ -1513,7 +1513,7 @@ c_pkt_data_init(c_pkt_data *d, packet_info *pinfo, guint off)
 	d->conv = find_or_create_conversation(pinfo);
 	DISSECTOR_ASSERT_HINT(d->conv, "find_or_create_conversation() returned NULL");
 
-	if (pinfo->fd->flags.visited)
+	if (pinfo->fd->visited)
 	{
 		/* Retrieve the saved state. */
 		d->convd = (c_conv_data*)p_get_proto_data(wmem_file_scope(), pinfo,
@@ -1573,7 +1573,7 @@ c_pkt_data_init(c_pkt_data *d, packet_info *pinfo, guint off)
 static
 void c_pkt_data_save(c_pkt_data *d, packet_info *pinfo, guint off)
 {
-	if (!pinfo->fd->flags.visited)
+	if (!pinfo->fd->visited)
 	{
 		/*
 			Save a copy of the state for next time we dissect this packet.

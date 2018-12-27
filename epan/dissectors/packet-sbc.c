@@ -249,7 +249,7 @@ dissect_sbc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         pitem = proto_tree_add_double(sbc_tree, hf_sbc_delta_time_from_the_beginning, tvb, offset, 0,  nstime_to_msec(&delta));
         PROTO_ITEM_SET_GENERATED(pitem);
 
-        if (!pinfo->fd->flags.visited) {
+        if (!pinfo->fd->visited) {
             info->current_media_packet_info->cumulative_frame_duration += cumulative_frame_duration;
             info->current_media_packet_info->avrcp_song_position        += cumulative_frame_duration;
         }

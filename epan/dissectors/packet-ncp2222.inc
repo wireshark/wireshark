@@ -6720,7 +6720,7 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint32 nw_connection, guint8 sequ
         return;
     }
     /* Has this already been dissected? */
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         /* Find the conversation whence the request would have come. */
         conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
                                          ENDPOINT_NCP, nw_connection, nw_connection, 0);
@@ -6831,7 +6831,7 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint32 nw_connection, guint8 sequ
                 /* Subsequent fragments should be offset by 16 since we do not need */
                 /* the additional fragment handle and size fields in our composite data */
                 /* Also do not add retransmitted packets, just mark and return */
-                if (!pinfo->fd->flags.visited)
+                if (!pinfo->fd->visited)
                 {
                     if (sequence != frags[frag_count].sequence) {
                         fd_head = fragment_add_seq_next(&nds_reassembly_table, tvb, 16, pinfo, tid, NULL, len-16, request_value->nds_frag);
@@ -6869,7 +6869,7 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint32 nw_connection, guint8 sequ
                         tid++;
                     }
 
-                    if (!pinfo->fd->flags.visited)
+                    if (!pinfo->fd->visited)
                     {
                         /* Now we need to find the original fragment number. */
                         /* Get the fragment flag */
@@ -7087,7 +7087,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
         }
     }
 
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         /* This is the first time we've looked at this packet.
            Keep track of the address and connection whence the request
            came, and the address and connection to which the request
@@ -7864,7 +7864,7 @@ dissect_nds_reply(tvbuff_t *tvb, packet_info *pinfo,
         * this EID and its associated name into our hash
         * so that we can resolve the name for other NDS
         * requests. */
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         if(add_eid)
         {
             request_eid_value = ncp_eid_hash_lookup(conversation, global_eid);
@@ -7924,7 +7924,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
     }
 #endif
 
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         /* Find the conversation whence the request would have come. */
         conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
                                          ENDPOINT_NCP, nw_connection, nw_connection, 0);
@@ -8258,7 +8258,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                         ENDPOINT_NCP, nw_connection, nw_connection, 0);
     }
 
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         request_value = ncp_hash_insert(conversation, sequence, ncp_rec, pinfo->num);
         request_value->req_frame_num = pinfo->num;
         request_value->req_frame_time=pinfo->abs_ts;
@@ -9231,7 +9231,7 @@ dissect_ping_req(tvbuff_t *tvb, packet_info *pinfo,
         col_set_str(pinfo->cinfo, COL_INFO, "C Ping for NDS");
 
     }
-    if (!pinfo->fd->flags.visited)
+    if (!pinfo->fd->visited)
     {
 
         /* This is the first time we've looked at this packet.

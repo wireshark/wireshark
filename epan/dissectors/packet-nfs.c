@@ -1252,7 +1252,7 @@ nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_of
 	nfs_name_snoop_t     *nns = NULL;
 
 	/* if this is a new packet, see if we can register the mapping */
-	if (!pinfo->fd->flags.visited) {
+	if (!pinfo->fd->visited) {
 		key.key = 0;
 		key.fh_length = fh_length;
 		key.fh = (const unsigned char *)tvb_get_ptr(tvb, fh_offset, fh_length);
@@ -2226,7 +2226,7 @@ dissect_fhandle_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 	if (nfs_fhandle_reqrep_matching && (!hidden) ) {
 		nfs_fhandle_data_t *old_fhd = NULL;
 
-		if ( !pinfo->fd->flags.visited ) {
+		if ( !pinfo->fd->visited ) {
 			nfs_fhandle_data_t fhd;
 
 			/* first check if we have seen this fhandle before */
@@ -2547,7 +2547,7 @@ dissect_fhandle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 
 
 	/* are we snooping fh to filenames ?*/
-	if ((!pinfo->fd->flags.visited) && nfs_file_name_snooping) {
+	if ((!pinfo->fd->visited) && nfs_file_name_snooping) {
 
 		/* NFS v2 LOOKUP, CREATE, MKDIR calls might give us a mapping*/
 		if ( (civ->prog == 100003)
@@ -2884,7 +2884,7 @@ dissect_diropargs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 			ett_nfs2_diropargs, &diropargs_item, label);
 
 	/* are we snooping fh to filenames ?*/
-	if ((!pinfo->fd->flags.visited) && nfs_file_name_snooping) {
+	if ((!pinfo->fd->visited) && nfs_file_name_snooping) {
 		/* v2 LOOKUP, CREATE, MKDIR calls might give us a mapping*/
 
 		if ( (civ->prog == 100003)
@@ -3660,7 +3660,7 @@ dissect_nfs3_fh(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 			ett_nfs3_fh, NULL, name);
 
 	/* are we snooping fh to filenames ?*/
-	if ((!pinfo->fd->flags.visited) && nfs_file_name_snooping) {
+	if ((!pinfo->fd->visited) && nfs_file_name_snooping) {
 		/* NFS v3 LOOKUP, CREATE, MKDIR, READDIRPLUS
 			calls might give us a mapping*/
 		if ( ((civ->prog == 100003)
@@ -4269,7 +4269,7 @@ dissect_diropargs3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 		hf_nfs_name, name);
 
 	/* are we snooping fh to filenames ?*/
-	if ((!pinfo->fd->flags.visited) && nfs_file_name_snooping) {
+	if ((!pinfo->fd->visited) && nfs_file_name_snooping) {
 		/* v3 LOOKUP, CREATE, MKDIR calls might give us a mapping*/
 		if ( (civ->prog == 100003)
 		  &&(civ->vers == 3)
@@ -5533,7 +5533,7 @@ dissect_nfs3_entryplus(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_nfs3_filename(tvb, offset, entry_tree,	hf_nfs3_readdirplus_entry_name, &name);
 
 	/* are we snooping fh to filenames ?*/
-	if ((!pinfo->fd->flags.visited) && nfs_file_name_snooping) {
+	if ((!pinfo->fd->visited) && nfs_file_name_snooping) {
 		/* v3 READDIRPLUS replies will give us a mapping */
 		if ( (civ->prog == 100003)
 		  &&(civ->vers == 3)

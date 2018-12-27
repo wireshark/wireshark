@@ -59,7 +59,7 @@
  *      dissector versions was dissected only when a proto_tree context was
  *      available
  *
- *     We are at Packet reception if time pinfo->fd->flags.visited == 0
+ *     We are at Packet reception if time pinfo->fd->visited == 0
  *
  */
 
@@ -585,7 +585,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         }
     }
 
-    ssl_debug_printf("\ndissect_ssl enter frame #%u (%s)\n", pinfo->num, (pinfo->fd->flags.visited)?"already visited":"first time");
+    ssl_debug_printf("\ndissect_ssl enter frame #%u (%s)\n", pinfo->num, (pinfo->fd->visited)?"already visited":"first time");
 
     /* Track the version using conversations to reduce the
      * chance that a packet that simply *looks* like a v2 or
@@ -613,7 +613,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
     /* try decryption only the first time we see this packet
      * (to keep cipher synchronized) */
-    if (pinfo->fd->flags.visited)
+    if (pinfo->fd->visited)
          ssl_session = NULL;
 
     ssl_debug_printf("  conversation = %p, ssl_session = %p\n", (void *)conversation, (void *)ssl_session);
@@ -789,7 +789,7 @@ dissect_tls13_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     SslSession        *session;
     gint               is_from_server;
 
-    ssl_debug_printf("\n%s enter frame #%u (%s)\n", G_STRFUNC, pinfo->num, (pinfo->fd->flags.visited)?"already visited":"first time");
+    ssl_debug_printf("\n%s enter frame #%u (%s)\n", G_STRFUNC, pinfo->num, (pinfo->fd->visited)?"already visited":"first time");
 
     conversation = find_or_create_conversation(pinfo);
     ssl_session = ssl_get_session(conversation, tls_handle);

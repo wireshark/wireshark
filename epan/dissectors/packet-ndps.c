@@ -4258,7 +4258,7 @@ ndps_defrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, spx_info *spx_i
         return;
     }
     /* Has this already been dissected? */
-    if (!pinfo->fd->flags.visited)
+    if (!pinfo->fd->visited)
     {
         /* Lets see if this is a new conversation */
         conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
@@ -4442,7 +4442,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
     proto_tree          *atree, *btree, *ctree, *dtree;
     proto_item          *aitem, *bitem, *citem, *ditem, *expert_item;
 
-    if (!pinfo->fd->flags.visited)
+    if (!pinfo->fd->visited)
     {
         /* This is the first time we've looked at this packet.
         Keep track of the Program and connection whence the request
@@ -6705,7 +6705,7 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
     proto_item              *expert_item;
     guint32                 expert_status;
 
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         /* Find the conversation whence the request would have come. */
         conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
             ENDPOINT_NCP, (guint32) pinfo->destport, (guint32) pinfo->destport, 0);

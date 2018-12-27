@@ -1646,7 +1646,7 @@ scan_for_next_pdu(tvbuff_t *tvb, proto_tree *tcp_tree, packet_info *pinfo, int o
 {
     struct tcp_multisegment_pdu *msp=NULL;
 
-    if(!pinfo->fd->flags.visited) {
+    if(!pinfo->fd->visited) {
         msp=(struct tcp_multisegment_pdu *)wmem_tree_lookup32_le(multisegment_pdus, seq-1);
         if(msp) {
             /* If this is a continuation of a PDU started in a
@@ -3691,7 +3691,7 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          * so that it can attempt to find it in case it starts
          * somewhere in the middle of a segment.
          */
-        if(!pinfo->fd->flags.visited && tcp_analyze_seq) {
+        if(!pinfo->fd->visited && tcp_analyze_seq) {
             guint remaining_bytes;
             remaining_bytes = tvb_reported_length_remaining(tvb, offset);
             if(plen>remaining_bytes) {
@@ -4028,7 +4028,7 @@ dissect_tcpopt_wscale(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 
     tcp_info_append_uint(pinfo, "WS", 1 << shift);
 
-    if(!pinfo->fd->flags.visited) {
+    if(!pinfo->fd->visited) {
         pdu_store_window_scale_option(shift, tcpd);
     }
 
@@ -5800,7 +5800,7 @@ process_tcp_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
             if(is_tcp_segment) {
                 /* if !visited, check want_pdu_tracking and
                    store it in table */
-                if(tcpd && (!pinfo->fd->flags.visited) &&
+                if(tcpd && (!pinfo->fd->visited) &&
                     tcp_analyze_seq && pinfo->want_pdu_tracking) {
                     if(seq || nxtseq) {
                         pdu_store_sequencenumber_of_next_pdu(
@@ -5831,7 +5831,7 @@ process_tcp_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
              * if !visited, check want_pdu_tracking and store it
              * in table
              */
-            if(tcpd && (!pinfo->fd->flags.visited) && tcp_analyze_seq && pinfo->want_pdu_tracking) {
+            if(tcpd && (!pinfo->fd->visited) && tcp_analyze_seq && pinfo->want_pdu_tracking) {
                 if(seq || nxtseq) {
                     pdu_store_sequencenumber_of_next_pdu(pinfo,
                         seq,
@@ -6038,7 +6038,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     if(tcpd && ((tcph->th_flags&(TH_SYN|TH_ACK))==TH_SYN) &&
        (tcpd->fwd->static_flags & TCP_S_BASE_SEQ_SET) &&
        (tcph->th_seq!=tcpd->fwd->base_seq) ) {
-        if (!(pinfo->fd->flags.visited)) {
+        if (!(pinfo->fd->visited)) {
             /* Reset the last frame seen in the conversation */
             if (save_last_frame > 0)
                 conv->last_frame = save_last_frame;
@@ -6061,7 +6061,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     if(tcpd && ((tcph->th_flags&(TH_SYN|TH_ACK))==(TH_SYN|TH_ACK)) &&
        (tcpd->fwd->static_flags & TCP_S_BASE_SEQ_SET) &&
        (tcph->th_seq!=tcpd->fwd->base_seq) ) {
-        if (!(pinfo->fd->flags.visited)) {
+        if (!(pinfo->fd->visited)) {
             /* Reset the last frame seen in the conversation */
             if (save_last_frame > 0)
                 conv->last_frame = save_last_frame;
@@ -6097,7 +6097,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
          * Calculate the timestamps relative to this conversation (but only on the
          * first run when frames are accessed sequentially)
          */
-        if (!(pinfo->fd->flags.visited))
+        if (!(pinfo->fd->visited))
             tcp_calculate_timestamps(pinfo, tcpd, tcppd);
     }
 
@@ -6136,7 +6136,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
             /* handle TCP seq# analysis parse all new segments we see */
             if(tcp_analyze_seq) {
-                if(!(pinfo->fd->flags.visited)) {
+                if(!(pinfo->fd->visited)) {
                     tcp_analyze_sequence_number(pinfo, tcph->th_seq, tcph->th_ack, tcph->th_seglen, tcph->th_flags, tcph->th_win, tcpd);
                 }
                 if(tcpd && tcp_relative_seq) {
@@ -6540,7 +6540,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     }
 
-    if(!pinfo->fd->flags.visited) {
+    if(!pinfo->fd->visited) {
         if((tcph->th_flags & TH_SYN)==TH_SYN) {
             /* Check the validity of the window scale value
              */

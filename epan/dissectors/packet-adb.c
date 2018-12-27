@@ -570,12 +570,12 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             proto_tree_add_expert(expert_tree, pinfo, &ei_invalid_magic, tvb, offset, 4);
         }
 
-        if (!pinfo->fd->flags.visited)
+        if (!pinfo->fd->visited)
             save_command(command, arg0, arg1, data_length, crc32, service_data, proto, data, pinfo, &service_data, &command_data);
         offset += 4;
     }
 
-    if (!pinfo->fd->flags.visited && command_data) {
+    if (!pinfo->fd->visited && command_data) {
             if (command_data->command_in_frame != frame_number) {
                 is_command = FALSE;
                 is_next_fragment = TRUE;
@@ -619,7 +619,7 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         /* First pass: store message payload (usually a single packet, but
          * potentially multiple fragments). */
-        if (!pinfo->fd->flags.visited && command_data && command_data->reassemble_data_length < command_data->data_length) {
+        if (!pinfo->fd->visited && command_data && command_data->reassemble_data_length < command_data->data_length) {
             guint chunklen = tvb_captured_length_remaining(tvb, offset);
             if (chunklen > command_data->data_length - command_data->reassemble_data_length) {
                 chunklen = command_data->data_length - command_data->reassemble_data_length;
@@ -641,7 +641,7 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             proto_tree_add_expert(main_tree, pinfo, &ei_invalid_data, tvb, offset, -1);
         }
 
-        if ((!pinfo->fd->flags.visited && command_data && command_data->reassemble_data_length < command_data->data_length) || data_length > (guint32) tvb_captured_length_remaining(tvb, offset)) { /* need reassemble */
+        if ((!pinfo->fd->visited && command_data && command_data->reassemble_data_length < command_data->data_length) || data_length > (guint32) tvb_captured_length_remaining(tvb, offset)) { /* need reassemble */
             proto_tree_add_item(main_tree, hf_data_fragment, tvb, offset, -1, ENC_NA);
             col_append_str(pinfo->cinfo, COL_INFO, "Data Fragment");
             offset = tvb_captured_length(tvb);
@@ -684,7 +684,7 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
             if (is_service) {
                 proto_tree_add_item(main_tree, hf_service, tvb, offset, -1, ENC_ASCII | ENC_NA);
-                if (!pinfo->fd->flags.visited && service_data) {
+                if (!pinfo->fd->visited && service_data) {
                     service_data->service = tvb_get_stringz_enc(wmem_file_scope(), tvb, offset, NULL, ENC_ASCII);
                 }
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Service: %s", tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, NULL, ENC_ASCII));

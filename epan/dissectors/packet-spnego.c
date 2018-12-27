@@ -1716,7 +1716,7 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void*
    * negotiation in a conversation.
    */
   next_level_value = (gssapi_oid_value *)p_get_proto_data(wmem_file_scope(), pinfo, proto_spnego, 0);
-  if (!next_level_value && !pinfo->fd->flags.visited) {
+  if (!next_level_value && !pinfo->fd->visited) {
       /*
        * No handle attached to this frame, but it's the first
        * pass, so it'd be attached to the conversation.

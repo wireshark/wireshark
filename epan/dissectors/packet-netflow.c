@@ -3787,7 +3787,7 @@ dissect_netflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
        observation domain id. */
     if ((ver == 5) || (ver == 7) || (ver == 8)  || (ver == 9) || (ver == 10)) {
         /* On first pass check sequence analysis */
-        if (!pinfo->fd->flags.visited) {
+        if (!pinfo->fd->visited) {
             if (ver != 10) {
                 flows_seen = pdus;  /* i.e. use value from header rather than counted value */
             }
@@ -10543,7 +10543,7 @@ dissect_v9_v10_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
         /*  XXX: Is an Options template with only scope fields allowed for V9 ??                 */
 
         tmplt_p = (v9_v10_tmplt_t *)wmem_map_lookup(v9_v10_tmplt_table, &tmplt);
-        if (!pinfo->fd->flags.visited) { /* cache template info only during first pass */
+        if (!pinfo->fd->visited) { /* cache template info only during first pass */
             do {
                 if (v9_tmplt_max_fields &&
                      ((option_scope_field_count > v9_tmplt_max_fields)
@@ -10647,7 +10647,7 @@ dissect_v9_v10_data_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdut
         /*  ToDo: expert warning if replacement (changed) and new template ignored.                */
 
         tmplt_p = (v9_v10_tmplt_t *)wmem_map_lookup(v9_v10_tmplt_table, &tmplt);
-        if (!pinfo->fd->flags.visited) { /* cache template info only during first pass */
+        if (!pinfo->fd->visited) { /* cache template info only during first pass */
             do {
                 if ((count == 0) ||
                     (v9_tmplt_max_fields && (count > v9_tmplt_max_fields))) {

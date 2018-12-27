@@ -260,7 +260,7 @@ svcctl_dissect_OpenSCManager_rqst(tvbuff_t *tvb, int offset,
 		dn="";
 
 	/* OpenSCManager() stores the server\database  in se_data */
-	if(!pinfo->fd->flags.visited){
+	if(!pinfo->fd->visited){
 		if(!dcv->se_data){
 			dcv->se_data=wmem_strdup_printf(wmem_file_scope(), "%s\\%s",mn,dn);
 		}
@@ -302,7 +302,7 @@ svcctl_dissect_OpenSCManager_reply(tvbuff_t *tvb, int offset,
 		} else {
 			pol_name = "Unknown OpenSCManagerW() handle";
 		}
-		if(!pinfo->fd->flags.visited){
+		if(!pinfo->fd->visited){
 			dcerpc_store_polhnd_name(&policy_hnd, pinfo, pol_name);
 		}
 
@@ -344,7 +344,7 @@ svcctl_dissect_OpenSCManagerW_rqst(tvbuff_t *tvb, int offset,
 		dn="";
 
 	/* OpenSCManager() stores the server\database  in se_data */
-	if(!pinfo->fd->flags.visited){
+	if(!pinfo->fd->visited){
 		if(!dcv->se_data){
 			dcv->se_data=wmem_strdup_printf(wmem_file_scope(), "%s\\%s",mn,dn);
 		}
@@ -386,7 +386,7 @@ svcctl_dissect_OpenSCManagerW_reply(tvbuff_t *tvb, int offset,
 		} else {
 			pol_name = "Unknown OpenSCManagerW() handle";
 		}
-		if(!pinfo->fd->flags.visited){
+		if(!pinfo->fd->visited){
 			dcerpc_store_polhnd_name(&policy_hnd, pinfo, pol_name);
 		}
 

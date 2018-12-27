@@ -784,7 +784,7 @@ void srtcp_add_address( packet_info *pinfo,
      * we've already done this work, so we don't need to do it
      * again.
      */
-    if (pinfo->fd->flags.visited)
+    if (pinfo->fd->visited)
     {
         return;
     }

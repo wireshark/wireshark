@@ -671,7 +671,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
         conversation_add_proto_data(conversation, proto_stun, stun_info);
     }
 
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         if ((stun_trans = (stun_transaction_t *)
              wmem_tree_lookup32_array(stun_info->transaction_pdus,
                                       transaction_id_key)) == NULL) {

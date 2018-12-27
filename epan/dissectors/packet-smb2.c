@@ -1961,7 +1961,7 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 	switch (mode) {
 	case FID_MODE_OPEN:
 		offset = dissect_nt_guid_hnd(tvb, offset, pinfo, tree, &di, drep, hf_smb2_fid, &policy_hnd, &hnd_item, TRUE, FALSE);
-		if (!pinfo->fd->flags.visited) {
+		if (!pinfo->fd->visited) {
 			sfi = wmem_new(wmem_file_scope(), smb2_fid_info_t);
 			*sfi = sfi_key;
 			if (si->saved && si->saved->extra_info_type == SMB2_EI_FILENAME) {
@@ -3097,7 +3097,7 @@ dissect_smb2_session_setup_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	offset = dissect_smb2_olb_tvb_max_offset(offset, &s_olb);
 
 	/* If we have found a uid->acct_name mapping, store it */
-	if (!pinfo->fd->flags.visited) {
+	if (!pinfo->fd->visited) {
 		idx = 0;
 		while ((ntlmssph = (const ntlmssp_header_t *)fetch_tapped_data(ntlmssp_tap_id, idx++)) != NULL) {
 			if (ntlmssph && ntlmssph->type == NTLMSSP_AUTH) {
@@ -3278,7 +3278,7 @@ dissect_smb2_session_setup_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 	/* If we have found a uid->acct_name mapping, store it */
 #ifdef HAVE_KERBEROS
-	if (!pinfo->fd->flags.visited && si->status == 0) {
+	if (!pinfo->fd->visited && si->status == 0) {
 		enc_key_t *ek;
 
 		if (krb_decrypt) {
@@ -3344,7 +3344,7 @@ dissect_smb2_tree_connect_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	/* treelen  +1 is overkill here if the string is unicode,
 	 * but who ever has more than a handful of TCON in a trace anyways
 	 */
-	if (!pinfo->fd->flags.visited && si->saved && buf && olb.len) {
+	if (!pinfo->fd->visited && si->saved && buf && olb.len) {
 		si->saved->extra_info_type = SMB2_EI_TREENAME;
 		si->saved->extra_info = wmem_alloc(wmem_file_scope(), olb.len+1);
 		g_snprintf((char *)si->saved->extra_info,olb.len+1,"%s",buf);
@@ -3376,7 +3376,7 @@ dissect_smb2_tree_connect_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
-	if (!pinfo->fd->flags.visited && si->saved && si->saved->extra_info_type == SMB2_EI_TREENAME && si->session) {
+	if (!pinfo->fd->visited && si->saved && si->saved->extra_info_type == SMB2_EI_TREENAME && si->session) {
 		smb2_tid_info_t *tid, tid_key;
 
 		tid_key.tid = si->tid;
@@ -3682,7 +3682,7 @@ dissect_smb2_find_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
 	offset = dissect_smb2_olb_tvb_max_offset(offset, &olb);
 
-	if (!pinfo->fd->flags.visited && si->saved && olb.len) {
+	if (!pinfo->fd->visited && si->saved && olb.len) {
 		si->saved->extra_info_type = SMB2_EI_FINDPATTERN;
 		si->saved->extra_info = wmem_alloc(wmem_file_scope(), olb.len+1);
 		g_snprintf((char *)si->saved->extra_info,olb.len+1,"%s",buf);
@@ -4294,7 +4294,7 @@ dissect_smb2_find_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 		PROTO_ITEM_SET_GENERATED(item);
 	}
 
-	if (!pinfo->fd->flags.visited && si->saved && si->saved->extra_info_type == SMB2_EI_FINDPATTERN) {
+	if (!pinfo->fd->visited && si->saved && si->saved->extra_info_type == SMB2_EI_FINDPATTERN) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, " %s Pattern: %s",
 				val_to_str(si->saved->infolevel, smb2_find_info_levels, "(Level:0x%02x)"),
 				(const char *)si->saved->extra_info);
@@ -5319,7 +5319,7 @@ dissect_file_data_smb2_pipe(tvbuff_t *raw_tvb, packet_info *pinfo, proto_tree *t
 	 * pdu and if not, check if the dissector wants us
 	 * to reassemble it
 	 */
-	if (!pinfo->fd->flags.visited) {
+	if (!pinfo->fd->visited) {
 		/*
 		 * This is the first pass.
 		 *
@@ -7971,7 +7971,7 @@ dissect_smb2_create_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	col_append_fstr(pinfo->cinfo, COL_INFO, " File: %s", fname);
 
 	/* save the name if it looks sane */
-	if (!pinfo->fd->flags.visited) {
+	if (!pinfo->fd->visited) {
 		if (si->saved && si->saved->extra_info_type == SMB2_EI_FILENAME) {
 			wmem_free(wmem_file_scope(), si->saved->extra_info);
 			si->saved->extra_info = NULL;
@@ -9334,7 +9334,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 		}
 
 
-		if (!pinfo->fd->flags.visited) {
+		if (!pinfo->fd->visited) {
 			/* see if we can find this msg_id in the unmatched table */
 			ssi = (smb2_saved_info_t *)g_hash_table_lookup(si->conv->unmatched, &ssi_key);
 

@@ -88,5 +88,5 @@ cap_file_provider_set_user_comment(struct packet_provider_data *prov, frame_data
   /* insert new packet comment */
   g_tree_replace(prov->frames_user_comments, fd, g_strdup(new_comment));
 
-  fd->flags.has_user_comment = TRUE;
+  fd->has_user_comment = TRUE;
 }

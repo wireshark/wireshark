@@ -3506,7 +3506,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
       ti = proto_tree_add_item(tree, proto_x11, tvb, 0, -1, ENC_NA);
       t = proto_item_add_subtree(ti, ett_x11);
 
-      if (!pinfo->fd->flags.visited)
+      if (!pinfo->fd->visited)
             ++state->sequencenumber;
 
       OPCODE();

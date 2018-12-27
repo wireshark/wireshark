@@ -66,7 +66,7 @@ dissect_getport_call(tvbuff_t *tvb, packet_info *pinfo _U_,
 	int offset = 0;
 
 	/* make sure we remember protocol type until the reply packet */
-	if(!pinfo->fd->flags.visited){
+	if(!pinfo->fd->visited){
 		rpc_call_info_value *rpc_call=(rpc_call_info_value *)data;
 		if(rpc_call){
 			proto = tvb_get_ntohl(tvb, offset+8);
@@ -120,7 +120,7 @@ dissect_getport_reply(tvbuff_t *tvb, packet_info *pinfo _U_,
 	int offset = 0;
 
 	/* we might have learnt a <ipaddr><protocol><port> mapping for ONC-RPC*/
-	if(!pinfo->fd->flags.visited){
+	if(!pinfo->fd->visited){
 		rpc_call_info_value *rpc_call=(rpc_call_info_value *)data;
 		/* only do this for UDP, TCP does not need anything like this */
 		if(rpc_call && (GPOINTER_TO_UINT(rpc_call->private_data)==PT_UDP) ){

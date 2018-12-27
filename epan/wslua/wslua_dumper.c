@@ -440,10 +440,10 @@ WSLUA_METHOD Dumper_dump_current(lua_State* L) {
     rec.rec_header.packet_header.pkt_encap = lua_pinfo->rec->rec_header.packet_header.pkt_encap;
     rec.rec_header.packet_header.pseudo_header = *lua_pinfo->pseudo_header;
 
-    if (lua_pinfo->fd->flags.has_user_comment) {
+    if (lua_pinfo->fd->has_user_comment) {
         rec.opt_comment = wmem_strdup(wmem_packet_scope(), epan_get_user_comment(lua_pinfo->epan, lua_pinfo->fd));
         rec.has_comment_changed = TRUE;
-    } else if (lua_pinfo->fd->flags.has_phdr_comment) {
+    } else if (lua_pinfo->fd->has_phdr_comment) {
         rec.opt_comment = wmem_strdup(wmem_packet_scope(), lua_pinfo->rec->opt_comment);
     }
 

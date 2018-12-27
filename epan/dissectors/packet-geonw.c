@@ -2412,7 +2412,7 @@ dissect_geonw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 
         // XXX Is it possible to "follow" a station when updating its GN_ADDR?
 
-        if(geonw_analyze_seq && !(pinfo->fd->flags.visited)) {
+        if(geonw_analyze_seq && !(pinfo->fd->visited)) {
             // Duplication detection uses SN and TST or only TST (see Annex A of ETSI EN 302 636-4-1)
             // We rely on address type and hashtable as this shall be done on a per station basis (i.e. not over a conversation)
             // We do not try to consider GN_ADDR updates (due to duplicate address detection or anonymous setting)

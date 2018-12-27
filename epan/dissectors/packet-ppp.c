@@ -5722,7 +5722,7 @@ dissect_mp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     if (tvb_reported_length_remaining(tvb, hdrlen) > 0) {
         pinfo->fragmented = TRUE;
         frag_mp = NULL;
-        if (!pinfo->fd->flags.visited) {
+        if (!pinfo->fd->visited) {
             frag_mp = fragment_add_seq_single_aging(&mp_reassembly_table,
                 tvb, hdrlen, pinfo, seqnum ^ (cls << 24), NULL,
                 tvb_captured_length_remaining(tvb, hdrlen),

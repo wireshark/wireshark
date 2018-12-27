@@ -33,19 +33,19 @@ tally_frame_data(frame_data *cur_frame, summary_tally *sum_tally)
   double cur_time;
 
   sum_tally->bytes += cur_frame->pkt_len;
-  if (cur_frame->flags.passed_dfilter){
+  if (cur_frame->passed_dfilter){
     sum_tally->filtered_count++;
     sum_tally->filtered_bytes += cur_frame->pkt_len;
   }
-  if (cur_frame->flags.marked){
+  if (cur_frame->marked){
     sum_tally->marked_count++;
     sum_tally->marked_bytes += cur_frame->pkt_len;
   }
-  if (cur_frame->flags.ignored){
+  if (cur_frame->ignored){
     sum_tally->ignored_count++;
   }
 
-  if (cur_frame->flags.has_ts) {
+  if (cur_frame->has_ts) {
     /* This packet has a time stamp. */
     cur_time = nstime_to_sec(&cur_frame->abs_ts);
 
@@ -56,7 +56,7 @@ tally_frame_data(frame_data *cur_frame, summary_tally *sum_tally)
     if (cur_time > sum_tally->stop_time){
       sum_tally->stop_time = cur_time;
     }
-    if (cur_frame->flags.passed_dfilter){
+    if (cur_frame->passed_dfilter){
       sum_tally->filtered_count_ts++;
       /*
        * If we've seen one filtered packet, this is the first
@@ -74,7 +74,7 @@ tally_frame_data(frame_data *cur_frame, summary_tally *sum_tally)
         }
       }
     }
-    if (cur_frame->flags.marked){
+    if (cur_frame->marked){
       sum_tally->marked_count_ts++;
       /*
        * If we've seen one marked packet, this is the first

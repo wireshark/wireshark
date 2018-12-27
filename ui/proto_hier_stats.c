@@ -172,7 +172,7 @@ process_record(capture_file *cf, frame_data *frame, column_info *cinfo, ph_stats
     /* Get stats from this protocol tree */
     process_tree(edt.tree, ps);
 
-    if (frame->flags.has_ts) {
+    if (frame->has_ts) {
         /* Update times */
         cur_time = nstime_to_sec(&frame->abs_ts);
         if (cur_time < ps->first_time)
@@ -282,9 +282,9 @@ ph_stats_new(capture_file *cf)
            passed the display filter?  If so, it should
            probably do so for other loops (see "file.c") that
            look only at those packets. */
-        if (frame->flags.passed_dfilter) {
+        if (frame->passed_dfilter) {
 
-            if (frame->flags.has_ts) {
+            if (frame->has_ts) {
                 if (tot_packets == 0) {
                     double cur_time = nstime_to_sec(&frame->abs_ts);
                     ps->first_time = cur_time;

@@ -1350,7 +1350,7 @@ fragment_add_common(reassembly_table *table, tvbuff_t *tvb, const int offset,
 	/* leave it here for future debugging sessions */
 	if(strcmp(pinfo->current_proto, "DCERPC") == 0) {
 		printf("proto:%s num:%u id:%u offset:%u len:%u more:%u visited:%u\n",
-			pinfo->current_proto, pinfo->num, id, frag_offset, frag_data_len, more_frags, pinfo->fd->flags.visited);
+			pinfo->current_proto, pinfo->num, id, frag_offset, frag_data_len, more_frags, pinfo->fd->visited);
 		if(fd_head != NULL) {
 			for(fd_item=fd_head->next;fd_item;fd_item=fd_item->next){
 				printf("fd_frame:%u fd_offset:%u len:%u datalen:%u\n",
@@ -1363,7 +1363,7 @@ fragment_add_common(reassembly_table *table, tvbuff_t *tvb, const int offset,
 	/*
 	 * Is this the first pass through the capture?
 	 */
-	if (!pinfo->fd->flags.visited) {
+	if (!pinfo->fd->visited) {
 		/*
 		 * Yes, so we could be doing reassembly.  If
 		 * "check_already_added" is true, and fd_head is non-null,
@@ -1551,7 +1551,7 @@ fragment_add_check(reassembly_table *table, tvbuff_t *tvb, const int offset,
 	 * If this isn't the first pass, look for this frame in the table
 	 * of reassembled packets.
 	 */
-	if (pinfo->fd->flags.visited) {
+	if (pinfo->fd->visited) {
 		reass_key.frame = pinfo->num;
 		reass_key.id = id;
 		return (fragment_head *)g_hash_table_lookup(table->reassembled_table, &reass_key);
@@ -1947,7 +1947,7 @@ fragment_add_seq_common(reassembly_table *table, tvbuff_t *tvb,
 	fd_head = lookup_fd_head(table, pinfo, id, data, &orig_key);
 
 	/* have we already seen this frame ?*/
-	if (pinfo->fd->flags.visited) {
+	if (pinfo->fd->visited) {
 		if (fd_head != NULL && fd_head->flags & FD_DEFRAGMENTED) {
 			if (orig_keyp != NULL)
 				*orig_keyp = orig_key;
@@ -2089,7 +2089,7 @@ fragment_add_seq_check_work(reassembly_table *table, tvbuff_t *tvb,
 	 * Have we already seen this frame?
 	 * If so, look for it in the table of reassembled packets.
 	 */
-	if (pinfo->fd->flags.visited) {
+	if (pinfo->fd->visited) {
 		reass_key.frame = pinfo->num;
 		reass_key.id = id;
 		return (fragment_head *)g_hash_table_lookup(table->reassembled_table, &reass_key);
@@ -2235,7 +2235,7 @@ fragment_add_seq_single_work(reassembly_table *table, tvbuff_t *tvb,
 	 * If so, look for it in the table of reassembled packets.
 	 * Note here we store in the reassembly table by the single sequence
 	 * number rather than the sequence number of the First fragment. */
-	if (pinfo->fd->flags.visited) {
+	if (pinfo->fd->visited) {
 		reass_key.frame = pinfo->num;
 		reass_key.id = id;
 		fh = (fragment_head *)g_hash_table_lookup(table->reassembled_table, &reass_key);
@@ -2477,7 +2477,7 @@ fragment_start_seq_check(reassembly_table *table, const packet_info *pinfo,
 	fragment_head *fd_head;
 
 	/* Have we already seen this frame ?*/
-	if (pinfo->fd->flags.visited) {
+	if (pinfo->fd->visited) {
 		return;
 	}
 
@@ -2516,7 +2516,7 @@ fragment_end_seq_next(reassembly_table *table, const packet_info *pinfo,
 	 * Have we already seen this frame?
 	 * If so, look for it in the table of reassembled packets.
 	 */
-	if (pinfo->fd->flags.visited) {
+	if (pinfo->fd->visited) {
 		reass_key.frame = pinfo->num;
 		reass_key.id = id;
 		return (fragment_head *)g_hash_table_lookup(table->reassembled_table, &reass_key);

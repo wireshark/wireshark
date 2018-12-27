@@ -242,7 +242,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         key[5].key = NULL;
 
         if (packet_type == PACKET_TYPE_START) {
-            if (!pinfo->fd->flags.visited) {
+            if (!pinfo->fd->visited) {
                 fragment = wmem_new(wmem_file_scope(), fragment_t);
                 fragment->length = length;
                 fragment->data = (guint8 *) wmem_alloc(wmem_file_scope(), fragment->length);
@@ -282,7 +282,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     fragments->psm == psm))
                 fragments = NULL;
 
-            if (!pinfo->fd->flags.visited && fragments != NULL) {
+            if (!pinfo->fd->visited && fragments != NULL) {
                 fragment = wmem_new(wmem_file_scope(), fragment_t);
                 fragment->length = length;
                 fragment->data = (guint8 *) wmem_alloc(wmem_file_scope(), fragment->length);
@@ -325,7 +325,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     fragments->psm == psm))
                 fragments = NULL;
 
-            if (!pinfo->fd->flags.visited && fragments != NULL) {
+            if (!pinfo->fd->visited && fragments != NULL) {
                 fragment = wmem_new(wmem_file_scope(), fragment_t);
                 fragment->length = length;
                 fragment->data = (guint8 *) wmem_alloc(wmem_file_scope(), fragment->length);

@@ -240,7 +240,7 @@ dissect_ziop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void 
        * we've already done this work, so we don't need to do it
        * again.
        */
-      if (!pinfo->fd->flags.visited)
+      if (!pinfo->fd->visited)
         {
           conversation = find_or_create_conversation(pinfo);
 

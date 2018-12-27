@@ -867,7 +867,7 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
     guint32                        snLimit                = 0;
 
     /* If find stat_report_in_frame already, use that and get out */
-    if (pinfo->fd->flags.visited) {
+    if (pinfo->fd->visited) {
         p_report_in_frame =
             (pdcp_sequence_report_in_frame*)wmem_map_lookup(pdcp_lte_sequence_analysis_report_hash,
                                                             get_report_hash_key(sequenceNumber,
@@ -1829,7 +1829,7 @@ static int dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /***************************************/
     /* UE security algorithms              */
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         /* Look up current state by UEID */
         current_security = (pdcp_security_info_t*)wmem_map_lookup(pdcp_security_hash,
                                                                   GUINT_TO_POINTER((guint)p_pdcp_info->ueid));
@@ -2348,7 +2348,7 @@ static int dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                         data_length, ENC_NA);
             }
 
-            if (!pinfo->fd->flags.visited &&
+            if (!pinfo->fd->visited &&
                 (current_security != NULL) && !current_security->seen_next_ul_pdu &&
                 p_pdcp_info->direction == DIRECTION_UPLINK)
             {

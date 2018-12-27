@@ -645,7 +645,7 @@ check_for_duplicate_addresses(packet_info *pinfo, proto_tree *tree,
   duplicate_result_key  result_key = {pinfo->num, ip};
 
   /* Look up existing result */
-  if (pinfo->fd->flags.visited) {
+  if (pinfo->fd->visited) {
       result = (address_hash_value *)wmem_map_lookup(duplicate_result_hash_table,
                                    &result_key);
   }

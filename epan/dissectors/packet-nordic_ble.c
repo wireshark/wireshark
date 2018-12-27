@@ -344,7 +344,7 @@ dissect_ble_delta_time(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tre
     /* end-to-start */
     proto_tree_add_item_ret_uint(tree, hf_nordic_ble_delta_time, tvb, offset, 4, ENC_LITTLE_ENDIAN, &delta_time);
 
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         /* First time visiting this packet, store previous BLE packet time */
         p_add_proto_data(wmem_file_scope(), pinfo, proto_nordic_ble, 0, GUINT_TO_POINTER(previous_ble_packet_time));
         prev_packet_time = previous_ble_packet_time;
@@ -360,7 +360,7 @@ dissect_ble_delta_time(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tre
     }
     offset += 4;
 
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         /* Calculate packet time according to this packets PHY */
         guint16 ble_payload_length = nordic_ble_context->payload_length - nordic_ble_context->event_packet_length;
         if (nordic_ble_context->phy == LE_1M_PHY) {

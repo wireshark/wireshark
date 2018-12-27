@@ -692,7 +692,7 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 		/*
 		 * Not a system packet - check for retransmissions.
 		 */
-		if (!pinfo->fd->flags.visited) {
+		if (!pinfo->fd->visited) {
 			conversation = find_conversation(pinfo->num, &pinfo->src,
 			    &pinfo->dst, ENDPOINT_NCP, pinfo->srcport,
 			    pinfo->srcport, 0);

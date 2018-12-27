@@ -2735,7 +2735,7 @@ save_local_device_name_from_eir_ad(tvbuff_t *tvb, gint offset, packet_info *pinf
     gchar                   *name;
     localhost_name_entry_t  *localhost_name_entry;
 
-    if (!(!pinfo->fd->flags.visited && bluetooth_data)) return;
+    if (!(!pinfo->fd->visited && bluetooth_data)) return;
 
     while (i < size) {
         length = tvb_get_guint8(tvb, offset + i);

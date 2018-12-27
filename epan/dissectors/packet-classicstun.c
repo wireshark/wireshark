@@ -274,7 +274,7 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
         conversation_add_proto_data(conversation, proto_classicstun, classicstun_info);
     }
 
-    if(!pinfo->fd->flags.visited){
+    if(!pinfo->fd->visited){
         if (((msg_type & CLASS_MASK) >> 4) == REQUEST) {
             /* This is a request */
             classicstun_trans=wmem_new(wmem_file_scope(), classicstun_transaction_t);

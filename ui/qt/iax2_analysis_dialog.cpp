@@ -622,7 +622,7 @@ gboolean Iax2AnalysisDialog::tapPacket(void *tapinfoptr, packet_info *pinfo, str
     if (!iax2info) return FALSE;
 
     /* we ignore packets that are not displayed */
-    if (pinfo->fd->flags.passed_dfilter == 0)
+    if (pinfo->fd->passed_dfilter == 0)
         return FALSE;
 
     /* we ignore packets that carry no data */

@@ -90,7 +90,7 @@ void ByteViewTab::addTab(const char *name, tvbuff_t *tvb) {
 
     packet_char_enc encoding = PACKET_CHAR_ENC_CHAR_ASCII;
     if ( cap_file_ && cap_file_->current_frame )
-        encoding = (packet_char_enc)cap_file_->current_frame->flags.encoding;
+        encoding = (packet_char_enc)cap_file_->current_frame->encoding;
 
     QByteArray data;
     if ( tvb ) {

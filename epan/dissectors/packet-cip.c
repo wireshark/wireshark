@@ -6368,7 +6368,7 @@ dissect_cip_cm_fwd_open_req(cip_req_info_t *preq_info, proto_tree *cmd_tree, tvb
    epath_tree = proto_tree_add_subtree(cmd_tree, tvb, offset+26+net_param_offset+6, conn_path_size, ett_path, &pi, "Connection Path: ");
    dissect_epath( tvb, pinfo, epath_tree, pi, offset+26+net_param_offset+6, conn_path_size, FALSE, FALSE, &connection_path, &safety_fwdopen, DISPLAY_CONNECTION_PATH, NULL, FALSE);
 
-   if (pinfo->fd->flags.visited)
+   if (pinfo->fd->visited)
    {
        /* "Connection" is created during ForwardOpen reply (which will be after ForwardOpen request),
           so ForwardOpen request can only be marked after the first pass */
@@ -6489,7 +6489,7 @@ dissect_cip_cm_fwd_open_rsp_success(cip_req_info_t *preq_info, proto_tree *tree,
 
    /* See if we've captured the ForwardOpen request.  If so some of the conversation data has already been
       populated and we just need to update it. */
-   if (pinfo->fd->flags.visited)
+   if (pinfo->fd->visited)
       return parsed_len + app_rep_size;
 
    if ((preq_info != NULL) && (preq_info->connInfo != NULL))
@@ -6584,7 +6584,7 @@ static void dissect_cip_cm_fwd_close_req(proto_tree* cmd_data_tree, tvbuff_t* tv
       hf_cip_cm_conn_serial_num, hf_cip_cm_vendor, hf_cip_cm_orig_serial_num,
       &conn_triad);
 
-   if (!pinfo->fd->flags.visited)
+   if (!pinfo->fd->visited)
       enip_mark_connection_triad(pinfo, &conn_triad);
 
    /* Add the path size */

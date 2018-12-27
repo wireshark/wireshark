@@ -1339,7 +1339,7 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	}
 
 	if (pdus_tree) {
-		if (!pinfo->fd->flags.visited) {
+		if (!pinfo->fd->visited) {
 			if (flags_bits & DIAM_FLAGS_R) {
 				/* This is a request */
 				diameter_pair = wmem_new(wmem_file_scope(), diameter_req_ans_pair_t);

@@ -215,7 +215,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             fragmented = TRUE;
 
             /* Save information */
-            if (!(pinfo->fd->flags.visited)) {
+            if (!(pinfo->fd->visited)) {
                 iso15765_frame_t *iso15765_frame = wmem_new0(wmem_file_scope(), iso15765_frame_t);
                 iso15765_frame->seq = iso15765_info->seq = ++msg_seqid;
                 iso15765_frame->len = full_len;
@@ -236,7 +236,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             fragmented = TRUE;
 
             /* Save information */
-            if (!(pinfo->fd->flags.visited)) {
+            if (!(pinfo->fd->visited)) {
                 iso15765_info->seq = msg_seqid;
             }
 
@@ -284,7 +284,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
         if (iso15765_frame != NULL)
         {
-            if (!(pinfo->fd->flags.visited)) {
+            if (!(pinfo->fd->visited)) {
                 frag_id += ((iso15765_frame->frag_id_high[frag_id]++) * 16);
                 /* Save the frag_id for subsequent dissection */
                 iso15765_info->frag_id = frag_id;
@@ -302,7 +302,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                 fragment_head *frag_msg;
 
                 /* Check if it's the last packet */
-                if (!(pinfo->fd->flags.visited)) {
+                if (!(pinfo->fd->visited)) {
                     /* Update the last_frag_id */
                     if (frag_id > iso15765_frame->last_frag_id) {
                         iso15765_frame->last_frag_id = frag_id;

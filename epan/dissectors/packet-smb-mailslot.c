@@ -108,7 +108,7 @@ dissect_mailslot_smb(tvbuff_t *mshdr_tvb, tvbuff_t *setup_tvb,
 		} else if(strncmp(mailslot,"MSSP",4) == 0){
 			trans_subcmd=MAILSLOT_MSSP;
 		}
-		if (!pinfo->fd->flags.visited) {
+		if (!pinfo->fd->visited) {
 			if (tri != NULL)
 				tri->trans_subcmd = trans_subcmd;
 		}

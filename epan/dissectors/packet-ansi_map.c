@@ -1179,7 +1179,7 @@ update_saved_invokedata(packet_info *pinfo, struct ansi_tcap_private_t *p_privat
     dst_str = address_to_str(wmem_packet_scope(), dst);
 
     /* Data from the TCAP dissector */
-    if ((!pinfo->fd->flags.visited)&&(p_private_tcap->TransactionID_str)){
+    if ((!pinfo->fd->visited)&&(p_private_tcap->TransactionID_str)){
         /* Only do this once XXX I hope it's the right thing to do */
         /* The hash string needs to contain src and dest to distiguish differnt flows */
         switch(ansi_map_response_matching_type){

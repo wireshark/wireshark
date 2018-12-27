@@ -1136,7 +1136,7 @@ dissect_rohc_feedback_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
     gint                key = cid;
     guint32             sn;
 
-    if (!pinfo->fd->flags.visited){
+    if (!pinfo->fd->visited){
         rohc_cid_context = (rohc_cid_context_t*)g_hash_table_lookup(rohc_cid_hash, GUINT_TO_POINTER(key));
         if(rohc_cid_context){
             p_add_proto_data(wmem_file_scope(), pinfo, proto_rohc, 0, rohc_cid_context);
@@ -2138,7 +2138,7 @@ dissect_rohc_ir_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
      * Update it if we do otherwise create it
      * and fill in the info.
      */
-    if (!pinfo->fd->flags.visited){
+    if (!pinfo->fd->visited){
         gint key = cid;
         rohc_cid_context = (rohc_cid_context_t*)g_hash_table_lookup(rohc_cid_hash, GUINT_TO_POINTER(key));
         if (rohc_cid_context != NULL){
@@ -2258,7 +2258,7 @@ dissect_rohc_ir_dyn_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
      * Update it if we do otherwise create it
      * and fill in the info.
      */
-    if (!pinfo->fd->flags.visited){
+    if (!pinfo->fd->visited){
         gint key = cid;
         rohc_cid_context = (rohc_cid_context_t*)g_hash_table_lookup(rohc_cid_hash, GUINT_TO_POINTER(key));
 
@@ -2541,7 +2541,7 @@ start_over:
         return tvb_captured_length(tvb);
     }
 
-    if (!pinfo->fd->flags.visited){
+    if (!pinfo->fd->visited){
         gint key = cid;
 
         /*g_warning("Lookup CID %u",cid);*/

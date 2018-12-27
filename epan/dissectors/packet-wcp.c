@@ -355,7 +355,7 @@ static int dissect_wcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 		return 2;
 
 	if ( cmd == 1) {		/* uncompressed data */
-		if ( !pinfo->fd->flags.visited){	/* if first pass */
+		if ( !pinfo->fd->visited){	/* if first pass */
 			wcp_save_data( tvb, pinfo);
 		}
 		next_tvb = tvb_new_subset_remaining(tvb, wcp_header_len);
@@ -563,7 +563,7 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 							data_cnt, data_offset+1);
 					return NULL;
 				}
-				if ( !pinfo->fd->flags.visited){	/* if first pass */
+				if ( !pinfo->fd->visited){	/* if first pass */
 					dst = decompressed_entry(dst,
 					    data_offset, data_cnt, &len,
 					    buf_ptr);
@@ -588,7 +588,7 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 					return NULL;
 				}
 
-				if ( !pinfo->fd->flags.visited){
+				if ( !pinfo->fd->visited){
 					/*
 					 * This is the first pass through
 					 * the packets, so copy it to the
@@ -622,7 +622,7 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 		}
 	}
 
-	if ( pinfo->fd->flags.visited){	/* if not first pass */
+	if ( pinfo->fd->visited){	/* if not first pass */
 					/* get uncompressed data */
 		pdata_ptr = (wcp_pdata_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_wcp, 0);
 

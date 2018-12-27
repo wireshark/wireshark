@@ -10834,7 +10834,7 @@ dissect_ranap_RAB_SetupOrModifyItemFirst(tvbuff_t *tvb _U_, int offset _U_, asn1
 
   transportLayerAddress_ipv4 = private_data_get_transportLayerAddress_ipv4(actx);
   binding_id = private_data_get_binding_id_port(actx);
-  if (actx->pinfo->fd->flags.visited || transportLayerAddress_ipv4 == 0 || binding_id == 0){
+  if (actx->pinfo->fd->visited || transportLayerAddress_ipv4 == 0 || binding_id == 0){
     return offset;
   }
   set_address(&ipv4_addr, AT_IPv4, 4, &transportLayerAddress_ipv4);
@@ -10918,7 +10918,7 @@ dissect_ranap_RAB_SetupOrModifiedItem(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
   transportLayerAddress_ipv4 = private_data_get_transportLayerAddress_ipv4(actx);
   binding_id = private_data_get_binding_id_port(actx);
-  if (actx->pinfo->fd->flags.visited || transportLayerAddress_ipv4 == 0 || binding_id == 0){
+  if (actx->pinfo->fd->visited || transportLayerAddress_ipv4 == 0 || binding_id == 0){
     return offset;
   }
   set_address(&ipv4_addr, AT_IPv4, 4, &transportLayerAddress_ipv4);

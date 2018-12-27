@@ -752,7 +752,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     /* Set up LUN data. OXID + LUN make up unique exchanges, but LUN is populated in subdissectors
        and not necessarily in every frame. Stub it here for now */
     fchdr->lun = 0xFFFF;
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         fchdr->lun = (guint16)GPOINTER_TO_UINT(wmem_tree_lookup32(fc_conv_data->luns, fchdr->oxid));
     }
 
@@ -1150,7 +1150,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
        key) when packets are guaranteed to be parsed consecutively */
 
     /* Set up LUN data */
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         wmem_tree_insert32(fc_conv_data->luns, fchdr->oxid, GUINT_TO_POINTER((guint)fchdr->lun));
     }
 
@@ -1173,7 +1173,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     fchdr->fc_ex = fc_ex;
 
     /* populate the exchange struct */
-    if(!pinfo->fd->flags.visited){
+    if(!pinfo->fd->visited){
         if(fchdr->fctl&FC_FCTL_EXCHANGE_FIRST){
             fc_ex->first_exchange_frame=pinfo->num;
             fc_ex->fc_time = pinfo->abs_ts;

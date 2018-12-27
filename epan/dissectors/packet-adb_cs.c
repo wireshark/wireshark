@@ -169,7 +169,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             return tvb_captured_length(tvb);
         }
 
-        if (!pinfo->fd->flags.visited && length > 0) { /* save Length to client_requests */
+        if (!pinfo->fd->visited && length > 0) { /* save Length to client_requests */
             if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)
                 wireshark_interface_id = pinfo->rec->rec_header.packet_header.interface_id;
 
@@ -195,7 +195,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             wmem_tree_insert32_array(client_requests, key, client_request);
         }
 
-        if (!pinfo->fd->flags.visited && (length == -1 || (client_request && client_request->service_in == -1 && tvb_reported_length_remaining(tvb, offset) > 0))) { /* save Service to client_requests */
+        if (!pinfo->fd->visited && (length == -1 || (client_request && client_request->service_in == -1 && tvb_reported_length_remaining(tvb, offset) > 0))) { /* save Service to client_requests */
             if (!client_request) {
                 if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)
                     wireshark_interface_id = pinfo->rec->rec_header.packet_header.interface_id;
@@ -296,7 +296,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                 length = -1;
             }
 
-            if (!pinfo->fd->flags.visited && client_request) {
+            if (!pinfo->fd->visited && client_request) {
                 client_request->response_frame = pinfo->num;
                 client_request->status = status;
                 client_request->data_length = length;

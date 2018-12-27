@@ -203,7 +203,7 @@ lua_delta_nstime_to_sec(const Pinfo pinfo, const frame_data *fd, guint32 prev_nu
 
 
 /* WSLUA_ATTRIBUTE Pinfo_visited RO Whether this packet has been already visited. */
-PINFO_NAMED_BOOLEAN_GETTER(visited,fd->flags.visited);
+PINFO_NAMED_BOOLEAN_GETTER(visited,fd->visited);
 
 /* WSLUA_ATTRIBUTE Pinfo_number RO The number of this packet in the current file. */
 PINFO_NAMED_NUMBER_GETTER(number,num);

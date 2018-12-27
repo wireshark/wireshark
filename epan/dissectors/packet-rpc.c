@@ -3859,7 +3859,7 @@ dissect_rpc_tcp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		  segment boundaries and allow it to find RPC headers
 		  that starts in the middle of a TCP segment.
 		*/
-		if(!pinfo->fd->flags.visited){
+		if(!pinfo->fd->visited){
 			if(len>tvb_reported_length_remaining(tvb, offset)){
 				pinfo->want_pdu_tracking=2;
 				pinfo->bytes_until_next_pdu=len-tvb_reported_length_remaining(tvb, offset);

@@ -3353,7 +3353,7 @@ dissect_osd_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             /* We must store the service action for this itlq
              * so we can identify what the data contains
              */
-            if ((!pinfo->fd->flags.visited) || (!cdata->itlq->extra_data)) {
+            if ((!pinfo->fd->visited) || (!cdata->itlq->extra_data)) {
                 scsi_osd_extra_data_t *extra_data;
 
                 extra_data = wmem_new0(wmem_file_scope(), scsi_osd_extra_data_t);

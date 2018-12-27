@@ -7683,7 +7683,7 @@ dissect_ARBlockReq_block(tvbuff_t *tvb, int offset,
         offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree_selector, drep, hf_pn_io_ar_arreserved, &u16ArReserved);
 
         /* When ARType==IOCARSR, then find or create conversation for this frame */
-        if (!pinfo->fd->flags.visited) {
+        if (!pinfo->fd->visited) {
             /* Get current conversation endpoints using MAC addresses */
             conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_UDP, 0, 0, 0);
             if (conversation == NULL) {
@@ -7921,7 +7921,7 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
 
         /* Set global Variant for Number of IO Data Objects */
         /* Notice: Handle Input & Output seperate!!! */
-        if (!pinfo->fd->flags.visited) {
+        if (!pinfo->fd->visited) {
             /* Get current conversation endpoints using MAC addresses */
             conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
             if (conversation == NULL) {
@@ -7963,7 +7963,7 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
 
             proto_item_set_len(sub_item, offset - u32SubStart);
 
-            if (!pinfo->fd->flags.visited && station_info != NULL) {
+            if (!pinfo->fd->visited && station_info != NULL) {
                 io_data_object = wmem_new0(wmem_file_scope(), ioDataObject);
                 io_data_object->slotNr = u16SlotNr;
                 io_data_object->subSlotNr = u16SubslotNr;
@@ -8005,7 +8005,7 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
                             hf_pn_io_number_of_iocs, &u16NumberOfIOCS);
 
         /* Set global Vairant for NumberOfIOCS */
-        if (!pinfo->fd->flags.visited) {
+        if (!pinfo->fd->visited) {
             if (station_info != NULL) {
                 station_info->iocsNr = u16NumberOfIOCS;
             }
@@ -8032,7 +8032,7 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
 
             proto_item_set_len(sub_item, offset - u32SubStart);
 
-            if (!pinfo->fd->flags.visited) {
+            if (!pinfo->fd->visited) {
                 if (station_info != NULL) {
                     if (u16IOCRType == PN_INPUT_CR) {
                         iocs_list = station_info->iocs_data_in;
@@ -8702,7 +8702,7 @@ dissect_DataDescription(tvbuff_t *tvb, int offset,
     proto_item_set_len(sub_item, offset - u32SubStart);
 
     /* Save new data for IO Data Objects */
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         /* Get current conversation endpoints using MAC addresses */
         conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
         if (conversation == NULL) {
@@ -9229,7 +9229,7 @@ dissect_ModuleDiffBlock_block(tvbuff_t *tvb, int offset,
                 u16NumberOfSubmodules);
 
 
-            if (!pinfo->fd->flags.visited) {
+            if (!pinfo->fd->visited) {
                 /* Get current conversation endpoints using MAC addresses */
                 conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
                 if (conversation == NULL) {
@@ -10692,7 +10692,7 @@ dissect_ProfiSafeParameterRequest(tvbuff_t *tvb, int offset,
                 prm_flag1, prm_flag2, src_addr, dst_addr, wd_time, par_crc);
     }
 
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         /* Get current conversation endpoints using MAC addresses */
         conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
         if (conversation == NULL) {
@@ -10772,7 +10772,7 @@ dissect_RecordDataWrite(tvbuff_t *tvb, int offset,
 
     station_info = (stationInfo*)conversation_get_proto_data(conversation, proto_pn_dcp);
     if (station_info != NULL) {
-        if (!pinfo->fd->flags.visited) {
+        if (!pinfo->fd->visited) {
             /* Search within the entire existing list for current input object data */
             for (frame = wmem_list_head(station_info->ioobject_data_in); frame != NULL; frame = wmem_list_frame_next(frame)) {
                 io_data_object = (ioDataObject*)wmem_list_frame_data(frame);

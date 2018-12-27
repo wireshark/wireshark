@@ -269,7 +269,7 @@ dissect_RSVD_TUNNEL_SCSI(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
     }
 
     rsvd_conv_data->task = NULL;
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         guint64 *key_copy = wmem_new(wmem_file_scope(), guint64);
 
         *key_copy = request_id;

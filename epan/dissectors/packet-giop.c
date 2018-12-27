@@ -240,7 +240,7 @@
  * So, how do I differentiate between the initial processing of incoming
  * packets, and a user clickin on one ? Good question.
  *
- * I leverage the pinfo_fd->flags.visited  on a per frame
+ * I leverage the pinfo_fd->visited  on a per frame
  * basis.
  *
  * To quote from the ever helpful development list
@@ -2012,7 +2012,7 @@ static gboolean try_explicit_giop_dissector(tvbuff_t *tvb, packet_info *pinfo, p
     /* look it up directly, later ie: FN -> MFN -> giop_sub_handle_t and repoid */
     /* but only if user not clicking */
 
-    if (!pinfo->fd->flags.visited)
+    if (!pinfo->fd->visited)
       add_sub_handle_repoid_to_comp_req_list(pinfo->num, subdiss, repoid);
 
 
@@ -4159,7 +4159,7 @@ static void dissect_giop_reply (tvbuff_t * tvb, packet_info * pinfo, proto_tree 
    * Save FN and MFN in complete_reply_hash, only if user is NOT clicking
    */
 
-  if (! pinfo->fd->flags.visited) {
+  if (! pinfo->fd->visited) {
     mfn = get_mfn_from_fn_and_reqid(pinfo->num, request_id, &pinfo->dst, pinfo->destport); /* find MFN for this FN */
     if (mfn != pinfo->num) { /* if mfn is not fn, good */
       insert_in_complete_reply_hash(pinfo->num, mfn);
@@ -4225,7 +4225,7 @@ static void dissect_giop_reply_1_2 (tvbuff_t * tvb, packet_info * pinfo,
    * Save FN and MFN in complete_reply_hash, only if user is NOT clicking
    */
 
-  if (! pinfo->fd->flags.visited) {
+  if (! pinfo->fd->visited) {
     mfn = get_mfn_from_fn_and_reqid(pinfo->num, request_id, &pinfo->dst, pinfo->destport); /* find MFN for this FN */
     if (mfn != pinfo->num) { /* if mfn is not fn, good */
       insert_in_complete_reply_hash(pinfo->num, mfn);
@@ -4388,7 +4388,7 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
    * Save FN, reqid, and operation for later. Add sub_handle later.
    * But only if user is NOT clicking.
    */
-  if (! pinfo->fd->flags.visited)
+  if (! pinfo->fd->visited)
     giop_complete_request_list = insert_in_comp_req_list(giop_complete_request_list, pinfo->num,
                                                          request_id, operation, NULL, &pinfo->src, pinfo->srcport);
 
@@ -4511,7 +4511,7 @@ dissect_giop_request_1_2 (tvbuff_t * tvb, packet_info * pinfo,
    * But only if user is NOT clicking.
    */
 
-  if (! pinfo->fd->flags.visited)
+  if (! pinfo->fd->visited)
     giop_complete_request_list = insert_in_comp_req_list(giop_complete_request_list, pinfo->num,
                                                          request_id, operation, NULL, &pinfo->src, pinfo->srcport);
 
@@ -4977,7 +4977,7 @@ dissect_giop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void 
      * we've already done this work, so we don't need to do it
      * again.
      */
-    if (!pinfo->fd->flags.visited)
+    if (!pinfo->fd->visited)
     {
       conversation = find_or_create_conversation(pinfo);
 
@@ -5779,7 +5779,7 @@ static void decode_IIOP_IOR_profile(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
     if (repo_id_buf) {
       if (pinfo) {
-        if (!pinfo->fd->flags.visited)
+        if (!pinfo->fd->visited)
           insert_in_objkey_hash(giop_objkey_hash, objkey, seqlen, repo_id_buf, ior_src_req_res);
       }
       else {

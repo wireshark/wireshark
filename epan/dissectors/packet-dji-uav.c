@@ -110,7 +110,7 @@ request_response_handling(tvbuff_t *tvb, packet_info *pinfo, proto_tree *djiuav_
 
 		conversation_add_proto_data(conversation, proto_djiuav, djiuav_info);
 	}
-	if (!pinfo->fd->flags.visited) {
+	if (!pinfo->fd->visited) {
 		if (is_cmd) {
 			djiuav_trans=wmem_new(wmem_file_scope(), djiuav_transaction_t);
 			djiuav_trans->request_frame=pinfo->num;

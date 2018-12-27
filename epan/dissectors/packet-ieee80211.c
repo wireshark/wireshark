@@ -24298,7 +24298,7 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
          * data: last seq_control seen and frame number
          */
         retransmitted = FALSE;
-        if (!pinfo->fd->flags.visited) {
+        if (!pinfo->fd->visited) {
           retransmit_key key;
           retransmit_key *result;
 
@@ -24344,7 +24344,7 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
         }
       }
 
-      if (enable_decryption && !pinfo->fd->flags.visited && (len == reported_len)) {
+      if (enable_decryption && !pinfo->fd->visited && (len == reported_len)) {
         /* The processing will take care of 4-way handshake sessions for WPA and WPA2 decryption */
         next_tvb = try_decrypt(tvb, pinfo, hdr_len, reported_len, TRUE,
                                &algorithm, &sec_header, &sec_trailer, &used_key);

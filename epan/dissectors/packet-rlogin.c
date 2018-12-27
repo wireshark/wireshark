@@ -88,7 +88,7 @@ rlogin_state_machine(rlogin_hash_entry_t *hash_info, tvbuff_t *tvb, packet_info 
 	gint stringlen;
 
 	/* Won't change state if already seen this packet */
-	if (pinfo->fd->flags.visited)
+	if (pinfo->fd->visited)
 	{
 		return;
 	}

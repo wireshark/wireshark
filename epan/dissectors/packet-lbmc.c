@@ -11222,7 +11222,7 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
             tcp_address_valid = FALSE;
         }
         /* Note: it *is* possible for a TCP SID to appear in an LBTTCP non-transport (UIM) message. */
-        if ((pinfo->fd->flags.visited == 0) && (tcp_sid_info.set) && lbm_channel_is_unknown_transport_lbttcp(channel) && tcp_address_valid)
+        if ((pinfo->fd->visited == 0) && (tcp_sid_info.set) && lbm_channel_is_unknown_transport_lbttcp(channel) && tcp_address_valid)
         {
             lbttcp_transport_sid_add(&tcp_addr, tcp_port, pinfo->num, tcp_sid_info.session_id);
         }

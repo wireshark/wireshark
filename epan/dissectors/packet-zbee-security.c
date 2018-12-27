@@ -503,7 +503,7 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
         packet.src64 = tvb_get_letoh64(tvb, offset);
         proto_tree_add_item(sec_tree, hf_zbee_sec_src64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 #if 1
-        if (!pinfo->fd->flags.visited) {
+        if (!pinfo->fd->visited) {
             switch ( packet.key_id ) {
                 case ZBEE_SEC_KEY_LINK:
                 if (nwk_hints && ieee_hints) {
@@ -634,7 +634,7 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
 
     decrypted = FALSE;
     if ( packet.src64 ) {
-        if (pinfo->fd->flags.visited) {
+        if (pinfo->fd->visited) {
             if ( nwk_hints ) {
                 /* Use previously found key */
                 switch ( packet.key_id ) {
@@ -653,7 +653,7 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
                         break;
                 }
             }
-        } /* ( !pinfo->fd->flags.visited ) */
+        } /* ( !pinfo->fd->visited ) */
         else {
             /* We only search for sniffed keys in the first pass,
              * to save time, and because decrypting with keys
@@ -711,7 +711,7 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
                     }
                 }
             }
-        } /* ( ! pinfo->fd->flags.visited ) */
+        } /* ( ! pinfo->fd->visited ) */
     } /* ( packet.src64 ) */
 
     if ( decrypted ) {
@@ -1218,7 +1218,7 @@ void zbee_sec_add_key_to_keyring(packet_info *pinfo, const guint8 *key)
     zbee_nwk_hints_t   *nwk_hints;
 
     /* Update the key ring for this pan */
-    if ( !pinfo->fd->flags.visited && (nwk_hints = (zbee_nwk_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo,
+    if ( !pinfo->fd->visited && (nwk_hints = (zbee_nwk_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo,
                     proto_get_id_by_filter_name(ZBEE_PROTOABBREV_NWK), 0))) {
         nwk_keyring = (GSList **)g_hash_table_lookup(zbee_table_nwk_keyring, &nwk_hints->src_pan);
         if ( !nwk_keyring ) {

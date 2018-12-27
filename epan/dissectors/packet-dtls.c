@@ -400,7 +400,7 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
   /* try decryption only the first time we see this packet
    * (to keep cipher synchronized) */
-  if (pinfo->fd->flags.visited)
+  if (pinfo->fd->visited)
     ssl_session = NULL;
 
   /* Initialize the protocol column; we'll set it later when we

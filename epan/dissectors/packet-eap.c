@@ -909,7 +909,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
           eap_identity_item = proto_tree_add_item(eap_tree, hf_eap_identity, tvb, offset, size, ENC_ASCII|ENC_NA);
           dissect_eap_identity(tvb, pinfo, eap_identity_item, offset, size);
         }
-        if(!pinfo->fd->flags.visited) {
+        if(!pinfo->fd->visited) {
           conversation_state->leap_state  =  0;
           conversation_state->eap_tls_seq = -1;
         }
@@ -1046,7 +1046,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             /*
              * We haven't - does this message require reassembly?
              */
-            if (!pinfo->fd->flags.visited) {
+            if (!pinfo->fd->visited) {
               /*
                * This is the first time we've looked at this frame,
                * so it wouldn't have any remembered information.
@@ -1172,7 +1172,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                * We're finished reassembing this frame.
                * Reinitialize the reassembly state.
                */
-              if (!pinfo->fd->flags.visited)
+              if (!pinfo->fd->visited)
                 conversation_state->eap_tls_seq = -1;
             }
 

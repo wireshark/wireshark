@@ -1674,7 +1674,7 @@ dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_conv_t 
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTMP");
 
         RTMPT_DEBUG("Dissect: frame=%u visited=%d len=%d tree=%p\n",
-                    pinfo->num, pinfo->fd->flags.visited,
+                    pinfo->num, pinfo->fd->visited,
                     tvb_reported_length_remaining(tvb, offset), tree);
 
         /* Clear any previous data in Info column (RTMP packets are protected by a "fence") */
@@ -1877,7 +1877,7 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
 
         RTMPT_DEBUG("Segment: cdir=%d seq=%d-%d\n", cdir, seq, seq+remain-1);
 
-        if (pinfo->fd->flags.visited) {
+        if (pinfo->fd->visited) {
                 /* Already done the work, so just dump the existing state */
                 wmem_stack_t *packets;
 

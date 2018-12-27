@@ -2214,7 +2214,7 @@ dissect_bthfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     }
 
     /* save fragments */
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         frame_number = pinfo->num - 1;
 
         key[0].length = 1;

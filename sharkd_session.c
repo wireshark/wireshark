@@ -1004,16 +1004,16 @@ sharkd_session_process_frames(const char *buf, const jsmntok_t *tokens, int coun
 
 		sharkd_json_value_anyf(TRUE, "num", "%u", framenum);
 
-		if (fdata->flags.has_user_comment || fdata->flags.has_phdr_comment)
+		if (fdata->has_user_comment || fdata->has_phdr_comment)
 		{
-			if (!fdata->flags.has_user_comment || sharkd_get_user_comment(fdata) != NULL)
+			if (!fdata->has_user_comment || sharkd_get_user_comment(fdata) != NULL)
 				sharkd_json_value_anyf(TRUE, "ct", "true");
 		}
 
-		if (fdata->flags.ignored)
+		if (fdata->ignored)
 			sharkd_json_value_anyf(TRUE, "i", "true");
 
-		if (fdata->flags.marked)
+		if (fdata->marked)
 			sharkd_json_value_anyf(TRUE, "m", "true");
 
 		if (fdata->color_filter)
@@ -2903,9 +2903,9 @@ sharkd_session_process_frame_cb(epan_dissect_t *edt, proto_tree *tree, struct ep
 
 	sharkd_json_value_anyf(FALSE, "err", "0");
 
-	if (fdata->flags.has_user_comment)
+	if (fdata->has_user_comment)
 		pkt_comment = sharkd_get_user_comment(fdata);
-	else if (fdata->flags.has_phdr_comment)
+	else if (fdata->has_phdr_comment)
 		pkt_comment = pi->rec->opt_comment;
 
 	if (pkt_comment)
@@ -2953,10 +2953,10 @@ sharkd_session_process_frame_cb(epan_dissect_t *edt, proto_tree *tree, struct ep
 		sharkd_json_array_close();
 	}
 
-	if (fdata->flags.ignored)
+	if (fdata->ignored)
 		sharkd_json_value_anyf(TRUE, "i", "true");
 
-	if (fdata->flags.marked)
+	if (fdata->marked)
 		sharkd_json_value_anyf(TRUE, "m", "true");
 
 	if (fdata->color_filter)
@@ -2981,7 +2981,7 @@ sharkd_session_process_frame_cb(epan_dissect_t *edt, proto_tree *tree, struct ep
 		{
 			const guchar *cp = tvb_get_ptr(tvb, 0, length);
 
-			/* XXX pi.fd->flags.encoding */
+			/* XXX pi.fd->encoding */
 			sharkd_json_value_base64(TRUE, "bytes", cp, length);
 		}
 		else
@@ -3016,7 +3016,7 @@ sharkd_session_process_frame_cb(epan_dissect_t *edt, proto_tree *tree, struct ep
 			{
 				const guchar *cp = tvb_get_ptr(tvb, 0, length);
 
-				/* XXX pi.fd->flags.encoding */
+				/* XXX pi.fd->encoding */
 				sharkd_json_value_base64(TRUE, "bytes", cp, length);
 			}
 			else

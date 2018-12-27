@@ -1061,7 +1061,7 @@ dissect_vendor_dependent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     length = tvb_reported_length_remaining(tvb, offset);
     if (packet_type == PACKET_TYPE_START) {
-        if (pinfo->fd->flags.visited == 0 && tvb_captured_length_remaining(tvb, offset) == length) {
+        if (pinfo->fd->visited == 0 && tvb_captured_length_remaining(tvb, offset) == length) {
             k_op = pdu_id | (company_id << 8);
             frame_number = pinfo->num;
 
@@ -1107,7 +1107,7 @@ dissect_vendor_dependent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         col_append_str(pinfo->cinfo, COL_INFO, " [start]");
         return offset;
     } else if (packet_type == PACKET_TYPE_CONTINUE) {
-        if (pinfo->fd->flags.visited == 0 && tvb_captured_length_remaining(tvb, offset) == length) {
+        if (pinfo->fd->visited == 0 && tvb_captured_length_remaining(tvb, offset) == length) {
             k_op = pdu_id | (company_id << 8);
             frame_number = pinfo->num;
 
@@ -1178,7 +1178,7 @@ dissect_vendor_dependent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     fragment->op == (pdu_id | (company_id << 8))) {
 
 
-            if (fragment->state == 1 && pinfo->fd->flags.visited == 0) {
+            if (fragment->state == 1 && pinfo->fd->visited == 0) {
                 fragment->end_frame_number = pinfo->num;
                 fragment->count += 1;
                 fragment->state = 2;
@@ -1566,7 +1566,7 @@ dissect_vendor_dependent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         if (song_position == 0xFFFFFFFF) {
                             proto_item_append_text(pitem, " (NOT SELECTED)");
                             col_append_str(pinfo->cinfo, COL_INFO, " (NOT SELECTED)");
-                        } else if (!pinfo->fd->flags.visited) {
+                        } else if (!pinfo->fd->visited) {
                             btavrcp_song_position_data_t  *song_position_data;
 
                             frame_number = pinfo->num;
@@ -1661,7 +1661,7 @@ dissect_vendor_dependent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         val_to_str_const(tvb_get_guint8(tvb, offset), pdu_id_vals, "Unknown opcode"));
                 offset += 1;
 
-                if (pinfo->fd->flags.visited == 0) {
+                if (pinfo->fd->visited == 0) {
                     k_op           = continuing_op;
                     frame_number = pinfo->num;
 
@@ -1706,7 +1706,7 @@ dissect_vendor_dependent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         val_to_str_const(tvb_get_guint8(tvb, offset), pdu_id_vals, "Unknown opcode"));
                 offset += 1;
 
-                if (pinfo->fd->flags.visited == 0) {
+                if (pinfo->fd->visited == 0) {
                     k_op           = continuing_op;
                     frame_number = pinfo->num;
 
@@ -2168,7 +2168,7 @@ dissect_btavrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         key[8].length = 0;
         key[8].key = NULL;
 
-        if (pinfo->fd->flags.visited == 0) {
+        if (pinfo->fd->visited == 0) {
             if (is_command) {
                 if (ctype == 0x00) { /*  MTC is for CONTROL */
                     max_response_time = 200;

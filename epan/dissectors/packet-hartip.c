@@ -1230,7 +1230,7 @@ hartip_set_conversation(packet_info *pinfo)
 {
   conversation_t *conversation = NULL;
 
-  if (!pinfo->fd->flags.visited && (pinfo->ptype == PT_UDP)) {
+  if (!pinfo->fd->visited && (pinfo->ptype == PT_UDP)) {
     /*
      * This function is called for a session initiate send over UDP.
      * The session initiate is sent to the server on port HARTIP_PORT.

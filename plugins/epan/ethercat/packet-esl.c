@@ -220,7 +220,7 @@ static void modify_times(tvbuff_t *tvb, gint offset, packet_info *pinfo)
         ref_time_frame.num = pinfo->num;
         ref_time_frame.abs_ts = pinfo->abs_ts;
     }
-    else if ( !pinfo->fd->flags.visited )
+    else if ( !pinfo->fd->visited )
     {
         guint64 nsecs = tvb_get_letoh64(tvb, offset+8) - ref_time_frame.esl_ts;
         guint64 secs = nsecs/1000000000;
@@ -256,7 +256,7 @@ dissect_esl_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     in_heur = TRUE;
     /*TRY */
     {
-        if ( ref_time_frame.fd != NULL && !pinfo->fd->flags.visited && pinfo->num <= ref_time_frame.num )
+        if ( ref_time_frame.fd != NULL && !pinfo->fd->visited && pinfo->num <= ref_time_frame.num )
             ref_time_frame.fd = NULL;
 
         /* Check that there's enough data */

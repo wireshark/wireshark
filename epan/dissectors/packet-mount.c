@@ -146,7 +146,7 @@ dissect_mount_dirpath_call(tvbuff_t *tvb, packet_info *pinfo,
 	const char *mountpoint=NULL;
 	int offset = 0;
 
-	if((!pinfo->fd->flags.visited) && nfs_file_name_snooping){
+	if((!pinfo->fd->visited) && nfs_file_name_snooping){
 		rpc_call_info_value *civ=(rpc_call_info_value *)data;
 
 		if(civ->request && (civ->proc==1)){

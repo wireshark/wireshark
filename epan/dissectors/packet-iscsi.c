@@ -572,7 +572,7 @@ iscsi_dissect_TargetAddress(packet_info *pinfo, tvbuff_t* tvb, proto_tree *tree,
 
 
     /* attach a conversation dissector to this address/port tuple */
-    if (addr && !pinfo->fd->flags.visited) {
+    if (addr && !pinfo->fd->visited) {
         conversation_t *conv;
 
         conv = conversation_new(pinfo->num, addr, addr, ENDPOINT_TCP, port, port, NO_ADDR2|NO_PORT2);
@@ -2487,7 +2487,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
            in the middle of a large PDU transfer being misdissected as
            a PDU.
         */
-        if(!pinfo->fd->flags.visited){
+        if(!pinfo->fd->visited){
             if(pduLen>(guint32)tvb_reported_length_remaining(tvb, offset)){
                 pinfo->want_pdu_tracking=2;
                 pinfo->bytes_until_next_pdu=pduLen-tvb_reported_length_remaining(tvb, offset);

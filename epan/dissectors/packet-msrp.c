@@ -154,7 +154,7 @@ msrp_add_address( packet_info *pinfo,
      * we've already done this work, so we don't need to do it
      * again.
      */
-    if (pinfo->fd->flags.visited)
+    if (pinfo->fd->visited)
     {
         return;
     }
@@ -412,7 +412,7 @@ dissect_msrp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         /*
          * TODO Set up conversation here
          */
-        if (pinfo->fd->flags.visited){
+        if (pinfo->fd->visited){
             /* Look for existing conversation */
             conversation = find_or_create_conversation(pinfo);
             /* Set dissector */

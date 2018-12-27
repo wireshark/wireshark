@@ -3001,7 +3001,7 @@ process_packet_second_pass(capture_file *cf, epan_dissect_t *edt,
 
     if (dissect_color) {
       color_filters_prime_edt(edt);
-      fdata->flags.need_colorize = 1;
+      fdata->need_colorize = 1;
     }
 
     epan_dissect_run_with_taps(edt, cf->cd_t, rec,
@@ -3039,7 +3039,7 @@ process_packet_second_pass(capture_file *cf, epan_dissect_t *edt,
   if (edt) {
     epan_dissect_reset(edt);
   }
-  return passed || fdata->flags.dependent_of_displayed;
+  return passed || fdata->dependent_of_displayed;
 }
 
 static gboolean
@@ -3485,7 +3485,7 @@ process_packet_single_pass(capture_file *cf, epan_dissect_t *edt, gint64 offset,
 
     if (dissect_color) {
       color_filters_prime_edt(edt);
-      fdata.flags.need_colorize = 1;
+      fdata.need_colorize = 1;
     }
 
     epan_dissect_run_with_taps(edt, cf->cd_t, rec,

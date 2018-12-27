@@ -207,7 +207,7 @@ dissect_ata_pdu(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset,
   /* only create a conversation for ATA commands */
   conversation = find_or_create_conversation(pinfo);
 
-  if( !(pinfo->fd->flags.visited) ){
+  if( !(pinfo->fd->visited) ){
     if(!response){
       ata_info_t *tmp_ata_info;
       /* first time we see this request so add a struct for request/response

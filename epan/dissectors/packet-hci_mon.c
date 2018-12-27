@@ -148,7 +148,7 @@ dissect_hci_mon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     key[1].length = 1;
     key[1].key    = &k_adapter_id;
 
-    if (!pinfo->fd->flags.visited && opcode == 0x01) { /* Delete Index */
+    if (!pinfo->fd->visited && opcode == 0x01) { /* Delete Index */
         guint32           *disconnect_in_frame;
 
         key[2].length = 1;

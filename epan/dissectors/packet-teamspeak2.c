@@ -389,7 +389,7 @@ static void ts2_standard_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     /* decide if the packet is server to client or client to server
      * then check its fragmentation
      */
-    if(!(pinfo->fd->flags.visited))
+    if(!(pinfo->fd->visited))
     {
         if(conversation_data->server_port == pinfo->srcport)
         {

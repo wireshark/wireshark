@@ -1471,7 +1471,7 @@ static void dissect_readreg_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, p
 		col_append_str(pinfo->cinfo, COL_INFO, address_string);
 	}
 
-	if (!pinfo->fd->flags.visited)
+	if (!pinfo->fd->visited)
 	{
 		gvcp_trans->addr_list = wmem_array_new(wmem_file_scope(), sizeof(guint32));
 	}
@@ -1491,7 +1491,7 @@ static void dissect_readreg_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, p
 		/* For block read register request, address gets re-initialized here in the for loop */
 		addr = tvb_get_ntohl(tvb, offset);
 
-		if (gvcp_trans && (!pinfo->fd->flags.visited))
+		if (gvcp_trans && (!pinfo->fd->visited))
 		{
 			wmem_array_append_one(gvcp_trans->addr_list, addr);
 		}
@@ -1662,7 +1662,7 @@ static void dissect_writemem_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, 
 	/* fill in Info column in Wireshark GUI */
 	col_append_fstr(pinfo->cinfo, COL_INFO, "%s: %d bytes", address_string, (length - 4));
 
-	if (gvcp_trans && (!pinfo->fd->flags.visited))
+	if (gvcp_trans && (!pinfo->fd->visited))
 	{
 		gvcp_trans->addr_list = wmem_array_new(wmem_file_scope(), sizeof(guint32));
 		wmem_array_append_one(gvcp_trans->addr_list, addr);
@@ -2337,7 +2337,7 @@ static int dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 		conversation_add_proto_data(conversation, proto_gvcp, gvcp_info);
 	}
 
-	if (!pinfo->fd->flags.visited)
+	if (!pinfo->fd->visited)
 	{
 		if (key_code == 0x42)
 		{
@@ -2468,7 +2468,7 @@ static int dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 			break;
 		}
 
-		if (!pinfo->fd->flags.visited)
+		if (!pinfo->fd->visited)
 		{
 			if (key_code == 0x42)
 			{

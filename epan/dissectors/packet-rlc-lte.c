@@ -1425,7 +1425,7 @@ static sequence_analysis_state checkChannelSequenceInfo(packet_info *pinfo, tvbu
     guint32                snLimit = 0;
 
     /* If find stat_report_in_frame already, use that and get out */
-    if (pinfo->fd->flags.visited) {
+    if (pinfo->fd->visited) {
         p_report_in_frame = (sequence_analysis_report*)wmem_map_lookup(sequence_analysis_report_hash,
                                                                            get_report_hash_key(sequenceNumber,
                                                                                                pinfo->num,
@@ -1842,7 +1842,7 @@ static void checkChannelRepeatedNACKInfo(packet_info *pinfo,
     gint            n, i, j;
 
     /* If find state_report_in_frame already, use that and get out */
-    if (pinfo->fd->flags.visited) {
+    if (pinfo->fd->visited) {
         p_report_in_frame = (channel_repeated_nack_report*)wmem_map_lookup(repeated_nack_report_hash,
                                                                                get_report_hash_key(0, pinfo->num,
                                                                                                    p_rlc_lte_info, FALSE));
@@ -1946,7 +1946,7 @@ static void checkChannelACKWindow(guint16 ack_sn,
     guint32 snLimit;
 
     /* If find stat_report_in_frame already, use that and get out */
-    if (pinfo->fd->flags.visited) {
+    if (pinfo->fd->visited) {
         p_report_in_frame = (sequence_analysis_report*)wmem_map_lookup(sequence_analysis_report_hash,
                                                                            get_report_hash_key(0, pinfo->num,
                                                                                                p_rlc_lte_info,

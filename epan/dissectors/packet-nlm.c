@@ -356,7 +356,7 @@ dissect_nlm_test(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	if(nlm_match_msgres){
 		if(rpc_call->proc==6){	/* NLM_TEST_MSG */
-			if( (!pinfo->fd->flags.visited) ){
+			if( (!pinfo->fd->visited) ){
 				nlm_register_unmatched_msg(pinfo, tvb, offset);
 			} else {
 				nlm_print_msgres_request(pinfo, tree, tvb);
@@ -382,7 +382,7 @@ dissect_nlm_lock(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	if(nlm_match_msgres){
 		if(rpc_call->proc==7){	/* NLM_LOCK_MSG */
-			if( (!pinfo->fd->flags.visited) ){
+			if( (!pinfo->fd->visited) ){
 				nlm_register_unmatched_msg(pinfo, tvb, offset);
 			} else {
 				nlm_print_msgres_request(pinfo, tree, tvb);
@@ -410,7 +410,7 @@ dissect_nlm_cancel(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	if(nlm_match_msgres){
 		if(rpc_call->proc==8){	/* NLM_CANCEL_MSG */
-			if( (!pinfo->fd->flags.visited) ){
+			if( (!pinfo->fd->visited) ){
 				nlm_register_unmatched_msg(pinfo, tvb, offset);
 			} else {
 				nlm_print_msgres_request(pinfo, tree, tvb);
@@ -436,7 +436,7 @@ dissect_nlm_unlock(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	if(nlm_match_msgres){
 		if(rpc_call->proc==9){	/* NLM_UNLOCK_MSG */
-			if( (!pinfo->fd->flags.visited) ){
+			if( (!pinfo->fd->visited) ){
 				nlm_register_unmatched_msg(pinfo, tvb, offset);
 			} else {
 				nlm_print_msgres_request(pinfo, tree, tvb);
@@ -460,7 +460,7 @@ dissect_nlm_granted(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	if(nlm_match_msgres){
 		if(rpc_call->proc==10){	/* NLM_GRANTED_MSG */
-			if( (!pinfo->fd->flags.visited) ){
+			if( (!pinfo->fd->visited) ){
 				nlm_register_unmatched_msg(pinfo, tvb, offset);
 			} else {
 				nlm_print_msgres_request(pinfo, tree, tvb);
@@ -489,7 +489,7 @@ dissect_nlm_test_res(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	if(nlm_match_msgres){
 		if(rpc_call->proc==11){	/* NLM_TEST_RES */
-			if( (!pinfo->fd->flags.visited) ){
+			if( (!pinfo->fd->visited) ){
 				nlm_register_unmatched_res(pinfo, tvb, offset);
 			} else {
 				nlm_print_msgres_reply(pinfo, tree, tvb);
@@ -631,7 +631,7 @@ dissect_nlm_gen_reply(tvbuff_t *tvb, packet_info *pinfo _U_,
 		|| (rpc_call->proc==13)  /* NLM_CANCEL_RES */
 		|| (rpc_call->proc==14)  /* NLM_UNLOCK_RES */
 		|| (rpc_call->proc==15) ){	/* NLM_GRENTED_RES */
-			if( (!pinfo->fd->flags.visited) ){
+			if( (!pinfo->fd->visited) ){
 				nlm_register_unmatched_res(pinfo, tvb, offset);
 			} else {
 				nlm_print_msgres_reply(pinfo, tree, tvb);

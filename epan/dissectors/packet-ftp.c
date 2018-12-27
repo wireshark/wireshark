@@ -221,7 +221,7 @@ static void create_and_link_data_conversation(packet_info *pinfo,
                                               const char *method)
 {
     /* Only to do on first pass */
-    if (pinfo->fd->flags.visited) {
+    if (pinfo->fd->visited) {
         return;
     }
 
@@ -885,7 +885,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     ftp_conversation_t *p_ftp_conv = find_or_create_ftp_conversation(pinfo);
 
     /* Store the current working directory */
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         store_directory_in_packet(pinfo, p_ftp_conv);
     }
 
@@ -1006,13 +1006,13 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
              * Responses to CWD command.
              */
             if (code == 250) {
-                if (!pinfo->fd->flags.visited) {
+                if (!pinfo->fd->visited) {
                     if (p_ftp_conv && p_ftp_conv->last_command) {
                         /* Explicit Change Working Directory command */
                         if (strncmp(p_ftp_conv->last_command, "CWD ", 4) == 0) {
                             process_cwd_success(p_ftp_conv, p_ftp_conv->last_command+4);
                             /* Update path in packet */
-                            if (!pinfo->fd->flags.visited) {
+                            if (!pinfo->fd->visited) {
                                 store_directory_in_packet(pinfo, p_ftp_conv);
                             }
                         }
@@ -1020,7 +1020,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                         else if (strncmp(p_ftp_conv->last_command, "CDUP", 4) == 0) {
                             process_cwd_success(p_ftp_conv, "..");
                             /* Update path in packet */
-                            if (!pinfo->fd->flags.visited) {
+                            if (!pinfo->fd->visited) {
                                 store_directory_in_packet(pinfo, p_ftp_conv);
                             }
                         }
@@ -1032,13 +1032,13 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
              * Responses to PWD command. Overwrite whatever is stored - this is the truth!
              */
             if (code == 257) {
-                if (!pinfo->fd->flags.visited) {
+                if (!pinfo->fd->visited) {
                     if (p_ftp_conv && linelen >= 4) {
                         /* Want directory name, which will be between " " */
                         process_pwd_success(p_ftp_conv, line+4, linelen-4, pinfo, pi);
 
                         /* Update path in packet */
-                        if (!pinfo->fd->flags.visited) {
+                        if (!pinfo->fd->visited) {
                             store_directory_in_packet(pinfo, p_ftp_conv);
                         }
                     }
@@ -1250,7 +1250,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     }
 
     /* If this is a command resulting in an ftp-data stream, show details */
-    if (pinfo->fd->flags.visited) {
+    if (pinfo->fd->visited) {
         /* Look up what has been stored for this frame */
         ftp_data_conversation_t *ftp_data =
                 (ftp_data_conversation_t *)g_hash_table_lookup(ftp_command_to_data_hash, GUINT_TO_POINTER(pinfo->num));
@@ -1349,7 +1349,7 @@ dissect_ftpdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
         if (p_ftp_data_conv) {
             /* First time around, update info. */
-            if (!pinfo->fd->flags.visited) {
+            if (!pinfo->fd->visited) {
                 if (!p_ftp_data_conv->first_frame_num) {
                     p_ftp_data_conv->first_frame_num = pinfo->num;
                     p_ftp_data_conv->first_frame_time = pinfo->abs_ts;

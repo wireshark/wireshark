@@ -277,7 +277,7 @@ typedef struct mp2t_analysis_data {
     /* When detecting a CC drop, store that information for the
      * given frame.  This info is needed, when clicking around in
      * wireshark, as the pid table data only makes sense during
-     * sequential processing. The flag pinfo->fd->flags.visited is
+     * sequential processing. The flag pinfo->fd->visited is
      * used to tell the difference.
      *
      */
@@ -647,7 +647,7 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
         }
     }
 
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         /* Get values from our current PID analysis */
         frag_cur_pos = pid_analysis->frag_cur_pos;
         frag_tot_len = pid_analysis->frag_tot_len;
@@ -872,7 +872,7 @@ detect_cc_drops(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     guint32 skips = 0;
 
     /* The initial sequential processing stage */
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         /* This is the sequential processing stage */
         pid_data = get_pid_analysis(mp2t_data, pid);
 
@@ -904,7 +904,7 @@ detect_cc_drops(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     }
 
     /* Save the info about the dropped packet */
-    if (detected_drop && !pinfo->fd->flags.visited) {
+    if (detected_drop && !pinfo->fd->visited) {
         /* Lookup frame data, contains TS pid data objects */
         frame_analysis_data_p = get_frame_analysis_data(mp2t_data, pinfo);
         if (!frame_analysis_data_p)
@@ -922,7 +922,7 @@ detect_cc_drops(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     }
 
     /* See if we stored info about drops */
-    if (pinfo->fd->flags.visited) {
+    if (pinfo->fd->visited) {
 
         /* Lookup frame data, contains TS pid data objects */
         frame_analysis_data_p = get_frame_analysis_data(mp2t_data, pinfo);

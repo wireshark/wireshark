@@ -36,7 +36,7 @@ xmpp_iq_reqresp_track(packet_info *pinfo, xmpp_element_t *packet, xmpp_conv_info
 
     id = wmem_strdup(wmem_packet_scope(), attr_id->value);
 
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         xmpp_trans = (xmpp_transaction_t *)wmem_tree_lookup_string(xmpp_info->req_resp, id, WMEM_TREE_STRING_NOCASE);
         if (xmpp_trans) {
             xmpp_trans->resp_frame = pinfo->num;
@@ -66,7 +66,7 @@ xmpp_jingle_session_track(packet_info *pinfo, xmpp_element_t *packet, xmpp_conv_
     jingle_packet_l = xmpp_find_element_by_name(packet,"jingle");
     jingle_packet = (xmpp_element_t *)(jingle_packet_l?jingle_packet_l->data:NULL);
 
-    if (jingle_packet && !pinfo->fd->flags.visited) {
+    if (jingle_packet && !pinfo->fd->visited) {
         xmpp_attr_t *attr_id;
         xmpp_attr_t *attr_sid;
 
@@ -101,7 +101,7 @@ xmpp_gtalk_session_track(packet_info *pinfo, xmpp_element_t *packet, xmpp_conv_i
     gtalk_packet = (xmpp_element_t *)(gtalk_packet_l?gtalk_packet_l->data:NULL);
 
 
-    if (gtalk_packet && !pinfo->fd->flags.visited) {
+    if (gtalk_packet && !pinfo->fd->visited) {
         xmpp_attr_t *attr_id;
         xmpp_attr_t *attr_sid;
 
@@ -152,7 +152,7 @@ xmpp_ibb_session_track(packet_info *pinfo, xmpp_element_t *packet, xmpp_conv_inf
         ibb_packet = (xmpp_element_t *)(ibb_packet_l?ibb_packet_l->data:NULL);
     }
 
-    if (ibb_packet && !pinfo->fd->flags.visited) {
+    if (ibb_packet && !pinfo->fd->visited) {
         xmpp_attr_t *attr_id;
         xmpp_attr_t *attr_sid;
 

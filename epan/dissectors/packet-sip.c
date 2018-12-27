@@ -5166,7 +5166,7 @@ guint sip_is_packet_resend(packet_info *pinfo,
     }
 
     /* Return any answer stored from previous dissection */
-    if (pinfo->fd->flags.visited)
+    if (pinfo->fd->visited)
     {
         sip_frame_result = (sip_frame_result_value*)p_get_proto_data(wmem_file_scope(), pinfo, proto_sip, pinfo->curr_layer_num);
         if (sip_frame_result != NULL)
@@ -5364,7 +5364,7 @@ guint sip_find_request(packet_info *pinfo,
     }
 
     /* Return any answer stored from previous dissection */
-    if (pinfo->fd->flags.visited)
+    if (pinfo->fd->visited)
     {
         sip_frame_result = (sip_frame_result_value*)p_get_proto_data(wmem_file_scope(), pinfo, proto_sip, pinfo->curr_layer_num);
         if (sip_frame_result != NULL)
@@ -5478,7 +5478,7 @@ guint sip_find_invite(packet_info *pinfo,
     }
 
     /* Return any answer stored from previous dissection */
-    if (pinfo->fd->flags.visited)
+    if (pinfo->fd->visited)
     {
         sip_frame_result = (sip_frame_result_value*)p_get_proto_data(wmem_file_scope(), pinfo, proto_sip, pinfo->curr_layer_num);
         if (sip_frame_result != NULL)

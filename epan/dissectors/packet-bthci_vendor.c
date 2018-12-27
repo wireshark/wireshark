@@ -448,7 +448,7 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 /* TODO: This is command, but in respose (event Command Complete) there is a status for that,
          so write bdaddr can fail, but we store bdaddr as valid for now... */
-            if (!pinfo->fd->flags.visited && bluetooth_data) {
+            if (!pinfo->fd->visited && bluetooth_data) {
                 wmem_tree_key_t            key[4];
                 guint32                    frame_number;
                 localhost_bdaddr_entry_t   *localhost_bdaddr_entry;

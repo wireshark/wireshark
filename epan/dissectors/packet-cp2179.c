@@ -971,7 +971,7 @@ dissect_cp2179_pdu(tvbuff_t *cp2179_tvb, packet_info *pinfo, proto_tree *tree, v
     /* set information for Information column for CP2179 */
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_ext_const(message_type, &cp2179_messagetype_vals_ext, "Unknown Message Type"));
 
-    if (!pinfo->fd->flags.visited){
+    if (!pinfo->fd->visited){
         conversation_t           *conversation = NULL;
         cp2179_conversation      *conv_data = NULL;
 

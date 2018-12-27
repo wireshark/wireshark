@@ -1279,7 +1279,7 @@ static int dissect_lbtrm(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
     if (lbtrm_sequence_analysis)
     {
-        if (pinfo->fd->flags.visited == 0)
+        if (pinfo->fd->visited == 0)
         {
             if (transport != NULL)
             {

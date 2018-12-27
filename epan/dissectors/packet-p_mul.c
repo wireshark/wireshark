@@ -367,7 +367,7 @@ static p_mul_seq_val *register_p_mul_id (packet_info *pinfo, address *addr, guin
 
   p_mul_key = wmem_new(wmem_file_scope(), p_mul_id_key);
 
-  if (!pinfo->fd->flags.visited &&
+  if (!pinfo->fd->visited &&
       (pdu_type == Address_PDU || pdu_type == Data_PDU || pdu_type == Discard_Message_PDU))
   {
     /* Try to match corresponding address PDU */
@@ -422,7 +422,7 @@ static p_mul_seq_val *register_p_mul_id (packet_info *pinfo, address *addr, guin
     p_add_proto_data(wmem_file_scope(), pinfo, proto_p_mul, 0, pkg_list);
   }
 
-  if (!pinfo->fd->flags.visited) {
+  if (!pinfo->fd->visited) {
     p_mul_key->id = message_id;
     p_mul_key->seq = seq_no;
     if (!need_set_address) {
@@ -569,7 +569,7 @@ static void add_ack_analysis (tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_m
         en = proto_tree_add_item (analysis_tree,
                                   hf_analysis_ack_missing,
                                   tvb, offset, 0, ENC_NA);
-        if (pinfo->fd->flags.visited) {
+        if (pinfo->fd->visited) {
           /* We do not know this on first visit and we do not want to
              add a entry in the "Expert Severity Info" for this note */
           expert_add_info(pinfo, en, &ei_analysis_ack_missing);

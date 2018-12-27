@@ -1744,7 +1744,7 @@ void LBMLBTRUTransportDialog::resetTap(void * tap_data)
 
 gboolean LBMLBTRUTransportDialog::tapPacket(void * tap_data, packet_info * pinfo, epan_dissect_t *, const void * tap_info)
 {
-    if (pinfo->fd->flags.passed_dfilter == 1)
+    if (pinfo->fd->passed_dfilter == 1)
     {
         const lbm_lbtru_tap_info_t * tapinfo = (const lbm_lbtru_tap_info_t *)tap_info;
         LBMLBTRUTransportDialogInfo * info = (LBMLBTRUTransportDialogInfo *)tap_data;

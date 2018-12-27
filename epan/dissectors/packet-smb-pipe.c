@@ -460,7 +460,7 @@ add_detail_level(tvbuff_t *tvb, int offset, int count _U_, packet_info *pinfo,
 		trp = (smb_transact_info_t *)smb_info->sip->extra_info;
 
 	level = tvb_get_letohs(tvb, offset);
-	if (!pinfo->fd->flags.visited)
+	if (!pinfo->fd->visited)
 		if (trp)
 			trp->info_level = level;	/* remember this for the response */
 
@@ -2647,7 +2647,7 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 		 * the code parsing the reply, and initialize the detail
 		 * level to -1, meaning "unknown".
 		 */
-		if (!pinfo->fd->flags.visited) {
+		if (!pinfo->fd->visited) {
 			trp->lanman_cmd = cmd;
 			trp->info_level = -1;
 			trp->param_descrip=NULL;
@@ -2659,7 +2659,7 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 		param_descrip = tvb_get_const_stringz(p_tvb, offset, &descriptor_len);
 		proto_tree_add_item(tree, hf_param_desc, p_tvb, offset,
 		    descriptor_len, ENC_ASCII|ENC_NA);
-		if (!pinfo->fd->flags.visited) {
+		if (!pinfo->fd->visited) {
 			/*
 			 * Save the parameter descriptor for future use.
 			 */
@@ -2672,7 +2672,7 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 		data_descrip = tvb_get_const_stringz(p_tvb, offset, &descriptor_len);
 		proto_tree_add_item(tree, hf_return_desc, p_tvb, offset,
 		    descriptor_len, ENC_ASCII|ENC_NA);
-		if (!pinfo->fd->flags.visited) {
+		if (!pinfo->fd->visited) {
 			/*
 			 * Save the return descriptor for future use.
 			 */
@@ -2697,7 +2697,7 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 			aux_data_descrip = tvb_get_const_stringz(p_tvb, offset, &descriptor_len);
 			proto_tree_add_item(tree, hf_aux_data_desc, p_tvb, offset,
 			    descriptor_len, ENC_ASCII|ENC_NA);
-			if (!pinfo->fd->flags.visited) {
+			if (!pinfo->fd->visited) {
 				/*
 				 * Save the auxiliary data descriptor for
 				 * future use.
@@ -3279,7 +3279,7 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 	   pdu and if not, check if the dissector wants us
 	   to reassemble it
 	*/
-	if(!pinfo->fd->flags.visited){
+	if(!pinfo->fd->visited){
 		/*
 		 * This is the first pass.
 		 *
@@ -3599,7 +3599,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 			trans_subcmd=PIPE_DCERPC;
 		}
 
-		if (!pinfo->fd->flags.visited) {
+		if (!pinfo->fd->visited) {
 			if (tri == NULL)
 				return FALSE;
 			tri->trans_subcmd = trans_subcmd;
@@ -3707,7 +3707,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 			info_level = tvb_get_letohs(p_tvb, offset);
 			proto_tree_add_uint(pipe_tree, hf_smb_pipe_getinfo_info_level,
 			    p_tvb, offset, 2, info_level);
-			if (!pinfo->fd->flags.visited)
+			if (!pinfo->fd->visited)
 				tri->info_level = info_level;
 		} else {
 			guint8 pipe_namelen;

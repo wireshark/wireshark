@@ -499,7 +499,7 @@ dissect_pana_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 conversation_add_proto_data(conversation, proto_pana, pana_info);
         }
 
-        if(!pinfo->fd->flags.visited){
+        if(!pinfo->fd->visited){
                 if(flags&PANA_FLAG_R){
                         /* This is a request */
                         pana_trans=wmem_new(wmem_file_scope(), pana_transaction_t);

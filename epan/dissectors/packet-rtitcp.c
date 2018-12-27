@@ -530,7 +530,7 @@ static guint16 dissect_control_message(proto_tree *rtitcp_tree, tvbuff_t *tvb, p
 
         conversation_add_proto_data(conversation, proto_rtitcp, rtitcp_info);
     }
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         if (!(control_message_kind & RTITCP_FLAG_NOT_REQUEST)) {
             /* This is a request */
             rtitcp_trans=wmem_new(wmem_file_scope(), rtitcp_transaction_t);

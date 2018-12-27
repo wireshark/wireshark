@@ -650,7 +650,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         key[4].length = 1;
         key[4].key = &k_dlci;
 
-        if (!pinfo->fd->flags.visited && frame_type == FRAME_TYPE_SABM) {
+        if (!pinfo->fd->visited && frame_type == FRAME_TYPE_SABM) {
             key[5].length = 0;
             key[5].key = NULL;
 

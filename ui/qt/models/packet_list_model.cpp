@@ -107,7 +107,7 @@ guint PacketListModel::recreateVisibleRows()
     foreach (PacketListRecord *record, physical_rows_) {
         frame_data *fdata = record->frameData();
 
-        if (fdata->flags.passed_dfilter || fdata->flags.ref_time) {
+        if (fdata->passed_dfilter || fdata->ref_time) {
             visible_rows_ << record;
             if (number_to_row_.size() <= (int)fdata->num) {
                 number_to_row_.resize(fdata->num + 10000);
@@ -171,7 +171,7 @@ void PacketListModel::toggleFrameMark(const QModelIndex &fm_index)
     frame_data *fdata = record->frameData();
     if (!fdata) return;
 
-    if (fdata->flags.marked)
+    if (fdata->marked)
         cf_unmark_frame(cap_file_, fdata);
     else
         cf_mark_frame(cap_file_, fdata);
@@ -201,7 +201,7 @@ void PacketListModel::toggleFrameIgnore(const QModelIndex &i_index)
     frame_data *fdata = record->frameData();
     if (!fdata) return;
 
-    if (fdata->flags.ignored)
+    if (fdata->ignored)
         cf_unignore_frame(cap_file_, fdata);
     else
         cf_ignore_frame(cap_file_, fdata);
@@ -229,15 +229,15 @@ void PacketListModel::toggleFrameRefTime(const QModelIndex &rt_index)
     frame_data *fdata = record->frameData();
     if (!fdata) return;
 
-    if (fdata->flags.ref_time) {
-        fdata->flags.ref_time=0;
+    if (fdata->ref_time) {
+        fdata->ref_time=0;
         cap_file_->ref_time_count--;
     } else {
-        fdata->flags.ref_time=1;
+        fdata->ref_time=1;
         cap_file_->ref_time_count++;
     }
     cf_reftime_packets(cap_file_);
-    if (!fdata->flags.ref_time && !fdata->flags.passed_dfilter) {
+    if (!fdata->ref_time && !fdata->passed_dfilter) {
         cap_file_->displayed_count--;
     }
     record->resetColumns(&cap_file_->cinfo);
@@ -252,8 +252,8 @@ void PacketListModel::unsetAllFrameRefTime()
 
     foreach (PacketListRecord *record, physical_rows_) {
         frame_data *fdata = record->frameData();
-        if (fdata->flags.ref_time) {
-            fdata->flags.ref_time = 0;
+        if (fdata->ref_time) {
+            fdata->ref_time = 0;
         }
     }
     cap_file_->ref_time_count = 0;
@@ -348,7 +348,7 @@ void PacketListModel::sort(int column, Qt::SortOrder order)
     foreach (PacketListRecord *record, physical_rows_) {
         frame_data *fdata = record->frameData();
 
-        if (fdata->flags.passed_dfilter || fdata->flags.ref_time) {
+        if (fdata->passed_dfilter || fdata->ref_time) {
             visible_rows_ << record;
             if (number_to_row_.size() <= (int)fdata->num) {
                 number_to_row_.resize(fdata->num + 10000);
@@ -566,9 +566,9 @@ QVariant PacketListModel::data(const QModelIndex &d_index, int role) const
 
     case Qt::BackgroundRole:
         const color_t *color;
-        if (fdata->flags.ignored) {
+        if (fdata->ignored) {
             color = &prefs.gui_ignored_bg;
-        } else if (fdata->flags.marked) {
+        } else if (fdata->marked) {
             color = &prefs.gui_marked_bg;
         } else if (fdata->color_filter && recent.packet_list_colorize) {
             const color_filter_t *color_filter = (const color_filter_t *) fdata->color_filter;
@@ -578,9 +578,9 @@ QVariant PacketListModel::data(const QModelIndex &d_index, int role) const
         }
         return ColorUtils::fromColorT(color);
     case Qt::ForegroundRole:
-        if (fdata->flags.ignored) {
+        if (fdata->ignored) {
             color = &prefs.gui_ignored_fg;
-        } else if (fdata->flags.marked) {
+        } else if (fdata->marked) {
             color = &prefs.gui_marked_fg;
         } else if (fdata->color_filter && recent.packet_list_colorize) {
             const color_filter_t *color_filter = (const color_filter_t *) fdata->color_filter;
@@ -708,7 +708,7 @@ gint PacketListModel::appendPacket(frame_data *fdata)
 
     physical_rows_ << record;
 
-    if (fdata->flags.passed_dfilter || fdata->flags.ref_time) {
+    if (fdata->passed_dfilter || fdata->ref_time) {
         new_visible_rows_ << record;
         if (new_visible_rows_.count() < 2) {
             // This is the first queued packet. Schedule an insertion for

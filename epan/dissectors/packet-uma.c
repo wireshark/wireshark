@@ -1455,7 +1455,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		 * we've already done this work, so we don't need to do it
 		 * again.
 		 */
-		if (pinfo->fd->flags.visited)
+		if (pinfo->fd->visited)
 		{
 			break;
 		}
@@ -1487,7 +1487,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		 * we've already done this work, so we don't need to do it
 		 * again.
 		 */
-		if (pinfo->fd->flags.visited)
+		if (pinfo->fd->visited)
 		{
 			break;
 		}
@@ -1523,7 +1523,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 			/* Set Source IP = own IP */
 			copy_address_shallow(&src_addr, &pinfo->src);
 		}
-		if((!pinfo->fd->flags.visited) && RTP_UDP_port!=0){
+		if((!pinfo->fd->visited) && RTP_UDP_port!=0){
 
 			rtp_add_address(pinfo, PT_UDP, &src_addr, RTP_UDP_port, 0, "UMA", pinfo->num, FALSE, 0);
 			if ((RTP_UDP_port & 0x1) == 0){ /* Even number RTP port RTCP should follow on odd number */
@@ -1536,7 +1536,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		RTCP_UDP_port = tvb_get_ntohs(tvb,ie_offset);
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_RTCP_port, tvb, ie_offset, 2, ENC_BIG_ENDIAN);
 		/* TODO find out exactly which element contains IP addr */
-		if((!pinfo->fd->flags.visited) && rtcp_ipv4_address!=0 && RTCP_UDP_port!=0 && rtcp_handle){
+		if((!pinfo->fd->visited) && rtcp_ipv4_address!=0 && RTCP_UDP_port!=0 && rtcp_handle){
 			set_address(&src_addr, AT_IPv4, 4, &rtcp_ipv4_address);
 
 			rtcp_add_address(pinfo, &src_addr, RTCP_UDP_port, 0, "UMA", pinfo->num);

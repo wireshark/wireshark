@@ -104,7 +104,7 @@ get_nbd_tcp_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U
 			/* No, so just return the rest of the current packet */
 			return tvb_captured_length(tvb);
 		}
-		if(!pinfo->fd->flags.visited){
+		if(!pinfo->fd->visited){
 			/*
 			 * Do we have a state structure for this transaction
 			 */
@@ -206,7 +206,7 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 
 		conversation_add_proto_data(conversation, proto_nbd, nbd_info);
 	}
-	if(!pinfo->fd->flags.visited){
+	if(!pinfo->fd->visited){
 		if(magic==NBD_REQUEST_MAGIC){
 			/* This is a request */
 			nbd_trans=wmem_new(wmem_file_scope(), nbd_transaction_t);

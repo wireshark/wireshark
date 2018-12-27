@@ -884,7 +884,7 @@ static const int * mysql_fld_flags[] = {
 /* Helper function to only set state on first pass */
 static void mysql_set_conn_state(packet_info *pinfo, mysql_conn_data_t *conn_data, mysql_state_t state)
 {
-	if (!pinfo->fd->flags.visited)
+	if (!pinfo->fd->visited)
 	{
 		conn_data->state = state;
 	}

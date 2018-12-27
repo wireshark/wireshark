@@ -476,7 +476,7 @@ dissect_zbee_nwk_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     memset(&packet, 0, sizeof(packet));
 
     /* Set up hint structures */
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         /* Allocate frame data with hints for upper layers */
         nwk_hints = wmem_new0(wmem_file_scope(), zbee_nwk_hints_t);
         p_add_proto_data(wmem_file_scope(), pinfo, proto_zbee_nwk, 0, nwk_hints);
@@ -594,7 +594,7 @@ dissect_zbee_nwk_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
                 proto_tree_add_item(nwk_tree, hf_zbee_nwk_src64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
                 offset += 8;
 
-                if (!pinfo->fd->flags.visited && nwk_hints) {
+                if (!pinfo->fd->visited && nwk_hints) {
                     /* Provide hints to upper layers */
                     nwk_hints->src_pan = ieee_packet->src_pan;
 
@@ -607,7 +607,7 @@ dissect_zbee_nwk_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
             }
             else {
                 /* See if extended source info was previously sniffed */
-                if (!pinfo->fd->flags.visited && nwk_hints) {
+                if (!pinfo->fd->visited && nwk_hints) {
                     nwk_hints->src_pan = ieee_packet->src_pan;
                     addr16.addr = packet.src;
 
@@ -621,7 +621,7 @@ dissect_zbee_nwk_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
                         map_rec = (ieee802154_map_rec *) g_hash_table_lookup(ieee_packet->short_table, &addr16);
                         if (map_rec) nwk_hints->map_rec = map_rec;
                     }
-                } /* (!pinfo->fd->flags.visited) */
+                } /* (!pinfo->fd->visited) */
                 else {
                     if (nwk_hints && nwk_hints->map_rec ) {
                         /* Display inferred source address info */
@@ -642,7 +642,7 @@ dissect_zbee_nwk_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
             }
 
             /* If ieee layer didn't know its extended source address, and nwk layer does, fill it in */
-            if (!pinfo->fd->flags.visited) {
+            if (!pinfo->fd->visited) {
                 if ( (ieee_packet->src_addr_mode == IEEE802154_FCF_ADDR_SHORT) &&
                      ieee_hints && !ieee_hints->map_rec ) {
                     addr16.pan = ieee_packet->src_pan;
@@ -654,7 +654,7 @@ dissect_zbee_nwk_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
                         ieee_hints->map_rec = map_rec;
                     }
                 }
-            } /* (!pinfo->fd->flags.visited */
+            } /* (!pinfo->fd->visited */
         } /* (pinfo->zbee_stack_vers >= ZBEE_VERSION_2007) */
 
         /* Add multicast control field (ZigBee 2006 and later). */

@@ -1690,7 +1690,7 @@ dissect_h225_H245TransportAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
     h225_pi->h245_address = ipv4_address;
     h225_pi->h245_port = ip_port;
   }
-  if ( !actx->pinfo->fd->flags.visited && h245_handle && ip_port!=0 ) {
+  if ( !actx->pinfo->fd->visited && h245_handle && ip_port!=0 ) {
     address src_addr;
     conversation_t *conv=NULL;
 

@@ -2378,7 +2378,7 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo,
             proto_tree_add_item(tree, hf_bthci_cmd_allow_role_switch, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
 
-            if (!pinfo->fd->flags.visited) {
+            if (!pinfo->fd->visited) {
                 guint32           interface_id;
                 guint32           adapter_id;
                 guint32           bd_addr_oui;
@@ -2443,7 +2443,7 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo,
             proto_tree_add_item(tree, hf_bthci_cmd_acr_role, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
 
-            if (!pinfo->fd->flags.visited) {
+            if (!pinfo->fd->visited) {
                 guint32           interface_id;
                 guint32           adapter_id;
                 guint32           bd_addr_oui;
@@ -3217,7 +3217,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
 
         case 0x0013: /* Change Local Name */
             proto_tree_add_item(tree, hf_bthci_cmd_device_name, tvb, offset, 248, ENC_UTF_8 | ENC_NA);
-            if (!pinfo->fd->flags.visited && bthci_cmd_data) {
+            if (!pinfo->fd->visited && bthci_cmd_data) {
                 bthci_cmd_data->data.name = tvb_get_string_enc(wmem_file_scope(), tvb, offset, 248, ENC_UTF_8);
             }
             offset += 248;
@@ -3238,7 +3238,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
             } else {
                 proto_item_append_text(item, " Illegal Page Timeout");
             }
-            if (!pinfo->fd->flags.visited && bthci_cmd_data) {
+            if (!pinfo->fd->visited && bthci_cmd_data) {
                 bthci_cmd_data->data.page_timeout = timeout;
             }
             offset+=2;
@@ -3247,7 +3247,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
         case 0x001a: /* Write Scan Enable */
             proto_tree_add_item(tree, hf_bthci_cmd_scan_enable,
                     tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            if (!pinfo->fd->flags.visited && bthci_cmd_data) {
+            if (!pinfo->fd->visited && bthci_cmd_data) {
                 bthci_cmd_data->data.scan = tvb_get_guint8(tvb, offset);
             }
             offset++;
@@ -3256,7 +3256,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
         case 0x0020: /* Write Authentication Enable */
             proto_tree_add_item(tree, hf_bthci_cmd_authentication_enable,
                     tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            if (!pinfo->fd->flags.visited && bthci_cmd_data) {
+            if (!pinfo->fd->visited && bthci_cmd_data) {
                 bthci_cmd_data->data.authentication = tvb_get_guint8(tvb, offset);
             }
             offset++;
@@ -3264,7 +3264,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
 
         case 0x0022: /* Write Encryption Mode */
             proto_tree_add_item(tree, hf_bthci_cmd_encrypt_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            if (!pinfo->fd->flags.visited && bthci_cmd_data) {
+            if (!pinfo->fd->visited && bthci_cmd_data) {
                 bthci_cmd_data->data.encryption = tvb_get_guint8(tvb, offset);
             }
             offset++;
@@ -3272,7 +3272,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
 
         case 0x0024: /* Write Class of Device */
             call_dissector(btcommon_cod_handle, tvb_new_subset_length(tvb, offset, 3), pinfo, tree);
-            if (!pinfo->fd->flags.visited && bthci_cmd_data) {
+            if (!pinfo->fd->visited && bthci_cmd_data) {
                 bthci_cmd_data->data.class_of_device = tvb_get_guint24(tvb, offset, ENC_LITTLE_ENDIAN);
             }
             offset += 3;
@@ -3291,7 +3291,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
                     tvb, offset, 2, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(tree, hf_bthci_cmd_air_coding_format,
                     tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            if (!pinfo->fd->flags.visited && bthci_cmd_data) {
+            if (!pinfo->fd->visited && bthci_cmd_data) {
                 bthci_cmd_data->data.voice_setting = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
             }
             offset+=2;
@@ -3361,7 +3361,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
                     tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset+=2;
 
-            if (!pinfo->fd->flags.visited && bthci_cmd_data) {
+            if (!pinfo->fd->visited && bthci_cmd_data) {
                 bthci_cmd_data->data.mtus.acl_mtu     = tvb_get_guint16(tvb, offset - 7, ENC_LITTLE_ENDIAN);
                 bthci_cmd_data->data.mtus.sco_mtu     = tvb_get_guint8(tvb,  offset - 5);
                 bthci_cmd_data->data.mtus.acl_packets = tvb_get_guint16(tvb, offset - 4, ENC_LITTLE_ENDIAN);
@@ -3453,7 +3453,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
 
         case 0x0045: /* Write Inquiry Mode */
             proto_tree_add_item(tree, hf_bthci_cmd_inq_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            if (!pinfo->fd->flags.visited && bthci_cmd_data) {
+            if (!pinfo->fd->visited && bthci_cmd_data) {
                 bthci_cmd_data->data.inquiry_mode = tvb_get_guint8(tvb, offset);
             }
             offset++;
@@ -3495,7 +3495,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
 
         case 0x0056: /* Write Simple Pairing Mode */
             proto_tree_add_item(tree, hf_bthci_cmd_simple_pairing_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            if (!pinfo->fd->flags.visited && bthci_cmd_data) {
+            if (!pinfo->fd->visited && bthci_cmd_data) {
                 bthci_cmd_data->data.simple_pairing_mode = tvb_get_guint8(tvb, offset);
             }
             offset++;
@@ -4767,7 +4767,7 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     set_address(&pinfo->net_dst, AT_STRINGZ, 11, "controller");
     set_address(&pinfo->dl_src,  AT_STRINGZ,  5, "host");
     set_address(&pinfo->dl_dst,  AT_STRINGZ, 11, "controller");
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         address *addr;
 
         addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_src, sizeof(address));
@@ -4806,7 +4806,7 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         tap_queue_packet(bluetooth_hci_summary_tap, pinfo, tap_hci_summary);
     }
 
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         bthci_cmd_data = (bthci_cmd_data_t *) wmem_new(wmem_file_scope(), bthci_cmd_data_t);
         bthci_cmd_data->opcode = opcode;
         bthci_cmd_data->command_in_frame = frame_number;
@@ -4915,7 +4915,7 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         }
     }
 
-    if (!pinfo->fd->flags.visited && bthci_cmd_data) {
+    if (!pinfo->fd->visited && bthci_cmd_data) {
         key[0].length = 1;
         key[0].key    = &interface_id;
         key[1].length = 1;

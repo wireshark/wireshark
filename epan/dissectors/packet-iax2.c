@@ -2349,7 +2349,7 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
 
   dirdata = &(iax_call->dirdata[!!(iax_packet->reversed)]);
 
-  if ((!pinfo->fd->flags.visited && (dirdata->current_frag_bytes > 0)) ||
+  if ((!pinfo->fd->visited && (dirdata->current_frag_bytes > 0)) ||
      ((value = g_hash_table_lookup(iax_fid_table, GUINT_TO_POINTER(pinfo->num))) != NULL)) {
 
     /* then we are continuing an already-started pdu */
@@ -2358,11 +2358,11 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
     gboolean complete;
 
 #ifdef DEBUG_DESEGMENT
-    g_debug("visited: %i; c_f_b: %u; hash: %u->%u", pinfo->fd->flags.visited?1:0,
+    g_debug("visited: %i; c_f_b: %u; hash: %u->%u", pinfo->fd->visited?1:0,
             dirdata->current_frag_bytes, pinfo->num, dirdata->current_frag_id);
 #endif
 
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
       guint32 tot_len;
       fid = dirdata->current_frag_id;
       tot_len                      = dirdata->current_frag_minlen;
@@ -2377,7 +2377,7 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
 #endif
     } else {
       fid = GPOINTER_TO_UINT(value);
-      /* these values are unused by fragment_add if pinfo->fd->flags.visited */
+      /* these values are unused by fragment_add if pinfo->fd->visited */
       dirdata->current_frag_bytes = 0;
       complete = FALSE;
     }

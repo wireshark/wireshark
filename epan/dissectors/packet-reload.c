@@ -4114,7 +4114,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
   message_code = tvb_get_ntohs(tvb, offset);
 
-  if (!pinfo->fd->flags.visited) {
+  if (!pinfo->fd->visited) {
 
     if ((reload_trans = (reload_transaction_t *)
            wmem_tree_lookup32_array(reload_info->transaction_pdus, transaction_id_key)) == NULL) {

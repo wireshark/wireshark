@@ -1968,7 +1968,7 @@ dissect_usb_device_qualifier_descriptor(packet_info *pinfo _U_, proto_tree *pare
         proto_item_append_text(nitem, " (%s)", description);
     offset += 1;
 
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         guint                   k_bus_id;
         guint                   k_device_address;
         guint                   k_frame_number;
@@ -2079,7 +2079,7 @@ dissect_usb_device_descriptor(packet_info *pinfo, proto_tree *parent_tree,
                                      product_id);
     offset += 2;
 
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         guint                   k_bus_id;
         guint                   k_device_address;
         guint                   k_frame_number;
@@ -2246,7 +2246,7 @@ dissect_usb_interface_descriptor(packet_info *pinfo, proto_tree *parent_tree,
     class_str = val_to_str_ext(usb_conv_info->interfaceClass, &usb_class_vals_ext, "unknown (0x%X)");
     proto_item_append_text(item, " (%u.%u): class %s", interface_num, alt_setting, class_str);
 
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         usb_alt_setting_t alternate_setting;
 
         /* Register conversation for this interface in case CONTROL messages are sent to it */
@@ -2409,7 +2409,7 @@ dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree,
      * All endpoints for the same interface descriptor share the same
      * usb_conv_info structure.
      */
-    if ((!pinfo->fd->flags.visited) && usb_trans_info && usb_trans_info->interface_info) {
+    if ((!pinfo->fd->visited) && usb_trans_info && usb_trans_info->interface_info) {
         if (pinfo->destport == NO_ENDPOINT) {
             address tmp_addr;
             usb_address_t *usb_addr = wmem_new0(wmem_packet_scope(), usb_address_t);
@@ -4007,7 +4007,7 @@ static usb_trans_info_t
 
     } else {
         /* this is a response */
-        if (pinfo->fd->flags.visited) {
+        if (pinfo->fd->visited) {
             usb_trans_info = (usb_trans_info_t *)wmem_tree_lookup32_array(usb_conv_info->transactions, key);
 
         } else {

@@ -1523,7 +1523,7 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
     } else if (length == 1 && tvb_get_guint8(tvb, offset) == 0x00) {
         if (is_continued) *is_continued = FALSE;
 
-        if (!pinfo->fd->flags.visited) {
+        if (!pinfo->fd->visited) {
             if (is_request) {
                 tid_request = (tid_request_t *) wmem_new(wmem_file_scope(), tid_request_t);
                 tid_request->interface_id = interface_id;
@@ -1677,7 +1677,7 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
 
         continuation_state_buffer = tvb_bytes_to_str(wmem_file_scope(), tvb, offset, continuation_state_length);
 
-        if (!pinfo->fd->flags.visited) {
+        if (!pinfo->fd->visited) {
             if (is_request) {
                 tid_request = (tid_request_t *) wmem_new(wmem_file_scope(), tid_request_t);
                 tid_request->interface_id              = interface_id;
@@ -2017,7 +2017,7 @@ dissect_protocol_descriptor_list(proto_tree *next_tree, tvbuff_t *tvb,
                 proto_item_append_text(feature_item, ", PSM: %u", value);
                 proto_item_append_text(entry_item, ", PSM: %u", value);
                 proto_tree_add_item(sub_tree, hf_sdp_protocol_psm, tvb, entry_offset, 2, ENC_BIG_ENDIAN);
-                if (!pinfo->fd->flags.visited && service_info)
+                if (!pinfo->fd->visited && service_info)
                     record = save_channel(pinfo, BTSDP_L2CAP_PROTOCOL_UUID, value, *protocol_order, service_info);
                 *protocol_order += 1;
             } else if (uuid.bt_uuid == BTSDP_RFCOMM_PROTOCOL_UUID) {
@@ -2025,7 +2025,7 @@ dissect_protocol_descriptor_list(proto_tree *next_tree, tvbuff_t *tvb,
                 proto_item_append_text(feature_item, ", RFCOMM Channel: %u", value);
                 proto_item_append_text(entry_item, ", RFCOMM Channel: %u", value);
                 proto_tree_add_item(sub_tree, hf_sdp_protocol_channel, tvb, entry_offset, 1, ENC_BIG_ENDIAN);
-                if (!pinfo->fd->flags.visited && service_info)
+                if (!pinfo->fd->visited && service_info)
                     record = save_channel(pinfo, BTSDP_RFCOMM_PROTOCOL_UUID, value, *protocol_order, service_info);
                 *protocol_order += 1;
             } else if (uuid.bt_uuid == BTSDP_ATT_PROTOCOL_UUID) {
@@ -2369,7 +2369,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     proto_tree_add_item(next_tree, hf_pbap_goep_l2cap_psm, tvb, offset, 2, ENC_BIG_ENDIAN);
                     psm = tvb_get_ntohs(tvb, offset);
                     wmem_strbuf_append_printf(info_buf, "%u (0x%02x)", psm, psm);
-                    if (!pinfo->fd->flags.visited  && service_info)
+                    if (!pinfo->fd->visited  && service_info)
                         save_channel(pinfo, BTSDP_L2CAP_PROTOCOL_UUID, psm, -1, service_info);
                     break;
                 case 0x314:
@@ -2433,7 +2433,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     proto_tree_add_item(next_tree, hf_ftp_goep_l2cap_psm, tvb, offset, 2, ENC_BIG_ENDIAN);
                     psm = tvb_get_ntohs(tvb, offset);
                     wmem_strbuf_append_printf(info_buf, "%u (0x%02x)", psm, psm);
-                    if (!pinfo->fd->flags.visited  && service_info)
+                    if (!pinfo->fd->visited  && service_info)
                         save_channel(pinfo, BTSDP_L2CAP_PROTOCOL_UUID, psm, -1, service_info);
                     break;
                 default:
@@ -2447,7 +2447,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     proto_tree_add_item(next_tree, hf_map_mas_goep_l2cap_psm, tvb, offset, 2, ENC_BIG_ENDIAN);
                     psm = tvb_get_ntohs(tvb, offset);
                     wmem_strbuf_append_printf(info_buf, "%u (0x%02x)", psm, psm);
-                    if (!pinfo->fd->flags.visited  && service_info)
+                    if (!pinfo->fd->visited  && service_info)
                         save_channel(pinfo, BTSDP_L2CAP_PROTOCOL_UUID, psm, -1, service_info);
                     break;
                 case 0x315:
@@ -2491,7 +2491,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     proto_tree_add_item(next_tree, hf_map_mns_goep_l2cap_psm, tvb, offset, 2, ENC_BIG_ENDIAN);
                     psm = tvb_get_ntohs(tvb, offset);
                     wmem_strbuf_append_printf(info_buf, "%u (0x%02x)", psm, psm);
-                    if (!pinfo->fd->flags.visited  && service_info)
+                    if (!pinfo->fd->visited  && service_info)
                         save_channel(pinfo, BTSDP_L2CAP_PROTOCOL_UUID, psm, -1, service_info);
                     break;
                 case 0x317:
@@ -2724,7 +2724,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     proto_tree_add_item(next_tree, hf_opp_goep_l2cap_psm, tvb, offset, 2, ENC_BIG_ENDIAN);
                     psm = tvb_get_ntohs(tvb, offset);
                     wmem_strbuf_append_printf(info_buf, "%u (0x%02x)", psm, psm);
-                    if (!pinfo->fd->flags.visited && service_info)
+                    if (!pinfo->fd->visited && service_info)
                         save_channel(pinfo, BTSDP_L2CAP_PROTOCOL_UUID, psm, -1, service_info);
                     break;
                 case 0x303:
@@ -2966,7 +2966,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     proto_tree_add_item(next_tree, hf_bip_goep_l2cap_psm, tvb, offset, 2, ENC_BIG_ENDIAN);
                     psm = tvb_get_ntohs(tvb, offset);
                     wmem_strbuf_append_printf(info_buf, "%u (0x%02x)", psm, psm);
-                    if (!pinfo->fd->flags.visited && service_info)
+                    if (!pinfo->fd->visited && service_info)
                         save_channel(pinfo, BTSDP_L2CAP_PROTOCOL_UUID, psm, -1, service_info);
                     break;
                 case 0x310:
@@ -3061,7 +3061,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     proto_tree_add_item(next_tree, hf_bip_goep_l2cap_psm, tvb, offset, 2, ENC_BIG_ENDIAN);
                     psm = tvb_get_ntohs(tvb, offset);
                     wmem_strbuf_append_printf(info_buf, "%u (0x%02x)", psm, psm);
-                    if (!pinfo->fd->flags.visited && service_info)
+                    if (!pinfo->fd->visited && service_info)
                         save_channel(pinfo, BTSDP_L2CAP_PROTOCOL_UUID, psm, -1, service_info);
                     break;
                 case 0x312:
@@ -3085,7 +3085,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     proto_tree_add_item(next_tree, hf_bip_goep_l2cap_psm, tvb, offset, 2, ENC_BIG_ENDIAN);
                     psm = tvb_get_ntohs(tvb, offset);
                     wmem_strbuf_append_printf(info_buf, "%u (0x%02x)", psm, psm);
-                    if (!pinfo->fd->flags.visited)
+                    if (!pinfo->fd->visited)
                         save_channel(pinfo, BTSDP_L2CAP_PROTOCOL_UUID, psm, -1, service_info);
                     break;
                 case 0x312:
@@ -3928,7 +3928,7 @@ dissect_sdp_service_attribute_list(proto_tree *tree, tvbuff_t *tvb, gint offset,
     if (uuid.size == 0 && service_uuid)
         uuid = *service_uuid;
 
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         service_info = (service_info_t *) wmem_new(wmem_file_scope(), service_info_t);
         service_info->interface_id   = l2cap_data->interface_id;
         service_info->adapter_id     = l2cap_data->adapter_id;
@@ -3959,7 +3959,7 @@ dissect_sdp_service_attribute_list(proto_tree *tree, tvbuff_t *tvb, gint offset,
                 uuid, service_offset, service_info, number_of_attributes, FALSE);
     }
 
-    if (!pinfo->fd->flags.visited && service_info) {
+    if (!pinfo->fd->visited && service_info) {
         k_interface_id    = l2cap_data->interface_id;
         k_adapter_id      = l2cap_data->adapter_id;
         k_sdp_psm         = l2cap_data->psm;
@@ -4058,7 +4058,7 @@ dissect_sdp_service_search_request(proto_tree *tree, tvbuff_t *tvb, gint offset,
 
     start_offset = offset;
     memset(&empty_uuid, 0, sizeof(bluetooth_uuid_t));
-    if (!pinfo->fd->flags.visited)
+    if (!pinfo->fd->visited)
         uuid_array = wmem_array_new(wmem_file_scope(), sizeof(bluetooth_uuid_t));
 
     ti = proto_tree_add_item(tree, hf_service_search_pattern, tvb, offset, 0, ENC_NA);
@@ -4128,7 +4128,7 @@ dissect_sdp_service_search_response(proto_tree *tree, tvbuff_t *tvb,
                  current_count * 4, "Service Record Handle List [count = %u]", current_count);
     st = proto_item_add_subtree(ti, ett_btsdp_ssr);
 
-    if (!pinfo->fd->flags.visited)
+    if (!pinfo->fd->visited)
         record_handle_array = wmem_array_new(wmem_packet_scope(), sizeof(guint32));
 
     while (current_count > 0) {
@@ -4152,7 +4152,7 @@ dissect_sdp_service_search_response(proto_tree *tree, tvbuff_t *tvb,
     if (is_continued)
         col_append_str(pinfo->cinfo, COL_INFO, "(fragment)");
 
-    if (!pinfo->fd->flags.visited) {
+    if (!pinfo->fd->visited) {
         record_handle_service_t  *record_handle_service;
         wmem_tree_key_t           key[7];
         guint32                   k_interface_id;
@@ -4350,7 +4350,7 @@ dissect_sdp_service_search_attribute_request(proto_tree *tree, tvbuff_t *tvb,
     bluetooth_uuid_t uuid;
 
     memset(&empty_uuid, 0, sizeof(bluetooth_uuid_t));
-    if (!pinfo->fd->flags.visited)
+    if (!pinfo->fd->visited)
         uuid_array = wmem_array_new(wmem_file_scope(), sizeof(bluetooth_uuid_t));
     else
         uuid_array = wmem_array_new(wmem_packet_scope(), sizeof(bluetooth_uuid_t));

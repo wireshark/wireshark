@@ -567,7 +567,7 @@ add_encryption_key(packet_info *pinfo, int keytype, int keylength, const char *k
 {
 	enc_key_t *new_key;
 
-	if(pinfo->fd->flags.visited){
+	if(pinfo->fd->visited){
 		return;
 	}
 
@@ -911,7 +911,7 @@ add_encryption_key(packet_info *pinfo, int keytype, int keylength, const char *k
 {
 	service_key_t *new_key;
 
-	if(pinfo->fd->flags.visited){
+	if(pinfo->fd->visited){
 		return;
 	}
 

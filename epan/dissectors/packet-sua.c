@@ -450,7 +450,7 @@ sua_assoc(packet_info* pinfo, address* opc, address* dpc, guint src_rn, guint ds
             bw_key[3].key = NULL;
 
 
-            if ( !(assoc = (sua_assoc_info_t *)wmem_tree_lookup32_array(assocs,bw_key)) && ! pinfo->fd->flags.visited) {
+            if ( !(assoc = (sua_assoc_info_t *)wmem_tree_lookup32_array(assocs,bw_key)) && ! pinfo->fd->visited) {
                 assoc = new_assoc(opck, dpck);
                 wmem_tree_insert32_array(assocs,bw_key,assoc);
                 assoc->has_bw_key = TRUE;
@@ -503,12 +503,12 @@ got_assoc:
 
             pinfo->p2p_dir = P2P_DIR_RECV;
 
-            if ( ! pinfo->fd->flags.visited && ! assoc->has_bw_key ) {
+            if ( ! pinfo->fd->visited && ! assoc->has_bw_key ) {
                 wmem_tree_insert32_array(assocs, bw_key, assoc);
                 assoc->has_bw_key = TRUE;
             }
 
-            if ( ! pinfo->fd->flags.visited && ! assoc->has_fw_key ) {
+            if ( ! pinfo->fd->visited && ! assoc->has_fw_key ) {
                 wmem_tree_insert32_array(assocs, fw_key, assoc);
                 assoc->has_fw_key = TRUE;
             }

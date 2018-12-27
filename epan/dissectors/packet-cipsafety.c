@@ -1760,7 +1760,7 @@ dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int 
          if (compute_crc)
          {
             /* Determine if packet timestamp results in rollover count increment */
-            if (!pinfo->fd->flags.visited)
+            if (!pinfo->fd->visited)
             {
                if ((timestamp != 0) && (timestamp < safety_info->eip_conn_info->safety.running_timestamp_value))
                {
@@ -1849,7 +1849,7 @@ dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int 
             if (compute_crc)
             {
                /* Determine if packet timestamp results in rollover count increment */
-               if (!pinfo->fd->flags.visited)
+               if (!pinfo->fd->visited)
                {
                   if ((timestamp != 0) && (timestamp < safety_info->eip_conn_info->safety.running_timestamp_value))
                   {
