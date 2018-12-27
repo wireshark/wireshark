@@ -33,6 +33,7 @@
 #include <epan/afn.h>
 #include <epan/tap.h>
 #include <epan/stats_tree.h>
+#include <wsutil/utf8_entities.h>
 #include "packet-ssl.h"
 #include "packet-dtls.h"
 
@@ -81,7 +82,7 @@ static const guint8* st_str_response_nadditionals = "no. of additionals";
 static const guint8* st_str_service_stats = "Service Stats";
 static const guint8* st_str_service_unsolicited = "no. of unsolicited responses";
 static const guint8* st_str_service_retransmission = "no. of retransmissions";
-static const guint8* st_str_service_rrt = "request-response time (nsec)";
+static const guint8* st_str_service_rrt = "request-response time (" UTF8_MICRO_SIGN "s)";
 
 static int st_node_packets = -1;
 static int st_node_packet_qr = -1;
@@ -4186,7 +4187,7 @@ static int dns_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_di
           if (pi->retransmission)
             tick_stat_node(st, st_str_service_retransmission, 0, FALSE);
           else
-            avg_stat_node_add_value(st, st_str_service_rrt, 0, FALSE, (guint32)(pi->rrt.secs * 1000000 + pi->rrt.nsecs));
+            avg_stat_node_add_value(st, st_str_service_rrt, 0, FALSE, (guint32)(pi->rrt.secs * 1000000 + pi->rrt.nsecs/1000));
         }
     }
   }
