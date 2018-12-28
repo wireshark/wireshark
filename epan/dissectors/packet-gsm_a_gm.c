@@ -69,7 +69,7 @@
  *   Mobile radio interface Layer 3 specification;
  *   Core network protocols;
  *   Stage 3
- *   (3GPP TS 24.008 version 15.2.0 Release 15)
+ *   (3GPP TS 24.008 version 15.5.0 Release 15)
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -483,7 +483,9 @@ static int hf_gsm_a_gm_rac_ext_tsc_set_cap_support = -1;
 static int hf_gsm_a_gm_rac_ext_earfcn_value_range = -1;
 static int hf_gsm_a_gm_rac_ec_pch_mon_support = -1;
 static int hf_gsm_a_gm_rac_ms_sync_accuracy = -1;
-static int hf_gsm_a_gm_rac_ext_ec_ul_cov_enh_support = -1;
+static int hf_gsm_a_gm_rac_ec_ul_cov_enh_support = -1;
+static int hf_gsm_a_gm_rac_mta_access_sec_support = -1;
+static int hf_gsm_a_gm_rac_ec_paging_ind_chan_mon_support = -1;
 static int hf_gsm_a_sm_ti_flag = -1;
 static int hf_gsm_a_sm_ext = -1;
 
@@ -560,6 +562,7 @@ static int hf_gsm_a_gm_sm_pco_pdu_session_address_lifetime = -1;
 static int hf_gsm_a_gm_sm_pco_qos_flow_descriptions = -1;
 static int hf_gsm_a_gm_sm_pco_eth_frame_payload_mtu = -1;
 static int hf_gsm_a_gm_sm_pco_unstruct_link_mtu = -1;
+static int hf_gsm_a_gm_sm_pco_5gsm_cause = -1;
 static int hf_gsm_a_sm_pdp_type_number = -1;
 static int hf_gsm_a_sm_pdp_address = -1;
 static int hf_gsm_a_gm_ti_value = -1;
@@ -3309,7 +3312,33 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 		 */
 		bits_needed = 1;
 		GET_DATA;
-		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_ext_ec_ul_cov_enh_support, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_ec_ul_cov_enh_support, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+		bit_offset += bits_needed;
+		curr_bits_length -= bits_needed;
+		oct <<= bits_needed;
+		bits_in_oct -= bits_needed;
+
+		/*
+		 * Release 15
+		 */
+
+		/*
+		 * MTA Access Security support
+		 */
+		bits_needed = 1;
+		GET_DATA;
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_mta_access_sec_support, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+		bit_offset += bits_needed;
+		curr_bits_length -= bits_needed;
+		oct <<= bits_needed;
+		bits_in_oct -= bits_needed;
+
+		/*
+		 * EC paging indication channel monitoring support
+		 */
+		bits_needed = 1;
+		GET_DATA;
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_ec_paging_ind_chan_mon_support, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 		bit_offset += bits_needed;
 		curr_bits_length -= bits_needed;
 		oct <<= bits_needed;
@@ -4422,6 +4451,7 @@ static const range_string gsm_a_sm_pco_ms2net_prot_vals[] = {
 	{ 0x001b, 0x001f, "Reserved" },
 	{ 0x0020, 0x0020, "Ethernet Frame Payload MTU Request" },
 	{ 0x0021, 0x0021, "Unstructured Link MTU Request" },
+	{ 0x0022, 0x0022, "5GSM cause value" },
 	{ 0xff00, 0xffff, "Operator Specific Use" },
 	{ 0, 0, NULL }
 };
@@ -4459,6 +4489,7 @@ static const range_string gsm_a_sm_pco_net2ms_prot_vals[] = {
 	{ 0x001f, 0x001f, "QoS flow descriptions" },
 	{ 0x0020, 0x0020, "Ethernet Frame Payload MTU" },
 	{ 0x0021, 0x0021, "Unstructured Link MTU" },
+	{ 0x0022, 0x0022, "Reserved" },
 	{ 0xff00, 0xffff, "Operator Specific Use" },
 	{ 0, 0, NULL }
 };
@@ -4714,6 +4745,11 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 			case 0x0021:
 				if (link_dir == P2P_DIR_DL && e_len == 2) {
 					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_unstruct_link_mtu, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+				}
+				break;
+			case 0x0022:
+				if (link_dir == P2P_DIR_UL && e_len == 1) {
+					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_5gsm_cause, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 				}
 				break;
 			default:
@@ -9227,8 +9263,18 @@ proto_register_gsm_a_gm(void)
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }
 		},
-		{ &hf_gsm_a_gm_rac_ext_ec_ul_cov_enh_support,
+		{ &hf_gsm_a_gm_rac_ec_ul_cov_enh_support,
 		  { "EC uplink coverage enhancement support", "gsm_a.gm.gmm.rac.ec_ul_cov_enh_support",
+		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_rac_mta_access_sec_support,
+		  { "MTA Access Security support", "gsm_a.gm.gmm.rac.mta_access_sec_support",
+		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_rac_ec_paging_ind_chan_mon_support,
+		  { "EC paging indication channel monitoring support", "gsm_a.gm.gmm.rac.ec_paging_ind_chan_mon_support",
 		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
 		    NULL, HFILL }
 		},
@@ -9295,6 +9341,11 @@ proto_register_gsm_a_gm(void)
 		{ &hf_gsm_a_gm_sm_pco_unstruct_link_mtu,
 		  { "Unstructured Link MTU", "gsm_a.gm.sm.pco.unstruct_link_mtu",
 		    FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_sm_pco_5gsm_cause,
+		  { "5GSM cause", "gsm_a.gm.sm.pco.5gsm_cause",
+		    FT_UINT8, BASE_DEC, VALS(nas_5gs_sm_cause_vals), 0x0,
 		    NULL, HFILL }
 		},
 		/* Generated from convert_proto_tree_add_text.pl */

@@ -1747,7 +1747,7 @@ de_nas_5gs_sm_5gsm_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
  *     9.11.4.2    5GSM cause
  */
 
-static const value_string nas_5gs_sm_cause_vals[] = {
+const value_string nas_5gs_sm_cause_vals[] = {
     { 0x1a, "Insufficient resources" },
     { 0x1b, "Missing or unknown DNN" },
     { 0x1c, "Unknown PDU session type" },

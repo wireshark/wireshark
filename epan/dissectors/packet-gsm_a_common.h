@@ -836,6 +836,7 @@ extern const value_string nas_eps_emm_cause_values[];
 extern const value_string nas_eps_esm_cause_vals[];
 
 extern const value_string nas_5gs_pdu_session_id_vals[];
+extern const value_string nas_5gs_sm_cause_vals[];
 
 typedef enum
 {
