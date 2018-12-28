@@ -671,6 +671,7 @@ static expert_field ei_gtpv2_mbms_session_duration_days = EI_INIT;
 static expert_field ei_gtpv2_mbms_session_duration_secs = EI_INIT;
 static expert_field ei_gtpv2_ie = EI_INIT;
 static expert_field ei_gtpv2_int_size_not_handled = EI_INIT;
+static expert_field ei_gtpv2_apn_too_long = EI_INIT;
 
 /* Definition of User Location Info (AVP 22) masks */
 #define GTPv2_ULI_CGI_MASK          0x01
@@ -1940,21 +1941,20 @@ dissect_gtpv2_apn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
     int     name_len, tmp;
 
     if (length > 0) {
-        name_len = tvb_get_guint8(tvb, offset);
+        proto_item *pi;
 
-        if (name_len < 0x20) {
-            apn = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, length - 1, ENC_ASCII);
-            for (;;) {
-                if (name_len >= length - 1)
-                    break;
-                tmp = name_len;
-                name_len = name_len + apn[tmp] + 1;
-                apn[tmp] = '.';
-            }
-        } else{
-            apn = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII);
+        name_len = tvb_get_guint8(tvb, offset);
+        apn = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, length - 1, ENC_ASCII);
+        for (;;) {
+            if (name_len >= length - 1)
+                break;
+            tmp = name_len;
+            name_len = name_len + apn[tmp] + 1;
+            apn[tmp] = '.';
         }
-        proto_tree_add_string(tree, hf_gtpv2_apn, tvb, offset, length, apn);
+        pi = proto_tree_add_string(tree, hf_gtpv2_apn, tvb, offset, length, apn);
+        if (length > 100)
+            expert_add_info(pinfo, pi, &ei_gtpv2_apn_too_long);
     }
 
     if (apn)
@@ -6474,29 +6474,22 @@ dissect_gtpv2_apn_and_relative_capacity(tvbuff_t *tvb, packet_info *pinfo _U_, p
     proto_tree_add_item(tree, hf_gtpv2_apn_length, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    if (apn_length > 0)
-        {
+    if (apn_length > 0) {
+        proto_item *pi;
+
         name_len = tvb_get_guint8(tvb, offset);
-
-        if (name_len < 0x20)
-            {
-            apn = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, apn_length - 1, ENC_ASCII);
-            for (;;)
-                {
-                if (name_len >= apn_length - 1)
-                    break;
-                tmp = name_len;
-                name_len = name_len + apn[tmp] + 1;
-                apn[tmp] = '.';
-                }
-            }
-        else
-            {
-            apn = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, apn_length, ENC_ASCII);
-            }
-        proto_tree_add_string(tree, hf_gtpv2_apn, tvb, offset, apn_length, apn);
+        apn = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, apn_length - 1, ENC_ASCII);
+        for (;;) {
+            if (name_len >= apn_length - 1)
+                break;
+            tmp = name_len;
+            name_len = name_len + apn[tmp] + 1;
+            apn[tmp] = '.';
         }
-
+        pi = proto_tree_add_string(tree, hf_gtpv2_apn, tvb, offset, apn_length, apn);
+        if (apn_length > 100)
+            expert_add_info(pinfo, pi, &ei_gtpv2_apn_too_long);
+    }
 }
 /*
  * 8.117        Paging and Service Information
@@ -9766,7 +9759,8 @@ void proto_register_gtpv2(void)
         { &ei_gtpv2_mbms_session_duration_days, { "gtpv2.mbms_session_duration_days.invalid", PI_PROTOCOL, PI_WARN, "Days out of allowed range", EXPFILL }},
         { &ei_gtpv2_mbms_session_duration_secs, { "gtpv2.mbms_session_duration_secs.unknown", PI_PROTOCOL, PI_WARN, "Seconds out of allowed range", EXPFILL }},
         { &ei_gtpv2_ie, { "gtpv2.ie_type.reserved", PI_PROTOCOL, PI_WARN, "IE type Zero is Reserved and should not be used", EXPFILL }},
-        { &ei_gtpv2_int_size_not_handled,{ "gtpv2.ie_type.int_size_not_handled", PI_PROTOCOL, PI_WARN, "Integer size not handled yet", EXPFILL } },
+        { &ei_gtpv2_int_size_not_handled, { "gtpv2.ie_type.int_size_not_handled", PI_PROTOCOL, PI_WARN, "Integer size not handled yet", EXPFILL } },
+        { &ei_gtpv2_apn_too_long, { "gtpv2.apn_too_long", PI_PROTOCOL, PI_WARN, "APN encoding has more than 100 octets", EXPFILL } },
     };
 
     expert_module_t* expert_gtpv2;
