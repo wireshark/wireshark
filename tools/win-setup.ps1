@@ -69,8 +69,8 @@ Param(
 # trouble instead of trying to catch exceptions everywhere.
 $ErrorActionPreference = "Stop"
 
-$Win64CurrentTag = "2018-12-17"
-$Win32CurrentTag = "2018-12-17"
+$Win64CurrentTag = "2018-12-28"
+$Win32CurrentTag = "2018-12-28"
 
 # Archive file / SHA256
 $Win64Archives = @{
@@ -84,7 +84,7 @@ $Win64Archives = @{
     "libsmi-svn-40773-win64ws.zip" = "571fcee71d741bf847c3247d4c2e1c42388ca6a9feebe08fc0d4ce053571d15d";
     "libssh-0.7.3-1-win64ws.zip" = "3a81b9f4a914a46f15243bbb13b6919ef1c20d4bf502c47646caeccff2cbd75c";
     "libxml2-2.9.4-win64ws.zip" = "bb1892f5506f281d8f2b6c8be4fa8e83a9a3fb94c9160466fa59afdc5110d52e";
-    "lua-5.2.4_Win64_dllw4_lib.zip" = "cb019c1f771af6c0d6dfb7ddfe162b4984772416349ef1f40871feac6141f805";
+    "lua-5.2.4-unicode-win64-vc14.zip" = "fdf24928931a55d1f0bdb909820d5389cbc0ba510528a16e499e33c034ca508d";
     "lz4-1.7.5-win64ws.zip" = "dc946b68238c25cbc216901332d608d7f4b084be2d401210f74ce68b9b93207f";
     "MaxMindDB-1.3.2-win64ws.zip" = "9025c43e9b21ff0bfbaf206b8ed96e2920ef1434107f789e4c7c0c1d8b508952";
     "nghttp2-1.14.0-1-win64ws.zip" = "a4f15854f30b4fbb65cbf150011612e4580683dc9bbb339c632c37e414c938cb";
@@ -107,7 +107,7 @@ $Win32Archives = @{
     "libsmi-svn-40773-win32ws.zip" = "44bc81edfeb8948322ca365fc632e419383907c305cc922e6b74fdbb13827958";
     "libssh-0.7.3-1-win32ws.zip" = "b02f0d318175194ac538a24c9c9fc280a0ecad69fb3afd4945c106b4b7c4fa6f";
     "libxml2-2.9.4-win32ws.zip" = "147e521abacdd96913f7f94d1da44d59ee138e510922f3c1e03e485c8c9d8d1c";
-    "lua-5.2.4_Win32_dllw4_lib.zip" = "a4e93f923b23cfe2ec2f2150a09639cd6dd822e64dd50f1db253affa1afd360b";
+    "lua-5.2.4-unicode-win32-vc14.zip" = "609337fb9db817f94c7813ebceb44226a8d71a41896656ff5e8308ecd52968b5";
     "lz4-1.7.5-win32ws.zip" = "1b2e4b509163bc5039c0694369b9e40ba27cdbf4c4c88fcd454ba6a34c79b41b";
     "MaxMindDB-1.3.2-win32ws.zip" = "5c8b4bf3092da8fad6edb005a5283c6a74b7e115a50da010953eed77d33c11b7";
     "nghttp2-1.14.0-1-win32ws.zip" = "939ec18c81fed2e44270dc924fad8beffe90a74300cc98360442300fb0a5c292";
@@ -122,8 +122,6 @@ $Win32Archives = @{
 # Subdirectory to extract an archive to
 $ArchivesSubDirectory = @{
     "AirPcap_Devpack_4_1_0_1622.zip" = "AirPcap_Devpack_4_1_0_1622";
-    "lua-5.2.4_Win64_dllw4_lib.zip" = "lua5.2.4";
-    "lua-5.2.4_Win32_dllw4_lib.zip" = "lua5.2.4";
 }
 
 # Plain file downloads
@@ -169,6 +167,8 @@ $CleanupItems = @(
     "libxml2-*-win??ws"
     "lua5.1.4"
     "lua5.2.?"
+    "lua5.2.?-win??"
+    "lua-5.?.?-win??-vc??"
     "lz4-*-win??ws"
     "MaxMindDB-1.3.2-win??ws"
     "nghttp2-*-win??ws"
