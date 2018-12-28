@@ -117,8 +117,9 @@ isdigit_string(const guchar *str)
 	return TRUE;
 }
 
-#define FORMAT_SIZE_UNIT_MASK 0x00ff
-#define FORMAT_SIZE_PFX_MASK 0xff00
+#define FORMAT_SIZE_UNIT_MASK 0x0000ff
+#define FORMAT_SIZE_PFX_MASK 0x00ff00
+#define FORMAT_SIZE_SFX_MASK 0xff0000
 
 static const char *thousands_grouping_fmt = NULL;
 
@@ -145,7 +146,8 @@ format_size(gint64 size, format_size_flags_e flags)
 	int power = 1000;
 	int pfx_off = 0;
 	gboolean is_small = FALSE;
-	static const gchar *prefix[] = {" T", " G", " M", " k", " Ti", " Gi", " Mi", " Ki"};
+	gboolean separate = ((flags & format_size_suffix_no_space) != format_size_suffix_no_space);
+	static const gchar *prefix[] = {"T", "G", "M", "k", "Ti", "Gi", "Mi", "Ki"};
 	gchar *ret_val;
 
 	if (thousands_grouping_fmt == NULL)
@@ -156,44 +158,51 @@ format_size(gint64 size, format_size_flags_e flags)
 		power = 1024;
 	}
 
+	if ((size / power >= 10) && separate) {
+		g_string_append_c(human_str, ' ');
+	}
+
 	if (size / power / power / power / power >= 10) {
 		g_string_printf(human_str, thousands_grouping_fmt, size / power / power / power / power);
-		g_string_append(human_str, prefix[pfx_off]);
+		g_string_append_printf(human_str, "%s", prefix[pfx_off]);
 	} else if (size / power / power / power >= 10) {
 		g_string_printf(human_str, thousands_grouping_fmt, size / power / power / power);
-		g_string_append(human_str, prefix[pfx_off+1]);
+		g_string_append_printf(human_str, "%s", prefix[pfx_off+1]);
 	} else if (size / power / power >= 10) {
 		g_string_printf(human_str, thousands_grouping_fmt, size / power / power);
-		g_string_append(human_str, prefix[pfx_off+2]);
+		g_string_append_printf(human_str, "%s", prefix[pfx_off+2]);
 	} else if (size / power >= 10) {
 		g_string_printf(human_str, thousands_grouping_fmt, size / power);
-		g_string_append(human_str, prefix[pfx_off+3]);
+		g_string_append_printf(human_str, "%s", prefix[pfx_off+3]);
 	} else {
 		g_string_printf(human_str, thousands_grouping_fmt, size);
 		is_small = TRUE;
 	}
 
+	if ((flags & FORMAT_SIZE_UNIT_MASK) != format_size_unit_none && is_small && separate) {
+		g_string_append_c(human_str, ' ');
+	}
 
 	switch (flags & FORMAT_SIZE_UNIT_MASK) {
 		case format_size_unit_none:
 			break;
 		case format_size_unit_bytes:
-			g_string_append(human_str, is_small ? " bytes" : "B");
+			g_string_append(human_str, is_small ? "bytes" : "B");
 			break;
 		case format_size_unit_bits:
-			g_string_append(human_str, is_small ? " bits" : "b");
+			g_string_append(human_str, is_small ? "bits" : "b");
 			break;
 		case format_size_unit_bits_s:
-			g_string_append(human_str, is_small ? " bits/s" : "bps");
+			g_string_append(human_str, is_small ? "bits/s" : "bps");
 			break;
 		case format_size_unit_bytes_s:
-			g_string_append(human_str, is_small ? " bytes/s" : "Bps");
+			g_string_append(human_str, is_small ? "bytes/s" : "Bps");
 			break;
 		case format_size_unit_packets:
-			g_string_append(human_str, is_small ? " packets" : "packets");
+			g_string_append(human_str, "packets");
 			break;
 		case format_size_unit_packets_s:
-			g_string_append(human_str, is_small ? " packets/s" : "packets/s");
+			g_string_append(human_str, "packets/s");
 			break;
 		default:
 			g_assert_not_reached();
