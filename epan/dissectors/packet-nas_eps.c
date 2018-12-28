@@ -9,7 +9,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 24.301 V15.4.0 (2018-09)
+ * References: 3GPP TS 24.301 V15.5.0 (2018-12)
  */
 
 #include "config.h"
@@ -165,6 +165,7 @@ static int hf_nas_eps_emm_gea4 = -1;
 static int hf_nas_eps_emm_gea5 = -1;
 static int hf_nas_eps_emm_gea6 = -1;
 static int hf_nas_eps_emm_gea7 = -1;
+static int hf_eps_emm_ext_emerg_num_list_eenlv = -1;
 static int hf_eps_emm_ext_emerg_num_list_emerg_num_len = -1;
 static int hf_eps_emm_ext_emerg_num_list_emerg_num = -1;
 static int hf_eps_emm_ext_emerg_num_list_sub_serv_field_len = -1;
@@ -2289,6 +2290,11 @@ de_emm_ue_sec_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 /*
  * 9.9.3.37a Extended Emergency Number List
  */
+static true_false_string tfs_eenlv_value = {
+    "Valid only in the PLMN from which this IE is received",
+    "Valid in the country of the PLMN from which this IE is received"
+};
+
 static guint16
 de_emm_ext_emerg_num_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
                           guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
@@ -2298,6 +2304,9 @@ de_emm_ext_emerg_num_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
     proto_item *pi;
     proto_tree *sub_tree;
 
+    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, curr_offset<<3, 7, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_eps_emm_ext_emerg_num_list_eenlv, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    curr_offset++;
     while ((curr_offset - offset) < len) {
         saved_offset = curr_offset;
         sub_tree = proto_tree_add_subtree_format(tree, tvb, curr_offset, -1, ett_nas_eps_ext_emerg_num,
@@ -4183,7 +4192,7 @@ nas_emm_attach_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
     ELEM_OPT_TV_SHORT(0xC0, NAS_PDU_TYPE_EMM, DE_EMM_NETWORK_POLICY, NULL);
     /* 6C   T3447 value GPRS timer 3 9.9.3.16B O   TLV  3 */
     ELEM_OPT_TLV(0x6C, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3447 value");
-    /* 7A   Extended emergency number list Extended emergency number list 9.9.3.37A O   TLV-E  6-65538 */
+    /* 7A   Extended emergency number list Extended emergency number list 9.9.3.37A O   TLV-E  7-65538 */
     ELEM_OPT_TLV_E(0x7A, NAS_PDU_TYPE_EMM, DE_EMM_EXT_EMERG_NUM_LIST, NULL);
     /* 7C   Ciphering key data Ciphering key data 9.9.3.56 O   TLV-E  35-2291 */
     ELEM_OPT_TLV_E(0x7C, NAS_PDU_TYPE_EMM, DE_EMM_CIPH_KEY_DATA, NULL);
@@ -4965,7 +4974,7 @@ nas_emm_trac_area_upd_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
     ELEM_OPT_TV_SHORT(0xC0, NAS_PDU_TYPE_EMM, DE_EMM_NETWORK_POLICY, NULL);
     /* 6C   T3447 value GPRS timer 3 9.9.3.16B O   TLV  3 */
     ELEM_OPT_TLV(0x6C, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3447 value");
-    /* 7A   Extended emergency number list Extended emergency number list 9.9.3.37A O   TLV-E  6-65538 */
+    /* 7A   Extended emergency number list Extended emergency number list 9.9.3.37A O   TLV-E  7-65538 */
     ELEM_OPT_TLV_E(0x7A, NAS_PDU_TYPE_EMM, DE_EMM_EXT_EMERG_NUM_LIST, NULL);
     /* 7C   Ciphering key data Ciphering key data 9.9.3.56 O   TLV-E  35-2291 */
     ELEM_OPT_TLV_E(0x7C, NAS_PDU_TYPE_EMM, DE_EMM_CIPH_KEY_DATA, NULL);
@@ -6783,7 +6792,7 @@ proto_register_nas_eps(void)
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_iwkn26,
-        { "Interworking without N26","nas_eps.emm.iwkn26",
+        { "Interworking without N26 interface","nas_eps.emm.iwkn26",
         FT_BOOLEAN ,BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
         NULL, HFILL }
     },
@@ -7142,6 +7151,11 @@ proto_register_nas_eps(void)
     { &hf_nas_eps_emm_gea7,
         { "GPRS encryption algorithm GEA7","nas_eps.emm.gea7",
         FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+        NULL, HFILL }
+    },
+    { &hf_eps_emm_ext_emerg_num_list_eenlv,
+        { "Extended Emergency Number List Validity","nas_eps.emm.ext_emerg_num_list.eenlv",
+        FT_BOOLEAN, 8, TFS(&tfs_eenlv_value), 0x01,
         NULL, HFILL }
     },
     { &hf_eps_emm_ext_emerg_num_list_emerg_num_len,
