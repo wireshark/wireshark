@@ -77,8 +77,8 @@ Param(
 # trouble instead of trying to catch exceptions everywhere.
 $ErrorActionPreference = "Stop"
 
-$Win64CurrentTag = "2018-12-02"
-$Win32CurrentTag = "2018-12-02"
+$Win64CurrentTag = "2018-12-28"
+$Win32CurrentTag = "2018-12-28"
 
 # Archive file / subdir.
 $Win64Archives = @{
@@ -92,7 +92,7 @@ $Win64Archives = @{
     "libsmi-svn-40773-win64ws.zip" = "";
     "libssh-0.7.3-1-win64ws.zip" = "";
     "libxml2-2.9.4-win64ws.zip" = "";
-    "lua-5.2.4_Win64_dllw4_lib.zip" = "lua5.2.4";
+    "lua-5.2.4-unicode-win64-vc14.zip" = "";
     "lz4-1.7.5-win64ws.zip" = "";
     "MaxMindDB-1.3.2-win64ws.zip" = "";
     "nghttp2-1.14.0-1-win64ws.zip" = "";
@@ -116,7 +116,7 @@ $Win32Archives = @{
     "libsmi-svn-40773-win32ws.zip" = "";
     "libssh-0.7.3-1-win32ws.zip" = "";
     "libxml2-2.9.4-win32ws.zip" = "";
-    "lua-5.2.4_Win32_dllw4_lib.zip" = "lua5.2.4";
+    "lua-5.2.4-unicode-win32-vc14.zip" = "";
     "lz4-1.7.5-win32ws.zip" = "";
     "MaxMindDB-1.3.2-win32ws.zip" = "";
     "nghttp2-1.14.0-1-win32ws.zip" = "";
@@ -170,6 +170,7 @@ $CleanupItems = @(
     "libxml2-*-win??ws"
     "lua5.1.4"
     "lua5.2.?"
+    "lua-5.?.?-win??-vc??"
     "lz4-*-win??ws"
     "MaxMindDB-1.3.2-win??ws"
     "nghttp2-*-win??ws"

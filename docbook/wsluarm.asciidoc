@@ -37,6 +37,13 @@ Lua scripts as well.
 The Lua code will be executed once after all the protocol dissectors have being
 initialized and before reading any file.
 
+Lua 5.2 is the current supported version, future releases might use Lua 5.3.
+
+Wireshark for Windows uses a modified Lua runtime
+(link:https://github.com/Lekensteyn/lua-unicode[lua-unicode]) in order to
+support Unicode (UTF-8) filesystem paths. This brings consistency with other
+platforms (for example, Linux and macOS).
+
 [[wslua_dissector_example]]
 
 === Example of Dissector written in Lua

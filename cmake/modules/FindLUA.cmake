@@ -15,7 +15,7 @@
 # in locations other than lua/
 
 INCLUDE(FindWSWinLibs)
-FindWSWinLibs("lua5*" "LUA_HINTS")
+FindWSWinLibs("lua-5*" "LUA_HINTS")
 
 if(NOT WIN32)
   find_package(PkgConfig)
