@@ -40,6 +40,7 @@ static const value_string wsmp_elemenid_names[] = {
 /* Initialize the protocol and registered fields */
 static int proto_wsmp = -1;
 static int hf_wsmp_version = -1;
+static int hf_wsmp_var_len_det = -1;
 static int hf_wsmp_psid = -1;
 static int hf_wsmp_rate = -1;
 static int hf_wsmp_channel = -1;
@@ -168,19 +169,19 @@ static const value_string wsmp_psid_vals[] = {
 /* 0x28 to 0x7E 0p28 to 0p7E Not allocated */
 
 /* 0x7F */ { 0x7F, "Testings" },                                                    /* IEEE P1609 WG */
-/* 0x80 */ { 0x8000, "differential GPS corrections, uncompressed" },                /* SAE J2735 */
-/* 0x81 */ { 0x8001, "differential GPS corrections, compressed" },                  /* SAE J2735 */
-/* 0x82 */ { 0x8002, "intersection safety and awareness" },                         /* SAE J2735 */
-/* 0x83 */ { 0x8003, "traveller information and roadside signage" },                /* SAE J2735 */
-/* 0x84 */ { 0x8004, "mobile probe exchanges" },                                    /* SAE J2735 */
-/* 0x85 */ { 0x8005, "emergency and erratic vehicles present in roadway" },         /* SAE J2735 */
-/* 0x86 */ { 0x8006, "Remote ITS station management protocol-Remote Management Protocol Execution(RMPE)" },      /* ISO 24102-2 */
-/* 0x87 */ { 0x8007, "WAVE Service Advertisement" },                                                             /* IEEE Std 1609.3 */
-/* 0x88 */ { 0x8008, "Peer-to-peer distribution of Security Management Information" },                           /* CAMP */
+/* 0x80 */ { 0x80, "differential GPS corrections, uncompressed" },                /* SAE J2735 */
+/* 0x81 */ { 0x81, "differential GPS corrections, compressed" },                  /* SAE J2735 */
+/* 0x82 */ { 0x82, "intersection safety and awareness" },                         /* SAE J2735 */
+/* 0x83 */ { 0x83, "traveller information and roadside signage" },                /* SAE J2735 */
+/* 0x84 */ { 0x84, "mobile probe exchanges" },                                    /* SAE J2735 */
+/* 0x85 */ { 0x85, "emergency and erratic vehicles present in roadway" },         /* SAE J2735 */
+/* 0x86 */ { 0x86, "Remote ITS station management protocol-Remote Management Protocol Execution(RMPE)" },      /* ISO 24102-2 */
+/* 0x87 */ { 0x87, "WAVE Service Advertisement" },                                                             /* IEEE Std 1609.3 */
+/* 0x88 */ { 0x88, "Peer-to-peer distribution of Security Management Information" },                           /* CAMP */
 
 /* 0x89 to 0xFF 0p80-09 to 0p80-7F Not allocated */
 
-/* 0x01-00 */ { 0x8080, "Certificate Revocation List Application" },                           /* CAMP */
+/* 0x01-00 */ { 0x0100, "Certificate Revocation List Application" },                           /* CAMP */
 
     /*0x01-01 to 0x3E-7F 0p80-81 to 0pBD-FF Not allocated*/
     /*0x3E-80 to 0x40-1F 0pBE-00 to 0pBF-9F Reserved IEEE P1609 WG 416*/
@@ -191,10 +192,10 @@ static const value_string wsmp_psid_vals[] = {
     /*0x40-81 0pC0-00-01 Decentralized Environmental Notification Message(DENM) processor(deprecated) ETSI */
     /*0x40-82 to 0x20-40-7F 0pC0-00-02 to 0pDF-FF-FF Not allocated*/
     /* 2 097 152 total 3-octet p-encoded values*/
-/* 0x20-40-81 */{ 0xE0000001, "ITS-station Internal management Communications Protocol(IICP)" },              /* ISO 24102-4 */
+/* 0x20-40-81 */{ 0x204081, "ITS-station Internal management Communications Protocol(IICP)" },              /* ISO 24102-4 */
     /*0x20-40-82 to 0x10-20-40-7D 0pE0-00-00 - 02 to 0pEF-FFFF - FD Not allocated*/
-/* 0x10-20-40-7E */{ 0xEFFFFFFE, "IPv6 routing" },              /* IEEE Std 1609.3 */
-/* 0x10-20-40-7F */{ 0xEFFFFFFF, "Not allocated" },              /* */
+/* 0x10-20-40-7E */{ 0x1020407E, "IPv6 routing" },              /* IEEE Std 1609.3 */
+/* 0x10-20-40-7F */{ 0x1020407F, "Not allocated" },              /* */
 { 0, NULL }
 };
 
@@ -231,13 +232,15 @@ dissect_wsmp_psid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int o
     if (psidLen == 1)
         *psid = oct;
     else if (psidLen == 2)
-        *psid = tvb_get_ntohs(tvb, offset);
+        *psid = (tvb_get_ntohs(tvb, offset) & ~0x8000) + 0x80;
     else if (psidLen == 3)
-        *psid = tvb_get_ntoh24(tvb, offset);
+        *psid = (tvb_get_ntoh24(tvb, offset) & ~0xc00000) + 0x4080;
     else if (psidLen == 4)
-        *psid = tvb_get_ntohl(tvb, offset);
+        *psid = (tvb_get_ntohl(tvb, offset) & ~0xe0000000) + 0x204080;
 
-    proto_tree_add_item(tree, hf_wsmp_psid, tvb, offset, psidLen, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(tree, hf_wsmp_var_len_det, tvb, offset << 3, psidLen, ENC_NA);
+    proto_tree_add_uint_bits_format_value(tree, hf_wsmp_psid, tvb, (offset << 3) + psidLen,
+            (psidLen << 3) - psidLen,*psid,"%s(%u)", val_to_str_const(*psid, wsmp_psid_vals, "Unknown"), *psid);
     offset += psidLen;
 
     return offset;
@@ -370,7 +373,7 @@ dissect_wsmp_v3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 oct)
     if((psid == 0x20) && (IEEE1609dot2_handle)){
         tvbuff_t * tvb_new = tvb_new_subset_remaining(tvb, offset);
         call_dissector(IEEE1609dot2_handle, tvb_new, pinfo, data_tree);
-    } else if ((psid == 0x8002) && (IEEE1609dot2_handle)) {
+    } else if ((psid == 0x82) && (IEEE1609dot2_handle)) {
         tvbuff_t * tvb_new = tvb_new_subset_remaining(tvb, offset);
         call_dissector(IEEE1609dot2_handle, tvb_new, pinfo, data_tree);
     }
@@ -479,7 +482,7 @@ dissect_wsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     /* TODO: Branch on the application context and display accordingly
      * Default: call the data dissector
      */
-    if (psid == 0xbff0)
+    if (psid == 0x4070)
     {
         call_data_dissector(wsmdata_tvb, pinfo, wsmdata_tree);
     }
@@ -492,6 +495,11 @@ proto_register_wsmp(void)
     static hf_register_info hf[] = {
         { &hf_wsmp_version,
           { "Version", "wsmp.version", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_wsmp_var_len_det,
+          { "Length", "wsmp.len.det",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_wsmp_psid,
