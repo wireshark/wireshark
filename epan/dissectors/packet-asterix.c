@@ -9338,16 +9338,17 @@ static void asterix_build_subtree (tvbuff_t *tvb, packet_info *pinfo, guint offs
                             proto_tree_add_double (parent, *field->part[i]->hf, tvb, offset + inner_offset / 8, byte_length (field->part[i]->bit_length), value * scaling_factor);
                         break;
                     case FIELD_PART_CALLSIGN:
-                        str_buffer = (char *)wmem_alloc (wmem_packet_scope (), 9);
-                        str_buffer[0] = '\0';
-                        g_snprintf (str_buffer, 8, "%c%c%c%c%c%c%c%c, ", AISCode[(value >> 42) & 63],
-                                                                         AISCode[(value >> 36) & 63],
-                                                                         AISCode[(value >> 30) & 63],
-                                                                         AISCode[(value >> 24) & 63],
-                                                                         AISCode[(value >> 18) & 63],
-                                                                         AISCode[(value >> 12) & 63],
-                                                                         AISCode[(value >> 6) & 63],
-                                                                         AISCode[value & 63]);
+                        str_buffer = wmem_strdup_printf(
+                            wmem_packet_scope (),
+                            "%c%c%c%c%c%c%c%c",
+                            AISCode[(value >> 42) & 63],
+                            AISCode[(value >> 36) & 63],
+                            AISCode[(value >> 30) & 63],
+                            AISCode[(value >> 24) & 63],
+                            AISCode[(value >> 18) & 63],
+                            AISCode[(value >> 12) & 63],
+                            AISCode[(value >> 6) & 63],
+                            AISCode[value & 63]);
                         proto_tree_add_string (parent, *field->part[i]->hf, tvb, offset + inner_offset / 8, byte_length (field->part[i]->bit_length), str_buffer);
                         break;
                 }
