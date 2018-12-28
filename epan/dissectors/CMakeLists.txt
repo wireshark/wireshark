@@ -776,6 +776,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cell_broadcast.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cemi.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ceph.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-cesoeth.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cfdp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cfm.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cgmp.c

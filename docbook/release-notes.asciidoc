@@ -99,6 +99,7 @@ Apple Wireless Direct Link (AWDL)
 Basic Transport Protocol (BTP)
 BLIP Couchbase Mobile (BLIP)
 CDMA 2000
+Circuit Emulation Service over Ethernet (CESoETH)
 Cisco Meraki Discovery Protocol (MDP)
 Distributed Ruby (DRb)
 DXL

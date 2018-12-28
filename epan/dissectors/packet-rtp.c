@@ -2305,6 +2305,173 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     return offset;
 }
 
+gint
+dissect_rtp_shim_header(tvbuff_t *tvb, gint start, packet_info *pinfo _U_, proto_tree *tree, struct _rtp_info *rtp_info)
+{
+    proto_item *rtp_ti = NULL;
+    proto_tree *rtp_tree = NULL;
+    proto_item *ti;
+    guint8      octet1, octet2;
+    unsigned int version;
+    gboolean    padding_set;
+    gboolean    extension_set;
+    unsigned int csrc_count;
+    gboolean    marker_set;
+    unsigned int payload_type;
+    unsigned int i;
+    gint        offset = start;
+    guint16     seq_num;
+    guint32     timestamp;
+    guint32     sync_src;
+    const char *pt = NULL;
+    static const int * octet1_fields[] = {
+        &hf_rtp_version,
+        &hf_rtp_padding,
+        &hf_rtp_extension,
+        &hf_rtp_csrc_count,
+        NULL
+    };
+
+    /* Get the fields in the first octet */
+    octet1 = tvb_get_guint8( tvb, offset );
+    version = RTP_VERSION( octet1 );
+
+    /* fill in the rtp_info structure */
+    if (rtp_info) rtp_info->info_version = version;
+    if (version != 2) {
+        /*
+         * Unknown or unsupported version.
+         */
+        if ( tree ) {
+            ti = proto_tree_add_item( tree, proto_rtp, tvb, offset, 1, ENC_NA );
+            rtp_tree = proto_item_add_subtree( ti, ett_rtp );
+
+            proto_tree_add_uint( rtp_tree, hf_rtp_version, tvb,
+                offset, 1, octet1);
+        }
+        return offset;
+    }
+
+    padding_set = RTP_PADDING( octet1 );
+    extension_set = RTP_EXTENSION( octet1 );
+    csrc_count = RTP_CSRC_COUNT( octet1 );
+
+    /* Get the fields in the second octet */
+    octet2 = tvb_get_guint8( tvb, offset + 1 );
+    marker_set = RTP_MARKER( octet2 );
+    payload_type = RTP_PAYLOAD_TYPE( octet2 );
+
+    /* Get the subsequent fields */
+    seq_num = tvb_get_ntohs( tvb, offset + 2 );
+    timestamp = tvb_get_ntohl( tvb, offset + 4 );
+    sync_src = tvb_get_ntohl( tvb, offset + 8 );
+
+    /* fill in the rtp_info structure */
+    if (rtp_info) {
+        rtp_info->info_padding_set = padding_set;
+        rtp_info->info_padding_count = 0;
+        rtp_info->info_marker_set = marker_set;
+        rtp_info->info_media_types = 0;
+        rtp_info->info_payload_type = payload_type;
+        rtp_info->info_seq_num = seq_num;
+        rtp_info->info_timestamp = timestamp;
+        rtp_info->info_sync_src = sync_src;
+        rtp_info->info_data_len = 0;
+        rtp_info->info_all_data_present = FALSE;
+        rtp_info->info_payload_offset = 0;
+        rtp_info->info_payload_len = 0;
+        rtp_info->info_is_srtp = FALSE;
+        rtp_info->info_setup_frame_num = 0;
+        rtp_info->info_data = NULL;
+        rtp_info->info_payload_type_str = NULL;
+        rtp_info->info_payload_rate = 0;
+        rtp_info->info_is_ed137 = FALSE;
+        rtp_info->info_ed137_info = NULL;
+    }
+
+    if ( tree ) {
+        /* Create RTP protocol tree */
+        rtp_ti = proto_tree_add_item(tree, proto_rtp, tvb, offset, 0, ENC_NA );
+        rtp_tree = proto_item_add_subtree(rtp_ti, ett_rtp );
+
+        proto_tree_add_bitmask_list(rtp_tree, tvb, offset, 1, octet1_fields, ENC_NA);
+        offset++;
+
+        proto_tree_add_boolean( rtp_tree, hf_rtp_marker, tvb, offset,
+            1, octet2 );
+
+        pt = val_to_str_ext(payload_type, &rtp_payload_type_vals_ext, "Unknown (%u)");
+
+        proto_tree_add_uint_format( rtp_tree, hf_rtp_payload_type, tvb,
+            offset, 1, octet2, "Payload type: %s (%u)", pt, payload_type);
+
+        offset++;
+
+        /* Sequence number 16 bits (2 octets) */
+        proto_tree_add_uint( rtp_tree, hf_rtp_seq_nr, tvb, offset, 2, seq_num );
+        offset += 2;
+
+        /* Timestamp 32 bits (4 octets) */
+        proto_tree_add_uint( rtp_tree, hf_rtp_timestamp, tvb, offset, 4, timestamp );
+        offset += 4;
+
+        /* Synchronization source identifier 32 bits (4 octets) */
+        proto_tree_add_uint( rtp_tree, hf_rtp_ssrc, tvb, offset, 4, sync_src );
+        offset += 4;
+    } else {
+        offset += 12;
+    }
+    /* CSRC list*/
+    if ( csrc_count > 0 ) {
+        proto_tree *rtp_csrc_tree;
+        guint32 csrc_item;
+        ti = proto_tree_add_item(rtp_tree, hf_rtp_csrc_items, tvb, offset,
+                                     csrc_count * 4, ENC_NA);
+        proto_item_append_text(ti, " (%u items)", csrc_count);
+        rtp_csrc_tree = proto_item_add_subtree( ti, ett_csrc_list );
+
+        for (i = 0; i < csrc_count; i++ ) {
+            csrc_item = tvb_get_ntohl( tvb, offset );
+            proto_tree_add_uint_format( rtp_csrc_tree,
+                hf_rtp_csrc_item, tvb, offset, 4,
+                csrc_item,
+                "CSRC item %d: 0x%X",
+                i, csrc_item );
+            offset += 4;
+        }
+    }
+
+    /* Optional RTP header extension */
+    if ( extension_set ) {
+        unsigned int hdr_extension_len;
+        unsigned int hdr_extension_id;
+
+        /* Defined by profile field is 16 bits (2 octets) */
+        hdr_extension_id = tvb_get_ntohs( tvb, offset );
+        proto_tree_add_uint( rtp_tree, hf_rtp_prof_define, tvb, offset, 2, hdr_extension_id );
+        offset += 2;
+
+        hdr_extension_len = tvb_get_ntohs( tvb, offset );
+        proto_tree_add_uint( rtp_tree, hf_rtp_length, tvb, offset, 2, hdr_extension_len);
+        offset += 2;
+        if ( hdr_extension_len > 0 ) {
+            proto_tree *rtp_hext_tree = NULL;
+
+            ti = proto_tree_add_item(rtp_tree, hf_rtp_hdr_exts, tvb, offset, hdr_extension_len * 4, ENC_NA);
+            rtp_hext_tree = proto_item_add_subtree( ti, ett_hdr_ext );
+
+            for ( i = 0; i < hdr_extension_len; i++ ) {
+                proto_tree_add_item( rtp_hext_tree, hf_rtp_hdr_ext, tvb, offset, 4, ENC_BIG_ENDIAN );
+                offset += 4;
+            }
+        }
+    }
+
+    proto_item_set_len(rtp_ti, offset - start);
+
+    return (offset - start);
+}
+
 /* calculate the extended sequence number - top 16 bits of the previous sequence number,
  * plus our own; then correct for wrapping */
 static guint32

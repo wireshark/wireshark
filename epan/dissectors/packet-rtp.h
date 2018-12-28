@@ -219,4 +219,10 @@ bluetooth_add_address(packet_info *pinfo, address *addr, guint32 stream_number,
          const gchar *setup_method, guint32 setup_frame_number,
          guint32 media_types, void *data);
 
+/* Dissect the header only, without side effects */
+WS_DLL_PUBLIC
+gint dissect_rtp_shim_header(tvbuff_t *tvb, gint start,
+                             packet_info *pinfo, proto_tree *tree,
+                             struct _rtp_info *rtp_info);
+
 #endif /*__PACKET_RTP_H__*/
