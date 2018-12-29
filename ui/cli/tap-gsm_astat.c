@@ -96,17 +96,16 @@ gsm_a_stat_packet(
         break;
 
    case GSM_A_PDU_TYPE_SACCH:
-   switch (tap_p->protocol_disc)
-   {
-   case 0:
-      stat_p->sacch_rr_message_type[tap_p->message_type]++;
-      break;
-   default:
-      /* unknown Short PD */
-      break;
-   }
-   break;
-
+        switch (tap_p->protocol_disc)
+        {
+        case 0:
+            stat_p->sacch_rr_message_type[tap_p->message_type]++;
+            break;
+        default:
+            /* unknown Short PD */
+            break;
+        }
+        break;
 
     default:
         /*
