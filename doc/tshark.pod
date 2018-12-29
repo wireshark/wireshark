@@ -45,7 +45,7 @@ S<[ B<-R> E<lt>Read filterE<gt> ]>
 S<[ B<-s> E<lt>capture snaplenE<gt> ]>
 S<[ B<-S> E<lt>separatorE<gt> ]>
 S<[ B<-t> a|ad|adoy|d|dd|e|r|u|ud|udoy ]>
-S<[ B<-T> ek|fields|json|pdml|ps|psml|tabs|text ]>
+S<[ B<-T> ek|fields|json|jsonraw|pdml|ps|psml|tabs|text ]>
 S<[ B<-u> E<lt>seconds typeE<gt>]>
 S<[ B<-U> E<lt>tap_nameE<gt>]>
 S<[ B<-v> ]>
