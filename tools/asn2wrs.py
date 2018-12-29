@@ -1202,7 +1202,10 @@ class EthCtx:
                 if (use_ext):
                     self.eth_type[nm]['attr']['STRINGS'] = '&%s_ext' % (self.eth_vals_nm(nm))
                 else:
-                    self.eth_type[nm]['attr']['STRINGS'] = 'VALS(%s)' % (self.eth_vals_nm(nm))
+                    if self.eth_type[nm]['val'].HasConstraint() and self.eth_type[nm]['val'].constr.Needs64b(self):
+                        self.eth_type[nm]['attr']['STRINGS'] = 'VALS64(%s)' % (self.eth_vals_nm(nm))
+                    else:
+                        self.eth_type[nm]['attr']['STRINGS'] = 'VALS(%s)' % (self.eth_vals_nm(nm))
             self.eth_type[nm]['attr'].update(self.conform.use_item('ETYPE_ATTR', nm))
         for t in self.eth_type_ord:
             bits = self.eth_type[t]['val'].eth_named_bits()
