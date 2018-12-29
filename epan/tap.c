@@ -58,7 +58,6 @@ static tap_dissector_t *tap_dissector_list=NULL;
  * processing of the packet depending on whether we're currently dissecting
  * the packet in error or not.
  *
- *
  * It also means that a tap listener can't depend on the source and destination
  * addresses being the correct ones for the packet being processed if, for
  * example, you have some tunneling that causes multiple layers of the same
@@ -307,7 +306,9 @@ tap_push_tapped_queue(epan_dissect_t *edt)
 	for(i=0;i<tap_packet_index;i++){
 		for(tl=tap_listener_queue;tl;tl=tl->next){
 			tp=&tap_packet_array[i];
-			/* Don't tap the packet if it's an "error" unless the listener tells us to */
+			/* Don't tap the packet if it's an "error packet"
+			 * unless the listener has requested that we do so.
+			 */
 			if (!(tp->flags & TAP_PACKET_IS_ERROR_PACKET) || (tl->flags & TL_REQUIRES_ERROR_PACKETS))
 			{
 				if(tp->tap_id==tl->tap_id){
@@ -319,7 +320,7 @@ tap_push_tapped_queue(epan_dissect_t *edt)
 						tl->needs_redraw|=tl->packet(tl->tapdata, tp->pinfo, edt, tp->tap_specific_data);
 					}
 				}
-            }
+			}
 		}
 	}
 }
