@@ -859,8 +859,9 @@ static const value_string init_reason_vals[] = {
 };
 
 static const value_string docsis_freq_rng_vals[] = {
-  {0, "Standard Upstream Frequency Range"},
-  {1, "Standard and Extended Upstream Frequency Range"},
+  {0, "Standard Upstream Frequency Range (5-42 MHz)"},
+  {1, "Selectable Between Standard (5-42 MHz) and Extended (5-85 MHz) Upstream Frequency Range"},
+  {2, "Extended Upstream Frequency Range (5-85 MHz)"},
   {0, NULL},
 };
 
@@ -2777,8 +2778,10 @@ dissect_modemcap (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int sta
           case CAP_EXT_US_TRNS_PWR:
             if (length == 1)
               {
-                proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_ext_us_trans_power, tvb,
-                                     pos, length, ENC_BIG_ENDIAN);
+                guint power_raw;
+                proto_item * power_cap_it = proto_tree_add_item_ret_uint (mcap_tree, hf_docsis_tlv_mcap_ext_us_trans_power,
+                                                                          tvb, pos, length, ENC_BIG_ENDIAN, &power_raw);
+                proto_item_append_text(power_cap_it, " (%.2f dB)", power_raw * 0.25);
               }
             else
               {
