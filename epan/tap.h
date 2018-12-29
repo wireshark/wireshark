@@ -128,7 +128,7 @@ WS_DLL_PUBLIC void reset_tap_listeners(void);
  * when we open/start a new capture or if we need to rescan the packet list.
  * It should be called from a low priority thread say once every 3 seconds
  *
- * If draw_all is true, redraw all aplications regardless if they have
+ * If draw_all is true, redraw all applications regardless if they have
  * changed or not.
  */
 WS_DLL_PUBLIC void draw_tap_listeners(gboolean draw_all);
