@@ -9,6 +9,10 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+/* Also contains IEEE std 1609.12
+ * section 4.1.3 PSID allocations
+ */
+
 #include "config.h"
 
 #include <epan/packet.h>
@@ -17,6 +21,7 @@
 #include <epan/asn1.h>
 
 #include "packet-oer.h"
+#include "packet-ieee1609dot2.h"
 
 #define PNAME  "IEEE1609dot2"
 #define PSNAME "IEEE1609dot2"

@@ -18,6 +18,8 @@
 #include <epan/etypes.h>
 #include <epan/expert.h>
 
+#include "packet-ieee1609dot2.h"
+
 /* elemenID Types */
 #define TRANSMITPW 0x04
 #define CHANNUM    0x0F
@@ -117,88 +119,6 @@ static const value_string wsmp_tpid_vals[] = {
     { 0, NULL }
 };
 
-/* IEEE std 1609.12
- * 4.1.3 PSID allocations
- * Using P-encoded PSID values (hex)
- */
-static const value_string wsmp_psid_vals[] = {
-    { 0x0, "Null-networking protocol" },
-/* 0x00 */ { 0x00, "system" },                                                      /* ISO 15628a */
-/* 0x01 */ { 0x01, "electronic-fee-collection" },                                   /* ISO 14906 */
-/* 0x02 */ { 0x02, "freight-fl eet-management" },                                   /* ISO 15628 */
-/* 0x03 */ { 0x03, "public-transport" },                                            /* ISO 15628 */
-/* 0x04 */ { 0x04, "traffi c-traveller-information" },                              /* ISO 15628 */
-/* 0x05 */ { 0x05, "traffi c-control" },                                            /* ISO 15628 */
-/* 0x06 */ { 0x06, "parking management" },                                          /* ISO 15628 */
-/* 0x07 */ { 0x07, "geographic-road-database" },                                    /* ISO 15628 */
-/* 0x08 */ { 0x08, "medium-range-preinformation" },                                 /* ISO 15628 */
-/* 0x09 */ { 0x09, "man-machine-interface" },                                       /* ISO 15628 */
-/* 0x0A */ { 0x0A, "intersystem-interface" },                                       /* ISO 15628 */
-/* 0x0B */ { 0x0B, "automatic-vehicle-identifi cation" },                           /* ISO 17264 */
-/* 0x0C */ { 0x0C, "emergency-warning" },                                           /* ISO 15628 */
-/* 0x0D */ { 0x0D, "private" },                                                     /* ISO 15628 */
-/* 0x0E */ { 0x0E, "multi-purpose-payment" },                                       /* ISO 15628 */
-/* 0x0F */ { 0x0F, "dsrc-resource manager" },                                       /* ISO 15628 */
-/* 0x10 */ { 0x10, "after-theft-systems" },                                         /* ISO 15628 */
-/* 0x11 */ { 0x11, "cruise-assist-highway-system" },                                /* ISO 15628 */
-/* 0x12 */ { 0x12, "multi-purpose-information-system" },                            /* ISO 15628 */
-/* 0x13 */ { 0x13, "multi-mobile-information-system" },                             /* ISO 15628 */
-/* 0x14 */ { 0x14, "efc-compliance-check-communication-applications " },            /* ISO TS 12813 */
-/* 0x15 */ { 0x15, "efc-localisation-augmentation-communication-applications" },    /* ISO TS 13141 */
-/* 0x16 */ { 0x16, "reserved for ISO/CEN-dsrc-applications" },                      /* IISO 15628 */
-/* 0x17 */ { 0x17, "reserved for ISO/CEN-dsrc-applications" },                      /* IISO 15628 */
-/* 0x18 */ { 0x18, "reserved for ISO/CEN-dsrc-applications" },                      /* IISO 15628 */
-/* 0x19 */ { 0x19, "reserved for ISO/CEN-dsrc-applications" },                      /* IISO 15628 */
-/* 0x10 */ { 0x1a, "reserved for ISO/CEN-dsrc-applications" },                      /* IISO 15628 */
-/* 0x1b */ { 0x1b, "reserved for ISO/CEN-dsrc-applications" },                      /* IISO 15628 */
-/* 0x1c */ { 0x1c, "reserved for ISO/CEN-dsrc-applications" },                      /* IISO 15628 */
-
-/* 0x1d */ { 0x1d, "Private use" },                                                 /* IISO 15628 */
-/* 0x1e */ { 0x1e, "Private use" },                                                 /* IISO 15628 */
-/* 0x1f */ { 0x1f, "reserved for ISO/CEN-dsrc-applications" },                      /* IISO 15628 */
-
-/* 0x20 */ { 0x20, "vehicle to vehicle safety and awarenesss" },                    /* SAE J2735 */
-/* 0x21 */ { 0x21, "limited sensor vehicle to vehicle safety and awarenesss" },     /* SAE J2735 */
-/* 0x22 */ { 0x22, "tracked vehicle safety and awarenesss" },                       /* SAE J2735 */
-/* 0x23 */ { 0x23, "WAVE security managements" },                                   /* IEEE Std 1609.2 */
-/* 0x24 */ { 0x24, "CA Basic Services" },                                           /* ETSI EN 302 637-2 */
-/* 0x25 */ { 0x25, "DEN Basic Services" },                                          /* ETSI EN 302 637-3 */
-/* 0x26 */ { 0x26, "Misbehavior reporting for common applicationss" },              /* CAMP */
-/* 0x27 */ { 0x27, "Vulnerable Road Users Safety Applications" },                   /* SAE DSRC TC */
-
-/* 0x28 to 0x7E 0p28 to 0p7E Not allocated */
-
-/* 0x7F */ { 0x7F, "Testings" },                                                    /* IEEE P1609 WG */
-/* 0x80 */ { 0x80, "differential GPS corrections, uncompressed" },                /* SAE J2735 */
-/* 0x81 */ { 0x81, "differential GPS corrections, compressed" },                  /* SAE J2735 */
-/* 0x82 */ { 0x82, "intersection safety and awareness" },                         /* SAE J2735 */
-/* 0x83 */ { 0x83, "traveller information and roadside signage" },                /* SAE J2735 */
-/* 0x84 */ { 0x84, "mobile probe exchanges" },                                    /* SAE J2735 */
-/* 0x85 */ { 0x85, "emergency and erratic vehicles present in roadway" },         /* SAE J2735 */
-/* 0x86 */ { 0x86, "Remote ITS station management protocol-Remote Management Protocol Execution(RMPE)" },      /* ISO 24102-2 */
-/* 0x87 */ { 0x87, "WAVE Service Advertisement" },                                                             /* IEEE Std 1609.3 */
-/* 0x88 */ { 0x88, "Peer-to-peer distribution of Security Management Information" },                           /* CAMP */
-
-/* 0x89 to 0xFF 0p80-09 to 0p80-7F Not allocated */
-
-/* 0x01-00 */ { 0x0100, "Certificate Revocation List Application" },                           /* CAMP */
-
-    /*0x01-01 to 0x3E-7F 0p80-81 to 0pBD-FF Not allocated*/
-    /*0x3E-80 to 0x40-1F 0pBE-00 to 0pBF-9F Reserved IEEE P1609 WG 416*/
-    /*0x40-20 to 0x40-5F 0pBF-A0 to 0pBF-DF Private used IEEE P1609 WG 64*/
-    /*0x40-60 to 0x40-7F 0pBF-E0 to 0pBF-FF Testing IEEE P1609 WG 32*/
-    /*16 384 total 2-octet p-encoded values*/
-    /*0x40-80 0pC0-00-00 Cooperative Awareness Message (CAM) processor(deprecated) ETSI */
-    /*0x40-81 0pC0-00-01 Decentralized Environmental Notification Message(DENM) processor(deprecated) ETSI */
-    /*0x40-82 to 0x20-40-7F 0pC0-00-02 to 0pDF-FF-FF Not allocated*/
-    /* 2 097 152 total 3-octet p-encoded values*/
-/* 0x20-40-81 */{ 0x204081, "ITS-station Internal management Communications Protocol(IICP)" },              /* ISO 24102-4 */
-    /*0x20-40-82 to 0x10-20-40-7D 0pE0-00-00 - 02 to 0pEF-FFFF - FD Not allocated*/
-/* 0x10-20-40-7E */{ 0x1020407E, "IPv6 routing" },              /* IEEE Std 1609.3 */
-/* 0x10-20-40-7F */{ 0x1020407F, "Not allocated" },              /* */
-{ 0, NULL }
-};
-
 /*
 4.1.2 P-encoding of PSIDs
     This standard defines a compact encoding for PSID referred to as p-encoding. Octets are numbered from the
@@ -240,7 +160,7 @@ dissect_wsmp_psid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int o
 
     proto_tree_add_bits_item(tree, hf_wsmp_var_len_det, tvb, offset << 3, psidLen, ENC_NA);
     proto_tree_add_uint_bits_format_value(tree, hf_wsmp_psid, tvb, (offset << 3) + psidLen,
-            (psidLen << 3) - psidLen,*psid,"%s(%u)", val_to_str_const(*psid, wsmp_psid_vals, "Unknown"), *psid);
+            (psidLen << 3) - psidLen,*psid,"%s(%u)", val64_to_str_const(*psid, ieee1609dot2_Psid_vals, "Unknown"), *psid);
     offset += psidLen;
 
     return offset;
@@ -370,10 +290,10 @@ dissect_wsmp_v3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 oct)
     /* WSM Data */
     data_tree = proto_tree_add_subtree(tree, tvb, offset, wsm_len, ett_wsmdata, NULL, "Wave Short Message");
 
-    if((psid == 0x20) && (IEEE1609dot2_handle)){
+    if((psid == (guint32)psid_vehicle_to_vehicle_safety_and_awarenesss) && (IEEE1609dot2_handle)){
         tvbuff_t * tvb_new = tvb_new_subset_remaining(tvb, offset);
         call_dissector(IEEE1609dot2_handle, tvb_new, pinfo, data_tree);
-    } else if ((psid == 0x82) && (IEEE1609dot2_handle)) {
+    } else if ((psid == (guint32)psid_intersection_safety_and_awareness) && (IEEE1609dot2_handle)) {
         tvbuff_t * tvb_new = tvb_new_subset_remaining(tvb, offset);
         call_dissector(IEEE1609dot2_handle, tvb_new, pinfo, data_tree);
     }
@@ -503,7 +423,7 @@ proto_register_wsmp(void)
             NULL, HFILL }},
 
         { &hf_wsmp_psid,
-          { "PSID", "wsmp.psid", FT_UINT32, BASE_HEX, VALS(wsmp_psid_vals), 0x0,
+          { "PSID", "wsmp.psid", FT_UINT32, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_wsmp_channel,

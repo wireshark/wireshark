@@ -71,6 +71,7 @@
 #include <wsutil/ws_printf.h>
 
 #include "packet-e164.h"
+#include "packet-ieee1609dot2.h"
 #include "packet-geonw.h"
 
 /*
@@ -1261,7 +1262,7 @@ dissect_sec_intx(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tr
     }
     else {
         proto_tree_add_uint_bits_format_value(subtree, hf, tvb, (start << 3) + (*offset) - start,
-            (((*offset) - start) << 3) - ((*offset) - start), (guint32)tmp_val, "%u", (guint32)tmp_val);
+            (((*offset) - start) << 3) - ((*offset) - start), (guint32)tmp_val, "%s(%u)", val64_to_str_const(tmp_val, ieee1609dot2_Psid_vals, "Unknown") , (guint32)tmp_val);
     }
     // The encoding of the length shall use at most 7 bits set to 1.
     if (!mask)

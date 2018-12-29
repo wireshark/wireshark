@@ -385,6 +385,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-icmp.h
 	packet-idmp.h
 	packet-idp.h
+	packet-ieee1609dot2.h
 	packet-ieee80211.h
 	packet-ieee80211-radio.h
 	packet-ieee80211-radiotap-iter.h

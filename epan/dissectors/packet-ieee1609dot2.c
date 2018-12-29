@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-ieee1609dot2.c                                                      */
-/* asn2wrs.py -p ieee1609dot2 -c ./ieee1609dot2.cnf -s ./packet-ieee1609dot2-template -D . -O ../.. IEEE1609dot2BaseTypes.asn IEEE1609dot2DataTypes.asn */
+/* asn2wrs.py -p ieee1609dot2 -c ./ieee1609dot2.cnf -s ./packet-ieee1609dot2-template -D . -O ../.. IEEE1609dot2BaseTypes.asn IEEE1609dot2DataTypes.asn IEEE1609dot12.asn */
 
 /* Input file: packet-ieee1609dot2-template.c */
 
@@ -17,6 +17,10 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+/* Also contains IEEE std 1609.12
+ * section 4.1.3 PSID allocations
+ */
+
 #include "config.h"
 
 #include <epan/packet.h>
@@ -25,6 +29,7 @@
 #include <epan/asn1.h>
 
 #include "packet-oer.h"
+#include "packet-ieee1609dot2.h"
 
 #define PNAME  "IEEE1609dot2"
 #define PSNAME "IEEE1609dot2"
@@ -186,7 +191,7 @@ static int hf_ieee1609dot2_EndEntityType_app = -1;
 static int hf_ieee1609dot2_EndEntityType_enrol = -1;
 
 /*--- End of included file: packet-ieee1609dot2-hf.c ---*/
-#line 31 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
+#line 36 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -257,7 +262,7 @@ static gint ett_ieee1609dot2_SubjectPermissions = -1;
 static gint ett_ieee1609dot2_VerificationKeyIndicator = -1;
 
 /*--- End of included file: packet-ieee1609dot2-ett.c ---*/
-#line 34 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
+#line 39 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
 
 static dissector_handle_t j2735_handle;
 
@@ -976,6 +981,76 @@ dissect_ieee1609dot2_PublicVerificationKey(tvbuff_t *tvb _U_, int offset _U_, as
 }
 
 
+const val64_string ieee1609dot2_Psid_vals[] = {
+  { psid_system, "psid-system" },
+  { psid_electronic_fee_collection, "psid-electronic-fee-collection" },
+  { psid_freight_fleet_management, "psid-freight-fleet-management" },
+  { psid_public_transport, "psid-public-transport" },
+  { psid_traffic_traveller_information, "psid-traffic-traveller-information" },
+  { psid_traffic_control, "psid-traffic-control" },
+  { psid_parking_management, "psid-parking-management" },
+  { psid_geographic_road_database, "psid-geographic-road-database" },
+  { psid_medium_range_preinformation, "psid-medium-range-preinformation" },
+  { psid_man_machine_interface, "psid-man-machine-interface" },
+  { psid_intersystem_interface, "psid-intersystem-interface" },
+  { psid_automatic_vehicle_identification, "psid-automatic-vehicle-identification" },
+  { psid_emergency_warning, "psid-emergency-warning" },
+  { psid_private, "psid-private" },
+  { psid_multi_purpose_payment, "psid-multi-purpose-payment" },
+  { psid_dsrc_resource_manager, "psid-dsrc-resource-manager" },
+  { psid_after_theft_systems, "psid-after-theft-systems" },
+  { psid_cruise_assist_highway_system, "psid-cruise-assist-highway-system" },
+  { psid_multi_purpose_information_system, "psid-multi-purpose-information-system" },
+  { psid_multi_mobile_information_system, "psid-multi-mobile-information-system" },
+  { psid_efc_compliance_check_communication_applications, "psid-efc-compliance-check-communication-applications" },
+  { psid_efc_localisation_augmentation_communication_applications, "psid-efc-localisation-augmentation-communication-applications" },
+  { psid_iso_cen_dsrc_applications_0x16, "psid-iso-cen-dsrc-applications-0x16" },
+  { psid_iso_cen_dsrc_applications_0x17, "psid-iso-cen-dsrc-applications-0x17" },
+  { psid_iso_cen_dsrc_applications_0x18, "psid-iso-cen-dsrc-applications-0x18" },
+  { psid_iso_cen_dsrc_applications_0x19, "psid-iso-cen-dsrc-applications-0x19" },
+  { psid_iso_cen_dsrc_applications_0x1a, "psid-iso-cen-dsrc-applications-0x1a" },
+  { psid_iso_cen_dsrc_applications_0x1b, "psid-iso-cen-dsrc-applications-0x1b" },
+  { psid_iso_cen_dsrc_applications_0x1c, "psid-iso-cen-dsrc-applications-0x1c" },
+  { psid_private_use_0x1d, "psid-private-use-0x1d" },
+  { psid_private_use_0x1e, "psid-private-use-0x1e" },
+  { psid_iso_cen_dsrc_applications_0x1f, "psid-iso-cen-dsrc-applications-0x1f" },
+  { psid_vehicle_to_vehicle_safety_and_awarenesss, "psid-vehicle-to-vehicle-safety-and-awarenesss" },
+  { psid_limited_sensor_vehicle_to_vehicle_safety_and_awarenesss, "psid-limited-sensor-vehicle-to-vehicle-safety-and-awarenesss" },
+  { psid_tracked_vehicle_safety_and_awarenesss, "psid-tracked-vehicle-safety-and-awarenesss" },
+  { psid_wave_security_managements, "psid-wave-security-managements" },
+  { psid_ca_basic_services, "psid-ca-basic-services" },
+  { psid_den_basic_services, "psid-den-basic-services" },
+  { psid_misbehavior_reporting_for_common_applications, "psid-misbehavior-reporting-for-common-applications" },
+  { psid_vulnerable_road_users_safety_applications, "psid-vulnerable-road-users-safety-applications" },
+  { psid_testings, "psid-testings" },
+  { psid_differential_gps_corrections_uncompressed, "psid-differential-gps-corrections-uncompressed" },
+  { psid_differential_gps_corrections_compressed, "psid-differential-gps-corrections-compressed" },
+  { psid_intersection_safety_and_awareness, "psid-intersection-safety-and-awareness" },
+  { psid_traveller_information_and_roadside_signage, "psid-traveller-information-and-roadside-signage" },
+  { psid_mobile_probe_exchanges, "psid-mobile-probe-exchanges" },
+  { psid_emergency_and_erratic_vehicles_present_in_roadway, "psid-emergency-and-erratic-vehicles-present-in-roadway" },
+  { psid_remote_management_protocol_execution, "psid-remote-management-protocol-execution" },
+  { psid_wave_service_advertisement, "psid-wave-service-advertisement" },
+  { psid_peer_to_peer_distribution_of_security_management_information, "psid-peer-to-peer-distribution-of-security-management-information" },
+  { psid_traffic_light_manoeuver_service, "psid-traffic-light-manoeuver-service" },
+  { psid_road_and_lane_topology_service, "psid-road-and-lane-topology-service" },
+  { psid_infrastructure_to_vehicle_information_service, "psid-infrastructure-to-vehicle-information-service" },
+  { psid_traffic_light_control_service, "psid-traffic-light-control-service" },
+  { psid_geonetworking_management_communications, "psid-geonetworking-management-communications" },
+  { psid_certificate_revocation_list_application, "psid-certificate-revocation-list-application" },
+  { psid_vehicle_initiated_distress_notivication, "psid-vehicle-initiated-distress-notivication" },
+  { psid_fast_service_advertisement_protocol, "psid-fast-service-advertisement-protocol" },
+  { psid_its_station_internal_management_communications_protocol, "psid-its-station-internal-management-communications-protocol" },
+  { psid_veniam_delay_tolerant_networking, "psid-veniam-delay-tolerant-networking" },
+  { psid_transcore_software_update, "psid-transcore-software-update" },
+  { psid_sra_private_applications_0x204084, "psid-sra-private-applications-0x204084" },
+  { psid_sra_private_applications_0x204085, "psid-sra-private-applications-0x204085" },
+  { psid_sra_private_applications_0x204086, "psid-sra-private-applications-0x204086" },
+  { psid_sra_private_applications_0x204087, "psid-sra-private-applications-0x204087" },
+  { psid_ipv6_routing, "psid-ipv6-routing" },
+  { 0, NULL }
+};
+
 
 static int
 dissect_ieee1609dot2_Psid(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -1194,7 +1269,7 @@ dissect_ieee1609dot2_GroupLinkageValue(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 static int
 dissect_ieee1609dot2_T_unsecuredData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 43 "./asn1/ieee1609dot2/ieee1609dot2.cnf"
+#line 47 "./asn1/ieee1609dot2/ieee1609dot2.cnf"
 
 tvbuff_t *parameter_tvb=NULL;
 
@@ -1800,7 +1875,7 @@ static int dissect_Ieee1609Dot2Data_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U
 
 
 /*--- End of included file: packet-ieee1609dot2-fn.c ---*/
-#line 38 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
+#line 43 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
 
 
 /*--- proto_register_ieee1609dot2 ----------------------------------------------*/
@@ -2045,7 +2120,7 @@ void proto_register_ieee1609dot2(void) {
         "OCTET_STRING_SIZE_16", HFILL }},
     { &hf_ieee1609dot2_psid,
       { "psid", "ieee1609dot2.psid",
-        FT_UINT64, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC|BASE_VAL64_STRING, VALS64(ieee1609dot2_Psid_vals), 0,
         NULL, HFILL }},
     { &hf_ieee1609dot2_ssp,
       { "ssp", "ieee1609dot2.ssp",
@@ -2393,7 +2468,7 @@ void proto_register_ieee1609dot2(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ieee1609dot2-hfarr.c ---*/
-#line 46 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
+#line 51 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
   };
 
   /* List of subtrees */
@@ -2466,7 +2541,7 @@ void proto_register_ieee1609dot2(void) {
     &ett_ieee1609dot2_VerificationKeyIndicator,
 
 /*--- End of included file: packet-ieee1609dot2-ettarr.c ---*/
-#line 51 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
+#line 56 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
   };
 
   /* Register protocol */

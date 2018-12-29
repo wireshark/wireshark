@@ -18,11 +18,13 @@ set( EXT_ASN_FILE_LIST
 set( ASN_FILE_LIST
 	IEEE1609dot2BaseTypes.asn
 	IEEE1609dot2DataTypes.asn
+	IEEE1609dot12.asn
 )
 
 set( EXTRA_DIST
 	${ASN_FILE_LIST}
 	packet-${PROTOCOL_NAME}-template.c
+	packet-${PROTOCOL_NAME}-template.h
 	${PROTOCOL_NAME}.cnf
 )
 

@@ -8,7 +8,11 @@ OER
 #.MODULE
 #.MODULE_IMPORT
 
-#.EXPORTS
+#.EXPORTS ONLY_VALS WS_DLL
+Psid
+
+#.MAKE_ENUM
+Psid
 
 #.REGISTER
 
@@ -51,5 +55,60 @@ tvbuff_t *parameter_tvb=NULL;
     call_dissector(j2735_handle, parameter_tvb, actx->pinfo, tree);
   }
 
+#.END
+
+#.ASSIGN_VALUE_TO_TYPE
+psid-system                                                         Psid
+psid-electronic-fee-collection                                      Psid
+psid-freight-fleet-management                                       Psid
+psid-public-transport                                               Psid
+psid-traffic-traveller-information                                  Psid
+psid-traffic-control                                                Psid
+psid-parking-management                                             Psid
+psid-geographic-road-database                                       Psid
+psid-medium-range-preinformation                                    Psid
+psid-man-machine-interface                                          Psid
+psid-intersystem-interface                                          Psid
+psid-automatic-vehicle-identification                               Psid
+psid-emergency-warning                                              Psid
+psid-private                                                        Psid
+psid-multi-purpose-payment                                          Psid
+psid-dsrc-resource-manager                                          Psid
+psid-after-theft-systems                                            Psid
+psid-cruise-assist-highway-system                                   Psid
+psid-multi-purpose-information-system                               Psid
+psid-multi-mobile-information-system                                Psid
+psid-efc-compliance-check-communication-applications                Psid
+psid-efc-localisation-augmentation-communication-applications       Psid
+psid-vehicle-to-vehicle-safety-and-awarenesss                       Psid
+psid-limited-sensor-vehicle-to-vehicle-safety-and-awarenesss        Psid
+psid-tracked-vehicle-safety-and-awarenesss                          Psid
+psid-wave-security-managements                                      Psid
+psid-ca-basic-services                                              Psid
+psid-den-basic-services                                             Psid
+psid-misbehavior-reporting-for-common-applications                  Psid
+psid-vulnerable-road-users-safety-applications                      Psid
+psid-testings                                                       Psid
+psid-differential-gps-corrections-uncompressed                      Psid
+psid-differential-gps-corrections-compressed                        Psid
+psid-intersection-safety-and-awareness                              Psid
+psid-traveller-information-and-roadside-signage                     Psid
+psid-mobile-probe-exchanges                                         Psid
+psid-emergency-and-erratic-vehicles-present-in-roadway              Psid
+psid-remote-management-protocol-execution                           Psid
+psid-wave-service-advertisement                                     Psid
+psid-peer-to-peer-distribution-of-security-management-information   Psid
+psid-traffic-light-manoeuver-service                                Psid
+psid-road-and-lane-topology-service                                 Psid
+psid-infrastructure-to-vehicle-information-service                  Psid
+psid-traffic-light-control-service                                  Psid
+psid-geonetworking-management-communications                        Psid
+psid-certificate-revocation-list-application                        Psid
+psid-vehicle-initiated-distress-notivication                        Psid
+psid-fast-service-advertisement-protocol                            Psid
+psid-its-station-internal-management-communications-protocol        Psid
+psid-veniam-delay-tolerant-networking                               Psid
+psid-transcore-software-update                                      Psid
+psid-ipv6-routing                                                   Psid
 #.END
 
