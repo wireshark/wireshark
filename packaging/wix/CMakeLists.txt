@@ -99,8 +99,8 @@ find_path(MERGE_MODULE_DIR ${MERGE_MODULE}
 		"$ENV{PROGRAMFILES}/Common Files/Merge Modules"
 	NO_DEFAULT_PATH
 )
-
-message(STATUS "Using ${MERGE_MODULE_DIR}/Microsoft_${MSVC_CRT_VERSION}_CRT_${TARGET_MACHINE}.msm for the WiX installer")
+file(TO_NATIVE_PATH "${MERGE_MODULE_DIR}/Microsoft_${MSVC_CRT_VERSION}_CRT_${TARGET_MACHINE}.msm" MSM_NATIVE_PATH)
+message(STATUS "Using ${MSM_NATIVE_PATH} for the WiX installer")
 
 # DependentComponents.wxi. Can be created at configure time.
 set(_all_manifest_wix "${CMAKE_CURRENT_BINARY_DIR}/DependentComponents.wxs")

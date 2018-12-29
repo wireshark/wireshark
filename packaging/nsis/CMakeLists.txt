@@ -107,7 +107,8 @@ find_path(VCINSTALLDIR Redist PATHS
 	"[HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\Microsoft\\VisualStudio\\SxS\\VS7;${_msvs_version}]\\VC"
 	NO_DEFAULT_PATH
 )
-message(STATUS "Using VCINSTALLDIR: ${VCINSTALLDIR}")
+file(TO_NATIVE_PATH "${VCINSTALLDIR}" VCINSTALLDIR_NATIVE)
+message(STATUS "Using VCINSTALLDIR: ${VCINSTALLDIR_NATIVE}")
 
 # Visual Studio Community 2017 version 15.7.5 uses VCRT 14.14.26405, but an
 # earlier version used 14.10.25008. Let's just glob for the right value.
