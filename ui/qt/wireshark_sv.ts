@@ -45,11 +45,11 @@
     </message>
     <message>
         <source>No plugins found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Inga insticksmoduler hittades.</translation>
     </message>
     <message>
         <source>Search Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Sökinsticksmoduler</translation>
     </message>
     <message>
         <source>Filter by type:</source>
@@ -73,19 +73,19 @@
     </message>
     <message>
         <source>The directory does not exist</source>
-        <translation type="unfinished"></translation>
+        <translation>Katalogen finnsinte</translation>
     </message>
     <message>
         <source>Should the directory %1 be created?</source>
-        <translation type="unfinished"></translation>
+        <translation>Skall katalogen %1 skapas?</translation>
     </message>
     <message>
         <source>The directory could not be created</source>
-        <translation type="unfinished"></translation>
+        <translation>Katalogen kunde inte skapas</translation>
     </message>
     <message>
         <source>The directory %1 could not be created!</source>
-        <translation type="unfinished"></translation>
+        <translation>Katalogen %1 kunde inte skapas!</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -858,23 +858,23 @@
     <message numerus="yes">
         <source>%1, error after %Ln data record(s)</source>
         <oldsource>%1, error after %Ln record(s)</oldsource>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%1, fel efter %Ln dataposter</numerusform>
+            <numerusform>%1, fel efter %Ln dataposter</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%1, timed out at %Ln data record(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%1, tidsgränsen överskreds efter %Ln datapost</numerusform>
+            <numerusform>%1, tidsgränsen överskreds efter %Ln dataposter</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%1, %Ln data record(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%1, %Ln datapost</numerusform>
+            <numerusform>%1, %Ln dataposter</numerusform>
         </translation>
     </message>
     <message>
@@ -926,15 +926,15 @@
     </message>
     <message>
         <source>Hash (SHA256)</source>
-        <translation type="unfinished"></translation>
+        <translation>Hash (SHA256)</translation>
     </message>
     <message>
         <source>Hash (RIPEMD160)</source>
-        <translation type="unfinished"></translation>
+        <translation>Hash (RIPEMD160)</translation>
     </message>
     <message>
         <source>Hash (SHA1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Hash (SHA1)</translation>
     </message>
     <message>
         <source>Format</source>
@@ -1132,22 +1132,22 @@
     <name>CaptureInfoDialog</name>
     <message>
         <source>Capture Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Fångstinformation</translation>
     </message>
     <message>
         <source>Stop Capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Sluta fånga</translation>
     </message>
     <message>
         <source>%1 packets, %2:%3:%4</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 paket, %2:%3:%4</translation>
     </message>
 </context>
 <context>
     <name>CaptureInfoModel</name>
     <message>
         <source>Other</source>
-        <translation type="unfinished"></translation>
+        <translation>Annat</translation>
     </message>
 </context>
 <context>
@@ -1226,7 +1226,7 @@
     </message>
     <message>
         <source>Show capture information during live capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Visa fångstinformation under live-fångst</translation>
     </message>
     <message>
         <source>Stop capturing after the specified number of packets have been captured.</source>
@@ -1316,7 +1316,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Switch to the next file after the specified number of packets have been captured.</source>
-        <translation type="unfinished"></translation>
+        <translation>Byt till nästa fil efter det angivna antalet paket har infångats.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1451,7 +1451,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Multiple files: No file limit given. You must specify a file size, interval, or number of packets for each file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Flera filer: ingen filgräns angiven.  Du måste ange en filstorlek, ett intervall eller ett antal paket för varje fil.</translation>
     </message>
 </context>
 <context>
@@ -1498,7 +1498,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Don&apos;t load interfaces on startup</source>
-        <translation type="unfinished"></translation>
+        <translation>Läs inte in gränssnitt vid uppstart</translation>
     </message>
     <message>
         <source>Disable external capture interfaces</source>
@@ -1509,7 +1509,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     <name>ColoringRulesDelegate</name>
     <message>
         <source>the &quot;@&quot; symbol will be ignored.</source>
-        <translation type="unfinished"></translation>
+        <translation>symbolen ”@” kommer ignoreras.</translation>
     </message>
 </context>
 <context>
@@ -1536,7 +1536,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Clear all coloring rules.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nollställ alla färgläggningsregler.</translation>
     </message>
     <message>
         <source>Set the foreground color for this rule.</source>
@@ -1580,19 +1580,19 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Coloring Rules %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Färgläggningsregler %1</translation>
     </message>
     <message>
         <source>Copy from</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiera ifrån</translation>
     </message>
     <message>
         <source>Copy coloring rules from another profile.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiera färgläggningsregler från en annan profil.</translation>
     </message>
     <message>
         <source>Open </source>
-        <translation type="unfinished"></translation>
+        <translation>Öppna</translation>
     </message>
     <message>
         <source>Double click to edit. Drag to move. Rules are processed in order until a match is found.</source>
@@ -1619,15 +1619,15 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     <name>ColoringRulesModel</name>
     <message>
         <source>Unable to save coloring rules: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kan inte spara färgläggningsregler: %1</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Namn</translation>
+        <translation>Namn</translation>
     </message>
     <message>
         <source>Filter</source>
-        <translation type="unfinished">Filter</translation>
+        <translation>Filter</translation>
     </message>
 </context>
 <context>
@@ -1742,7 +1742,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Conversation Hash Tables</source>
-        <translation type="unfinished">Konversationshashtabeller</translation>
+        <translation>Konversationshashtabeller</translation>
     </message>
 </context>
 <context>
@@ -1792,7 +1792,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Clear all dissection behaviors.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nollställ alla dissekeringsbeteenden.</translation>
     </message>
     <message>
         <source>Decode As</source>
@@ -1800,7 +1800,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Open </source>
-        <translation type="unfinished"></translation>
+        <translation>Öppna</translation>
     </message>
 </context>
 <context>
@@ -2271,11 +2271,11 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Text Filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>Textfilter:</translation>
     </message>
     <message>
         <source>Only display entries containing this string</source>
-        <translation type="unfinished"></translation>
+        <translation>Visa endast poster som innehåller denna sträng</translation>
     </message>
     <message>
         <source>Export</source>
@@ -2340,7 +2340,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     <name>ExtArgSelector</name>
     <message>
         <source>Reload data</source>
-        <translation type="unfinished"></translation>
+        <translation>Läs om data</translation>
     </message>
 </context>
 <context>
@@ -2367,7 +2367,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Default</source>
-        <translation type="unfinished">Standard</translation>
+        <translation>Standard</translation>
     </message>
     <message>
         <source>Extcap Help cannot be found</source>
@@ -2485,7 +2485,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Open </source>
-        <translation type="unfinished"></translation>
+        <translation>Öppna</translation>
     </message>
     <message>
         <source>New filter</source>
@@ -2553,19 +2553,19 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     <name>FilterExpressionToolBar</name>
     <message>
         <source>Filter Button Preferences...</source>
-        <translation type="unfinished"></translation>
+        <translation>Filterknappinställningar …</translation>
     </message>
     <message>
         <source>Edit</source>
-        <translation type="unfinished">Redigera</translation>
+        <translation>Redigera</translation>
     </message>
     <message>
         <source>Disable</source>
-        <translation type="unfinished"></translation>
+        <translation>Avaktivera</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>Ta bort</translation>
     </message>
 </context>
 <context>
@@ -2576,7 +2576,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Regular Expression Find</source>
-        <translation type="unfinished"></translation>
+        <translation>Sök med reguljärt uttryck</translation>
     </message>
 </context>
 <context>
@@ -2650,99 +2650,99 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     <name>FolderListModel</name>
     <message>
         <source>&quot;File&quot; dialogs</source>
-        <translation type="unfinished"></translation>
+        <translation>”Arkiv”-dialoger</translation>
     </message>
     <message>
         <source>capture files</source>
-        <translation type="unfinished"></translation>
+        <translation>fångstfiler</translation>
     </message>
     <message>
         <source>Temp</source>
-        <translation type="unfinished"></translation>
+        <translation>Temp</translation>
     </message>
     <message>
         <source>untitled capture files</source>
-        <translation type="unfinished"></translation>
+        <translation>namnlösa fångstfiler</translation>
     </message>
     <message>
         <source>Personal configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Personlig konfiguration</translation>
     </message>
     <message>
         <source>dfilters, preferences, ethers, </source>
-        <translation type="unfinished"></translation>
+        <translation>dfilter, inställningar, ether:ar, </translation>
     </message>
     <message>
         <source>Global configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Global konfiguration</translation>
     </message>
     <message>
         <source>dfilters, preferences, manuf, </source>
-        <translation type="unfinished"></translation>
+        <translation>dfilter, inställningar, manuf, </translation>
     </message>
     <message>
         <source>System</source>
-        <translation type="unfinished"></translation>
+        <translation>System</translation>
     </message>
     <message>
         <source>ethers, ipxnets</source>
-        <translation type="unfinished"></translation>
+        <translation>ether:ar, ipxnets</translation>
     </message>
     <message>
         <source>Program</source>
-        <translation type="unfinished"></translation>
+        <translation>Program</translation>
     </message>
     <message>
         <source>program files</source>
-        <translation type="unfinished"></translation>
+        <translation>programfiler</translation>
     </message>
     <message>
         <source>Personal Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Personliga insticksmoduler</translation>
     </message>
     <message>
         <source>binary plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>vinära insticksmoduler</translation>
     </message>
     <message>
         <source>Global Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Globala insticksmoduler</translation>
     </message>
     <message>
         <source>Personal Lua Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Personliga Lua-insticksmoduler</translation>
     </message>
     <message>
         <source>lua scripts</source>
-        <translation type="unfinished"></translation>
+        <translation>lua-skript</translation>
     </message>
     <message>
         <source>Global Lua Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Globala Lua-insticksmoduler</translation>
     </message>
     <message>
         <source>Extcap path</source>
-        <translation type="unfinished"></translation>
+        <translation>Extcap-sökvägar</translation>
     </message>
     <message>
         <source>Extcap Plugins search path</source>
-        <translation type="unfinished"></translation>
+        <translation>Extcap-insticksmodulers sökväg</translation>
     </message>
     <message>
         <source>MaxMind DB path</source>
-        <translation type="unfinished"></translation>
+        <translation>MaxMind DB-sökväg</translation>
     </message>
     <message>
         <source>MaxMind DB database search path</source>
-        <translation type="unfinished"></translation>
+        <translation>MaxMind DB databassökväg</translation>
     </message>
     <message>
         <source>MIB/PIB path</source>
-        <translation type="unfinished"></translation>
+        <translation>MIB/PIB-sökväg</translation>
     </message>
     <message>
         <source>SMI MIB/PIB search path</source>
-        <translation type="unfinished"></translation>
+        <translation>SMI MIB/PIB-sökväg</translation>
     </message>
     <message>
         <source>Name</source>
@@ -2965,27 +2965,27 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Sample active selected item</source>
-        <translation type="unfinished"></translation>
+        <translation>Exempel på aktiv vald post</translation>
     </message>
     <message>
         <source>Style:</source>
-        <translation type="unfinished"></translation>
+        <translation>Stil:</translation>
     </message>
     <message>
         <source>Default</source>
-        <translation type="unfinished">Standard</translation>
+        <translation>Standard</translation>
     </message>
     <message>
         <source>Flat</source>
-        <translation type="unfinished"></translation>
+        <translation>Flat</translation>
     </message>
     <message>
         <source>Gradient</source>
-        <translation type="unfinished"></translation>
+        <translation>Gradient</translation>
     </message>
     <message>
         <source>Sample inactive selected item</source>
-        <translation type="unfinished"></translation>
+        <translation>Exempel på inaktiv vald post</translation>
     </message>
     <message>
         <source>Sample &quot;Follow Stream&quot; client text</source>
@@ -3255,7 +3255,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Clear all graphs.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nollställ alla grafer.</translation>
     </message>
     <message>
         <source>Mouse</source>
@@ -3505,11 +3505,11 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Copy from</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiera ifrån</translation>
     </message>
     <message>
         <source>Copy graphs from another profile.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiera grafer från en annan profil.</translation>
     </message>
     <message>
         <source>1 ms</source>
@@ -3920,11 +3920,11 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>ExportPDU</source>
-        <translation type="unfinished"></translation>
+        <translation>ExportPDU</translation>
     </message>
     <message>
         <source>Payload</source>
-        <translation type="unfinished"></translation>
+        <translation>Last</translation>
     </message>
     <message>
         <source>Maximum frame length:</source>
@@ -4056,7 +4056,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>The maximum size of the frames to write to the import capture file (max 256kiB)</source>
-        <translation type="unfinished"></translation>
+        <translation>Den maximala storleken på ramarna som skrivs till filen för importfångst (max 256 kiB)</translation>
     </message>
     <message>
         <source>Import From Hex Dump</source>
@@ -4150,7 +4150,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     <name>InterfaceSortFilterModel</name>
     <message>
         <source>No interfaces to be displayed. %1 interfaces hidden.</source>
-        <translation type="unfinished"></translation>
+        <translation>Inga gränssnitt att visa.  %1 gränssnitt dolda.</translation>
     </message>
 </context>
 <context>
@@ -4172,82 +4172,82 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     <name>InterfaceToolbarLineEdit</name>
     <message>
         <source>Apply changes</source>
-        <translation type="unfinished">Verkställ ändringar</translation>
+        <translation>Verkställ ändringar</translation>
     </message>
 </context>
 <context>
     <name>InterfaceTreeModel</name>
     <message>
         <source>No Interfaces found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Inga gränssnitt hittades.</translation>
     </message>
     <message>
         <source>Show</source>
-        <translation type="unfinished">Visa</translation>
+        <translation>Visa</translation>
     </message>
     <message>
         <source>Friendly Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Trevligt namn</translation>
     </message>
     <message>
         <source>Interface Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Gränssnittsnamn</translation>
     </message>
     <message>
         <source>Local Pipe Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Lokal rörsökväg</translation>
     </message>
     <message>
         <source>Comment</source>
-        <translation type="unfinished">Kommentar</translation>
+        <translation>Kommentar</translation>
     </message>
     <message>
         <source>Link-Layer Header</source>
-        <translation type="unfinished"></translation>
+        <translation>Länknivåhuvud</translation>
     </message>
     <message>
         <source>Promiscuous</source>
-        <translation type="unfinished">Promiskuös</translation>
+        <translation>Promiskuös</translation>
     </message>
     <message>
         <source>Snaplen (B)</source>
-        <translation type="unfinished">Provlängd (B)</translation>
+        <translation>Provlängd (B)</translation>
     </message>
     <message>
         <source>Buffer (MB)</source>
-        <translation type="unfinished">Buffert (MB)</translation>
+        <translation>Buffert (MB)</translation>
     </message>
     <message>
         <source>Monitor Mode</source>
-        <translation type="unfinished">Monitorläge</translation>
+        <translation>Monitorläge</translation>
     </message>
     <message>
         <source>Capture Filter</source>
-        <translation type="unfinished">Fångstfilter</translation>
+        <translation>Fångstfilter</translation>
     </message>
     <message>
         <source>Addresses</source>
-        <translation type="unfinished">Adresser</translation>
+        <translation>Adresser</translation>
     </message>
     <message>
         <source>Address</source>
-        <translation type="unfinished">Adress</translation>
+        <translation>Adress</translation>
     </message>
     <message>
         <source>Extcap interface: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Extcap-gränssnitt: %1</translation>
     </message>
     <message>
         <source>No addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>Inga adresser</translation>
     </message>
     <message>
         <source>No capture filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Inget fångstfilter</translation>
     </message>
     <message>
         <source>Capture filter</source>
-        <translation type="unfinished">Fångstfilter</translation>
+        <translation>Fångstfilter</translation>
     </message>
 </context>
 <context>
@@ -6009,7 +6009,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Export TLS Session Keys…</source>
-        <translation type="unfinished"></translation>
+        <translation>Exportera TLS-sessionsnycklar …</translation>
     </message>
     <message>
         <source>List Files</source>
@@ -6450,7 +6450,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>TLS Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>TLS-ström</translation>
     </message>
     <message>
         <source>HTTP Stream</source>
@@ -6954,11 +6954,11 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Request Sequences</source>
-        <translation type="unfinished"></translation>
+        <translation>Begärandesekvenser</translation>
     </message>
     <message>
         <source>HTTP Request Sequences</source>
-        <translation type="unfinished"></translation>
+        <translation>HTTP-begärandesekvenser</translation>
     </message>
     <message>
         <source>Decode &amp;As…</source>
@@ -7643,18 +7643,18 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>There are no TLS Session Keys to save.</source>
-        <translation type="unfinished"></translation>
+        <translation>Det finns inga TLS-sessionsnycklar att spara.</translation>
     </message>
     <message numerus="yes">
         <source>Export TLS Session Keys (%Ln key(s))</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Exportera TLS-sessionsnycklar (%Ln nyckel)</numerusform>
+            <numerusform>Exportera TLS-sessionsnycklar (%Ln nycklar)</numerusform>
         </translation>
     </message>
     <message>
         <source>TLS Session Keys (*.keys *.txt);;All Files (</source>
-        <translation type="unfinished"></translation>
+        <translation>TLS-sessionsnycklar (*.keys *.txt);;Alla filer (</translation>
     </message>
     <message>
         <source> before restarting the capture</source>
@@ -7685,162 +7685,162 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     <name>MainWindowPreferencesFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">Ram</translation>
+        <translation>Ram</translation>
     </message>
     <message>
         <source>Checking this will save the size, position, and maximized state of the main window.</source>
-        <translation type="unfinished"></translation>
+        <translation>Att markera detta kommer spara storleken, positionen och maximeringstillståndet för huvudfönstret.</translation>
     </message>
     <message>
         <source>Remember main window size and placement</source>
-        <translation type="unfinished"></translation>
+        <translation>Kom ihåg huvudfönstrets storlek och placering</translation>
     </message>
     <message>
         <source>Open files in</source>
-        <translation type="unfinished"></translation>
+        <translation>Öppna filer i</translation>
     </message>
     <message>
         <source>This folder:</source>
-        <translation type="unfinished"></translation>
+        <translation>Denna mapp:</translation>
     </message>
     <message>
         <source>Browse…</source>
         <oldsource>Browse...</oldsource>
-        <translation type="unfinished">Bläddra…</translation>
+        <translation>Bläddra …</translation>
     </message>
     <message>
         <source>The most recently used folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Den senast använda mappen</translation>
     </message>
     <message>
         <source>Show up to</source>
-        <translation type="unfinished"></translation>
+        <translation>Visa upp till</translation>
     </message>
     <message>
         <source>filter entries</source>
-        <translation type="unfinished"></translation>
+        <translation>filtrera poster</translation>
     </message>
     <message>
         <source>recent files</source>
-        <translation type="unfinished"></translation>
+        <translation>nyligen använda filer</translation>
     </message>
     <message>
         <source>Confirm unsaved capture files</source>
-        <translation type="unfinished"></translation>
+        <translation>Bekräfta osparade fångstfiler</translation>
     </message>
     <message>
         <source>Display autocompletion for filter text</source>
-        <translation type="unfinished"></translation>
+        <translation>Visa autokomplettering av filtertext</translation>
     </message>
     <message>
         <source>Main toolbar style:</source>
-        <translation type="unfinished"></translation>
+        <translation>Stil för huvudverktygsrad:</translation>
     </message>
     <message>
         <source>Icons only</source>
-        <translation type="unfinished"></translation>
+        <translation>Endast ikoner</translation>
     </message>
     <message>
         <source>Text only</source>
-        <translation type="unfinished"></translation>
+        <translation>Endast text</translation>
     </message>
     <message>
         <source>Icons &amp; Text</source>
-        <translation type="unfinished"></translation>
+        <translation>Ikoner &amp; text</translation>
     </message>
     <message>
         <source>Language: </source>
-        <translation type="unfinished"></translation>
+        <translation>Språk:</translation>
     </message>
     <message>
         <source>Use system setting</source>
-        <translation type="unfinished"></translation>
+        <translation>Använd systeminställningar</translation>
     </message>
     <message>
         <source>Open Files In</source>
-        <translation type="unfinished"></translation>
+        <translation>Öppna filer i</translation>
     </message>
 </context>
 <context>
     <name>ManageInterfacesDialog</name>
     <message>
         <source>Manage Interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Hantera gränssnitt</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Click the checkbox to hide or show a hidden interface.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Klicka i kryssrutan för att dölja eller visa ett dolt gränssnitt.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Local Interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Lokala gränssnitt</translation>
     </message>
     <message>
         <source>Show</source>
-        <translation type="unfinished">Visa</translation>
+        <translation>Visa</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add a pipe to capture from or remove an existing pipe from the list.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Lägg till ett rör för att fånga från eller ta bort eller ta bort ett befintligt rör från listan.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Pipes</source>
-        <translation type="unfinished"></translation>
+        <translation>Rör</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add a new pipe using default settings.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Lägg till ett nytt rör som använder standardinställningar.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove the selected pipe from the list.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ta bort det valda röret från listan.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Remote Interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Fjärrgränssnitt</translation>
     </message>
     <message>
         <source>Host / Device URL</source>
-        <translation type="unfinished"></translation>
+        <translation>Värd-/enhets-URL</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add a remote host and its interfaces&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Lägg till en fjärrvärd och dess gränssnitt&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove the selected host from the list.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ta bort den valda värden från listan.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Remote Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Fjärrinställningar</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>This version of Wireshark does not save pipe settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Denna version av Wireshark sparar inte rörinställningar.</translation>
     </message>
     <message>
         <source>This version of Wireshark does not save remote settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Denna version av Wireshark sparar inte fjärrinställningar.</translation>
     </message>
     <message>
         <source>This version of Wireshark does not support remote interfaces.</source>
-        <translation type="unfinished"></translation>
+        <translation>Denna version av Wireshark stödjer inte fjärrgränssnitt.</translation>
     </message>
     <message>
         <source>New Pipe</source>
-        <translation type="unfinished"></translation>
+        <translation>Nytt rör</translation>
     </message>
 </context>
 <context>
     <name>ModulePreferencesScrollArea</name>
     <message>
         <source>ScrollArea</source>
-        <translation type="unfinished"></translation>
+        <translation>Rullningsområde</translation>
     </message>
 </context>
 <context>
@@ -8058,7 +8058,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Packet %1</source>
@@ -9995,7 +9995,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Payload</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Last</translation>
     </message>
     <message>
         <source>Packets</source>
@@ -12300,7 +12300,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Copy from</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Kopiera ifrån</translation>
     </message>
     <message>
         <source>Copy entries from another profile.</source>
@@ -12308,7 +12308,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Open </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Öppna</translation>
     </message>
 </context>
 <context>
@@ -12347,7 +12347,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Copy from</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Kopiera ifrån</translation>
     </message>
     <message>
         <source>Unknown User Accessible Table</source>
@@ -12355,7 +12355,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Open </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Öppna</translation>
     </message>
 </context>
 <context>
@@ -12609,7 +12609,7 @@ a:hover {
     </message>
     <message>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ta bort</translation>
     </message>
 </context>
 <context>
@@ -12753,7 +12753,7 @@ a:hover {
     </message>
     <message>
         <source>Other</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Annat</translation>
     </message>
 </context>
 </TS>

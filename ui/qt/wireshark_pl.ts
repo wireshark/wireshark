@@ -45,11 +45,11 @@
     </message>
     <message>
         <source>No plugins found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie znaleziono wtyczek.</translation>
     </message>
     <message>
         <source>Search Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Szukaj wtyczek</translation>
     </message>
     <message>
         <source>Filter by type:</source>
@@ -65,7 +65,7 @@
     </message>
     <message>
         <source>Acknowledgments</source>
-        <translation type="unfinished"></translation>
+        <translation>Podziękowania</translation>
     </message>
     <message>
         <source>License</source>
@@ -73,19 +73,19 @@
     </message>
     <message>
         <source>The directory does not exist</source>
-        <translation type="unfinished"></translation>
+        <translation>Katalog nie istnieje.</translation>
     </message>
     <message>
         <source>Should the directory %1 be created?</source>
-        <translation type="unfinished"></translation>
+        <translation>Czy utworzyć katalog %1?</translation>
     </message>
     <message>
         <source>The directory could not be created</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można utworzyć katalogu.</translation>
     </message>
     <message>
         <source>The directory %1 could not be created!</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można utworzyć katalogu %1!</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -760,6 +760,15 @@
         <source>Automatically detect file type</source>
         <translation>Automatycznie wykryj typ pliku</translation>
     </message>
+    <message numerus="yes">
+        <source>%1, error after %Ln packet(s)</source>
+        <oldsource>%1, error after %2 packets</oldsource>
+        <translation type="vanished">
+            <numerusform>%1, błąd po wczytaniu %Ln pakietu</numerusform>
+            <numerusform>%1, błąd po wczytaniu %Ln pakietów</numerusform>
+            <numerusform>%1, błąd po wczytaniu %Ln pakietów</numerusform>
+        </translation>
+    </message>
     <message>
         <source>Prepend packets</source>
         <translation>Dodaj pakiety na początku</translation>
@@ -906,15 +915,15 @@
     </message>
     <message>
         <source>Hash (SHA256)</source>
-        <translation type="unfinished"></translation>
+        <translation>Hash (SHA256)</translation>
     </message>
     <message>
         <source>Hash (RIPEMD160)</source>
-        <translation type="unfinished"></translation>
+        <translation>Hash (RIPEMD160)</translation>
     </message>
     <message>
         <source>Hash (SHA1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Hash (SHA1)</translation>
     </message>
     <message>
         <source>Format</source>
@@ -1091,7 +1100,7 @@
     </message>
     <message>
         <source>Enter a capture filter %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Wpisz filtr przechwytywania %1</translation>
     </message>
     <message>
         <source>Save this filter</source>
@@ -1103,29 +1112,29 @@
     </message>
     <message>
         <source>Manage Capture Filters</source>
-        <translation type="unfinished"></translation>
+        <translation>Zarządzaj filtrami przechwytywania</translation>
     </message>
 </context>
 <context>
     <name>CaptureInfoDialog</name>
     <message>
         <source>Capture Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Informacje przechwytywania</translation>
     </message>
     <message>
         <source>Stop Capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Zatrzymaj przechwytywanie</translation>
     </message>
     <message>
         <source>%1 packets, %2:%3:%4</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 pakietów, %2:%3:%4</translation>
     </message>
 </context>
 <context>
     <name>CaptureInfoModel</name>
     <message>
         <source>Other</source>
-        <translation type="unfinished">Inne</translation>
+        <translation>Inne</translation>
     </message>
 </context>
 <context>
@@ -1160,7 +1169,7 @@
     </message>
     <message>
         <source>pcapng</source>
-        <translation type="unfinished"></translation>
+        <translation>pcapng</translation>
     </message>
     <message>
         <source>pcap</source>
@@ -1487,7 +1496,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <name>ColoringRulesDelegate</name>
     <message>
         <source>the &quot;@&quot; symbol will be ignored.</source>
-        <translation type="unfinished"></translation>
+        <translation>symbol &quot;@&quot; zostanie ignorowany.</translation>
     </message>
 </context>
 <context>
@@ -1514,7 +1523,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Clear all coloring rules.</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuń wszystkie reguły kolorowania.</translation>
     </message>
     <message>
         <source>Set the foreground color for this rule.</source>
@@ -1534,7 +1543,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Set the display filter using this rule.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ustaw filtr wyświetlania używając tej reguły.</translation>
     </message>
     <message>
         <source>Apply as filter</source>
@@ -1558,19 +1567,19 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Coloring Rules %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Reguły kolorowania %1</translation>
     </message>
     <message>
         <source>Copy from</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiuj z</translation>
     </message>
     <message>
         <source>Copy coloring rules from another profile.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiuj reguły kolorowania z innego profilu.</translation>
     </message>
     <message>
         <source>Open </source>
-        <translation type="unfinished">Otwórz</translation>
+        <translation>Otwórz</translation>
     </message>
     <message>
         <source>Double click to edit. Drag to move. Rules are processed in order until a match is found.</source>
@@ -1590,22 +1599,22 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. They have been disabled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark nie rozpoznał jednej lub większej ilości twoich reguł kolorowania. Zostaną one wyłączone.</translation>
     </message>
 </context>
 <context>
     <name>ColoringRulesModel</name>
     <message>
         <source>Unable to save coloring rules: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można zapisać reguł kolorowania: %1</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Nazwa</translation>
+        <translation>Nazwa</translation>
     </message>
     <message>
         <source>Filter</source>
-        <translation type="unfinished">Filtr</translation>
+        <translation>Filtr</translation>
     </message>
 </context>
 <context>
@@ -1636,15 +1645,15 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Missing fields.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pominięte pola.</translation>
     </message>
     <message>
         <source>Invalid fields.</source>
-        <translation type="unfinished"></translation>
+        <translation>Niepoprawne pola.</translation>
     </message>
     <message>
         <source>Invalid occurrence value.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błędne wystąpienia wartości.</translation>
     </message>
 </context>
 <context>
@@ -1720,38 +1729,38 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Conversation Hash Tables</source>
-        <translation type="unfinished">Tablice mieszające konwersacji</translation>
+        <translation>Tablice mieszające konwersacji</translation>
     </message>
 </context>
 <context>
     <name>DataPrinter</name>
     <message>
         <source>Copy Bytes as Hex + ASCII Dump</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiuj bajty jako Hex + ASCII</translation>
     </message>
     <message>
         <source>Copy packet bytes as a hex and ASCII dump.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiuj bajty pakietu jako Hex i ASCII.</translation>
     </message>
     <message>
         <source>Copy packet bytes as a hex dump.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiuj bajty pakietu jako Hex.</translation>
     </message>
     <message>
         <source>Copy only the printable text in the packet.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiuj tylko drukowalny tekst z pakietu.</translation>
     </message>
     <message>
         <source>Copy packet bytes as a stream of hex.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiuj bajty pakietu jako strumień Hex.</translation>
     </message>
     <message>
         <source>Copy packet bytes as application/octet-stream MIME data.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiuj bajty pakietu jako typ MIME application/octet-stream.</translation>
     </message>
     <message>
         <source>Copy packet bytes as an escaped string.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiuj bajty pakietu jako łańcuch znaków ze znakami ucieczki.</translation>
     </message>
 </context>
 <context>
@@ -1770,7 +1779,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Clear all dissection behaviors.</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuń wszystkie reguły.</translation>
     </message>
     <message>
         <source>Decode As</source>
@@ -1778,7 +1787,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Open </source>
-        <translation type="unfinished">Otwórz</translation>
+        <translation>Otwórz</translation>
     </message>
 </context>
 <context>
@@ -1809,31 +1818,31 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>unknown</source>
-        <translation type="unfinished">nieznany</translation>
+        <translation>nieznany</translation>
     </message>
     <message>
         <source>&lt;none&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;none&gt;</translation>
     </message>
     <message>
         <source>GUID</source>
-        <translation type="unfinished"></translation>
+        <translation>GUID</translation>
     </message>
     <message>
         <source>Field</source>
-        <translation type="unfinished"></translation>
+        <translation>Pole</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished">Wartość</translation>
+        <translation>Wartość</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ</translation>
     </message>
     <message>
         <source>Default</source>
-        <translation type="unfinished"></translation>
+        <translation>Domyślnie</translation>
     </message>
     <message>
         <source>Current</source>
@@ -1983,7 +1992,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Search:</source>
-        <translation type="unfinished">Szukaj:</translation>
+        <translation>Szukaj:</translation>
     </message>
     <message>
         <source>Dissector Tables</source>
@@ -2343,7 +2352,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Default</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Domyślnie</translation>
     </message>
     <message>
         <source>Extcap Help cannot be found</source>
@@ -2956,7 +2965,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Default</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Domyślnie</translation>
     </message>
     <message>
         <source>Flat</source>
@@ -3481,7 +3490,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Copy from</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Kopiuj z</translation>
     </message>
     <message>
         <source>Copy graphs from another profile.</source>
@@ -8948,7 +8957,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Default</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Domyślnie</translation>
     </message>
     <message>
         <source>Changed</source>
@@ -12386,7 +12395,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Copy from</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Kopiuj z</translation>
     </message>
     <message>
         <source>Copy entries from another profile.</source>
@@ -12433,7 +12442,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Copy from</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Kopiuj z</translation>
     </message>
     <message>
         <source>Unknown User Accessible Table</source>
@@ -12535,7 +12544,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Initial Speaker</source>
-        <translation>Domyślny Głośnik</translation>
+        <translation>Inicjujący Rozmówca</translation>
     </message>
     <message>
         <source>From</source>
@@ -12606,7 +12615,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Interface list</source>
-        <translation type="unfinished"></translation>
+        <translation>Lista interfejsów</translation>
     </message>
     <message>
         <source>List of available capture interfaces</source>
@@ -12652,15 +12661,15 @@ a:hover {
     </message>
     <message>
         <source>Show in Finder</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż w wyszukiwarce</translation>
     </message>
     <message>
         <source>Show in Folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż w folderze</translation>
     </message>
     <message>
         <source>All interfaces shown</source>
-        <translation type="unfinished"></translation>
+        <translation>Wszystkie interfejsy</translation>
     </message>
     <message numerus="yes">
         <source>%n interface(s) shown, %1 hidden</source>
@@ -12676,7 +12685,7 @@ a:hover {
     </message>
     <message>
         <source>You are running Wireshark </source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark uruchomiony  </translation>
     </message>
     <message>
         <source> You receive automatic updates.</source>

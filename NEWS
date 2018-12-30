@@ -120,7 +120,8 @@ Wireshark 2.9.1 Release Notes
    Protocol (SRT), Spirent Test Center Signature decoding for Ethernet
    and FibreChannel (STCSIG, disabled by default), Sybase-specific
    portions of TDS, systemd Journal Export, TeamSpeak 3 DNS, TPM 2.0,
-   Ubiquiti Discovery Protocol (UBDP), WireGuard, and XnAP (5G)
+   Ubiquiti Discovery Protocol (UBDP), WireGuard, XnAP (5G), and Z39.50
+   Information Retrieval Protocol
 
   Updated Protocol Support
 
@@ -181,7 +182,7 @@ Wireshark 2.9.1 Release Notes
 
   A complete FAQ is available on the Wireshark web site[11].
 
-  Last updated 2018-12-23 08:13:01 UTC
+  Last updated 2018-12-30 08:15:06 UTC
 
  References
 

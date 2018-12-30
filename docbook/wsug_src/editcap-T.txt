@@ -29,6 +29,7 @@ editcap: The available encapsulation types for the "-T" flag are:
     dpauxmon - DisplayPort AUX channel with Unigraf pseudo-header
     dpnss_link - Digital Private Signalling System No 1 Link Layer
     dvbci - DVB-CI (Common Interface)
+    ebhscr - EBHSCR
     enc - OpenBSD enc(4) encapsulating interface
     epon - Ethernet Passive Optical Network
     erf - Extensible Record Format

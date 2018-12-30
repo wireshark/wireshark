@@ -159,3 +159,4 @@ xmpp.desegment: FALSE
 xot.desegment: FALSE
 yami.desegment: FALSE
 ymsg.desegment: FALSE
+z3950.desegment_buffers: FALSE
