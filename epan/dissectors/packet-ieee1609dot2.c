@@ -27,6 +27,7 @@
 #include <epan/conversation.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
+#include <epan/proto_data.h>
 
 #include "packet-oer.h"
 #include "packet-ieee1609dot2.h"
@@ -130,6 +131,7 @@ static int hf_ieee1609dot2_self = -1;             /* NULL */
 static int hf_ieee1609dot2_payload = -1;          /* SignedDataPayload */
 static int hf_ieee1609dot2_headerInfo = -1;       /* HeaderInfo */
 static int hf_ieee1609dot2_sha256HashedData = -1;  /* OCTET_STRING_SIZE_32 */
+static int hf_ieee1609dot2_psid_01 = -1;          /* T_psid */
 static int hf_ieee1609dot2_generationTime = -1;   /* Time64 */
 static int hf_ieee1609dot2_expiryTime = -1;       /* Time64 */
 static int hf_ieee1609dot2_generationLocation = -1;  /* ThreeDLocation */
@@ -191,7 +193,7 @@ static int hf_ieee1609dot2_EndEntityType_app = -1;
 static int hf_ieee1609dot2_EndEntityType_enrol = -1;
 
 /*--- End of included file: packet-ieee1609dot2-hf.c ---*/
-#line 36 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
+#line 37 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -262,9 +264,17 @@ static gint ett_ieee1609dot2_SubjectPermissions = -1;
 static gint ett_ieee1609dot2_VerificationKeyIndicator = -1;
 
 /*--- End of included file: packet-ieee1609dot2-ett.c ---*/
-#line 39 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
+#line 40 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
 
-static dissector_handle_t j2735_handle;
+static dissector_table_t unsecured_data_subdissector_table;
+
+void
+ieee1609dot2_set_next_default_psid(packet_info *pinfo, guint32 psid)
+{
+  guint32 *ctxt = wmem_new0(wmem_file_scope(), guint32);
+  *ctxt = psid;
+  p_add_proto_data(wmem_file_scope(), pinfo, proto_ieee1609dot2, 0, (void*)ctxt);
+}
 
 
 /*--- Included file: packet-ieee1609dot2-fn.c ---*/
@@ -1271,14 +1281,37 @@ static int
 dissect_ieee1609dot2_T_unsecuredData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 47 "./asn1/ieee1609dot2/ieee1609dot2.cnf"
 
-tvbuff_t *parameter_tvb=NULL;
-
   offset = dissect_oer_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
+                                       NO_BOUND, NO_BOUND, FALSE, (tvbuff_t **)&actx->private_data);
 
-  if((parameter_tvb)&& (j2735_handle)){
+  if (actx->private_data) {
+    // psid may also be provided in HeaderInfo
+    guint32 *psid = (guint32*)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_ieee1609dot2, 0);
+    if (psid) {
+      /* Call next dissector here */
+      dissector_try_uint(unsecured_data_subdissector_table, *psid, (tvbuff_t *)(actx->private_data), actx->pinfo, tree);
+      actx->private_data = NULL;
+    }
+    // else: wait for the HeaderInfo for a second chance to dissect the content
+  }
+
+
+
+  return offset;
+}
+
+
+
+static int
+dissect_ieee1609dot2_T_psid(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 65 "./asn1/ieee1609dot2/ieee1609dot2.cnf"
+  guint64 psid;
+  offset = dissect_oer_constrained_integer_64b_no_ub(tvb, offset, actx, tree, hf_index,
+                                                            0U, NO_BOUND, &psid, FALSE);
+  if (actx->private_data) {
     /* Call next dissector here */
-    call_dissector(j2735_handle, parameter_tvb, actx->pinfo, tree);
+    dissector_try_uint(unsecured_data_subdissector_table, (guint32) psid, (tvbuff_t *)(actx->private_data), actx->pinfo, tree);
+    actx->private_data = NULL;
   }
 
 
@@ -1303,7 +1336,7 @@ dissect_ieee1609dot2_MissingCrlIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn
 
 
 static const oer_sequence_t HeaderInfo_sequence[] = {
-  { &hf_ieee1609dot2_psid   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_Psid },
+  { &hf_ieee1609dot2_psid_01, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_T_psid },
   { &hf_ieee1609dot2_generationTime, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ieee1609dot2_Time64 },
   { &hf_ieee1609dot2_expiryTime, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ieee1609dot2_Time64 },
   { &hf_ieee1609dot2_generationLocation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ieee1609dot2_ThreeDLocation },
@@ -1875,7 +1908,7 @@ static int dissect_Ieee1609Dot2Data_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U
 
 
 /*--- End of included file: packet-ieee1609dot2-fn.c ---*/
-#line 43 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
+#line 52 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
 
 
 /*--- proto_register_ieee1609dot2 ----------------------------------------------*/
@@ -2234,6 +2267,10 @@ void proto_register_ieee1609dot2(void) {
       { "sha256HashedData", "ieee1609dot2.sha256HashedData",
         FT_BYTES, BASE_NONE, NULL, 0,
         "OCTET_STRING_SIZE_32", HFILL }},
+    { &hf_ieee1609dot2_psid_01,
+      { "psid", "ieee1609dot2.psid",
+        FT_UINT64, BASE_DEC|BASE_VAL64_STRING, VALS64(ieee1609dot2_Psid_vals), 0,
+        NULL, HFILL }},
     { &hf_ieee1609dot2_generationTime,
       { "generationTime", "ieee1609dot2.generationTime",
         FT_UINT64, BASE_DEC, NULL, 0,
@@ -2468,7 +2505,7 @@ void proto_register_ieee1609dot2(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ieee1609dot2-hfarr.c ---*/
-#line 51 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
+#line 60 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
   };
 
   /* List of subtrees */
@@ -2541,7 +2578,7 @@ void proto_register_ieee1609dot2(void) {
     &ett_ieee1609dot2_VerificationKeyIndicator,
 
 /*--- End of included file: packet-ieee1609dot2-ettarr.c ---*/
-#line 56 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
+#line 65 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
   };
 
   /* Register protocol */
@@ -2552,11 +2589,14 @@ void proto_register_ieee1609dot2(void) {
   proto_register_subtree_array(ett, array_length(ett));
 
   register_dissector("ieee1609dot2.data", dissect_Ieee1609Dot2Data_PDU, proto_ieee1609dot2);
+
+  // See TS17419_ITS-AID_AssignedNumbers
+  unsecured_data_subdissector_table = register_dissector_table("ieee1609dot2.psid",
+        "ATS-AID/PSID based dissector for unsecured/signed data", proto_ieee1609dot2, FT_UINT32, BASE_HEX);
 }
 
 void
 proto_reg_handoff_IEEE1609dot2(void)
 {
 
-    j2735_handle = find_dissector_add_dependency("j2735", proto_ieee1609dot2);
 }

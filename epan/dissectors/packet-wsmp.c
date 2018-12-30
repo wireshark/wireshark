@@ -291,9 +291,11 @@ dissect_wsmp_v3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 oct)
     data_tree = proto_tree_add_subtree(tree, tvb, offset, wsm_len, ett_wsmdata, NULL, "Wave Short Message");
 
     if((psid == (guint32)psid_vehicle_to_vehicle_safety_and_awarenesss) && (IEEE1609dot2_handle)){
+        ieee1609dot2_set_next_default_psid(pinfo, psid);
         tvbuff_t * tvb_new = tvb_new_subset_remaining(tvb, offset);
         call_dissector(IEEE1609dot2_handle, tvb_new, pinfo, data_tree);
     } else if ((psid == (guint32)psid_intersection_safety_and_awareness) && (IEEE1609dot2_handle)) {
+        ieee1609dot2_set_next_default_psid(pinfo, psid);
         tvbuff_t * tvb_new = tvb_new_subset_remaining(tvb, offset);
         call_dissector(IEEE1609dot2_handle, tvb_new, pinfo, data_tree);
     }

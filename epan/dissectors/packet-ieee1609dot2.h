@@ -98,13 +98,24 @@ typedef enum _Psid_enum {
 /*--- End of included file: packet-ieee1609dot2-val.h ---*/
 #line 18 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.h"
 
+/*
+ * When dissecting IEEE1609.2 structure containing only unsecured data, no PSID
+ * is provided inside. Caller has to provide a ITS-AID/PSID before calling the
+ * dissector to have a chance to dissect the data part.
+ * For signed data, PSID is provided and the caller do not have to provide the
+ * PSID. If he does, the provided PSID takes precedence on the PSID inside the
+ * structure.
+ */
+WS_DLL_PUBLIC
+void ieee1609dot2_set_next_default_psid(packet_info *pinfo, guint32 psid);
+
 
 /*--- Included file: packet-ieee1609dot2-exp.h ---*/
 #line 1 "./asn1/ieee1609dot2/packet-ieee1609dot2-exp.h"
 WS_DLL_PUBLIC const val64_string ieee1609dot2_Psid_vals[];
 
 /*--- End of included file: packet-ieee1609dot2-exp.h ---*/
-#line 20 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.h"
+#line 31 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.h"
 
 #endif /* _IEEE1609DOT2_H_ */
 
