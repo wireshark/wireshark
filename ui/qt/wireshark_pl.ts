@@ -35,7 +35,7 @@
     <message>
         <location filename="about_dialog.ui" line="162"/>
         <source>Search Authors</source>
-        <translation type="unfinished"></translation>
+        <translation>Szukaj autorów</translation>
     </message>
     <message>
         <location filename="about_dialog.ui" line="177"/>
@@ -92,7 +92,7 @@
     <message>
         <location filename="apply_line_edit.cpp" line="42"/>
         <source>Apply changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Zastosuj zmiany</translation>
     </message>
 </context>
 <context>
@@ -156,17 +156,17 @@
         <location filename="bluetooth_att_server_attributes_dialog.ui" line="200"/>
         <location filename="bluetooth_att_server_attributes_dialog.ui" line="203"/>
         <source>Mark/Unmark Row</source>
-        <translation type="unfinished"></translation>
+        <translation>Zaznacz/Odznacz wiersz</translation>
     </message>
     <message>
         <location filename="bluetooth_att_server_attributes_dialog.ui" line="206"/>
         <source>CtrlM</source>
-        <translation type="unfinished"></translation>
+        <translation>CtrlM</translation>
     </message>
     <message>
         <location filename="bluetooth_att_server_attributes_dialog.ui" line="211"/>
         <source>Mark/Unmark Cell</source>
-        <translation type="unfinished"></translation>
+        <translation>Zaznacz/Odznacz komórkę</translation>
     </message>
     <message>
         <location filename="bluetooth_att_server_attributes_dialog.cpp" line="368"/>
@@ -336,17 +336,17 @@
         <location filename="bluetooth_device_dialog.ui" line="243"/>
         <location filename="bluetooth_device_dialog.ui" line="246"/>
         <source>Mark/Unmark Row</source>
-        <translation type="unfinished"></translation>
+        <translation>Zaznacz/Odznacz wiersz</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="249"/>
         <source>CtrlM</source>
-        <translation type="unfinished"></translation>
+        <translation>CtrlM</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="254"/>
         <source>Mark/Unmark Cell</source>
-        <translation type="unfinished"></translation>
+        <translation>Zaznacz/Odznacz komórkę</translation>
     </message>
     <message>
         <location filename="bluetooth_device_dialog.cpp" line="180"/>
@@ -476,17 +476,17 @@
         <location filename="bluetooth_devices_dialog.ui" line="183"/>
         <location filename="bluetooth_devices_dialog.ui" line="186"/>
         <source>Mark/Unmark Row</source>
-        <translation type="unfinished"></translation>
+        <translation>Zaznacz/Odznacz wiersz</translation>
     </message>
     <message>
         <location filename="bluetooth_devices_dialog.ui" line="189"/>
         <source>CtrlM</source>
-        <translation type="unfinished"></translation>
+        <translation>CtrlM</translation>
     </message>
     <message>
         <location filename="bluetooth_devices_dialog.ui" line="194"/>
         <source>Mark/Unmark Cell</source>
-        <translation type="unfinished"></translation>
+        <translation>Zaznacz/Odznacz komórkę</translation>
     </message>
     <message>
         <location filename="bluetooth_devices_dialog.cpp" line="341"/>
@@ -690,12 +690,12 @@
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="593"/>
         <source>Results filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtr wyników:</translation>
     </message>
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="616"/>
         <source>Display filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtr wyświetlania:</translation>
     </message>
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="639"/>
@@ -731,17 +731,17 @@
         <location filename="bluetooth_hci_summary_dialog.ui" line="701"/>
         <location filename="bluetooth_hci_summary_dialog.ui" line="704"/>
         <source>Mark/Unmark Row</source>
-        <translation type="unfinished"></translation>
+        <translation>Zaznacz/Odznacz wiersz</translation>
     </message>
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="707"/>
         <source>Ctrl+M</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+M</translation>
     </message>
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="712"/>
         <source>Mark/Unmark Cell</source>
-        <translation type="unfinished"></translation>
+        <translation>Zaznacz/Odznacz komórkę</translation>
     </message>
     <message>
         <location filename="bluetooth_hci_summary_dialog.cpp" line="362"/>
@@ -879,16 +879,16 @@
     <message>
         <location filename="capture_file_dialog.cpp" line="515"/>
         <source>Automatically detect file type</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatycznie wykryj typ pliku</translation>
     </message>
     <message numerus="yes">
         <location filename="capture_file_dialog.cpp" line="817"/>
         <source>%1, error after %Ln packet(s)</source>
         <oldsource>%1, error after %2 packets</oldsource>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%1, błąd po wczytaniu %Ln pakiet</numerusform>
+            <numerusform>%1, błąd po wczytaniu %Ln pakietów</numerusform>
+            <numerusform>%1, błąd po wczytaniu %Ln pakietów</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -904,10 +904,10 @@
     <message numerus="yes">
         <location filename="capture_file_dialog.cpp" line="827"/>
         <source>%1, %Ln packet(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%1, %Ln pakiet</numerusform>
+            <numerusform>%1, %Ln pakietów</numerusform>
+            <numerusform>%1, %Ln pakietów</numerusform>
         </translation>
     </message>
     <message>
@@ -1667,13 +1667,13 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
         <location filename="capture_interfaces_dialog.cpp" line="923"/>
         <source>Multiple files: Requested filesize too large. The filesize cannot be greater than 2 GiB.</source>
         <oldsource>Multiple files: Requested filesize too large! The filesize cannot be greater than 2 GiB.</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Wiele plików: Żądana wielkość pliku jest zbyt duża! Wielkość pliku nie może być większa niż 2 GiB.</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.cpp" line="898"/>
         <source>Multiple files: No capture file name given. You must specify a filename if you want to use multiple files.</source>
         <oldsource>Multiple files: No capture file name given! You must specify a filename if you want to use multiple files.</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Wiele plików: Nie wprowadzono nazwy pliku. Musisz wprowadzić nazwę pliku jeśli zamierzasz używać wielu plików.</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.cpp" line="902"/>
@@ -1681,7 +1681,8 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
  if you want to use multiple files.</source>
         <oldsource>Multiple files: No file limit given! You must specify a file size or duration at which is switched to the next capture file
  if you want to use multiple files.</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Wiele plików: Nie ustalono limitu. Musisz ustalić limit wielkości pliku lub czasu przechwytywania 
+po którym zostanie użyty nowy plik przechwytywania, jeśli zamierzasz używać wielu plików.</translation>
     </message>
 </context>
 <context>
@@ -1847,7 +1848,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <message>
         <location filename="coloring_rules_dialog.cpp" line="115"/>
         <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. They have been disabled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark nie rozpoznał jednej lub większej ilości twoich reguł kolorowania. Zostaną one wyłączone.</translation>
     </message>
     <message>
         <location filename="coloring_rules_dialog.cpp" line="380"/>
@@ -1889,17 +1890,17 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <message>
         <location filename="column_editor_frame.cpp" line="176"/>
         <source>Missing fields.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pominięte pola.</translation>
     </message>
     <message>
         <location filename="column_editor_frame.cpp" line="178"/>
         <source>Invalid fields.</source>
-        <translation type="unfinished"></translation>
+        <translation>Niepoprawne pola.</translation>
     </message>
     <message>
         <location filename="column_editor_frame.cpp" line="180"/>
         <source>Invalid occurrence value.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błędne wystąpienia wartości.</translation>
     </message>
 </context>
 <context>
@@ -2484,12 +2485,12 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <message>
         <location filename="expert_info_dialog.cpp" line="111"/>
         <source>Collapse All</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwiń wszystko</translation>
     </message>
     <message>
         <location filename="expert_info_dialog.cpp" line="115"/>
         <source>Expand All</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozwiń wszystko</translation>
     </message>
     <message>
         <location filename="expert_info_dialog.cpp" line="194"/>
@@ -2523,32 +2524,32 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <message>
         <location filename="expert_info_proxy_model.cpp" line="196"/>
         <source>Packet</source>
-        <translation type="unfinished">Pakiet</translation>
+        <translation>Pakiet</translation>
     </message>
     <message>
         <location filename="expert_info_proxy_model.cpp" line="198"/>
         <source>Severity</source>
-        <translation type="unfinished"></translation>
+        <translation>Istotność</translation>
     </message>
     <message>
         <location filename="expert_info_proxy_model.cpp" line="200"/>
         <source>Summary</source>
-        <translation type="unfinished"></translation>
+        <translation>Podsumowanie</translation>
     </message>
     <message>
         <location filename="expert_info_proxy_model.cpp" line="202"/>
         <source>Group</source>
-        <translation type="unfinished"></translation>
+        <translation>Grupa</translation>
     </message>
     <message>
         <location filename="expert_info_proxy_model.cpp" line="204"/>
         <source>Protocol</source>
-        <translation type="unfinished">Protokół</translation>
+        <translation>Protokół</translation>
     </message>
     <message>
         <location filename="expert_info_proxy_model.cpp" line="206"/>
         <source>Count</source>
-        <translation type="unfinished">Wystąpień</translation>
+        <translation>Wystąpienia</translation>
     </message>
 </context>
 <context>
@@ -2697,7 +2698,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
         <location filename="extcap_options_dialog.cpp" line="111"/>
         <source>Interface Options</source>
         <oldsource>Extcap Interface Options</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Opcje interfejsów</translation>
     </message>
     <message>
         <location filename="extcap_options_dialog.cpp" line="81"/>
@@ -4751,7 +4752,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <message>
         <location filename="interface_toolbar_lineedit.cpp" line="43"/>
         <source>Apply changes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Zastosuj zmiany</translation>
     </message>
 </context>
 <context>
@@ -15350,7 +15351,7 @@ text-decoration: underline;
     <message>
         <location filename="tcp_stream_dialog.cpp" line="1095"/>
         <source> (MA)</source>
-        <translation type="unfinished"></translation>
+        <translation> (MA)</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.cpp" line="1097"/>
@@ -15593,12 +15594,12 @@ text-decoration: underline;
     <message>
         <location filename="traffic_table_dialog.ui" line="68"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show absolute times in the start time column.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pokazuj czas absolutny w kolumnie Start Czasu.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="traffic_table_dialog.ui" line="71"/>
         <source>Absolute start time</source>
-        <translation type="unfinished"></translation>
+        <translation>Absolutny czas startu</translation>
     </message>
     <message>
         <location filename="traffic_table_dialog.ui" line="91"/>
@@ -15681,7 +15682,7 @@ text-decoration: underline;
     <message>
         <location filename="voip_calls_dialog.ui" line="61"/>
         <source>Time of Day</source>
-        <translation type="unfinished">Czas dnia</translation>
+        <translation>Czas dnia</translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.ui" line="80"/>
@@ -15760,67 +15761,67 @@ text-decoration: underline;
     <message>
         <location filename="voip_calls_info_model.cpp" line="97"/>
         <source>On</source>
-        <translation type="unfinished"></translation>
+        <translation>Włączone</translation>
     </message>
     <message>
         <location filename="voip_calls_info_model.cpp" line="98"/>
         <source>Off</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyłączone</translation>
     </message>
     <message>
         <location filename="voip_calls_info_model.cpp" line="106"/>
         <source>Tunneling: %1  Fast Start: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Tunelowanie: %1 Szybki start: %2</translation>
     </message>
     <message>
         <location filename="voip_calls_info_model.cpp" line="126"/>
         <source>Start Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Czas startu</translation>
     </message>
     <message>
         <location filename="voip_calls_info_model.cpp" line="128"/>
         <source>Stop Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Czas stopu</translation>
     </message>
     <message>
         <location filename="voip_calls_info_model.cpp" line="130"/>
         <source>Initial Speaker</source>
-        <translation type="unfinished"></translation>
+        <translation>Inicjujący Rozmówca</translation>
     </message>
     <message>
         <location filename="voip_calls_info_model.cpp" line="132"/>
         <source>From</source>
-        <translation type="unfinished"></translation>
+        <translation>Od</translation>
     </message>
     <message>
         <location filename="voip_calls_info_model.cpp" line="134"/>
         <source>To</source>
-        <translation type="unfinished"></translation>
+        <translation>Do</translation>
     </message>
     <message>
         <location filename="voip_calls_info_model.cpp" line="136"/>
         <source>Protocol</source>
-        <translation type="unfinished">Protokół</translation>
+        <translation>Protokół</translation>
     </message>
     <message>
         <location filename="voip_calls_info_model.cpp" line="138"/>
         <source>Duration</source>
-        <translation type="unfinished"></translation>
+        <translation>Czas trwania</translation>
     </message>
     <message>
         <location filename="voip_calls_info_model.cpp" line="140"/>
         <source>Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Pakiety</translation>
     </message>
     <message>
         <location filename="voip_calls_info_model.cpp" line="142"/>
         <source>State</source>
-        <translation type="unfinished"></translation>
+        <translation>Stan</translation>
     </message>
     <message>
         <location filename="voip_calls_info_model.cpp" line="144"/>
         <source>Comments</source>
-        <translation type="unfinished"></translation>
+        <translation>Komentarze</translation>
     </message>
 </context>
 <context>
@@ -15917,22 +15918,22 @@ text-decoration: underline;
     <message>
         <location filename="wireshark_application.cpp" line="599"/>
         <source>Dell Backup and Recovery Found</source>
-        <translation type="unfinished"></translation>
+        <translation>Znaleziono &quot;Dell Backup and Recovery&quot;</translation>
     </message>
     <message>
         <location filename="wireshark_application.cpp" line="600"/>
         <source>You appear to be running Dell Backup and Recovery 1.8.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wygląda na to że używasz Dell Backup and Recovery 1.8.</translation>
     </message>
     <message>
         <location filename="wireshark_application.cpp" line="601"/>
         <source>DBAR can make many applications crash &lt;a href=&quot;https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036&quot;&gt;including Wireshark&lt;/a&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>DBAR może powodować błędy programów &lt;a href=&quot;https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036&quot;&gt;włącznie z Wiresharkiem&lt;/a&gt;.</translation>
     </message>
     <message>
         <location filename="wireshark_application.cpp" line="605"/>
         <source>Offending DLL: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Odpowiedzialna biblioteka DLL: %1</translation>
     </message>
 </context>
 <context>
@@ -15968,7 +15969,7 @@ text-decoration: underline;
     <message>
         <location filename="wlan_statistics_dialog.cpp" line="511"/>
         <source>Percent Retry</source>
-        <translation type="unfinished"></translation>
+        <translation>Próby [%]</translation>
     </message>
     <message>
         <location filename="wlan_statistics_dialog.cpp" line="512"/>
@@ -15988,7 +15989,7 @@ text-decoration: underline;
     <message>
         <location filename="wlan_statistics_dialog.cpp" line="512"/>
         <source>Retry</source>
-        <translation type="unfinished"></translation>
+        <translation>Próby</translation>
     </message>
     <message>
         <location filename="wlan_statistics_dialog.cpp" line="513"/>

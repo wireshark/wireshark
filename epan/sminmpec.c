@@ -22,7 +22,7 @@ static const gchar sminmpec_unknown[] = "(Unknown)";
 const value_string sminmpec_values[] = {
     {     0, "Reserved" },
     {     1, "NxNetworks" },
-    {     2, "IBM (https://w3.ibm.com/standards)" },
+    {     2, "IBM (https://w3.ibm.com/standards )" },
     {     3, "Carnegie Mellon" },
     {     4, "Unix" },
     {     5, "ACC" },
@@ -53220,6 +53220,18 @@ const value_string sminmpec_values[] = {
     { 53197, "National Institute of Technology Karnataka, Surathkal" },
     { 53198, "Foosoft srl" },
     { 53199, "TEMA TELECOMUNICAZIONI Srl" },
+    { 53200, "CANAL+TELECOM" },
+    { 53201, "Merit LILIN" },
+    { 53202, "Qisda Corporation" },
+    { 53203, "plentybytes" },
+    { 53204, "Samsung R&D Institute Bangladesh Ltd." },
+    { 53205, "Poarch Band of Creek Indians Employee Health Clinic" },
+    { 53206, "Smithee Solutions LLC" },
+    { 53207, "Star Electronic Concepts" },
+    { 53208, "Roadbit" },
+    { 53209, "Stanzl" },
+    { 53210, "Cavendish Communications" },
+    { 53211, "The Chainheart Machine, LLC" },
     {    0, NULL}
 };
 

@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2018-12-23)
+(last updated 2018-12-28)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -22,7 +22,7 @@ Decimal
     Michael Kellen
       OID.Admin&NxNetworks.com
 2
-  IBM (https://w3.ibm.com/standards)
+  IBM (https://w3.ibm.com/standards )
     Glenn Daly
       gdaly&us.ibm.com
 3
@@ -55287,8 +55287,8 @@ Decimal
       philip&vogon.net
 13933
   Alstom Transport
-    Paul Steane
-      paul.steane&transport.alstom.com
+    Mikaël CAUSARD
+      pki_run&alstomgroup.com
 13934
   Micchi
     Michael Doyle
@@ -212349,6 +212349,54 @@ Decimal
   TEMA TELECOMUNICAZIONI Srl
     Felice Lamanna
       flamanna&tematlc.it
+53200
+  CANAL+TELECOM
+    Olivier MICHEL
+      olivier.michel&canal-plus.com
+53201
+  Merit LILIN
+    chirun, huang
+      chirun&meritlilin.com.tw
+53202
+  Qisda Corporation
+    JY Hu
+      JY.Hu&Qisda.com
+53203
+  plentybytes
+    Boris Sander
+      boris.sander&plentybytes.com
+53204
+  Samsung R&D Institute Bangladesh Ltd.
+    Muhammad Mushfiqul Islam
+      i.mushfiq&samsung.com
+53205
+  Poarch Band of Creek Indians Employee Health Clinic
+    Linda Jones
+      employeehealthclinic&pci-nsn.gov
+53206
+  Smithee Solutions LLC
+    Rodney Thayer
+      operations&smithee.solutions
+53207
+  Star Electronic Concepts
+    Mahesh Rao
+      mahesh&starelco.com
+53208
+  Roadbit
+    Alireza Taghavi
+      alireza-taghavi&outlook.com
+53209
+  Stanzl
+    Wilhelm Stanzl
+      wstanzl&hotmail.com
+53210
+  Cavendish Communications
+    Scott Barrett
+      scott.barrett&cavcoms.com
+53211
+  The Chainheart Machine, LLC
+    Nathan P. McDonald
+      iana&chainheart.com
 
 
 End of Document
