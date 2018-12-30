@@ -487,6 +487,18 @@ void AboutDialog::handleCopyMenu(QPoint pos)
 
     QMenu * menu = new QMenu(this);
 
+    if (ui->tabWidget->currentWidget() == ui->tab_plugins)
+    {
+#ifdef Q_OS_MAC
+        QString show_in_str = tr("Show in Finder");
+#else
+        QString show_in_str = tr("Show in Folder");
+#endif
+        QAction * showInFolderAction = menu->addAction(show_in_str);
+        showInFolderAction->setData(VariantPointer<QTreeView>::asQVariant(tree));
+        connect(showInFolderAction, SIGNAL(triggered()), this, SLOT(showInFolderActionTriggered()));
+    }
+
     QAction * copyColumnAction = menu->addAction(tr("Copy"));
     copyColumnAction->setData(VariantPointer<QTreeView>::asQVariant(tree));
     connect(copyColumnAction, SIGNAL(triggered()), this, SLOT(copyActionTriggered()));
@@ -497,6 +509,22 @@ void AboutDialog::handleCopyMenu(QPoint pos)
     connect(copyRowAction, SIGNAL(triggered()), this, SLOT(copyRowActionTriggered()));
 
     menu->popup(tree->viewport()->mapToGlobal(pos));
+}
+
+void AboutDialog::showInFolderActionTriggered()
+{
+    QAction * sendingAction = qobject_cast<QAction *>(sender());
+    if (!sendingAction)
+        return;
+
+    QTreeView * tree = VariantPointer<QTreeView>::asPtr(sendingAction->data());
+    QModelIndexList selectedRows = tree->selectionModel()->selectedRows();
+
+    foreach (QModelIndex index, selectedRows)
+    {
+        QString cf_path = tree->model()->index(index.row(), 3).data().toString();
+        desktop_show_in_folder(cf_path);
+    }
 }
 
 void AboutDialog::copyRowActionTriggered()

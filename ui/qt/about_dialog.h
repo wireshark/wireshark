@@ -96,6 +96,7 @@ private:
 private slots:
     void urlDoubleClicked(const QModelIndex &);
     void handleCopyMenu(QPoint);
+    void showInFolderActionTriggered();
     void copyActionTriggered(bool row = false);
     void copyRowActionTriggered();
     void on_tblPlugins_doubleClicked(const QModelIndex &index);
