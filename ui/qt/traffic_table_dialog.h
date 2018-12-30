@@ -49,7 +49,6 @@ class TrafficTableTreeWidget : public QTreeWidget
     Q_OBJECT
 public:
     explicit TrafficTableTreeWidget(QWidget *parent, register_ct_t* table);
-    ~TrafficTableTreeWidget();
 
     // String, int, or double data for each column in a row.
     // Passing -1 returns titles.

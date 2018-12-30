@@ -354,11 +354,6 @@ TrafficTableTreeWidget::TrafficTableTreeWidget(QWidget *parent, register_ct_t *t
     connect(wsApp, SIGNAL(addressResolutionChanged()), this, SLOT(updateItemsForSettingChange()));
 }
 
-TrafficTableTreeWidget::~TrafficTableTreeWidget()
-{
-    remove_tap_listener(&hash_);
-}
-
 QList<QVariant> TrafficTableTreeWidget::rowData(int row) const
 {
     QList<QVariant> row_data;
