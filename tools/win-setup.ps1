@@ -87,8 +87,8 @@ Param(
 # trouble instead of trying to catch exceptions everywhere.
 $ErrorActionPreference = "Stop"
 
-$Win64CurrentTag = "2018-08-15-2.6"
-$Win32CurrentTag = "2018-08-15-2.6"
+$Win64CurrentTag = "2018-12-02"
+$Win32CurrentTag = "2018-12-02"
 
 # Archive file / subdir.
 $Win64Archives = @{
@@ -112,7 +112,7 @@ $Win64Archives = @{
     "spandsp-0.0.6-1-win64ws.zip" = "";
     "WinSparkle-0.5.7.zip" = "";
     "WpdPack_4_1_2.zip" = "";
-    "zlib-1.2.11-ws.zip" = "";
+    "zlib-1.2.11-2-ws.zip" = "";
 }
 
 $Win32Archives = @{
@@ -136,7 +136,7 @@ $Win32Archives = @{
     "spandsp-0.0.6-1-win32ws.zip" = "";
     "WinSparkle-0.5.7.zip" = "";
     "WpdPack_4_1_2.zip" = "";
-    "zlib-1.2.11-ws.zip" = "";
+    "zlib-1.2.11-2-ws.zip" = "";
 }
 
 # Plain file downloads

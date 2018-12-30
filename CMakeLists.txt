@@ -1011,7 +1011,7 @@ endif()
 if(ENABLE_ZLIB)
 	if (WIN32)
 		# On Windows we build our own version of zlib, so add the paths
-		set(ZLIB_SRC_DIR "${_PROJECT_LIB_DIR}/zlib-1.2.11-ws")
+		set(ZLIB_SRC_DIR "${_PROJECT_LIB_DIR}/zlib-1.2.11-2-ws")
 		set(SKIP_INSTALL_ALL True) # We copy the DLL ourselves.
 		add_subdirectory("${ZLIB_SRC_DIR}" "${CMAKE_BINARY_DIR}/zlib")
 		unset(SKIP_INSTALL_ALL)
