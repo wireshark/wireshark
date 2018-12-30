@@ -112,12 +112,12 @@ static dissector_table_t osmo_dissector_table;
 
 static const value_string ipa_protocol_vals[] = {
 	{ 0x00,		"RSL" },
-	{ 0xdd,		"HSL Debug" },
-	{ 0xee,		"OSMO EXT" },
-	{ 0xfc,		"MGCP (old)" },
-	{ 0xfd,		"SCCP" },
-	{ 0xfe,		"IPA" },
-	{ 0xff,		"OML" },
+	{ HSL_DEBUG,	"HSL Debug" },
+	{ OSMO_EXT,	"OSMO EXT" },
+	{ IPA_MGCP,	"MGCP (old)" },
+	{ AIP_SCCP,	"SCCP" },
+	{ ABISIP_IPACCESS,	"IPA" },
+	{ ABISIP_OML,	"OML" },
 	{ 0,		NULL }
 };
 
@@ -259,12 +259,22 @@ dissect_osmo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ipatree, proto_tree 
 
 
 /* Code to actually dissect the packets */
-static void
+static gboolean
 dissect_ipa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_udp)
 {
 	gint remaining;
 	gint header_length = 3;
 	int offset = 0;
+	guint16 len, msg_type;
+
+	if (tvb_reported_length(tvb) < 4)
+		return FALSE;
+
+	//sanity check the message type
+	msg_type = tvb_get_guint8(tvb, 2);
+	if ((try_val_to_str(msg_type, ipa_protocol_vals) == NULL) &&
+		(msg_type >= ABISIP_RSL_MAX))
+		return FALSE;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPA");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -272,7 +282,6 @@ dissect_ipa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_udp
 	while ((remaining = tvb_reported_length_remaining(tvb, offset)) > 0) {
 		proto_item *ti;
 		proto_tree *ipa_tree = NULL;
-		guint16 len, msg_type;
 		tvbuff_t *next_tvb;
 
 		len = tvb_get_ntohs(tvb, offset);
@@ -345,19 +354,24 @@ dissect_ipa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_udp
 		}
 		offset += len + header_length;
 	}
+
+	return TRUE;
 }
 
 static int
 dissect_ipa_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	dissect_ipa(tvb, pinfo, tree, FALSE);
+	if (!dissect_ipa(tvb, pinfo, tree, FALSE))
+		return 0;
 	return tvb_captured_length(tvb);
 }
 
 static int
 dissect_ipa_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	dissect_ipa(tvb, pinfo, tree, TRUE);
+	if (!dissect_ipa(tvb, pinfo, tree, TRUE))
+		return 0;
+
 	return tvb_captured_length(tvb);
 }
 
