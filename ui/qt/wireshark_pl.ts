@@ -12331,7 +12331,7 @@ text-decoration: underline;
     </message>
     <message>
         <source>Initial Speaker</source>
-        <translation>Domyślny Głośnik</translation>
+        <translation>Inicjujący Rozmówca</translation>
     </message>
     <message>
         <source>From</source>
