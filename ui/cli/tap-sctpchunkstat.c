@@ -24,6 +24,8 @@
 #include <epan/dissectors/packet-sctp.h>
 #include <epan/to_str.h>
 
+#include <wsutil/cmdarg_err.h>
+
 void register_tap_listener_sctpstat(void);
 
 typedef struct sctp_ep {
@@ -205,7 +207,7 @@ sctpstat_init(const char *opt_arg, void *userdata _U_)
 		g_free(hs->filter);
 		g_free(hs);
 
-		fprintf(stderr, "tshark: Couldn't register sctp,stat tap: %s\n",
+		cmdarg_err("Couldn't register sctp,stat tap: %s",
 			error_string->str);
 		g_string_free(error_string, TRUE);
 		exit(1);

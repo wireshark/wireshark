@@ -1,4 +1,4 @@
-/* tap-rpcstat.c
+/* tap-wspstat.c
  * wspstat   2003 Jean-Michel FAYARD
  *
  * Wireshark - Network traffic analyzer
@@ -26,6 +26,8 @@
 #include <epan/stat_tap_ui.h>
 #include <epan/value_string.h>
 #include <epan/dissectors/packet-wsp.h>
+
+#include <wsutil/cmdarg_err.h>
 
 void register_tap_listener_wspstat(void);
 
@@ -255,7 +257,7 @@ wspstat_init(const char *opt_arg, void *userdata _U_)
 		g_hash_table_foreach( sp->hash, (GHFunc) wsp_free_hash_table, NULL ) ;
 		g_hash_table_destroy( sp->hash );
 		g_free(sp);
-		fprintf(stderr, "tshark: Couldn't register wsp,stat tap: %s\n",
+		cmdarg_err("Couldn't register wsp,stat tap: %s",
 				error_string->str);
 		g_string_free(error_string, TRUE);
 		exit(1);

@@ -24,6 +24,7 @@
 #include "epan/timestats.h"
 #include "epan/stat_tap_ui.h"
 
+#include <wsutil/cmdarg_err.h>
 
 void register_tap_listener_camelsrt(void);
 
@@ -222,8 +223,7 @@ static void camelsrt_init(const char *opt_arg, void *userdata _U_)
     g_free(p_camelsrt->filter);
     g_free(p_camelsrt);
 
-    fprintf(stderr, "tshark: Couldn't register camel,srt tap: %s\n",
-            error_string->str);
+    cmdarg_err("Couldn't register camel,srt tap: %s", error_string->str);
     g_string_free(error_string, TRUE);
     exit(1);
   }

@@ -28,6 +28,8 @@
 #include <epan/stat_tap_ui.h>
 #include <epan/dissectors/packet-icmp.h>
 
+#include <wsutil/cmdarg_err.h>
+
 void register_tap_listener_icmpstat(void);
 
 /* used to keep track of the ICMP statistics */
@@ -265,7 +267,7 @@ icmpstat_init(const char *opt_arg, void *userdata _U_)
 
     icmpstat = (icmpstat_t *)g_try_malloc(sizeof(icmpstat_t));
     if (icmpstat == NULL) {
-        fprintf(stderr, "tshark: g_try_malloc() fatal error.\n");
+        cmdarg_err("Couldn't register icmp,srt tap: Out of memory");
         exit(1);
     }
     memset(icmpstat, 0, sizeof(icmpstat_t));
@@ -291,8 +293,7 @@ icmpstat_init(const char *opt_arg, void *userdata _U_)
         g_free(icmpstat->filter);
         g_free(icmpstat);
 
-        fprintf(stderr, "tshark: Couldn't register icmp,srt tap: %s\n",
-            error_string->str);
+        cmdarg_err("Couldn't register icmp,srt tap: %s", error_string->str);
         g_string_free(error_string, TRUE);
         exit(1);
     }

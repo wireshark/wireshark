@@ -31,6 +31,7 @@
 #include <glib.h>
 
 #include <wsutil/strtoi.h>
+#include <wsutil/cmdarg_err.h>
 
 #include <epan/packet_info.h>
 #include <epan/tap.h>
@@ -260,7 +261,7 @@ diameteravp_init(const char *opt_arg, void *userdata _U_)
 		/* error, we failed to attach to the tap. clean up */
 		g_free(ds);
 
-		fprintf(stderr, "tshark: Couldn't register diam,csv tap: %s\n",
+		cmdarg_err("Couldn't register diam,csv tap: %s",
 				error_string->str);
 		g_string_free(error_string, TRUE);
 		exit(1);

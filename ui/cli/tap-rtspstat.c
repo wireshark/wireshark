@@ -25,6 +25,8 @@
 #include <epan/stat_tap_ui.h>
 #include <epan/dissectors/packet-rtsp.h>
 
+#include <wsutil/cmdarg_err.h>
+
 void register_tap_listener_rtspstat(void);
 
 /* used to keep track of the statictics for an entire program interface */
@@ -247,7 +249,7 @@ rtspstat_init(const char *opt_arg, void *userdata _U_)
 		/* error, we failed to attach to the tap. clean up */
 		g_free(sp->filter);
 		g_free(sp);
-		fprintf (stderr, "tshark: Couldn't register rtsp,stat tap: %s\n",
+		cmdarg_err("Couldn't register rtsp,stat tap: %s",
 				error_string->str);
 		g_string_free(error_string, TRUE);
 		exit(1);

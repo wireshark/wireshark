@@ -20,6 +20,8 @@
 #include <epan/tap.h>
 #include <epan/stat_tap_ui.h>
 
+#include <wsutil/cmdarg_err.h>
+
 void register_tap_listener_protohierstat(void);
 
 typedef struct _phs_t {
@@ -167,7 +169,7 @@ protohierstat_init(const char *opt_arg, void *userdata _U_)
 			filter = opt_arg+pos;
 		}
 	} else {
-		fprintf(stderr, "tshark: invalid \"-z io,phs[,<filter>]\" argument\n");
+		cmdarg_err("invalid \"-z io,phs[,<filter>]\" argument");
 		exit(1);
 	}
 
@@ -180,7 +182,7 @@ protohierstat_init(const char *opt_arg, void *userdata _U_)
 		g_free(rs->filter);
 		g_free(rs);
 
-		fprintf(stderr, "tshark: Couldn't register io,phs tap: %s\n",
+		cmdarg_err("Couldn't register io,phs tap: %s",
 			error_string->str);
 		g_string_free(error_string, TRUE);
 		exit(1);

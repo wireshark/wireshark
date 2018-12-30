@@ -16,6 +16,7 @@
 #include <string.h>
 #include <epan/packet.h>
 #include <epan/timestamp.h>
+#include <wsutil/cmdarg_err.h>
 #include <ui/cli/tshark-tap.h>
 
 typedef struct _io_users_t {
@@ -225,7 +226,7 @@ void init_iousers(struct register_ct *ct, const char *filter)
 	error_string = register_tap_listener(proto_get_protocol_filter_name(get_conversation_proto_id(ct)), &iu->hash, filter, 0, NULL, get_conversation_packet_func(ct), iousers_draw, NULL);
 	if (error_string) {
 		g_free(iu);
-		fprintf(stderr, "tshark: Couldn't register conversations tap: %s\n",
+		cmdarg_err("Couldn't register conversations tap: %s",
 		    error_string->str);
 		g_string_free(error_string, TRUE);
 		exit(1);

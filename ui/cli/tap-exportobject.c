@@ -18,6 +18,7 @@
 #include <string.h>
 
 #include <wsutil/file_util.h>
+#include <wsutil/cmdarg_err.h>
 
 #include <epan/packet_info.h>
 #include <epan/packet.h>
@@ -125,7 +126,7 @@ gboolean eo_tap_opt_add(const char *option_string)
         }
         else
         {
-            fprintf(stderr, "tshark: \"--export-objects\" already specified protocol '%s'\n", splitted[0]);
+            cmdarg_err("\"--export-objects\" already specified protocol '%s'", splitted[0]);
         }
     }
 
@@ -220,7 +221,7 @@ exportobject_handler(gpointer key, gpointer value _U_, gpointer user_data _U_)
     eo = get_eo_by_name((const char*)key);
     if (eo == NULL)
     {
-        fprintf(stderr, "tshark: \"--export-objects\" INTERNAL ERROR '%s' protocol not found\n", (const char*)key);
+        cmdarg_err("\"--export-objects\" INTERNAL ERROR '%s' protocol not found", (const char*)key);
         return;
     }
 
@@ -238,7 +239,7 @@ exportobject_handler(gpointer key, gpointer value _U_, gpointer user_data _U_)
                       NULL, get_eo_packet_func(eo), eo_draw, NULL);
 
     if (error_msg) {
-        fprintf(stderr, "tshark: Can't register %s tap: %s\n", (const char*)key, error_msg->str);
+        cmdarg_err("Can't register %s tap: %s", (const char*)key, error_msg->str);
         g_string_free(error_msg, TRUE);
         g_free(tap_data);
         g_free(object_list);

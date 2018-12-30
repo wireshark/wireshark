@@ -29,6 +29,8 @@
 #include <epan/stat_tap_ui.h>
 #include <epan/dissectors/packet-icmp.h>
 
+#include <wsutil/cmdarg_err.h>
+
 void register_tap_listener_icmpv6stat(void);
 
 /* used to keep track of the ICMPv6 statistics */
@@ -266,7 +268,7 @@ icmpv6stat_init(const char *opt_arg, void *userdata _U_)
 
     icmpv6stat = (icmpv6stat_t *)g_try_malloc(sizeof(icmpv6stat_t));
     if (icmpv6stat == NULL) {
-        fprintf(stderr, "tshark: g_try_malloc() fatal error.\n");
+        cmdarg_err("Couldn't register icmpv6,srt tap: Out of memory");
         exit(1);
     }
     memset(icmpv6stat, 0, sizeof(icmpv6stat_t));
@@ -291,8 +293,7 @@ icmpv6stat_init(const char *opt_arg, void *userdata _U_)
         g_free(icmpv6stat->filter);
         g_free(icmpv6stat);
 
-        fprintf(stderr, "tshark: Couldn't register icmpv6,srt tap: %s\n",
-            error_string->str);
+        cmdarg_err("Couldn't register icmpv6,srt tap: %s", error_string->str);
         g_string_free(error_string, TRUE);
         exit(1);
     }

@@ -21,6 +21,8 @@
 #include <epan/stat_tap_ui.h>
 #include <epan/addr_resolv.h>
 
+#include <wsutil/cmdarg_err.h>
+
 void register_tap_listener_hosts(void);
 
 static gboolean dump_v4 = FALSE;
@@ -104,7 +106,7 @@ hosts_init(const char *opt_arg, void *userdata _U_)
 			} else if (strcmp("ipv6", tokens[opt_count]) == 0) {
 				dump_v6 = TRUE;
 			} else if (opt_count > 0) {
-				fprintf(stderr, "tshark: invalid \"-z " TAP_NAME "[,ipv4|ipv6]\" argument\n");
+				cmdarg_err("invalid \"-z " TAP_NAME "[,ipv4|ipv6]\" argument");
 				exit(1);
 			}
 			opt_count++;
@@ -116,7 +118,7 @@ hosts_init(const char *opt_arg, void *userdata _U_)
 					   NULL, NULL, hosts_draw, NULL);
 	if (error_string) {
 		/* error, we failed to attach to the tap. clean up */
-		fprintf(stderr, "tshark: Couldn't register " TAP_NAME " tap: %s\n",
+		cmdarg_err("Couldn't register " TAP_NAME " tap: %s",
 			error_string->str);
 		g_string_free(error_string, TRUE);
 		exit(1);
