@@ -124,6 +124,10 @@ void proto_register_geonw(void);
 #define HTST_LS_REQUEST   (HT_LS|HST_REQUEST)
 #define HTST_LS_REPLY     (HT_LS|HST_REPLY)
 
+#define HT_GET(ht)        ((ht)&HT_MASK)
+#define HST_GET(ht)       ((ht)&HST_MASK)
+#define IS_HT_KNOWN(ht)   ((ht) <= 0x61) && (ht >= 0x10) && (HST_GET(ht) < 3) && ((HST_GET(ht) == 0) || ((HT_GET(ht) > 0x30) && ((HST_GET(ht) == 1) || ((HST_GET(ht) == 2) && (HT_GET(ht) < 0x43)))))
+
 #define BH_LEN            4
 #define BH_NH_COMMON_HDR  1
 #define BH_NH_SECURED_PKT 2
@@ -242,6 +246,12 @@ static int hf_geonw_resp_to = -1;
 static int hf_geonw_no_resp = -1;
 static int hf_geonw_resptime = -1;
 
+static int hf_geonw_dccmco = -1;
+static int hf_geonw_dccmco_cbr_l_0_hop = -1;
+static int hf_geonw_dccmco_cbr_l_1_hop = -1;
+static int hf_geonw_dccmco_output_power = -1;
+static int hf_geonw_dccmco_reserved = -1;
+
 static gint ett_geonw = -1;
 static gint ett_geonw_bh = -1;
 static gint ett_geonw_bh_lt = -1;
@@ -254,6 +264,7 @@ static gint ett_geonw_de = -1;
 static gint ett_geonw_de_add = -1;
 static gint ett_geonw_lsrq_add = -1;
 static gint ett_geonw_analysis = -1;
+static gint ett_geonw_dccmco = -1;
 static gint ett_btpa = -1;
 static gint ett_btpb = -1;
 
@@ -2128,6 +2139,7 @@ dissect_geonw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     guint32 tmp_val;
     gint offset = 0;
     proto_item *ti;
+    proto_item *top_item;
     gint hdr_len = 0;
     guint32 payload_len = 0;
     int reserved;
@@ -2176,8 +2188,8 @@ dissect_geonw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                 hdr_len = -1;
         }
     }
-    ti = proto_tree_add_item(tree, proto_geonw, tvb, 0, hdr_len, ENC_NA);
-    proto_tree *geonw_tree = proto_item_add_subtree(ti, ett_geonw);
+    top_item = proto_tree_add_item(tree, proto_geonw, tvb, 0, hdr_len, ENC_NA);
+    proto_tree *geonw_tree = proto_item_add_subtree(top_item, ett_geonw);
 
     // Basic Header subtree
     ti = proto_tree_add_item(geonw_tree, hf_geonw_bh, tvb, 0, 4, ENC_NA);
@@ -2185,10 +2197,10 @@ dissect_geonw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 
     ti = proto_tree_add_item_ret_uint(geonw_bh_tree, hf_geonw_bh_version, tvb, offset, 1, ENC_BIG_ENDIAN, &tmp_val);
     geonwh->gnw_ver = tmp_val;
-    // Shall be 0
-    if (tmp_val) {
+    // Shall be 0 or 1
+    if (tmp_val > 1) {
         col_add_fstr(pinfo->cinfo, COL_INFO,
-                     "Bogus GeoNetworking version (%u, must be 0)", tmp_val);
+                     "Bogus GeoNetworking version (%u, must be less than 2)", tmp_val);
         expert_add_info_format(pinfo, ti, &ei_geonw_version_err, "Bogus GeoNetworking version");
         return tvb_captured_length(tvb);
     }
@@ -2300,9 +2312,9 @@ dissect_geonw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                 }
                 else {
                     /*
-                     * Now that we know that the total length of this IP datagram isn't
+                     * Now that we know that the total length of this GNW datagram isn't
                      * obviously bogus, adjust the length of this tvbuff to include only
-                     * the IP datagram.
+                     * the GNW datagram.
                      */
                     set_actual_length(tvb, hdr_len + payload_len);
                 }
@@ -2329,6 +2341,13 @@ dissect_geonw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
             expert_add_info(pinfo, ti, &ei_geonw_nz_reserved);
         }
         offset += 1;
+
+        // Stop here if header_type unknown
+        if (!IS_HT_KNOWN(header_type)) {
+            // XXX Update top level tree item
+            proto_item_set_end(top_item, tvb, offset);
+            return tvb_reported_length(tvb);
+        }
 
         geonwh->gnw_sn = SN_MAX+1;
 
@@ -2412,7 +2431,7 @@ dissect_geonw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 
         // XXX Is it possible to "follow" a station when updating its GN_ADDR?
 
-        if(geonw_analyze_seq && !(pinfo->fd->visited)) {
+        if(geonw_analyze_seq && (geonwh->gnw_ver==0) && !(pinfo->fd->visited)) {
             // Duplication detection uses SN and TST or only TST (see Annex A of ETSI EN 302 636-4-1)
             // We rely on address type and hashtable as this shall be done on a per station basis (i.e. not over a conversation)
             // We do not try to consider GN_ADDR updates (due to duplicate address detection or anonymous setting)
@@ -2573,9 +2592,19 @@ dissect_geonw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                 break;
             case HTST_TSB_SINGLE:
                 // Reserved 32 bits
-                ti = proto_tree_add_item_ret_uint(geonw_sh_tree, hf_geonw_shb_reserved, tvb, offset, 4, ENC_BIG_ENDIAN, &reserved);
+                // See usage in 636-4 subpart 2 for ITS-5G
+                reserved = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
                 if (reserved) {
-                    expert_add_info(pinfo, ti, &ei_geonw_nz_reserved);
+                    ti = proto_tree_add_item(geonw_sh_tree, hf_geonw_dccmco, tvb, offset, 4, ENC_NA);
+                    proto_tree *dccmco = proto_item_add_subtree(ti, ett_geonw_dccmco);
+                    proto_tree_add_item(dccmco, hf_geonw_dccmco_cbr_l_0_hop, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(dccmco, hf_geonw_dccmco_cbr_l_1_hop, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(dccmco, hf_geonw_dccmco_output_power, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(dccmco, hf_geonw_dccmco_reserved, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(dccmco, hf_geonw_shb_reserved, tvb, offset+3, 1, ENC_BIG_ENDIAN);
+                }
+                else {
+                    proto_tree_add_item(geonw_sh_tree, hf_geonw_shb_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
                 }
                 offset += 4;
                 break;
@@ -2658,6 +2687,7 @@ dissect_geonw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
             //case HTST_BEACON:
             //case HTST_TSB_MULT:
         }
+        proto_item_set_end(top_item, tvb, offset);
 
         tap_queue_packet(geonw_tap, pinfo, geonwh);
 
@@ -2914,6 +2944,14 @@ proto_register_geonw(void)
         { 0, NULL}
     };
 
+    static const value_string traffic_classes_its_g5_names[] = {
+        { 0, "ITS-G5 Access Category Voice" },
+        { 1, "ITS-G5 Access Category Video" },
+        { 2, "ITS-G5 Access Category Best effort" },
+        { 3, "ITS-G5 Access Category Background" },
+        { 0, NULL }
+    };
+
     static const value_string itss_type_names[] = {
         { 0, "Unknown" },
         { 1, "Pedestrian" },
@@ -3005,8 +3043,8 @@ proto_register_geonw(void)
             NULL, HFILL }},
 
         { &hf_geonw_ch_tc_id,
-          { "Mobility", "geonw.ch.tc.id",
-            FT_UINT8, BASE_DEC, NULL, 0x3F,
+          { "Traffic class ID", "geonw.ch.tc.id",
+            FT_UINT8, BASE_DEC, VALS(traffic_classes_its_g5_names), 0x3F,
             NULL, HFILL }},
 
         { &hf_geonw_ch_flags,
@@ -3106,6 +3144,32 @@ proto_register_geonw(void)
         { &hf_geonw_so_pv_heading,
           { "Heading", "geonw.src_pos.hdg",
             FT_UINT16, BASE_CUSTOM, CF_FUNC(display_heading), 0x00,
+            NULL, HFILL }},
+
+        // Decentralized Congestion Control - Multi Channel Operation
+        { &hf_geonw_dccmco,
+          { "Decentralized Congestion Control - Multi Channel Operation", "geonw.dccmco",
+            FT_NONE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }},
+
+        { &hf_geonw_dccmco_cbr_l_0_hop,
+          { "Local channel busy ratio", "geonw.cbr_l0hop",
+            FT_UINT8, BASE_DEC, NULL, 0x80,
+            NULL, HFILL }},
+
+        { &hf_geonw_dccmco_cbr_l_1_hop,
+          { "Max neighbouring CBR", "geonw.cbr_l1hop",
+            FT_UINT8, BASE_DEC, NULL, 0x80,
+            NULL, HFILL }},
+
+        { &hf_geonw_dccmco_output_power,
+          { "Output power", "geonw.outpower",
+            FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0xf8,
+            NULL, HFILL }},
+
+        { &hf_geonw_dccmco_reserved,
+          { "Reserved", "geonw.dccmco.reserved",
+            FT_UINT8, BASE_DEC, NULL, 0x07,
             NULL, HFILL }},
 
         // Short Position
@@ -3398,10 +3462,6 @@ proto_register_geonw(void)
          { "Hashed ID 8", "geonw.sec.hashedid8", FT_BYTES, BASE_NONE, NULL, 0x0,
            NULL, HFILL }},
 
-        //{ &hf_sgeonw_intx,
-         //{ "IntX", "geonw.sec.intx", FT_BYTES, BASE_NONE, NULL, 0x0,
-           //NULL, HFILL }},
-
         { &hf_sgeonw_encryption_parameter_nonce,
          { "Nonce", "geonw.sec.nonce", FT_BYTES, BASE_NONE, NULL, 0x0,
            NULL, HFILL }},
@@ -3475,6 +3535,7 @@ proto_register_geonw(void)
         &ett_geonw_de_add,
         &ett_geonw_lsrq_add,
         &ett_geonw_analysis,
+        &ett_geonw_dccmco,
 
         &ett_geonw_sec,  // Secured packet
         &ett_sgeonw_hdr, // Parts (header, payload or trailer) subtree
