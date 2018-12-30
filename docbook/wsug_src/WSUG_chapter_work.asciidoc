@@ -2,11 +2,11 @@
 
 [[ChapterWork]]
 
-== Working with captured packets
+== Working With Captured Packets
 
 [[ChWorkViewPacketsSection]]
 
-=== Viewing packets you have captured
+=== Viewing Packets You Have Captured
 
 Once you have captured some packets or you have opened a previously saved
 capture file, you can view the packets that are displayed in the packet list
@@ -49,88 +49,177 @@ number of other ways to open a new packet window:
 
 [[ChWorkDisplayPopUpSection]]
 
-=== Pop-up menus
+=== Pop-up Menus
 
-You can bring up a pop-up menu over either the “Packet List”, its column header,
-or “Packet Details” pane by clicking your right mouse button at the
-corresponding pane.
+You can open a pop-up menu over the “Packet List”, its column heading,
+“Packet Details”, or “Packet Bytes” by clicking your right mouse button
+on the corresponding item.
 
 [[ChWorkColumnHeaderPopUpMenuSection]]
 
-==== Pop-up menu of the “Packet List” column header
+==== Pop-up Menu Of The “Packet List” Column Header
 
 [[ChWorkColumnHeaderPopUpMenu]]
 .Pop-up menu of the “Packet List” column header
 image::wsug_graphics/ws-column-header-popup-menu.png[{screenshot-attrs}]
 
-The following table gives an overview of which functions are available in this
-header, where to find the corresponding function in the main menu, and a short
-description of each item.
+The following table gives an overview of which functions are available
+in this header, where to find the corresponding function in the main
+menu, and a description of each item.
 
 [[ColumnHeaderPopupMenuTable]]
 .The menu items of the “Packet List” column header pop-up menu
-[options="header",cols="3,2,5"]
+[options="header",cols="3,7"]
 |===============
-|Item|Identical to main menu’s item:|Description
-|menu:Sort Ascending[]|| Sort the packet list in ascending order based on this column.
-|menu:Sort Descending[]|| Sort the packet list in descending order based on this column.
-|menu:No Sort[]|| Remove sorting order based on this column.
-|menu:Align Left[]|| Set left alignment of the values in this column.
-|menu:Align Center[]|| Set center alignment of the values in this column.
-|menu:Align Right[]|| Set right alignment of the values in this column.
-|menu:Column Preferences...[]|| Open the Preferences dialog box on the column tab.
-|menu:Resize Column[]|| Resize the column to fit the values.
-|menu:Rename Column Title[]|| Allows you to change the title of the column header.
-|menu:Displayed Column[]|menu:View[]| This menu items folds out with a list of all configured columns. These columns can now be shown or hidden in the packet list.
-|menu:Hide Column[]|| Allows you to hide the column from the packet list.
-|menu:Remove Column[]|| Allows you to remove the column from the packet list.
+|Item |Description
+
+|menu:Align Left[] |
+Left-align values in this column.
+
+|menu:Align Center[] |
+Center-align values in this column.
+
+|menu:Align Right[] |
+Right-align values in this column.
+
+|menu:Column Preferences...[] |
+Open the “Preferences” dialog for this column.
+
+|menu:Edit Column[] |
+Open the column editor toolbar for this column.
+
+|menu:Resize To Contents[] |
+Resize the column to fit its values.
+
+|menu:Resolve Names[] |
+If this column contains addresses, resolve them.
+
+| _No., Time, Source, et al_ |
+Show or hide a column by selecting its item.
+
+|menu:Remove Column[] |
+Remove this column, similar to deleting it in the “Preferences” dialog.
+
 |===============
 
 [[ChWorkPacketListPanePopUpMenuSection]]
 
-==== Pop-up menu of the “Packet List” pane
+==== Pop-up Menu Of The “Packet List” Pane
 
 [[ChWorkPacketListPanePopUpMenu]]
 
 .Pop-up menu of the “Packet List” pane
 image::wsug_graphics/ws-packet-pane-popup-menu.png[{screenshot-attrs}]
 
-The following table gives an overview of which functions are available  in this pane, where to find the corresponding function in the main menu,  and a short description of each item.
+The following table gives an overview of which functions are available
+in this pane, where to find the corresponding function in the main menu,
+and a short description of each item.
 
 [[PacketListPopupMenuTable]]
 .The menu items of the “Packet List” pop-up menu
-[options="header",cols="3,2,5"]
+[options="header",cols="3,1,6"]
 |===============
-|Item|Identical to main menu’s item:|Description
-|menu:Mark Packet (toggle)[]|menu:Edit[]| Mark/unmark a packet.
+|Item |Corresponding main menu item |Description
+|menu:Mark Packet (toggle)[]|menu:Edit[]| Mark or unmark a packet.
 |menu:Ignore Packet (toggle)[]|menu:Edit[]| Ignore or inspect this packet while dissecting the capture file.
-|menu:Set Time Reference (toggle)[]|menu:Edit[]| Set/reset a time reference.
-|menu:Manually Resolve Address[]|| Allows you to enter a name to resolve for the selected address.
-|menu:Apply as Filter[]|menu:Analyze[]| Prepare and apply a display filter based on the currently selected  item.
+|menu:Set Time Reference (toggle)[]|menu:Edit[]| Set or reset a time reference.
+
+|menu:Time Shift[] |menu:Edit[] |
+Opens the “Time Shift” dialog, which allows you to adjust the timestamps
+of some or all packets.
+
+|menu:Packet Comment...[] |menu:Edit[] |
+Opens the “Packet Comment” dialog, which lets you add a comment to a
+single packet. Note that the ability to save packet comments depends on
+your file format. E.g. pcapng supports comments, pcap does not.
+
+|menu:Edit Resolved Name[]||
+Allows you to enter a name to resolve for the selected address.
+
+|menu:Apply as Filter[]|menu:Analyze[]| Prepare and apply a display filter based on the currently selected item.
 |menu:Prepare a Filter[]|menu:Analyze[]| Prepare a display filter based on the currently selected item.
-|menu:Conversation Filter[]|| This menu item applies a display filter with the address information  from the selected packet. E.g. the IP menu entry will set a filter  to show the traffic between the two IP addresses of the current  packet. XXX - add a new section describing this better.
-|menu:Colorize Conversation[]|| This menu item uses a display filter with the address information  from the selected packet to build a new colorizing rule.
-|menu:SCTP[]|| Allows you to analyze and prepare a filter for this SCTP association.
-|menu:Follow TCP Stream[]|menu:Analyze[]| Allows you to view all the data on a TCP  stream between a pair of nodes.
-|menu:Follow UDP Stream[]|menu:Analyze[]| Allows you to view all the data on a UDP datagram stream between a pair of nodes.
-|menu:Follow TLS Stream[]|menu:Analyze[]| Same as “Follow TCP Stream” but for TLS or SSL. XXX - add a new section describing this better.
-|menu:Copy/ Summary (Text)[]|| Copy the summary fields as displayed to the clipboard, as tab-separated text.
-|menu:Copy/ Summary (CSV)[]|| Copy the summary fields as displayed to the clipboard, as comma-separated text.
-|menu:Copy/ As Filter[]|| Prepare a display filter based on the currently selected item and copy that filter to the clipboard.
-|menu:Copy/ Bytes (Offset Hex Text)[]|| Copy the packet bytes to the clipboard in hexdump-like format.
-|menu:Copy/ Bytes (Offset Hex)[]|| Copy the packet bytes to the clipboard in hexdump-like format, but without the text portion.
-|menu:Copy/ Bytes (Printable Text Only)[]|| Copy the packet bytes to the clipboard as ASCII text, excluding non-printable characters.
-|menu:Copy/ Bytes (Hex Stream)[]|| Copy the packet bytes to the clipboard as an unpunctuated list of hex digits.
-|menu:Copy/ Bytes (Binary Stream)[]|| Copy the packet bytes to the clipboard as raw binary. The data is stored in the clipboard as MIME-type “application/octet-stream”.
-|menu:Decode As...[]|menu:Analyze[]| Change or apply a new relation between two dissectors.
-|menu:Print...[]|File| Print packets.
-|menu:Show Packet in New Window[]|menu:View[]| Display the selected packet in a new window.
+
+// XXX - add a new section describing this better.
+|menu:Conversation Filter[] ||
+This menu item applies a display filter with the address information
+from the selected packet. For example, the IP menu entry will set a
+filter to show the traffic between the two IP addresses of the current
+packet.
+
+|menu:Colorize Conversation[] ||
+This menu item uses a display filter with the address information from
+the selected packet to build a new colorizing rule.
+
+|menu:SCTP[] ||
+Allows you to analyze and prepare a filter for this SCTP association.
+
+|menu:Follow[TCP Stream] |menu:Analyze[] |
+This menu item brings up a separate window and displays all the TCP
+segments captured that are on the same TCP connection as a selected
+packet, see <<ChAdvFollowStreamSection>>
+
+|menu:Follow[UDP Stream] |menu:Analyze[] |
+Same functionality as “Follow TCP Stream” but for UDP “streams”.
+
+|menu:Follow[TLS Stream] |menu:Analyze[] |
+Same functionality as “Follow TCP Stream” but for TLS or SSL streams.
+See the wiki page on link:{wireshark-wiki-url}SSL[SSL] for instructions
+on providing TLS keys.
+
+|menu:Follow[HTTP Stream] |menu:Analyze[] |
+Same functionality as “Follow TCP Stream” but for HTTP streams.
+
+|menu:Copy[Summary as Text] ||
+Copy the summary fields as displayed to the clipboard as tab-separated
+text.
+
+|menu:Copy[...as CSV] ||
+Copy the summary fields as displayed to the clipboard as comma-separated
+text.
+
+|menu:Copy[...as YAML] ||
+Copy the summary fields as displayed to the clipboard as YAML data.
+
+|menu:Copy[As Filter] ||
+Prepare a display filter based on the currently selected item and copy
+that filter to the clipboard.
+
+|menu:Copy[Bytes as Hex + ASCII Dump] ||
+Copy the packet bytes to the clipboard in full “hexdump” format.
+
+|menu:Copy[...as Hex Dump] ||
+Copy the packet bytes to the clipboard in “hexdump” format without the
+ASCII portion.
+
+|menu:Copy[...as Printable Text] ||
+Copy the packet bytes to the clipboard as ASCII text, excluding
+non-printable characters.
+
+|menu:Copy[...as a Hex Stream] ||
+Copy the packet bytes to the clipboard as an unpunctuated list of hex
+digits.
+
+|menu:Copy[...as Raw Binary] ||
+Copy the packet bytes to the clipboard as raw binary. The data is stored
+in the clipboard using the MIME type “application/octet-stream”.
+
+|menu:Protocol Preferences[] ||
+Adjust the preferences for the selected protocol.
+
+|menu:Decode As...[] |menu:Analyze[] |
+Change or apply a new relation between two dissectors.
+
+|menu:Show Packet in New Window[] |menu:View[] |
+Shows the selected packet in a separate window. The separate window
+shows only the packet details and bytes. See <<ChWorkPacketSepView>> for
+details.
+
 |===============
 
 
 [[ChWorkPacketDetailsPanePopUpMenuSection]]
 
-==== Pop-up menu of the “Packet Details” pane
+==== Pop-up Menu Of The “Packet Details” Pane
 
 [[ChWorkPacketDetailsPanePopUpMenu]]
 
@@ -144,42 +233,160 @@ description of each item.
 [[PacketDetailsPopupMenuTable]]
 
 .The menu items of the “Packet Details” pop-up menu
-[options="header",cols="3,2,5"]
+[options="header",cols="3,1,6"]
 |===============
-|Item|Identical to main menu’s item:|Description
+|Item |Corresponding main menu item |Description
 |menu:Expand Subtrees[]|menu:View[]| Expand the currently selected subtree.
 |menu:Collapse Subtrees[]|menu:View[]| Collapse the currently selected subtree.
 |menu:Expand All[]|menu:View[]| Expand all subtrees in all packets in the capture.
-|menu:Collapse All[]|menu:View[]| Wireshark keeps a list of all the protocol subtrees that are  expanded, and uses it to ensure that the correct subtrees  are expanded when you display a packet. This menu item  collapses the tree view of all packets in the capture list.
+|menu:Collapse All[]|menu:View[]| Wireshark keeps a list of all the protocol subtrees that are expanded, and uses it to ensure that the correct subtrees  are expanded when you display a packet. This menu item  collapses the tree view of all packets in the capture list.
 |menu:Apply as Column[]|| Use the selected protocol item to create a new column in the packet list.
 |menu:Apply as Filter[]|menu:Analyze[]| Prepare and apply a display filter based on the currently selected item.
 |menu:Prepare a Filter[]|menu:Analyze[]| Prepare a display filter based on the currently selected item.
 |menu:Colorize with Filter[]|| This menu item uses a display filter with the information from the selected protocol item to build a new colorizing rule.
-|menu:Follow TCP Stream[]|menu:Analyze[]| Allows you to view all the data on a TCP stream between a pair of nodes.
-|menu:Follow UDP Stream[]|menu:Analyze[]| Allows you to view all the data on a UDP datagram stream between a pair of nodes.
-|menu:Follow TLS Stream[]|menu:Analyze[]| Same as “Follow TCP Stream” but for TLS. XXX - add a new section describing this better.
-|menu:Copy/ Description[]|menu:Edit[]| Copy the displayed text of the selected field to the system  clipboard.
-|menu:Copy/ Fieldname[]|menu:Edit[]| Copy the name of the selected field to the system clipboard.
-|menu:Copy/ Value[]|menu:Edit[]| Copy the value of the selected field to the system clipboard.
-|menu:Copy/ As Filter[]|menu:Edit[]| Prepare a display filter based on the currently selected item and copy it to the clipboard.
-|menu:Copy/ Bytes (Offset Hex Text)[]|| Copy the packet bytes to the clipboard in hexdump-like format; similar to the Packet List Pane  command, but copies only the bytes relevant to the selected part of the tree (the bytes selected in the Packet Bytes Pane).
-|menu:Copy/ Bytes (Offset Hex)[]|| Copy the packet bytes to the clipboard in hexdump-like format, but without the text portion; similar to the         Packet List Pane  command, but copies only the bytes relevant to the selected part of the tree (the bytes selected in the Packet Bytes Pane).
-|menu:Copy/ Bytes (Printable Text Only)[]|| Copy the packet bytes to the clipboard as ASCII text, excluding non-printable characters; similar to the Packet List Pane  command, but copies only the bytes relevant to the selected part of the tree (the bytes selected in the Packet Bytes Pane).
-|menu:Copy/ Bytes (Hex Stream)[]|| Copy the packet bytes to the clipboard as an unpunctuated list of hex digits; similar to the Packet List Pane  command, but copies only the bytes relevant to the selected part of the tree (the bytes selected in the Packet Bytes Pane).
-|menu:Copy/ Bytes (Binary Stream)[]|| Copy the packet bytes to the clipboard as raw binary; similar to the Packet List Pane  command, but copies only the bytes relevant to the selected part of the tree (the bytes selected in the Packet Bytes Pane). The data is stored in the clipboard as MIME-type “application/octet-stream”.
-|menu:Export Selected Packet Bytes...[]|menu:File[]| This menu item is the same as the File menu item of the same  name. It allows you to export raw packet bytes to a binary file.
+
+|menu:Follow[TCP Stream] |menu:Analyze[] |
+This menu item brings up a separate window and displays all the TCP
+segments captured that are on the same TCP connection as a selected
+packet, see <<ChAdvFollowStreamSection>>
+
+|menu:Follow[UDP Stream] |menu:Analyze[] |
+Same functionality as “Follow TCP Stream” but for UDP “streams”.
+
+|menu:Follow[TLS Stream] |menu:Analyze[] |
+Same functionality as “Follow TCP Stream” but for TLS or SSL streams.
+See the wiki page on link:{wireshark-wiki-url}SSL[SSL] for instructions
+on providing TLS keys.
+
+|menu:Follow[HTTP Stream] |menu:Analyze[] |
+Same functionality as “Follow TCP Stream” but for HTTP streams.
+
+|menu:Copy[All Visible Items] |menu:Edit[] |
+Copy the packet details as displayed.
+
+|menu:Copy[All Visible Selected Tree Items] |menu:Edit[] |
+Copy the selected packet detail and its children as displayed.
+
+|menu:Copy[Description] |menu:Edit[] |
+Copy the displayed text of the selected field to the system clipboard.
+
+|menu:Copy[Fieldname] |menu:Edit[] |
+Copy the name of the selected field to the system clipboard.
+
+|menu:Copy[Value] |menu:Edit[] |
+Copy the value of the selected field to the system clipboard.
+
+|menu:Copy[As Filter]| menu:Edit[] |
+Prepare a display filter based on the currently selected item and copy
+it to the clipboard.
+
+|menu:Copy[Bytes as Hex + ASCII Dump] ||
+Copy the packet bytes to the clipboard in full “hexdump” format.
+
+|menu:Copy[...as Hex Dump] ||
+Copy the packet bytes to the clipboard in “hexdump” format without the
+ASCII portion.
+
+|menu:Copy[...as Printable Text] ||
+Copy the packet bytes to the clipboard as ASCII text, excluding
+non-printable characters.
+
+|menu:Copy[...as a Hex Stream] ||
+Copy the packet bytes to the clipboard as an unpunctuated list of hex
+digits.
+
+|menu:Copy[...as Raw Binary] ||
+Copy the packet bytes to the clipboard as raw binary. The data is stored
+in the clipboard using the MIME type “application/octet-stream”.
+
+|menu:Copy[...as Escaped String] ||
+Copy the packet bytes to the clipboard as C-style escape sequences.
+
+|menu:Export Packet Bytes...[] |menu:File[] |
+This menu item is the same as the File menu item of the same  name. It
+allows you to export raw packet bytes to a binary file.
+
 |menu:Wiki Protocol Page[]|| Show the wiki page corresponding to the currently selected protocol  in your web browser.
 |menu:Filter Field Reference[]|| Show the filter field reference web page corresponding to the  currently selected protocol in your web browser.
-|menu:Protocol Preferences...[]|| The menu item takes you to the properties dialog and selects the  page corresponding to the protocol if there are properties  associated with the highlighted field.   More information on preferences can be found in  <<ChCustGUIPrefPage>>.
+
+|menu:Protocol Preferences[] ||
+Adjust the preferences for the selected protocol.
+
 |menu:Decode As...[]|menu:Analyze[]| Change or apply a new relation between two dissectors.
-|menu:Disable Protocol[]|| Allows you to temporarily disable a protocol dissector, which may be blocking the legitimate dissector.
-|menu:Resolve Name[]|menu:View[]| Causes a name resolution to be performed for  the selected packet, but NOT every packet in the capture.
-|menu:Go to Corresponding Packet[]|menu:Go[]| If the selected field has a corresponding packet, go to it.  Corresponding packets will usually be a request/response packet pair  or such.
+
+|menu:Go to Linked Packet[] |menu:Go[] |
+If the selected field has a corresponding packet such as the matching
+request for a DNS response, go to it.
+
+|menu:Show Linked Packet in New Window[] |menu:Go[] |
+If the selected field has a corresponding packet such as the matching
+request for a DNS response, show the selected packet in a separate
+window. See <<ChWorkPacketSepView>> for details.
+
+
+|===============
+
+[[ChWorkPacketBytesPanePopUpMenuSection]]
+
+==== Pop-up Menu Of The “Packet Bytes” Pane
+
+[[ChWorkPacketBytesPanePopUpMenu]]
+
+.Pop-up menu of the “Packet Bytes” pane
+image::wsug_graphics/ws-bytes-pane-popup-menu.png[{screenshot-attrs}]
+
+The following table gives an overview of which functions are available
+in this pane along with a short description of each item.
+
+[[PacketBytesPopupMenuTable]]
+
+.The menu items of the “Packet Bytes” pop-up menu
+[options="header",cols="3,7"]
+|===============
+|Item |Description
+
+|menu:Copy Bytes as Hex + ASCII Dump[] |
+Copy the packet bytes to the clipboard in full “hexdump” format.
+
+|menu:...as Hex Dump[] |
+Copy the packet bytes to the clipboard in “hexdump” format without the
+ASCII portion.
+
+|menu:...as Printable Text[] |
+Copy the packet bytes to the clipboard as ASCII text, excluding
+non-printable characters.
+
+|menu:...as a Hex Stream[] |
+Copy the packet bytes to the clipboard as an unpunctuated list of hex
+digits.
+
+|menu:...as Raw Binary[] |
+Copy the packet bytes to the clipboard as raw binary. The data is stored
+in the clipboard using the MIME type “application/octet-stream”.
+
+|menu:...as Escaped String[] |
+Copy the packet bytes to the clipboard as C-style escape sequences.
+
+|menu:Show bytes as hexadecimal[] |
+Display the byte data as hexadecimal digits.
+
+|menu:Show bytes as bits[] |
+Display the byte data as binary digits.
+
+|menu:Show text based on packet[] |
+Show the “hexdump” data with text.
+
+|menu:...as ASCII[] |
+Use ASCII encoding when displaying “hexdump” text.
+
+|menu:...as EBCDIC[] |
+Use EBCDIC encoding when displaying “hexdump” text.
+
 |===============
 
 [[ChWorkDisplayFilterSection]]
 
-=== Filtering packets while viewing
+=== Filtering Packets While Viewing
 
 Wireshark has two filtering languages: One used when capturing packets, and one
 used when displaying packets. In this section we explore that second type of
@@ -243,7 +450,7 @@ To remove the filter, click on the btn:[Clear] button  to the right of the filte
 
 [[ChWorkBuildDisplayFilterSection]]
 
-=== Building display filter expressions
+=== Building Display Filter Expressions
 
 Wireshark provides a simple but powerful display filter language that allows you
 to build quite complex filter expressions. You can compare values in packets as
@@ -256,7 +463,7 @@ You will find a lot of Display Filter examples at the _Wireshark Wiki Display
 Filter page_ at: link:{wireshark-wiki-url}DisplayFilters[].
 ====
 
-==== Display filter fields
+==== Display Filter Fields
 
 Every field in the packet details pane can be used as a filter string, this will
 result in showing only the packets where this field exists. For example: the
@@ -267,7 +474,7 @@ menu:View[Internals,Supported Protocols].
 
 // XXX - add some more info here and a link to the statusbar info.
 
-==== Comparing values
+==== Comparing Values
 
 You can build display filters that compare values using a number of different
 comparison operators. They are shown in <<DispCompOps>>.
@@ -372,7 +579,7 @@ tcp.flags & 0x02
 That expression will match all packets that contain a “tcp.flags” field with the 0x02 bit,
 i.e. the SYN bit, set.
 
-==== Combining expressions
+==== Combining Expressions
 
 You can combine filter expressions in Wireshark using the  logical operators shown in <<FiltLogOps>>
 
@@ -534,7 +741,7 @@ the deprecated fields may be removed in the future.
 
 [[ChWorkFilterAddExpressionSection]]
 
-=== The “Filter Expression” dialog box
+=== The “Filter Expression” Dialog Box
 
 When you are accustomed to Wireshark’s filtering system and know what labels you
 wish to use in your filters it can be very quick to simply type a filter string.
@@ -597,7 +804,7 @@ clicking the btn:[Cancel] button.
 
 [[ChWorkDefineFilterSection]]
 
-=== Defining and saving filters
+=== Defining And Saving Filters
 
 You can define filters with Wireshark and give them labels for later use. This
 can save time in remembering and retyping some of the more complex filters you
@@ -673,7 +880,7 @@ Close this dialog. This will discard unsaved settings.
 
 [[ChWorkDefineFilterMacrosSection]]
 
-=== Defining and saving filter macros
+=== Defining And Saving Filter Macros
 
 You can define filter macros with Wireshark and give them labels for later use.
 This can save time in remembering and retyping some of the more complex filters
@@ -683,14 +890,14 @@ you use.
 
 [[ChWorkFindPacketSection]]
 
-=== Finding packets
+=== Finding Packets
 
 You can easily find packets once you have captured some packets or have read in
 a previously saved capture file. Simply select the _Find Packet..._ menu item
 from the _Edit_ menu. Wireshark will pop up the dialog box shown in
 <<ChWorkFindPacketDialog>>.
 
-==== The “Find Packet” dialog box
+==== The “Find Packet” Dialog Box
 
 [[ChWorkFindPacketDialog]]
 
@@ -733,31 +940,31 @@ Search upwards in the packet list (decreasing packet numbers).
 +
 Search downwards in the packet list (increasing packet numbers).
 
-==== The “Find Next” command
+==== The “Find Next” Command
 
 “Find Next” will continue searching with the same options used in the last
 “Find Packet”.
 
-==== The “Find Previous” command
+==== The “Find Previous” Command
 
 “Find Previous” will do the same thing as “Find Next”, but in the reverse
 direction.
 
 [[ChWorkGoToPacketSection]]
 
-=== Go to a specific packet
+=== Go To A Specific Packet
 
 You can easily jump to specific packets with one of the menu items in the  Go menu.
 
-==== The “Go Back” command
+==== The “Go Back” Command
 
 Go back in the packet history, works much like the page history in current  web browsers.
 
-==== The “Go Forward” command
+==== The “Go Forward” Command
 
 Go forward in the packet history, works much like the page history in  current web browsers.
 
-==== The “Go to Packet” dialog box
+==== The “Go to Packet” Dialog Box
 
 [[ChWorkGoToPacketDialog]]
 
@@ -767,7 +974,7 @@ image::wsug_graphics/ws-goto-packet.png[{screenshot-attrs}]
 This dialog box will let you enter a packet number. When you press btn:[OK],
 Wireshark will jump to that packet.
 
-==== The “Go to Corresponding Packet” command
+==== The “Go to Corresponding Packet” Command
 
 If a protocol field is selected which points to another packet in the capture
 file, this command will jump to that packet.
@@ -775,17 +982,17 @@ file, this command will jump to that packet.
 As these protocol fields now work like links (just as in your Web browser), it’s
 easier to simply double-click on the field to jump to the corresponding field.
 
-==== The “Go to First Packet” command
+==== The “Go to First Packet” Command
 
 This command will simply jump to the first packet displayed.
 
-==== The “Go to Last Packet” command
+==== The “Go to Last Packet” Command
 
 This command will simply jump to the last packet displayed.
 
 [[ChWorkMarkPacketSection]]
 
-=== Marking packets
+=== Marking Packets
 
 You can mark packets in the “Packet List” pane. A marked packet will be shown
 with black background, regardless of the coloring rules set. Marking a packet
@@ -812,7 +1019,7 @@ List” pane.
 
 [[ChWorkIgnorePacketSection]]
 
-=== Ignoring packets
+=== Ignoring Packets
 
 You can ignore packets in the “Packet List” pane. Wireshark will then pretend
 that this packets does not exist in the capture file. An ignored packet will be
@@ -836,7 +1043,7 @@ packet (toggle)” function is also available from the pop-up menu of the
 
 [[ChWorkTimeFormatsSection]]
 
-=== Time display formats and time  references
+=== Time Display Formats And Time References
 
 While packets are captured, each packet is timestamped. These timestamps will be
 saved to the capture file, so they will be available for later analysis.
@@ -886,7 +1093,7 @@ you use Seconds it would show simply 1 and if you use Nanoseconds it shows
 
 [[ChWorkTimeReferencePacketSection]]
 
-==== Packet time referencing
+==== Packet Time Referencing
 
 The user can set time references to packets. A time reference is the starting
 point for all subsequent packet time calculations. It will be useful, if you

@@ -116,6 +116,7 @@ set(WSUG_GRAPHICS
 	wsug_graphics/related-response.png
 	wsug_graphics/related-segment.png
 	wsug_graphics/ws-analyze-menu.png
+	wsug_graphics/ws-bytes-pane-popup-menu.png
 	wsug_graphics/ws-bytes-pane-tabs.png
 	wsug_graphics/ws-bytes-pane.png
 	wsug_graphics/ws-capture-info.png
