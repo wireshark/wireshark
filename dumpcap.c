@@ -269,7 +269,7 @@ typedef struct _capture_src {
     size_t                       cap_pipe_bytes_to_read; /**< Used by cap_pipe_dispatch */
     size_t                       cap_pipe_bytes_read;    /**< Used by cap_pipe_dispatch */
 #endif
-    int (*cap_pipe_dispatch)(struct _loop_data *, struct _capture_src *, char *, int);
+    int (*cap_pipe_dispatch)(struct _loop_data *, struct _capture_src *, char *, size_t);
     cap_pipe_state_t cap_pipe_state;
     cap_pipe_err_t cap_pipe_err;
 
@@ -1374,7 +1374,7 @@ cap_pipe_select(int pipe_fd)
 #define DEF_TCP_PORT 19000
 
 static int
-cap_open_socket(char *pipename, capture_src *pcap_src, char *errmsg, int errmsgl)
+cap_open_socket(char *pipename, capture_src *pcap_src, char *errmsg, size_t errmsgl)
 {
     char *sockname = pipename + 4;
     struct sockaddr_in sa;
@@ -1425,7 +1425,7 @@ cap_open_socket(char *pipename, capture_src *pcap_src, char *errmsg, int errmsgl
                       NULL, lastError, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
                       (LPTSTR)&errorText, 0, NULL);
 #endif
-        g_snprintf(errmsg, errmsgl,
+        g_snprintf(errmsg, (gulong)errmsgl,
             "The capture session could not be initiated due to the socket error: \n"
 #ifdef _WIN32
             "         %d: %s", lastError, errorText ? (char *)errorText : "Unknown");
@@ -1445,7 +1445,7 @@ cap_open_socket(char *pipename, capture_src *pcap_src, char *errmsg, int errmsgl
     return fd;
 
 fail_invalid:
-    g_snprintf(errmsg, errmsgl,
+    g_snprintf(errmsg, (gulong)errmsgl,
         "The capture session could not be initiated because\n"
         "\"%s\" is not a valid socket specification", pipename);
     pcap_src->cap_pipe_err = PIPERR;
@@ -1474,7 +1474,7 @@ cap_pipe_close(int pipe_fd, gboolean from_socket)
  * Sets pcap_src->cap_pipe_err on error or EOF.
  */
 static ssize_t
-cap_pipe_read_data_bytes(capture_src *pcap_src, char *errmsg, int errmsgl)
+cap_pipe_read_data_bytes(capture_src *pcap_src, char *errmsg, size_t errmsgl)
 {
     int sel_ret;
     int fd = pcap_src->cap_pipe_fd;
@@ -1492,15 +1492,15 @@ cap_pipe_read_data_bytes(capture_src *pcap_src, char *errmsg, int errmsgl)
     sz = pcap_src->cap_pipe_bytes_to_read - pcap_src->cap_pipe_bytes_read;
     while (bytes_read < sz) {
         if (fd == -1) {
-            g_snprintf(errmsg, errmsgl, "Invalid file descriptor.");
+            g_snprintf(errmsg, (gulong)errmsgl, "Invalid file descriptor.");
             pcap_src->cap_pipe_err = PIPNEXIST;
             return -1;
         }
 
         sel_ret = cap_pipe_select(fd);
         if (sel_ret < 0) {
-            g_snprintf(errmsg, errmsgl,
-                        "Unexpected error from select: %s.", g_strerror(errno));
+            g_snprintf(errmsg, (gulong)errmsgl,
+                       "Unexpected error from select: %s.", g_strerror(errno));
             pcap_src->cap_pipe_err = PIPERR;
             return -1;
         } else if (sel_ret > 0) {
@@ -1508,7 +1508,8 @@ cap_pipe_read_data_bytes(capture_src *pcap_src, char *errmsg, int errmsgl)
                               sz-bytes_read, pcap_src->from_cap_socket);
             if (b <= 0) {
                 if (b == 0) {
-                    g_snprintf(errmsg, errmsgl, "End of file on pipe during cap_pipe_read.");
+                    g_snprintf(errmsg, (gulong)errmsgl,
+                               "End of file on pipe during cap_pipe_read.");
                     pcap_src->cap_pipe_err = PIPEOF;
                 } else {
 #ifdef _WIN32
@@ -1520,13 +1521,16 @@ cap_pipe_read_data_bytes(capture_src *pcap_src, char *errmsg, int errmsgl)
                                 FORMAT_MESSAGE_IGNORE_INSERTS,
                                 NULL, lastError, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
                                 (LPTSTR)&errorText, 0, NULL);
-                    g_snprintf(errmsg, errmsgl, "Error on pipe data during cap_pipe_read: "
-                        "         %d: %s", lastError, errorText ? (char *)errorText : "Unknown");
+                    g_snprintf(errmsg, (gulong)errmsgl,
+                               "Error on pipe data during cap_pipe_read: "
+                               "         %d: %s", lastError,
+                               errorText ? (char *)errorText : "Unknown");
                     if (errorText)
                         LocalFree(errorText);
 #else
-                    g_snprintf(errmsg, errmsgl, "Error on pipe data during cap_pipe_read: %s.",
-                                g_strerror(errno));
+                    g_snprintf(errmsg, (gulong)errmsgl,
+                               "Error on pipe data during cap_pipe_read: %s.",
+                               g_strerror(errno));
 #endif
                     pcap_src->cap_pipe_err = PIPERR;
                 }
@@ -1544,9 +1548,13 @@ cap_pipe_read_data_bytes(capture_src *pcap_src, char *errmsg, int errmsgl)
 }
 
 /* Some forward declarations for breaking up cap_pipe_open_live for pcap and pcapng formats */
-static void pcap_pipe_open_live(int fd, capture_src *pcap_src, struct pcap_hdr *hdr, char *errmsg, int errmsgl);
-static void pcapng_pipe_open_live(int fd, capture_src *pcap_src, char *errmsg, int errmsgl);
-static int pcapng_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, int errmsgl);
+static void pcap_pipe_open_live(int fd, capture_src *pcap_src,
+                                struct pcap_hdr *hdr,
+                                char *errmsg, size_t errmsgl);
+static void pcapng_pipe_open_live(int fd, capture_src *pcap_src,
+                                  char *errmsg, size_t errmsgl);
+static int pcapng_pipe_dispatch(loop_data *ld, capture_src *pcap_src,
+                                char *errmsg, size_t errmsgl);
 
 /* Mimic pcap_open_live() for pipe captures
 
@@ -1559,7 +1567,7 @@ static void
 cap_pipe_open_live(char *pipename,
                    capture_src *pcap_src,
                    void *hdr,
-                   char *errmsg, int errmsgl)
+                   char *errmsg, size_t errmsgl)
 {
 #ifndef _WIN32
     ws_statb64         pipe_stat;
@@ -1604,7 +1612,7 @@ cap_pipe_open_live(char *pipename,
             if (errno == ENOENT || errno == ENOTDIR)
                 pcap_src->cap_pipe_err = PIPNEXIST;
             else {
-                g_snprintf(errmsg, errmsgl,
+                g_snprintf(errmsg, (gulong)errmsgl,
                            "The capture session could not be initiated "
                            "due to error getting information on pipe/socket: %s.", g_strerror(errno));
                 pcap_src->cap_pipe_err = PIPERR;
@@ -1614,7 +1622,7 @@ cap_pipe_open_live(char *pipename,
         if (S_ISFIFO(pipe_stat.st_mode)) {
             fd = ws_open(pipename, O_RDONLY | O_NONBLOCK, 0000 /* no creation so don't matter */);
             if (fd == -1) {
-                g_snprintf(errmsg, errmsgl,
+                g_snprintf(errmsg, (gulong)errmsgl,
                            "The capture session could not be initiated "
                            "due to error on pipe open: %s.", g_strerror(errno));
                 pcap_src->cap_pipe_err = PIPERR;
@@ -1623,7 +1631,7 @@ cap_pipe_open_live(char *pipename,
         } else if (S_ISSOCK(pipe_stat.st_mode)) {
             fd = socket(AF_UNIX, SOCK_STREAM, 0);
             if (fd == -1) {
-                g_snprintf(errmsg, errmsgl,
+                g_snprintf(errmsg, (gulong)errmsgl,
                            "The capture session could not be initiated "
                            "due to error on socket create: %s.", g_strerror(errno));
                 pcap_src->cap_pipe_err = PIPERR;
@@ -1655,7 +1663,7 @@ cap_pipe_open_live(char *pipename,
              */
             if (g_strlcpy(sa.sun_path, pipename, sizeof sa.sun_path) > sizeof sa.sun_path) {
                 /* Path name too long */
-                g_snprintf(errmsg, errmsgl,
+                g_snprintf(errmsg, (gulong)errmsgl,
                            "The capture session coud not be initiated "
                            "due to error on socket connect: Path name too long.");
                 pcap_src->cap_pipe_err = PIPERR;
@@ -1664,7 +1672,7 @@ cap_pipe_open_live(char *pipename,
             }
             b = connect(fd, (struct sockaddr *)&sa, sizeof sa);
             if (b == -1) {
-                g_snprintf(errmsg, errmsgl,
+                g_snprintf(errmsg, (gulong)errmsgl,
                            "The capture session coud not be initiated "
                            "due to error on socket connect: %s.", g_strerror(errno));
                 pcap_src->cap_pipe_err = PIPERR;
@@ -1679,7 +1687,7 @@ cap_pipe_open_live(char *pipename,
                  */
                 pcap_src->cap_pipe_err = PIPNEXIST;
             } else {
-                g_snprintf(errmsg, errmsgl,
+                g_snprintf(errmsg, (gulong)errmsgl,
                            "The capture session could not be initiated because\n"
                            "\"%s\" is neither an interface nor a socket nor a pipe.", pipename);
                 pcap_src->cap_pipe_err = PIPERR;
@@ -1702,7 +1710,7 @@ cap_pipe_open_live(char *pipename,
         g_free(pncopy);
 
         if (!pos) {
-            g_snprintf(errmsg, errmsgl,
+            g_snprintf(errmsg, (gulong)errmsgl,
                        "The capture session could not be initiated because\n"
                        "\"%s\" is neither an interface nor a pipe.", pipename);
             pcap_src->cap_pipe_err = PIPNEXIST;
@@ -1726,7 +1734,7 @@ cap_pipe_open_live(char *pipename,
             if (GetLastError() != ERROR_PIPE_BUSY) {
                 FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
                               NULL, GetLastError(), 0, (LPTSTR) &err_str, 0, NULL);
-                g_snprintf(errmsg, errmsgl,
+                g_snprintf(errmsg, (gulong)errmsgl,
                            "The capture session on \"%s\" could not be started "
                            "due to error on pipe open: %s (error %lu).",
                            pipename, utf_16to8(err_str), GetLastError());
@@ -1738,7 +1746,7 @@ cap_pipe_open_live(char *pipename,
             if (!WaitNamedPipe(utf_8to16(pipename), 30 * 1000)) {
                 FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
                              NULL, GetLastError(), 0, (LPTSTR) &err_str, 0, NULL);
-                g_snprintf(errmsg, errmsgl,
+                g_snprintf(errmsg, (gulong)errmsgl,
                            "The capture session on \"%s\" timed out during "
                            "pipe open: %s (error %lu).",
                            pipename, utf_16to8(err_str), GetLastError());
@@ -1769,8 +1777,9 @@ cap_pipe_open_live(char *pipename,
         while (bytes_read < sizeof magic) {
             sel_ret = cap_pipe_select(fd);
             if (sel_ret < 0) {
-                g_snprintf(errmsg, errmsgl,
-                           "Unexpected error from select: %s.", g_strerror(errno));
+                g_snprintf(errmsg, (gulong)errmsgl,
+                           "Unexpected error from select: %s.",
+                           g_strerror(errno));
                 goto error;
             } else if (sel_ret > 0) {
                 b = cap_pipe_read(fd, ((char *)&magic)+bytes_read,
@@ -1782,9 +1791,11 @@ cap_pipe_open_live(char *pipename,
 
                 if (b <= 0) {
                     if (b == 0)
-                        g_snprintf(errmsg, errmsgl, "End of file on pipe magic during open.");
+                        g_snprintf(errmsg, (gulong)errmsgl,
+                                   "End of file on pipe magic during open.");
                     else
-                        g_snprintf(errmsg, errmsgl, "Error on pipe magic during open: %s.",
+                        g_snprintf(errmsg, (gulong)errmsgl,
+                                   "Error on pipe magic during open: %s.",
                                    g_strerror(errno));
                     goto error;
                 }
@@ -1808,9 +1819,11 @@ cap_pipe_open_live(char *pipename,
 
         if (pcap_src->cap_pipe_bytes_read <= 0) {
             if (pcap_src->cap_pipe_bytes_read == 0)
-                g_snprintf(errmsg, errmsgl, "End of file on pipe magic during open.");
+                g_snprintf(errmsg, (gulong)errmsgl,
+                           "End of file on pipe magic during open.");
             else
-                g_snprintf(errmsg, errmsgl, "Error on pipe magic during open: %s.",
+                g_snprintf(errmsg, (gulong)errmsgl,
+                           "Error on pipe magic during open: %s.",
                            g_strerror(errno));
             goto error;
         }
@@ -1858,7 +1871,8 @@ cap_pipe_open_live(char *pipename,
         return;
     default:
         /* Not a pcap type we know about, or not pcap at all. */
-        g_snprintf(errmsg, errmsgl, "Unrecognized libpcap format or not libpcap data.");
+        g_snprintf(errmsg, (gulong)errmsgl,
+                   "Unrecognized libpcap format or not libpcap data.");
         goto error;
     }
 
@@ -1879,7 +1893,7 @@ static void
 pcap_pipe_open_live(int fd,
                     capture_src *pcap_src,
                     struct pcap_hdr *hdr,
-                    char *errmsg, int errmsgl)
+                    char *errmsg, size_t errmsgl)
 {
     size_t   bytes_read;
     ssize_t  b;
@@ -1893,8 +1907,9 @@ pcap_pipe_open_live(int fd,
         while (bytes_read < sizeof(struct pcap_hdr)) {
             sel_ret = cap_pipe_select(fd);
             if (sel_ret < 0) {
-                g_snprintf(errmsg, errmsgl,
-                           "Unexpected error from select: %s.", g_strerror(errno));
+                g_snprintf(errmsg, (gulong)errmsgl,
+                           "Unexpected error from select: %s.",
+                           g_strerror(errno));
                 goto error;
             } else if (sel_ret > 0) {
                 b = cap_pipe_read(fd, ((char *)hdr)+bytes_read,
@@ -1902,9 +1917,11 @@ pcap_pipe_open_live(int fd,
                                   pcap_src->from_cap_socket);
                 if (b <= 0) {
                     if (b == 0)
-                        g_snprintf(errmsg, errmsgl, "End of file on pipe header during open.");
+                        g_snprintf(errmsg, (gulong)errmsgl,
+                                   "End of file on pipe header during open.");
                     else
-                        g_snprintf(errmsg, errmsgl, "Error on pipe header during open: %s.",
+                        g_snprintf(errmsg, (gulong)errmsgl,
+                                   "Error on pipe header during open: %s.",
                                    g_strerror(errno));
                     goto error;
                 }
@@ -1921,9 +1938,11 @@ pcap_pipe_open_live(int fd,
         g_async_queue_pop(pcap_src->cap_pipe_done_q);
         if (pcap_src->cap_pipe_bytes_read <= 0) {
             if (pcap_src->cap_pipe_bytes_read == 0)
-                g_snprintf(errmsg, errmsgl, "End of file on pipe header during open.");
+                g_snprintf(errmsg, (gulong)errmsgl,
+                           "End of file on pipe header during open.");
             else
-                g_snprintf(errmsg, errmsgl, "Error on pipe header header during open: %s.",
+                g_snprintf(errmsg, (gulong)errmsgl,
+                           "Error on pipe header header during open: %s.",
                            g_strerror(errno));
             goto error;
         }
@@ -1950,7 +1969,8 @@ pcap_pipe_open_live(int fd,
         pcap_src->cap_pipe_max_pkt_size = WTAP_MAX_PACKET_SIZE_STANDARD;
 
     if (hdr->version_major < 2) {
-        g_snprintf(errmsg, errmsgl, "Unable to read old libpcap format version %d.%d",
+        g_snprintf(errmsg, (gulong)errmsgl,
+                   "Unable to read old libpcap format version %d.%d",
                    hdr->version_major, hdr->version_minor);
         goto error;
     }
@@ -1972,7 +1992,7 @@ error:
 static int
 pcapng_read_shb(capture_src *pcap_src,
                 char *errmsg,
-                int errmsgl)
+                size_t errmsgl)
 {
     struct pcapng_section_header_block_s shb;
 
@@ -1994,9 +2014,11 @@ pcapng_read_shb(capture_src *pcap_src,
         g_async_queue_pop(pcap_src->cap_pipe_done_q);
         if (pcap_src->cap_pipe_bytes_read <= 0) {
             if (pcap_src->cap_pipe_bytes_read == 0)
-                g_snprintf(errmsg, errmsgl, "End of file on pipe section header during open.");
+                g_snprintf(errmsg, (gulong)errmsgl,
+                           "End of file on pipe section header during open.");
             else
-                g_snprintf(errmsg, errmsgl, "Error on pipe section header during open: %s.",
+                g_snprintf(errmsg, (gulong)errmsgl,
+                           "Error on pipe section header during open: %s.",
                            g_strerror(errno));
             return -1;
         }
@@ -2024,12 +2046,14 @@ pcapng_read_shb(capture_src *pcap_src,
 #define OUR_ENDIAN "little"
 #define IFACE_ENDIAN "big"
 #endif
-        g_snprintf(errmsg, errmsgl, "Interface %u is " IFACE_ENDIAN " endian but we're " OUR_ENDIAN " endian.",
+        g_snprintf(errmsg, (gulong)errmsgl,
+                   "Interface %u is " IFACE_ENDIAN " endian but we're " OUR_ENDIAN " endian.",
                    pcap_src->interface_id);
         return -1;
     default:
         /* Not a pcapng type we know about, or not pcapng at all. */
-        g_snprintf(errmsg, errmsgl, "Unrecognized pcapng format or not pcapng data.");
+        g_snprintf(errmsg, (gulong)errmsgl,
+                   "Unrecognized pcapng format or not pcapng data.");
         return -1;
     }
 
@@ -2136,7 +2160,7 @@ static void
 pcapng_pipe_open_live(int fd,
                       capture_src *pcap_src,
                       char *errmsg,
-                      int errmsgl)
+                      size_t errmsgl)
 {
     guint32 type = BLOCK_TYPE_SHB;
     struct pcapng_block_header_s *bh = &pcap_src->cap_pipe_info.pcapng.bh;
@@ -2169,9 +2193,11 @@ pcapng_pipe_open_live(int fd,
         g_async_queue_pop(pcap_src->cap_pipe_done_q);
         if (pcap_src->cap_pipe_bytes_read <= 0) {
             if (pcap_src->cap_pipe_bytes_read == 0)
-                g_snprintf(errmsg, errmsgl, "End of file on pipe block_total_length during open.");
+                g_snprintf(errmsg, (gulong)errmsgl,
+                           "End of file on pipe block_total_length during open.");
             else
-                g_snprintf(errmsg, errmsgl, "Error on pipe block_total_length during open: %s.",
+                g_snprintf(errmsg, (gulong)errmsgl,
+                           "Error on pipe block_total_length during open: %s.",
                            g_strerror(errno));
             goto error;
         }
@@ -2199,7 +2225,7 @@ error:
 /* We read one record from the pipe, take care of byte order in the record
  * header, write the record to the capture file, and update capture statistics. */
 static int
-pcap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, int errmsgl)
+pcap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, size_t errmsgl)
 {
     struct pcap_pkthdr  phdr;
     enum { PD_REC_HDR_READ, PD_DATA_READ, PD_PIPE_EOF, PD_PIPE_ERR,
@@ -2329,7 +2355,8 @@ pcap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, int errms
         break;
 
     default:
-        g_snprintf(errmsg, errmsgl, "pcap_pipe_dispatch: invalid state");
+        g_snprintf(errmsg, (gulong)errmsgl,
+                   "pcap_pipe_dispatch: invalid state");
         result = PD_ERR;
 
     } /* switch (pcap_src->cap_pipe_state) */
@@ -2350,7 +2377,7 @@ pcap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, int errms
              * STATE_EXPECT_DATA) as that would not fit in the buffer and
              * instead stop with an error.
              */
-            g_snprintf(errmsg, errmsgl, "Frame %u too long (%d bytes)",
+            g_snprintf(errmsg, (gulong)errmsgl, "Frame %u too long (%d bytes)",
                        ld->packets_captured+1, pcap_info->rechdr.hdr.incl_len);
             break;
         }
@@ -2412,12 +2439,12 @@ pcap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, int errms
 #ifdef _WIN32
         FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
                       NULL, GetLastError(), 0, (LPTSTR) &err_str, 0, NULL);
-        g_snprintf(errmsg, errmsgl,
+        g_snprintf(errmsg, (gulong)errmsgl,
                    "Error reading from pipe: %s (error %lu)",
                    utf_16to8(err_str), GetLastError());
         LocalFree(err_str);
 #else
-        g_snprintf(errmsg, errmsgl, "Error reading from pipe: %s",
+        g_snprintf(errmsg, (gulong)errmsgl, "Error reading from pipe: %s",
                    g_strerror(errno));
 #endif
         /* Fall through */
@@ -2431,7 +2458,7 @@ pcap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, int errms
 }
 
 static int
-pcapng_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, int errmsgl)
+pcapng_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, size_t errmsgl)
 {
     enum { PD_REC_HDR_READ, PD_DATA_READ, PD_PIPE_EOF, PD_PIPE_ERR,
            PD_ERR } result;
@@ -2557,7 +2584,8 @@ pcapng_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, int err
         break;
 
     default:
-        g_snprintf(errmsg, errmsgl, "pcapng_pipe_dispatch: invalid state");
+        g_snprintf(errmsg, (gulong)errmsgl,
+                   "pcapng_pipe_dispatch: invalid state");
         result = PD_ERR;
 
     } /* switch (pcap_src->cap_pipe_state) */
@@ -2581,7 +2609,7 @@ pcapng_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, int err
             * STATE_EXPECT_DATA) as that would not fit in the buffer and
             * instead stop with an error.
             */
-            g_snprintf(errmsg, errmsgl, "Frame %u too long (%d bytes)",
+            g_snprintf(errmsg, (gulong)errmsgl, "Frame %u too long (%d bytes)",
                     ld->packets_captured+1, bh->block_total_length);
             break;
         }
@@ -2608,7 +2636,8 @@ pcapng_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, int err
 
         /* The record always has at least the block total length following the header */
         if (bh->block_total_length < sizeof(struct pcapng_block_header_s)+sizeof(guint32)) {
-            g_snprintf(errmsg, errmsgl, "malformed pcapng block_total_length < minimum");
+            g_snprintf(errmsg, (gulong)errmsgl,
+                       "malformed pcapng block_total_length < minimum");
             pcap_src->cap_pipe_err = PIPEOF;
             return -1;
         }
@@ -2632,12 +2661,12 @@ pcapng_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, int err
 #ifdef _WIN32
         FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
                       NULL, GetLastError(), 0, (LPTSTR) &err_str, 0, NULL);
-        g_snprintf(errmsg, errmsgl,
+        g_snprintf(errmsg, (gulong)errmsgl,
                    "Error reading from pipe: %s (error %lu)",
                    utf_16to8(err_str), GetLastError());
         LocalFree(err_str);
 #else
-        g_snprintf(errmsg, errmsgl, "Error reading from pipe: %s",
+        g_snprintf(errmsg, (gulong)errmsgl, "Error reading from pipe: %s",
                    g_strerror(errno));
 #endif
         /* Fall through */
