@@ -239,7 +239,7 @@ description of each item.
 |menu:Expand Subtrees[]|menu:View[]| Expand the currently selected subtree.
 |menu:Collapse Subtrees[]|menu:View[]| Collapse the currently selected subtree.
 |menu:Expand All[]|menu:View[]| Expand all subtrees in all packets in the capture.
-|menu:Collapse All[]|menu:View[]| Wireshark keeps a list of all the protocol subtrees that are expanded, and uses it to ensure that the correct subtrees  are expanded when you display a packet. This menu item  collapses the tree view of all packets in the capture list.
+|menu:Collapse All[]|menu:View[]| Wireshark keeps a list of all the protocol subtrees that are expanded, and uses it to ensure that the correct subtrees are expanded when you display a packet. This menu item collapses the tree view of all packets in the capture list.
 |menu:Apply as Column[]|| Use the selected protocol item to create a new column in the packet list.
 |menu:Apply as Filter[]|menu:Analyze[]| Prepare and apply a display filter based on the currently selected item.
 |menu:Prepare a Filter[]|menu:Analyze[]| Prepare a display filter based on the currently selected item.
@@ -303,11 +303,11 @@ in the clipboard using the MIME type “application/octet-stream”.
 Copy the packet bytes to the clipboard as C-style escape sequences.
 
 |menu:Export Packet Bytes...[] |menu:File[] |
-This menu item is the same as the File menu item of the same  name. It
+This menu item is the same as the File menu item of the same name. It
 allows you to export raw packet bytes to a binary file.
 
-|menu:Wiki Protocol Page[]|| Show the wiki page corresponding to the currently selected protocol  in your web browser.
-|menu:Filter Field Reference[]|| Show the filter field reference web page corresponding to the  currently selected protocol in your web browser.
+|menu:Wiki Protocol Page[]|| Show the wiki page corresponding to the currently selected protocol in your web browser.
+|menu:Filter Field Reference[]|| Show the filter field reference web page corresponding to the currently selected protocol in your web browser.
 
 |menu:Protocol Preferences[] ||
 Adjust the preferences for the selected protocol.
@@ -415,7 +415,7 @@ example of what happens when you type _tcp_ in the filter field.
 
 [NOTE]
 ====
-All protocol and field names are entered in lowercase.  Also, don’t  forget to press enter after entering the filter expression.
+All protocol and field names are entered in lowercase. Also, don’t forget to press enter after entering the filter expression.
 ====
 
 
@@ -445,7 +445,7 @@ from the IP address 192.168.0.1, use `ip.addr==192.168.0.1`.
 
 [NOTE]
 ====
-To remove the filter, click on the btn:[Clear] button  to the right of the filter field.
+To remove the filter, click on the btn:[Clear] button to the right of the filter field.
 ====
 
 [[ChWorkBuildDisplayFilterSection]]
@@ -481,7 +481,7 @@ comparison operators. They are shown in <<DispCompOps>>.
 
 [TIP]
 ====
-You can use English and C-like terms in the same way, they can even be  mixed in a filter string.
+You can use English and C-like terms in the same way, they can even be mixed in a filter string.
 ====
 
 [[DispCompOps]]
@@ -509,7 +509,7 @@ of the types and example of how to express them.
 .Display Filter Field Types
 Unsigned integer::
   Can be 8, 16, 24, 32, or 64 bits. You can express integers in decimal, octal,
-  or  hexadecimal. The following display filters are  equivalent:
+  or hexadecimal. The following display filters are equivalent:
 
   ip.len le 1500
 
@@ -519,17 +519,17 @@ Unsigned integer::
 
 Signed integer::
   Can be 8, 16, 24, 32, or 64 bits. As with unsigned integers you can use
-  decimal, octal, or  hexadecimal.
+  decimal, octal, or hexadecimal.
 
 Boolean::
   A boolean field is present in the protocol decode only if its value is true. For
   example, `tcp.flags.syn` is present, and thus true, only if the SYN flag is
   present in a TCP segment header.
 
-  The filter expression  `tcp.flags.syn` will select only  those packets for which
-  this flag exists, that is,  TCP segments where the segment header contains the
+  The filter expression `tcp.flags.syn` will select only those packets for which
+  this flag exists, that is, TCP segments where the segment header contains the
   SYN flag. Similarly, to find source-routed token ring packets, use a filter
-  expression of  `tr.sr`.
+  expression of `tr.sr`.
 
 Ethernet address::
   6 bytes separated by a colon (:), dot (.) or dash (-) with one or two bytes between separators:
@@ -581,7 +581,7 @@ i.e. the SYN bit, set.
 
 ==== Combining Expressions
 
-You can combine filter expressions in Wireshark using the  logical operators shown in <<FiltLogOps>>
+You can combine filter expressions in Wireshark using the logical operators shown in <<FiltLogOps>>
 
 [[FiltLogOps]]
 
@@ -892,86 +892,79 @@ you use.
 
 === Finding Packets
 
-You can easily find packets once you have captured some packets or have read in
-a previously saved capture file. Simply select the _Find Packet..._ menu item
-from the _Edit_ menu. Wireshark will pop up the dialog box shown in
-<<ChWorkFindPacketDialog>>.
+You can easily find packets once you have captured some packets or have
+read in a previously saved capture file. Simply select menu:Edit[Find
+Packet...] in the main menu. Wireshark will open a toolbar between the
+main toolbar and the packet list shown in <<ChWorkFindPacketToolbar>>.
 
-==== The “Find Packet” Dialog Box
+==== The “Find Packet” Toolbar
 
-[[ChWorkFindPacketDialog]]
+[[ChWorkFindPacketToolbar]]
 
-.The “Find Packet” dialog box
+.The “Find Packet” toolbar
 image::wsug_graphics/ws-find-packet.png[{screenshot-attrs}]
 
-You might first select the kind of thing to search for:
+You can search using the following criteria:
 
-* _Display filter_
+Display filter::
+  Enter a display filter string into the text entry field and click the btn:[Find] button.
+  +
+  For example, to find the three way handshake for a connection from host 192.168.0.1, use the following filter string:
 +
-Simply enter a display filter string into the  _Filter:_ field, select a direction, and click on OK.
-+
-For example, to find the three way handshake for a connection from  host 192.168.0.1, use the following filter string:
 ----
 ip.src==192.168.0.1 and tcp.flags.syn==1
 ----
-For more details on display filters, see <<ChWorkDisplayFilterSection>>
-
-* _Hex Value_
 +
-Search for a specific byte sequence in the packet data.
+The value to be found will be syntax checked while you type it in. If
+the syntax check of your value succeeds, the background of the entry
+field will turn green, if it fails, it will turn red. For more details
+see <<ChWorkDisplayFilterSection>>
+
+Hexadecimal Value::
+  Search for a specific byte sequence in the packet data.
 +
-For example, use “00:00” to find the next packet including two  null bytes in the packet data.
+For example, use “ef:bb:bf” to find the next packet that contains the
+link:{wikipedia-main-url}/Byte_order_mark[UTF-8 byte order mark].
 
-* _String_
-+
-Find a string in the packet data, with various options.
-+
-The value to be found will be syntax checked while you type it in. If the syntax
-check of your value succeeds, the background of the entry field will turn green,
-if it fails, it will turn red.
+String::
+  Find a string in the packet data, with various options.
 
-You can choose the search direction:
-
-* _Up_
-+
-Search upwards in the packet list (decreasing packet numbers).
-
-* _Down_
-+
-Search downwards in the packet list (increasing packet numbers).
-
-==== The “Find Next” Command
-
-“Find Next” will continue searching with the same options used in the last
-“Find Packet”.
-
-==== The “Find Previous” Command
-
-“Find Previous” will do the same thing as “Find Next”, but in the reverse
-direction.
+Regular Expression::
+  Search the packet data using link:{pcre2pattern-url}[Perl-compatible
+  regular expressions]. PCRE patterns are beyond the scope of this
+  document, but typing “pcre test” into your favorite search engine
+  should return a number of sites that will help you test and explore
+  your expressions.
 
 [[ChWorkGoToPacketSection]]
 
 === Go To A Specific Packet
 
-You can easily jump to specific packets with one of the menu items in the  Go menu.
+You can easily jump to specific packets with one of the menu items in
+the menu:Go[] menu.
 
 ==== The “Go Back” Command
 
-Go back in the packet history, works much like the page history in current  web browsers.
+Go back in the packet history, works much like the page history in most
+web browsers.
 
 ==== The “Go Forward” Command
 
-Go forward in the packet history, works much like the page history in  current web browsers.
+Go forward in the packet history, works much like the page history in
+most web browsers.
 
-==== The “Go to Packet” Dialog Box
+==== The “Go to Packet” Toolbar
 
-[[ChWorkGoToPacketDialog]]
+[[ChWorkGoToPacketToolbar]]
 
-.The “Go To Packet” dialog box
+.The “Go To Packet” toolbar
 image::wsug_graphics/ws-goto-packet.png[{screenshot-attrs}]
 
-This dialog box will let you enter a packet number. When you press btn:[OK],
+This toolbar can be opened by selecting menu:Go[Go to packet...] from
+the main menu. It appears between the main toolbar and the packet list,
+similar to the <<ChWorkFindPacketToolbar,”Find Packet” toolbar>>.
+
+When you enter a packet number and press press btn:[Go to packet]
 Wireshark will jump to that packet.
 
 ==== The “Go to Corresponding Packet” Command
@@ -984,11 +977,11 @@ easier to simply double-click on the field to jump to the corresponding field.
 
 ==== The “Go to First Packet” Command
 
-This command will simply jump to the first packet displayed.
+This command will jump to the first packet displayed.
 
 ==== The “Go to Last Packet” Command
 
-This command will simply jump to the last packet displayed.
+This command will jump to the last packet displayed.
 
 [[ChWorkMarkPacketSection]]
 
@@ -1007,11 +1000,11 @@ see <<ChIOPacketRangeSection>>.
 
 There are three functions to manipulate the marked state of a packet:
 
-* _Mark packet (toggle)_ toggles the marked state  of a single packet.
+* _Mark packet (toggle)_ toggles the marked state of a single packet.
 
-* _Mark all displayed packets_ set the mark state of all  displayed packets.
+* _Mark all displayed packets_ set the mark state of all displayed packets.
 
-* _Unmark all packets_ reset the mark state of all  packets.
+* _Unmark all packets_ reset the mark state of all packets.
 
 These mark functions are available from the “Edit” menu, and the “Mark packet
 (toggle)” function is also available from the pop-up menu of the “Packet
@@ -1031,11 +1024,11 @@ All “packet ignored” marks will be lost when you close the capture file.
 
 There are three functions to manipulate the ignored state of a packet:
 
-* _Ignore packet (toggle)_ toggles the ignored state  of a single packet.
+* _Ignore packet (toggle)_ toggles the ignored state of a single packet.
 
-* _Ignore all displayed packets_ set the ignored state of all  displayed packets.
+* _Ignore all displayed packets_ set the ignored state of all displayed packets.
 
-* _Un-Ignore all packets_ reset the ignored state of all  packets.
+* _Un-Ignore all packets_ reset the ignored state of all packets.
 
 These ignore functions are available from the “Edit” menu, and the “Ignore
 packet (toggle)” function is also available from the pop-up menu of the

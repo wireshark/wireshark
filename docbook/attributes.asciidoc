@@ -49,6 +49,7 @@
 
 :sysfs-main-url: http://linux-diag.sourceforge.net/Sysfsutils.html
 :wikipedia-main-url: https://en.wikipedia.org/wiki/
+:pcre2pattern-url: https://www.pcre.org/current/doc/html/pcre2pattern.html
 
 :greenwichmeantime-main-url: http://wwp.greenwichmeantime.com/
 :timeanddate-main-url: http://www.timeanddate.com/worldclock/
