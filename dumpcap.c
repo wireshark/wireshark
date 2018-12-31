@@ -1550,11 +1550,16 @@ cap_pipe_read_data_bytes(capture_src *pcap_src, char *errmsg, size_t errmsgl)
 /* Some forward declarations for breaking up cap_pipe_open_live for pcap and pcapng formats */
 static void pcap_pipe_open_live(int fd, capture_src *pcap_src,
                                 struct pcap_hdr *hdr,
-                                char *errmsg, size_t errmsgl);
+                                char *errmsg, size_t errmsgl,
+                                char *secondary_errmsg, size_t secondary_errmsgl);
 static void pcapng_pipe_open_live(int fd, capture_src *pcap_src,
                                   char *errmsg, size_t errmsgl);
 static int pcapng_pipe_dispatch(loop_data *ld, capture_src *pcap_src,
                                 char *errmsg, size_t errmsgl);
+
+/* For problems that are probably Not Our Fault. */
+static char not_our_bug[] =
+    "Please report this to the developers of the program writing to the pipe.";
 
 /* Mimic pcap_open_live() for pipe captures
 
@@ -1567,7 +1572,8 @@ static void
 cap_pipe_open_live(char *pipename,
                    capture_src *pcap_src,
                    void *hdr,
-                   char *errmsg, size_t errmsgl)
+                   char *errmsg, size_t errmsgl,
+                   char *secondary_errmsg, size_t secondary_errmsgl)
 {
 #ifndef _WIN32
     ws_statb64         pipe_stat;
@@ -1872,11 +1878,14 @@ cap_pipe_open_live(char *pipename,
     default:
         /* Not a pcap type we know about, or not pcap at all. */
         g_snprintf(errmsg, (gulong)errmsgl,
-                   "Unrecognized libpcap format or not libpcap data.");
+                   "Data written to the pipe is neither in a supported pcap format nor in pcapng format.");
+        g_snprintf(secondary_errmsg, (gulong)secondary_errmsgl, "%s",
+                   not_our_bug);
         goto error;
     }
 
-    pcap_pipe_open_live(fd, pcap_src, (struct pcap_hdr *) hdr, errmsg, errmsgl);
+    pcap_pipe_open_live(fd, pcap_src, (struct pcap_hdr *) hdr, errmsg, errmsgl,
+                        secondary_errmsg, secondary_errmsgl);
     return;
 
 error:
@@ -1893,7 +1902,8 @@ static void
 pcap_pipe_open_live(int fd,
                     capture_src *pcap_src,
                     struct pcap_hdr *hdr,
-                    char *errmsg, size_t errmsgl)
+                    char *errmsg, size_t errmsgl,
+                    char *secondary_errmsg, size_t secondary_errmsgl)
 {
     size_t   bytes_read;
     ssize_t  b;
@@ -1923,6 +1933,8 @@ pcap_pipe_open_live(int fd,
                         g_snprintf(errmsg, (gulong)errmsgl,
                                    "Error on pipe header during open: %s.",
                                    g_strerror(errno));
+                    g_snprintf(secondary_errmsg, (gulong)secondary_errmsgl,
+                               "%s", not_our_bug);
                     goto error;
                 }
                 bytes_read += b;
@@ -1944,6 +1956,8 @@ pcap_pipe_open_live(int fd,
                 g_snprintf(errmsg, (gulong)errmsgl,
                            "Error on pipe header header during open: %s.",
                            g_strerror(errno));
+            g_snprintf(secondary_errmsg, (gulong)secondary_errmsgl, "%s",
+                       not_our_bug);
             goto error;
         }
     }
@@ -1970,8 +1984,10 @@ pcap_pipe_open_live(int fd,
 
     if (hdr->version_major < 2) {
         g_snprintf(errmsg, (gulong)errmsgl,
-                   "Unable to read old libpcap format version %d.%d",
+                   "The old pcap format version %d.%d is not supported.",
                    hdr->version_major, hdr->version_minor);
+        g_snprintf(secondary_errmsg, (gulong)secondary_errmsgl, "%s",
+                   not_our_bug);
         goto error;
     }
 
@@ -2849,7 +2865,10 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
             /* We couldn't open "iface" as a network device. */
             /* Try to open it as a pipe */
             gboolean pipe_err = FALSE;
-            cap_pipe_open_live(interface_opts->name, pcap_src, &pcap_src->cap_pipe_info.pcap.hdr, errmsg, (int) errmsg_len);
+            cap_pipe_open_live(interface_opts->name, pcap_src,
+                               &pcap_src->cap_pipe_info.pcap.hdr,
+                               errmsg, errmsg_len,
+                               secondary_errmsg, secondary_errmsg_len);
 
 #ifdef _WIN32
             if (pcap_src->from_cap_socket) {
