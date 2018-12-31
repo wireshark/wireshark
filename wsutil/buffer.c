@@ -26,6 +26,7 @@ ws_buffer_init(Buffer* buffer, gsize space)
 	if (space <= SMALL_BUFFER_SIZE) {
 		if (small_buffers->len > 0) {
 			buffer->data = (guint8*) g_ptr_array_remove_index(small_buffers, small_buffers->len - 1);
+			g_assert(buffer->data);
 		} else {
 			buffer->data = (guint8*)g_malloc(SMALL_BUFFER_SIZE);
 		}
@@ -44,10 +45,12 @@ ws_buffer_free(Buffer* buffer)
 {
 	g_assert(buffer);
 	if (buffer->allocated == SMALL_BUFFER_SIZE) {
+		g_assert(buffer->data);
 		g_ptr_array_add(small_buffers, buffer->data);
 	} else {
 		g_free(buffer->data);
 	}
+	buffer->allocated = 0;
 	buffer->data = NULL;
 }
 
