@@ -157,10 +157,12 @@ guint32 msgtype;
 		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_S4U2Self);
 		break;
 	case KRB5_PADATA_S4U_X509_USER:
-		if(!private_data->is_enc_padata) {
-			offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_S4U_X509_USER);
-		}else{
+		if(private_data->msg_type == KRB5_MSG_AS_REQ){
+			offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_x509af_Certificate);
+		}else if(private_data->is_enc_padata){
 			offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, NULL);
+		}else{
+			offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_S4U_X509_USER);
 		}
 		break;
 	case KRB5_PA_PROV_SRV_LOCATION:
@@ -182,7 +184,7 @@ guint32 msgtype;
 		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_AUTHENTICATION_SET);
 		break;
 	case KRB5_PADATA_FX_FAST:
-		if(private_data->is_request){
+		if(private_data->msg_type == KRB5_MSG_AS_REQ || private_data->msg_type == KRB5_MSG_TGS_REQ){
 			offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_FX_FAST_REQUEST);
 		}else{
 			offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_FX_FAST_REPLY);
@@ -373,6 +375,9 @@ AuthorizationData/_item/ad-type STRINGS=VALS(krb5_ad_types)
 		offset=dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 	}
 
+#.FN_BODY S4UUserID/subject-certificate
+	offset=dissect_ber_octet_string_wcb(implicit_tag, actx, tree, tvb, offset,hf_index, dissect_x509af_Certificate);
+
 #.FN_BODY ADDR-TYPE VAL_PTR=&(private_data->addr_type)
 	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 %(DEFAULT_BODY)s
@@ -423,16 +428,20 @@ AuthorizationData/_item/ad-type STRINGS=VALS(krb5_ad_types)
 
 #.FN_HDR AS-REQ
 	kerberos_private_data_t* private_data = kerberos_get_private_data(actx);
-	private_data->is_request = TRUE;
+	private_data->msg_type = KRB5_MSG_AS_REQ;
 
 #.FN_HDR AS-REP
 	kerberos_private_data_t* private_data = kerberos_get_private_data(actx);
-	private_data->is_request = FALSE;
+	private_data->msg_type = KRB5_MSG_AS_REP;
 
 #.FN_HDR KRB-ERROR
 	kerberos_private_data_t* private_data = kerberos_get_private_data(actx);
-	private_data->is_request = FALSE;
+	private_data->msg_type = KRB5_MSG_ERROR;
 
 #.FN_HDR TGS-REQ
 	kerberos_private_data_t* private_data = kerberos_get_private_data(actx);
-	private_data->is_request = TRUE;
+	private_data->msg_type = KRB5_MSG_TGS_REQ;
+
+#.FN_HDR TGS-REP
+	kerberos_private_data_t* private_data = kerberos_get_private_data(actx);
+	private_data->msg_type = KRB5_MSG_TGS_REP;
