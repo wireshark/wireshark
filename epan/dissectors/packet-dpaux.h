@@ -11,8 +11,6 @@
 #ifndef PACKET_DPAUX_H
 #define PACKET_DPAUX_H
 
-extern int proto_dpaux;
-
 struct dpaux_info {
 	gboolean from_source;
 };

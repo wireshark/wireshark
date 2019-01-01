@@ -17,13 +17,9 @@
 
 #include "packet-dpaux.h"
 
-/* Prototypes */
-/* (Required to prevent [-Wmissing-prototypes] warnings */
-void proto_reg_handoff_dpaux(void);
 void proto_register_dpaux(void);
 
-/* Initialize the protocol and registered fields */
-int proto_dpaux = -1;
+static int proto_dpaux = -1;
 
 static int hf_dpaux_transaction_type = -1;
 static int hf_dpaux_native_req_cmd = -1;
@@ -40,8 +36,8 @@ static int hf_00000 = -1;
 static int hf_00000_MINOR = -1;
 static int hf_00000_MAJOR = -1;
 static const int *reg00000_fields[] = {
-    &hf_00000_MINOR,
     &hf_00000_MAJOR,
+    &hf_00000_MINOR,
     NULL
 };
 
@@ -139,13 +135,11 @@ struct dpaux_register registers[] = {
 };
 
 static int
-dissect_dpaux_register(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+dissect_dpaux_register(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     unsigned int offset, unsigned int register_addr)
 {
     unsigned int k;
     struct dpaux_register *reg = NULL;
-
-    if (!pinfo) { }
 
     for (k = 0; k < G_N_ELEMENTS(registers); ++k) {
         if (registers[k].addr == register_addr) {
@@ -212,8 +206,7 @@ dissect_dpaux_from_source(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
     if (!is_read)
-        proto_tree_add_bytes(tree, hf_dpaux_data, tvb, 4, len,
-            (guint8*)tvb_memdup(wmem_file_scope(), tvb, 4, len));
+        proto_tree_add_item(tree, hf_dpaux_data, tvb, 4, len, ENC_NA);
 
     return 0;
 }
@@ -270,8 +263,7 @@ dissect_dpaux_from_sink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             len > 1 ? "s" : "");
         }
         proto_tree_add_uint(tree, hf_dpaux_len, tvb, 3, 1, len);
-        proto_tree_add_bytes(tree, hf_dpaux_data, tvb, 1, len,
-                            (guint8*)tvb_memdup(wmem_file_scope(), tvb, 1, len));
+        proto_tree_add_item(tree, hf_dpaux_data, tvb, 1, len, ENC_NA);
 
         if (transaction && transaction->is_native) {
             unsigned int k;
@@ -300,31 +292,30 @@ dissect_dpaux_from_sink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static int
-dissect_dpaux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        void *data _U_)
+dissect_dpaux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *ti;
     proto_tree *dpaux_tree;
+    gboolean from_source = FALSE;
+    struct dpaux_info *dpaux_info = (struct dpaux_info*)data;
 
-    struct dpaux_info *dpaux_info = (struct dpaux_info*)p_get_proto_data(
-        wmem_file_scope(), pinfo, proto_dpaux, 0);
+    if (dpaux_info != NULL)
+        from_source = dpaux_info->from_source;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "dpaux");
     col_set_str(pinfo->cinfo, COL_INFO, "DisplayPort AUX channel");
     col_set_str(pinfo->cinfo, COL_RES_DL_DST, "N/A");
 
-    if (dpaux_info->from_source)
+    if (from_source)
         col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "DP-Source");
     else
         col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "DP-Sink");
 
     /* create display subtree for the protocol */
     ti = proto_tree_add_item(tree, proto_dpaux, tvb, 0, -1, ENC_NA);
-
     dpaux_tree = proto_item_add_subtree(ti, ett_dpaux);
 
-    if (dpaux_info->from_source)
+    if (from_source)
         dissect_dpaux_from_source(tvb, pinfo, dpaux_tree);
     else
         dissect_dpaux_from_sink(tvb, pinfo, dpaux_tree);
@@ -408,7 +399,7 @@ proto_register_dpaux(void)
 
         { &hf_00000, { "DPCD_REV", "dpaux." "00000", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
         { &hf_00000_MINOR, { "MINOR", "dpaux." "00000" "_" "MINOR", FT_UINT8, BASE_HEX, NULL, 0x0f, NULL, HFILL } },
-        { &hf_00000_MAJOR, { "MAJOR", "dpaux." "00000" "_" "MAJOR", FT_UINT8, BASE_HEX, NULL, 0x0f, NULL, HFILL } },
+        { &hf_00000_MAJOR, { "MAJOR", "dpaux." "00000" "_" "MAJOR", FT_UINT8, BASE_HEX, NULL, 0xf0, NULL, HFILL } },
 
         { &hf_00001, { "MAX_LINK_RATE", "dpaux." "00001", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
         { &hf_00001_MAX_LINK_RATE, { "MAX_LINK_RATE", "dpaux." "00001" "_" "MAX_LINK_RATE", FT_UINT8, BASE_HEX, VALS(convert_link_rate), 0xff, NULL, HFILL } },
@@ -432,18 +423,13 @@ proto_register_dpaux(void)
     };
 
     /* Register the protocol name and description */
-    proto_dpaux = proto_register_protocol("DisplayPort AUX-Channel",
-            "DPAUX", "dpaux");
+    proto_dpaux = proto_register_protocol("DisplayPort AUX-Channel", "DPAUX", "dpaux");
     register_dissector("dpaux", dissect_dpaux, proto_dpaux);
 
     proto_register_field_array(proto_dpaux, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 }
 
-void
-proto_reg_handoff_dpaux(void)
-{
-}
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

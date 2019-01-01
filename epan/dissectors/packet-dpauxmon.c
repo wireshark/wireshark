@@ -53,52 +53,59 @@ static const int *input_fields[] = {
 /* Initialize the subtree pointers */
 static gint ett_dpauxmon = -1;
 
+static const value_string packet_type_vals[] = {
+    { DPAUXMON_DATA, "Data" },
+    { DPAUXMON_EVENT, "Event" },
+    { DPAUXMON_START, "Start" },
+    { DPAUXMON_STOP, "Stop" },
+    { DPAUXMON_TS_OVERFLOW, "Timestamp Overflow" },
+    { 0, NULL }
+};
+
+static const value_string origin_vals[] = {
+    { 0, "Sink" },
+    { 1, "Source" },
+    { 0, NULL }
+};
+
 static int
 dissect_dpauxmon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         void *data _U_)
 {
     proto_item *ti;
     proto_tree *dpauxmon_tree;
-    guint8 packet_type = tvb_get_guint8(tvb, 0);
+    guint32 packet_type;
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "dpauxmon");
-    col_set_str(pinfo->cinfo, COL_INFO, "DisplayPort AUX channel");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "DPAUXMON");
     col_set_str(pinfo->cinfo, COL_RES_DL_DST, "N/A");
     col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "Internal");
 
     /* create display subtree for the protocol */
     ti = proto_tree_add_item(tree, proto_dpauxmon, tvb, 0, -1, ENC_NA);
-
     dpauxmon_tree = proto_item_add_subtree(ti, ett_dpauxmon);
 
-    proto_tree_add_uint(dpauxmon_tree, hf_packet_type, tvb, 0, 1, packet_type);
+    proto_tree_add_item_ret_uint(dpauxmon_tree, hf_packet_type, tvb, 0, 1, ENC_NA, &packet_type);
+    col_add_fstr(pinfo->cinfo, COL_INFO, "DisplayPort AUX channel - %s", val_to_str_const(packet_type, packet_type_vals, "Unknown"));
 
     switch (packet_type) {
     case DPAUXMON_DATA: {
-        struct dpaux_info *dpaux_info = (struct dpaux_info*)
-            wmem_alloc(wmem_file_scope(), sizeof(struct dpaux_info));
+        struct dpaux_info dpaux_info;
 
-        dpaux_info->from_source = tvb_get_guint8(tvb, 1);
-        p_add_proto_data(wmem_file_scope(), pinfo, proto_dpaux, 0, dpaux_info);
-        proto_tree_add_uint(dpauxmon_tree, hf_origin, tvb, 1, 1,
-                            dpaux_info->from_source);
+        dpaux_info.from_source = tvb_get_guint8(tvb, 1);
+        proto_tree_add_uint(dpauxmon_tree, hf_origin, tvb, 1, 1, dpaux_info.from_source);
 
-        call_dissector(dpaux_handle, tvb_new_subset_remaining(tvb, 2),
-                 pinfo, dpauxmon_tree);
+        call_dissector_with_data(dpaux_handle, tvb_new_subset_remaining(tvb, 2),
+                 pinfo, dpauxmon_tree, &dpaux_info);
         break;
         }
     case DPAUXMON_EVENT:
     case DPAUXMON_START:
-        col_set_str(pinfo->cinfo, COL_INFO,
-                    (packet_type == DPAUXMON_START) ? "Start" : "Input changed");
         proto_tree_add_bitmask(dpauxmon_tree, tvb, 1, hf_inputs, 0, input_fields,
                                ENC_BIG_ENDIAN);
         break;
     case DPAUXMON_STOP:
-        col_set_str(pinfo->cinfo, COL_INFO, "Stop");
         break;
     case DPAUXMON_TS_OVERFLOW:
-        col_set_str(pinfo->cinfo, COL_INFO, "Timestamp overflow");
         break;
     };
 
@@ -108,21 +115,6 @@ dissect_dpauxmon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 void
 proto_register_dpauxmon(void)
 {
-    static const value_string convert_packet_type[] = {
-        { DPAUXMON_DATA, "Data" },
-        { DPAUXMON_EVENT, "Event" },
-        { DPAUXMON_START, "Start" },
-        { DPAUXMON_STOP, "Stop" },
-        { DPAUXMON_TS_OVERFLOW, "Timestamp Overflow" },
-        { 0, NULL }
-    };
-
-    static const value_string convert_origin[] = {
-        { 0, "Sink" },
-        { 1, "Source" },
-        { 0, NULL }
-    };
-
     /* Setup protocol subtree array */
     static gint *ett[] = {
         &ett_dpauxmon
@@ -133,12 +125,12 @@ proto_register_dpauxmon(void)
     static hf_register_info hf[] = {
         { &hf_packet_type,
           { "Packet Type", "dpauxmon.packet_type",
-            FT_UINT8, BASE_DEC, VALS(convert_packet_type), 0,
+            FT_UINT8, BASE_DEC, VALS(packet_type_vals), 0,
             NULL, HFILL }
         },
         { &hf_origin,
           { "Origin", "dpauxmon.origin",
-            FT_UINT8, BASE_DEC, VALS(convert_origin), 0,
+            FT_UINT8, BASE_DEC, VALS(origin_vals), 0,
             NULL, HFILL }
         },
         { &hf_inputs,
@@ -169,8 +161,7 @@ proto_register_dpauxmon(void)
     };
 
     /* Register the protocol name and description */
-    proto_dpauxmon = proto_register_protocol("DPAUXMON DisplayPort AUX channel monitor",
-            "DPAUXMON", "dpauxmon");
+    proto_dpauxmon = proto_register_protocol("DPAUXMON DisplayPort AUX channel monitor", "DPAUXMON", "dpauxmon");
     proto_register_field_array(proto_dpauxmon, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 }
