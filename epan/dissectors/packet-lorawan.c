@@ -812,8 +812,6 @@ dissect_lorawan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *d
 		} else {
 			current_offset += frmpayload_length;
 		}
-	} else if (mac_mtype == LORAWAN_MAC_MTYPE_PROPRIETARY) {
-		current_offset = tvb_captured_length(tvb) - 4;
 	} else {
 		/* RFU */
 		current_offset = tvb_captured_length(tvb) - 4;
