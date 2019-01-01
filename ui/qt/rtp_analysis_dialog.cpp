@@ -656,20 +656,20 @@ void RtpAnalysisDialog::tapReset(void *tapinfo_ptr)
     rtp_analysis_dialog->resetStatistics();
 }
 
-gboolean RtpAnalysisDialog::tapPacket(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *, const void *rtpinfo_ptr)
+tap_packet_status RtpAnalysisDialog::tapPacket(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *, const void *rtpinfo_ptr)
 {
     RtpAnalysisDialog *rtp_analysis_dialog = dynamic_cast<RtpAnalysisDialog *>((RtpAnalysisDialog*)tapinfo_ptr);
-    if (!rtp_analysis_dialog) return FALSE;
+    if (!rtp_analysis_dialog) return TAP_PACKET_DONT_REDRAW;
 
     const struct _rtp_info *rtpinfo = (const struct _rtp_info *)rtpinfo_ptr;
-    if (!rtpinfo) return FALSE;
+    if (!rtpinfo) return TAP_PACKET_DONT_REDRAW;
 
     /* we ignore packets that are not displayed */
     if (pinfo->fd->passed_dfilter == 0)
-        return FALSE;
+        return TAP_PACKET_DONT_REDRAW;
     /* also ignore RTP Version != 2 */
     else if (rtpinfo->info_version != 2)
-        return FALSE;
+        return TAP_PACKET_DONT_REDRAW;
     /* is it the forward direction?  */
     else if (rtpstream_id_equal_pinfo_rtp_info(&(rtp_analysis_dialog->fwd_statinfo_.id),pinfo,rtpinfo))  {
 
@@ -680,7 +680,7 @@ gboolean RtpAnalysisDialog::tapPacket(void *tapinfo_ptr, packet_info *pinfo, epa
 
         rtp_analysis_dialog->addPacket(false, pinfo, rtpinfo);
     }
-    return FALSE;
+    return TAP_PACKET_DONT_REDRAW;
 }
 
 void RtpAnalysisDialog::tapDraw(void *tapinfo_ptr)

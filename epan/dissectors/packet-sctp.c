@@ -843,7 +843,7 @@ static const char* sctp_conv_get_filter_type(conv_item_t* conv, conv_filter_type
 
 static ct_dissector_info_t sctp_ct_dissector_info = {&sctp_conv_get_filter_type};
 
-static int
+static tap_packet_status
 sctp_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
   conv_hash_t *hash = (conv_hash_t*) pct;
@@ -853,7 +853,7 @@ sctp_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_,
         sctphdr->sport, sctphdr->dport, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts, &sctp_ct_dissector_info, ENDPOINT_SCTP);
 
 
-  return 1;
+  return TAP_PACKET_REDRAW;
 }
 
 static const char* sctp_host_get_filter_type(hostlist_talker_t* host, conv_filter_type_e filter)
@@ -897,7 +897,7 @@ static const char* sctp_host_get_filter_type(hostlist_talker_t* host, conv_filte
 
 static hostlist_dissector_info_t sctp_host_dissector_info = {&sctp_host_get_filter_type};
 
-static int
+static tap_packet_status
 sctp_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
   conv_hash_t *hash = (conv_hash_t*) pit;
@@ -909,7 +909,7 @@ sctp_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, con
   add_hostlist_table_data(hash, &sctphdr->ip_src, sctphdr->sport, TRUE, 1, pinfo->fd->pkt_len, &sctp_host_dissector_info, ENDPOINT_SCTP);
   add_hostlist_table_data(hash, &sctphdr->ip_dst, sctphdr->dport, FALSE, 1, pinfo->fd->pkt_len, &sctp_host_dissector_info, ENDPOINT_SCTP);
 
-  return 1;
+  return TAP_PACKET_REDRAW;
 }
 
 static unsigned int

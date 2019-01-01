@@ -5774,7 +5774,7 @@ static void sip_stat_init(stat_tap_table_ui* new_stat)
     }
 }
 
-static gboolean
+static tap_packet_status
 sip_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *siv_ptr)
 {
     stat_data_t* stat_data = (stat_data_t*) tapdata;
@@ -5820,7 +5820,7 @@ sip_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, 
         }
 
     } else {
-        return FALSE;
+        return TAP_PACKET_DONT_REDRAW;
     }
 
     if (cur_table) {
@@ -5867,7 +5867,7 @@ sip_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, 
         }
     }
 
-    return TRUE;
+    return TAP_PACKET_REDRAW;
 }
 
 static void

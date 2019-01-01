@@ -211,7 +211,7 @@ collectd_stats_tree_init (stats_tree *st)
 							    st_collectd_values);
 } /* void collectd_stats_tree_init */
 
-static int
+static tap_packet_status
 collectd_stats_tree_packet (stats_tree *st, packet_info *pinfo _U_,
 			    epan_dissect_t *edt _U_, const void *user_data)
 {
@@ -220,7 +220,7 @@ collectd_stats_tree_packet (stats_tree *st, packet_info *pinfo _U_,
 
 	td = (const tap_data_t *)user_data;
 	if (td == NULL)
-		return (-1);
+		return (TAP_PACKET_DONT_REDRAW);
 
 	tick_stat_node (st, "Packets", 0, FALSE);
 	increase_stat_node (st, "Values", 0, TRUE, td->values_num);
@@ -249,7 +249,7 @@ collectd_stats_tree_packet (stats_tree *st, packet_info *pinfo _U_,
 					       sc->string);
 	}
 
-	return (1);
+	return (TAP_PACKET_REDRAW);
 } /* int collectd_stats_tree_packet */
 
 static void

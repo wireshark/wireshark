@@ -157,14 +157,14 @@ void VoipCallsDialog::changeEvent(QEvent *event)
 //    voip_calls_tapinfo_t *tapinfo = (voip_calls_tapinfo_t *) tapinfo_ptr;
 //}
 
-gboolean VoipCallsDialog::tapPacket(void *, packet_info *, epan_dissect_t *, const void *)
+tap_packet_status VoipCallsDialog::tapPacket(void *, packet_info *, epan_dissect_t *, const void *)
 {
 #ifdef QT_MULTIMEDIA_LIB
 //    voip_calls_tapinfo_t *tapinfo = (voip_calls_tapinfo_t *) tapinfo_ptr;
     // add_rtp_packet for voip player.
-//    return TRUE;
+//    return TAP_PACKET_REDRAW;
 #endif
-    return FALSE;
+    return TAP_PACKET_DONT_REDRAW;
 }
 
 void VoipCallsDialog::tapDraw(void *tapinfo_ptr)

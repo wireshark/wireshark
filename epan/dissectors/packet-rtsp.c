@@ -181,7 +181,7 @@ rtsp_stats_tree_init(stats_tree* st)
 }
 
 /* RTSP/Packet Counter stats packet function */
-static int
+static tap_packet_status
 rtsp_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* edt _U_, const void* p)
 {
     const rtsp_info_value_t *v = (const rtsp_info_value_t *)p;
@@ -225,7 +225,7 @@ rtsp_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* e
         tick_stat_node(st, st_str_other, st_node_packets, FALSE);
     }
 
-    return 1;
+    return TAP_PACKET_REDRAW;
 }
 void proto_reg_handoff_rtsp(void);
 

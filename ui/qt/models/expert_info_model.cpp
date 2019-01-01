@@ -375,23 +375,23 @@ void ExpertInfoModel::tapReset(void *eid_ptr)
     model->clear();
 }
 
-gboolean ExpertInfoModel::tapPacket(void *eid_ptr, struct _packet_info *pinfo, struct epan_dissect *, const void *data)
+tap_packet_status ExpertInfoModel::tapPacket(void *eid_ptr, struct _packet_info *pinfo, struct epan_dissect *, const void *data)
 {
     ExpertInfoModel *model = static_cast<ExpertInfoModel*>(eid_ptr);
     expert_info_t   *expert_info = (expert_info_t *) data;
-    gboolean draw_required = FALSE;
+    tap_packet_status status = TAP_PACKET_DONT_REDRAW;
 
     if (!pinfo || !model || !expert_info)
-        return FALSE;
+        return TAP_PACKET_DONT_REDRAW;
 
     model->addExpertInfo(*expert_info);
 
     if (model->numEvents((enum ExpertSeverity)expert_info->severity) < 1)
-        draw_required = TRUE;
+        status = TAP_PACKET_REDRAW;
 
     model->eventCounts_[(enum ExpertSeverity)expert_info->severity]++;
 
-    return draw_required;
+    return status;
 }
 
 void ExpertInfoModel::tapDraw(void *eid_ptr)

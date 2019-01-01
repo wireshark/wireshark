@@ -20,6 +20,7 @@ extern "C" {
 #include <epan/epan.h>
 #include <epan/packet.h>
 #include <epan/ipv6.h>
+#include <epan/tap.h>
 #include <epan/wmem/wmem.h>
 #include "ws_symbol_export.h"
 
@@ -102,12 +103,11 @@ typedef gchar* (*follow_conv_filter_func)(packet_info* pinfo, int* stream);
 typedef gchar* (*follow_index_filter_func)(int stream);
 typedef gchar* (*follow_address_filter_func)(address* src_addr, address* dst_addr, int src_port, int dst_port);
 typedef gchar* (*follow_port_to_display_func)(wmem_allocator_t *allocator, guint port);
-typedef gboolean (*follow_tap_func)(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data);
 
 WS_DLL_PUBLIC
 void register_follow_stream(const int proto_id, const char* tap_listener,
                             follow_conv_filter_func conv_filter, follow_index_filter_func index_filter, follow_address_filter_func address_filter,
-                            follow_port_to_display_func port_to_display, follow_tap_func tap_handler);
+                            follow_port_to_display_func port_to_display, tap_packet_cb tap_handler);
 
 /** Get protocol ID from registered follower
  *
@@ -161,15 +161,15 @@ WS_DLL_PUBLIC follow_port_to_display_func get_follow_port_to_display(register_fo
 /** Provide function that handles tap data (tap_packet_cb parameter of register_tap_listener)
  *
  * @param follower [in] Registered follower
- * @return A tap data handler
+ * @return A tap packet handler
  */
-WS_DLL_PUBLIC follow_tap_func get_follow_tap_handler(register_follow_t* follower);
+WS_DLL_PUBLIC tap_packet_cb get_follow_tap_handler(register_follow_t* follower);
 
 
 /** Tap function handler when dissector's tap provides follow data as a tvb.
  * Used by TCP, UDP and HTTP followers
  */
-WS_DLL_PUBLIC gboolean
+WS_DLL_PUBLIC tap_packet_status
 follow_tvb_tap_listener(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data);
 
 /** Interator to walk all registered followers and execute func

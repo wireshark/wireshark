@@ -18,6 +18,7 @@
 
 #include "cfile.h"
 #include <epan/packet_info.h>
+#include <epan/tap.h>
 #include <QDialog>
 
 class QHeaderView;
@@ -65,7 +66,7 @@ class LBMLBTRMTransportDialog : public QDialog
         void resetReceiversDetail(void);
         void fillTree(void);
         static void resetTap(void * tap_data);
-        static gboolean tapPacket(void * tap_data, packet_info * pinfo, epan_dissect_t * edt, const void * stream_info);
+        static tap_packet_status tapPacket(void * tap_data, packet_info * pinfo, epan_dissect_t * edt, const void * stream_info);
         static void drawTreeItems(void * tap_data);
         void loadSourceDataDetails(LBMLBTRMSourceTransportEntry * transport);
         void loadSourceRXDataDetails(LBMLBTRMSourceTransportEntry * transport);

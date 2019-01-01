@@ -1120,7 +1120,7 @@ smpp_stats_tree_init(stats_tree* st)
 
 }
 
-static int
+static tap_packet_status
 smpp_stats_tree_per_packet(stats_tree *st, /* st as it was passed to us */
                            packet_info *pinfo _U_,
                            epan_dissect_t *edt _U_,
@@ -1145,7 +1145,7 @@ smpp_stats_tree_per_packet(stats_tree *st, /* st as it was passed to us */
         tick_stat_node(st, val_to_str(tap_rec->command_id, vals_command_id, "Unknown 0x%08x"), st_smpp_req, FALSE);
     }
 
-    return 1;
+    return TAP_PACKET_REDRAW;
 }
 
 /*!

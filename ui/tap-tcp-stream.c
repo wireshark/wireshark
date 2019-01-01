@@ -36,7 +36,7 @@ typedef struct _tcp_scan_t {
 } tcp_scan_t;
 
 
-static gboolean
+static tap_packet_status
 tapall_tcpip_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
     tcp_scan_t   *ts = (tcp_scan_t *)pct;
@@ -96,7 +96,7 @@ tapall_tcpip_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, cons
         ts->last = segment;
     }
 
-    return FALSE;
+    return TAP_PACKET_DONT_REDRAW;
 }
 
 /* here we collect all the external data we will ever need */
@@ -227,7 +227,7 @@ typedef struct _th_t {
     struct tcpheader *tcphdrs[MAX_SUPPORTED_TCP_HEADERS];
 } th_t;
 
-static gboolean
+static tap_packet_status
 tap_tcpip_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *vip)
 {
     int       n;
@@ -261,7 +261,7 @@ tap_tcpip_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, con
         th->num_hdrs++;
     }
 
-    return FALSE;
+    return TAP_PACKET_DONT_REDRAW;
 }
 
 /* XXX should be enhanced so that if we have multiple TCP layers in the trace

@@ -28,6 +28,7 @@
 
 #include <epan/prefs.h>
 #include <epan/plugin_if.h>
+#include <epan/tap.h>
 #include <epan/timestamp.h>
 
 #include <epan/dissectors/packet-ieee80211-radio.h>
@@ -71,7 +72,7 @@ public slots:
 
 protected:
     static void tap_timeline_reset(void* tapdata);
-    static gboolean tap_timeline_packet(void *tapdata, packet_info* pinfo, epan_dissect_t* edt, const void *data);
+    static tap_packet_status tap_timeline_packet(void *tapdata, packet_info* pinfo, epan_dissect_t* edt, const void *data);
 
     struct wlan_radio* get_wlan_radio(guint32 packet_num);
 

@@ -43,7 +43,7 @@ static const int column_number_hci_revision = 7;
 static const int column_number_is_local_adapter = 8;
 
 
-static gboolean
+static tap_packet_status
 bluetooth_device_tap_packet(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *edt, const void* data)
 {
     bluetooth_devices_tapinfo_t *tapinfo = (bluetooth_devices_tapinfo_t *) tapinfo_ptr;
@@ -51,7 +51,7 @@ bluetooth_device_tap_packet(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_
     if (tapinfo->tap_packet)
         tapinfo->tap_packet(tapinfo, pinfo, edt, data);
 
-    return TRUE;
+    return TAP_PACKET_REDRAW;
 }
 
 static void
@@ -253,7 +253,7 @@ void BluetoothDevicesDialog::tapReset(void *tapinfo_ptr)
     bluetooth_devices_dialog->ui->tableTreeWidget->clear();
 }
 
-gboolean BluetoothDevicesDialog::tapPacket(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *, const void *data)
+tap_packet_status BluetoothDevicesDialog::tapPacket(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *, const void *data)
 {
     bluetooth_devices_tapinfo_t  *tapinfo    = static_cast<bluetooth_devices_tapinfo_t *>(tapinfo_ptr);
     BluetoothDevicesDialog       *dialog     = static_cast<BluetoothDevicesDialog *>(tapinfo->ui);
@@ -264,10 +264,10 @@ gboolean BluetoothDevicesDialog::tapPacket(void *tapinfo_ptr, packet_info *pinfo
     QTreeWidgetItem              *item = NULL;
 
     if (dialog->file_closed_)
-        return FALSE;
+        return TAP_PACKET_DONT_REDRAW;
 
     if (pinfo->rec->rec_type != REC_TYPE_PACKET)
-        return FALSE;
+        return TAP_PACKET_DONT_REDRAW;
 
     if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID) {
         gchar       *interface;
@@ -281,7 +281,7 @@ gboolean BluetoothDevicesDialog::tapPacket(void *tapinfo_ptr, packet_info *pinfo
 
         if (interface && dialog->ui->interfaceComboBox->currentIndex() > 0) {
             if (dialog->ui->interfaceComboBox->currentText() != interface)
-            return TRUE;
+            return TAP_PACKET_REDRAW;
         }
     }
 
@@ -370,7 +370,7 @@ gboolean BluetoothDevicesDialog::tapPacket(void *tapinfo_ptr, packet_info *pinfo
 
     dialog->ui->hintLabel->setText(QString(tr("%1 items; Right click for more option; Double click for device details")).arg(dialog->ui->tableTreeWidget->topLevelItemCount()));
 
-    return TRUE;
+    return TAP_PACKET_REDRAW;
 }
 
 void BluetoothDevicesDialog::interfaceCurrentIndexChanged(int)

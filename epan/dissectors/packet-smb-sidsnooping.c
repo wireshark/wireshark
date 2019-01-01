@@ -67,7 +67,7 @@ add_sid_name_mapping(const char *sid, const char *name)
  * QueryDispInfo :
  * level  1 : user displayinfo 1
  */
-static int
+static tap_packet_status
 samr_query_dispinfo(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt, const void *pri)
 {
 	const dcerpc_info *ri=(const dcerpc_info *)pri;
@@ -88,25 +88,25 @@ samr_query_dispinfo(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt, co
 
 	gp=proto_get_finfo_ptr_array(edt->tree, hf_samr_level);
 	if(!gp || gp->len!=1){
-		return 0;
+		return TAP_PACKET_DONT_REDRAW;
 	}
 	fi=(field_info *)gp->pdata[0];
 	info_level=fi->value.value.sinteger;
 
 	if(info_level!=1){
-		return 0;
+		return TAP_PACKET_DONT_REDRAW;
 	}
 
 	if(!ri){
-		return 0;
+		return TAP_PACKET_DONT_REDRAW;
 	}
 	if(!ri->call_data){
-		return 0;
+		return TAP_PACKET_DONT_REDRAW;
 	}
 	if(ri->ptype == PDU_REQ){
 		gp=proto_get_finfo_ptr_array(edt->tree, hf_samr_hnd);
 		if(!gp || gp->len!=1){
-			return 0;
+			return TAP_PACKET_DONT_REDRAW;
 		}
 		fi=(field_info *)gp->pdata[0];
 
@@ -119,28 +119,28 @@ samr_query_dispinfo(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt, co
 		}
 		g_hash_table_insert(ctx_handle_table, GINT_TO_POINTER(pinfo->num), old_ctx);
 
-		return 0;
+		return TAP_PACKET_DONT_REDRAW;
 	}
 
 	if(!ri->call_data->req_frame){
-		return 0;
+		return TAP_PACKET_DONT_REDRAW;
 	}
 
 	old_ctx=g_hash_table_lookup(ctx_handle_table, GINT_TO_POINTER(ri->call_data->req_frame));
 	if(!old_ctx){
-		return 0;
+		return TAP_PACKET_DONT_REDRAW;
 	}
 
 	if (!dcerpc_fetch_polhnd_data((e_ctx_hnd *)old_ctx, &pol_name, NULL, NULL, NULL, ri->call_data->req_frame)) {
-		return 0;
+		return TAP_PACKET_DONT_REDRAW;
 	}
 
 	if (!pol_name)
-		return 0;
+		return TAP_PACKET_DONT_REDRAW;
 
 	sid=strstr(pol_name,"S-1-5");
 	if(!sid){
-		return 0;
+		return TAP_PACKET_DONT_REDRAW;
 	}
 
 	for(sid_len=4;1;sid_len++){
@@ -155,12 +155,12 @@ samr_query_dispinfo(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt, co
 
 	gp_rids=proto_get_finfo_ptr_array(edt->tree, hf_samr_rid);
 	if(!gp_rids || gp_rids->len<1){
-		return 0;
+		return TAP_PACKET_DONT_REDRAW;
 	}
 	num_rids=gp_rids->len;
 	gp_names=proto_get_finfo_ptr_array(edt->tree, hf_samr_acct_name);
 	if(!gp_names || gp_names->len<1){
-		return 0;
+		return TAP_PACKET_DONT_REDRAW;
 	}
 	num_names=gp_names->len;
 
@@ -180,7 +180,7 @@ samr_query_dispinfo(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt, co
 		g_snprintf(sid_name_str+len, 256-len, "%d",fi_rid->value.value.sinteger);
 		add_sid_name_mapping(sid_name_str, fi_name->value.value.string);
 	}
-	return 1;
+	return TAP_PACKET_REDRAW;
 }
 
 /*
@@ -189,7 +189,7 @@ samr_query_dispinfo(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt, co
  * level  5 : ACCOUNT_DOMAIN_INFO lsa.domain_sid -> lsa.domain
  * level 12 : DNS_DOMAIN_INFO     lsa.domain_sid -> lsa.domain
  */
-static int
+static tap_packet_status
 lsa_policy_information(void *dummy _U_, packet_info *pinfo _U_, epan_dissect_t *edt, const void *pri _U_)
 {
 	GPtrArray *gp;
@@ -200,7 +200,7 @@ lsa_policy_information(void *dummy _U_, packet_info *pinfo _U_, epan_dissect_t *
 
 	gp=proto_get_finfo_ptr_array(edt->tree, hf_lsa_info_level);
 	if(!gp || gp->len!=1){
-		return 0;
+		return TAP_PACKET_DONT_REDRAW;
 	}
 	fi=(field_info *)gp->pdata[0];
 	info_level=fi->value.value.sinteger;
@@ -211,14 +211,14 @@ lsa_policy_information(void *dummy _U_, packet_info *pinfo _U_, epan_dissect_t *
 	case 12:
 		gp=proto_get_finfo_ptr_array(edt->tree, hf_lsa_domain);
 		if(!gp || gp->len!=1){
-			return 0;
+			return TAP_PACKET_DONT_REDRAW;
 		}
 		fi=(field_info *)gp->pdata[0];
 		domain=fi->value.value.string;
 
 		gp=proto_get_finfo_ptr_array(edt->tree, hf_nt_domain_sid);
 		if(!gp || gp->len!=1){
-			return 0;
+			return TAP_PACKET_DONT_REDRAW;
 		}
 		fi=(field_info *)gp->pdata[0];
 		sid=fi->value.value.string;
@@ -226,7 +226,7 @@ lsa_policy_information(void *dummy _U_, packet_info *pinfo _U_, epan_dissect_t *
 		add_sid_name_mapping(sid, domain);
 		break;
 	}
-	return 0;
+	return TAP_PACKET_DONT_REDRAW;
 }
 
 

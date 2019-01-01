@@ -338,7 +338,7 @@ typedef struct _http_eo_t {
 	const guint8 *payload_data;
 } http_eo_t;
 
-static gboolean
+static tap_packet_status
 http_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data)
 {
 	export_object_list_t *object_list = (export_object_list_t *)tapdata;
@@ -359,9 +359,9 @@ http_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const
 
 		object_list->add_entry(object_list->gui_data, entry);
 
-		return TRUE; /* State changed - window should be redrawn */
+		return TAP_PACKET_REDRAW; /* State changed - window should be redrawn */
 	} else {
-		return FALSE; /* State unchanged - no window updates needed */
+		return TAP_PACKET_DONT_REDRAW; /* State unchanged - no window updates needed */
 	}
 }
 
@@ -463,7 +463,7 @@ http_reqs_stats_tree_init(stats_tree* st)
 }
 
 /* HTTP/Load Distribution stats packet function */
-static int
+static tap_packet_status
 http_reqs_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t* edt _U_, const void* p)
 {
 	const http_info_value_t* v = (const http_info_value_t*)p;
@@ -491,7 +491,7 @@ http_reqs_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t* 
 
 		wmem_free(NULL, ip_str);
 
-		return 1;
+		return TAP_PACKET_REDRAW;
 
 	} else if (i != 0) {
 		ip_str = address_to_str(NULL, &pinfo->src);
@@ -507,10 +507,10 @@ http_reqs_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t* 
 
 		wmem_free(NULL, ip_str);
 
-		return 1;
+		return TAP_PACKET_REDRAW;
 	}
 
-	return 0;
+	return TAP_PACKET_DONT_REDRAW;
 }
 
 
@@ -525,7 +525,7 @@ http_req_stats_tree_init(stats_tree* st)
 }
 
 /* HTTP/Requests stats packet function */
-static int
+static tap_packet_status
 http_req_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* edt _U_, const void* p)
 {
 	const http_info_value_t* v = (const http_info_value_t*)p;
@@ -542,10 +542,10 @@ http_req_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_
 			}
 		}
 
-		return 1;
+		return TAP_PACKET_REDRAW;
 	}
 
-	return 0;
+	return TAP_PACKET_DONT_REDRAW;
 }
 
 static const gchar *st_str_packets = "Total HTTP Packets";
@@ -588,7 +588,7 @@ http_stats_tree_init(stats_tree* st)
 }
 
 /* HTTP/Packet Counter stats packet function */
-static int
+static tap_packet_status
 http_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* edt _U_, const void* p)
 {
 	const http_info_value_t* v = (const http_info_value_t*)p;
@@ -633,7 +633,7 @@ http_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* e
 		tick_stat_node(st, st_str_other, st_node_packets, FALSE);
 	}
 
-	return 1;
+	return TAP_PACKET_REDRAW;
 }
 
 /*
@@ -859,7 +859,7 @@ determine_http_location_target(const gchar *base_url, const gchar * location_url
 }
 
 /* HTTP/Request Sequences stats packet function */
-static int
+static tap_packet_status
 http_seq_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* edt _U_, const void* p)
 {
 	const http_info_value_t* v = (const http_info_value_t*)p;
@@ -915,7 +915,7 @@ http_seq_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_
 			current_node_id_p = parent_node_id_p;
 		}
 	}
-	return 0;
+	return TAP_PACKET_DONT_REDRAW;
 }
 
 

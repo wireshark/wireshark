@@ -3653,7 +3653,7 @@ static void gsm_a_sacch_rr_stat_init(stat_tap_table_ui* new_stat)
                     "GSM A-I/F SACCH Statistics", gsm_a_rr_short_pd_msg_strings);
 }
 
-static gboolean
+static tap_packet_status
 gsm_a_stat_packet(void *tapdata, const void *gatr_ptr, guint8 pdu_type, int protocol_disc)
 {
     stat_data_t* stat_data = (stat_data_t*)tapdata;
@@ -3662,73 +3662,73 @@ gsm_a_stat_packet(void *tapdata, const void *gatr_ptr, guint8 pdu_type, int prot
     stat_tap_table_item_type* msg_data;
     guint i = 0;
 
-    if (gatr->pdu_type != pdu_type) return FALSE;
-    if (pdu_type == BSSAP_PDU_TYPE_DTAP && (int)gatr->protocol_disc != protocol_disc) return FALSE;
-    if (pdu_type == GSM_A_PDU_TYPE_SACCH && gatr->protocol_disc != 0) return FALSE;
+    if (gatr->pdu_type != pdu_type) return TAP_PACKET_DONT_REDRAW;
+    if (pdu_type == BSSAP_PDU_TYPE_DTAP && (int)gatr->protocol_disc != protocol_disc) return TAP_PACKET_DONT_REDRAW;
+    if (pdu_type == GSM_A_PDU_TYPE_SACCH && gatr->protocol_disc != 0) return TAP_PACKET_DONT_REDRAW;
 
     table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, i);
     msg_data = stat_tap_get_field_data(table, gatr->message_type, COUNT_COLUMN);
     msg_data->value.uint_value++;
     stat_tap_set_field_data(table, gatr->message_type, COUNT_COLUMN, msg_data);
 
-    return TRUE;
+    return TAP_PACKET_REDRAW;
 }
 
-static gboolean
+static tap_packet_status
 gsm_a_bssmap_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *gatr_ptr)
 {
     return gsm_a_stat_packet(tapdata, gatr_ptr, BSSAP_PDU_TYPE_BSSMAP, 0);
 }
 
-static gboolean
+static tap_packet_status
 gsm_a_dtap_mm_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *gatr_ptr)
 {
     return gsm_a_stat_packet(tapdata, gatr_ptr, BSSAP_PDU_TYPE_DTAP, PD_MM);
 }
 
-static gboolean
+static tap_packet_status
 gsm_a_dtap_rr_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *gatr_ptr)
 {
     return gsm_a_stat_packet(tapdata, gatr_ptr, BSSAP_PDU_TYPE_DTAP, PD_RR);
 }
 
-static gboolean
+static tap_packet_status
 gsm_a_dtap_cc_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *gatr_ptr)
 {
     return gsm_a_stat_packet(tapdata, gatr_ptr, BSSAP_PDU_TYPE_DTAP, PD_CC);
 }
 
-static gboolean
+static tap_packet_status
 gsm_a_dtap_gmm_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *gatr_ptr)
 {
     return gsm_a_stat_packet(tapdata, gatr_ptr, BSSAP_PDU_TYPE_DTAP, PD_GMM);
 }
 
-static gboolean
+static tap_packet_status
 gsm_a_dtap_sms_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *gatr_ptr)
 {
     return gsm_a_stat_packet(tapdata, gatr_ptr, BSSAP_PDU_TYPE_DTAP, PD_SMS);
 }
 
-static gboolean
+static tap_packet_status
 gsm_a_dtap_sm_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *gatr_ptr)
 {
     return gsm_a_stat_packet(tapdata, gatr_ptr, BSSAP_PDU_TYPE_DTAP, PD_SM);
 }
 
-static gboolean
+static tap_packet_status
 gsm_a_dtap_ss_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *gatr_ptr)
 {
     return gsm_a_stat_packet(tapdata, gatr_ptr, BSSAP_PDU_TYPE_DTAP, PD_SS);
 }
 
-static gboolean
+static tap_packet_status
 gsm_a_dtap_tp_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *gatr_ptr)
 {
     return gsm_a_stat_packet(tapdata, gatr_ptr, BSSAP_PDU_TYPE_DTAP, PD_TP);
 }
 
-static gboolean
+static tap_packet_status
 gsm_a_sacch_rr_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *gatr_ptr)
 {
     return gsm_a_stat_packet(tapdata, gatr_ptr, GSM_A_PDU_TYPE_SACCH, 0);

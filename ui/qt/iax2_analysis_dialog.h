@@ -108,7 +108,7 @@ private:
 
     // Tap callbacks
     static void tapReset(void *tapinfo_ptr);
-    static gboolean tapPacket(void *tapinfo_ptr, packet_info *pinfo, struct epan_dissect *, const void *iax2info_ptr);
+    static tap_packet_status tapPacket(void *tapinfo_ptr, packet_info *pinfo, struct epan_dissect *, const void *iax2info_ptr);
     static void tapDraw(void *tapinfo_ptr);
 
     void resetStatistics();

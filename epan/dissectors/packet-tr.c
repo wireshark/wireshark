@@ -136,7 +136,7 @@ static const char* tr_conv_get_filter_type(conv_item_t* conv, conv_filter_type_e
 
 static ct_dissector_info_t tr_ct_dissector_info = {&tr_conv_get_filter_type};
 
-static int
+static tap_packet_status
 tr_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
 	conv_hash_t *hash = (conv_hash_t*) pct;
@@ -144,7 +144,7 @@ tr_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, c
 
 	add_conversation_table_data(hash, &trhdr->src, &trhdr->dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts, &tr_ct_dissector_info, ENDPOINT_NONE);
 
-	return 1;
+	return TAP_PACKET_REDRAW;
 }
 
 static const char* tr_host_get_filter_type(hostlist_talker_t* host, conv_filter_type_e filter)
@@ -157,7 +157,7 @@ static const char* tr_host_get_filter_type(hostlist_talker_t* host, conv_filter_
 
 static hostlist_dissector_info_t tr_host_dissector_info = {&tr_host_get_filter_type};
 
-static int
+static tap_packet_status
 tr_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
 	conv_hash_t *hash = (conv_hash_t*) pit;
@@ -169,7 +169,7 @@ tr_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const
 	add_hostlist_table_data(hash, &trhdr->src, 0, TRUE, 1, pinfo->fd->pkt_len, &tr_host_dissector_info, ENDPOINT_NONE);
 	add_hostlist_table_data(hash, &trhdr->dst, 0, FALSE, 1, pinfo->fd->pkt_len, &tr_host_dissector_info, ENDPOINT_NONE);
 
-	return 1;
+	return TAP_PACKET_REDRAW;
 }
 
 /*

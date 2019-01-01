@@ -2111,7 +2111,7 @@ static const char* rsvp_conv_get_filter_type(conv_item_t* conv, conv_filter_type
 
 static ct_dissector_info_t rsvp_ct_dissector_info = {&rsvp_conv_get_filter_type};
 
-static int
+static tap_packet_status
 rsvp_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
     conv_hash_t *hash = (conv_hash_t*) pct;
@@ -2120,7 +2120,7 @@ rsvp_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_,
     add_conversation_table_data(hash, &rsvph->source, &rsvph->destination,
         0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts, &rsvp_ct_dissector_info, ENDPOINT_NONE);
 
-    return 1;
+    return TAP_PACKET_REDRAW;
 }
 
 static const char* rsvp_host_get_filter_type(hostlist_talker_t* host, conv_filter_type_e filter)
@@ -2133,7 +2133,7 @@ static const char* rsvp_host_get_filter_type(hostlist_talker_t* host, conv_filte
 
 static hostlist_dissector_info_t rsvp_host_dissector_info = {&rsvp_host_get_filter_type};
 
-static int
+static tap_packet_status
 rsvp_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
     conv_hash_t *hash = (conv_hash_t*) pit;
@@ -2146,7 +2146,7 @@ rsvp_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, con
      */
     add_hostlist_table_data(hash, &rsvph->source, 0, TRUE, 1, pinfo->fd->pkt_len, &rsvp_host_dissector_info, ENDPOINT_NONE);
     add_hostlist_table_data(hash, &rsvph->destination, 0, FALSE, 1, pinfo->fd->pkt_len, &rsvp_host_dissector_info, ENDPOINT_NONE);
-    return 1;
+    return TAP_PACKET_REDRAW;
 }
 
 static inline int

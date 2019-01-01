@@ -964,7 +964,7 @@ scsistat_init(struct register_srt* srt, GArray* srt_array)
     }
 }
 
-static int
+static tap_packet_status
 scsistat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prv)
 {
     guint i = 0;
@@ -978,19 +978,19 @@ scsistat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 
     /* we are only interested in response packets */
     if (ri->type != SCSI_PDU_TYPE_RSP) {
-        return 0;
+        return TAP_PACKET_DONT_REDRAW;
     }
     /* we are only interested in a specific commandset */
     if ( (!ri->itl) || ((ri->itl->cmdset&SCSI_CMDSET_MASK) != tap_data->cmdset) ) {
-        return 0;
+        return TAP_PACKET_DONT_REDRAW;
     }
     /* check that the opcode looks sane */
     if ( (!ri->itlq) || (ri->itlq->scsi_opcode > 255) ) {
-        return 0;
+        return TAP_PACKET_DONT_REDRAW;
     }
 
     add_srt_table_data(scsi_srt_table, ri->itlq->scsi_opcode, &ri->itlq->fc_time, pinfo);
-    return 1;
+    return TAP_PACKET_REDRAW;
 }
 
 guint

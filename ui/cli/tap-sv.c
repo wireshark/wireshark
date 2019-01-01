@@ -26,7 +26,7 @@
 
 void register_tap_listener_sv(void);
 
-static int
+static tap_packet_status
 sv_packet(void *prs _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pri)
 {
 	int i;
@@ -40,7 +40,7 @@ sv_packet(void *prs _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void
 
 	printf("\n");
 
-	return 0;
+	return TAP_PACKET_DONT_REDRAW;
 }
 
 static void

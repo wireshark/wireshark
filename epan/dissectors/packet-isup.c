@@ -10424,7 +10424,7 @@ msg_stats_tree_init(stats_tree *st)
   st_node_dir = stats_tree_create_node(st, "Messages by Direction", 0, STAT_DT_INT, TRUE);
 }
 
-static int
+static tap_packet_status
 msg_stats_tree_packet(stats_tree *st, packet_info *pinfo, epan_dissect_t *edt _U_, const void *p)
 {
   const gchar *msg = try_val_to_str_ext(((const isup_tap_rec_t*)p)->message_type, &isup_message_type_value_acro_ext);
@@ -10446,7 +10446,7 @@ msg_stats_tree_packet(stats_tree *st, packet_info *pinfo, epan_dissect_t *edt _U
 
   wmem_free(NULL, dir);
 
-  return 1;
+  return TAP_PACKET_REDRAW;
 }
 
 /*---------------------------------------------------------------------*/

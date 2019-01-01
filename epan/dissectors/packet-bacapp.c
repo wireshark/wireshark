@@ -6189,7 +6189,7 @@ bacapp_get_address_label(const char *tag, address *addr)
     return label_str;
 }
 
-static int
+static tap_packet_status
 bacapp_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t* edt _U_, const void* p)
 {
     int    packets_for_this_dst;
@@ -6230,7 +6230,7 @@ bacapp_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t* edt
     wmem_free(NULL, srcstr);
     wmem_free(NULL, dststr);
 
-    return 1;
+    return TAP_PACKET_REDRAW;
 }
 
 /* Stat: BACnet Packets sorted by Service */
@@ -6243,7 +6243,7 @@ bacapp_service_stats_tree_init(stats_tree* st)
     st_node_packets_by_service = stats_tree_create_pivot(st, st_str_packets_by_service, 0);
 }
 
-static int
+static tap_packet_status
 bacapp_stats_tree_service(stats_tree* st, packet_info* pinfo, epan_dissect_t* edt _U_, const void* p)
 {
     int    servicetype;
@@ -6272,7 +6272,7 @@ bacapp_stats_tree_service(stats_tree* st, packet_info* pinfo, epan_dissect_t* ed
     wmem_free(NULL, srcstr);
     wmem_free(NULL, dststr);
 
-    return 1;
+    return TAP_PACKET_REDRAW;
 }
 
 /* Stat: BACnet Packets sorted by Object Type */
@@ -6285,7 +6285,7 @@ bacapp_objectid_stats_tree_init(stats_tree* st)
     st_node_packets_by_objectid = stats_tree_create_pivot(st, st_str_packets_by_objectid, 0);
 }
 
-static int
+static tap_packet_status
 bacapp_stats_tree_objectid(stats_tree* st, packet_info* pinfo, epan_dissect_t* edt _U_, const void* p)
 {
     int    servicetype;
@@ -6313,7 +6313,7 @@ bacapp_stats_tree_objectid(stats_tree* st, packet_info* pinfo, epan_dissect_t* e
     wmem_free(NULL, srcstr);
     wmem_free(NULL, dststr);
 
-    return 1;
+    return TAP_PACKET_REDRAW;
 }
 
 /* Stat: BACnet Packets sorted by Instance No */
@@ -6326,7 +6326,7 @@ bacapp_instanceid_stats_tree_init(stats_tree* st)
     st_node_packets_by_instanceid = stats_tree_create_pivot(st, st_str_packets_by_instanceid, 0);
 }
 
-static int
+static tap_packet_status
 bacapp_stats_tree_instanceid(stats_tree* st, packet_info* pinfo, epan_dissect_t* edt _U_, const void* p)
 {
     int    servicetype;
@@ -6354,7 +6354,7 @@ bacapp_stats_tree_instanceid(stats_tree* st, packet_info* pinfo, epan_dissect_t*
     wmem_free(NULL, srcstr);
     wmem_free(NULL, dststr);
 
-    return 1;
+    return TAP_PACKET_REDRAW;
 }
 
 

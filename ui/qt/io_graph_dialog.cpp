@@ -2055,11 +2055,11 @@ void IOGraph::tapReset(void *iog_ptr)
 }
 
 // "tap_packet" callback for register_tap_listener
-gboolean IOGraph::tapPacket(void *iog_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *)
+tap_packet_status IOGraph::tapPacket(void *iog_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *)
 {
     IOGraph *iog = static_cast<IOGraph *>(iog_ptr);
     if (!pinfo || !iog) {
-        return FALSE;
+        return TAP_PACKET_DONT_REDRAW;
     }
 
     int idx = get_io_graph_index(pinfo, iog->interval_);
@@ -2068,7 +2068,7 @@ gboolean IOGraph::tapPacket(void *iog_ptr, packet_info *pinfo, epan_dissect_t *e
     /* some sanity checks */
     if ((idx < 0) || (idx >= max_io_items_)) {
         iog->cur_idx_ = max_io_items_ - 1;
-        return FALSE;
+        return TAP_PACKET_DONT_REDRAW;
     }
 
     /* update num_items */
@@ -2092,7 +2092,7 @@ gboolean IOGraph::tapPacket(void *iog_ptr, packet_info *pinfo, epan_dissect_t *e
     }
 
     if (!update_io_graph_item(iog->items_, idx, pinfo, adv_edt, iog->hf_index_, iog->val_units_, iog->interval_)) {
-        return FALSE;
+        return TAP_PACKET_DONT_REDRAW;
     }
 
 //    qDebug() << "=tapPacket" << iog->name_ << idx << iog->hf_index_ << iog->val_units_ << iog->num_items_;
@@ -2100,7 +2100,7 @@ gboolean IOGraph::tapPacket(void *iog_ptr, packet_info *pinfo, epan_dissect_t *e
     if (recalc) {
         emit iog->requestRecalc();
     }
-    return TRUE;
+    return TAP_PACKET_REDRAW;
 }
 
 // "tap_draw" callback for register_tap_listener

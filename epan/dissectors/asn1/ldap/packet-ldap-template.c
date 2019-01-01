@@ -302,7 +302,7 @@ ldapstat_init(struct register_srt* srt _U_, GArray* srt_array)
   }
 }
 
-static int
+static tap_packet_status
 ldapstat_packet(void *pldap, packet_info *pinfo, epan_dissect_t *edt _U_, const void *psi)
 {
   guint i = 0;
@@ -312,11 +312,11 @@ ldapstat_packet(void *pldap, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 
   /* we are only interested in reply packets */
   if(ldap->is_request){
-    return 0;
+    return TAP_PACKET_DONT_REDRAW;
   }
   /* if we havnt seen the request, just ignore it */
   if(!ldap->req_frame){
-    return 0;
+    return TAP_PACKET_DONT_REDRAW;
   }
 
   /* only use the commands we know how to handle */
@@ -331,13 +331,13 @@ ldapstat_packet(void *pldap, packet_info *pinfo, epan_dissect_t *edt _U_, const 
   case LDAP_REQ_EXTENDED:
     break;
   default:
-    return 0;
+    return TAP_PACKET_DONT_REDRAW;
   }
 
   ldap_srt_table = g_array_index(data->srt_array, srt_stat_table*, i);
 
   add_srt_table_data(ldap_srt_table, ldap->protocolOpTag, &ldap->req_time, pinfo);
-  return 1;
+  return TAP_PACKET_REDRAW;
 }
 
 /*

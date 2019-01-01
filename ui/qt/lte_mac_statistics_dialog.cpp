@@ -712,14 +712,14 @@ void LteMacStatisticsDialog::tapReset(void *ws_dlg_ptr)
 
 //---------------------------------------------------------------------------------------
 // Process tap info from a new packet.
-// Returns TRUE if a redraw is needed.
-gboolean LteMacStatisticsDialog::tapPacket(void *ws_dlg_ptr, struct _packet_info *, epan_dissect *, const void *mac_lte_tap_info_ptr)
+// Returns TAP_PACKET_REDRAW if a redraw is needed, TAP_PACKET_DONT_REDRAW otherwise.
+tap_packet_status LteMacStatisticsDialog::tapPacket(void *ws_dlg_ptr, struct _packet_info *, epan_dissect *, const void *mac_lte_tap_info_ptr)
 {
     // Look up dialog and tap info.
     LteMacStatisticsDialog *ws_dlg = static_cast<LteMacStatisticsDialog *>(ws_dlg_ptr);
     const mac_lte_tap_info *mlt_info  = (const mac_lte_tap_info *) mac_lte_tap_info_ptr;
     if (!ws_dlg || !mlt_info) {
-        return FALSE;
+        return TAP_PACKET_DONT_REDRAW;
     }
 
     // Update common stats.
@@ -727,7 +727,7 @@ gboolean LteMacStatisticsDialog::tapPacket(void *ws_dlg_ptr, struct _packet_info
 
     // Nothing more to do if tap entry isn't for a UE.
     if ((mlt_info->rntiType != C_RNTI) && (mlt_info->rntiType != SPS_RNTI)) {
-        return FALSE;
+        return TAP_PACKET_DONT_REDRAW;
     }
 
     // Look for an existing UE to match this tap info.
@@ -757,7 +757,7 @@ gboolean LteMacStatisticsDialog::tapPacket(void *ws_dlg_ptr, struct _packet_info
 
     // Update the UE item with info from tap!
     mac_ue_ti->update(mlt_info);
-    return TRUE;
+    return TAP_PACKET_REDRAW;
 }
 
 // Return total number of frames tapped.

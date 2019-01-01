@@ -665,7 +665,7 @@ ucp_stats_tree_init(stats_tree* st)
     st_ucp_results_neg = stats_tree_create_node(st, st_str_neg, st_ucp_results, STAT_DT_INT, TRUE);
 }
 
-static int
+static tap_packet_status
 ucp_stats_tree_per_packet(stats_tree *st, /* st as it was passed to us */
                                       packet_info *pinfo _U_,
                                       epan_dissect_t *edt _U_,
@@ -701,7 +701,7 @@ ucp_stats_tree_per_packet(stats_tree *st, /* st as it was passed to us */
         }
     }
 
-    return 1;
+    return TAP_PACKET_REDRAW;
 }
 
 /*!

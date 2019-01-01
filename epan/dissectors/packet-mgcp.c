@@ -321,14 +321,14 @@ static const value_string mgcp_mesage_type[] = {
 	{  0, NULL}
 };
 
-static int
+static tap_packet_status
 mgcpstat_packet(void *pms, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pmi)
 {
 	rtd_data_t* rtd_data = (rtd_data_t*)pms;
 	rtd_stat_table* ms = &rtd_data->stat_table;
 	const mgcp_info_t *mi = (const mgcp_info_t *)pmi;
 	nstime_t delta;
-	int ret = 0;
+	tap_packet_status ret = TAP_PACKET_DONT_REDRAW;
 
 	switch (mi->mgcp_type) {
 
@@ -389,7 +389,7 @@ mgcpstat_packet(void *pms, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 				time_stat_update(&(ms->time_stats[0].rtd[10]), &delta, pinfo);
 			}
 
-			ret = 1;
+			ret = TAP_PACKET_REDRAW;
 		}
 		break;
 

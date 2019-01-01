@@ -745,7 +745,7 @@ static const char* tcp_conv_get_filter_type(conv_item_t* conv, conv_filter_type_
 
 static ct_dissector_info_t tcp_ct_dissector_info = {&tcp_conv_get_filter_type};
 
-static int
+static tap_packet_status
 tcpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
     conv_hash_t *hash = (conv_hash_t*) pct;
@@ -754,10 +754,10 @@ tcpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_
     add_conversation_table_data_with_conv_id(hash, &tcphdr->ip_src, &tcphdr->ip_dst, tcphdr->th_sport, tcphdr->th_dport, (conv_id_t) tcphdr->th_stream, 1, pinfo->fd->pkt_len,
                                               &pinfo->rel_ts, &pinfo->abs_ts, &tcp_ct_dissector_info, ENDPOINT_TCP);
 
-    return 1;
+    return TAP_PACKET_REDRAW;
 }
 
-static int
+static tap_packet_status
 mptcpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
     conv_hash_t *hash = (conv_hash_t*) pct;
@@ -768,7 +768,7 @@ mptcpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _
         meta->sport, meta->dport, (conv_id_t) tcpd->mptcp_analysis->stream, 1, pinfo->fd->pkt_len,
                                               &pinfo->rel_ts, &pinfo->abs_ts, &tcp_ct_dissector_info, ENDPOINT_TCP);
 
-    return 1;
+    return TAP_PACKET_REDRAW;
 }
 
 static const char* tcp_host_get_filter_type(hostlist_talker_t* host, conv_filter_type_e filter)
@@ -812,7 +812,7 @@ static const char* tcp_host_get_filter_type(hostlist_talker_t* host, conv_filter
 
 static hostlist_dissector_info_t tcp_host_dissector_info = {&tcp_host_get_filter_type};
 
-static int
+static tap_packet_status
 tcpip_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
     conv_hash_t *hash = (conv_hash_t*) pit;
@@ -824,7 +824,7 @@ tcpip_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, co
     add_hostlist_table_data(hash, &tcphdr->ip_src, tcphdr->th_sport, TRUE, 1, pinfo->fd->pkt_len, &tcp_host_dissector_info, ENDPOINT_TCP);
     add_hostlist_table_data(hash, &tcphdr->ip_dst, tcphdr->th_dport, FALSE, 1, pinfo->fd->pkt_len, &tcp_host_dissector_info, ENDPOINT_TCP);
 
-    return 1;
+    return TAP_PACKET_REDRAW;
 }
 
 static gboolean
@@ -858,7 +858,7 @@ tcp_build_filter(packet_info *pinfo)
 /****************************************************************************/
 /* whenever a TCP packet is seen by the tap listener */
 /* Add a new tcp frame into the graph */
-static gboolean
+static tap_packet_status
 tcp_seq_analysis_packet( void *ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *tcp_info)
 {
     seq_analysis_info_t *sainfo = (seq_analysis_info_t *) ptr;
@@ -867,7 +867,7 @@ tcp_seq_analysis_packet( void *ptr, packet_info *pinfo, epan_dissect_t *edt _U_,
     seq_analysis_item_t *sai = sequence_analysis_create_sai_with_addresses(pinfo, sainfo);
 
     if (!sai)
-        return FALSE;
+        return TAP_PACKET_DONT_REDRAW;
 
     sai->frame_number = pinfo->num;
 
@@ -896,7 +896,7 @@ tcp_seq_analysis_packet( void *ptr, packet_info *pinfo, epan_dissect_t *edt _U_,
 
     g_queue_push_tail(sainfo->items, sai);
 
-    return TRUE;
+    return TAP_PACKET_REDRAW;
 }
 
 
@@ -1071,7 +1071,7 @@ check_follow_fragments(follow_info_t *follow_info, gboolean is_server, guint32 a
     return FALSE;
 }
 
-static gboolean
+static tap_packet_status
 follow_tcp_tap_listener(void *tapdata, packet_info *pinfo,
                       epan_dissect_t *edt _U_, const void *data)
 {
@@ -1138,7 +1138,7 @@ follow_tcp_tap_listener(void *tapdata, packet_info *pinfo,
      * because it was fully overlapping with previously received data).
      */
     if (data_length == 0 || LT_SEQ(sequence, follow_info->seq[is_server])) {
-        return FALSE;
+        return TAP_PACKET_DONT_REDRAW;
     }
 
     follow_record = g_new0(follow_record_t, 1);
@@ -1161,7 +1161,7 @@ follow_tcp_tap_listener(void *tapdata, packet_info *pinfo,
         /* Out of order packet (more preceding segments are expected). */
         follow_info->fragments[is_server] = g_list_append(follow_info->fragments[is_server], follow_record);
     }
-    return FALSE;
+    return TAP_PACKET_DONT_REDRAW;
 }
 
 #define EXP_PDU_TCP_INFO_DATA_LEN   19

@@ -10597,7 +10597,7 @@ static void ansi_a_dtap_stat_init(stat_tap_table_ui* new_stat)
     }
 }
 
-static gboolean
+static tap_packet_status
 ansi_a_dtap_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *data)
 {
     stat_data_t* stat_data = (stat_data_t*)tapdata;
@@ -10609,7 +10609,7 @@ ansi_a_dtap_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *e
     if (data_p->pdu_type == BSSAP_PDU_TYPE_DTAP)
     {
         if (my_try_val_to_str_idx(data_p->message_type, ansi_a_dtap_strings, &idx) == NULL)
-            return FALSE;
+            return TAP_PACKET_DONT_REDRAW;
 
         table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, i);
 
@@ -10617,10 +10617,10 @@ ansi_a_dtap_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *e
         dtap_data->value.uint_value++;
         stat_tap_set_field_data(table, data_p->message_type, COUNT_COLUMN, dtap_data);
 
-        return TRUE;
+        return TAP_PACKET_REDRAW;
     }
 
-    return FALSE;
+    return TAP_PACKET_DONT_REDRAW;
 }
 
 static void
@@ -10665,7 +10665,7 @@ static void ansi_a_bsmap_stat_init(stat_tap_table_ui* new_stat)
     }
 }
 
-static gboolean
+static tap_packet_status
 ansi_a_bsmap_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *data)
 {
     stat_data_t* stat_data = (stat_data_t*)tapdata;
@@ -10677,7 +10677,7 @@ ansi_a_bsmap_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *
     if (data_p->pdu_type == BSSAP_PDU_TYPE_BSMAP)
     {
         if (my_try_val_to_str_idx(data_p->message_type, ansi_a_bsmap_strings, &idx) == NULL)
-            return FALSE;
+            return TAP_PACKET_DONT_REDRAW;
 
         table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, i);
 
@@ -10685,10 +10685,10 @@ ansi_a_bsmap_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *
         dtap_data->value.uint_value++;
         stat_tap_set_field_data(table, data_p->message_type, COUNT_COLUMN, dtap_data);
 
-        return TRUE;
+        return TAP_PACKET_REDRAW;
     }
 
-    return FALSE;
+    return TAP_PACKET_DONT_REDRAW;
 }
 
 /* Register the protocol with Wireshark */

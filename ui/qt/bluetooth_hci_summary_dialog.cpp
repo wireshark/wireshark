@@ -44,7 +44,7 @@ static const int column_number_reason = 7;
 static const int column_number_hardware_error = 8;
 static const int column_number_occurrence = 9;
 
-static gboolean
+static tap_packet_status
 bluetooth_hci_summary_tap_packet(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *edt, const void* data)
 {
     bluetooth_hci_summary_tapinfo_t *tapinfo = (bluetooth_hci_summary_tapinfo_t *) tapinfo_ptr;
@@ -52,7 +52,7 @@ bluetooth_hci_summary_tap_packet(void *tapinfo_ptr, packet_info *pinfo, epan_dis
     if (tapinfo->tap_packet)
         tapinfo->tap_packet(tapinfo, pinfo, edt, data);
 
-    return TRUE;
+    return TAP_PACKET_REDRAW;
 }
 
 static void
@@ -332,7 +332,7 @@ void BluetoothHciSummaryDialog::tapReset(void *tapinfo_ptr)
     dialog->item_hardware_errors_->setText(column_number_occurrence, "0");
 }
 
-gboolean BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *, const void *data)
+tap_packet_status BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *, const void *data)
 {
     bluetooth_hci_summary_tapinfo_t  *tapinfo    = static_cast<bluetooth_hci_summary_tapinfo_t *>(tapinfo_ptr);
     BluetoothHciSummaryDialog        *dialog     = static_cast<BluetoothHciSummaryDialog *>(tapinfo->ui);
@@ -346,10 +346,10 @@ gboolean BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet_info *pi
     QString  name;
 
     if (dialog->file_closed_)
-        return FALSE;
+        return TAP_PACKET_DONT_REDRAW;
 
     if (pinfo->rec->rec_type != REC_TYPE_PACKET)
-        return FALSE;
+        return TAP_PACKET_DONT_REDRAW;
 
     name = tr("Unknown");
 
@@ -365,7 +365,7 @@ gboolean BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet_info *pi
 
         if (interface && dialog->ui->interfaceComboBox->currentIndex() > 0) {
             if (dialog->ui->interfaceComboBox->currentText() != interface)
-            return TRUE;
+                return TAP_PACKET_REDRAW;
         }
     }
 
@@ -377,7 +377,7 @@ gboolean BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet_info *pi
 
     if (dialog->ui->adapterComboBox->currentIndex() > 0) {
         if (dialog->ui->adapterComboBox->currentText() != adapter)
-        return TRUE;
+            return TAP_PACKET_REDRAW;
     }
 
     switch (tap_hci->type) {
@@ -768,7 +768,7 @@ gboolean BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet_info *pi
         dialog->ui->tableTreeWidget->resizeColumnToContents(i);
     }
 
-    return TRUE;
+    return TAP_PACKET_REDRAW;
 }
 
 void BluetoothHciSummaryDialog::interfaceCurrentIndexChanged(int)

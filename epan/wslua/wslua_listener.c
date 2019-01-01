@@ -68,11 +68,11 @@ static int tap_packet_cb_error_handler(lua_State* L) {
 }
 
 
-static gboolean lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data) {
+static tap_packet_status lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data) {
     Listener tap = (Listener)tapdata;
-    gboolean retval = FALSE;
+    tap_packet_status retval = TAP_PACKET_DONT_REDRAW;
 
-    if (tap->packet_ref == LUA_NOREF) return FALSE;
+    if (tap->packet_ref == LUA_NOREF) return TAP_PACKET_DONT_REDRAW; /* XXX - report error and return TAP_PACKET_FAILED? */
 
     lua_settop(tap->L,0);
 
@@ -94,12 +94,15 @@ static gboolean lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t
 
     switch ( lua_pcall(tap->L,3,1,1) ) {
         case 0:
-            retval = luaL_optinteger(tap->L,-1,1) == 0 ? FALSE : TRUE;
+            /* XXX - treat 2 as TAP_PACKET_FAILED? */
+            retval = luaL_optinteger(tap->L,-1,1) == 0 ? TAP_PACKET_DONT_REDRAW : TAP_PACKET_REDRAW;
             break;
         case LUA_ERRRUN:
+            /* XXX - TAP_PACKET_FAILED? */
             break;
         case LUA_ERRMEM:
             g_warning("Memory alloc error while calling listener tap callback packet");
+            /* XXX - TAP_PACKET_FAILED? */
             break;
         default:
             g_assert_not_reached();

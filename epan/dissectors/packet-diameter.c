@@ -385,7 +385,7 @@ diameterstat_init(struct register_srt* srt _U_, GArray* srt_array)
 	init_srt_table_row(diameter_srt_table, 0, "Unknown");
 }
 
-static int
+static tap_packet_status
 diameterstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prv)
 {
 	guint i = 0;
@@ -398,7 +398,7 @@ diameterstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 	 * Unpaired diameter messages are currently not supported by statistics.
 	 * Return 0, since redraw is not needed. */
 	if(!diameter || diameter->processing_request || !diameter->req_frame)
-		return 0;
+		return TAP_PACKET_DONT_REDRAW;
 
 	diameter_srt_table = g_array_index(data->srt_array, srt_stat_table*, i);
 
@@ -412,7 +412,7 @@ diameterstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 
 	add_srt_table_data(diameter_srt_table, *idx, &diameter->req_time, pinfo);
 
-	return 1;
+	return TAP_PACKET_REDRAW;
 }
 
 

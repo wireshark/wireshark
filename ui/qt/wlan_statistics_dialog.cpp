@@ -558,17 +558,17 @@ void WlanStatisticsDialog::tapReset(void *ws_dlg_ptr)
     ws_dlg->packet_count_ = 0;
 }
 
-gboolean WlanStatisticsDialog::tapPacket(void *ws_dlg_ptr, _packet_info *, epan_dissect *, const void *wlan_hdr_ptr)
+tap_packet_status WlanStatisticsDialog::tapPacket(void *ws_dlg_ptr, _packet_info *, epan_dissect *, const void *wlan_hdr_ptr)
 {
     WlanStatisticsDialog *ws_dlg = static_cast<WlanStatisticsDialog *>(ws_dlg_ptr);
     const wlan_hdr_t *wlan_hdr  = (const wlan_hdr_t *)wlan_hdr_ptr;
-    if (!ws_dlg || !wlan_hdr) return FALSE;
+    if (!ws_dlg || !wlan_hdr) return TAP_PACKET_DONT_REDRAW;
 
     guint16 frame_type = wlan_hdr->type & 0xff0;
     if (!((frame_type == 0x0) || (frame_type == 0x20) || (frame_type == 0x30))
         || ((frame_type == 0x20) && DATA_FRAME_IS_NULL(wlan_hdr->type))) {
         /* Not a management or non null data or extension frame; let's skip it */
-        return FALSE;
+        return TAP_PACKET_DONT_REDRAW;
     }
 
     ws_dlg->packet_count_++;
@@ -595,7 +595,7 @@ gboolean WlanStatisticsDialog::tapPacket(void *ws_dlg_ptr, _packet_info *, epan_
     }
 
     wn_ti->update(wlan_hdr);
-    return TRUE;
+    return TAP_PACKET_REDRAW;
 }
 
 void WlanStatisticsDialog::tapDraw(void *ws_dlg_ptr)

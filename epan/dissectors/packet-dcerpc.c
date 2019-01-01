@@ -1940,7 +1940,7 @@ dcerpcstat_init(struct register_srt* srt, GArray* srt_array)
     }
 }
 
-static int
+static tap_packet_status
 dcerpcstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prv)
 {
     guint i = 0;
@@ -1953,31 +1953,31 @@ dcerpcstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const 
     tap_data = (dcerpcstat_tap_data_t*)dcerpc_srt_table->table_specific_data;
 
     if(!ri->call_data){
-        return 0;
+        return TAP_PACKET_DONT_REDRAW;
     }
     if(!ri->call_data->req_frame){
         /* we have not seen the request so we don't know the delta*/
-        return 0;
+        return TAP_PACKET_DONT_REDRAW;
     }
     if(ri->call_data->opnum >= tap_data->num_procedures){
         /* don't handle this since it's outside of known table */
-        return 0;
+        return TAP_PACKET_DONT_REDRAW;
     }
 
     /* we are only interested in reply packets */
     if(ri->ptype != PDU_RESP){
-        return 0;
+        return TAP_PACKET_DONT_REDRAW;
     }
 
     /* we are only interested in certain program/versions */
     if( (!uuid_equal( (&ri->call_data->uuid), (&tap_data->uuid)))
         ||(ri->call_data->ver != tap_data->ver)){
-        return 0;
+        return TAP_PACKET_DONT_REDRAW;
     }
 
     add_srt_table_data(dcerpc_srt_table, ri->call_data->opnum, &ri->call_data->req_time, pinfo);
 
-    return 1;
+    return TAP_PACKET_REDRAW;
 }
 
 static guint

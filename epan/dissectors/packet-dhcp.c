@@ -6679,7 +6679,7 @@ static void dhcp_stat_init(stat_tap_table_ui* new_stat)
 	}
 }
 
-static gboolean
+static tap_packet_status
 dhcp_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *data)
 {
 	stat_data_t* stat_data = (stat_data_t*)tapdata;
@@ -6691,14 +6691,14 @@ dhcp_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_,
 
 	idx = str_to_val_idx(value, opt53_text);
 	if (idx < 0)
-		return FALSE;
+		return TAP_PACKET_DONT_REDRAW;
 
 	table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, i);
 	msg_data = stat_tap_get_field_data(table, idx, PACKET_COLUMN);
 	msg_data->value.uint_value++;
 	stat_tap_set_field_data(table, idx, PACKET_COLUMN, msg_data);
 
-	return TRUE;
+	return TAP_PACKET_REDRAW;
 }
 
 static void

@@ -195,7 +195,7 @@ static const char* fc_conv_get_filter_type(conv_item_t* conv, conv_filter_type_e
 
 static ct_dissector_info_t fc_ct_dissector_info = {&fc_conv_get_filter_type};
 
-static int
+static tap_packet_status
 fc_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
     conv_hash_t *hash = (conv_hash_t*) pct;
@@ -203,7 +203,7 @@ fc_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, c
 
     add_conversation_table_data(hash, &fchdr->s_id, &fchdr->d_id, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts, &fc_ct_dissector_info, ENDPOINT_NONE);
 
-    return 1;
+    return TAP_PACKET_REDRAW;
 }
 
 static const char* fc_host_get_filter_type(hostlist_talker_t* host, conv_filter_type_e filter)
@@ -216,7 +216,7 @@ static const char* fc_host_get_filter_type(hostlist_talker_t* host, conv_filter_
 
 static hostlist_dissector_info_t fc_host_dissector_info = {&fc_host_get_filter_type};
 
-static int
+static tap_packet_status
 fc_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
     conv_hash_t *hash = (conv_hash_t*) pit;
@@ -228,7 +228,7 @@ fc_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const
     add_hostlist_table_data(hash, &fchdr->s_id, 0, TRUE, 1, pinfo->fd->pkt_len, &fc_host_dissector_info, ENDPOINT_NONE);
     add_hostlist_table_data(hash, &fchdr->d_id, 0, FALSE, 1, pinfo->fd->pkt_len, &fc_host_dissector_info, ENDPOINT_NONE);
 
-    return 1;
+    return TAP_PACKET_REDRAW;
 }
 
 #define FC_NUM_PROCEDURES     256
@@ -248,7 +248,7 @@ fcstat_init(struct register_srt* srt _U_, GArray* srt_array)
     }
 }
 
-static int
+static tap_packet_status
 fcstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prv)
 {
     guint i = 0;
@@ -258,17 +258,17 @@ fcstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void
 
     /* we are only interested in reply packets */
     if(!(fc->fctl&FC_FCTL_EXCHANGE_RESPONDER)){
-	    return 0;
+	    return TAP_PACKET_DONT_REDRAW;
     }
     /* if we havnt seen the request, just ignore it */
     if ( (!fc->fc_ex) || (fc->fc_ex->first_exchange_frame==0) ){
-	    return 0;
+	    return TAP_PACKET_DONT_REDRAW;
     }
 
     fc_srt_table = g_array_index(data->srt_array, srt_stat_table*, i);
     add_srt_table_data(fc_srt_table, fc->type, &fc->fc_ex->fc_time, pinfo);
 
-    return 1;
+    return TAP_PACKET_REDRAW;
 }
 
 

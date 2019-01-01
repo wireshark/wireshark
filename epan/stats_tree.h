@@ -46,10 +46,10 @@ extern "C" {
 typedef struct _stats_tree stats_tree;
 
 /* tap packet callback for stats_tree */
-typedef int  (*stat_tree_packet_cb)(stats_tree*,
-                                    packet_info *,
-                                    epan_dissect_t *,
-                                    const void *);
+typedef tap_packet_status (*stat_tree_packet_cb)(stats_tree*,
+                                                 packet_info *,
+                                                 epan_dissect_t *,
+                                                 const void *);
 
 /* stats_tree initialization callback */
 typedef void  (*stat_tree_init_cb)(stats_tree *);

@@ -50,10 +50,10 @@ static void camelsrt_reset(void *phs)
 }
 
 
-static int camelsrt_packet(void *phs,
-                           packet_info *pinfo _U_,
-                           epan_dissect_t *edt _U_,
-                           const void *phi)
+static tap_packet_status camelsrt_packet(void *phs,
+                                         packet_info *pinfo _U_,
+                                         epan_dissect_t *edt _U_,
+                                         const void *phi)
 {
   struct camelsrt_t *hs = (struct camelsrt_t *)phs;
   const struct camelsrt_info_t * pi = (const struct camelsrt_info_t *)phi;
@@ -75,7 +75,7 @@ static int camelsrt_packet(void *phs,
       }
     }
   }
-  return 1;
+  return TAP_PACKET_REDRAW;
 }
 
 

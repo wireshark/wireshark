@@ -393,7 +393,7 @@ ssl_parse_old_keys(void)
 #endif  /* HAVE_LIBGNUTLS */
 
 
-static gboolean
+static tap_packet_status
 ssl_follow_tap_listener(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *ssl)
 {
     follow_info_t *      follow_info = (follow_info_t*) tapdata;
@@ -403,7 +403,7 @@ ssl_follow_tap_listener(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _
     show_stream_t        from = FROM_CLIENT;
 
     /* Skip packets without decrypted payload data. */
-    if (!pi || !pi->records) return FALSE;
+    if (!pi || !pi->records) return TAP_PACKET_DONT_REDRAW;
 
     /* Compute the packet's sender. */
     if (follow_info->client_port == 0) {
@@ -455,7 +455,7 @@ ssl_follow_tap_listener(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _
         follow_info->bytes_written[from] += appl_data->data_len;
     }
 
-    return FALSE;
+    return TAP_PACKET_DONT_REDRAW;
 }
 
 /*********************************************************************

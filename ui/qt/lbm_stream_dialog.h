@@ -18,6 +18,7 @@
 
 #include "cfile.h"
 #include <epan/packet_info.h>
+#include <epan/tap.h>
 #include <QDialog>
 
 namespace Ui
@@ -49,7 +50,7 @@ class LBMStreamDialog : public QDialog
 
         void fillTree(void);
         static void resetTap(void * tap_data);
-        static gboolean tapPacket(void * tap_data, packet_info * pinfo, epan_dissect_t * edt, const void * stream_info);
+        static tap_packet_status tapPacket(void * tap_data, packet_info * pinfo, epan_dissect_t * edt, const void * stream_info);
         static void drawTreeItems(void * tap_data);
 
     private slots:

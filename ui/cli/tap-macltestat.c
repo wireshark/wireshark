@@ -207,7 +207,7 @@ static void update_ueid_rnti_counts(guint16 rnti, guint16 ueid, mac_lte_stat_t *
 
 
 /* Process stat struct for a MAC LTE frame */
-static int
+static tap_packet_status
 mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
                     const void *phi)
 {
@@ -220,7 +220,7 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
     const struct mac_lte_tap_info *si = (const struct mac_lte_tap_info *)phi;
 
     if (!hs) {
-        return 0;
+        return TAP_PACKET_DONT_REDRAW;
     }
 
     hs->common_stats.all_frames++;
@@ -231,18 +231,18 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
             hs->common_stats.pch_frames++;
             hs->common_stats.pch_bytes += si->single_number_of_bytes;
             hs->common_stats.pch_paging_ids += si->number_of_paging_ids;
-            return 1;
+            return TAP_PACKET_REDRAW;
         case SI_RNTI:
             hs->common_stats.sib_frames++;
             hs->common_stats.sib_bytes += si->single_number_of_bytes;
-            return 1;
+            return TAP_PACKET_REDRAW;
         case NO_RNTI:
             hs->common_stats.mib_frames++;
-            return 1;
+            return TAP_PACKET_REDRAW;
         case RA_RNTI:
             hs->common_stats.rar_frames++;
             hs->common_stats.rar_entries += si->number_of_rars;
-            return 1;
+            return TAP_PACKET_REDRAW;
         case C_RNTI:
         case SPS_RNTI:
             /* Drop through for per-UE update */
@@ -250,7 +250,7 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
 
         default:
             /* Error */
-            return 0;
+            return TAP_PACKET_DONT_REDRAW;
     }
 
     /* Check max UEs/tti counter */
@@ -304,7 +304,7 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
 
     /* Really should have a row pointer by now */
     if (!te) {
-        return 0;
+        return TAP_PACKET_DONT_REDRAW;
     }
 
     /* Update entry with details from si */
@@ -315,12 +315,12 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
     if (si->direction == DIRECTION_UPLINK) {
         if (si->isPHYRetx) {
             te->stats.UL_retx_frames++;
-            return 1;
+            return TAP_PACKET_REDRAW;
         }
 
         if (si->crcStatusValid && (si->crcStatus != crc_success)) {
             te->stats.UL_CRC_errors++;
-            return 1;
+            return TAP_PACKET_REDRAW;
         }
 
         /* Update time range */
@@ -348,7 +348,7 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
     else {
         if (si->isPHYRetx) {
             te->stats.DL_retx_frames++;
-            return 1;
+            return TAP_PACKET_REDRAW;
         }
 
         if (si->crcStatusValid && (si->crcStatus != crc_success)) {
@@ -370,7 +370,7 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
                     /* Something went wrong! */
                     break;
             }
-            return 1;
+            return TAP_PACKET_REDRAW;
         }
 
         /* Update time range */
@@ -395,7 +395,7 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
 
     }
 
-    return 1;
+    return TAP_PACKET_REDRAW;
 }
 
 

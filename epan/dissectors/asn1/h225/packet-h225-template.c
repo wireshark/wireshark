@@ -174,7 +174,7 @@ typedef enum _ras_category {
 
 #define NUM_RAS_STATS 7
 
-static gboolean
+static tap_packet_status
 h225rassrt_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *phi)
 {
   rtd_data_t* rtd_data = (rtd_data_t*)phs;
@@ -186,7 +186,7 @@ h225rassrt_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, co
 
   if (pi->msg_type != H225_RAS || pi->msg_tag == -1) {
     /* No RAS Message or uninitialized msg_tag -> return */
-    return FALSE;
+    return TAP_PACKET_DONT_REDRAW;
   }
 
   if (pi->msg_tag < 21) {
@@ -196,7 +196,7 @@ h225rassrt_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, co
   }
   else {
     /* No SRT yet (ToDo) */
-    return FALSE;
+    return TAP_PACKET_DONT_REDRAW;
   }
 
   switch(rasmsg_type) {
@@ -228,9 +228,9 @@ h225rassrt_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, co
     break;
 
   default:
-    return FALSE;
+    return TAP_PACKET_DONT_REDRAW;
   }
-  return TRUE;
+  return TAP_PACKET_REDRAW;
 }
 
 #include "packet-h225-fn.c"
@@ -659,7 +659,7 @@ static void h225_stat_init(stat_tap_table_ui* new_stat)
   other_idx = row_idx;
 }
 
-static gboolean
+static tap_packet_status
 h225_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *hpi_ptr)
 {
   stat_data_t* stat_data = (stat_data_t*)tapdata;
@@ -668,7 +668,7 @@ h225_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_,
   int reason_idx = -1;
 
   if(hpi->msg_tag < 0) { /* uninitialized */
-    return FALSE;
+    return TAP_PACKET_DONT_REDRAW;
   }
 
   switch (hpi->msg_type) {
@@ -760,9 +760,9 @@ h225_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_,
       stat_tap_set_field_data(table, reason_idx, COUNT_COLUMN, msg_data);
     }
 
-    return TRUE;
+    return TAP_PACKET_REDRAW;
   }
-  return FALSE;
+  return TAP_PACKET_DONT_REDRAW;
 }
 
 static void

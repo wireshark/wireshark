@@ -78,7 +78,7 @@ typedef struct _io_stat_item_t {
 
 static guint64 last_relative_time;
 
-static int
+static tap_packet_status
 iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *dummy _U_)
 {
     io_stat_t *parent;
@@ -506,7 +506,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
                     break;
             }
     }
-    return TRUE;
+    return TAP_PACKET_REDRAW;
 }
 
 static int

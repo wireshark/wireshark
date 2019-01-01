@@ -119,7 +119,7 @@ void rtpstream_reset(rtpstream_tapinfo_t *tapinfo);
 
 void rtpstream_reset_cb(void*);
 void rtp_write_header(rtpstream_info_t*, FILE*);
-int rtpstream_packet_cb(void*, packet_info*, epan_dissect_t *, const void *);
+tap_packet_status rtpstream_packet_cb(void*, packet_info*, epan_dissect_t *, const void *);
 
 /**
  * Evaluate rtpstream_info_t calculations

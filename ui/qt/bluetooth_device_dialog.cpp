@@ -56,7 +56,7 @@ static const int row_number_page_timeout = 19;
 static const int row_number_simple_pairing_mode = 20;
 static const int row_number_voice_setting = 21;
 
-static gboolean
+static tap_packet_status
 bluetooth_device_tap_packet(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *edt, const void* data)
 {
     bluetooth_device_tapinfo_t *tapinfo = (bluetooth_device_tapinfo_t *) tapinfo_ptr;
@@ -64,7 +64,7 @@ bluetooth_device_tap_packet(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_
     if (tapinfo->tap_packet)
         tapinfo->tap_packet(tapinfo, pinfo, edt, data);
 
-    return TRUE;
+    return TAP_PACKET_REDRAW;
 }
 
 static void
@@ -359,7 +359,7 @@ void BluetoothDeviceDialog::saveItemData(QTableWidgetItem *item,
 
 }
 
-gboolean BluetoothDeviceDialog::tapPacket(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *, const void *data)
+tap_packet_status BluetoothDeviceDialog::tapPacket(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *, const void *data)
 {
     bluetooth_device_tapinfo_t   *tapinfo    = static_cast<bluetooth_device_tapinfo_t *>(tapinfo_ptr);
     BluetoothDeviceDialog        *dialog     = static_cast<BluetoothDeviceDialog *>(tapinfo->ui);
@@ -375,14 +375,14 @@ gboolean BluetoothDeviceDialog::tapPacket(void *tapinfo_ptr, packet_info *pinfo,
     tableWidget = dialog->ui->tableWidget;
 
     if (!((!tap_device->is_local && tap_device->has_bd_addr) || (tap_device->is_local && tapinfo->is_local && tap_device->interface_id == tapinfo->interface_id && tap_device->adapter_id == tapinfo->adapter_id))) {
-        return TRUE;
+        return TAP_PACKET_REDRAW;
     }
 
     if (!tap_device->is_local && tap_device->has_bd_addr) {
         bd_addr.sprintf("%02x:%02x:%02x:%02x:%02x:%02x", tap_device->bd_addr[0], tap_device->bd_addr[1], tap_device->bd_addr[2], tap_device->bd_addr[3], tap_device->bd_addr[4], tap_device->bd_addr[5]);
 
         if (bd_addr != tapinfo->bdAddr)
-            return TRUE;
+            return TAP_PACKET_REDRAW;
     }
 
     if (tap_device->has_bd_addr) {
@@ -616,7 +616,7 @@ gboolean BluetoothDeviceDialog::tapPacket(void *tapinfo_ptr, packet_info *pinfo,
 
     dialog->ui->hintLabel->setText(QString(tr("%1 changes")).arg(*tapinfo->changes));
 
-    return TRUE;
+    return TAP_PACKET_REDRAW;
 }
 
 void BluetoothDeviceDialog::interfaceCurrentIndexChanged(int)

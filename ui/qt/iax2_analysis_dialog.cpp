@@ -613,21 +613,21 @@ void Iax2AnalysisDialog::tapReset(void *tapinfoptr)
     iax2_analysis_dialog->resetStatistics();
 }
 
-gboolean Iax2AnalysisDialog::tapPacket(void *tapinfoptr, packet_info *pinfo, struct epan_dissect *, const void *iax2info_ptr)
+tap_packet_status Iax2AnalysisDialog::tapPacket(void *tapinfoptr, packet_info *pinfo, struct epan_dissect *, const void *iax2info_ptr)
 {
     Iax2AnalysisDialog *iax2_analysis_dialog = dynamic_cast<Iax2AnalysisDialog *>((Iax2AnalysisDialog*)tapinfoptr);
-    if (!iax2_analysis_dialog) return FALSE;
+    if (!iax2_analysis_dialog) return TAP_PACKET_DONT_REDRAW;
 
     const iax2_info_t *iax2info = (const iax2_info_t *)iax2info_ptr;
-    if (!iax2info) return FALSE;
+    if (!iax2info) return TAP_PACKET_DONT_REDRAW;
 
     /* we ignore packets that are not displayed */
     if (pinfo->fd->passed_dfilter == 0)
-        return FALSE;
+        return TAP_PACKET_DONT_REDRAW;
 
     /* we ignore packets that carry no data */
     if (iax2info->payload_len < 1)
-        return FALSE;
+        return TAP_PACKET_DONT_REDRAW;
 
     /* is it the forward direction?  */
     else if ((cmp_address(&(iax2_analysis_dialog->fwd_id_.src_addr), &(pinfo->src)) == 0)
@@ -645,7 +645,7 @@ gboolean Iax2AnalysisDialog::tapPacket(void *tapinfoptr, packet_info *pinfo, str
 
         iax2_analysis_dialog->addPacket(false, pinfo, iax2info);
     }
-    return FALSE;
+    return TAP_PACKET_DONT_REDRAW;
 }
 
 void Iax2AnalysisDialog::tapDraw(void *tapinfoptr)

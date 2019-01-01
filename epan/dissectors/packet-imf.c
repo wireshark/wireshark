@@ -152,7 +152,7 @@ typedef struct _imf_eo_t {
   gchar    *payload_data;
 } imf_eo_t;
 
-static gboolean
+static tap_packet_status
 imf_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data)
 {
   export_object_list_t *object_list = (export_object_list_t *)tapdata;
@@ -182,9 +182,9 @@ imf_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 
     object_list->add_entry(object_list->gui_data, entry);
 
-    return TRUE; /* State changed - window should be redrawn */
+    return TAP_PACKET_REDRAW; /* State changed - window should be redrawn */
   } else {
-    return FALSE; /* State unchanged - no window updates needed */
+    return TAP_PACKET_DONT_REDRAW; /* State unchanged - no window updates needed */
   }
 }
 

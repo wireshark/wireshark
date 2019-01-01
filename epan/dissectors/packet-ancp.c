@@ -597,7 +597,7 @@ ancp_stats_tree_init(stats_tree *st)
             st_node_packets, STAT_DT_INT, TRUE);
 }
 
-static int
+static tap_packet_status
 ancp_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_,
                        epan_dissect_t* edt _U_ , const void* p)
 {
@@ -611,7 +611,7 @@ ancp_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_,
         stats_tree_tick_pivot(st, st_node_adj_pack_types,
                 val_to_str(pi->ancp_adjcode, adj_code_names,
                     "Unknown Adjacency packet (%d)"));
-    return 1;
+    return TAP_PACKET_REDRAW;
 }
 
 static int

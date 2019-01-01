@@ -1099,7 +1099,7 @@ afpstat_init(struct register_srt* srt _U_, GArray* srt_array)
 	}
 }
 
-static int
+static tap_packet_status
 afpstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prv)
 {
 	guint i = 0;
@@ -1109,14 +1109,14 @@ afpstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 
 	/* if we haven't seen the request, just ignore it */
 	if (!request_val) {
-		return 0;
+		return TAP_PACKET_DONT_REDRAW;
 	}
 
 	afp_srt_table = g_array_index(data->srt_array, srt_stat_table*, i);
 
 	add_srt_table_data(afp_srt_table, request_val->command, &request_val->req_time, pinfo);
 
-	return 1;
+	return TAP_PACKET_REDRAW;
 }
 
 

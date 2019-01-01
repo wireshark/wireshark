@@ -329,14 +329,14 @@ megacostat_filtercheck(const char *opt_arg _U_, const char **filter _U_, char** 
     }
 }
 
-static int
+static tap_packet_status
 megacostat_packet(void *pms, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pmi)
 {
     rtd_data_t* rtd_data = (rtd_data_t*)pms;
     rtd_stat_table* ms = &rtd_data->stat_table;
     const gcp_cmd_t *mi=(const gcp_cmd_t*)pmi;
     nstime_t delta;
-    int ret = 0;
+    tap_packet_status ret = TAP_PACKET_DONT_REDRAW;
 
     switch (mi->type) {
 
@@ -344,7 +344,7 @@ megacostat_packet(void *pms, packet_info *pinfo, epan_dissect_t *edt _U_, const 
         if(!mi->trx->initial) {
             /* Track Context is probably disabled, we cannot
                 * measure service response time */
-            return 0;
+            return TAP_PACKET_DONT_REDRAW;
         }
 
         else if(mi->trx->initial->framenum != mi->msg->framenum){
@@ -407,7 +407,7 @@ megacostat_packet(void *pms, packet_info *pinfo, epan_dissect_t *edt _U_, const 
             }
 
             time_stat_update(&(ms->time_stats[0].rtd[10]),&delta, pinfo);
-            ret = 1;
+            ret = TAP_PACKET_REDRAW;
         }
         break;
 

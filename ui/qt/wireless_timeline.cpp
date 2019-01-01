@@ -349,14 +349,14 @@ void WirelessTimeline::tap_timeline_reset(void* tapdata)
     timeline->radio_packet_list = g_hash_table_new(g_direct_hash, g_direct_equal);
 }
 
-gboolean WirelessTimeline::tap_timeline_packet(void *tapdata, packet_info* pinfo, epan_dissect_t* edt _U_, const void *data)
+tap_packet_status WirelessTimeline::tap_timeline_packet(void *tapdata, packet_info* pinfo, epan_dissect_t* edt _U_, const void *data)
 {
     WirelessTimeline* timeline = (WirelessTimeline*)tapdata;
     const struct wlan_radio *wlan_radio_info = (const struct wlan_radio *)data;
 
     /* Save the radio information in our own (GUI) hashtable */
     g_hash_table_insert(timeline->radio_packet_list, GUINT_TO_POINTER(pinfo->num), (gpointer)wlan_radio_info);
-    return FALSE;
+    return TAP_PACKET_DONT_REDRAW;
 }
 
 struct wlan_radio* WirelessTimeline::get_wlan_radio(guint32 packet_num)

@@ -437,14 +437,14 @@ static const value_string interface_role_str[] = {
 
 /* whenever a ICMP packet is seen by the tap listener */
 /* Add a new frame into the graph */
-static gboolean
+static tap_packet_status
 icmp_seq_analysis_packet( void *ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *dummy _U_)
 {
 	seq_analysis_info_t *sainfo = (seq_analysis_info_t *) ptr;
 	seq_analysis_item_t *sai = sequence_analysis_create_sai_with_addresses(pinfo, sainfo);
 
 	if (!sai)
-		return FALSE;
+		return TAP_PACKET_DONT_REDRAW;
 
 	sai->frame_number = pinfo->num;
 
@@ -470,7 +470,7 @@ icmp_seq_analysis_packet( void *ptr, packet_info *pinfo, epan_dissect_t *edt _U_
 
 	g_queue_push_tail(sainfo->items, sai);
 
-	return TRUE;
+	return TAP_PACKET_REDRAW;
 }
 
 static conversation_t *_find_or_create_conversation(packet_info * pinfo)

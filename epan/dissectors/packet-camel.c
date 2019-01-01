@@ -1318,7 +1318,7 @@ camelstat_init(struct register_srt* srt _U_, GArray* srt_array)
   }
 }
 
-static gboolean
+static tap_packet_status
 camelstat_packet(void *pcamel, packet_info *pinfo, epan_dissect_t *edt _U_, const void *psi)
 {
   guint idx = 0;
@@ -1337,7 +1337,7 @@ camelstat_packet(void *pcamel, packet_info *pinfo, epan_dissect_t *edt _U_, cons
       add_srt_table_data(camel_srt_table, i, &pi->msginfo[i].req_time, pinfo);
     }
   } /* category */
-  return TRUE;
+  return TAP_PACKET_REDRAW;
 }
 
 
@@ -8255,7 +8255,7 @@ static void camel_stat_init(stat_tap_table_ui* new_stat)
   }
 }
 
-static gboolean
+static tap_packet_status
 camel_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *csi_ptr)
 {
   stat_data_t* stat_data = (stat_data_t*)tapdata;
@@ -8266,12 +8266,12 @@ camel_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_
 
   table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, i);
   if (csi->opcode >= table->num_elements)
-    return FALSE;
+    return TAP_PACKET_DONT_REDRAW;
   msg_data = stat_tap_get_field_data(table, csi->opcode, COUNT_COLUMN);
   msg_data->value.uint_value++;
   stat_tap_set_field_data(table, csi->opcode, COUNT_COLUMN, msg_data);
 
-  return TRUE;
+  return TAP_PACKET_REDRAW;
 }
 
 static void

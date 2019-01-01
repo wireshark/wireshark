@@ -497,7 +497,7 @@ static void insert_to_graph_t38(voip_calls_tapinfo_t *tapinfo, packet_info *pinf
 
 /****************************************************************************/
 /* whenever a rtp event packet is seen by the tap listener */
-static int
+static tap_packet_status
 rtp_event_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *rtp_event_info)
 {
     voip_calls_tapinfo_t         *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_rtp_event_);
@@ -505,14 +505,14 @@ rtp_event_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt _
 
     /* do not consider RTP events packets without a setup frame */
     if (pi->info_setup_frame_num == 0) {
-        return FALSE;
+        return TAP_PACKET_DONT_REDRAW;
     }
 
     tapinfo->rtp_evt_frame_num = pinfo->num;
     tapinfo->rtp_evt = pi->info_rtp_evt;
     tapinfo->rtp_evt_end = pi->info_end;
 
-    return FALSE;
+    return TAP_PACKET_DONT_REDRAW;
 }
 
 /****************************************************************************/
@@ -580,7 +580,7 @@ rtp_reset(void *tap_offset_ptr)
 
 /****************************************************************************/
 /* whenever a RTP packet is seen by the tap listener */
-static gboolean
+static tap_packet_status
 rtp_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, void const *rtp_info_ptr)
 {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_rtp_);
@@ -593,7 +593,7 @@ rtp_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, void c
 
     /* do not consider RTP packets without a setup frame */
     if (rtp_info->info_setup_frame_num == 0) {
-        return FALSE;
+        return TAP_PACKET_DONT_REDRAW;
     }
 
     if (tapinfo->tap_packet) {
@@ -629,7 +629,7 @@ rtp_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, void c
 
     /* if this is a duplicated RTP Event End, just return */
     if ((tapinfo->rtp_evt_frame_num == pinfo->num) && !strinfo && (tapinfo->rtp_evt_end == TRUE)) {
-        return FALSE;
+        return TAP_PACKET_DONT_REDRAW;
     }
 
     /* not in the list? then create a new entry */
@@ -681,7 +681,7 @@ rtp_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, void c
 
     tapinfo->redraw |= REDRAW_RTP;
 
-    return FALSE;
+    return TAP_PACKET_DONT_REDRAW;
 }
 
 /****************************************************************************/
@@ -876,7 +876,7 @@ remove_tap_listener_rtp(voip_calls_tapinfo_t *tap_id_base)
 
 /****************************************************************************/
 /* whenever a T38 packet is seen by the tap listener */
-static gboolean
+static tap_packet_status
 t38_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *t38_info_ptr)
 {
     voip_calls_tapinfo_t *tapinfo               = tap_id_to_base(tap_offset_ptr, tap_id_offset_t38_);
@@ -958,7 +958,7 @@ t38_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const 
 
     /* at this point we should have found the call num for this t38 packets belong */
     if (conv_num == -1) {
-        return FALSE;
+        return TAP_PACKET_DONT_REDRAW;
     }
 
     /* add the item to the graph list */
@@ -1024,7 +1024,7 @@ t38_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const 
 
     tapinfo->redraw |= REDRAW_T38;
 
-    return TRUE;  /* refresh output */
+    return TAP_PACKET_REDRAW;  /* refresh output */
 }
 
 /****************************************************************************/
@@ -1081,7 +1081,7 @@ free_sip_info(gpointer p) {
 
 /****************************************************************************/
 /* whenever a SIP packet is seen by the tap listener */
-static gboolean
+static tap_packet_status
 sip_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt , const void *SIPinfo)
 {
     voip_calls_tapinfo_t *tapinfo     = tap_id_to_base(tap_offset_ptr, tap_id_offset_sip_);
@@ -1102,7 +1102,7 @@ sip_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt ,
 
     /* do not consider packets without call_id */
     if (pi->tap_call_id ==NULL) {
-        return FALSE;
+        return TAP_PACKET_DONT_REDRAW;
     }
     key=pi->tap_call_id;
     /* init the hash table */
@@ -1252,7 +1252,7 @@ TODO: is useful but not perfect, what is appended is truncated when displayed in
 
     tapinfo->redraw |= REDRAW_SIP;
 
-    return TRUE;  /* refresh output */
+    return TAP_PACKET_REDRAW;  /* refresh output */
 }
 
 /****************************************************************************/
@@ -1303,7 +1303,7 @@ remove_tap_listener_sip_calls(voip_calls_tapinfo_t *tap_id_base)
 
 /****************************************************************************/
 /* whenever a isup_ packet is seen by the tap listener */
-static gboolean
+static tap_packet_status
 isup_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *isup_info)
 {
     voip_calls_tapinfo_t *tapinfo     = tap_id_to_base(tap_offset_ptr, tap_id_offset_isup_);
@@ -1321,7 +1321,7 @@ isup_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
 
     /* check if the lower layer is MTP matching the frame number */
     if (tapinfo->mtp3_frame_num != pinfo->num)
-        return FALSE;
+        return TAP_PACKET_DONT_REDRAW;
 
     /* check whether we already have a call with these parameters in the list */
     list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
@@ -1453,7 +1453,7 @@ isup_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
 
     tapinfo->redraw |= REDRAW_ISUP;
 
-    return TRUE;  /* refresh output */
+    return TAP_PACKET_REDRAW;  /* refresh output */
 }
 
 /****************************************************************************/
@@ -1506,7 +1506,7 @@ remove_tap_listener_isup_calls(voip_calls_tapinfo_t *tap_id_base)
 
 /****************************************************************************/
 /* whenever a mtp3_ packet is seen by the tap listener */
-static gboolean
+static tap_packet_status
 mtp3_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *mtp3_info)
 {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_mtp3_);
@@ -1519,10 +1519,10 @@ mtp3_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt 
     tapinfo->mtp3_ni = pi->addr_opc.ni;
     tapinfo->mtp3_frame_num = pinfo->num;
 
-    return FALSE;
+    return TAP_PACKET_DONT_REDRAW;
 }
 
-static gboolean
+static tap_packet_status
 m3ua_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *mtp3_info)
 {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_m3ua_);
@@ -1535,7 +1535,7 @@ m3ua_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt 
     tapinfo->mtp3_ni = pi->addr_opc.ni;
     tapinfo->mtp3_frame_num = pinfo->num;
 
-    return FALSE;
+    return TAP_PACKET_DONT_REDRAW;
 }
 
 /****************************************************************************/
@@ -1595,7 +1595,7 @@ static const e_guid_t guid_allzero = {0, 0, 0, { 0, 0, 0, 0, 0, 0, 0, 0 } };
 
 /****************************************************************************/
 /* whenever a q931_ packet is seen by the tap listener */
-static gboolean
+static tap_packet_status
 q931_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *q931_info)
 {
     GList                     *list,*list2;
@@ -1852,7 +1852,7 @@ q931_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
 
     tapinfo->redraw |= REDRAW_Q931;
 
-    return TRUE;  /* refresh output */
+    return TAP_PACKET_REDRAW;  /* refresh output */
 }
 
 /****************************************************************************/
@@ -1934,7 +1934,7 @@ free_h225_info(gpointer p) {
 }
 /****************************************************************************/
 /* whenever a H225 packet is seen by the tap listener */
-static gboolean
+static tap_packet_status
 h225_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *H225info)
 {
     voip_calls_tapinfo_t *tapinfo      = tap_id_to_base(tap_offset_ptr, tap_id_offset_h225_);
@@ -1952,12 +1952,12 @@ h225_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
     /* OR, if not guid and is H225 return because doesn't belong to a call */
     if ((memcmp(&pi->guid, &guid_allzero, GUID_LEN) == 0))
         if ( ((pi->msg_type == H225_RAS) && ((pi->msg_tag < 18) || (pi->msg_tag > 20))) || (pi->msg_type != H225_RAS) )
-            return FALSE;
+            return TAP_PACKET_DONT_REDRAW;
 
     /* if it is RAS LCF or LRJ*/
     if ( (pi->msg_type == H225_RAS) && ((pi->msg_tag == 19) || (pi->msg_tag == 20))) {
         /* if the LCF/LRJ doesn't match to a LRQ, just return */
-        if (!pi->request_available) return FALSE;
+        if (!pi->request_available) return TAP_PACKET_DONT_REDRAW;
 
         /* check whether we already have a call with this request SeqNum */
         list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
@@ -2144,7 +2144,7 @@ h225_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
 
     tapinfo->redraw |= REDRAW_H225;
 
-    return TRUE;  /* refresh output */
+    return TAP_PACKET_REDRAW;  /* refresh output */
 }
 
 /****************************************************************************/
@@ -2243,7 +2243,7 @@ h245_add_label(voip_calls_tapinfo_t *tapinfo, guint32 new_frame_num, const gchar
 
 /****************************************************************************/
 /* whenever a H245dg packet is seen by the tap listener (when H245 tunneling is ON) */
-static gboolean
+static tap_packet_status
 h245dg_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *H245info)
 {
     voip_calls_tapinfo_t *tapinfo   = tap_id_to_base(tap_offset_ptr, tap_id_offset_h245dg_);
@@ -2305,7 +2305,7 @@ h245dg_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *ed
 
     tapinfo->redraw |= REDRAW_H245DG;
 
-    return TRUE;  /* refresh output */
+    return TAP_PACKET_REDRAW;  /* refresh output */
 }
 
 /****************************************************************************/
@@ -2362,7 +2362,7 @@ remove_tap_listener_h245dg_calls(voip_calls_tapinfo_t *tap_id_base)
 /****************************TAP for SDP PROTOCOL ***************************/
 /****************************************************************************/
 /* whenever a SDP packet is seen by the tap listener */
-static gboolean
+static tap_packet_status
 sdp_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *SDPinfo)
 {
     voip_calls_tapinfo_t  *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_sdp_);
@@ -2380,7 +2380,7 @@ sdp_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt _
 
     tapinfo->redraw |= REDRAW_SDP;
 
-    return TRUE;  /* refresh output */
+    return TAP_PACKET_REDRAW;  /* refresh output */
 }
 
 /****************************************************************************/
@@ -2542,7 +2542,7 @@ mgcp_dialed_digits(gchar *signalStr, gchar **dialedDigits)
 
 /****************************************************************************/
 /* whenever a MGCP packet is seen by the tap listener */
-static gboolean
+static tap_packet_status
 mgcp_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *MGCPinfo)
 {
     voip_calls_tapinfo_t *tapinfo      = tap_id_to_base(tap_offset_ptr, tap_id_offset_mgcp_);
@@ -2603,7 +2603,7 @@ mgcp_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
                 fromEndpoint = FALSE;
                 newcall = TRUE;
             }
-            if (!newcall) return FALSE;
+            if (!newcall) return TAP_PACKET_DONT_REDRAW;
         }
     } else if ( ((pi->mgcp_type == MGCP_RESPONSE) && pi->request_available) ||
             ((pi->mgcp_type == MGCP_REQUEST) && pi->is_duplicate) ) {
@@ -2635,8 +2635,8 @@ mgcp_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
             listGraph = g_list_next(listGraph);
         }
         /* if there is not a matching request, just return */
-        if (callsinfo == NULL) return FALSE;
-    } else return FALSE;
+        if (callsinfo == NULL) return TAP_PACKET_DONT_REDRAW;
+    } else return TAP_PACKET_DONT_REDRAW;
 
     /* not in the list? then create a new entry */
     if (callsinfo==NULL) {
@@ -2758,7 +2758,7 @@ mgcp_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
 
     tapinfo->redraw |= REDRAW_MGCP;
 
-    return TRUE;  /* refresh output */
+    return TAP_PACKET_REDRAW;  /* refresh output */
 }
 
 /****************************************************************************/
@@ -2815,7 +2815,7 @@ remove_tap_listener_mgcp_calls(voip_calls_tapinfo_t *tap_id_base)
 /****************************************************************************/
 
 /* whenever a ACTRACE packet is seen by the tap listener */
-static gboolean
+static tap_packet_status
 actrace_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *ACTRACEinfo)
 {
     voip_calls_tapinfo_t     *tapinfo   = tap_id_to_base(tap_offset_ptr, tap_id_offset_actrace_);
@@ -2891,7 +2891,7 @@ actrace_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *e
 
     tapinfo->redraw |= REDRAW_ACTRACE;
 
-    return TRUE;  /* refresh output */
+    return TAP_PACKET_REDRAW;  /* refresh output */
 }
 
 /****************************************************************************/
@@ -2947,7 +2947,7 @@ remove_tap_listener_actrace_calls(voip_calls_tapinfo_t *tap_id_base)
                            type == GCP_CMD_CTX_ATTR_AUDIT_REQ )
 
 
-static gboolean
+static tap_packet_status
 h248_calls_packet_common(voip_calls_tapinfo_t *tapinfo, packet_info *pinfo, epan_dissect_t *edt, const void *prot_info, guint32 redraw_bit) {
     const gcp_cmd_t      *cmd       = (const gcp_cmd_t *)prot_info;
     GList                *list;
@@ -2957,7 +2957,7 @@ h248_calls_packet_common(voip_calls_tapinfo_t *tapinfo, packet_info *pinfo, epan
     gchar                 mgw_addr[128];
 
     if (cmd->ctx->id == NULL_CONTEXT || cmd->ctx->id == ALL_CONTEXTS ) {
-        return FALSE;
+        return TAP_PACKET_DONT_REDRAW;
     }
 
     if ( gcp_is_req(cmd->type) ) {
@@ -3040,10 +3040,10 @@ h248_calls_packet_common(voip_calls_tapinfo_t *tapinfo, packet_info *pinfo, epan
 
     tapinfo->redraw |= redraw_bit;
 
-    return TRUE;
+    return TAP_PACKET_REDRAW;
 }
 
-static gboolean
+static tap_packet_status
 h248_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *prot_info) {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_h248_);
 
@@ -3061,7 +3061,7 @@ h248_calls_draw(void *tap_offset_ptr)
     }
 }
 
-static gboolean
+static tap_packet_status
 megaco_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *prot_info) {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_megaco_);
 
@@ -3133,7 +3133,7 @@ static const voip_protocol sccp_proto_map[] = {
 #define SP2VP(ap) ((ap) < SCCP_PLOAD_NUM_PLOADS ? sccp_proto_map[(ap)] : TEL_SCCP)
 const value_string* sccp_payload_values;
 
-static gboolean
+static tap_packet_status
 sccp_calls(voip_calls_tapinfo_t *tapinfo, packet_info *pinfo, epan_dissect_t *edt, const void *prot_info, guint32 redraw_bit) {
     const sccp_msg_info_t*  msg       = (const sccp_msg_info_t *)prot_info;
     sccp_assoc_info_t*      assoc     = msg->data.co.assoc;
@@ -3233,10 +3233,10 @@ sccp_calls(voip_calls_tapinfo_t *tapinfo, packet_info *pinfo, epan_dissect_t *ed
 
     tapinfo->redraw |= redraw_bit;
 
-    return TRUE;
+    return TAP_PACKET_REDRAW;
 }
 
-static gboolean
+static tap_packet_status
 sccp_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *prot_info) {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_sccp_);
 
@@ -3255,7 +3255,7 @@ sccp_calls_draw(void *tap_offset_ptr)
     }
 }
 
-static gboolean
+static tap_packet_status
 sua_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *prot_info) {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_sua_);
 
@@ -3319,7 +3319,7 @@ remove_tap_listener_sccp_calls(voip_calls_tapinfo_t *tap_id_base)
 /****************************TAP for UNISTIM ********************************/
 /****************************************************************************/
 
-static gboolean
+static tap_packet_status
 unistim_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *unistim_info)
 {
     voip_calls_tapinfo_t *tapinfo          = tap_id_to_base(tap_offset_ptr, tap_id_offset_unistim_);
@@ -3778,7 +3778,7 @@ unistim_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *e
 
     tapinfo->redraw |= REDRAW_UNISTIM;
 
-    return TRUE;
+    return TAP_PACKET_REDRAW;
 }
 
 /****************************************************************************/
@@ -3847,7 +3847,7 @@ static const voip_call_state skinny_tap_voip_state[] = {
     VOIP_REJECTED
 };
 
-static gboolean
+static tap_packet_status
 skinny_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *skinny_info)
 {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_skinny_);
@@ -3859,7 +3859,7 @@ skinny_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *ed
     gchar *comment;
 
     if (si == NULL || (si->callId == 0 && si->passThroughPartyId == 0))
-        return FALSE;
+        return TAP_PACKET_DONT_REDRAW;
     /* check whether we already have this context in the list */
     list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
     while (list)
@@ -3939,7 +3939,7 @@ skinny_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *ed
 
     tapinfo->redraw |= REDRAW_SKINNY;
 
-    return TRUE;
+    return TAP_PACKET_REDRAW;
 }
 
 /****************************************************************************/
@@ -4004,7 +4004,7 @@ static void free_iax2_info(gpointer p) {
 
 /****************************************************************************/
 /* whenever a IAX2 packet is seen by the tap listener */
-static gboolean
+static tap_packet_status
 iax2_calls_packet( void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *iax2_info)
 {
     voip_calls_tapinfo_t *tapinfo   = tap_id_to_base(tap_offset_ptr, tap_id_offset_iax2_);
@@ -4015,7 +4015,7 @@ iax2_calls_packet( void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt
     iax2_info_t          *tmp_iax2info;
 
     if (ii == NULL || ii->ptype != IAX2_FULL_PACKET || (ii->scallno == 0 && ii->dcallno == 0))
-        return FALSE;
+        return TAP_PACKET_DONT_REDRAW;
     /* check whether we already have this context in the list */
     list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
     while (list)
@@ -4037,7 +4037,7 @@ iax2_calls_packet( void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt
     if (callsinfo==NULL) {
         /* We only care about real calls, i.e., no registration stuff */
         if (ii->ftype != AST_FRAME_IAX ||  ii->csub != IAX_COMMAND_NEW)
-            return FALSE;
+            return TAP_PACKET_DONT_REDRAW;
         callsinfo = (voip_calls_info_t *)g_malloc0(sizeof(voip_calls_info_t));
         callsinfo->call_state = VOIP_NO_STATE;
         callsinfo->call_active_state = VOIP_ACTIVE;
@@ -4077,7 +4077,7 @@ iax2_calls_packet( void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt
 
     tapinfo->redraw |= REDRAW_IAX2;
 
-    return TRUE;
+    return TAP_PACKET_REDRAW;
 
 }
 
@@ -4138,7 +4138,7 @@ remove_tap_listener_iax2_calls(voip_calls_tapinfo_t *tap_id_base)
 /****************************************************************************/
 
 /* voip_calls_packet and voip_calls_init_tap appear to be dead code. We don't have a "voip" tap. */
-static gboolean
+static tap_packet_status
 voip_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *VoIPinfo)
 {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_voip_);
@@ -4202,7 +4202,7 @@ voip_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
 
     tapinfo->redraw |= REDRAW_VOIP;
 
-    return TRUE;
+    return TAP_PACKET_REDRAW;
 }
 
 /****************************************************************************/
@@ -4254,7 +4254,7 @@ remove_tap_listener_voip_calls(voip_calls_tapinfo_t *tap_id_base)
 /****************************************************************************/
 /* whenever a prot_ packet is seen by the tap listener */
 #if 0
-static gboolean
+static tap_packet_status
 prot_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prot_info _U_)
 {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_prot_);
@@ -4268,7 +4268,7 @@ prot_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt 
 
     tapinfo->redraw = REDRAW_PROT;
 
-    return TRUE;
+    return TAP_PACKET_REDRAW;
 }
 
 /****************************************************************************/

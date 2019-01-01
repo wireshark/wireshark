@@ -80,6 +80,7 @@ typedef struct _tap_listener_t {
 	struct _tap_listener_t *next;
 	int tap_id;
 	gboolean needs_redraw;
+	gboolean failed;
 	guint flags;
 	gchar *fstring;
 	dfilter_t *code;
@@ -310,12 +311,49 @@ tap_push_tapped_queue(epan_dissect_t *edt)
 			if (!(tp->flags & TAP_PACKET_IS_ERROR_PACKET) || (tl->flags & TL_REQUIRES_ERROR_PACKETS))
 			{
 				if(tp->tap_id==tl->tap_id){
-					gboolean passed=TRUE;
-					if(tl->code){
-						passed=dfilter_apply_edt(tl->code, edt);
+					if(!tl->packet){
+						/* There isn't a per-packet
+						 * routine for this tap.
+						 */
+						continue;
 					}
-					if(passed && tl->packet){
-						tl->needs_redraw|=tl->packet(tl->tapdata, tp->pinfo, edt, tp->tap_specific_data);
+					if(tl->failed){
+						/* A previous call failed,
+						 * meaning "stop running this
+						 * tap", so don't call the
+						 * packet routine.
+						 */
+						continue;
+					}
+
+					/* If we have a filter, see if the
+					 * packet passes.
+					 */
+					if(tl->code){
+						if (!dfilter_apply_edt(tl->code, edt)){
+							/* The packet didn't
+							 * pass the filter. */
+							continue;
+						}
+					}
+
+					/* So call the per-packet routine. */
+					tap_packet_status status;
+
+					status = tl->packet(tl->tapdata, tp->pinfo, edt, tp->tap_specific_data);
+
+					switch (status) {
+
+					case TAP_PACKET_DONT_REDRAW:
+						break;
+
+					case TAP_PACKET_REDRAW:
+						tl->needs_redraw=TRUE;
+						break;
+
+					case TAP_PACKET_FAILED:
+						tl->failed=TRUE;
+						break;
 					}
 				}
 			}
@@ -380,6 +418,7 @@ reset_tap_listeners(void)
 			tl->reset(tl->tapdata);
 		}
 		tl->needs_redraw=TRUE;
+		tl->failed=FALSE;
 	}
 
 }
@@ -490,6 +529,7 @@ register_tap_listener(const char *tapname, void *tapdata, const char *fstring,
 
 	tl=(tap_listener_t *)g_malloc0(sizeof(tap_listener_t));
 	tl->needs_redraw=TRUE;
+	tl->failed=FALSE;
 	tl->flags=flags;
 	if(fstring){
 		if(!dfilter_compile(fstring, &code, &err_msg)){

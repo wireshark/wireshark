@@ -31,7 +31,7 @@ typedef struct _pci_t {
 } pci_t;
 
 
-static int
+static tap_packet_status
 protocolinfo_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt, const void *dummy _U_)
 {
 	pci_t *rs = (pci_t *)prs;
@@ -48,6 +48,8 @@ protocolinfo_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt, const vo
 	 *
 	 * To prevent a crash, we check whether INFO column is writable
 	 * and, if not, we report that error and exit.
+	 *
+	 * XXX - report the error and just return TAP_PACKET_FAILED?
 	 */
 	if (!col_get_writable(pinfo->cinfo, COL_INFO)) {
 		cmdarg_err("the proto,colinfo tap doesn't work if the INFO column isn't being printed.");
@@ -55,7 +57,7 @@ protocolinfo_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt, const vo
 	}
 	gp = proto_get_finfo_ptr_array(edt->tree, rs->hf_index);
 	if (!gp) {
-		return 0;
+		return TAP_PACKET_DONT_REDRAW;
 	}
 
 	for (i=0; i<gp->len; i++) {
@@ -65,7 +67,7 @@ protocolinfo_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt, const vo
 			wmem_free(NULL, str);
 		}
 	}
-	return 0;
+	return TAP_PACKET_DONT_REDRAW;
 }
 
 

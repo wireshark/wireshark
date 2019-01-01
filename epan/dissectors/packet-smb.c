@@ -923,7 +923,7 @@ smbstat_init(struct register_srt* srt _U_, GArray* srt_array)
 	}
 }
 
-static int
+static tap_packet_status
 smbstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prv)
 {
 	guint i = 0;
@@ -933,11 +933,11 @@ smbstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 
 	/* we are only interested in reply packets */
 	if (si->request) {
-		return 0;
+		return TAP_PACKET_DONT_REDRAW;
 	}
 	/* if we havnt seen the request, just ignore it */
 	if (!si->sip) {
-		return 0;
+		return TAP_PACKET_DONT_REDRAW;
 	}
 
 	if (si->cmd == 0xA0 && si->sip->extra_info_type == SMB_EI_NTI) {
@@ -964,7 +964,7 @@ smbstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 		add_srt_table_data(smb_srt_table, si->cmd, &si->sip->req_time, pinfo);
 	}
 
-	return 1;
+	return TAP_PACKET_REDRAW;
 
 }
 
@@ -1216,7 +1216,7 @@ find_incoming_file(GSList *GSL_active_files_p, active_file *incoming_file)
 	return row;
 }
 
-static gboolean
+static tap_packet_status
 smb_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data)
 {
 	export_object_list_t   *object_list = (export_object_list_t *)tapdata;
@@ -1357,7 +1357,7 @@ smb_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 		}
 	}
 
-	return TRUE; /* State changed - window should be redrawn */
+	return TAP_PACKET_REDRAW; /* State changed - window should be redrawn */
 }
 
 /* This is the eo_reset_cb function that is used in the export_object module

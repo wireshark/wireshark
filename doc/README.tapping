@@ -65,7 +65,7 @@ The two functions to start or stop tapping are
 register_tap_listener(const char *tapname, void *tapdata, const char *fstring,
 	guint flags,
 	void (*reset)(void *tapdata),
-        gboolean (*packet)(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data),
+        tap_packet_status (*packet)(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data),
 	void (*draw)(void *tapdata),
 	void (*finish)(void *tapdata));
 
@@ -135,14 +135,17 @@ listener that it is about to start [re]reading a capture file or a new capture
 from an interface and that your application should reset any state it has
 in the *tapdata instance.
 
-gboolean (*packet)(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data)
+tap_packet_status (*packet)(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data)
 This callback is used whenever a new packet has arrived at the tap and that
 it has passed the filter (if there were a filter).
 The *data structure type is specific to each tap.
-This function returns an gboolean and it should return
- TRUE, if the data in the packet caused state to be updated
+This function returns a tap_packet_status enum and it should return
+ TAP_PACKET_REDRAW, if the data in the packet caused state to be updated
        (and thus a redraw of the window would later be required)
- FALSE, if we don't need to redraw the window.
+ TAP_PACKET_DONT_REDRAW, if we don't need to redraw the window
+ TAP_PACKET_FAILED, if the tap failed and shouldn't be called again
+       in this pass (for example, if it's writing to a file and gets
+       an I/O error)
 NOTE: that (*packet) should be as fast and efficient as possible. Use this
 function ONLY to store data for later and do the CPU-intensive processing
 or GUI updates down in (*draw) instead.
@@ -219,10 +222,10 @@ You can hand register_tap_listener() NULL for (*draw), (*reset) and (*finish)
 Perhaps you want an extension that will execute a certain command
 every time it sees a certain packet?
 Well, try this :
-	gboolean packet(void *tapdata,...) {
+	tap_packet_status packet(void *tapdata,...) {
 		...
 		system("mail ...");
-		return FALSE;
+		return TAP_PACKET_DONT_REDRAW;
 	}
 
 	register_tap_listener("tcp", struct, "tcp.port==57", NULL, packet, NULL, NULL);

@@ -23700,7 +23700,7 @@ static void gsm_map_stat_init(stat_tap_table_ui* new_stat)
   }
 }
 
-static gboolean
+static tap_packet_status
 gsm_map_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *gmtr_ptr)
 {
   stat_data_t* stat_data = (stat_data_t*)tapdata;
@@ -23755,7 +23755,7 @@ gsm_map_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _
   avg_data = stat_tap_get_field_data(table, gmtr->opcode, AVG_BYTES_COLUMN);
   avg_data->value.float_value += (float) (fwd_bytes + rev_bytes) / (invokes + results);
   stat_tap_set_field_data(table, gmtr->opcode, AVG_BYTES_COLUMN, avg_data);
-  return TRUE;
+  return TAP_PACKET_REDRAW;
 }
 
 static void

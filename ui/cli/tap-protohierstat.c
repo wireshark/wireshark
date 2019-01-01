@@ -53,7 +53,7 @@ new_phs_t(phs_t *parent)
 }
 
 
-static int
+static tap_packet_status
 protohierstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt, const void *dummy _U_)
 {
 	phs_t *rs = (phs_t *)prs;
@@ -62,13 +62,13 @@ protohierstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt, const v
 	field_info *fi;
 
 	if (!edt) {
-		return 0;
+		return TAP_PACKET_DONT_REDRAW;
 	}
 	if (!edt->tree) {
-		return 0;
+		return TAP_PACKET_DONT_REDRAW;
 	}
 	if (!edt->tree->first_child) {
-		return 0;
+		return TAP_PACKET_DONT_REDRAW;
 	}
 
 	for (node=edt->tree->first_child; node; node=node->next) {
@@ -112,7 +112,7 @@ protohierstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt, const v
 		}
 		rs = rs->child;
 	}
-	return 1;
+	return TAP_PACKET_REDRAW;
 }
 
 static void

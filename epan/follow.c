@@ -27,14 +27,14 @@ struct register_follow {
     follow_index_filter_func index_filter; /* generate stream/index filter to follow */
     follow_address_filter_func address_filter; /* generate address filter to follow */
     follow_port_to_display_func port_to_display; /* port to name resolution for follow type */
-    follow_tap_func tap_handler; /* tap listener handler */
+    tap_packet_cb tap_handler; /* tap listener handler */
 };
 
 static wmem_tree_t *registered_followers = NULL;
 
 void register_follow_stream(const int proto_id, const char* tap_listener,
                             follow_conv_filter_func conv_filter, follow_index_filter_func index_filter, follow_address_filter_func address_filter,
-                            follow_port_to_display_func port_to_display, follow_tap_func tap_handler)
+                            follow_port_to_display_func port_to_display, tap_packet_cb tap_handler)
 {
   register_follow_t *follower;
   DISSECTOR_ASSERT(tap_listener);
@@ -96,7 +96,7 @@ follow_port_to_display_func get_follow_port_to_display(register_follow_t* follow
   return follower->port_to_display;
 }
 
-follow_tap_func get_follow_tap_handler(register_follow_t* follower)
+tap_packet_cb get_follow_tap_handler(register_follow_t* follower)
 {
   return follower->tap_handler;
 }
@@ -175,7 +175,7 @@ follow_info_free(follow_info_t* follow_info)
     g_free(follow_info);
 }
 
-gboolean
+tap_packet_status
 follow_tvb_tap_listener(void *tapdata, packet_info *pinfo,
                       epan_dissect_t *edt _U_, const void *data)
 {
@@ -207,7 +207,7 @@ follow_tvb_tap_listener(void *tapdata, packet_info *pinfo,
     follow_info->bytes_written[follow_record->is_server] += follow_record->data->len;
 
     follow_info->payload = g_list_prepend(follow_info->payload, follow_record);
-    return FALSE;
+    return TAP_PACKET_DONT_REDRAW;
 }
 
 /*

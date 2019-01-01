@@ -557,24 +557,24 @@ void RtpPlayerDialog::setPlayPosition(double secs)
     }
 }
 
-gboolean RtpPlayerDialog::tapPacket(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *, const void *rtpinfo_ptr)
+tap_packet_status RtpPlayerDialog::tapPacket(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *, const void *rtpinfo_ptr)
 {
     RtpPlayerDialog *rtp_player_dialog = dynamic_cast<RtpPlayerDialog *>((RtpPlayerDialog*)tapinfo_ptr);
-    if (!rtp_player_dialog) return FALSE;
+    if (!rtp_player_dialog) return TAP_PACKET_DONT_REDRAW;
 
     const struct _rtp_info *rtpinfo = (const struct _rtp_info *)rtpinfo_ptr;
-    if (!rtpinfo) return FALSE;
+    if (!rtpinfo) return TAP_PACKET_DONT_REDRAW;
 
     /* we ignore packets that are not displayed */
     if (pinfo->fd->passed_dfilter == 0)
-        return FALSE;
+        return TAP_PACKET_DONT_REDRAW;
     /* also ignore RTP Version != 2 */
     else if (rtpinfo->info_version != 2)
-        return FALSE;
+        return TAP_PACKET_DONT_REDRAW;
 
     rtp_player_dialog->addPacket(pinfo, rtpinfo);
 
-    return FALSE;
+    return TAP_PACKET_DONT_REDRAW;
 }
 
 void RtpPlayerDialog::addPacket(packet_info *pinfo, const _rtp_info *rtpinfo)

@@ -183,7 +183,7 @@ static const char* jxta_conv_get_filter_type(conv_item_t* conv, conv_filter_type
 
 static ct_dissector_info_t jxta_ct_dissector_info = {&jxta_conv_get_filter_type};
 
-static int
+static tap_packet_status
 jxta_conversation_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *vip)
 {
     conv_hash_t *hash = (conv_hash_t*) pct;
@@ -192,7 +192,7 @@ jxta_conversation_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt 
     add_conversation_table_data(hash, &jxtahdr->src_address, &jxtahdr->dest_address,
         0, 0, 1, jxtahdr->size, NULL, NULL, &jxta_ct_dissector_info, ENDPOINT_NONE);
 
-    return 1;
+    return TAP_PACKET_REDRAW;
 }
 
 static const char* jxta_host_get_filter_type(hostlist_talker_t* host, conv_filter_type_e filter)
@@ -205,7 +205,7 @@ static const char* jxta_host_get_filter_type(hostlist_talker_t* host, conv_filte
 
 static hostlist_dissector_info_t jxta_host_dissector_info = {&jxta_host_get_filter_type};
 
-static int
+static tap_packet_status
 jxta_hostlist_packet(void *pit, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *vip)
 {
     conv_hash_t *hash = (conv_hash_t*) pit;
@@ -216,7 +216,7 @@ jxta_hostlist_packet(void *pit, packet_info *pinfo _U_, epan_dissect_t *edt _U_,
     XXX - this could probably be done more efficiently inside hostlist_table */
     add_hostlist_table_data(hash, &jxtahdr->src_address, 0, TRUE, 1, jxtahdr->size, &jxta_host_dissector_info, ENDPOINT_NONE);
     add_hostlist_table_data(hash, &jxtahdr->dest_address, 0, FALSE, 1, jxtahdr->size, &jxta_host_dissector_info, ENDPOINT_NONE);
-    return 1;
+    return TAP_PACKET_REDRAW;
 }
 
 static int uri_to_str(const address* addr, gchar *buf, int buf_len)

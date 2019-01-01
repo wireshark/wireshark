@@ -45,7 +45,7 @@ typedef struct _gsm_a_stat_t {
 } gsm_a_stat_t;
 
 
-static int
+static tap_packet_status
 gsm_a_stat_packet(
     void                        *tapdata,
     packet_info                 *pinfo _U_,
@@ -92,7 +92,7 @@ gsm_a_stat_packet(
             /*
              * unsupported PD
              */
-            return(0);
+            return(TAP_PACKET_DONT_REDRAW);
         }
         break;
 
@@ -112,10 +112,10 @@ gsm_a_stat_packet(
         /*
          * unknown PDU type !!!
          */
-        return(0);
+        return(TAP_PACKET_DONT_REDRAW);
     }
 
-    return(1);
+    return(TAP_PACKET_REDRAW);
 }
 
 

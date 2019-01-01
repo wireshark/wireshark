@@ -47,7 +47,7 @@ private:
 
     // Callbacks for register_tap_listener
     static void tapReset(void *ws_dlg_ptr);
-    static gboolean tapPacket(void *ws_dlg_ptr, struct _packet_info *, struct epan_dissect *, const void *rlc_lte_tap_info_ptr);
+    static tap_packet_status tapPacket(void *ws_dlg_ptr, struct _packet_info *, struct epan_dissect *, const void *rlc_lte_tap_info_ptr);
     static void tapDraw(void *ws_dlg_ptr);
 
     void updateHeaderLabels();

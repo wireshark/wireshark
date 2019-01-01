@@ -831,7 +831,7 @@ smb2stat_init(struct register_srt* srt _U_, GArray* srt_array)
 	}
 }
 
-static int
+static tap_packet_status
 smb2stat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prv)
 {
 	guint i = 0;
@@ -841,16 +841,16 @@ smb2stat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 
 	/* we are only interested in response packets */
 	if(!(si->flags&SMB2_FLAGS_RESPONSE)){
-		return 0;
+		return TAP_PACKET_DONT_REDRAW;
 	}
 	/* We should not include cancel and oplock break requests either */
 	if (si->opcode == SMB2_COM_CANCEL || si->opcode == SMB2_COM_BREAK) {
-		return 0;
+		return TAP_PACKET_DONT_REDRAW;
 	}
 
 	/* if we haven't seen the request, just ignore it */
 	if(!si->saved){
-		return 0;
+		return TAP_PACKET_DONT_REDRAW;
 	}
 
 	/* SMB2 SRT can be very inaccurate in the presence of retransmissions. Retransmitted responses
@@ -860,11 +860,11 @@ smb2stat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 	 * for the last received response accomplishes this goal without requiring the TCP pref
 	 * "Do not call subdissectors for error packets" to be set. */
 	if ((si->saved->frame_req == 0) || (si->saved->frame_res != pinfo->num))
-		return 0;
+		return TAP_PACKET_DONT_REDRAW;
 
 	smb2_srt_table = g_array_index(data->srt_array, srt_stat_table*, i);
 	add_srt_table_data(smb2_srt_table, si->opcode, &si->saved->req_time, pinfo);
-	return 1;
+	return TAP_PACKET_REDRAW;
 }
 
 /* Structure for SessionID <=> SessionKey mapping for decryption. */

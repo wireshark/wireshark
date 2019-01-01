@@ -102,10 +102,10 @@ static gint compare_doubles(gconstpointer a, gconstpointer b)
  * "icmp" tap, the third parameter type is icmp_transaction_t.
  *
  * function returns :
- *  FALSE: no updates, no need to call (*draw) later
- *  TRUE: state has changed, call (*draw) sometime later
+ *  TAP_PACKET_DONT_REDRAW: no updates, no need to call (*draw) later
+ *  TAP_PACKET_REDRAW: state has changed, call (*draw) sometime later
  */
-static gboolean
+static tap_packet_status
 icmpstat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *data)
 {
     icmpstat_t *icmpstat = (icmpstat_t *)tapdata;
@@ -113,13 +113,13 @@ icmpstat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, 
     double resp_time, *rt;
 
     if (trans == NULL)
-        return FALSE;
+        return TAP_PACKET_DONT_REDRAW;
 
     if (trans->resp_frame) {
         resp_time = nstime_to_msec(&trans->resp_time);
         rt = g_new(double, 1);
         if (rt == NULL)
-            return FALSE;
+            return TAP_PACKET_DONT_REDRAW;
         *rt = resp_time;
         icmpstat->rt_list = g_slist_prepend(icmpstat->rt_list, rt);
         icmpstat->num_resps++;
@@ -135,9 +135,9 @@ icmpstat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, 
     } else if (trans->rqst_frame)
         icmpstat->num_rqsts++;
     else
-        return FALSE;
+        return TAP_PACKET_DONT_REDRAW;
 
-    return TRUE;
+    return TAP_PACKET_REDRAW;
 }
 
 

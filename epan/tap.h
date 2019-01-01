@@ -22,8 +22,17 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/**
+ * Status returned by the per-packet callback.
+ */
+typedef enum {
+	TAP_PACKET_DONT_REDRAW,	/**< Packet processing succeeded, no need to redraw */
+	TAP_PACKET_REDRAW,	/**< Packet processing succeeded, must redraw */
+	TAP_PACKET_FAILED	/**< Packet processing failed, stop calling this tap */
+} tap_packet_status;
+
 typedef void (*tap_reset_cb)(void *tapdata);
-typedef gboolean (*tap_packet_cb)(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data);
+typedef tap_packet_status (*tap_packet_cb)(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data);
 typedef void (*tap_draw_cb)(void *tapdata);
 typedef void (*tap_finish_cb)(void *tapdata);
 

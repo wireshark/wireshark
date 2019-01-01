@@ -329,7 +329,7 @@ hartip_stats_tree_init(stats_tree* st)
   st_node_errors    = stats_tree_create_node(st, st_str_errors, st_node_packets, STAT_DT_INT, TRUE);
 }
 
-static int
+static tap_packet_status
 hartip_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_,
                          epan_dissect_t* edt _U_, const void* p)
 {
@@ -356,7 +356,7 @@ hartip_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_,
     message_type_node     = st_node_errors;
     break;
   default:
-    return 0;  /* Don't want to track invalid messages for now. */
+    return TAP_PACKET_DONT_REDRAW;  /* Don't want to track invalid messages for now. */
   }
 
   message_id_node_str = val_to_str(tapinfo->message_id,
@@ -367,7 +367,7 @@ hartip_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_,
   tick_stat_node(st, message_type_node_str, st_node_packets, FALSE);
   tick_stat_node(st, message_id_node_str, message_type_node, FALSE);
 
-  return 1;
+  return TAP_PACKET_REDRAW;
 }
 
 static gint

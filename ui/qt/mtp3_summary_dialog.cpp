@@ -298,7 +298,7 @@ mtp3_summary_reset(
 }
 
 
-static gboolean
+static tap_packet_status
 mtp3_summary_packet(
     void            *tapdata,
     packet_info     *,
@@ -314,8 +314,9 @@ mtp3_summary_packet(
         /*
          * we thought this si_code was not used ?
          * is MTP3_NUM_SI_CODE out of date ?
+         * XXX - if this is an error, report it and return TAP_PACKET_FAILED.
          */
-        return(FALSE);
+        return(TAP_PACKET_DONT_REDRAW);
     }
 
     /*
@@ -341,8 +342,9 @@ mtp3_summary_packet(
         {
             /*
              * too many
+             * XXX - report an error and return TAP_PACKET_FAILED?
              */
-            return(FALSE);
+            return(TAP_PACKET_DONT_REDRAW);
         }
 
         mtp3_num_used++;
@@ -353,7 +355,7 @@ mtp3_summary_packet(
     (*stat_p)[i].mtp3_si_code[data_p->mtp3_si_code].num_msus++;
     (*stat_p)[i].mtp3_si_code[data_p->mtp3_si_code].size += data_p->size;
 
-    return(TRUE);
+    return(TAP_PACKET_REDRAW);
 }
 
 void

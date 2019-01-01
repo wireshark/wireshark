@@ -615,7 +615,7 @@ dissect_sametime_content(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 /*
         tick statistics
 */
-static int
+static tap_packet_status
 sametime_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* edt _U_, const void* p)
 {
    const struct SametimeTap *pi = (const struct SametimeTap *)p;
@@ -630,7 +630,7 @@ sametime_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_
    if (pi->user_status != -1)
       stats_tree_tick_pivot(st, st_node_user_status, val_to_str(pi->user_status, userstatusnames, "Unknown (0x%04x)"));
 
-   return 1;
+   return TAP_PACKET_REDRAW;
 }
 
 

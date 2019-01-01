@@ -27,10 +27,10 @@
 
 void register_tap_listener_smbsids(void);
 
-static int
+static tap_packet_status
 smbsids_packet(void *pss _U_, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *psi _U_)
 {
-	return 1;
+	return TAP_PACKET_REDRAW;
 }
 
 static void

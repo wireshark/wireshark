@@ -320,7 +320,7 @@ add_address(address *vadd, sctp_assoc_info_t *info, guint16 direction)
     return info;
 }
 
-static gboolean
+static tap_packet_status
 packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data)
 {
     const struct _sctp_info *sctp_info = (const struct _sctp_info *)data;
@@ -1229,7 +1229,7 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
         tsn_free(sack);
     free_address(&tmp_info.src);
     free_address(&tmp_info.dst);
-    return TRUE;
+    return TAP_PACKET_REDRAW;
 }
 
 

@@ -1742,7 +1742,7 @@ void LBMLBTRUTransportDialog::resetTap(void * tap_data)
     info->clearMaps();
 }
 
-gboolean LBMLBTRUTransportDialog::tapPacket(void * tap_data, packet_info * pinfo, epan_dissect_t *, const void * tap_info)
+tap_packet_status LBMLBTRUTransportDialog::tapPacket(void * tap_data, packet_info * pinfo, epan_dissect_t *, const void * tap_info)
 {
     if (pinfo->fd->passed_dfilter == 1)
     {
@@ -1751,7 +1751,7 @@ gboolean LBMLBTRUTransportDialog::tapPacket(void * tap_data, packet_info * pinfo
 
         info->processPacket(pinfo, tapinfo);
     }
-    return (TRUE);
+    return (TAP_PACKET_REDRAW);
 }
 
 void LBMLBTRUTransportDialog::drawTreeItems(void *)

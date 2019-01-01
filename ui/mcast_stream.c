@@ -131,7 +131,7 @@ mcaststream_draw(void *ti_ptr)
 
 /****************************************************************************/
 /* whenever a udp packet is seen by the tap listener */
-static gboolean
+static tap_packet_status
 mcaststream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *arg2 _U_)
 {
     mcaststream_tapinfo_t *tapinfo = (mcaststream_tapinfo_t *)arg;
@@ -150,16 +150,16 @@ mcaststream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
         case AT_IPv4:
             /* 224.0.0.0/4 */
             if (pinfo->net_dst.len == 0 || (((const guint8*)pinfo->net_dst.data)[0] & 0xf0) != 0xe0)
-                return FALSE;
+                return TAP_PACKET_DONT_REDRAW;
             break;
         case AT_IPv6:
             /* ff00::/8 */
             /* XXX This includes DHCPv6. */
             if (pinfo->net_dst.len == 0 || ((const guint8*)pinfo->net_dst.data)[0] != 0xff)
-                return FALSE;
+                return TAP_PACKET_DONT_REDRAW;
             break;
         default:
-            return FALSE;
+            return TAP_PACKET_DONT_REDRAW;
     }
 
     /* gather infos on the stream this packet is part of */
@@ -276,7 +276,7 @@ mcaststream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
     buffusagecalc(tapinfo->allstreams, pinfo, mcast_stream_cumulemptyspeed*1000);
     /* end of sliding window */
 
-    return 1;  /* refresh output */
+    return TAP_PACKET_REDRAW;  /* refresh output */
 
 }
 

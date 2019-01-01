@@ -439,7 +439,7 @@ ncpstat_init(struct register_srt* srt _U_, GArray* srt_array)
     init_srt_table("Subfunctions for NCP 131", "131", srt_array, NCP_NUM_PROCEDURES, NULL, "ncp.func==131 && ncp.subfunc", NULL);
 }
 
-static int
+static tap_packet_status
 ncpstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prv)
 {
     guint i = 0;
@@ -450,7 +450,7 @@ ncpstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 
     /* if we haven't seen the request, just ignore it */
     if(!request_val || request_val->ncp_rec==0){
-        return 0;
+        return TAP_PACKET_DONT_REDRAW;
     }
 
     /* By Group */
@@ -609,7 +609,7 @@ ncpstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
         add_srt_table_data(ncp_srt_table, (request_val->req_nds_flags), &request_val->req_frame_time, pinfo);
         wmem_free(NULL, tmp_str);
     }
-    return 1;
+    return TAP_PACKET_REDRAW;
 }
 
 
@@ -717,7 +717,7 @@ static const char* ncp_conv_get_filter_type(conv_item_t* conv _U_, conv_filter_t
 
 static ct_dissector_info_t ncp_ct_dissector_info = {&ncp_conv_get_filter_type};
 
-static int
+static tap_packet_status
 ncp_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
     conv_hash_t *hash = (conv_hash_t*) pct;
@@ -729,7 +729,7 @@ ncp_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, 
         add_conversation_table_data(hash, &pinfo->src, &pinfo->dst, connection, connection, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts, &ncp_ct_dissector_info, ENDPOINT_NCP);
     }
 
-    return 1;
+    return TAP_PACKET_REDRAW;
 }
 
 static const char* ncp_host_get_filter_type(hostlist_talker_t* host _U_, conv_filter_type_e filter)
@@ -739,7 +739,7 @@ static const char* ncp_host_get_filter_type(hostlist_talker_t* host _U_, conv_fi
 
 static hostlist_dissector_info_t ncp_host_dissector_info = {&ncp_host_get_filter_type};
 
-static int
+static tap_packet_status
 ncp_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip _U_)
 {
     conv_hash_t *hash = (conv_hash_t*) pit;
@@ -751,7 +751,7 @@ ncp_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, cons
     add_hostlist_table_data(hash, &pinfo->src, 0, TRUE, 1, pinfo->fd->pkt_len, &ncp_host_dissector_info, ENDPOINT_NCP);
     add_hostlist_table_data(hash, &pinfo->dst, 0, FALSE, 1, pinfo->fd->pkt_len, &ncp_host_dissector_info, ENDPOINT_NCP);
 
-    return 1;
+    return TAP_PACKET_REDRAW;
 }
 
 /*

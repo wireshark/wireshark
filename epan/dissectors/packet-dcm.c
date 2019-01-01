@@ -417,7 +417,7 @@ typedef struct _dicom_eo_t {
     guint8  *payload_data;
 } dicom_eo_t;
 
-static gboolean
+static tap_packet_status
 dcm_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_,
                 const void *data)
 {
@@ -442,9 +442,9 @@ dcm_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_,
 
         object_list->add_entry(object_list->gui_data, entry);
 
-        return TRUE; /* State changed - window should be redrawn */
+        return TAP_PACKET_REDRAW; /* State changed - window should be redrawn */
     } else {
-        return FALSE; /* State unchanged - no window updates needed */
+        return TAP_PACKET_DONT_REDRAW; /* State unchanged - no window updates needed */
     }
 }
 

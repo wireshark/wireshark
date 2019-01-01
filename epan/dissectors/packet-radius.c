@@ -305,7 +305,7 @@ static const value_string radius_message_code[] = {
 	{  0, NULL}
 };
 
-static int
+static tap_packet_status
 radiusstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pri)
 {
 	rtd_data_t *rtd_data = (rtd_data_t *)prs;
@@ -313,7 +313,7 @@ radiusstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 	const radius_info_t *ri = (const radius_info_t *)pri;
 	nstime_t delta;
 	radius_category radius_cat = RADIUS_CAT_OTHERS;
-	int ret = 0;
+	tap_packet_status ret = TAP_PACKET_DONT_REDRAW;
 
 	switch (ri->code) {
 		case RADIUS_PKT_TYPE_ACCESS_REQUEST:
@@ -403,7 +403,7 @@ radiusstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 			time_stat_update(&(rs->time_stats[RADIUS_CAT_OVERALL].rtd[0]),&delta, pinfo);
 			time_stat_update(&(rs->time_stats[radius_cat].rtd[0]),&delta, pinfo);
 
-			ret = 1;
+			ret = TAP_PACKET_REDRAW;
 		}
 		break;
 

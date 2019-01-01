@@ -355,7 +355,7 @@ static void rtp_write_sample(rtpdump_info_t* rtpdump_info, FILE* file)
 
 /****************************************************************************/
 /* whenever a RTP packet is seen by the tap listener */
-int rtpstream_packet_cb(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *arg2)
+tap_packet_status rtpstream_packet_cb(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *arg2)
 {
     rtpstream_tapinfo_t *tapinfo = (rtpstream_tapinfo_t *)arg;
     const struct _rtp_info *rtpinfo = (const struct _rtp_info *)arg2;
@@ -428,7 +428,7 @@ int rtpstream_packet_cb(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, 
         /* increment the packets counter of all streams */
         ++(tapinfo->npackets);
 
-        return 1;  /* refresh output */
+        return TAP_PACKET_REDRAW;  /* refresh output */
     }
     else if (tapinfo->mode == TAP_SAVE) {
         if (rtpstream_info_cmp(&new_stream_info, tapinfo->filter_stream_fwd)==0) {
@@ -448,7 +448,7 @@ int rtpstream_packet_cb(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, 
             tapinfo->tap_mark_packet(tapinfo, pinfo->fd);
         }
     }
-    return 0;
+    return TAP_PACKET_DONT_REDRAW;
 }
 
 /****************************************************************************/

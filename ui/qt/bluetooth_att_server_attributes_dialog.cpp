@@ -32,7 +32,7 @@ static const int column_number_handle = 0;
 static const int column_number_uuid = 1;
 static const int column_number_uuid_name = 2;
 
-static gboolean
+static tap_packet_status
 btatt_handle_tap_packet(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *edt, const void* data)
 {
     tapinfo_t *tapinfo = (tapinfo_t *) tapinfo_ptr;
@@ -40,7 +40,7 @@ btatt_handle_tap_packet(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *e
     if (tapinfo->tap_packet)
         tapinfo->tap_packet(tapinfo, pinfo, edt, data);
 
-    return TRUE;
+    return TAP_PACKET_REDRAW;
 }
 
 static void
@@ -225,7 +225,7 @@ void BluetoothAttServerAttributesDialog::tapReset(void *tapinfo_ptr)
 }
 
 
-gboolean BluetoothAttServerAttributesDialog::tapPacket(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *, const void *data)
+tap_packet_status BluetoothAttServerAttributesDialog::tapPacket(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *, const void *data)
 {
     tapinfo_t                           *tapinfo     = static_cast<tapinfo_t *>(tapinfo_ptr);
     BluetoothAttServerAttributesDialog  *dialog      = static_cast<BluetoothAttServerAttributesDialog *>(tapinfo->ui);
@@ -236,10 +236,10 @@ gboolean BluetoothAttServerAttributesDialog::tapPacket(void *tapinfo_ptr, packet
     gchar                               *addr = NULL;
 
     if (dialog->file_closed_)
-        return FALSE;
+        return TAP_PACKET_DONT_REDRAW;
 
     if (pinfo->rec->rec_type != REC_TYPE_PACKET)
-        return FALSE;
+        return TAP_PACKET_DONT_REDRAW;
 
     if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID) {
         gchar       *interface;
@@ -253,7 +253,7 @@ gboolean BluetoothAttServerAttributesDialog::tapPacket(void *tapinfo_ptr, packet
 
         if (interface && dialog->ui->interfaceComboBox->currentIndex() > 0) {
             if (dialog->ui->interfaceComboBox->currentText() != interface)
-            return TRUE;
+            return TAP_PACKET_REDRAW;
         }
     }
 
@@ -266,7 +266,7 @@ gboolean BluetoothAttServerAttributesDialog::tapPacket(void *tapinfo_ptr, packet
 
     if (addr && dialog->ui->deviceComboBox->currentIndex() > 0) {
         if (dialog->ui->deviceComboBox->currentText() != addr)
-            return TRUE;
+            return TAP_PACKET_REDRAW;
     }
 
     handle.sprintf("0x%04x", tap_handles->handle);
@@ -282,7 +282,7 @@ gboolean BluetoothAttServerAttributesDialog::tapPacket(void *tapinfo_ptr, packet
             if (item->text(column_number_handle) == handle &&
                     item->text(column_number_uuid) == uuid &&
                     item->text(column_number_uuid_name) == uuid_name)
-                return TRUE;
+                return TAP_PACKET_REDRAW;
             ++i_item;
         }
     }
@@ -297,7 +297,7 @@ gboolean BluetoothAttServerAttributesDialog::tapPacket(void *tapinfo_ptr, packet
         dialog->ui->tableTreeWidget->resizeColumnToContents(i);
     }
 
-    return TRUE;
+    return TAP_PACKET_REDRAW;
 }
 
 void BluetoothAttServerAttributesDialog::interfaceCurrentIndexChanged(int)

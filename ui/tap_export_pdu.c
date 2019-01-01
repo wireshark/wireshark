@@ -24,7 +24,7 @@
 #include "tap_export_pdu.h"
 
 /* Main entry point to the tap */
-static gboolean
+static tap_packet_status
 export_pdu_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data)
 {
     const exp_pdu_data_t *exp_pdu_data = (const exp_pdu_data_t *)data;
@@ -62,7 +62,7 @@ export_pdu_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const 
     }
 
     /* XXX: should the rec.rec_header.packet_header.pseudo_header be set to the pinfo's pseudo-header? */
-    /* XXX: report errors! */
+    /* XXX: report errors and return TAP_PACKET_FAILED! */
     if (!wtap_dump(exp_pdu_tap_data->wdh, &rec, packet_buf, &err, &err_info)) {
         switch (err) {
 
@@ -78,7 +78,7 @@ export_pdu_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const 
     g_free(packet_buf);
     g_free(rec.opt_comment);
 
-    return FALSE; /* Do not redraw */
+    return TAP_PACKET_DONT_REDRAW; /* Do not redraw */
 }
 
 int

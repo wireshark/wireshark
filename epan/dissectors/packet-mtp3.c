@@ -833,7 +833,7 @@ static void mtp3_stat_init(stat_tap_table_ui* new_stat)
   stat_tap_add_table(new_stat, table);
 }
 
-static gboolean
+static tap_packet_status
 mtp3_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *m3tr_ptr)
 {
   stat_data_t* stat_data = (stat_data_t*)tapdata;
@@ -852,7 +852,7 @@ mtp3_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_,
      * we thought this si_code was not used ?
      * is MTP3_NUM_SI_CODE out of date ?
      */
-    return(FALSE);
+    return TAP_PACKET_DONT_REDRAW;
   }
 
   /*
@@ -941,7 +941,7 @@ mtp3_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_,
   item_data->value.float_value = avg_bytes;
   stat_tap_set_field_data(table, element, AVG_BYTES_COLUMN, item_data);
 
-  return TRUE;
+  return TAP_PACKET_REDRAW;
 }
 
 static void

@@ -1207,7 +1207,7 @@ sharkd_session_process_tap_expert_cb(void *tapdata)
 	putchar(',');
 }
 
-static gboolean
+static tap_packet_status
 sharkd_session_packet_tap_expert_cb(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *pointer)
 {
 	struct sharkd_expert_tap *etd = (struct sharkd_expert_tap *) tapdata;
@@ -1215,7 +1215,7 @@ sharkd_session_packet_tap_expert_cb(void *tapdata, packet_info *pinfo _U_, epan_
 	expert_info_t *ei_copy;
 
 	if (ei == NULL)
-		return FALSE;
+		return TAP_PACKET_DONT_REDRAW;
 
 	ei_copy = g_new(expert_info_t, 1);
 	/* Note: this is a shallow copy */
@@ -1227,7 +1227,7 @@ sharkd_session_packet_tap_expert_cb(void *tapdata, packet_info *pinfo _U_, epan_
 
 	etd->details = g_slist_prepend(etd->details, ei_copy);
 
-	return TRUE;
+	return TAP_PACKET_REDRAW;
 }
 
 static void
@@ -1437,7 +1437,7 @@ sharkd_session_process_tap_rtp_free_cb(void *tapdata)
 	g_free(rtp_req);
 }
 
-static gboolean
+static tap_packet_status
 sharkd_session_packet_tap_rtp_analyse_cb(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pointer)
 {
 	struct sharkd_analyse_rtp *rtp_req = (struct sharkd_analyse_rtp *) tapdata;
@@ -1471,7 +1471,7 @@ sharkd_session_packet_tap_rtp_analyse_cb(void *tapdata, packet_info *pinfo, epan
 		rtp_req->packets = g_slist_append(rtp_req->packets, item);
 	}
 
-	return TRUE;
+	return TAP_PACKET_REDRAW;
 }
 
 /**
@@ -3072,15 +3072,16 @@ struct sharkd_iograph
 	GString *error;
 };
 
-static gboolean
+static tap_packet_status
 sharkd_iograph_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *dummy _U_)
 {
 	struct sharkd_iograph *graph = (struct sharkd_iograph *) g;
 	int idx;
+	gboolean update_succeeded;
 
 	idx = get_io_graph_index(pinfo, graph->interval);
 	if (idx < 0 || idx >= SHARKD_IOGRAPH_MAX_ITEMS)
-		return FALSE;
+		return TAP_PACKET_DONT_REDRAW;
 
 	if (idx + 1 > graph->num_items)
 	{
@@ -3102,7 +3103,9 @@ sharkd_iograph_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const vo
 		graph->num_items = idx + 1;
 	}
 
-	return update_io_graph_item(graph->items, idx, pinfo, edt, graph->hf_index, graph->calc_type, graph->interval);
+	update_succeeded = update_io_graph_item(graph->items, idx, pinfo, edt, graph->hf_index, graph->calc_type, graph->interval);
+	/* XXX - TAP_PACKET_FAILED if the item couldn't be updated, with an error message? */
+	return update_succeeded ? TAP_PACKET_REDRAW : TAP_PACKET_DONT_REDRAW;
 }
 
 /**
@@ -4147,7 +4150,7 @@ sharkd_rtp_download_decode(struct sharkd_download_rtp *req)
 	g_hash_table_destroy(decoders_hash_);
 }
 
-static gboolean
+static tap_packet_status
 sharkd_session_packet_download_tap_rtp_cb(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data)
 {
 	const struct _rtp_info *rtp_info = (const struct _rtp_info *) data;
@@ -4155,7 +4158,7 @@ sharkd_session_packet_download_tap_rtp_cb(void *tapdata, packet_info *pinfo, epa
 
 	/* do not consider RTP packets without a setup frame */
 	if (rtp_info->info_setup_frame_num == 0)
-		return FALSE;
+		return TAP_PACKET_DONT_REDRAW;
 
 	if (rtpstream_id_equal_pinfo_rtp_info(&req_rtp->id, pinfo, rtp_info))
 	{
@@ -4177,7 +4180,7 @@ sharkd_session_packet_download_tap_rtp_cb(void *tapdata, packet_info *pinfo, epa
 		req_rtp->packets = g_slist_append(req_rtp->packets, rtp_packet);
 	}
 
-	return FALSE;
+	return TAP_PACKET_DONT_REDRAW;
 }
 
 /**

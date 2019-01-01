@@ -1247,7 +1247,7 @@ static gboolean print_field_value(field_info *finfo, int cmd_line_index)
     return TRUE;
 }
 
-static int
+static tap_packet_status
 protocolinfo_packet(void *prs, packet_info *pinfo _U_, epan_dissect_t *edt, const void *dummy _U_)
 {
     pci_t *rs=(pci_t *)prs;
@@ -1257,7 +1257,7 @@ protocolinfo_packet(void *prs, packet_info *pinfo _U_, epan_dissect_t *edt, cons
     gp=proto_get_finfo_ptr_array(edt->tree, rs->hf_index);
     if(!gp){
         printf(" n.a.");
-        return 0;
+        return TAP_PACKET_DONT_REDRAW;
     }
 
     /*
@@ -1267,7 +1267,7 @@ protocolinfo_packet(void *prs, packet_info *pinfo _U_, epan_dissect_t *edt, cons
         print_field_value((field_info *)gp->pdata[i], rs->cmd_line_index);
     }
 
-    return 0;
+    return TAP_PACKET_DONT_REDRAW;
 }
 
 int g_cmd_line_index = 0;

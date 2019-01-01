@@ -26,6 +26,8 @@
 // BaseCaptureDialog, CaptureHelperDialog (or rename CaptureFileDialog to something else - WiresharkFileDialog).
 // TapDialog might make sense as well.
 
+#include <epan/tap.h>
+
 #include "capture_file.h"
 #include "geometry_state_dialog.h"
 
@@ -93,7 +95,7 @@ protected:
     bool registerTapListener(const char *tap_name, void *tap_data,
                         const char *filter, guint flags,
                         void (*tap_reset)(void *tapdata),
-                        gboolean (*tap_packet)(void *tapdata, struct _packet_info *pinfo, struct epan_dissect *edt, const void *data),
+                        tap_packet_status (*tap_packet)(void *tapdata, struct _packet_info *pinfo, struct epan_dissect *edt, const void *data),
                         void (*tap_draw)(void *tap_data));
 
     /**

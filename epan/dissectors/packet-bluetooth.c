@@ -2818,7 +2818,7 @@ static const char* bluetooth_get_filter_type(hostlist_talker_t* host, conv_filte
 static hostlist_dissector_info_t  bluetooth_dissector_info = {&bluetooth_get_filter_type};
 
 
-static int
+static tap_packet_status
 bluetooth_conversation_packet(void *pct, packet_info *pinfo,
         epan_dissect_t *edt _U_, const void *vip _U_)
 {
@@ -2827,11 +2827,11 @@ bluetooth_conversation_packet(void *pct, packet_info *pinfo,
             pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts,
             &bluetooth_ct_dissector_info, ENDPOINT_NONE);
 
-    return 1;
+    return TAP_PACKET_REDRAW;
 }
 
 
-static int
+static tap_packet_status
 bluetooth_hostlist_packet(void *pit, packet_info *pinfo,
         epan_dissect_t *edt _U_, const void *vip _U_)
 {
@@ -2840,7 +2840,7 @@ bluetooth_hostlist_packet(void *pit, packet_info *pinfo,
     add_hostlist_table_data(hash, &pinfo->dl_src, 0, TRUE,  1, pinfo->fd->pkt_len, &bluetooth_dissector_info, ENDPOINT_NONE);
     add_hostlist_table_data(hash, &pinfo->dl_dst, 0, FALSE, 1, pinfo->fd->pkt_len, &bluetooth_dissector_info, ENDPOINT_NONE);
 
-    return 1;
+    return TAP_PACKET_REDRAW;
 }
 
 static conversation_t *

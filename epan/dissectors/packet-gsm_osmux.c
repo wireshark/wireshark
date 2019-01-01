@@ -383,8 +383,8 @@ static void osmux_stats_tree_init(stats_tree *st)
     st_osmux_stats_conn = stats_tree_create_node(st, st_str_conn, st_osmux_stats, STAT_DT_INT, TRUE);
 }
 
-static int osmux_stats_tree_packet(stats_tree *st, packet_info *pinfo,
-        epan_dissect_t *edt _U_, const void *p _U_)
+static tap_packet_status osmux_stats_tree_packet(stats_tree *st,
+        packet_info *pinfo, epan_dissect_t *edt _U_, const void *p _U_)
 {
     gchar* stream_name;
     gchar* ft_name;
@@ -463,7 +463,7 @@ static int osmux_stats_tree_packet(stats_tree *st, packet_info *pinfo,
 
     }
 
-    return 1;
+    return TAP_PACKET_REDRAW;
 }
 
 void proto_register_osmux(void)

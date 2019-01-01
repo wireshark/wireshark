@@ -248,7 +248,7 @@ sipstat_reset(void *psp  )
 
 
 /* Main entry point to SIP tap */
-static int
+static tap_packet_status
 sipstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *pri)
 {
 	const sip_info_value_t *value = (const sip_info_value_t *)pri;
@@ -306,7 +306,7 @@ sipstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const
 			if ((i < 100) || (i >= 700))
 			{
 				/* Forget about crazy values */
-				return 0;
+				return TAP_PACKET_DONT_REDRAW;
 			}
 			else if (i < 200)
 			{
@@ -337,7 +337,7 @@ sipstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const
 			sc = (sip_response_code_t *)g_hash_table_lookup(sp->hash_responses, &key);
 			if (sc == NULL)
 			{
-				return 0;
+				return TAP_PACKET_DONT_REDRAW;
 			}
 		}
 		sc->packets++;
@@ -369,10 +369,10 @@ sipstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const
 	else
 	{
 		/* No request method set. Just ignore */
-		return 0;
+		return TAP_PACKET_DONT_REDRAW;
 	}
 
-	return 1;
+	return TAP_PACKET_REDRAW;
 }
 
 static void

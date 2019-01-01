@@ -337,7 +337,7 @@ gsm_map_summary_reset(void *tapdata)
 }
 
 
-static gboolean
+static tap_packet_status
 gsm_map_summary_packet(void *tapdata, packet_info *, epan_dissect_t *, const void *gmtr_ptr)
 {
     gsm_map_stat_t *gm_stat = (gsm_map_stat_t *)tapdata;
@@ -354,7 +354,7 @@ gsm_map_summary_packet(void *tapdata, packet_info *, epan_dissect_t *, const voi
         gm_stat->size_rr[gm_tap_rec->opcode] += gm_tap_rec->size;
     }
 
-    return(FALSE); /* We have no draw callback */
+    return(TAP_PACKET_DONT_REDRAW); /* We have no draw callback */
 }
 
 void

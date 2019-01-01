@@ -5619,7 +5619,7 @@ static void wsp_stat_init(stat_tap_table_ui* new_stat)
 	unknown_sc_idx = table_idx;
 }
 
-static gboolean
+static tap_packet_status
 wsp_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *wiv_ptr)
 {
 	stat_data_t* stat_data = (stat_data_t*)tapdata;
@@ -5664,7 +5664,7 @@ wsp_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, 
 		stat_tap_set_field_data(sc_table, element, PACKET_COLUMN, item_data);
 	}
 
-	return TRUE;
+	return found? TAP_PACKET_REDRAW : TAP_PACKET_DONT_REDRAW;
 }
 
 static void

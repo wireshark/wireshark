@@ -365,7 +365,7 @@ rpcstat_init(struct register_srt* srt, GArray* srt_array)
 	}
 }
 
-static int
+static tap_packet_status
 rpcstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prv)
 {
 	guint i = 0;
@@ -379,19 +379,19 @@ rpcstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 
 	if ((int)ri->proc >= rpc_srt_table->num_procs) {
 		/* don't handle this since its outside of known table */
-		return 0;
+		return TAP_PACKET_DONT_REDRAW;
 	}
 	/* we are only interested in reply packets */
 	if (ri->request) {
-		return 0;
+		return TAP_PACKET_DONT_REDRAW;
 	}
 	/* we are only interested in certain program/versions */
 	if ( (ri->prog != tap_data->program) || (ri->vers != tap_data->version) ) {
-		return 0;
+		return TAP_PACKET_DONT_REDRAW;
 	}
 
 	add_srt_table_data(rpc_srt_table, ri->proc, &ri->req_time, pinfo);
-	return 1;
+	return TAP_PACKET_REDRAW;
 
 }
 
@@ -3922,7 +3922,7 @@ static void rpc_prog_stat_init(stat_tap_table_ui* new_stat)
 
 }
 
-static gboolean
+static tap_packet_status
 rpc_prog_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *rciv_ptr)
 {
 	stat_data_t* stat_data = (stat_data_t*)tapdata;
@@ -3971,7 +3971,7 @@ rpc_prog_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt 
 
 	/* we are only interested in reply packets */
 	if (ri->request) {
-		return FALSE;
+		return TAP_PACKET_DONT_REDRAW;
 	}
 
 	item_data = stat_tap_get_field_data(table, element, CALLS_COLUMN);
@@ -4000,7 +4000,7 @@ rpc_prog_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt 
 	item_data->value.float_value = item_data->user_data.float_value / call_count;
 	stat_tap_set_field_data(table, element, AVG_SRT_COLUMN, item_data);
 
-	return TRUE;
+	return TAP_PACKET_REDRAW;
 }
 
 static void

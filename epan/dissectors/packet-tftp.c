@@ -157,7 +157,7 @@ typedef struct _tftp_eo_t {
 } tftp_eo_t;
 
 /* Tap function */
-static gboolean
+static tap_packet_status
 tftp_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data)
 {
   export_object_list_t *object_list = (export_object_list_t *)tapdata;
@@ -202,7 +202,7 @@ tftp_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const
   /* Pass out entry to the GUI */
   object_list->add_entry(object_list->gui_data, entry);
 
-  return TRUE; /* State changed - window should be redrawn */
+  return TAP_PACKET_REDRAW; /* State changed - window should be redrawn */
 }
 
 /* Clean up the stored parts of a single tapped entry */

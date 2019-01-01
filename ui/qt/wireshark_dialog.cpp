@@ -100,7 +100,7 @@ void WiresharkDialog::updateWidgets()
     setWindowTitleFromSubtitle();
 }
 
-bool WiresharkDialog::registerTapListener(const char *tap_name, void *tap_data, const char *filter, guint flags, void(*tap_reset)(void *), gboolean(*tap_packet)(void *, struct _packet_info *, struct epan_dissect *, const void *), void(*tap_draw)(void *))
+bool WiresharkDialog::registerTapListener(const char *tap_name, void *tap_data, const char *filter, guint flags, void (*tap_reset)(void *), tap_packet_status (*tap_packet)(void *, struct _packet_info *, struct epan_dissect *, const void *), void (*tap_draw)(void *))
 {
     GString *error_string = register_tap_listener(tap_name, tap_data, filter, flags,
                                                   tap_reset, tap_packet, tap_draw, NULL);

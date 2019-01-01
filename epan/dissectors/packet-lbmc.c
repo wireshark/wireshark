@@ -6062,7 +6062,7 @@ typedef struct
     const gchar * description;
 } lbm_uim_stream_info_t;
 
-static gboolean
+static tap_packet_status
 lbm_uim_seq_analysis_packet(void *ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *uim_info)
 {
     seq_analysis_info_t *sainfo = (seq_analysis_info_t *) ptr;
@@ -6078,7 +6078,7 @@ lbm_uim_seq_analysis_packet(void *ptr, packet_info *pinfo, epan_dissect_t *edt _
 
     if (stream_info->endpoint_a.type != stream_info->endpoint_b.type)
     {
-        return TRUE;
+        return TAP_PACKET_DONT_REDRAW;
     }
     if (stream_info->endpoint_a.type == lbm_uim_instance_stream)
     {
@@ -6187,7 +6187,7 @@ lbm_uim_seq_analysis_packet(void *ptr, packet_info *pinfo, epan_dissect_t *edt _
 
     g_queue_push_tail(sainfo->items, sai);
 
-    return TRUE;
+    return TAP_PACKET_REDRAW;
 }
 
 

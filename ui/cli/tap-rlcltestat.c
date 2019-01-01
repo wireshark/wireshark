@@ -151,7 +151,7 @@ static rlc_lte_ep_t *alloc_rlc_lte_ep(const struct rlc_lte_tap_info *si, packet_
 
 
 /* Process stat struct for a RLC LTE frame */
-static int
+static tap_packet_status
 rlc_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
                     const void *phi)
 {
@@ -164,7 +164,7 @@ rlc_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
 
     /* Need this */
     if (!hs) {
-        return 0;
+        return TAP_PACKET_DONT_REDRAW;
     }
 
     /* Inc top-level frame count */
@@ -176,12 +176,12 @@ rlc_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
         case CHANNEL_TYPE_BCCH_DL_SCH:
             hs->common_stats.bcch_frames++;
             hs->common_stats.bcch_bytes += si->pduLength;
-            return 1;
+            return TAP_PACKET_REDRAW;
 
         case CHANNEL_TYPE_PCCH:
             hs->common_stats.pcch_frames++;
             hs->common_stats.pcch_bytes += si->pduLength;
-            return 1;
+            return TAP_PACKET_REDRAW;
 
         default:
             break;
@@ -218,7 +218,7 @@ rlc_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
 
     /* Really should have a row pointer by now */
     if (!te) {
-        return 0;
+        return TAP_PACKET_DONT_REDRAW;
     }
 
     /* Update entry with details from si */
@@ -262,7 +262,7 @@ rlc_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
         te->stats.DL_total_missing += si->missingSNs;
     }
 
-    return 1;
+    return TAP_PACKET_REDRAW;
 }
 
 

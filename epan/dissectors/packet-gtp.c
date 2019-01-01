@@ -2088,7 +2088,7 @@ gtpstat_init(struct register_srt* srt _U_, GArray* srt_array)
     init_srt_table_row(gtp_srt_table, 3, "Delete PDP context");
 }
 
-static int
+static tap_packet_status
 gtpstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prv)
 {
     guint i = 0;
@@ -2099,11 +2099,11 @@ gtpstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 
     /* we are only interested in reply packets */
     if(gtp->is_request){
-        return 0;
+        return TAP_PACKET_DONT_REDRAW;
     }
     /* if we have not seen the request, just ignore it */
     if(!gtp->req_frame){
-        return 0;
+        return TAP_PACKET_DONT_REDRAW;
     }
 
     /* Only use the commands we know how to handle, this is not a comprehensive list */
@@ -2122,13 +2122,13 @@ gtpstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
     case GTP_MSG_DELETE_PDP_REQ: idx=3;
         break;
     default:
-        return 0;
+        return TAP_PACKET_DONT_REDRAW;
     }
 
     gtp_srt_table = g_array_index(data->srt_array, srt_stat_table*, i);
     add_srt_table_data(gtp_srt_table, idx, &gtp->req_time, pinfo);
 
-    return 1;
+    return TAP_PACKET_REDRAW;
 }
 
 
