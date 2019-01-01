@@ -39,7 +39,6 @@
 
 #include "packet-ip.h"
 #include "packet-icmp.h"
-#include "packet-icmp-int.h"
 
 void proto_register_icmp(void);
 void proto_reg_handoff_icmp(void);
@@ -942,8 +941,10 @@ dissect_interface_identification_object(tvbuff_t * tvb, gint offset,
 
 }				/*end dissect_interface_identification_object */
 
-gint dissect_icmp_extension_structure(tvbuff_t * tvb, packet_info *pinfo, gint offset, proto_tree * tree)
+static int
+dissect_icmp_extension(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
+	int offset = 0;
 	guint8 version;
 	guint8 class_num;
 	guint8 c_type;
@@ -1664,7 +1665,8 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 		if ((tvb_reported_length(tvb) > 8 + 128)
 		    && (tvb_get_ntohs(tvb, 8 + 2) <= 128
 			|| favor_icmp_mpls_ext)) {
-			dissect_icmp_extension_structure(tvb, pinfo, 8 + 128, icmp_tree);
+			tvbuff_t * extension_tvb = tvb_new_subset_remaining(tvb, 8 + 128);
+			dissect_icmp_extension(extension_tvb, pinfo, icmp_tree, NULL);
 		}
 		break;
 	case ICMP_ECHOREPLY:
@@ -1800,7 +1802,8 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 
 	case ICMP_EXTECHO:
 		if (tvb_reported_length(tvb) > 8) {
-			dissect_icmp_extension_structure(tvb, pinfo, 8, icmp_tree);
+			tvbuff_t * extension_tvb = tvb_new_subset_remaining(tvb, 8);
+			dissect_icmp_extension(extension_tvb, pinfo, icmp_tree, NULL);
 		}
 		break;
 	}
@@ -2311,6 +2314,7 @@ void proto_register_icmp(void)
 
 	register_seq_analysis("icmp", "ICMP Flows", proto_icmp, NULL, TL_REQUIRES_COLUMNS, icmp_seq_analysis_packet);
 	icmp_handle = register_dissector("icmp", dissect_icmp, proto_icmp);
+	register_dissector("icmp_extension", dissect_icmp_extension, proto_icmp);
 	icmp_tap = register_tap("icmp");
 }
 
