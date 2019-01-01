@@ -609,7 +609,6 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-yppasswd.h
 	packet-ypserv.h
 	packet-ypxfr.h
-	packet-z3950.h
 	packet-zbee.h
 	packet-zbee-aps.h
 	packet-zbee-nwk.h
