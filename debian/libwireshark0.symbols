@@ -433,6 +433,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  dissect_rpc_uint64@Base 1.9.1
  dissect_rpc_unknown@Base 1.99.8
  dissect_rpc_void@Base 1.99.8
+ dissect_rtp_shim_header@Base 2.9.1
  dissect_tcp_payload@Base 1.99.0
  dissect_thrift_t_byte@Base 2.5.0
  dissect_thrift_t_i32@Base 2.5.0
@@ -891,6 +892,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  http_tcp_dissector_add@Base 2.1.0
  http_tcp_dissector_delete@Base 2.3.0
  http_tcp_port_add@Base 2.1.0
+ ieee1609dot2_Psid_vals@Base 2.9.1
  ieee80211_ht_Dbps@Base 2.1.0
  ieee80211_supported_rates_vals_ext@Base 1.99.1
  ieee802a_add_oui@Base 1.9.1
@@ -1569,6 +1571,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tfs_encrypt_do_not_encrypt@Base 2.1.0
  tfs_enforced_not_enforced@Base 1.12.0~rc1
  tfs_error_ok@Base 1.9.1
+ tfs_external_internal@Base 2.9.1
  tfs_fail_success@Base 1.9.1
  tfs_found_not_found@Base 1.9.1
  tfs_full_half@Base 1.99.1
@@ -1583,6 +1586,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tfs_more_nomore@Base 1.9.1
  tfs_no_yes@Base 1.9.1
  tfs_not_allowed_allowed@Base 1.9.1
+ tfs_not_supported_supported@Base 2.9.1
  tfs_odd_even@Base 1.9.1
  tfs_ok_error@Base 1.9.1
  tfs_on_off@Base 1.9.1
