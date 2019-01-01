@@ -1893,7 +1893,7 @@ dissect_sec_recipient_info(tvbuff_t *tvb, gint *offset, packet_info *pinfo, prot
 
 
 static int
-dissect_sec_payload(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *part_tree, guint8 version, guint32 msg_id, proto_tree *top_tree)
+dissect_sec_payload(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *part_tree)
 {
     gint start = *offset;
     guint32 tmp_val;
@@ -1917,11 +1917,7 @@ dissect_sec_payload(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree 
                 param_len = dissect_sec_var_len(tvb, offset, pinfo, field_tree);
                 if (param_len) {
                     tvbuff_t *next_tvb = tvb_new_subset_length(tvb, *offset, param_len);
-                    // Subdissector for the payload
-                    if (((version != 1) || (!dissector_try_uint(sgeonw_v1_subdissector_table, msg_id, next_tvb, pinfo, top_tree))) &&
-                        ((version != 2) || (!dissector_try_uint(sgeonw_v2_subdissector_table, msg_id, next_tvb, pinfo, top_tree)))) {
-                        call_data_dissector(next_tvb, pinfo, top_tree);
-                    }
+                    p_add_proto_data(wmem_file_scope(), pinfo, proto_geonw, 0, next_tvb);
                 }
                 *offset += param_len;
                 break;
@@ -1946,7 +1942,7 @@ dissect_sec_payload(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree 
 
 
 static int
-dissect_secured_message(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, proto_tree *top_tree, void *data _U_)
+dissect_secured_message(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     guint32 msg_id; // Or Application ID, depending on version
     guint8 version;
@@ -1964,15 +1960,16 @@ dissect_secured_message(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tr
     secmsg_item = proto_tree_add_item(tree, hf_geonw_sec, tvb, offset, 0, ENC_NA); // Length cannot be determined now
     proto_tree *secmsg_tree = proto_item_add_subtree(secmsg_item, ett_geonw_sec);
 
-    ti = proto_tree_add_item_ret_uint(secmsg_tree, hf_sgeonw_version, tvb, offset, 1, ENC_BIG_ENDIAN, &tmp_val);
-    version = (guint8) tmp_val;
-    offset+=1;
-
+    version = tvb_get_guint8(tvb, offset);
     if (version == 3) {
-        call_dissector(ieee1609dot2_handle, tvb, pinfo, secmsg_tree);
-        // XXX If unsecure or only signed, get psid to call subdissector!
+        tvbuff_t *next_tvb = tvb_new_subset_remaining(tvb, offset);
+        call_dissector(ieee1609dot2_handle, next_tvb, pinfo, secmsg_tree);
+        // If unsecure or only signed, content is in private data
         return tvb_captured_length(tvb);
     }
+
+    ti = proto_tree_add_item(secmsg_tree, hf_sgeonw_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset+=1;
     if ((version < 1) || (version > 2))
         return 1;
     if (version == 1) {
@@ -2082,7 +2079,7 @@ dissect_secured_message(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tr
 
             guint32 start = offset;
 
-            dissect_sec_payload(tvb, &offset, pinfo, part_tree, version, msg_id, top_tree);
+            dissect_sec_payload(tvb, &offset, pinfo, part_tree);
             if (var_len < (offset-start))
                 // XXX EI error!
                 return 0;
@@ -2090,7 +2087,7 @@ dissect_secured_message(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tr
         }
     }
     else {
-        dissect_sec_payload(tvb, &offset, pinfo, part_tree, version, msg_id, top_tree);
+        dissect_sec_payload(tvb, &offset, pinfo, part_tree);
     }
     proto_item_set_end(part_item, tvb, offset);
 
@@ -2126,6 +2123,16 @@ dissect_secured_message(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tr
     proto_item_set_end(secmsg_item, tvb, offset);
 
     return offset - sec_start;
+}
+
+static int
+dissect_sgeonw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data _U_)
+{
+    DISSECTOR_ASSERT(!p_get_proto_data(wmem_file_scope(), pinfo, proto_geonw, 0));
+    // Just store the tvbuff for later, as it is embedded inside a secured geonetworking packet
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_geonw, 0, tvb);
+
+    return tvb_reported_length(tvb);
 }
 
 // The actual dissector
@@ -2235,8 +2242,42 @@ dissect_geonw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     offset += 1;
 
     if (bh_next_header == BH_NH_SECURED_PKT) {
-        dissect_secured_message(tvb, offset, pinfo, geonw_tree, tree, NULL);
-        return tvb_captured_length(tvb);
+        dissect_secured_message(tvb, offset, pinfo, geonw_tree, NULL);
+        tvbuff_t *next_tvb = (tvbuff_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_geonw, 0);
+        if (next_tvb) {
+            tvb = next_tvb;
+            bh_next_header = BH_NH_COMMON_HDR;
+            offset = 0;
+            header_type = tvb_get_guint8(tvb, 1);
+
+            hdr_len = CH_LEN;
+            switch(header_type & HT_MASK) {
+                case HT_BEACON:
+                    hdr_len += BEACON_LEN;
+                    break;
+                case HT_GEOUNICAST:
+                    hdr_len += GUC_LEN;
+                    break;
+                case HT_GEOANYCAST:
+                    hdr_len += GAC_LEN;
+                    break;
+                case HT_GEOBROADCAST:
+                    hdr_len += GBC_LEN;
+                    break;
+                case HT_TSB:
+                    hdr_len += TSB_LEN;
+                    break;
+                case HT_LS:
+                    hdr_len += LS_REQUEST_LEN;
+                    if (header_type == HTST_LS_REPLY) {
+                        hdr_len += (LS_REPLY_LEN - LS_REQUEST_LEN);
+                    }
+                    break;
+                default:
+                    hdr_len = -1;
+            }
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_geonw, 0, NULL);
+        }
     }
 
     if (bh_next_header == BH_NH_COMMON_HDR) {
@@ -3592,8 +3633,10 @@ void
 proto_reg_handoff_geonw(void)
 {
     dissector_handle_t geonw_handle_;
+    dissector_handle_t sgeonw_handle_;
 
     geonw_handle_ = create_dissector_handle(dissect_geonw, proto_geonw);
+    sgeonw_handle_ = create_dissector_handle(dissect_sgeonw, proto_geonw);
 
     dissector_add_uint_with_preference("ethertype", ETHERTYPE_GEONETWORKING, geonw_handle_);
 
@@ -3603,7 +3646,14 @@ proto_reg_handoff_geonw(void)
 
     geonw_tap = register_tap("geonw");
 
-    ieee1609dot2_handle = find_dissector("ieee1609dot2.data");
+    ieee1609dot2_handle = find_dissector_add_dependency("ieee1609dot2.data", proto_geonw);
+
+    dissector_add_uint("ieee1609dot2.psid", psid_den_basic_services, sgeonw_handle_);
+    dissector_add_uint("ieee1609dot2.psid", psid_ca_basic_services,  sgeonw_handle_);
+    dissector_add_uint("ieee1609dot2.psid", psid_traffic_light_manoeuver_service, sgeonw_handle_);
+    dissector_add_uint("ieee1609dot2.psid", psid_road_and_lane_topology_service, sgeonw_handle_);
+    dissector_add_uint("ieee1609dot2.psid", psid_infrastructure_to_vehicle_information_service, sgeonw_handle_);
+    dissector_add_uint("ieee1609dot2.psid", psid_traffic_light_control_service, sgeonw_handle_);
 }
 
 /*

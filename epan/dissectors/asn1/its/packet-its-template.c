@@ -98,15 +98,6 @@
 #define ITS_WKP_CRL        2015
 #define ITS_WKP_CERTIF_REQ 2016
 
-// ETSI TS 102 965 (V1.3.1)
-#define AID_CA       36
-#define AID_DEN      37
-#define AID_TLM     137
-#define AID_RLT     138
-#define AID_IVI     139
-#define AID_TLC     140
-#define AID_GN_MGMT 141
-
 /*
  * Prototypes
  */
@@ -416,15 +407,6 @@ void proto_reg_handoff_its(void)
             dissector_add_uint(subdissector[sdIdx], ports[pIdx], its_handle_);
         }
     }
-
-    dissector_add_uint("geonw.sec.v1.msg_type", ITS_DENM, its_handle_);
-    dissector_add_uint("geonw.sec.v1.msg_type", ITS_CAM, its_handle_);
-    dissector_add_uint("geonw.sec.v2.app_id", AID_DEN, its_handle_);
-    dissector_add_uint("geonw.sec.v2.app_id", AID_CA, its_handle_);
-    dissector_add_uint("geonw.sec.v2.app_id", AID_TLM, its_handle_);
-    dissector_add_uint("geonw.sec.v2.app_id", AID_RLT, its_handle_);
-    dissector_add_uint("geonw.sec.v2.app_id", AID_IVI, its_handle_);
-    dissector_add_uint("geonw.sec.v2.app_id", AID_TLC, its_handle_);
 
     dissector_add_uint("its.msg_id", ITS_DENM,              create_dissector_handle( dissect_denm_DecentralizedEnvironmentalNotificationMessage_PDU, proto_its_denm ));
     dissector_add_uint("its.msg_id", ITS_CAM,               create_dissector_handle( dissect_cam_CoopAwareness_PDU, proto_its_cam ));
