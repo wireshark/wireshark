@@ -255,16 +255,17 @@ init_fpp_ctx(struct _fpp_ctx_t *ctx, guint8 frame_cnt) {
 
 static guint8
 frag_cnt_next(guint8 cur_num) {
-	if (cur_num == FragCount_0)
-		return FragCount_1;
-	else if (cur_num == FragCount_1)
-		return FragCount_2;
-	else if (cur_num == FragCount_2)
-		return FragCount_3;
-	else if (cur_num == FragCount_3)
-		return FragCount_0;
-	else
-		return FragCount_0;
+	switch(cur_num) {
+		case FragCount_0:
+			return FragCount_1;
+		case FragCount_1:
+			return FragCount_2;
+		case FragCount_2:
+			return FragCount_3;
+		case FragCount_3:
+		default:
+			return FragCount_0;
+	}
 }
 
 static guint8
