@@ -707,6 +707,8 @@ class EthCtx:
             else:
                 attr.update(self.type[t]['attr'])
                 attr.update(self.eth_type[self.type[t]['ethname']]['attr'])
+        if attr['STRINGS'].startswith('VALS64('):
+            attr['DISPLAY'] += '|BASE_VAL64_STRING'
         #print " ", attr
         return attr
 
@@ -1320,12 +1322,6 @@ class EthCtx:
             use_vals_ext = self.eth_type[ethtype].get('vals_ext')
             if (use_vals_ext):
                 attr['DISPLAY'] += '|BASE_EXT_STRING'
-            if ethtype in self.type \
-               and self.type[ethtype]['attr'].get('STRINGS') == '$$' \
-               and self.eth_type[ethtype]['val'].type == 'IntegerType' \
-               and self.eth_type[ethtype]['val'].HasConstraint() \
-               and self.eth_type[ethtype]['val'].constr.Needs64b(self):
-                attr['DISPLAY'] += '|BASE_VAL64_STRING'
             self.eth_hf[nm] = {'fullname' : fullname, 'pdu' : self.field[f]['pdu'],
                                'ethtype' : ethtype, 'modified' : self.field[f]['modified'],
                                'attr' : attr.copy(),
