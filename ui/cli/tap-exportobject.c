@@ -105,7 +105,6 @@ eo_draw(void *tapdata)
     export_object_list_gui_t *object_list = (export_object_list_gui_t*)tap_object->gui_data;
     GSList *slist = object_list->entries;
     export_object_entry_t *entry;
-    gboolean all_saved = TRUE;
     gchar* save_in_path = (gchar*)g_hash_table_lookup(eo_opts, proto_get_protocol_filter_name(get_eo_proto_id(object_list->eo)));
     GString *safe_filename = NULL;
     gchar *save_as_fullpath = NULL;
@@ -140,16 +139,11 @@ eo_draw(void *tapdata)
             g_string_free(safe_filename, TRUE);
         } while (g_file_test(save_as_fullpath, G_FILE_TEST_EXISTS) && ++count < 1000);
         count = 0;
-        if (!eo_save_entry(save_as_fullpath, entry))
-            all_saved = FALSE;
+        eo_save_entry(save_as_fullpath, entry);
         g_free(save_as_fullpath);
         save_as_fullpath = NULL;
         slist = slist->next;
     }
-
-    if (!all_saved)
-        fprintf(stderr, "Export objects (%s): Some files could not be saved.\n",
-                    proto_get_protocol_filter_name(get_eo_proto_id(object_list->eo)));
 }
 
 static void

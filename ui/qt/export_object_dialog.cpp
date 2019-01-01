@@ -194,15 +194,7 @@ void ExportObjectDialog::saveAllEntries()
     if (save_in_path.length() < 1)
         return;
 
-    if (!model_.saveAllEntries(save_in_path))
-    {
-        QMessageBox::warning(
-                    this,
-                    tr("Object Export"),
-                    tr("Some files could not be saved."),
-                    QMessageBox::Ok
-                    );
-    }
+    model_.saveAllEntries(save_in_path);
 }
 
 /*

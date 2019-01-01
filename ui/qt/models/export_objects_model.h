@@ -45,7 +45,7 @@ public:
     void resetObjects();
 
     bool saveEntry(QModelIndex &index, QString filename);
-    bool saveAllEntries(QString path);
+    void saveAllEntries(QString path);
 
     const char* getTapListenerName();
     void* getTapData();

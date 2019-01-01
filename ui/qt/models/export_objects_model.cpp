@@ -152,12 +152,11 @@ bool ExportObjectModel::saveEntry(QModelIndex &index, QString filename)
     return true;
 }
 
-bool ExportObjectModel::saveAllEntries(QString path)
+void ExportObjectModel::saveAllEntries(QString path)
 {
     if (path.isEmpty())
-        return false;
+        return;
 
-    bool all_saved = true;
     export_object_entry_t *entry;
 
     for (QList<QVariant>::iterator it = objects_.begin(); it != objects_.end(); ++it)
@@ -190,13 +189,10 @@ bool ExportObjectModel::saveAllEntries(QString path)
                                                 safe_filename->str, NULL);
             g_string_free(safe_filename, TRUE);
         } while (g_file_test(save_as_fullpath, G_FILE_TEST_EXISTS) && ++count < 1000);
-        if (!eo_save_entry(save_as_fullpath, entry))
-            all_saved = false;
+        eo_save_entry(save_as_fullpath, entry);
         g_free(save_as_fullpath);
         save_as_fullpath = NULL;
     }
-
-    return all_saved;
 }
 
 void ExportObjectModel::resetObjects()

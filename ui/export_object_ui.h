@@ -20,7 +20,7 @@ extern "C" {
 
 /* Common between protocols */
 
-gboolean eo_save_entry(const gchar *save_as_filename, export_object_entry_t *entry);
+void eo_save_entry(const gchar *save_as_filename, export_object_entry_t *entry);
 
 #ifdef __cplusplus
 }

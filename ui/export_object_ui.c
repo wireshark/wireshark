@@ -27,7 +27,7 @@
 
 #include "export_object_ui.h"
 
-gboolean
+void
 eo_save_entry(const gchar *save_as_filename, export_object_entry_t *entry)
 {
     int to_fd;
@@ -41,7 +41,7 @@ eo_save_entry(const gchar *save_as_filename, export_object_entry_t *entry)
              O_BINARY, 0644);
     if(to_fd == -1) { /* An error occurred */
         report_open_failure(save_as_filename, errno, TRUE);
-        return FALSE;
+        return;
     }
 
     /*
@@ -65,24 +65,20 @@ eo_save_entry(const gchar *save_as_filename, export_object_entry_t *entry)
         else
             bytes_to_write = (int)bytes_left;
         bytes_written = ws_write(to_fd, ptr, bytes_to_write);
-        if(bytes_written <= 0) {
+        if (bytes_written <= 0) {
             if (bytes_written < 0)
                 err = errno;
             else
                 err = WTAP_ERR_SHORT_WRITE;
             report_write_failure(save_as_filename, err);
             ws_close(to_fd);
-            return FALSE;
+            break;
         }
         bytes_left -= bytes_written;
         ptr += bytes_written;
     }
-    if (ws_close(to_fd) < 0) {
+    if (ws_close(to_fd) < 0)
         report_write_failure(save_as_filename, errno);
-        return FALSE;
-    }
-
-    return TRUE;
 }
 
 /*
