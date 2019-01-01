@@ -26,58 +26,6 @@
 #include <ui/export_object_ui.h>
 #include "tap-exportobject.h"
 
-/* XXX - This is effectively a copy of eo_save_entry with the "GUI alerts"
- * removed to accomodate tshark
- */
-static gboolean
-local_eo_save_entry(const gchar *save_as_filename, export_object_entry_t *entry)
-{
-    int to_fd;
-    gint64 bytes_left;
-    int bytes_to_write;
-    ssize_t bytes_written;
-    guint8 *ptr;
-
-    to_fd = ws_open(save_as_filename, O_WRONLY | O_CREAT | O_EXCL | O_BINARY, 0644);
-    if(to_fd == -1) { /* An error occurred */
-        return FALSE;
-    }
-
-    /*
-     * The third argument to _write() on Windows is an unsigned int,
-     * so, on Windows, that's the size of the third argument to
-     * ws_write().
-     *
-     * The third argument to write() on UN*X is a size_t, although
-     * the return value is an ssize_t, so one probably shouldn't
-     * write more than the max value of an ssize_t.
-     *
-     * In either case, there's no guarantee that a gint64 such as
-     * payload_len can be passed to ws_write(), so we write in
-     * chunks of, at most 2^31 bytes.
-     */
-    ptr = entry->payload_data;
-    bytes_left = entry->payload_len;
-    while (bytes_left != 0) {
-        if (bytes_left > 0x40000000)
-            bytes_to_write = 0x40000000;
-        else
-            bytes_to_write = (int)bytes_left;
-        bytes_written = ws_write(to_fd, ptr, bytes_to_write);
-        if(bytes_written <= 0) {
-            ws_close(to_fd);
-            return FALSE;
-        }
-        bytes_left -= bytes_written;
-        ptr += bytes_written;
-    }
-    if (ws_close(to_fd) < 0) {
-        return FALSE;
-    }
-
-    return TRUE;
-}
-
 typedef struct _export_object_list_gui_t {
     GSList *entries;
     register_eo_t* eo;
@@ -193,7 +141,7 @@ eo_draw(void *tapdata)
                 g_string_free(safe_filename, TRUE);
             } while (g_file_test(save_as_fullpath, G_FILE_TEST_EXISTS) && ++count < 1000);
             count = 0;
-            if (!local_eo_save_entry(save_as_fullpath, entry))
+            if (!eo_save_entry(save_as_fullpath, entry, TRUE))
                 all_saved = FALSE;
             g_free(save_as_fullpath);
             save_as_fullpath = NULL;

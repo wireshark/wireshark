@@ -23,8 +23,7 @@
 #include <wiretap/wtap.h>
 
 #include <wsutil/file_util.h>
-
-#include <ui/alert_box.h>
+#include <wsutil/report_message.h>
 
 #include "export_object_ui.h"
 
@@ -42,7 +41,7 @@ eo_save_entry(const gchar *save_as_filename, export_object_entry_t *entry, gbool
              O_BINARY, 0644);
     if(to_fd == -1) { /* An error occurred */
         if (show_err)
-            open_failure_alert_box(save_as_filename, errno, TRUE);
+            report_open_failure(save_as_filename, errno, TRUE);
         return FALSE;
     }
 
@@ -73,7 +72,7 @@ eo_save_entry(const gchar *save_as_filename, export_object_entry_t *entry, gbool
             else
                 err = WTAP_ERR_SHORT_WRITE;
             if (show_err)
-                write_failure_alert_box(save_as_filename, err);
+                report_write_failure(save_as_filename, err);
             ws_close(to_fd);
             return FALSE;
         }
@@ -82,7 +81,7 @@ eo_save_entry(const gchar *save_as_filename, export_object_entry_t *entry, gbool
     }
     if (ws_close(to_fd) < 0) {
         if (show_err)
-            write_failure_alert_box(save_as_filename, errno);
+            report_write_failure(save_as_filename, errno);
         return FALSE;
     }
 
