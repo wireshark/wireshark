@@ -17,6 +17,11 @@ set(FTYPE_PUBLIC_HEADERS
 	ftypes.h
 )
 
+set(FTYPE_HEADER_FILES
+	${FTYPE_PUBLIC_HEADERS}
+	ftypes-int.h
+)
+
 set(FTYPE_FILES
 	ftypes.c
 	ftype-bytes.c
@@ -41,6 +46,9 @@ set_source_files_properties(
 )
 
 add_library(ftypes OBJECT
+	#Included so that Visual Studio can properly put header files in solution
+	${FTYPE_HEADER_FILES}
+
 	${FTYPE_FILES}
 )
 

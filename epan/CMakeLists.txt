@@ -185,6 +185,10 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	xdlc.h
 )
 
+set(LIBWIRESHARK_HEADER_FILES
+	${LIBWIRESHARK_PUBLIC_HEADERS}
+)
+
 set(LIBWIRESHARK_NONGENERATED_FILES
 	addr_and_mask.c
 	addr_resolv.c
@@ -293,6 +297,9 @@ set_source_files_properties(
 )
 
 add_library(epan
+	#Included so that Visual Studio can properly put header files in solution
+	${LIBWIRESHARK_HEADER_FILES}
+
 	${LIBWIRESHARK_FILES}
 	$<TARGET_OBJECTS:crypt>
 	$<TARGET_OBJECTS:dfilter>

@@ -19,6 +19,23 @@ set(DFILTER_PUBLIC_HEADERS
 	drange.h
 )
 
+set(DFILTER_HEADER_FILES
+	${DFILTER_PUBLIC_HEADERS}
+	dfilter-int.h
+	dfilter-macro.h
+	dfilter.h
+	dfunctions.h
+	dfvm.h
+	drange.h
+	gencode.h
+	semcheck.h
+	sttype-function.h
+	sttype-range.h
+	sttype-set.h
+	sttype-test.h
+	syntax-tree.h
+)
+
 set(DFILTER_NONGENERATED_FILES
 	dfilter.c
 	dfilter-macro.c
@@ -58,7 +75,13 @@ set_source_files_properties(
 	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
 )
 
-add_library(dfilter OBJECT ${DFILTER_FILES})
+add_library(dfilter OBJECT
+
+	#Included so that Visual Studio can properly put header files in solution
+	${DFILTER_HEADER_FILES}
+
+	${DFILTER_FILES}
+)
 
 set_target_properties(dfilter PROPERTIES
 	FOLDER "Libs/epan/dfilter"

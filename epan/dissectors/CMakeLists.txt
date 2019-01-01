@@ -562,6 +562,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-tcap.h
 	packet-tcp.h
 	packet-tetra.h
+	packet-thrift.h
 	packet-tls-utils.h
 	packet-tls.h
 	packet-tn3270.h
@@ -614,6 +615,10 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-zbee-zcl.h
 	packet-zbee-zdp.h
 	packet-ziop.h
+)
+
+set(DISSECTOR_HEADER_FILES
+	${DISSECTOR_PUBLIC_HEADERS}
 )
 
 set(DISSECTOR_SRC
@@ -1965,6 +1970,10 @@ set_source_files_properties(
 )
 
 add_library(dissectors OBJECT
+	#Included so that Visual Studio can properly put header files in solution
+	${DISSECTOR_HEADER_FILES}
+
+
 	${DISSECTOR_FILES}
 	${DISSECTOR_SUPPORT_SRC}
 )
