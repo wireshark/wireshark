@@ -146,7 +146,7 @@ bool ExportObjectModel::saveEntry(QModelIndex &index, QString filename)
         return false;
 
     if (filename.length() > 0) {
-        eo_save_entry(filename.toUtf8().constData(), entry, TRUE);
+        eo_save_entry(filename.toUtf8().constData(), entry);
     }
 
     return true;
@@ -190,7 +190,7 @@ bool ExportObjectModel::saveAllEntries(QString path)
                                                 safe_filename->str, NULL);
             g_string_free(safe_filename, TRUE);
         } while (g_file_test(save_as_fullpath, G_FILE_TEST_EXISTS) && ++count < 1000);
-        if (!eo_save_entry(save_as_fullpath, entry, FALSE))
+        if (!eo_save_entry(save_as_fullpath, entry))
             all_saved = false;
         g_free(save_as_fullpath);
         save_as_fullpath = NULL;

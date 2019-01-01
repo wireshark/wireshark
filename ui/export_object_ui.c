@@ -28,7 +28,7 @@
 #include "export_object_ui.h"
 
 gboolean
-eo_save_entry(const gchar *save_as_filename, export_object_entry_t *entry, gboolean show_err)
+eo_save_entry(const gchar *save_as_filename, export_object_entry_t *entry)
 {
     int to_fd;
     gint64 bytes_left;
@@ -40,8 +40,7 @@ eo_save_entry(const gchar *save_as_filename, export_object_entry_t *entry, gbool
     to_fd = ws_open(save_as_filename, O_WRONLY | O_CREAT | O_EXCL |
              O_BINARY, 0644);
     if(to_fd == -1) { /* An error occurred */
-        if (show_err)
-            report_open_failure(save_as_filename, errno, TRUE);
+        report_open_failure(save_as_filename, errno, TRUE);
         return FALSE;
     }
 
@@ -71,8 +70,7 @@ eo_save_entry(const gchar *save_as_filename, export_object_entry_t *entry, gbool
                 err = errno;
             else
                 err = WTAP_ERR_SHORT_WRITE;
-            if (show_err)
-                report_write_failure(save_as_filename, err);
+            report_write_failure(save_as_filename, err);
             ws_close(to_fd);
             return FALSE;
         }
@@ -80,8 +78,7 @@ eo_save_entry(const gchar *save_as_filename, export_object_entry_t *entry, gbool
         ptr += bytes_written;
     }
     if (ws_close(to_fd) < 0) {
-        if (show_err)
-            report_write_failure(save_as_filename, errno);
+        report_write_failure(save_as_filename, errno);
         return FALSE;
     }
 
