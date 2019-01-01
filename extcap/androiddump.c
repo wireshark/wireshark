@@ -20,7 +20,7 @@
 #include <time.h>
 #include <wsutil/strtoi.h>
 #include <wsutil/filesystem.h>
-#include <wsutil/cmdarg_err.h>
+#include <ui/cmdarg_err.h>
 #include <wsutil/inet_addr.h>
 
 #include "ui/failure_message.h"

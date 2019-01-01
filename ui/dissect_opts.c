@@ -30,8 +30,8 @@
 #include <epan/dissectors/read_keytab_file.h>
 #endif
 
-#include <wsutil/clopts_common.h>
-#include <wsutil/cmdarg_err.h>
+#include <ui/clopts_common.h>
+#include <ui/cmdarg_err.h>
 #include <wsutil/file_util.h>
 
 #include "ui/dissect_opts.h"

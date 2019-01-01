@@ -8,14 +8,12 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef __WSUTIL_CMDARG_ERR_H__
-#define __WSUTIL_CMDARG_ERR_H__
+#ifndef __UI_CMDARG_ERR_H__
+#define __UI_CMDARG_ERR_H__
 
 #include <stdarg.h>
 
 #include <glib.h>
-
-#include "ws_symbol_export.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,21 +22,21 @@ extern "C" {
 /*
  * Set the reporting functions for error messages.
  */
-WS_DLL_PUBLIC void
+extern void
 cmdarg_err_init(void (*err)(const char *, va_list),
                 void (*err_cont)(const char *, va_list));
 
 /*
  * Report an error in command-line arguments.
  */
-WS_DLL_PUBLIC void
+extern void
 cmdarg_err(const char *fmt, ...)
     G_GNUC_PRINTF(1, 2);
 
 /*
  * Report additional information for an error in command-line arguments.
  */
-WS_DLL_PUBLIC void
+extern void
 cmdarg_err_cont(const char *fmt, ...)
     G_GNUC_PRINTF(1, 2);
 
@@ -46,4 +44,4 @@ cmdarg_err_cont(const char *fmt, ...)
 }
 #endif /* __cplusplus */
 
-#endif /* __WSUTIL_CMDARG_ERR_H__ */
+#endif /* __UI_CMDARG_ERR_H__ */

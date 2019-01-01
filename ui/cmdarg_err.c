@@ -10,8 +10,7 @@
 
 #include "config.h"
 
-
-#include <wsutil/cmdarg_err.h>
+#include "cmdarg_err.h"
 
 static void (*print_err)(const char *, va_list ap);
 static void (*print_err_cont)(const char *, va_list ap);

@@ -18,7 +18,7 @@
 #include <string.h>
 
 #include <wsutil/file_util.h>
-#include <wsutil/cmdarg_err.h>
+#include <ui/cmdarg_err.h>
 
 #include <epan/packet_info.h>
 #include <epan/packet.h>

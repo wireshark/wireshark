@@ -14,9 +14,9 @@
 #include <errno.h>
 
 #include <wsutil/strtoi.h>
-#include <wsutil/cmdarg_err.h>
+#include <ui/cmdarg_err.h>
 
-#include <wsutil/clopts_common.h>
+#include "clopts_common.h"
 
 int
 get_natural_int(const char *string, const char *name)

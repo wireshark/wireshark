@@ -24,7 +24,7 @@
 #include <epan/value_string.h>
 #include <epan/dissectors/packet-sip.h>
 
-#include <wsutil/cmdarg_err.h>
+#include <ui/cmdarg_err.h>
 
 void register_tap_listener_sipstat(void);
 

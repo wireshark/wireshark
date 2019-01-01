@@ -16,7 +16,7 @@
 #include <string.h>
 #include <epan/packet.h>
 #include <epan/timestamp.h>
-#include <wsutil/cmdarg_err.h>
+#include <ui/cmdarg_err.h>
 #include <ui/cli/tshark-tap.h>
 
 typedef struct _io_users_t {

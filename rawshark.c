@@ -46,13 +46,13 @@
 #include <glib.h>
 #include <epan/epan.h>
 
-#include <wsutil/cmdarg_err.h>
+#include <ui/cmdarg_err.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/plugins.h>
 #include <wsutil/privileges.h>
 #include <wsutil/report_message.h>
-#include <wsutil/clopts_common.h>
+#include <ui/clopts_common.h>
 
 #include "globals.h"
 #include <epan/packet.h>

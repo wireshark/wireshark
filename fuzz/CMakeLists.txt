@@ -27,6 +27,7 @@ set(FUZZ_UDP_PORT_DISSECTORS dns dhcp)
 set(FUZZ_MEDIA_TYPE_DISSECTORS json)
 
 set(fuzzshark_LIBS
+	ui
 	wiretap
 	epan
 	${VERSION_INFO_LIBS}

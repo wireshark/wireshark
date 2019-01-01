@@ -8,32 +8,30 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef __WSUTIL_CLOPTS_COMMON_H__
-#define __WSUTIL_CLOPTS_COMMON_H__
-
-#include "ws_symbol_export.h"
+#ifndef __UI_CLOPTS_COMMON_H__
+#define __UI_CLOPTS_COMMON_H__
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
-WS_DLL_PUBLIC int
+extern int
 get_natural_int(const char *string, const char *name);
 
-WS_DLL_PUBLIC int
+extern int
 get_positive_int(const char *string, const char *name);
 
-WS_DLL_PUBLIC guint32
+extern guint32
 get_guint32(const char *string, const char *name);
 
-WS_DLL_PUBLIC guint32
+extern guint32
 get_nonzero_guint32(const char *string, const char *name);
 
-WS_DLL_PUBLIC double
+extern double
 get_positive_double(const char *string, const char *name);
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
-#endif /* __WSUTIL_CLOPTS_COMMON_H__ */
+#endif /* __UI_CLOPTS_COMMON_H__ */

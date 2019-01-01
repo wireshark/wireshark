@@ -40,7 +40,7 @@
 #include <signal.h>
 #include <errno.h>
 
-#include <wsutil/cmdarg_err.h>
+#include <ui/cmdarg_err.h>
 #include <wsutil/strtoi.h>
 #include <cli_main.h>
 #include <version_info.h>
@@ -69,7 +69,7 @@
 #include <sys/un.h>
 #endif
 
-#include <wsutil/clopts_common.h>
+#include <ui/clopts_common.h>
 #include <wsutil/privileges.h>
 
 #include "sync_pipe.h"

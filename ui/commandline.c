@@ -26,8 +26,8 @@
 
 #include <version_info.h>
 
-#include <wsutil/clopts_common.h>
-#include <wsutil/cmdarg_err.h>
+#include <ui/clopts_common.h>
+#include <ui/cmdarg_err.h>
 #include <wsutil/filesystem.h>
 
 #include <epan/ex-opt.h>
