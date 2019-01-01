@@ -35,6 +35,10 @@ typedef struct _export_object_entry_t {
     guint8 *payload_data;
 } export_object_entry_t;
 
+/** Maximum file name size for the file to which we save an object.
+    This is the file name size, not the path name size; we impose
+    the limit so that the file doesn't have a ridiculously long
+    name, e.g. an HTTP object where the URL has a long query part. */
 #define EXPORT_OBJECT_MAXFILELEN      255
 
 typedef void (*export_object_object_list_add_entry_cb)(void* gui_data, struct _export_object_entry_t *entry);

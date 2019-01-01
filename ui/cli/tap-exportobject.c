@@ -120,37 +120,31 @@ eo_draw(void *tapdata)
         }
     }
 
-    if ((strlen(save_in_path) < EXPORT_OBJECT_MAXFILELEN)) {
-        while (slist) {
-            entry = (export_object_entry_t *)slist->data;
-            do {
-                g_free(save_as_fullpath);
-                if (entry->filename) {
-                    safe_filename = eo_massage_str(entry->filename,
-                        EXPORT_OBJECT_MAXFILELEN - strlen(save_in_path), count);
-                } else {
-                    char generic_name[EXPORT_OBJECT_MAXFILELEN+1];
-                    const char *ext;
-                    ext = eo_ct2ext(entry->content_type);
-                    g_snprintf(generic_name, sizeof(generic_name),
-                        "object%u%s%s", entry->pkt_num, ext ? "." : "", ext ? ext : "");
-                    safe_filename = eo_massage_str(generic_name,
-                        EXPORT_OBJECT_MAXFILELEN - strlen(save_in_path), count);
-                }
-                save_as_fullpath = g_build_filename(save_in_path, safe_filename->str, NULL);
-                g_string_free(safe_filename, TRUE);
-            } while (g_file_test(save_as_fullpath, G_FILE_TEST_EXISTS) && ++count < 1000);
-            count = 0;
-            if (!eo_save_entry(save_as_fullpath, entry, TRUE))
-                all_saved = FALSE;
+    while (slist) {
+        entry = (export_object_entry_t *)slist->data;
+        do {
             g_free(save_as_fullpath);
-            save_as_fullpath = NULL;
-            slist = slist->next;
-        }
-    }
-    else
-    {
-        all_saved = FALSE;
+            if (entry->filename) {
+                safe_filename = eo_massage_str(entry->filename,
+                    EXPORT_OBJECT_MAXFILELEN, count);
+            } else {
+                char generic_name[EXPORT_OBJECT_MAXFILELEN+1];
+                const char *ext;
+                ext = eo_ct2ext(entry->content_type);
+                g_snprintf(generic_name, sizeof(generic_name),
+                    "object%u%s%s", entry->pkt_num, ext ? "." : "", ext ? ext : "");
+                safe_filename = eo_massage_str(generic_name,
+                    EXPORT_OBJECT_MAXFILELEN, count);
+            }
+            save_as_fullpath = g_build_filename(save_in_path, safe_filename->str, NULL);
+            g_string_free(safe_filename, TRUE);
+        } while (g_file_test(save_as_fullpath, G_FILE_TEST_EXISTS) && ++count < 1000);
+        count = 0;
+        if (!eo_save_entry(save_as_fullpath, entry, TRUE))
+            all_saved = FALSE;
+        g_free(save_as_fullpath);
+        save_as_fullpath = NULL;
+        slist = slist->next;
     }
 
     if (!all_saved)

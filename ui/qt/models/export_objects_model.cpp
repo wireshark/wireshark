@@ -175,16 +175,16 @@ bool ExportObjectModel::saveAllEntries(QString path)
             g_free(save_as_fullpath);
             if (entry->filename)
                 safe_filename = eo_massage_str(entry->filename,
-                    EXPORT_OBJECT_MAXFILELEN - path.length(), count);
+                    EXPORT_OBJECT_MAXFILELEN, count);
             else {
-                char generic_name[256];
+                char generic_name[EXPORT_OBJECT_MAXFILELEN+1];
                 const char *ext;
                 ext = eo_ct2ext(entry->content_type);
                 g_snprintf(generic_name, sizeof(generic_name),
                     "object%u%s%s", entry->pkt_num, ext ? "." : "",
                     ext ? ext : "");
                 safe_filename = eo_massage_str(generic_name,
-                    EXPORT_OBJECT_MAXFILELEN - path.length(), count);
+                    EXPORT_OBJECT_MAXFILELEN, count);
             }
             save_as_fullpath = g_build_filename(path.toUtf8().constData(),
                                                 safe_filename->str, NULL);
