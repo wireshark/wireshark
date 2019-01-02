@@ -72,7 +72,7 @@ eo_save_entry(const gchar *save_as_filename, export_object_entry_t *entry)
                 err = WTAP_ERR_SHORT_WRITE;
             report_write_failure(save_as_filename, err);
             ws_close(to_fd);
-            break;
+            return;
         }
         bytes_left -= bytes_written;
         ptr += bytes_written;
