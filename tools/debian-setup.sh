@@ -176,12 +176,17 @@ apt-get update || exit 2
 # shellcheck disable=SC2086
 apt-get install $ACTUAL_LIST $OPTIONS || exit 2
 
-if [ ! $ADDITIONAL ]
+if [ $ADDITIONAL == 0 ]
 then
-	printf "\\n*** Optional packages not installed. Rerun with --install-optional to have them.\\n"
+	printf "\n*** Optional packages not installed. Rerun with --install-optional to have them.\n"
 fi
 
-if [ ! $DEBDEPS ]
+if [ $DEBDEPS == 0 ]
 then
 	printf "\n*** Debian packages build deps not installed. Rerun with --install-deb-deps to have them.\n"
+fi
+
+if [ $TESTDEPS == 0 ]
+then
+	printf "\n*** Test deps not installed. Rerun with --install-test-deps to have them.\n"
 fi
