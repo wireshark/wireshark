@@ -285,6 +285,7 @@ static expert_field ei_geonw_payload_len        = EI_INIT;
 static dissector_table_t geonw_subdissector_table;
 static dissector_table_t sgeonw_v1_subdissector_table;
 static dissector_table_t sgeonw_v2_subdissector_table;
+static dissector_table_t ssp_subdissector_table;
 static dissector_table_t btpa_subdissector_table;
 static dissector_table_t btpb_subdissector_table;
 
@@ -906,6 +907,7 @@ static int ett_sgeonw_encryption_parameter = -1;
 static int ett_sgeonw_signature = -1;
 static int ett_sgeonw_subject_info = -1;
 static int ett_sgeonw_subject_attribute = -1;
+static int ett_sgeonw_ssp = -1;
 
 static expert_field ei_sgeonw_len_unsupported     = EI_INIT;
 static expert_field ei_sgeonw_len_too_long        = EI_INIT;
@@ -1454,15 +1456,23 @@ dissect_sec_itsaidssp(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tre
 {
     gint start = *offset;
     guint32 param_len;
+    guint32 appid;
     proto_item *ti;
+    proto_tree *subtree;
 
     // XXX provide its-aid named values.
-    dissect_sec_intx(tvb, offset, pinfo, tree, hf_sgeonw_app_id, NULL);
+    dissect_sec_intx(tvb, offset, pinfo, tree, hf_sgeonw_app_id, &appid);
     param_len = dissect_sec_var_len(tvb, offset, pinfo, tree);
     ti = proto_tree_add_item(tree, hf_sgeonw_opaque, tvb, *offset, param_len, ENC_NA);
     // Expert info: shall be at most 31 bytes long
-    if (param_len > 31)
+    if (param_len > 31) {
         expert_add_info(pinfo, ti, &ei_sgeonw_ssp_too_long);
+    }
+    else {
+        subtree = proto_item_add_subtree(ti, ett_sgeonw_ssp);
+        tvbuff_t *next_tvb = tvb_new_subset_length(tvb, *offset, param_len);
+        dissector_try_uint(ssp_subdissector_table, appid, next_tvb, pinfo, subtree);
+    }
     *offset += param_len;
 
     return (*offset) - start;
@@ -3592,6 +3602,7 @@ proto_register_geonw(void)
         &ett_sgeonw_signature,
         &ett_sgeonw_subject_info,
         &ett_sgeonw_subject_attribute,
+        &ett_sgeonw_ssp,
     };
 
     expert_module_t* expert_geonw;
@@ -3616,6 +3627,9 @@ proto_register_geonw(void)
 
     sgeonw_v2_subdissector_table = register_dissector_table("geonw.sec.v2.app_id",
         "Secured GeoNetworking version 2 payload application identifier", proto_geonw, FT_UINT16, BASE_HEX);
+
+    ssp_subdissector_table = register_dissector_table("geonw.ssp",
+        "ATS-AID/PSID based dissector for Service Specific Permissions (SSP)", proto_geonw, FT_UINT32, BASE_HEX);
 
     geonw_address_type = address_type_dissector_register("AT_GEONW", "GeoNetworking address", geonw_to_str, geonw_str_len, NULL, geonw_col_filter_str, geonw_len, geonw_name_resolution_str, geonw_name_resolution_len);
 

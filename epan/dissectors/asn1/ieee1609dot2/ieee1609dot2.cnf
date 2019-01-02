@@ -43,18 +43,23 @@ UnknownLongitude
 
 #.FIELD_RENAME
 
+#.FN_HDR Ieee1609Dot2Data
+  actx->private_data = (void*)wmem_new0(wmem_packet_scope(), ieee1609_private_data_t);
+#.END
+
 #.FN_BODY Ieee1609Dot2Content/unsecuredData
+  ieee1609_private_data_t *my_private_data = (ieee1609_private_data_t*)actx->private_data;
 
   offset = dissect_oer_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, (tvbuff_t **)&actx->private_data);
+                                       NO_BOUND, NO_BOUND, FALSE, &my_private_data->unsecured_data);
 
-  if (actx->private_data) {
+  if (my_private_data->unsecured_data) {
     // psid may also be provided in HeaderInfo
     guint32 *psid = (guint32*)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_ieee1609dot2, 0);
     if (psid) {
       /* Call next dissector here */
-      dissector_try_uint(unsecured_data_subdissector_table, *psid, (tvbuff_t *)(actx->private_data), actx->pinfo, tree);
-      actx->private_data = NULL;
+      dissector_try_uint(unsecured_data_subdissector_table, *psid, my_private_data->unsecured_data, actx->pinfo, tree);
+      my_private_data->unsecured_data = NULL;
     }
     // else: wait for the HeaderInfo for a second chance to dissect the content
   }
@@ -63,14 +68,34 @@ UnknownLongitude
 
 #.FN_BODY HeaderInfo/psid
   guint64 psid;
+  ieee1609_private_data_t *my_private_data = (ieee1609_private_data_t*)actx->private_data;
+
   offset = dissect_oer_constrained_integer_64b_no_ub(tvb, offset, actx, tree, hf_index,
                                                             0U, NO_BOUND, &psid, FALSE);
-  if (actx->private_data) {
+  if (my_private_data->unsecured_data) {
     /* Call next dissector here */
-    dissector_try_uint(unsecured_data_subdissector_table, (guint32) psid, (tvbuff_t *)(actx->private_data), actx->pinfo, tree);
-    actx->private_data = NULL;
+    dissector_try_uint(unsecured_data_subdissector_table, (guint32) psid, my_private_data->unsecured_data, actx->pinfo, tree);
+    my_private_data->unsecured_data = NULL;
   }
 
+#.END
+
+#.FN_BODY PsidSsp/psid
+  offset = dissect_oer_constrained_integer_64b_no_ub(tvb, offset, actx, tree, hf_index,
+                                               0U, NO_BOUND, &((ieee1609_private_data_t*)actx->private_data)->psidssp, FALSE);
+
+#.FN_BODY ServiceSpecificPermissions/opaque
+  tvbuff_t *ssp;
+  ieee1609_private_data_t *my_private_data = (ieee1609_private_data_t*)actx->private_data;
+
+  offset = dissect_oer_octet_string(tvb, offset, actx, tree, hf_index,
+                                       0, NO_BOUND, FALSE, &ssp);
+  if (ssp) {
+    // Create subtree
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ieee1609dot2_ssp);
+    /* Call next dissector here */
+    dissector_try_uint(ssp_subdissector_table, (guint32) my_private_data->psidssp, ssp, actx->pinfo, subtree);
+  }
 #.END
 
 #.ASSIGN_VALUE_TO_TYPE

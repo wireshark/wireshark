@@ -36,9 +36,16 @@ int proto_ieee1609dot2 = -1;
 #include "packet-ieee1609dot2-hf.c"
 
 /* Initialize the subtree pointers */
+static int ett_ieee1609dot2_ssp = -1;
 #include "packet-ieee1609dot2-ett.c"
 
 static dissector_table_t unsecured_data_subdissector_table;
+static dissector_table_t ssp_subdissector_table;
+
+typedef struct ieee1609_private_data {
+  tvbuff_t *unsecured_data;
+  guint64 psidssp; // psid for Service Specific Permissions
+} ieee1609_private_data_t;
 
 void
 ieee1609dot2_set_next_default_psid(packet_info *pinfo, guint32 psid)
@@ -62,6 +69,7 @@ void proto_register_ieee1609dot2(void) {
   /* List of subtrees */
   static gint *ett[] = {
 #include "packet-ieee1609dot2-ettarr.c"
+        &ett_ieee1609dot2_ssp,
   };
 
   /* Register protocol */
@@ -76,6 +84,8 @@ void proto_register_ieee1609dot2(void) {
   // See TS17419_ITS-AID_AssignedNumbers
   unsecured_data_subdissector_table = register_dissector_table("ieee1609dot2.psid",
         "ATS-AID/PSID based dissector for unsecured/signed data", proto_ieee1609dot2, FT_UINT32, BASE_HEX);
+  ssp_subdissector_table = register_dissector_table("ieee1609dot2.ssp",
+        "ATS-AID/PSID based dissector for Service Specific Permissions (SSP)", proto_ieee1609dot2, FT_UINT32, BASE_HEX);
 }
 
 void

@@ -52,6 +52,7 @@
 #include "packet-per.h"
 
 #include "packet-its.h"
+#include "packet-ieee1609dot2.h"
 
 /*
  * Well Known Ports definitions as per:
@@ -129,6 +130,60 @@ static int proto_its_mapem = -1;
 static int proto_its_spatem = -1;
 static int proto_addgrpc = -1;
 
+/*
+ * DENM SSP
+ */
+static int hf_denmssp_version = -1;
+static int hf_denmssp_flags = -1;
+static int hf_denmssp_trafficCondition = -1;
+static int hf_denmssp_accident = -1;
+static int hf_denmssp_roadworks = -1;
+static int hf_denmssp_adverseWeatherConditionAdhesion = -1;
+static int hf_denmssp_hazardousLocationSurfaceCondition = -1;
+static int hf_denmssp_hazardousLocationObstacleOnTheRoad = -1;
+static int hf_denmssp_hazardousLocationAnimalOnTheRoad = -1;
+static int hf_denmssp_humanPresenceOnTheRoad = -1;
+static int hf_denmssp_wrongWayDriving = -1;
+static int hf_denmssp_rescueAndRecoveryWorkInProgress = -1;
+static int hf_denmssp_ExtremeWeatherCondition = -1;
+static int hf_denmssp_adverseWeatherConditionVisibility = -1;
+static int hf_denmssp_adverseWeatherConditionPrecipitation = -1;
+static int hf_denmssp_slowVehicle = -1;
+static int hf_denmssp_dangerousEndOfQueue = -1;
+static int hf_denmssp_vehicleBreakdown = -1;
+static int hf_denmssp_postCrash = -1;
+static int hf_denmssp_humanProblem = -1;
+static int hf_denmssp_stationaryVehicle = -1;
+static int hf_denmssp_emergencyVehicleApproaching = -1;
+static int hf_denmssp_hazardousLocationDangerousCurve = -1;
+static int hf_denmssp_collisionRisk = -1;
+static int hf_denmssp_signalViolation = -1;
+static int hf_denmssp_dangerousSituation = -1;
+
+/*
+ * CAM SSP
+ */
+static int hf_camssp_version = -1;
+static int hf_camssp_flags = -1;
+static int hf_camssp_cenDsrcTollingZone = -1;
+static int hf_camssp_publicTransport = -1;
+static int hf_camssp_specialTransport = -1;
+static int hf_camssp_dangerousGoods = -1;
+static int hf_camssp_roadwork = -1;
+static int hf_camssp_rescue = -1;
+static int hf_camssp_emergency = -1;
+static int hf_camssp_safetyCar = -1;
+static int hf_camssp_closedLanes = -1;
+static int hf_camssp_requestForRightOfWay = -1;
+static int hf_camssp_requestForFreeCrossingAtATrafficLight = -1;
+static int hf_camssp_noPassing = -1;
+static int hf_camssp_noPassingForTrucks = -1;
+static int hf_camssp_speedLimit = -1;
+static int hf_camssp_reserved = -1;
+
+static gint ett_denmssp_flags = -1;
+static gint ett_camssp_flags = -1;
+
 // Subdissectors
 static dissector_table_t its_version_subdissector_table;
 static dissector_table_t its_msgid_subdissector_table;
@@ -148,6 +203,75 @@ static int dissect_regextval_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     if (!dissector_try_uint_new(regionid_subdissector_table, ((guint32) re->region_id<<16) + (guint32) re->type, tvb, pinfo, tree, FALSE, NULL))
         call_data_dissector(tvb, pinfo, tree);
     return tvb_captured_length(tvb);
+}
+
+static int dissect_denmssp_pdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    static const int *denmssp_flags[] = {
+        &hf_denmssp_trafficCondition,
+        &hf_denmssp_accident,
+        &hf_denmssp_roadworks,
+        &hf_denmssp_adverseWeatherConditionAdhesion,
+        &hf_denmssp_hazardousLocationSurfaceCondition,
+        &hf_denmssp_hazardousLocationObstacleOnTheRoad,
+        &hf_denmssp_hazardousLocationAnimalOnTheRoad,
+        &hf_denmssp_humanPresenceOnTheRoad,
+        &hf_denmssp_wrongWayDriving,
+        &hf_denmssp_rescueAndRecoveryWorkInProgress,
+        &hf_denmssp_ExtremeWeatherCondition,
+        &hf_denmssp_adverseWeatherConditionVisibility,
+        &hf_denmssp_adverseWeatherConditionPrecipitation,
+        &hf_denmssp_slowVehicle,
+        &hf_denmssp_dangerousEndOfQueue,
+        &hf_denmssp_vehicleBreakdown,
+        &hf_denmssp_postCrash,
+        &hf_denmssp_humanProblem,
+        &hf_denmssp_stationaryVehicle,
+        &hf_denmssp_emergencyVehicleApproaching,
+        &hf_denmssp_hazardousLocationDangerousCurve,
+        &hf_denmssp_collisionRisk,
+        &hf_denmssp_signalViolation,
+        &hf_denmssp_dangerousSituation,
+        NULL
+    };
+
+    guint32 version;
+
+    proto_tree_add_item_ret_uint(tree, hf_denmssp_version, tvb, 0, 1, ENC_BIG_ENDIAN, &version);
+    if (version == 1) {
+        proto_tree_add_bitmask(tree, tvb, 1, hf_denmssp_flags, ett_denmssp_flags, denmssp_flags, ENC_BIG_ENDIAN);
+    }
+    return tvb_reported_length(tvb);
+}
+
+static int dissect_camssp_pdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    static const int *camssp_flags[] = {
+        &hf_camssp_cenDsrcTollingZone,
+        &hf_camssp_publicTransport,
+        &hf_camssp_specialTransport,
+        &hf_camssp_dangerousGoods,
+        &hf_camssp_roadwork,
+        &hf_camssp_rescue,
+        &hf_camssp_emergency,
+        &hf_camssp_safetyCar,
+        &hf_camssp_closedLanes,
+        &hf_camssp_requestForRightOfWay,
+        &hf_camssp_requestForFreeCrossingAtATrafficLight,
+        &hf_camssp_noPassing,
+        &hf_camssp_noPassingForTrucks,
+        &hf_camssp_speedLimit,
+        &hf_camssp_reserved,
+        NULL
+    };
+
+    guint32 version;
+
+    proto_tree_add_item_ret_uint(tree, hf_camssp_version, tvb, 0, 1, ENC_BIG_ENDIAN, &version);
+    if (version == 1) {
+        proto_tree_add_bitmask(tree, tvb, 1, hf_camssp_flags, ett_camssp_flags, camssp_flags, ENC_BIG_ENDIAN);
+    }
+    return tvb_reported_length(tvb);
 }
 
 // Generated by asn2wrs
@@ -1261,7 +1385,7 @@ static int hf_evrsr_SupportedPaymentTypes_contract = -1;
 static int hf_evrsr_SupportedPaymentTypes_externalIdentification = -1;
 
 /*--- End of included file: packet-its-hf.c ---*/
-#line 147 "./asn1/its/packet-its-template.c"
+#line 271 "./asn1/its/packet-its-template.c"
 
 // CauseCode/SubCauseCode management
 static int hf_its_trafficConditionSubCauseCode = -1;
@@ -1703,7 +1827,7 @@ static gint ett_evrsr_RechargingType = -1;
 static gint ett_evrsr_SupportedPaymentTypes = -1;
 
 /*--- End of included file: packet-its-ett.c ---*/
-#line 177 "./asn1/its/packet-its-template.c"
+#line 301 "./asn1/its/packet-its-template.c"
 
 // Deal with cause/subcause code management
 struct { CauseCodeType_enum cause; int* hf; } cause_to_subcause[] = {
@@ -12806,7 +12930,7 @@ static int dissect_evrsr_EV_RSR_MessageBody_PDU(tvbuff_t *tvb _U_, packet_info *
 
 
 /*--- End of included file: packet-its-fn.c ---*/
-#line 219 "./asn1/its/packet-its-template.c"
+#line 343 "./asn1/its/packet-its-template.c"
 
 static int
 dissect_its_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
@@ -17135,7 +17259,7 @@ void proto_register_its(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-its-hfarr.c ---*/
-#line 255 "./asn1/its/packet-its-template.c"
+#line 379 "./asn1/its/packet-its-template.c"
 
     { &hf_its_roadworksSubCauseCode,
       { "roadworksSubCauseCode", "its.subCauseCode",
@@ -17233,10 +17357,111 @@ void proto_register_its(void)
       { "trafficConditionSubCauseCode", "its.subCauseCode",
         FT_UINT32, BASE_DEC, VALS(its_TrafficConditionSubCauseCode_vals), 0,
         "SubCauseCodeType", HFILL }},
+
+    /*
+     * DENM SSP
+     */
+    { &hf_denmssp_version, { "Version", "its.ssp.denm.version", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+    { &hf_denmssp_flags, { "Allowed to sign", "its.ssp.denm.flags", FT_UINT24, BASE_HEX, NULL, 0, NULL, HFILL }},
+    { &hf_denmssp_trafficCondition,
+        { "trafficCondition",                     "its.denm.ssp.trafficCondition",
+            FT_UINT24, BASE_DEC, NULL, 0x800000, NULL, HFILL }},
+    { &hf_denmssp_accident,
+        { "accident",                             "its.denm.ssp.accident",
+            FT_UINT24, BASE_DEC, NULL, 0x400000, NULL, HFILL }},
+    { &hf_denmssp_roadworks,
+        { "roadworks",                            "its.denm.ssp.roadworks",
+            FT_UINT24, BASE_DEC, NULL, 0x200000, NULL, HFILL }},
+    { &hf_denmssp_adverseWeatherConditionAdhesion,
+        { "adverseWeatherConditionAdhesion",      "its.denm.ssp.advWxConditionAdhesion",
+            FT_UINT24, BASE_DEC, NULL, 0x100000, NULL, HFILL }},
+    { &hf_denmssp_hazardousLocationSurfaceCondition,
+        { "hazardousLocationSurfaceCondition",    "its.denm.ssp.hazLocationSurfaceCondition",
+            FT_UINT24, BASE_DEC, NULL, 0x080000, NULL, HFILL }},
+    { &hf_denmssp_hazardousLocationObstacleOnTheRoad,
+        { "hazardousLocationObstacleOnTheRoad",   "its.denm.ssp.hazLocationObstacleOnTheRoad",
+            FT_UINT24, BASE_DEC, NULL, 0x040000, NULL, HFILL }},
+    { &hf_denmssp_hazardousLocationAnimalOnTheRoad,
+        { "hazardousLocationAnimalOnTheRoad",     "its.denm.ssp.hazLocationAnimalOnTheRoad",
+            FT_UINT24, BASE_DEC, NULL, 0x020000, NULL, HFILL }},
+    { &hf_denmssp_humanPresenceOnTheRoad,
+        { "humanPresenceOnTheRoad",               "its.denm.ssp.humanPresenceOnTheRoad",
+            FT_UINT24, BASE_DEC, NULL, 0x010000, NULL, HFILL }},
+    { &hf_denmssp_wrongWayDriving,
+        { "wrongWayDriving",                      "its.denm.ssp.wrongWayDriving",
+            FT_UINT24, BASE_DEC, NULL, 0x008000, NULL, HFILL }},
+    { &hf_denmssp_rescueAndRecoveryWorkInProgress,
+        { "rescueAndRecoveryWorkInProgress",      "its.denm.ssp.rescueAndRecoveryWorkInProgress",
+            FT_UINT24, BASE_DEC, NULL, 0x004000, NULL, HFILL }},
+    { &hf_denmssp_ExtremeWeatherCondition,
+        { "ExtremeWeatherCondition",              "its.denm.ssp.ExtremeWxCondition",
+            FT_UINT24, BASE_DEC, NULL, 0x002000, NULL, HFILL }},
+    { &hf_denmssp_adverseWeatherConditionVisibility,
+        { "adverseWeatherConditionVisibility",    "its.denm.ssp.advWxConditionVisibility",
+            FT_UINT24, BASE_DEC, NULL, 0x001000, NULL, HFILL }},
+    { &hf_denmssp_adverseWeatherConditionPrecipitation,
+        { "adverseWeatherConditionPrecipitation", "its.denm.ssp.advWxConditionPrecipitation",
+            FT_UINT24, BASE_DEC, NULL, 0x000800, NULL, HFILL }},
+    { &hf_denmssp_slowVehicle,
+        { "slowVehicle",                          "its.denm.ssp.slowVehicle",
+            FT_UINT24, BASE_DEC, NULL, 0x000400, NULL, HFILL }},
+    { &hf_denmssp_dangerousEndOfQueue,
+        { "dangerousEndOfQueue",                  "its.denm.ssp.dangerousEndOfQueue",
+            FT_UINT24, BASE_DEC, NULL, 0x000200, NULL, HFILL }},
+    { &hf_denmssp_vehicleBreakdown,
+        { "vehicleBreakdown",                     "its.denm.ssp.vehicleBreakdown",
+            FT_UINT24, BASE_DEC, NULL, 0x000100, NULL, HFILL }},
+    { &hf_denmssp_postCrash,
+        { "postCrash",                            "its.denm.ssp.postCrash",
+            FT_UINT24, BASE_DEC, NULL, 0x000080, NULL, HFILL }},
+    { &hf_denmssp_humanProblem,
+        { "humanProblem",                         "its.denm.ssp.humanProblem",
+            FT_UINT24, BASE_DEC, NULL, 0x000040, NULL, HFILL }},
+    { &hf_denmssp_stationaryVehicle,
+        { "stationaryVehicle",                    "its.denm.ssp.stationaryVehicle",
+            FT_UINT24, BASE_DEC, NULL, 0x000020, NULL, HFILL }},
+    { &hf_denmssp_emergencyVehicleApproaching,
+        { "emergencyVehicleApproaching",          "its.denm.ssp.emergencyVehicleApproaching",
+            FT_UINT24, BASE_DEC, NULL, 0x000010, NULL, HFILL }},
+    { &hf_denmssp_hazardousLocationDangerousCurve,
+        { "hazardousLocationDangerousCurve",      "its.denm.ssp.hazLocationDangerousCurve",
+            FT_UINT24, BASE_DEC, NULL, 0x000008, NULL, HFILL }},
+    { &hf_denmssp_collisionRisk,
+        { "collisionRisk",                        "its.denm.ssp.collisionRisk",
+            FT_UINT24, BASE_DEC, NULL, 0x000004, NULL, HFILL }},
+    { &hf_denmssp_signalViolation,
+        { "signalViolation",                      "its.denm.ssp.signalViolation",
+            FT_UINT24, BASE_DEC, NULL, 0x000002, NULL, HFILL }},
+    { &hf_denmssp_dangerousSituation,
+        { "dangerousSituation",                   "its.denm.ssp.dangerousSituation",
+            FT_UINT24, BASE_DEC, NULL, 0x000001, NULL, HFILL }},
+
+    /*
+     * CAM SSP
+     */
+    { &hf_camssp_version, { "Version", "its.ssp.cam.version", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+    { &hf_camssp_flags, { "Allowed to sign", "its.ssp.cam.flags", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+    { &hf_camssp_cenDsrcTollingZone, { "cenDsrcTollingZone", "its.ssp.cam.cenDsrcTollingZone", FT_UINT16, BASE_DEC, NULL, 0x8000, NULL, HFILL }},
+    { &hf_camssp_publicTransport, { "publicTransport", "its.ssp.cam.publicTransport", FT_UINT16, BASE_DEC, NULL, 0x4000, NULL, HFILL }},
+    { &hf_camssp_specialTransport, { "specialTransport", "its.ssp.cam.specialTransport", FT_UINT16, BASE_DEC, NULL, 0x2000, NULL, HFILL }},
+    { &hf_camssp_dangerousGoods, { "dangerousGoods", "its.ssp.cam.dangerousGoods", FT_UINT16, BASE_DEC, NULL, 0x1000, NULL, HFILL }},
+    { &hf_camssp_roadwork, { "roadwork", "its.ssp.cam.roadwork", FT_UINT16, BASE_DEC, NULL, 0x0800, NULL, HFILL }},
+    { &hf_camssp_rescue, { "rescue", "its.ssp.cam.rescue", FT_UINT16, BASE_DEC, NULL, 0x0400, NULL, HFILL }},
+    { &hf_camssp_emergency, { "emergency", "its.ssp.cam.emergency", FT_UINT16, BASE_DEC, NULL, 0x0200, NULL, HFILL }},
+    { &hf_camssp_safetyCar, { "safetyCar", "its.ssp.cam.safetyCar", FT_UINT16, BASE_DEC, NULL, 0x0100, NULL, HFILL }},
+    { &hf_camssp_closedLanes, { "closedLanes", "its.ssp.cam.closedLanes", FT_UINT16, BASE_DEC, NULL, 0x0080, NULL, HFILL }},
+    { &hf_camssp_requestForRightOfWay, { "requestForRightOfWay", "its.ssp.cam.requestForRightOfWay", FT_UINT16, BASE_DEC, NULL, 0x0040, NULL, HFILL }},
+    { &hf_camssp_requestForFreeCrossingAtATrafficLight, { "reqFreeCrossTrafLight", "its.ssp.cam.requestForFreeCrossingAtATrafficLight", FT_UINT16, BASE_DEC, NULL, 0x0020, NULL, HFILL }},
+    { &hf_camssp_noPassing, { "noPassing", "its.ssp.cam.noPassing", FT_UINT16, BASE_DEC, NULL, 0x0010, NULL, HFILL }},
+    { &hf_camssp_noPassingForTrucks, { "noPassingForTrucks", "its.ssp.cam.noPassingForTrucks", FT_UINT16, BASE_DEC, NULL, 0x0008, NULL, HFILL }},
+    { &hf_camssp_speedLimit, { "speedLimit", "its.ssp.cam.speedLimit", FT_UINT16, BASE_DEC, NULL, 0x0004, NULL, HFILL }},
+    { &hf_camssp_reserved, { "reserved", "its.ssp.cam.reserved", FT_UINT16, BASE_DEC, NULL, 0x0003, NULL, HFILL }},
     };
 
     static gint *ett[] = {
         &ett_its,
+        &ett_denmssp_flags,
+        &ett_camssp_flags,
 
 /*--- Included file: packet-its-ettarr.c ---*/
 #line 1 "./asn1/its/packet-its-ettarr.c"
@@ -17649,7 +17874,7 @@ void proto_register_its(void)
     &ett_evrsr_SupportedPaymentTypes,
 
 /*--- End of included file: packet-its-ettarr.c ---*/
-#line 357 "./asn1/its/packet-its-template.c"
+#line 582 "./asn1/its/packet-its-template.c"
     };
 
     proto_its = proto_register_protocol("Intelligent Transport Systems", "ITS", "its");
@@ -17725,6 +17950,11 @@ void proto_reg_handoff_its(void)
     dissector_add_uint("dsrc.regionid", (addGrpC<<16)+Reg_Position3D, create_dissector_handle(dissect_AddGrpC_Position3D_addGrpC_PDU, proto_addgrpc ));
     dissector_add_uint("dsrc.regionid", (addGrpC<<16)+Reg_RestrictionUserType, create_dissector_handle(dissect_AddGrpC_RestrictionUserType_addGrpC_PDU, proto_addgrpc ));
     dissector_add_uint("dsrc.regionid", (addGrpC<<16)+Reg_SignalStatusPackage, create_dissector_handle(dissect_AddGrpC_SignalStatusPackage_addGrpC_PDU, proto_addgrpc ));
+
+    dissector_add_uint("ieee1609dot2.ssp", psid_den_basic_services, create_dissector_handle(dissect_denmssp_pdu, proto_its_denm));
+    dissector_add_uint("ieee1609dot2.ssp", psid_ca_basic_services,  create_dissector_handle(dissect_camssp_pdu, proto_its_cam));
+    dissector_add_uint("geonw.ssp", psid_den_basic_services, create_dissector_handle(dissect_denmssp_pdu, proto_its_denm));
+    dissector_add_uint("geonw.ssp", psid_ca_basic_services,  create_dissector_handle(dissect_camssp_pdu, proto_its_cam));
 
     its_tap = register_tap("its");
 }
