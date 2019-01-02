@@ -6209,7 +6209,11 @@
 		<avp name="Core-Network-Restrictions" code="1704" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
-
+		<avp name="eDRX-Related-RAT" code="1705" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="RAT-Type"/>
+			</grouped>
+		</avp>
 		<avp name="SMS-Information" code="2000" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
 				<gavp name="SMS-Node"/>
