@@ -1219,6 +1219,7 @@ dissect_6lowpan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
         next = dissect_6lowpan_6loRH(next, offset, lowpan_tree);
         if (tvb_get_bits8(next, 0, LOWPAN_PATTERN_IPHC_BITS) == LOWPAN_PATTERN_IPHC) {
             next = dissect_6lowpan_iphc(next, pinfo, lowpan_tree, -1, src_iid, dst_iid);
+            if (!next) return tvb_captured_length(tvb);
         }
         if (tvb_get_bits8(next, 0, LOWPAN_PATTERN_HC1_BITS) == LOWPAN_PATTERN_HC1) {
             next = dissect_6lowpan_hc1(next, pinfo, lowpan_tree, -1, src_iid, dst_iid);
@@ -1817,7 +1818,7 @@ dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dg
  *      siid            ; Source Interface ID.
  *      diid            ; Destination Interface ID.
  *  RETURNS
- *      tvbuff_t *      ; The remaining payload to be parsed.
+ *      tvbuff_t *      ; The remaining payload to be parsed or NULL on error.
  *---------------------------------------------------------------
  */
 static tvbuff_t *
