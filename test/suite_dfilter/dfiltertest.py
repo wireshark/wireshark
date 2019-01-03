@@ -30,7 +30,8 @@ def checkDFilterCount(dfilter_cmd, base_env):
                                          env=base_env)
 
         dfp_count = output.count("\n")
-        msg = "Expected %d, got: %s" % (expected_count, dfp_count)
+        msg = "Expected %d, got: %s\noutput: %r" % \
+            (expected_count, dfp_count, output)
         assert dfp_count == expected_count, msg
     return checkDFilterCount_real
 
