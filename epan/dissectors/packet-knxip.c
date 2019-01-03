@@ -1706,7 +1706,7 @@ static guint8 dissect_dib_devinfo( tvbuff_t* tvb, packet_info* pinfo,
       if( struct_len >= 6 )
       {
         /* 2 bytes KNX Address */
-        item = knxip_tree_add_knx_address( dib_tree, hf_knxip_knx_address, tvb, offset, output, output_max );
+        knxip_tree_add_knx_address( dib_tree, hf_knxip_knx_address, tvb, offset, output, output_max );
 
         if( output )
         {
@@ -2672,7 +2672,7 @@ static guint8 dissect_secure_wrapper( guint8 header_length, tvbuff_t* tvb, packe
   else
   {
     guint16 session = tvb_get_ntohs( tvb, offset );
-    node = proto_tree_add_item( tree, hf_knxip_session, tvb, offset, 2, ENC_BIG_ENDIAN );
+    proto_tree_add_item( tree, hf_knxip_session, tvb, offset, 2, ENC_BIG_ENDIAN );
 
     if( session )
     {
@@ -2692,7 +2692,7 @@ static guint8 dissect_secure_wrapper( guint8 header_length, tvbuff_t* tvb, packe
     }
     else
     {
-      node = knxip_tree_add_data( tree, tvb, offset, 6, cinfo, item, "Sequence Number", " $", ", Seq Nr: $" );
+      knxip_tree_add_data( tree, tvb, offset, 6, cinfo, item, "Sequence Number", " $", ", Seq Nr: $" );
       offset += 6;
       size -= 6;
 
@@ -2705,7 +2705,7 @@ static guint8 dissect_secure_wrapper( guint8 header_length, tvbuff_t* tvb, packe
       }
       else
       {
-        node = knxip_tree_add_data( tree, tvb, offset, 6, cinfo, item, "Serial Number", ".", ", Ser Nr: $" );
+        knxip_tree_add_data( tree, tvb, offset, 6, cinfo, item, "Serial Number", ".", ", Ser Nr: $" );
         offset += 6;
         size -= 6;
 
@@ -2719,7 +2719,7 @@ static guint8 dissect_secure_wrapper( guint8 header_length, tvbuff_t* tvb, packe
         else
         {
           guint16 tag = tvb_get_ntohs( tvb, offset );
-          node = proto_tree_add_item( tree, hf_knxip_tag, tvb, offset, 2, ENC_BIG_ENDIAN );
+          proto_tree_add_item( tree, hf_knxip_tag, tvb, offset, 2, ENC_BIG_ENDIAN );
           col_append_fstr( cinfo, COL_INFO, ".%04X", tag );
           proto_item_append_text( item, ", Tag: $%04X", tag );
           offset += 2;
@@ -2802,10 +2802,10 @@ static guint8 dissect_secure_wrapper( guint8 header_length, tvbuff_t* tvb, packe
               }
 
               /* Embedded KIP packet */
-              node = knxip_tree_add_data( tree, tvb2, 0, size2, NULL, NULL, "Embedded KNXnet/IP packet", NULL, NULL );
+              knxip_tree_add_data( tree, tvb2, 0, size2, NULL, NULL, "Embedded KNXnet/IP packet", NULL, NULL );
 
               /* MAC */
-              node = knxip_tree_add_data( tree, tvb2, size2, 16, NULL, NULL, "Message Authentication Code", NULL, NULL );
+              knxip_tree_add_data( tree, tvb2, size2, 16, NULL, NULL, "Message Authentication Code", NULL, NULL );
 
               /* Dissect embedded KIP packet */
               {
@@ -2857,7 +2857,7 @@ static guint8 dissect_timer_notify( guint8 header_length, tvbuff_t* tvb, packet_
   }
   else
   {
-    node = knxip_tree_add_data( tree, tvb, offset, 6, cinfo, item, "Timestamp", " $", ", Timestamp: $" );
+    knxip_tree_add_data( tree, tvb, offset, 6, cinfo, item, "Timestamp", " $", ", Timestamp: $" );
     offset += 6;
     size -= 6;
 
@@ -2870,7 +2870,7 @@ static guint8 dissect_timer_notify( guint8 header_length, tvbuff_t* tvb, packet_
     }
     else
     {
-      node = knxip_tree_add_data( tree, tvb, offset, 6, cinfo, item, "Serial Number", ".", ", Ser Nr: $" );
+      knxip_tree_add_data( tree, tvb, offset, 6, cinfo, item, "Serial Number", ".", ", Ser Nr: $" );
       offset += 6;
       size -= 6;
 
@@ -2884,7 +2884,7 @@ static guint8 dissect_timer_notify( guint8 header_length, tvbuff_t* tvb, packet_
       else
       {
         guint16 tag = tvb_get_ntohs( tvb, offset );
-        node = proto_tree_add_item( tree, hf_knxip_tag, tvb, offset, 2, ENC_BIG_ENDIAN );
+        proto_tree_add_item( tree, hf_knxip_tag, tvb, offset, 2, ENC_BIG_ENDIAN );
         col_append_fstr( cinfo, COL_INFO, ".%04X", tag );
         proto_item_append_text( item, ", Tag: $%04X", tag );
         offset += 2;
@@ -2908,7 +2908,7 @@ static guint8 dissect_timer_notify( guint8 header_length, tvbuff_t* tvb, packet_
           struct knx_keyring_mca_keys* mca_key;
           guint8 key_index;
 
-          node = knxip_tree_add_data( tree, tvb, offset, 16, NULL, NULL, "Message Authentication Code", NULL, NULL );
+          knxip_tree_add_data( tree, tvb, offset, 16, NULL, NULL, "Message Authentication Code", NULL, NULL );
 
           *mac_info = '\0';
 
