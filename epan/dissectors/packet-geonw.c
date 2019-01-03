@@ -283,8 +283,6 @@ static expert_field ei_geonw_out_of_range       = EI_INIT;
 static expert_field ei_geonw_payload_len        = EI_INIT;
 
 static dissector_table_t geonw_subdissector_table;
-static dissector_table_t sgeonw_v1_subdissector_table;
-static dissector_table_t sgeonw_v2_subdissector_table;
 static dissector_table_t ssp_subdissector_table;
 static dissector_table_t btpa_subdissector_table;
 static dissector_table_t btpb_subdissector_table;
@@ -358,10 +356,7 @@ dissect_btpa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     tvbuff_t *next_tvb = tvb_new_subset_remaining(tvb, 4);
 
     if (have_tap_listener(btpa_follow_tap))
-        // XXX Do as in tcp to provide port numbers?
         tap_queue_packet(btpa_follow_tap, pinfo, next_tvb);
-
-    // XXX try heuristic first preference?
 
     if (src_port > dst_port) {
         low_port = dst_port;
@@ -413,8 +408,6 @@ dissect_btpb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     ws_snprintf(buf_dst, 32, "%"G_GUINT16_FORMAT, dst_port);
     col_append_lstr(pinfo->cinfo, COL_INFO, " " UTF8_RIGHTWARDS_ARROW " ", buf_dst, COL_ADD_LSTR_TERMINATOR);
 
-    // XXX Dissector table for destination port info?
-
     btpbh->btp_pdst = dst_port;
     btpbh->btp_idst = dst_info;
     copy_address_shallow(&btpbh->gnw_src, &pinfo->src);
@@ -424,10 +417,7 @@ dissect_btpb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     tvbuff_t *next_tvb = tvb_new_subset_remaining(tvb, 4);
 
     if (have_tap_listener(btpb_follow_tap))
-        // XXX Do as in tcp to provide port numbers?
         tap_queue_packet(btpb_follow_tap, pinfo, next_tvb);
-
-    // XXX try heuristic first preference?
 
     if (dissector_try_uint_new(btpb_subdissector_table, dst_port, next_tvb, pinfo, tree, TRUE, NULL)) {
         return tvb_captured_length(tvb);
@@ -616,7 +606,7 @@ geonw_addr_resolve(hashgeonw_t *tp) {
     // LL_ADDR
     set_address(&eth_addr, AT_ETHER, 6, &(addr[2]));
     ether_to_str(&eth_addr, rname, 18);
-    // XXX We could use ether_name_resolution_str:
+    // We could use ether_name_resolution_str:
     //     g_strlcpy(rname, ether_name_resolution_str(&eth_addr), MAXNAMELEN-l1-4);
 
     tp->status = 1;
@@ -691,7 +681,7 @@ int geonw_name_resolution_len(void)
 
 /* Adapted from ICMP echo request/reply code */
 
-/* GeoNw LS request/reply transaction statistics ... XXX used by GeoNw tap(s) */
+/* GeoNw LS request/reply transaction statistics ... */
 static geonw_transaction_t *transaction_start(packet_info * pinfo, proto_tree * tree)
 {
     conversation_t *conversation;
@@ -1199,7 +1189,7 @@ static const value_string eccpoint_type_names[] = {
 };
 
 // Dissects a length and returns the value
-// XXX The encoding of the length shall use at most 7 bits set to 1. We support only 3... 0xfffffff should be enough though to encode a length
+// The encoding of the length shall use at most 7 bits set to 1. We support only 3... 0xfffffff should be enough though to encode a length
 static guint32
 dissect_sec_var_len(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tree)
 {
@@ -1253,12 +1243,10 @@ dissect_sec_intx(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tr
         mask <<= 7;
         //var_len++;
     }
-    // EI Error if !mask
-    //ti = proto_tree_add_item(tree, hf_sgeonw_intx, tvb, start, var_len, ENC_NA);
-    ti = proto_tree_add_item(tree, hf_sgeonw_intx, tvb, start, (*offset) - start, ENC_NA); // Length cannot be determined now
+    ti = proto_tree_add_item(tree, hf_sgeonw_intx, tvb, start, (*offset) - start, ENC_NA);
     subtree = proto_item_add_subtree(ti, ett_sgeonw_intx);
     proto_tree_add_bits_item(subtree, hf_sgeonw_var_len_det, tvb, start << 3, (*offset) - start, ENC_NA);
-    if (((*offset) - start) > 4) {
+    if ((hf != hf_sgeonw_app_id) || ((*offset) - start) > 4) {
         proto_tree_add_uint64_bits_format_value(subtree, hf, tvb, (start << 3) + (*offset) - start,
             (((*offset) - start) << 3) - ((*offset) - start), tmp_val, "%" G_GUINT64_FORMAT, tmp_val);
     }
@@ -1266,8 +1254,9 @@ dissect_sec_intx(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tr
         proto_tree_add_uint_bits_format_value(subtree, hf, tvb, (start << 3) + (*offset) - start,
             (((*offset) - start) << 3) - ((*offset) - start), (guint32)tmp_val, "%s(%u)", val64_to_str_const(tmp_val, ieee1609dot2_Psid_vals, "Unknown") , (guint32)tmp_val);
     }
-    // The encoding of the length shall use at most 7 bits set to 1.
+    // ETSI TS 103 097 V1.2.1: The encoding of the length shall use at most 7 bits set to 1.
     if (!mask)
+        // EI Error if more than 7
         expert_add_info(pinfo, ti, &ei_sgeonw_len_too_long);
     if (ret) {
         DISSECTOR_ASSERT(!(tmp_val & 0xffffffff00000000));
@@ -1403,7 +1392,6 @@ dissect_sec_signature(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tre
     switch(tmp_val) {
         case ecdsa_nistp256_with_sha256:
             // EcdsaSignature
-            // XXX Subtree
             dissect_sec_ecdsasignature(tvb, offset, pinfo, part_tree, ecdsa_nistp256_with_sha256);
             break;
         default:
@@ -1460,7 +1448,6 @@ dissect_sec_itsaidssp(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tre
     proto_item *ti;
     proto_tree *subtree;
 
-    // XXX provide its-aid named values.
     dissect_sec_intx(tvb, offset, pinfo, tree, hf_sgeonw_app_id, &appid);
     param_len = dissect_sec_var_len(tvb, offset, pinfo, tree);
     ti = proto_tree_add_item(tree, hf_sgeonw_opaque, tvb, *offset, param_len, ENC_NA);
@@ -1485,7 +1472,6 @@ dissect_sec_itsaidpriority(tvbuff_t *tvb, gint *offset, packet_info *pinfo, prot
 {
     gint start = *offset;
 
-    // XXX provide its-aid named values.
     dissect_sec_intx(tvb, offset, pinfo, tree, hf_sgeonw_app_id, NULL);
     proto_tree_add_item(tree, hf_sgeonw_priority, tvb, *offset, 1, ENC_BIG_ENDIAN);
     *offset += 1;
@@ -1500,7 +1486,6 @@ dissect_sec_itsaidpriorityssp(tvbuff_t *tvb, gint *offset, packet_info *pinfo, p
     guint32 param_len;
     proto_item *ti;
 
-    // XXX provide its-aid named values.
     dissect_sec_intx(tvb, offset, pinfo, tree, hf_sgeonw_app_id, NULL);
     proto_tree_add_item(tree, hf_sgeonw_priority, tvb, *offset, 1, ENC_BIG_ENDIAN);
     *offset += 1;
@@ -1636,7 +1621,6 @@ dissect_sec_polygonalregion(tvbuff_t *tvb, gint *offset, packet_info *pinfo, pro
     while (tmp_val) {
         param_len = dissect_sec_2dlocation(tvb, offset, tree);
         if(tmp_val < param_len)
-            // XXX EI Error!
             return *offset - start;
         tmp_val -= param_len;
     }
@@ -1761,7 +1745,6 @@ dissect_sec_certificate(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_t
 
     proto_tree_add_item_ret_uint(tree, hf_sgeonw_certification_version, tvb, *offset, 1, ENC_BIG_ENDIAN, &tmp_val);
     *offset += 1;
-    /* XXX EI tmp_val == version */
     if (version == 1) {
         tmp_val = dissect_sec_var_len(tvb, offset, pinfo, tree);
         while (tmp_val > 0) {
@@ -1933,7 +1916,6 @@ dissect_sec_payload(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree 
                 break;
             case encrypted:
             case signed_and_encrypted:
-                // XXX Decrypt. Use of ieee1609dot2 to be investigated?
                 param_len = dissect_sec_var_len(tvb, offset, pinfo, field_tree);
                 proto_tree_add_item(field_tree, hf_sgeonw_opaque, tvb, *offset, param_len, ENC_NA);
                 *offset += param_len;
@@ -2021,17 +2003,11 @@ dissect_secured_message(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tr
                 proto_tree_add_item(field_tree, hf_sgeonw_lat, tvb, offset, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(field_tree, hf_sgeonw_lon, tvb, offset+4, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(field_tree, hf_sgeonw_elev, tvb, offset+8, 2, ENC_BIG_ENDIAN);
-                // XXX 0x0000 to 0xEFFF: positive numbers with a range from 0 to +6 143,9 meters. All numbers above +6 143,9 are
-                //  also represented by 0xEFFF.
-                //  0xF001 to 0xFFFF: negative numbers with a range from -409,5 to -0,1 meters. All numbers below -409,5 are
-                //  also represented by 0xF001.
-                //  0xF000: an unknown elevation
                 offset += 10;
                 break;
             case request_unrecognized_certificate:
                 // HashedId3
                 param_len = dissect_sec_var_len(tvb, &offset, pinfo, field_tree);
-                // XXX Expert info if param_len != 3 * K?
                 proto_item_set_len(ti, (offset-start) + param_len);
                 while (param_len) {
                     proto_tree_add_item(field_tree, hf_sgeonw_hashedid3, tvb, offset, param_len, ENC_NA);
@@ -2091,7 +2067,6 @@ dissect_secured_message(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tr
 
             dissect_sec_payload(tvb, &offset, pinfo, part_tree);
             if (var_len < (offset-start))
-                // XXX EI error!
                 return 0;
             var_len -= (offset - start);
         }
@@ -2126,7 +2101,6 @@ dissect_secured_message(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tr
                 offset += param_len;
         }
         proto_item_set_end(ti, tvb, offset);
-        /* XXX EI var_len >= (offset-start) */
         var_len -= (offset - start);
     }
     proto_item_set_end(part_item, tvb, offset);
@@ -2396,7 +2370,7 @@ dissect_geonw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 
         // Stop here if header_type unknown
         if (!IS_HT_KNOWN(header_type)) {
-            // XXX Update top level tree item
+            // Update top level tree item
             proto_item_set_end(top_item, tvb, offset);
             return tvb_reported_length(tvb);
         }
@@ -2424,7 +2398,6 @@ dissect_geonw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                 ti = proto_tree_add_item(geonw_tree, hf_geonw_ls, tvb, offset, hdr_len-offset, ENC_NA);
                 break;
             default:
-                // XXX Malformed or expert info?
                 // Exit if header_type unknown?
                 return tvb_captured_length(tvb);
         }
@@ -2452,7 +2425,6 @@ dissect_geonw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                     expert_add_info(pinfo, ti, &ei_geonw_nz_reserved);
                 }
                 offset += 2;
-                // XXX Seq num matching?
             case HTST_TSB_SINGLE:
             case HTST_BEACON:
                 break;
@@ -2576,6 +2548,7 @@ dissect_geonw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                 }
             }
         }
+        // XXX Implement DPD if version == 1
 
         offset += 4;
         ti = proto_tree_add_item_ret_int(geonw_so_tree, hf_geonw_so_pv_lat, tvb, offset, 4, ENC_BIG_ENDIAN, &latlon);
@@ -2586,7 +2559,7 @@ dissect_geonw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
         offset += 4;
         ti = proto_tree_add_item_ret_int(geonw_so_tree, hf_geonw_so_pv_lon, tvb, offset, 4, ENC_BIG_ENDIAN, &latlon);
         if (latlon < -1800000000 || latlon > 1800000000) {
-            expert_add_info_format(pinfo, ti, &ei_geonw_out_of_range, "Latitude out of range (%f)", (float)latlon/10000000);
+            expert_add_info_format(pinfo, ti, &ei_geonw_out_of_range, "Longitude out of range (%f)", (float)latlon/10000000);
         }
         geonwh->gnw_lon = latlon;
         offset += 4;
@@ -2617,7 +2590,6 @@ dissect_geonw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                 if (header_type == HTST_LS_REPLY) {
                     transaction_end(pinfo, geonw_tree);
                 }
-                // XXX else could "find or create conversation" using HTST_GEOUNICAST as port if needed
 
                 proto_tree_add_item(geonw_de_add_tree, hf_geonw_de_pv_addr_manual, tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(geonw_de_add_tree, hf_geonw_de_pv_addr_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2638,7 +2610,7 @@ dissect_geonw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                 offset += 4;
                 ti = proto_tree_add_item_ret_int(geonw_de_tree, hf_geonw_de_pv_lon, tvb, offset, 4, ENC_BIG_ENDIAN, &latlon);
                 if (latlon < -1800000000 || latlon > 1800000000) {
-                    expert_add_info_format(pinfo, ti, &ei_geonw_out_of_range, "Latitude out of range (%f)", (float)latlon/10000000);
+                    expert_add_info_format(pinfo, ti, &ei_geonw_out_of_range, "Longitude out of range (%f)", (float)latlon/10000000);
                 }
                 offset += 4;
                 break;
@@ -2673,7 +2645,7 @@ dissect_geonw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                 offset += 4;
                 ti = proto_tree_add_item_ret_int(geonw_sh_tree, hf_geonw_gxc_longitude, tvb, offset, 4, ENC_BIG_ENDIAN, &latlon);
                 if (latlon < -1800000000 || latlon > 1800000000) {
-                    expert_add_info_format(pinfo, ti, &ei_geonw_out_of_range, "Latitude out of range (%f)", (float)latlon/10000000);
+                    expert_add_info_format(pinfo, ti, &ei_geonw_out_of_range, "Longitude out of range (%f)", (float)latlon/10000000);
                 }
                 offset += 4;
                 switch(header_type&0x0f) {
@@ -2970,6 +2942,20 @@ static void
 display_heading( gchar *result, guint32 hexver )
 {
     g_snprintf( result, ITEM_LABEL_LENGTH, "%.1f degrees", hexver/10.);
+}
+
+static void
+display_elevation( gchar *result, gint32 hexver )
+{
+    //  0x0000 to 0xEFFF: positive numbers with a range from 0 to +6 143,9 meters. All numbers above +6 143,9 are
+    //  also represented by 0xEFFF.
+    //  0xF001 to 0xFFFF: negative numbers with a range from -409,5 to -0,1 meters. All numbers below -409,5 are
+    //  also represented by 0xF001.
+    //  0xF000: an unknown elevation
+    if (hexver == -4096)
+        g_snprintf( result, ITEM_LABEL_LENGTH, "Unknown (%4x)", hexver);
+    else
+        g_snprintf( result, ITEM_LABEL_LENGTH, "%.1fm", hexver/10.);
 }
 
 void
@@ -3543,7 +3529,7 @@ proto_register_geonw(void)
         { &hf_sgeonw_time32, { "Time32", "geonw.sec.time32", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_sgeonw_lat, { "Latitude", "geonw.sec.lat", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_sgeonw_lon, { "Longiture", "geonw.sec.lon", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_sgeonw_elev, { "Elevation", "geonw.sec.elev", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_sgeonw_elev, { "Elevation", "geonw.sec.elev", FT_INT16, BASE_CUSTOM, CF_FUNC(display_elevation), 0x0, NULL, HFILL }},
         { &hf_sgeonw_hashedid3, { "Hashed ID 3", "geonw.sec.hashedid3", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_sgeonw_duration_unit, { "Unit", "geonw.sec.duration.unit", FT_UINT16, BASE_DEC, VALS(sgeonw_duration_unit_names), 0xe000, NULL, HFILL }},
         { &hf_sgeonw_duration_value, { "Value", "geonw.sec.duration.value", FT_UINT16, BASE_DEC, NULL, 0x1fff, NULL, HFILL }},
@@ -3621,12 +3607,6 @@ proto_register_geonw(void)
 
     geonw_subdissector_table = register_dissector_table("geonw.ch.nh",
         "GeoNetworking Next Header", proto_geonw, FT_UINT8, BASE_HEX);
-
-    sgeonw_v1_subdissector_table = register_dissector_table("geonw.sec.v1.msg_type",
-        "Secured GeoNetworking version 1 payload message type", proto_geonw, FT_UINT16, BASE_HEX);
-
-    sgeonw_v2_subdissector_table = register_dissector_table("geonw.sec.v2.app_id",
-        "Secured GeoNetworking version 2 payload application identifier", proto_geonw, FT_UINT16, BASE_HEX);
 
     ssp_subdissector_table = register_dissector_table("geonw.ssp",
         "ATS-AID/PSID based dissector for Service Specific Permissions (SSP)", proto_geonw, FT_UINT32, BASE_HEX);

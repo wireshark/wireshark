@@ -27,7 +27,7 @@ typedef struct geonwheader
     guint8  gnw_mhl;     /* Remaining Hop Limit */
     guint16 gnw_len;     /* Payload length */
     guint32 gnw_sn;      /* Sequence number or MAX+1 */
-    guint32 gnw_tst;     /* Sequence number or MAX+1 */
+    guint32 gnw_tst;     /* TimeStamp */
     address gnw_src;     /* source address */
     address gnw_dst;     /* destination address */
     gint32  gnw_lat;     /* Latitude */
