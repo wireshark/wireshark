@@ -808,7 +808,7 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
            aren't any packets left to read) exit. */
         break;
       }
-      if (read_record(cf, dfcode, &edt, (column_info *) cinfo, data_offset)) {
+      if (read_record(cf, dfcode, &edt, cinfo, data_offset)) {
         newly_displayed_packets++;
       }
       to_read--;
