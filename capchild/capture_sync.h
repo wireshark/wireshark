@@ -127,7 +127,7 @@ capture_input_drops(capture_session *cap_session, guint32 dropped, char* interfa
  * Capture child told us that an error has occurred while starting the capture.
  */
 extern void
-capture_input_error_message(capture_session *cap_session, char *error_message,
+capture_input_error_message(capture_session *cap_session, char *error_msg,
                             char *secondary_error_msg);
 
 /**
