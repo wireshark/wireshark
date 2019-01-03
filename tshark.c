@@ -2573,7 +2573,7 @@ gboolean
 capture_input_new_file(capture_session *cap_session, gchar *new_file)
 {
   capture_options *capture_opts = cap_session->capture_opts;
-  capture_file *cf = (capture_file *) cap_session->cf;
+  capture_file *cf = cap_session->cf;
   gboolean is_tempfile;
   int      err;
 
@@ -2612,9 +2612,9 @@ capture_input_new_file(capture_session *cap_session, gchar *new_file)
   /* if we are in real-time mode, open the new file now */
   if (do_dissection) {
     /* this is probably unecessary, but better safe than sorry */
-    ((capture_file *)cap_session->cf)->open_type = WTAP_TYPE_AUTO;
+    cap_session->cf->open_type = WTAP_TYPE_AUTO;
     /* Attempt to open the capture file and set up to read from it. */
-    switch(cf_open((capture_file *)cap_session->cf, capture_opts->save_file, WTAP_TYPE_AUTO, is_tempfile, &err)) {
+    switch(cf_open(cap_session->cf, capture_opts->save_file, WTAP_TYPE_AUTO, is_tempfile, &err)) {
     case CF_OK:
       break;
     case CF_ERROR:
@@ -2640,7 +2640,7 @@ capture_input_new_packets(capture_session *cap_session, int to_read)
   int           err;
   gchar        *err_info;
   gint64        data_offset;
-  capture_file *cf = (capture_file *)cap_session->cf;
+  capture_file *cf = cap_session->cf;
   gboolean      filtering_tap_listeners;
   guint         tap_flags;
 
@@ -2807,7 +2807,7 @@ capture_input_drops(capture_session *cap_session _U_, guint32 dropped, char* int
 void
 capture_input_closed(capture_session *cap_session, gchar *msg)
 {
-  capture_file *cf = (capture_file *) cap_session->cf;
+  capture_file *cf = cap_session->cf;
 
   if (msg != NULL)
     fprintf(stderr, "tshark: %s\n", msg);
