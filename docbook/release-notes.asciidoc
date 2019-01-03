@@ -70,7 +70,11 @@ There is no new or updated capture file support in this release.
 // --
 // --
 
-//=== Major API Changes
+=== Major API Changes
+
+* Lua: on Windows, file-related functions such as dofile now assume UTF-8 paths
+  instead of the local code page. This is consistent with Linux and macOS and
+  improves compatibility on non-English systems. (wsbuglink:15118[])
 
 == Getting Wireshark
 
