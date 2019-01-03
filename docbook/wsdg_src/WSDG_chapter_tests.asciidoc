@@ -75,8 +75,7 @@ A test has typically additional dependencies, like the path to an
 executable, the path to a capture file, a configuration directory, the
 availability of an optional library, and so on. The Python unittest
 library is quite limited in expressing test dependencies, these are
-typically specified on the class instance itself (`self`) or via globals
-(like a `config` module).
+typically specified on the class instance itself (`self`) or via globals.
 
 https://pytest.org/[pytest] is a better test framework which has full
 parallelization support (test-level instead of just suite-level),
@@ -147,6 +146,71 @@ $ python3 test.py -l dumpcap
 $ python3 test.py suite_clopts
 ----
 
+=== Listing And Running Tests (pytest)
+
+Tests can also be run with https://pytest.org/[pytest]. Advantages include finer
+test selection, full parallelism, nicer test execution summaries, better output
+in case of failures (containing the contents of variables) and the ability to
+open the PDB debugger on failing tests.
+
+To get started, install pytest 3.0 or newer and
+https://pypi.org/project/pytest-xdist/[pytest-xdist]:
+
+[source,sh]
+----
+# Install required packages on Ubuntu 18.04 or Debian jessie-backports
+$ sudo apt install python3-pytest python3-pytest-xdist
+
+# Install required packages on other systems
+$ pip install pytest pytest-xdist
+----
+
+Run `pytest` in the Wireshark build directory, Wireshark binaries are assumed to
+be present in the `run` subdirectory (or `run\RelWithDebInfo` on Windows).
+
+[source,sh]
+----
+# Run all tests
+$ cd /path/to/wireshark/build
+$ pytest
+
+# Run all tests including capture tests
+$ pytest --capture-interface lo
+
+# Run all except capture tests (which are enabled by default on Windows)
+$ pytest --disable-capture
+
+# Run all tests with "decryption" in its name
+$ pytest -k decryption
+
+# Run all tests with an explicit path to the Wireshark executables
+$ pytest --program-path /path/to/wireshark/build/run
+----
+
+To list tests instead of running them, use the `--collect-only` option:
+
+[source,sh]
+----
+# List all tests
+$ pytest --collect-only
+
+# List only tests containing both "dfilter" and "tvb"
+$ pytest --collect-only -k "dfilter and tvb"
+----
+
+To open a Python debugger (PDB) on failing tests, use the `--pdb` option and
+disable parallelism with the `-n0` option:
+
+[source,sh]
+----
+# Run decryption tests sequentially and open a debugger on failing tests
+$ pytest -n0 --pdb -k decryption
+----
+
+Note that with the option `--pdb`, stray processes are not killed for failing
+tests since the `SubprocessTestCase.tearDown` method is not executed. This
+limitation might be addressed in the future.
+
 === Adding Or Modifying Tests
 
 Tests must be in a Python module whose name matches “suite_*.py”. The
@@ -163,11 +227,6 @@ Test dependencies (such as programs, directories, or the environment
 variables) are injected through method parameters. Commonly used
 fixtures include `cmd_tshark` and `capture_file`. See also
 <<ChTestsPytest>>.
-
-The “config” module contains common configuration information which has
-been derived from the current environment or specified on the command
-line. This mechanism is deprecated in favor of fixtures and might be
-removed in the future.
 
 The “subprocesstest” class contains the following methods for running
 processes. Stdout and stderr is written to “<test id>.log”:
@@ -193,8 +252,8 @@ class case_basic_clopts(subprocesstest.SubprocessTestCase):
         self.assertRun((cmd_tshark, '-r', capture_file('dhcp.pcap')))
 ----
 
-Program output can be checked using “subprocesstest.grepOutput”
-or “subprocesstest.countOutput”:
+Program output can be checked using `SubprocessTestCase.grepOutput`,
+`SubprocessTestCase.countOutput` or other `unittest.assert*` methods:
 
 [source,python]
 ----
@@ -204,14 +263,14 @@ import subprocesstest
 @fixtures.uses_fixtures
 class case_decrypt_80211(subprocesstest.SubprocessTestCase):
     def test_80211_wpa_psk(self, cmd_tshark, capture_file):
-        self.runProcess((cmd_tshark,
+        tshark_proc = self.assertRun((cmd_tshark,
                 '-o', 'wlan.enable_decryption: TRUE',
                 '-Tfields',
                 '-e', 'http.request.uri',
                 '-r', capture_file('wpa-Induction.pcap.gz'),
                 '-Y', 'http',
             ))
-        self.assertTrue(self.grepOutput('favicon.ico'))
+        self.assertIn('favicon.ico', tshark_proc.stdout_str)
 ----
 
 Tests can be run in parallel. This means that any files you create must
