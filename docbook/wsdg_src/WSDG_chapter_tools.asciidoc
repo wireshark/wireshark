@@ -178,14 +178,14 @@ Frequently Asked Questions: http://www.cmake.org/Wiki/CMake_FAQ
 
 [[ChToolsGNUChain]]
 
-=== GNU compiler toolchain (UNIX and UNIX-like platforms only)
+=== GNU Compiler Toolchain (UNIX And UNIX-like Platforms)
 
 [[ChToolsGCC]]
 
-==== gcc (GNU compiler collection)
+==== gcc (GNU Compiler Collection)
 
-The GCC C compiler is available for most of the
-UNIX-like platforms.
+The GCC C compiler is available for most UNIX and UNIX-like operating
+systems.
 
 If GCC isn't already installed or available
 as a package for your platform, you can get it at:
@@ -212,14 +212,14 @@ Your version string may vary, of course.
 
 [[ChToolsGDB]]
 
-==== gdb (GNU project debugger)
+==== gdb (GNU Project Debugger)
 
 GDB is the debugger for the GCC compiler. It is
 available for many (if not all) UNIX-like platforms.
 
-If you don't like debugging using the command line
-there are some GUI frontends for it available, most notably
-GNU DDD.
+If you don't like debugging using the command line, many
+https://sourceware.org/gdb/wiki/GDB%20Front%20Ends[GUI frontends for it
+available], including Qt Creator, CLion, and Eclipse.
 
 If gdb isn't already installed or available
 as a package for your platform, you can get it at:
@@ -252,20 +252,6 @@ Type "apropos word" to search for commands related to "word".
 ----
 
 Your version string may vary, of course.
-
-[[ChToolsDDD]]
-
-
-==== ddd (GNU Data Display Debugger)
-
-The GNU Data Display Debugger is a good GUI frontend
-for GDB (and a lot of other command line debuggers), so you
-have to install GDB first. It is available for many UNIX-like
-platforms.
-
-If GNU DDD isn't already installed or
-available as a package for your platform, you can get it at:
-http://www.gnu.org/software/ddd/[].
 
 [[ChToolsGNUmake]]
 
