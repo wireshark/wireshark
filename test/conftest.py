@@ -6,8 +6,9 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
-'''py.test configuration'''
+'''pytest configuration'''
 
+import re
 import fixtures
 
 def pytest_addoption(parser):
@@ -27,7 +28,11 @@ def pytest_collection_modifyitems(items):
     global _all_test_groups
     suites = []
     for item in items:
-        name = item.nodeid.split("::")[0].replace(".py", "").replace("/", ".")
+        name = item.nodeid.split("::")[0].replace(".py", "")
+        # When executed from the rootdir (e.g. "pytest test"), be sure to strip
+        # all preceding components ("test/suite_io" -> "suite_io").
+        name = re.sub(r'^.*/suite_', 'suite_', name)
+        name = name.replace("/", ".")
         if name not in suites:
             suites.append(name)
     _all_test_groups = sorted(suites)

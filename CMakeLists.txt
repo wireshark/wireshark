@@ -3170,6 +3170,15 @@ foreach(_group_name ${_test_group_list})
 	set_tests_properties(${_group_name} PROPERTIES TIMEOUT 600)
 endforeach()
 
+# Make it possible to run pytest without passing the full path as argument.
+if(NOT CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
+	file(READ "${CMAKE_CURRENT_SOURCE_DIR}/pytest.ini" pytest_ini)
+	string(REGEX REPLACE "\naddopts = ([^\n]+)"
+		"\naddopts = ${CMAKE_CURRENT_SOURCE_DIR}/test \\1"
+		pytest_ini "${pytest_ini}")
+	file(WRITE "${CMAKE_BINARY_DIR}/pytest.ini" "${pytest_ini}")
+endif()
+
 if (GIT_EXECUTABLE)
 	# Update AUTHORS file with entries from git shortlog
 	add_custom_target(
