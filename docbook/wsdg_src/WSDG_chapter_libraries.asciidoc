@@ -235,14 +235,32 @@ platform, you can get it at {tcpdump-main-url}.
 [discrete]
 ==== Windows: Npcap
 
-You can get the Npcap Windows packet capture library at {npcap-main-url}.
+The Windows build environment compiles and links against the
+{winpcap-main-url}devel.htm[WinPcap SDK (WpdPack)] and includes the
+{npcap-main-url}[Npcap packet capture driver] with the .exe installer.
+Both are <<ChLibsSetup,automatically downloaded by CMake>>.
+
+You can download the Npcap Windows packet capture library manually from
+{npcap-main-url}.
+
+[IMPORTANT]
+.Npcap has its own license with its own restrictions
+====
+Insecure.Com LLC, aka “The Nmap Project” has granted the Wireshark
+Foundation the right to include Npcap with the installers that we
+distribute from wireshark.org. If you wish to distribute your own
+Wireshark installer or any other package that includes Npcap you must
+comply with the {npcap-license-url}[Npcap license] and may be required
+to purchase a redistribution license. Please see {npcap-main-url} for
+more details.
+====
 
 [[ChLibsGNUTLS]]
 
 === GnuTLS (Optional)
 
 The GNU Transport Layer Security Library is used to enable TLS decryption
-using a RSA private key.
+using an RSA private key.
 
 [[ChLibsUnixGNUTLS]]
 
