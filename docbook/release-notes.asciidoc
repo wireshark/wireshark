@@ -40,6 +40,8 @@ The following features are new (or have been significantly updated)
 since version 2.9.0:
 
 * Wireshark now supports the Swedish and Ukrainian language.
+* Initial support for using PKCS #11 tokens for RSA decryption in TLS. A
+  configuration user interface is still in development.
 
 The following features are new (or have been significantly updated)
 since version 2.6.0:
@@ -72,12 +74,18 @@ since version 2.6.0:
 * The build system now supports AppImage packages.
 * The Windows installers now ship with Qt 5.12.0. Previously they
   shipped with Qt 5.9.7.
+* Support for decrypting TLS streams in pcapng files that embedded a Decryption
+  Secrets Block (DSB) containing a TLS Key Log (wsbuglink:15252[]).
+* The editcap utility gained a new `--inject-secrets` option to inject an
+  existing TLS Key Log file into a pcapng file.
 
 === Removed Features and Support
 
 * The legacy (GTK+) user interface has been removed and is no longer supported.
 * Wireshark requires Qt 5.2 or later. Qt 4 is no longer supported.
 * Wireshark requires GLib 2.32 or later.
+* Wireshark requires GnuTLS 3.2 or later as optional dependency.
+* Building Wireshark requires Python 3.4 or newer, Python 2.7 is unsupported.
 * Building Wireshark requires CMake. Autotools is no longer supported.
 * TShark’s `-z compare` option was removed.
 
@@ -165,6 +173,9 @@ sdjournal, an extcap that captures systemd journal entries.
 
 * Lua: the various logging functions (debug, info, message, warn and critical)
   have been removed. Use the print function instead for debugging purposes.
+* Lua: on Windows, file-related functions such as dofile now assume UTF-8 paths
+  instead of the local code page. This is consistent with Linux and macOS and
+  improves compatibility on non-English systems. (wsbuglink:15118[])
 
 == Getting Wireshark
 
