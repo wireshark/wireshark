@@ -58,7 +58,6 @@ before_test:
   - msbuild /m test-programs.vcxproj
 
 test_script:
-  - set WS_BIN_PATH=%CD%\run\%CONFIGURATION%
   - pytest -nauto ..\test
 
 on_finish:

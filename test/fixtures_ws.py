@@ -57,10 +57,13 @@ def program_path(request):
     Path to the Wireshark binaries as set by the --program-path option, the
     WS_BIN_PATH environment variable or (curdir)/run.
     '''
+    curdir_run = os.path.join(os.curdir, 'run')
+    if sys.platform == 'win32':
+        curdir_run = os.path.join(curdir_run, 'RelWithDebInfo')
     paths = (
         request.config.getoption('--program-path', default=None),
         os.environ.get('WS_BIN_PATH'),
-        os.path.join(os.curdir, 'run'),
+        curdir_run,
     )
     for path in paths:
         if type(path) == str and os.path.isdir(path):
