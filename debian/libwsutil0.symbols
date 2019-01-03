@@ -31,7 +31,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  crc32c_calculate@Base 1.10.0
  crc32c_calculate_no_swap@Base 1.10.0
  crc32c_table_lookup@Base 1.10.0
- crc6_compute@Base 1.12.0~rc1
+ crc6_0X6F@Base 1.12.0~rc1
  crc7update@Base 1.10.0
  crc8_0x2F@Base 1.10.0
  crc8_0x37@Base 2.3.0
@@ -165,7 +165,6 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ulaw2linear@Base 1.12.0~rc1
  update_adler32@Base 1.12.0~rc1
  update_crc10_by_bytes@Base 1.10.0
- update_crc6_by_bytes@Base 1.10.0
  ws_add_crash_info@Base 1.10.0
  ws_ascii_strnatcasecmp@Base 1.99.1
  ws_ascii_strnatcmp@Base 1.99.1
