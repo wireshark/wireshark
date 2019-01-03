@@ -5958,7 +5958,7 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 
 					case FT_BOOLEAN:
 						number64 = fvalue_get_uinteger64(&finfo->value);
-						tfstring = (const true_false_string *)&tfs_true_false;
+						tfstring = &tfs_true_false;
 						if (hfinfo->strings) {
 							tfstring = (const struct true_false_string*) hfinfo->strings;
 						}
@@ -8698,7 +8698,7 @@ fill_label_boolean(field_info *fi, gchar *label_str)
 	guint64  value;
 
 	header_field_info	*hfinfo   = fi->hfinfo;
-	const true_false_string	*tfstring = (const true_false_string *)&tfs_true_false;
+	const true_false_string	*tfstring = &tfs_true_false;
 
 	if (hfinfo->strings) {
 		tfstring = (const struct true_false_string*) hfinfo->strings;
@@ -11579,13 +11579,13 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
 	switch (hf_field->type) {
 	case FT_BOOLEAN:
 		/* Boolean field */
-		tfstring = (const true_false_string *) &tfs_true_false;
+		tfstring = &tfs_true_false;
 		if (hf_field->strings)
 			tfstring = (const true_false_string *)hf_field->strings;
 		return proto_tree_add_boolean_format(tree, hfindex, tvb, offset, length, (guint32)value,
 			"%s = %s: %s",
 			bf_str, hf_field->name,
-			(guint64)value ? tfstring->true_string : tfstring->false_string);
+			value ? tfstring->true_string : tfstring->false_string);
 		break;
 
 	case FT_CHAR:
@@ -11760,14 +11760,14 @@ proto_tree_add_split_bits_item_ret_val(proto_tree *tree, const int hfindex, tvbu
 	switch (hf_field->type) {
 	case FT_BOOLEAN: /* it is a bit odd to have a boolean encoded as split-bits, but possible, I suppose? */
 		/* Boolean field */
-		tfstring = (const true_false_string *) &tfs_true_false;
+		tfstring = &tfs_true_false;
 		if (hf_field->strings)
 			tfstring = (const true_false_string *) hf_field->strings;
 		return proto_tree_add_boolean_format(tree, hfindex,
 						     tvb, octet_offset, octet_length, (guint32)value,
 						     "%s = %s: %s",
 						     bf_str, hf_field->name,
-						     (guint64)value ? tfstring->true_string : tfstring->false_string);
+						     value ? tfstring->true_string : tfstring->false_string);
 		break;
 
 	case FT_CHAR:

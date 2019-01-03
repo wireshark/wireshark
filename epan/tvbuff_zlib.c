@@ -310,7 +310,7 @@ tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
 #endif
 
 	if (uncompr != NULL) {
-		uncompr_tvb =  tvb_new_real_data((guint8*) uncompr, bytes_out, bytes_out);
+		uncompr_tvb =  tvb_new_real_data(uncompr, bytes_out, bytes_out);
 		tvb_set_free_cb(uncompr_tvb, g_free);
 	}
 	wmem_free(NULL, compr);

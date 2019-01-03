@@ -753,7 +753,7 @@ void tap_cleanup(void)
 	while(head_dl){
 		elem_dl = head_dl;
 		head_dl = head_dl->next;
-		g_free((char*)elem_dl->name);
+		g_free(elem_dl->name);
 		g_free((gpointer)elem_dl);
 	}
 

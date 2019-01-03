@@ -156,7 +156,7 @@ range_convert_str_work(wmem_allocator_t *scope, range_t **rangep, const gchar *e
             }
          }
          p = endp;
-         range->ranges[range->nranges].low = (guint32)val;
+         range->ranges[range->nranges].low = val;
 
          /* Skip white space. */
          while ((c = *p) == ' ' || c == '\t')
@@ -202,7 +202,7 @@ range_convert_str_work(wmem_allocator_t *scope, range_t **rangep, const gchar *e
                }
             }
             p = endp;
-            range->ranges[range->nranges].high = (guint32)val;
+            range->ranges[range->nranges].high = val;
 
             /* Skip white space. */
             while ((c = *p) == ' ' || c == '\t')

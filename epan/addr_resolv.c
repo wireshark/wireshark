@@ -892,7 +892,7 @@ fill_dummy_ip4(const guint addr, hashipv4_t* volatile tp)
         gchar* paddr;
         gsize i;
 
-        host_addr = addr & (~(guint32)subnet_entry.mask);
+        host_addr = addr & (~subnet_entry.mask);
         ip_to_str_buf((guint8 *)&host_addr, buffer, WS_INET_ADDRSTRLEN);
         paddr = buffer;
 

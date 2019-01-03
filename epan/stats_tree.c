@@ -484,7 +484,7 @@ new_stat_node(stats_tree *st, const gchar *name, int parent_id, stat_node_dataty
     node->burst_time = -1.0;
 
     node->name = g_strdup(name);
-    node->st = (stats_tree*) st;
+    node->st = st;
     node->hash = with_hash ? g_hash_table_new(g_str_hash,g_str_equal) : NULL;
 
     if (as_parent_node) {
@@ -1170,7 +1170,7 @@ stats_tree_get_values_from_node (const stat_node* node)
                                 g_strdup_printf("%.4f",((double)node->max_burst)/prefs.st_burst_windowlen)):
                 g_strdup("-"));
         values[COL_BURSTTIME] = (!prefs.st_enable_burstinfo)?g_strdup(""):
-                (node->max_burst?g_strdup_printf("%.3f",((double)node->burst_time/1000.0)):g_strdup("-"));
+                (node->max_burst?g_strdup_printf("%.3f",(node->burst_time/1000.0)):g_strdup("-"));
     }
     return values;
 }

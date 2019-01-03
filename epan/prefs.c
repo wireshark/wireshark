@@ -302,7 +302,7 @@ static void
 free_string_like_preference(pref_t *pref)
 {
 DIAG_OFF(cast-qual)
-    g_free((char *)*pref->varp.string);
+    g_free(*pref->varp.string);
 DIAG_ON(cast-qual)
     *pref->varp.string = NULL;
     g_free(pref->default_val.string);

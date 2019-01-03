@@ -796,7 +796,7 @@ char* uat_unesc(const char* si, guint in_len, guint* len_p) {
     const char* s;
     const char* in_end = si+in_len;
 
-    for (s = (const char *)si; s < in_end; s++) {
+    for (s = si; s < in_end; s++) {
         switch(*s) {
             case '\\':
                 switch(*(++s)) {
