@@ -611,7 +611,7 @@ geonw_addr_resolve(hashgeonw_t *tp) {
         l2 = (guint8) g_strlcpy(rname, string, MAXNAMELEN-l1-3);
     }
     rname += l2;
-    l1 += l2;
+    //l1 += l2;
     *rname++ = '.';
     // LL_ADDR
     set_address(&eth_addr, AT_ETHER, 6, &(addr[2]));
@@ -1978,7 +1978,7 @@ dissect_secured_message(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tr
         return tvb_captured_length(tvb);
     }
 
-    ti = proto_tree_add_item(secmsg_tree, hf_sgeonw_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(secmsg_tree, hf_sgeonw_version, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset+=1;
     if ((version < 1) || (version > 2))
         return 1;
@@ -2478,7 +2478,7 @@ dissect_geonw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
         proto_tree_add_item(geonw_so_add_tree, hf_geonw_so_pv_addr_mid, tvb, offset, 6, ENC_NA);
         offset += 6;
 
-        ti = proto_tree_add_item_ret_uint(geonw_so_tree, hf_geonw_so_pv_time, tvb, offset, 4, ENC_BIG_ENDIAN, &timestamp);
+        proto_tree_add_item_ret_uint(geonw_so_tree, hf_geonw_so_pv_time, tvb, offset, 4, ENC_BIG_ENDIAN, &timestamp);
         geonwh->gnw_tst = timestamp;
 
         // XXX Is it possible to "follow" a station when updating its GN_ADDR?
