@@ -24,6 +24,8 @@ extern "C" {
 
 /* Table for windows-1250 */
 extern const gunichar2 charset_table_cp1250[0x80];
+/* Table for windows-1251 */
+extern const gunichar2 charset_table_cp1251[0x80];
 
 /* Tables for ISO-8859-X */
 extern const gunichar2 charset_table_iso_8859_2[0x80];
@@ -46,6 +48,9 @@ extern const gunichar2 charset_table_mac_roman[0x80];
 
 /* Tables for DOS code pages */
 extern const gunichar2 charset_table_cp437[0x80];
+extern const gunichar2 charset_table_cp855[0x80];
+extern const gunichar2 charset_table_cp866[0x80];
+
 
 /* Tables for EBCDIC code pages */
 extern const gunichar2 charset_table_ebcdic[256];

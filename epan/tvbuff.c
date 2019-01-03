@@ -2809,12 +2809,24 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 		strptr = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_cp1250);
 		break;
 
+	case ENC_WINDOWS_1251:
+		strptr = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_cp1251);
+		break;
+
 	case ENC_MAC_ROMAN:
 		strptr = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_mac_roman);
 		break;
 
 	case ENC_CP437:
 		strptr = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_cp437);
+		break;
+
+	case ENC_CP855:
+		strptr = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_cp855);
+		break;
+
+	case ENC_CP866:
+		strptr = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_cp866);
 		break;
 
 	case ENC_3GPP_TS_23_038_7BITS:
