@@ -306,6 +306,7 @@ typedef struct _loop_data {
     /* output file(s) */
     FILE     *pdh;
     int       save_file_fd;
+    char     *io_buffer;           /**< Our IO buffer if we increase the size from the standard size */
     guint64   bytes_written;       /**< Bytes written for the current file. */
     /* autostop conditions */
     int       packets_written;     /**< Packets written for the current file. */
@@ -3189,6 +3190,21 @@ capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *err
         ld->pdh = ws_fdopen(ld->save_file_fd, "wb");
         if (ld->pdh == NULL) {
             err = errno;
+        } else {
+            size_t buffsize = IO_BUF_SIZE;
+#ifdef HAVE_STRUCT_STAT_ST_BLKSIZE
+            ws_statb64 statb;
+
+            if (ws_fstat64(ld->save_file_fd, &statb) == 0) {
+                if (statb.st_blksize > IO_BUF_SIZE) {
+                    buffsize = statb.st_blksize;
+                }
+            }
+#endif
+            /* Increase the size of the IO buffer */
+            ld->io_buffer = (char *)g_malloc(buffsize);
+            setvbuf(ld->pdh, ld->io_buffer, _IOFBF, buffsize);
+            g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_init_output: buffsize %zu", buffsize);
         }
     }
     if (ld->pdh) {
@@ -3208,6 +3224,8 @@ capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *err
         if (!successful) {
             fclose(ld->pdh);
             ld->pdh = NULL;
+            g_free(ld->io_buffer);
+            ld->io_buffer = NULL;
         }
     }
 
@@ -3244,6 +3262,7 @@ capture_loop_close_output(capture_options *capture_opts, loop_data *ld, int *err
     unsigned int i;
     capture_src *pcap_src;
     guint64      end_time = create_timestamp();
+    gboolean success;
 
     g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_close_output");
 
@@ -3280,10 +3299,13 @@ capture_loop_close_output(capture_options *capture_opts, loop_data *ld, int *err
             if (err_close != NULL) {
                 *err_close = errno;
             }
-            return (FALSE);
+            success = FALSE;
         } else {
-            return (TRUE);
+            success = TRUE;
         }
+        g_free(ld->io_buffer);
+        ld->io_buffer = NULL;
+        return success;
     }
 }
 
@@ -3722,6 +3744,8 @@ do_file_switch_or_stop(capture_options *capture_opts)
                 fclose(global_ld.pdh);
                 global_ld.pdh = NULL;
                 global_ld.go = FALSE;
+                g_free(global_ld.io_buffer);
+                global_ld.io_buffer = NULL;
                 return FALSE;
             }
             if (global_ld.file_duration_timer) {
@@ -3846,6 +3870,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
     global_ld.err                 = 0;  /* no error seen yet */
     global_ld.pdh                 = NULL;
     global_ld.save_file_fd        = -1;
+    global_ld.io_buffer           = NULL;
     global_ld.file_count          = 0;
     global_ld.file_duration_timer = NULL;
     global_ld.next_interval_time  = 0;

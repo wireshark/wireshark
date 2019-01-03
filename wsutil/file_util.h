@@ -36,6 +36,9 @@ extern "C" {
 
 #include <sys/stat.h>	/* for stat() and struct stat */
 
+/* We set a larger IO Buffer size for the capture files */
+#define IO_BUF_SIZE (64 * 1024)
+
 /*
  * Visual C++ on Win32 systems doesn't define these.  (Old UNIX systems don't
  * define them either.)
