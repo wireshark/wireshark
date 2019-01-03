@@ -577,7 +577,7 @@ checkDFilterCount(dfilter, expected_count)
 checkDFilterFail(dfilter)
 
     This will run tshark with the display filter, and
-    asser that tshark fails. This is useful when expecting
+    assert that tshark fails. This is useful when expecting
     display filter syntax errors to be caught.
 
 To execute tests:
