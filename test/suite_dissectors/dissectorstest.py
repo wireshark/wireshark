@@ -72,14 +72,14 @@ class _dissection_validator_real:
                 f.write("0 {}\n".format(hex_string))
 
         # generate our pcap file by feeding the messages to text2pcap
-        self.test_case.runProcess((
+        self.test_case.assertRun((
             self.cmd_text2pcap,
             '-u', '1234,1234',
             text_file, pcap_file
         ))
 
         # generate our dissection from our pcap file
-        tshark_proc = self.test_case.runProcess((
+        tshark_proc = self.test_case.assertRun((
             self.cmd_tshark,
             '-r', pcap_file,
             '-T', 'json',
