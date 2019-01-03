@@ -1082,7 +1082,7 @@ sharkd_session_process_tap_stats_node_cb(const stat_node *n)
 			else
 				sharkd_json_value_anyf(TRUE, "burstrate", "%.4f", ((double)node->max_burst) / prefs.st_burst_windowlen);
 
-			sharkd_json_value_anyf(TRUE, "bursttime", "%.3f", ((double)node->burst_time / 1000.0));
+			sharkd_json_value_anyf(TRUE, "bursttime", "%.3f", (node->burst_time / 1000.0));
 		}
 
 		if (node->children)
