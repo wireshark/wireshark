@@ -913,7 +913,7 @@ static gboolean cb_reload_preference(extcap_callback_info_t cb_info)
 
     arguments = extcap_parse_values(cb_info.output);
 
-    walker = g_list_first((GList *)(arguments));
+    walker = g_list_first(arguments);
     while (walker != NULL)
     {
         extcap_value * val = (extcap_value *)walker->data;
@@ -979,7 +979,7 @@ extcap_has_configuration(const char *ifname, gboolean is_required)
 
     gboolean found = FALSE;
 
-    arguments = extcap_get_if_configuration((const char *)(ifname));
+    arguments = extcap_get_if_configuration(ifname);
     walker = g_list_first(arguments);
 
     while (walker != NULL && !found)
@@ -1791,7 +1791,7 @@ process_new_extcap(const char *extcap, char *output)
             if ( g_list_find(interface_keys, int_iter->call) )
             {
                 g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_WARNING, "Extcap interface \"%s\" is already provided by \"%s\" ",
-                      int_iter->call, (gchar *)extcap_if_executable(int_iter->call));
+                      int_iter->call, extcap_if_executable(int_iter->call));
                 walker = g_list_next(walker);
                 continue;
             }
