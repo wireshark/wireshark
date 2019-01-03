@@ -33761,7 +33761,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_he_trs_ru_allocation,
      {"RU Allocation", "wlan.htc.he.a_control.umrs.ru_allocation",
-      FT_UINT32, BASE_HEX, NULL, 0x00001fe0, NULL, HFILL }},
+      FT_UINT32, BASE_DEC, NULL, 0x00001fe0, NULL, HFILL }},
 
     {&hf_ieee80211_he_dl_tx_power,
      {"DL Tx Power", "wlan.htc.he.a_control.umrs.dl_tx_power",
@@ -34071,7 +34071,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_he_trigger_ru_allocation,
      {"RU Allocation", "wlan.trigger.he.ru_allocation",
-      FT_UINT40, BASE_HEX, NULL, 0x00000FE000, NULL, HFILL }},
+      FT_UINT40, BASE_DEC, NULL, 0x00000FE000, NULL, HFILL }},
 
     {&hf_ieee80211_he_trigger_ul_fec_coding_type,
      {"Coding Type", "wlan.trigger.he.coding_type",
