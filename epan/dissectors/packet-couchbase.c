@@ -1648,16 +1648,16 @@ dissect_unsigned_leb128(tvbuff_t *tvb, gint start, gint end, guint32* value) {
 
     if ((byte & 0x80) == 0x80) {
         guint32 shift = 7;
-        gint index;
-        for (index = start+1; index < end; index++) {
-            byte = tvb_get_guint8(tvb, index);
+        gint byte_idx;
+        for (byte_idx = start+1; byte_idx < end; byte_idx++) {
+            byte = tvb_get_guint8(tvb, byte_idx);
             *value |= (byte & 0x7f) << shift;
             if ((byte & 0x80) == 0) {
                 break;
             }
             shift += 7;
         }
-        return (index == end) ? -1 : index + 1;
+        return (byte_idx == end) ? -1 : byte_idx + 1;
     }
     return start + 1;
 }
