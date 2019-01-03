@@ -130,25 +130,10 @@ class SubprocessTestCase(unittest.TestCase):
             except:
                 pass
 
-    def _error_count(self, result):
-        if not result:
-            return 0
-        if hasattr(result, 'failures'):
-            # Python standard unittest runner
-            return len(result.failures) + len(result.errors)
-        if hasattr(result, '_excinfo'):
-            # pytest test runner
-            return len(result._excinfo or [])
-        self.fail("Unexpected test result %r" % result)
-
-    def run(self, result=None):
-        # Subclass run() so that we can do the following:
-        # - Open our log file and add it to the cleanup list.
-        # - Check our result before and after the run so that we can tell
-        #   if the current test was successful.
-
-        # Probably not needed, but shouldn't hurt.
-        self.kill_processes()
+    def setUp(self):
+        """
+        Set up a single test. Opens a log file and add it to the cleanup list.
+        """
         self.processes = []
         self.log_fname = self.filename_from_id('log')
         # Our command line utilities generate UTF-8. The log file endcoding
@@ -157,27 +142,35 @@ class SubprocessTestCase(unittest.TestCase):
         # to handle line endings in the future.
         self.log_fd = io.open(self.log_fname, 'w', encoding='UTF-8', newline='\n')
         self.cleanup_files.append(self.log_fname)
-        pre_run_problem_count = self._error_count(result)
-        try:
-            super().run(result=result)
-        except KeyboardInterrupt:
-            # XXX This doesn't seem to work on Windows, which is where we need it the most.
-            self.kill_processes()
 
-        # Tear down our test. We don't do this in tearDown() because Python 3
-        # updates "result" after calling tearDown().
+    def _last_test_failed(self):
+        """Check for non-skipped tests that resulted in errors."""
+        # The test outcome is not available via the public unittest API, so
+        # check a private property, "_outcome", set by unittest.TestCase.run.
+        # It remains None when running in debug mode (`pytest --pdb`).
+        # The property is available since Python 3.4 until at least Python 3.7.
+        if self._outcome:
+            for test_case, exc_info in self._outcome.errors:
+                if exc_info:
+                    return True
+        # No errors occurred or running in debug mode.
+        return False
+
+    def tearDown(self):
+        """
+        Tears down a single test. Kills stray processes and closes the log file.
+        On errors, display the log contents. On success, remove temporary files.
+        """
         self.kill_processes()
         self.log_fd.close()
-        if result:
-            post_run_problem_count = self._error_count(result)
-            if pre_run_problem_count != post_run_problem_count:
-                self.dump_files.append(self.log_fname)
-                # Leave some evidence behind.
-                self.cleanup_files = []
-                print('\nProcess output for {}:'.format(self.id()))
-                with io.open(self.log_fname, 'r', encoding='UTF-8', errors='backslashreplace') as log_fd:
-                    for line in log_fd:
-                        sys.stdout.write(line)
+        if self._last_test_failed():
+            self.dump_files.append(self.log_fname)
+            # Leave some evidence behind.
+            self.cleanup_files = []
+            print('\nProcess output for {}:'.format(self.id()))
+            with io.open(self.log_fname, 'r', encoding='UTF-8', errors='backslashreplace') as log_fd:
+                for line in log_fd:
+                    sys.stdout.write(line)
         for filename in self.cleanup_files:
             try:
                 os.unlink(filename)
