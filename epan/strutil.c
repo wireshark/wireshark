@@ -1140,7 +1140,6 @@ IA5_7BIT_decode(unsigned char * dest, const unsigned char* src, int len)
         i += g_unichar_to_utf8(buf,&(dest[i]));
     }
     dest[i]=0;
-    return;
 }
 
 /*

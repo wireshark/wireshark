@@ -108,8 +108,6 @@ color_filters_add_tmp(GSList **cfl)
 
     g_strfreev(fg_colors);
     g_strfreev(bg_colors);
-
-    return;
 }
 
 static gint
