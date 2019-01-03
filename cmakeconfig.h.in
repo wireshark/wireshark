@@ -293,6 +293,9 @@
 /* Define if st_flags field exists in struct stat */
 #cmakedefine HAVE_STRUCT_STAT_ST_FLAGS 1
 
+/* Define if st_blksize field exists in struct stat */
+#cmakedefine HAVE_STRUCT_STAT_ST_BLKSIZE 1
+
 /* Define to 1 if `__st_birthtime' is a member of `struct stat'. */
 #cmakedefine HAVE_STRUCT_STAT___ST_BIRTHTIME 1
 
