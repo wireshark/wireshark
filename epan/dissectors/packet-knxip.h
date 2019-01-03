@@ -2,8 +2,8 @@
  * Routines for KNXnet/IP dissection
  * Copyright 2004, Jan Kessler <kessler@ise.de>
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
