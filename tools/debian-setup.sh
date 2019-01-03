@@ -84,6 +84,7 @@ ADDITIONAL_LIST="libnl-3-dev \
 	xsltproc"
 
 DEBDEPS_LIST="debhelper \
+	dh-python \
 	po-debconf \
 	python3-ply \
 	docbook-xsl \
