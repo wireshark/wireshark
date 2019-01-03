@@ -52,7 +52,7 @@ documentation and instead prefer to learn an application as they use it.
 Providing feedback increases your sense of control and awareness, and
 makes the application more enjoyable to use. Most of the Qt dialogs
 provide a “hint” area near the bottom which shows useful information.
-For example, the ``Follow Stream'' dialog shows the packet corresponding
+For example, the “Follow Stream” dialog shows the packet corresponding
 to the text under the mouse. The profile management dialog shows a
 clickable path to the current profile. The main welcome screen shows
 live interface traffic. Most dialogs have a context menu that shows
@@ -64,17 +64,17 @@ Qt Creator is a full-featured IDE and user interface editor. It makes
 adding new UI features much easier. It doesn't work well on Windows at
 the present time, so it’s recommended that you use it on macOS or Linux.
 
-To edit and build Wireshark using Qt Cretor, open the top-level
+To edit and build Wireshark using Qt Creator, open the top-level
 _CMakeLists.txt_ within Qt Creator. It should ask you to choose a build
 location. Do so. It should then ask you to run CMake. Fill in any
-desired build arguments (e.g. "-D CMAKE_BUILD_TYPE=Debug" or "-D
-ENABLE_CCACHE=ON") and click the ``Run CMake'' button. When that
-completes select ``Build → Open Build and Run Kit Selector...'' and make
+desired build arguments (e.g. `-D CMAKE_BUILD_TYPE=Debug` or `-D
+ENABLE_CCACHE=ON`) and click the btn:[Run CMake] button. When that
+completes select menu:Build[Open Build and Run Kit Selector...] and make
 sure _wireshark_ is selected.
 
-Note that Qt Creator uses output created by CMake’s *CodeBlocks*
+Note that Qt Creator uses output created by CMake’s “CodeBlocks”
 generator. If you run CMake outside of Qt Creator you should use the
-``CodeBlocks - Unix Makefiles'' generator, otherwise Qt Creator will
+“CodeBlocks - Unix Makefiles” generator, otherwise Qt Creator will
 prompt you to re-run CMake.
 
 ==== Source Code Overview

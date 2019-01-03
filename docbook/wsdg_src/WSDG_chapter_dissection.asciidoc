@@ -1171,7 +1171,7 @@ was especially the case after seeing a lot of discussions about how particular
 IDL types are represented inside an octet stream.
 
 I have also had comments/feedback that this tool would be good for say a CORBA
-class when teaching students what CORBA traffic looks like ``on the wire''.
+class when teaching students what CORBA traffic looks like “on the wire”.
 
 It is also COOL to work on a great Open Source project such as the case with
 “Wireshark” ({wireshark-main-url})

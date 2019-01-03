@@ -48,13 +48,13 @@ You need to install, in exactly this order:
 
 . C compiler:
 https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&rel=15[Download]
-and install ``Microsoft Visual Studio 2017 Community Edition.'' This is a small
+and install “Microsoft Visual Studio 2017 Community Edition.” This is a small
 download that then downloads all the other required parts (which are quite large).
 
-Check the checkbox for "Desktop development with C++" and then uncheck
-all the optional components other than the "VC++ 2017" item with the
-"latest ... tools", the "Windows 10 SDK", and the "Visual C++ tools for
-CMake" (unless you want to use them for purposes other than Wireshark).
+Check the checkbox for “Desktop development with {cpp}” and then uncheck
+all the optional components other than the “V{cpp} 2017” item with the
+“latest ... tools”, the “Windows 10 SDK”, and the “Visual {cpp} tools for
+CMake” (unless you want to use them for purposes other than Wireshark).
 
 You can use Chocolatey to install Visual Studio, to correctly configure the
 installation, copy the deployment XML file https://code.wireshark.org/review/gitweb?p=wireshark.git;a=blob_plain;f=tools/msvc2015AdminDeployment.xml;hb=HEAD[msvc2015AdminDeployment.xml] from the source code tools directory
@@ -93,19 +93,19 @@ problems.
 ==== Install Qt
 
 The main Wireshark application uses the Qt windowing toolkit.  To
-install Qt, go to the https://www.qt.io/download["Download Qt" page],
-select "Go open source", download the *Qt Online Installer for Windows*
+install Qt, go to the https://www.qt.io/download[“Download Qt” page],
+select “Go open source”, download the *Qt Online Installer for Windows*
 from the Qt Project and select, for the desired Qt version, a component
-that matches your target system and compiler.  For example, the Qt 5.9.5
-``msvc2017 64-bit'' component is used to build the official 64-bit
+that matches your target system and compiler.  For example, the Qt {qt-lts-version}.5
+“msvc2017 64-bit” component is used to build the official 64-bit
 packages.  You can deselect all the Qt xxxx (e.g.  Qt Charts) components
-as they aren't required.
+as they aren’t required.
 
 Note that installation of separate Qt components are required for 32 bit
-and 64 bit builds, e.g. ``msvc2017 32-bit'' and ``msvc2017 64-bit''. The
+and 64 bit builds, e.g. “msvc2017 32-bit” and “msvc2017 64-bit”. The
 environment variable `QT5_BASE_DIR` should be set as appropriate for your
 environment and should point to the Qt directory that contains the bin
-directory, e.g. _C:\Qt\5.9.5\msvc2017_64_
+directory, e.g. _C:\Qt{backslash}{qt-lts-version}.5\msvc2017_64_
 
 The Qt maintenance tool (_C:\Qt\MaintenanceTool.exe_) can be used to
 upgrade Qt to newer versions.
@@ -175,15 +175,6 @@ so it shows a version number for:
 * Utils/patch (only if needed) (may be Devel/patch instead)
 
 * Text/docbook-xml45 (only needed if you're building the documenation)
-
-// Also need: bash/sh, sed
-
-You might also have to install
-
-* Interpreters/m4
-
-if installing Devel/bison doesn't provide a working version of Bison. If
-m4 is missing bison will fail.
 
 After clicking the btn:[Next] button several times, the setup
 will then download and install the selected packages (this
@@ -358,14 +349,14 @@ Make sure your repository path doesn't contain spaces.
 
 ==== Open a Visual Studio Command Prompt
 
-From the Start Menu (or Start Screen), navigate to the `Visual Studio
-2017' folder and choose the Command Prompt appropriate for the build you
-wish to make, e.g. `x64 Native Tools Command Prompt for VS 2017' for a
-64-bit version or `x86 Native Tools Command Prompt for VS 2017' for a
+From the Start Menu (or Start Screen), navigate to the “Visual Studio
+2017” folder and choose the Command Prompt appropriate for the build you
+wish to make, e.g. “x64 Native Tools Command Prompt for VS 2017” for a
+64-bit version or “x86 Native Tools Command Prompt for VS 2017” for a
 32-bit version.  Depending on your version of Windows the Command Prompt
-list might be directly under `Visual Studio 2017' or you might have to
-dig for it under multiple folders, e.g.  `Visual Studio 2017 -> Visual
-Studio Tools -> Windows Desktop Command Prompts'.
+list might be directly under “Visual Studio 2017” or you might have to
+dig for it under multiple folders, e.g. menu:Visual Studio 2017[Visual
+Studio Tools,Windows Desktop Command Prompts].
 
 [TIP]
 .Pin the items to the Task Bar
@@ -380,6 +371,7 @@ All subsequent operations take place in this Command Prompt window.
 --
 Set the following environment variables, using paths and values suitable for your installation:
 
+[subs="attributes+"]
 ----
 > rem Let CMake determine the library download directory name under
 > rem WIRESHARK_BASE_DIR or set it explicitly by using WIRESHARK_LIB_DIR.
@@ -387,7 +379,7 @@ Set the following environment variables, using paths and values suitable for you
 > set WIRESHARK_BASE_DIR=C:\Development
 > rem set WIRESHARK_LIB_DIR=c:\wireshark-win64-libs
 > rem Set the Qt installation directory
-> set QT5_BASE_DIR=C:\Qt\5.9.5\msvc2017_64
+> set QT5_BASE_DIR=C:\Qt{backslash}{qt-lts-version}.5\msvc2017_64
 > rem Append a custom string to the package version. Optional.
 > set WIRESHARK_VERSION_EXTRA=-YourExtraVersionInfo
 ----
@@ -410,9 +402,11 @@ Setting these variables could be added to a batch file to be run after you open
 the Visual Studio Tools Command Prompt.
 
 [TIP]
+.Use Qt’s LTS branch
 ====
-Qt 5.9 is a "long term support" branch of Qt5. We recommend using it to
-compile Wireshark on Windows.
+We recommend using the most recent “long term support” branch of Qt5 to
+compile Wireshark on Windows. At the time of writing this is Qt
+{qt-lts-version}.
 ====
 
 --

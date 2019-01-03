@@ -54,8 +54,8 @@ root directory.
 Dumpcap:: The capture engine itself. This is the only part that is to execute
 with elevated privileges. Source code is in the root directory.
 
-WinPcap and libpcap:: These are separate libraries that provide packet capture
-and filtering support on different platforms. The filtering WinPcap and libpcap
+Npcap and libpcap:: These are separate libraries that provide packet capture
+and filtering support on different platforms. The filtering in Npcap and libpcap
 works at a much lower level than Wireshark’s display filters and uses a
 significantly different mechanism. That’s why we have different display and
 capture filter syntaxes.
@@ -74,7 +74,7 @@ privileges, allowing the main part of the code (dissectors, user interface,
 etc) to run with normal user privileges.
 
 To hide all the low-level machine dependent details from Wireshark, the libpcap
-and WinPcap (see <<ChLibsPcap>>) libraries are used. These libraries provide a
+and Npcap (see <<ChLibsPcap>>) libraries are used. These libraries provide a
 general purpose interface to capture packets and are used by a wide variety of
 applications.
 

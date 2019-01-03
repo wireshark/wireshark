@@ -10,11 +10,12 @@
 
 Wireshark consists of the following major parts:
 
-* Packet dissection - in the _/epan/dissector_ and _/plugin/\*_ directories
+* Packet dissection - in the _/epan/dissectors_ and
+_/plugins/epan/{asterisk}_ directories
 
 * File I/O - using Wireshark’s own wiretap library
 
-* Capture - using the libpcap/winpcap library, in _/wiretap_
+* Capture - using the libpcap and Npcap libraries, in _/wiretap_
 
 * User interface - using Qt and associated libraries
 

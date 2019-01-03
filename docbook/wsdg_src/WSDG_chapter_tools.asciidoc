@@ -447,26 +447,21 @@ https://docs.microsoft.com/en-us/cpp/build/reference/linking?view=vs-2017[Micros
 
 [[msvc-runtime-redistributable]]
 
-==== C-Runtime "Redistributable" Files
+==== Visual {cpp} Runtime “Redistributable” Files
 
-Please note: The following is not legal advice - ask your preferred lawyer
-instead. It’s the authors view and this view might be wrong.
+Please note: The following is not legal advice. Ask your preferred
+lawyer instead. It’s the authors view and this view might be wrong.
 
-Depending on the Microsoft compiler version you use, some binary files coming
-from Microsoft might be required to be installed on Windows machine to run
-Wireshark. On a developer machine, the compiler setup installs these files so
-they are available - but they might not be available on a user machine!
+Wireshark and its libraries depend on POSIX functions such as fopen()
+and malloc(). On Windows, these functions are provided by the Microsoft
+Visual {cpp} Runtime. There are many different versions of the CRT and
+Visual {cpp} 2015 and later use the _Universal CRT_.
 
-This is especially true for the C runtime DLL (msvcr*.dll), which contains the
-implementation of ANSI and alike functions, e.g.: fopen(), malloc(). The DLL is
-named like: _msvcr**version**.dll_, an abbreviation for "Microsoft Visual C
-Runtime". For Wireshark to work, this DLL must be available on the users
-machine.
-
-Starting with MSVC7, it is necessary to ship the C runtime DLL
-(_msvcr**version**.dll_) together with the application installer somehow, as that
-DLL is possibly not available on the target system.
-
+The Universal CRT comes standard with Windows 10 and is installed as part
+of Windows Update on earlier versions of Windows. The Wireshark .exe
+installers include redistributables (_vcredist_x86.exe_ or
+_vcredist_x64.exe_) which ensure that the Universal CRT is installed and
+up to date.
 
 [NOTE]
 .Make sure you're allowed to distribute this file
@@ -480,20 +475,21 @@ us.
 The following Microsoft Docs link is recommended for the
 interested reader:
 
-* https://docs.microsoft.com/en-us/cpp/ide/redistributing-visual-cpp-files?view=vs-2017[Redistributing Visual C++ Files]
+https://docs.microsoft.com/en-us/cpp/ide/redistributing-visual-cpp-files?view=vs-2017[Redistributing Visual {cpp} Files]
 
 In all cases where _vcredist_x86.exe_ or _vcredist_x64.exe_ is
-downloaded it should be downloaded to the directory into which the support
-libraries for Wireshark have been downloaded and installed. This directory is
-specified by the WIRESHARK_BASE_DIR or WIRESHARK_LIB_DIR environment variables.
-It need not, and should not, be run after being downloaded.
+downloaded it should be downloaded to the directory into which the
+support libraries for Wireshark have been downloaded and installed. This
+directory is specified by the `WIRESHARK_BASE_DIR` or
+`WIRESHARK_LIB_DIR` environment variables. It need not, and should not,
+be run after being downloaded.
 
-==== Windows (Platform) SDK
+==== Windows Platform SDK
 
 The Windows Platform SDK (PSDK) or Windows SDK is a free
 (as in beer) download and contains platform specific headers and
-libraries (e.g. `windows.h`, `WSock32.lib`, etc.). As new Windows
-features evolve in time, updated SDK’s become available that
+libraries (e.g. _windows.h_, _WSock32.lib_, etc.). As new Windows
+features evolve in time, updated SDKs become available that
 include new and updated APIs.
 
 When you purchase a commercial Visual Studio or use the Community
@@ -571,7 +567,7 @@ otherwise the debugger will simply fail or you will only see a lot of garbage.
 
 [[ChToolsMSVCDebugger]]
 
-===== Visual Studio integrated debugger
+===== Visual Studio Integrated Debugger
 
 You can use the integrated debugger of Visual Studio if your toolchain includes
 it.  Open the solution in your build directory and build and debug as normal
@@ -614,7 +610,7 @@ If you require a non-optimised version, then build using a debug configuration.
 
 [[ChToolsMSDebuggingTools]]
 
-===== Debugging Tools for Windows
+===== Debugging Tools For Windows
 
 You can also use the Microsoft Debugging Tools for Windows toolkit, which is a
 standalone GUI debugger. Although it’s not that comfortable compared to
@@ -650,7 +646,8 @@ The bash shell is needed to run several shell scripts.
 
 [[ChToolsGNUBash]]
 
-==== UNIX and UNIX-like platforms: GNU Bash
+[discrete]
+==== Unix
 
 Bash (the GNU Bourne-Again SHell) is available for most UNIX and
 UNIX-like platforms. If it isn't already installed or available as a
@@ -734,7 +731,8 @@ and above should work fine.
 
 [[ChToolsUnixPerl]]
 
-==== UNIX and UNIX-like platforms: Perl
+[discrete]
+==== Unix
 
 Perl is available for most UNIX and UNIX-like platforms. If perl isn't
 already installed or available as a package for your platform, you can
@@ -768,7 +766,8 @@ However, the version string may vary.
 
 [[ChToolsWindowsPerl]]
 
-==== Windows native: Perl
+[discrete]
+==== Windows
 
 A native Windows Perl package can be obtained from
 http://www.ActiveState.com[Active State] or http://strawberryperl.com/[Strawberry Perl]. The installation
@@ -819,7 +818,8 @@ Bison is a parser generator used for some of Wireshark’s file format support.
 
 [[ChToolsUnixBison]]
 
-==== UNIX and UNIX-like platforms: Bison
+[discrete]
+==== Unix
 
 Bison is available for most UNIX and UNIX-like platforms. See the next
 section for native Windows options.
@@ -849,7 +849,8 @@ Your version string may vary.
 
 [[ChToolsWindowsBison]]
 
-==== Windows native: Win flex-bison and bison
+[discrete]
+==== Windows
 
 A native Windows version of bison is available in the _winflexbison_
 https://chocolatey.org/[Chocolatey] package. Note that the executable is named
@@ -868,7 +869,8 @@ file formats, and other features.
 
 [[ChToolsUnixFlex]]
 
-==== UNIX and UNIX-like platforms: flex
+[discrete]
+==== Unix
 
 Flex is available for most UNIX and UNIX-like platforms. See the next
 section for native Windows options.
@@ -893,7 +895,8 @@ Your version string may vary.
 
 [[ChToolsWindowsFlex]]
 
-==== Windows native: Win flex-bison and flex
+[discrete]
+==== Windows
 
 A native Windows version of flex is available in the _winflexbison_
 https://chocolatey.org/[Chocolatey] package. Note that the executable is named
@@ -926,7 +929,8 @@ client.
 
 [[ChToolsUnixGit]]
 
-==== UNIX and UNIX-like platforms: git
+[discrete]
+==== Unix
 
 Git is available for most UNIX and UNIX-like platforms. If Git isn't
 already installed or available as a package for your platform, you can
@@ -949,7 +953,8 @@ Your version will likely be different.
 
 [[ChToolsWindowsGit]]
 
-==== Windows native: git
+[discrete]
+==== Windows
 
 The Git command line tools for Windows can be found at
 http://git-scm.com/download/win[] and can also be installed using Chocolatey:
@@ -977,7 +982,7 @@ However, the version string may vary.
 
 [[ChToolsGitPowerShellExtensions]]
 
-=== Git Powershell Extensions (optional)
+=== Git Powershell Extensions (Optional)
 
 A useful tool for command line git on Windows is https://github.com/dahlbyk/posh-git[PoshGit].
 Poshgit provides git command completion and alters the prompt to indicate the local working
@@ -990,7 +995,7 @@ PS:\>choco install poshgit
 
 [[ChToolsGitGUI]]
 
-=== Git GUI client (optional)
+=== Git GUI Client (Optional)
 
 Along with the traditional command-line client, several
 GUI clients are available for a number of platforms. See
@@ -1001,7 +1006,7 @@ http://git-scm.com/downloads/guis[] for details.
 
 [[ChToolsPatch]]
 
-=== patch (optional)
+=== patch (Optional)
 
 The patch utility is used to merge a diff file into your own source tree. This
 tool is only needed, if you want to apply a patch (diff file) from someone else
@@ -1016,7 +1021,8 @@ tool.
 
 [[ChToolsUnixPatch]]
 
-==== UNIX and UNIX-like platforms: patch
+[discrete]
+==== Unix
 
 Patch is available for most UNIX and UNIX-like platforms. If GNU patch
 isn't already installed or available as a package for your platform, you
@@ -1049,7 +1055,8 @@ However, the version string may vary.
 
 [[ChToolsWindowsPatch]]
 
-==== Windows native: patch
+[discrete]
+==== Windows
 
 The Windows native Git tools provide patch. A native Windows patch package can be obtained from
 http://gnuwin32.sourceforge.net/[]. The
@@ -1057,7 +1064,7 @@ installation should be straightforward.
 
 [[ChToolsNSIS]]
 
-=== Windows: NSIS (optional)
+=== Windows: NSIS (Optional)
 
 The NSIS (Nullsoft Scriptable Install System) is used to generate
 _Wireshark-win32-{wireshark-version}.exe_ from all the files
@@ -1065,7 +1072,7 @@ needed to be installed, including all required DLLs, plugins, and supporting
 files.
 
 To install it, download the latest released version from
-http://nsis.sourceforge.net[]. NSIS v3 is required. You can also install
+https://nsis.sourceforge.net[]. NSIS v3 is required. You can also install
 it using Chocolatey:
 
 [source,cmd]
@@ -1075,7 +1082,23 @@ PS$> choco install nsis
 
 You can find more instructions on using NSIS in <<ChSrcNSIS>>.
 
-=== Windows: PortableApps (optional)
+[[ChToolsWiX]]
+
+=== Windows: WiX Toolset (Optional)
+
+The Wix Toolset can be used to generate Windows Installer (_.msi_)
+packages. You can download it from the link:http://wixtoolset.org/[WiX
+web site] or install it using Chocolatey:
+
+[source,cmd]
+----
+PS$> choco install wixtoolset
+----
+
+Wireshark’s .msi packaging is currently experimental and the generated
+packages may be incomplete.
+
+=== Windows: PortableApps (Optional)
 
 The PortableApps.com Installer is used to generate
 _WiresharkPortable-{wireshark-version}.paf.exe_ from all the files

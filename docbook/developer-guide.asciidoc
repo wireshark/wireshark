@@ -3,10 +3,11 @@
 include::attributes.asciidoc[]
 = Wireshark Developer’s Guide: Version {wireshark-version}
 
-// Convenience attribute.
+// Attributes
 // XXX This should be surrounded by single quotes in the text. It’s
 // currently surrounded by plus signs for AsciiDoc compatibility.
 :dlt-glob: DLT_*
+:qt-lts-version: 5.12
 
 [[Preface]]
 ["preface",id="Preface"]
