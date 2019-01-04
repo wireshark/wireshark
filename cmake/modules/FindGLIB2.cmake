@@ -20,7 +20,7 @@ if( GLIB2_MAIN_INCLUDE_DIR AND GLIB2_LIBRARIES )
 endif()
 
 include( FindWSWinLibs )
-FindWSWinLibs( "glib2-*" "GLIB2_HINTS" )
+FindWSWinLibs( "vcpkg-export-*" "GLIB2_HINTS" )
 
 if (NOT WIN32)
 	find_package(PkgConfig)
@@ -74,6 +74,7 @@ find_path( GLIB2_INTERNAL_INCLUDE_DIR
 		glibconfig.h
 	HINTS
 		"${GLIB2_INCLUDEDIR}"
+		"${GLIB2_HINTS}/include"
 		"${glib2LibDir}"
 		${CMAKE_SYSTEM_LIBRARY_PATH}
 	PATH_SUFFIXES
@@ -100,25 +101,45 @@ if( GLIB2_FOUND )
 	set( GLIB2_INCLUDE_DIRS ${GLIB2_MAIN_INCLUDE_DIR} ${GLIB2_INTERNAL_INCLUDE_DIR} )
 	if ( WIN32 AND GLIB2_FOUND )
 		set ( GLIB2_DLL_DIR "${GLIB2_HINTS}/bin"
-			CACHE PATH "Path to GLib 2 DLLs"
+			CACHE PATH "Path to GLib2 DLLs"
 		)
-		# XXX Are GIO and GObject really necessary?
-		# libglib and libgio in glib2-2.52.2-1.34-win32ws depend on
-		# libgcc_s_sjlj-1.dll, now included with gnutls-3.6.3-1-win32ws.
-		# (64-bit GLib does not depend on libgcc_s).
+		# GTK+ required GObject and GIO. We probably don't.
 		file( GLOB _glib2_dlls RELATIVE "${GLIB2_DLL_DIR}"
-			"${GLIB2_DLL_DIR}/libglib-*.dll"
-			"${GLIB2_DLL_DIR}/libgio-*.dll"
-			"${GLIB2_DLL_DIR}/libgmodule-*.dll"
-			"${GLIB2_DLL_DIR}/libgobject-*.dll"
-			"${GLIB2_DLL_DIR}/libintl-*.dll"
-			#"${GLIB2_DLL_DIR}/libgcc_s_*.dll"
+			# "${GLIB2_DLL_DIR}/gio-2.dll"
+			"${GLIB2_DLL_DIR}/glib-2.dll"
+			"${GLIB2_DLL_DIR}/gmodule-2.dll"
+			# "${GLIB2_DLL_DIR}/gobject-2.dll"
+			"${GLIB2_DLL_DIR}/gthread-2.dll"
+			"${GLIB2_DLL_DIR}/libcharset.dll"
+			# gnutls-3.6.3-1-win64ws ships with libffi-6.dll
+			# "${GLIB2_DLL_DIR}/libffi.dll"
+			"${GLIB2_DLL_DIR}/libiconv.dll"
+			"${GLIB2_DLL_DIR}/libintl.dll"
+			"${GLIB2_DLL_DIR}/pcre.dll"
+			# "${GLIB2_DLL_DIR}/pcre16.dll"
+			# "${GLIB2_DLL_DIR}/pcre32.dll"
+			# "${GLIB2_DLL_DIR}/pcrecpp.dll"
+			# "${GLIB2_DLL_DIR}/pcreposix.dll"
 		)
 		set ( GLIB2_DLLS ${_glib2_dlls}
 			# We're storing filenames only. Should we use STRING instead?
 			CACHE FILEPATH "GLib 2 DLL list"
 		)
-		mark_as_advanced( GLIB2_DLL_DIR GLIB2_DLLS )
+
+		file( GLOB _glib2_pdbs RELATIVE "${GLIB2_DLL_DIR}"
+			"${GLIB2_DLL_DIR}/glib-2.pdb"
+			"${GLIB2_DLL_DIR}/gmodule-2.pdb"
+			"${GLIB2_DLL_DIR}/gthread-2.pdb"
+			"${GLIB2_DLL_DIR}/libcharset.pdb"
+			"${GLIB2_DLL_DIR}/libiconv.pdb"
+			"${GLIB2_DLL_DIR}/libintl.pdb"
+			"${GLIB2_DLL_DIR}/pcre.pdb"
+		)
+		set ( GLIB2_PDBS ${_glib2_pdbs}
+			CACHE FILEPATH "GLib2 PDB list"
+		)
+
+		mark_as_advanced( GLIB2_DLL_DIR GLIB2_DLLS GLIB2_PDBS )
 	endif()
 elseif( GLIB2_FIND_REQUIRED )
 	message( SEND_ERROR "Package required but not found" )

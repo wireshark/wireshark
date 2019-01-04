@@ -69,8 +69,8 @@ Param(
 # trouble instead of trying to catch exceptions everywhere.
 $ErrorActionPreference = "Stop"
 
-$Win64CurrentTag = "2019-02-08"
-$Win32CurrentTag = "2019-02-08"
+$Win64CurrentTag = "2019-03-18"
+$Win32CurrentTag = "2019-03-18"
 
 # Archive file / SHA256
 $Win64Archives = @{
@@ -78,12 +78,10 @@ $Win64Archives = @{
     "bcg729-1.0.4-win64ws.zip" = "9a095fda4c39860d96f0c568830faa6651cd17635f68e27aa6de46c689aa0ee2";
     "c-ares-1.15.0-win64ws.zip" = "ade864fd08e887d353a9c939fa6e68b0bf3e08761b6e81f60ce15e6543256552";
     "gnutls-3.6.3-1-win64ws.zip" = "994ac2578e7b4ca01e589ab2598927d53f7370bc3ff679f3006b0e6bb7a06df4";
-    "glib2-2.52.2-1.31-win64ws.zip" = "e19a7812db6715c632a5bbf96452ab474a4eaf0c6aaee999323ac7beb7ebe6db";
     "krb5-1.17-1-win64ws.zip" = "1f4a7ab86ae331ea9e58c9776a60def81ae9fe622882b2e8da2ad6ce6f6fb1d8";
     "libgcrypt-1.8.3-win64ws.zip" = "53b1c636cb89de308ca4ea01b4990cf1deca7f6c2446189c7ff6e971137ffd76";
     "libsmi-svn-40773-win64ws.zip" = "571fcee71d741bf847c3247d4c2e1c42388ca6a9feebe08fc0d4ce053571d15d";
     "libssh-0.7.3-1-win64ws.zip" = "3a81b9f4a914a46f15243bbb13b6919ef1c20d4bf502c47646caeccff2cbd75c";
-    "libxml2-2.9.9-win64ws.zip" = "4ee89f74f650e52c1ba524fea3dd8529030c94e1ac5b91af34f22376f438fc43";
     "lua-5.2.4-unicode-win64-vc14.zip" = "e8968d2c7871ce1ea82cbd29ac1b3a2c59d3dec25e483c5e12de85df66f5d928";
     "lz4-1.7.5-win64ws.zip" = "dc946b68238c25cbc216901332d608d7f4b084be2d401210f74ce68b9b93207f";
     "MaxMindDB-1.3.2-win64ws.zip" = "9025c43e9b21ff0bfbaf206b8ed96e2920ef1434107f789e4c7c0c1d8b508952";
@@ -91,9 +89,9 @@ $Win64Archives = @{
     "sbc-1.3-1-win64ws.zip" = "08cef6898c421277a6582ef3225d8820f74a037cbd5b6e673a4d8f4593ce80a1";
     "snappy-1.1.3-1-win64ws.zip" = "692a15e70f2cdeca621988a46e936d3651e7feb5176981f2656a5e913c394bcc";
     "spandsp-0.0.6-1-win64ws.zip" = "0e46c61a5a8dca562c36e88a8962a50c1ec1a9fcf89dd05996dac5a79e454527";
+    "vcpkg-export-20190318-win64ws.zip" = "72c2c43594b0581de2bc86517870a561cc40df294662502536b2a6c06cace87e";
     "WinSparkle-0.5.7.zip" = "56d396ef0c4e8b0589ea74134e484376ca6459d972cd1ab1da6b9624d82e6d04";
     "WpdPack_4_1_2.zip" = "ea799cf2f26e4afb1892938070fd2b1ca37ce5cf75fec4349247df12b784edbd";
-    "zlib-1.2.11-2-ws.zip" = "82764f71649cdc1e5467686289936ca7f632966186e2fce35df94037e4ecb596";
 }
 
 $Win32Archives = @{
@@ -101,12 +99,10 @@ $Win32Archives = @{
     "bcg729-1.0.4-win32ws.zip" = "b785ec78dec6bca8252130eb884bfa28c1140001dd7369a535579176de9e4271";
     "c-ares-1.15.0-win32ws.zip" = "a54151203a631b478470aaa21b3a1fde6178f2fea9f15a1a6da4bfcecc92cfcd";
     "gnutls-3.6.3-1-win32ws.zip" = "42d8313ffb888f525d6c39330c39bcc2182e68ee8433a09dd85e1f1e1474f592";
-    "glib2-2.52.2-1.34-win32ws.zip" = "28c426a7b64c1cd5b058c2f25685ddfaebca29083bd8f94fec2a8910ece6faf0";
     "krb5-1.17-1-win32ws.zip" = "f90cac08355ccfe624652d3e05f8e2e077b8830382315d4ea0a6fa52af08260b";
     "libgcrypt-1.8.3-win32ws.zip" = "409b72f2809019050cca91b9e670047c50a0752ff52999089178da54ef926393";
     "libsmi-svn-40773-win32ws.zip" = "44bc81edfeb8948322ca365fc632e419383907c305cc922e6b74fdbb13827958";
     "libssh-0.7.3-1-win32ws.zip" = "b02f0d318175194ac538a24c9c9fc280a0ecad69fb3afd4945c106b4b7c4fa6f";
-    "libxml2-2.9.9-win32ws.zip" = "af41d0869533f06c6878cd49146253acb4dd58c4987bfd579803c42ee10ca7b2";
     "lua-5.2.4-unicode-win32-vc14.zip" = "ca2368a83f623674178e9441f71fb791e3c0b46f208e3dac28c6ac735f034bff";
     "lz4-1.7.5-win32ws.zip" = "1b2e4b509163bc5039c0694369b9e40ba27cdbf4c4c88fcd454ba6a34c79b41b";
     "MaxMindDB-1.3.2-win32ws.zip" = "5c8b4bf3092da8fad6edb005a5283c6a74b7e115a50da010953eed77d33c11b7";
@@ -114,9 +110,9 @@ $Win32Archives = @{
     "sbc-1.3-1-win32ws.zip" = "ad37825e9ace4b849a5442c08f1ed7e30634e6b774bba4307fb86f35f82e71ba";
     "snappy-1.1.3-1-win32ws.zip" = "2508ef7c5d27655c356d7b86a00ac887fc178eab5df63595b8793953dae5c379";
     "spandsp-0.0.6-1-win32ws.zip" = "3c25f2f4d641d4257ec9922f6db77346a8eed2e360e7d0e27b828ade19c4705b";
+    "vcpkg-export-20190318-win32ws.zip" = "5f9eb78b1ea9e6762c2a4104e0126f1f5453919dc9df66fef2b1e0be8d8c5829";
     "WinSparkle-0.5.7.zip" = "56d396ef0c4e8b0589ea74134e484376ca6459d972cd1ab1da6b9624d82e6d04";
     "WpdPack_4_1_2.zip" = "ea799cf2f26e4afb1892938070fd2b1ca37ce5cf75fec4349247df12b784edbd";
-    "zlib-1.2.11-2-ws.zip" = "82764f71649cdc1e5467686289936ca7f632966186e2fce35df94037e4ecb596";
 }
 
 # Subdirectory to extract an archive to

@@ -48,7 +48,7 @@ The following cache variables may also be set:
 #]=======================================================================]
 
 include(FindWSWinLibs)
-FindWSWinLibs("libxml2-.*" LIBXML2_HINTS)
+FindWSWinLibs("vcpkg-export-.*" LIBXML2_HINTS)
 
 # use pkg-config to get the directories and then use these values
 # in the find_path() and find_library() calls
@@ -112,4 +112,4 @@ if(LibXml2_FOUND AND NOT TARGET LibXml2::LibXml2)
    set_property(TARGET LibXml2::LibXml2 APPEND PROPERTY IMPORTED_LOCATION "${LIBXML2_LIBRARY}")
 endif()
 
-AddWSWinDLL(LibXml2 LIBXML2_HINTS "libxml2-*")
+AddWSWinDLLS(LibXml2 LIBXML2_HINTS "libxml2*" "lzma*")

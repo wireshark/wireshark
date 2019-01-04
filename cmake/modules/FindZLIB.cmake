@@ -8,6 +8,7 @@
 #  ZLIB_FOUND          - True if zlib found.
 #  ZLIB_DLL_DIR        - (Windows) Path to the zlib DLL.
 #  ZLIB_DLL            - (Windows) Name of the zlib DLL.
+#  ZLIB_PDB            - (Windows) Name of the zlib PDB.
 #
 #  ZLIB_VERSION_STRING - The version of zlib found (x.y.z)
 #  ZLIB_VERSION_MAJOR  - The major version of zlib
@@ -34,9 +35,9 @@
 # (To distribute this file outside of CMake, substitute the full
 #  License text for the above reference.)
 
-# We set these manually on Windows.
-#INCLUDE(FindWSWinLibs)
-#FindWSWinLibs("zlib" "ZLIB_HINTS")
+include( FindWSWinLibs )
+# Zlib is included with GLib2
+FindWSWinLibs( "vcpkg-export-*" "ZLIB_HINTS" )
 
 if (NOT ZLIB_INCLUDE_DIR OR NOT ZLIB_LIBRARY)
     find_package(PkgConfig)
@@ -88,16 +89,10 @@ IF(ZLIB_INCLUDE_DIR AND EXISTS "${ZLIB_INCLUDE_DIR}/zlib.h")
 ENDIF()
 
 #
-# Sigh.  On Windows, we build libz as part of the Wireshark build
-# process, so we don't necessarily *have* a libz library to search
-# for inflatePrime() at this point; the search fails on the buildbots,
-# for example.  See bug 13850.
-#
-# So, on Windows, we just assume we have a new enough version of
-# libz, so that it has inflatePrime().
+# inflatePrime was added in zlib 1.2.2.4 in 2005. We're guaranteed
+# to have it on Windows.
 #
 IF(WIN32)
-    MESSAGE(STATUS "Zlib might not be built yet; assume it contains inflatePrime")
     SET(HAVE_INFLATEPRIME ON)
 ELSE()
     INCLUDE(CMakePushCheckState)
@@ -133,24 +128,14 @@ FIND_PACKAGE_HANDLE_STANDARD_ARGS(ZLIB REQUIRED_VARS ZLIB_LIBRARY ZLIB_INCLUDE_D
                                        VERSION_VAR ZLIB_VERSION_STRING)
 
 IF(ZLIB_FOUND)
+    AddWSWinDLL(ZLIB ZLIB_HINTS "zlib*")
     SET(ZLIB_INCLUDE_DIRS ${ZLIB_INCLUDE_DIR})
     SET(ZLIB_LIBRARIES ${ZLIB_LIBRARY})
-    #if (WIN32)
-    #  set ( ZLIB_DLL_DIR "${ZLIB_HINTS}"
-    #    CACHE PATH "Path to the Zlib DLL"
-    #  )
-    #  file( GLOB _zlib_dll RELATIVE "${ZLIB_DLL_DIR}"
-    #    "${ZLIB_DLL_DIR}/zlib1.dll"
-    #  )
-    #  set ( ZLIB_DLL ${_zlib_dll}
-    #    # We're storing filenames only. Should we use STRING instead?
-    #    CACHE FILEPATH "Zlib DLL file name"
-    #  )
-    #  mark_as_advanced( ZLIB_DLL_DIR ZLIB_DLL )
-    #endif()
 ELSE()
     SET(ZLIB_INCLUDE_DIRS )
     SET(ZLIB_LIBRARIES )
     SET(ZLIB_DLL_DIR )
     SET(ZLIB_DLL )
+    SET(ZLIB_PDB )
 ENDIF()
+

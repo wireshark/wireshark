@@ -8,7 +8,7 @@
 #
 
 include(FindWSWinLibs)
-FindWSWinLibs("glib2-*" "GMODULE2_HINTS")
+FindWSWinLibs("vcpkg-export-*" "GMODULE2_HINTS")
 
 if(NOT WIN32)
 	find_package(PkgConfig QUIET)
