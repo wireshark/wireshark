@@ -43,6 +43,14 @@ static mmdb_lookup_t mmdb_not_found;
 
 static GThread *write_mmdbr_stdin_thread;
 static GAsyncQueue *mmdbr_request_q; // g_allocated char *
+// The GLib documentation says that g_rw_lock_reader_lock can be called
+// recursively:
+//   https://developer.gnome.org/glib/stable/glib-Threads.html#g-rw-lock-reader-lock
+// However, g_rw_lock_reader_lock calls AcquireSRWLockShared
+//   https://gitlab.gnome.org/GNOME/glib/blob/master/glib/gthread-win32.c#L206
+// and SRW locks "cannot be acquired recursively"
+//   https://docs.microsoft.com/en-us/windows/desktop/Sync/slim-reader-writer--srw--locks
+//   https://blogs.msdn.microsoft.com/oldnewthing/20160506-00/?p=93416
 static GRWLock mmdbr_pipe_mtx;
 
 // Hashes of mmdb_lookup_t
@@ -332,7 +340,7 @@ read_mmdbr_stdout_worker(gpointer data _U_) {
 
 /**
  * Stop our mmdbresolve process.
- * Can be called from any thread.
+ * Main thread only.
  */
 static void mmdb_resolve_stop(void) {
     char *request;
@@ -347,12 +355,15 @@ static void mmdb_resolve_stop(void) {
         return;
     }
 
+    g_rw_lock_writer_lock(&mmdbr_pipe_mtx);
+
+    MMDB_DEBUG("closing pid %d", mmdbr_pipe.pid);
+    ws_pipe_close(&mmdbr_pipe);
+
+    MMDB_DEBUG("closing pipe FDs");
     ws_close(mmdbr_pipe.stdin_fd);
     ws_close(mmdbr_pipe.stdout_fd);
 
-    g_rw_lock_writer_lock(&mmdbr_pipe_mtx);
-    MMDB_DEBUG("closing pid %d", mmdbr_pipe.pid);
-    ws_pipe_close(&mmdbr_pipe);
     g_rw_lock_writer_unlock(&mmdbr_pipe_mtx);
 
     g_thread_join(write_mmdbr_stdin_thread);
