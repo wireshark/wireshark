@@ -72,6 +72,6 @@ before_script:
 script:
   - ninja
   - ninja test-programs
-  - pytest -nauto -v
+  - pytest -v
 after_script:
   - if [ -f run/tshark ]; then run/tshark --version; fi

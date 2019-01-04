@@ -58,7 +58,7 @@ before_test:
   - msbuild /m test-programs.vcxproj
 
 test_script:
-  - pytest -nauto
+  - pytest
 
 on_finish:
   - ps: |
