@@ -1984,7 +1984,7 @@ extcap_load_interface_list(void)
         char *arg_version = g_strdup_printf("%s=%d.%d", EXTCAP_ARGUMENT_VERSION, major, minor);
         const char *argv[] = {
             EXTCAP_ARGUMENT_LIST_INTERFACES,
-            EXTCAP_ARGUMENT_VERSION,
+            arg_version,
             NULL
         };
         infos = (extcap_run_extcaps_info_t *)extcap_run_all(argv,
