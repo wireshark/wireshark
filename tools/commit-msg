@@ -206,7 +206,7 @@ fixup_message() {
 	# - Must not mistake "bug:" in the description for tags in contexts such
 	#   as "to reproduce this\nbug: 1) step 2) another step 3) etc.".
 	# - If preceded by other tags (like Change-Id), do not add newline.
-	msg=$(echo "$msg" | awk '
+	msg=$(printf "%s\n" "$msg" | awk '
 	# Eat the "--verbose" diff
 	/^#.*(8<|>8)/ {
 		while (getline) { }
@@ -273,7 +273,7 @@ fixup_message() {
 			}
 		}
 	}
-	') && echo "$msg" > "$MSG"
+	') && printf "%s\n" "$msg" > "$MSG"
 }
 
 
