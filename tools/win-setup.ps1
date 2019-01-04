@@ -69,14 +69,14 @@ Param(
 # trouble instead of trying to catch exceptions everywhere.
 $ErrorActionPreference = "Stop"
 
-$Win64CurrentTag = "2019-01-02"
-$Win32CurrentTag = "2019-01-02"
+$Win64CurrentTag = "2019-01-04"
+$Win32CurrentTag = "2019-01-04"
 
 # Archive file / SHA256
 $Win64Archives = @{
     "AirPcap_Devpack_4_1_0_1622.zip" = "09d637f28a79b1d2ecb09f35436271a90c0f69bd0a1ee82b803abaaf63c18a69";
     "bcg729-1.0.4-win64ws.zip" = "9a095fda4c39860d96f0c568830faa6651cd17635f68e27aa6de46c689aa0ee2";
-    "c-ares-1.14.0-win64ws.zip" = "91b1e1460bda513375910977a3410afd024575eebc528adecf3abea7814c0ef1";
+    "c-ares-1.15.0-win64ws.zip" = "ade864fd08e887d353a9c939fa6e68b0bf3e08761b6e81f60ce15e6543256552";
     "gnutls-3.6.3-1-win64ws.zip" = "994ac2578e7b4ca01e589ab2598927d53f7370bc3ff679f3006b0e6bb7a06df4";
     "glib2-2.52.2-1.31-win64ws.zip" = "e19a7812db6715c632a5bbf96452ab474a4eaf0c6aaee999323ac7beb7ebe6db";
     "kfw-3-2-2-x64-ws.zip" = "91654ffe0b6d418b369c95bc060414a90f91627e55c19a3e753803c9deb2fe9a";
@@ -99,7 +99,7 @@ $Win64Archives = @{
 $Win32Archives = @{
     "AirPcap_Devpack_4_1_0_1622.zip" = "09d637f28a79b1d2ecb09f35436271a90c0f69bd0a1ee82b803abaaf63c18a69";
     "bcg729-1.0.4-win32ws.zip" = "b785ec78dec6bca8252130eb884bfa28c1140001dd7369a535579176de9e4271";
-    "c-ares-1.14.0-win32ws.zip" = "7355f3ad6d6ec05541c59e5b398b8dbd9a41bf6776b26d9656d8d54ecd58178e";
+    "c-ares-1.15.0-win32ws.zip" = "a54151203a631b478470aaa21b3a1fde6178f2fea9f15a1a6da4bfcecc92cfcd";
     "gnutls-3.6.3-1-win32ws.zip" = "42d8313ffb888f525d6c39330c39bcc2182e68ee8433a09dd85e1f1e1474f592";
     "glib2-2.52.2-1.34-win32ws.zip" = "28c426a7b64c1cd5b058c2f25685ddfaebca29083bd8f94fec2a8910ece6faf0";
     "kfw-3-2-2-i386-ws-vc6.zip" = "527deb2cf1c3ba0cf743f2b9b8011a22096b54f7ce62fc7ba31b520bbac0e802";

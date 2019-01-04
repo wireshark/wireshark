@@ -1751,13 +1751,15 @@ if(WIN32)
 		WORKING_DIRECTORY "${GLIB2_DLL_DIR}"
 	)
 
-	# Optional DLLs.
+	# Optional DLLs and PDBs.
 	set (OPTIONAL_DLLS)
+	set (OPTIONAL_PDBS)
 	if (AIRPCAP_FOUND)
 		list (APPEND OPTIONAL_DLLS "${AIRPCAP_DLL_DIR}/${AIRPCAP_DLL}")
 	endif(AIRPCAP_FOUND)
 	if (CARES_FOUND)
 		list (APPEND OPTIONAL_DLLS "${CARES_DLL_DIR}/${CARES_DLL}")
+		list (APPEND OPTIONAL_PDBS "${CARES_DLL_DIR}/${CARES_PDB}")
 	endif(CARES_FOUND)
 	if (MAXMINDDB_FOUND)
 		list (APPEND OPTIONAL_DLLS "${MAXMINDDB_DLL_DIR}/${MAXMINDDB_DLL}")
@@ -1854,6 +1856,15 @@ if(WIN32)
 		)
 		install(FILES ${OPTIONAL_DLLS} DESTINATION "${CMAKE_INSTALL_BINDIR}")
 	endif(OPTIONAL_DLLS)
+
+	if (OPTIONAL_PDBS)
+		add_custom_command(TARGET copy_cli_dlls PRE_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different
+				${OPTIONAL_PDBS}
+				"${_dll_output_dir}"
+			VERBATIM
+		)
+	endif(OPTIONAL_PDBS)
 
 	add_dependencies(epan copy_cli_dlls)
 
