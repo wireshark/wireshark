@@ -482,7 +482,7 @@ parse_vms_packet(FILE_T fh, wtap_rec *rec, Buffer *buf, int *err, gchar **err_in
  */
 static gboolean
 parse_single_hex_dump_line(char* rec, guint8 *buf, long byte_offset,
-               int in_off, int remaining) {
+               int in_off, int remaining_bytes) {
 
     int        i;
     char        *s;
@@ -499,14 +499,14 @@ parse_single_hex_dump_line(char* rec, guint8 *buf, long byte_offset,
         return FALSE;
     }
 
-    if (remaining > 16)
-        remaining = 16;
+    if (remaining_bytes > 16)
+        remaining_bytes = 16;
 
     /* Read the octets right to left, as that is how they are displayed
      * in VMS.
      */
 
-    for (i = 0; i < remaining; i++) {
+    for (i = 0; i < remaining_bytes; i++) {
         lbuf[0] = rec[offsets[i] + in_off];
         lbuf[1] = rec[offsets[i] + 1 + in_off];
 

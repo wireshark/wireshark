@@ -161,13 +161,13 @@ static void get_time(gchar *string, wtap_rec *rec) {
         date.tm_mon -= 1;
         date.tm_isdst = -1;
         seconds = mktime(&date);
-        rec->ts.secs = (time_t) seconds;
+        rec->ts.secs = seconds;
         rec->ts.nsecs = (int) (ms * 1e6);
         rec->presence_flags = WTAP_HAS_TS;
     } else {
         rec->presence_flags = 0;
         rec->ts.secs = (time_t) 0;
-        rec->ts.nsecs = (int) 0;
+        rec->ts.nsecs = 0;
     }
 }
 
@@ -231,7 +231,7 @@ static gboolean logcat_text_read_packet(FILE_T fh, wtap_rec *rec,
     } else {
         rec->presence_flags = 0;
         rec->ts.secs = (time_t) 0;
-        rec->ts.nsecs = (int) 0;
+        rec->ts.nsecs = 0;
     }
     memcpy(pd, cbuff, rec->rec_header.packet_header.caplen + 1);
     g_free(cbuff);

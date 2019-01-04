@@ -60,8 +60,8 @@ typedef gboolean (*block_writer)(wtap_dumper *, const wtap_rec *,
  * Register a handler for a pcapng block type.
  */
 WS_DLL_PUBLIC
-void register_pcapng_block_type_handler(guint block_type, block_reader read,
-                                        block_writer write);
+void register_pcapng_block_type_handler(guint block_type, block_reader reader,
+                                        block_writer writer);
 
 /*
  * Handler routine for pcapng option type.

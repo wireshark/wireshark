@@ -927,7 +927,7 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
                         pcapng_debug("pcapng_read_if_descr_block: if_filter_str %s oh.option_length %u", if_filter.if_filter_str, oh.option_length);
                     } else if (option_content[0] == 1) {
                         if_filter.bpf_filter_len = oh.option_length-1;
-                        if_filter.if_filter_bpf_bytes = (guint8 *)option_content+1;
+                        if_filter.if_filter_bpf_bytes = option_content+1;
                     }
                     /* Fails with multiple options; we silently ignore the failure */
                     wtap_block_add_custom_option(wblock->block, oh.option_code, &if_filter, sizeof if_filter);

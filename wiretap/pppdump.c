@@ -197,7 +197,7 @@ process_data(pppdump_t *state, FILE_T fh, pkt_t *pkt, int n, guint8 *pd,
     int *err, gchar **err_info, pkt_id *pid);
 
 static gboolean
-collate(pppdump_t*, FILE_T fh, int *err, gchar **err_info, guint8 *pd,
+collate(pppdump_t *state, FILE_T fh, int *err, gchar **err_info, guint8 *pd,
 		int *num_bytes, direction_enum *direction, pkt_id *pid,
 		gint64 num_bytes_to_skip);
 

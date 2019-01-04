@@ -771,12 +771,12 @@ static guint8       get_cck_rate(const guint8 *plcp);
 static void         setup_defaults(vwr_t *, guint16);
 
 static gboolean     vwr_read(wtap *, int *, gchar **, gint64 *);
-static gboolean     vwr_seek_read(wtap *, gint64, wtap_rec *rec,
+static gboolean     vwr_seek_read(wtap *, gint64, wtap_rec *record,
                                   Buffer *, int *, gchar **);
 
 static gboolean     vwr_read_rec_header(vwr_t *, FILE_T, int *, int *, int *, int *, gchar **);
 static gboolean     vwr_process_rec_data(FILE_T fh, int rec_size,
-                                         wtap_rec *rec, Buffer *buf,
+                                         wtap_rec *record, Buffer *buf,
                                          vwr_t *vwr, int IS_TX, int log_mode, int *err,
                                          gchar **err_info);
 
