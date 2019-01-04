@@ -16,13 +16,13 @@
 #include "pint.h"
 #include "xtea.h"
 
-void decrypt_xtea_ecb(guint8 output[8], const guint8 v_in[8], const guint32 key[4], guint num_rounds)
+void decrypt_xtea_ecb(guint8 plaintext[8], const guint8 ciphertext[8], const guint32 key[4], guint num_rounds)
 {
     guint i;
     guint32 v[2], delta = 0x9E3779B9, sum = delta * num_rounds;
 
-    v[0] = pntoh32(&v_in[0]);
-    v[1] = pntoh32(&v_in[4]);
+    v[0] = pntoh32(&ciphertext[0]);
+    v[1] = pntoh32(&ciphertext[4]);
 
     for (i = 0; i < num_rounds; i++) {
         v[1] -= (((v[0] << 4) ^ (v[0] >> 5)) + v[0]) ^ (sum + key[(sum >> 11) & 3]);
@@ -33,16 +33,16 @@ void decrypt_xtea_ecb(guint8 output[8], const guint8 v_in[8], const guint32 key[
     v[0] = GUINT32_TO_BE(v[0]);
     v[1] = GUINT32_TO_BE(v[1]);
 
-    memcpy(output, v, sizeof v);
+    memcpy(plaintext, v, sizeof v);
 }
 
-void decrypt_xtea_le_ecb(guint8 output[8], const guint8 v_in[8], const guint32 key[4], guint num_rounds)
+void decrypt_xtea_le_ecb(guint8 plaintext[8], const guint8 ciphertext[8], const guint32 key[4], guint num_rounds)
 {
     guint i;
     guint32 v[2], delta = 0x9E3779B9, sum = delta * num_rounds;
 
-    v[0] = pletoh32(&v_in[0]);
-    v[1] = pletoh32(&v_in[4]);
+    v[0] = pletoh32(&ciphertext[0]);
+    v[1] = pletoh32(&ciphertext[4]);
 
     for (i = 0; i < num_rounds; i++) {
         v[1] -= (((v[0] << 4) ^ (v[0] >> 5)) + v[0]) ^ (sum + key[(sum >> 11) & 3]);
@@ -53,7 +53,7 @@ void decrypt_xtea_le_ecb(guint8 output[8], const guint8 v_in[8], const guint32 k
     v[0] = GUINT32_TO_LE(v[0]);
     v[1] = GUINT32_TO_LE(v[1]);
 
-    memcpy(output, v, sizeof v);
+    memcpy(plaintext, v, sizeof v);
 }
 
 /*
