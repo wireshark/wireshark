@@ -49,7 +49,7 @@ typedef struct _ws_pipe_t {
  * @param [OUT] command_output If not NULL, receives a copy of the command output. Must be g_freed.
  * @return TRUE on success or FALSE on failure.
  */
-WS_DLL_PUBLIC gboolean ws_pipe_spawn_sync(const gchar * working_directory, const gchar * command, gint argc, gchar ** argv, gchar ** command_output);
+WS_DLL_PUBLIC gboolean ws_pipe_spawn_sync(const gchar * working_directory, const gchar * command, gint argc, gchar ** args, gchar ** command_output);
 
 /**
  * @brief Initialize a ws_pipe_t struct. Sets .pid to WS_INVALID_PID and all other members to 0 or NULL.
