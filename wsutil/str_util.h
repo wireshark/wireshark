@@ -60,7 +60,7 @@ gchar *ascii_strup_inplace(gchar *str);
  * @return       TRUE if the entire string is printable, otherwise FALSE
  */
 WS_DLL_PUBLIC
-gboolean isprint_string(const gchar *string);
+gboolean isprint_string(const gchar *str);
 
 /** Check if an entire UTF-8 string consists of printable characters
  *
@@ -69,7 +69,7 @@ gboolean isprint_string(const gchar *string);
  * @return       TRUE if the entire string is printable, otherwise FALSE
  */
 WS_DLL_PUBLIC
-gboolean isprint_utf8_string(const gchar *string, guint length);
+gboolean isprint_utf8_string(const gchar *str, guint length);
 
 /** Check if an entire string consists of digits
  *
@@ -77,7 +77,7 @@ gboolean isprint_utf8_string(const gchar *string, guint length);
  * @return       TRUE if the entire string is digits, otherwise FALSE
  */
 WS_DLL_PUBLIC
-gboolean isdigit_string(const guchar *string);
+gboolean isdigit_string(const guchar *str);
 
 WS_DLL_PUBLIC
 int ws_xton(char ch);
