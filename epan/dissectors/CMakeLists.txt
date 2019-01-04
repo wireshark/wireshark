@@ -971,6 +971,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dec-bpdu.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dec-dnart.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dect.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-dect-dlc.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dect-mitel-eth.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dect-mitel-rfp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-devicenet.c
