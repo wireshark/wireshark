@@ -294,11 +294,11 @@ characters stand for compilation flags. Combinations of the following characters
 
 * _m_ = G_REGEX_MULTILINE - By default, GRegex treats the strings as
   consisting of a single line of characters (even if it actually contains
-  newlines). The ``start of line'' metacharacter (“^”) matches only at the start
-  of the string, while the ``end of line'' metacharacter (“$”) matches only at
+  newlines). The “start of line” metacharacter (“^”) matches only at the start
+  of the string, while the “end of line” metacharacter (“$”) matches only at
   the end of the string, or before a terminating newline (unless
-  G_REGEX_DOLLAR_ENDONLY is set). When G_REGEX_MULTILINE is set, the ``start of
-  line'' and ``end of line'' constructs match immediately following or
+  G_REGEX_DOLLAR_ENDONLY is set). When G_REGEX_MULTILINE is set, the “start of
+  line” and “end of line” constructs match immediately following or
   immediately before any newline in the string, respectively, as well as at the
   very start and end. This can be changed within a pattern by a “(?m)” option
   setting.

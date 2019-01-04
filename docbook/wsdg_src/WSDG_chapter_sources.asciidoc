@@ -634,7 +634,7 @@ as described at <<ChSrcGit>>.
 // patch file.
 //
 // If you've added a new file, e.g.
-// 'packet-myprotocol.c', you can use `svn add` to add it to your local tree before generating the patch.
+// _packet-myprotocol.c_, you can use `svn add` to add it to your local tree before generating the patch.
 // Similarly, you can use `svn rm` for files that should be removed.
 
 [[ChSrcSVNGUIDiff]]
@@ -658,11 +658,11 @@ as described at <<ChSrcGit>>.
 // When you create the diff file, it will include any difference TortoiseSVN
 // finds in files in and under the directory you have right-clicked on, and
 // nothing else. This means that changes you might have made for your
-// specific configuration - like modifying 'config.nmake' so that it uses
+// specific configuration - like modifying _config.nmake_ so that it uses
 // your lib directory - will also be included, and you will need to remove
 // these lines from the diff file. It also means that only changes will be
 // recorded, i.e. if you have created new files -- say, a new
-// 'packet-xxx.c' for a
+// _packet-xxx.c_ for a
 // new protocol dissector -- it will not be included in the diff, you need to
 // add it separately. And, of course, if you have been working separately in
 // two different patches, the .diff file will include both topics, which is
@@ -698,7 +698,7 @@ as described at <<ChSrcGit>>.
 // of temporary files which might be otherwise included in the diff. After
 // doing the diff, you should edit the _foo.diff_ file and remove unnecessary
 // things, like your private changes to the
-// 'config.nmake' file.
+// _config.nmake_ file.
 //
 //
 // .Some useful diff options
@@ -723,7 +723,7 @@ as described at <<ChSrcGit>>.
 
 [[ChSrcGoodPatch]]
 
-==== Some tips for a good patch
+==== Some Tips For A Good Patch
 
 Some tips that will make the merging of your changes into Git much more likely
 (and you want exactly that, don't you?):
@@ -739,7 +739,7 @@ Some tips that will make the merging of your changes into Git much more likely
 * _Inspect your patch carefully._ Run `git diff` and make sure you aren't
   adding, removing, or omitting anything you shouldn't.
 
-// * 'Do a "make clean" before generating the patch.' This removes a lot of
+// * _Do a "make clean" before generating the patch._ This removes a lot of
 //   unneeded intermediate files (like object files) which can confuse the diff
 //   tool generating a lot of unneeded stuff which you have to remove by hand from
 //   the patch again.

@@ -2,10 +2,6 @@
 
 :wireshark-version: 2.9.1
 
-// We're migrating from AsciiDoc. This can be removed once we've migrated
-// from legacy markup to modern:
-// https://asciidoctor.org/docs/migration/#migration-cheatsheet
-:compat-mode:
 // Required for btn, kbd:, and menu: macros.
 :experimental:
 
