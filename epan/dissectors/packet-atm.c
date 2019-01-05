@@ -1684,12 +1684,12 @@ dissect_atm_oam_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 static int
 dissect_atm_pw_oam_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-  const pwatm_private_data_t *pwpd = (const pwatm_private_data_t *)data;
+  const struct pw_atm_phdr *pw_atm_info = (const struct pw_atm_phdr *)data;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATM");
 
   dissect_atm_cell_payload(tvb, 0, pinfo, tree, AAL_OAMCELL,
-                           pwpd->enable_fill_columns_by_atm_dissector);
+                           pw_atm_info->enable_fill_columns_by_atm_dissector);
 
   return tvb_reported_length(tvb);
 }
