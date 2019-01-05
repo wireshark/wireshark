@@ -161,6 +161,7 @@ static int hf_rdp_cluster_flags = -1;
 static int hf_rdp_redirectedSessionId = -1;
 static int hf_rdp_msgChannelFlags = -1;
 static int hf_rdp_msgChannelId = -1;
+static int hf_rdp_monitorFlags = -1;
 static int hf_rdp_monitorExFlags = -1;
 static int hf_rdp_monitorAttributeSize = -1;
 static int hf_rdp_monitorCount = -1;
@@ -1749,6 +1750,7 @@ dissect_rdp_ClientData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
   rdp_field_info_t monitor_fields[] = {
     {&hf_rdp_headerType,             2, NULL, 0, 0, NULL },
     {&hf_rdp_headerLength,           2, NULL, 0, 0, NULL },
+    {&hf_rdp_monitorFlags,           4, NULL, 0, 0, NULL },
     {&hf_rdp_monitorCount,           4, NULL, 0, 0, NULL },
     FI_TERMINATOR
   };
@@ -2567,6 +2569,10 @@ proto_register_rdp(void) {
     { &hf_rdp_msgChannelId,
       { "msgChannelId", "rdp.msgChannelId",
         FT_UINT16, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_rdp_monitorFlags,
+      { "monitorFlags", "rdp.monitorFlags",
+        FT_UINT32, BASE_HEX, NULL, 0,
         NULL, HFILL }},
     { &hf_rdp_monitorExFlags,
       { "monitorExFlags", "rdp.monitorExFlags",
