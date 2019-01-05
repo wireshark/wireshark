@@ -139,12 +139,14 @@ static int dissect_dect_dlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	len = length >> 2;
 
 	available_length = tvb_captured_length(tvb) - 3;
-	payload = tvb_new_subset_length_caplen(tvb, 3, MIN(len, available_length), len);
+	if (available_length > 0) {
+		payload = tvb_new_subset_length_caplen(tvb, 3, MIN(len, available_length), len);
 
-	/* FIXME: fragment reassembly like in packet-lapdm.c */
+		/* FIXME: fragment reassembly like in packet-lapdm.c */
 
-	if (!dissector_try_uint(dlc_sapi_dissector_table, sapi, payload, pinfo, tree))
-		call_data_dissector(payload, pinfo, tree);
+		if (!dissector_try_uint(dlc_sapi_dissector_table, sapi, payload, pinfo, tree))
+			call_data_dissector(payload, pinfo, tree);
+	}
 
 	return tvb_captured_length(tvb);
 }
