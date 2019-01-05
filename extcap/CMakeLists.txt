@@ -103,7 +103,6 @@ if(BUILD_androiddump)
 
 	set_executable_resources(androiddump "Androiddump")
 	add_executable(androiddump ${androiddump_FILES})
-	# XXX Shouldn't we add wsutil to androiddump_LIBS instead?
 	set_extcap_executable_properties(androiddump)
 	target_link_libraries(androiddump ${androiddump_LIBS})
 	install(TARGETS androiddump RUNTIME DESTINATION ${EXTCAP_INSTALL_LIBDIR})
@@ -223,7 +222,6 @@ if(BUILD_randpktdump)
 
 	set_executable_resources(randpktdump "randpktdump")
 	add_executable(randpktdump ${randpktdump_FILES})
-	# XXX Shouldn't we add wsutil to randpktdump_LIBS instead?
 	set_extcap_executable_properties(randpktdump)
 	target_link_libraries(randpktdump ${randpktdump_LIBS})
 	install(TARGETS randpktdump RUNTIME DESTINATION ${EXTCAP_INSTALL_LIBDIR})
