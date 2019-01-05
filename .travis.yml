@@ -61,7 +61,6 @@ before_install:
   - if [ "$TRAVIS_OS_NAME" == "osx" ]; then brew install softhsm; fi
   # linux
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo ./tools/debian-setup.sh --install-optional --install-test-deps -q; fi
-  - sudo gem install asciidoctor --no-ri --no-rdoc
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install -y python3-pip; fi
   - sudo pip3 install pytest pytest-xdist
 before_script:
