@@ -49,6 +49,7 @@ static int ett_rdp_clientSecurityData = -1;
 static int ett_rdp_clientNetworkData = -1;
 static int ett_rdp_clientClusterData = -1;
 static int ett_rdp_clientMonitorData = -1;
+static int ett_rdp_clientMonitorDefData = -1;
 static int ett_rdp_clientMsgChannelData = -1;
 static int ett_rdp_clientMonitorExData = -1;
 static int ett_rdp_clientMultiTransportData = -1;
@@ -113,6 +114,7 @@ static int hf_rdp_clientSecurityData = -1;
 static int hf_rdp_clientNetworkData = -1;
 static int hf_rdp_clientClusterData = -1;
 static int hf_rdp_clientMonitorData = -1;
+static int hf_rdp_clientMonitorDefData = -1;
 static int hf_rdp_clientMsgChannelData = -1;
 static int hf_rdp_clientMonitorExData = -1;
 static int hf_rdp_clientMultiTransportData = -1;
@@ -166,6 +168,12 @@ static int hf_rdp_monitorExFlags = -1;
 static int hf_rdp_monitorAttributeSize = -1;
 static int hf_rdp_monitorCount = -1;
 static int hf_rdp_multiTransportFlags = -1;
+
+static int hf_rdp_monitorDefLeft = -1;
+static int hf_rdp_monitorDefTop = -1;
+static int hf_rdp_monitorDefRight = -1;
+static int hf_rdp_monitorDefBottom = -1;
+static int hf_rdp_monitorDefFlags = -1;
 
 
 static int hf_rdp_encryptionMethod = -1;
@@ -833,6 +841,12 @@ static const value_string rdp_capabilityType_vals[] = {
   { CAPSTYPE_LARGE_POINTER,              "Large Pointer" },
   { CAPSTYPE_SURFACE_COMMANDS,           "Surface Commands" },
   { CAPSTYPE_BITMAP_CODECS,              "Bitmap Codecs" },
+  {0, NULL },
+};
+
+static const value_string rdp_monitorDefFlags_vals[] = {
+  { 0, "None" },
+  { 1, "Primary" },
   {0, NULL },
 };
 
@@ -1681,6 +1695,41 @@ dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 }
 
 static int
+dissect_rdp_monitor(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+
+  guint32 monitorCount, i;
+  proto_item *monitorDef_item;
+  proto_tree *monitorDef_tree;
+
+  rdp_field_info_t monitor_fields[] = {
+    {&hf_rdp_headerType,             2, NULL, 0, 0, NULL },
+    {&hf_rdp_headerLength,           2, NULL, 0, 0, NULL },
+    {&hf_rdp_monitorFlags,           4, NULL, 0, 0, NULL },
+    {&hf_rdp_monitorCount,           4, &monitorCount, 0, 0, NULL },
+    FI_TERMINATOR
+  };
+
+  rdp_field_info_t monitorDef_fields[] = {
+    {&hf_rdp_monitorDefLeft,         4, NULL, 0, 0, NULL },
+    {&hf_rdp_monitorDefTop,          4, NULL, 0, 0, NULL },
+    {&hf_rdp_monitorDefRight,        4, NULL, 0, 0, NULL },
+    {&hf_rdp_monitorDefBottom,       4, NULL, 0, 0, NULL },
+    {&hf_rdp_monitorDefFlags,        4, NULL, 0, 0, NULL },
+    FI_TERMINATOR
+  };
+
+  offset = dissect_rdp_fields(tvb, offset, pinfo, tree, monitor_fields, 0);
+  for (i = 0; i < monitorCount; i++) {
+    monitorDef_item = proto_tree_add_item(tree, hf_rdp_clientMonitorDefData, tvb, offset, 20, ENC_NA);
+    monitorDef_tree = proto_item_add_subtree(monitorDef_item, ett_rdp_clientMonitorDefData);
+
+    offset = dissect_rdp_fields(tvb, offset, pinfo, monitorDef_tree, monitorDef_fields, 0);
+  }
+
+  return offset;
+}
+
+static int
 dissect_rdp_ClientData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
   int              offset    = 0;
   proto_item      *pi;
@@ -1745,13 +1794,6 @@ dissect_rdp_ClientData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     {&hf_rdp_headerType,             2, NULL, 0, 0, NULL },
     {&hf_rdp_headerLength,           2, NULL, 0, 0, NULL },
     {&hf_rdp_msgChannelFlags,        4, NULL, 0, 0, NULL },
-    FI_TERMINATOR
-  };
-  rdp_field_info_t monitor_fields[] = {
-    {&hf_rdp_headerType,             2, NULL, 0, 0, NULL },
-    {&hf_rdp_headerLength,           2, NULL, 0, 0, NULL },
-    {&hf_rdp_monitorFlags,           4, NULL, 0, 0, NULL },
-    {&hf_rdp_monitorCount,           4, NULL, 0, 0, NULL },
     FI_TERMINATOR
   };
   rdp_field_info_t monitorex_fields[] = {
@@ -1821,7 +1863,7 @@ dissect_rdp_ClientData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     case CS_MONITOR:
       pi        = proto_tree_add_item(tree, hf_rdp_clientMonitorData, tvb, offset, length, ENC_NA);
       next_tree = proto_item_add_subtree(pi, ett_rdp_clientMonitorData);
-      /*offset    =*/ dissect_rdp_fields(tvb, offset, pinfo, next_tree, monitor_fields, 0);
+      /*offset    =*/ dissect_rdp_monitor(tvb, offset, pinfo, next_tree);
       break;
 
     case CS_MONITOR_EX:
@@ -2390,6 +2432,10 @@ proto_register_rdp(void) {
       { "clientMonitorData", "rdp.client.monitorData",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_rdp_clientMonitorDefData,
+      { "clientMonitorDefData", "rdp.client.monitorDefData",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_rdp_clientMsgChannelData,
       { "clientMsgChannelData", "rdp.client.msgChannelData",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -2585,6 +2631,26 @@ proto_register_rdp(void) {
     { &hf_rdp_monitorCount,
       { "monitorCount", "rdp.monitorCount",
         FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_rdp_monitorDefLeft,
+      { "left", "rdp.monitorDef.left",
+        FT_INT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_rdp_monitorDefTop,
+      { "top", "rdp.monitorDef.top",
+        FT_INT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_rdp_monitorDefRight,
+      { "right", "rdp.monitorDef.right",
+        FT_INT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_rdp_monitorDefBottom,
+      { "bottom", "rdp.monitorDef.bottom",
+        FT_INT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_rdp_monitorDefFlags,
+      { "flags", "rdp.monitorDef.flags",
+        FT_UINT32, BASE_DEC, VALS(rdp_monitorDefFlags_vals), 0,
         NULL, HFILL }},
     { &hf_rdp_multiTransportFlags,
       { "multiTransportFlags", "rdp.multiTransportFlags",
@@ -3258,6 +3324,7 @@ proto_register_rdp(void) {
     &ett_rdp_clientCoreData,
     &ett_rdp_clientInfoPDU,
     &ett_rdp_clientMonitorData,
+    &ett_rdp_clientMonitorDefData,
     &ett_rdp_clientMonitorExData,
     &ett_rdp_clientMsgChannelData,
     &ett_rdp_clientMultiTransportData,
