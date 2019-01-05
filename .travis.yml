@@ -1,5 +1,4 @@
 language: minimal
-sudo: required
 dist: xenial
 matrix:
   include:
