@@ -445,7 +445,7 @@ The latest version of B<Wireshark> can be found at
 L<https://www.wireshark.org>.
 
 Regular expressions in the "matches" operator are provided by GRegex in GLib.
-See L<http://developer.gnome.org/glib/2.32/glib-regex-syntax.html/> or L<http://www.pcre.org/> for more information.
+See L<http://developer.gnome.org/glib/2.32/glib-regex-syntax.html> or L<http://www.pcre.org/> for more information.
 
 This manpage does not describe the capture filter syntax, which is
 different. See the manual page of pcap-filter(7) or, if that doesn't exist,
