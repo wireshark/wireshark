@@ -933,9 +933,9 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
    * First check whether custom dissection table
    * was set up to dissect this VPI+VCI combination
    */
-  if (atm_info && dissector_try_uint_new(atm_reassembled_vpi_vci_table,
-                                         ((atm_info->vpi) << 16) | atm_info->vci,
-                                         next_tvb, pinfo, tree, TRUE, atm_info))
+  if (dissector_try_uint_new(atm_reassembled_vpi_vci_table,
+                             ((atm_info->vpi) << 16) | atm_info->vci,
+                             next_tvb, pinfo, tree, TRUE, atm_info))
   {
     return;
   }
