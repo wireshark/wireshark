@@ -806,10 +806,10 @@ static gint hf_034_090 = -1;
 static gint hf_034_090_RE = -1;
 static gint hf_034_090_AE = -1;
 static gint hf_034_100 = -1;
-static gint hf_035_100_RHOS = -1;
-static gint hf_035_100_RHOE = -1;
-static gint hf_035_100_THETAS = -1;
-static gint hf_035_100_THETAE = -1;
+static gint hf_034_100_RHOS = -1;
+static gint hf_034_100_RHOE = -1;
+static gint hf_034_100_THETAS = -1;
+static gint hf_034_100_THETAE = -1;
 static gint hf_034_110 = -1;
 static gint hf_034_110_TYP = -1;
 static gint hf_034_120 = -1;
@@ -2244,10 +2244,10 @@ static gint ett_034_090 = -1;
 static gint ett_034_090_RE = -1;
 static gint ett_034_090_AE = -1;
 static gint ett_034_100 = -1;
-static gint ett_035_100_RHOS = -1;
-static gint ett_035_100_RHOE = -1;
-static gint ett_035_100_THETAS = -1;
-static gint ett_035_100_THETAE = -1;
+static gint ett_034_100_RHOS = -1;
+static gint ett_034_100_RHOE = -1;
+static gint ett_034_100_THETAS = -1;
+static gint ett_034_100_THETAE = -1;
 static gint ett_034_110 = -1;
 static gint ett_034_110_TYP = -1;
 static gint ett_034_120 = -1;
@@ -5911,13 +5911,13 @@ static const value_string valstr_034_050_01_MSC[] = {
     { 0, NULL }
 };
 static const value_string valstr_034_050_01_TSV[] = {
-    { 0, "valid" },
-    { 1, "invalid" },
+    { 0, "Valid" },
+    { 1, "Invalid" },
     { 0, NULL }
 };
 static const value_string valstr_034_050_02_ANT[] = {
-    { 0, "antenna 1" },
-    { 1, "antenna 2" },
+    { 0, "Antenna 1" },
+    { 1, "Antenna 2" },
     { 0, NULL }
 };
 static const value_string valstr_034_050_02_CHAB[] = {
@@ -5938,8 +5938,8 @@ static const value_string valstr_034_050_02_MSC[] = {
     { 0, NULL }
 };
 static const value_string valstr_034_050_03_ANT[] = {
-    { 0, "antenna 1" },
-    { 1, "antenna 2" },
+    { 0, "Antenna 1" },
+    { 1, "Antenna 2" },
     { 0, NULL }
 };
 static const value_string valstr_034_050_03_CHAB[] = {
@@ -5960,8 +5960,8 @@ static const value_string valstr_034_050_03_MSC[] = {
     { 0, NULL }
 };
 static const value_string valstr_034_050_04_ANT[] = {
-    { 0, "antenna 1" },
-    { 1, "antenna 2" },
+    { 0, "Antenna 1" },
+    { 1, "Antenna 2" },
     { 0, NULL }
 };
 static const value_string valstr_034_050_04_CHAB[] = {
@@ -6103,15 +6103,15 @@ static const FieldPart I034_090_AE = { 8, 360.0/16384.0, FIELD_PART_FLOAT, &hf_0
 static const FieldPart *I034_090_PARTS[] = { &I034_090_RE, &I034_090_AE, NULL };
 
 /* Dynamic Window - Type 1 */
-static const FieldPart I034_100_RHOS = { 16, 1.0/256.0, FIELD_PART_UFLOAT, &hf_035_100_RHOS, NULL };
-static const FieldPart I034_100_RHOE = { 16, 1.0/256.0, FIELD_PART_UFLOAT, &hf_035_100_RHOE, NULL };
-static const FieldPart I034_100_THETAS = { 16, 360.0/65536.0, FIELD_PART_UFLOAT, &hf_035_100_THETAS, NULL };
-static const FieldPart I034_100_THETAE = { 16, 360.0/65536.0, FIELD_PART_UFLOAT, &hf_035_100_THETAE, NULL };
+static const FieldPart I034_100_RHOS = { 16, 1.0/256.0, FIELD_PART_UFLOAT, &hf_034_100_RHOS, NULL };
+static const FieldPart I034_100_RHOE = { 16, 1.0/256.0, FIELD_PART_UFLOAT, &hf_034_100_RHOE, NULL };
+static const FieldPart I034_100_THETAS = { 16, 360.0/65536.0, FIELD_PART_UFLOAT, &hf_034_100_THETAS, NULL };
+static const FieldPart I034_100_THETAE = { 16, 360.0/65536.0, FIELD_PART_UFLOAT, &hf_034_100_THETAE, NULL };
 static const FieldPart *I034_100_PARTS[] = { &I034_100_RHOS, &I034_100_RHOE, &I034_100_THETAS, &I034_100_THETAE, NULL };
 
 /* Data Filter */
 static const value_string valstr_034_110_TYP[] = {
-    { 0, "invalid value" },
+    { 0, "Invalid value" },
     { 1, "Filter for Weather data" },
     { 2, "Filter for Jamming Strobe" },
     { 3, "Filter for PSR data" },
@@ -10359,7 +10359,7 @@ void proto_register_asterix (void)
         { &hf_034_020_SN, { "Sector number", "asterix.034_020_SN", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_034_030, { "030, Time of Day", "asterix.034_030", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_034_041, { "041, Antenna Rotation Speed", "asterix.034_041", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-        { &hf_034_041_ARS, { "Antenna Rotation Speed", "asterix.034_041_ARN", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_034_041_ARS, { "Antenna Rotation Speed", "asterix.034_041_ARS", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_034_050, { "050, System Configuration and Status", "asterix.034_050", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_034_050_01, { "COM", "asterix.034_050_01", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_034_050_01_NOGO, { "Operational Release Status of the System", "asterix.034_050_01_NOGO", FT_UINT8, BASE_DEC, VALS (valstr_034_050_01_NOGO), 0x80, NULL, HFILL } },
@@ -10394,12 +10394,12 @@ void proto_register_asterix (void)
         { &hf_034_060_01_RED_XMT, { "Reduction Steps in use for an overload of the Transmission subsystem", "asterix.034_060_01_RED_XMT", FT_UINT8, BASE_DEC, VALS (valstr_034_060_RED), 0x0e, NULL, HFILL } },
         { &hf_034_060_02, { "Specific Processing Mode information for a PSR sensor", "asterix.034_060_02", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_034_060_02_POL, { "Polarization in use by PSR", "asterix.034_060_02_POL", FT_UINT8, BASE_DEC, VALS (valstr_034_060_02_POL), 0x80, NULL, HFILL } },
-        { &hf_034_060_02_RED_RAD, { "Reduction Steps in use as result of an overload within the PSR subsystem", "asterix.034_060_02_RED_RDP", FT_UINT8, BASE_DEC, VALS (valstr_034_060_RED), 0x70, NULL, HFILL } },
-        { &hf_034_060_02_STC, { "Sensitivity Time Control Map in use", "asterix.034_060_02_STC", FT_UINT8, BASE_DEC, VALS (valstr_034_060_02_STC), 0x70, NULL, HFILL } },
+        { &hf_034_060_02_RED_RAD, { "Reduction Steps in use as result of an overload within the PSR subsystem", "asterix.034_060_02_RED_RAD", FT_UINT8, BASE_DEC, VALS (valstr_034_060_RED), 0x70, NULL, HFILL } },
+        { &hf_034_060_02_STC, { "Sensitivity Time Control Map in use", "asterix.034_060_02_STC", FT_UINT8, BASE_DEC, VALS (valstr_034_060_02_STC), 0x0c, NULL, HFILL } },
         { &hf_034_060_03, { "Specific Processing Mode information for a SSR sensor", "asterix.034_060_03", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-        { &hf_034_060_03_RED_RAD, { "Reduction Steps in use as result of an overload within the SSR subsystem", "asterix.034_060_03_RED_RDP", FT_UINT8, BASE_DEC, VALS (valstr_034_060_RED), 0xe0, NULL, HFILL } },
+        { &hf_034_060_03_RED_RAD, { "Reduction Steps in use as result of an overload within the SSR subsystem", "asterix.034_060_03_RED_RAD", FT_UINT8, BASE_DEC, VALS (valstr_034_060_RED), 0xe0, NULL, HFILL } },
         { &hf_034_060_04, { "Specific Processing Mode information for a Mode S Sensor", "asterix.034_060_04", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-        { &hf_034_060_04_RED_RAD, { "Reduction Steps in use as result of an overload within the Mode S subsystem", "asterix.034_060_04_RED_RDP", FT_UINT8, BASE_DEC, VALS (valstr_034_060_RED), 0xe0, NULL, HFILL } },
+        { &hf_034_060_04_RED_RAD, { "Reduction Steps in use as result of an overload within the Mode S subsystem", "asterix.034_060_04_RED_RAD", FT_UINT8, BASE_DEC, VALS (valstr_034_060_RED), 0xe0, NULL, HFILL } },
         { &hf_034_060_04_CLU, { "Cluster State", "asterix.034_060_04_CLU", FT_UINT8, BASE_DEC, VALS (valstr_034_060_04_CLU), 0x10, NULL, HFILL } },
         { &hf_034_070, { "070, Message Count Values", "asterix.034_070", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_034_070_TYP, { "Type of message counter", "asterix.034_070_TYP", FT_UINT8, BASE_DEC, VALS (valstr_034_070_TYP), 0xf8, NULL, HFILL } },
@@ -10408,12 +10408,12 @@ void proto_register_asterix (void)
         { &hf_034_090_RE, { "Range error[NM]", "asterix.034_090_RE", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_034_090_AE, { "Azimuth error[deg]", "asterix.034_090_AE", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_034_100, { "100, Generic Polar Window", "asterix.034_100", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-        { &hf_035_100_RHOS, { "Rho start[NM]", "asterix.034_100_RHOS", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-        { &hf_035_100_RHOE, { "Rho end[NM]", "asterix.034_100_RHOE", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-        { &hf_035_100_THETAS, { "Theta start[deg]", "asterix.034_100_THETAS", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-        { &hf_035_100_THETAE, { "Theta end[deg]", "asterix.034_100_THETAE", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_034_100_RHOS, { "Rho start[NM]", "asterix.034_100_RHOS", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_034_100_RHOE, { "Rho end[NM]", "asterix.034_100_RHOE", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_034_100_THETAS, { "Theta start[deg]", "asterix.034_100_THETAS", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_034_100_THETAE, { "Theta end[deg]", "asterix.034_100_THETAE", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_034_110, { "110, Data Filter", "asterix.034_110", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-        { &hf_034_110_TYP, { "TYP", "asterix.034_100_TYP", FT_UINT8, BASE_DEC, VALS (valstr_034_110_TYP), 0x0, NULL, HFILL } },
+        { &hf_034_110_TYP, { "TYP", "asterix.034_110_TYP", FT_UINT8, BASE_DEC, VALS (valstr_034_110_TYP), 0x0, NULL, HFILL } },
         { &hf_034_120, { "120, 3D-Position Of Data Source", "asterix.034_120", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_034_120_H, { "Height in WGS 84[m]", "asterix.034_120_H", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_034_120_LAT, { "Latitude in WGS 84[deg]", "asterix.034_120_LAT", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -11849,10 +11849,10 @@ void proto_register_asterix (void)
         &ett_034_090_RE,
         &ett_034_090_AE,
         &ett_034_100,
-        &ett_035_100_RHOS,
-        &ett_035_100_RHOE,
-        &ett_035_100_THETAS,
-        &ett_035_100_THETAE,
+        &ett_034_100_RHOS,
+        &ett_034_100_RHOE,
+        &ett_034_100_THETAS,
+        &ett_034_100_THETAE,
         &ett_034_110,
         &ett_034_110_TYP,
         &ett_034_120,
