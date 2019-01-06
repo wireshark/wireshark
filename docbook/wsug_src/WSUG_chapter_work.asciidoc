@@ -677,6 +677,7 @@ The display filter language has a number of functions to convert fields, see
 |lower   |Converts a string field to lowercase.
 |len     |Returns the byte length of a string or bytes field.
 |count   |Returns the number of field occurrences in a frame.
+|string  |Converts a non-string field to a string.
 |===============
 
 The `upper` and `lower` functions can used to force case-insensitive matches:
@@ -689,6 +690,21 @@ Note that the `len` function yields the string length in bytes rather than
 Usually an IP frame has only two addresses (source and destination), but in case
 of ICMP errors or tunneling, a single packet might contain even more addresses.
 These packets can be found with `count(ip.addr) > 2`.
+
+The `string` function converts a field value to a string, suitable for use with operators
+like "matches" or "contains". Integer fields are converted to their decimal representation.
+It can be used with IP/Ethernet addresses (as well as others), but not with string or
+byte fields.
+
+For example, to match odd frame numbers:
+----
+string(frame.number) matches "[13579]$"
+----
+
+to match IP addresses ending in 255 in a block of subnets (172.16 to 172.31):
+----
+string(ip.dst) matches "^172\.(1[6-9]|2[0-9]|3[0-1])\..{1,3}\.255"
+----
 
 [[ChWorkBuildDisplayFilterMistake]]
 

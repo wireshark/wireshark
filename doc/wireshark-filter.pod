@@ -103,12 +103,22 @@ The filter language has the following functions:
     lower(string-field) - converts a string field to lowercase
     len(field)          - returns the byte length of a string or bytes field
     count(field)        - returns the number of field occurrences in a frame
+    string(field)       - converts a non-string field to string
 
 upper() and lower() are useful for performing case-insensitive string
 comparisons. For example:
 
     upper(ncp.nds_stream_name) contains "MACRO"
     lower(mount.dump.hostname) == "angel"
+
+string() converts a field value to a string, suitable for use with operators like
+"matches" or "contains". Integer fields are converted to their decimal representation.
+It can be used with IP/Ethernet addresses (as well as others), but not with string or
+byte fields. For example:
+
+    string(frame.number) matches "[13579]$"
+
+gives you all the odd packets.
 
 =head2 Protocol field types
 

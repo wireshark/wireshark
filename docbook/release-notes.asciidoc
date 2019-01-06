@@ -78,6 +78,9 @@ since version 2.6.0:
   Secrets Block (DSB) containing a TLS Key Log (wsbuglink:15252[]).
 * The editcap utility gained a new `--inject-secrets` option to inject an
   existing TLS Key Log file into a pcapng file.
+* A new dfilter function string() has been added. It allows the conversion of
+  non-string fields to strings so string functions (as contains and matches)
+  can be used on them.
 
 === Removed Features and Support
 
