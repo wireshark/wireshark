@@ -3890,7 +3890,7 @@ dissect_HI2Operations_UUS1_Content(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
      *  lawfullInterceptionIdentifier [1] LawfulInterceptionIdentifier,
      *  communicationIdentifier       [2] CommunicationIdentifier,
      */
-    tmp_offset = get_ber_identifier(tvb, tmp_offset, &tmp_class, &tmp_pc, &tmp_tag);
+    get_ber_identifier(tvb, tmp_offset, &tmp_class, &tmp_pc, &tmp_tag);
     if(tmp_class != BER_CLASS_CON){
       return 0;
     }

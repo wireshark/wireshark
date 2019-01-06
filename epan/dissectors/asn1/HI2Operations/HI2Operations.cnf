@@ -63,7 +63,7 @@ StatusType
      *  lawfullInterceptionIdentifier [1] LawfulInterceptionIdentifier,
      *  communicationIdentifier       [2] CommunicationIdentifier,
      */
-    tmp_offset = get_ber_identifier(tvb, tmp_offset, &tmp_class, &tmp_pc, &tmp_tag);
+    get_ber_identifier(tvb, tmp_offset, &tmp_class, &tmp_pc, &tmp_tag);
     if(tmp_class != BER_CLASS_CON){
       return 0;
     }
