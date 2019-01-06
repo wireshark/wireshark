@@ -1342,9 +1342,9 @@ dissect_atm_cell_payload(tvbuff_t *tvb, int offset, packet_info *pinfo,
    * First check whether custom dissection table
    * was set up to dissect this VPI+VCI combination
    */
-  if (atm_info && dissector_try_uint_new(atm_cell_payload_vpi_vci_table,
-                                         ((atm_info->vpi) << 16) | atm_info->vci,
-                                         next_tvb, pinfo, tree, TRUE, atm_info))
+  if (dissector_try_uint_new(atm_cell_payload_vpi_vci_table,
+                             ((atm_info->vpi) << 16) | atm_info->vci,
+                             next_tvb, pinfo, tree, TRUE, atm_info))
   {
     return;
   }
@@ -1733,15 +1733,13 @@ dissect_atm_pw_oam_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 {
   struct pw_atm_phdr *pw_atm_info = (struct pw_atm_phdr *)data;
 
-  col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATM");
+  DISSECTOR_ASSERT(pw_atm_info != NULL);
 
-  if (pw_atm_info) {
-    dissect_atm_cell_payload(tvb, 0, pinfo, tree, AAL_OAMCELL,
-                             pw_atm_info->enable_fill_columns_by_atm_dissector,
-                             &pw_atm_info->info);
-  } else {
-    dissect_atm_cell_payload(tvb, 0, pinfo, tree, AAL_OAMCELL, TRUE, NULL);
-  }
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATM");
+  
+  dissect_atm_cell_payload(tvb, 0, pinfo, tree, AAL_OAMCELL,
+                           pw_atm_info->enable_fill_columns_by_atm_dissector,
+                           &pw_atm_info->info);
 
   return tvb_reported_length(tvb);
 }
