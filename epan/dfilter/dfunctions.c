@@ -35,7 +35,6 @@ string_walk(GList* arg1list, GList **retval, gchar(*conv_func)(gchar))
         if (IS_FT_STRING(fvalue_type_ftenum(arg_fvalue))) {
             s = (char *)wmem_strdup(NULL, (gchar *)fvalue_get(arg_fvalue));
             for (c = s; *c; c++) {
-                    /**c = g_ascii_tolower(*c);*/
                     *c = conv_func(*c);
             }
 
