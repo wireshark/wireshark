@@ -37,7 +37,6 @@
 #define PFNAME "ieee1609dot2"
 
 void proto_register_ieee1609dot2(void);
-void proto_reg_handoff_ieee1609dot2(void);
 
 /* Initialize the protocol and registered fields */
 int proto_ieee1609dot2 = -1;
@@ -2648,10 +2647,4 @@ void proto_register_ieee1609dot2(void) {
         "ATS-AID/PSID based dissector for unsecured/signed data", proto_ieee1609dot2, FT_UINT32, BASE_HEX);
   ssp_subdissector_table = register_dissector_table("ieee1609dot2.ssp",
         "ATS-AID/PSID based dissector for Service Specific Permissions (SSP)", proto_ieee1609dot2, FT_UINT32, BASE_HEX);
-}
-
-void
-proto_reg_handoff_IEEE1609dot2(void)
-{
-
 }
