@@ -54,6 +54,30 @@ matrix:
         - CXX=clang++
         - CC=clang
         - PCAP=OFF
+    - name: Windows (VS2017 x64)
+      # Set a supported language, otherwise the Windows worker will not start.
+      language: shell
+      os: windows
+      env:
+        - PLATFORM: x64
+        - WIRESHARK_BASE_DIR: C:/wireshark-libs
+        - QT5_BASE_DIR: C:/Qt/5.12.0/msvc2017_64
+      cache:
+        directories:
+          - $WIRESHARK_BASE_DIR
+          - C:/Qt
+    - name: Windows (VS2017 Win32)
+      # Set a supported language, otherwise the Windows worker will not start.
+      language: shell
+      os: windows
+      env:
+        - PLATFORM: Win32
+        - WIRESHARK_BASE_DIR: C:/wireshark-libs
+        - QT5_BASE_DIR: C:/Qt/5.12.0/msvc2017
+      cache:
+        directories:
+          - $WIRESHARK_BASE_DIR
+          - C:/Qt
 before_install:
   - echo $TRAVIS_OS_NAME
   # macos
@@ -62,15 +86,48 @@ before_install:
   # linux
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo ./tools/debian-setup.sh --install-optional --install-test-deps -q; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install -y python3-pip; fi
+  # windows
+  - if [ "$TRAVIS_OS_NAME" == "windows" ]; then cinst -y --no-progress python3 winflexbison strawberryperl; fi
+  - |
+    if [ "$TRAVIS_OS_NAME" == "windows" ]; then
+      # Ensure Python and the Scripts folder is available in PATH.
+      # refreshenv does not seem to work in bash, so reload it manually.
+      # Entries in the Machine PATH might contain trailing slashes, drop those.
+      # Apply Process paths before Machine to ensure /bin appears before others (otherwise casher will break and stall).
+      export PATH="$(powershell -Command '("Process", "Machine" | % {
+        [Environment]::GetEnvironmentVariable("PATH", $_) -Split ";" -Replace "\\$", ""
+      } | Select -Unique | % { cygpath $_ }) -Join ":"')"
+      echo "PATH=$PATH"
+      # Workaround broken casher implementation that extracts absolute paths to the current working directory
+      # See https://github.com/travis-ci/casher/pull/38
+      for path in wireshark-libs Qt; do if [ -d "$path" ]; then echo "Restoring C:/$path"; mv "$path/"* "C:/$path"; fi; done
+      # Update checksums to avoid invalidating the cache (saves 2-3mins).
+      if [ -d Qt ]; then md5deep64 -o f -r "C:/wireshark-libs" "C:/Qt" | sort > ~/.casher/md5sums_before; fi
+      # Workaround to avoid using perl from git-bash $PATH which lacks modules such as Pod::Usage
+      export CMAKE_PROGRAM_PATH=C:/Strawberry/perl/bin
+    fi
+  - |
+    if [ "$TRAVIS_OS_NAME" == "windows" ] && [ ! -e "$QT5_BASE_DIR/bin/moc.exe" ]; then
+      curl -vLo ~/qt-unified-windows-x86-online.exe http://download.qt.io/official_releases/online_installers/qt-unified-windows-x86-online.exe
+      if ! ~/qt-unified-windows-x86-online.exe --verbose --script tools/qt-installer-windows.qs > ~/qt-installer-output.txt; then
+        cat ~/qt-installer-output.txt; exit 1
+      fi
+      du -sm "$QT5_BASE_DIR"
+    fi
   # all platforms
   - pip3 install pytest pytest-xdist
 before_script:
   - mkdir build
   - cd build
-  - cmake -GNinja -DENABLE_PCAP=${PCAP} ..
+  - if [ "$TRAVIS_OS_NAME" != "windows" ]; then cmake -GNinja -DENABLE_PCAP=${PCAP} ..; fi
+  - if [ "$TRAVIS_OS_NAME" == "windows" ]; then cmake -A $PLATFORM ..; fi
 script:
-  - ninja
-  - ninja test-programs
+  # Enable parallelism for msbuild too (since CMake 3.12; ninja does not need it)
+  - export CMAKE_BUILD_PARALLEL_LEVEL=0
+  # Invoke ninja (Linux/macOS, --config is ignored) or msbuild (Windows)
+  - cmake --build . --config RelWithDebInfo
+  - cmake --build . --config RelWithDebInfo --target test-programs
   - pytest -v
 after_script:
   - if [ -f run/tshark ]; then run/tshark --version; fi
+  - if [ -f run/RelWithDebInfo/tshark.exe ]; then run/RelWithDebInfo/tshark.exe --version; fi
