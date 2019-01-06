@@ -2177,7 +2177,6 @@ dissect_dpt_trailer_noise_high(
 	proto_tree_add_item(tree, hf_peer_local_port, tvb, o, 2, ENC_BIG_ENDIAN);
 	pi = proto_tree_add_item(tree, hf_peer_port, tvb, o, 2, ENC_BIG_ENDIAN);
 	PROTO_ITEM_SET_HIDDEN(pi);
-	o += 2;
 
 	return(len);
 } /* dissect_dpt_trailer_noise_high() */
@@ -2324,10 +2323,9 @@ dissect_dpt_trailer_noise_med(
 				ENC_ASCII));
 			proto_tree_add_item(rc_tree, hf_rstcause_txt, tvb, o, rstcauselen-(o-startcause),
 				ENC_ASCII|ENC_NA);
-			o = startcause + rstcauselen;
+			/*o = startcause + rstcauselen;*/
 			break;
 		default:
-			o += rstcauselen;
 			break;
 		}
 	}
@@ -2437,7 +2435,6 @@ dissect_dpt_trailer_noise_low(
 	}
 	o += 1;
 	proto_tree_add_item(tree, hf_vip, tvb, o, vipnamelen, ENC_ASCII|ENC_NA);
-	o += vipnamelen;
 
 	return(len);
 } /* dissect_dpt_trailer_noise_low() */
