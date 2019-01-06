@@ -326,10 +326,10 @@ static const value_string quic_cid_len_vals[] = {
     { 0, NULL }
 };
 
-#define QUIC_LPT_INITIAL    0x7F
-#define QUIC_LPT_RETRY      0x7E
-#define QUIC_LPT_HANDSHAKE  0x7D
-#define QUIC_LPT_0RTT       0x7C
+#define QUIC_LPT_INITIAL    0x0
+#define QUIC_LPT_RETRY      0x1
+#define QUIC_LPT_HANDSHAKE  0x2
+#define QUIC_LPT_0RTT       0x3
 #define QUIC_SHORT_PACKET   0xff    /* dummy value that is definitely not LPT */
 
 static const value_string quic_long_packet_type_vals[] = {
@@ -2067,7 +2067,7 @@ quic_get_message_tvb(tvbuff_t *tvb, const guint offset)
     guint64 token_length;
     guint64 payload_length;
     guint8 packet_type = tvb_get_guint8(tvb, offset);
-    guint8 long_packet_type = packet_type & 0x7f;
+    guint8 long_packet_type = (packet_type & 0x30) >> 4;
     // Retry and VN packets cannot be coalesced (clarified in draft -14).
     if ((packet_type & 0x80) && long_packet_type != QUIC_LPT_RETRY) {
         // long header form, check version
@@ -2117,7 +2117,7 @@ quic_extract_header(tvbuff_t *tvb, guint8 *long_packet_type, guint32 *version,
     gboolean is_long_header = packet_type & 0x80;
     if (is_long_header) {
         // long header form
-        *long_packet_type = packet_type & 0x7f;
+        *long_packet_type = (packet_type & 0x30) >> 4;
     } else {
         // short header form, store dummy value that is not a long packet type.
         *long_packet_type = QUIC_SHORT_PACKET;
@@ -2359,7 +2359,7 @@ proto_register_quic(void)
 
         { &hf_quic_long_packet_type,
           { "Packet Type", "quic.long.packet_type",
-            FT_UINT8, BASE_DEC, VALS(quic_long_packet_type_vals), 0x7F,
+            FT_UINT8, BASE_DEC, VALS(quic_long_packet_type_vals), 0x30,
             "Long Header Packet Type", HFILL }
         },
         { &hf_quic_dcid,
