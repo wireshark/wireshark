@@ -375,8 +375,7 @@ int Listener_register(lua_State* L) {
 
     listeners = g_ptr_array_new();
 
-    WSLUA_REGISTER_CLASS(Listener);
-    WSLUA_REGISTER_ATTRIBUTES(Listener);
+    WSLUA_REGISTER_CLASS_WITH_ATTRS(Listener);
     return 0;
 }
 

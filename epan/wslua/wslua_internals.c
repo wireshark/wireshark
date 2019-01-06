@@ -229,45 +229,6 @@ gboolean wslua_get_field(lua_State *L, int idx, const gchar *name) {
     return result;
 }
 
-
-/**
- * This is a transition function that sets attributes on classes. It must be
- * replaced by setting the attributes in the wslua_class structure such that
- * WSLUA_REGISTER_ATTRIBUTES can be nuked.
- */
-int wslua_reg_attributes(lua_State *L, const wslua_attribute_table *t, gboolean is_getter) {
-    const gchar *metafield = is_getter ? "__index" : "__newindex";
-
-    /* assume __index/__newindex exists and index 1 is a metatable */
-    lua_rawgetfield(L, -1, metafield);
-    if (lua_isnil(L, -1)) {
-        g_error("%s expected in metatable, found none!\n", metafield);
-    }
-    lua_pop(L, 1);
-
-    /* Find table to add properties. */
-    metafield = is_getter ? "__getters" : "__setters";
-    lua_rawgetfield(L, -1, metafield);
-    if (!lua_istable(L, -1)) {
-        g_error("Property %s is not found in metatable!\n", metafield);
-    }
-
-    /* Fill the getter/setter table with given functions. Being a transition
-     * function that will be removed later, this does not perform duplicate
-     * keys detection. */
-    for (; t->fieldname != NULL; t++) {
-        lua_CFunction cfunc = is_getter ? t->getfunc : t->setfunc;
-        if (cfunc) {
-            lua_pushcfunction(L, cfunc);
-            lua_rawsetfield(L, -2, t->fieldname);
-        }
-    }
-
-    /* Drop __getters/__setters table */
-    lua_pop(L, 1);
-    return 0;
-}
-
 /**
  * The __index metamethod for classes. Expected upvalues: class name.
  */

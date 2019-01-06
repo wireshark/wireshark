@@ -549,8 +549,7 @@ WSLUA_META Proto_meta[] = {
 };
 
 int Proto_register(lua_State* L) {
-    WSLUA_REGISTER_CLASS(Proto);
-    WSLUA_REGISTER_ATTRIBUTES(Proto);
+    WSLUA_REGISTER_CLASS_WITH_ATTRS(Proto);
 
     outstanding_FuncSavers = g_ptr_array_new();
 

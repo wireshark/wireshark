@@ -216,8 +216,7 @@ WSLUA_META NSTime_meta[] = {
 };
 
 int NSTime_register(lua_State* L) {
-    WSLUA_REGISTER_CLASS(NSTime);
-    WSLUA_REGISTER_ATTRIBUTES(NSTime);
+    WSLUA_REGISTER_CLASS_WITH_ATTRS(NSTime);
     return 0;
 }
 

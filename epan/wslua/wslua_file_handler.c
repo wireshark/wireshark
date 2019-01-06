@@ -1027,8 +1027,7 @@ WSLUA_META FileHandler_meta[] = {
 };
 
 int FileHandler_register(lua_State* L) {
-    WSLUA_REGISTER_CLASS(FileHandler);
-    WSLUA_REGISTER_ATTRIBUTES(FileHandler);
+    WSLUA_REGISTER_CLASS_WITH_ATTRS(FileHandler);
     return 0;
 }
 

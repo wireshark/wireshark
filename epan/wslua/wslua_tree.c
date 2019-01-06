@@ -964,8 +964,7 @@ WSLUA_META TreeItem_meta[] = {
 int TreeItem_register(lua_State *L) {
     gint* etts[] = { &wslua_ett };
     wslua_ett = -1; /* Reset to support reload Lua plugins */
-    WSLUA_REGISTER_CLASS(TreeItem);
-    WSLUA_REGISTER_ATTRIBUTES(TreeItem);
+    WSLUA_REGISTER_CLASS_WITH_ATTRS(TreeItem);
     outstanding_TreeItem = g_ptr_array_new();
     proto_register_subtree_array(etts,1);
     return 0;

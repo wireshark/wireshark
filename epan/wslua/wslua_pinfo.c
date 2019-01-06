@@ -462,8 +462,7 @@ WSLUA_META Pinfo_meta[] = {
 };
 
 int Pinfo_register(lua_State* L) {
-    WSLUA_REGISTER_META(Pinfo);
-    WSLUA_REGISTER_ATTRIBUTES(Pinfo);
+    WSLUA_REGISTER_META_WITH_ATTRS(Pinfo);
     outstanding_Pinfo = g_ptr_array_new();
     outstanding_PrivateTable = g_ptr_array_new();
     return 0;

@@ -292,8 +292,7 @@ WSLUA_META CaptureInfo_meta[] = {
 };
 
 int CaptureInfo_register(lua_State* L) {
-    WSLUA_REGISTER_META(CaptureInfo);
-    WSLUA_REGISTER_ATTRIBUTES(CaptureInfo);
+    WSLUA_REGISTER_META_WITH_ATTRS(CaptureInfo);
     return 0;
 }
 
@@ -502,8 +501,7 @@ WSLUA_META CaptureInfoConst_meta[] = {
 };
 
 int CaptureInfoConst_register(lua_State* L) {
-    WSLUA_REGISTER_META(CaptureInfoConst);
-    WSLUA_REGISTER_ATTRIBUTES(CaptureInfoConst);
+    WSLUA_REGISTER_META_WITH_ATTRS(CaptureInfoConst);
     return 0;
 }
 

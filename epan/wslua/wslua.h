@@ -416,39 +416,36 @@ extern int wslua_reg_attributes(lua_State *L, const wslua_attribute_table *t, gb
     /* pop the metatable */ \
     lua_pop(L, 1)
 
-#define WSLUA_REGISTER_META(C) { \
+#define __WSLUA_REGISTER_META(C, ATTRS_BLOCK) { \
     const wslua_class C ## _class = { \
         .name               = #C, \
         .instance_meta      = C ## _meta, \
+        ATTRS_BLOCK \
     }; \
     wslua_register_classinstance_meta(L, &C ## _class); \
     WSLUA_REGISTER_GC(C); \
 }
 
-#define WSLUA_REGISTER_CLASS(C) { \
+#define WSLUA_REGISTER_META(C)  __WSLUA_REGISTER_META(C,)
+#define WSLUA_REGISTER_META_WITH_ATTRS(C) \
+    __WSLUA_REGISTER_META(C, .attrs = C ## _attributes)
+
+#define __WSLUA_REGISTER_CLASS(C, ATTRS_BLOCK) { \
     const wslua_class C ## _class = { \
         .name               = #C, \
         .class_methods      = C ## _methods, \
         .class_meta         = C ## _meta, \
         .instance_methods   = C ## _methods, \
         .instance_meta      = C ## _meta, \
+        ATTRS_BLOCK \
     }; \
     wslua_register_class(L, &C ## _class); \
     WSLUA_REGISTER_GC(C); \
 }
 
-/* see comments for wslua_reg_attributes and wslua_attribute_dispatcher to see how this attribute stuff works */
-#define WSLUA_REGISTER_ATTRIBUTES(C) { \
-    /* get metatable from Lua registry */ \
-    luaL_getmetatable(L, #C); \
-    if (lua_isnil(L, -1)) { \
-        g_error("Attempt to register attributes without a pre-existing metatable for '%s' in Lua registry\n", #C); \
-    } \
-    /* register the getters/setters in their tables */ \
-    wslua_reg_attributes(L, C##_attributes, TRUE); \
-    wslua_reg_attributes(L, C##_attributes, FALSE); \
-    lua_pop(L, 1); /* pop the metatable */ \
-}
+#define WSLUA_REGISTER_CLASS(C)  __WSLUA_REGISTER_CLASS(C,)
+#define WSLUA_REGISTER_CLASS_WITH_ATTRS(C) \
+    __WSLUA_REGISTER_CLASS(C, .attrs = C ## _attributes)
 
 #define WSLUA_INIT(L) \
     luaL_openlibs(L); \

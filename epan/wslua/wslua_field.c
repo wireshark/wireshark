@@ -472,8 +472,7 @@ WSLUA_META FieldInfo_meta[] = {
 };
 
 int FieldInfo_register(lua_State* L) {
-    WSLUA_REGISTER_META(FieldInfo);
-    WSLUA_REGISTER_ATTRIBUTES(FieldInfo);
+    WSLUA_REGISTER_META_WITH_ATTRS(FieldInfo);
     return 0;
 }
 
@@ -794,8 +793,7 @@ int Field_register(lua_State* L) {
 
     wanted_fields = g_ptr_array_new();
 
-    WSLUA_REGISTER_CLASS(Field);
-    WSLUA_REGISTER_ATTRIBUTES(Field);
+    WSLUA_REGISTER_CLASS_WITH_ATTRS(Field);
     outstanding_FieldInfo = g_ptr_array_new();
 
     return 0;

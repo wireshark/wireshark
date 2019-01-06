@@ -239,8 +239,7 @@ WSLUA_META FrameInfo_meta[] = {
 };
 
 int FrameInfo_register(lua_State* L) {
-    WSLUA_REGISTER_CLASS(FrameInfo);
-    WSLUA_REGISTER_ATTRIBUTES(FrameInfo);
+    WSLUA_REGISTER_CLASS_WITH_ATTRS(FrameInfo);
     return 0;
 }
 
@@ -384,8 +383,7 @@ WSLUA_META FrameInfoConst_meta[] = {
 };
 
 int FrameInfoConst_register(lua_State* L) {
-    WSLUA_REGISTER_CLASS(FrameInfoConst);
-    WSLUA_REGISTER_ATTRIBUTES(FrameInfoConst);
+    WSLUA_REGISTER_CLASS_WITH_ATTRS(FrameInfoConst);
     return 0;
 }
 

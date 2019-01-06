@@ -501,8 +501,7 @@ WSLUA_META File_meta[] = {
 };
 
 int File_register(lua_State* L) {
-    WSLUA_REGISTER_CLASS(File);
-    WSLUA_REGISTER_ATTRIBUTES(File);
+    WSLUA_REGISTER_CLASS_WITH_ATTRS(File);
     return 0;
 }
 
