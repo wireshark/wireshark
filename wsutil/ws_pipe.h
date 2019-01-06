@@ -45,7 +45,7 @@ typedef struct _ws_pipe_t {
  * @param [IN] working_directory Initial working directory.
  * @param [IN] command Command to run.
  * @param [IN] argc Number of arguments for the command, not including the command itself.
- * @param [IN] argv Arguments for the command, not including the command itself.
+ * @param [IN] args Arguments for the command, not including the command itself.
  * @param [OUT] command_output If not NULL, receives a copy of the command output. Must be g_freed.
  * @return TRUE on success or FALSE on failure.
  */
