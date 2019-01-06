@@ -1240,9 +1240,6 @@ static void cdma2k_message_REGISTRATION(proto_item *item, tvbuff_t *tvb, proto_t
     proto_tree *subtree = NULL;
 
     /*iws_Mob_P_Rev_In_Use = 7;*/
-    uzid_Incl = 0;
-    geoLoc_Incl = 0;
-    l_offset = 0;
 
     item = proto_tree_add_item(tree,hf_cdma2k_RegMsg, tvb, *offset,-1, ENC_NA);
     subtree = proto_item_add_subtree(item, ett_cdma2k_subtree1);
@@ -1462,7 +1459,6 @@ static void cdma2k_message_ORDER_IND(proto_item *item,tvbuff_t *tvb,proto_tree *
                 proto_item_append_text(item, " : FAST CALL SETUP Order ");
 
                 proto_tree_add_bits_item(subtree1, hf_cdma2k_Ordq, tvb, *offset*8+1,8, ENC_BIG_ENDIAN);
-                ordq = tvb_get_bits8(tvb,*offset*8+1,8);
                 l_offset+=8;
 
                 proto_tree_add_bits_item(subtree1, hf_cdma2k_Rsc_Mode_Ind , tvb, l_offset, 1, ENC_BIG_ENDIAN);
@@ -1505,8 +1501,6 @@ static void cdma2k_message_ORDER_CMD(proto_item *item,tvbuff_t *tvb,proto_tree *
     guint16 sameaspreviousbcmcflow = -1, ordertype = -1, clearretrydelay = -1, rer_time = -1;
     guint16 rsc_mode_ind = -1;
     proto_tree *subtree = NULL, *subtree1 = NULL;
-
-    l_offset = 0;
 
     subtree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_cdma2k_subtree1, NULL, "Order Command Message");
 
@@ -1648,7 +1642,6 @@ static void cdma2k_message_ORDER_CMD(proto_item *item,tvbuff_t *tvb,proto_tree *
             proto_item_append_text(item, " : RETRY Order ");
 
             proto_tree_add_bits_item(subtree1, hf_cdma2k_Ordq, tvb, l_offset, 8, ENC_BIG_ENDIAN);
-            ordq = tvb_get_bits8(tvb,l_offset, 8);
             l_offset+=8;
 
             proto_tree_add_bits_item(subtree1, hf_cdma2k_Retry_Type, tvb, l_offset, 3, ENC_BIG_ENDIAN);
@@ -1989,11 +1982,6 @@ static void cdma2k_message_ORIGINATION(proto_item *item,tvbuff_t *tvb,proto_tree
     proto_item *item1 = NULL, *item2 = NULL, *item4 = NULL;
 
     /*iws_Mob_P_Rev_In_Use = 7;*/
-    uzid_Incl = 0;
-    GeoLoc_Incl = 0;
-    l_offset = 0;
-    specialService = 0;
-    DigitMode = 0;
 
     l_offset = *offset*8;
 
@@ -2328,7 +2316,7 @@ static void cdma2k_message_ORIGINATION(proto_item *item,tvbuff_t *tvb,proto_tree
             l_offset+=2;
             if (So_Bitmap_Ind > 0)
             {
-                item1 = proto_tree_add_bits_item(subtree, hf_cdma2k_So_Group_Num, tvb, l_offset, 5, ENC_BIG_ENDIAN);
+                proto_tree_add_bits_item(subtree, hf_cdma2k_So_Group_Num, tvb, l_offset, 5, ENC_BIG_ENDIAN);
                 l_offset+=5;
                 proto_tree_add_bits_item(subtree, hf_cdma2k_So_Bitmap, tvb, l_offset, 4*So_Bitmap_Ind, ENC_BIG_ENDIAN);
                 l_offset+=4*So_Bitmap_Ind;
@@ -3297,7 +3285,6 @@ static void cdma2k_message_HANDOFF_DIR(proto_item *item,tvbuff_t *tvb,proto_tree
         if(plcmIncl == 1)
         {
             proto_tree_add_bits_item(subtree, hf_cdma2k_Plcm_Type, tvb, l_offset, 4, ENC_BIG_ENDIAN);
-            plcmType = tvb_get_bits8(tvb,l_offset, 4);
             l_offset+=4;
             proto_tree_add_bits_item(subtree, hf_cdma2k_Plcm_39, tvb, l_offset, 39, ENC_BIG_ENDIAN);
             l_offset+=39;
@@ -3649,7 +3636,6 @@ static void cdma2k_message_ALERT_WITH_INFO(proto_item *item,tvbuff_t *tvb,proto_
                 if(extBit == 0)
                 {
                     proto_tree_add_bits_item(subtree1, hf_cdma2k_Extension_Bit, tvb, *offset*8,1, ENC_BIG_ENDIAN);
-                    extBit = tvb_get_bits8(tvb,*offset*8,1);
                     proto_tree_add_bits_item(subtree1, hf_cdma2k_Reserved, tvb, *offset*8+1,3, ENC_BIG_ENDIAN);
                     proto_tree_add_bits_item(subtree1, hf_cdma2k_Redirection_Reason, tvb, *offset*8+4,4, ENC_BIG_ENDIAN);
                     *offset+=1;
