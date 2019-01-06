@@ -75,9 +75,11 @@
         <source>Copy</source>
         <translation>コピー</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <source>Copy Row(s)</source>
-        <translation>列をコピー</translation>
+        <translation type="unfinished">
+            <numerusform>列をコピー</numerusform>
+        </translation>
     </message>
 </context>
 <context>

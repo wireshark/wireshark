@@ -37,7 +37,7 @@
     </message>
     <message>
         <source>Filter by path</source>
-        <translation type="unfinished"></translation>
+        <translation>按路径过滤</translation>
     </message>
     <message>
         <source>Plugins</source>
@@ -45,15 +45,15 @@
     </message>
     <message>
         <source>No plugins found.</source>
-        <translation type="unfinished"></translation>
+        <translation>找不到插件。</translation>
     </message>
     <message>
         <source>Search Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>搜索插件</translation>
     </message>
     <message>
         <source>Filter by type:</source>
-        <translation type="unfinished"></translation>
+        <translation>按类型过滤:</translation>
     </message>
     <message>
         <source>Keyboard Shortcuts</source>
@@ -61,11 +61,11 @@
     </message>
     <message>
         <source>Search Shortcuts</source>
-        <translation type="unfinished"></translation>
+        <translation>搜索快捷方式</translation>
     </message>
     <message>
         <source>Acknowledgments</source>
-        <translation type="unfinished"></translation>
+        <translation>致谢</translation>
     </message>
     <message>
         <source>License</source>
@@ -73,11 +73,13 @@
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">复制</translation>
+        <translation>复制</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <source>Copy Row(s)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">
+            <numerusform>复制行</numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -107,37 +109,37 @@
     <name>AdvancedPrefsModel</name>
     <message>
         <source>Name</source>
-        <translation type="unfinished">名称</translation>
+        <translation>名称</translation>
     </message>
     <message>
         <source>Status</source>
-        <translation type="unfinished">状态</translation>
+        <translation>状态</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">类型</translation>
+        <translation>类型</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished">值</translation>
+        <translation>值</translation>
     </message>
 </context>
 <context>
     <name>ApplyLineEdit</name>
     <message>
         <source>Apply changes</source>
-        <translation type="unfinished"></translation>
+        <translation>应用更改</translation>
     </message>
 </context>
 <context>
     <name>AuthorListModel</name>
     <message>
         <source>Name</source>
-        <translation type="unfinished">名称</translation>
+        <translation>名称</translation>
     </message>
     <message>
         <source>Email</source>
-        <translation type="unfinished"></translation>
+        <translation>电子邮件</translation>
     </message>
 </context>
 <context>
@@ -679,11 +681,11 @@
     <name>ByteViewText</name>
     <message>
         <source>Show bytes as hexadecimal</source>
-        <translation type="unfinished"></translation>
+        <translation>将字节显示为十六进制</translation>
     </message>
     <message>
         <source>Show text based on packet</source>
-        <translation type="unfinished"></translation>
+        <translation>根据分组显示文本</translation>
     </message>
 </context>
 <context>
@@ -699,6 +701,12 @@
 </context>
 <context>
     <name>CaptureFileDialog</name>
+    <message numerus="yes">
+        <source>%1, %Ln packet(s)</source>
+        <translation type="vanished">
+            <numerusform>%1，%Ln 分组</numerusform>
+        </translation>
+    </message>
     <message>
         <source>This capture file contains comments.</source>
         <translation>此捕获文件含有注释内容。</translation>
@@ -814,20 +822,20 @@
     <message numerus="yes">
         <source>%1, error after %Ln data record(s)</source>
         <oldsource>%1, error after %Ln record(s)</oldsource>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%1，%Ln 数据记录后的错误</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%1, timed out at %Ln data record(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%1，在 %Ln 数据记录处超时</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%1, %Ln data record(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%1，%Ln 数据记录</numerusform>
         </translation>
     </message>
     <message>
@@ -1028,47 +1036,47 @@
     <name>CaptureFilterCombo</name>
     <message>
         <source>Capture filter selector</source>
-        <translation type="unfinished"></translation>
+        <translation>捕获过滤器选择器</translation>
     </message>
 </context>
 <context>
     <name>CaptureFilterEdit</name>
     <message>
         <source>Capture filter entry</source>
-        <translation type="unfinished"></translation>
+        <translation>捕获过滤器条目</translation>
     </message>
     <message>
         <source>Manage saved bookmarks.</source>
-        <translation type="unfinished"></translation>
+        <translation>管理保存的书签。</translation>
     </message>
     <message>
         <source>Apply this filter string to the display.</source>
-        <translation type="unfinished"></translation>
+        <translation>将此过滤字符串应用于显示。</translation>
     </message>
     <message>
         <source>Multiple filters selected. Override them here or leave this blank to preserve them.</source>
         <extracomment>This is a very long concept that needs to fit into a short space.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>已选择多个过滤器。在此处覆盖它们，或者保留为空以保留它们。</translation>
     </message>
     <message>
         <source>&lt;p&gt;The interfaces you have selected have different capture filters. Typing a filter here will override them. Doing nothing will preserve them.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;您选择的接口具有不同的捕获过滤器。在此处键入过滤器将覆盖它们。不做任何事保留它们。&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Enter a capture filter %1</source>
-        <translation type="unfinished"></translation>
+        <translation>输入捕获过滤器 %1</translation>
     </message>
     <message>
         <source>Save this filter</source>
-        <translation type="unfinished"></translation>
+        <translation>保存此过滤器</translation>
     </message>
     <message>
         <source>Remove this filter</source>
-        <translation type="unfinished"></translation>
+        <translation>删除此过滤器</translation>
     </message>
     <message>
         <source>Manage Capture Filters</source>
-        <translation type="unfinished"></translation>
+        <translation>管理捕获过滤器</translation>
     </message>
 </context>
 <context>
@@ -1351,7 +1359,8 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Multiple files: No file limit given. You must specify a file size or interval at which is switched to the next capture file
  if you want to use multiple files.</source>
-        <translation type="unfinished"></translation>
+        <translation>多个文件：没有给出文件限制。您必须指定切换到下一个捕获文件的文件大小或间隔
+ 如果你想使用多个文件。</translation>
     </message>
 </context>
 <context>
@@ -1378,7 +1387,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Capture packets in pcapng format</source>
-        <translation type="unfinished"></translation>
+        <translation>以 pcapng 格式捕获分组</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Update the list of packets while capture is in progress. This can result in dropped packets on high-speed networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1398,14 +1407,14 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Disable external capture interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>禁用外部捕获接口</translation>
     </message>
 </context>
 <context>
     <name>ColoringRulesDelegate</name>
     <message>
         <source>the &quot;@&quot; symbol will be ignored.</source>
-        <translation type="unfinished"></translation>
+        <translation>“@”符号将被忽略。</translation>
     </message>
 </context>
 <context>
@@ -1448,15 +1457,15 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Set the display filter using this rule.</source>
-        <translation type="unfinished"></translation>
+        <translation>使用此规则设置显示过滤器。</translation>
     </message>
     <message>
         <source>Apply as filter</source>
-        <translation type="unfinished"></translation>
+        <translation>作为过滤器应用</translation>
     </message>
     <message>
         <source>Coloring Rules %1</source>
-        <translation type="unfinished"></translation>
+        <translation>着色规则 %1</translation>
     </message>
     <message>
         <source>Import</source>
@@ -1499,15 +1508,15 @@ PLEASE NOTE: One option MUST be selected.</source>
     <name>ColoringRulesModel</name>
     <message>
         <source>Unable to save coloring rules: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>无法保存着色规则：%1</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">名称</translation>
+        <translation>名称</translation>
     </message>
     <message>
         <source>Filter</source>
-        <translation type="unfinished">过滤器</translation>
+        <translation>过滤器</translation>
     </message>
 </context>
 <context>
@@ -1534,15 +1543,15 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Missing fields.</source>
-        <translation type="unfinished"></translation>
+        <translation>缺少字段。</translation>
     </message>
     <message>
         <source>Invalid fields.</source>
-        <translation type="unfinished"></translation>
+        <translation>无效字段。</translation>
     </message>
     <message>
         <source>Invalid occurrence value.</source>
-        <translation type="unfinished"></translation>
+        <translation>无效的发生值。</translation>
     </message>
 </context>
 <context>
@@ -1621,31 +1630,31 @@ PLEASE NOTE: One option MUST be selected.</source>
     <name>DataPrinter</name>
     <message>
         <source>Copy Bytes as Hex + ASCII Dump</source>
-        <translation type="unfinished"></translation>
+        <translation>将字节复制为十六进制 + ASCII 转储</translation>
     </message>
     <message>
         <source>Copy packet bytes as a hex and ASCII dump.</source>
-        <translation type="unfinished"></translation>
+        <translation>将分组字节复制为十六进制和 ASCII 转储。</translation>
     </message>
     <message>
         <source>Copy packet bytes as a hex dump.</source>
-        <translation type="unfinished"></translation>
+        <translation>将分组字节复制为十六进制转储。</translation>
     </message>
     <message>
         <source>Copy only the printable text in the packet.</source>
-        <translation type="unfinished"></translation>
+        <translation>仅复制分组中的可打印文本。</translation>
     </message>
     <message>
         <source>Copy packet bytes as a stream of hex.</source>
-        <translation type="unfinished"></translation>
+        <translation>将分组字节复制为十六进制流。</translation>
     </message>
     <message>
         <source>Copy packet bytes as application/octet-stream MIME data.</source>
-        <translation type="unfinished"></translation>
+        <translation>将分组字节复制为 application/octet-stream MIME 数据。</translation>
     </message>
     <message>
         <source>Copy packet bytes as an escaped string.</source>
-        <translation type="unfinished"></translation>
+        <translation>将分组字节复制为转义字符串。</translation>
     </message>
 </context>
 <context>
@@ -1671,117 +1680,117 @@ PLEASE NOTE: One option MUST be selected.</source>
     <name>DecodeAsModel</name>
     <message>
         <source>Match using this field</source>
-        <translation type="unfinished"></translation>
+        <translation>使用此字段匹配</translation>
     </message>
     <message>
         <source>Current&quot;Decode As&quot; behavior</source>
-        <translation type="unfinished"></translation>
+        <translation>当前“解码为”行为</translation>
     </message>
     <message>
         <source>Default &quot;Decode As&quot; behavior</source>
-        <translation type="unfinished"></translation>
+        <translation>默认“解码为”行为</translation>
     </message>
     <message>
         <source>Change behavior when the protocol field matches this value</source>
-        <translation type="unfinished"></translation>
+        <translation>协议字段与此值匹配时更改行为</translation>
     </message>
     <message>
         <source>String</source>
-        <translation type="unfinished">字符串</translation>
+        <translation>字符串</translation>
     </message>
     <message>
         <source>Integer, base </source>
-        <translation type="unfinished"></translation>
+        <translation>整数，基数 </translation>
     </message>
     <message>
         <source>unknown</source>
-        <translation type="unfinished">未知</translation>
+        <translation>未知</translation>
     </message>
     <message>
         <source>&lt;none&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;无&gt;</translation>
     </message>
     <message>
         <source>GUID</source>
-        <translation type="unfinished"></translation>
+        <translation>GUID</translation>
     </message>
     <message>
         <source>Field</source>
-        <translation type="unfinished"></translation>
+        <translation>字段</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished">值</translation>
+        <translation>值</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">类型</translation>
+        <translation>类型</translation>
     </message>
     <message>
         <source>Default</source>
-        <translation type="unfinished"></translation>
+        <translation>默认</translation>
     </message>
     <message>
         <source>Current</source>
-        <translation type="unfinished"></translation>
+        <translation>当前</translation>
     </message>
 </context>
 <context>
     <name>DisplayFilterCombo</name>
     <message>
         <source>Display filter selector</source>
-        <translation type="unfinished"></translation>
+        <translation>显示过滤选择器</translation>
     </message>
     <message>
         <source>Select from previously used filters.</source>
-        <translation type="unfinished"></translation>
+        <translation>从以前使用的过滤器中选择。</translation>
     </message>
 </context>
 <context>
     <name>DisplayFilterEdit</name>
     <message>
         <source>Display filter entry</source>
-        <translation type="unfinished"></translation>
+        <translation>显示过滤器条目</translation>
     </message>
     <message>
         <source>Manage saved bookmarks.</source>
-        <translation type="unfinished"></translation>
+        <translation>管理保存的书签。</translation>
     </message>
     <message>
         <source>Apply this filter string to the display.</source>
-        <translation type="unfinished"></translation>
+        <translation>将此过滤字符串应用于显示。</translation>
     </message>
     <message>
         <source>Apply a display filter %1 &lt;%2/&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>应用显示过滤器 %1 &lt;%2/&gt;</translation>
     </message>
     <message>
         <source>Enter a display filter %1</source>
-        <translation type="unfinished"></translation>
+        <translation>输入显示过滤器 %1</translation>
     </message>
     <message>
         <source>Apply a read filter %1</source>
-        <translation type="unfinished"></translation>
+        <translation>应用读取过滤器 %1</translation>
     </message>
     <message>
         <source>Invalid filter: </source>
-        <translation type="unfinished"></translation>
+        <translation>无效的过滤器： </translation>
     </message>
     <message>
         <source>Save this filter</source>
-        <translation type="unfinished"></translation>
+        <translation>保存此过滤器</translation>
     </message>
     <message>
         <source>Remove this filter</source>
-        <translation type="unfinished"></translation>
+        <translation>删除此过滤器</translation>
     </message>
     <message>
         <source>Manage Display Filters</source>
-        <translation type="unfinished"></translation>
+        <translation>管理显示过滤器</translation>
     </message>
     <message>
         <source>Manage Filter Expressions</source>
-        <translation type="unfinished"></translation>
+        <translation>管理过滤器表达式</translation>
     </message>
 </context>
 <context>
@@ -1810,7 +1819,9 @@ PLEASE NOTE: One option MUST be selected.</source>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Relations can be used to restrict fields to specific values. Each relation does the following:&lt;/p&gt;&lt;table border=&quot;0&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;&quot; cellspacing=&quot;2&quot; cellpadding=&quot;0&quot;&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;is present&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Match any packet that contains this field&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;==, !=, etc.&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Compare the field to a specific value.&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;contains, matches&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Check the field against a string (contains) or a regular expression (matches)&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;in&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Compare the field to a specific set of values&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;
 
 </source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;关系可用于将字段限制为特定值。每个关系可执行以下操作：&lt;/p&gt;&lt;table border=&quot;0&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;&quot; cellspacing=&quot;2&quot; cellpadding=&quot;0&quot;&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;存在&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;匹配包含此字段的任何分组&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;==，!=，等&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;将字段与特定值进行比较。&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;包含，匹配&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;根据字符串（包含）或正则表达式（匹配）检查字段&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;属于&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;将字段与特定值集合进行比较&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;
+
+</translation>
     </message>
     <message>
         <source>Relation</source>
@@ -1869,7 +1880,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Search:</source>
-        <translation type="unfinished"></translation>
+        <translation>搜索：</translation>
     </message>
     <message>
         <source>Dissector Tables</source>
@@ -1880,35 +1891,35 @@ PLEASE NOTE: One option MUST be selected.</source>
     <name>DissectorTablesProxyModel</name>
     <message>
         <source>Table Type</source>
-        <translation type="unfinished"></translation>
+        <translation>表类型</translation>
     </message>
     <message>
         <source>String</source>
-        <translation type="unfinished">字符串</translation>
+        <translation>字符串</translation>
     </message>
     <message>
         <source>Dissector</source>
-        <translation type="unfinished"></translation>
+        <translation>解析器</translation>
     </message>
     <message>
         <source>Integer</source>
-        <translation type="unfinished"></translation>
+        <translation>整数</translation>
     </message>
     <message>
         <source>Protocol</source>
-        <translation type="unfinished">协议</translation>
+        <translation>协议</translation>
     </message>
     <message>
         <source>Short Name</source>
-        <translation type="unfinished"></translation>
+        <translation>简称</translation>
     </message>
     <message>
         <source>Table Name</source>
-        <translation type="unfinished"></translation>
+        <translation>表名称</translation>
     </message>
     <message>
         <source>Selector Name</source>
-        <translation type="unfinished"></translation>
+        <translation>选择器名称</translation>
     </message>
 </context>
 <context>
@@ -1946,11 +1957,11 @@ PLEASE NOTE: One option MUST be selected.</source>
     <name>EnabledProtocolsModel</name>
     <message>
         <source>Protocol</source>
-        <translation type="unfinished">协议</translation>
+        <translation>协议</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation type="unfinished">描述</translation>
+        <translation>描述</translation>
     </message>
 </context>
 <context>
@@ -2029,11 +2040,11 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Collapse All</source>
-        <translation type="unfinished"></translation>
+        <translation>全部折叠</translation>
     </message>
     <message>
         <source>Expand All</source>
-        <translation type="unfinished"></translation>
+        <translation>全部展开</translation>
     </message>
     <message>
         <source>Capture file closed.</source>
@@ -2060,27 +2071,27 @@ PLEASE NOTE: One option MUST be selected.</source>
     <name>ExpertInfoProxyModel</name>
     <message>
         <source>Packet</source>
-        <translation type="unfinished">分组</translation>
+        <translation>分组</translation>
     </message>
     <message>
         <source>Severity</source>
-        <translation type="unfinished"></translation>
+        <translation>严重</translation>
     </message>
     <message>
         <source>Summary</source>
-        <translation type="unfinished"></translation>
+        <translation>概要</translation>
     </message>
     <message>
         <source>Group</source>
-        <translation type="unfinished"></translation>
+        <translation>组</translation>
     </message>
     <message>
         <source>Protocol</source>
-        <translation type="unfinished">协议</translation>
+        <translation>协议</translation>
     </message>
     <message>
         <source>Count</source>
-        <translation type="unfinished">计数</translation>
+        <translation>计数</translation>
     </message>
 </context>
 <context>
@@ -2157,23 +2168,23 @@ PLEASE NOTE: One option MUST be selected.</source>
     <name>ExportObjectModel</name>
     <message>
         <source>Packet</source>
-        <translation type="unfinished">分组</translation>
+        <translation>分组</translation>
     </message>
     <message>
         <source>Hostname</source>
-        <translation type="unfinished"></translation>
+        <translation>主机名</translation>
     </message>
     <message>
         <source>Content Type</source>
-        <translation type="unfinished"></translation>
+        <translation>内容类型</translation>
     </message>
     <message>
         <source>Size</source>
-        <translation type="unfinished"></translation>
+        <translation>大小</translation>
     </message>
     <message>
         <source>Filename</source>
-        <translation type="unfinished"></translation>
+        <translation>文件名</translation>
     </message>
 </context>
 <context>
@@ -2225,15 +2236,15 @@ PLEASE NOTE: One option MUST be selected.</source>
     <name>FieldFilterEdit</name>
     <message>
         <source>Display filter entry</source>
-        <translation type="unfinished"></translation>
+        <translation>显示过滤器条目</translation>
     </message>
     <message>
         <source>Enter a field %1</source>
-        <translation type="unfinished"></translation>
+        <translation>输入字段 %1</translation>
     </message>
     <message>
         <source>Invalid filter: </source>
-        <translation type="unfinished"></translation>
+        <translation>无效的过滤器：</translation>
     </message>
 </context>
 <context>
@@ -2266,23 +2277,23 @@ PLEASE NOTE: One option MUST be selected.</source>
     <name>FilesetEntryModel</name>
     <message>
         <source>Open this capture file</source>
-        <translation type="unfinished"></translation>
+        <translation>打开此捕获文件</translation>
     </message>
     <message>
         <source>Filename</source>
-        <translation type="unfinished"></translation>
+        <translation>文件名</translation>
     </message>
     <message>
         <source>Created</source>
-        <translation type="unfinished"></translation>
+        <translation>创建</translation>
     </message>
     <message>
         <source>Modified</source>
-        <translation type="unfinished"></translation>
+        <translation>修改</translation>
     </message>
     <message>
         <source>Size</source>
-        <translation type="unfinished"></translation>
+        <translation>大小</translation>
     </message>
 </context>
 <context>
@@ -2321,7 +2332,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>New filter</source>
-        <translation>新过滤器</translation>
+        <translation>新建过滤器</translation>
     </message>
     <message>
         <source>New capture filter</source>
@@ -2342,7 +2353,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Filter Buttons Preferences…</source>
-        <translation type="unfinished"></translation>
+        <translation>过滤器按钮首选项…</translation>
     </message>
     <message>
         <source>Label:</source>
@@ -2358,7 +2369,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Enter a filter expression to be applied</source>
-        <translation type="unfinished"></translation>
+        <translation>输入要应用的过滤器表达式</translation>
     </message>
     <message>
         <source>Comment:</source>
@@ -2366,30 +2377,30 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Enter a comment for the filter button</source>
-        <translation type="unfinished"></translation>
+        <translation>输入过滤器按钮的注释</translation>
     </message>
     <message>
         <source>Missing label.</source>
-        <translation type="unfinished"></translation>
+        <translation>缺少标签。</translation>
     </message>
     <message>
         <source>Missing filter expression.</source>
-        <translation type="unfinished"></translation>
+        <translation>缺少过滤器表达式。</translation>
     </message>
     <message>
         <source>Invalid filter expression.</source>
-        <translation type="unfinished"></translation>
+        <translation>过滤器表达式无效。</translation>
     </message>
 </context>
 <context>
     <name>FindLineEdit</name>
     <message>
         <source>Textual Find</source>
-        <translation type="unfinished"></translation>
+        <translation>文本查找</translation>
     </message>
     <message>
         <source>Regular Expression Find</source>
-        <translation type="unfinished"></translation>
+        <translation>正则表达式查找</translation>
     </message>
 </context>
 <context>
@@ -2463,115 +2474,127 @@ PLEASE NOTE: One option MUST be selected.</source>
     <name>FolderListModel</name>
     <message>
         <source>&quot;File&quot; dialogs</source>
-        <translation type="unfinished"></translation>
+        <translation>“文件”对话框</translation>
     </message>
     <message>
         <source>capture files</source>
-        <translation type="unfinished"></translation>
+        <translation>捕获文件</translation>
     </message>
     <message>
         <source>Temp</source>
-        <translation type="unfinished"></translation>
+        <translation>Temp</translation>
     </message>
     <message>
         <source>untitled capture files</source>
-        <translation type="unfinished"></translation>
+        <translation>untitled capture files</translation>
     </message>
     <message>
         <source>Personal configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>个人配置</translation>
     </message>
     <message>
         <source>dfilters, preferences, ethers, </source>
-        <translation type="unfinished"></translation>
+        <translation>dfilters, preferences, ethers, </translation>
     </message>
     <message>
         <source>Global configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>全局配置</translation>
     </message>
     <message>
         <source>dfilters, preferences, manuf, </source>
-        <translation type="unfinished"></translation>
+        <translation>dfilters, preferences, manuf, </translation>
     </message>
     <message>
         <source>System</source>
-        <translation type="unfinished"></translation>
+        <translation>System</translation>
     </message>
     <message>
         <source>ethers, ipxnets</source>
-        <translation type="unfinished"></translation>
+        <translation>ethers, ipxnets</translation>
     </message>
     <message>
         <source>Program</source>
-        <translation type="unfinished"></translation>
+        <translation>Program</translation>
     </message>
     <message>
         <source>program files</source>
-        <translation type="unfinished"></translation>
+        <translation>program files</translation>
     </message>
     <message>
         <source>Personal Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>个人插件</translation>
     </message>
     <message>
         <source>binary plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>二进制插件</translation>
     </message>
     <message>
         <source>Global Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>全局插件</translation>
     </message>
     <message>
         <source>Personal Lua Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>个人 Lua 插件</translation>
     </message>
     <message>
         <source>lua scripts</source>
-        <translation type="unfinished"></translation>
+        <translation>lua 脚本</translation>
     </message>
     <message>
         <source>Global Lua Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>全局 Lua 插件</translation>
     </message>
     <message>
         <source>Extcap path</source>
-        <translation type="unfinished"></translation>
+        <translation>Extcap 路径</translation>
     </message>
     <message>
         <source>Extcap Plugins search path</source>
-        <translation type="unfinished"></translation>
+        <translation>Extcap 插件搜索路径</translation>
     </message>
     <message>
         <source>MaxMind DB path</source>
-        <translation type="unfinished"></translation>
+        <translation>MaxMind DB 路径</translation>
     </message>
     <message>
         <source>MaxMind DB database search path</source>
-        <translation type="unfinished"></translation>
+        <translation>MaxMind DB 数据库搜索路径</translation>
     </message>
     <message>
         <source>MIB/PIB path</source>
-        <translation type="unfinished"></translation>
+        <translation>MIB/PIB路径</translation>
     </message>
     <message>
         <source>SMI MIB/PIB search path</source>
-        <translation type="unfinished"></translation>
+        <translation>SMI MIB/PIB搜索路径</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">名称</translation>
+        <translation>名称</translation>
     </message>
     <message>
         <source>Location</source>
-        <translation type="unfinished"></translation>
+        <translation>位置</translation>
     </message>
     <message>
         <source>Typical Files</source>
-        <translation type="unfinished"></translation>
+        <translation>典型文件</translation>
     </message>
 </context>
 <context>
     <name>FollowStreamDialog</name>
+    <message numerus="yes">
+        <source>%Ln client pkt(s), </source>
+        <translation type="vanished">
+            <numerusform>%Ln 客户端 pkt(s)，</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln server pkt(s), </source>
+        <translation type="vanished">
+            <numerusform>%Ln 服务器 pkt(s)，</numerusform>
+        </translation>
+    </message>
     <message>
         <source>ASCII</source>
         <translation>ASCII</translation>
@@ -2627,13 +2650,13 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt; pkt(s), </source>
         <translation>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;客户端&lt;/span&gt; 分组, </numerusform>
+            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;客户端&lt;/span&gt; 分组，</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;server&lt;/span&gt; pkt(s), </source>
         <translation>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;服务器&lt;/span&gt; 分组, </numerusform>
+            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;服务器&lt;/span&gt; 分组，</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2648,7 +2671,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Regex Find:</source>
-        <translation type="unfinished"></translation>
+        <translation>正则表达式查找：</translation>
     </message>
     <message>
         <source>Save Stream Content As</source>
@@ -2656,7 +2679,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>[Stream output truncated]</source>
-        <translation type="unfinished"></translation>
+        <translation>[流输出被截断]</translation>
     </message>
     <message>
         <source>No capture file.</source>
@@ -2694,7 +2717,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Entire conversation (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>整个对话（%1）</translation>
     </message>
     <message>
         <source>Follow %1 Stream (%2)</source>
@@ -2773,7 +2796,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Sample warning filter</source>
-        <translation type="unfinished"></translation>
+        <translation>样本警告过滤器</translation>
     </message>
     <message>
         <source>Font</source>
@@ -2976,7 +2999,7 @@ PLEASE NOTE: One option MUST be selected.</source>
 &lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;上移 1 个像素&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;下移 1 个像素&lt;/td&gt;&lt;/th&gt;
 
-&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;转到光标下的数据包&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;转到光标下的分组&lt;/td&gt;&lt;/th&gt;
 
 &lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;切换鼠标 拖动/缩放&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;切换 捕获/会话 时间起源&lt;/td&gt;&lt;/th&gt;
@@ -3295,7 +3318,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Click to select a portion of the graph.</source>
-        <translation>点击选择图形的一部分.</translation>
+        <translation>点击选择图形的一部分。</translation>
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>
@@ -3777,7 +3800,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>The maximum size of the frames to write to the import capture file (max 256kiB)</source>
-        <translation type="unfinished"></translation>
+        <translation>要写入导入捕获文件的帧的最大大小（最大 256 kiB）</translation>
     </message>
     <message>
         <source>Import From Hex Dump</source>
@@ -3864,14 +3887,14 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>External capture interfaces disabled.</source>
-        <translation type="unfinished"></translation>
+        <translation>已禁用外部捕获接口。</translation>
     </message>
 </context>
 <context>
     <name>InterfaceSortFilterModel</name>
     <message>
         <source>No interfaces to be displayed. %1 interfaces hidden.</source>
-        <translation type="unfinished"></translation>
+        <translation>没有要显示的接口。 %1 接口隐藏。</translation>
     </message>
 </context>
 <context>
@@ -3893,89 +3916,89 @@ PLEASE NOTE: One option MUST be selected.</source>
     <name>InterfaceToolbarLineEdit</name>
     <message>
         <source>Apply changes</source>
-        <translation type="unfinished"></translation>
+        <translation>应用更改</translation>
     </message>
 </context>
 <context>
     <name>InterfaceTreeModel</name>
     <message>
         <source>No Interfaces found.</source>
-        <translation type="unfinished"></translation>
+        <translation>没有找到接口。</translation>
     </message>
     <message>
         <source>Show</source>
-        <translation type="unfinished">显示</translation>
+        <translation>显示</translation>
     </message>
     <message>
         <source>Interface Name</source>
-        <translation type="unfinished"></translation>
+        <translation>接口名称</translation>
     </message>
     <message>
         <source>Friendly Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Friendly Name</translation>
     </message>
     <message>
         <source>Local Pipe Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Local Pipe Path</translation>
     </message>
     <message>
         <source>Comment</source>
-        <translation type="unfinished">注释</translation>
+        <translation>注释</translation>
     </message>
     <message>
         <source>Link-Layer Header</source>
-        <translation type="unfinished"></translation>
+        <translation>链路层标头</translation>
     </message>
     <message>
         <source>Promiscuous</source>
-        <translation type="unfinished">混杂</translation>
+        <translation>混杂</translation>
     </message>
     <message>
         <source>Snaplen (B)</source>
-        <translation type="unfinished">Snap长度 (B)</translation>
+        <translation>Snaplen (B)</translation>
     </message>
     <message>
         <source>Buffer (MB)</source>
-        <translation type="unfinished">缓存 (MB)</translation>
+        <translation>Buffer (MB)</translation>
     </message>
     <message>
         <source>Monitor Mode</source>
-        <translation type="unfinished">监控模式</translation>
+        <translation>监控模式</translation>
     </message>
     <message>
         <source>Capture Filter</source>
-        <translation type="unfinished">捕获过滤器</translation>
+        <translation>捕获过滤器</translation>
     </message>
     <message>
         <source>Addresses</source>
-        <translation type="unfinished">地址</translation>
+        <translation>地址</translation>
     </message>
     <message>
         <source>Address</source>
-        <translation type="unfinished">地址</translation>
+        <translation>地址</translation>
     </message>
     <message>
         <source>Extcap interface: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>ExtCap 接口：%1</translation>
     </message>
     <message>
         <source>No addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>无地址</translation>
     </message>
     <message>
         <source>No capture filter</source>
-        <translation type="unfinished"></translation>
+        <translation>无捕获过滤器</translation>
     </message>
     <message>
         <source>Capture filter</source>
-        <translation type="unfinished">捕获过滤器</translation>
+        <translation>捕获过滤器</translation>
     </message>
 </context>
 <context>
     <name>LBMLBTRMTransportDialog</name>
     <message>
         <source>LBT-RM Transport Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>LBT-RM 传输统计</translation>
     </message>
     <message>
         <source>Sources</source>
@@ -4260,7 +4283,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <name>LBMLBTRUTransportDialog</name>
     <message>
         <source>LBT-RU Transport Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>LBT-RU 传输统计</translation>
     </message>
     <message>
         <source>Sources</source>
@@ -4821,11 +4844,11 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Packet List settings:</source>
-        <translation type="unfinished"></translation>
+        <translation>分组列表设置：</translation>
     </message>
     <message>
         <source>Show packet separator</source>
-        <translation type="unfinished"></translation>
+        <translation>显示分组分隔符</translation>
     </message>
     <message>
         <source>Status Bar settings:</source>
@@ -4833,7 +4856,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Show selected packet number</source>
-        <translation type="unfinished"></translation>
+        <translation>显示所选分组编号</translation>
     </message>
     <message>
         <source>Show file load time</source>
@@ -4945,11 +4968,11 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Switch the direction of the connection (view the opposite flow).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;切换连接的方向（查看反向流）。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;切换连接方向（查看相反的流程）。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Switch Direction</source>
-        <translation type="unfinished">切换方向</translation>
+        <translation>切换方向</translation>
     </message>
     <message>
         <source>Reset Graph</source>
@@ -5129,11 +5152,11 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Switch direction (swap between UL and DL)</source>
-        <translation type="unfinished"></translation>
+        <translation>切换方向（UL 和 DL 之间的交换）</translation>
     </message>
     <message>
         <source>D</source>
-        <translation type="unfinished">D</translation>
+        <translation>D</translation>
     </message>
     <message>
         <source>Time</source>
@@ -5153,7 +5176,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Save As</source>
-        <translation type="unfinished">另存为</translation>
+        <translation>另存为</translation>
     </message>
     <message>
         <source>%1 %2 (%3s seq %4 len %5)</source>
@@ -5181,23 +5204,23 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>
-        <translation type="unfinished">便携式文档格式 (*.pdf)</translation>
+        <translation>可移植文档格式 (*.pdf)</translation>
     </message>
     <message>
         <source>Portable Network Graphics (*.png)</source>
-        <translation type="unfinished">便携式网络图形格式 (*.png)</translation>
+        <translation>便携式网络图形 (*.png)</translation>
     </message>
     <message>
         <source>Windows Bitmap (*.bmp)</source>
-        <translation type="unfinished">Windows 位图 (*.bmp)</translation>
+        <translation>Windows 位图 (*.bmp)</translation>
     </message>
     <message>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation type="unfinished"></translation>
+        <translation>JPEG 文件交换格式 (*.jpeg *.jpg)</translation>
     </message>
     <message>
         <source>Save Graph As</source>
-        <translation type="unfinished"></translation>
+        <translation>保存图为</translation>
     </message>
 </context>
 <context>
@@ -5307,27 +5330,27 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>, 1 byte</source>
-        <translation type="unfinished"></translation>
+        <translation>, 1 byte</translation>
     </message>
     <message>
         <source>, %1 bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>, %1 bytes</translation>
     </message>
     <message>
         <source>Byte %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Byte %1</translation>
     </message>
     <message>
         <source>Bytes %1-%2</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes %1-%2</translation>
     </message>
     <message>
         <source>Profile: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>配置：%1</translation>
     </message>
     <message>
         <source>Selected Packet: %1 %2 </source>
-        <translation type="unfinished"></translation>
+        <translation>所选分组：%1 %2 </translation>
     </message>
     <message>
         <source>Packets: %1</source>
@@ -5390,18 +5413,18 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>All interfaces shown</source>
-        <translation type="unfinished"></translation>
+        <translation>显示所有接口</translation>
     </message>
     <message numerus="yes">
         <source>%n interface(s) shown, %1 hidden</source>
         <oldsource>%Ln interface(s) shown</oldsource>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>显示了 %n 个接口，隐藏了 %1 个</numerusform>
         </translation>
     </message>
     <message>
         <source>You are sniffing the glue that holds the Internet together using Wireshark </source>
-        <translation type="unfinished"></translation>
+        <translation>你正在使用 Wireshark 嗅探互联网的联机</translation>
     </message>
     <message>
         <source>You are running Wireshark </source>
@@ -5635,7 +5658,7 @@ text-decoration: underline;
     </message>
     <message>
         <source>Are you sure you want to remove all packet comments?</source>
-        <translation type="unfinished"></translation>
+        <translation>确实要删除所有分组注释吗？</translation>
     </message>
     <message>
         <source>Unable to build conversation filter.</source>
@@ -5675,7 +5698,7 @@ text-decoration: underline;
     </message>
     <message>
         <source>Filter Button Preferences...</source>
-        <translation type="unfinished"></translation>
+        <translation>筛选器按钮首选项...</translation>
     </message>
     <message>
         <source>Edit</source>
@@ -6079,11 +6102,11 @@ text-decoration: underline;
     </message>
     <message>
         <source>Collapse Subtrees</source>
-        <translation type="unfinished"></translation>
+        <translation>折叠子树</translation>
     </message>
     <message>
         <source>Collapse the current packet detail</source>
-        <translation type="unfinished"></translation>
+        <translation>折叠当前分组详细信息</translation>
     </message>
     <message>
         <source>&amp;Expand All</source>
@@ -6483,11 +6506,11 @@ text-decoration: underline;
     </message>
     <message>
         <source>Delete All Packet Comments</source>
-        <translation type="unfinished"></translation>
+        <translation>删除所有分组注释</translation>
     </message>
     <message>
         <source>Remove all packet comments in the capture file</source>
-        <translation type="unfinished"></translation>
+        <translation>删除捕获文件中的所有分组注释</translation>
     </message>
     <message>
         <source>Configuration Profiles…</source>
@@ -6711,11 +6734,11 @@ text-decoration: underline;
     </message>
     <message>
         <source>Request Sequences</source>
-        <translation type="unfinished"></translation>
+        <translation>请求序列</translation>
     </message>
     <message>
         <source>HTTP Request Sequences</source>
-        <translation type="unfinished"></translation>
+        <translation>HTTP 请求序列</translation>
     </message>
     <message>
         <source>Packet Lengths</source>
@@ -6743,7 +6766,7 @@ text-decoration: underline;
     </message>
     <message>
         <source>Osmux packet counts</source>
-        <translation type="unfinished"></translation>
+        <translation>OSMUX 分组计数</translation>
     </message>
     <message>
         <source>RTSP packet counts</source>
@@ -6831,7 +6854,7 @@ text-decoration: underline;
     </message>
     <message>
         <source>Filter this Association</source>
-        <translation>筛选该助手</translation>
+        <translation>过滤该助手</translation>
     </message>
     <message>
         <source>Export PDUs to File…</source>
@@ -7743,11 +7766,11 @@ text-decoration: underline;
     </message>
     <message>
         <source>First packet</source>
-        <translation>首个数据包</translation>
+        <translation>首个分组</translation>
     </message>
     <message>
         <source>Last packet</source>
-        <translation>最后数据包</translation>
+        <translation>最后分组</translation>
     </message>
     <message>
         <source>Elapsed</source>
@@ -7932,11 +7955,11 @@ text-decoration: underline;
     </message>
     <message>
         <source>Byte %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Byte %1</translation>
     </message>
     <message>
         <source>Bytes %1-%2</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytes %1-%2</translation>
     </message>
 </context>
 <context>
@@ -7959,7 +7982,7 @@ text-decoration: underline;
     </message>
     <message>
         <source>Include column headings</source>
-        <translation type="unfinished"></translation>
+        <translation>包括列标题</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Packet details similar to the protocol tree&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -8056,11 +8079,11 @@ text-decoration: underline;
     <name>PacketListModel</name>
     <message>
         <source>Dissecting</source>
-        <translation type="unfinished"></translation>
+        <translation>解析</translation>
     </message>
     <message>
         <source>Sorting &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>排序“%1”</translation>
     </message>
 </context>
 <context>
@@ -8114,34 +8137,34 @@ text-decoration: underline;
     <name>PathChooserDelegate</name>
     <message>
         <source>Browse</source>
-        <translation type="unfinished">浏览</translation>
+        <translation>浏览</translation>
     </message>
     <message>
         <source>Open Pipe</source>
-        <translation type="unfinished"></translation>
+        <translation>打开管道</translation>
     </message>
 </context>
 <context>
     <name>PluginListModel</name>
     <message>
         <source>extcap</source>
-        <translation type="unfinished"></translation>
+        <translation>extcap</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">名称</translation>
+        <translation>名称</translation>
     </message>
     <message>
         <source>Version</source>
-        <translation type="unfinished"></translation>
+        <translation>版本</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">类型</translation>
+        <translation>类型</translation>
     </message>
     <message>
         <source>Path</source>
-        <translation type="unfinished"></translation>
+        <translation>路径</translation>
     </message>
 </context>
 <context>
@@ -8164,7 +8187,7 @@ text-decoration: underline;
     </message>
     <message>
         <source>Invalid value.</source>
-        <translation type="unfinished"></translation>
+        <translation>无效值。</translation>
     </message>
 </context>
 <context>
@@ -8183,35 +8206,35 @@ text-decoration: underline;
     <message>
         <source>Advanced</source>
         <extracomment>Names of special preferences handled by the GUI</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>高级</translation>
     </message>
     <message>
         <source>Appearance</source>
-        <translation type="unfinished"></translation>
+        <translation>外观</translation>
     </message>
     <message>
         <source>Layout</source>
-        <translation type="unfinished"></translation>
+        <translation>布局</translation>
     </message>
     <message>
         <source>Columns</source>
-        <translation type="unfinished"></translation>
+        <translation>列</translation>
     </message>
     <message>
         <source>Font and Colors</source>
-        <translation type="unfinished"></translation>
+        <translation>字体和颜色</translation>
     </message>
     <message>
         <source>Capture</source>
-        <translation type="unfinished">捕获</translation>
+        <translation>捕获</translation>
     </message>
     <message>
         <source>Expert</source>
-        <translation type="unfinished"></translation>
+        <translation>Expert专家</translation>
     </message>
     <message>
         <source>Filter Buttons</source>
-        <translation type="unfinished"></translation>
+        <translation>过滤器按钮</translation>
     </message>
 </context>
 <context>
@@ -8460,19 +8483,19 @@ text-decoration: underline;
     <name>QObject</name>
     <message>
         <source>Error</source>
-        <translation type="unfinished">错误</translation>
+        <translation>错误</translation>
     </message>
     <message>
         <source>No remote interfaces found.</source>
-        <translation type="unfinished">远程接口没有发现。</translation>
+        <translation>找不到远程接口。</translation>
     </message>
     <message>
         <source>PCAP not found</source>
-        <translation type="unfinished">PCAP没有发现</translation>
+        <translation>找不到 PCAP</translation>
     </message>
     <message>
         <source>Unknown error</source>
-        <translation type="unfinished"></translation>
+        <translation>未知错误</translation>
     </message>
     <message>
         <source>%1 (%L2%)</source>
@@ -8484,7 +8507,7 @@ text-decoration: underline;
     </message>
     <message>
         <source>Bars show the relative timeline for each conversation.</source>
-        <translation type="unfinished"></translation>
+        <translation>条形图显示每个对话的相对时间线。</translation>
     </message>
     <message>
         <source>default</source>
@@ -8504,19 +8527,19 @@ text-decoration: underline;
     </message>
     <message>
         <source>Default</source>
-        <translation type="unfinished"></translation>
+        <translation>默认</translation>
     </message>
     <message>
         <source>Changed</source>
-        <translation type="unfinished"></translation>
+        <translation>已更改</translation>
     </message>
     <message>
         <source>Has this preference been changed?</source>
-        <translation type="unfinished"></translation>
+        <translation>此首选项是否已更改？</translation>
     </message>
     <message>
         <source>Default value is empty</source>
-        <translation type="unfinished"></translation>
+        <translation>默认值为空</translation>
     </message>
     <message>
         <source>New coloring rule</source>
@@ -8836,11 +8859,11 @@ text-decoration: underline;
     </message>
     <message>
         <source>Invalid Display Filter</source>
-        <translation type="unfinished">无效显示过滤器</translation>
+        <translation>无效显示过滤器</translation>
     </message>
     <message>
         <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
-        <translation type="unfinished"></translation>
+        <translation>过滤器表达式 %1 不是有效的显示过滤器 (%2)。</translation>
     </message>
 </context>
 <context>
@@ -8929,7 +8952,7 @@ text-decoration: underline;
     </message>
     <message>
         <source>1 of</source>
-        <translation>1 of</translation>
+        <translation>1 共</translation>
     </message>
     <message>
         <source>packets</source>
@@ -8937,7 +8960,7 @@ text-decoration: underline;
     </message>
     <message>
         <source>1 every </source>
-        <translation>1 every</translation>
+        <translation>1 每</translation>
     </message>
     <message>
         <source>milliseconds</source>
@@ -9390,35 +9413,35 @@ text-decoration: underline;
     </message>
     <message>
         <source>Stream Synchronized Forward Stream Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>流同步前向流音频</translation>
     </message>
     <message>
         <source>Save the forward stream audio data synchronized to start of earlier stream.</source>
-        <translation type="unfinished"></translation>
+        <translation>保存同步到前一个流开始的前向流音频数据。</translation>
     </message>
     <message>
         <source>Stream Synchronized Reverse Stream Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>流同步反向流音频</translation>
     </message>
     <message>
         <source>Save the reverse stream audio data synchronized to start of earlier stream.</source>
-        <translation type="unfinished"></translation>
+        <translation>保存与早期流开始同步的反向流音频数据。</translation>
     </message>
     <message>
         <source>File Synchronized Forward and Reverse Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>文件同步正向和反向音频</translation>
     </message>
     <message>
         <source>Save the audio data for both channels synchronized to start of file.</source>
-        <translation type="unfinished"></translation>
+        <translation>保存同步到文件开头的两个通道的音频数据。</translation>
     </message>
     <message>
         <source>File Synchronized Forward Stream Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>文件同步前向流音频</translation>
     </message>
     <message>
         <source>Save the forward stream audio data synchronized to start of file.</source>
-        <translation type="unfinished"></translation>
+        <translation>保存同步到文件开头的前向流音频数据。</translation>
     </message>
     <message>
         <source>File Synchronized Reverse Stream Audio</source>
@@ -9696,7 +9719,7 @@ text-decoration: underline;
 &lt;strong&gt;Uninterrupted Mode&lt;/strong&gt;: Ignore the RTP Timestamp. Play the stream as it is completed. This is useful when the RTP timestamp is missing.</source>
         <translation>&lt;strong&gt;Jitter Buffer&lt;/strong&gt;: 使用 jitter buffer 模拟终端用户收听 RTP 流。
 &lt;br/&gt;
-&lt;strong&gt;RTP 时间戳&lt;/strong&gt;: 使用 RTP 时间戳而不是到达的数据包的时间。当用户收听时不能重新生成 RTP 流，但是当 RTP 经过隧道并且原始的数据包时序缺失时非常有用。
+&lt;strong&gt;RTP 时间戳&lt;/strong&gt;: 使用 RTP 时间戳而不是到达的分组的时间。当用户收听时不能重新生成 RTP 流，但是当 RTP 经过隧道并且原始的分组时序缺失时非常有用。
 &lt;br/&gt;
 &lt;strong&gt;不间断模式&lt;/strong&gt;: 忽略 RTP 时间戳。播放流认为它是完整的。 这在 RTP 时间戳缺失时非常有用。</translation>
     </message>
@@ -9854,7 +9877,7 @@ text-decoration: underline;
     </message>
     <message>
         <source>%1. Press &quot;G&quot; to go to packet %2</source>
-        <translation>%1. 按 &quot;G&quot; 去到数据包 %2</translation>
+        <translation>%1. 按 &quot;G&quot; 去到分组 %2</translation>
     </message>
     <message>
         <source>Unknown</source>
@@ -10076,7 +10099,7 @@ text-decoration: underline;
     </message>
     <message>
         <source>Filter Selected Association</source>
-        <translation>筛选选择的助手</translation>
+        <translation>过滤选择的助手</translation>
     </message>
     <message>
         <source>Analyze</source>
@@ -10730,15 +10753,15 @@ text-decoration: underline;
     <name>ScsiServiceResponseTimeDialog</name>
     <message>
         <source>&lt;small&gt;&lt;i&gt;Select a command and enter a filter if desired, then press Apply.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;选择一个命令并根据需要输入过滤器，然后按 应用。&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Command:</source>
-        <translation type="unfinished"></translation>
+        <translation>命令：</translation>
     </message>
     <message>
         <source>SCSI Service Response Times</source>
-        <translation type="unfinished"></translation>
+        <translation>SCSI 服务响应时间</translation>
     </message>
 </context>
 <context>
@@ -10853,7 +10876,7 @@ text-decoration: underline;
     </message>
     <message>
         <source>No packet contained that string in its converted data.</source>
-        <translation>无分组转换后的数据包含该字符串。</translation>
+        <translation>无分组转换后的分组含该字符串。</translation>
     </message>
     <message>
         <source>No packet matched that filter.</source>
@@ -10963,9 +10986,9 @@ text-decoration: underline;
 &lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;上移 1 个像素&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;下移 1 个像素&lt;/td&gt;&lt;/th&gt;
 
-&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;转到光标下的数据包&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;n&lt;/th&gt;&lt;td&gt;转到下一个数据包&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;p&lt;/th&gt;&lt;td&gt;转到上一个数据包&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;转到光标下的分组&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;n&lt;/th&gt;&lt;td&gt;转到下一个分组&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;p&lt;/th&gt;&lt;td&gt;转到上一个分组&lt;/td&gt;&lt;/th&gt;
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;
@@ -10978,11 +11001,11 @@ text-decoration: underline;
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show flows matching the current display filter&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;仅显示与当前显示筛选器匹配的流&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Limit to display filter</source>
-        <translation type="unfinished">显示过滤器的限制</translation>
+        <translation>限制显示过滤器</translation>
     </message>
     <message>
         <source>Flow type:</source>
@@ -11157,15 +11180,15 @@ text-decoration: underline;
     <name>ShortcutListModel</name>
     <message>
         <source>Shortcut</source>
-        <translation type="unfinished"></translation>
+        <translation>快捷方式</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">名称</translation>
+        <translation>名称</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation type="unfinished">描述</translation>
+        <translation>描述</translation>
     </message>
 </context>
 <context>
@@ -11260,7 +11283,7 @@ text-decoration: underline;
     </message>
     <message>
         <source>Regex Find:</source>
-        <translation type="unfinished"></translation>
+        <translation>正则表达式查找：</translation>
     </message>
     <message>
         <source>Save Selected Packet Bytes As</source>
@@ -11322,7 +11345,7 @@ text-decoration: underline;
     </message>
     <message>
         <source>Initializing external capture plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>初始化外部捕获插件</translation>
     </message>
     <message>
         <source>Registering dissectors</source>
@@ -11403,26 +11426,26 @@ text-decoration: underline;
     <name>SupportedProtocolsModel</name>
     <message>
         <source>Name</source>
-        <translation type="unfinished">名称</translation>
+        <translation>名称</translation>
     </message>
     <message>
         <source>Filter</source>
-        <translation type="unfinished">过滤器</translation>
+        <translation>过滤器</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">类型</translation>
+        <translation>类型</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation type="unfinished">描述</translation>
+        <translation>描述</translation>
     </message>
 </context>
 <context>
     <name>SyntaxLineEdit</name>
     <message>
         <source>&quot;%1&quot; may have unexpected results (see the User&apos;s Guide)</source>
-        <translation type="unfinished"></translation>
+        <translation>“%1”可能有意外结果（请参阅用户指南）</translation>
     </message>
 </context>
 <context>
@@ -11519,15 +11542,15 @@ text-decoration: underline;
     </message>
     <message>
         <source>MA Window (s)</source>
-        <translation type="unfinished"></translation>
+        <translation>MA Window (s)</translation>
     </message>
     <message>
         <source>Allow SACK segments as well as data packets to be selected by clicking on the graph</source>
-        <translation>允许通过点击图表来选择 SACK 段及数据包</translation>
+        <translation>允许通过点击图表来选择 SACK 段及分组</translation>
     </message>
     <message>
         <source>Select SACKs</source>
-        <translation type="unfinished"></translation>
+        <translation>选择 SACKs</translation>
     </message>
     <message>
         <source>Stream</source>
@@ -11563,11 +11586,11 @@ text-decoration: underline;
     </message>
     <message>
         <source>Display Round Trip Time vs Sequence Number</source>
-        <translation type="unfinished"></translation>
+        <translation>显示往返时间与序列号</translation>
     </message>
     <message>
         <source>RTT By Sequence Number</source>
-        <translation type="unfinished"></translation>
+        <translation>RTT 按序列号</translation>
     </message>
     <message>
         <source>Display graph of Segment Length vs Time</source>
@@ -11911,7 +11934,7 @@ text-decoration: underline;
     </message>
     <message>
         <source> (MA)</source>
-        <translation type="unfinished"></translation>
+        <translation> (MA)</translation>
     </message>
     <message>
         <source> (%1 Segment MA)</source>
@@ -12104,7 +12127,7 @@ text-decoration: underline;
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show absolute times in the start time column.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;在开始时间列中显示绝对时间。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Absolute start time</source>
@@ -12159,15 +12182,15 @@ text-decoration: underline;
     </message>
     <message>
         <source>Move entry up.</source>
-        <translation type="unfinished"></translation>
+        <translation>向上移动条目。</translation>
     </message>
     <message>
         <source>Move entry down.</source>
-        <translation type="unfinished"></translation>
+        <translation>向下移动条目。</translation>
     </message>
     <message>
         <source>Clear all entries.</source>
-        <translation type="unfinished"></translation>
+        <translation>清除所有条目。</translation>
     </message>
     <message>
         <source>Unknown User Accessible Table</source>
@@ -12182,35 +12205,35 @@ text-decoration: underline;
     <name>UatFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>帧</translation>
     </message>
     <message>
         <source>Create a new entry.</source>
-        <translation type="unfinished">创建一个新项。</translation>
+        <translation>创建一个新条目。</translation>
     </message>
     <message>
         <source>Remove this entry.</source>
-        <translation type="unfinished">移除此项。</translation>
+        <translation>删除此条目。</translation>
     </message>
     <message>
         <source>Copy this entry.</source>
-        <translation type="unfinished">复制此项。</translation>
+        <translation>复制此条目。</translation>
     </message>
     <message>
         <source>Move entry up.</source>
-        <translation type="unfinished"></translation>
+        <translation>向上移动条目。</translation>
     </message>
     <message>
         <source>Move entry down.</source>
-        <translation type="unfinished"></translation>
+        <translation>向下移动条目。</translation>
     </message>
     <message>
         <source>Clear all entries.</source>
-        <translation type="unfinished"></translation>
+        <translation>清除所有条目。</translation>
     </message>
     <message>
         <source>Unknown User Accessible Table</source>
-        <translation type="unfinished">未知用户可访问表</translation>
+        <translation>未知用户可访问表</translation>
     </message>
     <message>
         <source>Open </source>
@@ -12288,55 +12311,55 @@ text-decoration: underline;
     <name>VoipCallsInfoModel</name>
     <message>
         <source>On</source>
-        <translation type="unfinished"></translation>
+        <translation>开</translation>
     </message>
     <message>
         <source>Off</source>
-        <translation type="unfinished"></translation>
+        <translation>关</translation>
     </message>
     <message>
         <source>Tunneling: %1  Fast Start: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>隧道：%1 快速启动：%2</translation>
     </message>
     <message>
         <source>Start Time</source>
-        <translation type="unfinished"></translation>
+        <translation>开始时间</translation>
     </message>
     <message>
         <source>Stop Time</source>
-        <translation type="unfinished"></translation>
+        <translation>停止时间</translation>
     </message>
     <message>
         <source>Initial Speaker</source>
-        <translation type="unfinished"></translation>
+        <translation>初始化扬声器</translation>
     </message>
     <message>
         <source>From</source>
-        <translation type="unfinished"></translation>
+        <translation>从</translation>
     </message>
     <message>
         <source>To</source>
-        <translation type="unfinished"></translation>
+        <translation>到</translation>
     </message>
     <message>
         <source>Protocol</source>
-        <translation type="unfinished">协议</translation>
+        <translation>协议</translation>
     </message>
     <message>
         <source>Duration</source>
-        <translation type="unfinished"></translation>
+        <translation>持续时间</translation>
     </message>
     <message>
         <source>Packets</source>
-        <translation type="unfinished">分组</translation>
+        <translation>分组</translation>
     </message>
     <message>
         <source>State</source>
-        <translation type="unfinished"></translation>
+        <translation>状态</translation>
     </message>
     <message>
         <source>Comments</source>
-        <translation type="unfinished"></translation>
+        <translation>注释</translation>
     </message>
 </context>
 <context>
