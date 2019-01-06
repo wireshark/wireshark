@@ -213,7 +213,6 @@ static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
                 n += 4;
                 if (data_length) {
                     proto_tree_add_item(tree, hf_sasl_auth_data, tvb, n, data_length, ENC_NA);
-                    n += data_length;
                 }
                 break;
 
