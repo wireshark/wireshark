@@ -1114,15 +1114,8 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 			curr_pos = strstr(curr_pos, "address == ");
 			if ((curr_pos) && (curr_pos < next_pos)) {
 				curr_pos += 11;
-				curr_pos = nettrace_parse_address(curr_pos, next_pos, FALSE/*DST */, &exported_pdu_info);
+				nettrace_parse_address(curr_pos, next_pos, FALSE/*DST */, &exported_pdu_info);
 			}
-			else {
-				/* address not found */
-				curr_pos = next_pos;
-			}
-		} else {
-			/* "<target>" not found */
-			curr_pos = prev_pos;
 		}
 
 		/* Do we have a raw msg?) */
