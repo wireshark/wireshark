@@ -540,7 +540,7 @@
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="112"/>
         <source>Subevent</source>
-        <translation type="unfinished"></translation>
+        <translation>Subevent</translation>
     </message>
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="117"/>
@@ -874,7 +874,7 @@
     <message>
         <location filename="capture_file_dialog.cpp" line="469"/>
         <source>Start / elapsed:</source>
-        <translation type="unfinished"></translation>
+        <translation>Start / upłynęło:</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="515"/>
@@ -895,10 +895,10 @@
         <location filename="capture_file_dialog.cpp" line="824"/>
         <source>%1, timed out at %Ln packet(s)</source>
         <oldsource>%1, timed out at %2 packets</oldsource>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%1, przekroczenie czasu przy %Ln pakiecie</numerusform>
+            <numerusform>%1, przekroczenie czasu przy %Ln pakiecie</numerusform>
+            <numerusform>%1, przekroczenie czasu przy %Ln pakiecie</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2181,7 +2181,9 @@ po którym zostanie użyty nowy plik przechwytywania, jeśli zamierzasz używać
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Relations can be used to restrict fields to specific values. Each relation does the following:&lt;/p&gt;&lt;table border=&quot;0&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;&quot; cellspacing=&quot;2&quot; cellpadding=&quot;0&quot;&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;is present&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Match any packet that contains this field&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;==, !=, etc.&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Compare the field to a specific value.&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;contains, matches&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Check the field against a string (contains) or a regular expression (matches)&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;in&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Compare the field to a specific set of values&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;
 
 </source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Relacji można użyć by ograniczyć wyszukiwanie pól do wybranych ich wartości. Każda relacja posiada następujące właściwości:&lt;/p&gt;&lt;table border=&quot;0&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;&quot; cellspacing=&quot;2&quot; cellpadding=&quot;0&quot;&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;is present&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Sprawdza czy jakiś pakiet zawiera dane pole&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;==, !=, itd.&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Porównuje z konkretną wartością.&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;contains, matches&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Sprawdza czy pole zawiera w sobie łańcuch znaków (contains) lub stosuje wyrażenie regularne (matches)&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;in&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Porównuje pole do wartości ze zbioru&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;
+
+</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="77"/>
@@ -2708,12 +2710,12 @@ po którym zostanie użyty nowy plik przechwytywania, jeśli zamierzasz używać
     <message>
         <location filename="extcap_options_dialog.cpp" line="344"/>
         <source>Extcap Help cannot be found</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie odnaleziono pomocy dla modułu Extcap</translation>
     </message>
     <message>
         <location filename="extcap_options_dialog.cpp" line="345"/>
         <source>The help for the extcap interface %1 cannot be found. Given file: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie znaleziono pomocy dla interfejsu extcap %1. Plik: %2</translation>
     </message>
     <message>
         <location filename="extcap_options_dialog.ui" line="33"/>
@@ -2790,10 +2792,10 @@ po którym zostanie użyty nowy plik przechwytywania, jeśli zamierzasz używać
         <location filename="file_set_dialog.cpp" line="137"/>
         <source>%Ln File(s) in Set</source>
         <oldsource>%1 File%2 in Set</oldsource>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln Plik w Zbiorze</numerusform>
+            <numerusform>%Ln Plików w Zbiorze</numerusform>
+            <numerusform>%Ln Plików w Zbiorze</numerusform>
         </translation>
     </message>
 </context>
@@ -2889,17 +2891,17 @@ po którym zostanie użyty nowy plik przechwytywania, jeśli zamierzasz używać
     <message>
         <location filename="filter_expression_frame.cpp" line="129"/>
         <source>Missing label.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak etykiety.</translation>
     </message>
     <message>
         <location filename="filter_expression_frame.cpp" line="131"/>
         <source>Missing filter expression.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak wyrażenia filtru.</translation>
     </message>
     <message>
         <location filename="filter_expression_frame.cpp" line="133"/>
         <source>Invalid filter expression.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błędne wyrażenie filtru.</translation>
     </message>
 </context>
 <context>
@@ -3046,6 +3048,22 @@ po którym zostanie użyty nowy plik przechwytywania, jeśli zamierzasz używać
         <oldsource>Save as...</oldsource>
         <translation>Zapisz jako</translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln client pkt(s), </source>
+        <translation type="vanished">
+            <numerusform>%Ln pakiet klienta,</numerusform>
+            <numerusform>%Ln pakiety klienta,</numerusform>
+            <numerusform>%Ln pakiety klienta,</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln server pkt(s), </source>
+        <translation type="vanished">
+            <numerusform>%Ln pakiet serwera,</numerusform>
+            <numerusform>%Ln pakiety serwera,</numerusform>
+            <numerusform>%Ln pakiety serwera,</numerusform>
+        </translation>
+    </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="119"/>
         <source>ASCII</source>
@@ -3099,28 +3117,28 @@ po którym zostanie użyty nowy plik przechwytywania, jeśli zamierzasz używać
     <message numerus="yes">
         <location filename="follow_stream_dialog.cpp" line="185"/>
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt; pkt(s), </source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln pakiet &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;klienta&lt;/span&gt;, </numerusform>
+            <numerusform>%Ln pakiety &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;klienta&lt;/span&gt;, </numerusform>
+            <numerusform>%Ln pakiety &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;klienta&lt;/span&gt;, </numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <location filename="follow_stream_dialog.cpp" line="188"/>
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;server&lt;/span&gt; pkt(s), </source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln pakiet &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;serwera&lt;/span&gt;,</numerusform>
+            <numerusform>%Ln pakiety &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;serwera&lt;/span&gt;, </numerusform>
+            <numerusform>%Ln pakiety &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;serwera&lt;/span&gt;, </numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <location filename="follow_stream_dialog.cpp" line="191"/>
         <source>%Ln turn(s).</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln próba.</numerusform>
+            <numerusform>%Ln prób.</numerusform>
+            <numerusform>%Ln prób.</numerusform>
         </translation>
     </message>
     <message>
@@ -3131,7 +3149,7 @@ po którym zostanie użyty nowy plik przechwytywania, jeśli zamierzasz używać
     <message>
         <location filename="follow_stream_dialog.cpp" line="245"/>
         <source>Regex Find:</source>
-        <translation type="unfinished"></translation>
+        <translation>Regex znajdź:</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="276"/>
@@ -3167,7 +3185,7 @@ po którym zostanie użyty nowy plik przechwytywania, jeśli zamierzasz używać
     <message>
         <location filename="follow_stream_dialog.cpp" line="940"/>
         <source>Entire conversation (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Cała konwersacja (%1)</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="944"/>
@@ -3182,7 +3200,7 @@ po którym zostanie użyty nowy plik przechwytywania, jeśli zamierzasz używać
     <message>
         <location filename="follow_stream_dialog.cpp" line="539"/>
         <source>[Stream output truncated]</source>
-        <translation type="unfinished"></translation>
+        <translation>[Obcięto dane strumienia]</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="850"/>
@@ -3193,10 +3211,10 @@ po którym zostanie użyty nowy plik przechwytywania, jeśli zamierzasz używać
         <location filename="follow_stream_dialog.cpp" line="881"/>
         <location filename="follow_stream_dialog.cpp" line="893"/>
         <source>%Ln total stream(s).</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln strumień.</numerusform>
+            <numerusform>%Ln strumieni.</numerusform>
+            <numerusform>%Ln strumieni.</numerusform>
         </translation>
     </message>
     <message>
@@ -3293,7 +3311,7 @@ po którym zostanie użyty nowy plik przechwytywania, jeśli zamierzasz używać
         <location filename="font_color_preferences_frame.ui" line="219"/>
         <source>Sample warning filter</source>
         <oldsource>Sample deprecated filter</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Przykładowy filtr z ostrzeżeniem</translation>
     </message>
     <message>
         <location filename="font_color_preferences_frame.cpp" line="192"/>
@@ -4256,7 +4274,7 @@ po którym zostanie użyty nowy plik przechwytywania, jeśli zamierzasz używać
         <location filename="iax2_analysis_dialog.cpp" line="323"/>
         <location filename="iax2_analysis_dialog.cpp" line="344"/>
         <source>Please select an IAX2 packet.</source>
-        <translation type="unfinished"></translation>
+        <translation>Proszę wybrać pakiet IAX2.</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="453"/>
@@ -4459,7 +4477,7 @@ po którym zostanie użyty nowy plik przechwytywania, jeśli zamierzasz używać
         <location filename="import_text_dialog.ui" line="470"/>
         <source>The maximum size of the frames to write to the import capture file (max 256kiB)</source>
         <oldsource>The maximum size of the frames to write to the import capture file (max 64000)</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Maksymalny rozmiar ramki do zapisu przy importowaniu pliku (max 256 KiB)</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="238"/>
@@ -4652,72 +4670,72 @@ po którym zostanie użyty nowy plik przechwytywania, jeśli zamierzasz używać
     <message>
         <location filename="interface_frame.ui" line="20"/>
         <source>Frame</source>
-        <translation type="unfinished">Ramka</translation>
+        <translation>Ramka</translation>
     </message>
     <message>
         <location filename="interface_frame.ui" line="50"/>
         <source>No interfaces found</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie znaleziono interfejsów</translation>
     </message>
     <message>
         <location filename="interface_frame.cpp" line="72"/>
         <source>Wired</source>
-        <translation type="unfinished"></translation>
+        <translation>Kablowy</translation>
     </message>
     <message>
         <location filename="interface_frame.cpp" line="73"/>
         <source>AirPCAP</source>
-        <translation type="unfinished"></translation>
+        <translation>AirPCAP</translation>
     </message>
     <message>
         <location filename="interface_frame.cpp" line="74"/>
         <source>Pipe</source>
-        <translation type="unfinished"></translation>
+        <translation>Rurowy</translation>
     </message>
     <message>
         <location filename="interface_frame.cpp" line="75"/>
         <source>STDIN</source>
-        <translation type="unfinished"></translation>
+        <translation>Przez standardowe wejście</translation>
     </message>
     <message>
         <location filename="interface_frame.cpp" line="76"/>
         <source>Bluetooth</source>
-        <translation type="unfinished"></translation>
+        <translation>Bluetooth</translation>
     </message>
     <message>
         <location filename="interface_frame.cpp" line="77"/>
         <source>Wireless</source>
-        <translation type="unfinished"></translation>
+        <translation>Bezprzewodowy</translation>
     </message>
     <message>
         <location filename="interface_frame.cpp" line="78"/>
         <source>Dial-Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Wdzwonieniowy</translation>
     </message>
     <message>
         <location filename="interface_frame.cpp" line="79"/>
         <source>USB</source>
-        <translation type="unfinished"></translation>
+        <translation>USB</translation>
     </message>
     <message>
         <location filename="interface_frame.cpp" line="81"/>
         <source>External Capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Zewnętrznie przechwytywany</translation>
     </message>
     <message>
         <location filename="interface_frame.cpp" line="83"/>
         <source>Virtual</source>
-        <translation type="unfinished"></translation>
+        <translation>Wirtualny</translation>
     </message>
     <message>
         <location filename="interface_frame.cpp" line="140"/>
         <source>Remote interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Zdalne interfejsy</translation>
     </message>
     <message>
         <location filename="interface_frame.cpp" line="151"/>
         <source>Show hidden interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż ukryte interfejsy</translation>
     </message>
 </context>
 <context>
@@ -4725,7 +4743,7 @@ po którym zostanie użyty nowy plik przechwytywania, jeśli zamierzasz używać
     <message>
         <location filename="interface_sort_filter_model.cpp" line="380"/>
         <source>No interfaces to be displayed. %1 interfaces filtered.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak interfejsów do wyświetlenia. %1 interfejsów wyfiltrowanych.</translation>
     </message>
 </context>
 <context>
@@ -4733,18 +4751,18 @@ po którym zostanie użyty nowy plik przechwytywania, jeśli zamierzasz używać
     <message>
         <location filename="interface_toolbar.ui" line="14"/>
         <source>Frame</source>
-        <translation type="unfinished">Ramka</translation>
+        <translation>Ramka</translation>
     </message>
     <message>
         <location filename="interface_toolbar.ui" line="32"/>
         <location filename="interface_toolbar.ui" line="45"/>
         <source>Select interface</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybrany interfejs</translation>
     </message>
     <message>
         <location filename="interface_toolbar.ui" line="35"/>
         <source>Interface</source>
-        <translation type="unfinished">Interfejs</translation>
+        <translation>Interfejs</translation>
     </message>
 </context>
 <context>
@@ -4752,7 +4770,7 @@ po którym zostanie użyty nowy plik przechwytywania, jeśli zamierzasz używać
     <message>
         <location filename="interface_toolbar_lineedit.cpp" line="43"/>
         <source>Apply changes</source>
-        <translation type="unfinished">Zastosuj zmiany</translation>
+        <translation>Zastosuj zmiany</translation>
     </message>
 </context>
 <context>
@@ -4761,93 +4779,93 @@ po którym zostanie użyty nowy plik przechwytywania, jeśli zamierzasz używać
         <location filename="interface_tree_model.cpp" line="81"/>
         <source>No Interfaces found.</source>
         <oldsource>No Interfaces found!</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Nie znaleziono interfejsów.</translation>
     </message>
     <message>
         <location filename="interface_tree_model.cpp" line="277"/>
         <source>Show</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż</translation>
     </message>
     <message>
         <location filename="interface_tree_model.cpp" line="285"/>
         <location filename="interface_tree_model.cpp" line="289"/>
         <source>Friendly Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Przyjazna nazwa</translation>
     </message>
     <message>
         <location filename="interface_tree_model.cpp" line="281"/>
         <source>Interface Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa interfejsu</translation>
     </message>
     <message>
         <location filename="interface_tree_model.cpp" line="293"/>
         <source>Local Pipe Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Ścieżka lokalnej rury</translation>
     </message>
     <message>
         <location filename="interface_tree_model.cpp" line="297"/>
         <source>Comment</source>
-        <translation type="unfinished"></translation>
+        <translation>Komentarz</translation>
     </message>
     <message>
         <location filename="interface_tree_model.cpp" line="301"/>
         <source>Link-Layer Header</source>
-        <translation type="unfinished"></translation>
+        <translation>Nagłówek warstwy łącza</translation>
     </message>
     <message>
         <location filename="interface_tree_model.cpp" line="305"/>
         <source>Promiscuous</source>
-        <translation type="unfinished">Tryb mieszany</translation>
+        <translation>Tryb mieszany</translation>
     </message>
     <message>
         <location filename="interface_tree_model.cpp" line="309"/>
         <source>Snaplen (B)</source>
-        <translation type="unfinished">Rozmiar przechwyconej ramki (B)</translation>
+        <translation>Rozmiar przechwyconej ramki (B)</translation>
     </message>
     <message>
         <location filename="interface_tree_model.cpp" line="314"/>
         <source>Buffer (MB)</source>
-        <translation type="unfinished">Bufor (MiB)</translation>
+        <translation>Bufor (MiB)</translation>
     </message>
     <message>
         <location filename="interface_tree_model.cpp" line="320"/>
         <source>Monitor Mode</source>
-        <translation type="unfinished">Tryb monitora</translation>
+        <translation>Tryb monitora</translation>
     </message>
     <message>
         <location filename="interface_tree_model.cpp" line="325"/>
         <source>Capture Filter</source>
-        <translation type="unfinished">Filtr przechwytywania</translation>
+        <translation>Filtr przechwytywania</translation>
     </message>
     <message>
         <location filename="interface_tree_model.cpp" line="377"/>
         <source>Addresses</source>
-        <translation type="unfinished">Adresy</translation>
+        <translation>Adresy</translation>
     </message>
     <message>
         <location filename="interface_tree_model.cpp" line="377"/>
         <source>Address</source>
-        <translation type="unfinished">Adres</translation>
+        <translation>Adres</translation>
     </message>
     <message>
         <location filename="interface_tree_model.cpp" line="384"/>
         <source>Extcap interface: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Interfejs extcap: %1</translation>
     </message>
     <message>
         <location filename="interface_tree_model.cpp" line="389"/>
         <source>No addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak adresu</translation>
     </message>
     <message>
         <location filename="interface_tree_model.cpp" line="396"/>
         <source>No capture filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak filtru przechwytywania</translation>
     </message>
     <message>
         <location filename="interface_tree_model.cpp" line="401"/>
         <source>Capture filter</source>
-        <translation type="unfinished">Filtr przechwytywania</translation>
+        <translation>Filtr przechwytywania</translation>
     </message>
 </context>
 <context>
@@ -6186,19 +6204,19 @@ po którym zostanie użyty nowy plik przechwytywania, jeśli zamierzasz używać
     <message numerus="yes">
         <location filename="lbm_uimflow_dialog.cpp" line="428"/>
         <source>%Ln node(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln węzeł</numerusform>
+            <numerusform>%Ln węzłów</numerusform>
+            <numerusform>%Ln węzłów</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <location filename="lbm_uimflow_dialog.cpp" line="429"/>
         <source>%Ln item(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln obiekt</numerusform>
+            <numerusform>%Ln obiektów</numerusform>
+            <numerusform>%Ln obiektów</numerusform>
         </translation>
     </message>
     <message>
@@ -6908,7 +6926,7 @@ po którym zostanie użyty nowy plik przechwytywania, jeśli zamierzasz używać
     <message>
         <location filename="main_welcome.ui" line="129"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Open a file on your file system&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Otwórz plik&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="main_welcome.ui" line="132"/>
@@ -7054,26 +7072,26 @@ text-decoration: underline;
     <message>
         <location filename="main_welcome.cpp" line="68"/>
         <source>Show in Finder</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż w wyszukiwarce</translation>
     </message>
     <message>
         <location filename="main_welcome.cpp" line="70"/>
         <source>Show in Folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Otwórz w folderze</translation>
     </message>
     <message>
         <location filename="main_welcome.cpp" line="238"/>
         <source>All interfaces shown</source>
-        <translation type="unfinished"></translation>
+        <translation>Wszystkie interfejsy</translation>
     </message>
     <message numerus="yes">
         <location filename="main_welcome.cpp" line="240"/>
         <source>%n interface(s) shown, %1 hidden</source>
         <oldsource>%Ln interface(s) shown</oldsource>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Pokazano interfejsów: %1, ukryto: %2</numerusform>
+            <numerusform>Pokazano interfejsów: %1, ukryto: %2</numerusform>
+            <numerusform>Pokazano interfejsów: %1, ukryto: %2</numerusform>
         </translation>
     </message>
     <message>
@@ -7109,7 +7127,7 @@ text-decoration: underline;
     <message>
         <location filename="main_welcome.cpp" line="480"/>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuń</translation>
     </message>
 </context>
 <context>
@@ -7633,7 +7651,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="276"/>
         <source>Interface Toolbars</source>
-        <translation type="unfinished"></translation>
+        <translation>Pasek Interejsów</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="324"/>
@@ -7648,7 +7666,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="350"/>
         <source>Additional Toolbars</source>
-        <translation type="unfinished"></translation>
+        <translation>Pasek Dodatkowy</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="432"/>
@@ -7683,7 +7701,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="603"/>
         <source>Osmux</source>
-        <translation type="unfinished"></translation>
+        <translation>Osmux</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="676"/>
@@ -7724,22 +7742,22 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1014"/>
         <source>Next Packet In History</source>
-        <translation type="unfinished"></translation>
+        <translation>Następny pakiet w historii</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1017"/>
         <source>Go to the next packet in your selection history</source>
-        <translation type="unfinished"></translation>
+        <translation>Idź do następnego pakietu w wybranej historii</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1025"/>
         <source>Previous Packet In History</source>
-        <translation type="unfinished"></translation>
+        <translation>Poprzedni pakiet w historii</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1028"/>
         <source>Go to the previous packet in your selection history</source>
-        <translation type="unfinished"></translation>
+        <translation>Idź do poprzedniego pakietu w wybranej historii</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1097"/>
@@ -8261,7 +8279,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1934"/>
         <source>Osmux packet counts</source>
-        <translation type="unfinished"></translation>
+        <translation>Liczba pakietów Osmux</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1942"/>
@@ -8389,12 +8407,12 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="2171"/>
         <source>Reset Layout</source>
-        <translation type="unfinished"></translation>
+        <translation>Resetuj wygląd</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2174"/>
         <source>Reset appearance layout to default size</source>
-        <translation type="unfinished"></translation>
+        <translation>Resetuje układ do rozmiarów domyślnych</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2497"/>
@@ -8550,17 +8568,17 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="2974"/>
         <source>…as Escaped String</source>
-        <translation type="unfinished"></translation>
+        <translation>…jako łańcuch znaków ze znakami ucieczki</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2977"/>
         <source>Copy packet bytes as a Escaped string</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiuj bajty pakietu jako łańcuch znaków ze znakami ucieczki</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2985"/>
         <source>&amp;Full Screen</source>
-        <translation type="unfinished"></translation>
+        <translation>Pełny ekran</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1215"/>
@@ -9462,7 +9480,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.cpp" line="968"/>
         <source>Unable to drop files during capture.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można upuścić pliku podczas przechwytywania.</translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="1733"/>
@@ -9500,7 +9518,7 @@ text-decoration: underline;
         <location filename="main_window.cpp" line="774"/>
         <location filename="main_window.cpp" line="2769"/>
         <source>Show or hide the toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż lub ukryj pasek narzędziowy</translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="1782"/>
@@ -9589,10 +9607,10 @@ text-decoration: underline;
         <location filename="main_window_slots.cpp" line="1955"/>
         <source>Export SSL Session Keys (%Ln key(s))</source>
         <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Eksportuj klucze sesji SSH (%Ln klucz)</numerusform>
+            <numerusform>Eksportuj klucze sesji SSH (%Ln kluczy)</numerusform>
+            <numerusform>Eksportuj klucze sesji SSH (%Ln kluczy)</numerusform>
         </translation>
     </message>
     <message>
@@ -9603,7 +9621,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window_slots.cpp" line="840"/>
         <source>Merging files</source>
-        <translation type="unfinished"></translation>
+        <translation>Scalaj pliki</translation>
     </message>
     <message>
         <location filename="main_window_slots.cpp" line="1959"/>
@@ -9888,7 +9906,7 @@ text-decoration: underline;
     <message>
         <location filename="manage_interfaces_dialog.cpp" line="281"/>
         <source>New Pipe</source>
-        <translation type="unfinished"></translation>
+        <translation>Nowa rura</translation>
     </message>
 </context>
 <context>
@@ -10209,7 +10227,7 @@ text-decoration: underline;
     <message>
         <location filename="packet_format_group_box.ui" line="36"/>
         <source>Include column headings</source>
-        <translation type="unfinished"></translation>
+        <translation>Dołącz nagłówek kolumny</translation>
     </message>
     <message>
         <location filename="packet_format_group_box.ui" line="46"/>
@@ -10443,7 +10461,7 @@ text-decoration: underline;
     <message>
         <location filename="preference_editor_frame.cpp" line="260"/>
         <source>Invalid value.</source>
-        <translation type="unfinished"></translation>
+        <translation>Niepoprawna wartość.</translation>
     </message>
 </context>
 <context>
@@ -10477,7 +10495,7 @@ text-decoration: underline;
         <location filename="preferences_dialog.ui" line="64"/>
         <source>Filter Buttons</source>
         <oldsource>Filter Expressions</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Przyciski filtrowania</translation>
     </message>
     <message>
         <location filename="preferences_dialog.ui" line="69"/>
@@ -10589,7 +10607,7 @@ text-decoration: underline;
         <location filename="profile_dialog.ui" line="60"/>
         <source>Remove this profile. System provided profiles cannot be removed.</source>
         <oldsource>Remove this profile. The Default profile and system provided profiles cannot be removed.</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Usuń profil. Profile dostarczone z tym oprogramowaniem nie mogą być usunięte.</translation>
     </message>
     <message>
         <location filename="profile_dialog.ui" line="71"/>
@@ -10604,7 +10622,7 @@ text-decoration: underline;
     <message>
         <location filename="profile_dialog.cpp" line="164"/>
         <source>Will be reset to default values</source>
-        <translation type="unfinished"></translation>
+        <translation>Będzie zresetowany do wartości domyślnych.</translation>
     </message>
     <message>
         <location filename="profile_dialog.cpp" line="180"/>
@@ -10614,7 +10632,7 @@ text-decoration: underline;
     <message>
         <location filename="profile_dialog.cpp" line="182"/>
         <source>(system provided)</source>
-        <translation type="unfinished"></translation>
+        <translation>(dostarczone przez system)</translation>
     </message>
     <message>
         <location filename="profile_dialog.cpp" line="188"/>
@@ -10649,7 +10667,7 @@ text-decoration: underline;
     <message>
         <location filename="profile_dialog.cpp" line="235"/>
         <source>The profile will be reset to default values.</source>
-        <translation type="unfinished"></translation>
+        <translation>Profil będzie zresetowany do wartości domyślnych.</translation>
     </message>
     <message>
         <location filename="profile_dialog.cpp" line="365"/>
@@ -10849,7 +10867,7 @@ text-decoration: underline;
     <message>
         <location filename="tcp_stream_dialog.cpp" line="81"/>
         <source>Average Throughput (bits/s)</source>
-        <translation type="unfinished"></translation>
+        <translation>Średnia przepustowość (bit/s)</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.cpp" line="82"/>
@@ -10989,7 +11007,7 @@ text-decoration: underline;
     <message>
         <location filename="conversation_dialog.cpp" line="343"/>
         <source>Bars show the relative timeline for each conversation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wykres pokazuje relatywną oś czasu dla każdej konwersacji.</translation>
     </message>
     <message>
         <location filename="endpoint_dialog.cpp" line="47"/>
@@ -11072,7 +11090,7 @@ text-decoration: underline;
     <message>
         <location filename="simple_dialog.cpp" line="307"/>
         <source>Multiple problems found</source>
-        <translation type="unfinished"></translation>
+        <translation>Wystąpiło wiele problemów</translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.cpp" line="128"/>
@@ -11403,22 +11421,22 @@ text-decoration: underline;
         <location filename="manage_interfaces_dialog.cpp" line="127"/>
         <location filename="manage_interfaces_dialog.cpp" line="130"/>
         <source>Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd</translation>
     </message>
     <message>
         <location filename="manage_interfaces_dialog.cpp" line="121"/>
         <source>No remote interfaces found.</source>
-        <translation type="unfinished">Nie znaleziono zdalnych interfejsów.</translation>
+        <translation>Nie znaleziono zdalnych interfejsów.</translation>
     </message>
     <message>
         <location filename="manage_interfaces_dialog.cpp" line="127"/>
         <source>PCAP not found</source>
-        <translation type="unfinished">PCAP nie znaleziony</translation>
+        <translation>PCAP nie znaleziony</translation>
     </message>
     <message>
         <location filename="manage_interfaces_dialog.cpp" line="130"/>
         <source>Unknown error</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieznany błąd</translation>
     </message>
 </context>
 <context>
@@ -11992,97 +12010,97 @@ text-decoration: underline;
     <message>
         <location filename="rtp_analysis_dialog.ui" line="333"/>
         <source>Unsynchronized Forward and Reverse Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Niezsynchronizowane dane strumienia audio przewodniego i powrotnego</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="411"/>
         <source>Stream Synchronized Forward and Reverse Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Zsynchronizowane względem strumienia dane audio strumienia przewodniego i powrotnego</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="414"/>
         <source>Save the audio data for both channels synchronized to start of earlier stream.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapisz dane obu strumieni audio zsynchronizowane względem wcześniejszego strumienia.</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="419"/>
         <source>Stream Synchronized Forward Stream Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Zsynchronizowane względem strumienia dane audio strumienia przewodniego</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="422"/>
         <source>Save the forward stream audio data synchronized to start of earlier stream.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapisz dane przewodniego strumienia audio zsynchronizowane względem wcześniejszego strumienia.</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="427"/>
         <source>Stream Synchronized Reverse Stream Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Zsynchronizowane względem strumienia dane audio strumienia powrotnego</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="430"/>
         <source>Save the reverse stream audio data synchronized to start of earlier stream.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapisz dane powrotnego strumienia audio zsynchronizowane względem wcześniejszego strumienia.</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="435"/>
         <source>File Synchronized Forward and Reverse Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Zsynchronizowane względem pliku dane audio strumienia przewodniego i powrotnego</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="438"/>
         <source>Save the audio data for both channels synchronized to start of file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapisz dane dla obu strumieni audio zsynchronizowane względem początku pliku.</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="443"/>
         <source>File Synchronized Forward Stream Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Zsynchronizowane względem pliku dane audio strumienia przewodniego</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="446"/>
         <source>Save the forward stream audio data synchronized to start of file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapisz dane przewodniego strumienia audio zsynchronizowane względem początku pliku.</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="451"/>
         <source>File Synchronized Reverse Stream Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Zsynchronizowane względem pliku dane audio strumienia powrotnego</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="454"/>
         <source>Save the reverse stream audio data synchronized to start of file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapisz dane powrotnego strumienia audio zsynchronizowane względem początku pliku.</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="336"/>
         <source>Save the unsynchronized audio data for both channels.</source>
         <oldsource>Save the audio data for both channels.</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Zapisz niezsynchronizowane dane audio obu kanałów.</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="341"/>
         <source>Unsynchronized Forward Stream Audio</source>
         <oldsource>Forward Stream Audio</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Niezsynchronizowany przewodni strumień audio.</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="344"/>
         <source>Save the unsynchronized forward stream audio data.</source>
         <oldsource>Save the forward stream audio data.</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Zapisz niezsynchronizowane dane audio strumienia przewodniego.</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="349"/>
         <source>Unsynchronized Reverse Stream Audio</source>
         <oldsource>Reverse Stream Audio</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Niezsynchronizowany powrotny strumień audio.</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="352"/>
         <source>Save the unsynchronized reverse stream audio data.</source>
         <oldsource>Save the reverse stream audio data.</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Zapisz niezsynchronizowane dane audio strumienia powrotnego.</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="357"/>
@@ -12167,17 +12185,17 @@ text-decoration: underline;
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1272"/>
         <source>Can&apos;t synchronize when only one channel is selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można zsynchronizować, kiedy tylko jeden kanał jest wybrany</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1407"/>
         <source>Save forward and reverse stream audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapisz przewodni i powrotny strumień audio</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1413"/>
         <source>Raw (*.raw)</source>
-        <translation type="unfinished"></translation>
+        <translation>Surowe dane (*.raw)</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1643"/>
@@ -12291,7 +12309,7 @@ text-decoration: underline;
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1457"/>
         <source>Can save audio with 8000 Hz clock rate only</source>
-        <translation type="unfinished"></translation>
+        <translation>Może zapisać audio tylko z próbkowaniem 8000 Hz</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1482"/>
@@ -12329,12 +12347,12 @@ text-decoration: underline;
     <message>
         <location filename="rtp_audio_stream.cpp" line="573"/>
         <source>RTP stream is empty or codec is unsupported.</source>
-        <translation type="unfinished"></translation>
+        <translation>Strumień RTP jest pusty lub kodek nie jest obsługiwany.</translation>
     </message>
     <message>
         <location filename="rtp_audio_stream.cpp" line="597"/>
         <source>%1 does not support PCM at %2. Preferred format is %3</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 nie obsługuje formatu PCM na %2. Preferowany format to %3</translation>
     </message>
 </context>
 <context>
@@ -12450,7 +12468,7 @@ text-decoration: underline;
     <message>
         <location filename="rtp_player_dialog.ui" line="165"/>
         <source>Output Device:</source>
-        <translation type="unfinished"></translation>
+        <translation>Urządzenie do odtwarzania</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="192"/>
@@ -12659,7 +12677,7 @@ text-decoration: underline;
     <message>
         <location filename="rtp_player_dialog.cpp" line="175"/>
         <source>No devices available</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak dostępnych urządzeń</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.cpp" line="195"/>
@@ -13824,17 +13842,17 @@ text-decoration: underline;
     <message>
         <location filename="scsi_service_response_time_dialog.cpp" line="41"/>
         <source>&lt;small&gt;&lt;i&gt;Select a command and enter a filter if desired, then press Apply.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;Wybierz komendę i podaj filtr, jeśli potrzebny, następnie wciśnij Zastosuj.&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <location filename="scsi_service_response_time_dialog.cpp" line="48"/>
         <source>Command:</source>
-        <translation type="unfinished"></translation>
+        <translation>Komenda:</translation>
     </message>
     <message>
         <location filename="scsi_service_response_time_dialog.cpp" line="50"/>
         <source>SCSI Service Response Times</source>
-        <translation type="unfinished"></translation>
+        <translation>Czas odpowiedzi serwisu SCSI</translation>
     </message>
 </context>
 <context>
@@ -14017,19 +14035,19 @@ text-decoration: underline;
     <message numerus="yes">
         <location filename="sequence_dialog.cpp" line="335"/>
         <source>%Ln node(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln węzeł</numerusform>
+            <numerusform>%Ln węzłów</numerusform>
+            <numerusform>%Ln węzłów</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <location filename="sequence_dialog.cpp" line="336"/>
         <source>%Ln item(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln obiekt</numerusform>
+            <numerusform>%Ln obiektów</numerusform>
+            <numerusform>%Ln obiektów</numerusform>
         </translation>
     </message>
     <message>
@@ -14429,10 +14447,10 @@ text-decoration: underline;
     <message numerus="yes">
         <location filename="show_packet_bytes_dialog.cpp" line="59"/>
         <source>Frame %1, %2, %Ln byte(s).</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Ramka %1, %2, %Ln bajt.</numerusform>
+            <numerusform>Ramka %1, %2, %Ln bajtów.</numerusform>
+            <numerusform>Ramka %1, %2, %Ln bajtów.</numerusform>
         </translation>
     </message>
     <message>
@@ -14533,16 +14551,16 @@ text-decoration: underline;
     <message numerus="yes">
         <location filename="show_packet_bytes_dialog.cpp" line="173"/>
         <source>Displaying %Ln byte(s).</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Wyświetlanych bajtów: %Ln.</numerusform>
+            <numerusform>Wyświetlanych bajtów: %Ln.</numerusform>
+            <numerusform>Wyświetlanych bajtów: %Ln.</numerusform>
         </translation>
     </message>
     <message>
         <location filename="show_packet_bytes_dialog.cpp" line="228"/>
         <source>Regex Find:</source>
-        <translation type="unfinished"></translation>
+        <translation>Regex znajdź:</translation>
     </message>
     <message>
         <location filename="show_packet_bytes_dialog.cpp" line="305"/>
@@ -14583,7 +14601,7 @@ text-decoration: underline;
     <message>
         <location filename="splash_overlay.cpp" line="151"/>
         <source>Initializing extcap</source>
-        <translation type="unfinished"></translation>
+        <translation>Inicjacja modułów extcap</translation>
     </message>
     <message>
         <location filename="splash_overlay.cpp" line="154"/>
