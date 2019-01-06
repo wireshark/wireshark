@@ -5521,18 +5521,18 @@ static const value_string valstr_023_100_MSC[] = {
     { 0, NULL }
 };
 static const value_string valstr_023_100_TSV[] = {
-    { 0, "valid" },
-    { 1, "invalid" },
+    { 0, "Valid" },
+    { 1, "Invalid" },
     { 0, NULL }
 };
 static const value_string valstr_023_100_SPO[] = {
-    { 0, "no spoofing detected" },
-    { 1, "potential spoofing attack" },
+    { 0, "No spoofing detected" },
+    { 1, "Potential spoofing attack" },
     { 0, NULL }
 };
 static const value_string valstr_023_100_RN[] = {
-    { 0, "default" },
-    { 1, "track numbering has restarted" },
+    { 0, "Default" },
+    { 1, "Track numbering has restarted" },
     { 0, NULL }
 };
 static const FieldPart I023_100_NOGO = { 1, 1.0, FIELD_PART_UINT, &hf_023_100_NOGO, NULL };
@@ -5550,12 +5550,12 @@ static const FieldPart *I023_100_PARTS[] = { &I023_100_NOGO, &I023_100_ODP, &I02
 static const value_string valstr_023_101_SC[] = {
     { 0, "No information" },
     { 1, "NRA class" },
-    { 2, "reserved for future use" },
-    { 3, "reserved for future use" },
-    { 4, "reserved for future use" },
-    { 5, "reserved for future use" },
-    { 6, "reserved for future use" },
-    { 7, "reserved for future use" },
+    { 2, "Reserved for future use" },
+    { 3, "Reserved for future use" },
+    { 4, "Reserved for future use" },
+    { 5, "Reserved for future use" },
+    { 6, "Reserved for future use" },
+    { 7, "Reserved for future use" },
     { 0, NULL }
 };
 static const FieldPart I023_101_RP = { 8, 0.5, FIELD_PART_UFLOAT, &hf_023_101_RP, NULL };
