@@ -786,10 +786,8 @@ dissect_ipreach_subclv(tvbuff_t *tvb, proto_tree *tree, proto_item *tree_item, i
 
         if ((flags & 0xC) == 0xC) {
             proto_tree_add_item(tree, hf_isis_lsp_sid_sli_label, tvb, offset, 3, ENC_BIG_ENDIAN);
-            offset += 3;
         } else if (!(flags & 0xC)) {
             proto_tree_add_item(tree, hf_isis_lsp_sid_sli_index, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset +=4;
         }
         break;
     case 4:
