@@ -26,6 +26,9 @@ Wireshark 2.9.1 Release Notes
 
      • Wireshark now supports the Swedish and Ukrainian language.
 
+     • Initial support for using PKCS #11 tokens for RSA decryption in
+       TLS. A configuration user interface is still in development.
+
    The following features are new (or have been significantly updated)
    since version 2.6.0:
 
@@ -84,6 +87,13 @@ Wireshark 2.9.1 Release Notes
      • The Windows installers now ship with Qt 5.12.0. Previously they
        shipped with Qt 5.9.7.
 
+     • Support for decrypting TLS streams in pcapng files that embedded
+       a Decryption Secrets Block (DSB) containing a TLS Key Log (Bug
+       15252[4]).
+
+     • The editcap utility gained a new --inject-secrets option to
+       inject an existing TLS Key Log file into a pcapng file.
+
   Removed Features and Support
 
      • The legacy (GTK+) user interface has been removed and is no
@@ -92,6 +102,11 @@ Wireshark 2.9.1 Release Notes
      • Wireshark requires Qt 5.2 or later. Qt 4 is no longer supported.
 
      • Wireshark requires GLib 2.32 or later.
+
+     • Wireshark requires GnuTLS 3.2 or later as optional dependency.
+
+     • Building Wireshark requires Python 3.4 or newer, Python 2.7 is
+       unsupported.
 
      • Building Wireshark requires CMake. Autotools is no longer
        supported.
@@ -105,23 +120,26 @@ Wireshark 2.9.1 Release Notes
   New Protocol Support
 
    Apple Wireless Direct Link (AWDL), Basic Transport Protocol (BTP),
-   BLIP Couchbase Mobile (BLIP), CDMA 2000, Cisco Meraki Discovery
-   Protocol (MDP), Distributed Ruby (DRb), DXL, E1AP (5G), EVS (3GPP TS
-   26.445 A.2 EVS RTP), Exablaze trailers, General Circuit Services
-   Notification Application Protocol (GCSNA), GeoNetworking (GeoNw),
-   GLOW Lawo Emberplus Data format, GSM-R (User-to-User Information
-   Element usage), HI3CCLinkData, Intelligent Transport Systems (ITS)
-   application level, ISO 13400-2 Diagnostic communication over Internet
-   Protocol (DoIP), ITU-t X.696 Octet Encoding Rules (OER), Local Number
-   Portability Database Query Protocol (ANSI), MsgPack, NGAP (5G), NR
-   (5G) PDCP, Osmocom Generic Subscriber Update Protocol (GSUP), PCOM
-   protocol, PKCS#10 (RFC2986 Certification Request Syntax), PROXY (v2),
-   S101 Lawo Emberplus transport frame, Secure Reliable Transport
-   Protocol (SRT), Spirent Test Center Signature decoding for Ethernet
-   and FibreChannel (STCSIG, disabled by default), Sybase-specific
-   portions of TDS, systemd Journal Export, TeamSpeak 3 DNS, TPM 2.0,
-   Ubiquiti Discovery Protocol (UBDP), WireGuard, XnAP (5G), and Z39.50
-   Information Retrieval Protocol
+   BLIP Couchbase Mobile (BLIP), CDMA 2000, Circuit Emulation Service
+   over Ethernet (CESoETH), Cisco Meraki Discovery Protocol (MDP),
+   Distributed Ruby (DRb), DXL, E1AP (5G), EVS (3GPP TS 26.445 A.2 EVS
+   RTP), Exablaze trailers, General Circuit Services Notification
+   Application Protocol (GCSNA), GeoNetworking (GeoNw), GLOW Lawo
+   Emberplus Data format, Great Britain Companion Specification (GBCS)
+   used in the Smart Metering Equipment Technical Specifications
+   (SMETS), GSM-R (User-to-User Information Element usage),
+   HI3CCLinkData, Intelligent Transport Systems (ITS) application level,
+   ISO 13400-2 Diagnostic communication over Internet Protocol (DoIP),
+   ITU-t X.696 Octet Encoding Rules (OER), Local Number Portability
+   Database Query Protocol (ANSI), MsgPack, NGAP (5G), NR (5G) PDCP,
+   Osmocom Generic Subscriber Update Protocol (GSUP), PCOM protocol,
+   PKCS#10 (RFC2986 Certification Request Syntax), PROXY (v2), S101 Lawo
+   Emberplus transport frame, Secure Reliable Transport Protocol (SRT),
+   Spirent Test Center Signature decoding for Ethernet and FibreChannel
+   (STCSIG, disabled by default), Sybase-specific portions of TDS,
+   systemd Journal Export, TeamSpeak 3 DNS, TPM 2.0, Ubiquiti Discovery
+   Protocol (UBDP), WireGuard, XnAP (5G), and Z39.50 Information
+   Retrieval Protocol
 
   Updated Protocol Support
 
@@ -145,17 +163,22 @@ Wireshark 2.9.1 Release Notes
        and critical) have been removed. Use the print function instead
        for debugging purposes.
 
+     • Lua: on Windows, file-related functions such as dofile now assume
+       UTF-8 paths instead of the local code page. This is consistent
+       with Linux and macOS and improves compatibility on non-English
+       systems. (Bug 15118[5])
+
  Getting Wireshark
 
   Wireshark source code and installation packages are available from
-  https://www.wireshark.org/download.html[4].
+  https://www.wireshark.org/download.html[6].
 
   Vendor-supplied Packages
 
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[5] on the Wireshark web site.
+   be found on the download page[7] on the Wireshark web site.
 
  File Locations
 
@@ -167,22 +190,22 @@ Wireshark 2.9.1 Release Notes
  Getting Help
 
   The User’s Guide, manual pages and various other documentation can be
-  found at https://www.wireshark.org/docs/[6]
+  found at https://www.wireshark.org/docs/[8]
 
-  Community support is available on Wireshark’s Q&A site[7] and on the
+  Community support is available on Wireshark’s Q&A site[9] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[8].
+  for all of Wireshark’s mailing lists can be found on the web site[10].
 
-  Bugs and feature requests can be reported on the bug tracker[9].
+  Bugs and feature requests can be reported on the bug tracker[11].
 
   Official Wireshark training and certification are available from
-  Wireshark University[10].
+  Wireshark University[12].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[11].
+  A complete FAQ is available on the Wireshark web site[13].
 
-  Last updated 2018-12-30 08:15:06 UTC
+  Last updated 2019-01-06 08:14:13 UTC
 
  References
 
@@ -197,3 +220,5 @@ Wireshark 2.9.1 Release Notes
    9. 9
   10. 10
   11. 11
+  12. 12
+  13. 13

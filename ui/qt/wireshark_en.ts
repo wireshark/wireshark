@@ -88,6 +88,14 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Show in Finder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show in Folder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Copy</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2289,14 +2297,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Save All Objects In</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Object Export</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Some files could not be saved.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

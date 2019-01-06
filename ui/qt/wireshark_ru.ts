@@ -88,12 +88,24 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Show in Finder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show in Folder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Copy</source>
         <translation>Копировать</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <source>Copy Row(s)</source>
-        <translation>Копировать Строку (строки)</translation>
+        <translation type="unfinished">
+            <numerusform>Копировать Строку (строки)</numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -2301,11 +2313,11 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Object Export</source>
-        <translation>Экспорт Объекта</translation>
+        <translation type="vanished">Экспорт Объекта</translation>
     </message>
     <message>
         <source>Some files could not be saved.</source>
-        <translation>Некоторые файлы не могут быть сохранены.</translation>
+        <translation type="vanished">Некоторые файлы не могут быть сохранены.</translation>
     </message>
 </context>
 <context>

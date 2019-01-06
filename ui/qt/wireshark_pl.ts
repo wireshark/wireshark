@@ -88,12 +88,24 @@
         <translation>Nie można utworzyć katalogu %1!</translation>
     </message>
     <message>
+        <source>Show in Finder</source>
+        <translation type="unfinished">Pokaż w wyszukiwarce</translation>
+    </message>
+    <message>
+        <source>Show in Folder</source>
+        <translation type="unfinished">Pokaż w folderze</translation>
+    </message>
+    <message>
         <source>Copy</source>
         <translation>Kopiuj</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <source>Copy Row(s)</source>
-        <translation>Kopiuj wiersz(e)</translation>
+        <translation type="unfinished">
+            <numerusform>Kopiuj wiersz(e)</numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -754,7 +766,7 @@
     </message>
     <message>
         <source>Start / elapsed:</source>
-        <translation type="unfinished"></translation>
+        <translation>Start / upłynęło:</translation>
     </message>
     <message>
         <source>Automatically detect file type</source>
@@ -767,6 +779,23 @@
             <numerusform>%1, błąd po wczytaniu %Ln pakietu</numerusform>
             <numerusform>%1, błąd po wczytaniu %Ln pakietów</numerusform>
             <numerusform>%1, błąd po wczytaniu %Ln pakietów</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%1, timed out at %Ln packet(s)</source>
+        <oldsource>%1, timed out at %2 packets</oldsource>
+        <translation type="vanished">
+            <numerusform>%1, przekroczenie czasu przy %Ln pakiecie</numerusform>
+            <numerusform>%1, przekroczenie czasu przy %Ln pakiecie</numerusform>
+            <numerusform>%1, przekroczenie czasu przy %Ln pakiecie</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%1, %Ln packet(s)</source>
+        <translation type="vanished">
+            <numerusform>%1, %Ln pakiet</numerusform>
+            <numerusform>%1, %Ln pakietów</numerusform>
+            <numerusform>%1, %Ln pakietów</numerusform>
         </translation>
     </message>
     <message>
@@ -1092,11 +1121,11 @@
     <message>
         <source>Multiple filters selected. Override them here or leave this blank to preserve them.</source>
         <extracomment>This is a very long concept that needs to fit into a short space.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Wybrano wiele filtrów. Nadpisz je lub pozostaw puste by ich nie zmieniać.</translation>
     </message>
     <message>
         <source>&lt;p&gt;The interfaces you have selected have different capture filters. Typing a filter here will override them. Doing nothing will preserve them.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Wybrano interfejsy, które wymagają różnych filtrów przechwytywania. Wpisanie tutaj filtru spowoduje zastąpienie ich. W przeciwnym przypadku zostaną użyte.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Enter a capture filter %1</source>
@@ -1429,7 +1458,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <message>
         <source>Multiple files: Requested filesize too large. The filesize cannot be greater than 2 GiB.</source>
         <oldsource>Multiple files: Requested filesize too large! The filesize cannot be greater than 2 GiB.</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Wiele plików: Żądana wielkość pliku jest zbyt duża! Wielkość pliku nie może być większa niż 2 GiB.</translation>
     </message>
     <message>
         <source>Multiple files: No capture file name given. You must specify a filename if you want to use multiple files.</source>
@@ -1465,7 +1494,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Capture packets in pcapng format</source>
-        <translation type="unfinished"></translation>
+        <translation>Przechwytuj pakiety do formatu pcapng</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Update the list of packets while capture is in progress. This can result in dropped packets on high-speed networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1485,11 +1514,11 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Don&apos;t load interfaces on startup</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie sprawdzaj interfejsów w czasie ładowania</translation>
     </message>
     <message>
         <source>Disable external capture interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyłącz zewnętrzne interfejsy przechwytywania</translation>
     </message>
 </context>
 <context>
@@ -1794,19 +1823,19 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <name>DecodeAsModel</name>
     <message>
         <source>Match using this field</source>
-        <translation type="unfinished"></translation>
+        <translation>Porównuj używając tego pola</translation>
     </message>
     <message>
         <source>Current&quot;Decode As&quot; behavior</source>
-        <translation type="unfinished"></translation>
+        <translation>Obecne ustawienia dekodowania</translation>
     </message>
     <message>
         <source>Default &quot;Decode As&quot; behavior</source>
-        <translation type="unfinished"></translation>
+        <translation>Domyślne ustawiania dekodowania</translation>
     </message>
     <message>
         <source>Change behavior when the protocol field matches this value</source>
-        <translation type="unfinished"></translation>
+        <translation>Zmienia dekodowanie, gdy pole protokołu będzie mieć zadaną wartość</translation>
     </message>
     <message>
         <source>String</source>
@@ -1864,47 +1893,47 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <name>DisplayFilterEdit</name>
     <message>
         <source>Display filter entry</source>
-        <translation type="unfinished">Wpis filtru wyświetlania</translation>
+        <translation>Wpis filtru wyświetlania</translation>
     </message>
     <message>
         <source>Manage saved bookmarks.</source>
-        <translation type="unfinished">Zarządzaj zapisanymi zakładkami.</translation>
+        <translation>Zarządzaj zapisanymi zakładkami.</translation>
     </message>
     <message>
         <source>Apply this filter string to the display.</source>
-        <translation type="unfinished">Zastosuj filtr.</translation>
+        <translation>Zastosuj filtr.</translation>
     </message>
     <message>
         <source>Apply a display filter %1 &lt;%2/&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Zastosuj filtr wyświetlania %1 &lt;%2/&gt;</translation>
     </message>
     <message>
         <source>Enter a display filter %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Wpisz filtr wyświetlania %1</translation>
     </message>
     <message>
         <source>Apply a read filter %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Zastosuj filtr wczytania %1</translation>
     </message>
     <message>
         <source>Invalid filter: </source>
-        <translation type="unfinished">Błędny filtr: </translation>
+        <translation>Błędny filtr: </translation>
     </message>
     <message>
         <source>Save this filter</source>
-        <translation type="unfinished">Zapisz filtr</translation>
+        <translation>Zapisz filtr</translation>
     </message>
     <message>
         <source>Remove this filter</source>
-        <translation type="unfinished">Usuń filtr</translation>
+        <translation>Usuń filtr</translation>
     </message>
     <message>
         <source>Manage Display Filters</source>
-        <translation type="unfinished"></translation>
+        <translation>Zarządzaj filtrami wyświetlania</translation>
     </message>
     <message>
         <source>Manage Filter Expressions</source>
-        <translation type="unfinished"></translation>
+        <translation>Zarządzaj wyrażeniami filtrów</translation>
     </message>
 </context>
 <context>
@@ -1933,7 +1962,9 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Relations can be used to restrict fields to specific values. Each relation does the following:&lt;/p&gt;&lt;table border=&quot;0&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;&quot; cellspacing=&quot;2&quot; cellpadding=&quot;0&quot;&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;is present&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Match any packet that contains this field&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;==, !=, etc.&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Compare the field to a specific value.&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;contains, matches&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Check the field against a string (contains) or a regular expression (matches)&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;in&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Compare the field to a specific set of values&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;
 
 </source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Relacji można użyć by ograniczyć wyszukiwanie pól do wybranych ich wartości. Każda relacja posiada następujące właściwości:&lt;/p&gt;&lt;table border=&quot;0&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;&quot; cellspacing=&quot;2&quot; cellpadding=&quot;0&quot;&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;is present&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Sprawdza czy jakiś pakiet zawiera dane pole&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;==, !=, itd.&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Porównuje z konkretną wartością.&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;contains, matches&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Sprawdza czy pole zawiera w sobie łańcuch znaków (contains) lub stosuje wyrażenie regularne (matches)&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;in&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Porównuje pole do wartości ze zbioru&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;
+
+</translation>
     </message>
     <message>
         <source>Relation</source>
@@ -2280,11 +2311,11 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Object Export</source>
-        <translation>Eksportuj obiekt</translation>
+        <translation type="vanished">Eksportuj obiekt</translation>
     </message>
     <message>
         <source>Some files could not be saved.</source>
-        <translation>Pewne pliki nie zostały zapisane.</translation>
+        <translation type="vanished">Pewne pliki nie zostały zapisane.</translation>
     </message>
 </context>
 <context>
@@ -2551,7 +2582,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Usuń</translation>
     </message>
 </context>
 <context>
@@ -2732,7 +2763,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Nazwa</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Location</source>
@@ -2845,7 +2876,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Regex Find:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Regex znajdź:</translation>
     </message>
     <message>
         <source>Save Stream Content As</source>
@@ -7823,7 +7854,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>New Pipe</source>
-        <translation type="unfinished"></translation>
+        <translation>Nowa rura</translation>
     </message>
 </context>
 <context>
@@ -8037,7 +8068,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <name>PacketCommentDialog</name>
     <message>
         <source>Packet %1 Comment</source>
-        <translation type="unfinished"></translation>
+        <translation>Komentarz pakietu %1</translation>
     </message>
 </context>
 <context>
@@ -8060,11 +8091,11 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Byte %1</source>
-        <translation type="unfinished">Bajt %1</translation>
+        <translation>Bajt %1</translation>
     </message>
     <message>
         <source>Bytes %1-%2</source>
-        <translation type="unfinished">Bajty %1-%2</translation>
+        <translation>Bajty %1-%2</translation>
     </message>
 </context>
 <context>
@@ -8087,7 +8118,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Include column headings</source>
-        <translation type="unfinished"></translation>
+        <translation>Dołącz nagłówek kolumny</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Packet details similar to the protocol tree&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -8184,11 +8215,11 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <name>PacketListModel</name>
     <message>
         <source>Dissecting</source>
-        <translation type="unfinished"></translation>
+        <translation>Analizowanie</translation>
     </message>
     <message>
         <source>Sorting &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Sortowanie &quot;%1&quot;</translation>
     </message>
 </context>
 <context>
@@ -8242,34 +8273,34 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <name>PathChooserDelegate</name>
     <message>
         <source>Browse</source>
-        <translation type="unfinished">Przeglądaj</translation>
+        <translation>Przeglądaj</translation>
     </message>
     <message>
         <source>Open Pipe</source>
-        <translation type="unfinished"></translation>
+        <translation>Otwórz rurę</translation>
     </message>
 </context>
 <context>
     <name>PluginListModel</name>
     <message>
         <source>extcap</source>
-        <translation type="unfinished"></translation>
+        <translation>extcap</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Nazwa</translation>
+        <translation>Nazwa</translation>
     </message>
     <message>
         <source>Version</source>
-        <translation type="unfinished"></translation>
+        <translation>Wersja</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ</translation>
     </message>
     <message>
         <source>Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Ścieżka</translation>
     </message>
 </context>
 <context>
@@ -8292,7 +8323,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Invalid value.</source>
-        <translation type="unfinished"></translation>
+        <translation>Niepoprawna wartość.</translation>
     </message>
 </context>
 <context>
@@ -8311,35 +8342,35 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <message>
         <source>Advanced</source>
         <extracomment>Names of special preferences handled by the GUI</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Zaawansowane</translation>
     </message>
     <message>
         <source>Appearance</source>
-        <translation type="unfinished"></translation>
+        <translation>Prezentacja</translation>
     </message>
     <message>
         <source>Layout</source>
-        <translation type="unfinished"></translation>
+        <translation>Wygląd</translation>
     </message>
     <message>
         <source>Columns</source>
-        <translation type="unfinished"></translation>
+        <translation>Kolumny</translation>
     </message>
     <message>
         <source>Font and Colors</source>
-        <translation type="unfinished"></translation>
+        <translation>Czcionki i kolory</translation>
     </message>
     <message>
         <source>Capture</source>
-        <translation type="unfinished">Przechwytuj</translation>
+        <translation>Przechwytywanie</translation>
     </message>
     <message>
         <source>Expert</source>
-        <translation type="unfinished"></translation>
+        <translation>Informacje eksperckie</translation>
     </message>
     <message>
         <source>Filter Buttons</source>
-        <translation type="unfinished"></translation>
+        <translation>Przyciski filtrowania</translation>
     </message>
 </context>
 <context>
@@ -8402,7 +8433,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <message>
         <source>Remove this profile. System provided profiles cannot be removed.</source>
         <oldsource>Remove this profile. The Default profile and system provided profiles cannot be removed.</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Usuń profil. Profile dostarczone z tym oprogramowaniem nie mogą być usunięte.</translation>
     </message>
     <message>
         <source>Copy this profile.</source>
@@ -8414,7 +8445,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Will be reset to default values</source>
-        <translation type="unfinished"></translation>
+        <translation>Będzie zresetowany do wartości domyślnych.</translation>
     </message>
     <message>
         <source>Created from %1</source>
@@ -8422,7 +8453,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>(system provided)</source>
-        <translation type="unfinished"></translation>
+        <translation>(dostarczone przez system)</translation>
     </message>
     <message>
         <source>Created from default settings</source>
@@ -8450,7 +8481,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>The profile will be reset to default values.</source>
-        <translation type="unfinished"></translation>
+        <translation>Profil będzie zresetowany do wartości domyślnych.</translation>
     </message>
     <message>
         <source>Profile Error</source>
@@ -8589,7 +8620,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <name>QObject</name>
     <message>
         <source>Average Throughput (bits/s)</source>
-        <translation type="unfinished"></translation>
+        <translation>Średnia przepustowość (bit/s)</translation>
     </message>
     <message>
         <source>Round Trip Time (ms)</source>
@@ -8625,7 +8656,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Bars show the relative timeline for each conversation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wykres pokazuje relatywną oś czasu dla każdej konwersacji.</translation>
     </message>
     <message>
         <source>Endpoint</source>
@@ -8685,7 +8716,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Multiple problems found</source>
-        <translation type="unfinished"></translation>
+        <translation>Wystąpiło wiele problemów</translation>
     </message>
     <message>
         <source>%1 (%L2%)</source>
@@ -8941,35 +8972,35 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd</translation>
     </message>
     <message>
         <source>No remote interfaces found.</source>
-        <translation type="unfinished">Nie znaleziono zdalnych interfejsów.</translation>
+        <translation>Nie znaleziono zdalnych interfejsów.</translation>
     </message>
     <message>
         <source>PCAP not found</source>
-        <translation type="unfinished">PCAP nie znaleziony</translation>
+        <translation>PCAP nie znaleziony</translation>
     </message>
     <message>
         <source>Unknown error</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieznany błąd</translation>
     </message>
     <message>
         <source>Default</source>
-        <translation type="unfinished">Domyślnie</translation>
+        <translation>Domyślnie</translation>
     </message>
     <message>
         <source>Changed</source>
-        <translation type="unfinished"></translation>
+        <translation>Zmienione</translation>
     </message>
     <message>
         <source>Has this preference been changed?</source>
-        <translation type="unfinished"></translation>
+        <translation>Czy to ustawienie zostało zmienione?</translation>
     </message>
     <message>
         <source>Default value is empty</source>
-        <translation type="unfinished"></translation>
+        <translation>Domyślna wartość jest pusta</translation>
     </message>
 </context>
 <context>
@@ -9432,80 +9463,80 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Unsynchronized Forward and Reverse Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Niezsynchronizowane dane strumienia audio przewodniego i powrotnego</translation>
     </message>
     <message>
         <source>Stream Synchronized Forward and Reverse Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Zsynchronizowane względem strumienia dane audio strumienia przewodniego i powrotnego</translation>
     </message>
     <message>
         <source>Save the audio data for both channels synchronized to start of earlier stream.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapisz dane obu strumieni audio zsynchronizowane względem wcześniejszego strumienia.</translation>
     </message>
     <message>
         <source>Stream Synchronized Forward Stream Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Zsynchronizowane względem strumienia dane audio strumienia przewodniego</translation>
     </message>
     <message>
         <source>Save the forward stream audio data synchronized to start of earlier stream.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapisz dane przewodniego strumienia audio zsynchronizowane względem wcześniejszego strumienia.</translation>
     </message>
     <message>
         <source>Stream Synchronized Reverse Stream Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Zsynchronizowane względem strumienia dane audio strumienia powrotnego</translation>
     </message>
     <message>
         <source>Save the reverse stream audio data synchronized to start of earlier stream.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapisz dane powrotnego strumienia audio zsynchronizowane względem wcześniejszego strumienia.</translation>
     </message>
     <message>
         <source>File Synchronized Forward and Reverse Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Zsynchronizowane względem pliku dane audio strumienia przewodniego i powrotnego</translation>
     </message>
     <message>
         <source>Save the audio data for both channels synchronized to start of file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapisz dane dla obu strumieni audio zsynchronizowane względem początku pliku.</translation>
     </message>
     <message>
         <source>File Synchronized Forward Stream Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Zsynchronizowane względem pliku dane audio strumienia przewodniego</translation>
     </message>
     <message>
         <source>Save the forward stream audio data synchronized to start of file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapisz dane przewodniego strumienia audio zsynchronizowane względem początku pliku.</translation>
     </message>
     <message>
         <source>File Synchronized Reverse Stream Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Zsynchronizowane względem pliku dane audio strumienia powrotnego</translation>
     </message>
     <message>
         <source>Save the reverse stream audio data synchronized to start of file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapisz dane powrotnego strumienia audio zsynchronizowane względem początku pliku.</translation>
     </message>
     <message>
         <source>Save the unsynchronized audio data for both channels.</source>
         <oldsource>Save the audio data for both channels.</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Zapisz niezsynchronizowane dane audio obu kanałów.</translation>
     </message>
     <message>
         <source>Unsynchronized Forward Stream Audio</source>
         <oldsource>Forward Stream Audio</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Niezsynchronizowany przewodni strumień audio.</translation>
     </message>
     <message>
         <source>Save the unsynchronized forward stream audio data.</source>
         <oldsource>Save the forward stream audio data.</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Zapisz niezsynchronizowane dane audio strumienia przewodniego.</translation>
     </message>
     <message>
         <source>Unsynchronized Reverse Stream Audio</source>
         <oldsource>Reverse Stream Audio</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Niezsynchronizowany powrotny strumień audio.</translation>
     </message>
     <message>
         <source>Save the unsynchronized reverse stream audio data.</source>
         <oldsource>Save the reverse stream audio data.</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Zapisz niezsynchronizowane dane audio strumienia powrotnego.</translation>
     </message>
     <message>
         <source>CSV</source>
@@ -9573,15 +9604,15 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Can&apos;t synchronize when only one channel is selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można zsynchronizować, kiedy tylko jeden kanał jest wybrany</translation>
     </message>
     <message>
         <source>Save forward and reverse stream audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Zapisz przewodni i powrotny strumień audio</translation>
     </message>
     <message>
         <source>Raw (*.raw)</source>
-        <translation type="unfinished"></translation>
+        <translation>Surowe dane (*.raw)</translation>
     </message>
     <message>
         <source>SSRC value not found.</source>
@@ -9669,7 +9700,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Can save audio with 8000 Hz clock rate only</source>
-        <translation type="unfinished"></translation>
+        <translation>Może zapisać audio tylko z próbkowaniem 8000 Hz</translation>
     </message>
     <message>
         <source>Save forward stream CSV</source>
@@ -9700,11 +9731,11 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <name>RtpAudioStream</name>
     <message>
         <source>RTP stream is empty or codec is unsupported.</source>
-        <translation type="unfinished"></translation>
+        <translation>Strumień RTP jest pusty lub kodek nie jest obsługiwany.</translation>
     </message>
     <message>
         <source>%1 does not support PCM at %2. Preferred format is %3</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 nie obsługuje formatu PCM na %2. Preferowany format to %3</translation>
     </message>
 </context>
 <context>
@@ -9805,7 +9836,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Output Device:</source>
-        <translation type="unfinished"></translation>
+        <translation>Urządzenie do odtwarzania</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -9970,7 +10001,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>No devices available</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak dostępnych urządzeń</translation>
     </message>
     <message>
         <source>Play Streams</source>
@@ -10875,11 +10906,11 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Command:</source>
-        <translation type="unfinished"></translation>
+        <translation>Komenda:</translation>
     </message>
     <message>
         <source>SCSI Service Response Times</source>
-        <translation type="unfinished"></translation>
+        <translation>Czas odpowiedzi serwisu SCSI</translation>
     </message>
 </context>
 <context>
@@ -11148,11 +11179,11 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show flows matching the current display filter&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pokazuj tylko przepływy pasujące do filtru&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Limit to display filter</source>
-        <translation type="unfinished">Ogranicz do filtru</translation>
+        <translation>Ogranicz do filtru wyświetlania</translation>
     </message>
     <message>
         <source>Flow type:</source>
@@ -11327,15 +11358,15 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <name>ShortcutListModel</name>
     <message>
         <source>Shortcut</source>
-        <translation type="unfinished"></translation>
+        <translation>Skrót</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Nazwa</translation>
+        <translation>Name</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation type="unfinished">Opis</translation>
+        <translation>Opis</translation>
     </message>
 </context>
 <context>
@@ -11442,7 +11473,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>UTF-16</source>
-        <translation type="unfinished">UTF-16</translation>
+        <translation>UTF-16</translation>
     </message>
     <message>
         <source>YAML</source>
@@ -11470,7 +11501,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Regex Find:</source>
-        <translation type="unfinished"></translation>
+        <translation>Regex znajdź:</translation>
     </message>
     <message>
         <source>Save Selected Packet Bytes As</source>
@@ -11500,7 +11531,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Initializing external capture plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Inicjacja zewnętrznych wtyczek przechwytywania</translation>
     </message>
     <message>
         <source>Registering dissectors</source>
@@ -11582,19 +11613,19 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <name>SupportedProtocolsModel</name>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Nazwa</translation>
+        <translation>Nazwa</translation>
     </message>
     <message>
         <source>Filter</source>
-        <translation type="unfinished">Filtr</translation>
+        <translation>Filtr</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation type="unfinished">Opis</translation>
+        <translation>Opis</translation>
     </message>
 </context>
 <context>
@@ -12127,7 +12158,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source> (MA)</source>
-        <translation type="unfinished"></translation>
+        <translation> (MA)</translation>
     </message>
     <message>
         <source> (%1 Segment MA)</source>
@@ -12322,11 +12353,11 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show absolute times in the start time column.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pokazuj czas absolutny w kolumnie Start Czasu.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Absolute start time</source>
-        <translation type="unfinished"></translation>
+        <translation>Absolutny czas startu</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add and remove conversation types.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -12395,11 +12426,11 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Copy from</source>
-        <translation type="unfinished">Kopiuj z</translation>
+        <translation>Kopiuj z</translation>
     </message>
     <message>
         <source>Copy entries from another profile.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiuj z innego profilu.</translation>
     </message>
     <message>
         <source>Open </source>
@@ -12438,11 +12469,11 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Copy entries from another profile.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiuj z innego profilu.</translation>
     </message>
     <message>
         <source>Copy from</source>
-        <translation type="unfinished">Kopiuj z</translation>
+        <translation>Kopiuj z</translation>
     </message>
     <message>
         <source>Unknown User Accessible Table</source>
@@ -12579,39 +12610,39 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <name>WelcomePage</name>
     <message>
         <source>Form</source>
-        <translation type="unfinished">Formularz</translation>
+        <translation>Formularz</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:large;&quot;&gt;Welcome to Wireshark&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:large;&quot;&gt;Witaj w Wiresharku&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Open a file on your file system&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Otwórz plik&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;h2&gt;Open&lt;/h2&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;h2&gt;Otwórz&lt;/h2&gt;</translation>
     </message>
     <message>
         <source>Recent capture files</source>
-        <translation type="unfinished"></translation>
+        <translation>Ostatnio używane pliki przechwytywania</translation>
     </message>
     <message>
         <source>Capture files that have been opened previously</source>
-        <translation type="unfinished"></translation>
+        <translation>Pliki przechwytywania, które były uprzednio używane</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Capture live packets from your network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Przechwytuj pakiety.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;h2&gt;Capture&lt;/h2&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;h2&gt;Przechwytywanie&lt;/h2&gt;</translation>
     </message>
     <message>
         <source>…using this filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>...używając tego filtru:</translation>
     </message>
     <message>
         <source>Interface list</source>
@@ -12619,11 +12650,11 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>List of available capture interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Lista dostępnych interfejsów przechwytywania</translation>
     </message>
     <message>
         <source>&lt;h2&gt;Learn&lt;/h2&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;h2&gt;Nauka&lt;/h2&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head&gt;
@@ -12657,7 +12688,37 @@ a:hover {
 
 &lt;/tr&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head&gt;
+&lt;style&gt;
+a:link {
+  color: inherit;
+  text-decoration: none;
+}
+a:hover {
+  color: inherit;
+  text-decoration: underline;
+}
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;table&gt;&lt;tr&gt;
+&lt;th&gt;&lt;a href=&quot;https://www.wireshark.org/docs/wsug_html_chunked/&quot;&gt;Podręcznik użytkownika&lt;/a&gt;&lt;/th&gt;
+
+&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
+
+&lt;th&gt;&lt;a href=&quot;https://wiki.wireshark.org/&quot;&gt;Wiki&lt;/a&gt;&lt;/th&gt;
+
+&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
+
+&lt;th&gt;&lt;a href=&quot;https://ask.wireshark.org/&quot;&gt;Pytania i Odpowiedzi&lt;/a&gt;&lt;/th&gt;
+
+&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
+
+&lt;th&gt;&lt;a href=&quot;https://www.wireshark.org/lists/&quot;&gt;Grupy dyskusyjne&lt;/a&gt;&lt;/th&gt;
+
+&lt;/tr&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Show in Finder</source>
@@ -12673,15 +12734,15 @@ a:hover {
     </message>
     <message numerus="yes">
         <source>%n interface(s) shown, %1 hidden</source>
-        <translation type="unfinished">
-            <numerusform>%n interface shown, %1 hidden</numerusform>
-            <numerusform>%n interfaces shown, %1 hidden</numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n wyświetlany interfejs, %1 ukrytych</numerusform>
+            <numerusform>%n wyświetlanych interfejsów, %1 ukrytych</numerusform>
+            <numerusform>%n wyświetlanych interfejsów, %1 ukrytych</numerusform>
         </translation>
     </message>
     <message>
         <source>You are sniffing the glue that holds the Internet together using Wireshark </source>
-        <translation type="unfinished"></translation>
+        <translation>Dzięki Wiresharkowi podglądasz fundamenty współczesnego  Internetu.</translation>
     </message>
     <message>
         <source>You are running Wireshark </source>
@@ -12689,23 +12750,23 @@ a:hover {
     </message>
     <message>
         <source> You receive automatic updates.</source>
-        <translation type="unfinished"></translation>
+        <translation> Automatyczne aktualizacje są włączone.</translation>
     </message>
     <message>
         <source> You have disabled automatic updates.</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatyczne aktualizacje są wyłączone.</translation>
     </message>
     <message>
         <source>not found</source>
-        <translation type="unfinished"></translation>
+        <translation>nie znaleziono</translation>
     </message>
     <message>
         <source>Copy file path</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiuj ścieżkę</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuń</translation>
     </message>
 </context>
 <context>

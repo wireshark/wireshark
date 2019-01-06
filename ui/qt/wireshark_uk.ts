@@ -88,12 +88,24 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Show in Finder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show in Folder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Copy</source>
         <translation type="unfinished">Скопіювати</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <source>Copy Row(s)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -2272,12 +2284,8 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>Зберегти Всі Об&apos;єкти В</translation>
     </message>
     <message>
-        <source>Object Export</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Some files could not be saved.</source>
-        <translation>Деякі файли неможливо зберегти.</translation>
+        <translation type="vanished">Деякі файли неможливо зберегти.</translation>
     </message>
 </context>
 <context>

@@ -88,12 +88,23 @@
         <translation>Katalogen %1 kunde inte skapas!</translation>
     </message>
     <message>
+        <source>Show in Finder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show in Folder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Copy</source>
         <translation>Kopiera</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <source>Copy Row(s)</source>
-        <translation>Kopiera rader</translation>
+        <translation type="unfinished">
+            <numerusform>Kopiera rader</numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -2295,11 +2306,11 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Object Export</source>
-        <translation>Objektexport</translation>
+        <translation type="vanished">Objektexport</translation>
     </message>
     <message>
         <source>Some files could not be saved.</source>
-        <translation>Några filer kunde inte sparas.</translation>
+        <translation type="vanished">Några filer kunde inte sparas.</translation>
     </message>
 </context>
 <context>
@@ -7847,472 +7858,474 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     <name>Mtp3SummaryDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Dialog</translation>
+        <translation>Dialog</translation>
     </message>
     <message>
         <source>MTP3 Summary</source>
-        <translation type="unfinished">MTP3-sammanfattning</translation>
+        <translation>MTP3-sammanfattning</translation>
     </message>
     <message>
         <source>File</source>
-        <translation type="unfinished">Fil</translation>
+        <translation>Fil</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Namn</translation>
+        <translation>Namn</translation>
     </message>
     <message>
         <source>Length</source>
-        <translation type="unfinished">Längd</translation>
+        <translation>Längd</translation>
     </message>
     <message>
         <source>Format</source>
-        <translation type="unfinished">Format</translation>
+        <translation>Format</translation>
     </message>
     <message>
         <source>Snapshot length</source>
-        <translation type="unfinished">Längd på ögonblicksbild</translation>
+        <translation>Längd på ögonblicksbild</translation>
     </message>
     <message>
         <source>Data</source>
-        <translation type="unfinished">Data</translation>
+        <translation>Data</translation>
     </message>
     <message>
         <source>First packet</source>
-        <translation type="unfinished">Första paket</translation>
+        <translation>Första paket</translation>
     </message>
     <message>
         <source>Last packet</source>
-        <translation type="unfinished">Sista paket</translation>
+        <translation>Sista paket</translation>
     </message>
     <message>
         <source>Elapsed</source>
-        <translation type="unfinished">Förflutet</translation>
+        <translation>Förflutet</translation>
     </message>
     <message>
         <source>Packets</source>
-        <translation type="unfinished">Paket</translation>
+        <translation>Paket</translation>
     </message>
     <message>
         <source>Service Indicator (SI) Totals</source>
-        <translation type="unfinished"></translation>
+        <translation>Tjänsteindikator- (TI-)totaler</translation>
     </message>
     <message>
         <source>SI</source>
-        <translation type="unfinished"></translation>
+        <translation>TI</translation>
     </message>
     <message>
         <source>MSUs</source>
-        <translation type="unfinished"></translation>
+        <translation>MSU:er</translation>
     </message>
     <message>
         <source>MSUs/s</source>
-        <translation type="unfinished"></translation>
+        <translation>MSU:er/s</translation>
     </message>
     <message>
         <source>Bytes</source>
-        <translation type="unfinished">Byte</translation>
+        <translation>Byte</translation>
     </message>
     <message>
         <source>Bytes/MSU</source>
-        <translation type="unfinished"></translation>
+        <translation>Byte/MSU</translation>
     </message>
     <message>
         <source>Bytes/s</source>
-        <translation type="unfinished"></translation>
+        <translation>Byte/s</translation>
     </message>
     <message>
         <source>Totals</source>
-        <translation type="unfinished">Totalt</translation>
+        <translation>Totalt</translation>
     </message>
     <message>
         <source>Total MSUs</source>
-        <translation type="unfinished"></translation>
+        <translation>Totalt MSU:er</translation>
     </message>
     <message>
         <source>Total Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Totalt byte</translation>
     </message>
     <message>
         <source>Average Bytes/MSU</source>
-        <translation type="unfinished"></translation>
+        <translation>Genomsnittligt byte/MSU</translation>
     </message>
     <message>
         <source>Average Bytes/s</source>
-        <translation type="unfinished"></translation>
+        <translation>Genomsnittligt byte/s</translation>
     </message>
 </context>
 <context>
     <name>MulticastStatisticsDialog</name>
     <message>
         <source>UDP Multicast Streams</source>
-        <translation type="unfinished">UDP multicast-strömmar</translation>
+        <translation>UDP-multicast-strömmar</translation>
     </message>
     <message>
         <source>Source Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Källadress</translation>
     </message>
     <message>
         <source>Source Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Källport.</translation>
     </message>
     <message>
         <source>Destination Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Destinationsadress</translation>
     </message>
     <message>
         <source>Destination Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Destinationsport.</translation>
     </message>
     <message>
         <source>Packets</source>
-        <translation type="unfinished">Paket</translation>
+        <translation>Paket</translation>
     </message>
     <message>
         <source>Packets/s</source>
-        <translation type="unfinished"></translation>
+        <translation>Paket/s</translation>
     </message>
     <message>
         <source>Avg BW (bps)</source>
-        <translation type="unfinished"></translation>
+        <translation>Snitt BW (b/s)</translation>
     </message>
     <message>
         <source>Max BW (bps)</source>
-        <translation type="unfinished"></translation>
+        <translation>Max BW (b/s)</translation>
     </message>
     <message>
         <source>Max Burst</source>
-        <translation type="unfinished"></translation>
+        <translation>Max utbrott</translation>
     </message>
     <message>
         <source>Burst Alarms</source>
-        <translation type="unfinished"></translation>
+        <translation>Utbrottslarm</translation>
     </message>
     <message>
         <source>Max Buffers (B)</source>
-        <translation type="unfinished"></translation>
+        <translation>Max buffertar (B)</translation>
     </message>
     <message>
         <source>Buffer Alarms</source>
-        <translation type="unfinished"></translation>
+        <translation>Buffertlarm</translation>
     </message>
     <message>
         <source>Burst measurement interval (ms):</source>
-        <translation type="unfinished"></translation>
+        <translation>Utbrottsmätningsintervall (ms):</translation>
     </message>
     <message>
         <source>Burst alarm threshold (packets):</source>
-        <translation type="unfinished"></translation>
+        <translation>Utbrottslarmsgräns (paket):</translation>
     </message>
     <message>
         <source>Buffer alarm threshold (B):</source>
-        <translation type="unfinished"></translation>
+        <translation>Buffertlarmsgräns (B):</translation>
     </message>
     <message>
         <source>Stream empty speed (Kb/s):</source>
         <oldsource>Stream empty speed (Kb/s:</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Strömmens tomgångshastighet (kb/s):</translation>
     </message>
     <message>
         <source>Total empty speed (Kb/s):</source>
         <oldsource>Total empty speed (Kb/s:</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Total tomgångshastighet (kb/s):</translation>
     </message>
     <message>
         <source>The burst interval must be between 1 and 1000. </source>
-        <translation type="unfinished"></translation>
+        <translation>Utbrottsintervallet måste vara mellan 1 och 1000.</translation>
     </message>
     <message>
         <source>The burst alarm threshold isn&apos;t valid. </source>
-        <translation type="unfinished"></translation>
+        <translation>Utbrottslarmsgränsen är inte riktig.</translation>
     </message>
     <message>
         <source>The buffer alarm threshold isn&apos;t valid. </source>
-        <translation type="unfinished"></translation>
+        <translation>Buffertlarmsgränsen är inte riktig.</translation>
     </message>
     <message>
         <source>The stream empty speed should be between 1 and 10000000. </source>
-        <translation type="unfinished"></translation>
+        <translation>Strömmens tomgångshastighet skall vara mellan 1 och 10000000.</translation>
     </message>
     <message>
         <source>The total empty speed should be between 1 and 10000000. </source>
-        <translation type="unfinished"></translation>
+        <translation>Den totala tomgångshastighet skall vara mellan 1 och 10000000.</translation>
     </message>
     <message>
         <source>%1 streams, avg bw: %2bps, max bw: %3bps, max burst: %4 / %5ms, max buffer: %6B</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 strömmar, snitt bw: %2 b/s, max bw: %3 b/s, max utbrott: %4 / %5 ms, max buffert: %6 B</translation>
     </message>
 </context>
 <context>
     <name>PacketCommentDialog</name>
     <message>
         <source>Packet %1 Comment</source>
-        <translation type="unfinished"></translation>
+        <translation>Paket %1 kommentar</translation>
     </message>
 </context>
 <context>
     <name>PacketDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Dialog</translation>
+        <translation>Dialog</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished">&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</translation>
+        <translation>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Packet %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Paket %1</translation>
     </message>
     <message>
         <source>[%1 closed] </source>
-        <translation type="unfinished"></translation>
+        <translation>[%1 stängd]</translation>
     </message>
     <message>
         <source>Byte %1</source>
-        <translation type="unfinished">Byte %1</translation>
+        <translation>Byte %1</translation>
     </message>
     <message>
         <source>Bytes %1-%2</source>
-        <translation type="unfinished">Byte %1-%2</translation>
+        <translation>Byte %1-%2</translation>
     </message>
 </context>
 <context>
     <name>PacketFormatGroupBox</name>
     <message>
         <source>GroupBox</source>
-        <translation type="unfinished"></translation>
+        <translation>GroupBox</translation>
     </message>
     <message>
         <source>Packet Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Paketformat</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Packet summary lines similar to the packet list&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Paketsammanfattningsrader liknande dem i paketlistan&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Summary line</source>
-        <translation type="unfinished"></translation>
+        <translation>Sammanfattningsrad</translation>
     </message>
     <message>
         <source>Include column headings</source>
-        <translation type="unfinished"></translation>
+        <translation>Inkludera kolumnrubriker</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Packet details similar to the protocol tree&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Paketdetaljer liknande dem i protokollträdet&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Details:</source>
-        <translation type="unfinished"></translation>
+        <translation>Detaljer:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export only top-level packet detail items&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Exportera endast poster med detaljer på tippnivåpaket&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>All co&amp;llapsed</source>
-        <translation type="unfinished"></translation>
+        <translation>Allt ih&amp;opfällt</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Expand and collapse packet details as they are currently displayed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Expandera och fäll ihop paketdetaljer så som de för närvarande visas.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>As displa&amp;yed</source>
-        <translation type="unfinished"></translation>
+        <translation>Som &amp;visat</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export all packet detail items&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Exportera alla paketdetaljposter&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>All e&amp;xpanded</source>
-        <translation type="unfinished"></translation>
+        <translation>Alla e&amp;xpanderade</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export a hexdump of the packet data similar to the packet bytes view&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Exportera en hexdump av paketdatan liknande paketbytevyn&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Bytes</source>
-        <translation type="unfinished">Byte</translation>
+        <translation>Byte</translation>
     </message>
 </context>
 <context>
     <name>PacketList</name>
     <message>
         <source>Summary as Text</source>
-        <translation type="unfinished"></translation>
+        <translation>Sammanfattning som text</translation>
     </message>
     <message>
         <source>Align Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Vänsterjustera</translation>
     </message>
     <message>
         <source>Align Center</source>
-        <translation type="unfinished"></translation>
+        <translation>Centrera</translation>
     </message>
     <message>
         <source>Align Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Högerjustera</translation>
     </message>
     <message>
         <source>Column Preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>Kolumninställningar</translation>
     </message>
     <message>
         <source>Edit Column</source>
-        <translation type="unfinished"></translation>
+        <translation>Redigera kolumnen</translation>
     </message>
     <message>
         <source>Resize To Contents</source>
-        <translation type="unfinished"></translation>
+        <translation>Ändra storlek till innehåll</translation>
     </message>
     <message>
         <source>Resolve Names</source>
-        <translation type="unfinished"></translation>
+        <translation>Slå upp namn</translation>
     </message>
     <message>
         <source>Remove This Column</source>
-        <translation type="unfinished"></translation>
+        <translation>Ta bort denna kolumn</translation>
     </message>
     <message>
         <source>Frame %1: %2
 
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Ram %1: %2
+
+</translation>
     </message>
     <message>
         <source>[ Comment text exceeds %1. Stopping. ]</source>
-        <translation type="unfinished"></translation>
+        <translation>[ Kommentartext överskrider %1.  Stannar. ]</translation>
     </message>
 </context>
 <context>
     <name>PacketListModel</name>
     <message>
         <source>Dissecting</source>
-        <translation type="unfinished"></translation>
+        <translation>Dissekerar</translation>
     </message>
     <message>
         <source>Sorting &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Sorterar ”%1”</translation>
     </message>
 </context>
 <context>
     <name>PacketRangeGroupBox</name>
     <message>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation>Formulär</translation>
     </message>
     <message>
         <source>Packet Range</source>
-        <translation type="unfinished"></translation>
+        <translation>Paketintervall</translation>
     </message>
     <message>
         <source>-</source>
-        <translation type="unfinished">-</translation>
+        <translation>-</translation>
     </message>
     <message>
         <source>Displayed</source>
-        <translation type="unfinished">Visat</translation>
+        <translation>Visat</translation>
     </message>
     <message>
         <source>&amp;Marked packets only</source>
-        <translation type="unfinished"></translation>
+        <translation>Endast &amp;markerade paket</translation>
     </message>
     <message>
         <source>&amp;Range:</source>
-        <translation type="unfinished"></translation>
+        <translation>I&amp;ntervall:</translation>
     </message>
     <message>
         <source>Remove &amp;ignored packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Ta bort &amp;ignorerade paket</translation>
     </message>
     <message>
         <source>First &amp;to last marked</source>
-        <translation type="unfinished"></translation>
+        <translation>Första &amp;till sista markerat</translation>
     </message>
     <message>
         <source>&amp;All packets</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Alla paket</translation>
     </message>
     <message>
         <source>&amp;Selected packets only</source>
-        <translation type="unfinished"></translation>
+        <translation>Endast &amp;valda paket</translation>
     </message>
     <message>
         <source>Captured</source>
-        <translation type="unfinished">Fångat</translation>
+        <translation>Fångade</translation>
     </message>
 </context>
 <context>
     <name>PathChooserDelegate</name>
     <message>
         <source>Browse</source>
-        <translation type="unfinished"></translation>
+        <translation>Bläddra</translation>
     </message>
     <message>
         <source>Open Pipe</source>
-        <translation type="unfinished"></translation>
+        <translation>Öppna rör</translation>
     </message>
 </context>
 <context>
     <name>PluginListModel</name>
     <message>
         <source>extcap</source>
-        <translation type="unfinished"></translation>
+        <translation>extcap</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Namn</translation>
+        <translation>Namn</translation>
     </message>
     <message>
         <source>Version</source>
-        <translation type="unfinished"></translation>
+        <translation>Version</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Typ</translation>
+        <translation>Typ</translation>
     </message>
     <message>
         <source>Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Sökväg</translation>
     </message>
 </context>
 <context>
     <name>PreferenceEditorFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">Ram</translation>
+        <translation>Ram</translation>
     </message>
     <message>
         <source>…</source>
-        <translation type="unfinished"></translation>
+        <translation>…</translation>
     </message>
     <message>
         <source>a preference</source>
-        <translation type="unfinished"></translation>
+        <translation>en inställning</translation>
     </message>
     <message>
         <source>Open %1 preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>Öppna %1 inställningar</translation>
     </message>
     <message>
         <source>Invalid value.</source>
-        <translation type="unfinished"></translation>
+        <translation>Felaktigt värde.</translation>
     </message>
 </context>
 <context>
     <name>PreferencesDialog</name>
     <message>
         <source>Search:</source>
-        <translation type="unfinished">Sök:</translation>
+        <translation>Sök:</translation>
     </message>
     <message>
         <source>Preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>Inställningar</translation>
     </message>
 </context>
 <context>
@@ -8320,469 +8333,469 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     <message>
         <source>Advanced</source>
         <extracomment>Names of special preferences handled by the GUI</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Avancerat</translation>
     </message>
     <message>
         <source>Appearance</source>
-        <translation type="unfinished"></translation>
+        <translation>Utseende</translation>
     </message>
     <message>
         <source>Layout</source>
-        <translation type="unfinished"></translation>
+        <translation>Layout</translation>
     </message>
     <message>
         <source>Columns</source>
-        <translation type="unfinished"></translation>
+        <translation>Kolumner</translation>
     </message>
     <message>
         <source>Font and Colors</source>
-        <translation type="unfinished"></translation>
+        <translation>Typsnitt och färger</translation>
     </message>
     <message>
         <source>Capture</source>
-        <translation type="unfinished">Fånga</translation>
+        <translation>Fångst</translation>
     </message>
     <message>
         <source>Expert</source>
-        <translation type="unfinished"></translation>
+        <translation>Expert</translation>
     </message>
     <message>
         <source>Filter Buttons</source>
-        <translation type="unfinished"></translation>
+        <translation>Filterknappar</translation>
     </message>
 </context>
 <context>
     <name>PrintDialog</name>
     <message>
         <source>Packet Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Paketformat</translation>
     </message>
     <message>
         <source>Print each packet on a new page</source>
-        <translation type="unfinished"></translation>
+        <translation>Skriv ut varje paket på en ny sida</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use the &amp;quot;+&amp;quot; and &amp;quot;-&amp;quot; keys to zoom the preview in and out. Use the &amp;quot;0&amp;quot; key to reset the zoom level.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Använd tangenterna &amp;quot;+&amp;quot; och &amp;quot;-&amp;quot; för att zooma in och ut förhandsvisningen.  Använd tangenten &amp;quot;0&amp;quot; för att återställa zoomnivån.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;+ and - zoom, 0 resets&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;+ och - zoomar, 0 återställer&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Packet Range</source>
-        <translation type="unfinished"></translation>
+        <translation>Paketintervall</translation>
     </message>
     <message>
         <source>Print</source>
-        <translation type="unfinished">Skriv</translation>
+        <translation>Skriv ut</translation>
     </message>
     <message>
         <source>&amp;Print</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Skriv ut</translation>
     </message>
     <message>
         <source>Page &amp;Setup</source>
-        <translation type="unfinished"></translation>
+        <translation>Sid&amp;inställning</translation>
     </message>
     <message>
         <source>%1 %2 total packets, %3 shown</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 %2 paket totalt, %3 visade</translation>
     </message>
     <message>
         <source>Print Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Skrivfel</translation>
     </message>
     <message>
         <source>Unable to print to %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kan inte skriva till %1.</translation>
     </message>
 </context>
 <context>
     <name>ProfileDialog</name>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Namn</translation>
+        <translation>Namn</translation>
     </message>
     <message>
         <source>Create a new profile using default settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Skapa en ny profil baserat på standardinställningarna.</translation>
     </message>
     <message>
         <source>Remove this profile. System provided profiles cannot be removed.</source>
         <oldsource>Remove this profile. The Default profile and system provided profiles cannot be removed.</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Ta bort denna profil.  Profiler som kommer med systemet kan inte tas bort.</translation>
     </message>
     <message>
         <source>Copy this profile.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiera denna profil.</translation>
     </message>
     <message>
         <source>Configuration Profiles</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfigurationsprofiler</translation>
     </message>
     <message>
         <source>Will be reset to default values</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommer att återställas till standardvärden</translation>
     </message>
     <message>
         <source>Created from %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Skapad från %1</translation>
     </message>
     <message>
         <source>(system provided)</source>
-        <translation type="unfinished"></translation>
+        <translation>(tillhandahålls av systemet)</translation>
     </message>
     <message>
         <source>Created from default settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Skapad från standardinställningarna</translation>
     </message>
     <message>
         <source>Renamed from %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Bytt namn från %1</translation>
     </message>
     <message>
         <source>Go to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Gå till %1</translation>
     </message>
     <message>
         <source>This is a system provided profile.</source>
-        <translation type="unfinished"></translation>
+        <translation>Detta är en profil systemet tillhandahåller.</translation>
     </message>
     <message>
         <source>A profile already exists with this name.</source>
-        <translation type="unfinished"></translation>
+        <translation>Det finns redan en profil med det namnet.</translation>
     </message>
     <message>
         <source>A profile already exists with this name</source>
-        <translation type="unfinished"></translation>
+        <translation>Det finns redan en profil med det namnet</translation>
     </message>
     <message>
         <source>The profile will be reset to default values.</source>
-        <translation type="unfinished"></translation>
+        <translation>Profilen kommer att återställas till standardvärden.</translation>
     </message>
     <message>
         <source>Profile Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Profilfel</translation>
     </message>
 </context>
 <context>
     <name>ProgressFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">Ram</translation>
+        <translation>Ram</translation>
     </message>
 </context>
 <context>
     <name>ProtoTree</name>
     <message>
         <source>Packet details</source>
-        <translation type="unfinished"></translation>
+        <translation>Paketdetaljer</translation>
     </message>
     <message>
         <source>Colorize with Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Färglägg med filter</translation>
     </message>
 </context>
 <context>
     <name>ProtocolHierarchyDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Dialog</translation>
+        <translation>Dialog</translation>
     </message>
     <message>
         <source>Protocol</source>
-        <translation type="unfinished">Protokoll</translation>
+        <translation>Protokoll</translation>
     </message>
     <message>
         <source>Percent Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Procent paket</translation>
     </message>
     <message>
         <source>Packets</source>
-        <translation type="unfinished">Paket</translation>
+        <translation>Paket</translation>
     </message>
     <message>
         <source>Percent Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Procent byte</translation>
     </message>
     <message>
         <source>Bytes</source>
-        <translation type="unfinished">Byte</translation>
+        <translation>Byte</translation>
     </message>
     <message>
         <source>Bits/s</source>
-        <translation type="unfinished"></translation>
+        <translation>Bitar/s</translation>
     </message>
     <message>
         <source>End Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Slutpaket</translation>
     </message>
     <message>
         <source>End Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Slutbyte</translation>
     </message>
     <message>
         <source>End Bits/s</source>
-        <translation type="unfinished"></translation>
+        <translation>Slutbit/s</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished">&lt;small&gt;&lt;i&gt;Ett tips.&lt;/i&gt;&lt;/small&gt;</translation>
+        <translation>&lt;small&gt;&lt;i&gt;Ett tips.&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Copy as CSV</source>
-        <translation type="unfinished">Kopiera som CSV</translation>
+        <translation>Kopiera som CSV</translation>
     </message>
     <message>
         <source>Copy stream list as CSV.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiera strömlistan som CSV.</translation>
     </message>
     <message>
         <source>Copy as YAML</source>
-        <translation type="unfinished">Kopiera som YAML</translation>
+        <translation>Kopiera som YAML</translation>
     </message>
     <message>
         <source>Copy stream list as YAML.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiera strömlistan som YAML.</translation>
     </message>
     <message>
         <source>Protocol Hierarchy Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Protokollhierarkistatistik</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">Kopiera</translation>
+        <translation>Kopiera</translation>
     </message>
     <message>
         <source>as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>som CSV</translation>
     </message>
     <message>
         <source>as YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>som YAML</translation>
     </message>
     <message>
         <source>No display filter.</source>
-        <translation type="unfinished"></translation>
+        <translation>Inget visningsfilter.</translation>
     </message>
     <message>
         <source>Display filter: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Visningsfilter: %1</translation>
     </message>
 </context>
 <context>
     <name>ProtocolPreferencesMenu</name>
     <message>
         <source>Protocol Preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>Protokollinställningar</translation>
     </message>
     <message>
         <source>No protocol preferences available</source>
-        <translation type="unfinished"></translation>
+        <translation>Inga protokollinställningar tillgängliga</translation>
     </message>
     <message>
         <source>Disable %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Avaktivera %1</translation>
     </message>
     <message>
         <source>%1 has no preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 har inga inställningar</translation>
     </message>
     <message>
         <source>Open %1 preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>Öppna %1 installningar</translation>
     </message>
 </context>
 <context>
     <name>QObject</name>
     <message>
         <source>Average Throughput (bits/s)</source>
-        <translation type="unfinished"></translation>
+        <translation>Genomsnittlig genomströmning (bitar/s)</translation>
     </message>
     <message>
         <source>Round Trip Time (ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>Rundturstid (ms)</translation>
     </message>
     <message>
         <source>Segment Length (B)</source>
-        <translation type="unfinished"></translation>
+        <translation>Segmentlängd (B)</translation>
     </message>
     <message>
         <source>Sequence Number (B)</source>
-        <translation type="unfinished"></translation>
+        <translation>Sekvensnummer (B)</translation>
     </message>
     <message>
         <source>Time (s)</source>
-        <translation type="unfinished">Tid (s)</translation>
+        <translation>Tid (s)</translation>
     </message>
     <message>
         <source>Window Size (B)</source>
-        <translation type="unfinished"></translation>
+        <translation>Fönsterstorlek (B)</translation>
     </message>
     <message>
         <source>[no capture file]</source>
-        <translation type="unfinished"></translation>
+        <translation>[ingen fångstfil]</translation>
     </message>
     <message>
         <source>New coloring rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Ny färgläggningsregel</translation>
     </message>
     <message>
         <source>Conversation</source>
-        <translation type="unfinished"></translation>
+        <translation>Konversation</translation>
     </message>
     <message>
         <source>Bars show the relative timeline for each conversation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Streck visar det relativa tidsförloppet för varje konversation.</translation>
     </message>
     <message>
         <source>Endpoint</source>
-        <translation type="unfinished"></translation>
+        <translation>Slutpunkt</translation>
     </message>
     <message>
         <source>Apply as Filter</source>
-        <translation type="unfinished">Använd som ett filter</translation>
+        <translation>Använd som ett filter</translation>
     </message>
     <message>
         <source>Prepare a Filter</source>
-        <translation type="unfinished">Förbered ett filter</translation>
+        <translation>Förbered ett filter</translation>
     </message>
     <message>
         <source>Find</source>
-        <translation type="unfinished"></translation>
+        <translation>Sök</translation>
     </message>
     <message>
         <source>Colorize</source>
-        <translation type="unfinished"></translation>
+        <translation>Färglägg</translation>
     </message>
     <message>
         <source>Look Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Slå upp</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">Kopiera</translation>
+        <translation>Kopiera</translation>
     </message>
     <message>
         <source>UNKNOWN</source>
-        <translation type="unfinished"></translation>
+        <translation>OKÄND</translation>
     </message>
     <message>
         <source>Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Vald</translation>
     </message>
     <message>
         <source>Not Selected</source>
-        <translation type="unfinished">Ej vald</translation>
+        <translation>Ej vald</translation>
     </message>
     <message>
         <source>A </source>
-        <translation type="unfinished"></translation>
+        <translation>A </translation>
     </message>
     <message>
         <source>B </source>
-        <translation type="unfinished"></translation>
+        <translation>B </translation>
     </message>
     <message>
         <source>Any </source>
-        <translation type="unfinished"></translation>
+        <translation>Godtycklig</translation>
     </message>
     <message>
         <source>Don&apos;t show this message again.</source>
-        <translation type="unfinished"></translation>
+        <translation>Visa inte detta meddelande igen.</translation>
     </message>
     <message>
         <source>Multiple problems found</source>
-        <translation type="unfinished"></translation>
+        <translation>Flera problem hittades</translation>
     </message>
     <message>
         <source>%1 (%L2%)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (%L2%)</translation>
     </message>
     <message>
         <source>No entries.</source>
-        <translation type="unfinished"></translation>
+        <translation>Inga poster.</translation>
     </message>
     <message>
         <source>%1 entries.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 poster.</translation>
     </message>
     <message>
         <source>Edit</source>
-        <translation type="unfinished">Redigera</translation>
+        <translation>Redigera</translation>
     </message>
     <message>
         <source>Browse</source>
-        <translation type="unfinished"></translation>
+        <translation>Bläddra</translation>
     </message>
     <message>
         <source>Base station</source>
-        <translation type="unfinished"></translation>
+        <translation>Basstation</translation>
     </message>
     <message>
         <source>&lt;Broadcast&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;Utsändning&gt;</translation>
     </message>
     <message>
         <source>&lt;Hidden&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;Dold&gt;</translation>
     </message>
     <message>
         <source>BSSID</source>
-        <translation type="unfinished"></translation>
+        <translation>BSSID</translation>
     </message>
     <message>
         <source>Beacons</source>
-        <translation type="unfinished"></translation>
+        <translation>Fyrar</translation>
     </message>
     <message>
         <source>Data Pkts</source>
-        <translation type="unfinished"></translation>
+        <translation>Datapaket</translation>
     </message>
     <message>
         <source>Protection</source>
-        <translation type="unfinished"></translation>
+        <translation>Skydd</translation>
     </message>
     <message>
         <source>Address</source>
-        <translation type="unfinished">Adress</translation>
+        <translation>Adress</translation>
     </message>
     <message>
         <source>Pkts Sent</source>
-        <translation type="unfinished"></translation>
+        <translation>Paket skickade</translation>
     </message>
     <message>
         <source>Pkts Received</source>
-        <translation type="unfinished"></translation>
+        <translation>Paket mottagna</translation>
     </message>
     <message>
         <source>Comment</source>
-        <translation type="unfinished">Kommentar</translation>
+        <translation>Kommentar</translation>
     </message>
     <message>
         <source>Wrong sequence number</source>
-        <translation type="unfinished"></translation>
+        <translation>Fel sekvensnummer</translation>
     </message>
     <message>
         <source>Payload changed to PT=%1</source>
-        <translation type="unfinished"></translation>
+        <translation>Lasten ändrades till PT=%1</translation>
     </message>
     <message>
         <source>Incorrect timestamp</source>
-        <translation type="unfinished"></translation>
+        <translation>Felaktig tidsstämpel</translation>
     </message>
     <message>
         <source>Marker missing?</source>
-        <translation type="unfinished"></translation>
+        <translation>Saknad markör?</translation>
     </message>
     <message>
         <source>C-RNTI</source>
-        <translation type="unfinished"></translation>
+        <translation>C-RNTI</translation>
     </message>
     <message>
         <source>SPS-RNTI</source>
-        <translation type="unfinished"></translation>
+        <translation>SPS-RNTI</translation>
     </message>
     <message>
         <source>RNTI</source>
@@ -8790,280 +8803,280 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Typ</translation>
+        <translation>Typ</translation>
     </message>
     <message>
         <source>UEId</source>
-        <translation type="unfinished"></translation>
+        <translation>UEId</translation>
     </message>
     <message>
         <source>UL Frames</source>
-        <translation type="unfinished">UL-ramar</translation>
+        <translation>UL-ramar</translation>
     </message>
     <message>
         <source>UL Bytes</source>
-        <translation type="unfinished">UL-byte</translation>
+        <translation>UL-byte</translation>
     </message>
     <message>
         <source>UL MB/s</source>
-        <translation type="unfinished">UL MB/s</translation>
+        <translation>UL MB/s</translation>
     </message>
     <message>
         <source>UL Padding %</source>
-        <translation type="unfinished"></translation>
+        <translation>UL-utfyllnad %</translation>
     </message>
     <message>
         <source>UL Re TX</source>
-        <translation type="unfinished"></translation>
+        <translation>UL Re TX</translation>
     </message>
     <message>
         <source>DL Frames</source>
-        <translation type="unfinished">DL-ramar</translation>
+        <translation>DL-ramar</translation>
     </message>
     <message>
         <source>DL Bytes</source>
-        <translation type="unfinished">DL-byte</translation>
+        <translation>DL-byte</translation>
     </message>
     <message>
         <source>DL MB/s</source>
-        <translation type="unfinished">DL MB/s</translation>
+        <translation>DL MB/s</translation>
     </message>
     <message>
         <source>DL Padding %</source>
-        <translation type="unfinished"></translation>
+        <translation>DL-utfyllnad %</translation>
     </message>
     <message>
         <source>DL CRC Failed</source>
-        <translation type="unfinished"></translation>
+        <translation>DL CRC misslyckades</translation>
     </message>
     <message>
         <source>DL ReTX</source>
-        <translation type="unfinished"></translation>
+        <translation>DL ReTX</translation>
     </message>
     <message>
         <source>LCID 1</source>
-        <translation type="unfinished"></translation>
+        <translation>LCID 1</translation>
     </message>
     <message>
         <source>LCID 2</source>
-        <translation type="unfinished"></translation>
+        <translation>LCID 2</translation>
     </message>
     <message>
         <source>LCID 3</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">LCID 3</translation>
     </message>
     <message>
         <source>LCID 4</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">LCID 4</translation>
     </message>
     <message>
         <source>LCID 5</source>
-        <translation type="unfinished"></translation>
+        <translation>LCID 5</translation>
     </message>
     <message>
         <source>LCID 6</source>
-        <translation type="unfinished"></translation>
+        <translation>LCID 6</translation>
     </message>
     <message>
         <source>LCID 7</source>
-        <translation type="unfinished"></translation>
+        <translation>LCID 7</translation>
     </message>
     <message>
         <source>LCID 8</source>
-        <translation type="unfinished"></translation>
+        <translation>LCID 8</translation>
     </message>
     <message>
         <source>LCID 9</source>
-        <translation type="unfinished"></translation>
+        <translation>LCID 9</translation>
     </message>
     <message>
         <source>LCID 10</source>
-        <translation type="unfinished"></translation>
+        <translation>LCID 10</translation>
     </message>
     <message>
         <source>TM</source>
-        <translation type="unfinished"></translation>
+        <translation>TM</translation>
     </message>
     <message>
         <source>UM</source>
-        <translation type="unfinished"></translation>
+        <translation>UM</translation>
     </message>
     <message>
         <source>AM</source>
-        <translation type="unfinished"></translation>
+        <translation>AM</translation>
     </message>
     <message>
         <source>Predef</source>
-        <translation type="unfinished"></translation>
+        <translation>Fördefinierad</translation>
     </message>
     <message>
         <source>Unknown (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Okänd (%1)</translation>
     </message>
     <message>
         <source>CCCH</source>
-        <translation type="unfinished"></translation>
+        <translation>CCCH</translation>
     </message>
     <message>
         <source>SRB-%1</source>
-        <translation type="unfinished"></translation>
+        <translation>SRB-%1</translation>
     </message>
     <message>
         <source>DRB-%1</source>
-        <translation type="unfinished"></translation>
+        <translation>DRB-%1</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished">Okänd</translation>
+        <translation>Okänd</translation>
     </message>
     <message>
         <source>UE Id</source>
-        <translation type="unfinished"></translation>
+        <translation>UE-Id</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Namn</translation>
+        <translation>Namn</translation>
     </message>
     <message>
         <source>Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Läge</translation>
     </message>
     <message>
         <source>Priority</source>
-        <translation type="unfinished"></translation>
+        <translation>Prioritet</translation>
     </message>
     <message>
         <source>default</source>
-        <translation type="unfinished"></translation>
+        <translation>standard</translation>
     </message>
     <message>
         <source>DLT %1</source>
-        <translation type="unfinished"></translation>
+        <translation>DLT %1</translation>
     </message>
     <message>
         <source>Invalid Display Filter</source>
-        <translation type="unfinished">Felaktigt visningsfilter</translation>
+        <translation>Felaktigt visningsfilter</translation>
     </message>
     <message>
         <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
-        <translation type="unfinished"></translation>
+        <translation>Filteruttrycket %1 är inte ett giltigt visningsfilter. (%2).</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">Fel</translation>
+        <translation>Fel</translation>
     </message>
     <message>
         <source>No remote interfaces found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Inga fjärrgränssnitt hittades</translation>
     </message>
     <message>
         <source>PCAP not found</source>
-        <translation type="unfinished"></translation>
+        <translation>PCAP finns inte</translation>
     </message>
     <message>
         <source>Unknown error</source>
-        <translation type="unfinished"></translation>
+        <translation>Okänt fel</translation>
     </message>
     <message>
         <source>Default</source>
-        <translation type="unfinished">Standard</translation>
+        <translation>Standard</translation>
     </message>
     <message>
         <source>Changed</source>
-        <translation type="unfinished"></translation>
+        <translation>Ändrad</translation>
     </message>
     <message>
         <source>Has this preference been changed?</source>
-        <translation type="unfinished"></translation>
+        <translation>Har denna inställning ändrats?</translation>
     </message>
     <message>
         <source>Default value is empty</source>
-        <translation type="unfinished"></translation>
+        <translation>Standardvärdet är tomt</translation>
     </message>
 </context>
 <context>
     <name>QObject::QObject</name>
     <message>
         <source>CCCH</source>
-        <translation type="unfinished"></translation>
+        <translation>CCCH</translation>
     </message>
 </context>
 <context>
     <name>RemoteCaptureDialog</name>
     <message>
         <source>Remote Interface</source>
-        <translation type="unfinished"></translation>
+        <translation>Fjärrgränssnitt</translation>
     </message>
     <message>
         <source>Host:</source>
-        <translation type="unfinished"></translation>
+        <translation>Värd:</translation>
     </message>
     <message>
         <source>Port:</source>
-        <translation type="unfinished"></translation>
+        <translation>Port:</translation>
     </message>
     <message>
         <source>Authentication</source>
-        <translation type="unfinished">Autentisering</translation>
+        <translation>Autentisering</translation>
     </message>
     <message>
         <source>Null authentication</source>
-        <translation type="unfinished"></translation>
+        <translation>Tom autentisering</translation>
     </message>
     <message>
         <source>Password authentication</source>
-        <translation type="unfinished"></translation>
+        <translation>Lösenordsautentisering</translation>
     </message>
     <message>
         <source>Username:</source>
-        <translation type="unfinished"></translation>
+        <translation>Användarnamn:</translation>
     </message>
     <message>
         <source>Password:</source>
-        <translation type="unfinished"></translation>
+        <translation>Lösenord:</translation>
     </message>
     <message>
         <source>Clear list</source>
-        <translation type="unfinished"></translation>
+        <translation>Töm listan</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">Fel</translation>
+        <translation>Fel</translation>
     </message>
     <message>
         <source>No remote interfaces found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Inga fjärrgränssnitt hittades</translation>
     </message>
     <message>
         <source>PCAP not found</source>
-        <translation type="unfinished"></translation>
+        <translation>PCAP finns inte</translation>
     </message>
 </context>
 <context>
     <name>RemoteSettingsDialog</name>
     <message>
         <source>Remote Capture Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Fjärrfångstinställningar</translation>
     </message>
     <message>
         <source>Capture Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Fångstalternativ</translation>
     </message>
     <message>
         <source>Do not capture own RPCAP traffic</source>
-        <translation type="unfinished"></translation>
+        <translation>Fånga inte egen RPCAP-trafik</translation>
     </message>
     <message>
         <source>Use UDP for data transfer</source>
-        <translation type="unfinished"></translation>
+        <translation>Använd UDP för dataöverföringar</translation>
     </message>
     <message>
         <source>Sampling Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Samplingsalternativ</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>Inga</translation>
     </message>
     <message>
         <source>1 of</source>
@@ -9706,19 +9719,19 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Source Address</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Källadress</translation>
     </message>
     <message>
         <source>Source Port</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Källport.</translation>
     </message>
     <message>
         <source>Destination Address</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Destinationsadress</translation>
     </message>
     <message>
         <source>Destination Port</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Destinationsport.</translation>
     </message>
     <message>
         <source>SSRC</source>
@@ -9975,19 +9988,19 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Source Address</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Källadress</translation>
     </message>
     <message>
         <source>Source Port</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Källport.</translation>
     </message>
     <message>
         <source>Destination Address</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Destinationsadress</translation>
     </message>
     <message>
         <source>Destination Port</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Destinationsport.</translation>
     </message>
     <message>
         <source>SSRC</source>
@@ -10107,7 +10120,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Copy stream list as CSV.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Kopiera strömlistan som CSV.</translation>
     </message>
     <message>
         <source>Copy as YAML</source>
@@ -10115,7 +10128,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Copy stream list as YAML.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Kopiera strömlistan som YAML.</translation>
     </message>
     <message>
         <source>RTP Streams</source>
@@ -10132,11 +10145,11 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">som CSV</translation>
     </message>
     <message>
         <source>as YAML</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">som YAML</translation>
     </message>
     <message>
         <source>%1 streams</source>
@@ -10510,7 +10523,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Port:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Port:</translation>
     </message>
     <message>
         <source>Sent Verification Tag:</source>
@@ -10864,7 +10877,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Packet details</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Paketdetaljer</translation>
     </message>
     <message>
         <source>Packet bytes</source>
@@ -10913,7 +10926,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Find</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sök</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -11390,7 +11403,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Print</source>
-        <translation type="unfinished">Skriv</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Copy</source>
@@ -12247,7 +12260,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">som CSV</translation>
     </message>
     <message>
         <source>Copy all values of this page to the clipboard in CSV (Comma Separated Values) format.</source>
@@ -12255,7 +12268,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>as YAML</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">som YAML</translation>
     </message>
     <message>
         <source>Copy all values of this page to the clipboard in the YAML data serialization format.</source>
@@ -12382,7 +12395,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Copy stream list as CSV.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Kopiera strömlistan som CSV.</translation>
     </message>
     <message>
         <source>Copy as YAML</source>
@@ -12390,7 +12403,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Copy stream list as YAML.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Kopiera strömlistan som YAML.</translation>
     </message>
     <message>
         <source>SIP Flows</source>
@@ -12414,11 +12427,11 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">som CSV</translation>
     </message>
     <message>
         <source>as YAML</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">som YAML</translation>
     </message>
     <message>
         <source>No Audio</source>
@@ -12484,7 +12497,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     <name>WelcomePage</name>
     <message>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Formulär</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:large;&quot;&gt;Welcome to Wireshark&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -12725,7 +12738,7 @@ a:hover {
     </message>
     <message>
         <source>Percent Packets</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Procent paket</translation>
     </message>
     <message>
         <source>Percent Retry</source>

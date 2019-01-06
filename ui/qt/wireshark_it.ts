@@ -88,12 +88,23 @@
         <translation>La cartella %1 non può essere creata!</translation>
     </message>
     <message>
+        <source>Show in Finder</source>
+        <translation type="unfinished">Mostra in Finder</translation>
+    </message>
+    <message>
+        <source>Show in Folder</source>
+        <translation type="unfinished">Mostra nella cartella</translation>
+    </message>
+    <message>
         <source>Copy</source>
         <translation>Copia</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <source>Copy Row(s)</source>
-        <translation>Copia righe</translation>
+        <translation type="unfinished">
+            <numerusform>Copia righe</numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -2295,11 +2306,11 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
     <message>
         <source>Object Export</source>
-        <translation>Esporta oggetti</translation>
+        <translation type="vanished">Esporta oggetti</translation>
     </message>
     <message>
         <source>Some files could not be saved.</source>
-        <translation>Alcuni file non possono essere salvati.</translation>
+        <translation type="vanished">Alcuni file non possono essere salvati.</translation>
     </message>
 </context>
 <context>

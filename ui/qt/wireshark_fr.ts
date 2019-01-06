@@ -88,12 +88,23 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Show in Finder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show in Folder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Copy</source>
         <translation type="unfinished">Copier</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <source>Copy Row(s)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -2270,11 +2281,11 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     </message>
     <message>
         <source>Object Export</source>
-        <translation>Object exporté</translation>
+        <translation type="vanished">Object exporté</translation>
     </message>
     <message>
         <source>Some files could not be saved.</source>
-        <translation>Certains fichiers ne sont pas sauvegardés.</translation>
+        <translation type="vanished">Certains fichiers ne sont pas sauvegardés.</translation>
     </message>
 </context>
 <context>

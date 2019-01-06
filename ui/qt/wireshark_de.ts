@@ -88,12 +88,23 @@
         <translation>Das Verzeichnis %1 konnte nicht erstellt werden!</translation>
     </message>
     <message>
+        <source>Show in Finder</source>
+        <translation type="unfinished">Im Finder anzeigen</translation>
+    </message>
+    <message>
+        <source>Show in Folder</source>
+        <translation type="unfinished">Im Ordner anzeigen</translation>
+    </message>
+    <message>
         <source>Copy</source>
         <translation>Kopieren</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <source>Copy Row(s)</source>
-        <translation>Zeile(n) kopieren</translation>
+        <translation type="unfinished">
+            <numerusform>Zeile(n) kopieren</numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -2295,11 +2306,11 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Object Export</source>
-        <translation>Objektexport</translation>
+        <translation type="vanished">Objektexport</translation>
     </message>
     <message>
         <source>Some files could not be saved.</source>
-        <translation>Einige Dateien konnten nicht gespeichert werden.</translation>
+        <translation type="vanished">Einige Dateien konnten nicht gespeichert werden.</translation>
     </message>
 </context>
 <context>

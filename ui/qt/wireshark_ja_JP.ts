@@ -88,12 +88,22 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Show in Finder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show in Folder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Copy</source>
         <translation type="unfinished">コピー</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <source>Copy Row(s)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -2265,11 +2275,11 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Object Export</source>
-        <translation>オブジェクト出力</translation>
+        <translation type="vanished">オブジェクト出力</translation>
     </message>
     <message>
         <source>Some files could not be saved.</source>
-        <translation>いくつかのファイルは保存できませんでした。</translation>
+        <translation type="vanished">いくつかのファイルは保存できませんでした。</translation>
     </message>
 </context>
 <context>
