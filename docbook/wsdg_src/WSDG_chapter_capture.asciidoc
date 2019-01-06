@@ -33,7 +33,7 @@ If you had to introduce one or more new `{dlt-glob}` values, you will
 also have to add support in Wireshark for those `{dlt-glob}` values to
 _wiretap/pcap-common.c_, which might mean adding one or more
 _WTAP_ENCAP_ types to _wtap.h_ and to the `encap_table[]` table in
-_wiretap/wtap.c_. You’d thehave to write a dissector or dissectors for
+_wiretap/wtap.c_. You'd then have to write a dissector or dissectors for
 the link-layer protocols or protocols and have them register themselves
 with the `wtap_encap` dissector table, with the appropriate _WTAP_ENCAP_
 values by calling `dissector_add_uint()`.
