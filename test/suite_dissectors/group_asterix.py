@@ -78,6 +78,104 @@ def asterix_validator(dissection_validator):
     return generate_asterix_validator
 
 
+class _asterix_re_validator_real(_asterix_validator_real):
+
+    def __init__(self, category, re_byte_list, dissection_validator):
+        super().__init__(category, dissection_validator)
+        self.re_byte_list = re_byte_list
+
+    def add_re_dissection(self, byte_list, field, expected_message, line_no=None):
+        '''pre-wrap asterix RE messages with proper asterix RE structure'''
+
+        re_length = len(byte_list) + 1
+        byte_list = self.re_byte_list + [
+            re_length % 256
+        ] + byte_list
+        expected_result = {
+            "asterix.re_field_len": "{}".format(re_length),
+            "asterix.fspec": "",
+            "asterix.{:03}_RE_{}".format(self.category, field): expected_message
+        }
+        if line_no is None:
+            caller = inspect.getframeinfo(inspect.stack()[1][0])
+            line_no = caller.lineno
+        self.add_dissection(byte_list, "asterix.{:03}_RE".format(
+            self.category), expected_result, line_no)
+
+
+@fixtures.fixture
+def asterix_re_validator(dissection_validator):
+
+    def generate_re_asterix_validator(category, re_byte_list):
+        retval = _asterix_re_validator_real(
+            category, re_byte_list, dissection_validator)
+        return retval
+
+    return generate_re_asterix_validator
+
+
+def fspec_local(key, idx, value):
+    result = {
+        "asterix.fspec": "",
+        "asterix.{}".format(key):
+        {
+            "asterix.{}_{}".format(key, idx): value
+        }
+    }
+    return result
+
+
+def fspec_global(key, idx, value):
+    result = {
+        "asterix.fspec": "",
+        "asterix.{}".format(key):
+        {
+            "asterix.{}".format(idx): value
+        }
+    }
+    return result
+
+
+def dict_local(vmap, key, idx, value):
+    result = vmap.copy()
+    result["asterix.{}_{}".format(key, idx)] = value
+    return result
+
+
+def dict_global(vmap, key, value):
+    result = vmap.copy()
+    result["asterix.{}".format(key)] = value
+    return result
+
+
+def dict_fspec_local(vmap, key, idx, value):
+    result = {
+        "asterix.fspec": "",
+        "asterix.{}".format(key): dict_local(vmap, key, idx, value)
+    }
+    return result
+
+
+def dict_fspec_global(vmap, key, idx, value):
+    result = {
+        "asterix.fspec": "",
+        "asterix.{}".format(key): dict_global(vmap, idx, value)
+    }
+    return result
+
+
+def counter_local(vmap, counter, key, idx, value):
+    result = {
+        "asterix.fspec": "",
+        "asterix.{}".format(key):
+        {
+            "asterix.counter": counter,
+            "asterix.{}".format(key): dict_local(vmap, key, idx, value)
+        }
+    }
+    return result
+
+
 @fixtures.mark_usefixtures('test_env')
 @fixtures.uses_fixtures
 class case_category_019(subprocesstest.SubprocessTestCase):
@@ -675,6 +773,592 @@ class case_category_019(subprocesstest.SubprocessTestCase):
             [0x01, 0x02, 0x10, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88,
              0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff],
             "asterix.019_SP",
+            ""
+        )
+
+        validator.check_dissections()
+
+
+@fixtures.mark_usefixtures('test_env')
+@fixtures.uses_fixtures
+class case_category_034(subprocesstest.SubprocessTestCase):
+    '''
+    Unittest case for ASTERIX Category 034
+
+    Online specification:
+    https://www.eurocontrol.int/publications/cat034-monoradar-service-messages-part-2b-next-version-cat-002
+
+    Part 2b
+    Transmission of Monoradar Service Messages
+
+    Standard User Application Profile
+
+    FRN Data Item Information                                        Length
+     1  I034/010  Data Source Identifier                              2
+     2  I034/000  Message Type                                        1
+     3  I034/030  Time-of-Day                                         3
+     4  I034/020  Sector Number                                       1
+     5  I034/041  Antenna Rotation Period                             2
+     6  I034/050  System Configuration and Status                     1+
+     7  I034/060  System Processing Mode                              1+
+    FX  N/A.      Field Extension Indicator                           N/A.
+     8  I034/070  Message Count Values                                (1+2*N)
+     9  I034/100  Generic Polar Window                                8
+    10  I034/110  Data Filter                                         1
+    11  I034/120  3D-Position of Data Source                          8
+    12  I034/090  Collimation Error                                   2
+    13  RE-Data   Item Reserved Expansion Field                       1+1+
+    14  SP-Data   Item Special Purpose Field                          1+1+
+    FX  N/A.      Field Extension Indicator                           n.a.
+    '''
+
+    maxDiff = None
+
+    def test_for_fields(self, asterix_validator):
+        '''verifies existence of all fields and their maximum value'''
+
+        validator = asterix_validator(34)
+
+        validator.add_dissection(
+            [0x80, 0xff, 0x00],
+            "asterix.034_010",
+            {
+                "asterix.SAC": "255",
+                "asterix.SIC": "0"
+            }
+        )
+        validator.add_dissection(
+            [0x80, 0x00, 0xff],
+            "asterix.034_010",
+            {
+                "asterix.SAC": "0",
+                "asterix.SIC": "255"
+            }
+        )
+        validator.add_dissection(
+            [0x40, 0x04],
+            "asterix.034_000",
+            {
+                "asterix.034_000_MT": "4"
+            }
+        )
+        validator.add_dissection(
+            [0x20, 0xa8, 0xbf, 0xff],
+            "asterix.034_030",
+            {
+                "asterix.TOD": "86399.9921875"
+            }
+        )
+        validator.add_dissection(
+            [0x10, 0xff],
+            "asterix.034_020",
+            {
+                "asterix.034_020_SN": "358.59375"
+            }
+        )
+        validator.add_dissection(
+            [0x08, 0xff, 0xff],
+            "asterix.034_041",
+            {
+                "asterix.034_041_ARS": "511.9921875"
+            }
+        )
+        x_050_01 = {
+            "asterix.034_050_01_NOGO": "0",
+            "asterix.034_050_01_RDPC": "0",
+            "asterix.034_050_01_RDPR": "0",
+            "asterix.034_050_01_OVL_RDP": "0",
+            "asterix.034_050_01_OVL_XMT": "0",
+            "asterix.034_050_01_MSC": "0",
+            "asterix.034_050_01_TSV": "0"
+        }
+        validator.add_dissection(
+            [0x04, 0x80, 0x80],
+            "asterix.034_050",
+            dict_fspec_local(x_050_01, "034_050_01", "NOGO", "1")
+        )
+        validator.add_dissection(
+            [0x04, 0x80, 0x40],
+            "asterix.034_050",
+            dict_fspec_local(x_050_01, "034_050_01", "RDPC", "1")
+        )
+        validator.add_dissection(
+            [0x04, 0x80, 0x20],
+            "asterix.034_050",
+            dict_fspec_local(x_050_01, "034_050_01", "RDPR", "1")
+        )
+        validator.add_dissection(
+            [0x04, 0x80, 0x10],
+            "asterix.034_050",
+            dict_fspec_local(x_050_01, "034_050_01", "OVL_RDP", "1")
+        )
+        validator.add_dissection(
+            [0x04, 0x80, 0x08],
+            "asterix.034_050",
+            dict_fspec_local(x_050_01, "034_050_01", "OVL_XMT", "1")
+        )
+        validator.add_dissection(
+            [0x04, 0x80, 0x04],
+            "asterix.034_050",
+            dict_fspec_local(x_050_01, "034_050_01", "MSC", "1")
+        )
+        validator.add_dissection(
+            [0x04, 0x80, 0x02],
+            "asterix.034_050",
+            dict_fspec_local(x_050_01, "034_050_01", "TSV", "1")
+        )
+        x_050_02 = {
+            "asterix.034_050_02_ANT": "0",
+            "asterix.034_050_02_CHAB": "0",
+            "asterix.034_050_02_OVL": "0",
+            "asterix.034_050_02_MSC": "0"
+        }
+        validator.add_dissection(
+            [0x04, 0x10, 0x80],
+            "asterix.034_050",
+            dict_fspec_local(x_050_02, "034_050_02", "ANT", "1")
+        )
+        validator.add_dissection(
+            [0x04, 0x10, 0x60],
+            "asterix.034_050",
+            dict_fspec_local(x_050_02, "034_050_02", "CHAB", "3")
+        )
+        validator.add_dissection(
+            [0x04, 0x10, 0x10],
+            "asterix.034_050",
+            dict_fspec_local(x_050_02, "034_050_02", "OVL", "1")
+        )
+        validator.add_dissection(
+            [0x04, 0x10, 0x08],
+            "asterix.034_050",
+            dict_fspec_local(x_050_02, "034_050_02", "MSC", "1")
+        )
+        x_050_03 = {
+            "asterix.034_050_03_ANT": "0",
+            "asterix.034_050_03_CHAB": "0",
+            "asterix.034_050_03_OVL": "0",
+            "asterix.034_050_03_MSC": "0"
+        }
+        validator.add_dissection(
+            [0x04, 0x08, 0x80],
+            "asterix.034_050",
+            dict_fspec_local(x_050_03, "034_050_03", "ANT", "1")
+        )
+        validator.add_dissection(
+            [0x04, 0x08, 0x60],
+            "asterix.034_050",
+            dict_fspec_local(x_050_03, "034_050_03", "CHAB", "3")
+        )
+        validator.add_dissection(
+            [0x04, 0x08, 0x10],
+            "asterix.034_050",
+            dict_fspec_local(x_050_03, "034_050_03", "OVL", "1")
+        )
+        validator.add_dissection(
+            [0x04, 0x08, 0x08],
+            "asterix.034_050",
+            dict_fspec_local(x_050_03, "034_050_03", "MSC", "1")
+        )
+        x_050_04 = {
+            "asterix.034_050_04_ANT": "0",
+            "asterix.034_050_04_CHAB": "0",
+            "asterix.034_050_04_OVL_SUR": "0",
+            "asterix.034_050_04_MSC": "0",
+            "asterix.034_050_04_SCF": "0",
+            "asterix.034_050_04_DLF": "0",
+            "asterix.034_050_04_OVL_SCF": "0",
+            "asterix.034_050_04_OVL_DLF": "0"
+        }
+        validator.add_dissection(
+            [0x04, 0x04, 0x80, 0x00],
+            "asterix.034_050",
+            dict_fspec_local(x_050_04, "034_050_04", "ANT", "1")
+        )
+        validator.add_dissection(
+            [0x04, 0x04, 0x60, 0x00],
+            "asterix.034_050",
+            dict_fspec_local(x_050_04, "034_050_04", "CHAB", "3")
+        )
+        validator.add_dissection(
+            [0x04, 0x04, 0x10, 0x00],
+            "asterix.034_050",
+            dict_fspec_local(x_050_04, "034_050_04", "OVL_SUR", "1")
+        )
+        validator.add_dissection(
+            [0x04, 0x04, 0x08, 0x00],
+            "asterix.034_050",
+            dict_fspec_local(x_050_04, "034_050_04", "MSC", "1")
+        )
+        validator.add_dissection(
+            [0x04, 0x04, 0x04, 0x00],
+            "asterix.034_050",
+            dict_fspec_local(x_050_04, "034_050_04", "SCF", "1")
+        )
+        validator.add_dissection(
+            [0x04, 0x04, 0x02, 0x00],
+            "asterix.034_050",
+            dict_fspec_local(x_050_04, "034_050_04", "DLF", "1")
+        )
+        validator.add_dissection(
+            [0x04, 0x04, 0x01, 0x00],
+            "asterix.034_050",
+            dict_fspec_local(x_050_04, "034_050_04", "OVL_SCF", "1")
+        )
+        validator.add_dissection(
+            [0x04, 0x04, 0x00, 0x80],
+            "asterix.034_050",
+            dict_fspec_local(x_050_04, "034_050_04", "OVL_DLF", "1")
+        )
+        x_060_01 = {
+            "asterix.034_060_01_RED_RDP": "0",
+            "asterix.034_060_01_RED_XMT": "0"
+        }
+        validator.add_dissection(
+            [0x02, 0x80, 0x70],
+            "asterix.034_060",
+            dict_fspec_local(x_060_01, "034_060_01", "RED_RDP", "7")
+        )
+        validator.add_dissection(
+            [0x02, 0x80, 0x0e],
+            "asterix.034_060",
+            dict_fspec_local(x_060_01, "034_060_01", "RED_XMT", "7")
+        )
+        x_060_02 = {
+            "asterix.034_060_02_POL": "0",
+            "asterix.034_060_02_RED_RAD": "0",
+            "asterix.034_060_02_STC": "0"
+        }
+        validator.add_dissection(
+            [0x02, 0x10, 0x80],
+            "asterix.034_060",
+            dict_fspec_local(x_060_02, "034_060_02", "POL", "1")
+        )
+        validator.add_dissection(
+            [0x02, 0x10, 0x70],
+            "asterix.034_060",
+            dict_fspec_local(x_060_02, "034_060_02", "RED_RAD", "7")
+        )
+        validator.add_dissection(
+            [0x02, 0x10, 0x0c],
+            "asterix.034_060",
+            dict_fspec_local(x_060_02, "034_060_02", "STC", "3")
+        )
+        validator.add_dissection(
+            [0x02, 0x08, 0xe0],
+            "asterix.034_060",
+            fspec_local("034_060_03", "RED_RAD", "7")
+        )
+        x_060_06 = {
+            "asterix.034_060_04_RED_RAD": "0",
+            "asterix.034_060_04_CLU": "0"
+        }
+        validator.add_dissection(
+            [0x02, 0x04, 0xe0],
+            "asterix.034_060",
+            dict_fspec_local(x_060_06, "034_060_04", "RED_RAD", "7")
+        )
+        validator.add_dissection(
+            [0x02, 0x04, 0x10],
+            "asterix.034_060",
+            dict_fspec_local(x_060_06, "034_060_04", "CLU", "1")
+        )
+        x_070 = {
+            "asterix.034_070_TYP": "0",
+            "asterix.034_070_COUNTER": "0"
+        }
+        validator.add_dissection(
+            [0x01, 0x80, 0x01, 0x80, 0x00],
+            "asterix.034_070",
+            {
+                "asterix.counter": "1",
+                "asterix.034_070":
+                dict_local(x_070, "034_070", "TYP", "16")
+            }
+        )
+        validator.add_dissection(
+            [0x01, 0x80, 0x03, 0x80, 0x00, 0x87, 0xff, 0x07, 0xff],
+            "asterix.034_070",
+            {
+                "asterix.counter": "3",
+                "asterix.034_070":
+                dict_local(x_070, "034_070", "TYPE", "16"),
+                "asterix.034_070":
+                {
+                    "asterix.034_070_TYP": "16",
+                    "asterix.034_070_COUNTER": "2047"
+                },
+                "asterix.034_070":
+                dict_local(x_070, "034_070", "COUNTER", "2047"),
+            }
+        )
+        x_100 = {
+            "asterix.034_100_RHOS": "0",
+            "asterix.034_100_RHOE": "0",
+            "asterix.034_100_THETAS": "0",
+            "asterix.034_100_THETAE": "0"
+        }
+        validator.add_dissection(
+            [0x01, 0x40, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
+            "asterix.034_100",
+            dict_local(x_100, "034_100", "RHOS", "255.99609375")
+        )
+        validator.add_dissection(
+            [0x01, 0x40, 0x00, 0x00, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00],
+            "asterix.034_100",
+            dict_local(x_100, "034_100", "RHOE", "255.99609375")
+        )
+        validator.add_dissection(
+            [0x01, 0x40, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0x00, 0x00],
+            "asterix.034_100",
+            dict_local(x_100, "034_100", "THETAS", "359.994506835938")
+        )
+        validator.add_dissection(
+            [0x01, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff],
+            "asterix.034_100",
+            dict_local(x_100, "034_100", "THETAE", "359.994506835938")
+        )
+        validator.add_dissection(
+            [0x01, 0x20, 0x09],
+            "asterix.034_110",
+            {
+                "asterix.034_110_TYP": "9"
+            }
+        )
+        x_120 = {
+            "asterix.034_120_H": "0",
+            "asterix.034_120_LAT": "0",
+            "asterix.034_120_LON": "0"
+        }
+        validator.add_dissection(
+            [0x01, 0x10, 0x7f, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
+            "asterix.034_120",
+            dict_local(x_120, "034_120", "H", "32767")
+        )
+        validator.add_dissection(
+            [0x01, 0x10, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
+            "asterix.034_120",
+            dict_local(x_120, "034_120", "H", "-32768")
+        )
+        validator.add_dissection(
+            [0x01, 0x10, 0x00, 0x00, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00],
+            "asterix.034_120",
+            dict_local(x_120, "034_120", "LAT", "90")
+        )
+        validator.add_dissection(
+            [0x01, 0x10, 0x00, 0x00, 0xc0, 0x00, 0x00, 0x00, 0x00, 0x00],
+            "asterix.034_120",
+            dict_local(x_120, "034_120", "LAT", "-90")
+        )
+        validator.add_dissection(
+            [0x01, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x7f, 0xff, 0xff],
+            "asterix.034_120",
+            dict_local(x_120, "034_120", "LON", "179.999978542328")
+        )
+        validator.add_dissection(
+            [0x01, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00],
+            "asterix.034_120",
+            dict_local(x_120, "034_120", "LON", "-180")
+        )
+        x_090 = {
+            "asterix.034_090_RE": "0",
+            "asterix.034_090_AE": "0"
+        }
+        validator.add_dissection(
+            [0x01, 0x08, 0x7f, 0x00],
+            "asterix.034_090",
+            dict_local(x_090, "034_090", "RE", "0.9921875")
+        )
+        validator.add_dissection(
+            [0x01, 0x08, 0x80, 0x00],
+            "asterix.034_090",
+            dict_local(x_090, "034_090", "RE", "-1")
+        )
+        validator.add_dissection(
+            [0x01, 0x08, 0x00, 0x80],
+            "asterix.034_090",
+            dict_local(x_090, "034_090", "AE", "-2.8125")
+        )
+
+        validator.check_dissections()
+
+    def test_undefined_value_handling(self, asterix_validator):
+        '''verifies that the dissector can dissect undefined field values by setting
+        the maximum value of bits or by setting all undefined bits'''
+
+        validator = asterix_validator(34)
+
+        validator.add_dissection(
+            [0x40, 0xff],
+            "asterix.034_000",
+            {
+                "asterix.034_000_MT": "255"
+            }
+        )
+        validator.add_dissection(
+            [0x20, 0xff, 0xff, 0xff],
+            "asterix.034_030",
+            {
+                "asterix.TOD": "131071.9921875"
+            }
+        )
+        validator.add_dissection(
+            [0x04, 0x63, 0x00],
+            "asterix.034_050",
+            {
+                "asterix.fspec": "",
+                "asterix.spare": ""
+            }
+        )
+        validator.add_dissection(
+            [0x04, 0x80, 0x01],
+            "asterix.034_050",
+            {
+                "asterix.fspec": "",
+                "asterix.034_050_01":
+                {
+                    "asterix.034_050_01_NOGO": "0",
+                    "asterix.034_050_01_RDPC": "0",
+                    "asterix.034_050_01_RDPR": "0",
+                    "asterix.034_050_01_OVL_RDP": "0",
+                    "asterix.034_050_01_OVL_XMT": "0",
+                    "asterix.034_050_01_MSC": "0",
+                    "asterix.034_050_01_TSV": "0"
+                }
+            }
+        )
+        validator.add_dissection(
+            [0x04, 0x10, 0x07],
+            "asterix.034_050",
+            {
+                "asterix.fspec": "",
+                "asterix.034_050_02":
+                {
+                    "asterix.034_050_02_ANT": "0",
+                    "asterix.034_050_02_CHAB": "0",
+                    "asterix.034_050_02_OVL": "0",
+                    "asterix.034_050_02_MSC": "0"
+                }
+            }
+        )
+        validator.add_dissection(
+            [0x04, 0x08, 0x07],
+            "asterix.034_050",
+            {
+                "asterix.fspec": "",
+                "asterix.034_050_03":
+                {
+                    "asterix.034_050_03_ANT": "0",
+                    "asterix.034_050_03_CHAB": "0",
+                    "asterix.034_050_03_OVL": "0",
+                    "asterix.034_050_03_MSC": "0"
+                }
+            }
+        )
+        validator.add_dissection(
+            [0x04, 0x04, 0x00, 0x7f],
+            "asterix.034_050",
+            {
+                "asterix.fspec": "",
+                "asterix.034_050_04":
+                {
+                    "asterix.034_050_04_ANT": "0",
+                    "asterix.034_050_04_CHAB": "0",
+                    "asterix.034_050_04_OVL_SUR": "0",
+                    "asterix.034_050_04_MSC": "0",
+                    "asterix.034_050_04_SCF": "0",
+                    "asterix.034_050_04_DLF": "0",
+                    "asterix.034_050_04_OVL_SCF": "0",
+                    "asterix.034_050_04_OVL_DLF": "0"
+                }
+            }
+        )
+        validator.add_dissection(
+            [0x02, 0x63, 0x00],
+            "asterix.034_060",
+            {
+                "asterix.fspec": "",
+                "asterix.spare": ""
+            }
+        )
+        validator.add_dissection(
+            [0x02, 0x80, 0x81],
+            "asterix.034_060",
+            {
+                "asterix.fspec": "",
+                "asterix.034_060_01":
+                {
+                    "asterix.034_060_01_RED_RDP": "0",
+                    "asterix.034_060_01_RED_XMT": "0"
+                }
+            }
+        )
+        validator.add_dissection(
+            [0x02, 0x10, 0x03],
+            "asterix.034_060",
+            {
+                "asterix.fspec": "",
+                "asterix.034_060_02":
+                {
+                    "asterix.034_060_02_POL": "0",
+                    "asterix.034_060_02_RED_RAD": "0",
+                    "asterix.034_060_02_STC": "0"
+                }
+            }
+        )
+        validator.add_dissection(
+            [0x02, 0x08, 0x1f],
+            "asterix.034_060",
+            fspec_local("034_060_03", "RED_RAD", "0")
+        )
+        validator.add_dissection(
+            [0x02, 0x04, 0x0f],
+            "asterix.034_060",
+            {
+                "asterix.fspec": "",
+                "asterix.034_060_04":
+                {
+                    "asterix.034_060_04_RED_RAD": "0",
+                    "asterix.034_060_04_CLU": "0"
+                }
+            }
+        )
+        x_070 = {
+            "asterix.034_070_TYP": "0",
+            "asterix.034_070_COUNTER": "0"
+        }
+        validator.add_dissection(
+            [0x01, 0x80, 0x01, 0xf8, 0x00],
+            "asterix.034_070",
+            {
+                "asterix.counter": "1",
+                "asterix.034_070":
+                dict_local(x_070, "034_070", "TYP", "31")
+            }
+        )
+        validator.add_dissection(
+            [0x01, 0x20, 0xff],
+            "asterix.034_110",
+            {
+                "asterix.034_110_TYP": "255"
+            }
+        )
+        validator.add_dissection(
+            [0x01, 0x04, 0x02, 0xfe],
+            "asterix.034_RE",
+            {
+                "asterix.re_field_len": "2",
+                "asterix.fspec": ""
+            }
+        )
+        validator.add_dissection(
+            [0x01, 0x02, 0x01],
+            "asterix.034_SP",
+            ""
+        )
+        validator.add_dissection(
+            [0x01, 0x02, 0x11, 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
+             0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff],
+            "asterix.034_SP",
             ""
         )
 
