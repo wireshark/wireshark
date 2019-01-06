@@ -1736,7 +1736,7 @@ dissect_atm_pw_oam_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   DISSECTOR_ASSERT(pw_atm_info != NULL);
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATM");
-  
+
   dissect_atm_cell_payload(tvb, 0, pinfo, tree, AAL_OAMCELL,
                            pw_atm_info->enable_fill_columns_by_atm_dissector,
                            &pw_atm_info->info);
