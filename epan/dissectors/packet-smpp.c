@@ -2338,7 +2338,6 @@ dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     }
     offset += 4;
     sequence_number = tvb_get_ntohl(tvb, offset);
-    offset += 4;
 
     /*
      * Update the protocol column.
