@@ -20,6 +20,9 @@
 #include <epan/etypes.h>
 #include <epan/dissectors/packet-rtp.h>
 
+void proto_register_cesoeth(void);
+void proto_reg_handoff_cesoeth(void);
+
 static int proto_cesoeth = -1;
 static int hf_cesoeth_pw_ecid = -1;
 static int hf_cesoeth_pw_res = -1;
