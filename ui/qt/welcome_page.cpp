@@ -450,7 +450,7 @@ void WelcomePage::showRecentContextMenu(QPoint pos)
 
     recent_ctx_menu_->addSeparator();
 
-    QAction *remove_action = recent_ctx_menu_->addAction(tr("Remove"));
+    QAction *remove_action = recent_ctx_menu_->addAction(tr("Remove from list"));
     remove_action->setData(cf_path);
     connect(remove_action, SIGNAL(triggered(bool)), this, SLOT(removeRecentPath()));
 
