@@ -5244,8 +5244,8 @@ void dissect_cip_date_and_time(proto_tree *tree, tvbuff_t *tvb, int offset, int 
    guint16 num_days_since_1972;
    guint32 num_ms_today;
 
-   num_days_since_1972 = tvb_get_letohs( tvb, offset);
-   num_ms_today = tvb_get_letohl( tvb, offset+2 );
+   num_days_since_1972 = tvb_get_letohs(tvb, offset+4);
+   num_ms_today = tvb_get_letohl(tvb, offset);
 
    if ((num_days_since_1972 != 0) || (num_ms_today != 0))
    {

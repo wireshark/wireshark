@@ -472,7 +472,7 @@ void dissect_cipsafety_ssn(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _
 {
    guint16 date;
 
-   date = tvb_get_letohs( tvb, offset);
+   date = tvb_get_letohs(tvb, offset+4);
 
    if ((date >= 11688) && (date <= 65534))
    {
@@ -482,8 +482,8 @@ void dissect_cipsafety_ssn(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _
    else
    {
       /* Treated as UINT16 and UINT32 values */
-      proto_tree_add_item(tree, hf_date, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(tree, hf_time, tvb, offset+2, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_time, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_date, tvb, offset + 4, 2, ENC_LITTLE_ENDIAN);
    }
 }
 
