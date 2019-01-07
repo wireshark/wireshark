@@ -62,7 +62,8 @@ before_install:
   # linux
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo ./tools/debian-setup.sh --install-optional --install-test-deps -q; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install -y python3-pip; fi
-  - sudo pip3 install pytest pytest-xdist
+  # all platforms
+  - pip3 install pytest pytest-xdist
 before_script:
   - mkdir build
   - cd build
