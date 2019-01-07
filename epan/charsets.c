@@ -1370,7 +1370,7 @@ get_t61_string(wmem_allocator_t *scope, const guint8 *ptr, gint length)
     for (i = 0, c = ptr; i < length; c++, i++) {
         if (!t61_tab[*c]) {
             wmem_strbuf_append_unichar(strbuf, UNREPL);
-        } else if ((*c & 0xf0) == 0xc0) {
+        } else if (i < length - 1 && (*c & 0xf0) == 0xc0) {
             gint j = *c & 0x0f;
             /* If this is the end of the string, or if the base
              * character is just a space, treat this as a regular
