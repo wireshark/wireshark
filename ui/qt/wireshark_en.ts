@@ -7592,8 +7592,8 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message numerus="yes">
         <source>Export TLS Session Keys (%Ln key(s))</source>
         <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+            <numerusform>Export TLS Session Keys (%Ln key)</numerusform>
+            <numerusform>Export TLS Session Keys (%Ln keys)</numerusform>
         </translation>
     </message>
     <message>
