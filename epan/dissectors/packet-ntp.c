@@ -1921,7 +1921,6 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
 				offset += 4;
 				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr6, tvb, offset, 16, ENC_NA);
-				offset += 16;
 				break;
 
 			case PRIV_RC_PEER_LIST_SUM:
@@ -1957,7 +1956,6 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_dstaddr6, tvb, offset, 16, ENC_NA);
 				offset += 16;
 				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_srcaddr6, tvb, offset, 16, ENC_NA);
-				offset += 16;
 				break;
 
 			case PRIV_RC_PEER_INFO:
@@ -2059,7 +2057,6 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_dstaddr6, tvb, offset, 16, ENC_NA);
 					offset += 16;
 					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_srcaddr6, tvb, offset, 16, ENC_NA);
-					offset += 16;
 				} else {
 					/* request */
 					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -2075,7 +2072,6 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
 					offset += 4;
 					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr6, tvb, offset, 16, ENC_NA);
-					offset += 16;
 				}
 				break;
 
@@ -2138,7 +2134,6 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_dstaddr6, tvb, offset, 16, ENC_NA);
 					offset += 16;
 					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_srcaddr6, tvb, offset, 16, ENC_NA);
-					offset += 16;
 				} else {
 					/* request */
 					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -2154,7 +2149,6 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
 					offset += 4;
 					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr6, tvb, offset, 16, ENC_NA);
-					offset += 16;
 				}
 				break;
 
@@ -2196,7 +2190,6 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
 				offset += 4;
 				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr6, tvb, offset, 16, ENC_NA);
-				offset += 16;
 				break;
 
 			case PRIV_RC_SYS_STATS:
@@ -2225,7 +2218,6 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_lamport, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_tsrounding, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
 				break;
 
 			case PRIV_RC_IO_STATS:
@@ -2252,7 +2244,6 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_interrupts, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_int_received, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
 				break;
 
 			case PRIV_RC_MEM_STATS:
@@ -2280,7 +2271,6 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_compliance, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_watchdog_timer, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
 				break;
 
 			case PRIV_RC_TIMER_STATS:
@@ -2291,7 +2281,6 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_overflows, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_xmtcalls, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
 				break;
 
 			case PRIV_RC_CONFIG:
@@ -2321,7 +2310,6 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
 				offset += 4;
 				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr6, tvb, offset, 16, ENC_NA);
-				offset += 16;
 				break;
 
 			case PRIV_RC_UNCONFIG:
@@ -2331,14 +2319,12 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_v6_flag, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr6, tvb, offset, 16, ENC_NA);
-				offset += 16;
 				break;
 
 			case PRIV_RC_SET_SYS_FLAG:
 			case PRIV_RC_CLR_SYS_FLAG:
 
 				proto_tree_add_bitmask(mode7_item_tree, tvb, offset, hf_ntppriv_mode7_sys_flags, ett_ntppriv_sys_flag_flags, ntppriv_sys_flag_flags, ENC_BIG_ENDIAN);
-				offset += 4;
 				break;
 
 			case PRIV_RC_GET_RESTRICT:
@@ -2359,7 +2345,6 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr6, tvb, offset, 16, ENC_NA);
 				offset += 16;
 				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_mask6, tvb, offset, 16, ENC_NA);
-				offset += 16;
 				break;
 
 			case PRIV_RC_RESADDFLAGS:
@@ -2380,13 +2365,11 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr6, tvb, offset, 16, ENC_NA);
 				offset += 16;
 				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_mask6, tvb, offset, 16, ENC_NA);
-				offset += 16;
 				break;
 
 			case PRIV_RC_RESET_STATS:
 
 				proto_tree_add_bitmask(mode7_item_tree, tvb, offset, hf_ntppriv_mode7_reset_stats_flags, ett_ntppriv_reset_stats_flags, ntppriv_reset_stats_flags, ENC_BIG_ENDIAN);
-				offset += 4;
 				break;
 
 			case PRIV_RC_RESET_PEER:
@@ -2396,14 +2379,12 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_v6_flag, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr6, tvb, offset, 16, ENC_NA);
-				offset += 16;
 				break;
 
 			case PRIV_RC_TRUSTKEY:
 			case PRIV_RC_UNTRUSTKEY:
 
 				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_key, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-				offset += 8;
 				break;
 
 			case PRIV_RC_AUTHINFO:
@@ -2425,7 +2406,6 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_expired, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_keyuncached, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
 				break;
 
 			case PRIV_RC_TRAPS:
@@ -2451,7 +2431,6 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_local_addr6, tvb, offset, 16, ENC_NA);
 				offset += 16;
 				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_trap_addr6, tvb, offset, 16, ENC_NA);
-				offset += 16;
 				break;
 
 			case PRIV_RC_ADD_TRAP:
@@ -2470,14 +2449,12 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_local_addr6, tvb, offset, 16, ENC_NA);
 				offset += 16;
 				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_trap_addr6, tvb, offset, 16, ENC_NA);
-				offset += 16;
 				break;
 
 			case PRIV_RC_REQUEST_KEY:
 			case PRIV_RC_CONTROL_KEY:
 
 				proto_tree_add_item(mode7_item_tree, hf_ntp_keyid, tvb, offset, 4, ENC_NA);
-				offset += 4;
 				break;
 
 			case PRIV_RC_CTL_STATS:
@@ -2511,7 +2488,6 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_badop, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_asyncmsgs, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
 				break;
 
 			case PRIV_RC_GET_CLOCKINFO:
@@ -2545,11 +2521,9 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_fudgeval1, tvb, offset, 4, ENC_BIG_ENDIAN);
 					offset += 4;
 					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_fudgeval2, tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 4;
 				} else {
 					/* request */
 					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 4;
 				}
 				break;
 
@@ -2561,7 +2535,6 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_fudgetime, tvb, offset, 8, ENC_BIG_ENDIAN);
 				offset += 8;
 				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_fudgeval_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
 				break;
 
 			case PRIV_RC_GET_KERNEL:
@@ -2597,7 +2570,6 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_errcnt, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_stbcnt, tvb, offset, 4, ENC_BIG_ENDIAN);
-				offset += 4;
 				break;
 
 			case PRIV_RC_GET_CLKBUGINFO:
@@ -2616,11 +2588,9 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_values, tvb, offset, 64, ENC_NA);
 					offset += 64;
 					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_times, tvb, offset, 256, ENC_NA);
-					offset += 256;
 				} else {
 					/* request */
 					proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset += 4;
 				}
 				break;
 
@@ -2675,7 +2645,6 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_action, tvb, offset, 1, ENC_BIG_ENDIAN);
 				offset += 1;
 				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_unused, tvb, offset, 4, ENC_NA);
-				offset += 4;
 				break;
 
 			}
