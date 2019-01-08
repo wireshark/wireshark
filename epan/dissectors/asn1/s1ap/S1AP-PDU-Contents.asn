@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V15.3.0 (2018-09)
+-- 3GPP TS 36.413 V15.4.0 (2018-12)
 -- 9.3.3	PDU Definitions
 -- **************************************************************
 --
@@ -3045,7 +3045,8 @@ UEInformationTransferIEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-S-TMSI						CRITICALITY reject 	TYPE S-TMSI						PRESENCE mandatory}|
 	{ ID id-UE-Level-QoS-Parameters		CRITICALITY ignore	TYPE E-RABLevelQoSParameters	PRESENCE optional}|
 	{ ID id-UERadioCapability			CRITICALITY ignore	TYPE UERadioCapability			PRESENCE optional}|
-	{ ID id-Subscription-Based-UE-DifferentiationInfo		CRITICALITY ignore	TYPE Subscription-Based-UE-DifferentiationInfo		PRESENCE optional},
+	{ ID id-Subscription-Based-UE-DifferentiationInfo		CRITICALITY ignore	TYPE Subscription-Based-UE-DifferentiationInfo		PRESENCE optional}|
+	{ ID id-PendingDataIndication		CRITICALITY ignore	TYPE PendingDataIndication		PRESENCE optional},
 	...
 }
 

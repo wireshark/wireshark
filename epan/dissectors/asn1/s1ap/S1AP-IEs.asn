@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V15.3.0 (2018-09)
+-- 3GPP TS 36.413 V15.4.0 (2018-12)
 -- 9.3.4	Information Element Definitions
 -- **************************************************************
 --
@@ -1116,9 +1116,10 @@ HandoverType ::= ENUMERATED {
 	ltetoutran,
 	ltetogeran,
 	utrantolte,
-	gerantolte,	...,
-	ltetonr,
-	nrtolte
+	gerantolte,
+	...,
+	eps-to-5gs,
+	fivegs-to-eps
 }
 
 HFN ::= INTEGER (0..1048575)

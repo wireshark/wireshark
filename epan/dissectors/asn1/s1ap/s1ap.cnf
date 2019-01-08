@@ -389,8 +389,8 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
       utrantolte,
       gerantolte,
       ...
-      ltetonr,
-      nrtolte
+      eps_to_5gs,
+      fivegs_to_eps
       } */
       case intralte:
       /* intralte
@@ -419,12 +419,12 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
       case gerantolte:
       /* gerantolte */
       break;
-      case ltetonr:
-      /* ltetonr */
+      case eps_to_5gs:
+      /* eps_to_5gs */
       dissect_ngap_SourceNGRANNode_ToTargetNGRANNode_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
       break;
-      case nrtolte:
-      /* nrtolte */
+      case fivegs_to_eps:
+      /* fivegs_to_eps */
       break;
       default:
       break;
@@ -454,8 +454,8 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
       utrantolte,
       gerantolte,
       ...
-      ltetonr,
-      nrtolte
+      eps_to_5gs,
+      fivegs_to_eps
       } */
       case intralte:
       /* intralte
@@ -484,12 +484,12 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
       case gerantolte:
       /* gerantolte */
       break;
-      case ltetonr:
-      /* ltetonr */
+      case eps_to_5gs:
+      /* eps_to_5gs */
       dissect_ngap_TargetNGRANNode_ToSourceNGRANNode_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
       break;
-      case nrtolte:
-      /* nrtolte */
+      case fivegs_to_eps:
+      /* fivegs_to_eps */
       break;
       default:
       break;

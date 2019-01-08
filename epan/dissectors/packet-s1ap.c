@@ -18,7 +18,7 @@
  *
  * Based on the RANAP dissector
  *
- * References: 3GPP TS 36.413 V15.3.0 (2018-09)
+ * References: 3GPP TS 36.413 V15.4.0 (2018-12)
  */
 
 #include "config.h"
@@ -482,8 +482,8 @@ typedef enum _HandoverType_enum {
   ltetogeran   =   2,
   utrantolte   =   3,
   gerantolte   =   4,
-  ltetonr      =   5,
-  nrtolte      =   6
+  eps_to_5gs   =   5,
+  fivegs_to_eps =   6
 } HandoverType_enum;
 
 typedef enum _RAT_Type_enum {
@@ -5848,8 +5848,8 @@ static const value_string s1ap_HandoverType_vals[] = {
   { ltetogeran, "ltetogeran" },
   { utrantolte, "utrantolte" },
   { gerantolte, "gerantolte" },
-  { ltetonr, "ltetonr" },
-  { nrtolte, "nrtolte" },
+  { eps_to_5gs, "eps-to-5gs" },
+  { fivegs_to_eps, "fivegs-to-eps" },
   { 0, NULL }
 };
 
@@ -8341,8 +8341,8 @@ dissect_s1ap_Source_ToTarget_TransparentContainer(tvbuff_t *tvb _U_, int offset 
       utrantolte,
       gerantolte,
       ...
-      ltetonr,
-      nrtolte
+      eps_to_5gs,
+      fivegs_to_eps
       } */
       case intralte:
       /* intralte
@@ -8371,12 +8371,12 @@ dissect_s1ap_Source_ToTarget_TransparentContainer(tvbuff_t *tvb _U_, int offset 
       case gerantolte:
       /* gerantolte */
       break;
-      case ltetonr:
-      /* ltetonr */
+      case eps_to_5gs:
+      /* eps_to_5gs */
       dissect_ngap_SourceNGRANNode_ToTargetNGRANNode_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
       break;
-      case nrtolte:
-      /* nrtolte */
+      case fivegs_to_eps:
+      /* fivegs_to_eps */
       break;
       default:
       break;
@@ -8976,8 +8976,8 @@ dissect_s1ap_Target_ToSource_TransparentContainer(tvbuff_t *tvb _U_, int offset 
       utrantolte,
       gerantolte,
       ...
-      ltetonr,
-      nrtolte
+      eps_to_5gs,
+      fivegs_to_eps
       } */
       case intralte:
       /* intralte
@@ -9006,12 +9006,12 @@ dissect_s1ap_Target_ToSource_TransparentContainer(tvbuff_t *tvb _U_, int offset 
       case gerantolte:
       /* gerantolte */
       break;
-      case ltetonr:
-      /* ltetonr */
+      case eps_to_5gs:
+      /* eps_to_5gs */
       dissect_ngap_TargetNGRANNode_ToSourceNGRANNode_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
       break;
-      case nrtolte:
-      /* nrtolte */
+      case fivegs_to_eps:
+      /* fivegs_to_eps */
       break;
       default:
       break;
