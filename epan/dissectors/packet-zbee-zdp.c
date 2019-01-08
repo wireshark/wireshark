@@ -1753,7 +1753,7 @@ void proto_register_zbee_zdp(void)
             NULL, HFILL }},
 
         { &hf_zbee_zdp_nwk_desc_profile,
-        { "Profile",         "zbee_zdp.profile", FT_UINT8, BASE_HEX, NULL, 0x0F,
+        { "Profile",         "zbee_zdp.profile", FT_UINT16, BASE_HEX, NULL, 0x0F,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_profile_version,
