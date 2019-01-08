@@ -222,6 +222,9 @@ static int hf_nas_5gs_sm_session_ambr_ul = -1;
 static int hf_nas_5gs_sm_all_ssc_mode_b0 = -1;
 static int hf_nas_5gs_sm_all_ssc_mode_b1 = -1;
 static int hf_nas_5gs_sm_all_ssc_mode_b2 = -1;
+static int hf_nas_5gs_addr_mask_ipv4 = -1;
+static int hf_nas_5gs_protocol_identifier_or_next_hd = -1;
+static int hf_nas_5gs_protocol_identifier_or_next_hd_val = -1;
 
 static int ett_nas_5gs = -1;
 static int ett_nas_5gs_mm_nssai = -1;
@@ -320,6 +323,40 @@ nas5gs_get_private_data(packet_info *pinfo)
         p_add_proto_data(pinfo->pool, pinfo, proto_nas_5gs, pinfo->curr_layer_num, nas5gs_data);
     }
     return nas5gs_data;
+}
+
+static guint32
+get_ext_ambr_unit(guint32 unit, const char **unit_str)
+{
+    guint32 mult;
+
+    if (unit == 0) {
+        mult = 1;
+        *unit_str = "Unit value 0, Illegal";
+        return mult;
+    }
+    unit = unit - 1;
+
+    if (unit <= 0x05) {
+        mult = pow4(guint32, unit);
+        *unit_str = "Kbps";
+    } else if (unit <= 0x0a) {
+        mult = pow4(guint32, unit - 0x05);
+        *unit_str = "Mbps";
+    } else if (unit <= 0x0e) {
+        mult = pow4(guint32, unit - 0x07);
+        *unit_str = "Gbps";
+    } else if (unit <= 0x14) {
+        mult = pow4(guint32, unit - 0x0c);
+        *unit_str = "Tbps";
+    } else if (unit <= 0x19) {
+        mult = pow4(guint32, unit - 0x11);
+        *unit_str = "Pbps";
+    } else {
+        mult = 256;
+        *unit_str = "Pbps";
+    }
+    return mult;
 }
 
 /*
@@ -2092,10 +2129,22 @@ de_nas_5gs_sm_pdu_session_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
  */
 
 static const value_string nas_5gs_sm_qos_des_flow_opt_code_vals[] = {
+    { 0x00, "Reserved" },
     { 0x01, "Create new QoS flow description" },
     { 0x02, "Delete existing QoS flow description" },
     { 0x03, "Modify existing QoS flow description" },
     { 0,    NULL }
+};
+
+static const value_string nas_5gs_sm_param_id_values[] = {
+    { 0x01, "5QI" },
+    { 0x02, "GFBR uplink" },
+    { 0x03, "GFBR downlink" },
+    { 0x04, "MFBR uplink" },
+    { 0x05, "MFBR downlink" },
+    { 0x06, "Averaging window" },
+    { 0x07, "EPS bearer identity" },
+    { 0, NULL }
 };
 
 static guint16
@@ -2107,9 +2156,11 @@ de_nas_5gs_sm_qos_flow_des(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     proto_tree *sub_tree, *sub_tree2;
     proto_item *item;
     int i = 1, j = 1;
-    guint32 param_len;
+    guint32 param_len, param_id;
     guint32 curr_offset, start_offset;
     guint8 num_param;
+    guint32 unit, mult, ambr_val;
+    const char *unit_str;
 
     static const int * param_flags[] = {
         &hf_nas_5gs_sm_e,
@@ -2147,16 +2198,51 @@ de_nas_5gs_sm_qos_flow_des(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
             start_offset = curr_offset;
 
             /* Parameter identifier */
-            proto_tree_add_item(sub_tree2, hf_nas_5gs_sm_param_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint(sub_tree2, hf_nas_5gs_sm_param_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &param_id);
+            proto_item_append_text(item, " - %s", val_to_str_const(param_id, nas_5gs_sm_param_id_values, "Unknown"));
             curr_offset++;
             /* Length of parameter contents */
             proto_tree_add_item_ret_uint(sub_tree2, hf_nas_5gs_sm_param_len, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &param_len);
             curr_offset++;
 
             /*parameter content*/
-            proto_tree_add_item(sub_tree2, hf_nas_5gs_sm_pal_cont, tvb, curr_offset, param_len, ENC_BIG_ENDIAN);
-            curr_offset += param_len;
-
+            switch (param_id) {
+                /* 01H (5QI)*/
+            case 0x01:
+                proto_tree_add_item(sub_tree2, hf_nas_5gs_sm_pal_cont, tvb, curr_offset, param_len, ENC_BIG_ENDIAN);
+                curr_offset += param_len;
+                break;
+                /* 02H (GFBR uplink); 04H (MFBR uplink);*/
+            case 0x02:
+            case 0x04:
+                /* Unit for Session-AMBR for uplink */
+                proto_tree_add_item_ret_uint(sub_tree2, hf_nas_5gs_sm_unit_for_session_ambr_ul, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &unit);
+                curr_offset++;
+                /* Session-AMBR for downlink */
+                mult = get_ext_ambr_unit(unit, &unit_str);
+                ambr_val = tvb_get_ntohs(tvb, curr_offset);
+                proto_tree_add_uint_format_value(sub_tree2, hf_nas_5gs_sm_session_ambr_ul, tvb, curr_offset, param_len - 1,
+                    ambr_val, "%u %s (%u)", ambr_val * mult, unit_str, ambr_val);
+                curr_offset += (param_len - 1);
+                break;
+                /* 03H (GFBR downlink); 05H (MFBR downlink);*/
+            case 0x03:
+            case 0x05:
+                /* Unit for Session-AMBR for uplink */
+                proto_tree_add_item_ret_uint(sub_tree2, hf_nas_5gs_sm_unit_for_session_ambr_dl, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &unit);
+                curr_offset++;
+                /* Session-AMBR for downlink*/
+                mult = get_ext_ambr_unit(unit, &unit_str);
+                ambr_val = tvb_get_ntohs(tvb, curr_offset);
+                proto_tree_add_uint_format_value(sub_tree2, hf_nas_5gs_sm_session_ambr_dl, tvb, curr_offset, param_len - 1,
+                    ambr_val, "%u %s (%u)", ambr_val * mult, unit_str, ambr_val);
+                curr_offset += (param_len - 1);
+                break;
+            default:
+                proto_tree_add_item(sub_tree2, hf_nas_5gs_sm_pal_cont, tvb, curr_offset, param_len, ENC_BIG_ENDIAN);
+                curr_offset += param_len;
+                break;
+            }
             num_param--;
             j++;
             proto_item_set_len(item, curr_offset - start_offset);
@@ -2168,7 +2254,7 @@ de_nas_5gs_sm_qos_flow_des(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     return len;
 }
 /*
- *     9.12.4.13    QoS rules
+ *     9.11.4.13    QoS rules
  */
 
 static true_false_string tfs_nas_5gs_sm_dqr = {
@@ -2220,17 +2306,6 @@ static const value_string nas_5gs_sm_pkt_flt_dir_values[] = {
     { 0, NULL }
  };
 
-static const value_string nas_5gs_sm_param_id_values[] = {
-    { 0x01, "5QI" },
-    { 0x02, "GFBR uplink" },
-    { 0x03, "GFBR downlink" },
-    { 0x04, "MFBR uplink" },
-    { 0x05, "MFBR downlink" },
-    { 0x06, "Averaging window" },
-    { 0x07, "EPS bearer identity" },
-    { 0, NULL }
- };
-
 static const value_string nas_5gs_rule_param_cont[] = {
     { 0x0, "Reserved" },
     { 0x01, "5QI 1" },
@@ -2251,12 +2326,12 @@ de_nas_5gs_sm_qos_rules(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     gchar *add_string _U_, int string_len _U_)
 {
 
-    proto_tree *sub_tree, *sub_tree2, *sub_tree3;
+    proto_tree *sub_tree, *sub_tree2;
     proto_item *item;
     int i = 1, j = 1;
-    guint32 pf_len, pf_type, param_len;
-    guint32 length, curr_offset, start_offset, rule_start_offset;
-    guint8 num_pkt_flt, rop, num_param;
+    guint32 qos_rule_id, pf_len, pf_type;
+    guint32 length, curr_offset, start_offset;
+    guint8 num_pkt_flt, rop;
 
     static const int * pkt_flt_flags[] = {
         &hf_nas_5gs_sm_rop,
@@ -2265,24 +2340,17 @@ de_nas_5gs_sm_qos_rules(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         NULL
     };
 
-    static const int * param_flags[] = {
-        &hf_nas_5gs_sm_e,
-        &hf_nas_5gs_sm_nof_params,
-        NULL
-    };
-
     curr_offset = offset;
 
     while ((curr_offset - offset) < len) {
 
         /* QoS Rule */
-        rule_start_offset = curr_offset;
         sub_tree = proto_tree_add_subtree_format(tree, tvb, curr_offset, -1, ett_nas_5gs_sm_qos_rules, &item, "QoS rule %u", i);
 
-        /* QoS rule identifier */
-        proto_tree_add_item(sub_tree, hf_nas_5gs_sm_qos_rule_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+        /* QoS rule identifier Octet 4*/
+        proto_tree_add_item_ret_uint(sub_tree, hf_nas_5gs_sm_qos_rule_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &qos_rule_id);
         curr_offset += 1;
-        /* Length of QoS rule */
+        /* Length of QoS rule Octet 5 - 6*/
         proto_tree_add_item_ret_uint(sub_tree, hf_nas_5gs_sm_length, tvb, curr_offset, 2, ENC_BIG_ENDIAN, &length);
         curr_offset += 2;
 
@@ -2314,8 +2382,8 @@ de_nas_5gs_sm_qos_rules(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             }
         }
 
+        /* Packet filter list */
         while (num_pkt_flt > 0) {
-            /* Packet filter list */
             sub_tree2 = proto_tree_add_subtree_format(sub_tree, tvb, curr_offset, -1, ett_nas_5gs_sm_qos_rules, &item, "Packet filter %u", j);
             start_offset = curr_offset;
             if (rop == 5) {
@@ -2327,7 +2395,7 @@ de_nas_5gs_sm_qos_rules(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
                 /* "create new QoS rule", or "modify existing QoS rule and add packet filters"
                  * or "modify existing QoS rule and replace packet filters"
                  */
-                /* 0    0    Packet filter direction 1    Packet filter identifier 1*/
+                 /* 0    0    Packet filter direction 1    Packet filter identifier 1*/
                 proto_tree_add_item(sub_tree2, hf_nas_5gs_sm_pkt_flt_dir, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(sub_tree2, hf_nas_5gs_sm_pkt_flt_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
                 curr_offset++;
@@ -2342,58 +2410,57 @@ de_nas_5gs_sm_qos_rules(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
                 proto_tree_add_item_ret_uint(sub_tree2, hf_nas_5gs_sm_pf_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &pf_type);
                 curr_offset++;
                 switch (pf_type) {
+                case 1:
+                    /* Match-all type
+                     * . If the "match-all type" packet filter component is present in the packet filter, no other packet filter
+                     * component shall be present in the packet filter and the length of the packet filter contents field shall
+                     * be set to one.
+                     */
+                    curr_offset += pf_len;
+                    break;
+                case 16:
+                    /* For "IPv4 remote address type", the packet filter component value field shall be encoded as a sequence
+                     * of a four octet IPv4 address field and a four octet IPv4 address mask field.
+                     * The IPv4 address field shall be transmitted first.
+                     */
+                    proto_tree_add_item(sub_tree2, hf_nas_5gs_sm_pdu_addr_inf_ipv4, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
+                    curr_offset += 4;
+                    proto_tree_add_item(sub_tree2, hf_nas_5gs_addr_mask_ipv4, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
+                    curr_offset += 4;
+                    proto_tree_add_item(sub_tree2, hf_nas_5gs_protocol_identifier_or_next_hd, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                    curr_offset += 1;
+                    proto_tree_add_item(sub_tree2, hf_nas_5gs_protocol_identifier_or_next_hd_val, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                    curr_offset++;
+                    break;
                 default:
-                    proto_tree_add_expert(sub_tree2, pinfo, &ei_nas_5gs_not_diss, tvb, curr_offset, pf_len - 1);
+                    proto_tree_add_expert(sub_tree2, pinfo, &ei_nas_5gs_not_diss, tvb, curr_offset, pf_len);
+                    curr_offset += pf_len;
                     break;
                 }
-                curr_offset += (pf_len - 1);
             }
             num_pkt_flt--;
             j++;
             proto_item_set_len(item, curr_offset - start_offset);
 
         }
-
-        /* 0 Spare    E    Number of parameters */
-        j = 1;
-        num_param = tvb_get_guint8(tvb, curr_offset);
-        num_param = num_param & 0x3f;
-        proto_tree_add_bitmask_list(sub_tree, tvb, curr_offset, 1, param_flags, ENC_BIG_ENDIAN);
-        curr_offset++;
-
-        while (num_param > 0) {
-            /* Parameter list */
-            sub_tree3 = proto_tree_add_subtree_format(sub_tree, tvb, curr_offset, -1, ett_nas_5gs_sm_qos_rules, &item, "Parameter %u", j);
-
-            start_offset = curr_offset;
-
-            /* Parameter identifier */
-            proto_tree_add_item(sub_tree3, hf_nas_5gs_sm_param_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+        /* QoS rule precedence (octet z+1)
+         * For the "delete existing QoS rule" operation, the QoS rule precedence value field shall not be included.
+         * For the "create new QoS rule" operation, the QoS rule precedence value field shall be included.
+         */
+        if (qos_rule_id != 2) { /* Delete existing QoS rule */
+            proto_tree_add_item(sub_tree, hf_nas_5gs_sm_qos_rule_precedence, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
             curr_offset++;
-            /* Length of parameter contents */
-            proto_tree_add_item_ret_uint(sub_tree3, hf_nas_5gs_sm_param_len, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &param_len);
-            curr_offset++;
-
-            proto_tree_add_item(sub_tree3, hf_nas_5gs_sm_pal_cont, tvb, curr_offset, param_len, ENC_BIG_ENDIAN);
-            curr_offset += param_len;
-
-            num_param--;
-            j++;
-            proto_item_set_len(item, curr_offset - start_offset);
         }
-
-        /* Qos rule precedence */
-        proto_tree_add_item(sub_tree, hf_nas_5gs_sm_qos_rule_precedence, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-        curr_offset++;
-
-        /* 0 spare 0 spare QFI */
+        /* QoS flow identifier (QFI) (bits 6 to 1 of octet z+2)
+         * For the "delete existing QoS rule" operation, the QoS flow identifier value field shall not be included.
+         * For the "create new QoS rule" operation, the QoS flow identifier value field shall be included.
+         */
+        /* Segregation bit (bit 7 of octet z+2) */
         proto_tree_add_item(sub_tree, hf_nas_5gs_sm_qfi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-        curr_offset++;
+        curr_offset += 1;
 
         i++;
-        curr_offset = rule_start_offset + length + 3;
     }
-
 
     return len;
 }
@@ -2432,44 +2499,6 @@ static const value_string nas_5gs_sm_unit_for_session_ambr_values[] = {
     { 0, NULL }
 };
 
-static guint32
-get_ext_ambr_unit(guint32 unit, const char **unit_str)
-{
-    guint32 mult;
-
-    if (unit == 0) {
-        mult = 1;
-        *unit_str = "Unit value 0, Illegal";
-        return mult;
-    }
-    unit = unit - 1;
-
-    if (unit <= 0x05) {
-        mult = pow4(guint32, unit);
-        *unit_str = "Kbps";
-    }
-    else if (unit <= 0x0a) {
-        mult = pow4(guint32, unit - 0x05);
-        *unit_str = "Mbps";
-    }
-    else if (unit <= 0x0e) {
-        mult = pow4(guint32, unit - 0x07);
-        *unit_str = "Gbps";
-    }
-    else if (unit <= 0x14) {
-        mult = pow4(guint32, unit - 0x0c);
-        *unit_str = "Tbps";
-    }
-    else if (unit <= 0x19) {
-        mult = pow4(guint32, unit - 0x11);
-        *unit_str = "Pbps";
-    }
-    else {
-        mult = 256;
-        *unit_str = "Pbps";
-    }
-    return mult;
-}
 
 guint16
 de_nas_5gs_sm_session_ambr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
@@ -5375,6 +5404,21 @@ proto_register_nas_5gs(void)
         { &hf_nas_5gs_sm_param_len,
         { "Length",   "nas_5gs.sm.param_len",
             FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_addr_mask_ipv4,
+        { "IPv4 address mask", "nas_5gs.ipv4_address_mask",
+            FT_IPv4, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_protocol_identifier_or_next_hd,
+        { "packet filter component type", "nas_5gs.protocol_identifier_or_next_hd",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_sm_pf_type_values), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_protocol_identifier_or_next_hd_val,
+        { "packet filter component value", "nas_5gs.protocol_identifier_or_next_hd_val",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_nas_5gs_sm_qos_rule_precedence,
