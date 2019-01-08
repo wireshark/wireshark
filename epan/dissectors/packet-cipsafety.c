@@ -186,7 +186,7 @@ static int hf_cip_ssupervisor_configuration_unid_macid = -1;
 static int hf_cip_ssupervisor_safety_configuration_id_ssn_timestamp = -1;
 static int hf_cip_ssupervisor_safety_configuration_id_ssn_date = -1;
 static int hf_cip_ssupervisor_safety_configuration_id_ssn_time = -1;
-static int hf_cip_ssupervisor_safety_configuration_id_macid = -1;
+static int hf_cip_ssupervisor_safety_configuration_id_sccrc = -1;
 static int hf_cip_ssupervisor_target_unid_ssn_timestamp = -1;
 static int hf_cip_ssupervisor_target_unid_ssn_date = -1;
 static int hf_cip_ssupervisor_target_unid_ssn_time = -1;
@@ -265,8 +265,6 @@ static gint ett_exception_detail_device = -1;
 static gint ett_exception_detail_manufacturer = -1;
 static gint ett_ssupervisor_configuration_unid = -1;
 static gint ett_ssupervisor_configuration_unid_ssn = -1;
-static gint ett_ssupervisor_safety_configuration_id = -1;
-static gint ett_ssupervisor_safety_configuration_id_ssn = -1;
 static gint ett_ssupervisor_target_unid = -1;
 static gint ett_ssupervisor_target_unid_ssn = -1;
 static gint ett_ssupervisor_output_cp_owners = -1;
@@ -822,13 +820,13 @@ static int dissect_s_supervisor_safety_configuration_id(packet_info *pinfo, prot
       return total_len;
    }
 
-   dissect_unid(tvb, pinfo, offset, item, "SCID SSN",
-                  hf_cip_ssupervisor_safety_configuration_id_ssn_timestamp,
-                  hf_cip_ssupervisor_safety_configuration_id_ssn_date,
-                  hf_cip_ssupervisor_safety_configuration_id_ssn_time,
-                  hf_cip_ssupervisor_safety_configuration_id_macid,
-                  ett_ssupervisor_safety_configuration_id,
-                  ett_ssupervisor_safety_configuration_id_ssn);
+   proto_tree_add_item(tree, hf_cip_ssupervisor_safety_configuration_id_sccrc, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+
+   dissect_cipsafety_ssn(tree, tvb, pinfo, offset + 4,
+      hf_cip_ssupervisor_safety_configuration_id_ssn_timestamp,
+      hf_cip_ssupervisor_safety_configuration_id_ssn_date,
+      hf_cip_ssupervisor_safety_configuration_id_ssn_time);
+
    return 10;
 }
 
@@ -2688,9 +2686,9 @@ proto_register_cipsafety(void)
         { "Safety Configuration ID SSN  (Manual) Time", "cipsafety.ssupervisor.safety_configuration_id.ssn.time",
           FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }
       },
-      { &hf_cip_ssupervisor_safety_configuration_id_macid,
-        { "Safety Configuration ID MAC ID", "cipsafety.ssupervisor.safety_configuration_id.macid",
-          FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }
+      { &hf_cip_ssupervisor_safety_configuration_id_sccrc,
+        { "Safety Configuration ID SCCRC", "cipsafety.ssupervisor.safety_configuration_id.sccrc",
+         FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }
       },
       { &hf_cip_ssupervisor_target_unid_ssn_timestamp,
         { "Target UNID SSN Timestamp", "cipsafety.ssupervisor.target_unid.ssn.timestamp",
@@ -2879,8 +2877,6 @@ proto_register_cipsafety(void)
       &ett_exception_detail_manufacturer,
       &ett_ssupervisor_configuration_unid,
       &ett_ssupervisor_configuration_unid_ssn,
-      &ett_ssupervisor_safety_configuration_id,
-      &ett_ssupervisor_safety_configuration_id_ssn,
       &ett_ssupervisor_target_unid,
       &ett_ssupervisor_target_unid_ssn,
       &ett_ssupervisor_output_cp_owners,
