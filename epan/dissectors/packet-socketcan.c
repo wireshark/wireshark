@@ -230,7 +230,7 @@ dissect_socketcanfd_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	proto_tree_add_item(can_tree, hf_can_len, tvb, CAN_LEN_OFFSET, 1, ENC_NA);
 	proto_tree_add_bitmask_list(can_tree, tvb, CANFD_FLAG_OFFSET, 1, canfd_flag_fields, ENC_NA);
-    proto_tree_add_item(can_tree, hf_can_reserved, tvb, CANFD_FLAG_OFFSET+1, 2, ENC_NA);
+	proto_tree_add_item(can_tree, hf_can_reserved, tvb, CANFD_FLAG_OFFSET+1, 2, ENC_NA);
 
 	next_tvb = tvb_new_subset_length(tvb, CAN_DATA_OFFSET, frame_len);
 
@@ -239,10 +239,10 @@ dissect_socketcanfd_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		call_data_dissector(next_tvb, pinfo, tree);
 	}
 
-    if (tvb_captured_length_remaining(tvb, CAN_DATA_OFFSET+frame_len) > 0)
-    {
-        proto_tree_add_item(can_tree, hf_can_padding, tvb, CAN_DATA_OFFSET+frame_len, -1, ENC_NA);
-    }
+	if (tvb_captured_length_remaining(tvb, CAN_DATA_OFFSET+frame_len) > 0)
+	{
+		proto_tree_add_item(can_tree, hf_can_padding, tvb, CAN_DATA_OFFSET+frame_len, -1, ENC_NA);
+	}
 
 	return tvb_captured_length(tvb);
 }
