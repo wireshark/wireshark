@@ -110,9 +110,6 @@ if(WIN32)
 
 	# XXX Add a dependency on ${_ws_lib_dir}/current_tag.txt?
 
-	# Head off any attempts to use Cygwin's Python.
-	include(LocatePythonExecutable)
-
 	# Prepopulate some ConfigureChecks values. Compilation checks
 	# on Windows can be slow.
 	set(HAVE_FCNTL_H TRUE)
