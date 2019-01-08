@@ -913,6 +913,11 @@ dissect_bssap_imei(tvbuff_t *tvb, proto_tree *tree, int offset)
     return offset + ie_len;
 
 }
+static int
+dissect_bssap_imei_dissector(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    return dissect_bssap_imei(tvb, tree, 0);
+}
 /* 18.4.9 IMEISV */
 static int
 dissect_bssap_imeisv(tvbuff_t *tvb, proto_tree *tree, int offset)
@@ -2505,6 +2510,7 @@ proto_register_bssap(void)
     proto_bssap_plus = proto_register_protocol("BSSAP2", "BSSAP2", "bssap_plus");
 
     register_dissector("bssap", dissect_bssap, proto_bssap);
+    register_dissector("bssap.imei", dissect_bssap_imei_dissector, proto_bssap);
     register_dissector("bssap_plus", dissect_bssap_plus, proto_bssap_plus);
 
     /* Required function calls to register the header fields and subtrees used */
