@@ -11,9 +11,9 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-# Directory containing tshark or wireshark.  Default current directory.
+# Directory containing tshark or wireshark.  Default: cmake run directory.
 if [ -z "$WIRESHARK_BIN_DIR" ]; then
-    WIRESHARK_BIN_DIR=.
+    WIRESHARK_BIN_DIR=run
 fi
 
 # Use tshark by default
