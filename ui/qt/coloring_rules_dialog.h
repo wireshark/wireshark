@@ -19,7 +19,6 @@
 #include <QMap>
 
 class QAbstractButton;
-class CopyFromProfileMenu;
 
 namespace Ui {
 class ColoringRulesDialog;
@@ -60,7 +59,6 @@ private:
     Ui::ColoringRulesDialog *ui;
     QPushButton *import_button_;
     QPushButton *export_button_;
-    CopyFromProfileMenu *copy_from_menu_;
     ColoringRulesModel colorRuleModel_;
     ColoringRulesDelegate colorRuleDelegate_;
 

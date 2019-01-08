@@ -11,7 +11,8 @@
 #include <ui/profile.h>
 #include <wsutil/filesystem.h>
 
-CopyFromProfileMenu::CopyFromProfileMenu(QString filename) :
+CopyFromProfileMenu::CopyFromProfileMenu(QString filename, QWidget *parent) :
+    QMenu(parent),
     filename_(filename),
     have_profiles_(false)
 {

@@ -16,8 +16,6 @@
 #include <ui/qt/models/uat_model.h>
 #include <ui/qt/models/uat_delegate.h>
 
-class CopyFromProfileMenu;
-
 namespace Ui {
 class UatFrame;
 }
@@ -43,7 +41,6 @@ private:
 
     UatModel *uat_model_;
     UatDelegate *uat_delegate_;
-    CopyFromProfileMenu *copy_from_menu_;
     struct epan_uat *uat_;
 
     void checkForErrorHint(const QModelIndex &current, const QModelIndex &previous);

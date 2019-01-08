@@ -32,7 +32,6 @@ UatDialog::UatDialog(QWidget *parent, epan_uat *uat) :
     ui(new Ui::UatDialog),
     uat_model_(NULL),
     uat_delegate_(NULL),
-    copy_from_menu_(NULL),
     uat_(uat)
 {
     ui->setupUi(this);
@@ -77,7 +76,6 @@ UatDialog::~UatDialog()
     delete ui;
     delete uat_delegate_;
     delete uat_model_;
-    delete copy_from_menu_;
 }
 
 void UatDialog::setUat(epan_uat *uat)
@@ -97,11 +95,11 @@ void UatDialog::setUat(epan_uat *uat)
 
         if (uat->from_profile) {
             QPushButton *copy_button = ui->buttonBox->addButton(tr("Copy from"), QDialogButtonBox::ActionRole);
-            copy_from_menu_ = new CopyFromProfileMenu(uat->filename);
-            copy_button->setMenu(copy_from_menu_);
+            CopyFromProfileMenu *copy_from_menu = new CopyFromProfileMenu(uat->filename, copy_button);
+            copy_button->setMenu(copy_from_menu);
             copy_button->setToolTip(tr("Copy entries from another profile."));
-            copy_button->setEnabled(copy_from_menu_->haveProfiles());
-            connect(copy_from_menu_, SIGNAL(triggered(QAction *)), this, SLOT(copyFromProfile(QAction *)));
+            copy_button->setEnabled(copy_from_menu->haveProfiles());
+            connect(copy_from_menu, SIGNAL(triggered(QAction *)), this, SLOT(copyFromProfile(QAction *)));
         }
 
         QString abs_path = gchar_free_to_qstring(uat_get_actual_filename(uat_, FALSE));

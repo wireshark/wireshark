@@ -20,7 +20,7 @@ class CopyFromProfileMenu : public QMenu
     Q_OBJECT
 
 public:
-    explicit CopyFromProfileMenu(QString filename);
+    explicit CopyFromProfileMenu(QString filename, QWidget *parent = 0);
     ~CopyFromProfileMenu() { }
 
     bool haveProfiles();

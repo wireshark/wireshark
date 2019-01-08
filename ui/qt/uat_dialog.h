@@ -20,7 +20,6 @@
 
 class QComboBox;
 class QPushButton;
-class CopyFromProfileMenu;
 
 struct epan_uat;
 
@@ -60,7 +59,6 @@ private:
     UatDelegate *uat_delegate_;
     QPushButton *ok_button_;
     QPushButton *help_button_;
-    CopyFromProfileMenu *copy_from_menu_;
     struct epan_uat *uat_;
 
     void checkForErrorHint(const QModelIndex &current, const QModelIndex &previous);

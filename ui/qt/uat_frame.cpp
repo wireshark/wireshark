@@ -34,7 +34,6 @@ UatFrame::UatFrame(QWidget *parent) :
     ui(new Ui::UatFrame),
     uat_model_(NULL),
     uat_delegate_(NULL),
-    copy_from_menu_(NULL),
     uat_(NULL)
 {
     ui->setupUi(this);
@@ -68,7 +67,6 @@ UatFrame::~UatFrame()
     delete ui;
     delete uat_delegate_;
     delete uat_model_;
-    delete copy_from_menu_;
 }
 
 void UatFrame::setUat(epan_uat *uat)
@@ -86,10 +84,10 @@ void UatFrame::setUat(epan_uat *uat)
         }
 
         if (uat->from_profile) {
-            copy_from_menu_ = new CopyFromProfileMenu(uat_->filename);
-            ui->copyFromProfileButton->setMenu(copy_from_menu_);
-            ui->copyFromProfileButton->setEnabled(copy_from_menu_->haveProfiles());
-            connect(copy_from_menu_, SIGNAL(triggered(QAction *)), this, SLOT(copyFromProfile(QAction *)));
+            CopyFromProfileMenu *copy_from_menu = new CopyFromProfileMenu(uat_->filename, ui->copyFromProfileButton);
+            ui->copyFromProfileButton->setMenu(copy_from_menu);
+            ui->copyFromProfileButton->setEnabled(copy_from_menu->haveProfiles());
+            connect(copy_from_menu, SIGNAL(triggered(QAction *)), this, SLOT(copyFromProfile(QAction *)));
         }
 
         QString abs_path = gchar_free_to_qstring(uat_get_actual_filename(uat_, FALSE));

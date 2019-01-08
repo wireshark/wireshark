@@ -42,7 +42,6 @@
 ColoringRulesDialog::ColoringRulesDialog(QWidget *parent, QString add_filter) :
     GeometryStateDialog(parent),
     ui(new Ui::ColoringRulesDialog),
-    copy_from_menu_(NULL),
     colorRuleModel_(palette().color(QPalette::Text), palette().color(QPalette::Base), this),
     colorRuleDelegate_(this)
 {
@@ -85,11 +84,11 @@ ColoringRulesDialog::ColoringRulesDialog(QWidget *parent, QString add_filter) :
     export_button_->setToolTip(tr("Save filters in a file."));
 
     QPushButton *copy_button = ui->buttonBox->addButton(tr("Copy from"), QDialogButtonBox::ActionRole);
-    copy_from_menu_ = new CopyFromProfileMenu(COLORFILTERS_FILE_NAME);
-    copy_button->setMenu(copy_from_menu_);
+    CopyFromProfileMenu *copy_from_menu = new CopyFromProfileMenu(COLORFILTERS_FILE_NAME, copy_button);
+    copy_button->setMenu(copy_from_menu);
     copy_button->setToolTip(tr("Copy coloring rules from another profile."));
-    copy_button->setEnabled(copy_from_menu_->haveProfiles());
-    connect(copy_from_menu_, SIGNAL(triggered(QAction *)), this, SLOT(copyFromProfile(QAction *)));
+    copy_button->setEnabled(copy_from_menu->haveProfiles());
+    connect(copy_from_menu, SIGNAL(triggered(QAction *)), this, SLOT(copyFromProfile(QAction *)));
 
     QString abs_path = gchar_free_to_qstring(get_persconffile_path(COLORFILTERS_FILE_NAME, TRUE));
     if (file_exists(abs_path.toUtf8().constData())) {
@@ -118,7 +117,6 @@ ColoringRulesDialog::ColoringRulesDialog(QWidget *parent, QString add_filter) :
 
 ColoringRulesDialog::~ColoringRulesDialog()
 {
-    delete copy_from_menu_;
     delete ui;
 }
 

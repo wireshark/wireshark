@@ -34,7 +34,6 @@ class QCPBars;
 class QCPGraph;
 class QCPItemTracer;
 class QCustomPlot;
-class CopyFromProfileMenu;
 
 // GTK+ sets this to 100000 (NUM_IO_ITEMS)
 const int max_io_items_ = 250000;
@@ -159,7 +158,6 @@ signals:
 
 private:
     Ui::IOGraphDialog *ui;
-    CopyFromProfileMenu *copy_from_menu_;
 
     //Model and delegate were chosen over UatFrame because add/remove/copy
     //buttons would need realignment (UatFrame has its own)
