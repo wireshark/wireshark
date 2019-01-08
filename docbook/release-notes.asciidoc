@@ -19,42 +19,13 @@ used for troubleshooting, analysis, development and education.
 
 The following vulnerabilities have been fixed:
 
-* wssalink:2019-01[]
-The 6LoWPAN dissector could crash.
-// * Buildbot crash output: randpkt-2018-10-18-13414.pcap.
-wsbuglink:15217[].
-cveidlink:2019-5716[].
-// Fixed in master: 62e81562e4
-// Fixed in master-2.6: 2b2eea1793
-// Fixed in master-2.4: n/a
-
-* wssalink:2019-02[]
-The P_MUL dissector could crash.
-// * Buildbot crash output: fuzz-2018-12-05-10088.pcap.
-wsbuglink:15337[].
-cveidlink:2019-5717[].
-// Fixed in master: 3cccd4ec5b
-// Fixed in master-2.6: 3caa4cde0d
-// Fixed in master-2.4: bf9272a92f
-
-* wssalink:2019-03[]
-The RTSE dissector and other dissectors could crash.
-// * Wireshark heap out-of-bounds read in get_t61_string.
-wsbuglink:15373[].
-cveidlink:2019-5718[].
-// Fixed in master: 3aad1ef236
-// Fixed in master-2.6: 9b4a937c88
-// Fixed in master-2.4: cd09cb5cfb
-
-* wssalink:2019-04[]
-The ISAKMP dissector could crash.
-// * Wireshark NULL pointer dereference in dissect_transform.
-wsbuglink:15374[].
-cveidlink:2019-5719[].
-// Fixed in master: c9cfae7fec
-// Fixed in master-2.6: cd4b3f5d69
-// Fixed in master-2.4: b5b02f2a9b
-
+* wssalink:2019-06[]
+A dissector went awry.
+wsbuglink:xxxx[].
+// cveidlink:2019-xxxx[].
+// Fixed in master: xxxx
+// Fixed in master-2.6: xxxx
+// Fixed in master-2.4: xxxx
 
 The following bugs have been fixed:
 
@@ -63,32 +34,6 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark convinced you to switch seats on the plane while neglecting to tell you that its seat was noticeably moist.
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.6.7rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do ./tools/gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
-
-* console.lua not found in a folder with non-ASCII characters in its name. wsbuglink:15118[].
-
-* Disabling 'Update list of packets in real time.' will generally trigger crash after three start capture, stop capture cycles. wsbuglink:15263[].
-
-* UDP Multicast Stream double counts. wsbuglink:15271[].
-
-* text2pcap et al. set snaplength to 64kiB-1, while processing frames of 256kiB. wsbuglink:15292[].
-
-* Builds without libpcap fail if the libpcap headers aren't installed. wsbuglink:15317[].
-
-* TCAP AnalogRedirectRecord parameter incorrectly coded as mandatory in QualReq_rr message. wsbuglink:15350[].
-
-* macOS DMG appears to have duplicate files. wsbuglink:15361[].
-
-* Wireshark jumps behind other windows when opening UAT dialogs. wsbuglink:15366[].
-
-* Pathnames containing non-ASCII characters are mangled in error dialogs on Windows. wsbuglink:15367[].
-
-* Executing `-z http,stat -r file.pcapng` throws a segmentation fault. wsbuglink:15369[].
-
-* IS-41 TCAP RegistrationNotification Invoke has borderCellAccess parameter coded as tag 50 (as denyAccess) but should be 58. wsbuglink:15372[].
-
-* In DNS statistics, response times > 1 sec not included. wsbuglink:15382[].
-
-* GTPv2 APN dissect problem. wsbuglink:15383[].
 
 === New and Updated Features
 
@@ -107,21 +52,6 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
-6LoWPAN
-ANSI MAP
-DNP3
-DNS
-GSM A
-GTP
-GTPv2
-IMF
-ISAKMP
-ISObus VT
-Kerberos
-P_MUL
-RTSE
-S7COMM
-TCAP
 --
 
 === New and Updated Capture File Support
