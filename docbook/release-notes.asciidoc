@@ -121,6 +121,7 @@ Kerberos
 P_MUL
 RTSE
 S7COMM
+TCAP
 --
 
 === New and Updated Capture File Support
