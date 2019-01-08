@@ -114,7 +114,7 @@ int DataPrinter::hexChars()
     return (row_width * chars_per_byte) + ((row_width - 1) / separatorInterval());
 }
 
-QString DataPrinter::hexTextDump(const QByteArray printData, bool showText)
+QString DataPrinter::hexTextDump(const QByteArray printData, bool showASCII)
 {
     QString clipboard_text;
 
@@ -125,12 +125,13 @@ QString DataPrinter::hexTextDump(const QByteArray printData, bool showText)
     while ( cnt < printData.length() )
     {
         byteStr += QString(" %1").arg((uint8_t) printData[cnt], 2, 16, QChar('0'));
-        if ( showText )
+        if ( showASCII )
         {
             QChar ch(printData[cnt]);
-            if (!ch.isPrint())
-                ch = '.';
-            dataStr += ch;
+            if (g_ascii_isprint(printData[cnt]))
+                dataStr += printData[cnt];
+            else
+                dataStr += '.';
         }
         cnt++;
     }
@@ -146,7 +147,7 @@ QString DataPrinter::hexTextDump(const QByteArray printData, bool showText)
         clipboard_text += QString("%1  ").arg(offset, 4, 16, QChar('0'));
         clipboard_text += byteStr.mid(offset * 3, byteLineLength_ * 3);
 
-        if ( showText )
+        if ( showASCII )
         {
             /* separation bytes for byte and text */
             clipboard_text += QString(3, ' ');
