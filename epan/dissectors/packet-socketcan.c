@@ -23,16 +23,6 @@
 #include "packet-sll.h"
 #include "packet-socketcan.h"
 
-/* controller area network (CAN) kernel definitions
- * These masks are usually defined within <linux/can.h> but are not
- * available on non-Linux platforms; that's the reason for the
- * redefinitions below
- *
- * special address description flags for the CAN_ID */
-#define CAN_EFF_FLAG 0x80000000 /* EFF/SFF is set in the MSB */
-#define CAN_RTR_FLAG 0x40000000 /* remote transmission request */
-#define CAN_ERR_FLAG 0x20000000 /* error frame */
-
 void proto_register_socketcan(void);
 void proto_reg_handoff_socketcan(void);
 
@@ -114,6 +104,7 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		can_id.id = raw_can_id & CAN_SFF_MASK;
 		can_flags[0] = &hf_can_ident_std;
 	}
+	can_id.raw_id = raw_can_id;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CAN");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -215,6 +206,7 @@ dissect_socketcanfd_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		can_id.id = raw_can_id & CAN_SFF_MASK;
 		can_flags_fd[0] = &hf_can_ident_std;
 	}
+	can_id.raw_id = raw_can_id;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CANFD");
 	col_clear(pinfo->cinfo, COL_INFO);
