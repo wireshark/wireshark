@@ -1,20 +1,18 @@
 #
-# - Find unix commands from cygwin
+# - Find XSLTPROC
 # This module looks for some usual Unix commands.
 #
 
 include(FindChocolatey)
-include(FindCygwin)
 
 # Strawberry Perl ships with xsltproc but no DocBook XML files, which
-# is detrimental to our interests. Search for the Chocolatey and Cygwin
+# is detrimental to our interests. Search for the Chocolatey
 # versions first, and un-find xsltproc if needed.
 find_program(XSLTPROC_EXECUTABLE
   NAMES
     xsltproc
   HINTS
     ${CHOCOLATEY_BIN_PATH}
-    ${CYGWIN_INSTALL_PATH}/bin
   PATHS
     /usr/local/bin
     /sbin
@@ -43,29 +41,7 @@ set (_common_xsltproc_args
     --stringparam html.stylesheet ws.css
     )
 
-if (WIN32 AND NOT "${CYGWIN_INSTALL_PATH}" STREQUAL "" AND ${XSLTPROC_EXECUTABLE} MATCHES "${CYGWIN_INSTALL_PATH}")
-    FIND_PROGRAM(CYGPATH_EXECUTABLE
-        NAMES cygpath
-        PATHS ${CYGWIN_INSTALL_PATH}/bin
-    )
-    MACRO( TO_XSLTPROC_COMPATIBLE_PATH _cmake_path _result )
-        execute_process(
-            COMMAND ${CYGPATH_EXECUTABLE} -u ${_cmake_path}
-            OUTPUT_VARIABLE _cygwin_path
-        )
-        # cygpath adds a linefeed.
-        string(STRIP "${_cygwin_path}" _cygwin_path)
-
-        set( ${_result} ${_cygwin_path} )
-    ENDMACRO()
-
-    TO_XSLTPROC_COMPATIBLE_PATH( ${CMAKE_CURRENT_SOURCE_DIR} _xsltproc_current_source_dir )
-    TO_XSLTPROC_COMPATIBLE_PATH( ${CMAKE_CURRENT_BINARY_DIR} _xsltproc_current_binary_dir )
-
-    set ( _xsltproc_path "${_xsltproc_current_source_dir}:${_xsltproc_current_binary_dir}:${_xsltproc_current_binary_dir}/wsluarm_src")
-else()
-    set ( _xsltproc_path "${CMAKE_CURRENT_SOURCE_DIR}:${CMAKE_CURRENT_BINARY_DIR}:${CMAKE_CURRENT_BINARY_DIR}/wsluarm_src")
-endif()
+set(_xsltproc_path "${CMAKE_CURRENT_SOURCE_DIR}:${CMAKE_CURRENT_BINARY_DIR}:${CMAKE_CURRENT_BINARY_DIR}/wsluarm_src")
 
 # Workaround for parallel build issue with msbuild.
 # https://gitlab.kitware.com/cmake/cmake/issues/16767

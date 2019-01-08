@@ -1865,7 +1865,6 @@ if(WIN32)
 
 	# We have a lot of choices for creating zip archives:
 	# - 7z, WinZip, etc., which require a separate download+install.
-	# - Cygwin's zip, which requires Cygwin.
 	# - "CMake -E tar cz", which creates a tar file.
 	# - CPack, which requires a CPack configuration.
 	# - PowerShell via PSCX or System.IO.Compression.FileSystem.

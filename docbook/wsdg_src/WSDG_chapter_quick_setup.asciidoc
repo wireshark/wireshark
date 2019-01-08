@@ -117,12 +117,12 @@ upgrade Qt to newer versions.
 https://chocolatey.org/[Chocolatey] is a native package manager for
 Windows. There are https://chocolatey.org/packages[packages] for most of
 the software listed below. Along with traditional Windows packages it
-supports the Python Package Index and Cygwin.
+supports the Python Package Index.
 
-Chocolatey tends to install packages into its own path (%ChocolateyInstall%).
-In most cases this is OK, but in some instances (Python in particular)
-this might not be what you want. You can install Chocolatey packages
-using the command `choco install`.
+Chocolatey tends to install packages into its own path (%ChocolateyInstall%),
+although packages are free to use their own preferences (Python for example is
+installed to `C:\Python37`). You can install Chocolatey packages using the
+command `choco install` (or its shorthand, `cinst`).
 
 [source,cmd]
 ----
@@ -130,70 +130,7 @@ using the command `choco install`.
 > choco install -y winflexbison
 > rem Git, CMake, Perl, Python, etc are also required, but can be installed
 > rem via their respective installation packages.
-> choco install -y git cmake
-> rem Choose one of Strawberry...
-> choco install -y strawberryperl
-> rem ...or ActiveState Perl
-> choco install -y activeperl
-> rem This will likely install Python in a non-standard location, but
-> rem should otherwise work.
-> choco install -y python3
-----
-
-[[ChSetupCygwin]]
-
-==== Optional: Install Cygwin
-
-On 32-bit Windows, http://www.cygwin.com/setup-x86.exe[download the
-32-bit Cygwin installer] and start it. On 64-bit Windows,
-http://www.cygwin.com/setup-x86_64.exe[download the 64-bit Cygwin
-installer] and start it.
-
-[NOTE]
-.Cygwin is no longer required
-====
-In the past the Wireshark development toolchain depended on Cygwin, but
-it it no longer required. Although you can often use the Cygwin version
-of a particular tool for Wireshark development that's not always the
-case.
-====
-
-At the "Select Packages" page, you'll need to select
-some additional packages which are not installed by default.
-Navigate to the required Category/Package row and, if the package
-has a "Skip" item in the "New" column, click on the "Skip" item
-so it shows a version number for:
-
-* Devel/bison (or install Win flex-bison -- see Chocolatey above)
-
-* Devel/flex (or install Win flex-bison -- see Chocolatey above)
-
-* Devel/git (recommended, but it's also available via Chocolatey -- see the Git discussion below)
-
-* Interpreters/perl
-
-* Utils/patch (only if needed) (may be Devel/patch instead)
-
-* Text/docbook-xml45 (only needed if you're building the documenation)
-
-After clicking the btn:[Next] button several times, the setup
-will then download and install the selected packages (this
-may take a while).
-
-Alternatively you can install Cygwin and its packages using Chocolatey:
-
-----
-PS$>choco install -y cygwin
-PS$>choco install -y cyg-get
-----
-//PS$>choco install sed [...] -source cygwin
-
-Chocolatey installs Cygwin in _C:\tools\cygwin_ by default.
-
-You can directly download packages via `cyg-get`
-
-----
-PS$>cyg-get docbook-xml45 [...]
+> choco install -y git cmake strawberryperl python3
 ----
 
 [[ChSetupPython]]
@@ -202,10 +139,6 @@ PS$>cyg-get docbook-xml45 [...]
 
 Get a Python 3.x installer from https://python.org/download/[] and
 install Python into the default location (_C:\Python37_).
-
-Why is this recommended? Cygwin’s _/usr/bin/python_ is a Cygwin-specific
-symbolic link which cannot be run from Windows. The native package is faster
-as well.
 
 Alternatively you can install Python using Chocolatey:
 
@@ -382,14 +315,6 @@ Set the following environment variables, using paths and values suitable for you
 > set QT5_BASE_DIR=C:\Qt{backslash}{qt-lts-version}.5\msvc2017_64
 > rem Append a custom string to the package version. Optional.
 > set WIRESHARK_VERSION_EXTRA=-YourExtraVersionInfo
-----
-
-If your Cygwin installation path is not automatically detected by CMake,
-you can explicitly specify it with the following environment variable:
-
-----
-> rem Chocolatey installs Cygwin in an odd location
-> set WIRESHARK_CYGWIN_INSTALL_PATH=C:\ProgramData\chocolatey\lib\Cygwin\tools\cygwin
 ----
 
 If you are using a version of Visual Studio earlier than VS2017 then you must set an additional env var,

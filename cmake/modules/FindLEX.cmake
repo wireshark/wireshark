@@ -2,17 +2,15 @@
 # - Find flex/lex executable
 #
 
-INCLUDE(FindCygwin)
-INCLUDE(FindChocolatey)
+include(FindChocolatey)
 
-FIND_PROGRAM(LEX_EXECUTABLE
+find_program(LEX_EXECUTABLE
   NAMES
     win_flex
     flex
     lex
   PATHS
     ${CHOCOLATEY_BIN_PATH}
-    ${CYGWIN_INSTALL_PATH}/bin
     /bin
     /usr/bin
     /usr/local/bin

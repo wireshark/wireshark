@@ -17,8 +17,7 @@ as Linux, but Windows ports are also available. Therefore the tools are
 available in different "flavours":
 
 * UNIX and UNIX-like platforms: The tools should be commonly available
-  on the supported UNIX and UNIX-like platforms and for Windows
-  platforms by using an emulation layer such as Cygwin.
+  on the supported UNIX and UNIX-like platforms. Cygwin is unsupported.
 * Windows native: Some tools are available as native Windows tools, no
   special emulation is required.  Many of these tools can be installed
   (and updated) using http://chocolatey.org[Chocolatey], a Windows
@@ -70,29 +69,6 @@ _C:\ProgramData\chocolatey_ or _C:\Tools_. If you want to avoid this
 behavior you'll probabaly want to install Python using the packages from
 python.org.
 
-[[ChToolsCygwin]]
-
-=== Windows: Cygwin
-
-Cygwin provides a lot of UNIX based tools on the Windows platform. It
-uses a UNIX emulation layer which might be a bit slower compared to the
-native Windows tools, but at an acceptable level. The installation and
-update is pretty easy and done through a single utility, _setup-x86.exe_
-for 32-bit Windows and _setup-x86_64.exe_ for 64-bit Windows. However,
-it can also be problematic. Cygwin utilities have a non-standard view of
-the filesystem, and sometimes things don't work as expected. For
-example, many files in _/usr/bin_ are symlinks which can't be run
-directly from Windows.
-
-[NOTE]
-.Cygwin is no longer required
-====
-In the past the Wireshark development toolchain depended on Cygwin, but
-it it no longer required. Although you can often use the Cygwin version
-of a particular tool for Wireshark development that's not always the
-case.
-====
-
 [[ChToolsCMake]]
 
 === CMake
@@ -142,7 +118,7 @@ optional libraries have xxx_INCLUDE_DIR and xxx_LIB flags that let you
 control their discovery.
 
 
--DPYTHON_EXECUTABLE=c:/Python36/python:: Force the Python path. Useful on Windows since Cygwin’s _/usr/bin/python_ is a symlink.
+-DPYTHON_EXECUTABLE=c:/Python36/python:: Force the Python path.
 
 -DENABLE_APPLICATION_BUNDLE=OFF:: Disable building an application bundle (Wireshark.app) on macOS
 
@@ -666,8 +642,6 @@ Python 3.4 and later is required. Python 2.7 is no longer supported.
 
 Python is either included or available as a package on most UNIX-like platforms.
 Windows packages and source are available at https://python.org/download/[].
-The Cygwin Python package is *not* recommended since _/usr/bin/python_ is
-a symbolic link, which causes confusion outside Cygwin.
 
 You can also use Chocolatey to install Python:
 
@@ -843,7 +817,7 @@ https://chocolatey.org/[Chocolatey] package. Note that the executable is named
 _win_bison_.
 
 Native packages are available from other sources such as
-http://gnuwin32.sourceforge.net/packages/bison.htm[GnuWin] and Cygwin.
+http://gnuwin32.sourceforge.net/packages/bison.htm[GnuWin].
 They aren't officially supported but _should_ work.
 
 [[ChToolsFlex]]
