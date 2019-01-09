@@ -161,7 +161,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     proto_item *message_type_item;
     tvbuff_t*   next_tvb = NULL;
     guint8      pci, message_type;
-    can_identifier_t* can_info;
+    can_identifier_t can_id;
     iso15765_identifier_t* iso15765_info;
     guint8      ae = (addressing == NORMAL_ADDRESSING)?0:1;
     guint8      frag_id_low = 0;
@@ -170,17 +170,23 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     gboolean    fragmented = FALSE;
     gboolean    complete = FALSE;
 
+    DISSECTOR_ASSERT(data);
+    can_id = *((can_identifier_t*)data);
+
+    if (can_id.id & (CAN_ERR_FLAG | CAN_RTR_FLAG))
+    {
+        /* Error and RTR frames are not for us. */
+        return 0;
+    }
+
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISO15765");
     col_clear(pinfo->cinfo,COL_INFO);
-
-    DISSECTOR_ASSERT(data);
-    can_info = ((can_identifier_t*)data);
 
     iso15765_info = (iso15765_identifier_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_iso15765, 0);
 
     if (!iso15765_info) {
         iso15765_info = wmem_new0(wmem_file_scope(), iso15765_identifier_t);
-        iso15765_info->id = can_info->id;
+        iso15765_info->id = can_id.id;
         iso15765_info->last = FALSE;
         p_add_proto_data(wmem_file_scope(), pinfo, proto_iso15765, 0, iso15765_info);
     }

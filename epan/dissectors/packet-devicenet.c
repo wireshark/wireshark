@@ -31,7 +31,7 @@
 void proto_register_devicenet(void);
 void proto_reg_handoff_devicenet(void);
 
-#define DEVICENET_CANID_MASK            0x7FF
+#define DEVICENET_CANID_MASK            CAN_SFF_MASK
 #define MESSAGE_GROUP_1_ID              0x3FF
 #define MESSAGE_GROUP_1_MSG_MASK        0x3C0
 #define MESSAGE_GROUP_1_MAC_ID_MASK     0x03F
@@ -418,13 +418,9 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     DISSECTOR_ASSERT(data);
     can_id = *((struct can_identifier*)data);
 
-    /* XXX - Not sure this is correct.  But the capture provided in
-    * bug 8564 provides CAN ID in little endian format, so this makes it work */
-    can_id.id = GUINT32_SWAP_LE_BE(can_id.id);
-
-    if (can_id.id & (~DEVICENET_CANID_MASK))
+    if (can_id.id & (CAN_ERR_FLAG | CAN_RTR_FLAG | CAN_EFF_FLAG))
     {
-        /* Not for us */
+        /* Error, RTR and frames with extended ids are not for us. */
         return 0;
     }
 
@@ -551,7 +547,10 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             /* TODO: Handle fragmentation */
             proto_tree_add_expert(content_tree, pinfo, &ei_devicenet_frag_not_supported, tvb, offset, -1);
 
-            col_set_str(pinfo->cinfo, COL_INFO, try_val_to_str((tvb_get_guint8(tvb, offset) & 0xC0) >> 6, devicenet_fragmented_message_type_vals));
+            col_set_str(pinfo->cinfo, COL_INFO,
+                        val_to_str_const((tvb_get_guint8(tvb, offset) & 0xC0) >> 6,
+                                         devicenet_fragmented_message_type_vals,
+                                         "Unknown fragmented message type"));
         }
         else
         {

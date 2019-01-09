@@ -14,7 +14,6 @@
 struct can_identifier
 {
 	guint32 id;
-	guint32 raw_id;
 };
 
 typedef struct can_identifier can_identifier_t;
@@ -28,6 +27,8 @@ typedef struct can_identifier can_identifier_t;
 #define CAN_EFF_FLAG 0x80000000 /* EFF/SFF is set in the MSB */
 #define CAN_RTR_FLAG 0x40000000 /* remote transmission request */
 #define CAN_ERR_FLAG 0x20000000 /* error frame */
+
+#define CAN_FLAG_MASK (CAN_EFF_FLAG | CAN_RTR_FLAG | CAN_ERR_FLAG)
 
 #define CAN_EFF_MASK 0x1FFFFFFF /* extended frame format (EFF) has a 29 bit identifier */
 #define CAN_SFF_MASK 0x000007FF /* standard frame format (SFF) has a 11 bit identifier */

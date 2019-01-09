@@ -1083,6 +1083,12 @@ dissect_canopen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     DISSECTOR_ASSERT(data);
     can_id = *((struct can_identifier*)data);
 
+    if (can_id.id & (CAN_ERR_FLAG | CAN_RTR_FLAG | CAN_EFF_FLAG))
+    {
+        /* Error, RTR and frames with extended ids are not for us. */
+        return 0;
+    }
+
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "CANopen");
     col_clear(pinfo->cinfo, COL_INFO);
 

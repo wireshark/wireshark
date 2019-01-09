@@ -1228,7 +1228,8 @@ dissect_obdii_response(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tre
 static int
 dissect_obdii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	struct can_identifier *can_id = (struct can_identifier *) data;
+	struct can_identifier can_id;
+	guint32               can_id_only;
 	struct obdii_packet_info oinfo;
 
 	proto_tree *obdii_tree;
@@ -1237,8 +1238,15 @@ dissect_obdii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	guint8 data_bytes;
 	guint8 mode;
 
+	DISSECTOR_ASSERT(data);
+	can_id      = *((struct can_identifier *) data);
+	can_id_only = can_id.id & ~CAN_FLAG_MASK;
+
 	/* validate */
-	if (!can_id || !(can_id->id == ODBII_CAN_QUERY_ID || (can_id->id >= ODBII_CAN_RESPONSE_ID_MIN && can_id->id <= ODBII_CAN_RESPONSE_ID_MAX)))
+	if (can_id.id & (CAN_ERR_FLAG | CAN_RTR_FLAG))
+		return 0;
+
+	if (!(can_id_only == ODBII_CAN_QUERY_ID || (can_id_only >= ODBII_CAN_RESPONSE_ID_MIN && can_id_only <= ODBII_CAN_RESPONSE_ID_MAX)))
 		return 0;
 
 	if (tvb_reported_length(tvb) != 8)
@@ -1247,13 +1255,13 @@ dissect_obdii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	data_bytes = tvb_get_guint8(tvb, 0);
 	mode = tvb_get_guint8(tvb, 1);
 
-	if (can_id->id == ODBII_CAN_QUERY_ID)
+	if (can_id_only == ODBII_CAN_QUERY_ID)
 	{
 		if (!(data_bytes == 2 || data_bytes == 3))
 			return 0;
 	}
 
-	if ((can_id->id >= ODBII_CAN_RESPONSE_ID_MIN && can_id->id <= ODBII_CAN_RESPONSE_ID_MAX))
+	if ((can_id_only >= ODBII_CAN_RESPONSE_ID_MIN && can_id_only <= ODBII_CAN_RESPONSE_ID_MAX))
 	{
 		if (!(data_bytes >= 3 && data_bytes <= 7))
 			return 0;
@@ -1274,14 +1282,14 @@ dissect_obdii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
 	memset(&oinfo, 0, sizeof(oinfo));
 	oinfo.pinfo = pinfo;
-	oinfo.can_id = can_id->id;
+	oinfo.can_id = can_id_only;
 	oinfo.data_bytes = data_bytes;
 	oinfo.mode = mode;
 
-	if (can_id->id == ODBII_CAN_QUERY_ID)
+	if (can_id_only == ODBII_CAN_QUERY_ID)
 		return dissect_obdii_query(tvb, &oinfo, obdii_tree);
 
-	if (can_id->id >= ODBII_CAN_RESPONSE_ID_MIN && can_id->id <= ODBII_CAN_RESPONSE_ID_MAX)
+	if (can_id_only >= ODBII_CAN_RESPONSE_ID_MIN && can_id_only <= ODBII_CAN_RESPONSE_ID_MAX)
 		return dissect_obdii_response(tvb, &oinfo, obdii_tree);
 
 	/* never here */
