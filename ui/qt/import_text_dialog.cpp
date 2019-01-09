@@ -94,7 +94,7 @@ ImportTextDialog::ImportTextDialog(QWidget *parent) :
         if ((wtap_wtap_encap_to_pcap_encap(encap) > 0) && !wtap_encap_requires_phdr(encap)) {
             const char *name;
             /* If it has got a name */
-            if ((name = wtap_encap_string(encap)))
+            if ((name = wtap_encap_description(encap)))
             {
                 ti_ui_->encapComboBox->addItem(name, QVariant(encap));
             }

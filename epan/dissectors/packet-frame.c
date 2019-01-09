@@ -983,7 +983,7 @@ proto_register_frame(void)
 
 		for (i = 0; i < encap_count; i++) {
 			arr[i].value = i;
-			arr[i].strptr = wtap_encap_string(i);
+			arr[i].strptr = wtap_encap_description(i);
 		}
 		arr[encap_count].value = 0;
 		arr[encap_count].strptr = NULL;

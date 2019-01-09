@@ -193,19 +193,19 @@ merge_callback(merge_event event, int num,
             fprintf(stderr, "          defaulting to WTAP_ENCAP_PER_PACKET\n");
             fprintf(stderr, "          %s had type %s (%s)\n",
                     in_files[0].filename,
-                    wtap_encap_string(first_frame_type),
-                    wtap_encap_short_string(first_frame_type));
+                    wtap_encap_description(first_frame_type),
+                    wtap_encap_name(first_frame_type));
             fprintf(stderr, "          %s had type %s (%s)\n",
                     in_files[i].filename,
-                    wtap_encap_string(this_frame_type),
-                    wtap_encap_short_string(this_frame_type));
+                    wtap_encap_description(this_frame_type),
+                    wtap_encap_name(this_frame_type));
             break;
           }
         }
       }
       fprintf(stderr, "mergecap: selected frame_type %s (%s)\n",
-              wtap_encap_string(num),
-              wtap_encap_short_string(num));
+              wtap_encap_description(num),
+              wtap_encap_name(num));
       break;
 
     case MERGE_EVENT_READY_TO_MERGE:

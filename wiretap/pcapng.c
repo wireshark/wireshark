@@ -774,7 +774,7 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
 
     pcapng_debug("pcapng_read_if_descr_block: IDB link_type %u (%s), snap %u",
                   link_type,
-                  wtap_encap_string(if_descr_mand->wtap_encap),
+                  wtap_encap_description(if_descr_mand->wtap_encap),
                   if_descr_mand->snap_len);
 
     if (if_descr_mand->snap_len > wtap_max_snaplen_for_encap(if_descr_mand->wtap_encap)) {
@@ -1283,7 +1283,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 
     pcapng_debug("pcapng_read_packet_block: encapsulation = %d (%s), pseudo header size = %d.",
                   iface_info.wtap_encap,
-                  wtap_encap_string(iface_info.wtap_encap),
+                  wtap_encap_description(iface_info.wtap_encap),
                   pcap_get_phdr_size(iface_info.wtap_encap, &wblock->rec->rec_header.packet_header.pseudo_header));
     wblock->rec->rec_header.packet_header.interface_id = packet.interface_id;
     wblock->rec->rec_header.packet_header.pkt_encap = iface_info.wtap_encap;
@@ -4314,7 +4314,7 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtap_block_t int_data, int *err)
 
     pcapng_debug("pcapng_write_if_descr_block: encap = %d (%s), snaplen = %d",
                   mand_data->wtap_encap,
-                  wtap_encap_string(mand_data->wtap_encap),
+                  wtap_encap_description(mand_data->wtap_encap),
                   mand_data->snap_len);
 
     link_type = wtap_wtap_encap_to_pcap_encap(mand_data->wtap_encap);
@@ -4403,7 +4403,7 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
 
     pcapng_debug("%s: encap = %d (%s) rec type = %u", G_STRFUNC,
                   rec->rec_header.packet_header.pkt_encap,
-                  wtap_encap_string(rec->rec_header.packet_header.pkt_encap),
+                  wtap_encap_description(rec->rec_header.packet_header.pkt_encap),
                   rec->rec_type);
 
     switch (rec->rec_type) {
@@ -4558,7 +4558,7 @@ int pcapng_dump_can_write_encap(int wtap_encap)
 {
     pcapng_debug("pcapng_dump_can_write_encap: encap = %d (%s)",
                   wtap_encap,
-                  wtap_encap_string(wtap_encap));
+                  wtap_encap_description(wtap_encap));
 
     /* Per-packet encapsulation is supported. */
     if (wtap_encap == WTAP_ENCAP_PER_PACKET)

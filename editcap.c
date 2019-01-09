@@ -900,9 +900,9 @@ list_encap_types(FILE *stream) {
     encaps = (struct string_elem *)g_malloc(sizeof(struct string_elem) * WTAP_NUM_ENCAP_TYPES);
     fprintf(stream, "editcap: The available encapsulation types for the \"-T\" flag are:\n");
     for (i = 0; i < WTAP_NUM_ENCAP_TYPES; i++) {
-        encaps[i].sstr = wtap_encap_short_string(i);
+        encaps[i].sstr = wtap_encap_name(i);
         if (encaps[i].sstr != NULL) {
-            encaps[i].lstr = wtap_encap_string(i);
+            encaps[i].lstr = wtap_encap_description(i);
             list = g_slist_insert_sorted(list, &encaps[i], string_nat_compare);
         }
     }
@@ -1307,7 +1307,7 @@ main(int argc, char *argv[])
             break;
 
         case 'T':
-            out_frame_type = wtap_short_string_to_encap(optarg);
+            out_frame_type = wtap_name_to_encap(optarg);
             if (out_frame_type < 0) {
                 fprintf(stderr, "editcap: \"%s\" isn't a valid encapsulation type\n\n",
                         optarg);
@@ -1433,8 +1433,8 @@ main(int argc, char *argv[])
     if (skip_radiotap == TRUE && wtap_file_encap(wth) != WTAP_ENCAP_IEEE_802_11_RADIOTAP) {
         fprintf(stderr, "editcap: can't skip radiotap header because input file is incorrect\n");
         fprintf(stderr, "editcap: expected '%s', input is '%s'\n",
-                wtap_encap_string(WTAP_ENCAP_IEEE_802_11_RADIOTAP),
-                wtap_encap_string(wtap_file_type_subtype(wth)));
+                wtap_encap_description(WTAP_ENCAP_IEEE_802_11_RADIOTAP),
+                wtap_encap_description(wtap_file_type_subtype(wth)));
         ret = INVALID_OPTION;
         goto clean_exit;
     }

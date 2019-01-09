@@ -2055,11 +2055,11 @@ WS_DLL_PUBLIC
 void wtap_free_extensions_list(GSList *extensions);
 
 WS_DLL_PUBLIC
-const char *wtap_encap_string(int encap);
+const char *wtap_encap_name(int encap);
 WS_DLL_PUBLIC
-const char *wtap_encap_short_string(int encap);
+const char *wtap_encap_description(int encap);
 WS_DLL_PUBLIC
-int wtap_short_string_to_encap(const char *short_name);
+int wtap_name_to_encap(const char *short_name);
 
 WS_DLL_PUBLIC
 const char* wtap_tsprec_string(int tsprec);
@@ -2109,7 +2109,7 @@ WS_DLL_PUBLIC
 void wtap_deregister_file_type_subtype(const int file_type_subtype);
 
 WS_DLL_PUBLIC
-int wtap_register_encap_type(const char* name, const char* short_name);
+int wtap_register_encap_type(const char *description, const char *name);
 
 /*** Cleanup the interal library structures */
 WS_DLL_PUBLIC

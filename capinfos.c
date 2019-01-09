@@ -576,7 +576,7 @@ print_stats(const gchar *filename, capture_info *cf_info)
 
   /* Build printable strings for various stats */
   file_type_string = wtap_file_type_subtype_string(cf_info->file_type);
-  file_encap_string = wtap_encap_string(cf_info->file_encap);
+  file_encap_string = wtap_encap_description(cf_info->file_encap);
 
   if (filename)           printf     ("File name:           %s\n", filename);
   if (cap_file_type) {
@@ -597,7 +597,7 @@ print_stats(const gchar *filename, capture_info *cf_info)
       for (i=0; i<WTAP_NUM_ENCAP_TYPES; i++) {
         if (cf_info->encap_counts[i] > 0)
           printf("                     %s (%d)\n",
-                 wtap_encap_string(i), cf_info->encap_counts[i]);
+                 wtap_encap_description(i), cf_info->encap_counts[i]);
       }
     }
   }
@@ -799,7 +799,7 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
 
   /* Build printable strings for various stats */
   file_type_string = wtap_file_type_subtype_string(cf_info->file_type);
-  file_encap_string = wtap_encap_string(cf_info->file_encap);
+  file_encap_string = wtap_encap_description(cf_info->file_encap);
 
   if (filename) {
     putquote();
