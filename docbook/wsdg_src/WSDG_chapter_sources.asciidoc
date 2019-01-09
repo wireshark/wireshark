@@ -999,16 +999,139 @@ directories such as _CMakeLists.txt_.
 
 [[ChSrcBinary]]
 
-=== Binary packaging
+=== Binary Packaging
 
 Delivering binary packages makes it much easier for the end-users to
 install Wireshark on their target system. This section will explain how
 the binary packages are made.
 
+[[ChSrcVersioning]]
+
+==== Packaging Guidelines
+
+The following guidelines should be followed by anyone creating and
+distributing third-party Wireshark packages or redistributing official
+Wireshark packages.
+
+[discrete]
+===== Spelling And Capitalization
+
+Wireshark is spelled with a capital “W”, and with everything else lower
+case. “WireShark” in particular is incorrect.
+
+[discrete]
+===== Main URL
+
+The official Wireshark project URL is https://www.wireshark.org/.
+
+[discrete]
+===== Download URLs
+
+Official packages are distributed on the main web server
+(www.wireshark.org) and a
+https://www.wireshark.org/download.html#spelunking[number of download
+mirrors]. The canonical locations for packages are in the _all_versions_
+subdirectories on each server.
+
+For example, if your packaging system links to or downloads the
+source tarball and you want to download from 1.na.dl.wireshark.org,
+use
+
+https://1.na.dl.wireshark.org/download/src/all-versions/wireshark-{wireshark-version}.tar.xz
+
+instead of
+
+https://1.na.dl.wireshark.org/download/src/wireshark-{wireshark-version}.tar.xz
+
+[discrete]
+===== Artwork
+
+Logo and icon artwork can be found in the _image_ directory in the
+distribution. This is available online at
+
+{wireshark-code-browse-url};a=tree;f=image;hb=HEAD
+
+[discrete]
+===== Licensing
+
+Wireshark is released under the GNU General Public License version 2 or
+later. Make sure you and your package comply with this license.
+
+[discrete]
+===== Trademarks
+
+Wireshark and the “fin” logo are registered trademarks of the Wireshark
+Foundation. Make sure you and your package comply with trademark law.
+
+[discrete]
+===== Privileges
+
+All function calls that require elevated privileges are in dumpcap.
+
+WIRESHARK CONTAINS OVER THREE MILLION LINES OF SOURCE CODE. DO NOT RUN
+THEM AS ROOT.
+
+Warnings are displayed when Wireshark and TShark are run as root.
+
+There are two <<ChToolsCMake,configure-time options>> on non-Windows
+systems that affect the privileges a normal user needs to capture
+traffic and list interfaces:
+
+-DDUMPCAP_INSTALL_OPTION=capabilities::
+Install dumpcap with cap_net_admin and cap_net_raw capabilities. Linux
+only.
+
+-DDUMPCAP_INSTALL_OPTION=suid::
+Install dumpcap setuid root.
+
+These are necessary for non-root users to be able to capture on most
+systems, e.g. on Linux or FreeBSD if the user doesn't have permissions
+to access /dev/bpf*. Setcap installation is preferred over setuid on
+Linux. If `-DDUMPCAP_INSTALL_OPTION=capabilities` is used it will
+override any setuid settings.
+
+The `-DENABLE_CAP` option is only useful when dumpcap is installed
+setuid. If it is enabled dumpcap will try to drop any setuid privileges
+it may have while retaining the `CAP_NET_ADMIN` and `CAP_NET_RAW`
+capabilities. It is enabled by default, if the Linux capabilities
+library (on which it depends) is found.
+
+Note that enabling setcap or setuid installation allows packet capture
+for ALL users on your system. If this is not desired, you can restrict
+dumpcap execution to a specific group or user. The following two examples
+show how to restrict access using setcap and setuid respectively:
+
+[source,sh]
+----
+# groupadd -g packetcapture
+# chmod 750 /usr/bin/dumpcap
+# chgrp packetcapture /usr/bin/dumpcap
+# setcap cap_net_raw,cap_net_admin+ep /usr/bin/dumpcap
+
+# groupadd -g packetcapture
+# chgrp packetcapture /usr/bin/dumpcap
+# chmod 4750 /usr/bin/dumpcap
+----
+
+[discrete]
+===== Customization
+
+Custom version information can be added by creating a file called
+`version.conf` and running `tools/make-version.pl --set-release`. See
+`tools/make-version.pl` for details. If your package contains
+significant changes we recommend that you use this to differentiate it
+from official Wireshark releases.
+
+The Git version corresponding to each release is in `version.h`. It's
+defined as a string. If you need a numeric definition, let us know.
+
+If you have a question not addressed here, please contact
+{wireshark-dev-list-email}.
+
 
 [[ChSrcDeb]]
 
-==== Debian: .deb packages
+==== Debian: .deb Packages
 
 The Debian Package is built using dpkg-buildpackage, based on information
 found in the source tree under _debian_. See
@@ -1027,7 +1150,7 @@ to build the Debian Package.
 
 [[ChSrcRpm]]
 
-==== Red Hat: .rpm packages
+==== Red Hat: .rpm Packages
 
 You can build an RPM package using the `rpm-package` target. The package
 version is derived from the current git HEAD, so you must build from a
@@ -1088,7 +1211,7 @@ _packaging/rpm/wireshark.spec.in_.
 
 [[ChSrcOSX]]
 
-==== macOS: .dmg packages
+==== macOS: .dmg Packages
 
 The macOS Package is built using macOS packaging tools, based on information
 found in the source tree under _packaging/macosx_. It must be built using
@@ -1103,7 +1226,7 @@ to build the macOS Package.
 
 [[ChSrcNSIS]]
 
-==== Windows: NSIS .exe installer
+==== Windows: NSIS .exe Installer
 
 The _Nullsoft Install System_ is a free installer generator for Windows
 systems. Instructions on installing it can be found in <<ChToolsNSIS>>.
@@ -1134,7 +1257,7 @@ the _packaging/nsis_ directory in your build directory.
 
 [[ChSrcPortableApps]]
 
-==== Windows: PortableApps .paf.exe package
+==== Windows: PortableApps .paf.exe Package
 
 _PortableApps.com_ is an environment that lets users run popular applications
 from portable media such as flash drives and cloud drive services.
