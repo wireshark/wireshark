@@ -1,4 +1,4 @@
--- 3GPP TS 38.463 V15.1.0 (2018-09)
+-- 3GPP TS 38.463 V15.2.0 (2018-12)
 -- **************************************************************
 --
 -- Elementary Procedure definitions
@@ -47,16 +47,18 @@ FROM E1AP-CommonDataTypes
 	BearerContextModificationFailure,
 	BearerContextModificationRequired,
 
-BearerContextModificationConfirm,
+	BearerContextModificationConfirm,
 	BearerContextReleaseCommand,
 	BearerContextReleaseComplete,
 	BearerContextReleaseRequest,
 	BearerContextInactivityNotification,
 	DLDataNotification,
+	ULDataNotification,
 	DataUsageReport,
 	E1ReleaseRequest,
 	E1ReleaseResponse,
 	GNB-CU-UP-CounterCheckRequest,
+	GNB-CU-UP-StatusIndication,
 	PrivateMessage
 
 FROM E1AP-PDU-Contents
@@ -74,8 +76,10 @@ FROM E1AP-PDU-Contents
 	id-bearerContextReleaseRequest,
 	id-bearerContextInactivityNotification,
 	id-dLDataNotification,
+	id-uLDataNotification,
 	id-dataUsageReport,
 	id-gNB-CU-UP-CounterCheck,
+	id-gNB-CU-UP-StatusIndication,
 	id-privateMessage
 
 FROM E1AP-Constants;
@@ -165,8 +169,10 @@ E1AP-ELEMENTARY-PROCEDURES-CLASS-2 E1AP-ELEMENTARY-PROCEDURE ::= {
 	bearerContextReleaseRequest				|
 	bearerContextInactivityNotification		|
 	dLDataNotification						|
+	uLDataNotification						|
 	dataUsageReport							|
 	gNB-CU-UP-CounterCheck					|
+	gNB-CU-UP-StatusIndication			|
 	privateMessage							,
 	...
 }
@@ -277,6 +283,12 @@ dLDataNotification E1AP-ELEMENTARY-PROCEDURE ::= {
 	CRITICALITY				ignore
 }
 
+uLDataNotification E1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		ULDataNotification
+	PROCEDURE CODE			id-uLDataNotification
+	CRITICALITY				ignore
+}
+
 dataUsageReport E1AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		DataUsageReport
 	PROCEDURE CODE			id-dataUsageReport
@@ -287,6 +299,12 @@ gNB-CU-UP-CounterCheck E1AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		GNB-CU-UP-CounterCheckRequest
 	PROCEDURE CODE			id-gNB-CU-UP-CounterCheck
 	CRITICALITY				ignore
+}
+
+gNB-CU-UP-StatusIndication 	E1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		GNB-CU-UP-StatusIndication
+	PROCEDURE CODE			id-gNB-CU-UP-StatusIndication
+	CRITICALITY			ignore
 }
 
 privateMessage E1AP-ELEMENTARY-PROCEDURE ::= {

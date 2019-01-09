@@ -7,8 +7,11 @@ ALIGNED
 #.END
 
 #.USE_VALS_EXT
+CauseRadioNetwork
 ProcedureCode
 ProtocolIE-ID
+T-Reordering
+ULDataSplitThreshold
 
 #.EXPORTS
 
@@ -133,6 +136,8 @@ id-bearerContextInactivityNotification ProcedureCode
 id-dLDataNotification                  ProcedureCode
 id-dataUsageReport                     ProcedureCode
 id-gNB-CU-UP-CounterCheck              ProcedureCode
+id-gNB-CU-UP-StatusIndication          ProcedureCode
+id-uLDataNotification                  ProcedureCode
 
 # ProtocolIE-ID
 id-Cause                                        ProtocolIE-ID
@@ -198,6 +203,12 @@ id-UE-Inactivity-Timer                          ProtocolIE-ID
 id-System-GNB-CU-UP-CounterCheckRequest         ProtocolIE-ID
 id-DRBs-Subject-To-Counter-Check-List-EUTRAN    ProtocolIE-ID
 id-DRBs-Subject-To-Counter-Check-List-NG-RAN    ProtocolIE-ID
+id-PPI                                          ProtocolIE-ID
+id-gNB-CU-UP-Capacity                           ProtocolIE-ID
+id-GNB-CU-UP-OverloadInformation                ProtocolIE-ID
+id-UEDLMaximumIntegrityProtectedDataRate        ProtocolIE-ID
+id-PDU-Session-To-Notify-List                   ProtocolIE-ID
+
 #.END
 
 #.REGISTER
@@ -266,6 +277,11 @@ Inactivity-Timer                             N e1ap.ies id-UE-Inactivity-Timer
 System-GNB-CU-UP-CounterCheckRequest         N e1ap.ies id-System-GNB-CU-UP-CounterCheckRequest
 DRBs-Subject-To-Counter-Check-List-EUTRAN    N e1ap.ies id-DRBs-Subject-To-Counter-Check-List-EUTRAN
 DRBs-Subject-To-Counter-Check-List-NG-RAN    N e1ap.ies id-DRBs-Subject-To-Counter-Check-List-NG-RAN
+PPI                                          N e1ap.ies id-PPI
+GNB-CU-UP-Capacity                           N e1ap.ies id-gNB-CU-UP-Capacity
+GNB-CU-UP-OverloadInformation                N e1ap.ies id-GNB-CU-UP-OverloadInformation
+BitRate                                      N e1ap.ies id-UEDLMaximumIntegrityProtectedDataRate
+PDU-Session-To-Notify-List                   N e1ap.ies id-PDU-Session-To-Notify-List
 
 #E1AP-PROTOCOL-EXTENSION
 
@@ -314,9 +330,13 @@ BearerContextInactivityNotification      N e1ap.proc.imsg id-bearerContextInacti
 
 DLDataNotification                       N e1ap.proc.imsg id-dLDataNotification
 
+ULDataNotification                       N e1ap.proc.imsg id-uLDataNotification
+
 DataUsageReport                          N e1ap.proc.imsg id-dataUsageReport
 
 GNB-CU-UP-CounterCheckRequest            N e1ap.proc.imsg id-gNB-CU-UP-CounterCheck
+
+GNB-CU-UP-StatusIndication               N e1ap.proc.imsg id-gNB-CU-UP-StatusIndication
 
 PrivateMessage                           N e1ap.proc.imsg id-privateMessage
 
@@ -453,8 +473,12 @@ Inactivity-Timer DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "BearerContextInactivityNotification");
 #.FN_HDR DLDataNotification
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DLDataNotification");
+#.FN_HDR ULDataNotification
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ULDataNotification");
 #.FN_HDR DataUsageReport
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DataUsageReport");
+#.FN_HDR GNB-CU-UP-CounterCheckRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNB-CU-UP-CounterCheckRequest");
 #.FN_HDR GNB-CU-UP-CounterCheckRequest
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNB-CU-UP-CounterCheckRequest");
 #.FN_HDR PrivateMessage

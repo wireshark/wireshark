@@ -1,6 +1,6 @@
 /* packet-e1ap.c
  * Routines for E-UTRAN E1 Application Protocol (E1AP) packet dissection
- * Copyright 2018, Pascal Quantin <pascal.quantin@gmail.com>
+ * Copyright 2018-2019, Pascal Quantin <pascal.quantin@gmail.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -8,7 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 38.463 V15.1.0 (2018-09)
+ * References: 3GPP TS 38.463 V15.2.0 (2018-12)
  */
 
 #include "config.h"
@@ -27,8 +27,7 @@
 #define PSNAME "E1AP"
 #define PFNAME "e1ap"
 
-// port number not assigned by IANA yet
-//#define SCTP_PORT_E1AP 38462
+#define SCTP_PORT_E1AP 38462
 
 void proto_register_e1ap(void);
 void proto_reg_handoff_e1ap(void);
@@ -220,7 +219,7 @@ void proto_register_e1ap(void) {
 void
 proto_reg_handoff_e1ap(void)
 {
-  //dissector_add_uint_with_preference("sctp.port", SCTP_PORT_E1AP, e1ap_handle);
+  dissector_add_uint_with_preference("sctp.port", SCTP_PORT_E1AP, e1ap_handle);
   dissector_add_uint("sctp.ppi", E1AP_PROTOCOL_ID, e1ap_handle);
 #include "packet-e1ap-dis-tab.c"
 }

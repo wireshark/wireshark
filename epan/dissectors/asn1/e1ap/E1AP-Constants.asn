@@ -1,4 +1,4 @@
--- 3GPP TS 38.463 V15.1.0 (2018-09)
+-- 3GPP TS 38.463 V15.2.0 (2018-12)
 -- **************************************************************
 --
 -- Constant definitions
@@ -44,6 +44,9 @@ id-bearerContextInactivityNotification							ProcedureCode ::= 13
 id-dLDataNotification											ProcedureCode ::= 14
 id-dataUsageReport												ProcedureCode ::= 15
 id-gNB-CU-UP-CounterCheck										ProcedureCode ::= 16
+id-gNB-CU-UP-StatusIndication									ProcedureCode ::= 17
+id-uLDataNotification											ProcedureCode ::= 18
+
 
 -- **************************************************************
 --
@@ -52,7 +55,7 @@ id-gNB-CU-UP-CounterCheck										ProcedureCode ::= 16
 -- **************************************************************
 
 maxnoofErrors								INTEGER ::= 256
-maxnoofSPLMNs								INTEGER ::= 6
+maxnoofSPLMNs								INTEGER ::= 12
 maxnoofSliceItems							INTEGER ::= 1024
 maxnoofIndividualE1ConnectionsToReset		INTEGER ::= 65536
 maxnoofEUTRANQOSParameters					INTEGER ::= 256
@@ -61,7 +64,7 @@ maxnoofDRBs									INTEGER	::= 32
 maxnoofNRCGI								INTEGER	::= 512
 maxnoofPDUSessionResource					INTEGER	::= 256
 maxnoofQoSFlows								INTEGER	::= 64
-maxnoofUPParameters							INTEGER	::= 4
+maxnoofUPParameters							INTEGER	::= 8
 maxnoofCellGroups							INTEGER	::= 4
 maxnooftimeperiods							INTEGER	::= 2
 maxnoofTNLAssociations						INTEGER ::= 32
@@ -136,5 +139,11 @@ id-UE-Inactivity-Timer											ProtocolIE-ID ::= 59
 id-System-GNB-CU-UP-CounterCheckRequest							ProtocolIE-ID ::= 60
 id-DRBs-Subject-To-Counter-Check-List-EUTRAN					ProtocolIE-ID ::= 61
 id-DRBs-Subject-To-Counter-Check-List-NG-RAN					ProtocolIE-ID ::= 62
+id-PPI																ProtocolIE-ID ::= 63
+id-gNB-CU-UP-Capacity												ProtocolIE-ID ::= 64
+id-GNB-CU-UP-OverloadInformation									ProtocolIE-ID ::= 65
+id-UEDLMaximumIntegrityProtectedDataRate							ProtocolIE-ID ::= 66
+id-PDU-Session-To-Notify-List										ProtocolIE-ID ::= 67
+
 
 END
