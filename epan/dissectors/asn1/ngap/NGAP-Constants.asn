@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V15.1.0 (2018-09)
+-- 3GPP TS 38.413 V15.2.0 (2018-12)
 -- 9.4.7	Constant Definitions
 -- **************************************************************
 --
@@ -121,7 +121,7 @@ maxProtocolIEs							INTEGER ::= 65535
 	maxnoofE-RABs						INTEGER ::= 256
 	maxnoofErrors						INTEGER ::= 256
 	maxnoofForbTACs						INTEGER ::= 4096
-	maxnoofMultiConnectivities			INTEGER ::= 8
+	maxnoofMultiConnectivities			INTEGER ::= 4
 	maxnoofNGConnectionsToReset			INTEGER ::= 65536
 	maxnoofPDUSessions					INTEGER ::= 256
 	maxnoofPLMNs						INTEGER ::= 12
@@ -262,7 +262,8 @@ maxProtocolIEs							INTEGER ::= 65535
 	id-UEAggregateMaximumBitRate							ProtocolIE-ID ::= 110
 	id-UE-associatedLogicalNG-connectionList				ProtocolIE-ID ::= 111
 	id-UEContextRequest										ProtocolIE-ID ::= 112
-	id-UEIdentityIndexValue									ProtocolIE-ID ::= 113
+	--WS extension
+	id-Unknown-113											ProtocolIE-ID ::= 113
 	id-UE-NGAP-IDs											ProtocolIE-ID ::= 114
 	id-UEPagingIdentity										ProtocolIE-ID ::= 115
 	id-UEPresenceInAreaOfInterestList						ProtocolIE-ID ::= 116
@@ -275,5 +276,21 @@ maxProtocolIEs							INTEGER ::= 65535
 	id-WarningMessageContents								ProtocolIE-ID ::= 123
 	id-WarningSecurityInfo									ProtocolIE-ID ::= 124
 	id-WarningType											ProtocolIE-ID ::= 125
+	id-AdditionalUL-NGU-UP-TNLInformation					ProtocolIE-ID ::= 126
+	id-DataForwardingNotPossible							ProtocolIE-ID ::= 127
+	id-DL-NGU-UP-TNLInformation								ProtocolIE-ID ::= 128
+	id-NetworkInstance										ProtocolIE-ID ::= 129
+	id-PDUSessionAggregateMaximumBitRate					ProtocolIE-ID ::= 130
+	id-PDUSessionResourceFailedToModifyListModCfm			ProtocolIE-ID ::= 131
+	id-PDUSessionResourceFailedToSetupListCxtFail			ProtocolIE-ID ::= 132
+	id-PDUSessionResourceListCxtRelReq						ProtocolIE-ID ::= 133
+	id-PDUSessionType										ProtocolIE-ID ::= 134
+	id-QosFlowAddOrModifyRequestList						ProtocolIE-ID ::= 135
+	id-QosFlowSetupRequestList								ProtocolIE-ID ::= 136
+	id-QosFlowToReleaseList									ProtocolIE-ID ::= 137
+	id-SecurityIndication									ProtocolIE-ID ::= 138
+	id-UL-NGU-UP-TNLInformation								ProtocolIE-ID ::= 139
+	id-UL-NGU-UP-TNLModifyList								ProtocolIE-ID ::= 140
+	id-WarningAreaCoordinates								ProtocolIE-ID ::= 141
 
 END

@@ -494,16 +494,30 @@ PortNumber TYPE = FT_UINT16 DISPLAY = BASE_DEC
     }
   }
 
-#.FN_BODY UERadioCapabilityForPaging VAL_PTR = &parameter_tvb
+#.FN_BODY UERadioCapabilityForPagingOfNR VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb = NULL;
 
 %(DEFAULT_BODY)s
   if (parameter_tvb && nr_rrc_ue_radio_paging_info_handle) {
     proto_tree *subtree;
 
-    subtree = proto_item_add_subtree(actx->created_item, ett_ngap_UERadioCapabilityForPaging);
+    subtree = proto_item_add_subtree(actx->created_item, ett_ngap_UERadioCapabilityForPagingOfNR);
     call_dissector(nr_rrc_ue_radio_paging_info_handle, parameter_tvb, actx->pinfo, subtree);
   }
+
+#.FN_BODY UERadioCapabilityForPagingOfEUTRA VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+
+%(DEFAULT_BODY)s
+  if (parameter_tvb && lte_rrc_ue_radio_paging_info_handle) {
+    proto_tree *subtree;
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_ngap_UERadioCapabilityForPagingOfEUTRA);
+    call_dissector(lte_rrc_ue_radio_paging_info_handle, parameter_tvb, actx->pinfo, subtree);
+  }
+
+#.TYPE_ATTR
+RecommendedCellItem/timeStayedInCell DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 
 #.FN_BODY UERadioCapability VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb = NULL;
@@ -599,6 +613,9 @@ PortNumber TYPE = FT_UINT16 DISPLAY = BASE_DEC
     proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 2, fields, ENC_BIG_ENDIAN);
   }
 
+#.TYPE_ATTR
+ExpectedUEMovingTrajectoryItem/timeStayedInCell DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+
 #.FN_BODY LastVisitedEUTRANCellInformation VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb = NULL;
   proto_tree *subtree;
@@ -633,6 +650,17 @@ TrafficLoadReductionIndication DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_
 
 #.TYPE_ATTR
 PeriodicRegistrationUpdateTimer TYPE=FT_UINT8 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ngap_PeriodicRegistrationUpdateTimer_fmt)
+
+#.FN_BODY NASSecurityParametersFromNGRAN VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    proto_tree *subtree;
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_ngap_NASSecurityParametersFromNGRAN);
+    proto_tree_add_item(subtree, hf_ngap_NASSecurityParametersFromNGRAN_sn, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
+  }
 
 #.ASSIGN_VALUE_TO_TYPE  # NGAP does not have constants assigned to types, they are pure INTEGER
 # ProcedureCode
@@ -804,7 +832,6 @@ id-TraceCollectionEntityIPAddress             ProtocolIE-ID
 id-UEAggregateMaximumBitRate                  ProtocolIE-ID
 id-UE-associatedLogicalNG-connectionList      ProtocolIE-ID
 id-UEContextRequest                           ProtocolIE-ID
-id-UEIdentityIndexValue                       ProtocolIE-ID
 id-UE-NGAP-IDs                                ProtocolIE-ID
 id-UEPagingIdentity                           ProtocolIE-ID
 id-UEPresenceInAreaOfInterestList             ProtocolIE-ID
@@ -817,6 +844,22 @@ id-WarningAreaList                            ProtocolIE-ID
 id-WarningMessageContents                     ProtocolIE-ID
 id-WarningSecurityInfo                        ProtocolIE-ID
 id-WarningType                                ProtocolIE-ID
+id-AdditionalUL-NGU-UP-TNLInformation         ProtocolIE-ID
+id-DataForwardingNotPossible                  ProtocolIE-ID
+id-DL-NGU-UP-TNLInformation                   ProtocolIE-ID
+id-NetworkInstance                            ProtocolIE-ID
+id-PDUSessionAggregateMaximumBitRate          ProtocolIE-ID
+id-PDUSessionResourceFailedToModifyListModCfm ProtocolIE-ID
+id-PDUSessionResourceFailedToSetupListCxtFail ProtocolIE-ID
+id-PDUSessionResourceListCxtRelReq            ProtocolIE-ID
+id-PDUSessionType                             ProtocolIE-ID
+id-QosFlowAddOrModifyRequestList              ProtocolIE-ID
+id-QosFlowSetupRequestList                    ProtocolIE-ID
+id-QosFlowToReleaseList                       ProtocolIE-ID
+id-SecurityIndication                         ProtocolIE-ID
+id-UL-NGU-UP-TNLInformation                   ProtocolIE-ID
+id-UL-NGU-UP-TNLModifyList                    ProtocolIE-ID
+id-WarningAreaCoordinates                     ProtocolIE-ID
 #.END
 
 
@@ -937,7 +980,6 @@ TransportLayerAddress                      N ngap.ies id-TraceCollectionEntityIP
 UEAggregateMaximumBitRate                  N ngap.ies id-UEAggregateMaximumBitRate
 UE-associatedLogicalNG-connectionList      N ngap.ies id-UE-associatedLogicalNG-connectionList
 UEContextRequest                           N ngap.ies id-UEContextRequest
-UEIdentityIndexValue                       N ngap.ies id-UEIdentityIndexValue
 UE-NGAP-IDs                                N ngap.ies id-UE-NGAP-IDs
 UEPagingIdentity                           N ngap.ies id-UEPagingIdentity
 UEPresenceInAreaOfInterestList             N ngap.ies id-UEPresenceInAreaOfInterestList
@@ -950,6 +992,21 @@ WarningAreaList                            N ngap.ies id-WarningAreaList
 WarningMessageContents                     N ngap.ies id-WarningMessageContents
 WarningSecurityInfo                        N ngap.ies id-WarningSecurityInfo
 WarningType                                N ngap.ies id-WarningType
+UPTransportLayerInformation                N ngap.ies id-AdditionalUL-NGU-UP-TNLInformation
+DataForwardingNotPossible                  N ngap.ies id-DataForwardingNotPossible
+NetworkInstance                            N ngap.ies id-NetworkInstance
+PDUSessionAggregateMaximumBitRate          N ngap.ies id-PDUSessionAggregateMaximumBitRate
+PDUSessionResourceFailedToModifyListModCfm N ngap.ies id-PDUSessionResourceFailedToModifyListModCfm
+PDUSessionResourceFailedToSetupListCxtFail N ngap.ies id-PDUSessionResourceFailedToSetupListCxtFail
+PDUSessionResourceListCxtRelReq            N ngap.ies id-PDUSessionResourceListCxtRelReq
+PDUSessionType                             N ngap.ies id-PDUSessionType
+QosFlowAddOrModifyRequestList              N ngap.ies id-QosFlowAddOrModifyRequestList
+QosFlowSetupRequestList                    N ngap.ies id-QosFlowSetupRequestList
+QosFlowList                                N ngap.ies id-QosFlowToReleaseList
+SecurityIndication                         N ngap.ies id-SecurityIndication
+UPTransportLayerInformation                N ngap.ies id-UL-NGU-UP-TNLInformation
+UL-NGU-UP-TNLModifyList                    N ngap.ies id-UL-NGU-UP-TNLModifyList
+WarningAreaCoordinates                     N ngap.ies id-WarningAreaCoordinates
 
 #NGAP-ELEMENTARY-PROCEDURE
 
